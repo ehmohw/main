@@ -194,7 +194,8 @@ for f in glob.glob(f'{DP}/data/**/*.json', recursive=True):
         if not os.path.exists(png): E(f'{rel}: missing texture {png}')
         else:
             from PIL import Image
-            if Image.open(png).size != (16 * d['width'], 16 * d['height']): E(f'{rel}: texture size {Image.open(png).size}')
+            sz = Image.open(png).size          # 16 px a block, or an HD multiple of it (x2, x4, x8) - same aspect
+            if not any(sz == (16 * k * d['width'], 16 * k * d['height']) for k in (1, 2, 4, 8)): E(f'{rel}: texture size {sz}')
     if '/banner_pattern/' in rel:
         if set(d) != {'asset_id', 'translation_key'}: E(f'{rel}: banner pattern keys {sorted(d)}')
         ns_, pth = d['asset_id'].split(':')

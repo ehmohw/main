@@ -1,8 +1,30 @@
-# Black Market — Phase 2 TEST build v2.13 (Java 26.3)
+# Black Market — Phase 2 TEST build v2.14 (Java 26.3)
 
-This is a **test build**: all of Phase 1.20 plus the seven boss dungeons. It **replaces** `BlackMarket_DP.zip`, so don't load both. Use a test world (or a copy of your world) until it has been played through once.
+This is a **test build**: all of Phase 1.21 plus the seven boss dungeons. It **replaces** `BlackMarket_DP.zip`, so don't load both. Use a test world (or a copy of your world) until it has been played through once.
 
 Install it like Phase 1.6. Put `BlackMarket_Phase2_TEST_DP.zip` in `datapacks`, then use `BlackMarket_Phase2_TEST_RP.zip` as the resource pack. `SHA1.txt` has the resource pack hash for `server.properties`. The dungeons only generate in **new chunks**.
+
+## New in 2.14
+
+Includes everything in Phase 1.21 (the Vorn Skiff, the Dawnbringer set, the Vorn Mining Drill, rat portraits, the newcomers' lectern, the Whisker Lantern and the Rat King's Crown upgrade; see the main README). On the TEST build:
+- **Rat portraits, banners and shields** are also in every dungeon's hidden chest (1 in 2) and spoils vault (about 1 in 7).
+- **The Skiff and the Drill respect the dungeons.** Neither works within 40 blocks of a dungeon, nor in the Hollow Throne. A skiff that strays near one sets its rider down.
+
+**Access audit: nobody gets soft-locked**
+- **Getting in.** A new tool, `tools/access.py`, places a dungeon in real terrain on the 26.3 server (using its real terrain adaptation) and scans the blocks. It then proves a player can **walk** from the surrounding land or sea to the entrance: stepping up, falling, climbing ladders and swimming, with no digging and no block placing.
+  - **Passed:** the Brood nest, the Gilded Roost, the Frostbound Spire, the Hexbound Cathedral and Wilfrey's Keep, at 3 sites each, with Roost entrances down to y −19. Graveyard crypts passed at 3 sites too, from the surface down to the key altar.
+  - **Fixed: the Sunken Throne failed at all 3 ocean sites.** The temple often breaks the surface, and its only door is high on the tower, 14 to 22 blocks above the sea at the test sites. You had to build your way up. It now has a ladder from the sea floor up the temple wall and the tower to a ledge at the door. Temples already in your world get the same ladder the first time they load, and all six test temples (old and new) pass.
+- **Inside.** The layout verifier (`tools/verify_dungeons.py`) now runs on all seven dungeons with **0 errors**. It proves:
+  - Every puzzle's buttons, levers, targets and plates are reachable (and clickable or shootable) once the gates before it are open.
+  - Nothing further on can be reached early.
+  - Every pressure-plate path has a safe route.
+  - The altar and arena open only after the last gate.
+  - Every spoils vault and victor's vault, including the Hollow King's throne vault, can be walked up to.
+- **What "solvable" means here:** each puzzle's answer is fixed in the build and the verifier proves the controls are reachable. Nothing was hand-played.
+- **The Black Market:**
+  - Every trader is reachable on foot from the vault door.
+  - Three of them (Vinny, the Fence, Old Barnaby) were just out of reach across their counters; they now stand at them.
+  - It's still entered by digging down to its entrance tunnel. There's no adventure mode or Mining Fatigue there, so that can't lock anyone out.
 
 ## New in 2.13
 

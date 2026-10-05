@@ -344,6 +344,9 @@ def verify(B, outside='solid', base_y=0, extra_starts=()):
         gained = len([c for c in with_door - all_open if abs(c[0] - x) + abs(c[2] - z) > 1])   # ignore the doorway itself
         if gained <= 0: errs.append(f'{d}: secret door {k} opens onto nothing new')
         else: notes.append(f'secret room {k}: +{gained} standable cells')
+    # 2.14: every vault (spoils and victor's) can be walked up to once the gates are open (the Hollow's sits on the King's throne)
+    for (x, y, z, key, loot, facing) in B.meta['vaults']:
+        if not reach(all_open, x, y, z, 4.0): errs.append(f'{d}: {key} vault at {(x, y, z)} cannot be reached')
     # chests in hidden rooms must not be reachable before their door opens
     for (x, y, z, loot) in B.meta['chests']:
         if loot and '/hidden' in loot and reach(all_open, x, y, z): errs.append(f'{d}: hidden chest at {(x, y, z)} reachable without its secret door')

@@ -50,6 +50,11 @@ def build():
     B.set(7, 36, 5, 'oak_door[facing=south,half=upper,hinge=left,open=false,powered=false]')
     B.set(7, 37, 6, 'sea_lantern')
     B.entrance(7, 35, 6)
+    # 2.14: the temple often breaks the surface and its tower stands well clear of the sea - a ladder from the sea floor up the
+    # temple wall, then up the tower's north face to a ledge at the door
+    for y in range(23, 37): B.set(8, y, 4, 'ladder[facing=north,waterlogged=false]')
+    for y in range(3, 23): B.set(8, y, 3, 'ladder[facing=north,waterlogged=false]')     # ...and down the temple's own wall to the sea floor
+    B.set(7, 34, 4, 'dark_prismarine'); B.set(6, 34, 4, 'dark_prismarine'); B.set(6, 35, 4, 'sea_lantern')
 
     # ---------------- L1 Tide Hall (combat): x6..20, z6..18
     room(6, 6, 20, 18, h=7)

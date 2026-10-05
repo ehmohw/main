@@ -1,4 +1,4 @@
-# Black Market — Phase 1.20 (Java 26.3)
+# Black Market — Phase 1.21 (Java 26.3)
 
 A data pack + resource pack. No mods required, and it works alongside Fabric.
 
@@ -18,6 +18,44 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 1.21: the Vorn Skiff, the Dawnbringer set, the Mining Drill and a friendlier market
+
+Still Java 26.3. As with 1.20, anything that needs a real player was checked by the checkers, not hand-played.
+
+**The Vorn Skiff** (rare)
+- Six salvaged parts make one flying saucer.
+  - **Crash-site wreckage** holds the Hull Plating, Canopy Dome and Gravitic Coil (about 1 crate in 8).
+  - **Mothership store barrels** hold the Navigation Core, Plasma Emitter and Micro-Reactor (about 1 barrel in 20).
+  - **The Dreadnought's armory** always holds one or two parts of any kind.
+- With all six in your inventory, right-click any part to assemble the **Vorn Skiff Key**.
+- **Right-click the key** to call your skiff and climb in. It's a harnessed happy ghast in a saucer hull, about **four times faster**. Fly it like a happy ghast; sneak to get out, and it folds itself away a few seconds later.
+- **Aboard:**
+  - Right-click fires a **plasma laser** (64 blocks, 5 hearts).
+  - Right-click while looking steeply down drops a **charged TNT bomb**: twice a normal blast, one TNT from your inventory, 60-second recharge.
+- It won't fly in or near dungeons, crypts, the Hollow Throne or a Black Market, and it sets you down if you try.
+
+**The Dawnbringer set** (Madame Velour; Medallions + gold blocks): the Vampire Lord's opposite.
+- **Full set in daylight under open sky:** Strength, Haste and Fire Resistance.
+- **Sunburst:** look straight up and hold sneak for a second to **arm** it (do it again to disarm, so ordinary sneaking stays ordinary). While armed, hold sneak for 1.5 seconds. A 10-second healing sun gives Regeneration II to every player and tame creature within 8 blocks. It recharges in 5 minutes.
+
+**The Vorn Mining Drill** (Zorp: 2 Power Cells + 8 Red Xenite)
+- Hold right-click to drill in any direction, one block every other tick. Drops fly to you.
+- It runs on **Red Xenite**: each shard is 64 blocks, it refuels itself from your inventory, and the bar shows its charge.
+- The **Vorn Drill Bit** (Zorp, or sometimes the Dreadnought) upgrades it to **Mk II**. Sneak + right-click then switches **3 × 3** drilling on or off.
+- It won't bite inside dungeons, crypts or a Black Market, and leaves containers and unbreakable blocks alone.
+- Fortune's Favor's 3 × 3 mining now respects the same places.
+
+**Rat portraits**
+- The five rat sprites (Chef, Lucky, Captain, Professor, Sergeant) are now framed **2 × 2 paintings**, **banners** and **shields**.
+- They're found in crash sites and motherships (and in dungeon chests on the TEST build).
+
+**The market**
+- **Vinny, the Fence and Old Barnaby** stood two blocks behind their counters, just out of reach. They now stand at them, in existing markets too.
+- **"Newcomers, Start Here":** a lectern just inside the vault door, under a floating sign. Its book lists every trader, where they stand and what they sell.
+- **The Rat Gang HQ** (behind the mouse hole) is worth the crawl now:
+  - Capt. Cheddarbeard sells the **Whisker Lantern**. In your off hand it gives Night Vision, and every hostile mob within 20 blocks glows.
+  - His **Rat King's Crown** makes the rats bow to their king: Hero of the Village prices from every villager trader in a Black Market.
 
 ## New in 1.20: the Vorn, new goods and a tidier market
 
@@ -711,6 +749,16 @@ Hold the item to reskin in your **off hand**, then use the scroll in your **main
 - `/scoreboard players set <player> bm.stand 500` sets someone's Standing (their tier, key and portrait catch up within a second)
 - `/function bm:admin/bank_interest_on` / `bank_interest_off` turns Rat Bank interest on or off (1 Token per 50, paid at each auction)
 - `/function bm:admin/uninstall` stops all loops before you remove the pack
+
+## How 1.21 was checked
+
+- The real 26.3 server loads both packs with **0 errors**.
+- The command, NBT, structure, resource pack, trade and logic checkers report **0 errors**. That's 12,962 command lines (17,171 on the TEST build), 624 NBT blobs (773), and 703 trades (729), at item version 22.
+- **Checked live in the server:**
+  - A happy ghast with a harness accepts a rider, and primed TNT takes the fuse and blast-power fields the bomb uses.
+  - The drill's dig step mines diamond ore into a diamond.
+  - On a freshly placed market, the three traders step up to their counters (facing kept) and the newcomers' lectern and sign appear.
+- **Not hand-played:** anything that needs a real player (flying the skiff, Sunburst, drilling by hand). Those passed the static checks only.
 
 ## How 1.20 was checked
 

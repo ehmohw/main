@@ -10,6 +10,7 @@ so it keeps its data (stored XP, contents, charges, enchantments, damage) and no
 tick the button is held, and the wrapper ignores ticks that follow straight on from the last one."""
 
 HOLD = {}       # iid -> function run once per press
+HOLD_REPEAT = {}  # iid -> function run EVERY tick the button is held (#first bm.hnow = 1 on the first tick of a press) - 2.14
 
 
 def hold(anim='none', extra=None):
@@ -25,6 +26,17 @@ def generate(G):
     fn, wjson = G.fn, G.wjson
     G.FUNCS['load'][0:0] = ['scoreboard objectives add bm.huse dummy', 'scoreboard objectives add bm.hnow dummy']
     G.OBJECTIVES += ['bm.huse', 'bm.hnow']
+    for iid, func in sorted(HOLD_REPEAT.items()):
+        wjson(f'bm/advancement/hold/{iid}.json', {
+            'criteria': {'use': {'trigger': 'minecraft:using_item', 'conditions': {
+                'item': {'items': ITEMS[iid]['base'], 'predicates': {'minecraft:custom_data': G.snbt({'bm': iid})}}}}},
+            'rewards': {'function': f'bm:hold/{iid}'}})
+        fn(f'hold/{iid}', [f'advancement revoke @s only bm:hold/{iid}',
+                           'execute store result score #now bm.hnow run time query gametime',
+                           'scoreboard players operation #gap bm.hnow = #now bm.hnow', 'scoreboard players operation #gap bm.hnow -= @s bm.huse',
+                           'scoreboard players operation @s bm.huse = #now bm.hnow',
+                           'execute store success score #first bm.hnow if score #gap bm.hnow matches 3..',
+                           f'function {func}'])
     for iid, func in sorted(HOLD.items()):
         wjson(f'bm/advancement/hold/{iid}.json', {
             'criteria': {'use': {'trigger': 'minecraft:using_item', 'conditions': {
