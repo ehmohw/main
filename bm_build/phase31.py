@@ -74,10 +74,14 @@ def generate(G):
     for i, (cur, obj, nm, col) in enumerate(BANK):
         btns += [P28.btn([T('Deposit all ', 'white'), T(nm, col)], 4010 + i, width=150),
                  P28.btn(T('Take 1', 'gray'), 4020 + i, width=70), P28.btn(T('Take 10', 'gray'), 4030 + i, width=70), P28.btn(T('Take all', 'gray'), 4040 + i, width=70)]
+    rows = []                     # 2.13: every currency the bank keeps, two to a line
+    for i in range(0, len(BANK), 2):
+        parts = []
+        for cur, obj, nm, col in BANK[i:i + 2]:
+            parts += [T(('   ' if parts else '') + nm + ': ', 'gray'), T(f'$({cur})', col)]
+        rows.append(P28.body(parts))
     dlg = P28.multi([T('The Rat Bank', 'gold', bold=True), T(' - your account', 'gray')],
-                    [P28.body([T('Tokens: ', 'gray'), T('$(token)', 'gold'), T('   Lucky Tokens: ', 'gray'), T('$(lucky_token)', 'green')]),
-                     P28.body([T('Medallions: ', 'gray'), T('$(medallion)', 'light_purple'), T('   Trophies: ', 'gray'), T('$(trophy)', '#ffb300')]),
-                     P28.body([T('Kept against your name: safe from death, lava and thieves. The Dark Auction can draw on your Medallions.', 'dark_gray')], 300)],
+                    rows + [P28.body([T('Kept against your name: safe from death, lava and thieves. The Dark Auction can draw on your Medallions.', 'dark_gray')], 300)],
                     btns, columns=4)
     fn('p31/bank/dlg', [f'$dialog show @s {P28.inline(dlg)}'])
     G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 4000..4099 run return run function bm:p31/bank/act')

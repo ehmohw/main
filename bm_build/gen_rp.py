@@ -725,6 +725,8 @@ if __name__ == '__main__':
     import phase32                            # 2.13: the Vorn
     phase32.rp(sys.modules[__name__])
     TEXTURE_MODS.append(phase32)
+    import phase33
+    phase33.rp(sys.modules[__name__])
     LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',
                  'death.attack.bm.quake': '%1$s was flattened by a shockwave', 'death.attack.bm.quake.player': '%1$s was flattened by %2$s'})
     if PHASE2:

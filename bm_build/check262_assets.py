@@ -211,7 +211,10 @@ for f in glob.glob(f'{DP}/data/**/*.json', recursive=True):
                     if k == 'minecraft:nbt': C.parse_snbt(val, 0)
             item = crit.get('conditions', {}).get('item')
             if item:
-                C.check_item_id(item['items'], rel)
+                if item['items'].startswith('#'):                       # 2.13: an item tag
+                    if C.strip_ns(item['items'][1:]) not in REG['tag/item']: E(f'{rel}: unknown item tag {item["items"]}')
+                else:
+                    C.check_item_id(item['items'], rel)
                 for k, val in item.get('predicates', {}).items():
                     if C.strip_ns(k) not in REG['data_component_predicate_type']: E(f'{rel}: predicate {k}')
                     C.parse_snbt(val, 0)

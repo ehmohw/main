@@ -154,7 +154,7 @@ for i, piece in enumerate(PIECES):
     if piece == 'chestplate': en['bm:vampiric'] = 1
     gear(f'vampire_{piece}', f'netherite_{piece}', f'Vampire Lord {VAMP_NAMES[i]}', '#8b0000',
          ['Elegant. Hungry. Eternal.', ('+1 Max Health', 'blue'),
-          ('Full set: hitting monsters drains their life', 'dark_aqua'), ('Night Vision; Weakness in direct sunlight', 'dark_aqua')],
+          ('Full set: every kill heals two hearts', 'dark_aqua'), ('Night Vision; Weakness in direct sunlight', 'dark_aqua')],
          en, 2, attrs=I.armor_attrs('netherite', piece, [attr('max_health', 1, s)]),
          extra={'minecraft:trim': {'material': 'minecraft:redstone', 'pattern': 'minecraft:vex'}},
          custom_extra={'bm_set': 'vampire'}, price=('blood_crystal', [12, 16, 14, 12][i]))

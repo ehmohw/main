@@ -48,6 +48,7 @@ def generate(G):
         G.R.extend_offers(O, G.offer)          # Phase 1.7 trades (same order as gen_npcs)
         G.R20.extend_offers(O, G.offer)
         G.R21.extend_offers(O, G.offer)
+        G.R33.extend_offers(O, G.offer)
         return O
     from p2 import patch21, trophies, wilfrey
     parts = [logic.generate(G, B), bosses.generate(G, B), data.generate(G, B, offers), patch21.generate(G, B), trophies.generate(G), wilfrey.generate(G)]
