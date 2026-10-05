@@ -4,6 +4,10 @@ This is a **test build**: all of Phase 1.22 plus the seven boss dungeons. It **r
 
 Install it like Phase 1.6. Put `BlackMarket_Phase2_TEST_DP.zip` in `datapacks`, then use `BlackMarket_Phase2_TEST_RP.zip` as the resource pack. `SHA1.txt` has the resource pack hash for `server.properties`. The dungeons only generate in **new chunks**.
 
+## New in 2.18
+
+Includes everything in Phase 1.25: the world-treasure accessories, Mimics, Fallen Stars, fishing crates and sword shrines (see the main README). Vanilla-table chests inside Phase 2 dungeons never turn into Mimics. The Rod of Discord and the buckets refuse to work in dungeons, like the Specter Sheet.
+
 ## New in 2.17
 
 Includes everything in Phase 1.24: the Surface, Lava and Rainbow charms, rare monsters and their charms, and the Specter Sheet changes (see the main README). The Surface Charm uses the same wards as the sheets, so it can't lift you out of a Phase 2 dungeon or the Hollow Throne.

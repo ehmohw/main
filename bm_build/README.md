@@ -19,6 +19,34 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 1.25: treasure of the wide world
+
+Still Java 26.3. Inspired by Terraria.
+
+**Accessories and tools**: each is a rare find in the vanilla chests that suit it, and also comes from Mimics and fishing crates. "Inventory" means anywhere in your inventory, off hand included.
+
+| Item | Where | What it does |
+| --- | --- | --- |
+| Climbing Claws | jungle temples | In the air, push into a wall to climb; let go of forward to slide down slowly (inventory) |
+| Umbrella | shipwreck supplies, outposts | Held in either hand, you drift down gently |
+| Ice Skates | igloos | Boots: Speed II on any ice |
+| Water Walking Boots | buried treasure, ocean ruins | Stride across water; fall in and you bob back up. Sneak to sink |
+| Rod of Discord | ancient cities | Teleport where you look (24 blocks). Costs 2 hearts, more if used again within a few seconds. It can kill you |
+| Bottomless Water / Lava Bucket | shipwreck supplies / ruined portals | Pour forever. Sneak + use soaks the fluid up (5x5x5) |
+| Extendo Grip | outposts, mansions | +3 block reach in the off hand |
+| Lifeform Analyzer | strongholds | Names the nearest rare monster within 64 blocks and points the way (inventory; held, it always reports) |
+| Metal Detector | mineshafts | Held: counts ancient debris, diamond, emerald and gold ore within 8 blocks |
+| Enchanted Sundial | desert temples | At night, skip to morning. Recharges in one full day; won't work on Blood Moons, Invasion or Lucky Nights |
+| Band of Regeneration | dungeon chests | Regeneration I after 5 seconds without taking damage (inventory) |
+| Cobalt Shield | fortresses | Immune to knockback while held |
+| Obsidian Skull | bastions | Fire, campfires and magma blocks can't hurt you; lava still can (inventory) |
+
+**Other new things to find**
+- **Mimics**: 1 in 100 vanilla loot chests is a Mimic. It snaps shut and hops at you. Kill it and the chest comes back with its loot, plus a guaranteed accessory, 3-6 Tokens and maybe a Medallion. There are no Mimics inside the pack's own structures.
+- **Fallen Stars**: on clear Overworld nights, stars streak down near players and land glowing. Ones still on the ground fade at dawn. Right-click with 9 to make a **Star Cloak**: when you're hurt, stars strike up to 3 nearby monsters (3-second cooldown). The Professor buys 3 for a Token and Lucky Whiskers buys 5 for a Lucky Token.
+- **Fishing crates**: any catch can also bring up a Wooden (5%), Iron (1.5%) or Golden (0.4%) Crate. Right-click to open: Tokens, ingots, gems and a chance at an accessory (4% / 10% / 30%).
+- **Sword shrines**: a very rare mossy shrine in grassy and wooded biomes, with a sword in stone. Pull it out to get the **Enchanted Sword** (Sharpness IV). At full health, right-click fires a sword beam. Ops can build one with `/function bm:admin/shrine`.
+
 ## New in 1.24: getting out of trouble, and rare monsters
 
 Still Java 26.3.

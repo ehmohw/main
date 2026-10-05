@@ -31,6 +31,7 @@ ALLOWED.update({'chicken': ENTITY | LIVING | MOB | BREEDABLE | {'IsChickenJockey
                 'evoker_fangs': ENTITY | {'Warmup', 'Owner'}, 'marker': ENTITY,
                 'pufferfish': ENTITY | LIVING | MOB | {'FromBucket', 'PuffState'},   # vanilla-mcdoc mob/fish.mcdoc
                 'wither': ENTITY | LIVING | MOB | {'Invul'},
+                'rabbit': ENTITY | LIVING | MOB | BREEDABLE | {'RabbitType', 'MoreCarrotTicks'},     # mob/rabbit.mcdoc (2.18: the Mimic)
                 'phantom': ENTITY | LIVING | MOB | {'size', 'anchor_pos'},                                   # mob/phantom.mcdoc (1.21.5+)
                 'piglin': ENTITY | LIVING | MOB | {'IsImmuneToZombification', 'TimeInOverworld', 'IsBaby', 'CannotHunt', 'Inventory'},
                 'item': ENTITY | {'Age', 'Health', 'PickupDelay', 'Owner', 'Thrower', 'Item'},                 # entity/item.mcdoc
