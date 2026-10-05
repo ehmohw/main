@@ -6,7 +6,7 @@ entity and compared field-by-field with what the pack wrote. Every literal summo
 matching entity so the game's 26.3 decoders run over it; any 'Serialization errors' warning is attributed to its line."""
 import sys, os, re, glob, json, shutil
 sys.path.insert(0, '/home/claude/bm_build')
-S = '/tmp/claude-0/-home-claude/3b068e51-eb2f-56d1-b54d-7ae7b9353a7e/scratchpad'
+S = os.environ.get('BM_SCRATCH', '/tmp/claude-0/-home-claude/3b068e51-eb2f-56d1-b54d-7ae7b9353a7e/scratchpad')   # 2.15: set BM_SCRATCH
 mode, OUT = sys.argv[1], sys.argv[2]
 os.environ['BM_OUT'] = OUT
 import check262 as C
@@ -206,7 +206,7 @@ def build():
         if not lines: continue
         out = []
         for line in lines:
-            line = line[1:].replace('$(eid)', 'minecraft:pig').replace('$(data)', '{}').replace('$(dim)', 'minecraft:overworld').replace('$(path)', 'Inventory[{Slot:0b}]').replace('$(slot)', 'container.0').replace('$(iid)', 'token').replace('$(id)', 'minecraft:diamond_sword').replace('$(a)', '30').replace('$(b)', '210').replace('$(col)', 'gold')
+            line = line[1:].replace('$(eid)', 'minecraft:pig').replace('$(data)', '{}').replace('$(dim)', 'minecraft:overworld').replace('$(path)', 'Inventory[{Slot:0b}]').replace('$(slot)', 'container.0').replace('$(iid)', 'token').replace('$(id)', 'minecraft:diamond_sword').replace('$(a)', '30').replace('$(b)', '210').replace('$(col)', 'gold').replace('"minecraft:container":$(c)', '"minecraft:container":[]')
             out.append(re.sub(r'\$\(\w+\)', '1', line))
         open(f'{PK}/data/bm_test/function/macro/m{nm}.mcfunction', 'w').write('\n'.join(out) + '\n')
         mapping[f'm{nm}'] = rel; nm += 1

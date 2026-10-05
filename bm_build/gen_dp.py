@@ -25,6 +25,8 @@ import phase32 as R32        # 2.13: the Vorn - invasion nights, crash sites car
 import phase33 as R33        # 2.13: new goods (satchel, fusion, shifter, jump boots, void totem, flask, pocket ender chest...)
 import phase34 as R34        # 2.13: the market overhaul, the Dockmaster, the Gilded Roost's treasures
 import phase35 as R35        # 2.14: the Vorn Skiff, the Dawnbringer set, the drill, rat portraits, the newcomers' lectern
+import phase36 as R36        # 2.15: marlin, storm balls, coffee, skiff kits, the restless dead, mailboxes
+import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import market2 as M2
 import economy as ECON
@@ -235,6 +237,7 @@ def all_offers():
     R33.extend_offers(O, offer)
     R34.extend_offers(O, offer)
     R35.extend_offers(O, offer)
+    R36.extend_offers(O, offer)
     return O
 
 
@@ -261,7 +264,7 @@ def gen_npcs():
                 base['Silent'] = B(1)
                 base['active_effects'] = [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1),
                                            'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}]
-                base['attributes'] = [{'id': 'minecraft:scale', 'base': D(0.5)}]
+                base['attributes'] = [{'id': 'minecraft:scale', 'base': D(0.7)}]      # 2.15: was 0.5 - trader rats read as traders now
             cmds.append(f'summon minecraft:villager ~ ~ ~ {snbt(base)}')
             if kind == 'rat':
                 cmds.append(rat_sprite(sprite, ['bm.npc', 'bm.new', 'bm.rat_sprite']))
@@ -276,7 +279,7 @@ def gen_npcs():
     return O
 
 
-def rat_sprite(model, tags, scale=0.9):
+def rat_sprite(model, tags, scale=1.26):          # 2.15: traders are 1.4x the old 0.9 (crowd/walkers pass their own)
     """A 3D block-model rat (1.7) standing where the trader is, facing the trader's way (the NPC fin step copies the
     marker's yaw). Model ids: bm:rat_<v> -> bm:rat3d_<v>."""
     model = model.replace('bm:rat_', 'bm:rat3d_')
@@ -738,7 +741,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.14 TEST' if PHASE2 else 'v1.21') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.15 TEST' if PHASE2 else 'v1.22') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -878,7 +881,7 @@ def build(out_dir):
     os.makedirs(OUT)
     with open(path('pack.mcmeta'), 'w') as f:
         json.dump({'pack': {'description': [{'text': 'Black Market ', 'color': 'dark_purple', 'bold': True},
-                                            {'text': ('v2.14 TEST — Phase 2 dungeons (Java 26.3)' if PHASE2 else 'v1.21 (Java 26.3)'), 'color': 'gray'}],
+                                            {'text': ('v2.15 TEST — Phase 2 dungeons (Java 26.3)' if PHASE2 else 'v1.22 (Java 26.3)'), 'color': 'gray'}],
                             'min_format': [121, 0], 'max_format': 121}}, f, indent=1)
     gen_npcs()
     second = gen_mobs()
@@ -919,9 +922,11 @@ def build(out_dir):
     R33.generate(sys.modules[__name__])          # 2.13: after the 1.18 menus it adds to (p28/act)
     R34.generate(sys.modules[__name__])
     R35.generate(sys.modules[__name__])
+    R36.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     gen_tags_worldgen()
+    for line in optimize.optimize(sys.modules[__name__]): print('optimize:', line)      # 2.15: cheaper entity selectors, quiet dungeons/markets
     # 1.13: every objective is created before any line of load uses it (phases prepend their own lines to load, and a
     # constant set before its objective exists silently fails - the 1.11 rat-pillar bug on brand-new worlds)
     ld = FUNCS['load']

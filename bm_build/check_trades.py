@@ -148,6 +148,11 @@ for k, where in MARKERS.items():
     if f'tag=bm.npc.{k}]' not in dispatch: E(f'marker bm.npc.{k} ({", ".join(sorted(where))}) has no spawner in npc/spawn')
     if not os.path.exists(f'{ROOT}/bm/function/npc/{k}.mcfunction'): E(f'marker bm.npc.{k}: npc/{k} function missing')
 second = open(f'{ROOT}/bm/function/loop/second.mcfunction').read()
+# 2.15: optimize.py moves the market's once-a-second chores into opt/market_second, called from loop/second_b while a
+# player is near a market - follow that call
+for extra in ('loop/second_b', 'opt/market_second'):
+    pth = f'{ROOT}/bm/function/{extra}.mcfunction'
+    if os.path.exists(pth) and (extra == 'loop/second_b' or 'function bm:opt/market_second' in second): second += '\n' + open(pth).read()
 for k in REFRESH:
     if f'tag=bm.npc_{k}] unless score @s bm.ofv' not in second: E(f'trader {k}: refresh not wired into the second loop')
 

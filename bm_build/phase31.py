@@ -47,10 +47,10 @@ def generate(G):
     untag = 'tag @e[tag=bm.n18,distance=..1.5] remove bm.n18'
     for who, (lid, pos, yaw, v, nm, hint) in NPC.items():
         rat = G.rat_sprite(f'bm:rat_{v}', ['bm.e18', 'bm.n18', 'bm.rat_sprite', f'bm.g_{who}'])
-        box = {'Tags': ['bm.e18', 'bm.n18', 'bm.ledger'], 'response': B(1), 'width': F(0.8), 'height': F(1.0)}
+        box = {'Tags': ['bm.e18', 'bm.n18', 'bm.ledger'], 'response': B(1), 'width': F(0.9), 'height': F(1.4)}
         plate = {'Tags': ['bm.e18', 'bm.n18'], 'billboard': 'center', 'view_range': F(0.2), 'default_background': B(0), 'background': Int(0x60000000),
                  'text': [T(nm, 'gold', bold=True), T('\n' + hint, 'gray')],
-                 'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(1.05), F(0)], 'scale': [F(0.45)] * 3}}
+                 'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(1.45), F(0)], 'scale': [F(0.45)] * 3}}
         fn(f'p31/spawn/{who}', [rat, f'summon minecraft:interaction ~ ~ ~ {snbt(box)}',
                                 f'scoreboard players set @e[type=minecraft:interaction,tag=bm.n18,distance=..1.5] bm.lgid {lid}',
                                 f'summon minecraft:text_display ~ ~ ~ {snbt(plate)}', fin, untag])

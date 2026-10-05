@@ -5,7 +5,7 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else 'out'
 os.environ['BM_OUT'] = OUT
 import nbtlib, check262 as C
 sys.argv = ['harness', 'x', OUT]
-S = '/tmp/claude-0/-home-claude/3b068e51-eb2f-56d1-b54d-7ae7b9353a7e/scratchpad'
+S = os.environ.get('BM_SCRATCH', '/tmp/claude-0/-home-claude/3b068e51-eb2f-56d1-b54d-7ae7b9353a7e/scratchpad')   # 2.15: set BM_SCRATCH
 import importlib.util
 spec = importlib.util.spec_from_file_location('h', f'{S}/harness.py'); H = importlib.util.module_from_spec(spec)
 src = open(f'{S}/harness.py').read().replace("build() if mode == 'build' else check()", '')

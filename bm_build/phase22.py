@@ -342,7 +342,7 @@ def generate(G):
                   'CustomName': T(name, color, bold=True), 'CustomNameVisible': B(0),
                   'active_effects': [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1),
                                       'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}],
-                  'attributes': [{'id': 'minecraft:scale', 'base': D(0.5)}],
+                  'attributes': [{'id': 'minecraft:scale', 'base': D(0.7)}],
                   'Offers': {'Recipes': recipes}}
         sprite = G.rat_sprite(model, ['bm.rat_sprite', 'bm.field_sprite', f'bm.fsp_{k}', 'bm.td', 'bm.r3d'])
         if oy: sprite = sprite.replace('summon minecraft:item_display ~ ~ ~ ', f'summon minecraft:item_display ~ ~{oy} ~ ')

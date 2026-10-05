@@ -690,29 +690,6 @@ def donado_helm(m, dy, dz):
     return [_mv(e, dy=dy, dz=dz) for e in h]
 
 
-def alien_model_disc(coat):
-    """(pre-2.13 Donadian, kept for reference: the teal head on a hover-disc.)"""
-    els = {}
-    els['disc'] = [_c((2.5, 0, 2.5), (13.5, 0.7, 13.5), 'd'), _c((5, 0.7, 5), (11, 1.0, 11), 'd')]
-    els['legs'] = [_c((6, 1, 7.2), (7.6, 6, 9.2), 's'), _c((8.4, 1, 7.2), (10, 6, 9.2), 's')]
-    els['coat'] = [_c((4.8, 5.4, 6.2), (11.2, 13, 10.2), 'c'), _c((4.7, 5.4, 6.1), (5.4, 13, 6.3), 'x'), _c((10.6, 5.4, 6.1), (11.3, 13, 6.3), 'x'),
-                   _c((4.7, 9, 6.1), (11.3, 9.6, 6.3), 'x')]
-    els['arms'] = [_c((3.3, 7, 7.2), (4.8, 12.6, 9.2), 's'), _c((11.2, 7, 7.2), (12.7, 12.6, 9.2), 's'),
-                   _c((3.2, 6.2, 7.1), (4.9, 7.2, 9.3), 'x'), _c((11.1, 6.2, 7.1), (12.8, 7.2, 9.3), 'x')]
-    els['head'] = [_c((7, 13, 7.4), (9, 14, 9.2), 's'),
-                   _c((3.5, 14, 4.6), (12.5, 22, 11), 's'),
-                   _c((3.5, 22, 6), (5.6, 24, 9.4), 's'), _c((3.5, 24, 6.8), (4.6, 25.4, 8.6), 'x'),          # pointy ears
-                   _c((10.4, 22, 6), (12.5, 24, 9.4), 's'), _c((11.4, 24, 6.8), (12.5, 25.4, 8.6), 'x'),
-                   _c((7.2, 18.2, 4.45), (8.8, 22, 4.6), 'k')]                                                # dark forehead stripe
-    els['eyes'] = [_c((4.4, 18.6, 4.42), (6.9, 20.4, 4.6), 'r'), _c((9.1, 18.6, 4.42), (11.6, 20.4, 4.6), 'r')]
-    els['mouth'] = [_c((6, 14.6, 3.6), (10, 17.6, 4.6), 'k'), _c((6.4, 17.0, 3.5), (7.2, 17.6, 3.6), 's'), _c((8.8, 17.0, 3.5), (9.6, 17.6, 3.6), 's')]
-    els['ant'] = [_c((6.1, 22, 7.6), (6.7, 27, 8.2), 'a'), _c((5.8, 27, 7.3), (7.0, 28.2, 8.5), 'a'),
-                  _c((9.3, 22, 7.6), (9.9, 27, 8.2), 'a'), _c((9.0, 27, 7.3), (10.2, 28.2, 8.5), 'a')]
-    tex = {'s': 'bm:block/adon_skin', 'x': 'bm:block/adon_dark', 'r': 'bm:block/adon_eye', 'k': 'bm:block/adon_mouth',
-           'a': 'bm:block/adon_antenna', 'd': 'bm:block/adon_disc', 'c': f'bm:block/adon_{coat}'}
-    return tex, els
-
-
 def alien_model(coat):
     """2.13: a Donadian is Donado's own build in Donadian colours - teal fur with dark patches, a lighter muzzle, dark ears,
     red eyes, white antennae, a coat (crew / lab / officer) - and no hover-disc (that became the Vorn hoverboard). Faces -z."""

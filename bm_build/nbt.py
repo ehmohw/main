@@ -112,8 +112,8 @@ def _wpay(b, t, v):
 def write_nbt_gz(path, root):
     b = io.BytesIO()
     b.write(b'\x0a'); _wstr(b, ''); _wpay(b, 10, root)
-    with gzip.open(path, 'wb') as f:
-        f.write(b.getvalue())
+    with open(path, 'wb') as f:                          # 2.15: fixed gzip timestamp - identical builds give identical files
+        f.write(gzip.compress(b.getvalue(), mtime=0))
 
 
 def read_nbt_gz(path):

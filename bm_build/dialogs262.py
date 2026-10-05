@@ -106,4 +106,16 @@ def check_dialog(d, where, E, check_cmd=None):
     if t in ('multi_action', 'server_links', 'dialog_list'):
         if 'exit_action' in d: check_button(d['exit_action'], where + '.exit_action', E, check_cmd)
         if 'columns' in d: check_int(d['columns'], 1, 1 << 30, where + '.columns', E)
-    if 'inputs' in d: E(f'{where}: inputs are not used by this pack (unchecked)')
+    if 'inputs' in d:                       # 2.15: text inputs (input.mcdoc TextInput) - the courier whistle's mailbox number
+        if not isinstance(d['inputs'], list): E(f'{where}.inputs: not a list')
+        else:
+            for k, inp in enumerate(d['inputs']):
+                w = f'{where}.inputs[{k}]'
+                if inp.get('type') != 'minecraft:text': E(f'{w}: only text inputs are checked (got {inp.get("type")})'); continue
+                extra = set(inp) - {'type', 'key', 'label', 'width', 'label_visible', 'initial', 'max_length', 'multiline'}
+                if extra: E(f'{w}: unknown keys {extra}')
+                if not isinstance(inp.get('key'), str) or not inp['key'].replace('_', '').isalnum(): E(f'{w}: key must be a plain identifier')
+                if 'label' not in inp: E(f'{w}: text input without a label')
+                else: check_text(inp['label'], w + '.label', E)
+                if 'width' in inp: check_int(inp['width'], 1, 1024, w + '.width', E)
+                if 'max_length' in inp: check_int(inp['max_length'], 1, 1 << 30, w + '.max_length', E)

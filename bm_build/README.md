@@ -1,4 +1,4 @@
-# Black Market — Phase 1.21 (Java 26.3)
+# Black Market — Phase 1.22 (Java 26.3)
 
 A data pack + resource pack. No mods required, and it works alongside Fabric.
 
@@ -18,6 +18,52 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 1.22: the docks get busier, the dead get restless, and the mail goes through
+
+Still Java 26.3. Anything that needs a real player was checked by the checkers, not hand-played.
+
+**New goods**
+- **The Blue Marlin** (Salty Sal, 6 Medallions): a sword with a marlin's bill for a blade (Sharpness VI, Looting III, +1 damage, +0.5 reach). Sneak + right-click a wall to **mount it** there as a trophy; it keeps its enchantments. Punch the trophy to take it back down.
+- **Storm Balls** (Salty Sal, 4 for 3 Tokens): throw one and lightning strikes where it lands, clear skies or not.
+- **The weather vials** now come from Salty Sal instead of Prof. Whiskerton.
+- **Black Market Coffee** (Chef Fromage, 3 for a Token): every cup raises Speed and Jump Boost one level for a minute, up to V. When it wears off, the crash is just as big: Slowness and Weakness at the same level.
+- **Skiff Paint and Decal Kits** (Zorp): six hull colours (Vorn Green, Crimson, Gilded, Midnight, Abyssal, Rose) and four decals (Clean, Racing Stripes, Rat Crest, Flames). Use a kit and your skiff wears it from then on.
+- **Hostile UFOs** (Scout Saucers, the Abductor and the Overseer) have a 1-in-200 chance to drop a Vorn Skiff part.
+
+**The Restless Dead** (Blood Moon nights)
+- Every graveyard with a living visitor wakes.
+- Restless Spirits rise from the graves every few seconds: ghostly, flying, and they drop **Ectoplasm**. Up to six at a time.
+- At midnight **the Banshee** climbs out, once per moon. She's big and tough, and her wail brings darkness, slowness and a chill. She drops a pile of Ectoplasm, Blood Crystals, a Medallion and sometimes the **Ghost Veil** cosmetic.
+- The Bloodbroker takes Ectoplasm for Blood Crystals, Tokens or the Ghost Veil.
+- The dead lie down again at dawn.
+
+**Mailboxes and couriers**
+- **Mailbox** (Old Barnaby, 4 Tokens): set it down and you get its numbered **key**.
+  - Anyone can right-click it to post the item in their hand.
+  - Only the key (or the owner) opens it.
+  - It's a ledger, not a chest, so breaking things around it spills nothing.
+  - Sneak + punch your empty mailbox to pick it up.
+- **Courier Whistle** (the Fence, 6 Tokens): hold the item to send in your off hand, blow the whistle and type a mailbox number. A courier rat delivers it anywhere, even to a mailbox far away, for 1 Token. The owner hears "You've got mail!" if they're online.
+
+**The market**
+- **Trader rats are bigger** (about 1.4×), so it's clear which rats trade. Existing markets catch up automatically.
+
+**Less lag**
+- A final build pass (`optimize.py`) makes the pack's commands cheaper without changing what they do:
+  - **Typed entity searches.** Searches that tested every loaded entity now test only the kinds that can carry that tag. That's 329 of them, and they're only typed where the build can prove which kinds those are, including mobs that convert.
+  - **Quiet dungeons and markets.** Dungeon puzzles, gates, effects and altars, and market effects, neon signs, crowds, traders' chatter and syncs, now run only while someone is nearby.
+  - **Split once-a-second work.** The dungeon and market chores run half a second after the rest, so they don't all land on the same tick.
+- **Measured on the 26.3 test server** with the stress-test world (about 2,600 loaded entities: several markets, ~20 dungeons, motherships), no players online:
+  - The pack's average cost per tick fell from about **7.8 ms to about 3 ms**.
+  - Its worst ticks (95th percentile) fell from about **33 ms to about 24 ms** (8 ms without the pack).
+  - In the server profiler, the pack's share of tick time fell from about 19% to about 7.5%.
+- **Cleanup:** 50 stale preview images, an unused copy of old loot tables, a superseded reference-builder tool, the retired 1.7 market builder and an unused alien model are gone. The built packs are unchanged. Structure files are now written byte-for-byte the same on every build.
+
+**Checked**
+- Every trader was spawned on the 26.3 server and its offers read back: 742 recipes (768 on the TEST build), 0 problems.
+- Every trade price and exact item check accepts the item exactly as it drops from its loot table: 325 items (409 on the TEST build).
+- Every macro function parses, and every entity data write was replayed without errors.
 
 ## New in 1.21: the Vorn Skiff, the Dawnbringer set, the Mining Drill and a friendlier market
 

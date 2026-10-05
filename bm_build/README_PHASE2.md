@@ -1,8 +1,16 @@
-# Black Market — Phase 2 TEST build v2.14 (Java 26.3)
+# Black Market — Phase 2 TEST build v2.15 (Java 26.3)
 
-This is a **test build**: all of Phase 1.21 plus the seven boss dungeons. It **replaces** `BlackMarket_DP.zip`, so don't load both. Use a test world (or a copy of your world) until it has been played through once.
+This is a **test build**: all of Phase 1.22 plus the seven boss dungeons. It **replaces** `BlackMarket_DP.zip`, so don't load both. Use a test world (or a copy of your world) until it has been played through once.
 
 Install it like Phase 1.6. Put `BlackMarket_Phase2_TEST_DP.zip` in `datapacks`, then use `BlackMarket_Phase2_TEST_RP.zip` as the resource pack. `SHA1.txt` has the resource pack hash for `server.properties`. The dungeons only generate in **new chunks**.
+
+## New in 2.15
+
+Includes everything in Phase 1.22: the Blue Marlin, Storm Balls, coffee, the weather vials at the docks, skiff kits, the Restless Dead, mailboxes and couriers, bigger trader rats and the lag work. See the main README. On the TEST build:
+- **Each dungeon's per-tick and 5-tick work** (puzzles, secret buttons, gates, the arena intro, effects, the altar) runs only while a player is within its radius (+24 blocks) of its controller. That's checked once a second.
+- **Each dungeon's once-a-second work** (ambience, resets, the boss fight) runs half a second after the main loop.
+- The layout verifier (`tools/verify_dungeons.py`) still reports **0 errors** on all seven dungeons.
+- **Trades:** every trader on the TEST build was spawned on the 26.3 server and read back. That's 768 recipes with 0 problems, and payment checks pass for all 409 items.
 
 ## New in 2.14
 

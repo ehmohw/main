@@ -302,7 +302,7 @@ def generate(G):
 
 
 def extend_offers(O, offer):
-    O['professor'] += [offer(('token', price), (f'vial_{k}', 1)) for k, (_, _, _, _, price) in VIALS.items()]
+    # 2.15: the weather vials moved to Salty Sal, Dockmaster (phase36)
     O['blood'] += [offer(('blood_crystal', 6), ('moon_ward', 1)), offer(('blood_crystal', 4), ('ward_lantern', 1)),
                    offer(('blood_crystal', 6), ('crimson_compass', 1)), offer(('blood_crystal', 3), ('blood_bounty', 1))]
     O['lucky'] += [offer(('lucky_token', CHARM_PRICE.get(k, 5)), (f'charm_{k}', 1)) for k in CHARMS]
