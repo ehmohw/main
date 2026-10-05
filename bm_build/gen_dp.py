@@ -26,6 +26,7 @@ import phase33 as R33        # 2.13: new goods (satchel, fusion, shifter, jump b
 import phase34 as R34        # 2.13: the market overhaul, the Dockmaster, the Gilded Roost's treasures
 import phase35 as R35        # 2.14: the Vorn Skiff, the Dawnbringer set, the drill, rat portraits, the newcomers' lectern
 import phase36 as R36        # 2.15: marlin, storm balls, coffee, skiff kits, the restless dead, mailboxes
+import phase37 as R37        # 2.16: Specter Sheets and the Specter Charm
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import market2 as M2
@@ -741,7 +742,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.15 TEST' if PHASE2 else 'v1.22') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.16 TEST' if PHASE2 else 'v1.23') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -881,7 +882,7 @@ def build(out_dir):
     os.makedirs(OUT)
     with open(path('pack.mcmeta'), 'w') as f:
         json.dump({'pack': {'description': [{'text': 'Black Market ', 'color': 'dark_purple', 'bold': True},
-                                            {'text': ('v2.15 TEST — Phase 2 dungeons (Java 26.3)' if PHASE2 else 'v1.22 (Java 26.3)'), 'color': 'gray'}],
+                                            {'text': ('v2.16 TEST — Phase 2 dungeons (Java 26.3)' if PHASE2 else 'v1.23 (Java 26.3)'), 'color': 'gray'}],
                             'min_format': [121, 0], 'max_format': 121}}, f, indent=1)
     gen_npcs()
     second = gen_mobs()
@@ -923,6 +924,7 @@ def build(out_dir):
     R34.generate(sys.modules[__name__])
     R35.generate(sys.modules[__name__])
     R36.generate(sys.modules[__name__])
+    R37.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     gen_tags_worldgen()

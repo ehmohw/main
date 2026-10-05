@@ -253,7 +253,8 @@ def generate(G):
     pool = lambda e, p=None: dict({'rolls': 1, 'entries': e}, **({'conditions': [G.chance(p)]} if p else {}))
     wjson('bm/loot_table/p36/ghost.json', {'type': 'minecraft:entity', 'pools': [pool([G.loot_entry('ectoplasm', G.uni(1, 2))]), pool([G.loot_entry('blood_crystal')], 0.1)]})
     wjson('bm/loot_table/p36/banshee.json', {'type': 'minecraft:entity', 'pools': [pool([G.loot_entry('ectoplasm', G.uni(8, 12))]), pool([G.loot_entry('blood_crystal', G.uni(3, 5))]),
-                                                                                  pool([G.loot_entry('ghost_veil')], 0.35), pool([G.loot_entry('medallion')])]})
+                                                                                  pool([G.loot_entry('ghost_veil')], 0.35), pool([G.loot_entry('medallion')]),
+                                                                                  pool([G.loot_entry('specter_sheet', G.uni(1, 3))], 0.005)]})   # 2.16 (phase37)
 
     # ------------------------------------------------------------------ mailboxes and couriers
     mdisp = {'Tags': ['bm.mbdisp', 'bm.mbnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:mailbox3d'}},

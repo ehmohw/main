@@ -19,6 +19,17 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 1.23: the Banshee's shroud
+
+Still Java 26.3.
+
+- **Specter Sheets**: the Banshee (Blood Moon graveyards, once per moon) has a 1-in-200 chance to drop 1-3 of them. Face a wall and right-click one to **phase through it** (up to 12 blocks of wall, horizontally). The sheet is used up only when it works. Sheets refuse to work in or near the pack's own structures: the dungeons, the Black Market, graveyards, motherships, crash sites and the Hollow Throne. They also refuse if the far side lands in one of those places.
+- **The Specter Charm**: sneak + right-click with 9 sheets to stitch one. Wear it in the **chest** slot.
+  - Always: 30 blocks of safe fall, but 4 armor is taken away. Every other player within 5 blocks is shrouded in Darkness. The wearer isn't.
+  - At night, or anywhere with light 7 or less: Speed III, Jump Boost II, Regeneration I, Night Vision and Fire Resistance.
+  - On a Blood Moon, add Strength II and Resistance II.
+  - In daylight under open sky you get none of that, and you catch fire (the charm's **Sunbane** curse).
+
 ## New in 1.22: the docks get busier, the dead get restless, and the mail goes through
 
 Still Java 26.3. Anything that needs a real player was checked by the checkers, not hand-played.

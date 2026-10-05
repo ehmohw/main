@@ -221,6 +221,7 @@ for f in glob.glob(f'{DP}/data/**/*.json', recursive=True):
                     C.parse_snbt(val, 0)
 
 # ---------------- custom enchantments / damage types / predicates
+ALL_LINES = [ln.strip() for g in glob.glob(f'{DP}/data/bm/function/**/*.mcfunction', recursive=True) for ln in open(g)]
 VAN_ENCH_KEYS = {'anvil_cost', 'description', 'effects', 'exclusive_set', 'max_cost', 'max_level', 'min_cost', 'primary_items', 'slots', 'supported_items', 'weight'}
 for f in glob.glob(f'{DP}/data/bm/enchantment/*.json'):
     d = C.jload(f)
@@ -231,6 +232,15 @@ for f in glob.glob(f'{DP}/data/bm/enchantment/*.json'):
     for comp, effs in d['effects'].items():
         if C.strip_ns(comp) not in REG['enchantment_effect_component_type']: E(f'{f}: effect component {comp}')
         for e in effs:
+            if C.strip_ns(comp) == 'tick':          # 2.16: conditional effects (no targets); requirements are a plain loot condition
+                if set(e) - {'effect', 'requirements'}: E(f'{f}: tick effect keys')
+                if C.strip_ns(e['effect']['type']) not in REG['enchantment_entity_effect_type']: E(f'{f}: entity effect {e["effect"]["type"]}')
+                if e['effect']['type'] == 'minecraft:ignite' and not isinstance(e['effect'].get('duration'), (int, float)): E(f'{f}: ignite duration')
+                rq = e.get('requirements', {'condition': 'minecraft:entity_scores', 'scores': {}})
+                if C.strip_ns(rq.get('type', rq.get('condition', ''))) not in REG['loot_condition_type']: E(f'{f}: requirement condition')
+                for ob in rq.get('scores', {}):
+                    if not any(ln.startswith(f'scoreboard objectives add {ob} ') for ln in ALL_LINES): E(f'{f}: objective {ob} never created')
+                continue
             if e['affected'] not in ('attacker', 'damaging_entity', 'victim') or e['enchanted'] not in ('attacker', 'damaging_entity', 'victim'): E(f'{f}: target')
             def ee(x):
                 if C.strip_ns(x['type']) not in REG['enchantment_entity_effect_type']: E(f'{f}: entity effect {x["type"]}')
