@@ -254,7 +254,9 @@ def generate(G):
     wjson('bm/loot_table/p36/ghost.json', {'type': 'minecraft:entity', 'pools': [pool([G.loot_entry('ectoplasm', G.uni(1, 2))]), pool([G.loot_entry('blood_crystal')], 0.1)]})
     wjson('bm/loot_table/p36/banshee.json', {'type': 'minecraft:entity', 'pools': [pool([G.loot_entry('ectoplasm', G.uni(8, 12))]), pool([G.loot_entry('blood_crystal', G.uni(3, 5))]),
                                                                                   pool([G.loot_entry('ghost_veil')], 0.35), pool([G.loot_entry('medallion')]),
-                                                                                  pool([G.loot_entry('specter_sheet', G.uni(1, 3))], 0.005)]})   # 2.16 (phase37)
+                                                                                  {'rolls': 1, 'entries': [G.loot_entry('specter_sheet')],            # 2.17: 50%, +10% per Looting level (phase37)
+                                                                                   'conditions': [{'condition': 'minecraft:random_chance_with_enchanted_bonus', 'enchantment': 'minecraft:looting',
+                                                                                                   'unenchanted_chance': 0.5, 'enchanted_chance': {'type': 'minecraft:linear', 'base': 0.6, 'per_level_above_first': 0.1}}]}]})
 
     # ------------------------------------------------------------------ mailboxes and couriers
     mdisp = {'Tags': ['bm.mbdisp', 'bm.mbnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:mailbox3d'}},

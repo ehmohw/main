@@ -1,7 +1,7 @@
 """Phase 1.23 / 2.16: the Banshee's shroud.
 
-- SPECTER SHEETS: the Banshee has a 1-in-200 chance to drop 1-3 Specter Sheets. Face a wall and right-click one: you
-  PHASE through it (up to 12 blocks of wall) and the sheet is used up. Sheets won't work in or near any of the pack's own
+- SPECTER SHEETS: the Banshee drops one half the time (+10% per Looting level, 2.17). Face a wall and right-click: you
+  PHASE through it (up to 12 blocks of wall). Five phases per sheet, 5 seconds apart (2.17). Sheets won't work in or near any of the pack's own
   structures (dungeons, the Black Market, graveyards, motherships, crash sites, the Hollow Throne) - nothing is lost when
   they refuse.
 - THE SPECTER CHARM: sneak + right-click with 9 sheets to stitch one. Wear it in the CHEST slot.
@@ -10,16 +10,18 @@
   At night or in low light (light 7 or less): Speed III, Jump Boost II, Regeneration I, Night Vision, Fire Resistance -
   and on a Blood Moon, Strength II and Resistance II on top.
   In daylight under open sky: no gifts at all, and you catch fire."""
-from items import item, attr, T, TOTEM
+from items import item, attr, T, TOTEM, DYNAMIC
 from useitem import hold, HOLD
 
 SPECTER = '#c8fff0'
 
+SHEET_USES, SHEET_CD = 5, 100      # 2.17: five phases per sheet, 5 seconds apart
 item('specter_sheet', TOTEM, 'Specter Sheet', SPECTER,
-     ['A scrap of a banshee\'s shroud. Still restless.', ('Face a wall and right-click: phase through it', 'blue'),
-      ('(up to 12 blocks). Used up when it works.', 'blue'), ('Sneak + right-click with 9: a Specter Charm.', 'dark_aqua'),
-      ('Useless in the pack\'s dungeons and structures.', 'dark_gray')],
-     model='bm:specter_sheet', stack=16, cat='blood', glint=True, comps=hold('none'))
+     [(f'Phases left: {SHEET_USES} / {SHEET_USES}', SPECTER), 'A scrap of a banshee\'s shroud. Still restless.',
+      ('Face a wall and right-click: phase through it', 'blue'), ('(up to 12 blocks). 5 phases, 5 seconds apart.', 'blue'),
+      ('Sneak + right-click with 9: a Specter Charm.', 'dark_aqua'), ('Useless in the pack\'s dungeons and structures.', 'dark_gray')],
+     model='bm:specter_sheet', stack=1, cat='blood', glint=True, comps=hold('none'))
+DYNAMIC.add('specter_sheet')         # its uses (custom_data bm_used) and first lore line survive re-syncs
 HOLD['specter_sheet'] = 'bm:p37/sheet/use'
 
 item('specter_charm', TOTEM, 'Specter Charm', SPECTER,
@@ -38,8 +40,8 @@ def generate(G):
     fn, wjson, title, give = G.fn, G.wjson, G.title, G.give
     holds = '*[minecraft:custom_data~{bm:"%s"}]'
     sheet, charm = holds % 'specter_sheet', holds % 'specter_charm'
-    objs = ['bm.spsun dummy', 'bm.spct dummy']
-    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o}' for o in objs]
+    objs = ['bm.spsun dummy', 'bm.spct dummy', 'bm.spcd dummy']
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o}' for o in objs] + ['scoreboard players set #20 bm.rng 20']
     G.OBJECTIVES += [o.split()[0] for o in objs]
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
 
@@ -55,6 +57,9 @@ def generate(G):
                        'execute if entity @e[type=minecraft:marker,tag=bm.dread_core,distance=..48] run return 0',
                        'execute if entity @e[type=minecraft:marker,tag=bm.crash_seed,distance=..24] run return 0', 'return 1'])
     fn('p37/sheet/use', ['execute if predicate bm:p20/sneaking run return run function bm:p37/sheet/stitch',
+                         'execute store result score #now bm.rng run time query gametime',
+                         'scoreboard players operation #cd bm.rng = #now bm.rng', 'scoreboard players operation #cd bm.rng -= @s bm.spcd',
+                         f'execute if score @s bm.spcd matches 1.. if score #cd bm.rng matches 0..{SHEET_CD - 1} run return run function bm:p37/sheet/wait',
                          'execute unless function bm:p37/allowed run return run ' + say('The walls here are warded. The sheet goes limp.'),
                          'execute rotated ~ 0 positioned ^ ^ ^0.8 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run return run ' +
                          say('Face a wall to phase through it.'),
@@ -67,12 +72,28 @@ def generate(G):
                          'align xyz positioned ~0.5 ~ ~0.5 run return run function bm:p37/sheet/land',
                          'scoreboard players remove #ray bm.rng 1', 'execute if score #ray bm.rng matches 1.. positioned ^ ^ ^0.5 run function bm:p37/sheet/ray'])
     fn('p37/sheet/land', ['execute unless function bm:p37/allowed run return run scoreboard players set #found bm.rng 2',
-                          'scoreboard players set #found bm.rng 1', f'clear @s {sheet} 1',
+                          'scoreboard players set #found bm.rng 1', 'scoreboard players operation @s bm.spcd = #now bm.rng',
+                          'execute if items entity @s weapon.mainhand ' + sheet + ' run function bm:p37/sheet/wear {slot:"weapon.mainhand"}',
+                          'execute unless items entity @s weapon.mainhand ' + sheet + ' run function bm:p37/sheet/wear {slot:"weapon.offhand"}',
                           'execute at @s run particle minecraft:soul ~ ~1 ~ 0.3 0.6 0.3 0.02 16',
                           'execute at @s run playsound minecraft:entity.vex.charge player @a[distance=..16] ~ ~ ~ 1 0.6',
                           'tp @s ~ ~ ~', 'particle minecraft:soul ~ ~1 ~ 0.3 0.6 0.3 0.02 16',
                           'playsound minecraft:entity.allay.item_taken player @a[distance=..16] ~ ~ ~ 1 0.5',
                           'effect give @s minecraft:nausea 3 0 true', say('You slip through the stone like a draught.', SPECTER)])
+    # one phase used: the last one tears the sheet apart
+    wear = ['$execute if items entity @s $(slot) *[minecraft:custom_data~{bm:"specter_sheet",bm_used:%d}] run return run function bm:p37/sheet/torn {slot:"$(slot)"}' % (SHEET_USES - 1)]
+    for u in range(SHEET_USES - 2, 0, -1):
+        wear.append('$execute if items entity @s $(slot) *[minecraft:custom_data~{bm:"specter_sheet",bm_used:%d}] run return run function bm:p37/sheet/mark {slot:"$(slot)",u:%d,left:%d}'
+                    % (u, u + 1, SHEET_USES - u - 1))
+    wear.append('$function bm:p37/sheet/mark {slot:"$(slot)",u:1,left:%d}' % (SHEET_USES - 1))
+    fn('p37/sheet/wear', wear)
+    fn('p37/sheet/mark', ['$item modify entity @s $(slot) {function:"minecraft:set_custom_data",tag:{bm_used:$(u)}}',
+                          '$item modify entity @s $(slot) {function:"minecraft:set_lore",mode:"replace_section",offset:0,size:1,lore:[{text:"Phases left: $(left) / %d",color:"%s",italic:false}]}' % (SHEET_USES, SPECTER)])
+    fn('p37/sheet/torn', ['$item modify entity @s $(slot) {function:"minecraft:set_count",count:-1,add:true}',
+                          'playsound minecraft:item.shield.break player @s ~ ~ ~ 0.6 1.6', say('The sheet tears apart - that was its last phase.', SPECTER)])
+    fn('p37/sheet/wait', ['scoreboard players set #w bm.rng %d' % (SHEET_CD + 19), 'scoreboard players operation #w bm.rng -= #cd bm.rng',
+                          'scoreboard players operation #w bm.rng /= #20 bm.rng',
+                          title('@s', 'actionbar', [T('The sheet is still settling... ', 'gray'), {'score': {'name': '#w', 'objective': 'bm.rng'}, 'color': SPECTER}, T(' s', 'gray')])])
     # 9 sheets -> the charm
     fn('p37/sheet/stitch', [f'execute store result score #n bm.rng run clear @s {sheet} 0',
                             'execute if score #n bm.rng matches ..8 run return run ' +

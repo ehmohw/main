@@ -4,6 +4,10 @@ This is a **test build**: all of Phase 1.22 plus the seven boss dungeons. It **r
 
 Install it like Phase 1.6. Put `BlackMarket_Phase2_TEST_DP.zip` in `datapacks`, then use `BlackMarket_Phase2_TEST_RP.zip` as the resource pack. `SHA1.txt` has the resource pack hash for `server.properties`. The dungeons only generate in **new chunks**.
 
+## New in 2.17
+
+Includes everything in Phase 1.24: the Surface, Lava and Rainbow charms, rare monsters and their charms, and the Specter Sheet changes (see the main README). The Surface Charm uses the same wards as the sheets, so it can't lift you out of a Phase 2 dungeon or the Hollow Throne.
+
 ## New in 2.16
 
 Includes everything in Phase 1.23: Specter Sheets and the Specter Charm (see the main README). Sheets don't work inside or near any Phase 2 dungeon (48 blocks of a dungeon zone marker) or in the Hollow Throne, so they can't skip puzzles, gates or vault walls.

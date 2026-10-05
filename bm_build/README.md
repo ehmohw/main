@@ -19,11 +19,35 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 1.24: getting out of trouble, and rare monsters
+
+Still Java 26.3.
+
+- **The Surface Charm** is a rare find in Overworld loot chests (2-4% of dungeon, mineshaft, temple, stronghold, treasure, shipwreck, ruined portal, mansion, outpost, ancient city and igloo chests). Underground, right-click it to rise straight up to the surface. It's reusable with no cooldown. It refuses under open sky, outside the Overworld, inside the pack's own structures, or if only lava waits above.
+- **The Lava Charm** is found in Nether chests: 15% of bastion treasure, 8% of other bastion chests and 8% of fortress chests.
+  - If you're in lava with one anywhere in your inventory, it pulls you out on its own. Right-clicking it in lava also works.
+  - It takes you back to the last safe ground you stood on, if that's within 64 blocks and still safe. Otherwise it searches the columns around you for safe footing.
+  - It puts the fire out and gives 10 seconds of Fire Resistance. One use.
+- **The Rainbow Charm** (Lucky Whiskers, 6 Lucky Tokens): a little rainbow arcs over your head.
+- **Rare monsters**: about 3 in 1000 natural spawns of these mobs are a rare variant with double health and its own particles:
+
+  | Mob | Rare variant | Charm |
+  | --- | --- | --- |
+  | Zombie | Cinder Revenant | Cinderheart Charm (embers) |
+  | Skeleton | Starlit Skeleton | Starfall Charm (starlight) |
+  | Spider | Glimmerweave Spider | Glimmer Charm (glowing motes) |
+  | Creeper | Bloomcreeper | Bloom Charm (spores) |
+  | Enderman | Voidwalker | Void Charm (void sparks) |
+  | Blaze | Ashen Blaze | Ashfall Charm (falling ash) |
+
+  Each rare monster has a 35% chance (+10% per Looting level) to drop its charm, plus 2-4 Tokens. A charm gives you the same particles. Like the other cosmetic charms, keep one anywhere in your inventory; one shows at a time, and the rare ones show before the shop ones. Ops can spawn them with `/function bm:admin/rare/<name>`.
+- **Specter Sheets**: the Banshee now drops one half the time, +10% per Looting level. Each sheet gives **5 phases**, at least 5 seconds apart. Its first lore line shows the phases left, and the fifth phase tears it apart.
+
 ## New in 1.23: the Banshee's shroud
 
 Still Java 26.3.
 
-- **Specter Sheets**: the Banshee (Blood Moon graveyards, once per moon) has a 1-in-200 chance to drop 1-3 of them. Face a wall and right-click one to **phase through it** (up to 12 blocks of wall, horizontally). The sheet is used up only when it works. Sheets refuse to work in or near the pack's own structures: the dungeons, the Black Market, graveyards, motherships, crash sites and the Hollow Throne. They also refuse if the far side lands in one of those places.
+- **Specter Sheets**: the Banshee (Blood Moon graveyards, once per moon) drops them (rates changed in 1.24, see above). Face a wall and right-click one to **phase through it** (up to 12 blocks of wall, horizontally). The sheet is used up only when it works. Sheets refuse to work in or near the pack's own structures: the dungeons, the Black Market, graveyards, motherships, crash sites and the Hollow Throne. They also refuse if the far side lands in one of those places.
 - **The Specter Charm**: sneak + right-click with 9 sheets to stitch one. Wear it in the **chest** slot.
   - Always: 30 blocks of safe fall, but 4 armor is taken away. Every other player within 5 blocks is shrouded in Darkness. The wearer isn't.
   - At night, or anywhere with light 7 or less: Speed III, Jump Boost II, Regeneration I, Night Vision and Fire Resistance.
