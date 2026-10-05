@@ -39,6 +39,7 @@ ALLOWED.update({'chicken': ENTITY | LIVING | MOB | BREEDABLE | {'IsChickenJockey
                 'armor_stand': ENTITY | LIVING | {'Invisible', 'Marker', 'NoBasePlate', 'ShowArms', 'Small', 'DisabledSlots', 'Pose'},  # mob/armor_stand.mcdoc
                 'interaction': ENTITY | {'width', 'height', 'response', 'attack', 'interaction'},          # entity/interaction.mcdoc
                 'magma_cube': ENTITY | LIVING | MOB | {'Size', 'wasOnGround'},                        # mob/slime.mcdoc CubeMob
+                'slime': ENTITY | LIVING | MOB | {'Size', 'wasOnGround'},                             # (2.13: same CubeMob fields; 'Size' verified on 26.3)
                 'piglin_brute': ENTITY | LIVING | MOB | {'IsImmuneToZombification', 'TimeInOverworld'},  # mob/piglin.mcdoc PiglinBase
                 'hoglin': ENTITY | LIVING | MOB | BREEDABLE | {'IsImmuneToZombification', 'CannotBeHunted', 'TimeInOverworld'}})
 RECIPE = {'rewardExp', 'maxUses', 'uses', 'buy', 'buyB', 'sell', 'xp', 'priceMultiplier', 'specialPrice', 'demand'}

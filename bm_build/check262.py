@@ -496,7 +496,9 @@ def p_resource(s, i, registry, tag_ok=False):
     rn = registry.split(':')[-1]
     if not tag:
         if r.startswith('bm:'):
-            raise PErr(f'custom id {r} in vanilla registry {rn}')
+            if not os.path.exists(f"{ROOT_DP}/bm/{rn}/{r.split(':')[1]}.json"):     # 2.13: the pack's own entries (damage types...)
+                raise PErr(f'custom id {r} in vanilla registry {rn}')
+            return j, r
         if strip_ns(ns(r)) not in REG[rn]: raise PErr(f'unknown {rn}: {r}')
     return j, r
 

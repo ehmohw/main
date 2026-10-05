@@ -627,6 +627,12 @@ for _v, _kit in RAT_KIT.items():
     HATS[f'rat3d_{_v}'] = (RAT_TEXV.get(_v, RAT_TEX), RAT_BASE + _kit)
 
 
+HANDHELD_EXTRA = set()       # item icons drawn held like a tool (later phases add to these)
+DISPLAY_3D_EXTRA = ()        # 3D model name prefixes shown at display-entity scale
+TEXTURE_MODS = []            # modules with textures() -> {name: PIL image} for assets/bm/textures/block
+LANG = {}                    # extra en_us entries (death messages...)
+
+
 def wj(rel, obj):
     with open(p(*rel.split('/')), 'w') as f:
         json.dump(obj, f, indent=1)
@@ -643,7 +649,7 @@ def build(out_dir):
     import phase18
     import phase22
     import phase24
-    handheld = {'frying_pan', 'rubber_chicken'} | phase18.HANDHELD | phase22.HANDHELD | phase24.HANDHELD
+    handheld = {'frying_pan', 'rubber_chicken'} | phase18.HANDHELD | phase22.HANDHELD | phase24.HANDHELD | HANDHELD_EXTRA
     for name, im in phase24.textures().items():                      # 1.14: crystal + alien block-atlas textures
         im.save(p('assets', 'bm', 'textures', 'block', name + '.png'))
     HATS.update(phase24.models())
@@ -651,6 +657,9 @@ def build(out_dir):
     for name, im in phase25.textures().items():
         im.save(p('assets', 'bm', 'textures', 'block', name + '.png'))
     HATS.update(phase25.models())
+    for mod in TEXTURE_MODS:                                           # 2.13+: later phases' block-atlas textures
+        for name, im in mod.textures().items():
+            im.save(p('assets', 'bm', 'textures', 'block', name + '.png'))
     for name, im in ICONS.items():
         im.save(p('assets', 'bm', 'textures', 'item', name + '.png'))
         wj(f'assets/bm/models/item/{name}.json', {'parent': 'minecraft:item/handheld' if name in handheld else 'minecraft:item/generated',
@@ -662,7 +671,7 @@ def build(out_dir):
         wj(f'assets/bm/items/rat_{v}.json', {'model': {'type': 'minecraft:model', 'model': f'bm:item/rat_{v}'}})
     for name, (tex, els) in HATS.items():
         t = dict(tex); t['particle'] = list(tex.values())[0]
-        wj(f'assets/bm/models/item/{name}.json', {'textures': t, 'elements': els, 'display': RAT_DISPLAY if name.startswith(('rat3d', 'trophy3d_', 'frog3d', 'frogp_', 'statue_') + phase24.DISPLAY_3D + phase25.DISPLAY_3D) else GUI_3D})
+        wj(f'assets/bm/models/item/{name}.json', {'textures': t, 'elements': els, 'display': RAT_DISPLAY if name.startswith(('rat3d', 'trophy3d_', 'frog3d', 'frogp_', 'statue_') + phase24.DISPLAY_3D + phase25.DISPLAY_3D + DISPLAY_3D_EXTRA) else GUI_3D})
         wj(f'assets/bm/items/{name}.json', {'model': {'type': 'minecraft:model', 'model': f'bm:item/{name}'}})
     # 1.11 flip-book poses: the item definitions choose a pose (and the frog's helm) from custom_model_data strings
     def mdl(n): return {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
@@ -681,8 +690,9 @@ def build(out_dir):
     wj('assets/bm/equipment/golden_wings.json', {'layers': {'wings': [{'texture': 'bm:golden_wings'}]}})
     dragon_recolor('/home/claude/bm_build/vendor/elytra_wings.png').save(p('assets', 'bm', 'textures', 'entity', 'equipment', 'wings', 'dragon_wings.png'))
     wj('assets/bm/equipment/dragon_wings.json', {'layers': {'wings': [{'texture': 'bm:dragon_wings'}]}})
-    wj('assets/bm/lang/en_us.json', {'death.attack.bm.blood_drain': '%1$s was drained by a Blood Moon horror',
-                                     'death.attack.bm.blood_drain.player': '%1$s was drained dry by %2$s'})
+    LANG.update({'death.attack.bm.blood_drain': '%1$s was drained by a Blood Moon horror',
+                 'death.attack.bm.blood_drain.player': '%1$s was drained dry by %2$s'})
+    wj('assets/bm/lang/en_us.json', LANG)
     for hook in POST: hook(sys.modules[__name__])
     # pack icon
     icon = ICONS['token'].resize((64, 64), Image.NEAREST)
@@ -712,6 +722,11 @@ if __name__ == '__main__':
     phase28.rp(sys.modules[__name__])
     phase29.rp(sys.modules[__name__])
     POST.append(phase29.rp_post)
+    import phase32                            # 2.13: the Vorn
+    phase32.rp(sys.modules[__name__])
+    TEXTURE_MODS.append(phase32)
+    LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',
+                 'death.attack.bm.quake': '%1$s was flattened by a shockwave', 'death.attack.bm.quake.player': '%1$s was flattened by %2$s'})
     if PHASE2:
         import p2.art  # adds Phase 2 icons/models into ICONS and EXTRA
         p2.art.register(sys.modules[__name__])

@@ -21,6 +21,8 @@ import phase28 as R28        # 1.18: Standing, keys, gates, back rooms (+ menus,
 import phase29 as R29        # 1.18: the new goods
 import phase30 as R30        # 1.18: the Dark Auction
 import phase31 as R31        # 1.18: the Gilded Gutter + Rat Bank
+import phase32 as R32        # 2.13: the Vorn - invasion nights, crash sites carved at runtime, the Dreadnought, red Xenite
+import useitem               # 2.13: hold-to-use items (using_item trigger)
 import market2 as M2
 import economy as ECON
 import mig263
@@ -815,15 +817,19 @@ def gen_tags_worldgen():
     wjson('bm/tags/worldgen/structure/mothership.json', {'values': ['bm:mothership']})
     wjson('bm/tags/worldgen/biome/has_structure/mothership.json', {'values': [f'minecraft:{b}' for b in MARKET_BIOMES if b not in (
         'dripstone_caves', 'lush_caves', 'sulfur_caves', 'jagged_peaks', 'frozen_peaks', 'stony_peaks', 'snowy_slopes', 'grove')]})
+    wjson('bm/tags/worldgen/structure/red_mothership.json', {'values': ['bm:red_mothership']})
+    wjson('bm/tags/worldgen/biome/has_structure/red_mothership.json', {'values': [f'minecraft:{b}' for b in MARKET_BIOMES if b not in (
+        'dripstone_caves', 'lush_caves', 'sulfur_caves', 'jagged_peaks', 'frozen_peaks', 'stony_peaks', 'snowy_slopes', 'grove')]})
     for sid, step, height, proj, adapt, spacing, sep, salt in [
             ('black_market', 'underground_structures',
              {'type': 'minecraft:uniform', 'min_inclusive': {'absolute': -40}, 'max_inclusive': {'absolute': -14}}, None, 'none', 36, 14, 73519421),
             ('graveyard', 'surface_structures', {'absolute': -17}, 'WORLD_SURFACE_WG', 'beard_thin', 64, 28, 19840313),
             ('frog_hut', 'surface_structures', {'absolute': -4}, 'WORLD_SURFACE_WG', 'none', 40, 14, 31415926),
-            ('crash_site', 'surface_structures', {'absolute': -R24.GROUND}, 'WORLD_SURFACE_WG', 'beard_thin', 44, 16, 70707070),
-            ('mothership', 'surface_structures', {'absolute': R25.SKY_Y}, None, 'none', 120, 50, 19470708)]:     # 1.19: motherships ~4-5x rarer (was 56/22)
+            ('crash_site', 'surface_structures', {'absolute': 0}, 'WORLD_SURFACE_WG', 'none', 44, 16, 70707070),        # 2.13: a seed marker; carved at runtime
+            ('mothership', 'surface_structures', {'absolute': R25.SKY_Y}, None, 'none', 200, 80, 19470708),          # 2.13: ~3x rarer again (was 120/50)
+            ('red_mothership', 'surface_structures', {'absolute': R25.SKY_Y + 6}, None, 'none', 420, 160, 66613013)]:  # 2.13: the Vorn Dreadnought
         # 1.13: no natural monster spawns anywhere inside a market's bounds
-        so = {'monster': {'bounding_box': 'full', 'spawns': []}} if sid in ('black_market', 'mothership') else {}
+        so = {'monster': {'bounding_box': 'full', 'spawns': []}} if sid in ('black_market', 'mothership', 'red_mothership') else {}
         s = {'type': 'minecraft:jigsaw', 'biomes': f'#bm:has_structure/{sid}', 'step': step, 'spawn_overrides': so,
              'terrain_adaptation': adapt, 'start_pool': f'bm:{sid}/start', 'size': 1, 'start_height': height,
              'max_distance_from_center': 80, 'use_expansion_hack': False, 'liquid_settings': 'ignore_waterlogging'}
@@ -845,11 +851,14 @@ def gen_tags_worldgen():
     if r.returncode: raise SystemExit('market2 check failed:\n' + r.stdout + r.stderr)
     S.build_graveyard().export(path('data', 'bm', 'structure', 'graveyard.nbt'))
     S.build_frog_hut().export(path('data', 'bm', 'structure', 'frog_hut.nbt'))
-    R24.build_crash_site().export(path('data', 'bm', 'structure', 'crash_site.nbt'))
+    R32.build_crash_seed().export(path('data', 'bm', 'structure', 'crash_site.nbt'))         # 2.13: the crater is carved at runtime
+    R32.build_crash_saucer().export(path('data', 'bm', 'structure', 'crash_saucer.nbt'))
     R25.build_mothership().export(path('data', 'bm', 'structure', 'mothership.nbt'))
-    r = subprocess.run([sys.executable, '-c', 'import phase25, sys; e = phase25.check_mothership(phase25.build_mothership()); print("\\n".join(e)); sys.exit(1 if e else 0)'],
-                       cwd=os.path.dirname(os.path.abspath(__file__)), capture_output=True, text=True)
-    if r.returncode: raise SystemExit('mothership check failed:\n' + r.stdout + r.stderr)
+    R32.build_dreadnought().export(path('data', 'bm', 'structure', 'red_mothership.nbt'))
+    for red in (False, True):
+        r = subprocess.run([sys.executable, '-c', f'import phase25, sys; e = phase25.check_mothership(phase25.build_mothership(red={red})); print("\\n".join(e)); sys.exit(1 if e else 0)'],
+                           cwd=os.path.dirname(os.path.abspath(__file__)), capture_output=True, text=True)
+        if r.returncode: raise SystemExit(f'mothership check failed (red={red}):\n' + r.stdout + r.stderr)
     # item loot tables (handy for /loot and for other packs)
     for iid in ITEMS:
         wjson(f'bm/loot_table/items/{iid}.json', {'pools': [{'rolls': 1, 'entries': [loot_entry(iid)]}]})
@@ -885,6 +894,7 @@ def build(out_dir):
     R25.generate(sys.modules[__name__])
     R26.generate(sys.modules[__name__])
     R27.generate(sys.modules[__name__])
+    R32.generate(sys.modules[__name__])
     if PHASE2: p2.generate(sys.modules[__name__])
     gen_admin()
     Q.post_admin(sys.modules[__name__])
@@ -892,6 +902,7 @@ def build(out_dir):
     R24.post_admin(sys.modules[__name__])
     R25.post_admin(sys.modules[__name__])
     R27.post_admin(sys.modules[__name__])
+    R32.post_admin(sys.modules[__name__])
     if PHASE2: p2.post_admin(sys.modules[__name__])
     # 1.18: after everything they hook into exists (trader offers, Phase 2 credits, admin help/uninstall)
     R28.generate(sys.modules[__name__])
@@ -899,6 +910,7 @@ def build(out_dir):
     R30.generate(sys.modules[__name__])
     R31.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
+    useitem.generate(sys.modules[__name__])
     gen_tags_worldgen()
     # 1.13: every objective is created before any line of load uses it (phases prepend their own lines to load, and a
     # constant set before its objective exists silently fails - the 1.11 rat-pillar bug on brand-new worlds)

@@ -303,7 +303,9 @@ MC = 25
 SKY_Y = 196               # the template's floor; the beam's mouth hangs at ~y198, the decks at ~y203/208
 
 
-def build_mothership():
+def build_mothership(red=False):
+    """red=True: the Vorn Dreadnought (2.13) - the same hull recoloured red, hostile guards instead of crew, red Xenite in the
+    reactor, an armoury chest instead of the quartermaster and an abducted villager instead of Donado."""
     from structures import Build
     import market2
     rnd = random.Random(1947)
@@ -397,8 +399,13 @@ def build_mothership():
         Bd.marker(x + 0.5, LD + 1.5, z + 0.5, ['bm.npc_spawn', 'bm.npc.xenite', f'bm.xc_{c}'], 0)
     walls(MC - 4, MC + 8, MC + 4, MC + 16, LD + 1, LD + 1, 'iron_bars', door={(MC, MC + 8), (MC - 1, MC + 8), (MC + 1, MC + 8)})
     Bd.sign(MC + 2, LD + 2, MC + 7, 'birch_sign[rotation=8,waterlogged=false]', ['REACTOR', 'Xenite core.', 'Do not lick.', ''], color='lime', glow=True)
-    for (x, z) in [(8, 25), (8, 26), (9, 24), (42, 25), (42, 26), (41, 27), (10, 31), (40, 20)]:
-        S(x, LD + 1, z, rnd.choice(['barrel[facing=up,open=false]', 'iron_block', 'light_gray_shulker_box[facing=up]']))
+    stores = 'bm:p32/dread_stores' if red else 'bm:p32/mothership_stores'
+    for i, (x, z) in enumerate([(8, 25), (8, 26), (9, 24), (42, 25), (42, 26), (41, 27), (10, 31), (40, 20)]):
+        pick = rnd.choice(['barrel[facing=up,open=false]', 'iron_block', 'light_gray_shulker_box[facing=up]'])
+        if i in (0, 3, 6, 7):        # 2.13: four of them are supply barrels with loot (shards and supplies, never Zorp's goods)
+            S(x, LD + 1, z, 'barrel[facing=up,open=false]', {'id': 'minecraft:barrel', 'LootTable': stores})
+        else:
+            S(x, LD + 1, z, pick)
     # ---------------- stairs up to the main deck (east): x37-38, rising north z30 (y7) -> z25 (y11)
     for k in range(5):
         z = 30 - k
@@ -461,9 +468,55 @@ def build_mothership():
     Bd.marker(MC + 0.5, MD + 3.5, MC + 0.5, ['bm.npc_spawn', 'bm.npc.xholo'], 0)
     for (x, z) in [(MC - 1, MC), (MC + 1, MC), (MC, MC - 1), (MC, MC + 1)]: S(x, MD + 1, z, 'end_rod[facing=up]')
     S(MC, MD + 1, MC, 'sea_lantern')
+    if red: _vornify(Bd, MD, LD)
     lights = market2.spawnproof(Bd, fix=True)
     Bd.meta = {'lights': lights}
     return Bd
+
+
+_RED_SWAP = {'lime_stained_glass': 'red_stained_glass', 'lime_stained_glass_pane': 'red_stained_glass_pane', 'verdant_froglight': 'shroomlight',
+             'cyan_terracotta': 'red_terracotta', 'light_blue_stained_glass': 'red_stained_glass', 'cyan_stained_glass': 'red_stained_glass',
+             'white_stained_glass_pane': 'red_stained_glass_pane', 'light_gray_concrete': 'gray_concrete', 'smooth_quartz': 'polished_deepslate',
+             'white_concrete': 'black_concrete', 'polished_diorite': 'polished_blackstone'}
+
+
+def _vornify(Bd, MD, LD):
+    """Recolour the hull and swap the friendly crew for the Vorn (the Dreadnought)."""
+    from structures import parse_state, state_str
+    for pos, st in list(Bd.b.items()):
+        name, props = parse_state(st)
+        short = name.split(':')[1]
+        if short in _RED_SWAP:
+            new = _RED_SWAP[short]
+            if new == 'shroomlight': props = {}
+            Bd.b[pos] = state_str('minecraft:' + new, props if new not in ('red_stained_glass', 'polished_deepslate', 'black_concrete', 'polished_blackstone', 'gray_concrete', 'red_terracotta') else {})
+    for (pos, nb) in list(Bd.nbt.items()):
+        if nb.get('id') in ('minecraft:sign', 'minecraft:hanging_sign'):
+            nb['front_text']['color'] = 'red'
+    keep = []
+    for e in Bd.ents:
+        t = e['nbt']['Tags']
+        if 'bm.npc.acrew' in t:
+            e['nbt']['Tags'] = ['bm.vguard']
+        elif 'bm.npc.alien' in t:
+            e['nbt']['Tags'] = ['bm.vguard_boss']
+        elif 'bm.npc.donado_pen' in t:
+            e['nbt']['Tags'] = ['bm.npc_spawn', 'bm.npc.abductee', 'bm.ab_villager']
+        elif 'bm.npc.xholo' in t:
+            e['nbt']['Tags'] = ['bm.npc_spawn', 'bm.npc.xholo_red']
+        elif 'bm.tbeam' in t:
+            e['nbt']['Tags'] = ['bm.tbeam_red']
+        elif 'bm.npc.xenite' in t:
+            e['nbt']['Tags'] = ['bm.npc_spawn', 'bm.npc.xenite', 'bm.xc_red']
+        keep.append(e)
+    Bd.ents = keep
+    Bd.marker(MC + 0.5, MD + 1, MC + 0.5, ['bm.dread_core'], 0)
+    # the armoury: on the bridge, behind the captain's console
+    Bd.set(MC, MD + 1, 10, 'chest[facing=south,type=single,waterlogged=false]', {'id': 'minecraft:chest', 'LootTable': 'bm:p32/dread_armory'})
+    Bd.set(MC - 1, MD + 1, 10, 'redstone_block'); Bd.set(MC + 1, MD + 1, 10, 'redstone_block')
+    for (pos, nb) in list(Bd.nbt.items()):
+        if nb.get('id') in ('minecraft:sign',) and nb['front_text']['messages'][0]['text'] == 'SPECIMEN 042':
+            nb['front_text']['messages'] = [{'text': 'SPECIMEN 117'}, {'text': 'Earth-farmer'}, {'text': 'for improvement'}, {'text': 'HIVE PROPERTY'}]
 
 
 def check_mothership(Bd):
@@ -637,9 +690,8 @@ def donado_helm(m, dy, dz):
     return [_mv(e, dy=dy, dz=dz) for e in h]
 
 
-def alien_model(coat):
-    """A Donadian (from the player's build): teal head with dark patches, red eyes, black muzzle, pointy ears,
-    antennae, a dark coat with teal trim, standing on a glowing hover-disc. Faces -z."""
+def alien_model_disc(coat):
+    """(pre-2.13 Donadian, kept for reference: the teal head on a hover-disc.)"""
     els = {}
     els['disc'] = [_c((2.5, 0, 2.5), (13.5, 0.7, 13.5), 'd'), _c((5, 0.7, 5), (11, 1.0, 11), 'd')]
     els['legs'] = [_c((6, 1, 7.2), (7.6, 6, 9.2), 's'), _c((8.4, 1, 7.2), (10, 6, 9.2), 's')]
@@ -661,18 +713,38 @@ def alien_model(coat):
     return tex, els
 
 
+def alien_model(coat):
+    """2.13: a Donadian is Donado's own build in Donadian colours - teal fur with dark patches, a lighter muzzle, dark ears,
+    red eyes, white antennae, a coat (crew / lab / officer) - and no hover-disc (that became the Vorn hoverboard). Faces -z."""
+    P = donado_parts()
+    E = {}
+    E['legs'] = P['legL'] + P['legR']
+    E['coat'] = P['torso'] + P['tail']
+    E['arms'] = P['armL'] + P['armR']
+    E['head'] = P['head']
+    E['eyes'] = [_c((5, 15.6, 4.88), (6.6, 17.3, 5.0), 'r'), _c((9.4, 15.6, 4.88), (11, 17.3, 5.0), 'r'),
+                 _c((5.2, 16.6, 4.86), (5.7, 17.1, 4.9), 'w'), _c((9.6, 16.6, 4.86), (10.1, 17.1, 4.9), 'w')]
+    E['mouth'] = []
+    E['ant'] = [_c((6.1, 19, 7.6), (6.7, 23, 8.2), 'a'), _c((5.8, 23, 7.3), (7.0, 24.2, 8.5), 'a'),
+                _c((9.3, 19, 7.6), (9.9, 23, 8.2), 'a'), _c((9.0, 23, 7.3), (10.2, 24.2, 8.5), 'a')]
+    tex = {'f': 'bm:block/adon_skin', 'm': 'bm:block/adon_muzzle', 'e': 'bm:block/adon_dark', 'k': 'bm:block/adon_mouth',
+           't': 'bm:block/adon_tongue', 's': f'bm:block/adon_{coat}', 'p': 'bm:block/adon_dark', 'r': 'bm:block/adon_eye',
+           'w': 'bm:block/adon_antenna', 'a': 'bm:block/adon_antenna'}
+    return tex, E
+
+
 def alien_pose(coat, pose):
     tex, E = alien_model(coat)
     if pose == 'sniff':                                         # antennae wiggle
-        E['ant'] = [_rot(e, 'z', 22.5 if i < 2 else -22.5, (6.4 if i < 2 else 9.6, 22, 7.9)) for i, e in enumerate(E['ant'])]
+        E['ant'] = [_rot(e, 'z', 22.5 if i < 2 else -22.5, (6.4 if i < 2 else 9.6, 19, 7.9)) for i, e in enumerate(E['ant'])]
     elif pose == 'ears':                                        # blink
-        E['eyes'] = [_c((4.4, 19.2, 4.42), (6.9, 19.8, 4.6), 'x'), _c((9.1, 19.2, 4.42), (11.6, 19.8, 4.6), 'x')]
-    elif pose == 'tail':                                        # talking: the jaw drops
-        E['mouth'] = [_c((6, 13.6, 3.6), (10, 17.6, 4.6), 'k'), _c((6.4, 17.0, 3.5), (7.2, 17.6, 3.6), 's'), _c((8.8, 17.0, 3.5), (9.6, 17.6, 3.6), 's'),
-                      _c((6.4, 13.6, 3.5), (9.6, 14.2, 3.6), 's')]
+        E['eyes'] = [_c((5, 16.1, 4.88), (6.6, 16.6, 5.0), 'e'), _c((9.4, 16.1, 4.88), (11, 16.6, 5.0), 'e')]
+    elif pose == 'tail':                                        # talking: a wag and a breath
+        E['coat'] = [_rot(e, 'y', 22.5, (8, 7, 10.4)) if i == len(E['coat']) - 1 else e for i, e in enumerate(E['coat'])]
+        for k in ('coat', 'arms', 'head', 'eyes', 'ant'): E[k] = [_mv(e, dy=0.25) for e in E[k]]
     elif pose is not None:
         raise ValueError(pose)
-    return tex, [e for k in ('disc', 'legs', 'coat', 'arms', 'head', 'eyes', 'mouth', 'ant') for e in E[k]]
+    return tex, [e for k in ('legs', 'coat', 'arms', 'head', 'eyes', 'mouth', 'ant') for e in E[k]]
 
 
 def models():
