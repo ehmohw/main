@@ -31,7 +31,8 @@ item('bidding_paddle', 'minecraft:carrot_on_a_stick', 'Bidding Paddle', '#c0392b
 LOTS = [
     ('wings_rat_king', 'Wings of the Rat King', '#ffb300', 'head', 40, 'world', [('wings_rat_king', 1)], False),
     ('merc_contract', 'Mercenary Contract', '#c0392b', 'head', 35, 'player', [('merc_contract', 1)], False),
-    # 2.13: the Golden Donado left the Auction - it is found in the Gilded Roost now
+    # 2.13: on the Phase 2 build the Golden Donado left the Auction - it is found in the Gilded Roost ('base': base pack only)
+    ('golden_donado', 'Golden Donado', '#ffd700', 'head', 30, 'world', [('golden_donado', 1)], 'base'),
     ('ring_burrows', 'Ring of Three Burrows', '#d4a35a', 'head', 30, 'player', [('ring_burrows', 1)], False),
     ('pocket_rift', 'Pocket Rift', '#4fd6c4', 'head', 25, None, [('pocket_rift', 1)], False),
     ('rat_king_signet', "Rat King's Signet", '#ffb300', 'head', 25, 'world', [('rat_king_signet', 1)], False),
@@ -70,7 +71,7 @@ def generate(G):
     import phase28 as P28
     tick, fast, second, load = [], [], [], []
     ident = [F(0), F(0), F(0), F(1)]
-    lots = [l for l in LOTS if G.PHASE2 or not l[7]]
+    lots = [l for l in LOTS if (G.PHASE2 and l[7] != 'base') or (not G.PHASE2 and l[7] is not True)]
     N = len(lots)
     G.P30_LOTS = lots
 

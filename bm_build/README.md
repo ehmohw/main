@@ -1,4 +1,4 @@
-# Black Market — Phase 1.19 (Java 26.3)
+# Black Market — Phase 1.20 (Java 26.3)
 
 A data pack + resource pack. No mods required, and it works alongside Fabric.
 
@@ -18,6 +18,52 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 1.20: the Vorn, new goods and a tidier market
+
+Still Java 26.3. Mechanics that need a player (jumps, flight, rides, the satchel) were checked by the command, NBT and logic checkers but not hand-played: please report anything odd.
+
+**The Visitors, part 3: the Vorn**
+- **There are two fleets.** The Donadians (Zorp's people) are friendly traders. The **Vorn** are a hive that bioengineers whatever it finds. Books and NPC chatter tell the story.
+- **Crash sites** are carved into the real ground the first time someone comes near. The crater follows the hillside, so no more floating wrecks or square patches of flattened land. Zorp has left them (existing ones pack up). A wrecked supply chest holds a Mothership Chart.
+- **Motherships** are about three times rarer. Their stores now hold loot barrels: shards and supplies, never Zorp's goods. Zorp lives only on the mothership.
+- **Zorp** no longer sells what the Xenite Altar can make (ray gun, tractor beam, cloaking device, dowser, gravity boots). He sells new tech instead.
+- **The Donadians look like Donado** in a teal palette, without the green disc underneath. The disc became the Vorn hoverboard.
+- **Invasion nights:** about 1 night in 30 that isn't a Blood Moon or Lucky Night (or `/function bm:admin/invasion_now`).
+  - Vorn Troopers ride hoverboards and fire plasma. Scout Saucers (UFOs) swoop and shoot back; shoot them down.
+  - Bioengineered monsters glow green: oversized slimes, giant phantoms that dive from the open sky whether or not anyone slept, and a third of ordinary night spawns.
+  - Everything drops Xenite shards, every colour.
+  - At midnight a boss lands: the **Warlord** or the **Abductor**. Both drop Power Cells.
+- **The Overcharged Beacon** (Zorp, for Power Cells) summons the **Supercharged Overseer**, on invasion nights only. Only the Overseer drops the **Gravitic Core**: hover-flight in survival.
+- **The Vorn Dreadnought** is an incredibly rare, hostile red mothership. It has Vorn guards, the **Quake Maul** (right-click: a shockwave) and the **Vorn Saucer Crown** cosmetic.
+- **Red Xenite** can be socketed at the altar so the item makes you grow while held or worn. A second red shard flips it to shrink. Infuse a crossbow or a bow with 8 red shards for a **Growth Ray** or **Shrink Ray**. The effect is permanent on mobs (never the Ender Dragon) and lasts 30 seconds on players.
+
+**New goods**
+- **Vacuum Satchel** (Zorp, the Fence's back room): 27 slots. Right-click switches it on or off; while on, it pulls dropped items within 6 blocks into itself. Sneak + right-click opens it.
+- **Tool fusion** at the Xenite Altar: sneak + right-click with a tool in each hand. The main tool also mines like the off-hand one. Costs 8 levels; at most two capabilities.
+- **Dimension Shifter** (Zorp): a menu to the Overworld, the Nether or the End, each to a safe spot. Never the Hollow Throne.
+- **Triple Jump Boots** jump higher on the second and third hop. **Spring-Loaded Boots** charge while you hold sneak (2 to 5 blocks).
+- **Void Totem** (the Void Rat) pulls you out of the void. **Pocket Ender Chest** (the Void Rat). The **Void Hinge** upgrades a shulker box so sneak + right-click opens it from your hand.
+- **Experience Flask** (Prof. Whiskerton) stores and returns your XP.
+- **Sanguine Fang** (the Bloodbroker): in your off hand, each kill heals half a heart. The **Vampire Lord** set now really heals: two full hearts per kill.
+- **Rocket boots** kick about twice as hard (~15 blocks a burst).
+- **The Rat Bank** also keeps Blood Crystals, all four Xenite colours, Ember Scales and Void Shards.
+
+**The market, tidied**
+- **Counters** are one block high. The old ones had a slab floating on top.
+- **The Dark Auction's tiers** now rise away from the podium. **Cushions** (new in 26.3) are the seats there, in the tavern and on the plaza benches.
+- **Signs** face the walkway they belong to.
+- **Water:** every market sweeps away any water that isn't the fountain, the river or the falls. It runs when the market is first visited and again every minute while someone is inside, and it restores the docks' floor where water took it.
+- **Salty Sal, Dockmaster**, now works the dock office (existing markets get him too):
+  - **MLG Water Bucket**: carry it and it splashes water under a long fall, then scoops it back. 3 charges, one returns every 20 s. Not in the Nether.
+  - **Water Charm**: puts you out when you catch fire, 5 times.
+  - **Kraken Conch**: blow it in water to ride a kraken. Very fast swimming, and you breathe while riding.
+  - **Gold Doubloon** (5 Trophies + 5 Hearts of the Sea): while you carry it, every hostile mob you kill has a 1-in-200 chance to drop a Token.
+  - **Rare Blue Axolotls**, the Fishbowl Helmet, the Coral Crown, Bubble Trail Boots, the Captain's Cutlass, a Flintlock Pistol, Anchor Boots and Messages in a Bottle (treasure maps).
+- **Black Market Keys** return to looted crypts every Blood Moon.
+- **Graveyards** have 23 new epitaphs, and about half the graves have none.
+- **Lucky Prime animals** only glow while someone is within 10 blocks.
+- **The Golden Donado** (still a Dark Auction lot here) no longer tends crops. Set it down and no monster spawns within 32 blocks of it, a 64 x 64 area.
 
 ## New in 1.19: Minecraft 26.3
 
@@ -660,10 +706,24 @@ Hold the item to reskin in your **off hand**, then use the scroll in your **main
 - `/function bm:admin/lucky_night` makes tonight a Lucky Night. `/function bm:admin/ember_rat` and `/function bm:admin/void_rat` summon a field trader near you
 - `/function bm:admin/place_crash_site` builds a crashed saucer around you. `/function bm:admin/give/alien` gives the Xenite shards and alien tech
 - `/function bm:admin/place_mothership` builds a mothership 40 blocks above you, with its tractor beam right where you stand
+- `/function bm:admin/invasion_now` makes tonight an invasion night (`invasion_stop` ends it). `/function bm:admin/spawn_warlord`, `spawn_abductor` and `spawn_overseer` summon a Vorn boss. `/function bm:admin/place_dreadnought` builds the Vorn Dreadnought 40 blocks above you
 - `/function bm:admin/auction_now` starts a Dark Auction right away; `/function bm:admin/auction_stop` stops it and refunds every bid
 - `/scoreboard players set <player> bm.stand 500` sets someone's Standing (their tier, key and portrait catch up within a second)
 - `/function bm:admin/bank_interest_on` / `bank_interest_off` turns Rat Bank interest on or off (1 Token per 50, paid at each auction)
 - `/function bm:admin/uninstall` stops all loops before you remove the pack
+
+## How 1.20 was checked
+
+- The real 26.3 server loads both packs with **0 errors**, after a restart for the new worldgen.
+- The command, NBT, structure, resource pack, trade and logic checkers all report **0 errors**. That's 12,576 command lines (16,610 on the TEST build), 768 NBT blobs on the TEST build, and 689 trades (715 on the TEST build).
+- **Checked live in the server:**
+  - A crash site carved on a real hillside.
+  - Every Vorn mob and boss spawned.
+  - The Dreadnought and a mothership placed, with loot barrels and guards.
+  - A fresh market placed: all 44 cushions spawn and stay put.
+  - The Dockmaster spawns behind his counter in an existing market.
+  - The water sweep removes stray water and leaves the river and fountain alone.
+- **Not hand-played:** anything that needs a real player (jumps, flight, rides, the satchel, the rays). Those passed the static checks only.
 
 ## How this was verified against 26.3
 

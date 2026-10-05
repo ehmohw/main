@@ -1,8 +1,66 @@
-# Black Market — Phase 2 TEST build v2.12 (Java 26.3)
+# Black Market — Phase 2 TEST build v2.13 (Java 26.3)
 
-This is a **test build**: all of Phase 1.19 plus the seven boss dungeons. It **replaces** `BlackMarket_DP.zip`, so don't load both. Use a test world (or a copy of your world) until it has been played through once.
+This is a **test build**: all of Phase 1.20 plus the seven boss dungeons. It **replaces** `BlackMarket_DP.zip`, so don't load both. Use a test world (or a copy of your world) until it has been played through once.
 
 Install it like Phase 1.6. Put `BlackMarket_Phase2_TEST_DP.zip` in `datapacks`, then use `BlackMarket_Phase2_TEST_RP.zip` as the resource pack. `SHA1.txt` has the resource pack hash for `server.properties`. The dungeons only generate in **new chunks**.
+
+## New in 2.13
+
+Includes everything in Phase 1.20 (the Vorn, the new goods, the tidier market and the Dockmaster; see the main README). On the TEST build:
+
+**Getting through the dungeons**
+- **Where Sealed Maps come from:**
+  - The Fence sells the first one (the Sealed Nest Map), and now sells **every** Sealed Map.
+  - Each boss's first victory gives you the next map.
+  - The next map is also in that boss's **Victor's Vault**.
+- **Why the Broodmother gave no map:** victory credit only went to players the arena counted at the start of the fight. Now everyone in the arena when the boss falls is a victor.
+- **Playing together:** every player in the arena gets their own Victor's Key and their own credit. Each vault rewards each player once, so everyone loots it.
+- **Underground entrances always reach the surface.** You can't dig inside a dungeon (adventure mode and Mining Fatigue), so the Broodmother's Nest and the Gilded Roost build a lit ladder shaft from their door up to a marked well-head on the surface. This happens the first time the dungeon loads, and it also covers nests already in your world.
+- **Key of New Beginnings** (the Fence, 3 Tokens): resets *your* conquest record to zero, so every dungeon and first-victory reward can be won again. You keep everything you own.
+- **Conquered dungeons reset fully.** After a day with nobody inside: puzzles, gates and doors reset, every vault can be opened again by everyone, and every loot chest refills. This applies to dungeons generated with 2.13.
+
+**Victor's Vaults**
+- Every Victor's Vault has a floating sign and a beam of light over it.
+- The Hollow King's vault sits **on his throne**.
+- Victor's Vaults now give:
+  - Currency: Tokens, Medallions and Xenite.
+  - That boss's prizes: its trophy, the next Sealed Map, sometimes its signature weapon, and a Lucky Map fragment.
+  - One rare vanilla treasure: a Heavy Core, emerald blocks, diamonds, a diamond block, an enchanted golden apple or a netherite upgrade template.
+
+**The Hollow Throne**
+- **The waves are brutal.** The phantom Wraiths are gone (they flew off and never fought). Hollow Brutes, Hollow Tuskers (hoglins) and a Hollow Ravager take their place. Each trial now has four waves and more mobs at each spawn point. The King's court also brings brutes and tuskers.
+- **The Cinder Crossing's lava** no longer pours out of the castle into the void. A rock rim holds it in.
+- **It's safe for conquerors.** While everyone in the Hollow has already beaten the King, the trials sleep and the citadel doesn't reset. They wake as soon as someone who hasn't beaten him is there.
+- The citadel is rebuilt in place automatically. Its old markers are cleared first, and puzzle progress inside it starts fresh.
+
+**Bosses and puzzles**
+- **Every boss summons minions.** Their search for summoning points is wider, so minions still come if the boss wanders.
+- **Puzzles get harder further along the road.** The layouts and clues are unchanged. Now:
+  - A wrong answer from the Spire on also summons something: a stray, a trident drowned, evoker fangs plus a vindicator, a wither skeleton, then two Hollow Knights.
+  - Combat trials send more mobs (the Cathedral, the Keep, the Hollow).
+  - The Hollow's target trial gives you 20 seconds; the Spire's gives you 40.
+- **The Broodmother's egg puzzle** spawns its cave spider again on a wrong press. The trap looked for a player within 8 blocks of a controller hidden under the floor, which usually found no one.
+
+**Exteriors** (generated with 2.13)
+- **The Frostbound Spire:** banded ice-and-slate courses, frozen streaks, eight buttresses with ice pinnacles, an icicle-hung parapet, ice needles on the crown, and banners and lamps at the door.
+- **The Sunken Throne:** pilasters with sea-lantern capitals, a ruined colonnade around a conduit on the roof, sea pickles on the terraces, and a coral reef with kelp around the base.
+- **The Hexbound Cathedral:** a slate roof over the Apse, skull-capped pinnacles, violet windows in the Apse, a ceiled porch with hanging lanterns, and vines and moss everywhere.
+- **Wilfrey's Keep:** Bobbery's black banners and Wilfrey's white ones on the walls, and a lamp on every buttress.
+
+**The Gilded Roost** is now **underground and about three times rarer**. Its door opens onto a stairwell and a shaft up to a gilded well-head. The Roost's vaults hold:
+- **The Golden Donado**, always, in the Victor's Vault. Set it down and no monster spawns within 32 blocks of it, a 64 x 64 area. It's no longer sold at the Dark Auction.
+- One treasure from the following:
+  - The **Gilded Fortune** set: netherite armour in gold, +2 Luck and +4 Max Health per piece; the full set gives Luck III.
+  - The **Blinding Light of Destiny**: Looting V, and a random one-minute blessing every 10 kills.
+  - **Fortune's Favor**: Fortune V; sneak + right-click switches 3 x 3 mining on or off.
+  - The **Gilded Felling Axe** and the **Gilded Spade**.
+  - The **Rabbit's Foot of Fortune**: Lucky Nights ten times as likely while it's carried in the Overworld.
+  - The **Pocket Slot Machine**.
+  - The **Halo of Fortune** and **Midas Treads** cosmetics.
+- **The Pocket Slot Machine** is a reusable scratch card: 10 levels a pull, and a 1-in-40 jackpot of the **Lucky Pocket Watch**. One is always in Whiskers' Stash, the Roost's secret room.
+- **The Lucky Pocket Watch** freezes any creature in place and frees it again on a second use. It never works on players, bosses, wardens, withers or the Ender Dragon.
+
+**Worlds already in play:** the market fixes and the Dockmaster reach existing markets, and the Hollow rebuilds itself. New layouts (exteriors, the underground Roost, vault signs and resets) appear in dungeons generated after updating. As always, test on a copy first.
 
 ## New in 2.12: Minecraft 26.3
 

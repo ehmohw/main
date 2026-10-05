@@ -20,6 +20,7 @@ the Blinding Light of Destiny (Looting V; a random blessing every 10 kills), For
 in place and frees it again), the Rabbit's Foot of Fortune (Lucky Nights ten times as likely while carried) and two gold
 cosmetics."""
 import math
+import sys
 from nbt import snbt, B, F, Int, D
 from items import item, consumable, attr, ench, T, TOTEM, ITEMS, DYNAMIC, hat, trail, gear, weapon_attrs, armor_attrs, ARMOR_SLOT
 from useitem import hold, HOLD
@@ -130,7 +131,7 @@ def extend_offers(O, offer):
                  offer(('token', 3), ('message_bottle', 1)), offer(('medallion', 2), ('fishbowl_helmet', 1)), offer(('medallion', 2), ('coral_crown', 1)),
                  offer(('token', 8), ('bubble_boots', 1)), offer(('medallion', 6), ('pirate_cutlass', 1)), offer(('medallion', 5), ('flintlock', 1)),
                  offer(('medallion', 5), ('anchor_boots', 1)), offer(('minecraft:cod', 12), ('token', 1)), offer(('minecraft:salmon', 10), ('token', 1))]
-    O['fence'].append(offer(('token', 3), ('renewal_key', 1)))
+    if '--phase2' in sys.argv: O['fence'].append(offer(('token', 3), ('renewal_key', 1)))     # (the conquest record is Phase 2's)
 
 
 # ===================================================================== generation
@@ -435,20 +436,23 @@ def generate(G):
     fn('p34/bottle', ['advancement revoke @s only bm:consume/message_bottle', 'loot give @s loot bm:maps/message_bottle',
                       title('@s', 'actionbar', T('A soggy scroll... X marks the spot.', '#c8e8ff'))])
     MENU_RENEW = 950
-    P28.MENU['renew'] = MENU_RENEW
-    dlg = P28.multi([T('Key of New Beginnings', '#e8e8ff', bold=True)],
-                    [P28.body([T('Reset your conquest record to zero? Every dungeon - and every first-victory reward - can then be won again. ', 'gray'),
-                               T('You keep everything you own.', 'white')])],
-                    [P28.btn(T('Yes - start over', 'gold'), 7101, width=200), P28.btn(T('No', 'gray'), 7102, width=200)], columns=2)
-    fn('p34/renew/use', [f'scoreboard players set @s bm.menu {MENU_RENEW}', f'dialog show @s {P28.inline(dlg)}'])
-    G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 7101..7102 run return run function bm:p34/renew/act')
-    fn('p34/renew/act', [f'execute unless score @s bm.menu matches {MENU_RENEW} run return run function bm:p28/stale', 'scoreboard players set @s bm.menu 0',
-                         'execute if score #act bm.pay matches 7102 run return 0',
-                         'execute unless items entity @s container.* ' + holds % 'renewal_key' + ' unless items entity @s weapon.offhand ' + holds % 'renewal_key' + ' run return run function bm:p28/stale',
-                         'clear @s ' + holds % 'renewal_key' + ' 1', 'scoreboard players set @s bm.conq 0',
-                         'tag @s remove bm.got_warp', 'playsound minecraft:block.end_portal.spawn player @s ~ ~ ~ 0.5 1.6',
-                         'title @s times 10 60 20', title('@s', 'subtitle', T('Your conquest record is clear. The road begins again.', 'gray', italic=True)),
-                         title('@s', 'title', T('A NEW BEGINNING', '#e8e8ff', bold=True))])
+    if not G.PHASE2:                    # the conquest record (and so the key) is Phase 2's
+        HOLD['renewal_key'] = 'bm:p34/renew/none'; fn('p34/renew/none', ['return 0'])
+    else:
+        P28.MENU['renew'] = MENU_RENEW
+        dlg = P28.multi([T('Key of New Beginnings', '#e8e8ff', bold=True)],
+                        [P28.body([T('Reset your conquest record to zero? Every dungeon - and every first-victory reward - can then be won again. ', 'gray'),
+                                   T('You keep everything you own.', 'white')])],
+                        [P28.btn(T('Yes - start over', 'gold'), 7101, width=200), P28.btn(T('No', 'gray'), 7102, width=200)], columns=2)
+        fn('p34/renew/use', [f'scoreboard players set @s bm.menu {MENU_RENEW}', f'dialog show @s {P28.inline(dlg)}'])
+        G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 7101..7102 run return run function bm:p34/renew/act')
+        fn('p34/renew/act', [f'execute unless score @s bm.menu matches {MENU_RENEW} run return run function bm:p28/stale', 'scoreboard players set @s bm.menu 0',
+                             'execute if score #act bm.pay matches 7102 run return 0',
+                             'execute unless items entity @s container.* ' + holds % 'renewal_key' + ' unless items entity @s weapon.offhand ' + holds % 'renewal_key' + ' run return run function bm:p28/stale',
+                             'clear @s ' + holds % 'renewal_key' + ' 1', 'scoreboard players set @s bm.conq 0',
+                             'tag @s remove bm.got_warp', 'playsound minecraft:block.end_portal.spawn player @s ~ ~ ~ 0.5 1.6',
+                             'title @s times 10 60 20', title('@s', 'subtitle', T('Your conquest record is clear. The road begins again.', 'gray', italic=True)),
+                             title('@s', 'title', T('A NEW BEGINNING', '#e8e8ff', bold=True))])
 
     G.FUNCS['load'][-1:-1] = load
     G.FUNCS['tick'] += tick
