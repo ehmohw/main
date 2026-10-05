@@ -55,7 +55,7 @@ VANILLA = {'brood': ['chests/simple_dungeon'], 'frost': ['chests/igloo_chest', '
            'keep': ['chests/bastion_treasure', 'chests/bastion_other'], 'hollow': ['chests/end_city_treasure', 'chests/ancient_city'],
            'lucky': ['chests/buried_treasure']}
 HIDDEN = {'brood': ['silkstrider_boots'], 'frost': ['frostwarden_hood'], 'tide': ['abyssal_helm'], 'hex': ['hexwoven_robe', 'blink_tome'],
-          'keep': ['oathblade', 'wilfrey_aegis'], 'hollow': ['hollow_crown'], 'lucky': ['horseshoe_charm']}
+          'keep': ['oathblade', 'wilfrey_aegis'], 'hollow': ['hollow_crown'], 'lucky': ['horseshoe_charm', 'pocket_slots']}
 BOSS_DROP = {'brood': ('broodfang', 0.25, 'spider'), 'frost': ('frost_longbow', 0.25, 'stray'), 'tide': ('tyrant_trident', 0.25, 'drowned'),
              'hex': ('archmage_staff', 0.25, 'evoker'), 'keep': ('bobbery_axe', 0.15, 'wither_skeleton'), 'hollow': (None, 0, 'wither'),
              'lucky': (None, 0, 'chicken')}
@@ -80,8 +80,10 @@ WORLDGEN = {  # d: (biomes, step, start_height, heightmap, adaptation, spacing, 
              'surface_structures', {'absolute': -3}, 'OCEAN_FLOOR_WG', 'none', 36, 12, 14142135, 'minecraft:monument'),
     'hex': (['minecraft:swamp', 'minecraft:mangrove_swamp'], 'surface_structures', {'absolute': -5}, 'WORLD_SURFACE_WG', 'beard_thin', 40, 14, 17320508, 'minecraft:swamp_hut'),
     'keep': (['minecraft:pale_garden', 'minecraft:dark_forest'], 'surface_structures', {'absolute': -6}, 'WORLD_SURFACE_WG', 'beard_thin', 44, 16, 22360679, 'minecraft:mansion'),
-    'lucky': (['minecraft:plains', 'minecraft:sunflower_plains', 'minecraft:meadow', 'minecraft:cherry_grove', 'minecraft:flower_forest'],
-              'surface_structures', {'absolute': -4}, 'WORLD_SURFACE_WG', 'beard_thin', 80, 30, 77777777, 'minecraft:target_point'),
+    # 2.13: deep underground and very rare (a runtime shaft climbs from its front door to the surface)
+    'lucky': (['minecraft:plains', 'minecraft:sunflower_plains', 'minecraft:meadow', 'minecraft:cherry_grove', 'minecraft:flower_forest',
+               'minecraft:lush_caves', 'minecraft:dripstone_caves'], 'underground_structures',
+              {'type': 'minecraft:uniform', 'min_inclusive': {'absolute': -24}, 'max_inclusive': {'absolute': 0}}, None, 'none', 150, 60, 77777777, 'minecraft:target_point'),
 }
 NATURAL = {'stone', 'deepslate', 'dirt', 'grass_block', 'sand', 'gravel', 'netherrack', 'water', 'snow_block', 'coarse_dirt', 'tuff',
            'andesite', 'diorite', 'granite', 'calcite', 'clay', 'mud', 'podzol', 'moss_block', 'rooted_dirt', 'red_sand', 'sandstone',
@@ -107,16 +109,27 @@ def generate(G, builds, offers_fn):
         wjson(f'bm/loot_table/p2/{d}/vault.json', {'type': 'minecraft:chest', 'pools': [
             pool([vt(V[0])]), pool([loot_entry('token', uni(2, 4))]),
             pool([loot_entry('medallion')], cond=[chance(0.35)]), pool([frag], cond=[chance(0.15)]),
-            pool([{'type': 'minecraft:item', 'name': 'minecraft:diamond', 'functions': [{'function': 'minecraft:set_count', 'count': uni(1, 3)}]}])]})
-        vic = [pool([loot_entry('medallion', uni(1, 2))]), pool([loot_entry('token', uni(4, 6))]), pool([loot_entry('trophy')], cond=[chance(0.25)]),
-               pool([vt(V[-1])]), pool([frag], cond=[chance(0.3)]),
-               pool([{'type': 'minecraft:item', 'name': 'minecraft:enchanted_golden_apple'}], cond=[chance(0.2)])]
+            pool([{'type': 'minecraft:item', 'name': 'minecraft:diamond', 'functions': [{'function': 'minecraft:set_count', 'count': uni(1, 3)}]}])] + ([pool([loot_entry(i) for i in ('rabbit_foot', 'halo_fortune', 'midas_boots', 'pocket_slots')], cond=[chance(0.25)])] if d == 'lucky' else [])})
+        # 2.13: a victor's (ominous) vault gives currency (Black Market + Vorn), this boss's own prizes, and one rare vanilla treasure
+        item_ = lambda name, lo=1, hi=1, w=1: dict({'type': 'minecraft:item', 'name': f'minecraft:{name}', 'weight': w},
+                                                 **({'functions': [{'function': 'minecraft:set_count', 'count': uni(lo, hi)}]} if hi > 1 else {}))
+        rare = pool([item_('heavy_core', w=2), item_('emerald_block', 2, 4, 6), item_('diamond', 3, 6, 8), item_('enchanted_golden_apple', w=3),
+                     item_('diamond_block', 1, 2, 2), item_('netherite_upgrade_smithing_template', w=2)])
+        xen = pool([dict(loot_entry(f'xenite_{c}', uni(2, 4)), weight=1) for c in ('green', 'violet', 'cyan')])
+        vic = [pool([loot_entry('token', uni(4, 6))]), pool([loot_entry('medallion', uni(1, 2))]), xen,
+               pool([loot_entry('trophy')], cond=[chance(0.25)]), rare]
         drop, p, _ = BOSS_DROP[d]
-        if drop: vic.append(pool([loot_entry(drop)], cond=[chance(0.15)]))
+        if drop: vic.append(pool([loot_entry(drop)], cond=[chance(0.25)]))
+        if D[d].get('next_map'): vic.append(pool([loot_entry(D[d]['next_map'])]))
+        if d not in ('hollow', 'lucky'): vic.append(pool([frag], cond=[chance(0.3)]))
         if d == 'hollow':
             vic = [pool([loot_entry(i)]) for i in ['conq_helmet', 'conq_chestplate', 'conq_leggings', 'conq_boots',
                                                      'conq_blade', 'conq_pick', 'conq_axe', 'conq_shovel', 'conq_bow']] + \
-                  [pool([loot_entry('trophy', uni(2, 3))]), pool([{'type': 'minecraft:item', 'name': 'minecraft:enchanted_golden_apple'}])]
+                  [pool([loot_entry('trophy', uni(2, 3))]), xen, rare, pool([item_('heavy_core')])]
+        if d == 'lucky':
+            from phase34 import LUCKY_LOOT
+            vic += [pool([loot_entry('golden_donado')]), pool([dict(loot_entry(i), weight=w) for i, w in LUCKY_LOOT]),
+                    pool([loot_entry('lucky_token', uni(6, 10))])]
         vic.append(pool([loot_entry(f'trophy_{d}')]))          # 2.1: every victor's vault gives that boss's placeable trophy
         wjson(f'bm/loot_table/p2/{d}/victor.json', {'type': 'minecraft:chest', 'pools': vic})
         wjson(f'bm/loot_table/p2/{d}/hidden.json', {'type': 'minecraft:chest', 'pools': [
@@ -193,7 +206,7 @@ def generate(G, builds, offers_fn):
         wjson(f'bm/loot_table/p2/maps/{d}.json', {'type': 'minecraft:command', 'pools': [pool([{
             'type': 'minecraft:item', 'name': 'minecraft:filled_map', 'functions': [     # 26.3: exploration_map stamps the input item
                 {'function': 'minecraft:exploration_map', 'destination': f'bm:p2_{d}', 'decoration': deco, 'zoom': 2,
-                 'search_radius': 100 if d != 'lucky' else 160, 'skip_existing_chunks': False},
+                 'search_radius': 100 if d != 'lucky' else 220, 'skip_existing_chunks': False},
                 {'function': 'minecraft:set_name', 'target': 'item_name', 'name': T(f'Map to {names[d]}', D[d]['color'])}]}])]})
         if d == 'lucky': continue
         G.consume_adv(f'sealed_map_{d}', f'bm:p2/maps/open_{d}')

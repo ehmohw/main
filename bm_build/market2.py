@@ -25,6 +25,8 @@ RIVER = (19, 23)              # x range of the river channel
 HOLES = [((5, 52), (5, 51)), ((58, 36), (58, 35)), ((62, 58), (62, 57)), ((35, 74), (35, 73)), ((9, 22), (9, 23)), ((34, 14), (34, 15))]
 DOOR_BOX = {(x, y, z) for x in range(36, 41) for y in range(16, 22) for z in range(80, 85)}   # keep lights out of the vault door's fill box
 VIP_SHELL = []          # 1.17: cells closed round the Gilded Gutter (the world patch for older markets is built from these)
+AUCTION_SEATS = []      # 2.13: cushion cells in the auction hall (feet level)
+CUSHIONS = []           # 2.13: (x, y, z, colour) - every cushion seat in the market
 WATER_TOP = 5                 # water y3..5
 SPRING_SAFE = ['cobbled_deepslate'] * 5 + ['smooth_basalt'] * 2 + ['blackstone', 'mossy_cobblestone', 'cracked_deepslate_bricks', 'cobblestone']
 ROCK_IN = ['deepslate'] * 6 + ['stone'] * 2 + ['tuff']
@@ -55,7 +57,7 @@ EMIT = {'lantern': 15, 'soul_lantern': 10, 'copper_lantern': 15, 'waxed_copper_l
 
 
 def build():
-    VIP_SHELL.clear()
+    VIP_SHELL.clear(); CUSHIONS.clear()
     rnd = random.Random(20261003)
     B = Build(SX, SY, SZ)
     S = B.set
@@ -195,7 +197,7 @@ def build():
     put(bx, W, bz, 'barrel[facing=up,open=false]')
     put(bx + 1, W, bz, 'spruce_slab[type=bottom,waterlogged=false]'); put(bx, W, bz + 1, 'spruce_slab[type=bottom,waterlogged=false]')
     for (x, z, f) in [(CX - 9, CZ + 6, 'east'), (CX - 9, CZ + 7, 'east'), (CX + 6, CZ - 9, 'south'), (CX + 7, CZ - 9, 'south')]:
-        put(x, W, z, f'dark_oak_stairs[facing={f},half=bottom,shape=straight,waterlogged=false]')
+        put(x, W, z, 'dark_oak_slab[type=bottom,waterlogged=false]'); CUSHIONS.append((x, W, z, 'red'))              # 2.13: cushioned benches
     for (x, z) in [(CX - 10, CZ - 6), (CX - 10, CZ - 5)]:  # a cheese cart
         put(x, W, z, 'honeycomb_block'); put(x, W + 1, z, 'yellow_carpet')
     put(CX - 11, W, CZ - 6, 'dark_oak_fence'); put(CX - 11, W, CZ - 5, 'dark_oak_fence')
@@ -218,7 +220,7 @@ def build():
             if z != 53: put(26, y, z, 'purple_wool')
     put(28, W, 52, 'dark_oak_fence'); put(28, W + 1, 52, 'amethyst_cluster[facing=up,waterlogged=false]'); put(27, W, 54, 'candle[candles=2,lit=true,waterlogged=false]')
     put(30, W, 60, 'campfire[facing=east,lit=true,signal_fire=false,waterlogged=false]')           # skewer grill
-    for (x, z) in [(31, 59), (31, 61)]: put(x, W, z, 'spruce_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]')
+    for (x, z) in [(31, 59), (31, 61)]: put(x, W, z, 'spruce_slab[type=bottom,waterlogged=false]'); CUSHIONS.append((x, W, z, 'orange'))
     for (x, z) in [(48, 31), (49, 31), (48, 32), (27, 41), (27, 42), (52, 45), (52, 46), (52, 47), (33, 62), (43, 62)]:
         put(x, W, z, rnd.choice(['barrel[facing=up,open=false]', 'barrel[facing=north,open=false]', 'spruce_planks', 'hay_block[axis=y]']))
         if rnd.random() < 0.4: put(x, W + 1, z, rnd.choice(['barrel[facing=up,open=false]', 'decorated_pot[cracked=true,facing=north,waterlogged=false]', 'honeycomb_block']))
@@ -228,9 +230,12 @@ def build():
     def stall_roof(x1, z1, x2, z2, y, cols):
         for x in range(x1, x2 + 1):
             for z in range(z1, z2 + 1): put(x, y, z, f'{cols[(x + z) % len(cols)]}_wool')
-    def counter(cells, top='dark_oak_slab[type=top,waterlogged=false]'):
+    def counter(cells, top=None):
+        """2.13: a waist-high counter, one block tall (it used to be a log under a top-half slab, which floated and stood
+        two blocks high). Wood counters are a horizontal beam along the counter's run; the others are the stall's stone."""
+        axis = 'x' if len({z for _, z in cells}) == 1 else 'z'
         for (x, z) in cells:
-            put(x, W, z, 'stripped_dark_oak_log[axis=y]'); put(x, W + 1, z, top)
+            put(x, W, z, top or f'stripped_dark_oak_log[axis={axis}]')
     # carve the north band (stalls under the terrace, the terrace, and the rooms behind the wall)
     carve_room(25, W, 14, 52, 22, 21, floor=STREET)
     # terrace floor (y17) over the stalls, posts at the street edge
@@ -298,10 +303,17 @@ def build():
     carve_room(30, W, 2, 44, W + 5, 12, floor='dark_oak_planks')            # AUCTION HALL
     for x in range(35, 40):
         for z in (12, 13): put(x, GF, z, 'polished_blackstone'); [air(x, y, z) for y in range(W, W + 4)]
-    for k, z in enumerate(range(10, 4, -1)):                                     # tiered seats facing the podium (north)
+    # 2.13: three tiers rising AWAY from the podium (north), each a row of cushions on a dark-oak step with a walkway behind
+    # (1.18's rows climbed toward the podium, so the back row sat lowest). Cushions are spawned from the bm.npc.cushion markers.
+    AUCTION_SEATS.clear()
+    for r in range(3):
+        zs, zw = 6 + 2 * r, 7 + 2 * r                                             # seat row, walkway behind it
         for x in range(31, 44):
             if 36 <= x <= 38: continue
-            put(x, W + (k // 2), z, 'dark_oak_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]' if k % 2 == 0 else 'dark_oak_planks')
+            for z in (zs, zw):
+                for y in range(W, W + r): put(x, y, z, 'dark_oak_planks')
+                if r: put(x, W + r - 1, z, 'dark_oak_slab[type=double,waterlogged=false]' if z == zs else 'dark_oak_planks')
+            AUCTION_SEATS.append((x, W + r, zs))
     for x in range(34, 41):
         put(x, W, 3, 'polished_blackstone_bricks'); put(x, W, 4, 'red_carpet')
     put(37, W + 1, 3, 'polished_blackstone_brick_wall'); put(37, W + 3, 3, 'end_rod[facing=down]')
@@ -354,7 +366,7 @@ def build():
     for (x, z) in ((x1 - 1, 65), (x2 + 1, 65), (x1 - 1, 68), (x2 + 1, 68)):
         put(x, W, z, 'spruce_fence'); put(x, W + 1, z, 'spruce_fence')
     put(x2 + 1, W + 2, 65, 'cobweb')
-    B.sign(x2 + 2, W, 64, 'spruce_sign[rotation=4,waterlogged=false]', ['MIND THE', 'GAP', '(the river', 'is cold)'], color='red')
+    B.sign(x2 + 2, W, 64, 'spruce_sign[rotation=12,waterlogged=false]', ['MIND THE', 'GAP', '(the river', 'is cold)'], color='red')     # 2.13: faces the walkway
     # railings along the plaza bank, with gaps (it's a black market, not a nursery)
     for z in range(12, 80):
         if inside.get((x2 + 1, z)) and not (39 <= z <= 45 or 64 <= z <= 69) and (z % 9) not in (0, 1):
@@ -458,13 +470,13 @@ def build():
     air(67, W, 25); air(67, W + 1, 25)
     put(70, W, 25, 'blast_furnace[facing=west,lit=true]'); put(70, W + 1, 25, 'blast_furnace[facing=west,lit=true]')
     # Vinny (west part) and Steelwhisker (south part)
-    counter([(60, z) for z in range(18, 24)], top='polished_blackstone_brick_slab[type=top,waterlogged=false]')
+    counter([(60, z) for z in range(18, 24)], top='polished_blackstone_bricks')
     put(55, W, 19, 'grindstone[face=floor,facing=east]'); put(55, W, 22, 'anvil[facing=north]'); put(56, W, 18, 'smithing_table')
     put(55, W, 20, 'blast_furnace[facing=east,lit=true]'); put(55, W + 1, 20, 'blast_furnace[facing=east,lit=true]')
     for z in range(18, 24): put(54, W + 2, z, 'iron_bars')
     put(60, W + 2, 21, 'polished_blackstone_bricks'); put(60, W + 3, 21, 'polished_blackstone_bricks')
     B.sign(61, W + 2, 21, 'dark_oak_wall_sign[facing=east,waterlogged=false]', ["VINNY'S ARMS", 'Blades * Picks', 'Axes * Bows', 'Upgrades'], color='red', glow=True)
-    counter([(x, 29) for x in range(56, 64)], top='polished_andesite_slab[type=top,waterlogged=false]')
+    counter([(x, 29) for x in range(56, 64)], top='polished_andesite')
     for x in range(56, 64): put(x, W, 33, 'iron_block' if x % 3 == 0 else 'anvil[facing=east]' if x % 3 == 1 else 'blast_furnace[facing=north,lit=true]')
     put(60, W + 2, 29, 'polished_blackstone_bricks')
     B.sign(60, W + 2, 28, 'dark_oak_wall_sign[facing=north,waterlogged=false]', ["STEELWHISKER'S", 'Specialist', 'Armor Sets', '(3 tiers)'], color='light_gray', glow=True)
@@ -488,8 +500,8 @@ def build():
     for (x, z) in [(70, 42), (70, 46), (70, 52)]: put(x, W + 1, z, 'honeycomb_block')
     for (cx, cz) in [(58, 41), (58, 47), (63, 44), (63, 51)]:   # tables and stools
         put(cx, W, cz, 'dark_oak_fence'); put(cx, W + 1, cz, 'dark_oak_pressure_plate[powered=false]')
-        put(cx - 1, W, cz, 'spruce_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]')
-        put(cx + 1, W, cz, 'spruce_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]')
+        put(cx - 1, W, cz, 'spruce_slab[type=bottom,waterlogged=false]'); CUSHIONS.append((cx - 1, W, cz, 'brown'))     # 2.13: cushioned stools
+        put(cx + 1, W, cz, 'spruce_slab[type=bottom,waterlogged=false]'); CUSHIONS.append((cx + 1, W, cz, 'brown'))
     for (x, z) in [(60, 39), (65, 47), (60, 53)]: put(x, W + 5, z, 'lantern[hanging=true,waterlogged=false]'); put(x, W + 6, z, 'iron_chain[axis=y,waterlogged=false]')
     for y in range(W, W + 6):
         for z in (tz1, tz2): put(tx1, y, z, 'stripped_spruce_log[axis=y]')
@@ -519,7 +531,7 @@ def build():
         else:
             for y in range(W, W + 5): air(bx1, y, z)
             put(bx1, W + 5, z, 'iron_bars'); put(bx1, W + 6, z, 'iron_bars')
-    counter([(x, 72) for x in range(59, 67)], top='red_nether_brick_slab[type=top,waterlogged=false]')
+    counter([(x, 72) for x in range(59, 67)], top='red_nether_bricks')
     for (x, st) in [(59, 'crying_obsidian'), (61, 'chest[facing=north,type=single,waterlogged=false]'), (63, 'crying_obsidian'),
                     (64, 'brewing_stand[has_bottle_0=true,has_bottle_1=false,has_bottle_2=true]'), (66, 'crying_obsidian')]:
         put(x, W, 75, st)
@@ -693,14 +705,18 @@ def build():
              (12.5, W, 52.5 - 1.2, 180, 'soldier'),                                                     # Den bouncer (outside)
              (34.5, BF + 1, 72.5, 180, 'soldier'), (42.5, BF + 1, 72.5, 180, 'soldier'),                # balcony guards
              (27.5, BF + 1, 20.5, 180, 'soldier'),                                                      # terrace watch
-             (20.5, WATER_TOP + 2, 27.5, -90, 'pirate'), (15.5, W, 21.5, 0, 'pirate'), (9.5, W, 26.5, -90, 'pirate'),   # dock hands, dockmaster
+             (20.5, WATER_TOP + 2, 27.5, -90, 'pirate'), (15.5, W, 21.5, 0, 'pirate'),                        # dock hands (2.13: the Dockmaster trades)
              (bx + 0.5, W + 1, bz + 0.5, 180, 'lucky'),                                                 # the busker
              (63.5, W, 23.5, 90, 'soldier')]                                                            # forge hand (1.17: the Void Rat customer is gone - Void Rats are End-only finds)
     for (x, y, z, yaw, v) in crowd:
         st = B.b.get((int(x // 1), int(y // 1), int(z // 1)), '')
-        if 'stairs' in st and 'half=bottom' in st: y += 0.5           # 1.16: sit ON the stair seat, not inside it
+        if ('stairs' in st and 'half=bottom' in st) or ('slab' in st and 'type=bottom' in st): y += 0.5     # 1.16: sit ON the seat, not inside it
         M(x, y, z, ['bm.npc_spawn', 'bm.npc.crowd', f'bm.cv_{v}'], yaw)
     M(bx + 0.5, W + 1, bz + 0.5, ['bm.busker'], 0)
+    for (x, y, z) in AUCTION_SEATS: CUSHIONS.append((x, y, z, 'red'))
+    for (x, y, z, col) in CUSHIONS:                                  # 2.13: cushion seats (26.3 entities)
+        st = B.b.get((x, y, z), '')
+        M(x + 0.5, y + (0.5 if 'slab' in st and 'type=bottom' in st else 0.0), z + 0.5, ['bm.npc_spawn', 'bm.npc.cushion', f'bm.cu_{col}'], 0)
     # walkers + their routes (waypoints by index)
     routes = {'a': [(round(CX + 8.5 * math.cos(k * math.pi / 4)), round(CZ + 8.5 * math.sin(k * math.pi / 4))) for k in range(8)],          # round the fountain
               'b': [(27, 24), (47, 24)],                                                  # Pawn Alley
@@ -867,7 +883,7 @@ def check(B):
     seen = G.bfs([(38, BF + 1, 88)], margin=0)
     for e in B.ents:
         t = e['nbt']['Tags']; x, y, z = e['pos']
-        if not any(k.startswith('bm.npc.') and k not in ('bm.npc.deco_rat', 'bm.npc.mike', 'bm.npc.neon', 'bm.npc.walker', 'bm.npc.captain') for k in t): continue
+        if not any(k.startswith('bm.npc.') and k not in ('bm.npc.deco_rat', 'bm.npc.mike', 'bm.npc.neon', 'bm.npc.walker', 'bm.npc.captain', 'bm.npc.cushion') for k in t): continue
         if 'bm.npc.crowd' in t and y < W: continue
         if not reach(seen, int(x), int(y), int(z), 4.5):
             errs.append(f'{[k for k in t if k.startswith("bm.npc.")][0]} at {(x, y, z)} is not reachable on foot from the vault')

@@ -31,7 +31,7 @@ item('bidding_paddle', 'minecraft:carrot_on_a_stick', 'Bidding Paddle', '#c0392b
 LOTS = [
     ('wings_rat_king', 'Wings of the Rat King', '#ffb300', 'head', 40, 'world', [('wings_rat_king', 1)], False),
     ('merc_contract', 'Mercenary Contract', '#c0392b', 'head', 35, 'player', [('merc_contract', 1)], False),
-    ('golden_donado', 'Golden Donado', '#ffd700', 'head', 30, 'world', [('golden_donado', 1)], False),
+    # 2.13: the Golden Donado left the Auction - it is found in the Gilded Roost now
     ('ring_burrows', 'Ring of Three Burrows', '#d4a35a', 'head', 30, 'player', [('ring_burrows', 1)], False),
     ('pocket_rift', 'Pocket Rift', '#4fd6c4', 'head', 25, None, [('pocket_rift', 1)], False),
     ('rat_king_signet', "Rat King's Signet", '#ffb300', 'head', 25, 'world', [('rat_king_signet', 1)], False),
@@ -57,8 +57,8 @@ LOTS = [
     ('bank_card', "Banker's Card", '#e8d27a', 'reg', 8, None, [('bankers_card', 1)], False),
     ('boss_key', 'Next Boss Key', '#a96bff', 'reg', 20, None, [('next_boss_key', 1)], True),
 ]
-RIVALS = [('Lord Squeakington', 'lord', (32.5, W + 1.5, 8.5)), ('Madame Nibbles', 'madame', (42.5, W + 1.5, 8.5)),
-          ('The Gentleman in Grey', 'grey', (33.5, W + 2.5, 6.5))]
+RIVALS = [('Lord Squeakington', 'lord', (32.5, W + 1.25, 8.5)), ('Madame Nibbles', 'madame', (42.5, W + 1.25, 8.5)),     # 2.13: on cushions
+          ('The Gentleman in Grey', 'grey', (33.5, W + 2.25, 10.5))]
 HALL_C = (37.5, W + 1, 7.0)
 HALL_R = 8.0
 CALL = ['“Next, from a very private collection...”', '“Fresh off the boat, no questions asked...”', '“A rare one, friends. Bid like you mean it.”',
@@ -112,9 +112,9 @@ def generate(G):
         plate = {'Tags': ['bm.e18', 'bm.n18', 'bm.arplate'], 'billboard': 'center', 'view_range': F(0.2), 'default_background': B(0), 'background': Int(0x60000000),
                  'text': T(nm, 'gray', italic=True), 'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(1.0), F(0)], 'scale': [F(0.4)] * 3}}
         fn(f'p30/spawn/rival{i}', [r, f'summon minecraft:text_display ~ ~ ~ {snbt(plate)}', fin, untag])
-        c = mgeo.cell(pos)                     # they sit ON a stair seat: the cell is a bottom stair, the one above is open
-        if 'stairs' not in mgeo.st(c) or 'half=bottom' not in mgeo.st(c) or not mgeo.passable((c[0], c[1] + 1, c[2])):
-            raise SystemExit(f'phase30: rival seat {pos} is {mgeo.st(c)}')
+        c = mgeo.cell(pos)                     # 2.13: they sit on a cushion seat (an open cell over a solid step)
+        if (c[0], c[1], c[2]) not in [(x, y, z) for (x, y, z) in market2.AUCTION_SEATS] or not mgeo.passable(c) or not mgeo.standable((c[0], c[1] - 1, c[2])):
+            raise SystemExit(f'phase30: rival seat {pos} is not a cushion seat ({mgeo.st(c)})')
         place(pos, 180, f'p30/spawn/rival{i}', f'rival {nm}')
     # the podium ledger (bids without a paddle)
     G.FUNCS['p28/ledger/open'].append('execute if score #lg bm.pay matches 31 run return run function bm:p30/menu')

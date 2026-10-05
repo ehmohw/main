@@ -29,6 +29,7 @@ def build():
     for x in range(2, 5):
         for z in range(3, 6): B.set(x, 14, z, B.pick(FLOOR))
     B.entrance(6, 15, 8)
+    B.mb(3, 25, 4, ['bm.eshaft'])               # 2.13: the shaft is carried on up to the surface at runtime
     B.lectern(10, 15, 4, 'south', "Nest Warden's Warning", 'Unknown', [
         "Turn back.\n\nThe nest below belongs to the Broodmother. She does not hunt you. She does not need to. Her children do it for her.",
         "Three trials guard her den. Silk, egg, and web. The old weavers left their marks for anyone patient enough to read them.",

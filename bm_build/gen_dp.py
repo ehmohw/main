@@ -23,6 +23,7 @@ import phase30 as R30        # 1.18: the Dark Auction
 import phase31 as R31        # 1.18: the Gilded Gutter + Rat Bank
 import phase32 as R32        # 2.13: the Vorn - invasion nights, crash sites carved at runtime, the Dreadnought, red Xenite
 import phase33 as R33        # 2.13: new goods (satchel, fusion, shifter, jump boots, void totem, flask, pocket ender chest...)
+import phase34 as R34        # 2.13: the market overhaul, the Dockmaster, the Gilded Roost's treasures
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import market2 as M2
 import economy as ECON
@@ -219,6 +220,7 @@ NPCS = {
     'captain': ('rat', 'Capt. Cheddarbeard', 'yellow', 'fisherman', 'plains', 'bm:rat_pirate'),
 }
 NPCS.update(P.NEW_NPCS)
+NPCS.update(R34.NEW_NPCS)
 
 
 def all_offers():
@@ -230,6 +232,7 @@ def all_offers():
     R20.extend_offers(O, offer)
     R21.extend_offers(O, offer)
     R33.extend_offers(O, offer)
+    R34.extend_offers(O, offer)
     return O
 
 
@@ -912,6 +915,7 @@ def build(out_dir):
     R30.generate(sys.modules[__name__])
     R31.generate(sys.modules[__name__])
     R33.generate(sys.modules[__name__])          # 2.13: after the 1.18 menus it adds to (p28/act)
+    R34.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     gen_tags_worldgen()

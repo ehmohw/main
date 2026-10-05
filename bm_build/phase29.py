@@ -72,7 +72,7 @@ item('donado_trophy', TOTEM, 'Donado Trophy', '#e8d29a',
      ['A statue of the bravest Earth-dog.', ('Use it to set it down. Right-click it to turn it;', 'gray'), ('sneak + punch it to pick it up.', 'gray')],
      model='bm:statue_donado', stack=16, cat='relic', comps=_use('minecraft:block.stone.place'))
 item('golden_donado', TOTEM, 'Golden Donado', '#ffd700',
-     ['Solid gold, and very good with plants.', ('Crops within 8 blocks grow a stage every minute;', 'blue'), ('baby animals near it grow up faster.', 'blue'),
+     ['Solid gold. Monsters can\'t stand to look at it.', ('Set it down: no monster spawns within', 'blue'), ('32 blocks of it (a 64 x 64 area).', 'blue'),
       ('Use it to set it down. Sneak + punch to pick it up.', 'gray')],
      model='bm:statue_donado_gold', stack=1, cat='relic', bold=True, comps=_use('minecraft:block.metal.place'))
 item('sealed_explorer_map', TOTEM, "Sealed Explorer's Map", 'aqua',

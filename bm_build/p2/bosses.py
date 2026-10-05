@@ -484,6 +484,9 @@ def generate(G, builds):
                                f'title {A} times 10 70 20',
                                title(A, 'subtitle', T('The way out has opened.', 'gray', italic=True)),
                                title(A, 'title', T(f'{cfg["boss"]} has fallen', cfg['color'], bold=True)),
+                               # 2.13: everyone in the arena when the boss falls is a victor too (not only those tagged as the fight began)
+                               f'function bm:p2/{d}/ina', f'tag @a[tag=bm.ina_{d},distance=..{ar + 40}] add bm.f_{d}',
+                               f'tag @a[distance=..{ar + 2},gamemode=!spectator] add bm.f_{d}',
                                f'execute as @a[tag=bm.f_{d}] run function bm:p2/{d}/credit',
                                f'tag @a remove bm.f_{d}',
                                f'execute as @e[type=minecraft:marker,tag=bm.dg,tag=bm.d_{d},distance=..{r2},sort=nearest,limit=1] at @s run function bm:p2/{d}/rearm'])

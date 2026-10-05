@@ -21,6 +21,8 @@ def extend_offers(O, offer):
     from p2.p2items import KEYS
     O['fence'] += [offer(price, (f'key_{d}', 1)) for d, (_, _, _, price) in KEYS.items()]
     O['fence'].append(offer(('token', 3), ('sealed_map_brood', 1)))
+    # 2.13: every Sealed Map is for sale (a victory still gives the next one free; the conquest order still decides your record)
+    O['fence'] += [offer(('token', n), (f'sealed_map_{d}', 1)) for d, n in (('frost', 4), ('tide', 5), ('hex', 6), ('keep', 8))]
     O['lucky'] += [offer(('lucky_trophy', 1), ('fortuna', 1)), offer(('lucky_trophy', 1), ('trophy', 3))]
 
 
@@ -49,6 +51,7 @@ def generate(G):
         G.R20.extend_offers(O, G.offer)
         G.R21.extend_offers(O, G.offer)
         G.R33.extend_offers(O, G.offer)
+        G.R34.extend_offers(O, G.offer)
         return O
     from p2 import patch21, trophies, wilfrey
     parts = [logic.generate(G, B), bosses.generate(G, B), data.generate(G, B, offers), patch21.generate(G, B), trophies.generate(G), wilfrey.generate(G)]

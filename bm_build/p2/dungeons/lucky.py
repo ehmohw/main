@@ -1,4 +1,5 @@
-"""THE GILDED ROOST: an abandoned white-and-gold henhouse-palace in flowery plains. Found only by assembling the
+"""THE GILDED ROOST: an abandoned white-and-gold henhouse-palace buried deep under flowery plains (2.13: underground and very rare;
+a ladder shaft climbs from the stairwell at its door to a gilded well-head on the surface). Found only by assembling the
 nine Lucky Map fragments. 50 x 34 x 86, ground at y4 (floors at y4, walkable air from y5).
   Foyer (trial spawner, lectern): P1 the slot machine (three reels in the east wall, a pull button) - three of a kind
   G1 -> Hall of Odds: P2 golden pressure-plate path; glowstone "lucky stars" in the ceiling mark the safe tiles
@@ -46,13 +47,27 @@ def build():
     # ================================================================ FOYER + P1 slot machine
     room(18, 6, 37, 19, 12)
     roof(18, 6, 37, 19, 14)
+    # 2.13: the Roost lies deep underground - a stairwell in front of the door; the shaft above it is built at runtime
+    for x in range(25, 30):
+        for z in range(0, 5):
+            B.set(x, 3, z, B.pick(WHITE)); B.set(x, 4, z, B.pick(FLOOR))
+            for y in range(GY, GY + 3):
+                B.set(x, y, z, B.pick(WHITE) if x in (25, 29) or z == 0 else 'air')
+    for y in range(GY, GY + 3): B.set(27, y, 1, 'ladder[facing=south,waterlogged=false]')
+    for x in (25, 29): B.set(x, GY + 1, 2, 'glowstone')
+    for x in range(25, 30):                                   # the porch between the stairwell and the door (open air on the surface)
+        B.set(x, GY + 4, 5, B.pick(WHITE))
+        for y in range(GY, GY + 4):
+            if x in range(26, 29): B.set(x, y, 5, 'air')
+            elif y > GY + 1: B.set(x, y, 5, B.pick(WHITE))
+    B.mb(27, GY + 3, 2, ['bm.eshaft'])
     for x in range(26, 29):
         B.set(x, 4, 4, 'quartz_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]')
         B.set(x, 4, 5, 'smooth_quartz')
         for y in range(GY, GY + 4): B.set(x, y, 6, 'air')
     for x in (25, 29):
         B.set(x, 4, 5, 'smooth_quartz'); B.set(x, 5, 5, 'quartz_pillar[axis=y]'); B.set(x, 6, 5, 'lantern[hanging=false,waterlogged=false]')
-    B.sign(27, 10, 5, 'birch_wall_sign[facing=north,waterlogged=false]', ['THE GILDED', 'ROOST', 'all bets', 'are final'], color='gold', glow=True)
+    B.sign(26, GY + 2, 2, 'birch_wall_sign[facing=east,waterlogged=false]', ['THE GILDED', 'ROOST', 'all bets', 'are final'], color='gold', glow=True)
     B.entrance(27, GY, 5)
     B.trial_spawner(23, GY, 10, 'gold_zombies')
     B.lectern(32, GY, 8, 'north', 'House Rules', 'The Management', [
