@@ -41,7 +41,7 @@ def minion(d, kind, name=None, hp=None, equipment=None, extra=None):
 
 
 def at_spawn(d, cmd):
-    return f'execute at @e[type=minecraft:marker,tag=bm.mspawn,tag=bm.d_{d},distance=..48,sort=random,limit=1] run {cmd}'
+    return f'execute at @e[type=minecraft:marker,tag=bm.mspawn,tag=bm.d_{d},distance=..64,sort=random,limit=1] run {cmd}'
 
 
 def cap(d, n):
@@ -305,15 +305,16 @@ def generate(G, builds):
     fn('p2/hollow/spear_line', ['execute positioned as @e[tag=bm.boss_hollow,limit=1,sort=nearest] rotated ~ 0 facing entity @s feet rotated ~ 0 run function bm:p2/hollow/fangs'])
     knight = minion('hollow', 'wither_skeleton', 'Hollow Knight', 30, equipment={'mainhand': eq('minecraft:netherite_sword'), 'head': eq('minecraft:netherite_helmet')})
     archer = minion('hollow', 'stray', 'Hollow Archer', equipment={'mainhand': eq('minecraft:bow')})
-    wraith = minion('hollow', 'phantom', 'Hollow Wraith', 20, extra={'size': Int(3)})
+    brute = minion('hollow', 'piglin_brute', 'Hollow Brute', 50, equipment={'mainhand': eq('minecraft:netherite_axe')}, extra={'IsImmuneToZombification': B(1)})
+    hog = minion('hollow', 'hoglin', 'Hollow Tusker', 40, extra={'IsImmuneToZombification': B(1)})
     # 2.2: the court answers every 10 s in phase 1 and every 8 s in phase 2, loudly, from smoking rifts
     fn('p2/hollow/rift', ['particle minecraft:large_smoke ~ ~1 ~ 0.4 0.8 0.4 0.03 25', 'particle minecraft:soul_fire_flame ~ ~0.2 ~ 0.5 0.1 0.5 0.02 15',
                           'playsound minecraft:entity.evoker.prepare_summon hostile @a[distance=..40] ~ ~ ~ 1 0.6'])
-    fn('p2/hollow/court', ['scoreboard players set @s bm.at2 0', *cap('hollow', 10),
+    fn('p2/hollow/court', ['scoreboard players set @s bm.at2 0', *cap('hollow', 12),
                            'playsound minecraft:entity.wither_skeleton.ambient hostile @a[distance=..40] ~ ~ ~ 2 0.4',
                            title(AUD('hollow'), 'actionbar', T('"RISE, MY COURT."', '#e5e4e2', bold=True)),
                            *[at_spawn('hollow', 'function bm:p2/hollow/rift') for _ in range(2)],
-                           *[at_spawn('hollow', knight) for _ in range(3)], at_spawn('hollow', archer)])
+                           *[at_spawn('hollow', knight) for _ in range(3)], at_spawn('hollow', archer), at_spawn('hollow', brute)])
     # phase 2: when the king falls, he rises as a Wither (mob griefing is off in the Hollow Throne, so he can't break out)
     if 'hollow' in builds:
         fn('p2/hollow/on_boss_gone', ['execute if score @s bm.at2 matches 0 run return run function bm:p2/hollow/ascend', 'function bm:p2/hollow/victory'])
@@ -327,10 +328,10 @@ def generate(G, builds):
                             f'summon minecraft:wither ~ ~6 ~ {snbt({"Tags": ["bm.seen", "bm.boss", "bm.boss_hollow"], "CustomName": T("The Hollow King, Unbound", "#e5e4e2", bold=True), "PersistenceRequired": B(1), "DeathLootTable": "bm:p2/hollow/boss", "attributes": attrs(max_health=900, armor=8), "Health": F(900)})}'])
     fn('p2/hollow/wither_tick', ['scoreboard players add @s bm.at 1', *every(8, 'bm:p2/hollow/w_court'), 'scoreboard players add @s bm.life 1',
                                  *every(8, 'bm:p2/hollow/w_storm', 'bm.life')])
-    fn('p2/hollow/w_court', ['scoreboard players set @s bm.at 0', *cap('hollow', 10),
+    fn('p2/hollow/w_court', ['scoreboard players set @s bm.at 0', *cap('hollow', 12),
                              title(AUD('hollow'), 'actionbar', T('The dead of the Throne answer their King!', 'red')),
                              *[at_spawn('hollow', 'function bm:p2/hollow/rift') for _ in range(2)],
-                             *[at_spawn('hollow', knight) for _ in range(2)], *[at_spawn('hollow', wraith) for _ in range(2)], at_spawn('hollow', archer)])
+                             *[at_spawn('hollow', knight) for _ in range(2)], at_spawn('hollow', brute), at_spawn('hollow', hog), at_spawn('hollow', archer)])
     fn('p2/hollow/w_storm', ['scoreboard players set @s bm.life 0', 'particle minecraft:soul ~ ~ ~ 8 3 8 0.05 200',
                              'playsound minecraft:particle.soul_escape hostile @a[distance=..40] ~ ~ ~ 2 0.5',
                              'effect give @a[distance=..10,gamemode=!spectator,gamemode=!creative] minecraft:wither 4 1'])

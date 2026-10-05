@@ -347,4 +347,6 @@ def build():
     B.carve(48, GY, 73, 48, GY + 1, 73)
     B.fx(36, 12, 64); B.zone(36, 8, 64)
     B.controller(36, 12, 40)
+    from p2.dungeons import exterior
+    exterior.keep(B)                          # 2.13: exterior dressing (open-world cells and the outer skin only)
     return B

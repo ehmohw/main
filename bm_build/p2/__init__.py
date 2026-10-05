@@ -98,6 +98,6 @@ def post_admin(G):
        [tellraw('@s', G.PREFIX + [T('Nearest dungeon reset.', 'gray')])])
     fn('admin/p2/shard', ['scoreboard players set @s[scores={bm.conq=..4}] bm.conq 5', 'execute unless score @s bm.conq matches 0.. run scoreboard players set @s bm.conq 5',
                           'loot give @s loot bm:items/hollow_summons'])
-    fn('admin/p2/hollow', ['execute unless score #hver bm.p2 matches 22 run return run ' + tellraw('@s', G.PREFIX + [T('The Hollow Throne is still being built; try again in a few seconds.', 'gray')]),
+    fn('admin/p2/hollow', [f'execute unless score #hver bm.p2 matches {data.HOLLOW_VER} run return run ' + tellraw('@s', G.PREFIX + [T('The Hollow Throne is still being built; try again in a few seconds.', 'gray')]),
                            'function bm:p2/hollow/enter'])
     G.FUNCS['admin/uninstall'][0:0] = [f'bossbar remove bm:boss_{d}' for d in B]

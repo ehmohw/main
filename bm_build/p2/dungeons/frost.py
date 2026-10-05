@@ -177,4 +177,6 @@ def build():
     B.vault(16, 43, 33, 'north', 'bkey_frost', 'bm:p2/frost/victor')
     B.fx(22, 46, 28); B.zone(22, 44, 28)
     B.controller(22, 26, 22)
+    from p2.dungeons import exterior
+    exterior.frost(B)                          # 2.13: exterior dressing (open-world cells and the outer skin only)
     return B

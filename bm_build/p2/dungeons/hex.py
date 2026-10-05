@@ -176,4 +176,6 @@ def build():
         for x in (11, 37): B.set(x, GY, z, 'purple_candle[candles=3,lit=true,waterlogged=false]')
     B.fx(24, 12, 68); B.zone(24, 8, 68)
     B.controller(24, 14, 40)
+    from p2.dungeons import exterior
+    exterior.hex(B)                          # 2.13: exterior dressing (open-world cells and the outer skin only)
     return B

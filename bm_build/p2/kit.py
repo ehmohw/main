@@ -103,6 +103,7 @@ class DBuild(Build):
         if items: nbt['Items'] = items
         self.set(x, y, z, st, nbt)
         self.meta['chests'].append((x, y, z, loot))
+        if loot: self.mb(x, y, z, ['bm.chestm'], data={'loot': loot})      # 2.13: a dungeon reset refills it
 
     def lectern(self, x, y, z, facing, title, author, pages):
         pages = [p if isinstance(p, dict) else {'text': p} for p in pages]
@@ -123,6 +124,8 @@ class DBuild(Build):
                  {'id': 'minecraft:vault', 'config': {'key_item': key, 'loot_table': loot,
                                                       'activation_range': Double(4.0), 'deactivation_range': Double(4.5)}})
         self.meta['vaults'].append((x, y, z, key_iid, loot, facing))
+        self.mb(x, y, z, ['bm.vaultm'])                                   # 2.13: a dungeon reset re-opens it to everyone
+        if om == 'true': self.mb(x, y + 1, z, ['bm.vbeacon'])             # 2.13: a sign and a beam of light over every victor's vault
 
     # ---------------- structural pieces with logic
     def entrance(self, x, y, z):

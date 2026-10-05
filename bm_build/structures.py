@@ -514,7 +514,16 @@ def build_graveyard():
     EPITAPHS = [['RIP', "Micah's", 'Free Time', ''], ['RIP', "River's", 'Second Monitor', ''],
                 ['RIP', "Emi's Ability", 'to Finish', 'Houses'], ['RIP', "Tim's Desire", 'to be Kind', ''],
                 ['RIP', "Jacky's", 'Nice-Looking', 'Houses']]
-    epi = EPITAPHS * 3
+    # 2.13: plenty more (each used once, so a graveyard reads like a crowd, not a loop); about half the graves stay nameless
+    EPITAPHS += [['RIP', 'Steve', 'Dug Straight', 'Down'], ['Here Lies', 'Bob', 'Hugged a', 'Creeper'], ['RIP', 'My Diamonds', 'Lava Took', 'Them All'],
+                 ['RIP', 'Gary', '"It\'s Just', 'One Zombie"'], ['RIP', 'Mining at 3AM', 'Was Fun.', 'Mostly.'], ['Here Lies', 'A Good Wolf', 'Best Boy', 'Forever'],
+                 ['RIP', 'Elytra Pilot', 'Forgot', 'Rockets'], ['RIP', 'The Last', 'Totem', ''], ['RIP', 'Phil', 'Slept in', 'the Nether'],
+                 ['RIP', 'Fall Damage', 'Victim #47', ''], ['RIP', 'Dave', 'Punched a', 'Golem'], ['RIP', 'Hardcore', 'World #12', ''],
+                 ['RIP', 'Iron Pickaxe', 'Died Doing', 'What It Loved'], ['RIP', 'Sheep #3', 'It Was Pink', ''], ['Here Lies', 'Someone Who', 'Said "Watch', 'This"'],
+                 ['RIP', 'The Anvil', 'Too Expensive', ''], ['RIP', 'The Warden', 'Was NOT', 'Asleep'], ['RIP', 'Larry', 'Gravel', 'Happened'],
+                 ['RIP', 'Lost Map', 'Never', 'Found'], ['RIP', 'Rat Gang', 'Snitch', '(squeak)'], ['RIP', 'Bought a Fake', 'Lucky Ticket', ''],
+                 ['RIP', "Didn't Read", 'the House', 'Rules'], ['RIP', 'Ate the', 'Suspicious', 'Stew']]
+    epi = list(EPITAPHS)
     rnd.shuffle(epi)
     def grave(x, z, sign=None):
         k = rnd.randrange(5)

@@ -119,10 +119,12 @@ def generate(G):
             f'data merge entity @s {snbt({"DeathLootTable": f"bm:entities/lucky_prime/{a}", "PersistenceRequired": B(1), "CustomName": mob_name("Lucky Prime ", "gold", a, True)})}',
             'tag @s add bm.lprime', 'attribute @s minecraft:scale base set 1.3',
             f'attribute @s minecraft:max_health base set {hp}', f'data modify entity @s Health set value {hp}.0f',
-            'effect give @s minecraft:glowing infinite 0 true', 'team join bm.jackpot @s'])
+            'team join bm.jackpot @s'])        # 2.13: it glows only while someone is within 10 blocks (below)
         wjson(f'bm/loot_table/entities/lucky_prime/{a}.json', {'type': 'minecraft:entity', 'pools': [
             vanilla(a), {'rolls': 1, 'entries': [loot_entry(meat, 5)]}]})
     second.append('execute as @e[tag=bm.lprime] at @s run particle minecraft:wax_on ~ ~0.9 ~ 0.35 0.35 0.35 0 4')
+    second += ['execute as @e[tag=bm.lprime,tag=!bm.lpg] run effect clear @s minecraft:glowing', 'tag @e[tag=bm.lprime,tag=!bm.lpg] add bm.lpg',
+               'execute as @e[tag=bm.lprime] at @s if entity @a[distance=..10] run effect give @s minecraft:glowing 2 0 true']
 
     # ================================================================ market patches for 1.13-layout markets already in worlds
     # the Void Rat customer leaves the Blood Alcove

@@ -147,6 +147,8 @@ def build():
     B.vault(6, 5, 40, 'east', 'bkey_tide', 'bm:p2/tide/victor')
     B.fx(12, 10, 40); B.zone(12, 7, 40)
     B.controller(28, 8, 28)
+    from p2.dungeons import exterior
+    exterior.tide(B)                          # 2.13: exterior dressing (open-world cells and the outer skin only)
     return B
 
 

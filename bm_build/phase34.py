@@ -139,7 +139,7 @@ def generate(G):
     import phase28 as P28
     tick, fast, second, load = [], [], [], []
     objs = ['bm.mlg dummy', 'bm.mlgt dummy', 'bm.wcd2 dummy', 'bm.dest dummy', 'bm.lp3 dummy', 'bm.lpu minecraft.used:minecraft.netherite_pickaxe',
-            'bm.wtcd dummy', 'bm.slcd dummy', 'bm.krk dummy']
+            'bm.wtcd dummy', 'bm.slcd dummy', 'bm.krk dummy', 'bm.kmoon dummy']
     load += [f'scoreboard objectives add {o}' for o in objs]
     G.OBJECTIVES += [o.split()[0] for o in objs]
     holds = '*[minecraft:custom_data~{bm:"%s"}]'
@@ -239,6 +239,20 @@ def generate(G):
            [f'setblock ~{x} ~1 ~{z} {lamp}' for (x, z) in ((2, 2), (-2, -2), (2, -2))] +
            [f'setblock ~-2 ~1 ~2 {sign}[rotation=0]{sg}', 'playsound minecraft:block.stone.place block @a[distance=..48] ~ ~ ~ 0.6 0.8'])
     load.append('scoreboard players set #5 bm.rng 5')
+
+    # ------------------------------------------------------------------ graveyards: every Blood Moon puts a fresh Black Market Key in each looted crypt
+    # (a global moon counter, so crypts far from anyone catch up the next time their chunk loads)
+    G.FUNCS['bloodmoon/start'].append('scoreboard players add #bmn bm.bm 1')
+    tk = G.FUNCS['crypt/take_key']
+    k = next(i for i, l in enumerate(tk) if l.startswith('tag @e[type=minecraft:marker,tag=bm.crypt_ctrl') and 'add bm.looted' in l)
+    tk.insert(k + 1, 'scoreboard players operation @e[type=minecraft:marker,tag=bm.crypt_ctrl,distance=..40,sort=nearest,limit=1] bm.kmoon = #bmn bm.bm')
+    second += ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,tag=bm.looted] unless score @s bm.kmoon = @s bm.kmoon run scoreboard players operation @s bm.kmoon = #bmn bm.bm',
+               'execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,tag=bm.looted] if score @s bm.kmoon < #bmn bm.bm at @s unless entity @a[distance=..40] run function bm:p34/crypt_restock']
+    fn('p34/crypt_restock', ['tag @s remove bm.looted', 'scoreboard players set @s bm.state 0', 'scoreboard players set @s bm.timer 0',
+                             'execute as @e[type=minecraft:marker,tag=bm.key_altar,distance=..40,sort=nearest,limit=1] at @s rotated as @s positioned ^ ^1.6 ^1 '
+                             'unless entity @e[type=minecraft:item_display,tag=bm.key_display,distance=..3] rotated ~180 0 run function bm:p34/key_spawn'])
+    fn('p34/key_spawn', [l for l in G.FUNCS['npc/deco_key'] if l.startswith('summon')] +
+       ['execute rotated ~ 0 run tp @e[tag=bm.new,distance=..2] ~ ~ ~ ~ 0', 'tag @e[tag=bm.new,distance=..2] remove bm.new'])
 
     # ------------------------------------------------------------------ MLG bucket
     tick += ['execute as @a[gamemode=!spectator,gamemode=!creative] if items entity @s container.* ' + holds % 'mlg_bucket' + ' at @s unless dimension minecraft:the_nether run function bm:p34/mlg/tick']

@@ -5,7 +5,7 @@ from nbt import snbt, B, F, Int
 from p2.config import D, ORDER
 
 HOLLOW_ORIGIN = (1000, 40, 1000)   # 2.2: the rebuilt citadel (152 x 128 x 152); 2.1 and earlier used (-48, 32, -48)
-HOLLOW_VER = 22
+HOLLOW_VER = 23                  # 2.13: lava rim, nastier waves - rebuilt in place (old entities cleared first)
 GRAVE_OFFSET = (-48, 14, 60)       # Wilfrey's Rest, relative to HOLLOW_ORIGIN (2.4)
 
 
@@ -25,7 +25,15 @@ _KNIGHT = ('wither_skeleton', _eq('iron_sword', 'chainmail_helmet', extra={'Cust
 _ARCHER = ('stray', _eq('bow', extra={'CustomName': T('Hollow Archer', '#8a96a8')}))
 _CAPTAIN = ('wither_skeleton', _eq('netherite_sword', 'netherite_helmet', 'netherite_chestplate',
                                    extra={'CustomName': T('Hollow Captain', '#e5e4e2', bold=True), 'Glowing': B(1)}))
-_WRAITH = ('phantom', {'CustomName': T('Hollow Wraith', '#8a96a8'), 'size': Int(2)})
+# 2.13: the Hollow's waves are nastier - phantoms are gone (they flew off and never fought); brutes, hoglins and a ravager instead
+_BUFF = lambda *e: [{'id': f'minecraft:{x}', 'amplifier': B(a), 'duration': Int(-1), 'show_particles': B(0)} for x, a in e]
+_BRUTE = ('piglin_brute', _eq('netherite_axe', 'netherite_helmet', extra=dict(_IMMUNE, CustomName=T('Hollow Brute', '#8a96a8'),
+                                                                          active_effects=_BUFF(('resistance', 0)))))
+_HOG = ('hoglin', dict(_IMMUNE, CustomName=T('Hollow Tusker', '#8a96a8'), active_effects=_BUFF(('strength', 0), ('speed', 0))))
+_RAVAGER = ('ravager', {'CustomName': T('Hollow Ravager', '#e5e4e2', bold=True), 'active_effects': _BUFF(('resistance', 0))})
+_KNIGHT2 = ('wither_skeleton', _eq('netherite_sword', 'netherite_helmet', extra={'CustomName': T('Hollow Knight', '#8a96a8'),
+                                                                                 'active_effects': _BUFF(('speed', 0), ('strength', 0))}))
+WAVE_PER = {'hex': (1, 3), 'keep': (2, 3), 'hollow': (2, 3)}        # mobs per spawn point on ordinary waves / on the last wave (everyone else: 1 / 2)
 # combat trials: WAVES[d][n] = (title, [wave1 roster, wave2 roster, ...]); each spawn point picks one mob per wave
 # from the roster (two on the last wave)
 WAVES = {
@@ -45,8 +53,10 @@ WAVES = {
         [('husk', _eq('golden_sword', 'golden_helmet')), ('zombie', _eq('golden_axe', 'golden_helmet'))],
         [('husk', _eq('golden_sword', 'golden_helmet', 'golden_chestplate')), ('piglin', _eq('golden_sword', extra=_IMMUNE))],
         [('piglin_brute', _eq('golden_axe', extra=_IMMUNE)), ('husk', _eq('golden_sword', 'golden_helmet')), ('piglin', _eq('crossbow', extra=_IMMUNE))]])},
-    'hollow': {1: ('The Siege of the Gate', [[_KNIGHT, _ARCHER], [_KNIGHT, _KNIGHT, _ARCHER], [_CAPTAIN, _KNIGHT, _ARCHER]]),
-               5: ("The Knights' Vigil", [[_KNIGHT, _WRAITH], [_KNIGHT, _WRAITH, _ARCHER], [_CAPTAIN, _WRAITH, _KNIGHT]])},
+    'hollow': {1: ('The Siege of the Gate', [[_KNIGHT, _ARCHER, _BRUTE], [_KNIGHT, _BRUTE, _ARCHER, _HOG], [_CAPTAIN, _BRUTE, _HOG, _ARCHER],
+                                             [_CAPTAIN, _RAVAGER, _BRUTE, _KNIGHT2]]),
+               5: ("The Knights' Vigil", [[_KNIGHT2, _BRUTE, _HOG], [_BRUTE, _HOG, _ARCHER, _KNIGHT2], [_CAPTAIN, _BRUTE, _HOG, _KNIGHT2],
+                                          [_CAPTAIN, _RAVAGER, _BRUTE, _HOG]])},
 }
 
 # vanilla tables to mix into each dungeon's loot, and the themed hidden gear found in its secret rooms
@@ -298,8 +308,17 @@ def generate(G, builds, offers_fn):
     fast.append('execute as @e[type=minecraft:marker,tag=bm.rift] at @s as @a[distance=..1.3] at @s run function bm:p2/hollow/leave')
     fast.append('execute as @e[type=minecraft:marker,tag=bm.rift] at @s run particle minecraft:reverse_portal ~ ~1 ~ 0.3 0.8 0.3 0.02 6')
     sx, sz = (hb.size[0], hb.size[2]) if hb else (152, 152)
+    sy_ = hb.size[1] if hb else 128
+    hbox = f'x={ox},y={oy},z={oz},dx={sx},dy={sy_},dz={sz}'
     fn('p2/hollow/try_build', [f'execute in bm:hollow_throne run forceload add {ox - 16} {oz - 16} {ox + sx + 16} {oz + sz + 16}',
+                               f'execute in bm:hollow_throne store success score #hload bm.p2 if loaded {ox} {oy} {oz} if loaded {ox + sx - 1} {oy} {oz + sz - 1} if loaded {ox} {oy} {oz + sz - 1} if loaded {ox + sx - 1} {oy} {oz}',
+                               'execute unless score #hload bm.p2 matches 1 run return run scoreboard players set #hwait bm.p2 0',
+                               'scoreboard players add #hwait bm.p2 1', 'execute unless score #hwait bm.p2 matches 4.. run return 0',   # entities load a moment after blocks
+                               # a rebuild (a newer Hollow): the old copy's markers, displays and mobs go first, or they'd double up
+                               f'execute if score #hver bm.p2 matches 1.. in bm:hollow_throne run kill @e[type=!minecraft:player,{hbox}]',
+                               'scoreboard players set #built bm.p2 0',
                                f'execute in bm:hollow_throne store success score #built bm.p2 run place template bm:p2_hollow {ox} {oy} {oz}',
+                               f'execute if score #built bm.p2 matches 1 if score #gver bm.p2 matches 2 run scoreboard players set #gver bm.p2 1',
                                f'execute if score #built bm.p2 matches 1 run scoreboard players set #hver bm.p2 {HOLLOW_VER}',
                                'execute if score #built bm.p2 matches 1 in bm:hollow_throne run forceload remove all'])
     second.append(f'execute unless score #hver bm.p2 matches {HOLLOW_VER} run function bm:p2/hollow/try_build')

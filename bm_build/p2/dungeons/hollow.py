@@ -203,6 +203,12 @@ def build():
             S(x, UF, z, 'blackstone'); S(x, UF + 1, z, 'lava')
             for y in range(UF + 2, L1 - 1): S(x, y, z, 'air')
             S(x, L1 - 1, z, B.pick(ROCK))
+    # 2.13: a rock rim round the lake - its south and west edges had nothing beside them, and the lava poured out into the void
+    for x in range(49, 102):
+        for z in range(57, 110):
+            if x in (49, 101) or z in (57, 109):
+                for y in range(UF - 1, UF + 3):
+                    if B.get(x, y, z) is None: S(x, y, z, B.pick(ROCK))
     for x in range(50, 58):                                    # start ledge (NW)
         for z in range(59, 66): S(x, UF + 1, z, B.pick(FLOOR))
     air(50, UF + 2, 62, 50, UF + 4, 64)
@@ -413,8 +419,7 @@ def build():
     for z in range(61, 106):
         for y in range(L3 + 1, 87): S(64, y, z, B.pick(WALL))
     B.vault(53, L3 + 1, 95, 'east', 'vkey_hollow', 'bm:p2/hollow/vault')
-    B.vault(53, L3 + 1, 99, 'east', 'bkey_hollow', 'bm:p2/hollow/victor')
-    for z in (93, 97, 101): S(53, L3 + 1, z, 'polished_blackstone_bricks'); S(53, L3 + 2, z, 'soul_lantern[hanging=false,waterlogged=false]')
+    for z in (93, 97, 99, 101): S(53, L3 + 1, z, 'polished_blackstone_bricks'); S(53, L3 + 2, z, 'soul_lantern[hanging=false,waterlogged=false]')
     S(59, L3, 103, 'crying_obsidian'); B.mb(59, L3 + 1, 103, ['bm.rift'])
     B.sign(60, L3 + 1, 65, 'dark_oak_sign[rotation=0,waterlogged=false]', ['THE THRONE', 'Kneel at the', 'altar. He will', 'answer.'], color='red', glow=True)
     B.zone(59, L3 + 2, 90)
@@ -436,7 +441,7 @@ def build():
     for x in range(92, 98):                                    # the throne dais
         for z in range(77, 90): S(x, L3 + 1, z, 'polished_blackstone_bricks')
     for z in range(78, 89): S(91, L3 + 1, z, 'polished_blackstone_brick_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]')
-    S(95, L3 + 2, 83, 'blackstone_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]')
+    B.vault(95, L3 + 2, 83, 'west', 'bkey_hollow', 'bm:p2/hollow/victor')      # 2.13: the victor's vault sits on the King's own throne
     for z in (82, 84): S(95, L3 + 2, z, 'polished_blackstone_wall')
     for z in (81, 82, 83, 84, 85):
         for y in range(L3 + 2, L3 + 12): S(97, y, z, 'gilded_blackstone' if z == 83 and y < L3 + 9 else 'polished_blackstone_bricks')

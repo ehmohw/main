@@ -9,7 +9,7 @@ gates/doors use symmetric fill boxes, secret doors are single columns).
   - Altar (inside the arena): sneak with the key in hand; needs all puzzles solved + the conquest record.
 """
 import math
-from nbt import snbt, Byte
+from nbt import snbt, Byte, Byte as B_, F, Int
 from items import T, ITEMS
 from p2.config import D, ORDER, OPEN_LIGHT, ADOOR_LIGHT
 
@@ -19,46 +19,55 @@ R2 = lambda d: D[d]['radius'] * 2          # search radius for "same dungeon" lo
 FLAVOR = {
     'brood': dict(open='The silk curtain dissolves...', osnd='minecraft:block.wool.break', osnd2='minecraft:entity.spider.ambient',
                   block_part='minecraft:white_wool', tone='minecraft:block.note_block.didgeridoo',
-                  fail=['execute at @p[distance=..8,gamemode=!creative,gamemode=!spectator] run summon minecraft:cave_spider ~ ~ ~ {Tags:["bm.seen","bm.dgmob"]}',
-                        'effect give @a[distance=..8,gamemode=!creative,gamemode=!spectator] minecraft:poison 4 0'],
+                  fail=['execute at @p[distance=..24,gamemode=!creative,gamemode=!spectator] run summon minecraft:cave_spider ~ ~ ~ {Tags:["bm.seen","bm.dgmob"]}',
+                        'effect give @a[distance=..16,gamemode=!creative,gamemode=!spectator] minecraft:poison 4 0'],
                   failmsg='The eggs burst! The brood stirs...', failsnd='minecraft:entity.spider.hurt',
                   trap=['effect give @s minecraft:poison 4 0', 'effect give @s minecraft:slowness 3 1'], trapmsg='The web gives way!'),
     'frost': dict(open='The ice cracks apart!', osnd='minecraft:block.glass.break', osnd2='minecraft:block.powder_snow.break',
                   block_part='minecraft:blue_ice', tone='minecraft:block.note_block.chime',
-                  fail=['effect give @a[distance=..8,gamemode=!creative,gamemode=!spectator] minecraft:slowness 4 1',
-                        'execute as @a[distance=..8,gamemode=!creative,gamemode=!spectator] run damage @s 2 minecraft:freeze'],
+                  fail=['effect give @a[distance=..16,gamemode=!creative,gamemode=!spectator] minecraft:slowness 4 1',
+                        'execute as @a[distance=..16,gamemode=!creative,gamemode=!spectator] run damage @s 2 minecraft:freeze'],
                   failmsg='Frost bites at your fingers. Wrong.', failsnd='minecraft:entity.player.hurt_freeze',
                   trap=['damage @s 3 minecraft:freeze', 'effect give @s minecraft:slowness 4 2'], trapmsg='The ice cracks beneath you!'),
     'tide': dict(open='The grate grinds open, water draining away...', osnd='minecraft:block.copper_grate.break', osnd2='minecraft:ambient.underwater.exit',
                  block_part='minecraft:waxed_oxidized_copper_grate', tone='minecraft:block.note_block.bell',
-                 fail=['effect give @a[distance=..8,gamemode=!creative,gamemode=!spectator] minecraft:nausea 6 0',
-                       'effect give @a[distance=..8,gamemode=!creative,gamemode=!spectator] minecraft:blindness 2 0'],
+                 fail=['effect give @a[distance=..16,gamemode=!creative,gamemode=!spectator] minecraft:nausea 6 0',
+                       'effect give @a[distance=..16,gamemode=!creative,gamemode=!spectator] minecraft:blindness 2 0'],
                  failmsg='The sea rejects your song.', failsnd='minecraft:entity.elder_guardian.curse',
                  trap=['effect give @s minecraft:nausea 5 0'], trapmsg='The floor floods!'),
     'hex': dict(open='The arcane barrier shatters!', osnd='minecraft:block.amethyst_block.break', osnd2='minecraft:entity.illusioner.cast_spell',
                 block_part='minecraft:purple_stained_glass', tone='minecraft:block.note_block.flute',
-                fail=['effect give @a[distance=..8,gamemode=!creative,gamemode=!spectator] minecraft:levitation 1 1',
-                      'execute as @a[distance=..8,gamemode=!creative,gamemode=!spectator] run damage @s 2 minecraft:magic'],
+                fail=['effect give @a[distance=..16,gamemode=!creative,gamemode=!spectator] minecraft:levitation 1 1',
+                      'execute as @a[distance=..16,gamemode=!creative,gamemode=!spectator] run damage @s 2 minecraft:magic'],
                 failmsg='A hex snaps back at you!', failsnd='minecraft:entity.evoker.cast_spell',
                 trap=['effect give @s minecraft:levitation 1 2'], trapmsg='A glyph flares beneath you!'),
     'keep': dict(open='The iron gate grinds upward...', osnd='minecraft:block.chain.place', osnd2='minecraft:block.piston.contract',
                  block_part='minecraft:iron_block', tone='minecraft:block.note_block.bell',
-                 fail=['execute as @a[distance=..8,gamemode=!creative,gamemode=!spectator] run damage @s 3 minecraft:magic',
-                       'effect give @a[distance=..8,gamemode=!creative,gamemode=!spectator] minecraft:wither 2 0'],
+                 fail=['execute as @a[distance=..16,gamemode=!creative,gamemode=!spectator] run damage @s 3 minecraft:magic',
+                       'effect give @a[distance=..16,gamemode=!creative,gamemode=!spectator] minecraft:wither 2 0'],
                  failmsg='The keep punishes the unworthy.', failsnd='minecraft:entity.wither_skeleton.hurt',
                  trap=['damage @s 3 minecraft:hot_floor', 'effect give @s minecraft:slowness 2 1'], trapmsg='The floor burns!'),
     'hollow': dict(open='The deepslate seal sinks into the floor.', osnd='minecraft:block.respawn_anchor.deplete', osnd2='minecraft:entity.wither.ambient',
                    block_part='minecraft:reinforced_deepslate', tone='minecraft:block.note_block.iron_xylophone',
-                   fail=['effect give @a[distance=..8,gamemode=!creative,gamemode=!spectator] minecraft:darkness 5 0',
-                         'effect give @a[distance=..8,gamemode=!creative,gamemode=!spectator] minecraft:wither 3 0'],
+                   fail=['effect give @a[distance=..16,gamemode=!creative,gamemode=!spectator] minecraft:darkness 5 0',
+                         'effect give @a[distance=..16,gamemode=!creative,gamemode=!spectator] minecraft:wither 3 0'],
                    failmsg='The Throne remembers your mistake.', failsnd='minecraft:entity.warden.sonic_charge',
                    trap=['effect give @s minecraft:wither 3 1', 'effect give @s minecraft:darkness 4 0'], trapmsg='The void reaches up!'),
     'lucky': dict(open='Jackpot! The golden gate swings open!', osnd='minecraft:block.amethyst_block.chime', osnd2='minecraft:entity.player.levelup',
                   block_part='minecraft:raw_gold_block', tone='minecraft:block.note_block.pling',
-                  fail=['effect give @a[distance=..8,gamemode=!creative,gamemode=!spectator] minecraft:glowing 3 0'],
+                  fail=['effect give @a[distance=..16,gamemode=!creative,gamemode=!spectator] minecraft:glowing 3 0'],
                   failmsg='Bawk! Wrong number.', failsnd='minecraft:entity.chicken.hurt',
                   trap=['effect give @s minecraft:slowness 2 0'], trapmsg='Unlucky tile!'),
 }
+# 2.13: puzzles get meaner the further along the conquest road they are - a wrong answer now also calls something up
+_MOB = lambda ent, extra='': f'execute at @p[distance=..24,gamemode=!creative,gamemode=!spectator] run summon minecraft:{ent} ~ ~ ~ {{Tags:["bm.seen","bm.dgmob"]{extra}}}'
+FLAVOR['frost']['fail'].append(_MOB('stray'))
+FLAVOR['tide']['fail'].append(_MOB('drowned', ',equipment:{mainhand:{id:"minecraft:trident",count:1}},drop_chances:{mainhand:0.0f}'))
+FLAVOR['hex']['fail'] += ['execute at @a[distance=..16,gamemode=!creative,gamemode=!spectator] run summon minecraft:evoker_fangs ~ ~ ~ {Warmup:10}',
+                          _MOB('vindicator', ',equipment:{mainhand:{id:"minecraft:iron_axe",count:1}},drop_chances:{mainhand:0.0f}')]
+FLAVOR['keep']['fail'] += [_MOB('wither_skeleton', ',equipment:{mainhand:{id:"minecraft:stone_sword",count:1}},drop_chances:{mainhand:0.0f}')]
+FLAVOR['hollow']['fail'] += [_MOB('wither_skeleton', ',CustomName:{text:"Hollow Knight",color:"#8a96a8"},equipment:{mainhand:{id:"minecraft:netherite_sword",count:1}},drop_chances:{mainhand:0.0f}')] * 2
+TARGET_TIME = {'frost': 800, 'hollow': 400}          # ticks to strike every target (default 600)
 PITCH = [0.5, 0.63, 0.75, 0.84, 1.0, 1.12, 1.26, 1.5, 1.68, 2.0]
 SYMBOLS = ['minecraft:gold_block', 'minecraft:emerald_block', 'minecraft:diamond_block', 'minecraft:redstone_block', 'minecraft:lapis_block']
 
@@ -151,7 +160,7 @@ def generate(G, builds):
 
         def fail(n, extra_reset):
             fn(f'p2/{d}/pz{n}_fail', extra_reset + fl['fail'] + [
-                title('@a[distance=..8]', 'actionbar', T(fl['failmsg'], 'red')),
+                title('@a[distance=..16]', 'actionbar', T(fl['failmsg'], 'red')),
                 f'playsound {fl["failsnd"]} hostile @a[distance=..12] ~ ~ ~ 1 0.8',
                 'playsound minecraft:block.note_block.bass block @a[distance=..12] ~ ~ ~ 1 0.5'])
 
@@ -243,7 +252,7 @@ def generate(G, builds):
                 body = ['execute if score #act bm.rng matches 0 run return 0',
                         f'execute as {el_sel(d, n, "target", R, ",tag=!bm.hit")} at @s unless block ~ ~ ~ minecraft:target[power=0] run function bm:p2/{d}/pz{n}_hit',
                         'execute if score @s bm.pt matches 1.. run scoreboard players add @s bm.pt 1',
-                        f'execute if score @s bm.pt matches 600.. run function bm:p2/{d}/pz{n}_timeout']
+                        f'execute if score @s bm.pt matches {TARGET_TIME.get(d, 600)}.. run function bm:p2/{d}/pz{n}_timeout']
                 hit = ['tag @s add bm.hit', 'particle minecraft:wax_off ~ ~ ~ 0.6 0.6 0.6 0 12',
                        'playsound minecraft:block.note_block.bell block @a[distance=..30] ~ ~ ~ 1 1.4']
                 if ordered:
@@ -361,8 +370,10 @@ def generate(G, builds):
                                             f'function bm:p2/{d}/pz{n}_wnext'])
                 nxt = ['scoreboard players add @s bm.wv 1', 'scoreboard players set @s bm.wt 0',
                        f'execute if score @s bm.wv matches {NW + 1}.. run return run function bm:p2/{d}/pz{n}_wwin']
+                from p2.data import WAVE_PER
+                lo, hi = WAVE_PER.get(d, (1, 2))
                 for k, wave in enumerate(waves, 1):
-                    per = 2 if k == NW else 1
+                    per = hi if k == NW else lo
                     nxt.append(f'execute if score @s bm.wv matches {k} run function bm:p2/{d}/pz{n}_w{k}')
                     fn(f'p2/{d}/pz{n}_w{k}', [title(f'@a[distance=..{R + 10}]', 'actionbar', T(f'Wave {k} of {NW}', 'red', bold=True)),
                                               f'playsound minecraft:entity.wither.ambient hostile @a[distance=..{R + 10}] ~ ~ ~ 0.6 {0.6 + 0.1 * k:.1f}',
@@ -390,7 +401,9 @@ def generate(G, builds):
                 raise ValueError(kind)
             fn(f'p2/{d}/pz{n}', head + body)
             fn(f'p2/{d}/pz{n}_reset', reset)
-            tick.append(f'execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.d_{d},tag=bm.pz{n}] at @s run function bm:p2/{d}/pz{n}')
+            # 2.13: the Hollow's trials sleep while everyone in the Throne has already conquered it (#hsafe, below)
+            safe = 'if score #hsafe bm.p2 matches 0 ' if d == 'hollow' else ''
+            tick.append(f'execute {safe}as @e[type=minecraft:marker,tag=bm.pz,tag=bm.d_{d},tag=bm.pz{n}] at @s run function bm:p2/{d}/pz{n}')
 
         # ---------------- dungeon controller: idle reset, re-arm after victory, ambience
         rad = cfg['radius']
@@ -400,7 +413,10 @@ def generate(G, builds):
             f'execute as @e[type=minecraft:marker,tag=bm.gate,tag=bm.d_{d},distance=..{r2}] at @s run function bm:p2/{d}/gate_close',
             f'execute as @e[type=minecraft:marker,tag=bm.sdoor,tag=bm.d_{d},tag=bm.open,distance=..{r2}] at @s run function bm:p2/{d}/sdoor_close',
             f'execute as @e[type=minecraft:marker,tag=bm.xdoor,tag=bm.d_{d},distance=..{r2}] at @s run function bm:p2/{d}/xdoor_close',
-            f'execute as @e[type=minecraft:marker,tag=bm.restock,tag=bm.d_{d},distance=..{r2}] at @s run function bm:p2/restock'])
+            f'execute as @e[type=minecraft:marker,tag=bm.restock,tag=bm.d_{d},distance=..{r2}] at @s run function bm:p2/restock',
+            # 2.13: a reset dungeon can be looted again - every vault forgets who opened it, every loot chest refills
+            f'execute as @e[type=minecraft:marker,tag=bm.vaultm,tag=bm.d_{d},distance=..{r2}] at @s run data modify block ~ ~ ~ server_data set value {{}}',
+            f'execute as @e[type=minecraft:marker,tag=bm.chestm,tag=bm.d_{d},distance=..{r2}] at @s run function bm:p2/util/reloot with entity @s data'])
         amb = cfg['amb']
         ambl = ['execute store result score #r bm.rng run random value 1..14']
         for i, (snd, vol, pit) in enumerate(amb, 1):
@@ -409,6 +425,7 @@ def generate(G, builds):
         fn(f'p2/{d}/dg', [
             'execute unless score @s bm.pz = @s bm.pz run scoreboard players set @s bm.pz 0',
             f'execute unless entity @a[distance=..{rad}] run return 0',
+            *([f'execute unless entity @a[distance=..{rad},scores={{bm.conq=..5}}] run return run function bm:p2/{d}/amb'] if d == 'hollow' else []),
             'execute store result score #now bm.rng run time query gametime',
             'scoreboard players operation #gap bm.rng = #now bm.rng', 'scoreboard players operation #gap bm.rng -= @s bm.seen',
             f'execute if score @s bm.seen matches 1.. if score #gap bm.rng matches 24000.. unless score {f"@e[type=minecraft:marker,tag=bm.arena,tag=bm.d_{d},distance=..{r2},sort=nearest,limit=1]"} bm.bs matches 1.. run function bm:p2/{d}/reset',
@@ -438,4 +455,20 @@ def generate(G, builds):
                              'execute on owner run give @s minecraft:ender_pearl 1',
                              'execute on owner run ' + title('@s', 'actionbar', T('The floor drinks your pearl. Walk the path.', 'light_purple')),
                              'kill @s'])
+    fn('p2/util/reloot', ['$data modify block ~ ~ ~ LootTable set value "$(loot)"'])
+    # 2.13: every victor's vault wears a sign and a beam of light, so nobody walks past it with a Victor's Key in their pocket
+    vbt = {'Tags': ['bm.vbtext', 'bm.p2'], 'billboard': 'center', 'see_through': B_(0), 'shadow': B_(1), 'background': Int(0x60000000),
+           'brightness': {'block': Int(15), 'sky': Int(15)}, 'line_width': Int(160), 'alignment': 'center',
+           'text': [T("VICTOR'S VAULT", '#ffd23f', bold=True), T('\nUse your Victor\'s Key here', 'gray')],
+           'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)],
+                              'translation': [F(0), F(0.6), F(0)], 'scale': [F(0.9), F(0.9), F(0.9)]}}
+    second += [f'execute as @e[type=minecraft:marker,tag=bm.vbeacon,tag=!bm.vbon] at @s run summon minecraft:text_display ~ ~ ~ {snbt(vbt)}',
+               'tag @e[type=minecraft:marker,tag=bm.vbeacon] add bm.vbon']
+    fast.append('execute as @e[type=minecraft:marker,tag=bm.vbeacon] at @s if entity @a[distance=..28] run function bm:p2/util/vbeam')
+    fn('p2/util/vbeam', ['particle minecraft:end_rod ~ ~4 ~ 0.05 3 0.05 0 3', 'particle minecraft:trial_omen ~ ~0.2 ~ 0.4 0.3 0.4 0 3',
+                         'particle minecraft:dust{color:[1.0,0.82,0.25],scale:1.4} ~ ~1.5 ~ 0.15 2 0.15 0 4'])
+    # 2.13: #hsafe = 1 while nobody in the Hollow Throne still has it to conquer (everyone gets a bm.conq score so "no score" counts as 0)
+    second[0:0] = ['scoreboard players add @a bm.conq 0',
+                   'execute in bm:hollow_throne store success score #hsafe bm.p2 unless entity @a[distance=0..,gamemode=!spectator,scores={bm.conq=..5}]']
+    load.append('scoreboard players set #hsafe bm.p2 0')
     return dict(tick=tick, fast=fast, second=second, load=load, zone=zone_lines)
