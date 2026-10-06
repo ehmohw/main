@@ -241,6 +241,11 @@ for f in glob.glob(f'{DP}/data/bm/enchantment/*.json'):
                 for ob in rq.get('scores', {}):
                     if not any(ln.startswith(f'scoreboard objectives add {ob} ') for ln in ALL_LINES): E(f'{f}: objective {ob} never created')
                 continue
+            if C.strip_ns(comp) in ('damage_immunity', 'damage_protection'):     # 2.20: conditional (damage context) effects
+                if set(e) - {'effect', 'requirements'}: E(f'{f}: {comp} keys')
+                if C.strip_ns(comp) == 'damage_protection' and C.strip_ns(e['effect'].get('type', '')) not in REG['enchantment_value_effect_type']: E(f'{f}: value effect')
+                if C.strip_ns(comp) == 'damage_immunity' and e['effect'] != {}: E(f'{f}: damage_immunity effect must be empty')
+                continue
             if e['affected'] not in ('attacker', 'damaging_entity', 'victim') or e['enchanted'] not in ('attacker', 'damaging_entity', 'victim'): E(f'{f}: target')
             def ee(x):
                 if C.strip_ns(x['type']) not in REG['enchantment_entity_effect_type']: E(f'{f}: entity effect {x["type"]}')
@@ -252,8 +257,11 @@ for f in glob.glob(f'{DP}/data/bm/enchantment/*.json'):
                     if dt.startswith('minecraft:') and dt[10:] not in REG['damage_type']: E(f'{f}: damage type {dt}')
                 if x['type'] == 'minecraft:apply_mob_effect' and C.strip_ns(x['to_apply']) not in REG['mob_effect']: E(f'{f}: mob effect')
             ee(e['effect'])
-            pr = e['requirements']['predicate']
-            if set(pr) - {'minecraft:entity_type'}: E(f'{f}: predicate keys')
+            rq = e.get('requirements')
+            if rq is None: continue
+            if rq.get('type', rq.get('condition')) == 'minecraft:inverted': rq = rq['term']
+            pr = rq['predicate']
+            if set(pr) - {'minecraft:entity_type', 'minecraft:flags', 'minecraft:movement'}: E(f'{f}: predicate keys')     # (2.20: as vanilla wind_burst)
 for f in glob.glob(f'{DP}/data/bm/damage_type/*.json'):
     d = C.jload(f)
     if set(d) - {'exhaustion', 'message_id', 'scaling', 'effects', 'death_message_type'} or d['scaling'] not in ('never', 'always', 'when_caused_by_living_non_player'): E(f'{f}: damage type format')

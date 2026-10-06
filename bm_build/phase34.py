@@ -28,7 +28,7 @@ import market2
 import mgeo
 
 W, GF = market2.W, market2.GF
-NEW_NPCS = {'dock': ('villager', 'Salty Sal, Dockmaster', 'dark_aqua', 'fisherman', 'swamp', None)}
+NEW_NPCS = {'dock': ('rat', 'Salty Sal, Dockmaster', 'dark_aqua', 'fisherman', 'swamp', 'bm:rat_pirate')}   # 2.20: a rat, like every trader
 DOCK_POS, DOCK_YAW = (10.5, W, 26.5), -90
 
 # ===================================================================== dock goods

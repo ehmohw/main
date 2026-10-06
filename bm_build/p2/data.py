@@ -134,7 +134,7 @@ def generate(G, builds, offers_fn):
         if d not in ('hollow', 'lucky'): vic.append(pool([frag], cond=[chance(0.3)]))
         if d == 'hollow':
             vic = [pool([loot_entry(i)]) for i in ['conq_helmet', 'conq_chestplate', 'conq_leggings', 'conq_boots',
-                                                     'conq_blade', 'conq_pick', 'conq_axe', 'conq_shovel', 'conq_bow']] + \
+                                                     'conq_blade', 'conq_pick', 'conq_axe', 'conq_shovel', 'conq_bow', 'sepulchre']] + \
                   [pool([loot_entry('trophy', uni(2, 3))]), xen, rare, pool([item_('heavy_core')])]
         if d == 'lucky':
             from phase34 import LUCKY_LOOT

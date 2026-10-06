@@ -1,4 +1,4 @@
-# Black Market — Phase 1.22 (Java 26.3)
+# Black Market — Phase 1.27 (Java 26.3)
 
 A data pack + resource pack. No mods required, and it works alongside Fabric.
 
@@ -18,6 +18,95 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 1.27: the Headless Horseman, and a big round of fixes
+
+Still Java 26.3. **Restart the server (or reopen the world) after updating.** This version adds new enchantments and damage types, and `/reload` can't load those. Items already in your world update to their new names and lore on their own.
+
+### The Headless Horseman
+
+He's a roaming boss of the Overworld night.
+- **When he rides:** never in the first **15 days** of a world. After that he comes very rarely on an ordinary night, and much more often under a **full moon** or a **new moon**. He appears about 24 blocks from someone standing under open sky. Everyone within 30 blocks hears the cave stir and sees *"You sense an evil presence nearby..."*.
+- **What he is:** a towering headless rider in black, carrying his own jack-o'-lantern head and a netherite spear. He rides a huge, fast **Hellsteed**. He has 360 health, Resistance and Fire Resistance, and hunts from 96 blocks away. Flames burn at his neck and under the steed's hooves, ash falls around him, and the night laughs and moans.
+- **How he fights:** he **breathes fire** at the nearest player, **charges with his spear**, and calls up **Pumpkin Thralls** (skeletons with lit pumpkin heads, at most 6). At half health he enrages: Strength, more speed, more thralls and a ring of flame.
+- **When he leaves:** at dawn he rides away, taking his thralls and steed. He also leaves if nobody is within 128 blocks for a minute and a half.
+- **What he drops:** 10 to 16 Tokens, 2 to 4 Medallions, a Trophy (40%), a Heartstone (15%), netherite scrap, pumpkins and pie. **1 time in 10, he drops his head.**
+
+### The Horseman's Head
+
+The head is a weapon, and it can't be placed. Hold it in your **main hand**.
+
+| Use | What it does |
+| --- | --- |
+| Melee | Hits as hard as a netherite sword but swings slower. Hits set the target alight. |
+| Hold right-click | Breathes a **stream of fire**. The stream shrinks over 10 seconds, then the head needs 10 seconds to rekindle. Let go early and the fuel recovers on its own. |
+| Sneak + hold right-click | Charges a **Fire Blast**. Let go to fire it. It hits up to about 35 blocks away, bursts over 4 blocks, and never breaks blocks. |
+| Sneak + look straight down + right-click | Fires the **Nova** once the head is stoked. Kill monsters with the head to stoke it: 20 kills, or 12 under a full moon, a new moon or a Blood Moon. Blood Moon monsters count double. The Nova hits every hostile mob and every other player within 10 blocks, never you. |
+
+Undead killed with the head drop extra experience.
+
+**It grows stronger with the night** (Overworld only, while you hold it):
+
+| When | Power |
+| --- | --- |
+| Night | Night Vision, ×1.5 damage, a glow of its fire around you |
+| Full or new moon | As above, but ×2 damage, a 6 s cooldown, a faster blast charge and a smaller Nova requirement |
+| Blood Moon | As above, but ×2.5 damage, +1.5 reach, Strength II, Speed II and Regeneration |
+
+**Changing its fire:** hold the item in your **off hand**, look straight up, and right-click the head. This uses up one of the off-hand item.
+- **Soul Lantern:** the head becomes the **Soulfire Head**. Its fire freezes instead of burning, and hits chill and slow the target.
+- **Any Copper Lantern:** the head becomes the **Venomfire Head**. Its fire poisons. Undead wither instead, since poison doesn't work on them.
+- **Plain Lantern:** the head goes back to the Horseman's Head.
+- **A beating heart (a Heartstone):** the head becomes the hidden **Hallowed Head**, a support relic and a poor club.
+  - Hold right-click: a **healing beam** that heals whoever it touches (players, villagers, pets and mounts). If nobody is in the beam, it heals you at half the pace. It burns the undead. It runs 10 seconds, then needs 10 to rekindle.
+  - Sneak + right-click: sets down a **circle of Regeneration** (radius 5) for 10 seconds, with a 30 s cooldown.
+  - Healing and kills stoke it. Then sneak, look down and right-click: everyone near you is healed and gets Regeneration II and Absorption II. Undead nearby are seared.
+  - It gets the same night, moon and Blood Moon power-ups as the other heads, as faster healing, stronger circles and shorter cooldowns.
+
+### Fixes and changes
+
+**The Black Market**
+- **Every market has a ladder shaft** from the end of its entrance tunnel up to the surface, with a signposted top. A market whose tunnel ends sealed in rock can always be reached now. Markets already in your world get their shaft the first time they load.
+- **No more flooding.** Every block in a market that can hold water (iron bars, chains, dripstone, stairs, slabs...) is set dry. Older markets are fixed the first time they load under this version.
+- Decor that floated after the counters were lowered sits on the counters again. The Blood Alcove's cages hang lanterns, the dock steps run the right way down to the pier, and the DOCKS sign hangs over the office's open side.
+- **Salty Sal the Dockmaster is a rat**, at the same size as the other traders.
+- **Rat Gang HQ:** the wall to the docks now reaches the ceiling, so you can't ender-pearl in anymore. The Captain sells two new prizes:
+  - the **Hoard Sack**: your private 27-slot stash. Use it and a locked barrel appears in front of you that only your sack opens. It folds away, contents kept, when you walk off.
+  - the **Golden Cheese Wheel**: a placeable trophy that keeps everyone within 50 blocks fed, like a full beacon. Sneak + punch to pick it up, right-click to turn it.
+- **Who sells what:** all the armour (Smuggler, Kingpin, Hero and the Dawnbringer set) is with Sgt. Steelwhisker. The mail kit is at the Fence. The Newcomers' book now lists every trader and what they sell.
+- **Rebalanced:** the Dawnbringer (Solar) set now costs Trophies. So do the Vampire Lord and Crimson sets, on top of their Blood Crystals.
+- The market's lecterns were checked at all four turns a market can generate at. Each one faces the same way relative to the market in every turn.
+
+**The Vorn**
+- Their models vanish with them, so no bodies are left standing.
+- Fewer of them at once on an Invasion Night, and Invasion Nights now hum, beam and crackle.
+- Invasion Nights only start once someone has killed a Vorn aboard a Dreadnought.
+- Bioengineered monsters lose the green outline and drip sickly particles instead.
+- Vorn troopers and saucers drop **Red Xenite** 1 time in 100.
+- The **Vorn Skiff** hides its harness (no more "helmet"), and its hull now rides on the skiff instead of trailing a tick behind.
+- The **Dimension Shifter** works again. Its buttons had collided with the mercenary's.
+
+**Items**
+- The **Experience Flask** works in your main hand. It used to only work in the off hand.
+- **Triple-jump boots** grant each jump's boost the moment you leave the ground, and you have 0.8 s to chain the next jump. They used to miss quick hops.
+- The **Pocket Ender Chest** and the **Void Hinge** are retired. The new **Ender Pouch** (from the Void Rat) sets a real ender chest down in front of you, which folds away when you leave. Pocket Ender Chests you already have turn into Ender Pouches, and the Void Rat buys your Void Hinges back. Shulker boxes hinged before still open.
+- The **Blue Marlin** has a new sprite, drawn from the reference art.
+
+**Admin:** `/function bm:admin/horseman` summons the Horseman 10 blocks ahead. `/function bm:admin/horseman_heads` gives you all four heads.
+
+## New in 1.26: the Bounty Board
+
+Every Black Market now has a **Bounty Board** on the balcony beside the Newcomers' lectern. On special nights it posts a bounty. Right-click the board to sign it. Only kills made after you sign count, you can carry one bounty at a time (the Bloodbroker's Blood Bounty counts as your one), you get one per night, and bounties expire at dawn. Your progress shows on the action bar.
+
+| Night | Bounty | Reward |
+| --- | --- | --- |
+| Blood Moon | Slay 8 Blood Moon horrors | 10 Blood Crystals + a Medallion |
+| Lucky Night | Defeat 6 Lucky monsters | 3 Lucky Tokens + a Jackpot Scratch Card |
+| Invasion Night | Down 8 Vorn invaders or bioengineered monsters | 6 Tokens + 4 Green Xenite, with a 10% chance of a Vorn Skiff part |
+
+If two special nights overlap, the board posts the Blood Moon bounty first, then Invasion, then Lucky. The older Blood Bounty paper still works alongside it. Markets already in your world get the board automatically.
+
+Also fixed: the Band of Regeneration now heals right after its 5 seconds (it used to wait about 10).
 
 ## New in 1.25: treasure of the wide world
 

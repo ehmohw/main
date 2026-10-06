@@ -187,7 +187,9 @@ def generate(G):
         'advancement revoke @s only bm:consume/blood_bounty',
         'execute unless score #active bm.bm matches 1 run ' + deny('blood_bounty', 'Bounties are only posted under a Blood Moon.'),
         'execute if entity @s[tag=bm.bty] run ' + deny('blood_bounty', 'You already carry a bounty tonight.'),
-        'tag @s add bm.bty', 'scoreboard players set @s bm.bty 0',
+        'execute if score @s bm.bnt matches 1.. run ' + deny('blood_bounty', 'You already carry the Bounty Board\'s bounty - one at a time.'),
+        'execute if score @s bm.bntn = #bnight bm.rng run ' + deny('blood_bounty', 'You already took a bounty tonight - one a night.'),
+        'tag @s add bm.bty', 'scoreboard players set @s bm.bty 0', 'scoreboard players operation @s bm.bntn = #bnight bm.rng',   # 2.20: counts as tonight's bounty
         title('@s', 'actionbar', T('Bounty signed: slay 5 horrors before dawn.', 'dark_red')),
         'playsound minecraft:item.book.put player @s ~ ~ ~ 1 0.7'])
     wjson('bm/advancement/p17/bounty_kill.json', {

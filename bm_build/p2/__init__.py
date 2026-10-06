@@ -1,7 +1,8 @@
 """Phase 2: boss dungeons. Only imported by `gen_dp.py --phase2` (and gen_rp.py --phase2), so the regular
 Phase 1.6 build is untouched. Importing registers the Phase 2 items."""
 import p2.p2items  # noqa: F401  (registers items)
-from p2 import config, logic, bosses, data
+import p2.regalia  # noqa: F401  (2.20: renames the Hollow King's vault and adds Sepulchre)
+from p2 import config, logic, bosses, data, regalia
 from p2.config import D, ORDER
 from p2.dungeons import brood
 
@@ -56,9 +57,11 @@ def generate(G):
         G.R36.extend_offers(O, G.offer)
         G.R38.extend_offers(O, G.offer)
         G.R39.extend_offers(O, G.offer)
+        G.R41.extend_offers(O, G.offer)
         return O
     from p2 import patch21, trophies, wilfrey
-    parts = [logic.generate(G, B), bosses.generate(G, B), data.generate(G, B, offers), patch21.generate(G, B), trophies.generate(G), wilfrey.generate(G)]
+    parts = [logic.generate(G, B), bosses.generate(G, B), data.generate(G, B, offers), patch21.generate(G, B), trophies.generate(G), wilfrey.generate(G),
+             regalia.generate(G, B)]
     tick = [l for p in parts for l in p.get('tick', [])]
     fast = [l for p in parts for l in p.get('fast', [])] + parts[0]['zone']
     second = [l for p in parts for l in p.get('second', [])]
@@ -90,6 +93,7 @@ def post_admin(G):
              tellraw('@s', [T('/function bm:admin/p2/reset', 'yellow'), T('  reset the nearest dungeon (re-locks every trial)', 'gray')]),
              tellraw('@s', [T('/function bm:admin/p2/hollow', 'yellow'), T('  go to the Hollow Throne', 'gray')]),
              tellraw('@s', [T('/function bm:admin/p2/shard', 'yellow'), T('  give yourself a Shard of the Hollow Throne (+5 conquests)', 'gray')]),
+             tellraw('@s', [T('/function bm:admin/p2/regalia', 'yellow'), T("  the Hollow King's Regalia and Sepulchre", 'gray')]),
              tellraw('@s', [T('/locate structure bm:p2_<dungeon>', 'yellow'), T('  find one', 'gray')])]
     G.FUNCS['admin/help'][-1:-1] = help_
     for d in B:

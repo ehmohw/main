@@ -20,6 +20,13 @@ DIRECT = {
     'flame_boots': (('medallion', 2), None),
     'heart_boots': (('medallion', 2), None),
     'soul_boots': (('medallion', 2), None),
+    # 2.20: full Protection VI netherite sets with set bonuses are Trophy goods, not gold-and-Medallion goods
+    'solar_helmet': (('trophy', 2), ('medallion', 10)), 'solar_chestplate': (('trophy', 3), ('medallion', 14)),
+    'solar_leggings': (('trophy', 3), ('medallion', 12)), 'solar_boots': (('trophy', 2), ('medallion', 10)),
+    'vampire_helmet': (('blood_crystal', 12), ('trophy', 2)), 'vampire_chestplate': (('blood_crystal', 16), ('trophy', 3)),
+    'vampire_leggings': (('blood_crystal', 14), ('trophy', 3)), 'vampire_boots': (('blood_crystal', 12), ('trophy', 2)),
+    'crimson_helmet': (('blood_crystal', 10), ('trophy', 1)), 'crimson_chestplate': (('blood_crystal', 14), ('trophy', 2)),
+    'crimson_leggings': (('blood_crystal', 12), ('trophy', 2)), 'crimson_boots': (('blood_crystal', 10), ('trophy', 1)),
 }
 # (item sold, currency paid) -> cost: currency exchanges
 EXCHANGE = {('medallion', 'token'): ('token', 9),            # the Captain sold them for 8 (Fence: 9)

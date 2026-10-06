@@ -258,7 +258,7 @@ def build():
     stall_x = (26, 33)
     counter([(x, 20) for x in range(27, 33)])
     for x in range(26, 34): put(x, W, 14, 'chest[facing=south,type=single,waterlogged=false]' if x % 2 else 'barrel[facing=south,open=false]')
-    put(26, W, 17, 'anvil[facing=east]'); put(32, W + 2, 20, 'candle[candles=3,lit=true,waterlogged=false]')
+    put(26, W, 17, 'anvil[facing=east]'); put(32, W + 1, 20, 'candle[candles=3,lit=true,waterlogged=false]')   # 2.20: on the counter, not above it
     for (x, z) in [(29, 15), (30, 15), (31, 16)]: put(x, W, z, 'barrel[facing=up,open=false]')
     put(28, W + 4, 17, 'lantern[hanging=true,waterlogged=false]'); put(28, W + 5, 17, 'iron_chain[axis=y,waterlogged=false]'); put(28, W + 6, 17, 'iron_chain[axis=y,waterlogged=false]')
     B.sign(29, W + 2, 22, 'dark_oak_wall_sign[facing=south,waterlogged=false]', ["OLD BARNABY'S", 'Pawn & Refunds', 'Half back.', 'No questions.'], color='white', glow=True)
@@ -276,7 +276,7 @@ def build():
     counter([(x, 20) for x in range(41, 49)])
     for x in range(41, 49): put(x, W, 14, 'barrel[facing=south,open=false]'); put(x, W + 1, 14, 'barrel[facing=up,open=false]')
     for (x, y) in [(44, W), (45, W), (44, W + 1)]: put(x, y, 15, 'gold_block')
-    put(47, W, 16, 'chest[facing=west,type=single,waterlogged=false]'); put(42, W + 2, 20, 'gold_block')
+    put(47, W, 16, 'chest[facing=west,type=single,waterlogged=false]'); put(42, W + 1, 20, 'gold_block')
     put(46, W + 4, 17, 'lantern[hanging=true,waterlogged=false]'); put(46, W + 5, 17, 'iron_chain[axis=y,waterlogged=false]'); put(46, W + 6, 17, 'iron_chain[axis=y,waterlogged=false]')
     B.sign(45, W + 2, 22, 'dark_oak_wall_sign[facing=south,waterlogged=false]', ['~ THE FENCE ~', 'Currency', 'Exchange', '& Maps'], color='yellow', glow=True)
     # laundry lines + crates along the street
@@ -344,8 +344,9 @@ def build():
     for y in range(W, W + 4): put(27, y, 28, 'dark_oak_fence'); put(34, y, 28, 'dark_oak_fence')
     stall_roof(27, 28, 34, 33, W + 4, ['purple', 'white'])
     put(28, W, 33, 'loom[facing=north]'); put(33, W, 33, 'water_cauldron[level=3]')
-    for i, col in enumerate(['white', 'pink', 'cyan', 'purple', 'lime', 'orange']):
-        put(29 + i, W + (i % 2), 33, col + '_wool')
+    for i, col in enumerate(['white', 'pink', 'cyan', 'purple', 'lime', 'orange']):         # bolts of cloth, every other one stacked (2.20)
+        put(29 + i, W, 33, col + '_wool')
+        if i % 2: put(29 + i, W + 1, 33, ['yellow', 'red', 'blue'][i // 2] + '_wool')
     put(30, W + 3, 31, 'lantern[hanging=true,waterlogged=false]')
     B.sign(31, W + 4, 27, 'dark_oak_wall_sign[facing=north,waterlogged=false]', ['OUTFITTER', 'Madame Velour', 'Armor * Gear * Hooks', 'Wings * Style'], color='magenta', glow=True)
 
@@ -381,7 +382,7 @@ def build():
             if inside.get((x, z)): put(x, GF, z, 'spruce_planks' if x > 12 else pick(STREET))
     for x in range(x1, x1 + 3):                                # pier over the water (walk y7)
         for z in range(22, 32): put(x, WATER_TOP + 1, z, 'spruce_planks' if (x + z) % 5 else 'stripped_spruce_log[axis=z]')
-    for k, x in enumerate(range(x1 - 1, x1 - 4, -1)):       # steps down from the bank (y10) to the pier (y7)
+    for k, x in enumerate(range(x1 - 3, x1)):                # steps down from the bank (y10) east to the pier (y7) - 2.20: they ran backwards
         for z in (26, 27):
             put(x, W - 1 - k, z, 'spruce_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]')
             for y in range(W - k, W + 3): air(x, y, z)
@@ -418,7 +419,7 @@ def build():
         for y in range(W, W + 5): rock(x, y, 11)
         for z in range(11, 22): rock(x, W + 4, z)
     for x in range(1, 7):
-        for z in range(20, 22): rock(x, W, z); rock(x, W + 1, z); rock(x, W + 2, z)
+        for z in range(20, 22): rock(x, W, z); rock(x, W + 1, z); rock(x, W + 2, z); rock(x, W + 3, z)
     put(4, W, 20, 'deepslate_brick_slab[type=top,waterlogged=false]'); put(4, W, 21, 'deepslate_brick_slab[type=top,waterlogged=false]')
     put(1, W, 13, 'gold_block'); put(2, W, 13, 'gold_block'); put(1, W + 1, 13, 'gold_block'); put(1, W, 14, 'raw_gold_block')
     put(1, W, 16, 'chest[facing=east,type=single,waterlogged=false]'); put(5, W, 13, 'barrel[facing=up,open=false]'); put(5, W + 1, 13, 'cake')
@@ -473,12 +474,12 @@ def build():
     counter([(60, z) for z in range(18, 24)], top='polished_blackstone_bricks')
     put(55, W, 19, 'grindstone[face=floor,facing=east]'); put(55, W, 22, 'anvil[facing=north]'); put(56, W, 18, 'smithing_table')
     put(55, W, 20, 'blast_furnace[facing=east,lit=true]'); put(55, W + 1, 20, 'blast_furnace[facing=east,lit=true]')
-    for z in range(18, 24): put(54, W + 2, z, 'iron_bars')
-    put(60, W + 2, 21, 'polished_blackstone_bricks'); put(60, W + 3, 21, 'polished_blackstone_bricks')
+    # 2.20: the floating iron-bar rail at x54 (nothing under it) is gone
+    put(60, W + 1, 21, 'polished_blackstone_bricks'); put(60, W + 2, 21, 'polished_blackstone_bricks')
     B.sign(61, W + 2, 21, 'dark_oak_wall_sign[facing=east,waterlogged=false]', ["VINNY'S ARMS", 'Blades * Picks', 'Axes * Bows', 'Upgrades'], color='red', glow=True)
     counter([(x, 29) for x in range(56, 64)], top='polished_andesite')
     for x in range(56, 64): put(x, W, 33, 'iron_block' if x % 3 == 0 else 'anvil[facing=east]' if x % 3 == 1 else 'blast_furnace[facing=north,lit=true]')
-    put(60, W + 2, 29, 'polished_blackstone_bricks')
+    put(60, W + 1, 29, 'polished_blackstone_bricks'); put(60, W + 2, 29, 'polished_blackstone_bricks')
     B.sign(60, W + 2, 28, 'dark_oak_wall_sign[facing=north,waterlogged=false]', ["STEELWHISKER'S", 'Specialist', 'Armor Sets', '(3 tiers)'], color='light_gray', glow=True)
     for (x, z) in [(58, 25), (64, 21), (63, 26)]:            # steam vents: grates over a hot pit
         put(x, GF - 1, z, 'magma_block'); put(x, GF, z, 'iron_trapdoor[facing=north,half=top,open=false,powered=false,waterlogged=false]')
@@ -496,7 +497,7 @@ def build():
     for z in range(tz1 + 1, tz2): put(70, W, z, 'barrel[facing=west,open=false]') if z % 3 else put(70, W, z, 'smoker[facing=west,lit=true]')
     for z in range(tz1 + 1, tz2): put(68, W, z, 'stripped_spruce_log[axis=z]'); put(68, W + 1, z, 'spruce_slab[type=bottom,waterlogged=false]')
     for z in (40, 50): put(69, W, z, 'campfire[facing=west,lit=true,signal_fire=false,waterlogged=false]')
-    for (x, z) in [(68, 41), (68, 44), (68, 48)]: put(x, W + 2, z, 'honeycomb_block')       # cheese wheels on the bar
+    for (x, z) in [(68, 41), (68, 44), (68, 48)]: put(x, W + 1, z, 'honeycomb_block')       # cheese wheels on the bar (2.20: sat on the slab's air gap)
     for (x, z) in [(70, 42), (70, 46), (70, 52)]: put(x, W + 1, z, 'honeycomb_block')
     for (cx, cz) in [(58, 41), (58, 47), (63, 44), (63, 51)]:   # tables and stools
         put(cx, W, cz, 'dark_oak_fence'); put(cx, W + 1, cz, 'dark_oak_pressure_plate[powered=false]')
@@ -537,7 +538,7 @@ def build():
         put(x, W, 75, st)
     for (x, z) in [(58, 63), (66, 64), (62, 67)]:            # hanging cages with bones
         for y in range(W + 5, W + 7): put(x, y, z, 'iron_chain[axis=y,waterlogged=false]')
-        put(x, W + 3, z, 'iron_bars'); put(x, W + 4, z, 'iron_bars'); put(x, W + 2, z, 'skeleton_skull[powered=false,rotation=%d]' % (rnd.randrange(16)))
+        put(x, W + 3, z, 'iron_bars'); put(x, W + 4, z, 'iron_bars'); put(x, W + 2, z, 'soul_lantern[hanging=true,waterlogged=false]')   # 2.20: a lantern hangs under the cage (the skull floated)
     for (x, z) in [(57, 61), (60, 66), (63, 62), (65, 69), (58, 70)]: put(x, W, z, 'redstone_wire[east=none,north=none,power=0,south=none,west=none]')   # blood
     for z in (61, 66, 71): put(bx2, W + 2, z, 'redstone_wall_torch[facing=west,lit=true]')
     for x in (57, 67): put(x, W, 60, 'red_candle[candles=3,lit=true,waterlogged=false]')
@@ -696,7 +697,7 @@ def build():
     # neon signs (text displays, spawned by phase23)
     for (x, y, z, yaw, nid) in [(10.5, W + 6.6, lz1 - 0.45, 180, 'lucky'), (38.5, BF + 5.2, 70.6, 0, 'welcome'), (tx1 - 0.45, W + 6.0, 46.5, 90, 'flagon'),
                                 (fx1 + 0.5, W + 6.5, 25.5, 90, 'forge'), (bx1 - 0.45, W + 7.0, 67.5, 90, 'blood'), (37.5, W + 5.4, 14.6, 0, 'auction'),
-                                (46.5, BF + 4.4, 15.3, 0, 'vip'), (9.5, W + 6.2, 31.6, 0, 'docks'), (38.5, BF + 1.5, 22.0, 0, 'alley')]:
+                                (46.5, BF + 4.4, 15.3, 0, 'vip'), (12.6, W + 6.0, 26.5, -90, 'docks'), (38.5, BF + 1.5, 22.0, 0, 'alley')]:
         M(x, y, z, ['bm.npc_spawn', 'bm.npc.neon', f'bm.neon_{nid}'], yaw)
     # the crowd (static, they idle-animate and watch you) - variant tag picks the outfit
     crowd = [(57.5, W, 41.5, 90, 'pirate'), (59.5, W, 41.5, -90, 'prof'), (62.5, W, 44.5, 90, 'lucky'), (64.5, W, 51.5, -90, 'chef'),

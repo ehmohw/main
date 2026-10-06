@@ -739,10 +739,16 @@ if __name__ == '__main__':
     phase38.rp(sys.modules[__name__])
     import phase39
     phase39.rp(sys.modules[__name__])
+    import phase41
+    phase41.rp(sys.modules[__name__])
+    import phase42
+    phase42.rp(sys.modules[__name__])
     LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',
                  'death.attack.bm.quake': '%1$s was flattened by a shockwave', 'death.attack.bm.quake.player': '%1$s was flattened by %2$s'})
     if PHASE2:
         import p2.art  # adds Phase 2 icons/models into ICONS and EXTRA
         p2.art.register(sys.modules[__name__])
+        import p2.regalia
+        p2.regalia.rp(sys.modules[__name__])
     s = build('/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP')
     s.save('/home/claude/bm_build/preview/rp_sheet.png')

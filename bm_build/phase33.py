@@ -67,14 +67,13 @@ item('xp_flask', TOTEM, 'Experience Flask', '#7cff4a',
      price=('token', 6))
 DYNAMIC.add('xp_flask')
 HOLD['xp_flask'] = 'bm:p33/xp/use'
-item('pocket_ender_chest', TOTEM, 'Pocket Ender Chest', '#2f8a7a',
-     ['Your ender chest, in your pocket.', ('Right-click: open it (press your inventory key).', 'blue'), ('Sneak to close.', 'gray')],
-     model='bm:pocket_ender_chest', stack=1, cat='relic', comps=hold('none'))
-HOLD['pocket_ender_chest'] = 'bm:p33/pec/use'
-item('void_hinge', TOTEM, 'Void Hinge', '#c08bff',
-     ['A hinge that opens into the box from anywhere.', ('Hold a shulker box in your off hand and', 'blue'), ('use the hinge: from then on, sneak +', 'blue'),
-      ('right-click the air with that box in hand to', 'blue'), ('open it without placing it.', 'blue')],
-     model='bm:void_hinge', stack=16, cat='relic', comps={'minecraft:consumable': consumable(0.6, 'none', 'minecraft:block.iron_trapdoor.open', False)})
+# 2.20: the Pocket Ender Chest (a chest boat you sat in) and the Void Hinge are gone - the ENDER POUCH sets a real ender
+# chest down in front of you instead (open it normally; it vanishes when you walk away)
+item('ender_pouch', TOTEM, 'Ender Pouch', '#2f8a7a',
+     ['A pocket that folds an ender chest out of nowhere.', ('Right-click: an ender chest appears in front', 'blue'), ('of you. Open it as usual.', 'blue'),
+      ('It folds away when you walk off (or after a minute).', 'gray')],
+     model='bm:ender_pouch', stack=1, cat='relic', comps=hold('none'))
+HOLD['ender_pouch'] = 'bm:p33/pouch/use'
 item('sanguine_fang', TOTEM, 'Sanguine Fang', '#b0002a',
      ['A tooth from a Blood Moon horror.', ('In your off hand: every kill heals', 'blue'), ('half a heart.', 'blue')],
      model='bm:sanguine_fang', stack=1, cat='blood', glint=True)
@@ -83,7 +82,7 @@ item('sanguine_fang', TOTEM, 'Sanguine Fang', '#b0002a',
 _k = next(i for i, o in enumerate(R24.OFFERS) if o[2][0] == 'xenite_violet')
 R24.OFFERS[_k:_k] = [(('xenite_violet', 14), ('xenite_green', 6), ('triple_boots', 1)), (('xenite_cyan', 14), ('xenite_green', 6), ('spring_boots', 1)),
                      (('xenite_cyan', 24), ('xenite_red', 6), ('dimension_shifter', 1)), (('xenite_green', 12), ('xenite_violet', 12), ('vacuum_satchel', 1))]
-R22.VOID_OFFERS[-1:-1] = [(('void_shard', 14), ('void_totem', 1)), (('void_shard', 24), ('pocket_ender_chest', 1)), (('void_shard', 10), ('void_hinge', 1))]
+R22.VOID_OFFERS[-1:-1] = [(('void_shard', 14), ('void_totem', 1)), (('void_shard', 24), ('ender_pouch', 1))]
 
 
 def extend_offers(O, offer):
@@ -123,17 +122,47 @@ def generate(G):
     fn('p33/crate/close', ['scoreboard players operation #own bm.pid = @s bm.pid', 'tag @a remove bm.cown',
                            'execute as @a if score @s bm.pid = #own bm.pid run tag @s add bm.cown',
                            'execute unless entity @a[tag=bm.cown] run return 0',
-                           'execute if entity @s[tag=bm.c_pec] run function bm:p33/pec/close',
                            'execute if entity @s[tag=bm.c_box] run function bm:p33/box/close',
                            'tag @a remove bm.cown', 'data modify entity @s Items set value []', 'tp @s ~ -400 ~', 'kill @s'])
 
-    # ------------------------------------------------------------------ POCKET ENDER CHEST
-    fn('p33/pec/use', open_crate('pec', 'Pocket Ender Chest') +
-       [f'item replace entity @e[type=minecraft:dark_oak_chest_boat,tag=bm.cnew,distance=..1,limit=1] container.{i} from entity @s enderchest.{i}' for i in range(27)] +
-       [f'item replace entity @s enderchest.{i} with minecraft:air' for i in range(27)] + mount())
-    fn('p33/pec/close', [f'item replace entity @a[tag=bm.cown,limit=1] enderchest.{i} from entity @s container.{i}' for i in range(27)] +
-       [f'item replace entity @s container.{i} with minecraft:air' for i in range(27)] +
-       ['execute as @a[tag=bm.cown,limit=1] at @s run playsound minecraft:block.ender_chest.close player @s ~ ~ ~ 1 1'])
+    # ------------------------------------------------------------------ ENDER POUCH (2.20): a real ender chest, for a minute
+    wjson('bm/tags/block/p33_pouch_ok.json', {'values': ['minecraft:air', 'minecraft:cave_air', 'minecraft:short_grass', 'minecraft:tall_grass',
+                                                         'minecraft:fern', 'minecraft:snow', 'minecraft:dead_bush', 'minecraft:short_dry_grass']})
+    fn('p33/pouch/use', ['execute unless function bm:p37/allowed run return run ' + title('@s', 'actionbar', T('The pouch won\'t open here.', 'gray')),
+                         'execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #kp bm.pid = @s bm.pid',
+                         'execute as @e[type=minecraft:marker,tag=bm.pouch] if score @s bm.pid = #kp bm.pid at @s run function bm:p33/pouch/close',
+                         'scoreboard players set #ok bm.rng 0', 'tag @s add bm.poucher',
+                         'execute rotated ~ 0 positioned ^ ^ ^1.6 align xyz positioned ~0.5 ~ ~0.5 run function bm:p33/pouch/try',
+                         'execute if score #ok bm.rng matches 0 rotated ~ 0 positioned ^ ^ ^2.6 align xyz positioned ~0.5 ~ ~0.5 run function bm:p33/pouch/try',
+                         'tag @s remove bm.poucher',
+                         'execute if score #ok bm.rng matches 0 run ' + title('@s', 'actionbar', T('No room on the ground in front of you.', 'gray'))])
+    fn('p33/pouch/try', ['execute unless block ~ ~ ~ #bm:p33_pouch_ok run return 0', 'execute if block ~ ~-1 ~ #minecraft:replaceable run return 0',
+                         'execute if entity @e[type=minecraft:marker,tag=bm.pouch,distance=..0.5] run return 0'] +
+       [f'execute if entity @a[tag=bm.poucher,y_rotation={r}] run setblock ~ ~ ~ minecraft:ender_chest[facing={f}]'
+        for r, f in (('-45..45', 'north'), ('45..135', 'east'), ('135..180', 'south'), ('-180..-135', 'south'), ('-135..-45', 'west'))] +
+       ['summon minecraft:marker ~ ~ ~ {Tags:["bm.pouch","bm.pnew2"]}',
+        'scoreboard players operation @e[type=minecraft:marker,tag=bm.pnew2,distance=..0.5] bm.pid = #kp bm.pid',
+        'scoreboard players set @e[type=minecraft:marker,tag=bm.pnew2,distance=..0.5] bm.shcd 60',
+        'tag @e[type=minecraft:marker,tag=bm.pnew2] remove bm.pnew2', 'scoreboard players set #ok bm.rng 1',
+        'particle minecraft:reverse_portal ~ ~0.5 ~ 0.3 0.3 0.3 0.05 20', 'playsound minecraft:block.ender_chest.open block @a[distance=..16] ~ ~ ~ 0.8 1.2'])
+    # it folds away when its owner is 6+ blocks off, after a minute, or if the chest is gone
+    second.append('execute as @e[type=minecraft:marker,tag=bm.pouch] at @s run function bm:p33/pouch/check')
+    fn('p33/pouch/check', ['scoreboard players remove @s bm.shcd 1', 'scoreboard players operation #kp bm.pid = @s bm.pid',
+                           'scoreboard players set #near bm.rng 0',
+                           'execute as @a[distance=..6] if score @s bm.pid = #kp bm.pid run scoreboard players set #near bm.rng 1',
+                           'execute if score #near bm.rng matches 0 run return run function bm:p33/pouch/close',
+                           'execute if score @s bm.shcd matches ..0 run return run function bm:p33/pouch/close',
+                           'execute unless block ~ ~ ~ minecraft:ender_chest run kill @s'])
+    fn('p33/pouch/close', ['execute if block ~ ~ ~ minecraft:ender_chest run setblock ~ ~ ~ minecraft:air', 'particle minecraft:reverse_portal ~ ~0.5 ~ 0.3 0.3 0.3 0.05 15',
+                           'playsound minecraft:block.ender_chest.close block @a[distance=..16] ~ ~ ~ 0.8 1.2', 'kill @s'])
+    # 2.20: retired items still in inventories turn into their replacements
+    second += [f'execute as @a if items entity @s container.* {holds % "pocket_ender_chest"} run function bm:p33/retire/pec',
+               f'execute as @a if items entity @s container.* {holds % "void_hinge"} run function bm:p33/retire/hinge']
+    fn('p33/retire/pec', [f'clear @s {holds % "pocket_ender_chest"}', give('ender_pouch'),
+                          title('@s', 'actionbar', T('Your Pocket Ender Chest is an Ender Pouch now.', '#2f8a7a'))])
+    fn('p33/retire/hinge', [f'execute store result score #n bm.rng run clear @s {holds % "void_hinge"}', 'execute store result storage bm:tmp vh.n int 10 run scoreboard players get #n bm.rng',
+                            'function bm:p33/retire/hinge_m with storage bm:tmp vh', title('@s', 'actionbar', T('The Void Rat bought your Void Hinges back.', '#c08bff'))])
+    fn('p33/retire/hinge_m', ['$' + give('void_shard', '$(n)')])
 
     # ------------------------------------------------------------------ boxes (the satchel and hinged shulker boxes): the item
     # itself is taken out of your hand and kept in storage while it's open; its contents go into the crate
@@ -187,7 +216,7 @@ def generate(G):
     wjson('bm/item_modifier/p33/vac_off.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_vac:0b}'},
                                                {'function': 'minecraft:set_components', 'components': {'minecraft:item_model': 'bm:vacuum_satchel', 'minecraft:enchantment_glint_override': False}}])
     fn('p33/vac/use', hand('vacuum_satchel') + [
-        'execute if predicate bm:p20/sneaking if score #hand bm.rng matches 1 run return run function bm:p33/box/open {path:"equipment.mainhand",slot:"weapon.mainhand"}',
+        'execute if predicate bm:p20/sneaking if score #hand bm.rng matches 1 run return run function bm:p33/box/open {path:"SelectedItem",slot:"weapon.mainhand"}',
         'execute if predicate bm:p20/sneaking if score #hand bm.rng matches 2 run return run function bm:p33/box/open {path:"equipment.offhand",slot:"weapon.offhand"}',
         'execute if score #hand bm.rng matches 1 if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_vac:1b}] run return run function bm:p33/vac/off {slot:"weapon.mainhand"}',
         'execute if score #hand bm.rng matches 2 if items entity @s weapon.offhand *[minecraft:custom_data~{bm_vac:1b}] run return run function bm:p33/vac/off {slot:"weapon.offhand"}',
@@ -242,17 +271,7 @@ def generate(G):
         'data modify storage bm:tmp vac.c2[-1].item set from storage bm:tmp vac.in',
         'execute store result storage bm:tmp vac.c2[-1].item.count int 1 run scoreboard players get #vn bm.rng', 'scoreboard players set #vn bm.rng 0'])
 
-    # ------------------------------------------------------------------ hinged shulker boxes
-    wjson('bm/item_modifier/p33/hinge.json', [{'function': 'minecraft:set_components', 'components': hold('none')},
-                                             {'function': 'minecraft:set_custom_data', 'tag': '{bm_quick:1b}'},
-                                             {'function': 'minecraft:set_lore', 'mode': 'append', 'lore': [T('⚿ Void Hinge: sneak + right-click the air to open', '#c08bff')]}])
-    G.consume_adv('void_hinge', 'bm:p33/hinge/use')
-    fn('p33/hinge/use', ['advancement revoke @s only bm:consume/void_hinge',
-                         'execute unless items entity @s weapon.offhand #minecraft:shulker_boxes run return run function bm:p33/hinge/refund',
-                         'execute if items entity @s weapon.offhand *[minecraft:custom_data~{bm_quick:1b}] run return run function bm:p33/hinge/refund',
-                         'item modify entity @s weapon.offhand bm:p33/hinge', 'playsound minecraft:block.iron_trapdoor.close player @s ~ ~ ~ 1 0.6',
-                         title('@s', 'actionbar', T('Hinged! Sneak + right-click the air with that box in hand to open it.', '#c08bff'))])
-    fn('p33/hinge/refund', [give('void_hinge'), title('@s', 'actionbar', T('Hold an un-hinged shulker box in your off hand. (Refunded)', 'red'))])
+    # ------------------------------------------------------------------ hinged shulker boxes (2.20: the Void Hinge is retired; boxes hinged before still open)
     wjson('bm/advancement/hold/shulker_quick.json', {'criteria': {'use': {'trigger': 'minecraft:using_item', 'conditions': {
         'item': {'items': '#minecraft:shulker_boxes', 'predicates': {'minecraft:custom_data': '{bm_quick:1b}'}}}}},
         'rewards': {'function': 'bm:p33/sbox/use'}})
@@ -261,7 +280,7 @@ def generate(G):
                         'scoreboard players operation #gap bm.hnow -= @s bm.huse', 'scoreboard players operation @s bm.huse = #now bm.hnow',
                         'execute if score #gap bm.hnow matches 0..2 run return 0',
                         'execute unless predicate bm:p20/sneaking run return run ' + title('@s', 'actionbar', T('Sneak + right-click to open the box.', 'gray')),
-                        'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_quick:1b}] run return run function bm:p33/box/open {path:"equipment.mainhand",slot:"weapon.mainhand"}',
+                        'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_quick:1b}] run return run function bm:p33/box/open {path:"SelectedItem",slot:"weapon.mainhand"}',
                         'function bm:p33/box/open {path:"equipment.offhand",slot:"weapon.offhand"}'])
 
     # ------------------------------------------------------------------ TOOL FUSION (Xenite Altar, sneak + right-click)
@@ -322,25 +341,25 @@ def generate(G):
     P28.MENU['shift'] = MENU_SHIFT
     dlg = P28.multi([T('Dimension Shifter', '#b48cff', bold=True)],
                     [P28.body([T('Pick a dimension. You arrive somewhere safe. (Never the Hollow Throne.)', 'gray')])],
-                    [P28.btn(T('The Overworld', 'green'), 7001, width=200), P28.btn(T('The Nether', 'red'), 7002, width=200),
-                     P28.btn(T('The End', 'light_purple'), 7003, width=200)], columns=1)
+                    [P28.btn(T('The Overworld', 'green'), 7201, width=200), P28.btn(T('The Nether', 'red'), 7202, width=200),
+                     P28.btn(T('The End', 'light_purple'), 7203, width=200)], columns=1)
     fn('p33/shift/use', ['execute if entity @s[tag=bm.adv] run return run ' + title('@s', 'actionbar', T('The Shifter refuses to work in a place like this.', 'gray')),
                          'execute if score @s bm.shcd matches 1.. run return run ' + title('@s', 'actionbar', [T('Recharging: ', 'gray'), {'score': {'name': '@s', 'objective': 'bm.shcd'}, 'color': 'white'}, T(' s', 'gray')]),
                          f'scoreboard players set @s bm.menu {MENU_SHIFT}', f'dialog show @s {P28.inline(dlg)}'])
-    G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 7001..7003 run return run function bm:p33/shift/act')
+    G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 7201..7203 run return run function bm:p33/shift/act')   # 2.20: was 7001-7003, inside the mercenary's range
     fn('p33/shift/act', [f'execute unless score @s bm.menu matches {MENU_SHIFT} run return run function bm:p28/stale',
                          f'execute unless items entity @s container.* {holds % "dimension_shifter"} unless items entity @s weapon.offhand {holds % "dimension_shifter"} run return run function bm:p28/stale',
                          'execute if entity @s[tag=bm.adv] run return run function bm:p28/stale',
                          'execute if score @s bm.shcd matches 1.. run return run function bm:p28/stale',
-                         'execute if score #act bm.pay matches 7001 if dimension minecraft:overworld run return run ' + title('@s', 'actionbar', T('You are already in the Overworld.', 'gray')),
-                         'execute if score #act bm.pay matches 7002 if dimension minecraft:the_nether run return run ' + title('@s', 'actionbar', T('You are already in the Nether.', 'gray')),
-                         'execute if score #act bm.pay matches 7003 if dimension minecraft:the_end run return run ' + title('@s', 'actionbar', T('You are already in the End.', 'gray')),
+                         'execute if score #act bm.pay matches 7201 if dimension minecraft:overworld run return run ' + title('@s', 'actionbar', T('You are already in the Overworld.', 'gray')),
+                         'execute if score #act bm.pay matches 7202 if dimension minecraft:the_nether run return run ' + title('@s', 'actionbar', T('You are already in the Nether.', 'gray')),
+                         'execute if score #act bm.pay matches 7203 if dimension minecraft:the_end run return run ' + title('@s', 'actionbar', T('You are already in the End.', 'gray')),
                          'scoreboard players set @s bm.shcd 30', 'particle minecraft:reverse_portal ~ ~1 ~ 0.4 0.9 0.4 0.1 80',
                          'playsound minecraft:block.portal.travel player @s ~ ~ ~ 0.4 1.6',
                          'execute store result score #sx bm.rng run data get entity @s Pos[0]', 'execute store result score #sz bm.rng run data get entity @s Pos[2]',
-                         'execute if score #act bm.pay matches 7001 run function bm:p33/shift/to_ow',
-                         'execute if score #act bm.pay matches 7002 run function bm:p33/shift/to_nether',
-                         'execute if score #act bm.pay matches 7003 run function bm:p33/shift/to_end',
+                         'execute if score #act bm.pay matches 7201 run function bm:p33/shift/to_ow',
+                         'execute if score #act bm.pay matches 7202 run function bm:p33/shift/to_nether',
+                         'execute if score #act bm.pay matches 7203 run function bm:p33/shift/to_end',
                          'effect give @s minecraft:darkness 2 0 true', 'effect give @s minecraft:resistance 5 4 true', 'effect give @s minecraft:slow_falling 5 0 true',
                          'scoreboard players set @s bm.menu 0'])
     load += ['scoreboard players set #8 bm.rng 8']
@@ -374,16 +393,18 @@ def generate(G):
              'execute as @a[scores={bm.tjm=1..}] unless items entity @s armor.feet *[minecraft:custom_data~{bm:"triple_boots"}] run function bm:p33/triple/clear',
              'execute as @a[scores={bm.cjm=1..}] unless items entity @s armor.feet *[minecraft:custom_data~{bm:"spring_boots"}] run function bm:p33/spring/clear',
              'scoreboard players reset @a bm.jumps']
+    # 2.20: the next jump's boost is granted the moment you leave the ground (it used to wait for the landing tick, so a quick
+    # hop beat the update to the client), and you have 0.8 s on the ground to chain the next jump (was 0.4 s)
     fn('p33/triple/tick', ['execute if score @s bm.jumps matches 1.. run function bm:p33/triple/jumped',
                            'execute if predicate bm:p21/airborne run return run scoreboard players set @s bm.tjg 0',
                            'scoreboard players add @s bm.tjg 1',
-                           'execute if score @s bm.tjg matches 9.. if score @s bm.tjc matches 1.. run function bm:p33/triple/reset',
-                           'execute if score @s bm.tjg matches 1 if score @s bm.tjc matches 1 run function bm:p33/triple/set {lv:1}',
-                           'execute if score @s bm.tjg matches 1 if score @s bm.tjc matches 2 run function bm:p33/triple/set {lv:2}'])
-    fn('p33/triple/jumped', ['scoreboard players add @s bm.tjc 1',
+                           'execute if score @s bm.tjg matches 16.. if score @s bm.tjc matches 1.. run function bm:p33/triple/reset'])
+    fn('p33/triple/jumped', ['scoreboard players add @s bm.tjc 1', 'scoreboard players set @s bm.tjg 0',
+                             'execute if score @s bm.tjc matches 1 run function bm:p33/triple/set {lv:1}',
+                             'execute if score @s bm.tjc matches 2 run function bm:p33/triple/set {lv:2}',
                              'execute if score @s bm.tjc matches 2 run playsound minecraft:entity.player.attack.sweep player @a[distance=..12] ~ ~ ~ 0.5 1.6',
-                             'execute if score @s bm.tjc matches 3.. run function bm:p33/triple/big', 'function bm:p33/triple/clear'])
-    fn('p33/triple/big', ['scoreboard players set @s bm.tjc 0', 'particle minecraft:firework ~ ~0.2 ~ 0.3 0 0.3 0.05 20',
+                             'execute if score @s bm.tjc matches 3.. run function bm:p33/triple/big'])
+    fn('p33/triple/big', ['scoreboard players set @s bm.tjc 0', 'function bm:p33/triple/clear', 'particle minecraft:firework ~ ~0.2 ~ 0.3 0 0.3 0.05 20',
                           'playsound minecraft:entity.firework_rocket.launch player @a[distance=..16] ~ ~ ~ 0.8 1.8', title('@s', 'actionbar', T('Wa-hoo!', '#ff5555', bold=True))])
     fn('p33/triple/reset', ['scoreboard players set @s bm.tjc 0', 'function bm:p33/triple/clear'])
     fn('p33/triple/clear', ['attribute @s minecraft:jump_strength modifier remove bm:triple', 'scoreboard players set @s bm.tjm 0'])
@@ -454,7 +475,7 @@ def generate(G):
     fn('p33/xp/use', hand('xp_flask') + [
         'execute if score #hand bm.rng matches 1 run data modify storage bm:tmp xp.slot set value "weapon.mainhand"',
         'execute if score #hand bm.rng matches 2 run data modify storage bm:tmp xp.slot set value "weapon.offhand"',
-        'execute if score #hand bm.rng matches 1 store result score #st bm.xpn run data get entity @s equipment.mainhand.components."minecraft:custom_data".bm_xp',
+        'execute if score #hand bm.rng matches 1 store result score #st bm.xpn run data get entity @s SelectedItem.components."minecraft:custom_data".bm_xp',
         'execute if score #hand bm.rng matches 2 store result score #st bm.xpn run data get entity @s equipment.offhand.components."minecraft:custom_data".bm_xp',
         'execute if predicate bm:p20/sneaking run return run function bm:p33/xp/drink', 'function bm:p33/xp/pour'])
     # total points of a level L: L<=16: L^2+6L; L<=31: (5L^2-81L+720)/2; else (9L^2-325L+4440)/2 - plus the bar's progress
@@ -544,14 +565,10 @@ def rp(R):
         '................', '......KKKK......', '......KCCK......', '.......GG.......', '......G..G......', '.....G....G.....',
         '....G.LLLL.G....', '....GLLYYLLG....', '....GLYYYYLG....', '....GLLYYLLG....', '....GLLLLLLG....', '.....GLLLLG.....',
         '......GGGG......', '................', '................', '................'], dict(K='#5a3a1a', C='#a87a4a', G='#c8f0ff', L='#7cff4a', Y='#e8ff8a'))
-    I['pocket_ender_chest'] = grid([
-        '................', '................', '...KKKKKKKKKK...', '..KDDDDDDDDDDK..', '..KDCCCCCCCCDK..', '..KDCCCCCCCCDK..',
-        '..KKKKKGGKKKKK..', '..KDDDDGGDDDDK..', '..KDCCCCCCCCDK..', '..KDCCCCCCCCDK..', '..KDDDDDDDDDDK..', '...KKKKKKKKKK...',
-        '................', '................', '................', '................'], dict(K='#0a1a1a', D='#1a3a3a', C='#2f8a7a', G='#a0f0d0'))
-    I['void_hinge'] = grid([
-        '................', '....SSSS........', '...SKKKKS.......', '...SK..KS.......', '...SKKKKSSSSSS..', '...SSSSSSVVVVS..',
-        '........SVVVVS..', '........SVVVVS..', '...SSSSSSVVVVS..', '...SKKKKSSSSSS..', '...SK..KS.......', '...SKKKKS.......',
-        '....SSSS........', '................', '................', '................'], dict(S='#8a8f98', K='#3a3f4a', V='#c08bff'))
+    I['ender_pouch'] = grid([
+        '................', '.......KK.......', '......KCCK......', '.....KK..KK.....', '....KDDDDDDK....', '...KDDDDDDDDK...', '...KDDGGGGDDK...',
+        '...KDGVVVVGDK...', '...KDGVEEVGDK...', '...KDGVVVVGDK...', '...KDDGGGGDDK...', '...KDDDDDDDDK...', '....KDDDDDDK....', '.....KKKKKK.....',
+        '................', '................'], dict(K='#0a1a1a', C='#c8a050', D='#1a3a3a', G='#2f8a7a', V='#1c6b5e', E='#9df3d4'))
     I['sanguine_fang'] = grid([
         '................', '................', '.....WWWWW......', '....WWWWWWW.....', '....WWWWWWW.....', '.....WWWWW......',
         '.....WWWWR......', '......WWWR......', '......WWRR......', '.......WRR......', '.......RR.......', '........R.......',

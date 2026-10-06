@@ -122,8 +122,8 @@ GUIDE = [
 
 def extend_offers(O, offer):
     O['captain'].append(offer(('medallion', 3), ('whisker_lantern', 1)))
-    O['outfitter'] += [offer(('medallion', n), (f'solar_{p}', 1), ('minecraft:gold_block', 4)) for p, n in
-                       (('helmet', 8), ('chestplate', 12), ('leggings', 10), ('boots', 8))]
+    O['armory'] += [offer(('trophy', n), (f'solar_{p}', 1), ('medallion', 10)) for p, n in        # 2.20: Steelwhisker, Trophies (economy.DIRECT)
+                    (('helmet', 2), ('chestplate', 3), ('leggings', 3), ('boots', 2))]
 
 
 def zorp_offers():
@@ -176,7 +176,10 @@ def generate(G):
                            title('@s', 'title', T('VORN SKIFF', GREEN, bold=True)), 'playsound minecraft:block.beacon.activate player @s ~ ~ ~ 1 1.4',
                            tellraw('@a', PREFIX + [{'selector': '@s', 'color': 'yellow'}, T(' assembled a ', 'gray'), T('Vorn Skiff', GREEN, bold=True), T('!', 'gray')])])
     skiff = {'Tags': ['bm.skiff', 'bm.sknew', 'bm.seen'], 'Invulnerable': B(1), 'PersistenceRequired': B(1), 'Silent': B(1),
-             'equipment': {'body': {'id': 'minecraft:lime_harness', 'count': Int(1)}}, 'drop_chances': {'body': F(0)},
+             # 2.20: the harness still makes the ghast rideable, but wears an empty equipment texture (bm:skiff_none) - no visible helmet
+             'equipment': {'body': {'id': 'minecraft:lime_harness', 'count': Int(1), 'components': {'minecraft:equippable': {
+                 'slot': 'body', 'asset_id': 'bm:skiff_none', 'equip_sound': 'minecraft:entity.happy_ghast.equip', 'allowed_entities': 'minecraft:happy_ghast'}}}},
+             'drop_chances': {'body': F(0)},
              'attributes': [{'id': 'minecraft:flying_speed', 'base': D(0.22)}, {'id': 'minecraft:scale', 'base': D(0.6)},
                             {'id': 'minecraft:max_health', 'base': D(80)}],
              'active_effects': [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}],

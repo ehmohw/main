@@ -29,6 +29,9 @@ import phase36 as R36        # 2.15: marlin, storm balls, coffee, skiff kits, th
 import phase37 as R37        # 2.16: Specter Sheets and the Specter Charm
 import phase38 as R38        # 2.17: Surface/Lava/Rainbow charms, rare monsters
 import phase39 as R39        # 2.18: world treasure: accessories, Mimics, Fallen Stars, crates, shrines
+import phase40 as R40        # 2.19: the Bounty Board
+import phase41 as R41        # 2.20: market fixes + shafts, the Vorn fixes, the Rat Gang's prizes
+import phase42 as R42        # 2.20: the Headless Horseman and his head
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import market2 as M2
@@ -243,6 +246,7 @@ def all_offers():
     R36.extend_offers(O, offer)
     R38.extend_offers(O, offer)
     R39.extend_offers(O, offer)
+    R41.extend_offers(O, offer)
     return O
 
 
@@ -746,7 +750,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.18 TEST' if PHASE2 else 'v1.25') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.20 TEST' if PHASE2 else 'v1.27') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -772,7 +776,7 @@ def gen_loops(second_mob_lines):
     fast.append('schedule function bm:loop/fast 5t replace')
     fn('loop/fast', fast)
     second = ['scoreboard players reset @a bm.csnd'] + list(second_mob_lines) + [
-        'execute as @e[tag=bm.tiered] at @s unless entity @a[distance=..100] run tp @s ~ -400 ~',
+        'execute as @e[tag=bm.tiered,tag=!bm.hhm] at @s unless entity @a[distance=..100] run tp @s ~ -400 ~',
         'execute as @e[tag=bm.lucky] at @s run particle minecraft:wax_on ~ ~1 ~ 0.3 0.5 0.3 0 3',
         'execute as @e[tag=bm.goose] at @s run particle minecraft:wax_on ~ ~0.5 ~ 0.3 0.3 0.3 0 5',
         'execute as @e[tag=bm.prime] at @s run particle minecraft:happy_villager ~ ~0.8 ~ 0.3 0.3 0.3 0 1',
@@ -886,7 +890,7 @@ def build(out_dir):
     os.makedirs(OUT)
     with open(path('pack.mcmeta'), 'w') as f:
         json.dump({'pack': {'description': [{'text': 'Black Market ', 'color': 'dark_purple', 'bold': True},
-                                            {'text': ('v2.18 TEST — Phase 2 dungeons (Java 26.3)' if PHASE2 else 'v1.25 (Java 26.3)'), 'color': 'gray'}],
+                                            {'text': ('v2.20 TEST — Phase 2 dungeons (Java 26.3)' if PHASE2 else 'v1.27 (Java 26.3)'), 'color': 'gray'}],
                             'min_format': [121, 0], 'max_format': 121}}, f, indent=1)
     gen_npcs()
     second = gen_mobs()
@@ -931,6 +935,9 @@ def build(out_dir):
     R37.generate(sys.modules[__name__])
     R38.generate(sys.modules[__name__])
     R39.generate(sys.modules[__name__])
+    R40.generate(sys.modules[__name__])
+    R41.generate(sys.modules[__name__])
+    R42.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     gen_tags_worldgen()

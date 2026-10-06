@@ -288,7 +288,9 @@ def generate(G):
     # ------------------------------------------------------------------ Band of Regeneration
     for slot in inv('band_of_regeneration'):
         second.append(f'execute as @a[gamemode=!spectator] if items entity @s {slot} run function bm:p39/band')
-    fn('p39/band', ['execute if score @s bm.dmgt matches 1.. run scoreboard players set @s bm.bandt 5', 'scoreboard players set @s bm.dmgt 0',
+    # hurt: wait 5 s, then the first dose comes at once (bandc primed to 4) and every 5 s after
+    fn('p39/band', ['execute if score @s bm.dmgt matches 1.. run scoreboard players set @s bm.bandc 4',
+                    'execute if score @s bm.dmgt matches 1.. run scoreboard players set @s bm.bandt 5', 'scoreboard players set @s bm.dmgt 0',
                     'execute if score @s bm.bandt matches 1.. run return run scoreboard players remove @s bm.bandt 1',
                     'scoreboard players add @s bm.bandc 1',
                     'execute if score @s bm.bandc matches 5.. run effect give @s minecraft:regeneration 6 0 true',

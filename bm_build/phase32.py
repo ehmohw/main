@@ -307,8 +307,8 @@ def generate(G):
         'execute as @a[tag=bm.ow,gamemode=adventure,tag=!bm.adv] at @s if predicate bm:sees_sky run function bm:p32/inv/surge',
         'execute if score #iboss bm.bm matches 0 if score #tod bm.bm matches 18000.. run function bm:p32/inv/boss_land'])
     fn('p32/inv/surge', [
-        'execute store result score #r bm.rng run random value 1..4', 'execute unless score #r bm.rng matches 1 run return 0',
-        'execute store result score #n bm.rng if entity @e[tag=bm.vorn,distance=..64]', 'execute if score #n bm.rng matches 9.. run return 0',
+        'execute store result score #r bm.rng run random value 1..10', 'execute unless score #r bm.rng matches 1 run return 0',     # 2.20: was 1 in 4 a second, up to 9
+        'execute store result score #n bm.rng if entity @e[tag=bm.vorn,distance=..64]', 'execute if score #n bm.rng matches 5.. run return 0',
         'summon minecraft:marker ~ ~ ~ {Tags:["bm.vsp"]}',
         'execute as @e[type=minecraft:marker,tag=bm.vsp,distance=..1,limit=1] store result entity @s Rotation[0] float 1 run random value 0..359',
         'execute store result score #k bm.rng run random value 1..100',
@@ -343,7 +343,7 @@ def generate(G):
                                  f'execute if score #r bm.rng matches 1..35 run return run function bm:p32/bio/make_{t}'])
         fn(f'p32/bio/make_{t}', [f'data merge entity @s {snbt({"DeathLootTable": f"bm:p32/bio/{t}", "CustomName": G.mob_name("Bioengineered ", "green", t)})}',
                                  'function bm:p32/bio/apply'])
-    fn('p32/bio/apply', ['tag @s add bm.bio', 'tag @s add bm.tiered', 'team join bm.bio @s', 'effect give @s minecraft:glowing infinite 0 true',
+    fn('p32/bio/apply', ['tag @s add bm.bio', 'tag @s add bm.tiered', 'team join bm.bio @s',      # 2.20: no green outline - sickly particles instead
                          'attribute @s minecraft:max_health modifier add bm:bio 0.5 add_multiplied_base',
                          'attribute @s minecraft:movement_speed modifier add bm:bio 0.12 add_multiplied_base',
                          'attribute @s minecraft:scale modifier add bm:bio 0.15 add_multiplied_base',
@@ -377,14 +377,14 @@ def generate(G):
     fn('p32/spawn/saucer', ['execute unless block ~ ~ ~ #minecraft:air run return 0', f'summon minecraft:phantom ~ ~ ~ {snbt(saucer)}',
                             'playsound minecraft:block.beacon.ambient hostile @a[distance=..48] ~ ~ ~ 1 1.8'])
     bigslime = {'Tags': ['bm.seen', 'bm.vorn', 'bm.bio', 'bm.vslime'], 'Size': Int(6), 'CustomName': T('Bioengineered Slime', 'green'),
-                'DeathLootTable': 'bm:p32/bigslime', 'active_effects': [{'id': 'minecraft:glowing', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0)}],
+                'DeathLootTable': 'bm:p32/bigslime',
                 'Health': F(60), 'attributes': attrs(max_health=60)}
     fn('p32/spawn/bigslime', ['execute unless block ~ ~ ~ #minecraft:replaceable run return 0', 'execute store result score #s bm.rng run random value 5..7'] +
        [f'execute if score #s bm.rng matches {n} run summon minecraft:slime ~ ~ ~ {snbt(dict(bigslime, Size=Int(n)))}' for n in (5, 6, 7)] +
        ['team join bm.bio @e[type=minecraft:slime,tag=bm.vslime,distance=..2]'])
     bph = {'Tags': ['bm.seen', 'bm.vorn', 'bm.bio', 'bm.vphan'], 'size': Int(5), 'CustomName': T('Bioengineered Phantom', 'green'),
            'DeathLootTable': 'bm:p32/bphantom', 'Health': F(40), 'attributes': attrs(max_health=40, attack_damage=7),
-           'active_effects': [{'id': 'minecraft:glowing', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0)}, fireres]}
+           'active_effects': [fireres]}
     fn('p32/spawn/bphantom', ['execute unless block ~ ~ ~ #minecraft:air run return 0', f'summon minecraft:phantom ~ ~ ~ {snbt(bph)}',
                               'team join bm.bio @e[type=minecraft:phantom,tag=bm.vphan,distance=..2]'])
     # every tick: displays face their mount's way; every second: aim and fire

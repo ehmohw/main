@@ -98,6 +98,17 @@ for f in glob.glob(DP + '/bm/advancement/p28/trade/**/*.json', recursive=True):
     if 'advancement revoke @s from bm:p28/trade/root' not in src.get(fnn, ''): errs.append(f'{f.split("/data/")[1]}: reward {fnn} never revokes the trade tree')
 if n_adv < 100: errs.append(f'only {n_adv} Standing trade advancements (expected one per trader offer group)')
 
+# ---------------------------------------------------------------- 6. dialog action codes (2.20): every handler range is its own
+# (the Dimension Shifter's 7001-7003 sat inside the mercenary's 7001-7099, so its buttons ran the wrong handler)
+ranges = []
+for ln in src.get('p28/act', '').splitlines():
+    m = re.match(r'execute if score #act bm\.pay matches (\d+)(?:\.\.(\d+))? run return run function bm:(\S+)', ln.strip())
+    if m: ranges.append((int(m.group(1)), int(m.group(2) or m.group(1)), m.group(3)))
+for i, (a1, b1, f1) in enumerate(ranges):
+    for a2, b2, f2 in ranges[i + 1:]:
+        if a1 <= b2 and a2 <= b1: errs.append(f'p28/act: codes {a2}-{b2} ({f2}) overlap {a1}-{b1} ({f1}) - the first one wins')
+if len(ranges) < 8: errs.append(f'p28/act: only {len(ranges)} dialog handlers found (format changed?)')
+
 for e in errs: print('✗', e)
 print(f'logic lints: {len(errs)} errors')
 sys.exit(1 if errs else 0)

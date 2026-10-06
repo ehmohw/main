@@ -1,8 +1,48 @@
-# Black Market — Phase 2 TEST build v2.15 (Java 26.3)
+# Black Market — Phase 2 TEST build v2.20 (Java 26.3)
 
-This is a **test build**: all of Phase 1.22 plus the seven boss dungeons. It **replaces** `BlackMarket_DP.zip`, so don't load both. Use a test world (or a copy of your world) until it has been played through once.
+This is a **test build**: all of Phase 1.27 plus the seven boss dungeons. It **replaces** `BlackMarket_DP.zip`, so don't load both. Use a test world (or a copy of your world) until it has been played through once.
 
 Install it like Phase 1.6. Put `BlackMarket_Phase2_TEST_DP.zip` in `datapacks`, then use `BlackMarket_Phase2_TEST_RP.zip` as the resource pack. `SHA1.txt` has the resource pack hash for `server.properties`. The dungeons only generate in **new chunks**.
+
+## New in 2.20
+
+Includes everything in Phase 1.27: the Headless Horseman and his head, the market shafts and flood fix, the Rat Gang's prizes, the Vorn and item fixes (see the main README). **Restart the server after updating**, because new enchantments can't load on `/reload`.
+
+**The Hollow King's Regalia.** The Conqueror's set from the Hollow King's vault has been renamed, and now it wakes up. Copies already in your world update on their own.
+
+| Old name | New name |
+| --- | --- |
+| Visage | Deathmask of the Hollow King |
+| Aegis | Ribcage of the Hollow King |
+| Greaves | Wither-Wrought Greaves |
+| Treads | Tombstride Treads |
+| Blade | Soulreaver |
+| Pick | Gravedigger's Maw |
+| Axe | Headsman's Grief |
+| Spade | Barrow Spade |
+| Longbow | Witherstring |
+
+- The **Ribcage** makes you immune to Withering. The effect still shows, but it does no harm.
+- **The full Regalia wakes with the world around it.** The bonuses below add to each piece's own effects. Its armour trims change colour while it's awake.
+
+  | When | Power | Trim and cosmetics |
+  | --- | --- | --- |
+  | Night (Overworld) | +15% damage | amethyst trim, rising souls |
+  | Full or new moon | +30% damage, +10% speed | diamond trim, a crown of soul fire |
+  | Blood Moon | +50% damage, +15% speed, +1.5 reach, Strength II, Regeneration II, and kills heal you | redstone trim, dripping blood |
+  | Invasion Night | +50% damage, +15% speed, Resistance II, +6 armour, and Vorn plasma barely scratches you | emerald trim, green sparks |
+  | The Nether or the Hollow Throne | +30% damage, Strength II, +4 armour | gold trim, embers and ash |
+
+- **Wither Nova** (full Regalia): crouch and look up at the sky for a second. Every monster and every other player within 8 blocks gets Wither II. It recharges in 40 s: 25 s at night or under the moons, and 15 s on a Blood Moon, an Invasion Night or at home.
+- **Sepulchre**, the Hollow King's maul, is new in his vault.
+  - Right-click: **Grave Quake**. Monsters within 7 blocks are thrown into the air and wither. Other players are lifted and wither. Bosses take the hit but aren't thrown.
+  - Its cooldown is 15 s, cut to 10 s or 6 s while the Regalia's power is up.
+  - A smash attack (falling onto a target) sends a smaller quake for free.
+- `/function bm:admin/p2/regalia` gives you the set and Sepulchre.
+
+## New in 2.19
+
+Includes everything in Phase 1.26: the Bounty Board in every Black Market (see the main README), and the Band of Regeneration timing fix.
 
 ## New in 2.18
 
