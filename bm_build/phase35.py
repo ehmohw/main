@@ -180,13 +180,13 @@ def generate(G):
              'equipment': {'body': {'id': 'minecraft:lime_harness', 'count': Int(1), 'components': {'minecraft:equippable': {
                  'slot': 'body', 'asset_id': 'bm:skiff_none', 'equip_sound': 'minecraft:entity.happy_ghast.equip', 'allowed_entities': 'minecraft:happy_ghast'}}}},
              'drop_chances': {'body': F(0)},
-             'attributes': [{'id': 'minecraft:flying_speed', 'base': D(0.22)}, {'id': 'minecraft:scale', 'base': D(0.6)},
+             'attributes': [{'id': 'minecraft:flying_speed', 'base': D(0.22)}, {'id': 'minecraft:scale', 'base': D(0.2)},     # 2.22: was 0.6 - the ghast's seats sit ~1.7 x scale off its middle, so the pilot sat off the saucer's centre
                             {'id': 'minecraft:max_health', 'base': D(80)}],
              'active_effects': [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}],
              'CustomName': T('Vorn Skiff', GREEN, bold=True), 'CustomNameVisible': B(0)}
     hull = {'Tags': ['bm.skdisp', 'bm.sknew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:ufo3d'}},
             'item_display': 'fixed', 'teleport_duration': Int(2), 'brightness': {'block': Int(13), 'sky': Int(13)},
-            'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(1.0), F(0)], 'scale': [F(3.0)] * 3}}
+            'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(0.4), F(0)], 'scale': [F(3.0)] * 3}}
     fn('p35/skiff/riding', ['execute on vehicle if entity @s[tag=bm.skiff] run return 1', 'return 0'])
     fn('p35/skiff/use', ['execute if function bm:p35/skiff/riding if entity @s[x_rotation=55..90] run return run function bm:p35/skiff/bomb',
                          'execute if function bm:p35/skiff/riding run return run function bm:p35/skiff/laser',
@@ -239,7 +239,7 @@ def generate(G):
     fn('p35/skiff/bomb', ['execute if score @s bm.skb matches 1.. run return run ' + title('@s', 'actionbar', [T('Bomb bay recharging: ', 'gray'), {'score': {'name': '@s', 'objective': 'bm.skb'}, 'color': 'white'}, T(' s', 'gray')]),
                           'execute store result score #t bm.rng run clear @s minecraft:tnt 0',
                           'execute if score #t bm.rng matches 0 run return run ' + title('@s', 'actionbar', T('The bomb bay is empty - carry TNT.', 'red')),
-                          'clear @s minecraft:tnt 1', 'scoreboard players set @s bm.skb 60',
+                          'clear @s minecraft:tnt 1', 'scoreboard players set @s bm.skb 20',
                           f'execute on vehicle at @s run summon minecraft:tnt ~ ~-1.5 ~ {snbt(tnt)}',
                           'playsound minecraft:entity.tnt.primed player @a[distance=..32] ~ ~ ~ 1 0.6', 'playsound minecraft:block.beacon.deactivate player @a[distance=..32] ~ ~ ~ 1 1.8',
                           title('@s', 'actionbar', T('Charged bomb away!', RED, bold=True))])

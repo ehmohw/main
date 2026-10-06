@@ -179,7 +179,7 @@ def generate(G):
 
     # ---------------- every tick: displays face where he faces. Every second: tidy up, heal slowly, croak now and then
     tick.append('execute as @e[type=minecraft:wolf,tag=bm.frogpet] at @s on passengers run rotate @s ~ 0')
-    fn('p20/frog/has_vehicle', ['return run execute on vehicle if entity @s[type=minecraft:wolf]'])
+    fn('p20/frog/has_vehicle', ['return run execute on vehicle if entity @s'])     # 2.22: any vehicle (ghosts, mimics, Wilfrey reuse it)
     second += ['execute as @e[type=minecraft:item_display,tag=bm.fp_disp] unless function bm:p20/frog/has_vehicle run kill @s',
                'effect give @e[type=minecraft:wolf,tag=bm.frogpet] minecraft:regeneration 3 0 true',
                'execute as @e[type=minecraft:wolf,tag=bm.frogpet] at @s if predicate bm:p20/croak run playsound minecraft:entity.frog.ambient neutral @a[distance=..16] ~ ~ ~ 0.8 1']

@@ -184,7 +184,6 @@ def generate(G):
     fn('p41/has_vehicle', ['return run execute on vehicle if entity @s'])
     second.append('execute as @e[type=minecraft:item_display,tag=bm.vdisp] unless function bm:p41/has_vehicle run kill @s')
     fast.append('execute as @e[tag=bm.bio] at @s if entity @a[distance=..32] run particle minecraft:item_slime ~ ~1 ~ 0.3 0.4 0.3 0 1')
-    second.append('effect clear @e[type=#bm:hostile,tag=bm.bio] minecraft:glowing')
     G.FUNCS['p32/inv/during'].append('execute as @a[tag=bm.ow,gamemode=!spectator] at @s if predicate bm:sees_sky run function bm:p41/inv/amb')
     fn('p41/inv/amb', ['execute store result score #r bm.rng run random value 1..14',
                        'execute if score #r bm.rng matches 1 run playsound minecraft:block.beacon.ambient ambient @s ~ ~ ~ 1 0.5',
@@ -239,7 +238,7 @@ def generate(G):
         'tag @a[tag=bm.skrider] remove bm.skrider', 'tag @e[tag=bm.skme] remove bm.skme']
     fn('p41/skiff/on_pilot', ['execute on vehicle if entity @s[type=minecraft:happy_ghast] run return 1', 'return 0'])
     fn('p41/skiff/board', ['ride @s mount @e[type=minecraft:happy_ghast,tag=bm.skme,limit=1]', f'data merge entity @s {{transformation:{{translation:[0f,{SKIFF_RIDE_Y}f,0f]}},teleport_duration:0}}'])
-    fn('p41/skiff/unboard', ['ride @s dismount', 'data merge entity @s {transformation:{translation:[0f,1.0f,0f]},teleport_duration:2}'])
+    fn('p41/skiff/unboard', ['ride @s dismount', 'data merge entity @s {transformation:{translation:[0f,0.4f,0f]},teleport_duration:2}'])
 
     # ================================================================== the Hoard Sack: a locked barrel only its owner's sack opens
     wjson('bm/tags/block/p41_open.json', {'values': ['minecraft:air', 'minecraft:cave_air', 'minecraft:short_grass', 'minecraft:tall_grass',
@@ -319,7 +318,7 @@ def generate(G):
     s[-1:-1] = second
 
 
-SKIFF_RIDE_Y = -1.4           # hull translation while it rides the skiff (measured on 26.3: its seat is 2.4 above the ghast's feet; parked hull sits at +1.0)
+SKIFF_RIDE_Y = -1.4           # hull translation while it rides the skiff: its centre 0.8 under the pilot's feet (both seats sit 4 x scale up)
 
 
 # ===================================================================== resource pack

@@ -62,8 +62,17 @@ WING = [(0.25, 1.45), (0.45, 1.58), (0.65, 1.68), (0.85, 1.74), (1.05, 1.72), (1
         (0.95, 1.38), (1.12, 1.32), (0.45, 1.12), (0.65, 1.14), (0.85, 1.12), (1.0, 1.05), (0.55, 0.95), (0.75, 0.92)]
 
 
+# Wind Burst books (2.22): real enchanted books, at the Professor's
+for _lv, _rn in ((1, 'I'), (2, 'II'), (3, 'III')):
+    item(f'wind_burst_book_{_lv}', 'minecraft:enchanted_book', f'Wind Burst {_rn}', '#a8e0ff',
+         ['A gust bound in leather. For maces.', ('Apply it at an anvil like any enchanted book.', 'gray')],
+         stack=1, cat='book', comps={'minecraft:stored_enchantments': {'minecraft:wind_burst': _lv}})
+
+
 def extend_offers(O, offer):
     O['captain'] += [offer(('trophy', 10), ('xp_charm', 1))]
+    O['professor'] += [offer(('token', 14), ('wind_burst_book_1', 1)), offer(('medallion', 3), ('wind_burst_book_2', 1)),
+                       offer(('medallion', 6), ('wind_burst_book_3', 1))]
 
 
 def _ring(r, n, y, part):

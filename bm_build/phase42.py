@@ -670,8 +670,8 @@ def generate(G):
         {'rolls': 1, 'entries': [G.loot_entry('medallion', G.uni(2, 4))], 'conditions': [G.KILLED]},
         {'rolls': 1, 'entries': [G.loot_entry('trophy')], 'conditions': [G.KILLED, G.chance(0.4)]},
         {'rolls': 1, 'entries': [G.loot_entry('heartstone')], 'conditions': [G.KILLED, G.chance(0.15)]},
-        {'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'minecraft:jack_o_lantern', 'functions': [{'function': 'minecraft:set_count', 'count': G.uni(1, 3)}]},
-                                 {'type': 'minecraft:item', 'name': 'minecraft:pumpkin_pie', 'functions': [{'function': 'minecraft:set_count', 'count': G.uni(2, 5)}]}]},
+        # (no vanilla jack o'lanterns: they were mistaken for his head)
+        {'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'minecraft:pumpkin_pie', 'functions': [{'function': 'minecraft:set_count', 'count': G.uni(2, 5)}]}]},
         {'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'minecraft:netherite_scrap'}], 'conditions': [G.KILLED, G.chance(0.5)]}]})
     wjson('bm/advancement/p42/slain.json', {'criteria': {'slain': {'trigger': 'minecraft:player_killed_entity', 'conditions': {'entity': [
         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.hhm"]}'}}]}}},

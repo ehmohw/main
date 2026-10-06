@@ -1,4 +1,4 @@
-# Black Market — v2.21 (Java 26.3)
+# Black Market — v2.22 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,15 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.22: fixes
+
+- **Fixed:** the graveyard ghosts' (and the Banshee's), the Mimics' and Wilfrey's models vanished. Like the Vorn models in 2.20, a cleanup was only counting models that ride wolves.
+- **Fixed:** Vorn guards on Dreadnoughts were spawning, but invisible, because the same bug removed their models. They show up again.
+- **Bioengineered beasts glow green again**, and keep their sickly particles.
+- **Vorn Skiff:** the pilot now sits over the saucer's centre, and the saucer's overlapping faces no longer flicker (z-fighting) when it moves. The bomb bay recharges in **20 s** (was 60).
+- **Wind Burst I, II and III** enchanted books are sold by Prof. Whiskerton: 14 Tokens, 3 Medallions and 6 Medallions.
+- **The Headless Horseman** no longer drops vanilla jack o'lanterns, so they can't be mistaken for his head. His head still drops 1 time in 10 when a player gets the kill.
 
 ## New in 2.21: night cosmetics, wings, the Experience Charm
 

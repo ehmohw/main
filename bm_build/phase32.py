@@ -343,7 +343,7 @@ def generate(G):
                                  f'execute if score #r bm.rng matches 1..35 run return run function bm:p32/bio/make_{t}'])
         fn(f'p32/bio/make_{t}', [f'data merge entity @s {snbt({"DeathLootTable": f"bm:p32/bio/{t}", "CustomName": G.mob_name("Bioengineered ", "green", t)})}',
                                  'function bm:p32/bio/apply'])
-    fn('p32/bio/apply', ['tag @s add bm.bio', 'tag @s add bm.tiered', 'team join bm.bio @s',      # 2.20: no green outline - sickly particles instead
+    fn('p32/bio/apply', ['tag @s add bm.bio', 'tag @s add bm.tiered', 'team join bm.bio @s', 'effect give @s minecraft:glowing infinite 0 true',      # 2.22: the green outline is back (with the 2.20 particles)
                          'attribute @s minecraft:max_health modifier add bm:bio 0.5 add_multiplied_base',
                          'attribute @s minecraft:movement_speed modifier add bm:bio 0.12 add_multiplied_base',
                          'attribute @s minecraft:scale modifier add bm:bio 0.15 add_multiplied_base',
@@ -377,14 +377,14 @@ def generate(G):
     fn('p32/spawn/saucer', ['execute unless block ~ ~ ~ #minecraft:air run return 0', f'summon minecraft:phantom ~ ~ ~ {snbt(saucer)}',
                             'playsound minecraft:block.beacon.ambient hostile @a[distance=..48] ~ ~ ~ 1 1.8'])
     bigslime = {'Tags': ['bm.seen', 'bm.vorn', 'bm.bio', 'bm.vslime'], 'Size': Int(6), 'CustomName': T('Bioengineered Slime', 'green'),
-                'DeathLootTable': 'bm:p32/bigslime',
+                'DeathLootTable': 'bm:p32/bigslime', 'active_effects': [{'id': 'minecraft:glowing', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0)}],
                 'Health': F(60), 'attributes': attrs(max_health=60)}
     fn('p32/spawn/bigslime', ['execute unless block ~ ~ ~ #minecraft:replaceable run return 0', 'execute store result score #s bm.rng run random value 5..7'] +
        [f'execute if score #s bm.rng matches {n} run summon minecraft:slime ~ ~ ~ {snbt(dict(bigslime, Size=Int(n)))}' for n in (5, 6, 7)] +
        ['team join bm.bio @e[type=minecraft:slime,tag=bm.vslime,distance=..2]'])
     bph = {'Tags': ['bm.seen', 'bm.vorn', 'bm.bio', 'bm.vphan'], 'size': Int(5), 'CustomName': T('Bioengineered Phantom', 'green'),
            'DeathLootTable': 'bm:p32/bphantom', 'Health': F(40), 'attributes': attrs(max_health=40, attack_damage=7),
-           'active_effects': [fireres]}
+           'active_effects': [{'id': 'minecraft:glowing', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0)}, fireres]}
     fn('p32/spawn/bphantom', ['execute unless block ~ ~ ~ #minecraft:air run return 0', f'summon minecraft:phantom ~ ~ ~ {snbt(bph)}',
                               'team join bm.bio @e[type=minecraft:phantom,tag=bm.vphan,distance=..2]'])
     # every tick: displays face their mount's way; every second: aim and fire
@@ -830,8 +830,8 @@ def rp(R):
         tex = {'h': 'minecraft:block/iron_block', 'p': 'minecraft:block/light_gray_concrete', 'g': 'minecraft:block/light_blue_stained_glass' if not red else 'minecraft:block/red_stained_glass',
                'l': 'minecraft:block/verdant_froglight_side' if not red else 'minecraft:block/shroomlight', 'd': 'minecraft:block/gray_concrete'}
         els = [c((3, 4, 3), (13, 6, 13), 'd'),                                                  # belly
-               c((0.5, 6, 3), (15.5, 7.5, 13), 'h'), c((3, 6, 0.5), (13, 7.5, 15.5), 'h'),        # the disc (two crossed slabs + a turned one)
-               c((1.5, 6, 1.5), (14.5, 7.5, 14.5), 'p', {'origin': [8, 6.75, 8], 'axis': 'y', 'angle': 45}),
+               c((0.5, 6, 3), (15.5, 7.5, 13), 'h'), c((3, 6.03, 0.5), (13, 7.47, 15.5), 'h'),        # the disc (two crossed slabs + a turned one)
+               c((1.5, 6.06, 1.5), (14.5, 7.44, 14.5), 'p', {'origin': [8, 6.75, 8], 'axis': 'y', 'angle': 45}),
                c((3.5, 7.5, 3.5), (12.5, 9, 12.5), 'p'),                                          # upper hull
                c((5.5, 9, 5.5), (10.5, 12, 10.5), 'g'),                                           # dome
                c((7, 3, 7), (9, 4, 9), 'l')]                                                       # engine glow
