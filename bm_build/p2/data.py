@@ -65,7 +65,7 @@ VANILLA = {'brood': ['chests/simple_dungeon'], 'frost': ['chests/igloo_chest', '
            'keep': ['chests/bastion_treasure', 'chests/bastion_other'], 'hollow': ['chests/end_city_treasure', 'chests/ancient_city'],
            'lucky': ['chests/buried_treasure']}
 HIDDEN = {'brood': ['silkstrider_boots'], 'frost': ['frostwarden_hood'], 'tide': ['abyssal_helm'], 'hex': ['hexwoven_robe', 'blink_tome'],
-          'keep': ['oathblade', 'wilfrey_aegis'], 'hollow': ['hollow_crown'], 'lucky': ['horseshoe_charm', 'pocket_slots']}
+          'keep': ['oathblade', 'wilfrey_aegis'], 'hollow': ['hollow_crown', 'charm_wings_angel', 'charm_wings_evil'], 'lucky': ['horseshoe_charm', 'pocket_slots']}
 BOSS_DROP = {'brood': ('broodfang', 0.25, 'spider'), 'frost': ('frost_longbow', 0.25, 'stray'), 'tide': ('tyrant_trident', 0.25, 'drowned'),
              'hex': ('archmage_staff', 0.25, 'evoker'), 'keep': ('bobbery_axe', 0.15, 'wither_skeleton'), 'hollow': (None, 0, 'wither'),
              'lucky': (None, 0, 'chicken')}

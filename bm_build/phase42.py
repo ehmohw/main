@@ -526,13 +526,16 @@ def generate(G):
                          'scoreboard players set @s bm.hhx 0', 'bossbar set bm:hhm color yellow'])
     fn('p42/boss/sense', ['tag @s add bm.hhsensed', 'title @s times 10 70 30', title('@s', 'subtitle', T('You sense an evil presence nearby...', 'dark_red', italic=True)),
                           title('@s', 'title', T('', 'dark_red')), 'playsound minecraft:ambient.cave ambient @s ~ ~ ~ 1 0.9',
-                          'playsound minecraft:entity.lightning_bolt.thunder weather @s ~ ~ ~ 0.4 0.5'])
+                          'playsound minecraft:entity.lightning_bolt.thunder weather @s ~ ~ ~ 0.4 0.5',
+                          # his song: disc 13 for everyone he comes near, over any other music
+                          'stopsound @s music', 'stopsound @s record', 'playsound minecraft:music_disc.13 record @s ~ ~ ~ 1 1 1'])
     fn('p42/boss/second', ['execute store result score #hhseen bm.bm run time query gametime',
                            'execute unless score #tod bm.bm matches 13000..23199 run return run function bm:p42/boss/retreat',
                            f'execute if entity @a[distance=..128,{near}] run scoreboard players set @s bm.hhx 0',
                            f'execute unless entity @a[distance=..128,{near}] run scoreboard players add @s bm.hhx 1',
                            'execute if score @s bm.hhx matches 90.. run return run function bm:p42/boss/retreat',
                            'execute as @a[distance=..30,tag=!bm.hhsensed,gamemode=!spectator] at @s run function bm:p42/boss/sense',
+                           'stopsound @a[tag=bm.hhsensed] music',      # keep the background music quiet while his song plays
                            'bossbar set bm:hhm players @a[distance=..64]', 'bossbar set bm:hhm visible true',
                            'execute store result bossbar bm:hhm value run data get entity @s Health',
                            'execute store result score #hh bm.rng run data get entity @s Health',
@@ -655,7 +658,8 @@ def generate(G):
                             'playsound minecraft:entity.skeleton_horse.ambient hostile @a[distance=..64] ~ ~ ~ 1.5 0.5',
                             'particle minecraft:large_smoke ~ ~1.5 ~ 1 1.5 1 0.05 80', 'particle minecraft:flame ~ ~1 ~ 1 1 1 0.05 40',
                             'function bm:p42/boss/cleanup', 'execute on vehicle run function bm:p42/steed/vanish', 'tp @s ~ -400 ~', 'kill @s'])
-    fn('p42/boss/cleanup', ['execute as @e[type=minecraft:skeleton,tag=bm.hhmin,distance=..96] at @s run function bm:p42/boss/crumble',
+    fn('p42/boss/cleanup', ['stopsound @a[tag=bm.hhsensed] record minecraft:music_disc.13',
+                            'execute as @e[type=minecraft:skeleton,tag=bm.hhmin,distance=..96] at @s run function bm:p42/boss/crumble',
                             'tag @a remove bm.hhsensed', 'bossbar set bm:hhm visible false'])
     fn('p42/boss/crumble', ['particle minecraft:soul ~ ~1 ~ 0.3 0.6 0.3 0.03 10', 'particle minecraft:large_smoke ~ ~1 ~ 0.3 0.6 0.3 0.03 8', 'tp @s ~ -400 ~', 'kill @s'])
 
@@ -676,7 +680,7 @@ def generate(G):
                      tellraw('@a[distance=..160]', PREFIX + [T('The Headless Horseman has fallen to ', ORANGE), {'selector': '@s', 'color': 'gold'}, T('!', ORANGE)]),
                      'scoreboard players set @a[distance=..64] bm.hhv 20',
                      'execute as @e[type=minecraft:skeleton,tag=bm.hhmin,distance=..96] at @s run function bm:p42/boss/crumble',
-                     'tag @a remove bm.hhsensed', 'bossbar set bm:hhm visible false',
+                     'stopsound @a[tag=bm.hhsensed] record minecraft:music_disc.13', 'tag @a remove bm.hhsensed', 'bossbar set bm:hhm visible false',
                      'summon minecraft:experience_orb ~ ~1 ~ {Value:60s}', 'summon minecraft:experience_orb ~ ~1 ~ {Value:60s}',
                      'summon minecraft:experience_orb ~ ~1 ~ {Value:60s}'])
     fn('p42/victory', ['scoreboard players reset @s bm.hhv', 'title @s times 10 70 20',

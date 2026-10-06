@@ -181,7 +181,8 @@ def generate(G):
        [f'setblock ^-2 ^1 ^2 minecraft:dark_oak_sign[rotation=0]{sign}', 'playsound minecraft:block.stone.place block @a[distance=..48] ~ ~ ~ 0.6 0.8'])
 
     # ================================================================== the Vorn
-    second.append('execute as @e[type=minecraft:item_display,tag=bm.vdisp] unless function bm:p20/frog/has_vehicle run kill @s')
+    fn('p41/has_vehicle', ['return run execute on vehicle if entity @s'])
+    second.append('execute as @e[type=minecraft:item_display,tag=bm.vdisp] unless function bm:p41/has_vehicle run kill @s')
     fast.append('execute as @e[tag=bm.bio] at @s if entity @a[distance=..32] run particle minecraft:item_slime ~ ~1 ~ 0.3 0.4 0.3 0 1')
     second.append('effect clear @e[type=#bm:hostile,tag=bm.bio] minecraft:glowing')
     G.FUNCS['p32/inv/during'].append('execute as @a[tag=bm.ow,gamemode=!spectator] at @s if predicate bm:sees_sky run function bm:p41/inv/amb')

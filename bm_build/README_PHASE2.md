@@ -1,8 +1,12 @@
-# Black Market — Phase 2 TEST build v2.20 (Java 26.3)
+# Black Market — the boss dungeons (v2.21, Java 26.3)
 
-This is a **test build**: all of Phase 1.27 plus the seven boss dungeons. It **replaces** `BlackMarket_DP.zip`, so don't load both. Use a test world (or a copy of your world) until it has been played through once.
+The dungeons are now part of the one main pack (`BlackMarket_DP.zip` + `BlackMarket_RP.zip`). See README.md for everything else.
 
 Install it like Phase 1.6. Put `BlackMarket_Phase2_TEST_DP.zip` in `datapacks`, then use `BlackMarket_Phase2_TEST_RP.zip` as the resource pack. `SHA1.txt` has the resource pack hash for `server.properties`. The dungeons only generate in **new chunks**.
+
+## New in 2.21
+
+Night cosmetics, the Hollow Throne's Angelic and Evil Wings (in its secret vault), the Experience Charm, the Horseman's song, and Hollow Throne chests that refill after each Blood Moon. See the main README.
 
 ## New in 2.20
 

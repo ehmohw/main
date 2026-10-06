@@ -20,16 +20,15 @@ def zipdir(src, dst, extra=()):
 
 
 sha = lambda p: hashlib.sha1(open(p, 'rb').read()).hexdigest()
-zipdir(root + '/out/BlackMarket_DP', dist + '/BlackMarket_DP.zip', [(root + '/README.md', 'README.md')])
-zipdir(root + '/out/BlackMarket_RP', dist + '/BlackMarket_RP.zip')
-zipdir(root + '/out_p2/BlackMarket_DP', dist + '/BlackMarket_Phase2_TEST_DP.zip', [(root + '/README_PHASE2.md', 'README.md')])
-zipdir(root + '/out_p2/BlackMarket_RP', dist + '/BlackMarket_Phase2_TEST_RP.zip')
+# 2.21: one pack - the full build (dungeons included) is the release
+for f in os.listdir(dist): os.remove(os.path.join(dist, f))
+zipdir(root + '/out_p2/BlackMarket_DP', dist + '/BlackMarket_DP.zip', [(root + '/README.md', 'README.md'), (root + '/README_PHASE2.md', 'README_DUNGEONS.md')])
+zipdir(root + '/out_p2/BlackMarket_RP', dist + '/BlackMarket_RP.zip')
 with zipfile.ZipFile(dist + '/BlackMarket_source.zip', 'w') as z:
     for base, dirs, files in os.walk(root):
         dirs[:] = sorted(d for d in dirs if d not in ('out', 'out_p2', 'dist', '__pycache__'))
         for f in sorted(files):
             p = os.path.join(base, f); add(z, p, 'bm_build/' + os.path.relpath(p, root))
-open(dist + '/SHA1.txt', 'w').write(f"BlackMarket_RP.zip  {sha(dist + '/BlackMarket_RP.zip')}\n"
-                                    f"BlackMarket_Phase2_TEST_RP.zip  {sha(dist + '/BlackMarket_Phase2_TEST_RP.zip')}\n")
+open(dist + '/SHA1.txt', 'w').write(f"BlackMarket_RP.zip  {sha(dist + '/BlackMarket_RP.zip')}\n")
 for f in ('README.md', 'README_PHASE2.md'): shutil.copy(f'{root}/{f}', f'{dist}/{f}')
 print(open(dist + '/SHA1.txt').read())

@@ -1,4 +1,6 @@
-# Black Market — Phase 1.27 (Java 26.3)
+# Black Market — v2.21 (Java 26.3)
+
+The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
 A data pack + resource pack. No mods required, and it works alongside Fabric.
 
@@ -18,6 +20,25 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.21: night cosmetics, wings, the Experience Charm
+
+- **Night cosmetics.** Blood Moon horrors, Lucky monsters and the Vorn (troopers, saucers, bioengineered beasts) sometimes carry a cosmetic charm, and they **wear its particles**, so you can see which ones to hunt. There are three per night, each rarer than the last: 3%, 1% and 0.3% of those monsters carry one. Kill a carrier and it drops its charm half the time.
+
+  | Night | Uncommon | Rare | Very rare |
+  | --- | --- | --- | --- |
+  | Blood Moon | Crimson Drip Charm | Bloodbat Charm | Blood Moon Halo |
+  | Lucky Night | Clover Charm | Gold Rush Charm | Jackpot Crown |
+  | Invasion | Xenite Glow Charm | Tractor Beam Charm | Saucer Orbit Charm |
+
+  The Vorn charms also turn up, rarely, in mothership stores and crash wrecks.
+- **Angelic Wings and Evil Wings**: particle wings, hidden in the Hollow Throne's secret vault.
+- **The Experience Charm** (Capt. Cheddarbeard, Rat Gang HQ, 10 Trophies): anywhere in your inventory, everything you kill drops twice the experience.
+- **The Headless Horseman's song**: when he comes near you, music disc 13 starts playing for you and any other music goes quiet. It stops when he falls or rides away.
+- **The Hollow Throne's loot chests** refill after every Blood Moon.
+- **Fixed:** the Vorn and UFO models vanished in 2.20. They're back.
+
+Charms work like the other cosmetics: keep one anywhere in your inventory, and one shows at a time.
 
 ## New in 1.27: the Headless Horseman, and a big round of fixes
 
