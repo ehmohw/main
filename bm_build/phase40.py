@@ -46,7 +46,7 @@ def generate(G):
                   'text': T('BOUNTY BOARD', '#ffd23f', bold=True),
                   'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(0), F(0)], 'scale': [F(0.7)] * 3}}
     board_hit = {'Tags': ['bm.bbhit', 'bm.npc'], 'width': F(1.0), 'height': F(2.4), 'response': B(1)}
-    tpos, hpos = mgeo.rel((BOARD[0], BOARD[1] + 1.7, BOARD[2] + 0.2)), mgeo.rel(BOARD)
+    tpos, hpos = mgeo.rel((BOARD[0], BOARD[1] + 0.75, BOARD[2] + 0.22)), mgeo.rel(BOARD)     # 2.23: pinned to the board (phase44 builds it)
     G.FUNCS['p35/patch'] += [
         f'execute positioned {tpos} unless entity @e[type=minecraft:text_display,tag=bm.bboard,distance=..1.5] run summon minecraft:text_display ~ ~ ~ {snbt(board_text)}',
         f'execute positioned {hpos} unless entity @e[type=minecraft:interaction,tag=bm.bbhit,distance=..1.5] run summon minecraft:interaction ~ ~ ~ {snbt(board_hit)}']

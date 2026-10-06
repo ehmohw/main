@@ -263,7 +263,7 @@ def generate(G):
     fn('p32/zorp_leave', ['particle minecraft:end_rod ~ ~1 ~ 0.3 0.6 0.3 0.05 30', 'playsound minecraft:block.beacon.deactivate neutral @a[distance=..16] ~ ~ ~ 1 1.4',
                           'execute positioned ~ ~ ~ run kill @e[type=minecraft:item_display,tag=bm.alien_sprite,distance=..1.5]',
                           'kill @e[type=minecraft:text_display,tag=bm.bubble,distance=..3]', 'tp @s ~ -400 ~'])
-    second.append('execute as @e[type=minecraft:wandering_trader,tag=bm.npc_alien] at @s if entity @s[y=-100,dy=250] run function bm:p32/zorp_leave')
+    second.append('execute as @e[type=minecraft:wandering_trader,tag=bm.npc_alien] at @s if entity @e[type=minecraft:marker,tag=bm.crash_seed,distance=..40] run function bm:p32/zorp_leave')   # 2.23: by the crash marker (a low mothership sent its Zorp away too)
     # the mothership beam: the Dreadnought's is red
     beam = G.FUNCS['p25/beam']
     G.FUNCS['p25/beam'] = [l.replace('dust{color:[0.49,1.0,0.42],scale:2.0}', 'dust{color:[1.0,0.25,0.2],scale:2.0}') for l in beam]
@@ -343,7 +343,7 @@ def generate(G):
                                  f'execute if score #r bm.rng matches 1..35 run return run function bm:p32/bio/make_{t}'])
         fn(f'p32/bio/make_{t}', [f'data merge entity @s {snbt({"DeathLootTable": f"bm:p32/bio/{t}", "CustomName": G.mob_name("Bioengineered ", "green", t)})}',
                                  'function bm:p32/bio/apply'])
-    fn('p32/bio/apply', ['tag @s add bm.bio', 'tag @s add bm.tiered', 'team join bm.bio @s', 'effect give @s minecraft:glowing infinite 0 true',      # 2.22: the green outline is back (with the 2.20 particles)
+    fn('p32/bio/apply', ['tag @s add bm.bio', 'tag @s add bm.tiered', 'team join bm.bio @s',      # 2.22: the green outline is back (with the 2.20 particles)
                          'attribute @s minecraft:max_health modifier add bm:bio 0.5 add_multiplied_base',
                          'attribute @s minecraft:movement_speed modifier add bm:bio 0.12 add_multiplied_base',
                          'attribute @s minecraft:scale modifier add bm:bio 0.15 add_multiplied_base',
@@ -377,14 +377,13 @@ def generate(G):
     fn('p32/spawn/saucer', ['execute unless block ~ ~ ~ #minecraft:air run return 0', f'summon minecraft:phantom ~ ~ ~ {snbt(saucer)}',
                             'playsound minecraft:block.beacon.ambient hostile @a[distance=..48] ~ ~ ~ 1 1.8'])
     bigslime = {'Tags': ['bm.seen', 'bm.vorn', 'bm.bio', 'bm.vslime'], 'Size': Int(6), 'CustomName': T('Bioengineered Slime', 'green'),
-                'DeathLootTable': 'bm:p32/bigslime', 'active_effects': [{'id': 'minecraft:glowing', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0)}],
-                'Health': F(60), 'attributes': attrs(max_health=60)}
+                'DeathLootTable': 'bm:p32/bigslime',                 'Health': F(60), 'attributes': attrs(max_health=60)}
     fn('p32/spawn/bigslime', ['execute unless block ~ ~ ~ #minecraft:replaceable run return 0', 'execute store result score #s bm.rng run random value 5..7'] +
        [f'execute if score #s bm.rng matches {n} run summon minecraft:slime ~ ~ ~ {snbt(dict(bigslime, Size=Int(n)))}' for n in (5, 6, 7)] +
        ['team join bm.bio @e[type=minecraft:slime,tag=bm.vslime,distance=..2]'])
     bph = {'Tags': ['bm.seen', 'bm.vorn', 'bm.bio', 'bm.vphan'], 'size': Int(5), 'CustomName': T('Bioengineered Phantom', 'green'),
            'DeathLootTable': 'bm:p32/bphantom', 'Health': F(40), 'attributes': attrs(max_health=40, attack_damage=7),
-           'active_effects': [{'id': 'minecraft:glowing', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0)}, fireres]}
+           'active_effects': [fireres]}
     fn('p32/spawn/bphantom', ['execute unless block ~ ~ ~ #minecraft:air run return 0', f'summon minecraft:phantom ~ ~ ~ {snbt(bph)}',
                               'team join bm.bio @e[type=minecraft:phantom,tag=bm.vphan,distance=..2]'])
     # every tick: displays face their mount's way; every second: aim and fire

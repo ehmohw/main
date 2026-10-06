@@ -231,7 +231,7 @@ def generate(G, B=None):
              'execute as @a[tag=bm.rgon] at @s run function bm:p2/rg/fast',
              'scoreboard players remove @a[scores={bm.rgc=1..}] bm.rgc 5', 'scoreboard players remove @a[scores={bm.mqc=1..}] bm.mqc 5',
              'scoreboard players remove @a[scores={bm.msq=1..}] bm.msq 5']
-    fn('admin/p2/regalia', [G.give(i) for i in ['conq_helmet', 'conq_chestplate', 'conq_leggings', 'conq_boots', 'sepulchre']])
+    fn('admin/p2/regalia', [G.give(i) for i in ['conq_helmet', 'conq_chestplate', 'conq_leggings', 'conq_boots', 'sepulchre', 'conq_blade', 'conq_pick', 'conq_axe', 'conq_shovel', 'conq_hoe', 'conq_bow', 'hollow_wings']])
     return {'fast': fast, 'second': second, 'load': load}
 
 

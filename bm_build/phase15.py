@@ -350,7 +350,7 @@ def generate(G):
             f'execute if score #r bm.rng matches 287..636 run return run function bm:mobs/elite/{t}'])   # 35% elites (was 15%)
         hp = G.ARMORED[t][0] if t in G.ARMORED else G.UNARMORED[t]
         mhp = hp * 5
-        lines = [f'data merge entity @s {snbt(dict(G.NO_DROPS, Glowing=B(1), PersistenceRequired=B(0), DeathLootTable=f"bm:entities/blood/{t}", CustomName=G.mob_name("Blood Moon ", "dark_red", t, True)))}',
+        lines = [f'data merge entity @s {snbt(dict(G.NO_DROPS, PersistenceRequired=B(0), DeathLootTable=f"bm:entities/blood/{t}", CustomName=G.mob_name("Blood Moon ", "dark_red", t, True)))}',
                  'tag @s add bm.blood', 'tag @s add bm.tiered', 'team join bm.blood @s']
         curse = '"bm:blood_curse":1'
         if t in G.ARMORED:

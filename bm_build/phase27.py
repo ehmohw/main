@@ -69,7 +69,7 @@ def generate(G):
                 'attribute @s minecraft:scale base set 1.35',
                 f'attribute @s minecraft:max_health base set {jhp}', f'data modify entity @s Health set value {jhp}.0f',
                 'attribute @s minecraft:movement_speed modifier add bm:jackpot_speed 0.15 add_multiplied_base',
-                'effect give @s minecraft:strength infinite 1 true', 'effect give @s minecraft:glowing infinite 0 true',
+                'effect give @s minecraft:strength infinite 1 true',
                 'team join bm.jackpot @s']
         if t in ARMOUR_OK:
             for slot, piece in (('head', 'helmet'), ('chest', 'chestplate'), ('legs', 'leggings'), ('feet', 'boots')):

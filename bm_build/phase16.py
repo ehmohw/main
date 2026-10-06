@@ -21,7 +21,7 @@ def generate(G):
 
     # ================================================================ MONSTROSITY
     boss = {'Tags': ['bm.seen', 'bm.monstrosity', 'bm.tiered', 'bm.blood', 'bm.m_new'],
-            'CustomName': T('Blood Moon Monstrosity', 'dark_red', bold=True), 'Glowing': B(1), 'PersistenceRequired': B(1),
+            'CustomName': T('Blood Moon Monstrosity', 'dark_red', bold=True), 'PersistenceRequired': B(1),
             'DeathLootTable': 'bm:entities/monstrosity', 'Health': F(HP),
             'attributes': [{'id': 'minecraft:max_health', 'base': D(HP)}, {'id': 'minecraft:attack_damage', 'base': D(18)},
                            {'id': 'minecraft:armor', 'base': D(12)}, {'id': 'minecraft:armor_toughness', 'base': D(6)},
@@ -34,7 +34,7 @@ def generate(G):
                                        'components': {'minecraft:enchantments': {'bm:monstrous_maw': Int(1)}}}},
             'drop_chances': NO_DROP}
     herald = {'Tags': ['bm.seen', 'bm.herald', 'bm.tiered', 'bm.blood', 'bm.h_new'],
-              'CustomName': T('The Crimson Herald', 'dark_red', bold=True), 'Glowing': B(1), 'PersistenceRequired': B(1),
+              'CustomName': T('The Crimson Herald', 'dark_red', bold=True), 'PersistenceRequired': B(1),
               'DeathLootTable': 'bm:entities/herald', 'Health': F(60),
               'attributes': [{'id': 'minecraft:max_health', 'base': D(60)}, {'id': 'minecraft:follow_range', 'base': D(64)}],
               'active_effects': FIRE_RES,
@@ -166,8 +166,6 @@ def generate(G):
     def mount_fn(name, vehicle, pct, checks, nbt, blood=False):
         tags = ['bm.seen', 'bm.mount', 'bm.newmount'] + (['bm.blood'] if blood else [])
         body = {'Tags': tags, **nbt}
-        if blood:
-            body['Glowing'] = B(1)
         lines = ['execute if entity @s[tag=bm.m_minion] run return 0',
                  'execute store result score #r bm.rng run random value 1..100',
                  f'execute if score #r bm.rng matches {pct + 1}.. run return 0']
@@ -210,7 +208,7 @@ def generate(G):
     for t, m in [('skeleton', 'blood_skeleton_horse'), ('stray', 'blood_skeleton_horse'), ('zombie', 'blood_zombie_horse')]:
         G.FUNCS[f'mobs/blood/{t}'].append(f'function bm:mounts/{m}')
     # once a player has ridden a mount it's theirs: it stops glowing and is never cleaned up
-    fn('mounts/claim_blood', ['data merge entity @s {Glowing:0b}', 'tag @s remove bm.blood', 'team leave @s'])
+    fn('mounts/claim_blood', ['data merge entity @s {Glowing:0b}', 'tag @s remove bm.blood', 'tag @s remove bm.g30', 'effect clear @s minecraft:glowing', 'team leave @s'])
 
     # ================================================================ wiring
     G.FUNCS['load'][-1:-1] = [

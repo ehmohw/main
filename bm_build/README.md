@@ -1,4 +1,4 @@
-# Black Market — v2.22 (Java 26.3)
+# Black Market — v2.23 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,31 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.23: the Hollow King's tools wake up, and a round of fixes
+
+**The Hollow King's tools** each have their own power now. All of them, plus two new pieces, are in his victor's vault:
+- **Soulreaver** (sword). Right-click for **Soul Rend**: a sweep that hits everything within 5 blocks in front of you (12 damage and Wither II) and heals you a little for each one it hits. 8 s cooldown.
+- **Gravedigger's Maw** (pickaxe) and **Barrow Spade** (shovel). Right-click to **dig out the 3 × 3 face** you're looking at. Containers are left alone, and it doesn't work inside dungeons or the market. **Sneak + right-click** switches between **Fortune** and **Silk Touch**.
+- **Headsman's Grief** (axe). Now a proper weapon: Sharpness X, Smite VIII, **Looting V, Fire Aspect III**. Chop one log of a tree and **the whole tree falls**. This only works on natural trees (logs touching natural leaves), so log houses are safe. Sneak + right-click: Fortune / Silk Touch.
+- **NEW: Reaper's Sickle** (hoe). Right-click for **Harvest Moon**: every crop within 6 blocks ripens at once (30 s cooldown). Sneak + right-click: Fortune / Silk Touch. It hits like a sword.
+- **Witherstring** (bow). Its arrows leave a trail of souls and inflict Wither II.
+- **NEW: Wings of the Damned** (elytra). Unbreakable, +6 armour (as tough as a chestplate), and flying into a wall never hurts you. **Hold sneak while gliding** and the wings push you forward, so you don't need rockets. On the ground, **crouch and look straight up for a second** to launch into the air. Then jump to start gliding. You leave a trail of souls, wither smoke and flames.
+
+All of them show their evil names (☠ … ☠).
+
+**Fixes and changes**
+- **Mailboxes work.** When you placed a mailbox, its model ended up at your feet, away from the box you actually click. That's why it couldn't be opened, posted to or picked up. Mailboxes already in your world are repaired automatically.
+- **Vacuum Satchel:** **sneak + right-click** now unfolds it into a barrel in front of you, the same way the Ender Pouch works. Walk away and it folds back up, keeping what's inside. A plain right-click still turns the auto pick-up ON and OFF. Items already inside an old satchel move over the first time you open it.
+- **Soul Vials (new, very rare):** about 1 in 700 zombies, skeletons and spiders you kill leaves a Zombie, Skeleton or Spider Soul Vial. Use it on any monster spawner, including an empty Caged Spawner you've set down, and that spawner spawns that monster from then on.
+- **Glowing mobs** (Blood Moon horrors, bioengineered beasts, Jackpot monsters) now only glow when you're **within 30 blocks** of them.
+- **The Dimension Shifter** now comes only after the Ender Dragon: Zorp makes it from **4 Shulker Shells** + 6 Red Xenite. Where it takes you: in the Overworld or Nether, your **spawn point** there (your bed or respawn anchor), or a safe spot near 0, 0 if you don't have one. In the End, the obsidian platform.
+- **Zorp** only leaves crash sites. He stays aboard the motherships, and you can trade with him there again.
+- **UFO tractor beams** stop at the ground instead of going down to the bottom of the world.
+- **Horseman's Head:** its attacks now hit **every mob**, animals included. Animals killed by the fire attack drop cooked meat. The Hallowed Head heals every mob except undead ones, which it still burns.
+- **Golden Cheese Wheel:** feeds everyone within **25 blocks**. The Rat King now sells it for **10 Trophies + 64 Golden Carrots**.
+- **Kraken:** the rider now sits in the middle of the body, and the body keeps up with you instead of trailing behind.
+- **The Bounty Board** is now a real wooden notice board on the wall, with the current bounty pinned to it. **Where to find it:** in every Black Market, on the upper balcony, right beside the Newcomers' lectern (the one with the "Newcomers, Start Here" sign). Right-click the board on a Blood Moon, Lucky Night or Invasion Night to sign up for that night's bounty. On other nights it says there's no bounty.
 
 ## New in 2.22: fixes
 

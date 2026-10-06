@@ -246,7 +246,7 @@ for f in glob.glob(f'{DP}/data/bm/enchantment/*.json'):
                 if C.strip_ns(comp) == 'damage_protection' and C.strip_ns(e['effect'].get('type', '')) not in REG['enchantment_value_effect_type']: E(f'{f}: value effect')
                 if C.strip_ns(comp) == 'damage_immunity' and e['effect'] != {}: E(f'{f}: damage_immunity effect must be empty')
                 continue
-            if e['affected'] not in ('attacker', 'damaging_entity', 'victim') or e['enchanted'] not in ('attacker', 'damaging_entity', 'victim'): E(f'{f}: target')
+            if C.strip_ns(comp) in ('post_attack', 'post_piercing_attack') and e['affected'] not in ('attacker', 'damaging_entity', 'victim') or C.strip_ns(comp) in ('post_attack', 'post_piercing_attack') and e['enchanted'] not in ('attacker', 'damaging_entity', 'victim'): E(f'{f}: target')
             def ee(x):
                 if C.strip_ns(x['type']) not in REG['enchantment_entity_effect_type']: E(f'{f}: entity effect {x["type"]}')
                 for y in x.get('effects', []): ee(y)

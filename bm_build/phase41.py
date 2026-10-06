@@ -10,7 +10,7 @@ THE BLACK MARKET
 - Salty Sal the Dockmaster is a rat now, like every trader (at trader scale).
 - Rat Gang HQ: the wall to the docks reaches the ceiling (ender pearls no longer get in). The Captain sells two new prizes:
   THE HOARD SACK - a personal 27-slot stash: use it and a locked barrel only you can open appears in front of you; it
-  folds away (contents kept) when you walk off. THE GOLDEN CHEESE WHEEL - set it down: everyone within 50 blocks is kept
+  folds away (contents kept) when you walk off. THE GOLDEN CHEESE WHEEL - set it down: everyone within 25 blocks is kept
   fed (Saturation), like a full beacon. Sneak + punch to pick it up.
 - Armour lives with Sgt. Steelwhisker (the Smuggler/Kingpin/Hero line and the Dawnbringer set moved from Madame Velour);
   the mail kit (mailbox + courier whistle) is at the Fence. The Newcomers' book lists who sells what.
@@ -41,7 +41,7 @@ item('hoard_sack', TOTEM, 'Hoard Sack', '#c8a050',
 HOLD['hoard_sack'] = 'bm:p41/sack/use'
 DYNAMIC.add('hoard_sack')                # its owner stamp (custom_data bm_sack) survives re-syncs
 item('golden_cheese_wheel', TOTEM, 'Golden Cheese Wheel', GOLD,
-     ['The Rat King\'s prize. Nobody goes hungry near it.', ('Set it down: everyone within 50 blocks', 'blue'), ('stays fed (Saturation).', 'blue'),
+     ['The Rat King\'s prize. Nobody goes hungry near it.', ('Set it down: everyone within 25 blocks', 'blue'), ('stays fed (Saturation).', 'blue'),
       ('Sneak + punch to pick it up. Right-click to turn it.', 'gray')],
      model='bm:golden_cheese_wheel', stack=1, cat='relic', glint=True, bold=True,
      comps={'minecraft:consumable': consumable(0.4, 'none', 'minecraft:block.wood.place', False)})
@@ -92,7 +92,7 @@ def extend_offers(O, offer):
     mail = [o for o in O['pawn'] if _sell_id(o) == 'mailbox']
     O['pawn'] = [o for o in O['pawn'] if o not in mail]
     O['fence'] += mail
-    O['captain'] += [offer(('medallion', 16), ('hoard_sack', 1), ('lucky_token', 3)), offer(('trophy', 3), ('golden_cheese_wheel', 1), ('minecraft:gold_block', 9))]
+    O['captain'] += [offer(('medallion', 16), ('hoard_sack', 1), ('lucky_token', 3)), offer(('trophy', 10), ('golden_cheese_wheel', 1), ('minecraft:golden_carrot', 64))]
 
 
 def generate(G):
@@ -305,9 +305,9 @@ def generate(G):
     fn('p41/cheese/pick', ['loot spawn ~ ~0.3 ~ loot bm:items/golden_cheese_wheel', 'kill @e[type=minecraft:item_display,tag=bm.gcheese,distance=..0.3]',
                            'particle minecraft:poof ~ ~0.4 ~ 0.2 0.2 0.2 0.02 6', 'playsound minecraft:block.wood.break block @a[distance=..16] ~ ~ ~ 1 0.9', 'kill @s'])
     fn('p41/cheese/turn', ['data remove entity @s interaction', 'execute as @e[type=minecraft:item_display,tag=bm.gcheese,distance=..0.3] at @s run tp @s ~ ~ ~ ~45 0'])
-    # everyone within 50 blocks stays fed (a 1-second Saturation every 4 seconds), with a little sparkle
+    # everyone within 25 blocks stays fed (a 1-second Saturation every 4 seconds), with a little sparkle
     second += ['scoreboard players add #gct bm.rng 1', 'execute if score #gct bm.rng matches 4.. run scoreboard players set #gct bm.rng 0',
-               'execute if score #gct bm.rng matches 0 as @e[type=minecraft:item_display,tag=bm.gcheese] at @s run effect give @a[distance=..50] minecraft:saturation 1 0 true',
+               'execute if score #gct bm.rng matches 0 as @e[type=minecraft:item_display,tag=bm.gcheese] at @s run effect give @a[distance=..25] minecraft:saturation 1 0 true',
                'execute as @e[type=minecraft:item_display,tag=bm.gcheese] at @s if entity @a[distance=..24] run particle minecraft:wax_on ~ ~0.7 ~ 0.4 0.2 0.4 0 2']
 
     G.FUNCS['tick'] += tick

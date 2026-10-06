@@ -295,7 +295,7 @@ def generate(G):
           'active_effects': [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}],
           'CustomName': T('Kraken', '#2a8a8a', bold=True), 'CustomNameVisible': B(0)}
     body = {'Tags': ['bm.kbody', 'bm.knew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:kraken3d'}},
-            'item_display': 'fixed', 'teleport_duration': Int(2), 'brightness': {'block': Int(12), 'sky': Int(12)},
+            'item_display': 'fixed', 'teleport_duration': Int(1), 'brightness': {'block': Int(12), 'sky': Int(12)},
             'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(-0.6), F(0)], 'scale': [F(3.2)] * 3}}
     fn('p34/kraken/use', ['execute unless block ~ ~ ~ minecraft:water unless block ~ ~1 ~ minecraft:water run return run ' + title('@s', 'actionbar', T('Blow it in deep water.', 'gray')),
                           'execute if entity @s[predicate=bm:p29/has_vehicle] run return 0',
@@ -311,7 +311,11 @@ def generate(G):
     fn('p34/kraken/follow', ['scoreboard players operation #kp bm.pid = @s bm.pid',
                              'execute as @e[type=minecraft:nautilus,tag=bm.kraken] if score @s bm.pid = #kp bm.pid run tag @s add bm.kme',
                              'execute unless entity @e[type=minecraft:nautilus,tag=bm.kme] run kill @s',
-                             'execute at @e[type=minecraft:nautilus,tag=bm.kme,limit=1] run tp @s ~ ~ ~ ~ 0', 'tag @e[tag=bm.kme] remove bm.kme'])
+                             'execute store result storage bm:tmp kr.x double 0.001 run data get entity @e[type=minecraft:nautilus,tag=bm.kme,limit=1] Motion[0] 1000',
+                             'execute store result storage bm:tmp kr.z double 0.001 run data get entity @e[type=minecraft:nautilus,tag=bm.kme,limit=1] Motion[2] 1000',
+                             # 2.23: a tick ahead (the mount moves after this runs), so the body doesn't trail behind its rider
+                             'execute at @e[type=minecraft:nautilus,tag=bm.kme,limit=1] run function bm:p34/kraken/follow_m with storage bm:tmp kr', 'tag @e[tag=bm.kme] remove bm.kme'])
+    fn('p34/kraken/follow_m', ['$tp @s ~$(x) ~ ~$(z) ~ 0'])
     second += ['execute as @e[type=minecraft:nautilus,tag=bm.kraken] unless function bm:p34/kraken/ridden at @s run function bm:p34/kraken/sink',
                'execute as @e[type=minecraft:nautilus,tag=bm.kraken] on passengers if entity @s[type=minecraft:player] run effect give @s minecraft:water_breathing 3 0 true',
                'execute as @e[type=minecraft:nautilus,tag=bm.kraken] on passengers if entity @s[type=minecraft:player] run effect give @s minecraft:dolphins_grace 3 0 true',
@@ -507,8 +511,9 @@ def rp(R):
         c((11.5, 17.5, 4.5), (13, 18.3, 11.5), 'g'), c((7.4, 18.3, 3.2), (8.6, 19.5, 4.4), 'y')])
     # the kraken: a squid's head with thick tentacles trailing behind (scaled up on its display)
     kt = {'k': 'minecraft:block/dark_prismarine', 'p': 'minecraft:block/prismarine', 'e': 'minecraft:block/sea_lantern', 'm': 'minecraft:block/black_concrete'}
-    els = [c((4, 6, 3), (12, 13, 11), 'k'), c((4.5, 9, 2.8), (6.5, 11, 3.0), 'e'), c((9.5, 9, 2.8), (11.5, 11, 3.0), 'e'), c((5, 12.8, 4), (11, 14, 10), 'p')]
+    # 2.23: one pixel back, so the head (and the rider) sit dead centre on the mount
+    els = [c((4, 6, 4), (12, 13, 12), 'k'), c((4.5, 9, 3.8), (6.5, 11, 4.0), 'e'), c((9.5, 9, 3.8), (11.5, 11, 4.0), 'e'), c((5, 12.8, 5), (11, 14, 11), 'p')]
     for i, (x, y) in enumerate(((4.5, 6.5), (7, 6.5), (9.5, 6.5), (4.5, 8.8), (9.5, 8.8), (7, 9.8))):
-        els.append(c((x, y, 11), (x + 2, y + 2, 16), 'p', {'origin': [x + 1, y + 1, 11], 'axis': 'x', 'angle': 22.5 if i % 2 else -22.5}))
+        els.append(c((x, y, 12), (x + 2, y + 2, 16), 'p', {'origin': [x + 1, y + 1, 12], 'axis': 'x', 'angle': 22.5 if i % 2 else -22.5}))
     R.HATS['kraken3d'] = (kt, els)
     R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + ('kraken3d',)

@@ -115,7 +115,7 @@ def generate(G):
             'execute positioned ~-1.5 ~-232 ~-1.5 as @a[dx=2,dy=231,dz=2,gamemode=!spectator] at @s run function bm:p25/beam_ride',
             'execute as @a[distance=..2.2,tag=bm.bup] at @s run function bm:p25/beam_arrive']
     for k in range(1, 30):
-        beam.append(f'particle minecraft:dust{{color:[0.49,1.0,0.42],scale:2.0}} ~ ~-{k * 7} ~ 0.7 2 0.7 0 2 force @a[distance=..160]')
+        beam.append(f'execute if score @s bm.gy matches {k * 7}.. run particle minecraft:dust{{color:[0.49,1.0,0.42],scale:2.0}} ~ ~-{k * 7} ~ 0.7 2 0.7 0 2 force @a[distance=..160]')   # 2.23: only down to the ground
     beam.append('particle minecraft:end_rod ~ ~-3 ~ 0.5 1.5 0.5 0.02 3 force @a[distance=..96]')
     fn('p25/beam', beam)
     # going up is the default; one tap of sneak in the beam switches you to a gentle fall until you land

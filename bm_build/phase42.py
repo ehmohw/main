@@ -254,9 +254,9 @@ def generate(G):
                              'execute if score #k bm.rng >= #st bm.rng run return 0', f'execute positioned ^ ^ ^0.6 run function bm:p42/flame/ray_{v}']
         fn(f'p42/flame/ray_{v}', lines)
 
-    # ---------------- who the head's fire can hurt: monsters, the Hellsteed, other players (never its user)
+    # ---------------- who the head's fire can hurt: any mob (2.23: animals too - and they come out cooked), the Hellsteed, other players (never its user)
     for name, r in [('near_1', 1.6), ('near_4', 4), ('near_10', 10)]:
-        fn(f'p42/hit/{name}', [f'execute as @e[type=#bm:p42_foe,distance=..{r},tag=!bm.p42hit] run function bm:p42/hit/one',
+        fn(f'p42/hit/{name}', [f'execute as @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,distance=..{r},tag=!bm.p42hit] run function bm:p42/hit/one',
                                f'execute as @e[type=minecraft:skeleton_horse,tag=bm.hhs,distance=..{r + 0.6},tag=!bm.p42hit] run function bm:p42/hit/one',
                                f'execute as @a[distance=..{r},tag=!bm.p42hit,tag=!bm.p42me,{near}] run function bm:p42/hit/one'])
     fn('p42/hit/one', ['tag @s add bm.p42hit'] + [f'execute if score #hv bm.rng matches {v} run function bm:p42/hit/apply_{v} with storage bm:tmp p42' for v in (1, 2, 3)] + [
@@ -319,7 +319,7 @@ def generate(G):
     fn('p42/blast/step', ['scoreboard players add #k bm.rng 1'] +
        [f'execute if score #hv bm.rng matches {v} run particle {VARIANTS[v][4]} ~ ~ ~ 0.12 0.12 0.12 0.01 4' for v in (1, 2, 3)] +
        ['particle minecraft:smoke ~ ~ ~ 0.05 0.05 0.05 0.01 1',
-        'execute if entity @e[type=#bm:p42_foe,distance=..1.3] run return run function bm:p42/blast/boom',
+        'execute if entity @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,distance=..1.3] run return run function bm:p42/blast/boom',
         'execute if entity @e[type=minecraft:skeleton_horse,tag=bm.hhs,distance=..1.9] run return run function bm:p42/blast/boom',
         f'execute if entity @a[distance=..1.3,tag=!bm.p42me,{near}] run return run function bm:p42/blast/boom',
         'execute unless block ~ ~ ~ #bm:grap_pass run return run function bm:p42/blast/boom',
@@ -433,8 +433,8 @@ def generate(G):
                         'particle minecraft:dust{color:[1.0,0.55,0.8],scale:0.9} ~ ~ ~ 0.03 0.03 0.03 0 1',
                         'execute if score #k bm.rng matches 3.. run particle minecraft:end_rod ~ ~ ~ 0.05 0.05 0.05 0.005 0',
                         f'execute as @a[distance=..1.2,tag=!bm.p42me,gamemode=!spectator] at @s run return run function bm:p42/heal/ally',
-                        'execute as @e[type=#bm:p42_ally,distance=..1.2,limit=1,sort=nearest] at @s run return run function bm:p42/heal/ally',
-                        'execute as @e[type=#bm:p42_foe,distance=..1.3,limit=1,sort=nearest] if entity @s[type=#minecraft:undead] at @s run return run function bm:p42/heal/sear',
+                        'execute as @e[type=!#bm:p44_nonmob,type=!minecraft:player,type=!#minecraft:undead,tag=!bm.hhm,distance=..1.2,limit=1,sort=nearest] at @s run return run function bm:p42/heal/ally',
+                        'execute as @e[type=#minecraft:undead,distance=..1.3,limit=1,sort=nearest] at @s run return run function bm:p42/heal/sear',
                         'execute if score #k bm.rng matches 40.. run return 0', 'execute positioned ^ ^ ^0.6 run function bm:p42/heal/ray'])
     fn('p42/heal/ally', ['scoreboard players set #healed bm.rng 1', 'execute if score #hit bm.rng matches 0 run return 1',
                          'effect give @s minecraft:instant_health 1 0 true',
@@ -454,8 +454,8 @@ def generate(G):
                          'playsound minecraft:item.totem.use player @a[distance=..32] ~ ~ ~ 0.8 1.3',
                          'playsound minecraft:block.beacon.activate player @a[distance=..32] ~ ~ ~ 1.2 1.2',
                          'execute as @a[distance=..10,gamemode=!spectator] at @s run function bm:p42/heal/blessed',
-                         'execute as @e[type=#bm:p42_ally,distance=..10] at @s run function bm:p42/heal/blessed',
-                         'execute as @e[type=#bm:p42_foe,distance=..10] if entity @s[type=#minecraft:undead] run effect give @s minecraft:instant_health 1 1',
+                         'execute as @e[type=!#bm:p44_nonmob,type=!minecraft:player,type=!#minecraft:undead,tag=!bm.hhm,distance=..10] at @s run function bm:p42/heal/blessed',
+                         'execute as @e[type=#minecraft:undead,distance=..10] run effect give @s minecraft:instant_health 1 1',
                          title('@s', 'actionbar', T('Life floods out of the head!', '#ff8ac8', bold=True))])
     fn('p42/heal/blessed', ['effect give @s minecraft:instant_health 1 1 true', 'effect give @s minecraft:regeneration 6 1 true',
                             'effect give @s minecraft:absorption 30 1 true', 'execute at @s run particle minecraft:heart ~ ~2 ~ 0.4 0.3 0.4 0 3'])
@@ -479,9 +479,9 @@ def generate(G):
                          'scoreboard players operation #zt bm.rng = @s bm.hzt', 'scoreboard players operation #zt bm.rng %= #20 bm.rng',
                          'execute unless score #zt bm.rng matches 0 run return 0',
                          'execute if score @s bm.hpw matches ..2 as @a[distance=..5,gamemode=!spectator] run effect give @s minecraft:regeneration 3 1 true',
-                         'execute if score @s bm.hpw matches ..2 as @e[type=#bm:p42_ally,distance=..5] run effect give @s minecraft:regeneration 3 1 true',
+                         'execute if score @s bm.hpw matches ..2 as @e[type=!#bm:p44_nonmob,type=!minecraft:player,type=!#minecraft:undead,tag=!bm.hhm,distance=..5] run effect give @s minecraft:regeneration 3 1 true',
                          'execute if score @s bm.hpw matches 3 as @a[distance=..5,gamemode=!spectator] run effect give @s minecraft:regeneration 3 2 true',
-                         'execute if score @s bm.hpw matches 3 as @e[type=#bm:p42_ally,distance=..5] run effect give @s minecraft:regeneration 3 2 true',
+                         'execute if score @s bm.hpw matches 3 as @e[type=!#bm:p44_nonmob,type=!minecraft:player,type=!#minecraft:undead,tag=!bm.hhm,distance=..5] run effect give @s minecraft:regeneration 3 2 true',
                          'particle minecraft:heart ~ ~1 ~ 2 0.5 2 0 3'])
 
     # ---------------- holding it: the night's power (checked every second; dropped within 5 ticks of letting go)

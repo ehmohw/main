@@ -275,8 +275,7 @@ def generate(G):
                         'execute if entity @e[type=minecraft:interaction,tag=bm.mbox,distance=..0.8] run return 0',
                         'execute as @a[tag=bm.poster] unless score @s bm.pid matches 1.. run function bm:p21/pid',
                         'scoreboard players add #mbn bm.mail 1', f'summon minecraft:item_display ~ ~ ~ {snbt(mdisp)}', f'summon minecraft:interaction ~ ~ ~ {snbt(mbox)}',
-                        'execute as @a[tag=bm.poster,limit=1] at @s rotated ~ 0 run tp @e[type=minecraft:item_display,tag=bm.mbnew,distance=..6] ~ ~ ~ ~180 0',
-                        'execute as @e[tag=bm.mbnew,distance=..6] at @s run tp @s ~ ~ ~',
+                        'execute rotated as @a[tag=bm.poster,limit=1] rotated ~ 0 run tp @e[type=minecraft:item_display,tag=bm.mbnew,distance=..1] ~ ~ ~ ~180 0',     # 2.23: was `at` the player - the model landed at their feet
                         'scoreboard players operation @e[tag=bm.mbnew,distance=..1.5] bm.mbid = #mbn bm.mail',
                         'scoreboard players operation @e[tag=bm.mbnew,distance=..1.5] bm.mbo = @a[tag=bm.poster,limit=1] bm.pid',
                         'tag @e[tag=bm.mbnew,distance=..1.5] remove bm.mbnew',

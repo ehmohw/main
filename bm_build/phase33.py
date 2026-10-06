@@ -41,13 +41,14 @@ JUMP = {'triple': (0.62, 0.97), 'charge': (0.55, 0.69, 0.80, 0.91)}      # jump_
 item('vacuum_satchel', TOTEM, 'Vacuum Satchel', '#c8a050',
      ['A smuggler\'s bag with a hungry little engine.', ('Right-click: switch it ON or OFF.', 'blue'),
       ('ON: pulls dropped items within 6 blocks', 'blue'), ('straight into itself (27 slots).', 'blue'),
-      ('Sneak + right-click: open it.', 'blue'), ('(Sneak again to close.)', 'gray')],
+      ('Sneak + right-click: it unfolds into a barrel', 'blue'), ('in front of you. Walk away and it folds back up.', 'gray')],
      model='bm:vacuum_satchel', stack=1, cat='builder', comps=dict(hold('bundle'), **{'minecraft:container': []}), price=('medallion', 4))
 DYNAMIC.add('vacuum_satchel')
 HOLD['vacuum_satchel'] = 'bm:p33/vac/use'
 item('dimension_shifter', TOTEM, 'Dimension Shifter', '#b48cff',
-     ['Donadian travel tech. Fragile. Loud.', ('Right-click: choose a dimension -', 'blue'), ('Overworld, Nether or End -', 'blue'),
-      ('and arrive somewhere safe.', 'blue'), ('Never the Hollow Throne; never from a dungeon.', 'gray'), ('30 second recharge.', 'gray')],
+     ['Donadian travel tech. Fragile. Loud.', ('Right-click: choose a dimension.', 'blue'), ('Overworld / Nether: your spawn point there', 'blue'),
+      ('(or somewhere safe near 0, 0). End: the', 'blue'), ('obsidian platform.', 'blue'), ('Never the Hollow Throne; never from a dungeon.', 'gray'),
+      ('30 second recharge.', 'gray'), ('Zorp builds them from Shulker Shells -', 'dark_purple'), ('so first, the Ender Dragon must fall.', 'dark_purple')],
      model='bm:dimension_shifter', stack=1, cat='alien', glint=True, comps=hold('spyglass'))
 HOLD['dimension_shifter'] = 'bm:p33/shift/use'
 item('triple_boots', 'minecraft:iron_boots', 'Triple Jump Boots', '#ff5555',
@@ -81,7 +82,7 @@ item('sanguine_fang', TOTEM, 'Sanguine Fang', '#b0002a',
 # Zorp sells the new boots and the shifter (their offers join his list at import, before phase24 builds his checksum)
 _k = next(i for i, o in enumerate(R24.OFFERS) if o[2][0] == 'xenite_violet')
 R24.OFFERS[_k:_k] = [(('xenite_violet', 14), ('xenite_green', 6), ('triple_boots', 1)), (('xenite_cyan', 14), ('xenite_green', 6), ('spring_boots', 1)),
-                     (('xenite_cyan', 24), ('xenite_red', 6), ('dimension_shifter', 1)), (('xenite_green', 12), ('xenite_violet', 12), ('vacuum_satchel', 1))]
+                     (('minecraft:shulker_shell', 4), ('xenite_red', 6), ('dimension_shifter', 1)), (('xenite_green', 12), ('xenite_violet', 12), ('vacuum_satchel', 1))]
 R22.VOID_OFFERS[-1:-1] = [(('void_shard', 14), ('void_totem', 1)), (('void_shard', 24), ('ender_pouch', 1))]
 
 
@@ -363,22 +364,15 @@ def generate(G):
                          'effect give @s minecraft:darkness 2 0 true', 'effect give @s minecraft:resistance 5 4 true', 'effect give @s minecraft:slow_falling 5 0 true',
                          'scoreboard players set @s bm.menu 0'])
     load += ['scoreboard players set #8 bm.rng 8']
-    fn('p33/shift/to_ow', ['execute if dimension minecraft:the_nether run scoreboard players operation #sx bm.rng *= #8 bm.rng',
-                           'execute if dimension minecraft:the_nether run scoreboard players operation #sz bm.rng *= #8 bm.rng',
-                           'execute unless dimension minecraft:the_nether run scoreboard players set #sx bm.rng 0',
-                           'execute unless dimension minecraft:the_nether run scoreboard players set #sz bm.rng 0',
-                           'execute store result storage bm:tmp sh.x int 1 run scoreboard players get #sx bm.rng',
-                           'execute store result storage bm:tmp sh.z int 1 run scoreboard players get #sz bm.rng',
-                           'function bm:p33/shift/ow with storage bm:tmp sh'])
-    fn('p33/shift/ow', ['$execute in minecraft:overworld run spreadplayers $(x) $(z) 0 12 false @s'])
-    fn('p33/shift/to_nether', ['execute if dimension minecraft:overworld run scoreboard players operation #sx bm.rng /= #8 bm.rng',
-                               'execute if dimension minecraft:overworld run scoreboard players operation #sz bm.rng /= #8 bm.rng',
-                               'execute unless dimension minecraft:overworld run scoreboard players set #sx bm.rng 0',
-                               'execute unless dimension minecraft:overworld run scoreboard players set #sz bm.rng 0',
-                               'execute store result storage bm:tmp sh.x int 1 run scoreboard players get #sx bm.rng',
-                               'execute store result storage bm:tmp sh.z int 1 run scoreboard players get #sz bm.rng',
-                               'function bm:p33/shift/nether with storage bm:tmp sh'])
-    fn('p33/shift/nether', ['$execute in minecraft:the_nether run spreadplayers $(x) $(z) 0 24 under 118 false @s'])
+    # 2.23: home first - your own spawn point in that dimension (bed / anchor / /spawnpoint); otherwise somewhere safe near 0, 0
+    fn('p33/shift/home', ['data modify storage bm:tmp sh.x set from entity @s respawn.pos[0]', 'data modify storage bm:tmp sh.y set from entity @s respawn.pos[1]',
+                          'data modify storage bm:tmp sh.z set from entity @s respawn.pos[2]', 'data modify storage bm:tmp sh.d set from entity @s respawn.dimension',
+                          'function bm:p33/shift/home_m with storage bm:tmp sh'])
+    fn('p33/shift/home_m', ['$execute in $(d) positioned $(x) $(y) $(z) align xyz run tp @s ~0.5 ~0.6 ~0.5'])
+    fn('p33/shift/to_ow', ['execute if data entity @s {respawn:{dimension:"minecraft:overworld"}} run return run function bm:p33/shift/home',
+                           'execute in minecraft:overworld run spreadplayers 0 0 0 12 false @s'])
+    fn('p33/shift/to_nether', ['execute if data entity @s {respawn:{dimension:"minecraft:the_nether"}} run return run function bm:p33/shift/home',
+                               'execute in minecraft:the_nether run spreadplayers 0 0 0 24 under 118 false @s'])
     # the End: the obsidian platform at (100, 48, 0) is built (or rebuilt) under you the tick you arrive
     fn('p33/shift/to_end', ['execute in minecraft:the_end run tp @s 100.5 49 0.5 -90 0', 'tag @s add bm.endplat'])
     tick.append('execute as @a[tag=bm.endplat] at @s if dimension minecraft:the_end run function bm:p33/shift/platform')
