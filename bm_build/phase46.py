@@ -5,7 +5,7 @@
   (every 5 seconds below 7 hearts). 60 health, 20 armour. Use the gem again to call him back to you; sneak + use to
   send him home. If he falls, he fades away and the gem needs 10 minutes to call him again.
 - CHEF FROMAGE'S PORTRAIT (the chef): a 2x2 painting of the man himself.
-- THE EMMA DOLL (Cecil, 3 Trophies; rare in village chests): a chibi doll you can set down; right-click to make her twirl. While she
+- THE EMMA DOLL (Cecil, 3 Trophies - Black Market only): a chibi doll you can set down; right-click to make her twirl. While she
   stands, players within 10 blocks are cured of harmful effects.
 - Every bow in the market is Cecil's now (the Fairy Bow moves over from Vinny)."""
 from items import item, T, TOTEM, PRICES
@@ -172,11 +172,7 @@ def generate(G):
        sum(([f'execute store success score #c bm.rng run effect clear @s minecraft:{e}', 'execute if score #c bm.rng matches 1 run scoreboard players set #had bm.rng 1'] for e in BAD), []) +
        ['execute if score #had bm.rng matches 1 run particle minecraft:cherry_leaves ~ ~1.2 ~ 0.4 0.5 0.4 0 8',
         'execute if score #had bm.rng matches 1 run playsound minecraft:block.amethyst_block.chime player @s ~ ~ ~ 0.6 1.6'])
-    hooks = G.FUNCS
-    for t, pct in (('village/village_plains_house', 2), ('village/village_taiga_house', 2), ('village/village_desert_house', 2), ('woodland_mansion', 6)):
-        if f'loot/{t}' in hooks:
-            hooks[f'loot/{t}'] += ['execute store result score @s bm.rng run random value 1..100', f'execute if score @s bm.rng matches 1..{pct} run function bm:p46/found_emma']
-    fn('p46/found_emma', [give('emma_doll'), tellraw('@s', PREFIX + [T('Odd find! ', '#ff7ac8', bold=True), T('You found an ', 'gray'), T('Emma Doll', 'yellow'), T(' in the chest.', 'gray')])])
+    # (2.24: Black Market exclusive - Cecil sells her; no chest finds)
 
     G.FUNCS['tick'] += tick
     f = G.FUNCS['loop/fast']

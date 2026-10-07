@@ -73,7 +73,7 @@ Sneak + punch picks up a lamp, cushion, boombox or display skiff.
 
 **Chef Fromage's Portrait** is a 2x2 painting of the man himself, sold by the chef (6 Tokens).
 
-**The Emma Doll** (Cecil, 3 Trophies; rarely found in village and mansion chests) is a chibi Emma, mid-wave. Set her on a block and right-click her to make her twirl. While she stands, anyone within 10 blocks of her is cured of harmful effects: poison, wither, slowness, weakness, mining fatigue, nausea, blindness, hunger, darkness, bad luck, and the infested, oozing, weaving and wind-charged effects. Good effects are left alone. Sneak + punch picks her up.
+**The Emma Doll** (Cecil, 3 Trophies; only sold in the Black Market, never found in chests) is a chibi Emma, mid-wave. Set her on a block and right-click her to make her twirl. While she stands, anyone within 10 blocks of her is cured of harmful effects: poison, wither, slowness, weakness, mining fatigue, nausea, blindness, hunger, darkness, bad luck, and the infested, oozing, weaving and wind-charged effects. Good effects are left alone. Sneak + punch picks her up.
 
 **Also in 2.24 (fixes and moves)**
 - **The Bounty Board** is now the wooden notice board on the plaza, in front of the fountain. Tonight's bounty is pinned flat across its 3 x 2 plank face; right-click it to sign up. Its old joke signs are gone, and so is the balcony board from 2.23.
