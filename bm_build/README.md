@@ -1,4 +1,4 @@
-# Black Market — v2.24 (Java 26.3)
+# Black Market — v2.26 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,23 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.26: Blood Moon goods
+
+Four new wares at the Blood Moon stall, paid in Blood Crystals, and a record to hunt for:
+
+| Item | Price | What it does |
+|---|---|---|
+| Moon Pact | 6 Crystals | Sign it under a Blood Moon. Until dawn, every horror you slay pays 1-2 extra Crystals straight into your pack, but you take 50% more damage from everything. One pact a night, and it can't be torn up. |
+| Thirsting Blade | 24 Crystals | A diamond-grade sword. Under a Blood Moon, every monster you kill with it adds +1 attack damage, up to +6. The bonus only applies while the blade is in your hand, and fades at dawn. |
+| Vampire's Mirror | 12 Crystals | Use it to mark where you stand; use it again within 60 seconds to step back to that spot, even from another dimension. 30-second cooldown. It won't work in dungeons or the Market. |
+| Crimson Hourglass | 10 Crystals | Turn it under a Blood Moon and the moon stands still for 2 minutes (the night is that much longer). Once per Blood Moon, announced to everyone. |
+
+**Music Disc - Blood Moon** is an original track (about 1.5 minutes). Riders of Blood Moon steeds drop it 1 time in 4. It plays in any jukebox.
+
+The disc's song is a new registry entry, so **restart the server** (not just `/reload`) after updating. The resource pack carries the track.
+
+The Blood Moon item icons were also redrawn on vanilla bases in 2.25.
 
 ## New in 2.24: Cecil the Wizard, the chef's new menu, goofy goods and music
 
