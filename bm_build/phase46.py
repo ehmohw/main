@@ -5,7 +5,8 @@
   (every 5 seconds below 7 hearts). 60 health, 20 armour. Use the gem again to call him back to you; sneak + use to
   send him home. If he falls, he fades away and the gem needs 10 minutes to call him again.
 - CHEF FROMAGE'S PORTRAIT (the chef): a 2x2 painting of the man himself.
-- THE EMMA DOLL (Old Barnaby, rare in village chests): a chibi doll you can set down; right-click to make her twirl.
+- THE EMMA DOLL (Cecil, 3 Trophies; rare in village chests): a chibi doll you can set down; right-click to make her twirl. While she
+  stands, players within 10 blocks are cured of harmful effects.
 - Every bow in the market is Cecil's now (the Fairy Bow moves over from Vinny)."""
 from items import item, T, TOTEM, PRICES
 from useitem import hold, HOLD
@@ -23,6 +24,7 @@ HOLD['cecil_gem'] = 'bm:p46/pet/use'
 item('chef_painting', 'minecraft:painting', "Chef Fromage's Portrait", '#c8a050', ['A 2x2 painting, in a gilt frame.', ('He insists it does not flatter him.', 'gray')],
      stack=16, cat='relic', comps={'minecraft:painting/variant': 'bm:chef_fromage'})
 item('emma_doll', TOTEM, 'Emma Doll', '#3d8fd0', ['A chibi doll of Emma, mid-twirl.', ('Right-click a block: set her down.', 'blue'),
+                                                  ('While she stands, anyone within 10 blocks', 'blue'), ('is cured of harmful effects.', 'blue'),
                                                   ('Right-click her: she twirls.', 'blue'), ('Sneak + punch: pick her up.', 'gray')],
      model='bm:emma3d', stack=16, cat='fun', comps=hold('none'))
 HOLD['emma_doll'] = 'bm:p46/emma/use'
@@ -32,7 +34,7 @@ def extend_offers(O, offer):
     O['wizard'].insert(0, offer(PRICES['fairy_bow'], ('fairy_bow', 1)))
     O['wizard'].append(offer(('trophy', 4), ('cecil_gem', 1)))
     O['chef'].append(offer(('token', 6), ('chef_painting', 1)))
-    O['pawn'].append(offer(('token', 5), ('emma_doll', 1)))
+    O['wizard'].append(offer(('trophy', 3), ('emma_doll', 1)))
 
 
 def generate(G):
@@ -163,6 +165,13 @@ def generate(G):
     fn('p46/emma/punch', ['tag @s add bm.p45me', 'execute on attacker if predicate bm:p20/sneaking run function bm:p46/emma/pick', 'tag @s remove bm.p45me', 'data remove entity @s attack'])
     fn('p46/emma/pick', [give('emma_doll'), 'execute as @e[type=minecraft:interaction,tag=bm.p45me] at @s run function bm:p46/emma/gone', 'playsound minecraft:entity.item.pickup player @s ~ ~ ~ 1 1'])
     fn('p46/emma/gone', ['kill @e[type=minecraft:item_display,tag=bm.emmad,distance=..0.6]', 'particle minecraft:poof ~ ~0.3 ~ 0.2 0.2 0.2 0.02 6', 'kill @s'])
+    # her charm: every second, players within 10 blocks of a placed doll shake off harmful effects
+    BAD = ['poison', 'wither', 'slowness', 'weakness', 'mining_fatigue', 'nausea', 'blindness', 'hunger', 'darkness', 'unluck', 'infested', 'oozing', 'weaving', 'wind_charged']
+    second.append('execute as @e[type=minecraft:item_display,tag=bm.emmad] at @s as @a[distance=..10,gamemode=!spectator] at @s run function bm:p46/emma/cure')
+    fn('p46/emma/cure', ['scoreboard players set #had bm.rng 0'] +
+       sum(([f'execute store success score #c bm.rng run effect clear @s minecraft:{e}', 'execute if score #c bm.rng matches 1 run scoreboard players set #had bm.rng 1'] for e in BAD), []) +
+       ['execute if score #had bm.rng matches 1 run particle minecraft:cherry_leaves ~ ~1.2 ~ 0.4 0.5 0.4 0 8',
+        'execute if score #had bm.rng matches 1 run playsound minecraft:block.amethyst_block.chime player @s ~ ~ ~ 0.6 1.6'])
     hooks = G.FUNCS
     for t, pct in (('village/village_plains_house', 2), ('village/village_taiga_house', 2), ('village/village_desert_house', 2), ('woodland_mansion', 6)):
         if f'loot/{t}' in hooks:
