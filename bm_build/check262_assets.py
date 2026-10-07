@@ -228,7 +228,13 @@ for f in glob.glob(f'{DP}/data/bm/enchantment/*.json'):
     if set(d) - VAN_ENCH_KEYS: E(f'{f}: unknown keys {set(d) - VAN_ENCH_KEYS}')
     for k in ('anvil_cost', 'description', 'max_cost', 'max_level', 'min_cost', 'slots', 'supported_items', 'weight'):
         if k not in d: E(f'{f}: missing required {k}')
-    if d['supported_items'].lstrip('#').split(':')[1] not in REG['tag/item']: E(f'{f}: supported_items tag')
+    si = d['supported_items']
+    if isinstance(si, list) or not si.startswith('#'):       # (2.35: an item or a list of items)
+        for i in (si if isinstance(si, list) else [si]):
+            if C.strip_ns(i) not in REG['item']: E(f'{f}: supported item {i}')
+    elif si.startswith('#bm:'):
+        if not os.path.exists(f'{DP}/data/bm/tags/item/{si[4:]}.json'): E(f'{f}: supported_items tag')
+    elif si.lstrip('#').split(':')[1] not in REG['tag/item']: E(f'{f}: supported_items tag')
     for comp, effs in d['effects'].items():
         if C.strip_ns(comp) not in REG['enchantment_effect_component_type']: E(f'{f}: effect component {comp}')
         for e in effs:
@@ -240,6 +246,11 @@ for f in glob.glob(f'{DP}/data/bm/enchantment/*.json'):
                 if C.strip_ns(rq.get('type', rq.get('condition', ''))) not in REG['loot_condition_type']: E(f'{f}: requirement condition')
                 for ob in rq.get('scores', {}):
                     if not any(ln.startswith(f'scoreboard objectives add {ob} ') for ln in ALL_LINES): E(f'{f}: objective {ob} never created')
+                continue
+            if C.strip_ns(comp) == 'damage':                                     # 2.35: a value effect (the Pharaoh's daylight bonus)
+                if set(e) - {'effect', 'requirements'} or C.strip_ns(e['effect'].get('type', '')) not in REG['enchantment_value_effect_type']: E(f'{f}: damage value effect')
+                rq = e.get('requirements', {})
+                if rq and C.strip_ns(rq.get('condition', rq.get('type', ''))) not in REG['loot_condition_type']: E(f'{f}: damage requirement')
                 continue
             if C.strip_ns(comp) in ('damage_immunity', 'damage_protection'):     # 2.20: conditional (damage context) effects
                 if set(e) - {'effect', 'requirements'}: E(f'{f}: {comp} keys')

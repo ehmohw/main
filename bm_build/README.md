@@ -1,4 +1,4 @@
-# Black Market — v2.34 (Java 26.3)
+# Black Market — v2.35 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,80 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.35: honest gear — the Xenite Altar rewards vanilla gear
+
+**Only vanilla gear takes sockets and infusions now.** The altar refuses Black Market goods, and it also refuses vanilla gear bought from a trader: you have to earn it. Anything you socketed before keeps its socket.
+
+**How many sockets an item has depends on what it's made of:**
+
+| Material | Sockets |
+|---|---|
+| Leather, wood, stone, chainmail | none |
+| Copper, iron | 1 |
+| Gold | 1, and its shard counts **double** |
+| Diamond, trident, mace | 2 |
+| Netherite | 2, plus a **Masterwork** socket |
+| Bow, crossbow, shield, elytra, fishing rod, shears, turtle shell, flint and steel, brush | 1 |
+
+To socket, hold the item, put a shard in your off hand and right-click the altar. Each click fills the next socket.
+
+**What each shard gives:**
+
+| Shard | Bonus |
+|---|---|
+| Green | +1.5 Attack Damage |
+| Violet | +3 Safe Fall, +10% Knockback Resistance |
+| Cyan | +1.5 Luck, +0.5 Reach |
+| **Red (new)** | **Vitality: +2 Max Health** |
+
+A red socket doesn't change your size any more. To turn size back on, sneak + right-click the altar with a red shard: each click cycles the item between growth, shrink and off.
+
+**Combos.** Two shards in the same item combine:
+
+| Pair | Combo | Bonus |
+|---|---|---|
+| Green + green | Ferocity | +15% attack speed |
+| Violet + violet | Featherweight | −20% gravity, +3 safe fall |
+| Cyan + cyan | Farsight | +1 reach |
+| Red + red | Lifeblood | +4 max health |
+| Green + violet | Juggernaut | +2 armor toughness, +10% knockback resistance |
+| Green + cyan | Precision | +1 attack damage, +0.5 reach |
+| Green + red | **Bloodlust** | every kill heals you 2 hearts |
+| Violet + cyan | Wayfarer | +10% speed |
+| Violet + red | **Second Wind** | below 3 hearts: Regeneration II and Speed (1-minute recharge) |
+| Cyan + red | Fortune's Favour | +2 luck, +2 mining efficiency |
+
+**Masterworks (netherite only).** Once both shard sockets are full, the third socket takes a Masterwork. It costs **4 shards in your off hand and a Medallion** in your pack. The shard colour picks the Masterwork:
+
+| Item | Green | Violet | Cyan | Red |
+|---|---|---|---|---|
+| Sword, axe, spear | Cleave (sweeping hits +50%) | Relentless (+0.4 attack speed) | Reaver (+1 reach) | Vampiric (1 hit in 4 heals you) |
+| Pickaxe, shovel, hoe | Haste (+30% mining speed) | Aqua Miner (full speed underwater) | Deep Reach (+1.5 block reach) | Prospector (+3 luck) |
+| Armor | Bulwark (+2 toughness) | Fleet (+5% speed) | Ember-proof (fire barely takes hold; blasts barely push you) | Stalwart (+4 max health) |
+
+**Relic Essences.** Put a spare relic in the Scrap Bin and you get **10 Tokens, 2 Medallions and that boss's Essence**. To infuse an Essence, sneak + right-click the altar with the Essence in your off hand. It only goes into **netherite** gear, one per item:
+- **On a sword, axe or spear:**
+  - *Horseman:* hits set the target alight.
+  - *Pharaoh:* +3 damage in daylight.
+  - *Roc:* 1 hit in 10 calls down a thunderbolt.
+- **On a chestplate:**
+  - *Treant:* slow, steady regeneration.
+  - *Colossus:* whoever hits you burns.
+  - *Voidwalker:* 1 hit in 10 blinks you away.
+
+**Resonance.** Put an Essence and a socket of its colour on the same item and it awakens an AoE power, plus a particle aura while you hold or wear it:
+
+| Essence | Socket colour | Resonance | Effect |
+|---|---|---|---|
+| Horseman | green | Hellfire | hits may burst into flame around the target |
+| Pharaoh | cyan | Sunburst | hits may blaze with sunlight around the target |
+| Roc | violet | Stormcall | hits may send bolts to two more foes |
+| Treant | green | Thornmail | whoever hits you is torn and rooted |
+| Colossus | red | Magma Aura | everything close to you burns |
+| Voidwalker | cyan | Void Shroud | when hit you blink away and nearby foes float |
+
+**Admin command:** `/function bm:admin/essences` gives every Essence, plus shards and Medallions.
 
 ## New in 2.34: relics are guaranteed
 
