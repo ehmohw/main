@@ -3,14 +3,14 @@
 THE SAND PHARAOH - a roaming boss of the desert day
 - After the first 10 days, rarely, when someone stands under open sky in a desert by day, a sandstorm rises and the
   Pharaoh walks out of it (about 20 blocks off). Everyone within 30 blocks feels it: "The wind turns to sand..."
-- A towering mummy king in gold and lapis (320 health). He pours out scarab swarms, throws sand in your eyes, raises
+- A towering husk king, three times a man's height, in a golden crown (320 health). He pours out scarab swarms, throws sand in your eyes, raises
   Tomb Guards (husks in gold) and burns you with a beam of the sun. At half health the storm thickens: Strength, speed,
   and the sand bursts up beneath you. The storm follows him: blowing sand, the wind, the hiss of the dunes - and his song.
 - He sinks back into the dunes at dusk (or when nobody is near). Slay him for Tokens, Medallions, a Trophy and gold -
   and, 1 time in 10, THE PHARAOH'S CROOK.
 
 THE STORM ROC - a roaming boss of the thunderstorm
-- In any thunderstorm (after day 10), now and then, a vast bird of storm-blue feathers comes down out of the clouds
+- In any thunderstorm (after day 10), now and then, a colossal phantom comes down out of the clouds
   near someone under open sky. "Thunder rolls... something vast circles above."
 - 260 health. It circles and dives, calls lightning down on you (watch for the sparks), and beats gusts of wind that throw
   you off your feet. At half health it shrieks and Stormlings join the hunt. It leaves when the storm does.
@@ -34,7 +34,6 @@ THE RELICS - like the Horseman's Head, each takes four forms. Off hand + look st
 WANTED - the Bounty Board now lists the three roaming bosses as standing bounties: whoever slays one collects
 8 Tokens + 2 Medallions on top of its loot. Slaying all three: the Monster Slayer achievement; holding a relic of each:
 Relic Hunter."""
-import math
 from items import item, attr, T, TOTEM
 from useitem import hold, HOLD
 from nbt import snbt, B, F, D, Int, IntArray
@@ -76,23 +75,57 @@ FAMILIES = {
 FLAVOUR = {'crook': ("The Sand Pharaoh's crook of gold and lapis.", ('Stronger by day, under the sun.', 'gold')),
            'talon': ("A talon of the Storm Roc, crackling still.", ('Stronger in a thunderstorm.', 'gold'))}
 EDGE = {('crook', 2): 'sands_edge', ('talon', 1): 'thunder_edge', ('talon', 2): 'static_edge'}
-for _fam, _forms in FAMILIES.items():
-    for _v, (_iid, _name, _col, _dmg, _lore, _cd) in _forms.items():
-        _ench = {f'bm:{EDGE[(_fam, _v)]}': Int(1)} if (_fam, _v) in EDGE else {}
-        _c = {'minecraft:attribute_modifiers': _melee(_dmg)}
-        if _ench: _c['minecraft:enchantments'] = _ench
-        item(_iid, TOTEM, _name, _col, [FLAVOUR[_fam][0], CLASS[_v]] + _lore + [FLAVOUR[_fam][1]] + _cat,
-             model=f'bm:{_iid}', stack=1, cat='relic', glint=False, bold=True, custom_extra={'bm_relic': B(1), 'rf': _fam},
-             comps=dict(hold('none'), **_c))
-        HOLD[_iid] = f'bm:p53/{_fam}/use'
+def define_relics(families, flavour, edge, extra_attrs=None):
+    """The relic items (2.33: shared with phase54): four forms a family, right-click runs bm:p53/<family>/use."""
+    for fam, forms in families.items():
+        for v, (iid, name, col, dmg, lore, cd) in forms.items():
+            c = {'minecraft:attribute_modifiers': _melee(dmg) + list((extra_attrs or {}).get((fam, v), []))}
+            if (fam, v) in edge: c['minecraft:enchantments'] = {f'bm:{edge[(fam, v)]}': Int(1)}
+            item(iid, TOTEM, name, col, [flavour[fam][0], CLASS[v]] + lore + [flavour[fam][1]] + _cat,
+                 model=f'bm:{iid}', stack=1, cat='relic', glint=False, bold=True, custom_extra={'bm_relic': B(1), 'rf': fam},
+                 comps=dict(hold('none'), **c))
+            HOLD[iid] = f'bm:p53/{fam}/use'
+
+
+define_relics(FAMILIES, FLAVOUR, EDGE)
+CAT_FX = {1: ['particle minecraft:flame ~ ~1.2 ~ 0.4 0.6 0.4 0.05 30', 'playsound minecraft:item.firecharge.use player @a[distance=..16] ~ ~ ~ 1 0.8'],
+          2: ['particle minecraft:block{block_state:"minecraft:sandstone"} ~ ~1.2 ~ 0.4 0.6 0.4 0 30', 'playsound minecraft:entity.armadillo.scute_drop player @a[distance=..16] ~ ~ ~ 1 0.8'],
+          3: ['particle minecraft:small_gust ~ ~1.2 ~ 0.4 0.6 0.4 0 12', 'playsound minecraft:entity.breeze.shoot player @a[distance=..16] ~ ~ ~ 1 1'],
+          4: ['particle minecraft:heart ~ ~1.4 ~ 0.5 0.5 0.5 0 10', 'playsound minecraft:entity.warden.heartbeat player @a[distance=..16] ~ ~ ~ 1.5 1']}
+
+
+def relic_funcs(G, families):
+    """Each family's form check, right-click dispatch (catalyst turn / cooldown / mood / act_N) and turns.
+    The family's bm:p53/mood_<family> and bm:p53/<family>/act_<form> functions are written by its phase."""
+    fn, title = G.fn, G.title
+    holds = '*[minecraft:custom_data~{bm:"%s"}]'
+    for fam, forms in families.items():
+        fn(f'p53/{fam}/form', ['scoreboard players set #rv bm.rng 0'] +
+           [f'execute if items entity @s weapon.mainhand {holds % iid} run return run scoreboard players set #rv bm.rng {v}' for v, (iid, *_r) in forms.items()])
+        fn(f'p53/{fam}/use', [f'execute unless items entity @s weapon.mainhand {RELIC} run return 0',
+                              f'function bm:p53/{fam}/form',
+                              f'execute if entity @s[x_rotation=-90..-55] if function bm:p53/cat/has run return run function bm:p53/{fam}/turn',
+                              'execute if score @s bm.rcd matches 1.. run return run function bm:p53/wait',
+                              f'function bm:p53/mood_{fam}', 'tag @s add bm.r53me'] +
+           [f'execute if score #rv bm.rng matches {v} run function bm:p53/{fam}/act_{v}' for v in forms] +
+           ['tag @s remove bm.r53me', 'tag @e[tag=bm.r53hit] remove bm.r53hit'] +
+           [f'execute if score #rv bm.rng matches {v} run scoreboard players set @s bm.rcd {cd}' for v, (*_r, cd) in forms.items()])
+        fn(f'p53/{fam}/turn', [f'execute if items entity @s weapon.offhand {c} run return run function bm:p53/{fam}/to_{v}' for v, c in CATALYSTS])
+        for v, (iid, name, col, *_r) in forms.items():
+            fn(f'p53/{fam}/to_{v}', [f'execute if score #rv bm.rng matches {v} run return run ' + title('@s', 'actionbar', T('It is already in that form.', 'gray')),
+                                     f'item replace entity @s weapon.mainhand with {G.item_arg(iid)}',
+                                     'item modify entity @s weapon.offhand {function:"minecraft:set_count",count:-1,add:true}', 'scoreboard players set @s bm.rcd 0'] +
+               CAT_FX[v] + [title('@s', 'actionbar', [T(name, col, bold=True), T(' - ' + CLASS[v][0], CLASS[v][1])])])
 
 # ---------------------------------------------------------------------- the bosses' bodies
-INVIS = {'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}
 PHARAOH = {'Tags': ['bm.seen', 'bm.tiered', 'bm.sph', 'bm.sph_new'], 'PersistenceRequired': B(1), 'Silent': B(1),
+           'equipment': {'head': {'id': 'minecraft:golden_helmet', 'count': Int(1), 'components': {
+                             'minecraft:trim': {'material': 'minecraft:lapis', 'pattern': 'minecraft:dune'}}},
+                         'mainhand': {'id': 'minecraft:golden_hoe', 'count': Int(1)}},
            'CustomName': T('The Sand Pharaoh', GOLD, bold=True), 'Health': F(PH_HP), 'DeathLootTable': 'bm:p53/pharaoh',
            'attributes': [at('max_health', PH_HP), at('attack_damage', 7), at('armor', 6), at('follow_range', 64), at('movement_speed', 0.26),
-                          at('scale', 1.5), at('knockback_resistance', 0.9), at('step_height', 1.5), at('safe_fall_distance', 40)],
-           'active_effects': [FIRE_RES, INVIS], 'drop_chances': NO_DROP}
+                          at('scale', 2.6), at('knockback_resistance', 1.0), at('step_height', 2.0), at('safe_fall_distance', 40)],
+           'active_effects': [FIRE_RES], 'drop_chances': NO_DROP}
 GUARD = {'Tags': ['bm.seen', 'bm.tiered', 'bm.sphmin'], 'CustomName': T('Tomb Guard', SAND), 'Health': F(30), 'PersistenceRequired': B(1),
          'attributes': [at('max_health', 30), at('follow_range', 48)], 'drop_chances': NO_DROP,
          'equipment': {'head': {'id': 'minecraft:golden_helmet', 'count': Int(1)}, 'chest': {'id': 'minecraft:golden_chestplate', 'count': Int(1)},
@@ -101,23 +134,11 @@ SCARAB = {'Tags': ['bm.seen', 'bm.tiered', 'bm.sphmin', 'bm.scarab'], 'CustomNam
           'Health': F(6), 'attributes': [at('max_health', 6), at('movement_speed', 0.32), at('scale', 0.8)]}
 ROC = {'Tags': ['bm.seen', 'bm.tiered', 'bm.roc', 'bm.roc_new'], 'PersistenceRequired': B(1), 'Silent': B(1), 'size': Int(0), 'anchor_pos': IntArray([0, 0, 0]),
        'CustomName': T('The Storm Roc', STORM, bold=True), 'Health': F(ROC_HP), 'DeathLootTable': 'bm:p53/roc',
-       'attributes': [at('max_health', ROC_HP), at('attack_damage', 9), at('armor', 6), at('follow_range', 64), at('scale', 2.5),
+       'attributes': [at('max_health', ROC_HP), at('attack_damage', 9), at('armor', 6), at('follow_range', 64), at('scale', 4.5),
                       at('knockback_resistance', 0.8)],
-       'active_effects': [FIRE_RES, INVIS], 'drop_chances': NO_DROP}
+       'active_effects': [FIRE_RES], 'drop_chances': NO_DROP}
 STORMLING = {'Tags': ['bm.seen', 'bm.tiered', 'bm.rocmin'], 'CustomName': T('Stormling', STORM), 'size': Int(1), 'Health': F(20),
              'PersistenceRequired': B(1), 'attributes': [at('max_health', 20)], 'active_effects': [FIRE_RES]}
-ident = [F(0), F(0), F(0), F(1)]
-
-
-def _disp(tag, model, scale, ty, extra_tags=()):
-    return {'Tags': ['bm.rig53', tag] + list(extra_tags) + ['bm.rignew'], 'item_display': 'fixed', 'teleport_duration': Int(2),
-            'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': model}},
-            'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(ty), F(0)], 'scale': [F(scale)] * 3}}
-
-
-def _qz(deg):
-    a = math.radians(deg) / 2
-    return f'[0f,0f,{math.sin(a):.4f}f,{math.cos(a):.4f}f]'
 
 
 def generate(G):
@@ -167,27 +188,7 @@ def generate(G):
                           'execute if dimension minecraft:overworld if score #tod bm.bm matches 0..12000 positioned ~ ~1.6 ~ if predicate bm:sees_sky run scoreboard players set #rmul bm.rng 15'])
     fn('p53/mood_talon', ['scoreboard players set #rmul bm.rng 10',
                           'execute if dimension minecraft:overworld if predicate bm:p53/thunder run scoreboard players set #rmul bm.rng 15'])
-    cat_fx = {1: ['particle minecraft:flame ~ ~1.2 ~ 0.4 0.6 0.4 0.05 30', 'playsound minecraft:item.firecharge.use player @a[distance=..16] ~ ~ ~ 1 0.8'],
-              2: ['particle minecraft:block{block_state:"minecraft:sandstone"} ~ ~1.2 ~ 0.4 0.6 0.4 0 30', 'playsound minecraft:entity.armadillo.scute_drop player @a[distance=..16] ~ ~ ~ 1 0.8'],
-              3: ['particle minecraft:small_gust ~ ~1.2 ~ 0.4 0.6 0.4 0 12', 'playsound minecraft:entity.breeze.shoot player @a[distance=..16] ~ ~ ~ 1 1'],
-              4: ['particle minecraft:heart ~ ~1.4 ~ 0.5 0.5 0.5 0 10', 'playsound minecraft:entity.warden.heartbeat player @a[distance=..16] ~ ~ ~ 1.5 1']}
-    for fam, forms in FAMILIES.items():
-        fn(f'p53/{fam}/form', ['scoreboard players set #rv bm.rng 0'] +
-           [f'execute if items entity @s weapon.mainhand {holds % iid} run return run scoreboard players set #rv bm.rng {v}' for v, (iid, *_r) in forms.items()])
-        fn(f'p53/{fam}/use', [f'execute unless items entity @s weapon.mainhand {RELIC} run return 0',
-                              f'function bm:p53/{fam}/form',
-                              f'execute if entity @s[x_rotation=-90..-55] if function bm:p53/cat/has run return run function bm:p53/{fam}/turn',
-                              'execute if score @s bm.rcd matches 1.. run return run function bm:p53/wait',
-                              f'function bm:p53/mood_{fam}', 'tag @s add bm.r53me'] +
-           [f'execute if score #rv bm.rng matches {v} run function bm:p53/{fam}/act_{v}' for v in forms] +
-           ['tag @s remove bm.r53me', 'tag @e[tag=bm.r53hit] remove bm.r53hit'] +
-           [f'execute if score #rv bm.rng matches {v} run scoreboard players set @s bm.rcd {cd}' for v, (*_r, cd) in forms.items()])
-        fn(f'p53/{fam}/turn', [f'execute if items entity @s weapon.offhand {c} run return run function bm:p53/{fam}/to_{v}' for v, c in CATALYSTS])
-        for v, (iid, name, col, *_r) in forms.items():
-            fn(f'p53/{fam}/to_{v}', [f'execute if score #rv bm.rng matches {v} run return run ' + say('It is already in that form.'),
-                                     f'item replace entity @s weapon.mainhand with {G.item_arg(iid)}',
-                                     'item modify entity @s weapon.offhand {function:"minecraft:set_count",count:-1,add:true}', 'scoreboard players set @s bm.rcd 0'] +
-               cat_fx[v] + [title('@s', 'actionbar', [T(name, col, bold=True), T(' - ' + CLASS[v][0], CLASS[v][1])])])
+    relic_funcs(G, FAMILIES)
     fast.append('scoreboard players remove @a[scores={bm.rcd=1..}] bm.rcd 5')
     # (hits from a relic: as the target; bm.r53me = the wielder)
     hit = lambda dtype, extra=(): [f'tag @s add bm.r53hit', f'$damage @s $(d) {dtype} by @a[tag=bm.r53me,limit=1]'] + list(extra)
@@ -309,16 +310,8 @@ def generate(G):
     fn('admin/relics', [give(forms[v][0]) for forms in FAMILIES.values() for v in forms] +
        ['give @s minecraft:blaze_rod 4', 'give @s minecraft:armadillo_scute 4', 'give @s minecraft:breeze_rod 4', give('heartstone', 4)])
 
-    # ================================================================== the rigs: follow their host; fade away when it's gone
-    fn('p53/rig/fade', ['tag @s add bm.rfade', 'scoreboard players set @s bm.rfx 30',
-                        'data merge entity @s {start_interpolation:0,interpolation_duration:30,transformation:{scale:[0f,0f,0f]}}'])
-    tick += ['scoreboard players remove @e[type=minecraft:item_display,tag=bm.rfade] bm.rfx 1',
-             'kill @e[type=minecraft:item_display,tag=bm.rfade,scores={bm.rfx=..0}]',
-             'tag @e[type=minecraft:item_display,tag=bm.rignew] remove bm.rignew']
-
     # ================================================================== THE SAND PHARAOH
-    ph_rig = _disp('bm.sphrig', 'bm:pharaoh3d', 1.45, 0.725)
-    fn('p53/sph/summon', [f'summon minecraft:husk ~ ~ ~ {snbt(PHARAOH)}', f'summon minecraft:item_display ~ ~ ~ {snbt(ph_rig)}',
+    fn('p53/sph/summon', [f'summon minecraft:husk ~ ~ ~ {snbt(PHARAOH)}',
                           'execute as @e[type=minecraft:husk,tag=bm.sph_new] run function bm:p53/sph/init', 'tag @e[tag=bm.sph_new] remove bm.sph_new',
                           'execute store result score #sphseen bm.bm run time query gametime',
                           'particle minecraft:falling_dust{block_state:"minecraft:sand"} ~ ~2 ~ 1.5 2 1.5 0 120',
@@ -331,12 +324,6 @@ def generate(G):
                          'playsound minecraft:entity.husk.converted_to_zombie hostile @s ~ ~ ~ 0.6 0.5',
                          # his song: "Relic", over any other music
                          'stopsound @s music', 'stopsound @s record', 'playsound minecraft:music_disc.relic record @s ~ ~ ~ 1 1 1'])
-    tick.append('execute as @e[type=minecraft:husk,tag=bm.sph] at @s rotated ~ 0 run tp @e[type=minecraft:item_display,tag=bm.sphrig,tag=!bm.rfade,distance=..8] ~ ~ ~ ~ 0')
-    tick.append('execute as @e[type=minecraft:item_display,tag=bm.sphrig,tag=!bm.rfade] at @s unless entity @e[type=minecraft:husk,tag=bm.sph,distance=..8] run function bm:p53/sph/fade')
-    fn('p53/sph/fade', ['function bm:p53/rig/fade', 'data merge entity @s {transformation:{translation:[0f,-0.6f,0f]}}',
-                        'particle minecraft:falling_dust{block_state:"minecraft:sand"} ~ ~1.5 ~ 0.8 1.4 0.8 0 80', 'particle minecraft:dust_plume ~ ~1 ~ 0.8 1 0.8 0.03 40',
-                        'particle minecraft:soul ~ ~1.5 ~ 0.5 1 0.5 0.02 12', 'playsound minecraft:block.sand.break hostile @a[distance=..32] ~ ~ ~ 1.5 0.5',
-                        'playsound minecraft:entity.husk.death hostile @a[distance=..32] ~ ~ ~ 1.2 0.5'])
     fn('p53/sph/second', ['execute store result score #sphseen bm.bm run time query gametime',
                           'execute unless score #tod bm.bm matches 0..12499 run return run function bm:p53/sph/retreat',
                           f'execute if entity @a[distance=..128,{NEAR}] run scoreboard players set @s bm.r53x 0',
@@ -435,9 +422,7 @@ def generate(G):
          'conditions': [G.KILLED]}]})
 
     # ================================================================== THE STORM ROC
-    roc_rig = [_disp('bm.roc_body', 'bm:roc_body', 1.3, 0.6, ['bm.rocrig']), _disp('bm.roc_wl', 'bm:roc_wing_l', 1.3, 0.6, ['bm.rocrig', 'bm.rocwing']),
-               _disp('bm.roc_wr', 'bm:roc_wing_r', 1.3, 0.6, ['bm.rocrig', 'bm.rocwing'])]
-    fn('p53/roc/summon', [f'summon minecraft:phantom ~ ~ ~ {snbt(ROC)}'] + [f'summon minecraft:item_display ~ ~ ~ {snbt(r)}' for r in roc_rig] +
+    fn('p53/roc/summon', [f'summon minecraft:phantom ~ ~ ~ {snbt(ROC)}'] +
        ['execute as @e[type=minecraft:phantom,tag=bm.roc_new] run function bm:p53/roc/init', 'tag @e[tag=bm.roc_new] remove bm.roc_new',
         'execute store result score #rocseen bm.bm run time query gametime',
         'function bm:p53/bolt', 'particle minecraft:cloud ~ ~1 ~ 2 1 2 0.05 60', 'particle minecraft:electric_spark ~ ~1 ~ 2 1 2 0.3 60',
@@ -452,22 +437,8 @@ def generate(G):
                          'playsound minecraft:entity.phantom.ambient hostile @s ~ ~ ~ 1 0.4',
                          # its song: "Precipice", over any other music
                          'stopsound @s music', 'stopsound @s record', 'playsound minecraft:music_disc.precipice record @s ~ ~ ~ 1 1 1'])
-    tick.append('execute as @e[type=minecraft:phantom,tag=bm.roc] at @s rotated ~ 0 run tp @e[type=minecraft:item_display,tag=bm.rocrig,tag=!bm.rfade,distance=..12] ~ ~ ~ ~ 0')
-    tick.append('execute as @e[type=minecraft:item_display,tag=bm.rocrig,tag=!bm.rfade] at @s unless entity @e[type=minecraft:phantom,tag=bm.roc,distance=..12] run function bm:p53/roc/fade')
-    fn('p53/roc/fade', ['function bm:p53/rig/fade', 'particle minecraft:cloud ~ ~0.6 ~ 1 0.5 1 0.05 30', 'particle minecraft:electric_spark ~ ~0.6 ~ 1.5 0.6 1.5 0.3 40',
-                        'particle minecraft:white_ash ~ ~1 ~ 2 1 2 0 40', 'playsound minecraft:entity.phantom.death hostile @a[distance=..48] ~ ~ ~ 1.5 0.4'])
-    # the wings beat (every 5 ticks, up and down)
-    fn('p53/roc/flap', ['scoreboard players add #rflap bm.rng 1', 'execute if score #rflap bm.rng matches 2.. run scoreboard players set #rflap bm.rng 0',
-                        'execute if score #rflap bm.rng matches 0 run data merge entity @e[type=minecraft:item_display,tag=bm.roc_wr,tag=!bm.rfade,distance=..12,limit=1] '
-                        f'{{start_interpolation:0,interpolation_duration:5,transformation:{{left_rotation:{_qz(-35)}}}}}',
-                        'execute if score #rflap bm.rng matches 0 run data merge entity @e[type=minecraft:item_display,tag=bm.roc_wl,tag=!bm.rfade,distance=..12,limit=1] '
-                        f'{{start_interpolation:0,interpolation_duration:5,transformation:{{left_rotation:{_qz(35)}}}}}',
-                        'execute if score #rflap bm.rng matches 1 run data merge entity @e[type=minecraft:item_display,tag=bm.roc_wr,tag=!bm.rfade,distance=..12,limit=1] '
-                        f'{{start_interpolation:0,interpolation_duration:5,transformation:{{left_rotation:{_qz(20)}}}}}',
-                        'execute if score #rflap bm.rng matches 1 run data merge entity @e[type=minecraft:item_display,tag=bm.roc_wl,tag=!bm.rfade,distance=..12,limit=1] '
-                        f'{{start_interpolation:0,interpolation_duration:5,transformation:{{left_rotation:{_qz(-20)}}}}}',
-                        'execute if score #rflap bm.rng matches 0 run playsound minecraft:entity.ender_dragon.flap hostile @a[distance=..40] ~ ~ ~ 0.8 1.3',
-                        'particle minecraft:electric_spark ~ ~0.6 ~ 1.5 0.3 1.5 0.1 3', 'particle minecraft:cloud ~ ~0.4 ~ 1.2 0.2 1.2 0.01 1'])
+    fn('p53/roc/fast', ['particle minecraft:electric_spark ~ ~1 ~ 2.5 0.6 2.5 0.1 4', 'particle minecraft:cloud ~ ~0.8 ~ 2 0.3 2 0.01 2',
+                        'execute if entity @s[tag=bm.roc_rage] run particle minecraft:electric_spark ~ ~1 ~ 3 1 3 0.3 6'])
     fn('p53/roc/second', ['execute store result score #rocseen bm.bm run time query gametime',
                           # (the storm has to be over for 10 s: a thunderstorm takes a moment to build and to clear)
                           'execute if predicate bm:p53/thunder run scoreboard players set @s bm.rfx 0',
@@ -613,10 +584,11 @@ def generate(G):
                'execute unless entity @e[type=minecraft:husk,tag=bm.sph] as @e[type=minecraft:husk,tag=bm.sphmin] at @s run function bm:p42/boss/crumble',
                'execute unless entity @e[type=minecraft:phantom,tag=bm.roc] as @e[type=minecraft:phantom,tag=bm.rocmin] at @s run function bm:p42/boss/crumble',
                # the Bounty Board picks up its WANTED posters once
-               'execute as @e[type=minecraft:text_display,tag=bm.bboard,tag=!bm.b53] run function bm:p53/board']
+               'execute as @e[type=minecraft:text_display,tag=bm.bboard,tag=!bm.b53] run function bm:p53/board',
+               'kill @e[type=minecraft:item_display,tag=bm.rig53]']
     fn('p53/board', ['tag @s add bm.b53', 'scoreboard players set @s bm.bst -1'])
     fast += ['execute as @e[type=minecraft:husk,tag=bm.sph] at @s run function bm:p53/sph/fast',
-             'execute as @e[type=minecraft:phantom,tag=bm.roc] at @s run function bm:p53/roc/flap']
+             'execute as @e[type=minecraft:phantom,tag=bm.roc] at @s run function bm:p53/roc/fast']
 
     # ---------------- admin
     fn('admin/pharaoh', ['execute rotated ~ 0 positioned ^ ^ ^10 positioned over motion_blocking_no_leaves run function bm:p53/sph/summon',
@@ -638,93 +610,9 @@ def _hex(c):
     return tuple(int(c[i:i + 2], 16) for i in (1, 3, 5))
 
 
-def textures():
-    import random
-    from PIL import Image
-    rnd = random.Random(53)
-    out = {}
-    def tex(base, var=10):
-        im = Image.new('RGBA', (16, 16))
-        b = _hex(base)
-        for y in range(16):
-            for x in range(16):
-                d = rnd.randint(-var, var)
-                im.putpixel((x, y), tuple(max(0, min(255, c + d)) for c in b) + (255,))
-        return im
-    # linen wraps: pale with darker diagonal bands
-    w = tex('#d9cba3', 8)
-    for y in range(16):
-        for x in range(16):
-            if (x + 2 * y) % 7 in (0, 1): w.putpixel((x, y), _hex('#a8996e') + (255,))
-    out['ph_wrap'] = w
-    # the nemes: stripes of gold and lapis
-    n = Image.new('RGBA', (16, 16))
-    for y in range(16):
-        for x in range(16):
-            n.putpixel((x, y), _hex('#e8b923' if (y // 2) % 2 == 0 else '#1f3fa8') + (255,))
-    out['ph_nemes'] = n
-    # his face: dark, with burning blue eyes
-    f = tex('#3a2a1a', 6)
-    for x, y in [(3, 6), (4, 6), (5, 6), (10, 6), (11, 6), (12, 6), (4, 7), (11, 7)]:
-        f.putpixel((x, y), _hex('#50e8ff') + (255,))
-    for x in range(5, 11): f.putpixel((x, 11), _hex('#1a120a') + (255,))
-    out['ph_face'] = f
-    out['ph_skin'] = tex('#4a3424', 6)
-    # storm-blue feathers in rows of chevrons
-    r = tex('#3d4a63', 6)
-    for y in range(16):
-        for x in range(16):
-            if (y + abs(x - 8) // 2) % 4 == 0: r.putpixel((x, y), _hex('#56688a') + (255,))
-            elif (y + abs(x - 8) // 2) % 4 == 1: r.putpixel((x, y), _hex('#2a3346') + (255,))
-    out['roc_feather'] = r
-    out['roc_belly'] = tex('#9fb0c8', 12)
-    v = tex('#f8d838', 10)
-    for x in range(16):
-        v.putpixel((x, (x * 3 // 2) % 16 if x % 4 < 2 else (15 - x) % 16), (255, 255, 240, 255))
-    out['roc_volt'] = v
-    out['roc_beak'] = tex('#b8862a', 10)
-    out['roc_eye'] = tex('#d8f4ff', 4)
-    return out
-
-
 def rp(R):
     import sys
     from PIL import Image, ImageDraw
-    R.TEXTURE_MODS.append(sys.modules[__name__])
-    c = R.cube
-    def glow(e):
-        e['light_emission'] = 15
-        return e
-    pt = {'w': 'bm:block/ph_wrap', 'n': 'bm:block/ph_nemes', 'f': 'bm:block/ph_face', 'k': 'bm:block/ph_skin', 'g': 'minecraft:block/gold_block',
-          'b': 'minecraft:block/lapis_block'}
-    face = glow(c((5.2, 22.6, 5.4), (10.8, 28.8, 5.5), 'f', faces=('north',)))
-    face['faces']['north']['uv'] = [0, 2, 16, 14]
-    # THE SAND PHARAOH (faces -z; his right is +x): wrapped legs, a striped kilt, a broad collar, the nemes, the crook in his right hand
-    R.HATS['pharaoh3d'] = (pt, [
-        c((5, 0, 6), (7.5, 2, 10), 'w'), c((8.5, 0, 6), (11, 2, 10), 'w'),
-        c((5.2, 2, 6.5), (7.3, 12, 9.5), 'w'), c((8.7, 2, 6.5), (10.8, 12, 9.5), 'w'),
-        c((4.5, 9, 5.5), (11.5, 14, 10.5), 'n'), c((4.4, 13, 5.4), (11.6, 14.2, 10.6), 'g'), c((7.2, 9, 5.3), (8.8, 13, 5.5), 'g'),
-        c((4.8, 14, 6), (11.2, 22, 10), 'w'), c((4.2, 20, 5.4), (11.8, 22.5, 10.6), 'n'),
-        c((2.8, 13, 6.8), (4.8, 21.5, 9.2), 'w'), c((11.2, 13, 6.8), (13.2, 21.5, 9.2), 'w'),
-        c((2.9, 12, 6.9), (4.7, 13, 9.1), 'k'), c((11.3, 12, 6.9), (13.1, 13, 9.1), 'k'),
-        c((5, 22.5, 5.5), (11, 29, 10.5), 'k'), face,
-        c((4.6, 27, 5.2), (11.4, 31, 11), 'n'), c((3.6, 20, 5.6), (5, 29, 8.5), 'n'), c((11, 20, 5.6), (12.4, 29, 8.5), 'n'),
-        c((4.6, 21, 10), (11.4, 30, 11.2), 'n'), c((7.5, 29, 4.7), (8.5, 31.5, 5.3), 'g'), c((7.2, 19.5, 5.1), (8.8, 22.6, 5.9), 'g'),
-        c((13.4, 4, 6.4), (14.6, 28, 7.6), 'b'), c((13.3, 10, 6.3), (14.7, 11, 7.7), 'g'), c((13.3, 16, 6.3), (14.7, 17, 7.7), 'g'),
-        c((13.3, 22, 6.3), (14.7, 23, 7.7), 'g'), c((14.6, 26.8, 6.4), (16.8, 28.2, 7.6), 'g'), c((16.8, 24, 6.4), (18, 28.2, 7.6), 'g')])
-    rt = {'f': 'bm:block/roc_feather', 'b': 'bm:block/roc_belly', 'v': 'bm:block/roc_volt', 'k': 'bm:block/roc_beak', 'e': 'bm:block/roc_eye'}
-    # THE STORM ROC (faces -z): body, head and beak, a lightning crest, a fanned tail; the wings hinge on the body's centre line
-    R.HATS['roc_body'] = (rt, [
-        c((3, 4, -2), (13, 13, 20), 'f'), c((3.5, 3.5, 0), (12.5, 5, 18), 'b'),
-        c((4.5, 9, -9), (11.5, 16, -1), 'f'), c((6.5, 16, -8), (9.5, 19, -2), 'v'), c((7, 19, -6), (9, 20.5, -3), 'v'),
-        c((6, 10, -14), (10, 13, -9), 'k'), c((6.5, 8.5, -14.5), (9.5, 10.2, -12), 'k'),
-        glow(c((4.4, 13, -7.5), (4.5, 14.5, -6), 'e')), glow(c((11.5, 13, -7.5), (11.6, 14.5, -6), 'e')),
-        c((2, 6, 20), (14, 9, 28), 'f'), c((2, 6.5, 28), (14, 8.5, 31), 'v'),
-        c((5, 0, 8), (7, 4, 11), 'k'), c((9, 0, 8), (11, 4, 11), 'k')])
-    R.HATS['roc_wing_r'] = (rt, [c((8, 8, 0), (30, 10, 14), 'f'), c((30, 8.5, 2), (32, 9.5, 12), 'v'), c((10, 8.4, 14), (28, 9.6, 18), 'b')])
-    R.HATS['roc_wing_l'] = (rt, [c((-14, 8, 0), (8, 10, 14), 'f'), c((-16, 8.5, 2), (-14, 9.5, 12), 'v'), c((-12, 8.4, 14), (6, 9.6, 18), 'b')])
-    R.DISPLAY_3D_EXTRA = R.DISPLAY_3D_EXTRA + ('pharaoh3d', 'roc_')
-
     # the relics' icons, drawn like tools (handle bottom-left)
     def crook(gem):
         im = Image.new('RGBA', (16, 16), (0, 0, 0, 0))

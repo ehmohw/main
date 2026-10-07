@@ -33,7 +33,8 @@ ALLOWED.update({'chicken': ENTITY | LIVING | MOB | BREEDABLE | {'IsChickenJockey
                 'wither': ENTITY | LIVING | MOB | {'Invul'},
                 'rabbit': ENTITY | LIVING | MOB | BREEDABLE | {'RabbitType', 'MoreCarrotTicks'},     # mob/rabbit.mcdoc (2.18: the Mimic)
                 'phantom': ENTITY | LIVING | MOB | {'size', 'anchor_pos'},
-                'endermite': ENTITY | LIVING | MOB | {'Lifetime'},                                          # (2.32: verified on 26.3)                                   # mob/phantom.mcdoc (1.21.5+)
+                'endermite': ENTITY | LIVING | MOB | {'Lifetime'},                                          # (2.32: verified on 26.3)
+                'shulker_bullet': ENTITY | PROJ | {'Steps', 'Target', 'Dir', 'TXD', 'TYD', 'TZD'},             # (2.33: read from the 26.3 ShulkerBullet class)                                   # mob/phantom.mcdoc (1.21.5+)
                 'piglin': ENTITY | LIVING | MOB | {'IsImmuneToZombification', 'TimeInOverworld', 'IsBaby', 'CannotHunt', 'Inventory'},
                 'item': ENTITY | {'Age', 'Health', 'PickupDelay', 'Owner', 'Thrower', 'Item'},                 # entity/item.mcdoc
                 'text_display': ENTITY | DISPLAY | {'text', 'line_width', 'text_opacity', 'background', 'default_background', 'shadow',
@@ -102,7 +103,7 @@ def main():
     for f in glob.glob(C.ROOT_DP + '/bm/function/**/*.mcfunction', recursive=True):
         rel = f[len(C.ROOT_DP) + 13:]
         for ln, line in enumerate(open(f), 1):
-            if line.startswith('$'): line = re.sub(r'\$\((\w+)\)', '0', line[1:])      # macro line: placeholders -> a number
+            if line.startswith('$'): line = re.sub(r'\$\((\w+)\)', '0', line[1:].replace('$(blk)', 'minecraft:stone'))      # macro line: placeholders -> a number (block ids -> stone)
             m = re.search(r'summon minecraft:(\w+) [~^\d.\- ]+? (\{.*)$', line)
             if m:
                 _, nbt = C.parse_snbt(m.group(2), 0); entity(m.group(1), nbt, f'{rel}:{ln}'); n += 1

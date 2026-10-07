@@ -1,4 +1,4 @@
-# Black Market — v2.32 (Java 26.3)
+# Black Market — v2.33 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,79 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.33: three more roaming bosses
+
+Every roaming boss is now a vanilla mob, scaled up:
+
+| Boss | Body | Health |
+|---|---|---|
+| Sand Pharaoh | a husk 2.6× normal size, in a golden crown | 320 |
+| Storm Roc | a phantom 4.5× normal size | 260 |
+| Elder Treant | a creaking 2.6× normal size (about 7 blocks tall) | 340 |
+| Magma Colossus | a Size 7 magma cube (over 4 blocks wide) | 420 |
+| Voidwalker | an enderman 2.5× normal size (about 7 blocks tall) | 450 |
+
+The Sand Pharaoh's and Storm Roc's custom models are gone; any left in a 2.32 world are cleaned up automatically. The Headless Horseman is unchanged.
+
+**The Elder Treant** roams the forest at night:
+- **When it appears:** after day 10, rarely, at night in a forest, about 20 blocks from someone under the open sky. Everyone nearby sees "The trees lean closer... something old is walking." Its song is "Mellohi", and spores and leaves drift around it.
+- **The fight:** like every creaking, it freezes while you look at it, but its magic doesn't stop:
+  - roots that pin you in place;
+  - logs it throws at you;
+  - Twigs (little creakings) that join the fight.
+- **At half health** it draws life back from the forest (Regeneration) and bursts brambles around itself.
+- **When it leaves:** at dawn.
+- **Loot:** Tokens, Medallions, a chance of a Trophy, logs, saplings, apples and moss. One time in 10 it drops **the Heartwood Branch**.
+
+**The Magma Colossus** roams the Nether:
+- **When it appears:** after day 10, now and then in the Nether Wastes or Basalt Deltas. Everyone nearby sees "The ground shakes... something molten rises." Its song is "Pigstep", and ash and lava pop around it.
+- **The fight:**
+  - ground slams that throw you and set you alight;
+  - magma boulders it throws;
+  - lava geysers under your feet (watch for the dripping lava first).
+- **As it's hurt:** it sheds Magma Spawn at two-thirds and one-third health. When it dies it bursts apart into smaller cubes.
+- **Loot:** Tokens, Medallions, a chance of a Trophy, magma cream, Blaze Rods and netherite scrap. One time in 10 it drops **the Molten Gauntlet**.
+
+**The Voidwalker** is the End boss:
+- **When it appears:** out on the outer islands (700+ blocks from the centre), now and then. Everyone nearby sees "The stars go out... something is watching you." Its song is "5".
+- **The fight:** it is always angry at the nearest player and never carries blocks off. It:
+  - blinks behind you and strikes;
+  - fires homing shulker bullets;
+  - smothers you in darkness;
+  - calls Voidlings (endermites).
+- **Loot:** extra Tokens and Medallions, shulker shells, ender pearls and dragon's breath. One time in 6 it drops **the Void Scepter**.
+
+The new relics use the same catalysts as the others (off hand, look straight up, right-click): Blaze Rod for Offense, Armadillo Scute for Defense, Breeze Rod for Ranged, Heartstone for Support.
+
+**The Heartwood Branch** is stronger in a forest. Each form's right-click:
+- **Thornlash — Offense:** a thorn whip (8 blocks) that slows its victim and heals you.
+- **Barkskin — Defense:** Resistance II and Regeneration for 8 seconds. Anything that hits you is pricked and rooted.
+- **Seedcaster — Ranged:** three seeds fan out (24 blocks), hurting and rooting what they hit.
+- **Bloomheart — Support:** Regeneration II for you and every ally within 8 blocks, and the crops around you ripen.
+
+**The Molten Gauntlet** is stronger in the Nether. Each form's right-click:
+- **Volcanic — Offense:** its punches knock foes flying. An Eruption Punch blasts everything in front of you up into the air and sets it alight.
+- **Obsidian — Defense:** Fire Resistance and Resistance II. Anything that hits you burns.
+- **Magmashot — Ranged:** a magma shot (30 blocks) that sets its target alight but never the ground.
+- **Hearthfire — Support:** Fire Resistance, Regeneration and Absorption for you and every ally within 8 blocks.
+
+**The Void Scepter** is stronger in the End. Each form's right-click:
+- **Voidrend — Offense:** blink to the monster you're looking at (16 blocks) and strike it.
+- **Phaseguard — Defense:** Resistance II. Anything that hits you floats away.
+- **Starseeker — Ranged:** three homing shulker bullets at the nearest monsters.
+- **Riftcall — Support:** every player within 32 blocks blinks to your side, and all of you get Resistance, Regeneration and Slow Falling.
+
+**The Bounty Board** now lists all six roaming bosses as WANTED. Each pays 8 Tokens + 2 Medallions to whoever slays it.
+
+**New achievements:**
+- *Heart of the Forest:* slay the Elder Treant.
+- *Cooled Off:* slay the Magma Colossus.
+- *Stare Down:* slay the Voidwalker.
+- *Legendary Hunter:* slay all six roaming bosses.
+- *Grand Relic Hunter:* hold a relic from every roaming boss.
+
+**Admin commands:** `/function bm:admin/treant`, `/function bm:admin/colossus` and `/function bm:admin/voidwalker`. `/function bm:admin/relics` now gives all six relics.
 
 ## New in 2.32: weapon classes, and two new roaming bosses
 

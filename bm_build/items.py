@@ -66,7 +66,7 @@ TIER_TAG = {1: ('✦ Tier I — Token goods', 'gold'), 2: ('✦✦ Tier II — M
             3: ('✦✦✦ Tier III — Trophy goods', '#ffb300')}
 
 
-ITEM_VERSION = 27      # stamped into every item's custom_data (bmv); older copies are re-synced to the current definition
+ITEM_VERSION = 28      # stamped into every item's custom_data (bmv); older copies are re-synced to the current definition
 CAT_SYMBOL = {'currency': '❖', 'lucky': '☘', 'key': '⚿', 'map': '⚑', 'meat': '♨', 'feast': '♨', 'food': '♨', 'jackpot': '★',
               'builder': '⚒', 'cosmetic': '✿', 'skin': '✎', 'book': '☙', 'blood': '☽', 'weather': '☁', 'relic': '♥',
               'p2key': '⚿', 'p2map': '⚑', 'p2emblem': '♛', 'p2vkey': '⚿', 'p2prop': '✦', 'p2hidden': '✧', 'p2lucky': '☘',

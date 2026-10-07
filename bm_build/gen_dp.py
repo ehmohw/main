@@ -42,6 +42,7 @@ import phase49 as R49
 import phase50 as R50
 import phase51 as R51
 import phase52 as R52
+import phase54 as R54        # 2.33: the Elder Treant, the Magma Colossus, the Voidwalker and their relics
 import phase53 as R53        # 2.32: the Horseman's Head in four classes, the Sand Pharaoh, the Storm Roc, their relics, WANTED posters
 #       # 2.31: night ambience, Happy Hour, slots + jackpot, the Leprechaun Rat, Defend the Mothership, the reactor, invasion goods        # 2.30: the sunrise day count, the Scrap Bin (Old Barnaby's buy-backs move into it)        # 2.29: the newcomers' book from the trade lists, advancements, recipes, settings, the Grave Charm        # 2.28: tinkering - filter/vacuum hoppers, compactor, wireless, clock, breaker, placer, sorting chest, lens, wrench        # 2.27: the Vorn Skiff's tractor beam; the skiff's hull fits its pilot        # 2.26: Moon Pact, Thirsting Blade, Vampire's Mirror, Crimson Hourglass, the Blood Moon disc
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
@@ -780,7 +781,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.32' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.33' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -920,7 +921,7 @@ def build(out_dir):
     os.makedirs(OUT)
     with open(path('pack.mcmeta'), 'w') as f:
         json.dump({'pack': {'description': [{'text': 'Black Market ', 'color': 'dark_purple', 'bold': True},
-                                            {'text': ('v2.32 (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
+                                            {'text': ('v2.33 (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
                             'min_format': [121, 0], 'max_format': 121}}, f, indent=1)
     gen_npcs()
     second = gen_mobs()
@@ -979,6 +980,7 @@ def build(out_dir):
     R51.generate(sys.modules[__name__])
     R52.generate(sys.modules[__name__])
     R53.generate(sys.modules[__name__])
+    R54.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command
