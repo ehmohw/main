@@ -400,3 +400,81 @@ def _register_b():
 
 
 _register_b()
+
+
+# ===================================================================== 2.25c: the Blood Moon set on vanilla bases
+def _hsv(c):
+    return colorsys.rgb_to_hsv(*(v / 255 for v in c[:3]))
+
+
+def recolor_where(im, pred, r):
+    """recolour only the pixels pred(c) picks, by brightness rank among them, onto the ramp r"""
+    sel = sorted({c for c in im.getdata() if c[3] and pred(c)}, key=_lum)
+    if not sel: return im
+    m = {c: r[round(i / max(1, len(sel) - 1) * (len(r) - 1))] for i, c in enumerate(sel)}
+    out = im.copy(); out.putdata([m.get(c, c) if c[3] else c for c in im.getdata()]); return out
+
+
+BLOOD = ['#2a0508', '#4a0a10', '#6e1018', '#981a22', '#c42a2e', '#e8504a', '#ff8a7a']
+bl = lambda: [_hex(h) for h in BLOOD]
+
+
+def blood_crystal():
+    return _recolor(_load(V + 'amethyst_shard.png'), bl())
+
+
+def crimson_effigy():
+    im = _load(V + 'totem_of_undying.png')
+    green = lambda c: c[1] > c[0] + 20 and c[1] > c[2]
+    im = recolor_where(im, lambda c: not green(c), [_hex(h) for h in BLOOD[:6]])
+    return recolor_where(im, green, [_hex('#ff3a2a'), _hex('#ffb0a0')])          # burning red eyes
+
+
+def blood_almanac():
+    im = _load(V + 'book.png')
+    page = lambda c: _hsv(c)[1] < 0.18
+    im = recolor_where(im, lambda c: not page(c), [_hex(h) for h in BLOOD[:6]])
+    for (x, y) in ((8, 5), (9, 6)): im.putpixel((x, y), _hex('#e8b830'))         # a gilt clasp
+    return im
+
+
+def ward_lantern():
+    im = _load(V + 'lantern.png')
+    warm = lambda c: _hsv(c)[1] > 0.35 and c[0] > 90
+    return recolor_where(im, warm, [_hex(h) for h in ('#6e1018', '#c42a2e', '#ff5a3a', '#ff9a6a', '#ffd8b0')])
+
+
+def crimson_compass():
+    im = _load(V + 'compass_16.png')
+    needle = lambda c: c[0] > 150 and c[1] < 80
+    im = recolor_where(im, lambda c: not needle(c), [_hex(h) for h in ('#1e0608', '#3a0c10', '#5a141a', '#7e2228', '#a83a3a', '#d87a6a', '#f0c8b8')])
+    return recolor_where(im, needle, [_hex('#e8b830'), _hex('#fff2a0')])          # a gold needle
+
+
+def ravenous_heart():
+    return _recolor(_load(V + 'heart_of_the_sea.png'), bl())
+
+
+def bloodforge_sigil():
+    """a dark-red medal (the emblem build) with a blood drop in relief"""
+    g = ramp('#e8b830', 6, 3); inner = ramp('#8a1a20', 5, 2)
+    im = Image.new('RGBA', (16, 16))
+    for y in range(16):
+        for x in range(16):
+            dx, dy = x - 7.5, y - 7.5
+            r = (dx * dx + dy * dy) ** 0.5; lit = -(dx + dy) / 10.6
+            if r <= 7.3:
+                if r > 6.4: im.putpixel((x, y), g[0] if lit < 0.2 else g[1])
+                elif r > 5.0: im.putpixel((x, y), g[min(5, max(1, round(3 + lit * 2.4)))])
+                elif r > 4.3: im.putpixel((x, y), g[1] if lit > 0 else g[4])
+                else: im.putpixel((x, y), inner[min(4, max(0, round(2 + lit * 1.6)))])
+    drop = ['..x...', '..x...', '.xxx..', 'xxoxx.', 'xxxxx.', '.xxx..']
+    for y, row in enumerate(drop):
+        for x, ch in enumerate(row):
+            if ch == 'x': im.putpixel((5 + x, 5 + y), _hex('#ff5a4a'))
+            elif ch == 'o': im.putpixel((5 + x, 5 + y), _hex('#ffc8b8'))
+    return im
+
+
+OVERRIDES.update({'blood_crystal': blood_crystal, 'crimson_effigy': crimson_effigy, 'blood_almanac': blood_almanac, 'ward_lantern': ward_lantern,
+                  'crimson_compass': crimson_compass, 'bloodforge_sigil': bloodforge_sigil})     # (the Ravenous Heart keeps its fanged maw)
