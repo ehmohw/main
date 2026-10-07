@@ -65,6 +65,7 @@ def generate(G):
         G.R47.extend_offers(O, G.offer)
         G.R49.extend_offers(O, G.offer)
         G.R50.extend_offers(O, G.offer)
+        G.R51.extend_offers(O, G.offer)
         return O
     G.P2_OFFERS = offers                     # 2.29: the newcomers' book reads the final trade lists
     from p2 import patch21, trophies, wilfrey

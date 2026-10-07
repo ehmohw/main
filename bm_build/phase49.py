@@ -42,6 +42,8 @@ KINDS = {
                       ['When powered, breaks the block in front', 'of it - it drops as if mined.']),
     'block_placer': ('Block Placer', '#c8c8d0', 'minecraft:dropper', 'look', 'minecraft:dropper', 4,
                      ['A dropper that places the blocks it', 'drops (when the space in front is free).']),
+    'scrap_bin': ('Scrap Bin', '#c89060', 'minecraft:barrel', None, 'minecraft:barrel', 3,
+                  ['Black Market goods put inside are scrapped', 'for half what they cost (1-Token buys: the Token back).']),
     'sorting_chest': ('Sorting Chest', '#e8c060', 'minecraft:chest', 'horiz', 'minecraft:chest', 3,
                       ['Tidies itself every time it\'s opened:', 'stacks merged, sorted A to Z.']),
 }
@@ -60,7 +62,7 @@ PRICES = {k: v[5] for k, v in KINDS.items()} | {'lag_lens': 2, 'tinker_wrench': 
 
 
 def extend_offers(O, offer):
-    O['professor'] += [offer(('token', p), (k, 1)) for k, p in PRICES.items()]
+    O['professor'] += [offer(('token', p), (k, 1)) for k, p in PRICES.items() if k != 'scrap_bin']     # (Old Barnaby sells the Scrap Bin)
 
 
 def _stack_ids():
@@ -119,10 +121,11 @@ def generate(G):
         return [f'summon minecraft:marker ~ ~ ~ {{Tags:["bm.rs","bm.rs_{k}","bm.rsnew"]{more}}}']
     for k, (name, col, _, rule, blk, _, _) in KINDS.items():
         base = {'filter_hopper': 'minecraft:hopper', 'vacuum_hopper': 'minecraft:hopper', 'block_breaker': 'minecraft:dispenser',
-                'block_placer': 'minecraft:dropper', 'sorting_chest': 'minecraft:chest'}.get(k)
+                'block_placer': 'minecraft:dropper', 'sorting_chest': 'minecraft:chest', 'scrap_bin': 'minecraft:barrel'}.get(k)
         if rule == 'hop': put = fac('#hf', base)
         elif rule == 'look': put = fac('#lf', base)
         elif rule == 'horiz': put = fac('#hz', base, ',type=single')
+        elif k == 'scrap_bin': put = ['setblock ~ ~ ~ minecraft:barrel[facing=up]']
         else: put = [f'setblock ~ ~ ~ {blk if not blk.startswith("#") else (OFF_RX if k == "wireless_receiver" else OFF_CLK)}']
         if base: put.append('data merge block ~ ~ ~ {CustomName:' + snbt(T(name, col)) + '}')
         if k == 'block_breaker':

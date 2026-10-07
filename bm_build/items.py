@@ -66,7 +66,7 @@ TIER_TAG = {1: ('✦ Tier I — Token goods', 'gold'), 2: ('✦✦ Tier II — M
             3: ('✦✦✦ Tier III — Trophy goods', '#ffb300')}
 
 
-ITEM_VERSION = 25      # stamped into every item's custom_data (bmv); older copies are re-synced to the current definition
+ITEM_VERSION = 26      # stamped into every item's custom_data (bmv); older copies are re-synced to the current definition
 CAT_SYMBOL = {'currency': '❖', 'lucky': '☘', 'key': '⚿', 'map': '⚑', 'meat': '♨', 'feast': '♨', 'food': '♨', 'jackpot': '★',
               'builder': '⚒', 'cosmetic': '✿', 'skin': '✎', 'book': '☙', 'blood': '☽', 'weather': '☁', 'relic': '♥',
               'p2key': '⚿', 'p2map': '⚑', 'p2emblem': '♛', 'p2vkey': '⚿', 'p2prop': '✦', 'p2hidden': '✧', 'p2lucky': '☘',
@@ -106,7 +106,7 @@ def item(iid, base, name, color, lore=(), model=None, glint=None, stack=None, co
             lines.append(T(ln, 'gray'))
     if tier:
         lines.append(T(TIER_TAG[tier][0], TIER_TAG[tier][1]))
-    lines.append(T('Black Market goods — no refunds, no questions', 'dark_gray', italic=True))
+    lines.append(T('Black Market goods — no questions asked', 'dark_gray', italic=True))       # 2.30: they can be scrapped now
     c['minecraft:lore'] = lines
     if base == TOTEM:
         c['!minecraft:death_protection'] = {}

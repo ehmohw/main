@@ -462,10 +462,10 @@ def generate(G):
     def give_cmds(what, n):
         if what in ITEMS: return [give(what, n)]
         if what == 'mending_book':
-            return [f'give @s minecraft:enchanted_book[minecraft:stored_enchantments={{"minecraft:mending":1}}] {n}']
+            return [f'give @s minecraft:enchanted_book[minecraft:stored_enchantments={{"minecraft:mending":1}},minecraft:custom_data={{bm_from:1b}}] {n}']
         if what == 'treasure_map':
             return [f'loot spawn ~ ~0.5 ~ loot bm:p28/treasure_map']
-        return [f'give @s {what} {n}']
+        return [f'give @s {what}[minecraft:custom_data={{bm_from:1b}}] {n}']           # 2.30: marked as bought (the Scrap Bin)
     wjson('bm/loot_table/p28/treasure_map.json', {'pools': [{'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'minecraft:buried_treasure_map', 'functions': [     # 26.3 explorer-map item
         {'function': 'minecraft:exploration_map', 'destination': 'minecraft:on_treasure_maps', 'decoration': 'minecraft:red_x', 'zoom': 1,
          'search_radius': 50, 'skip_existing_chunks': False},

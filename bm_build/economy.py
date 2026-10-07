@@ -11,6 +11,7 @@ CUR = {'token', 'medallion', 'trophy', 'lucky_token', 'blood_crystal'}
 
 # item sold -> (cost A, cost B or None). Final prices: these are NOT run through the 1.5x price scale.
 DIRECT = {
+    'grave_charm': (('token', 10), None),                 # 2.29: an early-game purchase, exactly 10 Tokens
     'golden_wings': (('trophy', 10), None),               # unbreakable elytra, +4 armour
     'dragon_wings': (('trophy', 12), ('dragon_head', 1)),  # unbreakable elytra, +5 armour, fire immunity (1.10)
     'bloodforge_sigil': (('blood_crystal', 48), ('trophy', 1)),   # makes anything unbreakable (and costs a heart, 1.11)

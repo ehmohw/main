@@ -1,4 +1,4 @@
-# Black Market — v2.29 (Java 26.3)
+# Black Market — v2.30 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,27 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.30: the Scrap Bin, and a day count you can't scramble
+
+**The Scrap Bin.** Put Black Market goods in a Scrap Bin and, a second later, they're scrapped for **half what they cost**, paid into the bin. If the bin is full, the refund pops out on top.
+- **What can be scrapped:** anything bought from a Black Market trader, a back room or Zorp (the pack's own goods, and vanilla goods like the Spectral Arrows, Bottles o' Enchanting or Nether Star).
+- **Refunds come in what you paid:** Tokens, Medallions, Trophies, Blood Crystals, Xenite or Lucky Tokens.
+- **Rounding:** something that cost **1 Token gives the Token back**. A 1-Medallion buy returns 4 Tokens, and a 1-Trophy buy returns 3 Medallions.
+- **Bundles go back as bundles:** 16 Spectral Arrows bought for 3 Tokens return 1 Token per 16.
+- **Upgraded gear:** returns half of its whole upgrade chain, as Old Barnaby always paid.
+- **Old buy-backs:** gear that's only found in the world, and the **Lucky 7** (3 Trophies), scrap at Barnaby's old buy-back prices.
+- **Never scrapped:** money (Tokens, Medallions, Trophies, Crystals, Xenite...), and vanilla items you mined or found yourself. Vanilla goods bought from a trader carry a hidden "bought" mark, so only those count.
+- **Where to find one:** every Black Market has a Scrap Bin at the west end of **Old Barnaby's counter**, with a sign. Markets already in your world get theirs automatically. Barnaby also sells them (5 Tokens) to place anywhere: right-click a block face, and break it to pick it back up. Hoppers can feed one and empty it.
+- **Old Barnaby** no longer buys things back (the bin does that), so his list is short again: his goofy goods (Lava Lamp, Portable Trash Can, Whoopee Cushion, Boombox, Ocarina), breaking Medallions and Trophies into change, Tokens for Diamonds, and the Scrap Bin.
+- Black Market goods no longer say "no refunds".
+
+**Blood Moons can't be knocked off schedule by `/time set`.** The pack used to count days from the world's total time, so typing a raw number such as `/time set 1000` sent the count back to day 0 and pushed the next Blood Moon up to 29 days away. The named commands (`/time set day`, `noon`, `night`, `midnight`) were always fine on 26.3. The pack now counts sunrises itself, and the count only goes up:
+- **Counts as a new day:** a sunrise, a night slept through, or `/time set` to an earlier hour.
+- **Also on the new count:** Lucky Nights, Invasion Nights, the Dark Auction's week and the mercenary's payday.
+- **Existing worlds:** carry on from the day they were on.
+
+**The Grave Charm costs exactly 10 Tokens** (the market's usual 1.5× markup no longer applies to it).
 
 ## New in 2.29: finding your way, and keeping your things
 
@@ -61,17 +82,17 @@ The Filter Hopper's recipe is 2 rows: the frame sits in the top-middle slot.
 
 | Item | Price | What it does |
 |---|---|---|
-| Filter Hopper | 3 | A hopper that only takes the items shown in **item frames on its sides**. It watches the item at the front of the line above it (a hopper or chest) or the loose items on top, and waits while that item isn't on its list. Wanted items move at normal hopper speed. With no frames it's an ordinary hopper. |
-| Vacuum Hopper | 4 | Pulls loose items within 8 blocks onto itself every second. Lock it with redstone to switch it off. |
-| Item Compactor | 4 | Every 5 seconds, gathers loose items and XP within 12 blocks onto itself, where they merge into full stacks. Fewer item entities means less lag. |
-| Wireless Transmitter | 2 | A redstone lamp. While it's powered, every Wireless Receiver on the same channel turns on, at any distance (in loaded chunks). |
-| Wireless Receiver | 2 | A copper block that becomes a redstone block while a transmitter on its channel is powered. **The channel is the item's name:** rename a transmitter and a receiver to the same name in an anvil. Unnamed ones share one channel. |
-| Redstone Clock | 2 | Gives a redstone pulse every 1–60 seconds (it starts at 1). |
-| Block Breaker | 4 | A dispenser that, when powered, breaks the block in front of it. The block drops as if mined. It won't break bedrock, portals or spawners. |
-| Block Placer | 4 | A dropper that places the blocks it drops (when the space in front is free). Anything that isn't a block is dropped as usual. |
-| Sorting Chest | 3 | Tidies itself every time it's opened: stacks are merged (respecting each item's stack size) and sorted A to Z. |
-| Lag Lens | 2 | Right-click for the entity and dropped-item counts in the 3×3 chunks around you, plus the dimension's totals. |
-| Tinker's Wrench | 1 | Right-click a tinkering block to read it. On a Redstone Clock, right-click adds 1 s and sneak + right-click takes 1 s off. On a Sorting Chest, it sorts it now. |
+| Filter Hopper | 5 | A hopper that only takes the items shown in **item frames on its sides**. It watches the item at the front of the line above it (a hopper or chest) or the loose items on top, and waits while that item isn't on its list. Wanted items move at normal hopper speed. With no frames it's an ordinary hopper. |
+| Vacuum Hopper | 6 | Pulls loose items within 8 blocks onto itself every second. Lock it with redstone to switch it off. |
+| Item Compactor | 6 | Every 5 seconds, gathers loose items and XP within 12 blocks onto itself, where they merge into full stacks. Fewer item entities means less lag. |
+| Wireless Transmitter | 3 | A redstone lamp. While it's powered, every Wireless Receiver on the same channel turns on, at any distance (in loaded chunks). |
+| Wireless Receiver | 3 | A copper block that becomes a redstone block while a transmitter on its channel is powered. **The channel is the item's name:** rename a transmitter and a receiver to the same name in an anvil. Unnamed ones share one channel. |
+| Redstone Clock | 3 | Gives a redstone pulse every 1–60 seconds (it starts at 1). |
+| Block Breaker | 6 | A dispenser that, when powered, breaks the block in front of it. The block drops as if mined. It won't break bedrock, portals or spawners. |
+| Block Placer | 6 | A dropper that places the blocks it drops (when the space in front is free). Anything that isn't a block is dropped as usual. |
+| Sorting Chest | 5 | Tidies itself every time it's opened: stacks are merged (respecting each item's stack size) and sorted A to Z. |
+| Lag Lens | 3 | Right-click for the entity and dropped-item counts in the 3×3 chunks around you, plus the dimension's totals. |
+| Tinker's Wrench | 2 | Right-click a tinkering block to read it. On a Redstone Clock, right-click adds 1 s and sneak + right-click takes 1 s off. On a Sorting Chest, it sorts it now. |
 
 **Glass canopy.** The Vorn Skiff's dome (every paint, the UFO mount and the Display Skiff) is now clear tinted glass, so you can see the pilot sitting inside. The hull also sits a touch higher around the pilot, so your head clears the top of the dome.
 
