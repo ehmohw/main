@@ -318,7 +318,7 @@ def generate(G):
     s[-1:-1] = second
 
 
-SKIFF_RIDE_Y = -1.4           # hull translation while it rides the skiff: its centre 0.8 under the pilot's feet (both seats sit 4 x scale up)
+SKIFF_RIDE_Y = -0.75          # 2.24: hull translation while piloted: the pilot sits IN the cockpit (the dome round them, the disc at their feet), not perched on top of the dome
 
 
 # ===================================================================== resource pack

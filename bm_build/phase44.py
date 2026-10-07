@@ -156,25 +156,13 @@ def generate(G):
                                  'execute align xyz positioned ~0.5 ~0.5 ~0.5 run particle minecraft:soul ~ ~ ~ 0.4 0.4 0.4 0.03 20',
                                  'playsound minecraft:block.sculk_catalyst.bloom block @a[distance=..16] ~ ~ ~ 1 0.7'])
 
-    # ------------------------------------------------------------------ the bounty board: a real board on the wall
+    # ------------------------------------------------------------------ 2.24: the bounty board moved to the plaza notice board (phase40);
+    # take down the 2.23 balcony board, its notice and its hitbox
     import mgeo
-    from phase40 import BOARD
-    bx, by, bz = BOARD
-    panel = lambda tags, block, scale: {'Tags': tags, 'block_state': f'minecraft:{block}', 'brightness': {'block': Int(13), 'sky': Int(13)},
-                                        'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(0), F(0)], 'scale': [F(v) for v in scale]}}
-    # template frame: the wall is at z = 82 (the board's back), the balcony in front of it (smaller z); yaw 0 = template axes
-    parts = [((bx - 0.75, by + 0.45, bz + 0.33), 'dark_oak_planks', (1.5, 1.45, 0.12)),          # the board
-             ((bx - 0.85, by + 0.35, bz + 0.31), 'stripped_dark_oak_log', (1.7, 0.1, 0.16)),     # frame, bottom
-             ((bx - 0.85, by + 1.9, bz + 0.31), 'stripped_dark_oak_log', (1.7, 0.1, 0.16)),      # frame, top
-             ((bx - 0.62, by + 1.55, bz + 0.31), 'red_wool', (0.08, 0.08, 0.02)),                 # pins
-             ((bx + 0.54, by + 1.55, bz + 0.31), 'red_wool', (0.08, 0.08, 0.02))]
-    patch = G.FUNCS['p35/patch']
-    for i, (p, block, scale) in enumerate(parts):
-        tag = f'bm.bbp{i}'
-        patch += [f'execute positioned {mgeo.rel(p)} unless entity @e[type=minecraft:block_display,tag={tag},distance=..0.6] run summon minecraft:block_display ~ ~ ~ {snbt(panel(["bm.bbpanel", tag, "bm.npc", "bm.bbnew"], block, scale))}']
-    patch += ['execute as @e[type=minecraft:block_display,tag=bm.bbnew] positioned as @s run tp @s ~ ~ ~ ~ 0', 'tag @e[tag=bm.bbnew] remove bm.bbnew',
-              # the old floating notice (2.19-2.22) sat higher up; the new one is pinned to the board
-              f'execute positioned {mgeo.rel((bx, by + 1.7, bz + 0.2))} run kill @e[type=minecraft:text_display,tag=bm.bboard,distance=..0.3]']
+    OLD = (36.5, 18, 81.5)
+    G.FUNCS['p35/patch'] += ['kill @e[type=minecraft:block_display,tag=bm.bbpanel,distance=..120]',
+                             f'execute positioned {mgeo.rel((OLD[0], OLD[1] + 1, OLD[2]))} run kill @e[type=minecraft:text_display,tag=bm.bboard,distance=..2.5]',
+                             f'execute positioned {mgeo.rel(OLD)} run kill @e[type=minecraft:interaction,tag=bm.bbhit,distance=..2]']
 
     G.FUNCS['tick'] += tick
     f = G.FUNCS['loop/fast']

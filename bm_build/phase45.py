@@ -110,6 +110,9 @@ GOOFY = {
 for _g, (_n, _c, _l, _m) in GOOFY.items():
     item(_g, TOTEM, _n, _c, _l, model=_m, stack=1 if _g in ('ocarina', 'trash_can') else 16, cat='fun', comps=hold('none'))
     HOLD[_g] = f'bm:p45/{_g}/use'
+# 2.24: the Display Skiff is Zorp's (his list builds its checksum from R24.OFFERS at generation)
+import phase24 as _R24
+_R24.OFFERS.append((('xenite_violet', 6), ('xenite_green', 4), ('display_skiff', 1)))
 NEW_NPCS = {'wizard': ('custom', 'Cecil the Wizard', 'light_purple', 'cleric', 'swamp', None)}
 CHEST_FINDS = {'lava_lamp': {'woodland_mansion': 10, 'village/village_plains_house': 3, 'village/village_savanna_house': 3, 'simple_dungeon': 4},
                'trash_can': {'abandoned_mineshaft': 3, 'village/village_plains_house': 2, 'pillager_outpost': 4},
@@ -127,7 +130,9 @@ def extend_offers(O, offer):
     O['chef'].append(offer(('medallion', 4), ('grand_banquet', 1), ('prime_beef', 2)))
     O['pawn'] += [offer(('token', 4), ('lava_lamp', 1)), offer(('token', 3), ('trash_can', 1)), offer(('token', 2), ('whoopee_cushion', 1)),
                   offer(('medallion', 1), ('boombox', 1)), offer(('token', 5), ('ocarina', 1))]
-    O['dock'].append(offer(('token', 6), ('display_skiff', 1)))
+    # 2.24: the Hero's Bow and the Bow of Light moved from Vinny to Cecil (the same upgrades: Fairy Bow -> Hero's Bow -> Bow of Light)
+    from items import UPGRADES
+    O['wizard'] += [offer((f, 1), (to, 1), (cur, n)) for f, cur, n, to in UPGRADES if to in ('heros_bow', 'light_bow')]
 
 
 def q(axis, deg):
@@ -521,6 +526,22 @@ def generate(G):
                               f'execute on passengers if entity @s[tag=bm.vbody] run data merge entity @s {{transformation:{{translation:[0f,{round(-HUSK_SEAT + TS / 2, 3)}f,0f]}}}}'])
     fn('p45/vorn/fix_warlord', ['tag @s add bm.v224', 'execute on passengers if items entity @s contents *[minecraft:item_model="bm:hoverboard_red"] run kill @s',
                                 f'execute on passengers if items entity @s contents *[minecraft:item_model="bm:vorn3d_warlord"] run data merge entity @s {{transformation:{{translation:[0f,{round(-HUSK_SEAT * WS + TS * WS / 2, 3)}f,0f]}}}}'])
+
+    # ------------------------------------------------------------------ 2.24 market patch: the notice board's old signs, floating counter slabs
+    import market2
+    W_ = market2.W
+    patch = G.FUNCS['p35/patch']
+    for (x, y) in ((market2.CX - 1, W_ + 2), (market2.CX, W_ + 2), (market2.CX + 1, W_ + 2), (market2.CX - 1, W_ + 1), (market2.CX + 1, W_ + 1)):
+        patch.append(f'execute positioned {mgeo.rel((x + 0.5, y + 0.5, market2.CZ - 10 + 0.5))} if block ~ ~ ~ #minecraft:wall_signs run setblock ~ ~ ~ minecraft:air')
+    cells = sorted(set(market2.COUNTERS))
+    assert cells, 'market2.COUNTERS is empty - build the market first'
+    for (x, z) in cells:
+        patch.append(f'execute positioned {mgeo.rel((x + 0.5, W_ + 1.5, z + 0.5))} if block ~ ~ ~ #minecraft:slabs run setblock ~ ~ ~ minecraft:air')
+    # Zorp aboard a mothership stands in front of his counter now (step him and his model two blocks across it)
+    second.append('execute as @e[type=minecraft:wandering_trader,tag=bm.npc_alien,tag=!bm.z224] at @s run function bm:p45/zorp_step')
+    fn('p45/zorp_step', ['tag @s add bm.z224'] +
+       [f'execute if block ~{dx} ~ ~{dz} minecraft:cyan_terracotta run return run function bm:p45/zorp_step2 {{x:{dx * 2},z:{dz * 2}}}' for dx, dz in ((0, -1), (0, 1), (-1, 0), (1, 0))])
+    fn('p45/zorp_step2', ['$execute as @e[type=minecraft:item_display,tag=bm.alien_sprite,distance=..1] at @s run tp @s ~$(x) ~ ~$(z)', '$tp @s ~$(x) ~ ~$(z)'])
 
     G.FUNCS['tick'] += tick
     f = G.FUNCS['loop/fast']

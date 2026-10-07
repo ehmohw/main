@@ -132,7 +132,7 @@ def generate(G):
     for buy, buyB, sell in OFFERS:
         O.append(G.offer(buy, sell, buyB) if buyB else G.offer(buy, sell))
     trader = {'NoAI': B(1), 'Invulnerable': B(1), 'PersistenceRequired': B(1), 'Silent': B(1), 'DespawnDelay': Int(0),
-              'Tags': ['bm.npc', 'bm.npc_alien', 'bm.new'], 'CustomName': T('Zorp, Collector of Shinies', '#7dff6a', bold=True), 'CustomNameVisible': B(0),
+              'Tags': ['bm.npc', 'bm.npc_alien', 'bm.new', 'bm.z224'], 'CustomName': T('Zorp, Collector of Shinies', '#7dff6a', bold=True), 'CustomNameVisible': B(0),
               'active_effects': [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}],
               'attributes': [{'id': 'minecraft:scale', 'base': D(0.75)}], 'Offers': {'Recipes': O}}
     sprite = G.rat_sprite('bm:alien3d', ['bm.npc', 'bm.new', 'bm.rat_sprite', 'bm.alien_sprite', 'bm.td', 'bm.r3d'], 1.0)

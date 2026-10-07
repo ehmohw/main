@@ -9,7 +9,7 @@ right-click the board to sign it (one per player per night). Bounties expire at 
 from items import T
 from nbt import snbt, B, F, Int
 
-BOARD = (36.5, 18, 81.5)          # market template: the balcony, against the wall beside the lectern (34, 18, 80)
+BOARD = (38.5, 10, 36.45)         # 2.24: the plaza's notice board (planks x37-39, y11-12, z35), in front of the fountain; the hitbox covers its face
 # state: (kind, colour, title, task, target, kill tags, reward text)
 BOUNTIES = {1: ('blood', '#ff3b3b', 'BLOOD MOON BOUNTY', 'Slay 8 Blood Moon horrors', 8, ['bm.blood'], '10 Blood Crystals + a Medallion'),
             2: ('lucky', '#ffd23f', 'LUCKY NIGHT BOUNTY', 'Defeat 6 Lucky monsters', 6, ['bm.lucky'], '3 Lucky Tokens + a Jackpot Card'),
@@ -41,14 +41,16 @@ def generate(G):
 
     # ------------------------------------------------------------------ the board (placed in every market by the p35 patch)
     mgeo.need_floor(BOARD, 'public', 'the bounty board')
-    board_text = {'Tags': ['bm.bboard', 'bm.npc'], 'billboard': 'vertical', 'see_through': B(0), 'shadow': B(1), 'background': Int(0xB0201810 - 0x100000000),
-                  'brightness': {'block': Int(15), 'sky': Int(15)}, 'line_width': Int(220), 'alignment': 'center',
+    # 2.24: flat on the 3 x 2 plank face (fixed, turned with the market), sized to fit it
+    board_text = {'Tags': ['bm.bboard', 'bm.npc', 'bm.bbnew'], 'billboard': 'fixed', 'see_through': B(0), 'shadow': B(1), 'background': Int(0x50000000),
+                  'brightness': {'block': Int(15), 'sky': Int(15)}, 'line_width': Int(170), 'alignment': 'center',
                   'text': T('BOUNTY BOARD', '#ffd23f', bold=True),
-                  'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(0), F(0)], 'scale': [F(0.7)] * 3}}
-    board_hit = {'Tags': ['bm.bbhit', 'bm.npc'], 'width': F(1.0), 'height': F(2.4), 'response': B(1)}
-    tpos, hpos = mgeo.rel((BOARD[0], BOARD[1] + 0.75, BOARD[2] + 0.22)), mgeo.rel(BOARD)     # 2.23: pinned to the board (phase44 builds it)
+                  'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(0), F(0)], 'scale': [F(0.55)] * 3}}
+    board_hit = {'Tags': ['bm.bbhit', 'bm.npc'], 'width': F(3.0), 'height': F(3.0), 'response': B(1)}
+    tpos, hpos = mgeo.rel((BOARD[0], BOARD[1] + 1.55, 36.03)), mgeo.rel(BOARD)
     G.FUNCS['p35/patch'] += [
         f'execute positioned {tpos} unless entity @e[type=minecraft:text_display,tag=bm.bboard,distance=..1.5] run summon minecraft:text_display ~ ~ ~ {snbt(board_text)}',
+        f'execute positioned {tpos} as @e[type=minecraft:text_display,tag=bm.bbnew,distance=..0.5] run tp @s ~ ~ ~ ~ 0', 'tag @e[tag=bm.bbnew] remove bm.bbnew',
         f'execute positioned {hpos} unless entity @e[type=minecraft:interaction,tag=bm.bbhit,distance=..1.5] run summon minecraft:interaction ~ ~ ~ {snbt(board_hit)}']
     texts = {0: [T('BOUNTY BOARD\n', '#ffd23f', bold=True), T('No bounties tonight.\n', 'gray'),
                  T('Come back on a Blood Moon,\na Lucky Night or an Invasion Night.', 'dark_gray')]}

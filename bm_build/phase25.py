@@ -464,7 +464,7 @@ def build_mothership(red=False):
             (25, LD + 1, 16, 0, 'off'), (14, LD + 1, 25, 90, 'crew')]                                                   # pen guard, stores
     for (x, y, z, yaw, v) in crew:
         Bd.marker(x + 0.5, y, z + 0.5, ['bm.npc_spawn', 'bm.npc.acrew', f'bm.av_{v}'], yaw)
-    Bd.marker(MC + 0.5, MD + 1, 39.5, ['bm.npc_spawn', 'bm.npc.alien'], 180)             # the quartermaster (Zorp's offers), behind his counter
+    Bd.marker(MC + 0.5, MD + 1, 37.5, ['bm.npc_spawn', 'bm.npc.alien'], 180)             # the quartermaster (Zorp), 2.24: in front of his counter
     Bd.marker(MC + 0.5, MD + 3.5, MC + 0.5, ['bm.npc_spawn', 'bm.npc.xholo'], 0)
     for (x, z) in [(MC - 1, MC), (MC + 1, MC), (MC, MC - 1), (MC, MC + 1)]: S(x, MD + 1, z, 'end_rod[facing=up]')
     S(MC, MD + 1, MC, 'sea_lantern')

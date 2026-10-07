@@ -27,6 +27,7 @@ DOOR_BOX = {(x, y, z) for x in range(36, 41) for y in range(16, 22) for z in ran
 VIP_SHELL = []          # 1.17: cells closed round the Gilded Gutter (the world patch for older markets is built from these)
 AUCTION_SEATS = []      # 2.13: cushion cells in the auction hall (feet level)
 CUSHIONS = []           # 2.13: (x, y, z, colour) - every cushion seat in the market
+COUNTERS = []           # 2.24: every counter cell (x, z) - old markets had a slab on top of each
 WATER_TOP = 5                 # water y3..5
 SPRING_SAFE = ['cobbled_deepslate'] * 5 + ['smooth_basalt'] * 2 + ['blackstone', 'mossy_cobblestone', 'cracked_deepslate_bricks', 'cobblestone']
 ROCK_IN = ['deepslate'] * 6 + ['stone'] * 2 + ['tuff']
@@ -184,15 +185,10 @@ def build():
         if not inside.get((x, z)) or x1 - 1 <= x <= x2 + 1: continue
         for y in range(W, W + 3): put(x, y, z, 'polished_blackstone_wall')
         put(x, W + 3, z, 'lantern[hanging=false,waterlogged=false]')
-    # notice board (rumours), the busker's barrel stage, benches, a cart
+    # notice board (2.24: the Bounty Board - its notice is a display, see phase40), the busker's barrel stage, benches, a cart
     for x in range(CX - 2, CX + 3):
         put(x, W, CZ - 11, 'stripped_dark_oak_log[axis=x]' if x in (CX - 2, CX + 2) else 'air')
         for y in (W + 1, W + 2): put(x, y, CZ - 11, 'dark_oak_planks' if x not in (CX - 2, CX + 2) else 'stripped_dark_oak_log[axis=y]')
-    B.sign(CX - 1, W + 2, CZ - 10, 'dark_oak_wall_sign[facing=south,waterlogged=false]', ['RUMOURS', 'The Crow Market', 'is real. Ask', 'nobody.'], color='white')
-    B.sign(CX, W + 2, CZ - 10, 'dark_oak_wall_sign[facing=south,waterlogged=false]', ['WANTED', 'Blaine West', 'Reward: 1 cheese', '(slightly nibbled)'], color='red')
-    B.sign(CX + 1, W + 2, CZ - 10, 'dark_oak_wall_sign[facing=south,waterlogged=false]', ['CONTRACTS', 'Board opens', 'soon. Keep', 'your nose clean.'], color='yellow')
-    B.sign(CX - 1, W + 1, CZ - 10, 'dark_oak_wall_sign[facing=south,waterlogged=false]', ['LOST: one ear.', 'Answers to', '"Gerald".', ''], color='white')
-    B.sign(CX + 1, W + 1, CZ - 10, 'dark_oak_wall_sign[facing=south,waterlogged=false]', ['NO CATS.', 'NO EXCEPTIONS.', 'NOT EVEN', 'SMALL ONES.'], color='red')
     bx, bz = CX + 9, CZ + 8                                  # the busker
     put(bx, W, bz, 'barrel[facing=up,open=false]')
     put(bx + 1, W, bz, 'spruce_slab[type=bottom,waterlogged=false]'); put(bx, W, bz + 1, 'spruce_slab[type=bottom,waterlogged=false]')
@@ -233,6 +229,7 @@ def build():
     def counter(cells, top=None):
         """2.13: a waist-high counter, one block tall (it used to be a log under a top-half slab, which floated and stood
         two blocks high). Wood counters are a horizontal beam along the counter's run; the others are the stall's stone."""
+        COUNTERS.extend(cells)
         axis = 'x' if len({z for _, z in cells}) == 1 else 'z'
         for (x, z) in cells:
             put(x, W, z, top or f'stripped_dark_oak_log[axis={axis}]')

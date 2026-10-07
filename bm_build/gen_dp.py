@@ -176,7 +176,7 @@ def npc_offers():
     ]
     arms_buy = ['kokiri_sword', 'cranky_pick', 'hammer_bro_hatchet', 'fairy_bow', 'hylian_shield', 'zora_trident', 'super_hammer']
     arms_ids = set(arms_buy) | {'master_sword', 'biggoron_sword', 'minecart_pick', 'kong_krusher', 'koopa_cleaver',
-                                'giga_greataxe', 'heros_bow', 'light_bow', 'ultra_hammer'}
+                                'giga_greataxe', 'ultra_hammer'}      # 2.24: the Hero's Bow and Bow of Light are Cecil's now
     O['arms'] = [offer(PRICES[i], (i, 1)) for i in arms_buy]
     O['arms'] += [offer((f, 1), (to, 1), (cur, n)) for f, cur, n, to in UPGRADES if to in arms_ids]
     O['outfitter'] = [offer(PRICES[f'smuggler_{p}'], (f'smuggler_{p}', 1)) for p in I.PIECES]

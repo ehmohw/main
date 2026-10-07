@@ -56,9 +56,17 @@ He also sells the **Grand Banquet** (6 Medallions + 2 Prime Beef). Set it down o
 - **Whoopee Cushion** (3 Tokens): hide it on a block. Whoever steps on it (player or mob) finds out.
 - **Boombox** (2 Medallions): set it down and right-click it to play the next track; it cycles through every music disc. Sneak + right-click to stop it.
 - **Pocket Ocarina** (8 Tokens): right-click to play a note. Look up for high notes and down for low ones, across two octaves. Sneak + right-click to switch between nine instruments.
-- **Display Skiff** (9 Tokens, from Salty Sal at the docks): a Vorn Skiff ornament that doesn't fly. Right-click it with a dye to repaint it (six colours), or sneak + right-click to change its decal.
+- **Display Skiff** (from Zorp, see below): a Vorn Skiff ornament that doesn't fly. Right-click it with a dye to repaint it (six colours), or sneak + right-click to change its decal.
 
 Sneak + punch picks up a lamp, cushion, boombox or display skiff.
+
+**Also in 2.24 (fixes and moves)**
+- **The Bounty Board** is now the wooden notice board on the plaza, in front of the fountain. Tonight's bounty is pinned flat across its 3 x 2 plank face; right-click it to sign up. Its old joke signs are gone, and so is the balcony board from 2.23.
+- **Vorn Skiff:** you now sit inside the cockpit, with the glass dome around you and the saucer at your feet. Before, you were perched on top of the dome.
+- **The Hero's Bow and the Bow of Light** have moved from Vinny to Cecil, with the same upgrades (Fairy Bow + 6 Medallions -> Hero's Bow; Hero's Bow + 3 Trophies -> Bow of Light). Vinny still sells the Fairy Bow.
+- **The Display Skiff** is sold by Zorp now (6 Violet Xenite + 4 Green Xenite), not Salty Sal.
+- **Zorp** stands in front of his counter aboard the motherships, so you can reach him. Zorps already aboard step out on their own.
+- **Counters:** the Dockmaster's, the Fence's, Old Barnaby's and the Forge Pit's (and every other market counter) lose the floating slab that older markets had on top.
 
 **The Vorn** no longer stand on a hoverboard. They walk on their own feet, with a walking animation. Vorn already in your world update automatically.
 
