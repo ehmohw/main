@@ -1,4 +1,4 @@
-# Black Market — v2.30 (Java 26.3)
+# Black Market — v2.31 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,45 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.31: the special nights come alive
+
+**Ambience.** Each special night now feels different inside every Black Market:
+- **Blood Moon:** a red haze and a slow heartbeat.
+- **Lucky Night:** drifting gold and chimes.
+- **Invasion Night:** green static and a far-off hum.
+- **Aboard the ships, on an Invasion Night:** the Donadian motherships go to red alert, with red light, warning tones and "RED ALERT" on your screen. The Vorn Dreadnought's alarms never stop.
+
+**Lucky Night: Happy Hour.** From dusk to dawn:
+- **Black Market traders:** every one sells at its base price, without the market's usual 1.5× markup. A Filter Hopper is 3 Tokens instead of 5.
+- **Zorp:** takes a third off his Xenite prices.
+- **Night-only trades:**
+  - *Lucky Whiskers:* the **Four-Leaf Charm** (8 Lucky Tokens, permanent Luck while carried), a Heartstone for 10 Lucky Tokens, and Jackpot Scratch Cards for 3.
+  - *Zorp:* a Red Xenite shard for 6 cyan, and a Power Cell for 20 green + 20 violet.
+
+**The Lucky Den's slot machines work.** Pull a lever:
+- **Lucky Slots** (the two outer machines, 1 Token a pull): three of a kind pays ♣ 4, ♦ 6, ♥ 10, ★ 25, ♛ 60, or 7 150 Tokens. Any pair gives your Token back.
+- **The Progressive Jackpot** (the middle machine, 5 Tokens a pull): every pull adds 2 Tokens to a jackpot shared by **every market on the server** (4 on a Lucky Night). **Three 7s win the whole pot**, announced to everyone. The pot then starts again at 50. Three crowns pay 30, three stars 15, and two 7s give your 5 Tokens back.
+- **The sign:** above the Jackpot machine, it shows the current pot.
+
+**The Leprechaun Rat.** On a Lucky Night, a little rat in a green bowler sometimes turns up near you outdoors and bolts. Catch it (it has 8 health) before it vanishes and it drops a **Pot of Gold**: tip it out for 8–16 Tokens and 3–6 Lucky Tokens.
+
+**Defend the Mothership.** On an Invasion Night, board a Donadian mothership and the Vorn beam onto its deck in three waves (3, 5, then 7 troopers):
+- **Win:** everyone aboard gets 6 green, 6 violet and 6 cyan Xenite, plus a **Donadian Medal**.
+- **Once a night per ship.** If everyone leaves, the attack is called off and can be tried again that night.
+
+**Sabotage the Reactor.** On an Invasion Night, the Vorn Dreadnought's reactor runs hot behind **four power conduits** round its core:
+- **Smash all four** (8 hits each) while reinforcements beam in every 20 seconds.
+- **Then:** the reactor goes offline, the alarms stop for a while, and the **Dreadnought Vault** opens next to the core. Inside: 6–10 Red Xenite, the **Warlord's Banner**, Green Xenite and a 1-in-4 chance of a Power Cell.
+
+**Invasion stock at the Fence** (Invasion Nights only):
+- **Signal Jammer:** switch it on and no Vorn trooper, saucer or beast drops in within 48 blocks of you until dawn.
+- **Flak Rockets** (4 a bundle): right-click to fire at the nearest Vorn Scout Saucer within 48 blocks, for 14 damage.
+- **Salvage:** he buys Xenite (3 shards of any colour for a Token) and Power Cells (2 Medallions each).
+
+**New advancements:**
+- **Lucky Night:** Happy Hour, One-Armed Bandit, Jackpot!, Top o' the Mornin'.
+- **Invasion Night:** Hold the Line, Meltdown, Radio Silence.
 
 ## New in 2.30: the Scrap Bin, and a day count you can't scramble
 
