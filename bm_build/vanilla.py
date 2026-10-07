@@ -255,3 +255,148 @@ def textures():
         T[f'skiff_{k}_deck'] = _plates(deck, 200 + i)
     T['skiff_belly'] = _belly(5)
     return T
+
+
+# ===================================================================== 2.25b: vanilla sprites as bases (keys, bottles, boots, the maul, emblems)
+def ramp(base, n=7, mid=None):
+    """an n-step vanilla-style ramp around a base colour: darker steps cooler and more saturated, lighter steps warmer"""
+    b = _hex(base) if isinstance(base, str) else base
+    mid = n // 2 if mid is None else mid
+    return [shade(b, (i - mid) * 0.9) for i in range(n)]
+
+
+TRIAL_SHAFT = ['54281a', '6d3421', '84432d', '9a5038', 'c15a36', 'd67b5b', 'fc9982']
+OMINOUS_SHAFT = ['2f4a42', '36594d', '396e59', '3e816b', '55a386', '69c09c', '7bdbb0']
+KEY_HEAD = ['292828', '373b35', '454a42', '525a51', '6c716b', '85837a', 'a19e94']
+
+
+def _swap(im, src_hexes, dst):
+    m = {_hex('#' + h)[:3]: dst[i] for i, h in enumerate(src_hexes)}
+    out = im.copy()
+    out.putdata([m.get(c[:3], c) if c[3] else c for c in im.getdata()])
+    return out
+
+
+def key(shaft, eyes=None, head=None, ominous=False):
+    """a trial key (or ominous trial key) with its shaft in another colour - a dungeon key variant"""
+    im = _load(V + ('ominous_trial_key.png' if ominous else 'trial_key.png'))
+    im = _swap(im, OMINOUS_SHAFT if ominous else TRIAL_SHAFT, ramp(shaft, 7, 4))
+    if head: im = _swap(im, KEY_HEAD, ramp(head, 7, 4))
+    if eyes:
+        e = ramp(eyes, 3, 1)
+        im = _swap(im, ['de4058', '9a1e33'] if ominous else ['ff9951'], [e[2], e[0]] if ominous else [e[2]])
+    return im
+
+
+def bottle(liquid, extra=()):
+    """the vanilla potion bottle, its liquid (the grey overlay) tinted like a vanilla potion"""
+    im = _load(V + 'potion.png'); ov = _load(V + 'potion_overlay.png')
+    t = _hex(liquid)
+    for y in range(16):
+        for x in range(16):
+            c = ov.getpixel((x, y))
+            if c[3]: im.putpixel((x, y), tuple(min(255, round(t[i] * c[i] / 255 * 1.08)) for i in range(3)) + (255,))
+    for (x, y), colr in extra: im.putpixel((x, y), _hex(colr))
+    return im
+
+
+def boots(base, sole=None, trim=None):
+    """vanilla iron boots, recoloured; an optional sole/blade line under them and a trim at the cuffs"""
+    im = _recolor(_load(V + 'iron_boots.png'), ramp(base, 6, 3))
+    if trim:
+        for x in (4, 5, 6, 9, 10, 11): im.putpixel((x, 3), _hex(trim))
+    if sole:
+        kind, colr = sole
+        c, d = _hex(colr), shade(_hex(colr), -1.5)
+        if kind == 'blade':                                   # skate blades with a curled toe
+            for x in list(range(1, 6)) + list(range(10, 15)): im.putpixel((x, 13), c)
+            im.putpixel((0, 12), c); im.putpixel((15, 12), c)
+            for x in list(range(1, 6)) + list(range(10, 15)): im.putpixel((x, 14), d) if x in (2, 4, 11, 13) else None
+        elif kind == 'glow':                                  # glowing soles
+            for x in list(range(1, 7)) + list(range(9, 15)): im.putpixel((x, 13), c)
+            for x in (2, 4, 11, 13): im.putpixel((x, 14), d)
+        elif kind == 'spring':                                # coiled springs under the heels
+            for x0 in (2, 11):
+                for dy, xs in ((13, (x0, x0 + 2)), (14, (x0 + 1,)), (15, (x0, x0 + 2))):
+                    for x in xs: im.putpixel((x, dy), c if dy != 14 else d)
+        elif kind == 'wave':                                  # a curl of water under each boot
+            for x in (1, 3, 5, 10, 12, 14): im.putpixel((x, 13), c)
+            for x in (2, 4, 11, 13): im.putpixel((x, 14), d)
+    return im
+
+
+def quake_maul():
+    """the vanilla mace, its head in Vorn red, the haft in dark iron"""
+    im = _load(V + 'mace.png')
+    head = [p for p in ((x, y) for y in range(16) for x in range(16)) if im.getpixel(p)[3] and not (p[0] < 7 and p[1] > 6)]
+    red = ramp('#c42a22', 6, 3); iron = ramp('#4a4e58', 5, 2)
+    hsrc = sorted({im.getpixel(p) for p in head}, key=_lum)
+    hand = [p for p in ((x, y) for y in range(16) for x in range(16)) if im.getpixel(p)[3] and p not in head]
+    asrc = sorted({im.getpixel(p) for p in hand}, key=_lum)
+    out = im.copy()
+    for p in head: out.putpixel(p, red[round(hsrc.index(im.getpixel(p)) / max(1, len(hsrc) - 1) * 5)])
+    for p in hand: out.putpixel(p, iron[round(asrc.index(im.getpixel(p)) / max(1, len(asrc) - 1) * 4)])
+    return out
+
+
+EMBLEM_SIGN = {   # 6 x 6 symbols (x = light, o = shadow)
+    'brood': ['x....x', '.x..x.', 'x.oo.x', '.xxxx.', 'x.xx.x', '.x..x.'],          # a spider
+    'frost': ['..x...', 'x.x.x.', '.xxx..', 'xxxxx.', '.xxx..', 'x.x.x.'],          # a snowflake
+    'hex':   ['.xxxx.', 'x....x', 'x.oo.x', 'x.oo.x', 'x....x', '.xxxx.'],          # an eye
+    'hollow': ['......', 'x.x.x.', 'xxxxx.', 'xoxox.', 'xxxxx.', '......'],         # a crown
+    'keep':  ['x.x.x.', 'xxxxx.', '.xxx..', '.xox..', '.xox..', 'xxxxx.'],          # a tower
+    'tide':  ['x.x.x.', 'x.x.x.', 'xxxxx.', '..x...', '..x...', '..x...'],          # a trident
+}
+
+
+def emblem(d):
+    """a gold medal (gold-ingot ramp), the dungeon's colour inside, its sign in relief"""
+    from p2.config import D
+    g = ramp('#e8b830', 6, 3); inner = ramp(D[d]['color'], 5, 2)
+    im = Image.new('RGBA', (16, 16))
+    for y in range(16):
+        for x in range(16):
+            dx, dy = x - 7.5, y - 7.5
+            r = (dx * dx + dy * dy) ** 0.5
+            lit = -(dx + dy) / 10.6                                 # light from the top-left: +1 .. -1
+            if r <= 7.3:
+                if r > 6.4: im.putpixel((x, y), g[0] if lit < 0.2 else g[1])                    # the rim's dark edge
+                elif r > 5.0: im.putpixel((x, y), g[min(5, max(1, round(3 + lit * 2.4)))])      # the gold band
+                elif r > 4.3: im.putpixel((x, y), g[1] if lit > 0 else g[4])                    # the band's inner lip (sunk)
+                else: im.putpixel((x, y), inner[min(4, max(0, round(2 + lit * 1.6)))])
+    sign = EMBLEM_SIGN[d]
+    hi, lo = shade(inner[4], 1.5), inner[0]
+    for y, row in enumerate(sign):
+        for x, ch in enumerate(row):
+            if ch == 'x': im.putpixel((5 + x, 5 + y), hi)
+            elif ch == 'o': im.putpixel((5 + x, 5 + y), lo)
+    return im
+
+
+def _register_b():
+    from p2.config import D
+    for d in ('brood', 'frost', 'hex', 'hollow', 'keep', 'tide', 'lucky'):
+        col = {'hollow': '#7a8a9c', 'keep': '#9a4a3a'}.get(d, D[d]['color'])      # (the darkest dungeon colours, lifted so the shaft reads)
+        OVERRIDES[f'key_{d}'] = (lambda c=col: key(c, eyes=c))
+        OVERRIDES[f'vkey_{d}'] = (lambda c=col: key(c, eyes='#ffffff', head='#c89a2a'))
+        OVERRIDES[f'bkey_{d}'] = (lambda c=col: key(c, ominous=True))
+        if d != 'lucky': OVERRIDES[f'emblem_{d}'] = (lambda d_=d: emblem(d_))
+    OVERRIDES.update({
+        'gold_key': lambda: key('#e8b830', eyes='#fff2a0', head='#c89a2a'), 'silver_key': lambda: key('#c8ccd2', eyes='#a8ecff'),
+        'mail_key': lambda: key('#c8a050', eyes='#ffd23f'), 'renewal_key': lambda: key('#a8e8f0', eyes='#ffffff', head='#d8dee6'),
+        'market_key': lambda: key('#7a3aa8', eyes='#ffd23f', head='#c89a2a'),
+        'vial_clear': lambda: bottle('#9ad8ff', [((8, 10), '#ffffff')]), 'vial_rain': lambda: bottle('#3a6ad8', [((7, 11), '#a8c8ff'), ((9, 12), '#a8c8ff')]),
+        'vial_storm': lambda: bottle('#3a2a6a', [((8, 9), '#ffe85a'), ((7, 10), '#ffe85a'), ((8, 11), '#ffe85a'), ((7, 12), '#fff6b0')]),
+        'soul_vial_zombie': lambda: bottle('#4a9a3a', [((8, 10), '#b8ffb0')]), 'soul_vial_skeleton': lambda: bottle('#d8d8c8', [((8, 10), '#ffffff')]),
+        'soul_vial_spider': lambda: bottle('#9a1e1e', [((8, 10), '#ff8a8a'), ((9, 11), '#ff3a3a')]),
+        'sanguine_tonic': lambda: bottle('#8a0a1a', [((8, 10), '#ff6a7a')]), 'xp_flask': lambda: bottle('#7dff3a', [((8, 10), '#f4ffb0'), ((9, 12), '#d8ff6a')]),
+        'ice_skates': lambda: boots('#7a4a2a', ('blade', '#d8e6f0'), '#f0f0f0'),
+        'gravity_boots': lambda: boots('#4a3a6a', ('glow', '#b48cff'), '#c8a0ff'),
+        'spring_boots': lambda: boots('#2a8a96', ('spring', '#c8ccd2'), '#7ae8f0'),
+        'triple_boots': lambda: boots('#b8302a', ('glow', '#7dff6a'), '#ff8a7a'),
+        'water_walking_boots': lambda: boots('#2a5ab8', ('wave', '#9ad8ff'), '#d8f0ff'),
+        'quake_maul': quake_maul,
+    })
+
+
+_register_b()
