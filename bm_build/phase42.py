@@ -9,7 +9,7 @@ THE HEADLESS HORSEMAN - a roaming boss of the Overworld night
   Pumpkin Thralls (skeletons with lit pumpkin heads). At half health his fire roars higher: Strength, more speed, a ring of
   flame. Flames, smoke and falling ash follow him and his steed; the night around him laughs and moans.
 - He rides away at dawn (or when nobody is left within 128 blocks). Kill him for Tokens, Medallions, a Trophy - and,
-  1 time in 10, HIS HEAD.
+  always (2.34), HIS HEAD.
 
 THE HORSEMAN'S HEAD - a weapon in four classes (2.32); it can't be placed
 - OFFENSE, the Horseman's Head: heavy melee that sets victims alight; hold right-click for a short, fierce stream of fire
@@ -776,9 +776,9 @@ def generate(G):
                             'tag @a remove bm.hhsensed', 'bossbar set bm:hhm visible false'])
     fn('p42/boss/crumble', ['particle minecraft:soul ~ ~1 ~ 0.3 0.6 0.3 0.03 10', 'particle minecraft:large_smoke ~ ~1 ~ 0.3 0.6 0.3 0.03 8', 'tp @s ~ -400 ~', 'kill @s'])
 
-    # his fall: the loot (his head 1 time in 10), a cheer for everyone near
+    # his fall: the loot (his head, always - 2.34), a cheer for everyone near
     wjson('bm/loot_table/p42/horseman.json', {'type': 'minecraft:entity', 'pools': [
-        {'rolls': 1, 'entries': [G.loot_entry('horseman_head')], 'conditions': [G.KILLED, G.chance(0.10)]},
+        {'rolls': 1, 'entries': [G.loot_entry('horseman_head')], 'conditions': [G.KILLED]},
         {'rolls': 1, 'entries': [G.loot_entry('token', G.uni(10, 16))], 'conditions': [G.KILLED]},
         {'rolls': 1, 'entries': [G.loot_entry('medallion', G.uni(2, 4))], 'conditions': [G.KILLED]},
         {'rolls': 1, 'entries': [G.loot_entry('trophy')], 'conditions': [G.KILLED, G.chance(0.4)]},

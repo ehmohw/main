@@ -1,4 +1,4 @@
-# Black Market — v2.33 (Java 26.3)
+# Black Market — v2.34 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,10 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.34: relics are guaranteed
+
+Every roaming boss now **always** drops its relic when a player slays it (it was 1 in 10, or 1 in 6 for the Voidwalker). The bosses are rare and each relic has four forms to unlock with catalysts, so one kill is enough.
 
 ## New in 2.33: three more roaming bosses
 
@@ -43,7 +47,7 @@ The Sand Pharaoh's and Storm Roc's custom models are gone; any left in a 2.32 wo
   - Twigs (little creakings) that join the fight.
 - **At half health** it draws life back from the forest (Regeneration) and bursts brambles around itself.
 - **When it leaves:** at dawn.
-- **Loot:** Tokens, Medallions, a chance of a Trophy, logs, saplings, apples and moss. One time in 10 it drops **the Heartwood Branch**.
+- **Loot:** Tokens, Medallions, a chance of a Trophy, logs, saplings, apples and moss. It always drops **the Heartwood Branch**.
 
 **The Magma Colossus** roams the Nether:
 - **When it appears:** after day 10, now and then in the Nether Wastes or Basalt Deltas. Everyone nearby sees "The ground shakes... something molten rises." Its song is "Pigstep", and ash and lava pop around it.
@@ -52,7 +56,7 @@ The Sand Pharaoh's and Storm Roc's custom models are gone; any left in a 2.32 wo
   - magma boulders it throws;
   - lava geysers under your feet (watch for the dripping lava first).
 - **As it's hurt:** it sheds Magma Spawn at two-thirds and one-third health. When it dies it bursts apart into smaller cubes.
-- **Loot:** Tokens, Medallions, a chance of a Trophy, magma cream, Blaze Rods and netherite scrap. One time in 10 it drops **the Molten Gauntlet**.
+- **Loot:** Tokens, Medallions, a chance of a Trophy, magma cream, Blaze Rods and netherite scrap. It always drops **the Molten Gauntlet**.
 
 **The Voidwalker** is the End boss:
 - **When it appears:** out on the outer islands (700+ blocks from the centre), now and then. Everyone nearby sees "The stars go out... something is watching you." Its song is "5".
@@ -61,7 +65,7 @@ The Sand Pharaoh's and Storm Roc's custom models are gone; any left in a 2.32 wo
   - fires homing shulker bullets;
   - smothers you in darkness;
   - calls Voidlings (endermites).
-- **Loot:** extra Tokens and Medallions, shulker shells, ender pearls and dragon's breath. One time in 6 it drops **the Void Scepter**.
+- **Loot:** extra Tokens and Medallions, shulker shells, ender pearls and dragon's breath. It always drops **the Void Scepter**.
 
 The new relics use the same catalysts as the others (off hand, look straight up, right-click): Blaze Rod for Offense, Armadillo Scute for Defense, Breeze Rod for Ranged, Heartstone for Support.
 
@@ -117,13 +121,13 @@ The lanterns still work on the Head. These catalysts also work on the two new re
 - **When he appears:** after day 10, rarely, when someone is under open sky in a desert by day. A sandstorm rises and he walks out of it, about 20 blocks away. Everyone nearby sees "The wind turns to sand... something ancient wakes." His song ("Relic") plays, and blowing sand and the hiss of the dunes follow him.
 - **The fight:** a towering mummy king in gold and lapis, with 320 health. He sends scarab swarms, throws sand in your eyes (blindness), raises Tomb Guards and burns you with a beam of sunlight. At half health the storm thickens and the sand erupts under you.
 - **When he leaves:** he sinks back into the dunes at dusk.
-- **Loot:** Tokens, Medallions, a chance of a Trophy, gold, lapis and Armadillo Scutes. One time in 10 he drops **the Pharaoh's Crook**.
+- **Loot:** Tokens, Medallions, a chance of a Trophy, gold, lapis and Armadillo Scutes. He always drops **the Pharaoh's Crook**.
 
 **The Storm Roc** is a roaming boss of thunderstorms:
 - **When it appears:** after day 10, now and then during a thunderstorm in any biome. A huge storm-blue bird comes down out of the clouds. Everyone nearby sees "Thunder rolls... something vast circles above.", and its song ("Precipice") plays.
 - **The fight:** it has 260 health. It circles and dives at you. It calls down lightning (sparks gather over your head first) and beats gusts of wind that throw you off your feet. At half health, Stormlings join it.
 - **When it leaves:** when the storm ends.
-- **Loot:** Tokens, Medallions, a chance of a Trophy, feathers, phantom membranes and Breeze Rods. One time in 10 it drops **the Thunderbird Talon**.
+- **Loot:** Tokens, Medallions, a chance of a Trophy, feathers, phantom membranes and Breeze Rods. It always drops **the Thunderbird Talon**.
 
 When either boss dies or leaves, its model fades away.
 
@@ -419,7 +423,7 @@ He's a roaming boss of the Overworld night.
 - **What he is:** a towering headless rider in black, carrying his own jack-o'-lantern head and a netherite spear. He rides a huge, fast **Hellsteed**. He has 360 health, Resistance and Fire Resistance, and hunts from 96 blocks away. Flames burn at his neck and under the steed's hooves, ash falls around him, and the night laughs and moans.
 - **How he fights:** he **breathes fire** at the nearest player, **charges with his spear**, and calls up **Pumpkin Thralls** (skeletons with lit pumpkin heads, at most 6). At half health he enrages: Strength, more speed, more thralls and a ring of flame.
 - **When he leaves:** at dawn he rides away, taking his thralls and steed. He also leaves if nobody is within 128 blocks for a minute and a half.
-- **What he drops:** 10 to 16 Tokens, 2 to 4 Medallions, a Trophy (40%), a Heartstone (15%), netherite scrap, pumpkins and pie. **1 time in 10, he drops his head.**
+- **What he drops:** 10 to 16 Tokens, 2 to 4 Medallions, a Trophy (40%), a Heartstone (15%), netherite scrap, pumpkins and pie. **He always drops his head** (since 2.34; it was 1 time in 10).
 
 ### The Horseman's Head
 

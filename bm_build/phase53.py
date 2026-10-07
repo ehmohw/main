@@ -7,14 +7,14 @@ THE SAND PHARAOH - a roaming boss of the desert day
   Tomb Guards (husks in gold) and burns you with a beam of the sun. At half health the storm thickens: Strength, speed,
   and the sand bursts up beneath you. The storm follows him: blowing sand, the wind, the hiss of the dunes - and his song.
 - He sinks back into the dunes at dusk (or when nobody is near). Slay him for Tokens, Medallions, a Trophy and gold -
-  and, 1 time in 10, THE PHARAOH'S CROOK.
+  and (always, 2.34) THE PHARAOH'S CROOK.
 
 THE STORM ROC - a roaming boss of the thunderstorm
 - In any thunderstorm (after day 10), now and then, a colossal phantom comes down out of the clouds
   near someone under open sky. "Thunder rolls... something vast circles above."
 - 260 health. It circles and dives, calls lightning down on you (watch for the sparks), and beats gusts of wind that throw
   you off your feet. At half health it shrieks and Stormlings join the hunt. It leaves when the storm does.
-  Slay it for Tokens, Medallions, a Trophy, feathers - and, 1 time in 10, THE THUNDERBIRD TALON.
+  Slay it for Tokens, Medallions, a Trophy, feathers - and (always, 2.34) THE THUNDERBIRD TALON.
 
 THE RELICS - like the Horseman's Head, each takes four forms. Off hand + look straight up + right-click:
   Blaze Rod = OFFENSE, Armadillo Scute = DEFENSE, Breeze Rod = RANGED, Heartstone = SUPPORT (the catalyst is used up).
@@ -412,7 +412,7 @@ def generate(G):
                            'execute as @e[tag=bm.sphmin,distance=..96] at @s run function bm:p42/boss/crumble',
                            'tag @a remove bm.sphsensed', 'bossbar set bm:sph visible false'])
     wjson('bm/loot_table/p53/pharaoh.json', {'type': 'minecraft:entity', 'pools': [
-        {'rolls': 1, 'entries': [G.loot_entry('pharaoh_crook')], 'conditions': [G.KILLED, G.chance(0.10)]},
+        {'rolls': 1, 'entries': [G.loot_entry('pharaoh_crook')], 'conditions': [G.KILLED]},
         {'rolls': 1, 'entries': [G.loot_entry('token', G.uni(10, 16))], 'conditions': [G.KILLED]},
         {'rolls': 1, 'entries': [G.loot_entry('medallion', G.uni(2, 4))], 'conditions': [G.KILLED]},
         {'rolls': 1, 'entries': [G.loot_entry('trophy')], 'conditions': [G.KILLED, G.chance(0.4)]},
@@ -496,7 +496,7 @@ def generate(G):
                            'execute as @e[type=minecraft:phantom,tag=bm.rocmin,distance=..128] at @s run function bm:p42/boss/crumble',
                            'kill @e[type=minecraft:marker,tag=bm.rocbolt]', 'tag @a remove bm.rocsensed', 'bossbar set bm:roc visible false'])
     wjson('bm/loot_table/p53/roc.json', {'type': 'minecraft:entity', 'pools': [
-        {'rolls': 1, 'entries': [G.loot_entry('storm_talon')], 'conditions': [G.KILLED, G.chance(0.10)]},
+        {'rolls': 1, 'entries': [G.loot_entry('storm_talon')], 'conditions': [G.KILLED]},
         {'rolls': 1, 'entries': [G.loot_entry('token', G.uni(10, 16))], 'conditions': [G.KILLED]},
         {'rolls': 1, 'entries': [G.loot_entry('medallion', G.uni(2, 4))], 'conditions': [G.KILLED]},
         {'rolls': 1, 'entries': [G.loot_entry('trophy')], 'conditions': [G.KILLED, G.chance(0.4)]},

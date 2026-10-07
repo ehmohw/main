@@ -5,19 +5,19 @@ THE ELDER TREANT - the forest night
   20 blocks from someone under the sky: "The trees lean closer... something old is walking."
 - Like every creaking it freezes while you look at it - but its magic doesn't: roots that pin you in place, thrown logs,
   Twigs (little creakings) and, at half health, bursts of brambles while it draws life back from the forest.
-- It leaves at dawn. Drops the HEARTWOOD BRANCH 1 time in 10.
+- It leaves at dawn. Always drops the HEARTWOOD BRANCH (2.34).
 
 THE MAGMA COLOSSUS - the Nether
 - After day 10, now and then in the Nether Wastes or Basalt Deltas, a gigantic Magma Cube (over four blocks wide, 420 health)
   heaves up near you: "The ground shakes... something molten rises."
 - Ground slams, thrown magma boulders and lava geysers under your feet; it sheds Magma Spawn as it's hurt, and when it
-  dies it bursts apart into smaller cubes. Drops the MOLTEN GAUNTLET 1 time in 10.
+  dies it bursts apart into smaller cubes. Always drops the MOLTEN GAUNTLET (2.34).
 
 THE VOIDWALKER - the End
 - Out on the End's outer islands (700+ blocks from the centre), rarely, an Enderman over seven blocks tall (450 health)
   steps out of nowhere: "The stars go out... something is watching you."
 - It blinks behind you and strikes, fires homing shulker bullets, smothers you in darkness and calls Voidlings
-  (endermites). It never carries blocks. Drops the VOID SCEPTER 1 time in 6, and plenty of shulker shells.
+  (endermites). It never carries blocks. Always drops the VOID SCEPTER (2.34), and plenty of shulker shells.
 
 THE RELICS - four forms each, turned with the same catalysts (off hand + look straight up + right-click):
   Blaze Rod = OFFENSE, Armadillo Scute = DEFENSE, Breeze Rod = RANGED, Heartstone = SUPPORT.
@@ -483,12 +483,12 @@ def generate(G):
                        'function bm:p54/find/at with storage bm:tmp p54s'])
 
     # ================================================================== loot, achievements, admin
-    tables = {'treant': ('heartwood_branch', 0.10, [('oak_log', 8, 16), ('oak_sapling', 2, 5), ('apple', 2, 5), ('moss_block', 4, 8)], (10, 16), (2, 4), 0.4),
-              'colossus': ('molten_gauntlet', 0.10, [('magma_cream', 4, 8), ('blaze_rod', 1, 3), ('netherite_scrap', 1, 1)], (10, 16), (2, 4), 0.4),
-              'voidwalker': ('void_scepter', 1 / 6, [('shulker_shell', 2, 4), ('ender_pearl', 4, 8), ('dragon_breath', 2, 4)], (16, 24), (4, 6), 0.6)}
+    tables = {'treant': ('heartwood_branch', 1.0, [('oak_log', 8, 16), ('oak_sapling', 2, 5), ('apple', 2, 5), ('moss_block', 4, 8)], (10, 16), (2, 4), 0.4),
+              'colossus': ('molten_gauntlet', 1.0, [('magma_cream', 4, 8), ('blaze_rod', 1, 3), ('netherite_scrap', 1, 1)], (10, 16), (2, 4), 0.4),
+              'voidwalker': ('void_scepter', 1.0, [('shulker_shell', 2, 4), ('ender_pearl', 4, 8), ('dragon_breath', 2, 4)], (16, 24), (4, 6), 0.6)}
     for t, (relic, ch, extras, tok, med, tro) in tables.items():
         wjson(f'bm/loot_table/p54/{t}.json', {'type': 'minecraft:entity', 'pools': [
-            {'rolls': 1, 'entries': [G.loot_entry(relic)], 'conditions': [G.KILLED, G.chance(ch)]},
+            {'rolls': 1, 'entries': [G.loot_entry(relic)], 'conditions': [G.KILLED]},
             {'rolls': 1, 'entries': [G.loot_entry('token', G.uni(*tok))], 'conditions': [G.KILLED]},
             {'rolls': 1, 'entries': [G.loot_entry('medallion', G.uni(*med))], 'conditions': [G.KILLED]},
             {'rolls': 1, 'entries': [G.loot_entry('trophy')], 'conditions': [G.KILLED, G.chance(tro)]}] +
