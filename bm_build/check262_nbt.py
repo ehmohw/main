@@ -32,7 +32,8 @@ ALLOWED.update({'chicken': ENTITY | LIVING | MOB | BREEDABLE | {'IsChickenJockey
                 'pufferfish': ENTITY | LIVING | MOB | {'FromBucket', 'PuffState'},   # vanilla-mcdoc mob/fish.mcdoc
                 'wither': ENTITY | LIVING | MOB | {'Invul'},
                 'rabbit': ENTITY | LIVING | MOB | BREEDABLE | {'RabbitType', 'MoreCarrotTicks'},     # mob/rabbit.mcdoc (2.18: the Mimic)
-                'phantom': ENTITY | LIVING | MOB | {'size', 'anchor_pos'},                                   # mob/phantom.mcdoc (1.21.5+)
+                'phantom': ENTITY | LIVING | MOB | {'size', 'anchor_pos'},
+                'endermite': ENTITY | LIVING | MOB | {'Lifetime'},                                          # (2.32: verified on 26.3)                                   # mob/phantom.mcdoc (1.21.5+)
                 'piglin': ENTITY | LIVING | MOB | {'IsImmuneToZombification', 'TimeInOverworld', 'IsBaby', 'CannotHunt', 'Inventory'},
                 'item': ENTITY | {'Age', 'Health', 'PickupDelay', 'Owner', 'Thrower', 'Item'},                 # entity/item.mcdoc
                 'text_display': ENTITY | DISPLAY | {'text', 'line_width', 'text_opacity', 'background', 'default_background', 'shadow',

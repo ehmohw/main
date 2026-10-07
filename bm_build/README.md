@@ -1,4 +1,4 @@
-# Black Market — v2.31 (Java 26.3)
+# Black Market — v2.32 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,61 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.32: weapon classes, and two new roaming bosses
+
+**The Horseman's Head now comes in four classes.** Each form plays differently:
+- **Horseman's Head — Offense:** hits harder (9). Hold right-click for a short, fierce stream of fire (5 seconds, more damage). Sneak + hold charges a Fire Blast. When stoked, its **Hellfire Nova** hits harder than before.
+- **Soulfire Head — Defense:** its blows slow and weaken. Hold right-click for a **Frost Ward**: Resistance II, no knockback, and anything that hits you is chilled. Its **Glacial Nova** freezes everything nearby for 3 seconds and gives you Absorption.
+- **Venomfire Head — Ranged:** a weak club. Hold right-click for **Venom Bolts** that poison targets up to 40 blocks away. Sneak + hold charges a **Plague Burst**: let go to lob it, and it leaves a poison cloud for 6 seconds.
+- **Hallowed Head — Support:** unchanged. It still heals with its beam, sets down a circle of Regeneration, and fills everyone nearby with life.
+
+**Catalysts.** Hold one in your off hand, look straight up and right-click (the catalyst is used up):
+
+| Catalyst | Class |
+|---|---|
+| Blaze Rod | Offense |
+| Armadillo Scute | Defense |
+| Breeze Rod | Ranged |
+| Heartstone | Support |
+
+The lanterns still work on the Head. These catalysts also work on the two new relics.
+
+**The Sand Pharaoh** is a roaming boss of the desert day:
+- **When he appears:** after day 10, rarely, when someone is under open sky in a desert by day. A sandstorm rises and he walks out of it, about 20 blocks away. Everyone nearby sees "The wind turns to sand... something ancient wakes." His song ("Relic") plays, and blowing sand and the hiss of the dunes follow him.
+- **The fight:** a towering mummy king in gold and lapis, with 320 health. He sends scarab swarms, throws sand in your eyes (blindness), raises Tomb Guards and burns you with a beam of sunlight. At half health the storm thickens and the sand erupts under you.
+- **When he leaves:** he sinks back into the dunes at dusk.
+- **Loot:** Tokens, Medallions, a chance of a Trophy, gold, lapis and Armadillo Scutes. One time in 10 he drops **the Pharaoh's Crook**.
+
+**The Storm Roc** is a roaming boss of thunderstorms:
+- **When it appears:** after day 10, now and then during a thunderstorm in any biome. A huge storm-blue bird comes down out of the clouds. Everyone nearby sees "Thunder rolls... something vast circles above.", and its song ("Precipice") plays.
+- **The fight:** it has 260 health. It circles and dives at you. It calls down lightning (sparks gather over your head first) and beats gusts of wind that throw you off your feet. At half health, Stormlings join it.
+- **When it leaves:** when the storm ends.
+- **Loot:** Tokens, Medallions, a chance of a Trophy, feathers, phantom membranes and Breeze Rods. One time in 10 it drops **the Thunderbird Talon**.
+
+When either boss dies or leaves, its model fades away.
+
+**The Pharaoh's Crook** is stronger by day, under the sun. Each form's right-click:
+- **Crook of Scarabs — Offense:** heavy blows. A scarab swarm eats through everything in its path.
+- **Crook of the Sands — Defense:** its blows slow. A **Sandstone Shell** lasts 8 seconds: Resistance II, and anything that hits you gets sand in its eyes.
+- **Crook of the Sun — Ranged:** a **Sunbeam Lance** pierces everything within 40 blocks and sets it alight.
+- **Crook of Ra — Support:** the **Blessing of Ra** gives Strength and Haste II to you and every ally within 8 blocks.
+
+**The Thunderbird Talon** is stronger in a thunderstorm. Each form's right-click:
+- **Thunderbird Talon — Offense:** its blows often call down a thunderbolt. A **Thunderclap** strikes every monster within 5 blocks.
+- **Static Talon — Defense:** a **Static Field** lasts 8 seconds: Resistance, and it shocks anything near you or anything that hits you.
+- **Stormcaller Talon — Ranged:** **Chain Lightning** reaches 32 blocks and leaps on to 4 targets.
+- **Tailwind Talon — Support:** a **Tailwind** gives Speed II, Jump Boost II and Slow Falling to you and every ally within 8 blocks.
+
+**The Bounty Board posts WANTED bosses.** The Headless Horseman, the Sand Pharaoh and the Storm Roc are standing bounties: whoever slays one collects **8 Tokens + 2 Medallions** on top of its loot.
+
+**New achievements:**
+- *Curse of the Pharaoh:* slay the Sand Pharaoh.
+- *Eye of the Storm:* slay the Storm Roc.
+- *Monster Slayer:* slay all three roaming bosses.
+- *Relic Hunter:* hold a relic of each.
+
+**Admin commands:** `/function bm:admin/pharaoh`, `/function bm:admin/storm_roc` (it stays only while it's thundering) and `/function bm:admin/relics` (every relic form plus the catalysts).
 
 ## New in 2.31: the special nights come alive
 

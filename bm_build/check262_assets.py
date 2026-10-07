@@ -260,6 +260,9 @@ for f in glob.glob(f'{DP}/data/bm/enchantment/*.json'):
             rq = e.get('requirements')
             if rq is None: continue
             if rq.get('type', rq.get('condition')) == 'minecraft:inverted': rq = rq['term']
+            if rq.get('type', rq.get('condition')) == 'minecraft:random_chance':     # (2.32: the Thunderbird's blows)
+                if not 0 < rq['chance'] <= 1: E(f'{f}: random_chance')
+                continue
             pr = rq['predicate']
             if set(pr) - {'minecraft:entity_type', 'minecraft:flags', 'minecraft:movement'}: E(f'{f}: predicate keys')     # (2.20: as vanilla wind_burst)
 for f in glob.glob(f'{DP}/data/bm/damage_type/*.json'):

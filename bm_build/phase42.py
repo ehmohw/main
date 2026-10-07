@@ -11,20 +11,19 @@ THE HEADLESS HORSEMAN - a roaming boss of the Overworld night
 - He rides away at dawn (or when nobody is left within 128 blocks). Kill him for Tokens, Medallions, a Trophy - and,
   1 time in 10, HIS HEAD.
 
-THE HORSEMAN'S HEAD - a weapon (it can't be placed)
-- Melee: as hard as a netherite sword, but it swings slower. Hits set the victim alight (Soul: chill / Venom: poison).
-- Hold right-click: a stream of fire from its mouth. The stream shrinks over 10 seconds, then the head needs 10 seconds to
-  rekindle (let go early and it recovers on its own).
-- Sneak + hold right-click: charge a FIRE BLAST, let go to loose it (it never breaks blocks).
-- Kill monsters with it to stoke it; when it's full, sneak + look straight down + right-click: a NOVA hits every hostile
-  mob and player within 10 blocks (never you). Blood Moon monsters stoke it twice as fast. Undead killed with it drop
-  extra experience.
-- Night: Night Vision, x1.5 damage, a glow of its fire. Full/new moon: x2, faster cooldowns and charges.
-  Blood Moon: x2.5, plus reach, Strength II, Speed II and Regeneration.
-- Off hand + look straight up + right-click: a Soul Lantern turns it into the SOULFIRE HEAD (freezing fire), a Copper
-  Lantern into the VENOMFIRE HEAD (poison fire); a plain Lantern turns it back. And a Heartstone... makes it the HALLOWED
-  HEAD: a support relic that heals with a beam (or you, if nobody's in it), sets down a Regeneration circle, and fills
-  everyone around with life when stoked. It is a poor club."""
+THE HORSEMAN'S HEAD - a weapon in four classes (2.32); it can't be placed
+- OFFENSE, the Horseman's Head: heavy melee that sets victims alight; hold right-click for a short, fierce stream of fire
+  (5 s, then 10 s to rekindle); sneak + hold to charge a FIRE BLAST (let go to loose it; it never breaks blocks).
+- DEFENSE, the Soulfire Head: blows slow and weaken; hold right-click for a FROST WARD (Resistance II, no knockback,
+  attackers chilled); sneak + hold: a Frost Blast.
+- RANGED, the Venomfire Head: a weak club; hold right-click for VENOM BOLTS (40 blocks, poison / wither for the undead);
+  sneak + hold, let go: a lobbed PLAGUE BURST that leaves a poison cloud.
+- SUPPORT, the Hallowed Head: a healing beam (or you, if nobody's in it), a Regeneration circle, a burst of life.
+- Kill monsters with it to stoke it; when it's full, sneak + look straight down + right-click: a NOVA (Hellfire hits
+  harder, Glacial freezes for 3 s and shields you, Venom poisons). Undead killed with it drop extra experience.
+- Night: Night Vision, x1.5 damage. Full/new moon: x2, faster cooldowns. Blood Moon: x2.5, reach, Strength, Speed, Regen.
+- Off hand + look straight up + right-click with a catalyst: Blaze Rod - Offense, Armadillo Scute - Defense, Breeze Rod -
+  Ranged, Heartstone - Support (the old lanterns still work: Lantern, Soul Lantern, Copper Lantern)."""
 import math
 from items import item, attr, T, TOTEM
 from useitem import hold, HOLD_REPEAT
@@ -48,38 +47,42 @@ ALLIES = ['villager', 'wandering_trader', 'iron_golem', 'snow_golem', 'allay', '
 
 _melee = lambda dmg: [attr('attack_damage', dmg, 'mainhand', ident='minecraft:base_attack_damage'),
                       attr('attack_speed', -3.0, 'mainhand', ident='minecraft:base_attack_speed')]
-_controls = [('Hold right-click: a stream of fire (10 s), then', 'blue'), ('10 s to rekindle.', 'blue'),
-             ('Sneak + hold right-click: charge a Fire Blast;', 'blue'), ('let go to loose it.', 'blue'),
-             ('Kill monsters to stoke it, then sneak, look', 'blue'), ('down and right-click: a Nova (10 blocks).', 'blue'),
-             ('Undead it kills drop extra experience.', 'gray'),
-             ('Night: x1.5. Full & new moon: x2. Blood Moon: x2.5.', 'gold')]
-_lantern = [('Off hand + look up + right-click: a Soul Lantern', 'dark_gray'), ('or a Copper Lantern rekindles it; a Lantern', 'dark_gray'),
-            ('turns it back.', 'dark_gray')]
+_catalyst = [('Off hand + look up + right-click to turn it:', 'dark_gray'), ('Blaze Rod - Offense, Armadillo Scute - Defense,', 'dark_gray'),
+             ('Breeze Rod - Ranged, Heartstone - Support.', 'dark_gray'), ('(Lanterns still work: Lantern, Soul, Copper.)', 'dark_gray')]
+_nova = ('Kill monsters to stoke it, then sneak, look down', 'blue')
+_moon = ('Night: x1.5. Full & new moon: x2. Blood Moon: x2.5.', 'gold')
+# 2.32: four classes - Offense, Defense, Ranged, Support
 item('horseman_head', TOTEM, "Horseman's Head", ORANGE,
-     ["The Headless Horseman's own grinning head.", ('Hits as hard as netherite, swings slowly,', 'gray'), ('and sets its victims alight.', 'gray')] +
-     _controls + _lantern + [('Some say a beating heart could tame its fire...', 'dark_purple')],
+     ["The Headless Horseman's own grinning head.", ('OFFENSE', 'red'), ('Hits harder than netherite, swings slowly,', 'gray'), ('and sets its victims alight.', 'gray'),
+      ('Hold right-click: a short, fierce stream of fire', 'blue'), ('(5 s), then 10 s to rekindle.', 'blue'),
+      ('Sneak + hold right-click: charge a Fire Blast;', 'blue'), ('let go to loose it.', 'blue'),
+      _nova, ('and right-click: a HELLFIRE NOVA (10 blocks).', 'blue'), ('Undead it kills drop extra experience.', 'gray'), _moon] + _catalyst +
+     [('Some say a beating heart could tame its fire...', 'dark_purple')],
      model='bm:horseman_head', stack=1, cat='relic', glint=False, bold=True,
-     custom_extra={'bm_head': B(1)}, comps=dict(hold('none'), **{'minecraft:attribute_modifiers': _melee(7),
+     custom_extra={'bm_head': B(1)}, comps=dict(hold('none'), **{'minecraft:attribute_modifiers': _melee(9),
                                                                  'minecraft:enchantments': {'bm:hellfire_edge': Int(1)}}))
 item('soul_head', TOTEM, 'Soulfire Head', '#5ad8ff',
-     ['The Horseman\'s head, burning cold with soul fire.', ('Hits as hard as netherite, swings slowly,', 'gray'), ('and chills its victims.', 'gray'),
-      ('Its fire freezes instead of burning.', 'aqua')] + _controls + _lantern,
+     ['The Horseman\'s head, burning cold with soul fire.', ('DEFENSE', 'aqua'), ('Its blows slow and weaken their victims.', 'gray'),
+      ('Hold right-click: a FROST WARD (10 s) - take less', 'blue'), ('damage, no knockback, and whoever hits you is', 'blue'),
+      ('chilled to the bone.', 'blue'), ('Sneak + hold right-click: charge a Frost Blast.', 'blue'),
+      _nova, ('and right-click: a GLACIAL NOVA freezes all', 'blue'), ('around for 3 s and shields you (Absorption).', 'blue'), _moon] + _catalyst,
      model='bm:soul_head', stack=1, cat='relic', glint=False, bold=True,
-     custom_extra={'bm_head': B(1)}, comps=dict(hold('none'), **{'minecraft:attribute_modifiers': _melee(7),
+     custom_extra={'bm_head': B(1)}, comps=dict(hold('none'), **{'minecraft:attribute_modifiers': _melee(6),
                                                                  'minecraft:enchantments': {'bm:soulfrost_edge': Int(1)}}))
 item('venom_head', TOTEM, 'Venomfire Head', '#7aff4a',
-     ['The Horseman\'s head, guttering green with copper fire.', ('Hits as hard as netherite, swings slowly,', 'gray'),
-      ('and poisons its victims (withers the undead).', 'gray'), ('Its fire poisons instead of burning.', 'green')] + _controls + _lantern,
+     ['The Horseman\'s head, guttering green with copper fire.', ('RANGED', 'green'), ('A weak club - its poison works from afar.', 'gray'),
+      ('Hold right-click: VENOM BOLTS (40 blocks) that', 'blue'), ('poison (wither the undead). 10 s, then 10 s rest.', 'blue'),
+      ('Sneak + hold right-click: charge a PLAGUE BURST;', 'blue'), ('let go to lob it - it leaves a poison cloud.', 'blue'),
+      _nova, ('and right-click: a Venom Nova (10 blocks).', 'blue'), _moon] + _catalyst,
      model='bm:venom_head', stack=1, cat='relic', glint=False, bold=True,
-     custom_extra={'bm_head': B(1)}, comps=dict(hold('none'), **{'minecraft:attribute_modifiers': _melee(7),
+     custom_extra={'bm_head': B(1)}, comps=dict(hold('none'), **{'minecraft:attribute_modifiers': _melee(4),
                                                                  'minecraft:enchantments': {'bm:venom_edge': Int(1)}}))
 item('hallowed_head', TOTEM, 'Hallowed Head', '#ff8ac8',
-     ['The Horseman\'s head, its fire tamed by a living heart.', ('A support relic - a poor club.', 'gray'),
+     ['The Horseman\'s head, its fire tamed by a living heart.', ('SUPPORT', 'light_purple'), ('A poor club.', 'gray'),
       ('Hold right-click: a healing beam (heals you when', 'blue'), ('nobody is in it; it sears the undead). 10 s, then', 'blue'),
       ('10 s to rekindle.', 'blue'), ('Sneak + right-click: a circle of Regeneration (10 s).', 'blue'),
       ('Heal or slay to stoke it, then sneak, look down', 'blue'), ('and right-click: everyone near is filled with life.', 'blue'),
-      ('Night: stronger. Full & new moon: faster.', 'gold'), ('Blood Moon: strongest of all.', 'gold'),
-      ('Off hand + look up + right-click with a lantern', 'dark_gray'), ('to set the fire loose again.', 'dark_gray')],
+      ('Night: stronger. Full & new moon: faster.', 'gold'), ('Blood Moon: strongest of all.', 'gold')] + _catalyst,
      model='bm:hallowed_head', stack=1, cat='relic', glint=False, bold=True,
      custom_extra={'bm_head': B(1)}, comps=dict(hold('none'), **{'minecraft:attribute_modifiers': _melee(1)}))
 for _v, (_iid, *_r) in VARIANTS.items():
@@ -155,7 +158,7 @@ def generate(G):
     undead = {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:entity_type': '#minecraft:undead'}}
     wjson('bm/enchantment/hellfire_edge.json', ench('Hellfire', ORANGE, [{'effect': {'type': 'minecraft:ignite', 'duration': 5}}]))
     wjson('bm/enchantment/soulfrost_edge.json', ench('Soulfrost', '#5ad8ff', [
-        {'effect': {'type': 'minecraft:all_of', 'effects': [mob_eff('slowness', 3, 2),
+        {'effect': {'type': 'minecraft:all_of', 'effects': [mob_eff('slowness', 3, 2), mob_eff('weakness', 3, 0),
                                                              {'type': 'minecraft:damage_entity', 'damage_type': 'bm:soulfrost', 'min_damage': 2.0, 'max_damage': 2.0}]}}]))
     wjson('bm/enchantment/venom_edge.json', ench('Venomfire', '#7aff4a', [
         {'effect': mob_eff('poison', 5, 1), 'requirements': {'condition': 'minecraft:inverted', 'term': undead}},
@@ -189,6 +192,8 @@ def generate(G):
                    'execute if score #first bm.hnow matches 1 if entity @s[x_rotation=55..90] if predicate bm:p20/sneaking run return run function bm:p42/nova/try',
                    'execute if score #hv bm.rng matches 4 run return run function bm:p42/heal/use',
                    'execute if predicate bm:p20/sneaking run return run function bm:p42/blast/charge',
+                   'execute if score #hv bm.rng matches 2 run return run function bm:p42/ward/use',
+                   'execute if score #hv bm.rng matches 3 run return run function bm:p42/bolt/use',
                    'function bm:p42/flame/use'])
     fn('p42/init', ['scoreboard players set @s bm.hfu 200', 'scoreboard players set @s bm.hcd 0', 'scoreboard players set @s bm.hbc 0',
                     'scoreboard players set @s bm.hzc 0', 'scoreboard players set @s bm.hid 0',
@@ -198,18 +203,16 @@ def generate(G):
     bar = lambda lab: [{'text': ''}, T(lab, ORANGE), {'score': {'name': '#fs', 'objective': 'bm.rng'}, 'color': 'white'}, T(' s', ORANGE)]
     fn('p42/flame/use', ['execute if entity @s[tag=bm.p42chg] run function bm:p42/blast/fizzle',
                          'execute if score @s bm.hcd matches 1.. run return run function bm:p42/flame/hot',
-                         'scoreboard players set @s bm.hid 0', 'scoreboard players remove @s bm.hfu 1',
+                         'scoreboard players set @s bm.hid 0', 'scoreboard players remove @s bm.hfu 2',
                          'execute if score @s bm.hfu matches ..0 run return run function bm:p42/flame/out',
                          'scoreboard players operation #st bm.rng = @s bm.hfu', 'scoreboard players operation #st bm.rng /= #20 bm.rng',
                          'scoreboard players add #st bm.rng 3',
                          'execute store result score #g bm.rng run time query gametime', 'scoreboard players operation #g bm.rng %= #10 bm.rng',
                          'scoreboard players set #hit bm.rng 0',
                          'execute if score #g bm.rng matches 0 run scoreboard players set #hit bm.rng 1',
-                         'execute if score #hit bm.rng matches 1 run function bm:p42/dmg {b:40}',
-                         'execute if score #hit bm.rng matches 1 if score #hv bm.rng matches 2 run function bm:p42/dmg {b:35}',
-                         'execute if score #hit bm.rng matches 1 if score #hv bm.rng matches 3 run function bm:p42/dmg {b:30}',
+                         'execute if score #hit bm.rng matches 1 run function bm:p42/dmg {b:60}',
                          'tag @s add bm.p42me', 'scoreboard players set #k bm.rng 0'] +
-       [f'execute if score #hv bm.rng matches {v} anchored eyes positioned ^ ^-0.3 ^0.8 run function bm:p42/flame/ray_{v}' for v in (1, 2, 3)] +
+       [f'execute if score #hv bm.rng matches {v} anchored eyes positioned ^ ^-0.3 ^0.8 run function bm:p42/flame/ray_{v}' for v in (1,)] +
        ['tag @s remove bm.p42me', 'execute if score #hit bm.rng matches 1 run tag @e[tag=bm.p42hit,distance=..24] remove bm.p42hit',
         'execute if score #g bm.rng matches 0 run function bm:p42/flame/sound',
         'execute if score #g bm.rng matches 5 run function bm:p42/flame/sound',
@@ -241,7 +244,7 @@ def generate(G):
     extra = {1: ['execute if score #k bm.rng matches 6.. run particle minecraft:smoke ~ ~0.2 ~ 0.2 0.2 0.2 0.01 1'],
              2: ['particle minecraft:snowflake ~ ~ ~ 0.2 0.2 0.2 0.02 1'],
              3: ['execute if score #k bm.rng matches 4.. run particle minecraft:dust{color:[0.35,0.85,0.2],scale:1.2} ~ ~ ~ 0.25 0.25 0.25 0 1']}
-    for v in (1, 2, 3):
+    for v in (1,):
         part = VARIANTS[v][4]
         lines = ['execute unless block ~ ~ ~ #bm:grap_pass run return 0',
                  'execute if block ~ ~ ~ minecraft:water run return run particle minecraft:cloud ~ ~ ~ 0.2 0.2 0.2 0.02 3',
@@ -310,7 +313,8 @@ def generate(G):
                            'function bm:p42/hv', 'function bm:p42/tier',
                            'execute if score @s bm.hch < #chg bm.rng run return run function bm:p42/blast/fizzle',
                            'scoreboard players set @s bm.hch 0', 'execute at @s run function bm:p42/blast/fire'])
-    fn('p42/blast/fire', ['scoreboard players operation @s bm.hbc = #bcd bm.rng', 'function bm:p42/dmg {b:140}',
+    fn('p42/blast/fire', ['scoreboard players operation @s bm.hbc = #bcd bm.rng',
+                          'execute if score #hv bm.rng matches 3 run return run function bm:p42/plague/fire', 'function bm:p42/dmg {b:140}',
                           'tag @s add bm.p42me', 'scoreboard players set #k bm.rng 0',
                           'playsound minecraft:entity.blaze.shoot player @a[distance=..24] ~ ~ ~ 1.2 0.6',
                           'playsound minecraft:item.firecharge.use player @a[distance=..24] ~ ~ ~ 1 0.5',
@@ -333,6 +337,106 @@ def generate(G):
         'execute if score #hv bm.rng matches 3 run particle minecraft:item_slime ~ ~ ~ 1.5 1.5 1.5 0 30',
         'playsound minecraft:entity.generic.explode player @a[distance=..40] ~ ~ ~ 1.6 0.8',
         'function bm:p42/hit/near_4'])
+
+    # ---------------- 2.32 DEFENSE (the Soulfire Head): hold right-click for a Frost Ward, on the same 10 s of fire
+    fn('p42/ward/use', ['execute if score @s bm.hcd matches 1.. run return run function bm:p42/flame/hot',
+                        'scoreboard players set @s bm.hid 0', 'scoreboard players remove @s bm.hfu 1',
+                        'execute if score @s bm.hfu matches ..0 run return run function bm:p42/ward/out',
+                        'execute unless entity @s[tag=bm.p42ward] run function bm:p42/ward/on',
+                        'effect give @s minecraft:resistance 1 1 true',
+                        'execute store result score #g bm.rng run time query gametime', 'scoreboard players operation #g bm.rng %= #10 bm.rng',
+                        'execute if score #g bm.rng matches 0 run function bm:p42/ward/fx', 'execute if score #g bm.rng matches 0 run function bm:p42/flame/bar'])
+    fn('p42/ward/on', ['tag @s add bm.p42ward', 'attribute @s minecraft:knockback_resistance modifier add bm:p42_ward 1.0 add_value',
+                       'playsound minecraft:block.glass.place player @a[distance=..16] ~ ~ ~ 1 0.6',
+                       'playsound minecraft:entity.player.hurt_freeze player @a[distance=..16] ~ ~ ~ 0.6 0.8'])
+    fn('p42/ward/fx', [*ring(1.3, 14, 1.0, 'minecraft:snowflake'), 'particle minecraft:soul_fire_flame ~ ~1 ~ 0.5 0.6 0.5 0.01 3',
+                       'playsound minecraft:block.powder_snow.step player @a[distance=..16] ~ ~ ~ 0.8 0.7'])
+    fn('p42/ward/off', ['tag @s remove bm.p42ward', 'attribute @s minecraft:knockback_resistance modifier remove bm:p42_ward'])
+    fn('p42/ward/out', ['function bm:p42/ward/off', 'function bm:p42/flame/out'])
+    # let go: the ward drops (the hold wrapper stamps bm.huse every tick the button is down)
+    fn('p42/ward/check', ['execute store result score #now bm.hnow run time query gametime',
+                          'scoreboard players operation #gap bm.rng = #now bm.hnow', 'scoreboard players operation #gap bm.rng -= @s bm.huse',
+                          'execute if score #gap bm.rng matches 3.. run function bm:p42/ward/off'])
+    # whoever hurts a warded player (anything hostile within 4 blocks) is chilled to the bone
+    wjson('bm/advancement/p42/ward_hit.json', {'criteria': {'h': {'trigger': 'minecraft:entity_hurt_player', 'conditions': {'player': [
+        {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.p42ward"]}'}}]}}},
+        'rewards': {'function': 'bm:p42/ward/chill'}})
+    fn('p42/ward/chill', ['advancement revoke @s only bm:p42/ward_hit', 'tag @s add bm.p42me',
+                          'execute as @e[type=#bm:p42_foe,distance=..4] at @s run function bm:p42/ward/chill1',
+                          'tag @s remove bm.p42me', 'particle minecraft:snowflake ~ ~1 ~ 1.2 0.8 1.2 0.05 30',
+                          'playsound minecraft:block.glass.break player @a[distance=..16] ~ ~ ~ 0.8 1.4'])
+    fn('p42/ward/chill1', ['damage @s 3 bm:soulfrost by @a[tag=bm.p42me,limit=1]', 'effect give @s minecraft:slowness 3 3', 'effect give @s minecraft:weakness 3 0',
+                           'data merge entity @s {TicksFrozen:300}', 'particle minecraft:snowflake ~ ~1 ~ 0.3 0.5 0.3 0.02 8'])
+    # the Glacial Nova's shield (the freeze itself is in nova/extra)
+    fn('p42/ward/glacial', ['effect give @s minecraft:absorption 30 2 true', 'effect give @s minecraft:resistance 5 1 true',
+                            *ring(3, 20, 0.2, 'minecraft:snowflake'), 'playsound minecraft:block.glass.break player @a[distance=..32] ~ ~ ~ 1.4 0.6'])
+
+    # ---------------- 2.32 RANGED (the Venomfire Head): hold right-click for Venom Bolts, four a second, 40 blocks
+    fn('p42/bolt/use', ['execute if score @s bm.hcd matches 1.. run return run function bm:p42/flame/hot',
+                        'scoreboard players set @s bm.hid 0', 'scoreboard players remove @s bm.hfu 1',
+                        'execute if score @s bm.hfu matches ..0 run return run function bm:p42/flame/out',
+                        'execute store result score #g bm.rng run time query gametime', 'scoreboard players operation #g bm.rng %= #5 bm.rng',
+                        'execute if score #g bm.rng matches 0 run function bm:p42/bolt/fire',
+                        'scoreboard players operation #g bm.rng = @s bm.hfu', 'scoreboard players operation #g bm.rng %= #10 bm.rng',
+                        'execute if score #g bm.rng matches 0 run function bm:p42/flame/bar'])
+    fn('p42/bolt/fire', ['function bm:p42/dmg {b:35}', 'tag @s add bm.p42me', 'scoreboard players set #k bm.rng 0',
+                         'playsound minecraft:entity.llama.spit player @a[distance=..24] ~ ~ ~ 1 1.3',
+                         'playsound minecraft:block.brewing_stand.brew player @a[distance=..16] ~ ~ ~ 0.3 1.8',
+                         'execute anchored eyes positioned ^ ^-0.2 ^1 run function bm:p42/bolt/step',
+                         'tag @s remove bm.p42me', 'tag @e[tag=bm.p42hit,distance=..48] remove bm.p42hit'])
+    fn('p42/bolt/step', ['scoreboard players add #k bm.rng 1', 'particle minecraft:copper_fire_flame ~ ~ ~ 0.04 0.04 0.04 0.005 1',
+                         'execute if score #k bm.rng matches 2.. run particle minecraft:dust{color:[0.35,0.85,0.2],scale:0.9} ~ ~ ~ 0.05 0.05 0.05 0 1',
+                         f'execute positioned ~ ~-0.9 ~ if entity @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,distance=..1.2] run return run function bm:p42/bolt/hit',
+                         'execute positioned ~ ~-1 ~ if entity @e[type=minecraft:skeleton_horse,tag=bm.hhs,distance=..1.8] run return run function bm:p42/bolt/hit',
+                         f'execute positioned ~ ~-0.9 ~ if entity @a[distance=..1.2,tag=!bm.p42me,{near}] run return run function bm:p42/bolt/hit',
+                         'execute unless block ~ ~ ~ #bm:grap_pass run return run particle minecraft:item_slime ~ ~ ~ 0.1 0.1 0.1 0 3',
+                         'execute if score #k bm.rng matches 40.. run return 0', 'execute positioned ^ ^ ^1 run function bm:p42/bolt/step'])
+    fn('p42/bolt/hit', ['particle minecraft:item_slime ~ ~ ~ 0.2 0.2 0.2 0 6', 'function bm:p42/hit/near_1'])
+
+    # ---------------- 2.32 the Plague Burst (the Venomfire Head's charged shot): a lobbed glob that leaves a poison cloud
+    fn('p42/plague/fire', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid',
+                           'playsound minecraft:entity.witch.throw player @a[distance=..24] ~ ~ ~ 1.2 0.7',
+                           'playsound minecraft:block.brewing_stand.brew player @a[distance=..24] ~ ~ ~ 1 0.6',
+                           'execute anchored eyes positioned ^ ^-0.1 ^1 run summon minecraft:snowball ~ ~ ~ {Tags:["bm.plg","bm.plgnew"],Item:{id:"minecraft:slime_ball",count:1},'
+                           'Passengers:[{id:"minecraft:item_display",Tags:["bm.plgm","bm.plgnew"]}]}',
+                           'execute anchored eyes positioned ^ ^ ^ run summon minecraft:marker ^ ^ ^1 {Tags:["bm.hhvec"]}',
+                           'execute anchored eyes positioned ^ ^ ^ run summon minecraft:marker ~ ~ ~ {Tags:["bm.hhvec0"]}'] +
+       [f'execute store result score #a{a} bm.rng run data get entity @e[type=minecraft:marker,tag=bm.hhvec,limit=1] Pos[{i}] 1000' for i, a in enumerate('xyz')] +
+       [f'execute store result score #s{a} bm.rng run data get entity @e[type=minecraft:marker,tag=bm.hhvec0,limit=1] Pos[{i}] 1000' for i, a in enumerate('xyz')] +
+       [f'scoreboard players operation #a{a} bm.rng -= #s{a} bm.rng' for a in 'xyz'] +
+       ['kill @e[type=minecraft:marker,tag=bm.hhvec]', 'kill @e[type=minecraft:marker,tag=bm.hhvec0]', 'scoreboard players add #ay bm.rng 220',
+        'execute as @e[type=minecraft:snowball,tag=bm.plgnew] run function bm:p42/plague/aim',
+        'scoreboard players operation @e[type=minecraft:item_display,tag=bm.plgnew] bm.pid = @s bm.pid',
+        'scoreboard players set @e[type=minecraft:item_display,tag=bm.plgnew] bm.hzt 100',
+        'tag @e[tag=bm.plgnew] remove bm.plgnew'])
+    fn('p42/plague/aim', [f'execute store result entity @s Motion[{i}] double 0.0012 run scoreboard players get #a{a} bm.rng' for i, a in enumerate('xyz')])
+    fn('p42/plague/riding', ['execute on vehicle run return 1', 'return 0'])
+    fn('p42/plague/fly', ['particle minecraft:dust{color:[0.35,0.85,0.2],scale:1.4} ~ ~ ~ 0.1 0.1 0.1 0 2', 'particle minecraft:item_slime ~ ~ ~ 0.05 0.05 0.05 0 1',
+                          'scoreboard players remove @s bm.hzt 1', 'execute if score @s bm.hzt matches ..0 run return run function bm:p42/plague/burst',
+                          'execute unless function bm:p42/plague/riding run function bm:p42/plague/burst'])
+    fn('p42/plague/burst', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.plgc","bm.plgcn"]}',
+                            'scoreboard players operation @e[type=minecraft:marker,tag=bm.plgcn] bm.pid = @s bm.pid',
+                            'scoreboard players set @e[type=minecraft:marker,tag=bm.plgcn] bm.hzt 120', 'tag @e[tag=bm.plgcn] remove bm.plgcn',
+                            'particle minecraft:item_slime ~ ~0.5 ~ 1 0.5 1 0 40', 'particle minecraft:dust{color:[0.35,0.85,0.2],scale:2.0} ~ ~0.5 ~ 1.5 0.5 1.5 0 40',
+                            'playsound minecraft:entity.splash_potion.break player @a[distance=..32] ~ ~ ~ 1.4 0.6',
+                            'playsound minecraft:block.slime_block.break player @a[distance=..32] ~ ~ ~ 1 0.6',
+                            'execute on vehicle run kill @s', 'kill @s'])
+    # the cloud: 6 s, 3 blocks round; once a second it poisons (withers the undead) and hurts all but its thrower
+    fn('p42/plague/cloud', ['scoreboard players remove @s bm.hzt 5', 'execute if score @s bm.hzt matches ..0 run return run kill @s',
+                            'particle minecraft:dust{color:[0.35,0.85,0.2],scale:2.0} ~ ~0.6 ~ 2 0.4 2 0 12', 'particle minecraft:item_slime ~ ~0.3 ~ 2 0.2 2 0 4',
+                            'particle minecraft:copper_fire_flame ~ ~0.2 ~ 2 0.1 2 0.01 2',
+                            'scoreboard players operation #zt bm.rng = @s bm.hzt', 'scoreboard players operation #zt bm.rng %= #20 bm.rng',
+                            'execute unless score #zt bm.rng matches 0 run return 0',
+                            'scoreboard players operation #cp bm.pid = @s bm.pid', 'execute as @a if score @s bm.pid = #cp bm.pid run tag @s add bm.p42me',
+                            f'execute as @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,distance=..3.2] at @s run function bm:p42/plague/sick',
+                            f'execute as @a[distance=..3.2,tag=!bm.p42me,tag=!bm.nopvp,{near}] at @s run function bm:p42/plague/sick',
+                            'tag @a remove bm.p42me', 'playsound minecraft:block.bubble_column.upwards_ambient player @a[distance=..16] ~ ~ ~ 0.6 0.6'])
+    fn('p42/plague/sick', ['execute if entity @s[type=#minecraft:undead] run effect give @s minecraft:wither 3 1',
+                           'execute unless entity @s[type=#minecraft:undead] run effect give @s minecraft:poison 3 1',
+                           'execute if entity @a[tag=bm.p42me] run return run damage @s 2 bm:venomfire by @a[tag=bm.p42me,limit=1]', 'damage @s 2 bm:venomfire'])
+    tick += ['execute as @a[tag=bm.p42ward] run function bm:p42/ward/check',
+             'execute as @e[type=minecraft:item_display,tag=bm.plgm] at @s run function bm:p42/plague/fly']
+    fast += ['execute as @e[type=minecraft:marker,tag=bm.plgc] at @s run function bm:p42/plague/cloud']
 
     # ---------------- stoking: kills while holding the head; the Nova
     holding = [{'condition': 'minecraft:entity_properties', 'entity': 'this',
@@ -370,7 +474,9 @@ def generate(G):
                                                   T(' / ', 'gray'), {'score': {'name': '#nov', 'objective': 'bm.rng'}, 'color': 'white'}]),
                         'scoreboard players set @s bm.hkl 0',
                         'execute if score #hv bm.rng matches 4 run return run function bm:p42/heal/nova',
-                        'function bm:p42/dmg {b:160}', 'tag @s add bm.p42me'] +
+                        'function bm:p42/dmg {b:160}', 'execute if score #hv bm.rng matches 1 run function bm:p42/dmg {b:220}',
+                        'execute if score #hv bm.rng matches 2 run function bm:p42/dmg {b:100}',
+                        'execute if score #hv bm.rng matches 2 run function bm:p42/ward/glacial', 'tag @s add bm.p42me'] +
        [f'execute if score #hv bm.rng matches {v} run function bm:p42/nova/ring_{v}' for v in (1, 2, 3)] +
        ['particle minecraft:explosion_emitter ~ ~1 ~ 0 0 0 0 1',
         'playsound minecraft:entity.wither.shoot player @a[distance=..40] ~ ~ ~ 1.2 0.6',
@@ -381,32 +487,39 @@ def generate(G):
         title('@s', 'actionbar', T('NOVA!', ORANGE, bold=True))])
     # the Nova's afterburn is longer than a stream's
     fn('p42/nova/extra', ['execute if score #hv bm.rng matches 1 if entity @s[type=!minecraft:player] run data merge entity @s {Fire:160s}',
-                          'execute if score #hv bm.rng matches 2 run effect give @s minecraft:slowness 5 3 true',
+                          'execute if score #hv bm.rng matches 2 run effect give @s minecraft:slowness 3 9 true',
+                          'execute if score #hv bm.rng matches 2 run effect give @s minecraft:mining_fatigue 3 2 true',
                           'execute if score #hv bm.rng matches 2 if entity @s[type=!minecraft:player] run data merge entity @s {TicksFrozen:420}',
+                          'execute if score #hv bm.rng matches 2 at @s run particle minecraft:block{block_state:"minecraft:packed_ice"} ~ ~1 ~ 0.3 0.6 0.3 0 12',
                           'execute if score #hv bm.rng matches 3 unless entity @s[type=#minecraft:undead] run effect give @s minecraft:poison 8 1',
                           'execute if score #hv bm.rng matches 3 if entity @s[type=#minecraft:undead] run effect give @s minecraft:wither 6 1'])
 
     # ---------------- turning the fire: off hand + look up + right-click
-    fn('p42/up/has', ['execute if items entity @s weapon.offhand minecraft:soul_lantern run return 1',
+    fn('p42/up/has', ['execute if items entity @s weapon.offhand #bm:p42_catalyst run return 1',
+                      'execute if items entity @s weapon.offhand minecraft:soul_lantern run return 1',
                       'execute if items entity @s weapon.offhand #bm:p42_copper run return 1',
                       'execute if items entity @s weapon.offhand minecraft:lantern run return 1',
                       'execute if items entity @s weapon.offhand ' + holds % 'heartstone' + ' run return 1', 'return 0'])
+    wjson('bm/tags/item/p42_catalyst.json', {'values': ['minecraft:blaze_rod', 'minecraft:armadillo_scute', 'minecraft:breeze_rod']})
     fn('p42/up/try', ['tag @s add bm.p42lock',
+                      'execute if items entity @s weapon.offhand minecraft:blaze_rod run return run function bm:p42/up/to_1',
+                      'execute if items entity @s weapon.offhand minecraft:armadillo_scute run return run function bm:p42/up/to_2',
+                      'execute if items entity @s weapon.offhand minecraft:breeze_rod run return run function bm:p42/up/to_3',
                       'execute if items entity @s weapon.offhand minecraft:soul_lantern run return run function bm:p42/up/to_2',
                       'execute if items entity @s weapon.offhand #bm:p42_copper run return run function bm:p42/up/to_3',
                       'execute if items entity @s weapon.offhand minecraft:lantern run return run function bm:p42/up/to_1',
                       'execute if items entity @s weapon.offhand ' + holds % 'heartstone' + ' run return run function bm:p42/up/to_4'])
     up_fx = {1: (['particle minecraft:flame ~ ~1.2 ~ 0.4 0.6 0.4 0.05 40', 'playsound minecraft:item.firecharge.use player @a[distance=..16] ~ ~ ~ 1 0.8'],
-                 'The head\'s own hellfire flares back up.', ORANGE),
+                 'The head\'s own hellfire flares back up. OFFENSE.', ORANGE),
              2: (['particle minecraft:soul_fire_flame ~ ~1.2 ~ 0.4 0.6 0.4 0.05 40', 'particle minecraft:soul ~ ~1.2 ~ 0.4 0.6 0.4 0.03 15',
                   'playsound minecraft:particle.soul_escape player @a[distance=..16] ~ ~ ~ 2 0.8', 'playsound minecraft:block.soul_sand.place player @a[distance=..16] ~ ~ ~ 1 0.6'],
-                 'Soul fire takes the head: it burns cold now.', '#5ad8ff'),
+                 'Soul fire takes the head: it burns cold. DEFENSE.', '#5ad8ff'),
              3: (['particle minecraft:copper_fire_flame ~ ~1.2 ~ 0.4 0.6 0.4 0.05 40', 'playsound minecraft:block.copper.place player @a[distance=..16] ~ ~ ~ 1 0.6',
                   'playsound minecraft:block.brewing_stand.brew player @a[distance=..16] ~ ~ ~ 1 0.8'],
-                 'Copper fire takes the head: it burns venomous green.', '#7aff4a'),
+                 'Copper fire takes the head: venom from afar. RANGED.', '#7aff4a'),
              4: (['particle minecraft:heart ~ ~1.4 ~ 0.5 0.5 0.5 0 12', 'particle minecraft:end_rod ~ ~1.2 ~ 0.4 0.6 0.4 0.05 30',
                   'playsound minecraft:entity.warden.heartbeat player @a[distance=..16] ~ ~ ~ 1.5 1', 'playsound minecraft:block.beacon.power_select player @a[distance=..16] ~ ~ ~ 1 1.2'],
-                 'The heart beats inside the head... its fire turns gentle. The Hallowed Head.', '#ff8ac8')}
+                 'The heart beats inside the head... its fire turns gentle. SUPPORT.', '#ff8ac8')}
     for v, (iid, *_r) in VARIANTS.items():
         fx, msg, col = up_fx[v]
         fn(f'p42/up/to_{v}', [f'execute if score #hv bm.rng matches {v} run return run ' + say('It already burns that way.'),
@@ -504,7 +617,7 @@ def generate(G):
     fn('p42/unheld', ['tag @s remove bm.p42on', 'attribute @s minecraft:attack_damage modifier remove bm:p42_power',
                       'attribute @s minecraft:entity_interaction_range modifier remove bm:p42_reach',
                       'execute if entity @s[tag=bm.p42nv] run function bm:p42/nv_off',
-                      'tag @s remove bm.p42chg', 'scoreboard players set @s bm.hch 0'])
+                      'tag @s remove bm.p42chg', 'scoreboard players set @s bm.hch 0', 'execute if entity @s[tag=bm.p42ward] run function bm:p42/ward/off'])
     aura = {1: ['particle minecraft:flame ~ ~1 ~ 0.35 0.5 0.35 0.01 2', 'particle minecraft:small_flame ~ ~0.3 ~ 0.3 0.1 0.3 0.01 1'],
             2: ['particle minecraft:soul_fire_flame ~ ~1 ~ 0.35 0.5 0.35 0.01 2', 'particle minecraft:snowflake ~ ~0.4 ~ 0.3 0.2 0.3 0.01 1'],
             3: ['particle minecraft:copper_fire_flame ~ ~1 ~ 0.35 0.5 0.35 0.01 2', 'particle minecraft:dust{color:[0.35,0.85,0.2],scale:1.0} ~ ~0.5 ~ 0.3 0.3 0.3 0 1'],

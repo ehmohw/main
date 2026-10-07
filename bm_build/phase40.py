@@ -57,6 +57,11 @@ def generate(G):
     for st, (k, col, head, task, n, _, reward) in BOUNTIES.items():
         texts[st] = [T(head + '\n', col, bold=True), T(task + ' before dawn.\n', 'white'), T('Reward: ' + reward + '\n', 'gold'),
                      T('Right-click to sign.', 'gray', italic=True)]
+    # 2.32: the roaming bosses are standing WANTED bounties (paid on the kill - see phase53)
+    for st in texts:
+        texts[st] = texts[st] + [T('\n\nWANTED', '#ff5a3c', bold=True), T(' - dead, any time\n', 'gray'), T('Headless Horseman', '#ff7a1a'),
+                                 T(' (night)\n', 'dark_gray'), T('Sand Pharaoh', '#e8b923'), T(' (desert day)\n', 'dark_gray'), T('Storm Roc', '#7ab8ff'),
+                                 T(' (thunderstorm)\n', 'dark_gray'), T('Each: 8 Tokens + 2 Medallions', 'gold')]
     second.append('execute as @e[type=minecraft:text_display,tag=bm.bboard] unless score @s bm.bst = #bstate bm.rng run function bm:p40/board_text')
     fn('p40/board_text', ['scoreboard players operation @s bm.bst = #bstate bm.rng'] +
        [f'execute if score #bstate bm.rng matches {st} run data modify entity @s text set value {snbt({"text": "", "extra": parts})}' for st, parts in texts.items()])
