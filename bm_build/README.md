@@ -1,4 +1,4 @@
-# Black Market — v2.26 (Java 26.3)
+# Black Market — v2.27 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,17 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.27: the skiff's tractor beam, and a cockpit that fits
+
+**Tractor beam.** Aboard your Vorn Skiff, **look up and right-click the key** to switch on a tractor beam. A column of violet light reaches 20 blocks down from the saucer (about 5 blocks across):
+- creatures and other players under you are lifted up to just below the hull and held there until you switch the beam off or fly away. Then they drop, so mind the fall;
+- dropped items and XP orbs float up into the saucer and straight into your inventory;
+- it won't lift bosses (anything with more than 100 max health), NPCs, or players in creative or spectator.
+
+It runs on **Violet Xenite**, like the hand-held Tractor Beam: one shard per 10 seconds of beam. When you run dry it switches off. Look up and right-click again to turn it off yourself. The laser (right-click), the TNT bomb (look down and right-click) and sneak-to-land all work as before, even with the beam running.
+
+**The pilot fits the cockpit.** Seated players used to perch on top of the dome with their legs sticking out over the hull. The skiff is now 1.5x bigger (about 4 blocks across), and the hull sits so your legs are inside the upper hull and your body and head are inside the glass dome. Skiffs already in your world pick up the new size the next time you board.
 
 ## New in 2.26: Blood Moon goods
 

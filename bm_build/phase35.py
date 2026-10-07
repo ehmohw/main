@@ -32,6 +32,8 @@ RED, GREEN, SUN = '#ff4a4a', '#7dff6a', '#ffcc33'
 W, BF = market2.W, market2.BF
 
 # ===================================================================== the Vorn Skiff
+SKIFF_SCALE = 4.5             # 2.27: was 3 - big enough that a seated pilot's legs stay inside the upper hull and their head inside the dome
+SKIFF_PARK_Y = 0.775          # hull translation while parked (the belly sits where it did at scale 3)
 PARTS = [('skiff_hull', 'Skiff Hull Plating', 'crash'), ('skiff_dome', 'Skiff Canopy Dome', 'crash'), ('skiff_coil', 'Skiff Gravitic Coil', 'crash'),
          ('skiff_core', 'Skiff Navigation Core', 'ship'), ('skiff_emitter', 'Skiff Plasma Emitter', 'ship'), ('skiff_reactor', 'Skiff Micro-Reactor', 'ship')]
 for i, (pid, name, src) in enumerate(PARTS, 1):
@@ -42,6 +44,7 @@ for i, (pid, name, src) in enumerate(PARTS, 1):
 item('skiff_key', TOTEM, 'Vorn Skiff Key', GREEN,
      ['A saucer that answers to you.', ('Right-click: call your skiff and climb in.', 'blue'), ('Aboard: right-click fires a plasma laser;', 'blue'),
       ('look steeply down to drop a charged TNT bomb', 'blue'), ('(one TNT from your inventory, 60 s recharge).', 'gray'),
+      ('Look up + right-click: tractor beam on/off -', 'blue'), ('lifts creatures, players and loot below you', 'blue'), ('(1 Violet Xenite per 10 s).', 'gray'),
       ('Sneak to get out. Not in dungeons or markets.', 'dark_gray')],
      model='bm:skiff_key', stack=1, cat='alien', glint=True, bold=True, comps=hold('none'))
 HOLD['skiff_key'] = 'bm:p35/skiff/use'
@@ -186,7 +189,7 @@ def generate(G):
              'CustomName': T('Vorn Skiff', GREEN, bold=True), 'CustomNameVisible': B(0)}
     hull = {'Tags': ['bm.skdisp', 'bm.sknew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:ufo3d'}},
             'item_display': 'fixed', 'teleport_duration': Int(2), 'brightness': {'block': Int(13), 'sky': Int(13)},
-            'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(0.4), F(0)], 'scale': [F(3.0)] * 3}}
+            'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(SKIFF_PARK_Y), F(0)], 'scale': [F(SKIFF_SCALE)] * 3}}
     fn('p35/skiff/riding', ['execute on vehicle if entity @s[tag=bm.skiff] run return 1', 'return 0'])
     fn('p35/skiff/use', ['execute if function bm:p35/skiff/riding if entity @s[x_rotation=55..90] run return run function bm:p35/skiff/bomb',
                          'execute if function bm:p35/skiff/riding run return run function bm:p35/skiff/laser',

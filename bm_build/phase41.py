@@ -237,8 +237,8 @@ def generate(G):
         'execute unless entity @a[tag=bm.skrider] at @e[tag=bm.skme,limit=1] run tp @s ~ ~ ~ ~ 0',
         'tag @a[tag=bm.skrider] remove bm.skrider', 'tag @e[tag=bm.skme] remove bm.skme']
     fn('p41/skiff/on_pilot', ['execute on vehicle if entity @s[type=minecraft:happy_ghast] run return 1', 'return 0'])
-    fn('p41/skiff/board', ['ride @s mount @e[type=minecraft:happy_ghast,tag=bm.skme,limit=1]', f'data merge entity @s {{transformation:{{translation:[0f,{SKIFF_RIDE_Y}f,0f]}},teleport_duration:0}}'])
-    fn('p41/skiff/unboard', ['ride @s dismount', 'data merge entity @s {transformation:{translation:[0f,0.4f,0f]},teleport_duration:2}'])
+    fn('p41/skiff/board', ['ride @s mount @e[type=minecraft:happy_ghast,tag=bm.skme,limit=1]', f'data merge entity @s {{transformation:{{translation:[0f,{SKIFF_RIDE_Y}f,0f],scale:[{SKIFF_SCALE}f,{SKIFF_SCALE}f,{SKIFF_SCALE}f]}},teleport_duration:0}}'])
+    fn('p41/skiff/unboard', ['ride @s dismount', f'data merge entity @s {{transformation:{{translation:[0f,{SKIFF_PARK_Y}f,0f],scale:[{SKIFF_SCALE}f,{SKIFF_SCALE}f,{SKIFF_SCALE}f]}},teleport_duration:2}}'])
 
     # ================================================================== the Hoard Sack: a locked barrel only its owner's sack opens
     wjson('bm/tags/block/p41_open.json', {'values': ['minecraft:air', 'minecraft:cave_air', 'minecraft:short_grass', 'minecraft:tall_grass',
@@ -318,7 +318,9 @@ def generate(G):
     s[-1:-1] = second
 
 
-SKIFF_RIDE_Y = -0.75          # 2.24: hull translation while piloted: the pilot sits IN the cockpit (the dome round them, the disc at their feet), not perched on top of the dome
+from phase35 import SKIFF_SCALE, SKIFF_PARK_Y
+SKIFF_RIDE_Y = 0.15           # 2.27: hull translation while piloted (the hull rides the ghast, 0.8 up): the seated pilot's legs sit inside the
+                              # upper hull and their body and head inside the dome (tools/render.py check; was -0.75 at scale 3, legs poking out over the dome)
 
 
 # ===================================================================== resource pack

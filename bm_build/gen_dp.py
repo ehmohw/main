@@ -36,7 +36,8 @@ import phase43 as R43        # 2.21: night cosmetics, Hollow wings, the Experien
 import phase44 as R44        # 2.23: glow range, satchel barrel, mailbox repair, soul vials, bounty board
 import phase45 as R45        # 2.24: Cecil the Wizard, the chef's dishes, goofy goods, music, the Vorn walk
 import phase46 as R46        # 2.24: Cecil the companion, the chef's portrait, the Emma doll
-import phase47 as R47        # 2.26: Moon Pact, Thirsting Blade, Vampire's Mirror, Crimson Hourglass, the Blood Moon disc
+import phase47 as R47
+import phase48 as R48        # 2.27: the Vorn Skiff's tractor beam; the skiff's hull fits its pilot        # 2.26: Moon Pact, Thirsting Blade, Vampire's Mirror, Crimson Hourglass, the Blood Moon disc
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import market2 as M2
@@ -960,6 +961,7 @@ def build(out_dir):
     R45.generate(sys.modules[__name__])
     R46.generate(sys.modules[__name__])
     R47.generate(sys.modules[__name__])
+    R48.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     gen_tags_worldgen()
