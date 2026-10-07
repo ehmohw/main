@@ -1,4 +1,4 @@
-# Black Market — v2.23 (Java 26.3)
+# Black Market — v2.24 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,47 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.24: Cecil the Wizard, the chef's new menu, goofy goods and music
+
+**Cecil the Wizard** has moved into the purple fortune teller's tent on the plaza. He's a hooded, grinning sorcerer with a crescent-bladed staff. He breathes, sways, turns to watch you as you walk past, and now and then raises his staff to cast a little spell. Markets already in your world get him automatically. He sells magic:
+
+| Item | Price | What it does |
+|---|---|---|
+| Staff of Sparks | 24 Tokens | Right-click: a bolt hits the creature you aim at (16 blocks) and jumps to up to 3 more nearby, 6 damage each. 1.5 s recharge. |
+| Gravewell Staff | 8 Medallions | Right-click: opens a gravewell where you look. For 3 seconds it drags monsters in, then bursts: 8 damage and they're thrown up. 12 s recharge. |
+| Cecil's Crescent Staff | 4 Trophies | Hits like an axe (11 damage). Right-click: three homing crystal shards seek the nearest monsters, 7 damage each. 4 s recharge. |
+| Prism Bow | 6 Medallions | Arrows burst into a rainbow nova where they land: 5 damage to monsters nearby. |
+| Starcaller Bow | 3 Trophies | A fully drawn arrow calls five falling stars down where it lands, 6 damage each. One volley every 3 seconds. |
+| Bloomheart (gem) | 9 Medallions | Right-click: you and everyone within 8 blocks get Regeneration II for 8 s (45 s recharge). While it's in your off hand, poison and wither won't stick to you. |
+| Tidal Tear (gem) | 9 Medallions | Right-click: a wave rolls 10 blocks ahead. It shoves monsters back, deals 4 damage, slows them, and puts out fires (including you). 20 s recharge. |
+
+Staffs and gems only hurt monsters and animals, never other players.
+
+**Chef Fromage's new menu.** Prime meat is now a great food on its own: eat it as it is for as much food as two steaks, plus a moment of Regeneration. The chef also cooks six new dishes from it:
+
+| Dish | Price | Effect |
+|---|---|---|
+| Fire-Eater's Chili | 2 Prime Porkchop + 6 Tokens | Fire Resistance 8:00 |
+| Deep-Sea Chowder | 2 Prime Chicken + 6 Tokens | Water Breathing 8:00, Dolphin's Grace 3:00 |
+| Moonlit Kebab | 2 Prime Mutton + 5 Tokens | Night Vision 10:00 |
+| Lucky Rabbit Pot Pie | 3 Prime Rabbit + 3 Medallions | Luck II 20:00, Jump Boost 5:00 |
+| Hunter's Roast | 3 Prime Beef + 3 Medallions | Absorption III 4:00, fills you up |
+| Featherlight Drumsticks | 2 Prime Chicken + 2 Medallions | Slow Falling 5:00 |
+
+He also sells the **Grand Banquet** (6 Medallions + 2 Prime Beef). Set it down on a block and anyone can right-click it for a helping: food, Regeneration and Absorption. It has 8 helpings, and each person can take one every 30 seconds.
+
+**Goofy goods.** Old Barnaby sells these, and they can also turn up in loot chests across the world:
+- **Groovy Lava Lamp** (6 Tokens): set it on a block and it glows, with blobs drifting up and down. Right-click it to cycle through six colours.
+- **Portable Trash Can** (5 Tokens): right-click and a trash can pops up in front of you. Anything you put in it is destroyed. It folds away when you walk off.
+- **Whoopee Cushion** (3 Tokens): hide it on a block. Whoever steps on it (player or mob) finds out.
+- **Boombox** (2 Medallions): set it down and right-click it to play the next track; it cycles through every music disc. Sneak + right-click to stop it.
+- **Pocket Ocarina** (8 Tokens): right-click to play a note. Look up for high notes and down for low ones, across two octaves. Sneak + right-click to switch between nine instruments.
+- **Display Skiff** (9 Tokens, from Salty Sal at the docks): a Vorn Skiff ornament that doesn't fly. Right-click it with a dye to repaint it (six colours), or sneak + right-click to change its decal.
+
+Sneak + punch picks up a lamp, cushion, boombox or display skiff.
+
+**The Vorn** no longer stand on a hoverboard. They walk on their own feet, with a walking animation. Vorn already in your world update automatically.
 
 ## New in 2.23: the Hollow King's tools wake up, and a round of fixes
 

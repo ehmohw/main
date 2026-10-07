@@ -34,6 +34,7 @@ import phase41 as R41        # 2.20: market fixes + shafts, the Vorn fixes, the 
 import phase42 as R42        # 2.20: the Headless Horseman and his head
 import phase43 as R43        # 2.21: night cosmetics, Hollow wings, the Experience Charm
 import phase44 as R44        # 2.23: glow range, satchel barrel, mailbox repair, soul vials, bounty board
+import phase45 as R45        # 2.24: Cecil the Wizard, the chef's dishes, goofy goods, music, the Vorn walk
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import market2 as M2
@@ -232,6 +233,7 @@ NPCS = {
 }
 NPCS.update(P.NEW_NPCS)
 NPCS.update(R34.NEW_NPCS)
+NPCS.update(R45.NEW_NPCS)
 
 
 def all_offers():
@@ -250,6 +252,7 @@ def all_offers():
     R39.extend_offers(O, offer)
     R41.extend_offers(O, offer)
     R43.extend_offers(O, offer)
+    R45.extend_offers(O, offer)
     return O
 
 
@@ -272,6 +275,10 @@ def gen_npcs():
             base['VillagerData'] = {'type': f'minecraft:{vtype}', 'profession': f'minecraft:{prof}', 'level': Int(5)}
             base['Xp'] = Int(250)
             base['VillagerDataFinalized'] = B(1)
+            if kind == 'custom':                  # 2.24: an invisible hitbox; the NPC's own module builds the model
+                base['Silent'] = B(1)
+                base['active_effects'] = [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1),
+                                           'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}]
             if kind == 'rat':
                 base['Silent'] = B(1)
                 base['active_effects'] = [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1),
@@ -280,6 +287,8 @@ def gen_npcs():
             cmds.append(f'summon minecraft:villager ~ ~ ~ {snbt(base)}')
             if kind == 'rat':
                 cmds.append(rat_sprite(sprite, ['bm.npc', 'bm.new', 'bm.rat_sprite']))
+            if kind == 'custom':
+                cmds.append(f'function bm:p45/cecil/rig')
         fn(f'npc/{k}', cmds + fin)
     fn('npc/deco_rat', [rat_sprite('bm:rat_pirate', ['bm.npc', 'bm.new', 'bm.rat_sprite'], 0.7)] + fin)
     key = {'Tags': ['bm.npc', 'bm.new', 'bm.key_display'], 'item': stack('market_key'), 'item_display': 'ground',
@@ -753,7 +762,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.23' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.24' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -893,7 +902,7 @@ def build(out_dir):
     os.makedirs(OUT)
     with open(path('pack.mcmeta'), 'w') as f:
         json.dump({'pack': {'description': [{'text': 'Black Market ', 'color': 'dark_purple', 'bold': True},
-                                            {'text': ('v2.23 (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
+                                            {'text': ('v2.24 (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
                             'min_format': [121, 0], 'max_format': 121}}, f, indent=1)
     gen_npcs()
     second = gen_mobs()
@@ -943,6 +952,7 @@ def build(out_dir):
     R42.generate(sys.modules[__name__])
     R43.generate(sys.modules[__name__])
     R44.generate(sys.modules[__name__])
+    R45.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     gen_tags_worldgen()

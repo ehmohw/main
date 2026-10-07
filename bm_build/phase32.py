@@ -365,8 +365,7 @@ def generate(G):
     trooper = {'Tags': ['bm.seen', 'bm.vorn', 'bm.vtroop'], 'Silent': B(1), 'CanPickUpLoot': B(0), 'CustomName': T('Vorn Trooper', GREEN),
                'DeathLootTable': 'bm:p32/trooper', 'Health': F(30), 'attributes': attrs(max_health=30, movement_speed=0.27, follow_range=40, attack_damage=4),
                'active_effects': [invis, fireres], 'drop_chances': nodrop,
-               'Passengers': [disp('bm:hoverboard', 1.1, round(-HUSK_SEAT + 0.12, 3), ('bm.vdisp', 'bm.vboard')),
-                              disp('bm:vorn3d', TS, round(-HUSK_SEAT + 0.32 + TS / 2, 3), ('bm.vdisp', 'bm.vbody'))]}
+               'Passengers': [disp('bm:vorn3d', TS, round(-HUSK_SEAT + TS / 2, 3), ('bm.vdisp', 'bm.vbody'))]}      # 2.24: on foot (the hoverboard is gone)
     fn('p32/spawn/trooper', ['execute unless block ~ ~ ~ #minecraft:replaceable run return 0', f'summon minecraft:husk ~ ~ ~ {snbt(trooper)}',
                              'particle minecraft:end_rod ~ ~1 ~ 0.3 1 0.3 0.05 20', 'playsound minecraft:block.beacon.power_select hostile @a[distance=..32] ~ ~ ~ 0.8 1.6'])
     SS = 3
@@ -428,8 +427,7 @@ def generate(G):
                'CustomName': T('The Vorn Warlord', RED, bold=True), 'CustomNameVisible': B(1), 'DeathLootTable': 'bm:p32/warlord', 'Health': F(400),
                'attributes': attrs(max_health=400, movement_speed=0.3, follow_range=64, attack_damage=10, armor=12, knockback_resistance=1.0, scale=WS),
                'active_effects': [invis, fireres], 'drop_chances': nodrop,
-               'Passengers': [disp('bm:hoverboard_red', 1.1 * WS, round(-HUSK_SEAT * WS + 0.2, 3), ('bm.vdisp',)),
-                              disp('bm:vorn3d_warlord', TS * WS, round(-HUSK_SEAT * WS + 0.5 + TS * WS / 2, 3), ('bm.vdisp',))]}
+               'Passengers': [disp('bm:vorn3d_warlord', TS * WS, round(-HUSK_SEAT * WS + TS * WS / 2, 3), ('bm.vdisp',))]}
     fn('p32/boss/warlord', [f'summon minecraft:husk ~ ~ ~ {snbt(warlord)}', 'particle minecraft:explosion_emitter ~ ~1 ~ 0 0 0 0 1',
                             'playsound minecraft:entity.wither.spawn hostile @a[distance=..64] ~ ~ ~ 0.8 1.4',
                             'team join bm.vornred @e[tag=bm.vb_warlord,distance=..3]',
