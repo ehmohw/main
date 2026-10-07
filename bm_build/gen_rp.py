@@ -660,7 +660,11 @@ def build(out_dir):
     for mod in TEXTURE_MODS:                                           # 2.13+: later phases' block-atlas textures
         for name, im in mod.textures().items():
             im.save(p('assets', 'bm', 'textures', 'block', name + '.png'))
+    import vanilla                                                     # 2.25: the vanilla-style finishing pass (vanilla.py)
+    for name, im in vanilla.textures().items():
+        im.save(p('assets', 'bm', 'textures', 'block', name + '.png'))
     for name, im in ICONS.items():
+        im = vanilla.process(name, im)
         im.save(p('assets', 'bm', 'textures', 'item', name + '.png'))
         wj(f'assets/bm/models/item/{name}.json', {'parent': 'minecraft:item/handheld' if name in handheld else 'minecraft:item/generated',
                                                     'textures': {'layer0': f'bm:item/{name}'}})
