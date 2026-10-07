@@ -354,6 +354,8 @@ def generate(G):
                    say('Jammer on. No Vorn will drop in near you until dawn.', '#7a8a9c')])
     fn('p52/jam_refund', [give('signal_jammer'), say('There is nothing to jam tonight. (Refunded)')])
     G.FUNCS['p32/inv/surge'].insert(0, 'execute if entity @a[tag=bm.jam,distance=..48] run return 0')
+    for name in [n for n in G.FUNCS if n.startswith('p32/bio/roll_')]:            # (natural spawns turned into Vorn beasts, too)
+        G.FUNCS[name].insert(0, 'execute if entity @a[tag=bm.jam,distance=..48] run return 0')
     G.FUNCS['p32/inv/end'].append('tag @a remove bm.jam')
     second.append('execute unless score #inv bm.bm matches 1 run tag @a[tag=bm.jam] remove bm.jam')
     second.append('execute as @a[tag=bm.jam] at @s run particle minecraft:electric_spark ~ ~2.2 ~ 0.2 0.1 0.2 0.02 1')
