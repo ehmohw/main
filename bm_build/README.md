@@ -1,4 +1,4 @@
-# Black Market — v2.28 (Java 26.3)
+# Black Market — v2.29 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,40 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.29: finding your way, and keeping your things
+
+**The Newcomers' book is always up to date.** The book on the "Newcomers, Start Here" lectern is now built from the traders' real stock every time the pack is built. It lists where every trader stands (Cecil and Zorp included), the Bounty Board, then **who sells what**, by name only (no prices). Markets already in your world get the new book automatically the next time someone is nearby.
+
+**A Black Market advancement tab.** Your first Black Market Token opens it. Goals include: your first trade, living through a Blood Moon, Lucky Night and Invasion Night, the Blood Moon record, assembling a Vorn Skiff, Cecil's gem, a Heartstone, placing a tinkering block, reclaiming a grave, and challenges for the Monstrosity, the Blood Eclipse, the Headless Horseman, a mothership boss and all six dungeon bosses in order.
+
+**Crafting recipes** for the simpler tinkering goods. They appear in your recipe book once you've earned a token:
+
+| Item | Recipe (shaped) |
+|---|---|
+| Tinker's Wrench | 3 iron ingots in a diagonal |
+| Wireless Transmitter | ender pearl on top, redstone lamp in the middle, 3 redstone around it |
+| Wireless Receiver | ender pearl on top, copper block in the middle, 3 redstone around it |
+| Redstone Clock | a clock with 4 redstone around it |
+| Sorting Chest | a chest with 4 comparators around it |
+| Filter Hopper | item frame on top, then comparator, hopper, comparator |
+| Vacuum Hopper | ender pearl on top, then ender pearl, hopper, ender pearl |
+| Block Breaker | iron pickaxe over a dispenser |
+| Block Placer | piston over a dropper |
+| Item Compactor | a copper grate with 4 pistons around it |
+| Lag Lens | a spyglass with 4 glass around it |
+
+The Filter Hopper's recipe is 2 rows: the frame sits in the top-middle slot.
+
+**Server settings** for ops: `/function bm:admin/settings`. Click to change:
+- **Blood Moon interval:** every 10, 20, 30 (default), 45 or 60 days, or never on its own. A Crimson Effigy can still call one.
+- **Block Breaker** on/off.
+- **Skiff TNT bombs** on/off.
+- **Magic hurts players** on/off: Cecil's staffs and bows, the Tidal Tear, the Gravewell, Prism and Starcaller blasts.
+
+**The Grave Charm** (the Fence, 10 Tokens). Keep it anywhere in your inventory. When you die, everything you were carrying is laid in a grave where you fell instead of scattering, and you're told the grave's coordinates. **Only you can open it:** right-click the gravestone and your things come back, the charm included. Without the charm, death works as usual.
+
+**`/function bm:admin/help`** now lists every admin command, including the settings. Click one to fill it into chat.
 
 ## New in 2.28: tinkering goods, and a glass cockpit
 

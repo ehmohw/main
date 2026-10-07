@@ -64,7 +64,9 @@ def generate(G):
         G.R46.extend_offers(O, G.offer)
         G.R47.extend_offers(O, G.offer)
         G.R49.extend_offers(O, G.offer)
+        G.R50.extend_offers(O, G.offer)
         return O
+    G.P2_OFFERS = offers                     # 2.29: the newcomers' book reads the final trade lists
     from p2 import patch21, trophies, wilfrey
     parts = [logic.generate(G, B), bosses.generate(G, B), data.generate(G, B, offers), patch21.generate(G, B), trophies.generate(G), wilfrey.generate(G),
              regalia.generate(G, B), hollowtools.generate(G, B)]
