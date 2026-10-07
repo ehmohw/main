@@ -63,6 +63,7 @@ def generate(G):
         G.R45.extend_offers(O, G.offer)
         G.R46.extend_offers(O, G.offer)
         G.R47.extend_offers(O, G.offer)
+        G.R49.extend_offers(O, G.offer)
         return O
     from p2 import patch21, trophies, wilfrey
     parts = [logic.generate(G, B), bosses.generate(G, B), data.generate(G, B, offers), patch21.generate(G, B), trophies.generate(G), wilfrey.generate(G),

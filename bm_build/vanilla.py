@@ -254,7 +254,26 @@ def textures():
         T[f'skiff_{k}_hull'] = _plates(hull, 100 + i)
         T[f'skiff_{k}_deck'] = _plates(deck, 200 + i)
     T['skiff_belly'] = _belly(5)
+    for k, tint in SKIFF_GLASS.items(): T[f'skiff_{k}_dome'] = _dome(tint)
     return T
+
+
+# 2.28: each paint's canopy - clear tinted glass (25% in the middle, a firmer rim, a highlight streak) so the pilot shows through
+SKIFF_GLASS = {'green': '#9ad8f4', 'crimson': '#f07070', 'gold': '#f4d870', 'midnight': '#b088f0', 'ocean': '#70dcdc', 'rose': '#f090d8'}
+
+
+def _dome(tint):
+    from PIL import Image
+    t = _hex(tint)[:3]
+    rim = tuple(int(v * 0.62) for v in t)
+    im = Image.new('RGBA', (16, 16))
+    for y in range(16):
+        for x in range(16):
+            edge = x in (0, 15) or y in (0, 15)
+            if edge: im.putpixel((x, y), rim + (190,))
+            elif x + y in (8, 9) or x + y == 20: im.putpixel((x, y), (240, 250, 255, 150))       # glints
+            else: im.putpixel((x, y), t + (64,))
+    return im
 
 
 # ===================================================================== 2.25b: vanilla sprites as bases (keys, bottles, boots, the maul, emblems)

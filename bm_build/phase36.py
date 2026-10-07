@@ -432,6 +432,7 @@ def rp(R):
               'rose': ('minecraft:block/pink_concrete', 'minecraft:block/white_concrete', 'minecraft:block/magenta_stained_glass', 'minecraft:block/pearlescent_froglight_side')}
     for col, (h, p, g, l) in paints.items():
         h, p = f'bm:block/skiff_{col}_hull', f'bm:block/skiff_{col}_deck'           # 2.25: riveted hull plates in each paint (vanilla.py)
+        g = f'bm:block/skiff_{col}_dome'                                          # 2.28: clear canopy glass (vanilla.py)
         tex = {'h': h, 'p': p, 'g': g, 'l': l, 'd': 'bm:block/skiff_belly', 'w': 'minecraft:block/white_concrete',
                'y': 'minecraft:block/gold_block', 'o': 'minecraft:block/orange_concrete', 'r': 'minecraft:block/red_concrete'}
         base = [c((3, 4, 3), (13, 6, 13), 'd'), c((0.5, 6, 3), (15.5, 7.5, 13), 'h'), c((3, 6.03, 0.5), (13, 7.47, 15.5), 'h'),

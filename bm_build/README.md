@@ -1,4 +1,4 @@
-# Black Market — v2.27 (Java 26.3)
+# Black Market — v2.28 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,26 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.28: tinkering goods, and a glass cockpit
+
+**Prof. Whiskerton** now sells redstone helpers (prices in Black Market Tokens). Each is a real vanilla block, so hoppers, redstone and pistons treat it normally. Right-click a block face with one to place it; break it to get it back.
+
+| Item | Price | What it does |
+|---|---|---|
+| Filter Hopper | 3 | A hopper that only takes the items shown in **item frames on its sides**. It watches the item at the front of the line above it (a hopper or chest) or the loose items on top, and waits while that item isn't on its list. Wanted items move at normal hopper speed. With no frames it's an ordinary hopper. |
+| Vacuum Hopper | 4 | Pulls loose items within 8 blocks onto itself every second. Lock it with redstone to switch it off. |
+| Item Compactor | 4 | Every 5 seconds, gathers loose items and XP within 12 blocks onto itself, where they merge into full stacks. Fewer item entities means less lag. |
+| Wireless Transmitter | 2 | A redstone lamp. While it's powered, every Wireless Receiver on the same channel turns on, at any distance (in loaded chunks). |
+| Wireless Receiver | 2 | A copper block that becomes a redstone block while a transmitter on its channel is powered. **The channel is the item's name:** rename a transmitter and a receiver to the same name in an anvil. Unnamed ones share one channel. |
+| Redstone Clock | 2 | Gives a redstone pulse every 1–60 seconds (it starts at 1). |
+| Block Breaker | 4 | A dispenser that, when powered, breaks the block in front of it. The block drops as if mined. It won't break bedrock, portals or spawners. |
+| Block Placer | 4 | A dropper that places the blocks it drops (when the space in front is free). Anything that isn't a block is dropped as usual. |
+| Sorting Chest | 3 | Tidies itself every time it's opened: stacks are merged (respecting each item's stack size) and sorted A to Z. |
+| Lag Lens | 2 | Right-click for the entity and dropped-item counts in the 3×3 chunks around you, plus the dimension's totals. |
+| Tinker's Wrench | 1 | Right-click a tinkering block to read it. On a Redstone Clock, right-click adds 1 s and sneak + right-click takes 1 s off. On a Sorting Chest, it sorts it now. |
+
+**Glass canopy.** The Vorn Skiff's dome (every paint, the UFO mount and the Display Skiff) is now clear tinted glass, so you can see the pilot sitting inside. The hull also sits a touch higher around the pilot, so your head clears the top of the dome.
 
 ## New in 2.27: the skiff's tractor beam, and a cockpit that fits
 

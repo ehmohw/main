@@ -319,7 +319,7 @@ def generate(G):
 
 
 from phase35 import SKIFF_SCALE, SKIFF_PARK_Y
-SKIFF_RIDE_Y = 0.15           # 2.27: hull translation while piloted (the hull rides the ghast, 0.8 up): the seated pilot's legs sit inside the
+SKIFF_RIDE_Y = 0.22           # 2.27: hull translation while piloted (the hull rides the ghast, 0.8 up): the seated pilot's legs sit inside the
                               # upper hull and their body and head inside the dome (tools/render.py check; was -0.75 at scale 3, legs poking out over the dome)
 
 

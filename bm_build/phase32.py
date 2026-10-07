@@ -825,7 +825,7 @@ def rp(R):
         return e
     def ufo(red=False):
         paint = 'crimson' if red else 'green'                     # 2.25: the skiff's riveted plates (vanilla.py)
-        tex = {'h': f'bm:block/skiff_{paint}_hull', 'p': f'bm:block/skiff_{paint}_deck', 'g': 'minecraft:block/light_blue_stained_glass' if not red else 'minecraft:block/red_stained_glass',
+        tex = {'h': f'bm:block/skiff_{paint}_hull', 'p': f'bm:block/skiff_{paint}_deck', 'g': f'bm:block/skiff_{paint}_dome',                     # 2.28: clear canopy glass (vanilla.py)
                'l': 'minecraft:block/verdant_froglight_side' if not red else 'minecraft:block/shroomlight', 'd': 'bm:block/skiff_belly'}
         els = [c((3, 4, 3), (13, 6, 13), 'd'),                                                  # belly
                c((0.5, 6, 3), (15.5, 7.5, 13), 'h'), c((3, 6.03, 0.5), (13, 7.47, 15.5), 'h'),        # the disc (two crossed slabs + a turned one)

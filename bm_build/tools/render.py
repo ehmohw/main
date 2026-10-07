@@ -55,6 +55,8 @@ class Scene:
         return m
 
     def texture(self, tid):
+        if tid.startswith('#') and tid not in self.tex:                # a flat colour (solid boxes)
+            self.tex[tid] = np.array([[[int(tid[i:i + 2], 16) / 255 for i in (1, 3, 5)] + [1.0]]], np.float32)
         if tid not in self.tex:
             im = Image.open(self._path(tid, 'textures', '.png')).convert('RGBA')
             if im.height > im.width: im = im.crop((0, 0, im.width, im.width))
@@ -103,6 +105,14 @@ class Scene:
     def box(self, lo, hi, color=(1, 0, 0)):
         self.faces.append(('box', lo, hi, color))
 
+    def solid(self, lo, hi, color='#c08060'):
+        """an opaque, z-buffered box (unlike box(), which is a wireframe drawn on top)"""
+        (x0, y0, z0), (x1, y1, z1) = lo, hi
+        quads = [[(x0, y0, z0), (x1, y0, z0), (x1, y1, z0), (x0, y1, z0)], [(x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1)],
+                 [(x0, y0, z0), (x0, y0, z1), (x0, y1, z1), (x0, y1, z0)], [(x1, y0, z0), (x1, y0, z1), (x1, y1, z1), (x1, y1, z0)],
+                 [(x0, y0, z0), (x1, y0, z0), (x1, y0, z1), (x0, y0, z1)], [(x0, y1, z0), (x1, y1, z0), (x1, y1, z1), (x0, y1, z1)]]
+        for q in quads: self.faces.append((q, [(0, 0), (1, 0), (1, 1), (0, 1)], color))
+
     def player_box(self, at=(1.2, 0, 0)):
         self.box((at[0] - 0.3, at[1], at[2] - 0.3), (at[0] + 0.3, at[1] + 1.8, at[2] + 0.3), (1, 0.2, 0.2))
 
@@ -128,8 +138,12 @@ class Scene:
                     x, y = (pa[:2] * (1 - t) + pb[:2] * t).astype(int)
                     if 0 <= x < size and 0 <= y < size: img[y, x] = [0.55, 0.62, 0.55] if g else [0.2, 0.5, 0.2]
         light = np.array([0.4, 0.8, 0.45]); light /= np.linalg.norm(light)
-        for f in self.faces:
+        def depth(f):
+            return 0 if f[0] == 'box' else -float(np.mean([proj(p)[2] for p in f[0]]))
+        faces = [(0, f) for f in self.faces] + sorted(((1, f) for f in self.faces if f[0] != 'box'), key=lambda t: depth(t[1]))
+        for blend, f in faces:
             if f[0] == 'box':
+                if blend: continue
                 _, lo, hi, col = f
                 corners = [(x, y, z) for x in (lo[0], hi[0]) for y in (lo[1], hi[1]) for z in (lo[2], hi[2])]
                 P = [proj(p) for p in corners]
@@ -143,6 +157,7 @@ class Scene:
                 continue
             pts, uvs, tid = f
             tex = self.texture(tid); th, tw = tex.shape[:2]
+            if blend and tex[..., 3].min() > 0.9: continue
             P = [proj(p) for p in pts]
             nrm = np.cross(np.array(pts[1]) - pts[0], np.array(pts[3]) - pts[0])
             if np.linalg.norm(nrm) < 1e-9: continue
@@ -168,9 +183,15 @@ class Scene:
                 ui = np.clip(u.astype(int), 0, tw - 1); vi = np.clip(v.astype(int), 0, th - 1)
                 texel = tex[vi, ui]
                 sub = zb[y0:y1 + 1, x0:x1 + 1]
-                ok = inside & (z < sub) & (texel[..., 3] > 0.1)
-                sub[ok] = z[ok]
-                img[y0:y1 + 1, x0:x1 + 1][ok] = texel[..., :3][ok] * shade
+                a = texel[..., 3]
+                if not blend:                                         # opaque texels (alpha > 0.9) write depth
+                    ok = inside & (z < sub) & (a > 0.9)
+                    sub[ok] = z[ok]
+                    img[y0:y1 + 1, x0:x1 + 1][ok] = texel[..., :3][ok] * shade
+                else:                                                 # translucent texels blend over what's behind them
+                    ok = inside & (z < sub) & (a > 0.1) & (a <= 0.9)
+                    reg = img[y0:y1 + 1, x0:x1 + 1]
+                    reg[ok] = reg[ok] * (1 - a[ok, None]) + texel[..., :3][ok] * shade * a[ok, None]
         return Image.fromarray((np.clip(img, 0, 1) * 255).astype(np.uint8))
 
     def save(self, path, views=('front', 'side', 'iso'), **kw):
