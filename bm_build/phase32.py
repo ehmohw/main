@@ -135,7 +135,7 @@ def generate(G):
     wjson('bm/predicate/p32/c15.json', {'condition': 'minecraft:random_chance', 'chance': 0.15})
     wjson('bm/tags/entity_type/p32_nobeam.json', {'values': ['#bm:ray_ignore', 'minecraft:ender_dragon']})
     shard = lambda c: f'*[minecraft:custom_data~{{bm:"xenite_{c}"}}]'
-    mob_ok = 'type=!#bm:ray_ignore,tag=!bm.npc,tag=!bm.frogpet,tag=!bm.wilfrey,tag=!bm.donado,tag=!bm.wil_body,tag=!bm.merc'
+    mob_ok = 'type=!#bm:ray_ignore,tag=!bm.npc,tag=!bm.frogpet,tag=!bm.wilfrey,tag=!bm.donado,tag=!bm.wil_body,tag=!bm.merc,tag=!bm.cecilpet'
 
     # ------------------------------------------------------------------ loot tables (shards from Vorn and bio mobs)
     def shard_pool(n_lo, n_hi, p=1.0, colors=('green', 'violet', 'cyan')):

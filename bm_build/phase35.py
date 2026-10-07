@@ -146,7 +146,7 @@ def generate(G):
     G.OBJECTIVES += [o.split()[0] for o in objs]
     holds = '*[minecraft:custom_data~{bm:"%s"}]'
     ident = [F(0), F(0), F(0), F(1)]
-    mob_ok = 'type=!#bm:ray_ignore,tag=!bm.npc,tag=!bm.frogpet,tag=!bm.wilfrey,tag=!bm.donado,tag=!bm.wil_body,tag=!bm.merc,tag=!bm.skiff,tag=!bm.skdisp'
+    mob_ok = 'type=!#bm:ray_ignore,tag=!bm.npc,tag=!bm.frogpet,tag=!bm.wilfrey,tag=!bm.donado,tag=!bm.wil_body,tag=!bm.merc,tag=!bm.cecilpet,tag=!bm.skiff,tag=!bm.skdisp'
 
     def add_pools(rel, pools):
         """Append pools to a loot table the earlier phases already wrote."""

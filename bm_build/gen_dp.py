@@ -35,6 +35,7 @@ import phase42 as R42        # 2.20: the Headless Horseman and his head
 import phase43 as R43        # 2.21: night cosmetics, Hollow wings, the Experience Charm
 import phase44 as R44        # 2.23: glow range, satchel barrel, mailbox repair, soul vials, bounty board
 import phase45 as R45        # 2.24: Cecil the Wizard, the chef's dishes, goofy goods, music, the Vorn walk
+import phase46 as R46        # 2.24: Cecil the companion, the chef's portrait, the Emma doll
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import market2 as M2
@@ -174,7 +175,8 @@ def npc_offers():
         offer(('token', 2), ('sealed_map_market', 1)),
         offer(('token', 1), ('sealed_map_graveyard', 1)),
     ]
-    arms_buy = ['kokiri_sword', 'cranky_pick', 'hammer_bro_hatchet', 'fairy_bow', 'hylian_shield', 'zora_trident', 'super_hammer']
+    arms_buy = ['kokiri_sword', 'cranky_pick', 'hammer_bro_hatchet', 'hylian_shield',      # 2.24: the Fairy Bow is Cecil's
+                'zora_trident', 'super_hammer']
     arms_ids = set(arms_buy) | {'master_sword', 'biggoron_sword', 'minecart_pick', 'kong_krusher', 'koopa_cleaver',
                                 'giga_greataxe', 'ultra_hammer'}      # 2.24: the Hero's Bow and Bow of Light are Cecil's now
     O['arms'] = [offer(PRICES[i], (i, 1)) for i in arms_buy]
@@ -253,6 +255,7 @@ def all_offers():
     R41.extend_offers(O, offer)
     R43.extend_offers(O, offer)
     R45.extend_offers(O, offer)
+    R46.extend_offers(O, offer)
     return O
 
 
@@ -953,6 +956,7 @@ def build(out_dir):
     R43.generate(sys.modules[__name__])
     R44.generate(sys.modules[__name__])
     R45.generate(sys.modules[__name__])
+    R46.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     gen_tags_worldgen()

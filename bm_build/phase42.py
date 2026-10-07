@@ -256,7 +256,7 @@ def generate(G):
 
     # ---------------- who the head's fire can hurt: any mob (2.23: animals too - and they come out cooked), the Hellsteed, other players (never its user)
     for name, r in [('near_1', 1.6), ('near_4', 4), ('near_10', 10)]:
-        fn(f'p42/hit/{name}', [f'execute as @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,distance=..{r},tag=!bm.p42hit] run function bm:p42/hit/one',
+        fn(f'p42/hit/{name}', [f'execute as @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,distance=..{r},tag=!bm.p42hit] run function bm:p42/hit/one',
                                f'execute as @e[type=minecraft:skeleton_horse,tag=bm.hhs,distance=..{r + 0.6},tag=!bm.p42hit] run function bm:p42/hit/one',
                                f'execute as @a[distance=..{r},tag=!bm.p42hit,tag=!bm.p42me,{near}] run function bm:p42/hit/one'])
     fn('p42/hit/one', ['tag @s add bm.p42hit'] + [f'execute if score #hv bm.rng matches {v} run function bm:p42/hit/apply_{v} with storage bm:tmp p42' for v in (1, 2, 3)] + [
@@ -319,7 +319,7 @@ def generate(G):
     fn('p42/blast/step', ['scoreboard players add #k bm.rng 1'] +
        [f'execute if score #hv bm.rng matches {v} run particle {VARIANTS[v][4]} ~ ~ ~ 0.12 0.12 0.12 0.01 4' for v in (1, 2, 3)] +
        ['particle minecraft:smoke ~ ~ ~ 0.05 0.05 0.05 0.01 1',
-        'execute if entity @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,distance=..1.3] run return run function bm:p42/blast/boom',
+        'execute if entity @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,distance=..1.3] run return run function bm:p42/blast/boom',
         'execute if entity @e[type=minecraft:skeleton_horse,tag=bm.hhs,distance=..1.9] run return run function bm:p42/blast/boom',
         f'execute if entity @a[distance=..1.3,tag=!bm.p42me,{near}] run return run function bm:p42/blast/boom',
         'execute unless block ~ ~ ~ #bm:grap_pass run return run function bm:p42/blast/boom',

@@ -34,7 +34,7 @@ staff = lambda dmg, spd: [attr('attack_damage', dmg, 'mainhand', ident='minecraf
                           attr('attack_speed', spd, 'mainhand', ident='minecraft:base_attack_speed')]
 item('staff_of_sparks', TOTEM, 'Staff of Sparks', '#7ad8ff',
      ['A copper rod that hums in the rain.', ('Right-click: a bolt leaps to the creature', 'blue'), ('you aim at (16 blocks), then jumps to', 'blue'),
-      ('up to 3 more nearby. 6 damage each.', 'blue'), ('1.5 second recharge.', 'gray')],
+      ('up to 3 more nearby - monsters or players.', 'blue'), ('6 damage each.', 'blue'), ('1.5 second recharge.', 'gray')],
      model='bm:staff_of_sparks', stack=1, cat='magic', comps=dict(hold('none'), **{'minecraft:attribute_modifiers': staff(3, -2.4)}), tier=1)
 item('gravewell_staff', TOTEM, 'Gravewell Staff', '#b48cff',
      ['A staff with a tiny black hole for a head.', ('Right-click: open a gravewell where you look', 'blue'), ('(20 blocks). For 3 seconds it drags monsters', 'blue'),
@@ -152,7 +152,14 @@ def generate(G):
             'bm.skp dummy', 'bm.skd2 dummy', 'bm.gwt dummy', 'bm.wav dummy', 'bm.trt dummy']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o}' for o in objs]
     G.OBJECTIVES += [o.split()[0] for o in objs]
-    mob = 'type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc'
+    from phase46 import COMPANIONS
+    mob = 'type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,' + COMPANIONS
+    # 2.24: the spells hit players too - anyone but the caster (tagged bm.mcast while it resolves) and anyone's companions
+    foe = 'type=!#bm:p45_nonmob,tag=!bm.npc,tag=!bm.mcast,' + COMPANIONS
+    from phase44 import NONMOB
+    wjson('bm/tags/entity_type/p45_nonmob.json', {'values': [{'id': f'minecraft:{e}', 'required': False} for e in NONMOB if e != 'player']})
+    fn('p45/mark', ['tag @a remove bm.mcast', 'scoreboard players operation #cp bm.pid = @s bm.pid', 'execute as @a if score @s bm.pid = #cp bm.pid run tag @s add bm.mcast'])
+    still = 'unless entity @s[type=minecraft:player,gamemode=!survival,gamemode=!adventure]'     # creative/spectator players are never shoved
     now = 'execute store result score #now bm.rng run time query gametime'
     def cooldown(obj, ticks, label):
         return [now, f'execute if score @s {obj} > #now bm.rng run return run ' + title('@s', 'actionbar', T(label + ' is still recharging...', 'gray')),
@@ -172,36 +179,37 @@ def generate(G):
         'execute if score #hit bm.rng matches 0 run playsound minecraft:block.copper_bulb.turn_off player @a[distance=..16] ~ ~ ~ 1 1.6',
         'execute if score #hit bm.rng matches 1 run playsound minecraft:entity.lightning_bolt.impact player @a[distance=..24] ~ ~ ~ 0.6 1.8'])
     fn('p45/spark/ray', ['particle minecraft:electric_spark ~ ~ ~ 0 0 0 0 1',
-                         f'execute positioned ~-0.15 ~-0.15 ~-0.15 as @e[{mob},dx=0.3,dy=0.3,dz=0.3,limit=1] at @s run return run function bm:p45/spark/first',
+                         f'execute positioned ~-0.15 ~-0.15 ~-0.15 as @e[{foe},dx=0.3,dy=0.3,dz=0.3,limit=1] at @s run return run function bm:p45/spark/first',
                          'execute unless block ~ ~ ~ #bm:grap_pass run return 0', 'scoreboard players remove #ray bm.rng 1',
                          'execute if score #ray bm.rng matches 1.. positioned ^ ^ ^0.2 run function bm:p45/spark/ray'])
     fn('p45/spark/first', ['scoreboard players set #hit bm.rng 1', 'scoreboard players set #jumps bm.rng 3', 'function bm:p45/spark/zap'])
     fn('p45/spark/zap', ['tag @s add bm.zapped', 'damage @s 6 minecraft:lightning_bolt by @a[tag=bm.mcast,limit=1]',
                          'particle minecraft:electric_spark ~ ~1 ~ 0.3 0.5 0.3 0.2 20', 'particle minecraft:end_rod ~ ~1 ~ 0.1 0.3 0.1 0.02 3',
                          'scoreboard players remove #jumps bm.rng 1', 'execute if score #jumps bm.rng matches ..-1 run return 0',
-                         f'execute as @e[{mob},tag=!bm.zapped,distance=..5,sort=nearest,limit=1] at @s run function bm:p45/spark/arc'])
+                         f'execute as @e[{foe},tag=!bm.zapped,distance=..5,sort=nearest,limit=1] at @s run function bm:p45/spark/arc'])
     fn('p45/spark/arc', ['execute facing entity @e[tag=bm.zapped,sort=nearest,limit=1] feet run function bm:p45/spark/line', 'function bm:p45/spark/zap'])
     fn('p45/spark/line', [f'particle minecraft:electric_spark ^ ^1 ^{d} 0.02 0.02 0.02 0 2' for d in (0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5)])
 
     # ------------------------------------------------------------------ Gravewell Staff: a vortex, then a burst
     fn('p45/gravewell_staff/use', ['execute unless items entity @s weapon.mainhand ' + holds % 'gravewell_staff' + ' run return 0',
                                    'execute unless function bm:p37/allowed run return run ' + say('The gravewell will not open here.')] + cooldown('bm.mcd2', 240, 'The gravewell') +
-       ['scoreboard players set #ray bm.rng 100', 'execute anchored eyes positioned ^ ^ ^ run function bm:p45/well/ray',
-        'playsound minecraft:block.respawn_anchor.charge player @a[distance=..24] ~ ~ ~ 1 0.6'])
+       ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'tag @s add bm.mcast', 'scoreboard players set #ray bm.rng 100', 'execute anchored eyes positioned ^ ^ ^ run function bm:p45/well/ray',
+        'playsound minecraft:block.respawn_anchor.charge player @a[distance=..24] ~ ~ ~ 1 0.6', 'tag @s remove bm.mcast'])
     fn('p45/well/ray', ['execute unless block ~ ~ ~ #bm:grap_pass run return run function bm:p45/well/open',
-                        f'execute positioned ~-0.5 ~-0.5 ~-0.5 if entity @e[{mob},dx=0,dy=0,dz=0] positioned ~0.5 ~0.5 ~0.5 run return run function bm:p45/well/open',
+                        f'execute positioned ~-0.5 ~-0.5 ~-0.5 if entity @e[{foe},dx=0,dy=0,dz=0] positioned ~0.5 ~0.5 ~0.5 run return run function bm:p45/well/open',
                         'scoreboard players remove #ray bm.rng 1', 'execute if score #ray bm.rng matches ..0 run return run function bm:p45/well/open',
                         'execute positioned ^ ^ ^0.2 run function bm:p45/well/ray'])
-    fn('p45/well/open', ['execute positioned ^ ^ ^-0.5 run summon minecraft:marker ~ ~ ~ {Tags:["bm.gwell","bm.gwnew"]}',
+    fn('p45/well/open', ['execute positioned ^ ^ ^-0.5 run summon minecraft:marker ~ ~ ~ {Tags:["bm.gwell","bm.gwnew"]}', 'scoreboard players operation @e[type=minecraft:marker,tag=bm.gwnew] bm.pid = @s bm.pid',
                          'scoreboard players set @e[type=minecraft:marker,tag=bm.gwnew] bm.gwt 60', 'tag @e[type=minecraft:marker,tag=bm.gwnew] remove bm.gwnew'])
-    tick.append('execute as @e[type=minecraft:marker,tag=bm.gwell] at @s run function bm:p45/well/tick')
+    tick.append('execute as @e[type=minecraft:marker,tag=bm.gwell] at @s run function bm:p45/well/tick0')
+    fn('p45/well/tick0', ['function bm:p45/mark', 'function bm:p45/well/tick', 'tag @a remove bm.mcast'])
     fn('p45/well/tick', ['scoreboard players remove @s bm.gwt 1',
                          'particle minecraft:reverse_portal ~ ~ ~ 1.2 1.2 1.2 0.6 12', 'particle minecraft:portal ~ ~ ~ 0.2 0.2 0.2 1.2 6',
                          'particle minecraft:dust{color:[0.15,0.0,0.25],scale:2.5} ~ ~ ~ 0.15 0.15 0.15 0 3',
-                         f'execute as @e[{mob},distance=1.2..8] at @s facing entity @e[type=minecraft:marker,tag=bm.gwell,sort=nearest,limit=1] feet run tp @s ^ ^ ^0.35',
+                         f'execute as @e[{foe},distance=1.2..8] at @s {still} facing entity @e[type=minecraft:marker,tag=bm.gwell,sort=nearest,limit=1] feet run tp @s ^ ^ ^0.35',
                          'execute if score @s bm.gwt matches ..0 run function bm:p45/well/burst'])
-    fn('p45/well/burst', [f'execute as @e[{mob},distance=..4] run damage @s 8 minecraft:magic',
-                          f'execute as @e[{mob},distance=..4] run effect give @s minecraft:levitation 1 6 true',
+    fn('p45/well/burst', [f'execute as @e[{foe},distance=..4] run damage @s 8 minecraft:magic by @a[tag=bm.mcast,limit=1]',
+                          f'execute as @e[{foe},distance=..4] run effect give @s minecraft:levitation 1 6 true',
                           'particle minecraft:explosion_emitter ~ ~ ~ 0 0 0 0 1', 'particle minecraft:witch ~ ~ ~ 1.5 1.5 1.5 0.2 60',
                           'playsound minecraft:entity.warden.sonic_boom player @a[distance=..32] ~ ~ ~ 0.6 1.6', 'kill @s'])
 
@@ -213,16 +221,16 @@ def generate(G):
     fn('p45/shard/new', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.shard","bm.shnew"]}', 'tp @e[type=minecraft:marker,tag=bm.shnew,limit=1] ~ ~ ~ ~ ~',
                          'scoreboard players operation @e[type=minecraft:marker,tag=bm.shnew] bm.pid = @s bm.pid', 'scoreboard players set @e[type=minecraft:marker,tag=bm.shnew] bm.gwt 40',
                          'tag @e[type=minecraft:marker,tag=bm.shnew] remove bm.shnew'])
-    tick.append('execute as @e[type=minecraft:marker,tag=bm.shard] at @s run function bm:p45/shard/tick')
+    tick.append('execute as @e[type=minecraft:marker,tag=bm.shard] at @s run function bm:p45/shard/tick0')
+    fn('p45/shard/tick0', ['function bm:p45/mark', 'function bm:p45/shard/tick', 'tag @a remove bm.mcast'])
     fn('p45/shard/tick', ['scoreboard players remove @s bm.gwt 1', 'execute if score @s bm.gwt matches ..0 run return run kill @s',
-                          f'execute if score @s bm.gwt matches ..34 if entity @e[{mob},distance=..12] run tp @s ~ ~ ~ facing entity @e[{mob},distance=..12,sort=nearest,limit=1] eyes',
+                          f'execute if score @s bm.gwt matches ..34 if entity @e[{foe},distance=..12] run tp @s ~ ~ ~ facing entity @e[{foe},distance=..12,sort=nearest,limit=1] eyes',
                           'execute rotated as @s run tp @s ^ ^ ^0.75',
                           'particle minecraft:dust{color:[1.0,0.45,0.8],scale:1.2} ~ ~ ~ 0.05 0.05 0.05 0 3', 'particle minecraft:end_rod ~ ~ ~ 0 0 0 0 1',
                           'execute unless block ~ ~ ~ #bm:grap_pass run return run function bm:p45/shard/pop',
-                          f'execute positioned ~-0.6 ~-0.6 ~-0.6 if entity @e[{mob},dx=0.2,dy=0.2,dz=0.2] positioned ~0.6 ~0.6 ~0.6 run function bm:p45/shard/hit'])     # hitbox overlap (distance= reads the feet)
-    fn('p45/shard/hit', ['scoreboard players operation #sp bm.pid = @s bm.pid', 'tag @a remove bm.mcast', 'execute as @a if score @s bm.pid = #sp bm.pid run tag @s add bm.mcast',
-                         f'execute positioned ~-0.6 ~-0.6 ~-0.6 as @e[{mob},dx=0.2,dy=0.2,dz=0.2,limit=1] run damage @s 7 minecraft:magic by @a[tag=bm.mcast,limit=1]',
-                         'tag @a remove bm.mcast', 'function bm:p45/shard/pop'])
+                          f'execute positioned ~-0.6 ~-0.6 ~-0.6 if entity @e[{foe},dx=0.2,dy=0.2,dz=0.2] positioned ~0.6 ~0.6 ~0.6 run function bm:p45/shard/hit'])     # hitbox overlap (distance= reads the feet)
+    fn('p45/shard/hit', [f'execute positioned ~-0.6 ~-0.6 ~-0.6 as @e[{foe},dx=0.2,dy=0.2,dz=0.2,limit=1] run damage @s 7 minecraft:magic by @a[tag=bm.mcast,limit=1]',
+                         'function bm:p45/shard/pop'])
     fn('p45/shard/pop', ['particle minecraft:dust{color:[1.0,0.45,0.8],scale:1.6} ~ ~ ~ 0.3 0.3 0.3 0 15', 'playsound minecraft:block.amethyst_block.break player @a[distance=..16] ~ ~ ~ 1 1.6', 'kill @s'])
 
     # ------------------------------------------------------------------ Prism Bow / Starcaller Bow
@@ -239,7 +247,8 @@ def generate(G):
                               ])
     fn('p45/prism_shot/struck', ['execute if entity @s[tag=bm.prism] run function bm:p45/prism_shot/nova'])
     fn('p45/starcall/struck', ['execute if entity @s[tag=bm.starc] run function bm:p45/starcall/volley'])
-    fn('p45/prism_shot/nova', ['tag @s remove bm.prism', f'execute as @e[{mob},distance=..3.5] run damage @s 5 minecraft:magic'] +
+    fn('p45/prism_shot/nova', ['tag @s remove bm.prism', 'tag @a remove bm.mcast', 'execute on origin run tag @s add bm.mcast',
+                               f'execute as @e[{foe},distance=..3.5] run damage @s 5 minecraft:magic by @a[tag=bm.mcast,limit=1]', 'tag @a remove bm.mcast'] +
        [f'particle minecraft:dust{{color:[{r},{g},{b}],scale:1.4}} ~ ~0.3 ~ 1.2 0.6 1.2 0 12' for r, g, b in ((1, 0.2, 0.2), (1, 0.6, 0.1), (1, 1, 0.2), (0.2, 1, 0.3), (0.2, 0.6, 1), (0.6, 0.3, 1))] +
        ['playsound minecraft:block.amethyst_block.resonate player @a[distance=..24] ~ ~ ~ 1 1.6'])
     tick.append('execute as @e[type=#minecraft:arrows,tag=bm.starc] at @s run function bm:p45/starcall/fly')
@@ -250,12 +259,14 @@ def generate(G):
                             'execute if score #ok bm.rng matches 0 run return 0',
                             'execute on origin run scoreboard players operation @s bm.mcd6 = #now bm.rng', 'execute on origin run scoreboard players add @s bm.mcd6 60'] +
        [f'summon minecraft:marker ~{dx} ~{h} ~{dz} {{Tags:["bm.fstar","bm.fsnew"]}}' for dx, dz, h in ((0, 0, 14), (2, 1, 17), (-2, -1, 20), (1, -2, 23), (-1, 2, 26))] +
-       ['scoreboard players set @e[type=minecraft:marker,tag=bm.fsnew] bm.gwt 60', 'tag @e[type=minecraft:marker,tag=bm.fsnew] remove bm.fsnew'] +
+       ['scoreboard players set @e[type=minecraft:marker,tag=bm.fsnew] bm.gwt 60', 'execute on origin run scoreboard players operation #sp bm.pid = @s bm.pid',
+        'scoreboard players operation @e[type=minecraft:marker,tag=bm.fsnew] bm.pid = #sp bm.pid', 'tag @e[type=minecraft:marker,tag=bm.fsnew] remove bm.fsnew'] +
        ['playsound minecraft:block.beacon.activate player @a[distance=..32] ~ ~ ~ 1 1.8'])
-    tick.append('execute as @e[type=minecraft:marker,tag=bm.fstar] at @s run function bm:p45/starcall/fall')
+    tick.append('execute as @e[type=minecraft:marker,tag=bm.fstar] at @s run function bm:p45/starcall/fall0')
+    fn('p45/starcall/fall0', ['function bm:p45/mark', 'function bm:p45/starcall/fall', 'tag @a remove bm.mcast'])
     fn('p45/starcall/fall', ['scoreboard players remove @s bm.gwt 1', 'execute if score @s bm.gwt matches ..0 run return run kill @s', 'tp @s ~ ~-0.9 ~', 'particle minecraft:end_rod ~ ~ ~ 0.05 0.2 0.05 0.01 3', 'particle minecraft:dust{color:[1.0,0.95,0.4],scale:2} ~ ~ ~ 0 0 0 0 1',
                              'execute if block ~ ~-0.5 ~ #bm:grap_pass unless entity @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,distance=..1] run return 0',
-                             f'execute as @e[{mob},distance=..2.5] run damage @s 6 minecraft:magic',
+                             f'execute as @e[{foe},distance=..2.5] run damage @s 6 minecraft:magic by @a[tag=bm.mcast,limit=1]',
                              'particle minecraft:firework ~ ~0.5 ~ 0.4 0.4 0.4 0.15 25', 'particle minecraft:flash{color:[1.0,0.95,0.6,1.0]} ~ ~0.5 ~ 0 0 0 0 1',
                              'playsound minecraft:entity.firework_rocket.blast player @a[distance=..32] ~ ~ ~ 1 1.2', 'kill @s'])
 
@@ -270,17 +281,19 @@ def generate(G):
     second += [f'execute as @a if items entity @s weapon.offhand {holds % "bloomheart_gem"} run effect clear @s minecraft:poison',
                f'execute as @a if items entity @s weapon.offhand {holds % "bloomheart_gem"} run effect clear @s minecraft:wither']
     fn('p45/tidal_tear/use', ['execute unless items entity @s weapon.* ' + holds % 'tidal_tear' + ' run return 0'] + cooldown('bm.mcd5', 400, 'The Tidal Tear') +
-       ['data merge entity @s {Fire:0s}', 'execute rotated ~ 0 positioned ^ ^ ^1 run summon minecraft:marker ~ ~ ~ {Tags:["bm.wave","bm.wnew"]}',
+       ['data merge entity @s {Fire:0s}', 'execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'execute rotated ~ 0 positioned ^ ^ ^1 run summon minecraft:marker ~ ~ ~ {Tags:["bm.wave","bm.wnew"]}',
+        'scoreboard players operation @e[type=minecraft:marker,tag=bm.wnew] bm.pid = @s bm.pid',
         'execute rotated ~ 0 as @e[type=minecraft:marker,tag=bm.wnew] run tp @s ~ ~ ~ ~ 0', 'scoreboard players set @e[type=minecraft:marker,tag=bm.wnew] bm.wav 13',
         'tag @e[type=minecraft:marker,tag=bm.wnew] remove bm.wnew',
         'playsound minecraft:entity.player.splash.high_speed player @a[distance=..24] ~ ~ ~ 1 0.6', 'playsound minecraft:item.bucket.empty player @a[distance=..24] ~ ~ ~ 1 0.8'])
-    tick.append('execute as @e[type=minecraft:marker,tag=bm.wave] at @s run function bm:p45/wave/tick')
+    tick.append('execute as @e[type=minecraft:marker,tag=bm.wave] at @s run function bm:p45/wave/tick0')
+    fn('p45/wave/tick0', ['function bm:p45/mark', 'function bm:p45/wave/tick', 'tag @a remove bm.mcast'])
     fn('p45/wave/tick', ['scoreboard players remove @s bm.wav 1', 'execute if score @s bm.wav matches ..0 run return run kill @s', 'tp @s ^ ^ ^0.8'] +
        [f'particle minecraft:splash ^{x} ^{y} ^ 0.1 0.2 0.1 0 4' for x in (-1.5, -0.75, 0, 0.75, 1.5) for y in (0.3, 1.2)] +
        ['particle minecraft:bubble_pop ^ ^0.8 ^ 1.2 0.6 0.2 0.05 8', 'particle minecraft:falling_water ^ ^1.8 ^ 1.4 0.2 0.2 0 6',
         'fill ~-2 ~-1 ~-2 ~2 ~2 ~2 minecraft:air replace #minecraft:fire',
-        f'execute as @e[{mob},distance=..2.2] at @s run function bm:p45/wave/push'])
-    fn('p45/wave/push', ['execute unless entity @s[tag=bm.waved] run damage @s 4 minecraft:drown', 'tag @s add bm.waved', 'data merge entity @s {Fire:0s}',
+        f'execute as @e[{foe},distance=..2.2] at @s {still} run function bm:p45/wave/push'])
+    fn('p45/wave/push', ['execute unless entity @s[tag=bm.waved] run damage @s 4 minecraft:drown by @a[tag=bm.mcast,limit=1]', 'tag @s add bm.waved', 'data merge entity @s {Fire:0s}',
                          'effect give @s minecraft:slowness 4 1', 'execute rotated as @e[type=minecraft:marker,tag=bm.wave,sort=nearest,limit=1] run tp @s ^ ^ ^0.8',
                          'schedule function bm:p45/wave/untag 30t replace'])
     fn('p45/wave/untag', ['tag @e[tag=bm.waved] remove bm.waved'])

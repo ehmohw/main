@@ -35,7 +35,7 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 | Bloomheart (gem) | 9 Medallions | Right-click: you and everyone within 8 blocks get Regeneration II for 8 s (45 s recharge). While it's in your off hand, poison and wither won't stick to you. |
 | Tidal Tear (gem) | 9 Medallions | Right-click: a wave rolls 10 blocks ahead. It shoves monsters back, deals 4 damage, slows them, and puts out fires (including you). 20 s recharge. |
 
-Staffs and gems only hurt monsters and animals, never other players.
+Staffs, bows and the Tidal Tear hit monsters, animals and other players. They never hit you or anyone's companion.
 
 **Chef Fromage's new menu.** Prime meat is now a great food on its own: eat it as it is for as much food as two steaks, plus a moment of Regeneration. The chef also cooks six new dishes from it:
 
@@ -60,10 +60,25 @@ He also sells the **Grand Banquet** (6 Medallions + 2 Prime Beef). Set it down o
 
 Sneak + punch picks up a lamp, cushion, boombox or display skiff.
 
+**Cecil joins the fight.** Cecil sells **Cecil's Summoning Gem** (4 Trophies). Use it and he appears beside you and follows you around:
+- He fights from range: every 2 seconds he fires a poisoned bolt at the nearest monster within 14 blocks (5 damage + Poison II).
+- He heals you when you're hurt: below 7 hearts, every 5 seconds.
+- He has 60 health and 20 armour.
+- Use the gem again to call him back to your side. Sneak + use to send him home; he bows and fades away.
+- If he falls in battle, he fades away and the gem needs **10 minutes** before it can call him again.
+
+**Magic hurts players now.** Cecil's staffs, bows and the Tidal Tear hit other players as well as monsters. That includes the Staff of Sparks' chain, the Gravewell's pull and burst, the crescent shards, the Prism and Starcaller blasts, and the wave. The Horseman's Heads, Soulreaver's Soul Rend, the Quake Maul and the Wither Nova already did. None of them ever hit **the player using them**, and none of them hit **companions** (Cecil, Wilfrey, the Frog with Mustache, Rufus the mercenary).
+
+**Every bow in the market is sold by Cecil**, including the Fairy Bow, which used to be Vinny's. (The Flintlock is a gun, so Salty Sal still sells it.)
+
+**Chef Fromage's Portrait** is a 2x2 painting of the man himself, sold by the chef (6 Tokens).
+
+**The Emma Doll** (Old Barnaby, 5 Tokens; rarely found in village and mansion chests) is a chibi Emma, mid-wave. Set her on a block and right-click her to make her twirl. Sneak + punch picks her up.
+
 **Also in 2.24 (fixes and moves)**
 - **The Bounty Board** is now the wooden notice board on the plaza, in front of the fountain. Tonight's bounty is pinned flat across its 3 x 2 plank face; right-click it to sign up. Its old joke signs are gone, and so is the balcony board from 2.23.
 - **Vorn Skiff:** you now sit inside the cockpit, with the glass dome around you and the saucer at your feet. Before, you were perched on top of the dome.
-- **The Hero's Bow and the Bow of Light** have moved from Vinny to Cecil, with the same upgrades (Fairy Bow + 6 Medallions -> Hero's Bow; Hero's Bow + 3 Trophies -> Bow of Light). Vinny still sells the Fairy Bow.
+- **The Fairy Bow, the Hero's Bow and the Bow of Light** have moved from Vinny to Cecil, with the same upgrades (Fairy Bow + 6 Medallions -> Hero's Bow; Hero's Bow + 3 Trophies -> Bow of Light).
 - **The Display Skiff** is sold by Zorp now (6 Violet Xenite + 4 Green Xenite), not Salty Sal.
 - **Zorp** stands in front of his counter aboard the motherships, so you can reach him. Zorps already aboard step out on their own.
 - **Counters:** the Dockmaster's, the Fence's, Old Barnaby's and the Forge Pit's (and every other market counter) lose the floating slab that older markets had on top.
