@@ -192,10 +192,12 @@ def textures():
     T_ = {k: flat(c) for k, c in (('em_blue', '#3d8fd0'), ('em_skirt', '#3e6d9e'), ('em_scarf', '#6fd6e0'), ('em_skin', '#f6cfa8'), ('em_hair', '#a8592a'),
                                   ('em_shoe', '#3c4f8a'), ('em_white', '#eeeeee'), ('em_belt', '#6a4a2a'), ('em_pink', '#e050c0'))}
     face = flat('#f6cfa8', 3)
-    P = {'k': '#1a3a4a', 't': '#38c8c8', 'T': '#1e8a96', 'w': '#ffffff', 'f': '#d88a6a', 'm': '#8a2a2a', 'n': '#ffffff', 'b': '#7a3a1a', 'p': '#f0a0a0'}
-    rows = ['................', '................', '................', '..bb........bb..', '................', '...kkk....kkk...', '..ktwtk..ktwtk..',
-            '..ktTTk..ktTTk..', '..kTTTk..kTTTk..', '...kkk....kkk...', '..f.f.p..p.f.f..', '......mmmm......', '.....mnnnnm.....', '......mmmm......',
+    # 2.24: a simple pixel face - small dark teal eyes with a white glint, a tiny smile
+    P = {'e': '#0f4a52', 'w': '#ffffff', 'm': '#7a2a2a'}
+    rows = ['................', '................', '................', '................', '................', '................', '....we....we....',
+            '....ee....ee....', '................', '................', '.......mm.......', '................', '................', '................',
             '................', '................']
+    rows[9] = '......m..m......'
     for y, r in enumerate(rows):
         for x, ch in enumerate(r):
             if ch != '.': face.putpixel((x, y), hexc(P[ch]))
