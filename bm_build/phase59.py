@@ -23,12 +23,14 @@ UNBR = {'minecraft:unbreakable': {}}
 item('killerwatt_tendrils', TOTEM, "KillerWatt's Tendrils", YEL,
      ['The storm-alien\'s lightning arms. Worn in place of', 'a chestplate (no armour): four tendrils from your back.',
       ('Look at a monster: they lash it - 10 lightning,', 'blue'), ('arcing to two more (5). Sneaking: yank it to you.', 'blue'),
+      ('Melee: +2 reach; both upper tendrils stab what', 'blue'), ('you hit (+6 lightning), piercing one behind.', 'blue'),
       ('Sneak + jump: fling yourself where you look,', 'blue'), ('or up the wall in front of you.', 'blue'),
       ('They snatch up dropped items near you.', 'blue'), ('+15% speed, taller step, no fall damage.', 'blue'),
       ('Rain: stronger, faster. Thunderstorm: far stronger,', 'aqua'), ('and they call down lightning.', 'aqua')],
      model='bm:killerwatt_tendrils', stack=1, cat='weapon', glint=False, tier=3,
      comps={'minecraft:equippable': {'slot': 'chest', 'swappable': True, 'equip_sound': 'minecraft:item.armor.equip_chain'},
-            'minecraft:attribute_modifiers': [attr('movement_speed', 0.15, 'chest', 'add_multiplied_base'), attr('step_height', 0.5, 'chest')],
+            'minecraft:attribute_modifiers': [attr('movement_speed', 0.15, 'chest', 'add_multiplied_base'), attr('step_height', 0.5, 'chest'),
+                                                attr('entity_interaction_range', 2, 'chest')],
             'minecraft:enchantments': {'bm:kw_tendrils': 1}})
 item('apophiss_crown', TOTEM, "Apophiss's Crown", GRN,
      ['The serpent king\'s black crown. The emerald watches you.', ('Worn: you grow a size, +3 damage, +1.5 reach,', 'blue'),
@@ -150,8 +152,11 @@ def generate(G):
                        'execute unless predicate bm:p20/sneaking rotated ~ 0 run function bm:p59/kw/place',
                        'scoreboard players add @s bm.kwt 1',
                        'scoreboard players operation #f4 bm.rng = @s bm.kwt', 'scoreboard players operation #f4 bm.rng %= #4 bm.rng',
-                       'execute if score #f4 bm.rng matches 0 if score @s bm.kwcd matches ..0 run function bm:p59/kw/look',
-                       'execute if score @s bm.kwlt matches 1.. run function bm:p59/kw/lunge_tick'])
+                       'execute if score #f4 bm.rng matches 0 if score @s bm.kwcd matches ..0 unless score @s bm.kwlk matches 4 run function bm:p59/kw/look',
+                       'execute if score @s bm.kwlk matches 4 unless score @s bm.kwlt matches 1.. run scoreboard players set @s bm.kwlk 0',
+                       'execute if score @s bm.kwlt matches 1.. run function bm:p59/kw/lunge_tick',
+                       'execute if score @s bm.kwjt matches 1.. run function bm:p59/kw/fling_tick',
+                       'execute if score @s bm.kwmc matches 1.. run scoreboard players remove @s bm.kwmc 1'])
     fn('p59/kw/place', [f'execute positioned ^{m[0]} ^{m[1]} ^{m[2]} run tp @e[type=minecraft:item_display,tag=bm.kwok,tag=bm.kwt_{k},distance=..4] ~ ~ ~ ~ 0'
                         for k, (m, _p) in TEN.items()])
     fn('p59/kw/sprout', ['execute as @e[type=minecraft:item_display,tag=bm.kwok,distance=..6] run kill @s'] +
@@ -160,7 +165,7 @@ def generate(G):
         'tag @e[type=minecraft:item_display,tag=bm.kwtnew] add bm.kwok', 'tag @e[type=minecraft:item_display,tag=bm.kwtnew] remove bm.kwtnew',
         'playsound minecraft:block.copper_bulb.turn_on player @a[distance=..12] ~ ~ ~ 1 0.6', 'particle minecraft:electric_spark ~ ~1.2 ~ 0.3 0.4 0.3 0.2 20'])
     # poses: (as the wearer) both segments of tendril k take a pose over `d` ticks
-    POSE_DUR = {'idle': (5,), 'sway_a': (20,), 'sway_b': (20,), 'mid': (2,), 'lunge': (2,)}
+    POSE_DUR = {'idle': (5,), 'sway_a': (20,), 'sway_b': (20,), 'mid': (2,), 'lunge': (2,), 'fling': (2,)}
     for k in TEN:
         for pose, durs in POSE_DUR.items():
             for d in durs:
@@ -170,12 +175,18 @@ def generate(G):
                     f'execute as @e[type=minecraft:item_display,tag=bm.kwok,tag=bm.kwt_{k},tag=bm.kws_t,distance=..4] run data merge entity @s {{start_interpolation:0,interpolation_duration:{d},transformation:{{{xt}}}}}'])
     # idle: each tendril drifts on its own slow beat (not while one is striking)
     G.FUNCS['p59/kw/tick'] += ['scoreboard players operation #f bm.rng = @s bm.kwt', 'scoreboard players operation #f bm.rng %= #40 bm.rng'] + \
-        [f'execute if score #f bm.rng matches {t} unless score @s bm.kwlt matches 1.. run function bm:p59/kw/pose/{k}/sway_{ab}'
+        [f'execute if score #f bm.rng matches {t} unless score @s bm.kwlt matches 1.. unless score @s bm.kwjt matches 1.. run function bm:p59/kw/pose/{k}/sway_{ab}'
          for k, t0 in zip(KEYS, (0, 10, 5, 15)) for t, ab in ((t0, 'a'), (t0 + 20, 'b'))]
     # a strike: the chosen tendril climbs past your head (or out past your arm), lunges forward, pulls back, settles
     fn('p59/kw/lunge_tick', ['scoreboard players remove @s bm.kwlt 1'] +
        [f'execute if score @s bm.kwlk matches {i} if score @s bm.kwlt matches {at} run function bm:p59/kw/pose/{k}/{pose}'
-        for i, k in enumerate(KEYS) for at, pose in ((8, 'lunge'), (3, 'mid'), (0, 'idle'))])
+        for i, k in enumerate(KEYS) for at, pose in ((8, 'lunge'), (3, 'mid'), (0, 'idle'))] +
+       [f'execute if score @s bm.kwlk matches 4 if score @s bm.kwlt matches {at} run function bm:p59/kw/pose/{k}/{pose}'          # the melee stab: both upper ones
+        for k in ('ul', 'ur') for at, pose in ((5, 'lunge'), (1, 'idle'))] +
+       ['execute if score @s bm.kwlk matches 4 if score @s bm.kwlt matches 3 run function bm:p59/kw/stab_now'])
+    # a charged jump: the upper pair reach up and ahead, the lower pair plant down and push - then they settle
+    fn('p59/kw/fling_tick', ['scoreboard players remove @s bm.kwjt 1'] + [f'execute if score @s bm.kwjt matches 0 run function bm:p59/kw/pose/{k}/idle' for k in KEYS])
+    fn('p59/kw/fling_pose', ['scoreboard players set @s bm.kwjt 12', 'scoreboard players set @s bm.kwlt 0'] + [f'function bm:p59/kw/pose/{k}/fling' for k in KEYS])
 
     # looking at a monster: a tendril lashes it (sneaking: yanks it in). Faster and harder in the rain; in a storm, lightning
     fn('p59/kw/look', ['tag @s add bm.kwme', 'scoreboard players set #kr bm.rng 48', 'scoreboard players set #kh bm.rng 0',
@@ -227,8 +238,9 @@ def generate(G):
     # sneak + jump: fling where you look (up the wall if one is right in front of you)
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.kwj minecraft.custom:minecraft.jump', 'scoreboard objectives add bm.kwt dummy',
                               'scoreboard objectives add bm.kwf dummy', 'scoreboard objectives add bm.kwlt dummy', 'scoreboard objectives add bm.kwlk dummy',
+                              'scoreboard objectives add bm.kwjt dummy', 'scoreboard objectives add bm.kwmc dummy', 'scoreboard objectives add bm.kwvp dummy',
                               'scoreboard players set #40 bm.rng 40', 'scoreboard players set #4 bm.rng 4']
-    G.OBJECTIVES += ['bm.kwj', 'bm.kwt', 'bm.kwf', 'bm.kwlt', 'bm.kwlk']
+    G.OBJECTIVES += ['bm.kwj', 'bm.kwt', 'bm.kwf', 'bm.kwlt', 'bm.kwlk', 'bm.kwjt', 'bm.kwmc', 'bm.kwvp']
     tick.append(f'execute as @a[scores={{bm.kwj=1..}}] at @s run function bm:p59/kw/jump')
     tick.append('scoreboard players remove @a[scores={bm.kwf=1..}] bm.kwf 1')
     fn('p59/kw/jump', ['scoreboard players reset @s bm.kwj', f'execute unless {worn} run return 0', 'execute unless predicate bm:p20/sneaking run return 0',
@@ -238,7 +250,7 @@ def generate(G):
                        'execute if score #kh bm.rng matches 0 run scoreboard players set #kr bm.rng 32',
                        'scoreboard players set @s bm.kwf 20', 'execute if predicate bm:p59/rain run scoreboard players set @s bm.kwf 14',
                        'execute if predicate bm:p59/storm run scoreboard players set @s bm.kwf 10',
-                       'tag @s add bm.kwarm',
+                       'tag @s add bm.kwarm', 'function bm:p59/kw/fling_pose',
                        'execute rotated ~ 0 positioned ^ ^1 ^1.2 unless block ~ ~ ~ #bm:grap_pass run return run function bm:p59/kw/fling_up',
                        'execute if score #kr bm.rng matches 33.. run tag @s add bm.kwl1',
                        'execute if score #kr bm.rng matches 17..32 run tag @s add bm.kwl2',
@@ -256,6 +268,40 @@ def generate(G):
                       'execute if predicate bm:p59/storm run effect give @s minecraft:speed 2 1 true',
                       'execute if predicate bm:p59/storm run effect give @s minecraft:strength 2 0 true'])
     fn('p59/kw/snatch', ['particle minecraft:electric_spark ~ ~0.3 ~ 0.1 0.1 0.1 0.05 4', 'tp @s @p[distance=..9]'])
+
+    # melee (2.43): your reach grows by 2, and each hand-to-hand blow brings both upper tendrils lunging over your shoulders -
+    # a lightning stab on the one you hit (6 / rain 8 / storm 10) that pierces through to one behind it (half), about once every 0.7 s
+    wjson('bm/advancement/p59/kw_melee.json', {'criteria': {'hit': {'trigger': 'minecraft:player_hurt_entity', 'conditions': {
+        'player': [{'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'equipment': {'chest': {'predicates': {'minecraft:custom_data': '{bm:"killerwatt_tendrils"}'}}}}}],
+        'damage': {'type': {'is_direct': True, 'tags': [{'id': '#minecraft:is_lightning', 'expected': False}, {'id': '#minecraft:is_projectile', 'expected': False},
+                                                        {'id': '#minecraft:is_explosion', 'expected': False}]}}}}},
+        'rewards': {'function': 'bm:p59/kw/melee'}})
+    fn('p59/kw/melee', ['advancement revoke @s only bm:p59/kw_melee', 'execute if score @s bm.kwmc matches 1.. run return 0',
+                        'scoreboard players set @s bm.kwmc 14', 'scoreboard players operation #me bm.pid = @s bm.pid',
+                        'scoreboard players set @s bm.kwlk 4', 'scoreboard players set @s bm.kwlt 14', 'scoreboard players set @s bm.kwjt 0',
+                        'function bm:p59/kw/pose/ul/mid', 'function bm:p59/kw/pose/ur/mid',
+                        f'execute at @s as @e[{mob},distance=..7,nbt={{HurtTime:10s}},sort=nearest,limit=1] run function bm:p59/kw/mark'])
+    fn('p59/kw/mark', ['tag @s add bm.kwtg', 'scoreboard players operation @s bm.kwvp = #me bm.pid'])
+    # (half a second on - once the blow's hurt-immunity has passed, so the stab adds its full damage)
+    fn('p59/kw/stab_now', ['tag @s add bm.kwme',
+                           'scoreboard players set #lv bm.rng 0', 'execute if predicate bm:p59/rain run scoreboard players set #lv bm.rng 1',
+                           'execute if predicate bm:p59/storm run scoreboard players set #lv bm.rng 2',
+                           'execute as @e[tag=bm.kwtg,distance=..8] if score @s bm.kwvp = #me bm.pid at @s run function bm:p59/kw/stab',
+                           'execute as @e[tag=bm.kwtg] if score @s bm.kwvp = #me bm.pid run tag @s remove bm.kwtg', 'tag @s remove bm.kwme'])
+    fn('p59/kw/stab', ['tag @s add bm.kwhit',
+                       'execute if score #lv bm.rng matches 0 run damage @s 6 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
+                       'execute if score #lv bm.rng matches 1 run damage @s 8 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
+                       'execute if score #lv bm.rng matches 2 run damage @s 10 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
+                       'particle minecraft:electric_spark ~ ~1 ~ 0.3 0.5 0.3 0.3 20', 'particle minecraft:crit ~ ~1 ~ 0.3 0.4 0.3 0.3 10',
+                       'playsound minecraft:item.trident.hit player @a[distance=..16] ~ ~ ~ 1 1.4',
+                       'playsound minecraft:block.copper_bulb.turn_on player @a[distance=..16] ~ ~ ~ 0.8 1.2',
+                       # the stab drives on through: one more monster just behind it
+                       f'execute facing entity @a[tag=bm.kwme,limit=1] feet positioned ^ ^ ^-1.5 as @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.kwhit,distance=..1.6,sort=nearest,limit=1] at @s run function bm:p59/kw/pierce',
+                       'tag @e[tag=bm.kwhit] remove bm.kwhit'])
+    fn('p59/kw/pierce', ['execute if score #lv bm.rng matches 0 run damage @s 3 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
+                         'execute if score #lv bm.rng matches 1 run damage @s 4 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
+                         'execute if score #lv bm.rng matches 2 run damage @s 5 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
+                         'particle minecraft:electric_spark ~ ~1 ~ 0.2 0.4 0.2 0.2 10'])
 
     # ------------------------------------------------------------------ APOPHISS'S CROWN: Serpent's Fangs on sneak + jump
     tick.append(f'execute as @a[scores={{bm.crj=1..}}] at @s run function bm:p59/crown/jump')

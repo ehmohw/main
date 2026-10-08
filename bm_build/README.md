@@ -21,6 +21,14 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.43: tendrils up close
+
+**KillerWatt's Tendrils** now fight hand to hand, too.
+- **Reach:** wearing them gives +2 reach (5 blocks).
+- **Tendril stab:** when you hit something in melee, both upper tendrils rise over your shoulders. Half a second later they lunge forward and stab it for 6 lightning damage (8 in rain, 10 in a thunderstorm). The stab pierces one monster just behind for half damage. The delay lets the stab land after your own blow, so it adds its full damage; it fires about once every 0.7 s.
+- **Charged jump:** on a sneak+jump fling, the upper tendrils reach up and ahead and the lower ones plant down beside your legs and push off, then they settle.
+- The long-range lash is unchanged: an electric bolt out to 24 blocks.
+
 ## New in 2.42: sharper tendrils, the true crown
 
 **KillerWatt's Tendrils** are rebuilt as jagged lightning. Each of the four is now two zig-zag blades with a sharp elbow, white-hot barbs on the corners and a hooked point.
