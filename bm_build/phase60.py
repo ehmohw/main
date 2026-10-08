@@ -56,7 +56,8 @@ for _k, (_n, _c, _rgb, _where, _b, _flav) in GEMS.items():
          model=f'bm:gem_{_k}', stack=16, cat='fun', glint=False, comps=hold('none'))
     HOLD[f'gem_{_k}'] = f'bm:p60/gem/use_{_k}'
 item('ethereal_gem', TOTEM, 'Ethereal Gem', ETH,
-     ['Nine made one. It is warm, and it sings.', ('Use: set it down. All within 30 blocks', 'light_purple'), ('of it become Ethereal.', 'light_purple'),
+     ['Nine made one. It is warm, and it sings.', ('Carried: a shimmer of the nine follows you.', 'light_purple'),
+      ('Use: set it down. All within 30 blocks', 'light_purple'), ('of it become Ethereal.', 'light_purple'),
       ('Sneak + punch it to take it back.', 'gray')],
      model='bm:ethereal_gem', stack=1, cat='relic', glint=True, tier=3, comps=hold('none'))
 HOLD['ethereal_gem'] = 'bm:p60/eth/use'
@@ -266,6 +267,14 @@ def generate(G):
     fn('p60/eth/off', ['tag @s remove bm.eth'] + [f'attribute @s minecraft:{a} modifier remove bm:ethereal_{a}' for a, _v, _o in MODS] +
        [say('The lightness fades.', 'gray')])
     G.FUNCS['load'][-1:-1] = ['tag @a remove bm.eth']        # (a reload clears the status; the next second puts it back if you're still near)
+    # (2.47) carrying the Ethereal Gem anywhere in your inventory: a shimmer of the nine drifts about you
+    gem = holds % 'ethereal_gem'
+    fast += ['scoreboard players add #eo bm.rng 1', 'execute if score #eo bm.rng matches 9.. run scoreboard players set #eo bm.rng 0',
+             f'execute as @a[gamemode=!spectator] if items entity @s container.* {gem} at @s run function bm:p60/eth/carry',
+             f'execute as @a[gamemode=!spectator] unless items entity @s container.* {gem} if items entity @s weapon.offhand {gem} at @s run function bm:p60/eth/carry']
+    fn('p60/eth/carry', [f'execute if score #eo bm.rng matches {i} run particle {dust(GEMS[k][2], 0.7)} ~ ~1.1 ~ 0.45 0.55 0.45 0 2' for i, k in enumerate(KEYS)] +
+       [f'execute if score #eo bm.rng matches {(i + 4) % 9} run particle {dust(GEMS[k][2], 0.5)} ~ ~0.6 ~ 0.4 0.3 0.4 0 1' for i, k in enumerate(KEYS)] +
+       ['particle minecraft:end_rod ~ ~1.2 ~ 0.35 0.5 0.35 0.005 1', 'execute if score #eo bm.rng matches 0 run particle minecraft:glow ~ ~1 ~ 0.3 0.4 0.3 0 1'])
     # wings of light, every other tick
     tick.append('execute if score #t2 bm.rng matches 0 as @a[tag=bm.eth,gamemode=!spectator] at @s rotated ~ 0 run function bm:p60/eth/wings')
     G.FUNCS['tick'].insert(0, 'scoreboard players add #t2 bm.rng 1')

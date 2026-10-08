@@ -21,6 +21,10 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.47: the Ethereal Gem shimmers
+
+**Carrying the Ethereal Gem** anywhere in your inventory (hotbar, backpack slots or off-hand) brings a passive shimmer. Motes in the nine element colours drift about you, cycling from fire to ice, with a soft glint of light. It's purely for looks, and it stops the moment the gem leaves your inventory. Ethereal Gems you already have get the new tooltip line automatically.
+
 ## New in 2.46: Pearlman visits like a wandering trader
 
 **Pearlman comes less often now**, on the wandering trader's rules:
