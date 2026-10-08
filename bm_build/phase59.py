@@ -4,7 +4,7 @@
   10 lightning damage that arcs to two more (5 each); an item is snatched back to you; a block: the tendril grabs it and
   flings you toward it. Sneak + use: grab - a monster is yanked to you; at a wall, the tendril heaves you up it.
   Held: 15% faster, a taller step, and no fall damage.
-- APOPHISS'S CROWN: the serpent king's grey crown with its great emerald. Worn: you grow a size, hit harder (+3), reach
+- APOPHISS'S CROWN: the serpent king's black crown with its great emerald. Worn: you grow a size, hit harder (+3), reach
   further (+1.5), +4 health, +2 armour; your blows wither. Sneak + jump: SERPENT'S FANGS - a line of dark fangs bursts
   from the ground ahead (6 seconds to recover).
 - LEO'S TRIDENT (the vanilla trident and spear, enchanted): Sir Leo's weapon, a TRIDENT (loyalty, impaling: throw it and it comes back) that becomes a SPEAR
@@ -31,7 +31,7 @@ item('killerwatt_tendrils', TOTEM, "KillerWatt's Tendrils", YEL,
             'minecraft:attribute_modifiers': [attr('movement_speed', 0.15, 'chest', 'add_multiplied_base'), attr('step_height', 0.5, 'chest')],
             'minecraft:enchantments': {'bm:kw_tendrils': 1}})
 item('apophiss_crown', TOTEM, "Apophiss's Crown", GRN,
-     ['The serpent king\'s grey crown. The emerald watches you.', ('Worn: you grow a size, +3 damage, +1.5 reach,', 'blue'),
+     ['The serpent king\'s black crown. The emerald watches you.', ('Worn: you grow a size, +3 damage, +1.5 reach,', 'blue'),
       ('+4 health; your blows wither (+3 vs the undead).', 'blue'), ('No protection - it is a crown, not a helm.', 'gray'),
       ('Night: Strength, Night Vision; the fangs come', 'dark_purple'), ('twice as often, and more of them.', 'dark_purple'), ('Sneak + jump: Serpent\'s Fangs (6 s).', 'blue'),
       ('Taken from Apophiss by Cecil, Leo and Emma.', 'dark_gray')],
@@ -121,43 +121,62 @@ def generate(G):
         if s_ < 1e-6: return [F(0), F(0), F(0), F(1)]
         h = _m.acos(max(-1, min(1, c_))) / 2; k = _m.sin(h) / s_
         return [F(round(ax[0] * k, 4)), F(0), F(round(ax[2] * k, 4)), F(round(_m.cos(h), 4))]
-    # (side +1 = your left, -1 = your right; behind you = -z)
-    TEN = {'ul': (0.13, 1.30, (0.55, 0.62, -0.55)), 'ur': (-0.13, 1.30, (-0.55, 0.62, -0.55)),
-           'll': (0.12, 1.02, (0.72, -0.18, -0.65)), 'lr': (-0.12, 1.02, (-0.72, -0.18, -0.65))}
-    SWAY = {'ul': (0.10, 0.12, 0.05), 'ur': (-0.08, 0.14, 0.06), 'll': (0.06, -0.10, 0.08), 'lr': (-0.10, -0.08, 0.05)}
-    def tnbt(k):
-        return snbt({'Tags': ['bm.kwt', f'bm.kwt_{k}', 'bm.kwtnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:kw_tendril'}},
+    # (2.42: two blade segments per tendril, a sharp elbow between - poses and the clipping-checked lunge in phase59_tendrils)
+    import phase59_tendrils as TD
+    TEN = TD.TENDRILS
+    L1 = TD.L1_UNITS * TD.SCALE / 16
+    def unit(v):
+        n = _m.sqrt(sum(a * a for a in v)); return [a / n for a in v]
+    def seg_xf(k, pose):
+        b, t = TEN[k][1][pose]
+        jb = [round(L1 * a, 4) for a in unit(b)]
+        return (f'left_rotation:{snbt(qfrom(b))},translation:[0f,0f,0f]', f'left_rotation:{snbt(qfrom(t))},translation:[{jb[0]}f,{jb[1]}f,{jb[2]}f]')
+    def tnbt(k, sg):
+        b, t = TEN[k][1]['idle']; jb = [F(round(L1 * a, 4)) for a in unit(b)]
+        return snbt({'Tags': ['bm.kwt', f'bm.kwt_{k}', f'bm.kws_{sg}', 'bm.kwtnew'],
+                     'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': f'bm:kw_t{sg}'}},
                      'item_display': 'fixed', 'teleport_duration': Int(1), 'interpolation_duration': Int(10), 'brightness': {'block': Int(12), 'sky': Int(15)},
-                     'transformation': {'left_rotation': qfrom(TEN[k][2]), 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0)] * 3, 'scale': [F(0.95)] * 3}})
+                     'transformation': {'left_rotation': qfrom(b if sg == 'b' else t), 'right_rotation': [F(0), F(0), F(0), F(1)],
+                                        'translation': [F(0)] * 3 if sg == 'b' else jb, 'scale': [F(TD.SCALE)] * 3}})
     tick.append(f'execute as @a[gamemode=!spectator] if {worn} at @s run function bm:p59/kw/tick')
     tick.append('execute as @e[type=minecraft:item_display,tag=bm.kwt,tag=!bm.kwok] run kill @s')       # nobody wears them any more
     tick.append('tag @e[type=minecraft:item_display,tag=bm.kwok] remove bm.kwok')
+    KEYS = list(TEN)
     fn('p59/kw/tick', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
                        'execute as @e[type=minecraft:item_display,tag=bm.kwt] if score @s bm.pid = #me bm.pid run tag @s add bm.kwok',
                        'execute store result score #n bm.rng if entity @e[type=minecraft:item_display,tag=bm.kwok,distance=..4]',
-                       'execute unless score #n bm.rng matches 4 run function bm:p59/kw/sprout',
+                       'execute unless score #n bm.rng matches 8 run function bm:p59/kw/sprout',
                        'execute if predicate bm:p20/sneaking rotated ~ 0 positioned ~ ~-0.3 ~ run function bm:p59/kw/place',
                        'execute unless predicate bm:p20/sneaking rotated ~ 0 run function bm:p59/kw/place',
                        'scoreboard players add @s bm.kwt 1',
                        'scoreboard players operation #f4 bm.rng = @s bm.kwt', 'scoreboard players operation #f4 bm.rng %= #4 bm.rng',
                        'execute if score #f4 bm.rng matches 0 if score @s bm.kwcd matches ..0 run function bm:p59/kw/look',
-                       'execute as @e[type=minecraft:item_display,tag=bm.kwok,distance=..4,scores={bm.kwcd=1..}] run function bm:p59/kw/recoil'])
-    fn('p59/kw/place', [f'execute positioned ^{x} ^{y} ^-0.2 run tp @e[type=minecraft:item_display,tag=bm.kwok,tag=bm.kwt_{k},distance=..4] ~ ~ ~ ~ 0' for k, (x, y, _d) in TEN.items()])
+                       'execute if score @s bm.kwlt matches 1.. run function bm:p59/kw/lunge_tick'])
+    fn('p59/kw/place', [f'execute positioned ^{m[0]} ^{m[1]} ^{m[2]} run tp @e[type=minecraft:item_display,tag=bm.kwok,tag=bm.kwt_{k},distance=..4] ~ ~ ~ ~ 0'
+                        for k, (m, _p) in TEN.items()])
     fn('p59/kw/sprout', ['execute as @e[type=minecraft:item_display,tag=bm.kwok,distance=..6] run kill @s'] +
-       [f'summon minecraft:item_display ~ ~1 ~ {tnbt(k)}' for k in TEN] +
+       [f'summon minecraft:item_display ~ ~1 ~ {tnbt(k, sg)}' for k in TEN for sg in ('b', 't')] +
        ['scoreboard players operation @e[type=minecraft:item_display,tag=bm.kwtnew] bm.pid = #me bm.pid',
         'tag @e[type=minecraft:item_display,tag=bm.kwtnew] add bm.kwok', 'tag @e[type=minecraft:item_display,tag=bm.kwtnew] remove bm.kwtnew',
         'playsound minecraft:block.copper_bulb.turn_on player @a[distance=..12] ~ ~ ~ 1 0.6', 'particle minecraft:electric_spark ~ ~1.2 ~ 0.3 0.4 0.3 0.2 20'])
-    # idle: each tendril drifts on its own slow beat
-    for k, (x, y, d) in TEN.items():
-        dx, dy, dz = SWAY[k]
-        fn(f'p59/kw/sway_{k}_a', [f'data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{left_rotation:{snbt(qfrom((d[0] + dx, d[1] + dy, d[2] + dz)))}}}}}'])
-        fn(f'p59/kw/sway_{k}_b', [f'data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{left_rotation:{snbt(qfrom((d[0] - dx, d[1] - dy, d[2] - dz)))}}}}}'])
-        fn(f'p59/kw/lash_{k}', [f'data merge entity @s {{start_interpolation:0,interpolation_duration:3,transformation:{{left_rotation:{snbt(qfrom((d[0] * 0.35, 0.25 if k[0] == "u" else 0.05, 0.95)))}}}}}'])
+    # poses: (as the wearer) both segments of tendril k take a pose over `d` ticks
+    POSE_DUR = {'idle': (5,), 'sway_a': (20,), 'sway_b': (20,), 'mid': (2,), 'lunge': (2,)}
+    for k in TEN:
+        for pose, durs in POSE_DUR.items():
+            for d in durs:
+                xb, xt = seg_xf(k, pose)
+                fn(f'p59/kw/pose/{k}/{pose}', [
+                    f'execute as @e[type=minecraft:item_display,tag=bm.kwok,tag=bm.kwt_{k},tag=bm.kws_b,distance=..4] run data merge entity @s {{start_interpolation:0,interpolation_duration:{d},transformation:{{{xb}}}}}',
+                    f'execute as @e[type=minecraft:item_display,tag=bm.kwok,tag=bm.kwt_{k},tag=bm.kws_t,distance=..4] run data merge entity @s {{start_interpolation:0,interpolation_duration:{d},transformation:{{{xt}}}}}'])
+    # idle: each tendril drifts on its own slow beat (not while one is striking)
     G.FUNCS['p59/kw/tick'] += ['scoreboard players operation #f bm.rng = @s bm.kwt', 'scoreboard players operation #f bm.rng %= #40 bm.rng'] + \
-        [f'execute if score #f bm.rng matches {t} as @e[type=minecraft:item_display,tag=bm.kwok,tag=bm.kwt_{k},distance=..4] unless score @s bm.kwcd matches 1.. run function bm:p59/kw/sway_{k}_{ab}'
-         for k, t0 in (('ul', 0), ('ur', 10), ('ll', 5), ('lr', 15)) for t, ab in ((t0, 'a'), (t0 + 20, 'b'))]
-    fn('p59/kw/recoil', ['scoreboard players remove @s bm.kwcd 1'] + [f'execute if score @s bm.kwcd matches 0 if entity @s[tag=bm.kwt_{k}] run function bm:p59/kw/sway_{k}_a' for k in TEN])
+        [f'execute if score #f bm.rng matches {t} unless score @s bm.kwlt matches 1.. run function bm:p59/kw/pose/{k}/sway_{ab}'
+         for k, t0 in zip(KEYS, (0, 10, 5, 15)) for t, ab in ((t0, 'a'), (t0 + 20, 'b'))]
+    # a strike: the chosen tendril climbs past your head (or out past your arm), lunges forward, pulls back, settles
+    fn('p59/kw/lunge_tick', ['scoreboard players remove @s bm.kwlt 1'] +
+       [f'execute if score @s bm.kwlk matches {i} if score @s bm.kwlt matches {at} run function bm:p59/kw/pose/{k}/{pose}'
+        for i, k in enumerate(KEYS) for at, pose in ((8, 'lunge'), (3, 'mid'), (0, 'idle'))])
+
     # looking at a monster: a tendril lashes it (sneaking: yanks it in). Faster and harder in the rain; in a storm, lightning
     fn('p59/kw/look', ['tag @s add bm.kwme', 'scoreboard players set #kr bm.rng 48', 'scoreboard players set #kh bm.rng 0',
                        'execute anchored eyes positioned ^ ^ ^ run function bm:p59/kw/ray', 'tag @s remove bm.kwme'])
@@ -173,11 +192,9 @@ def generate(G):
                        'execute if predicate bm:p59/storm run scoreboard players set #lv bm.rng 2',
                        'execute if score #lv bm.rng matches 0 run scoreboard players set @s bm.kwcd 24', 'execute if score #lv bm.rng matches 1 run scoreboard players set @s bm.kwcd 18',
                        'execute if score #lv bm.rng matches 2 run scoreboard players set @s bm.kwcd 12',
-                       'execute store result score #w bm.rng run random value 0..3'] +
-       [f'execute if score #w bm.rng matches {i} as @e[type=minecraft:item_display,tag=bm.kwt_{k},distance=..4] if score @s bm.pid = #me bm.pid run function bm:p59/kw/lash1_{k}' for i, k in enumerate(TEN)] +
+                       'execute store result score @s bm.kwlk run random value 0..3', 'scoreboard players set @s bm.kwlt 10'] +
+       [f'execute if score @s bm.kwlk matches {i} run function bm:p59/kw/pose/{k}/mid' for i, k in enumerate(KEYS)] +
        ['execute anchored eyes positioned ^ ^ ^ run function bm:p59/kw/beam'])
-    for k in TEN:
-        fn(f'p59/kw/lash1_{k}', [f'function bm:p59/kw/lash_{k}', 'scoreboard players set @s bm.kwcd 8'])
     fn('p59/kw/beam', ['scoreboard players set #kb bm.rng 48', 'function bm:p59/kw/beam1'])
     fn('p59/kw/beam1', ['particle minecraft:dust{color:[1.0,0.92,0.3],scale:0.9} ~ ~ ~ 0.03 0.03 0.03 0 1', 'particle minecraft:electric_spark ~ ~ ~ 0.05 0.05 0.05 0.02 1',
                         'scoreboard players remove #kb bm.rng 1', 'execute if score #kb bm.rng > #kr bm.rng positioned ^ ^ ^0.5 run function bm:p59/kw/beam1'])
@@ -209,8 +226,9 @@ def generate(G):
        [f'execute store result entity @s Motion[{i}] double 0.001 run scoreboard players get #v{a} bm.rng' for i, a in enumerate('xyz')])
     # sneak + jump: fling where you look (up the wall if one is right in front of you)
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.kwj minecraft.custom:minecraft.jump', 'scoreboard objectives add bm.kwt dummy',
-                              'scoreboard objectives add bm.kwf dummy', 'scoreboard players set #40 bm.rng 40', 'scoreboard players set #4 bm.rng 4']
-    G.OBJECTIVES += ['bm.kwj', 'bm.kwt', 'bm.kwf']
+                              'scoreboard objectives add bm.kwf dummy', 'scoreboard objectives add bm.kwlt dummy', 'scoreboard objectives add bm.kwlk dummy',
+                              'scoreboard players set #40 bm.rng 40', 'scoreboard players set #4 bm.rng 4']
+    G.OBJECTIVES += ['bm.kwj', 'bm.kwt', 'bm.kwf', 'bm.kwlt', 'bm.kwlk']
     tick.append(f'execute as @a[scores={{bm.kwj=1..}}] at @s run function bm:p59/kw/jump')
     tick.append('scoreboard players remove @a[scores={bm.kwf=1..}] bm.kwf 1')
     fn('p59/kw/jump', ['scoreboard players reset @s bm.kwj', f'execute unless {worn} run return 0', 'execute unless predicate bm:p20/sneaking run return 0',
@@ -367,12 +385,18 @@ def textures():
                 d = rnd.randint(-var, var) - (var * 2 if streak and x in streak else 0)
                 im.putpixel((x, y), tuple(max(0, min(255, c + d)) for c in b[:3]) + (255,))
         return im
-    T_ = {'kw_yellow': noise('#f2d42c', 14), 'kw_yellow_lt': noise('#fff27a', 10), 'kw_green': noise('#2e9a4a', 10), 'kw_teal': noise('#1d7a5c', 8),
-          'ap_grey': noise('#8c9096', 8, streak=(4, 11)), 'ap_grey_dk': noise('#5c6066', 6), 'ap_emerald': noise('#2ad060', 16), 'ap_ruby': noise('#d02030', 14),
-          'ap_fur': noise('#f0ece0', 8)}
+    T_ = {'kw_yellow': noise('#f2d42c', 18), 'kw_yellow_lt': noise('#ffec5a', 14), 'kw_white': noise('#fffbd8', 6), 'kw_green': noise('#2e9a4a', 10), 'kw_teal': noise('#1d7a5c', 8),
+          'ap_black': noise('#1c1a20', 6), 'ap_emerald': noise('#1fae4c', 10), 'ap_emerald_lt': noise('#5cf08a', 10), 'ap_ruby': noise('#c81828', 10),
+          'ap_ruby_lt': noise('#ff6a70', 8), 'ap_gold': noise('#e0b030', 14), 'ap_fur': noise('#f2f0ea', 6)}
+    # sparks on the yellow, a sheen on the black, facets on the gems, grey speckles in the fur
     for y in range(16):
         for x in range(16):
-            if (x + y) % 6 == 0: T_['ap_emerald'].putpixel((x, y), hexc('#a8ffc8'))
+            if rnd.random() < 0.10: T_['kw_yellow'].putpixel((x, y), hexc('#fff8b0'))
+            if rnd.random() < 0.06: T_['kw_yellow'].putpixel((x, y), hexc('#c89a10'))
+            if (x + y) % 7 == 0: T_['ap_black'].putpixel((x, y), hexc('#3a3842'))
+            if (x + y) % 5 == 0 or (x - y) % 5 == 0: T_['ap_emerald'].putpixel((x, y), hexc('#0d6a2c' if (x + y) % 2 else '#7affa8'))
+            if (x - y) % 4 == 0: T_['ap_ruby'].putpixel((x, y), hexc('#ff5060'))
+            if rnd.random() < 0.12: T_['ap_fur'].putpixel((x, y), hexc(rnd.choice(('#8a8a90', '#a8a8ae', '#6c6c72'))))
     return T_
 
 
@@ -389,36 +413,64 @@ def rp(R):
             t = {k: (v if ':' in v else f'bm:block/{v}') for k, v in tex.items()}; t['particle'] = list(t.values())[0]
             R2.wj(f'assets/bm/models/item/{name}.json', {'textures': t, 'elements': els, 'display': disp})
             R2.wj(f'assets/bm/items/{name}.json', {'model': {'type': 'minecraft:model', 'model': f'bm:item/{name}'}})
-        # KillerWatt's tendrils: a green gauntlet grip, three jagged yellow tendrils fanning up and out, barbed
-        kw = [c((6, 0, 6), (10, 6, 10), 'g'), c((5.5, 5, 5.5), (10.5, 7, 10.5), 't')]
-        for k, (dx, lean) in enumerate(((-1, 22), (0, 0), (1, -22))):
-            x, y = 8 + dx * 1.2, 6.5
-            for seg, (L, ang, w) in enumerate(((6, lean, 1.6), (6, lean * 1.6 + 12, 1.3), (5, lean * 2 - 20, 1.0), (4, lean * 2 + 25, 0.8))):
-                kw.append(c((x - w / 2, y, 7.4), (x + w / 2, y + L, 8.6), 'y' if seg % 2 == 0 else 'l', ('z', max(-45, min(45, ang)), (x, y, 8))))
-                a = math.radians(ang); x, y = x - L * math.sin(a), y + L * math.cos(a)
-            kw.append(c((x - 0.4, y - 1, 7.6), (x + 0.4, y + 2.5, 8.4), 'l', ('z', 22.5, (x, y, 8))))
-        model('killerwatt_tendrils', {'y': 'kw_yellow', 'l': 'kw_yellow_lt', 'g': 'kw_green', 't': 'kw_teal'}, kw, HELD)
-        # one back tendril (worn): a socket, a zig-zag of crackling segments, a three-pronged claw at the tip - pointing +y from (8,8,8)
-        tn = [c((6.6, 6.6, 6.6), (9.4, 9.0, 9.4), 't')]
-        x, y = 8.0, 8.5
-        for seg, (L, ang, w) in enumerate(((5, 14, 2.0), (5, -16, 1.8), (5, 15, 1.6), (4.5, -12, 1.4))):
-            tn.append(c((x - w / 2, y, 8 - w / 2), (x + w / 2, y + L + 0.4, 8 + w / 2), 'y' if seg % 2 == 0 else 'l', ('z', ang, (x, y, 8))))
-            a_ = math.radians(ang); x, y = x - L * math.sin(a_), y + L * math.cos(a_)
-            tn.append(c((x - 0.5, y - 1.2, 8 + w / 2 - 0.1), (x + 0.5, y + 0.6, 8 + w / 2 + 0.7), 'l', ('x', -30, (x, y, 8))))
-        tn += [c((x - 1.3, y, 6.7), (x + 1.3, y + 1.4, 9.3), 't')]
-        for k, (ox, oz, ax, an) in enumerate(((-1.0, 0, 'z', 25), (1.0, 0, 'z', -25), (0, 1.0, 'x', -25))):
-            tn.append(c((x + ox - 0.35, y + 1.2, 8 + oz - 0.35), (x + ox + 0.35, y + 4.2, 8 + oz + 0.35), 'y', (ax, an, (x + ox, y + 1.2, 8 + oz))))
-        model('kw_tendril', {'y': 'kw_yellow', 'l': 'kw_yellow_lt', 'g': 'kw_green', 't': 'kw_teal'}, tn,
-              {'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1, 1, 1]}})
-        # Apophiss's crown (worn): grey band, fur trim, spikes with ball tips, a great emerald and a ruby
-        cr = [c((2.6, 14.2, 2.6), (13.4, 15.4, 13.4), 'f'),
-              c((3, 15.2, 3), (13, 18.4, 4), 'g'), c((3, 15.2, 12), (13, 18.4, 13), 'g'), c((3, 15.2, 4), (4, 18.4, 12), 'g'), c((12, 15.2, 4), (13, 18.4, 12), 'g')]
-        for (x, z) in ((3, 3), (12, 3), (3, 12), (12, 12), (7.5, 3), (7.5, 12), (3, 7.5), (12, 7.5)):
-            hh = 3.6 if (x, z) in ((3, 3), (12, 3), (3, 12), (12, 12)) else 2.4
-            cr += [c((x, 18.4, z), (x + 1, 18.4 + hh, z + 1), 'g', ('y', 45, (x + 0.5, 19, z + 0.5))), c((x + 0.1, 18.4 + hh, z + 0.1), (x + 0.9, 19.2 + hh, z + 0.9), 'd')]
-        cr += [c((6, 15.6, 2.3), (10, 19.4, 3.1), 'e'), c((6.6, 19.4, 2.4), (9.4, 20.6, 3.0), 'e'), c((7.4, 16.6, 1.9), (8.6, 18.4, 2.4), 'r'),
-               c((4.4, 16.4, 2.6), (5.2, 17.2, 3.1), 'r'), c((10.8, 16.4, 2.6), (11.6, 17.2, 3.1), 'r')]
-        model('apophiss_crown', {'g': 'ap_grey', 'd': 'ap_grey_dk', 'e': 'ap_emerald', 'r': 'ap_ruby', 'f': 'ap_fur'}, cr, R2.GUI_3D)
+        KT = {'y': 'kw_yellow', 'l': 'kw_yellow_lt', 'g': 'kw_green', 't': 'kw_teal', 'w': 'kw_white'}
+        # a flat electric blade from point p to q (x,y in the z-plane at depth z): width w, thickness d, rotated about z at p
+        def blade(p, q, w, t, z=8, d=1.0):
+            L = math.hypot(q[0] - p[0], q[1] - p[1]); a = math.degrees(math.atan2(-(q[0] - p[0]), q[1] - p[1]))
+            return c((p[0] - w / 2, p[1], z - d / 2), (p[0] + w / 2, p[1] + L + 0.3, z + d / 2), t, ('z', round(a, 2), (p[0], p[1], z)))
+        def bolt(pts, ws, z=8, d=1.0, tex='yl'):
+            return [blade(pts[n], pts[n + 1], ws[n], tex[n % len(tex)], z, d) for n in range(len(pts) - 1)]
+        def barb(p, ang, L=2.4, t='w', z=8):
+            return c((p[0] - 0.3, p[1], z - 0.3), (p[0] + 0.3, p[1] + L, z + 0.3), t, ('z', ang, (p[0], p[1], z)))
+        # KillerWatt's tendrils (GUI): a green spine plate, four jagged lightning blades fanning out of it
+        kw = [c((5.5, 1, 6.5), (10.5, 7, 9.5), 'g'), c((6.5, 2, 9.4), (9.5, 6, 10), 't'), c((7.3, 2.6, 9.9), (8.7, 5.4, 10.3), 'w')]
+        for sx in (-1, 1):
+            for up, pts in ((1, [(8, 6), (10.5, 9), (9.5, 10.5), (12.5, 13.5), (11.8, 15), (14.5, 15.8)]),
+                            (0, [(8, 3), (11, 4), (10.5, 5.5), (13.5, 6), (13, 7.5), (15.5, 7.2)])):
+                P = [(8 + sx * (x - 8), y) for x, y in pts]
+                kw += bolt(P, (1.6, 1.0, 1.4, 0.9, 0.8), 8, 1.0)
+                kw.append(barb(P[2], -sx * 60, 1.8))
+        model('killerwatt_tendrils', KT, kw, HELD)
+        # worn: each tendril is two blades with a sharp elbow between - kw_tb (base, 12 long) and kw_tt (tip, 17 long) along +y from (8,8,8)
+        # each is a zig-zag bolt: sharp kinks, white-hot barbs on the corners, endpoints back on the axis so the elbow joins
+        tb = [c((6.4, 6.4, 6.4), (9.6, 9.0, 9.6), 'g'), c((6.9, 8.8, 6.9), (9.1, 9.8, 9.1), 't')]
+        P = [(8, 9), (10.0, 12.6), (6.8, 15.2), (9.2, 18.4), (8, 20)]
+        tb += bolt(P, (2.6, 1.8, 2.4, 1.8)); tb += [barb(P[1], -55), barb(P[2], 60), barb(P[3], -50, 2.0)]
+        tb.append(c((7, 19.2, 7), (9, 20.6, 9), 't'))                                           # elbow knuckle
+        model('kw_tb', KT, tb, {'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1, 1, 1]}})
+        tt = []
+        P = [(8, 8.2), (6.0, 12.4), (9.6, 15.6), (6.6, 19.8), (9.4, 22.2), (8.6, 24.0), (6.8, 25.2)]
+        tt += bolt(P, (2.2, 1.7, 2.0, 1.5, 1.0, 0.7)); tt += [barb(P[1], 55), barb(P[2], -60), barb(P[3], 55, 2.0), barb(P[4], -40, 1.6)]
+        tt.append(c((6.4, 24.6, 7.6), (7.2, 25.8, 8.4), 'w'))                                   # the hooked point
+        model('kw_tt', KT, tt, {'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1, 1, 1]}})
+        # Apophiss's crown (worn): black band on speckled white fur, ball-tipped spikes of uneven height,
+        # a great faceted emerald set inside rising over the band, a diamond ruby on the tall front spike, oval rubies in gold
+        cr = [c((2.4, 13.6, 2.4), (13.6, 15.2, 13.6), 'f'),                                    # fur trim
+              c((3, 15.0, 3), (13, 18.0, 3.8), 'k'), c((3, 15.0, 12.2), (13, 18.0, 13), 'k'),
+              c((3, 15.0, 3.8), (3.8, 18.0, 12.2), 'k'), c((12.2, 15.0, 3.8), (13, 18.0, 12.2), 'k'),
+              c((3.4, 17.6, 3.4), (12.6, 18.2, 12.6), 'k')]                                      # inner floor
+        # emerald: a stacked faceted gem inside, rising above the band
+        cr += [c((5.2, 17.8, 5.2), (10.8, 20.6, 10.8), 'e'), c((5.8, 20.4, 5.8), (10.2, 22.0, 10.2), 'e', ('y', 45, (8, 21, 8))),
+               c((6.6, 21.8, 6.6), (9.4, 23.2, 9.4), 'v'), c((7.3, 23.0, 7.3), (8.7, 23.8, 8.7), 'v', ('y', 45, (8, 23.4, 8)))]
+        # spikes round the band (front is model north, z=3): (x, z, height)
+        SP = [(8, 3.4, 6.6), (5.0, 3.4, 4.0), (11.0, 3.4, 4.0), (3.4, 5.6, 5.0), (12.6, 5.6, 5.0), (3.4, 10.0, 3.4), (12.6, 10.0, 3.4),
+              (5.0, 12.6, 4.4), (11.0, 12.6, 4.4), (8, 12.6, 5.4)]
+        for x, z, h in SP:                                                              # a tapering spike, then a ball
+            w = 1.3 if h > 6 else 1.1
+            cr += [c((x - w / 2, 17.8, z - w / 2), (x + w / 2, 17.8 + h * 0.55, z + w / 2), 'k'),
+                   c((x - 0.35, 17.8 + h * 0.55, z - 0.35), (x + 0.35, 17.8 + h, z + 0.35), 'k'),
+                   c((x - 0.75, 17.6 + h, z - 0.75), (x + 0.75, 19.0 + h, z + 0.75), 'k'), c((x - 0.55, 17.4 + h, z - 0.95), (x + 0.55, 19.2 + h, z + 0.95), 'k'),
+                   c((x - 0.95, 17.4 + h, z - 0.55), (x + 0.95, 19.2 + h, z + 0.55), 'k')]
+        # the diamond ruby on the tall front spike, gold-set oval rubies on the band
+        cr += [c((7.0, 19.0, 2.3), (9.0, 21.0, 2.9), 'r', ('z', 45, (8, 20, 2.6))), c((7.45, 19.45, 2.05), (8.55, 20.55, 2.35), 'o', ('z', 45, (8, 20, 2.2)))]
+        for x, z, face in ((5.0, 2.9, 'n'), (11.0, 2.9, 'n'), (2.9, 7.5, 'w'), (13.1, 7.5, 'e'), (8.0, 13.1, 's')):
+            if face in 'ns':
+                dz = -0.35 if face == 'n' else 0.35
+                cr += [c((x - 1.0, 15.6, z + dz - 0.2), (x + 1.0, 17.6, z + dz + 0.2), 'a'), c((x - 0.6, 15.9, z + 2 * dz - 0.2), (x + 0.6, 17.3, z + 2 * dz + 0.2), 'r')]
+            else:
+                dx = -0.35 if face == 'w' else 0.35
+                cr += [c((x + dx - 0.2, 15.6, z - 1.0), (x + dx + 0.2, 17.6, z + 1.0), 'a'), c((x + 2 * dx - 0.2, 15.9, z - 0.6), (x + 2 * dx + 0.2, 17.3, z + 0.6), 'r')]
+        model('apophiss_crown', {'k': 'ap_black', 'e': 'ap_emerald', 'v': 'ap_emerald_lt', 'r': 'ap_ruby', 'o': 'ap_ruby_lt', 'a': 'ap_gold', 'f': 'ap_fur'}, cr, R2.GUI_3D)
         # Cecil's staff: his own crescent staff, a little smaller
         import json, os
         arm = json.load(open(R2.p('assets', 'bm', 'models', 'item', 'cec_arm.json')))

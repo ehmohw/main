@@ -21,6 +21,17 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.42: sharper tendrils, the true crown
+
+**KillerWatt's Tendrils** are rebuilt as jagged lightning. Each of the four is now two zig-zag blades with a sharp elbow, white-hot barbs on the corners and a hooked point.
+- **The strike:** when one lashes, it climbs past your head (or out past your arm), then lunges forward over your shoulder at the target before settling back.
+- **No clipping:** every pose, and every frame between poses, keeps clear of your head, body and arms.
+
+**Apophiss's Crown** now matches the serpent king's own:
+- A black band on speckled white fur, with ball-tipped spikes of uneven height.
+- A great faceted emerald set inside and rising over the band.
+- A diamond ruby on the tall front spike, and oval rubies in gold settings round the band.
+
 ## New in 2.41: the relics come into their own
 
 **KillerWatt's Tendrils are worn in the chest slot** and give no armour. Four lightning tendrils grow from your back and drift on their own.
