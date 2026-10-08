@@ -1,4 +1,4 @@
-# Black Market — v2.36 (Java 26.3)
+# Black Market — v2.37 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,37 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.37: Emma, a hidden friend
+
+**Finding her.** On a sunny day in a cherry grove, flower forest, meadow or sunflower plains, you may hear someone humming a little tune nearby. Emma is sitting in the flowers, about 14 blocks away. Hold any flower and right-click her: she joins you and gives you **Emma's Ribbon**. If you leave her be, she wanders off after 10 minutes, or when nobody is near. She never turns up for someone already carrying her ribbon. Cecil drops a hint the first time you summon him.
+
+**Emma's Ribbon.** Use it to call her, or to call her back to you. **Sneak + use** opens her menu: pick her buff, see her charge, or send her home. Right-click her empty-handed to make her sit or stand, like any pet.
+
+**Support, not fighting.** Every 3 seconds she buffs you, other players within 10 blocks, and Cecil. Pick one of four buffs:
+- **Speed:** Speed and Jump Boost.
+- **Offense:** Strength.
+- **Defense:** Resistance.
+- **Healing:** Regeneration, plus a quick heal for anyone below 4 hearts (at most once every 6 seconds).
+
+Monsters leave her alone.
+
+**Ethereal Form.** While monsters are near, she charges by 2% a second. At 100%, with a monster within 14 blocks, she takes her Ethereal Form for 30 seconds: steel armour, white wings and a crescent axe. She flies and strikes the nearest monster every second for 8 damage, plus 4 to anything beside it. Her buffs also get one level stronger.
+
+**With Cecil: Harmony.** Summon them together (within 12 blocks) and they help each other:
+- **Cecil** casts every second instead of every 2, and his bolts hit for 7 instead of 5.
+- **Emma** charges twice as fast, and her buffs get a bonus.
+
+Now and then they stop to chat: she waves, and he answers.
+
+**How she moves.** When she stands still, she folds her arms politely and sways. She has a bouncy walk and a skipping run, cheers when she jumps, and swings her feet when she sits. In her Ethereal Form she hovers with her wings beating.
+
+If she falls, the ribbon needs 10 minutes before she can come back. New achievements: **A Friend Among the Flowers**, **Ethereal** and **Best of Friends**.
+
+Admin commands:
+- `/function bm:admin/emma`: Emma sits in front of you.
+- `/function bm:admin/emma_ribbon`: gives you her ribbon.
+- `/function bm:admin/emma_charge`: charges your Emma to 100%.
 
 ## Fixed in 2.36
 

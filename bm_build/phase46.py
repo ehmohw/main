@@ -13,7 +13,7 @@ from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D
 
 PET_CD = 600                     # seconds before a fallen Cecil can be called again
-COMPANIONS = 'tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet'
+COMPANIONS = 'tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,tag=!bm.emmapet'
 
 item('cecil_gem', TOTEM, "Cecil's Summoning Gem", '#b48cff',
      ['A violet gem with two yellow eyes in it.', 'They blink.', ('Use: Cecil joins you in battle - poisoned', 'blue'),

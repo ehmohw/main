@@ -159,7 +159,7 @@ def generate(G, B=None):
                                                                                                           {'score': {'name': '@s', 'objective': 'bm.htc'}, 'color': 'white'}, T(' s', 'gray')]),
                        'scoreboard players set @s bm.htc 8', 'tag @s add bm.htme', 'scoreboard players set #rend bm.rng 0',
                        'execute rotated ~ 0 run function bm:p2/ht/rend_arc',
-                       f'execute rotated ~ 0 positioned ^ ^ ^2.5 as @e[distance=..3,type=!minecraft:player,type=!#bm:p44_nonmob,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet] at @s run function bm:p2/ht/rend_hit',
+                       f'execute rotated ~ 0 positioned ^ ^ ^2.5 as @e[distance=..3,type=!minecraft:player,type=!#bm:p44_nonmob,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,tag=!bm.emmapet] at @s run function bm:p2/ht/rend_hit',
                        f'execute rotated ~ 0 positioned ^ ^ ^2.5 as @a[distance=..3,tag=!bm.htme,{near}] at @s run function bm:p2/ht/rend_hit',
                        'tag @s remove bm.htme',
                        'playsound minecraft:entity.wither.shoot player @a[distance=..24] ~ ~ ~ 0.8 1.4', 'playsound minecraft:item.trident.riptide_1 player @a[distance=..24] ~ ~ ~ 0.8 0.6'])

@@ -259,7 +259,7 @@ def generate(G):
 
     # ---------------- who the head's fire can hurt: any mob (2.23: animals too - and they come out cooked), the Hellsteed, other players (never its user)
     for name, r in [('near_1', 1.6), ('near_4', 4), ('near_10', 10)]:
-        fn(f'p42/hit/{name}', [f'execute as @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,distance=..{r},tag=!bm.p42hit] run function bm:p42/hit/one',
+        fn(f'p42/hit/{name}', [f'execute as @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,tag=!bm.emmapet,distance=..{r},tag=!bm.p42hit] run function bm:p42/hit/one',
                                f'execute as @e[type=minecraft:skeleton_horse,tag=bm.hhs,distance=..{r + 0.6},tag=!bm.p42hit] run function bm:p42/hit/one',
                                f'execute as @a[distance=..{r},tag=!bm.p42hit,tag=!bm.p42me,{near}] run function bm:p42/hit/one'])
     fn('p42/hit/one', ['tag @s add bm.p42hit'] + [f'execute if score #hv bm.rng matches {v} run function bm:p42/hit/apply_{v} with storage bm:tmp p42' for v in (1, 2, 3)] + [
@@ -323,7 +323,7 @@ def generate(G):
     fn('p42/blast/step', ['scoreboard players add #k bm.rng 1'] +
        [f'execute if score #hv bm.rng matches {v} run particle {VARIANTS[v][4]} ~ ~ ~ 0.12 0.12 0.12 0.01 4' for v in (1, 2, 3)] +
        ['particle minecraft:smoke ~ ~ ~ 0.05 0.05 0.05 0.01 1',
-        'execute if entity @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,distance=..1.3] run return run function bm:p42/blast/boom',
+        'execute if entity @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,tag=!bm.emmapet,distance=..1.3] run return run function bm:p42/blast/boom',
         'execute if entity @e[type=minecraft:skeleton_horse,tag=bm.hhs,distance=..1.9] run return run function bm:p42/blast/boom',
         f'execute if entity @a[distance=..1.3,tag=!bm.p42me,{near}] run return run function bm:p42/blast/boom',
         'execute unless block ~ ~ ~ #bm:grap_pass run return run function bm:p42/blast/boom',
@@ -386,7 +386,7 @@ def generate(G):
                          'tag @s remove bm.p42me', 'tag @e[tag=bm.p42hit,distance=..48] remove bm.p42hit'])
     fn('p42/bolt/step', ['scoreboard players add #k bm.rng 1', 'particle minecraft:copper_fire_flame ~ ~ ~ 0.04 0.04 0.04 0.005 1',
                          'execute if score #k bm.rng matches 2.. run particle minecraft:dust{color:[0.35,0.85,0.2],scale:0.9} ~ ~ ~ 0.05 0.05 0.05 0 1',
-                         f'execute positioned ~ ~-0.9 ~ if entity @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,distance=..1.2] run return run function bm:p42/bolt/hit',
+                         f'execute positioned ~ ~-0.9 ~ if entity @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,tag=!bm.emmapet,distance=..1.2] run return run function bm:p42/bolt/hit',
                          'execute positioned ~ ~-1 ~ if entity @e[type=minecraft:skeleton_horse,tag=bm.hhs,distance=..1.8] run return run function bm:p42/bolt/hit',
                          f'execute positioned ~ ~-0.9 ~ if entity @a[distance=..1.2,tag=!bm.p42me,{near}] run return run function bm:p42/bolt/hit',
                          'execute unless block ~ ~ ~ #bm:grap_pass run return run particle minecraft:item_slime ~ ~ ~ 0.1 0.1 0.1 0 3',
@@ -428,7 +428,7 @@ def generate(G):
                             'scoreboard players operation #zt bm.rng = @s bm.hzt', 'scoreboard players operation #zt bm.rng %= #20 bm.rng',
                             'execute unless score #zt bm.rng matches 0 run return 0',
                             'scoreboard players operation #cp bm.pid = @s bm.pid', 'execute as @a if score @s bm.pid = #cp bm.pid run tag @s add bm.p42me',
-                            f'execute as @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,distance=..3.2] at @s run function bm:p42/plague/sick',
+                            f'execute as @e[type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,tag=!bm.emmapet,distance=..3.2] at @s run function bm:p42/plague/sick',
                             f'execute as @a[distance=..3.2,tag=!bm.p42me,tag=!bm.nopvp,{near}] at @s run function bm:p42/plague/sick',
                             'tag @a remove bm.p42me', 'playsound minecraft:block.bubble_column.upwards_ambient player @a[distance=..16] ~ ~ ~ 0.6 0.6'])
     fn('p42/plague/sick', ['execute if entity @s[type=#minecraft:undead] run effect give @s minecraft:wither 3 1',
