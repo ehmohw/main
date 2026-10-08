@@ -272,7 +272,8 @@ def generate(G):
             'spawn_monstrosity': 'the Blood Moon Monstrosity', 'uninstall': 'stops every loop before you remove the pack', 'bounty_test': 'posts a test bounty',
             'shrine': 'places a shrine', 'void_rat': 'summons the Void Rat', 'ember_rat': 'summons the Ember Rat', 'horseman_heads': "gives the Horseman's Heads", 'pharaoh': 'summons the Sand Pharaoh',
             'storm_roc': 'summons the Storm Roc', 'relics': 'gives every relic form and the four catalysts',
-            'treant': 'summons the Elder Treant', 'colossus': 'summons the Magma Colossus', 'voidwalker': 'summons the Voidwalker', 'essences': 'gives every Relic Essence, shards and Medallions'}
+            'treant': 'summons the Elder Treant', 'colossus': 'summons the Magma Colossus', 'voidwalker': 'summons the Voidwalker', 'essences': 'gives every Relic Essence, shards and Medallions',
+            'blood_moon': 'starts a Blood Moon tonight (jumps to nightfall)'}
     def make_help():
         names = sorted(k[6:] for k in G.FUNCS if k.startswith('admin/') and '/' not in k[6:] and k not in ('admin/help',))
         cats = sorted({k.split('/')[2] for k in G.FUNCS if k.startswith('admin/give/') and k.count('/') == 2})

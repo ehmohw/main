@@ -97,7 +97,9 @@ for v, who, fg, bg in RATS:
     ART += [f'rat_portrait_{v}', f'rat_banner_{v}', f'rat_shield_{v}']
 
 # ===================================================================== the market: three traders step up; the newcomers' lectern
-MOVES = {'arms': ((57.5, W, 21.5), (58.5, W, 21.5)), 'fence': ((44.5, W, 17.5), (44.5, W, 18.5)), 'pawn': ((29.5, W, 17.5), (29.5, W, 18.5))}
+# 2.36: Barnaby stood right behind the counter post at x29 - he steps one block east (from either of his earlier spots)
+MOVES = [('arms', (57.5, W, 21.5), (58.5, W, 21.5)), ('fence', (44.5, W, 17.5), (44.5, W, 18.5)),
+         ('pawn', (29.5, W, 17.5), (30.5, W, 18.5)), ('pawn', (29.5, W, 18.5), (30.5, W, 18.5))]
 LECTERN = (34, BF + 1, 80)          # balcony, just inside the vault door, beside the way in
 GUIDE = [
     [T('NEWCOMERS,\nSTART HERE\n\n', '#6a2a8a', bold=True), T('Welcome to the Black Market.\n\nWe trade in ', 'black'), T('Tokens', '#6a2a8a'),
@@ -374,7 +376,7 @@ def generate(G):
         # ^ offsets are measured from wherever the command is already positioned - so the step from a to b, not b itself
         f = lambda v: ('%.3f' % v).rstrip('0').rstrip('.') if abs(v) > 1e-9 else ''
         return f'^{f(b[0] - a[0])} ^{f(b[1] - a[1])} ^{f(b[2] - a[2])}'
-    for k, (a, b) in MOVES.items():
+    for k, a, b in MOVES:
         for c in (a, b): mgeo.need_air(c, f'{k} stand')
     lx, ly, lz = LECTERN
     mgeo.need_floor((lx + 0.5, ly, lz + 0.5), 'public', 'the newcomers\' lectern')
@@ -389,7 +391,7 @@ def generate(G):
     # the lectern faces template east (+x = the marker's left): which world direction that is depends on the market's turn
     face = [('-45..45', 'east'), ('45..135', 'south'), ('135..180', 'west'), ('-180..-135', 'west'), ('-135..-45', 'north')]
     patch = [
-        f'execute positioned {rel(a)} as @e[tag=bm.npc_{k},distance=..1.2] positioned {delta(a, b)} run tp @s ~ ~ ~' for k, (a, b) in MOVES.items()] + [
+        f'execute positioned {rel(a)} as @e[tag=bm.npc_{k},distance=..0.5] positioned {delta(a, b)} run tp @s ~ ~ ~' for k, a, b in MOVES] + [
         f'execute if entity @s[y_rotation={r}] positioned {lpos} unless block ~ ~ ~ minecraft:lectern if block ~ ~ ~ #minecraft:replaceable run setblock ~ ~ ~ minecraft:lectern[facing={f},has_book=true]{lnbt}' for r, f in face] + [
         f'execute positioned {rel((lx + 0.5, ly + 1.75, lz + 0.5))} unless entity @e[type=minecraft:text_display,tag=bm.newcomer,distance=..2] run summon minecraft:text_display ~ ~ ~ {snbt(sign)}']
     fn('p35/patch', patch)

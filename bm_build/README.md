@@ -1,4 +1,4 @@
-# Black Market — v2.35 (Java 26.3)
+# Black Market — v2.36 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,14 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## Fixed in 2.36
+
+- **Trading screens no longer close by themselves.** Every 10 seconds, the market teleported Vinny, the Fence and Old Barnaby back onto the spot they already stood on. In 26.3, teleporting a trader ends its trade, even when it doesn't move.
+- **Old Barnaby** no longer stands directly behind the counter post at his stall. He steps one block to the side. Markets you've already found are fixed automatically.
+- **Nameplates follow their trader.** Zorp's name stayed behind where he first stood, and three moved traders had the same problem. A nameplate that has drifted away from its trader now jumps back over them.
+- **Cecil (the companion)** no longer appears half inside the ground when you summon him facing a slope or a step. He's placed on top of the step, or at your feet if there's no room.
+- **Starting a Blood Moon by hand:** the new `/function bm:admin/blood_moon` starts one tonight, and jumps to nightfall if it's day. Calling `bloodmoon/start` directly now works too; before, it ended on the next tick.
 
 ## New in 2.35: honest gear — the Xenite Altar rewards vanilla gear
 
