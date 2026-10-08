@@ -29,8 +29,8 @@ for d, (name, lore) in MAPS.items():
          comps={'minecraft:consumable': consumable(0.8, 'none', 'minecraft:item.book.page_turn', False)}, cat='p2map')
 
 item('hollow_summons', TOTEM, 'Shard of the Hollow Throne', '#7f8c9d',
-     ['A splinter of a throne beyond the world.', ('Use it (with all five Conquest Emblems', 'gray'),
-      ('earned) to cross over. Reusable.', 'gray'), ('Friends standing close come with you.', 'dark_gray')],
+     ['A splinter of a throne beyond the world.', ('It is crumbling. Use it: it reforms', 'gray'),
+      ('as a Hollow Gate.', 'gray')],
      model='bm:hollow_summons', glint=True,
      comps={'minecraft:consumable': consumable(2.5, 'toot_horn', 'minecraft:particle.soul_escape', True)}, cat='p2map')
 
@@ -216,7 +216,7 @@ LORE = {
     'keep': ("Wilfrey's Last Letter", 'Wilfrey', [
         "To whoever stands in my hall,\n\nIf you are reading this, my cousin has fallen. I am glad of it, and I am sorry too. Bobbery was not always cruel.",
         "We were boys in the Nether together. He laughed louder than anyone. When Grandfather marched, Bobbery chose the crown and I chose the world. I sealed Grandfather away. Bobbery never forgave me.",
-        "He came for my keep when I was old and tired. I did not fight him. I hid the way to the Hollow Throne in a shard of it, and the shard is yours now.",
+        "He came for my keep when I was old and tired. I did not fight him. I hid the way to the Hollow Throne in a gate of old stone, and the gate is yours now. Set the five emblems in it.",
         "Speak the five numerals at his door, in the order you earned them. Grandfather will wake. Do not let him leave.\n\nBe kind to the rats. They were the only ones who visited.\n\n- Wilfrey"]),
     'hollow': ('The Crown Unmade', 'Unknown', [
         "The Hollow King is broken. The throne is cold. Somewhere, a gentle wither skeleton rests easier than he has in a thousand years.",

@@ -512,11 +512,11 @@ def generate(G, builds):
         if idx:
             first += [give(f'emblem_{d}'), give(f'lore_{d}')]
             if nxt: first.append(give(nxt))
-            if d == 'keep': first.append(give('hollow_summons'))
+            if d == 'keep': first.append(give('hollow_gate'))       # 2.48: the Gate replaces the Shard
             first += [f'title @s times 10 80 20', title('@s', 'subtitle', T(f'Conquest {idx} of 6', 'gray')),
                       title('@s', 'title', T('CONQUEST', cfg['color'], bold=True)),
                       tellraw('@s', PREFIX + [T('Conquest recorded: ', 'gray'), T(cfg['boss'], cfg['color'], bold=True),
-                                              T('. ' + ('A new map is yours.' if nxt else ('Use the Shard of the Hollow Throne. The King is waiting.' if d == 'keep' else '')), 'gray')])]
+                                              T('. ' + ('A new map is yours.' if nxt else ('A Hollow Gate is yours: set your five Emblems in it. The King is waiting.' if d == 'keep' else '')), 'gray')])]
             if d == 'hollow':
                 first.append(tellraw('@a', PREFIX + [{'selector': '@s', 'color': 'gold'}, T(' has defeated ', 'gray'),
                                                      T('THE HOLLOW KING', '#e5e4e2', bold=True), T('!', 'gray')]))

@@ -252,11 +252,11 @@ def generate(G, builds, offers_fn):
     ox, oy, oz = HOLLOW_ORIGIN
     hb = builds.get('hollow')
     ex, ey, ez = (hb.meta['entrance'] if hb else (40, 10, 4))
-    fn('p2/hollow/use', ['advancement revoke @s only bm:consume/hollow_summons'] + return_to_hand('hollow_summons') + [
-        'execute unless score @s bm.conq matches 5.. run return run ' + title('@s', 'actionbar', T('The shard is cold. Earn all five Conquest Emblems first.', 'gray')),
-        'execute unless dimension minecraft:overworld run return run ' + title('@s', 'actionbar', T('The shard only answers in the Overworld.', 'gray')),
-        f'execute unless score #hver bm.p2 matches {HOLLOW_VER} run return run ' + title('@s', 'actionbar', T('The Throne is still forming... try again in a moment.', 'gray')),
-        'execute as @a[distance=..3,scores={bm.conq=5..}] at @s run function bm:p2/hollow/enter'])
+    # 2.48: the Shard is retired - the Hollow Gate is the way in. An old shard re-forms as a gate.
+    fn('p2/hollow/use', ['advancement revoke @s only bm:consume/hollow_summons', give('hollow_gate'),
+                         'particle minecraft:ash ~ ~1 ~ 0.3 0.5 0.3 0 30', 'playsound minecraft:block.deepslate.place player @s ~ ~ ~ 1 0.6',
+                         tellraw('@s', PREFIX + [T('The shard crumbles... and the pieces re-form as a ', 'gray'), T('Hollow Gate', '#c8c4d8', bold=True),
+                                                 T('. Set it up and give it your five Emblems.', 'gray')])])
     fn('p2/hollow/enter', ['execute store result score @s bm.rx run data get entity @s Pos[0]', 'execute store result score @s bm.ry run data get entity @s Pos[1]',
                            'execute store result score @s bm.rz run data get entity @s Pos[2]', 'scoreboard players set @s bm.ret 1',
                            'scoreboard players set @s bm.rd 0', 'execute if dimension minecraft:the_nether run scoreboard players set @s bm.rd 1',

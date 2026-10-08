@@ -283,9 +283,9 @@ def generate(G):
         from p2.config import ORDER, D
         bk = []
         for idx, d in enumerate(ORDER):
-            key = D[d]['key'] or 'hollow_summons'
+            key = D[d]['key'] or 'hollow_gate'
             bk.append(f'execute if score @s bm.conq matches {idx} run return run ' + give(key))
-        bk.append(give('hollow_summons'))
+        bk.append(give('hollow_gate'))
         fn('p30/bosskey', ['execute unless score @s bm.conq matches 0.. run scoreboard players set @s bm.conq 0'] + bk)
     fn('p30/ped_clear', ['execute as @e[type=minecraft:item_display,tag=bm.apedestal] run data remove entity @s item'])
     fn('p30/close', ['scoreboard players set #state bm.auc 0', 'scoreboard players set #aopen bm.auc 0', 'scoreboard players set #hb bm.auc 0',

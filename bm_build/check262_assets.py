@@ -344,7 +344,10 @@ for png in glob.glob(f'{RP}/assets/bm/textures/**/*.png', recursive=True):
     from PIL import Image
     im = Image.open(png)
     if '/equipment/' in png: continue
-    if im.mode != 'RGBA' or im.size[0] != im.size[1] or im.size[0] & (im.size[0] - 1): E(f'{png}: texture should be square power-of-two RGBA')
+    w, h = im.size
+    if os.path.exists(png + '.mcmeta') and h % w == 0:            # an animated strip: square frames stacked
+        h = w
+    if im.mode != 'RGBA' or w != h or w & (w - 1): E(f'{png}: texture should be square power-of-two RGBA (or an animated strip with a .mcmeta)')
 
 for e in errs: print('✗', e)
 print(f'structures + JSON + resource pack vs 26.3: {len(errs)} errors')

@@ -101,7 +101,7 @@ def post_admin(G):
              tellraw('@s', [T('/function bm:admin/p2/conquest_<0-6>', 'yellow'), T('  set your conquest record', 'gray')]),
              tellraw('@s', [T('/function bm:admin/p2/reset', 'yellow'), T('  reset the nearest dungeon (re-locks every trial)', 'gray')]),
              tellraw('@s', [T('/function bm:admin/p2/hollow', 'yellow'), T('  go to the Hollow Throne', 'gray')]),
-             tellraw('@s', [T('/function bm:admin/p2/shard', 'yellow'), T('  give yourself a Shard of the Hollow Throne (+5 conquests)', 'gray')]),
+             tellraw('@s', [T('/function bm:admin/p2/shard', 'yellow'), T('  give yourself a Hollow Gate and the five Emblems (+5 conquests)', 'gray')]),
              tellraw('@s', [T('/function bm:admin/p2/regalia', 'yellow'), T("  the Hollow King's Regalia, tools, wings and Sepulchre", 'gray')]),
              tellraw('@s', [T('/locate structure bm:p2_<dungeon>', 'yellow'), T('  find one', 'gray')])]
     G.FUNCS['admin/help'][-1:-1] = help_
@@ -114,7 +114,7 @@ def post_admin(G):
     fn('admin/p2/reset', [f'execute as @e[type=minecraft:marker,tag=bm.dg,tag=bm.d_{d},distance=..160,sort=nearest,limit=1] at @s run function bm:p2/{d}/reset' for d in B] +
        [tellraw('@s', G.PREFIX + [T('Nearest dungeon reset.', 'gray')])])
     fn('admin/p2/shard', ['scoreboard players set @s[scores={bm.conq=..4}] bm.conq 5', 'execute unless score @s bm.conq matches 0.. run scoreboard players set @s bm.conq 5',
-                          'loot give @s loot bm:items/hollow_summons'])
+                          'loot give @s loot bm:items/hollow_gate'] + [f'loot give @s loot bm:items/emblem_{e}' for e in ('brood', 'frost', 'tide', 'hex', 'keep')])
     fn('admin/p2/hollow', [f'execute unless score #hver bm.p2 matches {data.HOLLOW_VER} run return run ' + tellraw('@s', G.PREFIX + [T('The Hollow Throne is still being built; try again in a few seconds.', 'gray')]),
                            'function bm:p2/hollow/enter'])
     G.FUNCS['admin/uninstall'][0:0] = [f'bossbar remove bm:boss_{d}' for d in B]

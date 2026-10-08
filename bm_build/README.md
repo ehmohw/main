@@ -21,6 +21,19 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.48: the Hollow Gate
+
+**The way into the Hollow Throne is now a real portal.** The **Hollow Gate** is a worn deepslate archway, 4 blocks tall, with five empty sockets running up one pillar, over the keystone and down the other.
+- **Getting one:** it's your reward for conquering Wilfrey's Keep, replacing the old Shard. The Fence also sells it for 10 Tokens, in case you lose yours.
+- **Setting it up:** use it on the ground. It squares itself to face you and needs a clear space 4 wide and 5 high. You can set it up anywhere except inside the Hollow Throne itself, and gates must be at least 10 blocks apart.
+- **The sockets:** each socket is cut for one Conquest Emblem, in conquest order: Broodmother, Frost, Drowned Tyrant, Archmage, Wilfrey. Right-click a socket holding its Emblem to set it in. The wrong Emblem won't go in, and the gate tells you whose socket it is.
+- **Opening:** when the fifth Emblem goes in, the arch fills with the swirling dark of the Hollow. It hums, and ash and soul-light drift out of it.
+- **Passing through:** walk into the open gate. Only players whose record shows all five conquests may pass. Anyone else is thrown back out. Your way home is the rift in the Hollow Throne, which drops you just in front of the gate.
+- **Taking it down:** sneak + punch a socket to take its Emblem back, which shuts the gate. Once every socket is empty, sneak + punch the gate to pack it back into your inventory.
+- **The Shard of the Hollow Throne is retired.** Using an old one turns it into a Hollow Gate.
+- **The Warpstone** (in and out of the Hollow Throne from anywhere) still comes only from defeating the Hollow King, so you first have to go through the gate.
+- **Admin:** `/function bm:admin/hollow_gate`. `bm:admin/p2/shard` now gives a gate and all five Emblems and sets your conquests to 5.
+
 ## New in 2.47: the Ethereal Gem shimmers
 
 **Carrying the Ethereal Gem** anywhere in your inventory (hotbar, backpack slots or off-hand) brings a passive shimmer. Motes in the nine element colours drift about you, cycling from fire to ice, with a soft glint of light. It's purely for looks, and it stops the moment the gem leaves your inventory. Ethereal Gems you already have get the new tooltip line automatically.
