@@ -50,9 +50,12 @@ gear('prism_bow', 'bow', 'Prism Bow', '#ff9af0', ['Strung with a sunbeam split s
 gear('starcaller_bow', 'bow', 'Starcaller Bow', '#ffe85a', ['The night sky owes Cecil a favour.', ('A fully drawn arrow calls five falling', 'blue'),
                                                             ('stars down where it lands (6 damage each).', 'blue'), ('One volley every 3 seconds.', 'gray')],
      dict(ench(power=5, unbreaking=3), **{'bm:starcall': 1}), 3, bold=True)
-item('bloomheart_gem', TOTEM, 'Bloomheart', '#ff7ae0',
-     ['A gem that grew in a flower instead of a mine.', ('Right-click: a ring of blossom - you and', 'blue'), ('everyone within 8 blocks get Regeneration II', 'blue'),
-      ('for 8 seconds. 45 second recharge.', 'blue'), ('In your off hand: poison and wither', 'blue'), ("won't stick to you.", 'blue')],
+item('bloomheart_gem', TOTEM, "Emma's Bloomheart", '#ff7ae0',
+     ['A gem that grew in a flower instead of a mine.', "Emma's - from the sea-kingdom's gardens.", ('Right-click: a ring of blossom - you and', 'blue'),
+      ('everyone within 8 blocks get Regeneration II', 'blue'), ('for 8 seconds. 45 second recharge.', 'blue'),
+      ('By day, or with Emma following you: 12 blocks,', 'light_purple'), ('12 s, Absorption too, and a quicker recharge;', 'light_purple'),
+      ('both at once: Resistance as well.', 'light_purple'),
+      ('In your off hand: poison and wither', 'blue'), ("won't stick to you.", 'blue')],
      model='bm:bloomheart_gem', stack=1, cat='magic', glint=True, comps=hold('none'), tier=2)
 item('tidal_tear', TOTEM, 'Tidal Tear', '#7ad0ea',
      ['A drop of the deep sea, holding a garnet.', ('Right-click: a wave rolls 10 blocks ahead,', 'blue'), ('shoving monsters back (4 damage, Slowness)', 'blue'),

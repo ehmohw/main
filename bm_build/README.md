@@ -1,4 +1,4 @@
-# Black Market — v2.40 (Java 26.3)
+# Black Market — v2.41 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -21,9 +21,29 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.41: the relics come into their own
+
+**KillerWatt's Tendrils are worn in the chest slot** and give no armour. Four lightning tendrils grow from your back and drift on their own.
+- **Lash:** look at a monster and a tendril lashes it, about once a second. It deals 10 lightning damage, arcing to two more for 5 each. Sneak to yank the monster to you instead.
+- **Fling:** sneak + jump to launch yourself where you're looking, or up the wall in front of you.
+- **Snatch:** they grab dropped items within 8 blocks.
+- **Worn:** 15% faster, a taller step, and no fall damage.
+- **In the rain:** lashes deal 13, arc to three, come faster, and you get Speed I.
+- **In a thunderstorm:** lashes deal 16 and call lightning down on monsters 6+ blocks away. You get Speed II and Strength.
+
+**Apophiss's Crown** gives no armour any more; it's a crown, not a helm.
+- **At night:** Strength and Night Vision.
+- **Serpent's Fangs at night:** recharge in 3 seconds instead of 6, and there are 16 of them.
+
+**Leo's Trident:** in water, in the rain, or in an ocean, river, beach or swamp, it gives Strength, Dolphin's Grace and Conduit Power.
+
+**Emma's Bloomheart:** the Bloomheart gem was always Emma's.
+- **By day, or with Emma following you:** it reaches 12 blocks, lasts 12 seconds, adds Absorption, and recharges faster.
+- **Both at once:** it adds Resistance as well.
+
 ## New in 2.40: relics of an old adventure (sold by Cecil)
 
-**KillerWatt's Tendrils** (6 Trophies): the storm-alien's lightning arms.
+**KillerWatt's Tendrils** (6 Trophies): the storm-alien's lightning arms (worn on the chest since 2.41; see above).
 - **Use:** a tendril lashes out up to 24 blocks.
   - A monster is struck for 10 lightning damage, which arcs to two more nearby for 5 each.
   - An item is snatched back to you.

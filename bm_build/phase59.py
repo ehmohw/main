@@ -21,24 +21,27 @@ YEL, GRN, BLU, PUR = '#ffe23a', '#30d070', '#7ac8ff', '#b48cff'
 UNBR = {'minecraft:unbreakable': {}}
 
 item('killerwatt_tendrils', TOTEM, "KillerWatt's Tendrils", YEL,
-     ['The storm-alien\'s lightning arms, still crackling.', ('Use: lash out 24 blocks - a monster is struck', 'blue'),
-      ('(10, arcing to two more); an item is snatched;', 'blue'), ('a block: you are flung toward it.', 'blue'),
-      ('Sneak + use: yank a monster to you,', 'blue'), ('or heave yourself up a wall.', 'blue'),
-      ('Held: +15% speed, taller step, no fall damage.', 'blue')],
+     ['The storm-alien\'s lightning arms. Worn in place of', 'a chestplate (no armour): four tendrils from your back.',
+      ('Look at a monster: they lash it - 10 lightning,', 'blue'), ('arcing to two more (5). Sneaking: yank it to you.', 'blue'),
+      ('Sneak + jump: fling yourself where you look,', 'blue'), ('or up the wall in front of you.', 'blue'),
+      ('They snatch up dropped items near you.', 'blue'), ('+15% speed, taller step, no fall damage.', 'blue'),
+      ('Rain: stronger, faster. Thunderstorm: far stronger,', 'aqua'), ('and they call down lightning.', 'aqua')],
      model='bm:killerwatt_tendrils', stack=1, cat='weapon', glint=False, tier=3,
-     comps=hold('none', {'minecraft:attribute_modifiers': [attr('movement_speed', 0.15, 'mainhand', 'add_multiplied_base'), attr('step_height', 0.5, 'mainhand')],
-                         'minecraft:enchantments': {'bm:kw_tendrils': 1}}))
-HOLD['killerwatt_tendrils'] = 'bm:p59/kw/use'
+     comps={'minecraft:equippable': {'slot': 'chest', 'swappable': True, 'equip_sound': 'minecraft:item.armor.equip_chain'},
+            'minecraft:attribute_modifiers': [attr('movement_speed', 0.15, 'chest', 'add_multiplied_base'), attr('step_height', 0.5, 'chest')],
+            'minecraft:enchantments': {'bm:kw_tendrils': 1}})
 item('apophiss_crown', TOTEM, "Apophiss's Crown", GRN,
      ['The serpent king\'s grey crown. The emerald watches you.', ('Worn: you grow a size, +3 damage, +1.5 reach,', 'blue'),
-      ('+4 health, +2 armour; your blows wither', 'blue'), ('(+3 against the undead).', 'blue'), ('Sneak + jump: Serpent\'s Fangs (6 s).', 'blue'),
+      ('+4 health; your blows wither (+3 vs the undead).', 'blue'), ('No protection - it is a crown, not a helm.', 'gray'),
+      ('Night: Strength, Night Vision; the fangs come', 'dark_purple'), ('twice as often, and more of them.', 'dark_purple'), ('Sneak + jump: Serpent\'s Fangs (6 s).', 'blue'),
       ('Taken from Apophiss by Cecil, Leo and Emma.', 'dark_gray')],
      model='bm:apophiss_crown', stack=1, cat='relic', glint=False, tier=3,
      comps={'minecraft:equippable': {'slot': 'head', 'swappable': True, 'equip_sound': 'minecraft:item.armor.equip_netherite'},
             'minecraft:attribute_modifiers': [attr('scale', 0.2, 'head'), attr('attack_damage', 3, 'head'), attr('entity_interaction_range', 1.5, 'head'),
-                                              attr('block_interaction_range', 1.0, 'head'), attr('max_health', 4, 'head'), attr('armor', 2, 'head')],
+                                              attr('block_interaction_range', 1.0, 'head'), attr('max_health', 4, 'head')],
             'minecraft:enchantments': {'bm:serpent_venom': 1}})
 LEO_LORE = [('Press swap-hands (F) to change its form.', 'blue'), ('Swift; +15% speed held; hits give Speed II.', 'blue'),
+            ('In water, in the rain or by the sea: Strength,', 'aqua'), ("Dolphin's Grace and Conduit Power.", 'aqua'),
             ('Sir Leo\'s own. He fought Apophiss with it.', 'dark_gray')]
 item('leo_trident', 'minecraft:trident', "Leo's Trident", BLU,
      ['A knight\'s trident of blue steel and sea-glass.', ('Trident form: throw it - it comes back.', 'blue')] + LEO_LORE,
@@ -90,13 +93,11 @@ def generate(G):
         return {'requirements': tagged(tagname), 'effect': {'type': 'minecraft:all_of', 'effects': [
             {'type': 'minecraft:apply_impulse', 'direction': direction, 'coordinate_scale': scale, 'magnitude': mag},
             {'type': 'minecraft:run_function', 'function': f'bm:p59/kw/flung'}]}}
-    wjson('bm/enchantment/kw_tendrils.json', ench('Storm Tendrils', YEL, 'minecraft:totem_of_undying', 'mainhand', {
+    wjson('bm/enchantment/kw_tendrils.json', ench('Storm Tendrils', YEL, 'minecraft:totem_of_undying', 'chest', {
         'minecraft:tick': [fling('bm.kwl1', [0, 0, 1], [1, 1, 1], 1.25), fling('bm.kwl2', [0, 0, 1], [1, 1, 1], 1.85), fling('bm.kwl3', [0, 0, 1], [1, 1, 1], 2.45),
                            fling('bm.kwup', [0, 1, 0], [0.2, 1, 0.2], 1.15)],
         'minecraft:damage_immunity': [{'requirements': {'condition': 'minecraft:damage_source_properties', 'predicate': {'tags': [{'id': '#minecraft:is_fall', 'expected': True}]}},
                                        'effect': {}}]}))
-    fn('p59/kw/flung', ['tag @s remove bm.kwl1', 'tag @s remove bm.kwl2', 'tag @s remove bm.kwl3', 'tag @s remove bm.kwup'])
-    tick.append('execute as @a[tag=bm.kwarm] run function bm:p59/kw/disarm')                      # a fling that never landed (tendrils let go of)
     wjson('bm/enchantment/serpent_venom.json', ench("Serpent's Venom", GRN, 'minecraft:totem_of_undying', 'head', {
         # (the undead shrug off Wither - the serpent's dark magic bites them harder instead)
         'minecraft:damage': [{'effect': {'type': 'minecraft:add', 'value': 3.0}, 'requirements': {
@@ -105,65 +106,138 @@ def generate(G):
         'minecraft:post_attack': [{'enchanted': 'attacker', 'affected': 'attacker', 'effect': {'type': 'minecraft:apply_mob_effect', 'to_apply': 'minecraft:speed',
                                                                                                 'min_duration': 3.0, 'max_duration': 3.0, 'min_amplifier': 1.0, 'max_amplifier': 1.0}}]}))
 
-    # ------------------------------------------------------------------ KILLERWATT'S TENDRILS
-    fn('p59/kw/use', ['execute if score @s bm.kwcd matches 1.. run return 0',
-                      'execute if entity @s[tag=bm.adv] run return run ' + say('The tendrils go limp in here.'),
-                      'tag @s add bm.kwme', 'scoreboard players set #kr bm.rng 48', 'scoreboard players set #kh bm.rng 0',
-                      'execute anchored eyes positioned ^ ^ ^ run function bm:p59/kw/ray',
-                      'execute if score #kh bm.rng matches 0 run function bm:p59/kw/miss',
-                      'tag @s remove bm.kwme', 'kill @e[type=minecraft:marker,tag=bm.kwend]'])
-    hit_mob = f'@e[{mob},distance=..1.25,tag=!bm.kwme,sort=nearest,limit=1]'
-    fn('p59/kw/ray', [f'execute positioned ~ ~-0.9 ~ if entity {hit_mob} positioned ~ ~0.9 ~ run return run function bm:p59/kw/at_mob',
-                      'execute positioned ~ ~-0.4 ~ if entity @e[type=minecraft:item,distance=..1.3] run return run function bm:p59/kw/at_item',
-                      'execute unless block ~ ~ ~ #bm:grap_pass run return run function bm:p59/kw/at_block',
-                      'particle minecraft:dust{color:[1.0,0.9,0.25],scale:0.7} ~ ~ ~ 0.02 0.02 0.02 0 1',
-                      'scoreboard players remove #kr bm.rng 1',
+    # ------------------------------------------------------------------ KILLERWATT'S TENDRILS (worn on the chest)
+    wjson('bm/predicate/p59/rain.json', {'condition': 'minecraft:all_of', 'terms': [{'condition': 'minecraft:weather_check', 'raining': True},
+                                                                                   {'condition': 'minecraft:location_check', 'offsetY': 1.6, 'predicate': {'can_see_sky': True}}]})
+    wjson('bm/predicate/p59/storm.json', {'condition': 'minecraft:all_of', 'terms': [{'condition': 'minecraft:weather_check', 'thundering': True},
+                                                                                    {'condition': 'minecraft:location_check', 'offsetY': 1.6, 'predicate': {'can_see_sky': True}}]})
+    worn = f'items entity @s armor.chest {holds % "killerwatt_tendrils"}'
+    # the four tendrils: display entities that stand at your back every tick (players can't carry passengers)
+    import math as _m
+    def qfrom(d):
+        """the rotation taking the model's +y (the tendril) to direction d, in the display frame (your front is +z, your right -x)"""
+        n = _m.sqrt(sum(v * v for v in d)); d = [v / n for v in d]
+        ax = [d[2], 0.0, -d[0]]; s_ = _m.sqrt(ax[0] ** 2 + ax[2] ** 2); c_ = d[1]
+        if s_ < 1e-6: return [F(0), F(0), F(0), F(1)]
+        h = _m.acos(max(-1, min(1, c_))) / 2; k = _m.sin(h) / s_
+        return [F(round(ax[0] * k, 4)), F(0), F(round(ax[2] * k, 4)), F(round(_m.cos(h), 4))]
+    # (side +1 = your left, -1 = your right; behind you = -z)
+    TEN = {'ul': (0.13, 1.30, (0.55, 0.62, -0.55)), 'ur': (-0.13, 1.30, (-0.55, 0.62, -0.55)),
+           'll': (0.12, 1.02, (0.72, -0.18, -0.65)), 'lr': (-0.12, 1.02, (-0.72, -0.18, -0.65))}
+    SWAY = {'ul': (0.10, 0.12, 0.05), 'ur': (-0.08, 0.14, 0.06), 'll': (0.06, -0.10, 0.08), 'lr': (-0.10, -0.08, 0.05)}
+    def tnbt(k):
+        return snbt({'Tags': ['bm.kwt', f'bm.kwt_{k}', 'bm.kwtnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:kw_tendril'}},
+                     'item_display': 'fixed', 'teleport_duration': Int(1), 'interpolation_duration': Int(10), 'brightness': {'block': Int(12), 'sky': Int(15)},
+                     'transformation': {'left_rotation': qfrom(TEN[k][2]), 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0)] * 3, 'scale': [F(0.95)] * 3}})
+    tick.append(f'execute as @a[gamemode=!spectator] if {worn} at @s run function bm:p59/kw/tick')
+    tick.append('execute as @e[type=minecraft:item_display,tag=bm.kwt,tag=!bm.kwok] run kill @s')       # nobody wears them any more
+    tick.append('tag @e[type=minecraft:item_display,tag=bm.kwok] remove bm.kwok')
+    fn('p59/kw/tick', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
+                       'execute as @e[type=minecraft:item_display,tag=bm.kwt] if score @s bm.pid = #me bm.pid run tag @s add bm.kwok',
+                       'execute store result score #n bm.rng if entity @e[type=minecraft:item_display,tag=bm.kwok,distance=..4]',
+                       'execute unless score #n bm.rng matches 4 run function bm:p59/kw/sprout',
+                       'execute if predicate bm:p20/sneaking rotated ~ 0 positioned ~ ~-0.3 ~ run function bm:p59/kw/place',
+                       'execute unless predicate bm:p20/sneaking rotated ~ 0 run function bm:p59/kw/place',
+                       'scoreboard players add @s bm.kwt 1',
+                       'scoreboard players operation #f4 bm.rng = @s bm.kwt', 'scoreboard players operation #f4 bm.rng %= #4 bm.rng',
+                       'execute if score #f4 bm.rng matches 0 if score @s bm.kwcd matches ..0 run function bm:p59/kw/look',
+                       'execute as @e[type=minecraft:item_display,tag=bm.kwok,distance=..4,scores={bm.kwcd=1..}] run function bm:p59/kw/recoil'])
+    fn('p59/kw/place', [f'execute positioned ^{x} ^{y} ^-0.2 run tp @e[type=minecraft:item_display,tag=bm.kwok,tag=bm.kwt_{k},distance=..4] ~ ~ ~ ~ 0' for k, (x, y, _d) in TEN.items()])
+    fn('p59/kw/sprout', ['execute as @e[type=minecraft:item_display,tag=bm.kwok,distance=..6] run kill @s'] +
+       [f'summon minecraft:item_display ~ ~1 ~ {tnbt(k)}' for k in TEN] +
+       ['scoreboard players operation @e[type=minecraft:item_display,tag=bm.kwtnew] bm.pid = #me bm.pid',
+        'tag @e[type=minecraft:item_display,tag=bm.kwtnew] add bm.kwok', 'tag @e[type=minecraft:item_display,tag=bm.kwtnew] remove bm.kwtnew',
+        'playsound minecraft:block.copper_bulb.turn_on player @a[distance=..12] ~ ~ ~ 1 0.6', 'particle minecraft:electric_spark ~ ~1.2 ~ 0.3 0.4 0.3 0.2 20'])
+    # idle: each tendril drifts on its own slow beat
+    for k, (x, y, d) in TEN.items():
+        dx, dy, dz = SWAY[k]
+        fn(f'p59/kw/sway_{k}_a', [f'data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{left_rotation:{snbt(qfrom((d[0] + dx, d[1] + dy, d[2] + dz)))}}}}}'])
+        fn(f'p59/kw/sway_{k}_b', [f'data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{left_rotation:{snbt(qfrom((d[0] - dx, d[1] - dy, d[2] - dz)))}}}}}'])
+        fn(f'p59/kw/lash_{k}', [f'data merge entity @s {{start_interpolation:0,interpolation_duration:3,transformation:{{left_rotation:{snbt(qfrom((d[0] * 0.35, 0.25 if k[0] == "u" else 0.05, 0.95)))}}}}}'])
+    G.FUNCS['p59/kw/tick'] += ['scoreboard players operation #f bm.rng = @s bm.kwt', 'scoreboard players operation #f bm.rng %= #40 bm.rng'] + \
+        [f'execute if score #f bm.rng matches {t} as @e[type=minecraft:item_display,tag=bm.kwok,tag=bm.kwt_{k},distance=..4] unless score @s bm.kwcd matches 1.. run function bm:p59/kw/sway_{k}_{ab}'
+         for k, t0 in (('ul', 0), ('ur', 10), ('ll', 5), ('lr', 15)) for t, ab in ((t0, 'a'), (t0 + 20, 'b'))]
+    fn('p59/kw/recoil', ['scoreboard players remove @s bm.kwcd 1'] + [f'execute if score @s bm.kwcd matches 0 if entity @s[tag=bm.kwt_{k}] run function bm:p59/kw/sway_{k}_a' for k in TEN])
+    # looking at a monster: a tendril lashes it (sneaking: yanks it in). Faster and harder in the rain; in a storm, lightning
+    fn('p59/kw/look', ['tag @s add bm.kwme', 'scoreboard players set #kr bm.rng 48', 'scoreboard players set #kh bm.rng 0',
+                       'execute anchored eyes positioned ^ ^ ^ run function bm:p59/kw/ray', 'tag @s remove bm.kwme'])
+    hit_mob = f'@e[type=#bm:hostile,tag=!bm.npc,distance=..1.25,sort=nearest,limit=1]'
+    fn('p59/kw/ray', ['scoreboard players remove #kr bm.rng 1',
+                      f'execute positioned ~ ~-0.9 ~ if entity {hit_mob} run return run function bm:p59/kw/at_mob',
+                      'execute unless block ~ ~ ~ #bm:grap_pass run return 0',
                       'execute if score #kr bm.rng matches 1.. positioned ^ ^ ^0.5 run function bm:p59/kw/ray'])
-    fn('p59/kw/miss', ['scoreboard players set @s bm.kwcd 8', 'playsound minecraft:entity.breeze.shoot player @a[distance=..16] ~ ~ ~ 0.7 1.6'])
-    # a monster: struck (or, sneaking, yanked to you)
-    fn('p59/kw/at_mob', ['scoreboard players set #kh bm.rng 1', 'particle minecraft:electric_spark ~ ~ ~ 0.3 0.3 0.3 0.3 20',
+    fn('p59/kw/at_mob', ['scoreboard players set #kh bm.rng 1',
+                         'execute as @a[tag=bm.kwme,limit=1] at @s run function bm:p59/kw/lash',
                          f'execute positioned ~ ~-0.9 ~ as {hit_mob} at @s run function bm:p59/kw/mob'])
+    fn('p59/kw/lash', ['scoreboard players set #lv bm.rng 0', 'execute if predicate bm:p59/rain run scoreboard players set #lv bm.rng 1',
+                       'execute if predicate bm:p59/storm run scoreboard players set #lv bm.rng 2',
+                       'execute if score #lv bm.rng matches 0 run scoreboard players set @s bm.kwcd 24', 'execute if score #lv bm.rng matches 1 run scoreboard players set @s bm.kwcd 18',
+                       'execute if score #lv bm.rng matches 2 run scoreboard players set @s bm.kwcd 12',
+                       'execute store result score #w bm.rng run random value 0..3'] +
+       [f'execute if score #w bm.rng matches {i} as @e[type=minecraft:item_display,tag=bm.kwt_{k},distance=..4] if score @s bm.pid = #me bm.pid run function bm:p59/kw/lash1_{k}' for i, k in enumerate(TEN)] +
+       ['execute anchored eyes positioned ^ ^ ^ run function bm:p59/kw/beam'])
+    for k in TEN:
+        fn(f'p59/kw/lash1_{k}', [f'function bm:p59/kw/lash_{k}', 'scoreboard players set @s bm.kwcd 8'])
+    fn('p59/kw/beam', ['scoreboard players set #kb bm.rng 48', 'function bm:p59/kw/beam1'])
+    fn('p59/kw/beam1', ['particle minecraft:dust{color:[1.0,0.92,0.3],scale:0.9} ~ ~ ~ 0.03 0.03 0.03 0 1', 'particle minecraft:electric_spark ~ ~ ~ 0.05 0.05 0.05 0.02 1',
+                        'scoreboard players remove #kb bm.rng 1', 'execute if score #kb bm.rng > #kr bm.rng positioned ^ ^ ^0.5 run function bm:p59/kw/beam1'])
     fn('p59/kw/mob', ['execute if entity @a[tag=bm.kwme,limit=1,predicate=bm:p20/sneaking] run return run function bm:p59/kw/yank',
-                      'tag @s add bm.kwhit', 'damage @s 10 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
+                      'tag @s add bm.kwhit',
+                      'execute if score #lv bm.rng matches 0 run damage @s 10 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
+                      'execute if score #lv bm.rng matches 1 run damage @s 13 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
+                      'execute if score #lv bm.rng matches 2 run damage @s 16 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
+                      'execute if score #lv bm.rng matches 2 unless entity @a[tag=bm.kwme,distance=..6] run summon minecraft:lightning_bolt ~ ~ ~',
                       'particle minecraft:electric_spark ~ ~1 ~ 0.4 0.6 0.4 0.4 30', 'particle minecraft:flash{color:[1.0,0.95,0.5,1.0]} ~ ~1 ~ 0 0 0 0 1',
-                      'playsound minecraft:entity.lightning_bolt.thunder player @a[distance=..24] ~ ~ ~ 0.4 1.8',
                       'playsound minecraft:block.copper_bulb.turn_on player @a[distance=..16] ~ ~ ~ 1 0.6',
-                      f'execute as @e[{mob},distance=..5,tag=!bm.kwhit,sort=nearest,limit=2] at @s run function bm:p59/kw/arc',
-                      'tag @e[tag=bm.kwhit] remove bm.kwhit',
-                      'execute as @a[tag=bm.kwme,limit=1] run scoreboard players set @s bm.kwcd 12'])
-    fn('p59/kw/arc', ['tag @s add bm.kwhit', 'damage @s 5 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
+                      'playsound minecraft:entity.lightning_bolt.impact player @a[distance=..24] ~ ~ ~ 0.5 1.6',
+                      'execute if score #lv bm.rng matches 0 as @e[type=#bm:hostile,tag=!bm.npc,distance=..5,tag=!bm.kwhit,sort=nearest,limit=2] at @s run function bm:p59/kw/arc',
+                      'execute if score #lv bm.rng matches 1.. as @e[type=#bm:hostile,tag=!bm.npc,distance=..6,tag=!bm.kwhit,sort=nearest,limit=3] at @s run function bm:p59/kw/arc',
+                      'tag @e[tag=bm.kwhit] remove bm.kwhit'])
+    fn('p59/kw/arc', ['tag @s add bm.kwhit', 'execute if score #lv bm.rng matches 0 run damage @s 5 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
+                      'execute if score #lv bm.rng matches 1.. run damage @s 7 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
                       'particle minecraft:electric_spark ~ ~1 ~ 0.3 0.5 0.3 0.3 16',
-                      'execute facing entity @e[tag=bm.kwhit,distance=0.1..6,limit=1,sort=nearest] feet run function bm:p59/kw/arcline'])
-    fn('p59/kw/arcline', [f'particle minecraft:dust{{color:[1.0,0.95,0.4],scale:0.8}} ^ ^1 ^{d / 2} 0.05 0.05 0.05 0 1' for d in range(1, 10)])
+                      'execute facing entity @e[tag=bm.kwhit,distance=0.1..7,limit=1,sort=nearest] feet run function bm:p59/kw/arcline'])
+    fn('p59/kw/arcline', [f'particle minecraft:dust{{color:[1.0,0.95,0.4],scale:0.8}} ^ ^1 ^{d / 2} 0.05 0.05 0.05 0 1' for d in range(1, 12)])
     # (as the monster: pulled toward the player with Motion)
-    fn('p59/kw/yank', ['execute as @a[tag=bm.kwme,limit=1] run scoreboard players set @s bm.kwcd 20',
-                       'execute facing entity @a[tag=bm.kwme,limit=1] feet positioned ^ ^ ^1.6 positioned ~ ~0.55 ~ run function bm:p59/kw/vec',
+    fn('p59/kw/yank', ['execute facing entity @a[tag=bm.kwme,limit=1] feet positioned ^ ^ ^1.6 positioned ~ ~0.55 ~ run function bm:p59/kw/vec',
                        'particle minecraft:electric_spark ~ ~1 ~ 0.3 0.5 0.3 0.2 16', 'playsound minecraft:item.trident.riptide_1 player @a[distance=..16] ~ ~ ~ 0.8 1.6'])
-    # Motion = (here - mob): a marker reads the point, as the grappling hook does
     fn('p59/kw/vec', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.kwvec"]}'] +
        [f'execute store result score #v{a} bm.rng run data get entity @e[type=minecraft:marker,tag=bm.kwvec,limit=1] Pos[{i}] 1000' for i, a in enumerate('xyz')] +
        ['kill @e[type=minecraft:marker,tag=bm.kwvec]'] +
        [f'execute store result score #c{a} bm.rng run data get entity @s Pos[{i}] 1000' for i, a in enumerate('xyz')] +
        [f'scoreboard players operation #v{a} bm.rng -= #c{a} bm.rng' for a in 'xyz'] +
        [f'execute store result entity @s Motion[{i}] double 0.001 run scoreboard players get #v{a} bm.rng' for i, a in enumerate('xyz')])
-    # an item: snatched back to you
-    fn('p59/kw/at_item', ['scoreboard players set #kh bm.rng 1', 'execute positioned ~ ~-0.4 ~ run tp @e[type=minecraft:item,distance=..1.3] @a[tag=bm.kwme,limit=1]',
-                          'particle minecraft:electric_spark ~ ~ ~ 0.2 0.2 0.2 0.2 10',
-                          'execute as @a[tag=bm.kwme,limit=1] at @s run playsound minecraft:entity.item.pickup player @s ~ ~ ~ 0.8 0.8',
-                          'execute as @a[tag=bm.kwme,limit=1] run scoreboard players set @s bm.kwcd 6'])
-    # a block: flung toward it - how hard depends on how far (sneaking at a wall: heaved up it)
-    fn('p59/kw/at_block', ['scoreboard players set #kh bm.rng 1', 'particle minecraft:electric_spark ~ ~ ~ 0.2 0.2 0.2 0.2 12',
-                           'playsound minecraft:block.chain.place player @a[distance=..16] ~ ~ ~ 1 1.4',
-                           'execute as @a[tag=bm.kwme,limit=1] at @s run function bm:p59/kw/fling'])
-    fn('p59/kw/fling', ['scoreboard players set @s bm.kwcd 20', 'tag @s add bm.kwarm',
-                        'execute if predicate bm:p20/sneaking run return run tag @s add bm.kwup',
-                        'execute if score #kr bm.rng matches 33.. run return run tag @s add bm.kwl1',
-                        'execute if score #kr bm.rng matches 17.. run return run tag @s add bm.kwl2',
-                        'tag @s add bm.kwl3'])
-    fn('p59/kw/disarm', ['execute unless items entity @s weapon.mainhand ' + holds % 'killerwatt_tendrils' + ' run function bm:p59/kw/flung',
-                                'execute unless entity @s[tag=bm.kwl1] unless entity @s[tag=bm.kwl2] unless entity @s[tag=bm.kwl3] unless entity @s[tag=bm.kwup] run tag @s remove bm.kwarm'])
-    # held: a faint crackle
-    fast.append(f'execute as @a[gamemode=!spectator] if items entity @s weapon.mainhand {holds % "killerwatt_tendrils"} at @s run particle minecraft:electric_spark ^-0.4 ^1.1 ^0.3 0.1 0.1 0.1 0.05 1')
+    # sneak + jump: fling where you look (up the wall if one is right in front of you)
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.kwj minecraft.custom:minecraft.jump', 'scoreboard objectives add bm.kwt dummy',
+                              'scoreboard objectives add bm.kwf dummy', 'scoreboard players set #40 bm.rng 40', 'scoreboard players set #4 bm.rng 4']
+    G.OBJECTIVES += ['bm.kwj', 'bm.kwt', 'bm.kwf']
+    tick.append(f'execute as @a[scores={{bm.kwj=1..}}] at @s run function bm:p59/kw/jump')
+    tick.append('scoreboard players remove @a[scores={bm.kwf=1..}] bm.kwf 1')
+    fn('p59/kw/jump', ['scoreboard players reset @s bm.kwj', f'execute unless {worn} run return 0', 'execute unless predicate bm:p20/sneaking run return 0',
+                       'execute if score @s bm.kwf matches 1.. run return 0', 'execute if entity @s[tag=bm.adv] run return 0',
+                       'scoreboard players set #kr bm.rng 48', 'scoreboard players set #kh bm.rng 0',
+                       'execute anchored eyes positioned ^ ^ ^ run function bm:p59/kw/fray',
+                       'execute if score #kh bm.rng matches 0 run scoreboard players set #kr bm.rng 32',
+                       'scoreboard players set @s bm.kwf 20', 'execute if predicate bm:p59/rain run scoreboard players set @s bm.kwf 14',
+                       'execute if predicate bm:p59/storm run scoreboard players set @s bm.kwf 10',
+                       'tag @s add bm.kwarm',
+                       'execute rotated ~ 0 positioned ^ ^1 ^1.2 unless block ~ ~ ~ #bm:grap_pass run return run function bm:p59/kw/fling_up',
+                       'execute if score #kr bm.rng matches 33.. run tag @s add bm.kwl1',
+                       'execute if score #kr bm.rng matches 17..32 run tag @s add bm.kwl2',
+                       'execute if score #kr bm.rng matches ..16 run tag @s add bm.kwl3',
+                       'playsound minecraft:block.chain.place player @a[distance=..16] ~ ~ ~ 1 1.4', 'particle minecraft:electric_spark ~ ~1 ~ 0.4 0.5 0.4 0.3 20'])
+    fn('p59/kw/fling_up', ['tag @s add bm.kwup', 'playsound minecraft:block.chain.place player @a[distance=..16] ~ ~ ~ 1 1.2'])
+    fn('p59/kw/fray', ['execute unless block ~ ~ ~ #bm:grap_pass run return run scoreboard players set #kh bm.rng 1',
+                       'scoreboard players remove #kr bm.rng 1', 'execute if score #kr bm.rng matches 1.. positioned ^ ^ ^0.5 run function bm:p59/kw/fray'])
+    fn('p59/kw/flung', ['tag @s remove bm.kwl1', 'tag @s remove bm.kwl2', 'tag @s remove bm.kwl3', 'tag @s remove bm.kwup', 'tag @s remove bm.kwarm'])
+    tick.append(f'execute as @a[tag=bm.kwarm] unless {worn} run function bm:p59/kw/flung')
+    # the snatch: dropped items within 8 drift to you; in the rain or a storm: Speed
+    G.FUNCS['loop/second'][-1:-1] = [f'execute as @a[gamemode=!spectator] if {worn} at @s run function bm:p59/kw/sec']
+    fn('p59/kw/sec', ['execute as @e[type=minecraft:item,distance=2..8,nbt={PickupDelay:0s}] at @s run function bm:p59/kw/snatch',
+                      'execute if predicate bm:p59/rain run effect give @s minecraft:speed 2 0 true',
+                      'execute if predicate bm:p59/storm run effect give @s minecraft:speed 2 1 true',
+                      'execute if predicate bm:p59/storm run effect give @s minecraft:strength 2 0 true'])
+    fn('p59/kw/snatch', ['particle minecraft:electric_spark ~ ~0.3 ~ 0.1 0.1 0.1 0.05 4', 'tp @s @p[distance=..9]'])
 
     # ------------------------------------------------------------------ APOPHISS'S CROWN: Serpent's Fangs on sneak + jump
     tick.append(f'execute as @a[scores={{bm.crj=1..}}] at @s run function bm:p59/crown/jump')
@@ -171,13 +245,21 @@ def generate(G):
                           'execute unless predicate bm:p20/sneaking run return 0',
                           'execute if score @s bm.crcd matches 1.. run return run ' + say("The crown's power is still gathering."),
                           'execute if entity @s[tag=bm.adv] run return 0',
-                          'scoreboard players set @s bm.crcd 120', 'execute at @s rotated ~ 0 run function bm:p59/crown/fangs'])
+                          'scoreboard players set @s bm.crcd 120', 'execute unless score #tod bm.bm matches 0..12999 run scoreboard players set @s bm.crcd 60',
+                          'execute at @s rotated ~ 0 run function bm:p59/crown/fangs',
+                          'execute unless score #tod bm.bm matches 0..12999 at @s rotated ~ 0 run function bm:p59/crown/fangs_more'])
     fn('p59/crown/fangs', [f'summon minecraft:evoker_fangs ^ ^ ^{1.6 + i * 1.25:.2f} {{Warmup:{i * 2},Tags:["bm.cfnew"]}}' for i in range(12)] +
        ['execute as @e[type=minecraft:evoker_fangs,tag=bm.cfnew,distance=..20] run data modify entity @s Owner set from entity @a[tag=bm.crme,limit=1] UUID',
         'tag @e[type=minecraft:evoker_fangs,tag=bm.cfnew] remove bm.cfnew',
         'particle minecraft:squid_ink ~ ~1 ~ 0.5 0.6 0.5 0.05 30', 'particle minecraft:witch ~ ~1.4 ~ 0.5 0.6 0.5 0.1 20',
         'playsound minecraft:entity.evoker.cast_spell player @a[distance=..24] ~ ~ ~ 1 0.6', 'playsound minecraft:entity.ender_dragon.growl player @a[distance=..24] ~ ~ ~ 0.4 1.6'])
+    fn('p59/crown/fangs_more', ['tag @s add bm.crme'] + [f'summon minecraft:evoker_fangs ^{side} ^ ^{2.2 + i * 1.4:.2f} {{Warmup:{4 + i * 2},Tags:["bm.cfnew"]}}' for side in (-1.3, 1.3) for i in range(2)] +
+       ['execute as @e[type=minecraft:evoker_fangs,tag=bm.cfnew,distance=..20] run data modify entity @s Owner set from entity @a[tag=bm.crme,limit=1] UUID',
+        'tag @e[type=minecraft:evoker_fangs,tag=bm.cfnew] remove bm.cfnew', 'tag @s remove bm.crme'])
     G.FUNCS['p59/crown/fangs'].insert(0, 'tag @s add bm.crme'); G.FUNCS['p59/crown/fangs'].append('tag @s remove bm.crme')
+    # night: Strength, Night Vision, and the fangs come twice as often (16 of them)
+    G.FUNCS['loop/second'][-1:-1] = [f'execute unless score #tod bm.bm matches 0..12999 as @a[gamemode=!spectator] if items entity @s armor.head {holds % "apophiss_crown"} run function bm:p59/crown/night']
+    fn('p59/crown/night', ['effect give @s minecraft:strength 2 0 true', 'effect give @s minecraft:night_vision 15 0 true'])
     G.FUNCS['loop/second'][-1:-1] = [f'execute as @a[gamemode=!spectator] if items entity @s armor.head {holds % "apophiss_crown"} at @s run particle minecraft:dust{{color:[0.2,0.8,0.35],scale:0.8}} ~ ~2.3 ~ 0.25 0.1 0.25 0 2']
 
     # (a worn crown's enchantment can't touch what its wearer hits, so the wither rides a hit advancement)
@@ -197,6 +279,38 @@ def generate(G):
                                 f'item replace entity @s weapon.mainhand with {G.item_arg("leo_" + to)}',
                                 'execute at @s run particle minecraft:bubble_pop ~ ~1.2 ~ 0.3 0.3 0.3 0.05 16',
                                 'execute at @s run playsound minecraft:item.trident.return player @a[distance=..12] ~ ~ ~ 1 1.5', say(msg, BLU)])
+
+    # in water, in the rain, or in a sea/river/beach/swamp biome: Strength, Dolphin's Grace, Conduit Power
+    wjson('bm/predicate/p59/watery.json', {'condition': 'minecraft:any_of', 'terms': [
+        {'condition': 'minecraft:location_check', 'predicate': {'fluid': {'fluids': '#minecraft:water'}}},
+        {'condition': 'minecraft:location_check', 'offsetY': 1, 'predicate': {'fluid': {'fluids': '#minecraft:water'}}},
+        {'condition': 'minecraft:all_of', 'terms': [{'condition': 'minecraft:weather_check', 'raining': True}, {'condition': 'minecraft:location_check', 'offsetY': 1.6, 'predicate': {'can_see_sky': True}}]},
+        {'condition': 'minecraft:location_check', 'predicate': {'biomes': '#minecraft:is_ocean'}},
+        {'condition': 'minecraft:location_check', 'predicate': {'biomes': '#minecraft:is_river'}},
+        {'condition': 'minecraft:location_check', 'predicate': {'biomes': '#minecraft:is_beach'}},
+        {'condition': 'minecraft:location_check', 'predicate': {'biomes': ['minecraft:swamp', 'minecraft:mangrove_swamp']}}]})
+    G.FUNCS['loop/second'][-1:-1] = [f'execute as @a[gamemode=!spectator] if items entity @s weapon.mainhand {holds % "leo_trident"} at @s if predicate bm:p59/watery run function bm:p59/leo/tide',
+                                     f'execute as @a[gamemode=!spectator] if items entity @s weapon.mainhand {holds % "leo_spear"} at @s if predicate bm:p59/watery run function bm:p59/leo/tide']
+    fn('p59/leo/tide', ['effect give @s minecraft:strength 2 0 true', 'effect give @s minecraft:dolphins_grace 2 0 true', 'effect give @s minecraft:conduit_power 12 0 true',
+                        'particle minecraft:bubble_pop ~ ~1 ~ 0.4 0.6 0.4 0.02 4'])
+
+    # ------------------------------------------------------------------ EMMA'S BLOOMHEART (the 2.24 Bloomheart is hers): stronger by day or with her beside you
+    bh = G.FUNCS['p45/bloomheart_gem/use']
+    k = next(i for i, l in enumerate(bh) if l.startswith('effect give @a[distance=..8'))
+    bh[k:k] = ['scoreboard players set #bb bm.rng 0', 'execute if score #tod bm.bm matches 0..12999 run scoreboard players add #bb bm.rng 1',
+               'tag @s add bm.bhme', 'execute as @e[type=minecraft:cat,tag=bm.emmapet] on owner if entity @s[tag=bm.bhme] run scoreboard players set #be bm.rng 1',
+               'tag @s remove bm.bhme', 'execute if score #be bm.rng matches 1 run scoreboard players add #bb bm.rng 1', 'scoreboard players set #be bm.rng 0',
+               'execute if score #bb bm.rng matches 1.. run return run function bm:p59/bloom/boosted']
+    fn('p59/bloom/boosted', ['effect give @a[distance=..12,gamemode=!spectator] minecraft:regeneration 12 1', 'effect give @a[distance=..12,gamemode=!spectator] minecraft:absorption 12 0',
+                             'execute as @e[type=#bm:p42_ally,distance=..12] run effect give @s minecraft:regeneration 12 1',
+                             'execute if score #bb bm.rng matches 2 run effect give @a[distance=..12,gamemode=!spectator] minecraft:resistance 12 0',
+                             'execute if score #bb bm.rng matches 1 run scoreboard players remove @s bm.mcd4 200',
+                             'execute if score #bb bm.rng matches 2 run scoreboard players remove @s bm.mcd4 400'] +
+       [f'particle minecraft:cherry_leaves ^{12 * _m.sin(_m.radians(a)):.2f} ^0.3 ^{12 * _m.cos(_m.radians(a)):.2f} 0.4 0.2 0.4 0 3' for a in range(0, 360, 15)] +
+       ['particle minecraft:spore_blossom_air ~ ~1 ~ 6 1 6 0 90', 'particle minecraft:heart ~ ~1.5 ~ 4 0.5 4 0 18', 'particle minecraft:end_rod ~ ~1.5 ~ 3 1 3 0.02 20',
+        'playsound minecraft:block.spore_blossom.place player @a[distance=..24] ~ ~ ~ 1 0.8', 'playsound minecraft:block.amethyst_block.resonate player @a[distance=..24] ~ ~ ~ 1 1.4',
+        'execute if score #bb bm.rng matches 1 run ' + say("Emma's Bloomheart flowers brightly: everyone near heals (and is shielded).", '#ff7ae0'),
+        'execute if score #bb bm.rng matches 2 run ' + say("Emma's Bloomheart blazes with her beside you and the sun up!", '#ff7ae0')])
 
     # ------------------------------------------------------------------ CECIL'S STAFF
     fn('p59/staff/use', ['execute if predicate bm:p20/sneaking run return run function bm:p59/staff/mend',
@@ -284,6 +398,18 @@ def rp(R):
                 a = math.radians(ang); x, y = x - L * math.sin(a), y + L * math.cos(a)
             kw.append(c((x - 0.4, y - 1, 7.6), (x + 0.4, y + 2.5, 8.4), 'l', ('z', 22.5, (x, y, 8))))
         model('killerwatt_tendrils', {'y': 'kw_yellow', 'l': 'kw_yellow_lt', 'g': 'kw_green', 't': 'kw_teal'}, kw, HELD)
+        # one back tendril (worn): a socket, a zig-zag of crackling segments, a three-pronged claw at the tip - pointing +y from (8,8,8)
+        tn = [c((6.6, 6.6, 6.6), (9.4, 9.0, 9.4), 't')]
+        x, y = 8.0, 8.5
+        for seg, (L, ang, w) in enumerate(((5, 14, 2.0), (5, -16, 1.8), (5, 15, 1.6), (4.5, -12, 1.4))):
+            tn.append(c((x - w / 2, y, 8 - w / 2), (x + w / 2, y + L + 0.4, 8 + w / 2), 'y' if seg % 2 == 0 else 'l', ('z', ang, (x, y, 8))))
+            a_ = math.radians(ang); x, y = x - L * math.sin(a_), y + L * math.cos(a_)
+            tn.append(c((x - 0.5, y - 1.2, 8 + w / 2 - 0.1), (x + 0.5, y + 0.6, 8 + w / 2 + 0.7), 'l', ('x', -30, (x, y, 8))))
+        tn += [c((x - 1.3, y, 6.7), (x + 1.3, y + 1.4, 9.3), 't')]
+        for k, (ox, oz, ax, an) in enumerate(((-1.0, 0, 'z', 25), (1.0, 0, 'z', -25), (0, 1.0, 'x', -25))):
+            tn.append(c((x + ox - 0.35, y + 1.2, 8 + oz - 0.35), (x + ox + 0.35, y + 4.2, 8 + oz + 0.35), 'y', (ax, an, (x + ox, y + 1.2, 8 + oz))))
+        model('kw_tendril', {'y': 'kw_yellow', 'l': 'kw_yellow_lt', 'g': 'kw_green', 't': 'kw_teal'}, tn,
+              {'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1, 1, 1]}})
         # Apophiss's crown (worn): grey band, fur trim, spikes with ball tips, a great emerald and a ruby
         cr = [c((2.6, 14.2, 2.6), (13.4, 15.4, 13.4), 'f'),
               c((3, 15.2, 3), (13, 18.4, 4), 'g'), c((3, 15.2, 12), (13, 18.4, 13), 'g'), c((3, 15.2, 4), (4, 18.4, 12), 'g'), c((12, 15.2, 4), (13, 18.4, 12), 'g')]
