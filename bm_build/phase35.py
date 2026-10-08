@@ -44,7 +44,7 @@ for i, (pid, name, src) in enumerate(PARTS, 1):
 item('skiff_key', TOTEM, 'Vorn Skiff Key', GREEN,
      ['A saucer that answers to you.', ('Right-click: call your skiff and climb in.', 'blue'), ('Aboard: right-click fires a plasma laser;', 'blue'),
       ('look steeply down to drop a charged TNT bomb', 'blue'), ('(one TNT from your inventory, 60 s recharge).', 'gray'),
-      ('Look up + right-click: tractor beam on/off -', 'blue'), ('lifts creatures, players and loot below you', 'blue'), ('(1 Violet Xenite per 10 s).', 'gray'),
+      ('Look up + right-click: tractor beam on/off -', 'blue'), ('lifts creatures, players and loot below you', 'blue'), ('(needs no power).', 'gray'),
       ('Sneak to get out. Not in dungeons or markets.', 'dark_gray')],
      model='bm:skiff_key', stack=1, cat='alien', glint=True, bold=True, comps=hold('none'))
 HOLD['skiff_key'] = 'bm:p35/skiff/use'

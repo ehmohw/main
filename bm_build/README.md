@@ -21,6 +21,10 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.44: a free tractor beam
+
+**The Vorn Skiff's tractor beam needs no power any more.** Look up and right-click the key to switch it on, and it runs for as long as you like. It no longer draws Violet Xenite. Skiff Keys you already have update their description automatically.
+
 ## New in 2.43: tendrils up close
 
 **KillerWatt's Tendrils** now fight hand to hand, too.
@@ -466,7 +470,7 @@ The Filter Hopper's recipe is 2 rows: the frame sits in the top-middle slot.
 - dropped items and XP orbs float up into the saucer and straight into your inventory;
 - it won't lift bosses (anything with more than 100 max health), NPCs, or players in creative or spectator.
 
-It runs on **Violet Xenite**, like the hand-held Tractor Beam: one shard per 10 seconds of beam. When you run dry it switches off. Look up and right-click again to turn it off yourself. The laser (right-click), the TNT bomb (look down and right-click) and sneak-to-land all work as before, even with the beam running.
+*(Since 2.44 it needs no power.)* Look up and right-click again to turn it off yourself. The laser (right-click), the TNT bomb (look down and right-click) and sneak-to-land all work as before, even with the beam running.
 
 **The pilot fits the cockpit.** Seated players used to perch on top of the dome with their legs sticking out over the hull. The skiff is now 1.5x bigger (about 4 blocks across), and the hull sits so your legs are inside the upper hull and your body and head are inside the glass dome. Skiffs already in your world pick up the new size the next time you board.
 

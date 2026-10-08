@@ -5,14 +5,12 @@ reaches down from the saucer:
 - creatures and other players in it are lifted up to just under the hull and held there (bobbing) until you switch it off or
   fly away - then they drop. Nothing with more than 100 max health (bosses), no NPCs, no one in creative or spectator;
 - dropped items and XP rise into the saucer and land in your pack.
-It runs on Violet Xenite, like the hand-held tractor beam: one shard powers 10 seconds of beam. The laser, the TNT bomb and
+(2.44: it needs no power - no Violet Xenite is drawn; the skiff runs it for free.) The laser, the TNT bomb and
 sneak-to-land work as before."""
 from items import T
 
 BEAM_DEPTH = 20
-SHARD_SECONDS = 10
 MAX_HP = 100
-VIOLET = '*[minecraft:custom_data~{bm:"xenite_violet"}]'
 GREEN = '#7dff6a'
 
 
@@ -30,24 +28,10 @@ def generate(G):
     use = G.FUNCS['p35/skiff/use']
     use.insert(0, 'execute if function bm:p35/skiff/riding if entity @s[x_rotation=-90..-50] run return run function bm:p48/toggle')
     fn('p48/toggle', ['execute if entity @s[tag=bm.skbeam] run return run function bm:p48/off',
-                      'execute unless score @s bm.skbt matches 1.. store result score #s bm.rng run clear @s ' + VIOLET + ' 0',
-                      'execute unless score @s bm.skbt matches 1.. if score #s bm.rng matches 0 run return run function bm:p48/empty',
                       'tag @s add bm.skbeam', 'playsound minecraft:block.beacon.activate player @a[distance=..32] ~ ~ ~ 1 1.6',
                       say('Tractor beam ON. Look up + right-click to switch it off.', '#c27dff')])
     fn('p48/off', ['tag @s remove bm.skbeam', 'playsound minecraft:block.beacon.deactivate player @a[distance=..32] ~ ~ ~ 1 1.6',
                    say('Tractor beam off.', 'gray')])
-    fn('p48/empty', ['tag @s remove bm.skbeam', 'playsound minecraft:block.dispenser.fail player @s ~ ~ ~ 1 1.4',
-                     say('The beam needs power - carry Violet Xenite shards.', 'red')])
-    # power: a shard is drawn when the beam starts and every 10 seconds it runs
-    second.append('execute as @a[tag=bm.skbeam] at @s run function bm:p48/power')
-    fn('p48/power', ['execute unless function bm:p35/skiff/riding run return run tag @s remove bm.skbeam',
-                     'scoreboard players remove @s[scores={bm.skbt=1..}] bm.skbt 1',
-                     'execute if score @s bm.skbt matches 1.. run return 0',
-                     'execute store result score #s bm.rng run clear @s ' + VIOLET + ' 0',
-                     'execute if score #s bm.rng matches 0 run return run function bm:p48/empty',
-                     f'clear @s {VIOLET} 1', f'scoreboard players set @s bm.skbt {SHARD_SECONDS}'])
-    # first tick of a fresh beam draws its shard straight away (so it never runs free)
-    tick.append('execute as @a[tag=bm.skbeam] unless score @s bm.skbt matches 1.. at @s run function bm:p48/power')
 
     # the beam itself, every tick, from the saucer down
     tick.append('execute as @a[tag=bm.skbeam] at @s run function bm:p48/tick')
