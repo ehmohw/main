@@ -27,7 +27,7 @@ MODES = {1: ('Speed', '#5ad8f0'), 2: ('Offense', '#ff5a5a'), 3: ('Defense', '#9a
 PINK = '#ff7ad0'
 
 item('emma_ribbon', TOTEM, "Emma's Ribbon", PINK,
-     ['A pink hair ribbon. It smells of flowers.', ('Use: call Emma to your side (or back to you).', 'blue'),
+     ['A pink ribbon, still smelling faintly of the sea.', ('Once worn by the princess of the drowned kingdom.', 'dark_gray'), ('Use: call Emma to your side (or back to you).', 'blue'),
       ('Sneak + use: her menu - buffs, charge, send her home.', 'blue'),
       ('She buffs you and your friends; charged up,', 'blue'), ('she takes her Ethereal Form and fights.', 'blue'),
       ('If she falls: 10 minutes before she can return.', 'gray')],
@@ -350,7 +350,7 @@ def generate(G):
              ('Ooh, can you make the sparkly purple ones again?', 'A little hex, just for you.'),
              ('Cecil, do you ever sleep?', 'Wizards rest their eyes. Hehehe.')]
     fn('p57/harmony', ['execute on owner unless entity @s[tag=bm.emharm] run function bm:p57/harmony_first',
-                       'execute unless score @s bm.ems matches 0 run return 0',
+                       'execute if score @s bm.ems matches 1..3 run return 0', 'execute if score @s bm.ems matches 5.. unless score @s bm.ems matches 6 run return 0',
                        'scoreboard players add @s bm.emi 1', 'execute unless score @s bm.emi matches 45.. run return 0',
                        'execute unless entity @e[type=minecraft:wolf,tag=bm.emmine,distance=..6] run return 0',
                        'scoreboard players set @s bm.emi 0', 'scoreboard players set @s bm.emw 30',

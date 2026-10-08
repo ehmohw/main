@@ -1,4 +1,4 @@
-# Black Market — v2.37 (Java 26.3)
+# Black Market — v2.38 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,12 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.38
+
+- **At most 3 followers.** You can have three companions with you at once, from: Cecil, Emma, the Frog with Mustache and the mercenary rat. Calling, hiring or recruiting a fourth is refused with "send one home first", and nothing is charged for the refused call.
+- **Emma's story.** Emma is the orphaned princess of the kingdom under the sea. Long ago she fought the serpent king Apophiss beside Cecil and Sir Leo. Her lines, Cecil's hint and three new chats between them now tell her story.
+- Emma's chats with Cecil now also happen while she's sitting.
 
 ## New in 2.37: Emma, a hidden friend
 
