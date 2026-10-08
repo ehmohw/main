@@ -274,7 +274,8 @@ def generate(G):
             'storm_roc': 'summons the Storm Roc', 'relics': 'gives every relic form and the four catalysts',
             'treant': 'summons the Elder Treant', 'colossus': 'summons the Magma Colossus', 'voidwalker': 'summons the Voidwalker', 'essences': 'gives every Relic Essence, shards and Medallions',
             'blood_moon': 'starts a Blood Moon tonight (jumps to nightfall)', 'emma': 'Emma sits in the flowers in front of you (recruit her with a flower)',
-            'emma_ribbon': "gives Emma's Ribbon", 'emma_charge': 'charges your Emma to 100%'}
+            'emma_ribbon': "gives Emma's Ribbon", 'emma_charge': 'charges your Emma to 100%',
+            'cecil_relics': "gives KillerWatt's Tendrils, Apophiss's Crown, Leo's Trident and Cecil's Staff"}
     def make_help():
         names = sorted(k[6:] for k in G.FUNCS if k.startswith('admin/') and '/' not in k[6:] and k not in ('admin/help',))
         cats = sorted({k.split('/')[2] for k in G.FUNCS if k.startswith('admin/give/') and k.count('/') == 2})

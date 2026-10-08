@@ -42,6 +42,7 @@ import phase49 as R49
 import phase50 as R50
 import phase51 as R51
 import phase52 as R52
+import phase59 as R59        # 2.40: KillerWatt's Tendrils, Apophiss's Crown, Leo's Trident, Cecil's Staff (Cecil sells them)
 import phase58 as R58        # 2.38: at most 3 followers; Emma's story (the drowned kingdom, Apophiss)
 import phase57 as R57        # 2.37: Emma - a hidden, recruitable support companion (Ethereal Form, harmony with Cecil)
 import phase56 as R56        # 2.36: fixes - trades closing, Barnaby's post, drifting nameplates, Cecil's spawn, admin/blood_moon
@@ -276,6 +277,7 @@ def all_offers():
     R49.extend_offers(O, offer)
     R50.extend_offers(O, offer)
     R51.extend_offers(O, offer)
+    R59.extend_offers(O, offer)
     return O
 
 
@@ -785,7 +787,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.39' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.40' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -925,7 +927,7 @@ def build(out_dir):
     os.makedirs(OUT)
     with open(path('pack.mcmeta'), 'w') as f:
         json.dump({'pack': {'description': [{'text': 'Black Market ', 'color': 'dark_purple', 'bold': True},
-                                            {'text': ('v2.39 (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
+                                            {'text': ('v2.40 (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
                             'min_format': [121, 0], 'max_format': 121}}, f, indent=1)
     gen_npcs()
     second = gen_mobs()
@@ -989,6 +991,7 @@ def build(out_dir):
     R56.generate(sys.modules[__name__])
     R57.generate(sys.modules[__name__])
     R58.generate(sys.modules[__name__])
+    R59.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command

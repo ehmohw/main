@@ -1,4 +1,4 @@
-# Black Market — v2.39 (Java 26.3)
+# Black Market — v2.40 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,33 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.40: relics of an old adventure (sold by Cecil)
+
+**KillerWatt's Tendrils** (6 Trophies): the storm-alien's lightning arms.
+- **Use:** a tendril lashes out up to 24 blocks.
+  - A monster is struck for 10 lightning damage, which arcs to two more nearby for 5 each.
+  - An item is snatched back to you.
+  - A block: the tendril grabs it and flings you toward it. The farther it is, the harder the fling.
+- **Sneak + use:** yank a monster to you, or heave yourself up a wall.
+- **Held:** 15% faster, a taller step, and no fall damage.
+
+**Apophiss's Crown** (7 Trophies): the serpent king's grey crown with its great emerald.
+- **Worn:** you grow a size, deal +3 damage, reach 1.5 blocks further, and gain +4 health and +2 armour.
+- **Venom:** your blows wither living foes. The undead are immune to Wither, so they take +3 damage instead.
+- **Sneak + jump:** Serpent's Fangs, a line of 12 dark fangs bursting from the ground ahead. It recharges in 6 seconds.
+
+**Leo's Trident** (5 Trophies): Sir Leo's weapon. It uses the vanilla trident and spear, enchanted.
+- **Trident form:** Loyalty III and Impaling III. Throw it and it comes back.
+- **Spear form:** Lunge III.
+- **Switching:** press swap-hands (F).
+- **Both forms:** quick to swing, carry you 15% faster, and every hit gives a burst of Speed II.
+
+**Cecil's Staff** (2 Trophies): a lesser copy of his own.
+- **Use:** a poisoned bolt for 5 damage, plus Poison on living foes.
+- **Sneak + use:** mends you and friends within 5 blocks. It recharges in 20 seconds.
+
+Admin: `/function bm:admin/cecil_relics` gives all four.
 
 ## New in 2.39: Emma moves more naturally
 
