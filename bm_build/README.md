@@ -21,6 +21,50 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.45: Pearlman, the Traveling Salespenguin
+
+**Pearlman** is a dapper penguin in a top hat and blue bow tie, with a globe gem on his belly and a briefcase in his flipper.
+- **Visits:** now and then he waddles up to you when you're out under the open sky in the Overworld. That's roughly once every half hour of play, and never twice within 20 minutes.
+- **Stay:** he sets up shop for 8 minutes, calls "Last call!" a minute before he goes, then tips his hat and waddles off.
+- **Stock:** he sells three of his nine elemental gems each visit, a different three each time, for Medallions.
+- He chatters when you buy, and he knows more than he lets on.
+
+**The nine elemental gems:** fire, water, poison, earth, electric, rock, air, grass and ice. They are polished trophies, each cut a little differently (a flame, a droplet, venom spikes, a tiny globe, a bolt, a chunk of stone, a wisp, a leaf, ice crystals).
+- **Use:** the gem glints toward the nearest biome of its element and tells you the direction and distance (for example, "the Ice Gem glints north-west, about 202 blocks"). A sparkling trail points the way.
+  - Fire: badlands and deserts, or the Nether.
+  - Water: oceans and rivers.
+  - Poison: swamps.
+  - Earth: the deep old woods.
+  - Electric: savannas.
+  - Rock: stony peaks and shores.
+  - Air: windswept hills.
+  - Grass: plains, meadows and flower forests.
+  - Ice: the frozen north.
+- **Sneak + use:** set the gem on display, where it floats and spins slowly. Punch it to take it back. Gems on display hum when other kinds of gem are near.
+- **Admin:** `/function bm:admin/pearlman`, `bm:admin/elemental_gems`, `bm:admin/ethereal_gem`.
+
+<details><summary><b>Spoiler: the secret of the nine</b></summary>
+
+Set all nine gems on display within 4 blocks of each other. They rise, circle together and fuse into the **Ethereal Gem** (hidden achievement: *Nine Made One*).
+
+Use the Ethereal Gem to set it down as a prismatic, singing shrine. It turns slowly, nine element motes circle it, light rises from it, chimes ring out, and a ring of light marks its reach. Everyone within **30 blocks** is **Ethereal**:
+- light as air: low gravity, high leaps, no fall damage, faster
+- +3 attack, +4 armour, Regeneration and Resistance
+- wings of shimmering light on your back
+- every melee blow unleashes one of the nine elements on the target half a second later:
+  - fire: burns it
+  - water: drenches and slows it
+  - poison: poisons it (withers the undead)
+  - earth: roots it
+  - electric: arcs to two more
+  - rock: crushes it for 10
+  - air: hurls it skyward
+  - grass: heals you
+  - ice: freezes it
+
+Sneak + punch the shrine to take it back. Only one shrine can sing in any 60-block area.
+</details>
+
 ## New in 2.44: a free tractor beam
 
 **The Vorn Skiff's tractor beam needs no power any more.** Look up and right-click the key to switch it on, and it runs for as long as you like. It no longer draws Violet Xenite. Skiff Keys you already have update their description automatically.

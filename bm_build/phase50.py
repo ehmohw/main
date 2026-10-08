@@ -273,7 +273,8 @@ def generate(G):
             'shrine': 'places a shrine', 'void_rat': 'summons the Void Rat', 'ember_rat': 'summons the Ember Rat', 'horseman_heads': "gives the Horseman's Heads", 'pharaoh': 'summons the Sand Pharaoh',
             'storm_roc': 'summons the Storm Roc', 'relics': 'gives every relic form and the four catalysts',
             'treant': 'summons the Elder Treant', 'colossus': 'summons the Magma Colossus', 'voidwalker': 'summons the Voidwalker', 'essences': 'gives every Relic Essence, shards and Medallions',
-            'blood_moon': 'starts a Blood Moon tonight (jumps to nightfall)', 'emma': 'Emma sits in the flowers in front of you (recruit her with a flower)',
+            'blood_moon': 'starts a Blood Moon tonight (jumps to nightfall)', 'emma': 'Emma sits in the flowers in front of you (recruit her with a flower)', 'pearlman': 'Pearlman the salespenguin sets up shop in front of you',
+            'elemental_gems': 'gives all nine elemental gems', 'ethereal_gem': 'gives the Ethereal Gem',
             'emma_ribbon': "gives Emma's Ribbon", 'emma_charge': 'charges your Emma to 100%',
             'cecil_relics': "gives KillerWatt's Tendrils, Apophiss's Crown, Leo's Trident and Cecil's Staff"}
     def make_help():
