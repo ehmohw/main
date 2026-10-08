@@ -1,8 +1,8 @@
 """Phase 2.45: Pearlman, the Traveling Salespenguin, and his elemental gems.
 
 - PEARLMAN: a dapper penguin in a top hat and a blue bow tie, a globe-gem on his belly and a briefcase in his flipper.
-  Now and then (about once every half hour of play, never twice in 20 minutes) he waddles up to a player out under the
-  open sky in the Overworld, sets up shop for 8 minutes, then tips his hat and leaves. He sells three of his nine gems
+  Like the wandering trader (2.46: rarer - one roll an in-game day, 10% rising to 30%, about one visit in 4 days) he
+  waddles up to a player out under the open sky in the Overworld, sets up shop for 8 minutes, then tips his hat and leaves. He sells three of his nine gems
   each visit (a different three each time), 3 Medallions apiece. He chatters, and drops hints.
 - THE NINE GEMS (fire, water, poison, earth, electric, rock, air, grass, ice): polished trophies.
   Use: the gem glints toward the nearest biome of its element (direction + distance, a sparkling trail).
@@ -46,7 +46,8 @@ GEMS = {
 }
 KEYS = list(GEMS)
 GEM_PRICE = ('medallion', 3)
-STAY_SECONDS, COOLDOWN, CHANCE = 480, 1200, 1500        # he stays 8 min; at least 20 min between visits; 1 in 1500 a second
+STAY_SECONDS, DAY = 480, 1200          # he stays 8 min; one chance of a visit per in-game day (20 min of play)
+CHANCE0, CHANCE_STEP, CHANCE_MAX = 10, 10, 30     # like the wandering trader: 10%, then 20%, then 30% a day until he comes
 
 for _k, (_n, _c, _rgb, _where, _b, _flav) in GEMS.items():
     item(f'gem_{_k}', TOTEM, _n, _c,
@@ -68,7 +69,9 @@ def generate(G):
     tick, second, fast = [], [], []
     objs = ['bm.gmcd', 'bm.pmt', 'bm.gft', 'bm.esht', 'bm.etcd', 'bm.etdl', 'bm.etvp']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + [
-        f'execute unless score #pmcd bm.bm matches -2147483648.. run scoreboard players set #pmcd bm.bm {COOLDOWN // 2}',
+        f'execute unless score #pmcd bm.bm matches -2147483648.. run scoreboard players set #pmcd bm.bm {DAY}',
+        f'execute unless score #pmch bm.bm matches -2147483648.. run scoreboard players set #pmch bm.bm {CHANCE0}',
+        f'execute if score #pmcd bm.bm matches {DAY + 1}.. run scoreboard players set #pmcd bm.bm {DAY}',
         'scoreboard players set #-1 bm.rng -1', 'scoreboard players set #5 bm.rng 5', 'scoreboard players set #12 bm.rng 12', 'scoreboard players set #9 bm.rng 9']
     G.OBJECTIVES += objs
     holds = '*[minecraft:custom_data~{bm:"%s"}]'
@@ -342,19 +345,22 @@ def generate(G):
     fn('p60/pm/stock1', ['scoreboard players operation #i bm.rng %= #9 bm.rng', 'execute store result storage bm:p60 pick.i int 1 run scoreboard players get #i bm.rng',
                          'function bm:p60/pm/stock with storage bm:p60 pick'])
     fn('p60/pm/stock', ['$data modify entity @e[type=minecraft:villager,tag=bm.pnew,limit=1,sort=nearest] Offers.Recipes append from storage bm:p60 offers[$(i)]'])
-    # visits: one player at a time is checked, once a second
-    second += ['execute if score #pmcd bm.bm matches 1.. run scoreboard players remove #pmcd bm.bm 1',
-               'execute if score #pmcd bm.bm matches ..0 as @a[gamemode=survival,sort=random,limit=1] at @s if dimension minecraft:overworld positioned ~ ~1.6 ~ if predicate bm:sees_sky positioned ~ ~-1.6 ~ run function bm:p60/pm/try',
+    # visits, like the wandering trader's: once an in-game day there's a roll (10%, then 20%, then 30%... reset when he comes);
+    # he picks a random player out under the open sky in the Overworld
+    second += ['scoreboard players remove #pmcd bm.bm 1', 'execute if score #pmcd bm.bm matches ..0 run function bm:p60/pm/day',
                'execute as @e[type=minecraft:villager,tag=bm.pearl] at @s run function bm:p60/pm/sec']
-    fn('p60/pm/try', [f'execute store result score #r bm.rng run random value 1..{CHANCE}', 'execute unless score #r bm.rng matches 1 run return 0',
-                      'function bm:p60/pm/arrive'])
+    fn('p60/pm/day', [f'scoreboard players set #pmcd bm.bm {DAY}', 'execute if entity @e[type=minecraft:villager,tag=bm.pearl] run return 0',
+                      'execute store result score #r bm.rng run random value 1..100', 'scoreboard players set #placed bm.rng 0',
+                      'execute if score #r bm.rng <= #pmch bm.bm as @a[gamemode=survival,sort=random,limit=1] at @s if dimension minecraft:overworld positioned ~ ~1.6 ~ if predicate bm:sees_sky positioned ~ ~-1.6 ~ run function bm:p60/pm/arrive',
+                      f'execute if score #placed bm.rng matches 1 run return run scoreboard players set #pmch bm.bm {CHANCE0}',
+                      f'scoreboard players add #pmch bm.bm {CHANCE_STEP}',
+                      f'execute if score #pmch bm.bm matches {CHANCE_MAX + 1}.. run scoreboard players set #pmch bm.bm {CHANCE_MAX}'])
     fn('p60/pm/arrive', ['execute if entity @e[type=minecraft:villager,tag=bm.pearl] run return 0',
                          'summon minecraft:marker ~ ~ ~ {Tags:["bm.psp"]}',
                          'execute as @e[type=minecraft:marker,tag=bm.psp,distance=..1,limit=1] store result entity @s Rotation[0] float 1 run random value 0..359',
                          'scoreboard players set #placed bm.rng 0',
                          'execute as @e[type=minecraft:marker,tag=bm.psp,distance=..1,limit=1] rotated as @s positioned ^ ^ ^6 positioned over motion_blocking_no_leaves run function bm:p60/pm/land',
-                         'kill @e[type=minecraft:marker,tag=bm.psp]',
-                         f'execute if score #placed bm.rng matches 1 run scoreboard players set #pmcd bm.bm {COOLDOWN}'])
+                         'kill @e[type=minecraft:marker,tag=bm.psp]'])
     fn('p60/pm/land', ['execute unless block ~ ~ ~ #minecraft:replaceable run return 0', 'execute if block ~ ~ ~ minecraft:water run return 0',
                        'execute if block ~ ~-1 ~ #minecraft:replaceable run return 0', 'execute if block ~ ~-1 ~ minecraft:water run return 0',
                        'execute align xz positioned ~0.5 ~ ~0.5 run function bm:p60/pm/spawn', 'scoreboard players set #placed bm.rng 1'])
@@ -376,8 +382,7 @@ def generate(G):
     fn('p60/pm/leave', [tellraw('@a[distance=..24]', [T('Pearlman ', PEARL, bold=True), T('tips his top hat and waddles off. "Toodle-oo!"', 'gray', italic=True)]),
                         'particle minecraft:snowflake ~ ~1 ~ 0.4 0.6 0.4 0.02 30', 'particle minecraft:poof ~ ~0.6 ~ 0.3 0.4 0.3 0.02 10',
                         'playsound minecraft:block.note_block.bell neutral @a[distance=..24] ~ ~ ~ 1 1.2',
-                        'kill @e[type=minecraft:item_display,tag=bm.pearld,distance=..0.6]', 'tp @s ~ -400 ~', 'kill @s',
-                        f'scoreboard players set #pmcd bm.bm {COOLDOWN}'])
+                        'kill @e[type=minecraft:item_display,tag=bm.pearld,distance=..0.6]', 'tp @s ~ -400 ~', 'kill @s'])
     wjson('bm/advancement/p60/pm_trade.json', {'criteria': {'t': {'trigger': 'minecraft:villager_trade', 'conditions': {'villager': [
         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.pearl"]}'}}]}}}, 'rewards': {'function': 'bm:p60/pm/traded'}})
     fn('p60/pm/traded', ['advancement revoke @s only bm:p60/pm_trade', 'advancement grant @s only bm:story/pearlman',

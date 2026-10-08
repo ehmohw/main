@@ -21,10 +21,18 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.46: Pearlman visits like a wandering trader
+
+**Pearlman comes less often now**, on the wandering trader's rules:
+- **One roll a day:** each in-game day (20 minutes of play) there is one roll for a visit.
+- **Rising odds:** 10% the first day, then 20%, then 30% each day after until he comes. After a visit it starts again at 10%.
+- **Overall:** that works out to about one visit every 4 in-game days, roughly 80 minutes of play.
+- **Where:** he still only turns up beside a player standing under the open sky in the Overworld.
+
 ## New in 2.45: Pearlman, the Traveling Salespenguin
 
 **Pearlman** is a dapper penguin in a top hat and blue bow tie, with a globe gem on his belly and a briefcase in his flipper.
-- **Visits:** now and then he waddles up to you when you're out under the open sky in the Overworld. That's roughly once every half hour of play, and never twice within 20 minutes.
+- **Visits:** now and then he waddles up to you when you're out under the open sky in the Overworld (since 2.46, about once every 4 in-game days, like a wandering trader).
 - **Stay:** he sets up shop for 8 minutes, calls "Last call!" a minute before he goes, then tips his hat and waddles off.
 - **Stock:** he sells three of his nine elemental gems each visit, a different three each time, for Medallions.
 - He chatters when you buy, and he knows more than he lets on.
