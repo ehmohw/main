@@ -45,7 +45,7 @@ def generate(G):
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     emsay = lambda txt: title('@s', 'actionbar', [T('Emma: ', PINK, bold=True), T(txt, '#ffd0ec')])
     tick, fast, second = [], [], []
-    objs = ['bm.emm', 'bm.emc', 'bm.eme', 'bm.ems', 'bm.emf', 'bm.emk', 'bm.emcd', 'bm.emh', 'bm.emz', 'bm.emi', 'bm.emq', 'bm.emw', 'bm.emt']
+    objs = ['bm.emm', 'bm.emc', 'bm.eme', 'bm.ems', 'bm.emf', 'bm.emk', 'bm.emcd', 'bm.emh', 'bm.emz', 'bm.emi', 'bm.emq', 'bm.emw', 'bm.emt', 'bm.emph', 'bm.emfi']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + \
         [f'scoreboard players set #{n} bm.rng {n}' for n in (12, 16, 60, 80, 240)]
     G.OBJECTIVES += objs
@@ -76,23 +76,27 @@ def generate(G):
     fn('p57/place', place_lines())
     fn('p57/place_fly', place_lines(1.0))
     # grow in (wings stay folded away until she ascends)
-    fn('p57/grow', [f'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=!bm.ep_wingr,tag=!bm.ep_wingl] run data merge entity @s '
+    fn('p57/grow', [f'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=!bm.ep_wingr,tag=!bm.ep_wingl,tag=!bm.ep_wingro,tag=!bm.ep_winglo] run data merge entity @s '
                     f'{{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[{S}f,{S}f,{S}f]}}}}'])
 
     # ---- poses (left_rotation + a shared lift) - see phase57_art.POSES
     DUR = {'idle_a': 20, 'idle_b': 20, 'idle_hop': 4, 'walk_a': 4, 'walk_up': 4, 'walk_b': 4, 'run_a': 3, 'run_up': 3, 'run_b': 3, 'jump': 3,
-           'sit_a': 15, 'sit_b': 15, 'cast': 4, 'wave_a': 6, 'wave_b': 6, 'fly_a': 8, 'fly_b': 8, 'strike_up': 3, 'strike_dn': 3}
+           'sit_a': 15, 'sit_b': 15, 'cast': 4, 'wave_a': 6, 'wave_b': 6, 'strike_up': 3, 'strike_dn': 3}
+    DUR.update({f'fly_{i}': 3 for i in range(ART.FLY_FRAMES)})
+    DUR.update({f'loco_{b}_{f}': ART.LOCO_STEP[b][1] for b in ART.LOCO_STEP for f in range(4)})
+    def xf_nbt(pose, p):
+        rot, tr = ART.part_xf(pose, p)
+        return f'left_rotation:{snbt(qf(rot))},translation:[{tr[0]:.4f}f,{tr[1]:.4f}f,{tr[2]:.4f}f]'
     for name, pose in ART.POSES.items():
-        d = DUR[name]; dy = pose['_dy']
+        d = DUR[name]
         fn(f'p57/pose/{name}', [f'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_{p}] run data merge entity @s '
-                                f'{{start_interpolation:0,interpolation_duration:{d},transformation:{{left_rotation:{snbt(qf(pose[p]))},translation:[0f,{dy}f,0f]}}}}'
+                                f'{{start_interpolation:0,interpolation_duration:{d},transformation:{{{xf_nbt(pose, p)}}}}}'
                                 for p in ART.PARTS])
 
     # ---- the animation driver: state 0 idle, 1 walk, 2 run, 3 air, 4 sit, 5 fly, 6 cast, 7 strike, 8 wave
     CYCLE = {0: (240, [(0, 'idle_a'), (40, 'idle_b'), (80, 'idle_a'), (120, 'idle_hop'), (124, 'idle_b'), (160, 'idle_a'), (200, 'idle_b')]),
-             1: (16, [(0, 'walk_a'), (4, 'walk_up'), (8, 'walk_b'), (12, 'walk_up')]),
-             2: (12, [(0, 'run_a'), (3, 'run_up'), (6, 'run_b'), (9, 'run_up')]),
-             3: (None, [(0, 'jump')]), 4: (60, [(0, 'sit_a'), (30, 'sit_b')]), 5: (16, [(0, 'fly_a'), (8, 'fly_b')]),
+             3: (None, [(0, 'jump')]), 4: (60, [(0, 'sit_a'), (30, 'sit_b')]),
+             5: (3 * ART.FLY_FRAMES, [(3 * i, f'fly_{i}') for i in range(ART.FLY_FRAMES)]),
              6: (None, [(0, 'cast')]), 7: (None, [(0, 'strike_up'), (3, 'strike_dn')]), 8: (12, [(0, 'wave_a'), (6, 'wave_b')])}
     anim = []
     for st, (period, frames) in CYCLE.items():
@@ -102,6 +106,17 @@ def generate(G):
         lines += [f'execute if score #f bm.rng matches {t} run function bm:p57/pose/{p}' for t, p in frames]
         fn(f'p57/anim/{st}', lines)
         anim.append(f'execute if score @s bm.ems matches {st} run return run function bm:p57/anim/{st}')
+    # 1 = on the move: one walk/run cycle whose pose blends with her speed, stepping as fast as she actually moves
+    loco = ['scoreboard players set #b bm.rng 8']
+    for b in range(7, 0, -1):
+        loco.append(f'execute if score #vx bm.rng matches ..{ART.LOCO[b - 1][0] - 1} run scoreboard players set #b bm.rng {b}')
+    loco += ['execute if score @s bm.emf matches 0 run scoreboard players set @s bm.emph 1000']
+    loco += [f'execute if score #b bm.rng matches {b} run scoreboard players add @s bm.emph {ART.LOCO_STEP[b][0]}' for b in ART.LOCO_STEP]
+    loco += ['execute if score @s bm.emph matches 1000.. run function bm:p57/loco_step']
+    fn('p57/anim/1', loco)
+    fn('p57/loco_step', ['scoreboard players remove @s bm.emph 1000', 'scoreboard players add @s bm.emfi 1', 'scoreboard players operation @s bm.emfi %= #4 bm.rng'] +
+       [f'execute if score #b bm.rng matches {b} if score @s bm.emfi matches {f} run return run function bm:p57/pose/loco_{b}_{f}' for b in ART.LOCO_STEP for f in range(4)])
+    anim.insert(0, 'execute if score @s bm.ems matches 1 run return run function bm:p57/anim/1')
     fn('p57/anim', anim)
     # (as the host) what she's doing now -> #st
     fn('p57/state', ['execute if score @s bm.eme matches 1.. if score @s bm.emk matches 1.. run return run scoreboard players set #st bm.rng 7',
@@ -116,7 +131,6 @@ def generate(G):
                      'execute store result score #vz bm.rng run data get entity @s Motion[2] 1000',
                      'scoreboard players operation #vx bm.rng *= #vx bm.rng', 'scoreboard players operation #vz bm.rng *= #vz bm.rng',
                      'scoreboard players operation #vx bm.rng += #vz bm.rng',
-                     'execute if score #vx bm.rng matches 19000.. run return run scoreboard players set #st bm.rng 2',
                      'execute if score #vx bm.rng matches 500.. run return run scoreboard players set #st bm.rng 1',
                      'execute if score @s bm.emk matches 1.. run return run scoreboard players set #st bm.rng 6',
                      'scoreboard players set #st bm.rng 0'])
@@ -126,6 +140,7 @@ def generate(G):
                     'execute as @e[type=minecraft:item_display,tag=bm.emp,tag=!bm.emfade] if score @s bm.pid = #me bm.pid run tag @s add bm.emsel',
                     'execute if score @s bm.emk matches 1.. run scoreboard players remove @s bm.emk 1',
                     'execute if score @s bm.emw matches 1.. run scoreboard players remove @s bm.emw 1',
+                    'execute unless entity @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_wingro] run function bm:p57/rerig',
                     'function bm:p57/state',
                     'execute if score #st bm.rng = @s bm.ems run scoreboard players add @s bm.emf 1',
                     'execute unless score #st bm.rng = @s bm.ems run scoreboard players set @s bm.emf 0',
@@ -194,6 +209,10 @@ def generate(G):
                            'playsound minecraft:entity.allay.ambient_without_item neutral @a[distance=..20] ~ ~ ~ 1 1.2',
                            emsay("I'm here! Let's do our best today!")])
     fn('p57/rig_here', rig + ['tp @e[type=minecraft:item_display,tag=bm.emnew,distance=..1] ~ ~ ~ ~ 0'])
+    fn('p57/rerig', ['kill @e[type=minecraft:item_display,tag=bm.emsel]', 'execute rotated as @s rotated ~ 0 run function bm:p57/rig_here',
+                     'scoreboard players operation @e[type=minecraft:item_display,tag=bm.emnew,distance=..2] bm.pid = #me bm.pid',
+                     'tag @e[type=minecraft:item_display,tag=bm.emnew,distance=..2] add bm.emsel', 'tag @e[type=minecraft:item_display,tag=bm.emnew,distance=..2] remove bm.emnew',
+                     'function bm:p57/grow', 'scoreboard players set @s bm.ems -1', 'execute if score @s bm.eme matches 1.. run function bm:p57/ethereal_look'])
 
     # ---- the menu (sneak + use): a dialog with her charge and mode
     MENU = 960
@@ -301,22 +320,25 @@ def generate(G):
     fn('p57/ascend', ['scoreboard players set @s bm.eme 30', 'scoreboard players set @s bm.emc 0',
                       'execute as @e[type=minecraft:item_display,tag=bm.emp,tag=!bm.emfade] if score @s bm.pid = #me bm.pid run tag @s add bm.emsel'] + swap('ee') +
        ['execute as @e[type=minecraft:item_display,tag=bm.emsel] run data merge entity @s {brightness:{block:15,sky:15},interpolation_duration:10}',
-        f'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_wingr] run data merge entity @s {{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[{S}f,{S}f,{S}f]}}}}',
-        f'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_wingl] run data merge entity @s {{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[{S}f,{S}f,{S}f]}}}}',
+        *[f'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_{w}] run data merge entity @s {{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[{S}f,{S}f,{S}f]}}}}'
+          for w in ('wingr', 'wingl', 'wingro', 'winglo')],
         'tag @e[tag=bm.emsel] remove bm.emsel',
         'effect give @s minecraft:resistance 31 3 true', 'data modify entity @s Sitting set value 0b',
         'particle minecraft:flash{color:[1.0,0.85,1.0,1.0]} ~ ~1.5 ~ 0 0 0 0 1', 'particle minecraft:end_rod ~ ~1.5 ~ 0.6 1 0.6 0.15 60',
         'particle minecraft:cherry_leaves ~ ~1.5 ~ 1 1 1 0 60',
         'playsound minecraft:block.beacon.activate neutral @a[distance=..32] ~ ~ ~ 1 1.4', 'playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..32] ~ ~ ~ 1 0.8',
         'execute on owner run function bm:p57/ascend_owner'])
+    fn('p57/ethereal_look', swap('ee') + ['execute as @e[type=minecraft:item_display,tag=bm.emsel] run data merge entity @s {brightness:{block:15,sky:15},interpolation_duration:10}'] +
+       [f'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_{w}] run data merge entity @s {{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[{S}f,{S}f,{S}f]}}}}'
+        for w in ('wingr', 'wingl', 'wingro', 'winglo')])
     fn('p57/ascend_owner', ['title @s times 5 40 10', title('@s', 'actionbar', [T('✦ ', PINK), T("Emma's Ethereal Form", '#e0b0ff', bold=True), T(' ✦', PINK)]),
                             'advancement grant @s only bm:story/emma_ethereal'])
     fn('p57/ethereal', ['scoreboard players remove @s bm.eme 1', 'execute if score @s bm.eme matches 0 run return run function bm:p57/descend',
                         f'execute if entity @e[{foe},distance=..14] run function bm:p57/strike'])
     fn('p57/descend', ['execute as @e[type=minecraft:item_display,tag=bm.emp,tag=!bm.emfade] if score @s bm.pid = #me bm.pid run tag @s add bm.emsel'] + swap('em') +
        ['execute as @e[type=minecraft:item_display,tag=bm.emsel] run data remove entity @s brightness',
-        'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_wingr] run data merge entity @s {start_interpolation:0,interpolation_duration:12,transformation:{scale:[0f,0f,0f]}}',
-        'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_wingl] run data merge entity @s {start_interpolation:0,interpolation_duration:12,transformation:{scale:[0f,0f,0f]}}',
+        *[f'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_{w}] run data merge entity @s {{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[0f,0f,0f]}}}}'
+          for w in ('wingr', 'wingl', 'wingro', 'winglo')],
         'tag @e[tag=bm.emsel] remove bm.emsel', 'scoreboard players set @s bm.emc 0', 'kill @e[type=minecraft:marker,tag=bm.emaim,distance=..24]',
         'particle minecraft:cherry_leaves ~ ~1.5 ~ 0.6 1 0.6 0 40', 'playsound minecraft:block.beacon.deactivate neutral @a[distance=..24] ~ ~ ~ 0.8 1.4',
         'execute on owner run ' + emsay('Phew... that was a lot! I need to recharge~')])

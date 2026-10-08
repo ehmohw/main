@@ -11,7 +11,15 @@ RES = 4                                   # texels per design unit: every textur
 RIG_SCALE = 0.85
 PIVOT = {'body': (0, 11, 0), 'head': (0, 24, 0), 'armr': (4.0, 22.4, 0), 'arml': (-4.0, 22.4, 0),
          'legr': (1.7, 11, 0), 'legl': (-1.7, 11, 0), 'wingr': (1.0, 21.5, 2.2), 'wingl': (-1.0, 21.5, 2.2)}
-PARTS = ('body', 'head', 'armr', 'arml', 'legr', 'legl', 'wingr', 'wingl')
+PIVOT['wingro'], PIVOT['winglo'] = PIVOT['wingr'], PIVOT['wingl']      # (the outer halves stand at the wing roots; a translation reaches the mid-joint)
+PARTS = ('body', 'head', 'armr', 'arml', 'legr', 'legl', 'wingr', 'wingl', 'wingro', 'winglo')
+WING_LIFT = 30
+WING_SPLIT = 11.0                                                    # design units along the leading edge where the outer half hinges
+
+
+def wing_mid(sx):
+    px, py, pz = PIVOT['wingr' if sx > 0 else 'wingl']
+    return (px + sx * WING_SPLIT * math.cos(math.radians(WING_LIFT)), py + WING_SPLIT * math.sin(math.radians(WING_LIFT)), pz)
 
 
 def hexc(h, a=255):
@@ -346,20 +354,26 @@ def models():
     part('ee_legr', PIVOT['legr'], eleg(1)); part('ee_legl', PIVOT['legl'], eleg(-1))
 
     # ---- wings: a covert bar and fanned primaries, built for her left; the right is the mirror
-    def wing(sx):
-        """A leading edge sweeping up and out, coverts under it, primaries hanging from it - longer and splayed toward the tip."""
-        nm = 'wingr' if sx > 0 else 'wingl'; pv = PIVOT[nm]; px, py, pz = pv
-        lift = 30; ca, sa = math.cos(math.radians(lift)), math.sin(math.radians(lift))
+    def wing(sx, half):
+        """A leading edge sweeping up and out, coverts under it, primaries hanging from it - longer and splayed toward the tip.
+        Split at WING_SPLIT: the inner half turns at the root, the outer half at the mid-joint (so the wing can ripple)."""
+        nm = 'wingr' if sx > 0 else 'wingl'; px, py, pz = PIVOT[nm]
+        pv = PIVOT[nm] if half == 'in' else wing_mid(sx)
+        lift = WING_LIFT; ca, sa = math.cos(math.radians(lift)), math.sin(math.radians(lift))
+        lo, hi = (0, WING_SPLIT) if half == 'in' else (WING_SPLIT, 22)
         def bar(u0, u1, y0, y1, z0, z1, tex):
+            u0, u1 = max(u0, lo), min(u1, hi)
             a, b = px + sx * u0, px + sx * u1
             return _el((min(a, b), py + y0, pz + z0), (max(a, b), py + y1, pz + z1), tex, pv, ('z', sx * lift, (px, py, pz)))
         els = [bar(0, 22, -0.6, 1.8, 0.0, 1.6, 'ee_down'), bar(1.5, 19, -4.2, -0.4, 0.3, 1.3, 'ee_down')]
         for i, u in enumerate(range(3, 23, 2)):
+            if not lo <= u < hi: continue
             tx, ty = px + sx * u * ca, py + u * sa - 0.8
             L = 6.5 + i * 1.15; ang = 4 + i * 3.6
             els.append(_el((tx - 1.0, ty - L, pz + 0.45 + 0.04 * i), (tx + 1.0, ty, pz + 1.0 + 0.04 * i), 'ee_feather', pv, ('z', sx * ang, (tx, ty, pz))))
         return els
-    part('ee_wingr', PIVOT['wingr'], wing(1)); part('ee_wingl', PIVOT['wingl'], wing(-1))
+    part('ee_wingr', PIVOT['wingr'], wing(1, 'in')); part('ee_wingl', PIVOT['wingl'], wing(-1, 'in'))
+    part('ee_wingro', wing_mid(1), wing(1, 'out')); part('ee_winglo', wing_mid(-1), wing(-1, 'out'))
     return M
 
 
@@ -404,8 +418,14 @@ def torso(lean=0.0, tilt=0.0, turn=0.0):
 
 I = (0.0, 0.0, 0.0, 1.0)
 FOLD = dict(armr=limb(1, 24, -22), arml=limb(-1, 24, -22))
-WINGS_UP = dict(wingr=qa('y', -28), wingl=qa('y', 28))
-WINGS_DN = dict(wingr=qmul(qa('y', 14), qa('z', 10)), wingl=qmul(qa('y', -14), qa('z', -10)))
+def wings(inner, outer, lift=0.0):
+    """Wing beat: the inner halves sweep (about y) and lift (about z); the outer halves follow at their own angle."""
+    return dict(wingr=qmul(qa('y', -inner), qa('z', -lift)), wingl=qmul(qa('y', inner), qa('z', lift)),
+                wingro=qmul(qa('y', -outer), qa('z', -lift * 0.6)), winglo=qmul(qa('y', outer), qa('z', lift * 0.6)))
+
+
+WINGS_UP = wings(28, 20, 0)
+WINGS_DN = wings(-14, -24, -10)
 
 
 def P(dy=0.0, **parts):
@@ -437,8 +457,63 @@ POSES = {
     'wave_a': P(body=torso(tilt=-3), head=torso(tilt=8), armr=limb(1, 24, -22), arml=limb(-1, 10, 150)),
     'wave_b': P(body=torso(tilt=-3), head=torso(tilt=8), armr=limb(1, 24, -22), arml=limb(-1, 10, 118)),
     # ethereal: hovering, legs trailing, axe at the ready, wings beating
-    'fly_a': P(0.10, body=torso(lean=6), head=torso(lean=-4), legr=limb(1, -14), legl=limb(-1, -26), armr=limb(1, 30, 12), arml=limb(-1, 24, 48), **WINGS_UP),
-    'fly_b': P(-0.06, body=torso(lean=6), head=torso(lean=-4), legr=limb(1, -22), legl=limb(-1, -16), armr=limb(1, 30, 12), arml=limb(-1, 24, 48), **WINGS_DN),
     'strike_up': P(0.12, body=torso(lean=-6, turn=-15), head=torso(lean=-6), legr=limb(1, -10), legl=limb(-1, -30), armr=limb(1, 165, 15), arml=limb(-1, 20, 60), **WINGS_UP),
     'strike_dn': P(0.0, body=torso(lean=16, turn=15), head=torso(lean=6), legr=limb(1, -30), legl=limb(-1, -10), armr=limb(1, 50, -8), arml=limb(-1, -10, 50), **WINGS_DN),
 }
+
+
+# ---- ethereal flight: 8 frames a beat, the outer halves a beat behind the inner (a ripple root to tip)
+FLY_FRAMES = 8
+for _i in range(FLY_FRAMES):
+    _p = 2 * math.pi * _i / FLY_FRAMES
+    _inner = 7 + 21 * math.sin(_p); _outer = 4 + 30 * math.sin(_p - 1.1); _lift = -6 * math.cos(_p)
+    POSES[f'fly_{_i}'] = P(0.02 + 0.08 * math.sin(_p + 0.6), body=torso(lean=6, tilt=1.5 * math.sin(_p)), head=torso(lean=-4),
+                          legr=limb(1, -14 - 5 * math.sin(_p + 1)), legl=limb(-1, -24 + 5 * math.sin(_p + 1)),
+                          armr=limb(1, 30, 12), arml=limb(-1, 24, 48 + 4 * math.sin(_p)), **wings(_inner, _outer, _lift))
+
+
+# ---- walking <-> running: one cycle, blended by how fast she moves (bucket 1 = a slow amble ... 8 = a full run)
+def _slerp(a, b, t):
+    d = sum(x * y for x, y in zip(a, b))
+    if d < 0: b, d = tuple(-x for x in b), -d
+    if d > 0.9995:
+        r = tuple(x + t * (y - x) for x, y in zip(a, b)); n = math.sqrt(sum(x * x for x in r)); return tuple(x / n for x in r)
+    th = math.acos(d); s0, s1 = math.sin((1 - t) * th) / math.sin(th), math.sin(t * th) / math.sin(th)
+    return tuple(s0 * x + s1 * y for x, y in zip(a, b))
+
+
+# (speed bucket: upper bound of v^2 in (blocks/tick * 1000)^2, typical speed v, run weight, step amplitude)
+LOCO = [(2500, 0.035, 0.0, 0.55), (6400, 0.065, 0.0, 0.85), (12100, 0.095, 0.12, 1.0), (19600, 0.125, 0.32, 1.0),
+        (28900, 0.155, 0.55, 1.0), (44100, 0.19, 0.8, 1.0), (72900, 0.24, 1.0, 1.0), (None, 0.30, 1.0, 1.05)]
+WALK4, RUN4 = ('walk_a', 'walk_up', 'walk_b', 'walk_up'), ('run_a', 'run_up', 'run_b', 'run_up')
+LOCO_STEP = {}            # bucket -> (phase per tick in thousandths of a frame, frame duration in ticks)
+for _b, (_v2, _v, _w, _amp) in enumerate(LOCO, 1):
+    _stride = 0.30 + 0.22 * _w                                        # blocks per quarter-cycle (a step = 2 quarters)
+    LOCO_STEP[_b] = (round(1000 * _v / _stride), max(2, min(8, round(_stride / _v))))
+    for _f in range(4):
+        wk, rn = POSES[WALK4[_f]], POSES[RUN4[_f]]
+        d = {k: _slerp(I, _slerp(wk[k], rn[k], _w), _amp) if k in PARTS else None for k in PARTS}
+        d['_dy'] = (wk['_dy'] + (rn['_dy'] - wk['_dy']) * _w) * _amp
+        POSES[f'loco_{_b}_{_f}'] = d
+
+
+# ---- what each pose sends a part: its rotation, and its translation (the shared lift; the outer wing halves also reach
+# out to their mid-joint, carried round by the inner half's turn)
+def _qrot(q, v):
+    x, y, z, w = q
+    ux, uy, uz = x, y, z; vx, vy, vz = v
+    cx, cy, cz = uy * vz - uz * vy + w * vx, uz * vx - ux * vz + w * vy, ux * vy - uy * vx + w * vz
+    return (vx + 2 * (uy * cz - uz * cy), vy + 2 * (uz * cx - ux * cz), vz + 2 * (ux * cy - uy * cx))
+
+
+def part_xf(pose, p):
+    dy = pose['_dy']
+    if p in ('wingro', 'winglo'):
+        sx = 1 if p == 'wingro' else -1
+        inner = pose['wingr' if sx > 0 else 'wingl']
+        root, mid = PIVOT['wingr' if sx > 0 else 'wingl'], wing_mid(sx)
+        U = RIG_SCALE / 16
+        off = (-(mid[0] - root[0]) * U, (mid[1] - root[1]) * U, -(mid[2] - root[2]) * U)   # design -> display frame
+        t = _qrot(inner, off)
+        return qmul(inner, pose[p]), (t[0], t[1] + dy, t[2])
+    return pose[p], (0.0, dy, 0.0)

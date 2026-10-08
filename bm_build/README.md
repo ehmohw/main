@@ -1,4 +1,4 @@
-# Black Market — v2.38 (Java 26.3)
+# Black Market — v2.39 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,13 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.39: Emma moves more naturally
+
+- **Her steps match her speed.** She steps as fast as she actually moves, so she no longer slides along the ground.
+- **Walking blends into running.** Her pose shifts smoothly with her speed, from a slow amble through a jog to a full skipping run.
+- **Her wings ripple.** In Ethereal Form each wing bends in the middle: the outer half beats a moment after the inner half, so the motion travels from root to tip. She also bobs with each beat.
+- **Updates on their own.** An Emma who's already with you picks up the new wings by herself, even mid-flight.
 
 ## New in 2.38
 
