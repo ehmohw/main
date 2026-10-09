@@ -34,7 +34,7 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
   - she charges 2.5× as fast
   - her Ethereal Form lasts 50 seconds instead of 30
   - her strikes deal 13 instead of 8
-- **Blood Moon and invasion foes** within 30 blocks of a placed gem, or 16 blocks of a carried one:
+- **Blood Moon and invasion foes, and Elite and Champion mobs** (since 2.52), within 30 blocks of a placed gem, or 16 blocks of a carried one:
   - greatly slowed (Slowness III)
   - greatly weakened (Weakness III)
   - slowly burned away by its light

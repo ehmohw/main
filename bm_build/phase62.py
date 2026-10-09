@@ -107,7 +107,7 @@ def generate(G):
                      'tag @s remove bm.emq', 'execute if entity @s[tag=bm.emgem] run particle minecraft:end_rod ~ ~1.3 ~ 0.3 0.5 0.3 0.01 2'])
     # Blood Moon and invasion foes near the gem: much slower, much weaker, and slowly burned away
     def blight(r):
-        return [f'execute as @e[tag={t},distance=..{r}] at @s run function bm:p62/wither' for t in ('bm.blood', 'bm.vorn', 'bm.bio')]
+        return [f'execute as @e[tag={t},distance=..{r}] at @s run function bm:p62/wither' for t in ('bm.blood', 'bm.vorn', 'bm.bio', 'bm.elite', 'bm.champion')]
     fn('p62/blight', blight(30))
     fn('p62/blight_near', blight(16))
     fn('p62/wither', ['effect give @s minecraft:slowness 2 2 true', 'effect give @s minecraft:weakness 2 2 true',
