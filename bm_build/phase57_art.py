@@ -312,7 +312,7 @@ def models():
                _el((cx - 1.6, 20.2, -1.6), (cx + 1.6, 20.7, 1.6), 'ee_steel_lt', pv)]
         if sx > 0:      # (2.49) her right fist grips the crescent axe: the shaft runs through the fist and forward, the crescent hangs
             g = 13.7     # beneath its head (so it leads a downward chop); nothing passes through her arm
-            sh = lambda y0, y1, z0, z1, t, w=0.4: _el((cx - w, y0, -z1), (cx + w, y1, -z0), t, pv)   # (z mirrored: it points to her front)
+            sh = lambda y0, y1, z0, z1, t, w=0.4: _el((cx - w, y0, z0), (cx + w, y1, z1), t, pv)   # (design -z is her front: it points forward in game)
             els += [sh(g - 0.4, g + 0.4, -20.0, 4.0, 'ee_shaft'),
                     sh(g - 0.6, g + 0.6, 4.0, 5.2, 'ee_steel', 0.6), sh(g - 0.25, g + 0.25, 5.2, 7.0, 'ee_steel_lt', 0.25),        # butt cap + spike
                     sh(g - 0.55, g + 0.55, -12.6, -11.4, 'ee_steel_dk', 0.55),                                                  # collar
