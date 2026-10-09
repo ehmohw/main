@@ -91,5 +91,28 @@ def generate(G):
             shift += [f'execute if items entity @s weapon.offhand {holds % iid} if predicate bm:p20/sneaking run return run function bm:p62/to/{iid}_prev',
                       f'execute if items entity @s weapon.offhand {holds % iid} run return run function bm:p62/to/{iid}_next']
     fn('p62/shift', shift)
+
+    # ------------------------------------------------------------------ (2.50) the Ethereal Gem empowers Emma and withers the night's foes
+    gem = '*[minecraft:custom_data~{bm:"ethereal_gem"}]'
+    shrine = '@e[type=minecraft:item_display,tag=bm.eshr,distance=..30]'
+    sec = G.FUNCS['loop/second']
+    sec[-1:-1] = ['execute as @e[type=minecraft:cat,tag=bm.emmapet] at @s run function bm:p62/emgem',
+                  f'execute as @e[type=minecraft:item_display,tag=bm.eshr] at @s run function bm:p62/blight',
+                  f'execute as @a[gamemode=!spectator] if items entity @s container.* {gem} at @s run function bm:p62/blight_near',
+                  f'execute as @a[gamemode=!spectator] unless items entity @s container.* {gem} if items entity @s weapon.offhand {gem} at @s run function bm:p62/blight_near']
+    # Emma is empowered while an Ethereal Gem is set within 30 blocks of her, or her summoner carries one
+    fn('p62/emgem', ['tag @s remove bm.emgem', f'execute if entity {shrine} run tag @s add bm.emgem', 'tag @s add bm.emq',
+                     f'execute on owner if items entity @s container.* {gem} run tag @e[type=minecraft:cat,tag=bm.emq] add bm.emgem',
+                     f'execute on owner if items entity @s weapon.offhand {gem} run tag @e[type=minecraft:cat,tag=bm.emq] add bm.emgem',
+                     'tag @s remove bm.emq', 'execute if entity @s[tag=bm.emgem] run particle minecraft:end_rod ~ ~1.3 ~ 0.3 0.5 0.3 0.01 2'])
+    # Blood Moon and invasion foes near the gem: much slower, much weaker, and slowly burned away
+    def blight(r):
+        return [f'execute as @e[tag={t},distance=..{r}] at @s run function bm:p62/wither' for t in ('bm.blood', 'bm.vorn', 'bm.bio')]
+    fn('p62/blight', blight(30))
+    fn('p62/blight_near', blight(16))
+    fn('p62/wither', ['effect give @s minecraft:slowness 2 2 true', 'effect give @s minecraft:weakness 2 2 true',
+                      'execute unless entity @s[tag=bm.blg] run damage @s 1 minecraft:magic', 'tag @s[tag=bm.blg] add bm.blg2', 'tag @s add bm.blg',
+                      'tag @s[tag=bm.blg2] remove bm.blg', 'tag @s remove bm.blg2',
+                      'particle minecraft:end_rod ~ ~1 ~ 0.2 0.4 0.2 0.01 1', 'particle minecraft:dust{color:[0.9,0.8,1.0],scale:0.8} ~ ~1 ~ 0.3 0.5 0.3 0 3'])
     fn('admin/shifting_arms', [give(FIRST[f]) for f in ARMS])
     G.FUNCS['tick'] += tick

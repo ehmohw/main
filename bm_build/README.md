@@ -21,6 +21,18 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.50: the Ethereal Gem's wider power
+
+- **Emma:** while an Ethereal Gem is set down within 30 blocks of her, or her summoner carries one:
+  - she charges 2.5× as fast
+  - her Ethereal Form lasts 50 seconds instead of 30
+  - her strikes deal 13 instead of 8
+- **Blood Moon and invasion foes** within 30 blocks of a placed gem, or 16 blocks of a carried one:
+  - greatly slowed (Slowness III)
+  - greatly weakened (Weakness III)
+  - slowly burned away by its light
+  Ordinary monsters aren't affected.
+
 ## New in 2.49: smoother companions, Shifting Arms, Tendril modes
 
 - **Fading:** Emma and Cecil no longer shrink away. They flare bright and vanish in a burst of magic, and when called they appear whole in a burst.

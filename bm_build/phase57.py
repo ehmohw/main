@@ -291,6 +291,7 @@ def generate(G):
                    # charge while monsters are about
                    f'execute if score @s bm.eme matches 0 if entity @e[{foe},distance=..16] run scoreboard players add @s bm.emc 2',
                    f'execute if score @s bm.eme matches 0 if entity @s[tag=bm.harmony] if entity @e[{foe},distance=..16] run scoreboard players add @s bm.emc 2',
+                   f'execute if score @s bm.eme matches 0 if entity @s[tag=bm.emgem] if entity @e[{foe},distance=..16] run scoreboard players add @s bm.emc 3',
                    'execute if score @s bm.emc matches 101.. run scoreboard players set @s bm.emc 100',
                    'execute if score @s bm.emc matches 50..99 run particle minecraft:end_rod ~ ~1.4 ~ 0.3 0.5 0.3 0.01 1',
                    'execute if score @s bm.emc matches 100 run particle minecraft:end_rod ~ ~1.4 ~ 0.4 0.6 0.4 0.02 3',
@@ -332,7 +333,7 @@ def generate(G):
     def swap(form):
         return [f'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_{p}] run data modify entity @s item.components."minecraft:item_model" set value "bm:{form}_{p}"'
                 for p in ('body', 'head', 'armr', 'arml', 'legr', 'legl')]
-    fn('p57/ascend', ['scoreboard players set @s bm.eme 30', 'scoreboard players set @s bm.emc 0',
+    fn('p57/ascend', ['scoreboard players set @s bm.eme 30', 'execute if entity @s[tag=bm.emgem] run scoreboard players set @s bm.eme 50', 'scoreboard players set @s bm.emc 0',
                       'execute as @e[type=minecraft:item_display,tag=bm.emp,tag=!bm.emfade] if score @s bm.pid = #me bm.pid run tag @s add bm.emsel'] + swap('ee') +
        ['execute as @e[type=minecraft:item_display,tag=bm.emsel] run data merge entity @s {brightness:{block:15,sky:15},interpolation_duration:10}',
         *[f'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_{w}] run data merge entity @s {{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[{S}f,{S}f,{S}f]}}}}'
@@ -363,7 +364,8 @@ def generate(G):
                       'tag @s remove bm.emme', 'playsound minecraft:entity.player.attack.sweep neutral @a[distance=..20] ~ ~ ~ 1 1.3',
                       'playsound minecraft:block.amethyst_block.chime neutral @a[distance=..20] ~ ~ ~ 1 0.7'])
     fn('p57/strike_at', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.emaim"]}', 'tag @s add bm.emtgt',
-                         'damage @s 8 minecraft:magic by @e[type=minecraft:cat,tag=bm.emme,limit=1]',
+                         'execute unless entity @e[type=minecraft:cat,tag=bm.emme,tag=bm.emgem] run damage @s 8 minecraft:magic by @e[type=minecraft:cat,tag=bm.emme,limit=1]',
+                         'execute if entity @e[type=minecraft:cat,tag=bm.emme,tag=bm.emgem] run damage @s 13 minecraft:magic by @e[type=minecraft:cat,tag=bm.emme,limit=1]',
                          f'execute as @e[{foe},distance=..3,tag=!bm.emtgt] run damage @s 4 minecraft:magic by @e[type=minecraft:cat,tag=bm.emme,limit=1]',
                          'tag @s remove bm.emtgt',
                          'particle minecraft:sweep_attack ~ ~1 ~ 0.6 0.3 0.6 0 3', 'particle minecraft:dust{color:[0.7,0.9,1.0],scale:1.6} ~ ~1 ~ 1.2 0.4 1.2 0 24',
