@@ -21,6 +21,13 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.51: Donado and the Frog move smoothly
+
+**Donado** and **the Frog with Mustache** have jointed rigs now, like Emma. Each limb, the head and Donado's tail is its own part, riding the companion and turning smoothly about its joint instead of swapping between baked poses.
+- **Donado:** at rest he breathes, looks about, blinks and wags his tail. He walks and runs with swinging arms and legs, leaning into a run, jumps with his arms flung forward, and sits back with his legs out. His weapon stays in his paw.
+- **The Frog:** at rest he breathes, looks about and blinks. He moves in proper hops: a crouch, a push-off with his legs kicking back, a sail through the air and a landing.
+- **Helmets** sit on their heads. Companions you already have are re-rigged automatically.
+
 ## New in 2.50: the Ethereal Gem's wider power
 
 - **Emma:** while an Ethereal Gem is set down within 30 blocks of her, or her summoner carries one:
