@@ -75,14 +75,18 @@ def generate(G):
         return out
     fn('p57/place', place_lines())
     fn('p57/place_fly', place_lines(1.0))
-    # grow in (wings stay folded away until she ascends)
+    # (2.49) she appears whole in a burst of petals (wings stay folded away until she ascends)
     fn('p57/grow', [f'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=!bm.ep_wingr,tag=!bm.ep_wingl,tag=!bm.ep_wingro,tag=!bm.ep_winglo] run data merge entity @s '
-                    f'{{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[{S}f,{S}f,{S}f]}}}}'])
+                    f'{{start_interpolation:-1,interpolation_duration:0,transformation:{{scale:[{S}f,{S}f,{S}f]}}}}',
+                    'execute at @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_body,limit=1] run function bm:p57/burst'])
+    fn('p57/burst', ['particle minecraft:cherry_leaves ~ ~0.8 ~ 0.4 0.7 0.4 0.02 40', 'particle minecraft:end_rod ~ ~0.8 ~ 0.1 0.3 0.1 0.12 25',
+                     'particle minecraft:dust{color:[1.0,0.55,0.85],scale:1.4} ~ ~0.8 ~ 0.4 0.7 0.4 0 20'])
 
     # ---- poses (left_rotation + a shared lift) - see phase57_art.POSES
     DUR = {'idle_a': 20, 'idle_b': 20, 'idle_hop': 4, 'walk_a': 4, 'walk_up': 4, 'walk_b': 4, 'run_a': 3, 'run_up': 3, 'run_b': 3, 'jump': 3,
            'sit_a': 15, 'sit_b': 15, 'cast': 4, 'wave_a': 6, 'wave_b': 6, 'strike_up': 3, 'strike_dn': 3}
     DUR.update({f'fly_{i}': 3 for i in range(ART.FLY_FRAMES)})
+    DUR.update({f'hover_{i}': 3 for i in range(ART.HOVER_FRAMES)})
     DUR.update({f'loco_{b}_{f}': ART.LOCO_STEP[b][1] for b in ART.LOCO_STEP for f in range(4)})
     def xf_nbt(pose, p):
         rot, tr = ART.part_xf(pose, p)
@@ -97,7 +101,8 @@ def generate(G):
     CYCLE = {0: (240, [(0, 'idle_a'), (40, 'idle_b'), (80, 'idle_a'), (120, 'idle_hop'), (124, 'idle_b'), (160, 'idle_a'), (200, 'idle_b')]),
              3: (None, [(0, 'jump')]), 4: (60, [(0, 'sit_a'), (30, 'sit_b')]),
              5: (3 * ART.FLY_FRAMES, [(3 * i, f'fly_{i}') for i in range(ART.FLY_FRAMES)]),
-             6: (None, [(0, 'cast')]), 7: (None, [(0, 'strike_up'), (3, 'strike_dn')]), 8: (12, [(0, 'wave_a'), (6, 'wave_b')])}
+             6: (None, [(0, 'cast')]), 7: (None, [(0, 'strike_up'), (3, 'strike_dn')]), 8: (12, [(0, 'wave_a'), (6, 'wave_b')]),
+             9: (3 * ART.HOVER_FRAMES, [(3 * i, f'hover_{i}') for i in range(ART.HOVER_FRAMES)])}
     anim = []
     for st, (period, frames) in CYCLE.items():
         lines = []
@@ -120,7 +125,7 @@ def generate(G):
     fn('p57/anim', anim)
     # (as the host) what she's doing now -> #st
     fn('p57/state', ['execute if score @s bm.eme matches 1.. if score @s bm.emk matches 1.. run return run scoreboard players set #st bm.rng 7',
-                     'execute if score @s bm.eme matches 1.. run return run scoreboard players set #st bm.rng 5',
+                     'execute if score @s bm.eme matches 1.. run return run function bm:p57/state_eth',
                      'execute if score @s bm.emw matches 1.. run return run scoreboard players set #st bm.rng 8',
                      'execute if data entity @s {Sitting:1b} run return run scoreboard players set #st bm.rng 4',
                      'execute store result score #og bm.rng run data get entity @s OnGround',
@@ -134,6 +139,11 @@ def generate(G):
                      'execute if score #vx bm.rng matches 500.. run return run scoreboard players set #st bm.rng 1',
                      'execute if score @s bm.emk matches 1.. run return run scoreboard players set #st bm.rng 6',
                      'scoreboard players set #st bm.rng 0'])
+    fn('p57/state_eth', ['scoreboard players set #st bm.rng 9',
+                         'execute store result score #vx bm.rng run data get entity @s Motion[0] 1000', 'execute store result score #vz bm.rng run data get entity @s Motion[2] 1000',
+                         'scoreboard players operation #vx bm.rng *= #vx bm.rng', 'scoreboard players operation #vz bm.rng *= #vz bm.rng',
+                         'scoreboard players operation #vx bm.rng += #vz bm.rng',
+                         'execute if score #vx bm.rng matches 900.. run scoreboard players set #st bm.rng 5'])
     # every tick, for each Emma: find her parts, pick the state, play its frames, stand the parts at the joints
     tick.append('execute as @e[type=minecraft:cat,tag=bm.emmapet] at @s run function bm:p57/tick')
     fn('p57/tick', ['scoreboard players operation #me bm.pid = @s bm.pid',
@@ -160,6 +170,8 @@ def generate(G):
                     'execute if score @s bm.ems matches 6 unless entity @a[tag=bm.emown,distance=1.5..10] rotated as @s rotated ~ 0 run function bm:p57/place',
                     'execute if score @s bm.ems matches 1..3 rotated as @s rotated ~ 0 run function bm:p57/place',
                     'execute if score @s bm.ems matches 5 rotated as @s rotated ~ 0 run function bm:p57/place_fly',
+                    'execute if score @s bm.ems matches 9 if entity @a[tag=bm.emown,distance=1.5..12] facing entity @a[tag=bm.emown,limit=1] feet rotated ~ 0 run function bm:p57/place_fly',
+                    'execute if score @s bm.ems matches 9 unless entity @a[tag=bm.emown,distance=1.5..12] rotated as @s rotated ~ 0 run function bm:p57/place_fly',
                     'execute if score @s bm.ems matches 7 if entity @e[type=minecraft:marker,tag=bm.emaim,distance=..20] facing entity @e[type=minecraft:marker,tag=bm.emaim,distance=..20,sort=nearest,limit=1] feet rotated ~ 0 run function bm:p57/place_fly',
                     'execute if score @s bm.ems matches 7 unless entity @e[type=minecraft:marker,tag=bm.emaim,distance=..20] rotated as @s rotated ~ 0 run function bm:p57/place_fly',
                     'execute if score @s bm.eme matches 1.. run particle minecraft:end_rod ~ ~2.2 ~ 0.4 0.4 0.4 0.01 1',
@@ -258,10 +270,13 @@ def generate(G):
                         tellraw('@s', PREFIX + [T('Emma has fallen. ', PINK, bold=True),
                                                 T(f'She fades into petals; the ribbon needs {PET_CD // 60} minutes before she can come back.', 'gray')])])
     fn('p57/fade', ['kill @e[type=minecraft:marker,tag=bm.emaim,distance=..24]', 'execute as @e[type=minecraft:item_display,tag=bm.emp,tag=!bm.emfade] if score @s bm.pid = #me bm.pid run function bm:p57/fade1',
-                    'particle minecraft:cherry_leaves ~ ~1 ~ 0.5 1 0.5 0 50', 'particle minecraft:end_rod ~ ~1 ~ 0.4 0.8 0.4 0.05 20',
-                    'playsound minecraft:block.amethyst_block.break neutral @a[distance=..20] ~ ~ ~ 1 1.4'])
-    fn('p57/fade1', ['tag @s add bm.emfade', 'scoreboard players set @s bm.emt 20',
-                     'data merge entity @s {start_interpolation:0,interpolation_duration:20,transformation:{scale:[0f,0f,0f]}}'])
+                    'particle minecraft:cherry_leaves ~ ~1 ~ 0.5 1 0.5 0.02 70', 'particle minecraft:end_rod ~ ~1 ~ 0.1 0.3 0.1 0.18 45',
+                    'particle minecraft:flash{color:[1.0,0.8,0.95,1.0]} ~ ~1 ~ 0 0 0 0 1', 'particle minecraft:dust{color:[1.0,0.55,0.85],scale:1.6} ~ ~1 ~ 0.5 0.9 0.5 0 30',
+                    'particle minecraft:totem_of_undying ~ ~1 ~ 0.2 0.4 0.2 0.4 25',
+                    'playsound minecraft:block.amethyst_block.break neutral @a[distance=..20] ~ ~ ~ 1 1.4', 'playsound minecraft:entity.illusioner.mirror_move neutral @a[distance=..20] ~ ~ ~ 0.8 1.6'])
+    # (2.49: no more shrinking - she flares bright for a moment and is gone in a burst of petals and light)
+    fn('p57/fade1', ['tag @s add bm.emfade', 'scoreboard players set @s bm.emt 3',
+                     'data merge entity @s[type=minecraft:item_display] {brightness:{block:15,sky:15},Glowing:1b,glow_color_override:16767221}'])
     second.append('scoreboard players remove @a[scores={bm.emcd=1..}] bm.emcd 1')
 
     # ================================================================== every second: harmony, charge, buffs, the ethereal form

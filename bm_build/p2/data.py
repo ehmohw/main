@@ -53,10 +53,12 @@ WAVES = {
         [('husk', _eq('golden_sword', 'golden_helmet')), ('zombie', _eq('golden_axe', 'golden_helmet'))],
         [('husk', _eq('golden_sword', 'golden_helmet', 'golden_chestplate')), ('piglin', _eq('golden_sword', extra=_IMMUNE))],
         [('piglin_brute', _eq('golden_axe', extra=_IMMUNE)), ('husk', _eq('golden_sword', 'golden_helmet')), ('piglin', _eq('crossbow', extra=_IMMUNE))]])},
-    'hollow': {1: ('The Siege of the Gate', [[_KNIGHT, _ARCHER, _BRUTE], [_KNIGHT, _BRUTE, _ARCHER, _HOG], [_CAPTAIN, _BRUTE, _HOG, _ARCHER],
-                                             [_CAPTAIN, _RAVAGER, _BRUTE, _KNIGHT2]]),
-               5: ("The Knights' Vigil", [[_KNIGHT2, _BRUTE, _HOG], [_BRUTE, _HOG, _ARCHER, _KNIGHT2], [_CAPTAIN, _BRUTE, _HOG, _KNIGHT2],
-                                          [_CAPTAIN, _RAVAGER, _BRUTE, _HOG]])},
+    # 2.49: piglin brutes and wither skeletons are natural enemies (and the Wither hunts anything living) - so the undead
+    # (knights, captains, archers) and the beasts (brutes, tuskers, the ravager) now come in alternate waves, never together
+    'hollow': {1: ('The Siege of the Gate', [[_KNIGHT, _ARCHER, _KNIGHT], [_BRUTE, _HOG], [_CAPTAIN, _KNIGHT2, _ARCHER],
+                                             [_RAVAGER, _BRUTE, _HOG]]),
+               5: ("The Knights' Vigil", [[_KNIGHT2, _ARCHER], [_BRUTE, _HOG], [_CAPTAIN, _KNIGHT2, _ARCHER],
+                                          [_RAVAGER, _BRUTE, _HOG]])},
 }
 
 # vanilla tables to mix into each dungeon's loot, and the themed hidden gear found in its secret rooms

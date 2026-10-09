@@ -92,8 +92,9 @@ def generate(G):
         'playsound minecraft:entity.evoker.prepare_summon neutral @a[distance=..20] ~ ~ ~ 1 1.2', 'playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..20] ~ ~ ~ 1 0.8',
         say('"Hehehe... who are we hexing today?"', '#b48cff')])
     fn('p46/pet/rig', rig + ['tp @e[type=minecraft:item_display,tag=bm.cpnew,distance=..1] ~ ~ ~ ~ 0',
-                             # grow in from nothing
-                             'execute as @e[type=minecraft:item_display,tag=bm.cpnew,distance=..1] run data merge entity @s {start_interpolation:0,interpolation_duration:15,transformation:{scale:[1f,1f,1f]}}'])
+                             # (2.49) appear whole, in a burst of magic (the summon's particles) - no growing out of nothing
+                             'execute as @e[type=minecraft:item_display,tag=bm.cpnew,distance=..1] run data merge entity @s {start_interpolation:-1,interpolation_duration:0,transformation:{scale:[1f,1f,1f]}}',
+                             'particle minecraft:flash{color:[0.75,0.55,1.0,1.0]} ~ ~1 ~ 0 0 0 0 1', 'particle minecraft:end_rod ~ ~1 ~ 0.1 0.3 0.1 0.12 20'])
     # every tick: the rig stands where the wolf is, turned its way (the head and eyes look at its target or its owner)
     tick.append('execute as @e[type=minecraft:wolf,tag=bm.cecilpet] at @s run function bm:p46/pet/tick')
     fn('p46/pet/tick', ['scoreboard players operation #me bm.pid = @s bm.pid',
@@ -103,6 +104,41 @@ def generate(G):
                          'execute positioned ^-0.31 ^1.28 ^0.06 run tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_arm] ~ ~ ~ ~ 0',
                          'execute positioned ^ ^1.38 ^0.12 run tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_head] ~ ~ ~ ~ 0',
                          'execute positioned ^ ^1.38 ^0.12 run tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_eyes] ~ ~ ~ ~ 0'])
+    # (2.49) he moves: a robed waddle when walking (sway, bob, lean, the staff planted like a walking stick), a slow breath at rest
+    import math as _m
+    from phase57_art import qa as _qa, qmul as _qm
+    def _rot(q, v):
+        x, y, z, w = q; cx = y * v[2] - z * v[1] + w * v[0]; cy = z * v[0] - x * v[2] + w * v[1]; cz = x * v[1] - y * v[0] + w * v[2]
+        return (v[0] + 2 * (y * cz - z * cy), v[1] + 2 * (z * cx - x * cz), v[2] + 2 * (x * cy - y * cx))
+    OFF = {'cp_body': ((0, 0, 0), (0, 0.5, 0)), 'cp_head': ((0, 1.38, 0.12), (0, 0, 0)), 'cp_eyes': ((0, 1.38, 0.12), (0, 0, 0)), 'cp_arm': ((-0.31, 1.28, 0.06), (0, 0, 0))}
+    def cpose(name, lean, tilt, bob, head_lean, head_tilt, arm_fwd, dur):
+        R = _qm(_qa('x', lean), _qa('z', tilt))
+        lines = []
+        for tag, (o, t) in OFF.items():
+            L = R
+            if tag in ('cp_head', 'cp_eyes'): L = _qm(R, _qm(_qa('x', head_lean), _qa('z', head_tilt)))
+            if tag == 'cp_arm': L = _qm(R, _qa('x', 6 - arm_fwd))
+            p = tuple(o[i] + t[i] for i in range(3)); rp = _rot(R, p)
+            tr = (rp[0] - o[0], rp[1] - o[1] + bob, rp[2] - o[2])
+            sel = f'@e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.{tag}]'
+            cond = 'if score #cpa bm.rng matches 1.. ' if tag == 'cp_arm' else ''
+            lines.append(f'execute {cond}as {sel} run data merge entity @s {{start_interpolation:0,interpolation_duration:{dur},transformation:'
+                         f'{{left_rotation:[{L[0]:.4f}f,{L[1]:.4f}f,{L[2]:.4f}f,{L[3]:.4f}f],translation:[{tr[0]:.4f}f,{tr[1]:.4f}f,{tr[2]:.4f}f]}}}}')
+        fn(f'p46/pet/pose_{name}', lines)
+    cpose('w0', 7, 5, 0.0, -4, -3, 12, 4); cpose('w1', 8, 0, 0.06, -6, 0, 0, 4)
+    cpose('w2', 7, -5, 0.0, -4, 3, -10, 4); cpose('w3', 8, 0, 0.06, -6, 0, 0, 4)
+    cpose('i0', 1.5, 0.8, 0.0, 3, -2, 0, 20); cpose('i1', -0.5, -0.8, 0.02, -2, 3, 2, 20)
+    G.FUNCS['p46/pet/tick'].insert(-1, 'function bm:p46/pet/anim')
+    fn('p46/pet/anim', ['scoreboard players operation #cpa bm.rng = @s bm.cpa', 'scoreboard players add @s bm.cpf 1',
+                        'execute store result score #vx bm.rng run data get entity @s Motion[0] 1000', 'execute store result score #vz bm.rng run data get entity @s Motion[2] 1000',
+                        'scoreboard players operation #vx bm.rng *= #vx bm.rng', 'scoreboard players operation #vz bm.rng *= #vz bm.rng',
+                        'scoreboard players operation #vx bm.rng += #vz bm.rng',
+                        'execute if score #vx bm.rng matches 400.. run return run function bm:p46/pet/walk',
+                        'scoreboard players operation #f bm.rng = @s bm.cpf', 'scoreboard players operation #f bm.rng %= #40 bm.rng',
+                        'execute if score #f bm.rng matches 0 run function bm:p46/pet/pose_i0', 'execute if score #f bm.rng matches 20 run function bm:p46/pet/pose_i1'])
+    fn('p46/pet/walk', ['scoreboard players operation #f bm.rng = @s bm.cpf', 'scoreboard players operation #f bm.rng %= #16 bm.rng'] +
+       [f'execute if score #f bm.rng matches {4 * i} run function bm:p46/pet/pose_w{i}' for i in range(4)])
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.cpf dummy', 'scoreboard players set #16 bm.rng 16', 'scoreboard players set #40 bm.rng 40']
     # a rig whose wolf is gone (4 ticks running - never a chunk-edge blip): he fell. Fade, and the gem cools down.
     tick += ['execute as @e[type=minecraft:item_display,tag=bm.cp_body,tag=!bm.cpfade] at @s run function bm:p46/pet/check',
              'scoreboard players remove @e[type=minecraft:item_display,tag=bm.cpfade] bm.cpt 1',
@@ -115,10 +151,13 @@ def generate(G):
                             tellraw('@s', PREFIX + [T('Cecil has fallen. ', '#b48cff', bold=True), T(f'He fades with a sulky hiss; the gem needs {PET_CD // 60} minutes before it can call him back.', 'gray')])])
     # (as anything at his spot, #me = his owner's id) every part of him shrinks away over a second, in a puff of magic
     fn('p46/pet/fade', ['execute as @e[type=minecraft:item_display,tag=bm.cpet,tag=!bm.cpfade] if score @s bm.pid = #me bm.pid run function bm:p46/pet/fade1',
-                        'particle minecraft:witch ~ ~1 ~ 0.4 0.8 0.4 0.05 40', 'particle minecraft:portal ~ ~1 ~ 0.4 0.8 0.4 0.8 60', 'particle minecraft:soul ~ ~1.2 ~ 0.3 0.6 0.3 0.02 12',
-                        'playsound minecraft:entity.illusioner.mirror_move neutral @a[distance=..20] ~ ~ ~ 1 0.8'])
-    fn('p46/pet/fade1', ['tag @s add bm.cpfade', 'scoreboard players set @s bm.cpt 20',
-                         'data merge entity @s {start_interpolation:0,interpolation_duration:20,transformation:{scale:[0f,0f,0f]}}'])
+                        'particle minecraft:witch ~ ~1 ~ 0.4 0.8 0.4 0.05 50', 'particle minecraft:portal ~ ~1 ~ 0.4 0.8 0.4 1.2 90', 'particle minecraft:soul ~ ~1.2 ~ 0.3 0.6 0.3 0.04 16',
+                        'particle minecraft:flash{color:[0.75,0.55,1.0,1.0]} ~ ~1 ~ 0 0 0 0 1', 'particle minecraft:end_rod ~ ~1 ~ 0.1 0.3 0.1 0.16 30',
+                        'particle minecraft:dust{color:[0.7,0.4,1.0],scale:1.6} ~ ~1 ~ 0.5 0.9 0.5 0 30',
+                        'playsound minecraft:entity.illusioner.mirror_move neutral @a[distance=..20] ~ ~ ~ 1 0.8', 'playsound minecraft:entity.evoker.cast_spell neutral @a[distance=..20] ~ ~ ~ 0.7 1.4'])
+    # (2.49: no more shrinking - he flares violet and vanishes in a burst of magic)
+    fn('p46/pet/fade1', ['tag @s add bm.cpfade', 'scoreboard players set @s bm.cpt 3',
+                         'data merge entity @s[type=minecraft:item_display] {brightness:{block:15,sky:15},Glowing:1b,glow_color_override:11833599}'])
     fn('p46/pet/dismiss', ['execute as @e[type=minecraft:wolf,tag=bm.cpsel] at @s run function bm:p46/pet/fade',
                            'execute as @e[type=minecraft:wolf,tag=bm.cpsel] run data remove entity @s Owner',
                            'execute as @e[type=minecraft:wolf,tag=bm.cpsel] run tp @s ~ -500 ~', 'kill @e[type=minecraft:wolf,tag=bm.cpsel]',

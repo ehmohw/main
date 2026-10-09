@@ -310,19 +310,18 @@ def models():
         els = [_el((cx - 0.95, 14.8, -0.95), (cx + 0.95, 22.4, 0.95), 'ee_navy', pv), _el((cx - 1.05, 12.6, -1.05), (cx + 1.05, 14.9, 1.05), 'ee_glove', pv),
                _el((cx - 1.5, 20.6, -1.5), (cx + 1.5, 23.0, 1.5), 'ee_steel', pv), _el((cx - 1.2, 22.6, -1.2), (cx + 1.2, 23.6, 1.2), 'ee_magenta', pv),
                _el((cx - 1.6, 20.2, -1.6), (cx + 1.6, 20.7, 1.6), 'ee_steel_lt', pv)]
-        if sx > 0:      # her right hand carries the crescent axe (shaft through the fist, blade out to her right)
-            els += [_el((cx - 0.4, 3.0, -0.4), (cx + 0.4, 31.0, 0.4), 'ee_shaft', pv),
-                    _el((cx - 0.6, 3.6, -0.6), (cx + 0.6, 5.0, 0.6), 'ee_steel', pv), _el((cx - 0.25, 1.4, -0.25), (cx + 0.25, 3.6, 0.25), 'ee_steel_lt', pv),
-                    _el((cx - 0.55, 18.0, -0.55), (cx + 0.55, 19.4, 0.55), 'ee_steel_dk', pv),
-                    _el((cx - 0.3, 30.8, -0.3), (cx + 0.3, 34.0, 0.3), 'ee_steel_lt', pv, ('z', 0, (cx, 31, 0))),
-                    # the crescent: a broad back, two horns sweeping out and round
-                    _el((cx + 0.4, 23.6, -0.3), (cx + 3.4, 31.4, 0.3), 'ee_blade', pv),
-                    _el((cx + 3.0, 20.0, -0.28), (cx + 5.6, 24.6, 0.28), 'ee_blade', pv, ('z', 32, (cx + 3.0, 24.6, 0))),
-                    _el((cx + 3.0, 30.4, -0.28), (cx + 5.6, 35.0, 0.28), 'ee_blade', pv, ('z', -32, (cx + 3.0, 30.4, 0))),
-                    _el((cx + 3.2, 23.0, -0.26), (cx + 5.4, 32.0, 0.26), 'ee_blade', pv),
-                    _el((cx + 5.2, 24.6, -0.2), (cx + 6.4, 30.4, 0.2), 'ee_steel_lt', pv),
-                    _el((cx - 1.6, 26.0, -0.7), (cx + 1.6, 29.2, 0.7), 'em2_pink', pv, ('z', 45, (cx, 27.6, 0))),
-                    _el((cx - 0.7, 27.0, -0.9), (cx + 0.7, 28.2, 0.9), 'ee_magenta', pv)]
+        if sx > 0:      # (2.49) her right fist grips the crescent axe: the shaft runs through the fist and forward, the crescent hangs
+            g = 13.7     # beneath its head (so it leads a downward chop); nothing passes through her arm
+            sh = lambda y0, y1, z0, z1, t, w=0.4: _el((cx - w, y0, -z1), (cx + w, y1, -z0), t, pv)   # (z mirrored: it points to her front)
+            els += [sh(g - 0.4, g + 0.4, -20.0, 4.0, 'ee_shaft'),
+                    sh(g - 0.6, g + 0.6, 4.0, 5.2, 'ee_steel', 0.6), sh(g - 0.25, g + 0.25, 5.2, 7.0, 'ee_steel_lt', 0.25),        # butt cap + spike
+                    sh(g - 0.55, g + 0.55, -12.6, -11.4, 'ee_steel_dk', 0.55),                                                  # collar
+                    sh(g - 0.8, g + 0.8, -9.2, -7.9, 'em2_pink', 0.7), sh(g - 0.9, g + 0.9, -8.9, -8.2, 'ee_magenta', 0.9),     # ribbon wrap
+                    sh(g - 0.3, g + 0.3, -23.2, -20.0, 'ee_steel_lt', 0.3),                                                    # spear tip
+                    # the crescent: widening downward from the shaft, a bright edge, horns curling at each end
+                    sh(g - 2.4, g - 0.4, -19.6, -14.8, 'ee_blade', 0.3), sh(g - 4.4, g - 2.4, -20.6, -13.8, 'ee_blade', 0.3),
+                    sh(g - 6.4, g - 4.4, -21.4, -13.0, 'ee_blade', 0.3), sh(g - 7.5, g - 6.4, -21.8, -12.6, 'ee_steel_lt', 0.22),
+                    sh(g - 7.5, g - 5.0, -22.8, -21.6, 'ee_steel_lt', 0.2), sh(g - 7.5, g - 5.0, -12.8, -11.6, 'ee_steel_lt', 0.2)]
         else:           # her open left hand: a thumb out
             els += [_el((cx + 0.6, 13.4, -0.6), (cx + 1.5, 14.6, 0.2), 'ee_glove', pv)]
         return els
@@ -458,7 +457,7 @@ POSES = {
     'wave_b': P(body=torso(tilt=-3), head=torso(tilt=8), armr=limb(1, 24, -22), arml=limb(-1, 10, 118)),
     # ethereal: hovering, legs trailing, axe at the ready, wings beating
     'strike_up': P(0.12, body=torso(lean=-6, turn=-15), head=torso(lean=-6), legr=limb(1, -10), legl=limb(-1, -30), armr=limb(1, 165, 15), arml=limb(-1, 20, 60), **WINGS_UP),
-    'strike_dn': P(0.0, body=torso(lean=16, turn=15), head=torso(lean=6), legr=limb(1, -30), legl=limb(-1, -10), armr=limb(1, 50, -8), arml=limb(-1, -10, 50), **WINGS_DN),
+    'strike_dn': P(0.0, body=torso(lean=16, turn=15), head=torso(lean=6), legr=limb(1, -30), legl=limb(-1, -10), armr=limb(1, -18, -8), arml=limb(-1, -10, 50), **WINGS_DN),
 }
 
 
@@ -470,6 +469,20 @@ for _i in range(FLY_FRAMES):
     POSES[f'fly_{_i}'] = P(0.02 + 0.08 * math.sin(_p + 0.6), body=torso(lean=6, tilt=1.5 * math.sin(_p)), head=torso(lean=-4),
                           legr=limb(1, -14 - 5 * math.sin(_p + 1)), legl=limb(-1, -24 + 5 * math.sin(_p + 1)),
                           armr=limb(1, 30, 12), arml=limb(-1, 24, 48 + 4 * math.sin(_p)), **wings(_inner, _outer, _lift))
+
+
+# ---- (2.49) ethereal HOVER - when she isn't travelling: a slow breath of a loop (16 frames, 2.4 s). She bobs and sways,
+# looks about, the axe hand drifts, her legs dangle with soft alternating kicks, and the wings beat twice per loop.
+HOVER_FRAMES = 16
+for _i in range(HOVER_FRAMES):
+    _p = 2 * math.pi * _i / HOVER_FRAMES; _q = 2 * _p
+    POSES[f'hover_{_i}'] = P(0.07 * math.sin(_p),
+                             body=torso(lean=3 + 2.5 * math.sin(_p + 1.0), tilt=3 * math.sin(_p), turn=4 * math.sin(_p + 0.4)),
+                             head=torso(lean=-4 + 4 * math.sin(_p + 2.0), tilt=-4 * math.sin(_p + 0.6), turn=14 * math.sin(_p + 0.9)),
+                             armr=limb(1, 22 + 7 * math.sin(_p + 0.5), 10 + 4 * math.sin(_p)),
+                             arml=limb(-1, 12 + 10 * math.sin(_p + 2.2), 24 + 8 * math.sin(_p + 1.0)),
+                             legr=limb(1, -6 + 10 * math.sin(_p + 1.2)), legl=limb(-1, -12 + 10 * math.sin(_p + 1.2 + math.pi)),
+                             **wings(6 + 18 * math.sin(_q), 3 + 26 * math.sin(_q - 1.1), -5 * math.cos(_q)))
 
 
 # ---- walking <-> running: one cycle, blended by how fast she moves (bucket 1 = a slow amble ... 8 = a full run)

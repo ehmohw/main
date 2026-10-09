@@ -42,6 +42,7 @@ import phase49 as R49
 import phase50 as R50
 import phase51 as R51
 import phase52 as R52
+import phase62 as R62        # 2.49: followers vanish with their summoner; the Shifting Blade, Pick and Bow
 import phase61 as R61        # 2.48: the Hollow Gate - a portal to the Hollow Throne (five Conquest Emblems)
 import phase60 as R60        # 2.45: Pearlman the Traveling Salespenguin, the nine elemental gems, the Ethereal Gem
 import phase59 as R59        # 2.40: KillerWatt's Tendrils, Apophiss's Crown, Leo's Trident, Cecil's Staff (Cecil sells them)
@@ -281,6 +282,7 @@ def all_offers():
     R51.extend_offers(O, offer)
     R59.extend_offers(O, offer)
     if PHASE2: R61.extend_offers(O, offer)
+    R62.extend_offers(O, offer)
     return O
 
 
@@ -790,7 +792,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.48' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.49' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -997,6 +999,7 @@ def build(out_dir):
     R59.generate(sys.modules[__name__])
     R60.generate(sys.modules[__name__])
     R61.generate(sys.modules[__name__])
+    R62.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command

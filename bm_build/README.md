@@ -21,6 +21,24 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.49: smoother companions, Shifting Arms, Tendril modes
+
+- **Fading:** Emma and Cecil no longer shrink away. They flare bright and vanish in a burst of magic, and when called they appear whole in a burst.
+- **When you die:** Emma and Cecil vanish too, since their ribbon and gem drop with your things. There's no cooldown; pick the item up and call them again.
+- **Emma's Ethereal Form:**
+  - When she isn't travelling, she hovers with a 2.4-second idle loop: she bobs, sways, looks about, her legs dangle and her wings beat.
+  - Her crescent axe is now gripped properly in her fist and points forward. It rests low while she hovers, winds up behind her head and chops down in front.
+- **Cecil** waddles when he walks: his robe sways and bobs, he leans in, his head bobs and his staff plants like a walking stick. At rest he breathes slowly.
+- **KillerWatt's Tendrils:**
+  - Double-tap sneak to switch between two modes. **Ranged** lashes the nearest monster ahead of you, up to about 20 blocks, with no aiming needed. **Offense** gives your melee hits the tendril stab, and every 3 seconds the tendrils drag a monster 4–12 blocks ahead in to you.
+  - The tendrils are now placed where you'll be next tick, so they keep up when you move fast.
+- **Shifting Arms**, sold by Vinny "Two-Blades" for 16 Trophies + 32 Blood Crystals each. Press F for the next form, or sneak + F for the one before. Every form carries its best vanilla enchantments and never breaks.
+  - **Shifting Blade:** sword, axe, mace, spear, trident.
+  - **Shifting Pick:** pickaxe, axe, shovel, hoe, shears, fishing rod, brush, flint and steel.
+  - **Shifting Bow:** bow, crossbow, trident.
+- **The Hollow Throne:** wither skeletons and piglin brutes fight each other, so they never share a wave now. Undead waves alternate with beast waves, and the Hollow King's summoned court is all undead.
+- **Pearlman's trade menu** no longer closes by itself. Turning to face you used to teleport him, and any teleport ends a trade; now only his model turns.
+
 ## New in 2.48: the Hollow Gate
 
 **The way into the Hollow Throne is now a real portal.** The **Hollow Gate** is a worn deepslate archway, 4 blocks tall, with five empty sockets running up one pillar, over the keystone and down the other.

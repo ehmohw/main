@@ -345,7 +345,7 @@ def generate(G):
                         'scoreboard players operation #i bm.rng = #s bm.rng', 'function bm:p60/pm/stock1',
                         'scoreboard players operation #i bm.rng += #k bm.rng', 'function bm:p60/pm/stock1',
                         'scoreboard players operation #i bm.rng += #k bm.rng', 'function bm:p60/pm/stock1',
-                        'execute as @e[tag=bm.pnew,distance=..1] at @s facing entity @p feet run tp @s ~ ~ ~ ~ 0',
+                        'execute as @e[type=minecraft:item_display,tag=bm.pnew,distance=..1] at @s facing entity @p feet run tp @s ~ ~ ~ ~ 0',
                         'tag @e[tag=bm.pnew,distance=..1] remove bm.pnew',
                         'particle minecraft:snowflake ~ ~1 ~ 0.4 0.6 0.4 0.02 30', 'particle minecraft:poof ~ ~0.6 ~ 0.3 0.4 0.3 0.02 10',
                         'playsound minecraft:block.note_block.bell neutral @a[distance=..24] ~ ~ ~ 1 1.6',
@@ -379,8 +379,8 @@ def generate(G):
              '"Pleasure doing business! Mind the briefcase."', '"I had all nine once. Long ago. Long story. Penguins do not like to talk about it."']
     fn('p60/pm/sec', ['scoreboard players remove @s bm.pmt 1', 'execute if score @s bm.pmt matches ..0 run return run function bm:p60/pm/leave',
                       'execute unless entity @a[distance=..64] run return run function bm:p60/pm/leave',
-                      'execute if entity @p[distance=..10] facing entity @p[distance=..10] feet run tp @s ~ ~ ~ ~ 0',
-                      'execute rotated as @s run tp @e[type=minecraft:item_display,tag=bm.pearld,distance=..0.6,limit=1] ~ ~ ~ ~ 0',
+                      # (2.49: only his model turns to face you - teleporting the villager itself, even in place, ends any open trade)
+                      'execute if entity @p[distance=..10] facing entity @p[distance=..10] feet as @e[type=minecraft:item_display,tag=bm.pearld,distance=..0.6,limit=1] run rotate @s ~ 0',
                       'scoreboard players operation #t bm.rng = @s bm.pmt', 'scoreboard players operation #t bm.rng %= #2 bm.rng',
                       'execute if score #t bm.rng matches 0 as @e[type=minecraft:item_display,tag=bm.pearld,distance=..0.6,limit=1] run data merge entity @s {start_interpolation:0,interpolation_duration:20,transformation:{left_rotation:[0f,0f,0.04f,0.9992f]}}',
                       'execute if score #t bm.rng matches 1 as @e[type=minecraft:item_display,tag=bm.pearld,distance=..0.6,limit=1] run data merge entity @s {start_interpolation:0,interpolation_duration:20,transformation:{left_rotation:[0f,0f,-0.04f,0.9992f]}}',

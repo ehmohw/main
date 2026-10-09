@@ -274,7 +274,7 @@ def generate(G):
             'storm_roc': 'summons the Storm Roc', 'relics': 'gives every relic form and the four catalysts',
             'treant': 'summons the Elder Treant', 'colossus': 'summons the Magma Colossus', 'voidwalker': 'summons the Voidwalker', 'essences': 'gives every Relic Essence, shards and Medallions',
             'blood_moon': 'starts a Blood Moon tonight (jumps to nightfall)', 'emma': 'Emma sits in the flowers in front of you (recruit her with a flower)', 'pearlman': 'Pearlman the salespenguin sets up shop in front of you',
-            'elemental_gems': 'gives all nine elemental gems', 'ethereal_gem': 'gives the Ethereal Gem',
+            'elemental_gems': 'gives all nine elemental gems', 'shifting_arms': 'gives the Shifting Blade, Pick and Bow', 'hollow_gate': 'gives a Hollow Gate', 'ethereal_gem': 'gives the Ethereal Gem',
             'emma_ribbon': "gives Emma's Ribbon", 'emma_charge': 'charges your Emma to 100%',
             'cecil_relics': "gives KillerWatt's Tendrils, Apophiss's Crown, Leo's Trident and Cecil's Staff"}
     def make_help():

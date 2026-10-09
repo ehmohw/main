@@ -314,7 +314,8 @@ def generate(G, builds):
                            'playsound minecraft:entity.wither_skeleton.ambient hostile @a[distance=..40] ~ ~ ~ 2 0.4',
                            title(AUD('hollow'), 'actionbar', T('"RISE, MY COURT."', '#e5e4e2', bold=True)),
                            *[at_spawn('hollow', 'function bm:p2/hollow/rift') for _ in range(2)],
-                           *[at_spawn('hollow', knight) for _ in range(3)], at_spawn('hollow', archer), at_spawn('hollow', brute)])
+                           # 2.49: the court is all undead - a brute would turn on the King (a wither skeleton) itself
+                           *[at_spawn('hollow', knight) for _ in range(3)], at_spawn('hollow', archer), at_spawn('hollow', archer)])
     # phase 2: when the king falls, he rises as a Wither (mob griefing is off in the Hollow Throne, so he can't break out)
     if 'hollow' in builds:
         fn('p2/hollow/on_boss_gone', ['execute if score @s bm.at2 matches 0 run return run function bm:p2/hollow/ascend', 'function bm:p2/hollow/victory'])
@@ -331,7 +332,8 @@ def generate(G, builds):
     fn('p2/hollow/w_court', ['scoreboard players set @s bm.at 0', *cap('hollow', 12),
                              title(AUD('hollow'), 'actionbar', T('The dead of the Throne answer their King!', 'red')),
                              *[at_spawn('hollow', 'function bm:p2/hollow/rift') for _ in range(2)],
-                             *[at_spawn('hollow', knight) for _ in range(2)], at_spawn('hollow', brute), at_spawn('hollow', hog), at_spawn('hollow', archer)])
+                             # 2.49: undead only - the Wither hunts anything living, brutes and tuskers included
+                             *[at_spawn('hollow', knight) for _ in range(3)], at_spawn('hollow', archer), at_spawn('hollow', archer)])
     fn('p2/hollow/w_storm', ['scoreboard players set @s bm.life 0', 'particle minecraft:soul ~ ~ ~ 8 3 8 0.05 200',
                              'playsound minecraft:particle.soul_escape hostile @a[distance=..40] ~ ~ ~ 2 0.5',
                              'effect give @a[distance=..10,gamemode=!spectator,gamemode=!creative] minecraft:wither 4 1'])

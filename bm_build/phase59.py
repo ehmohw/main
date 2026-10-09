@@ -22,8 +22,9 @@ UNBR = {'minecraft:unbreakable': {}}
 
 item('killerwatt_tendrils', TOTEM, "KillerWatt's Tendrils", YEL,
      ['The storm-alien\'s lightning arms. Worn in place of', 'a chestplate (no armour): four tendrils from your back.',
-      ('Look at a monster: they lash it - 10 lightning,', 'blue'), ('arcing to two more (5). Sneaking: yank it to you.', 'blue'),
-      ('Melee: +2 reach; both upper tendrils stab what', 'blue'), ('you hit (+6 lightning), piercing one behind.', 'blue'),
+      ('Double-tap sneak: switch RANGED / OFFENSE.', 'gold'),
+      ('Ranged: they lash monsters ahead of you (up to', 'blue'), ('20 blocks) - 10 lightning, arcing to two more.', 'blue'),
+      ('Offense: +2 reach; your blows bring a double', 'blue'), ('stab (+6, piercing), and they drag monsters in.', 'blue'),
       ('Sneak + jump: fling yourself where you look,', 'blue'), ('or up the wall in front of you.', 'blue'),
       ('They snatch up dropped items near you.', 'blue'), ('+15% speed, taller step, no fall damage.', 'blue'),
       ('Rain: stronger, faster. Thunderstorm: far stronger,', 'aqua'), ('and they call down lightning.', 'aqua')],
@@ -148,22 +149,46 @@ def generate(G):
                        'execute as @e[type=minecraft:item_display,tag=bm.kwt] if score @s bm.pid = #me bm.pid run tag @s add bm.kwok',
                        'execute store result score #n bm.rng if entity @e[type=minecraft:item_display,tag=bm.kwok,distance=..4]',
                        'execute unless score #n bm.rng matches 8 run function bm:p59/kw/sprout',
-                       'execute if predicate bm:p20/sneaking rotated ~ 0 positioned ~ ~-0.3 ~ run function bm:p59/kw/place',
-                       'execute unless predicate bm:p20/sneaking rotated ~ 0 run function bm:p59/kw/place',
+                       # (2.49) the displays are placed a tick ahead - where you'll be next tick - so they keep up at any speed
+                       'function bm:p59/kw/lead',
                        'scoreboard players add @s bm.kwt 1',
                        'scoreboard players operation #f4 bm.rng = @s bm.kwt', 'scoreboard players operation #f4 bm.rng %= #4 bm.rng',
-                       'execute if score #f4 bm.rng matches 0 if score @s bm.kwcd matches ..0 unless score @s bm.kwlk matches 4 run function bm:p59/kw/look',
+                       # double-tap sneak: RANGED <-> OFFENSE
+                       'execute if predicate bm:p20/sneaking unless entity @s[tag=bm.kwsn] run function bm:p59/kw/tap',
+                       'execute if predicate bm:p20/sneaking run tag @s add bm.kwsn', 'execute unless predicate bm:p20/sneaking run tag @s remove bm.kwsn',
+                       'execute unless score @s bm.kwst matches 100.. run scoreboard players add @s bm.kwst 1',
+                       'execute if score @s bm.kwmd matches 1 if score #f4 bm.rng matches 0 unless score @s bm.kwcd matches 1.. unless score @s bm.kwlk matches 4 run function bm:p59/kw/aim',
+                       'execute unless score @s bm.kwmd matches 1 if score #f4 bm.rng matches 2 unless score @s bm.kwyc matches 1.. unless score @s bm.kwlk matches 4 run function bm:p59/kw/grab',
+                       'execute if score @s bm.kwyc matches 1.. run scoreboard players remove @s bm.kwyc 4',
                        'execute if score @s bm.kwlk matches 4 unless score @s bm.kwlt matches 1.. run scoreboard players set @s bm.kwlk 0',
                        'execute if score @s bm.kwlt matches 1.. run function bm:p59/kw/lunge_tick',
                        'execute if score @s bm.kwjt matches 1.. run function bm:p59/kw/fling_tick',
                        'execute if score @s bm.kwmc matches 1.. run scoreboard players remove @s bm.kwmc 1'])
+    fn('p59/kw/lead', ['execute store result score #cx bm.rng run data get entity @s Pos[0] 100', 'execute store result score #cy bm.rng run data get entity @s Pos[1] 100',
+                       'execute store result score #cz bm.rng run data get entity @s Pos[2] 100',
+                       'scoreboard players operation #dx bm.rng = #cx bm.rng', 'scoreboard players operation #dx bm.rng -= @s bm.kwpx',
+                       'scoreboard players operation #dy bm.rng = #cy bm.rng', 'scoreboard players operation #dy bm.rng -= @s bm.kwpy',
+                       'scoreboard players operation #dz bm.rng = #cz bm.rng', 'scoreboard players operation #dz bm.rng -= @s bm.kwpz',
+                       'scoreboard players operation @s bm.kwpx = #cx bm.rng', 'scoreboard players operation @s bm.kwpy = #cy bm.rng', 'scoreboard players operation @s bm.kwpz = #cz bm.rng',
+                       # (a teleport isn't movement - no lead)
+                       'execute unless score #dx bm.rng matches -250..250 run scoreboard players set #dx bm.rng 0', 'execute unless score #dy bm.rng matches -250..250 run scoreboard players set #dy bm.rng 0',
+                       'execute unless score #dz bm.rng matches -250..250 run scoreboard players set #dz bm.rng 0',
+                       'execute store result storage bm:tmp kw.dx double 0.01 run scoreboard players get #dx bm.rng',
+                       'execute store result storage bm:tmp kw.dy double 0.01 run scoreboard players get #dy bm.rng',
+                       'execute store result storage bm:tmp kw.dz double 0.01 run scoreboard players get #dz bm.rng',
+                       'function bm:p59/kw/lead1 with storage bm:tmp kw'])
+    fn('p59/kw/lead1', ['$execute positioned ~$(dx) ~$(dy) ~$(dz) run function bm:p59/kw/place0'])
+    fn('p59/kw/place0', ['execute if predicate bm:p20/sneaking rotated ~ 0 positioned ~ ~-0.3 ~ run function bm:p59/kw/place',
+                         'execute unless predicate bm:p20/sneaking rotated ~ 0 run function bm:p59/kw/place'])
     fn('p59/kw/place', [f'execute positioned ^{m[0]} ^{m[1]} ^{m[2]} run tp @e[type=minecraft:item_display,tag=bm.kwok,tag=bm.kwt_{k},distance=..4] ~ ~ ~ ~ 0'
                         for k, (m, _p) in TEN.items()])
     fn('p59/kw/sprout', ['execute as @e[type=minecraft:item_display,tag=bm.kwok,distance=..6] run kill @s'] +
        [f'summon minecraft:item_display ~ ~1 ~ {tnbt(k, sg)}' for k in TEN for sg in ('b', 't')] +
        ['scoreboard players operation @e[type=minecraft:item_display,tag=bm.kwtnew] bm.pid = #me bm.pid',
         'tag @e[type=minecraft:item_display,tag=bm.kwtnew] add bm.kwok', 'tag @e[type=minecraft:item_display,tag=bm.kwtnew] remove bm.kwtnew',
-        'playsound minecraft:block.copper_bulb.turn_on player @a[distance=..12] ~ ~ ~ 1 0.6', 'particle minecraft:electric_spark ~ ~1.2 ~ 0.3 0.4 0.3 0.2 20'])
+        'playsound minecraft:block.copper_bulb.turn_on player @a[distance=..12] ~ ~ ~ 1 0.6', 'particle minecraft:electric_spark ~ ~1.2 ~ 0.3 0.4 0.3 0.2 20',
+        'execute if score @s bm.kwmd matches 1 run ' + title('@s', 'actionbar', [T('Tendrils: ', YEL, bold=True), T('RANGED', '#7ac8ff', bold=True), T(' (double-tap sneak to switch)', 'gray')]),
+        'execute unless score @s bm.kwmd matches 1 run ' + title('@s', 'actionbar', [T('Tendrils: ', YEL, bold=True), T('OFFENSE', '#ff6a5a', bold=True), T(' (double-tap sneak to switch)', 'gray')])])
     # poses: (as the wearer) both segments of tendril k take a pose over `d` ticks
     POSE_DUR = {'idle': (5,), 'sway_a': (20,), 'sway_b': (20,), 'mid': (2,), 'lunge': (2,), 'fling': (2,)}
     for k in TEN:
@@ -188,29 +213,64 @@ def generate(G):
     fn('p59/kw/fling_tick', ['scoreboard players remove @s bm.kwjt 1'] + [f'execute if score @s bm.kwjt matches 0 run function bm:p59/kw/pose/{k}/idle' for k in KEYS])
     fn('p59/kw/fling_pose', ['scoreboard players set @s bm.kwjt 12', 'scoreboard players set @s bm.kwlt 0'] + [f'function bm:p59/kw/pose/{k}/fling' for k in KEYS])
 
-    # looking at a monster: a tendril lashes it (sneaking: yanks it in). Faster and harder in the rain; in a storm, lightning
-    fn('p59/kw/look', ['tag @s add bm.kwme', 'scoreboard players set #kr bm.rng 48', 'scoreboard players set #kh bm.rng 0',
-                       'execute anchored eyes positioned ^ ^ ^ run function bm:p59/kw/ray', 'tag @s remove bm.kwme'])
-    hit_mob = f'@e[type=#bm:hostile,tag=!bm.npc,distance=..1.25,sort=nearest,limit=1]'
+    # RANGED (2.49): no aiming needed - every lash goes to the nearest monster ahead of you (a wide cone, ~20 blocks) you can see
+    tgt = 'type=#bm:hostile,tag=!bm.npc'
+    fn('p59/kw/aim', ['tag @s add bm.kwme', 'scoreboard players set #kh bm.rng 0',
+                      f'execute anchored eyes positioned ^ ^ ^7 as @e[{tgt},distance=..7.5,sort=nearest,limit=1] run tag @s add bm.kwtgt',
+                      f'execute unless entity @e[tag=bm.kwtgt] anchored eyes positioned ^ ^ ^15.5 as @e[{tgt},distance=..6.5,sort=nearest,limit=1] run tag @s add bm.kwtgt',
+                      'execute if entity @e[tag=bm.kwtgt] run function bm:p59/kw/sighted',
+                      'execute if score #kh bm.rng matches 1 run function bm:p59/kw/lash',
+                      'execute if score #kh bm.rng matches 1 as @e[tag=bm.kwtgt,limit=1] at @s run function bm:p59/kw/mob',
+                      'tag @e[tag=bm.kwtgt] remove bm.kwtgt', 'tag @s remove bm.kwme'])
+    # (line of sight: a ray from your eyes to it; #kr = steps left when it arrives, so the beam can be drawn the same length)
+    fn('p59/kw/sighted', ['scoreboard players set #kr bm.rng 48',
+                          'execute anchored eyes positioned ^ ^ ^ facing entity @e[tag=bm.kwtgt,limit=1] eyes run function bm:p59/kw/ray'])
     fn('p59/kw/ray', ['scoreboard players remove #kr bm.rng 1',
-                      f'execute positioned ~ ~-0.9 ~ if entity {hit_mob} run return run function bm:p59/kw/at_mob',
+                      'execute if entity @e[tag=bm.kwtgt,distance=..1.4] run return run scoreboard players set #kh bm.rng 1',
+                      'execute positioned ~ ~-1 ~ if entity @e[tag=bm.kwtgt,distance=..0.9] run return run scoreboard players set #kh bm.rng 1',
                       'execute unless block ~ ~ ~ #bm:grap_pass run return 0',
                       'execute if score #kr bm.rng matches 1.. positioned ^ ^ ^0.5 run function bm:p59/kw/ray'])
-    fn('p59/kw/at_mob', ['scoreboard players set #kh bm.rng 1',
-                         'execute as @a[tag=bm.kwme,limit=1] at @s run function bm:p59/kw/lash',
-                         f'execute positioned ~ ~-0.9 ~ as {hit_mob} at @s run function bm:p59/kw/mob'])
+    # OFFENSE (2.49): every 3 s a tendril shoots out and drags the nearest monster 4-12 blocks ahead right up to you
+    fn('p59/kw/grab', ['tag @s add bm.kwme', 'scoreboard players set #kh bm.rng 0',
+                       f'execute anchored eyes positioned ^ ^ ^8 as @e[{tgt},distance=..4.5,sort=nearest,limit=1] if entity @a[tag=bm.kwme,distance=4..] run tag @s add bm.kwtgt',
+                       'execute if entity @e[tag=bm.kwtgt] run function bm:p59/kw/sighted',
+                       'execute if score #kh bm.rng matches 1 run function bm:p59/kw/grab_go',
+                       'tag @e[tag=bm.kwtgt] remove bm.kwtgt', 'tag @s remove bm.kwme'])
+    fn('p59/kw/grab_go', ['scoreboard players set @s bm.kwyc 60', 'execute store result score @s bm.kwlk run random value 0..3', 'scoreboard players set @s bm.kwlt 10'] +
+       [f'execute if score @s bm.kwlk matches {i} run function bm:p59/kw/pose/{k}/mid' for i, k in enumerate(KEYS)] +
+       ['execute anchored eyes positioned ^ ^ ^ facing entity @e[tag=bm.kwtgt,limit=1] eyes run function bm:p59/kw/beam',
+        'execute as @e[tag=bm.kwtgt,limit=1] at @s run function bm:p59/kw/drag'])
+    # (as the monster) a short arcing tug that lands it a couple of blocks in front of you, however far it was
+    fn('p59/kw/drag', [f'execute store result score #v{a} bm.rng run data get entity @a[tag=bm.kwme,limit=1] Pos[{i}] 1000' for i, a in ((0, 'x'), (2, 'z'))] +
+       [f'execute store result score #c{a} bm.rng run data get entity @s Pos[{i}] 1000' for i, a in ((0, 'x'), (2, 'z'))] +
+       [f'scoreboard players operation #v{a} bm.rng -= #c{a} bm.rng' for a in 'xz'] +
+       ['execute store result entity @s Motion[0] double 0.00009 run scoreboard players get #vx bm.rng',
+        'execute store result entity @s Motion[2] double 0.00009 run scoreboard players get #vz bm.rng',
+        'data modify entity @s Motion[1] set value 0.42d',
+        'particle minecraft:electric_spark ~ ~1 ~ 0.3 0.5 0.3 0.2 16', 'playsound minecraft:item.trident.riptide_1 player @a[distance=..16] ~ ~ ~ 0.8 1.6'])
+    # the switch
+    fn('p59/kw/tap', ['scoreboard players operation #t bm.rng = @s bm.kwst', 'scoreboard players set @s bm.kwst 0',
+                      'execute if score #t bm.rng matches ..9 run function bm:p59/kw/toggle'])
+    fn('p59/kw/toggle', ['scoreboard players set @s bm.kwst 100',
+                         'execute store result score #m bm.rng run scoreboard players get @s bm.kwmd',
+                         'execute if score #m bm.rng matches 1 run return run function bm:p59/kw/mode_off',
+                         'scoreboard players set @s bm.kwmd 1', 'function bm:p59/kw/fling_pose',
+                         'playsound minecraft:block.copper_bulb.turn_on player @s ~ ~ ~ 1 1.6',
+                         title('@s', 'actionbar', [T('Tendrils: ', YEL, bold=True), T('RANGED', '#7ac8ff', bold=True), T(' - they lash monsters ahead of you (double-tap sneak to switch)', 'gray')])])
+    fn('p59/kw/mode_off', ['scoreboard players set @s bm.kwmd 0', 'function bm:p59/kw/fling_pose',
+                           'playsound minecraft:block.copper_bulb.turn_off player @s ~ ~ ~ 1 0.8',
+                           title('@s', 'actionbar', [T('Tendrils: ', YEL, bold=True), T('OFFENSE', '#ff6a5a', bold=True), T(' - melee stabs, and they drag monsters in (double-tap sneak to switch)', 'gray')])])
     fn('p59/kw/lash', ['scoreboard players set #lv bm.rng 0', 'execute if predicate bm:p59/rain run scoreboard players set #lv bm.rng 1',
                        'execute if predicate bm:p59/storm run scoreboard players set #lv bm.rng 2',
                        'execute if score #lv bm.rng matches 0 run scoreboard players set @s bm.kwcd 24', 'execute if score #lv bm.rng matches 1 run scoreboard players set @s bm.kwcd 18',
                        'execute if score #lv bm.rng matches 2 run scoreboard players set @s bm.kwcd 12',
                        'execute store result score @s bm.kwlk run random value 0..3', 'scoreboard players set @s bm.kwlt 10'] +
        [f'execute if score @s bm.kwlk matches {i} run function bm:p59/kw/pose/{k}/mid' for i, k in enumerate(KEYS)] +
-       ['execute anchored eyes positioned ^ ^ ^ run function bm:p59/kw/beam'])
+       ['execute anchored eyes positioned ^ ^ ^ facing entity @e[tag=bm.kwtgt,limit=1] eyes run function bm:p59/kw/beam'])
     fn('p59/kw/beam', ['scoreboard players set #kb bm.rng 48', 'function bm:p59/kw/beam1'])
     fn('p59/kw/beam1', ['particle minecraft:dust{color:[1.0,0.92,0.3],scale:0.9} ~ ~ ~ 0.03 0.03 0.03 0 1', 'particle minecraft:electric_spark ~ ~ ~ 0.05 0.05 0.05 0.02 1',
                         'scoreboard players remove #kb bm.rng 1', 'execute if score #kb bm.rng > #kr bm.rng positioned ^ ^ ^0.5 run function bm:p59/kw/beam1'])
-    fn('p59/kw/mob', ['execute if entity @a[tag=bm.kwme,limit=1,predicate=bm:p20/sneaking] run return run function bm:p59/kw/yank',
-                      'tag @s add bm.kwhit',
+    fn('p59/kw/mob', ['tag @s add bm.kwhit',
                       'execute if score #lv bm.rng matches 0 run damage @s 10 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
                       'execute if score #lv bm.rng matches 1 run damage @s 13 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
                       'execute if score #lv bm.rng matches 2 run damage @s 16 minecraft:lightning_bolt by @a[tag=bm.kwme,limit=1]',
@@ -239,8 +299,10 @@ def generate(G):
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.kwj minecraft.custom:minecraft.jump', 'scoreboard objectives add bm.kwt dummy',
                               'scoreboard objectives add bm.kwf dummy', 'scoreboard objectives add bm.kwlt dummy', 'scoreboard objectives add bm.kwlk dummy',
                               'scoreboard objectives add bm.kwjt dummy', 'scoreboard objectives add bm.kwmc dummy', 'scoreboard objectives add bm.kwvp dummy',
+                              'scoreboard objectives add bm.kwmd dummy', 'scoreboard objectives add bm.kwst dummy', 'scoreboard objectives add bm.kwyc dummy',
+                              'scoreboard objectives add bm.kwpx dummy', 'scoreboard objectives add bm.kwpy dummy', 'scoreboard objectives add bm.kwpz dummy',
                               'scoreboard players set #40 bm.rng 40', 'scoreboard players set #4 bm.rng 4']
-    G.OBJECTIVES += ['bm.kwj', 'bm.kwt', 'bm.kwf', 'bm.kwlt', 'bm.kwlk', 'bm.kwjt', 'bm.kwmc', 'bm.kwvp']
+    G.OBJECTIVES += ['bm.kwj', 'bm.kwt', 'bm.kwf', 'bm.kwlt', 'bm.kwlk', 'bm.kwjt', 'bm.kwmc', 'bm.kwvp', 'bm.kwmd', 'bm.kwst', 'bm.kwyc', 'bm.kwpx', 'bm.kwpy', 'bm.kwpz']
     tick.append(f'execute as @a[scores={{bm.kwj=1..}}] at @s run function bm:p59/kw/jump')
     tick.append('scoreboard players remove @a[scores={bm.kwf=1..}] bm.kwf 1')
     fn('p59/kw/jump', ['scoreboard players reset @s bm.kwj', f'execute unless {worn} run return 0', 'execute unless predicate bm:p20/sneaking run return 0',
@@ -276,7 +338,7 @@ def generate(G):
         'damage': {'type': {'is_direct': True, 'tags': [{'id': '#minecraft:is_lightning', 'expected': False}, {'id': '#minecraft:is_projectile', 'expected': False},
                                                         {'id': '#minecraft:is_explosion', 'expected': False}]}}}}},
         'rewards': {'function': 'bm:p59/kw/melee'}})
-    fn('p59/kw/melee', ['advancement revoke @s only bm:p59/kw_melee', 'execute if score @s bm.kwmc matches 1.. run return 0',
+    fn('p59/kw/melee', ['advancement revoke @s only bm:p59/kw_melee', 'execute if score @s bm.kwmc matches 1.. run return 0', 'execute if score @s bm.kwmd matches 1 run return 0',
                         'scoreboard players set @s bm.kwmc 14', 'scoreboard players operation #me bm.pid = @s bm.pid',
                         'scoreboard players set @s bm.kwlk 4', 'scoreboard players set @s bm.kwlt 14', 'scoreboard players set @s bm.kwjt 0',
                         'function bm:p59/kw/pose/ul/mid', 'function bm:p59/kw/pose/ur/mid',
