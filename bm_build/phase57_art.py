@@ -12,6 +12,11 @@ RIG_SCALE = 0.85
 PIVOT = {'body': (0, 11, 0), 'head': (0, 24, 0), 'armr': (4.0, 22.4, 0), 'arml': (-4.0, 22.4, 0),
          'legr': (1.7, 11, 0), 'legl': (-1.7, 11, 0), 'wingr': (1.0, 21.5, 2.2), 'wingl': (-1.0, 21.5, 2.2)}
 PIVOT['wingro'], PIVOT['winglo'] = PIVOT['wingr'], PIVOT['wingl']      # (the outer halves stand at the wing roots; a translation reaches the mid-joint)
+def outfit_parts():
+    """the rig parts that wear her dress (they get a model per role)"""
+    return sorted(n[3:] for n, (tex, _e) in models().items() if n.startswith('em_') and any(k in OUTFITS[1] for k in tex))
+
+
 PARTS = ('body', 'head', 'armr', 'arml', 'legr', 'legl', 'wingr', 'wingl', 'wingro', 'winglo')
 WING_LIFT = 30
 WING_SPLIT = 11.0                                                    # design units along the leading edge where the outer half hinges
@@ -187,6 +192,17 @@ def _blade():
     return im
 
 
+# role: {texture: (its base colour, the role's colour)}
+OUTFITS = {
+    1: {'em2_blue': ('#3f8fd0', '#1fae9a'), 'em2_chest': ('#3f8fd0', '#1fae9a'), 'em2_skirt': ('#3d72aa', '#178a7a'),
+        'em2_scarf': ('#80d8e4', '#b4f6de'), 'em2_scarf2': ('#6cc8d6', '#94eacc')},                  # Speed: sea-green and mint
+    2: {'em2_blue': ('#3f8fd0', '#c8343c'), 'em2_chest': ('#3f8fd0', '#c8343c'), 'em2_skirt': ('#3d72aa', '#962630'),
+        'em2_scarf': ('#80d8e4', '#ffc46a'), 'em2_scarf2': ('#6cc8d6', '#f0aa4a')},                  # Offense: crimson and gold
+    4: {'em2_blue': ('#3f8fd0', '#e27ab6'), 'em2_chest': ('#3f8fd0', '#e27ab6'), 'em2_skirt': ('#3d72aa', '#c05c96'),
+        'em2_scarf': ('#80d8e4', '#fff2f8'), 'em2_scarf2': ('#6cc8d6', '#ffd6ea')},                  # Healing: rose and white
+}
+
+
 def textures():
     T = {}
     T['em2_skin'] = _cloth('#f7d7bf', 12, var=0.02)
@@ -219,6 +235,21 @@ def textures():
     T['ee_down'] = _feather(32, False)
     T['ee_blade'] = _blade()
     T['ee_shaft'] = _cloth('#3a4a6a', 33, grain=(6, 0.8))
+    # (2.54) her outfit follows her buff: the blues of her dress re-dyed for each role (Defense keeps her own sea-blue)
+    import colorsys
+    for m, pal in OUTFITS.items():
+        for t, (src, dst) in pal.items():
+            base = T[t]; out = Image.new('RGBA', base.size)
+            sl = sum(hexc(src)[:3]) / 3 or 1; tc = hexc(dst)[:3]
+            for y in range(base.size[1]):
+                for x in range(base.size[0]):
+                    p = base.getpixel((x, y)); h, _l, _s = colorsys.rgb_to_hls(*(v / 255 for v in p[:3]))
+                    if 0.47 <= h <= 0.70:                                   # only the blues (the brooch and lace highlights stay)
+                        k = (sum(p[:3]) / 3) / sl
+                        out.putpixel((x, y), tuple(int(max(0, min(255, c * k))) for c in tc) + (p[3],))
+                    else:
+                        out.putpixel((x, y), p)
+            T[f'{t}_m{m}'] = out
     return T
 
 
@@ -388,6 +419,10 @@ def rp(R):
     R.TEXTURE_MODS.append(sys.modules[__name__])
     for name, (tex, els) in models().items():
         R.HATS[name] = (tex, els)
+        if name.startswith('em_'):
+            for m, pal in OUTFITS.items():
+                if any(k in pal for k in tex):
+                    R.HATS[f'{name}_m{m}'] = ({k: (f'{v}_m{m}' if k in pal else v) for k, v in tex.items()}, els)
     R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + ('em_', 'ee_')
     R.ICONS['emma_ribbon'] = ribbon_icon(R)
 

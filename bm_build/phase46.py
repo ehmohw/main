@@ -12,13 +12,29 @@ from items import item, T, TOTEM, PRICES
 from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D
 
+# (2.54) Cecil's element: Pearlman's gems change his magic, and his hood and staff take its colours
+# element: (hood, hood shadow, crystal, crystal glint, blade metal, what his bolts do)
+ELEMENTS = {
+    'fire': ('#a8321a', '#5e180a', '#ff7a2a', '#ffd08a', '#e0b040', 'set monsters alight'),
+    'water': ('#1f5fae', '#0f3366', '#3a9cff', '#bfe4ff', '#b8c8d8', 'drench and slow them'),
+    'poison': ('#4a1e7e', '#2e1250', '#e85aa8', '#ffb0dc', '#c9a74a', 'poison them'),
+    'earth': ('#2a5e4a', '#15382a', '#2e9ad0', '#7ad86a', '#a8743a', 'root them in place'),
+    'electric': ('#b08e14', '#62500a', '#ffe23a', '#ffffff', '#d8d8e8', 'strike with lightning that jumps to another'),
+    'rock': ('#6e5a48', '#3c3026', '#b09070', '#e6d6bc', '#8a8a8e', 'hit like a falling boulder'),
+    'air': ('#b8cadc', '#7a8ca6', '#d8f2ff', '#ffffff', '#c0c8d0', 'toss them into the air'),
+    'grass': ('#3a8228', '#1c4a12', '#52d24a', '#d8ffb0', '#c9a74a', 'drain life to mend you'),
+    'ice': ('#5aa8d8', '#2e6e98', '#a8ecff', '#ffffff', '#e8f6ff', 'freeze them'),
+}
+EL_KEYS = list(ELEMENTS)
 PET_CD = 600                     # seconds before a fallen Cecil can be called again
 COMPANIONS = 'tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,tag=!bm.emmapet'
 
 item('cecil_gem', TOTEM, "Cecil's Summoning Gem", '#b48cff',
      ['A violet gem with two yellow eyes in it.', 'They blink.', ('Use: Cecil joins you in battle - poisoned', 'blue'),
       ('bolts at monsters, healing when you\'re hurt.', 'blue'), ('Use again: call him back to you.', 'blue'), ('Sneak + use: send him home.', 'blue'),
-      ('If he falls: 10 minutes before he can return.', 'gray')],
+      ('If he falls: 10 minutes before he can return.', 'gray'),
+      ('Hand him one of Pearlman\'s elemental gems', 'light_purple'), ('(right-click him with it): his magic - and his', 'light_purple'),
+      ('hood and staff - take on its element.', 'light_purple')],
      model='bm:cecil_gem', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
 HOLD['cecil_gem'] = 'bm:p46/pet/use'
 item('chef_painting', 'minecraft:painting', "Chef Fromage's Portrait", '#c8a050', ['A 2x2 painting, in a gilt frame.', ('He insists it does not flatter him.', 'gray')],
@@ -176,10 +192,76 @@ def generate(G):
     fn('p46/pet/attack', ['scoreboard players set @s bm.cpa 0', 'function bm:p46/pet/arm_cast', 'tag @s add bm.cpme',
                           f'execute as @e[{foe},sort=nearest,limit=1] at @s run function bm:p46/pet/bolt', 'tag @s remove bm.cpme',
                           'playsound minecraft:entity.evoker.cast_spell neutral @a[distance=..20] ~ ~ ~ 0.8 1.4'])
-    fn('p46/pet/bolt', ['damage @s 5 minecraft:magic by @e[type=minecraft:wolf,tag=bm.cpme,limit=1]', 'effect give @s minecraft:poison 6 1',
-                        'particle minecraft:dust{color:[0.45,0.9,0.2],scale:1.4} ~ ~1 ~ 0.3 0.5 0.3 0 16', 'particle minecraft:item_slime ~ ~1 ~ 0.3 0.4 0.3 0 8',
-                        'execute facing entity @e[type=minecraft:wolf,tag=bm.cpme,limit=1] eyes run function bm:p46/pet/beam'])
-    fn('p46/pet/beam', [f'particle minecraft:dust{{color:[0.6,0.3,0.9],scale:1}} ^ ^1.2 ^{d} 0 0 0 0 1' for d in (0.6, 1.2, 1.8, 2.4, 3, 3.6, 4.2, 4.8, 5.4, 6, 6.6, 7.2, 7.8, 8.4, 9, 9.6, 10.2, 10.8, 11.4, 12, 12.6, 13.2)])
+    # (2.54) the bolt takes on his element (#el: 0 = his own poison, else 1 + the element's index)
+    G.FUNCS['p46/pet/attack'].insert(0, 'scoreboard players set #el bm.rng 0')
+    G.FUNCS['p46/pet/attack'].insert(1, 'execute if score @s bm.cpel matches 1.. run scoreboard players operation #el bm.rng = @s bm.cpel')
+    fn('p46/pet/bolt', [f'execute if score #el bm.rng matches {i + 1} run return run function bm:p46/pet/bolt/{k}' for i, k in enumerate(EL_KEYS) if k != 'poison'] +
+       ['function bm:p46/pet/bolt/poison'])
+    by = 'by @e[type=minecraft:wolf,tag=bm.cpme,limit=1]'
+    BOLT = {
+        'poison': [f'damage @s 5 minecraft:magic {by}', 'effect give @s minecraft:poison 6 1',
+                   'particle minecraft:dust{color:[0.45,0.9,0.2],scale:1.4} ~ ~1 ~ 0.3 0.5 0.3 0 16', 'particle minecraft:item_slime ~ ~1 ~ 0.3 0.4 0.3 0 8'],
+        'fire': [f'damage @s 5 minecraft:magic {by}', 'data merge entity @s {Fire:100s}', 'particle minecraft:flame ~ ~1 ~ 0.3 0.5 0.3 0.04 20',
+                 'particle minecraft:lava ~ ~1 ~ 0.2 0.3 0.2 0 4', 'playsound minecraft:item.firecharge.use neutral @a[distance=..16] ~ ~ ~ 0.6 1.2'],
+        'water': [f'damage @s 5 minecraft:magic {by}', 'effect give @s minecraft:slowness 4 1', 'data merge entity @s {Fire:0s}',
+                  'particle minecraft:splash ~ ~1.2 ~ 0.4 0.5 0.4 0.2 40', 'particle minecraft:bubble_pop ~ ~1 ~ 0.3 0.5 0.3 0.05 14',
+                  'playsound minecraft:entity.player.splash neutral @a[distance=..16] ~ ~ ~ 0.6 1.4'],
+        'earth': [f'damage @s 5 minecraft:magic {by}', 'effect give @s minecraft:slowness 3 4',
+                  'particle minecraft:block{block_state:"minecraft:rooted_dirt"} ~ ~0.3 ~ 0.4 0.2 0.4 0.1 30',
+                  'particle minecraft:block{block_state:"minecraft:mangrove_roots"} ~ ~0.6 ~ 0.3 0.4 0.3 0 16', 'playsound minecraft:block.rooted_dirt.break neutral @a[distance=..16] ~ ~ ~ 0.8 0.8'],
+        'electric': [f'damage @s 6 minecraft:lightning_bolt {by}', 'particle minecraft:electric_spark ~ ~1 ~ 0.3 0.6 0.3 0.3 30',
+                     'playsound minecraft:block.copper_bulb.turn_on neutral @a[distance=..16] ~ ~ ~ 1 1.4', 'tag @s add bm.cpzap',
+                     'execute as @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.cpzap,distance=0.5..5,sort=nearest,limit=1] at @s run function bm:p46/pet/bolt/arc',
+                     'tag @s remove bm.cpzap'],
+        'rock': [f'damage @s 7 minecraft:magic {by}', 'particle minecraft:block{block_state:"minecraft:cobblestone"} ~ ~1 ~ 0.3 0.4 0.3 0 30',
+                 'particle minecraft:dust_plume ~ ~0.5 ~ 0.3 0.2 0.3 0.02 10', 'playsound minecraft:block.stone.break neutral @a[distance=..16] ~ ~ ~ 1 0.6'],
+        'air': [f'damage @s 4 minecraft:magic {by}', 'effect give @s minecraft:levitation 1 3', 'particle minecraft:gust ~ ~0.6 ~ 0 0 0 0 1',
+                'particle minecraft:cloud ~ ~0.6 ~ 0.4 0.2 0.4 0.05 16', 'playsound minecraft:entity.breeze.wind_burst neutral @a[distance=..16] ~ ~ ~ 0.7 1.3'],
+        'grass': [f'damage @s 4 minecraft:magic {by}', 'execute as @e[type=minecraft:wolf,tag=bm.cpme,limit=1] on owner run effect give @s minecraft:regeneration 3 1',
+                  'particle minecraft:happy_villager ~ ~1 ~ 0.4 0.5 0.4 0 12', 'particle minecraft:cherry_leaves ~ ~1 ~ 0.4 0.5 0.4 0 10',
+                  'playsound minecraft:block.azalea_leaves.place neutral @a[distance=..16] ~ ~ ~ 1 1.2'],
+        'ice': [f'damage @s 5 minecraft:freeze {by}', 'effect give @s minecraft:slowness 4 2', 'data merge entity @s {TicksFrozen:200}',
+                'particle minecraft:snowflake ~ ~1 ~ 0.3 0.5 0.3 0.02 30', 'particle minecraft:block{block_state:"minecraft:ice"} ~ ~1 ~ 0.3 0.4 0.3 0 12',
+                'playsound minecraft:block.glass.break neutral @a[distance=..16] ~ ~ ~ 0.6 1.6'],
+    }
+    from phase60 import GEMS
+    for k, lines in BOLT.items():
+        r, g, b = GEMS[k][2] if k != 'poison' else (0.6, 0.3, 0.9)
+        fn(f'p46/pet/bolt/{k}', lines + [f'execute facing entity @e[type=minecraft:wolf,tag=bm.cpme,limit=1] eyes run function bm:p46/pet/beam/{k}'])
+        fn(f'p46/pet/beam/{k}', [f'particle minecraft:dust{{color:[{r},{g},{b}],scale:1}} ^ ^1.2 ^{d / 10} 0 0 0 0 1' for d in range(6, 133, 6)])
+    fn('p46/pet/bolt/arc', [f'damage @s 3 minecraft:lightning_bolt {by}', 'particle minecraft:electric_spark ~ ~1 ~ 0.2 0.4 0.2 0.2 16'])
+    # handing him a gem (right-click him with it): his element changes - he must be yours; a gem is used up
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.cpel dummy']
+    G.OBJECTIVES += ['bm.cpel']
+    # (the trigger only reports the item for item interactions - an owned wolf just sits - so the held gem is checked here)
+    wjson('bm/advancement/p46/cecil_interact.json', {'criteria': {'i': {'trigger': 'minecraft:player_interacted_with_entity', 'conditions': {
+        'entity': [{'condition': 'minecraft:entity_properties', 'entity': 'this',
+                    'predicate': {'minecraft:entity_type': 'minecraft:wolf', 'minecraft:nbt': '{Tags:["bm.cecilpet"]}'}}]}}}, 'rewards': {'function': 'bm:p46/el/interact'}})
+    fn('p46/el/interact', ['advancement revoke @s only bm:p46/cecil_interact'] +
+       [f'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{{bm:"gem_{k}"}}] run return run function bm:p46/el/{k}' for k in EL_KEYS])
+    for i, k in enumerate(EL_KEYS):
+        hood, _hd, crys, _cg, _m, does = ELEMENTS[k]
+        fn(f'p46/el/{k}', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid',
+                           'scoreboard players operation #me bm.pid = @s bm.pid',
+                           f'{sel_pet} if entity @s[distance=..8] run tag @s add bm.cpsel',
+                           'execute unless entity @e[type=minecraft:wolf,tag=bm.cpsel] run return run ' + say('Cecil only takes gems from the one who summoned him.', '#b48cff'),
+                           'data modify entity @e[type=minecraft:wolf,tag=bm.cpsel,limit=1] Sitting set value 0b',
+                           f'execute if score @s bm.cpel matches {i + 1} run tag @e[tag=bm.cpsel] remove bm.cpsel',
+                           f'execute if score @s bm.cpel matches {i + 1} run return run ' + say(f'Cecil already works {k} magic. "One is plenty, thank you."', '#b48cff'),
+                           f'scoreboard players set @s bm.cpel {i + 1}', f'scoreboard players set #el bm.rng {i + 1}', 'function bm:p46/pet/dress',
+                           'execute unless entity @s[gamemode=creative] run item modify entity @s weapon.mainhand {function:"minecraft:set_count",count:-1,add:true}',
+                           f'execute at @e[type=minecraft:wolf,tag=bm.cpsel,limit=1] run particle minecraft:dust{{color:[{GEMS[k][2][0]},{GEMS[k][2][1]},{GEMS[k][2][2]}],scale:1.6}} ~ ~1.2 ~ 0.4 0.8 0.4 0 40',
+                           'execute at @e[type=minecraft:wolf,tag=bm.cpsel,limit=1] run particle minecraft:flash{color:[1.0,1.0,1.0,1.0]} ~ ~1.2 ~ 0 0 0 0 1',
+                           'execute at @e[type=minecraft:wolf,tag=bm.cpsel,limit=1] run playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..16] ~ ~ ~ 1 0.8',
+                           'execute at @e[type=minecraft:wolf,tag=bm.cpsel,limit=1] run playsound minecraft:entity.evoker.prepare_wololo neutral @a[distance=..16] ~ ~ ~ 0.8 1.3',
+                           title('@s', 'actionbar', [T('Cecil swallows the gem whole. ', '#b48cff'), T(k.upper(), crys, bold=True), T(f' magic: his bolts {does}.', 'gray')]),
+                           'tag @e[tag=bm.cpsel] remove bm.cpsel'])
+    # (#me = the owner's id, #el = the element) his hood and staff take the element's look; the wolf remembers it for his bolts
+    fn('p46/pet/dress', [f'execute as @e[type=minecraft:wolf,tag=bm.cecilpet] if score @s bm.pid = #me bm.pid run scoreboard players operation @s bm.cpel = #el bm.rng'] +
+       [f'execute if score #el bm.rng matches {i + 1} as @e[type=minecraft:item_display,tag=bm.cpet,tag={part}] if score @s bm.pid = #me bm.pid run data modify entity @s item.components."minecraft:item_model" set value "bm:cec_{nm}_{k}"'
+        for i, k in enumerate(EL_KEYS) for part, nm in (('bm.cp_head', 'head'), ('bm.cp_arm', 'arm'))])
+    G.FUNCS['p46/pet/summon'] += ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #el bm.rng 0',
+                                  'execute if score @s bm.cpel matches 1.. run scoreboard players operation #el bm.rng = @s bm.cpel', 'function bm:p46/pet/dress']
     fn('p46/pet/heal_check', ['execute store result score #h bm.rng run data get entity @s Health', 'execute unless score #h bm.rng matches ..13 run return 0',
                               'effect give @s minecraft:instant_health 1 0 true', 'particle minecraft:heart ~ ~2 ~ 0.4 0.3 0.4 0 6',
                               'particle minecraft:dust{color:[1.0,0.45,0.8],scale:1.2} ~ ~1 ~ 0.4 0.6 0.4 0 14', 'playsound minecraft:block.amethyst_block.chime neutral @a[distance=..16] ~ ~ ~ 1 1.6',
@@ -245,6 +327,23 @@ def textures():
         for x, ch in enumerate(r):
             if ch != '.': face.putpixel((x, y), hexc(P[ch]))
     T_['em_face'] = face
+    # (2.54) Cecil's element looks: hood (streaked like his robe), hood shadow, staff crystal (with glints), blade metal
+    def streaked(c, var, streak):
+        im = Image.new('RGBA', (16, 16)); b = hexc(c)
+        for y in range(16):
+            for x in range(16):
+                dd = rnd.randint(-var, var) - (var * 2 if x in streak else 0)
+                im.putpixel((x, y), tuple(max(0, min(255, v + dd)) for v in b[:3]) + (255,))
+        return im
+    for k, (hood, shade, crys, glint, metal, _d) in ELEMENTS.items():
+        T_[f'cec_hood_{k}'] = streaked(hood, 7, (3, 9, 13))
+        T_[f'cec_hood_dark_{k}'] = streaked(shade, 5, (5, 11))
+        cr = streaked(crys, 14, ())
+        for y in range(16):
+            for x in range(16):
+                if (x + y) % 7 == 0: cr.putpixel((x, y), hexc(glint))
+        T_[f'cec_crystal_{k}'] = cr
+        T_[f'cec_metal_{k}'] = streaked(metal, 10, ())
     return T_
 
 
@@ -274,6 +373,11 @@ def rp(R):
         c((3.4, 10.5, 4.8), (4.3, 15.5, 8), 'hair'), c((11.7, 10.5, 4.8), (12.6, 15.5, 8), 'hair'),
         c((1, 13, 8), (4, 17, 11), 'hair'), c((0, 11.5, 8.5), (2, 14.5, 10.5), 'hair'), c((2.8, 16.5, 7.8), (4.6, 18.2, 10.2), 'pink')])
     R.DISPLAY_3D_EXTRA = R.DISPLAY_3D_EXTRA + ('emma3d',)
+    # Cecil's element variants: the same hood and staff, re-coloured (his sleeve stays his violet robe)
+    ct, head = R.HATS['cec_head']; _ct, arm = R.HATS['cec_arm']
+    for k in ELEMENTS:
+        R.HATS[f'cec_head_{k}'] = (dict(ct, r=f'bm:block/cec_hood_{k}', d=f'bm:block/cec_hood_dark_{k}'), head)
+        R.HATS[f'cec_arm_{k}'] = (dict(ct, g=f'bm:block/cec_metal_{k}', p=f'bm:block/cec_crystal_{k}'), arm)
     R.ICONS['cecil_gem'] = R.grid(['................', '.......PP.......', '......PLLP......', '.....PLPPPP.....', '....PPPPPPPP....', '...PPYYPPYYPP...',
                                    '...PPPYPPYPPP...', '...PPPPPPPPPP...', '....PKKKKKKP....', '....PPKPKPPP....', '.....PPPPPP.....', '......PPPP......',
                                    '.......PP.......', '................', '................', '................'],

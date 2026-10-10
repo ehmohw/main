@@ -494,10 +494,22 @@ def generate(G):
                           f'execute as @p[distance=..4,{NEAR}] run damage @s 8 bm:void by @e[type=minecraft:enderman,tag=bm.vwkme,limit=1]'])
     fn('p54/vwk/stars', ['playsound minecraft:entity.shulker.shoot hostile @a[distance=..40] ~ ~ ~ 2 0.6',
                          f'execute as @a[distance=..28,{NEAR},sort=random,limit=3] at @s run function bm:p54/vwk/star'])
-    fn('p54/vwk/star', ['execute at @e[type=minecraft:enderman,tag=bm.vwk,limit=1,sort=nearest] anchored eyes positioned ^ ^ ^1.5 run summon minecraft:shulker_bullet ~ ~ ~ {Tags:["bm.r54b"],Steps:1}',
-                        'data modify entity @e[type=minecraft:shulker_bullet,tag=bm.r54b,limit=1] Target set from entity @s UUID',
-                        'data modify entity @e[type=minecraft:shulker_bullet,tag=bm.r54b,limit=1] Owner set from entity @e[type=minecraft:enderman,tag=bm.vwk,limit=1,sort=nearest] UUID',
-                        'tag @e[type=minecraft:shulker_bullet,tag=bm.r54b] remove bm.r54b'])
+    # (2.54) the stars are its own homing motes, not shulker bullets: a vanilla projectile can strike its own side (the Voidlings,
+    # even the Voidwalker itself) - these only ever hit players
+    fn('p54/vwk/star', ['execute at @e[type=minecraft:enderman,tag=bm.vwk,limit=1,sort=nearest] anchored eyes positioned ^ ^ ^1.5 run summon minecraft:marker ~ ~ ~ {Tags:["bm.vwstar","bm.vwsnew"]}',
+                        'scoreboard players set @e[type=minecraft:marker,tag=bm.vwsnew] bm.rfx 70', 'tag @e[type=minecraft:marker,tag=bm.vwsnew] remove bm.vwsnew'])
+    tick.append('execute as @e[type=minecraft:marker,tag=bm.vwstar] at @s run function bm:p54/vwk/star_tick')
+    fn('p54/vwk/star_tick', ['scoreboard players remove @s bm.rfx 1', 'particle minecraft:end_rod ~ ~ ~ 0.04 0.04 0.04 0 2 force @a[distance=..48]',
+                             'particle minecraft:reverse_portal ~ ~ ~ 0.1 0.1 0.1 0.02 3',
+                             f'execute positioned ~ ~-1 ~ if entity @a[distance=..1.1,{NEAR}] run return run function bm:p54/vwk/star_hit',
+                             'execute if score @s bm.rfx matches ..0 run return run kill @s',
+                             f'execute unless entity @a[distance=..40,{NEAR}] run return run kill @s',
+                             f'execute facing entity @p[distance=..40,{NEAR}] eyes positioned ^ ^ ^0.32 unless block ~ ~ ~ #bm:grap_pass run return run function bm:p54/vwk/star_pop',
+                             f'execute facing entity @p[distance=..40,{NEAR}] eyes run tp @s ^ ^ ^0.32'])
+    fn('p54/vwk/star_hit', [f'execute positioned ~ ~-1 ~ as @a[distance=..1.1,{NEAR},limit=1,sort=nearest] run damage @s 4 bm:void by @e[type=minecraft:enderman,tag=bm.vwk,limit=1,sort=nearest]',
+                            f'execute positioned ~ ~-1 ~ run effect give @a[distance=..1.1,{NEAR},limit=1,sort=nearest] minecraft:levitation 2 0',
+                            'function bm:p54/vwk/star_pop'])
+    fn('p54/vwk/star_pop', ['particle minecraft:end_rod ~ ~ ~ 0.2 0.2 0.2 0.08 10', 'playsound minecraft:entity.shulker_bullet.hit hostile @a[distance=..16] ~ ~ ~ 1 1', 'kill @s'])
     fn('p54/vwk/grasp', ['playsound minecraft:entity.warden.sonic_charge hostile @a[distance=..40] ~ ~ ~ 1 0.5', 'tag @s add bm.vwkme',
                          f'execute as @a[distance=..16,{NEAR}] at @s run function bm:p54/vwk/grasped', 'tag @s remove bm.vwkme'])
     fn('p54/vwk/grasped', ['effect give @s minecraft:darkness 5 0', 'effect give @s minecraft:slowness 4 1', 'damage @s 4 bm:void by @e[type=minecraft:enderman,tag=bm.vwkme,limit=1]',

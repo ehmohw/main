@@ -215,16 +215,22 @@ def generate(G):
                            'execute rotated ~180 0 run function bm:p57/rig_here',
                            'scoreboard players operation @e[tag=bm.emnew,distance=..4] bm.pid = @s bm.pid',
                            'execute as @e[type=minecraft:item_display,tag=bm.emnew,distance=..4] run tag @s add bm.emsel', 'function bm:p57/grow',
+                           'scoreboard players set #emo bm.rng 4', 'function bm:p57/outfit',
                            'tag @e[tag=bm.emsel] remove bm.emsel', 'tag @e[tag=bm.emnew,distance=..4] remove bm.emnew',
                            'particle minecraft:cherry_leaves ~ ~1 ~ 0.5 1 0.5 0 40', 'particle minecraft:end_rod ~ ~1 ~ 0.4 0.8 0.4 0.05 16',
                            'playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..20] ~ ~ ~ 1 1.4',
                            'playsound minecraft:entity.allay.ambient_without_item neutral @a[distance=..20] ~ ~ ~ 1 1.2',
                            emsay("I'm here! Let's do our best today!")])
+    # (2.54) her outfit follows her buff (#emo = the role): the dress parts swap to that role's colours (Defense: her own blue)
+    OUT = ART.outfit_parts()
+    fn('p57/outfit', [f'execute if score #emo bm.rng matches {m} as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_{p}] run data modify entity @s item.components."minecraft:item_model" set value "bm:em_{p}{"" if m == 3 else f"_m{m}"}"'
+                      for m in MODES for p in OUT])
     fn('p57/rig_here', rig + ['tp @e[type=minecraft:item_display,tag=bm.emnew,distance=..1] ~ ~ ~ ~ 0'])
     fn('p57/rerig', ['kill @e[type=minecraft:item_display,tag=bm.emsel]', 'execute rotated as @s rotated ~ 0 run function bm:p57/rig_here',
                      'scoreboard players operation @e[type=minecraft:item_display,tag=bm.emnew,distance=..2] bm.pid = #me bm.pid',
                      'tag @e[type=minecraft:item_display,tag=bm.emnew,distance=..2] add bm.emsel', 'tag @e[type=minecraft:item_display,tag=bm.emnew,distance=..2] remove bm.emnew',
-                     'function bm:p57/grow', 'scoreboard players set @s bm.ems -1', 'execute if score @s bm.eme matches 1.. run function bm:p57/ethereal_look'])
+                     'function bm:p57/grow', 'scoreboard players set @s bm.ems -1', 'scoreboard players operation #emo bm.rng = @s bm.emm', 'function bm:p57/outfit',
+                     'execute if score @s bm.eme matches 1.. run function bm:p57/ethereal_look'])
 
     # ---- the menu (sneak + use): a dialog with her charge and mode
     MENU = 960
@@ -252,7 +258,11 @@ def generate(G):
                         'scoreboard players remove @e[type=minecraft:cat,tag=bm.emsel2] bm.emm 7300',
                         'scoreboard players set @e[type=minecraft:cat,tag=bm.emsel2] bm.emk 8'] +
        [f'execute if score #act bm.pay matches {7300 + m} run ' + emsay(LINES[m]) for m in MODES] +
-       ['playsound minecraft:block.note_block.chime player @s ~ ~ ~ 0.8 1.6'])
+       ['playsound minecraft:block.note_block.chime player @s ~ ~ ~ 0.8 1.6',
+        'execute as @e[type=minecraft:cat,tag=bm.emsel2] unless score @s bm.eme matches 1.. at @s run function bm:p57/redress'])
+    fn('p57/redress', ['execute as @e[type=minecraft:item_display,tag=bm.emp,tag=!bm.emfade] if score @s bm.pid = #me bm.pid run tag @s add bm.emsel',
+                       'scoreboard players operation #emo bm.rng = @s bm.emm', 'function bm:p57/outfit', 'tag @e[tag=bm.emsel] remove bm.emsel',
+                       'particle minecraft:cherry_leaves ~ ~1 ~ 0.4 0.7 0.4 0 24', 'particle minecraft:end_rod ~ ~1 ~ 0.3 0.6 0.3 0.04 10'])
     fn('p57/dismiss', ['execute as @e[type=minecraft:cat,tag=bm.emsel2] at @s run function bm:p57/fade',
                        'execute as @e[type=minecraft:cat,tag=bm.emsel2] run data remove entity @s Owner',
                        'execute as @e[type=minecraft:cat,tag=bm.emsel2] run tp @s ~ -500 ~', 'kill @e[type=minecraft:cat,tag=bm.emsel2]',
@@ -352,6 +362,7 @@ def generate(G):
     fn('p57/ethereal', ['scoreboard players remove @s bm.eme 1', 'execute if score @s bm.eme matches 0 run return run function bm:p57/descend',
                         f'execute if entity @e[{foe},distance=..14] run function bm:p57/strike'])
     fn('p57/descend', ['execute as @e[type=minecraft:item_display,tag=bm.emp,tag=!bm.emfade] if score @s bm.pid = #me bm.pid run tag @s add bm.emsel'] + swap('em') +
+       ['scoreboard players operation #emo bm.rng = @s bm.emm', 'function bm:p57/outfit'] +
        ['execute as @e[type=minecraft:item_display,tag=bm.emsel] run data remove entity @s brightness',
         *[f'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_{w}] run data merge entity @s {{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[0f,0f,0f]}}}}'
           for w in ('wingr', 'wingl', 'wingro', 'winglo')],
@@ -375,10 +386,14 @@ def generate(G):
 
     # ================================================================== Emma + Cecil: harmony
     def bolt_patch():
-        b = G.FUNCS['p46/pet/bolt']
-        k = next(i for i, l in enumerate(b) if l.startswith('damage @s 5 minecraft:magic'))
-        b[k:k + 1] = ['execute if entity @e[type=minecraft:wolf,tag=bm.cpme,tag=bm.harmony] run damage @s 7 minecraft:magic by @e[type=minecraft:wolf,tag=bm.cpme,limit=1]',
-                      'execute unless entity @e[type=minecraft:wolf,tag=bm.cpme,tag=bm.harmony] run damage @s 5 minecraft:magic by @e[type=minecraft:wolf,tag=bm.cpme,limit=1]']
+        # (2.54: every element's bolt) in harmony, +2
+        for name in [n for n in G.FUNCS if n.startswith('p46/pet/bolt/') and n != 'p46/pet/bolt/arc']:
+            b = G.FUNCS[name]
+            k = next(i for i, l in enumerate(b) if l.startswith('damage @s '))
+            _d, _s, n, typ, *rest = b[k].split(' ')
+            tail = ' '.join([typ] + rest)
+            b[k:k + 1] = [f'execute if entity @e[type=minecraft:wolf,tag=bm.cpme,tag=bm.harmony] run damage @s {int(n) + 2} {tail}',
+                          f'execute unless entity @e[type=minecraft:wolf,tag=bm.cpme,tag=bm.harmony] run damage @s {n} {tail}']
         a = G.FUNCS['p46/pet/act']
         k = next(i for i, l in enumerate(a) if 'bm.cpa matches 2..' in l)
         a.insert(k, a[k].replace('if score @s bm.cpa matches 2..', 'if entity @s[tag=bm.harmony] if score @s bm.cpa matches 1'))
