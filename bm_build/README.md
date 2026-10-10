@@ -1,4 +1,4 @@
-# Black Market — v2.41 (Java 26.3)
+# Black Market — v2.54 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,65 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.54: shifting tools and armour, worn Tendrils, elemental Cecil
+
+**Shifting arms** (Vinny):
+- **Price:** first buy a **Shifting Core** (16 Trophies + 32 Blood Crystals). Then trade the Core plus **one Netherite Ingot for every netherite form** the item can take, so you can't skip mining netherite.
+
+  | Item | Price |
+  |---|---|
+  | Shifting Blade | Core + 3 Netherite |
+  | Shifting Pick (Fortune) | Core + 4 Netherite |
+  | Shifting Pick (Silk Touch) | Core + 4 Netherite |
+  | Shifting Bow | Core |
+
+- **Shifting Blade:** its axe form now has Fire Aspect II, and its trident form has Riptide III.
+- **Shifting Picks:** the old pick is now the **Fortune** set. A new **Silk Touch** set has the same eight forms, with Silk Touch in place of Fortune.
+- **Shifting armour** (6 Trophies + 1 Netherite Ingot a piece):
+  - Press F to cycle the look through leather, chainmail, copper, iron, gold, diamond and netherite (and turtle shell for the helmet).
+  - It always protects like netherite. The look is only a model swap.
+  - Max enchantments; it never breaks.
+
+**KillerWatt's Tendrils** are a true worn layer now:
+- They're drawn as part of your character model (re-skinned elytra wings), so they never fall behind, and they flare out wide when you sneak.
+- OFFENSE shows them spread. RANGED shows them coiled with charged blue tips. Each strike flashes them white-hot.
+- The old teleported display entities are gone.
+
+**Cecil takes an element:**
+- Right-click your Cecil with one of Pearlman's elemental gems. He swallows it, and his hood and staff take its colours.
+- His bolts take its effect:
+
+  | Gem | His bolts |
+  |---|---|
+  | Fire | set monsters alight |
+  | Water | drench and slow |
+  | Poison | poison (his own) |
+  | Earth | root in place |
+  | Electric | lightning that jumps to a second monster |
+  | Rock | heavy hits |
+  | Air | toss monsters into the air |
+  | Grass | drain life to mend you |
+  | Ice | freeze |
+
+- He keeps the element between summons. Each change uses up one gem.
+
+**Emma dresses for her role.** Her dress, sleeves and scarf re-dye for the buff you choose:
+- Speed: sea-green
+- Offense: crimson and gold
+- Defense: her own blue
+- Healing: rose and white
+
+**Bosses:**
+- **The Voidwalker** no longer kills his own Voidlings. They share a team, and his homing stars only ever hit players.
+- **The Elder Treant** can't be stared down any more. While he stands rooted near you, roots erupt under your feet (move!) and he hurls logs at everyone close.
+
+**Other changes:**
+- **The dock master's blue axolotl** is a baby, so a Golden Dandelion keeps it small.
+- **Wireless redstone:**
+  - A Receiver touching a Transmitter powered it and latched on forever, so that spot is now refused.
+  - Placing either one tells you its channel.
+- **Sorting Chests:** place two side by side, facing the same way, and they join into a **double chest** that sorts both halves together.
 
 ## New in 2.51: Donado and the Frog move smoothly
 
