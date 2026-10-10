@@ -1,4 +1,4 @@
-# Black Market — v2.56 (Java 26.3)
+# Black Market — v2.57 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,11 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.57: fixes
+
+- **Cecil's staff** is taller, so the crescent rides above his hood instead of clipping through his head.
+- **Celi** lays her spear along her legs when she sits, instead of through her face.
 
 ## New in 2.56: Celi, a slimmer Cecil, followers faint
 

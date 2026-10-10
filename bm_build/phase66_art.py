@@ -242,7 +242,8 @@ U = RIG_SCALE / 16
 HIP = dict(arml=limb(-1, -12, 46), forel=qa('z', -95))      # her left hand planted on her hip, elbow out
 SPEAR_UP = qmul(qa('z', -6), qa('x', -4))                  # the spear upright at her side, leaning a little out
 TIP_FWD = qa('x', 90)                                      # tip pointing ahead
-BENT = qa('x', -22)                                        # a relaxed bend at the elbow (forward)
+BENT = qa('x', -22)
+SIT_SPEAR = qmul(qa('y', -12), qa('x', 96))                # (resting along her legs, tip ahead - clear of her face)                                        # a relaxed bend at the elbow (forward)
 def P(dy=0.0, **parts):
     d = {k: I for k in PARTS}; d.update(parts); d['_dy'] = dy
     return d
@@ -260,11 +261,11 @@ POSES = {
     'run_up': P(0.1, body=torso(lean=12), head=torso(lean=-10), legr=limb(1, 12), legl=limb(-1, -30), arml=limb(-1, 0, 20), forel=qa('x', -50), armr=limb(1, 22, 4), forer=qa('x', -40), spear=qa('x', 76)),
     'run_b': P(0.02, body=torso(lean=12, tilt=-4), head=torso(lean=-10), legr=limb(1, -42), legl=limb(-1, 46), arml=limb(-1, 40, 14), forel=qa('x', -50), armr=limb(1, 26, 4), forer=qa('x', -40), spear=qa('x', 78)),
     'jump': P(body=torso(lean=6), head=torso(lean=-12), legr=limb(1, 30), legl=limb(-1, -40), arml=limb(-1, 10, 60), forel=qa('z', 30), armr=limb(1, 20, 10), forer=qa('x', -40), spear=qa('x', 60)),
-    # sit: legs out, leaning back on her left hand, the spear propped on her shoulder - still tapping a boot
+    # sit: legs out, leaning back on her left hand, the spear laid across her knees, pointing ahead - still tapping a boot
     'sit_a': P(-0.58, body=torso(lean=-10), head=qmul(qa('y', 16), qa('z', -8)), legr=limb(1, 82), legl=limb(-1, 86), arml=limb(-1, -30, 14), forel=qa('x', 10),
-               armr=limb(1, 30, 0), forer=qa('x', -40), spear=qmul(qa('z', -22), qa('x', -18))),
+               armr=limb(1, 24, 6), forer=qa('x', -46), spear=SIT_SPEAR),
     'sit_b': P(-0.58, body=torso(lean=-10), head=qmul(qa('y', 16), qa('z', -8)), legr=limb(1, 72), legl=limb(-1, 86), arml=limb(-1, -30, 14), forel=qa('x', 10),
-               armr=limb(1, 30, 0), forer=qa('x', -40), spear=qmul(qa('z', -22), qa('x', -18))),
+               armr=limb(1, 24, 6), forer=qa('x', -46), spear=SIT_SPEAR),
     # the thrust: draw back, then drive the spear straight ahead
     'stab_back': P(body=torso(lean=-4, turn=-14), head=torso(turn=10), legr=limb(1, -14), legl=limb(-1, 18), arml=limb(-1, 20, 30), forel=qa('x', -60),
                    armr=limb(1, 20, 10), forer=qa('x', -70), spear=TIP_FWD),
