@@ -1,4 +1,4 @@
-# Black Market — v2.54 (Java 26.3)
+# Black Market — v2.55 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,35 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.55: the rats come alive
+
+Every rat in the market has a much bigger set of poses now. Each one is still a single entity, so the market costs no more lag than before.
+- **Walking:** the market walkers step through a real four-frame walk. Their paws stride, their arms swing, their bodies bob and their tails sway. When they stop to look at you, they fidget like everyone else.
+- **Idle fidgets (every rat):**
+  - they look left and right, and blink
+  - they groom their faces with their paws (a rat holding a weapon uses its free paw)
+  - they scratch behind an ear, swish their tails, sniff and flick their ears
+  - all over their slow breathing
+- **A playful routine for every job**, with a little sound:
+
+  | Rat | Routine |
+  |---|---|
+  | Chef | flips a pancake in his pan |
+  | Professor | reads his book, turns a page, pushes up his glasses |
+  | Lucky | flicks a coin and catches it |
+  | Pirate | takes a swig, then hiccups |
+  | Soldier | salutes, then stamps to attention |
+  | Ember Rat | juggles embers |
+  | Void Rat | motes orbit his head |
+  | Auctioneer | bangs his gavel |
+  | Concierge | gives a deep bow |
+  | Teller | counts out a stack of coins |
+  | The Lord | gives a regal wave |
+  | Madame | gazes into her crystal ball |
+  | The Gentleman in Grey | checks his pocket watch |
+  | The Mercenary | sharpens his knife |
+  | The Rat Familiar (on your shoulder) | chases its tail |
 
 ## New in 2.54: shifting tools and armour, worn Tendrils, elemental Cecil
 
