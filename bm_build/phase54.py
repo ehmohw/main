@@ -329,6 +329,40 @@ def generate(G):
                             f'execute as @a[distance=..9,{NEAR}] at @s run function bm:p54/trt/bramble', 'tag @s remove bm.trtme'])
     fn('p54/trt/bramble', ['damage @s 5 bm:bramble by @e[type=minecraft:creaking,tag=bm.trtme,limit=1]', 'effect give @s minecraft:poison 3 0',
                            'particle minecraft:block{block_state:"minecraft:sweet_berry_bush"} ~ ~0.5 ~ 0.4 0.4 0.4 0 20'])
+    # (2.54) STARED DOWN: a creaking freezes while you watch it - so when the Treant stands rooted near you it fights from where it
+    # stands: roots erupt under your feet (move!), and it hurls logs at everyone near. Look away and it walks; watch and it bites.
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.trtpx dummy', 'scoreboard objectives add bm.trtpz dummy', 'scoreboard objectives add bm.trts dummy']
+    G.OBJECTIVES += ['bm.trtpx', 'bm.trtpz', 'bm.trts']
+    G.FUNCS['p54/trt/second'][2:2] = ['function bm:p54/trt/still']
+    fn('p54/trt/still', ['execute store result score #px bm.rng run data get entity @s Pos[0] 10', 'execute store result score #pz bm.rng run data get entity @s Pos[2] 10',
+                         'scoreboard players operation #dx bm.rng = #px bm.rng', 'scoreboard players operation #dx bm.rng -= @s bm.trtpx',
+                         'scoreboard players operation #dz bm.rng = #pz bm.rng', 'scoreboard players operation #dz bm.rng -= @s bm.trtpz',
+                         'scoreboard players operation @s bm.trtpx = #px bm.rng', 'scoreboard players operation @s bm.trtpz = #pz bm.rng',
+                         f'execute unless entity @a[distance=..24,{NEAR}] run return run scoreboard players set @s bm.trts 0',
+                         'execute unless score #dx bm.rng matches -2..2 run return run scoreboard players set @s bm.trts 0',
+                         'execute unless score #dz bm.rng matches -2..2 run return run scoreboard players set @s bm.trts 0',
+                         'scoreboard players add @s bm.trts 1', 'execute if score @s bm.trts matches 2.. rotated ~ 0 run function bm:p54/trt/stared'])
+    fn('p54/trt/stared', ['execute if score @s bm.trts matches 2 run ' + title('@a[distance=..32]', 'actionbar', T('The Elder Treant stands rooted... the ground stirs beneath you!', OAK, bold=True)),
+                          'scoreboard players operation #s bm.rng = @s bm.trts', 'scoreboard players operation #s bm.rng %= #2 bm.rng',
+                          'execute if score #s bm.rng matches 0 run function bm:p54/trt/snare',
+                          'execute if score #s bm.rng matches 1 run function bm:p54/trt/volley'])
+    fn('p54/trt/snare', ['playsound minecraft:block.rooted_dirt.break hostile @a[distance=..32] ~ ~ ~ 2 0.4',
+                         f'execute as @a[distance=..24,{NEAR},sort=random,limit=3] at @s run summon minecraft:marker ~ ~ ~ {{Tags:["bm.r54snare","bm.r54sn"]}}',
+                         'scoreboard players set @e[type=minecraft:marker,tag=bm.r54sn] bm.rfx 22', 'tag @e[tag=bm.r54sn] remove bm.r54sn'])
+    tick.append('execute as @e[type=minecraft:marker,tag=bm.r54snare] at @s run function bm:p54/trt/snare_tick')
+    fn('p54/trt/snare_tick', ['scoreboard players remove @s bm.rfx 1', *ring(1.3, 8, 0.1, 'minecraft:block{block_state:"minecraft:rooted_dirt"}'),
+                              'particle minecraft:block{block_state:"minecraft:mangrove_roots"} ~ ~0.1 ~ 0.5 0.05 0.5 0 2',
+                              'execute if score @s bm.rfx matches 0 run function bm:p54/trt/erupt', 'execute if score @s bm.rfx matches ..0 run kill @s'])
+    fn('p54/trt/erupt', ['particle minecraft:block{block_state:"minecraft:mangrove_roots"} ~ ~0.8 ~ 0.5 1 0.5 0 50', 'particle minecraft:block{block_state:"minecraft:oak_log"} ~ ~0.5 ~ 0.6 0.6 0.6 0 30',
+                         'playsound minecraft:block.roots.break hostile @a[distance=..24] ~ ~ ~ 2 0.5', 'playsound minecraft:entity.creaking.attack hostile @a[distance=..24] ~ ~ ~ 1.5 0.6',
+                         f'execute as @a[distance=..2.3,{NEAR}] at @s run function bm:p54/trt/impaled'])
+    fn('p54/trt/impaled', ['damage @s 6 bm:bramble by @e[type=minecraft:creaking,tag=bm.trt,limit=1,sort=nearest]', 'effect give @s minecraft:slowness 3 3',
+                           'effect give @s minecraft:levitation 1 3 true'])
+    fn('p54/trt/volley', ['playsound minecraft:entity.creaking.attack hostile @a[distance=..32] ~ ~ ~ 2 0.4', 'tag @s add bm.trtme',
+                          f'execute as @a[distance=..28,{NEAR},sort=random,limit=3] at @s run function bm:p54/trt/volley1', 'tag @s remove bm.trtme'])
+    fn('p54/trt/volley1', ['tag @s add bm.trttg',
+                           'execute as @e[type=minecraft:creaking,tag=bm.trtme,limit=1] at @s facing entity @a[tag=bm.trttg,limit=1] eyes run function bm:p54/lob {blk:"minecraft:oak_log",k:"log"}',
+                           'tag @s remove bm.trttg'])
     fn('p54/trt/enrage', ['tag @s add bm.trt_rage', 'effect give @s minecraft:regeneration 12 1 true',
                           'attribute @s minecraft:movement_speed modifier add bm:trt_rage 0.25 add_multiplied_base', 'bossbar set bm:trt color yellow',
                           title('@a[distance=..48]', 'actionbar', T('The forest groans - the Elder Treant draws life from its roots!', OAK, bold=True)),
@@ -427,13 +461,16 @@ def generate(G):
                           'execute if score #fk bm.rng matches 2 run return run function bm:p54/vwk/summon'])
 
     # ================================================================== THE VOIDWALKER (a giant enderman)
+    # (2.54) the Voidwalker and its Voidlings share a team - an enderman hunts endermites, but never its own side
+    G.FUNCS['load'][-1:-1] = ['team add bm.void', 'team modify bm.void friendlyFire false', 'team modify bm.void color dark_purple', 'team modify bm.void collisionRule pushOwnTeam']
     fn('p54/vwk/summon', [f'summon minecraft:enderman ~ ~ ~ {snbt(VOIDWALKER)}', 'execute as @e[type=minecraft:enderman,tag=bm.vwk_new] run function bm:p54/init',
+                          'team join bm.void @e[type=minecraft:enderman,tag=bm.vwk_new]',
                           'tag @e[tag=bm.vwk_new] remove bm.vwk_new', 'execute store result score #vwkseen bm.bm run time query gametime',
                           'particle minecraft:portal ~ ~3 ~ 1.5 3 1.5 1 300', 'particle minecraft:reverse_portal ~ ~3 ~ 1.5 3 1.5 0.1 100',
                           'playsound minecraft:entity.enderman.stare hostile @a[distance=..48] ~ ~ ~ 2 0.5', 'playsound minecraft:block.end_portal.spawn hostile @a[distance=..48] ~ ~ ~ 0.6 0.6',
                           'execute as @a[distance=..32,gamemode=!spectator] at @s run function bm:p54/vwk/sense'])
     # it is always angry at the nearest player, and never carries blocks off
-    G.FUNCS['p54/vwk/second'][1:1] = [f'execute if entity @a[distance=..64,{NEAR}] run data modify entity @s angry_at set from entity @p[distance=..64,{NEAR}] UUID',
+    G.FUNCS['p54/vwk/second'][1:1] = ['execute if entity @s[team=] run team join bm.void @s',f'execute if entity @a[distance=..64,{NEAR}] run data modify entity @s angry_at set from entity @p[distance=..64,{NEAR}] UUID',
                                       'execute store result score #ae bm.rng run time query gametime', 'scoreboard players add #ae bm.rng 400',
                                       'execute store result entity @s anger_end_time long 1 run scoreboard players get #ae bm.rng',
                                       'data remove entity @s carriedBlockState']
@@ -467,7 +504,8 @@ def generate(G):
                            'particle minecraft:reverse_portal ~ ~1 ~ 0.4 0.8 0.4 0.1 30'])
     fn('p54/vwk/voidlings', ['execute store result score #mc bm.rng if entity @e[type=minecraft:endermite,tag=bm.vwkmin,distance=..40]',
                              'execute if score #mc bm.rng matches 6.. run return 0', 'playsound minecraft:entity.endermite.ambient hostile @a[distance=..32] ~ ~ ~ 2 0.5'] +
-       [f'execute positioned ^{x} ^ ^1.5 if block ~ ~ ~ #bm:grap_pass run summon minecraft:endermite ~ ~ ~ {snbt(VOIDLING)}' for x in (-1.5, 0, 1.5)])
+       [f'execute positioned ^{x} ^ ^1.5 if block ~ ~ ~ #bm:grap_pass run summon minecraft:endermite ~ ~ ~ {snbt(VOIDLING)}' for x in (-1.5, 0, 1.5)] +
+       ['team join bm.void @e[type=minecraft:endermite,tag=bm.vwkmin,team=]'])
     fn('p54/vwk/enrage', ['tag @s add bm.vwk_rage', 'effect give @s minecraft:strength infinite 0 true',
                           'attribute @s minecraft:movement_speed modifier add bm:vwk_rage 0.3 add_multiplied_base', 'bossbar set bm:vwk color red',
                           title('@a[distance=..48]', 'actionbar', T('The Voidwalker tears at the stars!', VOID, bold=True)),

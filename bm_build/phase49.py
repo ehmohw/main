@@ -76,6 +76,7 @@ def _stack_ids():
 def generate(G):
     fn, wjson, title, tellraw, give = G.fn, G.wjson, G.title, G.tellraw, G.give
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
+    say_to = lambda who, parts: title(who, 'actionbar', parts)
     tick, fast, second = [], [], []
     objs = ['bm.rsc dummy', 'bm.rsp dummy', 'bm.rst dummy', 'bm.wl dummy', 'bm.wlw dummy', 'bm.chop minecraft.custom:minecraft.open_chest']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o}' for o in objs]
@@ -100,6 +101,11 @@ def generate(G):
     fn('p49/aim', ['kill @e[type=minecraft:marker,tag=bm.p49hit]', 'scoreboard players set #rs bm.rng 62', 'scoreboard players set #placed bm.rng 0',
                    'execute anchored eyes positioned ^ ^ ^ run function bm:p49/ray', 'kill @e[type=minecraft:marker,tag=bm.p49hit]'])
     fn('p49/at_cell', ['execute positioned ~-0.5 ~-0.5 ~-0.5 if entity @e[type=!#bm:p45_nonmob,dx=0,dy=0,dz=0] run return run ' + say('Something is in the way.'),
+                       # (2.54) a receiver touching a transmitter powers it - and then it can never switch off again
+                       'execute if data storage bm:tmp {rs:{k:"wireless_receiver"}} if entity @e[type=minecraft:marker,tag=bm.rs_wireless_transmitter,distance=..1.1] run return run '
+                       + say('Too close to a Transmitter: it would power it and never switch off. Leave a gap.', 'red'),
+                       'execute if data storage bm:tmp {rs:{k:"wireless_transmitter"}} if entity @e[type=minecraft:marker,tag=bm.rs_wireless_receiver,distance=..1.1] run return run '
+                       + say('Too close to a Receiver: it would power this and never switch off. Leave a gap.', 'red'),
                        'execute unless function bm:p35/safe_dig run return run ' + say('The Market\'s wards won\'t let you build here.', 'red'),
                        # facing for hoppers (into the clicked block; never up)
                        'scoreboard players set #hf bm.rng 0'] +
@@ -131,11 +137,15 @@ def generate(G):
         if k == 'block_breaker':
             put.append('data merge block ~ ~ ~ {lock:{items:"minecraft:barrier",predicates:{"minecraft:custom_data":{bm_lock:1b}}}}')
         put += marker(k)
+        if k == 'sorting_chest':
+            put.append('function bm:p49/sort/pair')
         if k.startswith('wireless'):
             # the channel is the item's name (unnamed items share the blank channel)
             put += ['data modify entity @e[type=minecraft:marker,tag=bm.rsnew,limit=1] data.ch set value ""',
                     'data modify entity @e[type=minecraft:marker,tag=bm.rsnew,limit=1] data.ch set from entity @s SelectedItem.components."minecraft:custom_name"',
-                    'scoreboard players set #wlchg bm.rng 1']
+                    'scoreboard players set #wlchg bm.rng 1',
+                    'execute as @e[type=minecraft:marker,tag=bm.rsnew,limit=1] if data entity @s {data:{ch:""}} run ' + say_to('@a[distance=..8,limit=1,sort=nearest]', [T(name + ' placed - no channel (name it in an anvil to pick one)', 'gray')]),
+                    'execute as @e[type=minecraft:marker,tag=bm.rsnew,limit=1] unless data entity @s {data:{ch:""}} run ' + say_to('@a[distance=..8,limit=1,sort=nearest]', [T(name + ' placed - channel: ', col), {'entity': '@s', 'nbt': 'data.ch', 'interpret': True, 'color': 'white'}])]
         if k == 'redstone_clock':
             put += ['scoreboard players set @e[type=minecraft:marker,tag=bm.rsnew] bm.rsp 1', 'scoreboard players set @e[type=minecraft:marker,tag=bm.rsnew] bm.rsc 20']
         put.append('tag @e[type=minecraft:marker,tag=bm.rsnew] remove bm.rsnew')
@@ -234,7 +244,7 @@ def generate(G):
     tick.append('execute as @a[scores={bm.chop=1..}] at @s run function bm:p49/sort/opened')
     fn('p49/sort/opened', ['scoreboard players reset @s bm.chop', 'scoreboard players set #rs bm.rng 70',
                            'execute anchored eyes positioned ^ ^ ^ run function bm:p49/sort/ray'])
-    fn('p49/sort/ray', ['execute if block ~ ~ ~ minecraft:chest align xyz positioned ~0.5 ~0.5 ~0.5 run return run execute as @e[type=minecraft:marker,tag=bm.rs_sorting_chest,distance=..0.3,limit=1] at @s run function bm:p49/sort/go',
+    fn('p49/sort/ray', ['execute if block ~ ~ ~ minecraft:chest align xyz positioned ~0.5 ~0.5 ~0.5 run return run function bm:p49/sort/at_chest',
                         'execute unless block ~ ~ ~ #bm:p49_open run return 0', 'scoreboard players remove #rs bm.rng 1',
                         'execute if score #rs bm.rng matches 1.. positioned ^ ^ ^0.08 run function bm:p49/sort/ray'])
     S = 'storage bm:sort'
@@ -243,10 +253,42 @@ def generate(G):
     rank = {iid: i for i, iid in enumerate(sorted(v for vs in by.values() for v in vs))}
     G.FUNCS['load'][-1:-1] = [f'data modify {S} s16 set value {json.dumps(by.get(16, []))}', f'data modify {S} s1 set value {json.dumps(by.get(1, []))}',
                               f'data modify {S} rank set value {snbt({k: rank[k] for k in rank})}']
+    # (2.54) a double chest sorts as one: both halves' items go in, the sorted run fills the top half (the "right" chest) then the bottom
+    CW = {'north': (1, 0), 'east': (0, 1), 'south': (-1, 0), 'west': (0, -1)}         # where a "left" half finds its partner
+    def partner_pos(f, t):
+        dx, dz = CW[f]
+        return (dx, dz) if t == 'left' else (-dx, -dz)
     fn('p49/sort/go', [f'data modify {S} src set from block ~ ~ ~ Items', f'data modify {S} groups set value []',
-                       'function bm:p49/sort/group', f'data modify {S} out set value []', 'scoreboard players set #slot bm.rng 0',
-                       'function bm:p49/sort/pick', f'data modify block ~ ~ ~ Items set from {S} out',
+                       'scoreboard players set #dbl bm.rng 0', 'scoreboard players set #cap bm.rng 27', 'kill @e[type=minecraft:marker,tag=bm.sortp]',
+                       'execute unless block ~ ~ ~ minecraft:chest[type=single] run function bm:p49/sort/partner',
+                       'function bm:p49/sort/group', f'data modify {S} out set value []', f'data modify {S} out2 set value []', 'scoreboard players set #slot bm.rng 0',
+                       'function bm:p49/sort/pick',
+                       f'execute if score #dbl bm.rng matches 0 run data modify block ~ ~ ~ Items set from {S} out',
+                       f'execute if score #dbl bm.rng matches 1 if block ~ ~ ~ minecraft:chest[type=right] run data modify block ~ ~ ~ Items set from {S} out',
+                       f'execute if score #dbl bm.rng matches 1 if block ~ ~ ~ minecraft:chest[type=right] at @e[type=minecraft:marker,tag=bm.sortp,limit=1] run data modify block ~ ~ ~ Items set from {S} out2',
+                       f'execute if score #dbl bm.rng matches 1 if block ~ ~ ~ minecraft:chest[type=left] run data modify block ~ ~ ~ Items set from {S} out2',
+                       f'execute if score #dbl bm.rng matches 1 if block ~ ~ ~ minecraft:chest[type=left] at @e[type=minecraft:marker,tag=bm.sortp,limit=1] run data modify block ~ ~ ~ Items set from {S} out',
+                       'kill @e[type=minecraft:marker,tag=bm.sortp]',
                        'playsound minecraft:block.chiseled_bookshelf.insert block @a[distance=..8] ~ ~ ~ 0.6 1.4'])
+    fn('p49/sort/partner', [f'execute if block ~ ~ ~ minecraft:chest[facing={f},type={t}] positioned ~{partner_pos(f, t)[0]} ~ ~{partner_pos(f, t)[1]} '
+                            f'if block ~ ~ ~ minecraft:chest run summon minecraft:marker ~ ~ ~ {{Tags:["bm.sortp"]}}' for f in CW for t in ('left', 'right')] +
+       ['execute unless entity @e[type=minecraft:marker,tag=bm.sortp] run return 0', 'scoreboard players set #dbl bm.rng 1', 'scoreboard players set #cap bm.rng 54',
+        f'execute at @e[type=minecraft:marker,tag=bm.sortp,limit=1] run data modify {S} src append from block ~ ~ ~ Items[]'])
+    # opening either half finds the sorting chest (the half you opened, or its partner)
+    fn('p49/sort/at_chest', ['execute as @e[type=minecraft:marker,tag=bm.rs_sorting_chest,distance=..0.3,limit=1] at @s run return run function bm:p49/sort/go'] +
+       [f'execute if block ~ ~ ~ minecraft:chest[facing={f},type={t}] positioned ~{partner_pos(f, t)[0]} ~ ~{partner_pos(f, t)[1]} as @e[type=minecraft:marker,tag=bm.rs_sorting_chest,distance=..0.3,limit=1] at @s run return run function bm:p49/sort/go'
+        for f in CW for t in ('left', 'right')])
+    # placed beside another sorting chest facing the same way, the two join into a double chest (the neighbour keeps its items)
+    fn('p49/sort/pair', [f'execute if block ~ ~ ~ minecraft:chest[facing={f}] positioned ~{dx * sg} ~ ~{dz * sg} if block ~ ~ ~ minecraft:chest[facing={f},type=single] '
+                         f'if entity @e[type=minecraft:marker,tag=bm.rs_sorting_chest,distance=..0.3] positioned ~{-dx * sg} ~ ~{-dz * sg} run return run function bm:p49/sort/join_{f}_{me}'
+                         for f, (dx, dz) in CW.items() for sg, me in ((1, 'left'), (-1, 'right'))])
+    for f, (dx, dz) in CW.items():
+        for sg, me, it in ((1, 'left', 'right'), (-1, 'right', 'left')):
+            o = f'~{dx * sg} ~ ~{dz * sg}'
+            fn(f'p49/sort/join_{f}_{me}', [f'data modify {S} keep set from block {o} Items', f'data modify {S} kname set from block {o} CustomName',
+                                           f'setblock {o} minecraft:chest[facing={f},type={it}]', f'data modify block {o} Items set from {S} keep',
+                                           f'data modify block {o} CustomName set from {S} kname', f'setblock ~ ~ ~ minecraft:chest[facing={f},type={me}]',
+                                           'data merge block ~ ~ ~ {CustomName:' + snbt(T('Sorting Chest', '#e8c060')) + '}'])
     # 1) group identical items (everything but slot and count), adding up the counts
     fn('p49/sort/group', [f'execute unless data {S} src[0] run return 0', f'data modify {S} key set from {S} src[0]', f'data remove {S} key.Slot',
                           f'data remove {S} key.count', 'scoreboard players set #tot bm.rng 0', f'data modify {S} rest set value []', 'function bm:p49/sort/scan',
@@ -284,8 +326,11 @@ def generate(G):
                            f'data modify {S} el set from {S} best.key', f'execute store result {S} el.count int 1 run scoreboard players get #n bm.rng',
                            f'execute store result {S} el.Slot byte 1 run scoreboard players get #slot bm.rng',
                            f'execute if score #slot bm.rng matches ..26 run data modify {S} out append from {S} el',
-                           'execute if score #slot bm.rng matches 27.. run function bm:p49/sort/spill', 'scoreboard players add #slot bm.rng 1',
+                           'execute if score #dbl bm.rng matches 1 if score #slot bm.rng matches 27..53 run function bm:p49/sort/lower',
+                           'execute if score #slot bm.rng >= #cap bm.rng run function bm:p49/sort/spill', 'scoreboard players add #slot bm.rng 1',
                            'function bm:p49/sort/stacks'])
+    fn('p49/sort/lower', ['scoreboard players operation #s2 bm.rng = #slot bm.rng', 'scoreboard players remove #s2 bm.rng 27',
+                          f'execute store result {S} el.Slot byte 1 run scoreboard players get #s2 bm.rng', f'data modify {S} out2 append from {S} el'])
     fn('p49/sort/spill', ['summon minecraft:item ~ ~1 ~ {Item:{id:"minecraft:stone",count:1},Tags:["bm.spill"]}', f'data remove {S} el.Slot',
                           f'data modify entity @e[type=minecraft:item,tag=bm.spill,limit=1,sort=nearest] Item set from {S} el', 'tag @e[tag=bm.spill] remove bm.spill'])
 

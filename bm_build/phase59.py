@@ -21,7 +21,7 @@ YEL, GRN, BLU, PUR = '#ffe23a', '#30d070', '#7ac8ff', '#b48cff'
 UNBR = {'minecraft:unbreakable': {}}
 
 item('killerwatt_tendrils', TOTEM, "KillerWatt's Tendrils", YEL,
-     ['The storm-alien\'s lightning arms. Worn in place of', 'a chestplate (no armour): four tendrils from your back.',
+     ['The storm-alien\'s lightning arms. Worn in place of', 'a chestplate (no armour): four tendrils from your back.', ('Sneak and they flare out wide.', 'gray'),
       ('Double-tap sneak: switch RANGED / OFFENSE.', 'gold'),
       ('Ranged: they lash monsters ahead of you (up to', 'blue'), ('20 blocks) - 10 lightning, arcing to two more.', 'blue'),
       ('Offense: +2 reach; your blows bring a double', 'blue'), ('stab (+6, piercing), and they drag monsters in.', 'blue'),
@@ -29,7 +29,7 @@ item('killerwatt_tendrils', TOTEM, "KillerWatt's Tendrils", YEL,
       ('They snatch up dropped items near you.', 'blue'), ('+15% speed, taller step, no fall damage.', 'blue'),
       ('Rain: stronger, faster. Thunderstorm: far stronger,', 'aqua'), ('and they call down lightning.', 'aqua')],
      model='bm:killerwatt_tendrils', stack=1, cat='weapon', glint=False, tier=3,
-     comps={'minecraft:equippable': {'slot': 'chest', 'swappable': True, 'equip_sound': 'minecraft:item.armor.equip_chain'},
+     comps={'minecraft:equippable': {'slot': 'chest', 'swappable': True, 'asset_id': 'bm:kw_tendrils', 'equip_sound': 'minecraft:item.armor.equip_chain'},
             'minecraft:attribute_modifiers': [attr('movement_speed', 0.15, 'chest', 'add_multiplied_base'), attr('step_height', 0.5, 'chest'),
                                                 attr('entity_interaction_range', 2, 'chest')],
             'minecraft:enchantments': {'bm:kw_tendrils': 1}})
@@ -115,42 +115,28 @@ def generate(G):
     wjson('bm/predicate/p59/storm.json', {'condition': 'minecraft:all_of', 'terms': [{'condition': 'minecraft:weather_check', 'thundering': True},
                                                                                     {'condition': 'minecraft:location_check', 'offsetY': 1.6, 'predicate': {'can_see_sky': True}}]})
     worn = f'items entity @s armor.chest {holds % "killerwatt_tendrils"}'
-    # the four tendrils: display entities that stand at your back every tick (players can't carry passengers)
+    # (2.54) the tendrils are a true worn layer now - the equipment asset's 'wings' layer (the elytra model, re-skinned): they're part of
+    # your model, so they move with you exactly (and flare out when you sneak). Three looks, swapped by changing the worn item's
+    # asset: OFFENSE (spread), RANGED (coiled, charged blue) and the white-hot strike flash.
     import math as _m
-    def qfrom(d):
-        """the rotation taking the model's +y (the tendril) to direction d, in the display frame (your front is +z, your right -x)"""
-        n = _m.sqrt(sum(v * v for v in d)); d = [v / n for v in d]
-        ax = [d[2], 0.0, -d[0]]; s_ = _m.sqrt(ax[0] ** 2 + ax[2] ** 2); c_ = d[1]
-        if s_ < 1e-6: return [F(0), F(0), F(0), F(1)]
-        h = _m.acos(max(-1, min(1, c_))) / 2; k = _m.sin(h) / s_
-        return [F(round(ax[0] * k, 4)), F(0), F(round(ax[2] * k, 4)), F(round(_m.cos(h), 4))]
-    # (2.42: two blade segments per tendril, a sharp elbow between - poses and the clipping-checked lunge in phase59_tendrils)
-    import phase59_tendrils as TD
-    TEN = TD.TENDRILS
-    L1 = TD.L1_UNITS * TD.SCALE / 16
-    def unit(v):
-        n = _m.sqrt(sum(a * a for a in v)); return [a / n for a in v]
-    def seg_xf(k, pose):
-        b, t = TEN[k][1][pose]
-        jb = [round(L1 * a, 4) for a in unit(b)]
-        return (f'left_rotation:{snbt(qfrom(b))},translation:[0f,0f,0f]', f'left_rotation:{snbt(qfrom(t))},translation:[{jb[0]}f,{jb[1]}f,{jb[2]}f]')
-    def tnbt(k, sg):
-        b, t = TEN[k][1]['idle']; jb = [F(round(L1 * a, 4)) for a in unit(b)]
-        return snbt({'Tags': ['bm.kwt', f'bm.kwt_{k}', f'bm.kws_{sg}', 'bm.kwtnew'],
-                     'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': f'bm:kw_t{sg}'}},
-                     'item_display': 'fixed', 'teleport_duration': Int(1), 'interpolation_duration': Int(10), 'brightness': {'block': Int(12), 'sky': Int(15)},
-                     'transformation': {'left_rotation': qfrom(b if sg == 'b' else t), 'right_rotation': [F(0), F(0), F(0), F(1)],
-                                        'translation': [F(0)] * 3 if sg == 'b' else jb, 'scale': [F(TD.SCALE)] * 3}})
+    LOOKS = {'off': 'kw_tendrils', 'rng': 'kw_tendrils_r', 'hit': 'kw_tendrils_s'}
+    for lk, asset in LOOKS.items():
+        wjson(f'bm/item_modifier/p59/kw_{lk}.json', {'function': 'minecraft:set_components', 'components': {'minecraft:equippable': {
+            'slot': 'chest', 'swappable': True, 'asset_id': f'bm:{asset}', 'equip_sound': 'minecraft:intentionally_empty'}}})
     tick.append(f'execute as @a[gamemode=!spectator] if {worn} at @s run function bm:p59/kw/tick')
-    tick.append('execute as @e[type=minecraft:item_display,tag=bm.kwt,tag=!bm.kwok] run kill @s')       # nobody wears them any more
-    tick.append('tag @e[type=minecraft:item_display,tag=bm.kwok] remove bm.kwok')
-    KEYS = list(TEN)
+    tick.append(f'execute as @a[tag=bm.kwon] unless {worn} run tag @s remove bm.kwon')
+    G.FUNCS['load'][-1:-1] = ['kill @e[type=minecraft:item_display,tag=bm.kwt]']          # (the old teleported tendrils, from before 2.54)
+    fn('p59/kw/look', ['execute if score @s bm.kwmd matches 1 run return run item modify entity @s armor.chest bm:p59/kw_rng', 'item modify entity @s armor.chest bm:p59/kw_off'])
+    fn('p59/kw/flash', ['execute unless score @s bm.kwfl matches 1.. run item modify entity @s armor.chest bm:p59/kw_hit', 'scoreboard players set @s bm.kwfl 6'])
+    fn('p59/kw/on', ['tag @s add bm.kwon', 'function bm:p59/kw/look',
+                     'playsound minecraft:block.copper_bulb.turn_on player @a[distance=..12] ~ ~ ~ 1 0.6', 'particle minecraft:electric_spark ~ ~1.2 ~ 0.3 0.4 0.3 0.2 20',
+                     'execute if score @s bm.kwmd matches 1 run ' + title('@s', 'actionbar', [T('Tendrils: ', YEL, bold=True), T('RANGED', '#7ac8ff', bold=True), T(' (double-tap sneak to switch)', 'gray')]),
+                     'execute unless score @s bm.kwmd matches 1 run ' + title('@s', 'actionbar', [T('Tendrils: ', YEL, bold=True), T('OFFENSE', '#ff6a5a', bold=True), T(' (double-tap sneak to switch)', 'gray')])])
     fn('p59/kw/tick', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
-                       'execute as @e[type=minecraft:item_display,tag=bm.kwt] if score @s bm.pid = #me bm.pid run tag @s add bm.kwok',
-                       'execute store result score #n bm.rng if entity @e[type=minecraft:item_display,tag=bm.kwok,distance=..4]',
-                       'execute unless score #n bm.rng matches 8 run function bm:p59/kw/sprout',
-                       # (2.49) the displays are placed a tick ahead - where you'll be next tick - so they keep up at any speed
-                       'function bm:p59/kw/lead',
+                       'execute unless entity @s[tag=bm.kwon] run function bm:p59/kw/on',
+                       'execute if score @s bm.kwfl matches 1.. run scoreboard players remove @s bm.kwfl 1',
+                       'execute if score @s bm.kwfl matches 0 run function bm:p59/kw/look',
+                       'execute if score @s bm.kwfl matches 0 run scoreboard players reset @s bm.kwfl',
                        'scoreboard players add @s bm.kwt 1',
                        'scoreboard players operation #f4 bm.rng = @s bm.kwt', 'scoreboard players operation #f4 bm.rng %= #4 bm.rng',
                        # double-tap sneak: RANGED <-> OFFENSE
@@ -164,54 +150,12 @@ def generate(G):
                        'execute if score @s bm.kwlt matches 1.. run function bm:p59/kw/lunge_tick',
                        'execute if score @s bm.kwjt matches 1.. run function bm:p59/kw/fling_tick',
                        'execute if score @s bm.kwmc matches 1.. run scoreboard players remove @s bm.kwmc 1'])
-    fn('p59/kw/lead', ['execute store result score #cx bm.rng run data get entity @s Pos[0] 100', 'execute store result score #cy bm.rng run data get entity @s Pos[1] 100',
-                       'execute store result score #cz bm.rng run data get entity @s Pos[2] 100',
-                       'scoreboard players operation #dx bm.rng = #cx bm.rng', 'scoreboard players operation #dx bm.rng -= @s bm.kwpx',
-                       'scoreboard players operation #dy bm.rng = #cy bm.rng', 'scoreboard players operation #dy bm.rng -= @s bm.kwpy',
-                       'scoreboard players operation #dz bm.rng = #cz bm.rng', 'scoreboard players operation #dz bm.rng -= @s bm.kwpz',
-                       'scoreboard players operation @s bm.kwpx = #cx bm.rng', 'scoreboard players operation @s bm.kwpy = #cy bm.rng', 'scoreboard players operation @s bm.kwpz = #cz bm.rng',
-                       # (a teleport isn't movement - no lead)
-                       'execute unless score #dx bm.rng matches -250..250 run scoreboard players set #dx bm.rng 0', 'execute unless score #dy bm.rng matches -250..250 run scoreboard players set #dy bm.rng 0',
-                       'execute unless score #dz bm.rng matches -250..250 run scoreboard players set #dz bm.rng 0',
-                       'execute store result storage bm:tmp kw.dx double 0.01 run scoreboard players get #dx bm.rng',
-                       'execute store result storage bm:tmp kw.dy double 0.01 run scoreboard players get #dy bm.rng',
-                       'execute store result storage bm:tmp kw.dz double 0.01 run scoreboard players get #dz bm.rng',
-                       'function bm:p59/kw/lead1 with storage bm:tmp kw'])
-    fn('p59/kw/lead1', ['$execute positioned ~$(dx) ~$(dy) ~$(dz) run function bm:p59/kw/place0'])
-    fn('p59/kw/place0', ['execute if predicate bm:p20/sneaking rotated ~ 0 positioned ~ ~-0.3 ~ run function bm:p59/kw/place',
-                         'execute unless predicate bm:p20/sneaking rotated ~ 0 run function bm:p59/kw/place'])
-    fn('p59/kw/place', [f'execute positioned ^{m[0]} ^{m[1]} ^{m[2]} run tp @e[type=minecraft:item_display,tag=bm.kwok,tag=bm.kwt_{k},distance=..4] ~ ~ ~ ~ 0'
-                        for k, (m, _p) in TEN.items()])
-    fn('p59/kw/sprout', ['execute as @e[type=minecraft:item_display,tag=bm.kwok,distance=..6] run kill @s'] +
-       [f'summon minecraft:item_display ~ ~1 ~ {tnbt(k, sg)}' for k in TEN for sg in ('b', 't')] +
-       ['scoreboard players operation @e[type=minecraft:item_display,tag=bm.kwtnew] bm.pid = #me bm.pid',
-        'tag @e[type=minecraft:item_display,tag=bm.kwtnew] add bm.kwok', 'tag @e[type=minecraft:item_display,tag=bm.kwtnew] remove bm.kwtnew',
-        'playsound minecraft:block.copper_bulb.turn_on player @a[distance=..12] ~ ~ ~ 1 0.6', 'particle minecraft:electric_spark ~ ~1.2 ~ 0.3 0.4 0.3 0.2 20',
-        'execute if score @s bm.kwmd matches 1 run ' + title('@s', 'actionbar', [T('Tendrils: ', YEL, bold=True), T('RANGED', '#7ac8ff', bold=True), T(' (double-tap sneak to switch)', 'gray')]),
-        'execute unless score @s bm.kwmd matches 1 run ' + title('@s', 'actionbar', [T('Tendrils: ', YEL, bold=True), T('OFFENSE', '#ff6a5a', bold=True), T(' (double-tap sneak to switch)', 'gray')])])
-    # poses: (as the wearer) both segments of tendril k take a pose over `d` ticks
-    POSE_DUR = {'idle': (5,), 'sway_a': (20,), 'sway_b': (20,), 'mid': (2,), 'lunge': (2,), 'fling': (2,)}
-    for k in TEN:
-        for pose, durs in POSE_DUR.items():
-            for d in durs:
-                xb, xt = seg_xf(k, pose)
-                fn(f'p59/kw/pose/{k}/{pose}', [
-                    f'execute as @e[type=minecraft:item_display,tag=bm.kwok,tag=bm.kwt_{k},tag=bm.kws_b,distance=..4] run data merge entity @s {{start_interpolation:0,interpolation_duration:{d},transformation:{{{xb}}}}}',
-                    f'execute as @e[type=minecraft:item_display,tag=bm.kwok,tag=bm.kwt_{k},tag=bm.kws_t,distance=..4] run data merge entity @s {{start_interpolation:0,interpolation_duration:{d},transformation:{{{xt}}}}}'])
-    # idle: each tendril drifts on its own slow beat (not while one is striking)
-    G.FUNCS['p59/kw/tick'] += ['scoreboard players operation #f bm.rng = @s bm.kwt', 'scoreboard players operation #f bm.rng %= #40 bm.rng'] + \
-        [f'execute if score #f bm.rng matches {t} unless score @s bm.kwlt matches 1.. unless score @s bm.kwjt matches 1.. run function bm:p59/kw/pose/{k}/sway_{ab}'
-         for k, t0 in zip(KEYS, (0, 10, 5, 15)) for t, ab in ((t0, 'a'), (t0 + 20, 'b'))]
-    # a strike: the chosen tendril climbs past your head (or out past your arm), lunges forward, pulls back, settles
-    fn('p59/kw/lunge_tick', ['scoreboard players remove @s bm.kwlt 1'] +
-       [f'execute if score @s bm.kwlk matches {i} if score @s bm.kwlt matches {at} run function bm:p59/kw/pose/{k}/{pose}'
-        for i, k in enumerate(KEYS) for at, pose in ((8, 'lunge'), (3, 'mid'), (0, 'idle'))] +
-       [f'execute if score @s bm.kwlk matches 4 if score @s bm.kwlt matches {at} run function bm:p59/kw/pose/{k}/{pose}'          # the melee stab: both upper ones
-        for k in ('ul', 'ur') for at, pose in ((5, 'lunge'), (1, 'idle'))] +
-       ['execute if score @s bm.kwlk matches 4 if score @s bm.kwlt matches 3 run function bm:p59/kw/stab_now'])
+    # a strike: the tendril's white-hot flash (the stab lands a moment later)
+    fn('p59/kw/lunge_tick', ['scoreboard players remove @s bm.kwlt 1',
+                             'execute if score @s bm.kwlk matches 4 if score @s bm.kwlt matches 3 run function bm:p59/kw/stab_now'])
     # a charged jump: the upper pair reach up and ahead, the lower pair plant down and push - then they settle
-    fn('p59/kw/fling_tick', ['scoreboard players remove @s bm.kwjt 1'] + [f'execute if score @s bm.kwjt matches 0 run function bm:p59/kw/pose/{k}/idle' for k in KEYS])
-    fn('p59/kw/fling_pose', ['scoreboard players set @s bm.kwjt 12', 'scoreboard players set @s bm.kwlt 0'] + [f'function bm:p59/kw/pose/{k}/fling' for k in KEYS])
+    fn('p59/kw/fling_tick', ['scoreboard players remove @s bm.kwjt 1'])
+    fn('p59/kw/fling_pose', ['scoreboard players set @s bm.kwjt 12', 'scoreboard players set @s bm.kwlt 0', 'function bm:p59/kw/flash'])
 
     # RANGED (2.49): no aiming needed - every lash goes to the nearest monster ahead of you (a wide cone, ~20 blocks) you can see
     tgt = 'type=#bm:hostile,tag=!bm.npc'
@@ -237,7 +181,7 @@ def generate(G):
                        'execute if score #kh bm.rng matches 1 run function bm:p59/kw/grab_go',
                        'tag @e[tag=bm.kwtgt] remove bm.kwtgt', 'tag @s remove bm.kwme'])
     fn('p59/kw/grab_go', ['scoreboard players set @s bm.kwyc 60', 'execute store result score @s bm.kwlk run random value 0..3', 'scoreboard players set @s bm.kwlt 10'] +
-       [f'execute if score @s bm.kwlk matches {i} run function bm:p59/kw/pose/{k}/mid' for i, k in enumerate(KEYS)] +
+       ['function bm:p59/kw/flash'] +
        ['execute anchored eyes positioned ^ ^ ^ facing entity @e[tag=bm.kwtgt,limit=1] eyes run function bm:p59/kw/beam',
         'execute as @e[tag=bm.kwtgt,limit=1] at @s run function bm:p59/kw/drag'])
     # (as the monster) a short arcing tug that lands it a couple of blocks in front of you, however far it was
@@ -265,7 +209,7 @@ def generate(G):
                        'execute if score #lv bm.rng matches 0 run scoreboard players set @s bm.kwcd 24', 'execute if score #lv bm.rng matches 1 run scoreboard players set @s bm.kwcd 18',
                        'execute if score #lv bm.rng matches 2 run scoreboard players set @s bm.kwcd 12',
                        'execute store result score @s bm.kwlk run random value 0..3', 'scoreboard players set @s bm.kwlt 10'] +
-       [f'execute if score @s bm.kwlk matches {i} run function bm:p59/kw/pose/{k}/mid' for i, k in enumerate(KEYS)] +
+       ['function bm:p59/kw/flash'] +
        ['execute anchored eyes positioned ^ ^ ^ facing entity @e[tag=bm.kwtgt,limit=1] eyes run function bm:p59/kw/beam'])
     fn('p59/kw/beam', ['scoreboard players set #kb bm.rng 48', 'function bm:p59/kw/beam1'])
     fn('p59/kw/beam1', ['particle minecraft:dust{color:[1.0,0.92,0.3],scale:0.9} ~ ~ ~ 0.03 0.03 0.03 0 1', 'particle minecraft:electric_spark ~ ~ ~ 0.05 0.05 0.05 0.02 1',
@@ -300,9 +244,9 @@ def generate(G):
                               'scoreboard objectives add bm.kwf dummy', 'scoreboard objectives add bm.kwlt dummy', 'scoreboard objectives add bm.kwlk dummy',
                               'scoreboard objectives add bm.kwjt dummy', 'scoreboard objectives add bm.kwmc dummy', 'scoreboard objectives add bm.kwvp dummy',
                               'scoreboard objectives add bm.kwmd dummy', 'scoreboard objectives add bm.kwst dummy', 'scoreboard objectives add bm.kwyc dummy',
-                              'scoreboard objectives add bm.kwpx dummy', 'scoreboard objectives add bm.kwpy dummy', 'scoreboard objectives add bm.kwpz dummy',
+                              'scoreboard objectives add bm.kwfl dummy',
                               'scoreboard players set #40 bm.rng 40', 'scoreboard players set #4 bm.rng 4']
-    G.OBJECTIVES += ['bm.kwj', 'bm.kwt', 'bm.kwf', 'bm.kwlt', 'bm.kwlk', 'bm.kwjt', 'bm.kwmc', 'bm.kwvp', 'bm.kwmd', 'bm.kwst', 'bm.kwyc', 'bm.kwpx', 'bm.kwpy', 'bm.kwpz']
+    G.OBJECTIVES += ['bm.kwj', 'bm.kwt', 'bm.kwf', 'bm.kwlt', 'bm.kwlk', 'bm.kwjt', 'bm.kwmc', 'bm.kwvp', 'bm.kwmd', 'bm.kwst', 'bm.kwyc', 'bm.kwfl']
     tick.append(f'execute as @a[scores={{bm.kwj=1..}}] at @s run function bm:p59/kw/jump')
     tick.append('scoreboard players remove @a[scores={bm.kwf=1..}] bm.kwf 1')
     fn('p59/kw/jump', ['scoreboard players reset @s bm.kwj', f'execute unless {worn} run return 0', 'execute unless predicate bm:p20/sneaking run return 0',
@@ -341,7 +285,7 @@ def generate(G):
     fn('p59/kw/melee', ['advancement revoke @s only bm:p59/kw_melee', 'execute if score @s bm.kwmc matches 1.. run return 0', 'execute if score @s bm.kwmd matches 1 run return 0',
                         'scoreboard players set @s bm.kwmc 14', 'scoreboard players operation #me bm.pid = @s bm.pid',
                         'scoreboard players set @s bm.kwlk 4', 'scoreboard players set @s bm.kwlt 14', 'scoreboard players set @s bm.kwjt 0',
-                        'function bm:p59/kw/pose/ul/mid', 'function bm:p59/kw/pose/ur/mid',
+                        'function bm:p59/kw/flash',
                         f'execute at @s as @e[{mob},distance=..7,nbt={{HurtTime:10s}},sort=nearest,limit=1] run function bm:p59/kw/mark'])
     fn('p59/kw/mark', ['tag @s add bm.kwtg', 'scoreboard players operation @s bm.kwvp = #me bm.pid'])
     # (half a second on - once the blow's hurt-immunity has passed, so the stab adds its full damage)
@@ -539,18 +483,12 @@ def rp(R):
                 kw += bolt(P, (1.6, 1.0, 1.4, 0.9, 0.8), 8, 1.0)
                 kw.append(barb(P[2], -sx * 60, 1.8))
         model('killerwatt_tendrils', KT, kw, HELD)
-        # worn: each tendril is two blades with a sharp elbow between - kw_tb (base, 12 long) and kw_tt (tip, 17 long) along +y from (8,8,8)
-        # each is a zig-zag bolt: sharp kinks, white-hot barbs on the corners, endpoints back on the axis so the elbow joins
-        tb = [c((6.4, 6.4, 6.4), (9.6, 9.0, 9.6), 'g'), c((6.9, 8.8, 6.9), (9.1, 9.8, 9.1), 't')]
-        P = [(8, 9), (10.0, 12.6), (6.8, 15.2), (9.2, 18.4), (8, 20)]
-        tb += bolt(P, (2.6, 1.8, 2.4, 1.8)); tb += [barb(P[1], -55), barb(P[2], 60), barb(P[3], -50, 2.0)]
-        tb.append(c((7, 19.2, 7), (9, 20.6, 9), 't'))                                           # elbow knuckle
-        model('kw_tb', KT, tb, {'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1, 1, 1]}})
-        tt = []
-        P = [(8, 8.2), (6.0, 12.4), (9.6, 15.6), (6.6, 19.8), (9.4, 22.2), (8.6, 24.0), (6.8, 25.2)]
-        tt += bolt(P, (2.2, 1.7, 2.0, 1.5, 1.0, 0.7)); tt += [barb(P[1], 55), barb(P[2], -60), barb(P[3], 55, 2.0), barb(P[4], -40, 1.6)]
-        tt.append(c((6.4, 24.6, 7.6), (7.2, 25.8, 8.4), 'w'))                                   # the hooked point
-        model('kw_tt', KT, tt, {'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1, 1, 1]}})
+        # worn (2.54): an equipment asset - the 'wings' layer re-skins the elytra model as the tendrils, a 'humanoid' layer adds the harness
+        import phase59_tendrils as TD
+        TD.harness().save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'humanoid', 'kw_harness.png'))
+        for nm in TD.LOOKS:
+            TD.skin(nm).save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'wings', f'{nm}.png'))
+            R2.wj(f'assets/bm/equipment/{nm}.json', {'layers': {'wings': [{'texture': f'bm:{nm}'}], 'humanoid': [{'texture': 'bm:kw_harness'}]}})
         # Apophiss's crown (worn): black band on speckled white fur, ball-tipped spikes of uneven height,
         # a great faceted emerald set inside rising over the band, a diamond ruby on the tall front spike, oval rubies in gold
         cr = [c((2.4, 13.6, 2.4), (13.6, 15.2, 13.6), 'f'),                                    # fur trim

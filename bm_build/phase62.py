@@ -13,45 +13,77 @@ from nbt import B
 import economy
 
 UNBR = {'minecraft:unbreakable': {}}
-TOOL = {'minecraft:efficiency': 5, 'minecraft:fortune': 3, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}
+FORT = {'minecraft:efficiency': 5, 'minecraft:fortune': 3, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}
+SILK = {'minecraft:efficiency': 5, 'minecraft:silk_touch': 1, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}
 TRIDENT = {'minecraft:loyalty': 3, 'minecraft:impaling': 5, 'minecraft:channeling': 1, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}
+def _picks(T):
+    return [('pickaxe', 'Pickaxe', 'minecraft:netherite_pickaxe', T), ('axe', 'Axe', 'minecraft:netherite_axe', T),
+            ('shovel', 'Shovel', 'minecraft:netherite_shovel', T), ('hoe', 'Hoe', 'minecraft:netherite_hoe', T),
+            ('shears', 'Shears', 'minecraft:shears', {'minecraft:efficiency': 5, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
+            ('rod', 'Fishing Rod', 'minecraft:fishing_rod', {'minecraft:luck_of_the_sea': 3, 'minecraft:lure': 3, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
+            ('brush', 'Brush', 'minecraft:brush', {'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
+            ('flint', 'Flint and Steel', 'minecraft:flint_and_steel', {'minecraft:unbreaking': 3, 'minecraft:mending': 1})]
 ARMS = {
     'blade': ('Shifting Blade', '#ff8a5a', 'A blade that remembers every weapon it has ever been.', [
         ('sword', 'Sword', 'minecraft:netherite_sword', {'minecraft:sharpness': 5, 'minecraft:looting': 3, 'minecraft:fire_aspect': 2, 'minecraft:knockback': 2,
                                                          'minecraft:sweeping_edge': 3, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
-        ('axe', 'Axe', 'minecraft:netherite_axe', {'minecraft:sharpness': 5, 'minecraft:efficiency': 5, 'minecraft:fortune': 3, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
+        ('axe', 'Axe', 'minecraft:netherite_axe', {'minecraft:sharpness': 5, 'minecraft:efficiency': 5, 'minecraft:fortune': 3, 'minecraft:fire_aspect': 2,
+                                                   'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
         ('mace', 'Mace', 'minecraft:mace', {'minecraft:density': 5, 'minecraft:wind_burst': 3, 'minecraft:fire_aspect': 2, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
         ('spear', 'Spear', 'minecraft:netherite_spear', {'minecraft:sharpness': 5, 'minecraft:lunge': 3, 'minecraft:fire_aspect': 2, 'minecraft:knockback': 2,
                                                          'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
-        ('trident', 'Trident', 'minecraft:trident', TRIDENT)]),
-    'pick': ('Shifting Pick', '#7ad0ff', 'A tool for every trade, one at a time.', [
-        ('pickaxe', 'Pickaxe', 'minecraft:netherite_pickaxe', TOOL), ('axe', 'Axe', 'minecraft:netherite_axe', TOOL),
-        ('shovel', 'Shovel', 'minecraft:netherite_shovel', TOOL), ('hoe', 'Hoe', 'minecraft:netherite_hoe', TOOL),
-        ('shears', 'Shears', 'minecraft:shears', {'minecraft:efficiency': 5, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
-        ('rod', 'Fishing Rod', 'minecraft:fishing_rod', {'minecraft:luck_of_the_sea': 3, 'minecraft:lure': 3, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
-        ('brush', 'Brush', 'minecraft:brush', {'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
-        ('flint', 'Flint and Steel', 'minecraft:flint_and_steel', {'minecraft:unbreaking': 3, 'minecraft:mending': 1})]),
+        ('trident', 'Trident', 'minecraft:trident', {'minecraft:riptide': 3, 'minecraft:impaling': 5, 'minecraft:unbreaking': 3, 'minecraft:mending': 1})]),
+    'pick': ('Shifting Pick (Fortune)', '#7ad0ff', 'A tool for every trade, one at a time.', _picks(FORT)),
+    'picksilk': ('Shifting Pick (Silk Touch)', '#c0a0ff', 'A tool for every trade - and a gentle touch.', _picks(SILK)),
     'bow': ('Shifting Bow', '#a8f070', 'It strings itself to whatever the moment needs.', [
         ('bow', 'Bow', 'minecraft:bow', {'minecraft:power': 5, 'minecraft:punch': 2, 'minecraft:flame': 1, 'minecraft:infinity': 1, 'minecraft:unbreaking': 3}),
         ('crossbow', 'Crossbow', 'minecraft:crossbow', {'minecraft:quick_charge': 3, 'minecraft:multishot': 1, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
         ('trident', 'Trident', 'minecraft:trident', TRIDENT)]),
 }
-PRICE = (('trophy', 16), ('blood_crystal', 32))
+# (2.54) SHIFTING ARMOUR: one piece, every tier's look - it always protects like netherite (the base item is netherite)
+TIERS = [('leather', 'Leather', 'leather'), ('chainmail', 'Chainmail', 'chainmail'), ('copper', 'Copper', 'copper'), ('iron', 'Iron', 'iron'),
+         ('golden', 'Gold', 'gold'), ('diamond', 'Diamond', 'diamond'), ('netherite', 'Netherite', 'netherite')]
+PIECES = {'helmet': ('head', 'Helmet', {'minecraft:protection': 4, 'minecraft:respiration': 3, 'minecraft:aqua_affinity': 1}),
+          'chestplate': ('chest', 'Chestplate', {'minecraft:protection': 4, 'minecraft:thorns': 3}),
+          'leggings': ('legs', 'Leggings', {'minecraft:protection': 4, 'minecraft:swift_sneak': 3}),
+          'boots': ('feet', 'Boots', {'minecraft:protection': 4, 'minecraft:feather_falling': 4, 'minecraft:depth_strider': 3, 'minecraft:soul_speed': 3})}
+for _p, (_slot, _pn, _en) in PIECES.items():
+    _tiers = TIERS + ([('turtle', 'Turtle', 'turtle_scute')] if _p == 'helmet' else [])
+    ARMS[f'armor_{_p}'] = (f'Shifting {_pn}', '#d0d8e8', 'Any armour you like the look of - netherite underneath.',
+                           [(t, tn, f'minecraft:netherite_{_p}', dict(_en, **{'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
+                             {'minecraft:item_model': f'minecraft:{t}_{_p}',
+                              'minecraft:equippable': {'slot': _slot, 'asset_id': f'minecraft:{asset}', 'equip_sound': 'minecraft:item.armor.equip_netherite'}})
+                            for t, tn, asset in _tiers])
 FIRST = {fam: f'shift_{fam}_{forms[0][0]}' for fam, (_n, _c, _f, forms) in ARMS.items()}
+# price: a Shifting Core (16 Trophies + 32 Blood Crystals) plus a Netherite Ingot for every netherite form it can take -
+# no skipping netherite. Armour: 6 Trophies + 1 Netherite Ingot a piece.
+NETH = {fam: sum(1 for f in forms if 'netherite' in f[2]) for fam, (_n, _c, _f, forms) in ARMS.items() if not fam.startswith('armor_')}
+item('shift_core', 'minecraft:totem_of_undying', 'Shifting Core', '#e0c0ff',
+     ['A heart of molten possibility.', ('Vinny forges it into a Shifting weapon or tool', 'blue'), ('with one Netherite Ingot for every netherite form.', 'blue')],
+     model='minecraft:heart_of_the_sea', stack=16, cat='weapon', glint=True, comps={'!minecraft:death_protection': {}})
+economy.DIRECT['shift_core'] = (('trophy', 16), ('blood_crystal', 32))
 
 for _fam, (_name, _col, _flav, _forms) in ARMS.items():
     _all = ' · '.join(f[1] for f in _forms)
-    for _key, _fname, _base, _ench in _forms:
+    _arm = _fam.startswith('armor_')
+    for _f in _forms:
+        _key, _fname, _base, _ench = _f[:4]
+        _extra = _f[4] if len(_f) > 4 else {}
         item(f'shift_{_fam}_{_key}', _base, f'{_name}: {_fname}', _col,
-             [_flav, ('Press swap-hands (F): the next form.', 'blue'), ('Sneak + F: the form before.', 'blue'),
-              (_all, 'gray'), ('Every form carries its best enchantments.', 'dark_purple'), ('Never breaks.', 'dark_purple')],
+             [_flav, ('Hold it and press swap-hands (F): the next ' + ('look.' if _arm else 'form.'), 'blue'),
+              ('Sneak + F: the one before.', 'blue'), (_all, 'gray'),
+              (('Always protects like netherite.' if _arm else 'Every form carries its best enchantments.'), 'dark_purple'), ('Never breaks.', 'dark_purple')],
              stack=1, cat='weapon', tier=3, custom_extra={'bm_shift': B(1)},
-             comps=dict(UNBR, **{'minecraft:enchantments': dict(_ench)}))
-    economy.DIRECT[FIRST[_fam]] = PRICE
+             comps=dict(UNBR, **{'minecraft:enchantments': dict(_ench)}, **_extra))
 
 
 def extend_offers(O, offer):
-    O['arms'] += [offer(PRICE[0], (FIRST[f], 1), PRICE[1]) for f in ARMS]
+    O['arms'].append(offer(('trophy', 16), ('shift_core', 1), ('blood_crystal', 32)))
+    for fam in ARMS:
+        if fam.startswith('armor_'):
+            O['arms'].append(offer(('trophy', 6), (FIRST[fam], 1), ('netherite_ingot', 1)))
+        else:
+            O['arms'].append(offer(('shift_core', 1), (FIRST[fam], 1), ('netherite_ingot', NETH[fam]) if NETH[fam] else None))
 
 
 def generate(G):
@@ -78,8 +110,8 @@ def generate(G):
     shift = []
     for fam, (name, col, _f, forms) in ARMS.items():
         n = len(forms)
-        for i, (key, fname, _b, _e) in enumerate(forms):
-            iid = f'shift_{fam}_{key}'
+        for i, f in enumerate(forms):
+            iid = f'shift_{fam}_{f[0]}'
             for d, nm in ((1, 'next'), (-1, 'prev')):
                 to = forms[(i + d) % n]
                 fn(f'p62/to/{iid}_{nm}', ['item replace entity @s weapon.offhand from entity @s weapon.mainhand',
@@ -114,5 +146,5 @@ def generate(G):
                       'execute unless entity @s[tag=bm.blg] run damage @s 1 minecraft:magic', 'tag @s[tag=bm.blg] add bm.blg2', 'tag @s add bm.blg',
                       'tag @s[tag=bm.blg2] remove bm.blg', 'tag @s remove bm.blg2',
                       'particle minecraft:end_rod ~ ~1 ~ 0.2 0.4 0.2 0.01 1', 'particle minecraft:dust{color:[0.9,0.8,1.0],scale:0.8} ~ ~1 ~ 0.3 0.5 0.3 0 3'])
-    fn('admin/shifting_arms', [give(FIRST[f]) for f in ARMS])
+    fn('admin/shifting_arms', [give(FIRST[f]) for f in ARMS] + [give('shift_core')])
     G.FUNCS['tick'] += tick

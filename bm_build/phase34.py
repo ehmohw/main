@@ -49,8 +49,9 @@ item('gold_doubloon', TOTEM, 'Gold Doubloon', '#ffd23f',
      ['Pirate gold. Cursed? Lucky? Both.', ('Carry it: every hostile creature you kill', 'blue'), ('has a 1-in-200 chance to drop a Token.', 'blue')],
      model='bm:gold_doubloon', stack=1, cat='relic', glint=True, bold=True)
 item('blue_axolotl', 'minecraft:axolotl_bucket', 'Bucket of Rare Blue Axolotl', '#3a5aff',
-     ['One in twelve hundred, they say.', ('Smuggled in from a very deep lake.', 'gray')],
-     cat='misc', comps={'minecraft:bucket_entity_data': {}, 'minecraft:axolotl/variant': 'blue'})
+     ['One in twelve hundred, they say.', ('A baby - feed it a Golden Dandelion', 'aqua'), ('and it stays that small forever.', 'aqua'),
+      ('Smuggled in from a very deep lake.', 'gray')],
+     cat='misc', comps={'minecraft:bucket_entity_data': {'Age': Int(-24000)}, 'minecraft:axolotl/variant': 'blue'})
 item('message_bottle', TOTEM, 'Message in a Bottle', '#c8e8ff',
      ['Hold right-click to pull the scroll out.', 'Marks the nearest buried treasure.'],
      model='minecraft:glass_bottle', glint=True, stack=16, cat='map',
