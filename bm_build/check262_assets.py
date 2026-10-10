@@ -183,7 +183,7 @@ for f in glob.glob(f'{DP}/data/**/*.json', recursive=True):
     if '/predicate/' in rel and isinstance(d, dict) and d.get('condition', '').endswith('entity_properties'):   # 26.2 sub-predicate map
         for k in d.get('predicate', {}):
             if not k.startswith('minecraft:') or C.strip_ns(k) not in REG['entity_sub_predicate_type']: E(f'{rel}: entity sub-predicate {k}')
-    if '/dialog/' in rel:                      # 1.18: menus, against the 26.2 dialog schema
+    if '/dialog/' in rel and '/tags/' not in rel:          # 1.18: menus, against the 26.2 dialog schema
         import dialogs262
         dialogs262.check_dialog(d, rel, E, C.check_line)
     if '/painting_variant/' in rel:

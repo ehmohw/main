@@ -42,6 +42,7 @@ import phase49 as R49
 import phase50 as R50
 import phase51 as R51
 import phase52 as R52
+import phase67 as R67        # 2.58: parties, and bosses that scale with the players near them
 import phase66 as R66        # 2.56: Celi, the fierce follower from the snow
 import phase65 as R65        # 2.56: followers faint (5 minutes) instead of dying
 import phase64 as R64        # 2.55: rat walk cycles, idles and a playful routine for every job
@@ -796,7 +797,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.57' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.58' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -821,8 +822,10 @@ def gen_loops(second_mob_lines):
         fast.append(f'execute as @a[gamemode=!spectator] if items entity @s {slot} *[minecraft:custom_data~{{bm_fx:"{cid}"}}] at @s run particle {fx}')
     fast.append('schedule function bm:loop/fast 5t replace')
     fn('loop/fast', fast)
+    # (2.58: a boss with Resistance could survive the void for ever - and blocked its own respawn: now it's removed outright)
+    fn('despawn_far', ['tp @s ~ -400 ~', 'kill @s'])
     second = ['scoreboard players reset @a bm.csnd'] + list(second_mob_lines) + [
-        'execute as @e[tag=bm.tiered,tag=!bm.hhm] at @s unless entity @a[distance=..100] run tp @s ~ -400 ~',
+        'execute as @e[tag=bm.tiered,tag=!bm.hhm] at @s unless entity @a[distance=..100] run function bm:despawn_far',
         'execute as @e[tag=bm.lucky] at @s run particle minecraft:wax_on ~ ~1 ~ 0.3 0.5 0.3 0 3',
         'execute as @e[tag=bm.goose] at @s run particle minecraft:wax_on ~ ~0.5 ~ 0.3 0.3 0.3 0 5',
         'execute as @e[tag=bm.prime] at @s run particle minecraft:happy_villager ~ ~0.8 ~ 0.3 0.3 0.3 0 1',
@@ -1008,6 +1011,7 @@ def build(out_dir):
     R64.generate(sys.modules[__name__])
     R65.generate(sys.modules[__name__])
     R66.generate(sys.modules[__name__])
+    R67.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command

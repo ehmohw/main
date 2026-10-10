@@ -351,9 +351,11 @@ def textures():
         for y in range(16):
             for x in range(16):
                 if (x + y) % 7 == 0: cr.putpixel((x, y), hexc(glint))
+                p = cr.getpixel((x, y)); cr.putpixel((x, y), p[:3] + (178 if (x + y) % 7 else 225,))      # (2.58: translucent, like a real gem)
         T_[f'cec_crystal_{k}'] = cr
         T_[f'cec_metal_{k}'] = streaked(metal, 10, ())
     T_['cec2_face'] = CA.face_texture()
+    T_['cec2_button'] = CA.button_texture()
     return T_
 
 

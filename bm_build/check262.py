@@ -735,7 +735,7 @@ def run():
     # objectives referenced must be created in load
     load = open(ROOT_DP + '/bm/function/load.mcfunction').read()
     made = set(re.findall(r'scoreboard objectives add (\S+)', load))
-    for o in sorted(OBJ_REFS - made):
+    for o in sorted(o for o in OBJ_REFS - made if ':' not in o):          # (a ':' = a macro placeholder's stand-in, not a real name)
         print(f'✗ objective used but never created: {o}'); errs += 1
     print(f'\n{n} command lines checked against the 26.3 command tree: {errs} errors')
     for w in sorted(set(WARN))[:20]: print('  note:', w)

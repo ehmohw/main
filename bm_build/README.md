@@ -1,4 +1,4 @@
-# Black Market — v2.57 (Java 26.3)
+# Black Market — v2.58 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,21 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.58: parties, boss scaling, Cecil v2
+
+- **Parties.** Press the Quick Actions key (or run `/trigger bm.party`) to open the Party menu. From there you can invite players nearby, accept or decline invites, leave, and see who's in. Parties hold up to 6 players, and invites expire after 60 seconds.
+  - Party members can't hurt each other, share a name colour, and see each other's health on the sidebar.
+  - The leader can kick members. If the leader leaves, leadership passes to another member. A party of one dissolves.
+- **Boss scaling.** Each extra player near a boss (party or not) gives it +50% max health and +10% damage. Its current health percentage is kept and the boss bar follows. Covers every dungeon boss, the Headless Horseman, the Voidwalker, the Pharaoh, the Roc, the Treant, the Colossus, the Monstrosity and the alien warlords.
+- **Cecil v2**, both in the market and as a follower:
+  - His face is now his original art: glowing eyes over a grey, jagged open mouth, with no white teeth.
+  - His staff gem is translucent and glows in the dark, in every element colour.
+  - New detail: a collar, a button, a ragged hem, curled claw fingers, a rounder hood with its tip curling to one side, and crown stitching.
+  - His sleeve no longer bends at an odd angle.
+  - In the market he keeps his idle breathing and spell-casting animations, adjusted to the new body.
+  - As a follower, Pearlman's gems still recolour his hood and staff.
+- **Fix:** bosses and mobs that wandered out of range and got stuck in the void (for example a Voidwalker with Resistance) are now removed properly, instead of piling up out of sight.
 
 ## New in 2.57: fixes
 
