@@ -3,7 +3,7 @@
 - CECIL'S SUMMONING GEM (Cecil): use it and Cecil appears beside you and follows you. He fights from range - a
   poisoned bolt at the nearest monster every 2 seconds (5 damage + Poison II) - and heals you when you're hurt
   (every 5 seconds below 7 hearts). 60 health, 20 armour. Use the gem again to call him back to you; sneak + use to
-  send him home. If he falls, he fades away and the gem needs 10 minutes to call him again.
+  send him home. If he faints, he fades away and the gem needs 5 minutes to call him again.
 - CHEF FROMAGE'S PORTRAIT (the chef): a 2x2 painting of the man himself.
 - THE EMMA DOLL (Cecil, 3 Trophies - Black Market only): a chibi doll you can set down; right-click to make her twirl. While she
   stands, players within 10 blocks are cured of harmful effects.
@@ -11,6 +11,7 @@
 from items import item, T, TOTEM, PRICES
 from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D
+import cecil2_art as CA
 
 # (2.54) Cecil's element: Pearlman's gems change his magic, and his hood and staff take its colours
 # element: (hood, hood shadow, crystal, crystal glint, blade metal, what his bolts do)
@@ -26,13 +27,13 @@ ELEMENTS = {
     'ice': ('#5aa8d8', '#2e6e98', '#a8ecff', '#ffffff', '#e8f6ff', 'freeze them'),
 }
 EL_KEYS = list(ELEMENTS)
-PET_CD = 600                     # seconds before a fallen Cecil can be called again
-COMPANIONS = 'tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,tag=!bm.emmapet'
+PET_CD = 300                     # seconds before a fallen Cecil can be called again
+COMPANIONS = 'tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,tag=!bm.emmapet,tag=!bm.celipet,tag=!bm.donado'
 
 item('cecil_gem', TOTEM, "Cecil's Summoning Gem", '#b48cff',
      ['A violet gem with two yellow eyes in it.', 'They blink.', ('Use: Cecil joins you in battle - poisoned', 'blue'),
       ('bolts at monsters, healing when you\'re hurt.', 'blue'), ('Use again: call him back to you.', 'blue'), ('Sneak + use: send him home.', 'blue'),
-      ('If he falls: 10 minutes before he can return.', 'gray'),
+      ('If he faints: 5 minutes before he can return.', 'gray'),
       ('Hand him one of Pearlman\'s elemental gems', 'light_purple'), ('(right-click him with it): his magic - and his', 'light_purple'),
       ('hood and staff - take on its element.', 'light_purple')],
      model='bm:cecil_gem', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
@@ -74,14 +75,15 @@ def generate(G):
                           {'id': 'minecraft:movement_speed', 'base': D(0.32)}, {'id': 'minecraft:follow_range', 'base': D(32)}, {'id': 'minecraft:step_height', 'base': D(1.0)}],
            'active_effects': [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}]}
     def part(model, tag, ty, bright):
-        return snbt({'Tags': ['bm.cpet', tag, 'bm.cpnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': model}},
+        return snbt({'Tags': ['bm.cpet', 'bm.cp2', tag, 'bm.cpnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': model}},
                      'item_display': 'fixed', 'teleport_duration': Int(2), 'brightness': {'block': Int(bright), 'sky': Int(bright)},
                      'interpolation_duration': Int(15), 'start_interpolation': Int(0),
                      'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(ty), F(0)], 'scale': [F(0)] * 3}})
-    rig = [f'summon minecraft:item_display ~ ~ ~ {part("bm:cec_body", "bm.cp_body", 0.5, 13)}',
-           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec_head", "bm.cp_head", 0.0, 13)}',
-           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec_eyes", "bm.cp_eyes", 0.0, 15)}',
-           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec_arm", "bm.cp_arm", 0.0, 13)}']
+    # (2.56: the follower is redrawn - cecil2_art; the market's Cecil keeps his tall look)
+    rig = [f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_body", "bm.cp_body", 0.5, 13)}',
+           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_head", "bm.cp_head", 0.0, 13)}',
+           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_eyes", "bm.cp_eyes", 0.0, 15)}',
+           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_arm", "bm.cp_arm", 0.0, 13)}']
     sel_pet = 'execute as @e[type=minecraft:wolf,tag=bm.cecilpet] if score @s bm.pid = #me bm.pid'
     fn('p46/pet/use', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
                        f'{sel_pet} run tag @s add bm.cpsel',
@@ -93,8 +95,7 @@ def generate(G):
     fn('p46/pet/recall', ['tp @e[type=minecraft:wolf,tag=bm.cpsel,limit=1] @s', 'particle minecraft:portal ~ ~1 ~ 0.4 0.8 0.4 0.4 30',
                           'data modify entity @e[type=minecraft:wolf,tag=bm.cpsel,limit=1] Sitting set value 0b', say('Cecil blinks back to your side.', '#b48cff')])
     fn('p46/pet/try_summon', ['execute if score @s bm.cpcd matches 1.. store result score #m bm.rng run scoreboard players get @s bm.cpcd',
-                              'execute if score @s bm.cpcd matches 1.. run scoreboard players operation #m bm.rng /= #60 bm.rng',
-                              'execute if score @s bm.cpcd matches 1.. run scoreboard players add #m bm.rng 1',
+                              'execute if score @s bm.cpcd matches 1.. run scoreboard players add #m bm.rng 59', 'execute if score @s bm.cpcd matches 1.. run scoreboard players operation #m bm.rng /= #60 bm.rng',
                               'execute if score @s bm.cpcd matches 1.. run return run ' + title('@s', 'actionbar', [T('Cecil is still pulling himself back together: about ', 'gray'),
                                                                                                                    {'score': {'name': '#m', 'objective': 'bm.rng'}, 'color': 'white'}, T(' min.', 'gray')]),
                               'execute unless function bm:p37/allowed run return run ' + say('Cecil won\'t come here.'),
@@ -111,22 +112,30 @@ def generate(G):
                              # (2.49) appear whole, in a burst of magic (the summon's particles) - no growing out of nothing
                              'execute as @e[type=minecraft:item_display,tag=bm.cpnew,distance=..1] run data merge entity @s {start_interpolation:-1,interpolation_duration:0,transformation:{scale:[1f,1f,1f]}}',
                              'particle minecraft:flash{color:[0.75,0.55,1.0,1.0]} ~ ~1 ~ 0 0 0 0 1', 'particle minecraft:end_rod ~ ~1 ~ 0.1 0.3 0.1 0.12 20'])
+    second.append('execute as @e[type=minecraft:wolf,tag=bm.cecilpet,tag=!bm.cp2w] at @s run function bm:p46/pet/rerig2')
+    fn('p46/pet/rerig2', ['tag @s add bm.cp2w', 'scoreboard players operation #me bm.pid = @s bm.pid',
+                          'execute as @e[type=minecraft:item_display,tag=bm.cpet,tag=!bm.cp2] if score @s bm.pid = #me bm.pid run kill @s',
+                          'execute if entity @e[type=minecraft:item_display,tag=bm.cp2,tag=bm.cp_body,distance=..3] run return 0',
+                          'execute rotated as @s rotated ~180 0 run function bm:p46/pet/rig',
+                          'scoreboard players operation @e[tag=bm.cpnew,distance=..2] bm.pid = #me bm.pid', 'tag @e[tag=bm.cpnew,distance=..2] remove bm.cpnew',
+                          'scoreboard players set #el bm.rng 0', 'execute if score @s bm.cpel matches 1.. run scoreboard players operation #el bm.rng = @s bm.cpel',
+                          'function bm:p46/pet/dress'])
     # every tick: the rig stands where the wolf is, turned its way (the head and eyes look at its target or its owner)
     tick.append('execute as @e[type=minecraft:wolf,tag=bm.cecilpet] at @s run function bm:p46/pet/tick')
     fn('p46/pet/tick', ['scoreboard players operation #me bm.pid = @s bm.pid',
                         'execute as @e[type=minecraft:item_display,tag=bm.cpet,tag=!bm.cpfade] if score @s bm.pid = #me bm.pid run tag @s add bm.cpsel',
                         'execute rotated as @s rotated ~ 0 run function bm:p46/pet/place', 'tag @e[tag=bm.cpsel] remove bm.cpsel'])
     fn('p46/pet/place', ['tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_body] ~ ~ ~ ~ 0',
-                         'execute positioned ^-0.31 ^1.28 ^0.06 run tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_arm] ~ ~ ~ ~ 0',
-                         'execute positioned ^ ^1.38 ^0.12 run tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_head] ~ ~ ~ ~ 0',
-                         'execute positioned ^ ^1.38 ^0.12 run tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_eyes] ~ ~ ~ ~ 0'])
+                         f'execute positioned ^{CA.ARM_AT[0]} ^{CA.ARM_AT[1]} ^{CA.ARM_AT[2]} run tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_arm] ~ ~ ~ ~ 0',
+                         f'execute positioned ^ ^{CA.HEAD_AT[1]} ^{CA.HEAD_AT[2]} run tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_head] ~ ~ ~ ~ 0',
+                         f'execute positioned ^ ^{CA.HEAD_AT[1]} ^{CA.HEAD_AT[2]} run tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_eyes] ~ ~ ~ ~ 0'])
     # (2.49) he moves: a robed waddle when walking (sway, bob, lean, the staff planted like a walking stick), a slow breath at rest
     import math as _m
     from phase57_art import qa as _qa, qmul as _qm
     def _rot(q, v):
         x, y, z, w = q; cx = y * v[2] - z * v[1] + w * v[0]; cy = z * v[0] - x * v[2] + w * v[1]; cz = x * v[1] - y * v[0] + w * v[2]
         return (v[0] + 2 * (y * cz - z * cy), v[1] + 2 * (z * cx - x * cz), v[2] + 2 * (x * cy - y * cx))
-    OFF = {'cp_body': ((0, 0, 0), (0, 0.5, 0)), 'cp_head': ((0, 1.38, 0.12), (0, 0, 0)), 'cp_eyes': ((0, 1.38, 0.12), (0, 0, 0)), 'cp_arm': ((-0.31, 1.28, 0.06), (0, 0, 0))}
+    OFF = {'cp_body': ((0, 0, 0), (0, 0.5, 0)), 'cp_head': (CA.HEAD_AT, (0, 0, 0)), 'cp_eyes': (CA.HEAD_AT, (0, 0, 0)), 'cp_arm': (CA.ARM_AT, (0, 0, 0))}
     def cpose(name, lean, tilt, bob, head_lean, head_tilt, arm_fwd, dur):
         R = _qm(_qa('x', lean), _qa('z', tilt))
         lines = []
@@ -258,7 +267,7 @@ def generate(G):
                            'tag @e[tag=bm.cpsel] remove bm.cpsel'])
     # (#me = the owner's id, #el = the element) his hood and staff take the element's look; the wolf remembers it for his bolts
     fn('p46/pet/dress', [f'execute as @e[type=minecraft:wolf,tag=bm.cecilpet] if score @s bm.pid = #me bm.pid run scoreboard players operation @s bm.cpel = #el bm.rng'] +
-       [f'execute if score #el bm.rng matches {i + 1} as @e[type=minecraft:item_display,tag=bm.cpet,tag={part}] if score @s bm.pid = #me bm.pid run data modify entity @s item.components."minecraft:item_model" set value "bm:cec_{nm}_{k}"'
+       [f'execute if score #el bm.rng matches {i + 1} as @e[type=minecraft:item_display,tag=bm.cpet,tag={part}] if score @s bm.pid = #me bm.pid run data modify entity @s item.components."minecraft:item_model" set value "bm:cec2_{nm}_{k}"'
         for i, k in enumerate(EL_KEYS) for part, nm in (('bm.cp_head', 'head'), ('bm.cp_arm', 'arm'))])
     G.FUNCS['p46/pet/summon'] += ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #el bm.rng 0',
                                   'execute if score @s bm.cpel matches 1.. run scoreboard players operation #el bm.rng = @s bm.cpel', 'function bm:p46/pet/dress']
@@ -344,6 +353,7 @@ def textures():
                 if (x + y) % 7 == 0: cr.putpixel((x, y), hexc(glint))
         T_[f'cec_crystal_{k}'] = cr
         T_[f'cec_metal_{k}'] = streaked(metal, 10, ())
+    T_['cec2_face'] = CA.face_texture()
     return T_
 
 
@@ -374,10 +384,12 @@ def rp(R):
         c((1, 13, 8), (4, 17, 11), 'hair'), c((0, 11.5, 8.5), (2, 14.5, 10.5), 'hair'), c((2.8, 16.5, 7.8), (4.6, 18.2, 10.2), 'pink')])
     R.DISPLAY_3D_EXTRA = R.DISPLAY_3D_EXTRA + ('emma3d',)
     # Cecil's element variants: the same hood and staff, re-coloured (his sleeve stays his violet robe)
-    ct, head = R.HATS['cec_head']; _ct, arm = R.HATS['cec_arm']
+    R.HATS.update(CA.models(cube))
+    R.DISPLAY_3D_EXTRA = R.DISPLAY_3D_EXTRA + ('cec2_',)
+    ct, head = R.HATS['cec2_head']; _ct, arm = R.HATS['cec2_arm']
     for k in ELEMENTS:
-        R.HATS[f'cec_head_{k}'] = (dict(ct, r=f'bm:block/cec_hood_{k}', d=f'bm:block/cec_hood_dark_{k}'), head)
-        R.HATS[f'cec_arm_{k}'] = (dict(ct, g=f'bm:block/cec_metal_{k}', p=f'bm:block/cec_crystal_{k}'), arm)
+        R.HATS[f'cec2_head_{k}'] = (dict(ct, r=f'bm:block/cec_hood_{k}', d=f'bm:block/cec_hood_dark_{k}'), head)
+        R.HATS[f'cec2_arm_{k}'] = (dict(ct, g=f'bm:block/cec_metal_{k}', p=f'bm:block/cec_crystal_{k}'), arm)
     R.ICONS['cecil_gem'] = R.grid(['................', '.......PP.......', '......PLLP......', '.....PLPPPP.....', '....PPPPPPPP....', '...PPYYPPYYPP...',
                                    '...PPPYPPYPPP...', '...PPPPPPPPPP...', '....PKKKKKKP....', '....PPKPKPPP....', '.....PPPPPP.....', '......PPPP......',
                                    '.......PP.......', '................', '................', '................'],

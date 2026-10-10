@@ -14,13 +14,13 @@
   every 2 and his bolts hit for 7; Emma charges twice as fast and her buffs get a bonus. Now and then they stop to chat.
 - She animates: arms folded politely when idle, a bouncy walk, a skipping run, a cheer when she jumps, swinging her
   feet when she sits (right-click her empty-handed to sit or stand, like any pet), and flies in her ethereal form.
-- If she falls: 10 minutes before the ribbon can call her again."""
+- If she faints: 5 minutes before the ribbon can call her again."""
 from items import item, T, TOTEM
 from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D
 import phase57_art as ART
 
-PET_CD = 600
+PET_CD = 300
 ENC_ODDS = 20                   # per minute, per player in flowery biomes by day
 FLOWERY = ['minecraft:cherry_grove', 'minecraft:flower_forest', 'minecraft:meadow', 'minecraft:sunflower_plains']
 MODES = {1: ('Speed', '#5ad8f0'), 2: ('Offense', '#ff5a5a'), 3: ('Defense', '#9ab4ff'), 4: ('Healing', '#ff8ad0')}
@@ -30,7 +30,7 @@ item('emma_ribbon', TOTEM, "Emma's Ribbon", PINK,
      ['A pink ribbon, still smelling faintly of the sea.', ('Once worn by the princess of the drowned kingdom.', 'dark_gray'), ('Use: call Emma to your side (or back to you).', 'blue'),
       ('Sneak + use: her menu - buffs, charge, send her home.', 'blue'),
       ('She buffs you and your friends; charged up,', 'blue'), ('she takes her Ethereal Form and fights.', 'blue'),
-      ('If she falls: 10 minutes before she can return.', 'gray')],
+      ('If she faints: 5 minutes before she can return.', 'gray')],
      model='bm:emma_ribbon', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
 HOLD['emma_ribbon'] = 'bm:p57/use'
 
@@ -195,8 +195,7 @@ def generate(G):
                       'particle minecraft:cherry_leaves ~ ~1 ~ 0.4 0.8 0.4 0 20', 'playsound minecraft:block.amethyst_block.chime neutral @a[distance=..16] ~ ~ ~ 1 1.6',
                       emsay('Coming! Wait for me~!')])
     fn('p57/try_summon', ['execute if score @s bm.emcd matches 1.. store result score #m bm.rng run scoreboard players get @s bm.emcd',
-                          'execute if score @s bm.emcd matches 1.. run scoreboard players operation #m bm.rng /= #60 bm.rng',
-                          'execute if score @s bm.emcd matches 1.. run scoreboard players add #m bm.rng 1',
+                          'execute if score @s bm.emcd matches 1.. run scoreboard players add #m bm.rng 59', 'execute if score @s bm.emcd matches 1.. run scoreboard players operation #m bm.rng /= #60 bm.rng',
                           'execute if score @s bm.emcd matches 1.. run return run ' + title('@s', 'actionbar', [T('Emma is still resting: about ', 'gray'),
                                                                                                              {'score': {'name': '#m', 'objective': 'bm.rng'}, 'color': 'white'}, T(' min.', 'gray')]),
                           'execute unless function bm:p37/allowed run return run ' + say("Emma won't come here - it's too scary."),
@@ -328,6 +327,7 @@ def generate(G):
         for lvl in range(4):
             pulse.append(f'execute if score #mode bm.rng matches {m} if score #lvl bm.rng matches {lvl} as @a[distance=..10,gamemode=!spectator] at @s run function bm:p57/buff/{m}_{lvl}')
             pulse.append(f'execute if score #mode bm.rng matches {m} if score #lvl bm.rng matches {lvl} as @e[type=minecraft:wolf,tag=bm.cecilpet,distance=..10] at @s run function bm:p57/buff/{m}_{lvl}')
+            pulse.append(f'execute if score #mode bm.rng matches {m} if score #lvl bm.rng matches {lvl} as @e[type=minecraft:wolf,tag=bm.celipet,distance=..10] at @s run function bm:p57/buff/{m}_{lvl}')
     pulse += ['execute if score #mode bm.rng matches 4 run scoreboard players remove @s bm.emh 3',
               'execute if score #mode bm.rng matches 4 if score @s bm.emh matches ..0 as @a[distance=..10,gamemode=!spectator] at @s run function bm:p57/quickheal',
               'tag @s remove bm.emme',

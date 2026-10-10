@@ -55,13 +55,13 @@ for _p, (_slot, _pn, _en) in PIECES.items():
                               'minecraft:equippable': {'slot': _slot, 'asset_id': f'minecraft:{asset}', 'equip_sound': 'minecraft:item.armor.equip_netherite'}})
                             for t, tn, asset in _tiers])
 FIRST = {fam: f'shift_{fam}_{forms[0][0]}' for fam, (_n, _c, _f, forms) in ARMS.items()}
-# price: a Shifting Core (16 Trophies + 32 Blood Crystals) plus a Netherite Ingot for every netherite form it can take -
+# price: a Shifting Core (8 Trophies + 16 Blood Crystals) plus a Netherite Ingot for every netherite form it can take -
 # no skipping netherite. Armour: 6 Trophies + 1 Netherite Ingot a piece.
 NETH = {fam: sum(1 for f in forms if 'netherite' in f[2]) for fam, (_n, _c, _f, forms) in ARMS.items() if not fam.startswith('armor_')}
 item('shift_core', 'minecraft:totem_of_undying', 'Shifting Core', '#e0c0ff',
      ['A heart of molten possibility.', ('Vinny forges it into a Shifting weapon or tool', 'blue'), ('with one Netherite Ingot for every netherite form.', 'blue')],
      model='minecraft:heart_of_the_sea', stack=16, cat='weapon', glint=True, comps={'!minecraft:death_protection': {}})
-economy.DIRECT['shift_core'] = (('trophy', 16), ('blood_crystal', 32))
+economy.DIRECT['shift_core'] = (('trophy', 8), ('blood_crystal', 16))
 
 for _fam, (_name, _col, _flav, _forms) in ARMS.items():
     _all = ' · '.join(f[1] for f in _forms)
@@ -78,7 +78,7 @@ for _fam, (_name, _col, _flav, _forms) in ARMS.items():
 
 
 def extend_offers(O, offer):
-    O['arms'].append(offer(('trophy', 16), ('shift_core', 1), ('blood_crystal', 32)))
+    O['arms'].append(offer(('trophy', 8), ('shift_core', 1), ('blood_crystal', 16)))
     for fam in ARMS:
         if fam.startswith('armor_'):
             O['arms'].append(offer(('trophy', 6), (FIRST[fam], 1), ('netherite_ingot', 1)))

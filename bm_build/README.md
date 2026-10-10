@@ -1,4 +1,4 @@
-# Black Market — v2.55 (Java 26.3)
+# Black Market — v2.56 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,39 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.56: Celi, a slimmer Cecil, followers faint
+
+**Celi**, a rare follower from the snow:
+- **Finding her:** in snowy biomes (snowy plains and taiga, slopes, groves, frozen and jagged peaks, ice spikes, frozen rivers, snowy beaches) you may hear someone muttering impatiently. Celi is standing about 14 blocks away, hand on her hip, tapping her boot.
+  - Right-click her with a **snowball** and she decides you've got guts.
+  - She gives you her **Moon Charm**.
+  - She waits 10 minutes. Empty-handed, all you get is attitude.
+- **The Moon Charm:** use it to call her, or to call her back. Sneak + use sends her home.
+- **Her ice spear:**
+  - Up close, she **thrusts** for 10 damage.
+  - At 5 to 16 blocks, she **throws** it for 8 damage, and it flies back to her.
+  - Every hit **freezes** the monster in place for 3 seconds: frosted over, no walking, no jumping.
+  - She picks her own fights; she doesn't wait for you.
+- **Reckless:** only 30 health and no armour. She hits harder than anyone, but she gets hurt far more easily.
+- **Animations:**
+  - at rest, hand on her hip, tapping her foot, head tilted, with the odd eye-roll
+  - a brisk stride, and a run with her spear levelled like a lance
+  - a leap
+  - sitting back on one hand (right-click her empty-handed)
+  - the thrust and the throw
+- Emma's buffs reach her too.
+
+**Cecil (your follower)** is redrawn:
+- a little shorter than Emma, with a fuller robe and a hood slightly bigger than before
+- his elements still colour his hood and staff
+- the market's Cecil keeps his tall look
+
+**Followers faint.** Every follower comes back 5 minutes after fainting:
+- **Cecil, Emma and Celi:** their summoning items rest 5 minutes (it was 10 for Cecil and Emma).
+- **The Frog with Mustache and Donado** used to be lost for good. Now they limp home. Five minutes later, right-click the Frog's hut or Donado's cell and they rejoin you for free.
+
+**Shifting Core:** now 8 Trophies + 16 Blood Crystals.
 
 ## New in 2.55: the rats come alive
 
@@ -53,7 +86,7 @@ Every rat in the market has a much bigger set of poses now. Each one is still a 
 ## New in 2.54: shifting tools and armour, worn Tendrils, elemental Cecil
 
 **Shifting arms** (Vinny):
-- **Price:** first buy a **Shifting Core** (16 Trophies + 32 Blood Crystals). Then trade the Core plus **one Netherite Ingot for every netherite form** the item can take, so you can't skip mining netherite.
+- **Price:** first buy a **Shifting Core** (8 Trophies + 16 Blood Crystals). Then trade the Core plus **one Netherite Ingot for every netherite form** the item can take, so you can't skip mining netherite.
 
   | Item | Price |
   |---|---|
@@ -322,7 +355,7 @@ Now and then they stop to chat: she waves, and he answers.
 
 **How she moves.** When she stands still, she folds her arms politely and sways. She has a bouncy walk and a skipping run, cheers when she jumps, and swings her feet when she sits. In her Ethereal Form she hovers with her wings beating.
 
-If she falls, the ribbon needs 10 minutes before she can come back. New achievements: **A Friend Among the Flowers**, **Ethereal** and **Best of Friends**.
+If she faints, the ribbon needs 5 minutes before she can come back (2.56). New achievements: **A Friend Among the Flowers**, **Ethereal** and **Best of Friends**.
 
 Admin commands:
 - `/function bm:admin/emma`: Emma sits in front of you.
@@ -729,7 +762,7 @@ Sneak + punch picks up a lamp, cushion, boombox or display skiff.
 - He heals you when you're hurt: below 7 hearts, every 5 seconds.
 - He has 60 health and 20 armour.
 - Use the gem again to call him back to your side. Sneak + use to send him home; he bows and fades away.
-- If he falls in battle, he fades away and the gem needs **10 minutes** before it can call him again.
+- If he faints in battle, he fades away and the gem needs **5 minutes** before it can call him again (2.56).
 
 **Magic hurts players now.** Cecil's staffs, bows and the Tidal Tear hit other players as well as monsters. That includes the Staff of Sparks' chain, the Gravewell's pull and burst, the crescent shards, the Prism and Starcaller blasts, and the wave. The Horseman's Heads, Soulreaver's Soul Rend, the Quake Maul and the Wither Nova already did. None of them ever hit **the player using them**, and none of them hit **companions** (Cecil, Wilfrey, the Frog with Mustache, Rufus the mercenary).
 
@@ -1299,7 +1332,7 @@ Still Java 26.3. Mechanics that need a player (jumps, flight, rides, the satchel
 **Donado** is a scrappy cream-coloured dog in a patched grey shirt, locked in a mothership cell.
 - **Getting him:**
   - Right-click him to set him free. It's free, and he becomes your companion, just like the Frog with Mustache.
-  - The cell stays empty for 10 minutes after he leaves.
+  - The cell stays empty for 5 minutes after he leaves (2.56).
   - If you already have a Donado, right-clicking the cell calls yours back to you.
 - **Gear:**
   - Right-click him holding a **weapon** (sword, axe, spear, trident or mace) or **armour** and he equips it. His helmet shows on his head, in all 8 vanilla helmet types.
