@@ -118,7 +118,7 @@ class Scene:
 
     def render(self, view='front', size=420, span=3.2, center=(0, 1, 0)):
         # camera axes: right, up, forward (into the screen)
-        V = {'front': (0, 0), 'back': (180, 0), 'side': (90, 0), 'iso': (35, 25), 'top': (0, 89)}[view]
+        V = view if isinstance(view, tuple) else {'front': (0, 0), 'back': (180, 0), 'side': (90, 0), 'iso': (35, 25), 'top': (0, 89)}[view]
         yw, pt = math.radians(V[0]), math.radians(V[1])
         fwd = np.array([-math.sin(yw) * math.cos(pt), -math.sin(pt), -math.cos(yw) * math.cos(pt)])   # front: looking toward -z (we stand south)
         right = np.cross(fwd, [0, 1, 0]); right /= np.linalg.norm(right); up = np.cross(right, fwd)

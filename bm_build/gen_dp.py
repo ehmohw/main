@@ -42,6 +42,7 @@ import phase49 as R49
 import phase50 as R50
 import phase51 as R51
 import phase52 as R52
+import phase68 as R68        # 2.59: a follower's summoning item in a frame: they wander about it
 import phase67 as R67        # 2.58: parties, and bosses that scale with the players near them
 import phase66 as R66        # 2.56: Celi, the fierce follower from the snow
 import phase65 as R65        # 2.56: followers faint (5 minutes) instead of dying
@@ -797,7 +798,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.58' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.59' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -1012,6 +1013,7 @@ def build(out_dir):
     R65.generate(sys.modules[__name__])
     R66.generate(sys.modules[__name__])
     R67.generate(sys.modules[__name__])
+    R68.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command

@@ -1,4 +1,4 @@
-# Black Market — v2.58 (Java 26.3)
+# Black Market — v2.59 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,21 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.59: framed followers, Cecil's arms and walk
+
+- **Framed followers.** Put Cecil's Summoning Gem, Emma's Ribbon or Celi's Moon Charm in an item frame (or a glow item frame), and that follower steps out and wanders around it. If they stray too far, they walk back.
+  - **Right-click the frame:** they sit down or get up. The item in the frame doesn't turn.
+  - **Sneak + right-click the frame:** send them back into the frame, so the item hangs as plain decoration, or call them out again.
+  - Take the item out or break the frame, and they leave with it.
+  - If they faint, they're back by the frame 5 minutes later.
+  - A framed follower doesn't belong to anyone: it doesn't follow or buff players, and you can still have your own follower out. Cecil keeps the element of whoever hung his gem.
+  - As with summoning, they won't come out of a frame inside the market or a dungeon.
+- **Cecil's arms**, redone from his original art: both arms are now the same length and thickness. His staff arm reaches forward with a slight bend, his claw closed round the staff. His free arm is curved at the elbow, with its claw hanging in front of him. This applies to the market Cecil and the follower.
+- **Follower Cecil walks with his staff.** It plants ahead of him, he vaults past it, it trails behind and swings through again, while he sways and dips with each step.
+  - Running is the same stride, quicker and lower.
+  - When he jumps, he leans back and thrusts the staff forward.
+  - He has a sitting pose: settled low, leaning on his staff.
 
 ## New in 2.58: parties, boss scaling, Cecil v2
 

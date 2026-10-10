@@ -3,12 +3,16 @@
 Four display parts, as before (body, head, eyes, staff arm); each model's joint is at (8, 8, 8). He faces -z; his
 right is +x. Sizes (blocks): the robe stands 0.94 tall, the hood's crown at about 1.6 (Emma's head is at 1.75),
 the hood 11.5 px wide; the staff reaches the ground. Joints relative to the host: head and eyes (0, 0.94, 0.06),
-staff arm (-0.36, 0.84, 0.04), the body drawn from the ground (translation 0.5)."""
+staff arm (-0.34, 0.86, 0.04), the body drawn from the ground (translation 0.5).
+(2.59) Both arms come from one function - the same length and thickness, as in his portrait; the free arm is drawn into
+the body at the staff arm's joint mirrored to his left."""
 from PIL import Image, ImageDraw
 
 HEAD_AT = (0, 0.94, 0.06)
 ARM_AT = (-0.34, 0.86, 0.04)
 HEAD_K = 0.9
+# (2.59) the free arm is drawn into the body, at ARM_AT mirrored to his left: (body px) = (16 - arm x, arm y, arm z) + this
+LARM_OFF = (16 * ARM_AT[0], 16 * ARM_AT[1] - 8, -16 * ARM_AT[2])
 BODY_KX, BODY_KZ = 0.74, 0.8            # (2.56b: slimmer - he was too chunky)
 HEAD_KX, HEAD_KZ = 0.86, 0.9
 TEX = {'r': 'bm:block/cec_robe', 'd': 'bm:block/cec_robe_dark', 'k': 'bm:block/cec_black', 'g': 'bm:block/cec_gold', 'w': 'bm:block/cec_wood',
@@ -58,12 +62,7 @@ def models(cube):
             c((1.2, -0.6, 4), (3.2, 1.0, 5.2), 'd', ('x', -22.5, (2.2, 1.0, 4.6))), c((12.8, -0.6, 3.8), (14.6, 1.0, 5.0), 'd', ('x', -22.5, (13.7, 1.0, 4.4))),
             c((4.2, -0.4, 2.2), (6.6, 0.8, 3.0), 'd'), c((9.8, -0.5, 2.2), (12.2, 0.9, 3.0), 'd'),
             c((0.6, 0, 6.5), (1.4, 1.4, 10), 'd'), c((14.6, 0, 5), (15.4, 1.2, 8.5), 'd'),
-            c((9.5, -0.4, 14.3), (12.5, 1.2, 15.1), 'd'), c((3, -0.3, 14.3), (5.6, 0.8, 15.0), 'd'), c((6.5, -0.5, 14.4), (8.4, 0.6, 14.9), 'd'),
-            # his left sleeve with its flared, ragged cuff, and the long-fingered claw hanging out front
-            c((0.7, 7.4, 4.2), (4.0, 13.6, 8.2), 'r', ('x', 22.5, (2.35, 13.4, 6.2))),
-            c((0.3, 6.4, 2.6), (4.4, 8.4, 6.0), 'd', ('x', 22.5, (2.35, 8.4, 4.3))),
-            c((1.0, 5.0, 2.4), (3.8, 7.0, 5.0), 'k')] + \
-           [c((x, 3.3, 2.4), (x + 0.6, 5.2, 3.0), 'k', ('x', -22.5, (x + 0.3, 5.2, 2.7))) for x in (1.1, 2.1, 3.1)]
+            c((9.5, -0.4, 14.3), (12.5, 1.2, 15.1), 'd'), c((3, -0.3, 14.3), (5.6, 0.8, 15.0), 'd'), c((6.5, -0.5, 14.4), (8.4, 0.6, 14.9), 'd')]
     # ---- HEAD: a big hood (12 wide, 12 tall), a deep face opening under an overhanging brim, the tip curling back
     face = c((3.4, 8.2, 2.9), (12.6, 17.2, 3.0), 'f', faces=('north',)); face['faces']['north']['uv'] = [0, 0, 16, 16]
     head = [c((2, 7, 3.0), (14, 19, 14), 'r'),
@@ -84,19 +83,58 @@ def models(cube):
            [c((7.2, 19.75, z), (8.8, 19.95, z + 0.35), 'k') for z in (2.4, 4.0, 5.6, 7.2, 8.8, 10.4)]
     eyes = [c((4.0, 13.4, 2.75), (7.4, 14.9, 2.88), 'y', ('z', -22.5, (5.7, 14.15, 2.8))),
             c((8.6, 13.4, 2.75), (12.0, 14.9, 2.88), 'y', ('z', 22.5, (10.3, 14.15, 2.8)))]
-    # ---- ARM: his right sleeve and claw on the crescent staff, which stands on the ground
-    # (2.58: the arm hangs straight from his shoulder - a full robe sleeve with a ragged cuff - and the claw closes round the
-    # staff just under it; the staff stands tall, its crescent above his hood)
-    up, sz = 6.0, 3.7                                  # (sz: the staff sits back under the sleeve)
-    arm = [c((5.7, 1.2, 5.6), (10.3, 9.2, 10.4), 'r'), c((5.4, 0.0, 5.2), (10.6, 1.6, 10.8), 'd'),                 # sleeve, cuff
-           c((6.4, -1.4, 6.0), (9.6, 0.4, 9.6), 'k')] + \
-          [c((x, -2.4, 5.7), (x + 0.6, -0.8, 6.3), 'k', ('x', 22.5, (x + 0.3, -0.8, 6.0))) for x in (6.5, 7.6, 8.7)] + \
-          [c((7.3, -5.4, 3.45 + sz), (8.7, 17 + up, 4.85 + sz), 'w'), c((6.7, 15 + up, 3.0 + sz), (9.3, 18 + up, 5.3 + sz), 'g'),
-           c((4.9, 13.6 + up, 3.5 + sz), (6.7, 19.4 + up, 4.7 + sz), 'g'), c((1.9, 18.4 + up, 3.5 + sz), (5.5, 19.8 + up, 4.7 + sz), 'g', ('z', -22.5, (5.3, 19.1 + up, 4.1 + sz))),
-           c((1.9, 13.2 + up, 3.5 + sz), (5.5, 14.6 + up, 4.7 + sz), 'g', ('z', 22.5, (5.3, 13.9 + up, 4.1 + sz))),
-           c((9.3, 13.6 + up, 3.5 + sz), (11.1, 19.4 + up, 4.7 + sz), 'g'), c((10.5, 18.4 + up, 3.5 + sz), (14.1, 19.8 + up, 4.7 + sz), 'g', ('z', 22.5, (10.7, 19.1 + up, 4.1 + sz))),
-           c((10.5, 13.2 + up, 3.5 + sz), (14.1, 14.6 + up, 4.7 + sz), 'g', ('z', -22.5, (10.7, 13.9 + up, 4.1 + sz))),
-           c((6.5, 18 + up, 2.8 + sz), (9.5, 23.6 + up, 5.6 + sz), 'p', ('y', 45, (8, 21 + up, 4.2 + sz))), c((7.2, 23.4 + up, 3.5 + sz), (8.8, 25.4 + up, 4.9 + sz), 'p', ('y', 45, (8, 24.4 + up, 4.2 + sz)))]
+    # ---- ARMS (2.59): both drawn by one function, so they're the same length and thickness (as in his portrait). Each is a
+    # robe sleeve from the shoulder to the elbow, a forearm, a flared ragged cuff and a black claw. The staff arm reaches
+    # forward with a slight bend at the elbow, its claw closed round the staff; the free arm is curved, bent at the elbow,
+    # its claw dangling in front of him. (Arm frame: the shoulder joint at (8, 8, 8), down -y, his front -z, out to his side +x.)
+    import math
+    def arm_chain(up_rot, fore_ang, out=1, claw='grip'):
+        W, UL, FL, top = 1.75, 5.0, 4.8, 9.4
+        def rot(p, ax, a, o):
+            a = math.radians(a); x, y, z = (p[i] - o[i] for i in range(3)); co, si = math.cos(a), math.sin(a)
+            if ax == 'x': y, z = y * co - z * si, y * si + z * co
+            elif ax == 'z': x, y = x * co - y * si, x * si + y * co
+            return (x + o[0], y + o[1], z + o[2])
+        ax, ang = up_rot; ang *= out if ax == 'z' else 1
+        S = (8, top, 8)
+        E = rot((8, top - UL, 8), ax, ang, S)
+        F = lambda dy: rot((E[0], E[1] - dy, E[2]), 'x', fore_ang, E)
+        H = F(FL + 1.4)
+        R = lambda o, a=fore_ang: ('x', a, o)
+        els = [c((8 - 2.1, top - 1.6, 8 - 2.1), (8 + 2.1, top + 0.4, 8 + 2.1), 'r'),                                          # shoulder
+               c((8 - W, top - UL - 0.4, 8 - W), (8 + W, top - 0.6, 8 + W), 'r', (ax, ang, S)),                              # upper sleeve
+               c((E[0] - W - 0.1, E[1] - 1.9, E[2] - W - 0.1), (E[0] + W + 0.1, E[1] + 1.9, E[2] + W + 0.1), 'r'),            # elbow
+               c((E[0] - W, E[1] - FL, E[2] - W), (E[0] + W, E[1] + 0.6, E[2] + W), 'r', R(E)),                              # forearm
+               c((E[0] - 2.3, E[1] - FL - 1.0, E[2] - 2.3), (E[0] + 2.3, E[1] - FL + 0.6, E[2] + 2.3), 'd', R(E)),            # the flared cuff
+               c((E[0] - 2.2, E[1] - FL - 1.8, E[2] - 2.0), (E[0] - 0.8, E[1] - FL - 0.9, E[2] - 1.4), 'd', R(E)),            # its torn tongues
+               c((E[0] + 0.6, E[1] - FL - 1.6, E[2] + 1.4), (E[0] + 2.1, E[1] - FL - 0.9, E[2] + 2.0), 'd', R(E)),
+               c((E[0] - 1.3, E[1] - FL - 2.2, E[2] - 1.3), (E[0] + 1.3, E[1] - FL - 0.8, E[2] + 1.3), 'k', R(E))]             # wrist
+        if claw == 'grip':                      # a fist round the staff (which stands through H), the claw tips over its front
+            els += [c((H[0] - 1.5, H[1] - 1.3, H[2] - 1.3), (H[0] + 1.5, H[1] + 0.6, H[2] + 1.3), 'k')]
+            els += [c((H[0] - 1.5 + 1.05 * k, H[1] - 1.2, H[2] - 1.9), (H[0] - 0.9 + 1.05 * k, H[1] + 0.3, H[2] - 1.2), 'k') for k in range(3)]
+        else:                                   # long fingers dangling, curled at the tips
+            fa = fore_ang - 30
+            els += [c((H[0] - 1.4, H[1] - 0.9, H[2] - 1.2), (H[0] + 1.4, H[1] + 0.7, H[2] + 1.2), 'k')]
+            els += [c((x - 0.3, H[1] - 3.0, H[2] - 0.9), (x + 0.3, H[1] - 0.4, H[2] - 0.3), 'k', ('x', -fa if abs(fa) <= 45 else -45, (x, H[1] - 0.4, H[2] - 0.6)))
+                    for x in (H[0] - 1.0, H[0], H[0] + 1.0)]
+            els += [c((H[0] + 1.2 * out, H[1] - 1.6, H[2] - 0.2), (H[0] + 1.7 * out, H[1] - 0.2, H[2] + 0.4), 'k')] if out > 0 else \
+                   [c((H[0] - 1.7, H[1] - 1.6, H[2] - 0.2), (H[0] - 1.2, H[1] - 0.2, H[2] + 0.4), 'k')]                      # the thumb
+        return els, H
+    ARM_POSE = (('z', 18), 36)                 # the staff arm: a little out from his side, the forearm reaching forward
+    LARM_POSE = (('x', 22), 45)                # the free arm: bent, its claw hanging in front
+    arm, H = arm_chain(*ARM_POSE, out=1, claw='grip')
+    sx, sz, bot, top = H[0], H[2], -5.4, 23.0  # the staff stands through his fist, its foot on the ground, its crescent above his hood
+    arm += [c((sx - 0.7, bot, sz - 0.7), (sx + 0.7, top, sz + 0.7), 'w'), c((sx - 1.3, top - 2, sz - 1.15), (sx + 1.3, top + 1, sz + 1.15), 'g')]
+    y0 = top - 3.4                             # the crescent: two horns each side, the crystal between them
+    for sgn in (-1, 1):
+        x0, x1 = (sx - 3.1, sx - 1.3) if sgn < 0 else (sx + 1.3, sx + 3.1)
+        xa, xb = (sx - 6.1, sx - 2.5) if sgn < 0 else (sx + 2.5, sx + 6.1)
+        ox = sx - 2.7 if sgn < 0 else sx + 2.7
+        arm += [c((x0, y0, sz - 0.6), (x1, y0 + 5.8, sz + 0.6), 'g'),
+                c((xa, y0 + 4.8, sz - 0.6), (xb, y0 + 6.2, sz + 0.6), 'g', ('z', 22.5 * sgn, (ox, y0 + 5.5, sz))),
+                c((xa, y0 - 0.4, sz - 0.6), (xb, y0 + 1.0, sz + 0.6), 'g', ('z', -22.5 * sgn, (ox, y0 + 0.3, sz)))]
+    arm += [c((sx - 1.5, top + 1, sz - 1.4), (sx + 1.5, top + 6.6, sz + 1.4), 'p', ('y', 45, (sx, top + 4, sz))),
+            c((sx - 0.8, top + 6.4, sz - 0.7), (sx + 0.8, top + 8.4, sz + 0.7), 'p', ('y', 45, (sx, top + 7.4, sz)))]
     def slim(els, kx, kz, o=(8, 0, 8.5)):
         """narrow and flatten (height unchanged)"""
         out = []
@@ -108,6 +146,17 @@ def models(cube):
             out.append(e)
         return out
     body = slim(body, BODY_KX, BODY_KZ)
+    larm, _H = arm_chain(*LARM_POSE, out=-1, claw='dangle')
+    def mirror_to_left(e):
+        e = dict(e); f, t = e['from'], e['to']
+        mx = lambda x: 16 - x + LARM_OFF[0]
+        e['from'] = [mx(t[0]), f[1] + LARM_OFF[1], f[2] + LARM_OFF[2]]; e['to'] = [mx(f[0]), t[1] + LARM_OFF[1], t[2] + LARM_OFF[2]]
+        if 'rotation' in e:
+            r = e['rotation']; o = r['origin']
+            e['rotation'] = dict(r, origin=[mx(o[0]), o[1] + LARM_OFF[1], o[2] + LARM_OFF[2]], angle=-r['angle'] if r['axis'] in ('y', 'z') else r['angle'])
+        e['faces'] = {({'east': 'west', 'west': 'east'}.get(k, k)): v for k, v in e['faces'].items()}
+        return e
+    body += [mirror_to_left(e) for e in larm]
     head, eyes = slim(head, HEAD_KX, HEAD_KZ, (8, 0, 8)), slim(eyes, HEAD_KX, HEAD_KZ, (8, 0, 8))
     def scaled(els, k, o=(8, 7, 8)):
         """the hood drawn a touch smaller about the neck (k=0.9: 11.5 px across the rim)"""

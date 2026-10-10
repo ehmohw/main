@@ -150,20 +150,40 @@ def generate(G):
             lines.append(f'execute {cond}as {sel} run data merge entity @s {{start_interpolation:0,interpolation_duration:{dur},transformation:'
                          f'{{left_rotation:[{L[0]:.4f}f,{L[1]:.4f}f,{L[2]:.4f}f,{L[3]:.4f}f],translation:[{tr[0]:.4f}f,{tr[1]:.4f}f,{tr[2]:.4f}f]}}}}')
         fn(f'p46/pet/pose_{name}', lines)
-    cpose('w0', 7, 5, 0.0, -4, -3, 12, 4); cpose('w1', 8, 0, 0.06, -6, 0, 0, 4)
-    cpose('w2', 7, -5, 0.0, -4, 3, -10, 4); cpose('w3', 8, 0, 0.06, -6, 0, 0, 4)
+    # (2.59) he walks with his staff: it plants ahead, he vaults over it in a hunched waddle (a sway and a dip each step),
+    # it trails behind, swings through and plants again. Running: the same, longer and quicker, bent low.
+    # In the air: leaning back, the staff thrust out in front. (frames: lean, sway, bob, head lean, head tilt, staff swing)
+    WALK = [(8, 4, 0.0, -5, -2, 28), (9, 2, 0.03, -6, -1, 20), (10, 0, 0.05, -7, 0, 8), (9, -2, 0.03, -6, 1, -2),
+            (8, -4, 0.0, -5, 2, -8), (9, -2, 0.03, -6, 1, 0), (10, 0, 0.05, -7, 0, 12), (9, 2, 0.03, -6, -1, 22)]
+    RUN = [(16, 6, 0.0, -11, -3, 44), (17, 3, 0.05, -12, -1, 30), (18, 0, 0.09, -13, 0, 12), (17, -3, 0.05, -12, 1, -4),
+            (16, -6, 0.0, -11, 3, -12), (17, -3, 0.05, -12, 1, 2), (18, 0, 0.09, -13, 0, 20), (17, 3, 0.05, -12, -1, 36)]
+    for i, f in enumerate(WALK): cpose(f'w{i}', *f, 3)
+    for i, f in enumerate(RUN): cpose(f'r{i}', *f, 2)
+    cpose('air', -5, 0, 0.08, 8, 0, 34, 3)
     cpose('i0', 1.5, 0.8, 0.0, 3, -2, 0, 20); cpose('i1', -0.5, -0.8, 0.02, -2, 3, 2, 20)
+    # (2.59) sitting: he settles low, his robe pooled round him, both claws on the upright staff, nodding off over it
+    cpose('s0', 6, 0, -0.16, 12, -4, -4, 10); cpose('s1', 7, 0, -0.17, 16, -6, -4, 30)
+    for nm, pr in (('walking', {'minecraft:movement': {'horizontal_speed': {'min': 0.8}}}), ('running', {'minecraft:movement': {'horizontal_speed': {'min': 3.6}}}),
+                   ('airborne', {'minecraft:flags': {'is_on_ground': False}, 'minecraft:movement': {'vertical_speed': {'min': 2.0}}})):
+        wjson(f'bm/predicate/p46/{nm}.json', {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': pr})
     G.FUNCS['p46/pet/tick'].insert(-1, 'function bm:p46/pet/anim')
     fn('p46/pet/anim', ['scoreboard players operation #cpa bm.rng = @s bm.cpa', 'scoreboard players add @s bm.cpf 1',
-                        'execute store result score #vx bm.rng run data get entity @s Motion[0] 1000', 'execute store result score #vz bm.rng run data get entity @s Motion[2] 1000',
-                        'scoreboard players operation #vx bm.rng *= #vx bm.rng', 'scoreboard players operation #vz bm.rng *= #vz bm.rng',
-                        'scoreboard players operation #vx bm.rng += #vz bm.rng',
-                        'execute if score #vx bm.rng matches 400.. run return run function bm:p46/pet/walk',
-                        'scoreboard players operation #f bm.rng = @s bm.cpf', 'scoreboard players operation #f bm.rng %= #40 bm.rng',
+                        'scoreboard players operation #f bm.rng = @s bm.cpf',
+                        'execute if predicate bm:p46/airborne run return run function bm:p46/pet/air',
+                        'execute if predicate bm:p46/running run return run function bm:p46/pet/run',
+                        'execute if predicate bm:p46/walking run return run function bm:p46/pet/walk',
+                        'tag @s remove bm.cpair', 'execute if data entity @s {Sitting:1b} run return run function bm:p46/pet/sit',
+                        'scoreboard players operation #f bm.rng %= #40 bm.rng',
                         'execute if score #f bm.rng matches 0 run function bm:p46/pet/pose_i0', 'execute if score #f bm.rng matches 20 run function bm:p46/pet/pose_i1'])
-    fn('p46/pet/walk', ['scoreboard players operation #f bm.rng = @s bm.cpf', 'scoreboard players operation #f bm.rng %= #16 bm.rng'] +
-       [f'execute if score #f bm.rng matches {4 * i} run function bm:p46/pet/pose_w{i}' for i in range(4)])
-    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.cpf dummy', 'scoreboard players set #16 bm.rng 16', 'scoreboard players set #40 bm.rng 40']
+    # (on the way into the air: the pose once; back on the ground the stride picks up where it is)
+    fn('p46/pet/sit', ['scoreboard players operation #f bm.rng %= #80 bm.rng',
+                       'execute if score #f bm.rng matches 0 run function bm:p46/pet/pose_s0', 'execute if score #f bm.rng matches 40 run function bm:p46/pet/pose_s1'])
+    fn('p46/pet/air', ['execute if entity @s[tag=bm.cpair] run return 0', 'tag @s add bm.cpair', 'function bm:p46/pet/pose_air'])
+    fn('p46/pet/walk', ['tag @s remove bm.cpair', 'scoreboard players operation #f bm.rng %= #24 bm.rng'] +
+       [f'execute if score #f bm.rng matches {3 * i} run function bm:p46/pet/pose_w{i}' for i in range(8)])
+    fn('p46/pet/run', ['tag @s remove bm.cpair', 'scoreboard players operation #f bm.rng %= #16 bm.rng'] +
+       [f'execute if score #f bm.rng matches {2 * i} run function bm:p46/pet/pose_r{i}' for i in range(8)])
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.cpf dummy', 'scoreboard players set #16 bm.rng 16', 'scoreboard players set #24 bm.rng 24', 'scoreboard players set #40 bm.rng 40', 'scoreboard players set #80 bm.rng 80']
     # a rig whose wolf is gone (4 ticks running - never a chunk-edge blip): he fell. Fade, and the gem cools down.
     tick += ['execute as @e[type=minecraft:item_display,tag=bm.cp_body,tag=!bm.cpfade] at @s run function bm:p46/pet/check',
              'scoreboard players remove @e[type=minecraft:item_display,tag=bm.cpfade] bm.cpt 1',
