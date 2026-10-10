@@ -74,16 +74,19 @@ def generate(G):
            'attributes': [{'id': 'minecraft:max_health', 'base': D(60)}, {'id': 'minecraft:armor', 'base': D(20)}, {'id': 'minecraft:attack_damage', 'base': D(2)},
                           {'id': 'minecraft:movement_speed', 'base': D(0.32)}, {'id': 'minecraft:follow_range', 'base': D(32)}, {'id': 'minecraft:step_height', 'base': D(1.0)}],
            'active_effects': [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}]}
-    def part(model, tag, ty, bright):
-        return snbt({'Tags': ['bm.cpet', 'bm.cp2', tag, 'bm.cpnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': model}},
+    import math as _mm
+    qy = lambda a: [F(0), F(round(_mm.sin(_mm.radians(a) / 2), 5)), F(0), F(round(_mm.cos(_mm.radians(a) / 2), 5))]
+    def part(model, tag, ty, bright, yaw=0):
+        return snbt({'Tags': ['bm.cpet', 'bm.cp2', 'bm.cp3', tag, 'bm.cpnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': model}},
                      'item_display': 'fixed', 'teleport_duration': Int(2), 'brightness': {'block': Int(bright), 'sky': Int(bright)},
                      'interpolation_duration': Int(15), 'start_interpolation': Int(0),
-                     'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(ty), F(0)], 'scale': [F(0)] * 3}})
+                     'transformation': {'left_rotation': ident, 'right_rotation': qy(yaw) if yaw else ident, 'translation': [F(0), F(ty), F(0)], 'scale': [F(0)] * 3}})
     # (2.56: the follower is redrawn - cecil2_art; the market's Cecil keeps his tall look)
     rig = [f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_body", "bm.cp_body", 0.5, 13)}',
            f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_head", "bm.cp_head", 0.0, 13)}',
            f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_eyes", "bm.cp_eyes", 0.0, 15)}',
-           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_arm", "bm.cp_arm", 0.0, 13)}']
+           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_arm", "bm.cp_arm", 0.0, 13, CA.ARM_YAW)}',
+           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_larm", "bm.cp_larm", 0.0, 13, CA.LARM_YAW)}']   # (2.60: his free arm, its own part)
     sel_pet = 'execute as @e[type=minecraft:wolf,tag=bm.cecilpet] if score @s bm.pid = #me bm.pid'
     fn('p46/pet/use', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
                        f'{sel_pet} run tag @s add bm.cpsel',
@@ -112,10 +115,10 @@ def generate(G):
                              # (2.49) appear whole, in a burst of magic (the summon's particles) - no growing out of nothing
                              'execute as @e[type=minecraft:item_display,tag=bm.cpnew,distance=..1] run data merge entity @s {start_interpolation:-1,interpolation_duration:0,transformation:{scale:[1f,1f,1f]}}',
                              'particle minecraft:flash{color:[0.75,0.55,1.0,1.0]} ~ ~1 ~ 0 0 0 0 1', 'particle minecraft:end_rod ~ ~1 ~ 0.1 0.3 0.1 0.12 20'])
-    second.append('execute as @e[type=minecraft:wolf,tag=bm.cecilpet,tag=!bm.cp2w] at @s run function bm:p46/pet/rerig2')
-    fn('p46/pet/rerig2', ['tag @s add bm.cp2w', 'scoreboard players operation #me bm.pid = @s bm.pid',
-                          'execute as @e[type=minecraft:item_display,tag=bm.cpet,tag=!bm.cp2] if score @s bm.pid = #me bm.pid run kill @s',
-                          'execute if entity @e[type=minecraft:item_display,tag=bm.cp2,tag=bm.cp_body,distance=..3] run return 0',
+    second.append('execute as @e[type=minecraft:wolf,tag=bm.cecilpet,tag=!bm.cp3w] at @s run function bm:p46/pet/rerig2')
+    fn('p46/pet/rerig2', ['tag @s add bm.cp3w', 'scoreboard players operation #me bm.pid = @s bm.pid',
+                          'execute as @e[type=minecraft:item_display,tag=bm.cpet,tag=!bm.cp3] if score @s bm.pid = #me bm.pid run kill @s',
+                          'execute if entity @e[type=minecraft:item_display,tag=bm.cp3,tag=bm.cp_body,distance=..3] run return 0',
                           'execute rotated as @s rotated ~180 0 run function bm:p46/pet/rig',
                           'scoreboard players operation @e[tag=bm.cpnew,distance=..2] bm.pid = #me bm.pid', 'tag @e[tag=bm.cpnew,distance=..2] remove bm.cpnew',
                           'scoreboard players set #el bm.rng 0', 'execute if score @s bm.cpel matches 1.. run scoreboard players operation #el bm.rng = @s bm.cpel',
@@ -127,6 +130,7 @@ def generate(G):
                         'execute rotated as @s rotated ~ 0 run function bm:p46/pet/place', 'tag @e[tag=bm.cpsel] remove bm.cpsel'])
     fn('p46/pet/place', ['tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_body] ~ ~ ~ ~ 0',
                          f'execute positioned ^{CA.ARM_AT[0]} ^{CA.ARM_AT[1]} ^{CA.ARM_AT[2]} run tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_arm] ~ ~ ~ ~ 0',
+                         f'execute positioned ^{CA.LARM_AT[0]} ^{CA.LARM_AT[1]} ^{CA.LARM_AT[2]} run tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_larm] ~ ~ ~ ~ 0',
                          f'execute positioned ^ ^{CA.HEAD_AT[1]} ^{CA.HEAD_AT[2]} run tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_head] ~ ~ ~ ~ 0',
                          f'execute positioned ^ ^{CA.HEAD_AT[1]} ^{CA.HEAD_AT[2]} run tp @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_eyes] ~ ~ ~ ~ 0'])
     # (2.49) he moves: a robed waddle when walking (sway, bob, lean, the staff planted like a walking stick), a slow breath at rest
@@ -135,7 +139,8 @@ def generate(G):
     def _rot(q, v):
         x, y, z, w = q; cx = y * v[2] - z * v[1] + w * v[0]; cy = z * v[0] - x * v[2] + w * v[1]; cz = x * v[1] - y * v[0] + w * v[2]
         return (v[0] + 2 * (y * cz - z * cy), v[1] + 2 * (z * cx - x * cz), v[2] + 2 * (x * cy - y * cx))
-    OFF = {'cp_body': ((0, 0, 0), (0, 0.5, 0)), 'cp_head': (CA.HEAD_AT, (0, 0, 0)), 'cp_eyes': (CA.HEAD_AT, (0, 0, 0)), 'cp_arm': (CA.ARM_AT, (0, 0, 0))}
+    OFF = {'cp_body': ((0, 0, 0), (0, 0.5, 0)), 'cp_head': (CA.HEAD_AT, (0, 0, 0)), 'cp_eyes': (CA.HEAD_AT, (0, 0, 0)), 'cp_arm': (CA.ARM_AT, (0, 0, 0)),
+           'cp_larm': (CA.LARM_AT, (0, 0, 0))}
     def cpose(name, lean, tilt, bob, head_lean, head_tilt, arm_fwd, dur):
         R = _qm(_qa('x', lean), _qa('z', tilt))
         lines = []
@@ -143,6 +148,7 @@ def generate(G):
             L = R
             if tag in ('cp_head', 'cp_eyes'): L = _qm(R, _qm(_qa('x', head_lean), _qa('z', head_tilt)))
             if tag == 'cp_arm': L = _qm(R, _qa('x', 6 - arm_fwd))
+            if tag == 'cp_larm': L = _qm(R, _qa('x', 0.45 * arm_fwd))       # (the free arm swings against the staff)
             p = tuple(o[i] + t[i] for i in range(3)); rp = _rot(R, p)
             tr = (rp[0] - o[0], rp[1] - o[1] + bob, rp[2] - o[2])
             sel = f'@e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.{tag}]'
@@ -288,7 +294,7 @@ def generate(G):
     # (#me = the owner's id, #el = the element) his hood and staff take the element's look; the wolf remembers it for his bolts
     fn('p46/pet/dress', [f'execute as @e[type=minecraft:wolf,tag=bm.cecilpet] if score @s bm.pid = #me bm.pid run scoreboard players operation @s bm.cpel = #el bm.rng'] +
        [f'execute if score #el bm.rng matches {i + 1} as @e[type=minecraft:item_display,tag=bm.cpet,tag={part}] if score @s bm.pid = #me bm.pid run data modify entity @s item.components."minecraft:item_model" set value "bm:cec2_{nm}_{k}"'
-        for i, k in enumerate(EL_KEYS) for part, nm in (('bm.cp_head', 'head'), ('bm.cp_arm', 'arm'))])
+        for i, k in enumerate(EL_KEYS) for part, nm in (('bm.cp_head', 'head'), ('bm.cp_arm', 'arm'), ('bm.cp_body', 'body'), ('bm.cp_larm', 'larm'))])
     G.FUNCS['p46/pet/summon'] += ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #el bm.rng 0',
                                   'execute if score @s bm.cpel matches 1.. run scoreboard players operation #el bm.rng = @s bm.cpel', 'function bm:p46/pet/dress']
     fn('p46/pet/heal_check', ['execute store result score #h bm.rng run data get entity @s Health', 'execute unless score #h bm.rng matches ..13 run return 0',
@@ -411,7 +417,10 @@ def rp(R):
     ct, head = R.HATS['cec2_head']; _ct, arm = R.HATS['cec2_arm']
     for k in ELEMENTS:
         R.HATS[f'cec2_head_{k}'] = (dict(ct, r=f'bm:block/cec_hood_{k}', d=f'bm:block/cec_hood_dark_{k}'), head)
-        R.HATS[f'cec2_arm_{k}'] = (dict(ct, g=f'bm:block/cec_metal_{k}', p=f'bm:block/cec_crystal_{k}'), arm)
+        R.HATS[f'cec2_arm_{k}'] = (dict(ct, r=f'bm:block/cec_hood_{k}', d=f'bm:block/cec_hood_dark_{k}', g=f'bm:block/cec_metal_{k}', p=f'bm:block/cec_crystal_{k}'), arm)
+        # (2.60) the robe and the free arm too - the whole cloak takes the element's colours
+        R.HATS[f'cec2_body_{k}'] = (dict(ct, r=f'bm:block/cec_hood_{k}', d=f'bm:block/cec_hood_dark_{k}'), R.HATS['cec2_body'][1])
+        R.HATS[f'cec2_larm_{k}'] = (dict(ct, r=f'bm:block/cec_hood_{k}', d=f'bm:block/cec_hood_dark_{k}'), R.HATS['cec2_larm'][1])
     R.ICONS['cecil_gem'] = R.grid(['................', '.......PP.......', '......PLLP......', '.....PLPPPP.....', '....PPPPPPPP....', '...PPYYPPYYPP...',
                                    '...PPPYPPYPPP...', '...PPPPPPPPPP...', '....PKKKKKKP....', '....PPKPKPPP....', '.....PPPPPP.....', '......PPPP......',
                                    '.......PP.......', '................', '................', '................'],

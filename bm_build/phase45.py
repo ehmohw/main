@@ -486,17 +486,20 @@ def generate(G):
     rig = [f'summon minecraft:item_display ~ ~ ~ {disp("bm:cec2_body", ["bm.npc", "bm.new", "bm.cecil", "bm.cec2", "bm.cec_body"], 1.0, 0.5, 13, 3)}',
            f'summon minecraft:item_display ~ ~ ~ {disp("bm:cec2_head", ["bm.npc", "bm.new", "bm.cecil", "bm.cec2", "bm.cec_head"], 1.0, 0.0, 13, 3)}',
            f'summon minecraft:item_display ~ ~ ~ {disp("bm:cec2_eyes", ["bm.npc", "bm.new", "bm.cecil", "bm.cec2", "bm.cec_eyes"], 1.0, 0.0, 15, 3)}',
-           f'summon minecraft:item_display ~ ~ ~ {disp("bm:cec2_arm", ["bm.npc", "bm.new", "bm.cecil", "bm.cec2", "bm.cec_arm"], 1.0, 0.0, 13, 3, {"transformation": {"left_rotation": q("x", 6), "right_rotation": ident, "translation": [F(0), F(0), F(0)], "scale": [F(1)] * 3}})}']
+           f'summon minecraft:item_display ~ ~ ~ {disp("bm:cec2_arm", ["bm.npc", "bm.new", "bm.cecil", "bm.cec2", "bm.cec_arm"], 1.0, 0.0, 13, 3, {"transformation": {"left_rotation": q("x", 6), "right_rotation": q("y", CA.ARM_YAW), "translation": [F(0), F(0), F(0)], "scale": [F(1)] * 3}})}',
+           # (2.60) his free arm is its own part (from the portrait: both arms the same, the free one curled in front of him)
+           f'summon minecraft:item_display ~ ~ ~ {disp("bm:cec2_larm", ["bm.npc", "bm.new", "bm.cecil", "bm.cec2", "bm.cec_larm"], 1.0, 0.0, 13, 3, {"transformation": {"left_rotation": ident, "right_rotation": q("y", CA.LARM_YAW), "translation": [F(0), F(0), F(0)], "scale": [F(1)] * 3}})}']
     fn('p45/cecil/rig', rig)
     fn('p45/cecil/spawn', [l for l in G.FUNCS['npc/wizard'] if not l.startswith('execute rotated as @s') and not l.startswith('tag @e[tag=bm.new')] +
        ['execute rotated ~ 0 run tp @e[tag=bm.new,distance=..3] ~ ~ ~ ~ 0', 'execute as @e[tag=bm.new,tag=bm.cecil,distance=..3] at @s run function bm:p45/cecil/settle',
         'tag @e[tag=bm.new,distance=..3] remove bm.new'])
     fn('p45/cecil/settle', [f'execute if entity @s[tag=bm.cec_head] run tp @s ^ ^{HY} ^{HZ}', f'execute if entity @s[tag=bm.cec_eyes] run tp @s ^ ^{HY} ^{HZ}',
-                            f'execute if entity @s[tag=bm.cec_arm] run tp @s ^{AX} ^{AY} ^{AZ}'])
+                            f'execute if entity @s[tag=bm.cec_arm] run tp @s ^{AX} ^{AY} ^{AZ}', f'execute if entity @s[tag=bm.cec_larm] run tp @s ^{-AX} ^{AY} ^{AZ}'])
     # (the parts are summoned on the villager, turned with it, then settle steps each to its joint)
     G.FUNCS['p35/patch'].append(f'execute positioned {mgeo.rel(CECIL_POS)} unless entity @e[type=minecraft:villager,tag=bm.npc_wizard,distance=..4] rotated ~{CECIL_YAW} 0 run function bm:p45/cecil/spawn')
     G.FUNCS['p35/patch'].append(f'execute positioned {mgeo.rel(CECIL_POS)} as @e[type=minecraft:villager,tag=bm.npc_wizard,distance=..4] at @s unless entity @e[type=minecraft:item_display,tag=bm.cec_body,distance=..1] run function bm:p45/cecil/rerig')
     G.FUNCS['p35/patch'].append(f'execute positioned {mgeo.rel(CECIL_POS)} as @e[type=minecraft:villager,tag=bm.npc_wizard,distance=..4] at @s if entity @e[type=minecraft:item_display,tag=bm.cec_body,tag=!bm.cec2,distance=..1] run function bm:p45/cecil/rerig')
+    G.FUNCS['p35/patch'].append(f'execute positioned {mgeo.rel(CECIL_POS)} as @e[type=minecraft:villager,tag=bm.npc_wizard,distance=..4] at @s unless entity @e[type=minecraft:item_display,tag=bm.cec_larm,distance=..2] run function bm:p45/cecil/rerig')
     fn('p45/cecil/rerig', ['kill @e[type=minecraft:item_display,tag=bm.cecil,distance=..3]', 'execute rotated as @s rotated ~ 0 run function bm:p45/cecil/rig_here'])
     fn('p45/cecil/rig_here', rig + ['execute rotated ~ 0 run tp @e[tag=bm.new,tag=bm.cecil,distance=..3] ~ ~ ~ ~ 0',
                                     'execute as @e[tag=bm.new,tag=bm.cecil,distance=..3] at @s run function bm:p45/cecil/settle', 'tag @e[tag=bm.new,distance=..3] remove bm.new'])
@@ -513,14 +516,17 @@ def generate(G):
     G.FUNCS['load'][-1:-1] = ['scoreboard players set #40 bm.rng 40']
     fn('p45/cecil/face', ['tp @e[type=minecraft:item_display,tag=bm.cec_body,distance=..1,limit=1] ~ ~ ~ ~ 0',
                           f'execute positioned ^{AX} ^{AY} ^{AZ} run tp @e[type=minecraft:item_display,tag=bm.cec_arm,distance=..2,limit=1] ~ ~ ~ ~ 0',
+                          f'execute positioned ^{-AX} ^{AY} ^{AZ} run tp @e[type=minecraft:item_display,tag=bm.cec_larm,distance=..2,limit=1] ~ ~ ~ ~ 0',
                           f'execute positioned ^ ^{HY} ^{HZ} run tp @e[type=minecraft:item_display,tag=bm.cec_head,distance=..2,limit=1] ~ ~ ~ facing entity @p[distance=..10,gamemode=!spectator] eyes',
                           f'execute positioned ^ ^{HY} ^{HZ} run tp @e[type=minecraft:item_display,tag=bm.cec_eyes,distance=..2,limit=1] ~ ~ ~ facing entity @p[distance=..10,gamemode=!spectator] eyes'])
     tr = lambda y: f'translation:[0f,{y}f,0f]'
-    fn('p45/cecil/inhale', [f'data merge entity @e[type=minecraft:item_display,tag=bm.cec_body,distance=..1,limit=1] {{start_interpolation:0,interpolation_duration:20,transformation:{{{tr(0.52)},scale:[1f,1.02f,1f]}}}}',
+    fn('p45/cecil/inhale', [f'execute as @e[type=minecraft:item_display,tag=bm.cec_larm,distance=..3] run data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{{tr(0.03)},left_rotation:{snbt(q("x", 4))}}}}}',
+                            f'data merge entity @e[type=minecraft:item_display,tag=bm.cec_body,distance=..1,limit=1] {{start_interpolation:0,interpolation_duration:20,transformation:{{{tr(0.52)},scale:[1f,1.02f,1f]}}}}',
                             f'execute as @e[type=minecraft:item_display,tag=bm.cec_head,distance=..3] run data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{{tr(0.035)}}}}}',
                             f'execute as @e[type=minecraft:item_display,tag=bm.cec_eyes,distance=..3] run data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{{tr(0.035)}}}}}',
                             f'execute unless score @s bm.cct matches 140..170 as @e[type=minecraft:item_display,tag=bm.cec_arm,distance=..3] run data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{{tr(0.03)},left_rotation:{snbt(q("x", 10))}}}}}'])
-    fn('p45/cecil/exhale', [f'data merge entity @e[type=minecraft:item_display,tag=bm.cec_body,distance=..1,limit=1] {{start_interpolation:0,interpolation_duration:20,transformation:{{{tr(0.5)},scale:[1f,1f,1f]}}}}',
+    fn('p45/cecil/exhale', [f'execute as @e[type=minecraft:item_display,tag=bm.cec_larm,distance=..3] run data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{{tr(0)},left_rotation:{snbt(q("x", 0))}}}}}',
+                            f'data merge entity @e[type=minecraft:item_display,tag=bm.cec_body,distance=..1,limit=1] {{start_interpolation:0,interpolation_duration:20,transformation:{{{tr(0.5)},scale:[1f,1f,1f]}}}}',
                             f'execute as @e[type=minecraft:item_display,tag=bm.cec_head,distance=..3] run data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{{tr(0)}}}}}',
                             f'execute as @e[type=minecraft:item_display,tag=bm.cec_eyes,distance=..3] run data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{{tr(0)}}}}}',
                             f'execute unless score @s bm.cct matches 140..170 as @e[type=minecraft:item_display,tag=bm.cec_arm,distance=..3] run data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{{tr(0)},left_rotation:{snbt(q("x", 4))}}}}}'])
