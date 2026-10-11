@@ -30,6 +30,7 @@ ARROW = PROJ | {'shake', 'pickup', 'life', 'damage', 'inGround', 'inBlockState',
 ZOMBIE = {'IsBaby', 'CanBreakDoors', 'DrownedConversionTime', 'InWaterTime'}
 ALLOWED.update({'chicken': ENTITY | LIVING | MOB | BREEDABLE | {'IsChickenJockey', 'EggLayTime', 'variant', 'sound_variant'},
                 'zombie': ENTITY | LIVING | MOB | ZOMBIE, 'husk': ENTITY | LIVING | MOB | ZOMBIE, 'drowned': ENTITY | LIVING | MOB | ZOMBIE,
+                'zombie_villager': ENTITY | LIVING | MOB | ZOMBIE | {'VillagerData', 'ConversionTime', 'ConversionPlayer', 'Gossips', 'Offers', 'Xp'},   # (2.67: it is a zombie)
                 'arrow': ENTITY | ARROW, 'spectral_arrow': ENTITY | ARROW | {'Duration'},
                 'snowball': ENTITY | PROJ | {'Item'}, 'egg': ENTITY | PROJ | {'Item'},
                 'evoker_fangs': ENTITY | {'Warmup', 'Owner'}, 'marker': ENTITY,
