@@ -17,7 +17,7 @@ class PErr(Exception):
     pass
 
 
-ROOT_DP = os.environ.get('BM_OUT', '/home/claude/bm_build/out') + '/BlackMarket_DP/data'
+ROOT_DP = os.environ.get('BM_OUT', '/home/claude/bm_build/out_p2') + '/BlackMarket_DP/data'
 MY_FUNCS = {f[len(ROOT_DP) + len('/bm/function/'):-11] for f in glob.glob(ROOT_DP + '/bm/function/**/*.mcfunction', recursive=True)}
 MY_LOOT = {f[len(ROOT_DP) + len('/bm/loot_table/'):-5] for f in glob.glob(ROOT_DP + '/bm/loot_table/**/*.json', recursive=True)}
 MY_MODS = {f[len(ROOT_DP) + len('/bm/item_modifier/'):-5] for f in glob.glob(ROOT_DP + '/bm/item_modifier/**/*.json', recursive=True)}

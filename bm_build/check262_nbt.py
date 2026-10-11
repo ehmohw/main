@@ -16,6 +16,10 @@ ALLOWED = {'villager': ENTITY | LIVING | MOB | VILLAGER, 'wandering_trader': ENT
            'warden': ENTITY | LIVING | MOB | {'anger'},
            'creeper': ENTITY | LIVING | MOB | {'powered', 'ExplosionRadius', 'Fuse', 'ignored'}, 'mob': ENTITY | LIVING | MOB}
 BREEDABLE = {'Age', 'ForcedAge', 'AgeLocked', 'InLove', 'LoveCause'}
+# (2.60, checked against a live 26.3 server: an item frame and a wolf's own fields)
+ALLOWED.update({'item_frame': ENTITY | {'Facing', 'Fixed', 'Item', 'ItemRotation', 'ItemDropChance', 'Invisible', 'block_pos'},
+                'glow_item_frame': ENTITY | {'Facing', 'Fixed', 'Item', 'ItemRotation', 'ItemDropChance', 'Invisible', 'block_pos'},
+                'wolf': ENTITY | LIVING | MOB | BREEDABLE | {'Owner', 'Sitting', 'CollarColor', 'variant', 'sound_variant', 'anger_end_time', 'angry_at'}})
 HORSE = BREEDABLE | {'Bred', 'EatingHaystack', 'Tame', 'Temper', 'Owner'}          # mcdoc HorseBase (26.x)
 ALLOWED.update({'zombie_horse': ENTITY | LIVING | MOB | HORSE, 'horse': ENTITY | LIVING | MOB | HORSE | {'Variant'},
                 'skeleton_horse': ENTITY | LIVING | MOB | HORSE | {'SkeletonTrap', 'SkeletonTrapTime'},

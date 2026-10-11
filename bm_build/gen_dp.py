@@ -42,6 +42,8 @@ import phase49 as R49
 import phase50 as R50
 import phase51 as R51
 import phase52 as R52
+import phase71 as R71        # 2.60: the Gilded Gutter Vault's treasures
+import phase70 as R70        # 2.60: the Gilded Gutter Vault - a party raid
 import phase69 as R69        # 2.60: Cecil's gems - his whole cloak, take-back, the Ethereal Form, charged spells
 import phase68 as R68        # 2.59: a follower's summoning item in a frame: they wander about it
 import phase67 as R67        # 2.58: parties, and bosses that scale with the players near them
@@ -290,6 +292,7 @@ def all_offers():
     R59.extend_offers(O, offer)
     if PHASE2: R61.extend_offers(O, offer)
     R62.extend_offers(O, offer)
+    R71.extend_offers(O, offer)
     return O
 
 
@@ -1016,6 +1019,8 @@ def build(out_dir):
     R67.generate(sys.modules[__name__])
     R68.generate(sys.modules[__name__])
     R69.generate(sys.modules[__name__])
+    R70.generate(sys.modules[__name__])
+    R71.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command

@@ -37,7 +37,11 @@ CH = {  # element: (spell name, colour, dust rgb)
 }
 FOE = 'type=#bm:hostile,tag=!bm.npc'
 import phase67 as _P67                                  # (bosses are never shoved, dragged or flung)
-MOVABLE = FOE + ',tag=!bm.boss,tag=!bm.vboss,' + ','.join(f'tag=!{t}' for t, _b in _P67.BOSSES)
+MOVABLE = FOE + ',tag=!bm.boss,tag=!bm.vboss,tag=!bm.gvboss,' + ','.join(f'tag=!{t}' for t, _b in _P67.BOSSES)
+# (the gem's lore says so - at import, before any trade is built from it)
+_lore = ITEMS['cecil_gem']['comps']['minecraft:lore']
+_lore.insert(-1, T('Sneak + right-click him empty-handed: take it back.', 'light_purple'))
+_lore.insert(-1, T('An Ethereal Gem: his Ethereal Form.', 'light_purple'))
 PARTS = (('bm.cp_head', 'head'), ('bm.cp_arm', 'arm'), ('bm.cp_body', 'body'), ('bm.cp_larm', 'larm'))
 
 
@@ -102,10 +106,6 @@ def generate(G):
                     'execute at @e[type=minecraft:wolf,tag=bm.cpsel,limit=1] run playsound minecraft:entity.player.burp neutral @a[distance=..16] ~ ~ ~ 0.8 0.7',
                     say('Cecil coughs up the gem and hands it back. "Fine. Poison it is - my favourite anyway."'),
                     'tag @e[tag=bm.cpsel] remove bm.cpsel'])
-    # (the item's lore says so)
-    lore = ITEMS['cecil_gem']['comps']['minecraft:lore']
-    lore.insert(-1, T('Sneak + right-click him empty-handed: take it back.', 'light_purple'))
-    lore.insert(-1, T('An Ethereal Gem: his Ethereal Form.', 'light_purple'))
 
     # ------------------------------------------------------------------ the Ethereal Form: a bolt a second, 8 damage and a random element; heals sooner
     G.FUNCS['p46/pet/act'].insert(-1, f'execute if score @s bm.cpel matches {ETH_I} if score @s bm.cpa matches 1 if entity @e[{FOE},distance=..14] run function bm:p46/pet/attack')

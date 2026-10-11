@@ -6,8 +6,8 @@ from nbt import read_nbt_gz
 import check262 as C
 
 REG, BLOCKS = C.REG, C.BLOCKS
-DP = os.environ.get('BM_OUT', '/home/claude/bm_build/out') + '/BlackMarket_DP'
-RP = os.environ.get('BM_OUT', '/home/claude/bm_build/out') + '/BlackMarket_RP'
+DP = os.environ.get('BM_OUT', '/home/claude/bm_build/out_p2') + '/BlackMarket_DP'
+RP = os.environ.get('BM_OUT', '/home/claude/bm_build/out_p2') + '/BlackMarket_RP'
 errs = []
 
 
@@ -300,7 +300,11 @@ def walk_item_model(f, m):
         if mp[0] == 'bm' and not os.path.exists(f'{RP}/assets/bm/models/{mp[1]}.json'): E(f'{f}: missing model {m["model"]}')
         if mp[0] == 'minecraft' and mp[1] not in REG['model']: E(f'{f}: vanilla model {m["model"]} not in 26.3')
     elif t == 'minecraft:select':
-        if m.get('property') != 'minecraft:custom_model_data': E(f'{f}: select property {m.get("property")} (only custom_model_data used/checked)')
+        DCTX = {'none', 'thirdperson_lefthand', 'thirdperson_righthand', 'firstperson_lefthand', 'firstperson_righthand', 'head', 'gui', 'ground', 'fixed', 'on_shelf'}
+        if m.get('property') == 'minecraft:display_context':        # (2.60: an item drawn one way in the hand, another on the head)
+            for c in m.get('cases', []):
+                if c.get('when') not in DCTX: E(f'{f}: display_context case {c.get("when")}')
+        elif m.get('property') != 'minecraft:custom_model_data': E(f'{f}: select property {m.get("property")} (only custom_model_data / display_context used/checked)')
         if not isinstance(m.get('index', 0), int) or m.get('index', 0) < 0: E(f'{f}: select index')
         for c in m.get('cases', []):
             if set(c) != {'when', 'model'} or not isinstance(c['when'], (str, list)): E(f'{f}: select case keys {set(c)}')

@@ -1,4 +1,4 @@
-# Black Market — v2.59 (Java 26.3)
+# Black Market — v2.60 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,95 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.60: the Gilded Gutter Vault, Cecil's elements
+
+### The Gilded Gutter Vault: a party raid
+A raid with puzzles, guards, an alarm and five tiers. It works solo too, and it never touches your market standing.
+
+- **Getting in:** buy the **Heist Plans** from the Fence (6 Tokens, reusable). Use them and pick a tier you've unlocked. You, and every member of your party within 24 blocks, are taken down into the vault, which is a separate world. Party members who arrive later use their own plans to join the heist in progress.
+- **A run:**
+  - First the **Fixer's Den** (the lobby): Goldtooth's stall, the heist sheet (tier, special night, modifiers), this week's records, and a copper door that only a Clockwork Key opens. Press a button by the far door to begin.
+  - Then 3 to 7 rooms (tier + 2), drawn at random from seven. Each room's exit stays barred until you beat it:
+    - **The Combination Room:** set five levers to match the ledger on the far wall, then press the button. The ledger faces the levers, not you.
+    - **The Weighing Room:** every golden scale must be pressed at once. That's 2 to 4 scales depending on party size, and a dropped item counts.
+    - **The Gauntlet:** a corridor of sweeping lasers. Getting touched zaps you back to the start.
+    - **The Tile Floor:** only a hidden path holds. A button shows the path for a moment (free the first time).
+    - **The Dial Lock:** turn three dials (item frames) to the arrows on the blueprint.
+    - **The Counting House:** two waves of guards, the second with a captain.
+    - **The Three Coffers:** a riddle names the honest coffer. The others are Mimics.
+  - Then **the Vault**. Its guardian, the **Gilded Sentinel**, fights with coin barrages, ground slams and called guards. Twice it shells itself in gold; press the hall's four plates at once to crack the shell.
+  - Behind its gold door is the treasury. Everyone stands on the ring of plates round the Grand Strongbox together, and **every player gets their own haul**, so there's nothing to fight over. The emerald plate takes you home.
+- **The alarm:** mistakes ring it (wrong combinations, lasers, falling tiles, Mimics, getting knocked out). At 50, guards start patrolling. At 100 the vault goes into **lockdown**: guards keep coming and the haul shrinks. Finishing under 50 is a clean getaway and earns an extra share.
+- **Knocked out?** The gang drags you back to the den, and your things are where you fell.
+- **Tiers I to V:** clearing a tier unlocks the next one for you. The first clear of each tier pays a Gilded armour piece (tier V: the Treasurer's Scepter) and a finer Raid Banner.
+- **Modifiers:** each run rolls some, more at higher tiers, and each one adds extra shares:
+  - **Lights Out**
+  - **Hot Floor**
+  - **Speed Run**
+  - **Iron Guards**
+  - **Glass Cannon:** you hit harder but have half your health.
+  - **Greedy Vault:** more loot, and the alarm rings twice as loud.
+  - **Silent Alarm:** the alarm starts at 40.
+- **Special nights** change the vault:
+  - **Blood Moon Heist:** crimson guards and the Crimson Treasurer (blood aura). Adds Blood Crystals and the Crimson Ledger.
+  - **Lucky Night Heist:** golden guards and the Golden Gambler (it throws gold). Adds more coins, Lucky Tokens and the Gambler's Coin.
+  - **Invasion Heist:** the Vorn got there first. Troopers and the Vorn Vault-Breaker (lasers). Adds Xenite, Power Cells and the Vorn Cracking Rig.
+- **Records:** the fastest clear of each tier this week is posted in every den. Whoever sets one gets the **Gutter Laurel**.
+
+### The vault's treasures
+- **Gutter Coins:** the vault's own money, spent with **Goldtooth** in the den.
+  - Goldtooth sells smoke bombs, lockpicks, Clockwork Key fragments, the Thief's Cowl, Smuggler's Boots, the Cipher Monocle, the follower cosmetics and the Vault Hound Whistle.
+  - Coins are never used in the market and never counted for standing.
+- **Gilded set** (first clears of tiers I to IV): diamond-grade armour, +1 Luck per piece. The full set gives no fall damage, and nearby drops fly to you.
+- **Thief's Cowl:** invisible and quick while you sneak.
+- **Smuggler's Boots:** faster, step up a whole block, and fall further unhurt.
+- **Cipher Monocle** (worn on the head): pressure plates and tripwires glint within 6 blocks. In the vault it also shows the tiles that won't hold and the coffers that bite.
+- **Weapons:**
+  - **Heister's Shiv:** an ambush second stab on monsters that aren't after you.
+  - **Vault Breaker:** each blow sends a shockwave through nearby monsters.
+  - **Coinslinger:** a crossbow whose bolts burst into coins.
+  - **Gutter King's Cutlass:** bleeding cuts, and coins from the slain.
+  - **The Treasurer's Scepter:** COIN STORM.
+- **Together:**
+  - **Bond Sigils** (every member of a party of 2+): regenerate when near someone carrying a sigil from the same heist.
+  - **Raid Banners I to V:** set one down to heal and quicken your party nearby. Tier III and up also strengthens; tier V also resists.
+- **Puzzles:**
+  - **Clockwork Key Fragments:** four make a **Clockwork Key**, which opens the den's **Clockwork Cache** (three more shares each).
+  - **Seven puzzle trophies:** beat a room cleanly to earn its trophy, a little gold statue you can set down.
+- **Followers:**
+  - **Gilded Staff Topper:** gilds Cecil's staff in every element.
+  - **Golden Spearhead:** turns Celi's spear gold.
+  - **Frog's Monocle:** for the Frog with Mustache.
+  - **Vault Hound Whistle:** a gold-collared hound that sniffs out unopened loot chests within 12 blocks.
+- **Shifting Cores:** a very rare drop from tier III to V hauls.
+
+### Cecil
+- **His arms**, redone again from his portrait: two sleeves of the same length and thickness, built as smooth curves.
+  - The staff arm reaches out from his side to the staff.
+  - The free arm is the curved one: forward from the shoulder, curling down in front with its claws dangling.
+  - The free arm is now its own part, so it swings as he walks. This applies to the market Cecil and the follower.
+- **His whole cloak** takes a gem's colours: robe, both sleeves, hood and staff.
+- **Take a gem back:** sneak + right-click your Cecil with an empty hand. He hands it back and is his poison self again.
+  - Handing him a new gem gives you back the old one, so gems are never lost.
+- **The Ethereal Gem** gives him his **Ethereal Form**:
+  - A pale, glowing, half-there Cecil with a prism crystal and white eyes.
+  - He casts a bolt every second (8 damage, each carrying a random element).
+  - He heals you sooner, and his charge fills faster.
+- **Charged spells:** every 7 bolts (5 in Ethereal Form) his staff gathers light and he casts his element's own spell. They only ever touch monsters.
+
+  | Element | Spell |
+  |---|---|
+  | Poison (his own) | Plague Bloom |
+  | Fire | Meteor |
+  | Water | Tidal Surge |
+  | Earth | Root Prison |
+  | Electric | Thunderstorm |
+  | Rock | Rockslide |
+  | Air | Cyclone |
+  | Grass | Overgrowth |
+  | Ice | Glacial Nova |
+  | Ethereal | Prismatic Cataclysm |
 
 ## New in 2.59: framed followers, Cecil's arms and walk
 
