@@ -2,7 +2,8 @@
 for the scales, and THE LOCKER HALL.
 
 THE HAUL'S SUPPLIES: every won heist packs plain, useful goods as well - logs, planks, cobblestone, stone, deepslate,
-  bricks, glass, sand, torches, iron, copper, coal, string, leather, redstone... (three stacks at Tier I, seven at V).
+  bricks, glass, sand, torches, iron, copper, coal, string, leather, redstone... One stack; the Plain Haul (phase86) packs
+  three at Tier I up to seven at Tier V.
 LARDERS: about one room in three keeps a larder barrel by its door - bread, cooked meat, baked potatoes, pie, now and
   then a golden carrot or (higher up) a golden apple. Every Rats' Rest has a well-stocked one.
 THE ENDLESS VAULT: its kits carry far more food (32 more steak, 16 golden carrots).
@@ -88,9 +89,12 @@ def generate(G):
     # ================================================================== THE HAUL'S SUPPLIES
     for t, n in SUPPLY_ROLLS.items():
         wjson(f'bm/loot_table/p84/supplies_t{t}.json', {'pools': [{'rolls': n, 'entries': [entry(*e) for e in SUPPLY]}]})
+    wjson('bm/loot_table/p84/supplies_one.json', {'pools': [{'rolls': 1, 'entries': [entry(*e) for e in SUPPLY]}]})
     haul = G.FUNCS['p70/haul']
     k = haul.index('function bm:p75/prize')
-    haul[k:k] = sum((ins(f'bm:p84/supplies_t{t}', f'if score #gt bm.rng matches {t} ') for t in SUPPLY_ROLLS), [])
+    # (the full load with the plain haul - #th, phase86's haul theme, 1 - one stack with the others)
+    haul[k:k] = sum((ins(f'bm:p84/supplies_t{t}', f'if score #th bm.rng matches 1 if score #gt bm.rng matches {t} ') for t in SUPPLY_ROLLS), []) + \
+        ins('bm:p84/supplies_one', 'unless score #th bm.rng matches 1 ')
 
     # ================================================================== LARDERS
     for t in range(1, 6):
@@ -170,6 +174,7 @@ def generate(G):
                'execute as @a[tag=bm.lkadv] unless function bm:p84/lk/inside run function bm:p84/lk/unadv']
     fn('p84/lk/adv', ['gamemode adventure @s', 'tag @s add bm.lkadv'])
     fn('p84/lk/unadv', ['tag @s remove bm.lkadv', 'execute if entity @s[gamemode=adventure] unless entity @s[tag=bm.gvp] run gamemode survival @s'])
+    G.FUNCS['p70/belong'][0:0] = ['execute if function bm:p84/lk/inside run return 0']      # (the hall isn't a heist: nobody is sent home from it)
     fn('p84/lk/inside', ['execute unless dimension bm:gutter run return 0', f'execute positioned {x0} 60 {z0} if entity @s[dx=15,dy=12,dz=15] run return 1', 'return 0'])
 
     # ---- getting there: the den's copper plate (before the heist begins), or the Ledger (outside a heist)

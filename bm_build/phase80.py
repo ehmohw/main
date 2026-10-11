@@ -5,7 +5,7 @@ SPOILS: the vault's guards carry spoils now - about one in three drops its tier'
   HOARD EMBERS (V), and CAPTAIN'S INSIGNIA from captains, champions and guardians. Like the pot, they're only yours if
   the crew gets out: at the payout they go straight into your Gutter Bank.
 THE GUTTER BANK: your coins and spoils, kept against your name. Deposit everything in one click, take coins or spoils
-  back out, and 16 coins buy a Black Market Token. The Armory and the bank pay from it first, then from your pockets.
+  back out, and 32 coins (2.67: was 16) buy a Black Market Token. The Armory and the bank pay from it first, then from your pockets.
 THE ARMORY: every loaner kit has six ranks, and each leans further into its job. Clear a tier to unlock the next rank
   (Tier I: rank II ... Tier V: rank VI), then pay in coins, that tier's spoil and Captain's Insignia. Ranks are yours for
   good and come with every kit you take.
@@ -26,7 +26,7 @@ YOUR SECONDARY and YOUR SIGNATURE: whatever kit you take, add one weapon and one
   cat's eyes, featherfall, leech, spring heels, fortune's favour, second skin, adrenaline. Change them as often as you like.
 THE FIXER'S LEDGER opens the office anywhere (everyone gets one on their first heist; Goldtooth keeps spares). In the den:
   the Armory bench and the Bank vault, beside the kit racks.
-GOLDTOOTH: 16 coins for a Token, goods for coins and spoils (pearls, golden apples, diamonds, a totem...).
+GOLDTOOTH: 2 Gutter Medallions (32 coins) for a Token, goods for coins and spoils (pearls, golden apples, diamonds, a totem...).
 NETHERITE SCRAP (2.67): no longer for coins - a rare find in a won heist's haul instead, likelier the higher the tier."""
 from items import item, T, TOTEM, ITEMS
 from useitem import hold, HOLD
@@ -95,6 +95,9 @@ SIGNATURE = [  # (name, what, tiers cleared to unlock)
     ('Spring-Heeled', 'Jump Boost I', 2), ("Fortune's Favour", 'every guard you drop: +1 coin into the pot', 3),
     ('Second Skin', 'Absorption I every 30 s', 4), ('Adrenaline', 'under half health: Strength and Speed', 5)]
 MENU_CODE = 7800
+GUT_M = '#e0a040'           # (the Gutter Medallion's colour - phase86)
+LUCKY = '#7dff6a'
+TOKEN_COINS = 32          # (2.67: was 16) coins for a Black Market Token at the bank
 
 for _iid, _nm, _pl, _col, _t, _lore in MATS:
     item(_iid, TOTEM, _nm, _col, [_lore, ('A spoil of the Gilded Gutter Vault.', 'gray'),
@@ -117,7 +120,7 @@ _orig_goldtooth = P70.goldtooth
 def _goldtooth():
     from gen_dp import offer
     d = _orig_goldtooth()
-    d['Offers']['Recipes'] += [offer(('gutter_coin', 16), ('token', 1)),
+    d['Offers']['Recipes'] += [offer(('gutter_medallion', 2), ('token', 1)),        # (2.67: was 16 coins)
                                offer(('gutter_coin', 12), ('minecraft:ender_pearl', 1)),
                                offer(('gutter_coin', 10), ('minecraft:golden_carrot', 4)),
                                offer(('gutter_coin', 24), ('minecraft:golden_apple', 1)),
@@ -260,17 +263,19 @@ def generate(G):
          'function bm:p80/office_dlg with storage bm:ui of']
     fn('p80/office', hub_lines)
     hub = P28.multi([T("THE FIXER'S OFFICE", OFFICE, bold=True), T('  ·  everything the vault owes you', 'gray')],
-                    [P28.body([T('"Sit. Here\'s where you stand."', '#d8c8a8', italic=True)], 320),
-                     P28.body([T('Gutter Bank: ', 'gray'), T('$(c)', GOLD, bold=True), T(' coins', GOLD), T('      Tiers cleared: ', 'gray'), T('$(clr)', 'white', bold=True),
-                               T(' of 5', 'gray')], 320),
-                     P28.body([T('Kit ranks: ', 'gray'), T('Tank ', ROLE_COL[1]), T('$(r1)', 'white'), T('  ·  Offense ', ROLE_COL[2]), T('$(r2)', 'white'),
-                               T('  ·  Ranged ', ROLE_COL[3]), T('$(r3)', 'white'), T('  ·  Support ', ROLE_COL[4]), T('$(r4)', 'white'), T(' (of 6)', 'dark_gray')], 320),
-                     P28.body([T('Trophies on your shelf: ', 'gray'), T('$(tro)', GOLD, bold=True)], 320)],
+                    [P28.body([T('"Sit. Here\'s where you stand."\n', '#d8c8a8', italic=True),
+                               T('⛃ ', GOLD), T('In the Gutter Bank   ', 'white'), T('$(c)', GOLD, bold=True), T(' coins', 'gray'),
+                               T('\n⚑ ', '#9ad0ff'), T('Tiers cleared   ', 'white'), T('$(clr)', 'white', bold=True), T(' of 5', 'gray'),
+                               T('\n★ ', GOLD), T('Trophies on your shelf   ', 'white'), T('$(tro)', GOLD, bold=True),
+                               T('\n⚒ ', ROLE_COL[1]), T('Kit ranks ', 'white'), T('(of 6)', 'dark_gray'),
+                               T('\n     Tank ', ROLE_COL[1]), T('$(r1)', 'white', bold=True), T('    Offense ', ROLE_COL[2]), T('$(r2)', 'white', bold=True),
+                               T('    Ranged ', ROLE_COL[3]), T('$(r3)', 'white', bold=True), T('    Support ', ROLE_COL[4]), T('$(r4)', 'white', bold=True)], 300)],
                     [P28.btn([T('⚒ ', ROLE_COL[1]), T('The Armory', 'white', bold=True)], MENU_CODE + 1, tooltip=T('Rank up your kits; pick your secondary and signature.'), width=150),
-                     P28.btn([T('⛃ ', GOLD), T('The Gutter Bank', 'white', bold=True)], MENU_CODE + 2, tooltip=T('Coins and spoils; 16 coins buy a Token.'), width=150),
+                     P28.btn([T('⛃ ', GOLD), T('The Gutter Bank', 'white', bold=True)], MENU_CODE + 2, tooltip=T('Coins and spoils; 32 coins buy a Token.'), width=150),
                      P28.btn([T('🏆 ', GOLD), T('Trophy Case', 'white', bold=True)], MENU_CODE + 3, tooltip=T('Six metals of trophies, and how to earn them.'), width=150),
                      P28.btn([T('✦ ', '#e8b8ff'), T('Bond Sigils', 'white', bold=True)], MENU_CODE + 4, tooltip=T('Which sigils do what - two at most each heist.'), width=150),
-                     P28.btn([T('▣ ', '#c89a5a'), T('The Locker Hall', 'white', bold=True)], MENU_CODE + 5, tooltip=T('Claim double-chest lockers for your raiding things (2.67).'), width=150)],
+                     P28.btn([T('▣ ', '#c89a5a'), T('The Locker Hall', 'white', bold=True)], MENU_CODE + 5, tooltip=T('Claim double-chest lockers for your raiding things.'), width=150),
+                     P28.btn([T('⛁ ', '#9ad0ff'), T('Your Haul', 'white', bold=True)], MENU_CODE + 6, tooltip=T('Plain, Black Market or gutter: what the Fixer packs for you.'), width=150)],
                     columns=2)
     fn('p80/office_dlg', [f'$dialog show @s {P28.inline(hub)}'])
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {MENU_CODE}..{MENU_CODE + 199} run return run function bm:p80/act')
@@ -281,7 +286,8 @@ def generate(G):
            f'execute if score #act bm.pay matches {MENU_CODE + 2} run return run function bm:p80/bank',
            f'execute if score #act bm.pay matches {MENU_CODE + 3} run return run function bm:p81/case',
            f'execute if score #act bm.pay matches {MENU_CODE + 4} run return run function bm:p81/sigils',
-           f'execute if score #act bm.pay matches {MENU_CODE + 5} run return run function bm:p84/lk/from_ledger'] + \
+           f'execute if score #act bm.pay matches {MENU_CODE + 5} run return run function bm:p84/lk/from_ledger',
+           f'execute if score #act bm.pay matches {MENU_CODE + 6} run return run function bm:p86/theme/menu'] + \
         [f'execute if score #act bm.pay matches {MENU_CODE + 10 + r} run return run function bm:p80/up{r}' for r in range(1, 5)] + \
         [f'execute if score #act bm.pay matches {MENU_CODE + 20} run return run function bm:p80/sec_menu',
          f'execute if score #act bm.pay matches {MENU_CODE + 30} run return run function bm:p80/sig_menu'] + \
@@ -291,33 +297,71 @@ def generate(G):
         [f'execute if score #act bm.pay matches {MENU_CODE + 31 + i} run return run function bm:p80/sig_pick {{i:{i + 1}}}' for i in range(len(SIGNATURE))] + \
         [f'execute if score #act bm.pay matches {MENU_CODE + 40 + j} run return run function bm:p80/bank_{a}' for j, a in
          enumerate(('deposit', 'take16', 'take64', 'takeall', 'buy1', 'buy10'))] + \
-        [f'execute if score #act bm.pay matches {MENU_CODE + 50 + i} run return run function bm:p80/bank_mat {{i:{i}}}' for i in range(1, NM + 1)]
+        [f'execute if score #act bm.pay matches {MENU_CODE + 50 + i} run return run function bm:p80/bank_mat {{i:{i}}}' for i in range(1, NM + 1)] + \
+        [f'execute if score #act bm.pay matches {MENU_CODE + 46} run return run function bm:p80/bank_coins',
+         f'execute if score #act bm.pay matches {MENU_CODE + 47} run return run function bm:p80/bank_spoils',
+         f'execute if score #act bm.pay matches {MENU_CODE + 48} run return run function bm:p80/bank_tokens',
+         f'execute if score #act bm.pay matches {MENU_CODE + 57} run return run function bm:p80/bank_takegm',
+         f'execute if score #act bm.pay matches {MENU_CODE + 58} run return run function bm:p80/bank_takegt']
     fn('p80/act', act)
 
     # ================================================================== THE GUTTER BANK
+    # (2.67: one clear account page - what you hold, then four plain choices; taking coins, taking spoils and buying Tokens
+    #  each get their own small page, and every action brings you back to the page you were on)
     bank_lines = ['function bm:p80/tot', 'data remove storage bm:ui bk2'] + menu_open(MENU_CODE + 2) + \
         ['execute store result storage bm:ui bk2.c int 1 run scoreboard players get @s bm.gbc',
          f'execute store result storage bm:ui bk2.ci int 1 run clear @s {holds("gutter_coin")} 0'] + \
-        [f'execute store result storage bm:ui bk2.m{i} int 1 run scoreboard players get @s bm.gb{i}' for i in range(1, NM + 1)] + \
-        ['function bm:p80/bank_dlg with storage bm:ui bk2']
-    fn('p80/bank', bank_lines)
-    mrow = lambda a, b: P28.body(sum(([T(('     ' if j else '') + MATS[i][2] + ' ', MATS[i][3]), T(f'$(m{i + 1})', 'white', bold=True)] for j, i in enumerate(range(a, b))), []), 340)
-    bdlg = P28.multi([T('THE GUTTER BANK', GOLD, bold=True), T('  ·  kept against your name', 'gray')],
-                     [P28.body([T('Coins: ', 'gray'), T('$(c)', GOLD, bold=True), T('     (on you: ', 'dark_gray'), T('$(ci)', 'gray'), T(')', 'dark_gray')], 340),
-                      mrow(0, 3), mrow(3, NM),
-                      P28.body([T('16 coins buy a Black Market Token. ', 'gray'), T('The Armory pays from here first.', 'dark_gray')], 340)],
-                     [P28.btn([T('Deposit everything', 'white', bold=True)], MENU_CODE + 40, tooltip=T('All the coins and spoils you carry.'), width=110),
-                      P28.btn(T('Take 16 coins', 'gray'), MENU_CODE + 41, width=110), P28.btn(T('Take 64 coins', 'gray'), MENU_CODE + 42, width=110),
-                      P28.btn(T('Take all coins', 'gray'), MENU_CODE + 43, width=110),
-                      P28.btn([T('Buy a Token ', 'gold'), T('(16)', 'gray')], MENU_CODE + 44, width=110), P28.btn([T('Buy 10 Tokens ', 'gold'), T('(160)', 'gray')], MENU_CODE + 45, width=110)] +
-                     [P28.btn([T('Take ', 'gray'), T(m[2], m[3])], MENU_CODE + 50 + i, width=110) for i, m in enumerate(MATS, 1)] +
-                     [P28.btn(T('« Office', 'gray'), MENU_CODE, width=110)],
-                     columns=3)
+        [f'execute store result storage bm:ui bk2.m{i} int 1 run scoreboard players get @s bm.gb{i}' for i in range(1, NM + 1)]
+    fn('p80/bank', bank_lines + ['function bm:p80/bank_dlg with storage bm:ui bk2'])
+    fn('p80/bank_coins', bank_lines + ['function bm:p80/bank_cdlg with storage bm:ui bk2'])
+    fn('p80/bank_spoils', bank_lines + ['function bm:p80/bank_sdlg with storage bm:ui bk2'])
+    fn('p80/bank_tokens', bank_lines + ['function bm:p80/bank_tdlg with storage bm:ui bk2'])
+    btitle = lambda sub: [T('THE GUTTER BANK', GOLD, bold=True), T('  ·  ' + sub, 'gray')]
+    coins_line = [T('◆ ', GOLD), T('Gutter Coins   ', 'white'), T('$(c)', GOLD, bold=True), T('   (on you: $(ci))', 'dark_gray')]
+    acct = [T('YOUR ACCOUNT\n', 'white', bold=True)] + coins_line + \
+        sum(([T('\n◆ ', m[3]), T(m[2] + '   ', 'white'), T(f'$(m{i})', m[3], bold=True)] for i, m in enumerate(MATS, 1)), [])
+    back = P28.btn(T('« Back', 'gray'), MENU_CODE + 2, width=150)
+    bdlg = P28.multi(btitle('your coins and spoils'),
+                     [P28.body(acct, 260),
+                      P28.body([T('Deposit puts every coin, spoil and Gutter Medallion you carry into your account. ', 'gray'),
+                                T('The Armory pays from here first, then from your pockets.', 'dark_gray')], 300)],
+                     [P28.btn([T('⬇ ', LUCKY), T('Deposit everything', 'white', bold=True)], MENU_CODE + 40, tooltip=T('All the coins, spoils and Gutter Medallions you carry.'), width=150),
+                      P28.btn([T('⬆ ', GOLD), T('Take out coins', 'white')], MENU_CODE + 46, tooltip=T('16, 64, all - or a Gutter Medallion.'), width=150),
+                      P28.btn([T('⬆ ', '#c060ff'), T('Take out spoils', 'white')], MENU_CODE + 47, tooltip=T('Cogs, seals, leaves, pearls, embers, insignia.'), width=150),
+                      P28.btn([T('✦ ', GOLD), T('Buy Tokens', 'white')], MENU_CODE + 48, tooltip=T(f'{TOKEN_COINS} coins a Black Market Token.'), width=150),
+                      P28.btn(T('« The Office', 'gray'), MENU_CODE, width=150)],
+                     columns=2)
     fn('p80/bank_dlg', [f'$dialog show @s {P28.inline(bdlg)}'])
+    cdlg = P28.multi(btitle('take out coins'),
+                     [P28.body(coins_line, 260), P28.body([T('A Gutter Medallion is 16 coins in one piece (a Gutter Trophy, 128).', 'dark_gray')], 300)],
+                     [P28.btn(T('Take 16 coins', 'white'), MENU_CODE + 41, width=150), P28.btn(T('Take 64 coins', 'white'), MENU_CODE + 42, width=150),
+                      P28.btn(T('Take all my coins', 'white'), MENU_CODE + 43, width=150),
+                      P28.btn([T('A Gutter Medallion ', GUT_M), T('(16)', 'gray')], MENU_CODE + 57, width=150),
+                      P28.btn([T('A Gutter Trophy ', '#ffd870'), T('(128)', 'gray')], MENU_CODE + 58, width=150), back],
+                     columns=2)
+    fn('p80/bank_cdlg', [f'$dialog show @s {P28.inline(cdlg)}'])
+    sdlg = P28.multi(btitle('take out spoils'),
+                     [P28.body([T('Take a spoil out and you get every one you have of it.', 'gray')], 300)],
+                     [P28.btn([T(m[2] + '  ', m[3]), T(f'($(m{i}))', 'white')], MENU_CODE + 50 + i, width=150) for i, m in enumerate(MATS, 1)] + [back],
+                     columns=2)
+    fn('p80/bank_sdlg', [f'$dialog show @s {P28.inline(sdlg)}'])
+    tdlg = P28.multi(btitle('Black Market Tokens'),
+                     [P28.body([T(f'A Token costs {TOKEN_COINS} coins - from your account first, then your pockets.\n', 'gray')] + coins_line, 300)],
+                     [P28.btn([T('Buy 1 Token ', GOLD), T(f'({TOKEN_COINS})', 'gray')], MENU_CODE + 44, width=150),
+                      P28.btn([T('Buy 10 Tokens ', GOLD), T(f'({TOKEN_COINS * 10})', 'gray')], MENU_CODE + 45, width=150), back],
+                     columns=2)
+    fn('p80/bank_tdlg', [f'$dialog show @s {P28.inline(tdlg)}'])
+    for nm, worth, iid in (('takegm', 16, 'gutter_medallion'), ('takegt', 128, 'gutter_trophy')):
+        fn(f'p80/bank_{nm}', ['function bm:p80/init_me', f'execute unless score @s bm.gbc matches {worth}.. run return run ' + say(f'That takes {worth} coins in your account.', 'red'),
+                              f'scoreboard players remove @s bm.gbc {worth}', f'loot give @s loot bm:items/{iid}', 'playsound minecraft:block.chain.break player @s ~ ~ ~ 0.8 1.4',
+                              'function bm:p80/bank_coins'])
     dep = ['function bm:p80/init_me', 'scoreboard players set #any bm.rng 0']
     for iid, obj in [('gutter_coin', 'bm.gbc')] + [(m[0], f'bm.gb{i}') for i, m in enumerate(MATS, 1)]:
         dep += [f'execute store result score #n bm.rng run clear @s {holds(iid)} 0', f'scoreboard players operation @s {obj} += #n bm.rng',
                 f'execute if score #n bm.rng matches 1.. run scoreboard players set #any bm.rng 1', f'clear @s {holds(iid)}']
+    for iid, worth in (('gutter_medallion', 16), ('gutter_trophy', 128)):          # (2.67) the big pieces count as coins in your account
+        dep += [f'execute store result score #n bm.rng run clear @s {holds(iid)} 0', f'scoreboard players set #w bm.rng {worth}', 'scoreboard players operation #n bm.rng *= #w bm.rng',
+                'scoreboard players operation @s bm.gbc += #n bm.rng', f'execute if score #n bm.rng matches 1.. run scoreboard players set #any bm.rng 1', f'clear @s {holds(iid)}']
     dep += ['execute if score #any bm.rng matches 0 run ' + say('Nothing on you to deposit.'), 'execute if score #any bm.rng matches 1 run playsound minecraft:block.chain.place player @s ~ ~ ~ 0.8 1.4',
             'execute if score #any bm.rng matches 1 run ' + say('Deposited. The rats count it twice.', GOLD), 'function bm:p80/bank']
     fn('p80/bank_deposit', dep)
@@ -325,19 +369,19 @@ def generate(G):
         fn(f'p80/bank_{nm}', ['function bm:p80/init_me', f'scoreboard players set #c bm.rng {n}', 'scoreboard players operation #c bm.rng < @s bm.gbc',
                               'execute if score #c bm.rng matches ..0 run return run ' + say('No coins in your account.'),
                               'scoreboard players operation @s bm.gbc -= #c bm.rng', 'function bm:p80/hand {iid:"gutter_coin"}',
-                              'playsound minecraft:block.chain.break player @s ~ ~ ~ 0.8 1.4', 'function bm:p80/bank'])
+                              'playsound minecraft:block.chain.break player @s ~ ~ ~ 0.8 1.4', 'function bm:p80/bank_coins'])
     fn('p80/bank_takeall', ['function bm:p80/init_me', 'scoreboard players operation #c bm.rng = @s bm.gbc',
                             'execute if score #c bm.rng matches ..0 run return run ' + say('No coins in your account.'),
                             'scoreboard players set @s bm.gbc 0', 'function bm:p80/hand {iid:"gutter_coin"}', 'playsound minecraft:block.chain.break player @s ~ ~ ~ 0.8 1.2',
-                            'function bm:p80/bank'])
+                            'function bm:p80/bank_coins'])
     for nm, n in (('buy1', 1), ('buy10', 10)):
-        fn(f'p80/bank_{nm}', ['function bm:p80/tot', f'execute unless score #tc bm.rng matches {16 * n}.. run return run ' + say(f'That takes {16 * n} coins (bank and pockets).', 'red'),
-                              f'function bm:p80/pay {{o:"c",iid:"gutter_coin",n:{16 * n}}}', f'loot give @s loot bm:p80/tokens{n}',
-                              'playsound minecraft:entity.villager.yes player @s ~ ~ ~ 0.8 1', say(f'{16 * n} coins for {n} Token{"s" if n > 1 else ""}.', GOLD), 'function bm:p80/bank'])
+        fn(f'p80/bank_{nm}', ['function bm:p80/tot', f'execute unless score #tc bm.rng matches {TOKEN_COINS * n}.. run return run ' + say(f'That takes {TOKEN_COINS * n} coins (bank and pockets).', 'red'),
+                              f'function bm:p80/pay {{o:"c",iid:"gutter_coin",n:{TOKEN_COINS * n}}}', f'loot give @s loot bm:p80/tokens{n}',
+                              'playsound minecraft:entity.villager.yes player @s ~ ~ ~ 0.8 1', say(f'{TOKEN_COINS * n} coins for {n} Token{"s" if n > 1 else ""}.', GOLD), 'function bm:p80/bank_tokens'])
         wjson(f'bm/loot_table/p80/tokens{n}.json', {'pools': [{'rolls': 1, 'entries': [G.loot_entry('token', n)]}]})
     fn('p80/bank_mat', ['function bm:p80/init_me', '$scoreboard players operation #c bm.rng = @s bm.gb$(i)',
                         'execute if score #c bm.rng matches ..0 run return run ' + say('None of those in your account.'),
-                        '$scoreboard players set @s bm.gb$(i) 0', '$function bm:p80/bank_mat2 {i:$(i)}', 'playsound minecraft:block.chain.break player @s ~ ~ ~ 0.8 1.2', 'function bm:p80/bank'])
+                        '$scoreboard players set @s bm.gb$(i) 0', '$function bm:p80/bank_mat2 {i:$(i)}', 'playsound minecraft:block.chain.break player @s ~ ~ ~ 0.8 1.2', 'function bm:p80/bank_spoils'])
     fn('p80/bank_mat2', ['$function bm:p80/bank_mat_$(i)'])
     for i, m in enumerate(MATS, 1):
         fn(f'p80/bank_mat_{i}', [f'function bm:p80/hand {{iid:"{m[0]}"}}'])

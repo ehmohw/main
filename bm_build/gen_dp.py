@@ -76,6 +76,7 @@ import phase82 as R82        # 2.67: the Scorching Arachno-Lantern (Blood Moon b
 import phase83 as R83        # 2.67: Ethereal KillerWatt, the Ethereal Tendrils
 import phase84 as R84        # 2.67: haul supplies, larders, paperweights, the Locker Hall
 import phase85 as R85        # 2.67: party rooms - Whack-a-Rat, Rat Says, the Coin Scramble, the Bumper Brawl
+import phase86 as R86        # 2.67: the gutter economy - fewer coins, medallions and trophies, haul themes, the Scrap Box
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import market2 as M2
@@ -318,6 +319,7 @@ def all_offers():
     R83.extend_offers(O, offer)
     R84.extend_offers(O, offer)
     R85.extend_offers(O, offer)
+    R86.extend_offers(O, offer)
     return O
 
 
@@ -1060,6 +1062,7 @@ def build(out_dir):
     R83.generate(sys.modules[__name__])
     R84.generate(sys.modules[__name__])
     R85.generate(sys.modules[__name__])
+    R86.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command

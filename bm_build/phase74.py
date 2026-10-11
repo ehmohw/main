@@ -202,8 +202,7 @@ def generate(G):
     # (2.67) the heist's cash is coins now - Tokens and Medallions come only from the Fixer's capped prize (phase75 p75/prize)
     for t in range(1, 6):
         wjson(f'bm/loot_table/gv/cash_t{t}.json', {'pools': [
-            {'rolls': 1, 'entries': [G.loot_entry('gutter_coin', G.uni(2 + 2 * t, 4 + 3 * t))]},
-            {'rolls': 1, 'entries': [G.loot_entry('gutter_coin', G.uni(1, 2 * t))], 'conditions': [G.chance(0.5)]}]})
+            {'rolls': 1, 'entries': [G.loot_entry('gutter_coin', G.uni(1 + t, 2 + 2 * t))]}]})
     G.FUNCS['p70/haul'] += [f'execute if score #gt bm.rng matches {t} run loot give @s loot bm:gv/cash_t{t}' for t in range(1, 6)]     # (packed into The Haul below)
 
     # ================================================================== DISPLAY CASES: floor cases placed before 2.64 sank a block into the floor - lift them out
