@@ -25,6 +25,7 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 
 ### What a heist costs, and what it pays
 - **The fee rises with the tier:** 2 Tokens at Tier I, 3 at II, 4 at III, 5 at IV and 6 at Tier V (it still goes into the Lucky Pool). The bigger tiers pay more to match: more shares, higher prize caps and the better rooms.
+- **Lucky Raids are rarer:** one heist in a hundred (three in a hundred on a Lucky Night), down from one in twenty. The Lucky Pool grows much bigger before a crew wins it.
 - **The alarm is optional now, and off by default.** Turn it on from the tries page before the heist begins. With it on, mistakes ring it as before (patrols at 50, lockdown at 100), and you earn one more share, or two if you keep it under 50.
 - **The Fixer's prize:** Tokens, Medallions and BM Trophies come from one capped roll per player per heist, never from loot tables:
 
