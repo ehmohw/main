@@ -409,7 +409,7 @@ def generate(G):
     fn('p70/r/lobby/tick', ['execute if score @s bm.gvs matches 0 if block ' + rel(23, 5, 15) + ' #minecraft:buttons[powered=true] run function bm:p70/begin',
                             'execute if score @s bm.gvs matches 0 if block ' + rel(23, 5, 9) + ' #minecraft:buttons[powered=true] run function bm:p70/begin',
                             f'execute positioned {rel(2, 4, 4)} as @a[tag=bm.gvp,distance=..0.8] at @s run function bm:p70/leave'])
-    G.FUNCS['p70/r/lobby/tick'] = [l.replace(' #minecraft:buttons[powered=true]', ' minecraft:polished_blackstone_button[powered=true]') for l in G.FUNCS['p70/r/lobby/tick']]
+    G.FUNCS['p70/r/lobby/tick'] = [l.replace(' #minecraft:buttons[powered=true]', ' minecraft:pale_oak_button[powered=true]') for l in G.FUNCS['p70/r/lobby/tick']]
     fn('p70/begin', ['scoreboard players set @s bm.gvs 1', f'fill {rel(24, 4, 11)} {rel(24, 7, 13)} minecraft:air replace minecraft:iron_bars',
                      'execute as @e[type=marker,tag=bm.gvinst] if score @s bm.gvi = #gi bm.rng run scoreboard players set @s bm.gvst 2',
                      'execute as @e[type=marker,tag=bm.gvinst] if score @s bm.gvi = #gi bm.rng run function bm:p70/tag_mine',
@@ -426,8 +426,8 @@ def generate(G):
        [f'summon minecraft:text_display {rel(12, 8, 1)} {{billboard:"fixed",Tags:["bm.gvprop"],text:[{{text:"THE LEDGER\\n",color:"gold",bold:true}},{{text:"Gold: pulled.  Coal: left alone.\\nThe ledger faces the levers - not you.",color:"gray"}}],transformation:{{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.6f,0.6f,0.6f]}}}}',
         f'summon minecraft:text_display {rel(12, 8, 22)} {{billboard:"fixed",Rotation:[180f,0f],Tags:["bm.gvprop"],text:[{{text:"Set the levers, then press the button.",color:"gray"}}],transformation:{{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.6f,0.6f,0.6f]}}}}'])
     fn('p70/r/levers/tick', ['execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1',
-                             f'execute if block {rel(12, 7, 23)} minecraft:polished_blackstone_button[powered=true] unless entity @s[tag=bm.gvlatch] run function bm:p70/r/levers/try',
-                             f'execute unless block {rel(12, 7, 23)} minecraft:polished_blackstone_button[powered=true] run tag @s remove bm.gvlatch'])
+                             f'execute if block {rel(12, 7, 23)} minecraft:pale_oak_button[powered=true] unless entity @s[tag=bm.gvlatch] run function bm:p70/r/levers/try',
+                             f'execute unless block {rel(12, 7, 23)} minecraft:pale_oak_button[powered=true] run tag @s remove bm.gvlatch'])
     fn('p70/r/levers/try', ['tag @s add bm.gvlatch', 'scoreboard players operation #b bm.rng = @s bm.gvc', 'scoreboard players set #bad bm.rng 0'] +
        sum(([f'scoreboard players operation #q bm.rng = #b bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng', 'scoreboard players operation #b bm.rng /= #2 bm.rng',
              f'execute if score #q bm.rng matches 1 unless block {rel(x, 5, 23)} minecraft:lever[powered=true] run scoreboard players set #bad bm.rng 1',
@@ -490,8 +490,8 @@ def generate(G):
             for c in range(6)), []) +
        [f'summon minecraft:text_display {rel(1, 7, 12)} {{billboard:"vertical",Tags:["bm.gvprop"],text:[{{text:"THE TILE FLOOR\\n",color:"gold",bold:true}},{{text:"Only one way holds. The button shows it - once for free.",color:"gray"}}],transformation:{{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.6f,0.6f,0.6f]}}}}'])
     fn('p70/r/tiles/tick', ['execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1',
-                            f'execute if block {rel(1, 5, 9)} minecraft:polished_blackstone_button[powered=true] unless entity @s[tag=bm.gvlatch] run function bm:p70/r/tiles/peek',
-                            f'execute unless block {rel(1, 5, 9)} minecraft:polished_blackstone_button[powered=true] run tag @s remove bm.gvlatch',
+                            f'execute if block {rel(1, 5, 9)} minecraft:pale_oak_button[powered=true] unless entity @s[tag=bm.gvlatch] run function bm:p70/r/tiles/peek',
+                            f'execute unless block {rel(1, 5, 9)} minecraft:pale_oak_button[powered=true] run tag @s remove bm.gvlatch',
                             'execute if score @s bm.gvpk matches 1.. run scoreboard players remove @s bm.gvpk 1',
                             'execute if score @s bm.gvpk matches 1.. as @e[type=marker,tag=bm.gvtile,distance=..14,scores={bm.gvsafe=1}] at @s run particle minecraft:happy_villager ~ ~0.2 ~ 0.6 0 0.6 0 1',
                             'execute as @e[type=marker,tag=bm.gvtile,distance=..14,scores={bm.gvsafe=0},tag=!bm.gvdown] at @s if entity @a[tag=bm.gvp,distance=..1.15] run function bm:p70/r/tiles/drop',
@@ -739,7 +739,7 @@ def generate(G):
     for n, (nm, col, bcol) in BOSS.items():
         boss = {'Tags': ['bm.gvboss', 'bm.gvbnew', 'bm.tiered', 'bm.seen'], 'PersistenceRequired': B(1), 'CustomName': T(nm, col, bold=True),
                 'CustomNameVisible': B(1), 'DeathLootTable': 'bm:gv/boss',
-                'attributes': [{'id': 'minecraft:scale', 'base': D(1.6)}, {'id': 'minecraft:armor', 'base': D(10)}, {'id': 'minecraft:knockback_resistance', 'base': D(0.8)},
+                'attributes': [{'id': 'minecraft:scale', 'base': D(1.6)}, {'id': 'minecraft:armor', 'base': D(10)}, {'id': 'minecraft:knockback_resistance', 'base': D(0.0)},     # (2.64: it can be knocked back - 0.8 + netherite made it unmovable)
                                {'id': 'minecraft:follow_range', 'base': D(40)}],
                 'drop_chances': {'head': F(0), 'chest': F(0), 'legs': F(0), 'feet': F(0), 'mainhand': F(0), 'offhand': F(0)},
                 'equipment': {'head': {'id': 'minecraft:golden_helmet' if n != 1 else 'minecraft:netherite_helmet', 'count': Int(1)},

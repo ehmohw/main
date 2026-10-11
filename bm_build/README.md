@@ -21,19 +21,32 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
-## New in 2.64: heist fixes
+## New in 2.64: heist fixes, a tidier haul, fairer kits
 
-### Buttons you can't miss
-The heist buttons were dark stone buttons on dark stone walls, so they were easy to miss. Each one now sits on a **gold block** with a glowing label above it, and every room places its button again as it sets up, so it's always there:
-- **BEGIN:** two, in the den, either side of the door.
-- **TRY THE LEVERS:** in the Combination Room.
-- **PEEK:** in the Tile Floor.
+### Fixed
+- **The guardian no longer vanishes when you're knocked out.** The cleanup for far-away mobs was removing the vault boss while you were briefly away, and the vault then opened as a win. It now ignores everything in the vault; a heist cleans up after itself.
+- **Party members come too:** re-planning your party's unfinished heist brings everyone in the party within 24 blocks, not just the leader.
+- **No Mimic loot in the vault:** the Three Coffers' Mimics drop nothing, so there's no reward for picking wrong.
+- **Buttons you can see:** every heist button is now **pale oak** on the dark stone, with a glowing label above it (BEGIN, TRY THE LEVERS, PEEK). Each room also places its button again as it sets up.
+- **The guardian can be knocked back.** Its knockback resistance is gone (the Netherite-armoured guardian keeps a little from its armour).
+- **Adventure mode in the vault:** you can't break the vault's blocks. You're back in survival on every way out.
+- **Water Walking Boots** no longer launch you into the sky. You float just over the water on Slow Falling, with a gentle lift if you dip in. (They used Levitation 255, which used to mean "no pull" and now means a launch.)
+- **Floor display cases** sit on top of the block instead of inside it. Cases placed before this update are lifted out automatically.
 
-### Loaner kits
-- **Armour:** every kit is at least iron-strong (15 armour). The **Tank** is the heaviest: diamond-strong (20 armour) with extra toughness. Before, the Tank wore iron while Ranged had diamond.
-- **No attack penalty:** the Shadowstep armour's attack-damage penalty is off in the heist, so the Offense kit no longer weakens your hits.
-- **Food:** every kit comes with 16 steaks (they stay in the vault with the rest of the kit).
-- **The den heals:** standing in the den gives you Regeneration and Saturation.
+### The Haul
+Prizes no longer pour into your pockets. At the payout the Fixer hands you **The Haul**: a single barrel holding everything you won. Set it down anywhere and open it. Your Bond Sigil still comes loose so you can keep it on you. A huge tier V haul may fill two crates.
+
+### Loaner kits, rebalanced
+| Kit | Armour | Gear | Passive |
+|---|---|---|---|
+| **Tank** | Juggernaut I, the heaviest (20 armour + toughness) | Hylian Shield, Kokiri Sword, 2 golden apples | +8 health, half knockback |
+| **Offense** | Shadowstep I, iron-strong (15), no attack penalty | Captain's Cutlass, 1 golden apple | Strength |
+| **Ranged** | Smuggler's set, iron-strong (15) | Fairy Bow, 32 spectral arrows, a backup sword (Sharpness II, Knockback I), 1 golden apple | **Speed**, nearby monsters glow for the crew |
+| **Support** | Tidecaller I, iron-strong (15) | Staff of Sparks, Emma's Bloomheart, 3 splash potions of Healing II, 1 golden apple | Crewmates nearby regenerate |
+
+- **Food:** every kit also has 16 steaks.
+- **The den heals:** standing in the den gives Regeneration and Saturation.
+- **What you can bring in:** your own weapons stay in the coat check (the kits are the heist's gear). Heist tools still come with you: lockpicks, the Clockwork Key, Smoke Bombs, the Cowl, the Monocle, Gutter Coins, the plans and your Bond Sigil.
 
 ## New in 2.63: half prices, an easier way in and out, ruins underground
 

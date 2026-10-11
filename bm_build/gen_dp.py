@@ -833,7 +833,7 @@ def gen_loops(second_mob_lines):
     # (2.58: a boss with Resistance could survive the void for ever - and blocked its own respawn: now it's removed outright)
     fn('despawn_far', ['tp @s ~ -400 ~', 'kill @s'])
     second = ['scoreboard players reset @a bm.csnd'] + list(second_mob_lines) + [
-        'execute as @e[tag=bm.tiered,tag=!bm.hhm] at @s unless entity @a[distance=..100] run function bm:despawn_far',
+        'execute as @e[tag=bm.tiered,tag=!bm.hhm] at @s unless dimension bm:gutter unless entity @a[distance=..100] run function bm:despawn_far',     # (2.64: never the heist's own - a knocked-out crew left the vault boss to vanish, an instant win)
         'execute as @e[tag=bm.lucky] at @s run particle minecraft:wax_on ~ ~1 ~ 0.3 0.5 0.3 0 3',
         'execute as @e[tag=bm.goose] at @s run particle minecraft:wax_on ~ ~0.5 ~ 0.3 0.3 0.3 0 5',
         'execute as @e[tag=bm.prime] at @s run particle minecraft:happy_villager ~ ~0.8 ~ 0.3 0.3 0.3 0 1',

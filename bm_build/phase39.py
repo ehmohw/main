@@ -157,7 +157,8 @@ def generate(G):
                  f'execute as @a[gamemode=!spectator] if items entity @s {slot} at @s if block ~ ~-0.5 ~ #bm:p39_hot run effect give @s minecraft:fire_resistance 1 0 true']
 
     # ------------------------------------------------------------------ Water Walking Boots (every tick, wearers only)
-    # levitation 255 is "no vertical pull": hover just above the surface; levitation III lifts you out if you're in
+    # (2.64) hover on Slow Falling just over the surface, a gentle Levitation I lifting you back when you dip in - no more
+    # Levitation 255 (once "no pull", now a launch into the sky)
     wwb = holds % 'water_walking_boots'
     tick += [f'execute as @a[gamemode=!spectator] if items entity @s armor.feet {wwb} at @s run function bm:p39/wwalk/tick',
              f'execute as @a[tag=bm.wwk] unless items entity @s armor.feet {wwb} run function bm:p39/wwalk/off']
@@ -165,11 +166,12 @@ def generate(G):
                           'execute if block ~ ~ ~ minecraft:water run return run function bm:p39/wwalk/rise',
                           'execute if block ~ ~-0.35 ~ minecraft:water run return run function bm:p39/wwalk/hover',
                           'function bm:p39/wwalk/off'])
-    fn('p39/wwalk/rise', ['tag @s add bm.wwk', 'effect give @s minecraft:levitation 1 2 true'])
-    fn('p39/wwalk/hover', ['tag @s add bm.wwk', 'effect give @s minecraft:levitation 1 255 true',
+    fn('p39/wwalk/rise', ['tag @s add bm.wwk', 'effect clear @s minecraft:slow_falling', 'effect give @s minecraft:levitation 1 0 true'])
+    fn('p39/wwalk/hover', ['tag @s add bm.wwk', 'effect clear @s minecraft:levitation', 'effect give @s minecraft:slow_falling 1 0 true',
                            'execute store result score #r bm.rng run random value 1..6',
                            'execute if score #r bm.rng matches 1 run particle minecraft:splash ~ ~0.05 ~ 0.3 0 0.3 0 3'])
-    fn('p39/wwalk/off', ['execute if entity @s[tag=bm.wwk] run effect clear @s minecraft:levitation', 'tag @s remove bm.wwk'])
+    fn('p39/wwalk/off', ['execute if entity @s[tag=bm.wwk] run effect clear @s minecraft:levitation', 'execute if entity @s[tag=bm.wwk] run effect clear @s minecraft:slow_falling',
+                         'tag @s remove bm.wwk'])
 
     # ------------------------------------------------------------------ Rod of Discord
     fn('p39/rod_of_discord/use', ['execute unless function bm:p37/allowed run return run ' + say('The rod sputters - warded ground.'),

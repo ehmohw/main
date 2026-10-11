@@ -67,8 +67,8 @@ def lobby():
     for x in range(2, 8):                                # Goldtooth's counter
         b.set(x, 4, 19, 'minecraft:dark_oak_planks'); b.set(x, 5, 19, 'minecraft:dark_oak_slab')
     b.fill(9, 4, 2, 15, 4, 2, 'minecraft:dark_oak_planks')          # under the board
-    b.set(23, 5, 15, 'minecraft:polished_blackstone_button[face=wall,facing=west]')   # "begin the heist"
-    b.set(23, 5, 9, 'minecraft:polished_blackstone_button[face=wall,facing=west]')    # (and its twin, on the other side)
+    b.set(23, 5, 15, 'minecraft:pale_oak_button[face=wall,facing=west]')   # "begin the heist"
+    b.set(23, 5, 9, 'minecraft:pale_oak_button[face=wall,facing=west]')    # (and its twin, on the other side)
     b.set(2, 4, 4, 'minecraft:light_weighted_pressure_plate')       # leave
     b.set(2, 3, 4, 'minecraft:gold_block')
     for y in range(4, 7):                                # the clockwork door (to the secret cache, north)
@@ -84,7 +84,7 @@ def levers():
     for x in (8, 10, 12, 14, 16):
         b.set(x, 5, 23, 'minecraft:lever[face=wall,facing=north,powered=false]')
         b.set(x, 4, 23, 'minecraft:gold_block')
-    b.set(12, 7, 23, 'minecraft:polished_blackstone_button[face=wall,facing=north]')
+    b.set(12, 7, 23, 'minecraft:pale_oak_button[face=wall,facing=north]')
     for x in range(7, 18):                               # the ledger wall
         b.set(x, 5, 1, 'minecraft:dark_oak_planks'); b.set(x, 7, 1, 'minecraft:dark_oak_planks')
     ctrl(b, 'levers'); return b
@@ -124,7 +124,7 @@ def tiles():
     for z in range(5, 20):
         b.set(1, FY, z, 'minecraft:gold_block'); b.set(2, FY, z, 'minecraft:gold_block')
         b.set(21, FY, z, 'minecraft:gold_block'); b.set(22, FY, z, 'minecraft:gold_block'); b.set(23, FY, z, 'minecraft:gold_block')
-    b.set(1, 5, 9, 'minecraft:polished_blackstone_button[face=wall,facing=east]')     # peek
+    b.set(1, 5, 9, 'minecraft:pale_oak_button[face=wall,facing=east]')     # peek
     ctrl(b, 'tiles'); return b
 
 

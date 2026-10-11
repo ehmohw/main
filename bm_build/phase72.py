@@ -73,18 +73,22 @@ for i, c in enumerate(ART.ESCORT_COLS):
 # ---------------------------------------------------------------- the vault: what you may bring, what you're lent
 KEEP = ['smoke_bomb', 'skeleton_lockpick', 'vorn_cracking_rig', 'cipher_monocle', 'thiefs_cowl', 'smugglers_boots', 'gutter_coin',
         'clockwork_fragment', 'clockwork_key', 'heist_plans', 'bond_sigil']
-ROLES = {1: ('Tank', '#c0392b', 'Juggernaut I (the heaviest armour), Hylian Shield, Kokiri Sword. +8 health, half knockback.',
+ROLES = {1: ('Tank', '#c0392b', 'Juggernaut I (the heaviest armour), Hylian Shield, Kokiri Sword, 2 golden apples. +8 health, half knockback.',
              {'head': 'juggernaut_helmet_1', 'chest': 'juggernaut_chestplate_1', 'legs': 'juggernaut_leggings_1', 'feet': 'juggernaut_boots_1',
-              'offhand': 'hylian_shield'}, ['kokiri_sword']),
-         2: ('Offense', '#ff7a1a', "Shadowstep I (iron-strong), Captain's Cutlass. Strength while you fight.",
+              'offhand': 'hylian_shield'}, ['kokiri_sword', ('minecraft:golden_apple', 2)]),
+         2: ('Offense', '#ff7a1a', "Shadowstep I (iron-strong), Captain's Cutlass, a golden apple. Strength while you fight.",
              {'head': 'shadowstep_helmet_1', 'chest': 'shadowstep_chestplate_1', 'legs': 'shadowstep_leggings_1', 'feet': 'shadowstep_boots_1'},
-             ['pirate_cutlass']),
-         3: ('Ranged', '#5ad84a', "Smuggler's set (iron-strong), Fairy Bow. Monsters near you glow for the whole crew.",
+             ['pirate_cutlass', ('minecraft:golden_apple', 1)]),
+         3: ('Ranged', '#5ad84a', "Smuggler's set (iron-strong), Fairy Bow, 32 spectral arrows, a backup sword, a golden apple. "
+                                  "Speed, and monsters near you glow for the whole crew.",
              {'head': 'smuggler_helmet', 'chest': 'smuggler_chestplate', 'legs': 'smuggler_leggings', 'feet': 'smuggler_boots'},
-             ['fairy_bow', 'minecraft:arrow']),
-         4: ('Support', '#7ad0ea', "Tidecaller I (iron-strong), Staff of Sparks, Emma's Bloomheart. Crewmates near you regenerate.",
+             ['fairy_bow', 'minecraft:arrow', ('minecraft:spectral_arrow', 32),
+              ('minecraft:iron_sword', 1, {'minecraft:enchantments': {'minecraft:sharpness': 2, 'minecraft:knockback': 1}}), ('minecraft:golden_apple', 1)]),
+         4: ('Support', '#7ad0ea', "Tidecaller I (iron-strong), Staff of Sparks, Emma's Bloomheart, 3 splash potions of Healing II, a golden apple. "
+                                   "Crewmates near you regenerate.",
              {'head': 'tidecaller_helmet_1', 'chest': 'tidecaller_chestplate_1', 'legs': 'tidecaller_leggings_1', 'feet': 'tidecaller_boots_1'},
-             ['staff_of_sparks', 'bloomheart_gem'])}
+             ['staff_of_sparks', 'bloomheart_gem', ('minecraft:splash_potion', 3, {'minecraft:potion_contents': {'potion': 'minecraft:strong_healing'}}),
+              ('minecraft:golden_apple', 1)])}
 SLOT_OF = {'head': 'armor.head', 'chest': 'armor.chest', 'legs': 'armor.legs', 'feet': 'armor.feet', 'offhand': 'weapon.offhand', 'body': 'armor.body'}
 STAGE = '-200 64 -200'                # the coat-check barrel (bm:gutter, kept loaded)
 CONTRACTS = {1: ('Ghost', 'finish with the alarm under 25'), 2: ('Clean Sweep', 'nobody gets knocked out'), 3: ('Against the Clock', '90 seconds a room')}
@@ -124,10 +128,11 @@ def kit_armor(it, role):
     return out
 
 
-def kit_arg(iid, role=None):
+def kit_arg(iid, role=None, extra=None):
     """an item argument for a loaner: the BM item, marked bm_kit, with a line saying so"""
     if ':' in iid:
-        return f'{iid}[minecraft:custom_data={{bm_kit:1b}},minecraft:lore=[{snbt(T("Loaned by the Fixer - stays in the vault.", "dark_gray"))}]]'
+        more = ''.join(f',{k}={snbt(v)}' for k, v in (extra or {}).items())
+        return f'{iid}[minecraft:custom_data={{bm_kit:1b}},minecraft:lore=[{snbt(T("Loaned by the Fixer - stays in the vault.", "dark_gray"))}]{more}]'
     it = ITEMS[iid]; parts = []
     comps = dict(it['comps'])
     am = kit_armor(it, role)
@@ -183,8 +188,9 @@ def generate(G):
                        f'execute positioned ~ ~ ~1 {near_m} positioned ~ ~-0.4 ~-0.75 rotated 180 0 run return run function bm:p72/dc/wall',
                        f'execute positioned ~ ~ ~-1 {near_m} positioned ~ ~-0.4 ~0.75 rotated 0 0 run return run function bm:p72/dc/wall',
                        'scoreboard players set #placed bm.rng 3'])
-    fn('p72/dc/floor', ['execute positioned ~ ~-0.5 ~ if entity @e[type=minecraft:interaction,tag=bm.dchit,distance=..0.7] run return run scoreboard players set #placed bm.rng 2',
-                        'execute positioned ~ ~-0.5 ~ rotated as @a[tag=bm.placer,limit=1] rotated ~180 0 run function bm:p72/dc/spawn_floor',
+    # (run at the floor block's centre - face() moved down to find it - so the case stands half a block up, on its top)
+    fn('p72/dc/floor', ['execute positioned ~ ~0.5 ~ if entity @e[type=minecraft:interaction,tag=bm.dchit,distance=..0.7] run return run scoreboard players set #placed bm.rng 2',
+                        'execute positioned ~ ~0.5 ~ rotated as @a[tag=bm.placer,limit=1] rotated ~180 0 run function bm:p72/dc/spawn_floor',
                         'scoreboard players set #placed bm.rng 1'])
     fn('p72/dc/wall', ['execute if entity @e[type=minecraft:interaction,tag=bm.dchit,distance=..0.5] run return run scoreboard players set #placed bm.rng 2',
                        'function bm:p72/dc/spawn_wall', 'scoreboard players set #placed bm.rng 1'])
@@ -597,8 +603,9 @@ def generate(G):
             sl = SLOT_OF[k]
             lines += [f'execute unless items entity @s {sl} * run item replace entity @s {sl} with {kit_arg(iid, r)}',
                       f'execute if items entity @s {sl} {keep_any} run give @s {kit_arg(iid, r)}']
-        for iid in hand:
-            lines.append(f'give @s {kit_arg(iid)} 1')
+        for h in hand:
+            iid, n, extra = (h, 1, None) if isinstance(h, str) else (h + (None,))[:3]
+            lines.append(f'give @s {kit_arg(iid, extra=extra)} {n}')
         lines.append(f'give @s {kit_arg(KIT_FOOD[0])} {KIT_FOOD[1]}')                   # (2.63) and something to eat
         if r == 1:
             lines += ['attribute @s minecraft:max_health modifier add bm:gv_role_tank 8 add_value',
@@ -617,6 +624,7 @@ def generate(G):
     beg.insert(k, 'execute as @a[tag=bm.gvme] unless score @s bm.gvrole matches 1.. at @s run function bm:p72/kit/pick_2')
     # role passives (each second, in a heist)
     second += ['effect give @a[tag=bm.gvp,scores={bm.gvrole=2}] minecraft:strength 3 0 true',
+               'effect give @a[tag=bm.gvp,scores={bm.gvrole=3}] minecraft:speed 3 0 true',              # (2.64) the ranged crew keeps its distance
                f'execute as @a[tag=bm.gvp,scores={{bm.gvrole=3}}] at @s run effect give @e[{foe},distance=..24] minecraft:glowing 3 0 true',
                'execute as @a[tag=bm.gvp,scores={bm.gvrole=4}] at @s run function bm:p72/kit/mend']
     fn('p72/kit/mend', ['tag @s add bm.gvself', 'effect give @a[tag=bm.gvp,tag=!bm.gvself,distance=..8] minecraft:regeneration 3 0 true',

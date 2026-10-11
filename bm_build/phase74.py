@@ -204,22 +204,101 @@ def generate(G):
             {'rolls': 1, 'entries': [G.loot_entry('token', G.uni(1, 1 + t))]},
             {'rolls': 1, 'entries': [G.loot_entry('token', G.uni(1, 2 * t))], 'conditions': [G.chance(0.5)]},
             {'rolls': 1, 'entries': [G.loot_entry('medallion', None)], 'conditions': [G.chance(0.04 * t)]}]})
-    G.FUNCS['p70/haul'] += [f'execute if score #gt bm.rng matches {t} run loot give @s loot bm:gv/cash_t{t}' for t in range(1, 6)]
+    G.FUNCS['p70/haul'] += [f'execute if score #gt bm.rng matches {t} run loot give @s loot bm:gv/cash_t{t}' for t in range(1, 6)]     # (packed into The Haul below)
 
-    # ================================================================== THE VAULT: buttons you can't miss - each room sets its own again as it readies
-    #      (on a gold block, a glowing label over it), so a button is always there and always seen
+    # ================================================================== DISPLAY CASES: floor cases placed before 2.64 sank a block into the floor - lift them out
+    second.append('execute as @e[type=minecraft:interaction,tag=bm.dchit,tag=!bm.dc64] at @s run function bm:p74/dc_lift')
+    fn('p74/dc_lift', ['tag @s add bm.dc64', 'execute unless data entity @s {width:0.85f} run return 0',
+                       'execute if block ~ ~ ~ #minecraft:replaceable run return 0',
+                       'execute unless block ~ ~1 ~ #minecraft:replaceable run return 0',
+                       'execute as @e[tag=bm.dcmob,distance=..0.8] run ride @s dismount',
+                       'execute as @e[type=#bm:auto30,distance=..0.1] at @s run tp @s ~ ~1 ~',
+                       'execute as @e[type=minecraft:block_display,tag=bm.dcseat,distance=..0.8] at @s run tp @s ~ ~1 ~',
+                       'execute as @e[tag=bm.dcmob,distance=..0.8] at @s run tp @s ~ ~1 ~',
+                       'execute positioned ~ ~1 ~ as @e[tag=bm.dcmob,distance=..1.2] run ride @s mount @e[type=minecraft:block_display,tag=bm.dcseat,distance=..1.2,sort=nearest,limit=1]'])
+
+    # ================================================================== THE VAULT: buttons you can't miss - pale oak on the dark stone, a glowing label over
+    #      each, and each room sets its own again as it readies, so a button is always there and always seen
     import phase70_rooms as RM
     def vbutton(x, y, z, facing, label):
         back = {'west': (1, 0), 'east': (-1, 0), 'north': (0, 1), 'south': (0, -1)}[facing]
         lbl = snbt({'Tags': ['bm.gvprop'], 'billboard': 'center', 'brightness': {'block': 15, 'sky': 15}, 'background': Int(0x90000000 - 2 ** 32),
                     'text': T(label, GOLD, bold=True), 'transformation': {'left_rotation': [F(0)] * 3 + [F(1)], 'right_rotation': [F(0)] * 3 + [F(1)],
                                                                           'translation': [F(0)] * 3, 'scale': [F(0.55)] * 3}})
-        return [f'setblock {RM.rel(x + back[0], y, z + back[1])} minecraft:gold_block',
-                f'setblock {RM.rel(x, y, z)} minecraft:polished_blackstone_button[face=wall,facing={facing},powered=false]',
+        return [f'setblock {RM.rel(x, y, z)} minecraft:pale_oak_button[face=wall,facing={facing},powered=false]',
                 f'summon minecraft:text_display {RM.rel(x, y + 0.7, z)} {lbl}']
     G.FUNCS['p70/r/lobby/init'] += vbutton(23, 5, 15, 'west', 'BEGIN') + vbutton(23, 5, 9, 'west', 'BEGIN')
     G.FUNCS['p70/r/levers/init'] += vbutton(12, 7, 23, 'north', 'TRY THE LEVERS')
     G.FUNCS['p70/r/tiles/init'] += vbutton(1, 5, 9, 'east', 'PEEK')
+
+    # ================================================================== THE VAULT: re-planning a party's unfinished heist brings the party too (not just the leader)
+    pl = G.FUNCS['p70/plans']
+    k = pl.index('execute if score #j bm.rng matches 0.. run return run function bm:p70/join')
+    pl[k] = 'execute if score #j bm.rng matches 0.. run return run function bm:p74/join_party'
+    fn('p74/join_party', ['function bm:p70/join',
+                          'execute as @a[distance=..24,gamemode=!spectator,tag=!bm.gvp,tag=!bm.gvwait] unless dimension bm:gutter if score @s bm.pty = #asker bm.pty at @s run function bm:p70/join'])
+    # the heist's mobs keep their own counsel: Mimics drop nothing in the vault (no reward for a wrong pick)
+    for i in range(3):
+        f = G.FUNCS[f'p70/r/coffers/mimic{i}']
+        k = next(j for j, l in enumerate(f) if 'tag @e[type=minecraft:rabbit,tag=bm.mnew' in l)
+        f.insert(k + 1, 'execute as @e[type=minecraft:rabbit,tag=bm.mnew,distance=..3] run data merge entity @s {DeathLootTable:"minecraft:empty"}')
+        f.insert(k + 2, 'tag @e[type=minecraft:rabbit,tag=bm.mnew,distance=..3] add bm.gvmimic')
+
+    # ================================================================== THE VAULT: adventure mode inside (no breaking the vault's walls); survival again on the way out
+    second.append('execute as @a[tag=bm.gvp,gamemode=survival] at @s if dimension bm:gutter run function bm:p74/vault_adv')
+    fn('p74/vault_adv', ['tag @s add bm.gvadv', 'gamemode adventure @s'])
+    for s_ in range(70):
+        if f'p70/s{s_}/enter' not in G.FUNCS: break
+        G.FUNCS[f'p70/s{s_}/enter'].append('execute if entity @s[gamemode=survival] run function bm:p74/vault_adv')
+        G.FUNCS[f'p70/s{s_}/join'].append('execute if entity @s[gamemode=survival] run function bm:p74/vault_adv')
+    G.FUNCS['p70/unraid'][0:0] = ['execute if entity @s[tag=bm.gvadv,gamemode=adventure] run gamemode survival @s', 'tag @s remove bm.gvadv']
+    # (and anyone found in adventure with the tag outside the vault - a crash, a logout across a cleanup - gets survival back)
+    second.append('execute as @a[tag=bm.gvadv,tag=!bm.gvp,tag=!bm.gvdead] at @s unless dimension bm:gutter run function bm:p74/vault_unadv')
+    fn('p74/vault_unadv', ['execute if entity @s[gamemode=adventure] run gamemode survival @s', 'tag @s remove bm.gvadv'])
+
+    # ================================================================== THE VAULT: THE HAUL - prizes come packed in one crate, not poured into your pockets
+    #  every prize of a payout lands in a staging barrel (two, if it overflows); then it's handed over as a single barrel item,
+    #  "The Haul": set it down anywhere and open it. (The Bond Sigil still comes loose - it's yours to keep on you.)
+    HA, HB = '-200 64 -197', '-198 64 -197'          # (the coat check's chunk, kept loaded)
+    def ins(table):
+        return (f'execute in bm:gutter unless data block {HA} Items[26] run loot insert {HA} loot {table}', f'execute in bm:gutter if data block {HA} Items[26] run loot insert {HB} loot {table}')
+    def redirect(fname):
+        out = []
+        for l in G.FUNCS[fname]:
+            m = l.find('loot give @s loot ')
+            if m < 0: out.append(l); continue
+            pre, table = l[:m], l[m + len('loot give @s loot '):]
+            a_, b_ = ins(table)
+            if pre:                                                   # 'execute <conditions> run ' + 'execute <...>' -> one execute
+                assert pre.startswith('execute ') and pre.endswith(' run '), l
+                out += [pre[:-len('run ')] + a_[len('execute '):], pre[:-len('run ')] + b_[len('execute '):]]
+            else:
+                out += [a_, b_]
+        G.FUNCS[fname][:] = out
+    for f_ in ('p70/haul', 'p70/haul_roll', 'p70/first_clear', 'p70/core'):
+        redirect(f_)
+    G.FUNCS['p70/haul'][0:0] = [f'execute in bm:gutter run setblock {HA} minecraft:barrel', f'execute in bm:gutter run setblock {HB} minecraft:barrel',
+                                f'execute in bm:gutter run data modify block {HA} Items set value []', f'execute in bm:gutter run data modify block {HB} Items set value []']
+    G.FUNCS['p70/haul'].append('function bm:p74/haul_pack')
+    crate = {'id': 'minecraft:barrel', 'count': Int(1), 'components': {
+        'minecraft:custom_name': T('The Haul', GOLD, bold=True), 'minecraft:custom_data': {'bm_haul': B(1)}, 'minecraft:enchantment_glint_override': True,
+        'minecraft:lore': [T('Everything you took from the vault.', 'gray'), T('Set it down and open it.', 'blue')]}}
+    fn('p74/haul_pack', ['scoreboard players set #hn bm.rng 0',
+                         f'execute in bm:gutter if data block {HA} Items[0] run function bm:p74/haul_crate {{src:"{HA}"}}',
+                         f'execute in bm:gutter if data block {HB} Items[0] run function bm:p74/haul_crate {{src:"{HB}"}}',
+                         'execute if score #hn bm.rng matches 1.. run ' + tellraw('@s', PREFIX + [T('The Fixer hands you ', 'gray'), T('The Haul', GOLD, bold=True),
+                                                                                                  T(' - set it down and open it.', 'gray')])])
+    # (Items -> the barrel item's container: each {Slot, id, count, components} becomes {slot, item:{id, count, components}})
+    fn('p74/haul_crate', ['scoreboard players add #hn bm.rng 1', '$data modify storage bm:tmp haul.in set from block $(src) Items', 'data modify storage bm:tmp haul.out set value []',
+                          'function bm:p74/haul_conv', '$data modify block $(src) Items set value []',
+                          f'execute at @s run summon minecraft:item ~ ~0.3 ~ {snbt({"Item": crate, "PickupDelay": Int(0), "Tags": ["bm.hauln"]})}',
+                          'execute at @s run data modify entity @e[type=minecraft:item,tag=bm.hauln,distance=..2,limit=1] Item.components."minecraft:container" set from storage bm:tmp haul.out',
+                          'execute at @s run data modify entity @e[type=minecraft:item,tag=bm.hauln,distance=..2,limit=1] Owner set from entity @s UUID',
+                          'execute at @s run tag @e[type=minecraft:item,tag=bm.hauln,distance=..2] remove bm.hauln'])
+    fn('p74/haul_conv', ['execute unless data storage bm:tmp haul.in[0] run return 0',
+                         'data modify storage bm:tmp haul.e set value {}', 'execute store result storage bm:tmp haul.e.slot int 1 run data get storage bm:tmp haul.in[0].Slot',
+                         'data modify storage bm:tmp haul.e.item set from storage bm:tmp haul.in[0]', 'data remove storage bm:tmp haul.e.item.Slot',
+                         'data modify storage bm:tmp haul.out append from storage bm:tmp haul.e', 'data remove storage bm:tmp haul.in[0]', 'function bm:p74/haul_conv'])
 
     # ================================================================== THE VAULT: the den heals (regeneration and a full belly before you go in)
     second.append('execute as @e[type=minecraft:marker,tag=bm.gvr_lobby] at @s positioned ~-12 ~-1 ~-12 if entity @a[tag=bm.gvp,dx=24,dy=8,dz=24] run function bm:p74/den_rest')
