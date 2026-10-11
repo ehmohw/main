@@ -1,4 +1,4 @@
-# Black Market — v2.66 (Java 26.3)
+# Black Market — v2.67 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,99 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.67: game night in the vault, the Frisbee Shield, the Gutter Gentry, the Arachno-Lantern
+
+### What a heist costs, and what it pays
+- **The fee rises with the tier:** 2 Tokens at Tier I, 3 at II, 4 at III, 5 at IV and 6 at Tier V (it still goes into the Lucky Pool). The bigger tiers pay more to match: more shares, higher prize caps and the better rooms.
+- **The alarm is optional now, and off by default.** Turn it on from the tries page before the heist begins. With it on, mistakes ring it as before (patrols at 50, lockdown at 100), and you earn one more share, or two if you keep it under 50.
+- **The Fixer's prize:** Tokens, Medallions and BM Trophies come from one capped roll per player per heist, never from loot tables:
+
+  | Tier | Tokens | Medallions | BM Trophy |
+  |---|---|---|---|
+  | I | 25% chance of 1 | none | none |
+  | II | 35% chance of 1 | none | none |
+  | III | 50% chance of 1-2 | 5% chance of 1 | none |
+  | IV | 60% chance of 1-3 | 12% chance of 1 | none |
+  | V | 70% chance of 2-5 | 22% chance of 1-2 | 1.5% chance |
+
+  Fewer tries, a clean run and a Lucky Raid raise the odds, but never the cap. Daring fewer tries pays by the tier too: a little at Tier I, the full bonus only at Tier V.
+- **Netherite Scrap** is no longer sold for coins. It's a rare find in a won heist's haul instead: 3% at Tier I, then 6%, 10%, 15% and 22% at Tier V (+3% if nobody was knocked out).
+- **Everything goes into The Haul.** Every reward is packed there, together with a stack of plain building supplies (logs, stone, glass, iron, coal, torches and more).
+- **Fewer coins, bigger pieces.** The pot pays about a third of what it did and the haul's coins are halved. **Gutter Medallions** (16 coins) and **Gutter Trophies** (128 coins) are new; Goldtooth changes them either way and the bank counts them as coins. **A Token now costs 32 coins** (2 Medallions), at Goldtooth and at the bank. Goldtooth's dearest goods are priced in Medallions.
+- **Three kinds of haul:** pick one at the den's haul lectern or in the Ledger.
+  - **Plain:** vanilla goods (iron, gold, diamonds, emeralds, XP bottles, enchanted books, golden apples; ancient debris at the top tiers) and a full load of supplies.
+  - **Black Market** (the default): heist gear, the Fence's curios and the Fixer's prize. Only this haul pays Tokens and Medallions.
+  - **Gutter:** coins, spoils, Insignia, Medallions from Tier III and heist supplies.
+- **The Scrap Box,** in the den and the Locker Hall, buys spare heist gear, curios, vault trophies, sigils and banners for coins.
+- **No farming the vault.** Nothing that spawns in the vault drops loot of its own: no shulker shells, blaze rods, skulls or armour.
+- Larders in about a third of the rooms (and every Rats' Rest), much more food in Endless Vault kits, and three **paperweights** in every kit to hold a golden scale down.
+
+### New rooms
+- **Game night.** Seven rooms after games everyone knows:
+  - **The Shooting Gallery** *(timed):* targets pop up on the walls. Hit 6 + the tier (+2 per crewmate) in 30 seconds. Run out of time and it costs a try, then you go again. No bow? The gallery lends one.
+  - **The Button Dash** *(timed):* six buttons on six perches. Press them all in time (about 33 seconds at Tier I, 27 at Tier V) or lose a try and go again.
+  - **Pipe Plaza:** bonk the ? blocks for coins, stomp the Grumbas (one per jump), grab enough coins and touch the flagpole.
+  - **The Block Temple:** push the stone blocks onto the gold switches (hit a block to push it away from you). Easy at Tiers I-II and properly hard at IV-V. Every layout is checked solvable when the pack is built. The button by the door resets it.
+  - **The Girder Climb:** a big rat rolls barrels down the girders. Climb the ladders, jump the barrels (a coin each) and reach the gold plate at the top.
+  - **The Mead Hall:** raiders, then berserkers, shieldmaidens and axe throwers, then Jarl Ironbeard himself.
+  - **The Tall Grass** *(Tiers I-IV):* throw Rat Balls (snowballs) at the critters to catch them. Something wild might jump out of the grass. The Rat Center by the door hands out more balls.
+- **Nether, End and Hollow rooms:**
+  - **The Blaze Forge** *(Tier II+):* three waves, then the Forge Keeper.
+  - **The Void Garden** *(Tier III+):* end islands, floating shulkers and three Eye shrines to wake.
+  - **The Hollow Reliquary** *(rare, Tier III+):* a memory puzzle of glowing seals; solve it and each of you gets a Hollow relic.
+- **The Sanctuary** *(rare):* a full heal, and a boon from one of three shrines (Strength, Speed or Resistance) once per heist.
+- **The Stalker's Ward:** pitch dark, with unkillable creakings hunting you. Pull three levers to get out.
+- **Party rooms:** Whack-a-Rat, Rat Says, and two contests for a crew only (Coin Scramble and Bumper Brawl).
+- **Double Heists** (1 in 10): twice the rooms, two extra shares and better prize odds. **Alien Heists** (1 in 8): every room in the Vorn's white-and-cyan steel, Vorn troopers on guard, invasion loot.
+- **Hidden vaults:** about a third of heists (half at Tier V) hide a secret door to a treasure room with a hoard share each. Only these hoards carry the **Rat King's Signet** (loose items come to you), **Whisperstep Boots** (sneak: unseen and quick) and the **Gilded Grin** (see in the dark).
+- **The Gutter Gentry** (behind a hidden door, Tier II+): Batty, Eggbert and the Count, a three-boss fight. They're blocky, with faces taken from the art (Batty's toothy grin, the Count's empty white eyes), and they walk, run, jump and attack with smooth animations. Their hoard holds the Echo Bell, the Yolkshell Helm, Blobsworth's Cane and the Top Hat.
+- **The Locker Hall,** off the den or through the Ledger: claim up to three double-chest bays and open them all with one Locker Key.
+
+### Guards and guardians
+- **Twice the guards.** Every tier's roster draws on the whole hostile pool:
+  - **Tier I:** Gutter Urchins, Copper Bruisers, Vault Crawlers, Coin Mites, Gutter Goo and Copper Jockeys.
+  - **Tier II:** Rimelings, Silver Widows, Ex-Tellers, Iron Brutes and Vault Bats.
+  - **Tier III:** Gilded Hogs, Gutter Gamblers, Gilt Wisps, Gilded Archers, Molten Coins and Golden Jockeys.
+  - **Tier IV:** Abyss Crawlers, Gem Mites, Mirror Thieves, Rime Archers and a little Vault Ravager.
+  - **Tier V:** Ash Imps, Reaper Giants, Ravager Riders, Gale Wardens, Hoard Turrets, Void Mites and Twin Embers.
+- **Odd ones.** Any guard may turn up **Tiny** (small, quick, frail), **Hulking** (huge, slow, hits hard), **Swift** or, from Tier III, **Ironclad**. Now and then you'll meet a **Blur** (tiny and swift) or a **Juggernaut** (hulking and ironclad).
+- **A second guardian for every tier.** Half of all heists meet a different one at the vault:
+  - **The Mite Mother** (I) and her brood.
+  - **The Widow Queen** (II): she webs you down and calls her spiderlings.
+  - **The Golden Jockey** (III): a great hog with the Gambler King riding it.
+  - **The Abyssal Ravager** (IV), ridden by the Mirror Mage.
+  - **The Ashen Colossus** (V): a wither skeleton three men tall. He stamps the ground and calls Ash Imps.
+- **A crew makes it harder:** +35% health and +10% damage per crewmate for guards, captains and champions (+50% health for the guardian), and extra guards for a crew.
+
+### Kits and crew
+- **The Ranged kit's Fairy Bow has no Infinity any more,** so the spectral arrows really get shot. You start with 64 arrows and 32 spectral (64 at Fletcher). Every room you enter has a quiver just inside the door for each Ranged raider (theirs alone to pick up), and every room you beat slips them 8 more.
+- **Health over heads:** in a heist, every raider's health floats above them, and the heart turns yellow, then red, as they get hurt. It's hidden while they're invisible.
+
+### The Frisbee Shield
+A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, or one Shooting Gallery in twenty. It blocks like any shield. **Sneak + use to throw it:** it skips off walls and floors and off monsters, hitting each monster once and then heading for the next one near. After five skips it flies home to the hand it left. If you're gone, it drops where it is and waits. It goes through the coat check with you.
+
+### Followers in the vault
+- **Raid contracts** at Goldtooth: once signed, Cecil, Emma, Celi, Zib, the Skiff Escorts or KillerWatt answer your call in the vault too, and their summoning items pass the coat check. The **Frog** and **Donado** contracts call a vault hire in his own iron kit; the one you hired at home stays home.
+- **The followers' wardrobe** at Goldtooth: Emma's ribbons and dresses, Celi's and Zib's outfits (the hidden ones for a Gutter Trophy), Pearlman's gems and the Ethereal Gem.
+- **Emma's new outfits:** the Flower Top and the Cozy Sweater, each with a high ponytail.
+
+### KillerWatt
+- **A better rig:** his head and arms follow his torso, his head no longer tips too far back, his tendrils don't cut through him, and they're animated. **The Tendril Lunge:** he coils all four scythes back and drives them at you.
+- **He goes out with an explosion of electricity.**
+- **The follower's charged attacks:** every blow charges him, and at full charge he unleashes his form's attack (riding, the Spark lets it go when you choose). Stormbreaker, Supernova, Maelstrom, Plague Bloom, Tectonic Slam, Avalanche, Tempest, Overgrowth, Absolute Zero and, in his Ethereal Form, Void Requiem.
+- **Ethereal KillerWatt:** set down an Ethereal Gem near him mid-fight and he ascends. He heals whole with far more health, hits harder and faster, floats, and throws Void Lances. Beat that form for the **Ethereal Tendrils**, which hit half again as hard and fling you half again as far.
+
+### The Scorching Arachno-Lantern
+On a Blood Moon, very rarely, a monster spawning under the open sky becomes the **Arachno-Lantern**: a burning pumpkin the size of a house on eight long legs. It stomps, lashes you in with its tongue, rains embers and, at half health, shrieks out ember spiderlings and glares fire. It drops the **Scorching Heart**: carry it and fire can't touch you, or set it down as the **Hearthfire** (no monster spawns within 48 blocks, and Blood Moon horrors near it burn).
+
+### For admins
+`/function bm:admin/heist_double`, `heist_alien` and `heist_variants_off` / `heist_variants_never` force the heist variants; `heist_boss_alt` / `heist_boss_std` / `heist_boss_any` pick the guardian; `room_<kind>` (e.g. `room_temple`) lays that event room next; `frisbee` gives the Frisbee Shield.
+
+### Fixed
+- The Gutter Bank and Armory click boxes and signs sat half a block off-centre.
+- The Locker Hall no longer sends visitors who aren't in a heist home.
+- The Crumbling Rafters' edges are closed.
 
 ## New in 2.66: the Fixer's Office, metal trophies, Bond Sigils, KillerWatt rides
 
