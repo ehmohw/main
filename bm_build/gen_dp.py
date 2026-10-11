@@ -42,6 +42,7 @@ import phase49 as R49
 import phase50 as R50
 import phase51 as R51
 import phase52 as R52
+import phase75 as R75        # 2.65: the vault rebuilt - tries, the fee and the Lucky pool, the pot, passages, themes
 import phase74 as R74        # 2.63: half prices, the lift, ruins underground, Emma's Mining form
 import phase73 as R73        # 2.62: jars in cases, Cecil's click box, the Calling Card, wider crypts, followers go home
 import phase72 as R72        # 2.61: display cases, Zib, Skiff Escorts, the vault's coat check and loaner kits
@@ -296,6 +297,7 @@ def all_offers():
     R62.extend_offers(O, offer)
     R71.extend_offers(O, offer)
     R74.extend_offers(O, offer)
+    R75.extend_offers(O, offer)
     return O
 
 
@@ -805,7 +807,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.64' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.65' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -1027,6 +1029,7 @@ def build(out_dir):
     R72.generate(sys.modules[__name__])
     R73.generate(sys.modules[__name__])
     R74.generate(sys.modules[__name__])
+    R75.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command
