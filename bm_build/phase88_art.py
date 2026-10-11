@@ -8,7 +8,7 @@ BATTY: a big square navy head with stepped pointed ears and a little grey pipe-c
 EGGBERT: a stacked egg - grey-white shell with slate spots, split by a jagged crack: the halves' toothed edges are cut
   out, so the black ooze core shows between them, with two pale glowing eyes in it (lit on their own); ooze drips over
   the lower shell; black dripping arms with three talons; stubby black legs with clawed feet; a broken pipe on top.
-THE COUNT: a pale blue gumdrop of a blob in tiers - grumpy: furrowed brows, round spectacle eyes, a frown with two
+THE COUNT: a pale blue gumdrop of a blob in tiers - grumpy: furrowed brows, round empty white eyes, a frown with two
   little fangs; drooping side lobes; a blocky black top hat with a red band; stick legs in pointed shoes; a cane.
 
 Front = -z (north). Design units: each part's joint is at 0 (model = design + 8). Rigs are flat: every part hangs off
@@ -209,7 +209,7 @@ def _claw():
 
 
 def _count_face():
-    """the blob's front (18 x 7): an angry furrowed brow, round spectacle eyes (grey rims, white, a dot of a pupil), a
+    """the blob's front (18 x 7): an angry furrowed brow, round spectacle eyes (grey rims, empty white - no pupils), a
     knobbly nose line, a frown with two little fangs pointing up"""
     im, d, P = _canvas('gnt_count_face', 18, 7, BLOB, 41, 0.025)
     ln = hexc(BLOB_LN)
@@ -224,9 +224,7 @@ def _count_face():
     for cx in (6.4, 11.6):                                                                           # the spectacle eyes
         cy, r = 3.3, 1.35
         d.ellipse(P(cx - r - 0.25, cy - r - 0.25) + P(cx + r + 0.25, cy + r + 0.25), fill=hexc(SPEC))
-        d.ellipse(P(cx - r, cy - r) + P(cx + r, cy + r), fill=hexc(WHITE))
-        d.rectangle(P(cx - 0.35, cy - 0.35) + P(cx + 0.35, cy + 0.35), fill=hexc('#1a1a1a'))
-        d.rectangle(P(cx - 0.9, cy - 0.95) + P(cx - 0.55, cy - 0.65), fill=hexc('#ffffff'))
+        d.ellipse(P(cx - r, cy - r) + P(cx + r, cy + r), fill=hexc(WHITE))                      # (empty white: no pupils)
     for x, y in ((8.2, 4.95), (9.0, 4.75), (9.8, 4.95)):                                             # a knobbly nose line
         d.rectangle(P(x - 0.3, y) + P(x + 0.3, y + 0.25), fill=ln)
     pts = [(4.4, 6.3), (5.6, 5.85), (7.4, 5.55), (9.0, 5.45), (10.6, 5.55), (12.4, 5.85), (13.6, 6.3)]   # the frown
