@@ -114,8 +114,8 @@ A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, o
 - **Emma walks and runs playfully now:** her arms swing out wide from her sides, her hands flare, and each foot steps in front of the other.
 
 ### Cosmetics stay on
-- Every follower keeps their look through a recall, being sent home and called again, a new support role (Emma), a rebuilt rig, and Emma's ethereal form and back.
-- **Emma's ethereal form wears her outfit's colours:** her dress colour goes onto the ethereal outfit and her ribbon colour onto its trims. The Flower Top and the Cozy Sweater have their own ethereal colours. Her dresses now carry a little heart pin in her support role's colour.
+- Every follower keeps their cosmetics through a recall, being sent home and called again, a new support role (Emma) and a rebuilt rig.
+- **Emma's ethereal form keeps its own armour and wings.** Your outfit choices are for her normal form: when she comes back down she's wearing them again (dress her while she's ethereal and she changes when she lands). The Cozy Sweater now shows her support role's colour too, with a heart pin.
 
 ### The Ethereal Gem
 - **Goldtooth no longer sells it.** It's a hidden prize again: hold all nine elemental gems and use one, and they rise and circle you and fuse into the **Ethereal Gem** in your hands (or set all nine on display, as before). Achievement: *Nine Made One*.

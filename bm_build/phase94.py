@@ -1,66 +1,21 @@
-"""2.67: THE ETHEREAL GEM, KEPT SECRET - and EMMA'S CLOTHES IN EVERY FORM.
+"""2.67: THE ETHEREAL GEM, KEPT SECRET.
 
 THE ETHEREAL GEM is a secret again: Goldtooth no longer sells it. It is still made from the nine elemental gems - set all
   nine on display together, as before, or now simply USE ONE OF THE GEMS WHILE CARRYING ALL NINE: they rise, circle you
   and become one (the hidden advancement, Nine Made One).
   IN THE VAULT: the Ethereal Gem passes the coat check now, but only ONE goes into each heist - the first raider through
   the door who carries one keeps it; any other (a second of yours, or a crewmate's) waits with the Fixer until you leave.
-EMMA'S CLOTHES IN EVERY FORM: her outfits already showed her buff's colour (the scarf on her dresses, the Flower Top's
-  choker) - now the Cozy Sweater does too (a heart pin on its chest), and her ETHEREAL FORM wears your choices: its cloth
-  takes the colour of her dress or outfit, and the plume and trim take her ribbon's (or her outfit's bow or flower).
-  Changing her clothes while she's ethereal shows at once.
+EMMA'S CLOTHES: her outfits already showed her buff's colour (the scarf on her dresses, the Flower Top's choker) - now
+  the Cozy Sweater does too (a heart pin on its chest, phase89). Her ethereal form keeps its own armour and wings.
 """
 import math
 from items import T
 from nbt import snbt, B, F, Int
-import phase57_art as EA
 import phase60 as P60
 import phase72 as P72
-import phase78 as P78
-import phase89 as P89
 
 P72.KEEP.append('ethereal_gem')
 ETH = P60.ETH
-
-# ---- Emma's ethereal form in her clothes: cloth (the undersuit) and accent (the plume and trim)
-CLOTH = {**{k: c2 for k, (_n, c, c2) in P78.DRESSES.items()}, 6: P89.TOP_A_DK, 7: P89.TOP_B_DK}       # 1-5 dresses, 6 Flower Top, 7 Cozy Sweater
-ACCENT = {**{k: c for k, (_n, c) in P78.RIBBONS.items()}, 7: P89.BOW_A, 8: '#ff8ad0'}                  # 1-6 ribbons, 7 the red bow, 8 the pink flower
-CLOTH_PARTS = ('body', 'armr', 'arml')
-ACCENT_PARTS = ('head', 'legr', 'legl')
-
-
-def textures():
-    base = EA.textures()
-    out = {}
-    for k, col in CLOTH.items():
-        out[f'ee_navy_c{k}'] = P78._tint(base['ee_navy'], col)
-    for k, col in ACCENT.items():
-        out[f'ee_mag_a{k}'] = P78._tint(base['ee_magenta'], col)
-    return out
-
-
-def models():
-    M = {}
-    EM = EA.models()
-    swap = lambda els, a, b: [dict(e, faces={f: (dict(v, texture='#' + b) if v['texture'] == '#' + a else v) for f, v in e['faces'].items()}) for e in els]
-    for p in CLOTH_PARTS:
-        tex, els = EM[f'ee_{p}']
-        for k in CLOTH:
-            t = dict(tex); t.pop('ee_navy', None); t[f'ee_navy_c{k}'] = f'bm:block/ee_navy_c{k}'
-            M[f'ee_{p}_c{k}'] = (t, swap(els, 'ee_navy', f'ee_navy_c{k}'))
-    for p in ACCENT_PARTS:
-        tex, els = EM[f'ee_{p}']
-        for k in ACCENT:
-            t = dict(tex); t.pop('ee_magenta', None); t[f'ee_mag_a{k}'] = f'bm:block/ee_mag_a{k}'
-            M[f'ee_{p}_a{k}'] = (t, swap(els, 'ee_magenta', f'ee_mag_a{k}'))
-    return M
-
-
-def rp(R):
-    import sys
-    R.TEXTURE_MODS.append(sys.modules[__name__])
-    for name, (tex, els) in models().items():
-        R.HATS[name] = (tex, els)
 
 
 def extend_offers(O, offer):
@@ -128,29 +83,3 @@ def generate(G):
     fn('p94/eth/hold_off', ['$data modify storage bm:gv bag.p$(pid).eq.offhand set from entity @s equipment.offhand', 'item replace entity @s weapon.offhand with minecraft:air',
                             'scoreboard players add #held bm.rng 1', 'function bm:p94/eth/hold_step with storage bm:gv tmp'])
     fn('p94/eth/clear_slot', ['$execute if score #slot bm.rng matches 0..35 run item replace entity @s container.$(n) with minecraft:air'])     # (a player's container.N is inventory slot N)
-
-    # ================================================================== EMMA: her ethereal form in her clothes
-    look = G.FUNCS['p57/ethereal_look']
-    keep = [l for l in look if not any(f'"bm:ee_{p}"' in l for p in CLOTH_PARTS + ACCENT_PARTS)]
-    sets = lambda p, m: f'execute as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_{p}] run data modify entity @s item.components."minecraft:item_model" set value "bm:{m}"'
-    G.FUNCS['p57/ethereal_look'] = (
-        ['scoreboard players set #emd bm.rng 0', 'scoreboard players set #emr bm.rng 0', 'scoreboard players set #emoo bm.rng 0',
-         'execute store result score #cp bm.rng run scoreboard players get @e[type=minecraft:item_display,tag=bm.emsel,limit=1] bm.pid',
-         'execute as @a if score @s bm.pid = #cp bm.rng run function bm:p78/emma_read',
-         'scoreboard players operation #ec bm.rng = #emd bm.rng', 'scoreboard players operation #ea bm.rng = #emr bm.rng',
-         'execute if score #emoo bm.rng matches 1 run scoreboard players set #ec bm.rng 6', 'execute if score #emoo bm.rng matches 2 run scoreboard players set #ec bm.rng 7',
-         'execute if score #emoo bm.rng matches 1 run scoreboard players set #ea bm.rng 7', 'execute if score #emoo bm.rng matches 2 run scoreboard players set #ea bm.rng 8'] +
-        [f'execute if score #ec bm.rng matches 0 run ' + sets(p, f'ee_{p}') for p in CLOTH_PARTS] +
-        [f'execute if score #ec bm.rng matches {k} run ' + sets(p, f'ee_{p}_c{k}') for k in CLOTH for p in CLOTH_PARTS] +
-        [f'execute if score #ea bm.rng matches 0 run ' + sets(p, f'ee_{p}') for p in ACCENT_PARTS] +
-        [f'execute if score #ea bm.rng matches {k} run ' + sets(p, f'ee_{p}_a{k}') for k in ACCENT for p in ACCENT_PARTS] + keep)
-    # (ascending: the same look, not the plain one)
-    asc = G.FUNCS['p57/ascend']
-    k = next(i for i, l in enumerate(asc) if '"bm:ee_' in l)
-    asc[:] = asc[:k] + ['function bm:p57/ethereal_look'] + [l for l in asc[k:] if '"bm:ee_' not in l]
-    # dressing her while she's ethereal shows at once
-    G.FUNCS['p78/emma_now'] = [l.replace(' unless score @s bm.eme matches 1..', '') for l in G.FUNCS['p78/emma_now']]
-    G.FUNCS['p78/emma_dress'] = [('execute unless score @s bm.eme matches 1.. run function bm:p57/outfit' if l == 'function bm:p57/outfit' else l)
-                                 for l in G.FUNCS['p78/emma_dress']]
-    k = G.FUNCS['p78/emma_dress'].index('execute unless score @s bm.eme matches 1.. run function bm:p57/outfit')
-    G.FUNCS['p78/emma_dress'].insert(k + 1, 'execute if score @s bm.eme matches 1.. run function bm:p57/ethereal_look')

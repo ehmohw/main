@@ -186,7 +186,7 @@ def generate(G):
                         'execute if score @s bm.lea matches 7 if score @s bm.lek matches 5 run function bm:p96/thrust_hit',
                         'execute if score @s bm.lea matches 8 if score @s bm.lek matches 5 run function bm:p96/release'])
     fn('p96/thrust_hit', ['tag @s add bm.leme', 'playsound minecraft:item.trident.hit neutral @a[distance=..16] ~ ~ ~ 1 0.9',
-                          f'execute positioned ^ ^ ^1.6 as @e[{foe},distance=..2.6,sort=nearest,limit=1] at @s run function bm:p96/thrusted',
+                          f'execute as @e[{foe},distance=..3.6,sort=nearest,limit=1] at @s run function bm:p96/thrusted',      # (the nearest in reach, whichever way the host faces)
                           'tag @s remove bm.leme', 'scoreboard players add @s bm.leq 1', 'execute if score @s bm.leq matches 10.. run function bm:p96/quip'])
     fn('p96/thrusted', ['damage @s 9 minecraft:mob_attack by @e[type=minecraft:wolf,tag=bm.leme,limit=1]',
                         f'execute as @e[{foe},distance=0.1..2.2] run damage @s 3 minecraft:mob_attack by @e[type=minecraft:wolf,tag=bm.leme,limit=1]',

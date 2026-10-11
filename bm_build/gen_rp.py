@@ -825,8 +825,6 @@ if __name__ == '__main__':
     phase89.rp(sys.modules[__name__])
     import phase92
     phase92.rp(sys.modules[__name__])
-    import phase94
-    phase94.rp(sys.modules[__name__])
     import phase96
     phase96.rp(sys.modules[__name__])
     import phase95                            # (after every head model: the faces)

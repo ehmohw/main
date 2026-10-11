@@ -155,28 +155,9 @@ def _chitin(seed):
     return im
 
 
-def _joint():
-    """the knuckles: charred black, split by square ember cracks"""
-    im = _flat('#1c1010', 18, 0.03); d = ImageDraw.Draw(im)
-    for pts in (((8, 0), (8, 20), (24, 20), (24, 40)), ((44, 10), (44, 30), (56, 30), (56, 63)), ((16, 48), (36, 48), (36, 63))):
-        for a, b in zip(pts, pts[1:]):
-            d.rectangle((min(a[0], b[0]) - 2, min(a[1], b[1]) - 2, max(a[0], b[0]) + 2, max(a[1], b[1]) + 2), fill=hexc('#9a2a0a'))
-        for a, b in zip(pts, pts[1:]):
-            d.rectangle((min(a[0], b[0]) - 1, min(a[1], b[1]) - 1, max(a[0], b[0]) + 1, max(a[1], b[1]) + 1), fill=hexc(EMBER))
-    return im
-
-
-def _collar():
-    im = _flat('#2a1810', 20, 0.03); d = ImageDraw.Draw(im)
-    for x in range(0, 64, 16):
-        d.rectangle((x + 3, 22, x + 8, 27), fill=hexc(EMBER)); d.rectangle((x + 10, 44, x + 13, 47), fill=hexc('#c04010'))
-    d.rectangle((0, 0, 63, 3), fill=hexc('#4a2a1a'))
-    return im
-
-
 def textures():
     return {'sal_skin': _skin(11), 'sal_top': _skin_top(), 'sal_skin_dk': _skin_dk(), 'sal_face': _face(), 'sal_flame': _flame(22), 'sal_tongue': _tongue(),
-            'sal_stem': _stem(), 'sal_leaf': _leaf(), 'sal_leg': _chitin(23), 'sal_joint': _joint(), 'sal_collar': _collar()}
+            'sal_stem': _stem(), 'sal_leaf': _leaf(), 'sal_leg': _chitin(23)}
 
 
 # ---------------------------------------------------------------------------------------------------- models
@@ -254,18 +235,13 @@ def stem():
     return els
 
 
-def collar():
-    """the charred square ring under the pumpkin the legs come out of"""
-    return [_box((-14, -3, -14), (14, 3, 14), 'sal_collar'), _box((-9, -6, -9), (9, -3, 9), 'sal_collar', drop=('up',))]
-
-
 SEG_LEN = 24.0                     # every leg segment is modelled 24 units long, joint at its root, along +y; scaled to fit
 
 
 def segment(w0, w1, knob, tip=False, spikes=()):
-    """a leg segment, square-cut: a cube knuckle at the joint, a shaft stepping thinner (w0 -> w1 units thick), square bristles
+    """a leg segment, square-cut: a chitin knuckle at the joint, a shaft stepping thinner (w0 -> w1 units thick), square bristles
     sticking straight out; tip: ends in a narrow point"""
-    els = [_box((-knob, -knob * 0.8, -knob), (knob, knob, knob), 'sal_joint')]
+    els = [_box((-knob, -knob * 0.8, -knob), (knob, knob, knob), 'sal_leg')]                        # (the knuckle: plain chitin, like the rest)
     n = 3
     for k in range(n):
         y0, y1 = SEG_LEN * k / n, SEG_LEN * (k + 1) / n
@@ -288,7 +264,7 @@ def models():
         used = sorted({e['faces'][f]['texture'][1:] for e in els for f in e['faces']})
         M[name] = ({k: TX[k] for k in used}, els)
     part('sal_body', body()); part('sal_tongue', tongue()); part('sal_flame_r', flame(1)); part('sal_flame_l', flame(-1))
-    part('sal_stem', stem()); part('sal_collar', collar())
+    part('sal_stem', stem())
     part('sal_femur', segment(1.9, 1.45, 1.2, spikes=((8, 1), (14, -1), (19, 1))))
     part('sal_tibia', segment(1.75, 1.2, 1.4, spikes=((6, -1), (11, 1), (16, -1), (20, 1))))
     part('sal_tarsus', segment(1.5, 0.45, 1.15, tip=True, spikes=((7, 1), (13, -1))))
@@ -315,7 +291,7 @@ U = BODY_S / 16
 SIDES = (1, -1)
 SEGS = (('f', 'sal_femur'), ('t', 'sal_tibia'), ('s', 'sal_tarsus'))
 BODY_PARTS = {  # name: (model, design offset from the pumpkin's centre, scale)
-    'body': ('sal_body', (0, 0, 0), BODY_S), 'collar': ('sal_collar', (0, -18.0, 0), BODY_S * 0.9), 'stem': ('sal_stem', (0, 16.6, 0), BODY_S),
+    'body': ('sal_body', (0, 0, 0), BODY_S), 'stem': ('sal_stem', (0, 16.6, 0), BODY_S),         # (2.67: no collar - the legs come out of the pumpkin)
     'tongue': ('sal_tongue', (0, -8.8, -18.4), BODY_S), 'flame_r': ('sal_flame_r', (18.0, -3.4, -18.4), FLAME_S),       # (2.67: from the mouth's corners)
     'flame_l': ('sal_flame_l', (-18.0, -3.4, -18.4), FLAME_S)}
 LEG_PARTS = [f'{"r" if s > 0 else "l"}{i}{k}' for s in SIDES for i in range(4) for k, _m in SEGS]
