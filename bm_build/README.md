@@ -1,4 +1,4 @@
-# Black Market — v2.65 (Java 26.3)
+# Black Market — v2.66 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,63 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.66: the Fixer's Office, metal trophies, Bond Sigils, KillerWatt rides
+
+### The Fixer's Office
+Everything the vault owes you, in one set of menus. Open it with **the Fixer's Ledger** (everyone gets one on their first heist; Goldtooth keeps spares for 1 coin), or use the two new stations in the den beside the kit racks: **the Armory** bench and **the Gutter Bank** vault.
+
+- **Spoils.** The vault's guards now carry the materials for your upgrades. About one in three drops its tier's spoil: **Copper Cogs** (Tier I), **Silver Seals** (II), **Gilded Leaves** (III), **Deep Pearls** (IV) or **Hoard Embers** (V). Captains, champions and guardians drop more, for the whole crew, plus **Captain's Insignia**. Like the pot, spoils are only yours if the crew gets out. At the payout they go straight into your bank.
+- **The Gutter Bank** keeps your coins and spoils under your name. Deposit everything in one click, take coins (16, 64 or all) or any spoil back out, and **buy Black Market Tokens at 16 coins each**. The Armory and the bank pay from your bank first, then from your pockets.
+- **The Armory: permanent kit ranks.** Every loaner kit has six ranks, each leaning further into its job. Clearing a tier unlocks the next rank (Tier I opens rank II, and so on up to Tier V and rank VI). Then pay in coins, that tier's spoil and Insignia:
+
+  | Rank | Coins | Spoil | Insignia |
+  |---|---|---|---|
+  | II | 32 | 10 Copper Cogs | 0 |
+  | III | 64 | 12 Silver Seals | 1 |
+  | IV | 112 | 12 Gilded Leaves | 2 |
+  | V | 176 | 12 Deep Pearls | 3 |
+  | VI | 256 | 12 Hoard Embers | 5 |
+
+  Ranks are yours for good and apply to every kit you take.
+  - **Tank:** Reinforced (Juggernaut II, +12 health) · Spiked Guard (attackers take damage back while you sneak; Horn every 24 s) · Bastion (Juggernaut III; the Horn shields the crew) · Last Stand (+16 health; once a heist, at 4 hearts, Resistance IV and Absorption IV) · Colossus (no knockback; the Horn hurls guards back).
+  - **Offense:** Keen Edge (Shadowstep II; Bloodrush heals more) · Executioner (+5 damage to foes under a third of their health; Charm every 14 s) · Ambush (Shadowstep III; the blink strikes for 8) · Bloodlust (Strength II; every fourth hit is a sure critical) · Phantom (unseen after the blink, and your next hit deals +10).
+  - **Ranged:** Fletcher (64 spectral arrows plus 8 arrows of Harming) · Wide Volley (7 arrows, every 10 s) · Searing Shots (Flame on the Fairy Bow) · Hawkeye (Speed II; bow hits heal you) · Storm of Arrows (volley arrows hit twice as hard and pierce two foes).
+  - **Support:** Tidewater (Tidecaller II; a wider, stronger aura) · Spring Tide (Ward every 16 s, and it speeds the crew) · Undertow (Tidecaller III; Lifeline catches crewmates) · High Tide (the Ward gives the crew Resistance and Strength; 5 potions) · Tidal Wave (the Ward hurls guards back and heals twice as much).
+- **Your secondary and your signature.** Whatever kit you take, add one weapon and one effect of your own. More options open as you clear tiers, and you can change them freely.
+  - **Weapons:** a Crossbow, a Shield, Wind Charges, a Trident, an Iron Spear, Harming potions, a Diamond Spear or a Mace.
+  - **Effects:** Fleet-Footed, Iron Skin, Cat's Eyes, Featherfall, Leech, Spring-Heeled, Fortune's Favour, Second Skin or Adrenaline.
+- **More for gutter coins at Goldtooth:** a Token for 16, Ender Pearls, Golden Carrots, Golden Apples, and better goods for coins plus spoils (XP bottles, Diamonds, an Enchanted Golden Apple, Netherite Scrap, a Totem of Undying).
+
+### Trophies in six metals
+- There are twelve trophy rooms now (the original seven plus the Signal Lamps, Lamp Floor, Tumbler Lock, Bell Tower and Crumbling Rafters), each in six metals:
+  - **Copper** for a flawless clear on Tier I, **Iron** on II, **Gold** on III, **Emerald** on IV and **Diamond** on V.
+  - **Netherite** needs Tier V with three tries and nobody knocked out all heist.
+- **Harder to earn.** A flawless room only *promises* its trophy. You get it at the payout if the crew gets out, and lose it if you're knocked out along the way. You can own one of each room and metal; a duplicate pays 3 coins into your bank instead.
+- **3D statues.** Each trophy is a little cup on a plinth bearing the room's emblem, grander metal by metal: handles, a lid, a gem, a star and finally a netherite crown with an ember. Sneak + use to set one down; sneak + punch to pick it up. The old gold trophies now look like the new gold ones.
+- **Full shelves.** Completing all twelve rooms in one metal pays BM Trophies, once: copper 1, iron 2, gold 3, emerald 4, diamond 6, netherite 10. The **Trophy Case** page in the Office shows your whole collection.
+
+### Bond Sigils: eight powers, two per heist
+- **The sigils:** **Mending** (regeneration), **Fury** (Strength), **Bulwark** (Resistance), **Swiftness** (Speed), **Warding** (no poison, wither, slowness or burning), **Fortune** (+1 coin a guard, and more spoils), **Vigor** (+2 hearts) and **Sight** (night vision; guards glow).
+- **How they attune:** when the heist begins, the sigils your crew carries are attuned, off-hands first and then pockets, **two at most**. Their powers apply to the whole crew for that heist. The Office's **Bond Sigils** page shows which are attuned.
+- **Where to get them:** Mending still comes free with your first party heist. Goldtooth sells all eight for coins and Insignia, and champions and hidden stashes sometimes drop one. Outside the vault, Mending still mends your party.
+
+### KillerWatt, the follower, grows up
+- **Ride him.** Use the Spark beside him to climb onto his back.
+  - He goes where you look; walk to stride and jump to hop. He fights while you ride.
+  - A wall ahead is no obstacle: he climbs it on his tendrils.
+  - **The Spark while riding: Thunder Leap.** He jumps up and forward and slams where he lands.
+  - Sneak to get off.
+- **New fighting:**
+  - **The Tendril Stab:** the scythes drive down and pin a foe, then he lands a right and a left.
+  - **The Leap:** he crouches, then comes down on a foe a little way off.
+  - **Chain Lightning:** arcs from his hands strike three foes at once.
+  - He still slams and calls lightning, and **he climbs walls to follow you**.
+- **His element.** Right-click him with one of Pearlman's gems. His hide takes its colours and every blow gets its touch: fire burns, water slows, poison poisons, earth roots, rock weakens, air throws foes up, grass heals him, ice freezes. Electric is his own element. Sneak + right-click him empty-handed to get the gem back.
+- **The Ethereal Gem** gives him his **Ethereal Form**: metallic black, iridescent tendrils, glowing seams and jagged spikes. He hits **half again as hard** and **floats**, and **when ridden he flies**: look up to rise, down to sink.
+
+### Fixed
+- The vault dimension's silent background music named a sound the game didn't recognise, so a server starting fresh with the pack could refuse to load the world. It's now defined inline, and the checker catches this mistake.
 
 ## New in 2.65: the Vault rebuilt, KillerWatt, follower wardrobes
 

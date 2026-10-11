@@ -90,7 +90,11 @@ def textures():
     T['kw_gold'] = _gold(84)
     T['kw_spike'] = _cloth('#16503a', 85, var=0.04)
     T['kw_claw'] = _cloth('#2e8a62', 86, var=0.04)
+    if not _BASE_ONLY: T.update(variant_textures(T))                   # 2.66: the follower's elements
     return T
+
+
+_BASE_ONLY = False
 
 
 # ---------------------------------------------------------------------------------------------------- models
@@ -122,7 +126,10 @@ def _blade(path, w0, w1, pv, z0, sx=1):
 
 def models():
     M = {}
-    TX = {k: f'bm:block/{k}' for k in textures()}
+    global _BASE_ONLY
+    _BASE_ONLY = True
+    try: TX = {k: f'bm:block/{k}' for k in textures()}
+    finally: _BASE_ONLY = False
     def part(name, els):
         used = sorted({e['faces'][f]['texture'][1:] for e in els for f in e['faces']})
         M[name] = ({k: TX[k] for k in used}, els)
@@ -222,6 +229,7 @@ def models():
         tend += _blade(lower, 5.2, 0.8, pv, z0 + 0.2, sx) + _blade(lower_hook, 2.4, 0.6, pv, z0 + 0.3, sx)
     tend += [_el((-2.2, 20.4, 2.6), (2.2, 28.4, 3.6), 'kw_gold', pv)]                                       # where they root, down his spine
     part('kw_tend', _shrink(tend, TEND_K))
+    M.update(variant_models(M))
     return M
 
 
@@ -264,3 +272,157 @@ FLEX = {'slam_up', 'roar'}             # (these wear the bent-elbow arms, as in 
 
 def part_xf(pose, p):
     return pose[p], (0.0, pose['_dy'], 0.0)
+
+
+# ---------------------------------------------------------------------------------------------------- 2.66: the follower's elements
+# Hand the follower a gem and his hide takes its element (a gradient map of the same textures); the Ethereal Gem makes him
+# metallic black with iridescent tendrils, glowing seams and a crown of jagged spikes.
+EL_KEYS = ['fire', 'water', 'poison', 'earth', 'electric', 'rock', 'air', 'grass', 'ice']        # (phase46's order: bm.kxel 1..9; 10 ethereal)
+EL_PAL = {  # body (dark, mid, light), accents for the tendrils (dark, light)
+    'fire': (('#3a0a04', '#c4361a', '#ff9a4a'), ('#b04a08', '#ffe060')),
+    'water': (('#06244e', '#1e6ad0', '#7ad0ff'), ('#2a8ab0', '#d8f8ff')),
+    'poison': (('#220834', '#7a2ab8', '#d09aff'), ('#3e9014', '#d0ff6a')),
+    'earth': (('#24160a', '#6a4a22', '#c09a5c'), ('#2e6e22', '#a0e070')),
+    'rock': (('#222226', '#6e6a68', '#c8c0b8'), ('#7a5a2e', '#ecd49a')),
+    'air': (('#4e6a7a', '#b0d4e6', '#ffffff'), ('#7aaed0', '#f4ffff')),
+    'grass': (('#0c320c', '#3a9a2a', '#b4f47a'), ('#c43a7a', '#ffd0e8')),
+    'ice': (('#16405e', '#7ac8f0', '#f0feff'), ('#3e9ed0', '#ffffff'))}
+VARIANTS = [k for k in EL_KEYS if k != 'electric'] + ['eth']
+BODY_TEX = ['kw_hide', 'kw_hide_dk', 'kw_belly', 'kw_lime', 'kw_emblem', 'kw_face', 'kw_spike', 'kw_claw']
+
+
+def _lum(p):
+    return (0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]) / 255
+
+
+def _mix(a, b, t):
+    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
+
+
+def _gmap(im, stops):
+    """recolour by luminance through (dark, mid, light) - the grain and the blotches stay, the colour is the element's"""
+    s = [hexc(c)[:3] for c in stops]
+    out = im.copy()
+    for y in range(im.height):
+        for x in range(im.width):
+            p = im.getpixel((x, y))
+            L = max(0.0, min(1.0, (_lum(p) - 0.08) / 0.84))
+            c = _mix(s[0], s[1], L / 0.5) if L < 0.5 else _mix(s[1], s[2], (L - 0.5) / 0.5)
+            out.putpixel((x, y), c + (p[3],))
+    return out
+
+
+def _irid(im, seed=0):
+    """iridescence: the hue slides across the surface, brighter where the base is bright"""
+    import colorsys
+    out = im.copy()
+    for y in range(im.height):
+        for x in range(im.width):
+            p = im.getpixel((x, y)); L = _lum(p)
+            r, g, b = colorsys.hsv_to_rgb(((x * 0.9 + y * 1.3) / 64 + L * 0.35 + seed) % 1.0, 0.55, 0.45 + 0.55 * L)
+            out.putpixel((x, y), (int(r * 255), int(g * 255), int(b * 255), p[3]))
+    return out
+
+
+def _metal(im, seed):
+    """black chrome: near-black, a cool sheen, a few long diagonal glints"""
+    out = _gmap(im, ('#040406', '#18181f', '#4a4a5c'))
+    rnd = random.Random(seed)
+    for _ in range(5):
+        x0, y0, ln = rnd.randint(0, 63), rnd.randint(0, 63), rnd.randint(6, 16)
+        for i in range(ln):
+            x, y = (x0 + i) % 64, (y0 + i) % 64
+            out.putpixel((x, y), hexc('#8a8aa8')[:3] + (255,))
+            out.putpixel(((x + 1) % 64, y), hexc('#5a5a74')[:3] + (255,))
+    return out
+
+
+def _eth_tex(name, im):
+    if name == 'kw_belly':                                       # its cracks glow
+        out = _metal(im, 191)
+        for y in range(64):
+            for x in range(64):
+                if _lum(im.getpixel((x, y))) < 0.13:
+                    out.putpixel((x, y), hexc('#b070ff' if (x + y) % 9 < 5 else '#70f0ff')[:3] + (255,))
+        return out
+    if name == 'kw_face':                                        # the maw burns cyan-white
+        out = _metal(im, 192)
+        for y in range(im.height):
+            for x in range(im.width):
+                r, g, b, a = im.getpixel((x, y))
+                if b > g and r > g and b > 30:                   # (the violet maw)
+                    out.putpixel((x, y), _mix(hexc('#40c8ff')[:3], (240, 255, 255), min(1.0, b / 140)) + (a,))
+        return out
+    if name in ('kw_emblem', 'kw_claw'):
+        return _irid(im, 0.3 if name == 'kw_claw' else 0.6)
+    if name == 'kw_spike':
+        return _gmap(im, ('#000000', '#14141c', '#6a6a88'))
+    if name == 'kw_lime':
+        return _gmap(im, ('#0c0c12', '#2a2a36', '#7a7a94'))
+    return _metal(im, 190 + len(name))
+
+
+def variant_textures(base):
+    out = {}
+    for v in VARIANTS:
+        for name in BODY_TEX + ['kw_gold']:
+            im = base[name]
+            if v == 'eth':
+                out[f'{name}_{v}'] = _irid(im) if name == 'kw_gold' else _eth_tex(name, im)
+            else:
+                body, acc = EL_PAL[v]
+                mid = '#%02x%02x%02x' % _mix(hexc(acc[0])[:3], hexc(acc[1])[:3], 0.55)
+                out[f'{name}_{v}'] = _gmap(im, (acc[0], mid, acc[1])) if name == 'kw_gold' else _gmap(im, body)
+    return out
+
+
+def eth_spikes(name):
+    """the Ethereal form's jagged spikes, by part (design units, about each part's joint)"""
+    sp = lambda fr, to, axis, ang, org, pv: _el(fr, to, 'kw_spike', pv, (axis, ang, org))
+    if name == 'kw_body':
+        pv = PIVOT['body']
+        out = [sp((-0.5, y, 2.2), (0.5, y + 2.6, 3.0), 'x', -22.5, (0, y, 2.6), pv) for y in (17.0, 20.0, 23.0, 26.0)]
+        out += [sp((-7.6, 28.0, -0.5), (-6.6, 32.4, 0.5), 'z', 22.5, (-7.1, 28.0, 0), pv), sp((6.6, 28.0, -0.5), (7.6, 32.4, 0.5), 'z', -22.5, (7.1, 28.0, 0), pv)]
+        return out
+    if name == 'kw_head':
+        pv = PIVOT['head']
+        return [sp((1.6, 35.4, -0.5), (2.6, 39.4, 0.5), 'z', -22.5, (2.1, 35.4, 0), pv), sp((-2.6, 35.4, -0.5), (-1.6, 39.4, 0.5), 'z', 22.5, (-2.1, 35.4, 0), pv)]
+    for nm, sx in (('armr', 1), ('arml', -1)):
+        if name.startswith(f'kw_{nm}'):
+            pv = PIVOT[nm]; cx = pv[0] + 0.4 * sx
+            return [sp((cx - 0.6, 28.4, -0.6), (cx + 0.6, 32.6, 0.6), 'z', -30 * sx, (cx, 28.4, 0), pv),
+                    sp((cx + 1.0 * sx - 0.4, 27.6, -1.8), (cx + 1.0 * sx + 0.4, 30.6, -1.0), 'z', -45 * sx, (cx + sx, 27.6, -1.4), pv)]
+    for nm, sx in (('legr', 1), ('legl', -1)):
+        if name == f'kw_{nm}':
+            pv = PIVOT[nm]; cx = 2.7 * sx
+            return [sp((cx - 0.5, 9.6, -3.8), (cx + 0.5, 10.6, -2.4), 'x', -45, (cx, 10.1, -2.6), pv)]
+    return []
+
+
+def variant_models(base_models):
+    """(name -> (tex, els)) the same parts, re-textured for each element; the ethereal ones spiked"""
+    import copy
+    M = {}
+    for name, (tex, els) in base_models.items():
+        if not name.startswith('kw_') or name == 'kw_spark':
+            continue
+        for v in VARIANTS:
+            e2 = copy.deepcopy(els) + (copy.deepcopy(eth_spikes(name)) if v == 'eth' and name != 'kw_tend' else [])
+            for e in e2:
+                for f in e['faces'].values():
+                    f['texture'] = f['texture'] + f'_{v}'
+            used = sorted({e['faces'][f]['texture'][1:] for e in e2 for f in e['faces']})
+            M[f'{name}_{v}'] = ({k: f'bm:block/{k}' for k in used}, e2)
+    return M
+
+
+# new poses for the follower (2.66): the tendril stab, the two punches, the crouch before a leap, hovering, climbing
+POSES.update({
+    'stab': P(0.02, body=qa('x', 14), head=qa('x', 8), armr=qmul(qa('z', -20), qa('x', 25)), arml=qmul(qa('z', 20), qa('x', 25)), tend=qa('x', 58)),
+    'punch_r': P(body=qmul(qa('y', -22), qa('x', 8)), head=qa('y', -10), armr=qa('x', -92), arml=qmul(qa('z', 14), qa('x', 30)), tend=qa('x', 40)),
+    'punch_l': P(body=qmul(qa('y', 22), qa('x', 8)), head=qa('y', 10), arml=qa('x', -92), armr=qmul(qa('z', -14), qa('x', 30)), tend=qa('x', 40)),
+    'crouch': P(-0.4, body=qa('x', 24), head=qa('x', -14), legr=qa('x', -34), legl=qa('x', -34), armr=qmul(qa('z', -16), qa('x', 30)), arml=qmul(qa('z', 16), qa('x', 30)),
+                tend=qa('x', -26)),
+    'hover': P(0.12, body=qa('x', 4), head=qa('x', 6), legr=qa('x', 10), legl=qa('x', -6), armr=qa('z', -38), arml=qa('z', 38), tend=qa('x', -24)),
+    'climb': P(0.0, body=qa('x', 10), head=qa('x', -18), armr=qa('x', -150), arml=qa('x', -135), legr=qa('x', -30), legl=qa('x', 10), tend=qa('x', 42)),
+})

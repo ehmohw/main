@@ -30,6 +30,15 @@ for f in sorted(glob.glob(ROOT + '**/*.mcfunction', recursive=True)):
                 errs.append(f'{rel}:{i + 1}: `on target` after the {field} data was cleared on line {cleared + 1} - the click is lost')
                 break
 
+# 6. (2.66) A selector may name each of scores=/nbt=-style single options once: two `scores=` in one selector fail to load
+for f in sorted(glob.glob(ROOT + '**/*.mcfunction', recursive=True)):
+    rel = f[len(ROOT):-len('.mcfunction')]
+    for i, l in enumerate(open(f, encoding='utf-8').read().splitlines()):
+        for sel in re.findall(r'@[aesprn]\[((?:[^\[\]{}]|\{[^{}]*\})*)\]', l):
+            opts = re.findall(r'(?:^|,)\s*(scores|advancements|limit|sort|distance|x|y|z|dx|dy|dz|x_rotation|y_rotation|level)\s*=', sel)
+            dup = {o for o in opts if opts.count(o) > 1}
+            if dup: errs.append(f'{rel}:{i + 1}: selector names {sorted(dup)} twice - the function will not load')
+
 SAFE = {'minecraft:custom_data', 'minecraft:item_model', 'minecraft:item_name', 'minecraft:max_stack_size'}
 for f in sorted(glob.glob(ROOT + 'p17/npc/*.mcfunction') + glob.glob(ROOT + 'npc/*.mcfunction')):
     s = open(f, encoding='utf-8').read()

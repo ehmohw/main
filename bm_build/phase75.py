@@ -594,11 +594,12 @@ def rosters(G, fn, snbt):
 def music(G, fn, second):
     import phase70 as P70
     tr = lambda i: f'bm:music.gv_{TRACK[i][0]}'
-    # (the vault's own background music is silence - the heist plays its own tracks)
+    # (the vault's own background music is silence - the heist plays its own tracks. A sound of our own goes in inline: an id
+    #  string must name a vanilla sound event, or the world's registries refuse to load - 2.66)
     import json
     pth = G.path('data', 'bm', 'dimension_type', 'gutter.json')
     dt = json.load(open(pth))
-    dt['attributes']['minecraft:audio/background_music'] = {'default': {'sound': 'bm:music.gv_silence', 'min_delay': 12000, 'max_delay': 24000,
+    dt['attributes']['minecraft:audio/background_music'] = {'default': {'sound': {'sound_id': 'bm:music.gv_silence'}, 'min_delay': 12000, 'max_delay': 24000,
                                                                          'replace_current_music': True}}
     json.dump(dt, open(pth, 'w'), indent=1)
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.gvmt dummy', 'scoreboard objectives add bm.gvmu dummy', 'scoreboard objectives add bm.gvmz dummy']

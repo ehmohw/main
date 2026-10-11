@@ -142,6 +142,16 @@ for f in glob.glob(f'{DP}/data/**/*.json', recursive=True):
                 for ap in v:
                     if set(ap) != {'particle', 'probability'} or ap['particle']['type'].split(':')[1] not in REG['particle_type']: E(f'{rel}: ambient particle {ap}')
             if k.endswith(('_color',)) and not re.fullmatch(r'#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?', v): E(f'{rel}: colour {k}={v}')
+            if k.endswith(('/background_music', '/ambient_sounds')):         # 2.66: a sound id string must be vanilla (else the registries won't load)
+                def _snd(x):
+                    if isinstance(x, dict):
+                        for kk, vv in x.items():
+                            if kk in ('sound', 'sound_event') and isinstance(vv, str) and vv.split(':', 1)[-1] not in REG['sound_event']:
+                                E(f'{rel}: {k} names sound {vv} - not a vanilla sound event (use {{"sound_id": ...}} inline)')
+                            else: _snd(vv)
+                    elif isinstance(x, list):
+                        for vv in x: _snd(vv)
+                _snd(v)
     if rel.startswith('bm/dimension/'):
         tp = d['type'].split(':', 1)
         if not os.path.exists(f'{DP}/data/{tp[0]}/dimension_type/{tp[1]}.json'): E(f'{rel}: dimension type missing')

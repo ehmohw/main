@@ -16,19 +16,33 @@ THE REWARD (everyone within 64 when he falls): his TENDRILS (no longer in Cecil'
 KILLERWATT'S SPARK: use it - he comes as a follower, a smaller version of himself (about three blocks): he walks with you,
   slams what comes close and calls lightning onto monsters further off. Use again: he comes to you; sneak + use: he goes
   home. A follower like the others (counts toward three; not in the vault or the Hollow Throne; goes home if you go far
-  or put the Spark away); if he falls, 5 minutes."""
+  or put the Spark away); if he falls, 5 minutes.
+2.66 - THE FOLLOWER GROWS UP:
+  RIDE HIM: use the Spark beside him and you're up on his back. He goes where you look; walk to stride, jump to hop, and a
+  wall ahead is no wall - he climbs it on his tendrils. The Spark, riding: THUNDER LEAP (up, over, and a slam where he
+  lands). Sneak to get off. He still fights while you ride.
+  HIS FIGHTING: THE TENDRIL STAB (the scythes drive down and pin a foe, then a right and a left), THE LEAP (a crouch, up
+  and down on a foe a little way off), CHAIN LIGHTNING (arcs from his hands to three foes), and the old slam and call.
+  He climbs walls to follow you.
+  HIS ELEMENT: right-click him with one of Pearlman's gems - his hide takes its colours and every blow its touch (fire
+  burns, water slows, poison poisons, earth roots, rock weakens, air throws up, grass heals him, ice freezes). Electric is
+  his own. Sneak + right-click him empty-handed: the gem back. THE ETHEREAL GEM: his ETHEREAL FORM - metallic black,
+  iridescent tendrils, glowing seams and jagged spikes; half again as strong, and he floats - ridden, he FLIES (look up
+  to rise, down to sink)."""
 from items import item, T, TOTEM
 from useitem import hold, HOLD
 from nbt import snbt, B, F, D, Int
 import phase67 as P67
 import phase73 as P73
 import phase79_art as ART
+from phase60 import GEMS as _GEMS
+GEMS_COL = {k: v[1] for k, v in _GEMS.items()}
 
 YEL = '#f6dc30'
 GRN = '#74d462'
 SCALE = {'boss': ART.RIG_SCALE, 'pet': 1.05}       # (1.55: about 4.7 blocks with the tendrils; the follower about 3)
 DUR = {'idle_a': 30, 'idle_b': 30, 'walk_a': 10, 'walk_b': 10, 'slam_up': 10, 'slam_dn': 3, 'sweep_a': 7, 'sweep_b': 4,
-       'roar': 6, 'call': 8, 'fall': 20}
+       'roar': 6, 'call': 8, 'fall': 20, 'stab': 4, 'punch_r': 3, 'punch_l': 3, 'crouch': 5, 'hover': 20, 'climb': 6}
 PET_DUR = dict(DUR, walk_a=6, walk_b=6, slam_up=8)
 STRIDE = {'boss': 20, 'pet': 12}
 BOSS_HP, PET_HP, PET_CD = 500, 80, 300
@@ -39,8 +53,9 @@ item('kw_effigy', TOTEM, 'Storm Effigy', YEL, ['A little iron figure that hums w
      model='minecraft:lightning_rod', glint=True, stack=4, cat='magic', comps=hold('none'), tier=2)
 HOLD['kw_effigy'] = 'bm:p79/effigy'
 item('kw_spark', TOTEM, "KillerWatt's Spark", GRN, ['A crackling green mote that answers to you now.', ('Use: KillerWatt comes as a follower', 'blue'),
-                                                   ('(use again: to you; sneak + use: home).', 'blue'), ('He slams what comes close and calls', 'blue'),
-                                                   ('lightning onto monsters further off.', 'blue'), ('If he falls: 5 minutes.', 'gray')],
+                                                   ('(use again: to you; beside him: ride him;', 'blue'), ('sneak + use: home). Riding: Thunder Leap.', 'blue'),
+                                                   ('Give him a gem: his element. The Ethereal', 'blue'), ('Gem: his Ethereal Form - and he flies.', 'blue'),
+                                                   ('If he falls: 5 minutes.', 'gray')],
      model='bm:kw_spark', glint=True, stack=1, cat='magic', comps=hold('none'), tier=3)
 HOLD['kw_spark'] = 'bm:p79/spark'
 
@@ -59,7 +74,7 @@ def generate(G):
     qf = lambda q: [F(round(v, 4)) for v in q]
     eff = lambda e: {'id': f'minecraft:{e}', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}
     attr = lambda **kw: [{'id': f'minecraft:{k}', 'base': D(v)} for k, v in kw.items()]
-    objs = ['bm.kxid', 'bm.kxf', 'bm.kxs', 'bm.kxatk', 'bm.kxt', 'bm.kxc', 'bm.kxr', 'bm.kxlone', 'bm.kxk', 'bm.kxcd', 'bm.fgk']
+    objs = ['bm.kxid', 'bm.kxf', 'bm.kxs', 'bm.kxatk', 'bm.kxt', 'bm.kxc', 'bm.kxr', 'bm.kxlone', 'bm.kxk', 'bm.kxcd', 'bm.fgk', 'bm.kxel', 'bm.kxlt']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + \
         ['bossbar add bm:kwb {text:"KillerWatt",color:"green"}', 'bossbar set bm:kwb color green', 'bossbar set bm:kwb style notched_10'] + \
         [f'scoreboard players set #{n} bm.rng {n}' for n in (2, 12, 20, 60)]
@@ -310,22 +325,47 @@ def generate(G):
                                                      {'rolls': 1, 'entries': [G.loot_entry('token', G.uni(4, 9))]}]})
 
     # ================================================================== THE FOLLOWER
+    ETH = len(ART.EL_KEYS) + 1                   # 10: the Ethereal form (1..9: the gems, in Cecil's order; 0 or 5: his own electric)
+    SUF = {0: ''} | {i + 1: ('' if k == 'electric' else f'_{k}') for i, k in enumerate(ART.EL_KEYS)} | {ETH: '_eth'}
     pnbt = {'Tags': ['bm.kxpet', 'bm.kxhost', 'bm.kxnew', 'bm.seen'], 'Silent': B(1), 'PersistenceRequired': B(1), 'CustomName': T('KillerWatt', GRN, bold=True),
             'CustomNameVisible': B(0), 'Health': F(PET_HP),
-            'attributes': attr(scale=1.7, max_health=PET_HP, armor=8, attack_damage=4, movement_speed=0.33, follow_range=32, step_height=1.25),
+            'attributes': attr(scale=1.7, max_health=PET_HP, armor=8, attack_damage=4, movement_speed=0.33, follow_range=32, step_height=1.25,
+                               fall_damage_multiplier=0.0),
             'active_effects': [eff('invisibility')]}
     mine = 'execute as @e[type=minecraft:wolf,tag=bm.kxpet] if score @s bm.pid = #me bm.pid'
+    G.FUNCS['p79/boss/tick'].insert(0, 'scoreboard players set #kel bm.rng 0')
+    # his parts wear his element (#kel: 0 his own, 1..9 a gem, 10 ethereal); the flexed arms too
+    fn('p79/flex', [f'execute if score #kel bm.rng matches {i} run data modify entity @e[type=minecraft:item_display,tag=bm.kxsel,tag=bm.kxp_{p},limit=1] '
+                    f'item.components."minecraft:item_model" set value "bm:kw_{p}_flex{s}"' for i, s in SUF.items() for p in ('armr', 'arml')])
+    fn('p79/unflex', [f'execute if score #kel bm.rng matches {i} run data modify entity @e[type=minecraft:item_display,tag=bm.kxsel,tag=bm.kxp_{p},limit=1] '
+                      f'item.components."minecraft:item_model" set value "bm:kw_{p}{s}"' for i, s in SUF.items() for p in ('armr', 'arml')])
+    G.FUNCS['p79/orphan'].insert(0, 'scoreboard players operation #kel bm.rng = @s bm.kxel')
+    fn('p79/pet/dress_rig', ['scoreboard players operation #kel bm.rng = @s bm.kxel', f'scoreboard players operation {sel()} bm.kxel = #kel bm.rng'] +
+       [f'execute if score #kel bm.rng matches {i} run data modify entity @e[type=minecraft:item_display,tag=bm.kxsel,tag=bm.kxp_{p},limit=1] '
+        f'item.components."minecraft:item_model" set value "bm:kw_{p}{s}"' for i, s in SUF.items() for p in ART.PARTS])
+    G.FUNCS['p79/pet/rig'].append('function bm:p79/pet/dress_rig')
+    fn('p79/pet/redress', ['scoreboard players operation #kid bm.rng = @s bm.kxid',
+                           'execute as @e[type=minecraft:item_display,tag=bm.kxp_pet,distance=..12] if score @s bm.kxid = #kid bm.rng run tag @s add bm.kxsel',
+                           'function bm:p79/pet/dress_rig', f'tag {sel()} remove bm.kxsel'])
+
+    # ---- the Spark: call him, call him over, climb on (close by), send him home (sneaking); riding, it's his THUNDER LEAP
     fn('p79/spark', ['execute if score @s bm.gvhc matches 1.. run return 0', 'scoreboard players set @s bm.gvhc 2',
                      'execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
                      f'{mine} run tag @s add bm.kxsel2',
+                     'execute on vehicle if entity @s[tag=bm.kxsel2] at @s run return run function bm:p79/pet/rleap',
                      'execute if entity @e[type=minecraft:wolf,tag=bm.kxsel2] if predicate bm:p20/sneaking run function bm:p79/pet/home',
-                     'execute if entity @e[type=minecraft:wolf,tag=bm.kxsel2] unless predicate bm:p20/sneaking run function bm:p79/pet/recall',
+                     'execute if entity @e[type=minecraft:wolf,tag=bm.kxsel2,distance=..3.5] unless predicate bm:p20/sneaking run function bm:p79/pet/mount',
+                     'execute if entity @e[type=minecraft:wolf,tag=bm.kxsel2] unless entity @e[type=minecraft:wolf,tag=bm.kxsel2,distance=..3.5] unless predicate bm:p20/sneaking run function bm:p79/pet/recall',
                      'execute unless entity @e[type=minecraft:wolf,tag=bm.kxsel2] unless predicate bm:p20/sneaking run function bm:p79/pet/try',
                      'execute unless entity @e[type=minecraft:wolf,tag=bm.kxsel2] if predicate bm:p20/sneaking run ' + say("KillerWatt isn't with you. (Use the Spark to call him.)"),
                      'tag @e[type=minecraft:wolf,tag=bm.kxsel2] remove bm.kxsel2'])
     fn('p79/pet/recall', ['tp @e[type=minecraft:wolf,tag=bm.kxsel2,limit=1] @s', 'data modify entity @e[type=minecraft:wolf,tag=bm.kxsel2,limit=1] Sitting set value 0b',
                           'particle minecraft:electric_spark ~ ~1.5 ~ 0.6 1 0.6 0.3 40', 'playsound minecraft:entity.lightning_bolt.impact neutral @a[distance=..16] ~ ~ ~ 0.4 1.8',
-                          say('KillerWatt crackles over to you.', GRN)])
+                          say('KillerWatt crackles over to you. (Use the Spark beside him to climb on.)', GRN)])
+    fn('p79/pet/mount', ['ride @s mount @e[type=minecraft:wolf,tag=bm.kxsel2,limit=1]', 'playsound minecraft:entity.lightning_bolt.impact neutral @a[distance=..16] ~ ~ ~ 0.3 2',
+                         'particle minecraft:electric_spark ~ ~1 ~ 0.6 0.6 0.6 0.2 30',
+                         title('@s', 'actionbar', [T('On his back. ', GRN, bold=True), T('Walk to stride; jump to hop; walls - he climbs them. The Spark: THUNDER LEAP. ', 'gray'),
+                                                   T('Sneak to get off.', 'dark_gray')])])
     fn('p79/pet/home', ['execute as @e[type=minecraft:wolf,tag=bm.kxsel2] at @s run function bm:p79/pet/vanish', say('KillerWatt goes home.', GRN)])
     fn('p79/pet/try', ['execute if score @s bm.kxcd matches 1.. store result score #m bm.rng run scoreboard players get @s bm.kxcd',
                        'execute if score @s bm.kxcd matches 1.. run scoreboard players add #m bm.rng 59', 'execute if score @s bm.kxcd matches 1.. run scoreboard players operation #m bm.rng /= #60 bm.rng',
@@ -333,12 +373,14 @@ def generate(G):
                                                                                                           {'score': {'name': '#m', 'objective': 'bm.rng'}, 'color': 'white'}, T(' min.', 'gray')]),
                        'execute unless function bm:p74/fol_ok run return run ' + say("The Spark won't answer here."),
                        'execute if function bm:p58/full run return 0', 'function bm:p79/pet/summon'])
-    fn('p79/pet/summon', [f'execute rotated ~ 0 positioned ^ ^ ^2 run summon minecraft:wolf ~ ~ ~ {snbt(pnbt)}',
+    fn('p79/pet/summon', ['execute unless score @s bm.kxel matches 0.. run scoreboard players set @s bm.kxel 0',
+                          f'execute rotated ~ 0 positioned ^ ^ ^2 run summon minecraft:wolf ~ ~ ~ {snbt(pnbt)}',
                           'data modify entity @e[type=minecraft:wolf,tag=bm.kxnew,limit=1,sort=nearest] Owner set from entity @s UUID',
                           # (a wolf loaded without an owner resets to 8 health; taming it by NBT doesn't put it back - as for Zib)
                           f'attribute @e[type=minecraft:wolf,tag=bm.kxnew,limit=1,sort=nearest] minecraft:max_health base set {PET_HP}',
                           f'data modify entity @e[type=minecraft:wolf,tag=bm.kxnew,limit=1,sort=nearest] Health set value {PET_HP}f',
                           'scoreboard players operation @e[type=minecraft:wolf,tag=bm.kxnew,limit=1,sort=nearest] bm.pid = @s bm.pid',
+                          'scoreboard players operation @e[type=minecraft:wolf,tag=bm.kxnew,limit=1,sort=nearest] bm.kxel = @s bm.kxel',
                           'execute as @e[type=minecraft:wolf,tag=bm.kxnew,limit=1,sort=nearest] at @s run function bm:p79/pet/init',
                           'execute rotated ~ 0 positioned ^ ^ ^2 run particle minecraft:electric_spark ~ ~1.5 ~ 0.6 1 0.6 0.3 60',
                           'execute rotated ~ 0 positioned ^ ^ ^2 run particle minecraft:flash{color:[0.75,1.0,0.6,1.0]} ~ ~1 ~ 0 0 0 0 1',
@@ -346,27 +388,198 @@ def generate(G):
     fn('p79/pet/init', ['scoreboard players add #kwn bm.kxid 1', 'scoreboard players operation @s bm.kxid = #kwn bm.kxid', 'scoreboard players set @s bm.kxatk 0',
                         'scoreboard players set @s bm.kxc 40', 'tag @s remove bm.kxnew', 'scoreboard players operation #kid bm.rng = @s bm.kxid',
                         'function bm:p79/pet/rig', f'tag {sel()} remove bm.kxsel'])
-    fn('p79/pet/vanish', ['particle minecraft:electric_spark ~ ~1.5 ~ 0.6 1 0.6 0.3 30', 'function bm:p79/unrig', 'data remove entity @s Owner', 'tp @s ~ -400 ~', 'kill @s'])
+    fn('p79/pet/vanish', ['particle minecraft:electric_spark ~ ~1.5 ~ 0.6 1 0.6 0.3 30', 'execute on passengers run ride @s dismount', 'function bm:p79/unrig',
+                          'data remove entity @s Owner', 'tp @s ~ -400 ~', 'kill @s'])
     tick.append('execute as @e[type=minecraft:wolf,tag=bm.kxpet] at @s run function bm:p79/pet/tick')
+    # the heartbeat, his way: ridden (his rider steers), hovering (ethereal), climbing to you
+    pt = G.FUNCS['p79/pet/tick']
+    pt[0:0] = ['scoreboard players operation #kel bm.rng = @s bm.kxel',
+               # (store success of `on passengers` stores nothing when there are none - set it first)
+               'scoreboard players set #rid bm.rng 0', 'execute on passengers if entity @s[type=minecraft:player] run scoreboard players set #rid bm.rng 1',
+               'execute if score #rid bm.rng matches 1 run function bm:p79/pet/ride',
+               'execute if score #rid bm.rng matches 0 if entity @s[tag=bm.kxrd] run function bm:p79/pet/unride']
+    k_ = next(i for i, l in enumerate(pt) if 'function bm:p79/pet/place' in l)
+    pt[k_:k_ + 1] = ['execute if score #rid bm.rng matches 1 rotated as @s rotated ~ 0 positioned ^ ^ ^0.55 run function bm:p79/pet/place',
+                     f'execute if score #rid bm.rng matches 0 if score #kel bm.rng matches {ETH} rotated as @s rotated ~ 0 positioned ~ ~0.35 ~ run function bm:p79/pet/place',
+                     f'execute if score #rid bm.rng matches 0 unless score #kel bm.rng matches {ETH} rotated as @s rotated ~ 0 run function bm:p79/pet/place']
+    k_ = next(i for i, l in enumerate(pt) if 'function bm:p79/pet/move' in l)
+    pt[k_] = 'execute unless score @s bm.kxatk matches 1.. unless entity @s[tag=bm.kxclimb] run function bm:p79/pet/move'
+    pt.insert(k_, 'execute if score #rid bm.rng matches 0 unless score @s bm.kxatk matches 1.. unless data entity @s {Sitting:1b} run function bm:p79/pet/climb_chk')
     hostile = 'type=#bm:hostile,tag=!bm.npc'
-    fn('p79/pet/mind', ['scoreboard players remove @s bm.kxc 1', 'execute if score @s bm.kxc matches 1.. run return 0', 'scoreboard players set @s bm.kxc 10',
-                        'execute if data entity @s {Sitting:1b} run return 0',
-                        f'execute if entity @e[{hostile},distance=..4.5] run return run function bm:p79/pet/start {{a:1}}',
-                        f'execute if entity @e[{hostile},distance=..16] run return run function bm:p79/pet/start {{a:3}}'])
-    fn('p79/pet/start', ['$function bm:p79/pet/go {a:$(a)}', 'scoreboard players set @s bm.kxc 90'])
-    fn('p79/pet/attack', ['scoreboard players add @s bm.kxt 1', 'tag @s add bm.kxme',
-                          'execute if score @s bm.kxatk matches 1 run function bm:p79/pet/a_slam', 'execute if score @s bm.kxatk matches 3 run function bm:p79/pet/a_call',
-                          'tag @s remove bm.kxme'])
     pme = '@e[type=minecraft:wolf,tag=bm.kxme,limit=1]'
+
+    # ---- riding: his rider's facing is his; walk to stride (6-7 blocks a second), jump to hop, a wall ahead - he climbs it.
+    #      Ethereal: he flies - look up to rise, down to sink. (The direction: a marker swung round the coat check's corner, as for the Volley Quiver.)
+    fn('p79/pet/ride', ['tag @s add bm.kxdrv', 'tag @s add bm.kxrd', 'data modify entity @s Sitting set value 1b',
+                        'attribute @s minecraft:scale modifier add bm:kx_ride 0.5 add_value',
+                        'scoreboard players set #fw bm.rng 0', 'scoreboard players set #jp bm.rng 0',
+                        'execute on passengers if predicate bm:p39/forward run scoreboard players set #fw bm.rng 1',
+                        'execute on passengers if predicate bm:p26/jump_key run scoreboard players set #jp bm.rng 1',
+                        'execute on passengers run function bm:p79/pet/rider',
+                        'execute on passengers store result score #pitch bm.rng run data get entity @s Rotation[1]',
+                        'execute on passengers store result score #yaw bm.rng run data get entity @s Rotation[0] 100',
+                        'execute store result entity @s Rotation[0] float 0.01 run scoreboard players get #yaw bm.rng',
+                        f'execute if score #kel bm.rng matches {ETH} run data modify entity @s NoGravity set value 1b',
+                        'execute if score #fw bm.rng matches 1 run function bm:p79/pet/drive',
+                        'execute if score #fw bm.rng matches 0 run data modify entity @s Motion[0] set value 0.0d',
+                        'execute if score #fw bm.rng matches 0 run data modify entity @s Motion[2] set value 0.0d',
+                        f'execute if score #kel bm.rng matches {ETH} run function bm:p79/pet/fly',
+                        f'execute unless score #kel bm.rng matches {ETH} if score #jp bm.rng matches 1 if predicate bm:p39/on_ground run data modify entity @s Motion[1] set value 0.62d',
+                        'execute if entity @s[tag=bm.kxleap] run function bm:p79/pet/leap_tick',
+                        'tag @s remove bm.kxdrv'])
+    fn('p79/pet/drive', ['scoreboard players set #sp bm.rng 340', f'execute if score #kel bm.rng matches {ETH} run scoreboard players set #sp bm.rng 440',
+                         'execute store result storage bm:tmp kxd.s double 0.001 run scoreboard players get #sp bm.rng',
+                         'function bm:p79/pet/dir with storage bm:tmp kxd',
+                         'execute store result entity @s Motion[0] double 0.001 run scoreboard players get #mx bm.rng',
+                         'execute store result entity @s Motion[2] double 0.001 run scoreboard players get #mz bm.rng',
+                         # a wall ahead: up he goes, tendrils first
+                         f'execute unless score #kel bm.rng matches {ETH} rotated as @s rotated ~ 0 positioned ^ ^ ^1.1 unless block ~ ~0.6 ~ #bm:grap_pass run function bm:p79/pet/climb_up',
+                         f'execute unless score #kel bm.rng matches {ETH} rotated as @s rotated ~ 0 positioned ^ ^ ^1.1 unless block ~ ~1.6 ~ #bm:grap_pass run function bm:p79/pet/climb_up'])
+    # (as the host) #mx, #mz = a step of $(s) blocks along his facing, in thousandths
+    fn('p79/pet/dir', ['$execute in bm:gutter positioned -200.0 64.0 -200.0 rotated as @s rotated ~ 0 run summon minecraft:marker ^ ^ ^$(s) {Tags:["bm.kxmv"]}',
+                       'execute in bm:gutter store result score #mx bm.rng run data get entity @e[type=minecraft:marker,tag=bm.kxmv,limit=1] Pos[0] 1000',
+                       'execute in bm:gutter store result score #mz bm.rng run data get entity @e[type=minecraft:marker,tag=bm.kxmv,limit=1] Pos[2] 1000',
+                       'execute in bm:gutter run kill @e[type=minecraft:marker,tag=bm.kxmv]',
+                       'scoreboard players operation #mx bm.rng += #200000 bm.rng', 'scoreboard players operation #mz bm.rng += #200000 bm.rng'])
+    fn('p79/pet/climb_up', ['data modify entity @s Motion[1] set value 0.32d', 'tag @s add bm.kxclimbing'])
+    fn('p79/pet/fly', ['execute if score #pitch bm.rng matches ..-25 run data modify entity @s Motion[1] set value 0.24d',
+                       'execute if score #pitch bm.rng matches 40.. run data modify entity @s Motion[1] set value -0.24d',
+                       'execute if score #pitch bm.rng matches -24..39 run data modify entity @s Motion[1] set value 0.0d',
+                       'particle minecraft:end_rod ~ ~0.3 ~ 0.4 0.1 0.4 0.01 1'])
+    fn('p79/pet/rider', ['tag @s add bm.kxrider', 'attribute @s minecraft:fall_damage_multiplier modifier add bm:kx_ride -1 add_multiplied_total'])
+    fn('p79/pet/unride', ['tag @s remove bm.kxrd', 'data modify entity @s Sitting set value 0b', 'attribute @s minecraft:scale modifier remove bm:kx_ride',
+                          'data modify entity @s NoGravity set value 0b', 'tag @s remove bm.kxleap', 'tag @s remove bm.kxclimb', 'scoreboard players set @s bm.kxs -1'])
+    second += ['execute as @a[tag=bm.kxrider] unless function bm:p79/pet/on_kw run function bm:p79/pet/rider_off']
+    fn('p79/pet/on_kw', ['execute on vehicle if entity @s[type=minecraft:wolf,tag=bm.kxpet] run return 1', 'return 0'])
+    fn('p79/pet/rider_off', ['tag @s remove bm.kxrider', 'attribute @s minecraft:fall_damage_multiplier modifier remove bm:kx_ride'])
+    # THUNDER LEAP (the Spark, riding): up and forward - and where he lands, a slam
+    fn('p79/pet/rleap', ['tag @s remove bm.kxsel2', 'execute unless predicate bm:p39/on_ground run return 0', 'execute if entity @s[tag=bm.kxleap] run return 0',
+                         'tag @s add bm.kxleap', 'scoreboard players set @s bm.kxlt 0', 'scoreboard players set #kel bm.rng 0',
+                         'scoreboard players operation #kel bm.rng = @s bm.kxel', 'scoreboard players operation #kid bm.rng = @s bm.kxid',
+                         'execute as @e[type=minecraft:item_display,tag=bm.kxp_pet,distance=..12] if score @s bm.kxid = #kid bm.rng run tag @s add bm.kxsel',
+                         'function bm:p79/pet/pose/slam_up', 'function bm:p79/flex', f'tag {sel()} remove bm.kxsel',
+                         'data modify storage bm:tmp kxd.s set value 0.55d', 'function bm:p79/pet/dir with storage bm:tmp kxd',
+                         'execute store result entity @s Motion[0] double 0.001 run scoreboard players get #mx bm.rng',
+                         'execute store result entity @s Motion[2] double 0.001 run scoreboard players get #mz bm.rng',
+                         'data modify entity @s Motion[1] set value 0.95d', 'data modify entity @s NoGravity set value 0b',
+                         'particle minecraft:electric_spark ~ ~0.3 ~ 0.8 0.1 0.8 0.3 40', 'playsound minecraft:entity.breeze.jump neutral @a[distance=..24] ~ ~ ~ 1 0.7'])
+    fn('p79/pet/leap_tick', ['scoreboard players add @s bm.kxlt 1', 'execute if score @s bm.kxlt matches ..5 run return 0',
+                             'execute if score @s bm.kxlt matches ..60 unless predicate bm:p39/on_ground run return 0',
+                             'tag @s remove bm.kxleap', 'tag @s add bm.kxme', 'function bm:p79/pet/pose/slam_dn', 'function bm:p79/unflex', 'function bm:p79/pet/quake',
+                             'execute as @e[type=#bm:hostile,tag=!bm.npc,distance=..6,sort=nearest,limit=2] at @s run function bm:p79/mark_m', 'tag @s remove bm.kxme',
+                             'scoreboard players set @s bm.kxs -1'])
+    # ---- climbing to you: you're up a wall and he isn't - he goes up it on his tendrils
+    fn('p79/pet/climb_chk', ['scoreboard players set #cl bm.rng 0', 'execute on owner if entity @s[distance=..14] run tag @s add bm.kxown',
+                             'execute unless entity @a[tag=bm.kxown] run return run function bm:p79/pet/climb_end',
+                             'execute store result score #oy bm.rng run data get entity @a[tag=bm.kxown,limit=1] Pos[1] 10',
+                             'execute store result score #wy bm.rng run data get entity @s Pos[1] 10', 'scoreboard players operation #oy bm.rng -= #wy bm.rng',
+                             # (a climb starts when you're well above him - over 2.2 blocks, past what he steps up - and goes on while you're above at all)
+                             'scoreboard players set #up bm.rng 0', 'execute if score #oy bm.rng matches 22.. run scoreboard players set #up bm.rng 1',
+                             'execute if entity @s[tag=bm.kxclimb] if score #oy bm.rng matches 1.. run scoreboard players set #up bm.rng 1',
+                             'execute if score #up bm.rng matches 1 facing entity @a[tag=bm.kxown,limit=1] feet rotated ~ 0 positioned ^ ^ ^1.2 unless block ~ ~0.6 ~ #bm:grap_pass run scoreboard players set #cl bm.rng 1',
+                             'execute if score #up bm.rng matches 1 facing entity @a[tag=bm.kxown,limit=1] feet rotated ~ 0 positioned ^ ^ ^1.2 unless block ~ ~1.6 ~ #bm:grap_pass run scoreboard players set #cl bm.rng 1',
+                             'execute if score #cl bm.rng matches 1 unless entity @s[tag=bm.kxclimb] run function bm:p79/pet/climb_start',
+                             'tag @a[tag=bm.kxown] remove bm.kxown',
+                             'execute if score #cl bm.rng matches 1 run return run function bm:p79/pet/climb_go',
+                             # (over the top: a push over the lip until he's on his feet)
+                             'execute if entity @s[tag=bm.kxclimb] unless predicate bm:p39/on_ground run return run function bm:p79/pet/climb_crest',
+                             'function bm:p79/pet/climb_end'])
+    fn('p79/pet/climb_go', ['data modify entity @s Motion[1] set value 0.3d', 'data modify storage bm:tmp kxd.s set value 0.08d', 'function bm:p79/pet/dir with storage bm:tmp kxd',
+                            'execute store result entity @s Motion[0] double 0.001 run scoreboard players get #mx bm.rng',
+                            'execute store result entity @s Motion[2] double 0.001 run scoreboard players get #mz bm.rng',
+                            'particle minecraft:electric_spark ~ ~1 ~ 0.4 0.4 0.4 0.05 1'])
+    fn('p79/pet/climb_crest', ['data modify storage bm:tmp kxd.s set value 0.25d', 'function bm:p79/pet/dir with storage bm:tmp kxd',
+                               'execute store result entity @s Motion[0] double 0.001 run scoreboard players get #mx bm.rng',
+                               'execute store result entity @s Motion[2] double 0.001 run scoreboard players get #mz bm.rng'])
+    fn('p79/pet/climb_start', ['tag @s add bm.kxclimb', 'execute facing entity @a[tag=bm.kxown,limit=1] feet run tp @s ~ ~ ~ ~ 0',
+                               'scoreboard players operation #kid bm.rng = @s bm.kxid',
+                               'execute as @e[type=minecraft:item_display,tag=bm.kxp_pet,distance=..12] if score @s bm.kxid = #kid bm.rng run tag @s add bm.kxsel',
+                               'function bm:p79/pet/pose/climb', f'tag {sel()} remove bm.kxsel', 'playsound minecraft:block.chain.step neutral @a[distance=..16] ~ ~ ~ 1 0.6'])
+    fn('p79/pet/climb_end', ['execute unless entity @s[tag=bm.kxclimb] run return 0', 'tag @s remove bm.kxclimb', 'scoreboard players set @s bm.kxs -1'])
+    # the ethereal one floats, and never falls
+    second += [f'execute as @e[type=minecraft:wolf,tag=bm.kxpet,scores={{bm.kxel={ETH}}}] at @s run function bm:p79/pet/eth_sec']
+    fn('p79/pet/eth_sec', ['effect give @s minecraft:slow_falling 3 0 true', 'particle minecraft:end_rod ~ ~1.4 ~ 0.6 0.9 0.6 0.02 4',
+                           'particle minecraft:dust{color:[0.7,0.5,1.0],scale:1.2} ~ ~0.2 ~ 0.5 0.05 0.5 0 6'])
+
+    # ---- the mind: close - the tendril stab or the slam; a little way off - the leap or chain lightning; far - call lightning
+    fn('p79/pet/mind', ['scoreboard players remove @s bm.kxc 1', 'execute if score @s bm.kxc matches 1.. run return 0', 'scoreboard players set @s bm.kxc 10',
+                        'execute if data entity @s {Sitting:1b} unless score #rid bm.rng matches 1 run return 0',
+                        'execute store result score #r bm.rng run random value 1..100',
+                        f'execute if entity @e[{hostile},distance=..3.5] if score #r bm.rng matches 1..55 run return run function bm:p79/pet/start {{a:4}}',
+                        f'execute if entity @e[{hostile},distance=..4.5] run return run function bm:p79/pet/start {{a:1}}',
+                        f'execute if score #rid bm.rng matches 0 if entity @e[{hostile},distance=5..10] if score #r bm.rng matches 1..50 run return run function bm:p79/pet/start {{a:5}}',
+                        f'execute if entity @e[{hostile},distance=..10] run return run function bm:p79/pet/start {{a:6}}',
+                        f'execute if entity @e[{hostile},distance=..16] run return run function bm:p79/pet/start {{a:3}}'])
+    fn('p79/pet/start', ['$function bm:p79/pet/go {a:$(a)}', 'scoreboard players set @s bm.kxc 60', f'execute if score #kel bm.rng matches {ETH} run scoreboard players set @s bm.kxc 40'])
+    fn('p79/pet/attack', ['scoreboard players add @s bm.kxt 1', 'tag @s add bm.kxme'] +
+       [f'execute if score @s bm.kxatk matches {a} run function bm:p79/pet/a_{n}' for a, n in ((1, 'slam'), (3, 'call'), (4, 'stab'), (5, 'leap'), (6, 'chain'))] +
+       ['tag @s remove bm.kxme'])
+    # every blow: x1.5 ethereal, and the element's touch
+    for d in (4, 5, 6, 8):
+        fn(f'p79/pet/hit{d}', [f'execute if score #kel bm.rng matches {ETH} run damage @s {d * 1.5:g} minecraft:mob_attack by {pme}',
+                               f'execute unless score #kel bm.rng matches {ETH} run damage @s {d} minecraft:mob_attack by {pme}', 'function bm:p79/pet/touch'])
+    el = {k: i + 1 for i, k in enumerate(ART.EL_KEYS)}
+    fn('p79/pet/touch', [f'execute if score #kel bm.rng matches {el["fire"]} run data modify entity @s Fire set value 80s',
+                         f'execute if score #kel bm.rng matches {el["water"]} run effect give @s minecraft:slowness 3 1',
+                         f'execute if score #kel bm.rng matches {el["water"]} run particle minecraft:splash ~ ~1 ~ 0.4 0.5 0.4 0.1 20',
+                         f'execute if score #kel bm.rng matches {el["poison"]} run effect give @s minecraft:poison 4 1',
+                         f'execute if score #kel bm.rng matches {el["earth"]} run effect give @s minecraft:slowness 3 3',
+                         f'execute if score #kel bm.rng matches {el["rock"]} run effect give @s minecraft:weakness 5 1',
+                         f'execute if score #kel bm.rng matches {el["air"]} run effect give @s minecraft:levitation 1 4',
+                         f'execute if score #kel bm.rng matches {el["grass"]} run effect give {pme} minecraft:regeneration 3 1',
+                         f'execute if score #kel bm.rng matches {el["ice"]} run data modify entity @s TicksFrozen set value 200',
+                         f'execute if score #kel bm.rng matches {el["ice"]} run effect give @s minecraft:slowness 3 2',
+                         f'execute if score #kel bm.rng matches {ETH} run effect give @s minecraft:wither 3 1',
+                         f'execute if score #kel bm.rng matches {ETH} run particle minecraft:end_rod ~ ~1 ~ 0.3 0.5 0.3 0.1 12',
+                         f'execute if score #kel bm.rng matches {el["electric"]} run effect give @s minecraft:glowing 3 0',
+                         'execute if score #kel bm.rng matches 0 run effect give @s minecraft:glowing 3 0',
+                         'particle minecraft:electric_spark ~ ~1 ~ 0.3 0.4 0.3 0.2 10'])
     fn('p79/pet/a_slam', [at(1, 'function bm:p79/pet/pose/slam_up'), at(1, 'function bm:p79/flex'), at(9, 'function bm:p79/pet/pose/slam_dn'),
                           at(9, 'function bm:p79/unflex'), at(11, 'function bm:p79/pet/quake'), at('20..', 'function bm:p79/pet/done')])
     fn('p79/pet/quake', ['particle minecraft:explosion ~ ~0.3 ~ 1.5 0.1 1.5 0 5', 'particle minecraft:electric_spark ~ ~0.3 ~ 2.5 0.1 2.5 0.3 70',
                          'playsound minecraft:entity.generic.explode neutral @a[distance=..24] ~ ~ ~ 0.7 0.9',
-                         f'execute as @e[{hostile},distance=..4.5] run damage @s 8 minecraft:mob_attack by {pme}'])
+                         f'execute as @e[{hostile},distance=..4.5] at @s run function bm:p79/pet/hit8'])
     fn('p79/pet/a_call', [at(1, 'function bm:p79/pet/pose/call'), at('2..14', 'particle minecraft:end_rod ~ ~3.6 ~ 0.4 0.4 0.4 0.04 2'),
                           at(6, f'execute as @e[{hostile},distance=..16,sort=nearest,limit=1] at @s run function bm:p79/mark_m'),
+                          at(6, f'execute if score #kel bm.rng matches {ETH} as @e[{hostile},distance=..16,sort=furthest,limit=1] at @s run function bm:p79/mark_m'),
                           at(6, 'playsound minecraft:entity.lightning_bolt.thunder neutral @a[distance=..32] ~ ~ ~ 0.4 1.4'),
                           at('20..', 'function bm:p79/pet/done')])
+    # THE TENDRIL STAB: the scythes drive down and pin it - then a right, and a left
+    fn('p79/pet/a_stab', [at(1, 'function bm:p79/pet/pose/stab'), at(1, 'playsound minecraft:item.trident.throw neutral @a[distance=..16] ~ ~ ~ 1 0.6'),
+                          at(1, f'execute if score #rid bm.rng matches 0 facing entity @e[{hostile},distance=..5,sort=nearest,limit=1] feet run tp @s ~ ~ ~ ~ 0'),
+                          at(4, f'execute as @e[{hostile},distance=..5,sort=nearest,limit=1] at @s run function bm:p79/pet/pin'),
+                          at(9, 'function bm:p79/pet/pose/punch_r'), at(11, 'execute as @e[tag=bm.kxpin,distance=..6] at @s run function bm:p79/pet/punch'),
+                          at(15, 'function bm:p79/pet/pose/punch_l'), at(17, 'execute as @e[tag=bm.kxpin,distance=..6] at @s run function bm:p79/pet/punch'),
+                          at('24..', 'tag @e[tag=bm.kxpin,distance=..8] remove bm.kxpin'), at('24..', 'function bm:p79/pet/done')])
+    fn('p79/pet/pin', ['tag @s add bm.kxpin', 'function bm:p79/pet/hit5', 'effect give @s minecraft:slowness 2 9 true', 'effect give @s minecraft:jump_boost 2 200 true',
+                       'particle minecraft:crit ~ ~0.6 ~ 0.3 0.2 0.3 0.3 16', 'particle minecraft:electric_spark ~ ~0.2 ~ 0.6 0.05 0.6 0.1 20',
+                       'playsound minecraft:item.trident.hit neutral @a[distance=..16] ~ ~ ~ 1 0.7'])
+    fn('p79/pet/punch', ['function bm:p79/pet/hit4', 'particle minecraft:crit ~ ~1 ~ 0.3 0.4 0.3 0.4 10',
+                         'playsound minecraft:entity.player.attack.strong neutral @a[distance=..16] ~ ~ ~ 1 0.7'])
+    # THE LEAP: a crouch, up and over to it, and down on it
+    fn('p79/pet/a_leap', [at(1, 'function bm:p79/pet/pose/crouch'),
+                          at(1, f'execute if score #rid bm.rng matches 0 facing entity @e[{hostile},distance=..12,sort=nearest,limit=1] feet run tp @s ~ ~ ~ ~ 0'),
+                          at(6, 'function bm:p79/pet/pose/slam_up'), at(6, 'function bm:p79/flex'), at(6, 'function bm:p79/pet/launch'),
+                          at('10..59', 'execute if predicate bm:p39/on_ground run scoreboard players set @s bm.kxt 60'),
+                          at(60, 'function bm:p79/pet/pose/slam_dn'), at(60, 'function bm:p79/unflex'), at(60, 'function bm:p79/pet/quake'),
+                          at(60, f'execute as @e[{hostile},distance=..5,sort=nearest,limit=1] at @s run function bm:p79/mark_m'),
+                          at('70..', 'function bm:p79/pet/done')])
+    fn('p79/pet/launch', ['scoreboard players set #dd bm.rng 500', 'execute store result storage bm:tmp kxd.s double 0.001 run scoreboard players get #dd bm.rng',
+                          'function bm:p79/pet/dir with storage bm:tmp kxd',
+                          'execute store result entity @s Motion[0] double 0.001 run scoreboard players get #mx bm.rng',
+                          'execute store result entity @s Motion[2] double 0.001 run scoreboard players get #mz bm.rng', 'data modify entity @s Motion[1] set value 0.8d',
+                          'particle minecraft:electric_spark ~ ~0.3 ~ 0.8 0.1 0.8 0.3 40', 'playsound minecraft:entity.breeze.jump neutral @a[distance=..24] ~ ~ ~ 1 0.8'])
+    # CHAIN LIGHTNING: from his hands to three foes in a crackling line
+    fn('p79/pet/a_chain', [at(1, 'function bm:p79/pet/pose/punch_r'), at(1, 'playsound minecraft:block.beacon.power_select neutral @a[distance=..16] ~ ~ ~ 0.8 2'),
+                           at('1..6', 'particle minecraft:electric_spark ~ ~1.6 ~ 0.4 0.3 0.4 0.2 6'),
+                           at(7, f'execute as @e[{hostile},distance=..10,sort=nearest,limit=3] at @s run function bm:p79/pet/arc'),
+                           at(7, 'playsound minecraft:entity.lightning_bolt.impact neutral @a[distance=..24] ~ ~ ~ 0.6 1.8'),
+                           at('18..', 'function bm:p79/pet/done')])
+    fn('p79/pet/arc', ['function bm:p79/pet/hit6', 'scoreboard players set #st bm.rng 0',
+                       f'execute positioned ~ ~1 ~ facing entity {pme} eyes run function bm:p79/pet/arc_ray'])
+    fn('p79/pet/arc_ray', ['particle minecraft:electric_spark ~ ~ ~ 0.05 0.05 0.05 0 2', 'particle minecraft:end_rod ~ ~ ~ 0 0 0 0 1',
+                           'scoreboard players add #st bm.rng 1', 'execute if score #st bm.rng matches 30.. run return 0',
+                           'execute if entity @e[type=minecraft:wolf,tag=bm.kxme,limit=1,distance=..1.6] run return 0', 'execute positioned ^ ^ ^0.4 run function bm:p79/pet/arc_ray'])
     # he falls: the owner waits five minutes
     fn('p79/pet/fallen', ['scoreboard players operation #me bm.pid = @s bm.pid', 'particle minecraft:electric_spark ~ ~1 ~ 0.8 0.8 0.8 0.3 60',
                           'playsound minecraft:entity.lightning_bolt.impact neutral @a[distance=..24] ~ ~ ~ 0.6 0.6',
@@ -375,6 +588,59 @@ def generate(G):
                                                                                                           T(f'The Spark needs {PET_CD // 60} minutes to recharge.', 'gray')])])
     second += ['scoreboard players remove @a[scores={bm.kxcd=1..}] bm.kxcd 1',
                'execute as @e[type=minecraft:wolf,tag=bm.kxpet] at @s unless entity @e[type=#bm:hostile,tag=!bm.npc,distance=..16] run effect give @s minecraft:regeneration 3 0 true']
+
+    # ---- his element: hand him a gem (right-click him with it); the Ethereal Gem - his ETHEREAL FORM; sneak + right-click him empty-handed: take it back
+    wjson('bm/advancement/p79/pet_interact.json', {'criteria': {'i': {'trigger': 'minecraft:player_interacted_with_entity', 'conditions': {
+        'entity': [{'condition': 'minecraft:entity_properties', 'entity': 'this',
+                    'predicate': {'minecraft:entity_type': 'minecraft:wolf', 'minecraft:nbt': '{Tags:["bm.kxpet"]}'}}]}}}, 'rewards': {'function': 'bm:p79/el/interact'}})
+    fn('p79/el/interact', ['advancement revoke @s only bm:p79/pet_interact',
+                           'execute if predicate bm:p20/sneaking unless items entity @s weapon.mainhand * run return run function bm:p79/el/take',
+                           'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm:"ethereal_gem"}] run return run function bm:p79/el/set {i:%d}' % ETH] +
+       [f'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{{bm:"gem_{k}"}}] run return run function bm:p79/el/set {{i:{i + 1}}}' for i, k in enumerate(ART.EL_KEYS)])
+    unsit = ['execute as @e[type=minecraft:wolf,tag=bm.kxsel2] store success score #s bm.rng if data entity @s {Sitting:1b}',
+             'execute if score #s bm.rng matches 1 run data modify entity @e[type=minecraft:wolf,tag=bm.kxsel2,limit=1] Sitting set value 0b',
+             'execute if score #s bm.rng matches 0 run data modify entity @e[type=minecraft:wolf,tag=bm.kxsel2,limit=1] Sitting set value 1b']
+    gem_loot = lambda i: f'loot give @s loot bm:items/{"ethereal_gem" if i == ETH else "gem_" + ART.EL_KEYS[i - 1]}'
+    fn('p79/el/give_back', [f'execute if score @s bm.kxel matches {i} run {gem_loot(i)}' for i in range(1, ETH + 1) if i != el['electric']])
+    look = {'fire': 'molten - and every blow burns', 'water': 'deep blue - and every blow drags them slow', 'poison': 'violet - and every blow poisons',
+            'earth': 'earthen - and every blow roots them', 'rock': 'stone-grey - and every blow saps their strength', 'air': 'sky-pale - and every blow throws them up',
+            'grass': 'leaf-green - and every blow heals him', 'ice': 'frost-blue - and every blow freezes'}
+    fn('p79/el/set', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
+                      'execute unless score @s bm.kxel matches 0.. run scoreboard players set @s bm.kxel 0',
+                      f'{mine} if entity @s[distance=..8] run tag @s add bm.kxsel2',
+                      'execute unless entity @e[type=minecraft:wolf,tag=bm.kxsel2] run return run ' + say('KillerWatt only takes gems from the one who called him.', GRN)] + unsit +
+       ['$scoreboard players set #el bm.rng $(i)',
+        f'execute if score #el bm.rng matches {el["electric"]} run tag @e[tag=bm.kxsel2] remove bm.kxsel2',
+        f'execute if score #el bm.rng matches {el["electric"]} run return run ' + say('KillerWatt crackles: he IS electricity. (Keep the gem.)', GRN),
+        'execute if score @s bm.kxel = #el bm.rng run tag @e[tag=bm.kxsel2] remove bm.kxsel2',
+        'execute if score @s bm.kxel = #el bm.rng run return run ' + say('He has that one in him already.', GRN),
+        'function bm:p79/el/give_back', 'scoreboard players operation @s bm.kxel = #el bm.rng',
+        'execute unless entity @s[gamemode=creative] run item modify entity @s weapon.mainhand {function:"minecraft:set_count",count:-1,add:true}',
+        'execute as @e[type=minecraft:wolf,tag=bm.kxsel2] at @s run function bm:p79/el/apply'] +
+       [f'execute if score #el bm.rng matches {i + 1} run ' + title('@s', 'actionbar', [T('KillerWatt drinks the gem - ', GRN), T(k.upper(), GEMS_COL[k], bold=True),
+                                                                                         T(f': {look[k]}.', 'gray')]) for i, k in enumerate(ART.EL_KEYS) if k in look] +
+       [f'execute if score #el bm.rng matches {ETH} run ' + title('@s', 'actionbar', [T('KillerWatt drinks the Ethereal Gem - ', GRN), T('ETHEREAL FORM', 'white', bold=True),
+                                                                                    T(': black steel, half again as strong, and he flies.', 'gray')]),
+        'tag @e[tag=bm.kxsel2] remove bm.kxsel2'])
+    fn('p79/el/apply', ['scoreboard players operation @s bm.kxel = #el bm.rng', 'function bm:p79/pet/redress',
+                        'particle minecraft:flash{color:[1.0,1.0,1.0,1.0]} ~ ~1.5 ~ 0 0 0 0 1', 'particle minecraft:electric_spark ~ ~1.5 ~ 0.6 1 0.6 0.4 60',
+                        'playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..16] ~ ~ ~ 1 0.6',
+                        'playsound minecraft:entity.lightning_bolt.impact neutral @a[distance=..16] ~ ~ ~ 0.5 1.4',
+                        f'execute if score #el bm.rng matches {ETH} run particle minecraft:end_rod ~ ~1.5 ~ 0.4 1 0.4 0.15 60',
+                        f'execute if score #el bm.rng matches {ETH} run playsound minecraft:block.beacon.power_select neutral @a[distance=..16] ~ ~ ~ 1 0.8',
+                        f'execute unless score #el bm.rng matches {ETH} run effect clear @s minecraft:slow_falling',
+                        f'execute unless score #el bm.rng matches {ETH} run data modify entity @s NoGravity set value 0b'])
+    fn('p79/el/take', ['execute unless score @s bm.pid matches 1.. run return 0', 'scoreboard players operation #me bm.pid = @s bm.pid',
+                       f'{mine} if entity @s[distance=..8] run tag @s add bm.kxsel2', 'execute unless entity @e[type=minecraft:wolf,tag=bm.kxsel2] run return 0'] + unsit +
+       ['execute unless score @s bm.kxel matches 1.. run tag @e[tag=bm.kxsel2] remove bm.kxsel2',
+        'execute unless score @s bm.kxel matches 1.. run return run ' + say('No gem in him - the lightning is his own.', 'gray'),
+        'function bm:p79/el/give_back', 'scoreboard players set @s bm.kxel 0', 'scoreboard players set #el bm.rng 0',
+        'execute as @e[type=minecraft:wolf,tag=bm.kxsel2] at @s run function bm:p79/el/apply',
+        say('KillerWatt sparks the gem back out into your hand - green and gold again.', GRN), 'tag @e[tag=bm.kxsel2] remove bm.kxsel2'])
+    # his element shows: a wisp of it, now and then
+    elp = {'fire': 'flame', 'water': 'dripping_water', 'poison': 'witch', 'earth': 'composter', 'rock': 'ash', 'air': 'cloud', 'grass': 'happy_villager', 'ice': 'snowflake'}
+    second += [f'execute as @e[type=minecraft:wolf,tag=bm.kxpet,scores={{bm.kxel={el[k]}}}] at @s run particle minecraft:{p} ~ ~1.6 ~ 0.5 0.8 0.5 0.01 3' for k, p in elp.items()]
+
     # a follower like the others: the limit of three, gone with you when you die, home when you go far or put the Spark away
     cnt = G.FUNCS['p58/count']
     cnt.insert(len(cnt) - 1, 'execute as @e[type=minecraft:wolf,tag=bm.kxpet] on owner if entity @s[tag=bm.fcme] run scoreboard players add #fc bm.rng 1')

@@ -145,7 +145,8 @@ RAW = '@@RAW:'
 
 
 def inline(d):
-    """A dialog for `$dialog show @s <snbt>` inside a macro function: "@@RAW:name@@" strings become $(name) unquoted."""
+    """A dialog for `$dialog show @s <snbt>` inside a macro function: "@@RAW:name@@" strings become $(name) unquoted (a text
+    component kept in storage as a compound or list; name them r_... so the checker stands a component in for them)."""
     import re
     s = snbt(d)
     return re.sub(r'"@@RAW:(\w+)@@"', r'$(\1)', s)

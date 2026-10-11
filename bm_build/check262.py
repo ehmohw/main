@@ -688,6 +688,7 @@ def match(node, s, i, depth=0):
 def check_line(line):
     if line.startswith('$'):
         line = line[1:].replace('$(eid)', 'minecraft:pig').replace('$(data)', '{}').replace('$(dim)', 'minecraft:overworld').replace('$(path)', 'Inventory[{Slot:0b}]').replace('$(slot)', 'container.0').replace('$(iid)', 'token').replace('$(id)', 'minecraft:diamond_sword').replace('$(blk)', 'minecraft:stone').replace('$(a)', '30').replace('$(b)', '210').replace('$(acts)', '[{label:"x"}]').replace('$(nm)', '"x"').replace('$(src)', '0 0 0').replace('loot $(t)', 'loot bm:gv/coins').replace('$(dimension)', 'minecraft:overworld')
+        line = re.sub(r'\$\(r_\w+\)', '{text:"x"}', line)      # (2.66) a raw text component slot (phase28 RAW, named r_...)
         line = re.sub(r'\$\(\w+\)', '1', line)      # any other macro argument: a (positive) number is the usual substitution
     first = line.split(' ', 1)[0]
     if first not in TREE['children']: return f'unknown command {first}'
