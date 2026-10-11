@@ -1,4 +1,4 @@
-# Black Market — v2.60 (Java 26.3)
+# Black Market — v2.61 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,43 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.61: display cases, Zib, Skiff Escorts, the vault's coat check
+
+### Glass display cases
+Goldtooth sells four in the Fixer's Den, for Gutter Coins: **Oak** (3), **Dark Oak** (3), **Quartz** (5) and **Gilded** (8).
+- **Placing one:** use it while looking at a floor and it stands there. Use it on a wall and it hangs there, facing out. (Not ceilings or corners.)
+- **Using one:** right-click it holding anything and one of the stack goes in. Right-click it empty-handed to take it out. Sneak + right-click and it slowly turns its treasure.
+- **Taking it back:** sneak + punch picks the case up. Whatever was inside drops out.
+
+### Zib, the Donadian trooper
+The **Donadian Medal** (the reward for defending a mothership) was only a keepsake. Now it calls **Zib**, a teal Donadian in a navy tunic with a ray gun.
+- **The medal:** use it to call him, or to call him back. Sneak + use sends him home. Right-click him empty-handed to make him sit or follow.
+- **Fighting:** he shoots the nearest monster within 16 blocks for 7 damage. Every fifth shot is overcharged: 12 damage, and the monster is stunned and lit up.
+- **Health:** he has 40 health and mends himself out of a fight. If he faints, the medal needs 5 minutes, like the other followers. He counts toward the three-follower limit.
+- **Animation:** a jointed rig with idle, walk, run (and both again with the gun raised while a monster is near), aim, recoil, a charging crouch before an overcharged shot, jump and sit.
+
+### Skiff Escorts
+Sabotage a Vorn Dreadnought's reactor on an invasion night and everyone nearby gets a **Skiff Escort** beacon.
+- **Colours:** there are eight (Crimson, Gilded, Midnight, Abyssal, Rose, Verdant, Pearl, Ember). Each reward is a colour you don't have yet, while any are left. Collect all eight for the **Squadron Leader** advancement.
+- **In use:** a little skiff flies at your shoulder and lasers monsters within 16 blocks (5 damage a second). Use the beacon again, or sneak + use, to send it home.
+- **It's not the mount:** it can't be ridden, and paint kits don't touch it.
+- **Fragile:** it has only 16 health, and archers, blazes, witches and Vorn troopers take shots at it. If it's shot down, it needs 5 minutes of repairs. It isn't a follower, so it doesn't count toward the limit.
+
+### The Gilded Gutter Vault: coat check, loaner kits and contracts
+- **Coat check:** going in, the Fixer checks your gear at the door, so nobody can bring in end-game gear. Heist tools stay with you: Smoke Bombs, lockpicks, the Cracking Rig, the Cipher Monocle, the Thief's Cowl, the Smuggler's Boots, Gutter Coins, Clockwork bits, the plans and your Bond Sigil. Followers can't be called inside.
+- **Loaner kits:** four racks in the den, each an armour stand wearing its kit. Right-click one to take it:
+  - **Tank:** Juggernaut I, Hylian Shield, Kokiri Sword. +8 health, half knockback.
+  - **Offense:** Shadowstep I, Captain's Cutlass. Strength.
+  - **Ranged:** Smuggler's set, Fairy Bow. Monsters near you glow for the whole crew.
+  - **Support:** Tidecaller I, Staff of Sparks, Emma's Bloomheart. Crewmates near you regenerate.
+
+  You can change kits until the heist begins. Anyone without one gets Offense. If you're knocked out, the kit is re-issued.
+- **Getting your gear back:** however you come out (the gold plate, after the haul, a cleanup, a crash), the kit stays behind. Your own gear goes back exactly where it was, and anything you picked up inside comes with you.
+- **A Fixer's contract** on every heist sheet: **Ghost** (finish with the alarm under 25), **Clean Sweep** (nobody knocked out) or **Against the Clock** (90 seconds a room). Meet it for +2 shares and an extra purse of coins.
+
+### Fixes
+- **Display skiff dyes:** the display skiff now takes all sixteen dyes. White, light grey, grey and brown did nothing, and lime/green gave the silver Vorn hull. There are six new skiff colours (Verdant, Pearl, Graphite, Bronze, Ember, Cobalt), and Zorp sells paint kits for them too.
 
 ## New in 2.60: the Gilded Gutter Vault, Cecil's elements
 

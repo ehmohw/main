@@ -44,7 +44,10 @@ item('coffee', TOTEM, 'Black Market Coffee', '#6b4226',
 
 # ===================================================================== skiff paint and decal kits
 COLOURS = [('green', 'Vorn Green', '#7dff6a'), ('crimson', 'Crimson', '#ff4a4a'), ('gold', 'Gilded', '#ffd23f'), ('midnight', 'Midnight', '#7a5aff'),
-           ('ocean', 'Abyssal', '#3ad8d0'), ('rose', 'Rose', '#ff7ac8')]
+           ('ocean', 'Abyssal', '#3ad8d0'), ('rose', 'Rose', '#ff7ac8'),
+           # 2.61: six more (the display skiff takes every dye now)
+           ('verdant', 'Verdant', '#5ad84a'), ('pearl', 'Pearl', '#f4f4f8'), ('graphite', 'Graphite', '#8a8e98'), ('bronze', 'Bronze', '#c08a50'),
+           ('ember', 'Ember', '#ff8a2a'), ('cobalt', 'Cobalt', '#4a7aff')]
 DECALS = [('none', 'Clean Hull'), ('stripes', 'Racing Stripes'), ('crest', 'Rat Crest'), ('flames', 'Flames')]
 for i, (c, nm, col) in enumerate(COLOURS):
     item(f'skiff_paint_{c}', TOTEM, f'Skiff Paint Kit: {nm}', col, ['Right-click: your Vorn Skiff wears this colour', 'from now on (decals stay).'],
@@ -429,7 +432,10 @@ def rp(R):
               'gold': ('minecraft:block/gold_block', 'minecraft:block/raw_gold_block', 'minecraft:block/yellow_stained_glass', 'minecraft:block/glowstone'),
               'midnight': ('minecraft:block/black_concrete', 'minecraft:block/purple_concrete', 'minecraft:block/purple_stained_glass', 'minecraft:block/amethyst_block'),
               'ocean': ('minecraft:block/prismarine_bricks', 'minecraft:block/dark_prismarine', 'minecraft:block/cyan_stained_glass', 'minecraft:block/sea_lantern'),
-              'rose': ('minecraft:block/pink_concrete', 'minecraft:block/white_concrete', 'minecraft:block/magenta_stained_glass', 'minecraft:block/pearlescent_froglight_side')}
+              'rose': ('minecraft:block/pink_concrete', 'minecraft:block/white_concrete', 'minecraft:block/magenta_stained_glass', 'minecraft:block/pearlescent_froglight_side'),
+              'verdant': (0, 0, 0, 'minecraft:block/verdant_froglight_side'), 'pearl': (0, 0, 0, 'minecraft:block/sea_lantern'),
+              'graphite': (0, 0, 0, 'minecraft:block/redstone_lamp_on'), 'bronze': (0, 0, 0, 'minecraft:block/ochre_froglight_side'),
+              'ember': (0, 0, 0, 'minecraft:block/shroomlight'), 'cobalt': (0, 0, 0, 'minecraft:block/sea_lantern')}
     for col, (h, p, g, l) in paints.items():
         h, p = f'bm:block/skiff_{col}_hull', f'bm:block/skiff_{col}_deck'           # 2.25: riveted hull plates in each paint (vanilla.py)
         g = f'bm:block/skiff_{col}_dome'                                          # 2.28: clear canopy glass (vanilla.py)

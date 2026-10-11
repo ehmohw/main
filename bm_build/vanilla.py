@@ -212,7 +212,10 @@ OVERRIDES = {'staff_of_sparks': staff_of_sparks, 'gravewell_staff': gravewell_st
 
 # ===================================================================== the Vorn Skiff's own textures (the model is unchanged)
 SKIFF_PAINT = {'green': ('#c4c9d0', '#a4acb6'), 'crimson': ('#b3352c', '#8e2620'), 'gold': ('#e3b23c', '#c08e22'),
-               'midnight': ('#3a3256', '#2a2440'), 'ocean': ('#3f9196', '#2c7378'), 'rose': ('#e483b0', '#c8608e')}
+               'midnight': ('#3a3256', '#2a2440'), 'ocean': ('#3f9196', '#2c7378'), 'rose': ('#e483b0', '#c8608e'),
+               # 2.61: six more, so every dye has a paint of its own
+               'verdant': ('#4caa3c', '#357a2a'), 'pearl': ('#eceef2', '#cfd3da'), 'graphite': ('#5a5e66', '#43464d'),
+               'bronze': ('#9a6436', '#74492a'), 'ember': ('#e06a1c', '#b04e14'), 'cobalt': ('#2f55c8', '#223e96')}
 
 
 def _hex(h):
@@ -259,7 +262,8 @@ def textures():
 
 
 # 2.28: each paint's canopy - clear tinted glass (25% in the middle, a firmer rim, a highlight streak) so the pilot shows through
-SKIFF_GLASS = {'green': '#9ad8f4', 'crimson': '#f07070', 'gold': '#f4d870', 'midnight': '#b088f0', 'ocean': '#70dcdc', 'rose': '#f090d8'}
+SKIFF_GLASS = {'green': '#9ad8f4', 'crimson': '#f07070', 'gold': '#f4d870', 'midnight': '#b088f0', 'ocean': '#70dcdc', 'rose': '#f090d8',
+               'verdant': '#a8f090', 'pearl': '#d8f0ff', 'graphite': '#c0c8d8', 'bronze': '#f0c890', 'ember': '#ffc080', 'cobalt': '#90b0ff'}
 
 
 def _dome(tint):

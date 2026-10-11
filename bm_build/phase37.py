@@ -47,7 +47,7 @@ def generate(G):
 
     # ------------------------------------------------------------------ the sheet: phase through a wall
     # nowhere near the pack's own structures (the same places the drill and the skiff stay out of, plus motherships and crashes)
-    fn('p37/allowed', ['execute if entity @s[tag=bm.adv] run return 0', 'execute if dimension bm:hollow_throne run return 0',
+    fn('p37/allowed', ['execute if entity @s[tag=bm.adv] run return 0', 'execute if dimension bm:hollow_throne run return 0', 'execute if dimension bm:gutter run return 0',
                        'execute if entity @e[type=minecraft:marker,tag=bm.zone_d,distance=..48] run return 0',
                        'execute if entity @e[type=minecraft:marker,tag=bm.zone_c,distance=..36] run return 0',
                        'execute if entity @e[type=minecraft:marker,tag=bm.crypt_ctrl,distance=..36] run return 0',

@@ -25,8 +25,11 @@ TRACKS = [('13', 178), ('cat', 185), ('blocks', 345), ('chirp', 185), ('far', 17
           ('precipice', 299), ('tears', 175), ('lava_chicken', 134), ('bounce', 234)]
 INSTRUMENTS = [('flute', 'Flute'), ('bell', 'Bell'), ('chime', 'Chimes'), ('xylophone', 'Xylophone'), ('harp', 'Harp'), ('banjo', 'Banjo'),
                ('bit', 'Bit'), ('didgeridoo', 'Didgeridoo'), ('cow_bell', 'Cowbell')]
-DYES = {'lime': 0, 'green': 0, 'red': 1, 'yellow': 2, 'orange': 2, 'black': 3, 'purple': 3, 'cyan': 4, 'light_blue': 4, 'blue': 4, 'pink': 5, 'magenta': 5}
-SKIFF_COLS = ['green', 'crimson', 'gold', 'midnight', 'ocean', 'rose']
+# 2.61: all sixteen dyes (white, the greys and brown did nothing; lime/green gave the silver Vorn hull)
+SKIFF_COLS = ['green', 'crimson', 'gold', 'midnight', 'ocean', 'rose', 'verdant', 'pearl', 'graphite', 'bronze', 'ember', 'cobalt']
+DYES = {d: SKIFF_COLS.index(c) for d, c in {'lime': 'verdant', 'green': 'verdant', 'red': 'crimson', 'yellow': 'gold', 'orange': 'ember', 'black': 'midnight',
+                                           'purple': 'midnight', 'cyan': 'ocean', 'light_blue': 'ocean', 'blue': 'cobalt', 'pink': 'rose', 'magenta': 'rose',
+                                           'white': 'pearl', 'light_gray': 'green', 'gray': 'graphite', 'brown': 'bronze'}.items()}
 SKIFF_DECALS = ['none', 'stripes', 'crest', 'flames']
 
 # ===================================================================== items: Cecil's magic
