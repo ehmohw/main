@@ -28,6 +28,8 @@ MY_TEMPLATES = {os.path.basename(f)[:-4] for f in glob.glob(ROOT_DP + '/bm/struc
 MY_BLOCK_TAGS = {f[len(ROOT_DP) + len('/bm/tags/block/'):-5] for f in glob.glob(ROOT_DP + '/bm/tags/block/*.json')}
 MY_ENTITY_TAGS = {f[len(ROOT_DP) + len('/bm/tags/entity_type/'):-5] for f in glob.glob(ROOT_DP + '/bm/tags/entity_type/*.json')}
 MY_DIALOGS = {f[len(ROOT_DP) + len('/bm/dialog/'):-5] for f in glob.glob(ROOT_DP + '/bm/dialog/**/*.json', recursive=True)}   # 1.18
+_SJ = os.path.join(os.path.dirname(ROOT_DP), '..', 'BlackMarket_RP', 'assets', 'bm', 'sounds.json')
+MY_SOUNDS = {'bm:' + k for k in json.load(open(_SJ))} if os.path.exists(_SJ) else set()     # (2.65: the pack's own sound events)
 OBJECTIVES = set()
 WARN = []
 
@@ -582,7 +584,7 @@ def parse_arg(node, s, i):
         return j, r
     if p == 'minecraft:resource_location':
         j, r = p_rl(s, i)
-        if node.get('_argname') == 'sound' and strip_ns(ns(r)) not in REG['sound_event']: raise PErr(f'unknown sound event {r}')
+        if node.get('_argname') == 'sound' and strip_ns(ns(r)) not in REG['sound_event'] and r not in MY_SOUNDS: raise PErr(f'unknown sound event {r}')
         return j, r
     if p == 'minecraft:function': return p_function(s, i)
     if p == 'minecraft:time':

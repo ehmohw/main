@@ -460,6 +460,11 @@ def generate(G):
     haul.insert(hmsg + 1, 'execute if score #pot bm.rng matches 1.. run ' + tellraw('@s', P + [T('The pot: ', GOLD), {'score': {'name': '#pot', 'objective': 'bm.rng'}, 'color': 'white', 'bold': True},
                                                                                          T(' coins, and everything you found - all in The Haul.', 'gray')]))
 
+    # ================================================================== WHO GUARDS EACH TIER (phase70's guard, now by tier; the special nights keep theirs)
+    rosters(G, fn, snbt)
+    # ================================================================== MUSIC AND AMBIENCE
+    music(G, fn, second)
+
     # ================================================================== admin
     fn('admin/heist_pool', [tellraw('@s', P + [T('Lucky pool: ', LUCKY), {'score': {'name': '#lpool', 'objective': 'bm.gvlp'}, 'color': 'white'}])])
     fn('admin/heist_lucky', [f'scoreboard players set #lu{s} bm.gvlu 1' for s in range(SLOTS)] + [tellraw('@s', P + [T('Every running heist is a Lucky Raid now (after its next rebuild).', 'gray')])])
@@ -471,9 +476,159 @@ def generate(G):
     s_[-1:-1] = second
 
 
+def _mob(ty, name, col, eq, extra=None, attrs=None):
+    from items import T as _T
+    n = {'Tags': ['bm.gvg', 'bm.gvnew2', 'bm.tiered', 'bm.seen'], 'PersistenceRequired': B(1), 'CustomName': _T(name, col),
+         'DeathLootTable': 'bm:gv/guard', 'drop_chances': {k: F(0) for k in ('head', 'chest', 'legs', 'feet', 'mainhand', 'offhand')},
+         'equipment': {k: ({'id': v, 'count': Int(1)} if isinstance(v, str) else v) for k, v in eq.items()}}
+    if attrs: n['attributes'] = [{'id': f'minecraft:{a}', 'base': D(v)} for a, v in attrs.items()]
+    if extra: n.update(extra)
+    return ty, n
+
+
+NOREIN = {'spawn_reinforcements': 0.0}
+ROSTER = {   # tier: [(weight, (type, nbt)), ...]
+    1: [(4, _mob('zombie', 'Copper Thug', '#e0884a', {'head': 'minecraft:copper_helmet', 'chest': 'minecraft:copper_chestplate', 'mainhand': 'minecraft:copper_sword'},
+                 {'IsBaby': B(0), 'CanBreakDoors': B(0)}, NOREIN)),
+        (3, _mob('pillager', 'Copper Crossbowman', '#e0884a', {'head': 'minecraft:copper_helmet', 'mainhand': 'minecraft:crossbow'})),
+        (2, _mob('husk', 'Tuff Lugger', '#b0a090', {'head': 'minecraft:leather_helmet', 'mainhand': 'minecraft:copper_axe'}, {'IsBaby': B(0)}, NOREIN))],
+    2: [(3, _mob('skeleton', 'Silver Archer', '#c8d0d8', {'head': 'minecraft:iron_helmet', 'mainhand': 'minecraft:bow'})),
+        (2, _mob('stray', 'Vault Frost', '#a0d8ff', {'head': 'minecraft:chainmail_helmet', 'mainhand': 'minecraft:bow'})),
+        (3, _mob('vindicator', 'Silver Enforcer', '#c8d0d8', {'head': 'minecraft:iron_helmet', 'chest': 'minecraft:iron_chestplate', 'mainhand': 'minecraft:iron_axe'})),
+        (1, _mob('witch', 'Vault Alchemist', '#b080ff', {}))],
+    3: [(4, _mob('vindicator', 'Gutter Guard', GOLD, {'head': 'minecraft:golden_helmet', 'chest': 'minecraft:chainmail_chestplate', 'mainhand': 'minecraft:iron_axe'})),
+        (2, _mob('piglin_brute', 'Gilded Brute', GOLD, {'head': 'minecraft:golden_helmet', 'mainhand': 'minecraft:golden_axe'}, {'IsImmuneToZombification': B(1)})),
+        (2, _mob('husk', 'Gold Husk', '#e0c060', {'head': 'minecraft:golden_helmet', 'chest': 'minecraft:golden_chestplate', 'mainhand': 'minecraft:golden_sword'},
+                 {'IsBaby': B(0)}, NOREIN))],
+    4: [(3, _mob('drowned', 'Deep Diver', '#4ad0c0', {'head': 'minecraft:diamond_helmet', 'mainhand': 'minecraft:trident'}, {'IsBaby': B(0)}, NOREIN)),
+        (2, _mob('bogged', 'Bog Archer', '#7aa060', {'mainhand': 'minecraft:bow'})),
+        (3, _mob('vindicator', 'Diamond Warden', '#7ae8ff', {'head': 'minecraft:diamond_helmet', 'chest': 'minecraft:iron_chestplate', 'mainhand': 'minecraft:diamond_axe'})),
+        (1, _mob('breeze', 'Vault Breeze', '#c0e0ff', {}))],
+    5: [(3, _mob('wither_skeleton', 'Hoard Reaver', '#5a5a6a', {'head': 'minecraft:golden_helmet', 'mainhand': 'minecraft:netherite_sword'})),
+        (2, _mob('blaze', 'Hoard Ember', '#ff9a30', {})),
+        (2, _mob('piglin_brute', "King's Brute", GOLD, {'head': 'minecraft:golden_helmet', 'chest': 'minecraft:golden_chestplate', 'mainhand': 'minecraft:netherite_axe'},
+                 {'IsImmuneToZombification': B(1)})),
+        (1, _mob('evoker', 'Hoard Conjurer', '#c060ff', {}))],
+}
+CAPTAIN = {1: _mob('zombie', 'Copper Foreman', '#e0884a', {'head': 'minecraft:copper_helmet', 'chest': 'minecraft:copper_chestplate', 'legs': 'minecraft:copper_leggings',
+                                                            'mainhand': 'minecraft:copper_axe'}, {'IsBaby': B(0), 'Tags': ['bm.gvg', 'bm.gvnew2', 'bm.tiered', 'bm.seen', 'bm.gvcap']}, NOREIN),
+           2: _mob('vindicator', 'Silver Sergeant', '#c8d0d8', {'head': 'minecraft:iron_helmet', 'chest': 'minecraft:iron_chestplate', 'legs': 'minecraft:iron_leggings',
+                                                                'mainhand': 'minecraft:diamond_axe'}, {'Tags': ['bm.gvg', 'bm.gvnew2', 'bm.tiered', 'bm.seen', 'bm.gvcap']}),
+           4: _mob('vindicator', 'Diamond Captain', '#7ae8ff', {'head': 'minecraft:diamond_helmet', 'chest': 'minecraft:diamond_chestplate', 'legs': 'minecraft:diamond_leggings',
+                                                                'mainhand': 'minecraft:diamond_axe'}, {'Tags': ['bm.gvg', 'bm.gvnew2', 'bm.tiered', 'bm.seen', 'bm.gvcap']}),
+           5: _mob('piglin_brute', 'Hoard Champion', GOLD, {'head': 'minecraft:golden_helmet', 'chest': 'minecraft:netherite_chestplate', 'legs': 'minecraft:golden_leggings',
+                                                            'mainhand': 'minecraft:netherite_axe'},
+                   {'IsImmuneToZombification': B(1), 'Tags': ['bm.gvg', 'bm.gvnew2', 'bm.tiered', 'bm.seen', 'bm.gvcap']})}
+BOSS_T = {   # the vault's guardian by tier (the special nights keep their own)
+    1: ('zombie', 'The Copper Foreman', '#e0884a', 'yellow', {'head': 'minecraft:copper_helmet', 'chest': 'minecraft:copper_chestplate', 'legs': 'minecraft:copper_leggings',
+                                                              'feet': 'minecraft:copper_boots', 'mainhand': 'minecraft:copper_axe'}, {'IsBaby': B(0)}, NOREIN),
+    2: ('skeleton', 'The Silver Marksman', '#c8d0d8', 'white', {'head': 'minecraft:iron_helmet', 'chest': 'minecraft:iron_chestplate', 'legs': 'minecraft:chainmail_leggings',
+                                                                'feet': 'minecraft:iron_boots', 'mainhand': {'id': 'minecraft:bow', 'count': Int(1),
+                                                                                                             'components': {'minecraft:enchantments': {'minecraft:power': 3}}}}, {}, {}),
+    4: ('drowned', 'The Drowned Treasurer', '#4ad0c0', 'blue', {'head': 'minecraft:diamond_helmet', 'chest': 'minecraft:diamond_chestplate', 'legs': 'minecraft:golden_leggings',
+                                                                'feet': 'minecraft:golden_boots', 'mainhand': 'minecraft:trident'}, {'IsBaby': B(0)}, NOREIN),
+    5: ('piglin_brute', 'The Gutter King', GOLD, 'yellow', {'head': {'id': 'minecraft:golden_helmet', 'count': Int(1), 'components': {'minecraft:enchantment_glint_override': True}},
+                                                            'chest': 'minecraft:netherite_chestplate', 'legs': 'minecraft:golden_leggings', 'feet': 'minecraft:golden_boots',
+                                                            'mainhand': {'id': 'minecraft:netherite_axe', 'count': Int(1), 'components': {'minecraft:enchantment_glint_override': True}}},
+        {'IsImmuneToZombification': B(1)}, {}),
+}
+TRACK = {1: ('copper', 56), 2: ('silver', 60), 3: ('gold', 64), 4: ('diamond', 60), 5: ('hoard', 64), 6: ('boss', 64), 7: ('rave', 60), 8: ('rest', 60), 9: ('arena', 60)}
+AMBIENT = {1: ['block.copper_bulb.turn_on', 'block.pointed_dripstone.drip_water', 'block.chain.step', 'entity.copper_golem.step'],
+           2: ['block.amethyst_block.chime', 'block.pointed_dripstone.drip_water_into_cauldron', 'block.chain.place', 'block.vault.ambient'],
+           3: ['entity.experience_orb.pickup', 'block.chain.place', 'block.vault.ambient', 'block.pointed_dripstone.drip_water'],
+           4: ['ambient.underwater.loop.additions.rare', 'block.bubble_column.upwards_ambient', 'block.conduit.ambient.short', 'block.pointed_dripstone.drip_water'],
+           5: ['ambient.nether_wastes.mood', 'entity.experience_orb.pickup', 'block.fire.ambient', 'block.trial_spawner.ambient']}
+
+
+def rosters(G, fn, snbt):
+    import phase70 as P70
+    ident = [F(0), F(0), F(0), F(1)]
+    gd = G.FUNCS['p70/guard']
+    k = next(i for i, l in enumerate(gd) if 'guard_vorn' in l)
+    night = gd[k + 1:]                      # (phase70's own: a vindicator guard - the Blood Moon and Lucky Night dress it)
+    gd[k + 1:] = ['execute if score #gn bm.rng matches 1..2 run return run function bm:p75/guard_night', 'function bm:p75/roster', 'function bm:p70/guard_set']
+    fn('p75/guard_night', night)
+    fn('p75/roster', [f'execute if score #gt bm.rng matches {t} run return run function bm:p75/roster{t}' for t in ROSTER])
+    for t, ents in ROSTER.items():
+        tot = sum(w for w, _ in ents)
+        lines = [f'execute store result score #rr bm.rng run random value 1..{tot}']
+        acc = 0
+        for w, (ty, nbt) in ents:
+            lines.append(f'execute if score #rr bm.rng matches {acc + 1}..{acc + w} run return run summon minecraft:{ty} ~ ~ ~ {snbt(nbt)}')
+            acc += w
+        fn(f'p75/roster{t}', lines)
+    cap = G.FUNCS['p70/captain']
+    k = next(i for i, l in enumerate(cap) if 'guard_vorn' in l)
+    cap.insert(k + 1, 'execute if score #gn bm.rng matches 0 unless score #gt bm.rng matches 3 run return run function bm:p75/captain')
+    fn('p75/captain', [f'execute if score #gt bm.rng matches {t} run summon minecraft:{ty} ~ ~ ~ {snbt(nbt)}' for t, (ty, nbt) in CAPTAIN.items()] + ['function bm:p70/guard_set'])
+    # the vault's guardian: one of its own for every tier but III
+    for t, (ty, nm, col, bcol, eq, extra, attrs) in BOSS_T.items():
+        boss = {'Tags': ['bm.gvboss', 'bm.gvbnew', 'bm.tiered', 'bm.seen'], 'PersistenceRequired': B(1), 'CustomName': T(nm, col, bold=True), 'CustomNameVisible': B(1),
+                'DeathLootTable': 'bm:gv/boss', 'drop_chances': {k: F(0) for k in ('head', 'chest', 'legs', 'feet', 'mainhand', 'offhand')},
+                'attributes': [{'id': 'minecraft:scale', 'base': D(1.6)}, {'id': 'minecraft:armor', 'base': D(10)}, {'id': 'minecraft:knockback_resistance', 'base': D(0.0)},
+                               {'id': 'minecraft:follow_range', 'base': D(40)}] + [{'id': f'minecraft:{a}', 'base': D(v)} for a, v in attrs.items()],
+                'equipment': {k: ({'id': v, 'count': Int(1)} if isinstance(v, str) else v) for k, v in eq.items()}}
+        boss.update(extra)
+        fn(f'p75/boss_t{t}', [f'summon minecraft:{ty} ~ ~ ~ {snbt(boss)}'] +
+           [f'execute if score #gi bm.rng matches {s + 1} run tag @e[tag=bm.gvbnew,limit=1] add bm.gvboss{s}' for s in range(P70.SLOTS)] +
+           [f'execute if score #gi bm.rng matches {s + 1} run bossbar set bm:gvb{s} name {snbt(T(nm, col, bold=True))}' for s in range(P70.SLOTS)] +
+           [f'execute if score #gi bm.rng matches {s + 1} run bossbar set bm:gvb{s} color {bcol}' for s in range(P70.SLOTS)])
+    sp = G.FUNCS['p70/boss/spawn']
+    k = next(i for i, l in enumerate(sp) if 'function bm:p70/boss/summon0' in l)
+    sp[k] = 'execute if score #gn bm.rng matches 0 run function bm:p75/boss_tier'
+    fn('p75/boss_tier', ['execute if score #gt bm.rng matches 3 run return run function bm:p70/boss/summon0'] +
+       [f'execute if score #gt bm.rng matches {t} run return run function bm:p75/boss_t{t}' for t in BOSS_T])
+    sec = G.FUNCS['loop/second']
+    k = next(i for i, l in enumerate(sec) if 'function bm:p70/boss/sec' in l)
+    sec[k] = sec[k].replace('@e[type=minecraft:vindicator,tag=bm.gvboss]', '@e[tag=bm.gvboss]')
+
+
+def music(G, fn, second):
+    import phase70 as P70
+    tr = lambda i: f'bm:music.gv_{TRACK[i][0]}'
+    # (the vault's own background music is silence - the heist plays its own tracks)
+    import json
+    pth = G.path('data', 'bm', 'dimension_type', 'gutter.json')
+    dt = json.load(open(pth))
+    dt['attributes']['minecraft:audio/background_music'] = {'default': {'sound': 'bm:music.gv_silence', 'min_delay': 12000, 'max_delay': 24000,
+                                                                         'replace_current_music': True}}
+    json.dump(dt, open(pth, 'w'), indent=1)
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.gvmt dummy', 'scoreboard objectives add bm.gvmu dummy', 'scoreboard objectives add bm.gvmz dummy']
+    G.OBJECTIVES += ['bm.gvmt', 'bm.gvmu', 'bm.gvmz']
+    # (as an instance marker each second: what the crew should hear - the tier's theme, the guardian's while the fight is on)
+    G.FUNCS['p70/inst_sec'][-1:-1] = ['scoreboard players operation #mw bm.rng = @s bm.gvt',
+                                      'execute as @e[type=minecraft:marker,tag=bm.gvr_vault] if score @s bm.gvi = #gi bm.rng if score @s bm.gvs matches 1 run scoreboard players set #mw bm.rng 6',
+                                      'execute as @a[tag=bm.gvme] at @s run function bm:p75/mus/tick',
+                                      'execute store result score #r bm.rng run random value 1..4',
+                                      'execute if score #r bm.rng matches 1 as @a[tag=bm.gvme,sort=random,limit=1] at @s run function bm:p75/amb']
+    fn('p75/mus/tick', ['scoreboard players operation #me bm.rng = #mw bm.rng', 'execute if score @s bm.gvmz matches 1.. run scoreboard players operation #me bm.rng = @s bm.gvmz',
+                        'scoreboard players set @s bm.gvmz 0', 'scoreboard players remove @s bm.gvmu 1',
+                        'execute unless score @s bm.gvmt = #me bm.rng run return run function bm:p75/mus/play',
+                        'execute unless score @s bm.gvmu matches 1.. run function bm:p75/mus/play'])
+    fn('p75/mus/play', ['stopsound @s music', 'scoreboard players operation @s bm.gvmt = #me bm.rng'] +
+       [f'execute if score #me bm.rng matches {i} run return run function bm:p75/mus/p{i}' for i in TRACK])
+    for i, (nm, ln) in TRACK.items():
+        fn(f'p75/mus/p{i}', [f'playsound {tr(i)} music @s ~ ~ ~ 1000 1 1', f'scoreboard players set @s bm.gvmu {ln}'])
+    G.FUNCS['p70/unraid'] += ['stopsound @s music', 'scoreboard players reset @s bm.gvmt', 'scoreboard players reset @s bm.gvmu']
+    fn('p75/amb', ['scoreboard players operation #t bm.rng = #gt bm.rng', 'execute store result score #a bm.rng run random value 0..3'] +
+       [f'execute if score #t bm.rng matches {t} if score #a bm.rng matches {j} run return run playsound minecraft:{snd} ambient @s ^{(-1) ** j * 4} ^1 ^-5 0.45 {0.7 + 0.1 * j:.1f}'
+        for t, lst in AMBIENT.items() for j, snd in enumerate(lst)])
+
+
 def extend_offers(O, offer):
     pass
 
 
 def rp(R):
-    pass
+    import shutil
+    here = os.path.dirname(os.path.abspath(__file__))
+    def post(R2):
+        import json
+        sj = R2.p('assets', 'bm', 'sounds.json')
+        snd = json.load(open(sj)) if os.path.exists(sj) else {}
+        os.makedirs(R2.p('assets', 'bm', 'sounds', 'music'), exist_ok=True)
+        for nm in [v[0] for v in TRACK.values()] + ['silence']:
+            shutil.copy(os.path.join(here, 'vendor', f'gv_{nm}.ogg'), R2.p('assets', 'bm', 'sounds', 'music', f'gv_{nm}.ogg'))
+            snd[f'music.gv_{nm}'] = {'sounds': [{'name': f'bm:music/gv_{nm}', 'stream': True}]}
+        R2.wj('assets/bm/sounds.json', snd)
+    R.POST.append(post)
