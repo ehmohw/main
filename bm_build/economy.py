@@ -29,6 +29,17 @@ DIRECT = {
     'crimson_helmet': (('blood_crystal', 10), ('trophy', 1)), 'crimson_chestplate': (('blood_crystal', 14), ('trophy', 2)),
     'crimson_leggings': (('blood_crystal', 12), ('trophy', 2)), 'crimson_boots': (('blood_crystal', 10), ('trophy', 1)),
 }
+# 2.63: half price on everything (the Black Market was far too dear) - currency exchanges keep their rates
+HALVED = ('token', 'medallion', 'trophy', 'blood_crystal', 'lucky_token')
+
+
+def _half(c):
+    return (c[0], max(1, -(-c[1] // 2))) if c and c[0] in HALVED else c
+
+
+DIRECT = {k: (_half(a), _half(b) if b else None) for k, (a, b) in DIRECT.items()}
+DIRECT['golden_wings'] = (DIRECT['golden_wings'][0], ('elytra', 1))       # 2.63: built on a real elytra
+DIRECT['heist_plans'] = (('token', 3), None)                            # 2.63: 3 Tokens
 # (item sold, currency paid) -> cost: currency exchanges
 EXCHANGE = {('medallion', 'token'): ('token', 9),            # the Captain sold them for 8 (Fence: 9)
             ('trophy', 'blood_crystal'): ('blood_crystal', 48)}   # was 24 (= 3 Medallions' worth for a 6-Medallion Trophy)
@@ -62,8 +73,8 @@ ARMOR = ('_helmet', '_chestplate', '_leggings', '_boots', '_helmet_2', '_chestpl
 
 def upgrade_cost(iid, cur):
     """Tier II: +10 Medallions (armour) / +12 (weapons, tools). Tier III: +5 Trophies (+6 for Biggoron's Sword)."""
-    if cur == 'trophy': return ('trophy', 6 if iid == 'biggoron_sword' else 5)
-    return ('medallion', 10 if iid.endswith(ARMOR) else 12)
+    if cur == 'trophy': return ('trophy', 3)                            # 2.63: half (was 5, 6 for Biggoron's)
+    return ('medallion', 5 if iid.endswith(ARMOR) else 6)                # 2.63: half (was 10 / 12)
 
 
 def pawn(iid, price):

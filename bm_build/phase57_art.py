@@ -200,6 +200,8 @@ OUTFITS = {
         'em2_scarf': ('#80d8e4', '#ffc46a'), 'em2_scarf2': ('#6cc8d6', '#f0aa4a')},                  # Offense: crimson and gold
     3: {'em2_blue': ('#3f8fd0', '#e27ab6'), 'em2_chest': ('#3f8fd0', '#e27ab6'), 'em2_skirt': ('#3d72aa', '#c05c96'),
         'em2_scarf': ('#80d8e4', '#fff2f8'), 'em2_scarf2': ('#6cc8d6', '#ffd6ea')},                  # Defense: rose and white (2.62: Healing - her default - wears her own blue)
+    5: {'em2_blue': ('#3f8fd0', '#c8862a'), 'em2_chest': ('#3f8fd0', '#c8862a'), 'em2_skirt': ('#3d72aa', '#9a6420'),
+        'em2_scarf': ('#80d8e4', '#ffe0a0'), 'em2_scarf2': ('#6cc8d6', '#f0c070')},                  # 2.63 Mining: amber and ochre
 }
 
 

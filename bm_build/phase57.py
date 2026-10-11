@@ -23,7 +23,7 @@ import phase57_art as ART
 PET_CD = 300
 ENC_ODDS = 20                   # per minute, per player in flowery biomes by day
 FLOWERY = ['minecraft:cherry_grove', 'minecraft:flower_forest', 'minecraft:meadow', 'minecraft:sunflower_plains']
-MODES = {1: ('Speed', '#5ad8f0'), 2: ('Offense', '#ff5a5a'), 3: ('Defense', '#9ab4ff'), 4: ('Healing', '#ff8ad0')}
+MODES = {1: ('Speed', '#5ad8f0'), 2: ('Offense', '#ff5a5a'), 3: ('Defense', '#ff8ad0'), 4: ('Healing', '#5aaaf0'), 5: ('Mining', '#e8b04a')}   # 2.63: Mining
 PINK = '#ff7ad0'
 
 item('emma_ribbon', TOTEM, "Emma's Ribbon", PINK,
@@ -235,24 +235,24 @@ def generate(G):
     MENU = 960
     P28.MENU['emma'] = MENU
     btn = lambda m: P28.btn(T(MODES[m][0], MODES[m][1], bold=True), 7300 + m, tooltip=T({1: 'Speed + Jump Boost', 2: 'Strength', 3: 'Resistance',
-                                                                                         4: 'Regeneration + quick heals'}[m], 'gray'), width=120)
+                                                                                         4: 'Regeneration + quick heals', 5: 'Haste: dig and chop faster'}[m], 'gray'), width=120)
     dlg = P28.multi([T("Emma's Ribbon", PINK, bold=True)],
                     [P28.body([T('Buff: ', 'gray'), T('$(mode)', 'white', bold=True), T('     Charge: ', 'gray'), T('$(c)%', '#e0b0ff', bold=True)]),
                      P28.body([T('Pick what she focuses on. Charged to 100% with monsters near, she takes her Ethereal Form.', 'gray')])],
-                    [btn(1), btn(2), btn(3), btn(4), P28.btn(T('Send her home', 'gray'), 7305, width=120)], columns=2, exit_label='Close')
+                    [btn(1), btn(2), btn(3), btn(4), btn(5), P28.btn(T('Send her home', 'gray'), 7309, width=120)], columns=2, exit_label='Close')
     fn('p57/menu', ['execute store result storage bm:tmp em.c int 1 run scoreboard players get @e[type=minecraft:cat,tag=bm.emsel2,limit=1] bm.emc'] +
        [f'execute if score @e[type=minecraft:cat,tag=bm.emsel2,limit=1] bm.emm matches {m} run data modify storage bm:tmp em.mode set value "{MODES[m][0]}"' for m in MODES] +
        [f'scoreboard players set @s bm.menu {MENU}', 'function bm:p57/menu_show with storage bm:tmp em'])
     fn('p57/menu_show', [f'$dialog show @s {snbt(dlg)}'])
-    G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 7301..7305 run return run function bm:p57/act')
+    G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 7301..7309 run return run function bm:p57/act')
     fn('p57/act', [f'execute unless score @s bm.menu matches {MENU} run return run function bm:p28/stale',
                    f'execute unless items entity @s container.* {holds} unless items entity @s weapon.offhand {holds} run return run function bm:p28/stale',
                    'scoreboard players operation #me bm.pid = @s bm.pid', f'{sel_pet} run tag @s add bm.emsel2',
                    'execute unless entity @e[type=minecraft:cat,tag=bm.emsel2] run return run function bm:p28/stale',
-                   'execute if score #act bm.pay matches 7305 run function bm:p57/dismiss',
-                   'execute if score #act bm.pay matches 7301..7304 run function bm:p57/set_mode',
+                   'execute if score #act bm.pay matches 7309 run function bm:p57/dismiss',
+                   'execute if score #act bm.pay matches 7301..7305 run function bm:p57/set_mode',
                    'tag @e[tag=bm.emsel2] remove bm.emsel2'])
-    LINES = {1: 'Speed it is! Let\'s go-go-go!', 2: 'Offense! You can do it - smash them!', 3: 'Defense! I\'ll keep you safe!', 4: 'Healing! Tell me if it hurts, okay?'}
+    LINES = {1: 'Speed it is! Let\'s go-go-go!', 2: 'Offense! You can do it - smash them!', 3: 'Defense! I\'ll keep you safe!', 4: 'Healing! Tell me if it hurts, okay?', 5: 'Mining! Dig dig dig - I\'ll keep your arms fresh!'}
     fn('p57/set_mode', ['scoreboard players operation @e[type=minecraft:cat,tag=bm.emsel2] bm.emm = #act bm.pay',
                         'scoreboard players remove @e[type=minecraft:cat,tag=bm.emsel2] bm.emm 7300',
                         'scoreboard players set @e[type=minecraft:cat,tag=bm.emsel2] bm.emk 8'] +
@@ -314,8 +314,9 @@ def generate(G):
         if m == 1: return [('speed', h + e), ('jump_boost', e)]
         if m == 2: return [('strength', e)] + ([('haste', 1)] if h else [])
         if m == 3: return [('resistance', min(1, h + e))] + ([('absorption', 0)] if e else [])
+        if m == 5: return [('haste', min(2, 1 + h + e))]        # 2.63: Haste II, III with harmony or ethereal
         return [('regeneration', min(1, h + e))]
-    COL = {1: '[0.35,0.85,0.95]', 2: '[1.0,0.35,0.35]', 3: '[0.6,0.7,1.0]', 4: '[1.0,0.55,0.85]'}
+    COL = {1: '[0.35,0.85,0.95]', 2: '[1.0,0.35,0.35]', 3: '[1.0,0.55,0.85]', 4: '[0.35,0.65,0.95]', 5: '[0.95,0.72,0.3]'}
     for m in MODES:
         for lvl in range(4):
             fn(f'p57/buff/{m}_{lvl}', [f'effect give @s minecraft:{e} 5 {a} true' for e, a in effects(m, lvl)] +

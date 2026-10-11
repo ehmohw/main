@@ -1,4 +1,4 @@
-# Black Market — v2.62 (Java 26.3)
+# Black Market — v2.63 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,69 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.63: half prices, an easier way in and out, ruins underground
+
+### Prices
+Everything in the Black Market costs about **half** what it did. That covers prices in Tokens, Medallions, Trophies, Blood Crystals and Lucky Tokens, and the tier upgrades too.
+
+| Example | Before | Now |
+|---|---|---|
+| Smuggler's Chestplate | 18 Tokens | 9 Tokens |
+| Tier II armour upgrade | +10 Medallions | +5 Medallions |
+| Tier III upgrade | +5 Trophies | +3 Trophies |
+| Pegasus Boots | 4 Medallions | 2 Medallions |
+| Cecil's Gem | 4 Trophies | 2 Trophies |
+| Shifting Core | 8 Trophies + 16 Blood Crystals | 4 Trophies + 8 Blood Crystals |
+| Shifting Armour (a piece) | 6 Trophies + 1 Netherite | 3 Trophies + 1 Netherite |
+
+Other price changes:
+- **Diamonds:** the Fence buys a Diamond for **2 Tokens** (it was 4 Diamonds for 1 Token). Old Barnaby sells one back for 4 Tokens.
+- **Heist Plans:** 3 Tokens.
+- **Pearlman's gems:** 1 Medallion each.
+- **What stays the same:** the money-changing rates (9 Tokens = 1 Medallion, 6 Medallions = 1 Trophy) and the Netherite in the Shifting arms.
+
+The trade audit confirms you still can't buy anything and sell it back for a profit.
+
+### Earning
+- **Fishing:** a Token is a rare catch (3%) and a Medallion a very rare one (0.5%), on top of the crates.
+- **Heists:** every heist won pays each player **at least 1 Token**, plus a chance at more. Higher tiers pay more, and now and then a Medallion. It's yours to take out of the vault.
+
+### The way in
+- **Ladders:** the entrance shaft's ladders now reach the top. The last three were missing.
+- **Landing pool:** there's a **pool of water** at the bottom, so you can just jump.
+- **The LIFT:** a button **inside the vault door, on the right-hand wall**, with a glowing sign. Press it and you're back on the surface beside the shaft.
+- **Existing markets** get all three the next time someone comes near.
+
+### The newcomers' book
+Now a short **who sells what**: one line per trader, saying where to find them and what they deal in, plus how to earn. It no longer lists every item. The book in existing markets is replaced automatically.
+
+### Followers
+Cecil, Emma, Celi, Zib, Skiff Escorts and framed followers are now welcome **in the market and in the Overworld's dungeons**. They still won't enter the vault (the Gilded Gutter) or the Hollow Throne.
+
+### Emma
+- **Mining (new):** her fifth buff gives **Haste II** to everyone near her, or Haste III with harmony or in her Ethereal Form. She wears amber and ochre for it.
+- **Menu colours:** each buff's name is now the colour of its outfit, so Defense is pink and Healing is blue.
+
+### Shifting arms (Vinny)
+- **Shifting Blade (Smite):** the same five forms, with **Smite V** in place of Sharpness for the undead. The trident form keeps Impaling. Price: Core + 3 Netherite.
+- **Shifting Chestplate (No Thorns):** Protection IV, Unbreaking and Mending, without Thorns, for players who don't want the enchantment. It has the same seven looks. The original chestplate is still sold.
+
+### Underground ruins
+Small crumbling **rooms, shrines and halls** now turn up in fresh chunks:
+- **Overworld:** stone brick or deepslate, deep underground (y −48 to 36).
+- **Nether:** blackstone.
+- **End:** end stone and purpur, on the outer islands.
+
+Each ruin has a loot chest (halls have a barrel too) with ores, tools, food and enchanted books. There's a good chance of Tokens and a 1-in-5 chance of a **Heartstone**. Rarely there's a Medallion or a Black Market accessory. To find one, use `/locate structure #bm:ruins`.
+
+**Heartstones** are also **three times as common** in vanilla loot chests in every dimension.
+
+### Smaller changes
+- **The Minish Cap** moved to **Madame Velour**, next to the Mini and Mega Mushrooms (5 Tokens). It's a size-changer, not a lucky charm, so it didn't belong in the Lucky Den.
+- **The Wings of the Golden Rat** now cost 5 Trophies **plus an elytra** to build on.
+- **The Grimoire Key** has its own magenta-and-violet look, so it no longer looks like the Black Market key.
+- **The Portable Trash Can's** icon fits its inventory slot.
 
 ## New in 2.62: creatures on show, the Calling Card, wider crypts
 

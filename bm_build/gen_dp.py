@@ -42,6 +42,7 @@ import phase49 as R49
 import phase50 as R50
 import phase51 as R51
 import phase52 as R52
+import phase74 as R74        # 2.63: half prices, the lift, ruins underground, Emma's Mining form
 import phase73 as R73        # 2.62: jars in cases, Cecil's click box, the Calling Card, wider crypts, followers go home
 import phase72 as R72        # 2.61: display cases, Zib, Skiff Escorts, the vault's coat check and loaner kits
 import phase71 as R71        # 2.60: the Gilded Gutter Vault's treasures
@@ -141,7 +142,7 @@ def cost(iid, n=1):
 
 
 CURRENCY = {'token', 'medallion', 'trophy', 'lucky_token', 'blood_crystal', 'diamond', 'emerald', 'netherite_ingot'}
-PRICE_SCALE = {'token': 1.5, 'medallion': 1.5}      # 1.7 economy: goods cost 50% more (currency exchanges unchanged)
+PRICE_SCALE = {'token': 0.75, 'medallion': 0.75, 'trophy': 0.5, 'blood_crystal': 0.5, 'lucky_token': 0.5}   # 2.63: half of 1.7's x1.5 (exchanges unchanged)
 
 
 def scaled(c, sell):
@@ -198,7 +199,7 @@ PREFIX = [T('[', 'dark_gray'), T('Black Market', 'dark_purple', bold=True), T(']
 def npc_offers():
     O = {}
     O['fence'] = [
-        offer(('diamond', 4), ('token', 1)),
+        offer(('diamond', 1), ('token', 2)),          # 2.63: a diamond is worth 2 Tokens
         offer(('netherite_ingot', 1), ('token', 3)),
         offer(('token', 9), ('medallion', 1)),
         offer(('medallion', 6), ('trophy', 1)),
@@ -231,10 +232,9 @@ def npc_offers():
         offer(('lucky_token', 1), ('scratch_card', 1)),
         offer(('lucky_token', 4), ('scratch_card', 5)),
         offer(('token', 5), ('lucky_token', 1)),
-        offer(('token', 6), ('minish_cap', 1)),
         offer(('lucky_token', 3), ('lucky_charm', 1)),
     ]
-    pawn = [offer(('medallion', 1), ('token', 6)), offer(('trophy', 1), ('medallion', 4)), offer(('token', 1), ('diamond', 2))]
+    pawn = [offer(('medallion', 1), ('token', 6)), offer(('trophy', 1), ('medallion', 4)), offer(('token', 4), ('diamond', 1))]    # 2.63: (3 Tokens a diamond after scaling - dearer than the Fence pays)
     for iid, (cur, n) in PRICES.items():
         if CATEGORY.get(iid) in ('gear', 'builder', 'cosmetic') and iid != 'lucky_seven':
             pawn.append(offer((iid, 1), ECON.pawn(iid, (cur, n))))
@@ -294,6 +294,7 @@ def all_offers():
     if PHASE2: R61.extend_offers(O, offer)
     R62.extend_offers(O, offer)
     R71.extend_offers(O, offer)
+    R74.extend_offers(O, offer)
     return O
 
 
@@ -803,7 +804,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.62' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.63' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -1024,6 +1025,7 @@ def build(out_dir):
     R71.generate(sys.modules[__name__])
     R72.generate(sys.modules[__name__])
     R73.generate(sys.modules[__name__])
+    R74.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command

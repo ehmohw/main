@@ -404,6 +404,8 @@ def _register_b():
         OVERRIDES[f'vkey_{d}'] = (lambda c=col: key(c, eyes='#ffffff', head='#c89a2a'))
         OVERRIDES[f'bkey_{d}'] = (lambda c=col: key(c, ominous=True))
         if d != 'lucky': OVERRIDES[f'emblem_{d}'] = (lambda d_=d: emblem(d_))
+    # 2.63: the Grimoire Key (Hex) was the market key's purple-and-gold all over again: arcane teal, a violet head, lilac eyes
+    OVERRIDES['vkey_hex'] = lambda: key('#d04ab0', eyes='#80ff70', head='#3a1450')
     OVERRIDES.update({
         'gold_key': lambda: key('#e8b830', eyes='#fff2a0', head='#c89a2a'), 'silver_key': lambda: key('#c8ccd2', eyes='#a8ecff'),
         'mail_key': lambda: key('#c8a050', eyes='#ffd23f'), 'renewal_key': lambda: key('#a8e8f0', eyes='#ffffff', head='#d8dee6'),

@@ -33,6 +33,16 @@ ARMS = {
         ('spear', 'Spear', 'minecraft:netherite_spear', {'minecraft:sharpness': 5, 'minecraft:lunge': 3, 'minecraft:fire_aspect': 2, 'minecraft:knockback': 2,
                                                          'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
         ('trident', 'Trident', 'minecraft:trident', {'minecraft:riptide': 3, 'minecraft:impaling': 5, 'minecraft:unbreaking': 3, 'minecraft:mending': 1})]),
+    # (2.63) the same blade for the undead: Smite in place of Sharpness
+    'bladesmite': ('Shifting Blade (Smite)', '#ffd27a', 'A blade that remembers every weapon - and every grave.', [
+        ('sword', 'Sword', 'minecraft:netherite_sword', {'minecraft:smite': 5, 'minecraft:looting': 3, 'minecraft:fire_aspect': 2, 'minecraft:knockback': 2,
+                                                         'minecraft:sweeping_edge': 3, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
+        ('axe', 'Axe', 'minecraft:netherite_axe', {'minecraft:smite': 5, 'minecraft:efficiency': 5, 'minecraft:fortune': 3, 'minecraft:fire_aspect': 2,
+                                                   'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
+        ('mace', 'Mace', 'minecraft:mace', {'minecraft:smite': 5, 'minecraft:wind_burst': 3, 'minecraft:fire_aspect': 2, 'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
+        ('spear', 'Spear', 'minecraft:netherite_spear', {'minecraft:smite': 5, 'minecraft:lunge': 3, 'minecraft:fire_aspect': 2, 'minecraft:knockback': 2,
+                                                         'minecraft:unbreaking': 3, 'minecraft:mending': 1}),
+        ('trident', 'Trident', 'minecraft:trident', {'minecraft:riptide': 3, 'minecraft:impaling': 5, 'minecraft:unbreaking': 3, 'minecraft:mending': 1})]),
     'pick': ('Shifting Pick (Fortune)', '#7ad0ff', 'A tool for every trade, one at a time.', _picks(FORT)),
     'picksilk': ('Shifting Pick (Silk Touch)', '#c0a0ff', 'A tool for every trade - and a gentle touch.', _picks(SILK)),
     'bow': ('Shifting Bow', '#a8f070', 'It strings itself to whatever the moment needs.', [
@@ -54,6 +64,12 @@ for _p, (_slot, _pn, _en) in PIECES.items():
                              {'minecraft:item_model': f'minecraft:{t}_{_p}',
                               'minecraft:equippable': {'slot': _slot, 'asset_id': f'minecraft:{asset}', 'equip_sound': 'minecraft:item.armor.equip_netherite'}})
                             for t, tn, asset in _tiers])
+# (2.63) a chestplate without Thorns, for those who'd rather not prick their friends
+ARMS['armor_chestplate_pure'] = ('Shifting Chestplate (No Thorns)', '#e8eef8', 'Any armour you like the look of - netherite underneath, and no thorns.',
+                                 [(t, tn, 'minecraft:netherite_chestplate', {'minecraft:protection': 4, 'minecraft:unbreaking': 3, 'minecraft:mending': 1},
+                                   {'minecraft:item_model': f'minecraft:{t}_chestplate',
+                                    'minecraft:equippable': {'slot': 'chest', 'asset_id': f'minecraft:{asset}', 'equip_sound': 'minecraft:item.armor.equip_netherite'}})
+                                  for t, tn, asset in TIERS])
 FIRST = {fam: f'shift_{fam}_{forms[0][0]}' for fam, (_n, _c, _f, forms) in ARMS.items()}
 # price: a Shifting Core (8 Trophies + 16 Blood Crystals) plus a Netherite Ingot for every netherite form it can take -
 # no skipping netherite. Armour: 6 Trophies + 1 Netherite Ingot a piece.
