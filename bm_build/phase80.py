@@ -64,7 +64,7 @@ PERKS = {  # role: rank -> (name, what it does)
         4: ('Ambush', 'Shadowstep III; the blink strikes the nearest foe where you land (8).'),
         5: ('Bloodlust', 'Strength II. Every fourth hit is a sure critical (+6).'),
         6: ('Phantom', 'The blink leaves you unseen for 4 s - and your next hit deals +10.')},
-    3: {1: ('Loaner', "Smuggler's set, the Fairy Bow, 32 spectral arrows, Speed, the Volley Quiver."),
+    3: {1: ('Loaner', "Smuggler's set, the Fairy Bow (no Infinity), 64 arrows + 32 spectral, Speed, the Volley Quiver."),
         2: ('Fletcher', '64 spectral arrows, and 8 arrows of Harming.'),
         3: ('Wide Volley', 'Seven arrows a volley, every 10 s.'),
         4: ('Searing Shots', 'The Fairy Bow sets what it hits alight (Flame).'),
@@ -516,8 +516,10 @@ def generate(G):
                     sec = ABIL_CD[r][1 if n >= 3 else 0]
                     lines.append(f'give @s {kit_arg_x(iid, over={"minecraft:use_cooldown": {"seconds": float(sec), "cooldown_group": f"bm:{iid}"}})} 1')
                     continue
-                if r == 3 and iid == 'fairy_bow' and n >= 4:
-                    lines.append(f'give @s {kit_arg_x(iid, over={"minecraft:enchantments": dict(ITEMS[iid]["comps"].get("minecraft:enchantments", {}), **{"minecraft:flame": 1})})} 1')
+                if r == 3 and iid == 'fairy_bow':          # (2.67) the loaner has no Infinity, so the spectral arrows get shot; Flame from Searing Shots
+                    en = {k: v for k, v in ITEMS[iid]['comps'].get('minecraft:enchantments', {}).items() if k != 'minecraft:infinity'}
+                    if n >= 4: en['minecraft:flame'] = 1
+                    lines.append(f'give @s {kit_arg_x(iid, over={"minecraft:enchantments": en})} 1')
                     continue
                 if r == 3 and iid == 'minecraft:spectral_arrow' and n >= 2:
                     cnt = 64

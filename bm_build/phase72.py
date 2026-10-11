@@ -79,10 +79,10 @@ ROLES = {1: ('Tank', '#c0392b', 'Juggernaut I (the heaviest armour), Hylian Shie
          2: ('Offense', '#ff7a1a', "Shadowstep I (iron-strong), Captain's Cutlass, a golden apple. Strength while you fight.",
              {'head': 'shadowstep_helmet_1', 'chest': 'shadowstep_chestplate_1', 'legs': 'shadowstep_leggings_1', 'feet': 'shadowstep_boots_1'},
              ['pirate_cutlass', ('minecraft:golden_apple', 1)]),
-         3: ('Ranged', '#5ad84a', "Smuggler's set (iron-strong), Fairy Bow, 32 spectral arrows, a backup sword, a golden apple. "
-                                  "Speed, and monsters near you glow for the whole crew.",
+         3: ('Ranged', '#5ad84a', "Smuggler's set (iron-strong), Fairy Bow (no Infinity), 64 arrows and 32 spectral - more turn up in every room - "
+                                  "a backup sword, a golden apple. Speed, and monsters near you glow for the whole crew.",
              {'head': 'smuggler_helmet', 'chest': 'smuggler_chestplate', 'legs': 'smuggler_leggings', 'feet': 'smuggler_boots'},
-             ['fairy_bow', 'minecraft:arrow', ('minecraft:spectral_arrow', 32),
+             ['fairy_bow', ('minecraft:arrow', 64), ('minecraft:spectral_arrow', 32),
               ('minecraft:iron_sword', 1, {'minecraft:enchantments': {'minecraft:sharpness': 2, 'minecraft:knockback': 1}}), ('minecraft:golden_apple', 1)]),
          4: ('Support', '#7ad0ea', "Tidecaller I (iron-strong), Staff of Sparks, Emma's Bloomheart, 3 splash potions of Healing II, a golden apple. "
                                    "Crewmates near you regenerate.",

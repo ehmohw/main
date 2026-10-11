@@ -321,6 +321,12 @@ def walk_item_model(f, m):
             walk_item_model(f, c['model'])
         if 'fallback' in m: walk_item_model(f, m['fallback'])
         if set(m) - {'type', 'property', 'index', 'cases', 'fallback', 'transformation'}: E(f'{f}: select keys {set(m)}')
+    elif t == 'minecraft:condition':             # (2.67: the Frisbee Shield - a blocking pose while it's held up, like the vanilla shield's own definition)
+        if m.get('property') not in ('minecraft:using_item', 'minecraft:broken', 'minecraft:damaged', 'minecraft:selected', 'minecraft:carried'):
+            E(f'{f}: condition property {m.get("property")} (only the simple boolean ones used/checked)')
+        if set(m) - {'type', 'property', 'on_true', 'on_false'} or 'on_true' not in m or 'on_false' not in m: E(f'{f}: condition keys {set(m)}')
+        for k in ('on_true', 'on_false'):
+            if k in m: walk_item_model(f, m[k])
     else: E(f'{f}: item model type {t}')
 
 

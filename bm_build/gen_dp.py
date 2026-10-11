@@ -82,6 +82,7 @@ import phase88 as R88        # 2.67: the Gutter Gentry (hidden boss trio)
 import phase89 as R89        # 2.67: followers in the vault - raid contracts, the wardrobe at Goldtooth, Emma's new outfits
 import phase90 as R90        # 2.67: dearer tiers, double and alien heists, five new kinds of room
 import phase91 as R91        # 2.67: game night in the vault - rooms after the games everyone knows, two against the clock
+import phase92 as R92        # 2.67: the Frisbee Shield, arrows for the Ranged kit, the crew's health over their heads
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import market2 as M2
@@ -330,6 +331,7 @@ def all_offers():
     R89.extend_offers(O, offer)
     R90.extend_offers(O, offer)
     R91.extend_offers(O, offer)
+    R92.extend_offers(O, offer)
     return O
 
 
@@ -1078,6 +1080,7 @@ def build(out_dir):
     R89.generate(sys.modules[__name__])
     R90.generate(sys.modules[__name__])
     R91.generate(sys.modules[__name__])
+    R92.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command
