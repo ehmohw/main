@@ -1,4 +1,4 @@
-# Black Market — v2.63 (Java 26.3)
+# Black Market — v2.64 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,20 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.64: heist fixes
+
+### Buttons you can't miss
+The heist buttons were dark stone buttons on dark stone walls, so they were easy to miss. Each one now sits on a **gold block** with a glowing label above it, and every room places its button again as it sets up, so it's always there:
+- **BEGIN:** two, in the den, either side of the door.
+- **TRY THE LEVERS:** in the Combination Room.
+- **PEEK:** in the Tile Floor.
+
+### Loaner kits
+- **Armour:** every kit is at least iron-strong (15 armour). The **Tank** is the heaviest: diamond-strong (20 armour) with extra toughness. Before, the Tank wore iron while Ranged had diamond.
+- **No attack penalty:** the Shadowstep armour's attack-damage penalty is off in the heist, so the Offense kit no longer weakens your hits.
+- **Food:** every kit comes with 16 steaks (they stay in the vault with the rest of the kit).
+- **The den heals:** standing in the den gives you Regeneration and Saturation.
 
 ## New in 2.63: half prices, an easier way in and out, ruins underground
 

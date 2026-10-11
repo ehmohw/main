@@ -73,16 +73,16 @@ for i, c in enumerate(ART.ESCORT_COLS):
 # ---------------------------------------------------------------- the vault: what you may bring, what you're lent
 KEEP = ['smoke_bomb', 'skeleton_lockpick', 'vorn_cracking_rig', 'cipher_monocle', 'thiefs_cowl', 'smugglers_boots', 'gutter_coin',
         'clockwork_fragment', 'clockwork_key', 'heist_plans', 'bond_sigil']
-ROLES = {1: ('Tank', '#c0392b', 'Juggernaut I, Hylian Shield, Kokiri Sword. +8 health, half knockback.',
+ROLES = {1: ('Tank', '#c0392b', 'Juggernaut I (the heaviest armour), Hylian Shield, Kokiri Sword. +8 health, half knockback.',
              {'head': 'juggernaut_helmet_1', 'chest': 'juggernaut_chestplate_1', 'legs': 'juggernaut_leggings_1', 'feet': 'juggernaut_boots_1',
               'offhand': 'hylian_shield'}, ['kokiri_sword']),
-         2: ('Offense', '#ff7a1a', "Shadowstep I, Captain's Cutlass. Strength while you fight.",
+         2: ('Offense', '#ff7a1a', "Shadowstep I (iron-strong), Captain's Cutlass. Strength while you fight.",
              {'head': 'shadowstep_helmet_1', 'chest': 'shadowstep_chestplate_1', 'legs': 'shadowstep_leggings_1', 'feet': 'shadowstep_boots_1'},
              ['pirate_cutlass']),
-         3: ('Ranged', '#5ad84a', "Smuggler's set, Fairy Bow. Monsters near you glow for the whole crew.",
+         3: ('Ranged', '#5ad84a', "Smuggler's set (iron-strong), Fairy Bow. Monsters near you glow for the whole crew.",
              {'head': 'smuggler_helmet', 'chest': 'smuggler_chestplate', 'legs': 'smuggler_leggings', 'feet': 'smuggler_boots'},
              ['fairy_bow', 'minecraft:arrow']),
-         4: ('Support', '#7ad0ea', "Tidecaller I, Staff of Sparks, Emma's Bloomheart. Crewmates near you regenerate.",
+         4: ('Support', '#7ad0ea', "Tidecaller I (iron-strong), Staff of Sparks, Emma's Bloomheart. Crewmates near you regenerate.",
              {'head': 'tidecaller_helmet_1', 'chest': 'tidecaller_chestplate_1', 'legs': 'tidecaller_leggings_1', 'feet': 'tidecaller_boots_1'},
              ['staff_of_sparks', 'bloomheart_gem'])}
 SLOT_OF = {'head': 'armor.head', 'chest': 'armor.chest', 'legs': 'armor.legs', 'feet': 'armor.feet', 'offhand': 'weapon.offhand', 'body': 'armor.body'}
@@ -90,12 +90,51 @@ STAGE = '-200 64 -200'                # the coat-check barrel (bm:gutter, kept l
 CONTRACTS = {1: ('Ghost', 'finish with the alarm under 25'), 2: ('Clean Sweep', 'nobody gets knocked out'), 3: ('Against the Clock', '90 seconds a room')}
 
 
-def kit_arg(iid):
+# (2.63) the loaners' armour: iron-tier for Offense, Ranged and Support, the tank the heaviest (diamond-tier and tougher), and nothing in a kit
+# takes away from your swing (Shadowstep's light-armour penalty is off for the heist)
+KIT_TIER = {1: ({'head': 3, 'chest': 8, 'legs': 6, 'feet': 3}, 3.0),          # Tank: diamond-tier, extra toughness
+            2: ({'head': 2, 'chest': 6, 'legs': 5, 'feet': 2}, 0.0),          # Offense, Ranged, Support: iron-tier
+            3: ({'head': 2, 'chest': 6, 'legs': 5, 'feet': 2}, 0.0),
+            4: ({'head': 2, 'chest': 6, 'legs': 5, 'feet': 2}, 0.0)}
+VANILLA_ARMOR = {'leather': ((1, 3, 2, 1), 0), 'chainmail': ((2, 5, 4, 1), 0), 'iron': ((2, 6, 5, 2), 0), 'golden': ((2, 5, 3, 1), 0),
+                 'diamond': ((3, 8, 6, 3), 2), 'netherite': ((3, 8, 6, 3), 3), 'copper': ((2, 4, 3, 1), 0), 'turtle': ((2, 0, 0, 0), 0)}
+KIT_FOOD = ('minecraft:cooked_beef', 16)
+PIECE = {'_helmet': ('head', 'helmet'), '_chestplate': ('chest', 'chestplate'), '_leggings': ('legs', 'leggings'), '_boots': ('feet', 'boots')}
+
+
+def kit_armor(it, role):
+    """the kit copy's attribute modifiers: armour/toughness raised to the role's floor, no negative attack damage"""
+    base = it['base'].split(':')[1]
+    m = next(((sl, nm) for suf, (sl, nm) in PIECE.items() if base.endswith(suf)), None)
+    if not m or role not in KIT_TIER: return None
+    slot, nm = m; mat = base[:-len(nm) - 1]
+    mods = it['comps'].get('minecraft:attribute_modifiers')
+    if mods is None:                                     # (no component: the base item's own armour applies)
+        arm, tough = VANILLA_ARMOR.get(mat, ((0, 0, 0, 0), 0))
+        mods = [{'type': 'minecraft:armor', 'id': f'minecraft:armor.{nm}', 'amount': float(arm[('head', 'chest', 'legs', 'feet').index(slot)]), 'operation': 'add_value', 'slot': slot},
+                {'type': 'minecraft:armor_toughness', 'id': f'minecraft:armor.{nm}_toughness', 'amount': float(tough), 'operation': 'add_value', 'slot': slot}]
+    floor, tfloor = KIT_TIER[role][0][slot], KIT_TIER[role][1]
+    out = []
+    for md in mods:
+        md = dict(md)
+        if md['type'] == 'minecraft:attack_damage' and float(md['amount']) < 0: continue
+        if md['type'] == 'minecraft:armor': md['amount'] = float(floor)                     # (exactly the role's tier: the tank is the heaviest)
+        if md['type'] == 'minecraft:armor_toughness': md['amount'] = tfloor
+        out.append(md)
+    return out
+
+
+def kit_arg(iid, role=None):
     """an item argument for a loaner: the BM item, marked bm_kit, with a line saying so"""
     if ':' in iid:
         return f'{iid}[minecraft:custom_data={{bm_kit:1b}},minecraft:lore=[{snbt(T("Loaned by the Fixer - stays in the vault.", "dark_gray"))}]]'
     it = ITEMS[iid]; parts = []
-    for k, v in it['comps'].items():
+    comps = dict(it['comps'])
+    am = kit_armor(it, role)
+    if am is not None:
+        from nbt import D
+        comps['minecraft:attribute_modifiers'] = [dict(md, amount=D(md['amount'])) for md in am]
+    for k, v in comps.items():
         if k == 'minecraft:custom_data': v = dict(v, bm_kit=B(1))
         if k == 'minecraft:lore': v = list(v) + [T('Loaned by the Fixer - stays in the vault.', 'dark_gray')]
         parts.append(k if k.startswith('!') else f'{k}={snbt(v)}')
@@ -556,10 +595,11 @@ def generate(G):
         lines = []
         for k, iid in armor.items():
             sl = SLOT_OF[k]
-            lines += [f'execute unless items entity @s {sl} * run item replace entity @s {sl} with {kit_arg(iid)}',
-                      f'execute if items entity @s {sl} {keep_any} run give @s {kit_arg(iid)}']
+            lines += [f'execute unless items entity @s {sl} * run item replace entity @s {sl} with {kit_arg(iid, r)}',
+                      f'execute if items entity @s {sl} {keep_any} run give @s {kit_arg(iid, r)}']
         for iid in hand:
             lines.append(f'give @s {kit_arg(iid)} 1')
+        lines.append(f'give @s {kit_arg(KIT_FOOD[0])} {KIT_FOOD[1]}')                   # (2.63) and something to eat
         if r == 1:
             lines += ['attribute @s minecraft:max_health modifier add bm:gv_role_tank 8 add_value',
                       'attribute @s minecraft:knockback_resistance modifier add bm:gv_role_tank 0.5 add_value']

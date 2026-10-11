@@ -47,40 +47,34 @@ def _mail(seed):
 
 
 def _face():
-    """32 x 32: a dark fringe under the helm, heavy brows drawn down, narrowed green eyes, a scar through the left
-    brow, a long nose, a set mouth and a few days' stubble on a square jaw - a soldier, not a boy"""
+    """32 x 32: a dark fringe under the helm, straight brows (the left one a touch higher - he's half amused), clear
+    green eyes, a long nose, a closed mouth with one corner lifted: steady, watchful, a little playful"""
     P = hexc
     im = Image.new('RGBA', (64, 64), P(SKIN)); d = ImageDraw.Draw(im); rnd = random.Random(7)
-    for y in range(24, 32):                                                                  # stubble: the jaw and chin, sparse
-        for x in range(3, 29):
-            edge = y >= 29 or x < 7 or x > 24 or (y >= 26 and 10 <= x <= 22 and y != 27)
-            if edge and rnd.random() < 0.12 + 0.03 * (y - 24): im.putpixel((x, y), P(rnd.choice(('#7e5644', '#76503c', '#6a4634'))))
     for x in range(32):                                                                      # the fringe, ragged
         for y in range(0, 9 + (rnd.random() < 0.5) + (2 if x in (5, 6, 13, 14, 22, 27, 28) else 0)):
             im.putpixel((x, y), P(rnd.choice(HAIR[:3])))
     def eye(cx, flip):
         x0, y0 = cx - 4, 15
-        d.polygon([(x0, y0 + 1), (x0 + 2, y0), (x0 + 7, y0), (x0 + 8, y0 + 1), (x0 + 6, y0 + 3), (x0 + 2, y0 + 3)], fill=P('#f2eee6'))
-        d.rectangle((x0 + 3, y0, x0 + 5, y0 + 3), fill=P('#2f8a3a')); d.rectangle((x0 + 3, y0 + 2, x0 + 5, y0 + 3), fill=P('#4cb456'))
+        d.polygon([(x0, y0 + 2), (x0 + 2, y0), (x0 + 7, y0), (x0 + 8, y0 + 2), (x0 + 6, y0 + 4), (x0 + 2, y0 + 4)], fill=P('#f4f0e8'))
+        d.rectangle((x0 + 3, y0, x0 + 5, y0 + 4), fill=P('#2f8a3a')); d.rectangle((x0 + 3, y0 + 2, x0 + 5, y0 + 4), fill=P('#56c45e'))
         d.rectangle((x0 + 4, y0 + 1, x0 + 4, y0 + 2), fill=P('#0e1a10'))
-        d.point((x0 + (5 if not flip else 3), y0), fill=P('#d8f0d8'))
-        d.line((x0, y0, x0 + 8, y0), fill=P('#1a1410')); d.line((x0 + 1, y0 - 1, x0 + 7, y0 - 1), fill=P('#5e3c2c'))   # a heavy upper lid
-        d.line((x0 + 1, y0 + 4, x0 + 7, y0 + 4), fill=P(SKIN_DK))                                                  # tired shadow under
+        d.point((x0 + (5 if not flip else 3), y0), fill=P('#ffffff'))
+        d.line((x0, y0, x0 + 8, y0), fill=P('#1a1410'))                                     # the upper lid
+        d.point((x0 + (8 if not flip else 0), y0 + 1), fill=P('#1a1410'))
     eye(9, False); eye(23, True)
-    for cx, s in ((9, 1), (23, -1)):                                                          # brows: thick, drawn down toward the nose
-        for dx in range(-5, 5):
-            y = 12 + (dx + 5) * 3 // 10
+    for cx, s, lift in ((9, 1, 0), (23, -1, 1)):                                            # brows: straight and strong, the left one raised a little
+        for dx in range(-4, 5):
+            y = 12 - lift + (1 if dx * s > 2 else 0)
             x = cx + dx * s
-            im.putpixel((x, y), P('#16110e')); im.putpixel((x, y + 1), P('#1e1814'))
-    for y in range(9, 21): im.putpixel((25 - (y - 9) // 4, y), P('#c49680'))                 # the scar, through the left brow
-    for y in range(15, 24): im.putpixel((16, y), P(SKIN_DK))                                  # a long nose, shaded down one side
-    for y in range(18, 24): im.putpixel((17, y), P('#8a5e46'))
-    d.line((14, 24, 18, 24), fill=P(SKIN_DK)); d.point((13, 23), fill=P(SKIN_DK)); d.point((19, 23), fill=P(SKIN_DK))
-    d.line((12, 27, 20, 27), fill=P('#3a2016')); d.point((11, 28), fill=P('#3a2016')); d.point((21, 28), fill=P('#3a2016'))   # a set mouth
-    for x in range(13, 20): im.putpixel((x, 28), P('#7e5440'))
-    for cx in (5, 27):                                                                        # hard cheekbones
-        for y in range(19, 23): im.putpixel((cx, y), P(SKIN_DK)); im.putpixel((cx + (1 if cx < 16 else -1), y + 1), P('#8a5e46'))
-    for x in range(4, 28): im.putpixel((x, 31), P('#4e3226'))                                 # the jaw line
+            im.putpixel((x, y), P('#16110e')); im.putpixel((x, y + 1), P('#241c16'))
+    for y in range(16, 23): im.putpixel((16, y), P(SKIN_DK))                                # the nose
+    d.line((14, 23, 18, 23), fill=P(SKIN_DK)); d.point((13, 22), fill=P(SKIN_DK)); d.point((19, 22), fill=P(SKIN_DK))
+    d.line((12, 26, 19, 26), fill=P('#4a2a20')); d.line((19, 26, 21, 25), fill=P('#4a2a20'))  # closed, one corner lifted
+    for x in range(13, 20): im.putpixel((x, 27), P('#8a5c44'))
+    for cx in (6, 26): d.ellipse((cx - 2, 21, cx + 2, 23), fill=P('#8e5e48'))               # cheeks
+    for x in range(6, 27): im.putpixel((x, 31), P('#6e4a38'))                               # the jaw line
+    for x in range(9, 24): im.putpixel((x, 30), P('#86593f'))
     return im
 
 

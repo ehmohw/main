@@ -206,6 +206,26 @@ def generate(G):
             {'rolls': 1, 'entries': [G.loot_entry('medallion', None)], 'conditions': [G.chance(0.04 * t)]}]})
     G.FUNCS['p70/haul'] += [f'execute if score #gt bm.rng matches {t} run loot give @s loot bm:gv/cash_t{t}' for t in range(1, 6)]
 
+    # ================================================================== THE VAULT: buttons you can't miss - each room sets its own again as it readies
+    #      (on a gold block, a glowing label over it), so a button is always there and always seen
+    import phase70_rooms as RM
+    def vbutton(x, y, z, facing, label):
+        back = {'west': (1, 0), 'east': (-1, 0), 'north': (0, 1), 'south': (0, -1)}[facing]
+        lbl = snbt({'Tags': ['bm.gvprop'], 'billboard': 'center', 'brightness': {'block': 15, 'sky': 15}, 'background': Int(0x90000000 - 2 ** 32),
+                    'text': T(label, GOLD, bold=True), 'transformation': {'left_rotation': [F(0)] * 3 + [F(1)], 'right_rotation': [F(0)] * 3 + [F(1)],
+                                                                          'translation': [F(0)] * 3, 'scale': [F(0.55)] * 3}})
+        return [f'setblock {RM.rel(x + back[0], y, z + back[1])} minecraft:gold_block',
+                f'setblock {RM.rel(x, y, z)} minecraft:polished_blackstone_button[face=wall,facing={facing},powered=false]',
+                f'summon minecraft:text_display {RM.rel(x, y + 0.7, z)} {lbl}']
+    G.FUNCS['p70/r/lobby/init'] += vbutton(23, 5, 15, 'west', 'BEGIN') + vbutton(23, 5, 9, 'west', 'BEGIN')
+    G.FUNCS['p70/r/levers/init'] += vbutton(12, 7, 23, 'north', 'TRY THE LEVERS')
+    G.FUNCS['p70/r/tiles/init'] += vbutton(1, 5, 9, 'east', 'PEEK')
+
+    # ================================================================== THE VAULT: the den heals (regeneration and a full belly before you go in)
+    second.append('execute as @e[type=minecraft:marker,tag=bm.gvr_lobby] at @s positioned ~-12 ~-1 ~-12 if entity @a[tag=bm.gvp,dx=24,dy=8,dz=24] run function bm:p74/den_rest')
+    fn('p74/den_rest', ['effect give @a[tag=bm.gvp,dx=24,dy=8,dz=24] minecraft:regeneration 3 1 true',
+                        'effect give @a[tag=bm.gvp,dx=24,dy=8,dz=24] minecraft:saturation 2 0 true'])
+
     # ================================================================== UNDERGROUND RUINS
     loot_common = [('minecraft:iron_ingot', 20, (1, 4)), ('minecraft:gold_ingot', 14, (1, 3)), ('minecraft:redstone', 12, (2, 6)),
                    ('minecraft:lapis_lazuli', 10, (2, 6)), ('minecraft:emerald', 6, (1, 2)), ('minecraft:diamond', 3, (1, 1)),
