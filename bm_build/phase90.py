@@ -351,6 +351,63 @@ def generate(G):
     fn('admin/heist_variants_never', ['scoreboard players set #fdb bm.gvv -1', 'scoreboard players set #fsf bm.gvv -1', tellraw('@s', P + [T('No Double or Alien Heists until admin/heist_variants_off.', 'gray')])])
     fn('admin/heist_variants_off', ['scoreboard players set #fdb bm.gvv 0', 'scoreboard players set #fsf bm.gvv 0', tellraw('@s', P + [T('Heist variants back to chance.', 'gray')])])
 
+    # ================================================================== THE ALARM: a choice now (off unless you turn it on, on the tries page)
+    # off: nothing rings - no patrols, no lockdown (Greedy Vault and Silent Alarm aren't rolled either);
+    # on: one more share for the trouble, and the old one for keeping it under 50
+    objs = ['bm.gval']
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
+    G.OBJECTIVES += objs
+    MENU = P28.MENU['heist']
+    LUCKY = '#7dff6a'
+    lbtn = lambda c, n, col, txt: P28.btn([T(f'{n} TRIES  ', col, bold=True), T(txt, 'white')], 7610 + c, width=300,
+                                          tooltip=T(f'Your crew can be knocked out {n} times (one more per crewmate past the first).', 'gray'))
+    abtn = P28.btn([T('ALARM: ', '#ff5a5a', bold=True), T('$(al)', 'white', bold=True), T('  (click to switch)', 'gray')], 7619, width=300,
+                   tooltip=T('Off: no alarm, no patrols, no lockdown. On: mistakes ring it - at 50 guards patrol, at 100 the vault locks down - '
+                             'and you get one more share (two if you keep it under 50).', 'gray'))
+    dlg = P28.multi([T('How many tries?', GOLD, bold=True)],
+                    [P28.body([T('Every knock-out costs the crew a try. Run out and the heist fails: back to the den, everything gathered lost '
+                                 '(you can try again).', 'gray')]),
+                     P28.body([T('Fewer tries, bigger haul - the higher the tier, the bigger. ', GOLD), T('No knock-outs at all: a share more (two from Tier III).', 'gray')]),
+                     P28.body([T('The alarm is up to you: ', '#ff7a7a'), T('$(al_txt)', 'gray')]),
+                     P28.body([T("The Fixer's fee: 2 Tokens (Tier I) to 6 (Tier V) each, into the Lucky Pool (now ", 'dark_gray'), T('$(p)', LUCKY, bold=True),
+                               T('). One heist in a hundred is a Lucky Raid - win it and the pool is yours.', 'dark_gray')])],
+                    [abtn, lbtn(1, 3, '#ff5a5a', '+1 to +4 shares (by tier) - for the bold'), lbtn(2, 5, GOLD, '+0 to +2 shares (by tier)'),
+                     lbtn(3, 7, LUCKY, 'no bonus - for a first try')],
+                    columns=1, exit_label='Back')
+    G.FUNCS['p75/lives_menu'] = ['execute store result storage bm:gv m.p int 1 run scoreboard players get #lpool bm.gvlp',
+                                 'data modify storage bm:gv m.al set value "OFF"', 'data modify storage bm:gv m.al_txt set value "off - a quiet job, no patrols, no lockdown."',
+                                 'execute if score @s bm.gval matches 1 run data modify storage bm:gv m.al set value "ON"',
+                                 'execute if score @s bm.gval matches 1 run data modify storage bm:gv m.al_txt set value "ON - mistakes ring it (patrols at 50, lockdown at 100); one more share, two if you keep it under 50."',
+                                 f'scoreboard players set @s bm.menu {MENU}', 'function bm:p75/lives_show with storage bm:gv m']
+    G.FUNCS['p75/lives_show'] = [f'$dialog show @s {snbt(dlg)}']
+    holds_plans = '*[minecraft:custom_data~{bm:"heist_plans"}]'
+    G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 7619 run return run function bm:p90/alarm_toggle')
+    fn('p90/alarm_toggle', [f'execute unless score @s bm.menu matches {MENU} run return run function bm:p28/stale',
+                            f'execute unless items entity @s container.* {holds_plans} unless items entity @s weapon.offhand {holds_plans} run return run function bm:p28/stale',
+                            'execute if score @s bm.gval matches 1 run return run function bm:p90/alarm_off', 'scoreboard players set @s bm.gval 1',
+                            'playsound minecraft:block.bell.use player @s ~ ~ ~ 0.8 0.8', 'function bm:p75/lives_menu'])
+    fn('p90/alarm_off', ['scoreboard players set @s bm.gval 0', 'playsound minecraft:ui.button.click player @s ~ ~ ~ 0.8 1', 'function bm:p75/lives_menu'])
+    pl = G.FUNCS['p75/pick_lives']
+    pl.insert(pl.index('scoreboard players operation #feet bm.rng = #t bm.rng'), 'scoreboard players set #al bm.rng 0')
+    pl.insert(pl.index('scoreboard players operation #feet bm.rng = #t bm.rng'), 'execute if score @s bm.gval matches 1 run scoreboard players set #al bm.rng 1')
+    for s in range(SL):
+        G.FUNCS[f'p70/s{s}/claim'].insert(0, f'scoreboard players operation #al{s} bm.gvv = #al bm.rng')
+        b = G.FUNCS[f'p70/s{s}/build']
+        b.insert(0, f'scoreboard players operation #gal bm.rng = #al{s} bm.gvv')
+    ii = G.FUNCS['p70/inst_init']
+    ii[-1:-1] = ['scoreboard players operation @s bm.gval = #gal bm.rng', 'execute unless score @s bm.gval matches 1 run scoreboard players set @s bm.gva 0']
+    G.FUNCS['p70/ctx1'].append('scoreboard players operation #gal bm.rng = @s bm.gval')
+    G.FUNCS['p70/alarm'].insert(0, 'execute unless score @s bm.gval matches 1 run return 0')
+    rm = G.FUNCS['p70/roll_mod']
+    rm.insert(1, 'execute unless score #gal bm.rng matches 1 if score #r bm.rng matches 5..6 run return run function bm:p70/roll_mod')
+    G.FUNCS['p70/bar'] += [f'execute unless score @s bm.gval matches 1 if score @s bm.gvi matches {s + 1} run bossbar set bm:gva{s} name ' +
+                           snbt([T('Tries ', '#ff7a7a'), {'score': {'name': '@s', 'objective': 'bm.gvlv'}, 'color': 'white', 'bold': True},
+                                 T('   Pot ', GOLD), {'score': {'name': '@s', 'objective': 'bm.gvpot'}, 'color': 'white', 'bold': True}, T(' coins', GOLD)]) for s in range(SL)]
+    pay = G.FUNCS['p70/payout_inst']
+    k = pay.index('execute if score #ga bm.rng matches ..49 run scoreboard players add #sh bm.rng 1')
+    pay[k:k + 1] = ['execute if score @s bm.gval matches 1 if score #ga bm.rng matches ..49 run scoreboard players add #sh bm.rng 1',
+                    'execute if score @s bm.gval matches 1 run scoreboard players add #sh bm.rng 1']
+
     # ================================================================== the rooms' dispatch
     ks = list(BUILDERS)
     G.FUNCS['p70/r/init'] += [f'execute if entity @s[tag=bm.gvr_{k}] run return run function bm:p90/{k}/init' for k in ks]
@@ -436,7 +493,7 @@ def generate(G):
     cube = lambda sz, nm: mk('magma_cube', nm, '#ff8a3a', {}, dict(WV, Size=Int(sz)))
     waves = {1: [cube(1, 'Forge Ember')] * 3, 2: [cube(2, 'Forge Ember')] * 2 + [mk('blaze', 'Forge Blaze', '#ffb040', {}, WV)],
              3: [cube(3, 'The Forge Keeper')]}
-    keeper = mk('blaze', 'The Forge Keeper', '#ff5a20', {}, dict(WV, CustomNameVisible=B(1)), {'scale': 1.7, 'max_health': 60.0, 'attack_damage': 8.0})
+    keeper = mk('blaze', 'The Forge Keeper', '#ff5a20', {}, dict(WV, CustomNameVisible=B(1), Tags=WV['Tags'] + ['bm.gvcap']), {'scale': 1.7, 'max_health': 60.0, 'attack_damage': 8.0})
     def spawn(ty, nbt, x, z):
         return [f'execute positioned {rel(x, 5, z)} run summon minecraft:{ty} ~ ~ ~ {snbt(nbt)}', f'execute positioned {rel(x, 5, z)} run function bm:p70/guard_set']
     SPOTS = [(6, 6), (18, 6), (6, 18), (18, 18), (12, 8), (12, 16)]
