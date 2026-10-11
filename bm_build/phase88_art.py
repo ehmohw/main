@@ -209,8 +209,8 @@ def _claw():
 
 
 def _count_face():
-    """the blob's front (18 x 7): an angry furrowed brow, two beady black eyes (2.67), a knobbly nose line, a frown with
-    two little fangs pointing up"""
+    """the blob's front (18 x 7): an angry furrowed brow, round spectacle eyes (grey rims, empty white - no pupils), a
+    knobbly nose line, a frown with two little fangs pointing up"""
     im, d, P = _canvas('gnt_count_face', 18, 7, BLOB, 41, 0.025)
     ln = hexc(BLOB_LN)
     d.rectangle(P(0, 6.3) + P(18, 7), fill=hexc(BLOB_DK))
@@ -221,10 +221,10 @@ def _count_face():
     for x in (8.6, 9.4):
         d.rectangle(P(x - 0.12, 0.5) + P(x + 0.12, 1.5), fill=ln)
     d.rectangle(P(5.6, 0.25) + P(12.4, 0.45), fill=hexc(BLOB_DK))                                   # the forehead crease
-    for cx in (6.4, 11.6):                                                                           # beady black eyes, a glint in each
-        cy, r = 3.2, 0.75
-        d.ellipse(P(cx - r, cy - r) + P(cx + r, cy + r), fill=hexc('#0c0a10'))
-        d.rectangle(P(cx - 0.42, cy - 0.5) + P(cx - 0.12, cy - 0.2), fill=hexc('#ffffff'))
+    for cx in (6.4, 11.6):                                                                           # the spectacle eyes
+        cy, r = 3.3, 1.35
+        d.ellipse(P(cx - r - 0.25, cy - r - 0.25) + P(cx + r + 0.25, cy + r + 0.25), fill=hexc(SPEC))
+        d.ellipse(P(cx - r, cy - r) + P(cx + r, cy + r), fill=hexc(WHITE))                      # (empty white: no pupils)
     for x, y in ((8.2, 4.95), (9.0, 4.75), (9.8, 4.95)):                                             # a knobbly nose line
         d.rectangle(P(x - 0.3, y) + P(x + 0.3, y + 0.25), fill=ln)
     pts = [(4.4, 6.3), (5.6, 5.85), (7.4, 5.55), (9.0, 5.45), (10.6, 5.55), (12.4, 5.85), (13.6, 6.3)]   # the frown

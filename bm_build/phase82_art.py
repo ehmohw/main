@@ -1,5 +1,6 @@
 """2.67: the SCORCHING ARACHNO-LANTERN in the game (from the approved mockup, mockups/arachno_lantern_art.py): a jack-o'-lantern
-the size of a house carried on eight long black legs, so tall it walks over the trees.
+the size of a house carried on eight long black legs, so tall it walks over the trees. Blocky, like the Gutter Gentry: square
+tiers for the pumpkin, the face painted square-cut on its flat front, square legs, square flames.
 
 The rig: every part is an item display standing at the boss itself; where it sits, how it turns and how big it is all live in
 its transformation (translation, left rotation, scale), so a pose is a set of transformations and the client glides from one
@@ -24,168 +25,157 @@ CHITIN, CHITIN_LT, EMBER = '#16111b', '#3a3046', '#ff5a1a'
 
 
 # ---------------------------------------------------------------------------------------------------- textures
+# (2.67) blocky, in the Gutter Gentry's spirit (Cobblemon's adaptations): square forms that keep the silhouette, flat colour with
+# chunky shading, the face painted square-cut onto a flat front - no curves faked out of slivers.
+UV = {}          # texture -> the uv window of its painted face
+
+
+def _flat(c, seed, var=0.022):
+    return _cloth(c, seed, var=var)
+
+
+def _canvas(name, w, h, base, seed=1, var=0.022):
+    """a texture for a w x h (design units) face, with the uv window that maps it unstretched; P(x, y) -> pixels"""
+    im = _flat(base, seed, var)
+    if w >= h: kx, win = 64 / w, [0, 0, 16, round(16 * h / w, 3)]
+    else: kx, win = 64 / h, [0, 0, round(16 * w / h, 3), 16]
+    UV[name] = win
+    return im, ImageDraw.Draw(im), (lambda x, y: (round(x * kx), round(y * kx)))
+
+
 def _skin(seed, grooves=True):
-    """pumpkin rind: warm orange, deep vertical grooves with a highlight beside each, a little mottling"""
-    rnd = random.Random(seed); im = _cloth(ORANGE, seed, var=0.05); px = im.load()
+    """pumpkin rind: flat orange, a dark groove every 16 pixels with a lit strip beside it (four ribs across a face)"""
+    im = _flat(ORANGE, seed); d = ImageDraw.Draw(im)
     if grooves:
-        for x in range(64):
-            g = x % 16
-            k = 0.62 if g in (0, 15) else 0.78 if g in (1, 14) else 1.12 if g in (3, 4) else 1.0
-            for y in range(64):
-                r, gg, b, a = px[x, y]; px[x, y] = (min(255, int(r * k)), min(255, int(gg * k)), min(255, int(b * k)), 255)
-    d = ImageDraw.Draw(im)
-    for _ in range(18):
-        x, y = rnd.randint(0, 63), rnd.randint(0, 63)
-        d.point((x, y), fill=hexc(rnd.choice((ORANGE_DK, ORANGE_LT, '#d0661a'))))
+        for x0 in range(0, 64, 16):
+            d.rectangle((x0, 0, x0 + 1, 63), fill=hexc(ORANGE_DK)); d.rectangle((x0 + 4, 0, x0 + 6, 63), fill=hexc(ORANGE_LT))
     return im
 
 
 def _skin_top():
-    """the top and bottom: ribs running out from the middle, darker toward the stem"""
-    im = _skin(12, grooves=False); d = ImageDraw.Draw(im)
-    for k in range(12):
-        a = k * math.pi / 6
-        d.line((32, 32, 32 + 46 * math.cos(a), 32 + 46 * math.sin(a)), fill=hexc(ORANGE_DK), width=2)
-    for r, c in ((10, '#c05a12'), (5, '#8a3a0a')):
-        d.ellipse((32 - r, 32 - r, 32 + r, 32 + r), fill=hexc(c))
+    """the tops of the tiers: the ribs as a square-cut star, darker toward the middle"""
+    im = _flat(ORANGE, 12); d = ImageDraw.Draw(im)
+    for x0 in range(0, 64, 16):
+        d.rectangle((x0, 0, x0 + 1, 63), fill=hexc(ORANGE_DK)); d.rectangle((0, x0, 63, x0 + 1), fill=hexc(ORANGE_DK))
+    d.rectangle((22, 22, 41, 41), fill=hexc('#c05a12')); d.rectangle((28, 28, 35, 35), fill=hexc('#8a3a0a'))
     return im
 
 
-def _carve(im, holes, teeth=()):
-    """carved holes, lit from inside: a dark cut wall round each edge, then deep orange fading to pale yellow toward the middle
-    (the colour follows the distance from the edge, so every shape glows evenly); teeth: rind left standing in a hole"""
-    from PIL import ImageFilter
-    mask = Image.new('L', im.size, 0); md = ImageDraw.Draw(mask)
-    for kind, shape in holes:
-        (md.polygon if kind == 'poly' else md.ellipse)(shape, fill=255)
-    for box in teeth:
-        md.rectangle(box, fill=0)
-    layers, m = [], mask
-    for _ in range(8):
-        layers.append(m); m = m.filter(ImageFilter.MinFilter(3))
-    # (2.67: as the original art - menacing, near-black holes with only a subtle red glow deep inside, not a cheerful yellow light)
-    cols = ['#3a1206', '#1c0806', '#120406', '#170506', '#220708', '#320a0a', '#46100c', '#5c160e']
-    px = im.load()
-    for y in range(im.height):
-        for x in range(im.width):
-            depth = sum(1 for L in layers if L.getpixel((x, y)))
-            if depth: px[x, y] = hexc(cols[min(depth, len(cols)) - 1])
-    d = ImageDraw.Draw(im)
-    for x0, y0, x1, y1 in teeth:                                                              # (the teeth: rind, a lit edge)
-        d.line((x0, y1 + 1, x1, y1 + 1), fill=hexc('#6a180c')); d.line((x0, y0, x0, y1), fill=hexc(ORANGE_DK))
+def _skin_dk():
+    im = _flat(ORANGE_DK, 25); d = ImageDraw.Draw(im)
+    for x0 in range(0, 64, 16):
+        d.rectangle((x0, 0, x0 + 1, 63), fill=hexc('#7a3008'))
+    return im
+
+
+FACE_W, FACE_H = 40.0, 22.0           # the face plate: the whole front of the middle tier
 
 
 def _face():
-    """the carved face, 64 x 64 over a 27 x 22 unit plate: big slanting triangle eyes with red crescent pupils, two small round
-    spider eyes over each, a little nose, and a wide jagged grin with two teeth hanging down and one standing up"""
-    im = _skin(13, grooves=False)
-    holes = []
+    """the carved face, square-cut: big slanting triangle eyes with red crescent pupils, two square spider eyes over each, a
+    triangle nose, and a wide jagged grin with square teeth (two hanging down, two standing up). The cuts are near-black, a
+    dull red glow deep inside."""
+    from PIL import ImageFilter
+    im, d, P = _canvas('sal_face', FACE_W, FACE_H, ORANGE, 13)
+    for x0 in (0, 10, 20, 30, 40):                                                            # the ribs run behind the face
+        d.rectangle(P(x0 - 0.35, 0) + P(x0 + 0.35, FACE_H), fill=hexc(ORANGE_DK))
+    mask = Image.new('L', im.size, 0); md = ImageDraw.Draw(mask)
+    eyes = []
     for sx in (-1, 1):
-        cx = 32 + sx * 15
-        holes.append(('poly', [(cx - 12, 30), (cx + 11, 30), (cx + sx * 7, 9)]))              # (slanting in: a scowl)
-        for k, ey in ((0, 3), (1, 5)):
-            ex = cx + sx * (2 + 6 * k)
-            holes.append(('ellipse', (ex - 2, ey - 2, ex + 2, ey + 2)))
-    holes.append(('poly', [(27, 39), (37, 39), (32, 31)]))
-    holes.append(('poly', [(1, 40), (9, 44), (15, 41), (22, 45), (28, 42), (32, 45), (36, 42), (42, 45), (49, 41), (55, 44), (63, 40),
-                           (61, 50), (55, 58), (47, 62), (40, 59), (32, 63), (24, 59), (17, 62), (9, 58), (3, 50)]))
-    _carve(im, holes, teeth=((15, 44, 20, 50), (44, 44, 49, 50), (22, 56, 26, 61), (38, 56, 42, 61)))
-    d = ImageDraw.Draw(im)
-    for sx in (-1, 1):                                                                        # (2.67) red crescent pupils, horns toward the nose
-        ex, ey = 32 + sx * 16.5, 23.0
+        cx = 20 + sx * 10.5
+        tri = [P(cx - 7.0, 10.5), P(cx + 7.0, 10.5), P(cx + sx * 4.2, 1.6)]                  # slanting in: a scowl
+        md.polygon(tri, fill=255); eyes.append((cx, sx))
+    for sx in (-1, 1):                                                                        # the spider eyes: two little squares over each
+        for k, (ex, ey) in enumerate(((20 + sx * 11.5, 0.9), (20 + sx * 15.5, 1.9))):
+            md.rectangle(P(ex - 0.9, ey - 0.6) + P(ex + 0.9, ey + 1.0), fill=255)
+    md.polygon([P(18.2, 13.6), P(21.8, 13.6), P(20, 10.9)], fill=255)                          # the nose
+    grin = [(1.5, 14.0), (5.5, 15.4), (9.0, 14.3), (13.0, 15.6), (16.5, 14.6), (20, 15.7), (23.5, 14.6), (27.0, 15.6), (31.0, 14.3),
+            (34.5, 15.4), (38.5, 14.0), (37.2, 18.0), (33.0, 20.4), (27.5, 21.3), (20, 20.6), (12.5, 21.3), (7.0, 20.4), (2.8, 18.0)]
+    md.polygon([P(x, y) for x, y in grin], fill=255)
+    for x0, y0, x1, y1 in ((9.2, 14.6, 12.0, 17.4), (28.0, 14.6, 30.8, 17.4), (14.2, 18.4, 16.6, 21.2), (23.4, 18.4, 25.8, 21.2)):
+        md.rectangle(P(x0, y0) + P(x1, y1), fill=0)                                            # square teeth left standing
+    layers, m = [], mask
+    for _ in range(4):
+        layers.append(m); m = m.filter(ImageFilter.MinFilter(3))
+    cols = ['#2a0c06', '#120406', '#1c0607', '#3a0c0a']                                       # (a dark wall, black, then a dull red glow)
+    px = im.load()
+    for y in range(im.height):
+        for x in range(im.width):
+            dep = sum(1 for L in layers if L.getpixel((x, y)))
+            if dep: px[x, y] = hexc(cols[dep - 1])
+    for cx, sx in eyes:                                                                       # red crescent pupils, horns toward the nose
+        ey = 7.0
         cres = Image.new('L', im.size, 0); cd = ImageDraw.Draw(cres)
-        cd.ellipse((ex - 4.2, ey - 5.6, ex + 4.2, ey + 5.6), fill=255)
-        cd.ellipse((ex - 3.6 - sx * 3.4, ey - 4.4, ex + 3.6 - sx * 3.4, ey + 4.4), fill=0)
-        px = im.load()
+        cd.ellipse(P(cx - 2.3, ey - 2.6) + P(cx + 2.3, ey + 2.6), fill=255)
+        cd.ellipse(P(cx - 2.1 - sx * 1.7, ey - 2.2) + P(cx + 2.1 - sx * 1.7, ey + 2.2), fill=0)
         for y in range(im.height):
             for x in range(im.width):
                 if cres.getpixel((x, y)):
                     edge = any(not cres.getpixel((min(63, max(0, x + ox)), min(63, max(0, y + oy)))) for ox, oy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
                     px[x, y] = hexc('#a00c0c' if edge else '#ff2a1a')
-    for x in range(0, 64, 16):                                                                # faint grooves over the rind only
-        for y in range(64):
-            r, g, b, a = im.getpixel((x, y))
-            if (r, g, b) != hexc(CUT)[:3] and g < 150: im.putpixel((x, y), (int(r * 0.8), int(g * 0.8), int(b * 0.8), 255))
     return im
 
 
 def _flame(seed):
-    """fire from the bottom up: a white-yellow root, orange, a red tip; ragged flicker at the sides"""
-    rnd = random.Random(seed); im = Image.new('RGBA', (64, 64)); px = im.load()
-    stops = [(0.0, '#e0361a'), (0.35, '#ff7a1a'), (0.65, '#ffc838'), (1.0, '#fff8c8')]
-    def col(t):
-        for (t0, c0), (t1, c1) in zip(stops, stops[1:]):
-            if t <= t1:
-                a, b = hexc(c0), hexc(c1); f = (t - t0) / (t1 - t0)
-                return tuple(int(a[i] + (b[i] - a[i]) * f) for i in range(3))
-        return hexc(stops[-1][1])[:3]
-    for y in range(64):
-        for x in range(64):
-            t = y / 63 + rnd.uniform(-0.06, 0.06) - (0.12 if x in (0, 1, 62, 63) else 0)
-            px[x, y] = col(max(0, min(1, t))) + (255,)
+    """fire in flat bands, bottom (row 63) to top: white-yellow, yellow, orange, red-orange, red"""
+    im = Image.new('RGBA', (64, 64)); d = ImageDraw.Draw(im)
+    for k, c in enumerate(('#e0361a', '#ff5a1a', '#ff8a1a', '#ffc030', '#fff2a8')):
+        d.rectangle((0, k * 13, 63, min(63, k * 13 + 12)), fill=hexc(c))
+    rnd = random.Random(seed)
+    for _ in range(30):                                                                       # a few flickering squares at the band edges
+        x, y = rnd.randrange(0, 64, 4), rnd.choice((12, 25, 38, 51)); d.rectangle((x, y - 1, x + 3, y + 2), fill=d.im.getpixel((x, y + 4)) if y + 4 < 64 else hexc('#fff2a8'))
     return im
 
 
 def _tongue():
-    im = _cloth(PURPLE, 14, var=0.05); d = ImageDraw.Draw(im)
-    d.rectangle((29, 0, 34, 63), fill=hexc(PURPLE_DK))
-    for x0 in (8, 48):
-        d.line((x0, 0, x0, 63), fill=hexc(PURPLE_LT), width=2)
-    rnd = random.Random(15)
-    for _ in range(40):
-        x, y = rnd.randint(0, 63), rnd.randint(0, 63); d.point((x, y), fill=hexc(PURPLE_LT))
+    im = _flat(PURPLE, 14); d = ImageDraw.Draw(im)
+    d.rectangle((28, 0, 35, 63), fill=hexc(PURPLE_DK)); d.rectangle((6, 0, 11, 63), fill=hexc(PURPLE_LT))
     return im
 
 
 def _stem():
-    im = _cloth('#5e7a2c', 16, var=0.06); d = ImageDraw.Draw(im)
-    for x in range(0, 64, 6):
-        d.line((x, 0, x + 2, 63), fill=hexc('#3c5418'), width=2)
-    for x in range(3, 64, 12):
-        d.line((x, 0, x, 63), fill=hexc('#86a246'))
+    im = _flat('#5e7a2c', 16); d = ImageDraw.Draw(im)
+    for x in range(0, 64, 16):
+        d.rectangle((x, 0, x + 2, 63), fill=hexc('#3c5418')); d.rectangle((x + 7, 0, x + 9, 63), fill=hexc('#86a246'))
     return im
 
 
 def _leaf():
-    im = _cloth('#3e9a30', 17, var=0.05); d = ImageDraw.Draw(im)
-    d.line((32, 0, 32, 63), fill=hexc('#2a6a20'), width=2)
-    for y in range(6, 60, 10):
-        d.line((32, y, 6, y - 8), fill=hexc('#2a6a20')); d.line((32, y, 58, y - 8), fill=hexc('#2a6a20'))
+    im = _flat('#3e9a30', 17); d = ImageDraw.Draw(im)
+    d.rectangle((30, 0, 33, 63), fill=hexc('#2a6a20'))
+    for y in range(4, 64, 14):
+        d.rectangle((6, y, 57, y + 2), fill=hexc('#2a6a20'))
     return im
 
 
 def _chitin(seed):
-    """black chitin: a faint violet sheen running along it, glints, and bristles"""
-    rnd = random.Random(seed); im = _cloth(CHITIN, seed, var=0.05); d = ImageDraw.Draw(im)
-    for x in (14, 15, 40):
-        d.line((x, 0, x, 63), fill=hexc('#241c2e'))
-    for _ in range(30):
-        x, y = rnd.randint(0, 63), rnd.randint(0, 63); d.line((x, y, x + 1, y - 2), fill=hexc(CHITIN_LT))
+    """black chitin, flat, with one violet sheen strip and a darker edge"""
+    im = _flat(CHITIN, seed, 0.03); d = ImageDraw.Draw(im)
+    d.rectangle((10, 0, 17, 63), fill=hexc(CHITIN_LT)); d.rectangle((54, 0, 63, 63), fill=hexc('#0c090f'))
     return im
 
 
 def _joint():
-    """the knuckles: charred black, split by glowing ember cracks"""
-    im = _cloth('#1c1010', 18, var=0.05); d = ImageDraw.Draw(im)
-    rnd = random.Random(19)
-    for _ in range(7):
-        x, y = rnd.randint(0, 63), rnd.randint(0, 63); pts = [(x, y)]
-        for _k in range(5):
-            x += rnd.randint(-8, 8); y += rnd.randint(-8, 8); pts.append((x, y))
-        d.line(pts, fill=hexc('#9a2a0a'), width=3); d.line(pts, fill=hexc(EMBER), width=1)
+    """the knuckles: charred black, split by square ember cracks"""
+    im = _flat('#1c1010', 18, 0.03); d = ImageDraw.Draw(im)
+    for pts in (((8, 0), (8, 20), (24, 20), (24, 40)), ((44, 10), (44, 30), (56, 30), (56, 63)), ((16, 48), (36, 48), (36, 63))):
+        for a, b in zip(pts, pts[1:]):
+            d.rectangle((min(a[0], b[0]) - 2, min(a[1], b[1]) - 2, max(a[0], b[0]) + 2, max(a[1], b[1]) + 2), fill=hexc('#9a2a0a'))
+        for a, b in zip(pts, pts[1:]):
+            d.rectangle((min(a[0], b[0]) - 1, min(a[1], b[1]) - 1, max(a[0], b[0]) + 1, max(a[1], b[1]) + 1), fill=hexc(EMBER))
     return im
 
 
 def _collar():
-    im = _cloth('#2a1810', 20, var=0.06); d = ImageDraw.Draw(im)
-    rnd = random.Random(21)
-    for _ in range(26):
-        x, y = rnd.randint(0, 63), rnd.randint(0, 63); d.point((x, y), fill=hexc(rnd.choice((EMBER, '#c04010', '#4a2a1a'))))
+    im = _flat('#2a1810', 20, 0.03); d = ImageDraw.Draw(im)
+    for x in range(0, 64, 16):
+        d.rectangle((x + 3, 22, x + 8, 27), fill=hexc(EMBER)); d.rectangle((x + 10, 44, x + 13, 47), fill=hexc('#c04010'))
+    d.rectangle((0, 0, 63, 3), fill=hexc('#4a2a1a'))
     return im
 
 
 def textures():
-    return {'sal_skin': _skin(11), 'sal_top': _skin_top(), 'sal_face': _face(), 'sal_flame': _flame(22), 'sal_tongue': _tongue(),
+    return {'sal_skin': _skin(11), 'sal_top': _skin_top(), 'sal_skin_dk': _skin_dk(), 'sal_face': _face(), 'sal_flame': _flame(22), 'sal_tongue': _tongue(),
             'sal_stem': _stem(), 'sal_leaf': _leaf(), 'sal_leg': _chitin(23), 'sal_joint': _joint(), 'sal_collar': _collar()}
 
 
@@ -193,11 +183,17 @@ def textures():
 O = (0, 0, 0)
 
 
-def _box(fr, to, tex, rot=None, uv=None, tex_y=None):
-    """an element around the joint (design units = model units - 8); tex_y: a different texture for the top/bottom faces"""
-    e = _el(fr, to, tex, O, rot, uv)
+def _box(fr, to, tex, rot=None, uv=None, tex_y=None, front=None, drop=()):
+    """an element around the joint (design units = model units - 8); tex_y: another texture on top and bottom; front: a painted
+    texture on the north face, mapped whole; drop: faces left off (hidden inside)"""
+    fs = [f for f in ('north', 'south', 'east', 'west', 'up', 'down') if f not in drop]
+    u = dict(uv or {})
+    if front and 'north' not in u: u['north'] = UV[front]
+    e = _el(fr, to, tex, O, rot, u, fs)
     if tex_y:
-        for f in ('up', 'down'): e['faces'][f]['texture'] = '#' + tex_y
+        for f in ('up', 'down'):
+            if f in e['faces']: e['faces'][f]['texture'] = '#' + tex_y
+    if front: e['faces']['north']['texture'] = '#' + front
     return e
 
 
@@ -209,88 +205,79 @@ def _band(e, v0, v1):
 
 
 def body():
-    """the pumpkin: eight slices, each a rough octagon (a cross and a diamond), widest at the middle, flattened top and bottom;
-    the face plate on the front (-z) in three bands that follow the curve"""
-    els = []
-    R, H = 20.0, 17.0
-    rf = lambda yc: R * max(0.0, 1 - abs(yc / (H + 0.5)) ** 2.6) ** 0.5
-    for y0 in range(-16, 16, 4):
-        yc = y0 + 2; r = rf(yc)
-        els.append(_box((-r, y0, -0.62 * r), (r, y0 + 4, 0.62 * r), 'sal_skin', tex_y='sal_top'))
-        els.append(_box((-0.7 * r, y0, -r), (0.7 * r, y0 + 4, r), 'sal_skin', tex_y='sal_top'))
-        q = 0.7 * r
-        els.append(_box((-q, y0, -q), (q, y0 + 4, q), 'sal_skin', ('y', 45, (0, yc, 0)), tex_y='sal_top'))
-    for (y0, y1), (v0, v1) in (((4, 11), (0, 5.1)), ((-4, 4), (5.1, 10.9)), ((-11, -4), (10.9, 16))):  # (three bands down the curve)
-        r = max(rf(l + 2) for l in range(-16, 16, 4) if l < y1 and l + 4 > y0)           # (in front of every slice it crosses)
-        e = _box((-13.5, y0, -r - 0.45), (13.5, y1, -r + 0.6), 'sal_skin', uv={'north': [0, v0, 16, v1]})
-        e['faces']['north']['texture'] = '#sal_face'
-        els.append(e)
-    return els
+    """the pumpkin in square tiers, like a stack of rounded crates: a broad middle tier carrying the carved face, narrower tiers
+    stepping in above and below, a dark base. Wider than it is tall."""
+    if 'sal_face' not in UV: _face()
+    return [_box((-12, -17, -10), (12, -15, 10), 'sal_skin_dk', drop=('up',)),
+            _box((-17, -15, -15), (17, -11, 15), 'sal_skin', tex_y='sal_top', drop=('up',)),
+            _box((-20, -11, -18), (20, 11, 18), 'sal_skin', tex_y='sal_top', front='sal_face'),
+            _box((-17, 11, -15), (17, 15, 15), 'sal_skin', tex_y='sal_top', drop=('down',)),
+            _box((-12, 15, -10), (12, 17, 10), 'sal_skin', tex_y='sal_top', drop=('down',)),
+            # the ribs: raised square strips down the sides and the back of the middle tier (the front is the face)
+            *[_box((x0, -8, z0), (x1, 8, z1), 'sal_skin', tex_y='sal_top', drop=(dr,))
+              for sx in (1, -1) for zc in (-8, 8)
+              for x0, x1, z0, z1, dr in [(min(sx * 20, sx * 21.2), max(sx * 20, sx * 21.2), zc - 3.5, zc + 3.5, 'west' if sx > 0 else 'east')]],
+            *[_box((xc - 3.5, -8, 18), (xc + 3.5, 8, 19.2), 'sal_skin', tex_y='sal_top', drop=('north',)) for xc in (-8, 8)]]
 
 
 def tongue():
-    """from the grin's lower lip: out, down, and curling back up at the tip (joint = where it leaves the mouth)"""
+    """from the grin's lower lip: out, down, and curling back up at the tip - square steps (joint = where it leaves the mouth)"""
     return [_box((-2.4, -1.6, -3.5), (2.4, 1.0, 0.5), 'sal_tongue'),
-            _box((-2.7, -6.0, -6.2), (2.7, -1.4, -2.6), 'sal_tongue', ('x', 22.5, (0, -3.7, -4.4))),
-            _box((-2.4, -10.0, -8.0), (2.4, -5.6, -4.8), 'sal_tongue', ('x', 22.5, (0, -7.8, -6.4))),
-            _box((-2.1, -12.4, -8.1), (2.1, -9.6, -5.3), 'sal_tongue', ('x', -22.5, (0, -11, -6.7))),
-            _box((-1.6, -12.6, -6.0), (1.6, -10.6, -3.6), 'sal_tongue', ('x', -45, (0, -11.6, -4.8)))]
+            _box((-2.6, -5.8, -6.0), (2.6, -1.4, -2.6), 'sal_tongue'),
+            _box((-2.4, -9.8, -7.8), (2.4, -5.6, -4.6), 'sal_tongue'),
+            _box((-2.1, -11.8, -8.0), (2.1, -9.6, -3.4), 'sal_tongue'),
+            _box((-1.7, -11.4, -3.6), (1.7, -8.8, -1.4), 'sal_tongue')]
 
 
 def flame(sx):
-    """(2.67) a mouth fire: three tongues licking out of the corner of the grin - out to the side and a little forward,
-    curling up as they go; yellow at the root, red at the tips (sx: which corner)"""
+    """(2.67) a mouth fire, blocky: square licks stepping out of the corner of the grin - out, up, smaller as they go; yellow at
+    the root, red at the tips (sx: which corner)"""
+    steps = [((-0.6, 2.8), (-1.6, 1.6), (-1.8, 1.0), (12.8, 16.0)),                 # (root, at the corner of the grin, just in front of it)
+             ((1.2, 4.6), (0.2, 3.8), (-2.0, 0.6), (9.6, 12.8)), ((3.0, 6.2), (2.4, 6.2), (-1.8, 0.4), (6.4, 9.6)),
+             ((4.4, 7.0), (5.0, 8.6), (-1.5, 0.2), (3.2, 6.4)), ((5.4, 7.4), (7.8, 10.8), (-1.2, 0.0), (0.0, 3.2)),
+             ((0.4, 2.6), (1.4, 4.8), (-3.0, -1.2), (6.4, 9.6)), ((0.8, 2.2), (4.4, 6.8), (-2.8, -1.4), (0.0, 3.2))]   # (and a small lick in front)
     out = []
-    for dy, dz, L, rise in ((0.0, 0.0, 11.0, 0.9), (1.4, -0.6, 8.0, 1.3), (-1.2, -0.4, 7.0, 0.6)):
-        n = 5
-        for k in range(n):
-            t0, t1 = k / n, (k + 1) / n
-            x0, x1 = sx * L * t0, sx * (L * t1 + 0.4)
-            y = dy + rise * L * t0 * t0 * 0.9
-            w = 2.0 * (1 - k / (n + 0.6)) + 0.3
-            z = dz - 0.6 * k
-            out.append(_band(_box((min(x0, x1), y - w, z - w * 0.7), (max(x0, x1), y + w + rise * 1.6, z + w * 0.7), 'sal_flame'),
-                             16 * (1 - (k + 1) / n), 16 * (1 - k / n)))
+    for (x0, x1), (y0, y1), (z0, z1), (v0, v1) in steps:
+        a, b = sorted((sx * x0, sx * x1))
+        out.append(_band(_box((a, y0, z0), (b, y1, z1), 'sal_flame'), v0, v1))
     return out
 
 
 def stem():
-    """thick and ribbed, bending over and curling at the end; a broad leaf and a corkscrew vine at its foot"""
-    els = [_box((-3, 0, -3), (3, 5, 3), 'sal_stem'), _box((-2.6, 4.5, -2.2), (2.6, 9, 3.0), 'sal_stem', ('x', 22.5, (0, 4.5, 0))),
-           _box((-2.2, 8, 0.5), (2.2, 11.5, 6.0), 'sal_stem', ('x', 45, (0, 8, 1.5))), _box((-1.8, 7.5, 5.0), (1.8, 10.5, 8.5), 'sal_stem'),
-           _box((-1.5, 6.0, 7.2), (1.5, 8.5, 9.4), 'sal_stem')]
-    els.append(_box((2.5, 0.4, -5), (12, 1.0, 4), 'sal_leaf', ('z', -22.5, (2.5, 0.7, 0))))
-    for k in range(5):                                                                               # the vine: a little corkscrew
-        a = k * 1.3; x, z = -4 - 2.2 * math.cos(a), 2.2 * math.sin(a)
-        els.append(_box((x - 0.5, 1 + k * 1.6, z - 0.5), (x + 0.5, 2.4 + k * 1.6, z + 0.5), 'sal_stem'))
+    """thick and ribbed, stepping over and hooking down at the end; a flat leaf and a little square vine at its foot"""
+    els = [_box((-3, 0, -3), (3, 5, 3), 'sal_stem', drop=('down',)), _box((-2.6, 5, -2.0), (2.6, 8.5, 3.2), 'sal_stem'),
+           _box((-2.2, 7.5, 3.0), (2.2, 10.5, 7.2), 'sal_stem'), _box((-1.8, 6.4, 6.6), (1.8, 9.0, 9.4), 'sal_stem'),
+           _box((-1.5, 5.0, 8.0), (1.5, 6.8, 9.6), 'sal_stem')]
+    els.append(_box((2.5, 0.2, -5), (12, 1.0, 4), 'sal_leaf'))
+    els += [_box((-6.4, 0.4, -0.8), (-4.8, 2.0, 0.8), 'sal_stem'), _box((-7.4, 1.8, -0.8), (-5.8, 3.4, 0.8), 'sal_stem'),
+            _box((-6.6, 3.2, 0.4), (-5.0, 4.6, 2.0), 'sal_stem')]
     return els
 
 
 def collar():
-    """the charred ring under the pumpkin the legs come out of (8 sockets)"""
-    els = [_box((-14, -3, -6), (14, 3, 6), 'sal_collar'), _box((-6, -3, -14), (6, 3, 14), 'sal_collar'),
-           _box((-9.5, -3, -9.5), (9.5, 3, 9.5), 'sal_collar', ('y', 45, (0, 0, 0))), _box((-8, -6, -8), (8, -3, 8), 'sal_collar')]
-    return els
+    """the charred square ring under the pumpkin the legs come out of"""
+    return [_box((-14, -3, -14), (14, 3, 14), 'sal_collar'), _box((-9, -6, -9), (9, -3, 9), 'sal_collar', drop=('up',))]
 
 
 SEG_LEN = 24.0                     # every leg segment is modelled 24 units long, joint at its root, along +y; scaled to fit
 
 
 def segment(w0, w1, knob, tip=False, spikes=()):
-    """a leg segment: a knob at the joint, a tapering shaft (w0 -> w1 units thick), bristles/spikes; tip: ends in a point"""
-    els = [_box((-knob, -knob * 0.7, -knob), (knob, knob * 0.9, knob), 'sal_joint')]
-    n = 4
+    """a leg segment, square-cut: a cube knuckle at the joint, a shaft stepping thinner (w0 -> w1 units thick), square bristles
+    sticking straight out; tip: ends in a narrow point"""
+    els = [_box((-knob, -knob * 0.8, -knob), (knob, knob, knob), 'sal_joint')]
+    n = 3
     for k in range(n):
-        y0, y1 = SEG_LEN * k / n, min(SEG_LEN, SEG_LEN * (k + 1) / n + 0.3)
+        y0, y1 = SEG_LEN * k / n, SEG_LEN * (k + 1) / n
         w = (w0 + (w1 - w0) * (k + 0.5) / n) / 2
         if tip and k == n - 1:
-            els += [_box((-w, y0, -w), (w, y0 + 3.5, w), 'sal_leg'), _box((-w * 0.55, y0 + 3.4, -w * 0.55), (w * 0.55, SEG_LEN - 0.4, w * 0.55), 'sal_leg')]
+            els += [_box((-w, y0, -w), (w, y0 + 4.0, w), 'sal_leg'), _box((-w * 0.5, y0 + 4.0, -w * 0.5), (w * 0.5, SEG_LEN, w * 0.5), 'sal_leg')]
         else:
             els.append(_box((-w, y0, -w), (w, y1, w), 'sal_leg'))
-    for y, side in spikes:                                                                            # bristles, raked back
+    for y, side in spikes:                                                                            # bristles: little square pegs
         w = (w0 + (w1 - w0) * y / SEG_LEN) / 2
-        lo, hi = sorted((side * w, side * (w + 1.5)))
-        els.append(_box((lo, y, -0.3), (hi, y + 0.6, 0.3), 'sal_leg', ('z', 22.5 * side, (side * w, y, 0))))
+        lo, hi = sorted((side * w, side * (w + 1.4)))
+        els.append(_box((lo, y, -0.35), (hi, y + 0.7, 0.35), 'sal_leg'))
     return els
 
 
@@ -328,9 +315,9 @@ U = BODY_S / 16
 SIDES = (1, -1)
 SEGS = (('f', 'sal_femur'), ('t', 'sal_tibia'), ('s', 'sal_tarsus'))
 BODY_PARTS = {  # name: (model, design offset from the pumpkin's centre, scale)
-    'body': ('sal_body', (0, 0, 0), BODY_S), 'collar': ('sal_collar', (0, -17.0, 0), BODY_S * 0.9), 'stem': ('sal_stem', (0, 15.5, 0), BODY_S),
-    'tongue': ('sal_tongue', (0, -9.4, -19.0), BODY_S), 'flame_r': ('sal_flame_r', (12.6, -4.8, -19.4), FLAME_S),       # (2.67: from the mouth's corners)
-    'flame_l': ('sal_flame_l', (-12.6, -4.8, -19.4), FLAME_S)}
+    'body': ('sal_body', (0, 0, 0), BODY_S), 'collar': ('sal_collar', (0, -18.0, 0), BODY_S * 0.9), 'stem': ('sal_stem', (0, 16.6, 0), BODY_S),
+    'tongue': ('sal_tongue', (0, -8.8, -18.4), BODY_S), 'flame_r': ('sal_flame_r', (18.0, -3.4, -18.4), FLAME_S),       # (2.67: from the mouth's corners)
+    'flame_l': ('sal_flame_l', (-18.0, -3.4, -18.4), FLAME_S)}
 LEG_PARTS = [f'{"r" if s > 0 else "l"}{i}{k}' for s in SIDES for i in range(4) for k, _m in SEGS]
 PARTS = list(BODY_PARTS) + LEG_PARTS
 MODEL = {**{p: v[0] for p, v in BODY_PARTS.items()}, **{f'{"r" if s > 0 else "l"}{i}{k}': m for s in SIDES for i in range(4) for k, m in SEGS}}

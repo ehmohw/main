@@ -314,9 +314,12 @@ POSES = {
     'run_up': P(0.1, body=torso(lean=10), head=torso(lean=-9), legr=limb(1, 10), legl=limb(-1, -28), armr=limb(1, 28, 8), arml=limb(-1, 0, 14), trident=qa('x', 78)),
     'run_b': P(0.02, body=torso(lean=10, tilt=-3), head=torso(lean=-8), legr=limb(1, -42), legl=limb(-1, 44), armr=limb(1, 30, 8), arml=limb(-1, -40, 10), trident=qa('x', 80)),
     'jump': P(body=torso(lean=6), head=torso(lean=-10), legr=limb(1, 30), legl=limb(-1, -36), armr=limb(1, 30, 12), arml=limb(-1, 20, 40), trident=qa('x', 60)),
-    # sit: down on the ground, legs out, leaning on his left hand, the trident laid across his knees, prongs ahead
-    'sit_a': P(-0.6, body=torso(lean=-8), head=torso(lean=4), legr=limb(1, 84), legl=limb(-1, 80), armr=limb(1, 30, 8), arml=limb(-1, -28, 16), trident=qmul(qa('y', -14), qa('x', 96))),
-    'sit_b': P(-0.6, body=torso(lean=-9), head=qmul(qa('y', 14), qa('x', 4)), legr=limb(1, 84), legl=limb(-1, 76), armr=limb(1, 30, 8), arml=limb(-1, -28, 16), trident=qmul(qa('y', -14), qa('x', 96))),
+    # sit: down on the ground, legs out (the left knee drawn up a little), leaning back on his left hand, the trident laid across
+    # his knees, prongs ahead; he breathes, looks out to sea, and now and then stands the trident up beside him like a staff
+    'sit_a': P(-0.6, body=torso(lean=-8), head=torso(lean=4), legr=limb(1, 84, 4), legl=limb(-1, 62, 6), armr=limb(1, 30, 8), arml=limb(-1, -28, 16), trident=qmul(qa('y', -14), qa('x', 96))),
+    'sit_b': P(-0.58, body=torso(lean=-10), head=qmul(qa('y', 10), qa('x', 2)), legr=limb(1, 84, 4), legl=limb(-1, 58, 6), armr=limb(1, 28, 8), arml=limb(-1, -30, 16), trident=qmul(qa('y', -14), qa('x', 96))),
+    'sit_look': P(-0.6, body=torso(lean=-8, turn=8), head=qmul(qa('y', 34), qa('x', -6)), legr=limb(1, 84, 4), legl=limb(-1, 62, 6), armr=limb(1, 30, 8), arml=limb(-1, -28, 16), trident=qmul(qa('y', -14), qa('x', 96))),
+    'sit_staff': P(-0.6, body=torso(lean=-4), head=qmul(qa('y', -8), qa('x', 6)), legr=limb(1, 84, 4), legl=limb(-1, 62, 6), armr=limb(1, 74, 10), arml=limb(-1, -28, 16), trident=qmul(qa('z', 8), qa('x', -4))),
     # the salute (on arrival): mid-stride, two fingers off the helm with his left hand (the folded arm model), the trident up
     'salute': P(body=qa('y', 8), head=qmul(qa('y', -10), qa('x', 4)), arml=qmul(qa('y', 6), qmul(qa('z', 96), qa('x', -18))),
                 armr=limb(1, 4, 9), legr=qa('x', 22), legl=qa('x', -20)),

@@ -14,8 +14,10 @@
 - WITH CELI ("Steel and Frost"): you get Strength; he covers her (Resistance); his thrusts freeze like her spear.
 - WITH EMMA ("The Knight's Vow"): you regenerate; he shields her (Resistance II); his guard is back twice as fast.
 - With both: Speed as well. They bicker (Celi) and cheer (Emma) - and he smiles.
-- He animates: a watchful idle (an eye on the sea), a steady stride, a levelled charge, sitting, the salute when he
-  arrives, the thrust, the throw, on guard; his face blinks and changes (phase95)."""
+- He animates: a watchful idle (an eye on the sea), a steady stride, a levelled charge, sitting (right-click him: he sits
+  on the ground, leans back on one hand, the trident across his knees - breathing, looking out to sea, now and then standing
+  the trident up like a staff), the salute when he arrives, the thrust, the throw, on guard; his face blinks and changes.
+- He can be hung in an item frame like the others (his crest in a frame: he lives by it)."""
 from items import item, T, TOTEM
 from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D
@@ -68,7 +70,7 @@ def generate(G):
     lechat = lambda txt, who='@s': tellraw(who, [T('Leo: ', SEA, bold=True), T(f'"{txt}"', CREAM)])
     tick, fast, second = [], [], []
     objs = ['bm.les', 'bm.lef', 'bm.lecd', 'bm.lek', 'bm.lea', 'bm.lem', 'bm.let', 'bm.lez', 'bm.ler', 'bm.leq', 'bm.lel', 'bm.leg', 'bm.lesl',
-            'bm.lew', 'bm.leb', 'bm.lefx', 'bm.fgo', 'bm.leph']
+            'bm.lew', 'bm.leb', 'bm.lefx', 'bm.fgo', 'bm.leph', 'bm.lecl']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
     holds = '*[minecraft:custom_data~{bm:"leo_crest"}]'
@@ -103,7 +105,7 @@ def generate(G):
 
     # ---- poses
     DUR = {'idle_a': 10, 'idle_b': 10, 'idle_look': 12, 'walk_a': 4, 'walk_up': 4, 'walk_b': 4, 'run_a': 3, 'run_up': 3, 'run_b': 3, 'jump': 3,
-           'sit_a': 6, 'sit_b': 6, 'salute': 5, 'thrust_back': 3, 'thrust': 2, 'throw_back': 4, 'throw': 2, 'guard': 4}
+           'sit_a': 10, 'sit_b': 14, 'sit_look': 14, 'sit_staff': 12, 'salute': 5, 'thrust_back': 3, 'thrust': 2, 'throw_back': 4, 'throw': 2, 'guard': 4}
     def xf_nbt(pose, p):
         rot, tr = ART.part_xf(pose, p)
         return f'left_rotation:{snbt(qf(rot))},translation:[{tr[0]:.4f}f,{tr[1]:.4f}f,{tr[2]:.4f}f]'
@@ -114,7 +116,8 @@ def generate(G):
     CYCLE = {0: (120, [(0, 'idle_a'), (30, 'idle_b'), (60, 'idle_a'), (78, 'idle_look'), (104, 'idle_a')]),
              1: (16, [(0, 'walk_a'), (4, 'walk_up'), (8, 'walk_b'), (12, 'walk_up')]),
              2: (12, [(0, 'run_a'), (3, 'run_up'), (6, 'run_b'), (9, 'run_up')]),
-             3: (None, [(0, 'jump')]), 4: (16, [(0, 'sit_a'), (8, 'sit_b')]), 6: (None, [(0, 'salute')]),
+             3: (None, [(0, 'jump')]), 6: (None, [(0, 'salute')]),
+             4: (160, [(0, 'sit_a'), (36, 'sit_b'), (64, 'sit_a'), (80, 'sit_look'), (108, 'sit_a'), (124, 'sit_staff'), (150, 'sit_a')]),
              7: (None, [(0, 'thrust_back'), (3, 'thrust')]), 8: (None, [(0, 'throw_back'), (6, 'throw')]), 9: (None, [(0, 'guard')])}
     anim = []
     for st, (period, frames) in CYCLE.items():
@@ -124,7 +127,7 @@ def generate(G):
         fn(f'p96/anim/{st}', lines)
         anim.append(f'execute if score @s bm.les matches {st} run return run function bm:p96/anim/{st}')
     fn('p96/anim', anim)
-    G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in (12, 16, 120)]
+    G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in (12, 16, 120, 160)]
     # (as the host) what he's doing now -> #st
     fn('p96/state', ['execute if score @s bm.lesl matches 1.. run return run scoreboard players set #st bm.rng 6',
                      'execute if score @s bm.lek matches 1.. run return run scoreboard players operation #st bm.rng = @s bm.lea',
@@ -271,9 +274,34 @@ def generate(G):
                      'function bm:p96/grow', 'scoreboard players set @s bm.les -1', 'scoreboard players set @s bm.lesl 0',
                      'execute if score @s bm.ler matches 2.. run function bm:p96/tri_off'])
     fn('p96/dismiss', ['execute as @e[type=minecraft:wolf,tag=bm.lesel2] at @s run function bm:p96/fade',
+                       'execute as @e[type=minecraft:wolf,tag=bm.lesel2] on passengers run kill @s',
                        'execute as @e[type=minecraft:wolf,tag=bm.lesel2] run data remove entity @s Owner',
                        'execute as @e[type=minecraft:wolf,tag=bm.lesel2] run tp @s ~ -500 ~', 'kill @e[type=minecraft:wolf,tag=bm.lesel2]',
                        lesay('Back to the shore, then. Call, and I\'ll come running.')])
+
+    # ---- (2.67) a click box the size of him (the wolf under him is only knee-high): right-click him to sit him down / stand him up
+    second.append('execute as @e[type=minecraft:wolf,tag=bm.leopet,tag=!bm.ffpet] unless function bm:p96/has_hit at @s run function bm:p96/add_hit')
+    fn('p96/has_hit', ['execute on passengers if entity @s[type=minecraft:interaction,tag=bm.lehit] run return 1', 'return 0'])
+    fn('p96/add_hit', ['summon minecraft:interaction ~ ~ ~ {Tags:["bm.lehit","bm.lehnew"],width:0.8f,height:1.2f,response:1b}',
+                       'ride @e[type=minecraft:interaction,tag=bm.lehnew,limit=1,sort=nearest] mount @s', 'tag @e[tag=bm.lehnew] remove bm.lehnew'])
+    second.append('execute as @e[type=minecraft:interaction,tag=bm.lehit] unless function bm:p20/frog/has_vehicle run kill @s')
+    fast += ['execute as @e[type=minecraft:interaction,tag=bm.lehit] if data entity @s interaction run function bm:p96/click',
+             'execute as @e[type=minecraft:interaction,tag=bm.lehit] if data entity @s attack run data remove entity @s attack']
+    lw = '@e[type=minecraft:wolf,tag=bm.leclk,limit=1]'
+    fn('p96/click', ['execute on vehicle run tag @s add bm.leclk', 'execute on target at @s run function bm:p96/who', 'tag @e[tag=bm.leclk] remove bm.leclk',
+                     'data remove entity @s interaction'])
+    tick.append('scoreboard players remove @a[scores={bm.lecl=1..}] bm.lecl 1')
+    fn('p96/who', ['execute if score @s bm.lecl matches 1.. run return 0', 'scoreboard players set @s bm.lecl 10',
+                   'scoreboard players operation #me bm.pid = @s bm.pid',
+                   f'execute unless score {lw} bm.pid = #me bm.pid run return run ' + lesay('I\'m sworn to someone else, friend - but well met.'),
+                   f'execute store success score #s0 bm.rng if data entity {lw} {{Sitting:1b}}',
+                   f'execute if score #s0 bm.rng matches 1 run data modify entity {lw} Sitting set value 0b',
+                   f'execute if score #s0 bm.rng matches 0 run data modify entity {lw} Sitting set value 1b',
+                   'execute if score #s0 bm.rng matches 1 run ' + lesay('Up we go. Lead on.'),
+                   'execute if score #s0 bm.rng matches 0 run ' + lesay('A rest, then. I\'ll keep an eye out.'),
+                   f'execute if score #s0 bm.rng matches 0 as {lw} run function bm:p96/sat'])
+    fn('p96/sat', face('smile', 30))
+    G.FUNCS['admin/uninstall'].insert(0, 'kill @e[type=minecraft:interaction,tag=bm.lehit]')
 
     # ---- fainting: the rig without its host (4 ticks running) washes away; the crest rests 5 minutes
     tick += ['execute as @e[type=minecraft:item_display,tag=bm.lp_body,tag=!bm.lefade,tag=!bm.leencp] at @s run function bm:p96/check',
@@ -295,7 +323,7 @@ def generate(G):
                      'data merge entity @s[type=minecraft:item_display] {brightness:{block:15,sky:15},Glowing:1b,glow_color_override:5945568}'])
     second.append('scoreboard players remove @a[scores={bm.lecd=1..}] bm.lecd 1')
     G.FUNCS['p62/died'].insert(-1, 'execute as @e[type=minecraft:wolf,tag=bm.leopet] if score @s bm.pid = #me bm.pid at @s run function bm:p96/go')
-    fn('p96/go', ['scoreboard players add #gone bm.rng 1', 'function bm:p96/fade', 'data remove entity @s Owner', 'tp @s ~ -500 ~', 'kill @s'])
+    fn('p96/go', ['scoreboard players add #gone bm.rng 1', 'function bm:p96/fade', 'execute on passengers run kill @s', 'data remove entity @s Owner', 'tp @s ~ -500 ~', 'kill @s'])
     P73.follow_rules(G, ('leo', 'wolf', 'bm.leopet', 'leo_crest', 'p96/go', 'Leo', 'bm.fgo', 'p96/summon_here'), second)
 
     # ================================================================== strong but caring: every second, as Leo

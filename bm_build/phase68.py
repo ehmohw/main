@@ -19,7 +19,9 @@ KINDS = {  # kind: (number, item, host, pet tag, the summon (as the summoner), t
     'cecil': (1, 'cecil_gem', 'wolf', 'bm.cecilpet', 'p46/pet/summon', 'p46/pet/dismiss', 'bm.cpsel', 'Cecil', '#b48cff'),
     'emma': (2, 'emma_ribbon', 'cat', 'bm.emmapet', 'p57/summon', 'p57/dismiss', 'bm.emsel2', 'Emma', '#ff8ad8'),
     'celi': (3, 'celi_charm', 'wolf', 'bm.celipet', 'p66/summon', 'p66/dismiss', 'bm.cesel2', 'Celi', '#bfe8ff'),
+    'leo': (4, 'leo_crest', 'wolf', 'bm.leopet', 'p96/summon', 'p96/dismiss', 'bm.lesel2', 'Leo', '#5ab8e0'),      # (2.67)
 }
+HE = {'cecil', 'leo'}
 CD = 300                                    # seconds before a fainted framed follower comes back
 FACE = {0: ('~ ~-1.8 ~', 0), 1: ('~ ~0.1 ~', 0), 2: ('~ ~ ~-0.3', 180), 3: ('~ ~ ~0.3', 0), 4: ('~-0.3 ~ ~', 90), 5: ('~0.3 ~ ~', -90)}
 
@@ -63,7 +65,7 @@ def generate(G):
     for k, (n, _it, host, tag, summon, _d, _sel, name, col) in KINDS.items():
         fn(f'p68/spawn_{k}', [f'function bm:{summon}',
                               f'execute as @e[type=minecraft:{host},tag={tag},distance=..4] if score @s bm.pid = #ff bm.pid run tag @s add bm.ffpet',
-                              'execute as @a[distance=..10] run ' + title('@s', 'actionbar', [T(f'{name} climbs out of the frame and makes ' + ('herself' if k != 'cecil' else 'himself') + ' at home. ', col),
+                              'execute as @a[distance=..10] run ' + title('@s', 'actionbar', [T(f'{name} climbs out of the frame and makes ' + ('himself' if k in HE else 'herself') + ' at home. ', col),
                                                                                              T('(Right-click the frame: sit / stand. Sneak + right-click: in / out.)', 'gray')])])
 
     # ---- every second, each anchor: is the frame still there, holding the item? is the follower out? (fainted: back in 5 minutes)
@@ -116,7 +118,7 @@ def generate(G):
                    'tag @a[tag=bm.ffsn] remove bm.ffsn', 'tag @e[tag=bm.ffas] remove bm.ffas'])
     # (as the player who clicked; the anchor tagged bm.ffas, #ff its id)
     names = lambda lines_for: [f'execute if score {ANC} bm.ffk matches {n} run ' + lines_for(k, name, col) for k, (n, _i, _h, _t, _s, _d, _sel, name, col) in KINDS.items()]
-    pron = lambda k: 'him' if k == 'cecil' else 'her'
+    pron = lambda k: 'him' if k in HE else 'her'
     fn('p68/toggle_on', [f'execute if score {ANC} bm.ffon matches 1 run return run function bm:p68/send_in', 'function bm:p68/call_out'])
     fn('p68/send_in', [f'scoreboard players set {ANC} bm.ffon 0', f'scoreboard players set {ANC} bm.ffsit 0',
                        f'execute as {ANC} at @s run function bm:p68/find', 'execute as @e[tag=bm.ffp] at @s run function bm:p68/drop', 'tag @e[tag=bm.ffp] remove bm.ffp',

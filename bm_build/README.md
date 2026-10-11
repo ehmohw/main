@@ -66,7 +66,7 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 - **Party rooms:** Whack-a-Rat, Rat Says, and two contests for a crew only (Coin Scramble and Bumper Brawl).
 - **Double Heists** (1 in 10): twice the rooms, two extra shares and better prize odds. **Alien Heists** (1 in 8): every room in the Vorn's white-and-cyan steel, Vorn troopers on guard, invasion loot.
 - **Hidden vaults:** about a third of heists (half at Tier V) hide a secret door to a treasure room with a hoard share each. Only these hoards carry the **Rat King's Signet** (loose items come to you), **Whisperstep Boots** (sneak: unseen and quick) and the **Gilded Grin** (see in the dark).
-- **The Gutter Gentry** (behind a hidden door, Tier II+): Batty, Eggbert and the Count, a three-boss fight. They're blocky, with faces taken from the art (Batty's toothy grin, the Count's beady black eyes), and they walk, run, jump and attack with smooth animations. Their hoard holds the Echo Bell, the Yolkshell Helm, Blobsworth's Cane and the Top Hat.
+- **The Gutter Gentry** (behind a hidden door, Tier II+): Batty, Eggbert and the Count, a three-boss fight. They're blocky, with faces taken from the art (Batty's toothy grin, the Count's empty white eyes), and they walk, run, jump and attack with smooth animations. Their hoard holds the Echo Bell, the Yolkshell Helm, Blobsworth's Cane and the Top Hat.
 - **The Locker Hall,** off the den or through the Ledger: claim up to three double-chest bays and open them all with one Locker Key.
 
 ### Guards and guardians
@@ -100,7 +100,9 @@ A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, o
 - **Strong but caring:** drop to 4 hearts with a monster about and he's at your side, on guard. The monsters around you turn on him, and you get Resistance II and some absorption (30 seconds to recover). In a fight with him close by: Resistance I. In the water with him: Water Breathing and Dolphin's Grace.
 - **With Celi, Steel and Frost:** you get Strength, he covers her (Resistance), and his thrusts freeze like her spear. **With Emma, the Knight's Vow:** you regenerate, he shields her (Resistance II), and his guard comes back twice as fast. **With both:** Speed as well. Celi bickers, Emma cheers, and he smiles. Each pairing has its own hidden achievement.
 - He has his own raid contract at Goldtooth (1 Gutter Trophy and 5 Medallions), and his crest passes the coat check.
-- He animates: a watchful idle with an eye on the sea, a steady stride, a levelled charge, sitting, a salute when he arrives, the thrust, the throw, and on guard.
+- **Right-click him to sit him down** (or stand him up): he sits on the ground leaning back on one hand, the trident across his knees, breathing, looking out to sea, and now and then standing the trident up beside him like a staff.
+- **He can be hung in an item frame** like Cecil, Emma and Celi: put his crest in a frame and he lives by it (right-click the frame: sit / stand; sneak + right-click: in / out).
+- He animates: a watchful idle with an eye on the sea, a steady stride, a levelled charge, a salute when he arrives, the thrust, the throw, and on guard.
 
 ### Faces that move
 - **Emma, Celi, Cecil and Leo blink**, and their expressions change with their mood and with what's going on:
@@ -131,7 +133,7 @@ A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, o
 - **Ethereal KillerWatt:** set down an Ethereal Gem near him mid-fight and he ascends. He heals whole with far more health, hits harder and faster, floats, and throws Void Lances. Beat that form for the **Ethereal Tendrils**, which hit half again as hard and fling you half again as far.
 
 ### The Scorching Arachno-Lantern
-On a Blood Moon, very rarely, a monster spawning under the open sky becomes the **Arachno-Lantern**: a burning pumpkin the size of a house on eight long legs. It glares with red crescent pupils, breathes fire from the corners of its mouth, stomps, lashes you in with its tongue, rains embers and, at half health, shrieks out ember spiderlings and glares fire. It drops the **Scorching Heart**: carry it and fire can't touch you, or set it down as the **Hearthfire** (no monster spawns within 48 blocks, and Blood Moon horrors near it burn).
+On a Blood Moon, very rarely, a monster spawning under the open sky becomes the **Arachno-Lantern**: a burning pumpkin the size of a house on eight long legs. It's blocky like the Gutter Gentry: the pumpkin in square tiers with ribs down its sides, its face carved square-cut, square legs and square flames. It glares with red crescent pupils, breathes fire from the corners of its mouth, stomps, lashes you in with its tongue, rains embers and, at half health, shrieks out ember spiderlings and glares fire. It drops the **Scorching Heart**: carry it and fire can't touch you, or set it down as the **Hearthfire** (no monster spawns within 48 blocks, and Blood Moon horrors near it burn).
 
 ### For admins
 `/function bm:admin/heist_double`, `heist_alien` and `heist_variants_off` / `heist_variants_never` force the heist variants; `heist_boss_alt` / `heist_boss_std` / `heist_boss_any` pick the guardian; `room_<kind>` (e.g. `room_temple`) lays that event room next; `frisbee` gives the Frisbee Shield. `leo` puts Leo's fort encounter in front of you, `leo_fort` builds a seawatch fort where you stand, `leo_crest` gives his crest, and `faces` runs every follower nearby through each of their expressions.
