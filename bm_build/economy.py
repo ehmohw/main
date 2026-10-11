@@ -30,11 +30,13 @@ DIRECT = {
     'crimson_leggings': (('blood_crystal', 12), ('trophy', 2)), 'crimson_boots': (('blood_crystal', 10), ('trophy', 1)),
 }
 # 2.63: half price on everything (the Black Market was far too dear) - currency exchanges keep their rates
+# 2.65: that made things too cheap - every price is now 70% of the old one (rounded up)
 HALVED = ('token', 'medallion', 'trophy', 'blood_crystal', 'lucky_token')
+DISCOUNT = 0.7
 
 
 def _half(c):
-    return (c[0], max(1, -(-c[1] // 2))) if c and c[0] in HALVED else c
+    return (c[0], max(1, -(-int(round(c[1] * DISCOUNT * 10)) // 10))) if c and c[0] in HALVED else c
 
 
 DIRECT = {k: (_half(a), _half(b) if b else None) for k, (a, b) in DIRECT.items()}
@@ -73,8 +75,8 @@ ARMOR = ('_helmet', '_chestplate', '_leggings', '_boots', '_helmet_2', '_chestpl
 
 def upgrade_cost(iid, cur):
     """Tier II: +10 Medallions (armour) / +12 (weapons, tools). Tier III: +5 Trophies (+6 for Biggoron's Sword)."""
-    if cur == 'trophy': return ('trophy', 3)                            # 2.63: half (was 5, 6 for Biggoron's)
-    return ('medallion', 5 if iid.endswith(ARMOR) else 6)                # 2.63: half (was 10 / 12)
+    if cur == 'trophy': return ('trophy', 4)                            # 2.65: 70% (was 5; 3 at half price)
+    return ('medallion', 7 if iid.endswith(ARMOR) else 9)                # 2.65: 70% (was 10 / 12; 5 / 6 at half price)
 
 
 PRICE_SCALE = {}       # (gen_dp's, set at import: the scale every list price is sold at)

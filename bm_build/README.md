@@ -1,4 +1,4 @@
-# Black Market — v2.64 (Java 26.3)
+# Black Market — v2.65 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,51 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.65: the Vault rebuilt, KillerWatt, follower wardrobes
+
+### The Gilded Gutter Vault, rebuilt
+The heist is now a proper dungeon run: non-linear, different in every tier, full of surprises, and playable solo.
+
+- **Tries: 3, 5 or 7.** After picking a tier you choose how many knock-outs your crew can take (each crewmate past the first adds one). **Fewer tries pay more:** +4 shares for 3 tries, +2 for 5, and +2 more for a run with no knock-outs (+1 for just one). Run out and **the heist fails**: everyone goes back to the den, everything gathered is lost, and the Fixer draws up a fresh plan.
+- **The fee and the Lucky Pool.** The Fixer charges 3 Tokens a head, once per heist (stepping out and back in is free), and every fee goes into the **Lucky Pool**. One heist in twenty (one in seven on a Lucky Night) is a **Lucky Raid**: win it and the crew splits the pool.
+- **The pot.** Guards drop nothing now. They pay into the crew's pot (watch the boss bar), as do secrets, rare foes and trophies you've already earned. Everything goes into The Haul at the end, but only if you win.
+- **Respawn in the den.** Your spawn point is moved to the den for the heist and restored the moment you leave (your bed, or world spawn). The emerald plate takes you back to the last door you opened.
+- **The way through bends:** passages climb and drop, turn left and right, run up a ladder shaft, plunge into a pool and cross a chasm on stepping stones. **Every tier is built in its own stone** and has its own crew of guards, no longer only vindicators: Copper Thugs and crossbowmen at Tier I; Silver archers, strays, enforcers and alchemists at II; drowned divers, bog archers and breezes at IV; wither-skeleton reavers, blazes and conjurers at V. Each tier also has a captain and a guardian of its own (the Copper Foreman, the Silver Marksman, the Drowned Treasurer, the Gutter King).
+- **New rooms:** the Signal Lamps (repeat the sequence), the Lamp Floor (light all nine), the Tumbler Lock (time the gate), the Bell Tower climb, the Crumbling Rafters, the Arcane Study ambush and the Champion's Pit (the Gold Ooze, the Bone Duelist, the Vault Ravager, the Illusionist, the Twin Gales, and very rarely **the Rat King**).
+- **Random events:** the **Rat Rave** (stand on the DJ's colour when the beat drops), the **Rats' Rest** (a tavern with a peddler; get knocked out after it and you wake there), the **Storm Vault** (pull three levers while dodging lightning), a **Vorn Landing** (smash the saucer's cores) and the **Enchanted Grove** (catch the wisps).
+- **Secrets and rarities:** loose bricks (right-click a cracked block) hide coins, rare finds or a **Phantom Thief** who runs off with your pot. Look out for the **Coin Rat** and **shiny guards** (1 in 150). Hidden gear only drops from these: the **Phantom Regalia** (invisible while sneaking, soft falls), the **Gutter Master Key**, the **Lantern of Lost Things** and the **Lucky Rat's Foot**.
+- **Kits that fight like their gear:** the Tank's **Bulwark Horn** (shields you and the crew, slows guards), the Offense's **Shadowstep Charm** (blink forward, unseen, Strength; kills give a burst of speed and healing), the Ranged kit's **Volley Quiver** (five arrows; the Fairy Bow pins what it hits) and Support's **Tidal Ward** (heals, shields, cleanses; Lifeline when you fall low).
+- **Hirelings** (contracts from Goldtooth, yours for good, but they never leave the vault): Knuckles the brawler, Doc Whiskers the medic, Fingers the pickpocket, Tick-Tock the turret and Boomer the demolitions rat.
+- **Two new modes** (after a Tier I clear): **the Endless Vault**, where rooms never end and get harder and richer every four, with a cash-out plate at every fifth room's Rest; and **the Pit**, an arena of waves with a guardian every fifth and a cash-out plate between waves.
+- **Music and ambience:** every tier has its own track, plus themes for the guardian, the Rave, the Rest and the Pit, along with room ambience.
+- **Goldtooth's new stock:** Healing Draughts, Second Wind (+1 try), a Treasure Map Scrap, the Golden Compass and the Fixer's Lucky Purse.
+
+### Fixed
+- **Respawning in the vault** puts you in the den, not back at world spawn.
+- The **dial room** has a button again, and the **clockwork room's signs** no longer overlap.
+- The **Gutter Laurel, puzzle trophies and the Bond Sigil** are given once each. After that they pay coins into the pot. **The Bond Sigil** now works with your party: you both regenerate near a party member carrying one.
+- **The den** only heals before the heist starts and after it's won, not during the run.
+
+### KillerWatt
+- **The Storm Effigy** (Cecil sells it): use it outdoors in a **thunderstorm** and KillerWatt crashes down in front of you. It does nothing in clear weather or under a roof.
+- **The fight:** a four-and-a-half-block storm brute with smooth animation throughout. He breathes and sways standing, strides as he walks, and winds up before each blow. His attacks:
+  - **Thunder Slam:** a shockwave around him.
+  - **Tendril Sweep:** a wide scythe circle.
+  - **Call Lightning:** sparks gather under you. Move, or the bolt hits.
+  - **The Roar** at half health: throws everyone back, summons Static Wisps, and makes him faster from then on, with bolts falling around his slams.
+  He gets tougher with each player fighting him, and leaves if nobody's near for a minute.
+- **The reward:** his **Tendrils** (no longer sold by Cecil) and **KillerWatt's Spark**, both certain on your first kill and a chance after, plus Medallions, Trophies and Tokens.
+- **KillerWatt's Spark** makes him a follower: a three-block KillerWatt who slams monsters that come close and calls lightning onto ones further off. He counts toward your three followers, goes home if you go far or put the Spark away, and rests 5 minutes if he falls.
+
+### Follower wardrobes (Madame Velour)
+- **Emma:** five ribbons (Gold, Midnight, Mint, Snow, Crimson) and four dresses (Sundress, Midnight Gown, Sakura, Royal Gown). Her scarf still shows her buff's colour.
+- **Celi:** the Aurora, Rosehip and Midnight outfits. **Zib:** the Crimson Guard and Forest Ranger uniforms.
+- **Hidden ones** drop only from the vault's rare foes and secrets: Emma's **Phantom Ribbon** and **Starlight Gown**, Celi's **Frostfire** outfit and Zib's **Golden Ace** uniform.
+- Use one while they're out to dress them. Items are kept, so you can switch back and forth. Sneak + use returns them to their own clothes. Outfits stay on the next time you call them.
+
+### Prices
+2.63's half prices were too cheap. Prices are now **70% of the old list** (Trophies, Blood Crystals, Lucky Tokens), and the Scrap Bin follows. Unchanged: a Diamond is still 2 Tokens at the Fence, Heist Plans 3 Tokens, and Pearlman's gems a Medallion.
 
 ## New in 2.64: heist fixes, a tidier haul, fairer kits
 

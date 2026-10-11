@@ -64,6 +64,35 @@ FOLLOW = [   # kind, host type, host tag, item, "goes away" function, name, tick
 CRYPT_CTRL = (15.5, 2, 49.5)
 
 
+def follow_rules(G, entry, second):
+    """(2.65: shared) a follower goes home when its owner's gone, too far, or its item's put away; one ticket per call"""
+    fn, tellraw, PREFIX = G.fn, G.tellraw, G.PREFIX
+    holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
+    kind, host, tag, iid, go, name, obj, summon = entry
+    G.FUNCS[summon] += [f'scoreboard players add @s {obj} 1', 'scoreboard players operation #fgp bm.rng = @s bm.pid', f'scoreboard players operation #fgv bm.rng = @s {obj}',
+                        f'execute as @e[type=minecraft:{host},tag={tag},distance=..6] if score @s bm.pid = #fgp bm.rng run scoreboard players operation @s {obj} = #fgv bm.rng',
+                        f'execute as @e[type=minecraft:{host},tag={tag},distance=..6] if score @s bm.pid = #fgp bm.rng run scoreboard players set @s bm.fmis 0']
+    own = '@a[tag=bm.fown,limit=1]'
+    second.append(f'execute as @e[type=minecraft:{host},tag={tag},tag=!bm.ffpet] at @s run function bm:p73/fol/{kind}')
+    fn(f'p73/fol/{kind}', ['scoreboard players operation #me bm.pid = @s bm.pid', 'tag @a remove bm.fown',
+                           'execute as @a if score @s bm.pid = #me bm.pid run tag @s add bm.fown',
+                           f'execute unless entity @a[tag=bm.fown] run return run function bm:{go}',
+                           f'execute unless score {own} {obj} matches 0.. run scoreboard players set {own} {obj} 0',
+                           f'execute unless score @s {obj} matches 0.. run scoreboard players operation @s {obj} = {own} {obj}',
+                           f'execute unless score @s {obj} = {own} {obj} run return run function bm:{go}',
+                           f'execute unless entity @a[tag=bm.fown,distance=..96] run return run function bm:p73/fol/{kind}_far',
+                           f'execute if items entity {own} container.* {holds(iid)} run return run scoreboard players set @s bm.fmis 0',
+                           f'execute if items entity {own} weapon.offhand {holds(iid)} run return run scoreboard players set @s bm.fmis 0',
+                           f'execute if items entity {own} player.cursor {holds(iid)} run return run scoreboard players set @s bm.fmis 0',
+                           'scoreboard players add @s bm.fmis 1', f'execute if score @s bm.fmis matches 3.. run function bm:p73/fol/{kind}_stash',
+                           'tag @a remove bm.fown'])
+    fn(f'p73/fol/{kind}_far', [f'function bm:{go}', tellraw('@a[tag=bm.fown]', PREFIX + [T(f'{name} couldn\'t keep up and went home. ', 'gray'),
+                                                                                          T(f'(Use the {ITEMS[iid]["name"]} to call {"her" if kind in ("emma", "celi") else "him"} again.)', 'dark_gray')]),
+                               'tag @a remove bm.fown'])
+    fn(f'p73/fol/{kind}_stash', [f'function bm:{go}', tellraw('@a[tag=bm.fown]', PREFIX + [T(f'You put the {ITEMS[iid]["name"]} away - {name} heads home.', 'gray')]),
+                                 'tag @a remove bm.fown'])
+
+
 def extend_offers(O, offer):
     pass
 
@@ -295,29 +324,8 @@ def generate(G):
     fn('p73/pearl_gone', ['particle minecraft:snowflake ~ ~1 ~ 0.4 0.6 0.4 0.02 20', 'particle minecraft:poof ~ ~0.6 ~ 0.3 0.4 0.3 0.02 8', 'kill @s'])
 
     # ================================================================== FOLLOWERS GO HOME (too far, logged off, item put away; stale copies)
-    for kind, host, tag, iid, go, name, obj, summon in FOLLOW:
-        G.FUNCS[summon] += [f'scoreboard players add @s {obj} 1', 'scoreboard players operation #fgp bm.rng = @s bm.pid', f'scoreboard players operation #fgv bm.rng = @s {obj}',
-                            f'execute as @e[type=minecraft:{host},tag={tag},distance=..6] if score @s bm.pid = #fgp bm.rng run scoreboard players operation @s {obj} = #fgv bm.rng',
-                            f'execute as @e[type=minecraft:{host},tag={tag},distance=..6] if score @s bm.pid = #fgp bm.rng run scoreboard players set @s bm.fmis 0']
-        own = '@a[tag=bm.fown,limit=1]'
-        second.append(f'execute as @e[type=minecraft:{host},tag={tag},tag=!bm.ffpet] at @s run function bm:p73/fol/{kind}')
-        fn(f'p73/fol/{kind}', ['scoreboard players operation #me bm.pid = @s bm.pid', 'tag @a remove bm.fown',
-                               'execute as @a if score @s bm.pid = #me bm.pid run tag @s add bm.fown',
-                               f'execute unless entity @a[tag=bm.fown] run return run function bm:{go}',
-                               f'execute unless score {own} {obj} matches 0.. run scoreboard players set {own} {obj} 0',
-                               f'execute unless score @s {obj} matches 0.. run scoreboard players operation @s {obj} = {own} {obj}',
-                               f'execute unless score @s {obj} = {own} {obj} run return run function bm:{go}',
-                               f'execute unless entity @a[tag=bm.fown,distance=..96] run return run function bm:p73/fol/{kind}_far',
-                               f'execute if items entity {own} container.* {holds(iid)} run return run scoreboard players set @s bm.fmis 0',
-                               f'execute if items entity {own} weapon.offhand {holds(iid)} run return run scoreboard players set @s bm.fmis 0',
-                               f'execute if items entity {own} player.cursor {holds(iid)} run return run scoreboard players set @s bm.fmis 0',
-                               'scoreboard players add @s bm.fmis 1', f'execute if score @s bm.fmis matches 3.. run function bm:p73/fol/{kind}_stash',
-                               'tag @a remove bm.fown'])
-        fn(f'p73/fol/{kind}_far', [f'function bm:{go}', tellraw('@a[tag=bm.fown]', PREFIX + [T(f'{name} couldn\'t keep up and went home. ', 'gray'),
-                                                                                              T(f'(Use the {ITEMS[iid]["name"]} to call {"her" if kind in ("emma", "celi") else "him"} again.)', 'dark_gray')]),
-                                   'tag @a remove bm.fown'])
-        fn(f'p73/fol/{kind}_stash', [f'function bm:{go}', tellraw('@a[tag=bm.fown]', PREFIX + [T(f'You put the {ITEMS[iid]["name"]} away - {name} heads home.', 'gray')]),
-                                     'tag @a remove bm.fown'])
+    for entry in FOLLOW:
+        follow_rules(G, entry, second)
     # Skiff Escorts (they fly with you anywhere already): put the beacon away and it flies home too
     from phase72_art import ESCORT_COLS
     second.append('execute as @e[type=minecraft:bat,tag=bm.eskhost] at @s run function bm:p73/fol/esk')

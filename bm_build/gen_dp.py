@@ -43,6 +43,10 @@ import phase50 as R50
 import phase51 as R51
 import phase52 as R52
 import phase75 as R75        # 2.65: the vault rebuilt - tries, the fee and the Lucky pool, the pot, passages, themes
+import phase76 as R76        # 2.65: the vault's new rooms, events, secrets and rarities
+import phase77 as R77        # 2.65: kit abilities, hirelings, the Endless Vault, the Pit
+import phase78 as R78        # 2.65: follower cosmetics, prices at 70%
+import phase79 as R79        # 2.65: KillerWatt - storm boss and follower
 import phase74 as R74        # 2.63: half prices, the lift, ruins underground, Emma's Mining form
 import phase73 as R73        # 2.62: jars in cases, Cecil's click box, the Calling Card, wider crypts, followers go home
 import phase72 as R72        # 2.61: display cases, Zib, Skiff Escorts, the vault's coat check and loaner kits
@@ -143,7 +147,7 @@ def cost(iid, n=1):
 
 
 CURRENCY = {'token', 'medallion', 'trophy', 'lucky_token', 'blood_crystal', 'diamond', 'emerald', 'netherite_ingot'}
-PRICE_SCALE = {'token': 0.75, 'medallion': 0.75, 'trophy': 0.5, 'blood_crystal': 0.5, 'lucky_token': 0.5}   # 2.63: half of 1.7's x1.5 (exchanges unchanged)
+PRICE_SCALE = {'token': 1.05, 'medallion': 1.05, 'trophy': 0.7, 'blood_crystal': 0.7, 'lucky_token': 0.7}   # 2.65: 70% of 1.7's prices (2.63 had halved them: too cheap)
 ECON.PRICE_SCALE.update(PRICE_SCALE)                # (the Scrap Bin pays half of these prices, not the old list)
 
 
@@ -298,6 +302,10 @@ def all_offers():
     R71.extend_offers(O, offer)
     R74.extend_offers(O, offer)
     R75.extend_offers(O, offer)
+    R76.extend_offers(O, offer)
+    R77.extend_offers(O, offer)
+    R78.extend_offers(O, offer)
+    R79.extend_offers(O, offer)
     return O
 
 
@@ -1030,6 +1038,10 @@ def build(out_dir):
     R73.generate(sys.modules[__name__])
     R74.generate(sys.modules[__name__])
     R75.generate(sys.modules[__name__])
+    R76.generate(sys.modules[__name__])
+    R77.generate(sys.modules[__name__])
+    R78.generate(sys.modules[__name__])
+    R79.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command

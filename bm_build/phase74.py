@@ -24,7 +24,7 @@ import phase60
 
 phase60.GEM_PRICE = ('medallion', 1)
 import phase62, economy
-economy.DIRECT['shift_core'] = (('trophy', 4), ('blood_crystal', 8))     # (half, like everything else)
+economy.DIRECT['shift_core'] = (('trophy', 6), ('blood_crystal', 12))    # (2.65: 70% of 8 + 16, like everything else)
 for _k in phase17.HEART_CHANCE: phase17.HEART_CHANCE[_k] *= 3
 
 GOLD = '#ffcf40'

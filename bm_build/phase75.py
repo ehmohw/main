@@ -44,6 +44,8 @@ TIER_POOL = {1: ['levers', 'plates', 'tiles', 'guards', 'coffers'],
              5: ['lasers', 'dial', 'coffers', 'tiles', 'guards', 'levers', 'plates']}
 EVENT_POOL = {t: [] for t in range(1, 6)}      # (event rooms: phase76)
 EXTRA_ROOMS = {}                               # name -> builder (phase76 adds its rooms here before generate)
+ROOM_DY = {}                                   # kind -> how far up its exit is (the next passage starts there)
+ROOM_MAXY = {}                                 # kind -> the highest cursor y it may be placed at
 
 
 def zoff(s):
@@ -122,12 +124,13 @@ def generate(G):
         fn(f'p75/cn/{k}', ([ok[k]] if k in ok else []) +
            [f'execute positioned {f(ox)} {f(oy)} {f(oz)} run function bm:p75/pc/cn_{k}', f'tp @s {f(nx)} {f(ny)} {f(nz)}'])
     # rooms: from the tier's pool, none twice; now and then an event room instead (at most two a run)
-    fn('p75/lay/room', ['scoreboard players add #q bm.rng 1', 'scoreboard players set #ev bm.rng 0',
+    fn('p75/lay/room', ['scoreboard players add #q bm.rng 1', 'scoreboard players set #ev bm.rng 0', 'execute store result score #cy bm.rng run data get entity @s Pos[1]',
                         'execute store result score #ev bm.rng run random value 1..100',
                         'execute if score #ev bm.rng matches 1..22 if function bm:p75/lay/can_event run return run function bm:p75/lay/event',
                         'function bm:p75/lay/pick'] +
        [f'execute if score #r bm.rng matches {j} run function bm:p75/pc/{k}' for j, k in enumerate(KINDS)] +
-       ['execute as @e[type=minecraft:marker,tag=bm.gvnew] run function bm:p75/claim'])
+       ['execute as @e[type=minecraft:marker,tag=bm.gvnew] run function bm:p75/claim'] +
+       [f'execute if score #r bm.rng matches {KINDS.index(k)} run tp @s ~ ~{dy} ~' for k, dy in ROOM_DY.items()])
     fn('p75/lay/can_event', [f'execute if score #gt bm.rng matches {t} if score #nev bm.rng matches ..{min(2, len(EVENT_POOL[t])) - 1} run return 1'
                              for t in range(1, 6) if EVENT_POOL[t]] + ['return 0'])
     fn('p75/lay/pick', [f'execute if score #gt bm.rng matches {t} run function bm:p75/lay/pick{t}' for t in range(1, 6)])
@@ -135,6 +138,8 @@ def generate(G):
         pool = [KINDS.index(k) for k in TIER_POOL[t]]
         fn(f'p75/lay/pick{t}', [f'execute store result score #i bm.rng run random value 0..{len(pool) - 1}'] +
            [f'execute if score #i bm.rng matches {i} run scoreboard players set #r bm.rng {j}' for i, j in enumerate(pool)] +
+           [f'execute if score #r bm.rng matches {KINDS.index(k)} if score #cy bm.rng matches {my + 1}.. run return run function bm:p75/lay/pick{t}'
+            for k, my in ROOM_MAXY.items() if k in TIER_POOL[t]] +
            ['function bm:p75/lay/bit', 'execute if score #q2 bm.rng matches 1 run return run function bm:p75/lay/pick' + str(t),
             'scoreboard players operation #pool bm.rng += #bit bm.rng'])
     fn('p75/lay/bit', ['scoreboard players set #bit bm.rng 1', 'scoreboard players operation #k bm.rng = #r bm.rng', 'function bm:p75/lay/bit2',
@@ -328,7 +333,10 @@ def generate(G):
                                       {'score': {'name': '#lpool', 'objective': 'bm.gvlp'}, 'color': LUCKY, 'bold': True}]), 'return 1'])
     fn('p75/fee_no', [tellraw('@s', P + [T(f'The Fixer\'s fee is {FEE} Black Market Tokens', 'red'), T(' - you don\'t have them, so you stay behind.', 'gray')]),
                       'playsound minecraft:entity.villager.no player @s ~ ~ ~ 1 1', 'return 0'])
-    G.FUNCS['p70/join'].insert(0, 'execute unless function bm:p75/fee run return 0')
+    G.FUNCS['p70/join'].insert(0, 'execute unless function bm:p75/join_fee run return 0')
+    # (back into the same heist you already paid for - stepped out, or rejoining your party: no second fee)
+    fn('p75/join_fee', [f'execute if score #j bm.rng matches {s + 1} if score @s bm.gvrun = #r{s} bm.gvrun run return 1' for s in range(P70.SLOTS)] +
+       ['return run function bm:p75/fee'])
 
     # ================================================================== TRIES: the second page of the plans (3, 5 or 7), then the fee, then in
     import phase28 as P28
