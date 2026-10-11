@@ -198,8 +198,8 @@ OUTFITS = {
         'em2_scarf': ('#80d8e4', '#b4f6de'), 'em2_scarf2': ('#6cc8d6', '#94eacc')},                  # Speed: sea-green and mint
     2: {'em2_blue': ('#3f8fd0', '#c8343c'), 'em2_chest': ('#3f8fd0', '#c8343c'), 'em2_skirt': ('#3d72aa', '#962630'),
         'em2_scarf': ('#80d8e4', '#ffc46a'), 'em2_scarf2': ('#6cc8d6', '#f0aa4a')},                  # Offense: crimson and gold
-    4: {'em2_blue': ('#3f8fd0', '#e27ab6'), 'em2_chest': ('#3f8fd0', '#e27ab6'), 'em2_skirt': ('#3d72aa', '#c05c96'),
-        'em2_scarf': ('#80d8e4', '#fff2f8'), 'em2_scarf2': ('#6cc8d6', '#ffd6ea')},                  # Healing: rose and white
+    3: {'em2_blue': ('#3f8fd0', '#e27ab6'), 'em2_chest': ('#3f8fd0', '#e27ab6'), 'em2_skirt': ('#3d72aa', '#c05c96'),
+        'em2_scarf': ('#80d8e4', '#fff2f8'), 'em2_scarf2': ('#6cc8d6', '#ffd6ea')},                  # Defense: rose and white (2.62: Healing - her default - wears her own blue)
 }
 
 

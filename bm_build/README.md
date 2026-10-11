@@ -1,4 +1,4 @@
-# Black Market — v2.61 (Java 26.3)
+# Black Market — v2.62 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,48 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.62: creatures on show, the Calling Card, wider crypts
+
+### Display cases: bottled creatures
+- **Any item** can go in a display case.
+- **A full Smuggler's Jar** shows the creature itself, not the jar. It sits on the cushion, shrunk to fit the case (floor or wall), still as a statue: no AI, can't be hurt, can't be pushed out. Sneak + right-click turns it slowly.
+- **Getting it back:** take the jar out empty-handed, or pick the case up, and the creature goes back in its jar unharmed (name, gear and all).
+
+### Cecil
+- **Sitting:** right-click anywhere on Cecil to make him sit or follow. Before, only the invisible dog under him could be clicked, so clicking his body did nothing.
+- **Gems:** handing him a gem and taking it back (sneak + empty hand) work the same as before, through the same click.
+- **Cooking:** with **fire** magic (or his Ethereal Form), right-click him holding raw food and he breathes on it. The whole stack comes out cooked: beef, pork, chicken, mutton, rabbit, cod, salmon, potatoes and kelp.
+
+### Emma
+She now wears her **original blue dress** by default (Healing, the buff she's called in with). The rose-and-white dress moved to Defense.
+
+### The Fixer's Calling Card
+A raid reward: you get one on your first Tier II clear, and Goldtooth sells more for 40 Gutter Coins. It leaves the vault with you.
+- **Using it:** pick a player from the list, then **Go to** them or **Bring** them to you.
+- **The other player** gets **[Accept] / [Deny]** in chat, open for 60 seconds.
+- **Limits:** any distance, any dimension, but no signal into or out of the vault. Infinite uses, no cooldown.
+
+### The crypt
+- **Wider tunnels:** the labyrinth's tunnels are **3 wide** (they were 2), so there's room to sneak past the Warden. It's now a 6×6 maze in the same footprint, with the same altar chamber, entrance and escape shaft.
+- **Existing crypts** are rebuilt automatically the first time someone comes near, while nobody is inside and the Warden is asleep. Only the blocks that change are touched.
+
+### Glowing signs
+Every sign in the graveyard, the crypt and the market glows now. Signs in existing structures are lit the next time you come by.
+
+### Followers go home cleanly
+This applies to Cecil, Emma, Celi, Zib and Skiff Escorts. Each one goes home quietly, with no cooldown, when:
+- you get too far away: another dimension, a long teleport, or logging off;
+- its summoning item leaves your inventory (into a chest or barrel, dropped) for 3 seconds.
+
+Use the item again to call them back. Each call issues a fresh ticket, so a copy left behind in some far-off chunk dismisses itself when it loads; you never end up with two. (The Frog and Donado are hired companions, not summoned, so like vanilla pets they wait where you left them.)
+
+### Fixes
+- **Dockmaster:** only one per market; extras are removed.
+- **Pearlman:** his model now disappears with him, however he goes.
+- **The Fence:** no longer trades emeralds for Tokens (a raid farm could exploit it).
+- **Celi:** her spear no longer clips through her hair and ear while she idles and walks.
+- **Crash sites:** the built-in Xenite Altar can be picked up (sneak + punch).
 
 ## New in 2.61: display cases, Zib, Skiff Escorts, the vault's coat check
 
@@ -289,8 +331,8 @@ Every rat in the market has a much bigger set of poses now. Each one is still a 
 **Emma dresses for her role.** Her dress, sleeves and scarf re-dye for the buff you choose:
 - Speed: sea-green
 - Offense: crimson and gold
-- Defense: her own blue
-- Healing: rose and white
+- Defense: rose and white
+- Healing (her default): her own blue
 
 **Bosses:**
 - **The Voidwalker** no longer kills his own Voidlings. They share a team, and his homing stars only ever hit players.
@@ -1787,7 +1829,7 @@ Traders in markets that already exist pick up the new trades automatically.
 
 | Stall | Who | Sells |
 |---|---|---|
-| North counter | **The Fence** | Diamonds/emeralds/netherite → Tokens; Token → Medallion → Trophy; maps |
+| North counter | **The Fence** | Diamonds/netherite → Tokens; Token → Medallion → Trophy; maps |
 | West stall | **Vinny 'Two-Blades'** | Tier I weapons and tools, plus the Tier II and III upgrades |
 | East stall | **Madame Velour** | Armor sets and upgrades, builder gear, hats and trail boots |
 | Upstairs library | **Prof. Whiskerton** (rat) | Lore books, maps, skin scrolls |

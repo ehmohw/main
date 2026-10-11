@@ -42,6 +42,7 @@ import phase49 as R49
 import phase50 as R50
 import phase51 as R51
 import phase52 as R52
+import phase73 as R73        # 2.62: jars in cases, Cecil's click box, the Calling Card, wider crypts, followers go home
 import phase72 as R72        # 2.61: display cases, Zib, Skiff Escorts, the vault's coat check and loaner kits
 import phase71 as R71        # 2.60: the Gilded Gutter Vault's treasures
 import phase70 as R70        # 2.60: the Gilded Gutter Vault - a party raid
@@ -198,7 +199,6 @@ def npc_offers():
     O = {}
     O['fence'] = [
         offer(('diamond', 4), ('token', 1)),
-        offer(('emerald', 24), ('token', 1)),
         offer(('netherite_ingot', 1), ('token', 3)),
         offer(('token', 9), ('medallion', 1)),
         offer(('medallion', 6), ('trophy', 1)),
@@ -803,7 +803,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.61' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.62' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -1023,6 +1023,7 @@ def build(out_dir):
     R70.generate(sys.modules[__name__])
     R71.generate(sys.modules[__name__])
     R72.generate(sys.modules[__name__])
+    R73.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command

@@ -240,7 +240,7 @@ def models():
 I = (0.0, 0.0, 0.0, 1.0)
 U = RIG_SCALE / 16
 HIP = dict(arml=limb(-1, -12, 46), forel=qa('z', -95))      # her left hand planted on her hip, elbow out
-SPEAR_UP = qmul(qa('z', -6), qa('x', -4))                  # the spear upright at her side, leaning a little out
+SPEAR_UP = qmul(qa('z', 9), qa('x', 6))                     # 2.62: the spear upright at her side, the tip leaning out (to her right) and a touch forward - clear of her ear and braid
 TIP_FWD = qa('x', 90)                                      # tip pointing ahead
 BENT = qa('x', -22)
 SIT_SPEAR = qmul(qa('y', -12), qa('x', 96))                # (resting along her legs, tip ahead - clear of her face)                                        # a relaxed bend at the elbow (forward)

@@ -286,7 +286,7 @@ def generate(G):
                            'execute on attacker if predicate bm:p20/sneaking run scoreboard players set #sn bm.rng 1',
                            'execute if score #sn bm.rng matches 0 on attacker at @s run function bm:p24/altar/use',
                            'data remove entity @s attack',
-                           'execute if score #sn bm.rng matches 0 run return 0', 'execute unless entity @s[tag=bm.xalt_own] run return 0',
+                           'execute if score #sn bm.rng matches 0 run return 0',      # (2.62: any altar - crash sites' too - can be picked up)
                            'loot spawn ~ ~0.4 ~ loot bm:items/xenite_altar', 'kill @e[type=minecraft:item_display,tag=bm.xalt,distance=..0.3]',
                            'particle minecraft:poof ~ ~0.5 ~ 0.2 0.2 0.2 0.02 6', 'playsound minecraft:block.amethyst_block.break block @a[distance=..16] ~ ~ ~ 1 0.9', 'kill @s'])
     # 1.16: read the clicker (on target) BEFORE clearing the interaction - clearing it first made every altar click do nothing

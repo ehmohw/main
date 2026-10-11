@@ -92,7 +92,7 @@ class Build:
                           'nbt': {'id': 'minecraft:marker', 'Tags': list(tags),
                                   'Rotation': [Float(yaw), Float(0.0)], 'data': {}}})
 
-    def sign(self, x, y, z, state, lines, color='black', glow=False):
+    def sign(self, x, y, z, state, lines, color='black', glow=True):      # 2.62: glow ink on every sign (they were hard to read)
         msgs = [{'text': l} for l in (list(lines) + ['', '', '', ''])[:4]]
         side = {'messages': msgs, 'color': color, 'has_glowing_text': Byte(1 if glow else 0)}
         empty = {'messages': [{'text': ''}] * 4, 'color': 'black', 'has_glowing_text': Byte(0)}
@@ -366,10 +366,11 @@ def build_graveyard():
     for x in (14, 15, 16):                  # last step of the stairway, so you can always climb back out
         B.set(x, 1, 32, 'deepslate_bricks'); B.set(x, 2, 32, 'deepslate_brick_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]')
         for y in range(3, 7): B.set(x, y, 32, 'air')
-    # labyrinth: cell (i, j) interior = x 4+3i..5+3i, z 39+3j..40+3j; walls on the 3-grid; corridors 2 wide, 3 high
-    N = 8
-    CHAMBER = {(3, 3), (4, 3), (3, 4), (4, 4)}
-    ENTRY = (3, 0)
+    # labyrinth (2.62: wider, so you can sneak past the Warden): cell (i, j) interior = x 4+4i..6+4i, z 39+4j..41+4j;
+    # walls on the 4-grid; corridors 3 wide, 3 high (6 x 6 cells in the old 8 x 8 footprint)
+    N, CW, PT = 6, 3, 4
+    CHAMBER = {(2, 2), (3, 2), (2, 3), (3, 3)}
+    ENTRY = (2, 0)
 
     def make_maze(seed):
         r = random.Random(seed)
@@ -416,53 +417,53 @@ def build_graveyard():
                  if n not in CHAMBER and 0 <= n[0] < N and 0 <= n[1] < N]
         (door, dd) = max(doors, key=lambda t: t[1])
         dn = bfs(adj, door[1])
-        corner = max([(0, 7), (7, 7)], key=lambda c: dn.get(c, -1))
+        corner = (N - 1, N - 1)                  # (the escape shaft stays where it always was: x 26)
         score = dd + dn.get(corner, 0)
         if best is None or score > best[0]: best = (score, seed, oe, os_, door, corner, dd, dn.get(corner, 0))
     _, _, open_e, open_s, door, ESC, D_IN, D_OUT = best
     (c, n) = door
     if c[0] != n[0]: open_e.add((min(c[0], n[0]), c[1]))
     else: open_s.add((c[0], min(c[1], n[1])))
-    for i in (3,):                          # the altar chamber: cells (3..4, 3..4) merged
-        for j in (3, 4): open_e.add((i, j))
-    for j in (3,):
-        for i in (3, 4): open_s.add((i, j))
+    for i in (2,):                          # the altar chamber: cells (2..3, 2..3) merged
+        for j in (2, 3): open_e.add((i, j))
+    for j in (2,):
+        for i in (2, 3): open_s.add((i, j))
     mrnd = random.Random(1337)
     cx0, cz0 = 3, 38
     for i in range(N):
         for j in range(N):
-            x1, z1 = cx0 + 1 + 3 * i, cz0 + 1 + 3 * j
-            for x in (x1, x1 + 1):
-                for z in (z1, z1 + 1):
+            x1, z1 = cx0 + 1 + PT * i, cz0 + 1 + PT * j
+            for x in range(x1, x1 + CW):
+                for z in range(z1, z1 + CW):
                     B.set(x, 1, z, slab())
                     for y in range(2, 5): B.set(x, y, z, 'air')
             if (i, j) in open_e:
-                for z in (z1, z1 + 1):
-                    B.set(x1 + 2, 1, z, slab())
-                    for y in range(2, 5): B.set(x1 + 2, y, z, 'air')
+                for z in range(z1, z1 + CW):
+                    B.set(x1 + CW, 1, z, slab())
+                    for y in range(2, 5): B.set(x1 + CW, y, z, 'air')
             if (i, j) in open_s:
-                for x in (x1, x1 + 1):
-                    B.set(x, 1, z1 + 2, slab())
-                    for y in range(2, 5): B.set(x, y, z1 + 2, 'air')
-    # altar chamber x13..17, z48..52 (centre post removed, taller ceiling)
-    for x in range(13, 18):
-        for z in range(48, 53):
+                for x in range(x1, x1 + CW):
+                    B.set(x, 1, z1 + CW, slab())
+                    for y in range(2, 5): B.set(x, y, z1 + CW, 'air')
+    # altar chamber x12..18, z47..53 (centre post removed, taller ceiling)
+    for x in range(12, 19):
+        for z in range(47, 54):
             B.set(x, 1, z, 'polished_deepslate_slab[type=bottom,waterlogged=false]')
             for y in range(2, 7): B.set(x, y, z, 'air')
-    # maze entrance from the antechamber (top wall z38, over cells 3 and 4)
-    for x in (13, 14):
+    # maze entrance from the antechamber (top wall z38, into cell 2)
+    for x in (12, 13, 14):
         B.set(x, 1, 38, slab())
         for y in range(2, 5): B.set(x, y, 38, 'air')
     # ---- decoration: sculk veins on walls, cobwebs in dead ends, skulls, candles, a few dim lanterns
     def is_air(x, y, z): return B.get(x, y, z) == 'minecraft:air'
     for i in range(N):
         for j in range(N):
-            x1, z1 = cx0 + 1 + 3 * i, cz0 + 1 + 3 * j
+            x1, z1 = cx0 + 1 + PT * i, cz0 + 1 + PT * j
             exits = sum([(i, j) in open_e, (i - 1, j) in open_e, (i, j) in open_s, (i, j - 1) in open_s]) + ((i, j) == ENTRY)
-            if 3 <= i <= 4 and 3 <= j <= 4: continue
+            if (i, j) in CHAMBER: continue
             if exits == 1 and (i, j) != ESC:           # dead end: cobwebs and a skull mounted on the wall
-                B.set(x1 + mrnd.randrange(2), 4, z1 + mrnd.randrange(2), 'cobweb')
-                for (wx, wz, f) in [(x1 - 1, z1, 'east'), (x1 + 2, z1 + 1, 'west'), (x1, z1 - 1, 'south'), (x1 + 1, z1 + 2, 'north')]:
+                B.set(x1 + mrnd.randrange(CW), 4, z1 + mrnd.randrange(CW), 'cobweb')
+                for (wx, wz, f) in [(x1 - 1, z1 + 1, 'east'), (x1 + CW, z1 + 1, 'west'), (x1 + 1, z1 - 1, 'south'), (x1 + 1, z1 + CW, 'north')]:
                     ax, az = wx + {'east': 1, 'west': -1}.get(f, 0), wz + {'south': 1, 'north': -1}.get(f, 0)
                     if B.get(wx, 3, wz) not in (None, 'minecraft:air') and B.get(ax, 3, az) == 'minecraft:air' and mrnd.random() < 0.7:
                         B.set(ax, 3, az, f'skeleton_wall_skull[facing={f},powered=false]'); break
@@ -490,6 +491,15 @@ def build_graveyard():
                         B.set(x + dx, y, z + dz, 'sculk')
                 if y >= 4 and B.get(x, y + 1, z) not in (None, 'minecraft:air') and 'slab' not in B.get(x, y + 1, z) and srnd.random() < 0.08:
                     B.set(x, y, z, 'sculk_vein[down=false,east=false,north=false,south=false,up=true,west=false,waterlogged=false]')
+    # (2.62) veins only where a full block holds them - a placed structure drops the rest anyway
+    FULL = set(WALLS) | {'deepslate_bricks', 'sculk', 'chiseled_deepslate', 'cracked_deepslate_bricks', 'mossy_cobblestone'}
+    DIRV = {'down': (0, -1, 0), 'up': (0, 1, 0), 'north': (0, 0, -1), 'south': (0, 0, 1), 'east': (1, 0, 0), 'west': (-1, 0, 0)}
+    for (x, y, z), stt in list(B.b.items()):
+        if not stt.startswith('minecraft:sculk_vein['): continue
+        props = dict(kv.split('=') for kv in stt[stt.index('[') + 1:-1].split(','))
+        held = {f: props.get(f) == 'true' and (B.get(x + d[0], y + d[1], z + d[2]) or 'minecraft:air').replace('minecraft:', '') in FULL for f, d in DIRV.items()}
+        if not any(held.values()): B.set(x, y, z, 'air'); continue
+        B.set(x, y, z, 'sculk_vein[' + ','.join(f'{f}={"true" if held[f] else "false"}' for f in ('down', 'east', 'north', 'south', 'up', 'west')) + ',waterlogged=false]')
     # antechamber dressing
     for x, z in [(11, 33), (19, 33), (11, 37), (19, 37)]:
         B.fill(x, 2, z, x, 7, z, 'polished_deepslate')
@@ -505,7 +515,7 @@ def build_graveyard():
     B.set(15, 6, 50, 'soul_lantern[hanging=true,waterlogged=false]')
     # escape: the bottom corner cell farthest from the chamber -> a cracked door in the south wall -> ladder shaft to a well
     # behind the graveyard fence
-    EX = 4 if ESC == (0, 7) else 26
+    EX = 4 if ESC == (0, N - 1) else 26
     for y in range(1, 4): B.set(EX, y, 62, 'deepslate_bricks')
     B.set(EX, 2, 62, 'cracked_deepslate_bricks'); B.set(EX, 3, 62, 'cracked_deepslate_bricks')
     for y in range(1, G + 1):

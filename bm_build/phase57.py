@@ -220,9 +220,9 @@ def generate(G):
                            'playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..20] ~ ~ ~ 1 1.4',
                            'playsound minecraft:entity.allay.ambient_without_item neutral @a[distance=..20] ~ ~ ~ 1 1.2',
                            emsay("I'm here! Let's do our best today!")])
-    # (2.54) her outfit follows her buff (#emo = the role): the dress parts swap to that role's colours (Defense: her own blue)
+    # (2.54) her outfit follows her buff (#emo = the role): the dress parts swap to that role's colours (2.62: Healing, her default, wears her own blue)
     OUT = ART.outfit_parts()
-    fn('p57/outfit', [f'execute if score #emo bm.rng matches {m} as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_{p}] run data modify entity @s item.components."minecraft:item_model" set value "bm:em_{p}{"" if m == 3 else f"_m{m}"}"'
+    fn('p57/outfit', [f'execute if score #emo bm.rng matches {m} as @e[type=minecraft:item_display,tag=bm.emsel,tag=bm.ep_{p}] run data modify entity @s item.components."minecraft:item_model" set value "bm:em_{p}{"" if m == 4 else f"_m{m}"}"'
                       for m in MODES for p in OUT])
     fn('p57/rig_here', rig + ['tp @e[type=minecraft:item_display,tag=bm.emnew,distance=..1] ~ ~ ~ ~ 0'])
     fn('p57/rerig', ['kill @e[type=minecraft:item_display,tag=bm.emsel]', 'execute rotated as @s rotated ~ 0 run function bm:p57/rig_here',
