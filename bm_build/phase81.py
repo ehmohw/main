@@ -6,7 +6,8 @@ TROPHIES: twelve vault rooms (the seven first ones and the Signal Lamps, the Lam
   PROMISES the trophy: it's yours when the crew gets out, and lost if you're knocked out on the way. One of each kind and
   metal - another gets 3 coins in your Gutter Bank. They're little 3D statues now, bigger and grander metal by metal, the
   room's emblem on the plinth; sneak + use to set one down, sneak + punch to take it back. A full shelf of one metal
-  (all twelve rooms) pays out in BM Trophies, once: copper 1, iron 2, gold 3, emerald 4, diamond 6, netherite 10.
+  (all twelve rooms) pays once, into your Gutter Bank: copper 48 coins + 1 Insignia, iron 96 + 2, gold 160 + 3,
+  emerald 240 + 4, diamond 320 + 6, netherite 640 + 10. (2.67: never BM Trophies - those aren't a raid prize.)
   The old gold trophies stay what they were (and look like the new gold ones).
 THE BOND SIGILS: eight now, and each a different power. When the heist begins, the sigils the crew carries are attuned -
   off-hands first, then pockets - TWO AT MOST, and their power is the whole crew's for that heist:
@@ -36,7 +37,7 @@ METALS = [  # (key, name, colour, block texture, how)
     ('diamond', 'Diamond', '#62ece4', 'minecraft:block/diamond_block', 'a flawless room on Tier V'),
     ('netherite', 'Netherite', '#a08090', 'minecraft:block/netherite_block', 'Tier V, three tries, nobody knocked out')]
 NMET = len(METALS)
-SET_PRIZE = {1: 1, 2: 2, 3: 3, 4: 4, 5: 6, 6: 10}
+SET_PRIZE = {1: (48, 1), 2: (96, 2), 3: (160, 3), 4: (240, 4), 5: (320, 6), 6: (640, 10)}      # (2.67) a full shelf: coins banked, Captain's Insignia
 SIGILS = [  # (n, iid, name, colour, the crew gets..., Goldtooth's price in coins, insignia)
     (1, 'bond_sigil', 'Mending', '#ff9ad8', 'regeneration', 48, 1),
     (2, 'sigil_fury', 'Fury', '#ff5a4a', 'Strength - every blow harder', 72, 2),
@@ -148,9 +149,11 @@ def generate(G):
     # a full shelf of one metal: BM Trophies, once
     fn('p81/sets', ['function bm:p81/count_all'] + [f'execute if score #c{m} bm.rng matches {len(TK)}.. run function bm:p81/set_{m}' for m in range(1, NMET + 1)])
     for m, (mk, mn, col, tex, how) in enumerate(METALS, 1):
+        coins, ins = SET_PRIZE[m]
         fn(f'p81/set_{m}', bit('bm.trset', m) + ['execute if score #q bm.rng matches 1 run return 0', f'scoreboard players add @s bm.trset {2 ** m}',
-                                                 give('trophy', SET_PRIZE[m]), 'title @s times 10 60 20', title('@s', 'title', T(f'{mn.upper()} SHELF', col, bold=True)),
-                                                 title('@s', 'subtitle', T(f'Every room in {mn.lower()} - {SET_PRIZE[m]} BM Troph{"ies" if SET_PRIZE[m] > 1 else "y"}', 'gray')),
+                                                 'function bm:p80/init_me', f'scoreboard players add @s bm.gbc {coins}', f'scoreboard players add @s bm.gb6 {ins}',
+                                                 'title @s times 10 60 20', title('@s', 'title', T(f'{mn.upper()} SHELF', col, bold=True)),
+                                                 title('@s', 'subtitle', T(f'Every room in {mn.lower()} - {coins} coins and {ins} Insignia into your bank', 'gray')),
                                                  'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 1 0.8',
                                                  tellraw('@a', P + [{'selector': '@s', 'color': 'white'}, T(f' has every vault trophy in {mn.lower()}!', col)])])
 
@@ -206,8 +209,8 @@ def generate(G):
                      rows +
                      [P28.body(sum(([T(f'{mn} ', col), T(f'$(c{m})', 'white', bold=True), T(f'/{len(TK)}   ', 'dark_gray')]
                                     for m, (mk, mn, col, tex, how) in enumerate(METALS, 1)), []), 380),
-                      P28.body([T('A full shelf of one metal pays out in BM Trophies, once: ', 'gray')] +
-                               sum(([T(f'{mn.lower()} {SET_PRIZE[m]}', col), T(', ' if m < NMET else '.', 'gray')] for m, (mk, mn, col, tex, how) in enumerate(METALS, 1)), []), 380)],
+                      P28.body([T('A full shelf of one metal pays once - coins and Captain\'s Insignia into your bank: ', 'gray')] +
+                               sum(([T(f'{mn.lower()} {SET_PRIZE[m][0]} + {SET_PRIZE[m][1]}', col), T(', ' if m < NMET else '.', 'gray')] for m, (mk, mn, col, tex, how) in enumerate(METALS, 1)), []), 380)],
                      [P28.btn(T('« Office', 'gray'), P80.MENU_CODE, width=120)], columns=1)
     fn('p81/case_dlg', [f'$dialog show @s {P28.inline(cdlg)}'])
 
@@ -295,6 +298,49 @@ def generate(G):
     f[-1:-1] = fast
     s = G.FUNCS['loop/second']
     s[-1:-1] = second
+
+    # ================================================================== (2.67) EVERY PRIZE IN THE HAUL - nothing loose in your pockets or on the floor
+    #  run-time finds (the Clockwork Cache, key fragments) wait in your pot like any other find (lost if the heist fails);
+    #  the payout's extras (the contract's purse, the laurel, the Bond Sigil, vault trophies, netherite scrap) go in the crate
+    HA, HB = '-200 64 -197', '-198 64 -197'
+    def ins(table):
+        return (f'execute in bm:gutter unless data block {HA} Items[26] run loot insert {HA} loot {table}', f'execute in bm:gutter if data block {HA} Items[26] run loot insert {HB} loot {table}')
+    def rewrite(fname, how):
+        out = []
+        for l in G.FUNCS[fname]:
+            m = l.find('loot give @s loot ')
+            if m < 0: out.append(l); continue
+            pre, table = l[:m], l[m + len('loot give @s loot '):]
+            if how == 'defer':
+                out.append(pre + f'function bm:p81/defer {{t:"{table}"}}')
+                continue
+            for a_ in ins(table):
+                if pre:
+                    assert pre.startswith('execute ') and pre.endswith(' run '), l
+                    out.append(pre[:-len('run ')] + a_[len('execute '):])
+                else:
+                    out.append(a_)
+        G.FUNCS[fname][:] = out
+    fn('p81/defer', ['$data modify storage bm:gv pf.t set value "$(t)"', 'function bm:p75/pot_item'])
+    for f_ in ('p70/r/cache/pay', 'p70/frag', 'p70/laurel', 'p75/laurel_again', 'p70/payout_inst'):
+        rewrite(f_, 'defer')
+    G.FUNCS['p70/r/cache/pay'] = [l.replace('three shares, and a fistful of coins.', 'three shares and a fistful of coins - into your haul.') for l in G.FUNCS['p70/r/cache/pay']]
+    G.FUNCS['p70/frag'] = [l.replace('ticks in the lock\'s workings - you pocket it.', 'ticks in the lock\'s workings - it goes into your haul.') for l in G.FUNCS['p70/frag']]
+    # (the weekly record - and its laurel - is settled before the haul is packed, so the laurel rides in it)
+    pay = G.FUNCS['p70/payout_inst']
+    rec = 'execute if score @s bm.gvmd matches 0 run function bm:p70/record'
+    hl = 'execute as @a[tag=bm.gvme] at @s run function bm:p70/haul'
+    assert rec in pay and hl in pay
+    pay.remove(rec); pay.insert(pay.index(hl), rec)
+    for f_ in [f for f in G.FUNCS if f.startswith('p81/aw/')] + ['p80/scrap']:
+        rewrite(f_, 'insert')
+    G.FUNCS['p70/bond'] = [l for l in G.FUNCS['p70/bond'] if 'bm.gvbond' not in l and 'summon minecraft:item' not in l] + list(ins('bm:p81/bond_sigil')) + \
+        [f'execute in bm:gutter store result block {b} Items[{{components:{{"minecraft:custom_data":{{bm:"bond_sigil"}}}}}}].components."minecraft:custom_data".bond int 1 '
+         'run scoreboard players get #grun bm.rng' for b in (HA, HB)]
+    wjson('bm/loot_table/p81/bond_sigil.json', {'pools': [{'rolls': 1, 'entries': [G.loot_entry('bond_sigil')]}]})
+    haul = G.FUNCS['p70/haul']
+    for f_ in ('function bm:p80/scrap', 'function bm:p81/award'):
+        haul.remove(f_); haul.insert(haul.index('function bm:p74/haul_pack'), f_)
 
 
 # ====================================================================== the 3D trophies

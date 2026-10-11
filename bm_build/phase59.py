@@ -266,7 +266,7 @@ def generate(G):
     fn('p59/kw/fray', ['execute unless block ~ ~ ~ #bm:grap_pass run return run scoreboard players set #kh bm.rng 1',
                        'scoreboard players remove #kr bm.rng 1', 'execute if score #kr bm.rng matches 1.. positioned ^ ^ ^0.5 run function bm:p59/kw/fray'])
     fn('p59/kw/flung', ['tag @s remove bm.kwl1', 'tag @s remove bm.kwl2', 'tag @s remove bm.kwl3', 'tag @s remove bm.kwup', 'tag @s remove bm.kwarm'])
-    tick.append(f'execute as @a[tag=bm.kwarm] unless {worn} run function bm:p59/kw/flung')
+    tick.append(f'execute as @a[tag=bm.kwarm] unless {worn} at @s run function bm:p59/kw/flung')
     # the snatch: dropped items within 8 drift to you; in the rain or a storm: Speed
     G.FUNCS['loop/second'][-1:-1] = [f'execute as @a[gamemode=!spectator] if {worn} at @s run function bm:p59/kw/sec']
     fn('p59/kw/sec', ['execute as @e[type=minecraft:item,distance=2..8,nbt={PickupDelay:0s}] at @s run function bm:p59/kw/snatch',

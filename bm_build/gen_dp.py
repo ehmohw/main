@@ -72,6 +72,10 @@ import phase53 as R53        # 2.32: the Horseman's Head in four classes, the Sa
 #       # 2.31: night ambience, Happy Hour, slots + jackpot, the Leprechaun Rat, Defend the Mothership, the reactor, invasion goods        # 2.30: the sunrise day count, the Scrap Bin (Old Barnaby's buy-backs move into it)        # 2.29: the newcomers' book from the trade lists, advancements, recipes, settings, the Grave Charm        # 2.28: tinkering - filter/vacuum hoppers, compactor, wireless, clock, breaker, placer, sorting chest, lens, wrench        # 2.27: the Vorn Skiff's tractor beam; the skiff's hull fits its pilot        # 2.26: Moon Pact, Thirsting Blade, Vampire's Mirror, Crimson Hourglass, the Blood Moon disc
 import phase80 as R80        # 2.66: the Fixer's Office - spoils, the Gutter Bank, kit ranks
 import phase81 as R81        # 2.66: metal trophies and the Bond Sigils
+import phase82 as R82        # 2.67: the Scorching Arachno-Lantern (Blood Moon boss), the Scorching Heart
+import phase83 as R83        # 2.67: Ethereal KillerWatt, the Ethereal Tendrils
+import phase84 as R84        # 2.67: haul supplies, larders, paperweights, the Locker Hall
+import phase85 as R85        # 2.67: party rooms - Whack-a-Rat, Rat Says, the Coin Scramble, the Bumper Brawl
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import market2 as M2
@@ -310,6 +314,10 @@ def all_offers():
     R79.extend_offers(O, offer)
     R80.extend_offers(O, offer)
     R81.extend_offers(O, offer)
+    R82.extend_offers(O, offer)
+    R83.extend_offers(O, offer)
+    R84.extend_offers(O, offer)
+    R85.extend_offers(O, offer)
     return O
 
 
@@ -819,7 +827,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.66' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.67' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -1048,6 +1056,10 @@ def build(out_dir):
     R79.generate(sys.modules[__name__])
     R80.generate(sys.modules[__name__])
     R81.generate(sys.modules[__name__])
+    R82.generate(sys.modules[__name__])
+    R83.generate(sys.modules[__name__])
+    R84.generate(sys.modules[__name__])
+    R85.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command

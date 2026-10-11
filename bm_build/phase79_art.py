@@ -16,7 +16,7 @@ from phase57_art import _cloth, _el, hexc, qa, qmul
 
 RIG_SCALE = 1.55
 PIVOT = {'body': (0, 15, 0), 'head': (0, 29, 0), 'armr': (7.4, 26.6, 0), 'arml': (-7.4, 26.6, 0), 'legr': (2.7, 15, 0), 'legl': (-2.7, 15, 0),
-         'tend': (0, 24, 3)}
+         'tend': (0, 24, 3), 'tendl': (0, 21.6, 3.2)}          # (2.67: the upper and lower pairs of tendrils move apart)
 PARTS = tuple(PIVOT)
 G, G_LT, G_DK, TEAL = '#3cab4c', '#74d462', '#258a46', '#1e7458'
 LIME, GOLD, GOLD_LT, VIOLET = '#86e01e', '#f6dc30', '#fcf09a', '#3a1650'
@@ -218,21 +218,23 @@ def models():
 
     # ---- the tendrils: four golden scythes from his back - two rearing up and out over his shoulders, two sweeping
     #      down past his legs to the ground, each with an inner hook
-    pv = PIVOT['tend']; z0 = 3.0
+    pv, pvl = PIVOT['tend'], PIVOT['tendl']; z0 = 3.0
     upper = [(1.5, 26.5), (5.5, 27.6), (9.5, 30.0), (12.6, 33.6), (14.8, 38.0), (16.0, 42.5), (16.4, 46.5), (16.0, 48.8)]
     upper_hook = [(6.0, 28.2), (7.2, 32.0), (6.6, 35.6), (5.0, 38.0)]
     lower = [(1.5, 22.0), (5.5, 21.2), (9.5, 19.6), (12.6, 16.6), (14.6, 12.0), (15.6, 7.0), (15.6, 2.6), (14.8, 0.2)]
     lower_hook = [(8.4, 20.2), (9.6, 23.4), (9.0, 26.4)]
-    tend = []
+    tend, tendl = [], []
     for sx in (1, -1):
         tend += _blade(upper, 5.2, 0.8, pv, z0, sx) + _blade(upper_hook, 2.6, 0.6, pv, z0 + 0.1, sx)
-        tend += _blade(lower, 5.2, 0.8, pv, z0 + 0.2, sx) + _blade(lower_hook, 2.4, 0.6, pv, z0 + 0.3, sx)
-    tend += [_el((-2.2, 20.4, 2.6), (2.2, 28.4, 3.6), 'kw_gold', pv)]                                       # where they root, down his spine
-    part('kw_tend', _shrink(tend, TEND_K))
+        tendl += _blade(lower, 5.2, 0.8, pvl, z0 + 0.2, sx) + _blade(lower_hook, 2.4, 0.6, pvl, z0 + 0.3, sx)
+    tend += [_el((-2.2, 22.6, 2.6), (2.2, 28.4, 3.6), 'kw_gold', pv)]                                       # where they root, down his spine
+    tendl += [_el((-2.0, 20.2, 2.8), (2.0, 23.0, 3.8), 'kw_gold', pvl)]
+    part('kw_tend', _shrink(tend, TEND_K)); part('kw_tendl', _shrink(tendl, TEND_K))
     M.update(variant_models(M))
     return M
 
 
+TEND_PARTS = ('tend', 'tendl')
 TEND_K = 2.0      # the tendrils reach past a model's -16..32 box: built at half size about the joint, shown at double scale
 
 
@@ -426,3 +428,77 @@ POSES.update({
     'hover': P(0.12, body=qa('x', 4), head=qa('x', 6), legr=qa('x', 10), legl=qa('x', -6), armr=qa('z', -38), arml=qa('z', 38), tend=qa('x', -24)),
     'climb': P(0.0, body=qa('x', 10), head=qa('x', -18), armr=qa('x', -150), arml=qa('x', -135), legr=qa('x', -30), legl=qa('x', 10), tend=qa('x', 42)),
 })
+
+
+
+# ---------------------------------------------------------------------------------------------------- 2.67: a skeleton, not a pile of parts
+# The head, the arms and both pairs of tendrils hang off the torso: their joints swing with it (the old rig left the head
+# behind when he leaned - in the fall it ended up behind his neck) and their rotations are relative to it. Poses below give
+# the torso and legs as before, the children relative to the torso; the arms keep their old orientation in the world.
+CHILD = ('head', 'armr', 'arml', 'tend', 'tendl')
+
+
+def qconj(q):
+    return (-q[0], -q[1], -q[2], q[3])
+
+
+def qrot(q, v):
+    """rotate vector v (x, y, z) by quaternion q"""
+    x, y, z, w = q
+    vx, vy, vz = v
+    tx, ty, tz = 2 * (y * vz - z * vy), 2 * (z * vx - x * vz), 2 * (x * vy - y * vx)
+    return (vx + w * tx + (y * tz - z * ty), vy + w * ty + (z * tx - x * tz), vz + w * tz + (x * ty - y * tx))
+
+
+def part_xf(pose, p):
+    """(rotation, joint offset in design units in the display frame, the whole-rig drop dy)"""
+    B = pose['body']
+    if p not in CHILD:
+        return pose[p], (0.0, 0.0, 0.0), pose['_dy']
+    bx, by, bz = PIVOT['body']; px, py, pz = PIVOT[p]
+    d = (-(px - bx), py - by, -(pz - bz))                                 # (design -> display frame: his right is -x, his front +z)
+    r = qrot(B, d)
+    return qmul(B, pose[p]), (r[0] - d[0], r[1] - d[1], r[2] - d[2]), pose['_dy']
+
+
+def _P2(dy=0.0, body=I, head=I, arms=None, armr=None, arml=None, tend=I, tendl=I, **legs):
+    """a pose: arms given in the world's frame (arms=(r, l)) are made relative to the torso"""
+    d = {p: I for p in PARTS}; d['_dy'] = dy; d['body'] = body; d['head'] = head; d['tend'] = tend; d['tendl'] = tendl
+    ar, al = arms if arms else (armr or I, arml or I)
+    d['armr'], d['arml'] = qmul(qconj(body), ar), qmul(qconj(body), al)
+    d.update(legs)
+    return d
+
+
+X = lambda a: qa('x', a)
+POSES = {
+    'idle_a': _P2(body=X(2), head=X(3), arms=(qa('z', -8), qa('z', 8)), tend=X(-5), tendl=X(4)),
+    'idle_b': _P2(0.04, body=X(-1), head=qmul(qa('y', 8), X(2)), arms=(qmul(qa('z', -12), X(-6)), qmul(qa('z', 12), X(-4))), tend=qmul(X(4), qa('z', 3)),
+                  tendl=qmul(X(-4), qa('z', -2))),
+    'walk_a': _P2(0.06, body=qa('y', 5), head=X(4), legr=X(-26), legl=X(22), arms=(qmul(qa('z', -8), X(20)), qmul(qa('z', 8), X(-20))), tend=qmul(X(8), qa('z', 4)),
+                  tendl=X(-7)),
+    'walk_b': _P2(0.06, body=qa('y', -5), head=X(4), legr=X(22), legl=X(-26), arms=(qmul(qa('z', -8), X(-20)), qmul(qa('z', 8), X(20))), tend=qmul(X(2), qa('z', -4)),
+                  tendl=X(7)),
+    # THUNDER SLAM: rear up, scythes drawn back - then down, the upper scythes striking past his shoulders, the lower whipping forward
+    'slam_up': _P2(0.1, body=X(-6), head=X(-6), arms=(UP_R, UP_L), tend=X(-32), tendl=X(26), legl=X(-8)),
+    'slam_dn': _P2(-0.25, body=X(20), head=X(-8), arms=(X(-78), X(-78)), tend=X(58), tendl=X(-52), legr=X(-18), legl=X(12)),
+    'sweep_a': _P2(body=qa('y', 30), head=qa('y', -10), arms=(qa('z', -30), qa('z', 30)), tend=qmul(qa('y', 40), X(-12)), tendl=qmul(qa('y', 40), X(12))),
+    'sweep_b': _P2(body=qa('y', -35), head=qa('y', 15), arms=(qa('z', -45), qa('z', 20)), tend=qmul(qa('y', -70), X(40)), tendl=qmul(qa('y', -70), X(-34))),
+    'roar': _P2(0.05, body=X(-10), head=X(-12), arms=(qmul(qa('z', -50), X(10)), qmul(qa('z', 50), X(10))), tend=X(-36), tendl=X(28)),
+    'call': _P2(0.12, body=X(-8), head=X(-10), arms=(qa('z', -160), qa('z', 160)), tend=X(-26), tendl=X(20)),
+    'fall': _P2(-0.55, body=X(30), head=X(12), arms=(X(-40), X(-30)), legr=X(-40), legl=X(-34), tend=X(22), tendl=X(-8)),
+    # the follower's
+    'stab': _P2(0.02, body=X(14), head=X(-6), arms=(qmul(qa('z', -20), X(25)), qmul(qa('z', 20), X(25))), tend=X(66), tendl=X(-70)),
+    'punch_r': _P2(body=qmul(qa('y', -22), X(8)), head=qa('y', 12), arms=(X(-92), qmul(qa('z', 14), X(30))), tend=X(34), tendl=X(-22)),
+    'punch_l': _P2(body=qmul(qa('y', 22), X(8)), head=qa('y', -12), arms=(qmul(qa('z', -14), X(30)), X(-92)), tend=X(34), tendl=X(-22)),
+    'crouch': _P2(-0.4, body=X(24), head=X(-28), legr=X(-34), legl=X(-34), arms=(qmul(qa('z', -16), X(30)), qmul(qa('z', 16), X(30))), tend=X(-30), tendl=X(34)),
+    'hover': _P2(0.12, body=X(4), head=X(2), legr=X(10), legl=X(-6), arms=(qa('z', -38), qa('z', 38)), tend=qmul(X(-24), qa('z', 4)), tendl=X(18)),
+    'climb': _P2(body=X(10), head=X(-24), arms=(X(-150), X(-135)), legr=X(-30), legl=X(10), tend=X(60), tendl=X(-40)),
+    # the boss's TENDRIL LUNGE: coiled back, then all four scythes drive at you
+    'lunge_a': _P2(0.02, body=X(-8), head=X(-4), arms=(qmul(qa('z', -30), X(20)), qmul(qa('z', 30), X(20))), tend=X(-46), tendl=X(40)),
+    'lunge_b': _P2(-0.1, body=X(18), head=X(-12), arms=(X(-30), X(-30)), tend=X(82), tendl=X(-80), legr=X(-14), legl=X(10)),
+    # the follower's CHARGED attack: gathering (arms up and out, every scythe raised), then the release
+    'charge': _P2(0.1, body=X(-6), head=X(-12), arms=(qa('z', -125), qa('z', 125)), tend=X(-40), tendl=X(36)),
+    'release': _P2(-0.12, body=X(14), head=X(-10), arms=(X(-85), X(-85)), tend=X(52), tendl=X(-48), legr=X(-16), legl=X(12)),
+}
+FLEX = {'slam_up', 'roar'}

@@ -140,8 +140,8 @@ def climb():
 
 def rafters():
     b = shell()
-    for x in range(3, 22):                                   # the pit under the rafters
-        for z in range(4, 21):
+    for x in range(3, 22):                                   # the pit under the rafters - wall to wall (2.67: no walking round the edges)
+        for z in range(1, 24):
             b.set(x, FY, z, 'minecraft:air'); b.set(x, 2, z, 'minecraft:air'); b.set(x, 1, z, 'minecraft:air')
             b.set(x, 0, z, 'minecraft:hay_block')
     for (x, z) in RAFT:
@@ -151,6 +151,9 @@ def rafters():
     b.set(22, FY, 12, BASE['metal']); b.set(22, 4, 12, 'minecraft:light_weighted_pressure_plate')
     for x in range(4, 22, 3):                                # old beams overhead, for the look of it
         for z in range(4, 21): b.set(x, 13, z, 'minecraft:stripped_dark_oak_log[axis=z]')
+    for z in (1, 23):                                        # (and nothing to hug along the side walls: iron bars, floor to ceiling)
+        for x in range(3, 22):
+            for y in range(FY, 9): b.set(x, y, z, 'minecraft:iron_bars[east=true,west=true]')
     for x in range(3, 22, 6):
         b.set(x, 12, 12, 'minecraft:iron_chain'); b.set(x, 11, 12, 'minecraft:lantern[hanging=true]')
     ctrl(b, 'rafters'); return wall_glow(b)

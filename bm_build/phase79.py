@@ -5,6 +5,7 @@ THE STORM EFFIGY (Cecil sells it): use it outdoors in a THUNDERSTORM - the sky g
   green brute with four golden scythe-tendrils on his back; he grows tougher with every player who stands against him.
   THUNDER SLAM: arms up - the bent-elbow arms from the art - then down: a shockwave round him.
   TENDRIL SWEEP: the scythes swing round in a wide circle.
+  (2.67) TENDRIL LUNGE: he turns on you, coils all four scythes back and drives them at you.
   CALL LIGHTNING: arms to the sky; sparks gather under up to three of you - move, or the bolt lands on you.
   At half health he ROARS: everyone near is thrown up and back, three STATIC WISPS come for you, and from then on he
   attacks faster and his slams bring bolts down round him.
@@ -29,6 +30,7 @@ KILLERWATT'S SPARK: use it - he comes as a follower, a smaller version of himsel
   his own. Sneak + right-click him empty-handed: the gem back. THE ETHEREAL GEM: his ETHEREAL FORM - metallic black,
   iridescent tendrils, glowing seams and jagged spikes; half again as strong, and he floats - ridden, he FLIES (look up
   to rise, down to sink)."""
+import math
 from items import item, T, TOTEM
 from useitem import hold, HOLD
 from nbt import snbt, B, F, D, Int
@@ -42,7 +44,8 @@ YEL = '#f6dc30'
 GRN = '#74d462'
 SCALE = {'boss': ART.RIG_SCALE, 'pet': 1.05}       # (1.55: about 4.7 blocks with the tendrils; the follower about 3)
 DUR = {'idle_a': 30, 'idle_b': 30, 'walk_a': 10, 'walk_b': 10, 'slam_up': 10, 'slam_dn': 3, 'sweep_a': 7, 'sweep_b': 4,
-       'roar': 6, 'call': 8, 'fall': 20, 'stab': 4, 'punch_r': 3, 'punch_l': 3, 'crouch': 5, 'hover': 20, 'climb': 6}
+       'roar': 6, 'call': 8, 'fall': 20, 'stab': 4, 'punch_r': 3, 'punch_l': 3, 'crouch': 5, 'hover': 20, 'climb': 6,
+       'lunge_a': 8, 'lunge_b': 3, 'charge': 14, 'release': 3}
 PET_DUR = dict(DUR, walk_a=6, walk_b=6, slam_up=8)
 STRIDE = {'boss': 20, 'pet': 12}
 BOSS_HP, PET_HP, PET_CD = 500, 80, 300
@@ -74,7 +77,7 @@ def generate(G):
     qf = lambda q: [F(round(v, 4)) for v in q]
     eff = lambda e: {'id': f'minecraft:{e}', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}
     attr = lambda **kw: [{'id': f'minecraft:{k}', 'base': D(v)} for k, v in kw.items()]
-    objs = ['bm.kxid', 'bm.kxf', 'bm.kxs', 'bm.kxatk', 'bm.kxt', 'bm.kxc', 'bm.kxr', 'bm.kxlone', 'bm.kxk', 'bm.kxcd', 'bm.fgk', 'bm.kxel', 'bm.kxlt']
+    objs = ['bm.kxid', 'bm.kxf', 'bm.kxs', 'bm.kxatk', 'bm.kxt', 'bm.kxc', 'bm.kxr', 'bm.kxlone', 'bm.kxk', 'bm.kxcd', 'bm.fgk', 'bm.kxel', 'bm.kxlt', 'bm.kxch']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + \
         ['bossbar add bm:kwb {text:"KillerWatt",color:"green"}', 'bossbar set bm:kwb color green', 'bossbar set bm:kwb style notched_10'] + \
         [f'scoreboard players set #{n} bm.rng {n}' for n in (2, 12, 20, 60)]
@@ -94,7 +97,7 @@ def generate(G):
                  'item_display': 'fixed', 'teleport_duration': Int(2), 'interpolation_duration': Int(8), 'start_interpolation': Int(0),
                  'view_range': F(2.0 if boss else 1.0), 'shadow_radius': F((1.4 if boss else 0.9) if p == 'body' else 0.0), 'shadow_strength': F(0.6),
                  'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0)] * 3,
-                                    'scale': [F(S * (ART.TEND_K if p == 'tend' else 1))] * 3}}
+                                    'scale': [F(S * (ART.TEND_K if p in ART.TEND_PARTS else 1))] * 3}}
             if boss:
                 n['brightness'] = {'sky': Int(12), 'block': Int(12)}         # (a storm at night: he glows a little, so you can see him coming)
             return snbt(n)
@@ -104,20 +107,22 @@ def generate(G):
             'execute if score @s bm.pid matches 1.. run scoreboard players operation @e[type=minecraft:item_display,tag=bm.kxnew,distance=..1] bm.pid = @s bm.pid',
             'tag @e[type=minecraft:item_display,tag=bm.kxnew,distance=..1] add bm.kxsel', 'tag @e[type=minecraft:item_display,tag=bm.kxnew] remove bm.kxnew',
             'scoreboard players set @s bm.kxs -1'])
+        fn(f'p79/{kind}/rerig', [f'kill {sel()}', f'function bm:p79/{kind}/rig'])
         # (rotated with the host) design +x is his right = ^-x; design -z his front = ^+z
         fn(f'p79/{kind}/place', [f'execute positioned ^{-x * U:.4f} ^{y * U:.4f} ^{-z * U:.4f} run tp {sel(p)} ~ ~ ~ ~ 0' for p, (x, y, z) in ART.PIVOT.items()])
         # poses: the same quaternions at either size; the lift scales with him
         for name, pose in ART.POSES.items():
             d = (DUR if boss else PET_DUR)[name]
             def xf(p):
-                rot, (_x, dy, _z) = ART.part_xf(pose, p)
-                return f'left_rotation:{snbt(qf(rot))},translation:[0f,{dy * S / ART.RIG_SCALE:.4f}f,0f]'
+                rot, (ox, oy, oz), dy = ART.part_xf(pose, p)                    # (2.67: children ride the torso's lean)
+                return (f'left_rotation:{snbt(qf(rot))},translation:[{ox * U:.4f}f,{oy * U + dy * S / ART.RIG_SCALE:.4f}f,{oz * U:.4f}f]')
             fn(f'p79/{kind}/pose/{name}', [f'execute as {sel(p)} run data merge entity @s {{start_interpolation:0,interpolation_duration:{d},transformation:{{{xf(p)}}}}}'
                                            for p in ART.PARTS])
         # the heartbeat (as the host, at it): find his parts (or make them), stand them up, attack or move
         fn(f'p79/{kind}/tick', ['scoreboard players add @s bm.kxf 1', 'scoreboard players operation #kid bm.rng = @s bm.kxid',
                                 'execute as @e[type=minecraft:item_display,tag=bm.kxp,tag=!bm.kxdying] if score @s bm.kxid = #kid bm.rng run tag @s add bm.kxsel',
                                 f'execute unless entity {sel("body")} run function bm:p79/{kind}/rig',
+                                f'execute unless entity {sel("tendl")} run function bm:p79/{kind}/rerig',
                                 f'execute rotated as @s rotated ~ 0 run function bm:p79/{kind}/place',
                                 f'execute if score @s bm.kxatk matches 1.. run function bm:p79/{kind}/attack',
                                 f'execute unless score @s bm.kxatk matches 1.. run function bm:p79/{kind}/move',
@@ -156,11 +161,22 @@ def generate(G):
                       'execute if entity @s[tag=bm.kxp_boss] run function bm:p79/boss/fallen', 'execute if entity @s[tag=bm.kxp_pet] run function bm:p79/pet/fallen',
                       f'tag {sel()} remove bm.kxsel'])
     tick.append('execute as @e[type=minecraft:item_display,tag=bm.kxdying] at @s run function bm:p79/fade')
+    # (2.67) he goes out in an EXPLOSION OF ELECTRICITY: crumpling, he crackles and charges - then bursts apart in a blinding flash
     fn('p79/fade', ['scoreboard players remove @s bm.kxt 1',
-                    'execute if score @s bm.kxt matches 30 run particle minecraft:electric_spark ~ ~0.5 ~ 0.4 0.4 0.4 0.15 10',
-                    'execute if score @s bm.kxt matches 12 run particle minecraft:electric_spark ~ ~0.5 ~ 0.5 0.5 0.5 0.2 20',
-                    'execute if score @s bm.kxt matches 12 run data merge entity @s {start_interpolation:0,interpolation_duration:12,transformation:{scale:[0f,0f,0f]}}',
-                    'execute if score @s bm.kxt matches ..0 run kill @s'])
+                    'execute if score @s bm.kxt matches 26..34 run particle minecraft:electric_spark ~ ~0.5 ~ 0.4 0.4 0.4 0.2 6',
+                    'execute if score @s bm.kxt matches 30 if entity @s[tag=bm.kxp_body] run playsound minecraft:block.beacon.power_select hostile @a[distance=..48] ~ ~ ~ 1.5 0.6',
+                    'execute if score @s bm.kxt matches 22..26 if entity @s[tag=bm.kxp_body] run particle minecraft:end_rod ~ ~1 ~ 1 1.5 1 0.2 12',
+                    'execute if score @s bm.kxt matches 21 if entity @s[tag=bm.kxp_body] run function bm:p79/boom',
+                    'execute if score @s bm.kxt matches 21 run data merge entity @s {start_interpolation:0,interpolation_duration:3,transformation:{scale:[0f,0f,0f]}}',
+                    'execute if score @s bm.kxt matches 21 run particle minecraft:electric_spark ~ ~0.5 ~ 0.3 0.3 0.3 0.6 14',
+                    'execute if score @s bm.kxt matches ..16 run kill @s'])
+    fn('p79/boom', ['particle minecraft:flash{color:[0.8,1.0,0.6,1.0]} ~ ~1.5 ~ 0 0 0 0 1', 'particle minecraft:explosion_emitter ~ ~1.5 ~ 0 0 0 0 1',
+                    'particle minecraft:electric_spark ~ ~1.5 ~ 0.4 0.4 0.4 1.4 400', 'particle minecraft:end_rod ~ ~1.5 ~ 0.2 0.2 0.2 0.6 120',
+                    'particle minecraft:dust{color:[0.55,1.0,0.35],scale:2.5} ~ ~1.5 ~ 2.5 2 2.5 0 120'] +
+       [f'particle minecraft:end_rod ~{dx} ~{y} ~{dz} 0.05 0.3 0.05 0 3' for dx, dz in ((0, 0), (2.5, 1), (-2, -2), (1, -2.5), (-2.5, 1.5)) for y in range(0, 14, 2)] +
+       ['playsound minecraft:entity.lightning_bolt.thunder hostile @a[distance=..96] ~ ~ ~ 2 0.8', 'playsound minecraft:entity.lightning_bolt.impact hostile @a[distance=..48] ~ ~ ~ 2 0.7',
+        'playsound minecraft:entity.generic.explode hostile @a[distance=..48] ~ ~ ~ 1.5 0.6',
+        'execute as @a[distance=..10,gamemode=!spectator] at @s run particle minecraft:electric_spark ~ ~1 ~ 0.3 0.6 0.3 0.1 10'])
     # (as a host) go quietly: his parts first, so nothing reads as a fall
     fn('p79/unrig', ['scoreboard players operation #kid bm.rng = @s bm.kxid',
                      'execute as @e[type=minecraft:item_display,tag=bm.kxp,distance=..16] if score @s bm.kxid = #kid bm.rng run kill @s'])
@@ -212,7 +228,7 @@ def generate(G):
     # ================================================================== THE BOSS
     bnbt = {'Tags': ['bm.kxboss', 'bm.kxhost', 'bm.kxnew', 'bm.seen'], 'PersistenceRequired': B(1), 'Silent': B(1), 'CustomName': T('KillerWatt', GRN, bold=True),
             'IsBaby': B(0), 'CanBreakDoors': B(0), 'DeathLootTable': 'minecraft:empty', 'Health': F(BOSS_HP),
-            'attributes': attr(scale=2.3, max_health=BOSS_HP, attack_damage=10, armor=10, armor_toughness=4, movement_speed=0.26, follow_range=48,
+            'attributes': attr(scale=2.4, max_health=BOSS_HP, attack_damage=10, armor=10, armor_toughness=4, movement_speed=0.26, follow_range=48,
                                knockback_resistance=0.8, spawn_reinforcements=0.0, step_height=1.5),
             'active_effects': [eff('invisibility'), eff('fire_resistance')],
             'drop_chances': {s: F(0.0) for s in ('mainhand', 'offhand', 'head', 'chest', 'legs', 'feet')}}
@@ -228,14 +244,23 @@ def generate(G):
                          'scoreboard players set @s bm.kxlone 0', 'tag @s remove bm.kxnew', 'scoreboard players operation #kid bm.rng = @s bm.kxid',
                          'function bm:p79/boss/rig', f'tag {sel()} remove bm.kxsel'])
     tick.append('execute as @e[type=minecraft:husk,tag=bm.kxboss] at @s run function bm:p79/boss/tick')
+    # (2.67) his hitbox fits him: the husk itself (scale 2.4: 4.7 high, 1.4 wide) for arrows, and a body-wide box for blows
+    #        (phase82's relay passes a hit on it to him, as yours)
+    G.FUNCS['p79/boss/tick'][-1:-1] = ['execute as @e[type=minecraft:interaction,tag=bm.bhit_kw,distance=..16] if score @s bm.hbid = #kid bm.rng run tag @s add bm.hbsel',
+                                       'execute unless entity @e[type=minecraft:interaction,tag=bm.hbsel,tag=bm.bhit_kw] run function bm:p79/boss/hitbox',
+                                       'tp @e[type=minecraft:interaction,tag=bm.hbsel,tag=bm.bhit_kw] ~ ~ ~', 'tag @e[type=minecraft:interaction,tag=bm.hbsel] remove bm.hbsel']
+    fn('p79/boss/hitbox', ['summon minecraft:interaction ~ ~ ~ {Tags:["bm.bhit","bm.bhit_kw","bm.hbnew"],width:2.6f,height:4.4f}',
+                           'scoreboard players operation @e[type=minecraft:interaction,tag=bm.hbnew] bm.hbid = #kid bm.rng',
+                           'tag @e[type=minecraft:interaction,tag=bm.hbnew] add bm.hbsel', 'tag @e[type=minecraft:interaction,tag=bm.hbnew] remove bm.hbnew'])
     # the mind (each tick he isn't mid-attack): every second, maybe start one; 3 seconds between (under 2 once enraged)
     fn('p79/boss/mind', ['scoreboard players remove @s bm.kxc 1', 'execute if score @s bm.kxc matches 1.. run return 0', 'scoreboard players set @s bm.kxc 20',
                          'execute store result score #hp bm.rng run data get entity @s Health', 'execute store result score #mx bm.rng run attribute @s minecraft:max_health get',
                          'scoreboard players operation #mx bm.rng /= #2 bm.rng',
                          'execute if score @s bm.kxr matches 0 if score #hp bm.rng <= #mx bm.rng run return run function bm:p79/boss/start {a:4}',
                          'execute store result score #r bm.rng run random value 1..100',
-                         'execute if entity @a[distance=..5.5,gamemode=!creative,gamemode=!spectator] if score #r bm.rng matches 1..50 run return run function bm:p79/boss/start {a:1}',
-                         'execute if entity @a[distance=..7,gamemode=!creative,gamemode=!spectator] if score #r bm.rng matches 51..85 run return run function bm:p79/boss/start {a:2}',
+                         'execute if entity @a[distance=..5.5,gamemode=!creative,gamemode=!spectator] if score #r bm.rng matches 1..35 run return run function bm:p79/boss/start {a:1}',
+                         'execute if entity @a[distance=..7,gamemode=!creative,gamemode=!spectator] if score #r bm.rng matches 36..60 run return run function bm:p79/boss/start {a:2}',
+                         'execute if entity @a[distance=..9,gamemode=!creative,gamemode=!spectator] if score #r bm.rng matches 61..88 run return run function bm:p79/boss/start {a:5}',
                          'execute if entity @a[distance=..28,gamemode=!creative,gamemode=!spectator] if score #r bm.rng matches 60..100 run return run function bm:p79/boss/start {a:3}'])
     fn('p79/boss/start', ['$function bm:p79/boss/go {a:$(a)}', 'execute if score @s bm.kxatk matches 4 run scoreboard players set @s bm.kxr 1',
                           'scoreboard players set @s bm.kxc 60', 'execute if score @s bm.kxr matches 1 run scoreboard players set @s bm.kxc 36',
@@ -243,6 +268,7 @@ def generate(G):
     fn('p79/boss/attack', ['scoreboard players add @s bm.kxt 1', 'tag @s add bm.kxme',
                            'execute if score @s bm.kxatk matches 1 run function bm:p79/boss/a_slam', 'execute if score @s bm.kxatk matches 2 run function bm:p79/boss/a_sweep',
                            'execute if score @s bm.kxatk matches 3 run function bm:p79/boss/a_call', 'execute if score @s bm.kxatk matches 4 run function bm:p79/boss/a_roar',
+                           'execute if score @s bm.kxatk matches 5 run function bm:p79/boss/a_lunge',
                            'tag @s remove bm.kxme'])
     me = '@e[type=minecraft:husk,tag=bm.kxme,limit=1]'
     foes = lambda r: f'@a[distance=..{r},gamemode=!creative,gamemode=!spectator]'
@@ -264,6 +290,16 @@ def generate(G):
     fn('p79/boss/swipe', [f'particle minecraft:sweep_attack ^{x} ^2.5 ^{z} 0 0 0 0 1' for x, z in ((-4, 0), (-3, 3), (0, 4), (3, 3), (4, 0), (3, -3), (0, -4), (-3, -3))] +
        ['particle minecraft:electric_spark ~ ~2 ~ 4 0.6 4 0.2 60', 'playsound minecraft:entity.player.attack.sweep hostile @a[distance=..32] ~ ~ ~ 1.4 0.5',
         f'execute as {foes(7)} run damage @s 9 minecraft:mob_attack by {me}'])
+    # (2.67) THE TENDRIL LUNGE: he turns on you, coils all four scythes back - and drives them at you
+    fn('p79/boss/a_lunge', [at(1, 'execute facing entity @a[distance=..10,gamemode=!creative,gamemode=!spectator,sort=nearest,limit=1] feet run tp @s ~ ~ ~ ~ 0'),
+                            at(1, 'function bm:p79/boss/pose/lunge_a'), at(1, 'playsound minecraft:entity.warden.sonic_charge hostile @a[distance=..32] ~ ~ ~ 0.8 1.6'),
+                            at('2..9', 'particle minecraft:electric_spark ^ ^3.6 ^-1.2 1.2 0.6 0.3 0.05 4'),
+                            at(10, 'function bm:p79/boss/pose/lunge_b'), at(12, 'function bm:p79/boss/lunged'), at('26..', 'function bm:p79/boss/done')])
+    fn('p79/boss/lunged', ['execute rotated as @s rotated ~ 0 positioned ^ ^2 ^4.2 run particle minecraft:sweep_attack ~ ~ ~ 1.6 0.6 1.6 0 6',
+                           'execute rotated as @s rotated ~ 0 positioned ^ ^2 ^4.2 run particle minecraft:electric_spark ~ ~ ~ 1.8 1 1.8 0.3 60',
+                           'playsound minecraft:item.trident.hit hostile @a[distance=..32] ~ ~ ~ 1.4 0.6',
+                           f'execute rotated as @s rotated ~ 0 positioned ^ ^ ^4.2 as @a[distance=..3.6,gamemode=!creative,gamemode=!spectator] at @s run function bm:p79/boss/skewered'])
+    fn('p79/boss/skewered', [f'damage @s 11 minecraft:mob_attack by {me}', 'effect give @s minecraft:slowness 2 3', 'particle minecraft:crit ~ ~1 ~ 0.3 0.6 0.3 0.4 20'])
     # CALL LIGHTNING: arms to the sky; a bolt marked under up to three of you (enraged: four more round him)
     fn('p79/boss/a_call', [at(1, 'function bm:p79/boss/pose/call'), at(1, 'playsound minecraft:entity.lightning_bolt.thunder weather @a[distance=..64] ~ ~ ~ 1 0.7'),
                            at('2..30', 'particle minecraft:end_rod ~ ~5.8 ~ 0.6 0.6 0.6 0.05 3'),
@@ -386,7 +422,7 @@ def generate(G):
                           'execute rotated ~ 0 positioned ^ ^ ^2 run particle minecraft:flash{color:[0.75,1.0,0.6,1.0]} ~ ~1 ~ 0 0 0 0 1',
                           'playsound minecraft:entity.lightning_bolt.impact neutral @a[distance=..24] ~ ~ ~ 0.6 1.6', say('KillerWatt answers the Spark.', GRN)])
     fn('p79/pet/init', ['scoreboard players add #kwn bm.kxid 1', 'scoreboard players operation @s bm.kxid = #kwn bm.kxid', 'scoreboard players set @s bm.kxatk 0',
-                        'scoreboard players set @s bm.kxc 40', 'tag @s remove bm.kxnew', 'scoreboard players operation #kid bm.rng = @s bm.kxid',
+                        'scoreboard players set @s bm.kxc 40', 'scoreboard players set @s bm.kxch 0', 'tag @s remove bm.kxnew', 'scoreboard players operation #kid bm.rng = @s bm.kxid',
                         'function bm:p79/pet/rig', f'tag {sel()} remove bm.kxsel'])
     fn('p79/pet/vanish', ['particle minecraft:electric_spark ~ ~1.5 ~ 0.6 1 0.6 0.3 30', 'execute on passengers run ride @s dismount', 'function bm:p79/unrig',
                           'data remove entity @s Owner', 'tp @s ~ -400 ~', 'kill @s'])
@@ -588,6 +624,125 @@ def generate(G):
                                                                                                           T(f'The Spark needs {PET_CD // 60} minutes to recharge.', 'gray')])])
     second += ['scoreboard players remove @a[scores={bm.kxcd=1..}] bm.kxcd 1',
                'execute as @e[type=minecraft:wolf,tag=bm.kxpet] at @s unless entity @e[type=#bm:hostile,tag=!bm.npc,distance=..16] run effect give @s minecraft:regeneration 3 0 true']
+
+    # ---- (2.67) THE CHARGED ATTACKS: every blow he lands (and every second of a fight) charges him; at 14 he unleashes his
+    #      form's - and riding, the Spark lets it go when you choose. One per form, and none of them gentle.
+    CHMAX = 14
+    ULT = {0: ('storm', 'STORMBREAKER', '#f6e030', (1.0, 0.9, 0.2)), el['electric']: ('storm', 'STORMBREAKER', '#f6e030', (1.0, 0.9, 0.2)),
+           el['fire']: ('nova', 'SUPERNOVA', '#ff7a2a', (1.0, 0.45, 0.12)), el['water']: ('maelstrom', 'MAELSTROM', '#3a9cff', (0.2, 0.55, 1.0)),
+           el['poison']: ('plague', 'PLAGUE BLOOM', '#a64ce8', (0.65, 0.3, 0.9)), el['earth']: ('tectonic', 'TECTONIC SLAM', '#9a7a4a', (0.6, 0.45, 0.25)),
+           el['rock']: ('avalanche', 'AVALANCHE', '#b09070', (0.65, 0.55, 0.45)), el['air']: ('tempest', 'TEMPEST', '#d8f2ff', (0.88, 0.96, 1.0)),
+           el['grass']: ('overgrowth', 'OVERGROWTH', '#52d24a', (0.35, 0.85, 0.3)), el['ice']: ('zero', 'ABSOLUTE ZERO', '#a8ecff', (0.65, 0.92, 1.0)),
+           ETH: ('void', 'VOID REQUIEM', '#c8a0ff', (0.75, 0.55, 1.0))}
+    foe = lambda r, lo=None: f'@e[type=#bm:hostile,tag=!bm.npc,distance={lo or ""}..{r}]'
+    for d in (4, 5, 6, 8):
+        G.FUNCS[f'p79/pet/hit{d}'].append(f'scoreboard players add {pme} bm.kxch 1')
+    for d in (4, 5, 6, 8, 10, 12, 14, 15, 16, 18, 20, 22):
+        fn(f'p79/pet/uhit{d}', [f'execute if score #kel bm.rng matches {ETH} run damage @s {d * 1.5:g} minecraft:mob_attack by {pme}',
+                                f'execute unless score #kel bm.rng matches {ETH} run damage @s {d} minecraft:mob_attack by {pme}', 'function bm:p79/pet/touch'])
+    second += [f'execute as @e[type=minecraft:wolf,tag=bm.kxpet] at @s if entity {foe(16)} unless score @s bm.kxch matches {CHMAX}.. run scoreboard players add @s bm.kxch 1',
+               f'execute as @e[type=minecraft:wolf,tag=bm.kxpet,scores={{bm.kxch={CHMAX}..}}] at @s run function bm:p79/pet/charged_sec']
+    fn('p79/pet/charged_sec', ['scoreboard players operation #kel bm.rng = @s bm.kxel'] +
+       [f'execute if score #kel bm.rng matches {i} run particle minecraft:dust{{color:[{c[0]},{c[1]},{c[2]}],scale:1.6}} ~ ~1.6 ~ 0.6 0.9 0.6 0 10' for i, (_k, _n, _h, c) in ULT.items()] +
+       ['particle minecraft:electric_spark ~ ~1.6 ~ 0.6 0.9 0.6 0.2 6',
+        'execute unless entity @s[tag=bm.kxcharged] on owner run ' + title('@s', 'actionbar', [T('⚡ KillerWatt is CHARGED', '#f6e030', bold=True),
+                                                                                             T(' - he lets it go on the next foe (riding: the Spark).', 'gray')]),
+        'execute unless entity @s[tag=bm.kxcharged] run playsound minecraft:block.beacon.power_select neutral @a[distance=..16] ~ ~ ~ 0.8 1.6',
+        'tag @s add bm.kxcharged'])
+    pm = G.FUNCS['p79/pet/mind']
+    k_ = next(i for i, l in enumerate(pm) if 'random value 1..100' in l)
+    pm.insert(k_, f'execute if score @s bm.kxch matches {CHMAX}.. if entity {foe(12)} run return run function bm:p79/pet/start {{a:7}}')
+    G.FUNCS['p79/pet/attack'].insert(-1, 'execute if score @s bm.kxatk matches 7 run function bm:p79/pet/a_ult')
+    rl = G.FUNCS['p79/pet/rleap']
+    rl.insert(1, f'execute if score @s bm.kxch matches {CHMAX}.. unless score @s bm.kxatk matches 1.. run return run function bm:p79/pet/go {{a:7}}')
+    fn('p79/pet/a_ult', [at(1, 'tag @s add bm.kxult'), at(1, 'function bm:p79/pet/pose/charge'), at(1, 'function bm:p79/flex'),
+                         at(1, 'effect give @s minecraft:resistance 3 3 true'), at(1, 'playsound minecraft:block.beacon.activate neutral @a[distance=..32] ~ ~ ~ 1.2 0.7'),
+                         at(1, 'playsound minecraft:entity.warden.sonic_charge neutral @a[distance=..32] ~ ~ ~ 1 1.2'),
+                         at('2..18', 'function bm:p79/pet/ult_gather'), at(19, 'function bm:p79/pet/pose/release'), at(19, 'function bm:p79/unflex'),
+                         at(20, 'function bm:p79/pet/ult_name')] +
+       [at(20, f'execute if score #kel bm.rng matches {i} run function bm:p79/pet/ult/{k}') for i, (k, _n, _h, _c) in ULT.items()] +
+       [at('21..55', f'execute if score #kel bm.rng matches {i} run function bm:p79/pet/ultb/{k}') for i, (k, _n, _h, _c) in ULT.items() if k in
+        ('nova', 'maelstrom', 'plague', 'tectonic', 'tempest', 'overgrowth', 'zero', 'void')] +
+       [at('56..', 'scoreboard players set @s bm.kxch 0'), at('56..', 'tag @s remove bm.kxcharged'), at('56..', 'tag @s remove bm.kxult'),
+        at('56..', 'function bm:p79/pet/done')])
+    fn('p79/pet/ult_gather', [f'execute if score #kel bm.rng matches {i} run particle minecraft:dust{{color:[{c[0]},{c[1]},{c[2]}],scale:2.0}} ~ ~2.2 ~ 2.5 1.5 2.5 0 14'
+                              for i, (_k, _n, _h, c) in ULT.items()] +
+                             ['particle minecraft:electric_spark ~ ~3 ~ 0.3 0.3 0.3 0.4 10', 'particle minecraft:end_rod ~ ~3.2 ~ 0.2 0.2 0.2 0.02 2'])
+    fn('p79/pet/ult_name', [f'execute if score #kel bm.rng matches {i} run ' + title('@a[distance=..32]', 'actionbar', [T('KillerWatt: ', 'gray'), T(n, h, bold=True)])
+                            for i, (_k, n, h, _c) in ULT.items()] +
+                           ['particle minecraft:flash{color:[1.0,1.0,1.0,1.0]} ~ ~2 ~ 0 0 0 0 1', 'playsound minecraft:entity.lightning_bolt.thunder neutral @a[distance=..48] ~ ~ ~ 1 0.8'])
+    atk = lambda d, r, lo=None: f'execute as {foe(r, lo)} at @s run function bm:p79/pet/uhit{d}'
+    ring = lambda part, r, n=24: [f'particle {part} ^{r * math.cos(2 * math.pi * k / n):.2f} ^0.4 ^{r * math.sin(2 * math.pi * k / n):.2f} 0.1 0.1 0.1 0.02 3' for k in range(n)]
+    beat = lambda t, cmd: f'execute if score @s bm.kxt matches {t} run {cmd}'
+    # STORMBREAKER (his own): a blast of lightning round him, then a bolt on every foe and a ring of them
+    fn('p79/pet/ult/storm', [atk(14, 10), f'effect give {foe(10)} minecraft:slowness 3 3', 'particle minecraft:electric_spark ~ ~1 ~ 5 1 5 0.6 300'] +
+       [f'execute positioned ^{5 * math.cos(2 * math.pi * k / 8):.2f} ^ ^{5 * math.sin(2 * math.pi * k / 8):.2f} run function bm:p79/mark_m' for k in range(8)] +
+       [f'execute as {foe(12)} at @s run function bm:p79/mark_m'])
+    # SUPERNOVA (fire): a fireball bursting out of him, then a second wave of flame
+    fn('p79/pet/ult/nova', [atk(18, 9), f'execute as {foe(9)} run data modify entity @s Fire set value 200s', 'particle minecraft:explosion_emitter ~ ~1 ~ 0 0 0 0 1',
+                            'particle minecraft:flame ~ ~1 ~ 4 1.5 4 0.3 400', 'particle minecraft:lava ~ ~1 ~ 3 1 3 0 60',
+                            'playsound minecraft:entity.generic.explode neutral @a[distance=..40] ~ ~ ~ 1.5 0.6'])
+    fn('p79/pet/ultb/nova', [beat(28, atk(6, 10)), beat(28, 'particle minecraft:soul_fire_flame ~ ~0.5 ~ 5 0.4 5 0.1 300')] +
+       [beat(28, c) for c in ring('minecraft:flame', 8)])
+    # MAELSTROM (water): a whirlpool drags them in, round and round - then it crashes down
+    fn('p79/pet/ult/maelstrom', [f'effect give {foe(11)} minecraft:slowness 5 4', 'particle minecraft:splash ~ ~1 ~ 6 1 6 0.3 300',
+                                 'playsound minecraft:entity.generic.splash neutral @a[distance=..32] ~ ~ ~ 1.5 0.5'])
+    fn('p79/pet/ultb/maelstrom', [beat(t, f'execute as {foe(11)} at @s facing entity {pme} feet run tp @s ^0.8 ^ ^1.4') for t in (24, 27, 30, 33)] +
+       [beat(t, atk(4, 11)) for t in (24, 30)] + [beat(t, 'particle minecraft:bubble_column_up ~ ~0.5 ~ 4 0.2 4 0.1 120') for t in (24, 27, 30, 33)] +
+       [beat(36, atk(16, 6)), beat(36, f'effect give {foe(6)} minecraft:nausea 6 0'), beat(36, 'particle minecraft:splash ~ ~2 ~ 3 2 3 0.6 600'),
+        beat(36, 'playsound minecraft:entity.player.splash.high_speed neutral @a[distance=..32] ~ ~ ~ 1.5 0.6')])
+    # PLAGUE BLOOM (poison): a burst of venom, then the cloud keeps on eating at them
+    fn('p79/pet/ult/plague', [atk(12, 10), f'effect give {foe(10)} minecraft:poison 8 2', f'effect give {foe(10)} minecraft:wither 5 1',
+                              'particle minecraft:witch ~ ~1 ~ 5 1 5 0.2 300', 'particle minecraft:dust{color:[0.4,0.85,0.2],scale:2.5} ~ ~1 ~ 5 1 5 0 200',
+                              'playsound minecraft:entity.witch.throw neutral @a[distance=..32] ~ ~ ~ 1.5 0.5'])
+    fn('p79/pet/ultb/plague', [beat(t, atk(5, 10)) for t in (30, 40, 50)] + [beat(t, f'effect give {foe(10)} minecraft:poison 6 2') for t in (30, 40, 50)] +
+       [beat(t, 'particle minecraft:dust{color:[0.65,0.3,0.9],scale:2.5} ~ ~1 ~ 5 0.8 5 0 160') for t in range(22, 56, 3)])
+    # TECTONIC SLAM (earth): three shockwaves roll out of the ground, each throwing them into the air
+    fn('p79/pet/ult/tectonic', ['particle minecraft:explosion ~ ~0.3 ~ 1 0.1 1 0 6', 'playsound minecraft:entity.warden.attack_impact neutral @a[distance=..40] ~ ~ ~ 1.6 0.5'])
+    for i_, (t, lo, hi) in enumerate(((20, None, 4), (24, 4, 7), (28, 7, 10))):
+        fn(f'p79/pet/ultw{i_}', [atk(10, hi, lo), f'effect give {foe(hi, lo)} minecraft:levitation 1 6', f'effect give {foe(hi, lo)} minecraft:slowness 5 3'] +
+           ring('minecraft:block{block_state:"minecraft:dirt"}', hi - 1, 20) + ['playsound minecraft:entity.generic.explode neutral @a[distance=..32] ~ ~ ~ 1 0.6'])
+    G.FUNCS['p79/pet/ult/tectonic'].append('function bm:p79/pet/ultw0')
+    fn('p79/pet/ultb/tectonic', [beat(24, 'function bm:p79/pet/ultw1'), beat(28, 'function bm:p79/pet/ultw2')])
+    # AVALANCHE (rock): boulders drop out of the sky onto every foe
+    fn('p79/pet/ult/avalanche', [f'execute as {foe(11)} at @s run summon minecraft:block_display ~ ~9 ~ ' +
+                                 snbt({'Tags': ['bm.kxboulder', 'bm.kxbn'], 'block_state': 'minecraft:cobblestone', 'teleport_duration': Int(1),
+                                       'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(-1), F(0), F(-1)], 'scale': [F(2)] * 3}}),
+                                 'scoreboard players set @e[type=minecraft:block_display,tag=bm.kxbn] bm.kxt 10', 'tag @e[type=minecraft:block_display,tag=bm.kxbn] remove bm.kxbn',
+                                 'particle minecraft:block{block_state:"minecraft:stone"} ~ ~6 ~ 5 2 5 0 200', 'playsound minecraft:block.stone.break neutral @a[distance=..32] ~ ~ ~ 1.5 0.5'])
+    tick.append('execute as @e[type=minecraft:block_display,tag=bm.kxboulder] at @s run function bm:p79/pet/boulder')
+    fn('p79/pet/boulder', ['tp @s ~ ~-0.9 ~', 'particle minecraft:falling_dust{block_state:"minecraft:stone"} ~ ~1 ~ 0.6 0.4 0.6 0 4',
+                           'scoreboard players remove @s bm.kxt 1', 'execute if score @s bm.kxt matches ..0 run function bm:p79/pet/boulder_hit'])
+    fn('p79/pet/boulder_hit', ['particle minecraft:explosion ~ ~0.5 ~ 0.5 0.3 0.5 0 3', 'particle minecraft:block{block_state:"minecraft:cobblestone"} ~ ~0.5 ~ 1.2 0.4 1.2 0 80',
+                               'playsound minecraft:entity.generic.explode neutral @a[distance=..32] ~ ~ ~ 1 0.5',
+                               'execute as @e[type=#bm:hostile,tag=!bm.npc,distance=..2.6] run damage @s 20 minecraft:falling_block',
+                               'effect give @e[type=#bm:hostile,tag=!bm.npc,distance=..2.6] minecraft:weakness 6 1', 'kill @s'])
+    # TEMPEST (air): a cyclone hurls them high into the sky - and the fall does the rest
+    fn('p79/pet/ult/tempest', [atk(12, 11), f'effect give {foe(11)} minecraft:levitation 2 14', 'particle minecraft:cloud ~ ~1 ~ 5 2 5 0.3 300',
+                               'particle minecraft:gust_emitter_large ~ ~1 ~ 0 0 0 0 1', 'playsound minecraft:entity.breeze.wind_burst neutral @a[distance=..40] ~ ~ ~ 1.6 0.5'])
+    fn('p79/pet/ultb/tempest', [beat(t, f'particle minecraft:cloud ~ ~{2 + (t - 22) // 2} ~ 2 0.5 2 0.2 40') for t in range(22, 40, 2)] +
+       [beat(32, atk(6, 14)), beat(32, 'particle minecraft:gust_emitter_small ~ ~4 ~ 3 2 3 0 6')])
+    # OVERGROWTH (grass): thorned vines burst up and hold them fast, while everything on his side is healed
+    fn('p79/pet/ult/overgrowth', [atk(14, 10), f'effect give {foe(10)} minecraft:slowness 4 9', f'effect give {foe(10)} minecraft:jump_boost 4 200',
+                                  'effect give @a[distance=..10] minecraft:instant_health 1 1', 'effect give @a[distance=..10] minecraft:regeneration 8 1',
+                                  'effect give @s minecraft:instant_health 1 2', 'particle minecraft:happy_villager ~ ~1 ~ 5 1 5 0 200',
+                                  'particle minecraft:composter ~ ~0.5 ~ 5 0.5 5 0 200', 'playsound minecraft:block.big_dripleaf.tilt_down neutral @a[distance=..32] ~ ~ ~ 1.5 0.5'])
+    fn('p79/pet/ultb/overgrowth', [beat(32, atk(8, 10)), beat(32, 'particle minecraft:crit ~ ~0.5 ~ 5 0.5 5 0.2 160'),
+                                   beat(32, 'playsound minecraft:block.sweet_berry_bush.break neutral @a[distance=..32] ~ ~ ~ 1.5 0.6')])
+    # ABSOLUTE ZERO (ice): everything around him freezes solid - and then shatters
+    fn('p79/pet/ult/zero', [atk(15, 11), f'execute as {foe(11)} run data modify entity @s TicksFrozen set value 400', f'effect give {foe(11)} minecraft:slowness 3 9',
+                            'particle minecraft:snowflake ~ ~1 ~ 6 1.5 6 0.05 400', 'particle minecraft:block{block_state:"minecraft:ice"} ~ ~1 ~ 5 1 5 0 120',
+                            'playsound minecraft:block.glass.break neutral @a[distance=..32] ~ ~ ~ 1.2 0.5'])
+    fn('p79/pet/ultb/zero', [beat(40, atk(12, 11)), beat(40, 'particle minecraft:block{block_state:"minecraft:packed_ice"} ~ ~1 ~ 5 1 5 0 300'),
+                             beat(40, 'playsound minecraft:block.glass.break neutral @a[distance=..32] ~ ~ ~ 1.6 0.8')])
+    # VOID REQUIEM (ethereal): the void pours out of him at everything for fourteen blocks, drags it all in - and detonates
+    fn('p79/pet/ult/void', [atk(22, 14), f'effect give {foe(14)} minecraft:wither 6 2', f'effect give {foe(14)} minecraft:glowing 6 0',
+                            'particle minecraft:reverse_portal ~ ~1.5 ~ 7 2 7 0.2 500', 'particle minecraft:end_rod ~ ~2 ~ 6 2 6 0.1 200',
+                            'particle minecraft:sonic_boom ~ ~1.5 ~ 0 0 0 0 1', 'playsound minecraft:entity.warden.sonic_boom neutral @a[distance=..48] ~ ~ ~ 1.4 0.7'])
+    fn('p79/pet/ultb/void', [beat(t, f'execute as {foe(14)} at @s facing entity {pme} feet run tp @s ^ ^ ^1.6') for t in (26, 29, 32)] +
+       [beat(t, 'particle minecraft:portal ~ ~1.5 ~ 4 2 4 1.5 200') for t in (26, 29, 32)] +
+       [beat(36, atk(16, 6)), beat(36, 'particle minecraft:explosion_emitter ~ ~1 ~ 0 0 0 0 1'), beat(36, 'particle minecraft:flash{color:[0.8,0.6,1.0,1.0]} ~ ~1.5 ~ 0 0 0 0 1'),
+        beat(36, 'playsound minecraft:entity.generic.explode neutral @a[distance=..48] ~ ~ ~ 1.5 0.4')])
 
     # ---- his element: hand him a gem (right-click him with it); the Ethereal Gem - his ETHEREAL FORM; sneak + right-click him empty-handed: take it back
     wjson('bm/advancement/p79/pet_interact.json', {'criteria': {'i': {'trigger': 'minecraft:player_interacted_with_entity', 'conditions': {

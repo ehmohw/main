@@ -26,7 +26,8 @@ YOUR SECONDARY and YOUR SIGNATURE: whatever kit you take, add one weapon and one
   cat's eyes, featherfall, leech, spring heels, fortune's favour, second skin, adrenaline. Change them as often as you like.
 THE FIXER'S LEDGER opens the office anywhere (everyone gets one on their first heist; Goldtooth keeps spares). In the den:
   the Armory bench and the Bank vault, beside the kit racks.
-GOLDTOOTH: 16 coins for a Token, goods for coins and spoils (pearls, golden apples, diamonds, netherite scrap...)."""
+GOLDTOOTH: 16 coins for a Token, goods for coins and spoils (pearls, golden apples, diamonds, a totem...).
+NETHERITE SCRAP (2.67): no longer for coins - a rare find in a won heist's haul instead, likelier the higher the tier."""
 from items import item, T, TOTEM, ITEMS
 from useitem import hold, HOLD
 from nbt import snbt, B, F, D, Int
@@ -123,7 +124,6 @@ def _goldtooth():
                                offer(('gutter_coin', 16), ('minecraft:experience_bottle', 8), ('copper_cog', 6)),
                                offer(('gutter_coin', 48), ('minecraft:diamond', 1), ('silver_seal', 4)),
                                offer(('gutter_coin', 40), ('minecraft:enchanted_golden_apple', 1), ('gilded_leaf', 10)),
-                               offer(('gutter_coin', 64), ('minecraft:netherite_scrap', 1), ('deep_pearl', 8)),
                                offer(('gutter_coin', 64), ('minecraft:totem_of_undying', 1), ('hoard_ember', 8))]
     return d
 
@@ -222,6 +222,17 @@ def generate(G):
                                                                                       T(f' {m[2]}', m[3]), T(' into your Gutter Bank.', 'gray')]),
              f'scoreboard players set @s {found[i - 1]} 0'] for i, m in enumerate(MATS, 1)), []))
     G.FUNCS['p70/haul'].append('function bm:p80/bank_finds')
+    # (2.67) NETHERITE SCRAP: a rare find in a won heist - Tier I 3%, II 6%, III 10%, IV 15%, V 22% (+3 with nobody knocked out);
+    #        at Tier V sometimes two
+    SCRAP = {1: 3, 2: 6, 3: 10, 4: 15, 5: 22}
+    G.FUNCS['p70/haul'].append('function bm:p80/scrap')
+    fn('p80/scrap', ['scoreboard players set #sc bm.rng 0'] + [f'execute if score #gt bm.rng matches {t} run scoreboard players set #sc bm.rng {c}' for t, c in SCRAP.items()] +
+       [inst('bm:p80/scrap_clean'), 'execute store result score #r bm.rng run random value 1..100', 'execute if score #r bm.rng > #sc bm.rng run return 0',
+        'loot give @s loot bm:p80/scrap1', 'execute if score #gt bm.rng matches 5 if score #r bm.rng matches ..7 run loot give @s loot bm:p80/scrap1',     # (into The Haul - phase81)
+        'playsound minecraft:block.ancient_debris.break player @s ~ ~ ~ 1 0.8',
+        tellraw('@s', P + [T('Rare find! ', '#a08090', bold=True), T('A scrap of netherite in your share of the haul.', 'gray')])])
+    wjson('bm/loot_table/p80/scrap1.json', {'pools': [{'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'minecraft:netherite_scrap'}]}]})
+    fn('p80/scrap_clean', ['execute if score @s bm.gvdc matches 0 run scoreboard players add #sc bm.rng 3'])
     # a fresh heist, a failed one, or walking out: the finds are lost; once-a-heist perks reset
     fn('p80/run_reset', [f'scoreboard players set @s {o} 0' for o in found] + ['scoreboard players set @s bm.kls 0', 'scoreboard players set @s bm.khc 0',
                                                                               'tag @s remove bm.kphantom'])
@@ -258,7 +269,8 @@ def generate(G):
                     [P28.btn([T('⚒ ', ROLE_COL[1]), T('The Armory', 'white', bold=True)], MENU_CODE + 1, tooltip=T('Rank up your kits; pick your secondary and signature.'), width=150),
                      P28.btn([T('⛃ ', GOLD), T('The Gutter Bank', 'white', bold=True)], MENU_CODE + 2, tooltip=T('Coins and spoils; 16 coins buy a Token.'), width=150),
                      P28.btn([T('🏆 ', GOLD), T('Trophy Case', 'white', bold=True)], MENU_CODE + 3, tooltip=T('Six metals of trophies, and how to earn them.'), width=150),
-                     P28.btn([T('✦ ', '#e8b8ff'), T('Bond Sigils', 'white', bold=True)], MENU_CODE + 4, tooltip=T('Which sigils do what - two at most each heist.'), width=150)],
+                     P28.btn([T('✦ ', '#e8b8ff'), T('Bond Sigils', 'white', bold=True)], MENU_CODE + 4, tooltip=T('Which sigils do what - two at most each heist.'), width=150),
+                     P28.btn([T('▣ ', '#c89a5a'), T('The Locker Hall', 'white', bold=True)], MENU_CODE + 5, tooltip=T('Claim double-chest lockers for your raiding things (2.67).'), width=150)],
                     columns=2)
     fn('p80/office_dlg', [f'$dialog show @s {P28.inline(hub)}'])
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {MENU_CODE}..{MENU_CODE + 199} run return run function bm:p80/act')
@@ -268,7 +280,8 @@ def generate(G):
            f'execute if score #act bm.pay matches {MENU_CODE + 1} run return run function bm:p80/armory',
            f'execute if score #act bm.pay matches {MENU_CODE + 2} run return run function bm:p80/bank',
            f'execute if score #act bm.pay matches {MENU_CODE + 3} run return run function bm:p81/case',
-           f'execute if score #act bm.pay matches {MENU_CODE + 4} run return run function bm:p81/sigils'] + \
+           f'execute if score #act bm.pay matches {MENU_CODE + 4} run return run function bm:p81/sigils',
+           f'execute if score #act bm.pay matches {MENU_CODE + 5} run return run function bm:p84/lk/from_ledger'] + \
         [f'execute if score #act bm.pay matches {MENU_CODE + 10 + r} run return run function bm:p80/up{r}' for r in range(1, 5)] + \
         [f'execute if score #act bm.pay matches {MENU_CODE + 20} run return run function bm:p80/sec_menu',
          f'execute if score #act bm.pay matches {MENU_CODE + 30} run return run function bm:p80/sig_menu'] + \
@@ -579,13 +592,14 @@ def generate(G):
     kg.append('execute if score @s bm.ksig matches 5 run effect give @s minecraft:regeneration 2 2 true')
 
     # ================================================================== THE DEN: the Armory bench and the Bank vault, by the racks
+    # (rel() is already a block's centre for a summon - 2.67: the boxes and signs sat half a block off)
     stations = [('arm', 7, 'minecraft:smithing_table', 'THE ARMORY', 'your kits, for good', ROLE_COL[1]),
                 ('bank', 5, 'minecraft:vault[facing=north]', 'THE GUTTER BANK', 'coins and spoils', GOLD)]
     den = []
     for key, x, block, label, sub, col in stations:
         den += [f'setblock {rel(x, 4, 21)} {block}',
-                f'summon minecraft:interaction {rel(x + 0.5, 4, 21.5)} {snbt({"Tags": ["bm.gvprop", "bm.ofhit", "bm.of_" + key], "width": F(1.02), "height": F(1.02), "response": B(1)})}',
-                f'summon minecraft:text_display {rel(x + 0.5, 5.3, 21.5)} ' + snbt({'Tags': ['bm.gvprop'], 'billboard': 'vertical', 'background': Int(1879048192),
+                f'summon minecraft:interaction {rel(x, 4, 21)} {snbt({"Tags": ["bm.gvprop", "bm.ofhit", "bm.of_" + key], "width": F(1.02), "height": F(1.02), "response": B(1)})}',
+                f'summon minecraft:text_display {rel(x, 5.3, 21)} ' + snbt({'Tags': ['bm.gvprop'], 'billboard': 'vertical', 'background': Int(1879048192),
                                                                                   'text': [T(label + '\n', col, bold=True), T(sub, 'gray')],
                                                                                   'transformation': {'left_rotation': ident, 'right_rotation': ident,
                                                                                                      'translation': [F(0)] * 3, 'scale': [F(0.5)] * 3}})]

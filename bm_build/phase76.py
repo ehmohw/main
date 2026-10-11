@@ -302,7 +302,7 @@ def generate(G):
         sign(1.5, 7.5, 12, 'THE CRUMBLING RAFTERS', 'Old beams. Don\'t stand still.')])
     fn('p76/r/rafters/tick', ['execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1', room_ctx,
                               'execute as @e[type=minecraft:marker,tag=bm.gvraf,distance=..16] at @s run function bm:p76/r/rafters/beam',
-                              f'execute positioned {rel(3, 0, 4)} positioned ~-0.5 ~-0.5 ~-0.5 as @a[tag=bm.gvp,dx=18,dy=2.4,dz=16] at @s run function bm:p76/r/rafters/fell',
+                              f'execute positioned {rel(3, 0, 1)} positioned ~-0.5 ~-0.5 ~-0.5 as @a[tag=bm.gvp,dx=18,dy=2.4,dz=22] at @s run function bm:p76/r/rafters/fell',
                               f'execute positioned {rel(22, 4, 12)} if entity @a[tag=bm.gvp,distance=..1.2] positioned as @s run function bm:p70/solved'])
     fn('p76/r/rafters/beam', ['execute if score @s bm.gvx matches 0 positioned ~ ~0.05 ~ if entity @a[tag=bm.gvp,distance=..0.85] run function bm:p76/r/rafters/creak',
                               'execute if score @s bm.gvx matches 2.. run scoreboard players remove @s bm.gvx 1',
@@ -721,6 +721,7 @@ def generate(G):
     second.append('execute as @e[tag=bm.gvshiny] at @s run particle minecraft:wax_on ~ ~1.2 ~ 0.3 0.6 0.3 0 4')
 
     # ================================================================== LOOT: the rare tables (rolled when the haul is paid)
+    # (2.67: no Tokens or Medallions in any of them - those come only from the Fixer's capped prize, phase75 p75/prize)
     from gen_dp import loot_entry, uni
     def table(*entries):
         return {'pools': [{'rolls': 1, 'entries': [dict(loot_entry(i, c), weight=w) if i in ITEMS else
@@ -728,16 +729,16 @@ def generate(G):
                                                    for i, w, c in entries]}]}
     regalia = [(iid, 1, None) for iid, *_r in PHANTOM]
     wjson('bm/loot_table/p76/phantom.json', table(*regalia))
-    wjson('bm/loot_table/p76/secret.json', table(('second_wind', 6, None), ('treasure_map_scrap', 6, None), ('healing_draught', 8, uni(1, 2)), ('medallion', 6, uni(1, 2)),
-                                                ('token', 10, uni(2, 5)), ('lucky_purse', 3, None), ('lost_lantern', 1, None), ('master_key', 1, None), ('rats_foot', 1, None),
+    wjson('bm/loot_table/p76/secret.json', table(('second_wind', 6, None), ('treasure_map_scrap', 6, None), ('healing_draught', 10, uni(1, 2)),
+                                                ('gutter_coin', 14, uni(4, 10)), ('lucky_purse', 3, None), ('lost_lantern', 1, None), ('master_key', 1, None), ('rats_foot', 1, None),
                                                 *[(iid, 1, None) for iid, *_r in PHANTOM]))
     wjson('bm/loot_table/p76/shiny.json', table(*[(iid, 4, None) for iid, *_r in PHANTOM], ('master_key', 3, None), ('lost_lantern', 3, None), ('rats_foot', 3, None),
-                                               ('medallion', 4, uni(2, 4)), ('second_wind', 3, None)))
-    wjson('bm/loot_table/p76/champion.json', table(('medallion', 8, uni(1, 3)), ('trophy', 4, uni(1, 2)), ('second_wind', 4, None), ('lucky_purse', 3, None),
+                                               ('gutter_coin', 3, uni(8, 16)), ('second_wind', 3, None)))
+    wjson('bm/loot_table/p76/champion.json', table(('gutter_coin', 8, uni(8, 16)), ('second_wind', 4, None), ('lucky_purse', 3, None),
                                                   ('master_key', 1, None), ('lost_lantern', 1, None), ('rats_foot', 1, None), *[(iid, 1, None) for iid, *_r in PHANTOM]))
     wjson('bm/loot_table/p76/ratking.json', {'pools': [{'rolls': 1, 'entries': [loot_entry('rats_foot')]},
                                                        {'rolls': 1, 'entries': [dict(loot_entry(iid), weight=1) for iid, *_r in PHANTOM] + [dict(loot_entry('master_key'), weight=1)]},
-                                                       {'rolls': 1, 'entries': [loot_entry('medallion', uni(3, 6))]}]})
+                                                       {'rolls': 1, 'entries': [loot_entry('gutter_coin', uni(12, 24))]}]})
 
     # ================================================================== THE ITEMS
     # Second Wind: +1 try for your crew, once a heist each

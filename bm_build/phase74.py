@@ -199,11 +199,11 @@ def generate(G):
                             'execute if score #r bm.rng matches 100..104 run function bm:p74/fish_medal']
     fn('p74/fish_token', [give('token'), say('...and a Black Market Token came up on the line!', GOLD), 'playsound minecraft:entity.experience_orb.pickup player @s ~ ~ ~ 1 1.4'])
     fn('p74/fish_medal', [give('medallion'), say('...a MEDALLION, tangled in the line!', GOLD), 'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 0.6 1.6'])
+    # (2.67) the heist's cash is coins now - Tokens and Medallions come only from the Fixer's capped prize (phase75 p75/prize)
     for t in range(1, 6):
         wjson(f'bm/loot_table/gv/cash_t{t}.json', {'pools': [
-            {'rolls': 1, 'entries': [G.loot_entry('token', G.uni(1, 1 + t))]},
-            {'rolls': 1, 'entries': [G.loot_entry('token', G.uni(1, 2 * t))], 'conditions': [G.chance(0.5)]},
-            {'rolls': 1, 'entries': [G.loot_entry('medallion', None)], 'conditions': [G.chance(0.04 * t)]}]})
+            {'rolls': 1, 'entries': [G.loot_entry('gutter_coin', G.uni(2 + 2 * t, 4 + 3 * t))]},
+            {'rolls': 1, 'entries': [G.loot_entry('gutter_coin', G.uni(1, 2 * t))], 'conditions': [G.chance(0.5)]}]})
     G.FUNCS['p70/haul'] += [f'execute if score #gt bm.rng matches {t} run loot give @s loot bm:gv/cash_t{t}' for t in range(1, 6)]     # (packed into The Haul below)
 
     # ================================================================== DISPLAY CASES: floor cases placed before 2.64 sank a block into the floor - lift them out
