@@ -34,7 +34,7 @@ Everything in the Black Market costs about **half** what it did. That covers pri
 | Pegasus Boots | 4 Medallions | 2 Medallions |
 | Cecil's Gem | 4 Trophies | 2 Trophies |
 | Shifting Core | 8 Trophies + 16 Blood Crystals | 4 Trophies + 8 Blood Crystals |
-| Shifting Armour (a piece) | 6 Trophies + 1 Netherite | 3 Trophies + 1 Netherite |
+| Shifting Armour (a piece) | 6 Trophies + 1 Netherite | a **Shifting Core** + 1 Netherite (like the Shifting arms) |
 
 Other price changes:
 - **Diamonds:** the Fence buys a Diamond for **2 Tokens** (it was 4 Diamonds for 1 Token). Old Barnaby sells one back for 4 Tokens.
@@ -42,7 +42,9 @@ Other price changes:
 - **Pearlman's gems:** 1 Medallion each.
 - **What stays the same:** the money-changing rates (9 Tokens = 1 Medallion, 6 Medallions = 1 Trophy) and the Netherite in the Shifting arms.
 
-The trade audit confirms you still can't buy anything and sell it back for a profit.
+- **The Scrap Bin** pays half of the **new** prices. For example, a Smuggler's Chestplate (9 Tokens) scraps for 4. Before, some refunds still used the old prices, so you got back more than half. The Fortuna (a Lucky Trophy) now scraps for 1 Trophy instead of a full refund.
+
+The trade audit confirms you still can't buy anything and sell it back for a profit, at a trader or in the Scrap Bin.
 
 ### Earning
 - **Fishing:** a Token is a rare catch (3%) and a Medallion a very rare one (0.5%), on top of the crates.

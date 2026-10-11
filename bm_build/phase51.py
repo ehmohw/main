@@ -52,7 +52,7 @@ def refund_table(O, zorp, backroom):
     vanilla_money = {'minecraft:diamond', 'minecraft:emerald', 'minecraft:netherite_ingot'}
     def half(c, n):
         if n >= 2: return [(c, n // 2)]
-        return {'token': [('token', 1)], 'medallion': [('token', 4)], 'trophy': [('medallion', 3)]}.get(c, [(c, 1)])
+        return {'token': [('token', 1)], 'medallion': [('token', 4)], 'trophy': [('medallion', 3)], 'lucky_trophy': [('trophy', 1)]}.get(c, [(c, 1)])   # (2.63: a Lucky Trophy - worth 3 Trophies - isn't refunded whole)
     def value(costs):
         return sum(n * TOKEN_VALUE.get(c, 1000 if c in ITEMS else 1) for c, n in costs)
     best = {}

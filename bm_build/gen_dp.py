@@ -143,6 +143,7 @@ def cost(iid, n=1):
 
 CURRENCY = {'token', 'medallion', 'trophy', 'lucky_token', 'blood_crystal', 'diamond', 'emerald', 'netherite_ingot'}
 PRICE_SCALE = {'token': 0.75, 'medallion': 0.75, 'trophy': 0.5, 'blood_crystal': 0.5, 'lucky_token': 0.5}   # 2.63: half of 1.7's x1.5 (exchanges unchanged)
+ECON.PRICE_SCALE.update(PRICE_SCALE)                # (the Scrap Bin pays half of these prices, not the old list)
 
 
 def scaled(c, sell):

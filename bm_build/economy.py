@@ -77,10 +77,14 @@ def upgrade_cost(iid, cur):
     return ('medallion', 5 if iid.endswith(ARMOR) else 6)                # 2.63: half (was 10 / 12)
 
 
+PRICE_SCALE = {}       # (gen_dp's, set at import: the scale every list price is sold at)
+
+
 def pawn(iid, price):
     """What the pawn shop pays: half the purchase price, never a whole Trophy for a one-Trophy item."""
     cur, n = DIRECT[iid][0] if iid in DIRECT else price
     import items as I
     if any(to == iid for _, _, _, to in I.UPGRADES): cur, n = upgrade_cost(iid, cur)
+    elif iid not in DIRECT and cur in PRICE_SCALE: n = max(1, -(-int(n * PRICE_SCALE[cur] * 2) // 2))    # 2.63: half of what it SELLS for now
     if cur == 'trophy' and n // 2 < 1: return ('medallion', 3)
     return (cur, max(1, n // 2))
