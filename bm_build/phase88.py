@@ -58,7 +58,7 @@ def generate(G):
     rel = RM.rel
     P = [T('[', 'dark_gray'), T('Heist', GOLD, bold=True), T('] ', 'dark_gray')]
     tick, fast, second = [], [], []
-    objs = ['bm.gntid', 'bm.gntt', 'bm.gntc', 'bm.gntd', 'bm.gnty']
+    objs = ['bm.gntid', 'bm.gntt', 'bm.gntc', 'bm.gntd', 'bm.gnty', 'bm.gnts', 'bm.gntf', 'bm.gntx', 'bm.gntz', 'bm.gnth', 'bm.gnta', 'bm.gntk', 'bm.gntv']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + \
         [f'bossbar add bm:gnt{s} ' + snbt(T('The Gutter Gentry', GENT, bold=True)) for s in range(P70.SLOTS)] + \
         [f'bossbar set bm:gnt{s} color purple' for s in range(P70.SLOTS)] + ['scoreboard players set #k16 bm.rng 16']
@@ -69,12 +69,13 @@ def generate(G):
         return {'translation': [F(round(v, 4)) for v in t], 'left_rotation': [F(round(v, 5)) for v in q], 'right_rotation': ident, 'scale': [F(round(v, 4)) for v in sc]}
 
     # ================================================================== THE TRIO: hosts, their display parts, poses
-    HOSTS = {'bat': ('minecraft:phantom', {'size': Int(2), 'NoGravity': B(1)}), 'egg': ('minecraft:husk', {}), 'blob': ('minecraft:slime', {'Size': Int(3)})}
+    HOSTS = {'bat': ('minecraft:phantom', {'size': Int(2), 'NoGravity': B(1)}), 'egg': ('minecraft:husk', {}), 'blob': ('minecraft:husk', {})}
+    HITBOX = {'bat': (2.2, 1.6, -0.3), 'egg': (1.9, 2.5, 0.0), 'blob': (2.2, 2.0, 0.0)}      # (each body's own box: width, height, drop)
     ATTR = {'bat': [('minecraft:attack_damage', 7.0), ('minecraft:knockback_resistance', 0.4)],
             'egg': [('minecraft:attack_damage', 9.0), ('minecraft:movement_speed', 0.22), ('minecraft:scale', 1.35), ('minecraft:knockback_resistance', 0.7),
                     ('minecraft:follow_range', 40.0)],
-            'blob': [('minecraft:attack_damage', 6.0), ('minecraft:knockback_resistance', 0.5), ('minecraft:follow_range', 40.0)]}
-    START = {'bat': ('roost', (12, 11, 6)), 'egg': ('idle', (16, 4, 17)), 'blob': ('idle', (8, 4, 16))}
+            'blob': [('minecraft:attack_damage', 6.0), ('minecraft:movement_speed', 0.2), ('minecraft:knockback_resistance', 0.5), ('minecraft:follow_range', 40.0)]}
+    START = {'bat': ('roost', (12, 11, 6)), 'egg': ('idle0', (16, 4, 17)), 'blob': ('idle0', (8, 4, 16))}
     def host(k):
         ent, extra = HOSTS[k]
         d = dict({'Tags': ['bm.gnt', f'bm.gnt_{k}', 'bm.gvprop', 'bm.gntn'], 'NoAI': B(1), 'PersistenceRequired': B(1), 'DeathLootTable': 'minecraft:empty',
@@ -89,12 +90,23 @@ def generate(G):
             d = {'Tags': ['bm.gntp', f'bm.gntp_{k}', f'bm.gntp_{k}_{part}', 'bm.gvprop', 'bm.gntn'], 'teleport_duration': Int(2), 'interpolation_duration': Int(4),
                  'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': f'bm:{ART.PARTS[k][part]}'}}, 'item_display': 'fixed',
                  'view_range': F(2.0), 'transformation': xf(t, q, s)}
+            if (k, part) in ART.LIT: d['brightness'] = {'sky': Int(15), 'block': Int(15)}
             out.append(f'summon minecraft:item_display ~ ~ ~ {snbt(d)}')
+        w, h, dy = HITBOX[k]
+        out.append(f'summon minecraft:interaction ~ ~{dy} ~ ' + snbt({'Tags': ['bm.bhit', 'bm.bhit_gnt', 'bm.gvprop', 'bm.gntn'], 'width': F(w), 'height': F(h)}))
         return out
+    # every keyframe blends over its own length: a gait's frame over the gait's period, an act's step over the step
+    DUR = {}
+    for k in HOSTS:
+        for st, (per, frames) in ART.ANIMS[k].items():
+            for i in range(len(frames)): DUR[(k, f'{st}{i}')] = per
+        for a, steps in ART.ACTS[k].items():
+            for i, (t, _f) in enumerate(steps): DUR[(k, f'{a}{i}')] = t
     for k in HOSTS:
         for pose, pp in ART.POSES[k].items():
             fn(f'p88/pose/{k}_{pose}', [f'execute as @e[type=minecraft:item_display,tag=bm.gntp_{k}_{part},distance=..6] if score @s bm.gntid = #id bm.rng run data merge entity @s '
-                                       + snbt({'start_interpolation': Int(0), 'interpolation_duration': Int(4), 'transformation': xf(t, q, s)}) for part, (t, q, s) in pp.items()])
+                                       + snbt({'start_interpolation': Int(0), 'interpolation_duration': Int(DUR.get((k, pose), 4)), 'transformation': xf(t, q, s)})
+                                       for part, (t, q, s) in pp.items()])
     # ---- the parlour wakes: three hosts, their parts, the bar
     start = ['scoreboard players operation #gi bm.rng = @s bm.gvi', 'function bm:p70/ctx', 'function bm:p87/crew']
     for j, (k, (pose, (x, y, z))) in enumerate(START.items(), 1):
@@ -107,6 +119,8 @@ def generate(G):
                   'scoreboard players operation #h bm.rng /= #k100 bm.rng',
                   'execute as @e[tag=bm.gntn,distance=..30] run scoreboard players operation @s bm.gntid = #id bm.rng',
                   'execute as @e[tag=bm.gntn,distance=..30] run scoreboard players operation @s bm.gvi = #gi bm.rng',
+                  'execute as @e[type=minecraft:interaction,tag=bm.gntn,distance=..30] run scoreboard players operation @s bm.hbid = #id bm.rng',
+                  f'execute as @e[tag=bm.gnt_{k},tag=bm.gntn,distance=..30] run function bm:p88/anim/init',
                   f'execute as @e[tag=bm.gnt_{k},tag=bm.gntn,distance=..30] run function bm:p88/sethp', 'tag @e[tag=bm.gntn,distance=..30] remove bm.gntn']
     start += ['scoreboard players set @s bm.gntt 0', 'tag @s add bm.gntlive',
               'title @a[tag=bm.gvp,distance=..24] times 10 60 20', title('@a[tag=bm.gvp,distance=..24]', 'title', T('THE GUTTER GENTRY', GENT, bold=True)),
@@ -129,24 +143,27 @@ def generate(G):
                          'execute as @e[tag=bm.gnt,distance=..30] at @s run function bm:p88/follow'])
     fn('p88/follow', ['scoreboard players operation #id bm.rng = @s bm.gntid', 'scoreboard players add @s bm.gntt 1',
                       'execute as @e[type=minecraft:item_display,tag=bm.gntp,distance=..6] if score @s bm.gntid = #id bm.rng run tp @s ~ ~ ~ ~ 0',
+                      'execute if entity @s[tag=bm.gnt_bat] as @e[type=minecraft:interaction,tag=bm.bhit_gnt,distance=..8] if score @s bm.hbid = #id bm.rng run tp @s ~ ~-0.3 ~',
+                      'execute if entity @s[tag=!bm.gnt_bat] as @e[type=minecraft:interaction,tag=bm.bhit_gnt,distance=..8] if score @s bm.hbid = #id bm.rng run tp @s ~ ~ ~',
+                      'execute unless entity @s[nbt={NoAI:1b}] run function bm:p88/anim/go',
                       'execute if entity @s[tag=bm.gnt_bat] run function bm:p88/bat/tick', 'execute if entity @s[tag=bm.gnt_egg] run function bm:p88/egg/tick',
                       'execute if entity @s[tag=bm.gnt_blob] run function bm:p88/blob/tick'])
     # ---- Batty: wing beats; a screech every 7 s
-    fn('p88/bat/wake', ['scoreboard players operation #id bm.rng = @s bm.gntid', 'execute at @s run function bm:p88/pose/bat_fly_a',
+    fn('p88/bat/wake', ['scoreboard players operation #id bm.rng = @s bm.gntid', 'scoreboard players set @s bm.gnts -1', 'execute at @s run function bm:p88/pose/bat_idle0',
                         'execute at @s run playsound minecraft:entity.bat.takeoff hostile @a[distance=..30] ~ ~ ~ 1 0.6'])
-    fn('p88/bat/tick', ['execute if entity @s[nbt={NoAI:1b}] run return 0', 'scoreboard players operation #q bm.rng = @s bm.gntt', 'scoreboard players operation #q bm.rng %= #8 bm.rng',
-                        'execute if score #q bm.rng matches 0 run function bm:p88/pose/bat_fly_a', 'execute if score #q bm.rng matches 4 run function bm:p88/pose/bat_fly_b',
-                        'scoreboard players add @s bm.gntc 1', 'execute if score @s bm.gntc matches 140.. run function bm:p88/bat/screech'])
-    fn('p88/bat/screech', ['scoreboard players set @s bm.gntc 0', 'function bm:p88/pose/bat_screech', 'particle minecraft:sonic_boom ~ ~1 ~ 0 0 0 0 1',
+    fn('p88/bat/tick', ['execute if entity @s[nbt={NoAI:1b}] run return 0',
+                        'scoreboard players add @s bm.gntc 1', 'execute if score @s bm.gntc matches 140.. run function bm:p88/bat/screech',
+                        'execute if score @s bm.gnta matches 0 if entity @a[tag=bm.gvp,distance=..2.6] if predicate bm:p88/chance10 run function bm:p88/act/bat_bite/start'])
+    fn('p88/bat/screech', ['scoreboard players set @s bm.gntc 0', 'function bm:p88/act/bat_screech/start', 'particle minecraft:sonic_boom ~ ~1 ~ 0 0 0 0 1',
                            'playsound minecraft:entity.bat.death hostile @a[distance=..30] ~ ~ ~ 1.4 0.5', 'playsound minecraft:entity.warden.sonic_charge hostile @a[distance=..30] ~ ~ ~ 0.5 1.8',
                            'effect give @a[tag=bm.gvp,distance=..10] minecraft:darkness 4 0', 'effect give @a[tag=bm.gvp,distance=..10] minecraft:slowness 3 1',
                            title('@a[tag=bm.gvp,distance=..10]', 'actionbar', T('Batty SCREECHES!', NAMES['bat'][1], bold=True))])
     # ---- Eggbert: a waddle, a lunge every 4.5 s, ooze every 6 s
-    fn('p88/egg/tick', ['execute if entity @s[nbt={NoAI:1b}] run return 0', 'scoreboard players operation #q bm.rng = @s bm.gntt', 'scoreboard players operation #q bm.rng %= #20 bm.rng',
-                        'execute if score #q bm.rng matches 0 run function bm:p88/pose/egg_walk_a', 'execute if score #q bm.rng matches 10 run function bm:p88/pose/egg_walk_b',
+    fn('p88/egg/tick', ['execute if entity @s[nbt={NoAI:1b}] run return 0',
+                        'execute if score @s bm.gnta matches 0 if entity @a[tag=bm.gvp,distance=..2.8] if predicate bm:p88/chance10 run function bm:p88/act/egg_swipe/start',
                         'scoreboard players add @s bm.gntc 1', 'execute if score @s bm.gntc matches 90 run function bm:p88/egg/lunge',
                         'execute if score @s bm.gntc matches 120.. run function bm:p88/egg/ooze'])
-    fn('p88/egg/lunge', ['function bm:p88/pose/egg_swipe', 'execute facing entity @p[tag=bm.gvp,distance=..16] feet run tp @s ~ ~ ~ ~ ~',
+    fn('p88/egg/lunge', ['function bm:p88/act/egg_swipe/start', 'execute facing entity @p[tag=bm.gvp,distance=..16] feet run tp @s ~ ~ ~ ~ ~',
                          'execute positioned ^ ^ ^1 run summon minecraft:marker ~ ~ ~ {Tags:["bm.gntmv"]}',
                          'execute store result score #x bm.rng run data get entity @e[type=minecraft:marker,tag=bm.gntmv,limit=1] Pos[0] 100',
                          'execute store result score #z bm.rng run data get entity @e[type=minecraft:marker,tag=bm.gntmv,limit=1] Pos[2] 100',
@@ -159,19 +176,69 @@ def generate(G):
             'custom_particle': {'type': 'minecraft:dust', 'color': [F(0.05), F(0.05), F(0.06)], 'scale': F(1.6)},
             'potion_contents': {'custom_effects': [{'id': 'minecraft:slowness', 'amplifier': B(1), 'duration': Int(60)},
                                                    {'id': 'minecraft:wither', 'amplifier': B(0), 'duration': Int(60)}]}}
-    fn('p88/egg/ooze', ['scoreboard players set @s bm.gntc 0', 'function bm:p88/pose/egg_ooze', f'summon minecraft:area_effect_cloud ~ ~0.1 ~ {snbt(ooze)}',
+    fn('p88/egg/ooze', ['scoreboard players set @s bm.gntc 0', 'function bm:p88/act/egg_ooze/start', f'summon minecraft:area_effect_cloud ~ ~0.1 ~ {snbt(ooze)}',
                         'particle minecraft:squid_ink ~ ~1.5 ~ 1 0.5 1 0.05 40', 'playsound minecraft:block.honey_block.slide hostile @a[distance=..24] ~ ~ ~ 1 0.5'])
     # ---- The Count: a bounce; a swat every 5 s, bloblings every 8 s
-    fn('p88/blob/tick', ['execute if entity @s[nbt={NoAI:1b}] run return 0', 'scoreboard players operation #q bm.rng = @s bm.gntt', 'scoreboard players operation #q bm.rng %= #k16 bm.rng',
-                         'execute if score #q bm.rng matches 0 run function bm:p88/pose/blob_squish', 'execute if score #q bm.rng matches 8 run function bm:p88/pose/blob_hop',
+    fn('p88/blob/tick', ['execute if entity @s[nbt={NoAI:1b}] run return 0',
+                         'execute if score @s bm.gnta matches 0 if entity @a[tag=bm.gvp,distance=..2.6] if predicate bm:p88/chance10 run function bm:p88/act/blob_swat/start',
                          'scoreboard players add @s bm.gntc 1', 'execute if score @s bm.gntc matches 100 run function bm:p88/blob/swat',
                          'execute if score @s bm.gntc matches 160.. run function bm:p88/blob/call'])
-    fn('p88/blob/swat', ['function bm:p88/pose/blob_swat', 'execute as @a[tag=bm.gvp,distance=..4] run damage @s 5 minecraft:mob_attack by @e[tag=bm.gnt_blob,limit=1,sort=nearest]',
+    fn('p88/blob/swat', ['function bm:p88/act/blob_swat/start', 'execute as @a[tag=bm.gvp,distance=..4] run damage @s 5 minecraft:mob_attack by @e[tag=bm.gnt_blob,limit=1,sort=nearest]',
                          'playsound minecraft:entity.player.attack.knockback hostile @a[distance=..24] ~ ~ ~ 1 0.6', 'particle minecraft:sweep_attack ~ ~1 ~ 1.5 0.3 1.5 0 6'])
     ling = {'Tags': ['bm.gvprop', 'bm.gntl'], 'Size': Int(0), 'PersistenceRequired': B(1), 'DeathLootTable': 'minecraft:empty', 'CustomName': T('Blobling', '#a8c8f0')}
-    fn('p88/blob/call', ['scoreboard players set @s bm.gntc 0', 'function bm:p88/pose/blob_tip', f'summon minecraft:slime ~1 ~0.5 ~ {snbt(ling)}', f'summon minecraft:slime ~-1 ~0.5 ~ {snbt(ling)}',
+    fn('p88/blob/call', ['scoreboard players set @s bm.gntc 0', 'function bm:p88/act/blob_tip/start', f'summon minecraft:slime ~1 ~0.5 ~ {snbt(ling)}', f'summon minecraft:slime ~-1 ~0.5 ~ {snbt(ling)}',
                          'playsound minecraft:entity.slime.squish_small hostile @a[distance=..24] ~ ~ ~ 1 0.7',
                          title('@a[tag=bm.gvp,distance=..14]', 'actionbar', T('The Count tips his hat - Bloblings!', NAMES['blob'][1], bold=True))])
+    # ---- THE ANIMATION: the gait follows how fast each one is really moving (a smoothed speed), and whether he's off the
+    #      ground (Batty: diving); an act (an attack) plays through, then the gait picks up again
+    wjson('bm/predicate/p88/chance10.json', {'condition': 'minecraft:random_chance', 'chance': 0.1})
+    fn('p88/anim/init', ['execute store result score @s bm.gntx run data get entity @s Pos[0] 100', 'execute store result score @s bm.gntz run data get entity @s Pos[2] 100',
+                         'execute store result score @s bm.gnth run data get entity @s Pos[1] 100', 'scoreboard players set @s bm.gntv 0',
+                         'scoreboard players set @s bm.gnts -1', 'scoreboard players set @s bm.gnta 0'])
+    GAIT = {'idle': 1, 'walk': 2, 'run': 3, 'jump': 4}
+    fn('p88/anim/go', ['execute if score @s bm.gnta matches 1.. run return run function bm:p88/anim/act',
+                       'execute store result score #x bm.rng run data get entity @s Pos[0] 100', 'execute store result score #z bm.rng run data get entity @s Pos[2] 100',
+                       'execute store result score #y bm.rng run data get entity @s Pos[1] 100',
+                       'scoreboard players operation #dx bm.rng = #x bm.rng', 'scoreboard players operation #dx bm.rng -= @s bm.gntx',
+                       'scoreboard players operation #dz bm.rng = #z bm.rng', 'scoreboard players operation #dz bm.rng -= @s bm.gntz',
+                       'scoreboard players operation #dy bm.rng = #y bm.rng', 'scoreboard players operation #dy bm.rng -= @s bm.gnth',
+                       'scoreboard players operation @s bm.gntx = #x bm.rng', 'scoreboard players operation @s bm.gntz = #z bm.rng', 'scoreboard players operation @s bm.gnth = #y bm.rng',
+                       'scoreboard players operation #dx bm.rng *= #dx bm.rng', 'scoreboard players operation #dz bm.rng *= #dz bm.rng',
+                       'scoreboard players operation #dx bm.rng += #dz bm.rng', 'execute if score #dx bm.rng matches 2000.. run scoreboard players set #dx bm.rng 2000',
+                       # (smoothed: three parts the old, one part the new - a stumble doesn't break the stride)
+                       'scoreboard players operation @s bm.gntv *= #3 bm.rng', 'scoreboard players operation @s bm.gntv += #dx bm.rng', 'scoreboard players operation @s bm.gntv /= #4 bm.rng',
+                       'scoreboard players set #st bm.rng 1', 'execute if score @s bm.gntv matches 6.. run scoreboard players set #st bm.rng 2',
+                       'execute if score @s bm.gntv matches 230.. run scoreboard players set #st bm.rng 3',
+                       'execute if entity @s[tag=!bm.gnt_bat,nbt={OnGround:0b}] run scoreboard players set #st bm.rng 4',
+                       'execute if entity @s[tag=bm.gnt_bat] if score #dy bm.rng matches ..-14 run scoreboard players set #st bm.rng 4',
+                       'execute unless score #st bm.rng = @s bm.gnts run scoreboard players set @s bm.gntf -1', 'scoreboard players operation @s bm.gnts = #st bm.rng'] +
+       [f'execute if entity @s[tag=bm.gnt_{k}] if score #st bm.rng matches {n} run return run function bm:p88/gait/{k}_{st}' for k in HOSTS for st, n in GAIT.items()])
+    for k in HOSTS:
+        for st, (per, frames) in ART.ANIMS[k].items():
+            n = len(frames)
+            fn(f'p88/gait/{k}_{st}', ['scoreboard players add @s bm.gntf 1', f'execute if score @s bm.gntf matches {per * n}.. run scoreboard players set @s bm.gntf 0'] +
+               [f'execute if score @s bm.gntf matches {i * per} run return run function bm:p88/pose/{k}_{st}{i}' for i in range(n)])
+    ACT_ID = {}
+    for k in HOSTS:
+        for j, (a, steps) in enumerate(ART.ACTS[k].items(), 1):
+            ACT_ID[(k, a)] = j
+            fn(f'p88/act/{k}_{a}/start', [f'scoreboard players set @s bm.gntk {j}', 'scoreboard players set @s bm.gnta 0', 'function bm:p88/anim/act'])
+    act = ['scoreboard players add @s bm.gnta 1']
+    for (k, a), j in ACT_ID.items():
+        t = 1
+        for i, (d, _f) in enumerate(ART.ACTS[k][a]):
+            act.append(f'execute if entity @s[tag=bm.gnt_{k}] if score @s bm.gntk matches {j} if score @s bm.gnta matches {t} run function bm:p88/pose/{k}_{a}{i}')
+            t += d
+        act.append(f'execute if entity @s[tag=bm.gnt_{k}] if score @s bm.gntk matches {j} if score @s bm.gnta matches {t}.. run function bm:p88/anim/act_end')
+    fn('p88/anim/act', act)
+    fn('p88/anim/act_end', ['scoreboard players set @s bm.gnta 0', 'scoreboard players set @s bm.gnts -1'])
+    G.FUNCS['load'][-1:-1] = ['scoreboard players set #3 bm.rng 3', 'scoreboard players set #4 bm.rng 4']
+    # (their hitboxes: a blow lands on the one inside, like the big bosses')
+    h = G.FUNCS['p82/hb/hit']; h.insert(next(i for i, l in enumerate(h) if 'bhit_sal' in l) + 1, 'execute if entity @s[tag=bm.bhit_gnt] run scoreboard players set #hbk bm.rng 3')
+    r = G.FUNCS['p82/hb/relay']; r.insert(r.index('tag @s remove bm.hbatk'),
+                                          'execute if score #hbk bm.rng matches 3 as @e[tag=bm.gnt] if score @s bm.gntid = #hbid bm.rng at @s run function bm:p82/hb/dmg with storage bm:tmp hb')
+    o = G.FUNCS['p82/hb/orphan']; o.insert(o.index('kill @s'), 'execute if entity @s[tag=bm.bhit_gnt] as @e[tag=bm.gnt,distance=..32] if score @s bm.gntid = #hbid bm.rng run return 0')
+
     # ---- every second: the bar; a fallen member's parts burst; the others grow angry; all three down - the hoard opens
     second.append('execute as @e[type=minecraft:marker,tag=bm.gvhvr_lair,tag=bm.gntlive] at @s run function bm:p88/lair/sec')
     # (a slime splits only once its death throes are over - so its leavings are swept up every second, fight or no fight)

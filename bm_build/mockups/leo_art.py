@@ -17,6 +17,7 @@ RIG_SCALE = 0.82
 SALUTE_FOLD = -45
 PIVOT = {'body': (0, 14, 0), 'head': (0, 26, 0), 'armr': (5.4, 24.2, 0), 'arml': (-5.4, 24.2, 0), 'legr': (2.1, 14, 0), 'legl': (-2.1, 14, 0)}
 HEAD_K = 0.84          # (the helmeted head, smaller than Emma's: a grown man)
+HEAD_X = 0.84          # (2.67) and narrower than it is tall: his eyes are small - a wide head swamped them
 PARTS = tuple(PIVOT)
 SKIN, SKIN_DK = '#9a6c50', '#7e5440'
 HAIR = ('#1c1816', '#24201c', '#2c2622', '#342e28', '#3e3630')
@@ -178,9 +179,11 @@ def models():
             st((-4.5, 27.0, 3.8), (4.5, 31.2, 4.5)), st((-3.0, 25.6, 4.0), (3.0, 27.4, 4.8), ('x', -22.5, (0, 27.4, 4.2))),
             # hair at the temples, under the guards
             _el((-4.1, 29.0, -3.9), (-3.6, 31.0, -1.0), 'le_hair', pv), _el((3.6, 29.0, -3.9), (4.1, 31.0, -1.0), 'le_hair', pv)]
-    for e in head:                                                                                       # shrink about the neck
-        e['from'] = [round(8 + (v - 8) * HEAD_K, 4) for v in e['from']]; e['to'] = [round(8 + (v - 8) * HEAD_K, 4) for v in e['to']]
-        if 'rotation' in e: e['rotation']['origin'] = [round(8 + (v - 8) * HEAD_K, 4) for v in e['rotation']['origin']]
+    head[0]['faces']['north']['uv'] = [round(4 - 4 * HEAD_X, 3), 0, round(4 + 4 * HEAD_X, 3), 8]       # (the face is cropped at the sides, not squeezed)
+    kx = (HEAD_K * HEAD_X, HEAD_K, HEAD_K)
+    for e in head:                                                                                       # shrink about the neck (narrower across)
+        e['from'] = [round(8 + (v - 8) * kx[i], 4) for i, v in enumerate(e['from'])]; e['to'] = [round(8 + (v - 8) * kx[i], 4) for i, v in enumerate(e['to'])]
+        if 'rotation' in e: e['rotation']['origin'] = [round(8 + (v - 8) * kx[i], 4) for i, v in enumerate(e['rotation']['origin'])]
     part('le_head', head)
     head[0]['faces']['north']['texture'] = '#le_face'
     M['le_head'] = ({**M['le_head'][0], 'le_face': TX['le_face']}, head)
