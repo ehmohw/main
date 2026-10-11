@@ -21,7 +21,7 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
-## New in 2.67: game night in the vault, the Frisbee Shield, the Gutter Gentry, the Arachno-Lantern
+## New in 2.67: Leo of the shore, faces that move, game night in the vault, the Frisbee Shield, the Gutter Gentry, the Arachno-Lantern
 
 ### What a heist costs, and what it pays
 - **The fee rises with the tier:** 2 Tokens at Tier I, 3 at II, 4 at III, 5 at IV and 6 at Tier V (it still goes into the Lucky Pool). The bigger tiers pay more to match: more shares, higher prize caps and the better rooms.
@@ -66,7 +66,7 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 - **Party rooms:** Whack-a-Rat, Rat Says, and two contests for a crew only (Coin Scramble and Bumper Brawl).
 - **Double Heists** (1 in 10): twice the rooms, two extra shares and better prize odds. **Alien Heists** (1 in 8): every room in the Vorn's white-and-cyan steel, Vorn troopers on guard, invasion loot.
 - **Hidden vaults:** about a third of heists (half at Tier V) hide a secret door to a treasure room with a hoard share each. Only these hoards carry the **Rat King's Signet** (loose items come to you), **Whisperstep Boots** (sneak: unseen and quick) and the **Gilded Grin** (see in the dark).
-- **The Gutter Gentry** (behind a hidden door, Tier II+): Batty, Eggbert and the Count, a three-boss fight. They're blocky, with faces taken from the art (Batty's toothy grin, the Count's empty white eyes), and they walk, run, jump and attack with smooth animations. Their hoard holds the Echo Bell, the Yolkshell Helm, Blobsworth's Cane and the Top Hat.
+- **The Gutter Gentry** (behind a hidden door, Tier II+): Batty, Eggbert and the Count, a three-boss fight. They're blocky, with faces taken from the art (Batty's toothy grin, the Count's beady black eyes), and they walk, run, jump and attack with smooth animations. Their hoard holds the Echo Bell, the Yolkshell Helm, Blobsworth's Cane and the Top Hat.
 - **The Locker Hall,** off the den or through the Ledger: claim up to three double-chest bays and open them all with one Locker Key.
 
 ### Guards and guardians
@@ -92,22 +92,49 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 ### The Frisbee Shield
 A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, or one Shooting Gallery in twenty. It blocks like any shield. **Sneak + use to throw it:** it skips off walls and floors and off monsters, hitting each monster once and then heading for the next one near. After five skips it flies home to the hand it left. If you're gone, it drops where it is and waits. It goes through the coat check with you.
 
+### Leo, the knight of the shore
+- **Seawatch forts:** a small stone fort now and then stands on a beach (sandy, snowy or stony shore), with a watchtower, a signal fire and a blue banner. **Leo** keeps watch inside. The drowned have been coming up the beach at his walls all week.
+- **Defend the fort:** talk to him, then right-click him holding a **sword or a trident**. Three waves of drowned in turtle shells come up the beach; the third brings their **Tidecaller**. Leo holds the gate with his trident. If everyone falls back more than 32 blocks the defence is lost and you can try again. Win and he gives you **Leo's Crest** (and the fort's chest is yours; achievement *Hold the Line*).
+- **Leo's Crest:** use it to call him or call him back; sneak + use sends him home. 50 health and good armour; if he faints, the crest rests 5 minutes.
+- **He fights with a trident:** a thrust up close (9 damage, with a little sweep), and at range (6-14 blocks) he throws it. It comes back to him (Loyalty), and in a thunderstorm it calls down lightning (Channeling), never within 6 blocks of you.
+- **Strong but caring:** drop to 4 hearts with a monster about and he's at your side, on guard. The monsters around you turn on him, and you get Resistance II and some absorption (30 seconds to recover). In a fight with him close by: Resistance I. In the water with him: Water Breathing and Dolphin's Grace.
+- **With Celi, Steel and Frost:** you get Strength, he covers her (Resistance), and his thrusts freeze like her spear. **With Emma, the Knight's Vow:** you regenerate, he shields her (Resistance II), and his guard comes back twice as fast. **With both:** Speed as well. Celi bickers, Emma cheers, and he smiles. Each pairing has its own hidden achievement.
+- He has his own raid contract at Goldtooth (1 Gutter Trophy and 5 Medallions), and his crest passes the coat check.
+- He animates: a watchful idle with an eye on the sea, a steady stride, a levelled charge, sitting, a salute when he arrives, the thrust, the throw, and on guard.
+
+### Faces that move
+- **Emma, Celi, Cecil and Leo blink**, and their expressions change with their mood and with what's going on:
+  - **Hurt:** a hit shows on the face for a moment: Emma's and Cecil's > <, Celi's angry squint, Leo's gritted teeth.
+  - **Fighting** (a monster within 10 blocks): serious. Emma lowers her lids, Celi bares both fangs, Cecil's slits narrow and Leo sets his jaw.
+  - **Low on health** (a third or less): Emma looks sad, with a tear; Celi is furious; Cecil and Leo turn grim.
+  - **Calm, each their own way:** Emma blinks often and beams or winks at you now and then. Celi blinks fast, cuts her eyes away (tsk) and huffs. Cecil spends a lot of time half-lidded and deadpan, rolls his eyes and gives you a sly look. Leo blinks slowly, smiles when you're close, and looks worried when *you're* hurt.
+  - **Arriving:** Emma beams, Celi tsks, Cecil rolls his eyes, Leo smiles. Emma also beams when her healing lands, and Celi tsks after a kill quip.
+- **Emma walks and runs playfully now:** her arms swing out wide from her sides, her hands flare, and each foot steps in front of the other.
+
+### Cosmetics stay on
+- Every follower keeps their look through a recall, being sent home and called again, a new support role (Emma), a rebuilt rig, and Emma's ethereal form and back.
+- **Emma's ethereal form wears her outfit's colours:** her dress colour goes onto the ethereal outfit and her ribbon colour onto its trims. The Flower Top and the Cozy Sweater have their own ethereal colours. Her dresses now carry a little heart pin in her support role's colour.
+
+### The Ethereal Gem
+- **Goldtooth no longer sells it.** It's a hidden prize again: hold all nine elemental gems and use one, and they rise and circle you and fuse into the **Ethereal Gem** in your hands (or set all nine on display, as before). Achievement: *Nine Made One*.
+- **One Ethereal Gem per heist:** the first raider through the door keeps one. Any others (and any brought in later in the same run) are held in your coat-check bag until you leave.
+
 ### Followers in the vault
-- **Raid contracts** at Goldtooth: once signed, Cecil, Emma, Celi, Zib, the Skiff Escorts or KillerWatt answer your call in the vault too, and their summoning items pass the coat check. The **Frog** and **Donado** contracts call a vault hire in his own iron kit; the one you hired at home stays home.
-- **The followers' wardrobe** at Goldtooth: Emma's ribbons and dresses, Celi's and Zib's outfits (the hidden ones for a Gutter Trophy), Pearlman's gems and the Ethereal Gem.
+- **Raid contracts** at Goldtooth: once signed, Cecil, Emma, Celi, Leo, Zib, the Skiff Escorts or KillerWatt answer your call in the vault too, and their summoning items pass the coat check. The **Frog** and **Donado** contracts call a vault hire in his own iron kit; the one you hired at home stays home.
+- **The followers' wardrobe** at Goldtooth: Emma's ribbons and dresses, Celi's and Zib's outfits (the hidden ones for a Gutter Trophy) and Pearlman's gems.
 - **Emma's new outfits:** the Flower Top and the Cozy Sweater, each with a high ponytail.
 
 ### KillerWatt
-- **A better rig:** his head and arms follow his torso, his head no longer tips too far back, his tendrils don't cut through him, and they're animated. **The Tendril Lunge:** he coils all four scythes back and drives them at you.
+- **A better rig:** his head and arms follow his torso, his head no longer tips too far back, and his tendrils are animated. They're shaped like lightning now: hard, angled bends that carry them out around his chest, so they strike in front of him without cutting through it. **The Tendril Lunge:** he coils all four scythes back and drives them at you.
 - **He goes out with an explosion of electricity.**
 - **The follower's charged attacks:** every blow charges him, and at full charge he unleashes his form's attack (riding, the Spark lets it go when you choose). Stormbreaker, Supernova, Maelstrom, Plague Bloom, Tectonic Slam, Avalanche, Tempest, Overgrowth, Absolute Zero and, in his Ethereal Form, Void Requiem.
 - **Ethereal KillerWatt:** set down an Ethereal Gem near him mid-fight and he ascends. He heals whole with far more health, hits harder and faster, floats, and throws Void Lances. Beat that form for the **Ethereal Tendrils**, which hit half again as hard and fling you half again as far.
 
 ### The Scorching Arachno-Lantern
-On a Blood Moon, very rarely, a monster spawning under the open sky becomes the **Arachno-Lantern**: a burning pumpkin the size of a house on eight long legs. It stomps, lashes you in with its tongue, rains embers and, at half health, shrieks out ember spiderlings and glares fire. It drops the **Scorching Heart**: carry it and fire can't touch you, or set it down as the **Hearthfire** (no monster spawns within 48 blocks, and Blood Moon horrors near it burn).
+On a Blood Moon, very rarely, a monster spawning under the open sky becomes the **Arachno-Lantern**: a burning pumpkin the size of a house on eight long legs. It glares with red crescent pupils, breathes fire from the corners of its mouth, stomps, lashes you in with its tongue, rains embers and, at half health, shrieks out ember spiderlings and glares fire. It drops the **Scorching Heart**: carry it and fire can't touch you, or set it down as the **Hearthfire** (no monster spawns within 48 blocks, and Blood Moon horrors near it burn).
 
 ### For admins
-`/function bm:admin/heist_double`, `heist_alien` and `heist_variants_off` / `heist_variants_never` force the heist variants; `heist_boss_alt` / `heist_boss_std` / `heist_boss_any` pick the guardian; `room_<kind>` (e.g. `room_temple`) lays that event room next; `frisbee` gives the Frisbee Shield.
+`/function bm:admin/heist_double`, `heist_alien` and `heist_variants_off` / `heist_variants_never` force the heist variants; `heist_boss_alt` / `heist_boss_std` / `heist_boss_any` pick the guardian; `room_<kind>` (e.g. `room_temple`) lays that event room next; `frisbee` gives the Frisbee Shield. `leo` puts Leo's fort encounter in front of you, `leo_fort` builds a seawatch fort where you stand, `leo_crest` gives his crest, and `faces` runs every follower nearby through each of their expressions.
 
 ### Fixed
 - The Gutter Bank and Armory click boxes and signs sat half a block off-centre.

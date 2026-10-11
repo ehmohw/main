@@ -106,7 +106,10 @@ def generate(G):
                     'execute if score @s bm.salatk matches 1.. run function bm:p82/attack',
                     'execute unless score @s bm.salatk matches 1.. run function bm:p82/move',
                     'execute unless score @s bm.salatk matches 1.. run function bm:p82/mind',
-                    'function bm:p82/ground', 'function bm:p82/hitboxes', f'tag {sel()} remove bm.salsel'])
+                    'function bm:p82/ground', 'function bm:p82/hitboxes', f'tag {sel()} remove bm.salsel',
+                    # (2.67) its fire licks out of the corners of its mouth
+                    'execute rotated as @s rotated ~ 0 positioned ^2.4 ^7.45 ^3.25 run particle minecraft:flame ~ ~ ~ 0.12 0.12 0.08 0.025 2',
+                    'execute rotated as @s rotated ~ 0 positioned ^-2.4 ^7.45 ^3.25 run particle minecraft:flame ~ ~ ~ 0.12 0.12 0.08 0.025 2'])
     fn('p82/intro', ['tag @s add bm.salintro', 'title @a[distance=..64] times 10 60 20',
                      title('@a[distance=..64]', 'title', T('THE SCORCHING ARACHNO-LANTERN', ORANGE, bold=True)),
                      title('@a[distance=..64]', 'subtitle', T('it walks over the trees', 'red', italic=True)),
@@ -118,7 +121,9 @@ def generate(G):
                    'execute store result score #h bm.rng run data get entity @s Health', 'execute store result score #mx bm.rng run attribute @s minecraft:max_health get',
                    'scoreboard players operation #mx bm.rng /= #2 bm.rng',
                    'execute if score @s bm.salr matches 0 if score #h bm.rng <= #mx bm.rng run function bm:p82/shriek',
-                   'particle minecraft:flame ~ ~8 ~ 2.5 2 2.5 0.02 12', 'particle minecraft:lava ~ ~9 ~ 2 1 2 0 2',
+                   'execute rotated as @s rotated ~ 0 positioned ^2.6 ^7.5 ^3.2 run particle minecraft:lava ~ ~ ~ 0.2 0.1 0.2 0 1',
+                   'execute rotated as @s rotated ~ 0 positioned ^-2.6 ^7.5 ^3.2 run particle minecraft:lava ~ ~ ~ 0.2 0.1 0.2 0 1',
+                   'execute rotated as @s rotated ~ 0 positioned ^ ^7.2 ^3.4 run particle minecraft:small_flame ~ ~ ~ 1.6 0.2 0.1 0.01 6',
                    f'execute as @a[distance=..5,{near}] run data modify entity @s Fire set value 60s',
                    'execute if entity @a[distance=..96] run scoreboard players set @s bm.sallone 0', 'scoreboard players add @s bm.sallone 1',
                    'execute if score @s bm.sallone matches 60.. run function bm:p82/leave'])

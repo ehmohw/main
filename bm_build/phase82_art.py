@@ -16,7 +16,7 @@ from phase57_art import _cloth, _el, hexc, qa, qmul
 
 BODY_S = 2.6                      # the pumpkin: 40 units across -> 6.5 blocks
 BODY_Y = 8.2                      # its centre, in blocks above the ground
-FLAME_S = 3.0                     # the cheek fires, drawn bigger than the pumpkin's own scale
+FLAME_S = 2.6                     # the fires at the corners of the mouth
 ORANGE, ORANGE_DK, ORANGE_LT = '#e8761c', '#a8460c', '#f8a848'
 GLOW_IN, GLOW_MID, GLOW_OUT, CUT = '#fff4a8', '#ffc030', '#ff7a14', '#4a1804'
 PURPLE, PURPLE_DK, PURPLE_LT = '#8a2ac8', '#561488', '#b866f2'
@@ -76,8 +76,8 @@ def _carve(im, holes, teeth=()):
 
 
 def _face():
-    """the carved face, 64 x 64 over a 27 x 22 unit plate: big slanting triangle eyes, two small round spider eyes over each,
-    a little nose, and a wide jagged grin with two teeth hanging down and one standing up"""
+    """the carved face, 64 x 64 over a 27 x 22 unit plate: big slanting triangle eyes with red crescent pupils, two small round
+    spider eyes over each, a little nose, and a wide jagged grin with two teeth hanging down and one standing up"""
     im = _skin(13, grooves=False)
     holes = []
     for sx in (-1, 1):
@@ -91,6 +91,17 @@ def _face():
                            (61, 50), (55, 58), (47, 62), (40, 59), (32, 63), (24, 59), (17, 62), (9, 58), (3, 50)]))
     _carve(im, holes, teeth=((15, 44, 20, 50), (44, 44, 49, 50), (22, 56, 26, 61), (38, 56, 42, 61)))
     d = ImageDraw.Draw(im)
+    for sx in (-1, 1):                                                                        # (2.67) red crescent pupils, horns toward the nose
+        ex, ey = 32 + sx * 16.5, 23.0
+        cres = Image.new('L', im.size, 0); cd = ImageDraw.Draw(cres)
+        cd.ellipse((ex - 4.2, ey - 5.6, ex + 4.2, ey + 5.6), fill=255)
+        cd.ellipse((ex - 3.6 - sx * 3.4, ey - 4.4, ex + 3.6 - sx * 3.4, ey + 4.4), fill=0)
+        px = im.load()
+        for y in range(im.height):
+            for x in range(im.width):
+                if cres.getpixel((x, y)):
+                    edge = any(not cres.getpixel((min(63, max(0, x + ox)), min(63, max(0, y + oy)))) for ox, oy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+                    px[x, y] = hexc('#a00c0c' if edge else '#ff2a1a')
     for x in range(0, 64, 16):                                                                # faint grooves over the rind only
         for y in range(64):
             r, g, b, a = im.getpixel((x, y))
@@ -227,16 +238,19 @@ def tongue():
 
 
 def flame(sx):
-    """a cheek fire: three wavering tongues rising beside the grin and up past the eye, leaning a little outward;
-    yellow at the root, red at the tips (sx: which cheek)"""
+    """(2.67) a mouth fire: three tongues licking out of the corner of the grin - out to the side and a little forward,
+    curling up as they go; yellow at the root, red at the tips (sx: which corner)"""
     out = []
-    for dx, dz, h, sway in ((0.0, 0.0, 18.0, 1.0), (3.4 * sx, 1.2, 13.0, -1.0), (-2.6 * sx, 0.8, 11.0, 1.0)):
+    for dy, dz, L, rise in ((0.0, 0.0, 11.0, 0.9), (1.4, -0.6, 8.0, 1.3), (-1.2, -0.4, 7.0, 0.6)):
         n = 5
         for k in range(n):
-            y0, y1 = h * k / n, h * (k + 1) / n + 0.4
-            w = 2.6 * (1 - k / (n + 0.6)) + 0.3
-            x = dx + sx * 0.5 * k + sway * (0.9 if k % 2 else -0.6) * (k > 0)
-            out.append(_band(_box((x - w, y0, dz - w * 0.6), (x + w, y1, dz + w * 0.6), 'sal_flame'), 16 * (1 - (k + 1) / n), 16 * (1 - k / n)))
+            t0, t1 = k / n, (k + 1) / n
+            x0, x1 = sx * L * t0, sx * (L * t1 + 0.4)
+            y = dy + rise * L * t0 * t0 * 0.9
+            w = 2.0 * (1 - k / (n + 0.6)) + 0.3
+            z = dz - 0.6 * k
+            out.append(_band(_box((min(x0, x1), y - w, z - w * 0.7), (max(x0, x1), y + w + rise * 1.6, z + w * 0.7), 'sal_flame'),
+                             16 * (1 - (k + 1) / n), 16 * (1 - k / n)))
     return out
 
 
@@ -315,8 +329,8 @@ SIDES = (1, -1)
 SEGS = (('f', 'sal_femur'), ('t', 'sal_tibia'), ('s', 'sal_tarsus'))
 BODY_PARTS = {  # name: (model, design offset from the pumpkin's centre, scale)
     'body': ('sal_body', (0, 0, 0), BODY_S), 'collar': ('sal_collar', (0, -17.0, 0), BODY_S * 0.9), 'stem': ('sal_stem', (0, 15.5, 0), BODY_S),
-    'tongue': ('sal_tongue', (0, -9.4, -19.0), BODY_S), 'flame_r': ('sal_flame_r', (16.0, -8.0, -14.6), FLAME_S),
-    'flame_l': ('sal_flame_l', (-16.0, -8.0, -14.6), FLAME_S)}
+    'tongue': ('sal_tongue', (0, -9.4, -19.0), BODY_S), 'flame_r': ('sal_flame_r', (12.6, -4.8, -19.4), FLAME_S),       # (2.67: from the mouth's corners)
+    'flame_l': ('sal_flame_l', (-12.6, -4.8, -19.4), FLAME_S)}
 LEG_PARTS = [f'{"r" if s > 0 else "l"}{i}{k}' for s in SIDES for i in range(4) for k, _m in SEGS]
 PARTS = list(BODY_PARTS) + LEG_PARTS
 MODEL = {**{p: v[0] for p, v in BODY_PARTS.items()}, **{f'{"r" if s > 0 else "l"}{i}{k}': m for s in SIDES for i in range(4) for k, m in SEGS}}

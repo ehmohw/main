@@ -474,14 +474,15 @@ POSES = {
     'idle_a': P(body=torso(tilt=3), head=torso(lean=5, tilt=-7), **FOLD),
     'idle_b': P(body=torso(tilt=-3), head=torso(lean=5, tilt=7), **FOLD),
     'idle_hop': P(0.07, body=torso(), head=torso(lean=-4), legr=limb(1, -12), legl=limb(-1, -12), **FOLD),
-    # walk: small steps, hands swinging a little out to the sides, a bounce between steps
-    'walk_a': P(body=torso(tilt=4), head=torso(tilt=-5), legr=limb(1, 24), legl=limb(-1, -24), armr=limb(1, -16, 16), arml=limb(-1, 16, 16)),
-    'walk_up': P(0.05, body=torso(), head=torso(lean=-3), armr=limb(1, 0, 20), arml=limb(-1, 0, 20)),
-    'walk_b': P(body=torso(tilt=-4), head=torso(tilt=5), legr=limb(1, -24), legl=limb(-1, 24), armr=limb(1, 16, 16), arml=limb(-1, -16, 16)),
-    # run: a skipping run, leaning in, arms out wide
-    'run_a': P(0.02, body=torso(lean=10, tilt=5), head=torso(lean=-8, tilt=-4), legr=limb(1, 44), legl=limb(-1, -40), armr=limb(1, -45, 30), arml=limb(-1, 40, 30)),
-    'run_up': P(0.12, body=torso(lean=10), head=torso(lean=-10), legr=limb(1, 10), legl=limb(-1, -30), armr=limb(1, -10, 45), arml=limb(-1, -10, 45)),
-    'run_b': P(0.02, body=torso(lean=10, tilt=-5), head=torso(lean=-8, tilt=4), legr=limb(1, -40), legl=limb(-1, 44), armr=limb(1, 40, 30), arml=limb(-1, -45, 30)),
+    # walk (2.67): playful - her arms arch out wide from her sides, hands flaring, and each foot steps in front of the other
+    # (the legs swing in toward the middle line), hips swaying, a little bounce between steps
+    'walk_a': P(body=torso(tilt=5, turn=6), head=torso(tilt=-6, turn=-4), legr=limb(1, 24, -8), legl=limb(-1, -20, -7), armr=limb(1, -20, 34), arml=limb(-1, 18, 30)),
+    'walk_up': P(0.06, body=torso(), head=torso(lean=-3), legr=limb(1, 2, -5), legl=limb(-1, -2, -5), armr=limb(1, 0, 40), arml=limb(-1, 0, 40)),
+    'walk_b': P(body=torso(tilt=-5, turn=-6), head=torso(tilt=6, turn=4), legr=limb(1, -20, -7), legl=limb(-1, 24, -8), armr=limb(1, 18, 30), arml=limb(-1, -20, 34)),
+    # run: a skipping run, leaning in, arms flung out in an arc, feet still crossing in front
+    'run_a': P(0.02, body=torso(lean=10, tilt=5, turn=6), head=torso(lean=-8, tilt=-4), legr=limb(1, 44, -9), legl=limb(-1, -40, -8), armr=limb(1, -40, 46), arml=limb(-1, 34, 42)),
+    'run_up': P(0.12, body=torso(lean=10), head=torso(lean=-10), legr=limb(1, 10, -6), legl=limb(-1, -30, -6), armr=limb(1, -8, 56), arml=limb(-1, -8, 56)),
+    'run_b': P(0.02, body=torso(lean=10, tilt=-5, turn=-6), head=torso(lean=-8, tilt=4), legr=limb(1, -40, -8), legl=limb(-1, 44, -9), armr=limb(1, 34, 42), arml=limb(-1, -40, 46)),
     # jump: arms up in a cheer, one heel kicked up behind
     'jump': P(body=torso(), head=torso(lean=-10), legr=limb(1, 18), legl=limb(-1, -60), armr=limb(1, 10, 145), arml=limb(-1, 10, 145)),
     # sit: legs out in front, hands in her lap, swinging her feet, head tilting

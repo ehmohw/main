@@ -825,6 +825,12 @@ if __name__ == '__main__':
     phase89.rp(sys.modules[__name__])
     import phase92
     phase92.rp(sys.modules[__name__])
+    import phase94
+    phase94.rp(sys.modules[__name__])
+    import phase96
+    phase96.rp(sys.modules[__name__])
+    import phase95                            # (after every head model: the faces)
+    phase95.rp(sys.modules[__name__])
     LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',
                  'death.attack.bm.quake': '%1$s was flattened by a shockwave', 'death.attack.bm.quake.player': '%1$s was flattened by %2$s'})
     if PHASE2:

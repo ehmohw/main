@@ -102,7 +102,8 @@ def models():
         else:
             body += [_el((-3.25, 15.3, -2.25), (3.25, 16.4, 2.25), dk, pv),                                # the hem
                      _el((-1.7, 22.3, -1.7), (1.7, 24.1, 1.7), top, pv),                                     # the turtleneck
-                     _el((-1.8, 23.4, -1.8), (1.8, 24.2, 1.8), dk, pv)]                                      # its fold
+                     _el((-1.8, 23.4, -1.8), (1.8, 24.2, 1.8), dk, pv),                                      # its fold
+                     _el((-2.3, 19.9, -2.25), (-1.1, 21.1, -2.12), 'em2_scarf', pv)]                         # a heart pin (her buff's colour)
         part(f'em_body_o{o}', body)
         for sx, nm in ((1, 'armr'), (-1, 'arml')):
             p = PIVOT[nm]; cx = p[0]
@@ -272,7 +273,7 @@ def generate(G):
         for k in P78.ZIB:
             rec.append(offer(('gutter_trophy', 1) if f'cos_zib_{k}' in P78.HIDDEN else gm(4), (f'cos_zib_{k}', 1)))
         rec += [offer(gm(6), (f'gem_{g}', 1)) for g in P60.GEMS]
-        rec.append(offer(('gutter_trophy', 2), ('ethereal_gem', 1)))
+        # (2.67: the Ethereal Gem is a secret again - made from the nine, never sold)
         return d
     P70.goldtooth = g89
     old_s, new_s = snbt(prev()), snbt(g89())

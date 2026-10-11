@@ -16,7 +16,8 @@ from phase57_art import _cloth, _el, hexc, qa, qmul
 
 RIG_SCALE = 1.55
 PIVOT = {'body': (0, 15, 0), 'head': (0, 29, 0), 'armr': (7.4, 26.6, 0), 'arml': (-7.4, 26.6, 0), 'legr': (2.7, 15, 0), 'legl': (-2.7, 15, 0),
-         'tend': (0, 24, 3), 'tendl': (0, 21.6, 3.2)}          # (2.67: the upper and lower pairs of tendrils move apart)
+         'tend': (0, 27, 7.5), 'tendl': (0, 22.5, 7.0)}        # (2.67: the pairs move apart; their joints sit back off his spine, so a forward
+                                                               #  strike swings them over his shoulders, never through his chest)
 PARTS = tuple(PIVOT)
 G, G_LT, G_DK, TEAL = '#3cab4c', '#74d462', '#258a46', '#1e7458'
 LIME, GOLD, GOLD_LT, VIOLET = '#86e01e', '#f6dc30', '#fcf09a', '#3a1650'
@@ -216,19 +217,20 @@ def models():
     part('kw_armr', arm(1)); part('kw_arml', arm(-1))
     part('kw_armr_flex', arm(1, True, True)); part('kw_arml_flex', arm(-1, True))
 
-    # ---- the tendrils: four golden scythes from his back - two rearing up and out over his shoulders, two sweeping
-    #      down past his legs to the ground, each with an inner hook
-    pv, pvl = PIVOT['tend'], PIVOT['tendl']; z0 = 3.0
-    upper = [(1.5, 26.5), (5.5, 27.6), (9.5, 30.0), (12.6, 33.6), (14.8, 38.0), (16.0, 42.5), (16.4, 46.5), (16.0, 48.8)]
-    upper_hook = [(6.0, 28.2), (7.2, 32.0), (6.6, 35.6), (5.0, 38.0)]
-    lower = [(1.5, 22.0), (5.5, 21.2), (9.5, 19.6), (12.6, 16.6), (14.6, 12.0), (15.6, 7.0), (15.6, 2.6), (14.8, 0.2)]
-    lower_hook = [(8.4, 20.2), (9.6, 23.4), (9.0, 26.4)]
+    # ---- the tendrils: four golden bolts of lightning from his back - hard, jagged angles, each with a fork. Two rear up
+    #      and out over his shoulders, two sweep down past his legs to the ground. (2.67: they run straight out sideways
+    #      before they climb, behind his shoulders, so struck forward they pass outside him)
+    pv, pvl = PIVOT['tend'], PIVOT['tendl']; z0 = PIVOT['tend'][2]; zl = PIVOT['tendl'][2]
+    upper = [(1.0, 27.0), (6.0, 28.2), (4.8, 29.2), (11.5, 30.8), (10.2, 32.0), (14.5, 37.5), (13.0, 38.8), (16.5, 45.0), (15.0, 46.0), (17.5, 50.0)]
+    upper_fork = [(11.5, 30.8), (14.6, 29.2), (13.7, 28.1)]
+    lower = [(1.0, 22.5), (6.5, 21.3), (5.2, 20.2), (11.5, 18.2), (10.0, 17.0), (14.0, 11.5), (12.5, 10.3), (15.5, 4.5), (14.0, 3.3), (16.0, 0.3)]
+    lower_fork = [(11.5, 18.2), (14.2, 20.0), (13.4, 21.2)]
     tend, tendl = [], []
     for sx in (1, -1):
-        tend += _blade(upper, 5.2, 0.8, pv, z0, sx) + _blade(upper_hook, 2.6, 0.6, pv, z0 + 0.1, sx)
-        tendl += _blade(lower, 5.2, 0.8, pvl, z0 + 0.2, sx) + _blade(lower_hook, 2.4, 0.6, pvl, z0 + 0.3, sx)
-    tend += [_el((-2.2, 22.6, 2.6), (2.2, 28.4, 3.6), 'kw_gold', pv)]                                       # where they root, down his spine
-    tendl += [_el((-2.0, 20.2, 2.8), (2.0, 23.0, 3.8), 'kw_gold', pvl)]
+        tend += _blade(upper, 3.4, 0.8, pv, z0, sx) + _blade(upper_fork, 1.8, 0.6, pv, z0 + 0.1, sx)
+        tendl += _blade(lower, 3.4, 0.8, pvl, zl, sx) + _blade(lower_fork, 1.6, 0.6, pvl, zl + 0.1, sx)
+    tend += [_el((-1.8, 25.2, 2.6), (1.8, 28.6, z0 + 1.1), 'kw_gold', pv)]                                   # where they root, off his spine
+    tendl += [_el((-1.6, 20.8, 2.8), (1.6, 23.8, zl + 1.1), 'kw_gold', pvl)]
     part('kw_tend', _shrink(tend, TEND_K)); part('kw_tendl', _shrink(tendl, TEND_K))
     M.update(variant_models(M))
     return M

@@ -84,6 +84,9 @@ import phase90 as R90        # 2.67: dearer tiers, double and alien heists, five
 import phase91 as R91        # 2.67: game night in the vault - rooms after the games everyone knows, two against the clock
 import phase92 as R92        # 2.67: the Frisbee Shield, arrows for the Ranged kit, the crew's health over their heads
 import phase93 as R93        # 2.67: the rogues' gallery - more guards, odd sizes and speeds, a second guardian for every tier
+import phase94 as R94        # 2.67: the Ethereal Gem kept secret (one a heist), Emma's clothes in every form
+import phase95 as R95        # 2.67: the followers' faces move - blinks, moods, hurt, fighting
+import phase96 as R96        # 2.67: Leo, the knight of the shore (seawatch forts)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import market2 as M2
@@ -334,6 +337,9 @@ def all_offers():
     R91.extend_offers(O, offer)
     R92.extend_offers(O, offer)
     R93.extend_offers(O, offer)
+    R94.extend_offers(O, offer)
+    R95.extend_offers(O, offer)
+    R96.extend_offers(O, offer)
     return O
 
 
@@ -1084,6 +1090,9 @@ def build(out_dir):
     R91.generate(sys.modules[__name__])
     R92.generate(sys.modules[__name__])
     R93.generate(sys.modules[__name__])
+    R94.generate(sys.modules[__name__])
+    R96.generate(sys.modules[__name__])
+    R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command
