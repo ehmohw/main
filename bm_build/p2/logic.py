@@ -215,7 +215,10 @@ def generate(G, builds):
             elif kind in ('seq', 'simon'):
                 L = max(int(t[4:]) for e in els if e[0] == 'seq' for t in e[4] if t.startswith('bm.s') and t[4:].isdigit())
                 body = press('seq')
-                tones = [f'execute if entity @s[tag=bm.snd{j}] run playsound {fl["tone"]} block @a[distance=..14] ~ ~ ~ 1 {PITCH[min(9, j * 2)]}' for j in range(1, 9)]
+                # one distinct note per button, spread over the scale (5- and 6-button puzzles used to share their top note)
+                N = max([int(t[6:]) for e in els for t in e[4] if t.startswith('bm.snd') and t[6:].isdigit()] or [1])
+                tones = [f'execute if entity @s[tag=bm.snd{j}] run playsound {fl["tone"]} block @a[distance=..14] ~ ~ ~ 1 '
+                         f'{PITCH[round(1 + (j - 1) * 8 / max(1, N - 1))]}' for j in range(1, N + 1)]
                 fn(f'p2/{d}/pz{n}_tone', tones + ['particle minecraft:note ~ ~0.7 ~ 0.2 0.2 0.2 1 3'])
                 seqp = pre + [f'function bm:p2/{d}/pz{n}_tone', 'scoreboard players set #k bm.rng 0']
                 seqp += [f'execute if entity @s[tag=bm.s{i}] run scoreboard players set #k bm.rng {i}' for i in range(1, L + 1)]

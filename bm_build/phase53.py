@@ -44,7 +44,7 @@ PH_HP, ROC_HP = 320, 260
 PH_ODDS, ROC_ODDS = 300, 30           # 1 in N, every 20 s (a desert day / a thunderstorm)
 GOLD, SAND, STORM, VOLT = '#e8b923', '#d8b878', '#7ab8ff', '#ffe14a'
 RELIC = '*[minecraft:custom_data~{bm_relic:1b}]'
-MOB = ('type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,'
+MOB = ('type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.mercpet,'
        'tag=!bm.cecilpet,tag=!bm.emmapet,tag=!bm.r53hit')
 NEAR = 'gamemode=!creative,gamemode=!spectator'
 CATALYSTS = [(1, 'minecraft:blaze_rod'), (2, 'minecraft:armadillo_scute'), (3, 'minecraft:breeze_rod'), (4, '*[minecraft:custom_data~{bm:"heartstone"}]')]

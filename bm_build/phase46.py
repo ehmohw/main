@@ -28,7 +28,7 @@ ELEMENTS = {
 }
 EL_KEYS = list(ELEMENTS)
 PET_CD = 300                     # seconds before a fallen Cecil can be called again
-COMPANIONS = 'tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.merc,tag=!bm.cecilpet,tag=!bm.emmapet,tag=!bm.celipet,tag=!bm.donado'
+COMPANIONS = 'tag=!bm.wilfrey,tag=!bm.wil_body,tag=!bm.frogpet,tag=!bm.mercpet,tag=!bm.cecilpet,tag=!bm.emmapet,tag=!bm.celipet,tag=!bm.donado'
 
 item('cecil_gem', TOTEM, "Cecil's Summoning Gem", '#b48cff',
      ['A violet gem with two yellow eyes in it.', 'They blink.', ('Use: Cecil joins you in battle - poisoned', 'blue'),

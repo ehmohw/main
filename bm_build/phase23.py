@@ -94,7 +94,7 @@ def generate(G):
         lines.append(f'execute if entity @s[tag=bm.neon_{nid}] run summon minecraft:text_display ~ ~ ~ {snbt(d)}')
     fn('npc/neon', lines + fin)
     crowd = []
-    for v in ('pirate', 'prof', 'lucky', 'chef', 'soldier', 'void', 'ember'):
+    for v in ('pirate', 'prof', 'lucky', 'chef', 'soldier'):
         crowd.append(f'execute if entity @s[tag=bm.cv_{v}] run ' +
                      G.rat_sprite(f'bm:rat_{v}', ['bm.npc', 'bm.new', 'bm.rat_sprite', 'bm.crowd', 'bm.td', 'bm.r3d'], CROWD_SCALE.get(v, 0.62)))
     fn('npc/crowd', crowd + fin)

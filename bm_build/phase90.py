@@ -606,14 +606,14 @@ def generate(G):
     G.FUNCS['load'][-1:-1] = ['scoreboard players set #16 bm.rng 16']
     # ================================================================== NO FARMING THE VAULT: its creatures drop nothing of their own
     # (a raid's rewards come through the pot and The Haul; whatever spawns in the vault - a guard, a split magma cube, a Vorn
-    #  trooper, a shulker - drops no shells, rods, skulls or gear. A creature meant to drop something is tagged bm.gvloot)
+    #  trooper, a shulker - drops no shells, rods, skulls or gear. Bosses and rare mobs pay out through their death handlers)
     HOSTILE = ['zombie', 'husk', 'drowned', 'zombie_villager', 'skeleton', 'stray', 'bogged', 'wither_skeleton', 'spider', 'cave_spider', 'creeper', 'witch',
                'vindicator', 'pillager', 'evoker', 'vex', 'ravager', 'illusioner', 'piglin', 'piglin_brute', 'zombified_piglin', 'hoglin', 'zoglin', 'blaze',
                'ghast', 'magma_cube', 'slime', 'endermite', 'enderman', 'shulker', 'silverfish', 'phantom', 'guardian', 'elder_guardian', 'warden', 'breeze',
                'creaking', 'giant', 'wither']
     wjson('bm/tags/entity_type/gv_hostile.json', {'values': [f'minecraft:{h}' for h in HOSTILE]})
     G.FUNCS['loop/fast'][-1:-1] = ['execute in bm:gutter as @e[type=#bm:gv_hostile,tag=!bm.gvlt,distance=0..] run function bm:p90/nodrops']
-    fn('p90/nodrops', ['tag @s add bm.gvlt', 'execute if entity @s[tag=bm.gvloot] run return 0',
+    fn('p90/nodrops', ['tag @s add bm.gvlt',
                        'data merge entity @s {DeathLootTable:"bm:gv/guard",drop_chances:{mainhand:0f,offhand:0f,head:0f,chest:0f,legs:0f,feet:0f,body:0f}}'])
 
     # admin: lay one of the new rooms next (for testing)

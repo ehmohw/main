@@ -89,6 +89,8 @@ import phase95 as R95        # 2.67: the followers' faces move - blinks, moods, 
 import phase96 as R96        # 2.67: Leo, the knight of the shore (seawatch forts)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
+import allies                # 2.67: every friendly-fire list skips every follower (allies.py)
+import prune                 # 2.67: leftovers of rewritten features dropped (prune.py)
 import market2 as M2
 import economy as ECON
 import mig263
@@ -1097,7 +1099,9 @@ def build(out_dir):
     useitem.generate(sys.modules[__name__])
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command
     gen_tags_worldgen()
+    print('allies:', allies.finalize(sys.modules[__name__]), 'friendly-fire lines now skip every follower')
     for line in optimize.optimize(sys.modules[__name__]): print('optimize:', line)      # 2.15: cheaper entity selectors, quiet dungeons/markets
+    print('prune:', len(prune.prune(sys.modules[__name__])), 'leftover functions dropped')
     # 1.13: every objective is created before any line of load uses it (phases prepend their own lines to load, and a
     # constant set before its objective exists silently fails - the 1.11 rat-pillar bug on brand-new worlds)
     ld = FUNCS['load']

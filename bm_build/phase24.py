@@ -206,10 +206,7 @@ def generate(G):
                      title('@s', 'actionbar', T('You fade from sight.', '#6af2ff'))])
     # the dowser: scans every block within 8 (17x17x17) once per use
     G.consume_adv('xenite_dowser', 'bm:p24/dowse/use')
-    second += ['scoreboard players remove @a[scores={bm.dcd=1..}] bm.dcd 1',
-               'scoreboard players add @e[type=minecraft:marker,tag=bm.dhit] bm.dage 1',
-               'execute as @e[type=minecraft:marker,tag=bm.dhit] at @s run particle minecraft:end_rod ~ ~ ~ 0.25 0.25 0.25 0 6 force @a[distance=..24]',
-               'kill @e[type=minecraft:marker,tag=bm.dhit,scores={bm.dage=8..}]']
+    second += ['scoreboard players remove @a[scores={bm.dcd=1..}] bm.dcd 1']   # (phase26 outlines the finds with glowing displays)
     fn('p24/dowse/use', ['advancement revoke @s only bm:consume/xenite_dowser', give('xenite_dowser'),
                          'execute if score @s bm.dcd matches 1.. run return run ' + title('@s', 'actionbar', T('The crystal is still ringing...', 'gray')),
                          'scoreboard players set @s bm.dcd 10', 'scoreboard players set #dn bm.rng 0', 'scoreboard players set #dz bm.rng -8',
