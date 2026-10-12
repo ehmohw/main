@@ -20,6 +20,9 @@ THE RAID CREW PAGE says where everyone is: IN THE VAULT, RESTING (with the secon
   ON, OFF or no contract - and "2/2 with you now" on a heist. WHO COMES FIRST is whoever you switched ON first (switch one
   off and on to send it to the back); the page lists them in that order, then the OFF ones, then the rest. A crew over the
   limit (someone joined your heist) sends home the one last in line.
+ONE CARD AT THE END: the payout's run of chat lines is one line now ("Heist won! The Haul: 5 Tokens, 23 coins"), and the
+  end-of-heist card - the leader's and the crew's - opens with how it went: won (the tier, your shares, Tokens, coins,
+  any Medallions or a BM Trophy) or failed. It comes up three seconds after the payout.
 """
 from items import T, ITEMS
 from nbt import snbt, B, Int
@@ -105,7 +108,8 @@ def generate(G):
 
     # ================================================================== 1b. NOBODY WAITS ON THE LEADER
     mem = P28.multi([T('The heist is over', GOLD, bold=True)],
-                    [P28.body([T('Your leader is choosing: ', 'gray'), T('home', 'white', bold=True), T(', or ', 'gray'), T('another job', GOLD, bold=True), T('.', 'gray')]),
+                    [P28.body('@@RAW:r_res@@', 300),
+                     P28.body([T('Your leader is choosing: ', 'gray'), T('home', 'white', bold=True), T(', or ', 'gray'), T('another job', GOLD, bold=True), T('.', 'gray')]),
                      P28.body([T('You needn\'t wait. Head home now - or say you\'re in, and if they go again you come along (and pay your own fee then).',
                                  'dark_gray')])],
                     [P28.btn([T('Head home now', 'white', bold=True)], C_MHOME, width=200, tooltip=T('Back to the Overworld, as usual.', 'gray')),
@@ -116,7 +120,8 @@ def generate(G):
                                   chat('[Head home now]', 'white', C_MHOME, 'Back to the Overworld, as usual.'), T('  '),
                                   chat('[I\'m in if we go again]', GOLD, C_PREIN, 'Come along if there\'s another job.')])
     G.FUNCS['p101/wait_note'][:] = ['tag @s add bm.gvwaitd', 'function bm:p103/mem_show', mem_chat, 'playsound minecraft:block.note_block.chime player @s ~ ~ ~ 0.6 1.0']
-    fn('p103/mem_show', [f'dialog show @s {snbt(mem)}'])
+    fn('p103/mem_show', ['function bm:p103/res_load', 'function bm:p103/mem_dlg with storage bm:ui res'])
+    fn('p103/mem_dlg', [f'$dialog show @s {P28.inline(mem)}'])
     # (the member's buttons: home now - any time while it's being decided; in - only while waiting)
     notify = lambda txt, col: ['scoreboard players operation #mi bm.rng = @s bm.gvi', 'tag @s add bm.gvjust',
                                'execute as @a[tag=bm.gvp] if score @s bm.gvi = #mi bm.rng unless entity @s[tag=bm.gvjust] run ' +
@@ -484,6 +489,53 @@ def generate(G):
         d = P28.multi(head, bodies, [], columns=2, exit_label='Close')
         d['actions'] = '@@RAW:acts@@'
         fn(f'p103/crew/show_{nm}', [f'$dialog show @s {P28.inline(d)}'])
+
+    # ================================================================== 5. ONE CARD AT THE END: how it went, and what next
+    # The payout's run of chat lines (your shares, the haul's kind, the pot, the prize, the extra, the crate) goes quiet; one
+    # line sums it up, and the end-of-heist card (both the leader's and the crew's) opens with the result. A failed heist
+    # says so on the card too. (The Lucky split, first clears, a Shifting Core, a BM Trophy - news - still go to chat.)
+    QUIET = ('Your haul: ', 'THE PLAIN HAUL', 'THE BLACK MARKET HAUL', 'THE GUTTER HAUL', 'The pot: ', "The Fixer's prize: ", '...your fee back, and ',
+             ' Medallion(s)!', 'your fee back, ', 'The Fixer hands you ')
+    nq = 0
+    for f_ in ('p70/haul', 'p75/prize', 'p101/fee_back', 'p74/haul_pack'):
+        L_ = G.FUNCS[f_]
+        for i, l in enumerate(L_):
+            if 'tellraw @s' in l and any(q in l for q in QUIET):
+                L_[i] = ('execute unless score #hq bm.rng matches 1 run ' + l) if l.startswith('tellraw ') else l.replace('execute ', 'execute unless score #hq bm.rng matches 1 ', 1)
+                nq += 1
+    assert nq >= 9, f'only {nq} payout lines quieted'
+    GUT = '#c8a050'
+    G.FUNCS['p70/haul'][0:0] = ['scoreboard players set #hq bm.rng 1']
+    G.FUNCS['p70/haul'] += ['function bm:p103/res_won', 'scoreboard players set #hq bm.rng 0']
+    sco = lambda n, col, bold=True: {'score': {'name': n, 'objective': 'bm.rng'}, 'color': col, 'bold': bold}
+    fn('p103/res_won', ['scoreboard players operation #rtk bm.rng = #ptk bm.rng', 'scoreboard players operation #rtk bm.rng += #lpx bm.rng',
+                        'execute store result storage bm:gv rs.pid int 1 run scoreboard players get @s bm.pid',
+                        'execute store result storage bm:gv rs.tok int 1 run scoreboard players get #rtk bm.rng',
+                        'execute store result storage bm:gv rs.coin int 1 run scoreboard players get #pot bm.rng',
+                        'execute store result storage bm:gv rs.med int 1 run scoreboard players get #pmd bm.rng',
+                        'execute store result storage bm:gv rs.sh int 1 run scoreboard players get #sh bm.rng',
+                        'execute store result storage bm:gv rs.tier int 1 run scoreboard players get #gt bm.rng',
+                        'function bm:p103/res_won2 with storage bm:gv rs',
+                        'execute if score #pmd bm.rng matches 1.. run function bm:p103/res_med with storage bm:gv rs',
+                        'execute if score #ptr bm.rng matches 1.. run function bm:p103/res_tro with storage bm:gv rs',
+                        tellraw('@s', P + [T('Heist won! ', '#7aff7a', bold=True), T('The Haul: ', 'gray'), sco('#rtk', GOLD), T(' Tokens', GOLD), T(', ', 'gray'),
+                                           sco('#pot', 'white'), T(' coins', GUT), T(' - in your pack.', 'gray')]),
+                        'execute if score #pmd bm.rng matches 1.. run ' + tellraw('@s', P + [T('...and ', 'gray'), sco('#pmd', 'white'), T(' Medallion(s) in it too.', GOLD)])])
+    won = [_T('HEIST WON', '#7aff7a', bold=True), _T(' - Tier $(tier), $(sh) shares. The Haul: ', 'gray'), _T('$(tok) Tokens', GOLD, bold=True),
+           _T(', ', 'gray'), _T('$(coin) coins', GUT), _T('.', 'gray')]
+    fn('p103/res_won2', [f'$data modify storage bm:gv res.p$(pid) set value {snbt(won)}'])
+    fn('p103/res_med', [f'$data modify storage bm:gv res.p$(pid) insert -1 value {snbt(_T(", $(med) Medallion(s)", "light_purple", bold=True))}'])
+    fn('p103/res_tro', [f'$data modify storage bm:gv res.p$(pid) insert -1 value {snbt(_T(", a BM Trophy", "#ffb300", bold=True))}'])
+    lost = [_T('HEIST FAILED', '#ff7a7a', bold=True), _T(' - everything gathered is lost.', 'gray')]
+    G.FUNCS['p101/after_fail'].append('function bm:p103/res_fail')
+    fn('p103/res_fail', ['execute store result storage bm:gv rs.pid int 1 run scoreboard players get @s bm.pid', 'function bm:p103/res_fail2 with storage bm:gv rs'])
+    fn('p103/res_fail2', [f'$data modify storage bm:gv res.p$(pid) set value {snbt(lost)}'])
+    # (as a player) the result into bm:ui res.r_res, for the card; gone once you've left
+    fn('p103/res_load', ['execute store result storage bm:ui res.pid int 1 run scoreboard players get @s bm.pid',
+                         f'data modify storage bm:ui res.r_res set value {snbt(_T("The heist is over.", "gray"))}', 'function bm:p103/res_load2 with storage bm:ui res'])
+    fn('p103/res_load2', ['$execute if data storage bm:gv res.p$(pid) run data modify storage bm:ui res.r_res set from storage bm:gv res.p$(pid)'])
+    G.FUNCS['p70/unraid'] += ['execute store result storage bm:gv rs.pid int 1 run scoreboard players get @s bm.pid', 'function bm:p103/res_clear with storage bm:gv rs']
+    fn('p103/res_clear', ['$data remove storage bm:gv res.p$(pid)'])
 
     G.FUNCS['tick'] += tick
     f = G.FUNCS['loop/fast']

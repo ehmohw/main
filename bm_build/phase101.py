@@ -52,7 +52,8 @@ def generate(G):
 
     # ================================================================== the leader's choice
     lead_dlg = P28.multi([T('The heist is over', GOLD, bold=True)],
-                         [P28.body([T('You planned this one, so it\'s your call: ', 'gray'), T('home', 'white', bold=True), T(', or ', 'gray'),
+                         [P28.body('@@RAW:r_res@@', 300),                                 # (2.67d) how it went - phase103 fills it
+                          P28.body([T('You planned this one, so it\'s your call: ', 'gray'), T('home', 'white', bold=True), T(', or ', 'gray'),
                                     T('another job', GOLD, bold=True), T('?', 'gray')]),
                           P28.body([T('A new raid opens the Heist Plans: pick the tier and tries, and pay your fee. Your crew is asked to opt in - '
                                       'each pays their own fee, and anyone who opts out goes home.', 'dark_gray')]),
@@ -71,7 +72,9 @@ def generate(G):
                               f'scoreboard players set @a[tag=bm.gvask] bm.gvnx {s + 1}',
                               'execute as @a[tag=bm.gvask] at @s run function bm:p101/ask_lead',
                               f'execute as {crew(s)[:-1]},tag=!bm.gvask] at @s run function bm:p101/wait_note'])
-    fn('p101/ask_lead', [f'dialog show @s {snbt(lead_dlg)}', lead_chat, 'playsound minecraft:block.note_block.chime player @s ~ ~ ~ 0.8 1.2'])
+    fn('p101/ask_lead', ['function bm:p103/res_load', 'function bm:p101/ask_dlg with storage bm:ui res', lead_chat,
+                         'playsound minecraft:block.note_block.chime player @s ~ ~ ~ 0.8 1.2'])
+    fn('p101/ask_dlg', [f'$dialog show @s {P28.inline(lead_dlg)}'])
     fn('p101/wait_note', [tellraw('@s', P + [T('Waiting on ', 'gray'), {'selector': '@a[tag=bm.gvask]', 'color': 'white'},
                                              T(': home, or another job? (Or take the plate home any time.)', 'gray')])])
 
@@ -194,7 +197,7 @@ def generate(G):
 
     # ================================================================== when to ask: a few seconds after the haul; a failed heist once the crew's back in the den
     pay = G.FUNCS['p70/payout_inst']
-    pay += [f'execute if score @s bm.gvi matches {s + 1} run scoreboard players set #pq{s} bm.gvpq 5' for s in range(SL)] + ['tag @a[tag=bm.lkld] remove bm.lkld']
+    pay += [f'execute if score @s bm.gvi matches {s + 1} run scoreboard players set #pq{s} bm.gvpq 3' for s in range(SL)] + ['tag @a[tag=bm.lkld] remove bm.lkld']
     for s in range(SL):
         second.append(f'execute if score #pq{s} bm.gvpq matches 1.. run function bm:p101/s{s}/pq')
         fn(f'p101/s{s}/pq', [f'scoreboard players remove #pq{s} bm.gvpq 1', f'execute if score #pq{s} bm.gvpq matches 0 run function bm:p101/s{s}/ask'])
