@@ -21,7 +21,7 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
-## New in 2.67: Leo of the shore, faces that move, game night in the vault, the Frisbee Shield, the Gutter Gentry, the Arachno-Lantern
+## New in 2.67: Democratus, Leo of the shore, faces that move, the Raid Crew, follower wardrobes, game night in the vault, the Frisbee Shield, the Gutter Gentry, the Arachno-Lantern
 
 ### What a heist costs, and what it pays
 - **The fee rises with the tier:** 2 Tokens at Tier I, 3 at II, 4 at III, 5 at IV and 6 at Tier V (it still goes into the Lucky Pool). The bigger tiers pay more to match: more shares, higher prize caps and the better rooms.
@@ -93,6 +93,15 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 ### The Frisbee Shield
 A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, or one Shooting Gallery in twenty. It blocks like any shield. **Sneak + use to throw it:** it skips off walls and floors and off monsters, hitting each monster once and then heading for the next one near. After five skips it flies home to the hand it left. If you're gone, it drops where it is and waits. It goes through the coat check with you.
 
+### Democratus, the storm reaper
+- **In a thunderstorm, very rarely,** lightning strikes near someone out under the open sky, and where it fell a hooded warrior kneels in vigil: green cloak, mint hair, violet eyes, both hands on the hilt of his great electric scythe, stood upright before him. He keeps his vigil while the storm lasts. **Right-click him** and he gives you his **Storm Seal** and walks with you (achievement *Eye of the Storm*).
+- **Taller and broader than Leo,** blocky but less boxy: a stepped hood with a curled peak, a layered beard, ragged cloak strips and a jagged-edged breastplate. **His pupils glow violet in the dark,** like a glow squid.
+- **Slow, devastating blows:** a great sweep of the scythe every 2.5 seconds (16 damage, 8 to anything beside it). He plants his feet for each one. Every blow charges him, and at five comes his **Storm Reap**: he spins the scythe round him, the monsters near are lifted off their feet, lightning comes down on each one, and he slams them into the ground with a thud you feel.
+- **Old Rivals, with Cecil:** you hit harder (Strength), Cecil is tougher, and Democratus charges twice as fast, out to outdo him (they glare). **The Storm's Heir, with KillerWatt:** you're quicker (Speed, Jump Boost), KillerWatt is tougher and charges faster, and Democratus regenerates. **With both:** Resistance for you as well. Each pairing has its own banter and hidden achievement.
+- **Like the others:** an item frame, right-click him to sit, 5 minutes if he faints, his face moves (smirks, glares, a grimace when he's hurt), Emma's pulses reach him, and a raid contract at Goldtooth.
+- **His challenge:** sneak + use the seal for his menu: **Duel him**, his wardrobe, or send him home. Duelling, you get **ten seconds to put some distance between you**, then he fights you for real: 400 health, heavy sweeps, a lunging slash, lightning called down where you stand, and his Storm Reap. **Drop to three hearts** (or fall, or run more than 64 blocks) and you've lost: he simply goes home, to be called again, and **challenged again right away, with no cooldown**. **Bring him to his knee and you win:** the first time, **Democratus' Scythe** is yours (achievement *Reaper's Due*). It's one per player; later wins earn only his respect.
+- **His scythe:** heavy and slow (15 damage, a long reach). Every blow arcs lightning to two monsters close by and charges the blade, and at eight charges you unleash a **Storm Reap** of your own.
+
 ### Leo, the knight of the shore
 - **Seawatch forts:** a small stone fort now and then stands on a beach (sandy, snowy or stony shore), with a watchtower, a signal fire and a blue banner. **Leo** keeps watch inside. The drowned have been coming up the beach at his walls all week.
 - **Defend the fort:** talk to him, then right-click him holding a **sword or a trident**. Three waves of drowned in turtle shells come up the beach; the third brings their **Tidecaller**. Leo holds the gate with his trident. If everyone falls back more than 32 blocks the defence is lost and you can try again. Win and he gives you **Leo's Crest** (and the fort's chest is yours; achievement *Hold the Line*).
@@ -100,7 +109,7 @@ A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, o
 - **He fights with a trident:** a thrust up close (9 damage, with a little sweep), and at range (6-14 blocks) he throws it. It comes back to him (Loyalty), and in a thunderstorm it calls down lightning (Channeling), never within 6 blocks of you.
 - **Strong but caring:** drop to 4 hearts with a monster about and he's at your side, on guard. The monsters around you turn on him, and you get Resistance II and some absorption (30 seconds to recover). In a fight with him close by: Resistance I. In the water with him: Water Breathing and Dolphin's Grace.
 - **With Celi, Steel and Frost:** you get Strength, he covers her (Resistance), and his thrusts freeze like her spear. **With Emma, the Knight's Vow:** you regenerate, he shields her (Resistance II), and his guard comes back twice as fast. **With both:** Speed as well. Celi bickers, Emma cheers, and he smiles. Each pairing has its own hidden achievement.
-- He has his own raid contract at Goldtooth (1 Gutter Trophy and 5 Medallions), and his crest passes the coat check.
+- He has his own raid contract at Goldtooth (1 Gutter Trophy and 5 Medallions).
 - **Right-click him to sit him down** (or stand him up): he sits on the ground leaning back on one hand, the trident across his knees, breathing, looking out to sea, and now and then standing the trident up beside him like a staff.
 - **He can be hung in an item frame** like Cecil, Emma and Celi: put his crest in a frame and he lives by it (right-click the frame: sit / stand; sneak + right-click: in / out).
 - He animates: a watchful idle with an eye on the sea, a steady stride, a levelled charge, a salute when he arrives, the thrust, the throw, and on guard.
@@ -119,7 +128,16 @@ A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, o
 - **Pearlman** follows you with his eyes smoothly instead of turning in a jerk once a second.
 - **Emma walks and runs playfully now:** her arms swing out wide from her sides, her hands flare, and each foot steps in front of the other.
 
-### Cosmetics stay on
+### Follower wardrobes
+- **An outfit is yours for good:** use a cosmetic once and it's unlocked in that follower's wardrobe (the item is used up).
+- **Every follower has a menu:** sneak + use their own item, any time in the Overworld, whether they're out or not. From it you can send them home, or change them into any outfit they own, or back into their own clothes. Locked outfits say where to get them. With Emma out, sneak + use still opens her buff menu, which now has a **Wardrobe** button; Democratus' challenge menu has one too.
+- **New at Goldtooth:**
+  - **Leo's Tabards:** Crimson Crusader, Royal Purple, Greenwood.
+  - **Democratus' Cloaks:** Crimson Reaper, Ashen Shroud, Royal Violet. His hood changes with his cloak, and his face still moves on it.
+  - **Cecil's Robes:** Crimson, Midnight, Bone.
+  - **KillerWatt's Colours:** Midnight, Bone, Neon.
+  - Each set has a rare hidden fourth (Golden Champion, Gilded Storm, Gilded and Golden Thunder) for a Gutter Trophy. The rest cost 4 Gutter Medallions.
+  - Cecil's robe and KillerWatt's colours are their own look: with a gem in them, the gem's element shows instead, and the outfit comes back when the gem comes out.
 - Every follower keeps their cosmetics through a recall, being sent home and called again, a new support role (Emma) and a rebuilt rig.
 - **Emma's ethereal form keeps its own armour and wings.** Your outfit choices are for her normal form: when she comes back down she's wearing them again (dress her while she's ethereal and she changes when she lands). The Cozy Sweater now shows her support role's colour too, with a heart pin.
 
@@ -127,26 +145,48 @@ A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, o
 - **Goldtooth no longer sells it.** It's a hidden prize again: hold all nine elemental gems and use one, and they rise and circle you and fuse into the **Ethereal Gem** in your hands (or set all nine on display, as before). Achievement: *Nine Made One*.
 - **One Ethereal Gem per heist:** the first raider through the door keeps one. Any others (and any brought in later in the same run) are held in your coat-check bag until you leave.
 
-### Followers in the vault
-- **Raid contracts** at Goldtooth: once signed, Cecil, Emma, Celi, Leo, Zib, the Skiff Escorts or KillerWatt answer your call in the vault too, and their summoning items pass the coat check. The **Frog** and **Donado** contracts call a vault hire in his own iron kit; the one you hired at home stays home.
+### Followers in the vault: the Raid Crew
+- **Raid contracts** at Goldtooth: once signed, Cecil, Emma, Celi, Leo, Democratus, Zib, the Skiff Escorts or KillerWatt can come into the vault. The **Frog** and **Donado** contracts bring a vault hire in his own iron kit; the one you hired at home stays home.
+- **The Fixer's Ledger has a Raid Crew page.** Every follower you've signed for, every vault hire and every hireling you've hired is listed, each switched **ON** or **OFF** with a click. On a heist the ones switched on come along by themselves (and come back after a faint once they've recovered); switch one off and they go home. Hirelings are one at a time, as before.
+- **Summoning items stay at the coat check:** the ledger is how your crew comes in.
+- **Contracts are filed:** a hireling's or vault hire's contract, used once, goes into the ledger and isn't needed after.
+- **A party raids light:** one follower each when two or more of you go in, two when you raid alone (a hireling doesn't count). If someone joins mid-heist, the extra follower heads home.
+- **Leave the heist, any way at all, and the raid crew goes home there and then.**
 - **The followers' wardrobe** at Goldtooth: Emma's ribbons and dresses, Celi's and Zib's outfits (the hidden ones for a Gutter Trophy) and Pearlman's gems.
 - **Emma's new outfits:** the Flower Top and the Cozy Sweater, each with a high ponytail.
+
+### The vault's own rules
+- **The kit is on loan:**
+  - Loaned armour is bound to you until the heist is over (Curse of Binding).
+  - Loaned weapons and the rest of the kit bounce straight back into your hands if you drop them.
+  - Kit gear is pulled back out of lockers, your ender chest, bundles, boxes and The Haul.
+  - Only the paperweights and food can be put down.
+- **The Locker Hall:** an unclaimed bay is locked; claim it first.
+- **Vault gems:** the gems Goldtooth sells belong to the vault and stay in it.
+  - They're taken at the door on the way out.
+  - They can't be set down as decorations or fused.
+  - Hand one to Cecil or KillerWatt and take it back, and you get the vault gem back.
+  - When you leave, the element a vault gem gave them fades.
+- **The Haul folds up:** set one down, open it, and walk away. Emptied, it simply vanishes; with something still in it, it folds back into your pack. Broken by hand, what's inside spills out, but the barrel itself never ends up in your pockets.
 
 ### KillerWatt
 - **A better rig:** his head and arms follow his torso, his head no longer tips too far back, and his tendrils are animated. They're shaped like lightning now: hard, angled bends that carry them out around his chest, so they strike in front of him without cutting through it. **The Tendril Lunge:** he coils all four scythes back and drives them at you.
 - **He goes out with an explosion of electricity.**
 - **He reacts:** the follower roars as he arrives, flinches when he's hurt, swipes his tendrils at a monster in bite reach and spreads his arms when he's in the air. The boss flinches when you land a hit while he's between attacks, and up close he throws a quick right-left jab. The pose of the rider's Thunder Leap now holds all the way to the landing.
 - **The follower's charged attacks:** every blow charges him, and at full charge he unleashes his form's attack (riding, the Spark lets it go when you choose). Stormbreaker, Supernova, Maelstrom, Plague Bloom, Tectonic Slam, Avalanche, Tempest, Overgrowth, Absolute Zero and, in his Ethereal Form, Void Requiem.
-- **Ethereal KillerWatt:** set down an Ethereal Gem near him mid-fight and he ascends. He heals whole with far more health, hits harder and faster, floats, and throws Void Lances. Beat that form for the **Ethereal Tendrils**, which hit half again as hard and fling you half again as far.
+- **Ethereal KillerWatt:** set down an Ethereal Gem near him mid-fight and he ascends. He heals whole with far more health, hits harder and faster, floats, and throws Void Lances. Beat that form for the **Ethereal Tendrils** (instead of his plain Tendrils; his Spark and hoard as ever), which hit half again as hard and fling you half again as far.
 
 ### The Scorching Arachno-Lantern
 On a Blood Moon, very rarely, a monster spawning under the open sky becomes the **Arachno-Lantern**: a burning pumpkin the size of a house on eight long legs. It's blocky like the Gutter Gentry: the pumpkin in square tiers with ribs down its sides, its face carved square-cut, square legs and square flames. It glares with red crescent pupils (wide U's, horns up), breathes fire from the corners of its mouth, stomps, lashes you in with its tongue, rains embers and, at half health, shrieks out ember spiderlings and glares fire. It drops the **Scorching Heart**: carry it and fire can't touch you, or set it down as the **Hearthfire** (no monster spawns within 48 blocks, and Blood Moon horrors near it burn).
 - **Its legs never pass through each other or the fires.** They come out of the pumpkin's sides now, the front pair highest, so they rise over the fires at the corners of its mouth instead of through them. It walks in a wave, each leg stepping a little after the one behind it, the way a spider does, so neighbouring legs never swing into each other.
 
 ### For admins
-`/function bm:admin/heist_double`, `heist_alien` and `heist_variants_off` / `heist_variants_never` force the heist variants; `heist_boss_alt` / `heist_boss_std` / `heist_boss_any` pick the guardian; `room_<kind>` (e.g. `room_temple`) lays that event room next; `frisbee` gives the Frisbee Shield. `leo` puts Leo's fort encounter in front of you, `leo_fort` builds a seawatch fort where you stand, `leo_crest` gives his crest, and `faces` runs every follower nearby through each of their expressions.
+`/function bm:admin/heist_double`, `heist_alien` and `heist_variants_off` / `heist_variants_never` force the heist variants; `heist_boss_alt` / `heist_boss_std` / `heist_boss_any` pick the guardian; `room_<kind>` (e.g. `room_temple`) lays that event room next; `frisbee` gives the Frisbee Shield. `leo` puts Leo's fort encounter in front of you, `leo_fort` builds a seawatch fort where you stand, `leo_crest` gives his crest, and `faces` runs every follower nearby through each of their expressions. `democratus` puts Democratus' storm vigil in front of you (it needs `/weather thunder`); `demo_seal` and `demo_scythe` give his seal and his scythe. `wardrobe_all` unlocks every follower outfit, `wardrobe_items` gives the new ones, and `contracts_all` signs every raid contract.
 
 ### Fixed
+- **Emma's upper arms no longer sit inside her chest:** her shoulders are a little wider apart, and her hands still meet in front of her.
+- **A Rats' Rest is never the first room of a heist** (there's nothing to rest from yet).
+- **Celi and Leo count toward the three-follower limit** (they slipped past it); so does Democratus.
 - The Gutter Bank and Armory click boxes and signs sat half a block off-centre.
 - The Locker Hall no longer sends visitors who aren't in a heist home.
 - The Crumbling Rafters' edges are closed.

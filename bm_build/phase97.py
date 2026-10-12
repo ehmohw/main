@@ -237,7 +237,9 @@ def generate(G):
                         'execute rotated as @s rotated ~ 0 run function bm:p97/place'])
 
     # ---- the sweep (26 ticks: hauled back, round - the blow lands on the 14th) and the Storm Reap (60 ticks)
+    # (he plants his feet for a blow - no drifting out of reach mid-swing)
     fn('p97/swing_go', ['scoreboard players set @s bm.dmk 26', 'scoreboard players set @s bm.dma 7', 'scoreboard players set @s bm.dmm 50',
+                        'effect give @s minecraft:slowness 1 9 true',
                         'playsound minecraft:item.trident.riptide_1 neutral @a[distance=..16] ~ ~ ~ 0.5 0.6'])
     fn('p97/act_tick', ['scoreboard players remove @s bm.dmk 1',
                         'execute if score @s bm.dma matches 7 if score @s bm.dmk matches 12 run function bm:p97/swing_hit',
@@ -255,7 +257,8 @@ def generate(G):
     fn('p97/swung', [f'damage @s 16 minecraft:mob_attack by {me}',
                      f'execute as @e[{foe},distance=0.1..2.8] run damage @s 8 minecraft:mob_attack by {me}',
                      'particle minecraft:sweep_attack ~ ~1 ~ 0.6 0.3 0.6 0 3', 'particle minecraft:electric_spark ~ ~1 ~ 0.4 0.5 0.4 0.2 16'])
-    fn('p97/reap_go', ['scoreboard players set @s bm.dmk 60', 'scoreboard players set @s bm.dma 8', 'scoreboard players set @s bm.dmm 60', 'scoreboard players set @s bm.dmch 0',
+    fn('p97/reap_go', ['scoreboard players set @s bm.dmk 60', 'scoreboard players set @s bm.dma 8', 'scoreboard players set @s bm.dmm 80', 'scoreboard players set @s bm.dmch 0',
+                       'effect give @s minecraft:slowness 3 9 true',
                        'playsound minecraft:block.beacon.power_select neutral @a[distance=..24] ~ ~ ~ 1 0.6',
                        'playsound minecraft:item.trident.riptide_3 neutral @a[distance=..24] ~ ~ ~ 1 0.7',
                        'execute on owner if entity @s[distance=..32] run ' + title('@s', 'actionbar', [T('Democratus: ', STORM, bold=True), T('STORM REAP!', GOLD, bold=True)])] +

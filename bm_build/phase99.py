@@ -172,7 +172,7 @@ def generate(G):
 
     # ================================================================== putting it on (as you)
     # Leo and Democratus: every part but the head picks its outfit by custom_model_data; Democratus' hood by its model
-    for w, sel, part, head in (('leo', 'bm.lesel', 'bm.lep', None), ('demo', 'bm.dmsel', 'bm.dmp', 'bm.dp_head')):
+    for w, sel, part, head in (('leo', 'bm.lesel', 'bm.lep', 'bm.lp_head'), ('demo', 'bm.dmsel', 'bm.dmp', 'bm.dp_head')):
         cur = next(g[2] for g in GROUPS if g[0] == w)
         fn(f'p99/{w}_dress', ['scoreboard players set #wc bm.rng 0',
                               f'execute store result score #wp bm.rng run scoreboard players get @e[type=minecraft:item_display,tag={sel},limit=1] bm.pid',
@@ -182,7 +182,7 @@ def generate(G):
             for k in NEW[w][3]] +
            ([f'execute if score #wc bm.rng matches 0 run data modify entity @e[type=minecraft:item_display,tag={sel},tag={head},limit=1] item.components."minecraft:item_model" set value "bm:dm_head"'] +
             [f'execute if score #wc bm.rng matches {k} run data modify entity @e[type=minecraft:item_display,tag={sel},tag={head},limit=1] item.components."minecraft:item_model" set value "bm:dm_head_c{k}"'
-             for k in NEW[w][3]] if head else []))
+             for k in NEW[w][3]] if w == 'demo' else []))         # (Leo's head wears none of it; his face stays his own)
         G.FUNCS[f'p{96 if w == "leo" else 97}/grow'].append(f'function bm:p99/{w}_dress')
         excl = ',tag=!bm.dmencp,tag=!bm.dmbp,tag=!bm.dmfade' if w == 'demo' else ',tag=!bm.lefade,tag=!bm.leencp'
         fn(f'p99/{w}_now', ['scoreboard players operation #me bm.pid = @s bm.pid',
@@ -265,8 +265,10 @@ def generate(G):
                    [f'function bm:{apply}', f'function bm:p99/menu/{who}'])
                 lines.append(f'execute if score #act bm.pay matches {b + off + k} run return run function bm:p99/pick/{g}{k}')
         fn(f'p99/act/{who}', lines)
-    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {min(BASE.values())}..{max(BASE.values()) + 39} run return run function bm:p99/act')
-    fn('p99/act', [f'execute if score #act bm.pay matches {b}..{b + 39} run return run function bm:p99/act/{w}' for w, b in sorted(BASE.items(), key=lambda x: x[1])])
+    order = sorted(BASE.items(), key=lambda x: x[1])
+    top = {w: (order[i + 1][1] - 1 if i + 1 < len(order) else b + 19) for i, (w, b) in enumerate(order)}        # (each follower's own block of codes)
+    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {order[0][1]}..{top[order[-1][0]]} run return run function bm:p99/act')
+    fn('p99/act', [f'execute if score #act bm.pay matches {b}..{top[w]} run return run function bm:p99/act/{w}' for w, b in order])
     # sneak + use: the menu (KillerWatt: not while riding him - that's his Thunder Leap)
     sneak = lambda who: f'execute if predicate bm:p20/sneaking run return run function bm:p99/menu/{who}'
     for f_, who in (('p46/pet/use', 'cecil'), ('p66/use', 'celi'), ('p72/zb/use', 'zib'), ('p96/use', 'leo')):

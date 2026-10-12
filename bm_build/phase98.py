@@ -171,6 +171,12 @@ def generate(G):
         if f'p89/sign/{k}' in G.FUNCS:
             G.FUNCS[f'p89/sign/{k}'].append(tellraw('@s', [T('  (Switch them on or off in your Fixer\'s Ledger - Raid Crew.)', 'dark_gray')]))
 
+    # ---- (2.67) Celi, Leo and Democratus count toward the three-follower limit too (they slipped past it)
+    G.FUNCS['p58/count'][-1:-1] = [f'execute as @e[type=minecraft:wolf,tag={t}] on owner if entity @s[tag=bm.fcme] run scoreboard players add #fc bm.rng 1'
+                                   for t in ('bm.celipet', 'bm.leopet', 'bm.dmpet')]
+    for f_ in ('p66/try_summon', 'p96/try_summon', 'p97/try_summon'):
+        G.FUNCS[f_].insert(0, 'execute if function bm:p58/full run return 0')
+
     # ================================================================== the ledger's page
     MC = P80.MENU_CODE
     page = ['function bm:p98/init', f'scoreboard players set @s bm.menu {MC + 7}', 'data remove storage bm:ui crew']
