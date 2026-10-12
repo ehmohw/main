@@ -275,7 +275,7 @@ def generate(G):
                      P28.btn([T('🏆 ', GOLD), T('Trophy Case', 'white', bold=True)], MENU_CODE + 3, tooltip=T('Six metals of trophies, and how to earn them.'), width=150),
                      P28.btn([T('✦ ', '#e8b8ff'), T('Bond Sigils', 'white', bold=True)], MENU_CODE + 4, tooltip=T('Which sigils do what - two at most each heist.'), width=150),
                      P28.btn([T('▣ ', '#c89a5a'), T('The Locker Hall', 'white', bold=True)], MENU_CODE + 5, tooltip=T('Claim double-chest lockers for your raiding things. From safe ground: hold still for 3 seconds.'), width=150),
-                     P28.btn([T('⛁ ', '#9ad0ff'), T('Your Haul', 'white', bold=True)], MENU_CODE + 6, tooltip=T('Plain, Black Market or gutter: what the Fixer packs for you.'), width=150),
+                     P28.btn([T('⛁ ', '#9ad0ff'), T('The Crate Desk', 'white', bold=True)], MENU_CODE + 6, tooltip=T('Crates of vanilla goods, and tip-offs for your next heist - for Gutter Coins.'), width=150),
                      P28.btn([T('☺ ', '#9ad0ff'), T('Raid Crew', 'white', bold=True)], MENU_CODE + 7, tooltip=T('Followers and hirelings: who comes into the vault with you.'), width=150)],
                     columns=2)
     fn('p80/office_dlg', [f'$dialog show @s {P28.inline(hub)}'])

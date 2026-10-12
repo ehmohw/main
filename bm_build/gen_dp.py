@@ -95,6 +95,7 @@ import phase101 as R101      # 2.67b: after the heist (leader's choice), harder 
 import phase102 as R102      # 2.67c: carrying on - the haul unpacked (bank, locker, pack, scrap); Tokens through the coat check
 import phase103 as R103      # 2.67d: the vault smoothed out - exits that ask, the crew needn't wait, the den by job, three shopkeepers, the Fixer's Door
 import phase104 as R104      # 2.68: the vault's loose ends - crew changes, drop-outs, knock-outs, safe plans, a full city, a full Locker Hall
+import phase105 as R105      # 2.68: currency wins, crates and tip-offs, tier laurels, Forgeheart / the Alibi / the Counterfeiter's Press
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import allies                # 2.67: every friendly-fire list skips every follower (allies.py)
@@ -1111,6 +1112,7 @@ def build(out_dir):
     R102.generate(sys.modules[__name__])
     R103.generate(sys.modules[__name__])
     R104.generate(sys.modules[__name__])
+    R105.generate(sys.modules[__name__])
     R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
