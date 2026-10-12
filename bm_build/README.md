@@ -144,6 +144,14 @@ On a Blood Moon, very rarely, a monster spawning under the open sky becomes the 
 - The Gutter Bank and Armory click boxes and signs sat half a block off-centre.
 - The Locker Hall no longer sends visitors who aren't in a heist home.
 - The Crumbling Rafters' edges are closed.
+- **Found by playing every tier through, five times each:**
+  - **The Fixer's prize keeps to its caps.** An older, richer table was still in charge: a Token 45% of the time at Tier I, up to 4 Tokens and 2 Medallions at Tier IV. It now pays what the table above says.
+  - **The Girder Climb opens its door.** Reaching the gold plate at the top beat the room but left the exit barred. **Pipe Plaza** did the same if you walked into the flagpole instead of hitting it.
+  - **The fourth coffer's Mimic** dropped a full Mimic's loot in the vault (Tokens, a Medallion, accessories). Like the other three, it drops nothing now.
+  - **A follower can't jam the Block Temple.** A follower or hireling standing where a block was going stopped the push; now it steps back beside you.
+  - **Odd guards wear their names.** Tiny, Hulking, Swift, Ironclad, Blur and Juggernaut guards lost the prefix on their name.
+  - The server log no longer fills with an error for every item frame in the Combination Room and the Dial Lock.
+- A Lucky Raid's pool pays out whichever haul you picked (it's the crew's fees coming back), so a plain or gutter haul can carry those Tokens.
 
 ## New in 2.66: the Fixer's Office, metal trophies, Bond Sigils, KillerWatt rides
 
