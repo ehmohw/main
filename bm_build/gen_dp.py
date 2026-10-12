@@ -87,6 +87,9 @@ import phase93 as R93        # 2.67: the rogues' gallery - more guards, odd size
 import phase94 as R94        # 2.67: the Ethereal Gem kept secret (one a heist), Emma's clothes in every form
 import phase95 as R95        # 2.67: the followers' faces move - blinks, moods, hurt, fighting
 import phase96 as R96        # 2.67: Leo, the knight of the shore (seawatch forts)
+import phase97 as R97        # 2.67: Democratus, the storm reaper (thunderstorm vigil, duel, scythe)
+import phase98 as R98        # 2.67: the Raid Crew (ledger), the kit on loan, locked lockers, vault gems
+import phase99 as R99        # 2.67: follower wardrobes (permanent outfits, a menu each)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import allies                # 2.67: every friendly-fire list skips every follower (allies.py)
@@ -342,6 +345,7 @@ def all_offers():
     R94.extend_offers(O, offer)
     R95.extend_offers(O, offer)
     R96.extend_offers(O, offer)
+    R97.extend_offers(O, offer)
     return O
 
 
@@ -1094,6 +1098,9 @@ def build(out_dir):
     R93.generate(sys.modules[__name__])
     R94.generate(sys.modules[__name__])
     R96.generate(sys.modules[__name__])
+    R97.generate(sys.modules[__name__])
+    R98.generate(sys.modules[__name__])
+    R99.generate(sys.modules[__name__])
     R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])

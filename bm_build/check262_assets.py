@@ -313,7 +313,8 @@ def walk_item_model(f, m):
         DCTX = {'none', 'thirdperson_lefthand', 'thirdperson_righthand', 'firstperson_lefthand', 'firstperson_righthand', 'head', 'gui', 'ground', 'fixed', 'on_shelf'}
         if m.get('property') == 'minecraft:display_context':        # (2.60: an item drawn one way in the hand, another on the head)
             for c in m.get('cases', []):
-                if c.get('when') not in DCTX: E(f'{f}: display_context case {c.get("when")}')
+                w = c.get('when')
+                if any(x not in DCTX for x in (w if isinstance(w, list) else [w])): E(f'{f}: display_context case {w}')
         elif m.get('property') != 'minecraft:custom_model_data': E(f'{f}: select property {m.get("property")} (only custom_model_data / display_context used/checked)')
         if not isinstance(m.get('index', 0), int) or m.get('index', 0) < 0: E(f'{f}: select index')
         for c in m.get('cases', []):
@@ -335,7 +336,10 @@ for f in glob.glob(f'{RP}/assets/bm/items/*.json'):
     walk_item_model(f, d['model'])
 for f in glob.glob(f'{RP}/assets/bm/models/item/*.json'):
     d = C.jload(f)
-    if 'parent' in d and d['parent'].split(':')[1] not in REG['model']: E(f'{f}: parent model {d["parent"]} not in 26.3')
+    if 'parent' in d:
+        ns, pp = d['parent'].split(':') if ':' in d['parent'] else ('minecraft', d['parent'])
+        if ns == 'bm' and not os.path.exists(f'{RP}/assets/bm/models/{pp}.json'): E(f'{f}: parent model {d["parent"]} missing')   # (2.67: a pack model can inherit another)
+        elif ns != 'bm' and pp not in REG['model']: E(f'{f}: parent model {d["parent"]} not in 26.3')
     for k, t in d.get('textures', {}).items():
         ns_, path = t.split(':')
         if ns_ == 'minecraft':

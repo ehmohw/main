@@ -10,7 +10,7 @@ THE ENDLESS VAULT: its kits carry far more food (32 more steak, 16 golden carrot
 PAPERWEIGHTS: three in every kit. Drop one (Q) on a golden scale and it stays tipped - pick it back up after.
 THE LOCKER HALL: an annexe off the den (the copper plate by the leave plate, before the heist begins) or through the
   Fixer's Ledger anywhere outside a heist. Eighteen bays of double chests, two high, round three walls: right-click a
-  bay's plaque to claim it (three each). One Locker Key opens all your bays - hold it when you open one. Sneak +
+  bay's plaque to claim it (three each) - an unclaimed bay stays locked. One Locker Key opens all your bays - hold it when you open one. Sneak +
   right-click your plaque to give a bay up (empty it first). From the den, only heist tools go back in with you.
   (You can't break anything in the hall - it puts you in adventure mode while you're there.)
 """
@@ -167,8 +167,13 @@ def generate(G):
                                                                            'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0)] * 3,
                                                                                               'scale': [F(0.6)] * 3}}),
               f'data modify storage bm:lk built set value {HALL_VER}']
+    build += [f'function bm:p84/lk/unlock{n}' for n, *_r in B_] + ['data modify storage bm:lk free_locked set value 1b']
     fn('p84/hall/build', build)
     second.append(f'execute in bm:gutter if loaded {x0} {HY} {z0} unless data storage bm:lk {{built:{HALL_VER}}} run function bm:p84/hall/build')
+    # (2.67) a hall built before: lock every bay nobody has claimed (claimed bays already carry their owner's lock)
+    second.append(f'execute in bm:gutter if loaded {x0} {HY} {z0} if data storage bm:lk {{built:{HALL_VER}}} unless data storage bm:lk {{free_locked:1b}} run function bm:p84/hall/lock_free')
+    fn('p84/hall/lock_free', [f'execute unless score @e[type=minecraft:interaction,tag=bm.lkb{n},limit=1] bm.lko matches 1.. run function bm:p84/lk/unlock{n}' for n, *_r in B_] +
+       ['data modify storage bm:lk free_locked set value 1b'])
     # (inside the hall: no breaking anything - survival players go adventure while they're in it)
     second += [f'execute in bm:gutter positioned {x0} 60 {z0} as @a[dx=15,dy=12,dz=15,gamemode=survival] run function bm:p84/lk/adv',
                'execute as @a[tag=bm.lkadv] unless function bm:p84/lk/inside run function bm:p84/lk/unadv']
@@ -251,7 +256,7 @@ def generate(G):
        ['playsound minecraft:block.chest.close player @s ~ ~ ~ 1 0.8', say('You give the locker back to the Fixer.')])
     for n, cells, _p in B_:
         fn(f'p84/lk/lock{n}', [f'$data merge block {cx} {cy} {cz} {{lock:{{predicates:{{"minecraft:custom_data":{{bm_lk:$(pid)}}}}}}}}' for cx, cy, cz, st in cells])
-        fn(f'p84/lk/unlock{n}', [f'data remove block {cx} {cy} {cz} lock' for cx, cy, cz, st in cells])
+        fn(f'p84/lk/unlock{n}', [f'data merge block {cx} {cy} {cz} {{lock:{{predicates:{{"minecraft:custom_data":{{bm_lk:0}}}}}}}}' for cx, cy, cz, st in cells])   # (2.67: given up - locked till claimed)
         fn(f'p84/lk/full{n}', [f'execute if data block {cx} {cy} {cz} Items[0] run return 1' for cx, cy, cz, st in cells] + ['return 0'])
     # (the plaque gets the owner's name: resolved through a scratch item_display, then copied in)
     fn('p84/lk/name', ['execute in bm:gutter run summon minecraft:item_display -248.5 64 -248.5 {Tags:["bm.lktmp"],item:{id:"minecraft:paper",count:1}}',

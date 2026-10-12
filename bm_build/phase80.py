@@ -275,7 +275,8 @@ def generate(G):
                      P28.btn([T('🏆 ', GOLD), T('Trophy Case', 'white', bold=True)], MENU_CODE + 3, tooltip=T('Six metals of trophies, and how to earn them.'), width=150),
                      P28.btn([T('✦ ', '#e8b8ff'), T('Bond Sigils', 'white', bold=True)], MENU_CODE + 4, tooltip=T('Which sigils do what - two at most each heist.'), width=150),
                      P28.btn([T('▣ ', '#c89a5a'), T('The Locker Hall', 'white', bold=True)], MENU_CODE + 5, tooltip=T('Claim double-chest lockers for your raiding things.'), width=150),
-                     P28.btn([T('⛁ ', '#9ad0ff'), T('Your Haul', 'white', bold=True)], MENU_CODE + 6, tooltip=T('Plain, Black Market or gutter: what the Fixer packs for you.'), width=150)],
+                     P28.btn([T('⛁ ', '#9ad0ff'), T('Your Haul', 'white', bold=True)], MENU_CODE + 6, tooltip=T('Plain, Black Market or gutter: what the Fixer packs for you.'), width=150),
+                     P28.btn([T('☺ ', '#9ad0ff'), T('Raid Crew', 'white', bold=True)], MENU_CODE + 7, tooltip=T('Followers and hirelings: who comes into the vault with you (phase98).'), width=150)],
                     columns=2)
     fn('p80/office_dlg', [f'$dialog show @s {P28.inline(hub)}'])
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {MENU_CODE}..{MENU_CODE + 199} run return run function bm:p80/act')

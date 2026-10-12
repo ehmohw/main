@@ -139,6 +139,8 @@ def kit_arg(iid, role=None, extra=None):
     if am is not None:
         from nbt import D
         comps['minecraft:attribute_modifiers'] = [dict(md, amount=D(md['amount'])) for md in am]
+        # (2.67) loaned armour stays on until the heist is over: Curse of Binding (the exit takes it off you)
+        comps['minecraft:enchantments'] = dict(comps.get('minecraft:enchantments', {}), **{'minecraft:binding_curse': 1})
     for k, v in comps.items():
         if k == 'minecraft:custom_data': v = dict(v, bm_kit=B(1))
         if k == 'minecraft:lore': v = list(v) + [T('Loaned by the Fixer - stays in the vault.', 'dark_gray')]

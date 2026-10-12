@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw
 
 RES = 4                                   # texels per design unit: every texture is 64 x 64 (16 units)
 RIG_SCALE = 0.85
-PIVOT = {'body': (0, 11, 0), 'head': (0, 24, 0), 'armr': (4.0, 22.4, 0), 'arml': (-4.0, 22.4, 0),
+PIVOT = {'body': (0, 11, 0), 'head': (0, 24, 0), 'armr': (4.6, 22.4, 0), 'arml': (-4.6, 22.4, 0),    # (2.67: shoulders out from 4.0 - the sleeves sat in her chest)
          'legr': (1.7, 11, 0), 'legl': (-1.7, 11, 0), 'wingr': (1.0, 21.5, 2.2), 'wingl': (-1.0, 21.5, 2.2)}
 PIVOT['wingro'], PIVOT['winglo'] = PIVOT['wingr'], PIVOT['wingl']      # (the outer halves stand at the wing roots; a translation reaches the mid-joint)
 def outfit_parts():
@@ -453,7 +453,7 @@ def torso(lean=0.0, tilt=0.0, turn=0.0):
 
 
 I = (0.0, 0.0, 0.0, 1.0)
-FOLD = dict(armr=limb(1, 24, -22), arml=limb(-1, 24, -22))
+FOLD = dict(armr=limb(1, 24, -26), arml=limb(-1, 24, -26))       # (hands together in front, from the wider shoulders)
 def wings(inner, outer, lift=0.0):
     """Wing beat: the inner halves sweep (about y) and lift (about z); the outer halves follow at their own angle."""
     return dict(wingr=qmul(qa('y', -inner), qa('z', -lift)), wingl=qmul(qa('y', inner), qa('z', lift)),
@@ -491,8 +491,8 @@ POSES = {
     # cast (a buff): a little cheer
     'cast': P(0.03, body=torso(), head=torso(lean=-8), armr=limb(1, 20, 150), arml=limb(-1, 20, 150)),
     # wave at Cecil
-    'wave_a': P(body=torso(tilt=-3), head=torso(tilt=8), armr=limb(1, 24, -22), arml=limb(-1, 10, 150)),
-    'wave_b': P(body=torso(tilt=-3), head=torso(tilt=8), armr=limb(1, 24, -22), arml=limb(-1, 10, 118)),
+    'wave_a': P(body=torso(tilt=-3), head=torso(tilt=8), armr=limb(1, 24, -26), arml=limb(-1, 10, 150)),
+    'wave_b': P(body=torso(tilt=-3), head=torso(tilt=8), armr=limb(1, 24, -26), arml=limb(-1, 10, 118)),
     # ethereal: hovering, legs trailing, axe at the ready, wings beating
     'strike_up': P(0.12, body=torso(lean=-6, turn=-15), head=torso(lean=-6), legr=limb(1, -10), legl=limb(-1, -30), armr=limb(1, 165, 15), arml=limb(-1, 20, 60), **WINGS_UP),
     'strike_dn': P(0.0, body=torso(lean=16, turn=15), head=torso(lean=6), legr=limb(1, -30), legl=limb(-1, -10), armr=limb(1, -18, -8), arml=limb(-1, -10, 50), **WINGS_DN),

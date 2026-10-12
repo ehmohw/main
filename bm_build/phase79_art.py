@@ -294,7 +294,13 @@ EL_PAL = {  # body (dark, mid, light), accents for the tendrils (dark, light)
     'air': (('#4e6a7a', '#b0d4e6', '#ffffff'), ('#7aaed0', '#f4ffff')),
     'grass': (('#0c320c', '#3a9a2a', '#b4f47a'), ('#c43a7a', '#ffd0e8')),
     'ice': (('#16405e', '#7ac8f0', '#f0feff'), ('#3e9ed0', '#ffffff'))}
-VARIANTS = [k for k in EL_KEYS if k != 'electric'] + ['eth']
+# (2.67) his wardrobe (phase99): his own look in other colours - worn when no gem is in him (a gem's element always shows)
+COS_PAL = {'c1': ('Midnight', (('#04060e', '#16224a', '#4a6ab0'), ('#1a8ac0', '#bff4ff'))),
+           'c2': ('Bone', (('#3a3428', '#a89c80', '#f0e8d4'), ('#8a1a1a', '#ff6a5a'))),
+           'c3': ('Neon', (('#08040c', '#2a1a34', '#5a4a6a'), ('#c0108a', '#ff8ae8'))),
+           'c4': ('Golden Thunder', (('#2a1a04', '#a07018', '#ffd870'), ('#c88a10', '#fff4b0')))}
+EL_PAL.update({k: pal for k, (_n, pal) in COS_PAL.items()})
+VARIANTS = [k for k in EL_KEYS if k != 'electric'] + ['eth'] + list(COS_PAL)
 BODY_TEX = ['kw_hide', 'kw_hide_dk', 'kw_belly', 'kw_lime', 'kw_emblem', 'kw_face', 'kw_spike', 'kw_claw']
 
 

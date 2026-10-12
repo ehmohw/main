@@ -345,17 +345,21 @@ def generate(G):
                            'particle minecraft:electric_spark ~ ~1 ~ 2 2 2 0.4 200', 'particle minecraft:flash{color:[0.75,1.0,0.6,1.0]} ~ ~1 ~ 0 0 0 0 1'])
     # the reward: everyone within 64 of the killing blow
     wjson('bm/advancement/p79/kill.json', {'criteria': {'k': {'trigger': 'minecraft:player_killed_entity', 'conditions': {'entity': [
-        {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.kxboss"]}'}}]}}}, 'rewards': {'function': 'bm:p79/killed'}})
+        {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.kxboss"]}'}},
+        {'condition': 'minecraft:inverted', 'term': {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.kxeth"]}'}}}]}}},
+        'rewards': {'function': 'bm:p79/killed'}})                      # (his ethereal form: phase83 runs this itself, with #eth set - no plain Tendrils)
     fn('p79/killed', ['advancement revoke @s only bm:p79/kill', 'execute at @s as @a[distance=..64] at @s run function bm:p79/reward',
                       tellraw('@a', PREFIX + [{'selector': '@s', 'color': 'white'}, T(' brought down ', 'gray'), T('KILLERWATT', GRN, bold=True), T('!', 'gray')])])
     fn('p79/reward', ['scoreboard players add @s bm.kxk 1', 'execute if score @s bm.kxk matches 1 run function bm:p79/first',
                       'execute store result score #r bm.rng run random value 1..100',
-                      'execute if score @s bm.kxk matches 2.. if score #r bm.rng matches 1..20 run ' + give('killerwatt_tendrils'),
+                      'execute if score @s bm.kxk matches 2.. if score #r bm.rng matches 1..20 unless score #eth bm.kxek matches 1 run ' + give('killerwatt_tendrils'),
                       'execute if score @s bm.kxk matches 2.. if score #r bm.rng matches 21..30 run ' + give('kw_spark'),
                       'loot give @s loot bm:p79/hoard', 'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 1 1'])
-    fn('p79/first', [give('killerwatt_tendrils'), give('kw_spark'),
+    fn('p79/first', ['execute if score #eth bm.kxek matches 1 run return run function bm:p79/first_eth', give('killerwatt_tendrils'), give('kw_spark'),
                      tellraw('@s', PREFIX + [T("KillerWatt's Tendrils", YEL, bold=True), T(' and ', 'gray'), T('his Spark', GRN, bold=True),
                                              T(" are yours - use the Spark and he'll fight beside you.", 'gray')])])
+    # (a first win over his ethereal form: the Spark - the Tendrils it gives are the ethereal ones, phase83)
+    fn('p79/first_eth', [give('kw_spark'), tellraw('@s', PREFIX + [T('His Spark', GRN, bold=True), T(" is yours - use it and he'll fight beside you.", 'gray')])])
     wjson('bm/loot_table/p79/hoard.json', {'pools': [{'rolls': 1, 'entries': [G.loot_entry('medallion', G.uni(3, 6))]},
                                                      {'rolls': 1, 'entries': [G.loot_entry('trophy', G.uni(1, 2))]},
                                                      {'rolls': 1, 'entries': [G.loot_entry('token', G.uni(4, 9))]}]})

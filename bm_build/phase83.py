@@ -4,7 +4,8 @@ SET DOWN AN ETHEREAL GEM WHILE YOU FIGHT HIM (its shrine within 30 blocks of Kil
   into ETHEREAL KILLERWATT - black steel, iridescent scythes, glowing seams, jagged spikes - and the fight gets far harder:
   he heals whole with 80% more health and tougher armour, hits half again as hard, attacks faster, floats above the ground,
   and gains VOID LANCES (homing bolts of void that lift and wither whoever they reach).
-BEAT HIS ETHEREAL FORM: THE ETHEREAL TENDRILS (certain the first time, a chance after), on top of everything he always drops.
+BEAT HIS ETHEREAL FORM: THE ETHEREAL TENDRILS (certain the first time, a chance after) instead of his plain Tendrils - his
+  Spark and his hoard as ever.
   Worn like his Tendrils and doing all they do, but: every lash and stab hits HALF AGAIN AS HARD and floats what it strikes;
   they fling you HALF AGAIN AS FAR, and after a fling you hang in the air a moment. Near an Ethereal Gem's shrine they're
   always at full thunderstorm strength and you regenerate.
@@ -106,7 +107,8 @@ def generate(G):
     # beating his ethereal form: the Ethereal Tendrils
     wjson('bm/advancement/p83/killed_eth.json', {'criteria': {'k': {'trigger': 'minecraft:player_killed_entity', 'conditions': {'entity': [
         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.kxeth"]}'}}]}}}, 'rewards': {'function': 'bm:p83/killed_eth'}})
-    fn('p83/killed_eth', ['advancement revoke @s only bm:p83/killed_eth', 'execute at @s as @a[distance=..64] at @s run function bm:p83/eth_reward'])
+    fn('p83/killed_eth', ['advancement revoke @s only bm:p83/killed_eth', 'scoreboard players set #eth bm.kxek 1', 'function bm:p79/killed',
+                          'execute at @s as @a[distance=..64] at @s run function bm:p83/eth_reward', 'scoreboard players set #eth bm.kxek 0'])
     fn('p83/eth_reward', ['scoreboard players add @s bm.kxek 1', 'execute store result score #r bm.rng run random value 1..100',
                           'execute if score @s bm.kxek matches 1 run ' + give('ethereal_tendrils'),
                           'execute if score @s bm.kxek matches 2.. if score #r bm.rng matches 1..40 run ' + give('ethereal_tendrils'),

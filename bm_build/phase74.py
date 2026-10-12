@@ -281,7 +281,8 @@ def generate(G):
     G.FUNCS['p70/haul'].append('function bm:p74/haul_pack')
     crate = {'id': 'minecraft:barrel', 'count': Int(1), 'components': {
         'minecraft:custom_name': T('The Haul', GOLD, bold=True), 'minecraft:custom_data': {'bm_haul': B(1)}, 'minecraft:enchantment_glint_override': True,
-        'minecraft:lore': [T('Everything you took from the vault.', 'gray'), T('Set it down and open it.', 'blue')]}}
+        'minecraft:lore': [T('Everything you took from the vault.', 'gray'), T('Set it down and open it.', 'blue'),
+                           T('Walk away and it folds up - into your pack if', 'gray'), T('anything is left in it.', 'gray')]}}
     fn('p74/haul_pack', ['scoreboard players set #hn bm.rng 0',
                          f'execute in bm:gutter if data block {HA} Items[0] run function bm:p74/haul_crate {{src:"{HA}"}}',
                          f'execute in bm:gutter if data block {HB} Items[0] run function bm:p74/haul_crate {{src:"{HB}"}}',
@@ -298,6 +299,49 @@ def generate(G):
                          'data modify storage bm:tmp haul.e set value {}', 'execute store result storage bm:tmp haul.e.slot int 1 run data get storage bm:tmp haul.in[0].Slot',
                          'data modify storage bm:tmp haul.e.item set from storage bm:tmp haul.in[0]', 'data remove storage bm:tmp haul.e.item.Slot',
                          'data modify storage bm:tmp haul.out append from storage bm:tmp haul.e', 'data remove storage bm:tmp haul.in[0]', 'function bm:p74/haul_conv'])
+
+    # (2.67) a Haul set down is a portable crate, like the trash can: walk away and it goes - emptied, it simply vanishes; with
+    #  things still in it, it folds back into your pack as The Haul. Broken by hand, what's inside spills out, but the barrel
+    #  itself never lands in your pockets. (Found by sight: the placing advancement looks along your view for it.)
+    G.OBJECTIVES += ['bm.haulc']
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.haulc dummy']
+    wjson('bm/advancement/p74/haul_placed.json', {'criteria': {'p': {'trigger': 'minecraft:placed_block', 'conditions': {'location': [
+        {'condition': 'minecraft:match_tool', 'predicate': {'items': 'minecraft:barrel', 'predicates': {'minecraft:custom_data': '{bm_haul:1b}'}}}]}}},
+        'rewards': {'function': 'bm:p74/haul/placed'}})
+    fn('p74/haul/placed', ['advancement revoke @s only bm:p74/haul_placed', 'execute unless score @s bm.pid matches 1.. run function bm:p21/pid',
+                           'scoreboard players operation #hp bm.rng = @s bm.pid', 'scoreboard players set #hk bm.rng 0',
+                           'execute anchored eyes positioned ^ ^ ^ run function bm:p74/haul/ray'])
+    fn('p74/haul/ray', ['scoreboard players add #hk bm.rng 1', 'execute if score #hk bm.rng matches 30.. run return 0',
+                        'execute if block ~ ~ ~ minecraft:barrel if data block ~ ~ ~ components."minecraft:custom_data".bm_haul align xyz positioned ~0.5 ~0.5 ~0.5 '
+                        'unless entity @e[type=minecraft:marker,tag=bm.haulm,distance=..0.5] run return run function bm:p74/haul/mark',
+                        'execute positioned ^ ^ ^0.25 run function bm:p74/haul/ray'])
+    fn('p74/haul/mark', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.haulm","bm.hnewm"]}',
+                         'scoreboard players operation @e[type=minecraft:marker,tag=bm.hnewm,distance=..0.5] bm.pid = #hp bm.rng',
+                         'scoreboard players set @e[type=minecraft:marker,tag=bm.hnewm,distance=..0.5] bm.haulc 0',
+                         'tag @e[type=minecraft:marker,tag=bm.hnewm] remove bm.hnewm', 'playsound minecraft:block.barrel.open block @a[distance=..16] ~ ~ ~ 0.6 1.2'])
+    # (every tick: broken by hand - the barrel's own drop is caught before it can be picked up)
+    tick.append('execute as @e[type=minecraft:marker,tag=bm.haulm] at @s unless block ~ ~ ~ minecraft:barrel run function bm:p74/haul/broke')
+    fn('p74/haul/broke', ['kill @e[type=minecraft:item,distance=..1.5,nbt={Item:{id:"minecraft:barrel",components:{"minecraft:custom_name":{text:"The Haul"}}}}]',
+                          'particle minecraft:poof ~ ~ ~ 0.3 0.3 0.3 0.02 8', 'kill @s'])
+    # (every second: you've walked away - more than 7 blocks - and are still about: it goes)
+    second.append('execute as @e[type=minecraft:marker,tag=bm.haulm] at @s run function bm:p74/haul/check')
+    fn('p74/haul/check', ['scoreboard players operation #hp bm.rng = @s bm.pid', 'scoreboard players set #near bm.rng 0', 'scoreboard players set #on bm.rng 0',
+                          'execute as @a if score @s bm.pid = #hp bm.rng run scoreboard players set #on bm.rng 1',
+                          'execute as @a[distance=..7] if score @s bm.pid = #hp bm.rng run scoreboard players set #near bm.rng 1',
+                          'execute if score #on bm.rng matches 0 run return 0', 'execute if score #near bm.rng matches 1 run return run scoreboard players set @s bm.haulc 0',
+                          'scoreboard players add @s bm.haulc 1', 'execute if score @s bm.haulc matches 2.. run function bm:p74/haul/fold'])
+    fn('p74/haul/fold', ['data modify storage bm:tmp haul.in set from block ~ ~ ~ Items', 'data modify storage bm:tmp haul.out set value []', 'function bm:p74/haul_conv',
+                         'data modify block ~ ~ ~ Items set value []', 'setblock ~ ~ ~ minecraft:air',
+                         'particle minecraft:poof ~ ~ ~ 0.3 0.3 0.3 0.02 10', 'playsound minecraft:block.barrel.close block @a[distance=..16] ~ ~ ~ 0.8 0.8',
+                         'execute if data storage bm:tmp haul.out[0] as @a if score @s bm.pid = #hp bm.rng at @s run function bm:p74/haul/back', 'kill @s'])
+    fn('p74/haul/back', [f'summon minecraft:item ~ ~0.3 ~ {snbt({"Item": crate, "PickupDelay": Int(0), "Tags": ["bm.hauln"]})}',
+                         'data modify entity @e[type=minecraft:item,tag=bm.hauln,distance=..2,limit=1] Item.components."minecraft:container" set from storage bm:tmp haul.out',
+                         'data modify entity @e[type=minecraft:item,tag=bm.hauln,distance=..2,limit=1] Owner set from entity @s UUID',
+                         'tag @e[type=minecraft:item,tag=bm.hauln,distance=..2] remove bm.hauln',
+                         title('@s', 'actionbar', [T('The Haul', GOLD, bold=True), T(' folds up and goes back in your pack - what\'s left is still in it.', 'gray')])])
+    # (and an emptied Haul never sits in your inventory)
+    second.append('clear @a minecraft:barrel[minecraft:custom_data~{bm_haul:1b},minecraft:container=[]]')
+    G.FUNCS['admin/uninstall'].insert(0, 'kill @e[type=minecraft:marker,tag=bm.haulm]')
 
     # ================================================================== THE VAULT: the den heals (regeneration and a full belly before you go in)
     second.append('execute as @e[type=minecraft:marker,tag=bm.gvr_lobby] at @s positioned ~-12 ~-1 ~-12 if entity @a[tag=bm.gvp,dx=24,dy=8,dz=24] run function bm:p74/den_rest')

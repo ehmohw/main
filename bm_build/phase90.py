@@ -272,11 +272,13 @@ def generate(G):
         evs = P75.EVENT_POOL[t]
         L = [f'execute store result score #i bm.rng run random value 0..{len(evs) - 1}'] + \
             [f'execute if score #i bm.rng matches {i} run scoreboard players set #r bm.rng {EVENTS.index(k)}' for i, k in enumerate(evs)] + \
+            ([f'execute if score #q bm.rng matches ..1 if score #r bm.rng matches {EVENTS.index("rest")} run return run function bm:p75/lay/event{t}']
+             if 'rest' in evs else []) + \
             [f'execute if score #r bm.rng matches {EVENTS.index(k)} if score #gpl bm.rng matches ..1 run return run function bm:p85/lay/solo' for k in P85.COMPETITIVE if k in evs] + \
             [f'execute if score #r bm.rng matches {EVENTS.index(k)} if predicate bm:p90/rare_{k} run return run function bm:p75/lay/event{t}' for k in RARE if k in evs] + \
             ['function bm:p90/lay/ebit', f'execute if score #q2 bm.rng matches 1 run return run function bm:p75/lay/event{t}', 'scoreboard players operation #epool bm.rng += #bit bm.rng'] + \
             [f'execute if score #i bm.rng matches {i} run function bm:p75/pc/{k}' for i, k in enumerate(evs)]
-        G.FUNCS[f'p75/lay/event{t}'] = L
+        G.FUNCS[f'p75/lay/event{t}'] = L         # (2.67: the Rats' Rest is never the first room - nothing to rest from yet)
     for k, pct in RARE.items():
         wjson(f'bm/predicate/p90/rare_{k}.json', {'condition': 'minecraft:random_chance', 'chance': round(1 - pct / 100, 3)})
     # (more of them now: 30% a room, at most 2 - 3 from Tier III - and two more in a double heist)

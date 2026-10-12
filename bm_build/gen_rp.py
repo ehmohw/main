@@ -827,6 +827,10 @@ if __name__ == '__main__':
     phase92.rp(sys.modules[__name__])
     import phase96
     phase96.rp(sys.modules[__name__])
+    import phase97
+    phase97.rp(sys.modules[__name__])
+    import phase99                            # (2.67: the wardrobes - after every follower's models, before the faces)
+    phase99.rp(sys.modules[__name__])
     import phase95                            # (after every head model: the faces)
     phase95.rp(sys.modules[__name__])
     LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',

@@ -136,7 +136,9 @@ for who, r in ALL_TRADES:
         can = CANON[iid]
         if st['id'] != can['base'] or comps != can['comps']:
             diff = sorted(set(k for k in set(comps) | set(can['comps']) if comps.get(k) != can['comps'].get(k)))
-            E(f'{who}: sells {iid} different from its definition ({diff})')
+            # (2.67: Goldtooth's vault gems - the item plus a bm_vault flag and one lore line, nothing else)
+            vault = (comps.get('minecraft:custom_data') or {}).get('bm_vault') == 1 and diff == ['minecraft:custom_data', 'minecraft:lore'] and st['id'] == can['base']
+            if not vault: E(f'{who}: sells {iid} different from its definition ({diff})')
 
 # ---------------- 5. spawn offers == refresh offers; 6. markers have spawners
 for k, recs in SPAWN.items():

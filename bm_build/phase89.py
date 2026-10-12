@@ -1,9 +1,9 @@
 """2.67: FOLLOWERS IN THE VAULT - raid contracts, the followers' wardrobe at Goldtooth, and two new outfits for Emma.
 
 RAID CONTRACTS (Goldtooth, in the den - dear): one for each follower - Cecil, Emma, Celi, Zib, the Skiff Escorts and
-  KillerWatt. Use it once and it's signed for good: from then on that follower answers your call in the vault too (the
-  rest still won't come down). A follower in the vault fights the guards as it does anywhere. Their summoning items now
-  pass the coat check.
+  KillerWatt. Use it once and it's signed for good: from then on that follower comes into the vault with you - switched on
+  or off in the Fixer's Ledger, Raid Crew (phase98); their summoning items stay at the coat check. A follower in the vault
+  fights the guards as it does anywhere.
   THE FROG WITH MUSTACHE and DONADO: their contracts are kept. Use one in the vault and a vault hire of him joins you, in
   his own iron kit (he can't take your gear and drops none); use it again and he clocks off. He leaves when you leave the
   heist; if he faints, 5 minutes before he'll sign on again. The one you hired at home stays home, untouched.
@@ -272,7 +272,12 @@ def generate(G):
             rec.append(offer(('gutter_trophy', 1) if f'cos_celi_{k}' in P78.HIDDEN else gm(4), (f'cos_celi_{k}', 1)))
         for k in P78.ZIB:
             rec.append(offer(('gutter_trophy', 1) if f'cos_zib_{k}' in P78.HIDDEN else gm(4), (f'cos_zib_{k}', 1)))
-        rec += [offer(gm(6), (f'gem_{g}', 1)) for g in P60.GEMS]
+        for g in P60.GEMS:                 # (2.67: the vault's own - flagged, and they never leave it: phase98)
+            o = offer(gm(6), (f'gem_{g}', 1))
+            o['sell'] = dict(o['sell']); c = o['sell']['components'] = dict(o['sell']['components'])     # (a copy - never the item's own)
+            c['minecraft:custom_data'] = dict(c['minecraft:custom_data'], bm_vault=B(1))
+            c['minecraft:lore'] = list(c['minecraft:lore']) + [T('Bought in the vault - it stays in the vault.', '#e8b8ff', italic=True)]
+            rec.append(o)
         # (2.67: the Ethereal Gem is a secret again - made from the nine, never sold)
         return d
     P70.goldtooth = g89
