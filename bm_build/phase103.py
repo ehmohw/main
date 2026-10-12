@@ -16,6 +16,10 @@ THREE SHOPKEEPERS: GOLDTOOTH keeps the heist supplies (tools, potions, food, spo
   the display cases from a menu that shows what you own already - pick a follower, pick an outfit, and it's in their
   wardrobe for good. The Tailor takes coins from your Gutter Bank and your pockets (a Gutter Medallion is 16, a Trophy 128;
   the change goes to your bank). Goldtooth no longer changes coins: the Gutter Bank does that.
+THE RAID CREW PAGE says where everyone is: IN THE VAULT, RESTING (with the seconds left), WAITING (crew full), ON THE WAY,
+  ON, OFF or no contract - and "2/2 with you now" on a heist. WHO COMES FIRST is whoever you switched ON first (switch one
+  off and on to send it to the back); the page lists them in that order, then the OFF ones, then the rest. A crew over the
+  limit (someone joined your heist) sends home the one last in line.
 """
 from items import T, ITEMS
 from nbt import snbt, B, Int
@@ -196,9 +200,9 @@ def generate(G):
            f'setblock {rel(cx, cy, cz)} minecraft:chiseled_bookshelf[facing=south,slot_0_occupied=true,slot_1_occupied=true,slot_3_occupied=true,slot_5_occupied=true]',
            f'summon minecraft:interaction {rel(cx, cy, cz)} {{Tags:["bm.gvprop","bm.ofcrew"],width:1.02f,height:1.02f,response:1b}}',
            lab(cx, 5.3, cz, [_T('RAID CREW\n', '#9ad0ff', bold=True), _T('who comes along', 'gray')])]
-    fast += ['execute as @e[type=minecraft:interaction,tag=bm.ofcrew] if data entity @s interaction run function bm:p103/crew_click',
+    fast += ['execute as @e[type=minecraft:interaction,tag=bm.ofcrew] at @s if data entity @s interaction run function bm:p103/crew_click',
              'execute as @e[type=minecraft:interaction,tag=bm.ofcrew] if data entity @s attack run data remove entity @s attack']
-    fn('p103/crew_click', ['execute on target run function bm:p98/crew', 'data remove entity @s interaction'])
+    fn('p103/crew_click', ['execute on target at @s run function bm:p98/crew', 'data remove entity @s interaction'])
     # the Lockers: a copper door on the north wall (click it) - the plate by the way out is gone
     lx, ly, lz = LOCKER_AT
     before = len(li)
@@ -387,6 +391,99 @@ def generate(G):
                 if old_t in l:
                     L_[i] = l.replace(old_t, new_t); hit += 1
         assert hit, old_t
+
+    # ================================================================== 4. THE RAID CREW: who's here, who's resting, who's waiting - and who comes first
+    # Priority is the order you switched them ON (a follower switched on later comes after the rest; switch one off and on to
+    # send it to the back). The roster calls the eligible follower who's first in line; a crew over the limit sends home
+    # the one who's last. The page lists the ON ones in that order, then the OFF ones, then the ones with no contract.
+    import phase98 as P98
+    import phase77 as P77
+    import phase80 as P80
+    MC = P80.MENU_CODE
+    FOL = [(k, nm, col, cd) for (k, nm, col, host, tag, sel, cd, *_r) in P98.CALLED] + [(k, nm, col, cd) for (k, nm, col, tag, cd) in P98.HIRED]
+    code_of = {k: P98.CODE + i for i, (k, *_r) in enumerate(P98.CALLED)}
+    code_of.update({k: P98.CODE + 20 + j for j, (k, *_r) in enumerate(P98.HIRED)})
+    hired = {k for (k, *_r) in P98.HIRED}
+    co = {k: f'bm.co_{k[:8]}' for k, *_r in FOL}
+    objs4 = list(co.values()) + ['bm.coq']
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs4]
+    G.OBJECTIVES += objs4
+    # (defaults: the old list order, ahead of anyone switched on from now on)
+    G.FUNCS['p98/init'] += [f'execute unless score @s {co[k]} matches 0.. run scoreboard players set @s {co[k]} {1000 + i}' for i, (k, *_r) in enumerate(FOL)] + \
+                           ['execute unless score @s bm.coq matches 2000.. run scoreboard players set @s bm.coq 2000']
+    for k, *_r in FOL:
+        G.FUNCS[f'p98/t/{k}_on'][0:0] = ['scoreboard players add @s bm.coq 1', f'scoreboard players operation @s {co[k]} = @s bm.coq']
+    ok_k = lambda k: f'if function bm:p98/{"filed" if k in hired else "signed"}/{k}'
+    elig = lambda k, cd: f'if entity @s[tag=bm.crw_{k}] if function bm:p98/on/{k} unless score @s {cd} matches 1.. unless function bm:p98/has/{k}'
+    # the roster: marks cleared, the two best called (while there's room), then the new marks (called next second)
+    R_ = ['function bm:p98/init', 'function bm:p98/count', 'execute if score #fc bm.rng > #lim bm.rng run function bm:p103/crew/bench'] + \
+         [f'execute if entity @s[tag=bm.crw_{k}] if function bm:p98/has/{k} run tag @s remove bm.crw_{k}' for k, *_r in FOL] + \
+         ['function bm:p103/crew/pick', 'function bm:p103/crew/pick'] + \
+         [f'execute if function bm:p98/on/{k} unless score @s {cd} matches 1.. unless function bm:p98/has/{k} run tag @s add bm.crw_{k}' for k, nm, col, cd in FOL]
+    G.FUNCS['p98/roster'][:] = R_
+    fn('p103/crew/pick', ['execute unless function bm:p98/room run return 0', 'scoreboard players set #best bm.rng 2147483647', 'scoreboard players set #bk bm.rng -1'] +
+       [f'execute {elig(k, cd)} if score @s {co[k]} < #best bm.rng run function bm:p103/crew/best_{i}' for i, (k, nm, col, cd) in enumerate(FOL)] +
+       [f'execute if score #bk bm.rng matches {i} run function bm:p98/call/{k}' for i, (k, *_r) in enumerate(FOL)])
+    for i, (k, *_r) in enumerate(FOL):
+        fn(f'p103/crew/best_{i}', [f'scoreboard players operation #best bm.rng = @s {co[k]}', f'scoreboard players set #bk bm.rng {i}'])
+    # the bench: over the limit, the one last in line goes home
+    fn('p103/crew/bench', ['scoreboard players set #worst bm.rng -1', 'scoreboard players set #wk bm.rng -1'] +
+       [f'execute if function bm:p98/has/{k} if score @s {co[k]} > #worst bm.rng run function bm:p103/crew/worst_{i}' for i, (k, *_r) in enumerate(FOL)] +
+       [f'execute if score #wk bm.rng matches {i} run function bm:p98/bench_{k}' for i, (k, *_r) in enumerate(FOL)])
+    for i, (k, *_r) in enumerate(FOL):
+        fn(f'p103/crew/worst_{i}', [f'scoreboard players operation #worst bm.rng = @s {co[k]}', f'scoreboard players set #wk bm.rng {i}'])
+    G.FUNCS.pop('p98/bench', None)
+    # the page: built fresh each time (the ON ones in line order, then OFF, then no contract; the hirelings; back)
+    ST = lambda txt, col: snbt(_T(txt, col, bold=True))
+    in_h = 'if entity @s[tag=bm.gvp] if dimension bm:gutter'
+    page = ['function bm:p98/init', f'scoreboard players set @s bm.menu {MC + 7}', 'data remove storage bm:ui crew', 'data modify storage bm:ui crew.acts set value []',
+            'function bm:p98/count', 'execute store result storage bm:ui crew.fc int 1 run scoreboard players get #fc bm.rng',
+            'execute store result storage bm:ui crew.lim int 1 run scoreboard players get #lim bm.rng'] + \
+           [f'scoreboard players set #ad{i} bm.rng 0' for i in range(len(FOL))] + \
+           ['function bm:p103/crew/next'] * len(FOL) + \
+           [f'execute {ok_k(k)} unless function bm:p98/on/{k} run function bm:p103/crew/row_{i}' for i, (k, *_r) in enumerate(FOL)] + \
+           [f'execute unless {ok_k(k)[3:]} run function bm:p103/crew/row_{i}' for i, (k, *_r) in enumerate(FOL)] + \
+           ['function bm:p103/crew/hire_rows',
+            f'data modify storage bm:ui crew.acts append value {snbt(P28.btn([_T("« The Office", "gray")], MC, width=180))}',
+            f'execute {in_h} run return run function bm:p103/crew/show_in with storage bm:ui crew', 'function bm:p103/crew/show_out with storage bm:ui crew']
+    G.FUNCS['p98/crew'][:] = page
+    G.FUNCS.pop('p98/page_dlg', None)
+    fn('p103/crew/next', ['scoreboard players set #best bm.rng 2147483647', 'scoreboard players set #bk bm.rng -1'] +
+       [f'execute if score #ad{i} bm.rng matches 0 if function bm:p98/on/{k} if score @s {co[k]} < #best bm.rng run function bm:p103/crew/best_{i}' for i, (k, *_r) in enumerate(FOL)] +
+       [f'execute if score #bk bm.rng matches {i} run function bm:p103/crew/row_{i}' for i, (k, *_r) in enumerate(FOL)])
+    for i, (k, nm, col, cd) in enumerate(FOL):
+        row = P28.btn([_T(nm if k != 'frog' else 'The Frog', col, bold=True), _T('  '), _T('')], code_of[k], width=180)
+        fn(f'p103/crew/row_{i}', [f'scoreboard players set #ad{i} bm.rng 1', f'data modify storage bm:ui crew.row set value {snbt(row)}',
+                                  f'data modify storage bm:ui crew.st set value {ST("no contract", "dark_gray")}',
+                                  f'execute {ok_k(k)} run data modify storage bm:ui crew.st set value {ST("OFF", "#ff7a7a")}',
+                                  f'execute if function bm:p98/on/{k} run data modify storage bm:ui crew.st set value {ST("ON", "#7aff7a")}',
+                                  f'execute if function bm:p98/on/{k} {in_h} run function bm:p103/crew/st_{i}',
+                                  'data modify storage bm:ui crew.row.label[2] set from storage bm:ui crew.st',
+                                  'data modify storage bm:ui crew.acts append from storage bm:ui crew.row'])
+        fn(f'p103/crew/st_{i}', [f'execute if function bm:p98/has/{k} run return run data modify storage bm:ui crew.st set value {ST("IN THE VAULT", "#7aff7a")}',
+                                 f'execute if score @s {cd} matches 1.. store result storage bm:ui crew.n int 1 run scoreboard players get @s {cd}',
+                                 f'execute if score @s {cd} matches 1.. run return run function bm:p103/crew/st_rest with storage bm:ui crew',
+                                 f'execute unless function bm:p98/room run return run data modify storage bm:ui crew.st set value {ST("WAITING - crew full", "#ffe07a")}',
+                                 f'data modify storage bm:ui crew.st set value {ST("ON THE WAY", "#7aff7a")}'])
+    fn('p103/crew/st_rest', ['$data modify storage bm:ui crew.st set value {text:"RESTING $(n)s",color:"#ffb060",bold:1b}'])
+    hrows = []
+    for i, (hk, hnm, rat, hcol, *_r) in P77.HIRE.items():
+        hrow = P28.btn([_T(hnm, hcol, bold=True), _T('  '), _T('')], P98.CODE + 30 + i, width=180)
+        hrows += [f'data modify storage bm:ui crew.row set value {snbt(hrow)}', f'data modify storage bm:ui crew.st set value {ST("not hired", "dark_gray")}',
+                  f'execute if function bm:p98/filed/h{i} run data modify storage bm:ui crew.st set value {ST("OFF", "#ff7a7a")}',
+                  f'execute if function bm:p98/filed/h{i} if score @s bm.gvhr matches {i} run data modify storage bm:ui crew.st set value {ST("ON", "#7aff7a")}',
+                  'data modify storage bm:ui crew.row.label[2] set from storage bm:ui crew.st', 'data modify storage bm:ui crew.acts append from storage bm:ui crew.row']
+    fn('p103/crew/hire_rows', hrows)
+    how = P28.body([_T('Click to switch on or off. Who comes first: whoever you switched ', 'gray'), _T('ON', '#7aff7a', bold=True),
+                    _T(' first, top of the list (switch one off and on to send it to the back). Hirelings: one at a time. Leave the heist and the crew goes home.', 'gray')], 360)
+    where = P28.body([_T('Followers sign on with a Raid Contract; hirelings and vault hires with theirs (used once, filed here). The Recruiter in the den sells them all.',
+                         'dark_gray', italic=True)], 360)
+    for nm, head in (('in', [_T('RAID CREW', '#9ad0ff', bold=True), _T('  ·  ', 'gray'), _T('$(fc)/$(lim)', 'white', bold=True), _T(' with you now', 'gray')]),
+                     ('out', [_T('RAID CREW', '#9ad0ff', bold=True), _T('  ·  who comes into the vault with you', 'gray')])):
+        bodies = [how, where] if nm == 'in' else [P28.body([_T('Raid alone and two come along; in a party, one each.', 'white')], 360), how, where]
+        d = P28.multi(head, bodies, [], columns=2, exit_label='Close')
+        d['actions'] = '@@RAW:acts@@'
+        fn(f'p103/crew/show_{nm}', [f'$dialog show @s {P28.inline(d)}'])
 
     G.FUNCS['tick'] += tick
     f = G.FUNCS['loop/fast']
