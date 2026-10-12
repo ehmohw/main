@@ -6,6 +6,10 @@ WHEN IT'S OVER (the haul paid out, or the last try spent - the crew back in the 
   - START A NEW RAID: the Heist Plans open for the leader (tier, then tries, then their fee). Everyone else is asked to OPT IN
     or OUT. Out: home as usual. In: when the leader confirms, they're recruited and pay their OWN fee (no Tokens - left behind,
     home). Anyone who hasn't answered by then heads home. The new raid keeps everyone's way home and own spawn from before.
+    (2.67c) Carrying on unpacks your haul there and then (phase102). A leader who can't cover even a Tier I fee heads home
+    (the choice passes on); one who picks a job they can't pay for gets the plans back to pick a cheaper one. A crewmate
+    who opts in without a fee's worth of Tokens heads home at once.
+TOKENS (2.67c) pass the coat check: you keep them on you in the vault, and a new raid's fee comes out of your pocket.
   Shut the window by mistake? The same choices sit in chat as buttons.
   (A failed heist no longer rebuilds itself for free: a new raid is a new plan, and a new fee.)
 LUCKY RAIDS are harder by default: every guard and the guardian has half again the health (the guards hit harder too), and the
@@ -16,7 +20,10 @@ from items import T
 from nbt import snbt
 import phase28 as P28
 import phase70 as P70
+import phase72 as P72
 import phase75 as P75
+
+P72.KEEP.append('token')                 # (2.67c) Tokens pass the coat check
 
 GOLD = '#ffcf40'
 LUCKY = '#7dff6a'
@@ -36,6 +43,8 @@ def generate(G):
     # (every won heist pays at least its fee back - checked here, at build time)
     import phase90 as P90
     assert all(P75.PRIZE_TOK[t][0] >= P90.FEE_T[t] for t in P90.FEE_T), 'the Fixer\'s sure prize must cover the fee'
+    min_fee = min(P90.FEE_T.values())
+    tok = '*[minecraft:custom_data~{bm:"token"}]'
 
     crew = lambda s: f'@a[tag=bm.gvp,scores={{bm.gvi={s + 1}}}]'
     chat = lambda txt, col, code, tip: T(txt, col, bold=True, click_event={'action': 'run_command', 'command': f'/trigger bm.act set {code}'},
@@ -46,7 +55,9 @@ def generate(G):
                          [P28.body([T('You planned this one, so it\'s your call: ', 'gray'), T('home', 'white', bold=True), T(', or ', 'gray'),
                                     T('another job', GOLD, bold=True), T('?', 'gray')]),
                           P28.body([T('A new raid opens the Heist Plans: pick the tier and tries, and pay your fee. Your crew is asked to opt in - '
-                                      'each pays their own fee, and anyone who opts out goes home.', 'dark_gray')])],
+                                      'each pays their own fee, and anyone who opts out goes home.', 'dark_gray')]),
+                          P28.body([T('Carry on and the Fixer unpacks your haul: Tokens stay on you, coins go to your Gutter Bank, the rest to your '
+                                      'locker. Head home and it comes with you, as ever.', 'dark_gray')])],
                          [P28.btn([T('Back to the Overworld', 'white', bold=True)], C_HOME, width=200, tooltip=T('The whole crew heads home.', 'gray')),
                           P28.btn([T('Start a new raid', GOLD, bold=True)], C_NEXT, width=200, tooltip=T('Pick the next job - your crew opts in or out.', 'gray'))],
                          columns=1, exit_label='Decide later')
@@ -80,7 +91,8 @@ def generate(G):
     # another job: the plans open for the leader; the rest are asked
     mem_dlg = P28.multi([T('Another job?', GOLD, bold=True)],
                         [P28.body([T('Your leader is planning the next heist. ', 'gray'), T('In?', GOLD, bold=True)]),
-                         P28.body([T('You pay your own fee when the plan is set: 2 Tokens (Tier I) to 6 (Tier V). Out: you head home.', 'dark_gray')])],
+                         P28.body([T('You pay your own fee when the plan is set: 2 Tokens (Tier I) to 6 (Tier V). Out: you head home.', 'dark_gray')]),
+                         P28.body([T('In: the Fixer unpacks your haul - Tokens stay on you, coins to your Gutter Bank, the rest to your locker.', 'dark_gray')])],
                         [P28.btn([T('Count me in', GOLD, bold=True)], C_IN, width=200, tooltip=T('Come along - and pay your own fee.', 'gray')),
                          P28.btn([T('Head home', 'white', bold=True)], C_OUT, width=200, tooltip=T('Back to the Overworld, as usual.', 'gray'))],
                         columns=1, exit_label='Decide later')
@@ -88,13 +100,23 @@ def generate(G):
                                   chat('[Head home]', 'white', C_OUT, 'Back to the Overworld, as usual.')])
     fn('p101/go_next', ['execute unless entity @s[tag=bm.gvask] unless entity @s[tag=bm.gvnext] run return 0',
                         'execute if entity @s[tag=bm.gvnext] run return run function bm:p70/menu',            # (pressed again: the plans reopen)
+                        'function bm:p102/unpack',                                                          # (2.67c) carrying on: the haul unpacked first
+                        f'execute store result score #tk bm.rng run clear @s {tok} 0',
+                        f'execute if score #tk bm.rng matches ..{min_fee - 1} run return run function bm:p101/lead_short',
                         'tag @s remove bm.gvask', 'tag @s add bm.gvnext'] +
        [f'execute if score @s bm.gvnx matches {s + 1} as {crew(s)[:-1]},tag=!bm.gvnext] at @s run function bm:p101/offer' for s in range(SL)] +
        [tellraw('@s', P + [T('The Fixer unrolls a fresh set of plans. ', GOLD), T('Pick the job - your crew is deciding whether they\'re in.', 'gray')]),
         'function bm:p70/menu'])
     fn('p101/offer', ['tag @s add bm.gvoffer', 'tag @s remove bm.gvin', f'dialog show @s {snbt(mem_dlg)}', mem_chat,
                       'playsound minecraft:block.note_block.chime player @s ~ ~ ~ 0.8 1.2'])
-    fn('p101/opt_in', ['execute unless entity @s[tag=bm.gvoffer] run return 0', 'tag @s remove bm.gvoffer', 'tag @s add bm.gvin',
+    # (2.67c) the leader can't cover even the cheapest fee: home (the choice passes on, as if they'd taken the plate)
+    fn('p101/lead_short', [tellraw('@s', P + [T('You can\'t cover even a Tier I fee (', 'red'), T(f'{min_fee} Tokens', 'white'), T(') - ', 'red'),
+                                              T('you head home, and the choice passes to your crew.', 'gray')]),
+                           'playsound minecraft:entity.villager.no player @s ~ ~ ~ 1 1', 'function bm:p70/home'])
+    fn('p101/opt_in', ['execute unless entity @s[tag=bm.gvoffer] run return 0', 'function bm:p102/unpack',
+                       f'execute store result score #tk bm.rng run clear @s {tok} 0',
+                       f'execute if score #tk bm.rng matches ..{min_fee - 1} run return run function bm:p101/in_short',
+                       'tag @s remove bm.gvoffer', 'tag @s add bm.gvin',
                        tellraw('@s', P + [T('You\'re in. ', GOLD), T('You\'ll pay your fee when the plan is set.', 'gray')]),
                        'scoreboard players operation #me bm.pty = @s bm.pty', 'tag @s add bm.gvjust',
                        'execute as @a[tag=bm.gvnext] if score @s bm.pty = #me bm.pty run ' + tellraw('@s', P + [{'selector': '@a[tag=bm.gvjust]', 'color': 'white'},
@@ -126,6 +148,15 @@ def generate(G):
                         'execute as @a[tag=bm.gvin,tag=!bm.gvwait] if score @s bm.pty = #me bm.pty at @s run function bm:p101/left_behind',
                         'execute as @a[tag=bm.gvoffer] if score @s bm.pty = #me bm.pty at @s run function bm:p101/no_answer',
                         'execute as @a[tag=bm.gvin] if score @s bm.pty = #me bm.pty run tag @s remove bm.gvin'])
+    fn('p101/in_short', ['tag @s remove bm.gvoffer', tellraw('@s', P + [T('Not even a Tier I fee on you (', 'red'), T(f'{min_fee} Tokens', 'white'), T(') - ', 'red'),
+                                                                       T('you head home.', 'gray')]),
+                         'scoreboard players operation #me bm.pty = @s bm.pty', 'tag @s add bm.gvjust',
+                         'execute as @a[tag=bm.gvnext] if score @s bm.pty = #me bm.pty run ' + tellraw('@s', P + [{'selector': '@a[tag=bm.gvjust]', 'color': 'white'},
+                                                                                                                  T(' can\'t cover a fee - they head home.', 'gray')]),
+                         'tag @s remove bm.gvjust', 'function bm:p101/send_home'])
+    # (2.67c) the leader picked a job they can't pay for: the plans come back - a cheaper one, or home
+    G.FUNCS['p75/fee_no'].insert(-1, 'execute if entity @s[tag=bm.gvnext] run function bm:p101/lead_pricey')
+    fn('p101/lead_pricey', [tellraw('@s', P + [T('Pick a cheaper job - or call it a night.', 'gray')]), 'function bm:p70/menu'])
     fn('p101/left_behind', [tellraw('@s', P + [T('No fee, no job - ', 'red'), T('you head home.', 'gray')]), 'function bm:p101/send_home'])
     fn('p101/no_answer', [tellraw('@s', P + [T('The crew moved on without an answer from you - ', 'gray'), T('you head home.', 'white')]), 'function bm:p101/send_home'])
     # straight from one heist into the next: keep the way home, the coat check and your own spawn from the first
@@ -140,43 +171,7 @@ def generate(G):
     for s in range(SL):
         G.FUNCS[f'p70/s{s}/enter'].append('function bm:p101/bars')
 
-    # ================================================================== the fee from inside the vault: the Fixer takes it from what he's minding for you
-    # (the coat check holds your Tokens while you're in a heist - a new raid's fee comes out of your bag, stack by stack)
-    tokq = 'bf.one[{components:{"minecraft:custom_data":{bm:"token"}}}]'      # (the element under test, alone in a list)
-    one = ['data modify storage bm:gv bf.one set value []', 'data modify storage bm:gv bf.one append from storage bm:gv bf.tk[0]']
-    fee = G.FUNCS['p75/fee']
-    k = next(i for i, l in enumerate(fee) if l.startswith('execute store result score #tk bm.rng run clear @s'))
-    fee.insert(k + 1, 'execute if dimension bm:gutter if score #tk bm.rng < #fee bm.rng run return run function bm:p101/fee_bag')
-    fn('p101/fee_bag', ['function bm:p101/bag_count', 'execute if score #bagtk bm.rng < #fee bm.rng run return run function bm:p75/fee_no',
-                        'scoreboard players operation #need bm.rng = #fee bm.rng', 'execute store result storage bm:gv bf.pid int 1 run scoreboard players get @s bm.pid',
-                        'function bm:p101/bag_take with storage bm:gv bf', 'scoreboard players operation #lpool bm.gvlp += #fee bm.rng',
-                        tellraw('@s', P + [T('You pay the Fixer\'s fee (', 'gray'), {'score': {'name': '#fee', 'objective': 'bm.rng'}, 'color': 'white'},
-                                           T(' Tokens) out of what he\'s minding for you. ', 'gray'), T('Lucky pool: ', LUCKY),
-                                           {'score': {'name': '#lpool', 'objective': 'bm.gvlp'}, 'color': LUCKY, 'bold': True}]), 'return 1'])
-    # (as a player) #bagtk = the Tokens in their coat-check bag
-    fn('p101/bag_count', ['execute store result storage bm:gv bf.pid int 1 run scoreboard players get @s bm.pid', 'scoreboard players set #bagtk bm.rng 0',
-                          'function bm:p101/bag_count2 with storage bm:gv bf'])
-    fn('p101/bag_count2', ['data remove storage bm:gv bf.tk', '$data modify storage bm:gv bf.tk set from storage bm:gv bag.p$(pid).inv', 'function bm:p101/bag_count3'])
-    fn('p101/bag_count3', ['execute unless data storage bm:gv bf.tk[0] run return 0'] + one + [
-                           f'execute if data storage bm:gv {tokq} store result score #c bm.rng run data get storage bm:gv bf.tk[0].count',
-                           f'execute if data storage bm:gv {tokq} unless data storage bm:gv bf.tk[0].count run scoreboard players set #c bm.rng 1',
-                           f'execute if data storage bm:gv {tokq} run scoreboard players operation #bagtk bm.rng += #c bm.rng',
-                           'data remove storage bm:gv bf.tk[0]', 'function bm:p101/bag_count3'])
-    # (#need Tokens out of the bag: whole stacks first, the last one cut down)
-    fn('p101/bag_take', ['data remove storage bm:gv bf.tk', '$data modify storage bm:gv bf.tk set from storage bm:gv bag.p$(pid).inv',
-                         'data modify storage bm:gv bf.out set value []', 'function bm:p101/bag_take2', '$data modify storage bm:gv bag.p$(pid).inv set from storage bm:gv bf.out'])
-    fn('p101/bag_take2', ['execute unless data storage bm:gv bf.tk[0] run return 0', 'data remove storage bm:gv bf.drop'] + one + [
-                          f'execute if data storage bm:gv {tokq} if score #need bm.rng matches 1.. run function bm:p101/bag_take3',
-                          'execute unless data storage bm:gv bf.drop run data modify storage bm:gv bf.out append from storage bm:gv bf.tk[0]',
-                          'data remove storage bm:gv bf.tk[0]', 'function bm:p101/bag_take2'])
-    fn('p101/bag_take3', ['execute store result score #c bm.rng run data get storage bm:gv bf.tk[0].count', 'execute unless data storage bm:gv bf.tk[0].count run scoreboard players set #c bm.rng 1',
-                          'scoreboard players operation #left bm.rng = #c bm.rng', 'scoreboard players operation #left bm.rng -= #need bm.rng',
-                          'execute if score #left bm.rng matches ..0 run data modify storage bm:gv bf.drop set value 1b',
-                          'execute if score #left bm.rng matches ..0 run scoreboard players operation #need bm.rng -= #c bm.rng',
-                          'execute if score #left bm.rng matches 1.. store result storage bm:gv bf.tk[0].count int 1 run scoreboard players get #left bm.rng',
-                          'execute if score #left bm.rng matches 1.. run scoreboard players set #need bm.rng 0'])
-
-    # ================================================================== the fee back with any haul (the 2-5 more, Medallions and Trophies stay the Black Market haul's)
+    # ================================================================== the fee back with any haul (the few more, Medallions and Trophies stay the Black Market haul's)
     HA, HB = '-200 64 -197', '-198 64 -197'                 # (phase75's haul barrels)
     G.FUNCS['p75/prize'].insert(0, 'execute unless score #th bm.rng matches 2 run return run function bm:p101/fee_back')
     fn('p101/fee_back', ['scoreboard players set #ptk bm.rng 0', 'scoreboard players set #pbx bm.rng 0'] +

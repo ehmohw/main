@@ -382,7 +382,7 @@ def generate(G):
                                  '- then the leader picks: home, or a new raid.', 'gray')]),
                      P28.body([T('Fewer tries, bigger haul - the higher the tier, the bigger. ', GOLD), T('No knock-outs at all: a share more (two from Tier III).', 'gray')]),
                      P28.body([T('The alarm is up to you: ', '#ff7a7a'), T('$(al_txt)', 'gray')]),
-                     P28.body([T("The Fixer's fee: 2 Tokens (Tier I) to 6 (Tier V) - everyone pays their own; win and it comes back, maybe with 2-5 more. "
+                     P28.body([T("The Fixer's fee: 2 Tokens (Tier I) to 6 (Tier V) - everyone pays their own; win and it comes back, maybe with a few more (1 at Tier I, up to 5 at Tier V). "
                                  'Every fee goes into the Lucky Pool (now ', 'dark_gray'), T('$(p)', LUCKY, bold=True),
                                T('). From Tier III, one heist in 150 is a Lucky Raid - harder, and the crew splits the pool.', 'dark_gray')])],
                     [abtn, lbtn(1, 3, '#ff5a5a', '+1 to +4 shares (by tier) - for the bold'), lbtn(2, 5, GOLD, '+0 to +2 shares (by tier)'),

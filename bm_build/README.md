@@ -25,30 +25,37 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 
 ### What a heist costs, and what it pays
 - **The fee rises with the tier:** 2 Tokens at Tier I, 3 at II, 4 at III, 5 at IV and 6 at Tier V (it still goes into the Lucky Pool). **Every raider pays their own fee,** not just whoever plans the heist: anyone in the party without the Tokens stays behind. The bigger tiers pay more to match: more shares, higher prize caps and the better rooms.
-- **Win, and your fee comes back:** every won heist pays each raider at least their fee, with a chance of 2 to 5 Tokens more (see the table below).
+- **Win, and your fee comes back:** every won heist pays each raider at least their fee, with a chance of a few Tokens more that grows with the tier: 1 at Tier I, 1-2 at Tier II, 1-3 at III, 1-4 at IV and 1-5 at Tier V (see the table below).
 - **Lucky Raids are rarer and only from Tier III:** one heist in 150 (three in 150 on a Lucky Night), and never at Tiers I or II. **They're harder by default:** the guards and the guardian have half again as much health, the guards hit harder, and the heist rolls one modifier more. **Win one and the pool is split evenly between the crew.** If it doesn't divide evenly, the leader takes the odd Tokens (a pool of 100 between three: 34 for the leader, 33 each for the others). A solo raider takes the lot.
 - **The alarm is optional now, and off by default.** Turn it on from the tries page before the heist begins. With it on, mistakes ring it as before (patrols at 50, lockdown at 100), and you earn one more share, or two if you keep it under 50.
 - **The Fixer's prize:** Tokens, Medallions and BM Trophies come from one capped roll per player per heist, never from loot tables:
 
-  | Tier | Fee | Tokens back (for sure) | ...and the chance of 2-5 more | Medallions | BM Trophy |
+  | Tier | Fee | Tokens back (for sure) | ...and the chance of more | Medallions | BM Trophy |
   |---|---|---|---|---|---|
-  | I | 2 | 2 | 15% | none | none |
-  | II | 3 | 3 | 20% | none | none |
-  | III | 4 | 4 | 25% | 5% chance of 1 | none |
-  | IV | 5 | 5 | 30% | 12% chance of 1 | none |
-  | V | 6 | 6 | 35% | 22% chance of 1-2 | 1.5% chance |
+  | I | 2 | 2 | 15% chance of 1 | none | none |
+  | II | 3 | 3 | 20% chance of 1-2 | none | none |
+  | III | 4 | 4 | 25% chance of 1-3 | 5% chance of 1 | none |
+  | IV | 5 | 5 | 30% chance of 1-4 | 12% chance of 1 | none |
+  | V | 6 | 6 | 35% chance of 1-5 | 22% chance of 1-2 | 1.5% chance |
 
-  Fewer tries and a clean run raise the odds of the extra Tokens; a Lucky Raid always pays the full 5 extra. Every haul (plain, Black Market or gutter) pays your fee back; the extra Tokens, Medallions and Trophies come with the Black Market haul. Daring fewer tries pays by the tier too: a little at Tier I, the full bonus only at Tier V.
+  Fewer tries and a clean run raise the odds of the extra Tokens; a Lucky Raid always pays the most extra for its tier. Every haul (plain, Black Market or gutter) pays your fee back; the extra Tokens, Medallions and Trophies come with the Black Market haul. Daring fewer tries pays by the tier too: a little at Tier I, the full bonus only at Tier V.
 
 ### After the heist: home, or another job
 - **Win or lose, the leader decides what's next.** A few seconds after the haul is paid out, or once a failed crew is back in the den, the leader (whoever planned the heist; if they've left, whoever's still there) gets a choice:
   - **Back to the Overworld:** the whole crew goes home, just as through the plates.
   - **Start a new raid:** the Heist Plans open for the leader, right there in the vault. Pick the tier and the tries, and pay your fee. Everyone else is asked to **opt in or out**:
     - **Out:** you go home as usual.
-    - **In:** you come along when the leader sets the plan, and pay your own fee. Without the Tokens, you're left behind and go home.
+    - **In:** you come along when the leader sets the plan, and pay your own fee. Opt in without even a Tier I fee (2 Tokens) and you go home there and then; if the leader picks a tier you can't pay for, you're left behind and go home.
+  - **A leader who can't cover even a Tier I fee** goes home when they press "Start a new raid", and the choice passes to the crew. A leader who picks a tier they can't afford gets the plans back to pick a cheaper one (or go home).
     - **No answer** by the time the plan is set: you go home.
-- **The Fixer takes the fee out of what he's minding for you.** The coat check holds your Tokens while you're in the vault, so a new raid's fee comes straight out of your bag. When you finally leave, you get back everything else.
-- **Straight from one heist into the next, you keep your way home and your own spawn** from before the first. Your gear stays at the coat check the whole time.
+- **Tokens go through the coat check.** You keep your Black Market Tokens on you in the vault, and a new raid's fee comes out of your pocket.
+- **Carry on and the Fixer unpacks your haul there and then** (when the leader starts a new raid, or when you opt in). That covers the crate in your pack and any you've set down:
+  - **Tokens** stay on you, ready for the next fee.
+  - **Gutter Coins**, Gutter Medallions and Gutter Trophies go into your **Gutter Bank** as coins; spoils go in as spoils.
+  - **Everything else** goes into your **Locker Hall bays**, then into your pack once they're full (or if you haven't claimed a bay).
+  - **Bays and pack both full:** the Fixer scraps what's left for Gutter Coins, into your bank, and warns you. Heist goods fetch their Scrap Box price, Black Market currency its worth in Tokens at 32 coins each, and a few rare vanilla goods a fair price (a diamond 12, netherite scrap 16, a golden apple 6). Anything else fetches a coin a stack. Tokens that don't fit anywhere are banked at 32 coins each, and you can buy them back at the bank.
+  - **Go home instead** and the haul comes with you as a crate, as ever.
+- **Straight from one heist into the next, you keep your way home and your own spawn** from before the first. Your gear stays at the coat check the whole time (your Tokens stay with you).
 - Closed the window by mistake? The same choices are in chat as buttons. If the leader takes the plate home before deciding, the choice passes to whoever's still in the heist.
 - **A failed heist no longer rebuilds itself for free.** Another try is a new plan and a new fee, for everyone who comes.
 - **Netherite Scrap** is no longer sold for coins. It's a rare find in a won heist's haul instead: 3% at Tier I, then 6%, 10%, 15% and 22% at Tier V (+3% if nobody was knocked out).
@@ -373,7 +380,7 @@ Prizes no longer pour into your pockets. At the payout the Fixer hands you **The
 
 - **Food:** every kit also has 16 steaks.
 - **The den heals:** standing in the den gives Regeneration and Saturation.
-- **What you can bring in:** your own weapons stay in the coat check (the kits are the heist's gear). Heist tools still come with you: lockpicks, the Clockwork Key, Smoke Bombs, the Cowl, the Monocle, Gutter Coins, the plans and your Bond Sigil.
+- **What you can bring in:** your own weapons stay in the coat check (the kits are the heist's gear). Heist tools still come with you: lockpicks, the Clockwork Key, Smoke Bombs, the Cowl, the Monocle, Gutter Coins, the plans and your Bond Sigil (and your Black Market Tokens).
 
 ## New in 2.63: half prices, an easier way in and out, ruins underground
 
@@ -505,7 +512,7 @@ Sabotage a Vorn Dreadnought's reactor on an invasion night and everyone nearby g
 - **Fragile:** it has only 16 health, and archers, blazes, witches and Vorn troopers take shots at it. If it's shot down, it needs 5 minutes of repairs. It isn't a follower, so it doesn't count toward the limit.
 
 ### The Gilded Gutter Vault: coat check, loaner kits and contracts
-- **Coat check:** going in, the Fixer checks your gear at the door, so nobody can bring in end-game gear. Heist tools stay with you: Smoke Bombs, lockpicks, the Cracking Rig, the Cipher Monocle, the Thief's Cowl, the Smuggler's Boots, Gutter Coins, Clockwork bits, the plans and your Bond Sigil. Followers can't be called inside.
+- **Coat check:** going in, the Fixer checks your gear at the door, so nobody can bring in end-game gear. Heist tools stay with you: Smoke Bombs, lockpicks, the Cracking Rig, the Cipher Monocle, the Thief's Cowl, the Smuggler's Boots, Gutter Coins, Clockwork bits, the plans and your Bond Sigil (and, from 2.67, your Black Market Tokens). Followers can't be called inside.
 - **Loaner kits:** four racks in the den, each an armour stand wearing its kit. Right-click one to take it:
   - **Tank:** Juggernaut I, Hylian Shield, Kokiri Sword. +8 health, half knockback.
   - **Offense:** Shadowstep I, Captain's Cutlass. Strength.

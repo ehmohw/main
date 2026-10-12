@@ -32,8 +32,8 @@ FEE = 3
 POOL_SEED = 10
 LIVES = {1: 3, 2: 5, 3: 7}
 BONUS_PICK = {3: 4, 5: 2, 7: 0}               # shares for daring fewer tries (the most - Tier V; see BONUS_PICK_T)
-PRIZE_TOK = {1: (2, 15), 2: (3, 20), 3: (4, 25), 4: (5, 30), 5: (6, 35)}   # (2.67b) tier: (Tokens for sure - the fee back - , % chance of 2-5 more) a won heist
-PRIZE_BONUS = (2, 5)
+PRIZE_TOK = {1: (2, 15), 2: (3, 20), 3: (4, 25), 4: (5, 30), 5: (6, 35)}   # (2.67b) tier: (Tokens for sure - the fee back - , % chance of a few more) a won heist
+PRIZE_BONUS = {1: (1, 1), 2: (1, 2), 3: (1, 3), 4: (1, 4), 5: (1, 5)}       # (2.67c) the few more, by tier: 1 at Tier I ... 1-5 at Tier V
 LUCKY_IN = 150                                # (2.67b) one heist in 150 is a Lucky Raid (three in 150 on a Lucky Night) - Tier III and up only
 LUCKY_TIER = 3
 PRIZE_MED = {3: (5, 1, 1), 4: (12, 1, 1), 5: (22, 1, 2)}                                  # Medallions: none below Tier III, two at most
@@ -510,12 +510,15 @@ def generate(G):
                                                                                                     {'type': 'minecraft:score', 'target': {'type': 'minecraft:fixed', 'name': sc}, 'score': 'bm.rng'})]}]})
     fn('p75/prize', ['scoreboard players set #ptk bm.rng 0', 'scoreboard players set #pmd bm.rng 0', 'scoreboard players set #ptr bm.rng 0',
                      'scoreboard players operation #pbh bm.rng = #pb bm.rng', 'scoreboard players operation #pbh bm.rng /= #2 bm.rng'] +
-       # (2.67b) the fee back for sure, and a chance of 2-5 more (fewer tries and a clean run raise it; a Lucky Raid makes it five)
+       # (2.67b) the fee back for sure, and a chance of a few more - 1 at Tier I up to 1-5 at Tier V (fewer tries and a clean run raise
+       #  the chance; a Lucky Raid makes it the most)
        [f'execute if score #gt bm.rng matches {t} run scoreboard players set #ptk bm.rng {sure}' for t, (sure, pct) in PRIZE_TOK.items()] +
        ['scoreboard players set #pbx bm.rng 0', 'execute store result score #r bm.rng run random value 1..100', 'scoreboard players operation #r bm.rng -= #pb bm.rng'] +
-       [f'execute if score #gt bm.rng matches {t} if score #r bm.rng matches ..{pct} store result score #pbx bm.rng run random value {PRIZE_BONUS[0]}..{PRIZE_BONUS[1]}'
-        for t, (sure, pct) in PRIZE_TOK.items()] +
-       [f'execute if score #plu bm.rng matches 1 run scoreboard players set #pbx bm.rng {PRIZE_BONUS[1]}', 'scoreboard players operation #ptk bm.rng += #pbx bm.rng'] +
+       [f'execute if score #gt bm.rng matches {t} if score #r bm.rng matches ..{pct} ' + (f'store result score #pbx bm.rng run random value {lo}..{hi}' if hi > lo else
+                                                                                   f'run scoreboard players set #pbx bm.rng {lo}')
+        for t, (sure, pct) in PRIZE_TOK.items() for lo, hi in [PRIZE_BONUS[t]]] +
+       [f'execute if score #plu bm.rng matches 1 if score #gt bm.rng matches {t} run scoreboard players set #pbx bm.rng {hi}' for t, (lo, hi) in PRIZE_BONUS.items()] +
+       ['scoreboard players operation #ptk bm.rng += #pbx bm.rng'] +
        prize_count('#pmd', PRIZE_MED, '#pbh') +
        ['execute store result score #r bm.rng run random value 1..1000'] +
        [f'execute if score #gt bm.rng matches {t} if score #r bm.rng matches ..{c} run scoreboard players set #ptr bm.rng 1' for t, c in PRIZE_TRO.items()] +
