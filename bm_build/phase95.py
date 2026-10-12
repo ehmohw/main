@@ -10,6 +10,8 @@ happening around them:
   eyes away (tsk) and huffs; Cecil spends a lot of time half-lidded and deadpan, rolls his eyes, gives a sly look; Leo
   blinks slowly, smiles when you're close - and looks worried when YOU are hurt.
 - ARRIVING: Emma beams, Celi tsks, Cecil rolls his eyes, Leo smiles.
+- (2.67) STARTLED: the moment a monster first comes within 10 blocks, a wide-eyed "o" before the fighting face.
+- (2.67) SLEEPY: told to sit at night, with nothing the matter, their lids grow heavy.
 How: the head (Cecil: his glowing eyes) keeps its model; its item definition picks a face from the item's
 custom_model_data string, and one controller per follower sets that string only when the face changes."""
 from nbt import snbt
@@ -26,7 +28,7 @@ FOLK = {
     'leo': ('minecraft:wolf', 'bm.leopet', 'type=minecraft:item_display,tag=bm.lep,tag=bm.lp_head,tag=!bm.lefade', None,
             (70, 140), [('smile', 36, 4)], ('smile', 40), 'serious', 'serious'),
 }
-OBJS = ['bm.fxe', 'bm.fxt', 'bm.fxh', 'bm.fxb', 'bm.fxc', 'bm.fxl', 'bm.fxa', 'bm.fxo']
+OBJS = ['bm.fxe', 'bm.fxt', 'bm.fxh', 'bm.fxb', 'bm.fxc', 'bm.fxl', 'bm.fxa', 'bm.fxo', 'bm.fxp']
 
 
 def exprs(k):
@@ -106,7 +108,10 @@ def generate(G):
                              'scoreboard players operation @s bm.fxh = #h bm.rng',
                              # (every half second: a fight nearby? and for Leo: is his summoner hurt?)
                              f'execute if score #fxk bm.fxt matches 0 store success score @s bm.fxc if entity @e[{foe},distance=..10]',
-                             f'execute if score #fxk bm.fxt matches 10 store success score @s bm.fxc if entity @e[{foe},distance=..10]'] +
+                             f'execute if score #fxk bm.fxt matches 10 store success score @s bm.fxc if entity @e[{foe},distance=..10]',
+                             # (2.67) the moment a monster first shows: startled
+                             f'execute if score @s bm.fxc matches 1 unless score @s bm.fxp matches 1 run function bm:p95/{k}/startle',
+                             'scoreboard players operation @s bm.fxp = @s bm.fxc'] +
            (['execute if score #fxk bm.fxt matches 5 run function bm:p95/leo/owner'] if k == 'leo' else []) +
            ['execute if score @s bm.fxt matches 1.. run scoreboard players remove @s bm.fxt 1',
             f'execute unless score @s bm.fxt matches 1.. run function bm:p95/{k}/calm',
@@ -115,12 +120,15 @@ def generate(G):
         fn(f'p95/{k}/greet', ['scoreboard players set @s bm.fxl -1', 'scoreboard players set @s bm.fxc 0', 'scoreboard players set @s bm.fxo 0',
                               f'scoreboard players set @s bm.fxb {b0}'] + face_cmd(k, gname, gt))
         fn(f'p95/{k}/ouch', face_cmd(k, 'hurt', 14))
+        fn(f'p95/{k}/startle', [f'execute if score @s bm.fxt matches 1.. if score @s bm.fxe matches {eid(k, "hurt")} run return 0'] + face_cmd(k, 'surprised', 14))
         # calm: the base face for the moment (fighting / low / the owner hurt / plain), and the blink clock
         low_at = ['execute store result score #mx bm.rng run attribute @s minecraft:max_health get 3.334']
         calm = ['scoreboard players remove @s bm.fxb 1', f'execute if score @s bm.fxb matches ..0 run return run function bm:p95/{k}/blink',
                 'scoreboard players set @s bm.fxe 0'] + low_at + \
                [f'execute if score #h bm.rng <= #mx bm.rng run scoreboard players set @s bm.fxe {eid(k, low)}',
-                f'execute if score @s bm.fxc matches 1 run scoreboard players set @s bm.fxe {eid(k, fight)}']
+                f'execute if score @s bm.fxc matches 1 run scoreboard players set @s bm.fxe {eid(k, fight)}',
+                # (2.67) sitting, at night, nothing the matter: drowsy
+                f'execute if score @s bm.fxe matches 0 if score #tod bm.bm matches 13000..23000 if data entity @s {{Sitting:1b}} run scoreboard players set @s bm.fxe {eid(k, "sleepy")}']
         if k == 'leo':
             calm.append(f'execute if score @s bm.fxo matches 1 run scoreboard players set @s bm.fxe {eid(k, "worried")}')
         if k == 'cecil':

@@ -52,16 +52,38 @@ def _cracked():
     return im
 
 
-def _face():
+MAW_EXPR = ('snarl', 'hurt', 'roar', 'smug')          # (2.67) his face is his maw: it snarls in a fight, clenches when hit, gapes, smirks
+_MAWS = {
+    None: [(2, 9), (8, 12), (13, 7), (18, 12), (24, 9), (24, 17), (21, 22), (19, 18), (16, 24), (13, 19), (10, 24), (7, 18), (5, 22), (2, 17)],
+    # wider, teeth down from the top as well as up from the bottom
+    'snarl': [(1, 8), (4, 11), (7, 8), (10, 11), (13, 6), (16, 11), (19, 8), (22, 11), (25, 8), (25, 18), (22, 24), (19, 19), (16, 25), (13, 20),
+              (10, 25), (7, 19), (4, 24), (1, 18)],
+    # clenched: the jaws ground shut, a thin jagged seam
+    'hurt': [(2, 12), (5, 14), (8, 12), (11, 14), (13, 11), (15, 14), (18, 12), (21, 14), (24, 12), (24, 15), (21, 17), (18, 15), (15, 18), (13, 15),
+             (11, 18), (8, 15), (5, 17), (2, 15)],
+    # gaping: the whole maw thrown open
+    'roar': [(1, 6), (5, 9), (9, 5), (13, 8), (17, 5), (21, 9), (25, 6), (25, 15), (24, 22), (20, 25), (17, 22), (13, 26), (9, 22), (6, 25), (2, 22), (1, 15)],
+    # a lopsided grin: his right corner hitched up
+    'smug': [(2, 12), (8, 14), (13, 9), (18, 12), (24, 6), (24, 14), (21, 19), (19, 16), (16, 22), (13, 18), (10, 23), (7, 18), (5, 22), (2, 18)],
+}
+
+
+def _face(expr=None):
     """the head's front, 26 x 27 texels: green helm, a violet maw - pointed at the top, a jag of teeth at the bottom"""
     P = hexc
     im = _slime(G, 92, G_LT, G_DK)
     d = ImageDraw.Draw(im)
-    maw = [(2, 9), (8, 12), (13, 7), (18, 12), (24, 9), (24, 17), (21, 22), (19, 18), (16, 24), (13, 19), (10, 24), (7, 18), (5, 22), (2, 17)]
+    maw = _MAWS[expr]
     d.polygon(maw, fill=P('#1a0828'))
-    inner = [(4, 11), (8, 14), (13, 10), (18, 14), (22, 11), (22, 16), (20, 19), (13, 15), (6, 19), (4, 16)]
+    if expr is None:
+        inner = [(4, 11), (8, 14), (13, 10), (18, 14), (22, 11), (22, 16), (20, 19), (13, 15), (6, 19), (4, 16)]
+    else:                                                                                    # (the throat: the maw drawn in toward its middle)
+        cx = sum(x for x, _ in maw) / len(maw); cy = sum(y for _, y in maw) / len(maw)
+        inner = [(cx + (x - cx) * 0.72, cy + (y - cy) * (0.45 if expr == 'hurt' else 0.6)) for x, y in maw]
     d.polygon(inner, fill=P(VIOLET))
-    d.polygon([(8, 15), (13, 12), (18, 15), (13, 14)], fill=P('#5a2a7a'))                   # a sheen inside
+    if expr != 'hurt':
+        cx = sum(x for x, _ in inner) / len(inner); cy = sum(y for _, y in inner) / len(inner)
+        d.polygon([(cx - 5, cy + 1), (cx, cy - 2), (cx + 5, cy + 1), (cx, cy)], fill=P('#5a2a7a'))   # a sheen inside
     d.line(maw + [maw[0]], fill=P('#0e3a24'), width=1)
     return im
 
@@ -88,6 +110,7 @@ def textures():
     T['kw_lime'] = _slime(LIME, 83, '#a8f040', '#6cc014', gloss=False)
     T['kw_emblem'] = _emblem()
     T['kw_face'] = _face()
+    for e in MAW_EXPR: T[f'kw_face_x{e}'] = _face(e)
     T['kw_gold'] = _gold(84)
     T['kw_spike'] = _cloth('#16503a', 85, var=0.04)
     T['kw_claw'] = _cloth('#2e8a62', 86, var=0.04)
@@ -349,10 +372,10 @@ def _eth_tex(name, im):
 def variant_textures(base):
     out = {}
     for v in VARIANTS:
-        for name in BODY_TEX + ['kw_gold']:
+        for name in BODY_TEX + ['kw_gold'] + [f'kw_face_x{e}' for e in MAW_EXPR]:
             im = base[name]
             if v == 'eth':
-                out[f'{name}_{v}'] = _irid(im) if name == 'kw_gold' else _eth_tex(name, im)
+                out[f'{name}_{v}'] = _irid(im) if name == 'kw_gold' else _eth_tex('kw_face' if name.startswith('kw_face') else name, im)
             else:
                 body, acc = EL_PAL[v]
                 mid = '#%02x%02x%02x' % _mix(hexc(acc[0])[:3], hexc(acc[1])[:3], 0.55)

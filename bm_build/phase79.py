@@ -866,6 +866,41 @@ def generate(G):
     fn('p79/boss/jab_hit', ['execute rotated as @s rotated ~ 0 positioned ^ ^2.2 ^2.6 run particle minecraft:electric_spark ~ ~ ~ 0.6 0.6 0.6 0.2 20',
                             f'execute rotated as @s rotated ~ 0 positioned ^ ^ ^2.6 as @a[distance=..2.4,gamemode=!creative,gamemode=!spectator] run damage @s 6 minecraft:mob_attack by {bme}'])
 
+    # ================================================================== (2.67) HIS FACE: the maw moves
+    # bm.kxfe the face wanted (0 his grin, then ART.MAW_EXPR in order), bm.kxft how long a reaction holds, bm.kxfl the face shown;
+    # the follower snarls with a monster within 10 (the boss with someone to fight within 20), clenches when hurt, roars as he
+    # strikes or arrives - and now and then, calm, the follower smirks. The head's item picks the maw from custom_model_data.
+    fo = ['bm.kxfe', 'bm.kxft', 'bm.kxfl', 'bm.kxfg']
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in fo]
+    G.OBJECTIVES += fo
+    MAW = {e: i + 1 for i, e in enumerate(ART.MAW_EXPR)}
+    face = lambda e, t: [f'scoreboard players set @s bm.kxfe {MAW[e]}', f'scoreboard players set @s bm.kxft {t}']
+    for kind in ('boss', 'pet'):
+        tk = G.FUNCS[f'p79/{kind}/tick']
+        tk.insert(len(tk) - 1, f'function bm:p79/{kind}/face')
+        fn(f'p79/{kind}/face', ['execute if score @s bm.kxft matches 1.. run scoreboard players remove @s bm.kxft 1',
+                                f'execute unless score @s bm.kxft matches 1.. run function bm:p79/{kind}/face_base',
+                                'execute unless score @s bm.kxfe = @s bm.kxfl run function bm:p79/face_set'])
+        G.FUNCS[f'p79/{kind}/flinch'] += face('hurt', 12)
+        G.FUNCS[f'p79/{kind}/go'] += face('roar', 14)
+        G.FUNCS[f'p79/{kind}/rig'].append('scoreboard players set @s bm.kxfl -1')
+    fn('p79/pet/face_base', ['scoreboard players set @s bm.kxfe 0',
+                             f'execute if score #fxk bm.fxt matches 0 store success score @s bm.kxfg if entity @e[{hostile},distance=..10]',
+                             f'execute if score @s bm.kxfg matches 1 run scoreboard players set @s bm.kxfe {MAW["snarl"]}',
+                             'execute if score @s bm.kxfg matches 1 run return 0',
+                             'execute store result score #r bm.rng run random value 1..400',
+                             'execute if score #r bm.rng matches 1 run function bm:p79/pet/smirk'])
+    fn('p79/pet/smirk', face('smug', 50))
+    fn('p79/boss/face_base', ['scoreboard players set @s bm.kxfe 0',
+                              'execute if score #fxk bm.fxt matches 0 store success score @s bm.kxfg if entity @a[distance=..20,gamemode=!creative,gamemode=!spectator]',
+                              f'execute if score @s bm.kxfg matches 1 run scoreboard players set @s bm.kxfe {MAW["snarl"]}'])
+    G.FUNCS['p79/pet/greet'] += face('roar', 18)
+    G.FUNCS['p79/pet/swipe'] += face('snarl', 14)
+    fn('p79/face_set', ['scoreboard players operation @s bm.kxfl = @s bm.kxfe',
+                        f'execute if score @s bm.kxfe matches 0 run data remove entity {sel("head")[:-1]},limit=1] item.components."minecraft:custom_model_data"'] +
+       [f'execute if score @s bm.kxfe matches {i} run data modify entity {sel("head")[:-1]},limit=1] item.components."minecraft:custom_model_data" set value {{strings:["{e}"]}}'
+        for e, i in MAW.items()])
+
     # ================================================================== admin
     fn('admin/killerwatt', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.kxcall","bm.kxsn"]}',
                             'scoreboard players set @e[type=minecraft:marker,tag=bm.kxsn,limit=1] bm.kxt 1', 'tag @e[type=minecraft:marker,tag=bm.kxsn] remove bm.kxsn'])
@@ -885,6 +920,23 @@ def rp(R):
     R.TEXTURE_MODS.append(ART)
     for name, (tex, els) in ART.models().items():
         R.HATS[name] = (tex, els)
+    # (2.67) his maw: each head (his own, every element's, the ethereal one) gains a model per expression, picked by custom_model_data
+    heads = {}
+    for name in ['kw_head'] + [f'kw_head_{v}' for v in ART.VARIANTS]:
+        tex, els = R.HATS[name]
+        v = name[len('kw_head'):]
+        key = 'kw_face' + v
+        assert key in tex, (name, key)
+        heads[name] = []
+        for e in ART.MAW_EXPR:
+            R.HATS[f'{name}_x{e}'] = (dict(tex, **{key: f'bm:block/kw_face_x{e}{v}'}), els)
+            heads[name].append((e, f'{name}_x{e}'))
+    def post(R2):
+        mdl = lambda n: {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
+        for name, cases in heads.items():
+            R2.wj(f'assets/bm/items/{name}.json', {'model': {'type': 'minecraft:select', 'property': 'minecraft:custom_model_data', 'index': 0,
+                                                             'cases': [{'when': e, 'model': mdl(m)} for e, m in cases], 'fallback': mdl(name)}})
+    R.POST.append(post)
     R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + ('kw_',)
     R.ICONS['kw_spark'] = R.grid(['................', '.......g........', '......gLg.......', '.....gLYLg......', '....gLYWYLg..g..', '...gLYWWWYLg.L..',
                                   '..gLYWWWWWYLg...', '.gLYWWWWWWWYLg..', '..gLYWWWWWYLg...', '...gLYWWWYLg....', '.L..gLYWYLg.....', '.....gLYLg......',

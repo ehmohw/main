@@ -6,14 +6,16 @@ CELI (impatient, blunt): blink, tsk (eyes cut to the side, mouth twisted), huff 
   (an angry squint, gritted teeth), serious (fierce: brows down hard, both fangs bared).
 CECIL (dry, sarcastic): his eyes are their own glowing slits - blink, deadpan (half-lidded, flat), roll (the eyes rolled up),
   sly (one narrowed, one raised), hurt (squeezed > <), serious (narrow and steep).
+2.67, everyone: surprised (wide eyes, brows up, a little "o" - startled when a monster first shows) and sleepy (heavy lids -
+  sitting, at night).
 LEO's are drawn with him (phase96_art)."""
 import math, random
 from PIL import Image, ImageDraw
 from phase57_art import hexc
 
-EMMA_EXPR = ('blink', 'wink', 'happy', 'sad', 'hurt', 'serious')
-CELI_EXPR = ('blink', 'tsk', 'huff', 'hurt', 'serious')
-CECIL_EXPR = ('blink', 'deadpan', 'roll', 'sly', 'hurt', 'serious')
+EMMA_EXPR = ('blink', 'wink', 'happy', 'sad', 'hurt', 'serious', 'surprised', 'sleepy')
+CELI_EXPR = ('blink', 'tsk', 'huff', 'hurt', 'serious', 'surprised', 'sleepy')
+CECIL_EXPR = ('blink', 'deadpan', 'roll', 'sly', 'hurt', 'serious', 'surprised', 'sleepy')
 
 
 # ===================================================================== EMMA
@@ -51,12 +53,25 @@ def emma_face(expr, eye_dark, eye_mid, eye_light, eye_glow, pupil):
             for lx in (x0 + 2, x0 + 5, x0 + 8): d.point((lx, y0 + 10), fill=P(LASH))
         ox = x0 + 10 if not flip else x0; sx = 1 if not flip else -1
         d.line((ox, y0 + 6, ox + 2 * sx, y0 + 4), fill=P(LASH), width=1)
+    def eye_wide(cx, flip):                                                          # (2.67) startled: round, the iris small in the white
+        x0, y0 = cx - 5, 13
+        d.ellipse((x0 - 1, y0 - 1, x0 + 11, y0 + 13), fill=P('#ffffff'))
+        d.ellipse((x0 + 2, y0 + 3, x0 + 8, y0 + 11), fill=P(eye_dark))
+        d.ellipse((x0 + 2, y0 + 6, x0 + 8, y0 + 11), fill=P(eye_mid))
+        d.ellipse((x0 + 4, y0 + 5, x0 + 6, y0 + 8), fill=P(pupil))
+        d.point((x0 + (3 if not flip else 6), y0 + 4), fill=P('#ffffff'))
+        d.arc((x0 - 2, y0 - 2, x0 + 12, y0 + 10), 195, 345, fill=P(LASH), width=2)
+        ox = x0 + 11 if not flip else x0 - 1; sx = 1 if not flip else -1
+        d.line((ox, y0 + 1, ox + 2 * sx, y0 - 1), fill=P(LASH), width=1)
     def eye_hurt(cx, flip):                                                          # > <
         x0, y0 = cx - 5, 13; sx = 1 if not flip else -1
         a, b = (x0 + 2, x0 + 8) if not flip else (x0 + 8, x0 + 2)
         d.line((a, y0 + 3, b, y0 + 7), fill=P(LASH), width=2); d.line((b, y0 + 7, a, y0 + 11), fill=P(LASH), width=2)
-    if expr in (None, 'sad', 'serious'):
-        eye_open(9, False, 4 if expr == 'serious' else 0); eye_open(27, True, 4 if expr == 'serious' else 0)
+    if expr in (None, 'sad', 'serious', 'sleepy'):
+        lid = {'serious': 4, 'sleepy': 7}.get(expr, 0)                               # (sleepy: the lids heavy, half down)
+        eye_open(9, False, lid); eye_open(27, True, lid)
+    elif expr == 'surprised':
+        eye_wide(9, False); eye_wide(27, True)
     elif expr == 'blink':
         eye_closed(9, False); eye_closed(27, True)
     elif expr == 'wink':
@@ -85,6 +100,10 @@ def emma_face(expr, eye_dark, eye_mid, eye_light, eye_glow, pupil):
         d.ellipse((16, 27, 20, 31), fill=P(MOUTH)); d.ellipse((17, 29, 19, 31), fill=P('#5a1a14'))
     elif expr == 'serious':
         d.line((15, 29, 20, 29), fill=P(MOUTH))
+    elif expr == 'surprised':                                                        # a little "o"
+        d.ellipse((16, 27, 19, 31), fill=P(MOUTH)); d.ellipse((17, 28, 18, 30), fill=P('#5a1a14'))
+    elif expr == 'sleepy':                                                           # soft, barely parted
+        d.line((16, 29, 19, 29), fill=P(MOUTH)); im.putpixel((17, 30), P(MOUTH))
     hair_c = [P('#74391a'), P('#8a4a1e'), P('#a0582a')]; rnd = random.Random(5)
     for x in range(36):
         edge = 6 + int(3 * math.sin(x / 3.2)) + (2 if x < 12 else 0) + rnd.choice((0, 0, 1))
@@ -96,6 +115,10 @@ def emma_face(expr, eye_dark, eye_mid, eye_light, eye_glow, pupil):
             pts = ((-3, 11), (-2, 11), (-1, 10), (0, 10), (1, 9), (2, 9))
         elif expr in ('serious', 'hurt'):                                            # inner ends lowered, set
             pts = ((-3, 9), (-2, 9), (-1, 10), (0, 10), (1, 11), (2, 11))
+        elif expr == 'surprised':                                                    # high arches
+            pts = ((-3, 10), (-2, 9), (-1, 8), (0, 8), (1, 8), (2, 9))
+        elif expr == 'sleepy':                                                       # slack, low
+            pts = ((-3, 12), (-2, 11), (-1, 11), (0, 11), (1, 11), (2, 12))
         else:
             pts = ((-3, 11), (-2, 10), (-1, 10), (0, 10), (1, 10), (2, 11))
         for dx, y in pts: im.putpixel((cx + dx * s, y), P(BROW))
@@ -136,8 +159,21 @@ def celi_face(expr):
         else: d.line((x0, y0 + 5, x0 + 10, y0 + 5), fill=P(LID), width=2)
         ox = x0 + 11 if not flip else x0 - 1; sx = 1 if not flip else -1
         d.line((ox, y0 + 5, ox + 2 * sx, y0 + 4), fill=P(LID), width=1)
+    def wide(cx, flip):                                                                   # (2.67) caught off guard: both lids up
+        x0, y0 = cx - 5, 14
+        d.ellipse((x0 - 1, y0 - 4, x0 + 11, y0 + 5), fill=P('#a888d8'))
+        d.ellipse((x0, y0 - 2, x0 + 10, y0 + 9), fill=P('#fff6c0'))
+        d.ellipse((x0 + 3, y0 + 1, x0 + 7, y0 + 6), fill=P('#f4c830')); d.ellipse((x0 + 4, y0 + 2, x0 + 6, y0 + 5), fill=P('#c88a10'))
+        d.arc((x0 - 1, y0 - 3, x0 + 11, y0 + 8), 200, 340, fill=P(LID), width=2)
+        d.point((x0 + (4 if not flip else 6), y0 + 2), fill=P('#ffffff'))
     if expr in (None, 'serious'):
         eye(9, False); eye(27, True)
+    elif expr == 'surprised':
+        wide(9, False); wide(27, True)
+    elif expr == 'sleepy':                                                                # the heavy lids heavier still
+        for cx, fl in ((9, False), (27, True)):
+            eye(cx, fl); x0, y0 = cx - 5, 14
+            d.rectangle((x0 - 1, y0 + 4, x0 + 11, y0 + 6), fill=P('#a888d8')); d.line((x0, y0 + 7, x0 + 10, y0 + 7), fill=P(LID), width=1)
     elif expr == 'tsk':
         eye(9, False, look=2); eye(27, True, look=2)
     elif expr == 'blink':
@@ -150,6 +186,8 @@ def celi_face(expr):
     for cx, s in ((9, 1), (27, -1)):
         if expr in ('serious', 'hurt'):
             pts = ((-4, 9), (-3, 9), (-2, 10), (-1, 10), (0, 11), (1, 11), (2, 12))       # down hard toward the nose
+        elif expr == 'surprised':
+            pts = ((-4, 9), (-3, 8), (-2, 8), (-1, 7), (0, 7), (1, 8), (2, 8))
         elif expr == 'tsk':
             pts = ((-4, 10), (-3, 10), (-2, 10), (-1, 10), (0, 10), (1, 10), (2, 10)) if s > 0 else ((-4, 11), (-3, 10), (-2, 10), (-1, 9), (0, 9), (1, 9), (2, 10))
         else:
@@ -170,6 +208,10 @@ def celi_face(expr):
     elif expr == 'hurt':
         d.rectangle((15, 27, 21, 30), fill=P(M)); d.rectangle((16, 28, 20, 29), fill=P('#ffffff'))
         for x in (17, 19): d.line((x, 28, x, 29), fill=P('#9a8aaa'))
+    elif expr == 'surprised':
+        d.ellipse((17, 27, 20, 30), fill=P(M)); d.ellipse((18, 28, 19, 29), fill=P('#5a3a7a'))
+    elif expr == 'sleepy':
+        d.line((17, 28, 20, 28), fill=P(M)); d.polygon([(19, 28), (20, 28), (19.5, 29.5)], fill=P('#ffffff'))
     elif expr == 'serious':
         d.line((15, 27, 21, 27), fill=P(M)); d.line((15, 27, 15, 29), fill=P(M)); d.line((21, 27, 21, 29), fill=P(M))
         for fx in (16, 20): d.polygon([(fx, 28), (fx + 1, 28), (fx + 0.5, 30)], fill=P('#ffffff'))
@@ -200,6 +242,8 @@ def cecil_eyes(base_els, expr):
         elif expr == 'roll': setv(0.55, 0.45, 0.0, 0.8)
         elif expr == 'sly': setv(0.45 if side > 0 else 0.95, -0.1 if side > 0 else 0.25, ang * (0.5 if side > 0 else 1.4))
         elif expr == 'serious': setv(0.6, -0.05, ang * 1.4 if abs(ang * 1.4) <= 45 else ang)
+        elif expr == 'surprised': setv(1.45, 0.12, ang * 0.4, 0.9)                 # (2.67) wide, the slant all but gone
+        elif expr == 'sleepy': setv(0.28, -0.22, ang * 0.3)                         # a drowsy sliver
         elif expr == 'hurt':                                          # > < : each eye two short strokes
             cx = (x0 + x1) / 2; w = (x1 - x0); L = w * 0.62
             dy = L / 2 * math.sin(math.radians(30))                 # (the two strokes meet at the inner end: a chevron)

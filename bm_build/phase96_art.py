@@ -23,7 +23,7 @@ SKIN, SKIN_DK = '#9a6c50', '#7e5440'
 HAIR = ('#1c1816', '#24201c', '#2c2622', '#342e28', '#3e3630')
 STEEL, STEEL_DK, STEEL_LT = '#b4b8c0', '#868c96', '#dfe2e8'
 BLUE, BLUE_LT, BLUE_DK = '#3f8fd6', '#78bce8', '#24528c'
-LEO_EXPR = ('blink', 'smile', 'serious', 'worried', 'hurt')
+LEO_EXPR = ('blink', 'smile', 'serious', 'worried', 'hurt', 'surprised', 'sleepy')
 
 
 # ---------------------------------------------------------------------------------------------------- textures
@@ -80,8 +80,10 @@ def face(expr=None):
         d.rectangle((x0 + 3, y0, x0 + 5, y0 + 2), fill=P('#2f8a3a')); d.rectangle((x0 + 4, y0 + 1, x0 + 4, y0 + 1), fill=P('#0e1a10'))
         d.line((x0, y0, x0 + 8, y0), fill=P(LID))
         d.line((x0 + 2, y0 + 3, x0 + 6, y0 + 3), fill=P('#7e5440')); d.point((x0 + 1, y0 + 2), fill=P('#7e5440')); d.point((x0 + 7, y0 + 2), fill=P('#7e5440'))
-    if expr in (None, 'worried'):
-        eye(9, False, wide=expr == 'worried'); eye(23, True, wide=expr == 'worried')
+    if expr in (None, 'worried', 'surprised'):
+        eye(9, False, wide=expr != None); eye(23, True, wide=expr != None)
+    elif expr == 'sleepy':                                                                   # (2.67) the lids half down
+        eye(9, False, lid=3); eye(23, True, lid=3)
     elif expr == 'serious':
         eye(9, False, lid=1); eye(23, True, lid=1)
     elif expr == 'blink':
@@ -94,6 +96,8 @@ def face(expr=None):
         for dx in range(-4, 5):
             if expr == 'serious' or expr == 'hurt':      # down hard toward the nose
                 y = 12 + (1 if dx * s > 0 else 0) + (1 if dx * s > 2 else 0)
+            elif expr == 'surprised':                     # both up, high
+                y = 10 + (1 if abs(dx) > 3 else 0)
             elif expr == 'worried':                       # inner ends raised
                 y = 12 - (1 if dx * s > 0 else 0) - (1 if dx * s > 2 else 0)
             elif expr == 'smile':                         # soft and level, both lifted a little
@@ -117,6 +121,10 @@ def face(expr=None):
         for x in range(13, 20): im.putpixel((x, 27), P('#8a5c44'))
     elif expr == 'worried':                                                                  # small, turned down
         d.line((13, 27, 15, 26), fill=P(M)); d.line((15, 26, 18, 26), fill=P(M)); d.line((18, 26, 20, 27), fill=P(M))
+    elif expr == 'surprised':                                                                # a small round "o"
+        d.ellipse((15, 25, 17, 27), fill=P(M))
+    elif expr == 'sleepy':                                                                   # slack, closed
+        d.line((13, 26, 19, 26), fill=P(M))
     elif expr == 'hurt':                                                                     # teeth gritted
         d.rectangle((12, 25, 20, 27), fill=P(M)); d.rectangle((13, 26, 19, 26), fill=P('#f0ece4'))
         for x in (15, 17): im.putpixel((x, 26), P('#a89a8a'))

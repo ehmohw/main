@@ -22,6 +22,7 @@ Very rare cosmetics: Auroral Crown, Brass Wing Scroll (elytra reskin), Rat Famil
 Bloomwalker Boots (flowers bloom in your footsteps), Showstopper Charm (gold confetti on every kill), Market Crest
 Scroll (the market's crest on your shield).
 Importing registers the items; generate(G) runs after phase28.generate."""
+import math
 from nbt import snbt, B, F, D as Dd, Int
 from items import item, consumable, attr, T, TOTEM, ITEMS, ITEM_VERSION, DYNAMIC
 import json
@@ -618,6 +619,23 @@ def merc_generate(G, fn, wjson, title, tellraw, give, PREFIX, tick, fast, second
     plate = {'Tags': ['bm.m_disp', 'bm.m_plate', 'bm.mnew'], 'billboard': 'center', 'view_range': F(0.25), 'default_background': B(0),
              'background': Int(0x60000000), 'text': [T(MERC_NAME, '#c0392b', bold=True), T('\nRecruit', 'gray')],
              'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(round(0.55 - WOLF_TOP + 0.4, 3)), F(0)], 'scale': [F(0.45)] * 3}}
+    # (2.67) he moves like he's alive: a bob and a sway in his stride, a slow breath standing, a lean into a fight (eased over 5 ticks,
+    # the fast loop's beat; the body rides the wolf, so its frame is his)
+    G.OBJECTIVES += ['bm.mbob']; load.append('scoreboard objectives add bm.mbob dummy')
+    by = round(sc / 2 - WOLF_TOP + 0.02, 3)
+    def qz(a): return f'[0f,0f,{math.sin(math.radians(a) / 2):.4f}f,{math.cos(math.radians(a) / 2):.4f}f]'
+    def qx(a): return f'[{math.sin(math.radians(a) / 2):.4f}f,0f,0f,{math.cos(math.radians(a) / 2):.4f}f]'
+    def frame(rot, dy=0.0, sy=1.0):
+        return ('execute on passengers if entity @s[tag=bm.m_body] run data merge entity @s {start_interpolation:0,interpolation_duration:5,'
+                f'transformation:{{left_rotation:{rot},translation:[0f,{by + dy + sc * (sy - 1) / 2:.4f}f,0f],scale:[{sc}f,{sc * sy:.4f}f,{sc}f]}}}}')
+    fast.append('execute as @e[type=minecraft:wolf,tag=bm.mercpet] at @s if entity @a[distance=..32] run function bm:p29/merc/anim')
+    fn('p29/merc/anim', ['scoreboard players add @s bm.mbob 1', 'execute if score @s bm.mbob matches 8.. run scoreboard players set @s bm.mbob 0',
+                         'scoreboard players operation #mb bm.rng = @s bm.mbob', 'scoreboard players operation #mb bm.rng %= #2 bm.rng',
+                         'execute if function bm:p29/merc/has_target if entity @e[type=#bm:hostile,distance=..2.6] run return run ' + frame(qx(-14), -0.04),
+                         'execute if predicate bm:p21/walking if score #mb bm.rng matches 0 run return run ' + frame(qz(6), 0.07),
+                         'execute if predicate bm:p21/walking run return run ' + frame(qz(-6)),
+                         'execute if score @s bm.mbob matches 0 run return run ' + frame('[0f,0f,0f,1f]', 0, 1.035),
+                         'execute if score @s bm.mbob matches 4 run return run ' + frame('[0f,0f,0f,1f]')])
     fn('p29/merc/summon', [
         'scoreboard players add @s bm.mgen 1', f'summon minecraft:wolf ~ ~ ~ {snbt(wolf)}',
         'data modify entity @e[type=minecraft:wolf,tag=bm.mnew,limit=1,sort=nearest] Owner set from entity @s UUID',

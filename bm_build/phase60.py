@@ -358,6 +358,8 @@ def generate(G):
     # he picks a random player out under the open sky in the Overworld
     second += ['scoreboard players remove #pmcd bm.bm 1', 'execute if score #pmcd bm.bm matches ..0 run function bm:p60/pm/day',
                'execute as @e[type=minecraft:villager,tag=bm.pearl] at @s run function bm:p60/pm/sec']
+    # (2.67) he follows you with his eyes every 5 ticks - his display eases each turn over 5 - not in a jerk once a second
+    fast.append('execute as @e[type=minecraft:villager,tag=bm.pearl] at @s if entity @p[distance=..10] facing entity @p[distance=..10] feet as @e[type=minecraft:item_display,tag=bm.pearld,distance=..0.6,limit=1] run rotate @s ~ 0')
     fn('p60/pm/day', [f'scoreboard players set #pmcd bm.bm {DAY}', 'execute if entity @e[type=minecraft:villager,tag=bm.pearl] run return 0',
                       'execute store result score #r bm.rng run random value 1..100', 'scoreboard players set #placed bm.rng 0',
                       'execute if score #r bm.rng <= #pmch bm.bm as @a[gamemode=survival,sort=random,limit=1] at @s if dimension minecraft:overworld positioned ~ ~1.6 ~ if predicate bm:sees_sky positioned ~ ~-1.6 ~ run function bm:p60/pm/arrive',
@@ -380,7 +382,6 @@ def generate(G):
     fn('p60/pm/sec', ['scoreboard players remove @s bm.pmt 1', 'execute if score @s bm.pmt matches ..0 run return run function bm:p60/pm/leave',
                       'execute unless entity @a[distance=..64] run return run function bm:p60/pm/leave',
                       # (2.49: only his model turns to face you - teleporting the villager itself, even in place, ends any open trade)
-                      'execute if entity @p[distance=..10] facing entity @p[distance=..10] feet as @e[type=minecraft:item_display,tag=bm.pearld,distance=..0.6,limit=1] run rotate @s ~ 0',
                       'scoreboard players operation #t bm.rng = @s bm.pmt', 'scoreboard players operation #t bm.rng %= #2 bm.rng',
                       'execute if score #t bm.rng matches 0 as @e[type=minecraft:item_display,tag=bm.pearld,distance=..0.6,limit=1] run data merge entity @s {start_interpolation:0,interpolation_duration:20,transformation:{left_rotation:[0f,0f,0.04f,0.9992f]}}',
                       'execute if score #t bm.rng matches 1 as @e[type=minecraft:item_display,tag=bm.pearld,distance=..0.6,limit=1] run data merge entity @s {start_interpolation:0,interpolation_duration:20,transformation:{left_rotation:[0f,0f,-0.04f,0.9992f]}}',
