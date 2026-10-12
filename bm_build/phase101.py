@@ -59,7 +59,8 @@ def generate(G):
                           P28.body([T('Carry on and the Fixer unpacks your haul: Tokens stay on you, coins go to your Gutter Bank, the rest to your '
                                       'locker. Head home and it comes with you, as ever.', 'dark_gray')])],
                          [P28.btn([T('Back to the Overworld', 'white', bold=True)], C_HOME, width=200, tooltip=T('The whole crew heads home.', 'gray')),
-                          P28.btn([T('Start a new raid', GOLD, bold=True)], C_NEXT, width=200, tooltip=T('Pick the next job - your crew opts in or out.', 'gray'))],
+                          P28.btn([T('Start a new raid', GOLD, bold=True)], C_NEXT, width=200, tooltip=T('Pick the next job - your crew opts in or out.', 'gray')),
+                          P28.btn([T('The Fixer\'s Office', 'gray')], 7728, width=200)],                # (phase103's code: the Office, then back)
                          columns=1, exit_label='Decide later')
     lead_chat = tellraw('@s', P + [T('Home, or another job? ', 'gray'), chat('[Back to the Overworld]', 'white', C_HOME, 'The whole crew heads home.'), T('  '),
                                    chat('[Start a new raid]', GOLD, C_NEXT, 'Pick the next job - your crew opts in or out.')])
@@ -69,7 +70,7 @@ def generate(G):
                               f'execute unless entity @a[tag=bm.gvask] run tag {crew(s)[:-1]},limit=1] add bm.gvask',
                               f'scoreboard players set @a[tag=bm.gvask] bm.gvnx {s + 1}',
                               'execute as @a[tag=bm.gvask] at @s run function bm:p101/ask_lead',
-                              f'execute as {crew(s)[:-1]},tag=!bm.gvask] run function bm:p101/wait_note'])
+                              f'execute as {crew(s)[:-1]},tag=!bm.gvask] at @s run function bm:p101/wait_note'])
     fn('p101/ask_lead', [f'dialog show @s {snbt(lead_dlg)}', lead_chat, 'playsound minecraft:block.note_block.chime player @s ~ ~ ~ 0.8 1.2'])
     fn('p101/wait_note', [tellraw('@s', P + [T('Waiting on ', 'gray'), {'selector': '@a[tag=bm.gvask]', 'color': 'white'},
                                              T(': home, or another job? (Or take the plate home any time.)', 'gray')])])
