@@ -69,8 +69,10 @@ def lobby():
     b.fill(9, 4, 2, 15, 4, 2, 'minecraft:dark_oak_planks')          # under the board
     b.set(23, 5, 15, 'minecraft:pale_oak_button[face=wall,facing=west]')   # "begin the heist"
     b.set(23, 5, 9, 'minecraft:pale_oak_button[face=wall,facing=west]')    # (and its twin, on the other side)
-    b.set(2, 4, 4, 'minecraft:light_weighted_pressure_plate')       # leave
-    b.set(2, 3, 4, 'minecraft:gold_block')
+    for y in range(4, 7):                                # (2.67d) the Fixer's Door - the way out (phase103 fills the arch)
+        b.set(1, y, 3, 'minecraft:gold_block'); b.set(1, y, 5, 'minecraft:gold_block')
+    for z in (3, 4, 5):
+        b.set(1, 7, z, 'minecraft:gold_block')
     for y in range(4, 7):                                # the clockwork door (to the secret cache, north)
         for x in (11, 12, 13):
             b.set(x, y, 0, 'minecraft:waxed_oxidized_copper')
@@ -169,7 +171,7 @@ def vault():
     for z in range(9, 16):
         for y in range(4, 9):
             b.set(24, y, z, 'minecraft:gold_block')
-    for y in range(4, 8):                                # (the far wall is solid: the way out is the exit plate)
+    for y in range(4, 8):                                # (the far wall is solid: the way out is the Fixer's Door)
         for z in (11, 12, 13):
             b.set(VAULT_LEN - 1, y, z, WALL)
     for x in range(26, VAULT_LEN - 1):                   # the treasury: gold underfoot, piles everywhere
@@ -183,7 +185,10 @@ def vault():
     for (x, z) in ring:
         b.set(x, 4, z, 'minecraft:light_weighted_pressure_plate')
     b.set(30, 4, 12, 'minecraft:gold_block')
-    b.set(34, 4, 12, 'minecraft:heavy_weighted_pressure_plate'); b.set(34, 3, 12, 'minecraft:emerald_block')   # the way out
+    for y in range(4, 7):                                # (2.67d) the Fixer's Door against the far wall - the way out, once the vault opens
+        b.set(35, y, 11, 'minecraft:gold_block'); b.set(35, y, 13, 'minecraft:gold_block')
+    for z in (11, 12, 13):
+        b.set(35, 7, z, 'minecraft:gold_block')
     b.marker(*CTRL, ['bm.gvr', 'bm.gvr_vault', 'bm.gvnew'])
     return b
 

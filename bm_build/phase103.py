@@ -28,9 +28,11 @@ FOLLOWERS AND THE VAULT: an Overworld follower you leave behind going into a hei
   you're under the cap).
 BEGIN HAS A READY CHECK: it starts the heist at once only if everyone has a kit and nobody's at the Lockers; otherwise it
   names who isn't ready - press BEGIN again within ten seconds to go anyway (no kit: the Offense loaners, as before).
+THE FIXER'S DOOR: the way out is an archway (in the tier's metal) with a swirl you walk into - in the den (against the west wall) and in
+  the treasury (against the far wall, swirling once the vault opens), in place of the old plates. Mid-heist it asks first.
 """
 from items import T, ITEMS
-from nbt import snbt, B, Int
+from nbt import snbt, B, Int, F
 import phase28 as P28
 import phase70 as P70
 import phase70_rooms as RM
@@ -53,6 +55,7 @@ for _iid, _it in ITEMS.items():
         _it['comps']['minecraft:lore'] = _retext(_it['comps']['minecraft:lore'], 'a Gutter Trophy at Goldtooth', 'a Gutter Trophy at the Tailor')
 DEN_EXIT = (2, 4, 4)                           # the den's way out (local)
 VAULT_EXIT = (34, 4, 12)                       # the treasury's way out, once the vault is open (local)
+DEN_DOOR, VAULT_DOOR = (1, 4, 4), (35, 4, 12)   # (2.67d) the Fixer's Doors (the arches - phase70_rooms)
 GOLDTOOTH_AT = (3, 4, 20)                      # (2.67d) behind his counter (z 19), facing the room
 RECRUITER_AT = (5, 4, 20)
 TAILOR_AT = (7, 4, 20)
@@ -91,8 +94,8 @@ def generate(G):
     old = f'execute if score @s bm.gvs matches 2.. positioned {rel(*VAULT_EXIT)} as @a[tag=bm.gvp,distance=..0.9] at @s run function bm:p70/leave'
     assert old in vt, 'the treasury\'s way-out line moved'
     vt.remove(old)
-    G.FUNCS['p70/r/lobby/init'].append(f'summon minecraft:marker {rel(*DEN_EXIT)} {{Tags:["bm.gvprop","bm.exitm"]}}')
-    G.FUNCS['p70/r/vault/open'].append(f'summon minecraft:marker {rel(*VAULT_EXIT)} {{Tags:["bm.gvprop","bm.exitm"]}}')
+    G.FUNCS['p70/r/lobby/init'].append(f'summon minecraft:marker {rel(*DEN_DOOR)} {{Tags:["bm.gvprop","bm.exitm"]}}')
+    G.FUNCS['p70/r/vault/open'].append(f'summon minecraft:marker {rel(*VAULT_DOOR)} {{Tags:["bm.gvprop","bm.exitm"]}}')
     tick += ['execute as @e[type=minecraft:marker,tag=bm.exitm] at @s as @a[tag=bm.gvp,tag=!bm.exon,distance=..0.9] at @s run function bm:p103/exit',
              'execute as @a[tag=bm.exon] at @s unless entity @e[type=minecraft:marker,tag=bm.exitm,distance=..1.8] run function bm:p103/exit_off']
     fn('p103/exit_off', ['tag @s remove bm.exon', 'tag @s remove bm.exask'])
@@ -594,6 +597,25 @@ def generate(G):
     fn('p103/begin_force', ['scoreboard players set @s bm.gvbw 0',
                             f'execute as {crew_here} if score @s bm.gvi = #gi bm.rng run ' + tellraw('@s', P + [T('Off you go', GOLD, bold=True), T(' - anyone without a kit takes the Offense loaners.', 'gray')]),
                             'tag @a remove bm.nrdy', 'function bm:p70/begin'])
+
+    # ================================================================== 7. THE FIXER'S DOOR: an archway (the tier's metal), a swirl you walk into
+    # (the den's against the west wall, always open; the treasury's against the far wall, swirling once the vault opens.
+    #  The arches are in the rooms' templates; here the swirl, the labels and the sparkle. They ask first mid-heist - 1a.)
+    swirl = lambda: snbt({'Tags': ['bm.gvprop', 'bm.exdoor'], 'block_state': {'id': 'minecraft:nether_portal', 'properties': {'axis': 'z'}},
+                          'brightness': {'block': 15, 'sky': 15},
+                          'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)],
+                                             'translation': [F(-0.5), F(0), F(-0.5)], 'scale': [F(1), F(3), F(1)]}})
+    li2 = G.FUNCS['p70/r/lobby/init']
+    n_ = len(li2); li2[:] = [l for l in li2 if '"Leave the heist"' not in l]; assert len(li2) == n_ - 1, 'the den\'s leave label moved'
+    vi = G.FUNCS['p70/r/vault/init']
+    n_ = len(vi); vi[:] = [l for l in vi if '"The way out"' not in l]; assert len(vi) == n_ - 1, 'the treasury\'s way-out label moved'
+    li2 += [f'summon minecraft:block_display {rel(*DEN_DOOR)} {swirl()}',
+            lab(DEN_DOOR[0] + 0.3, 8.1, DEN_DOOR[2], [_T('THE FIXER\'S DOOR\n', GOLD, bold=True), _T('home (it asks first, mid-heist)', 'gray')])]
+    vi += [lab(VAULT_DOOR[0] - 0.3, 8.1, VAULT_DOOR[2], [_T('THE FIXER\'S DOOR\n', GOLD, bold=True), _T('home, with your haul', 'gray')])]
+    G.FUNCS['p70/r/vault/open'] += [f'summon minecraft:block_display {rel(*VAULT_DOOR)} {swirl()}',
+                                    f'particle minecraft:reverse_portal {rel(VAULT_DOOR[0], 5.5, VAULT_DOOR[2])} 0.1 0.9 0.4 0.05 60']
+    fast.append('execute as @e[type=minecraft:marker,tag=bm.exitm] at @s if entity @a[distance=..20] run function bm:p103/door_fx')
+    fn('p103/door_fx', ['particle minecraft:portal ~ ~1.5 ~ 0.05 0.8 0.35 0.4 3', 'particle minecraft:wax_on ~ ~1.5 ~ 0.1 0.9 0.4 0 1'])
 
     G.FUNCS['tick'] += tick
     f = G.FUNCS['loop/fast']
