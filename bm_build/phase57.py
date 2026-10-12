@@ -47,7 +47,7 @@ def generate(G):
     tick, fast, second = [], [], []
     objs = ['bm.emm', 'bm.emc', 'bm.eme', 'bm.ems', 'bm.emf', 'bm.emk', 'bm.emcd', 'bm.emh', 'bm.emz', 'bm.emi', 'bm.emq', 'bm.emw', 'bm.emt', 'bm.emph', 'bm.emfi']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + \
-        [f'scoreboard players set #{n} bm.rng {n}' for n in (12, 16, 60, 80, 240)]
+        [f'scoreboard players set #{n} bm.rng {n}' for n in (12, 16, 24, 60, 80, 240)]
     G.OBJECTIVES += objs
     holds = '*[minecraft:custom_data~{bm:"emma_ribbon"}]'
     S = ART.RIG_SCALE
@@ -87,6 +87,7 @@ def generate(G):
            'sit_a': 15, 'sit_b': 15, 'cast': 4, 'wave_a': 6, 'wave_b': 6, 'strike_up': 3, 'strike_dn': 3}
     DUR.update({f'fly_{i}': 3 for i in range(ART.FLY_FRAMES)})
     DUR.update({f'hover_{i}': 3 for i in range(ART.HOVER_FRAMES)})
+    DUR.update({f'swim_{i}': 3 for i in range(ART.SWIM_FRAMES)})
     DUR.update({f'loco_{b}_{f}': ART.LOCO_STEP[b][1] for b in ART.LOCO_STEP for f in range(4)})
     def xf_nbt(pose, p):
         rot, tr = ART.part_xf(pose, p)
@@ -102,7 +103,8 @@ def generate(G):
              3: (None, [(0, 'jump')]), 4: (60, [(0, 'sit_a'), (30, 'sit_b')]),
              5: (3 * ART.FLY_FRAMES, [(3 * i, f'fly_{i}') for i in range(ART.FLY_FRAMES)]),
              6: (None, [(0, 'cast')]), 7: (None, [(0, 'strike_up'), (3, 'strike_dn')]), 8: (12, [(0, 'wave_a'), (6, 'wave_b')]),
-             9: (3 * ART.HOVER_FRAMES, [(3 * i, f'hover_{i}') for i in range(ART.HOVER_FRAMES)])}
+             9: (3 * ART.HOVER_FRAMES, [(3 * i, f'hover_{i}') for i in range(ART.HOVER_FRAMES)]),
+             10: (3 * ART.SWIM_FRAMES, [(3 * i, f'swim_{i}') for i in range(ART.SWIM_FRAMES)])}
     anim = []
     for st, (period, frames) in CYCLE.items():
         lines = []
@@ -129,6 +131,7 @@ def generate(G):
                      'execute if score @s bm.emw matches 1.. run return run scoreboard players set #st bm.rng 8',
                      'execute if data entity @s {Sitting:1b} run return run scoreboard players set #st bm.rng 4',
                      'execute store result score #og bm.rng run data get entity @s OnGround',
+                     'execute if score #og bm.rng matches 0 if predicate bm:swim run return run scoreboard players set #st bm.rng 10',
                      'execute if score #og bm.rng matches 0 run scoreboard players add @s bm.emz 1',
                      'execute if score #og bm.rng matches 1 run scoreboard players set @s bm.emz 0',
                      'execute if score @s bm.emz matches 3.. run return run scoreboard players set #st bm.rng 3',
@@ -169,6 +172,7 @@ def generate(G):
                     'execute if score @s bm.ems matches 4 unless entity @a[tag=bm.emown,distance=1.5..10] rotated as @s rotated ~ 0 run function bm:p57/place',
                     'execute if score @s bm.ems matches 6 unless entity @a[tag=bm.emown,distance=1.5..10] rotated as @s rotated ~ 0 run function bm:p57/place',
                     'execute if score @s bm.ems matches 1..3 rotated as @s rotated ~ 0 run function bm:p57/place',
+                    'execute if score @s bm.ems matches 10 rotated as @s rotated ~ 0 run function bm:p57/place',
                     'execute if score @s bm.ems matches 5 rotated as @s rotated ~ 0 run function bm:p57/place_fly',
                     'execute if score @s bm.ems matches 9 if entity @a[tag=bm.emown,distance=1.5..12] facing entity @a[tag=bm.emown,limit=1] feet rotated ~ 0 run function bm:p57/place_fly',
                     'execute if score @s bm.ems matches 9 unless entity @a[tag=bm.emown,distance=1.5..12] rotated as @s rotated ~ 0 run function bm:p57/place_fly',
@@ -424,6 +428,8 @@ def generate(G):
                                                      T('Cecil casts every second and hits harder; Emma charges twice as fast and her buffs grow stronger.', 'white')])])
 
     # ================================================================== finding her: humming in the flowers
+    # (2.67) swimming - in water above the feet (any follower: off the ground and in it -> the swim cycle)
+    wjson('bm/predicate/swim.json', {'condition': 'minecraft:location_check', 'offsetY': 0.3, 'predicate': {'fluid': {'fluids': '#minecraft:water'}}})
     wjson('bm/predicate/p57/flowery.json', {'condition': 'minecraft:location_check', 'predicate': {'biomes': FLOWERY}})
     second += ['scoreboard players add #emt bm.bm 1', 'execute if score #emt bm.bm matches 60.. run function bm:p57/enc/check']
     fn('p57/enc/check', ['scoreboard players set #emt bm.bm 0', 'execute unless score #tod bm.bm matches 0..11500 run return 0',

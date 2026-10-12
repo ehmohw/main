@@ -153,6 +153,12 @@ def zib_poses():
                                'tail': qmul(qa('x', -25 if name == 'run' else -8), qa('y', 18 * s))}
             # walking with a foe in sight: the legs keep going, the gun stays up
             T[f'{name}aim{i}'] = dict(T[f'{name}{i}'], torso=torso(lean=lean * 0.5, tilt=2 * s), head=torso(lean=-6), **aim())
+    for i in range(8):                                     # (2.67) swimming: a brisk paddle, the gun kept in hand, the tail sweeping
+        p = 2 * math.pi * i / 8; s = math.sin(p)
+        T[f'swim{i}'] = {'_dy': -0.32 + 0.02 * math.sin(2 * p), 'torso': torso(lean=14, tilt=3 * s), 'head': torso(lean=-16, tilt=-3 * s),
+                         'legl': limb(-1, -20 + 20 * math.sin(2 * p)), 'legr': limb(1, -20 - 20 * math.sin(2 * p)),
+                         'arml': limb(-1, 56 + 30 * s, 14), 'armr': limb(1, 56 - 30 * s, 6), 'gun': qa('x', 16),
+                         'tail': qmul(qa('x', -20), qa('y', 26 * s))}
     T['aim'] = {'_dy': 0.0, 'torso': torso(lean=2, turn=-8), 'head': torso(lean=-6, turn=8), 'legl': limb(-1, -8), 'legr': limb(1, 10), 'tail': qa('x', -15), **aim()}
     T['fire'] = dict(T['aim'], torso=torso(lean=-4, turn=-8), head=torso(lean=-10, turn=8), **aim(recoil=16))
     T['charge'] = dict(T['aim'], torso=torso(lean=6, turn=-12), head=torso(lean=-4, turn=12), **aim(f=AIM - 6))

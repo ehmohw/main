@@ -21,7 +21,7 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
-## New in 2.67: Democratus, Leo of the shore, faces that move, the Raid Crew, follower wardrobes, game night in the vault, the Frisbee Shield, the Gutter Gentry, the Arachno-Lantern
+## New in 2.67: Democratus, Leo of the shore, follower trios, followers swim, faces that move, the Raid Crew, follower wardrobes, game night in the vault, the Frisbee Shield, the Gutter Gentry, the Arachno-Lantern
 
 ### What a heist costs, and what it pays
 - **The fee rises with the tier:** 2 Tokens at Tier I, 3 at II, 4 at III, 5 at IV and 6 at Tier V (it still goes into the Lucky Pool). The bigger tiers pay more to match: more shares, higher prize caps and the better rooms.
@@ -96,6 +96,8 @@ A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, o
 ### Democratus, the storm reaper
 - **In a thunderstorm, very rarely,** lightning strikes near someone out under the open sky, and where it fell a hooded warrior kneels in vigil: green cloak, mint hair, violet eyes, both hands on the hilt of his great electric scythe, stood upright before him. He keeps his vigil while the storm lasts. **Right-click him** and he gives you his **Storm Seal** and walks with you (achievement *Eye of the Storm*).
 - **Taller and broader than Leo,** blocky but less boxy: a stepped hood with a curled peak, a layered beard, ragged cloak strips and a jagged-edged breastplate. **His pupils glow violet in the dark,** like a glow squid.
+- **Built like a warrior:** a V-shaped frame of cobbled plates (broad shoulders, a deep plated chest, a narrow waist), heavy pauldrons, thick forearms and gauntlets, and solid armoured legs. Kneeling in his vigil, his right forearm rests across his knee, and his head stays upright on his shoulders whichever way he leans.
+- **The storm is his:** out in the rain (under the open sky) he's stronger, with Resistance and harder blows: the sweep 20, his lightning 12, the slam 15. **In a thunderstorm** he's stronger still: Resistance II and Regeneration, the sweep 26, lightning 15, the slam 18, and every blow charges him twice. A line under your hotbar tells you when the weather turns him. The duel goes the same way: challenge him in a thunderstorm at your peril.
 - **Slow, devastating blows:** a great sweep of the scythe every 2.5 seconds (16 damage, 8 to anything beside it). He plants his feet for each one. Every blow charges him, and at five comes his **Storm Reap**: he spins the scythe round him, the monsters near are lifted off their feet, lightning comes down on each one, and he slams them into the ground with a thud you feel.
 - **Old Rivals, with Cecil:** you hit harder (Strength), Cecil is tougher, and Democratus charges twice as fast, out to outdo him (they glare). **The Storm's Heir, with KillerWatt:** you're quicker (Speed, Jump Boost), KillerWatt is tougher and charges faster, and Democratus regenerates. **With both:** Resistance for you as well. Each pairing has its own banter and hidden achievement.
 - **Like the others:** an item frame, right-click him to sit, 5 minutes if he faints, his face moves (smirks, glares, a grimace when he's hurt), Emma's pulses reach him, and a raid contract at Goldtooth.
@@ -105,14 +107,39 @@ A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, o
 ### Leo, the knight of the shore
 - **Seawatch forts:** a small stone fort now and then stands on a beach (sandy, snowy or stony shore), with a watchtower, a signal fire and a blue banner. **Leo** keeps watch inside. The drowned have been coming up the beach at his walls all week.
 - **Defend the fort:** talk to him, then right-click him holding a **sword or a trident**. Three waves of drowned in turtle shells come up the beach; the third brings their **Tidecaller**. Leo holds the gate with his trident. If everyone falls back more than 32 blocks the defence is lost and you can try again. Win and he gives you **Leo's Crest** (and the fort's chest is yours; achievement *Hold the Line*).
-- **Leo's Crest:** use it to call him or call him back; sneak + use sends him home. 50 health and good armour; if he faints, the crest rests 5 minutes.
+- **Leo's Crest:** use it to call him or call him back; sneak + use opens his menu (send him home, or his wardrobe). 50 health and good armour; if he faints, the crest rests 5 minutes.
 - **He fights with a trident:** a thrust up close (9 damage, with a little sweep), and at range (6-14 blocks) he throws it. It comes back to him (Loyalty), and in a thunderstorm it calls down lightning (Channeling), never within 6 blocks of you.
-- **Strong but caring:** drop to 4 hearts with a monster about and he's at your side, on guard. The monsters around you turn on him, and you get Resistance II and some absorption (30 seconds to recover). In a fight with him close by: Resistance I. In the water with him: Water Breathing and Dolphin's Grace.
+- **Strong but caring:** drop to 4 hearts with a monster about and he's at your side, on guard. The monsters around you turn on him, and you get Resistance II and some absorption (30 seconds to recover). In a fight with him close by: Resistance I. **While he's with you, you breathe underwater** (no particles, no fuss); in the water with him you swim like he does (Dolphin's Grace).
 - **With Celi, Steel and Frost:** you get Strength, he covers her (Resistance), and his thrusts freeze like her spear. **With Emma, the Knight's Vow:** you regenerate, he shields her (Resistance II), and his guard comes back twice as fast. **With both:** Speed as well. Celi bickers, Emma cheers, and he smiles. Each pairing has its own hidden achievement.
 - He has his own raid contract at Goldtooth (1 Gutter Trophy and 5 Medallions).
 - **Right-click him to sit him down** (or stand him up): he sits on the ground leaning back on one hand, the trident across his knees, breathing, looking out to sea, and now and then standing the trident up beside him like a staff.
 - **He can be hung in an item frame** like Cecil, Emma and Celi: put his crest in a frame and he lives by it (right-click the frame: sit / stand; sneak + right-click: in / out).
 - He animates: a watchful idle with an eye on the sea, a steady stride, a levelled charge, a salute when he arrives, the thrust, the throw, and on guard.
+
+### Followers swim
+- **In deep water every follower swims** instead of standing in it (Wilfrey excepted: he's a plain wither skeleton). They sink to the chest and paddle, and each in their own way:
+  - **Emma:** a happy dog-paddle, chin up.
+  - **Celi:** her spear held high out of the water (she is *not* getting it wet) and a grudging one-armed paddle.
+  - **Leo:** a strong crawl, his trident levelled ahead like a lance.
+  - **Democratus:** a heavy sidestroke, the scythe never leaving his shoulder, his cloak floating out behind.
+  - **Cecil:** he hates it. His staff is held up out of the water while he paddles furiously, rocking side to side.
+  - **KillerWatt:** a four-armed breaststroke, the tendrils stroking a beat behind.
+  - **Zib** and **Donado** paddle with their tails as rudders, and the **Frog** does a proper frog kick.
+- Wading in the shallows is still walking: the swim starts once their feet leave the bottom.
+
+### Three together: follower trios
+With three particular followers at your side at once (within 24 blocks), you get something more than the pairs:
+
+| Trio | Who | For you | For the three |
+|---|---|---|---|
+| **The Serpent's Bane** | Emma, Leo, Cecil | Regeneration, Resistance, and a shield of Absorption II that comes back every 30 seconds | Strength and Regeneration |
+| **The Storm Court** | Cecil, Democratus, KillerWatt | Strength II and Speed | Resistance, and another charge every 4 seconds for their charged attacks |
+| **The Princess's Guard** | Emma, Leo, Celi | Health Boost (two more hearts) and Regeneration | Resistance |
+| **The Odd Ones** | Emma, Cecil, KillerWatt | Speed II, Jump Boost and Haste | Regeneration, and Emma's charge fills faster |
+
+- A trio's buffs come on top of the pairs' (Old Rivals, the Knight's Vow and the rest still apply).
+- Each trio has its own banter every couple of minutes and a hidden achievement the first time it forms.
+- No trio in the vault: a heist allows two followers at most.
 
 ### Faces that move
 - **Emma, Celi, Cecil and Leo blink**, and their expressions change with their mood and with what's going on:
@@ -185,7 +212,7 @@ On a Blood Moon, very rarely, a monster spawning under the open sky becomes the 
 
 ### Fixed
 - **Emma's upper arms no longer sit inside her chest:** her shoulders are a little wider apart, and her hands still meet in front of her.
-- **A Rats' Rest is never the first room of a heist** (there's nothing to rest from yet).
+- **A Rats' Rest is never the first room of a heist** (there's nothing to rest from yet), and **a heist has one rest room at most**: a Rats' Rest or the Sanctuary, never both and never two. (The Endless Vault keeps its own cash-out Rest every fifth room and draws neither.)
 - **Celi and Leo count toward the three-follower limit** (they slipped past it); so does Democratus.
 - The Gutter Bank and Armory click boxes and signs sat half a block off-centre.
 - The Locker Hall no longer sends visitors who aren't in a heist home.

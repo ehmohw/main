@@ -109,6 +109,7 @@ def generate(G):
     def xf_nbt(pose, p):
         rot, tr = ART.part_xf(pose, p)
         return f'left_rotation:{snbt(qf(rot))},translation:[{tr[0]:.4f}f,{tr[1]:.4f}f,{tr[2]:.4f}f]'
+    DUR.update({f'swim_{i}': 3 for i in range(ART.SWIM_FRAMES)})
     for name, pose in ART.POSES.items():
         fn(f'p96/pose/{name}', [f'execute as @e[type=minecraft:item_display,tag=bm.lesel,tag=bm.lp_{p}] run data merge entity @s '
                                 f'{{start_interpolation:0,interpolation_duration:{DUR[name]},transformation:{{{xf_nbt(pose, p)}}}}}' for p in ART.PARTS])
@@ -118,7 +119,8 @@ def generate(G):
              2: (12, [(0, 'run_a'), (3, 'run_up'), (6, 'run_b'), (9, 'run_up')]),
              3: (None, [(0, 'jump')]), 6: (None, [(0, 'salute')]),
              4: (160, [(0, 'sit_a'), (36, 'sit_b'), (64, 'sit_a'), (80, 'sit_look'), (108, 'sit_a'), (124, 'sit_staff'), (150, 'sit_a')]),
-             7: (None, [(0, 'thrust_back'), (3, 'thrust')]), 8: (None, [(0, 'throw_back'), (6, 'throw')]), 9: (None, [(0, 'guard')])}
+             7: (None, [(0, 'thrust_back'), (3, 'thrust')]), 8: (None, [(0, 'throw_back'), (6, 'throw')]), 9: (None, [(0, 'guard')]),
+             10: (3 * ART.SWIM_FRAMES, [(3 * i, f'swim_{i}') for i in range(ART.SWIM_FRAMES)])}
     anim = []
     for st, (period, frames) in CYCLE.items():
         lines = ['scoreboard players operation #f bm.rng = @s bm.lef']
@@ -127,12 +129,13 @@ def generate(G):
         fn(f'p96/anim/{st}', lines)
         anim.append(f'execute if score @s bm.les matches {st} run return run function bm:p96/anim/{st}')
     fn('p96/anim', anim)
-    G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in (12, 16, 120, 160)]
+    G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in (12, 16, 24, 120, 160)]
     # (as the host) what he's doing now -> #st
     fn('p96/state', ['execute if score @s bm.lesl matches 1.. run return run scoreboard players set #st bm.rng 6',
                      'execute if score @s bm.lek matches 1.. run return run scoreboard players operation #st bm.rng = @s bm.lea',
                      'execute if data entity @s {Sitting:1b} run return run scoreboard players set #st bm.rng 4',
                      'execute store result score #og bm.rng run data get entity @s OnGround',
+                     'execute if score #og bm.rng matches 0 if predicate bm:swim run return run scoreboard players set #st bm.rng 10',
                      'execute if score #og bm.rng matches 0 run scoreboard players add @s bm.lez 1', 'execute if score #og bm.rng matches 1 run scoreboard players set @s bm.lez 0',
                      'execute if score @s bm.lez matches 3.. unless block ~ ~ ~ minecraft:water run return run scoreboard players set #st bm.rng 3',
                      'execute store result score #vx bm.rng run data get entity @s Motion[0] 1000', 'execute store result score #vz bm.rng run data get entity @s Motion[2] 1000',
@@ -170,6 +173,7 @@ def generate(G):
                     'execute if score @s bm.les matches 6 run function bm:p96/face_you',
                     'execute if score @s bm.les matches 0 run function bm:p96/face_you',
                     'execute if score @s bm.les matches 1..3 rotated as @s rotated ~ 0 run function bm:p96/place',
+                    'execute if score @s bm.les matches 10 rotated as @s rotated ~ 0 run function bm:p96/place',
                     'tag @a[tag=bm.leown] remove bm.leown', 'tag @e[tag=bm.lesel] remove bm.lesel'])
     fn('p96/face_you', ['execute if entity @a[tag=bm.leown,distance=1.5..10] facing entity @a[tag=bm.leown,limit=1] feet rotated ~ 0 run return run function bm:p96/place',
                         'execute rotated as @s rotated ~ 0 run function bm:p96/place'])
@@ -346,7 +350,9 @@ def generate(G):
         'tag @a[tag=bm.leguard] remove bm.leguard',
         # steadfast: a fight on, you close - Resistance I
         f'execute if entity @e[{foe},distance=..10] as @a[tag=bm.leown,distance=..6] run effect give @s minecraft:resistance 3 0 true',
-        # in the water with him: you breathe, you swim like he does
+        # (2.67b) the knight of the shore: with him at your side you breathe water, always (no fuss, no glow)
+        'effect give @a[tag=bm.leown] minecraft:water_breathing 12 0 true',
+        # in the water with him: you swim like he does
         'execute as @a[tag=bm.leown,distance=..10] at @s if block ~ ~1 ~ minecraft:water run function bm:p96/sea',
         # the pairs
         'execute if entity @s[tag=bm.ledc] run function bm:p96/duo_celi',

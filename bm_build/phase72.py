@@ -287,7 +287,8 @@ def generate(G):
                        'execute if entity @e[tag=bm.zbt] facing entity @e[tag=bm.zbt,limit=1] feet on passengers run rotate @s ~ 0',
                        'execute unless entity @e[tag=bm.zbt] on passengers run rotate @s ~ 0',
                        'tag @e[tag=bm.zbt] remove bm.zbt'])
-    fn('p72/zb/state', ['execute if predicate bm:p21/airborne run return run scoreboard players set #st bm.rng 3',
+    fn('p72/zb/state', ['execute if predicate bm:p21/airborne if predicate bm:swim run return run scoreboard players set #st bm.rng 10',
+                        'execute if predicate bm:p21/airborne run return run scoreboard players set #st bm.rng 3',
                         'execute if data entity @s {Sitting:1b} run return run scoreboard players set #st bm.rng 4',
                         'execute if entity @e[tag=bm.zbt] if predicate bm:p21/running run return run scoreboard players set #st bm.rng 6',
                         'execute if entity @e[tag=bm.zbt] if predicate bm:p21/walking run return run scoreboard players set #st bm.rng 5',
@@ -304,9 +305,10 @@ def generate(G):
                        'execute if score #st bm.rng matches 1 run return run function bm:p72/zb/c_walk',
                        'execute if score #st bm.rng matches 5 run return run function bm:p72/zb/c_walkaim',
                        'execute if score #st bm.rng matches 2 run return run function bm:p72/zb/c_run',
-                       'execute if score #st bm.rng matches 6 run return run function bm:p72/zb/c_runaim'])
+                       'execute if score #st bm.rng matches 6 run return run function bm:p72/zb/c_runaim',
+                       'execute if score #st bm.rng matches 10 run return run function bm:p72/zb/c_swim'])
     # a cycle: frame i every 2 ticks
-    for cyc, n in (('walk', 8), ('walkaim', 8), ('run', 6), ('runaim', 6)):
+    for cyc, n in (('walk', 8), ('walkaim', 8), ('run', 6), ('runaim', 6), ('swim', 8)):
         fn(f'p72/zb/c_{cyc}', ['scoreboard players operation #f bm.rng = @s bm.rgf', f'scoreboard players operation #f bm.rng %= #{2 * n} bm.rng'] +
            [f'execute if score #f bm.rng matches {2 * i} run function bm:p72/zb/p/{cyc}{i}' for i in range(n)])
     fn('p72/zb/idle', ['scoreboard players operation #f bm.rng = @s bm.rgf', 'scoreboard players operation #f bm.rng %= #80 bm.rng'] +

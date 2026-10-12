@@ -113,8 +113,11 @@ def generate(G):
     dsay = lambda txt, who='@s': title(who, 'actionbar', [T('Democratus: ', STORM, bold=True), T(txt, STORM_LT)])
     dchat = lambda txt, who='@s': tellraw(who, [T('Democratus: ', STORM, bold=True), T(f'"{txt}"', STORM_LT)])
     tick, fast, second = [], [], []
+    # (2.67b) the storm feeds him: his blows by the weather over his head - (0 clear, 1 rain, 2 thunder)
+    WX_SWEEP, WX_BOLT, WX_SLAM = [(0, 16), (1, 20), (2, 26)], [(0, 9), (1, 12), (2, 15)], [(0, 12), (1, 15), (2, 18)]
+    WX_DSWEEP, WX_DBOLT, WX_DSLAM = [(0, 14), (1, 17), (2, 21)], [(0, 10), (1, 12), (2, 15)], [(0, 12), (1, 14), (2, 17)]
     objs = ['bm.dms', 'bm.dmf', 'bm.dmcd', 'bm.dmk', 'bm.dma', 'bm.dmm', 'bm.dmz', 'bm.dml', 'bm.dmch', 'bm.dmq', 'bm.dmb', 'bm.dmcl',
-            'bm.dmsl', 'bm.dmw', 'bm.dmd', 'bm.dmdb', 'bm.dmdn', 'bm.dmsc', 'bm.dmsch', 'bm.dmsrt']
+            'bm.dmsl', 'bm.dmw', 'bm.dmd', 'bm.dmdb', 'bm.dmdn', 'bm.dmsc', 'bm.dmsch', 'bm.dmsrt', 'bm.dmwx', 'bm.dmwp']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + ['scoreboard objectives add bm.dmdth deathCount',
                                                                                       'bossbar add bm:dmb {text:"Democratus",color:"#7ad06a"}',
                                                                                       'bossbar set bm:dmb color green', f'bossbar set bm:dmb max {DUEL_HP}',
@@ -131,7 +134,7 @@ def generate(G):
     qf = lambda q: [F(round(v, 4)) for v in q]
     face = lambda e, t: FX.face_cmd('demo', e, t)
     SEL = '@e[type=minecraft:item_display,tag=bm.dmsel'
-    G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in (5, 20, 60, 120, 160)]
+    G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in (5, 20, 24, 60, 120, 160)]
 
     # ================================================================== the rig
     def part_nbt(p, extra=()):
@@ -164,6 +167,7 @@ def generate(G):
     def xf_nbt(pose, p):
         rot, tr = ART.part_xf(pose, p)
         return f'left_rotation:{snbt(qf(rot))},translation:[{tr[0]:.4f}f,{tr[1]:.4f}f,{tr[2]:.4f}f]'
+    DUR.update({f'swim_{i}': 3 for i in range(ART.SWIM_FRAMES)})
     for name, pose in ART.POSES.items():
         lines = [f'execute as {SEL},tag=bm.dp_{p}] run data merge entity @s {{start_interpolation:0,interpolation_duration:{DUR[name]},transformation:{{{xf_nbt(pose, p)}}}}}'
                  for p in ART.PARTS]
@@ -179,7 +183,8 @@ def generate(G):
              4: (160, [(0, 'sit_a'), (40, 'sit_b'), (80, 'sit_a'), (110, 'sit_look'), (140, 'sit_a')]),
              7: (None, [(0, 'swing_back'), (12, 'swing'), (20, 'idle_a')]), 8: (None, [(0, 'spin'), (34, 'overhead'), (44, 'slam'), (54, 'idle_a')]),
              9: (None, [(0, 'overhead'), (26, 'slam'), (32, 'idle_a')]), 11: (None, [(0, 'run_a'), (8, 'swing_back'), (12, 'swing')]),
-             12: (None, [(0, 'yield')]), 13: (None, [(0, 'plant')])}
+             12: (None, [(0, 'yield')]), 13: (None, [(0, 'plant')]),
+             10: (3 * ART.SWIM_FRAMES, [(3 * i, f'swim_{i}') for i in range(ART.SWIM_FRAMES)])}
     anim = []
     for st, (period, frames) in CYCLE.items():
         lines = ['scoreboard players operation #f bm.rng = @s bm.dmf']
@@ -189,7 +194,7 @@ def generate(G):
         anim.append(f'execute if score @s bm.dms matches {st} run return run function bm:p97/anim/{st}')
     fn('p97/anim', anim)
     # (as a host) moving how? -> #st: 1 walking, 2 running, 3 in the air (a few ticks), else 0
-    fn('p97/move', ['execute store result score #og bm.rng run data get entity @s OnGround',
+    fn('p97/move', ['execute store result score #og bm.rng run data get entity @s OnGround', 'execute if score #og bm.rng matches 0 if predicate bm:swim run return run scoreboard players set #st bm.rng 10',
                     'execute if score #og bm.rng matches 0 run scoreboard players add @s bm.dmz 1', 'execute if score #og bm.rng matches 1 run scoreboard players set @s bm.dmz 0',
                     'execute if score @s bm.dmz matches 4.. unless block ~ ~ ~ minecraft:water run return run scoreboard players set #st bm.rng 3',
                     'execute store result score #vx bm.rng run data get entity @s Motion[0] 1000', 'execute store result score #vz bm.rng run data get entity @s Motion[2] 1000',
@@ -232,6 +237,7 @@ def generate(G):
                     'execute if score @s bm.dms matches 6 run function bm:p97/face_you',
                     'execute if score @s bm.dms matches 0 run function bm:p97/face_you',
                     'execute if score @s bm.dms matches 1..3 rotated as @s rotated ~ 0 run function bm:p97/place',
+                    'execute if score @s bm.dms matches 10 rotated as @s rotated ~ 0 run function bm:p97/place',
                     'tag @a[tag=bm.dmown] remove bm.dmown', 'tag @e[tag=bm.dmsel] remove bm.dmsel'])
     fn('p97/face_you', ['execute if entity @a[tag=bm.dmown,distance=1.5..10] facing entity @a[tag=bm.dmown,limit=1] feet rotated ~ 0 run return run function bm:p97/place',
                         'execute rotated as @s rotated ~ 0 run function bm:p97/place'])
@@ -248,14 +254,16 @@ def generate(G):
                         'execute if score @s bm.dma matches 8 if score @s bm.dmk matches 14 run function bm:p97/reap_slam',
                         'execute if score @s bm.dma matches 8 if score @s bm.dmk matches 34..58 run particle minecraft:electric_spark ~ ~1.4 ~ 1.6 0.3 1.6 0.1 6'])
     me = '@e[type=minecraft:wolf,tag=bm.dmme,limit=1]'
-    fn('p97/swing_hit', ['tag @s add bm.dmme', 'playsound minecraft:entity.player.attack.sweep neutral @a[distance=..20] ~ ~ ~ 1 0.6',
+    wx = ['scoreboard players set #dmwx bm.rng 0', 'execute if score @s bm.dmwx matches 1.. run scoreboard players operation #dmwx bm.rng = @s bm.dmwx']
+    fn('p97/swing_hit', wx + ['tag @s add bm.dmme', 'playsound minecraft:entity.player.attack.sweep neutral @a[distance=..20] ~ ~ ~ 1 0.6',
                          'playsound minecraft:item.trident.thunder neutral @a[distance=..20] ~ ~ ~ 0.2 1.8',
                          f'execute as @e[{foe},distance=..4.2,sort=nearest,limit=1] at @s run function bm:p97/swung',
                          'tag @s remove bm.dmme',
                          'scoreboard players add @s bm.dmch 1', 'execute if entity @s[tag=bm.dmdc] run scoreboard players add @s bm.dmch 1',
+                         'execute if score @s bm.dmwx matches 2 run scoreboard players add @s bm.dmch 1',
                          'scoreboard players add @s bm.dmq 1', 'execute if score @s bm.dmq matches 9.. run function bm:p97/quip'])
-    fn('p97/swung', [f'damage @s 16 minecraft:mob_attack by {me}',
-                     f'execute as @e[{foe},distance=0.1..2.8] run damage @s 8 minecraft:mob_attack by {me}',
+    fn('p97/swung', [f'execute if score #dmwx bm.rng matches {w} run damage @s {d} minecraft:mob_attack by {me}' for w, d in WX_SWEEP] +
+                    [f'execute if score #dmwx bm.rng matches {w} as @e[{foe},distance=0.1..2.8] run damage @s {d // 2} minecraft:mob_attack by {me}' for w, d in WX_SWEEP] + [
                      'particle minecraft:sweep_attack ~ ~1 ~ 0.6 0.3 0.6 0 3', 'particle minecraft:electric_spark ~ ~1 ~ 0.4 0.5 0.4 0.2 16'])
     fn('p97/reap_go', ['scoreboard players set @s bm.dmk 60', 'scoreboard players set @s bm.dma 8', 'scoreboard players set @s bm.dmm 80', 'scoreboard players set @s bm.dmch 0',
                        'effect give @s minecraft:slowness 3 9 true',
@@ -265,15 +273,16 @@ def generate(G):
        face('serious', 60))
     fn('p97/reap_lift', [f'tag @e[{foe},distance=..7] add bm.dmreap', 'effect give @e[tag=bm.dmreap,distance=..8] minecraft:levitation 2 1 true',
                          'particle minecraft:sweep_attack ~ ~1 ~ 2.4 0.2 2.4 0 10', 'playsound minecraft:entity.breeze.wind_burst neutral @a[distance=..24] ~ ~ ~ 1 0.6'])
-    fn('p97/reap_bolt', ['tag @s add bm.dmme', 'execute as @e[tag=bm.dmreap,distance=..12] at @s run function bm:p97/bolted', 'tag @s remove bm.dmme',
+    fn('p97/reap_bolt', wx + ['tag @s add bm.dmme', 'execute as @e[tag=bm.dmreap,distance=..12] at @s run function bm:p97/bolted', 'tag @s remove bm.dmme',
                          'playsound minecraft:entity.lightning_bolt.thunder neutral @a[distance=..48] ~ ~ ~ 1 1.1'])
-    fn('p97/bolted', [f'damage @s 9 minecraft:lightning_bolt by {me}', 'particle minecraft:flash{color:[0.7,1.0,0.6,1.0]} ~ ~1 ~ 0 0 0 0 1',
+    fn('p97/bolted', [f'execute if score #dmwx bm.rng matches {w} run damage @s {d} minecraft:lightning_bolt by {me}' for w, d in WX_BOLT] + [ 'particle minecraft:flash{color:[0.7,1.0,0.6,1.0]} ~ ~1 ~ 0 0 0 0 1',
                       'particle minecraft:electric_spark ~ ~2 ~ 0.1 2.0 0.1 0.05 40', 'particle minecraft:end_rod ~ ~3 ~ 0.05 2.5 0.05 0 20',
                       'playsound minecraft:entity.lightning_bolt.impact neutral @a[distance=..32] ~ ~ ~ 0.8 1.2'])
-    fn('p97/reap_slam', ['tag @s add bm.dmme', 'execute as @e[tag=bm.dmreap,distance=..12] at @s run function bm:p97/slammed', 'tag @s remove bm.dmme',
+    fn('p97/reap_slam', wx + ['tag @s add bm.dmme', 'execute as @e[tag=bm.dmreap,distance=..12] at @s run function bm:p97/slammed', 'tag @s remove bm.dmme',
                          'tag @e[tag=bm.dmreap] remove bm.dmreap', 'function bm:p97/thud'])
     fn('p97/slammed', ['effect clear @s minecraft:levitation', 'data modify entity @s Motion set value [0.0d,-2.4d,0.0d]',
-                       f'damage @s 12 minecraft:mob_attack by {me}', 'particle minecraft:block{block_state:"minecraft:dirt"} ~ ~0.2 ~ 0.6 0.1 0.6 0 30'])
+                       'particle minecraft:block{block_state:"minecraft:dirt"} ~ ~0.2 ~ 0.6 0.1 0.6 0 30'] +
+       [f'execute if score #dmwx bm.rng matches {w} run damage @s {d} minecraft:mob_attack by {me}' for w, d in WX_SLAM])
     fn('p97/thud', ['particle minecraft:explosion ~ ~0.3 ~ 2.0 0.1 2.0 0 8', 'particle minecraft:electric_spark ~ ~0.3 ~ 3.0 0.1 3.0 0.3 80',
                     'particle minecraft:block{block_state:"minecraft:stone"} ~ ~0.2 ~ 2.5 0.1 2.5 0 60',
                     'playsound minecraft:block.anvil.land neutral @a[distance=..40] ~ ~ ~ 1.4 0.5', 'playsound minecraft:entity.generic.explode neutral @a[distance=..40] ~ ~ ~ 0.9 0.5',
@@ -410,8 +419,24 @@ def generate(G):
                    'execute as @e[type=minecraft:wolf,tag=bm.kxpet,distance=..16] if score @s bm.pid = #me bm.pid run scoreboard players set #dk bm.rng 1',
                    'execute if score #dc bm.rng matches 1 run tag @s add bm.dmdc', 'execute if score #dk bm.rng matches 1 run tag @s add bm.dmdk',
                    'execute on owner if entity @s[distance=..24] run tag @s add bm.dmown',
+                   'function bm:p97/wx',
                    'execute if entity @a[tag=bm.dmown] run function bm:p97/care',
                    'tag @a[tag=bm.dmown] remove bm.dmown'])
+    # (2.67b) the weather over his head (open sky): rain - he hits harder and shrugs off blows; a thunderstorm - harder still,
+    #  tougher still, he heals, and every blow charges him twice
+    wjson('bm/predicate/p97/rain.json', {'condition': 'minecraft:weather_check', 'raining': True})
+    fn('p97/wx', ['scoreboard players set @s bm.dmwx 0',
+                  'execute if predicate bm:p97/rain positioned ~ ~1.6 ~ if predicate bm:sees_sky run scoreboard players set @s bm.dmwx 1',
+                  'execute if predicate bm:p79/thunder positioned ~ ~1.6 ~ if predicate bm:sees_sky run scoreboard players set @s bm.dmwx 2',
+                  'execute if score @s bm.dmwx matches 1 run effect give @s minecraft:resistance 3 0 true',
+                  'execute if score @s bm.dmwx matches 2 run effect give @s minecraft:resistance 3 1 true',
+                  'execute if score @s bm.dmwx matches 2 unless predicate bm:p97/regen run effect give @s minecraft:regeneration 5 0 true',
+                  'execute if score @s bm.dmwx matches 1 run particle minecraft:electric_spark ~ ~1.6 ~ 0.4 0.8 0.4 0.05 2',
+                  'execute if score @s bm.dmwx matches 2 run particle minecraft:electric_spark ~ ~1.6 ~ 0.5 0.9 0.5 0.15 10',
+                  'execute unless score @s bm.dmwx = @s bm.dmwp if score @s bm.dmwx matches 1.. as @a[tag=bm.dmown] at @s run function bm:p97/wx_say',
+                  'scoreboard players operation @s bm.dmwp = @s bm.dmwx'])
+    fn('p97/wx_say', ['execute if score @e[type=minecraft:wolf,tag=bm.dmpet,limit=1,sort=nearest] bm.dmwx matches 1 run ' + dsay('Rain... the storm stirs in me.'),
+                      'execute if score @e[type=minecraft:wolf,tag=bm.dmpet,limit=1,sort=nearest] bm.dmwx matches 2 run ' + dsay('THUNDER! Now the storm fights beside us!')])
     fn('p97/care', ['execute if entity @s[tag=bm.dmdc] run function bm:p97/duo_cecil',
                     'execute if entity @s[tag=bm.dmdk] run function bm:p97/duo_kw',
                     'execute if entity @s[tag=bm.dmdc,tag=bm.dmdk] as @a[tag=bm.dmown] run effect give @s minecraft:resistance 3 0 true',
@@ -617,6 +642,12 @@ def generate(G):
                           'execute if entity @a[tag=bm.dmfoe,scores={bm.dmd=1..}] run return run scoreboard players set #st bm.rng 13',
                           'function bm:p97/move'])
     fn('p97/duel/orphan', ['function bm:p97/duel/leave'])
+    fn('p97/duel/wx', ['scoreboard players set @s bm.dmwx 0',
+                       'execute if predicate bm:p97/rain positioned ~ ~1.6 ~ if predicate bm:sees_sky run scoreboard players set @s bm.dmwx 1',
+                       'execute if predicate bm:p79/thunder positioned ~ ~1.6 ~ if predicate bm:sees_sky run scoreboard players set @s bm.dmwx 2',
+                       'execute if score @s bm.dmwx matches 1 unless entity @s[tag=bm.dmyield] run effect give @s minecraft:resistance 3 0 true',
+                       'execute if score @s bm.dmwx matches 2 unless entity @s[tag=bm.dmyield] run effect give @s minecraft:resistance 3 1 true',
+                       'execute if score @s bm.dmwx matches 2 run particle minecraft:electric_spark ~ ~1.6 ~ 0.5 0.9 0.5 0.15 10'])
     # the mind: close - the sweep; a little way off - the lunge or the lightning; far - the lightning; every fifth (or at half
     # health, once) - the Storm Reap
     fn('p97/duel/mind', ['scoreboard players add @s bm.dmch 1',
@@ -639,7 +670,7 @@ def generate(G):
                             'playsound minecraft:block.beacon.power_select hostile @a[distance=..32] ~ ~ ~ 1 0.6',
                             'playsound minecraft:item.trident.riptide_3 hostile @a[distance=..32] ~ ~ ~ 1 0.7'])
     bme = '@e[type=minecraft:vindicator,tag=bm.dmme,limit=1]'
-    fn('p97/duel/act_tick', ['scoreboard players remove @s bm.dmk 1', 'tag @s add bm.dmme',
+    fn('p97/duel/act_tick', wx + ['scoreboard players remove @s bm.dmk 1', 'tag @s add bm.dmme',
                              # the sweep: the blow lands 14 ticks in
                              'execute if score @s bm.dma matches 7 if score @s bm.dmk matches 10 run function bm:p97/duel/sweep',
                              # the lunge: 8 ticks of a charge at you, then the sweep
@@ -661,7 +692,7 @@ def generate(G):
                              'execute if score @s bm.dma matches 12 if score @s bm.dmk matches 0 run function bm:p97/duel/reward',
                              'tag @s remove bm.dmme'])
     fn('p97/duel/sweep', ['playsound minecraft:entity.player.attack.sweep hostile @a[distance=..24] ~ ~ ~ 1 0.5', 'particle minecraft:sweep_attack ^ ^1.2 ^2 1.2 0.3 1.2 0 6',
-                          f'execute positioned ^ ^ ^1.8 as @a[tag=bm.dmfoe,distance=..3.4] run damage @s 14 minecraft:mob_attack by {bme}',
+                          *[f'execute if score #dmwx bm.rng matches {w} positioned ^ ^ ^1.8 as @a[tag=bm.dmfoe,distance=..3.4] run damage @s {d} minecraft:mob_attack by {bme}' for w, d in WX_DSWEEP],
                           'execute positioned ^ ^ ^1.8 as @a[tag=bm.dmfoe,distance=..3.4] at @s run particle minecraft:electric_spark ~ ~1 ~ 0.3 0.5 0.3 0.2 20'])
     fn('p97/duel/marks', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.dmmark"]}',
                           'execute store result storage bm:tmp dmm.x int 1 run random value -4..4', 'execute store result storage bm:tmp dmm.z int 1 run random value -4..4',
@@ -672,11 +703,11 @@ def generate(G):
     fn('p97/duel/strike', ['particle minecraft:flash{color:[0.75,1.0,0.7,1.0]} ~ ~1 ~ 0 0 0 0 1', 'particle minecraft:end_rod ~ ~6 ~ 0.05 6 0.05 0 60',
                            'particle minecraft:electric_spark ~ ~0.5 ~ 0.8 0.6 0.8 0.3 40',
                            'playsound minecraft:entity.lightning_bolt.impact hostile @a[distance=..40] ~ ~ ~ 1 1.0',
-                           f'execute as @a[tag=bm.dmfoe,distance=..2.2] run damage @s 10 minecraft:lightning_bolt by {bme}',
+                           *[f'execute if score #dmwx bm.rng matches {w} as @a[tag=bm.dmfoe,distance=..2.2] run damage @s {d} minecraft:lightning_bolt by {bme}' for w, d in WX_DBOLT],
                            'kill @s[type=minecraft:marker]'])
     fn('p97/duel/slam', ['function bm:p97/thud',
                          'execute as @a[tag=bm.dmfoe,distance=..6] run effect clear @s minecraft:levitation',
-                         f'execute as @a[tag=bm.dmfoe,distance=..6] run damage @s 12 minecraft:mob_attack by {bme}',
+                         *[f'execute if score #dmwx bm.rng matches {w} as @a[tag=bm.dmfoe,distance=..6] run damage @s {d} minecraft:mob_attack by {bme}' for w, d in WX_DSLAM],
                          'execute as @a[tag=bm.dmfoe,distance=..6] run effect give @s minecraft:slowness 3 1 true'])
     # ---- he yields (brought to his knee - he can't be killed outright): the prize, his respect, and he goes home
     fn('p97/duel/win', ['tag @s add bm.dmyield', 'data merge entity @s {NoAI:1b,Invulnerable:1b}', 'effect clear @a[tag=bm.dmfoe] minecraft:levitation',
@@ -696,7 +727,8 @@ def generate(G):
                                                   T('Every blow arcs lightning and charges it; at eight, a Storm Reap. He went home - call him with the seal.', 'gray')]),
                           'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 1 0.8'])
     # (every second) the bar
-    second += [f'execute as @e[type=minecraft:vindicator,tag=bm.dmboss,limit=1] store result bossbar bm:dmb value run data get entity @s Health',
+    second += ['execute as @e[type=minecraft:vindicator,tag=bm.dmboss] at @s run function bm:p97/duel/wx',
+               f'execute as @e[type=minecraft:vindicator,tag=bm.dmboss,limit=1] store result bossbar bm:dmb value run data get entity @s Health',
                'execute unless entity @e[type=minecraft:vindicator,tag=bm.dmboss] run bossbar set bm:dmb visible false',
                'kill @e[type=minecraft:marker,tag=bm.dmmark,tag=bm.dmold]', 'tag @e[type=minecraft:marker,tag=bm.dmmark] add bm.dmold']
 

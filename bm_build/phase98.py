@@ -114,10 +114,12 @@ def generate(G):
     # ---- every second, on a heist: whoever's ON and not here (and recovered) comes; a crew over the limit sends one home
     second.append('execute in bm:gutter as @a[tag=bm.gvp,tag=!bm.gvdead,distance=0..] at @s run function bm:p98/roster')
     roster = ['function bm:p98/init', 'function bm:p98/count', 'execute if score #fc bm.rng > #lim bm.rng run function bm:p98/bench']
-    for k, nm, col, host, tag, sel, cd, *_r in CALLED:
-        roster.append(f'execute if function bm:p98/on/{k} unless score @s {cd} matches 1.. unless function bm:p98/has/{k} if function bm:p98/room run function bm:p98/call/{k}')
-    for k, nm, col, tag, cd in HIRED:
-        roster.append(f'execute if function bm:p98/on/{k} unless score @s {cd} matches 1.. unless function bm:p98/has/{k} if function bm:p98/room run function bm:p98/call/{k}')
+    # (called only once they've been missing a full second: a faint is noticed and its cooldown set first, so a follower who
+    #  just fell isn't called straight back)
+    for k, cd in [(v[0], v[6]) for v in CALLED] + [(v[0], v[4]) for v in HIRED]:
+        roster += [f'execute if entity @s[tag=bm.crw_{k}] if function bm:p98/has/{k} run tag @s remove bm.crw_{k}',
+                   f'execute if entity @s[tag=bm.crw_{k}] if function bm:p98/on/{k} unless score @s {cd} matches 1.. unless function bm:p98/has/{k} if function bm:p98/room run function bm:p98/call/{k}',
+                   f'execute if function bm:p98/on/{k} unless score @s {cd} matches 1.. unless function bm:p98/has/{k} run tag @s add bm.crw_{k}']
     fn('p98/roster', roster)
     order = [k for k, *_r in HIRED[::-1]] + [k for k, *_r in CALLED[::-1]]
     fn('p98/bench', [f'execute if function bm:p98/has/{k} run return run function bm:p98/bench_{k}' for k in order])

@@ -523,6 +523,16 @@ for _i in range(HOVER_FRAMES):
                              **wings(6 + 18 * math.sin(_q), 3 + 26 * math.sin(_q - 1.1), -5 * math.cos(_q)))
 
 
+# ---- (2.67) swimming: a happy dog-paddle - chin up, the hands paddling in turn before her, the feet kicking twice a stroke
+SWIM_FRAMES = 8
+SWIM_DY = -0.62           # (her host floats with its feet ~0.4 under the surface: she sinks to the chest)
+for _i in range(SWIM_FRAMES):
+    _p = 2 * math.pi * _i / SWIM_FRAMES
+    POSES[f'swim_{_i}'] = P(SWIM_DY + 0.03 * math.sin(2 * _p), body=torso(lean=12, tilt=3 * math.sin(_p)), head=torso(lean=-8, tilt=-5 * math.sin(_p)),
+                            armr=limb(1, 80 + 28 * math.sin(_p), 14 + 6 * math.cos(_p)), arml=limb(-1, 80 - 28 * math.sin(_p), 14 - 6 * math.cos(_p)),
+                            legr=limb(1, -18 + 18 * math.sin(2 * _p)), legl=limb(-1, -18 - 18 * math.sin(2 * _p)))
+
+
 # ---- walking <-> running: one cycle, blended by how fast she moves (bucket 1 = a slow amble ... 8 = a full run)
 def _slerp(a, b, t):
     d = sum(x * y for x, y in zip(a, b))

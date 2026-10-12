@@ -504,5 +504,15 @@ POSES = {
                   legr=X(8), legl=X(-6)),
     'charge': _P2(0.1, body=X(-6), head=X(-12), arms=(qa('z', -125), qa('z', 125)), tend=X(-40), tendl=X(36)),
     'release': _P2(-0.12, body=X(14), head=X(-10), arms=(X(-85), X(-85)), tend=X(52), tendl=X(-48), legr=X(-16), legl=X(12)),
+    # (2.67) swimming: a powerful four-armed breaststroke - arms reach, sweep out and haul back, the tendrils stroking
+    # with them a beat behind, a frog kick at the end of each pull
+    'swim_a': _P2(-1.0, body=X(16), head=X(-16), arms=(qmul(qa('z', -18), X(-112)), qmul(qa('z', 18), X(-112))), tend=X(-28), tendl=X(26),
+                  legr=X(16), legl=X(16)),
+    'swim_b': _P2(-0.98, body=X(14), head=X(-14), arms=(qmul(qa('z', -68), X(-62)), qmul(qa('z', 68), X(-62))), tend=qmul(qa('y', 20), X(6)),
+                  tendl=qmul(qa('y', -20), X(-6)), legr=X(-8), legl=X(-8)),
+    'swim_c': _P2(-1.02, body=X(18), head=X(-18), arms=(qmul(qa('z', -32), X(12)), qmul(qa('z', 32), X(12))), tend=X(40), tendl=X(-38),
+                  legr=X(24), legl=X(24)),
+    'swim_d': _P2(-1.0, body=X(16), head=X(-16), arms=(qmul(qa('z', -12), X(-44)), qmul(qa('z', 12), X(-44))), tend=X(4), tendl=X(-4),
+                  legr=X(2), legl=X(2)),
 }
 FLEX = {'slam_up', 'roar'}

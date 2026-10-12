@@ -80,6 +80,7 @@ def generate(G):
     def xf_nbt(pose, p):
         rot, tr = ART.part_xf(pose, p)
         return f'left_rotation:{snbt(qf(rot))},translation:[{tr[0]:.4f}f,{tr[1]:.4f}f,{tr[2]:.4f}f]'
+    DUR.update({f'swim_{i}': 3 for i in range(ART.SWIM_FRAMES)})
     for name, pose in ART.POSES.items():
         fn(f'p66/pose/{name}', [f'execute as @e[type=minecraft:item_display,tag=bm.cesel,tag=bm.cp6_{p}] run data merge entity @s '
                                 f'{{start_interpolation:0,interpolation_duration:{DUR[name]},transformation:{{{xf_nbt(pose, p)}}}}}' for p in ART.PARTS])
@@ -89,7 +90,8 @@ def generate(G):
              1: (16, [(0, 'walk_a'), (4, 'walk_up'), (8, 'walk_b'), (12, 'walk_up')]),
              2: (12, [(0, 'run_a'), (3, 'run_up'), (6, 'run_b'), (9, 'run_up')]),
              3: (None, [(0, 'jump')]), 4: (16, [(0, 'sit_a'), (4, 'sit_b')]),
-             7: (None, [(0, 'stab_back'), (3, 'stab')]), 8: (None, [(0, 'throw_back'), (6, 'throw')])}
+             7: (None, [(0, 'stab_back'), (3, 'stab')]), 8: (None, [(0, 'throw_back'), (6, 'throw')]),
+             10: (3 * ART.SWIM_FRAMES, [(3 * i, f'swim_{i}') for i in range(ART.SWIM_FRAMES)])}
     anim = []
     for st, (period, frames) in CYCLE.items():
         lines = ['scoreboard players operation #f bm.rng = @s bm.cef']
@@ -98,10 +100,11 @@ def generate(G):
         fn(f'p66/anim/{st}', lines)
         anim.append(f'execute if score @s bm.ces matches {st} run return run function bm:p66/anim/{st}')
     fn('p66/anim', anim)
-    G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in (12, 16, 80)]
+    G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in (12, 16, 24, 80)]
     fn('p66/state', ['execute if score @s bm.cek matches 1.. run return run scoreboard players operation #st bm.rng = @s bm.cea',
                      'execute if data entity @s {Sitting:1b} run return run scoreboard players set #st bm.rng 4',
                      'execute store result score #og bm.rng run data get entity @s OnGround',
+                     'execute if score #og bm.rng matches 0 if predicate bm:swim run return run scoreboard players set #st bm.rng 10',
                      'execute if score #og bm.rng matches 0 run scoreboard players add @s bm.cez 1', 'execute if score #og bm.rng matches 1 run scoreboard players set @s bm.cez 0',
                      'execute if score @s bm.cez matches 3.. run return run scoreboard players set #st bm.rng 3',
                      'execute store result score #vx bm.rng run data get entity @s Motion[0] 1000', 'execute store result score #vz bm.rng run data get entity @s Motion[2] 1000',
@@ -136,6 +139,7 @@ def generate(G):
                     'execute if score @s bm.ces matches 0 if entity @a[tag=bm.ceown,distance=1.5..10] facing entity @a[tag=bm.ceown,limit=1] feet rotated ~ 0 run function bm:p66/place',
                     'execute if score @s bm.ces matches 0 unless entity @a[tag=bm.ceown,distance=1.5..10] rotated as @s rotated ~ 0 run function bm:p66/place',
                     'execute if score @s bm.ces matches 1..4 rotated as @s rotated ~ 0 run function bm:p66/place',
+                    'execute if score @s bm.ces matches 10 rotated as @s rotated ~ 0 run function bm:p66/place',
                     'tag @a[tag=bm.ceown] remove bm.ceown', 'tag @e[tag=bm.cesel] remove bm.cesel'])
 
     # ---- the thrust (8 ticks; the blow lands on the 4th) and the throw (12 ticks; the spear leaves on the 7th)

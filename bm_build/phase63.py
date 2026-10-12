@@ -93,6 +93,11 @@ def don_poses():
                  'head': torso(lean=-12), 'tail': qa('x', -35)}
     T['sit'] = {'_dy': -0.09, 'torso': torso(lean=-6), 'legl': limb(-1, 82, 6), 'legr': limb(1, 82, 6), 'arml': limb(-1, 28, 4), 'armr': limb(1, 28, 4),
                 'head': torso(lean=4, tilt=8), 'tail': qa('y', 30)}
+    for i in range(4):                                    # (2.67) swimming: a dog-paddle, chin up, the tail sweeping like a rudder
+        s = (1, 0, -1, 0)[i]
+        T[f'swim{i}'] = {'_dy': -0.34 if i % 2 else -0.31, 'torso': torso(lean=14, tilt=3 * s), 'head': torso(lean=-16, tilt=-3 * s),
+                         'legl': limb(-1, -20 + 18 * s), 'legr': limb(1, -20 - 18 * s), 'arml': limb(-1, 60 + 30 * s, 12), 'armr': limb(1, 60 - 30 * s, 12),
+                         'tail': qmul(qa('x', -20), qa('y', 28 * s))}
     return T
 
 
@@ -121,6 +126,11 @@ def frog_poses():
     T['hop2'] = {'_dy': 0.16, 'body': torso(lean=-2), 'head': torso(lean=-1), 'bl': limb(-1, -22), 'br': limb(1, -22), 'fl': limb(-1, 14), 'fr': limb(1, 14)}
     T['hop3'] = {'_dy': 0.0, 'body': torso(lean=4), 'head': torso(lean=-3), 'bl': limb(-1, 5), 'br': limb(1, 5), 'fl': limb(-1, -5), 'fr': limb(1, -5)}
     T['air'] = T['hop2']
+    # (2.67) swimming - the one follower born to it: a proper frog kick. Glide, draw the legs up, kick back hard, glide.
+    T['swim0'] = {'_dy': -0.16, 'body': torso(lean=-4), 'head': torso(lean=-2), 'bl': limb(-1, -40, 6), 'br': limb(1, -40, 6), 'fl': limb(-1, -20), 'fr': limb(1, -20)}
+    T['swim1'] = {'_dy': -0.17, 'body': torso(lean=2), 'head': torso(lean=-4), 'bl': limb(-1, 24, 26), 'br': limb(1, 24, 26), 'fl': limb(-1, 18, 10), 'fr': limb(1, 18, 10)}
+    T['swim2'] = {'_dy': -0.15, 'body': torso(lean=-8), 'head': torso(lean=2), 'bl': limb(-1, -58, 10), 'br': limb(1, -58, 10), 'fl': limb(-1, -30), 'fr': limb(1, -30)}
+    T['swim3'] = {'_dy': -0.16, 'body': torso(lean=-5), 'head': torso(lean=-1), 'bl': limb(-1, -48, 4), 'br': limb(1, -48, 4), 'fl': limb(-1, -24), 'fr': limb(1, -24)}
     T['sit'] = {'_dy': -0.04, 'body': torso(lean=6), 'head': torso(lean=-3, tilt=6), 'bl': limb(-1, 15), 'br': limb(1, 15)}
     return T
 
@@ -140,7 +150,10 @@ def generate(G):
                 fn(f'{ns}/p/{name}_{dur}', [f'execute if score @s bm.rgp matches {pid} run return 0', f'scoreboard players set @s bm.rgp {pid}'] +
                    [rig.merge(n, R, J, dur) for n, (R, J) in S.items()] + extra_for(S, dur))
         # the driver (as the wolf, every tick near players)
+        fn(f'{ns}/swim', ['scoreboard players operation #f bm.rng = @s bm.rgf', 'scoreboard players operation #f bm.rng %= #16 bm.rng'] +
+           [f'execute if score #f bm.rng matches {4 * i} run function bm:{ns}/p/swim{i}_3' for i in range(4)])
         fn(f'{ns}/anim', ['scoreboard players add @s bm.rgf 1',
+                          f'execute if predicate bm:p21/airborne if predicate bm:swim run return run function bm:{ns}/swim',
                           'execute if predicate bm:p21/airborne run return run function ' + f'bm:{ns}/p/{"jump" if "jump" in poses else "air"}_3',
                           f'execute if data entity @s {{Sitting:1b}} run return run function bm:{ns}/p/sit_10',
                           f'execute if predicate bm:p21/running run return run function bm:{ns}/run',

@@ -90,6 +90,7 @@ import phase96 as R96        # 2.67: Leo, the knight of the shore (seawatch fort
 import phase97 as R97        # 2.67: Democratus, the storm reaper (thunderstorm vigil, duel, scythe)
 import phase98 as R98        # 2.67: the Raid Crew (ledger), the kit on loan, locked lockers, vault gems
 import phase99 as R99        # 2.67: follower wardrobes (permanent outfits, a menu each)
+import phase100 as R100      # 2.67: follower trios (three particular followers together)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import allies                # 2.67: every friendly-fire list skips every follower (allies.py)
@@ -1101,6 +1102,7 @@ def build(out_dir):
     R97.generate(sys.modules[__name__])
     R98.generate(sys.modules[__name__])
     R99.generate(sys.modules[__name__])
+    R100.generate(sys.modules[__name__])
     R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])

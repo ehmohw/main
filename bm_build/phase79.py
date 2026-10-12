@@ -45,7 +45,7 @@ GRN = '#74d462'
 SCALE = {'boss': ART.RIG_SCALE, 'pet': 1.05}       # (1.55: about 4.7 blocks with the tendrils; the follower about 3)
 DUR = {'idle_a': 30, 'idle_b': 30, 'walk_a': 10, 'walk_b': 10, 'slam_up': 10, 'slam_dn': 3, 'sweep_a': 7, 'sweep_b': 4,
        'roar': 6, 'call': 8, 'fall': 20, 'stab': 4, 'punch_r': 3, 'punch_l': 3, 'crouch': 5, 'hover': 20, 'climb': 6,
-       'lunge_a': 8, 'lunge_b': 3, 'charge': 14, 'release': 3, 'flinch': 3}
+       'lunge_a': 8, 'lunge_b': 3, 'charge': 14, 'release': 3, 'flinch': 3, 'swim_a': 6, 'swim_b': 6, 'swim_c': 6, 'swim_d': 6}
 PET_DUR = dict(DUR, walk_a=6, walk_b=6, slam_up=8)
 STRIDE = {'boss': 20, 'pet': 12}
 BOSS_HP, PET_HP, PET_CD = 500, 80, 300
@@ -854,6 +854,11 @@ def generate(G):
                  'execute unless predicate bm:p39/on_ground run scoreboard players add @s bm.kxair 1',
                  'execute if score @s bm.kxair matches 7.. run scoreboard players set #st bm.rng 2']
     mv.append('execute if score #st bm.rng matches 2 if score #f bm.rng matches 0 run function bm:p79/pet/pose/hover')
+    # (2.67) in the water: the breaststroke (it beats the hover - off the ground in water is swimming, not flying)
+    k_ = next(i for i, l in enumerate(mv) if 'bm.kxair matches 7..' in l) + 1
+    mv.insert(k_, 'execute if predicate bm:swim unless predicate bm:p39/on_ground run scoreboard players set #st bm.rng 3')
+    mv += ['execute if score #st bm.rng matches 3 run scoreboard players operation #f bm.rng %= #24 bm.rng'] + \
+          [f'execute if score #st bm.rng matches 3 if score #f bm.rng matches {6 * i} run function bm:p79/pet/pose/swim_{c}' for i, c in enumerate('abcd')]
     # the boss up close: a quick one-two with the fists (a share of the slams he'd throw at arm's length)
     bme = '@e[type=minecraft:husk,tag=bm.kxme,limit=1]'
     bat = lambda t, cmd: f'execute if score @s bm.kxt matches {t} run {cmd}'

@@ -169,12 +169,18 @@ def generate(G):
     cpose('i0', 1.5, 0.8, 0.0, 3, -2, 0, 20); cpose('i1', -0.5, -0.8, 0.02, -2, 3, 2, 20)
     # (2.59) sitting: he settles low, his robe pooled round him, both claws on the upright staff, nodding off over it
     cpose('s0', 6, 0, -0.16, 12, -4, -4, 10); cpose('s1', 7, 0, -0.17, 16, -6, -4, 30)
+    # (2.67) swimming - he does NOT like it: chin up, the robe floating round him, the staff held up out of the water and his
+    # free claw paddling furiously, rocking side to side
+    for i in range(8):
+        _p = 2 * _m.pi * i / 8
+        cpose(f'sw{i}', 6, 6 * _m.sin(_p), -0.36 + 0.03 * _m.sin(2 * _p), -12, -4 * _m.sin(_p), 44 + 18 * _m.sin(_p), 3)
     for nm, pr in (('walking', {'minecraft:movement': {'horizontal_speed': {'min': 0.8}}}), ('running', {'minecraft:movement': {'horizontal_speed': {'min': 3.6}}}),
                    ('airborne', {'minecraft:flags': {'is_on_ground': False}, 'minecraft:movement': {'vertical_speed': {'min': 2.0}}})):
         wjson(f'bm/predicate/p46/{nm}.json', {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': pr})
     G.FUNCS['p46/pet/tick'].insert(-1, 'function bm:p46/pet/anim')
     fn('p46/pet/anim', ['scoreboard players operation #cpa bm.rng = @s bm.cpa', 'scoreboard players add @s bm.cpf 1',
                         'scoreboard players operation #f bm.rng = @s bm.cpf',
+                        'execute if predicate bm:p21/airborne if predicate bm:swim run return run function bm:p46/pet/swim',
                         'execute if predicate bm:p46/airborne run return run function bm:p46/pet/air',
                         'execute if predicate bm:p46/running run return run function bm:p46/pet/run',
                         'execute if predicate bm:p46/walking run return run function bm:p46/pet/walk',
@@ -187,6 +193,8 @@ def generate(G):
     fn('p46/pet/air', ['execute if entity @s[tag=bm.cpair] run return 0', 'tag @s add bm.cpair', 'function bm:p46/pet/pose_air'])
     fn('p46/pet/walk', ['tag @s remove bm.cpair', 'scoreboard players operation #f bm.rng %= #24 bm.rng'] +
        [f'execute if score #f bm.rng matches {3 * i} run function bm:p46/pet/pose_w{i}' for i in range(8)])
+    fn('p46/pet/swim', ['tag @s remove bm.cpair', 'scoreboard players operation #f bm.rng %= #24 bm.rng'] +
+       [f'execute if score #f bm.rng matches {3 * i} run function bm:p46/pet/pose_sw{i}' for i in range(8)])
     fn('p46/pet/run', ['tag @s remove bm.cpair', 'scoreboard players operation #f bm.rng %= #16 bm.rng'] +
        [f'execute if score #f bm.rng matches {2 * i} run function bm:p46/pet/pose_r{i}' for i in range(8)])
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.cpf dummy', 'scoreboard players set #16 bm.rng 16', 'scoreboard players set #24 bm.rng 24', 'scoreboard players set #40 bm.rng 40', 'scoreboard players set #80 bm.rng 80']

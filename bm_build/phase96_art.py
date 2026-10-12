@@ -340,6 +340,15 @@ POSES = {
     # on guard (covering you): feet wide, the trident held out before him, prongs up and forward
     'guard': P(-0.04, body=torso(lean=4, turn=-10), head=torso(turn=8), legr=limb(1, -14, 10), legl=limb(-1, 18, 10), armr=limb(1, 52, -6), arml=limb(-1, 34, 12), trident=qa('x', 34)),
 }
+# (2.67) swimming - he's at home in the water: a strong one-armed crawl with his left, the trident levelled ahead in his right like
+# a lance, a long scissor kick
+SWIM_FRAMES = 8
+for _i in range(SWIM_FRAMES):
+    _p = 2 * math.pi * _i / SWIM_FRAMES
+    POSES[f'swim_{_i}'] = P(-0.6 + 0.03 * math.sin(2 * _p), body=torso(lean=16, tilt=3 * math.sin(_p), turn=4 * math.sin(_p)), head=torso(lean=-10, turn=-3 * math.sin(_p)),
+                            armr=limb(1, 84, 8), trident=qa('x', 90),
+                            arml=limb(-1, 96 + 64 * math.sin(_p), 16 + 12 * math.cos(_p)),
+                            legr=limb(1, -22 + 24 * math.sin(2 * _p)), legl=limb(-1, -22 - 24 * math.sin(2 * _p)))
 
 
 def _off(a, b):

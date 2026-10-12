@@ -277,6 +277,15 @@ POSES = {
     'throw': P(0.01, body=torso(lean=12, turn=14), head=torso(lean=-6, turn=-10), legr=limb(1, -26), legl=limb(-1, 32), arml=limb(-1, -36, 26), forel=BENT,
                armr=limb(1, 70, 4), forer=I, spear=TIP_FWD),
 }
+# (2.67) swimming: her spear held up out of the water in her right hand - she is NOT getting it wet - and a grudging one-armed
+# paddle with her left, the feet kicking
+SWIM_FRAMES = 8
+for _i in range(SWIM_FRAMES):
+    _p = 2 * math.pi * _i / SWIM_FRAMES
+    POSES[f'swim_{_i}'] = P(-0.66 + 0.03 * math.sin(2 * _p), body=torso(lean=10, tilt=-3 + 2 * math.sin(_p)), head=qmul(qa('y', -8), qmul(qa('x', -8), qa('z', 6))),
+                            armr=limb(1, 158, 10), forer=qa('x', -10), spear=qmul(qa('z', 6), qa('x', -4)),
+                            arml=limb(-1, 78 + 30 * math.sin(_p), 18 + 10 * math.cos(_p)), forel=qa('x', -24 - 18 * math.cos(_p)),
+                            legr=limb(1, -16 + 18 * math.sin(2 * _p)), legl=limb(-1, -16 - 18 * math.sin(2 * _p)))
 
 
 def _off(a, b):

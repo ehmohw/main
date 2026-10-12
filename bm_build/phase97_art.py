@@ -17,17 +17,17 @@ from PIL import Image, ImageDraw
 from phase57_art import _cloth, _hair, _el, hexc, qa, qmul, limb, torso, _qrot
 
 RIG_SCALE = 0.92
-PIVOT = {'body': (0, 14.5, 0), 'head': (0, 27, 0), 'armr': (6.1, 24.8, 0), 'arml': (-6.1, 24.8, 0), 'legr': (2.4, 14.5, 0), 'legl': (-2.4, 14.5, 0),
+PIVOT = {'body': (0, 14.5, 0), 'head': (0, 27, 0), 'armr': (7.0, 24.8, 0), 'arml': (-7.0, 24.8, 0), 'legr': (2.6, 14.5, 0), 'legl': (-2.6, 14.5, 0),
          'cape': (0, 25.6, 2.9)}
-HEAD_K = 0.86
+HEAD_K = 0.84                                 # (2.67b: a touch smaller - the shoulders under it are broader now)
 PARTS = ('body', 'head', 'armr', 'arml', 'legr', 'legl', 'cape', 'scythe')
-GRIP = (-6.3, 11.6, -0.2)                    # his left fist (design units): the scythe's joint (he carries it left-handed, as in the art)
+GRIP = (-7.2, 11.6, -0.2)                    # his left fist (design units): the scythe's joint (he carries it left-handed, as in the art)
 ELBOW = 17.2                                 # (the resting arm bends here: the forearm folds up in front, the fist at his shoulder)
 KNEE = 8.6                                   # (a bent leg folds here: the shin runs straight back - a kneel, or knees up sitting)
-ALT = {'arml': ('rest',), 'armr': ('rest',), 'legr': ('bent',), 'legl': ('bent',)}      # (the parts with a second model, swapped in by a pose)
+ALT = {'arml': ('rest',), 'armr': ('rest', 'knee'), 'legr': ('bent',), 'legl': ('bent',)}      # (the parts with a second model, swapped in by a pose)
 SCYTHE_K = 0.75                              # (the scythe is built at 3/4 size - a model may not reach past 32 - and shown 4/3 as large)
 GLOW = {'#4c2a80': '#9a5af0', '#8a5ac0': '#c890ff', '#c8a8f2': '#f2e2ff', '#1c0a2c': '#e8c8ff'}   # his irises, lit: the night glow
-GRIP_REST = (-6.3, 21.4, -4.6)
+GRIP_REST = (-7.2, 21.4, -4.6)
 SKIN, SKIN_DK, SKIN_LT = '#d0905e', '#a8704a', '#e6aa78'
 HAIR = ('#a8dccc', '#bce6d8', '#cdeee4', '#dcf6ee', '#ecfcf6')
 BEARD, BEARD_DK, BEARD_LT = '#3a2856', '#261a3c', '#4e3870'
@@ -250,20 +250,23 @@ def models():
     # ---- legs: thick thighs tapering to the calf, a guard over the knee, green boots with a flared black cuff, a blunt toe
     def leg_lower(x0, x1, cx):
         """the calf and boot of a straight leg (heights from the ground)"""
-        return [((x0 + 0.2, 4.6, -1.7), (x1 - 0.2, 9.0, 1.7), 'dm_pants'),
-                ((x0 - 0.35, 3.6, -2.2), (x1 + 0.35, 5.0, 2.2), 'dm_cuff'),                 # the cuff, flared
-                ((x0 - 0.1, 0.9, -1.95), (x1 + 0.1, 3.8, 1.95), 'dm_boot'),
-                ((x0 - 0.2, 0.3, -3.4), (x1 + 0.2, 1.7, 2.2), 'dm_boot'),                  # the foot
+        return [((x0 + 0.15, 4.6, -1.95), (x1 - 0.15, 9.0, 1.95), 'dm_pants'),
+                ((x0 + 0.5, 6.0, 1.9), (x1 - 0.5, 8.4, 2.25), 'dm_pants'),                  # (the calf, standing out behind)
+                ((x0 - 0.4, 3.6, -2.45), (x1 + 0.4, 5.0, 2.45), 'dm_cuff'),                 # the cuff, flared
+                ((x0 - 0.15, 0.9, -2.15), (x1 + 0.15, 3.8, 2.15), 'dm_boot'),
+                ((x0 - 0.25, 0.3, -3.6), (x1 + 0.25, 1.7, 2.35), 'dm_boot'),                # the foot
                 ((cx - 1.4, 0.3, -4.6), (cx + 1.4, 1.4, -3.2), 'dm_boot'),                 # the toe, and its blunt tip
                 ((cx - 0.7, 0.3, -5.3), (cx + 0.7, 1.0, -4.5), 'dm_boot'),
                 ((x0 - 0.25, 0.0, -4.7), (x1 + 0.25, 0.35, 2.4), 'dm_cuff'),               # the sole
                 ((x0 - 0.25, 0.3, 1.7), (x1 + 0.25, 1.2, 2.4), 'dm_cuff')]                 # the heel
     def thigh(x0, x1):
-        return [((x0, 8.8, -1.95), (x1, 14.5, 1.95), 'dm_pants'),
-                ((x0 - 0.1, 8.0, -2.15), (x1 + 0.1, 9.7, -1.3), 'dm_plate_dk')]             # the knee guard
+        return [((x0, 8.8, -2.2), (x1, 14.5, 2.2), 'dm_pants'),
+                ((x0 - 0.15, 11.6, -2.4), (x1 + 0.15, 14.5, 2.4), 'dm_pants'),                # (the heavy top of the thigh)
+                ((x0 - 0.2, 8.0, -2.45), (x1 + 0.2, 9.9, -1.4), 'dm_plate_dk'),             # the knee guard
+                ((x0 + 0.4, 9.7, -2.5), (x1 - 0.4, 10.4, -1.9), 'dm_plate')]
     def leg(sx):
         pv = PIVOT['legr' if sx > 0 else 'legl']
-        x0, x1 = (0.4, 4.2) if sx > 0 else (-4.2, -0.4)
+        x0, x1 = (0.3, 4.8) if sx > 0 else (-4.8, -0.3)
         return [_el(fr, to, t, pv) for fr, to, t in thigh(x0, x1) + leg_lower(x0, x1, (x0 + x1) / 2)]
     part('dm_legr', leg(1)); part('dm_legl', leg(-1))
 
@@ -271,12 +274,12 @@ def models():
     #      leg swung forward 90 degrees stands its shin straight down, and a leg straight down kneels on the shin
     def bent(sx):
         pv = PIVOT['legr' if sx > 0 else 'legl']
-        x0, x1 = (0.4, 4.2) if sx > 0 else (-4.2, -0.4)
+        x0, x1 = (0.3, 4.8) if sx > 0 else (-4.8, -0.3)
         k = KNEE
         # a straight-leg box (height y0..y1, depth z0..z1) folded back about the knee: it lies at height k + z, depth k - y behind
         lay = lambda fr, to, t: _el((fr[0], k + fr[2], k - to[1]), (to[0], k + to[2], k - fr[1]), t, pv)
         return [_el(fr, to, t, pv) for fr, to, t in thigh(x0, x1)] + \
-               [_el((x0 - 0.05, k - 1.9, -1.9), (x1 + 0.05, k + 0.4, 1.9), 'dm_pants', pv)] + \
+               [_el((x0 - 0.05, k - 2.1, -2.1), (x1 + 0.05, k + 0.4, 2.1), 'dm_pants', pv)] + \
                [lay(fr, (to[0], min(to[1], k), to[2]), t) for fr, to, t in leg_lower(x0, x1, (x0 + x1) / 2)]
     part('dm_legr_bent', bent(1)); part('dm_legl_bent', bent(-1))
 
@@ -284,25 +287,29 @@ def models():
     #      black shirt, a heavy belt with a pouch, ragged tassets, the mantle stepped round his shoulders, a high collar, the gem
     pv = PIVOT['body']
     B = lambda fr, to, t, rot=None, uv=None: _el(fr, to, t, pv, rot, uv)
-    body = [B((-4.2, 14.4, -2.5), (4.2, 17.8, 2.5), 'dm_shirt'),
-            B((-4.6, 17.6, -2.65), (4.6, 21.0, 2.65), 'dm_plate'),
-            B((-5.0, 20.8, -2.85), (5.0, 25.0, 2.8), 'dm_plate'),
-            B((-3.9, 19.4, -3.1), (3.9, 24.6, -2.84), 'dm_chest', uv={'north': [0, 0, 12.4, 10]}),
-            B((-4.65, 20.7, -2.95), (4.65, 21.1, 2.9), 'dm_rim'),
-            B((-4.5, 13.6, -2.75), (4.5, 15.0, 2.75), 'dm_belt'),
-            B((-1.0, 13.4, -3.05), (1.2, 15.2, -2.7), 'dm_buckle'),
+    body = [B((-4.3, 14.4, -2.6), (4.3, 17.8, 2.6), 'dm_shirt'),
+            B((-4.8, 17.6, -2.85), (4.8, 21.0, 2.85), 'dm_plate'),
+            B((-5.9, 20.8, -3.2), (5.9, 25.2, 3.1), 'dm_plate'),
+            B((-1.6, 17.8, -3.1), (1.6, 20.9, -2.8), 'dm_plate_dk'),                            # the belly plate, ridged
+            B((-1.65, 19.3, -3.15), (1.65, 19.5, -2.85), 'dm_rim'),
+            B((-5.3, 21.2, -3.5), (-0.25, 24.8, -3.15), 'dm_plate'), B((0.25, 21.2, -3.5), (5.3, 24.8, -3.15), 'dm_plate'),   # pectoral plates
+            B((-4.4, 20.4, -3.75), (4.4, 24.6, -3.48), 'dm_chest', uv={'north': [0, 0, 12.4, 10]}),
+            B((-5.95, 20.7, -3.3), (5.95, 21.1, 3.2), 'dm_rim'),
+            B((-5.6, 21.6, 3.05), (5.6, 25.0, 3.35), 'dm_plate_dk'),                              # the broad back
+            B((-4.6, 13.6, -2.85), (4.6, 15.0, 2.85), 'dm_belt'),
+            B((-1.1, 13.4, -3.15), (1.3, 15.2, -2.8), 'dm_buckle'),
             B((2.4, 12.4, -3.0), (4.2, 14.4, -2.2), 'dm_belt'), B((2.6, 13.8, -3.08), (4.0, 14.3, -2.95), 'dm_buckle'),   # a pouch at his hip
             B((-4.4, 9.4, -2.95), (-0.5, 13.8, -2.5), 'dm_plate_dk'), B((-4.0, 8.6, -2.9), (-2.4, 9.6, -2.55), 'dm_plate_dk'),   # tassets, ragged
             B((0.5, 9.8, -2.95), (4.4, 13.8, -2.5), 'dm_plate_dk'), B((2.6, 9.0, -2.9), (4.2, 10.0, -2.55), 'dm_plate_dk'),
             B((-4.6, 10.2, -2.3), (-4.15, 13.8, 2.3), 'dm_plate_dk'), B((4.15, 10.6, -2.3), (4.6, 13.8, 2.3), 'dm_plate_dk'),
             B((-4.4, 10.4, 2.35), (4.4, 13.8, 2.85), 'dm_plate_dk'),
-            B((-5.3, 23.0, -3.2), (5.3, 25.4, 3.2), 'dm_hood'),                                   # the mantle, stepped round
-            B((-4.4, 25.2, -2.9), (4.4, 26.4, 3.0), 'dm_hood'),
-            B((-5.0, 21.4, -3.35), (-2.6, 23.2, -3.0), 'dm_hood'), B((2.6, 21.4, -3.35), (5.0, 23.2, -3.0), 'dm_hood'),   # its front edges
-            B((-4.2, 20.6, -3.3), (-3.0, 21.6, -3.05), 'dm_hood_dk'), B((3.0, 20.6, -3.3), (4.2, 21.6, -3.05), 'dm_hood_dk'),
-            B((-3.2, 25.8, -2.8), (3.2, 28.0, 2.9), 'dm_hood'),                                   # the high collar
-            B((-0.75, 23.5, -3.5), (0.75, 25.1, -3.22), 'dm_gold'),                               # the clasp, and its gem
-            B((-0.5, 23.75, -3.6), (0.5, 24.85, -3.45), 'dm_gem', uv={'north': [0, 0, 4, 4]})]
+            B((-6.3, 23.2, -3.55), (6.3, 25.6, 3.5), 'dm_hood'),                                  # the mantle, stepped round
+            B((-5.4, 25.4, -3.2), (5.4, 26.6, 3.3), 'dm_hood'),
+            B((-5.9, 21.6, -3.75), (-3.0, 23.4, -3.4), 'dm_hood'), B((3.0, 21.6, -3.75), (5.9, 23.4, -3.4), 'dm_hood'),   # its front edges
+            B((-5.0, 20.8, -3.7), (-3.6, 21.8, -3.45), 'dm_hood_dk'), B((3.6, 20.8, -3.7), (5.0, 21.8, -3.45), 'dm_hood_dk'),
+            B((-3.4, 25.8, -3.0), (3.4, 28.0, 3.1), 'dm_hood'),                                   # the high collar
+            B((-0.75, 23.6, -3.9), (0.75, 25.2, -3.6), 'dm_gold'),                                # the clasp, and its gem
+            B((-0.5, 23.85, -4.0), (0.5, 24.95, -3.85), 'dm_gem', uv={'north': [0, 0, 4, 4]})]
     part('dm_body', body)
 
     # ---- the cloak: from the back of his neck nearly to his heels, wider at the hem, folded at the sides, the hem torn in strips
@@ -310,13 +317,13 @@ def models():
     C = lambda fr, to, t='dm_cape', uv=None: _el(fr, to, t, pv, None, uv)
     rnd = random.Random(97)
     strips = []
-    for i in range(6):
-        x = -5.8 + i * 1.94
+    for i in range(7):
+        x = -6.6 + i * 1.9
         strips.append(C((x, 2.6 + rnd.random() * 2.4, 2.75), (x + 1.98, 6.2, 3.25), uv={f: [0, 12, 2, 16] for f in ('north', 'south')}))
-    cape = [C((-5.0, 14.0, 2.6), (5.0, 25.6, 3.2), uv={f: [0, 0, 10, 8] for f in ('north', 'south')}),
-            C((-5.8, 6.0, 2.7), (5.8, 14.2, 3.3), uv={f: [0, 8, 11.6, 12] for f in ('north', 'south')}),
-            C((-5.6, 13.0, 1.2), (-5.0, 25.2, 3.0), 'dm_hood_dk'), C((5.0, 13.0, 1.2), (5.6, 25.2, 3.0), 'dm_hood_dk'),
-            C((-6.1, 5.8, 1.8), (-5.6, 13.4, 3.1), 'dm_hood_dk'), C((5.6, 5.8, 1.8), (6.1, 13.4, 3.1), 'dm_hood_dk')] + strips
+    cape = [C((-6.0, 14.0, 2.6), (6.0, 25.6, 3.2), uv={f: [0, 0, 10, 8] for f in ('north', 'south')}),
+            C((-6.6, 6.0, 2.7), (6.6, 14.2, 3.3), uv={f: [0, 8, 11.6, 12] for f in ('north', 'south')}),
+            C((-6.6, 13.0, 1.2), (-6.0, 25.2, 3.0), 'dm_hood_dk'), C((6.0, 13.0, 1.2), (6.6, 25.2, 3.0), 'dm_hood_dk'),
+            C((-7.0, 5.8, 1.8), (-6.5, 13.4, 3.1), 'dm_hood_dk'), C((6.5, 5.8, 1.8), (7.0, 13.4, 3.1), 'dm_hood_dk')] + strips
     part('dm_cape', cape)
 
     # ---- head: the face, the hood stepped round (open at the front, a thick rim, a peak falling back into a curled tail), mint
@@ -351,16 +358,19 @@ def models():
     # ---- arms: a domed pauldron, the dark sleeve, a thick bare arm (the biceps standing out), black gloves with a flared cuff
     def upper(sx):
         nm = 'armr' if sx > 0 else 'arml'; pv = PIVOT[nm]; cx = pv[0] + 0.2 * sx
-        return pv, cx, [_el((cx - 2.4, 22.4, -2.4), (cx + 2.4, 25.4, 2.4), 'dm_plate', pv),               # the pauldron, domed
-                        _el((cx - 1.9, 25.2, -1.9), (cx + 1.9, 26.1, 1.9), 'dm_plate', pv),
-                        _el((cx - 2.45, 22.2, -2.45), (cx + 2.45, 22.7, 2.45), 'dm_rim', pv),
-                        _el((cx - 2.0, 20.6, -2.0), (cx + 2.0, 22.6, 2.0), 'dm_shirt', pv),               # the sleeve
-                        _el((cx - 1.95, 17.4, -1.95), (cx + 1.95, 20.8, 1.95), 'dm_skin', pv),            # the upper arm
-                        _el((cx - 1.5, 18.0, -2.2), (cx + 1.5, 20.4, -1.9), 'dm_skin', pv)]               # the biceps
-    hand = lambda cx: [((cx - 1.75, 13.6, -1.75), (cx + 1.75, 17.6, 1.75), 'dm_skin'),                        # the forearm
-                       ((cx - 2.1, 12.6, -2.1), (cx + 2.1, 14.0, 2.1), 'dm_plate'),                           # the glove's cuff, flared
-                       ((cx - 1.8, 10.4, -1.8), (cx + 1.8, 12.8, 1.8), 'dm_glove'),
-                       ((cx - 1.7, 9.4, -1.8), (cx + 1.7, 10.6, 0.4), 'dm_glove')]                            # the fingers
+        return pv, cx, [_el((cx - 2.9, 22.6, -2.9), (cx + 2.9, 25.6, 2.9), 'dm_plate', pv),               # the pauldron: a big domed plate...
+                        _el((cx - 2.3, 25.4, -2.3), (cx + 2.3, 26.5, 2.3), 'dm_plate', pv),
+                        _el((cx - 2.95, 22.4, -2.95), (cx + 2.95, 22.9, 2.95), 'dm_rim', pv),
+                        _el((cx - 2.75 + 0.6 * sx, 21.4, -2.75), (cx + 2.75 + 0.6 * sx, 22.6, 2.75), 'dm_plate_dk', pv),   # ...over a second, lower
+                        _el((cx - 2.3, 20.4, -2.3), (cx + 2.3, 22.4, 2.3), 'dm_shirt', pv),               # the sleeve
+                        _el((cx - 2.25, 17.2, -2.25), (cx + 2.25, 20.6, 2.25), 'dm_skin', pv),            # the upper arm
+                        _el((cx - 1.7, 17.8, -2.55), (cx + 1.7, 20.3, -2.2), 'dm_skin', pv),              # the biceps
+                        _el((cx - 1.6, 17.6, 2.2), (cx + 1.6, 20.0, 2.45), 'dm_skin', pv)]                # the triceps
+    hand = lambda cx: [((cx - 2.05, 13.6, -2.05), (cx + 2.05, 17.4, 2.05), 'dm_skin'),                        # the forearm
+                       ((cx - 2.45, 12.4, -2.45), (cx + 2.45, 14.4, 2.45), 'dm_plate'),                       # the gauntlet's cuff, flared
+                       ((cx - 2.55, 13.9, -2.55), (cx + 2.55, 14.4, 2.55), 'dm_rim'),
+                       ((cx - 2.1, 10.2, -2.1), (cx + 2.1, 12.6, 2.1), 'dm_glove'),
+                       ((cx - 2.0, 9.2, -2.1), (cx + 2.0, 10.4, 0.4), 'dm_glove')]                            # the fingers
     def arm(sx):
         pv, cx, out = upper(sx)
         return out + [_el(fr, to, t, pv) for fr, to, t in hand(cx)]
@@ -375,6 +385,13 @@ def models():
         return out + [_el((cx - 1.8, ey - 0.4, -1.8), (cx + 1.8, ey + 0.6, 1.8), 'dm_skin', pv)] + \
             [fold((fr[0], up(fr[1], to[1])[0], fr[2]), (to[0], up(fr[1], to[1])[1], to[2]), t) for fr, to, t in hand(cx)]
     part('dm_arml_rest', rest(-1)); part('dm_armr_rest', rest(1))
+
+    # ---- (2.67b) the arm on his knee: bent 45 degrees at the elbow, the forearm forward - kneeling, it lies across his raised knee
+    def knee(sx):
+        pv, cx, out = upper(sx); ey = ELBOW
+        bend = lambda fr, to, t: _el(fr, to, t, pv, ('x', 45, (cx, ey, 0)))
+        return out + [_el((cx - 2.1, ey - 0.5, -2.1), (cx + 2.1, ey + 0.5, 2.1), 'dm_skin', pv)] + [bend(fr, to, t) for fr, to, t in hand(cx)]
+    part('dm_armr_knee', knee(1))
 
     # ---- the scythe (its joint is the grip, the shaft along +y): the black shaft with its wraps, the gold band, the blade sweeping
     #      out and back toward the butt with a pale edge, its heel standing up past the shaft, the crystal in golden claws, the crescent
@@ -442,7 +459,9 @@ def P(dy=0.0, cape=None, alt=None, slide=0.0, **parts):
 def R(dy=0.0, cape=None, **parts):                                   # (resting: the scythe on his shoulder, his left arm bent)
     return P(dy, cape, alt={'arml': 'rest'}, **parts)
 KNEEL = {'legr': 'bent', 'legl': 'bent'}
-VIGIL = dict(KNEEL, arml='rest', armr='rest')                        # (kneeling, both fists on the planted shaft)
+VIGIL = dict(KNEEL, arml='rest', armr='knee')                        # (kneeling: his left fist on the planted shaft, his right forearm on his knee)
+KNEE_ARM = limb(1, 30, -32)
+KNEE_ARM_B = limb(1, 28, -31)
 POSES = {
     'idle_a': R(body=torso(), head=torso(), arml=limb(-1, 10, 25), armr=limb(1, -4, 12)),
     'idle_b': R(0.012, body=torso(lean=-1.5), head=torso(lean=-3), legr=limb(1, 0, 3), legl=limb(-1, 0, 3), arml=limb(-1, 8, 25), armr=limb(1, -6, 14),
@@ -464,10 +483,10 @@ POSES = {
     'jump': R(body=torso(lean=8), head=torso(lean=-10), legr=limb(1, 30), legl=limb(-1, -36), arml=limb(-1, 14, 30), armr=limb(1, 20, 40), cape=qa('x', -30)),
     # the vigil (the storm encounter, as the sketch): down on his left knee, the right foot planted before him, both fists high on
     # the shaft of the scythe stood upright in front of his left shoulder - the blade over his head - and his eyes straight ahead
-    'kneel': P(-0.5, alt=VIGIL, slide=10.0, body=torso(lean=6), head=I, legr=limb(1, 76, 4), legl=limb(-1, -14, 3),
-               arml=limb(-1, 70, 2), armr=limb(1, 74, -34), scythe=PLANTED, cape=qa('x', -26)),
-    'kneel_b': P(-0.495, alt=VIGIL, slide=10.0, body=torso(lean=5), head=qa('x', -2), legr=limb(1, 76, 4), legl=limb(-1, -14, 3),
-                 arml=limb(-1, 68, 2), armr=limb(1, 72, -34), scythe=PLANTED, cape=qa('x', -24)),
+    'kneel': P(-0.5, alt=VIGIL, slide=10.0, body=torso(lean=6), head=qa('x', -6), legr=limb(1, 76, 4), legl=limb(-1, -14, 3),
+               arml=limb(-1, 70, 2), armr=KNEE_ARM, scythe=PLANTED, cape=qa('x', -26)),
+    'kneel_b': P(-0.495, alt=VIGIL, slide=10.0, body=torso(lean=5), head=qa('x', -6), legr=limb(1, 76, 4), legl=limb(-1, -14, 3),
+                 arml=limb(-1, 68, 2), armr=KNEE_ARM_B, scythe=PLANTED, cape=qa('x', -24)),
     # sitting (right-click him): on the ground, knees up, the scythe stood upright at his left side in his left hand
     'sit_a': P(-0.6, alt=KNEEL, body=torso(lean=-6), head=torso(lean=2), legr=limb(1, 66, 8), legl=limb(-1, 60, 8), arml=limb(-1, 14, 22), armr=limb(1, 56, 4),
                scythe=PLANTED, cape=qa('x', 22)),
@@ -476,7 +495,7 @@ POSES = {
     'sit_look': P(-0.6, alt=KNEEL, body=torso(lean=-6, turn=6), head=qmul(qa('y', 30), qa('x', -4)), legr=limb(1, 66, 8), legl=limb(-1, 60, 8),
                   arml=limb(-1, 14, 22), armr=limb(1, 56, 4), scythe=PLANTED, cape=qa('x', 22)),
     # arriving: the butt of the scythe slammed into the ground at his side, chin up
-    'plant': P(body=torso(lean=-3), head=torso(lean=-8), legr=limb(1, 10, 4), legl=limb(-1, -8, 4), arml=limb(-1, 22, 16), armr=limb(1, -8, 14), scythe=PLANTED,
+    'plant': P(body=torso(lean=-3), head=torso(lean=-4), legr=limb(1, 10, 4), legl=limb(-1, -8, 4), arml=limb(-1, 22, 16), armr=limb(1, -8, 14), scythe=PLANTED,
                cape=qa('x', -12)),
     # the heavy swing (slow): hauled back over his left shoulder in both hands - then round in a great flat arc
     'swing_back': P(-0.04, body=torso(lean=-8, turn=30), head=torso(turn=-20), legr=limb(1, 22, 8), legl=limb(-1, -16, 8), arml=limb(-1, 150, 40),
@@ -487,14 +506,23 @@ POSES = {
     'spin': P(0.04, body=torso(lean=4), head=torso(lean=-4), legr=limb(1, 6, 12), legl=limb(-1, -6, 12), arml=limb(-1, 84, -40), armr=limb(1, 84, -20),
               scythe=LEVEL, cape=qa('x', -50)),
     # the slam: the scythe raised overhead in both hands - then brought down into the ground with everything he has
-    'overhead': P(0.06, body=torso(lean=-12), head=torso(lean=-14), legr=limb(1, 14, 8), legl=limb(-1, -8, 8), arml=limb(-1, 170, 6), armr=limb(1, 166, -6),
+    'overhead': P(0.06, body=torso(lean=-12), head=torso(lean=4), legr=limb(1, 14, 8), legl=limb(-1, -8, 8), arml=limb(-1, 170, 6), armr=limb(1, 166, -6),
                   scythe=qa('x', -20), cape=qa('x', -18)),
     'slam': P(-0.3, body=torso(lean=30), head=torso(lean=-20), legr=limb(1, 50, 8), legl=limb(-1, -30, 8), arml=limb(-1, 60, 4), armr=limb(1, 56, -4),
               scythe=qa('x', 100), cape=qa('x', -8)),
     # beaten in a duel: down on his left knee, leaning on the scythe
-    'yield': P(-0.47, alt=KNEEL, body=torso(lean=22), head=torso(lean=28), legr=limb(1, 82, 2), legl=limb(-1, -6, 3), arml=limb(-1, 40, 14), armr=limb(1, 46, 2),
+    'yield': P(-0.47, alt=KNEEL, body=torso(lean=22), head=torso(lean=10), legr=limb(1, 82, 2), legl=limb(-1, -6, 3), arml=limb(-1, 40, 14), armr=limb(1, 46, 2),
                scythe=qmul(qa('y', 180), qmul(qa('z', -8), qa('x', 14))), cape=qa('x', 8)),
 }
+# (2.67) swimming: the scythe on his shoulder (he does not let go of it), a heavy sidestroke with his right arm and a slow, powerful
+# frog kick; the cloak floating out behind him
+SWIM_FRAMES = 8
+for _i in range(SWIM_FRAMES):
+    _p = 2 * math.pi * _i / SWIM_FRAMES
+    POSES[f'swim_{_i}'] = R(-0.86 + 0.04 * math.sin(_p + 0.8), body=torso(lean=18 + 3 * math.sin(_p), tilt=3 * math.sin(_p)), head=torso(lean=-18 - 3 * math.sin(_p)),
+                            arml=limb(-1, 10, 25), armr=limb(1, 84 + 56 * math.sin(_p), 18 + 16 * math.cos(_p)),
+                            legr=limb(1, -20 + 16 * math.cos(_p), 6 + 10 * math.sin(_p)), legl=limb(-1, -20 + 16 * math.cos(_p), 6 + 10 * math.sin(_p)),
+                            cape=qa('x', -48 - 6 * math.sin(_p)))
 
 
 def _off(a, b):
@@ -502,14 +530,25 @@ def _off(a, b):
     return (-(b[0] - a[0]) * U, (b[1] - a[1]) * U, -(b[2] - a[2]) * U)
 
 
+def _shift(pose, p):
+    """how far part p's joint moves when the torso turns about its own pivot (display frame)"""
+    o = _off(PIVOT['body'], PIVOT[p]); e = _qrot(pose['body'], o)
+    return (e[0] - o[0], e[1] - o[1], e[2] - o[2])
+
+
 def part_xf(pose, p):
-    """(left_rotation, translation) for part p: the scythe stands at his right fist wherever the arm carries it (its own turn);
-    the cloak hangs from the back of his neck and leans with his torso. Every other part stands at its own joint."""
+    """(left_rotation, translation) for part p. (2.67b) The head and arms ride on the torso: their joints move as it leans and
+    turns; the head's turn is on top of the torso's (so a lean never tips it back), the arms keep their own. The scythe stands at
+    his left fist wherever the arm carries it (its own turn); the cloak hangs from the back of his neck and leans with his torso."""
     dy = pose['_dy']
     if p == 'scythe':
+        sh = _shift(pose, 'arml')
         e = _qrot(pose['arml'], _off(PIVOT['arml'], GRIP_REST if pose['_alt'].get('arml') == 'rest' else GRIP))
         sl = _qrot(pose['scythe'], (0.0, -pose['_slide'] * U, 0.0))                     # (gripped further up: the scythe slides down)
-        return pose['scythe'], (e[0] + sl[0], e[1] + dy + sl[1], e[2] + sl[2])
+        return pose['scythe'], (sh[0] + e[0] + sl[0], sh[1] + e[1] + dy + sl[1], sh[2] + e[2] + sl[2])
+    if p in ('head', 'armr', 'arml'):
+        sh = _shift(pose, p)
+        return (qmul(pose['body'], pose['head']) if p == 'head' else pose[p]), (sh[0], sh[1] + dy, sh[2])
     if p == 'cape':
         e = _qrot(pose['body'], _off(PIVOT['body'], PIVOT['cape']))
         o = _off(PIVOT['body'], PIVOT['cape'])

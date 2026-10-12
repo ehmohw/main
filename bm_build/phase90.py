@@ -31,6 +31,7 @@ DOUBLE_IN, SCIFI_IN = 10, 8                     # (one heist in ...)
 FY = RM.FY
 W, H, D = RM.W, RM.H, RM.D
 NAMES = {'sanctum': 'The Sanctuary', 'hunted': "The Stalker's Ward", 'forge': 'The Blaze Forge', 'voidg': 'The Void Garden', 'hollow': 'The Hollow Reliquary'}
+RESTS = ('rest', 'sanctum')                    # (2.67: the rest rooms - at most one a heist)
 RARE = {'sanctum': 35, 'hollow': 25}           # (a rare room, drawn: kept only this often (%), else the draw goes again)
 
 # ---- the Vorn's look (an alien heist: every template once more in this)
@@ -274,11 +275,21 @@ def generate(G):
             [f'execute if score #i bm.rng matches {i} run scoreboard players set #r bm.rng {EVENTS.index(k)}' for i, k in enumerate(evs)] + \
             ([f'execute if score #q bm.rng matches ..1 if score #r bm.rng matches {EVENTS.index("rest")} run return run function bm:p75/lay/event{t}']
              if 'rest' in evs else []) + \
+            [f'execute if score #r bm.rng matches {EVENTS.index(k)} if function bm:p90/lay/rested run return run function bm:p75/lay/event{t}' for k in RESTS if k in evs] + \
             [f'execute if score #r bm.rng matches {EVENTS.index(k)} if score #gpl bm.rng matches ..1 run return run function bm:p85/lay/solo' for k in P85.COMPETITIVE if k in evs] + \
             [f'execute if score #r bm.rng matches {EVENTS.index(k)} if predicate bm:p90/rare_{k} run return run function bm:p75/lay/event{t}' for k in RARE if k in evs] + \
             ['function bm:p90/lay/ebit', f'execute if score #q2 bm.rng matches 1 run return run function bm:p75/lay/event{t}', 'scoreboard players operation #epool bm.rng += #bit bm.rng'] + \
             [f'execute if score #i bm.rng matches {i} run function bm:p75/pc/{k}' for i, k in enumerate(evs)]
         G.FUNCS[f'p75/lay/event{t}'] = L         # (2.67: the Rats' Rest is never the first room - nothing to rest from yet)
+    # (2.67) one rest room a heist at most - the Rats' Rest or the Sanctuary, never both, never two; the Endless Vault rests at
+    #  its own cash-out Rests (every fifth room) and draws neither
+    fn('p90/lay/rested', ['execute if score #endl bm.rng matches 1 run return 1'] +
+       sum(([f'scoreboard players operation #q2 bm.rng = #epool bm.rng', f'scoreboard players set #bit bm.rng {2 ** EVENTS.index(k)}',
+             'scoreboard players operation #q2 bm.rng /= #bit bm.rng', 'scoreboard players operation #q2 bm.rng %= #2 bm.rng',
+             'execute if score #q2 bm.rng matches 1 run return 1'] for k in RESTS), []) + ['return 0'])
+    G.FUNCS['p75/lay/rooms'].insert(0, 'scoreboard players set #endl bm.rng 0')
+    for f_ in [f for f in G.FUNCS if f.startswith('p77/endless/') and (f.endswith('/extend') or '/lay' in f)]:
+        G.FUNCS[f_].insert(0, 'scoreboard players set #endl bm.rng 1'); G.FUNCS[f_].append('scoreboard players set #endl bm.rng 0')
     for k, pct in RARE.items():
         wjson(f'bm/predicate/p90/rare_{k}.json', {'condition': 'minecraft:random_chance', 'chance': round(1 - pct / 100, 3)})
     # (more of them now: 30% a room, at most 2 - 3 from Tier III - and two more in a double heist)
