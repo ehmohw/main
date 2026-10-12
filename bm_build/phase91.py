@@ -417,7 +417,7 @@ def generate(G):
                           'execute as @a[tag=bm.gvp,tag=!bm.gvstomp,distance=..18,nbt={OnGround:0b}] at @s positioned ~ ~-1 ~ if entity @e[type=minecraft:husk,tag=bm.gvgrum,distance=..0.75] run function bm:p91/plaza/stomp',
                           'execute if entity @e[type=minecraft:interaction,tag=bm.gvflag,distance=..16,nbt={attack:{}}] run return run function bm:p91/plaza/flag',
                           'execute if entity @e[type=minecraft:interaction,tag=bm.gvflag,distance=..16,nbt={interaction:{}}] run return run function bm:p91/plaza/flag',
-                          f'execute positioned {rel(FLAG[0] - 1.5, 4, FLAG[1] - 1.5)} if entity @a[tag=bm.gvp,dx=2,dy=3,dz=2] run function bm:p91/plaza/flag'])
+                          f'execute positioned {rel(FLAG[0] - 1.5, 4, FLAG[1] - 1.5)} if entity @a[tag=bm.gvp,dx=2,dy=3,dz=2] positioned as @s run function bm:p91/plaza/flag'])   # (back at the room's centre: the door it opens is measured from there)
     fn('p91/plaza/start', ['scoreboard players set @s bm.gvs 1', 'scoreboard players set @s bm.gvw 0', 'scoreboard players set @a[tag=bm.gvp,distance=..20] bm.gvpz 0',
                            'execute store result score @s bm.gvc if entity @a[tag=bm.gvp,distance=..20]', 'scoreboard players remove @s bm.gvc 1',
                            'scoreboard players operation @s bm.gvc *= #2 bm.rng', 'scoreboard players add @s bm.gvc 8'] +
@@ -529,7 +529,7 @@ def generate(G):
                            'scoreboard players operation #q bm.rng = @s bm.gvtm', 'scoreboard players operation #q bm.rng %= @s bm.gvz',
                            'execute if score #q bm.rng matches 0 run function bm:p91/girder/throw',
                            'execute as @e[type=minecraft:block_display,tag=bm.gvbar,distance=..24] at @s run function bm:p91/girder/roll',
-                           f'execute positioned {rel(2, 13, 2)} if entity @a[tag=bm.gvp,dx=2,dy=1,dz=1] run function bm:p91/girder/done'])
+                           f'execute positioned {rel(2, 13, 2)} if entity @a[tag=bm.gvp,dx=2,dy=1,dz=1] positioned as @s run function bm:p91/girder/done'])   # (back at the centre, or the door it opens is ten blocks off)
     fn('p91/girder/start', ['scoreboard players set @s bm.gvs 1', 'scoreboard players set @s bm.gvtm 0', 'scoreboard players set @s bm.gvz 60',
                             'scoreboard players operation #q bm.rng = @s bm.gvt', 'scoreboard players operation #q bm.rng *= #5 bm.rng', 'scoreboard players operation @s bm.gvz -= #q bm.rng',
                             'scoreboard players set @s bm.gvc 14', 'scoreboard players operation @s bm.gvc += @s bm.gvt', 'scoreboard players operation @s bm.gvc += @s bm.gvt'] +
