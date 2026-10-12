@@ -11,9 +11,14 @@ THE DEN, LAID OUT BY JOB: the market counter (Goldtooth, the Recruiter and the T
   office counter on the north wall (the Gutter Bank, the Armory, the haul lectern and the RAID CREW board); the Lockers
   through a copper door on the north wall (right-click it), well away from the way out; and "back to the crew" is a plate
   you can see now, by the far door.
+THREE SHOPKEEPERS: GOLDTOOTH keeps the heist supplies (tools, potions, food, spoils, Bond Sigils, the Ledger, a Token); THE
+  RECRUITER sells the Raid Contracts, the hirelings' contracts and the vault gems; THE TAILOR sells the follower outfits and
+  the display cases from a menu that shows what you own already - pick a follower, pick an outfit, and it's in their
+  wardrobe for good. The Tailor takes coins from your Gutter Bank and your pockets (a Gutter Medallion is 16, a Trophy 128;
+  the change goes to your bank). Goldtooth no longer changes coins: the Gutter Bank does that.
 """
-from items import T
-from nbt import snbt
+from items import T, ITEMS
+from nbt import snbt, B, Int
 import phase28 as P28
 import phase70 as P70
 import phase70_rooms as RM
@@ -23,6 +28,17 @@ LUCKY = '#7dff6a'
 SL = P70.SLOTS
 C_LEAVE, C_STAY, C_MHOME, C_PREIN, C_OFFICE = 7724, 7725, 7726, 7727, 7728
 DECIDE_S = 75                                  # seconds a leader has before the choice passes on (with a crew waiting)
+def _retext(v, old, new):
+    if isinstance(v, dict):
+        return {k: (_retext(x, old, new) if k != 'text' or not isinstance(x, str) else x.replace(old, new)) for k, x in v.items()}
+    if isinstance(v, list):
+        return [_retext(x, old, new) for x in v]
+    return v
+
+
+for _iid, _it in ITEMS.items():
+    if _iid.startswith('cos_') and 'minecraft:lore' in _it['comps']:
+        _it['comps']['minecraft:lore'] = _retext(_it['comps']['minecraft:lore'], 'a Gutter Trophy at Goldtooth', 'a Gutter Trophy at the Tailor')
 DEN_EXIT = (2, 4, 4)                           # the den's way out (local)
 VAULT_EXIT = (34, 4, 12)                       # the treasury's way out, once the vault is open (local)
 GOLDTOOTH_AT = (3, 4, 20)                      # (2.67d) behind his counter (z 19), facing the room
@@ -206,6 +222,171 @@ def generate(G):
     G.FUNCS['p70/r/lobby/tick'][k] = G.FUNCS['p70/r/lobby/tick'][k].replace(rel(21, 4, 5), rel(bx, by, bz))
     move(rel(21, 5.4, 5), rel(bx, 5.4, bz))
     li += [f'setblock {rel(bx, by - 1, bz)} minecraft:emerald_block', f'setblock {rel(bx, by, bz)} minecraft:polished_blackstone_pressure_plate']
+
+    # ================================================================== 3. THREE SHOPKEEPERS: Goldtooth (supplies), the Recruiter, the Tailor
+    # Goldtooth's 101 trades, split: he keeps the heist supplies; the Recruiter (a villager) the contracts and the vault gems; the
+    # Tailor (a dialog shop - it knows what you own) the follower outfits and the display cases. The coin/medallion/trophy
+    # exchange goes: the Gutter Bank does that.
+    import phase99 as P99
+    import phase78 as P78
+    gtd = P70.goldtooth()
+    old_s = snbt(gtd)
+    sid = lambda o: o['sell'].get('components', {}).get('minecraft:custom_data', {}).get('bm', '')
+    worth = {'gutter_coin': 1, 'gutter_medallion': 16, 'gutter_trophy': 128}
+    gt_rec, rec_rec, price = [], [], {}
+    for o in gtd['Offers']['Recipes']:
+        k_ = sid(o)
+        if k_ in worth:
+            continue                                                         # (the exchange: the bank does it)
+        if 'contract' in k_ or k_.startswith('gem_'):
+            rec_rec.append(o)
+        elif k_.startswith('cos_') or k_.startswith('display_case'):
+            b = o['buy']; bid = b.get('components', {}).get('minecraft:custom_data', {}).get('bm', '')
+            assert bid in worth and 'buyB' not in o, (k_, b)
+            price[k_] = int(b['count']) * worth[bid]
+        else:
+            gt_rec.append(o)
+    assert len(rec_rec) >= 24 and len(price) >= 40 and len(gt_rec) <= 40, (len(rec_rec), len(price), len(gt_rec))
+    gtd['Offers']['Recipes'] = gt_rec
+    new_s = snbt(gtd)
+    n = 0
+    for i, l in enumerate(li):
+        if old_s in l:
+            li[i] = l.replace(old_s, new_s); n += 1
+    assert n == 1, "Goldtooth's summon wasn't found to split"
+    P70.goldtooth = lambda: gtd
+    # the Recruiter: contracts and gems
+    recruiter = {'Tags': ['bm.gvrec', 'bm.npc', 'bm.gvprop'], 'NoAI': B(1), 'Invulnerable': B(1), 'Silent': B(1), 'PersistenceRequired': B(1),
+                 'CustomName': _T('The Recruiter', '#9ad0ff', bold=True), 'CustomNameVisible': B(1),
+                 'VillagerData': {'type': 'minecraft:swamp', 'profession': 'minecraft:librarian', 'level': Int(5)}, 'Offers': {'Recipes': rec_rec}}
+    tailor = {'Tags': ['bm.gvtail', 'bm.npc', 'bm.gvprop'], 'NoAI': B(1), 'Invulnerable': B(1), 'Silent': B(1), 'PersistenceRequired': B(1),
+              'CustomName': _T('The Tailor', '#ff8ac8', bold=True), 'CustomNameVisible': B(1),
+              'VillagerData': {'type': 'minecraft:plains', 'profession': 'minecraft:leatherworker', 'level': Int(5)}, 'Offers': {'Recipes': []}}
+    for nm, npc, at_, tag, sub in (('rec', recruiter, RECRUITER_AT, 'bm.gvrec', 'contracts & vault gems'), ('tail', tailor, TAILOR_AT, 'bm.gvtail', 'outfits & display cases')):
+        li += [f'summon minecraft:villager {rel(*at_)} {snbt(npc)}',
+               f'tp @e[type=minecraft:villager,tag={tag},distance=..16,sort=nearest,limit=1] {rel(*at_)} 180 0',
+               lab(at_[0], 6.75, at_[2], [_T(sub, 'gray')], 0.45)]
+    li += [f'summon minecraft:interaction {rel(*TAILOR_AT)} {{Tags:["bm.gvprop","bm.tailhit"],width:1.0f,height:2.1f,response:1b}}']
+    fast += ['execute as @e[type=minecraft:interaction,tag=bm.tailhit] if data entity @s interaction run function bm:p103/tail_click',
+             'execute as @e[type=minecraft:interaction,tag=bm.tailhit] if data entity @s attack run data remove entity @s attack']
+    fn('p103/tail_click', ['execute on target at @s run function bm:p103/tl/main', 'data remove entity @s interaction'])
+
+    # ---- the wallet: coins in the bank and in your pockets, Gutter Medallions (16) and Trophies (128) counted
+    hold = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
+    fn('p103/wallet', ['function bm:p80/init_me', 'scoreboard players operation #tw bm.rng = @s bm.gbc',
+                       f'execute store result score #pc bm.rng run clear @s {hold("gutter_coin")} 0',
+                       f'execute store result score #pm bm.rng run clear @s {hold("gutter_medallion")} 0',
+                       f'execute store result score #pt bm.rng run clear @s {hold("gutter_trophy")} 0',
+                       'scoreboard players operation #tw bm.rng += #pc bm.rng', 'scoreboard players set #k16 bm.rng 16', 'scoreboard players set #k128 bm.rng 128',
+                       'scoreboard players operation #w bm.rng = #pm bm.rng', 'scoreboard players operation #w bm.rng *= #k16 bm.rng', 'scoreboard players operation #tw bm.rng += #w bm.rng',
+                       'scoreboard players operation #w bm.rng = #pt bm.rng', 'scoreboard players operation #w bm.rng *= #k128 bm.rng', 'scoreboard players operation #tw bm.rng += #w bm.rng',
+                       'execute store result storage bm:ui tl.w int 1 run scoreboard players get #tw bm.rng'])
+    # (#need coins, right after p103/wallet, which found enough: the bank first, then pocket coins, Medallions, Trophies; change to the bank)
+    fn('p103/spend', ['scoreboard players operation #b bm.rng = @s bm.gbc', 'scoreboard players operation #b bm.rng < #need bm.rng',
+                      'scoreboard players operation @s bm.gbc -= #b bm.rng', 'scoreboard players operation #need bm.rng -= #b bm.rng',
+                      'execute if score #need bm.rng matches 1.. run function bm:p103/spend_c',
+                      'execute if score #need bm.rng matches 1.. run function bm:p103/spend_m',
+                      'execute if score #need bm.rng matches 1.. run function bm:p103/spend_t',
+                      'execute if score #need bm.rng matches ..-1 run function bm:p103/change'])
+    for nm, iid, unit, have in (('c', 'gutter_coin', 1, '#pc'), ('m', 'gutter_medallion', 16, '#pm'), ('t', 'gutter_trophy', 128, '#pt')):
+        fn(f'p103/spend_{nm}', ['scoreboard players operation #k bm.rng = #need bm.rng'] +
+           ([f'scoreboard players add #k bm.rng {unit - 1}', f'scoreboard players set #u bm.rng {unit}', 'scoreboard players operation #k bm.rng /= #u bm.rng'] if unit > 1 else []) +
+           [f'scoreboard players operation #k bm.rng < {have} bm.rng', 'execute store result storage bm:ui sp.n int 1 run scoreboard players get #k bm.rng',
+            f'function bm:p103/take_{nm} with storage bm:ui sp'] +
+           ([f'scoreboard players set #u bm.rng {unit}', 'scoreboard players operation #k bm.rng *= #u bm.rng'] if unit > 1 else []) +
+           ['scoreboard players operation #need bm.rng -= #k bm.rng'])
+        fn(f'p103/take_{nm}', [f'$clear @s {hold(iid)} $(n)'])
+    fn('p103/change', ['scoreboard players operation #c bm.rng = #need bm.rng', 'scoreboard players set #u bm.rng -1', 'scoreboard players operation #c bm.rng *= #u bm.rng',
+                       'scoreboard players operation @s bm.gbc += #c bm.rng', 'scoreboard players set #need bm.rng 0',
+                       tellraw('@s', P + [T('Your change - ', 'gray'), {'score': {'name': '#c', 'objective': 'bm.rng'}, 'color': 'white', 'bold': True},
+                                          T(' coins - is in your Gutter Bank.', 'gray')])])
+
+    # ---- the Tailor's pages
+    TL = 7740
+    WHO = [('emma', 'Emma', P78.PINK), ('celi', 'Celi', '#9ad8ff'), ('zib', 'Zib', '#3ad8c8'), ('cecil', 'Cecil', '#b48cff'),
+           ('kw', 'KillerWatt', '#ffe040'), ('leo', 'Leo', '#5ab8e0'), ('demo', 'Democratus', '#7ad06a')]
+    stock = []                                       # (who, group, unlock score, k, item, name, colour, price)
+    for who, g, cur, un, ks, iid, off, apply in P99.groups():
+        for k, (cn, col) in ks.items():
+            it = iid.format(k)
+            assert it in price, f'{it} is not on sale'
+            stock.append((who, g, un, k, it, cn, col, price[it]))
+    cases = [(k_, price[k_]) for k_ in price if k_.startswith('display_case')]
+    assert len(stock) == len([k_ for k_ in price if k_.startswith('cos_')]) and TL + 10 + len(stock) <= TL + 50 and len(cases) <= 9   # (codes TL..TL+59: the Office's start at 7800)
+    wal = [_T('You have ', 'gray'), _T('$(w)', GOLD, bold=True), _T(' coins to spend', 'gray'),
+           _T(' (Gutter Bank and pockets; Medallions count 16, Trophies 128).', 'dark_gray')]
+    back = P28.btn([_T('« The Tailor', 'gray')], TL, width=180)
+    main = P28.multi([_T('THE TAILOR', '#ff8ac8', bold=True), _T('  ·  outfits for your followers', 'gray')],
+                     [P28.body([_T('Every outfit is yours for good - put it on from the follower\'s own menu (sneak + use their item). ', 'gray')], 360),
+                      P28.body(wal, 360)],
+                     [P28.btn([_T(nm, col, bold=True)], TL + 1 + i, width=180) for i, (w, nm, col) in enumerate(WHO)] +
+                     [P28.btn([_T('Display cases', GOLD, bold=True)], TL + 8, width=180)], columns=2, exit_label='Close')
+    fn('p103/tl/main', ['function bm:p103/wallet', f'scoreboard players set @s bm.menu {TL}', 'function bm:p103/tl/main_dlg with storage bm:ui tl'])
+    fn('p103/tl/main_dlg', [f'$dialog show @s {P28.inline(main)}'])
+    for i, (w, nm, col) in enumerate(WHO):
+        mine_ = [(j, x) for j, x in enumerate(stock) if x[0] == w]
+        rows = []
+        for j, (who, g, un, k, it, cn, ccol, pr) in mine_:
+            rows += [f'execute unless score @s {un} matches 0.. run scoreboard players set @s {un} 0',
+                     f'data modify storage bm:ui tl.r_{j} set value {snbt(_T(f"{pr} coins", GOLD))}',
+                     f'scoreboard players operation #q bm.rng = @s {un}', f'scoreboard players set #bit bm.rng {2 ** k}',
+                     'scoreboard players operation #q bm.rng /= #bit bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng',
+                     f'execute if score #q bm.rng matches 1 run data modify storage bm:ui tl.r_{j} set value {snbt(_T("OWNED", "#7aff7a", bold=True))}']
+        dlg = P28.multi([_T(nm.upper(), col, bold=True), _T('  ·  the Tailor', 'gray')],
+                        [P28.body(wal, 360)],
+                        [P28.btn([_T(cn, ccol, bold=True), _T('  '), f'@@RAW:r_{j}@@'], TL + 10 + j, width=180) for j, (who, g, un, k, it, cn, ccol, pr) in mine_] + [back],
+                        columns=2, exit_label='Close')
+        fn(f'p103/tl/p_{w}', ['function bm:p103/wallet', f'scoreboard players set @s bm.menu {TL}'] + rows + [f'function bm:p103/tl/p_{w}_dlg with storage bm:ui tl'])
+        fn(f'p103/tl/p_{w}_dlg', [f'$dialog show @s {P28.inline(dlg)}'])
+    cdlg = P28.multi([_T('DISPLAY CASES', GOLD, bold=True), _T('  ·  the Tailor', 'gray')],
+                     [P28.body([_T('Glass cases for your trophies and finds - set one down and put something in it.', 'gray')], 360), P28.body(wal, 360)],
+                     [P28.btn([_T(ITEMS[c]['name'], 'white', bold=True), _T('  '), _T(f'{pr} coins', GOLD)], TL + 50 + q, width=180)
+                      for q, (c, pr) in enumerate(cases)] + [back], columns=2, exit_label='Close')
+    fn('p103/tl/cases', ['function bm:p103/wallet', f'scoreboard players set @s bm.menu {TL}', 'function bm:p103/tl/cases_dlg with storage bm:ui tl'])
+    fn('p103/tl/cases_dlg', [f'$dialog show @s {P28.inline(cdlg)}'])
+    PAGES = [f'p_{w}' for w, nm, col in WHO] + ['cases']
+    pg = lambda page: f'scoreboard players set #tlp bm.rng {PAGES.index(page)}'
+    fn('p103/tl/reopen', [f'execute if score #tlp bm.rng matches {i} run return run function bm:p103/tl/{pname}' for i, pname in enumerate(PAGES)])
+    poor = lambda pr, page: ('execute if score #tw bm.rng matches ..%d run return run function bm:p103/tl/poor {n:%d}' % (pr - 1, pr))
+    fn('p103/tl/poor', ['$' + tellraw('@s', P + [T('That\'s $(n) coins - you have ', 'red'), {'score': {'name': '#tw', 'objective': 'bm.rng'}, 'color': 'white'},
+                                                  T(' (bank and pockets).', 'red')]), 'playsound minecraft:entity.villager.no player @s ~ ~ ~ 0.8 1', 'function bm:p103/tl/reopen'])
+    for j, (who, g, un, k, it, cn, ccol, pr) in enumerate(stock):
+        wn = next(nm for w, nm, c in WHO if w == who)
+        fn(f'p103/tl/b{j}', [f'execute unless score @s bm.menu matches {TL} run return run function bm:p28/stale',
+                             f'execute unless score @s {un} matches 0.. run scoreboard players set @s {un} 0',
+                             f'scoreboard players operation #q bm.rng = @s {un}', f'scoreboard players set #bit bm.rng {2 ** k}',
+                             'scoreboard players operation #q bm.rng /= #bit bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng',
+                             pg(f'p_{who}'),
+                             f'execute if score #q bm.rng matches 1 run return run function bm:p103/tl/note {{t:"{cn} is in {wn}\'s wardrobe already."}}',
+                             f'execute if items entity @s container.* {hold(it)} run return run function bm:p103/tl/note {{t:"You have that one - use it to put it in {wn}\'s wardrobe."}}',
+                             'function bm:p103/wallet', poor(pr, f'p_{who}'),
+                             f'scoreboard players set #need bm.rng {pr}', 'function bm:p103/spend', f'function bm:p99/unlock/{g}{k}',
+                             'playsound minecraft:entity.villager.yes player @s ~ ~ ~ 0.8 1', f'function bm:p103/tl/p_{who}'])
+    for q, (c, pr) in enumerate(cases):
+        fn(f'p103/tl/c{q}', [f'execute unless score @s bm.menu matches {TL} run return run function bm:p28/stale', pg('cases'), 'function bm:p103/wallet', poor(pr, 'cases'),
+                             f'scoreboard players set #need bm.rng {pr}', 'function bm:p103/spend', f'loot give @s loot bm:items/{c}',
+                             'playsound minecraft:entity.villager.yes player @s ~ ~ ~ 0.8 1', 'function bm:p103/tl/cases'])
+    fn('p103/tl/note', ['$' + tellraw('@s', P + [T('$(t)', 'gray')]), 'function bm:p103/tl/reopen'])
+    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {TL}..{TL + 59} run return run function bm:p103/tl/act')
+    fn('p103/tl/act', [f'execute if score #act bm.pay matches {TL} run return run function bm:p103/tl/main'] +
+       [f'execute if score #act bm.pay matches {TL + 1 + i} run return run function bm:p103/tl/p_{w}' for i, (w, nm, col) in enumerate(WHO)] +
+       [f'execute if score #act bm.pay matches {TL + 8} run return run function bm:p103/tl/cases'] +
+       [f'execute if score #act bm.pay matches {TL + 10 + j} run return run function bm:p103/tl/b{j}' for j in range(len(stock))] +
+       [f'execute if score #act bm.pay matches {TL + 50 + q} run return run function bm:p103/tl/c{q}' for q in range(len(cases))])
+    # ---- who sells what now, in the texts
+    for old_t, new_t in (('Goldtooth sells Raid Contracts in the den', 'The Recruiter in the den sells Raid Contracts'),
+                         ('Goldtooth sells them; use it once', 'the Recruiter in the den sells them; use it once'),
+                         ('Goldtooth sells the contract; use it once', 'the Recruiter in the den sells the contract; use it once'),
+                         (' to come into the vault. Goldtooth sells them.', ' to come into the vault. The Recruiter in the den sells them.'),
+                         ('Goldtooth sells them all.', 'The Recruiter in the den sells them all.'),
+                         ('is locked - Goldtooth sells it in the vault', 'is locked - the Tailor in the den has it'),
+                         (' ones are sold by Goldtooth in the vault (the hidden ones for a Gutter Trophy).', ' ones are sold by the Tailor in the vault\'s den (the hidden ones for 128 coins).')):
+        hit = 0
+        for f_, L_ in G.FUNCS.items():
+            for i, l in enumerate(L_):
+                if old_t in l:
+                    L_[i] = l.replace(old_t, new_t); hit += 1
+        assert hit, old_t
 
     G.FUNCS['tick'] += tick
     f = G.FUNCS['loop/fast']

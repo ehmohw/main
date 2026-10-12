@@ -125,6 +125,17 @@ def rp(R):
     R.POST.append(post)
 
 
+def groups():
+    """(follower, group, current-look score, unlocked bits, {k: (name, colour)}, item, menu offset, apply (as you)) - also the Tailor's (phase103)"""
+    return [('emma', 'ribbon', 'bm.cosr', 'bm.wur', {k: (n, c) for k, (n, c) in P78.RIBBONS.items()}, 'cos_ribbon_{}', 2, 'p78/emma_now'),
+              ('emma', 'dress', 'bm.cosd', 'bm.wud', {k: (n, c) for k, (n, c, _c2) in P78.DRESSES.items()}, 'cos_dress_{}', 12, 'p78/emma_now'),
+              ('emma', 'outfit', 'bm.coso', 'bm.wuo', dict(P89.OUTFITS), 'cos_outfit_{}', 22, 'p78/emma_now'),
+              ('celi', 'celi', 'bm.cosc', 'bm.wuc', {k: (n, c) for k, (n, c, _c2) in P78.CELI.items()}, 'cos_celi_{}', 2, 'p78/celi_now'),
+              ('zib', 'zib', 'bm.cosz', 'bm.wuz', dict(P78.ZIB), 'cos_zib_{}', 2, 'p78/zib_now')] + \
+             [(w, w, f'bm.cos{"l" if w == "leo" else "m" if w == "demo" else "ce" if w == "cecil" else "k"}', f'bm.wu{w}',
+               {k: (n, pal[1]) for k, (n, pal) in NEW[w][3].items()}, f'cos_{w}_{{}}', 2, f'p99/{w}_now') for w in NEW]
+
+
 def generate(G):
     import phase57 as P57
     fn, wjson, title, tellraw, give, PREFIX = G.fn, G.wjson, G.title, G.tellraw, G.give, G.PREFIX
@@ -132,13 +143,7 @@ def generate(G):
     P = PREFIX
     PINK = P78.PINK
     # groups: (follower, group, current-look score, unlocked bits, {k: (name, colour)}, item, menu offset, apply (as you))
-    GROUPS = [('emma', 'ribbon', 'bm.cosr', 'bm.wur', {k: (n, c) for k, (n, c) in P78.RIBBONS.items()}, 'cos_ribbon_{}', 2, 'p78/emma_now'),
-              ('emma', 'dress', 'bm.cosd', 'bm.wud', {k: (n, c) for k, (n, c, _c2) in P78.DRESSES.items()}, 'cos_dress_{}', 12, 'p78/emma_now'),
-              ('emma', 'outfit', 'bm.coso', 'bm.wuo', dict(P89.OUTFITS), 'cos_outfit_{}', 22, 'p78/emma_now'),
-              ('celi', 'celi', 'bm.cosc', 'bm.wuc', {k: (n, c) for k, (n, c, _c2) in P78.CELI.items()}, 'cos_celi_{}', 2, 'p78/celi_now'),
-              ('zib', 'zib', 'bm.cosz', 'bm.wuz', dict(P78.ZIB), 'cos_zib_{}', 2, 'p78/zib_now')] + \
-             [(w, w, f'bm.cos{"l" if w == "leo" else "m" if w == "demo" else "ce" if w == "cecil" else "k"}', f'bm.wu{w}',
-               {k: (n, pal[1]) for k, (n, pal) in NEW[w][3].items()}, f'cos_{w}_{{}}', 2, f'p99/{w}_now') for w in NEW]
+    GROUPS = groups()
     objs = sorted({g[2] for g in GROUPS} | {g[3] for g in GROUPS})
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += [o for o in objs if o not in G.OBJECTIVES]
