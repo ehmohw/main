@@ -21,7 +21,7 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
-## New in 2.67: Democratus, Leo of the shore, after the heist (home or another job), follower trios, followers swim, faces that move, the Raid Crew, follower wardrobes, game night in the vault, the Frisbee Shield, the Gutter Gentry, the Arachno-Lantern
+## New in 2.67: Democratus, Leo of the shore, after the heist (home or another job), the vault smoothed out (the Fixer's Door, three shopkeepers), follower trios, followers swim, faces that move, the Raid Crew, follower wardrobes, game night in the vault, the Frisbee Shield, the Gutter Gentry, the Arachno-Lantern
 
 ### What a heist costs, and what it pays
 - **The fee rises with the tier:** 2 Tokens at Tier I, 3 at II, 4 at III, 5 at IV and 6 at Tier V (it still goes into the Lucky Pool). **Every raider pays their own fee,** not just whoever plans the heist: anyone in the party without the Tokens stays behind. The bigger tiers pay more to match: more shares, higher prize caps and the better rooms.
@@ -120,7 +120,7 @@ A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, o
 - **The storm is his:** out in the rain (under the open sky) he's stronger, with Resistance and harder blows: the sweep 20, his lightning 12, the slam 15. **In a thunderstorm** he's stronger still: Resistance II and Regeneration, the sweep 26, lightning 15, the slam 18, and every blow charges him twice. A line under your hotbar tells you when the weather turns him. The duel goes the same way: challenge him in a thunderstorm at your peril.
 - **Slow, devastating blows:** a great sweep of the scythe every 2.5 seconds (16 damage, 8 to anything beside it). He plants his feet for each one. Every blow charges him, and at five comes his **Storm Reap**: he spins the scythe round him, the monsters near are lifted off their feet, lightning comes down on each one, and he slams them into the ground with a thud you feel.
 - **Old Rivals, with Cecil:** you hit harder (Strength), Cecil is tougher, and Democratus charges twice as fast, out to outdo him (they glare). **The Storm's Heir, with KillerWatt:** you're quicker (Speed, Jump Boost), KillerWatt is tougher and charges faster, and Democratus regenerates. **With both:** Resistance for you as well. Each pairing has its own banter and hidden achievement.
-- **Like the others:** an item frame, right-click him to sit, 5 minutes if he faints, his face moves (smirks, glares, a grimace when he's hurt), Emma's pulses reach him, and a raid contract at Goldtooth.
+- **Like the others:** an item frame, right-click him to sit, 5 minutes if he faints, his face moves (smirks, glares, a grimace when he's hurt), Emma's pulses reach him, and a raid contract at the Recruiter.
 - **His challenge:** sneak + use the seal for his menu: **Duel him**, his wardrobe, or send him home. Duelling, you get **ten seconds to put some distance between you**, then he fights you for real: 400 health, heavy sweeps, a lunging slash, lightning called down where you stand, and his Storm Reap. **Drop to three hearts** (or fall, or run more than 64 blocks) and you've lost: he simply goes home, to be called again, and **challenged again right away, with no cooldown**. **Bring him to his knee and you win:** the first time, **Democratus' Scythe** is yours (achievement *Reaper's Due*). It's one per player; later wins earn only his respect.
 - **His scythe:** heavy and slow (15 damage, a long reach). Every blow arcs lightning to two monsters close by and charges the blade, and at eight charges you unleash a **Storm Reap** of your own.
 
@@ -131,7 +131,7 @@ A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, o
 - **He fights with a trident:** a thrust up close (9 damage, with a little sweep), and at range (6-14 blocks) he throws it. It comes back to him (Loyalty), and in a thunderstorm it calls down lightning (Channeling), never within 6 blocks of you.
 - **Strong but caring:** drop to 4 hearts with a monster about and he's at your side, on guard. The monsters around you turn on him, and you get Resistance II and some absorption (30 seconds to recover). In a fight with him close by: Resistance I. **While he's with you, you breathe underwater** (no particles, no fuss); in the water with him you swim like he does (Dolphin's Grace).
 - **With Celi, Steel and Frost:** you get Strength, he covers her (Resistance), and his thrusts freeze like her spear. **With Emma, the Knight's Vow:** you regenerate, he shields her (Resistance II), and his guard comes back twice as fast. **With both:** Speed as well. Celi bickers, Emma cheers, and he smiles. Each pairing has its own hidden achievement.
-- He has his own raid contract at Goldtooth (1 Gutter Trophy and 5 Medallions).
+- He has his own raid contract at the Recruiter (1 Gutter Trophy and 5 Medallions).
 - **Right-click him to sit him down** (or stand him up): he sits on the ground leaning back on one hand, the trident across his knees, breathing, looking out to sea, and now and then standing the trident up beside him like a staff.
 - **He can be hung in an item frame** like Cecil, Emma and Celi: put his crest in a frame and he lives by it (right-click the frame: sit / stand; sneak + right-click: in / out).
 - He animates: a watchful idle with an eye on the sea, a steady stride, a levelled charge, a salute when he arrives, the thrust, the throw, and on guard.
@@ -175,15 +175,37 @@ With three particular followers at your side at once (within 24 blocks), you get
 - **Pearlman** follows you with his eyes smoothly instead of turning in a jerk once a second.
 - **Emma walks and runs playfully now:** her arms swing out wide from her sides, her hands flare, and each foot steps in front of the other.
 
+### The vault, smoothed out
+- **The way out asks first while a heist is on.** Step into the Fixer's Door mid-run and you're asked: leave now (your share stays behind, and the crew carries on) or stay. Before the heist begins, after a win or after a fail, it's instant as ever. Standing in the door asks once; step out and back in to be asked again.
+- **The Fixer's Door** replaces the old exit plates. It's an archway in the tier's metal with a swirl you walk into: in the den against the west wall, and in the treasury against the far wall (it starts swirling once the vault opens).
+- **Nobody has to wait on the leader.** When a heist ends, the crew get their own card: **Head home now**, or **I'm in if we go again**. Say you're in and you're taken along without being asked again (you pay your own fee then).
+- **A leader who hasn't chosen in 75 seconds** passes the choice on to the crew. A solo raider takes as long as they like.
+- **Closed the card?** Use the Fixer's Ledger: while the choice is yours it opens again. Its Office button carries on to the Office.
+- **One card at the end.** The payout's string of chat lines is one line now ("Heist won! The Haul: 5 Tokens, 23 coins"). The end-of-heist card, the leader's and the crew's, opens with how it went: won (the tier, your shares, Tokens, coins, any Medallions or a BM Trophy) or failed. It comes up three seconds after the payout. The Lucky split, first clears, Shifting Cores and BM Trophies still go to chat.
+- **The den, laid out by job:**
+  - **The market counter** (south-west): Goldtooth, the Recruiter and the Tailor stand behind it, with nothing behind them.
+  - **The office counter** (north wall): the Gutter Bank, the Armory, the haul lectern and a new **Raid Crew board** side by side.
+  - **The Lockers** are through a copper door on the north wall (right-click it), well away from the way out.
+  - **"Back to the crew"** is a plate you can see, by the far door.
+- **Three shopkeepers** instead of one Goldtooth with 101 trades:
+  - **Goldtooth** keeps the heist supplies: tools, potions, food, spoils, Bond Sigils, the Ledger and a Token.
+  - **The Recruiter** sells the Raid Contracts, the hirelings' contracts and the vault gems.
+  - **The Tailor** sells the follower outfits and the display cases from a menu that shows what you own. Pick a follower, then an outfit, and it's in their wardrobe for good. (Holding that outfit already? It tells you to use it instead.) The Tailor takes coins from your Gutter Bank and your pockets (a Gutter Medallion counts as 16, a Trophy as 128), and the change goes into your bank.
+  - Goldtooth no longer changes coins; the Gutter Bank does that.
+- **The Raid Crew page says where everyone is:** IN THE VAULT, RESTING (with the seconds left), WAITING (crew full), ON THE WAY, ON, OFF or no contract. On a heist it also shows "2/2 with you now".
+- **Who comes first** is whoever you switched ON first. Switch one off and on again to send it to the back. The page lists them in that order, then the OFF ones, then the rest. If the crew is over the limit (someone joined your heist), the one last in line goes home.
+- **Your Overworld followers wait outside.** A follower you leave behind going into a heist says it "waits outside the vault", and three seconds after you're home again it's called back to you (if it isn't resting and you're under the cap).
+- **BEGIN has a ready check.** It starts the heist at once only if everyone has a kit and nobody's at the Lockers. Otherwise it names who isn't ready; press BEGIN again within ten seconds to go anyway (anyone without a kit takes the Offense loaners, as before).
+
 ### Follower wardrobes
 - **An outfit is yours for good:** use a cosmetic once and it's unlocked in that follower's wardrobe (the item is used up).
 - **Every follower has a menu:** sneak + use their own item, any time in the Overworld, whether they're out or not. From it you can send them home, or change them into any outfit they own, or back into their own clothes. Locked outfits say where to get them. With Emma out, sneak + use still opens her buff menu, which now has a **Wardrobe** button; Democratus' challenge menu has one too.
-- **New at Goldtooth:**
+- **New at the Tailor** (Goldtooth sold them before 2.67d):
   - **Leo's Tabards:** Crimson Crusader, Royal Purple, Greenwood.
   - **Democratus' Cloaks:** Crimson Reaper, Ashen Shroud, Royal Violet. His hood changes with his cloak, and his face still moves on it.
   - **Cecil's Robes:** Crimson, Midnight, Bone.
   - **KillerWatt's Colours:** Midnight, Bone, Neon.
-  - Each set has a rare hidden fourth (Golden Champion, Gilded Storm, Gilded and Golden Thunder) for a Gutter Trophy. The rest cost 4 Gutter Medallions.
+  - Each set has a rare hidden fourth (Golden Champion, Gilded Storm, Gilded and Golden Thunder) for 128 coins (a Gutter Trophy's worth). The rest cost 64 coins (4 Gutter Medallions).
   - Cecil's robe and KillerWatt's colours are their own look: with a gem in them, the gem's element shows instead, and the outfit comes back when the gem comes out.
 - Every follower keeps their cosmetics through a recall, being sent home and called again, a new support role (Emma) and a rebuilt rig.
 - **Emma's ethereal form keeps its own armour and wings.** Your outfit choices are for her normal form: when she comes back down she's wearing them again (dress her while she's ethereal and she changes when she lands). The Cozy Sweater now shows her support role's colour too, with a heart pin.
@@ -193,14 +215,14 @@ With three particular followers at your side at once (within 24 blocks), you get
 - **One Ethereal Gem per heist:** the first raider through the door keeps one. Any others (and any brought in later in the same run) are held in your coat-check bag until you leave.
 
 ### Followers in the vault: the Raid Crew
-- **Raid contracts** at Goldtooth: once signed, Cecil, Emma, Celi, Leo, Democratus, Zib, the Skiff Escorts or KillerWatt can come into the vault. The **Frog** and **Donado** contracts bring a vault hire in his own iron kit; the one you hired at home stays home.
+- **Raid contracts** at the Recruiter: once signed, Cecil, Emma, Celi, Leo, Democratus, Zib, the Skiff Escorts or KillerWatt can come into the vault. The **Frog** and **Donado** contracts bring a vault hire in his own iron kit; the one you hired at home stays home.
 - **The Fixer's Ledger has a Raid Crew page.** Every follower you've signed for, every vault hire and every hireling you've hired is listed, each switched **ON** or **OFF** with a click. On a heist the ones switched on come along by themselves (and come back after a faint once they've recovered); switch one off and they go home. Hirelings are one at a time, as before.
 - **Summoning items stay at the coat check:** the ledger is how your crew comes in.
 - **Contracts are filed:** a hireling's or vault hire's contract, used once, goes into the ledger and isn't needed after.
 - **A party raids light:** one follower each when two or more of you go in, two when you raid alone (a hireling doesn't count). If someone joins mid-heist, the extra follower heads home.
 - **Leave the heist, any way at all, and the raid crew goes home there and then.**
 - **Raid followers are back sooner:** one who faints in the vault comes back after 45 seconds instead of 5 minutes (a heist can be over quickly). Outside the vault it's still 5 minutes.
-- **The followers' wardrobe** at Goldtooth: Emma's ribbons and dresses, Celi's and Zib's outfits (the hidden ones for a Gutter Trophy) and Pearlman's gems.
+- **The followers' wardrobe** at the Tailor: Emma's ribbons and dresses, Celi's and Zib's outfits (the hidden ones for 128 coins). Pearlman's gems are at the Recruiter.
 - **Emma's new outfits:** the Flower Top and the Cozy Sweater, each with a high ponytail.
 
 ### The vault's own rules
@@ -210,7 +232,7 @@ With three particular followers at your side at once (within 24 blocks), you get
   - Kit gear is pulled back out of lockers, your ender chest, bundles, boxes and The Haul.
   - Only the paperweights and food can be put down.
 - **The Locker Hall:** an unclaimed bay is locked; claim it first.
-- **Vault gems:** the gems Goldtooth sells belong to the vault and stay in it.
+- **Vault gems:** the gems the Recruiter sells belong to the vault and stay in it.
   - They're taken at the door on the way out.
   - They can't be set down as decorations or fused.
   - Hand one to Cecil or KillerWatt and take it back, and you get the vault gem back.
@@ -324,7 +346,7 @@ The heist is now a proper dungeon run: non-linear, different in every tier, full
 - **Random events:** the **Rat Rave** (stand on the DJ's colour when the beat drops), the **Rats' Rest** (a tavern with a peddler; get knocked out after it and you wake there), the **Storm Vault** (pull three levers while dodging lightning), a **Vorn Landing** (smash the saucer's cores) and the **Enchanted Grove** (catch the wisps).
 - **Secrets and rarities:** loose bricks (right-click a cracked block) hide coins, rare finds or a **Phantom Thief** who runs off with your pot. Look out for the **Coin Rat** and **shiny guards** (1 in 150). Hidden gear only drops from these: the **Phantom Regalia** (invisible while sneaking, soft falls), the **Gutter Master Key**, the **Lantern of Lost Things** and the **Lucky Rat's Foot**.
 - **Kits that fight like their gear:** the Tank's **Bulwark Horn** (shields you and the crew, slows guards), the Offense's **Shadowstep Charm** (blink forward, unseen, Strength; kills give a burst of speed and healing), the Ranged kit's **Volley Quiver** (five arrows; the Fairy Bow pins what it hits) and Support's **Tidal Ward** (heals, shields, cleanses; Lifeline when you fall low).
-- **Hirelings** (contracts from Goldtooth, yours for good, but they never leave the vault): Knuckles the brawler, Doc Whiskers the medic, Fingers the pickpocket, Tick-Tock the turret and Boomer the demolitions rat.
+- **Hirelings** (contracts from the Recruiter, yours for good, but they never leave the vault): Knuckles the brawler, Doc Whiskers the medic, Fingers the pickpocket, Tick-Tock the turret and Boomer the demolitions rat.
 - **Two new modes** (after a Tier I clear): **the Endless Vault**, where rooms never end and get harder and richer every four, with a cash-out plate at every fifth room's Rest; and **the Pit**, an arena of waves with a guardian every fifth and a cash-out plate between waves.
 - **Music and ambience:** every tier has its own track, plus themes for the guardian, the Rave, the Rest and the Pit, along with room ambience.
 - **Goldtooth's new stock:** Healing Draughts, Second Wind (+1 try), a Treasure Map Scrap, the Golden Compass and the Fixer's Lucky Purse.
@@ -492,7 +514,7 @@ Use the item again to call them back. Each call issues a fresh ticket, so a copy
 ## New in 2.61: display cases, Zib, Skiff Escorts, the vault's coat check
 
 ### Glass display cases
-Goldtooth sells four in the Fixer's Den, for Gutter Coins: **Oak** (3), **Dark Oak** (3), **Quartz** (5) and **Gilded** (8).
+The Tailor sells four in the Fixer's Den, for Gutter Coins: **Oak** (3), **Dark Oak** (3), **Quartz** (5) and **Gilded** (8).
 - **Placing one:** use it while looking at a floor and it stands there. Use it on a wall and it hangs there, facing out. (Not ceilings or corners.)
 - **Using one:** right-click it holding anything and one of the stack goes in. Right-click it empty-handed to take it out. Sneak + right-click and it slowly turns its treasure.
 - **Taking it back:** sneak + punch picks the case up. Whatever was inside drops out.
@@ -563,7 +585,7 @@ A raid with puzzles, guards, an alarm and five tiers. It works solo too, and it 
 
 ### The vault's treasures
 - **Gutter Coins:** the vault's own money, spent with **Goldtooth** in the den.
-  - Goldtooth sells smoke bombs, lockpicks, Clockwork Key fragments, the Thief's Cowl, Smuggler's Boots, the Cipher Monocle, the follower cosmetics and the Vault Hound Whistle.
+  - Goldtooth sells smoke bombs, lockpicks, Clockwork Key fragments, the Thief's Cowl, Smuggler's Boots, the Cipher Monocle and the Vault Hound Whistle. (The follower outfits are the Tailor's now, and the contracts the Recruiter's.)
   - Coins are never used in the market and never counted for standing.
 - **Gilded set** (first clears of tiers I to IV): diamond-grade armour, +1 Luck per piece. The full set gives no fall damage, and nearby drops fly to you.
 - **Thief's Cowl:** invisible and quick while you sneak.
