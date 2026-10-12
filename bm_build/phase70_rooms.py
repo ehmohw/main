@@ -123,6 +123,9 @@ def tiles():
             c, r = (x - 3) // 3, (z - 5) // 3
             b.set(x, FY, z, 'minecraft:polished_blackstone' if (c + r) % 2 == 0 else 'minecraft:gilded_blackstone')
             b.set(x, 2, z, 'minecraft:air'); b.set(x, 1, z, 'minecraft:air'); b.set(x, 0, z, 'minecraft:hay_block')
+    for x in range(3, 21):                               # (2.68) the pit runs wall to wall: no walking round the tiles along the sides
+        for z in list(range(1, 5)) + list(range(20, 24)):
+            b.set(x, FY, z, 'minecraft:air'); b.set(x, 2, z, 'minecraft:air'); b.set(x, 1, z, 'minecraft:air'); b.set(x, 0, z, 'minecraft:hay_block')
     for z in range(5, 20):
         b.set(1, FY, z, 'minecraft:gold_block'); b.set(2, FY, z, 'minecraft:gold_block')
         b.set(21, FY, z, 'minecraft:gold_block'); b.set(22, FY, z, 'minecraft:gold_block'); b.set(23, FY, z, 'minecraft:gold_block')

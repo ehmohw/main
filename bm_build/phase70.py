@@ -270,7 +270,7 @@ def generate(G):
        [f'execute if score @s bm.gvi matches {s + 1} in bm:gutter run tp @s 3.5 {Y0 + 4} {zoff(s) + 12.5} -90 0' for s in range(SLOTS)] +
        ['scoreboard players set #add bm.rng 10', 'scoreboard players operation #gi bm.rng = @s bm.gvi', 'function bm:p70/alarm_inst',
         'function bm:p70/glass_check',
-        tellraw('@s', P + [T('Knocked out! ', 'red', bold=True), T('The gang drags you back to the den. Your things are where you fell.', 'gray')])])
+        tellraw('@s', P + [T('Knocked out! ', 'red', bold=True), T('The gang drags you back to the den - and what you dropped comes back to you.', 'gray')])])
 
     # ------------------------------------------------------------------ the heist itself: the den is its heart (the instance marker)
     fn('p70/inst_init', ['tag @s add bm.gvinst', 'scoreboard players operation @s bm.gvt = #gt bm.rng', 'scoreboard players operation @s bm.gvmod = #gm bm.rng',
@@ -497,7 +497,7 @@ def generate(G):
                             'execute if score @s bm.gvpk matches 1.. as @e[type=marker,tag=bm.gvtile,distance=..14,scores={bm.gvsafe=1}] at @s run particle minecraft:happy_villager ~ ~0.2 ~ 0.6 0 0.6 0 1',
                             'execute as @e[type=marker,tag=bm.gvtile,distance=..14,scores={bm.gvsafe=0},tag=!bm.gvdown] at @s if entity @a[tag=bm.gvp,distance=..1.15] run function bm:p70/r/tiles/drop',
                             'execute as @e[type=marker,tag=bm.gvtile,tag=bm.gvdown,distance=..14] run function bm:p70/r/tiles/back',
-                            f'execute positioned {rel(3, 0, 5)} positioned ~-0.5 ~-0.5 ~-0.5 as @a[tag=bm.gvp,dx=17,dy=2.4,dz=14] at @s run function bm:p70/r/tiles/pit',
+                            f'execute positioned {rel(3, 0, 1)} positioned ~-0.5 ~-0.5 ~-0.5 as @a[tag=bm.gvp,dx=17,dy=2.4,dz=22] at @s run function bm:p70/r/tiles/pit',   # (2.68: the side strips are pit too)
                             f'execute positioned {rel(22, 4, 12)} if entity @a[tag=bm.gvp,distance=..2] positioned as @s run function bm:p70/solved'])
     fn('p70/r/tiles/peek', ['tag @s add bm.gvlatch', 'scoreboard players set @s bm.gvpk 60', 'scoreboard players add @s bm.gvc 1',
                             'execute if score @s bm.gvc matches 2.. run scoreboard players set #add bm.rng 5', 'execute if score @s bm.gvc matches 2.. run function bm:p70/alarm_inst',
