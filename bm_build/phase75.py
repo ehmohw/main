@@ -2,10 +2,11 @@
 
 GETTING IN: the Heist Plans (the Fence). Pick a tier, then your TRIES (3, 5 or 7 - how many knock-outs your crew can take;
   each crewmate past the first adds one). The Fixer's fee is 3 Black Market Tokens a head; every fee goes into the
-  LUCKY POOL. One heist in a hundred (three in a hundred on a Lucky Night) is a LUCKY RAID: win it and the crew splits the pool.
+  LUCKY POOL. From Tier III, one heist in 150 (three in 150 on a Lucky Night) is a LUCKY RAID: harder, and win it and the crew
+  splits the pool (2.67b: an even share each, the odd Tokens to the leader).
 DYING: you wake in the den (your spawn is set there for the heist - your own bed or spawn comes back the moment you
   leave). Every knock-out costs the crew a try. Out of tries: THE HEIST FAILS - everyone is pulled back to the den,
-  everything gathered is lost, and the Fixer draws up a fresh plan to try again. The emerald plate in the den takes you
+  everything gathered is lost (2.67b: and the leader decides - home, or a new raid; phase101). The emerald plate in the den takes you
   back to the crew (the last door you opened).
 THE POT: guards drop nothing - they pay into the crew's pot (watch the bar), and so do secrets, trophies already
   earned and rarer foes. The pot and every find are packed into The Haul at the end - only if you win.
@@ -31,7 +32,10 @@ FEE = 3
 POOL_SEED = 10
 LIVES = {1: 3, 2: 5, 3: 7}
 BONUS_PICK = {3: 4, 5: 2, 7: 0}               # shares for daring fewer tries (the most - Tier V; see BONUS_PICK_T)
-PRIZE_TOK = {1: (25, 1, 1), 2: (35, 1, 1), 3: (50, 1, 2), 4: (60, 1, 3), 5: (70, 2, 5)}      # (2.67) tier: (% chance, least, most) Tokens a heist
+PRIZE_TOK = {1: (2, 15), 2: (3, 20), 3: (4, 25), 4: (5, 30), 5: (6, 35)}   # (2.67b) tier: (Tokens for sure - the fee back - , % chance of 2-5 more) a won heist
+PRIZE_BONUS = (2, 5)
+LUCKY_IN = 150                                # (2.67b) one heist in 150 is a Lucky Raid (three in 150 on a Lucky Night) - Tier III and up only
+LUCKY_TIER = 3
 PRIZE_MED = {3: (5, 1, 1), 4: (12, 1, 1), 5: (22, 1, 2)}                                  # Medallions: none below Tier III, two at most
 PRIZE_TRO = {5: 15}                                                                       # a BM Trophy: Tier V only, 15 in 1000
 BONUS_PICK_T = {3: {1: 1, 2: 1, 3: 2, 4: 3, 5: 4}, 5: {1: 0, 2: 0, 3: 1, 4: 2, 5: 2}}     # (2.67) tries -> {tier: shares}
@@ -62,7 +66,7 @@ def generate(G):
     P = [T('[Heist] ', GOLD, bold=True)]
     rel = RM.rel
     tick, fast, second = [], [], []
-    objs = ['bm.gvlv', 'bm.gvlc', 'bm.gvpot', 'bm.gvlu', 'bm.gvlp', 'bm.gvpt', 'bm.gvq', 'bm.gvlaur', 'bm.gvtro', 'bm.gvbs', 'bm.gvfail', 'bm.gvdc']
+    objs = ['bm.gvlv', 'bm.gvlc', 'bm.gvpot', 'bm.gvlu', 'bm.gvlp', 'bm.gvpt', 'bm.gvq', 'bm.gvlaur', 'bm.gvtro', 'bm.gvbs', 'bm.gvfail', 'bm.gvdc', 'bm.gvld']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + \
         [f'execute unless score #lpool bm.gvlp matches 1.. run scoreboard players set #lpool bm.gvlp {POOL_SEED}',
          'execute in minecraft:overworld summon minecraft:marker run function bm:p75/wsp']
@@ -199,9 +203,11 @@ def generate(G):
         k = next(i for i, l in enumerate(cl) if 'forceload add' in l)
         cl[k] = f'execute in bm:gutter run forceload add {FL_X[0]} {z0 - 32} {FL_X[1]} {z0 + 48}'
         cl[k:k] = [f'scoreboard players operation #lc{s} bm.gvlc = #lv bm.rng', f'scoreboard players set #lu{s} bm.gvlu 0',
-                   'execute store result score #r bm.rng run random value 1..100',
-                   f'execute if score #r bm.rng matches ..1 run scoreboard players set #lu{s} bm.gvlu 1',
-                   f'execute if score #lnight bm.bm matches 1 if score #r bm.rng matches ..3 run scoreboard players set #lu{s} bm.gvlu 1']
+                   f'execute store result score #r bm.rng run random value 1..{LUCKY_IN}',
+                   f'execute if score #t bm.rng matches {LUCKY_TIER}.. if score #r bm.rng matches ..1 run scoreboard players set #lu{s} bm.gvlu 1',
+                   f'execute if score #t bm.rng matches {LUCKY_TIER}.. if score #lnight bm.bm matches 1 if score #r bm.rng matches ..3 run scoreboard players set #lu{s} bm.gvlu 1',
+                   # (2.67b) the one who planned it leads the crew: the odd Tokens of a Lucky pool are theirs, and theirs the choice when it's over
+                   f'scoreboard players operation #ld{s} bm.gvld = @s bm.pid']
         # cleanup: every piece by its marker, then the entities
         G.FUNCS[f'p70/s{s}/clean'] = [f'scoreboard players set #gi bm.rng {s + 1}', 'execute in bm:gutter run function bm:p75/clean_pieces',
                                       f'execute in bm:gutter positioned {FL_X[0] - 4} 30 {z0 - 40} run kill @e[type=!minecraft:player,dx={FL_X[1] - FL_X[0] + 8},dy=90,dz=100]',
@@ -267,7 +273,7 @@ def generate(G):
             'function bm:p75/pool_show']
     fn('p75/pool_show', [f'execute as @e[type=minecraft:text_display,tag=bm.gvpoold,distance=..30] run data modify entity @s text set value '
                          + snbt([T('THE LUCKY POOL\n', LUCKY, bold=True), {'score': {'name': '#lpool', 'objective': 'bm.gvlp'}, 'color': 'white', 'bold': True},
-                                 T(' Tokens\n', 'white'), T('Every fee drops in. Win a Lucky Raid\n(1 in 100) and the crew splits it.', 'gray')])])
+                                 T(' Tokens\n', 'white'), T('Every fee drops in. Win a Lucky Raid\n(1 in 150, Tier III and up) and\nthe crew splits it.', 'gray')])])
     G.FUNCS['p70/r/lobby/tick'] += [f'execute positioned {rel(21, 4, 5)} as @a[tag=bm.gvp,distance=..0.8] at @s run function bm:p75/to_crew']
     fn('p75/to_crew', ['scoreboard players operation #gi bm.rng = @s bm.gvi', 'scoreboard players set #st bm.rng 0',
                        'execute as @e[type=minecraft:marker,tag=bm.gvinst] if score @s bm.gvi = #gi bm.rng store result score #st bm.rng run scoreboard players get @s bm.gvst',
@@ -356,7 +362,7 @@ def generate(G):
                                  '(you can try again).', 'gray')]),
                      P28.body([T('Fewer tries, bigger haul - the higher the tier, the bigger. ', GOLD), T('No knock-outs at all: a share more (two from Tier III).', 'gray')]),
                      P28.body([T(f'The Fixer\'s fee: {FEE} Tokens each, into the Lucky Pool (now ', 'dark_gray'), T('$(p)', LUCKY, bold=True),
-                               T('). One heist in a hundred is a Lucky Raid - win it and the pool is yours.', 'dark_gray')])],
+                               T('). From Tier III, one heist in 150 is a Lucky Raid - harder, but win it and the crew splits the pool.', 'dark_gray')])],
                     [lbtn(1, 3, '#ff5a5a', '+1 to +4 shares (by tier) - for the bold'), lbtn(2, 5, GOLD, '+0 to +2 shares (by tier)'), lbtn(3, 7, LUCKY, 'no bonus - for a first try')],
                     columns=1, exit_label='Back')
     fn('p75/lives_menu', ['execute store result storage bm:gv m.p int 1 run scoreboard players get #lpool bm.gvlp', f'scoreboard players set @s bm.menu {MENU}',
@@ -445,7 +451,7 @@ def generate(G):
                          f'execute in bm:gutter if data block {HA} Items[26] run loot insert {HB} loot {table}']
     wjson('bm/loot_table/p75/pot_coins.json', {'pools': [{'rolls': 1, 'entries': [G.loot_entry('gutter_coin', {'type': 'minecraft:score', 'target': {'type': 'minecraft:fixed', 'name': '#pot'},
                                                                                                              'score': 'bm.rng'})]}]})
-    wjson('bm/loot_table/p75/pool_tokens.json', {'pools': [{'rolls': 1, 'entries': [G.loot_entry('token', {'type': 'minecraft:score', 'target': {'type': 'minecraft:fixed', 'name': '#lpe'},
+    wjson('bm/loot_table/p75/pool_tokens.json', {'pools': [{'rolls': 1, 'entries': [G.loot_entry('token', {'type': 'minecraft:score', 'target': {'type': 'minecraft:fixed', 'name': '#lpx'},
                                                                                                          'score': 'bm.rng'})]}]})
     fn('p75/pot_pay', ['execute store result storage bm:gv tmp.pid int 1 run scoreboard players get @s bm.pid', 'function bm:p75/pot_pay2 with storage bm:gv tmp'])
     fn('p75/pot_pay2', ['$data modify storage bm:gv pp set from storage bm:gv pot.p$(pid)', '$data remove storage bm:gv pot.p$(pid)', 'function bm:p75/pot_pay3'])
@@ -456,7 +462,8 @@ def generate(G):
     k = haul.index('function bm:p74/haul_pack')
     haul[k:k] = ([l.replace('execute in bm:gutter', 'execute if score #pot bm.rng matches 1.. in bm:gutter') for l in ins('bm:p75/pot_coins')] +
                  ['function bm:p75/pot_pay'] +
-                 [l.replace('execute in bm:gutter', 'execute if score #lpe bm.rng matches 1.. in bm:gutter') for l in ins('bm:p75/pool_tokens')])
+                 ['scoreboard players operation #lpx bm.rng = #lpe bm.rng', 'execute if entity @s[tag=bm.lkld] run scoreboard players operation #lpx bm.rng += #lrm bm.rng'] +
+                 [l.replace('execute in bm:gutter', 'execute if score #lpx bm.rng matches 1.. in bm:gutter') for l in ins('bm:p75/pool_tokens')])
     pay = G.FUNCS['p70/payout_inst']
     k = next(i for i, l in enumerate(pay) if 'execute if score #sh bm.rng matches ..1 run scoreboard players set #sh bm.rng 2' in l)
     # (2.67) daring fewer tries pays by the tier - a little at Tier I, the full four shares only at Tier V; a clean run likewise
@@ -468,12 +475,25 @@ def generate(G):
                         'scoreboard players set #pb bm.rng 0', 'execute if score @s bm.gvlc matches 3 run scoreboard players add #pb bm.rng 10',
                         'execute if score @s bm.gvlc matches 5 run scoreboard players add #pb bm.rng 5', 'execute if score @s bm.gvdc matches 0 run scoreboard players add #pb bm.rng 5',
                         'scoreboard players operation #plu bm.rng = @s bm.gvlu',
-                        'scoreboard players operation #pot bm.rng = @s bm.gvpot', 'scoreboard players set #lpe bm.rng 0',
+                        'scoreboard players operation #pot bm.rng = @s bm.gvpot', 'scoreboard players set #lpe bm.rng 0', 'scoreboard players set #lrm bm.rng 0',
                         'execute if score @s bm.gvlu matches 1 run function bm:p75/lucky_pay']
-    fn('p75/lucky_pay', ['scoreboard players operation #lpe bm.rng = #lpool bm.gvlp', 'execute if score #np bm.rng matches 1.. run scoreboard players operation #lpe bm.rng /= #np bm.rng',
+    fn('p75/lucky_pay', ['scoreboard players operation #lpe bm.rng = #lpool bm.gvlp', 'scoreboard players set #lrm bm.rng 0',
+                         'execute if score #np bm.rng matches 2.. run scoreboard players operation #lrm bm.rng = #lpe bm.rng',
+                         'execute if score #np bm.rng matches 2.. run scoreboard players operation #lrm bm.rng %= #np bm.rng',
+                         'execute if score #np bm.rng matches 2.. run scoreboard players operation #lpe bm.rng /= #np bm.rng',
                          'execute if score #lpe bm.rng matches ..0 run scoreboard players set #lpe bm.rng 1',
-                         tellraw('@a[tag=bm.gvme]', P + [T('LUCKY RAID WON! ', LUCKY, bold=True), T('The crew splits the pool: ', 'gray'),
-                                                        {'score': {'name': '#lpe', 'objective': 'bm.rng'}, 'color': LUCKY, 'bold': True}, T(' Tokens each, in The Haul.', 'gray')]),
+                         # the leader (who planned it - or, gone, whoever's first) takes the odd Tokens
+                         'scoreboard players set #lead bm.rng 0'] +
+       [f'execute if score @s bm.gvi matches {s + 1} run scoreboard players operation #lead bm.rng = #ld{s} bm.gvld' for s in range(SLOTS)] +
+       ['execute as @a[tag=bm.gvme] if score @s bm.pid = #lead bm.rng run tag @s add bm.lkld',
+        'execute unless entity @a[tag=bm.lkld] run tag @a[tag=bm.gvme,limit=1] add bm.lkld',
+        'execute if score #np bm.rng matches ..1 run ' + tellraw('@a[tag=bm.gvme]', P + [T('LUCKY RAID WON! ', LUCKY, bold=True), T('The whole pool is yours: ', 'gray'),
+                                                                                          {'score': {'name': '#lpe', 'objective': 'bm.rng'}, 'color': LUCKY, 'bold': True}, T(' Tokens, in The Haul.', 'gray')]),
+        'execute if score #np bm.rng matches 2.. run ' + tellraw('@a[tag=bm.gvme]', P + [T('LUCKY RAID WON! ', LUCKY, bold=True), T('The crew splits the pool: ', 'gray'),
+                                                                                          {'score': {'name': '#lpe', 'objective': 'bm.rng'}, 'color': LUCKY, 'bold': True}, T(' Tokens each, in The Haul', 'gray')]),
+        'execute if score #np bm.rng matches 2.. if score #lrm bm.rng matches 1.. run ' + tellraw('@a[tag=bm.gvme]', P + [T('...and the odd ', 'gray'),
+                                                                                          {'score': {'name': '#lrm', 'objective': 'bm.rng'}, 'color': LUCKY, 'bold': True}, T(' to the leader, ', 'gray'),
+                                                                                          {'selector': '@a[tag=bm.lkld]', 'color': 'white'}, T('.', 'gray')]),
                          f'scoreboard players set #lpool bm.gvlp {POOL_SEED}', 'execute as @e[type=minecraft:marker,tag=bm.gvr_lobby] at @s run function bm:p75/pool_show'])
     # ================================================================== (2.67) THE PRIZE: Tokens, Medallions - and at Tier V, rarely, a BM Trophy
     # One capped roll per player per heist (no heist loot table carries them any more): Tier I-II one Token at most, Tier V five;
@@ -490,8 +510,12 @@ def generate(G):
                                                                                                     {'type': 'minecraft:score', 'target': {'type': 'minecraft:fixed', 'name': sc}, 'score': 'bm.rng'})]}]})
     fn('p75/prize', ['scoreboard players set #ptk bm.rng 0', 'scoreboard players set #pmd bm.rng 0', 'scoreboard players set #ptr bm.rng 0',
                      'scoreboard players operation #pbh bm.rng = #pb bm.rng', 'scoreboard players operation #pbh bm.rng /= #2 bm.rng'] +
-       prize_count('#ptk', PRIZE_TOK, '#pb') +
-       [f'execute if score #plu bm.rng matches 1 if score #gt bm.rng matches {t} run scoreboard players set #ptk bm.rng {hi}' for t, (c, lo, hi) in PRIZE_TOK.items()] +
+       # (2.67b) the fee back for sure, and a chance of 2-5 more (fewer tries and a clean run raise it; a Lucky Raid makes it five)
+       [f'execute if score #gt bm.rng matches {t} run scoreboard players set #ptk bm.rng {sure}' for t, (sure, pct) in PRIZE_TOK.items()] +
+       ['scoreboard players set #pbx bm.rng 0', 'execute store result score #r bm.rng run random value 1..100', 'scoreboard players operation #r bm.rng -= #pb bm.rng'] +
+       [f'execute if score #gt bm.rng matches {t} if score #r bm.rng matches ..{pct} store result score #pbx bm.rng run random value {PRIZE_BONUS[0]}..{PRIZE_BONUS[1]}'
+        for t, (sure, pct) in PRIZE_TOK.items()] +
+       [f'execute if score #plu bm.rng matches 1 run scoreboard players set #pbx bm.rng {PRIZE_BONUS[1]}', 'scoreboard players operation #ptk bm.rng += #pbx bm.rng'] +
        prize_count('#pmd', PRIZE_MED, '#pbh') +
        ['execute store result score #r bm.rng run random value 1..1000'] +
        [f'execute if score #gt bm.rng matches {t} if score #r bm.rng matches ..{c} run scoreboard players set #ptr bm.rng 1' for t, c in PRIZE_TRO.items()] +
@@ -499,6 +523,8 @@ def generate(G):
         for l in ins(f'bm:p75/prize_{nm}')] +
        ['execute if score #ptk bm.rng matches 1.. run ' + tellraw('@s', P + [T('The Fixer\'s prize: ', GOLD), {'score': {'name': '#ptk', 'objective': 'bm.rng'}, 'color': 'white', 'bold': True},
                                                                            T(' Token(s)', 'gray')]),
+        'execute if score #pbx bm.rng matches 1.. run ' + tellraw('@s', P + [T('...your fee back, and ', 'gray'), {'score': {'name': '#pbx', 'objective': 'bm.rng'}, 'color': GOLD, 'bold': True},
+                                                                           T(' extra!', GOLD)]),
         'execute if score #pmd bm.rng matches 1.. run ' + tellraw('@s', P + [T('...and ', GOLD), {'score': {'name': '#pmd', 'objective': 'bm.rng'}, 'color': 'white', 'bold': True},
                                                                            T(' Medallion(s)!', GOLD)]),
         'execute if score #ptr bm.rng matches 1 run ' + tellraw('@a', P + [{'selector': '@s', 'color': 'white'}, T(' found a ', 'gray'), T('BM Trophy', GOLD, bold=True),

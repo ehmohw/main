@@ -21,23 +21,36 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
-## New in 2.67: Democratus, Leo of the shore, follower trios, followers swim, faces that move, the Raid Crew, follower wardrobes, game night in the vault, the Frisbee Shield, the Gutter Gentry, the Arachno-Lantern
+## New in 2.67: Democratus, Leo of the shore, after the heist (home or another job), follower trios, followers swim, faces that move, the Raid Crew, follower wardrobes, game night in the vault, the Frisbee Shield, the Gutter Gentry, the Arachno-Lantern
 
 ### What a heist costs, and what it pays
-- **The fee rises with the tier:** 2 Tokens at Tier I, 3 at II, 4 at III, 5 at IV and 6 at Tier V (it still goes into the Lucky Pool). The bigger tiers pay more to match: more shares, higher prize caps and the better rooms.
-- **Lucky Raids are rarer:** one heist in a hundred (three in a hundred on a Lucky Night), down from one in twenty. The Lucky Pool grows much bigger before a crew wins it.
+- **The fee rises with the tier:** 2 Tokens at Tier I, 3 at II, 4 at III, 5 at IV and 6 at Tier V (it still goes into the Lucky Pool). **Every raider pays their own fee,** not just whoever plans the heist: anyone in the party without the Tokens stays behind. The bigger tiers pay more to match: more shares, higher prize caps and the better rooms.
+- **Win, and your fee comes back:** every won heist pays each raider at least their fee, with a chance of 2 to 5 Tokens more (see the table below).
+- **Lucky Raids are rarer and only from Tier III:** one heist in 150 (three in 150 on a Lucky Night), and never at Tiers I or II. **They're harder by default:** the guards and the guardian have half again as much health, the guards hit harder, and the heist rolls one modifier more. **Win one and the pool is split evenly between the crew.** If it doesn't divide evenly, the leader takes the odd Tokens (a pool of 100 between three: 34 for the leader, 33 each for the others). A solo raider takes the lot.
 - **The alarm is optional now, and off by default.** Turn it on from the tries page before the heist begins. With it on, mistakes ring it as before (patrols at 50, lockdown at 100), and you earn one more share, or two if you keep it under 50.
 - **The Fixer's prize:** Tokens, Medallions and BM Trophies come from one capped roll per player per heist, never from loot tables:
 
-  | Tier | Tokens | Medallions | BM Trophy |
-  |---|---|---|---|
-  | I | 25% chance of 1 | none | none |
-  | II | 35% chance of 1 | none | none |
-  | III | 50% chance of 1-2 | 5% chance of 1 | none |
-  | IV | 60% chance of 1-3 | 12% chance of 1 | none |
-  | V | 70% chance of 2-5 | 22% chance of 1-2 | 1.5% chance |
+  | Tier | Fee | Tokens back (for sure) | ...and the chance of 2-5 more | Medallions | BM Trophy |
+  |---|---|---|---|---|---|
+  | I | 2 | 2 | 15% | none | none |
+  | II | 3 | 3 | 20% | none | none |
+  | III | 4 | 4 | 25% | 5% chance of 1 | none |
+  | IV | 5 | 5 | 30% | 12% chance of 1 | none |
+  | V | 6 | 6 | 35% | 22% chance of 1-2 | 1.5% chance |
 
-  Fewer tries, a clean run and a Lucky Raid raise the odds, but never the cap. Daring fewer tries pays by the tier too: a little at Tier I, the full bonus only at Tier V.
+  Fewer tries and a clean run raise the odds of the extra Tokens; a Lucky Raid always pays the full 5 extra. Every haul (plain, Black Market or gutter) pays your fee back; the extra Tokens, Medallions and Trophies come with the Black Market haul. Daring fewer tries pays by the tier too: a little at Tier I, the full bonus only at Tier V.
+
+### After the heist: home, or another job
+- **Win or lose, the leader decides what's next.** A few seconds after the haul is paid out, or once a failed crew is back in the den, the leader (whoever planned the heist; if they've left, whoever's still there) gets a choice:
+  - **Back to the Overworld:** the whole crew goes home, just as through the plates.
+  - **Start a new raid:** the Heist Plans open for the leader, right there in the vault. Pick the tier and the tries, and pay your fee. Everyone else is asked to **opt in or out**:
+    - **Out:** you go home as usual.
+    - **In:** you come along when the leader sets the plan, and pay your own fee. Without the Tokens, you're left behind and go home.
+    - **No answer** by the time the plan is set: you go home.
+- **The Fixer takes the fee out of what he's minding for you.** The coat check holds your Tokens while you're in the vault, so a new raid's fee comes straight out of your bag. When you finally leave, you get back everything else.
+- **Straight from one heist into the next, you keep your way home and your own spawn** from before the first. Your gear stays at the coat check the whole time.
+- Closed the window by mistake? The same choices are in chat as buttons.
+- **A failed heist no longer rebuilds itself for free.** Another try is a new plan and a new fee, for everyone who comes.
 - **Netherite Scrap** is no longer sold for coins. It's a rare find in a won heist's haul instead: 3% at Tier I, then 6%, 10%, 15% and 22% at Tier V (+3% if nobody was knocked out).
 - **Everything goes into The Haul.** Every reward is packed there, together with a stack of plain building supplies (logs, stone, glass, iron, coal, torches and more).
 - **Fewer coins, bigger pieces.** The pot pays about a third of what it did and the haul's coins are halved. **Gutter Medallions** (16 coins) and **Gutter Trophies** (128 coins) are new; Goldtooth changes them either way and the bank counts them as coins. **A Token now costs 32 coins** (2 Medallions), at Goldtooth and at the bank. Goldtooth's dearest goods are priced in Medallions.
@@ -179,6 +192,7 @@ With three particular followers at your side at once (within 24 blocks), you get
 - **Contracts are filed:** a hireling's or vault hire's contract, used once, goes into the ledger and isn't needed after.
 - **A party raids light:** one follower each when two or more of you go in, two when you raid alone (a hireling doesn't count). If someone joins mid-heist, the extra follower heads home.
 - **Leave the heist, any way at all, and the raid crew goes home there and then.**
+- **Raid followers are back sooner:** one who faints in the vault comes back after 45 seconds instead of 5 minutes (a heist can be over quickly). Outside the vault it's still 5 minutes.
 - **The followers' wardrobe** at Goldtooth: Emma's ribbons and dresses, Celi's and Zib's outfits (the hidden ones for a Gutter Trophy) and Pearlman's gems.
 - **Emma's new outfits:** the Flower Top and the Cozy Sweater, each with a high ponytail.
 
@@ -211,6 +225,7 @@ On a Blood Moon, very rarely, a monster spawning under the open sky becomes the 
 `/function bm:admin/heist_double`, `heist_alien` and `heist_variants_off` / `heist_variants_never` force the heist variants; `heist_boss_alt` / `heist_boss_std` / `heist_boss_any` pick the guardian; `room_<kind>` (e.g. `room_temple`) lays that event room next; `frisbee` gives the Frisbee Shield. `leo` puts Leo's fort encounter in front of you, `leo_fort` builds a seawatch fort where you stand, `leo_crest` gives his crest, and `faces` runs every follower nearby through each of their expressions. `democratus` puts Democratus' storm vigil in front of you (it needs `/weather thunder`); `demo_seal` and `demo_scythe` give his seal and his scythe. `wardrobe_all` unlocks every follower outfit, `wardrobe_items` gives the new ones, and `contracts_all` signs every raid contract.
 
 ### Fixed
+- **Emma and Leo keep their heads up while they swim:** their heads tipped back behind their shoulders; now they sit level, chin up, looking ahead.
 - **Emma's upper arms no longer sit inside her chest:** her shoulders are a little wider apart, and her hands still meet in front of her.
 - **A Rats' Rest is never the first room of a heist** (there's nothing to rest from yet), and **a heist has one rest room at most**: a Rats' Rest or the Sanctuary, never both and never two. (The Endless Vault keeps its own cash-out Rest every fifth room and draws neither.)
 - **Celi and Leo count toward the three-follower limit** (they slipped past it); so does Democratus.

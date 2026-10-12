@@ -528,7 +528,7 @@ SWIM_FRAMES = 8
 SWIM_DY = -0.62           # (her host floats with its feet ~0.4 under the surface: she sinks to the chest)
 for _i in range(SWIM_FRAMES):
     _p = 2 * math.pi * _i / SWIM_FRAMES
-    POSES[f'swim_{_i}'] = P(SWIM_DY + 0.03 * math.sin(2 * _p), body=torso(lean=12, tilt=3 * math.sin(_p)), head=torso(lean=-8, tilt=-5 * math.sin(_p)),
+    POSES[f'swim_{_i}'] = P(SWIM_DY + 0.03 * math.sin(2 * _p), body=torso(lean=5, tilt=3 * math.sin(_p)), head=torso(lean=3, tilt=-5 * math.sin(_p)),
                             armr=limb(1, 80 + 28 * math.sin(_p), 14 + 6 * math.cos(_p)), arml=limb(-1, 80 - 28 * math.sin(_p), 14 - 6 * math.cos(_p)),
                             legr=limb(1, -18 + 18 * math.sin(2 * _p)), legl=limb(-1, -18 - 18 * math.sin(2 * _p)))
 

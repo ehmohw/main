@@ -345,7 +345,7 @@ POSES = {
 SWIM_FRAMES = 8
 for _i in range(SWIM_FRAMES):
     _p = 2 * math.pi * _i / SWIM_FRAMES
-    POSES[f'swim_{_i}'] = P(-0.6 + 0.03 * math.sin(2 * _p), body=torso(lean=16, tilt=3 * math.sin(_p), turn=4 * math.sin(_p)), head=torso(lean=-10, turn=-3 * math.sin(_p)),
+    POSES[f'swim_{_i}'] = P(-0.6 + 0.03 * math.sin(2 * _p), body=torso(lean=6, tilt=3 * math.sin(_p), turn=4 * math.sin(_p)), head=torso(lean=2, turn=-3 * math.sin(_p)),
                             armr=limb(1, 84, 8), trident=qa('x', 90),
                             arml=limb(-1, 96 + 64 * math.sin(_p), 16 + 12 * math.cos(_p)),
                             legr=limb(1, -22 + 24 * math.sin(2 * _p)), legl=limb(-1, -22 - 24 * math.sin(2 * _p)))

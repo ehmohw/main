@@ -379,11 +379,12 @@ def generate(G):
                              'and you get one more share (two if you keep it under 50).', 'gray'))
     dlg = P28.multi([T('How many tries?', GOLD, bold=True)],
                     [P28.body([T('Every knock-out costs the crew a try. Run out and the heist fails: back to the den, everything gathered lost '
-                                 '(you can try again).', 'gray')]),
+                                 '- then the leader picks: home, or a new raid.', 'gray')]),
                      P28.body([T('Fewer tries, bigger haul - the higher the tier, the bigger. ', GOLD), T('No knock-outs at all: a share more (two from Tier III).', 'gray')]),
                      P28.body([T('The alarm is up to you: ', '#ff7a7a'), T('$(al_txt)', 'gray')]),
-                     P28.body([T("The Fixer's fee: 2 Tokens (Tier I) to 6 (Tier V) each, into the Lucky Pool (now ", 'dark_gray'), T('$(p)', LUCKY, bold=True),
-                               T('). One heist in a hundred is a Lucky Raid - win it and the pool is yours.', 'dark_gray')])],
+                     P28.body([T("The Fixer's fee: 2 Tokens (Tier I) to 6 (Tier V) - everyone pays their own; win and it comes back, maybe with 2-5 more. "
+                                 'Every fee goes into the Lucky Pool (now ', 'dark_gray'), T('$(p)', LUCKY, bold=True),
+                               T('). From Tier III, one heist in 150 is a Lucky Raid - harder, and the crew splits the pool.', 'dark_gray')])],
                     [abtn, lbtn(1, 3, '#ff5a5a', '+1 to +4 shares (by tier) - for the bold'), lbtn(2, 5, GOLD, '+0 to +2 shares (by tier)'),
                      lbtn(3, 7, LUCKY, 'no bonus - for a first try')],
                     columns=1, exit_label='Back')
