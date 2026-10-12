@@ -7,6 +7,10 @@ NOBODY WAITS ON THE LEADER: when a heist ends the crew gets their own card - HEA
   taken along without being asked again, and pay your own fee then). A leader who hasn't chosen in 75 seconds passes the
   choice on to the crew (a solo raider takes as long as they like). Closed the card? Use the Fixer's Ledger: while it's
   your call it opens your choice again (its Office button carries on to the Office).
+THE DEN, LAID OUT BY JOB: the market counter (Goldtooth, the Recruiter and the Tailor, behind it - nothing behind them); the
+  office counter on the north wall (the Gutter Bank, the Armory, the haul lectern and the RAID CREW board); the Lockers
+  through a copper door on the north wall (right-click it), well away from the way out; and "back to the crew" is a plate
+  you can see now, by the far door.
 """
 from items import T
 from nbt import snbt
@@ -21,6 +25,12 @@ C_LEAVE, C_STAY, C_MHOME, C_PREIN, C_OFFICE = 7724, 7725, 7726, 7727, 7728
 DECIDE_S = 75                                  # seconds a leader has before the choice passes on (with a crew waiting)
 DEN_EXIT = (2, 4, 4)                           # the den's way out (local)
 VAULT_EXIT = (34, 4, 12)                       # the treasury's way out, once the vault is open (local)
+GOLDTOOTH_AT = (3, 4, 20)                      # (2.67d) behind his counter (z 19), facing the room
+RECRUITER_AT = (5, 4, 20)
+TAILOR_AT = (7, 4, 20)
+BANK_AT, ARMORY_AT, CREW_AT = (16, 4, 2), (18, 4, 2), (22, 4, 2)     # the office counter, north wall (the haul lectern at 20)
+LOCKER_AT = (8, 4, 1)                          # the copper door to the Lockers (north wall)
+TO_CREW_AT = (21, 4, 17)                       # "back to the crew", by the far door
 
 
 def generate(G):
@@ -138,6 +148,64 @@ def generate(G):
     off = G.FUNCS['p101/offer']
     dlg = next(l for l in off if l.startswith('dialog show @s '))
     fn('p103/offer_show', [dlg])
+
+    # ================================================================== 2. THE DEN, LAID OUT BY JOB
+    # the market counter (south-west): the vendors stand BEHIND it, nothing behind them; the office counter (north wall):
+    # the Bank, the Armory, the haul lectern and the Raid Crew board side by side; the Lockers through a copper door on the
+    # north wall, well away from the way out; "back to the crew" gets a plate you can see, by the far door
+    from items import T as _T
+    ident = '[0f,0f,0f,1f]'
+    lab = lambda x, y, z, text, sc=0.5: (f'summon minecraft:text_display {rel(x, y, z)} {{Tags:["bm.gvprop"],billboard:"vertical",background:1879048192,'
+                                          f'text:{snbt(text)},transformation:{{left_rotation:{ident},right_rotation:{ident},translation:[0f,0f,0f],scale:[{sc}f,{sc}f,{sc}f]}}}}')
+    li = G.FUNCS['p70/r/lobby/init']
+    def move(old, new, must=1, only=None):
+        n = 0
+        for i, l in enumerate(li):
+            if old in l and (only is None or only in l):
+                li[i] = l.replace(old, new); n += 1
+        assert n >= must, (old, n)
+    # Goldtooth: behind his counter (the counter one block longer, for three)
+    move(rel(5, 4, 18), rel(*GOLDTOOTH_AT), must=2)
+    move('tp @e[type=minecraft:villager,tag=bm.gvgt,distance=..12,', 'tp @e[type=minecraft:villager,tag=bm.gvgt,distance=..16,')   # (he's further from the middle now)
+    li[0:0] = [f'setblock {rel(8, 4, 19)} minecraft:dark_oak_planks', f'setblock {rel(8, 5, 19)} minecraft:dark_oak_slab']
+    move(rel(7, 5, 19), rel(8, 5, 19), only='bm.gvdrat')                      # (the grey rat to the counter's end)
+    li += [lab(GOLDTOOTH_AT[0], 6.75, GOLDTOOTH_AT[2], [_T('heist supplies', 'gray')], 0.45)]
+    # the office counter: Bank and Armory off the back wall, onto the north wall beside the haul lectern
+    move(rel(5, 4, 21), rel(*BANK_AT), must=2); move(rel(5, 5.3, 21), rel(BANK_AT[0], 5.3, BANK_AT[2]))
+    move(rel(7, 4, 21), rel(*ARMORY_AT), must=2); move(rel(7, 5.3, 21), rel(ARMORY_AT[0], 5.3, ARMORY_AT[2]))
+    move('minecraft:vault[facing=north]', 'minecraft:vault[facing=south]')
+    move(rel(19, 6, 1), rel(19, 7.4, 1), only='bm.gvboard')                    # (the records board up out of the way)
+    cx, cy, cz = CREW_AT
+    li += [f'fill {rel(21, 4, 3)} {rel(22, 5, 3)} minecraft:air',              # (the loot pile in front of the office cleared)
+           f'setblock {rel(cx, cy, cz)} minecraft:chiseled_bookshelf[facing=south,slot_0_occupied=true,slot_1_occupied=true,slot_3_occupied=true,slot_5_occupied=true]',
+           f'summon minecraft:interaction {rel(cx, cy, cz)} {{Tags:["bm.gvprop","bm.ofcrew"],width:1.02f,height:1.02f,response:1b}}',
+           lab(cx, 5.3, cz, [_T('RAID CREW\n', '#9ad0ff', bold=True), _T('who comes along', 'gray')])]
+    fast += ['execute as @e[type=minecraft:interaction,tag=bm.ofcrew] if data entity @s interaction run function bm:p103/crew_click',
+             'execute as @e[type=minecraft:interaction,tag=bm.ofcrew] if data entity @s attack run data remove entity @s attack']
+    fn('p103/crew_click', ['execute on target run function bm:p98/crew', 'data remove entity @s interaction'])
+    # the Lockers: a copper door on the north wall (click it) - the plate by the way out is gone
+    lx, ly, lz = LOCKER_AT
+    before = len(li)
+    li[:] = [l for l in li if not (rel(2, 3, 7) in l or rel(2, 4, 7) in l or rel(2, 5.6, 7) in l)]
+    assert before - len(li) == 3, 'the Locker plate lines moved'
+    lt2 = G.FUNCS['p70/r/lobby/tick']
+    old = f'execute positioned {rel(2, 4, 7)} as @a[tag=bm.gvp,distance=..0.7] at @s run function bm:p84/lk/from_den'
+    assert old in lt2; lt2.remove(old)
+    li += [f'setblock {rel(lx, ly, lz)} minecraft:waxed_copper_door[facing=south,half=lower,hinge=left,open=false]',
+           f'setblock {rel(lx, ly + 1, lz)} minecraft:waxed_copper_door[facing=south,half=upper,hinge=left,open=false]',
+           f'summon minecraft:interaction {rel(lx, ly, lz + 0.3)} {{Tags:["bm.gvprop","bm.lkdoor"],width:1.1f,height:2.05f,response:1b}}',
+           lab(lx, 6.4, lz + 0.2, [_T('THE LOCKERS\n', '#c89a5a', bold=True), _T('(before the heist begins)', 'gray')])]
+    fast += ['execute as @e[type=minecraft:interaction,tag=bm.lkdoor] if data entity @s interaction run function bm:p103/lk_click',
+             'execute as @e[type=minecraft:interaction,tag=bm.lkdoor] if data entity @s attack run data remove entity @s attack']
+    fn('p103/lk_click', ['execute on target at @s run function bm:p84/lk/from_den', 'data remove entity @s interaction'])
+    G.FUNCS['p84/lk/from_ledger'] = [l.replace('The Lockers are through the copper plate in the den', 'The Lockers are through the copper door in the den')
+                                     for l in G.FUNCS['p84/lk/from_ledger']]
+    # back to the crew: a plate you can see, by the far door (it was an unmarked spot by the office)
+    bx, by, bz = TO_CREW_AT
+    k = next(i for i, l in enumerate(G.FUNCS['p70/r/lobby/tick']) if 'function bm:p75/to_crew' in l)
+    G.FUNCS['p70/r/lobby/tick'][k] = G.FUNCS['p70/r/lobby/tick'][k].replace(rel(21, 4, 5), rel(bx, by, bz))
+    move(rel(21, 5.4, 5), rel(bx, 5.4, bz))
+    li += [f'setblock {rel(bx, by - 1, bz)} minecraft:emerald_block', f'setblock {rel(bx, by, bz)} minecraft:polished_blackstone_pressure_plate']
 
     G.FUNCS['tick'] += tick
     f = G.FUNCS['loop/fast']
