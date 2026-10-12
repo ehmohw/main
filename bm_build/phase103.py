@@ -23,6 +23,11 @@ THE RAID CREW PAGE says where everyone is: IN THE VAULT, RESTING (with the secon
 ONE CARD AT THE END: the payout's run of chat lines is one line now ("Heist won! The Haul: 5 Tokens, 23 coins"), and the
   end-of-heist card - the leader's and the crew's - opens with how it went: won (the tier, your shares, Tokens, coins,
   any Medallions or a BM Trophy) or failed. It comes up three seconds after the payout.
+FOLLOWERS AND THE VAULT: an Overworld follower you leave behind going into a heist "waits outside the vault" (it goes home
+  as before, and says so) - and three seconds after you're home again, it's called back to you (if it isn't resting and
+  you're under the cap).
+BEGIN HAS A READY CHECK: it starts the heist at once only if everyone has a kit and nobody's at the Lockers; otherwise it
+  names who isn't ready - press BEGIN again within ten seconds to go anyway (no kit: the Offense loaners, as before).
 """
 from items import T, ITEMS
 from nbt import snbt, B, Int
@@ -536,6 +541,59 @@ def generate(G):
     fn('p103/res_load2', ['$execute if data storage bm:gv res.p$(pid) run data modify storage bm:ui res.r_res set from storage bm:gv res.p$(pid)'])
     G.FUNCS['p70/unraid'] += ['execute store result storage bm:gv rs.pid int 1 run scoreboard players get @s bm.pid', 'function bm:p103/res_clear with storage bm:gv rs']
     fn('p103/res_clear', ['$data remove storage bm:gv res.p$(pid)'])
+
+    # ================================================================== 6a. FOLLOWERS: "waits outside the vault" going in - and back with you coming out
+    # (an Overworld follower left behind when you go into a heist goes home as before, but says why - and is remembered;
+    #  three seconds after you're home again, it's called back to you - if it's not resting and you're under the cap)
+    KINDS = [('cecil', 'p62/cecil_go', 'Cecil', '#b48cff', 'p46/pet/try_summon'), ('emma', 'p62/emma_go', 'Emma', '#ff8ad8', 'p57/try_summon'),
+             ('celi', 'p66/go', 'Celi', '#bfe8ff', 'p66/try_summon'), ('zib', 'p72/zb/beamup', 'Zib', '#7ad87a', 'p72/zb/try_summon'),
+             ('kw', 'p79/pet/vanish', 'KillerWatt', '#ffe040', 'p79/pet/try'), ('leo', 'p96/go', 'Leo', '#5ab8e0', 'p96/try_summon'),
+             ('demo', 'p97/go', 'Democratus', '#7ad06a', 'p97/try_summon')]
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.owt dummy', 'scoreboard objectives add bm.gvbc dummy', 'scoreboard objectives add bm.gvbw dummy']
+    G.OBJECTIVES += ['bm.owt', 'bm.gvbc', 'bm.gvbw']
+    for kind, go, nm, col, try_ in KINDS:
+        far = G.FUNCS[f'p73/fol/{kind}_far']
+        assert far[0] == f'function bm:{go}', (kind, far[0])
+        far.insert(0, f'execute if entity @a[tag=bm.fown,tag=bm.gvp] run return run function bm:p103/fol/wait_{kind}')
+        fn(f'p103/fol/wait_{kind}', [f'tag @a[tag=bm.fown] add bm.ow_{kind}', f'function bm:{go}',
+                                     tellraw('@a[tag=bm.fown]', P + [T(f'{nm} waits outside the vault', col), T(' - your Raid Crew answers inside. ', 'gray'),
+                                                                     T('(Back with you when you\'re home.)', 'dark_gray')]),
+                                     'tag @a remove bm.fown'])
+    G.FUNCS['p70/unraid'].append('scoreboard players set @s bm.owt 3')
+    second.append('execute as @a[scores={bm.owt=1..}] at @s run function bm:p103/fol/tick')
+    fn('p103/fol/tick', ['execute if dimension bm:gutter run return run scoreboard players reset @s bm.owt', 'scoreboard players remove @s bm.owt 1',
+                         'execute if score @s bm.owt matches 1.. run return 0', 'scoreboard players reset @s bm.owt'] +
+       [f'execute if entity @s[tag=bm.ow_{kind}] run function bm:p103/fol/back_{kind}' for kind, *_r in KINDS])
+    for kind, go, nm, col, try_ in KINDS:
+        fn(f'p103/fol/back_{kind}', [f'tag @s remove bm.ow_{kind}', f'function bm:{try_}'])
+
+    # ================================================================== 6b. BEGIN: a ready check
+    # (the den's BEGIN buttons start the heist at once only if everyone has a kit and nobody's at the Lockers; otherwise they
+    #  name who isn't ready - press again within ten seconds to go anyway: whoever has no kit gets the Offense one, as before)
+    lt3 = G.FUNCS['p70/r/lobby/tick']
+    nb = 0
+    for i, l in enumerate(lt3):
+        if l.endswith('minecraft:pale_oak_button[powered=true] run function bm:p70/begin'):
+            lt3[i] = l.replace('run function bm:p70/begin', 'run function bm:p103/begin_try'); nb += 1
+    assert nb == 2, nb
+    lt3[0:0] = ['scoreboard players remove @s[scores={bm.gvbc=1..}] bm.gvbc 1', 'scoreboard players remove @s[scores={bm.gvbw=1..}] bm.gvbw 1']
+    crew_here = '@a[tag=bm.gvp]'
+    fn('p103/begin_try', ['execute if score @s bm.gvbc matches 1.. run return 0', 'scoreboard players set @s bm.gvbc 40',
+                          'scoreboard players operation #gi bm.rng = @s bm.gvi', 'tag @a remove bm.nrdy',
+                          f'execute as {crew_here} if score @s bm.gvi = #gi bm.rng unless score @s bm.gvrole matches 1.. run tag @s add bm.nrdy',
+                          f'execute as {crew_here} if score @s bm.gvi = #gi bm.rng if function bm:p84/lk/inside run tag @s add bm.nrdy',
+                          'execute unless entity @a[tag=bm.nrdy] run return run function bm:p70/begin',
+                          'execute if score @s bm.gvbw matches 1.. run return run function bm:p103/begin_force',
+                          'scoreboard players set @s bm.gvbw 200',
+                          f'execute as {crew_here} if score @s bm.gvi = #gi bm.rng run ' + tellraw('@s', P + [T('Not everyone\'s ready: ', '#ffe07a', bold=True),
+                                                                                                            {'selector': '@a[tag=bm.nrdy]', 'color': 'white'},
+                                                                                                            T(' - no kit yet (right-click a rack), or still at the Lockers. ', 'gray'),
+                                                                                                            T('Press BEGIN again to go anyway.', '#ffe07a')]),
+                          f'execute as {crew_here} if score @s bm.gvi = #gi bm.rng at @s run playsound minecraft:block.note_block.bass player @s ~ ~ ~ 0.8 0.8',
+                          'tag @a remove bm.nrdy'])
+    fn('p103/begin_force', ['scoreboard players set @s bm.gvbw 0',
+                            f'execute as {crew_here} if score @s bm.gvi = #gi bm.rng run ' + tellraw('@s', P + [T('Off you go', GOLD, bold=True), T(' - anyone without a kit takes the Offense loaners.', 'gray')]),
+                            'tag @a remove bm.nrdy', 'function bm:p70/begin'])
 
     G.FUNCS['tick'] += tick
     f = G.FUNCS['loop/fast']
