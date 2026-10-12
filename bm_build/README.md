@@ -88,7 +88,7 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 - **Double Heists** (1 in 10): twice the rooms, two extra shares and better prize odds. **Alien Heists** (1 in 8): every room in the Vorn's white-and-cyan steel, Vorn troopers on guard, invasion loot.
 - **Hidden vaults:** about a third of heists (half at Tier V) hide a secret door to a treasure room with a hoard share each. Only these hoards carry the **Rat King's Signet** (loose items come to you), **Whisperstep Boots** (sneak: unseen and quick) and the **Gilded Grin** (see in the dark).
 - **The Gutter Gentry** (behind a hidden door, Tier II+): Batty, Eggbert and the Count, a three-boss fight. They're blocky, with faces taken from the art (Batty's toothy grin, the Count's empty white eyes), and they walk, run, jump and attack with smooth animations. Their hoard holds the Echo Bell, the Yolkshell Helm, Blobsworth's Cane and the Top Hat.
-- **The Locker Hall,** off the den or through the Ledger: claim up to three double-chest bays and open them all with one Locker Key. The Ledger's trip brings you back to where you stood, so it only works from safe Overworld ground (see below).
+- **The Locker Hall,** off the den or through the Ledger: claim up to three double-chest bays and open them all with one Locker Key. The Ledger's trip brings you back to where you stood, so it only works from safe ground (see below).
 
 ### Guards and guardians
 - **Twice the guards.** Every tier's roster draws on the whole hostile pool:
@@ -197,7 +197,7 @@ With three particular followers at your side at once (within 24 blocks), you get
 - **Your Overworld followers wait outside.** A follower you leave behind going into a heist says it "waits outside the vault", and three seconds after you're home again it's called back to you (if it isn't resting and you're under the cap).
 - **BEGIN has a ready check.** It starts the heist at once only if everyone has a kit and nobody's at the Lockers. Otherwise it names who isn't ready; press BEGIN again within ten seconds to go anyway (anyone without a kit takes the Offense loaners, as before).
 - **The Ledger's Locker Hall trip has rules.** The Office pages still open anywhere, but the trip to the Locker Hall brings you back to the exact spot you left, so it only starts from a safe one:
-  - the Overworld only (not the Nether, the End or the Hollow);
+  - the Overworld, the Nether or the End (not the Hollow, and not the gutter itself);
   - standing on the ground: not falling, flying, climbing, mounted or in water or lava;
   - not hurt in the last 10 seconds (it tells you how long to wait);
   - not inside a boss dungeon.

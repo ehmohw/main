@@ -274,7 +274,7 @@ def generate(G):
                      P28.btn([T('⛃ ', GOLD), T('The Gutter Bank', 'white', bold=True)], MENU_CODE + 2, tooltip=T('Coins and spoils; 32 coins buy a Token.'), width=150),
                      P28.btn([T('🏆 ', GOLD), T('Trophy Case', 'white', bold=True)], MENU_CODE + 3, tooltip=T('Six metals of trophies, and how to earn them.'), width=150),
                      P28.btn([T('✦ ', '#e8b8ff'), T('Bond Sigils', 'white', bold=True)], MENU_CODE + 4, tooltip=T('Which sigils do what - two at most each heist.'), width=150),
-                     P28.btn([T('▣ ', '#c89a5a'), T('The Locker Hall', 'white', bold=True)], MENU_CODE + 5, tooltip=T('Claim double-chest lockers for your raiding things. From Overworld ground: hold still for 3 seconds.'), width=150),
+                     P28.btn([T('▣ ', '#c89a5a'), T('The Locker Hall', 'white', bold=True)], MENU_CODE + 5, tooltip=T('Claim double-chest lockers for your raiding things. From safe ground: hold still for 3 seconds.'), width=150),
                      P28.btn([T('⛁ ', '#9ad0ff'), T('Your Haul', 'white', bold=True)], MENU_CODE + 6, tooltip=T('Plain, Black Market or gutter: what the Fixer packs for you.'), width=150),
                      P28.btn([T('☺ ', '#9ad0ff'), T('Raid Crew', 'white', bold=True)], MENU_CODE + 7, tooltip=T('Followers and hirelings: who comes into the vault with you.'), width=150)],
                     columns=2)

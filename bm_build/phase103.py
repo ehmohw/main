@@ -30,10 +30,10 @@ BEGIN HAS A READY CHECK: it starts the heist at once only if everyone has a kit 
   names who isn't ready - press BEGIN again within ten seconds to go anyway (no kit: the Offense loaners, as before).
 THE FIXER'S DOOR: the way out is an archway (in the tier's metal) with a swirl you walk into - in the den (against the west wall) and in
   the treasury (against the far wall, swirling once the vault opens), in place of the old plates. Mid-heist it asks first.
-THE LEDGER'S LOCKER HALL TRIP brings you back to where you stood, so it starts only from safe Overworld ground: not the Nether,
-  the End or the Hollow; not falling, flying, mounted or in water or lava; not hurt in the last 10 seconds; not inside a boss
-  dungeon - then hold still for 3 seconds (moving or getting hurt cancels it). Each refusal says why. The Office pages open
-  anywhere, and the den's copper door (before a heist begins) is as it was.
+THE LEDGER'S LOCKER HALL TRIP brings you back to where you stood, so it starts only from safe ground (the Overworld, the
+  Nether or the End): not falling, flying, mounted or in water or lava; not hurt in the last 10 seconds; not inside a boss
+  dungeon or the Hollow - then hold still for 3 seconds (moving or getting hurt cancels it). Each refusal says why. The
+  Office pages open anywhere, and the den's copper door (before a heist begins) is as it was.
 """
 from items import T, ITEMS
 from nbt import snbt, B, Int, F
@@ -621,12 +621,13 @@ def generate(G):
     fast.append('execute as @e[type=minecraft:marker,tag=bm.exitm] at @s if entity @a[distance=..20] run function bm:p103/door_fx')
     fn('p103/door_fx', ['particle minecraft:portal ~ ~1.5 ~ 0.05 0.8 0.35 0.4 3', 'particle minecraft:wax_on ~ ~1.5 ~ 0.1 0.9 0.4 0 1'])
 
-    # ================================================================== 8. THE LEDGER'S LOCKER HALL TRIP: from solid Overworld ground, after a 3-second hold
+    # ================================================================== 8. THE LEDGER'S LOCKER HALL TRIP: from solid, safe ground, after a 3-second hold
     # (the Office pages work anywhere; only the trip is gated - it saves where you stand and brings you back there, so that
-    #  spot must be safe: not in the Nether, the End or the Hollow, not mid-fall, mid-flight, mounted or in water or lava,
-    #  not in a fight (hurt in the last 10 seconds) and not inside a boss dungeon. Moving or getting hurt cancels the hold.
+    #  spot must be safe: on the ground (not mid-fall, mid-flight, mounted or in water or lava), not in a fight (hurt in the
+    #  last 10 seconds), not inside a boss dungeon or the Hollow, and not in the gutter (the Locker Hall itself, or a heist).
+    #  The Overworld, the Nether and the End are all fine. Moving, changing dimension or getting hurt cancels the hold.
     #  The den's copper door, before a heist begins, is as it was.)
-    objs8 = ['bm.lkht', 'bm.lkch', 'bm.lkx', 'bm.lky', 'bm.lkz']
+    objs8 = ['bm.lkht', 'bm.lkch', 'bm.lkx', 'bm.lky', 'bm.lkz', 'bm.lkdm']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs8] + ['scoreboard objectives add bm.lkdt minecraft.custom:minecraft.damage_taken']
     G.OBJECTIVES += objs8 + ['bm.lkdt']
     G.wjson('bm/tags/worldgen/structure/boss_dungeons.json',
@@ -643,7 +644,8 @@ def generate(G):
     k = next(i for i, l in enumerate(fl) if l == 'function bm:p84/lk/enter')
     fl[k] = 'execute at @s run function bm:p103/lh/try'
     fn('p103/lh/try', [
-        'execute unless dimension minecraft:overworld run return run function bm:p103/lh/no_dim',
+        'execute if dimension bm:gutter run return run function bm:p103/lh/no_gut',
+        'execute if dimension bm:hollow_throne run return run function bm:p103/lh/no_dun',
         'execute if predicate bm:p103/boss_dungeon run return run function bm:p103/lh/no_dun',
         'execute if entity @s[tag=bm.adv] run return run function bm:p103/lh/no_dun',
         'execute if predicate bm:p21/riding run return run function bm:p103/lh/no_ride',
@@ -652,8 +654,8 @@ def generate(G):
         'execute if score @s bm.lkdt matches 1.. run scoreboard players set @s bm.lkht 10',
         'execute if score @s bm.lkht matches 1.. run return run function bm:p103/lh/no_hurt',
         'function bm:p103/lh/start'])
-    for k_, txt in (('dim', 'The Locker Hall door only opens from the Overworld. (Or walk through the copper door in the den, before a heist begins.)'),
-                    ('dun', 'Not from inside a dungeon - head back out first.'),
+    for k_, txt in (('gut', 'You\'re in the gutter already - the Locker Hall\'s door is the copper one in the den.'),
+                    ('dun', 'Not from inside a boss dungeon or the Hollow - head back out first.'),
                     ('ride', 'Get off your mount first.'),
                     ('wet', 'Get out of the water (or lava) first.'),
                     ('air', 'Find your feet first - not while you\'re falling, flying or climbing.')):
@@ -661,7 +663,11 @@ def generate(G):
     fn('p103/lh/no_hurt', [tellraw('@s', PV + [T('You were hurt just now - wait ', 'red'), {'score': {'name': '@s', 'objective': 'bm.lkht'}, 'color': 'white', 'bold': True},
                                              T(' more second(s), then try again.', 'red')]),
                            'playsound minecraft:entity.villager.no player @s ~ ~ ~ 0.8 1'])
+    fn('p103/lh/dim', ['scoreboard players set #lkdm bm.rng 4', 'execute if dimension minecraft:overworld run scoreboard players set #lkdm bm.rng 1',
+                       'execute if dimension minecraft:the_nether run scoreboard players set #lkdm bm.rng 2',
+                       'execute if dimension minecraft:the_end run scoreboard players set #lkdm bm.rng 3'])
     fn('p103/lh/start', ['tag @s add bm.lkch', 'scoreboard players set @s bm.lkch 60',
+                         'function bm:p103/lh/dim', 'scoreboard players operation @s bm.lkdm = #lkdm bm.rng',
                          'execute store result score @s bm.lkx run data get entity @s Pos[0] 10',
                          'execute store result score @s bm.lky run data get entity @s Pos[1] 10',
                          'execute store result score @s bm.lkz run data get entity @s Pos[2] 10',
@@ -670,7 +676,7 @@ def generate(G):
                          'playsound minecraft:block.iron_door.open player @s ~ ~ ~ 0.5 0.6',
                          'particle minecraft:wax_on ~ ~1 ~ 0.4 0.8 0.4 0 12'])
     tick.append('execute as @a[tag=bm.lkch] at @s run function bm:p103/lh/step')
-    fn('p103/lh/step', ['execute unless dimension minecraft:overworld run return run function bm:p103/lh/moved',
+    fn('p103/lh/step', ['function bm:p103/lh/dim', 'execute unless score #lkdm bm.rng = @s bm.lkdm run return run function bm:p103/lh/moved',
                         'execute if score @s bm.lkdt matches 1.. run return run function bm:p103/lh/hit',
                         'execute if score @s bm.lkht matches 1.. run return run function bm:p103/lh/hit'] +
        [l for a, o in ((0, 'bm.lkx'), (1, 'bm.lky'), (2, 'bm.lkz')) for l in (
