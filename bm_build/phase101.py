@@ -186,6 +186,16 @@ def generate(G):
         'execute if score #ptk bm.rng matches 1.. run ' + tellraw('@s', P + [T('The Fixer\'s prize: ', GOLD), T('your fee back, ', 'gray'),
                                                                             {'score': {'name': '#ptk', 'objective': 'bm.rng'}, 'color': 'white', 'bold': True}, T(' Token(s).', 'gray')])])
 
+    # ================================================================== leaving mid-decision: the choice passes to whoever's still in; nobody keeps a stale offer
+    G.FUNCS['p70/unraid'] += ['tag @s remove bm.gvoffer', 'tag @s remove bm.gvin',
+                              'execute if entity @s[tag=bm.gvask] run function bm:p101/handoff', 'execute if entity @s[tag=bm.gvnext] run function bm:p101/handoff']
+    fn('p101/handoff', ['scoreboard players operation #ho bm.rng = @s bm.gvnx', 'tag @s remove bm.gvask', 'tag @s remove bm.gvnext', 'scoreboard players reset @s bm.gvnx'] +
+       [f'execute if score #ho bm.rng matches {s + 1} if entity {crew(s)} run function bm:p101/s{s}/handoff' for s in range(SL)])
+    for s in range(SL):
+        fn(f'p101/s{s}/handoff', [f'scoreboard players set #ld{s} bm.gvld 0', f'tag {crew(s)} remove bm.gvoffer', f'tag {crew(s)} remove bm.gvin',
+                                  tellraw(crew(s), P + [T('Your leader has gone home - ', 'gray'), T('the choice is someone else\'s now.', GOLD)]),
+                                  f'function bm:p101/s{s}/ask'])
+
     # ================================================================== when to ask: a few seconds after the haul; a failed heist once the crew's back in the den
     pay = G.FUNCS['p70/payout_inst']
     pay += [f'execute if score @s bm.gvi matches {s + 1} run scoreboard players set #pq{s} bm.gvpq 5' for s in range(SL)] + ['tag @a[tag=bm.lkld] remove bm.lkld']

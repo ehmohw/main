@@ -17,6 +17,7 @@ VAULT GEMS: the gems Goldtooth sells are the vault's - they stay in it. They're 
 """
 from items import T, ITEMS
 from nbt import snbt, B
+import re
 import phase28 as P28
 import phase72 as P72
 import phase60 as P60
@@ -121,6 +122,12 @@ def generate(G):
                    f'execute if entity @s[tag=bm.crw_{k}] if function bm:p98/on/{k} unless score @s {cd} matches 1.. unless function bm:p98/has/{k} if function bm:p98/room run function bm:p98/call/{k}',
                    f'execute if function bm:p98/on/{k} unless score @s {cd} matches 1.. unless function bm:p98/has/{k} run tag @s add bm.crw_{k}']
     fn('p98/roster', roster)
+    # (a "missing" mark that never got its call - the crew was full - is cleared going in and coming out, so the next
+    #  heist starts the queue fresh: top of the list first)
+    crw_clear = [f'tag @s remove bm.crw_{k}' for k in [v[0] for v in CALLED] + [v[0] for v in HIRED]]
+    fn('p98/crw_clear', crw_clear)
+    for f_ in [f for f in G.FUNCS if re.fullmatch(r'p70/s\d+/enter', f)]:
+        G.FUNCS[f_].append('function bm:p98/crw_clear')
     order = [k for k, *_r in HIRED[::-1]] + [k for k, *_r in CALLED[::-1]]
     fn('p98/bench', [f'execute if function bm:p98/has/{k} run return run function bm:p98/bench_{k}' for k in order])
     for k in order:
@@ -132,7 +139,7 @@ def generate(G):
     for k, nm, col, host, tag, sel, cd, try_, dis, rec, go in CALLED:
         if k == 'escort': leave.append('function bm:p72/esk/vanish'); continue
         leave.append(f'execute as {mine(host, tag)} if score @s bm.pid = #me bm.pid at @s run function bm:{go}')
-    leave += [f'function bm:p98/home/{k}' for k, *_r in HIRED] + ['function bm:p77/hire/dismiss']
+    leave += [f'function bm:p98/home/{k}' for k, *_r in HIRED] + ['function bm:p77/hire/dismiss', 'function bm:p98/crw_clear']
     fn('p98/leave', leave)
     G.FUNCS['p70/unraid'][0:0] = ['function bm:p98/leave']
 

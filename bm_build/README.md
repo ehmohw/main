@@ -49,7 +49,7 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
     - **No answer** by the time the plan is set: you go home.
 - **The Fixer takes the fee out of what he's minding for you.** The coat check holds your Tokens while you're in the vault, so a new raid's fee comes straight out of your bag. When you finally leave, you get back everything else.
 - **Straight from one heist into the next, you keep your way home and your own spawn** from before the first. Your gear stays at the coat check the whole time.
-- Closed the window by mistake? The same choices are in chat as buttons.
+- Closed the window by mistake? The same choices are in chat as buttons. If the leader takes the plate home before deciding, the choice passes to whoever's still in the heist.
 - **A failed heist no longer rebuilds itself for free.** Another try is a new plan and a new fee, for everyone who comes.
 - **Netherite Scrap** is no longer sold for coins. It's a rare find in a won heist's haul instead: 3% at Tier I, then 6%, 10%, 15% and 22% at Tier V (+3% if nobody was knocked out).
 - **Everything goes into The Haul.** Every reward is packed there, together with a stack of plain building supplies (logs, stone, glass, iron, coal, torches and more).
