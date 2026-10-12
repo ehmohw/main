@@ -1,4 +1,4 @@
-# Black Market — v2.67 (Java 26.3)
+# Black Market — v2.68 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,94 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.68: a win pays in money, the Crate Desk and tip-offs, a laurel for every tier, three new finds, and the vault's loose ends
+
+### A win pays in money now
+A won heist no longer buries you in ingots, building supplies and heist gear. It pays:
+- **Black Market Tokens:** your fee back, with a chance of a few more (as before).
+- **Gutter Coins:** every share is coins now (2-3 a share at Tier I, 3-4 at II, 4-6 at III, 5-8 at IV, 7-10 at Tier V), plus the pot and the Fixer's cash.
+- **Spoils and Captain's Insignia,** straight into your Gutter Bank (as before).
+- **The metal Gutter Trophies** you earn, **BM Medallions** and the rare **BM Trophy** (the Fixer's prize, as before).
+- **A Shifting Core:** 1 in 100 now, at every tier.
+- **The night's own currency,** more at the higher tiers (3-6 at Tier I up to 7-14 at Tier V):
+
+  | Heist | Pays | ...and an 8% chance of |
+  |---|---|---|
+  | Blood Moon | Blood Moon Crystals | the Crimson Ledger |
+  | Lucky Night, or any Lucky Raid | Lucky Tokens (and a few coins) | the Gambler's Coin |
+  | Alien | Green Xenite | the Vorn Cracking Rig |
+
+Gone from the haul: vanilla ingots and gems, the stack of building supplies and food, Netherite Scrap, the Fence's curios, and the heist gear Goldtooth sells anyway. **The haul lectern's three kinds of haul are retired**; every haul pays this way, and the lectern is now the Crate Desk (below).
+
+**The vault's own gear is rarer, and worth more:** one roll per raider per win. That's 6% at Tier I, then 7%, 8%, 9% and 10% at Tier V, for a piece of that tier's raid-only gear:
+
+| Tier | Raid-only gear |
+|---|---|
+| I | the Heister's Shiv |
+| II | the Heister's Shiv or the Vault Breaker |
+| III | the Vault Breaker or the Coinslinger |
+| IV | the Coinslinger or the Gutter Cutlass |
+| V | the Gutter Cutlass or the Treasurer's Scepter |
+
+Hidden vaults, the Gutter Gentry and the rare guards keep their own treasures.
+
+### Three new finds
+Every raider rolls for each of these on every win, at any tier:
+- **Forgeheart** (rare, 5%): carry it anywhere in your inventory and the raw iron, gold and copper in your pack smelt themselves every few seconds. About one in five comes out as an extra ingot, raw ore blocks become metal blocks, and you get the furnace's experience.
+- **The Alibi** (legendary, 3%): use it to snap back to where you stood five seconds ago. Any harm taken in those seconds is mended, any fire goes out, and you're unseen for a moment. It works once a minute and won't cross between worlds.
+- **The Counterfeiter's Press** (mythical, 1%): use it on a floor to set it down. It prints one Black Market Token every in-game day for whoever set it there, with up to seven waiting; right-click it to collect. One press per player. Sneak + punch to pick it up (it pays out what's waiting first).
+
+Each does something nothing else in the pack does: smelting on the go, a five-second rewind, and a steady Token income. All three work anywhere in the Overworld, Nether and End, and none can be carried into a heist (the coat check keeps them).
+
+### The Crate Desk
+The den's old haul lectern, and **The Crate Desk** button in the Ledger's Office. It's paid from your Gutter Bank first, then your pockets (a Gutter Medallion counts as 16 coins and a Trophy as 128; the change goes into your bank).
+
+| | Price | What's in it |
+|---|---|---|
+| **Raw Materials Crate** | 16 coins | 4-5 stacks: iron, copper, coal, redstone, lapis, quartz, logs, stone, glass, string, leather, obsidian, gunpowder... |
+| **Adventurer's Crate** | 32 coins | 2-3: experience bottles, enchanted books, ender pearls, golden apples, blaze rods, golden carrots, rockets... rarely an enchanted golden apple |
+| **Mineral Crate** | 48 coins | 3-4: gold, emeralds, iron, gold, lapis and redstone blocks; sometimes diamonds; rarely netherite scrap or ancient debris |
+| **Crimson Tip-off** | 64 coins | your next heist is a Blood Moon heist |
+| **Vorn Signal** | 64 coins | your next heist is an Alien heist |
+
+- **Crates:** set one down and open it. What's inside is decided only when it's opened, so there's no telling what you'll get. Walk away and anything left folds into your pack, like The Haul; walk away without opening it and the crate comes back as it was.
+- **Tip-offs:** use one to call your next heist. It counts the next time you plan a heist yourself, whatever the night and whatever the admin's chance settings. **A Lucky Raid can never be called**; it's the luck of the draw.
+
+### A laurel and an achievement for every tier
+- **The first clear of each tier gives its own laurel:** Copper (I), Silver (II), Gilded (III), Pearl (IV) and Ember (V). That's on top of the Gilded piece and the Raid Banner.
+- **Each tier has its own achievement,** from *Into the Gutter* (Tier I) to *Keeper of the Hoard* (Tier V).
+- **Hold a laurel in your off hand** for a crown of its light over your head.
+- Tiers you cleared before 2.68 count: their laurels and achievements arrive the next time you're on.
+
+### The vault's loose ends
+- **Leave from anywhere:** on a heist, the Fixer's Ledger opens a card first: **The Fixer's Office**, or **Leave the heist** (home now, with your own gear back; the fee and any share stay behind). You don't have to walk back to the den.
+- **The vault counts its guests:** the crew's size is checked every second, not just when it walks in.
+  - If someone leaves (by the door, the Ledger or a dropped connection), the guards still standing lose the extra health and damage they had for them.
+  - If someone joins, the guards gain it.
+  - The crew is told either way ("1 in the crew now - the guards ease off"). The tries you started with stay.
+- **A dropped connection:**
+  - If the whole crew disconnects at once, the vault waits **three minutes** before clearing, so a quick rejoin finds the heist still there. A crew that walks out still frees its vault within 20 seconds.
+  - If the leader drops out while the crew waits on their call, the choice passes to the crew straight away. A leader who comes back finds it has moved on.
+  - Rejoining also clears a half-finished Ledger trip or exit question.
+- **Knocked out:** what you dropped where you fell is held for you (nobody else can pick it up) and comes back to your pockets once you're back on your feet in the den. Lava still takes what it takes.
+- **Safe plans:** the Heist Plans bring you back to the exact spot you planned from, so they now start a heist only from safe ground. The rules are the same as the Ledger's Locker Hall trip: on the ground, not mounted or in water or lava, not hurt in the last 10 seconds, not in a boss dungeon.
+  - A crewmate who isn't on safe ground isn't pulled in, or charged, and is told why. They can join with their own plans once they're safe.
+- **A full city:** when all eight vault crews are busy, whoever was turned away is told the moment one frees up.
+- **A full Locker Hall:**
+  - While fewer than five bays are free, it's **one bay each**: nobody claims a second or third.
+  - If every bay is taken and someone with no bay needs one, the Fixer frees one up: a spare (someone's second or third bay), or the bay of someone not seen for 20 in-game days.
+  - The freed bay's contents go into its keeper's other bays if they fit. Whatever doesn't fit becomes **Lost & Found** crates (like The Haul), handed to the keeper the next time they step into the Locker Hall.
+- **The tile floor:** the pit now runs wall to wall, so nobody can walk round the tiles along the side walls.
+
+### For admins
+- `/function bm:admin/raid_finds` gives the new items: the crates, the tip-offs, the five laurels, Forgeheart, the Alibi and the Press.
+- `/function bm:admin/heist_plans_anywhere` lets the Heist Plans start a heist from anywhere again (safe ground or not); `/function bm:admin/heist_plans_safe` restores the rule.
+
+### Fixed
+- The Ledger's Office (Raid Crew) and Emma's Wardrobe button showed a developer note in their tooltips.
+- "You're already in the vault" pointed at the old plates; it points at the Fixer's Door now.
+- The knock-out message said your things stayed where you fell.
 
 ## New in 2.67: Democratus, Leo of the shore, after the heist (home or another job), the vault smoothed out (the Fixer's Door, three shopkeepers), follower trios, followers swim, faces that move, the Raid Crew, follower wardrobes, game night in the vault, the Frisbee Shield, the Gutter Gentry, the Arachno-Lantern
 
@@ -58,10 +146,10 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 - **Straight from one heist into the next, you keep your way home and your own spawn** from before the first. Your gear stays at the coat check the whole time (your Tokens stay with you).
 - Closed the window by mistake? The same choices are in chat as buttons. If the leader takes the plate home before deciding, the choice passes to whoever's still in the heist.
 - **A failed heist no longer rebuilds itself for free.** Another try is a new plan and a new fee, for everyone who comes.
-- **Netherite Scrap** is no longer sold for coins. It's a rare find in a won heist's haul instead: 3% at Tier I, then 6%, 10%, 15% and 22% at Tier V (+3% if nobody was knocked out).
-- **Everything goes into The Haul.** Every reward is packed there, together with a stack of plain building supplies (logs, stone, glass, iron, coal, torches and more).
+- **Netherite Scrap** is no longer sold for coins. (2.68: it's in the Mineral Crate now.) It was a rare find in a won heist's haul: 3% at Tier I, then 6%, 10%, 15% and 22% at Tier V (+3% if nobody was knocked out).
+- **Everything goes into The Haul.** Every reward is packed there. (2.68: no more building supplies in it - they're in the Raw Materials Crate.)
 - **Fewer coins, bigger pieces.** The pot pays about a third of what it did and the haul's coins are halved. **Gutter Medallions** (16 coins) and **Gutter Trophies** (128 coins) are new; Goldtooth changes them either way and the bank counts them as coins. **A Token now costs 32 coins** (2 Medallions), at Goldtooth and at the bank. Goldtooth's dearest goods are priced in Medallions.
-- **Three kinds of haul:** pick one at the den's haul lectern or in the Ledger.
+- **Three kinds of haul** (retired in 2.68 - every haul pays in money now; see above). They were picked at the den's haul lectern or in the Ledger.
   - **Plain:** vanilla goods (iron, gold, diamonds, emeralds, XP bottles, enchanted books, golden apples; ancient debris at the top tiers) and a full load of supplies.
   - **Black Market** (the default): heist gear, the Fence's curios and the Fixer's prize. Only this haul pays Tokens and Medallions.
   - **Gutter:** coins, spoils, Insignia, Medallions from Tier III and heist supplies.

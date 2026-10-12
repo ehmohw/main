@@ -400,6 +400,10 @@ def generate(G):
     fn('admin/raid_finds', [G.give(i) for i in ('forgeheart', 'the_alibi', 'counterfeiters_press', 'crate_raw', 'crate_adventure', 'crate_mineral', 'tip_bloodmoon', 'tip_alien')] +
        [G.give(f'laurel_t{t}') for t in range(1, 6)])
 
+    G.FUNCS['admin/help'] += [tellraw('@s', [T('/function bm:admin/raid_finds', 'yellow'), T('  the 2.68 raid items: crates, tip-offs, laurels, Forgeheart, the Alibi, the Press', 'gray')]),
+                              tellraw('@s', [T('/function bm:admin/heist_plans_anywhere', 'yellow'), T('  the Heist Plans work from anywhere (', 'gray'),
+                                             T('heist_plans_safe', 'yellow'), T(' restores the safe-ground rule)', 'gray')])]
+
     G.FUNCS['tick'] += tick
     f = G.FUNCS['loop/fast']
     f[-1:-1] = fast

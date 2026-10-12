@@ -166,7 +166,9 @@ def generate(G):
     G.FUNCS['p70/unraid'].append('function bm:p104/ko_items')
 
     # ================================================================== SAFE PLANS (the Ledger trip's rules - phase103 section 8)
-    fn('p104/unsafe', ['execute if dimension bm:gutter run return 0',
+    fn('admin/heist_plans_anywhere', ['scoreboard players set #plany bm.rng 1', tellraw('@s', P + [T('The Heist Plans work from anywhere now, safe ground or not (admin/heist_plans_safe to restore).', 'gray')])])
+    fn('admin/heist_plans_safe', ['scoreboard players set #plany bm.rng 0', tellraw('@s', P + [T('The Heist Plans start a heist only from safe ground again.', 'gray')])])
+    fn('p104/unsafe', ['execute if score #plany bm.rng matches 1 run return 0', 'execute if dimension bm:gutter run return 0',
                        'execute if dimension bm:hollow_throne run return 1', 'execute if predicate bm:p103/boss_dungeon run return 1', 'execute if entity @s[tag=bm.adv] run return 1',
                        'execute if predicate bm:p21/riding run return 2', 'execute if predicate bm:p103/wet run return 3',
                        'execute unless entity @s[nbt={OnGround:1b}] run return 4',
