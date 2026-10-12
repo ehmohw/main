@@ -112,6 +112,11 @@ A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, o
   - **Low on health** (a third or less): Emma looks sad, with a tear; Celi is furious; Cecil and Leo turn grim.
   - **Calm, each their own way:** Emma blinks often and beams or winks at you now and then. Celi blinks fast, cuts her eyes away (tsk) and huffs. Cecil spends a lot of time half-lidded and deadpan, rolls his eyes and gives you a sly look. Leo blinks slowly, smiles when you're close, and looks worried when *you're* hurt.
   - **Arriving:** Emma beams, Celi tsks, Cecil rolls his eyes, Leo smiles. Emma also beams when her healing lands, and Celi tsks after a kill quip.
+  - **Startled:** the moment a monster first comes within 10 blocks, all four look surprised (wide eyes, brows up, a little "o") before their fighting face.
+  - **Sleepy:** tell them to sit at night with nothing the matter, and their lids grow heavy.
+- **KillerWatt's maw moves too:** it snarls in a fight, clenches when he's hit, gapes open as he strikes or arrives, and now and then, calm, twists into a lopsided smirk. It works in all ten of his forms; the boss snarls at anyone within 20 blocks.
+- **Rufus Gnaw, the Mercenary,** no longer glides along like a statue: he bobs and sways as he walks, breathes while he stands, and leans into a fight.
+- **Pearlman** follows you with his eyes smoothly instead of turning in a jerk once a second.
 - **Emma walks and runs playfully now:** her arms swing out wide from her sides, her hands flare, and each foot steps in front of the other.
 
 ### Cosmetics stay on
@@ -130,6 +135,7 @@ A rare find in the vault: shiny guards, loose bricks, champions, the Rat King, o
 ### KillerWatt
 - **A better rig:** his head and arms follow his torso, his head no longer tips too far back, and his tendrils are animated. They're shaped like lightning now: hard, angled bends that carry them out around his chest, so they strike in front of him without cutting through it. **The Tendril Lunge:** he coils all four scythes back and drives them at you.
 - **He goes out with an explosion of electricity.**
+- **He reacts:** the follower roars as he arrives, flinches when he's hurt, swipes his tendrils at a monster in bite reach and spreads his arms when he's in the air. The boss flinches when you land a hit while he's between attacks, and up close he throws a quick right-left jab. The pose of the rider's Thunder Leap now holds all the way to the landing.
 - **The follower's charged attacks:** every blow charges him, and at full charge he unleashes his form's attack (riding, the Spark lets it go when you choose). Stormbreaker, Supernova, Maelstrom, Plague Bloom, Tectonic Slam, Avalanche, Tempest, Overgrowth, Absolute Zero and, in his Ethereal Form, Void Requiem.
 - **Ethereal KillerWatt:** set down an Ethereal Gem near him mid-fight and he ascends. He heals whole with far more health, hits harder and faster, floats, and throws Void Lances. Beat that form for the **Ethereal Tendrils**, which hit half again as hard and fling you half again as far.
 
@@ -151,6 +157,11 @@ On a Blood Moon, very rarely, a monster spawning under the open sky becomes the 
   - **A follower can't jam the Block Temple.** A follower or hireling standing where a block was going stopped the push; now it steps back beside you.
   - **Odd guards wear their names.** Tiny, Hulking, Swift, Ironclad, Blur and Juggernaut guards lost the prefix on their name.
   - The server log no longer fills with an error for every item frame in the Combination Room and the Dial Lock.
+- **Found by reading the code through:**
+  - **Your weapons no longer hit your own followers.** Every weapon and spell that skips "friends" had its own list of who that meant, and the newer followers were missing from most of them. KillerWatt, Zib, raid hirelings and Skiff Escorts were missing from all of them, Celi and Leo from about half, and the Mercenary was listed under the wrong name. Now one list covers everyone, and new followers join it automatically.
+  - **The Hex and Keep sequence puzzles:** their two highest buttons played the same note, so the melody to copy was ambiguous. Each button has its own note now.
+  - **Zorp sells the Vorn Green paint kit**, so a skiff you repainted can go back to its own colour.
+  - About 80 leftover functions from features that were later rewritten are gone, along with a few dead checks.
 - A Lucky Raid's pool pays out whichever haul you picked (it's the crew's fees coming back), so a plain or gutter haul can carry those Tokens.
 
 ## New in 2.66: the Fixer's Office, metal trophies, Bond Sigils, KillerWatt rides

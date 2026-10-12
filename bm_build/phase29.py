@@ -625,8 +625,8 @@ def merc_generate(G, fn, wjson, title, tellraw, give, PREFIX, tick, fast, second
     by = round(sc / 2 - WOLF_TOP + 0.02, 3)
     def qz(a): return f'[0f,0f,{math.sin(math.radians(a) / 2):.4f}f,{math.cos(math.radians(a) / 2):.4f}f]'
     def qx(a): return f'[{math.sin(math.radians(a) / 2):.4f}f,0f,0f,{math.cos(math.radians(a) / 2):.4f}f]'
-    def frame(rot, dy=0.0, sy=1.0):
-        return ('execute on passengers if entity @s[tag=bm.m_body] run data merge entity @s {start_interpolation:0,interpolation_duration:5,'
+    def frame(rot, dy=0.0, sy=1.0, t=5):
+        return (f'execute on passengers if entity @s[tag=bm.m_body] run data merge entity @s {{start_interpolation:0,interpolation_duration:{t},'
                 f'transformation:{{left_rotation:{rot},translation:[0f,{by + dy + sc * (sy - 1) / 2:.4f}f,0f],scale:[{sc}f,{sc * sy:.4f}f,{sc}f]}}}}')
     fast.append('execute as @e[type=minecraft:wolf,tag=bm.mercpet] at @s if entity @a[distance=..32] run function bm:p29/merc/anim')
     fn('p29/merc/anim', ['scoreboard players add @s bm.mbob 1', 'execute if score @s bm.mbob matches 8.. run scoreboard players set @s bm.mbob 0',
@@ -634,8 +634,8 @@ def merc_generate(G, fn, wjson, title, tellraw, give, PREFIX, tick, fast, second
                          'execute if function bm:p29/merc/has_target if entity @e[type=#bm:hostile,distance=..2.6] run return run ' + frame(qx(-14), -0.04),
                          'execute if predicate bm:p21/walking if score #mb bm.rng matches 0 run return run ' + frame(qz(6), 0.07),
                          'execute if predicate bm:p21/walking run return run ' + frame(qz(-6)),
-                         'execute if score @s bm.mbob matches 0 run return run ' + frame('[0f,0f,0f,1f]', 0, 1.035),
-                         'execute if score @s bm.mbob matches 4 run return run ' + frame('[0f,0f,0f,1f]')])
+                         'execute if score @s bm.mbob matches 0 run return run ' + frame('[0f,0f,0f,1f]', 0, 1.035, 20),
+                         'execute if score @s bm.mbob matches 4 run return run ' + frame('[0f,0f,0f,1f]', 0, 1.0, 20)])
     fn('p29/merc/summon', [
         'scoreboard players add @s bm.mgen 1', f'summon minecraft:wolf ~ ~ ~ {snbt(wolf)}',
         'data modify entity @e[type=minecraft:wolf,tag=bm.mnew,limit=1,sort=nearest] Owner set from entity @s UUID',
