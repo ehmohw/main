@@ -237,7 +237,7 @@ def generate(G):
     fn('p74/join_party', ['function bm:p70/join',
                           'execute as @a[distance=..24,gamemode=!spectator,tag=!bm.gvp,tag=!bm.gvwait] unless dimension bm:gutter if score @s bm.pty = #asker bm.pty at @s run function bm:p70/join'])
     # the heist's mobs keep their own counsel: Mimics drop nothing in the vault (no reward for a wrong pick)
-    for i in range(3):
+    for i in range(4):                       # (all four coffers - the fourth's Mimic used to drop its overworld loot)
         f = G.FUNCS[f'p70/r/coffers/mimic{i}']
         k = next(j for j, l in enumerate(f) if 'tag @e[type=minecraft:rabbit,tag=bm.mnew' in l)
         f.insert(k + 1, 'execute as @e[type=minecraft:rabbit,tag=bm.mnew,distance=..3] run data merge entity @s {DeathLootTable:"minecraft:empty"}')
