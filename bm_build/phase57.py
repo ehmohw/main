@@ -243,7 +243,7 @@ def generate(G):
     dlg = P28.multi([T("Emma's Ribbon", PINK, bold=True)],
                     [P28.body([T('Buff: ', 'gray'), T('$(mode)', 'white', bold=True), T('     Charge: ', 'gray'), T('$(c)%', '#e0b0ff', bold=True)]),
                      P28.body([T('Pick what she focuses on. Charged to 100% with monsters near, she takes her Ethereal Form.', 'gray')])],
-                    [btn(1), btn(2), btn(3), btn(4), btn(5), P28.btn(T('Wardrobe', '#ff8ad8', bold=True), 7306, tooltip=T('Her ribbons, dresses and outfits (phase99)', 'gray'), width=120),
+                    [btn(1), btn(2), btn(3), btn(4), btn(5), P28.btn(T('Wardrobe', '#ff8ad8', bold=True), 7306, tooltip=T('Her ribbons, dresses and outfits', 'gray'), width=120),
                      P28.btn(T('Send her home', 'gray'), 7309, width=120)], columns=2, exit_label='Close')
     fn('p57/menu', ['execute store result storage bm:tmp em.c int 1 run scoreboard players get @e[type=minecraft:cat,tag=bm.emsel2,limit=1] bm.emc'] +
        [f'execute if score @e[type=minecraft:cat,tag=bm.emsel2,limit=1] bm.emm matches {m} run data modify storage bm:tmp em.mode set value "{MODES[m][0]}"' for m in MODES] +
