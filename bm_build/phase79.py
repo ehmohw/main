@@ -45,7 +45,7 @@ GRN = '#74d462'
 SCALE = {'boss': ART.RIG_SCALE, 'pet': 1.05}       # (1.55: about 4.7 blocks with the tendrils; the follower about 3)
 DUR = {'idle_a': 30, 'idle_b': 30, 'walk_a': 10, 'walk_b': 10, 'slam_up': 10, 'slam_dn': 3, 'sweep_a': 7, 'sweep_b': 4,
        'roar': 6, 'call': 8, 'fall': 20, 'stab': 4, 'punch_r': 3, 'punch_l': 3, 'crouch': 5, 'hover': 20, 'climb': 6,
-       'lunge_a': 8, 'lunge_b': 3, 'charge': 14, 'release': 3}
+       'lunge_a': 8, 'lunge_b': 3, 'charge': 14, 'release': 3, 'flinch': 3}
 PET_DUR = dict(DUR, walk_a=6, walk_b=6, slam_up=8)
 STRIDE = {'boss': 20, 'pet': 12}
 BOSS_HP, PET_HP, PET_CD = 500, 80, 300
@@ -802,6 +802,69 @@ def generate(G):
     G.FUNCS['p62/died'].insert(-1, 'execute as @e[type=minecraft:wolf,tag=bm.kxpet] if score @s bm.pid = #me bm.pid at @s run function bm:p79/pet/died')
     fn('p79/pet/died', ['scoreboard players add #gone bm.rng 1', 'function bm:p79/pet/vanish'])
     P73.follow_rules(G, ('kw', 'wolf', 'bm.kxpet', 'kw_spark', 'p79/pet/vanish', 'KillerWatt', 'bm.fgk', 'p79/pet/summon'), second)
+
+    # ================================================================== (2.67) ANIMATION: poses that hold, reactions, in the air
+    # A reaction pose holds bm.kxho ticks, then the walk / breath cycle picks up again from its first frame (eased - no snap).
+    # Reactions wait in bm.kxou: 1 a blow (the flinch), 2 he's just arrived (a roar), 3 a monster in reach (a tendril swipe).
+    # The rider's Thunder Leap keeps its pose to the landing - the walk cycle used to step over it in mid-air.
+    ao = ['bm.kxho', 'bm.kxou', 'bm.kxfc', 'bm.kxair']
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in ao]
+    G.OBJECTIVES += ao
+    for kind in ('boss', 'pet'):
+        tk = G.FUNCS[f'p79/{kind}/tick']
+        k_ = next(i for i, l in enumerate(tk) if f'function bm:p79/{kind}/move' in l)
+        tk[k_] = tk[k_].replace(' run function bm:', (' unless entity @s[tag=bm.kxleap]' if kind == 'pet' else '') +
+                                ' unless score @s bm.kxho matches 1.. run function bm:')
+        tk[k_:k_] = ['execute if score @s bm.kxfc matches 1.. run scoreboard players remove @s bm.kxfc 1',
+                     'execute if score @s bm.kxho matches 1.. run function bm:p79/hold'] + \
+                    (['execute unless score @s bm.kxfc matches 1.. if data entity @s {HurtTime:10s} run scoreboard players set @s bm.kxou 1',
+                      'execute if score #rid bm.rng matches 0 unless score @s bm.kxatk matches 1.. unless score @s bm.kxho matches 1.. unless entity @s[tag=bm.kxleap] '
+                      'unless entity @s[tag=bm.kxclimb] run function bm:p79/pet/brawl_chk'] if kind == 'pet' else []) + \
+                    [f'execute if score @s bm.kxou matches 1.. unless score @s bm.kxatk matches 1.. ' +
+                     ('unless entity @s[tag=bm.kxclimb] unless entity @s[tag=bm.kxleap] ' if kind == 'pet' else '') + f'run function bm:p79/{kind}/react']
+        G.FUNCS[f'p79/{kind}/go'] += ['scoreboard players set @s bm.kxho 0', 'tag @s remove bm.kxsw']
+        fn(f'p79/{kind}/flinch', [f'function bm:p79/{kind}/pose/flinch', 'scoreboard players set @s bm.kxho 8', 'scoreboard players set @s bm.kxfc 40',
+                                  'tag @s remove bm.kxsw'])
+    fn('p79/hold', ['scoreboard players remove @s bm.kxho 1',
+                    'execute if score @s bm.kxho matches 7 if entity @s[tag=bm.kxsw] run function bm:p79/pet/pose/sweep_b',
+                    'execute if score @s bm.kxho matches 6 if entity @s[tag=bm.kxsw] rotated as @s rotated ~ 0 run particle minecraft:sweep_attack ^ ^0.8 ^1.3 0 0 0 0 1',
+                    'execute if score @s bm.kxho matches 0 run tag @s remove bm.kxsw', 'execute if score @s bm.kxho matches 0 run function bm:p79/unflex',
+                    'execute if score @s bm.kxho matches 0 run scoreboard players set @s bm.kxs -1'])
+    fn('p79/boss/react', ['execute if score @s bm.kxou matches 1 run function bm:p79/boss/flinch', 'scoreboard players set @s bm.kxou 0'])
+    G.FUNCS['p79/boss/ouch'].append('execute unless score @s bm.kxatk matches 1.. unless score @s bm.kxfc matches 1.. run scoreboard players set @s bm.kxou 1')
+    fn('p79/pet/react', ['execute if score @s bm.kxou matches 1 run function bm:p79/pet/flinch', 'execute if score @s bm.kxou matches 2 run function bm:p79/pet/greet',
+                         'execute if score @s bm.kxou matches 3 run function bm:p79/pet/swipe', 'scoreboard players set @s bm.kxou 0'])
+    G.FUNCS['p79/pet/rig'].append('scoreboard players set @s bm.kxou 2')
+    fn('p79/pet/greet', ['function bm:p79/pet/pose/roar', 'function bm:p79/flex', 'scoreboard players set @s bm.kxho 18',
+                         'particle minecraft:electric_spark ~ ~1.6 ~ 0.5 0.6 0.5 0.2 16', 'playsound minecraft:block.beacon.power_select neutral @a[distance=..16] ~ ~ ~ 0.5 1.8'])
+    # (a monster in bite reach, no attack under way: the tendrils swipe at it in time with his bite - for show, the bite does the harm)
+    fn('p79/pet/brawl_chk', ['scoreboard players operation #sw bm.rng = @s bm.kxf', 'scoreboard players operation #sw bm.rng %= #20 bm.rng',
+                             'execute unless score #sw bm.rng matches 10 run return 0', 'execute if data entity @s {Sitting:1b} run return 0',
+                             f'execute if entity @e[{hostile},distance=..2.4] run scoreboard players set @s bm.kxou 3'])
+    fn('p79/pet/swipe', ['function bm:p79/pet/pose/sweep_a', 'scoreboard players set @s bm.kxho 14', 'tag @s add bm.kxsw',
+                         'playsound minecraft:entity.player.attack.sweep neutral @a[distance=..16] ~ ~ ~ 0.5 1.5'])
+    # in the air (a drop, a jump, flying with his rider) for over 6 ticks: arms out, tendrils trailing - the hover
+    mv = G.FUNCS['p79/pet/move']
+    k_ = next(i for i, l in enumerate(mv) if 'bm:p21/walking' in l) + 1
+    mv[k_:k_] = ['execute if predicate bm:p39/on_ground run scoreboard players set @s bm.kxair 0',
+                 'execute unless predicate bm:p39/on_ground run scoreboard players add @s bm.kxair 1',
+                 'execute if score @s bm.kxair matches 7.. run scoreboard players set #st bm.rng 2']
+    mv.append('execute if score #st bm.rng matches 2 if score #f bm.rng matches 0 run function bm:p79/pet/pose/hover')
+    # the boss up close: a quick one-two with the fists (a share of the slams he'd throw at arm's length)
+    bme = '@e[type=minecraft:husk,tag=bm.kxme,limit=1]'
+    bat = lambda t, cmd: f'execute if score @s bm.kxt matches {t} run {cmd}'
+    bm_ = G.FUNCS['p79/boss/mind']
+    k_ = next(i for i, l in enumerate(bm_) if 'boss/start {a:1}' in l)
+    bm_.insert(k_, 'execute if entity @a[distance=..4,gamemode=!creative,gamemode=!spectator] if score #r bm.rng matches 1..14 run return run function bm:p79/boss/start {a:6}')
+    ba = G.FUNCS['p79/boss/attack']
+    ba.insert(len(ba) - 1, 'execute if score @s bm.kxatk matches 6 run function bm:p79/boss/a_jab')
+    fn('p79/boss/a_jab', [bat(1, 'execute facing entity @a[distance=..6,gamemode=!creative,gamemode=!spectator,sort=nearest,limit=1] feet run tp @s ~ ~ ~ ~ 0'),
+                          bat(1, 'function bm:p79/boss/pose/punch_r'), bat(1, 'playsound minecraft:entity.iron_golem.attack hostile @a[distance=..24] ~ ~ ~ 1 0.6'),
+                          bat(4, 'function bm:p79/boss/jab_hit'),
+                          bat(9, 'function bm:p79/boss/pose/punch_l'), bat(9, 'playsound minecraft:entity.iron_golem.attack hostile @a[distance=..24] ~ ~ ~ 1 0.7'),
+                          bat(12, 'function bm:p79/boss/jab_hit'), bat('22..', 'function bm:p79/boss/done')])
+    fn('p79/boss/jab_hit', ['execute rotated as @s rotated ~ 0 positioned ^ ^2.2 ^2.6 run particle minecraft:electric_spark ~ ~ ~ 0.6 0.6 0.6 0.2 20',
+                            f'execute rotated as @s rotated ~ 0 positioned ^ ^ ^2.6 as @a[distance=..2.4,gamemode=!creative,gamemode=!spectator] run damage @s 6 minecraft:mob_attack by {bme}'])
 
     # ================================================================== admin
     fn('admin/killerwatt', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.kxcall","bm.kxsn"]}',

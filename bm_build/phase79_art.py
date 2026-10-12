@@ -254,28 +254,8 @@ def _shrink(els, k):
 # ---------------------------------------------------------------------------------------------------- poses
 # (the display frame: his front is +z, his right -x; a limb swings forward with negative x, his right arm out with negative z)
 I = (0.0, 0.0, 0.0, 1.0)
-def P(dy=0.0, **parts):
-    d = {p: I for p in PARTS}; d.update(parts); d['_dy'] = dy
-    return d
 UP_R, UP_L = qmul(qa('y', 15), qa('z', -78)), qmul(qa('y', -15), qa('z', 78))
-POSES = {
-    'idle_a': P(body=qa('x', 2), head=qa('x', 6), armr=qa('z', -8), arml=qa('z', 8), tend=qa('x', -4)),
-    'idle_b': P(0.04, body=qa('x', -1), head=qmul(qa('y', 8), qa('x', 2)), armr=qmul(qa('z', -12), qa('x', -6)), arml=qmul(qa('z', 12), qa('x', -4)), tend=qa('x', 5)),
-    'walk_a': P(0.06, body=qa('y', 5), head=qa('x', 6), legr=qa('x', -26), legl=qa('x', 22), armr=qmul(qa('z', -8), qa('x', 20)), arml=qmul(qa('z', 8), qa('x', -20)), tend=qa('x', 7)),
-    'walk_b': P(0.06, body=qa('y', -5), head=qa('x', 6), legr=qa('x', 22), legl=qa('x', -26), armr=qmul(qa('z', -8), qa('x', -20)), arml=qmul(qa('z', 8), qa('x', 20)), tend=qa('x', 3)),
-    'slam_up': P(0.1, body=qa('x', -6), head=qa('x', -12), armr=UP_R, arml=UP_L, tend=qa('x', -14), legl=qa('x', -8)),
-    'slam_dn': P(-0.25, body=qa('x', 20), head=qa('x', 14), armr=qa('x', -78), arml=qa('x', -78), tend=qa('x', 18), legr=qa('x', -18), legl=qa('x', 12)),
-    'sweep_a': P(body=qa('y', 30), head=qa('y', 20), armr=qa('z', -30), arml=qa('z', 30), tend=qmul(qa('y', 40), qa('x', -10))),
-    'sweep_b': P(body=qa('y', -35), head=qa('y', -20), armr=qa('z', -45), arml=qa('z', 20), tend=qmul(qa('y', -70), qa('x', 40))),
-    'roar': P(0.05, body=qa('x', -10), head=qa('x', -28), armr=qmul(qa('z', -50), qa('x', 10)), arml=qmul(qa('z', 50), qa('x', 10)), tend=qa('x', -22)),
-    'call': P(0.12, body=qa('x', -8), head=qa('x', -24), armr=qa('z', -160), arml=qa('z', 160), tend=qa('x', -18)),
-    'fall': P(-0.55, body=qa('x', 30), head=qa('x', 38), armr=qa('x', -40), arml=qa('x', -30), legr=qa('x', -40), legl=qa('x', -34), tend=qa('x', 30)),
-}
-FLEX = {'slam_up', 'roar'}             # (these wear the bent-elbow arms, as in the art)
-
-
-def part_xf(pose, p):
-    return pose[p], (0.0, pose['_dy'], 0.0)
+# (the 2.66 poses and their flat part_xf gave way to the 2.67 skeleton below)
 
 
 # ---------------------------------------------------------------------------------------------------- 2.66: the follower's elements
@@ -420,16 +400,6 @@ def variant_models(base_models):
     return M
 
 
-# new poses for the follower (2.66): the tendril stab, the two punches, the crouch before a leap, hovering, climbing
-POSES.update({
-    'stab': P(0.02, body=qa('x', 14), head=qa('x', 8), armr=qmul(qa('z', -20), qa('x', 25)), arml=qmul(qa('z', 20), qa('x', 25)), tend=qa('x', 58)),
-    'punch_r': P(body=qmul(qa('y', -22), qa('x', 8)), head=qa('y', -10), armr=qa('x', -92), arml=qmul(qa('z', 14), qa('x', 30)), tend=qa('x', 40)),
-    'punch_l': P(body=qmul(qa('y', 22), qa('x', 8)), head=qa('y', 10), arml=qa('x', -92), armr=qmul(qa('z', -14), qa('x', 30)), tend=qa('x', 40)),
-    'crouch': P(-0.4, body=qa('x', 24), head=qa('x', -14), legr=qa('x', -34), legl=qa('x', -34), armr=qmul(qa('z', -16), qa('x', 30)), arml=qmul(qa('z', 16), qa('x', 30)),
-                tend=qa('x', -26)),
-    'hover': P(0.12, body=qa('x', 4), head=qa('x', 6), legr=qa('x', 10), legl=qa('x', -6), armr=qa('z', -38), arml=qa('z', 38), tend=qa('x', -24)),
-    'climb': P(0.0, body=qa('x', 10), head=qa('x', -18), armr=qa('x', -150), arml=qa('x', -135), legr=qa('x', -30), legl=qa('x', 10), tend=qa('x', 42)),
-})
 
 
 
@@ -500,6 +470,9 @@ POSES = {
     'lunge_a': _P2(0.02, body=X(-8), head=X(-4), arms=(qmul(qa('z', -30), X(20)), qmul(qa('z', 30), X(20))), tend=X(-46), tendl=X(40)),
     'lunge_b': _P2(-0.1, body=X(18), head=X(-12), arms=(X(-30), X(-30)), tend=X(82), tendl=X(-80), legr=X(-14), legl=X(10)),
     # the follower's CHARGED attack: gathering (arms up and out, every scythe raised), then the release
+    # (2.67) a blow lands: thrown back a moment, arms flung out, tendrils whipping up
+    'flinch': _P2(-0.05, body=X(-14), head=X(-20), arms=(qmul(qa('z', -34), X(-18)), qmul(qa('z', 34), X(-18))), tend=X(-38), tendl=X(30),
+                  legr=X(8), legl=X(-6)),
     'charge': _P2(0.1, body=X(-6), head=X(-12), arms=(qa('z', -125), qa('z', 125)), tend=X(-40), tendl=X(36)),
     'release': _P2(-0.12, body=X(14), head=X(-10), arms=(X(-85), X(-85)), tend=X(52), tendl=X(-48), legr=X(-16), legl=X(12)),
 }

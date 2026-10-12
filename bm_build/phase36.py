@@ -92,7 +92,8 @@ def extend_offers(O, offer):
 def zorp_offers():
     import phase24 as R24
     k = next(i for i, o in enumerate(R24.OFFERS) if o[2][0] == 'xenite_violet')
-    R24.OFFERS[k:k] = [(('xenite_green', 6), ('xenite_violet', 2), (f'skiff_paint_{c}', 1)) for c, _, _ in COLOURS[1:]] + \
+    # (2.67: Vorn Green too - the skiff's own colour, so a repainted hull can go back to it)
+    R24.OFFERS[k:k] = [(('xenite_green', 6), ('xenite_violet', 2), (f'skiff_paint_{c}', 1)) for c, _, _ in COLOURS] + \
                       [(('xenite_cyan', 6), None, (f'skiff_decal_{d}', 1)) for d, _ in DECALS]
 
 

@@ -12,7 +12,8 @@ RETIRED = [r'p21/frog/.*', r'p25/don/.*', r'p63/(don|frog)/p/.*',               
            r'crypt/escape_(tick|close)',                                          # (the crypt's way out stays open once the key is taken)
            r'lucky/win_medallions', r'p24/altar/sock_.*', r'p32/altar/.*', r'p29/statue/age', r'p32/crash/dep_red',
            r'p42/nova/ring_\d+', r'p59/kw/(yank|vec)', r'p71/bond_read', r'p75/trophy_again', r'p79/pet/uhit\d+',
-           r'p2/[a-z]+/pz\d+_fail']
+           r'p2/[a-z]+/pz\d+_fail',
+           r'p79/(boss|pet)/pose/.*', r'p88/pose/bat_roost']                         # poses a rig has but never plays (Batty is summoned roosting)
 _RX = re.compile('^(?:' + '|'.join(RETIRED) + ')$')
 
 
