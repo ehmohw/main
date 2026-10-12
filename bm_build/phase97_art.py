@@ -24,10 +24,14 @@ PARTS = ('body', 'head', 'armr', 'arml', 'legr', 'legl', 'cape', 'scythe')
 GRIP = (-7.2, 11.6, -0.2)                    # his left fist (design units): the scythe's joint (he carries it left-handed, as in the art)
 ELBOW = 17.2                                 # (the resting arm bends here: the forearm folds up in front, the fist at his shoulder)
 KNEE = 8.6                                   # (a bent leg folds here: the shin runs straight back - a kneel, or knees up sitting)
-ALT = {'arml': ('rest',), 'armr': ('rest', 'knee'), 'legr': ('bent',), 'legl': ('bent',)}      # (the parts with a second model, swapped in by a pose)
+ALT = {'arml': ('rest', 'grip'), 'armr': ('rest', 'knee'), 'legr': ('bent',), 'legl': ('bent',)}      # (the parts with a second model, swapped in by a pose)
 SCYTHE_K = 0.75                              # (the scythe is built at 3/4 size - a model may not reach past 32 - and shown 4/3 as large)
 GLOW = {'#4c2a80': '#9a5af0', '#8a5ac0': '#c890ff', '#c8a8f2': '#f2e2ff', '#1c0a2c': '#e8c8ff'}   # his irises, lit: the night glow
 GRIP_REST = (-7.2, 21.4, -4.6)
+GRIP_BEND = 45                               # (2.67b: the gripping arm - the forearm bent forward at the elbow, as you'd hold a staff; a model turns 45 at most)
+GRIP_HOLD = (-7.2, round(17.2 + (-5.6) * math.cos(math.radians(GRIP_BEND)) + 0.2 * math.sin(math.radians(GRIP_BEND)), 3),
+             round((-5.6) * math.sin(math.radians(GRIP_BEND)) - 0.2 * math.cos(math.radians(GRIP_BEND)), 3))
+GRIPS = {'rest': GRIP_REST, 'grip': GRIP_HOLD}
 SKIN, SKIN_DK, SKIN_LT = '#d0905e', '#a8704a', '#e6aa78'
 HAIR = ('#a8dccc', '#bce6d8', '#cdeee4', '#dcf6ee', '#ecfcf6')
 BEARD, BEARD_DK, BEARD_LT = '#3a2856', '#261a3c', '#4e3870'
@@ -393,6 +397,13 @@ def models():
         return out + [_el((cx - 2.1, ey - 0.5, -2.1), (cx + 2.1, ey + 0.5, 2.1), 'dm_skin', pv)] + [bend(fr, to, t) for fr, to, t in hand(cx)]
     part('dm_armr_knee', knee(1))
 
+    # ---- (2.67b) the gripping arm: the forearm bent forward and up at the elbow - kneeling, his left fist high on the planted shaft
+    def grip(sx):
+        pv, cx, out = upper(sx); ey = ELBOW
+        bend = lambda fr, to, t: _el(fr, to, t, pv, ('x', GRIP_BEND, (cx, ey, 0)))
+        return out + [_el((cx - 2.1, ey - 0.6, -2.1), (cx + 2.1, ey + 0.6, 2.1), 'dm_skin', pv)] + [bend(fr, to, t) for fr, to, t in hand(cx)]
+    part('dm_arml_grip', grip(-1))
+
     # ---- the scythe (its joint is the grip, the shaft along +y): the black shaft with its wraps, the gold band, the blade sweeping
     #      out and back toward the butt with a pale edge, its heel standing up past the shaft, the crystal in golden claws, the crescent
     g = (0.0, 0.0, 0.0)
@@ -441,13 +452,14 @@ def models():
 
 # ---------------------------------------------------------------------------------------------------- poses
 # Display frame (as Leo's): limb(side, fwd, out) swings a limb forward / out; torso(lean, tilt, turn). The scythe has its own
-# turn, at his left fist: SHOULDER - across his shoulders, the head past his right shoulder, the blade hanging (the art);
+# turn, at his left fist: SHOULDER - carried over his left shoulder, the shaft rising up and back past the pauldron, the blade arcing
+# out to his left above his head (2.67b: laid across his shoulders it cut through the broader build);
 # PLANTED - stood upright at his side, the blade turned outward; LEVEL - held out flat.
 # A pose may swap parts for their second model (ALT): his left arm bent to rest the scythe on his shoulder; legs bent at the
 # knee to kneel or sit.
 I = (0.0, 0.0, 0.0, 1.0)
 U = RIG_SCALE / 16
-SHOULDER = qmul(qa('z', 70), qmul(qa('x', -20), qa('y', -40)))
+SHOULDER = qmul(qa('z', -6), qmul(qa('x', -24), qa('y', 180)))
 PLANTED = qmul(qa('y', 180), qa('z', 4))
 LEVEL = qmul(qa('x', 90), qa('y', 180))
 def P(dy=0.0, cape=None, alt=None, slide=0.0, **parts):
@@ -459,7 +471,7 @@ def P(dy=0.0, cape=None, alt=None, slide=0.0, **parts):
 def R(dy=0.0, cape=None, **parts):                                   # (resting: the scythe on his shoulder, his left arm bent)
     return P(dy, cape, alt={'arml': 'rest'}, **parts)
 KNEEL = {'legr': 'bent', 'legl': 'bent'}
-VIGIL = dict(KNEEL, arml='rest', armr='knee')                        # (kneeling: his left fist on the planted shaft, his right forearm on his knee)
+VIGIL = dict(KNEEL, arml='grip', armr='knee')                        # (kneeling: his left fist on the planted shaft, his right forearm on his knee)
 KNEE_ARM = limb(1, 30, -32)
 KNEE_ARM_B = limb(1, 28, -31)
 POSES = {
@@ -481,12 +493,13 @@ POSES = {
     'run_b': P(0.02, body=torso(lean=12, tilt=-3), head=torso(lean=-10), legr=limb(1, -42), legl=limb(-1, 44), arml=limb(-1, -38, 12), armr=limb(1, -40, 12),
                scythe=qmul(qa('x', 124), qa('y', 180)), cape=qa('x', -40)),
     'jump': R(body=torso(lean=8), head=torso(lean=-10), legr=limb(1, 30), legl=limb(-1, -36), arml=limb(-1, 14, 30), armr=limb(1, 20, 40), cape=qa('x', -30)),
-    # the vigil (the storm encounter, as the sketch): down on his left knee, the right foot planted before him, both fists high on
-    # the shaft of the scythe stood upright in front of his left shoulder - the blade over his head - and his eyes straight ahead
-    'kneel': P(-0.5, alt=VIGIL, slide=10.0, body=torso(lean=6), head=qa('x', -6), legr=limb(1, 76, 4), legl=limb(-1, -14, 3),
-               arml=limb(-1, 70, 2), armr=KNEE_ARM, scythe=PLANTED, cape=qa('x', -26)),
-    'kneel_b': P(-0.495, alt=VIGIL, slide=10.0, body=torso(lean=5), head=qa('x', -6), legr=limb(1, 76, 4), legl=limb(-1, -14, 3),
-                 arml=limb(-1, 68, 2), armr=KNEE_ARM_B, scythe=PLANTED, cape=qa('x', -24)),
+    # the vigil (the storm encounter, as the sketch): down on his left knee, the right foot planted before him, his left fist on the
+    # shaft of the scythe stood upright in front of his left shoulder (the elbow bent forward) - the blade over his head - his right
+    # forearm across his raised knee, and his eyes straight ahead
+    'kneel': P(-0.5, alt=VIGIL, slide=6.0, body=torso(lean=6), head=qa('x', -6), legr=limb(1, 76, 4), legl=limb(-1, -14, 3),
+               arml=limb(-1, 50, 6), armr=KNEE_ARM, scythe=PLANTED, cape=qa('x', -26)),
+    'kneel_b': P(-0.495, alt=VIGIL, slide=6.0, body=torso(lean=5), head=qa('x', -6), legr=limb(1, 76, 4), legl=limb(-1, -14, 3),
+                 arml=limb(-1, 48, 6), armr=KNEE_ARM_B, scythe=PLANTED, cape=qa('x', -24)),
     # sitting (right-click him): on the ground, knees up, the scythe stood upright at his left side in his left hand
     'sit_a': P(-0.6, alt=KNEEL, body=torso(lean=-6), head=torso(lean=2), legr=limb(1, 66, 8), legl=limb(-1, 60, 8), arml=limb(-1, 14, 22), armr=limb(1, 56, 4),
                scythe=PLANTED, cape=qa('x', 22)),
@@ -514,13 +527,14 @@ POSES = {
     'yield': P(-0.47, alt=KNEEL, body=torso(lean=22), head=torso(lean=10), legr=limb(1, 82, 2), legl=limb(-1, -6, 3), arml=limb(-1, 40, 14), armr=limb(1, 46, 2),
                scythe=qmul(qa('y', 180), qmul(qa('z', -8), qa('x', 14))), cape=qa('x', 8)),
 }
-# (2.67) swimming: the scythe on his shoulder (he does not let go of it), a heavy sidestroke with his right arm and a slow, powerful
-# frog kick; the cloak floating out behind him
+# (2.67) swimming: the scythe held up out of the water in his left fist, out to his side, the blade over his shoulder (he does not let
+# go of it - and leaning into the stroke, a scythe on his shoulder cut through him); a heavy stroke with his right arm and a slow,
+# powerful frog kick; the cloak floating out behind him
 SWIM_FRAMES = 8
 for _i in range(SWIM_FRAMES):
     _p = 2 * math.pi * _i / SWIM_FRAMES
-    POSES[f'swim_{_i}'] = R(-0.86 + 0.04 * math.sin(_p + 0.8), body=torso(lean=18 + 3 * math.sin(_p), tilt=3 * math.sin(_p)), head=torso(lean=-18 - 3 * math.sin(_p)),
-                            arml=limb(-1, 10, 25), armr=limb(1, 84 + 56 * math.sin(_p), 18 + 16 * math.cos(_p)),
+    POSES[f'swim_{_i}'] = P(-0.86 + 0.04 * math.sin(_p + 0.8), slide=10.0, body=torso(lean=18 + 3 * math.sin(_p), tilt=3 * math.sin(_p)), head=torso(lean=-18 - 3 * math.sin(_p)),
+                            arml=limb(-1, 150, 30), scythe=qmul(qa('z', 22), PLANTED), armr=limb(1, 84 + 56 * math.sin(_p), 18 + 16 * math.cos(_p)),
                             legr=limb(1, -20 + 16 * math.cos(_p), 6 + 10 * math.sin(_p)), legl=limb(-1, -20 + 16 * math.cos(_p), 6 + 10 * math.sin(_p)),
                             cape=qa('x', -48 - 6 * math.sin(_p)))
 
@@ -543,7 +557,7 @@ def part_xf(pose, p):
     dy = pose['_dy']
     if p == 'scythe':
         sh = _shift(pose, 'arml')
-        e = _qrot(pose['arml'], _off(PIVOT['arml'], GRIP_REST if pose['_alt'].get('arml') == 'rest' else GRIP))
+        e = _qrot(pose['arml'], _off(PIVOT['arml'], GRIPS.get(pose['_alt'].get('arml'), GRIP)))
         sl = _qrot(pose['scythe'], (0.0, -pose['_slide'] * U, 0.0))                     # (gripped further up: the scythe slides down)
         return pose['scythe'], (sh[0] + e[0] + sl[0], sh[1] + e[1] + dy + sl[1], sh[2] + e[2] + sl[2])
     if p in ('head', 'armr', 'arml'):
