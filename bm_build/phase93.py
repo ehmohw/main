@@ -141,9 +141,11 @@ def generate(G):
         if ar: lines += [f'attribute @s minecraft:armor modifier add bm:aff {ar} add_value', 'attribute @s minecraft:armor_toughness modifier add bm:aff 4 add_value']
         if kb: lines.append(f'attribute @s minecraft:knockback_resistance modifier add bm:aff {kb} add_value')
         if hp != 1.0: lines.append(f'function bm:p93/hp {{m:{int(hp * 10)}}}')
-        lines += ['data modify storage bm:gv aff.n set from entity @s CustomName',
-                  'data modify entity @s CustomName set value ' + snbt({'text': pre, 'color': col, 'bold': True, 'extra': []}),
-                  'data modify entity @s CustomName.extra append from storage bm:gv aff.n']
+        # (the prefixed name is put together in storage and set once: a name with an empty extra list won't decode)
+        lines += ['data modify storage bm:gv aff.c set value ' + snbt({'text': pre, 'color': col, 'bold': True}),
+                  'execute if data entity @s CustomName run data modify storage bm:gv aff.c.extra set value []',
+                  'execute if data entity @s CustomName run data modify storage bm:gv aff.c.extra append from entity @s CustomName',
+                  'data modify entity @s CustomName set from storage bm:gv aff.c']
         if k in ('blur', 'jugg'): lines.append('data merge entity @s {CustomNameVisible:1b}')
         fn(f'p93/aff/{k}', lines)
     G.FUNCS['loop/second'].append('execute as @e[tag=bm.aff_blur] at @s run particle minecraft:cloud ~ ~0.4 ~ 0.2 0.2 0.2 0.01 2')

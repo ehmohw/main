@@ -4,8 +4,8 @@ tiers for the pumpkin, the face painted square-cut on its flat front, square leg
 
 The rig: every part is an item display standing at the boss itself; where it sits, how it turns and how big it is all live in
 its transformation (translation, left rotation, scale), so a pose is a set of transformations and the client glides from one
-to the next. The legs walk a tetrapod gait (four legs planted, four swinging): each leg's plane swings about its hip and the
-swinging ones lift.
+to the next. The legs walk a wave gait (each leg steps a quarter cycle after the one behind it): each leg's plane swings about its
+hip and the swinging ones lift - and no leg ever passes through its neighbour or the fires.
 """
 import math
 import os
@@ -103,11 +103,12 @@ def _face():
         for x in range(im.width):
             dep = sum(1 for L in layers if L.getpixel((x, y)))
             if dep: px[x, y] = hexc(cols[dep - 1])
-    for cx, sx in eyes:                                                                       # red crescent pupils, horns toward the nose
-        ey = 7.0
+    for cx, sx in eyes:                                                                       # red crescent pupils: a wide U, horns up
+        ey = 7.7
+        ux = cx + sx * 4.2 * (10.5 - ey) / 8.9                                                 # (centred in the slanting eye at that height)
         cres = Image.new('L', im.size, 0); cd = ImageDraw.Draw(cres)
-        cd.ellipse(P(cx - 2.3, ey - 2.6) + P(cx + 2.3, ey + 2.6), fill=255)
-        cd.ellipse(P(cx - 2.1 - sx * 1.7, ey - 2.2) + P(cx + 2.1 - sx * 1.7, ey + 2.2), fill=0)
+        cd.ellipse(P(ux - 3.1, ey - 2.3) + P(ux + 3.1, ey + 2.1), fill=255)
+        cd.ellipse(P(ux - 2.6, ey - 3.6) + P(ux + 2.6, ey + 0.6), fill=0)
         for y in range(im.height):
             for x in range(im.width):
                 if cres.getpixel((x, y)):
@@ -273,8 +274,10 @@ def models():
 
 # ---------------------------------------------------------------------------------------------------- the stance (world blocks)
 LEGS = [  # yaw from his front (+z), hip / knee / ankle / foot (radius, height)
-    (46, (2.9, 6.3), (7.9, 13.9), (11.2, 6.4), (12.8, 0)), (80, (3.0, 6.1), (8.2, 14.8), (11.0, 6.6), (12.4, 0)),
-    (113, (3.0, 6.1), (8.0, 14.6), (10.8, 6.4), (12.2, 0)), (146, (2.9, 6.3), (7.6, 13.6), (10.6, 6.0), (12.4, 0))]
+    # (2.67: the hips sit up the pumpkin's sides, the front pair highest - the front legs used to rise straight through the fires
+    #  at the corners of the mouth)
+    (46, (2.9, 9.6), (7.9, 13.9), (11.2, 6.4), (12.8, 0)), (80, (3.0, 9.0), (8.2, 14.8), (11.0, 6.6), (12.4, 0)),
+    (113, (3.0, 8.6), (8.0, 14.6), (10.8, 6.4), (12.2, 0)), (146, (2.9, 8.4), (7.6, 13.6), (10.6, 6.0), (12.4, 0))]
 
 
 def q_aim(d, twist):
@@ -297,7 +300,10 @@ BODY_PARTS = {  # name: (model, design offset from the pumpkin's centre, scale)
 LEG_PARTS = [f'{"r" if s > 0 else "l"}{i}{k}' for s in SIDES for i in range(4) for k, _m in SEGS]
 PARTS = list(BODY_PARTS) + LEG_PARTS
 MODEL = {**{p: v[0] for p, v in BODY_PARTS.items()}, **{f'{"r" if s > 0 else "l"}{i}{k}': m for s in SIDES for i in range(4) for k, m in SEGS}}
-GROUP_A = {(1, 0), (-1, 1), (1, 2), (-1, 3)}          # (the tetrapod gait: these four swing while the others stand)
+# the gait: a wave, back to front (each leg steps a quarter cycle after the one behind it, the other side half a cycle
+# behind) - neighbours never swing toward each other, so the legs stay clear of one another all the way round
+GAIT = {(s, i): ((3 - i) * 0.25 + (0.5 if s < 0 else 0.0)) % 1.0 for s in (1, -1) for i in range(4)}
+STRIDE, STEP_LIFT, WALK_FRAMES = 11.0, 2.6, 8
 
 
 def _v(design):
@@ -342,12 +348,12 @@ def pose(body=(0.0, 0.0, 0.0, 1.0), dy=0.0, tongue=(0.0, 0.0, 0.0, 1.0), tongue_
 
 
 def _walk(ph):
-    """the gait at phase ph (0..1) for group A; group B half a cycle behind"""
+    """the gait at phase ph (0..1): every leg at its own point in the wave"""
     def leg(p):
         p %= 1.0
-        if p < 0.5: return dict(swing=14 * (1 - 4 * p))                           # standing: the foot sweeps back
-        return dict(swing=-14 + 56 * (p - 0.5), lift=2.4 if abs(p - 0.75) < 0.01 else 0.0)   # swinging: up and forward
-    return {(s, i): leg(ph if (s, i) in GROUP_A else ph + 0.5) for s in SIDES for i in range(4)}
+        if p < 0.5: return dict(swing=STRIDE * (1 - 4 * p))                                   # standing: the foot sweeps back
+        return dict(swing=-STRIDE + 4 * STRIDE * (p - 0.5), lift=STEP_LIFT if abs(p - 0.75) < 0.13 else 0.0)   # swinging: up and forward
+    return {(s, i): leg(ph + GAIT[(s, i)]) for s in SIDES for i in range(4)}
 
 
 X, Z = (lambda a: qa('x', a)), (lambda a: qa('z', a))
@@ -355,7 +361,8 @@ FRONT = lambda **kw: {(s, 0): kw for s in SIDES}
 POSES = {
     'stand': pose(),
     'breathe': pose(body=X(-2), dy=0.12, tongue=Z(8), flames=1.12),
-    **{f'walk{k}': pose(body=Z(2 if k % 2 else -2), dy=(-0.12, 0.08)[k % 2], tongue=Z((-8, 8)[k % 2]), flames=(1.0, 1.1)[k % 2], legs=_walk(k / 4)) for k in range(4)},
+    **{f'walk{k}': pose(body=Z(2 if (k // 2) % 2 else -2), dy=(-0.12, 0.08)[(k // 2) % 2], tongue=Z((-8, 8)[(k // 2) % 2]), flames=(1.0, 1.1)[(k // 2) % 2],
+                        legs=_walk(k / WALK_FRAMES)) for k in range(WALK_FRAMES)},
     # STOMP: the front pair rears up high - and comes down
     'rear': pose(body=X(-14), dy=0.9, tongue=X(-30), flames=1.3,
                  legs={**{(s, 0): dict(swing=22, lift=6.5) for s in SIDES}, **{(s, 1): dict(swing=10, lift=2.5) for s in SIDES},
@@ -370,5 +377,5 @@ POSES = {
     'fall': pose(body=qmul(X(16), Z(10)), dy=-5.6, tongue=X(35), flames=0.5,
                  legs={(s, i): dict(swing=(-6, 4, -3, 7)[i] * s, spread=3.5, kneedrop=7.0) for s in SIDES for i in range(4)}),
 }
-DUR = {'stand': 12, 'breathe': 30, 'walk0': 10, 'walk1': 10, 'walk2': 10, 'walk3': 10, 'rear': 12, 'stomp': 3, 'flare': 10, 'lash_a': 8, 'lash_b': 3,
+DUR = {'stand': 12, 'breathe': 30, **{f'walk{k}': 40 // WALK_FRAMES for k in range(WALK_FRAMES)}, 'rear': 12, 'stomp': 3, 'flare': 10, 'lash_a': 8, 'lash_b': 3,
        'fall': 30}

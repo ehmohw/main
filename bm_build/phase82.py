@@ -135,7 +135,7 @@ def generate(G):
                     'scoreboard players add @s bm.salf 1', 'scoreboard players operation #f bm.rng = @s bm.salf',
                     'execute if score #st bm.rng matches 1 run scoreboard players operation #f bm.rng %= #40 bm.rng',
                     'execute if score #st bm.rng matches 0 run scoreboard players operation #f bm.rng %= #60 bm.rng'] +
-       [f'execute if score #st bm.rng matches 1 if score #f bm.rng matches {10 * k} run function bm:p82/pose/walk{k}' for k in range(4)] +
+       [f'execute if score #st bm.rng matches 1 if score #f bm.rng matches {40 // ART.WALK_FRAMES * k} run function bm:p82/pose/walk{k}' for k in range(ART.WALK_FRAMES)] +
        ['execute if score #st bm.rng matches 1 if score #f bm.rng matches 0 run playsound minecraft:entity.iron_golem.step hostile @a[distance=..48] ~ ~ ~ 2 0.4',
         'execute if score #st bm.rng matches 1 if score #f bm.rng matches 20 run playsound minecraft:entity.iron_golem.step hostile @a[distance=..48] ~ ~ ~ 2 0.45',
         'execute if score #st bm.rng matches 0 if score #f bm.rng matches 0 run function bm:p82/pose/stand',

@@ -417,11 +417,12 @@ def generate(G):
                      'execute as @a[tag=bm.gvme] at @s run playsound minecraft:block.iron_door.open player @s ~ ~ ~ 1 0.6', 'tag @a[tag=bm.gvme] remove bm.gvme'])
 
     # ---- THE COMBINATION ROOM: five levers to match the ledger (frames on the far wall: gold = pull it)
+    # (every frame is summoned with a placeholder block_pos - the summon sets the real one; without it the server logs an error)
     LV = [8, 10, 12, 14, 16]
     fn('p70/r/levers/init', ['execute store result score @s bm.gvc run random value 1..31', 'scoreboard players operation #b bm.rng = @s bm.gvc'] +
        sum(([f'scoreboard players operation #q bm.rng = #b bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng', 'scoreboard players operation #b bm.rng /= #2 bm.rng',
-             f'execute if score #q bm.rng matches 1 run summon minecraft:item_frame {rel(x, 6, 1)} {{Facing:3b,Fixed:1b,Invulnerable:1b,Tags:["bm.gvprop"],Item:{{id:"minecraft:gold_ingot",count:1}}}}',
-             f'execute if score #q bm.rng matches 0 run summon minecraft:item_frame {rel(x, 6, 1)} {{Facing:3b,Fixed:1b,Invulnerable:1b,Tags:["bm.gvprop"],Item:{{id:"minecraft:coal",count:1}}}}']
+             f'execute if score #q bm.rng matches 1 run summon minecraft:item_frame {rel(x, 6, 1)} {{Facing:3b,block_pos:[I;0,0,0],Fixed:1b,Invulnerable:1b,Tags:["bm.gvprop"],Item:{{id:"minecraft:gold_ingot",count:1}}}}',
+             f'execute if score #q bm.rng matches 0 run summon minecraft:item_frame {rel(x, 6, 1)} {{Facing:3b,block_pos:[I;0,0,0],Fixed:1b,Invulnerable:1b,Tags:["bm.gvprop"],Item:{{id:"minecraft:coal",count:1}}}}']
             for x in LV), []) +
        [f'summon minecraft:text_display {rel(12, 8, 1)} {{billboard:"fixed",Tags:["bm.gvprop"],text:[{{text:"THE LEDGER\\n",color:"gold",bold:true}},{{text:"Gold: pulled.  Coal: left alone.\\nThe ledger faces the levers - not you.",color:"gray"}}],transformation:{{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.6f,0.6f,0.6f]}}}}',
         f'summon minecraft:text_display {rel(12, 8, 22)} {{billboard:"fixed",Rotation:[180f,0f],Tags:["bm.gvprop"],text:[{{text:"Set the levers, then press the button.",color:"gray"}}],transformation:{{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.6f,0.6f,0.6f]}}}}'])
@@ -518,7 +519,7 @@ def generate(G):
     DX = [10, 12, 14]
     ARROWS = ['↑', '↗', '→', '↘', '↓', '↙', '←', '↖']
     G.FUNCS['load'][-1:-1] = ['data modify storage bm:gv arrows set value ' + snbt([ARROWS[(1 + r) % 8] for r in range(8)])]
-    fn('p70/r/dial/init', [f'summon minecraft:item_frame {rel(x, 6, 22)} {{Facing:2b,Invulnerable:1b,Tags:["bm.gvprop","bm.gvdial{i}"],Item:{{id:"minecraft:arrow",count:1}}}}' for i, x in enumerate(DX)] +
+    fn('p70/r/dial/init', [f'summon minecraft:item_frame {rel(x, 6, 22)} {{Facing:2b,block_pos:[I;0,0,0],Invulnerable:1b,Tags:["bm.gvprop","bm.gvdial{i}"],Item:{{id:"minecraft:arrow",count:1}}}}' for i, x in enumerate(DX)] +
        [f'execute store result score #d{i} bm.rng run random value 1..7' for i in range(3)] +
        ['scoreboard players operation @s bm.gvc = #d0 bm.rng', 'scoreboard players operation #q bm.rng = #d1 bm.rng', 'scoreboard players operation #q bm.rng *= #8 bm.rng',
         'scoreboard players operation @s bm.gvc += #q bm.rng', 'scoreboard players operation #q bm.rng = #d2 bm.rng', 'scoreboard players operation #q bm.rng *= #8 bm.rng',

@@ -38,10 +38,8 @@ for _iid, _nm, _col, _lore, _v in CURIOS:
     item(_iid, TOTEM, _nm, _col, [_lore, ('A Fence\'s curio. The Scrap Box', 'blue'), (f'pays {_v} Gutter Coins for it.', 'blue')], model=f'bm:{_iid}', stack=16, cat='misc')
 P72.KEEP += ['gutter_medallion', 'gutter_trophy']
 
-# the Black Market haul's prize (phase75 p75/prize builds from these): Tokens 1..5, Medallions from Tier III (2 at most)
-P75.PRIZE_TOK = {1: (45, 1, 1), 2: (55, 1, 2), 3: (65, 1, 3), 4: (75, 2, 4), 5: (85, 2, 5)}
-P75.PRIZE_MED = {3: (10, 1, 1), 4: (18, 1, 2), 5: (28, 1, 2)}
-P75.PRIZE_TRO = {5: 15}
+# (the Black Market haul's prize is phase75's capped table, PRIZE_TOK / PRIZE_MED / PRIZE_TRO - an older, richer copy that
+#  sat here overrode the caps and is gone)
 
 THEMES = {1: ('THE PLAIN HAUL', '#9ad0ff', 'vanilla goods and building supplies'),
           2: ('THE BLACK MARKET HAUL', '#c070ff', 'heist gear, curios - and Tokens and Medallions'),
