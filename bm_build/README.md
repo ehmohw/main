@@ -1,4 +1,4 @@
-# Black Market — v2.68c (Java 26.3)
+# Black Market — v2.69 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,61 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.69: three ways through every puzzle, a fight over the void, a harder climb, rooms you build, craft and dig, and three new games
+
+### Every puzzle room now comes in three variants
+Each puzzle room is drawn as one of three variants when the heist is laid. Each variant is solved a different way; none is just the old puzzle with new paint. Every puzzle is worked out when the pack is built and checked to have exactly one answer.
+
+| Room | A (as before) | B | C |
+|---|---|---|---|
+| The Combination Room | the ledger's gold and coal, read in the mirror | **The Weighed Ledger**: each lever carries a number (1, 2, 4, 8, 16, shuffled); pull the ones that add up to the ledger's sum | **The Logic Ledger**: three to five clues ("Levers II and IV are set differently") pin down the one setting that fits |
+| The Weighing Room | every golden scale at once | **The Order of the Scales**: scales marked crown, key, coin and skull, and a riddle gives the order. Step on them one at a time. Only feet count, and the scales give no answer until all four are down | **The Baton Run**: carry the Relay Baton to the scale that lights up before its light runs out, 5–7 in a row. There's one baton, so camping doesn't help |
+| The Gauntlet | the sweeping laser planes | **The Low and the High**: the beams never go out. Jump the red ankle beams; sneak under the violet head-height ones | **The Mirror Gauntlet**: turn the glass mirrors (right-click) until the laser hits the gold target. Exactly one setting works, and it bends the beam four times or more |
+| The Tile Floor | the hidden path and the peek button | **The Colour Trail**: follow the colours in the sign's order; only one trail reaches the far side | **The Counted Floor**: numbers along the edges give the safe tiles in each row and column |
+| The Dial Lock | the blueprint's arrows | **The Numbered Dials**: three or four sums ("Left + middle = 9", "Right is odd") fix the setting | **The Geared Dials**: the blueprint's arrows, but the dials turn each other. Work out the turns |
+| The Three Coffers | the riddle of places | **The Lying Coffers**: each coffer says where the honest one is, and exactly one of them tells the truth | **The Shell Game**: the gold goes into one of four plain chests and they shuffle. Open the right one; a wrong one lets a Mimic out and they shuffle again |
+| The Signal Lamps | repeat the sequence | **Backwards**: last flash first | **The Cipher**: the wall says what each colour really means; press what the flashes mean |
+| The Lamp Floor | each button flips its lamp and the four beside it | each button flips its lamp and the four at its corners | each button flips its lamp and its whole row and column |
+| The Tumbler Lock | catch the light on the gold gate | **The Wandering Gate**: the gate is the lamp marked green, and the mark moves after every hit | **The Blind Tumbler**: you see the light run once, then only hear it tick in the dark. Count your way to the gate |
+| The Bell Tower | the broad spiral steps | **The South Stair**: single posts, longer jumps | **The Falling Stair**: the steps give way a moment after you land |
+| The Crumbling Rafters | beams that fall once stood on | **The Blinking Beams**: beams wink out and back in a travelling wave | **The Ghost Beams**: an invisible winding path that shimmers only when you're right beside it |
+
+### New rooms
+- **The Sky Isles** (a fight room, Tiers II–V): islands joined by one-block bridges over a drop, with two waves of guards.
+  - Knock a guard off the edge and it's gone.
+  - From Tier III the drop is the void: falling in knocks you out and costs a try, and breezes join the second wave to blow you off.
+  - On Tier II there's hay at the bottom, and a fall just sends you back to the start.
+- **The Spire** (Tiers III–V): single blocks spiral up a tall pillar, with long jumps, one block up at a time. There's a gold **checkpoint** halfway: touch it, and a fall brings you back there instead of to the bottom.
+- **The Tinker's Bench** (crafting): the Fixer wants something made (a compass, clock, lantern, bow, crossbow, spyglass, hopper, piston, observer or dispenser).
+  - You get the parts, plus a few you don't need.
+  - Craft it at the benches and hand it in at his hatch. Higher tiers need a part made first.
+  - Leftovers go back to the Fixer.
+- **The Mason's Plan** (building, Tiers I–IV): lay coloured blocks on the lodestone grid to match the plan by the door.
+  - The blocks can only be placed on lodestone.
+  - From Tier III the plan is drawn rotated: line up its gold corner with the grid's.
+  - RESET clears the grid.
+- **The Dig** (mining): a deepslate wall threaded with mud-brick veins. The Fixer's pick only breaks the mud. Most veins dead-end; one goes all the way through.
+
+### Three new games (events)
+- **Block Party**: a colour is called; get onto it before the rest of the floor drops away. There are 8–10 rounds and each is quicker than the last. Every round someone survives earns a coin, and surviving most of them wins the prize.
+- **Red Light, Green Light**: run while the watcher looks away; freeze when it turns. Anyone it sees moving goes back to the line.
+- **Memory Match**: sixteen face-down cards. Find the eight pairs before your misses run out.
+
+### No shortcuts
+- **Tile floors:** they now judge the tile you're standing over, not just its middle, so creeping along the seams between tiles drops you like any other false step.
+- **Rooms crossed on foot:** in the tiles, rafters, gauntlet, bell tower and spire, the Fixer holds your wind charges and ender pearls until you're through. They come back the moment you leave the room. Flying higher than a jump over a tile floor, the rafters or the gauntlet sends you back to the start.
+
+### Your secondary
+A Ranged raider already carries a bow, so if they pick the Crossbow secondary they get a battle axe instead.
+
+### For admins
+- `admin/variant_a`, `_b`, `_c` and `_random` force the variant of every puzzle room laid from then on.
+- `admin/rooms_only_<kind>` lays only that kind of room (no events) until you run `admin/rooms_any`.
+- `admin/room_party`, `admin/room_redlight` and `admin/room_memory` force the next event room.
+
+### Fixed
+- **The Baton Run:** the last catch could mark the room beaten without opening its door.
 
 ## New in 2.68: a win pays in money, the Crate Desk and tip-offs, a laurel for every tier, three new finds, and the vault's loose ends
 

@@ -252,3 +252,95 @@ def count_puzzles(n=16, seed=6904):
         if len(cands) != 1 or cands[0] != path: continue
         out.append({'path': path, 'rows': s[0], 'cols': s[1], 'shown': shown})
     return out
+
+
+# ===================================================================== THE DIAL LOCK (B): the numbered dials
+DNAME = ['left', 'middle', 'right']
+
+
+def dial_puzzles(n=24, seed=6906):
+    """three dials, each 0-7; three or four clues pin them down"""
+    rng = random.Random(seed)
+    def clues(v):
+        C = []
+        for i, j in itertools.permutations(range(3), 2):
+            A, Bn = DNAME[i].capitalize(), DNAME[j]
+            C.append((f'{A} + {Bn} = {v[i] + v[j]}', lambda w, i=i, j=j, s=v[i] + v[j]: w[i] + w[j] == s))
+            if v[i] - v[j] > 0: C.append((f'{A} - {Bn} = {v[i] - v[j]}', lambda w, i=i, j=j, s=v[i] - v[j]: w[i] - w[j] == s))
+            if v[i] == 2 * v[j]: C.append((f'{A} is twice the {Bn}', lambda w, i=i, j=j: w[i] == 2 * w[j]))
+            if v[i] > v[j]: C.append((f'{A} is more than the {Bn}', lambda w, i=i, j=j: w[i] > w[j]))
+        C.append((f'All three add up to {sum(v)}', lambda w, s=sum(v): sum(w) == s))
+        for i in range(3):
+            C.append((f'{DNAME[i].capitalize()} is {"odd" if v[i] % 2 else "even"}', lambda w, i=i, p=v[i] % 2: w[i] % 2 == p))
+        return C
+    allv = list(itertools.product(range(8), repeat=3))
+    out = []
+    while len(out) < n:
+        v = tuple(rng.randrange(8) for _ in range(3))
+        if len(set(v)) < 2: continue
+        C = clues(v); rng.shuffle(C)
+        cand = allv; chosen = []
+        for c in C:
+            new = [w for w in cand if c[1](w)]
+            if len(new) < len(cand): chosen.append(c); cand = new
+            if len(cand) == 1: break
+        if len(cand) == 1 and 3 <= len(chosen) <= 4:
+            out.append((v, [c[0] for c in chosen]))
+    return out
+
+
+# ===================================================================== THE THREE COFFERS (B): the lying coffers
+CKINDS = ['oak chest', 'copper chest', 'ender chest', 'barrel']
+
+
+def liar_puzzles(n=24, seed=6907):
+    """four coffers (left to right as you face them), each saying where the honest one is; exactly one of them tells the
+    truth - and only one place for the honest coffer makes that so"""
+    rng = random.Random(seed)
+    perms = list(itertools.permutations(range(4)))
+    out = []
+    while len(out) < n:
+        perm = rng.choice(perms)                      # perm[i] = the kind of chest at place i
+        pos = {perm[i]: i for i in range(4)}
+        def stmts(me):
+            S = [('The honest one is me.', lambda h: h == me), ('It isn\'t me.', lambda h: h != me),
+                 ('It stands right beside me.', lambda h: abs(h - me) == 1), ('It sits at one end of the row.', lambda h: h in (0, 3)),
+                 ('It is somewhere to my left.', lambda h: h < me), ('It is somewhere to my right.', lambda h: h > me)]
+            for k in range(4):
+                if pos[k] != me:
+                    S.append((f'It is the {CKINDS[k]}.', lambda h, p=pos[k]: h == p))
+                    S.append((f'It isn\'t the {CKINDS[k]}.', lambda h, p=pos[k]: h != p))
+            return S
+        pick = [rng.choice(stmts(i)) for i in range(4)]
+        good = [h for h in range(4) if sum(1 for s in pick if s[1](h)) == 1]
+        if len(good) != 1: continue
+        # (no giveaways: the true line isn't 'the honest one is me')
+        h = good[0]
+        if any(s[0] == 'The honest one is me.' and s[1](h) for s in pick): continue
+        out.append({'perm': perm, 'h': h, 'say': [s[0] for s in pick]})
+    return out
+
+
+# ===================================================================== THE CRUMBLING RAFTERS (C): the ghost beams
+def ghost_paths(n=4, seed=6908):
+    """a winding path of single beams (x 3..21, z 4..20) - orthogonal steps, never touching itself sideways"""
+    rng = random.Random(seed)
+    out = []
+    while len(out) < n:
+        x, z = 3, rng.randrange(8, 17); path = [(x, z)]
+        ok = True
+        while x < 21:
+            moves = [(1, 0), (1, 0), (0, 1), (0, -1)]
+            rng.shuffle(moves)
+            for dx, dz in moves:
+                nx, nz = x + dx, z + dz
+                if not (4 <= nz <= 20) or (nx, nz) in path: continue
+                nb = [(nx + a, nz + b) for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1))]
+                if sum(1 for t in nb if t in path) != 1: continue
+                if dz and len(path) >= 2 and path[-2][1] != z and abs(path[-2][1] - nz) == 2: continue
+                x, z = nx, nz; path.append((x, z)); break
+            else:
+                ok = False; break
+        turns = sum(1 for i in range(1, len(path) - 1) if (path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]) != (path[i + 1][0] - path[i][0], path[i + 1][1] - path[i][1]))
+        if ok and turns >= 10 and 28 <= len(path) <= 44: out.append(path)
+    return out

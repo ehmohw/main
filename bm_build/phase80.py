@@ -22,7 +22,7 @@ THE ARMORY: every loaner kit has six ranks, and each leans further into its job.
             speeds the crew)   IV Undertow (Tidecaller III; Lifeline catches crewmates)   V High Tide (the Ward gives the
             crew Resistance and Strength; 5 potions)   VI Tidal Wave (the Ward hurls guards back, heals twice as much)
 YOUR SECONDARY and YOUR SIGNATURE: whatever kit you take, add one weapon and one effect of your own (more open up as you
-  clear tiers): a crossbow, a shield, wind charges, a trident, spears, harming potions, a mace; fleet feet, iron skin,
+  clear tiers): a crossbow (an axe for the Ranged kit), slowness potions, wind charges, a trident, spears, harming potions, a mace; fleet feet, iron skin,
   cat's eyes, featherfall, leech, spring heels, fortune's favour, second skin, adrenaline. Change them as often as you like.
 THE FIXER'S LEDGER opens the office anywhere (everyone gets one on their first heist; Goldtooth keeps spares). In the den:
   the Armory bench and the Bank vault, beside the kit racks.
