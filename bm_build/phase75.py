@@ -208,9 +208,9 @@ def generate(G):
                    f'execute if score #t bm.rng matches {LUCKY_TIER}.. if score #lnight bm.bm matches 1 if score #r bm.rng matches ..3 run scoreboard players set #lu{s} bm.gvlu 1',
                    # (2.67b) the one who planned it leads the crew: the odd Tokens of a Lucky pool are theirs, and theirs the choice when it's over
                    f'scoreboard players operation #ld{s} bm.gvld = @s bm.pid']
-        # cleanup: every piece by its marker, then the entities
+        # cleanup: every piece by its marker, then the entities (all the way up: a stack of tall rooms can climb past y 120)
         G.FUNCS[f'p70/s{s}/clean'] = [f'scoreboard players set #gi bm.rng {s + 1}', 'execute in bm:gutter run function bm:p75/clean_pieces',
-                                      f'execute in bm:gutter positioned {FL_X[0] - 4} 30 {z0 - 40} run kill @e[type=!minecraft:player,dx={FL_X[1] - FL_X[0] + 8},dy=90,dz=100]',
+                                      f'execute in bm:gutter positioned {FL_X[0] - 4} 30 {z0 - 40} run kill @e[type=!minecraft:player,dx={FL_X[1] - FL_X[0] + 8},dy=200,dz=100]',
                                       f'execute in bm:gutter run forceload remove {FL_X[0]} {z0 - 32} {FL_X[1]} {z0 + 48}',
                                       f'scoreboard players set #s{s} bm.gvon 0', f'scoreboard players set #e{s} bm.gve 0', f'scoreboard players set #fl{s} bm.gvfail 0',
                                       f'bossbar set bm:gva{s} players', f'bossbar set bm:gvb{s} players']
@@ -225,7 +225,7 @@ def generate(G):
         fn(f'p75/s{s}/reset', [f'scoreboard players set #gi bm.rng {s + 1}',
                                f'execute as @a[tag=bm.gvp,scores={{bm.gvi={s + 1}}}] in bm:gutter run tp @s {DEN[0]} {DEN[1]} {z0 + DEN[2]} -90 0',
                                'execute in bm:gutter run function bm:p75/clean_pieces',
-                               f'execute in bm:gutter positioned {FL_X[0] - 4} 30 {z0 - 40} run kill @e[type=!minecraft:player,dx={FL_X[1] - FL_X[0] + 8},dy=90,dz=100]',
+                               f'execute in bm:gutter positioned {FL_X[0] - 4} 30 {z0 - 40} run kill @e[type=!minecraft:player,dx={FL_X[1] - FL_X[0] + 8},dy=200,dz=100]',
                                'scoreboard players add #runs bm.gvrun 1', f'scoreboard players operation #r{s} bm.gvrun = #runs bm.gvrun',
                                f'scoreboard players operation @a[tag=bm.gvp,scores={{bm.gvi={s + 1}}}] bm.gvrun = #r{s} bm.gvrun',
                                f'bossbar set bm:gvb{s} players', f'function bm:p70/s{s}/build',

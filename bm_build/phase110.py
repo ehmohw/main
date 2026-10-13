@@ -116,6 +116,21 @@ def generate(G):
     G.FUNCS['p80/kit/extras'] = [l.replace('execute if score @s bm.ksec matches 1 run ', 'execute if score @s bm.ksec matches 1 unless score @s bm.gvrole matches 3 run ')
                                  for l in ext] + [f'execute if score @s bm.ksec matches 1 if score @s bm.gvrole matches 3 run give @s {ka(AXE[0], extra=AXE[2])} {AXE[1]}']
 
+    # ================================================================== the rooms are set up in a tick of their own
+    # (a heist is built inside the tick function, which shares one budget of commands per tick with everything else; a long heist
+    #  to set up could run out of it part-way and leave the last rooms - and the vault - half made. The rooms' setup now
+    #  runs a tick later, in its own chain, with the heist's details fetched fresh from its den)
+    import phase70 as P70
+    for s_ in range(P70.SLOTS):
+        b = G.FUNCS[f'p70/s{s_}/build']
+        k_ = next(i for i, l in enumerate(b) if l.endswith('run function bm:p70/r/init'))
+        line = b[k_]
+        b[k_] = f'schedule function bm:p110/init_s{s_} 1t append'
+        fn(f'p110/init_s{s_}', [f'scoreboard players set #gi bm.rng {s_ + 1}', 'function bm:p70/ctx',
+                               f'execute as @e[type=minecraft:marker,tag=bm.gvinst] if score @s bm.gvi matches {s_ + 1} run scoreboard players operation #gk bm.rng = @s bm.gvk',
+                               f'execute store result score #gpl bm.rng if entity @a[tag=bm.gvp,scores={{bm.gvi={s_ + 1}}}]',
+                               line])
+
     # ================================================================== the draw: which variant (and, for testing, which kind)
     fn('p110/var', ['execute store result score @s bm.gvvar run random value 0..2',
                     'execute if score #pvar bm.gvv matches 1..3 run scoreboard players operation @s bm.gvvar = #pvar bm.gvv',
@@ -127,7 +142,9 @@ def generate(G):
         fn(f'admin/rooms_only_{k}', [f'scoreboard players set #frk bm.gvv {j + 1}', tellraw('@s', P + [T(f'Heists laid from now on are all {k} rooms (admin/rooms_any to stop).', 'gray')])])
     fn('admin/rooms_any', ['scoreboard players set #frk bm.gvv 0', tellraw('@s', P + [T('Heist rooms back to the usual draw.', 'gray')])])
     G.FUNCS['p75/lay/pick'].insert(0, 'execute if score #frk bm.gvv matches 1.. run return run function bm:p110/lay/forced')
-    fn('p110/lay/forced', ['scoreboard players operation #r bm.rng = #frk bm.gvv', 'scoreboard players remove #r bm.rng 1'])
+    fn('p110/lay/forced', ['scoreboard players operation #r bm.rng = #frk bm.gvv', 'scoreboard players remove #r bm.rng 1'] +
+       [f'execute if score #r bm.rng matches {P75.KINDS.index(k)} if score #cy bm.rng matches {my + 1}.. run scoreboard players set #r bm.rng {P75.KINDS.index("guards")}'
+        for k, my in P75.ROOM_MAXY.items()])            # (a tall room only where the usual draw would allow one - else a Counting House)
     G.FUNCS['p75/lay/can_event'].insert(0, 'execute if score #frk bm.gvv matches 1.. run return 0')
 
     # ================================================================== NO SHORTCUTS (1): the floor judges the tile you're over

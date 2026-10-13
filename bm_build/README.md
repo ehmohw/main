@@ -75,6 +75,8 @@ A Ranged raider already carries a bow, so if they pick the Crossbow secondary th
 
 ### Fixed
 - **The Baton Run:** the last catch could mark the room beaten without opening its door.
+- **Long heists:** the rooms are now set up a tick after the heist is laid out, in their own batch of commands. On a busy server a long heist could run out of its command budget part-way, leaving the last rooms unprepared and the vault without its guardian.
+- **Cleaning up a vault:** clearing a finished heist now reaches all the way up, so a stack of tall rooms can no longer leave stray room markers above the old height limit.
 
 ## New in 2.68: a win pays in money, the Crate Desk and tip-offs, a laurel for every tier, three new finds, and the vault's loose ends
 
