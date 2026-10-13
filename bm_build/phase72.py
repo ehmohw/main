@@ -128,14 +128,28 @@ def kit_armor(it, role):
     return out
 
 
+WEARS = ('_sword', '_axe', '_pickaxe', '_shovel', '_hoe', '_spear', 'bow', 'crossbow', 'trident', 'shield', 'mace', 'fishing_rod', 'shears', 'flint_and_steel', 'brush')
+
+
+def _unbreakable(base, comps):
+    """(2.68) a loaned weapon or tool never wears out: unbreakable, and it says nothing about it"""
+    if not (any(base.endswith(w) for w in WEARS) or 'minecraft:max_damage' in comps): return {}
+    td = dict(comps.get('minecraft:tooltip_display', {}))
+    td['hidden_components'] = list(td.get('hidden_components', [])) + ['minecraft:unbreakable']
+    return {'minecraft:unbreakable': {}, 'minecraft:tooltip_display': td}
+
+
 def kit_arg(iid, role=None, extra=None):
     """an item argument for a loaner: the BM item, marked bm_kit, with a line saying so"""
     if ':' in iid:
-        more = ''.join(f',{k}={snbt(v)}' for k, v in (extra or {}).items())
+        ex = dict(_unbreakable(iid, {}), **(extra or {}))
+        more = ''.join(f',{k}={snbt(v)}' for k, v in ex.items())
         return f'{iid}[minecraft:custom_data={{bm_kit:1b}},minecraft:lore=[{snbt(T("Loaned by the Fixer - stays in the vault.", "dark_gray"))}]{more}]'
     it = ITEMS[iid]; parts = []
     comps = dict(it['comps'])
     am = kit_armor(it, role)
+    if am is None:
+        comps.update(_unbreakable(it['base'], comps))
     if am is not None:
         from nbt import D
         comps['minecraft:attribute_modifiers'] = [dict(md, amount=D(md['amount'])) for md in am]

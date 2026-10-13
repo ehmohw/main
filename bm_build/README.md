@@ -1,4 +1,4 @@
-# Black Market — v2.68 (Java 26.3)
+# Black Market — v2.68b (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -81,7 +81,7 @@ The den's old haul lectern, and **The Crate Desk** button in the Ledger's Office
 - Tiers you cleared before 2.68 count: their laurels and achievements arrive the next time you're on.
 
 ### The vault's loose ends
-- **Leave from anywhere:** on a heist, the Fixer's Ledger opens a card first: **The Fixer's Office**, or **Leave the heist** (home now, with your own gear back; the fee and any share stay behind). You don't have to walk back to the den.
+- **Leave from anywhere:** on a heist, the Fixer's Ledger opens the Office as usual, with **Leave the heist** at the bottom. It asks first, then sends you home with your own gear back; the fee and any share stay behind. You don't have to walk back to the den.
 - **The vault counts its guests:** the crew's size is checked every second, not just when it walks in.
   - If someone leaves (by the door, the Ledger or a dropped connection), the guards still standing lose the extra health and damage they had for them.
   - If someone joins, the guards gain it.
@@ -99,6 +99,19 @@ The den's old haul lectern, and **The Crate Desk** button in the Ledger's Office
   - If every bay is taken and someone with no bay needs one, the Fixer frees one up: a spare (someone's second or third bay), or the bay of someone not seen for 20 in-game days.
   - The freed bay's contents go into its keeper's other bays if they fit. Whatever doesn't fit becomes **Lost & Found** crates (like The Haul), handed to the keeper the next time they step into the Locker Hall.
 - **The tile floor:** the pit now runs wall to wall, so nobody can walk round the tiles along the side walls.
+- **The Locker Key lives in the gutter:** you're handed one whenever you're in the gutter (the den, the vault, the Locker Hall), and it's taken back the moment you leave.
+  - It can't be dropped: a dropped key is gone and a fresh one is back in your pack.
+  - It can't be stored: one put in a locker bay or your ender chest is taken out.
+  - It isn't kept through a death.
+- **Puzzles and fights take turns:** a heist's rooms alternate between a puzzle (or a climb) and a fight: the Counting House, an Ambush or the Pit. Any room can still be an event room now and then.
+- **What a room lends, it takes back:** the Shooting Gallery's bow and arrows, the Rat Ball game's snowballs and the Brawl's wind charges are taken from the whole crew the moment the room is beaten.
+- **Another job, fresh supplies:** going again from the vault tops your loaned kit back up to 3 paperweights and 16 cooked beef.
+- **Loaned weapons and tools never wear out:** every kit weapon, tool and shield is unbreakable.
+- **Guards stay in their room:** a guard or guardian that wanders out through a door (into a corridor, the water or the room before) is pulled back to the middle of its own room.
+- **The den, tidied:**
+  - The shop counter is one block high, so Goldtooth, the Recruiter and the Tailor show over it.
+  - The Fixer's Door now fills the den's west doorway, which used to open onto the void.
+  - The den makes sure there's only one of each shopkeeper; an extra copy, from a heist that was never swept up, goes.
 
 ### For admins
 - `/function bm:admin/raid_finds` gives the new items: the crates, the tip-offs, the five laurels, Forgeheart, the Alibi and the Press.
@@ -108,6 +121,9 @@ The den's old haul lectern, and **The Crate Desk** button in the Ledger's Office
 - The Ledger's Office (Raid Crew) and Emma's Wardrobe button showed a developer note in their tooltips.
 - "You're already in the vault" pointed at the old plates; it points at the Fixer's Door now.
 - The knock-out message said your things stayed where you fell.
+- **The Blueprint** (the dial lock) listed its arrows in the wrong order: the dials are read left to right as you face them now.
+- **A hireling hired before 2.67** (Boomer, say) was on duty for good: their contract had never been filed, so Raid Crew couldn't switch them off. They're filed now, the first time you open the Ledger.
+- Display parts stranded deep in the void (left by a follower that fell out of the world) are cleared away; enough of them could stall the server.
 
 ## New in 2.67: Democratus, Leo of the shore, after the heist (home or another job), the vault smoothed out (the Fixer's Door, three shopkeepers), follower trios, followers swim, faces that move, the Raid Crew, follower wardrobes, game night in the vault, the Frisbee Shield, the Gutter Gentry, the Arachno-Lantern
 

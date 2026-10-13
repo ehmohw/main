@@ -23,17 +23,28 @@ A FULL LOCKER HALL: while fewer than five bays are free, it's one bay each - nob
   doesn't fit goes to that player's LOST & FOUND: Lost & Found crates (like The Haul) handed to them the next time they
   step into the Locker Hall.
 """
-from items import T
+from items import T, ITEMS
 from nbt import snbt, B, F, Int
 import phase28 as P28
 import phase70 as P70
 import phase70_rooms as RM
+import phase72 as P72
+import phase80 as P80
 import phase84 as P84
 
 GOLD = '#ffcf40'
 LOCK = '#c89a5a'
 SL = P70.SLOTS
+# (2.68) the Locker Key: only ever carried in the gutter - handed over on arrival, taken back on leaving; it can't be dropped,
+# stored or kept through a death (Curse of Vanishing, unseen)
+ITEMS['locker_key']['comps']['minecraft:lore'] = [T('Brass, and stamped with your name.', 'gray'), T('Opens your bays in the Locker Hall -', 'blue'),
+                                                  T('hold it when you open one.', 'blue'),
+                                                  T('The Fixer hands it over in the gutter and', 'dark_gray'), T('takes it back when you leave.', 'dark_gray')]
+ITEMS['locker_key']['comps']['minecraft:enchantments'] = {'minecraft:vanishing_curse': Int(1)}
+ITEMS['locker_key']['comps']['minecraft:enchantment_glint_override'] = False
+ITEMS['locker_key']['comps'].setdefault('minecraft:tooltip_display', {'hidden_components': []})['hidden_components'].append('minecraft:enchantments')
 C_LEAVE_NOW = 7729
+C_LEAVE_ASK = 7899                       # (in the Office's range: the 'Leave the heist' button)
 GRACE_DROP = 180                 # seconds a heist waits for a crew that vanished (logged out) - 20 for one that walked out
 IDLE_DAYS = 20                   # a bay whose keeper hasn't been seen for this many days can be freed for a newcomer
 FAIR_FREE = 5                    # a second or third bay only while at least this many are free
@@ -61,7 +72,7 @@ def generate(G):
         w.insert(k + 1, f'execute if score #n bm.rng matches 1.. unless score #n bm.rng = #np{s} bm.gvx run function bm:p104/s{s}/crew')
         fn(f'p104/s{s}/crew', [f'scoreboard players operation #npo bm.rng = #np{s} bm.gvx', f'scoreboard players operation #np{s} bm.gvx = #n bm.rng',
                                'scoreboard players operation #crew bm.rng = #n bm.rng', 'execute if score #crew bm.rng matches 7.. run scoreboard players set #crew bm.rng 6',
-                               f'execute in bm:gutter as @e[scores={{bm.gvi={s + 1},bm.gvcw=1..}}] unless score @s bm.gvcw = #crew bm.rng run function bm:p104/rescale',
+                               f'execute in bm:gutter as @e[type=!minecraft:player,scores={{bm.gvi={s + 1},bm.gvcw=1..}}] unless score @s bm.gvcw = #crew bm.rng run function bm:p104/rescale',
                                f'execute if score #n bm.rng < #npo bm.rng run ' + tellraw(crew(s), P + [num('#n'), T(' in the crew now', 'white'), T(' - the guards ease off.', 'gray')]),
                                f'execute if score #n bm.rng > #npo bm.rng run ' + tellraw(crew(s), P + [num('#n'), T(' in the crew now', 'white'), T(' - the guards toughen up.', 'gray')])])
     fn('p104/rescale', ['scoreboard players set #k bm.rng 35', 'execute if entity @s[tag=bm.gvboss] run scoreboard players set #k bm.rng 50',
@@ -84,20 +95,118 @@ def generate(G):
        [f'execute if entity @s[tag=bm.gvboss] if score @s bm.gvi matches {s + 1} store result bossbar bm:gvb{s} max run attribute @s minecraft:max_health get' for s in range(SL)] +
        ['scoreboard players operation @s bm.gvcw = #crew bm.rng'])
 
-    # ================================================================== LEAVE FROM ANYWHERE: the Ledger's vault card
-    card = P28.multi([T('On the job', GOLD, bold=True)],
-                     [P28.body([T('You\'re on a heist. ', 'white'), T('Leave from right here', '#ff9a7a'),
-                                T(' - you go home as you came, your own gear comes back, and the fee (and any share) stays behind.', 'gray')], 300)],
-                     [P28.btn([T('The Fixer\'s Office', 'white', bold=True)], 7728, width=220, tooltip=T('The Office pages - then back to the job.', 'gray')),
-                      P28.btn([T('Leave the heist', '#ff9a7a', bold=True)], C_LEAVE_NOW, width=220, tooltip=T('Home now. No share, no refund.', 'gray'))],
-                     columns=1, exit_label='Back to the job')
-    led = G.FUNCS['p80/ledger']
-    assert led[-1] == 'function bm:p80/office', led[-1]
-    led.insert(len(led) - 1, 'execute if entity @s[tag=bm.gvp] if dimension bm:gutter run return run function bm:p104/vcard')
-    fn('p104/vcard', [f'dialog show @s {snbt(card)}'])
+    # ================================================================== LEAVE FROM ANYWHERE: on a heist the Ledger's Office has 'Leave the heist' at the bottom
+    import copy
+    MC = P80.MENU_CODE
+    hub = copy.deepcopy(P80.HUB)
+    hub['actions'].append(P28.btn([T('⏏ ', '#ff9a7a'), T('Leave the heist', '#ff9a7a', bold=True)], C_LEAVE_ASK, width=150,
+                                  tooltip=T('Home now, from right here: your own gear comes back; the fee and any share stay behind. (It asks first.)', 'gray')))
+    off = G.FUNCS['p80/office']
+    assert off[-1] == 'function bm:p80/office_dlg with storage bm:ui of', off[-1]
+    off.insert(len(off) - 1, 'execute if entity @s[tag=bm.gvp] if dimension bm:gutter run return run function bm:p104/office_dlg with storage bm:ui of')
+    fn('p104/office_dlg', [f'$dialog show @s {P28.inline(hub)}'])
+    ask = P28.multi([T('Leave the heist?', '#ff9a7a', bold=True)],
+                    [P28.body([T('You go home as you came, and your own gear comes back. ', 'white'),
+                               T('The fee - and any share of the haul - stays behind.', 'gray')], 300)],
+                    [P28.btn([T('Leave now', '#ff9a7a', bold=True)], C_LEAVE_NOW, width=150),
+                     P28.btn([T('Stay on the job', 'white')], MC, width=150)], columns=2, exit_label='Back')
+    G.FUNCS['p80/act'].insert(2, f'execute if score #act bm.pay matches {C_LEAVE_ASK} run return run function bm:p104/leave_ask')
+    fn('p104/leave_ask', ['execute unless entity @s[tag=bm.gvp] run return run function bm:p80/office', 'execute unless dimension bm:gutter run return run function bm:p80/office',
+                          f'dialog show @s {snbt(ask)}'])
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {C_LEAVE_NOW} run return run function bm:p104/leave_now')
     fn('p104/leave_now', ['execute unless entity @s[tag=bm.gvp] run return 0', 'execute unless dimension bm:gutter run return 0',
                           'tag @s add bm.exask', 'function bm:p103/leave_yes'])
+
+    # ================================================================== (2.68) WHAT A ROOM LENDS, IT TAKES BACK
+    # (the Shooting Gallery's bow and arrows, the Rat Ball game's snowballs, the Brawl's wind charges: room loans - gone from the
+    #  whole crew the moment a room is beaten, so nobody walks on with them)
+    for f_ in ('p91/gallery/ready', 'p91/grass/start', 'p91/grass/center2', 'p85/brawl/go'):
+        L = G.FUNCS[f_]; n0 = sum('bm_kit:1b' in l for l in L)
+        L[:] = [l.replace('minecraft:custom_data={bm_kit:1b}', 'minecraft:custom_data={bm_kit:1b,bm_room:1b}') for l in L]
+        assert n0, f_
+    G.FUNCS['p70/solved'].append('execute as @a[tag=bm.gvp,distance=..300] if score @s bm.gvi = #gi bm.rng run clear @s *[minecraft:custom_data~{bm_room:1b}]')
+
+    # ================================================================== (2.68) PUZZLES AND FIGHTS, TURN ABOUT
+    # (the rooms alternate: a puzzle (or a climb), then a fight - the Counting House, an Ambush, the Pit - then a puzzle...; any
+    #  room can still be an event room now and then. A pool that runs dry falls back to the tier's whole list)
+    import phase75 as P75
+    FIGHTS = ['guards', 'ambush', 'pit']
+    G.FUNCS['p75/lay/pick'] = ['scoreboard players set #try bm.rng 0', 'scoreboard players operation #par bm.rng = #q bm.rng', 'scoreboard players operation #par bm.rng %= #2 bm.rng'] + \
+        [f'execute if score #gt bm.rng matches {t} if score #par bm.rng matches 0 run return run function bm:p104/lay/fight{t}' for t in range(1, 6)] + \
+        [f'execute if score #gt bm.rng matches {t} run return run function bm:p104/lay/puzzle{t}' for t in range(1, 6)]
+    for t in range(1, 6):
+        tp_ = P75.TIER_POOL[t]
+        fights = ['guards'] + [k for k in FIGHTS[1:] if k in tp_]
+        puzzles = [k for k in tp_ if k not in FIGHTS]
+        for nm_, pool in (('fight', fights), ('puzzle', puzzles)):
+            ids = [P75.KINDS.index(k) for k in pool]
+            fn(f'p104/lay/{nm_}{t}', ['scoreboard players add #try bm.rng 1', f'execute if score #try bm.rng matches 25.. run return run function bm:p75/lay/pick{t}',
+                                      f'execute store result score #i bm.rng run random value 0..{len(ids) - 1}'] +
+               [f'execute if score #i bm.rng matches {i} run scoreboard players set #r bm.rng {j}' for i, j in enumerate(ids)] +
+               [f'execute if score #r bm.rng matches {P75.KINDS.index(k)} if score #cy bm.rng matches {my + 1}.. run return run function bm:p104/lay/{nm_}{t}'
+                for k, my in P75.ROOM_MAXY.items() if k in pool] +
+               ['function bm:p75/lay/bit', f'execute if score #q2 bm.rng matches 1 run return run function bm:p104/lay/{nm_}{t}',
+                'scoreboard players operation #pool bm.rng += #bit bm.rng'])
+
+    # ================================================================== (2.68) ANOTHER JOB: PAPERWEIGHTS AND FOOD TOPPED BACK UP
+    ka = P72.kit_arg
+    fn('p104/resupply', ['clear @s *[minecraft:custom_data~{bm:"paperweight"}]', f'clear @s minecraft:cooked_beef[minecraft:custom_data~{{bm_kit:1b}}]',
+                         f'give @s {ka("paperweight")} 3', f'give @s {ka(P72.KIT_FOOD[0])} {P72.KIT_FOOD[1]}'])
+    for s_ in range(SL):
+        for f_ in (f'p70/s{s_}/enter', f'p70/s{s_}/join'):
+            G.FUNCS[f_].insert(0, 'execute if items entity @s container.* *[minecraft:custom_data~{bm_kit:1b}] run function bm:p104/resupply')
+
+    # ================================================================== (2.68) GUARDS STAY IN THEIR ROOM
+    # (each guard and guardian belongs to the room it's first seen in - the nearest room marker then; wandered out through a door
+    #  into a corridor, the water or the room before: back to the middle of its own room)
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.gvrid dummy']
+    G.OBJECTIVES.append('bm.gvrid')
+    for tg in ('bm.gvg', 'bm.gvboss'):
+        second.append(f'execute in bm:gutter as @e[tag={tg},tag=!bm.gvlsh] at @s run function bm:p104/leash/adopt')
+    second.append('execute in bm:gutter as @e[type=minecraft:marker,tag=bm.gvr,scores={bm.gvrid=1..}] at @s run function bm:p104/leash/room')
+    fn('p104/leash/adopt', ['scoreboard players set #rid bm.rng 0',
+                            'execute as @e[type=minecraft:marker,tag=bm.gvr,distance=..40,sort=nearest,limit=1] run function bm:p104/leash/rid',
+                            'execute if score #rid bm.rng matches 0 run return 0',
+                            'scoreboard players operation @s bm.gvrid = #rid bm.rng', 'tag @s add bm.gvlsh'])
+    fn('p104/leash/rid', ['execute unless score @s bm.gvrid matches 1.. run scoreboard players add #ridc bm.gvrid 1',
+                          'execute unless score @s bm.gvrid matches 1.. run scoreboard players operation @s bm.gvrid = #ridc bm.gvrid',
+                          'scoreboard players operation #rid bm.rng = @s bm.gvrid'])
+    room_box = lambda length: f'positioned ~-12.5 ~-4 ~-12.5 as @e[tag=bm.gvlsh] if score @s bm.gvrid = #rid bm.rng unless entity @s[dx={length},dy=15,dz=25] at @s run function bm:p104/leash/back'
+    fn('p104/leash/room', ['scoreboard players operation #rid bm.rng = @s bm.gvrid', 'tag @s add bm.gvlrm',
+                           f'execute if entity @s[tag=bm.gvr_vault] {room_box(RM.VAULT_LEN)}',
+                           f'execute unless entity @s[tag=bm.gvr_vault] {room_box(RM.W)}',
+                           'tag @s remove bm.gvlrm'])
+    fn('p104/leash/back', ['particle minecraft:poof ~ ~1 ~ 0.3 0.5 0.3 0.02 8', 'tp @s @e[type=minecraft:marker,tag=bm.gvlrm,limit=1]',
+                           'execute at @s run particle minecraft:poof ~ ~1 ~ 0.3 0.5 0.3 0.02 8'])
+
+    # ================================================================== (2.68) THE LOCKER KEY: yours while you're in the gutter, and only there
+    key = '*[minecraft:custom_data~{bm:"locker_key"}]'
+    key_nbt = '{components:{"minecraft:custom_data":{bm:"locker_key"}}}'
+    no_key = ' '.join(f'unless items entity @s {sl} {key}' for sl in ('container.*', 'weapon.offhand', 'player.cursor', 'player.crafting.*'))
+    second += [f'execute as @a[scores={{bm.pid=1..}},gamemode=!spectator] at @s if dimension bm:gutter {no_key} run function bm:p104/key/give',
+               f'execute as @a at @s unless dimension bm:gutter if items entity @s container.* {key} run clear @s {key}',
+               f'execute as @a at @s unless dimension bm:gutter if items entity @s weapon.offhand {key} run item replace entity @s weapon.offhand with minecraft:air',
+               f'execute as @a if items entity @s enderchest.* {key} run function bm:p104/key/ender',
+               f'execute as @e[type=minecraft:item] if items entity @s contents {key} run kill @s',                  # (dropped: gone - a fresh one's in your hand)
+               f'execute in bm:gutter positioned {P84.HX} 60 {P84.HZ} if entity @a[dx=15,dy=12,dz=15] run function bm:p104/key/lockers']
+    fn('p104/key/give', ['execute store result storage bm:lk tmp.pid int 1 run scoreboard players get @s bm.pid', 'function bm:p84/lk/key2 with storage bm:lk tmp'])
+    fn('p104/key/ender', [f'execute if items entity @s enderchest.{n} {key} run item replace entity @s enderchest.{n} with minecraft:air' for n in range(27)])
+    fn('p104/key/lockers', [f'data remove block {cx} {cy} {cz} Items[{key_nbt}]' for n_, cs, _p in P84.bays() for cx, cy, cz, _s in cs])
+
+    # ================================================================== (2.68) THE DEN'S SHOPKEEPERS: one of each, ever
+    # (a den built over a heist that was never swept up - a world closed mid-heist - got a second set; the den makes sure, and any
+    #  extra copy already standing goes)
+    li = G.FUNCS['p70/r/lobby/init']
+    for tg in ('bm.gvgt', 'bm.gvrec', 'bm.gvtail'):
+        k = next(i for i, l in enumerate(li) if l.startswith('summon minecraft:villager') and f'"{tg}"' in l)
+        li.insert(k, f'kill @e[type=minecraft:villager,tag={tg},distance=..24]')
+        nm_ = tg[5:]
+        fn(f'p104/one_{nm_}', [f'execute unless entity @e[type=minecraft:villager,tag={tg},tag=bm.gvone,distance=..24] run tag @s add bm.gvone'])  # (one at a time)
+        second += [f'execute in bm:gutter as @e[type=minecraft:villager,tag={tg},tag=!bm.gvone] at @s run function bm:p104/one_{nm_}',
+                   f'execute in bm:gutter run kill @e[type=minecraft:villager,tag={tg},tag=!bm.gvone]']
+    # (rig parts stranded in the void, far below anyone - the orphan sweep only looks near players: gone)
+    second += ['execute as @e[type=minecraft:item_display] at @s if entity @s[y=-4096,dy=3936] run kill @s',
+               'execute as @e[type=minecraft:block_display] at @s if entity @s[y=-4096,dy=3936] run kill @s']
 
     # ================================================================== A DROPPED CONNECTION
     # (who's left when someone goes: the last one out by a door marks the heist "walked out" - a fast cleanup; otherwise it waits)

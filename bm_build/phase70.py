@@ -516,6 +516,7 @@ def generate(G):
                               for c in range(6) for r in range(5)])
 
     # ---- THE DIAL LOCK: three dials (item frames) turned to the blueprint's arrows
+    # (2.68: the frames are on the south wall - seen from the room, dial 0 is on the right; the blueprint reads left to right, so c b a)
     DX = [10, 12, 14]
     ARROWS = ['↑', '↗', '→', '↘', '↓', '↙', '←', '↖']
     G.FUNCS['load'][-1:-1] = ['data modify storage bm:gv arrows set value ' + snbt([ARROWS[(1 + r) % 8] for r in range(8)])]
@@ -530,7 +531,7 @@ def generate(G):
         'function bm:p70/r/dial/text with storage bm:gv dial'])
     fn('p70/r/dial/arrows', ['$data modify storage bm:gv dial.a set from storage bm:gv arrows[$(i0)]', '$data modify storage bm:gv dial.b set from storage bm:gv arrows[$(i1)]',
                              '$data modify storage bm:gv dial.c set from storage bm:gv arrows[$(i2)]'])
-    fn('p70/r/dial/text', ['$data merge entity @e[type=minecraft:text_display,tag=bm.gvbp,distance=..14,limit=1] {text:[{text:"THE BLUEPRINT\\n",color:"gold",bold:true},{text:"Turn the dials to:  $(a)   $(b)   $(c)",color:"white"}]}'])
+    fn('p70/r/dial/text', ['$data merge entity @e[type=minecraft:text_display,tag=bm.gvbp,distance=..14,limit=1] {text:[{text:"THE BLUEPRINT\\n",color:"gold",bold:true},{text:"Turn the dials to:  $(c)   $(b)   $(a)",color:"white"}]}'])
     fn('p70/r/dial/tick', ['execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1',
                            'execute if score @s bm.gvtm matches 900 run scoreboard players set @s bm.gvf 1',
                            'scoreboard players operation #q bm.rng = @s bm.gvtm', 'scoreboard players operation #q bm.rng %= #5 bm.rng',

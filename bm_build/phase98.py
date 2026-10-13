@@ -82,6 +82,8 @@ def generate(G):
         fn(f'p98/has/{k}', [f'execute as {mine("wolf", tag, ",tag=bm.fvault")} if score @s bm.pid = #me bm.pid run return 1', 'return 0'])
     for i in P77.HIRE:
         fn(f'p98/filed/h{i}', bit('bm.crew', FILED[i]) + ['return run scoreboard players get #q bm.rng'])
+    # (2.68) a hireling on duty from before contracts were filed (2.67): file them now, so Raid Crew can switch them off
+    G.FUNCS['p98/init'] += [f'execute if score @s bm.gvhr matches {i} unless function bm:p98/filed/h{i} run scoreboard players add @s bm.crew {FILED[i]}' for i in P77.HIRE]
     # room for one more? one follower each in a party, two alone (hirelings aside)
     count = ['scoreboard players set #fc bm.rng 0'] + \
         [f'execute as {mine(host, tag)} if score @s bm.pid = #me bm.pid run scoreboard players add #fc bm.rng 1' for k, nm, col, host, tag, *_r in CALLED] + \

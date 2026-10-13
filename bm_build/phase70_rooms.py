@@ -65,14 +65,11 @@ def ctrl(b, kind):
 def lobby():
     b = shell()
     for x in range(2, 8):                                # Goldtooth's counter
-        b.set(x, 4, 19, 'minecraft:dark_oak_planks'); b.set(x, 5, 19, 'minecraft:dark_oak_slab')
+        b.set(x, 4, 19, 'minecraft:dark_oak_planks')                 # (2.68: one block high - the shopkeepers show over it)
     b.fill(9, 4, 2, 15, 4, 2, 'minecraft:dark_oak_planks')          # under the board
     b.set(23, 5, 15, 'minecraft:pale_oak_button[face=wall,facing=west]')   # "begin the heist"
     b.set(23, 5, 9, 'minecraft:pale_oak_button[face=wall,facing=west]')    # (and its twin, on the other side)
-    for y in range(4, 7):                                # (2.67d) the Fixer's Door - the way out (phase103 fills the arch)
-        b.set(1, y, 3, 'minecraft:gold_block'); b.set(1, y, 5, 'minecraft:gold_block')
-    for z in (3, 4, 5):
-        b.set(1, 7, z, 'minecraft:gold_block')
+    # (2.68) the Fixer's Door fills the west doorway (the den's entrance arch - nothing comes in that way); phase103 swirls it
     for y in range(4, 7):                                # the clockwork door (to the secret cache, north)
         for x in (11, 12, 13):
             b.set(x, y, 0, 'minecraft:waxed_oxidized_copper')

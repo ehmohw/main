@@ -279,6 +279,7 @@ def generate(G):
                      P28.btn([T('☺ ', '#9ad0ff'), T('Raid Crew', 'white', bold=True)], MENU_CODE + 7, tooltip=T('Followers and hirelings: who comes into the vault with you.'), width=150)],
                     columns=2)
     fn('p80/office_dlg', [f'$dialog show @s {P28.inline(hub)}'])
+    globals()['HUB'] = hub                                   # (2.68: on a heist the Office adds 'Leave the heist' - phase104)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {MENU_CODE}..{MENU_CODE + 199} run return run function bm:p80/act')
     act = ['execute unless function bm:p80/can run return run function bm:p28/stale',
            f'execute unless score @s bm.menu matches {MENU_CODE}..{MENU_CODE + 199} run return run function bm:p28/stale',

@@ -59,7 +59,7 @@ for _iid, _it in ITEMS.items():
         _it['comps']['minecraft:lore'] = _retext(_it['comps']['minecraft:lore'], 'a Gutter Trophy at Goldtooth', 'a Gutter Trophy at the Tailor')
 DEN_EXIT = (2, 4, 4)                           # the den's way out (local)
 VAULT_EXIT = (34, 4, 12)                       # the treasury's way out, once the vault is open (local)
-DEN_DOOR, VAULT_DOOR = (1, 4, 4), (35, 4, 12)   # (2.67d) the Fixer's Doors (the arches - phase70_rooms)
+DEN_DOOR, VAULT_DOOR = (0, 4, 12), (35, 4, 12)  # (2.67d) the Fixer's Doors (the arches - phase70_rooms; 2.68: the den's in its west doorway)
 GOLDTOOTH_AT = (3, 4, 20)                      # (2.67d) behind his counter (z 19), facing the room
 RECRUITER_AT = (5, 4, 20)
 TAILOR_AT = (7, 4, 20)
@@ -204,7 +204,7 @@ def generate(G):
     # Goldtooth: behind his counter (the counter one block longer, for three)
     move(rel(5, 4, 18), rel(*GOLDTOOTH_AT), must=2)
     move('tp @e[type=minecraft:villager,tag=bm.gvgt,distance=..12,', 'tp @e[type=minecraft:villager,tag=bm.gvgt,distance=..16,')   # (he's further from the middle now)
-    li[0:0] = [f'setblock {rel(8, 4, 19)} minecraft:dark_oak_planks', f'setblock {rel(8, 5, 19)} minecraft:dark_oak_slab']
+    li[0:0] = [f'setblock {rel(8, 4, 19)} minecraft:dark_oak_planks']
     move(rel(7, 5, 19), rel(8, 5, 19), only='bm.gvdrat')                      # (the grey rat to the counter's end)
     li += [lab(GOLDTOOTH_AT[0], 6.75, GOLDTOOTH_AT[2], [_T('heist supplies', 'gray')], 0.45)]
     # the office counter: Bank and Armory off the back wall, onto the north wall beside the haul lectern
@@ -605,16 +605,17 @@ def generate(G):
     # ================================================================== 7. THE FIXER'S DOOR: an archway (the tier's metal), a swirl you walk into
     # (the den's against the west wall, always open; the treasury's against the far wall, swirling once the vault opens.
     #  The arches are in the rooms' templates; here the swirl, the labels and the sparkle. They ask first mid-heist - 1a.)
-    swirl = lambda: snbt({'Tags': ['bm.gvprop', 'bm.exdoor'], 'block_state': {'id': 'minecraft:nether_portal', 'properties': {'axis': 'z'}},
-                          'brightness': {'block': 15, 'sky': 15},
-                          'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)],
-                                             'translation': [F(-0.5), F(0), F(-0.5)], 'scale': [F(1), F(3), F(1)]}})
+    swirl = lambda h=3, w=1: snbt({'Tags': ['bm.gvprop', 'bm.exdoor'], 'block_state': {'id': 'minecraft:nether_portal', 'properties': {'axis': 'z'}},
+                                   'brightness': {'block': 15, 'sky': 15},
+                                   'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)],
+                                                      'translation': [F(-0.5), F(0), F(-w / 2)], 'scale': [F(1), F(h), F(w)]}})
     li2 = G.FUNCS['p70/r/lobby/init']
     n_ = len(li2); li2[:] = [l for l in li2 if '"Leave the heist"' not in l]; assert len(li2) == n_ - 1, 'the den\'s leave label moved'
     vi = G.FUNCS['p70/r/vault/init']
     n_ = len(vi); vi[:] = [l for l in vi if '"The way out"' not in l]; assert len(vi) == n_ - 1, 'the treasury\'s way-out label moved'
-    li2 += [f'summon minecraft:block_display {rel(*DEN_DOOR)} {swirl()}',
-            lab(DEN_DOOR[0] + 0.3, 8.1, DEN_DOOR[2], [_T('THE FIXER\'S DOOR\n', GOLD, bold=True), _T('home (it asks first, mid-heist)', 'gray')])]
+    li2 += [f'fill {rel(-1, 4, 11)} {rel(-1, 7, 13)} {RM.WALL}',                  # (2.68: the doorway's backed - no more view into the void)
+            f'summon minecraft:block_display {rel(*DEN_DOOR)} {swirl(4, 3)}',
+            lab(DEN_DOOR[0] + 1.1, 8.25, DEN_DOOR[2], [_T('THE FIXER\'S DOOR\n', GOLD, bold=True), _T('home (it asks first, mid-heist)', 'gray')])]
     vi += [lab(VAULT_DOOR[0] - 0.3, 8.1, VAULT_DOOR[2], [_T('THE FIXER\'S DOOR\n', GOLD, bold=True), _T('home, with your haul', 'gray')])]
     G.FUNCS['p70/r/vault/open'] += [f'summon minecraft:block_display {rel(*VAULT_DOOR)} {swirl()}',
                                     f'particle minecraft:reverse_portal {rel(VAULT_DOOR[0], 5.5, VAULT_DOOR[2])} 0.1 0.9 0.4 0.05 60']
