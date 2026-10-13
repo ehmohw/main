@@ -1,4 +1,4 @@
-# Black Market — v2.69 (Java 26.3)
+# Black Market — v2.70 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,30 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.70: throne rooms and Prime fights
+
+### Throne rooms
+Now and then a heist turns up a king's hoard with nobody guarding it. A throne room is one of rooms 2–4, and at most one appears per heist. Open the **Royal Coffer** in front of the throne to put a king's share in every raider's haul and coins in the pot; the way on then opens.
+
+| Throne | Chance per heist | Each raider's share |
+|---|---|---|
+| **The Gold Throne** | 1 in 50 | 8–16 gold ingots, 1–3 gold blocks, golden apples, a 1-in-10 enchanted golden apple |
+| **The Diamond Throne** | 1 in 100 | 4–10 diamonds, 4–8 emeralds, golden apples, sometimes a diamond block |
+| **The Netherite Throne** | 1 in 150 | a netherite ingot, 2–4 netherite scrap, 4–8 diamonds, a 50% chance of an upgrade template |
+
+### Prime fights
+About one fight room in eight (Counting House, ambush, pit or Sky Isles) is **PRIME**, marked by a red banner over the door. Every guard inside is stronger:
+- +60% health, and spawns at full health
+- +50% damage
+- faster, with extra armour and knockback resistance
+- "Prime" added to its name
+
+Beat a Prime room and the pot gets extra coins, and every raider's haul gets a find from a better table.
+
+### For admins
+- `admin/throne_gold`, `admin/throne_diamond` and `admin/throne_netherite` put that throne room in the next heist (once).
+- `admin/prime_always`, `admin/prime_never` and `admin/prime_chance` control Prime fights.
 
 ## New in 2.69: three ways through every puzzle, a fight over the void, a harder climb, rooms you build, craft and dig, and three new games
 
