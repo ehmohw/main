@@ -1,4 +1,4 @@
-# Black Market — v2.68b (Java 26.3)
+# Black Market — v2.68c (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -107,6 +107,7 @@ The den's old haul lectern, and **The Crate Desk** button in the Ledger's Office
 - **What a room lends, it takes back:** the Shooting Gallery's bow and arrows, the Rat Ball game's snowballs and the Brawl's wind charges are taken from the whole crew the moment the room is beaten.
 - **Another job, fresh supplies:** going again from the vault tops your loaned kit back up to 3 paperweights and 16 cooked beef.
 - **Loaned weapons and tools never wear out:** every kit weapon, tool and shield is unbreakable.
+- **No shield as a secondary:** the Tank already carries one, so the Armory's second choice is now **Slowness potions** (3 splash potions of Slowness II, to pin a crowd down). If you'd picked the shield, you get the potions.
 - **Guards stay in their room:** a guard or guardian that wanders out through a door (into a corridor, the water or the room before) is pulled back to the middle of its own room.
 - **The den, tidied:**
   - The shop counter is one block high, so Goldtooth, the Recruiter and the Tailor show over it.
@@ -409,7 +410,7 @@ Everything the vault owes you, in one set of menus. Open it with **the Fixer's L
   - **Ranged:** Fletcher (64 spectral arrows plus 8 arrows of Harming) · Wide Volley (7 arrows, every 10 s) · Searing Shots (Flame on the Fairy Bow) · Hawkeye (Speed II; bow hits heal you) · Storm of Arrows (volley arrows hit twice as hard and pierce two foes).
   - **Support:** Tidewater (Tidecaller II; a wider, stronger aura) · Spring Tide (Ward every 16 s, and it speeds the crew) · Undertow (Tidecaller III; Lifeline catches crewmates) · High Tide (the Ward gives the crew Resistance and Strength; 5 potions) · Tidal Wave (the Ward hurls guards back and heals twice as much).
 - **Your secondary and your signature.** Whatever kit you take, add one weapon and one effect of your own. More options open as you clear tiers, and you can change them freely.
-  - **Weapons:** a Crossbow, a Shield, Wind Charges, a Trident, an Iron Spear, Harming potions, a Diamond Spear or a Mace.
+  - **Weapons:** a Crossbow, Slowness potions (a Shield before 2.68b), Wind Charges, a Trident, an Iron Spear, Harming potions, a Diamond Spear or a Mace.
   - **Effects:** Fleet-Footed, Iron Skin, Cat's Eyes, Featherfall, Leech, Spring-Heeled, Fortune's Favour, Second Skin or Adrenaline.
 - **More for gutter coins at Goldtooth:** a Token for 16, Ender Pearls, Golden Carrots, Golden Apples, and better goods for coins plus spoils (XP bottles, Diamonds, an Enchanted Golden Apple, Netherite Scrap, a Totem of Undying).
 

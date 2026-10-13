@@ -82,7 +82,7 @@ ABIL_CD = {1: (30, 24), 2: (18, 14), 3: (14, 10), 4: (24, 16)}          # (ranks
 SECONDARY = [  # (name, what, tiers cleared to unlock, [(item, count, extra components)])
     ('Crossbow', 'a crossbow (Quick Charge) and 16 arrows', 0, [('minecraft:crossbow', 1, {'minecraft:enchantments': {'minecraft:quick_charge': 1}}),
                                                                ('minecraft:arrow', 16, None)]),
-    ('Shield', 'a shield, for your off-hand (the Tank has one already)', 0, [('minecraft:shield', 1, None)]),
+    ('Slowness Potions', '3 splash potions of Slowness II - pin a crowd down', 0, [('minecraft:splash_potion', 3, {'minecraft:potion_contents': {'potion': 'minecraft:strong_slowness'}})]),   # (2.68b: was the Shield - the Tank has one)
     ('Wind Charges', '12 wind charges - launch yourself, scatter them', 1, [('minecraft:wind_charge', 12, None)]),
     ('Trident', 'a trident that comes back (Loyalty)', 2, [('minecraft:trident', 1, {'minecraft:enchantments': {'minecraft:loyalty': 2}})]),
     ('Iron Spear', 'an iron spear - charge in with it', 2, [('minecraft:iron_spear', 1, None)]),
