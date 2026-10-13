@@ -105,6 +105,10 @@ import phase115 as R115      # 2.72: the Library, the Pipes, the Apothecary, the
 import phase116 as R116      # 2.72: room curses, forks in the road, corridor traps
 import phase117 as R117      # 2.72: Smelling Salts, the Hourglass, the Alarm Jammer, Masterworks, the Codex, tier finds
 import phase118 as R118      # 2.73: a raid boss's minions fall with it
+import phase119 as R119      # 2.74: outfits and Emma's buff from the Ledger; Emma remembers her buff
+import phase120 as R120      # 2.74: checkpoint respawns, keep-inventory raids, kit food/paperweights, Lights Out, den names, Sanctuary glow, Skiff parts
+import phase121 as R121      # 2.74: the Fixer's Lounge - the den without a heist
+import phase122 as R122      # 2.74: skip a puzzle, a solo crew of three, Endless/Pit alarm, boss bar range, Minecart A retired
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import allies                # 2.67: every friendly-fire list skips every follower (allies.py)
@@ -870,7 +874,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.73' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.74' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -1012,7 +1016,7 @@ def build(out_dir):
     os.makedirs(OUT)
     with open(path('pack.mcmeta'), 'w') as f:
         json.dump({'pack': {'description': [{'text': 'Black Market ', 'color': 'dark_purple', 'bold': True},
-                                            {'text': ('v2.73 (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
+                                            {'text': ('v2.74 (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
                             'min_format': [121, 0], 'max_format': 121}}, f, indent=1)
     gen_npcs()
     second = gen_mobs()
@@ -1131,6 +1135,10 @@ def build(out_dir):
     R116.generate(sys.modules[__name__])
     R117.generate(sys.modules[__name__])
     R118.generate(sys.modules[__name__])
+    R119.generate(sys.modules[__name__])
+    R120.generate(sys.modules[__name__])
+    R121.generate(sys.modules[__name__])
+    R122.generate(sys.modules[__name__])
     R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])

@@ -151,7 +151,7 @@ def generate(G):
     # ================================================================== (2.68) ANOTHER JOB: PAPERWEIGHTS AND FOOD TOPPED BACK UP
     ka = P72.kit_arg
     fn('p104/resupply', ['clear @s *[minecraft:custom_data~{bm:"paperweight"}]', f'clear @s minecraft:cooked_beef[minecraft:custom_data~{{bm_kit:1b}}]',
-                         f'give @s {ka("paperweight")} 3', f'give @s {ka(P72.KIT_FOOD[0])} {P72.KIT_FOOD[1]}'])
+                         f'give @s {ka("paperweight")} 4', f'give @s {ka(P72.KIT_FOOD[0])} {P72.KIT_FOOD[1]}'])
     for s_ in range(SL):
         for f_ in (f'p70/s{s_}/enter', f'p70/s{s_}/join'):
             G.FUNCS[f_].insert(0, 'execute if items entity @s container.* *[minecraft:custom_data~{bm_kit:1b}] run function bm:p104/resupply')

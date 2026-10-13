@@ -102,7 +102,7 @@ KIT_TIER = {1: ({'head': 3, 'chest': 8, 'legs': 6, 'feet': 3}, 3.0),          # 
             4: ({'head': 2, 'chest': 6, 'legs': 5, 'feet': 2}, 0.0)}
 VANILLA_ARMOR = {'leather': ((1, 3, 2, 1), 0), 'chainmail': ((2, 5, 4, 1), 0), 'iron': ((2, 6, 5, 2), 0), 'golden': ((2, 5, 3, 1), 0),
                  'diamond': ((3, 8, 6, 3), 2), 'netherite': ((3, 8, 6, 3), 3), 'copper': ((2, 4, 3, 1), 0), 'turtle': ((2, 0, 0, 0), 0)}
-KIT_FOOD = ('minecraft:cooked_beef', 16)
+KIT_FOOD = ('minecraft:cooked_beef', 32)             # (2.74: was 16)
 PIECE = {'_helmet': ('head', 'helmet'), '_chestplate': ('chest', 'chestplate'), '_leggings': ('legs', 'leggings'), '_boots': ('feet', 'boots')}
 
 
@@ -128,11 +128,12 @@ def kit_armor(it, role):
     return out
 
 
-WEARS = ('_sword', '_axe', '_pickaxe', '_shovel', '_hoe', '_spear', 'bow', 'crossbow', 'trident', 'shield', 'mace', 'fishing_rod', 'shears', 'flint_and_steel', 'brush')
+WEARS = ('_sword', '_axe', '_pickaxe', '_shovel', '_hoe', '_spear', 'bow', 'crossbow', 'trident', 'shield', 'mace', 'fishing_rod', 'shears', 'flint_and_steel', 'brush',
+         '_helmet', '_chestplate', '_leggings', '_boots', 'elytra')          # (2.74: the loaned armour too - every kit, every rank)
 
 
 def _unbreakable(base, comps):
-    """(2.68) a loaned weapon or tool never wears out: unbreakable, and it says nothing about it"""
+    """(2.68) a loaned weapon or tool never wears out: unbreakable, and it says nothing about it (2.74: and its armour)"""
     if not (any(base.endswith(w) for w in WEARS) or 'minecraft:max_damage' in comps): return {}
     td = dict(comps.get('minecraft:tooltip_display', {}))
     td['hidden_components'] = list(td.get('hidden_components', [])) + ['minecraft:unbreakable']
@@ -148,8 +149,7 @@ def kit_arg(iid, role=None, extra=None):
     it = ITEMS[iid]; parts = []
     comps = dict(it['comps'])
     am = kit_armor(it, role)
-    if am is None:
-        comps.update(_unbreakable(it['base'], comps))
+    comps.update(_unbreakable(it['base'], comps))
     if am is not None:
         from nbt import D
         comps['minecraft:attribute_modifiers'] = [dict(md, amount=D(md['amount'])) for md in am]

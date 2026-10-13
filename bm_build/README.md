@@ -1,4 +1,4 @@
-# Black Market — v2.73 (Java 26.3)
+# Black Market — v2.74 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,49 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.74: knocked out, not knocked back - the Fixer's Lounge, puzzle skips, and a round of fixes
+
+### Knocked out in a heist
+- **You come to at the checkpoint.** Every room your crew clears moves your respawn to its exit door. Knocked out, you wake right there - a safe, cleared spot - and walk straight back in. The void sends you to the same place. (Before: the den, then the emerald plate back.)
+- **Your pockets stay as they were.** Same slots, same armour, same XP; nothing spills on the floor and there's no fresh kit, so what you used stays used. A try is still lost and the alarm still rises. (Why not just keepInventory? It's one switch for the whole world, so the Overworld would keep it too. This does the same thing inside a heist only.)
+- **The kit:** 32 food (was 16) and 4 paperweights (was 3). **Every kit's armour, at every rank, is unbreakable now** (the Offense kit's wasn't).
+
+### The Fixer's Lounge: the den, without a heist
+A den of its own in a quiet corner of the vault: Goldtooth, the Recruiter and the Tailor, the Gutter Bank, the Armory, the Raid Crew board, the Crate Desk, the Scrap Box and the copper door to the Locker Hall. Shop, bank, rank up your kits and sort your lockers - no plans, no fee. No loaner racks and no BEGIN; the Fixer's Door takes you back where you came from.
+- **From the Fixer's Ledger:** THE FIXER'S LOUNGE in the Office (from safe ground, hold still for 3 seconds - like the Locker Hall).
+- **When a heist ends:** the leader's choice and the crew's offer all have GO TO THE LOUNGE. The heist ends as if you'd headed home, and you step into the lounge; its door then takes you home.
+- You can't break anything in there (adventure mode while inside). The Locker Hall's adventure mode now sticks as well - it used to flip back each second.
+
+### Skip a puzzle
+Stuck? Every puzzle room offers **[Skip this puzzle - costs a try]** in the chat as you walk in, and the Ledger has the same button on a heist. It asks first, then opens the way on as if you'd solved it, for one try. No coins for the pot, no flawless trophy, and never on your last try.
+
+### The Gutter Bank keeps Medallions and Trophies
+Deposit them and they stay Medallions and Trophies: your account shows them, and the new MEDALLIONS & TROPHIES page takes them back out (one or all). They still count as 16 and 128 towards anything the bank pays for; spending breaks them into change only as needed (Medallions first). "Take out coins" takes only loose coins.
+
+### Followers
+- **Three followers when you raid alone** (was two), so a trio's bonus works in the vault too. In a party: one each, as before.
+- **Outfits & Emma's buff from the Ledger** (Raid Crew → Outfits & Emma's buff): every follower's wardrobe, in the vault too, and what Emma focuses on. **Emma remembers her buff** every time she's called.
+- **Follower chatter on/off** (same page): Off hushes what they say unprompted - quips, banter, battle cries, weather talk. What they say when you call, send home or change them still shows.
+- **Leo stands taller than Emma now** (drawn bigger: about two blocks to her 1.8). A Leo already out grows to match.
+
+### Fixes
+- **Guards with the alarm off:** with the Speed Run modifier, running out of time used to ring a full lockdown - alarm to 100, patrols every 15 seconds, even with the alarm switched off, and they kept coming until the vault paid out. Now, with the alarm off, it's just TIME'S UP (the haul shrinks); with it on, patrols stop once the vault is open.
+- **Darkness in the den:** Lights Out darkened you from the moment you planned the heist until you went home. It's only out on the heist now - never in the den or the Locker Hall, and not after the payout.
+- **Health halved on some raids:** that's the **Glass Cannon** modifier, not the difficulty. It now starts at BEGIN, says so on screen, and lifts once the vault pays out.
+- **The boss bar** showed (left over from your last heist) all the way from the den. It shows only within 30 blocks of the guardian now.
+- **Block Party** teleported players into the corner wall, or under the floor at the end, and out into the void. It sets you down in the middle now, and if you drop through you step back to the start pad for the next round.
+- **No ALARM switch for the Endless Vault or the Pit** - neither has an alarm; it stays off.
+- **The Minecart Run's shooting gallery** (Version A) is gone - the cart's speed and the arrows' drift made it near impossible. The junction run and the bridges stay.
+- **A failed puzzle's mobs** - a guard, a trap's silverfish, vexes or slimes - go when the room is solved.
+- **Loose carpets:** the den's office pile no longer pops its carpet off, and any carpet or moss carpet knocked loose in a room near the crew is swept up.
+- **Double names in the den:** Goldtooth, the Recruiter, the Tailor (and Whiskers in the Rats' Rest) show only the short-range nameplate.
+- **The Sanctuary's shrines** glow only while someone's in the room, not through every wall. **The temple's stones** (the push-block puzzle) glow for 10 seconds when it's solved, not forever.
+- **The Sky Isles:** steadier footing against the breezes' gusts while the guards are out, and fewer breezes (one from Tier III, two at Tier V).
+- **Alien heists:** a win has a 5% chance of a **Vorn Skiff part** in your haul.
+
+### For admins
+`admin/lounge_rebuild` rebuilds the Fixer's Lounge; `admin/skiff_haul` puts a Skiff part in the haul barrel (testing).
 
 ## New in 2.73: a boss's minions fall with it, and the tier finds are all their own
 

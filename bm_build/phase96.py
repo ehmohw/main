@@ -84,7 +84,7 @@ def generate(G):
 
     # ================================================================== the rig
     def part_nbt(p):
-        return snbt({'Tags': ['bm.lep', f'bm.lp_{p}', 'bm.lenew'],
+        return snbt({'Tags': ['bm.lep', f'bm.lp_{p}', 'bm.lenew', 'bm.le96'],
                      'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': f'bm:le_{p}'}},
                      'item_display': 'fixed', 'teleport_duration': Int(2), 'interpolation_duration': Int(8), 'start_interpolation': Int(0),
                      'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0)] * 3, 'scale': [F(0)] * 3}})
@@ -96,6 +96,10 @@ def generate(G):
             out.append(f'execute positioned ^{-x * U:.4f} ^{y * U:.4f} ^{-z * U:.4f} run tp @e[type=minecraft:item_display,tag=bm.lesel,tag=bm.lp_{p}] ~ ~ ~ ~ 0')
         return out
     fn('p96/place', place_lines())
+    # (2.74: he's drawn bigger now - a Leo already out in the world grows to match, once)
+    G.FUNCS['loop/second'][-1:-1] = ['execute as @e[type=minecraft:item_display,tag=bm.lep,tag=!bm.le96] run function bm:p96/rescale']
+    fn('p96/rescale', ['tag @s add bm.le96', 'execute store result score #sc bm.rng run data get entity @s transformation.scale[0] 100',
+                       f'execute if score #sc bm.rng matches 1.. run data merge entity @s[type=minecraft:item_display] {{transformation:{{scale:[{S}f,{S}f,{S}f]}}}}'])
     fn('p96/grow', [f'execute as @e[type=minecraft:item_display,tag=bm.lesel] run data merge entity @s {{start_interpolation:-1,interpolation_duration:0,transformation:{{scale:[{S}f,{S}f,{S}f]}}}}',
                     'execute at @e[type=minecraft:item_display,tag=bm.lesel,tag=bm.lp_body,limit=1] run function bm:p96/burst'])
     fn('p96/burst', ['particle minecraft:splash ~ ~1 ~ 0.4 0.8 0.4 0.1 60', 'particle minecraft:bubble_pop ~ ~1 ~ 0.4 0.8 0.4 0.05 30',
@@ -286,7 +290,7 @@ def generate(G):
     # ---- (2.67) a click box the size of him (the wolf under him is only knee-high): right-click him to sit him down / stand him up
     second.append('execute as @e[type=minecraft:wolf,tag=bm.leopet,tag=!bm.ffpet] unless function bm:p96/has_hit at @s run function bm:p96/add_hit')
     fn('p96/has_hit', ['execute on passengers if entity @s[type=minecraft:interaction,tag=bm.lehit] run return 1', 'return 0'])
-    fn('p96/add_hit', ['summon minecraft:interaction ~ ~ ~ {Tags:["bm.lehit","bm.lehnew"],width:0.8f,height:1.2f,response:1b}',
+    fn('p96/add_hit', ['summon minecraft:interaction ~ ~ ~ {Tags:["bm.lehit","bm.lehnew"],width:0.9f,height:1.5f,response:1b}',
                        'ride @e[type=minecraft:interaction,tag=bm.lehnew,limit=1,sort=nearest] mount @s', 'tag @e[tag=bm.lehnew] remove bm.lehnew'])
     second.append('execute as @e[type=minecraft:interaction,tag=bm.lehit] unless function bm:p20/frog/has_vehicle run kill @s')
     fast += ['execute as @e[type=minecraft:interaction,tag=bm.lehit] if data entity @s interaction run function bm:p96/click',

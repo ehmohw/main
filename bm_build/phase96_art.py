@@ -12,7 +12,7 @@ import random
 from PIL import Image, ImageDraw
 from phase57_art import _cloth, _hair, _el, hexc, qa, qmul, limb, torso, _qrot
 
-RIG_SCALE = 0.82
+RIG_SCALE = 0.96                 # (2.74: was 0.82 - he stood shorter than Emma; a knight should stand over her)
 SALUTE_FOLD = -45
 PIVOT = {'body': (0, 14, 0), 'head': (0, 26, 0), 'armr': (5.4, 24.2, 0), 'arml': (-5.4, 24.2, 0), 'legr': (2.1, 14, 0), 'legl': (-2.1, 14, 0)}
 HEAD_K = 0.84          # (the helmeted head, smaller than Emma's: a grown man)

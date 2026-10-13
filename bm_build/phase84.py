@@ -122,7 +122,7 @@ def generate(G):
 
     # ================================================================== KITS: paperweights for everyone, the Endless Vault's extra food
     ka = P72.kit_arg
-    G.FUNCS['p80/kit/extras'] += [f'give @s {ka("paperweight")} 3', 'scoreboard players operation #gi bm.rng = @s bm.gvi', 'function bm:p77/mode',
+    G.FUNCS['p80/kit/extras'] += [f'give @s {ka("paperweight")} 4', 'scoreboard players operation #gi bm.rng = @s bm.gvi', 'function bm:p77/mode',
                                   f'execute if score #md bm.rng matches 2 run give @s {ka("minecraft:cooked_beef")} 32',
                                   f'execute if score #md bm.rng matches 2 run give @s {ka("minecraft:golden_carrot")} 16']
 
