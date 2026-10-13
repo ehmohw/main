@@ -1,4 +1,4 @@
-# Black Market — v2.72 (Java 26.3)
+# Black Market — v2.73 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,33 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.73: a boss's minions fall with it, and the tier finds are all their own
+
+### When a raid boss falls, its minions fall with it
+- **The vault's guardian:** this covers every tier's and every night's guardian, the Lucky Raid's, and the Pit's champions. The moment one goes down, every guard of that heist within 48 blocks of where it fell goes down too, with a puff of smoke. So do the vexes, split slimes and silverfish their magic left behind.
+- **No loot from them:** the minions drop nothing. The boss's own hoard is the prize.
+- **The crew is told:** *"Their master has fallen - and every minion falls with it."*
+- **The Gutter Gentry:** when The Count falls, his Bloblings pop with him.
+
+### Eleven tier finds replaced
+2.72 promised that no two rewards would overlap, but eleven of the fifteen tier finds did the same job as, or looked too much like, something already in the pack.
+
+| Replaced | Why | Now |
+|---|---|---|
+| Lodestone Purse | same as the Rat King's Signet | Merchant's Bell |
+| Copper Wake | same as the trail boots | Wind-Up Songbird |
+| Cat Burglar's Sash | same as the Whisperstep Boots | Smuggler's Veil |
+| Moth Lantern | too close to the Glimmer and Ashen charms | Firefly Jar |
+| Drowned Miner's Lamp | same as the Tidecaller set | Duelist's Ribbon |
+| Gilded Shadow | same as the Rat King wings' gold dust | Honeycomb Brooch |
+| Hearth Flask | same as the Golden Cheese Wheel | Fizzle Stone |
+| Anchor Stone | same as the Cobalt Shield | Navigator's Astrolabe |
+| Diver's Pearl | same as the Tidecaller set's bubbles | Trial Key Fob |
+| Mole's Whisker | same as Haste and the Architect set | Fletcher's Charm |
+| Ember Wings | same as the wing charms | Gale Locket |
+
+The full list is in the 2.72 section below.
 
 ## New in 2.72: five new rooms, curses, forks, traps, new heist gear, Masterworks, the Codex and every tier's own finds
 
@@ -90,18 +117,18 @@ The Ledger's Office has a new page, **The Codex**. It records every room you've 
 | Masterworks | a Black Market Medallion |
 
 ### Every tier's own finds
-A won heist's rare, legendary and mythical finds now come half the time from the tier's own three, and half the time from the global Forgeheart, Alibi and Press. No two of the fifteen do the same thing.
+A won heist's rare, legendary and mythical finds now come half the time from the tier's own three, and half the time from the global Forgeheart, Alibi and Press. None of the fifteen does what another item in the pack already does (the 2.73 changes made sure of it).
 - **Rare** finds are handy charms for your off hand.
-- **Legendary** finds give you a look.
+- **Legendary** finds give you a look nothing else gives.
 - **Mythical** finds are something special.
 
 | Tier | Rare (off hand) | Legendary (off hand) | Mythical |
 |---|---|---|---|
-| I | **Mudlark's Charm**: mud, soul sand, honey and snow don't slow you | **Copper Wake**: a trail of copper sparks | **Lodestone Purse** (carried): dropped things slide into your pack, but not what you throw away yourself |
-| II | **Cat Burglar's Sash**: sneak nearly as fast as you walk | **Moth Lantern**: pale moths flutter about you | **Tinker's Thimble** (carried): what you wear and hold slowly mends |
-| III | **Drowned Miner's Lamp**: break blocks under water at land speed | **Gilded Shadow**: gold dust falls from your shoulders | **Hearth Flask** (carried): when you're hungry, a swig fills you up |
-| IV | **Anchor Stone**: blows and blasts push you far less | **Diver's Pearl**: bubbles and glints rise about you | **Wayfarer's Lodestar**: sneak and use it to mark a spot; use it again to return there (same world, every 5 minutes) |
-| V | **Mole's Whisker**: every tool digs as if it had Efficiency | **Ember Wings**: ember wings flicker on your back | **Phoenix Plume** (in either hand): saves you from death, then smoulders for 10 minutes before it can again |
+| I | **Mudlark's Charm**: mud, soul sand, honey and snow don't slow you | **Wind-Up Songbird**: music notes dance about your head | **Merchant's Bell**: ring it and every village trader within 10 blocks restocks (once a day; never the market's own traders) |
+| II | **Smuggler's Veil**: you vanish from other players' locator bars | **Firefly Jar**: fireflies drift and blink about you | **Tinker's Thimble** (carried): what you wear and hold slowly mends |
+| III | **Duelist's Ribbon**: your sword's sweep strikes as hard as the blow | **Honeycomb Brooch**: honey drips from your shoulders | **Fizzle Stone** (carried): creepers within 12 blocks fizzle out harmlessly |
+| IV | **Navigator's Astrolabe**: your coordinates, the direction you face and the time of day, above your hotbar | **Trial Key Fob**: streams of light spiral in towards you | **Wayfarer's Lodestar**: sneak and use it to mark a spot; use it again to return there (same world, every 5 minutes) |
+| V | **Fletcher's Charm**: your arrows fly half again as fast, and hit harder | **Gale Locket**: little gusts whirl about your feet | **Phoenix Plume** (in either hand): saves you from death, then smoulders for 10 minutes before it can again |
 
 ### For admins
 - Curses: `admin/curse_always`, `admin/curse_never`, `admin/curse_chance`, or force one curse with `admin/curse_fog`, `_frost`, `_leaden`, `_fragile`, `_phantoms`, `_frenzy` or `_unsteady`.

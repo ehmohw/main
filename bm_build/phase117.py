@@ -63,33 +63,34 @@ P70.GOLDTOOTH_STOCK += [(24, 'smelling_salts', 1), (16, 'thiefs_hourglass', 1), 
 P72.KEEP += ['thiefs_hourglass', 'alarm_jammer']
 
 # ---------------------------------------------------------------- each tier's own finds: (id, name, colour, lore, kind)
-#  kind: ('attr', [modifiers]) an off-hand charm; ('aura', key) a look, in the off hand; ('purse'|'thimble'|'flask'|'lodestar'|'plume')
+#  kind: ('attr', [modifiers]) an off-hand charm; ('aura', key) a look, in the off hand; ('bell'|'thimble'|'fizzle'|'astro'|'lodestar'|'fletch'|'plume')
 RARE, LEGEND, MYTH = P105.RARE_TAG, P105.LEGEND_TAG, P105.MYTH_TAG
 def _m(attr, amt, op='add_value'):
     return {'type': f'minecraft:{attr}', 'id': f'bm:tf_{attr}', 'amount': amt, 'operation': op, 'slot': 'offhand'}
 TIER_FINDS = {
     1: [('mudlarks_charm', "Mudlark's Charm", '#a08050', ['A pebble with a hole, worn smooth by the sewers.', ('In your off hand: mud, soul sand, honey', 'blue'),
                                                                                                          ('and snow can\'t slow you down.', 'blue')], ('attr', [_m('movement_efficiency', 1.0)])),
-        ('copper_wake', 'Copper Wake', '#e08a50', ['A twist of copper wire that crackles.', ('In your off hand: you leave a trail', 'blue'), ('of copper sparks.', 'blue')], ('aura', 'wake')),
-        ('lodestone_purse', 'Lodestone Purse', '#9aa8b8', ['A purse sewn round a lodestone chip.', ('Carry it: whatever drops near you', 'blue'),
-                                                         ('slides into your pack by itself.', 'blue'), ('(Not what you throw away yourself.)', 'gray')], ('purse',))],
-    2: [('cat_burglars_sash', "Cat Burglar's Sash", '#5a5a7a', ['Black silk, soft-soled habits.', ('In your off hand: sneak nearly', 'blue'), ('as fast as you walk.', 'blue')],
-         ('attr', [_m('sneaking_speed', 0.6)])),
-        ('moth_lantern', 'Moth Lantern', '#e8e0c0', ['A paper lantern nobody lit.', ('In your off hand: pale moths', 'blue'), ('flutter about you.', 'blue')], ('aura', 'moth')),
+        ('songbird', 'Wind-Up Songbird', '#e0b060', ['A tin bird with a key in its back.', ('In your off hand: it whistles, and', 'blue'), ('music notes dance about your head.', 'blue')], ('aura', 'notes')),
+        ('merchants_bell', "Merchant's Bell", '#e8c870', ['The bell from a market-master\'s stall.', ('Ring it near villagers: every one', 'blue'),
+                                                         ('within 10 blocks restocks its wares.', 'blue'), ('Once a day.', 'gray')], ('bell',))],
+    2: [('smugglers_veil', "Smuggler's Veil", '#5a5a7a', ['Grey gauze that the eye slides off.', ('In your off hand: you vanish from', 'blue'), ('other players\' locator bars.', 'blue')],
+         ('attr', [_m('waypoint_transmit_range', -1.0, 'add_multiplied_total')])),
+        ('firefly_jar', 'Firefly Jar', '#d8f080', ['A jar of lights, holes punched in the lid.', ('In your off hand: fireflies drift', 'blue'), ('and blink about you.', 'blue')], ('aura', 'firefly')),
         ('tinkers_thimble', "Tinker's Thimble", '#c8c8d0', ['A silver thimble that hums when it touches iron.', ('Carry it: whatever you wear and hold', 'blue'),
                                                          ('slowly mends itself.', 'blue')], ('thimble',))],
-    3: [('drowned_miners_lamp', "Drowned Miner's Lamp", '#4ad0c0', ['A lamp that burns under water.', ('In your off hand: break blocks under', 'blue'),
-                                                                   ('water as fast as on dry land.', 'blue')], ('attr', [_m('submerged_mining_speed', 4.0, 'add_multiplied_base')])),
-        ('gilded_shadow', 'Gilded Shadow', GOLD, ['A pinch of gold dust in a twist of paper.', ('In your off hand: gold dust falls', 'blue'), ('from your shoulders.', 'blue')], ('aura', 'gilt')),
-        ('hearth_flask', 'Hearth Flask', '#d08040', ['Stew that never runs out, or cools.', ('Carry it: whenever you\'re hungry,', 'blue'), ('a swig fills you up.', 'blue')], ('flask',))],
-    4: [('anchor_stone', 'Anchor Stone', '#6a7a8a', ['A sounding weight on a leather thong.', ('In your off hand: blows and blasts', 'blue'),
-                                                   ('push you about far less.', 'blue')], ('attr', [_m('explosion_knockback_resistance', 1.0), _m('knockback_resistance', 0.4)])),
-        ('divers_pearl', "Diver's Pearl", '#a0f0ff', ['A pearl from the vault\'s flooded cellars.', ('In your off hand: bubbles and glints', 'blue'), ('rise about you.', 'blue')], ('aura', 'pearl')),
+    3: [('duelists_ribbon', "Duelist's Ribbon", '#d04060', ['Tied round the hilt for luck.', ('In your off hand: your sword\'s sweep', 'blue'),
+                                                           ('strikes as hard as the blow itself.', 'blue')], ('attr', [_m('sweeping_damage_ratio', 1.0)])),
+        ('honeycomb_brooch', 'Honeycomb Brooch', '#ffb030', ['Wax and gold, still sticky.', ('In your off hand: honey drips', 'blue'), ('from your shoulders.', 'blue')], ('aura', 'honey')),
+        ('fizzle_stone', 'Fizzle Stone', '#7ad070', ['A damp grey pebble that smells of wet powder.', ('Carry it: creepers within 12 blocks', 'blue'),
+                                                    ('of you fizzle out harmlessly.', 'blue')], ('fizzle',))],
+    4: [('navigators_astrolabe', "Navigator's Astrolabe", '#c09040', ['Brass rings that always know where they are.', ('In your off hand: where you stand, which', 'blue'),
+                                                                     ('way you face and the time of day,', 'blue'), ('above your hotbar.', 'blue')], ('astro',)),
+        ('trial_key_fob', 'Trial Key Fob', '#80c0d0', ['A key ring from a sealed trial vault.', ('In your off hand: streams of light', 'blue'), ('spiral in towards you.', 'blue')], ('aura', 'trial')),
         ('wayfarers_lodestar', "Wayfarer's Lodestar", '#ffe890', ['A star in a brass cage that always points home.', ('Sneak and use: it remembers this spot.', 'blue'),
                                                                   ('Use: back to it (in the same world;', 'blue'), ('once every 5 minutes).', 'blue')], ('lodestar',))],
-    5: [('moles_whisker', "Mole's Whisker", '#8a6a5a', ['It twitches near loose stone.', ('In your off hand: every tool digs', 'blue'),
-                                                       ('as if it had Efficiency.', 'blue')], ('attr', [_m('mining_efficiency', 12.0)])),
-        ('ember_wings', 'Ember Wings', '#ff8a30', ['Two scorched feathers, still warm.', ('In your off hand: a pair of ember', 'blue'), ('wings flickers on your back.', 'blue')], ('aura', 'wings')),
+    5: [('fletchers_charm', "Fletcher's Charm", '#a0b070', ['Three goose feathers bound with gold wire.', ('In your off hand: your arrows fly', 'blue'),
+                                                           ('half again as fast - and hit harder.', 'blue')], ('fletch',)),
+        ('gale_locket', 'Gale Locket', '#c0e0f0', ['A locket with a breeze shut inside.', ('In your off hand: little gusts', 'blue'), ('whirl about your feet.', 'blue')], ('aura', 'gale')),
         ('phoenix_plume', 'Phoenix Plume', '#ff6a30', ['It smoulders, and never burns away.', ('Hold it in either hand: it saves you', 'blue'),
                                                       ('from death - then smoulders for', 'blue'), ('10 minutes before it can again.', 'blue')], ('plume',))]}
 PLUME_CD = 600
@@ -98,7 +99,7 @@ for _t, _row in TIER_FINDS.items():
         _tag = (RARE, LEGEND, MYTH)[_j]
         _c = {}
         if _kind[0] == 'attr': _c['minecraft:attribute_modifiers'] = _kind[1]
-        if _kind[0] == 'lodestar': _c = hold('none')
+        if _kind[0] in ('lodestar', 'bell'): _c = hold('none')
         if _kind[0] == 'plume':
             _c['minecraft:death_protection'] = {'death_effects': [{'type': 'minecraft:clear_all_effects'}, {'type': 'minecraft:apply_effects', 'effects': [
                 {'id': 'minecraft:regeneration', 'amplifier': 1, 'duration': 200}, {'id': 'minecraft:fire_resistance', 'amplifier': 0, 'duration': 400},
@@ -106,6 +107,7 @@ for _t, _row in TIER_FINDS.items():
         item(_iid, TOTEM, _nm, _col, _lore + [(f'{_tag[0]} - Tier {ROMAN[_t]}', _tag[1])], model=f'bm:{_iid}', stack=1, cat='relic', comps=_c, glint=_j == 2 or None)
         if _kind[0] == 'plume': ITEMS[_iid]['comps'].pop('!minecraft:death_protection')
 HOLD['wayfarers_lodestar'] = 'bm:p117/star/use'
+HOLD['merchants_bell'] = 'bm:p117/bell/use'
 item('phoenix_ash', TOTEM, 'Smouldering Plume', '#a05030', ['A Phoenix Plume, burnt down to the quill.', ('It blazes back to life 10 minutes', 'blue'),
                                                            ('after it saved you - carry it.', 'blue'), (f'{MYTH[0]} - Tier V', MYTH[1])],
      model='bm:phoenix_ash', stack=1, cat='relic')
@@ -130,7 +132,7 @@ def generate(G):
     def ins(table):
         return [f'execute in bm:gutter unless data block {HA} Items[26] run loot insert {HA} loot {table}',
                 f'execute in bm:gutter if data block {HA} Items[26] run loot insert {HB} loot {table}']
-    objs = ['bm.gvjam', 'bm.wlx', 'bm.wly', 'bm.wlz', 'bm.wld', 'bm.wlc', 'bm.phx'] + [f'bm.mw{r}' for r in MW] + [f'bm.cxr{s}' for s in range(1, 6)]
+    objs = ['bm.gvjam', 'bm.mbd', 'bm.wlx', 'bm.wly', 'bm.wlz', 'bm.wld', 'bm.wlc', 'bm.phx'] + [f'bm.mw{r}' for r in MW] + [f'bm.cxr{s}' for s in range(1, 6)]
     tick, fast, second = [], [], []
 
     # ================================================================== SMELLING SALTS
@@ -239,20 +241,26 @@ def generate(G):
             fn(f'p117/find/{kind}{t}', ins(f'bm:items/{iid}') + [tellraw(who, line), f'function bm:p117/cx/f_{iid}',
                                                                  'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 1 ' + ('1.0' if j == 0 else '1.3')])
     # the charms' off-hand modifiers need nothing more; the rest:
-    aura = {'wake': ['particle minecraft:wax_off ~ ~0.1 ~ 0.15 0 0.15 0 2', 'particle minecraft:dust{color:[0.88,0.54,0.31],scale:0.6} ~ ~0.15 ~ 0.2 0 0.2 0 2'],
-            'moth': ['particle minecraft:end_rod ~ ~1.7 ~ 0.7 0.4 0.7 0.005 1', 'particle minecraft:white_ash ~ ~1.5 ~ 0.6 0.5 0.6 0 3'],
-            'gilt': ['particle minecraft:falling_dust{block_state:"minecraft:gold_block"} ~ ~1.45 ~ 0.3 0.05 0.3 0 2'],
-            'pearl': ['particle minecraft:bubble_pop ~ ~1 ~ 0.4 0.6 0.4 0.02 2', 'particle minecraft:glow ~ ~1.2 ~ 0.4 0.5 0.4 0 1'],
-            'wings': [f'particle minecraft:small_flame ^{s * dx:.2f} ^{1.15 + dy:.2f} ^-0.35 0 0 0 0 1' for s in (-1, 1)
-                      for (dx, dy) in ((0.25, 0.25), (0.45, 0.42), (0.65, 0.55), (0.85, 0.6), (0.55, 0.15), (0.75, 0.25), (0.4, -0.05))]}
+    aura = {'notes': ['particle minecraft:note ~ ~2.15 ~ 0.45 0.15 0.45 1 1'],
+            'firefly': ['particle minecraft:firefly ~ ~1.1 ~ 0.9 0.6 0.9 0 1'],
+            'honey': ['particle minecraft:dripping_honey ~ ~1.45 ~ 0.3 0.05 0.3 0 1'],
+            'trial': ['particle minecraft:vault_connection ~ ~1 ~ 0.7 0.6 0.7 0.15 2'],
+            'gale': ['particle minecraft:small_gust ~ ~0.15 ~ 0.6 0 0.6 0 1']}
     for t, row in TIER_FINDS.items():
         for iid, nm, col, _l, kind in row:
             if kind[0] == 'aura':
                 fast.append(f'execute as @a[gamemode=!spectator] if items entity @s weapon.offhand {holds(iid)} at @s rotated ~ 0 run function bm:p117/aura/{kind[1]}')
                 fn(f'p117/aura/{kind[1]}', aura[kind[1]])
-    # (the Lodestone Purse: dropped things - not what you threw - slide to you)
-    fast.append(f'execute as @a[gamemode=!spectator] if items entity @s container.* {holds("lodestone_purse")} at @s run function bm:p117/purse/pull')
-    fn('p117/purse/pull', ['execute as @e[type=minecraft:item,distance=1.5..7,nbt=!{PickupDelay:32767s}] unless data entity @s Thrower run tp @s ~ ~0.3 ~'])
+    # (the Merchant's Bell: the villagers near you restock - natural villagers only, never the market's own traders; once a game day)
+    fn('p117/bell/use', ['scoreboard players operation #day bm.rng = #day bm.bm',
+                         'execute if score @s bm.mbd = #day bm.rng run return run ' + say('The bell needs a day\'s rest before it rings again.'),
+                         'scoreboard players set #nv bm.rng 0', 'execute as @e[type=minecraft:villager,distance=..10] unless data entity @s Tags run scoreboard players add #nv bm.rng 1',
+                         'execute if score #nv bm.rng matches 0 run return run ' + say('No villager near enough to hear it.'),
+                         'scoreboard players operation @s bm.mbd = #day bm.rng',
+                         'execute as @e[type=minecraft:villager,distance=..10] unless data entity @s Tags run data modify entity @s Offers.Recipes[].uses set value 0',
+                         'execute as @e[type=minecraft:villager,distance=..10] unless data entity @s Tags at @s run particle minecraft:happy_villager ~ ~2.2 ~ 0.3 0.2 0.3 0 5',
+                         'playsound minecraft:block.bell.use player @a[distance=..16] ~ ~ ~ 1 1.4',
+                         tellraw('@s', P + [T('Ding! ', '#e8c870', bold=True), {'score': {'name': '#nv', 'objective': 'bm.rng'}, 'color': 'white'}, T(' villager(s) restock their wares.', 'gray')])])
     # (the Tinker's Thimble: every 10 seconds, 3% back on whatever's worn or held and worn down)
     second += ['scoreboard players add #thm bm.rng 1', 'execute if score #thm bm.rng matches 10.. run function bm:p117/thimble/all']
     fn('p117/thimble/all', ['scoreboard players set #thm bm.rng 0', f'execute as @a if items entity @s container.* {holds("tinkers_thimble")} run function bm:p117/thimble/me',
@@ -260,10 +268,33 @@ def generate(G):
     fn('p117/thimble/me', [f'execute if items entity @s {sl} *[minecraft:damage~{{damage:{{min:1}}}}] run item modify entity @s {sl} bm:p117/mend'
                            for sl in ('weapon.mainhand', 'weapon.offhand', 'armor.head', 'armor.chest', 'armor.legs', 'armor.feet')])
     wjson('bm/item_modifier/p117/mend.json', {'function': 'minecraft:set_damage', 'damage': 0.03, 'add': True})
-    # (the Hearth Flask: hungry - a swig fills you)
-    second += ['execute if score #thm bm.rng matches 5 as @a[gamemode=!spectator] if items entity @s container.* ' + holds('hearth_flask') + ' at @s run function bm:p117/flask/me']
-    fn('p117/flask/me', ['execute store result score #fd bm.rng run data get entity @s foodLevel', 'execute if score #fd bm.rng matches 12.. run return 0',
-                         'effect give @s minecraft:saturation 1 19 true', 'execute at @s run playsound minecraft:entity.generic.drink player @s ~ ~ ~ 0.6 1.1'])
+    # (the Fizzle Stone: the creepers near you lose their bang)
+    fast.append(f'execute as @a[gamemode=!spectator] if items entity @s container.* {holds("fizzle_stone")} at @s run function bm:p117/fizzle/near')
+    fast.append(f'execute as @a[gamemode=!spectator] unless items entity @s container.* {holds("fizzle_stone")} if items entity @s weapon.offhand {holds("fizzle_stone")} at @s run function bm:p117/fizzle/near')
+    fn('p117/fizzle/near', ['execute as @e[type=minecraft:creeper,distance=..12,tag=!bm.fizz] at @s run function bm:p117/fizzle/one'])
+    fn('p117/fizzle/one', ['tag @s add bm.fizz', 'data merge entity @s {ExplosionRadius:0b}', 'particle minecraft:smoke ~ ~1.2 ~ 0.2 0.3 0.2 0.01 6'])
+    # (the Navigator's Astrolabe: where you are, which way you face, the time - above the hotbar)
+    fast.append(f'execute as @a[gamemode=!spectator] if items entity @s weapon.offhand {holds("navigators_astrolabe")} run function bm:p117/astro/show')
+    DIRS = [('South', -22, 22), ('South-West', 23, 67), ('West', 68, 112), ('North-West', 113, 157), ('North', 158, 180), ('North', -180, -158),
+            ('North-East', -157, -113), ('East', -112, -68), ('South-East', -67, -23)]
+    sc = lambda n: {'score': {'name': n, 'objective': 'bm.rng'}, 'color': 'white'}
+    fn('p117/astro/show', ['execute store result score #ax bm.rng run data get entity @s Pos[0]', 'execute store result score #ay bm.rng run data get entity @s Pos[1]',
+                           'execute store result score #az bm.rng run data get entity @s Pos[2]', 'execute store result score #ar bm.rng run data get entity @s Rotation[0]',
+                           'scoreboard players operation #td bm.rng = #tod bm.bm', 'scoreboard players operation #hh bm.rng = #td bm.rng',
+                           'scoreboard players operation #hh bm.rng /= #k1000 bm.rng', 'scoreboard players add #hh bm.rng 6', 'scoreboard players operation #hh bm.rng %= #24 bm.rng',
+                           'scoreboard players operation #mm bm.rng = #td bm.rng', 'scoreboard players operation #mm bm.rng %= #k1000 bm.rng',
+                           'scoreboard players operation #mm bm.rng *= #60 bm.rng', 'scoreboard players operation #mm bm.rng /= #k1000 bm.rng',
+                           'scoreboard players operation #mt bm.rng = #mm bm.rng', 'scoreboard players operation #mt bm.rng /= #10 bm.rng',
+                           'scoreboard players operation #mo bm.rng = #mm bm.rng', 'scoreboard players operation #mo bm.rng %= #10 bm.rng'] +
+       [f'execute if score #ar bm.rng matches {lo}..{hi} run ' + title('@s', 'actionbar', [T('⌖ ', '#c09040'), sc('#ax'), T('  ', 'gray'), sc('#ay'), T('  ', 'gray'), sc('#az'),
+                                                                                          T('   ⇧ ', '#c09040'), T(nm_, 'white'), T('   ☀ ', '#c09040'), sc('#hh'), T(':', 'white'), sc('#mt'), sc('#mo')])
+        for nm_, lo, hi in DIRS])
+    G.FUNCS['load'][-1:-1] = ['scoreboard players set #k1000 bm.rng 1000', 'scoreboard players set #24 bm.rng 24', 'scoreboard players set #60 bm.rng 60', 'scoreboard players set #10 bm.rng 10']
+    # (the Fletcher's Charm: each new arrow from someone holding it flies half again as fast)
+    tick.append('execute as @e[type=#minecraft:arrows,tag=!bm.flc] run function bm:p117/fletch/arrow')
+    fn('p117/fletch/arrow', ['tag @s add bm.flc', 'execute unless function bm:p117/fletch/owner run return 0'] +
+       [f'execute store result entity @s Motion[{i}] double 0.00015 run data get entity @s Motion[{i}] 10000' for i in range(3)])
+    fn('p117/fletch/owner', [f'execute on origin if items entity @s weapon.offhand {holds("fletchers_charm")} run return 1', 'return fail'])
     # (the Wayfarer's Lodestar: sneak - mark; use - back to the mark; same world; 5-minute rest)
     dims = [('minecraft:overworld', 1), ('minecraft:the_nether', 2), ('minecraft:the_end', 3)]
     fn('p117/star/use', ['scoreboard players set #wd bm.rng 0'] + [f'execute if dimension {d} run scoreboard players set #wd bm.rng {v}' for d, v in dims] +
@@ -401,45 +432,45 @@ def rp(R):
     ic['mudlarks_charm'] = g(['................', '.......kk.......', '......k..k......', '.......kk.......', '.......ll.......', '.....bbbbbb.....', '....bbbbbbbb....', '...bbbb..bbbb...',
                               '...bbb....bbb...', '...bbbb..bbbb...', '....bbbbbbbb....', '.....bbbbbb.....', '................', '................', '................', '................'],
                              dict(k='#8a6a40', l='#5a4020', b='#a08050'))
-    ic['copper_wake'] = g(['................', '...........o....', '..........oyo...', '.........o.o....', '........cc......', '.......cc.......', '......cc........', '.....cc.........',
-                           '....cc..........', '...cc...........', '..cc....y.......', '..c....yoy......', '........y.......', '................', '................', '................'],
-                          dict(c='#e08a50', o='#ffb070', y='#fff0a0'))
-    ic['lodestone_purse'] = g(['................', '......kk.k......', '.....k..k.......', '......kkkk......', '.....bbbbbb.....', '....bbbbbbbb....', '...bbbggggbbb...', '...bbgsssggbb...',
-                               '...bbgsssggbb...', '...bbbggggbbb...', '....bbbbbbbb....', '.....bbbbbb.....', '................', '................', '................', '................'],
-                              dict(k='#3a2a18', b='#7a5a3a', g='#6a7888', s='#b0c0d0'))
-    ic['cat_burglars_sash'] = g(['................', '..k.........k...', '..kk.......kk...', '...kk.....kk....', '....kkbbbkk.....', '.....kbsbk......', '.....kbbbk......', '....kk...kk.....',
-                                 '...kk.....kk....', '..kk.......kk...', '..k.........k...', '................', '................', '................', '................', '................'],
-                                dict(k='#3a3a5a', b='#5a5a7a', s='#c0c0e0'))
-    ic['moth_lantern'] = g(['................', '.......kk.......', '......k..k......', '.....wwwwww.....', '....wyyyyyyw....', '....wyowwoyw....', '....wywyywyw....', '....wyowwoyw....',
-                            '....wyyyyyyw....', '.....wwwwww.....', '......kkkk......', '..m..........m..', '.mmm........mmm.', '..m..........m..', '................', '................'],
-                           dict(k='#5a4a30', w='#e8e0c0', y='#fff4c0', o='#ffcf80', m='#f0f0f0'))
     ic['tinkers_thimble'] = g(['................', '................', '......ssss......', '.....sddddS.....', '....sdsdsdsS....', '....sddddddS....', '....sdsdsdsS....', '....sddddddS....',
                                '....sdsdsdsS....', '....sddddddS....', '....ssssssss....', '................', '................', '................', '................', '................'],
                               dict(s='#e0e0e8', d='#a0a0b0', S='#707080'))
-    ic['drowned_miners_lamp'] = g(['................', '.......kk.......', '......k..k......', '......kkkk......', '.....kggggk.....', '....kgyyyygk....', '....kgyoyygk....', '....kgyyyygk....',
-                                   '.....kggggk.....', '......kkkk......', '..b.........b...', '.bb.b.....b.bb..', '..b.........b...', '................', '................', '................'],
-                                  dict(k='#2a4a50', g='#4ad0c0', y='#d0fff0', o='#80ffe0', b='#a0e0ff'))
-    ic['gilded_shadow'] = g(['................', '................', '.....kkkkkk.....', '....kyyyyyyk....', '....kyYYYYyk....', '.....kyyyyk.....', '......kkkk......', '...y....y....y..',
-                             '.....y....y.....', '..y....y....y...', '....y....y....y.', '..y...y....y....', '.....y...y......', '................', '................', '................'],
-                            dict(k='#7a5410', y=GOLD, Y='#fff0a0'))
-    ic['hearth_flask'] = g(['................', '......kkkk......', '......cccc......', '.......bb.......', '.......bb.......', '.....bbbbbb.....', '....bossssob....', '...bosrsssrsob..',
-                            '...bossssssob...', '...bosssrssob...', '...bossssssob...', '....bboooobb....', '.....bbbbbb.....', '................', '................', '................'],
-                           dict(k='#5a3a20', c='#a07040', b='#c0d0d8', o='#d08040', s='#e0a050', r='#ffe090'))
-    ic['anchor_stone'] = g(['................', '.......ll.......', '......l..l......', '.......ll.......', '.......kk.......', '.....kssssk.....', '....kssssssk....', '...kssddsssk....',
-                            '...ksssssssk....', '...kssssddsk....', '....kssssssk....', '.....kkkkkk.....', '................', '................', '................', '................'],
-                           dict(l='#8a6a40', k='#3a4450', s='#6a7a8a', d='#8a9aaa'))
-    ic['divers_pearl'] = g(['................', '..b.........b...', '.b.b.......b.b..', '..b....b.....b..', '......b.b.......', '.......b........', '.....pppppp.....', '....pwwppppp....',
-                            '....pwppppcp....', '....ppppppcp....', '....pppppccp....', '.....pppppp.....', '................', '................', '................', '................'],
-                           dict(b='#c0f0ff', p='#a0f0ff', w='#ffffff', c='#70c0d0'))
     ic['wayfarers_lodestar'] = g(['................', '.......bb.......', '......b..b......', '.....bbbbbb.....', '....b..yy..b....', '....b.yYYy.b....', '....byYwwYyb....', '....b.yYYy.b....',
                                   '....b..yy..b....', '.....bbbbbb.....', '......bbbb......', '.......bb.......', '................', '................', '................', '................'],
                                  dict(b='#b08a40', y='#ffe890', Y='#fff4c0', w='#ffffff'))
-    ic['moles_whisker'] = g(['................', '................', '..k.........k...', '...k.......k....', '....k.....k.....', '.....kbbbbk.....', '....kbbbbbbk....', '...kbbwbbwbbk...',
-                             '...kbbbbbbbbk...', '...kkkbppbkkk...', '....kbbbbbbk....', '..kk..kbbk..kk..', '..k....kk....k..', '................', '................', '................'],
-                            dict(k='#3a2a20', b='#8a6a5a', w='#ffffff', p='#ff9aa0'))
-    ic['ember_wings'] = g(['................', '................', '.o............o.', '.oo..........oo.', '.ooo........ooo.', '.oyoo......ooyo.', '..oyoo....ooyo..', '..ooyoo..ooyoo..',
-                           '...oooyrryooo...', '....ooorrooo....', '.....oo..oo.....', '......o..o......', '................', '................', '................', '................'],
-                          dict(o='#ff8a30', y='#ffd060', r='#c02010'))
+    ic['songbird'] = g(['................', '.........kk.....', '........kyyk....', '.......kyyyyk.o.', '..k...kyywyyko..', '.kok.kyyyyyyk...', '..kkkyyyyyyk....', '....kyyyyyk.....',
+                        '....kyyyyk......', '.....kkkk.......', '......k.k.......', '.....kk.kk......', '................', '..n.........n...', '.nn........nn...', '.n.........n....'],
+                       dict(k='#5a4020', y='#e0b060', w='#ffffff', o='#ff9030', n='#ffe090'))
+    ic['merchants_bell'] = g(['................', '.......kk.......', '......k..k......', '.......kk.......', '......yyyy......', '.....yYYYYy.....', '....yYYYYYYy....', '....yYYYYYYy....',
+                              '....yYYwYYYy....', '...yYYYwYYYYy...', '...yYYYYYYYYy...', '..yyyyyyyyyyyy..', '.......kk.......', '.......kk.......', '................', '................'],
+                             dict(k='#5a4020', y='#b08020', Y='#e8c870', w='#fff4c0'))
+    ic['smugglers_veil'] = g(['................', '.....gggggg.....', '....gGGGGGGg....', '...gGGgGGgGGg...', '...gGGGGGGGGg...', '...gGgGGGGgGg...', '...gGGGGGGGGg...', '...gGGgGGgGGg...',
+                              '...gGGGGGGGGg...', '...gGgGGGGgGg...', '....gGGGGGGg....', '.....g.gg.g.....', '................', '................', '................', '................'],
+                             dict(g='#4a4a6a', G='#8a8aa8'))
+    ic['firefly_jar'] = g(['................', '.....kkkkkk.....', '.....wwwwww.....', '....w......w....', '...w..y.....w...', '...w.....y..w...', '...w.y......w...', '...w....y...w...',
+                           '...w..y...y.w...', '...w........w...', '....w..y...w....', '.....wwwwww.....', '................', '................', '................', '................'],
+                          dict(k='#7a5a30', w='#c0e0e8', y='#e8ff70'))
+    ic['duelists_ribbon'] = g(['................', '.......rr.......', '......rRRr......', '.....rR..Rr.....', '.....rR..Rr.....', '......rRRr......', '.....rr..rr.....', '....rR....Rr....',
+                               '...rR......Rr...', '..rR........Rr..', '..r..........r..', '................', '................', '................', '................', '................'],
+                              dict(r='#a02040', R='#e05070'))
+    ic['honeycomb_brooch'] = g(['................', '......kkkk......', '.....kyyyyk.....', '....kyYkkYyk....', '....kyk..kyk....', '....kyYkkYyk....', '....kykyykyk....', '....kyYkkYyk....',
+                                '.....kyyyyk.....', '......kkkk......', '.......h........', '.......h........', '........h.......', '................', '................', '................'],
+                               dict(k='#8a5010', y='#ffb030', Y='#ffd870', h='#ffc040'))
+    ic['fizzle_stone'] = g(['................', '................', '.....kkkkk......', '....kgggggk.....', '...kgGggGggk....', '...kgggggggk....', '...kgGgggGgk....', '...kgggGgggk....',
+                            '....kgggggk.....', '.....kkkkk......', '.......s........', '......s.s.......', '.......s........', '................', '................', '................'],
+                           dict(k='#3a4a3a', g='#6a8a6a', G='#7ad070', s='#c0c0c0'))
+    ic['navigators_astrolabe'] = g(['................', '.......kk.......', '.....yyyyyy.....', '....y..k...y....', '...y...k....y...', '...y...k....y...', '..y....k.....y..', '..ykkkkwkkkkky..',
+                                    '..y....k.....y..', '...y...k....y...', '...y...k....y...', '....y..k...y....', '.....yyyyyy.....', '................', '................', '................'],
+                                   dict(k='#6a4a20', y='#c09040', w='#fff4c0'))
+    ic['trial_key_fob'] = g(['................', '....cccc........', '...c....c.......', '...c....c.......', '....cccc........', '.......kk.......', '........kk......', '.........kkk....',
+                             '..........kkk...', '.........k.k....', '.........kk.....', '................', '...b.....b......', '..b.......b.....', '................', '................'],
+                            dict(c='#80c0d0', k='#506070', b='#a0e0ff'))
+    ic['fletchers_charm'] = g(['................', '..w.............', '..ww............', '..wwg...........', '...wwg..........', '....wwg.........', '.....wwyy.......', '......yyy.......',
+                               '.......yyk......', '........kk......', '.........kk.....', '..........kk....', '...........kk...', '............k...', '................', '................'],
+                              dict(w='#f0f0e0', g='#a0b070', y='#e0c050', k='#6a5030'))
+    ic['gale_locket'] = g(['................', '.......kk.......', '......k..k......', '.......kk.......', '.....ssssss.....', '....sbbbbbbs....', '....sbwwbbbs....', '....sbbwwwbs....',
+                           '....sbbbbwbs....', '....sbbbbbbs....', '.....ssssss.....', '................', '..w..ww..w......', '...ww..ww.......', '................', '................'],
+                          dict(k='#7a8a9a', s='#a0b0c0', b='#c0e0f0', w='#ffffff'))
     ic['phoenix_plume'] = g(['................', '..........ooo...', '.........oyyo...', '........oyyro...', '.......oyyro....', '......oyyro.....', '.....oyyro......', '....oyyro.......',
                              '...oyyro........', '...oyro.........', '..oor...........', '..kk............', '.k..............', '................', '................', '................'],
                             dict(o='#ff6a30', y='#ffd060', r='#c02010', k='#5a3a20'))
