@@ -1,4 +1,4 @@
-# Black Market — v2.70 (Java 26.3)
+# Black Market — v2.71 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,17 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.71: three ways through the newer puzzles
+
+The four puzzle rooms added in 2.69 now come in three versions too, each solved a different way. The version is drawn when the room is laid, and `admin/variant_a`, `_b` and `_c` force it.
+
+| Room | B | C |
+|---|---|---|
+| **The Spire** | **The Ladder Spire**: three posts with ladders up their sides. Jump for each ladder, climb it, and leap across to the next post. The second post is a checkpoint. | **The Switch Spire**: red and blue blocks, and only one colour is solid at a time (the other shows as glass). A button on each gold switch post swaps the colours, so a swap at the wrong moment drops whoever is standing on the other colour. The middle post is a checkpoint. |
+| **The Tinker's Bench** | **The Riddle**: the Fixer won't say what he wants, only a riddle ("Two blades, no handle..."). You get the parts for three things; make the one he means. Hand in a wrong one and he keeps it and the alarm rings. | **The Herald's Banner**: copy the banner on the wall at the looms, with the same colours and shapes laid on in the same order. The layers always overlap, so the order can be seen. A wrong banner rings the alarm, and you get a fresh one. |
+| **The Mason's Plan** | **The Mosaic**: a 4×4 lodestone grid with a few wool blocks already set. Fill the rest so every row and every column has one of each colour. Each puzzle has exactly one answer. | **The Picture**: a 5×5 grid with a clue beside every row and column giving its runs of blocks, in order. Lay the black blocks to draw the one picture that fits. |
+| **The Dig** | **The Minefield**: TNT is hidden in a field of packed mud. Every cell you dig shows how many of the eight around it hide TNT. Dig a way across; setting one off rings the alarm and leaves the charge blocking the way. Every field can be crossed by reasoning alone, without guessing. | **The Sculptor**: carve a 3×3×3 block of calcite until it matches the little model on its plinth (the gold corners line up). RESET puts the block back and rings the alarm. |
 
 ## New in 2.70: throne rooms and Prime fights
 
