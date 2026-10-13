@@ -85,6 +85,7 @@ def apoth():
     b.set(12, 4, 2, 'minecraft:barrel[facing=south]')
     for x in (11, 13): b.set(x, 4, 2, BASE['metal']); b.set(x, 5, 2, BASE['metal'])
     b.set(12, 6, 2, BASE['metal'])
+    for x in (10, 14): b.set(x, 5, 20, 'minecraft:barrel[facing=up]')          # (2.75: the supply barrels - phase126 keeps them stocked)
     R6.ctrl(b, 'apoth'); return wall_glow(b)
 
 

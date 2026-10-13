@@ -1,6 +1,6 @@
 """2.65: THE GILDED GUTTER VAULT, REBUILT - a dungeon-raiding minigame (phase70 is the original heist; this reworks it).
 
-GETTING IN: the Heist Plans (the Fence). Pick a tier, then your TRIES (3, 5 or 7 - how many knock-outs your crew can take;
+GETTING IN: the Fixer's Ledger (the Fence) - Plan a Heist. Pick a tier, then your TRIES (3, 5 or 7 - how many knock-outs your crew can take;
   each crewmate past the first adds one). The Fixer's fee is 3 Black Market Tokens a head; every fee goes into the
   LUCKY POOL. From Tier III, one heist in 150 (three in 150 on a Lucky Night) is a LUCKY RAID: harder, and win it and the crew
   splits the pool (2.67b: an even share each, the odd Tokens to the leader).
@@ -369,7 +369,7 @@ def generate(G):
                           'function bm:p75/lives_show with storage bm:gv m'])
     fn('p75/lives_show', [f'$dialog show @s {snbt(dlg)}'])
     G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 7611..7613 run return run function bm:p75/pick_lives')
-    holds_plans = '*[minecraft:custom_data~{bm:"heist_plans"}]'
+    holds_plans = '*[minecraft:custom_data~{bm:"fixers_ledger"}]'      # (2.75: the Ledger plans heists now - the Heist Plans folded into it)
     fn('p75/pick_lives', [f'execute unless score @s bm.menu matches {MENU} run return run function bm:p28/stale',
                           f'execute unless items entity @s container.* {holds_plans} unless items entity @s weapon.offhand {holds_plans} run return run function bm:p28/stale',
                           'execute unless score @s bm.gvpt matches 1..5 run return run function bm:p28/stale',

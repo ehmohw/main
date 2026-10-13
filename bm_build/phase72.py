@@ -18,7 +18,7 @@ SKIFF ESCORTS (beat a Vorn Dreadnought's reactor on an invasion night)
 THE VAULT'S COAT CHECK AND LOANER KITS (phase70)
 - Going in, the Fixer checks your gear at the door: everything goes into safekeeping, except heist tools (Smoke Bombs,
   lockpicks, the Cracking Rig, the Cipher Monocle, the Thief's Cowl, the Smuggler's Boots, Gutter Coins, Clockwork bits,
-  the plans and your Bond Sigil). Your followers can't come either.
+  your Ledger and your Bond Sigil). Your followers can't come either.
 - In the den, four kit racks: TANK (Juggernaut I, Hylian Shield, Kokiri Sword; +8 health, half knockback), OFFENSE
   (Shadowstep I, Captain's Cutlass; Strength), RANGED (Smuggler's set, Fairy Bow; monsters near you glow for the whole
   crew), SUPPORT (Tidecaller I, Staff of Sparks, Emma's Bloomheart; crewmates near you regenerate). Pick one (change your
@@ -72,7 +72,7 @@ for i, c in enumerate(ART.ESCORT_COLS):
 
 # ---------------------------------------------------------------- the vault: what you may bring, what you're lent
 KEEP = ['smoke_bomb', 'skeleton_lockpick', 'vorn_cracking_rig', 'cipher_monocle', 'thiefs_cowl', 'smugglers_boots', 'gutter_coin',
-        'clockwork_fragment', 'clockwork_key', 'heist_plans', 'bond_sigil']
+        'clockwork_fragment', 'clockwork_key', 'bond_sigil']
 ROLES = {1: ('Tank', '#c0392b', 'Juggernaut I (the heaviest armour), Hylian Shield, Kokiri Sword, 2 golden apples. +8 health, half knockback.',
              {'head': 'juggernaut_helmet_1', 'chest': 'juggernaut_chestplate_1', 'legs': 'juggernaut_leggings_1', 'feet': 'juggernaut_boots_1',
               'offhand': 'hylian_shield'}, ['kokiri_sword', ('minecraft:golden_apple', 2)]),

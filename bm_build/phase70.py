@@ -97,11 +97,11 @@ def generate(G):
         b().export(G.path('data', 'bm', 'structure', f'gv_{nm}.nbt'))
         fn(f'p70/place/{nm}', [f'$execute in bm:gutter run place template bm:gv_{nm} $(x) {Y0} $(z)'])
 
-    # ------------------------------------------------------------------ the Heist Plans: plan a heist, or join your party's
+    # ------------------------------------------------------------------ Plan a Heist (the Ledger): plan a heist, or join your party's
     import phase28 as P28
     MENU = 1100
     P28.MENU['heist'] = MENU
-    holds_plans = '*[minecraft:custom_data~{bm:"heist_plans"}]'
+    holds_plans = '*[minecraft:custom_data~{bm:"fixers_ledger"}]'      # (2.75: the Ledger plans heists now - the Heist Plans folded into it)
     fn('p70/plans', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid',
                      'execute if dimension bm:gutter run return run ' + say('You\'re already in the vault. (The emerald plate in the treasury - or the gold plate in the den - takes you out.)', GOLD),
                      'execute unless score @s bm.gvu matches 1.. run scoreboard players set @s bm.gvu 1',
@@ -117,7 +117,7 @@ def generate(G):
     fn('p70/joinable', ['execute if score @s bm.gvst matches 1..3 store result score #j bm.rng run scoreboard players get @s bm.gvi'])
     btn = lambda t: P28.btn([T(f'Tier {TIER_NAME[t]}  ', GOLD, bold=True), T(TIER_TITLE[t], 'white')], 7600 + t,
                             tooltip=T(f'{t + 2} rooms, then the Vault. ' + ('' if t == 1 else f'(Clear Tier {TIER_NAME[t - 1]} to unlock.)'), 'gray'), width=300)
-    dlg = P28.multi([T('The Heist Plans', GOLD, bold=True)],
+    dlg = P28.multi([T('Plan a Heist', GOLD, bold=True)],
                     [P28.body([T('Pick the job. ', 'gray'), T('Unlocked: up to Tier ', 'gray'), T('$(u)', GOLD, bold=True), T('.', 'gray')]),
                      P28.body([T('Your party (within 24 blocks) comes with you. Your market standing is never affected.', 'dark_gray')])],
                     [btn(t) for t in range(1, 6)], columns=1, exit_label='Not tonight')
@@ -130,7 +130,7 @@ def generate(G):
                          'scoreboard players operation #t bm.rng = #act bm.pay', 'scoreboard players remove #t bm.rng 7600',
                          'execute if score #t bm.rng > @s bm.gvu run return run ' + say('That tier is still locked - clear the one below it first.', 'red'),
                          'execute if dimension bm:gutter run return 0',
-                         'execute unless dimension minecraft:overworld unless dimension minecraft:the_nether unless dimension minecraft:the_end run return run ' + say('The plans don\'t work here.', 'red'),
+                         'execute unless dimension minecraft:overworld unless dimension minecraft:the_nether unless dimension minecraft:the_end run return run ' + say('No heist can be planned from here.', 'red'),
                          'scoreboard players operation #asker bm.pty = @s bm.pty', 'scoreboard players set #slot bm.rng -1'] +
        [f'execute if score #slot bm.rng matches -1 unless score #s{s} bm.gvon matches 1 run scoreboard players set #slot bm.rng {s}' for s in range(SLOTS)] +
        ['execute if score #slot bm.rng matches -1 run return run ' + say('Every vault crew in the city is busy - try again in a few minutes.', 'red')] +

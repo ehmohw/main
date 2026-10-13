@@ -21,7 +21,7 @@ if dpm['min_format'] != [121, 0] or dpm["max_format"] not in (121, [121, 0]): E(
 if rpm['min_format'] != [97, 1] or rpm["max_format"] not in (97, [97, 1]): E(f'resource pack format {rpm}')
 
 # ---------------- structures: block states + block entities + entities
-BE_OK = {'lectern', 'sign', 'hanging_sign', 'chest', 'barrel', 'vault', 'trial_spawner'}
+BE_OK = {'lectern', 'sign', 'hanging_sign', 'chest', 'barrel', 'vault', 'trial_spawner', 'jigsaw'}         # (2.75: jigsaw - the graveyard's yard + crypt pieces)
 def loot_exists(ref):
     ns_, path_ = ref.split(':', 1)
     if ns_ == 'minecraft': return path_ in REG['loot_table']
@@ -171,6 +171,7 @@ for f in glob.glob(f'{DP}/data/**/*.json', recursive=True):
             if not os.path.exists(f'{DP}/data/{loc[0]}/structure/{loc[1]}.nbt'): E(f'{rel}: template {el["element"]["location"]} missing')
     if '/tags/block/' in rel:
         for vv in d['values']:
+            vv = vv['id'] if isinstance(vv, dict) else vv
             if vv.startswith('#'):
                 if vv.split(':')[1] not in REG['tag/block'] and not os.path.exists(f'{DP}/data/{vv[1:].split(":")[0]}/tags/block/{vv.split(":")[1]}.json'): E(f'{rel}: block tag {vv}')
             elif vv.split(':')[1] not in BLOCKS: E(f'{rel}: block {vv}')

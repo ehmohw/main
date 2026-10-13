@@ -172,6 +172,7 @@ def build_graveyard():
                 elif y >= G - 6: s = 'dirt' if r < 0.4 else 'stone' if r < 0.85 else 'gravel'
                 else: s = 'stone' if r < 0.7 else 'andesite' if r < 0.85 else 'tuff' if r < 0.95 else 'cobblestone'
                 B.set(x, y, z, s)
+    B.filler = dict(B.b)          # (2.75: what's only foundation - graveyard_pieces() leaves it to the land)
     # ground & clearance
     for x in range(SX):
         for z in range(SZ):
@@ -542,6 +543,52 @@ if __name__ == '__main__':
     for nm, fn in [('graveyard', build_graveyard)]:     # (the 1.7 market builder was retired in 2.15; market2.py builds the market)
         b = fn()
         print(nm, b.export(f'/tmp/{nm}.nbt'))
+
+
+def graveyard_pieces(B=None):
+    """2.75: the graveyard for worldgen, as two jigsaw pieces: the YARD (the dirt layer and up - the structure's
+    beard_thin then blends the land into it, like a village's) and the CRYPT hung beneath it. The crypt keeps a
+    one-block shell of its foundation round every room, stair and wall; the rest of the old solid foundation is left
+    out, so a hillside stays a hillside instead of a cliff of dirt and stone. (build_graveyard() itself is unchanged:
+    admin/place_graveyard and the old-crypt rebuild still use the whole, solid template.)"""
+    B = B or build_graveyard()
+    B.connect()
+    G = 17
+    SX, SY, SZ = B.size
+    fil = B.filler
+    def real(p):
+        st = B.b.get(p)
+        return st is not None and p[1] < G - 1 and fil.get(p) != st
+    N26 = [(dx, dy, dz) for dx in (-1, 0, 1) for dy in (-1, 0, 1) for dz in (-1, 0, 1) if dx or dy or dz]
+    low, top = Build(SX, G - 1, SZ), Build(SX, SY - (G - 1), SZ)
+    for (x, y, z), st in B.b.items():
+        nb = B.nbt.get((x, y, z))
+        if y >= G - 1:
+            top.b[(x, y - (G - 1), z)] = st
+            if nb is not None: top.nbt[(x, y - (G - 1), z)] = nb
+        elif fil.get((x, y, z)) != st or any(real((x + dx, y + dy, z + dz)) for dx, dy, dz in N26):
+            low.b[(x, y, z)] = st
+            if nb is not None: low.nbt[(x, y, z)] = nb
+    for e in B.ents:
+        e = {k: (dict(v) if isinstance(v, dict) else v) for k, v in e.items()}
+        if e['pos'][1] >= G - 1:
+            e['pos'] = [e['pos'][0], Double(e['pos'][1] - (G - 1)), e['pos'][2]]
+            e['blockPos'] = [e['blockPos'][0], Int(e['blockPos'][1] - (G - 1)), e['blockPos'][2]]
+            top.ents.append(e)
+        else:
+            if 'bm.crypt_ctrl' in e['nbt']['Tags']:      # (new graveyards only: the first-visit skirt, phase126)
+                e['nbt'] = dict(e['nbt'], Tags=list(e['nbt']['Tags']) + ['bm.gy2'])
+            low.ents.append(e)
+    # the jigsaw pair: the yard's dirt layer, straight over a plain block of the crypt's shell
+    jx, jz = next((x, z) for z in range(SZ) for x in range(SX)
+                  if low.b.get((x, G - 2, z)) in ('minecraft:dirt', 'minecraft:coarse_dirt') and (x, G - 2, z) not in low.nbt
+                  and top.b.get((x, 0, z)) == 'minecraft:dirt')
+    jig = lambda name, target, pool, final: {'id': 'minecraft:jigsaw', 'name': name, 'target': target, 'pool': pool, 'joint': 'aligned',
+                                             'final_state': final, 'placement_priority': Int(0), 'selection_priority': Int(0)}
+    low_final = low.b[(jx, G - 2, jz)]
+    top.set(jx, 0, jz, 'jigsaw[orientation=down_north]', jig('bm:gy_down', 'bm:gy_up', 'bm:graveyard/crypt', 'minecraft:dirt'))
+    low.set(jx, G - 2, jz, 'jigsaw[orientation=up_north]', jig('bm:gy_up', 'minecraft:empty', 'minecraft:empty', low_final))
+    return top, low
 
 
 def build_frog_hut():

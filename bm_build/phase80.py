@@ -31,6 +31,7 @@ NETHERITE SCRAP (2.67): no longer for coins - a rare find in a won heist's haul 
 from items import item, T, TOTEM, ITEMS
 from useitem import hold, HOLD
 from nbt import snbt, B, F, D, Int
+import copy
 import phase28 as P28
 import phase70 as P70
 import phase70_rooms as RM
@@ -104,8 +105,9 @@ for _iid, _nm, _pl, _col, _t, _lore in MATS:
                                   ('Pays for kit ranks at the Armory, and', 'blue'), ('Goldtooth takes it for his best goods.', 'blue'),
                                   ('Keep it safe in the Gutter Bank.', 'dark_gray')],
          model=f'bm:{_iid}', stack=64, cat='currency')
-item('fixers_ledger', TOTEM, "The Fixer's Ledger", OFFICE, ['A battered book with your name in it.', ('Use: the Fixer\'s Office - the Armory', 'blue'),
-                                                           ('(your kits), the Gutter Bank, your', 'blue'), ('trophies and the Bond Sigils.', 'blue')],
+item('fixers_ledger', TOTEM, "The Fixer's Ledger", OFFICE, ['A battered book with your name in it.', ('Use: plan a heist (or join your party\'s),', 'blue'),
+                                                           ('the Armory, the Gutter Bank, your lockers,', 'blue'), ('the lounge, trophies and Bond Sigils.', 'blue'),
+                                                           ('Your party within 24 blocks comes along.', 'gray')],
      model='bm:fixers_ledger', stack=1, cat='magic', comps=hold('none'))
 HOLD['fixers_ledger'] = 'bm:p80/ledger'
 P72.KEEP += [m[0] for m in MATS] + ['fixers_ledger']
@@ -278,8 +280,11 @@ def generate(G):
                      P28.btn([T('⛁ ', '#9ad0ff'), T('The Crate Desk', 'white', bold=True)], MENU_CODE + 6, tooltip=T('Crates of vanilla goods, and tip-offs for your next heist - for Gutter Coins.'), width=150),
                      P28.btn([T('☺ ', '#9ad0ff'), T('Raid Crew', 'white', bold=True)], MENU_CODE + 7, tooltip=T('Followers and hirelings: who comes into the vault with you.'), width=150)],
                     columns=2)
+    globals()['HUB'] = copy.deepcopy(hub)                    # (2.68: on a heist the Office adds 'Leave the heist' - phase104)
+    # (2.75: the Heist Plans folded into the Ledger - planning heads the Office, off a heist)
+    hub['actions'].insert(0, P28.btn([T('⚑ ', GOLD), T('Plan a Heist', GOLD, bold=True), T('  or join your party\'s', 'gray')], MENU_CODE + 9, width=304,
+                                     tooltip=T('Pick a tier (or the Endless Vault, or the Pit) and your tries; your party within 24 blocks comes along. From safe ground.')))
     fn('p80/office_dlg', [f'$dialog show @s {P28.inline(hub)}'])
-    globals()['HUB'] = hub                                   # (2.68: on a heist the Office adds 'Leave the heist' - phase104)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {MENU_CODE}..{MENU_CODE + 199} run return run function bm:p80/act')
     act = ['execute unless function bm:p80/can run return run function bm:p28/stale',
            f'execute unless score @s bm.menu matches {MENU_CODE}..{MENU_CODE + 199} run return run function bm:p28/stale',
@@ -289,7 +294,8 @@ def generate(G):
            f'execute if score #act bm.pay matches {MENU_CODE + 3} run return run function bm:p81/case',
            f'execute if score #act bm.pay matches {MENU_CODE + 4} run return run function bm:p81/sigils',
            f'execute if score #act bm.pay matches {MENU_CODE + 5} run return run function bm:p84/lk/from_ledger',
-           f'execute if score #act bm.pay matches {MENU_CODE + 6} run return run function bm:p86/theme/menu'] + \
+           f'execute if score #act bm.pay matches {MENU_CODE + 6} run return run function bm:p86/theme/menu',
+           f'execute if score #act bm.pay matches {MENU_CODE + 9} run return run function bm:p70/plans'] + \
         [f'execute if score #act bm.pay matches {MENU_CODE + 10 + r} run return run function bm:p80/up{r}' for r in range(1, 5)] + \
         [f'execute if score #act bm.pay matches {MENU_CODE + 20} run return run function bm:p80/sec_menu',
          f'execute if score #act bm.pay matches {MENU_CODE + 30} run return run function bm:p80/sig_menu'] + \

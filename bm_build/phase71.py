@@ -55,10 +55,6 @@ def attr(a, amt, slot, op='add_value', n=''):
 # ---------------------------------------------------------------- currency, tools
 item('gutter_coin', TOTEM, 'Gutter Coin', GOLD, ['A heavy coin stamped with a grinning rat.', ('Goldtooth takes them in the Fixer\'s Den.', 'gray'),
                                                 ('Good nowhere else - and that\'s the point.', 'dark_gray')], model='bm:gutter_coin', stack=64, cat='currency')
-item('heist_plans', TOTEM, 'Heist Plans', GOLD, ['Blueprints of the Gilded Gutter Vault, much folded.', ('Use: plan a heist (pick a tier), or join', 'blue'),
-                                                ('your party\'s heist in progress.', 'blue'), ('Your party within 24 blocks comes along.', 'gray'),
-                                                ('Never touches your market standing.', 'dark_gray')], model='bm:heist_plans', stack=1, cat='misc', comps=hold('none'))
-HOLD['heist_plans'] = 'bm:p70/plans'
 item('smoke_bomb', TOTEM, 'Smoke Bomb', '#9a9aa8', ['A clay ball that fizzes when shaken.', ('Use in a heist: the alarm drops by 20,', 'blue'),
                                                     ('and everyone near is invisible for 8 s.', 'blue')], model='bm:smoke_bomb', stack=16, cat='misc', comps=hold('none'))
 HOLD['smoke_bomb'] = 'bm:p71/smoke'
@@ -164,7 +160,7 @@ HOLD['vorn_cracking_rig'] = 'bm:p71/rig'
 
 
 def extend_offers(O, offer):
-    O['fence'].append(offer(('token', 6), ('heist_plans', 1)))
+    O['fence'].append(offer(('token', 6), ('fixers_ledger', 1)))        # (2.75: the Ledger - it plans heists now)
 
 
 def generate(G):
@@ -506,9 +502,6 @@ def rp(R):
     R.ICONS['gutter_coin'] = g(['................', '.....oooooo.....', '...ooYYYYYYoo...', '..oYYwwYYYYYYo..', '..oYwYYkYYkYYo..', '.oYYYYkkkkYYYYo.',
                                 '.oYYYkYkkYkYYyo.', '.oYYYkkkkkkYYyo.', '.oYYYYkYYkYYYyo.', '.oYYYYYkkYYYyyo.', '..oYYYYYYYYyyo..', '..oyYYYYYYyyyo..',
                                 '...ooyyyyyyoo...', '.....oooooo.....', '................', '................'], GP)
-    R.ICONS['heist_plans'] = g(['................', '................', '..bbbbbbbbbbbb..', '.bWWWWWWWWWWWWb.', '.bWaaWWaaaWWaWb.', '.bWaWWWWWaWWaWb.', '.bWaaaaWWaaaaWb.',
-                                '.bWWWaWWWWWaWWb.', '.bWrWaaaaWWaWWb.', '.bWWWWWWaWWaWWb.', '.bWaaaWWaaaaWWb.', '.bWWWWWWWWWWWWb.', '..bbbbbbbbbbbb..', '..nn........nn..',
-                                '................', '................'], GP)
     R.ICONS['smoke_bomb'] = g(['................', '.......dd.......', '......d.d.......', '.......kk.......', '.....dddddd.....', '....dssssssd....', '...dsswsssssd...',
                               '...dswssssssd...', '...dssssssssd...', '...dssssssssd...', '....dssssssd....', '.....dddddd.....', '................', '................', '................', '................'], GP)
     R.ICONS['skeleton_lockpick'] = g(['................', '............ww..', '...........wsw..', '..........wsw...', '.........wsw....', '........wsw.....', '.......wsw......',

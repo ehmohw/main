@@ -514,5 +514,11 @@ POSES = {
                   legr=X(24), legl=X(24)),
     'swim_d': _P2(-1.0, body=X(16), head=X(-16), arms=(qmul(qa('z', -12), X(-44)), qmul(qa('z', 12), X(-44))), tend=X(4), tendl=X(-4),
                   legr=X(2), legl=X(2)),
+    # (2.75) sitting (right-click him): down on his haunches, legs out in front, hands on his knees, the tendrils fanned out behind
+    'sit_a': _P2(-1.19, body=X(-8), head=X(6), legr=X(-90), legl=X(-87), arms=(qmul(qa('z', -14), X(-48)), qmul(qa('z', 14), X(-48))), tend=X(-50), tendl=X(84)),
+    'sit_b': _P2(-1.18, body=X(-10), head=qmul(qa('y', 14), X(2)), legr=X(-90), legl=X(-86), arms=(qmul(qa('z', -14), X(-46)), qmul(qa('z', 16), X(-50))),
+                 tend=X(-56), tendl=X(86)),
+    'sit_look': _P2(-1.19, body=qmul(qa('y', -6), X(-8)), head=qmul(qa('y', -28), X(8)), legr=X(-89), legl=X(-87),
+                    arms=(qmul(qa('z', -14), X(-48)), qmul(qa('z', 14), X(-48))), tend=X(-48), tendl=X(82)),
 }
 FLEX = {'slam_up', 'roar'}

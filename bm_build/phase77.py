@@ -16,10 +16,10 @@ HIRELINGS (Goldtooth sells their contracts; yours for good - but they never leav
   KNUCKLES the brawler (tough, hits hard) - DOC WHISKERS the medic (keeps the crew topped up) - FINGERS the pickpocket
   (lifts coins off guards into the pot, sniffs out loose bricks) - TICK-TOCK the clockwork turret (shoots guards) -
   BOOMER the demolitions rat (lobs bombs into crowds). Knocked out: back in 45 seconds.
-THE ENDLESS VAULT (Heist Plans; after a Tier I clear): the rooms never end, and they get harder - and richer - every four
+THE ENDLESS VAULT (Plan a Heist; after a Tier I clear): the rooms never end, and they get harder - and richer - every four
   rooms (the theme changes with the tier). Every fifth room is a Rats' Rest with a cash-out plate: step on it and the haul
   is paid (one share per room cleared, on top of the usual). Tries as usual - run out and it's all lost.
-THE PIT (Heist Plans; after a Tier I clear): an arena. Waves of the tier's guards, harder every three waves, a guardian
+THE PIT (Plan a Heist; after a Tier I clear): an arena. Waves of the tier's guards, harder every three waves, a guardian
   every fifth. Between waves, the emerald plate cashes out (one share per wave survived)."""
 from items import item, T, TOTEM, ITEMS, consumable
 from nbt import snbt, B, F, D, Int
@@ -313,7 +313,7 @@ def generate(G):
     TIER_NAME, TIER_TITLE = P70.TIER_NAME, P70.TIER_TITLE
     tbtn = lambda t: P28.btn([T(f'Tier {TIER_NAME[t]}  ', GOLD, bold=True), T(TIER_TITLE[t], 'white')], 7600 + t,
                              tooltip=T(f'{t + 2} rooms, then the Vault. ' + ('' if t == 1 else f'(Clear Tier {TIER_NAME[t - 1]} to unlock.)'), 'gray'), width=300)
-    dlg = P28.multi([T('The Heist Plans', GOLD, bold=True)],
+    dlg = P28.multi([T('Plan a Heist', GOLD, bold=True)],
                     [P28.body([T('Pick the job. ', 'gray'), T('Unlocked: up to Tier ', 'gray'), T('$(u)', GOLD, bold=True), T('.', 'gray')]),
                      P28.body([T('Your party (within 24 blocks) comes with you. Your market standing is never affected.', 'dark_gray')])],
                     [tbtn(t) for t in range(1, 6)] +
@@ -324,7 +324,7 @@ def generate(G):
                     columns=1, exit_label='Not tonight')
     G.FUNCS['p70/menu_show'] = [f'$dialog show @s {snbt(dlg)}']
     G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 7606..7607 run return run function bm:p77/pick_mode')
-    holds_plans = '*[minecraft:custom_data~{bm:"heist_plans"}]'
+    holds_plans = '*[minecraft:custom_data~{bm:"fixers_ledger"}]'      # (2.75: the Ledger plans heists now - the Heist Plans folded into it)
     fn('p77/pick_mode', [f'execute unless score @s bm.menu matches {MENU} run return run function bm:p28/stale',
                          f'execute unless items entity @s container.* {holds_plans} unless items entity @s weapon.offhand {holds_plans} run return run function bm:p28/stale',
                          'execute unless score @s bm.gvu matches 2.. run return run ' + say('Clear Tier I first - then the Endless Vault and the Pit are open to you.', 'red'),

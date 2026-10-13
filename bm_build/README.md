@@ -1,4 +1,4 @@
-# Black Market — v2.74 (Java 26.3)
+# Black Market — v2.75 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,69 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.75: five new records, the Lantern wakes, KillerWatt sits, true invisibility, graveyards in the land - and one Ledger
+
+### One Ledger: the Heist Plans are part of it now
+- **The Fixer's Ledger plans heists.** Open it: **Plan a Heist** heads the Office (pick a tier - or the Endless Vault or the Pit - and your tries; your party within 24 blocks comes along). The Armory, the Gutter Bank, the lockers, the lounge, the trophies and Bond Sigils are on the same page. One item to carry, and it's kept through the coat check.
+- **Plan from the Fixer's Lounge too.** A heist planned there starts there and brings you back to the lounge afterwards (its door still takes you home).
+- **Old Heist Plans** turn into a Ledger by themselves (or just vanish, if you already have one). The Fence sells the Ledger now; Goldtooth still does too.
+
+### Fixed: menus going dead after "Go to the Lounge"
+In 2.74, after anyone on the server clicked GO TO THE LOUNGE, every menu stopped answering - the bank, the armory, the Office, the heist plans - and the lounge button itself did nothing after a won heist. (The lounge's buttons were checked against the *previous* click.) Every menu button is read first now, and the build checks it stays that way.
+
+### Five new records
+Each plays in any jukebox; collect all six (with the Blood Moon's) for **Crate Digger**.
+- **The Big Score** - in a won heist's haul, now and then (4%).
+- **Invasion** - the Overseer drops it half the time; other Vorn now and then, on invasion nights.
+- **Lucky Night** - on Lucky Nights: Jackpot monsters (1 in 10), Lucky Primes (1 in 4), Lucky mobs now and then.
+- **The Black Market** - Old Barnaby sells it: 6 Tokens.
+- **The Hollow** - always in the Hollow Throne's hidden cache; sometimes in the islet chests.
+
+### The Hollow, for everyone
+The first time each player walks up to a dungeon's hidden cache, it's full for them (unless their share is still in it). After that, the old rules (a Blood Moon or a quiet day refills it). Wilfrey's Locket and the victor's vaults were already per player.
+
+### The Arachno-Lantern wakes up
+It lies dormant as a plain pumpkin until you come close. Then it shudders, catches fire, bursts its legs out, rises, roars, and throws a ring of fire round itself - and the ground shakes under every step it takes.
+
+### Followers
+- **Democratus** is bigger (to stand with Emma and Leo); he sits and kneels without sinking into the ground. **His duel:** beating him no longer says *you* were defeated, the prize is paid, and his body goes. His menu offers Call/Send.
+- **KillerWatt sits:** right-click him (the Spark still mounts him). **Ethereal riding:** walk, hop and climb like the other forms; a second jump in mid-air takes off, and touching down lands. **Thunder Leap** no longer leaves his arms stuck up (or his right hand's fingers missing).
+- **Emma + KillerWatt: Sparks Fly** - the one missing duo: Speed, Haste and Absorption for you; Resistance and charge for him; regeneration for her.
+- **Every follower menu** says **Call for <name>** when they're not out (and the button calls them).
+- **Followers appear whole** - no more parts growing together - and **faint** before they go (a collapse, dizzy stars, then their own puff).
+- **No see-through mounts:** on servers, Emma's and Leo's invisible mounts showed faintly at their feet to their own party. Not any more.
+- **Leo's helmet** has no gaps (his head showed through).
+- **Cecil's bolts** come from his staff and stop at the foe (they used to be drawn a fixed 13 blocks back from the target - behind him).
+- **Gems stay where they were given:** the gem (or the Ethereal Gem) KillerWatt or Cecil carries in the heist lobby is a separate one from his overworld one; each world keeps its own.
+- **The Emma Doll** has her face: big teal eyes, brows, blush and a small smile.
+
+### True invisibility
+While you have Invisibility - the Phantom Regalia, the Thief's Cowl, Shadowstep, the Phantom kit, a smoke bomb, or a potion - your armour isn't drawn either: helmet, chestplate, leggings, boots, elytra, a pumpkin or a mob head. It comes back the moment the effect ends, exactly as it was (and a piece taken off or dropped meanwhile is put back too). Held items still show.
+
+### Graveyards sit in the land
+New graveyards no longer stand on a cliff of their own dirt and stone. The yard blends into the ground around it like a village does, the crypt keeps just a shell of rock, and the first time someone comes near, the land round it is graded - a stepped grassy bank where the yard stands over a drop, the hill cut back in steps where it's dug in. (Graveyards that already exist are left alone.)
+
+### The raid den
+- **The Gutter Bank's exchange page:** coins, Medallions and Trophies change both ways (16 coins a Medallion, 8 Medallions a Trophy).
+- **The heist's modifiers are announced at BEGIN** (Glass Cannon included), not only on the sheet.
+- **Stone and Timber Crates** at the Crate Desk: nine full stacks each, assorted (bricks, deepslate, tuff, granite, blackstone...; every kind of log, nether stems too). 6 and 8 coins.
+- **No more stuck puzzles:** the Tinker's Bench (all three versions) and the Apothecary (all three) keep two spare sets of everything they hand out in their barrels, and if any part runs out everywhere - barrels and crew - the Fixer tops them up.
+- **Pearlman's Bell** - a rare raid find (5% a won heist, any tier, every raider): ring it and Pearlman waddles over, wherever you are.
+- **The Tier V laurel is the Netherite Laurel** (it looked too like the Copper one); old Ember Laurels are renamed by themselves.
+- **The Heist Plans' Lounge button** is gone with the plans - the Ledger's Office has it.
+- The Big Score record and the 2.74 Skiff parts now go into the haul before it's packed (the Skiff part used to be left behind in the barrel).
+
+### Invasion nights
+More Vorn: a spawn roll every second at 1 in 5 (was 1 in 10), up to 8 nearby (was 5), mostly troopers and saucers. **Every Vorn Trooper and Scout Saucer drops 1-2 Red Xenite.** Bioengineered mobs keep dropping green, violet and cyan.
+
+### More fixes
+- **Black Market traders** show one name (no doubled plate).
+- **Elite and Champion admin functions** (`/function bm:mobs/elite/<mob>`, `.../champion/<mob>` and the other tier families) spawn the mob in front of you; they used to give *you* its strength and resistance.
+- **The chatter toggle** works everywhere (overworld too) and is on every follower's own menu.
+
+### For admins
+`admin/pearl_bell`, `admin/disc_haul`, `admin/hidden_forget` (forget the hidden caches you've had), `admin/lantern_wake`, `admin/plan_anywhere` / `admin/plan_safe` (were heist_plans_anywhere/safe).
 
 ## New in 2.74: knocked out, not knocked back - the Fixer's Lounge, puzzle skips, and a round of fixes
 
@@ -325,7 +388,7 @@ The den's old haul lectern, and **The Crate Desk** button in the Ledger's Office
 - **Tip-offs:** use one to call your next heist. It counts the next time you plan a heist yourself, whatever the night and whatever the admin's chance settings. **A Lucky Raid can never be called**; it's the luck of the draw.
 
 ### A laurel and an achievement for every tier
-- **The first clear of each tier gives its own laurel:** Copper (I), Silver (II), Gilded (III), Pearl (IV) and Ember (V). That's on top of the Gilded piece and the Raid Banner.
+- **The first clear of each tier gives its own laurel:** Copper (I), Silver (II), Gilded (III), Pearl (IV) and Netherite (V) (the Ember Laurel until 2.75). That's on top of the Gilded piece and the Raid Banner.
 - **Each tier has its own achievement,** from *Into the Gutter* (Tier I) to *Keeper of the Hoard* (Tier V).
 - **Hold a laurel in your off hand** for a crown of its light over your head.
 - Tiers you cleared before 2.68 count: their laurels and achievements arrive the next time you're on.
@@ -341,7 +404,7 @@ The den's old haul lectern, and **The Crate Desk** button in the Ledger's Office
   - If the leader drops out while the crew waits on their call, the choice passes to the crew straight away. A leader who comes back finds it has moved on.
   - Rejoining also clears a half-finished Ledger trip or exit question.
 - **Knocked out:** what you dropped where you fell is held for you (nobody else can pick it up) and comes back to your pockets once you're back on your feet in the den. Lava still takes what it takes.
-- **Safe plans:** the Heist Plans bring you back to the exact spot you planned from, so they now start a heist only from safe ground. The rules are the same as the Ledger's Locker Hall trip: on the ground, not mounted or in water or lava, not hurt in the last 10 seconds, not in a boss dungeon.
+- **Safe plans:** a heist brings you back to the exact spot you planned from, so they now start a heist only from safe ground. The rules are the same as the Ledger's Locker Hall trip: on the ground, not mounted or in water or lava, not hurt in the last 10 seconds, not in a boss dungeon.
   - A crewmate who isn't on safe ground isn't pulled in, or charged, and is told why. They can join with their own plans once they're safe.
 - **A full city:** when all eight vault crews are busy, whoever was turned away is told the moment one frees up.
 - **A full Locker Hall:**
@@ -366,7 +429,7 @@ The den's old haul lectern, and **The Crate Desk** button in the Ledger's Office
 
 ### For admins
 - `/function bm:admin/raid_finds` gives the new items: the crates, the tip-offs, the five laurels, Forgeheart, the Alibi and the Press.
-- `/function bm:admin/heist_plans_anywhere` lets the Heist Plans start a heist from anywhere again (safe ground or not); `/function bm:admin/heist_plans_safe` restores the rule.
+- `/function bm:admin/plan_anywhere` lets heists start from anywhere again (safe ground or not); `/function bm:admin/plan_safe` restores the rule.
 
 ### Fixed
 - The Ledger's Office (Raid Crew) and Emma's Wardrobe button showed a developer note in their tooltips.
@@ -398,7 +461,7 @@ The den's old haul lectern, and **The Crate Desk** button in the Ledger's Office
 ### After the heist: home, or another job
 - **Win or lose, the leader decides what's next.** A few seconds after the haul is paid out, or once a failed crew is back in the den, the leader (whoever planned the heist; if they've left, whoever's still there) gets a choice:
   - **Back to the Overworld:** the whole crew goes home, just as through the plates.
-  - **Start a new raid:** the Heist Plans open for the leader, right there in the vault. Pick the tier and the tries, and pay your fee. Everyone else is asked to **opt in or out**:
+  - **Start a new raid:** the heist plans open for the leader, right there in the vault. Pick the tier and the tries, and pay your fee. Everyone else is asked to **opt in or out**:
     - **Out:** you go home as usual.
     - **In:** you come along when the leader sets the plan, and pay your own fee. Opt in without even a Tier I fee (2 Tokens) and you go home there and then; if the leader picks a tier you can't pay for, you're left behind and go home.
   - **A leader who can't cover even a Tier I fee** goes home when they press "Start a new raid", and the choice passes to the crew. A leader who picks a tier they can't afford gets the plans back to pick a cheaper one (or go home).
@@ -783,7 +846,7 @@ Everything in the Black Market costs about **half** what it did. That covers pri
 
 Other price changes:
 - **Diamonds:** the Fence buys a Diamond for **2 Tokens** (it was 4 Diamonds for 1 Token). Old Barnaby sells one back for 4 Tokens.
-- **Heist Plans:** 3 Tokens.
+- **The Fixer's Ledger** (it plans heists - the Heist Plans folded into it in 2.75): 3 Tokens.
 - **Pearlman's gems:** 1 Medallion each.
 - **What stays the same:** the money-changing rates (9 Tokens = 1 Medallion, 6 Medallions = 1 Trophy) and the Netherite in the Shifting arms.
 
@@ -915,7 +978,7 @@ Sabotage a Vorn Dreadnought's reactor on an invasion night and everyone nearby g
 ### The Gilded Gutter Vault: a party raid
 A raid with puzzles, guards, an alarm and five tiers. It works solo too, and it never touches your market standing.
 
-- **Getting in:** buy the **Heist Plans** from the Fence (6 Tokens, reusable). Use them and pick a tier you've unlocked. You, and every member of your party within 24 blocks, are taken down into the vault, which is a separate world. Party members who arrive later use their own plans to join the heist in progress.
+- **Getting in:** buy **the Fixer's Ledger** from the Fence (reusable; before 2.75 this was the Heist Plans). Open it, pick **Plan a Heist** and a tier you've unlocked. You, and every member of your party within 24 blocks, are taken down into the vault, which is a separate world. Party members who arrive later use their own plans to join the heist in progress.
 - **A run:**
   - First the **Fixer's Den** (the lobby): Goldtooth's stall, the heist sheet (tier, special night, modifiers), this week's records, and a copper door that only a Clockwork Key opens. Press a button by the far door to begin.
   - Then 3 to 7 rooms (tier + 2), drawn at random from seven. Each room's exit stays barred until you beat it:

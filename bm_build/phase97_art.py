@@ -16,7 +16,8 @@ import random
 from PIL import Image, ImageDraw
 from phase57_art import _cloth, _hair, _el, hexc, qa, qmul, limb, torso, _qrot
 
-RIG_SCALE = 0.92
+RIG_SCALE = 1.06                              # (2.75: was 0.92 - he stood no taller than Leo; the storm's reaper stands over everyone)
+DY_REF = 0.92                                 # (each pose's lift is drawn at 0.92 and scales with him - feet stay on the ground)
 PIVOT = {'body': (0, 14.5, 0), 'head': (0, 27, 0), 'armr': (7.0, 24.8, 0), 'arml': (-7.0, 24.8, 0), 'legr': (2.6, 14.5, 0), 'legl': (-2.6, 14.5, 0),
          'cape': (0, 25.6, 2.9)}
 HEAD_K = 0.84                                 # (2.67b: a touch smaller - the shoulders under it are broader now)
@@ -472,8 +473,8 @@ def R(dy=0.0, cape=None, **parts):                                   # (resting:
     return P(dy, cape, alt={'arml': 'rest'}, **parts)
 KNEEL = {'legr': 'bent', 'legl': 'bent'}
 VIGIL = dict(KNEEL, arml='grip', armr='knee')                        # (kneeling: his left fist on the planted shaft, his right forearm on his knee)
-KNEE_ARM = limb(1, 30, -32)
-KNEE_ARM_B = limb(1, 28, -31)
+KNEE_ARM = limb(1, 44, -30)                   # (2.75: lifted with the knee - the front shin stands upright now)
+KNEE_ARM_B = limb(1, 42, -29)
 POSES = {
     'idle_a': R(body=torso(), head=torso(), arml=limb(-1, 10, 25), armr=limb(1, -4, 12)),
     'idle_b': R(0.012, body=torso(lean=-1.5), head=torso(lean=-3), legr=limb(1, 0, 3), legl=limb(-1, 0, 3), arml=limb(-1, 8, 25), armr=limb(1, -6, 14),
@@ -496,17 +497,18 @@ POSES = {
     # the vigil (the storm encounter, as the sketch): down on his left knee, the right foot planted before him, his left fist on the
     # shaft of the scythe stood upright in front of his left shoulder (the elbow bent forward) - the blade over his head - his right
     # forearm across his raised knee, and his eyes straight ahead
-    'kneel': P(-0.5, alt=VIGIL, slide=6.0, body=torso(lean=6), head=qa('x', -6), legr=limb(1, 76, 4), legl=limb(-1, -14, 3),
+    'kneel': P(-0.313, alt=VIGIL, slide=6.0, body=torso(lean=6), head=qa('x', -6), legr=limb(1, 88, 4), legl=limb(-1, -14, 3),
                arml=limb(-1, 50, 6), armr=KNEE_ARM, scythe=PLANTED, cape=qa('x', -26)),
-    'kneel_b': P(-0.495, alt=VIGIL, slide=6.0, body=torso(lean=5), head=qa('x', -6), legr=limb(1, 76, 4), legl=limb(-1, -14, 3),
+    'kneel_b': P(-0.308, alt=VIGIL, slide=6.0, body=torso(lean=5), head=qa('x', -6), legr=limb(1, 88, 4), legl=limb(-1, -14, 3),
                  arml=limb(-1, 48, 6), armr=KNEE_ARM_B, scythe=PLANTED, cape=qa('x', -24)),
-    # sitting (right-click him): on the ground, knees up, the scythe stood upright at his left side in his left hand
-    'sit_a': P(-0.6, alt=KNEEL, body=torso(lean=-6), head=torso(lean=2), legr=limb(1, 66, 8), legl=limb(-1, 60, 8), arml=limb(-1, 14, 22), armr=limb(1, 56, 4),
-               scythe=PLANTED, cape=qa('x', 22)),
-    'sit_b': P(-0.59, alt=KNEEL, body=torso(lean=-8), head=qmul(qa('y', -12), qa('x', 0)), legr=limb(1, 66, 8), legl=limb(-1, 60, 8), arml=limb(-1, 12, 22),
-               armr=limb(1, 54, 4), scythe=PLANTED, cape=qa('x', 22)),
-    'sit_look': P(-0.6, alt=KNEEL, body=torso(lean=-6, turn=6), head=qmul(qa('y', 30), qa('x', -4)), legr=limb(1, 66, 8), legl=limb(-1, 60, 8),
-                  arml=limb(-1, 14, 22), armr=limb(1, 56, 4), scythe=PLANTED, cape=qa('x', 22)),
+    # sitting (right-click him): down on the ground, knees up, feet planted, the scythe stood upright at his left side in his left hand
+    # (2.75: the thighs were only 66 degrees up - the shins ran down into the ground; now the hips sit on it, the cloak spread behind)
+    'sit_a': P(-0.496, alt=KNEEL, slide=-9.0, body=torso(lean=-6), head=torso(lean=2), legr=limb(1, 126, 8), legl=limb(-1, 120, 8), arml=limb(-1, 14, 22),
+               armr=limb(1, 56, 4), scythe=PLANTED, cape=qa('x', -38)),
+    'sit_b': P(-0.494, alt=KNEEL, slide=-9.0, body=torso(lean=-8), head=qmul(qa('y', -12), qa('x', 0)), legr=limb(1, 126, 8), legl=limb(-1, 120, 8),
+               arml=limb(-1, 12, 22), armr=limb(1, 54, 4), scythe=PLANTED, cape=qa('x', -38)),
+    'sit_look': P(-0.496, alt=KNEEL, slide=-9.0, body=torso(lean=-6, turn=6), head=qmul(qa('y', 30), qa('x', -4)), legr=limb(1, 126, 8), legl=limb(-1, 120, 8),
+                  arml=limb(-1, 14, 22), armr=limb(1, 56, 4), scythe=PLANTED, cape=qa('x', -38)),
     # arriving: the butt of the scythe slammed into the ground at his side, chin up
     'plant': P(body=torso(lean=-3), head=torso(lean=-4), legr=limb(1, 10, 4), legl=limb(-1, -8, 4), arml=limb(-1, 22, 16), armr=limb(1, -8, 14), scythe=PLANTED,
                cape=qa('x', -12)),
@@ -554,7 +556,7 @@ def part_xf(pose, p):
     """(left_rotation, translation) for part p. (2.67b) The head and arms ride on the torso: their joints move as it leans and
     turns; the head's turn is on top of the torso's (so a lean never tips it back), the arms keep their own. The scythe stands at
     his left fist wherever the arm carries it (its own turn); the cloak hangs from the back of his neck and leans with his torso."""
-    dy = pose['_dy']
+    dy = pose['_dy'] * RIG_SCALE / DY_REF
     if p == 'scythe':
         sh = _shift(pose, 'arml')
         e = _qrot(pose['arml'], _off(PIVOT['arml'], GRIPS.get(pose['_alt'].get('arml'), GRIP)))

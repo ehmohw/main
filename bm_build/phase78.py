@@ -9,7 +9,7 @@ ZIB'S UNIFORMS: the Crimson Guard and the Forest Ranger.
 HIDDEN (only rare foes and secrets in the vault): Emma's PHANTOM RIBBON and STARLIGHT GOWN, Celi's FROSTFIRE outfit, Zib's
   GOLDEN ACE uniform.
 PRICES: 2.63 halved everything and it was too cheap - now 70% of the old prices (the Scrap Bin follows). Unchanged: a
-  Diamond is 2 Tokens at the Fence, Heist Plans 3 Tokens, Pearlman's gems a Medallion."""
+  Diamond is 2 Tokens at the Fence, the Fixer's Ledger 3 Tokens, Pearlman's gems a Medallion."""
 import colorsys, json, os
 from items import item, T, TOTEM, ITEMS
 from useitem import hold, HOLD

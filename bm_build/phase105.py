@@ -20,7 +20,7 @@ THE CRATE DESK (the old haul lectern in the den, and the Office): RAW MATERIALS 
   it's open (walk away and what's left folds up into your pack, like The Haul). And TIP-OFFS (64 coins each): the CRIMSON
   TIP-OFF makes your next heist a Blood Moon heist, the VORN SIGNAL an Alien heist. Use one to call it; it counts when you
   plan your next heist yourself. A Lucky Raid can't be called - it's the luck of the draw.
-LAURELS: the first clear of each tier gives its own laurel - COPPER (I), SILVER (II), GILDED (III), PEARL (IV), EMBER (V)
+LAURELS: the first clear of each tier gives its own laurel - COPPER (I), SILVER (II), GILDED (III), PEARL (IV), NETHERITE (V)
   - and its own achievement. Hold a laurel in your off hand for a crown of its light. (Tiers cleared before 2.68 are
   honoured the next time you're on: the laurels and the achievements arrive by themselves.)
 """
@@ -36,7 +36,7 @@ GOLD = '#ffcf40'
 ROMAN = ['', 'I', 'II', 'III', 'IV', 'V']
 LAUREL = {1: ('copper', 'Copper Laurel', '#d9824a', (0.85, 0.51, 0.29)), 2: ('silver', 'Silver Laurel', '#c8d0d8', (0.78, 0.82, 0.85)),
           3: ('gilded', 'Gilded Laurel', GOLD, (1.0, 0.81, 0.25)), 4: ('pearl', 'Pearl Laurel', '#4ad0c0', (0.29, 0.82, 0.75)),
-          5: ('ember', 'Ember Laurel', '#ff8a30', (1.0, 0.54, 0.19))}
+          5: ('netherite', 'Netherite Laurel', '#a898b0', (0.42, 0.38, 0.44))}      # (2.75: was Ember - too like the Copper one)
 TIER_ADV = {1: ('Into the Gutter', 'Clear a Tier I heist in the Gilded Gutter Vault'), 2: ('Silver Tongued', 'Clear a Tier II heist'),
             3: ('Gilt-Edged', 'Clear a Tier III heist'), 4: ('Pearl Diver', 'Clear a Tier IV heist'), 5: ('Keeper of the Hoard', 'Clear a Tier V heist - the deepest vault')}
 SHARE_COINS = {1: (2, 3), 2: (3, 4), 3: (4, 6), 4: (5, 8), 5: (7, 10)}                   # Gutter Coins a share
@@ -47,7 +47,13 @@ RARE_POOL = {1: ['heisters_shiv'], 2: ['heisters_shiv', 'vault_breaker'], 3: ['v
 FIND_RARE, FIND_LEGEND, FIND_MYTH = 5, 3, 1                                               # % a win, every raider, any tier
 CORE_PERMILLE = 10                                                                        # a Shifting Core: 1 in 100
 DESK = 8500
-PRICES = {'crate_raw': 16, 'crate_adventure': 32, 'crate_mineral': 48, 'tip_bloodmoon': 64, 'tip_alien': 64}
+PRICES = {'crate_raw': 16, 'crate_adventure': 32, 'crate_mineral': 48, 'tip_bloodmoon': 64, 'tip_alien': 64, 'crate_stone': 6, 'crate_wood': 8}
+CRATES = ('crate_raw', 'crate_adventure', 'crate_mineral', 'crate_stone', 'crate_wood')
+STONES = ('stone', 'cobblestone', 'stone_bricks', 'mossy_cobblestone', 'smooth_stone', 'andesite', 'polished_andesite', 'diorite', 'polished_diorite',
+          'granite', 'polished_granite', 'deepslate', 'cobbled_deepslate', 'deepslate_bricks', 'polished_deepslate', 'tuff', 'tuff_bricks', 'calcite',
+          'blackstone', 'polished_blackstone_bricks', 'sandstone', 'red_sandstone', 'mud_bricks', 'bricks')
+LOGS = ('oak_log', 'spruce_log', 'birch_log', 'jungle_log', 'acacia_log', 'dark_oak_log', 'mangrove_log', 'cherry_log', 'pale_oak_log',
+        'crimson_stem', 'warped_stem')
 PRESS_MAX = 7
 ALIBI_CD = 60
 RARE_TAG, LEGEND_TAG, MYTH_TAG = ('◆ Rare raid find', '#5ab0ff'), ('◆◆ Legendary raid find', '#ffb300'), ('◆◆◆ Mythical raid find', '#e080ff')
@@ -55,10 +61,13 @@ RARE_TAG, LEGEND_TAG, MYTH_TAG = ('◆ Rare raid find', '#5ab0ff'), ('◆◆ Leg
 # ---------------------------------------------------------------- the items
 for _t, (_k, _nm, _col, _rgb) in LAUREL.items():
     item(f'laurel_t{_t}', TOTEM, _nm, _col, [f'Tier {ROMAN[_t]} of the Gilded Gutter Vault - cleared.', ('Given once, for the first clear.', 'gray'),
-                                             (f'In your off hand: a crown of {_k} light.', 'blue')], model=f'bm:laurel_t{_t}', stack=1, cat='cosmetic')
+                                             (f'In your off hand: a crown of {_k} light.', 'blue')], model=f'bm:laurel_t{_t}', stack=1, cat='cosmetic',
+         custom_extra={'bm_nl': B(1)} if _t == 5 else None)
 for _iid, _nm, _col, _lore in (('crate_raw', 'Raw Materials Crate', '#c8a070', 'Iron, copper, coal, redstone, lumber, stone...'),
                                ('crate_adventure', "Adventurer's Crate", '#7ad0ea', 'Bottled experience, books, pearls, apples...'),
-                               ('crate_mineral', 'Mineral Crate', '#ffd870', 'Gold, emeralds, metal blocks - and now and then a diamond.')):
+                               ('crate_mineral', 'Mineral Crate', '#ffd870', 'Gold, emeralds, metal blocks - and now and then a diamond.'),
+                               ('crate_stone', 'Stone Crate', '#b0b0b0', 'Nine stacks of stone: bricks, deepslate, tuff...'),
+                               ('crate_wood', 'Timber Crate', '#c89050', 'Nine stacks of logs, every kind of wood.')):
     item(_iid, 'minecraft:barrel', _nm, _col, [_lore, ('Set it down and open it - you won\'t know', 'blue'), ('what\'s inside until you do.', 'blue'),
                                                 ('Walk away and what\'s left folds up into your pack.', 'gray')],
          model=f'bm:{_iid}', stack=16, custom_extra={'bm_haul': B(1), 'bm_crate': _iid, 'bm_cr': B(1)}, cat='builder')
@@ -198,7 +207,15 @@ def generate(G):
     for t, (k_, nm, col, (r, g, b)) in LAUREL.items():
         second.append(f'execute as @a if items entity @s weapon.offhand {holds(f"laurel_t{t}")} at @s run function bm:p105/crown{t}')
         fn(f'p105/crown{t}', [f'particle minecraft:dust{{color:[{r},{g},{b}],scale:0.6}} ~{0.3 * math.cos(a * math.pi / 5):.2f} ~2.12 ~{0.3 * math.sin(a * math.pi / 5):.2f} 0 0 0 0 1'
-                              for a in range(10)] + ['particle minecraft:wax_on ~ ~2.25 ~ 0.12 0.04 0.12 0 1'])
+                              for a in range(10)] + ['particle minecraft:wax_on ~ ~2.25 ~ 0.12 0.04 0.12 0 1'] +
+           (['particle minecraft:small_flame ~ ~2.16 ~ 0.22 0.02 0.22 0 1'] if k_ == 'netherite' else []))
+
+    # (2.75: the Ember Laurel became the Netherite Laurel - old copies are re-synced, wherever they're carried)
+    import phase18 as P18
+    oldl = '*[minecraft:custom_data~{bm:"laurel_t5"},!minecraft:custom_data~{bm_nl:1b}]'
+    second.append(f'execute as @a if items entity @s container.* {oldl} run function bm:p105/laurel_fix')
+    second.append(f'execute as @a if items entity @s weapon.offhand {oldl} run function bm:p105/laurel_fix')
+    fn('p105/laurel_fix', [f'execute if items entity @s {sl} {oldl} run item modify entity @s {sl} bm:refresh/laurel_t5' for sl, _p in P18.SLOTS])
 
     # ================================================================== TIP-OFFS: call the next heist's kind (never a Lucky Raid)
     fn('p105/tip/blood', ['execute if score @s bm.gvfz matches 1 run return run ' + say('Your next heist is a Blood Moon heist already.', 'gray'),
@@ -243,6 +260,9 @@ def generate(G):
     wjson('bm/loot_table/p105/crate_raw.json', lt_raw())
     wjson('bm/loot_table/p105/crate_adventure.json', lt_adv())
     wjson('bm/loot_table/p105/crate_mineral.json', lt_min())
+    # (2.75: the builders' crates - nine full stacks, assorted)
+    for c, kinds in (('crate_stone', STONES), ('crate_wood', LOGS)):
+        wjson(f'bm/loot_table/p105/{c}.json', {'pools': [{'rolls': 9, 'entries': [ent(k, 1, (64, 64)) for k in kinds]}]})
     # (an emptied Haul is swept out of pockets every second - a crate, unopened and empty by design, isn't one)
     sec = G.FUNCS['loop/second']
     old_sweep = 'clear @a minecraft:barrel[minecraft:custom_data~{bm_haul:1b},minecraft:container=[]]'
@@ -251,12 +271,12 @@ def generate(G):
     # (a crate set down - The Haul's machinery finds it - is filled the vanilla way: by its loot table, when it's opened)
     G.FUNCS['p74/haul/mark'].append('execute if data block ~ ~ ~ components."minecraft:custom_data".bm_crate run function bm:p105/crate/fill')
     fn('p105/crate/fill', [f'execute if data block ~ ~ ~ {{components:{{"minecraft:custom_data":{{bm_crate:"{c}"}}}}}} run data modify block ~ ~ ~ LootTable set value "bm:p105/{c}"'
-                           for c in ('crate_raw', 'crate_adventure', 'crate_mineral')])
+                           for c in CRATES])
     # (walked away from unopened: it goes back in your pack as it was)
     G.FUNCS['p74/haul/fold'].insert(0, 'execute if data block ~ ~ ~ LootTable run return run function bm:p105/crate/unopened')
     fn('p105/crate/unopened', ['data modify storage bm:tmp crate set value ""', 'data modify storage bm:tmp crate set from block ~ ~ ~ components."minecraft:custom_data".bm_crate',
                                'data remove block ~ ~ ~ LootTable', 'setblock ~ ~ ~ minecraft:air', 'particle minecraft:poof ~ ~ ~ 0.3 0.3 0.3 0.02 8'] +
-       [f'execute if data storage bm:tmp {{crate:"{c}"}} as @a if score @s bm.pid = #hp bm.rng run ' + G.give(c) for c in ('crate_raw', 'crate_adventure', 'crate_mineral')] +
+       [f'execute if data storage bm:tmp {{crate:"{c}"}} as @a if score @s bm.pid = #hp bm.rng run ' + G.give(c) for c in CRATES] +
        ['kill @s'])
     desk = P28.multi([T('THE CRATE DESK', GOLD, bold=True), T('  ·  paid from your bank and pockets', 'gray')],
                      [P28.body([T('You have ', 'gray'), T('$(w)', GOLD, bold=True), T(' Gutter Coins (bank + pockets; Medallions 16, Trophies 128).', 'gray')], 320),
@@ -268,6 +288,10 @@ def generate(G):
                               tooltip=T('Experience bottles, enchanted books, pearls, golden apples, rockets...', 'gray')),
                       P28.btn([T('Mineral Crate  ', '#ffd870', bold=True), T(f'{PRICES["crate_mineral"]} coins', 'white')], DESK + 3, width=300,
                               tooltip=T('Gold, emeralds, metal blocks - now and then a diamond, rarely netherite.', 'gray')),
+                      P28.btn([T('Stone Crate  ', '#b0b0b0', bold=True), T(f'{PRICES["crate_stone"]} coins', 'white')], DESK + 6, width=300,
+                              tooltip=T('Nine full stacks of stone - bricks, deepslate, tuff, granite, blackstone...', 'gray')),
+                      P28.btn([T('Timber Crate  ', '#c89050', bold=True), T(f'{PRICES["crate_wood"]} coins', 'white')], DESK + 7, width=300,
+                              tooltip=T('Nine full stacks of logs - oak to cherry, pale oak, even nether stems.', 'gray')),
                       P28.btn([T('Crimson Tip-off  ', '#d02020', bold=True), T(f'{PRICES["tip_bloodmoon"]} coins', 'white')], DESK + 4, width=300,
                               tooltip=T('Your next heist: a Blood Moon heist (Blood Moon Crystals in the haul).', 'gray')),
                       P28.btn([T('Vorn Signal  ', '#5ad84a', bold=True), T(f'{PRICES["tip_alien"]} coins', 'white')], DESK + 5, width=300,
@@ -275,8 +299,8 @@ def generate(G):
                      columns=1, exit_label='Done')
     G.FUNCS['p86/theme/menu'] = ['function bm:p103/wallet', f'scoreboard players set @s bm.menu {DESK}', 'function bm:p105/desk/show with storage bm:ui tl']
     fn('p105/desk/show', [f'$dialog show @s {P28.inline(desk)}'])
-    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {DESK + 1}..{DESK + 5} run return run function bm:p105/desk/buy')
-    order = ['crate_raw', 'crate_adventure', 'crate_mineral', 'tip_bloodmoon', 'tip_alien']
+    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {DESK + 1}..{DESK + 7} run return run function bm:p105/desk/buy')
+    order = ['crate_raw', 'crate_adventure', 'crate_mineral', 'tip_bloodmoon', 'tip_alien', 'crate_stone', 'crate_wood']
     fn('p105/desk/buy', [f'execute unless score @s bm.menu matches {DESK} run return run function bm:p28/stale', 'function bm:p103/wallet'] +
        [f'execute if score #act bm.pay matches {DESK + 1 + i} run scoreboard players set #need bm.rng {PRICES[c]}' for i, c in enumerate(order)] +
        ['execute if score #tw bm.rng < #need bm.rng run return run function bm:p105/desk/poor', 'function bm:p103/spend'] +
@@ -397,12 +421,12 @@ def generate(G):
     second.append('execute as @e[type=minecraft:interaction,tag=bm.presshit] at @s if entity @a[distance=..16] unless score @s bm.prsd = #day bm.bm run '
                   'particle minecraft:white_ash ~ ~1.1 ~ 0.15 0.05 0.15 0.01 6')
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:interaction,tag=bm.presshit]', 'kill @e[type=minecraft:item_display,tag=bm.press]']
-    fn('admin/raid_finds', [G.give(i) for i in ('forgeheart', 'the_alibi', 'counterfeiters_press', 'crate_raw', 'crate_adventure', 'crate_mineral', 'tip_bloodmoon', 'tip_alien')] +
+    fn('admin/raid_finds', [G.give(i) for i in ('forgeheart', 'the_alibi', 'counterfeiters_press') + CRATES + ('tip_bloodmoon', 'tip_alien')] +
        [G.give(f'laurel_t{t}') for t in range(1, 6)])
 
     G.FUNCS['admin/help'] += [tellraw('@s', [T('/function bm:admin/raid_finds', 'yellow'), T('  the 2.68 raid items: crates, tip-offs, laurels, Forgeheart, the Alibi, the Press', 'gray')]),
-                              tellraw('@s', [T('/function bm:admin/heist_plans_anywhere', 'yellow'), T('  the Heist Plans work from anywhere (', 'gray'),
-                                             T('heist_plans_safe', 'yellow'), T(' restores the safe-ground rule)', 'gray')])]
+                              tellraw('@s', [T('/function bm:admin/plan_anywhere', 'yellow'), T('  heists can be planned from anywhere (', 'gray'),
+                                             T('plan_safe', 'yellow'), T(' restores the safe-ground rule)', 'gray')])]
 
     G.FUNCS['tick'] += tick
     f = G.FUNCS['loop/fast']
@@ -429,6 +453,10 @@ def rp(R):
     R.ICONS['crate_mineral'] = g(['................', '..kkkkkkkkkkkk..', '..kwwwwwwwwwwk..', '..kwbbbbbbbbwk..', '..kwbwwwwwwbwk..', '..kwbwggeewbwk..', '..kwbwggeewbwk..', '..kwbwdd..wbwk..',
                                   '..kwbwddyywbwk..', '..kwbwwwwwwbwk..', '..kwbbbbbbbbwk..', '..kwwwwwwwwwwk..', '..kkkkkkkkkkkk..', '................', '................', '................'],
                                  dict(k='#4a3808', w='#c8a040', b='#8a6a18', g='#ffd840', e='#3ad070', d='#6ae8e0', y='#ffeaa0'))
+    for c, pal in (('crate_stone', dict(k='#2a2a2a', w='#7a7a7a', b='#4a4a4a', i='#b8b8b8', c='#5a6a78', l='#9a7a60', s='#d8d4cc')),
+                   ('crate_wood', dict(k='#3a2410', w='#a0703a', b='#6a4420', i='#7a5a30', c='#e8c890', l='#b07a40', s='#5a3a20'))):
+        R.ICONS[c] = g(['................', '..kkkkkkkkkkkk..', '..kwwwwwwwwwwk..', '..kwbbbbbbbbwk..', '..kwbwwwwwwbwk..', '..kwbwiiccwbwk..', '..kwbwiiccwbwk..', '..kwbwllsswbwk..',
+                        '..kwbwllsswbwk..', '..kwbwwwwwwbwk..', '..kwbbbbbbbbwk..', '..kwwwwwwwwwwk..', '..kkkkkkkkkkkk..', '................', '................', '................'], pal)
     R.ICONS['tip_bloodmoon'] = g(['................', '..pppppppppp....', '..pwwwwwwwwwp...', '..pwRRwwwwwwwp..', '..pwRRRwkkkkwp..', '..pwwRwwwwwwwp..', '..pwwwwkkkkkwp..', '..pwwwwwwwwwwp..',
                                   '..pwkkkkwwRwwp..', '..pwwwwwwRRRwp..', '..pwkkkwwwRwwp..', '..pwwwwwwwwwwp..', '..pppppppppppp..', '................', '................', '................'],
                                  dict(p='#8a7a5a', w='#e8dcc0', k='#5a4a3a', R='#c01010'))

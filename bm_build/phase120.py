@@ -324,9 +324,11 @@ def generate(G):
     # ================================================================== ALIEN HEISTS: now and then, a Skiff part in the haul
     wjson('bm/loot_table/gv/skiff_part.json', {'type': 'minecraft:chest', 'pools': [{'rolls': 1, 'entries': [G.loot_entry(p) for p, _n, _s in P35.PARTS]}]})
     HA, HB = '-200 64 -197', '-198 64 -197'                  # (the haul barrels - phase101)
-    G.FUNCS['p70/haul'] += ['scoreboard players set #r bm.rng 100',
-                            'execute if score #gn bm.rng matches 3 store result score #r bm.rng run random value 1..100',
-                            f'execute if score #r bm.rng matches ..{SKIFF_CHANCE} run function bm:p120/skiff']
+    hl = G.FUNCS['p70/haul']           # (2.75: before the haul's packed - after it, the part was left in the barrel)
+    kp = hl.index('function bm:p74/haul_pack')
+    hl[kp:kp] = ['scoreboard players set #r bm.rng 100',
+                 'execute if score #gn bm.rng matches 3 store result score #r bm.rng run random value 1..100',
+                 f'execute if score #r bm.rng matches ..{SKIFF_CHANCE} run function bm:p120/skiff']
     fn('p120/skiff', [f'execute in bm:gutter unless data block {HA} Items[26] run loot insert {HA} loot bm:gv/skiff_part',
                       f'execute in bm:gutter if data block {HA} Items[26] run loot insert {HB} loot bm:gv/skiff_part',
                       tellraw('@s', P + [T('Salvage! ', '#7dffd0', bold=True), T('A ', 'gray'), T('Vorn Skiff part', '#5ad84a', bold=True),

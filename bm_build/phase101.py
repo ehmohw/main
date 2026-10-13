@@ -3,7 +3,7 @@
 WHEN IT'S OVER (the haul paid out, or the last try spent - the crew back in the den): the LEADER (whoever planned the heist;
   if they've gone, whoever's left first) gets a choice:
   - BACK TO THE OVERWORLD: the whole crew goes home, as they would through the plates.
-  - START A NEW RAID: the Heist Plans open for the leader (tier, then tries, then their fee). Everyone else is asked to OPT IN
+  - START A NEW RAID: the heist plans open for the leader (tier, then tries, then their fee). Everyone else is asked to OPT IN
     or OUT. Out: home as usual. In: when the leader confirms, they're recruited and pay their OWN fee (no Tokens - left behind,
     home). Anyone who hasn't answered by then heads home. The new raid keeps everyone's way home and own spawn from before.
     (2.67c) Carrying on unpacks your haul there and then (phase102). A leader who can't cover even a Tier I fee heads home
@@ -55,7 +55,7 @@ def generate(G):
                          [P28.body('@@RAW:r_res@@', 300),                                 # (2.67d) how it went - phase103 fills it
                           P28.body([T('You planned this one, so it\'s your call: ', 'gray'), T('home', 'white', bold=True), T(', or ', 'gray'),
                                     T('another job', GOLD, bold=True), T('?', 'gray')]),
-                          P28.body([T('A new raid opens the Heist Plans: pick the tier and tries, and pay your fee. Your crew is asked to opt in - '
+                          P28.body([T('A new raid opens the heist plans: pick the tier and tries, and pay your fee. Your crew is asked to opt in - '
                                       'each pays their own fee, and anyone who opts out goes home.', 'dark_gray')]),
                           P28.body([T('Carry on and the Fixer unpacks your haul: Tokens stay on you, coins go to your Gutter Bank, the rest to your '
                                       'locker. Head home and it comes with you, as ever.', 'dark_gray')])],
@@ -135,7 +135,7 @@ def generate(G):
     def unlock(f):
         L = G.FUNCS[f]
         for i, l in enumerate(L):
-            if l == 'execute if dimension bm:gutter run return 0' or ('holds_plans' not in l and 'heist_plans' in l and 'run return run function bm:p28/stale' in l) or \
+            if l == 'execute if dimension bm:gutter run return 0' or ('holds_plans' not in l and 'fixers_ledger' in l and 'run return run function bm:p28/stale' in l) or \
                l.startswith('execute unless dimension minecraft:overworld unless dimension minecraft:the_nether'):
                 L[i] = nxt + l[len('execute '):]
     for f in ('p70/pick_tier', 'p75/pick_lives'):

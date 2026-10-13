@@ -41,7 +41,7 @@ def _half(c):
 
 DIRECT = {k: (_half(a), _half(b) if b else None) for k, (a, b) in DIRECT.items()}
 DIRECT['golden_wings'] = (DIRECT['golden_wings'][0], ('elytra', 1))       # 2.63: built on a real elytra
-DIRECT['heist_plans'] = (('token', 3), None)                            # 2.63: 3 Tokens
+DIRECT['fixers_ledger'] = (('token', 3), None)                          # 2.63: 3 Tokens (2.75: the Ledger, now the heist plans too)
 # (item sold, currency paid) -> cost: currency exchanges
 EXCHANGE = {('medallion', 'token'): ('token', 9),            # the Captain sold them for 8 (Fence: 9)
             ('trophy', 'blood_crystal'): ('blood_crystal', 48)}   # was 24 (= 3 Medallions' worth for a 6-Medallion Trophy)

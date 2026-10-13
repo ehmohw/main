@@ -1,7 +1,7 @@
 """2.63: a friendlier Black Market - half prices, an easier way in and out, underground ruins, Emma's Mining form.
 
 PRICES: every Black Market good costs half what it did (Tokens, Medallions, Trophies, Blood Crystals, Lucky Tokens; tier
-  upgrades too). The Fence buys a Diamond for 2 Tokens. Heist Plans: 3 Tokens. Pearlman's gems: 1 Medallion each. The
+  upgrades too). The Fence buys a Diamond for 2 Tokens. The Fixer's Ledger (it plans heists): 3 Tokens. Pearlman's gems: 1 Medallion each. The
   currency exchanges keep their rates, and nothing can be bought and sold back for a profit.
 EARNING: Tokens are a rare catch when fishing, Medallions a very rare one; every heist won pays at least a Token a head
   (more, and now and then a Medallion, the higher the tier).
@@ -30,7 +30,7 @@ for _k in phase17.HEART_CHANCE: phase17.HEART_CHANCE[_k] *= 3
 GOLD = '#ffcf40'
 H = '#6a2a8a'
 DIRECTORY = [   # who, where, what (in a phrase)
-    ('The Fence', 'Pawn Alley', 'money changing (Diamonds, Tokens, Medallions, Trophies), maps, keys, Heist Plans, mail'),
+    ('The Fence', 'Pawn Alley', 'money changing (Diamonds, Tokens, Medallions, Trophies), maps, keys, the Fixer\'s Ledger, mail'),
     ('Old Barnaby', 'Pawn Alley', 'buys your Black Market goods back; odd gadgets, the Scrap Bin'),
     ('Madame Velour', 'the Plaza', 'boots, wings, hats, power-ups and gadgets'),
     ('Cecil the Wizard', 'the purple tent', 'magic staffs, bows and charms - and Cecil himself'),

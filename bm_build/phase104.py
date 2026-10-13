@@ -12,7 +12,7 @@ A DROPPED CONNECTION: a crew that vanishes all at once (a crash, a lost connecti
   who comes back finds it has moved on. Rejoining also clears a half-finished Ledger trip or exit question.
 KNOCKED OUT: what you dropped where you fell comes back to you when you're back on your feet in the den (your kit was
   always replaced; now your Tokens and finds come back too, unless lava took them).
-SAFE PLANS: the Heist Plans start a heist only from safe ground (the same rules as the Ledger's Locker Hall trip: on the
+SAFE PLANS: a heist starts only from safe ground (the same rules as the Ledger's Locker Hall trip: on the
   ground, not mounted or in water or lava, not hurt in the last 10 seconds, not in a boss dungeon) - they bring you back
   to that very spot. A crewmate who isn't on safe ground isn't pulled in (or charged); they can join with their own plans
   once they are.
@@ -275,8 +275,8 @@ def generate(G):
     G.FUNCS['p70/unraid'].append('function bm:p104/ko_items')
 
     # ================================================================== SAFE PLANS (the Ledger trip's rules - phase103 section 8)
-    fn('admin/heist_plans_anywhere', ['scoreboard players set #plany bm.rng 1', tellraw('@s', P + [T('The Heist Plans work from anywhere now, safe ground or not (admin/heist_plans_safe to restore).', 'gray')])])
-    fn('admin/heist_plans_safe', ['scoreboard players set #plany bm.rng 0', tellraw('@s', P + [T('The Heist Plans start a heist only from safe ground again.', 'gray')])])
+    fn('admin/plan_anywhere', ['scoreboard players set #plany bm.rng 1', tellraw('@s', P + [T('Heists can be planned from anywhere now, safe ground or not (admin/plan_safe to restore).', 'gray')])])
+    fn('admin/plan_safe', ['scoreboard players set #plany bm.rng 0', tellraw('@s', P + [T('Heists start only from safe ground again.', 'gray')])])
     fn('p104/unsafe', ['execute if score #plany bm.rng matches 1 run return 0', 'execute if dimension bm:gutter run return 0',
                        'execute if dimension bm:hollow_throne run return 1', 'execute if predicate bm:p103/boss_dungeon run return 1', 'execute if entity @s[tag=bm.adv] run return 1',
                        'execute if predicate bm:p21/riding run return 2', 'execute if predicate bm:p103/wet run return 3',
@@ -298,7 +298,7 @@ def generate(G):
     for s in range(SL):
         G.FUNCS[f'p70/s{s}/recruit'][0:0] = ['execute at @s unless function bm:p104/safe_q run return run function bm:p104/left_out']
     fn('p104/safe_q', ['execute store result score #why bm.rng run function bm:p104/unsafe', 'execute if score #why bm.rng matches 0 run return 1', 'return 0'])
-    fn('p104/left_out', [say('Your crew went in without you - you weren\'t on safe ground. Use your own Heist Plans to join them once you are.', GOLD),
+    fn('p104/left_out', [say('Your crew went in without you - you weren\'t on safe ground. Open your Ledger (Plan a Heist) to join them once you are.', GOLD),
                          'playsound minecraft:block.note_block.bass player @s ~ ~ ~ 0.8 0.8'])
     jp = G.FUNCS['p70/plans']
     k = next(i for i, l in enumerate(jp) if 'run return run function bm:p74/join_party' in l)
@@ -320,7 +320,7 @@ def generate(G):
     fn('p104/busy', ['tag @s add bm.gvq', title('@s', 'actionbar', T('Every vault crew in the city is busy - the Fixer will tell you when one frees up.', 'red'))])
     for s in range(SL):
         G.FUNCS[f'p70/s{s}/clean'] += ['execute as @a[tag=bm.gvq] at @s run playsound minecraft:block.note_block.bell player @s ~ ~ ~ 1 1.2',
-                                       tellraw('@a[tag=bm.gvq]', P + [T('A vault crew is free now', GOLD, bold=True), T(' - unroll your Heist Plans.', 'gray')]),
+                                       tellraw('@a[tag=bm.gvq]', P + [T('A vault crew is free now', GOLD, bold=True), T(' - open your Ledger and plan a heist.', 'gray')]),
                                        'tag @a remove bm.gvq']
 
     # ================================================================== A FULL LOCKER HALL

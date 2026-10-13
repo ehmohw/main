@@ -45,7 +45,8 @@ GRN = '#74d462'
 SCALE = {'boss': ART.RIG_SCALE, 'pet': 1.05}       # (1.55: about 4.7 blocks with the tendrils; the follower about 3)
 DUR = {'idle_a': 30, 'idle_b': 30, 'walk_a': 10, 'walk_b': 10, 'slam_up': 10, 'slam_dn': 3, 'sweep_a': 7, 'sweep_b': 4,
        'roar': 6, 'call': 8, 'fall': 20, 'stab': 4, 'punch_r': 3, 'punch_l': 3, 'crouch': 5, 'hover': 20, 'climb': 6,
-       'lunge_a': 8, 'lunge_b': 3, 'charge': 14, 'release': 3, 'flinch': 3, 'swim_a': 6, 'swim_b': 6, 'swim_c': 6, 'swim_d': 6}
+       'lunge_a': 8, 'lunge_b': 3, 'charge': 14, 'release': 3, 'flinch': 3, 'swim_a': 6, 'swim_b': 6, 'swim_c': 6, 'swim_d': 6,
+       'sit_a': 24, 'sit_b': 30, 'sit_look': 18}
 PET_DUR = dict(DUR, walk_a=6, walk_b=6, slam_up=8)
 STRIDE = {'boss': 20, 'pet': 12}
 BOSS_HP, PET_HP, PET_CD = 500, 80, 300

@@ -394,7 +394,7 @@ def generate(G):
                                  'execute if score @s bm.gval matches 1 run data modify storage bm:gv m.al_txt set value "ON - mistakes ring it (patrols at 50, lockdown at 100); one more share, two if you keep it under 50."',
                                  f'scoreboard players set @s bm.menu {MENU}', 'function bm:p75/lives_show with storage bm:gv m']
     G.FUNCS['p75/lives_show'] = [f'$dialog show @s {snbt(dlg)}']
-    holds_plans = '*[minecraft:custom_data~{bm:"heist_plans"}]'
+    holds_plans = '*[minecraft:custom_data~{bm:"fixers_ledger"}]'      # (2.75: the Ledger plans heists now - the Heist Plans folded into it)
     G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 7619 run return run function bm:p90/alarm_toggle')
     fn('p90/alarm_toggle', [f'execute unless score @s bm.menu matches {MENU} run return run function bm:p28/stale',
                             f'execute unless items entity @s container.* {holds_plans} unless items entity @s weapon.offhand {holds_plans} run return run function bm:p28/stale',

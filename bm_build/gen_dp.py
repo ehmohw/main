@@ -109,6 +109,10 @@ import phase119 as R119      # 2.74: outfits and Emma's buff from the Ledger; Em
 import phase120 as R120      # 2.74: checkpoint respawns, keep-inventory raids, kit food/paperweights, Lights Out, den names, Sanctuary glow, Skiff parts
 import phase121 as R121      # 2.74: the Fixer's Lounge - the den without a heist
 import phase122 as R122      # 2.74: skip a puzzle, a solo crew of three, Endless/Pit alarm, boss bar range, Minecart A retired
+import phase123 as R123      # 2.75: the bank's exchange both ways, chatter in follower menus, modifiers read out at BEGIN
+import phase124 as R124      # 2.75: five more records; every newcomer's hidden cache full
+import phase125 as R125      # 2.75: Democratus bigger + his duel, KillerWatt sits, Sparks Fly, menus, one-name traders, the Lantern wakes
+import phase126 as R126      # 2.75: true invisibility, Pearlman's bell, graveyards in the land, one set of gems per world
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import allies                # 2.67: every friendly-fire list skips every follower (allies.py)
@@ -365,6 +369,7 @@ def all_offers():
     R95.extend_offers(O, offer)
     R96.extend_offers(O, offer)
     R97.extend_offers(O, offer)
+    R124.extend_offers(O, offer)
     return O
 
 
@@ -874,7 +879,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.74' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.75' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -968,7 +973,7 @@ def gen_tags_worldgen():
     for sid, step, height, proj, adapt, spacing, sep, salt in [
             ('black_market', 'underground_structures',
              {'type': 'minecraft:uniform', 'min_inclusive': {'absolute': -40}, 'max_inclusive': {'absolute': -14}}, None, 'none', 36, 14, 73519421),
-            ('graveyard', 'surface_structures', {'absolute': -17}, 'WORLD_SURFACE_WG', 'beard_thin', 64, 28, 19840313),
+            ('graveyard', 'surface_structures', {'absolute': -1}, 'WORLD_SURFACE_WG', 'beard_thin', 64, 28, 19840313),     # 2.75: yard + crypt pieces
             ('frog_hut', 'surface_structures', {'absolute': -4}, 'WORLD_SURFACE_WG', 'none', 40, 14, 31415926),
             ('crash_site', 'surface_structures', {'absolute': 0}, 'WORLD_SURFACE_WG', 'none', 44, 16, 70707070),        # 2.13: a seed marker; carved at runtime
             ('mothership', 'surface_structures', {'absolute': R25.SKY_Y}, None, 'none', 200, 80, 19470708),          # 2.13: ~3x rarer again (was 120/50)
@@ -976,16 +981,20 @@ def gen_tags_worldgen():
         # 1.13: no natural monster spawns anywhere inside a market's bounds
         so = {'monster': {'bounding_box': 'full', 'spawns': []}} if sid in ('black_market', 'mothership', 'red_mothership') else {}
         s = {'type': 'minecraft:jigsaw', 'biomes': f'#bm:has_structure/{sid}', 'step': step, 'spawn_overrides': so,
-             'terrain_adaptation': adapt, 'start_pool': f'bm:{sid}/start', 'size': 1, 'start_height': height,
+             'terrain_adaptation': adapt, 'start_pool': f'bm:{sid}/start', 'size': 2 if sid == 'graveyard' else 1, 'start_height': height,
              'max_distance_from_center': 80, 'use_expansion_hack': False, 'liquid_settings': 'ignore_waterlogging'}
         if proj: s['project_start_to_heightmap'] = proj
         wjson(f'bm/worldgen/structure/{sid}.json', s)
         wjson(f'bm/worldgen/template_pool/{sid}/start.json', {'fallback': 'minecraft:empty', 'elements': [
-            {'weight': 1, 'element': {'element_type': 'minecraft:single_pool_element', 'location': f'bm:{sid}',
+            {'weight': 1, 'element': {'element_type': 'minecraft:single_pool_element', 'location': f'bm:{sid}_top' if sid == 'graveyard' else f'bm:{sid}',
                                       'projection': 'rigid', 'processors': 'minecraft:empty'}}]})
         wjson(f'bm/worldgen/structure_set/{sid}.json', {'structures': [{'structure': f'bm:{sid}', 'weight': 1}],
                                                          'placement': {'type': 'minecraft:random_spread', 'spacing': spacing,
                                                                        'separation': sep, 'salt': salt}})
+    # 2.75: the graveyard's crypt hangs under its yard (structures.graveyard_pieces)
+    wjson('bm/worldgen/template_pool/graveyard/crypt.json', {'fallback': 'minecraft:empty', 'elements': [
+        {'weight': 1, 'element': {'element_type': 'minecraft:single_pool_element', 'location': 'bm:graveyard_crypt',
+                                  'projection': 'rigid', 'processors': 'minecraft:empty'}}]})
     # templates
     MB = M2.build()                              # 1.13: the Black Market 2.0 cavern bazaar (market2.py)
     MB.export(path('data', 'bm', 'structure', 'black_market.nbt'))
@@ -994,7 +1003,10 @@ def gen_tags_worldgen():
     r = subprocess.run([sys.executable, '-c', 'import market2, sys; e = market2.check(market2.build()); print("\\n".join(e)); sys.exit(1 if e else 0)'],
                        cwd=os.path.dirname(os.path.abspath(__file__)), capture_output=True, text=True)
     if r.returncode: raise SystemExit('market2 check failed:\n' + r.stdout + r.stderr)
-    S.build_graveyard().export(path('data', 'bm', 'structure', 'graveyard.nbt'))
+    GYB = S.build_graveyard()
+    GYB.export(path('data', 'bm', 'structure', 'graveyard.nbt'))
+    for nm, piece in zip(('top', 'crypt'), S.graveyard_pieces(GYB)):
+        piece.export(path('data', 'bm', 'structure', f'graveyard_{nm}.nbt'))
     S.build_frog_hut().export(path('data', 'bm', 'structure', 'frog_hut.nbt'))
     R32.build_crash_seed().export(path('data', 'bm', 'structure', 'crash_site.nbt'))         # 2.13: the crater is carved at runtime
     R32.build_crash_saucer().export(path('data', 'bm', 'structure', 'crash_saucer.nbt'))
@@ -1016,7 +1028,7 @@ def build(out_dir):
     os.makedirs(OUT)
     with open(path('pack.mcmeta'), 'w') as f:
         json.dump({'pack': {'description': [{'text': 'Black Market ', 'color': 'dark_purple', 'bold': True},
-                                            {'text': ('v2.74 (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
+                                            {'text': ('v2.75 (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
                             'min_format': [121, 0], 'max_format': 121}}, f, indent=1)
     gen_npcs()
     second = gen_mobs()
@@ -1139,6 +1151,10 @@ def build(out_dir):
     R120.generate(sys.modules[__name__])
     R121.generate(sys.modules[__name__])
     R122.generate(sys.modules[__name__])
+    R123.generate(sys.modules[__name__])
+    R124.generate(sys.modules[__name__])
+    R125.generate(sys.modules[__name__])
+    R126.generate(sys.modules[__name__])
     R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])

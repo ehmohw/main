@@ -360,15 +360,14 @@ def textures():
         return im
     T_ = {k: flat(c) for k, c in (('em_blue', '#3d8fd0'), ('em_skirt', '#3e6d9e'), ('em_scarf', '#6fd6e0'), ('em_skin', '#f6cfa8'), ('em_hair', '#a8592a'),
                                   ('em_shoe', '#3c4f8a'), ('em_white', '#eeeeee'), ('em_belt', '#6a4a2a'), ('em_pink', '#e050c0'))}
-    face = flat('#f6cfa8', 3)
-    # 2.24: a simple pixel face - small dark teal eyes with a white glint, a tiny smile
-    P = {'e': '#0f4a52', 'w': '#ffffff', 'm': '#7a2a2a'}
-    rows = ['................', '................', '................', '................', '................', '................', '................',
-            '...wee....wee...', '...eee....eee...', '...eee....eee...', '................',
-            '................', '......m..m......', '.......mm.......', '................', '................']
-    for y, r in enumerate(rows):
-        for x, ch in enumerate(r):
-            if ch != '.': face.putpixel((x, y), hexc(P[ch]))
+    # 2.75: her follower face (big teal eyes, brows, blush, a small smile) - the doll's own fringe covers the top edge, so
+    # the sheet's bangs become skin (64x64 sheet, the face in its top-left 36x32)
+    import phase57_art as EA
+    face = EA._face('#155d6e', '#22a2b2', '#5ad8dc', None, '#0a2630')
+    hair = {(0x74, 0x39, 0x1a), (0x8a, 0x4a, 0x1e), (0xa0, 0x58, 0x2a)}
+    for y in range(12):
+        for x in range(36):
+            if face.getpixel((x, y))[:3] in hair: face.putpixel((x, y), (0xf7, 0xd7, 0xbf, 255))
     T_['em_face'] = face
     # (2.54) Cecil's element looks: hood (streaked like his robe), hood shadow, staff crystal (with glints), blade metal
     def streaked(c, var, streak):
@@ -405,7 +404,7 @@ def rp(R):
     et = {k: f'bm:block/em_{k}' for k in ('blue', 'skirt', 'scarf', 'skin', 'hair', 'shoe', 'white', 'belt', 'pink', 'face')}
     up = {'origin': [5, 9.6, 8], 'axis': 'z', 'angle': 22.5}
     face = cube((4.2, 10.4, 4.5), (11.8, 17.2, 4.6), 'face', faces=('north',))
-    face['faces']['north']['uv'] = [1, 1, 15, 15]              # the whole face texture on the front (the auto UV would crop it)
+    face['faces']['north']['uv'] = [0, 0, 9, 8]                # the face's 36x32 corner of its 64x64 sheet (2.75: her follower face)
     R.HATS['emma3d'] = (et, [
         c((5, 0, 6.5), (7.5, 1.2, 9.5), 'shoe'), c((8.5, 0, 6.5), (11, 1.2, 9.5), 'shoe'),
         c((5.6, 1.2, 7.3), (7, 3.4, 8.7), 'white'), c((9, 1.2, 7.3), (10.4, 3.4, 8.7), 'white'),

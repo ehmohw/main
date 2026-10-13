@@ -146,8 +146,8 @@ def generate(G):
         c = [KILLED] + ([chance(p)] if p < 1 else [])
         return {'rolls': 1, 'entries': [loot_entry(iid, n if isinstance(n, dict) else None)], 'conditions': c}
     wjson('bm/loot_table/p32/trooper.json', {'type': 'minecraft:entity', 'pools': [shard_pool(1, 2), shard_pool(1, 1, 0.35), single('token', p=0.15),
-                                                                                    single('plasma_blaster', p=0.04), single('xenite_red', p=0.03)]})
-    wjson('bm/loot_table/p32/saucer.json', {'type': 'minecraft:entity', 'pools': [shard_pool(2, 4), shard_pool(1, 2), single('xenite_red', p=0.12),
+                                                                                    single('plasma_blaster', p=0.04), single('xenite_red', uni(1, 2))]})      # 2.75: every Vorn drops Red Xenite
+    wjson('bm/loot_table/p32/saucer.json', {'type': 'minecraft:entity', 'pools': [shard_pool(2, 4), shard_pool(1, 2), single('xenite_red', uni(1, 2)),
                                                                                    single('power_cell', p=0.03), single('token', uni(1, 2), 0.3)]})
     wjson('bm/loot_table/p32/bigslime.json', {'type': 'minecraft:entity', 'pools': [
         {'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'minecraft:slime_ball', 'functions': [{'function': 'minecraft:set_count', 'count': uni(2, 5)}]}]},
@@ -307,15 +307,15 @@ def generate(G):
         'execute as @a[tag=bm.ow,gamemode=adventure,tag=!bm.adv] at @s if predicate bm:sees_sky run function bm:p32/inv/surge',
         'execute if score #iboss bm.bm matches 0 if score #tod bm.bm matches 18000.. run function bm:p32/inv/boss_land'])
     fn('p32/inv/surge', [
-        'execute store result score #r bm.rng run random value 1..10', 'execute unless score #r bm.rng matches 1 run return 0',     # 2.20: was 1 in 4 a second, up to 9
-        'execute store result score #n bm.rng if entity @e[tag=bm.vorn,distance=..64]', 'execute if score #n bm.rng matches 5.. run return 0',
+        'execute store result score #r bm.rng run random value 1..5', 'execute unless score #r bm.rng matches 1 run return 0',      # 2.75: 1 in 5 a second, up to 8 (2.20: 1 in 10, up to 5)
+        'execute store result score #n bm.rng if entity @e[tag=bm.vorn,distance=..64]', 'execute if score #n bm.rng matches 8.. run return 0',
         'summon minecraft:marker ~ ~ ~ {Tags:["bm.vsp"]}',
         'execute as @e[type=minecraft:marker,tag=bm.vsp,distance=..1,limit=1] store result entity @s Rotation[0] float 1 run random value 0..359',
         'execute store result score #k bm.rng run random value 1..100',
-        'execute if score #k bm.rng matches 1..38 as @e[type=minecraft:marker,tag=bm.vsp,distance=..1,limit=1] rotated as @s positioned ^ ^ ^22 positioned over motion_blocking_no_leaves run function bm:p32/spawn/trooper',
-        'execute if score #k bm.rng matches 39..55 as @e[type=minecraft:marker,tag=bm.vsp,distance=..1,limit=1] rotated as @s positioned ^ ^ ^24 positioned over motion_blocking_no_leaves run function bm:p32/spawn/bigslime',
-        'execute if score #k bm.rng matches 56..78 as @e[type=minecraft:marker,tag=bm.vsp,distance=..1,limit=1] rotated as @s positioned ^ ^ ^20 positioned over motion_blocking_no_leaves positioned ~ ~16 ~ run function bm:p32/spawn/saucer',
-        'execute if score #k bm.rng matches 79..100 as @e[type=minecraft:marker,tag=bm.vsp,distance=..1,limit=1] rotated as @s positioned ^ ^ ^14 positioned over motion_blocking_no_leaves positioned ~ ~22 ~ run function bm:p32/spawn/bphantom',
+        'execute if score #k bm.rng matches 1..40 as @e[type=minecraft:marker,tag=bm.vsp,distance=..1,limit=1] rotated as @s positioned ^ ^ ^22 positioned over motion_blocking_no_leaves run function bm:p32/spawn/trooper',
+        'execute if score #k bm.rng matches 66..82 as @e[type=minecraft:marker,tag=bm.vsp,distance=..1,limit=1] rotated as @s positioned ^ ^ ^24 positioned over motion_blocking_no_leaves run function bm:p32/spawn/bigslime',
+        'execute if score #k bm.rng matches 41..65 as @e[type=minecraft:marker,tag=bm.vsp,distance=..1,limit=1] rotated as @s positioned ^ ^ ^20 positioned over motion_blocking_no_leaves positioned ~ ~16 ~ run function bm:p32/spawn/saucer',
+        'execute if score #k bm.rng matches 83..100 as @e[type=minecraft:marker,tag=bm.vsp,distance=..1,limit=1] rotated as @s positioned ^ ^ ^14 positioned over motion_blocking_no_leaves positioned ~ ~22 ~ run function bm:p32/spawn/bphantom',
         'kill @e[type=minecraft:marker,tag=bm.vsp]'])
     fn('p32/inv/end', ['scoreboard players set #inv bm.bm 0', 'bossbar set bm:invasion visible false',
                        'execute as @e[tag=bm.vtroop] at @s run function bm:p32/beamup', 'execute as @e[tag=bm.vsauc] at @s run function bm:p32/beamup',

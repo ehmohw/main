@@ -186,13 +186,13 @@ def _band(e, v0, v1):
     return e
 
 
-def body():
-    """the pumpkin in square tiers, like a stack of rounded crates: a broad middle tier carrying the carved face, narrower tiers
+def body(plain=False):
+    """(2.75: plain - no carved face, the dormant pumpkin it hides as) the pumpkin in square tiers, like a stack of rounded crates: a broad middle tier carrying the carved face, narrower tiers
     stepping in above and below, a dark base. Wider than it is tall."""
     if 'sal_face' not in UV: _face()
     return [_box((-12, -17, -10), (12, -15, 10), 'sal_skin_dk', drop=('up',)),
             _box((-17, -15, -15), (17, -11, 15), 'sal_skin', tex_y='sal_top', drop=('up',)),
-            _box((-20, -11, -18), (20, 11, 18), 'sal_skin', tex_y='sal_top', front='sal_face'),
+            _box((-20, -11, -18), (20, 11, 18), 'sal_skin', tex_y='sal_top', front=None if plain else 'sal_face'),
             _box((-17, 11, -15), (17, 15, 15), 'sal_skin', tex_y='sal_top', drop=('down',)),
             _box((-12, 15, -10), (12, 17, 10), 'sal_skin', tex_y='sal_top', drop=('down',)),
             # the ribs: raised square strips down the sides and the back of the middle tier (the front is the face)
@@ -264,7 +264,7 @@ def models():
     def part(name, els):
         used = sorted({e['faces'][f]['texture'][1:] for e in els for f in e['faces']})
         M[name] = ({k: TX[k] for k in used}, els)
-    part('sal_body', body()); part('sal_tongue', tongue()); part('sal_flame_r', flame(1)); part('sal_flame_l', flame(-1))
+    part('sal_body', body()); part('sal_body_plain', body(plain=True)); part('sal_tongue', tongue()); part('sal_flame_r', flame(1)); part('sal_flame_l', flame(-1))
     part('sal_stem', stem())
     part('sal_femur', segment(1.9, 1.45, 1.2, spikes=((8, 1), (14, -1), (19, 1))))
     part('sal_tibia', segment(1.75, 1.2, 1.4, spikes=((6, -1), (11, 1), (16, -1), (20, 1))))
@@ -377,5 +377,17 @@ POSES = {
     'fall': pose(body=qmul(X(16), Z(10)), dy=-5.6, tongue=X(35), flames=0.5,
                  legs={(s, i): dict(swing=(-6, 4, -3, 7)[i] * s, spread=3.5, kneedrop=7.0) for s in SIDES for i in range(4)}),
 }
+# (2.75) THE AWAKENING: a plain pumpkin sitting in the field (legs folded away inside, no fire); it shudders; it lights; its legs
+# burst out and it hunkers low; it heaves itself up; it roars
+_HALF = 17 * BODY_S / 16
+def _dorm(body=(0.0, 0.0, 0.0, 1.0), flames=0.0):
+    p = pose(body=body, dy=-(BODY_Y - _HALF), flames=flames, tongue_s=0.0)
+    c = p['body'][0]
+    for k in LEG_PARTS: p[k] = (c, (0.0, 0.0, 0.0, 1.0), 0.0)
+    return p
+POSES.update({'dorm': _dorm(), 'dorm_l': _dorm(body=qmul(Z(4), X(-2))), 'dorm_r': _dorm(body=qmul(Z(-4), X(2))), 'dorm_lit': _dorm(body=X(-4), flames=1.5),
+              'crouch': pose(body=X(8), dy=-4.6, flames=0.9, tongue_s=0.6, legs={(s, i): dict(spread=3.0, kneedrop=-3.0) for s in SIDES for i in range(4)})})
+POSES['rise'] = pose()                               # (the stand, reached slowly: it heaves itself up)
 DUR = {'stand': 12, 'breathe': 30, **{f'walk{k}': 40 // WALK_FRAMES for k in range(WALK_FRAMES)}, 'rear': 12, 'stomp': 3, 'flare': 10, 'lash_a': 8, 'lash_b': 3,
-       'fall': 30}
+       'fall': 30,
+       'dorm': 1, 'dorm_l': 3, 'dorm_r': 3, 'dorm_lit': 4, 'crouch': 6, 'rise': 26}
