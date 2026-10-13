@@ -1,4 +1,4 @@
-# Black Market — v2.71 (Java 26.3)
+# Black Market — v2.72 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,94 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.72: five new rooms, curses, forks, traps, new heist gear, Masterworks, the Codex and every tier's own finds
+
+### Five new rooms, three ways each
+The version is drawn when the room is laid; `admin/variant_a`, `_b` and `_c` force it.
+
+| Room | A | B | C |
+|---|---|---|---|
+| **The Library** (puzzle) — a wall of 36 books; right-click to pull one | **The Catalogue**: the card on the desk names two to four books (more at higher tiers). | **The Acrostic**: a riddle on the desk; each book has a letter. Pull the books that spell the answer, in order. | **The Sum**: twelve numbered books. Pull three, one from each of three shelves, that add up to the desk's number (there is exactly one way). |
+| **The Pipes** (puzzle) — a 5×5 grid; water enters in the west and must leave in the east | **Turn**: each click turns a piece a quarter round. | **Swap**: pieces don't turn; click two to swap them. | **Gauges**: turn them, and the water must pass through both gold gauges. |
+| **The Apothecary** (puzzle, Tier II+) — brewing stands, bottles, blaze powder and a shelf of ingredients, some of them decoys | **The Order**: the Fixer names the potion. | **The Riddle**: he describes what it does. | **The Tincture**: he names it with modifiers (longer, stronger, splash, or turned). |
+| **The Grapple** (puzzle, Tier II+) — the Fixer lends a grappling hook that bites only the lamps; fall into the hay and you're back at the start | **The Chasm**: islands, a lamp over each, and only two or three hooks to get across. | **The Swinging Lamps**: hook each lamp as it swings over its island. | **The Bells**: ring four bells with the hook in the mural's order, and the bridge comes out. |
+| **The Minecart Run** (event) — carts over a pit; get in at the station | **The Rail Shooter**: hit 5 + tier targets in one ride (a bow is lent). | **The Switch Yard**: set three sets of points with the station levers so the track reaches the gold station. | **The Drawbridges**: a button beside the rails closes each of three gaps for two seconds. |
+
+A wrong move rings the alarm.
+
+### Room curses
+Now and then a room is **cursed**; a purple banner over the door says how. The chance is 9% of rooms at Tier I, up to 21% at Tier V. Beat a cursed room and the pot takes a few extra coins. A curse only lands where it's fair:
+
+| Curse | What it does | Where |
+|---|---|---|
+| **Fog** | darkness creeps in | any room |
+| **Frost** | the cold slows you | not rooms you cross by jumping |
+| **Leaden** | nobody can jump | only puzzle rooms with nothing to jump |
+| **Fragile** | your armour counts for half | fights |
+| **Phantoms** | the guards are invisible (watch for the mould at their feet) | fights |
+| **Frenzy** | the guards are quicker and hit harder | fights |
+| **Unsteady** | every few seconds the floor lurches and you float up for a moment | fights on solid ground (never the Sky Isles) |
+
+### Forks in the road
+About one heist in three, room 2 or 3 is **The Fork**: a wall across the room with two barred doors. The whole crew stands on one pad for two seconds to choose:
+- **The skull door (the dark pad)**: the next room becomes **Prime** if it's a fight, and **cursed**. Beat it and the pot gets a big cut.
+- **The plain door (the pale pad)**: the next room stays as it is.
+
+If the crew is split across the pads, neither door opens.
+
+### Corridor traps
+Some passages between rooms are trapped: 20% at Tier I, up to 40% at Tier V. The passage out of the den is never trapped.
+- **Flame jets** roar up on a beat. Watch for the smoke first.
+- **Spikes** spring from the floor. Listen for the rumble.
+- **Arrow slits** fire across the passage a moment after you step in. Listen for the click.
+
+### New heist gear (from Goldtooth)
+- **Smelling Salts** (24 coins): hold them in either hand. When a blow would knock you out, a whiff brings you round instead, so **no try is lost**. One use. They don't keep outside the vault.
+  *How it works:* the salts use the game's own death protection, the same thing a Totem of Undying does, so the knock-out never happens and nothing that counts tries had to change. The one fall the game can't catch is the Sky Isles' void, so that fall checks for the salts itself and puts you back at the door.
+- **Thief's Hourglass** (16 coins): use it in a timed room while the clock runs (the Shooting Gallery, the Button Dash or the Minecart Run) for 20 seconds more. Once per room.
+- **Alarm Jammer** (20 coins): for 30 seconds nothing raises the alarm, and the alarm bar turns blue. Only one can run at a time.
+
+### Masterworks
+Win a Tier IV or V heist with a kit, and that kit's own weapon becomes a **Masterwork**. From then on the Armory hands it out with a gold name and something extra:
+
+| Kit | Masterwork | Extra |
+|---|---|---|
+| Tank | Kokiri Sword | +2 Sharpness, Knockback; +4 armour and +2 toughness while held |
+| Offense | Captain's Cutlass | +2 Sharpness, Fire Aspect; faster on your feet and with your blade |
+| Ranged | Fairy Bow | +2 Power, Flame, Punch; faster on your feet |
+| Support | Staff of Sparks | crewmates within 8 blocks take a fifth less harm while you hold it; +4 health |
+
+### The Codex
+The Ledger's Office has a new page, **The Codex**. It records every room you've walked into, every curse you've lifted, every rare find and every Masterwork you've earned. Filling a section pays once:
+
+| Section | Reward for filling it |
+|---|---|
+| Rooms of the Vault | 4 Black Market Tokens |
+| Events and Secrets | 4 Black Market Tokens |
+| Curses Lifted | a Black Market Medallion |
+| Rare Finds | a Black Market Trophy |
+| Masterworks | a Black Market Medallion |
+
+### Every tier's own finds
+A won heist's rare, legendary and mythical finds now come half the time from the tier's own three, and half the time from the global Forgeheart, Alibi and Press. No two of the fifteen do the same thing.
+- **Rare** finds are handy charms for your off hand.
+- **Legendary** finds give you a look.
+- **Mythical** finds are something special.
+
+| Tier | Rare (off hand) | Legendary (off hand) | Mythical |
+|---|---|---|---|
+| I | **Mudlark's Charm**: mud, soul sand, honey and snow don't slow you | **Copper Wake**: a trail of copper sparks | **Lodestone Purse** (carried): dropped things slide into your pack, but not what you throw away yourself |
+| II | **Cat Burglar's Sash**: sneak nearly as fast as you walk | **Moth Lantern**: pale moths flutter about you | **Tinker's Thimble** (carried): what you wear and hold slowly mends |
+| III | **Drowned Miner's Lamp**: break blocks under water at land speed | **Gilded Shadow**: gold dust falls from your shoulders | **Hearth Flask** (carried): when you're hungry, a swig fills you up |
+| IV | **Anchor Stone**: blows and blasts push you far less | **Diver's Pearl**: bubbles and glints rise about you | **Wayfarer's Lodestar**: sneak and use it to mark a spot; use it again to return there (same world, every 5 minutes) |
+| V | **Mole's Whisker**: every tool digs as if it had Efficiency | **Ember Wings**: ember wings flicker on your back | **Phoenix Plume** (in either hand): saves you from death, then smoulders for 10 minutes before it can again |
+
+### For admins
+- Curses: `admin/curse_always`, `admin/curse_never`, `admin/curse_chance`, or force one curse with `admin/curse_fog`, `_frost`, `_leaden`, `_fragile`, `_phantoms`, `_frenzy` or `_unsteady`.
+- Forks and traps: `admin/fork_always`, `admin/fork_never`, `admin/fork_chance`, `admin/traps_always`, `admin/traps_never` and `admin/traps_chance`.
+- `admin/room_minecart` puts the Minecart Run in the next heist.
+- `admin/masterworks_all` and `admin/masterworks_reset`; `admin/codex_fill` and `admin/codex_reset`; `admin/tier_finds` gives every new find and the three supplies.
 
 ## New in 2.71: three ways through the newer puzzles
 

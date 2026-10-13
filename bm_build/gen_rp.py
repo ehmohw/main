@@ -833,6 +833,8 @@ if __name__ == '__main__':
     phase99.rp(sys.modules[__name__])
     import phase105                           # (2.68: laurels, crates, tip-offs, Forgeheart, the Alibi, the press)
     phase105.rp(sys.modules[__name__])
+    import phase117                           # (2.72: the salts, the hourglass, the jammer, each tier's own finds)
+    phase117.rp(sys.modules[__name__])
     import phase95                            # (after every head model: the faces)
     phase95.rp(sys.modules[__name__])
     LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',
