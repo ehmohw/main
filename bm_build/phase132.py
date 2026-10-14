@@ -19,6 +19,7 @@
   respect. Right-click him to sit; sneak + use: his menu. 5 minutes if he faints; a frame keeps him; a Raid Contract.
 """
 import math
+import json
 from items import item, T, TOTEM, ITEMS
 from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D
@@ -143,14 +144,13 @@ def rp(R):
         mdl = lambda n: {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
         R2.wj('assets/bm/items/tu_head.json', {'model': {'type': 'minecraft:select', 'property': 'minecraft:custom_model_data', 'index': 0,
                                                          'cases': [{'when': e, 'model': mdl(m)} for e, m in cases], 'fallback': mdl('tu_head')}})
-        for nm, part, d in (('tul_blunderbuss', 'tu_gun', {'thirdperson_righthand': ([0, 90, -80], [0, 2, 1], 0.6), 'firstperson_righthand': ([0, 90, -60], [1, 3, 0], 0.5),
-                                                          'thirdperson_lefthand': ([0, -90, 80], [0, 2, 1], 0.6), 'firstperson_lefthand': ([0, -90, 60], [1, 3, 0], 0.5),
-                                                          'gui': ([20, 135, -30], [0, -1, 0], 0.55), 'ground': ([0, 0, 0], [0, 0, 0], 0.4), 'fixed': ([0, 90, -45], [0, 0, 0], 0.6)}),
-                            ('tul_harpoon', 'tu_harpoon', {'thirdperson_righthand': ([0, 90, 0], [0, 4, 0], 0.5), 'firstperson_righthand': ([0, 90, 10], [1, 4, 0], 0.4),
-                                                           'thirdperson_lefthand': ([0, -90, 0], [0, 4, 0], 0.5), 'firstperson_lefthand': ([0, -90, -10], [1, 4, 0], 0.4),
-                                                           'gui': ([0, 0, -45], [0, 0, 0], 0.5), 'ground': ([0, 0, 0], [0, 0, 0], 0.35), 'fixed': ([0, 0, -45], [0, 0, 0], 0.5)})):
-            R2.wj(f'assets/bm/models/item/{nm}_held.json', {'parent': f'bm:item/{part}', 'display': {
-                k: {'rotation': r, 'translation': t, 'scale': [s] * 3} for k, (r, t, s) in d.items()}})
+        # (2.78: held the way vanilla holds things - his hand's joint is the grip, the muzzle and the point (-z) the tip: the
+        #  blunderbuss as a crossbow is held, the harpoon as a sword. The old hand-set angles had the gun lying across the screen.)
+        import heldfx as HF
+        for nm, part, style in (('tul_blunderbuss', 'tu_gun', 'crossbow'), ('tul_harpoon', 'tu_harpoon', 'handheld')):
+            src = json.load(open(R2.p('assets', 'bm', 'models', 'item', f'{part}.json')))
+            disp = HF.display((0, 0, -1), (0, 1, 0), (8, 8, 8), HF.bounds(src), style=style)
+            R2.wj(f'assets/bm/models/item/{nm}_held.json', {'parent': f'bm:item/{part}', 'display': disp})
             R2.wj(f'assets/bm/items/{nm}.json', {'model': {'type': 'minecraft:model', 'model': f'bm:item/{nm}_held'}})
     R.POST.append(post)
 
@@ -713,6 +713,16 @@ def generate(G):
                       'execute if entity @a[distance=..64,gamemode=!spectator] run scoreboard players set @s bm.tulone 0',
                       'execute unless entity @a[distance=..64,gamemode=!spectator] run scoreboard players add @s bm.tulone 1',
                       'execute if score @s bm.tulone matches 45.. run function bm:p132/b/leave'])
+    # (2.78: his chunk unloaded a minute or more - everyone died or went far, and he sat frozen where they left him: the fight is over.
+    #  And a death with nobody else near him ends it at once.)
+    G.FUNCS['p132/b/sec'][0:0] = ['execute store result score #now bm.rng run time query gametime',
+                                  'execute unless score @s bm.tuseen matches 1.. run scoreboard players operation @s bm.tuseen = #now bm.rng',
+                                  'scoreboard players operation #gap bm.rng = #now bm.rng', 'scoreboard players operation #gap bm.rng -= @s bm.tuseen',
+                                  'scoreboard players operation @s bm.tuseen = #now bm.rng',
+                                  'execute if score #gap bm.rng matches 1200.. run return run function bm:p132/b/leave']
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.tuseen dummy']
+    G.OBJECTIVES += ['bm.tuseen']
+    G.FUNCS['p62/died'][0:0] = ['tag @s add bm.dying', 'execute at @s as @e[type=minecraft:husk,tag=bm.tuboss,distance=..80] at @s unless entity @a[tag=!bm.dying,distance=..64,gamemode=!spectator] run function bm:p132/b/leave', 'tag @s remove bm.dying']
     fn('p132/b/leave', ['bossbar set bm:tub visible false', 'particle minecraft:splash ~ ~1 ~ 0.4 0.8 0.4 0.1 30', 'function bm:p132/b/unrig',
                         'execute as @e[type=minecraft:marker,tag=bm.tuship,distance=..40] run scoreboard players set @s bm.tuw 0', 'tp @s ~ -400 ~', 'kill @s'])
     fn('p132/b/unrig', ['scoreboard players operation #tid bm.rng = @s bm.tuid',

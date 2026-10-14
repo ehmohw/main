@@ -1136,6 +1136,16 @@ def generate(G):
                       'execute if entity @a[distance=..48,gamemode=!spectator] run scoreboard players set @s bm.aplone 0',
                       'execute unless entity @a[distance=..48,gamemode=!spectator] run scoreboard players add @s bm.aplone 1',
                       'execute if score @s bm.aplone matches 30.. run function bm:p131/b/leave'])
+    # (2.78: his chunk unloaded a minute or more - everyone died or went far, and he sat frozen where they left him: the fight is over.
+    #  And a death with nobody else near him ends it at once.)
+    G.FUNCS['p131/b/sec'][0:0] = ['execute store result score #now bm.rng run time query gametime',
+                                  'execute unless score @s bm.apseen matches 1.. run scoreboard players operation @s bm.apseen = #now bm.rng',
+                                  'scoreboard players operation #gap bm.rng = #now bm.rng', 'scoreboard players operation #gap bm.rng -= @s bm.apseen',
+                                  'scoreboard players operation @s bm.apseen = #now bm.rng',
+                                  'execute if score #gap bm.rng matches 1200.. run return run function bm:p131/b/leave']
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.apseen dummy']
+    G.OBJECTIVES += ['bm.apseen']
+    G.FUNCS['p62/died'][0:0] = ['tag @s add bm.dying', 'execute at @s as @e[type=minecraft:husk,tag=bm.apboss,distance=..96] at @s unless entity @a[tag=!bm.dying,distance=..64,gamemode=!spectator] run function bm:p131/b/leave', 'tag @s remove bm.dying']
     fn('p131/b/leave', ['bossbar set bm:apob visible false', 'function bm:p131/b/unrig', 'function bm:p131/b/vx_end', 'tp @s ~ -400 ~', 'kill @s'])
     fn('p131/b/unrig', ['scoreboard players operation #aid bm.rng = @s bm.apid',
                         'execute as @e[type=minecraft:item_display,tag=bm.apb,distance=..40] if score @s bm.apid = #aid bm.rng run kill @s'])

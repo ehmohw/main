@@ -309,7 +309,7 @@ def models():
         pv = PIVOT['head']; E = lambda fr, to, t='tu_bone', rot=None, sh=None: el(fr, to, t, pv, rot, shift=sh)
         h = [E((-1.4, 25.6, -1.4), (1.4, 27.4, 1.4), 'tu_bone_dk'),                                                         # the neck
              E((-3.6, 29.0, -3.5), (3.6, 34.4, 3.4), sh=(0.2, 0.2)), E((-2.9, 27.0, -3.2), (2.9, 29.2, 2.6), sh=(0.6, 0.5)),   # skull, jaw
-             E((-3.2, 28.4, -3.3), (3.2, 29.2, 2.8), sh=(0.4, 0.8)),
+             E((-3.2, 28.4, -3.3), (3.2, 29.18, 2.8), sh=(0.4, 0.8)),        # (2.78: its top a hair under the jaw's - they z-fought)
              E((-1.8, 27.5, -3.62), (1.8, 28.7, -3.45), 'tu_teeth'),
              E((-0.55, 29.6, -3.66), (0.55, 30.3, -3.45), 'tu_socket'), E((-0.3, 30.3, -3.66), (0.3, 30.8, -3.45), 'tu_socket')]   # the nose
         for sx in (1, -1):
@@ -330,16 +330,16 @@ def models():
                 h += [E((0.35, 29.7, -3.74), (3.2, 32.5, -3.5), 'tu_flap', None, (0.2, 0.3)),
                       E((0.6, 29.35, -3.72), (1.4, 29.75, -3.52), 'tu_flap', None, (0.6, 0.1)), E((2.0, 29.45, -3.72), (2.9, 29.75, -3.52), 'tu_flap', None, (0.1, 0.6))]
                 h += chain([(0.6, 31.25, -3.78), (1.8, 30.85, -3.78), (3.0, 31.3, -3.78)], [0.32, 0.32], 0.12, 'tu_socket', pv, FRONT, 0.1)   # the crease where the eye was
-                h.append(E((2.0, 28.5, -3.5), (3.55, 29.4, -3.3), 'tu_bone_dk'))                                     # the hollow under his cheekbone
+                h.append(E((2.0, 28.5, -3.53), (3.55, 29.4, -3.3), 'tu_bone_dk'))                                    # the hollow under his cheekbone (2.78: proud of the skull's face, not on it)
                 h.append(E((0.2, 32.0 + bh, -3.85), (3.4, 33.0 + bh, -3.4), 'tu_bone', ('z', tilt, (1.8, 32.0 + bh, -3.6)), (0.5, 0.4)))   # the brow ridge
                 continue
             t2 = max(30.75, top + 0.3)
             h += [E((X(0.45, 3.05)[0], 30.6, -3.62), (X(0.45, 3.05)[1], t2, -3.45), 'tu_socket'),                          # the hollow socket, rounded below
-                  E((X(0.8, 2.7)[0], 30.0, -3.62), (X(0.8, 2.7)[1], 30.7, -3.45), 'tu_socket'),
-                  E((X(1.2, 2.3)[0], 29.75, -3.62), (X(1.2, 2.3)[1], 30.1, -3.45), 'tu_socket')]
+                  E((X(0.8, 2.7)[0], 30.0, -3.635), (X(0.8, 2.7)[1], 30.7, -3.46), 'tu_socket'),                          # (2.78: each a hair proud of
+                  E((X(1.2, 2.3)[0], 29.75, -3.65), (X(1.2, 2.3)[1], 30.1, -3.47), 'tu_socket')]                         #  the last - they z-fought)
             if top < 30.8: h.append(E((X(0.5, 3.0)[0], 30.5, -3.72), (X(0.5, 3.0)[1], t2 + 0.1, -3.6), 'tu_bone', None, (0.3, 0.6)))   # (shut: bone over it)
-            if top < 30.8: h.append(E((X(0.7, 2.8)[0], 30.25, -3.74), (X(0.7, 2.8)[1], 30.5, -3.62), 'tu_bone_dk'))       # (and a seam)
-            h.append(E((X(2.0, 3.55)[0], 28.5, -3.5), (X(2.0, 3.55)[1], 29.4, -3.3), 'tu_bone_dk'))                         # the hollow under his cheekbone
+            if top < 30.8: h.append(E((X(0.7, 2.8)[0], 30.25, -3.74), (X(0.7, 2.8)[1], 30.48, -3.62), 'tu_bone_dk'))      # (and a seam - its top under the cheekbone's)
+            h.append(E((X(2.0, 3.55)[0], 28.5, -3.53), (X(2.0, 3.55)[1], 29.4, -3.3), 'tu_bone_dk'))                        # the hollow under his cheekbone
             if pup:
                 dx, dy, sz = pup; px, py = sx * (1.7 + dx * sx), 31.0 + dy
                 h.append(el((px - sz / 2, py - sz / 2, -3.68), (px + sz / 2, py + sz / 2, -3.6), 'tu_pupil', pv, light=12))
