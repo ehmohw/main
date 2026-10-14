@@ -1137,7 +1137,7 @@ def generate(G):
         return out
     # (the crown on his head in his roar, from his head's joint - his rig holds that pose from t26 (8 ticks to settle) until he bursts at t48)
     xf = RK.solve(A.PIVOT, A.PARENT, POSES['roar']); hq, ht = xf['head']
-    hr = RK.qrot(hq, tuple(c - p for c, p in zip((0.0, 41.4, -5.0), A.PIVOT['head'])))
+    hr = RK.qrot(hq, tuple(c - p for c, p in zip(ART.CROWN_AT, A.PIVOT["head"])))
     cx, cy, cz = (UB * (ht[i] + hr[i]) for i in range(3))
     dim = lambda b: f'execute as {bsel()} run data merge entity @s[type=minecraft:item_display] {{brightness:{{block:{b},sky:{b}}}}}'
     snd = lambda s, v, p, r=96: f'playsound minecraft:{s} hostile @a[distance=..{r}] ~ ~ ~ {v} {p}'

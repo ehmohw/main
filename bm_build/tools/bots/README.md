@@ -84,6 +84,10 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
 - The server's rcon reads one request per read. A second request sent with it (for example, two `run()`s inside a
   `Promise.all`) is lost, and the connection goes quiet after it. `lib_resp.js` now queues requests one at a time, and
   a reply that never comes gives up after 15 s with `RCON TIMEOUT: <command>`.
+- A trader's price in its phase file isn't always what it charges: later passes (the BM price retune) change counts. Read
+  the price from the trader itself (`data get entity <npc> Offers.Recipes[i].buy.count`) before paying for a real trade.
+  To find a trade, walk `Offers.Recipes[i].sell.components."minecraft:custom_data".bm` until it names the item.
+- `bm:p45/cecil/spawn` sets Cecil (the trader, with his whole stall) down wherever it runs - a stage for any trade of his.
 
 ## Index
 
@@ -240,6 +244,9 @@ and function calls. Three are known to be stale.
 | `t140.js` | 2.77c: weapons on the wall - the blunderbuss, harpoon, scythe and both tendril sets hung with sneak + use on all four |
 |  | walls (plaque, facing, name kept), taken down with sneak + punch (a plain punch doesn't), a broken wall drops one; the |
 |  | blunderbuss with a monster close fires instead; the scythe's plain use says how; the tendrils' use still puts them on. |
+| `t141.js` | 2.77d: the Emma doll Cecil sells - bought with trophies in a real trade (his window, the doll's trade picked, |
+|  | shift-clicked out; his price read from his offers), set down with the doll itself looking at the floor, right-clicked to |
+|  | twirl (a third of a turn), her charm curing poison but not resistance, a plain punch leaving her, sneak + punch taking her up. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
 | `head.js` | The Horseman's Head: stream, overheat, charged blast, stoking + Nova, undead XP, lantern/heart variants, night tiers, healing. |

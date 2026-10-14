@@ -347,6 +347,81 @@ def generate(G):
 
 
 # ===================================================================== resource pack
+def doll_cloth():
+    """2.77d: the doll's hair and clothes, as detailed as the follower Emma's (her colours and her cloth) - painted where the
+    doll's boxes read them: cube() projects every face by position, 4 px a unit on these 64x64 sheets, a side face at height
+    y reading rows (16 - y) * 4 (the hair round the top of her head reads rows 0-4, stretched), an up face rows z * 4"""
+    from PIL import Image
+    import phase57_art as EA
+    import math, random
+    rnd = random.Random(4677); sh, hx = EA._sh, lambda c: EA.hexc(c)[:3]
+    def sheet(base, k):                                          # (a sheet from k(x, y) - a brightness for every pixel)
+        im = Image.new('RGBA', (64, 64)); px = im.load(); b = hx(base)
+        for y in range(64):
+            for x in range(64):
+                v = k(x, y); px[x, y] = (sh(b, v) if isinstance(v, float) else v) + (255,)
+        return im
+    T = {}
+    # hair: the follower's clumps and strands, its shine a ring round her head (rows 5-9: just under the crown of it); the top
+    # rows are the top of her head, so no dark roots there
+    hair = EA._hair2(46, EA.HAIR, shine=(5, 9)); px = hair.load()
+    for x in range(64):
+        for y in (0, 1): px[x, y] = px[x, 2]
+    T['em_hair'] = hair
+    # the sweater: woven, lit from above, its hem and both cuffs ribbed (the torso reads rows 24-35, the raised arm 6-28 with
+    # its cuff at the top, the other arm 25-38 with its cuff at the bottom)
+    fab = EA._fabric('#3f8fd0', 47, folds=2); fp = fab.load(); b = hx('#3f8fd0')
+    for y in list(range(6, 10)) + list(range(33, 39)):
+        for x in range(64):
+            fp[x, y] = sh(b, (1.06 if x % 2 else 0.88) * (0.97 if y in (9, 33) else 1.0) * (1 + rnd.uniform(-0.015, 0.015))) + (255,)
+    T['em_blue'] = fab
+    # the scarf: her knit, its lower edge in shadow (rows 22-26)
+    knit = EA._knit('#80d8e4', 48); kp = knit.load()
+    for x in range(64):
+        kp[x, 25] = sh(kp[x, 25], 0.84) + (255,); kp[x, 22] = sh(kp[x, 22], 1.06) + (255,)
+    T['em_scarf'] = knit
+    # the skirt: knife pleats, the top of each tier catching the light (rows 38 and 44), a pale trim just above the hem (row 51)
+    shade = [1.16, 1.07, 1.0, 0.94, 0.84, 0.66]; sb = hx('#3d72aa')
+    def skirt(x, y):
+        k = shade[x % 6] * (1 + rnd.uniform(-0.02, 0.02))
+        if y in (48, 49): return tuple(int(v * 0.4 + 235 * 0.6 * shade[x % 6]) for v in sb)
+        return k * {38: 1.14, 39: 1.05, 43: 0.9, 44: 1.14, 45: 1.05, 50: 0.86, 51: 0.74}.get(y, 1.0)
+    T['em_skirt'] = sheet('#3d72aa', skirt)
+    # white: ribbed socks with a turned-down cuff (rows 50-59), and the belt's buckle (rows 35-38, columns 29-35)
+    def white(x, y):
+        if 34 <= y <= 38 and 28 <= x <= 35:
+            edge = y in (35, 38) or x in (29, 34)
+            return hx('#9aa2b0') if edge else (hx('#6c7484') if x in (31, 32) and y in (36, 37) else hx('#e2e6ee'))
+        if y in (50, 51): return 1.02 * (1 + rnd.uniform(-0.01, 0.01))
+        if y == 52: return 0.9
+        return (1.0 if x % 2 else 0.9) * (1 + rnd.uniform(-0.015, 0.015))
+    T['em_white'] = sheet('#f4f4f8', white)
+    # the belt: her leather, dark edges and a row of stitching (rows 35-38)
+    def belt(x, y):
+        k = 1 + rnd.uniform(-0.06, 0.06)
+        if y in (35, 38): return k * 0.74
+        if y == 36: return 1.5 if x % 3 != 2 else k * 0.9
+        return k * (1.12 if y == 37 and x % 7 == 3 else 1.0)
+    T['em_belt'] = sheet('#5a3a1e', belt)
+    # the shoes: polished, a gleam on each toe and down each side, darker to the sole (rows 59-64); a gleam on top (rows 26-38)
+    gx = lambda x: 21 <= x <= 25 or 30 <= x <= 33 or 35 <= x <= 39
+    def shoe(x, y):
+        if y == 63: return hx('#1a2246')
+        k = (1 + rnd.uniform(-0.02, 0.02)) * {59: 1.14, 62: 0.86}.get(y, 1.0)
+        if y in (60, 61) and gx(x): k *= 1.38
+        if 28 <= y <= 30 and (22 <= x <= 25 or 36 <= x <= 39): k *= 1.3
+        return k
+    T['em_shoe'] = sheet('#2e3c74', shoe)
+    # pink: satin with a soft sheen across it; the brooch a gem with a glint (rows 27-31, columns 29-35)
+    def pink(x, y):
+        if 27 <= y <= 31 and 29 <= x <= 34:
+            if (x, y) == (30, 28): return (255, 240, 250)
+            return 1.3 if 30 <= x <= 33 and 28 <= y <= 30 else 0.8
+        return (1 + 0.16 * math.sin((x + y) / 4.0)) * (1 + rnd.uniform(-0.02, 0.02))
+    T['em_pink'] = sheet('#d04aa8', pink)
+    return T
+
+
 def textures():
     from PIL import Image
     from gen_rp import hexc
@@ -358,11 +433,11 @@ def textures():
             for x in range(16):
                 dd = rnd.randint(-var, var); im.putpixel((x, y), tuple(max(0, min(255, v + dd)) for v in b[:3]) + (255,))
         return im
-    T_ = {k: flat(c) for k, c in (('em_blue', '#3d8fd0'), ('em_skirt', '#3e6d9e'), ('em_scarf', '#6fd6e0'), ('em_skin', '#f6cfa8'), ('em_hair', '#a8592a'),
-                                  ('em_shoe', '#3c4f8a'), ('em_white', '#eeeeee'), ('em_belt', '#6a4a2a'), ('em_pink', '#e050c0'))}
+    T_ = {'em_skin': flat('#f6cfa8')}
+    import phase57_art as EA
+    T_.update(doll_cloth())
     # 2.75: her follower face (big teal eyes, brows, blush, a small smile) - the doll's own fringe covers the top edge, so
     # the sheet's bangs become skin (64x64 sheet, the face in its top-left 36x32)
-    import phase57_art as EA
     face = EA._face('#155d6e', '#22a2b2', '#5ad8dc', None, '#0a2630')
     hair = {(0x74, 0x39, 0x1a), (0x8a, 0x4a, 0x1e), (0xa0, 0x58, 0x2a)}
     for y in range(12):
@@ -414,7 +489,8 @@ def rp(R):
         c((3.6, 9, 7.3), (5.3, 14.5, 8.7), 'blue', up), c((3.6, 14.5, 7.3), (5.3, 15.6, 8.7), 'skin', up),
         c((10.7, 6.5, 7.3), (12.3, 9.8, 8.7), 'blue'), c((10.8, 5.6, 7.4), (12.2, 6.5, 8.6), 'skin'),
         c((4, 10.3, 4.6), (12, 17.6, 11.4), 'skin'), face,
-        c((3.7, 16, 4.2), (12.3, 18.6, 11.8), 'hair'), c((3.7, 11, 9.5), (12.3, 18, 11.8), 'hair'), c((4, 15.5, 4.2), (12, 16.6, 5), 'hair'),
+        # (2.77d: the back of her hair and her fringe stand a hair proud of the cap - no shared faces to flicker now they're detailed)
+        c((3.7, 16, 4.2), (12.3, 18.6, 11.8), 'hair'), c((3.65, 11, 9.5), (12.35, 16.05, 11.85), 'hair'), c((4, 15.5, 4.15), (12, 16.6, 5), 'hair'),
         c((3.4, 10.5, 4.8), (4.3, 15.5, 8), 'hair'), c((11.7, 10.5, 4.8), (12.6, 15.5, 8), 'hair'),
         c((1, 13, 8), (4, 17, 11), 'hair'), c((0, 11.5, 8.5), (2, 14.5, 10.5), 'hair'), c((2.8, 16.5, 7.8), (4.6, 18.2, 10.2), 'pink')])
     R.DISPLAY_3D_EXTRA = R.DISPLAY_3D_EXTRA + ('emma3d',)

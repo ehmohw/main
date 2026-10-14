@@ -1,4 +1,4 @@
-# Black Market — v2.77c (Java 26.3)
+# Black Market — v2.77d (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,30 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.77d: Apophiss's snout, and the Emma doll Cecil sells
+
+### Apophiss has a serpent's snout (from his original art)
+- **His face isn't flat any more.** Under his eyes is a short, broad muzzle, about an eye's width long, as in his art:
+  - It's a rounded mound: a narrow bridge, with cheeks swelling down to a wide upper lip.
+  - The nose is blunt and rounded, with two small nostrils.
+  - A dark frown crease arches under his eyes, with a knot of scales below it.
+  - His upper lip dips to a lobe between his two great fangs, which hang in front of his chin. Smaller teeth line each side.
+- **His jaw is heavier and rounder**, with a light chin. His lower fangs stand inside his lip.
+- **His forked tongue lolls out of the corner of his mouth.**
+- The new head is used everywhere: all five expressions, his ethereal phase-2 form, the follower and his figurine.
+- **He glares down at you.** In his standing and fighting poses his head tips a little lower, so his eyes show over the muzzle when you're on the ground.
+
+### The Emma doll Cecil sells is detailed now
+- 2.77c gave the detail to Emma herself (the follower). Now her doll gets the same treatment:
+  - Her hair falls in lit clumps and strands, with a ring of shine.
+  - She wears a woven sweater with a ribbed hem and cuffs, and a knit scarf.
+  - Her leather belt has stitching and a silver buckle.
+  - Her skirt is knife-pleated with a pale hem trim.
+  - She has ribbed socks with turned-down cuffs, and glossy shoes.
+  - Her brooch is a gem, and her ribbon is satin.
+- The doll uses the follower's own colours and cloth, so it looks like the Emma who follows you around.
+- **Fixed:** the back of her hair no longer flickers where it meets the top of her head.
 
 ## New in 2.77c: Apophiss's fall and his True Crown, weapons on the wall, an ice blunderbuss and a more detailed Emma
 
@@ -67,7 +91,7 @@ Tullius's **blunderbuss** and **harpoon**, Democratus' **scythe** and both of Ki
 
 ### Art
 - **Tullius's Frostbite Blunderbuss is ice now:** frosted steel, frozen wood with rime, and a bell of clear glowing ice with crystals and icicles. His own rig carries it too.
-- **Emma's doll is more detailed**, to match her big eyes:
+- **Emma (the follower) is more detailed**, to match her big eyes:
   - Hair in lit clumps, with fine strands and an anime shine.
   - Knife-pleated skirt with a pale hem trim.
   - Knit scarf, ribbed socks and collar, glossy shoes.
