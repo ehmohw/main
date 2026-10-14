@@ -843,6 +843,8 @@ if __name__ == '__main__':
     phase127.rp(sys.modules[__name__])
     import phase128                           # (2.76: Pearlman's Golden Statue, his card)
     phase128.rp(sys.modules[__name__])
+    import phase130                           # (2.76: Wraithfire Emma's soul-forged armour, wings and blade)
+    phase130.rp(sys.modules[__name__])
     import phase95                            # (after every head model: the faces)
     phase95.rp(sys.modules[__name__])
     LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',

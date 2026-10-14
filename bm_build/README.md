@@ -1,4 +1,4 @@
-# Black Market — v2.76 (Java 26.3)
+# Black Market — v2.76b (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,39 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.76b: Wraithfire Emma, and the Fence's Ledger first
+
+### Wraithfire Emma
+Give Emma the Wraithfire Heart (Pearlman fuses one from a Scorching Heart and an Ethereal Gem; see 2.76 below), then open her menu (sneak + use her ribbon).
+- **Wraithfire Form: on / off.**
+  - **On:** she stays ethereal in soul-blue armour, wings and blade. She fights hard, she can fly you, and everyone she watches over has Fire Resistance and Regeneration.
+  - **Off:** she's her usual self: her buffs, her charge, and her own Ethereal Form now and then. The heart stays with her until you take it back.
+- **She hits harder, from further away.** One attack a second:
+  - **Soul Crescent:** 14 to her target (18 with a gem), up from 8, plus a burst on everything round it. Her reach is 16-28 blocks, by style (her Ethereal Form: 14).
+  - **Wraith Lance:** a bolt that pierces down a line to the farthest foe, 16 to everything on it. Walls stop it.
+  - **Soul Ward:** monsters that come at you are seared and thrown back.
+  - **Your mark:** whatever you hit, she goes for next.
+- **Battle style** (her menu):
+  - **Guardian:** monsters near you first; a stronger ward; when you're surrounded, she whirls.
+  - **Huntress:** 28 blocks; a lance every second; the biggest threat (a boss) first.
+  - **Tempest:** every strike bursts wide, and her charge fills twice as fast.
+- **Charged attacks.** Fighting fills her wraithfire (about 12 seconds; Tempest: 6; shown in her menu). Charged, she unleashes it on the next foe:
+  - **Soul Cyclone** (you're surrounded): blue fire whirls round you for 3 seconds. Everything within 6 blocks is cut and dragged in.
+  - **Requiem Crescent:** she winds up and hurls a crescent wave 24 blocks, 22 to everything in its path.
+  - **Falling Star** (a boss about): she climbs, then dives on the strongest foe: 40 to it (50 with a gem), 14 round it, all thrown up.
+- **She flies you** (KillerWatt's ethereal flight). She wraps her arms round you from behind and lifts you off your feet.
+  - **To start:** press **Fly with me** in her menu, use her ribbon right beside her, or sneak + right-click her empty-handed (you lift off when you let go of sneak).
+  - **To fly:** walk forward to fly; look up or jump to rise; look down to sink; let go of everything to hover.
+  - **To land:** sneak and she sets you down. If you let go high up, you drift down softly.
+  - She keeps throwing lances while she carries you (no Falling Star with you in her arms).
+  - If she faints or goes home while carrying you (her ribbon put away or dropped, or her form switched off), she lets go at once and you drift down softly. That fall can't hurt you.
+
+### The Fence sells the current Ledger
+- **The Fixer's Ledger is now first on the Fence's list**, and it's the current one, with Plan a Heist in its Office. It was last on his list before.
+- **Fences already in your world update by themselves.** Old Heist Plans in anyone's pockets still turn into the Ledger.
+
+Still to come: Apophiss and Tullius (model and animation drafts for approval first), and a polish pass.
 
 ## New in 2.76: the Ledger fixed, the Wraithfire Heart, Pearlman's Golden Statue, a vault by every spawner
 
@@ -49,7 +82,7 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
   - **Cecil:** soul-fire bolts (12 to the undead); his charged spell is **Soul Pyre**.
   - **KillerWatt:** every blow sets them alight; his charged attack is **Soul Inferno**.
   - A gem gives the heart back, or sneak + right-click him empty-handed.
-- **Give it to Emma:** she can **stay ethereal** as long as you like (toggle it in her menu). Everyone she watches over gets Fire Resistance and Regeneration. Take the heart back from her menu.
+- **Give it to Emma:** her **Wraithfire Form** (2.76b, above). Take the heart back from her menu.
 
 ### Pearlman's Golden Statue - and Pearlman, off the clock
 - **Collect all nine gems from Pearlman out in the world.** The vault's gems don't count, nor any bought in the heist lobby. Each new one is ticked off in chat with the ones still to find. (Gems bought before 2.76 aren't counted - buy each kind once more.)
@@ -71,7 +104,6 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 - **Invisibility hides only Black Market gear now.** Vanilla armour still shows, as it does in vanilla; it's an edge the Black Market's pieces have.
 - **Calling Democratus no longer sends Leo home** (and the other way round). They shared a call ticket.
 
-Still to come in 2.76: Apophiss and Tullius (model and animation drafts for approval first), and a polish pass.
 
 ## New in 2.75: five new records, the Lantern wakes, KillerWatt sits, true invisibility, graveyards in the land - and one Ledger
 

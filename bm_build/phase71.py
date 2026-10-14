@@ -160,7 +160,7 @@ HOLD['vorn_cracking_rig'] = 'bm:p71/rig'
 
 
 def extend_offers(O, offer):
-    O['fence'].append(offer(('token', 6), ('fixers_ledger', 1)))        # (2.75: the Ledger - it plans heists now)
+    O['fence'].insert(0, offer(('token', 6), ('fixers_ledger', 1)))     # (2.75: the Ledger - it plans heists now; 2.76: first on his list)
 
 
 def generate(G):
