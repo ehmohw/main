@@ -76,6 +76,9 @@ def generate(G):
     # the Warpstone is granted once, ever (a fresh start no longer takes the "given" mark away)
     sub('loop/second', 'execute as @a[scores={bm.conq=6..},tag=!bm.got_warp] run function bm:p2/hollow/warp_grant',
         'execute as @a[scores={bm.conqb=6..},tag=!bm.got_warp] run function bm:p2/hollow/warp_grant')
+    # Wilfrey counts toward the three-follower limit too, and won't come when it's full
+    G.FUNCS['p58/count'][-1:-1] = ['execute as @e[type=minecraft:wolf,tag=bm.wilfrey] on owner if entity @s[tag=bm.fcme] run scoreboard players add #fc bm.rng 1']
+    G.FUNCS['p2/wil/try_summon'].insert(0, 'execute if function bm:p58/full run return 0')
     # the Shard of the Hollow Throne was retired in 2.48 (an old one, used, re-forms as a Hollow Gate): the admin give list
     # no longer hands it out alongside the Hollow Gate, the maps and the Warpstone
     G.FUNCS['admin/give/p2map'] = [l for l in G.FUNCS['admin/give/p2map'] if 'bm:"hollow_summons"' not in l]
