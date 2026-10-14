@@ -90,7 +90,7 @@ def generate(G):
     subs('p2/hollow/warp', 'unless score @s bm.conq matches 6..', 'unless score @s bm.conqb matches 6..')
     subs('p2/wil/locket', 'unless score @s bm.conq matches 6..', 'unless score @s bm.conqb matches 6..')
     subs('p2/wil/grave', 'unless score @s bm.conq matches 6..', 'unless score @s bm.conqb matches 6..')
-    subs('p74/fol_ok', 'unless score @s bm.conq matches 6..', 'unless score @s bm.conqb matches 6..')
+    # (p74/fol_ok: 2.78 lets followers into the Hollow for anyone - no conquest to check there any more)
     sub('p61/pass', 'execute unless score @s bm.conq matches 5.. run return run function bm:p61/bounce',
         'execute unless score @s bm.conq matches 5.. unless score @s bm.conqb matches 6.. run return run function bm:p61/bounce')
     subs('loop/second', 'if entity @a[distance=..7,scores={bm.conq=6..},gamemode=!spectator] run function bm:p131/gate',

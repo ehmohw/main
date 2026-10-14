@@ -274,6 +274,10 @@ and function calls. Three are known to be stale.
 |  | with a right-click: the follower climbs out (nobody's), still there ten seconds on, gone with the item punched out. |
 | `t147.js` | 2.78: Wilfrey counts toward the three-follower limit - the locket refused with three out, answered once one goes |
 | `t148.js` | 2.78: wardrobes for the rest + auras + the tidied Office - Tullius's coat (away, then worn, arm re-dressed after poses, put back), his aura (locked, used, switched off), Pearlman's bow tie, Wilfrey's shield, the Office order and even widths, Raid Crew -> Outfits -> Pearlman |
+| `t149.js` | 2.78: Apophiss slithers - phase 1, jump strength 0 and step height 2: no hop between attacks, and he climbs a 2-high ledge after the bot (the old settings' run is logged for comparison; it never hopped here) |
+| `t150.js` | 2.78: the end-of-heist Go to the Lounge keeps your overworld gear at the coat check; the Lounge's door hands it back, once |
+| `t151.js` | 2.78: Apophiss's phase II can't be skipped - the bot's blows take him under half: he transforms at once, health held at half, twice over (a rematch); the den's dome whole over its chains |
+| `t152.js` | 2.78: Cecil, Emma and Leo called in the Serpent's Den by a player who never beat the Hollow King - no conquest asked |
 |  | home (from her menu), and with Wilfrey out a fourth follower refused. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |

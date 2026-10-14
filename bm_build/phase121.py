@@ -155,4 +155,12 @@ def generate(G):
     for new, old in (('p121/lead', 'p101/go_home'), ('p121/mem', 'p103/mem_home'), ('p121/out', 'p101/opt_out')):
         fn(new, [l.replace('function bm:p101/send_home', 'function bm:p121/send') for l in G.FUNCS[old]])
         assert any('p121/send' in l for l in G.FUNCS[new]), new
-    fn('p121/send', ['function bm:p101/send_home', 'function bm:p121/enter'])
+    # (2.78: to the Lounge your overworld gear stays at the coat check - the Lounge's door hands it back as it takes you home.
+    #  It used to come back the moment the heist ended, in the Lounge, as if you'd gone home)
+    fn('p121/send', ['tag @s add bm.lgbag', 'function bm:p101/send_home', 'function bm:p121/enter',
+                     tellraw('@s', P + [T('Your own gear waits at the coat check - ', 'gray'), T('the Lounge\'s door hands it back', 'white'), T(' as it takes you home.', 'gray')])])
+    ur = G.FUNCS['p70/unraid']
+    k = ur.index('execute at @s run function bm:p72/bag/restore')
+    ur[k] = 'execute unless entity @s[tag=bm.lgbag] at @s run function bm:p72/bag/restore'
+    G.FUNCS['p121/back'] += ['execute if entity @s[tag=bm.lgbag] at @s run function bm:p72/bag/restore', 'tag @s remove bm.lgbag']
+    G.FUNCS['p72/bag/check'].insert(0, 'tag @s remove bm.lgbag')      # (a heist from the Lounge: its own way home gives the gear back)

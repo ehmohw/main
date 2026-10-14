@@ -28,6 +28,7 @@
   the Oath: his menu. 5 minutes if he faints; an item frame keeps him; a Raid Contract at Goldtooth.
 """
 import math
+import json
 from items import item, T, TOTEM, ITEMS
 from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D
@@ -53,7 +54,7 @@ HOLLOW_VER_KEY = 'p2.data.HOLLOW_VER'
 # the den: placed once in bm:hollow_throne, under the floating rock (the citadel's box starts at y40)
 LAIR = (1046, 2, 1046)
 LSX, LSY, LSZ = 60, 36, 60
-LAIR_VER = 2                                     # (2.77: 2 - no column on the arrival step)
+LAIR_VER = 3                                     # (2.77: 2 - no column on the arrival step; 2.78: 3 - no chain holes in the dome)
 lair_abs = lambda x, y, z: (LAIR[0] + x, LAIR[1] + y, LAIR[2] + z)
 ARRIVE = lair_abs(30.5, 4, 51.5)                   # (the floor is y2 in the den, its walk y3; the step you land on is a block up)
 SPAWN = lair_abs(30.5, 3, 15.5)
@@ -256,6 +257,61 @@ def _oath_icon(R):
     return im
 
 
+
+def held_mace(tail):
+    """2.78: the mace in a hand - his tail's mace head stood upright on a haft (a leather grip, a gold collar and pommel), and
+    each hand's transform worked out from vanilla's handheld one, so the grip lands where a sword's does and the haft points
+    where its blade would. (The tail's mace has no handle: it hung sideways off the hand.)"""
+    import copy, numpy as np
+    Rx = lambda a: np.array([[1, 0, 0], [0, math.cos(a), -math.sin(a)], [0, math.sin(a), math.cos(a)]])
+    Ry = lambda a: np.array([[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]])
+    Rz = lambda a: np.array([[math.cos(a), -math.sin(a), 0], [math.sin(a), math.cos(a), 0], [0, 0, 1]])
+    eul = lambda r: Rx(math.radians(r[0])) @ Ry(math.radians(r[1])) @ Rz(math.radians(r[2]))
+    TOP = 4.0                                            # the head sits from here up; the haft below
+    Z0 = min(min(e['from'][2], e['to'][2]) for e in tail['elements'])
+    m = lambda p: [p[0], p[2] - Z0 + TOP, 16 - p[1]]     # tail's +z (out along the tail) -> up; its up -> north
+    M = np.array([[1, 0, 0], [0, 0, 1], [0, -1, 0]])     # (the same swing as a rotation)
+    FACE = {'north': 'down', 'south': 'up', 'up': 'north', 'down': 'south', 'east': 'east', 'west': 'west'}
+    els = []
+    for e in tail['elements']:
+        a, b = m(e['from']), m(e['to'])
+        n = {'from': [round(min(a[i], b[i]), 4) for i in range(3)], 'to': [round(max(a[i], b[i]), 4) for i in range(3)],
+             'faces': {FACE[k]: v for k, v in e['faces'].items()}}
+        if 'rotation' in e:                              # (a turn on any axes, Rz Ry Rx as rigkit writes it, carried through the same swing)
+            r = e['rotation']
+            ang = {k: math.radians(r.get(k, 0.0)) for k in 'xyz'}
+            if 'axis' in r: ang = {k: (math.radians(r['angle']) if k == r['axis'] else 0.0) for k in 'xyz'}
+            R = Rz(ang['z']) @ Ry(ang['y']) @ Rx(ang['x'])
+            ax, ay, az = RK.euler((M @ R @ M.T).tolist())
+            n['rotation'] = {'origin': [round(v, 4) for v in m(r['origin'])], 'x': ax, 'y': ay, 'z': az}
+        els.append(n)
+    box = lambda f, t, tex: {'from': list(f), 'to': list(t), 'faces': {d: {'uv': [0, 0, 16, 16], 'texture': f'#{tex}'} for d in FACE}}
+    els += [box((7.1, -11.8, 7.1), (8.9, 4.4, 8.9), 'apo_scale_dk'),            # the haft
+            box((6.85, -9.4, 6.85), (9.15, -2.6, 9.15), 'apo_strap'),           # the grip
+            box((6.6, 2.8, 6.6), (9.4, 4.6, 9.4), 'apo_gold'),                  # the collar under the head
+            box((6.5, -13.6, 6.5), (9.5, -11.6, 9.5), 'apo_gold')]              # the pommel
+    tex = dict(tail['textures']); tex.update({'apo_strap': 'bm:block/apo_strap', 'apo_gold': 'bm:block/apo_gold'})
+    G = np.array([8, -6.0, 8]) / 16 - 0.5                 # where the hand closes on the grip
+    lo = min(min(e['from'][1], e['to'][1]) for e in els); hi = max(max(e['from'][1], e['to'][1]) for e in els)
+    C = np.array([8, (lo + hi) / 2, 8]) / 16 - 0.5        # the middle of the whole mace
+    def hand(vr, vt, vs, s):
+        """vanilla handheld (rotation, translation, scale) for a sprite gripped at (3, 3), blade up its diagonal -> ours"""
+        Rv = eul(vr); Rm = Rv @ Rz(math.radians(-45))     # (its diagonal is our haft; its plane's normal our z)
+        gv = np.array(vt) / 16 + Rv @ (vs * (np.array([3, 3, 8]) / 16 - 0.5))
+        t = (gv - Rm @ (s * G)) * 16
+        r = [vr[0], vr[1], vr[2] - 45]
+        assert np.allclose(eul(r), Rm), r
+        return {'rotation': [round(v, 2) for v in r], 'translation': [round(float(v), 3) for v in t], 'scale': [s] * 3}
+    def centred(r, s):
+        t = -(eul(r) @ (s * C)) * 16
+        return {'rotation': r, 'translation': [round(float(v), 3) for v in t], 'scale': [s] * 3}
+    disp = {'thirdperson_righthand': hand([0, -90, 55], [0, 4, 0.5], 0.85, 0.8), 'thirdperson_lefthand': hand([0, 90, -55], [0, 4, 0.5], 0.85, 0.8),
+            'firstperson_righthand': hand([0, -90, 25], [1.13, 3.2, 1.13], 0.68, 0.6), 'firstperson_lefthand': hand([0, 90, -25], [1.13, 3.2, 1.13], 0.68, 0.6),
+            'gui': centred([0, 30, -45], 0.62), 'ground': centred([0, 0, 0], 0.45), 'fixed': centred([0, 180, -45], 0.7)}
+    for k, d in disp.items():
+        assert all(abs(v) <= 80 for v in d['translation']), (k, d)
+    return {'textures': tex, 'elements': els, 'display': disp}
+
 def rp(R):
     import sys
     from gen_rp import GUI_3D
@@ -287,14 +343,7 @@ def rp(R):
                                                              'cases': [{'when': e, 'model': mdl(m)} for e, m in cs], 'fallback': mdl(name)}})
         # the crown and the mace in the hand: the art's own crown (phase59's) and his tail's mace
         R2.wj('assets/bm/items/apo_true_crown.json', {'model': {'type': 'minecraft:model', 'model': 'bm:item/apophiss_crown'}})
-        R2.wj('assets/bm/models/item/apo_mace_held.json', {'parent': 'bm:item/apo_mace', 'display': {
-            'thirdperson_righthand': {'rotation': [-80, 0, 0], 'translation': [0, 6, 2], 'scale': [0.55] * 3},
-            'thirdperson_lefthand': {'rotation': [-80, 0, 0], 'translation': [0, 6, 2], 'scale': [0.55] * 3},
-            'firstperson_righthand': {'rotation': [-60, 0, 0], 'translation': [2, 5, -2], 'scale': [0.42] * 3},
-            'firstperson_lefthand': {'rotation': [-60, 0, 0], 'translation': [2, 5, -2], 'scale': [0.42] * 3},
-            'gui': {'rotation': [30, 225, 0], 'translation': [0, 0, 0], 'scale': [0.62] * 3},
-            'ground': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [0.4] * 3},
-            'fixed': {'rotation': [0, 180, 0], 'translation': [0, 0, 0], 'scale': [0.7] * 3}}})
+        R2.wj('assets/bm/models/item/apo_mace_held.json', held_mace(json.load(open(R2.p('assets', 'bm', 'models', 'item', 'apo_mace.json')))))
         R2.wj('assets/bm/items/apo_mace_item.json', {'model': {'type': 'minecraft:model', 'model': 'bm:item/apo_mace_held'}})
     R.POST.append(post)
 
@@ -385,8 +434,9 @@ def lair():
     for k in range(8):
         a = math.radians(k * 45)
         x, z = int(round(CX + 12 * math.cos(a))), int(round(CZ + 12 * math.sin(a)))
-        y = LSY - 1
-        while y > FY + 1 and Bd.get(x, y, z) not in (None, 'minecraft:air'): y -= 1
+        y = LSY - 1                                 # (2.78: down through the open sky over the dome first, then through its shell -
+        while y > FY + 1 and Bd.get(x, y, z) in (None, 'minecraft:air'): y -= 1          #  the chains used to start up in the sky and
+        while y > FY + 1 and Bd.get(x, y, z) not in (None, 'minecraft:air'): y -= 1      #  punch a hole down through the ceiling)
         top = y
         while y > FY + 15: S(x, y, z, 'iron_chain[axis=y,waterlogged=false]'); y -= 1
         if top > FY + 15: S(x, y, z, 'soul_lantern[hanging=true,waterlogged=false]')
@@ -442,10 +492,10 @@ def generate(G):
     me = '@e[type=minecraft:husk,tag=bm.apme,limit=1]'
     at = lambda t, cmd: f'execute if score @s bm.apt matches {t} run {cmd}'
 
-    # ================================================================== followers are welcome in the Hollow - for its conquerors
+    # ================================================================== followers are welcome in the Hollow (2.78: anyone's - no conquest asked;
+    #                                                                    they're called in the Serpent's Den like anywhere else)
     fo = G.FUNCS['p74/fol_ok']
-    k = fo.index('execute if dimension bm:hollow_throne run return 0')
-    fo[k] = 'execute if dimension bm:hollow_throne unless score @s bm.conq matches 6.. run return 0'
+    fo.remove('execute if dimension bm:hollow_throne run return 0')
     # (and its gates know them: a closed gate opens as a conqueror walks up, while the trials sleep - the way back to the throne is never shut)
     second.append('execute if score #hsafe bm.p2 matches 1 in bm:hollow_throne as @e[type=minecraft:marker,tag=bm.gate,tag=bm.d_hollow,scores={bm.gs=0}] at @s '
                   'if entity @a[distance=..7,scores={bm.conq=6..},gamemode=!spectator] run function bm:p131/gate')
@@ -455,6 +505,18 @@ def generate(G):
     lair().export(G.path('data', 'bm', 'structure', 'p131_lair.nbt'))
     lx, ly, lz = LAIR
     lbox = f'x={lx},y={ly},z={lz},dx={LSX},dy={LSY},dz={LSZ}'
+    # (2.78: the chains that used to stick up through the dome out of a den built before - a template's empty space leaves them)
+    stray = []
+    for k in range(8):
+        a = math.radians(k * 45)
+        x, z = lx + int(round(30 + 12 * math.cos(a))), lz + int(round(30 + 12 * math.sin(a)))
+        stray.append(f'execute if score #apbuilt bm.p2 matches 1 in bm:hollow_throne run fill {x} {ly + 32} {z} {x} {ly + LSY + 4} {z} minecraft:air replace minecraft:iron_chain')
+    # (2.78: the chains that used to stick up through the dome out of a den built before - a template's empty space leaves them)
+    stray = []
+    for k in range(8):
+        a = math.radians(k * 45)
+        x, z = lx + int(round(30 + 12 * math.cos(a))), lz + int(round(30 + 12 * math.sin(a)))
+        stray.append(f'execute if score #apbuilt bm.p2 matches 1 in bm:hollow_throne run fill {x} {ly + 32} {z} {x} {ly + LSY + 4} {z} minecraft:air replace minecraft:iron_chain')
     fn('p131/lair/try', [f'execute in bm:hollow_throne run forceload add {lx - 4} {lz - 4} {lx + LSX + 4} {lz + LSZ + 4}',
                          f'execute in bm:hollow_throne store success score #apld bm.p2 if loaded {lx} {ly} {lz} if loaded {lx + LSX - 1} {ly} {lz + LSZ - 1} if loaded {lx} {ly} {lz + LSZ - 1} if loaded {lx + LSX - 1} {ly} {lz}',
                          'execute unless score #apld bm.p2 matches 1 run return run scoreboard players set #apwt bm.p2 0',
@@ -462,6 +524,8 @@ def generate(G):
                          f'execute if score #apver bm.p2 matches 1.. in bm:hollow_throne run kill @e[type=!minecraft:player,{lbox}]',
                          'scoreboard players set #apbuilt bm.p2 0',
                          f'execute in bm:hollow_throne store success score #apbuilt bm.p2 run place template bm:p131_lair {lx} {ly} {lz}',
+                         *stray,
+                         *stray,
                          f'execute if score #apbuilt bm.p2 matches 1 run scoreboard players set #apver bm.p2 {LAIR_VER}',
                          f'execute in bm:hollow_throne run forceload remove {lx - 4} {lz - 4} {lx + LSX + 4} {lz + LSZ + 4}'])
     second.append(f'execute unless score #apver bm.p2 matches {LAIR_VER} if score #hver bm.p2 matches {HV} if score #gver bm.p2 matches 2 run function bm:p131/lair/try')
@@ -603,7 +667,7 @@ def generate(G):
             'CustomName': T('Apophiss', GRN, bold=True), 'IsBaby': B(0), 'CanBreakDoors': B(0), 'DeathLootTable': 'minecraft:empty', 'Health': F(BOSS_HP),
             'attributes': [{'id': f'minecraft:{k}', 'base': D(v)} for k, v in dict(scale=2.6, max_health=BOSS_HP, attack_damage=7, armor=14, armor_toughness=6,
                                                                                   movement_speed=0.25, follow_range=48, knockback_resistance=1.0,
-                                                                                  spawn_reinforcements=0.0, step_height=1.5).items()],
+                                                                                  spawn_reinforcements=0.0, step_height=2.0, jump_strength=0.0).items()],   # (2.78: he slithers - he steps up, never hops)
             'active_effects': [{'id': f'minecraft:{e}', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}
                                for e in ('invisibility', 'fire_resistance', 'water_breathing')],
             'drop_chances': {s: F(0.0) for s in ('mainhand', 'offhand', 'head', 'chest', 'legs', 'feet')}}
@@ -638,6 +702,9 @@ def generate(G):
                        f'execute unless entity {bsel("coil")} run function bm:p131/b/rerig',
                        f'execute unless entity {bsel("mace")} run function bm:p131/b/rerig',
                        'execute rotated as @s rotated ~ 0 run function bm:p131/b/place',
+                       # (2.78: half his health, and he transforms - checked every tick, mid-attack too, and held there: a strong blow
+                       #  used to carry him past it, or kill him outright in his first form, between the mind's once-a-second looks)
+                       'execute if score @s bm.apph matches 1 unless score @s bm.apatk matches 7 unless score @s bm.apatk matches 9 run function bm:p131/b/half',
                        'execute if score @s bm.apatk matches 1.. run function bm:p131/b/attack',
                        'execute if score @s bm.apph matches 1 unless score @s bm.apatk matches 1.. run function bm:p131/b/move',
                        'execute if score @s bm.apph matches 2 unless score @s bm.apatk matches 1.. run function bm:p131/b/fly',
@@ -766,7 +833,8 @@ def generate(G):
                        for p in A.PARTS if not A.HIDDEN(p, POSES['sleep'])])
     for name, dur in (('sleep', 1), ('idle_a', 16)):
         fn(f'p131/b/posen/{name}', RF.pose(A, POSES[name], SB, dur, bsel, hide=False))
-    fn('p131/b/begin', ['data merge entity @s {NoAI:0b,Invulnerable:0b}', 'bossbar set bm:apob name {text:"Apophiss, the Serpent King",color:"green"}',
+    fn('p131/b/begin', ['data merge entity @s {NoAI:0b,Invulnerable:0b}', 'attribute @s minecraft:jump_strength base set 0',
+                        'attribute @s minecraft:step_height base set 2', 'bossbar set bm:apob name {text:"Apophiss, the Serpent King",color:"green"}',
                         'bossbar set bm:apob color green', 'bossbar set bm:apob visible true', 'function bm:p131/b/done', 'scoreboard players set @s bm.apc 30'])
     # moving (phase 1): the husk's own feet; a slither while he goes, his slow breath while he waits
     fn('p131/b/move', ['scoreboard players add @s bm.apf 1',
@@ -832,6 +900,11 @@ def generate(G):
                         'execute if score @s bm.apph matches 2 run scoreboard players set @s bm.apc 36',
                         'execute if score @s bm.apph matches 1 run effect give @s minecraft:slowness 2 6 true',
                         'execute if score #hp bm.rng matches ..200 run scoreboard players set @s bm.apc 28'])
+    fn('p131/b/half', ['execute store result score #hp bm.rng run data get entity @s Health 100',
+                       'execute store result score #h2 bm.rng run attribute @s minecraft:max_health get 50',
+                       'execute if score #hp bm.rng > #h2 bm.rng run return 0',
+                       'execute store result entity @s Health float 0.01 run scoreboard players get #h2 bm.rng',
+                       'function bm:p131/b/done', 'execute store result score #hp bm.rng run data get entity @s Health', 'function bm:p131/b/start {a:7}'])
     fn('p131/b/done', ['scoreboard players set @s bm.apatk 0', 'scoreboard players set @s bm.aps -1', 'scoreboard players set @s bm.apf 0', 'tag @a[tag=bm.aphitp] remove bm.aphitp'])
     names = {1: 'claw', 2: 'bite', 3: 'mace', 4: 'fangs', 5: 'venom', 6: 'court', 7: 'ascend', 9: 'wake', 11: 'orbs', 12: 'swoop', 13: 'gust', 14: 'grand', 15: 'call'}
     fn('p131/b/attack', ['scoreboard players add @s bm.apt 1', 'tag @s add bm.apme'] +
