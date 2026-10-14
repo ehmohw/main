@@ -1,0 +1,15 @@
+const { bot, rcon, sleep } = require('./lib');
+const X = 9900, Y = 100, Z = 9900;
+(async () => { const R = await rcon(); const run = c => R.run(c); await run(`forceload add ${X - 20} ${Z - 20} ${X + 20} ${Z + 20}`);
+  await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..40]`);
+  const A = await bot('TestRat'); await sleep(1500);
+  await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await run('clear TestRat'); await run('effect clear TestRat'); await sleep(1500);
+  await run('execute as TestRat run function bm:admin/cecil_relics'); await run('item replace entity TestRat armor.head from entity TestRat hotbar.1'); A.slot(5); await sleep(300);
+  await run(`summon vindicator ${X + 0.5} ${Y + 1} ${Z + 2.2} {NoAI:1b,PersistenceRequired:1b,Tags:["bm.t42b"]}`); await sleep(1200);
+  const id = () => Object.values(A.ents).filter(e => Math.abs(e.x - X - 0.5) < 0.3 && Math.abs(e.z - Z - 2.2) < 0.3).pop()?.entityId;
+  const h0 = await run('data get entity @e[tag=bm.t42b,limit=1] Health'); A.attack(id()); await sleep(1200); A.attack(id()); await sleep(300);
+  console.log('health', h0.slice(-8), (await run('data get entity @e[tag=bm.t42b,limit=1] Health')).slice(-8), (await run('data get entity @e[tag=bm.t42b,limit=1] active_effects')).slice(-120));
+  console.log(((await run('data get entity @e[tag=bm.t42b,limit=1] active_effects')).includes('wither') ? 'PASS' : 'FAIL') + ' crown: blows wither (id ' + id() + ')');
+  A.slot(2); await sleep(500); await run('effect clear TestRat'); await sleep(700); A.attack(id()); await sleep(400);
+  console.log((/speed/.test(await run('data get entity TestRat active_effects')) ? 'PASS' : 'FAIL') + " Leo's Trident: a hit gives Speed II");
+  await run('kill @e[tag=bm.t42b]'); await run('clear TestRat'); A.end(); R.end(); process.exit(0); })();

@@ -1,0 +1,11 @@
+const { bot, rcon, sleep } = require('./lib');
+(async () => { const R = await rcon(); const run = c => R.run(c);
+  const A = await bot('TestRat'); await sleep(1500);
+  await run('tp TestRat 5500.5 101 5512.5 180 42'); await sleep(1000);
+  await run('setblock 5500 101 5510 chest[facing=south]'); await run('scoreboard players set TestRat bm.chop 0'); await run('scoreboard objectives add tch minecraft.custom:minecraft.open_chest');
+  await run('item replace entity TestRat weapon.mainhand with air');
+  A.pos.yaw = 180; A.pos.pitch = 42;
+  A.useOn(5500, 101, 5510, 3); await sleep(800);
+  console.log('windows', A.windows.length, await run('scoreboard players get TestRat tch'));
+  A.write('use_item_on', {}); 
+  A.end(); R.end(); process.exit(0); })().catch(e => { console.log('ERR', e.message); process.exit(0); });

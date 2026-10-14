@@ -1,0 +1,11 @@
+const { bot, rcon, sleep } = require('./lib');
+(async () => { const R = await rcon(); const run = c => R.run(c);
+  const A = await bot('TestRat'); await sleep(1500);
+  await run('gamemode survival TestRat'); await run('tp TestRat 5496.5 101 5498.5 180 42'); A.pos.yaw = 180; A.pos.pitch = 42; await sleep(800);
+  await run('setblock 5496 101 5496 air'); await run('kill @e[type=marker,tag=bm.rs,x=5496.5,y=101.5,z=5496.5,distance=..1]');
+  await run('loot replace entity TestRat weapon.mainhand loot bm:items/redstone_clock'); await run('item modify entity TestRat weapon.mainhand {type:"minecraft:set_count",count:3}');
+  await sleep(200); A.use(); await sleep(300); A.release(); await sleep(300);
+  const c = await run('data get entity TestRat SelectedItem.count');
+  console.log((c.includes(': 2') ? 'PASS' : 'FAIL') + ' placing uses up one item', c.slice(-30));
+  await run('setblock 5496 101 5496 air'); await sleep(400);
+  A.end(); R.end(); process.exit(0); })();

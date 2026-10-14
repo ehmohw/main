@@ -1,0 +1,24 @@
+const { bot, rcon, sleep } = require('./lib');
+const X = 5200, Y = 100, Z = 5200;
+(async () => {
+  const R = await rcon(); const run = (c) => R.run(c);
+  const A = await bot('TestRat'); await sleep(1000);
+  const look = async (x, y, z, yaw, pitch) => { await run(`tp TestRat ${x} ${y} ${z} ${yaw} ${pitch}`); await sleep(400); A.pos.yaw = yaw; A.pos.pitch = pitch; };
+  const press = async (sneak) => { if (sneak) { A.input({ shift: true }); await sleep(200); } A.use(); await sleep(250); A.release(); if (sneak) A.input({}); await sleep(500); };
+  await run(`fill ${X - 12} ${Y} ${Z - 12} ${X + 12} ${Y + 12} ${Z + 12} minecraft:air`);
+  await run('kill @e[tag=bm.mbox]'); await run('kill @e[tag=bm.mbdisp]'); A.bars.length = 0;
+  await look(X + 0.5, Y, Z + 0.5, 0, 45); await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/mailbox'); A.slot(0); await sleep(200); await press();
+  console.log('bars', A.bars, await run('data get entity TestRat SelectedItem.id'));
+  console.log(await run('data get entity @e[tag=bm.mbox,limit=1] Pos'), await run('data get entity @e[tag=bm.mbdisp,limit=1] Pos'));
+  await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/vacuum_satchel'); await look(X + 0.5, Y, Z + 0.5, 180, 0); await press(true); await sleep(300);
+  console.log('barrel', await run(`data get block ${X} ${Y} ${Z - 2} Items`), A.bars.slice(-2));
+  await run(`fill ${X + 4} ${Y} ${Z + 4} ${X + 4} ${Y + 5} ${Z + 4} minecraft:oak_log`); await run(`fill ${X + 2} ${Y + 4} ${Z + 2} ${X + 6} ${Y + 6} ${Z + 6} minecraft:oak_leaves[persistent=false] replace air`);
+  await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/conq_axe'); A.slot(0);
+  await look(X + 4.5, Y, Z + 2.5, 0, 25);
+  A.write('block_dig', { status: 0, location: { x: X + 4, y: Y, z: Z + 4 }, face: 2, sequence: A.seq++ }); await sleep(100);
+  A.write('block_dig', { status: 2, location: { x: X + 4, y: Y, z: Z + 4 }, face: 2, sequence: A.seq++ }); await sleep(800);
+  console.log('base', await run(`execute if block ${X + 4} ${Y} ${Z + 4} minecraft:air`), 'stat', await run('scoreboard players get TestRat bm.ml_oak_lo'), 'top', await run(`execute if block ${X + 4} ${Y + 4} ${Z + 4} minecraft:oak_log`));
+  await run(`setblock ${X + 4} ${Y} ${Z + 4} minecraft:air`); await run('scoreboard players set TestRat bm.ml_oak_lo 1'); await sleep(300);
+  console.log('forced: top', await run(`execute if block ${X + 4} ${Y + 4} ${Z + 4} minecraft:oak_log`), await run('scoreboard players get TestRat bm.ml_oak_lo'));
+  A.end(); R.end(); process.exit(0);
+})().catch(e => { console.log('FATAL', e); process.exit(1); });

@@ -20,7 +20,11 @@
   in order, nothing skippable, safe plate routes, vaults reachable.
 - `access.py <dungeon> <x> <z> | all | recheck <dungeon> <x> <z>` places a dungeon (or the graveyard) in real terrain on the
   local test server and proves a player can walk from the surrounding land or sea to its entrance.
-- `dev.sh [--no-build] [--restart]` builds the Phase 2 packs, installs the data pack into the local test server and reloads it.
+- `setup_test_env.sh [--start]` sets up a fresh container, or brings it back after a restart. Each step is skipped when already done:
+  the `/home/claude/bm_build` link, the 26.3 jars (from Mojang, SHA-1 checked), the checkers' reference data, the test server in
+  `$BM_SRV` (default `~/bm_srv`), and the bots' packages. `--start` starts the server with the pack in place, or reloads it if it's running.
+- `dev.sh [--no-build] [--restart]` builds the Phase 2 packs, installs the data pack into the local test server (`$BM_SRV`, default `~/bm_srv`) and reloads it.
+- `bots/`: the playtest bots - real, non-operator players driven by minecraft-protocol (see `bots/README.md`).
 - `rcon.py`, `scan.py`: a minimal RCON client and a region-file block reader used by the tools above.
 - `droptest.py`: places every template and checks nothing breaks or drops.
 

@@ -2,6 +2,7 @@
 
 Everything lives in `bm_build/`.
 
+- **Fresh container, or after a restart:** run `bm_build/tools/setup_test_env.sh --start`. It fetches the 26.3 jars, builds the checkers' reference data, creates and starts the test server (`~/bm_srv`), and installs the bots. Each step is skipped when it's already done.
 - **Build:** `python3 gen_dp.py --phase2` (the datapack; it also rewrites `BUTTON_CODES.md`). Add `python3 gen_rp.py --phase2` when art changes.
 - **Checks** (from `bm_build/`, with `BM_OUT=$PWD/out_p2`): `check262.py`, `check_logic.py`, `check262_nbt.py`, `check262_assets.py`, `check_trades.py`, `check_xref.py`. Each must report 0 errors and 0 dead functions.
 - **Deploy** to the test server: `tools/dev.sh --no-build`.
@@ -31,3 +32,5 @@ Never rely on just running functions. Playtest as a regular, non-operator player
 - use items as real items.
 
 Use rcon only to set the stage.
+
+The bots that play this way live in `bm_build/tools/bots` (`node t133.js`, for example). Its README covers the library, the gotchas learned so far, and an index of every test. Add new tests there.

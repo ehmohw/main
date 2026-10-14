@@ -1,0 +1,12 @@
+{
+  "name": "bm-bots",
+  "private": true,
+  "description": "Playtest bots for the Black Market datapack: real, non-operator players on a local 26.3 server",
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  },
+  "dependencies": {
+    "minecraft-data": "3.117.0",
+    "minecraft-protocol": "1.68.0"
+  }
+}

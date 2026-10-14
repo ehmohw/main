@@ -4,7 +4,7 @@
 #   usage: tools/dev.sh [--no-build]
 set -e
 cd "$(dirname "$0")/.."
-SRV=${BM_SRV:-/tmp/claude-0/-home-user-main/5487f497-06f9-53d0-b240-d8be6367a14d/scratchpad/srv}
+SRV=${BM_SRV:-$HOME/bm_srv}                     # (tools/setup_test_env.sh creates it)
 BUILD=1; RESTART=0
 for a in "$@"; do case $a in --no-build) BUILD=0;; --restart) RESTART=1;; esac; done
 if [ $BUILD = 1 ]; then

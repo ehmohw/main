@@ -1,0 +1,41 @@
+// v2.43: tendril melee stab (+2 reach, both upper tendrils, pierce) and the charged-jump pose
+const { bot, rcon, sleep } = require('./lib');
+const X = 9980, Y = 100, Z = 9980;
+const res = [];
+(async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(1500);
+  const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
+  const num = async (c) => { const r = await run(c); const m = r.match(/(-?[\d.]+)[fdbsL]?\s*$/); return m ? +m[1] : null; };
+  const sc = async (o) => { const m = (await run(`scoreboard players get TestRat ${o}`)).match(/has (-?\d+)/); return m ? +m[1] : null; };
+  const mob = async (x, z, tag) => { await run(`summon husk ${x} ${Y + 1} ${z} {NoAI:1b,PersistenceRequired:1b,Silent:1b,Tags:["${tag}","bm.t44"],active_effects:[{id:"minecraft:fire_resistance",duration:-1,amplifier:0b}]}`);
+    await sleep(400); await run(`attribute @e[tag=${tag},limit=1] minecraft:max_health base set 200`); await sleep(100); await run(`data modify entity @e[tag=${tag},limit=1] Health set value 200f`); };
+  const hp = (tag) => num(`data get entity @e[tag=${tag},limit=1] Health`);
+  await run('gamemode survival TestRat'); await run('clear TestRat'); await run('effect clear TestRat'); await run(`forceload add ${X - 20} ${Z - 20} ${X + 20} ${Z + 20}`);
+  await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(2500);
+  await run(`fill ${X - 12} ${Y} ${Z - 12} ${X + 12} ${Y} ${Z + 12} stone`); await run(`fill ${X - 12} ${Y + 1} ${Z - 12} ${X + 12} ${Y + 8} ${Z + 12} air`);
+  await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..30]`); await run('time set noon'); await run('weather clear');
+  await run('execute as TestRat run function bm:admin/cecil_relics'); await sleep(300);
+  await run('item replace entity TestRat armor.chest from entity TestRat hotbar.0'); await run('item replace entity TestRat hotbar.0 with air'); A.slot(8); await sleep(800);
+  ok('Worn: reach 3 -> 5', (await num('attribute TestRat minecraft:entity_interaction_range get')) === 5);
+  // a monster 4.4 blocks off (out of normal reach), one just behind it; facing away so the ranged lash stays quiet
+  await mob(X + 0.5, Z + 4.9, 'bm.m1'); await mob(X + 0.5, Z + 6.1, 'bm.m2');
+  await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 180 0`); await sleep(1500);
+  const id = () => Object.values(A.ents).filter(e => Math.abs(e.x - X - 0.5) < 0.3 && Math.abs(e.z - Z - 4.9) < 0.3).pop()?.entityId;
+  A.attack(id()); await sleep(150);
+  const lk = await sc('bm.kwlk'), lt = await sc('bm.kwlt'); const e0 = await hp('bm.m1'); await sleep(900);
+  const h1 = await hp('bm.m1'), h2 = await hp('bm.m2');
+  ok('Melee at 4.4 blocks: the fist lands, then half a second on the tendrils stab (6)', e0 >= 198.9 && 200 - h1 >= 6.5 && 200 - h1 <= 7.1, `${e0} then ${h1}`);
+  ok('...both upper tendrils wind up and lunge (stab animation)', lk === 4 && lt > 0, `kwlk ${lk}, kwlt ${lt}`);
+  ok('...and it pierces the one behind (3)', 200 - h2 >= 2.7 && 200 - h2 <= 3.1, `${h2}`);
+  A.attack(id()); await sleep(120); A.attack(id()); await sleep(1000); const h1b = await hp('bm.m1');
+  ok('...a flurry of blows still gets one stab per wind-up', h1 - h1b >= 5.5 && h1 - h1b <= 7.2, `${h1} -> ${h1b}`);
+  await run('weather rain'); await sleep(600); const r0 = await hp('bm.m1'); A.attack(id()); await sleep(900);
+  ok('...in the rain: stab 8', r0 - (await hp('bm.m1')) >= 8.5, `${r0} -> ${await hp('bm.m1')}`);
+  await run('weather clear'); await run('kill @e[tag=bm.t44]'); await sleep(500);
+  // charged jump pose
+  await run('scoreboard players reset TestRat bm.kwf'); A.input({ shift: true }); await sleep(500); await run('scoreboard players set TestRat bm.kwj 1'); await sleep(150);
+  const jt = await sc('bm.kwjt'); A.input({}); await sleep(900); const jt2 = await sc('bm.kwjt');
+  ok('Charged jump: the tendrils take the fling pose, then settle', jt > 0 && jt2 === 0, `${jt} -> ${jt2}`);
+  await run('item replace entity TestRat armor.chest with air'); await sleep(300);
+  ok('Taken off: reach back to 3', (await num('attribute TestRat minecraft:entity_interaction_range get')) === 3);
+  console.log(`\n${res.filter(Boolean).length}/${res.length} passed`); process.exit(0);
+})();

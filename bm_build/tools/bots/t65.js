@@ -1,0 +1,53 @@
+const { bot, rcon, sleep } = require('./lib');
+const X = 13200, Y = 200, Z = 13200; const res = [];
+(async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(1500);
+  const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
+  const cnt = async (sel) => { const m = (await run(`execute store result score #t bm.rng if entity ${sel}`)).match(/Count: (\d+)/); return m ? +m[1] : 0; };
+  await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(4000);
+  await run(`fill ${X - 12} ${Y} ${Z - 12} ${X + 12} ${Y} ${Z + 12} stone`); await run(`fill ${X - 12} ${Y + 1} ${Z - 12} ${X + 12} ${Y + 6} ${Z + 12} air`);
+  await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..40]`); await run('kill @e[type=wolf,tag=bm.cecilpet]'); await run('clear TestRat'); await run('loot replace entity TestRat inventory.20 loot bm:items/cecil_gem'); await run('gamemode survival TestRat');
+  await run('scoreboard players reset TestRat bm.cpel'); await run('scoreboard players reset TestRat bm.cpcd'); await run('effect give TestRat resistance 300 4 true');
+  await run('execute as TestRat at @s run function bm:p46/pet/summon'); await sleep(1500);
+  ok('Cecil has five parts now (his free arm is its own), all on the new rig', (await cnt('@e[type=item_display,tag=bm.cpet,tag=bm.cp3]')) === 5 && (await cnt('@e[type=item_display,tag=bm.cp_larm]')) === 1);
+  const rr = await run('data get entity @e[type=item_display,tag=bm.cp_arm,limit=1] transformation.right_rotation');
+  ok('...each arm turned the way it is in his portrait', /0\.34/.test(rr), rr.slice(-50));
+  const wid = () => { const w = Object.values(A.ents).filter(e => Math.hypot(e.x - X - 0.5, e.z - Z - 1.7) < 3); return w.map(e => e.entityId); };
+  const face = async () => { const wp = (await run('data get entity @e[type=wolf,tag=bm.cecilpet,limit=1] Pos')).match(/\[([-\d.]+)d, ([-\d.]+)d, ([-\d.]+)d\]/);
+    await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} facing ${wp[1]} ${+wp[2] + 0.4} ${wp[3]}`); await sleep(300); return wp; };
+  const click = async (sneak = false) => { await sleep(600); const wp = await face(); const hu = (await run('data get entity @e[type=interaction,tag=bm.cphit,limit=1] UUID')).match(/\[I; ([-\d]+), ([-\d]+), ([-\d]+), ([-\d]+)\]/);
+    const hs = hu ? hu.slice(1).map(v => (+v >>> 0).toString(16).padStart(8, '0')).join('').replace(/^(.{8})(.{4})(.{4})(.{4})/, '$1-$2-$3-$4-') : '';
+    const ids = Object.values(A.ents).filter(e => Math.hypot(e.x - X, e.z - Z) < 8 && e.objectUUID !== hs).map(e => e.entityId);
+    console.log("   ids", ids.length, Object.keys(A.ents).length, JSON.stringify(Object.values(A.ents).filter(e => Math.hypot(e.x - X, e.z - Z) < 8).map(e => [e.type, +e.x.toFixed(1), +e.y.toFixed(1), +e.z.toFixed(1)]))); if (sneak) { A.input({ shift: true }); await sleep(300); } for (const id of ids) A.interact(id, sneak); await sleep(800); if (sneak) { A.input({}); await sleep(200); } return ids.length; };
+  const has = async (it) => /passed/.test(await run(`execute if items entity TestRat container.* *[minecraft:custom_data~{bm:"${it}"}]`)) || /passed/.test(await run(`execute if items entity TestRat weapon.mainhand *[minecraft:custom_data~{bm:"${it}"}]`));
+  await run('data modify entity @e[type=wolf,tag=bm.cecilpet,limit=1] Sitting set value 1b'); await sleep(500);
+  await run('loot replace entity TestRat weapon.mainhand loot bm:items/gem_fire'); await click();
+  const bodyM = () => run('data get entity @e[type=item_display,tag=bm.cp_body,limit=1] item.components');
+  ok('A Fire Gem: his whole cloak turns to fire (robe and free arm too)', /cec2_body_fire/.test(await bodyM()) && /cec2_larm_fire/.test(await run('data get entity @e[type=item_display,tag=bm.cp_larm,limit=1] item.components')), (await bodyM()).slice(-30));
+  await run('loot replace entity TestRat weapon.mainhand loot bm:items/gem_water'); await click();
+  ok('A Water Gem: he turns to water - and hands back the Fire Gem', /cec2_body_water/.test(await bodyM()) && await has('gem_fire'));
+  await run('item replace entity TestRat weapon.mainhand with minecraft:air'); await run('clear TestRat'); await run('loot replace entity TestRat inventory.20 loot bm:items/cecil_gem');
+  await click(true);
+  ok('Sneak + right-click him empty-handed: the Water Gem comes back, he is his poison self again', /"bm:cec2_body"/.test(await bodyM()) && await has('gem_water') && /has 0/.test(await run('scoreboard players get TestRat bm.cpel')), (await bodyM()).slice(-30) + ' ' + (A.bars.slice(-1)[0] || ''));
+  await run('clear TestRat'); await run('loot replace entity TestRat inventory.20 loot bm:items/cecil_gem'); await run('loot replace entity TestRat weapon.mainhand loot bm:items/ethereal_gem'); await click();
+  ok('The Ethereal Gem: his Ethereal Form', /cec2_body_ethereal/.test(await bodyM()) && /cec2_eyes_ethereal/.test(await run('data get entity @e[type=item_display,tag=bm.cp_eyes,limit=1] item.components')), A.bars.slice(-1)[0] || '');
+  await run('data modify entity @e[type=wolf,tag=bm.cecilpet,limit=1] Sitting set value 0b');
+  await run(`summon husk ${X + 0.5} ${Y + 1} ${Z + 7.5} {Tags:["bm.t65"],PersistenceRequired:1b,NoAI:1b,Health:200f,attributes:[{id:"minecraft:max_health",base:200}]}`);
+  await sleep(6500); const hp = +(await run('data get entity @e[tag=bm.t65,limit=1] Health')).match(/([\d.]+)f/)[1];
+  ok('...he casts a bolt a second, 8 damage each (more than 30 in 6 s)', hp < 170, 'husk hp ' + hp);
+  await run('kill @e[tag=bm.t65]');
+  // every charged spell
+  const KS = { 0: 'PLAGUE BLOOM', 1: 'METEOR', 2: 'TIDAL SURGE', 4: 'ROOT PRISON', 5: 'THUNDERSTORM', 6: 'ROCKSLIDE', 7: 'CYCLONE', 8: 'OVERGROWTH', 9: 'GLACIAL NOVA', 10: 'PRISMATIC CATACLYSM' };
+  for (const [el, nm] of Object.entries(process.env.QUICK ? {} : KS)) {
+    await run(`scoreboard players set TestRat bm.cpel ${el}`); await run(`scoreboard players set @e[type=wolf,tag=bm.cecilpet] bm.cpel ${el}`);
+    await run('scoreboard players set @e[type=wolf,tag=bm.cecilpet] bm.cpch 20'); A.bars.length = 0;
+    await run(`summon husk ${X + 0.5} ${Y + 1} ${Z + 6.5} {Tags:["bm.t65"],PersistenceRequired:1b,NoAI:1b,Health:200f,attributes:[{id:"minecraft:max_health",base:200}]}`);
+    let seen = ''; for (let i = 0; i < 10 && !seen; i++) { await sleep(400); seen = A.bars.find(b => b.includes(nm)) || ''; }
+    await sleep(2500); const h = (await run('data get entity @e[tag=bm.t65,limit=1] Health')).match(/([\d.]+)f/);
+    ok(`Charged spell ${nm}`, !!seen && (!h || +h[1] < 200), (h ? 'hp ' + h[1] : 'dead') + ' fields ' + (await cnt('@e[type=marker,tag=bm.cf]')));
+    await run('kill @e[tag=bm.t65]'); await sleep(300);
+  }
+  await sleep(6000);
+  ok('Spell fields and falling rocks clean themselves up', (await cnt('@e[type=marker,tag=bm.cf]')) === 0 && (await cnt('@e[tag=bm.cfrock]')) === 0 && (await cnt('@e[tag=bm.cfice]')) === 0);
+  await run('kill @e[type=wolf,tag=bm.cecilpet]'); await run('scoreboard players reset TestRat bm.cpcd'); await run('scoreboard players reset TestRat bm.cpel');
+  console.log(`\n${res.filter(Boolean).length}/${res.length} passed`); process.exit(0);
+})();

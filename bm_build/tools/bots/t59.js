@@ -1,0 +1,31 @@
+const { bot, rcon, sleep } = require('./lib');
+const X = 12200, Y = 200, Z = 12200; const res = [];
+(async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(1500);
+  const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
+  const cnt = async (sel) => { const m = (await run(`execute store result score #t bm.rng if entity ${sel}`)).match(/Count: (\d+)/); return m ? +m[1] : 0; };
+  const sc = async (who, o) => ((await run(`scoreboard players get ${who} ${o}`)).match(/has (-?\d+)/) || [])[1];
+  await run(`fill ${X - 10} ${Y} ${Z - 10} ${X + 10} ${Y} ${Z + 10} stone`); await run(`fill ${X - 10} ${Y + 1} ${Z - 10} ${X + 10} ${Y + 6} ${Z + 10} air`);
+  await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..30]`); await run('kill @e[type=wolf,tag=bm.frogpet]'); await run('kill @e[type=wolf,tag=bm.cecilpet]');
+  await run('clear TestRat'); await run('scoreboard players reset TestRat bm.fgcd'); await run('tag TestRat remove bm.fgowed'); await run('scoreboard players reset TestRat bm.cpcd');
+  await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5}`); await sleep(1500);
+  // Cecil v2
+  await run('execute as TestRat at @s run function bm:p46/pet/summon'); await sleep(1500);
+  ok('Cecil comes in his new (shorter, slimmer) look', /cec2_head/.test(await run('data get entity @e[tag=bm.cp_head,limit=1] item.components')) && (await cnt('@e[tag=bm.cpet,tag=bm.cp2]')) === 5);
+  const hy = (await run('data get entity @e[tag=bm.cp_head,limit=1] Pos[1]')).match(/([\d.]+)d/)[1], wy = (await run('data get entity @e[type=wolf,tag=bm.cecilpet,limit=1] Pos[1]')).match(/([\d.]+)d/)[1];
+  ok('...his hood sits 0.94 above the ground (was 1.38)', Math.abs(hy - wy - 0.94) < 0.05, (hy - wy).toFixed(2));
+  await run('kill @e[type=wolf,tag=bm.cecilpet]'); await sleep(800);
+  ok('Cecil faints: 5 minutes (300 s)', +(await sc('TestRat', 'bm.cpcd')) >= 295, await sc('TestRat', 'bm.cpcd'));
+  await run('scoreboard players reset TestRat bm.cpcd');
+  // the Frog faints
+  await run('execute as TestRat at @s run function bm:p20/frog/summon'); await sleep(2500);
+  ok('A hired Frog carries his owner\'s id', +(await sc('@e[type=wolf,tag=bm.frogpet,limit=1]', 'bm.pid')) > 0);
+  await run('kill @e[type=wolf,tag=bm.frogpet]'); await sleep(2200);
+  ok('The Frog faints: 5 minutes, and a free return owed', +(await sc('TestRat', 'bm.fgcd')) >= 290 && /passed/.test(await run('execute if entity @a[name=TestRat,tag=bm.fgowed]')), await sc('TestRat', 'bm.fgcd'));
+  A.bars.length = 0; await run('execute as TestRat at @s run function bm:p20/frog/hire'); await sleep(300);
+  ok('...the hut turns him away while he recovers', (await cnt('@e[type=wolf,tag=bm.frogpet]')) === 0 && /recovering/.test(A.bars.join(' ')), A.bars.slice(-1)[0]);
+  await run('scoreboard players set TestRat bm.fgcd 0'); A.bars.length = 0;
+  await run('execute as TestRat at @s run function bm:p20/frog/hire'); await sleep(500);
+  ok('...and afterwards he rejoins free (no Medallion needed)', (await cnt('@e[type=wolf,tag=bm.frogpet]')) === 1 && !/passed/.test(await run('execute if entity @a[name=TestRat,tag=bm.fgowed]')), A.bars.slice(-1)[0]);
+  await run('kill @e[type=wolf,tag=bm.frogpet]'); await sleep(2200); await run('scoreboard players reset TestRat bm.fgcd'); await run('tag TestRat remove bm.fgowed');
+  console.log(`\n${res.filter(Boolean).length}/${res.length} passed`); process.exit(0);
+})();
