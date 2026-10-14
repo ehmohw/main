@@ -154,7 +154,8 @@ def generate(G):
        [f'execute if items entity {item_d} contents {holds(iid)} if entity @s[nbt={{width:0.6f}}] rotated as {case.replace("distance=..0.05", "distance=..0.6")} '
         f'positioned ^ ^0.05 ^-0.03 run function bm:p134/fig/wall_{iid}' for iid in FIG] +
        [f'execute if entity @e[type=minecraft:item_display,tag=bm.dcfg,distance=..0.8] run data merge entity {item_d} {{transformation:{{scale:[0f,0f,0f]}}}}',
-        'execute if entity @e[type=minecraft:item_display,tag=bm.dcitem,tag=bm.dcspin,distance=..0.05] run tag @e[type=minecraft:item_display,tag=bm.dcfg,distance=..0.8] add bm.dcmspin',
+        # (2.78: only on a floor case - a wall case is too shallow for a statue to turn in without poking through the glass)
+        'execute unless entity @s[nbt={width:0.6f}] if entity @e[type=minecraft:item_display,tag=bm.dcitem,tag=bm.dcspin,distance=..0.05] run tag @e[type=minecraft:item_display,tag=bm.dcfg,distance=..0.8] add bm.dcmspin',
         'particle minecraft:wax_on ~ ~0.6 ~ 0.2 0.25 0.2 0 10', 'playsound minecraft:block.amethyst_block.chime block @a[distance=..16] ~ ~ ~ 0.7 1.4'])
     fn('p134/fig/is_fol', [f'execute if items entity {item_d} contents {holds(iid)} run return 1' for iid in FIG] + ['return 0'])
     # put in: the figure, and how to have the item instead
@@ -181,7 +182,9 @@ def generate(G):
                             'particle minecraft:wax_off ~ ~0.6 ~ 0.2 0.25 0.2 0 8', 'playsound minecraft:block.amethyst_block.place block @a[distance=..16] ~ ~ ~ 0.7 1.2',
                             'execute on attacker run ' + say('The item itself. (Punch again for the figurine.)', '#e8d29a')])
     # (the case's turn: the figure turns with it)
-    G.FUNCS['p72/dc/spin_toggle'] += ['execute as @e[type=minecraft:interaction,tag=bm.dcme,limit=1] at @s run tag @e[type=minecraft:item_display,tag=bm.dcfg,distance=..0.8] add bm.dcmspin']
+    G.FUNCS['p72/dc/spin_toggle'] += ['execute as @e[type=minecraft:interaction,tag=bm.dcme,limit=1] unless entity @s[nbt={width:0.6f}] at @s run tag @e[type=minecraft:item_display,tag=bm.dcfg,distance=..0.8] add bm.dcmspin',
+                                      'execute at @e[type=minecraft:interaction,tag=bm.dcme,limit=1,nbt={width:0.6f}] if entity @e[type=minecraft:item_display,tag=bm.dcfg,distance=..0.8] run '
+                                      + say('A statue stands still in a wall case - there isn\'t the room to turn it.', '#e8d29a')]
     G.FUNCS['p72/dc/spin_off'] += ['execute as @e[type=minecraft:interaction,tag=bm.dcme,limit=1] at @s run tag @e[type=minecraft:item_display,tag=bm.dcfg,distance=..0.8] remove bm.dcmspin']
     # (a figure whose case is gone - broken some other way - goes too)
     G.FUNCS['loop/second'][-1:-1] = ['execute as @e[type=minecraft:item_display,tag=bm.dcfg] at @s unless entity @e[type=minecraft:interaction,tag=bm.dchit,distance=..0.9] run kill @s']

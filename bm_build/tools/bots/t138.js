@@ -101,6 +101,12 @@ const res = [];
   ok('the Oath in it: a little Apophiss (12 parts) in the shallow case', (await cnt(wfig)) === 12, `parts ${await cnt(wfig)}`);
   let zmax = 0; for (let k = 0; k < 12; k++) zmax = Math.max(zmax, Math.abs(+(((await run(`${O}data get entity ${wfig.slice(0, -1)},limit=1,sort=random] transformation.translation[2]`)).match(/(-?[\d.]+)f/) || [0, 9])[1])));
   ok('...no deeper than the glass', zmax < 0.16, `deepest joint ${zmax.toFixed(3)}`);
+  // (2.78: a wall case is too shallow for a statue to turn in - sneak + right-click leaves it still, and says so)
+  A.bars.length = 0; A.input({ shift: true }); await sleep(300); if (wbox) A.interact(wbox.entityId, true); await sleep(600); A.input({}); await sleep(300);
+  ok('sneak + right-click on the wall case: the statue stays still', (await cnt(`${wfig.slice(0, -1)},tag=bm.dcmspin]`)) === 0 && (await cnt(wfig)) === 12,
+     `turning ${await cnt(`${wfig.slice(0, -1)},tag=bm.dcmspin]`)}`);
+  ok('...and the player is told why', A.bars.some(b => /wall case/.test(b)), A.bars.slice(-2).join(' | '));
+  A.input({ shift: true }); await sleep(300); if (wbox) A.interact(wbox.entityId, true); await sleep(600); A.input({}); await sleep(300);   // (spin back off)
   A.input({ shift: true }); await sleep(250); if (wbox) A.attack(wbox.entityId); await sleep(500); A.input({}); await sleep(400);
   ok('sneak + punch: the case comes down, the figurine with it', (await cnt(wallSel)) === 0 && (await cnt(wfig)) === 0 && (await has('TestRat', 'display_case_gilded')) === 1);
   ok('...and the Oath drops out, safe', await wait(2000, async () => (await cnt(`@e[type=minecraft:item,x=${X + 2.75},y=${Y + 2},z=${Z + 4.5},distance=..3,nbt={Item:{components:{"minecraft:custom_data":{bm:"apo_oath"}}}}]`)) === 1 ||
