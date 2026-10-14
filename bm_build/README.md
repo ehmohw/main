@@ -1,4 +1,4 @@
-# Black Market — v2.75 (Java 26.3)
+# Black Market — v2.76 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,58 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.76: the Ledger fixed, the Wraithfire Heart, Pearlman's Golden Statue, a vault by every spawner
+
+### Fixed (urgent): the Ledger's Office - Plan a Heist and the lounge
+- **"Plan a Heist" is back at the top of the Office.** A later page of the Office (the Codex, in 2.72) rebuilt it from a copy that didn't have the button. The build now refuses to ship an Office without it.
+- **"The Fixer's Lounge" button works again.** The Gutter Bank's exchange page (new in 2.75) claimed a block of button codes that included the lounge's, so pressing the lounge did nothing. The same overlap broke **Skip this puzzle** on a heist. Both work again.
+- **"Go to the Lounge" now shows when the leader starts a new raid.** The "Another job?" card a crew member gets didn't have the button. It was only on the copy the Ledger reopens.
+- **You don't need a new Ledger.** The Office lives on the server, so every Ledger shows the fixed menu. Old Ledgers are still re-issued as the current one the moment they're in someone's pockets, with up-to-date lore. Nothing to do.
+- **Found by the same check:**
+  - **Rat Bank:** Red Xenite's own buttons (deposit, take 1, take 10) were moving Tokens instead. They work on Red Xenite now.
+  - **Armory:** the Tier V signature **Adrenaline** couldn't be picked; pressing it picked "none".
+- **No more hidden buttons:** the build now checks every menu, and fails if any button's code is caught by another button's route first.
+- Every fix was played through as a regular (non-operator) player, pressing the buttons on screen, solo and in a crew of two:
+  - Plan → tier → tries, the fee and the trip down.
+  - Skip this puzzle.
+  - The end-of-heist screens: the leader's, a member's, and "Another job?".
+  - The lounge door home.
+
+### The Wraithfire Heart
+- **Pearlman fuses one:** a Scorching Heart and an Ethereal Gem in, a Wraithfire Heart out (3 a visit). The first time earns **Burning Blue**, a hidden challenge.
+- **Carried:** fire can't touch you, and monsters within 4 blocks catch soul fire.
+- **Set down** (sneak + use on a block): **the Wraithfire Hearth**, a stronger Hearthfire.
+  - No monster spawns within 64 blocks (the Hearthfire: 48).
+  - Monsters within 16 burn blue; Blood Moon horrors within 32 burn hard.
+  - Sneak + punch it to take it back.
+- **Hand it to Cecil or KillerWatt** for his **Wraithfire Form**: everything his Ethereal Form is, burning blue.
+  - **Cecil:** soul-fire bolts (12 to the undead); his charged spell is **Soul Pyre**.
+  - **KillerWatt:** every blow sets them alight; his charged attack is **Soul Inferno**.
+  - A gem gives the heart back, or sneak + right-click him empty-handed.
+- **Give it to Emma:** she can **stay ethereal** as long as you like (toggle it in her menu). Everyone she watches over gets Fire Resistance and Regeneration. Take the heart back from her menu.
+
+### Pearlman's Golden Statue - and Pearlman, off the clock
+- **Collect all nine gems from Pearlman out in the world.** The vault's gems don't count, nor any bought in the heist lobby. Each new one is ticked off in chat with the ones still to find. (Gems bought before 2.76 aren't counted - buy each kind once more.)
+- **All nine:** **Gold Standard** (a hidden challenge), **Pearlman's Golden Statue** and his **Business Card**.
+- **The statue:** sneak + use to set it up. Within 32 blocks, villagers trade at about half price (Hero of the Village IV). The Black Market's own traders don't play along.
+- **Pearlman, the follower** (his card calls him): he can't be hurt and never faints. While he's close:
+  - villagers trade cheaper;
+  - you have Luck;
+  - you swim like a penguin;
+  - each villager trade has a 1-in-5 chance of an emerald back.
+  - He sits when told and chats now and then (the chatter switch hushes him). Not in the vault.
+- **Lost the statue or the card?** Trade with Pearlman once and he replaces it.
+
+### More vaults in the boss dungeons
+- **A stash vault beside every trial spawner.** Each spawner's Vault Key opens the stash next to it: once per player, like every vault, and a dungeon reset opens them again. The spoils vault at the end is still the big one.
+- **Older dungeons get theirs** the first time someone comes near.
+
+### Also
+- **Invisibility hides only Black Market gear now.** Vanilla armour still shows, as it does in vanilla; it's an edge the Black Market's pieces have.
+- **Calling Democratus no longer sends Leo home** (and the other way round). They shared a call ticket.
+
+Still to come in 2.76: Apophiss and Tullius (model and animation drafts for approval first), and a polish pass.
 
 ## New in 2.75: five new records, the Lantern wakes, KillerWatt sits, true invisibility, graveyards in the land - and one Ledger
 

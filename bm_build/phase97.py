@@ -406,7 +406,10 @@ def generate(G):
     second.append('scoreboard players remove @a[scores={bm.dmcd=1..}] bm.dmcd 1')
     G.FUNCS['p62/died'].insert(-1, 'execute as @e[type=minecraft:wolf,tag=bm.dmpet] if score @s bm.pid = #me bm.pid at @s run function bm:p97/go')
     fn('p97/go', ['scoreboard players add #gone bm.rng 1', 'function bm:p97/fade', 'execute on passengers run kill @s', 'data remove entity @s Owner', 'tp @s ~ -500 ~', 'kill @s'])
-    P73.follow_rules(G, ('demo', 'wolf', 'bm.dmpet', 'demo_seal', 'p97/go', 'Democratus', 'bm.fgo', 'p97/summon_here'), second)
+    # (2.76: his own call ticket - sharing Leo's, calling either one sent the other home)
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.fgd dummy']
+    G.OBJECTIVES += ['bm.fgd']
+    P73.follow_rules(G, ('demo', 'wolf', 'bm.dmpet', 'demo_seal', 'p97/go', 'Democratus', 'bm.fgd', 'p97/summon_here'), second)
     # (Emma's pulses buff him too, as they do Celi)
     G.FUNCS['p57/pulse'] += [l.replace('tag=bm.celipet', 'tag=bm.dmpet') for l in G.FUNCS['p57/pulse'] if 'tag=bm.celipet' in l]
 

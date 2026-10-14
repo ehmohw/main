@@ -95,4 +95,24 @@ def generate(G, builds):
             second.append(f'execute as @e[type=minecraft:marker,tag=bm.dg,tag=bm.d_{d},tag=!{done}] at @s rotated ~ 0 '
                           f'positioned ^{x - gx} ^{y - gy} ^{z - gz} if entity @a[distance=..24] if block ~ ~ ~ minecraft:vault '
                           f'run function bm:p2/{d}/vaultfix{i}')
+    # ---------------- 2.76: stash vaults (beside each trial spawner) in dungeons that generated before them - the
+    # dungeon's turn is read off its spoils vault's facing, then the stashes go down (only into air) with their markers
+    from nbt import Double
+    for d, B in builds.items():
+        gx, gy, gz = dg_pos(B)
+        mx, my, mz, _k, _l, mf = next(v for v in B.meta['vaults'] if v[4].endswith('/vault'))
+        stash = [v for v in B.meta['vaults'] if v[4].endswith('/stash')]
+        for r in range(4):
+            lines = []
+            for (x, y, z, key, loot, facing) in stash:
+                st = rot_state(f'minecraft:vault[facing={facing},ominous=false,vault_state=inactive]', r)
+                cfg = snbt({'config': {'key_item': stack_nbt(key), 'loot_table': loot, 'activation_range': Double(4.0), 'deactivation_range': Double(4.5)}})
+                at = f'^{x - gx} ^{y - gy} ^{z - gz}'
+                lines += [f'execute if block {at} minecraft:air run setblock {at} {st}{cfg}',
+                          f'execute positioned {at} align xyz positioned ~0.5 ~0.5 ~0.5 unless entity @e[type=minecraft:marker,tag=bm.vaultm,distance=..0.4] '
+                          f'run summon minecraft:marker ~ ~ ~ {{Tags:["bm.p2","bm.d_{d}","bm.vaultm"]}}']
+            fn(f'p2/{d}/stash_r{r}', lines + ['tag @s add bm.stash76'])
+        fn(f'p2/{d}/stash_find', [f'execute if block ^{mx - gx} ^{my - gy} ^{mz - gz} minecraft:vault[facing={DIRS[(DIRS.index(mf) + r) % 4]}] run return run function bm:p2/{d}/stash_r{r}'
+                                  for r in range(4)])
+        second.append(f'execute as @e[type=minecraft:marker,tag=bm.dg,tag=bm.d_{d},tag=!bm.stash76] at @s rotated ~ 0 if entity @a[distance=..40] run function bm:p2/{d}/stash_find')
     return dict(second=second)

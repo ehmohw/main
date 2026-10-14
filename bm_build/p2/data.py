@@ -122,6 +122,10 @@ def generate(G, builds, offers_fn):
             pool([vt(V[0])]), pool([loot_entry('token', uni(2, 4))]),
             pool([loot_entry('medallion')], cond=[chance(0.35)]), pool([frag], cond=[chance(0.15)]),
             pool([{'type': 'minecraft:item', 'name': 'minecraft:diamond', 'functions': [{'function': 'minecraft:set_count', 'count': uni(1, 3)}]}])] + ([pool([loot_entry(i) for i in ('rabbit_foot', 'halo_fortune', 'midas_boots', 'pocket_slots')], cond=[chance(0.25)])] if d == 'lucky' else [])})
+        # 2.76: the stash vaults beside the trial spawners - a lighter spoils roll for each spawner's key
+        wjson(f'bm/loot_table/p2/{d}/stash.json', {'type': 'minecraft:chest', 'pools': [
+            pool([vt(V[0])]), pool([loot_entry('token', uni(1, 2))]), pool([loot_entry('medallion')], cond=[chance(0.12)]),
+            pool([{'type': 'minecraft:item', 'name': 'minecraft:diamond'}], cond=[chance(0.5)]), pool([frag], cond=[chance(0.05)])]})
         # 2.13: a victor's (ominous) vault gives currency (Black Market + Vorn), this boss's own prizes, and one rare vanilla treasure
         item_ = lambda name, lo=1, hi=1, w=1: dict({'type': 'minecraft:item', 'name': f'minecraft:{name}', 'weight': w},
                                                  **({'functions': [{'function': 'minecraft:set_count', 'count': uni(lo, hi)}]} if hi > 1 else {}))

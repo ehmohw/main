@@ -300,7 +300,7 @@ COS_PAL = {'c1': ('Midnight', (('#04060e', '#16224a', '#4a6ab0'), ('#1a8ac0', '#
            'c3': ('Neon', (('#08040c', '#2a1a34', '#5a4a6a'), ('#c0108a', '#ff8ae8'))),
            'c4': ('Golden Thunder', (('#2a1a04', '#a07018', '#ffd870'), ('#c88a10', '#fff4b0')))}
 EL_PAL.update({k: pal for k, (_n, pal) in COS_PAL.items()})
-VARIANTS = [k for k in EL_KEYS if k != 'electric'] + ['eth'] + list(COS_PAL)
+VARIANTS = [k for k in EL_KEYS if k != 'electric'] + ['eth', 'wf'] + list(COS_PAL)      # (2.76: wf - the Wraithfire Heart's form)
 BODY_TEX = ['kw_hide', 'kw_hide_dk', 'kw_belly', 'kw_lime', 'kw_emblem', 'kw_face', 'kw_spike', 'kw_claw']
 
 
@@ -375,6 +375,34 @@ def _eth_tex(name, im):
     return _metal(im, 190 + len(name))
 
 
+def _wf_tex(name, im):
+    """(2.76) the Wraithfire form: charred black steel, its seams and cracks burning soul-blue"""
+    if name == 'kw_belly':                                       # its cracks burn
+        out = _gmap(im, ('#020608', '#0a1c26', '#2a4a5c'))
+        for y in range(64):
+            for x in range(64):
+                if _lum(im.getpixel((x, y))) < 0.13:
+                    out.putpixel((x, y), hexc('#5ae8ff' if (x * 2 + y) % 7 < 4 else '#e0ffff')[:3] + (255,))
+        return out
+    if name == 'kw_face':                                        # the maw is a furnace of blue fire
+        out = _gmap(im, ('#020608', '#0c1e28', '#38566a'))
+        for y in range(im.height):
+            for x in range(im.width):
+                r, g, b, a = im.getpixel((x, y))
+                if b > g and r > g and b > 30:
+                    out.putpixel((x, y), _mix(hexc('#1aa8e0')[:3], (230, 255, 255), min(1.0, b / 140)) + (a,))
+        return out
+    if name in ('kw_emblem', 'kw_claw'):                         # soul fire: teal to white-hot
+        return _gmap(im, ('#04304a', '#16b4e8', '#c8fcff'))
+    if name == 'kw_gold':                                        # his lightning tendrils: blue flame, not ice
+        return _gmap(im, ('#04283c', '#0e8cc4', '#3adcff'))
+    if name == 'kw_spike':
+        return _gmap(im, ('#000000', '#08303e', '#5ae0ff'))
+    if name == 'kw_lime':                                        # his plate and tendrils: the brightest flame
+        return _gmap(im, ('#02283a', '#0a96c8', '#48ecff'))
+    return _gmap(im, ('#010406', '#071a26', '#1e4e66'))
+
+
 def variant_textures(base):
     out = {}
     for v in VARIANTS:
@@ -382,6 +410,8 @@ def variant_textures(base):
             im = base[name]
             if v == 'eth':
                 out[f'{name}_{v}'] = _irid(im) if name == 'kw_gold' else _eth_tex('kw_face' if name.startswith('kw_face') else name, im)
+            elif v == 'wf':
+                out[f'{name}_{v}'] = _wf_tex('kw_face' if name.startswith('kw_face') else name, im)
             else:
                 body, acc = EL_PAL[v]
                 mid = '#%02x%02x%02x' % _mix(hexc(acc[0])[:3], hexc(acc[1])[:3], 0.55)
@@ -420,10 +450,12 @@ def variant_models(base_models):
         if not name.startswith('kw_') or name == 'kw_spark':
             continue
         for v in VARIANTS:
-            e2 = copy.deepcopy(els) + (copy.deepcopy(eth_spikes(name)) if v == 'eth' and name != 'kw_tend' else [])
+            e2 = copy.deepcopy(els) + (copy.deepcopy(eth_spikes(name)) if v in ('eth', 'wf') and name != 'kw_tend' else [])
             for e in e2:
                 for f in e['faces'].values():
                     f['texture'] = f['texture'] + f'_{v}'
+                if v == 'wf':                                    # (burning: a glow of its own, whatever the light)
+                    e['light_emission'] = max(e.get('light_emission', 0), 8)
             used = sorted({e['faces'][f]['texture'][1:] for e in e2 for f in e['faces']})
             M[f'{name}_{v}'] = ({k: f'bm:block/{k}' for k in used}, e2)
     return M

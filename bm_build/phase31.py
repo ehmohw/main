@@ -71,9 +71,13 @@ def generate(G):
     op_lines.append('function bm:p31/bank/dlg with storage bm:ui bk')
     fn('p31/bank/open', op_lines)
     btns = []
+    # (2.76: four codes per currency, side by side - the old 4010+i / 4020+i ... ran into each other at the 11th, Red Xenite,
+    # whose 'Deposit all' took a Token out instead)
+    bank_code = lambda i, k: 4010 + 4 * i + k
+    assert bank_code(len(BANK) - 1, 3) <= 4099, 'the Rat Bank has outgrown its codes'
     for i, (cur, obj, nm, col) in enumerate(BANK):
-        btns += [P28.btn([T('Deposit all ', 'white'), T(nm, col)], 4010 + i, width=150),
-                 P28.btn(T('Take 1', 'gray'), 4020 + i, width=70), P28.btn(T('Take 10', 'gray'), 4030 + i, width=70), P28.btn(T('Take all', 'gray'), 4040 + i, width=70)]
+        btns += [P28.btn([T('Deposit all ', 'white'), T(nm, col)], bank_code(i, 0), width=150),
+                 P28.btn(T('Take 1', 'gray'), bank_code(i, 1), width=70), P28.btn(T('Take 10', 'gray'), bank_code(i, 2), width=70), P28.btn(T('Take all', 'gray'), bank_code(i, 3), width=70)]
     rows = []                     # 2.13: every currency the bank keeps, two to a line
     for i in range(0, len(BANK), 2):
         parts = []
@@ -88,10 +92,10 @@ def generate(G):
     act = [f'execute unless score @s bm.menu matches {P28.MENU["bank"]} run return run function bm:p28/stale',
            'execute unless function bm:p31/bank/can run return run function bm:p28/stale']
     for i, (cur, obj, nm, col) in enumerate(BANK):
-        act += [f'execute if score #act bm.pay matches {4010 + i} run return run function bm:p31/bank/dep_{cur}',
-                f'execute if score #act bm.pay matches {4020 + i} run return run function bm:p31/bank/take_{cur} {{n:1}}',
-                f'execute if score #act bm.pay matches {4030 + i} run return run function bm:p31/bank/take_{cur} {{n:10}}',
-                f'execute if score #act bm.pay matches {4040 + i} run return run function bm:p31/bank/take_all_{cur}']
+        act += [f'execute if score #act bm.pay matches {bank_code(i, 0)} run return run function bm:p31/bank/dep_{cur}',
+                f'execute if score #act bm.pay matches {bank_code(i, 1)} run return run function bm:p31/bank/take_{cur} {{n:1}}',
+                f'execute if score #act bm.pay matches {bank_code(i, 2)} run return run function bm:p31/bank/take_{cur} {{n:10}}',
+                f'execute if score #act bm.pay matches {bank_code(i, 3)} run return run function bm:p31/bank/take_all_{cur}']
         fn(f'p31/bank/dep_{cur}', [f'execute store result score #n bm.pay run clear @s *[minecraft:custom_data~{{bm:"{cur}"}}] 0',
                                    'execute if score #n bm.pay matches 0 run return run ' + title('@s', 'actionbar', T(f'You have no {nm} on you.', 'gray')),
                                    f'clear @s *[minecraft:custom_data~{{bm:"{cur}"}}]', f'scoreboard players operation @s {obj} += #n bm.pay',

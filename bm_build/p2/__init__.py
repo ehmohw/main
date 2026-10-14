@@ -30,10 +30,11 @@ def extend_offers(O, offer):
 
 def builds():
     if not BUILT:
-        from p2.kit import arena_probes, shrine
+        from p2.kit import arena_probes, shrine, stash_vaults
         for d, f in BUILDERS.items():
             BUILT[d] = f()
             shrine(BUILT[d])                  # 2.2 altar shrines (the Hollow Throne builds its own)
+            stash_vaults(BUILT[d])            # 2.76: a stash vault beside every trial spawner
             arena_probes(BUILT[d])
     return BUILT
 

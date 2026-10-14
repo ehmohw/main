@@ -839,6 +839,10 @@ if __name__ == '__main__':
     phase124.rp(sys.modules[__name__])
     import phase126                           # (2.75: Pearlman's bell, the empty equipment model)
     phase126.rp(sys.modules[__name__])
+    import phase127                           # (2.76: the Wraithfire Heart, Cecil's wraith looks)
+    phase127.rp(sys.modules[__name__])
+    import phase128                           # (2.76: Pearlman's Golden Statue, his card)
+    phase128.rp(sys.modules[__name__])
     import phase95                            # (after every head model: the faces)
     phase95.rp(sys.modules[__name__])
     LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',

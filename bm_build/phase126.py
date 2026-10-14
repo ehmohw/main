@@ -1,8 +1,8 @@
 """2.75 (late): true invisibility, Pearlman's bell, graveyards that sit in the land, one set of gems per world.
 
 INVISIBLE MEANS INVISIBLE: while you have Invisibility (the Phantom Regalia, the Thief's Cowl, Shadowstep, the Phantom kit,
-  a smoke bomb, a potion), the armour you wear isn't drawn either - helmet, chestplate, leggings, boots, elytra, even a
-  pumpkin or a mob head. (Each worn piece is pointed at an empty equipment model, bm:none, and put back the moment the
+  a smoke bomb, a potion), the Black Market pieces you wear aren't drawn either - helmets, chestplates, leggings, boots,
+  wings, hats (2.76: only this pack's own gear - vanilla armour still shows; it's an edge the Black Market's gear has). (Each worn piece is pointed at an empty equipment model, bm:none, and put back the moment the
   effect ends. A piece that leaves your armour slots - taken off, dropped, or dropped on death - is put back too.)
 PEARLMAN'S BELL: a rare raid find (5% a won heist, any tier, every raider). Ring it and Pearlman, the Traveling
   Salespenguin, waddles over - wherever you are, if he isn't already out on his rounds. One ring.
@@ -13,7 +13,7 @@ GRAVEYARDS: new graveyards no longer stand on a cliff of their own foundation. T
 GEMS STAY WHERE THEY WERE GIVEN: the gem (or the Ethereal Gem) Cecil or KillerWatt carries in the heist lobby is a
   separate one from the one he carries in the overworld. Each world keeps its own, swapped as you come and go.
 """
-from items import item, T, TOTEM, ITEMS
+from items import item, T, TOTEM, ITEMS, ITEM_VERSION
 from useitem import hold, HOLD
 from nbt import B, snbt
 
@@ -59,7 +59,9 @@ def generate(G):
     fn('p126/ghost/on', ['tag @s add bm.ghost', 'function bm:p126/ghost/hide_all'])
     fn('p126/ghost/keep', ['execute unless predicate bm:p126/invis run return run function bm:p126/ghost/off', 'function bm:p126/ghost/hide_all'])
     fn('p126/ghost/off', ['tag @s remove bm.ghost', 'function bm:p126/ghost/show_armor'])
-    fn('p126/ghost/hide_all', [f'execute if items entity @s armor.{s} * unless items entity @s armor.{s} {GH} run function bm:p126/ghost/hide_{s}' for s in SLOTS])
+    # (2.76: only this pack's own pieces vanish - an edge Black Market gear has over vanilla; vanilla armour stays in sight)
+    BMI = f'*[minecraft:custom_data~{{bmv:{ITEM_VERSION}}}]'
+    fn('p126/ghost/hide_all', [f'execute if items entity @s armor.{s} {BMI} unless items entity @s armor.{s} {GH} run function bm:p126/ghost/hide_{s}' for s in SLOTS])
     for s in SLOTS:
         fn(f'p126/ghost/hide_{s}', ['data remove storage bm:ghost e',
                                     f'data modify storage bm:ghost e set from entity @s equipment.{s}.components."minecraft:equippable"',

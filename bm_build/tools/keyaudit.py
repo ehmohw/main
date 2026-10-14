@@ -1,20 +1,21 @@
 import sys, json, glob, os
-sys.path.insert(0, '/home/claude/bm_build')
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import items as I
 import p2.p2items
 from p2 import builds
 from p2.kit import stack_nbt
-DP = '/home/claude/bm_build/out_p2/BlackMarket_DP/data/bm'
+DP = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'out_p2/BlackMarket_DP/data/bm')
 B = builds()
 bad = []
 def fn(name): return open(f'{DP}/function/{name}.mcfunction').read()
 for d, Bd in B.items():
     vs = Bd.meta['vaults']
     kinds = sorted(v[3] for v in vs)
-    if kinds != sorted([f'bkey_{d}', f'vkey_{d}']): bad.append(f'{d}: vault keys {kinds}')
+    if sorted(set(kinds)) != sorted([f'bkey_{d}', f'vkey_{d}']) or kinds.count(f'bkey_{d}') != 1: bad.append(f'{d}: vault keys {kinds}')
+    if kinds.count(f'vkey_{d}') != 1 + len(Bd.meta['spawners']): bad.append(f'{d}: {kinds.count(f"vkey_{d}") - 1} stash vaults for {len(Bd.meta["spawners"])} spawners')
     for (x, y, z, key, loot, facing) in vs:
         st, nbt = Bd.b[(x, y, z)], Bd.nbt[(x, y, z)]
-        want_loot = f'bm:p2/{d}/' + ('victor' if key.startswith('bkey') else 'vault')
+        want_loot = f'bm:p2/{d}/' + ('victor' if key.startswith('bkey') else 'stash' if loot.endswith('/stash') else 'vault')
         om = 'ominous=true' in st
         if loot != want_loot or nbt['config']['loot_table'] != want_loot: bad.append(f'{d}: {key} vault loot {loot}')
         if om != key.startswith('bkey'): bad.append(f'{d}: {key} vault ominous={om}')

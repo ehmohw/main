@@ -447,3 +447,27 @@ def shrine(B):
                 for y in range(ay + 4, top): B.set(ax, y, az, 'iron_chain[axis=y,waterlogged=false]')
                 B.set(ax, ay + 3, az, 'soul_lantern[hanging=true,waterlogged=false]')
             break
+
+
+def stash_vaults(B):
+    """2.76: a STASH VAULT beside every trial spawner. Each spawner hands every player a Vault Key, and there was only
+    the one spoils vault to spend them on - now each spawner's own key opens the stash next to it (once a player, like
+    every vault; a dungeon reset opens them again). The spoils vault at the end stays the big one."""
+    def air(c):
+        st = B.b.get(c)
+        return st is None or st.endswith(':air') or st.endswith(':cave_air')
+    def solid(c):
+        st = B.b.get(c)
+        return st is not None and not air(c) and 'water' not in st and 'carpet' not in st and 'slab[type=bottom' not in st
+    taken = [v[:3] for v in B.meta['vaults']]
+    for (x, y, z, cfg) in list(B.meta['spawners']):
+        for dx, dz in ((2, 0), (-2, 0), (0, 2), (0, -2), (1, 0), (-1, 0), (0, 1), (0, -1)):
+            c = (x + dx, y, z + dz)
+            if not (air(c) and air((c[0], y + 1, c[2])) and solid((c[0], y - 1, c[2]))): continue
+            if any(abs(c[0] - t[0]) + abs(c[2] - t[2]) <= 1 and t[1] == y for t in taken): continue
+            facing = 'east' if dx > 0 else 'west' if dx < 0 else 'south' if dz > 0 else 'north'      # (its face turned away from the spawner)
+            B.vault(c[0], y, c[2], facing, f'vkey_{B.d}', f'bm:p2/{B.d}/stash')
+            taken.append(c)
+            break
+        else:
+            raise ValueError(f'{B.d}: no room for a stash vault beside the spawner at {(x, y, z)}')

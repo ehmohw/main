@@ -113,6 +113,9 @@ import phase123 as R123      # 2.75: the bank's exchange both ways, chatter in f
 import phase124 as R124      # 2.75: five more records; every newcomer's hidden cache full
 import phase125 as R125      # 2.75: Democratus bigger + his duel, KillerWatt sits, Sparks Fly, menus, one-name traders, the Lantern wakes
 import phase126 as R126      # 2.75: true invisibility, Pearlman's bell, graveyards in the land, one set of gems per world
+import phase127 as R127      # 2.76: the Wraithfire Heart - Pearlman's fusion, the Wraithfire Hearth, Cecil's and KillerWatt's Wraithfire Form, Emma stays ethereal
+import phase128 as R128      # 2.76: Pearlman's Golden Statue (all nine gems), Pearlman the follower
+import phase129 as R129      # 2.76: the Ledger - every old one re-issued; the Office keeps Plan a Heist and the lounge
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import allies                # 2.67: every friendly-fire list skips every follower (allies.py)
@@ -879,7 +882,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.75' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.76' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -1028,7 +1031,7 @@ def build(out_dir):
     os.makedirs(OUT)
     with open(path('pack.mcmeta'), 'w') as f:
         json.dump({'pack': {'description': [{'text': 'Black Market ', 'color': 'dark_purple', 'bold': True},
-                                            {'text': ('v2.75 (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
+                                            {'text': ('v2.76 (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
                             'min_format': [121, 0], 'max_format': 121}}, f, indent=1)
     gen_npcs()
     second = gen_mobs()
@@ -1155,9 +1158,13 @@ def build(out_dir):
     R124.generate(sys.modules[__name__])
     R125.generate(sys.modules[__name__])
     R126.generate(sys.modules[__name__])
+    R127.generate(sys.modules[__name__])
+    R128.generate(sys.modules[__name__])
+    R129.generate(sys.modules[__name__])
     R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
+    R129.check(sys.modules[__name__])                     # 2.76: no menu button is shadowed by an earlier route
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command
     gen_tags_worldgen()
     print('allies:', allies.finalize(sys.modules[__name__]), 'friendly-fire lines now skip every follower')

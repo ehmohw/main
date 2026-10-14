@@ -147,6 +147,7 @@ def generate(G):
     add_after('p101/ask_dlg', 7720, C_LEAD, 'Go to the Lounge', 'The heist ends and the crew steps into the Fixer\'s Lounge - shop, bank, lockers - no fee. Its door takes you home.')
     add_after('p103/mem_dlg', 7726, C_MEM, 'Go to the Lounge', tip_in)
     add_after('p103/offer_show', 7723, C_OUT, 'Go to the Lounge', tip_in)
+    add_after('p101/offer', 7723, C_OUT, 'Go to the Lounge', tip_in)      # (2.76 fix: the card itself, not only its copy the Ledger reopens)
     G.FUNCS['p28/act'].insert(0, f'execute if score #act bm.pay matches {C_LEAD}..{C_OUT} run return run function bm:p121/act')
     fn('p121/act', [f'execute if score #act bm.pay matches {C_LEAD} run return run function bm:p121/lead',
                     f'execute if score #act bm.pay matches {C_MEM} run return run function bm:p121/mem',

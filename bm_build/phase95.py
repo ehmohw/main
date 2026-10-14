@@ -74,7 +74,7 @@ def rp(R):
             for e in ex:
                 R.HATS[f'{name}_x{e}'] = (dict(tex, **{key: f'bm:block/{key}_{e}'}), els)
                 heads[name].append((e, f'{name}_x{e}'))
-    for name in ('cec2_eyes', 'cec2_eyes_ethereal'):
+    for name in [n for n in ('cec2_eyes', 'cec2_eyes_ethereal', 'cec2_eyes_wraith') if n in R.HATS]:     # (2.76: the wraith eyes too)
         tex, els = R.HATS[name]
         heads[name] = []
         for e in ART.CECIL_EXPR:

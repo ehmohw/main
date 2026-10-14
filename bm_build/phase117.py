@@ -401,7 +401,8 @@ def generate(G):
     import phase104 as P104
     cbtn = P28.btn([T('📖 ', CODEX), T('The Codex', 'white', bold=True)], C_CODEX, tooltip=T('Every room, curse, rare find and Masterwork you\'ve seen - and what a full page pays.'), width=150)
     P80.HUB['actions'].append(cbtn)
-    G.FUNCS['p80/office_dlg'] = [f'$dialog show @s {P28.inline(P80.HUB)}']
+    hub1 = copy.deepcopy(P80.HUB); hub1['actions'].insert(0, copy.deepcopy(P80.PLAN_BTN))     # (off a heist, planning heads the Office - 2.76 fix: it went missing here)
+    G.FUNCS['p80/office_dlg'] = [f'$dialog show @s {P28.inline(hub1)}']
     hub2 = copy.deepcopy(P80.HUB)
     hub2['actions'].append(P28.btn([T('⏏ ', '#ff9a7a'), T('Leave the heist', '#ff9a7a', bold=True)], P104.C_LEAVE_ASK, width=150,
                                    tooltip=T('Home now, from right here: your own gear comes back; the fee and any share stay behind. (It asks first.)', 'gray')))

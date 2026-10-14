@@ -96,6 +96,7 @@ SIGNATURE = [  # (name, what, tiers cleared to unlock)
     ('Spring-Heeled', 'Jump Boost I', 2), ("Fortune's Favour", 'every guard you drop: +1 coin into the pot', 3),
     ('Second Skin', 'Absorption I every 30 s', 4), ('Adrenaline', 'under half health: Strength and Speed', 5)]
 MENU_CODE = 7800
+SEC_NONE, SIG_NONE = MENU_CODE + 29, MENU_CODE + 19    # (2.76: the ninth signature, Adrenaline, had 'none''s code 7839 - it could never be picked)
 GUT_M = '#e0a040'           # (the Gutter Medallion's colour - phase86)
 LUCKY = '#7dff6a'
 TOKEN_COINS = 32          # (2.67: was 16) coins for a Black Market Token at the bank
@@ -108,7 +109,7 @@ for _iid, _nm, _pl, _col, _t, _lore in MATS:
 item('fixers_ledger', TOTEM, "The Fixer's Ledger", OFFICE, ['A battered book with your name in it.', ('Use: plan a heist (or join your party\'s),', 'blue'),
                                                            ('the Armory, the Gutter Bank, your lockers,', 'blue'), ('the lounge, trophies and Bond Sigils.', 'blue'),
                                                            ('Your party within 24 blocks comes along.', 'gray')],
-     model='bm:fixers_ledger', stack=1, cat='magic', comps=hold('none'))
+     model='bm:fixers_ledger', stack=1, cat='magic', comps=hold('none'), custom_extra={'bmlv': 276})     # (2.76: every older Ledger is re-issued - phase129)
 HOLD['fixers_ledger'] = 'bm:p80/ledger'
 P72.KEEP += [m[0] for m in MATS] + ['fixers_ledger']
 P70.GOLDTOOTH_STOCK.append((1, 'fixers_ledger', 1))
@@ -282,8 +283,9 @@ def generate(G):
                     columns=2)
     globals()['HUB'] = copy.deepcopy(hub)                    # (2.68: on a heist the Office adds 'Leave the heist' - phase104)
     # (2.75: the Heist Plans folded into the Ledger - planning heads the Office, off a heist)
-    hub['actions'].insert(0, P28.btn([T('⚑ ', GOLD), T('Plan a Heist', GOLD, bold=True), T('  or join your party\'s', 'gray')], MENU_CODE + 9, width=304,
-                                     tooltip=T('Pick a tier (or the Endless Vault, or the Pit) and your tries; your party within 24 blocks comes along. From safe ground.')))
+    globals()['PLAN_BTN'] = P28.btn([T('⚑ ', GOLD), T('Plan a Heist', GOLD, bold=True), T('  or join your party\'s', 'gray')], MENU_CODE + 9, width=304,
+                                    tooltip=T('Pick a tier (or the Endless Vault, or the Pit) and your tries; your party within 24 blocks comes along. From safe ground.'))
+    hub['actions'].insert(0, copy.deepcopy(PLAN_BTN))       # (later phases that rebuild the Office from HUB put this back on top - see phase117)
     fn('p80/office_dlg', [f'$dialog show @s {P28.inline(hub)}'])
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {MENU_CODE}..{MENU_CODE + 199} run return run function bm:p80/act')
     act = ['execute unless function bm:p80/can run return run function bm:p28/stale',
@@ -300,8 +302,8 @@ def generate(G):
         [f'execute if score #act bm.pay matches {MENU_CODE + 20} run return run function bm:p80/sec_menu',
          f'execute if score #act bm.pay matches {MENU_CODE + 30} run return run function bm:p80/sig_menu'] + \
         [f'execute if score #act bm.pay matches {MENU_CODE + 21 + i} run return run function bm:p80/sec_pick {{i:{i + 1}}}' for i in range(len(SECONDARY))] + \
-        [f'execute if score #act bm.pay matches {MENU_CODE + 29} run return run function bm:p80/sec_pick {{i:0}}',
-         f'execute if score #act bm.pay matches {MENU_CODE + 39} run return run function bm:p80/sig_pick {{i:0}}'] + \
+        [f'execute if score #act bm.pay matches {SEC_NONE} run return run function bm:p80/sec_pick {{i:0}}',
+         f'execute if score #act bm.pay matches {SIG_NONE} run return run function bm:p80/sig_pick {{i:0}}'] + \
         [f'execute if score #act bm.pay matches {MENU_CODE + 31 + i} run return run function bm:p80/sig_pick {{i:{i + 1}}}' for i in range(len(SIGNATURE))] + \
         [f'execute if score #act bm.pay matches {MENU_CODE + 40 + j} run return run function bm:p80/bank_{a}' for j, a in
          enumerate(('deposit', 'take16', 'take64', 'takeall', 'buy1', 'buy10'))] + \
@@ -475,7 +477,9 @@ def generate(G):
                       f'execute if score @s {obj} matches {i + 1} run data modify storage bm:ui p{kind}.r_l{i} set value {snbt([T("✔ " + nm, "green", bold=True)])}']
             btns.append(P28.btn(raw(f'r_l{i}'), base_code + 1 + i, tooltip=[T(nm, 'white', bold=True), T('\n' + what, 'gray')] +
                                 ([T(f'\nOpens with a Tier {ROMAN[need]} clear.', 'dark_gray')] if need else []), width=110))
-        btns += [P28.btn(T('none', 'gray'), base_code + 9, width=110), P28.btn(T('« Armory', 'gray'), MENU_CODE + 1, width=110)]
+        none_code = SEC_NONE if kind == 'sec' else SIG_NONE
+        assert none_code not in range(base_code + 1, base_code + 1 + len(opts)), f'{kind}: "none" shares a code with an option'
+        btns += [P28.btn(T('none', 'gray'), none_code, width=110), P28.btn(T('« Armory', 'gray'), MENU_CODE + 1, width=110)]
         dlg = P28.multi([T('YOUR SECONDARY' if kind == 'sec' else 'YOUR SIGNATURE', OFFICE, bold=True),
                          T('  ·  a weapon of your own' if kind == 'sec' else '  ·  an effect of your own', 'gray')],
                         [P28.body([T('Comes with whichever kit you take. More open up as you clear tiers. Change it whenever you like.', 'gray')], 340)],

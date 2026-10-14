@@ -277,6 +277,7 @@ Includes everything in Phase 1.18: Standing, the upgrading keys, back rooms, the
 - **Dungeon payouts (1.7 economy):** trial spawners drop a token half the time, plus the vault key. Spoils vaults pay 2–4 tokens, victor's vaults 4–6 tokens and 1–2 medallions, and bosses 4–10 tokens depending on tier.
 - **Replay:**
   - Trial spawners drop the dungeon's **Vault Key** for the spoils vault before the boss room. Each boss victory gives a **Victor's Key** for the vault inside.
+  - **(2.76)** Each trial spawner also has a **stash vault** beside it that its Vault Key opens (a lighter roll: the dungeon's spoils, 1–2 tokens, sometimes a diamond or a medallion). Once per player, like every vault. Older dungeons get their stash vaults the first time someone comes near.
   - Vaults reward each player once, like trial chambers.
   - A dungeon re-locks itself 20 minutes after the last player leaves. Gates you opened stay open after a victory, but the puzzles re-arm for the next summoning.
 - **Ambience:** each dungeon has its own floating particles and low ambient sounds. Wilfrey's Keep has a sparse wither haze, ash and drifting souls.

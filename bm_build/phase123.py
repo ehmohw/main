@@ -51,7 +51,8 @@ def generate(G):
                      P28.btn(T('« Back', 'gray'), MC + 2, width=150)],
                     columns=2)
     G.FUNCS['p120/bk_dlg'] = [f'$dialog show @s {P28.inline(dlg)}']
-    G.FUNCS['p80/act'].insert(2, f'execute if score #act bm.pay matches {MC + 75}..{MC + 83} run return run function bm:p123/ex_act')
+    # (only its own codes: 80 and 81 are the Lounge and Skip this puzzle - 2.76 fix, a 75..83 range swallowed them)
+    G.FUNCS['p80/act'][2:2] = [f'execute if score #act bm.pay matches {code} run return run function bm:p123/ex_act' for code in sorted(EX.values())]
     fn('p123/ex_act', [f'execute if score #act bm.pay matches {code} run return run function bm:p123/ex_{k}' for k, code in EX.items()])
     ding = 'playsound minecraft:block.chain.place player @s ~ ~ ~ 0.8 1.3'
     back = 'function bm:p120/bk_page'
