@@ -263,6 +263,7 @@ Includes everything in Phase 1.18: Standing, the upgrading keys, back rooms, the
 | 4 | The Hexbound Cathedral | swamps and mangroves | The Archmage | Hexed Key — 9 medallions |
 | 5 | Wilfrey's Keep | pale gardens and dark forests | **Bobbery** | Wilfrey's Signet — 2 trophies |
 | 6 | The Hollow Throne | its own dimension | **The Hollow King** | — (needs all five emblems) |
+| ★ | The Serpent's Den (2.77) | beneath the Hollow Throne | **Apophiss** (hidden) | — (once you've conquered the Hollow: bring Emma, Leo and Cecil to the serpent seal in the throne room floor; see the main README) |
 | — | The Gilded Roost | plains, meadows, cherry groves, flower forests | The Golden Goose | — (find all 9 Lucky Map Fragments) |
 
 - **Maps:** the Fence sells the first Sealed Map for 5 tokens. Each first victory gives you the sealed map to the next dungeon. Beating Bobbery gives you the **Shard of the Hollow Throne**, which takes you to the final dimension. The Shard only works in the Overworld. Anyone within 3 blocks of you who also has all five emblems comes along.

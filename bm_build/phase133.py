@@ -30,7 +30,13 @@ NEW_TRIOS = {
     'dread': ('The Dread Court', '#9a6ae0', ('apo', 'kw', 'demo'), 'The Dread Court', 'Walk with Apophiss, KillerWatt and Democratus at once'),
     'retinue': ('The Royal Retinue', '#ffd8f0', ('emma', 'leo', 'pearl'), 'The Royal Retinue', 'Walk with Emma, Leo and Pearlman at once'),
 }
-P100.TRIOS.update(NEW_TRIOS)
+# (the last trio that matches wins: the hidden Retinue goes first, so that Pearlman - who doesn't count toward the three -
+#  walking with a whole other trio never takes its place)
+_old = dict(P100.TRIOS)
+P100.TRIOS.clear()
+P100.TRIOS['retinue'] = NEW_TRIOS['retinue']
+P100.TRIOS.update(_old)
+P100.TRIOS.update({k: v for k, v in NEW_TRIOS.items() if k != 'retinue'})
 P100.BANTER.update({
     'tide': [('Tullius', 'Leo. Celi. Try not to slow me down.', 'Celi', 'Says the man who walks like a shipwreck.'),
              ('Leo', 'For the shore, Tullius - like the old days.', 'Tullius', 'The old days drowned, Leo. I was there.'),

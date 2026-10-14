@@ -1,8 +1,10 @@
 """2.77: TULLIUS, THE DROWNED CAPTAIN - a rare boss on a tattered ghost ship in the cold seas, and the follower he becomes.
 
 - THE GHOST SHIP: now and then, out on a cold or frozen ocean, a tattered ship rides the swell - frosted planks, torn
-  sails, soul lanterns burning blue. Its hold has loot; the captain's cabin has his log. Set foot on the deck and its
-  captain comes up out of the sea to meet you.
+  sails, soul lanterns burning blue. Its hold has loot; the captain's cabin has his log; a ladder hangs down each side.
+  Set foot on her deck with Leo in your company - his old rival - and her captain comes up out of the sea to meet you.
+  (Without Leo the deck only creaks: he is waiting for someone. A server setting, on by default: /function
+  bm:admin/settings - "Tullius needs Leo" - lets him rise for anyone.)
 - THE FIGHT: Tullius, the drowned captain of the sunken kingdom - Leo's old rival. His icy BLUNDERBUSS (a cone of ice
   shards - deadly up close, weaker at range), his HARPOON (thrown: it hooks you and REELS you in - and then the
   blunderbuss, point-blank), the THRUST of the harpoon up close. He is at home in the water: knocked or jumping over the
@@ -205,6 +207,13 @@ def ship():
         if h < 0.6: continue
         for z in (int(round(CZ - h + 0.45)), int(round(CZ + h - 0.45))):
             if 0 <= z < SSZ and Bd.get(x, DECK, z): S(x, DECK + 1, z, 'dark_oak_fence' if x % 5 else 'stripped_dark_oak_log[axis=y]')
+    # a boarding ladder down each side amidships, the rail open above it: up out of the sea and onto her deck
+    LX = 18
+    for z, zb, face in ((1, 2, 'north'), (SSZ - 2, SSZ - 3, 'south')):
+        for y in range(WL - 2, DECK + 1):
+            if Bd.get(LX, y, zb) in (None, 'minecraft:air'): S(LX, y, zb, 'dark_oak_planks')
+            S(LX, y, z, f'ladder[facing={face},waterlogged={"true" if y < WL else "false"}]')
+        S(LX, DECK + 1, z, 'air')
     # the quarterdeck (stern, x0-8) over the captain's cabin; the forecastle (bow, x27-31)
     for x in range(0, 9):
         h = half(x, DECK)
@@ -280,7 +289,7 @@ def ship():
     S(4, DECK + 1, CZ - 2, 'dark_oak_fence'); S(4, DECK + 2, CZ - 2, 'dark_oak_pressure_plate')
     pages = [[{'text': "The Captain's Log\n\n", 'color': 'dark_aqua'}, {'text': 'Tullius, captain of the Sunken Guard.\n\nThe kingdom is gone. The serpent took it, and the sea took what the serpent left.'}],
              [{'text': 'The princess lived. Leo carried her out of the water himself - Leo, of all people. He always did get the glory.\n\nI did not. I went down with my ship.'}],
-             [{'text': 'The cold kept me. I do not mind the cold. I mind the quiet.\n\nIf you are reading this, you are on my deck. Stay. I will be along presently.\n\n- T.'}]]
+             [{'text': 'The cold kept me. I do not mind the cold. I mind the quiet.\n\nIf you are reading this, you are on my deck. Stay - and if you sail with Leo, tell him I am waiting.\n\n- T.'}]]
     S(5, DECK + 1, CZ + 2, 'lectern[facing=east,has_book=true,powered=false]',
       {'id': 'minecraft:lectern', 'Book': book_nbt("The Captain's Log", 'Tullius', pages), 'Page': Int(0)})
     Bd.marker(16.5, DECK + 1.0, CZ + 0.5, ['bm.tuship'])
@@ -298,10 +307,10 @@ def generate(G):
     tuchat = lambda txt, who='@s': tellraw(who, [T('Tullius: ', ICE, bold=True), T(f'"{txt}"', ICE_LT)])
     tick, fast, second = [], [], []
     objs = ['bm.tuid', 'bm.tuatk', 'bm.tut', 'bm.tuc', 'bm.tuph', 'bm.tur', 'bm.tulone', 'bm.tuk', 'bm.tucd', 'bm.tus', 'bm.tuf', 'bm.tua', 'bm.tux',
-            'bm.tum', 'bm.tuv', 'bm.tuch', 'bm.tuz', 'bm.tuq', 'bm.tusl', 'bm.tul', 'bm.tucl', 'bm.tuw', 'bm.tufg', 'bm.tugc', 'bm.tuh', 'bm.tuhk']
+            'bm.tum', 'bm.tuv', 'bm.tuch', 'bm.tuz', 'bm.tuq', 'bm.tusl', 'bm.tul', 'bm.tucl', 'bm.tuw', 'bm.tufg', 'bm.tugc', 'bm.tuh', 'bm.tuhk', 'bm.tuhn']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + \
         ['bossbar add bm:tub {text:"Tullius, the Drowned Captain",color:"aqua"}', 'bossbar set bm:tub color blue', 'bossbar set bm:tub style notched_10'] + \
-        [f'scoreboard players set #{n} bm.rng {n}' for n in (2, 3, 4, 5, 8, 10, 12, 16, 20, 24, 40, 60, 80, 100, 1200)]
+        [f'scoreboard players set #{n} bm.rng {n}' for n in (2, 3, 4, 5, 8, 10, 12, 14, 16, 20, 24, 40, 60, 61, 80, 100, 1200)]
     G.OBJECTIVES += objs
     foe = 'type=#bm:hostile,tag=!bm.npc,tag=!bm.tuboss'
     pl = lambda r, extra='': f'@a[distance=..{r},gamemode=!creative,gamemode=!spectator{extra}]'
@@ -358,13 +367,37 @@ def generate(G):
                          'execute if score @s bm.tuw matches 1 if entity @e[type=minecraft:husk,tag=bm.tuboss,distance=..80] run scoreboard players set @s bm.tulone 0',
                          'execute if score @s bm.tuw matches 1 unless entity @e[type=minecraft:husk,tag=bm.tuboss,distance=..80] run scoreboard players add @s bm.tulone 1',
                          'execute if score @s bm.tuw matches 1 if score @s bm.tulone matches 6.. run scoreboard players set @s bm.tuw 0',
-                         f'execute if score @s bm.tuw matches 0 if entity @a[distance=..13,gamemode=!spectator,gamemode=!creative] run function bm:p132/ship/board',
+                         # (someone ON her: her deck, from the stern to the bow, up to the crow's nest - not a swimmer alongside;
+                         #  and - the setting, on by default - Leo with one of them)
+                         'scoreboard players set #tb bm.rng 0',
+                         'execute if score @s bm.tuw matches 0 positioned ~-17 ~-0.6 ~-6.5 as @a[dx=34,dy=14,dz=13,gamemode=!spectator,gamemode=!creative] at @s run function bm:p132/ship/aboard',
+                         'execute if score @s bm.tuw matches 0 if score #tb bm.rng matches 2 run function bm:p132/ship/board',
                          'execute store result score #r bm.rng run random value 1..12',
                          'execute if score #r bm.rng matches 1 run playsound minecraft:block.wood.step ambient @a[distance=..40] ~ ~1 ~ 1 0.5',
                          'execute if score #r bm.rng matches 2 run playsound minecraft:block.bell.resonate ambient @a[distance=..48] ~ ~2 ~ 0.4 0.5',
                          'execute if score #r bm.rng matches 3 run playsound minecraft:entity.allay.ambient_without_item ambient @a[distance=..40] ~ ~3 ~ 0.5 0.5',
                          'execute unless score #tod bm.bm matches 0..12999 run particle minecraft:soul ~ ~4 ~ 8 4 4 0.01 6',
                          'particle minecraft:snowflake ~ ~6 ~ 9 5 5 0.01 8'])
+    # (as each player on her deck: 1 = someone's aboard; 2 = and the captain will rise - Leo is here, or the setting is off)
+    fn('p132/ship/aboard', ['execute unless score #tb bm.rng matches 1.. run scoreboard players set #tb bm.rng 1',
+                            'execute unless score #tulleo bm.cfg matches 1 run return run scoreboard players set #tb bm.rng 2',
+                            'tag @s add bm.tuab',
+                            'execute as @e[type=minecraft:wolf,tag=bm.leopet,tag=!bm.ffpet,distance=..24] on owner if entity @s[tag=bm.tuab] run scoreboard players set #tb bm.rng 2',
+                            'tag @s remove bm.tuab',
+                            'execute unless score #tb bm.rng matches 2 unless score @s bm.tuhn matches 1.. run function bm:p132/ship/waits'])
+    fn('p132/ship/waits', ['scoreboard players set @s bm.tuhn 30', 'playsound minecraft:block.bell.resonate ambient @s ~ ~ ~ 0.5 0.4',
+                           'playsound minecraft:ambient.underwater.loop.additions.rare ambient @s ~ ~ ~ 0.8 0.5',
+                           title('@s', 'actionbar', [T('The deck creaks. Far below, something stirs... and settles. ', ICE_LT, italic=True),
+                                                     T('(Her captain waits for an old rival: bring Leo.)', 'gray')])])
+    second.append('scoreboard players remove @a[scores={bm.tuhn=1..}] bm.tuhn 1')
+    # the setting (ops: /function bm:admin/settings): on by default
+    G.FUNCS['load'][-1:-1] = ['execute unless score #tulleo bm.cfg matches -2147483648.. run scoreboard players set #tulleo bm.cfg 1']
+    G.FUNCS['admin/settings'].append(tellraw('@s', [T('  Tullius needs Leo: ', 'white'), {'score': {'name': '#tulleo', 'objective': 'bm.cfg'}, 'color': 'aqua'}, T('  ', 'gray'),
+                                                    T('[On]', 'green', click_event={'action': 'run_command', 'command': '/function bm:admin/set/tulleo_1'}), T(' ', 'gray'),
+                                                    T('[Off]', 'red', click_event={'action': 'run_command', 'command': '/function bm:admin/set/tulleo_0'}),
+                                                    T("  the ghost ship's captain only rises with Leo in the boarding crew", 'gray')]))
+    for v in (0, 1):
+        fn(f'admin/set/tulleo_{v}', [f'scoreboard players set #tulleo bm.cfg {v}', 'function bm:admin/settings'])
     fn('p132/ship/board', ['scoreboard players set @s bm.tuw 1',
                            'execute as @e[type=minecraft:marker,tag=bm.tuspawn,distance=..20,sort=nearest,limit=1] at @s rotated as @s run function bm:p132/b/spawn'])
 
@@ -437,7 +470,10 @@ def generate(G):
                          at(56, 'function bm:p132/b/pose/taunt'), at(56, 'playsound minecraft:entity.stray.ambient hostile @a[distance=..40] ~ ~ ~ 1.5 0.5'),
                          at(56, 'title @a[distance=..40] times 10 50 15'), at(56, title('@a[distance=..40]', 'title', T('TULLIUS', ICE, bold=True))),
                          at(56, title('@a[distance=..40]', 'subtitle', T('the Drowned Captain', ICE_LT))),
-                         at(70, bface(None)), at(76, 'function bm:p132/b/begin')])
+                         # (and down off the quarterdeck in one bound, onto the deck in front of you)
+                         at(68, 'function bm:p132/b/pose/slam_up'), at(68, 'playsound minecraft:entity.dolphin.jump hostile @a[distance=..32] ~ ~ ~ 2 0.6'),
+                         at(68, 'function bm:p132/b/leap_aim {d:2.5}'), at('69..82', 'function bm:p132/b/leap_arc'),
+                         at(83, 'function bm:p132/b/land'), at(83, bface(None)), at(88, 'function bm:p132/b/begin')])
     fn('p132/b/leo_line', [tuchat('Leo. Still playing the knight? Still getting the glory?', '@a[distance=..40]'),
                            tellraw('@a[distance=..40]', [T('Leo: ', '#5ab8e0', bold=True), T('"Tullius... I thought you went down with the ship."', '#d8f0ff')]),
                            tuchat('I did. It did not take.', '@a[distance=..40]')])
@@ -471,7 +507,7 @@ def generate(G):
     # ---- the mind
     fn('p132/b/mind', ['scoreboard players remove @s bm.tuc 1', 'execute if score @s bm.tuc matches 1.. run return 0', 'scoreboard players set @s bm.tuc 20',
                        # (in the water, and the one he's after is up out of it, near enough: he LEAPS aboard)
-                       f'execute if score #wet bm.rng matches 1 if entity {pl(11)} unless entity {pl(11, ",predicate=bm:swim")} run return run function bm:p132/b/start {{a:7}}',
+                       f'execute if score #wet bm.rng matches 1 if entity {pl(18)} unless entity {pl(18, ",predicate=bm:swim")} run return run function bm:p132/b/start {{a:7}}',
                        'execute if score #wet bm.rng matches 1 run return 0',
                        'execute store result score #hp bm.rng run data get entity @s Health', 'execute store result score #mx bm.rng run attribute @s minecraft:max_health get',
                        'scoreboard players operation #h2 bm.rng = #mx bm.rng', 'scoreboard players operation #h2 bm.rng /= #2 bm.rng',
@@ -484,10 +520,11 @@ def generate(G):
                        f'execute if entity {pl(9)} if score #r bm.rng matches 1..60 run return run function bm:p132/b/start {{a:2}}',
                        f'execute if score @s bm.tuph matches 2 if entity {pl(9)} if score #r bm.rng matches 61..80 run return run function bm:p132/b/start {{a:5}}',
                        f'execute if score @s bm.tuph matches 2 if score #r bm.rng matches 81..88 run return run function bm:p132/b/start {{a:10}}',
-                       f'execute if entity {pl(22)} unless entity {pl(4.5)} run return run function bm:p132/b/start {{a:3}}'])
+                       f'execute if entity {pl(22)} unless entity {pl(4.5)} if score #r bm.rng matches 1..70 run return run function bm:p132/b/start {{a:3}}'])
     fn('p132/b/start', ['$scoreboard players set @s bm.tuatk $(a)', 'scoreboard players set @s bm.tut 0', 'scoreboard players set @s bm.tuc 40',
                         'execute if score @s bm.tuph matches 2 run scoreboard players set @s bm.tuc 30', 'effect give @s minecraft:slowness 2 4 true'])
-    fn('p132/b/done', ['scoreboard players set @s bm.tuatk 0', 'scoreboard players set @s bm.tus -1', 'scoreboard players set @s bm.tuf 0'])
+    fn('p132/b/done', ['scoreboard players set @s bm.tuatk 0', 'scoreboard players set @s bm.tus -1', 'scoreboard players set @s bm.tuf 0',
+                       'execute if score @s bm.tuph matches 1.. run data merge entity @s {NoAI:0b,NoGravity:0b}'])
     names = {1: 'thrust', 2: 'blast', 3: 'harpoon', 4: 'nova', 5: 'slam', 6: 'crew', 7: 'leap', 8: 'frost', 9: 'rise', 10: 'dive'}
     fn('p132/b/attack', ['scoreboard players add @s bm.tut 1', 'tag @s add bm.tume'] +
        [f'execute if score @s bm.tuatk matches {n} run function bm:p132/b/a_{w}' for n, w in names.items()] + ['tag @s remove bm.tume'])
@@ -616,22 +653,41 @@ def generate(G):
                           at(16, tuchat('You want to see what the sea does to a man? Come closer.', '@a[distance=..40]')),
                           at(24, 'data merge entity @s {Invulnerable:0b}'), at(24, bface(None)), at('28..', 'function bm:p132/b/done')])
     second.append('execute as @e[type=minecraft:husk,tag=bm.tuboss,scores={bm.tuph=2}] at @s run particle minecraft:snowflake ~ ~2 ~ 0.6 1 0.6 0.02 4')
-    # THE LEAP (out of the water, or back from the dive): up and over the rail, down beside you
+    # THE LEAP (out of the water, or back from the dive): up out of the sea in an arc - over the rail, over your head - and down
+    #   just behind you (a ghost: the arc is his own, not the water's; the sea's drag would never get a husk up her side)
     fn('p132/b/a_leap', [at(1, 'function bm:p132/b/pose/slam_up'), at(1, 'playsound minecraft:entity.dolphin.jump hostile @a[distance=..32] ~ ~ ~ 2 0.6'),
                          at(1, 'execute facing entity @p[gamemode=!creative,gamemode=!spectator] feet run tp @s ~ ~ ~ ~ 0'),
-                         at(2, 'function bm:p132/b/leap_go'), at('2..8', 'particle minecraft:splash ~ ~1 ~ 0.4 0.6 0.4 0.1 12'),
-                         at('10..40', 'execute if predicate bm:p39/on_ground run function bm:p132/b/landed'),
-                         at('41..', 'function bm:p132/b/done')])
-    fn('p132/b/leap_go', ['execute store result score #dx bm.rng run data get entity @p[gamemode=!creative,gamemode=!spectator] Pos[0] 10',
-                          'execute store result score #dy bm.rng run data get entity @s Pos[0] 10', 'scoreboard players operation #dx bm.rng -= #dy bm.rng',
-                          'execute store result score #dz bm.rng run data get entity @p[gamemode=!creative,gamemode=!spectator] Pos[2] 10',
-                          'execute store result score #dy bm.rng run data get entity @s Pos[2] 10', 'scoreboard players operation #dz bm.rng -= #dy bm.rng',
-                          'execute store result entity @s Motion[0] double 0.0105 run scoreboard players get #dx bm.rng',
-                          'execute store result entity @s Motion[2] double 0.0105 run scoreboard players get #dz bm.rng',
-                          'data modify entity @s Motion[1] set value 0.95d'])
-    fn('p132/b/landed', ['function bm:p132/b/pose/slam', 'particle minecraft:splash ~ ~0.4 ~ 1.5 0.2 1.5 0.2 40', 'particle minecraft:snowflake ~ ~0.4 ~ 1.5 0.2 1.5 0.05 20',
-                         'playsound minecraft:item.trident.thunder hostile @a[distance=..32] ~ ~ ~ 0.3 1.6', 'playsound minecraft:entity.generic.big_fall hostile @a[distance=..24] ~ ~ ~ 1 0.6',
-                         f'execute as {pl(2.8)} run damage @s 10 minecraft:mob_attack by {me}', 'scoreboard players set @s bm.tut 41'])
+                         at(1, 'function bm:p132/b/leap_aim {d:-1.5}'), at('1..8', 'particle minecraft:splash ~ ~1 ~ 0.4 0.6 0.4 0.1 12'),
+                         at('2..15', 'function bm:p132/b/leap_arc'), at('2..15', 'particle minecraft:falling_water ~ ~1.5 ~ 0.4 0.6 0.4 0 4'),
+                         at(16, 'function bm:p132/b/landed'), at('20..', 'function bm:p132/b/done')])
+    # (where: d blocks from the one he's after, toward him - out of the sea, -1.5: just past you, so he comes down on the deck
+    #  and not on the rail; off the quarterdeck, 2.5: in front of you)
+    fn('p132/b/leap_aim', ['data merge entity @s {NoAI:1b,NoGravity:1b,Motion:[0.0d,0.0d,0.0d]}', 'scoreboard players set @s bm.tuh 0',
+                           '$execute at @p[gamemode=!creative,gamemode=!spectator] facing entity @s feet rotated ~ 0 positioned ^ ^ ^$(d) run summon minecraft:marker ~ ~ ~ {Tags:["bm.tuaim"]}',
+                           'execute store result score #dx bm.rng run data get entity @e[type=minecraft:marker,tag=bm.tuaim,limit=1] Pos[0] 1000',
+                           'execute store result score #dy bm.rng run data get entity @e[type=minecraft:marker,tag=bm.tuaim,limit=1] Pos[1] 1000',
+                           'execute store result score #dz bm.rng run data get entity @e[type=minecraft:marker,tag=bm.tuaim,limit=1] Pos[2] 1000',
+                           'kill @e[type=minecraft:marker,tag=bm.tuaim]',
+                           'execute store result score #t bm.rng run data get entity @s Pos[0] 1000', 'scoreboard players operation #dx bm.rng -= #t bm.rng',
+                           'execute store result score #t bm.rng run data get entity @s Pos[1] 1000', 'scoreboard players operation #dy bm.rng -= #t bm.rng',
+                           'execute store result score #t bm.rng run data get entity @s Pos[2] 1000', 'scoreboard players operation #dz bm.rng -= #t bm.rng',
+                           'scoreboard players operation #dx bm.rng /= #14 bm.rng', 'scoreboard players operation #dy bm.rng /= #14 bm.rng',
+                           'scoreboard players operation #dz bm.rng /= #14 bm.rng',
+                           'scoreboard players operation @s bm.tua = #dx bm.rng', 'scoreboard players operation @s bm.tuv = #dy bm.rng',
+                           'scoreboard players operation @s bm.tuz = #dz bm.rng'])
+    # (each of 14 ticks: a fourteenth of the way, and a rise that slows and turns to a fall - up to a block and a half over the line)
+    fn('p132/b/leap_arc', ['scoreboard players operation #k bm.rng = @s bm.tuh', 'scoreboard players add @s bm.tuh 1', 'scoreboard players operation #k bm.rng *= #61 bm.rng',
+                           'scoreboard players set #b bm.rng 400', 'scoreboard players operation #b bm.rng -= #k bm.rng', 'scoreboard players operation #b bm.rng += @s bm.tuv',
+                           'execute store result storage bm:tmp tuarc.x double 0.001 run scoreboard players get @s bm.tua',
+                           'execute store result storage bm:tmp tuarc.y double 0.001 run scoreboard players get #b bm.rng',
+                           'execute store result storage bm:tmp tuarc.z double 0.001 run scoreboard players get @s bm.tuz',
+                           'function bm:p132/b/arc with storage bm:tmp tuarc'])
+    fn('p132/b/arc', ['$tp @s ~$(x) ~$(y) ~$(z)'])
+    fn('p132/b/landed', ['function bm:p132/b/land', 'scoreboard players set @s bm.tut 41'])
+    fn('p132/b/land', ['data merge entity @s {NoAI:0b,NoGravity:0b}', 'function bm:p132/b/pose/slam', 'particle minecraft:splash ~ ~0.4 ~ 1.5 0.2 1.5 0.2 40',
+                       'particle minecraft:snowflake ~ ~0.4 ~ 1.5 0.2 1.5 0.05 20',
+                       'playsound minecraft:item.trident.thunder hostile @a[distance=..32] ~ ~ ~ 0.3 1.6', 'playsound minecraft:entity.generic.big_fall hostile @a[distance=..24] ~ ~ ~ 1 0.6',
+                       f'execute as {pl(2.8)} run damage @s 10 minecraft:mob_attack by {me}'])
     # THE DIVE (the frost on him): "The sea is mine" - over the side, and back out of it at you
     fn('p132/b/a_dive', [at(1, 'function bm:p132/b/pose/taunt'), at(1, bface('sneer')), at(1, tuchat('The sea is MINE.', '@a[distance=..32]')),
                          at(8, 'function bm:p132/b/pose/slam_up'), at(8, 'function bm:p132/b/dive_go'),

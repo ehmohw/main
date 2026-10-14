@@ -121,7 +121,9 @@ function rcon() {
     const send = (type, body) => new Promise((r) => {
       const i = id++; const b = Buffer.from(body, 'utf8'); const p = Buffer.alloc(14 + b.length);
       p.writeInt32LE(10 + b.length, 0); p.writeInt32LE(i, 4); p.writeInt32LE(type, 8); b.copy(p, 12); p.writeInt16LE(0, 12 + b.length);
-      wait[i] = r; s.write(p);
+      // (a reply that never comes would hang the whole test: after 15 s, give up on it - and say which command it was)
+      const t = setTimeout(() => { if (wait[i]) { delete wait[i]; console.log('RCON TIMEOUT: ' + body.slice(0, 160)); r(''); } }, 15000);
+      wait[i] = (v) => { clearTimeout(t); r(v); }; s.write(p);
     });
     s.on('data', (d) => {
       buf = Buffer.concat([buf, d]);
@@ -131,7 +133,11 @@ function rcon() {
         if (wait[i]) { wait[i](body); delete wait[i]; }
       }
     });
-    s.on('connect', async () => { await send(3, 'bmtest'); res({ run: (c) => send(2, c), end: () => s.end() }); });
+    // (one request at a time: the server reads one request per read - a second one sent along with it is lost, and the
+    //  connection with it)
+    let chain = Promise.resolve();
+    const run = (c) => { const p = chain.then(() => send(2, c)); chain = p.catch(() => {}); return p; };
+    s.on('connect', async () => { await send(3, 'bmtest'); res({ run, end: () => s.end() }); });
   });
 }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

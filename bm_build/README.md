@@ -1,4 +1,4 @@
-# Black Market — v2.76c (Java 26.3)
+# Black Market — v2.77 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,110 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.77: Apophiss and Tullius - two new bosses, two new followers, new pairs and trios
+
+### Apophiss, the Serpent King: the Hollow's hidden boss
+After the Hollow King falls, his throne room keeps one more secret.
+- **The seal.** A great serpent is carved into the throne room floor, with three hollows round it: a ribbon, a crest and a gem. Once you've conquered the Hollow, stand on it and it shows you.
+- **Bring the three back together.** Emma, Leo and Cecil once bound the serpent. Call all three with their own items, on the seal.
+  - With one or two of them, the seal only stirs, and they have things to say.
+  - With all three, it breaks and swallows you all into the Serpent's Den, deep under the throne.
+  - Conquerors of the Hollow can now bring their followers into it, and its gates open for them.
+- **The fight.** He sleeps before his throne until you come close. Emma, Leo and Cecil fight beside you.
+  - **His attacks:**
+    - **Claw:** a raking sweep.
+    - **Bite:** it withers and poisons.
+    - **Mace:** his tail brings its mace down in a quake. Enraged, fangs burst round where it lands.
+    - **Serpent's Fangs:** lines of fangs at up to three of you.
+    - **Venom:** a spat glob.
+  - **At three quarters:** his drowned court climbs up out of the floor.
+  - **At half: THE SERPENT UNBOUND.** His ethereal form tears free of his scales and takes to the air on violet wings. New attacks:
+    - **Void orbs:** they home in, and leave biting pools of dark.
+    - **The swoop:** he dives through you.
+    - **The wingbeat:** it throws you.
+    - **Grand fangs:** rings of fangs, out and out.
+    - **Spectral serpents:** never more than three.
+- **The win** belongs to everyone in the den, whoever lands the last blow.
+  - **The first time:** the Serpent's Oath (he serves you), Apophiss's True Crown and the Serpent King's Mace.
+  - **Every time:** a hoard of 6-10 medallions, 2-4 trophies, tokens, enchanted golden apples and netherite.
+  - **Later wins:** a chance at each item again.
+  - **The True Crown** (worn):
+    - You grow a size: +5 damage, +2 reach, +8 health, +4 armour.
+    - Your blows wither, and wither can't take hold of you.
+    - Sneak + jump: Serpent's Fangs.
+    - At night: Strength and Night Vision.
+  - **The Serpent King's Mace:** a smash from a fall bursts fangs out round where it lands, and every blow withers (Density III, Wind Burst I, Unbreaking III).
+- **Getting out:** the pad by the den's door takes you back up to the throne room.
+
+### Apophiss as a follower: the Serpent's Oath
+- **Call him** with the Oath, or call him back. He fights with claw, bite and venom; every eighth blow, the Serpent King's Wrath. Monsters near you weaken in his shadow.
+- **Ride him:**
+  1. Right-click him holding a saddle. He keeps it until you take it off in his menu.
+  2. Use the Oath beside him to climb on.
+  3. Walk to slither; jump to lunge.
+  4. Use the Oath while riding: Serpent's Fangs ahead.
+  5. Sneak to get off.
+- **Sit or stand:** right-click him.
+- **His menu** (sneak + use the Oath): Sit / follow, Ride him, Take off the saddle, Send him home.
+- **Like the others:** 5 minutes if he faints, and a frame keeps him. The Recruiter sells his Raid Contract (2 gutter trophies + 6 gutter medallions).
+
+### Tullius, the Drowned Captain: the ghost ship
+- **The ghost ship** rides the swell in cold and frozen oceans (rare): frosted planks, torn sails, soul lanterns. Its hold has loot; the captain's cabin has his chest and his log. A ladder hangs down each side.
+- **He only rises for Leo.** Set foot on her deck with Leo, his old rival, in your company, and her captain comes up out of the sea. Without Leo the deck only creaks: "Her captain waits for an old rival: bring Leo."
+  - Ops can switch this off: `/function bm:admin/settings`, "Tullius needs Leo" (on by default). Off, he rises for anyone who boards.
+- **The fight.** He stands at his wheel, greets Leo, then comes down onto the deck in front of you in one bound.
+  - **His attacks:**
+    - **Harpoon thrust:** up close.
+    - **Icy blunderbuss:** a cone of ice shards, murderous up close and weaker at range.
+    - **Harpoon throw:** it hooks you and reels you in, to the blunderbuss, point-blank.
+  - **At three-fifths:** "All hands!" His frostbitten crew climbs over the rail.
+  - **At half: THE FROST TAKES HIM.** His harpoon ices over, and he adds:
+    - **The ice nova:** spikes of ice burst up all round him.
+    - **The harpoon slam.**
+    - **The dive:** over the side, and back at you.
+  - **At home in the water:** knocked or diving overboard, he swims fast and leaps back aboard over your head.
+- **The win:**
+  - **The first time:** Tullius's Frozen Doubloon (he serves you), the Frostbite Blunderbuss and Tullius's Harpoon.
+  - **Every time:** a hoard of medallions, a trophy or two, tokens, sea treasure and gold.
+  - **Later wins:** a chance at each item again.
+  - He's back on his ship a day later.
+  - **The Frostbite Blunderbuss** (use): a cone of ice shards, 16 damage up close down to 5 at range, and frost slows what it hits. 1.5 seconds to reload.
+  - **Tullius's Harpoon:** a trident (Loyalty III, Impaling III, Unbreaking III). Whatever it hits is reeled in to you.
+
+### Tullius as a follower: the Frozen Doubloon
+- **How he fights:**
+  - **Up close:** the harpoon thrust.
+  - **A little further:** the blunderbuss.
+  - **At range:** the harpoon pull. He hooks a monster, drags it in, and blasts it point-blank.
+  - **Every seventh blow:** the Frostbite Broadside.
+- **A water fighter, like Leo:** he swims fast and hits 40% harder in the water. In the water beside him you swim as he does (Dolphin's Grace, Conduit Power).
+- **Sit or stand:** right-click him.
+- **His menu** (sneak + use the Doubloon): Sit / follow, Send him home.
+- **Like the others:** 5 minutes if he faints, and a frame keeps him. The Recruiter sells his Raid Contract (2 gutter trophies + 5 gutter medallions).
+
+### New pairs and trios
+Each one has a hidden achievement the first time, and its own banter.
+
+**Pairs** (both followers within 16 blocks of each other):
+
+| Pair | Name | What it gives |
+|---|---|---|
+| Tullius + Celi | Frost and Brine | Strength for you; monsters near you are slowed; both resist blows. |
+| Tullius + Leo | Old Rivals | Speed and Haste II for you; both hit harder. |
+| Apophiss + Emma | Forgiven | You regenerate, and a shield of absorption returns every half minute; she heals him and his Wrath builds faster. |
+| Apophiss + KillerWatt | Venom and Volts | Strength and Night Vision for you; both their charged attacks build faster. |
+
+**Trios** (all three within 24 blocks of you):
+
+| Trio | Name | What it gives |
+|---|---|---|
+| Tullius, Celi and Leo | The Tidewatch | Strength and Resistance; at sea, Water Breathing and Dolphin's Grace; every 20 seconds a frost wave slows every monster round you. |
+| Apophiss, Emma and Leo | An Uneasy Truce | Two more hearts, Regeneration and Resistance. |
+| Apophiss, KillerWatt and Democratus | The Dread Court | Strength II and Speed; monsters near you cower (Weakness, Slowness); their charged attacks build faster. |
+| Emma, Leo and Pearlman (hidden) | The Royal Retinue | Regeneration, Luck and Hero of the Village; Pearlman's appraisal pays out twice as often. |
+
+Pearlman doesn't count toward your three followers, so walking with another trio as well, he never pushes it aside.
 
 ## New in 2.76c: a fix
 
@@ -56,7 +160,7 @@ Give Emma the Wraithfire Heart (Pearlman fuses one from a Scorching Heart and an
 - **The Fixer's Ledger is now first on the Fence's list**, and it's the current one, with Plan a Heist in its Office. It was last on his list before.
 - **Fences already in your world update by themselves.** Old Heist Plans in anyone's pockets still turn into the Ledger.
 
-Still to come: Apophiss and Tullius (model and animation drafts for approval first), and a polish pass.
+Still to come: a polish pass.
 
 ## New in 2.76: the Ledger fixed, the Wraithfire Heart, Pearlman's Golden Statue, a vault by every spawner
 

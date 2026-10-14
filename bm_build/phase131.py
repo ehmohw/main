@@ -45,7 +45,7 @@ HOLLOW_VER_KEY = 'p2.data.HOLLOW_VER'
 # the den: placed once in bm:hollow_throne, under the floating rock (the citadel's box starts at y40)
 LAIR = (1046, 2, 1046)
 LSX, LSY, LSZ = 60, 36, 60
-LAIR_VER = 1
+LAIR_VER = 2                                     # (2.77: 2 - no column on the arrival step)
 lair_abs = lambda x, y, z: (LAIR[0] + x, LAIR[1] + y, LAIR[2] + z)
 ARRIVE = lair_abs(30.5, 4, 51.5)                   # (the floor is y2 in the den, its walk y3; the step you land on is a block up)
 SPAWN = lair_abs(30.5, 3, 15.5)
@@ -294,6 +294,7 @@ def lair():
                 S(x, FY, z, 'sea_pickle[pickles=3,waterlogged=true]' if rnd.random() < 0.12 else 'water')
     # broken columns of the sunken court
     for k in range(10):
+        if k in (2, 7): continue                    # (those two would stand on the arrival step, where the seal sets you down, and on his throne)
         a = math.radians(k * 36 + 18)
         cx, cz = int(round(CX + 22 * math.cos(a))), int(round(CZ + 22 * math.sin(a)))
         top = FY + (30 if k % 3 else 3 + rnd.randrange(6))
@@ -647,7 +648,9 @@ def generate(G):
                         f'execute if score #r bm.rng matches 31..52 if entity {pl(28)} run return run function bm:p131/b/start {{a:12}}',
                         f'execute if score #r bm.rng matches 53..68 if entity {pl(11)} run return run function bm:p131/b/start {{a:13}}',
                         'execute if score #r bm.rng matches 69..84 run return run function bm:p131/b/start {a:14}',
-                        'execute if score #r bm.rng matches 85..100 run function bm:p131/b/vexes', 'execute if score #vx bm.rng matches ..2 run return run function bm:p131/b/start {a:15}',
+                        # (the call only on its own roll, and only while fewer than two serpents are out: never more than three)
+                        'scoreboard players set #vx bm.rng 9',
+                        'execute if score #r bm.rng matches 85..100 run function bm:p131/b/vexes', 'execute if score #vx bm.rng matches ..1 run return run function bm:p131/b/start {a:15}',
                         'function bm:p131/b/start {a:11}'])
     fn('p131/b/vexes', ['execute store result score #vx bm.rng if entity @e[type=minecraft:vex,tag=bm.apvex,distance=..48]'])
     fn('p131/b/start', ['$scoreboard players set @s bm.apatk $(a)', 'scoreboard players set @s bm.apt 0', 'scoreboard players set @s bm.apc 46',

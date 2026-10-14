@@ -55,6 +55,20 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
 - The Black Market expels anyone without a market key.
 - The server kicks a client that moves twice in one tick; the libraries close each tick with `tick_end`.
 - Clean up between sections: kill test mobs, reset scores and tags, clear followers.
+- A ladder's plate is solid. A climbing bot keeps to the middle of the ladder's block, or the server rejects every step.
+  At the top, climb a little past the floor's height, then step over.
+- `execute if function` can't end a command. To check riding, use `execute as <bot> on vehicle if entity @s[...]`.
+- 26.x doesn't save `NoAI:0b` or `Invulnerable:0b` at all. Check for "not 1b".
+- Freeze damage reads "froze to death" even when a mob dealt it.
+- Two presses of a held-use item less than 3 ticks apart count as one press. Wait 150 ms or more between them.
+- Killing a follower's host is a faint, and its 5-minute rest lands a few ticks later. Reset cooldowns after that.
+- A player name can't take selector arguments (`TestRat[...]`). Use `@a[name=TestRat,...]`.
+- Followers in a boss fight push the boss past its thresholds. Hold its health with rcon between steps, so each threshold
+  is the test's own.
+- Give the bot Resistance as well as health for a boss fight. A dead bot respawns far away and every check after fails.
+- The server's rcon reads one request per read. A second request sent with it (for example, two `run()`s inside a
+  `Promise.all`) is lost, and the connection goes quiet after it. `lib_resp.js` now queues requests one at a time, and
+  a reply that never comes gives up after 15 s with `RCON TIMEOUT: <command>`.
 
 ## Index
 
@@ -179,6 +193,17 @@ and function calls. Three are known to be stale.
 | `t131mp.js` | URGENT (2.76), two players (both regular, non-op): the end-of-heist "Go to the Lounge" for a crew - pressed from the screens |
 | `t132.js` | 2.76: Wraithfire Emma (as a regular player, every step a real packet) + the Fence's heist item. |
 | `t133.js` | 2.76 regression (regular players, real packets): Emma's everyday life after the Wraithfire update - Cecil's harmony, |
+| `t134.js` | 2.77: Apophiss (regular player, real packets): the serpent seal in the Hollow throne room (Emma, Leo, Cecil called with |
+|  | their items), the den, both phases of the fight, the bot's last blow, the drops, the pad back up; the Serpent's Oath - |
+|  | sitting, the saddle, riding (walk, fangs), his menu, his fights, fainting. Sections: `seal`, `fight`, `pet`. |
+| `t135.js` | 2.77: Tullius (regular player, real packets): the ghost ship found by `locate` and built by its seed, swum to and climbed |
+|  | aboard by its ladder; "Tullius needs Leo" (no captain alone - the hint - then Leo's crest on deck); the fight (harpoon |
+|  | hook + point-blank, crew, frost, put overboard he leaps back aboard), drops, the setting off; his blunderbuss and harpoon |
+|  | in the bot's hands; the Doubloon follower (sit, menu, harpoon pull, swimming, buffs at sea, faint, contract). |
+|  | Sections: `ship`, `weapons`, `pet`. |
+| `t136.js` | 2.77: the new pairs and trios, every follower called with its own item: Frost and Brine, Old Rivals, the Tidewatch (and |
+|  | at sea), Forgiven, Venom and Volts, An Uneasy Truce, the Dread Court, the hidden Royal Retinue - and Pearlman as a fourth |
+|  | never displacing the Serpent's Bane. Sections: `tul`, `apo`, `retinue`. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
 | `head.js` | The Horseman's Head: stream, overheat, charged blast, stoking + Nova, undead XP, lantern/heart variants, night tiers, healing. |

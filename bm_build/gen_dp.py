@@ -132,7 +132,7 @@ if PHASE2:
     import p2  # registers Phase 2 items on import
 
 OUT = None
-VERSION2 = 'v2.76c'                                   # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.77'                                   # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 

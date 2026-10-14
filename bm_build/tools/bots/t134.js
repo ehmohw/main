@@ -31,13 +31,17 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
   };
   await reset();
   await run('scoreboard players set TestRat bm.conq 6'); await run('tag TestRat add bm.got_warp');
-  await run('attribute TestRat minecraft:max_health base set 200'); await run('effect give TestRat minecraft:instant_health 1 20 true');
+  const tough = async () => { await run('attribute TestRat minecraft:max_health base set 200'); await run('effect give TestRat minecraft:instant_health 1 20 true');
+    await run('effect give TestRat minecraft:resistance 900 3 true'); };
+  let deaths = 0; A.on('update_health', p => { if (p.health <= 0) deaths++; });
+  await tough();
   await run(`${H}kill @e[type=minecraft:husk,tag=bm.apboss]`); await run(`${H}kill @e[type=minecraft:item_display,tag=bm.apb]`);
   let boss = '@e[type=minecraft:husk,tag=bm.apboss,limit=1]';
 
   if (want('seal')) {
     // ================================================================== 1. the seal: it shows, it reads, it stirs, it breaks
     await run(`${H}tp TestRat ${SEAL[0] - 4} ${SEAL[1]} ${SEAL[2]} -90 0`); await sleep(3000); A.stand();
+    await run(`${H}scoreboard players set @e[type=minecraft:marker,tag=bm.apseal] bm.apt 0`); await run(`${H}scoreboard players set @e[type=minecraft:marker,tag=bm.apseal] bm.apsn 0`);
     ok('the serpent seal is in the throne room floor (marker + plate)', await wait(8000, async () => (await cnt('@e[type=minecraft:marker,tag=bm.apseal]')) === 1 &&
                                                                                 (await cnt('@e[type=minecraft:item_display,tag=bm.apsealv]')) === 1));
     await run(`${H}tp TestRat ${SEAL[0]} ${SEAL[1]} ${SEAL[2]} -90 0`); A.bars.length = 0; await sleep(500); A.stand();
@@ -64,16 +68,22 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
                                                                        /Stay behind me, Princess/.test(A.chats.join(' '))), A.chats.slice(-4).join(' | ').slice(0, 300));
     ok('...and swallows them: the bot is in the den', await wait(8000, async () => dist(await epos('TestRat'), ARRIVE) < 3), JSON.stringify(await epos('TestRat')));
     await sleep(800); A.stand();
+    const air = async (x, y, z) => /passed/i.test(await run(`${H}execute if block ${x} ${y} ${z} minecraft:air`));
+    const ha = await hp('TestRat'); await sleep(2500);
+    ok('...onto open floor - nobody lands in a wall (no suffocation)', (await air(1076, 6, 1097)) && (await air(1076, 7, 1097)) && (await hp('TestRat')) >= ha,
+       `health ${ha} -> ${await hp('TestRat')}`);
     const near = async t => cnt(`@e[tag=${t},x=${ARRIVE[0]},y=${ARRIVE[1]},z=${ARRIVE[2]},distance=..10]`);
     ok('Emma, Leo and Cecil came down with them', (await near('bm.emmapet')) === 1 && (await near('bm.leopet')) === 1 && (await near('bm.cecilpet')) === 1);
-    ok('he is there, asleep before his throne (host + 15 parts)', await wait(5000, async () => (await cnt(boss)) === 1 &&
-                                                                                (await cnt('@e[type=minecraft:item_display,tag=bm.apb]')) === 15),
+    ok('he is there, asleep before his throne (host + 14 parts)', await wait(5000, async () => (await cnt(boss)) === 1 &&
+                                                                                (await cnt('@e[type=minecraft:item_display,tag=bm.apb]')) === 14),
        `boss ${await cnt(boss)} parts ${await cnt('@e[type=minecraft:item_display,tag=bm.apb]')}`);
     ok('asleep: invulnerable, his eyes shut', /Invulnerable: 1b/.test(await nbt(boss, '')) || /1b/.test(await nbt(boss, 'Invulnerable')));
   }
 
   if (want('seal') || want('fight')) {
     // ================================================================== 2. the fight
+    // (the den floor is y 5; his followers fight too - rcon holds his health between the steps so each threshold is the test's)
+    const FLOOR = 5;
     if (!(await cnt(boss))) { await run(`${H}tp TestRat ${ARRIVE[0]} ${ARRIVE[1]} ${ARRIVE[2]} 180 0`); await run('scoreboard players set #apwake bm.p2 1'); await sleep(3500); A.stand(); }
     await run('loot replace entity TestRat hotbar.3 loot bm:items/apo_oath'); await run('clear TestRat *[minecraft:custom_data~{bm:"apo_oath"}]');
     await run('item replace entity TestRat hotbar.4 with minecraft:netherite_sword[minecraft:enchantments={"minecraft:sharpness":5}]');
@@ -82,63 +92,89 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     await run(`${H}tp TestRat ${bp[0]} ${bp[1]} ${bp[2] + 11} 180 0`); await sleep(500); A.stand();
     ok('coming close wakes him (the intro begins)', await wait(4000, async () => (await sc(boss, 'bm.apph')) === 1), `apph ${await sc(boss, 'bm.apph')}`);
     ok('"the little princess" - he knows them', await wait(6000, async () => /little princess/.test(A.chats.join(' '))));
-    ok('the intro ends: he fights (AI on, hurtable)', await wait(9000, async () => /0b/.test(await nbt(boss, 'NoAI')) && /0b/.test(await nbt(boss, 'Invulnerable'))));
+    // (NoAI:0b and Invulnerable:0b aren't saved at all in 26.x: "not 1b" is the check)
+    ok('the intro ends: he fights (AI on, hurtable)', await wait(9000, async () => !/1b/.test(await nbt(boss, 'NoAI')) && !/1b/.test(await nbt(boss, 'Invulnerable'))));
+    const mx = +(((await run(`${H}attribute ${boss} minecraft:max_health get`)).match(/([\d.]+)\s*$/) || [0, 900])[1]);
+    const hold = async (lo, to) => { const h = await hp(boss); if (h < mx * lo) await run(`${H}data modify entity ${boss} Health set value ${Math.round(mx * to)}f`); };
     // (his attacks: every code the mind starts, sampled; and they land on the bot)
-    await run('effect give TestRat minecraft:regeneration 60 2 true');
+    await tough(); await run('effect give TestRat minecraft:regeneration 900 2 true');
     const seen = new Set(); let lowest = 999;
     for (let k = 0; k < 120; k++) {
+      await hold(0.8, 0.95);
       const a = await sc(boss, 'bm.apatk'); if (a > 0) seen.add(a);
-      const b = await epos(boss); if (b && dist(b, await epos('TestRat')) > 7) { await run(`${H}tp TestRat ${b[0]} ${b[1]} ${b[2] + 4} 180 0`); }
+      // (now in his reach, now twelve blocks off - so he has a reason for each of his attacks)
+      const b = await epos(boss), me = await epos('TestRat'), far = Math.floor(k / 20) % 2 === 1;
+      if (b && !far && dist(b, me) > 6) await run(`${H}tp TestRat ${b[0]} ${FLOOR} ${b[2] + 3} 180 0`);
+      if (b && far && dist(b, me) < 9) await run(`${H}tp TestRat ${b[0] + (b[0] < 1076 ? 12 : -12)} ${FLOOR} ${b[2]} 90 0`);
       lowest = Math.min(lowest, await hp('TestRat'));
       await sleep(250);
     }
-    ok('phase 1: he attacks (claw / bite / mace / fangs / venom)', [1, 2, 3, 4, 5].filter(a => seen.has(a)).length >= 2, `seen ${[...seen].join(',')}`);
-    ok('...and his blows land (the bot was hurt)', lowest < 195, `lowest health ${lowest}`);
+    ok('phase 1: he attacks (claw / bite / mace / fangs / venom)', [1, 2, 3, 4, 5].filter(a => seen.has(a)).length >= 3, `seen ${[...seen].join(',')}`);
+    ok('...and his blows land (the bot was hurt)', lowest < 199, `lowest health ${lowest}`);
+    ok('...no court and no ascent above three quarters', !seen.has(6) && !seen.has(7) && (await sc(boss, 'bm.apph')) === 1, `seen ${[...seen].join(',')}`);
     // (the bot's own blows, on his hitbox)
-    const h0 = await hp(boss);
-    const box = await entOf(A, '@e[type=minecraft:interaction,tag=bm.bhit_ap,limit=1]');
+    await run(`${H}data modify entity ${boss} Health set value ${Math.round(mx * 0.95)}f`);
     A.slot(4); await sleep(300);
-    for (let k = 0; k < 4; k++) { const b = await epos(boss); await run(`${H}tp TestRat ${b[0]} ${b[1]} ${b[2] + 2.2} 180 0`); await sleep(200); if (box) A.attack(box.entityId); await sleep(700); }
-    const h1 = await hp(boss);
-    ok('the bot\'s sword on his hitbox hurts him (the relay)', h1 < h0 - 10, `health ${h0} -> ${h1}`);
+    let dealt = 0;
+    for (let k = 0; k < 8 && dealt <= 10; k++) {          // (he moves while he fights: a few swings miss)
+      const b = await epos(boss); await run(`${H}tp TestRat ${b[0]} ${b[1]} ${b[2] + 2.2} 180 0`); await sleep(250);
+      const box = await entOf(A, '@e[type=minecraft:interaction,tag=bm.bhit_ap,limit=1]');
+      const h0 = await hp(boss); if (box) A.attack(box.entityId); await sleep(150); const h1 = await hp(boss); if (h1 < h0) dealt += h0 - h1;
+      await sleep(600);
+    }
+    ok('the bot\'s sword on his hitbox hurts him (the relay)', dealt > 10, `dealt ${dealt.toFixed(1)}`);
     // (three quarters: the court)
-    const mx = +(((await run(`${H}attribute ${boss} minecraft:max_health get`)).match(/([\d.]+)\s*$/) || [0, 900])[1]);
     await run(`${H}data modify entity ${boss} Health set value ${Math.round(mx * 0.7)}f`);
-    ok('at three quarters he calls his drowned court', await wait(6000, async () => (await cnt('@e[type=minecraft:drowned,tag=bm.apcourt]')) >= 3), `court ${await cnt('@e[type=minecraft:drowned,tag=bm.apcourt]')}`);
+    let court = 0;
+    ok('at three quarters he calls his drowned court', await wait(6000, async () => (court = Math.max(court, await cnt('@e[type=minecraft:drowned,tag=bm.apcourt]'))) >= 3), `court ${court}`);
+    ok('..."RISE, MY COURT"', /RISE, MY COURT/.test(A.bars.join(' ')));
+    await sleep(2500);
     // (half: the serpent unbound)
     await run(`${H}data modify entity ${boss} Health set value ${Math.round(mx * 0.45)}f`);
-    ok('at half: THE SERPENT UNBOUND (phase 2)', await wait(8000, async () => (await sc(boss, 'bm.apph')) === 2), `apph ${await sc(boss, 'bm.apph')}`);
-    await sleep(1500);
-    ok('...the ethereal king: his look changes', /apo_head_eth/.test(await nbt('@e[type=minecraft:item_display,tag=bm.app_head,tag=bm.apb,limit=1]', 'item')));
-    ok('...and he flies (no AI, no gravity, up off the floor)', /1b/.test(await nbt(boss, 'NoGravity')) && (await epos(boss))[1] > ARRIVE[1] + 1.5, JSON.stringify(await epos(boss)));
+    ok('at half: THE SERPENT UNBOUND (phase 2)', await wait(9000, async () => (await sc(boss, 'bm.apph')) === 2), `apph ${await sc(boss, 'bm.apph')}`);
+    ok('...the ethereal king: his look changes', await wait(1500, async () => /apo_head_eth/.test(await nbt('@e[type=minecraft:item_display,tag=bm.app_head,tag=bm.apb,limit=1]', 'item'))));
+    await wait(3000, async () => (await sc(boss, 'bm.apatk')) !== 7);
+    ok('...and he flies (no AI, no gravity, well up off the floor)', /1b/.test(await nbt(boss, 'NoAI')) && /1b/.test(await nbt(boss, 'NoGravity')) && (await epos(boss))[1] > FLOOR + 3.5,
+       JSON.stringify(await epos(boss)));
     const wing = await nbt('@e[type=minecraft:item_display,tag=bm.app_wingr,tag=bm.apb,limit=1]', 'transformation.scale');
     ok('...on violet wings (shown)', /\[([1-9][\d.]*)f/.test(wing), wing);
-    const seen2 = new Set(); let sawOrb = false, sawFangs = false;
-    for (let k = 0; k < 140; k++) {
+    const seen2 = new Set(); let sawOrb = false, sawFangs = false, vexMax = 0, high = 0;
+    for (let k = 0; k < 160; k++) {
+      await hold(0.25, 0.4);
       const a = await sc(boss, 'bm.apatk'); if (a > 0) seen2.add(a);
       if (await cnt('@e[type=minecraft:item_display,tag=bm.aporb]')) sawOrb = true;
       if (await cnt('@e[type=minecraft:evoker_fangs]')) sawFangs = true;
-      const b = await epos(boss); if (b && dist(b, await epos('TestRat')) > 10) await run(`${H}tp TestRat ${b[0]} ${ARRIVE[1] - 3} ${b[2] + 4} 180 0`);
+      vexMax = Math.max(vexMax, await cnt('@e[type=minecraft:vex,tag=bm.apvex]'));
+      const b = await epos(boss); if (b) high = Math.max(high, b[1] - FLOOR);
+      if (b && dist([b[0], FLOOR, b[2]], await epos('TestRat')) > 9) await run(`${H}tp TestRat ${b[0]} ${FLOOR} ${b[2] + 4} 180 0`);
       await sleep(250);
     }
-    ok('phase 2: his ethereal attacks (orbs / swoop / gust / grand fangs / call)', [11, 12, 13, 14, 15].filter(a => seen2.has(a)).length >= 2, `seen ${[...seen2].join(',')}`);
-    ok('...void orbs or fangs seen in the den', sawOrb || sawFangs, `orbs ${sawOrb} fangs ${sawFangs}`);
-    // (the end: the bot lands the last blow)
+    ok('phase 2: his ethereal attacks (orbs / swoop / gust / grand fangs / call)', [11, 12, 13, 14, 15].filter(a => seen2.has(a)).length >= 3, `seen ${[...seen2].join(',')}`);
+    ok('...void orbs and fangs seen in the den', sawOrb && sawFangs, `orbs ${sawOrb} fangs ${sawFangs}`);
+    ok('...never more than three spectral serpents', vexMax <= 3, `max ${vexMax}`);
+    ok('...hovering five to seven up between dives', high >= 5 && high < 9, `highest ${high.toFixed(2)}`);
+    // (the end: the bot lands the last blow - brought down where it can reach)
+    await wait(4000, async () => (await sc(boss, 'bm.apatk')) === 0);
     await run(`${H}data modify entity ${boss} Health set value 4f`);
-    const b = await epos(boss); await run(`${H}tp ${boss} ${b[0]} ${ARRIVE[1] - 3} ${b[2]}`); await sleep(300);
-    const b2 = await epos(boss); await run(`${H}tp TestRat ${b2[0]} ${b2[1]} ${b2[2] + 2} 180 0`); await sleep(400);
-    const box2 = await entOf(A, '@e[type=minecraft:interaction,tag=bm.bhit_ap,limit=1]');
     A.chats.length = 0;
-    for (let k = 0; k < 6 && (await cnt(boss)); k++) { if (box2) A.attack(box2.entityId); await sleep(800); }
+    for (let k = 0; k < 8 && (await cnt(boss)); k++) {
+      const b = await epos(boss); await run(`${H}tp TestRat ${b[0]} ${Math.max(FLOOR, b[1] - 1)} ${b[2] + 1.6} 180 0`); await sleep(250);
+      const box = await entOf(A, '@e[type=minecraft:interaction,tag=bm.bhit_ap,limit=1]'); if (box) A.attack(box.entityId); await sleep(700);
+    }
     ok('the bot\'s blow brings him down', await wait(4000, async () => !(await cnt(boss))));
     ok('APOPHISS FALLS - "I am yours"', await wait(5000, async () => /I am yours/.test(A.chats.join(' '))), A.chats.slice(-2).join(' | ').slice(0, 200));
     ok('the drops: the Oath, the True Crown, the Mace', (await has('TestRat', 'apo_oath')) === 1 && (await has('TestRat', 'apo_true_crown')) === 1 && (await has('TestRat', 'apo_mace')) === 1,
        `oath ${await has('TestRat', 'apo_oath')} crown ${await has('TestRat', 'apo_true_crown')} mace ${await has('TestRat', 'apo_mace')}`);
-    ok('...and the hoard (medallions)', (await has('TestRat', 'medallion')) >= 6);
+    ok('...and the hoard (medallions)', (await has('TestRat', 'medallion')) >= 6, `medallions ${await has('TestRat', 'medallion')}`);
     ok('his rig sinks and fades away', await wait(6000, async () => !(await cnt('@e[type=minecraft:item_display,tag=bm.apb]'))));
-    ok('his court goes with him', await wait(3000, async () => !(await cnt('@e[type=minecraft:drowned,tag=bm.apcourt]'))));
-    // (the pad by the door: back up)
-    await run(`${H}tp TestRat 1076.5 6 1099.5 180 0`); await sleep(600); A.stand(); await sleep(300);
+    ok('his court and his serpents go with him', await wait(3000, async () => !(await cnt('@e[type=minecraft:drowned,tag=bm.apcourt]')) && !(await cnt('@e[type=minecraft:vex,tag=bm.apvex]'))));
+  }
+
+  if (want('seal') || want('fight') || want('pad')) {
+    // ================================================================== the pad by the door: back up
+    // (walk only once the server has put the bot at the door - a teleport that lands mid-walk stops the walk)
+    await run(`${H}tp TestRat ${ARRIVE[0]} ${ARRIVE[1]} ${ARRIVE[2]} 180 0`);
+    await wait(4000, async () => A.pos && dist([A.pos.x, A.pos.y, A.pos.z], ARRIVE) < 0.3, 100); A.stand(); await sleep(500);
     await A.walkTo(1076.5, 1100.5);
     ok('the pad by the door takes you back up to the throne room', await wait(4000, async () => dist(await epos('TestRat'), [1078.5, 103, 1083.5]) < 2), JSON.stringify(await epos('TestRat')));
   }
@@ -156,7 +192,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     A.bars.length = 0;
     await use(A, 0);
     const pet = '@e[type=minecraft:wolf,tag=bm.appet,limit=1]';
-    ok('the Oath calls him (host + 15 parts)', await wait(4000, async () => (await cnt(pet, O)) === 1 && (await cnt('@e[type=minecraft:item_display,tag=bm.app_pet]', O)) === 15),
+    ok('the Oath calls him (host + 14 parts)', await wait(4000, async () => (await cnt(pet, O)) === 1 && (await cnt('@e[type=minecraft:item_display,tag=bm.app_pet]', O)) === 14),
        A.bars.slice(-2).join(' / '));
     await sleep(1500);
     const pp = await epos(pet, O), cp = await epos('@e[type=minecraft:item_display,tag=bm.app_pet,tag=bm.app_coil,limit=1]', O);
@@ -176,11 +212,12 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     box = await entOf(A, '@e[type=minecraft:interaction,tag=bm.aphit,limit=1]', O);
     if (box) A.interact(box.entityId); await sleep(900);
     ok('right-click with a saddle: he wears it', (await sc('TestRat', 'bm.apsd')) === 1 && /apo_body_saddle/.test(await nbt('@e[type=minecraft:item_display,tag=bm.app_pet,tag=bm.app_body,limit=1]', 'item', O)));
-    ok('...the saddle is used up', !/saddle/.test(await run('data get entity TestRat Inventory')));
+    const saddles = async () => +(((await run('clear TestRat minecraft:saddle 0')).match(/Found (\d+)/) || [0, 0])[1]);
+    ok('...the saddle is used up', (await saddles()) === 0);
     // (ride: the Oath beside him)
     await run(`${O}tp ${pet} ${X + 0.5} ${Y} ${Z + 1.8}`); await sleep(700);
     await use(A, 0); await sleep(600);
-    const riding = async () => /returned 1/.test(await run('execute as TestRat run function bm:p131/on_him'));
+    const riding = async () => /passed/i.test(await run('execute as TestRat on vehicle if entity @s[type=minecraft:wolf,tag=bm.appet]'));
     ok('the Oath beside him, saddled: you climb on', await riding());
     const s0 = await epos(pet, O);
     A.ride(0, 0, { forward: true }); await sleep(2200);
@@ -198,7 +235,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
        A.buttons().map(b => b.label).join(' | '));
     const b0 = await A.press(/Take off the saddle/);
     await sleep(600);
-    ok('"Take off the saddle": he is bare, and the saddle is yours again', b0 && (await sc('TestRat', 'bm.apsd')) === 0 && /saddle/.test(await run('data get entity TestRat Inventory')));
+    ok('"Take off the saddle": he is bare, and the saddle is yours again', b0 && (await sc('TestRat', 'bm.apsd')) === 0 && (await saddles()) === 1);
     // (he fights)
     await run(`${O}summon minecraft:husk ${X + 4.5} ${Y} ${Z + 4.5} {Tags:["bm.t134foe"],Health:40f,attributes:[{id:"minecraft:max_health",base:40d}]}`);
     const f0 = await hp('@e[type=minecraft:husk,tag=bm.t134foe,limit=1]', O);
@@ -217,6 +254,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
        `cd ${await sc('TestRat', 'bm.apcd')}`);
   }
 
+  console.log(`(the bot died ${deaths} times)`);
   console.log(`${res.filter(Boolean).length}/${res.length} passed`);
   await reset(); await run('attribute TestRat minecraft:max_health base set 20');
   R.end(); A.end(); process.exit(0);

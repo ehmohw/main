@@ -264,7 +264,7 @@ def generate(G):
                           'kill @e[type=minecraft:text_display,tag=bm.gravet,distance=..0.5]', 'particle minecraft:soul ~ ~0.8 ~ 0.3 0.4 0.3 0.02 10', 'kill @s'])
 
     # ================================================================ 6) admin/help: every admin command
-    DESC = {'settings': 'server settings (Blood Moon interval, breaker, skiff bombs, magic PvP)', 'place_market': 'builds a Black Market at your feet',
+    DESC = {'settings': 'server settings (Blood Moon interval, breaker, skiff bombs, magic PvP, Tullius needs Leo)', 'place_market': 'builds a Black Market at your feet',
             'place_graveyard': 'builds a graveyard + crypt at your feet', 'place_frog_hut': "builds the Frog with Mustache's swamp hut",
             'place_mothership': 'puts a Vorn mothership overhead', 'place_crash_site': 'a crashed saucer at your feet', 'place_dreadnought': 'a Vorn dreadnought',
             'invasion_now': 'starts an Invasion Night', 'invasion_stop': 'ends it', 'lucky_night': 'starts a Lucky Night', 'auction_now': 'opens the Dark Auction',
