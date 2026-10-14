@@ -129,21 +129,8 @@ FX.exprs = lambda k: EXPR if k == 'apo' else _orig_exprs(k)
 # ------------------------------------------------------------------------------------------------ the poses (the art's, and a few of the game's own)
 P = dict
 POSES = {k: dict(v) for k, v in ART.POSES.items()}
-POSES['sleep'] = P(ART.POSES['sit'], head=qs(('x', 24), ('y', 10), ('z', 8)), jaw=qs(('x', 2)), armr=qs(('x', -40), ('z', 50)), arml=qs(('x', -36), ('z', -50)))
-POSES['sit_b'] = P(ART.POSES['sit'], head=qs(('x', 2), ('y', -18)), jaw=qs(('x', 6)))
-POSES['ride_b'] = P(ART.POSES['ride'], tail1=qs(('x', 14), ('y', -14)), tail2=qs(('x', 18), ('y', 12)), tail3=qs(('x', 22), ('y', 10)), tail4=qs(('x', 22), ('y', 6)),
-                    head=qs(('x', -30), ('y', 6)))
-POSES['ride_c'] = P(ART.POSES['ride'], tail1=qs(('x', 14), ('y', 14)), tail2=qs(('x', 18), ('y', -12)), tail3=qs(('x', 22), ('y', -10)), tail4=qs(('x', 22), ('y', -6)),
-                    head=qs(('x', -30), ('y', -6)))
-POSES['swim_a'] = P(ART.POSES['slither_a'], _off=(0, -2.0, 0), body=qs(('x', 50), ('y', -6)), chest=qs(('x', 20)), head=qs(('x', -50), ('y', -4)))
-POSES['swim_b'] = P(ART.POSES['slither_b'], _off=(0, -2.4, 0), body=qs(('x', 50), ('y', 6)), chest=qs(('x', 20)), head=qs(('x', -50), ('y', 4)))
-# the ethereal king's dive and landing
-POSES['eth_dive'] = P(_eth=True, _off=(0, 6, 0), coil=qs(('x', 34)), body=qs(('x', 26)), chest=qs(('x', 8)), head=qs(('x', -34)), jaw=qs(('x', 46)),
-                      armr=qs(('x', -96), ('z', -20)), arml=qs(('x', -96), ('z', 20)), tail1=qs(('x', -20)), tail2=qs(('x', -8)), tail3=qs(('x', -6)), tail4=qs(('x', -6)),
-                      mace=I, wingr=qs(('y', 54), ('z', -14)), wingl=qs(('y', -54), ('z', 14)))
-POSES['eth_land'] = P(_eth=True, _off=(0, 1, 0), body=qs(('x', 14)), chest=qs(('x', 10)), head=qs(('x', -20)), jaw=qs(('x', 40)),
-                      armr=qs(('x', -150), ('z', -40)), arml=qs(('x', -150), ('z', 40)), tail1=qs(('x', 30)), tail2=qs(('x', 30)), tail3=qs(('x', 30)), tail4=qs(('x', 30)),
-                      mace=qs(('x', 20)), wingr=qs(('y', -10), ('z', 40)), wingl=qs(('y', 10), ('z', -40)))
+# (2.78: the game's own poses - asleep, the sit's glance, ridden, swimming, the ethereal dive and landing - and the in-between
+#  keyframes that keep his tail on its arc are drawn with the art, in apophiss_art.POSES)
 for _p in POSES.values():
     if 'tail4' not in _p and 'tail3' in _p: _p['tail4'] = _p['tail3']
 
@@ -155,11 +142,13 @@ class _Art:                                         # (the art, with the game's 
 
 
 A = _Art
-DUR_B = {'idle_a': 30, 'idle_b': 30, 'slither_a': 10, 'slither_b': 10, 'battle': 6, 'claw_up': 7, 'claw': 3, 'bite': 3, 'mace_up': 12, 'mace_slam': 4,
+DUR_B = {'idle_a': 30, 'idle_b': 30, 'slither_a': 5, 'slither_m': 5, 'slither_b': 5, 'battle': 6, 'claw_up': 7, 'claw': 3, 'bite': 3, 'mace_up': 12,
+         'mace_swing': 2, 'mace_slam': 2, 'mace_rec': 4, 'mace_back': 4, 'tired_b': 30, 'eth_dland': 3, 'eth_lift': 4,
          'cast': 10, 'cast_point': 5, 'roar': 8, 'tired': 20, 'crouch': 6, 'defeated': 14,
          'eth_hover': 8, 'eth_beat': 8, 'eth_cast': 8, 'eth_dive': 5, 'eth_land': 5}
-DUR_P = {'idle_a': 30, 'idle_b': 30, 'slither_a': 8, 'slither_b': 8, 'battle': 4, 'claw_up': 5, 'claw': 3, 'bite': 3, 'mace_up': 8, 'mace_slam': 3,
-         'cast': 6, 'cast_point': 4, 'roar': 6, 'crouch': 4, 'sit': 20, 'sit_b': 20, 'ride': 8, 'ride_b': 8, 'ride_c': 8, 'swim_a': 10, 'swim_b': 10}
+DUR_P = {'idle_a': 30, 'idle_b': 30, 'slither_a': 4, 'slither_m': 4, 'slither_b': 4, 'battle': 4, 'claw_up': 5, 'claw': 3, 'bite': 3, 'mace_up': 6,
+         'mace_swing': 2, 'mace_slam': 2, 'mace_rec': 3, 'mace_back': 3, 'swim_m': 5,
+         'cast': 6, 'cast_point': 4, 'roar': 6, 'crouch': 4, 'sit': 20, 'sit_b': 20, 'ride': 8, 'ride_b': 8, 'ride_c': 8, 'swim_a': 5, 'swim_b': 5}
 # where the mace lands in its slam, and where his claws are casting (blocks, from the host, ^left ^up ^forward)
 MACE_HIT = RK.point(A, POSES['mace_slam'], 'mace', (ART.PIVOT['mace'][0], ART.PIVOT['mace'][1] + 2, ART.PIVOT['mace'][2] + 5), scale=SB)
 CLAW_R = RK.point(A, POSES['cast'], 'armr', (ART.PIVOT['armr'][0] + 2, ART.PIVOT['armr'][1] + 10, ART.PIVOT['armr'][2] - 2), scale=SB)
@@ -787,13 +776,16 @@ def generate(G):
                        'execute if score #st bm.rng matches 1 run scoreboard players operation #f bm.rng %= #20 bm.rng',
                        'execute if score #st bm.rng matches 0 run scoreboard players operation #f bm.rng %= #60 bm.rng',
                        'execute if score #st bm.rng matches 1 if score #f bm.rng matches 0 run function bm:p131/b/pose/slither_a',
+                       'execute if score #st bm.rng matches 1 if score #f bm.rng matches 5 run function bm:p131/b/pose/slither_m',
                        'execute if score #st bm.rng matches 1 if score #f bm.rng matches 10 run function bm:p131/b/pose/slither_b',
+                       'execute if score #st bm.rng matches 1 if score #f bm.rng matches 15 run function bm:p131/b/pose/slither_m',
                        'execute if score #st bm.rng matches 1 if score #f bm.rng matches 5 run playsound minecraft:entity.armadillo.scute_drop hostile @a[distance=..24] ~ ~ ~ 0.8 0.5',
-                       'execute if score #st bm.rng matches 0 if score #f bm.rng matches 0 run function bm:p131/b/pose/idle_a',
-                       'execute if score #st bm.rng matches 0 if score #f bm.rng matches 30 run function bm:p131/b/pose/idle_b',
-                       # (low: he's flagging, and it shows)
+                       # (low: he's flagging, and it shows - slumped on his coils, breathing hard, no longer rearing up between)
                        'execute store result score #hp bm.rng run data get entity @s Health',
-                       'execute if score #st bm.rng matches 0 if score #hp bm.rng matches ..120 if score #f bm.rng matches 15 run function bm:p131/b/pose/tired'])
+                       'execute if score #st bm.rng matches 0 if score #hp bm.rng matches 121.. if score #f bm.rng matches 0 run function bm:p131/b/pose/idle_a',
+                       'execute if score #st bm.rng matches 0 if score #hp bm.rng matches 121.. if score #f bm.rng matches 30 run function bm:p131/b/pose/idle_b',
+                       'execute if score #st bm.rng matches 0 if score #hp bm.rng matches ..120 if score #f bm.rng matches 0 run function bm:p131/b/pose/tired',
+                       'execute if score #st bm.rng matches 0 if score #hp bm.rng matches ..120 if score #f bm.rng matches 30 run function bm:p131/b/pose/tired_b'])
     # flying (phase 2): NoAI - toward his quarry, keeping six blocks above the floor; the wings beat
     fn('p131/b/fly', ['scoreboard players add @s bm.apf 1', 'scoreboard players operation #f bm.rng = @s bm.apf', 'scoreboard players operation #f bm.rng %= #16 bm.rng',
                       'execute if score #f bm.rng matches 0 run function bm:p131/b/pose/eth_hover',
@@ -863,9 +855,10 @@ def generate(G):
                          'particle minecraft:damage_indicator ~ ~1 ~ 0.3 0.4 0.3 0.2 8'])
     # MACE: the tail lifts the mace high over him - and brings it down in a quake (enraged: fangs where it lands)
     fn('p131/b/a_mace', [at(1, face_t), at(1, 'function bm:p131/b/pose/mace_up'), at(1, 'playsound minecraft:item.mace.smash_air hostile @a[distance=..32] ~ ~ ~ 1 0.5'),
-                         at('2..13', f'execute rotated as @s rotated ~ 0 positioned {loc(MACE_HIT)} run particle minecraft:dust{{color:[0.9,0.25,0.25],scale:1.6}} ~ ~0.1 ~ 1.6 0 1.6 0 6'),
-                         at(14, 'function bm:p131/b/pose/mace_slam'),
-                         at(17, f'execute rotated as @s rotated ~ 0 positioned {loc(MACE_HIT)} run function bm:p131/b/quake'),
+                         at('2..15', f'execute rotated as @s rotated ~ 0 positioned {loc(MACE_HIT)} run particle minecraft:dust{{color:[0.9,0.25,0.25],scale:1.6}} ~ ~0.1 ~ 1.6 0 1.6 0 6'),
+                         at(14, 'function bm:p131/b/pose/mace_swing'), at(16, 'function bm:p131/b/pose/mace_slam'),
+                         at(18, f'execute rotated as @s rotated ~ 0 positioned {loc(MACE_HIT)} run function bm:p131/b/quake'),
+                         at(21, 'function bm:p131/b/pose/mace_rec'), at(25, 'function bm:p131/b/pose/mace_back'),
                          at(30, 'function bm:p131/b/pose/battle'), at('34..', 'function bm:p131/b/done')])
     fn('p131/b/quake', ['particle minecraft:explosion ~ ~0.3 ~ 2.5 0.1 2.5 0 10', 'particle minecraft:block{block_state:"minecraft:dark_prismarine"} ~ ~0.2 ~ 3 0.1 3 0 80',
                         'particle minecraft:dust{color:[0.2,0.9,0.4],scale:2} ~ ~0.3 ~ 3 0.2 3 0 40',
@@ -1035,11 +1028,11 @@ def generate(G):
     # GRAND FANGS: he comes down hard - rings of fangs, out and out
     fn('p131/b/a_grand', [at(1, 'function bm:p131/b/pose/eth_dive'), at(1, 'playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..48] ~ ~ ~ 1.5 0.5'),
                           at('2..22', 'execute if block ~ ~-0.6 ~ #bm:grap_pass run tp @s ~ ~-0.45 ~'),
-                          at(23, 'function bm:p131/b/pose/eth_land'), at(24, 'function bm:p131/b/ring3'),
+                          at(20, 'function bm:p131/b/pose/eth_dland'), at(23, 'function bm:p131/b/pose/eth_land'), at(24, 'function bm:p131/b/ring3'),
                           at(24, 'particle minecraft:explosion ~ ~0.3 ~ 2 0.1 2 0 8'), at(24, 'playsound minecraft:item.mace.smash_ground_heavy hostile @a[distance=..40] ~ ~ ~ 1.5 0.5'),
                           at(24, f'execute as {pl(4)} run damage @s 12 minecraft:mob_attack by {me}'),
-                          at(44, 'function bm:p131/b/pose/eth_beat'), at('46..62', 'execute if block ~ ~6 ~ #bm:grap_pass run tp @s ~ ~0.3 ~'),
-                          at('64..', 'function bm:p131/b/done')])
+                          at(44, 'function bm:p131/b/pose/eth_lift'), at(48, 'function bm:p131/b/pose/eth_beat'),
+                          at('46..62', 'execute if block ~ ~6 ~ #bm:grap_pass run tp @s ~ ~0.3 ~'), at('64..', 'function bm:p131/b/done')])
     ring = []
     for rr, nf, w in ((3, 8, 0), (5, 12, 6), (7, 16, 12)):
         for i in range(nf):
@@ -1212,7 +1205,7 @@ def generate(G):
     crn = {'Tags': ['bm.apcrf'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:apo_true_crown',
                                                                                                    'minecraft:enchantment_glint_override': True}},
            'item_display': 'fixed', 'brightness': {'block': Int(15), 'sky': Int(15)}, 'teleport_duration': Int(1), 'view_range': F(2.0),
-           'transformation': {'left_rotation': RF.IDENT, 'right_rotation': RF.IDENT, 'translation': [F(0), F(-0.6), F(0)], 'scale': [F(2.0)] * 3}}
+           'transformation': {'left_rotation': RF.IDENT, 'right_rotation': RF.IDENT, 'translation': [F(0), F(-0.45), F(0)], 'scale': [F(round(ART.CROWN_K * 2.6, 3))] * 3}}
     fn('p131/d/crown_make', ['summon minecraft:item_display ~ ~ ~ ' + snbt(crn), 'scoreboard players set @e[type=minecraft:item_display,tag=bm.apcrf,distance=..1] bm.apt 0',
                              'particle minecraft:totem_of_undying ~ ~ ~ 0.3 0.3 0.3 0.3 30 force @a[distance=..96]',
                              snd('block.bell.resonate', 1.5, 0.8), snd('block.amethyst_block.resonate', 2, 0.5)])
@@ -1436,10 +1429,12 @@ def generate(G):
                             f'execute if score #sad bm.rng matches 0 run data modify entity {psel("body")[:-1]},limit=1] item.components."minecraft:item_model" set value "bm:apo_body"',
                             f'execute if score #sad bm.rng matches 0 run data modify entity {psel("chest")[:-1]},limit=1] item.components."minecraft:item_model" set value "bm:apo_chest"'])
     # states: 0 idle, 1 slither, 2 fast, 3 air, 4 sit, 5 ridden on the move, 11 ridden still, 6 arriving, 7 claw, 8 bite, 9 spit, 12 the wrath, 10 swim
-    CYCLE = {0: (60, [(0, 'idle_a'), (30, 'idle_b')]), 1: (16, [(0, 'slither_a'), (8, 'slither_b')]), 2: (12, [(0, 'slither_a'), (6, 'slither_b')]),
+    CYCLE = {0: (60, [(0, 'idle_a'), (30, 'idle_b')]), 1: (16, [(0, 'slither_a'), (4, 'slither_m'), (8, 'slither_b'), (12, 'slither_m')]),
+             2: (12, [(0, 'slither_a'), (3, 'slither_m'), (6, 'slither_b'), (9, 'slither_m')]),
              3: (None, [(0, 'crouch')]), 4: (120, [(0, 'sit'), (60, 'sit_b')]), 5: (16, [(0, 'ride_b'), (8, 'ride_c')]), 11: (None, [(0, 'ride')]),
              6: (None, [(0, 'roar')]), 7: (None, [(0, 'claw_up'), (5, 'claw')]), 8: (None, [(0, 'battle'), (4, 'bite')]), 9: (None, [(0, 'cast'), (6, 'cast_point')]),
-             12: (None, [(0, 'mace_up'), (8, 'mace_slam')]), 10: (20, [(0, 'swim_a'), (10, 'swim_b')])}
+             12: (None, [(0, 'mace_up'), (5, 'mace_swing'), (7, 'mace_slam'), (11, 'mace_rec'), (14, 'mace_back')]),
+             10: (20, [(0, 'swim_a'), (5, 'swim_m'), (10, 'swim_b'), (15, 'swim_m')])}
     RF.cycles(fn, 'p131', CYCLE, 'bm.apf', 'bm.aps', lambda p: f'p131/pose/{p}')
     G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in RF.periods(CYCLE)]
     fn('p131/state', ['execute if score @s bm.apsl matches 1.. run return run scoreboard players set #st bm.rng 6',

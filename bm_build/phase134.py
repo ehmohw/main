@@ -96,7 +96,7 @@ FIT = {
     'demo_seal': (0.000, 3.363, -0.821, 1.715, -0.510, 0.824),   # Democratus
     'emma_ribbon': (0.000, 1.819, -0.379, 0.387, -0.395, 0.330),   # Emma
     'kw_spark': (0.000, 3.318, -1.176, 1.176, -0.662, 0.476),   # KillerWatt
-    'apo_oath': (-0.092, 9.510, -3.444, 3.360, -5.491, 3.605),   # Apophiss (2.77d: his snout, his head tipped down)
+    'apo_oath': (-0.092, 9.368, -3.444, 3.360, -5.491, 3.605),   # Apophiss (2.78: his longer, lower head)
     'tul_coin': (0.000, 3.143, -1.079, 1.084, -0.525, 1.087),   # Tullius (from his feet, not the harpoon's tip below them)
     'donadian_medal': (-0.850, 1.287, -0.309, 0.310, -0.287, 0.386),   # Zib
     'cecil_gem': (-0.041, 2.364, -0.938, 0.514, -0.361, 0.550),   # Cecil

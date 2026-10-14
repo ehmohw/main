@@ -67,6 +67,34 @@ def solve(pivots, parents, pose):
     return out
 
 
+def slerp(a, b, t):
+    if sum(u * v for u, v in zip(a, b)) < 0: b = tuple(-v for v in b)
+    d = max(-1.0, min(1.0, sum(u * v for u, v in zip(a, b))))
+    if d > 0.9995:
+        q = tuple(u + (v - u) * t for u, v in zip(a, b))
+    else:
+        th = math.acos(d); s0, s1 = math.sin((1 - t) * th) / math.sin(th), math.sin(t * th) / math.sin(th)
+        q = tuple(u * s0 + v * s1 for u, v in zip(a, b))
+    n = math.sqrt(sum(v * v for v in q))
+    return tuple(v / n for v in q)
+
+
+def mid(pa, pb, t=0.5):
+    """a pose part way from pa to pb with every JOINT bent part way (each part's own rotation slerped) - not what the game
+    shows if it is simply told to go from pa to pb (each display slides straight to its end, so a long chain cuts the
+    corner: the mace through his arm). A keyframe at mid() between them keeps the chain on its arc."""
+    out = {}
+    for k in set(pa) | set(pb):
+        if k == '_off':
+            a, b = pa.get(k, (0.0, 0.0, 0.0)), pb.get(k, (0.0, 0.0, 0.0)); out[k] = tuple(u + (v - u) * t for u, v in zip(a, b))
+        elif k.startswith('_'):
+            v = (pa if t < 0.5 else pb).get(k)
+            if v is not None: out[k] = v
+        else:
+            out[k] = slerp(pa.get(k, I), pb.get(k, I), t)
+    return out
+
+
 def transform(els, fn):
     """re-place a part's elements (model units) through fn(point) - a scale/shift about some origin"""
     out = []

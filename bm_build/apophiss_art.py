@@ -19,14 +19,14 @@ import random
 from PIL import Image, ImageDraw
 
 from phase57_art import hexc
-from rigkit import qs, shrink, el, seg, chain, frame, transform, _add, _mul, _sub, _unit, I
+from rigkit import qs, shrink, el, seg, chain, frame, transform, _add, _mul, _sub, _unit, I, mid
 
 PREFIX = 'apo_'
 BOSS_SCALE, PET_SCALE = 2.8, 2.8
-PIVOT = {'coil': (0, 3, 5), 'body': (0, 5, -3.4), 'chest': (0, 19.4, -2.6), 'head': (0, 28.6, -3.6), 'jaw': (0, 31.8, 0.4),
+PIVOT = {'coil': (0, 3, 5), 'body': (0, 5, -3.4), 'chest': (0, 19.4, -2.6), 'head': (0, 31.0, -0.8), 'jaw': (0, 31.8, 0.4),
          'armr': (8.4, 26.0, -3.0), 'arml': (-8.4, 26.0, -3.0),
          'tail1': (2.0, 3.0, 13.4), 'tail2': (2.4, 3.0, 24.6), 'tail3': (2.6, 3.0, 35.4), 'tail4': (2.7, 3.0, 45.2), 'mace': (2.75, 3.0, 54.0),
-         'wingr': (4.4, 26.4, 2.0), 'wingl': (-4.4, 26.4, 2.0)}
+         'wingr': (5.0, 24.4, 2.8), 'wingl': (-5.0, 24.4, 2.8)}
 PARENT = {'coil': None, 'body': 'coil', 'chest': 'body', 'head': 'chest', 'jaw': 'head', 'armr': 'chest', 'arml': 'chest',
           'tail1': 'coil', 'tail2': 'tail1', 'tail3': 'tail2', 'tail4': 'tail3', 'mace': 'tail4', 'wingr': 'chest', 'wingl': 'chest'}
 PARTS = tuple(PIVOT)
@@ -39,7 +39,7 @@ UP, FRONT, SIDE = (0.0, 1.0, 0.0), (0.0, 0.0, -1.0), (1.0, 0.0, 0.0)
 # (2.77d: a serpent's head - his eyes up and back on a taller brow, a long snout under them. The eyes are built where they
 #  always were and moved by this much; the crown sits higher on the dome)
 EYE_UP, EYE_BACK = 2.4, 3.2
-CROWN_AT = (0.0, 43.8, -5.0)
+CROWN_AT, CROWN_K = (0.0, 43.8, -4.6), 0.56          # (2.78: on the new dome, a little smaller - as the art)
 
 
 def HIDDEN(p, pose):
@@ -292,6 +292,70 @@ def _eye_parts(sx, f, pv):
     return out
 
 
+# (2.78) the skull, from the art's side view: the forehead rises behind his lids and brows and rounds over a low dome (the
+# crown on top), then runs a long way back - the round back of his head - and curls under into his neck: an egg laid along
+# him, longer than it is tall. Built in slices front to back: the middle one has the whole profile, the outer ones a lower
+# dome and a back pulled in - so it rounds off across as well as along. Each slice: plates laid along its profile (the
+# smooth outline) over blocks that fill it.
+SKULL_EGG = (-3.0, 37.6, 12.6, 6.6)                                                   # (its middle (z, y), half its length, half its height)
+
+
+def _egg(phis):
+    """points round the egg where its surface faces angle phi (0: straight back, 90: up), so the plates turn evenly"""
+    zc, yc, a, b = SKULL_EGG
+    out = []
+    for p in phis:
+        c, s = math.cos(math.radians(p)), math.sin(math.radians(p)); d = math.hypot(a * c, b * s)
+        out.append((round(zc + a * a * c / d, 3), round(yc + b * b * s / d, 3)))
+    return out
+
+
+SKULL = [(-9.2, 42.6), (-9.1, 43.1), (-8.85, 43.4)] + _egg([104 - 172 * i / 15 for i in range(16)])   # (z, y): from his brow to his nape
+SKULL_SLICES = [(2.8, 1.0, 1.0), (4.8, 0.985, 0.975), (6.2, 0.955, 0.93), (7.4, 0.91, 0.87), (8.4, 0.84, 0.8)]   # (out to |x|, how far back, how high)
+
+
+def skull(pv, z_front=-9.2):
+    out = []
+    x0 = 0.0
+    cz, y_mid = SKULL_EGG[:2]                                                                   # (inside: for the plates' outward side)
+    for si, (x1, kz, ky) in enumerate(SKULL_SLICES):
+        prof = [(z_front + (z - z_front) * kz, y_mid + (y - y_mid) * ky) if y > y_mid or z > 1.6 else (z_front + (z - z_front) * kz, y) for z, y in SKULL]
+        prof = [(z, max(y, 32.4)) for z, y in prof]
+        if si >= 2: prof = prof[::2] + ([prof[-1]] if len(prof) % 2 == 0 else [])      # (the outer slices: half the plates)
+        sides = [(1,)] if si == 0 else [(1,), (-1,)]
+        for (sx,) in sides:
+            xa, xb = (-x1, x1) if si == 0 else ((x0, x1) if sx > 0 else (-x1, -x0))
+            xm, w = (xa + xb) / 2, xb - xa
+            for i in range(len(prof) - 1):
+                (za, ya), (zb, yb) = prof[i], prof[i + 1]
+                dz, dy = zb - za, yb - ya
+                n = _unit((0.0, -dz, dy)) if (-dz * (ya + yb - 2 * y_mid) / 2 + dy * ((za + zb) / 2 - cz)) > 0 else _unit((0.0, dz, -dy))
+                A = (xm, ya - n[1] * 0.75, za - n[2] * 0.75); B = (xm, yb - n[1] * 0.75, zb - n[2] * 0.75)
+                out.append(seg(A, B, w + (0.02 if si else 0.0), 1.5, 'apo_scale', pv, n, 0.3, shift=(0.13 * i + 0.3 * si, 0.21 * i + 0.17 * sx)))
+            # (the fill: blocks behind the cranium's core, under the plates - each band reaching back as far as the profile
+            #  does all the way up it, so no corner pokes through)
+            back = lambda y: max([z for z, _ in _crossings(prof, y)] or [-99.0])
+            y = round(min(yy for zz, yy in prof if zz > 1.6), 2)
+            top = max(yy for zz, yy in prof)
+            while y < top - 1.0:
+                y1 = min(y + 1.8, top - 1.0)
+                zb = min(back(y + 0.01), back((y + y1) / 2), back(y1)) - 0.25
+                if zb > 1.8:
+                    out.append(el((xa + (0.05 if si else 0), y, 1.4), (xb - (0.05 if si else 0), y1, zb), 'apo_scale', pv, shift=(0.6, 0.2 + 0.1 * si)))
+                y = y1
+        x0 = x1
+    return out
+
+
+def _crossings(prof, y):
+    """where the profile crosses height y: [(z, y)]"""
+    out = []
+    for (za, ya), (zb, yb) in zip(prof, prof[1:]):
+        if (ya - y) * (yb - y) <= 0 and ya != yb:
+            t = (y - ya) / (yb - ya); out.append((za + (zb - za) * t, y))
+    return out
+
+
 def _ring(cx, cy, cz, R, w, h, a0, a1, n, tex, piv, ext=0.9, dy=None):
     """a coil: n boxes round a circle (angle 0 = his front, +90 = his right), dy(t) lifting it along the way"""
     pts = []
@@ -359,11 +423,16 @@ def models():
 
     # ---- the chest: broad, the shoulders' bulk, the belly plate up to the chin, a fin over the back
     pv = PIVOT['chest']
+    # (2.78: the neck sets back as it rises - its throat slopes in under his jaw - so the jaw can drop open in front of it
+    #  instead of sinking into it: the art's big head held out over a slimmer throat)
+    TH = _unit((0.0, 0.62, -0.78))                                                                    # (the throat's slope, facing out)
     chest = [seg((0, 18.8, -2.6), (0, 24.8, -2.4), 12.6, 9.6, 'apo_scale', pv, FRONT, 0.4),
-             el((-7.8, 23.6, -7.3), (7.8, 29.6, 2.3), 'apo_scale', pv, shift=(0.2, 0.4)),
-             el((-6.6, 29.4, -6.4), (6.6, 30.8, 1.4), 'apo_scale', pv, shift=(0.6, 0.1)),
-             el((-4.6, 19.4, -7.75), (4.6, 29.4, -7.25), 'apo_belly', pv),
-             el((-3.4, 29.2, -7.0), (3.4, 30.6, -6.3), 'apo_belly', pv)]
+             el((-7.8, 23.6, -7.3), (7.8, 26.4, 2.3), 'apo_scale', pv, shift=(0.2, 0.4)),            # the shoulders' bulk
+             el((-7.8, 26.2, -3.9), (7.8, 29.6, 2.3), 'apo_scale', pv, shift=(0.5, 0.3)),            # the neck, set back
+             seg((0, 25.3, -6.5), (0, 29.0, -3.55), 15.4, 2.4, 'apo_scale', pv, TH, 0.3),           # its throat, sloping in
+             el((-6.6, 29.4, -3.4), (6.6, 30.8, 1.4), 'apo_scale', pv, shift=(0.6, 0.1)),
+             el((-4.6, 19.4, -7.75), (4.6, 25.9, -7.25), 'apo_belly', pv),                           # the belly plate, and up the throat
+             seg((0, 25.75, -7.62), (0, 29.65, -4.52), 9.2, 0.5, 'apo_belly', pv, TH, 0.25)]
     part('apo_chest_saddle', chest + [el((-2.0, 22.0, 2.2), (2.0, 27.0, 2.6), 'apo_strap', pv), el((-1.2, 22.6, 2.5), (1.2, 26.4, 2.8), 'apo_gold', pv)])   # (a breastplate strap)
     for y0, y1, l in ((19.4, 23.4, 5.0), (23.0, 27.4, 6.2), (26.6, 30.4, 7.0)):
         chest += _sail((0, y0, 2.0), (0, y1, 2.0), (0, y1 + 1.6, 2.0 + l), 0.8, 'apo_fin', pv, 3)
@@ -374,10 +443,9 @@ def models():
     #      bridge, the upper lip dipping to a lobe between the two great fangs. The jaw muscles bulge at the back
     def head(face=None):
         pv = PIVOT['head']; E = lambda fr, to, t='apo_scale', rot=None, sh=None: el(fr, to, t, pv, rot, shift=sh)
-        h = [E((-8.4, 32.4, -9.2), (8.4, 42.0, 1.6), sh=(0.1, 0.3)),                                                      # the cranium
-             E((-7.4, 41.8, -8.4), (7.4, 43.4, 1.0), sh=(0.5, 0.2)), E((-5.6, 43.2, -7.4), (5.6, 44.0, -0.6), sh=(0.8, 0.6)),   # the dome
-             E((8.2, 32.8, -8.8), (9.2, 40.6, 0.4), sh=(0.3, 0.9)), E((-9.2, 32.8, -8.8), (-8.2, 40.6, 0.4), sh=(0.7, 0.4)),   # the jaw muscles
-             E((-7.4, 31.0, 1.4), (7.4, 41.4, 3.2), sh=(0.4, 0.5))]                                                        # the back
+        h = [E((-8.4, 32.4, -9.2), (8.4, 42.6, 1.6), sh=(0.1, 0.3)),                                                      # the cranium's core
+             E((8.2, 32.8, -8.8), (9.2, 40.6, 0.4), sh=(0.3, 0.9)), E((-9.2, 32.8, -8.8), (-8.2, 40.6, 0.4), sh=(0.7, 0.4))]   # the jaw muscles
+        h += skull(pv)
         # the muzzle (the art's): a broad mound under the eyes - narrow over the bridge, its cheeks sloping out and down to a
         # wide lip - rounding in to a blunt nose about an eye's width out; blocks inside, a skin of plates over them
         Z = (-9.2, -12.4, -14.4, -15.3)                                                                 # (from the face to the nose)
@@ -447,14 +515,14 @@ def models():
                   E((X(2.72, 3.08)[0], 29.3, -15.65), (X(2.72, 3.08)[1], 30.1, -15.25), 'apo_fang')]
             for w, z in ((6.45, -13.1), (7.05, -11.4), (7.05, -9.8), (8.05, -7.4)):
                 h.append(E((X(w, w + 0.38)[0], 31.5, z), (X(w, w + 0.38)[1], 32.45, z + 0.55), 'apo_fang'))
-        h += _crown(*CROWN_AT, 0.62, pv)
-        # the crest: great layered sails off the back of his head, the tallest behind the crown
-        h += _sail((0, 43.6, -2.4), (0, 39.4, 3.0), (0, 52.2, 7.4), 0.9, 'apo_fin', pv, 5)
-        h += _sail((0, 41.0, 2.2), (0, 36.6, 3.4), (0, 48.4, 10.6), 0.9, 'apo_fin', pv, 4)
-        h += _sail((0, 37.8, 3.2), (0, 33.6, 3.2), (0, 42.6, 10.6), 0.9, 'apo_fin', pv, 3)
+        h += _crown(*CROWN_AT, CROWN_K, pv)
+        # the crest: great layered sails swept back off the back of his head, the tallest from just behind the crown
+        h += _sail((0, 43.5, 0.0), (0, 39.0, 8.6), (0, 50.6, 13.6), 0.9, 'apo_fin', pv, 5)
+        h += _sail((0, 42.2, 5.2), (0, 37.4, 9.3), (0, 46.8, 16.2), 0.9, 'apo_fin', pv, 4)
+        h += _sail((0, 38.6, 9.2), (0, 34.6, 8.8), (0, 41.2, 16.6), 0.9, 'apo_fin', pv, 3)
         for sx in (1, -1):
-            h += _sail((sx * 4.4, 42.8, -0.8), (sx * 4.8, 38.4, 3.0), (sx * 7.4, 50.0, 6.4), 0.8, 'apo_fin', pv, 4)
-            h += _sail((sx * 6.0, 39.4, 1.2), (sx * 6.2, 35.4, 3.0), (sx * 9.2, 43.8, 8.6), 0.8, 'apo_fin', pv, 3)
+            h += _sail((sx * 4.4, 43.2, 1.6), (sx * 4.8, 39.0, 7.4), (sx * 7.4, 48.8, 11.8), 0.8, 'apo_fin', pv, 4)
+            h += _sail((sx * 6.0, 40.6, 5.0), (sx * 6.2, 36.4, 6.6), (sx * 9.2, 43.6, 13.2), 0.8, 'apo_fin', pv, 3)
         return h
     part('apo_head', head())
     for f in FACES:
@@ -463,12 +531,22 @@ def models():
     # ---- the jaw: heavy and round under the muzzle, its chin tucked just behind the great fangs; the light throat, the red
     #      floor, the lower fangs (standing inside his lip), and the forked tongue lolling out of the corner of his mouth
     pv = PIVOT['jaw']; E = lambda fr, to, t='apo_scale', sh=None: el(fr, to, t, pv, shift=sh)
-    JW = [(8.0, 28.4, -9.0, 0.8), (7.0, 28.6, -12.0, -8.8), (6.2, 28.9, -13.6, -11.8), (5.0, 29.3, -14.4, -13.4), (3.4, 29.7, -15.0, -14.2)]   # (half-width, bottom, front, back)
+    JW = [(8.0, 28.4, -9.0, -3.6), (7.0, 28.6, -12.0, -8.8), (6.2, 28.9, -13.6, -11.8), (5.0, 29.3, -14.4, -13.4), (3.4, 29.7, -15.0, -14.2)]   # (half-width, bottom, front, back)
     jaw = [E((-w, y0, z0), (w, 32.2, z1), sh=(0.2 + 0.2 * i, 0.2 + 0.17 * i)) for i, (w, y0, z0, z1) in enumerate(JW)]
-    jaw += [E((7.9, 29.0, -5.8), (8.6, 32.1, 0.2), sh=(0.1, 0.8)), E((-8.6, 29.0, -5.8), (-7.9, 32.1, 0.2), sh=(0.9, 0.3)),
-            E((-6.8, 27.8, -8.6), (6.8, 28.5, -0.6), sh=(0.6, 0.5))]
+    # (2.78: the back of his jaw rounds up to the hinge - no corner hanging under it to swing back into his neck as he opens
+    #  wide, and a round jaw from the side, as the art)
+    JB = [(-3.9, 28.35), (-2.5, 28.65), (-1.2, 29.3), (-0.15, 30.25), (0.55, 31.4), (0.75, 32.15)]                        # (z, y): its underside, up to the hinge
+    for i in range(len(JB) - 1):
+        (za, ya), (zb, yb) = JB[i], JB[i + 1]
+        n = _unit((0.0, -(zb - za), (yb - ya)))
+        n = n if n[1] < 0 or n[2] > 0 else _mul(n, -1)
+        jaw.append(seg((0.0, ya - n[1] * 0.6, za - n[2] * 0.6), (0.0, yb - n[1] * 0.6, zb - n[2] * 0.6), 15.6 - 0.5 * i, 1.2, 'apo_scale', pv, n, 0.25,
+                       shift=(0.3 * i, 0.2)))
+    jaw += [E((-7.8, 29.0, -3.8), (7.8, 32.2, -1.0), sh=(0.5, 0.3)), E((-7.6, 30.0, -1.2), (7.6, 32.2, 0.4), sh=(0.7, 0.6))]   # (filling it)
+    jaw += [E((7.9, 29.6, -5.8), (8.6, 32.1, -0.2), sh=(0.1, 0.8)), E((-8.6, 29.6, -5.8), (-7.9, 32.1, -0.2), sh=(0.9, 0.3)),
+            E((-6.8, 27.8, -8.6), (6.8, 28.5, -3.8), sh=(0.6, 0.5))]
     jaw += [E((-w + 1.0, y0 - 0.15, z0 + 0.3), (w - 1.0, y0 + 0.05, z1 - 0.3), 'apo_belly') for w, y0, z0, z1 in JW[1:]] + \
-           [E((-5.6, 27.65, -8.4), (5.6, 27.85, -1.6), 'apo_belly')]
+           [E((-5.6, 27.65, -8.4), (5.6, 27.85, -3.9), 'apo_belly')]
     jaw += [E((-w + 0.6, 32.1, z0 + 0.3), (w - 0.6, 32.25, z1 if z1 < 0 else 0.4), 'apo_mouth') for w, y0, z0, z1 in JW]
     for sx in (1, -1):
         X = lambda a, b: (min(a * sx, b * sx), max(a * sx, b * sx))
@@ -547,7 +625,7 @@ def models():
     # ---- (phase 2) the wings: a bony arm from his back, four long fingers, the violet membrane strung between them in fans
     def wing(sx):
         pv = PIVOT['wingr' if sx > 0 else 'wingl']; K = 0.82
-        P = lambda p: (pv[0] + sx * (p[0] - 4.4) * K, pv[1] + (p[1] - 26.4) * K, pv[2] + (p[2] - 2.0) * K)
+        P = lambda p: (pv[0] + sx * (p[0] - 4.4) * K, pv[1] + (p[1] - 26.4) * K, pv[2] + (p[2] - 2.0) * K)          # (drawn about the old root, (4.4, 26.4, 2.0))
         S0, E0, W0 = P((4.4, 26.4, 2.0)), P((13.0, 32.4, 4.6)), P((22.0, 36.4, 6.0))
         F = [P((37.0, 39.0, 7.4)), P((35.0, 27.0, 8.0)), P((29.0, 17.4, 7.4)), P((19.4, 12.6, 6.0))]
         T0 = P((6.4, 15.6, 3.2))
@@ -598,32 +676,33 @@ POSES = {
     'battle': P(_off=(0, -0.4, 0), body=qs(('x', 12)), chest=qs(('x', 10)), head=qs(('x', -10)), jaw=qs(('x', 26)), armr=qs(('x', -50), ('z', -40)), arml=qs(('x', -50), ('z', 40)),
                 tail1=qs(('x', 80)), tail2=qs(('x', 30)), tail3=I, tail4=I, mace=I),
     # the claw: a raking swipe - wound up to his right, then across
-    'claw_up': P(body=qs(('x', 6), ('y', -14)), chest=qs(('y', -16), ('x', 4)), head=qs(('y', 18)), jaw=qs(('x', 18)), armr=qs(('x', -120), ('z', -50)), arml=qs(('x', -30), ('z', 30)), **TAIL_HIGH),
-    'claw': P(body=qs(('x', 16), ('y', 18)), chest=qs(('y', 20), ('x', 8)), head=qs(('y', -22), ('x', -4)), jaw=qs(('x', 30)), armr=qs(('x', -70), ('z', 40)), arml=qs(('x', -40), ('z', 34)),
+    'claw_up': P(body=qs(('x', 6), ('y', -14)), chest=qs(('y', -16), ('x', 4)), head=qs(('y', 8)), jaw=qs(('x', 16)), armr=qs(('x', -120), ('z', -50)), arml=qs(('x', -30), ('z', 40)), **TAIL_HIGH),
+    'claw': P(body=qs(('x', 16), ('y', 18)), chest=qs(('y', 20), ('x', 8)), head=qs(('y', -14), ('x', -20)), jaw=qs(('x', 14)), armr=qs(('x', -80), ('z', 14)), arml=qs(('x', -40), ('z', 40)),
               tail1=qs(('x', 20), ('y', -20)), tail2=qs(('x', 26), ('y', -10)), tail3=qs(('x', 30)), mace=qs(('x', 20))),
     # the bite: a lunge, the maw gaping
     'bite': P(_off=(0, -0.6, -2), body=qs(('x', 30)), chest=qs(('x', 22)), head=qs(('x', -30)), jaw=qs(('x', 48)), armr=qs(('x', -70), ('z', -30)), arml=qs(('x', -70), ('z', 30)),
               tail1=qs(('x', 14)), tail2=qs(('x', 20)), tail3=qs(('x', 24)), mace=qs(('x', 10))),
     # the mace: raised high overhead and over (the wind-up), then brought crashing down beside him
-    'mace_up': P(body=qs(('x', -12)), chest=qs(('x', -4)), head=qs(('x', -6)), jaw=qs(('x', 20)), armr=qs(('x', -40), ('z', -30)), arml=qs(('x', -40), ('z', 30)),
-                 tail1=qs(('x', 60), ('y', 10)), tail2=qs(('x', 40)), tail3=qs(('x', 10)), tail4=I, mace=I),
-    'mace_slam': P(_off=(0, -0.6, 0), body=qs(('x', 18), ('y', -10)), chest=qs(('x', 14), ('y', -8)), head=qs(('x', -8), ('y', 14)), jaw=qs(('x', 34)),
-                   armr=qs(('x', -40), ('z', -36)), arml=qs(('x', -50), ('z', 36)), tail1=qs(('x', 80), ('y', 90)), tail2=qs(('x', 30)), tail3=qs(('x', 40)), tail4=qs(('x', 40)), mace=qs(('x', 40))),
+    'mace_up': P(body=qs(('x', -12)), chest=qs(('x', -4)), head=qs(('x', -6)), jaw=qs(('x', 20)), armr=qs(('x', -130), ('z', -14)), arml=qs(('x', -40), ('z', 30)),
+                 tail1=qs(('x', 56), ('y', 24)), tail2=qs(('x', 40)), tail3=qs(('x', 10)), tail4=I, mace=I),
+    'mace_slam': P(_off=(0, -0.6, 0), body=qs(('x', 18), ('y', -10)), chest=qs(('x', 14), ('y', -8)), head=qs(('x', -12), ('y', 8)), jaw=qs(('x', 26)),
+                   armr=qs(('x', -130), ('z', -14)), arml=qs(('x', -50), ('z', 36)), tail1=qs(('x', 64), ('y', 34)), tail2=qs(('x', 44), ('y', 30)), tail3=qs(('x', 58)), tail4=qs(('x', 40)), mace=qs(('x', 30))),
     # dark magic: reared to his full height, both claws high, green fire in them (the game adds the particles)
-    'cast': P(body=qs(('x', -10)), chest=qs(('x', -6)), head=qs(('x', -20)), jaw=qs(('x', 30)), armr=qs(('x', -160), ('z', -26)), arml=qs(('x', -160), ('z', 26)), **TAIL_HIGH),
-    'cast_point': P(body=qs(('x', 6), ('y', -10)), chest=qs(('x', 4), ('y', -10)), head=qs(('x', 2), ('y', 14)), jaw=qs(('x', 22)), armr=qs(('x', -96), ('z', -4)), arml=qs(('x', -26), ('z', 22)), **TAIL_HIGH),
+    'cast': P(body=qs(('x', -10)), chest=qs(('x', -6)), head=qs(('x', -20)), jaw=qs(('x', 30)), armr=qs(('x', -160), ('z', -26)), arml=qs(('x', -160), ('z', 26)),
+              tail1=qs(('x', 26), ('y', 20)), tail2=qs(('x', 34)), tail3=qs(('x', 30)), tail4=qs(('x', 24)), mace=qs(('x', 16))),
+    'cast_point': P(body=qs(('x', 6), ('y', -10)), chest=qs(('x', 4), ('y', -10)), head=qs(('x', 2), ('y', 6)), jaw=qs(('x', 18)), armr=qs(('x', -96), ('z', -4)), arml=qs(('x', -26), ('z', 32)), **TAIL_HIGH),
     # the roar: head flung back, maw wide, claws out
     'roar': P(body=qs(('x', -10)), chest=qs(('x', -12)), head=qs(('x', -30)), jaw=qs(('x', 50)), armr=qs(('x', -70), ('z', -70)), arml=qs(('x', -70), ('z', 70)),
-              tail1=qs(('x', 34)), tail2=qs(('x', 36)), tail3=qs(('x', 40)), mace=qs(('x', 30))),
+              tail1=qs(('x', 30), ('y', 24)), tail2=qs(('x', 30), ('y', 10)), tail3=qs(('x', 26)), tail4=qs(('x', 20)), mace=qs(('x', 14))),
     # tired (his health low): slumped over his coils, head hanging, arms limp, tongue lolling, the tail down
-    'tired': P(_face='tired', _off=(0, -0.8, 0), body=qs(('x', 16)), chest=qs(('x', 14), ('z', 4)), head=qs(('x', -12), ('z', 10)), jaw=qs(('x', 26)), armr=qs(('x', 4), ('z', -2)), arml=qs(('x', 8), ('z', 4)),
+    'tired': P(_face='tired', _off=(0, -0.8, 0), body=qs(('x', 16)), chest=qs(('x', 14), ('z', 4)), head=qs(('x', -12), ('z', 10)), jaw=qs(('x', 22)), armr=qs(('x', 4), ('z', -2)), arml=qs(('x', 8), ('z', 4)),
                tail1=qs(('y', 16)), tail2=qs(('y', 20)), tail3=qs(('y', 24)), mace=qs(('y', 10))),
     # the crouch (the art): down low on his claws, coiled to spring, the mace raised behind
     'crouch': P(_off=(0, -0.6, 0), body=qs(('x', 40)), chest=qs(('x', 26)), head=qs(('x', -50)), jaw=qs(('x', 24)), armr=qs(('x', -18), ('z', -30)), arml=qs(('x', -18), ('z', 30)),
                 tail1=qs(('x', 44)), tail2=qs(('x', 40)), tail3=qs(('x', 34)), mace=qs(('x', 20))),
     # sit (a follower at rest): sunk into his coils, arms folded, the tail wrapped round in front
-    'sit': P(_face='smug', _off=(0, -1.6, 0), body=qs(('x', -4)), chest=qs(('x', 4)), head=qs(('x', 6), ('y', 14)), jaw=qs(('x', 2)), armr=qs(('x', -60), ('z', 46)), arml=qs(('x', -54), ('z', -46)),
-             tail1=qs(('y', 70)), tail2=qs(('y', 56)), tail3=qs(('y', 50)), mace=qs(('y', 30))),
+    'sit': P(_face='smug', _off=(0, -1.6, 0), body=qs(('x', -4)), chest=qs(('x', 4)), head=qs(('x', 6), ('y', 14)), jaw=qs(('x', 2)), armr=qs(('x', -56), ('z', 14)), arml=qs(('x', -50), ('z', -14)),
+             tail1=qs(('x', 2), ('y', 54)), tail2=qs(('y', 56)), tail3=qs(('y', 50)), mace=qs(('y', 30))),
     # ridden (saddled): low and long like a mount - you sit astride the middle of his back, his head up in front of you
     'ride': P(_saddle=True, body=qs(('x', 56)), chest=qs(('x', -14)), head=qs(('x', -34)), jaw=qs(('x', 10)), armr=qs(('x', -6), ('z', -12)), arml=qs(('x', -6), ('z', 12)),
               tail1=qs(('x', 14)), tail2=qs(('x', 18)), tail3=qs(('x', 22)), mace=qs(('x', 14))),
@@ -631,23 +710,66 @@ POSES = {
     'defeated': P(_face='hurt', _off=(0, -1.8, 0), body=qs(('x', 26), ('z', 6)), chest=qs(('x', 18), ('z', 6)), head=qs(('x', -8), ('z', 12)), jaw=qs(('x', 12)), armr=qs(('x', 20), ('z', -8)), arml=qs(('x', 28), ('z', 10)),
                   tail1=qs(('y', -20)), tail2=qs(('y', -24)), tail3=qs(('y', -18)), mace=qs(('y', -10))),
     # phase 2 - ETHEREAL: risen off the ground on violet wings
-    'eth_hover': P(_eth=True, _off=(0, 11, 0), coil=qs(('x', -8)), body=qs(('x', 4)), chest=qs(('x', 8)), head=qs(('x', -2)), jaw=qs(('x', 30)), armr=qs(('x', -50), ('z', -30)), arml=qs(('x', -50), ('z', 30)),
+    'eth_hover': P(_eth=True, _off=(0, 11, 0), coil=qs(('x', -8)), body=qs(('x', 4)), chest=qs(('x', 8)), head=qs(('x', -6)), jaw=qs(('x', 26)), armr=qs(('x', -50), ('z', -30)), arml=qs(('x', -50), ('z', 30)),
                    tail1=qs(('x', 4)), tail2=qs(('x', 10)), tail3=qs(('x', 18)), mace=qs(('x', 10)), wingr=qs(('y', 14), ('z', 8)), wingl=qs(('y', -14), ('z', -8))),
-    'eth_beat': P(_eth=True, _off=(0, 12.5, 0), coil=qs(('x', -8)), body=qs(('x', 6)), chest=qs(('x', 10)), head=qs(('x', -4)), jaw=qs(('x', 34)), armr=qs(('x', -60), ('z', -36)), arml=qs(('x', -60), ('z', 36)),
+    'eth_beat': P(_eth=True, _off=(0, 12.5, 0), coil=qs(('x', -8)), body=qs(('x', 6)), chest=qs(('x', 10)), head=qs(('x', -8)), jaw=qs(('x', 28)), armr=qs(('x', -60), ('z', -36)), arml=qs(('x', -60), ('z', 36)),
                   tail1=qs(('x', 2)), tail2=qs(('x', 6)), tail3=qs(('x', 14)), mace=qs(('x', 8)), wingr=qs(('y', 30), ('z', -40)), wingl=qs(('y', -30), ('z', 40))),
     'eth_cast': P(_eth=True, _off=(0, 11, 0), coil=qs(('x', -10)), body=qs(('x', -8)), chest=qs(('x', -6)), head=qs(('x', -22)), jaw=qs(('x', 44)), armr=qs(('x', -150), ('z', -40)), arml=qs(('x', -150), ('z', 40)),
                   tail1=qs(('x', 8)), tail2=qs(('x', 16)), tail3=qs(('x', 22)), mace=qs(('x', 14)), wingr=qs(('y', -6), ('z', 18)), wingl=qs(('y', 6), ('z', -18))),
 }
 for _p in POSES.values():                       # (a pose that doesn't name tail4 carries tail3's bend on into it)
     if 'tail4' not in _p and 'tail3' in _p: _p['tail4'] = _p['tail3']
+# the game's own poses: asleep (before the Serpent's Den wakes him), a glance from his seat, ridden on the move, swimming,
+# the ethereal king's dive and landing
+POSES['sleep'] = dict(POSES['sit'], head=qs(('x', 16), ('y', 10), ('z', 8)), jaw=qs(('x', 2)), armr=qs(('x', -34), ('z', 12)), arml=qs(('x', -30), ('z', -12)))
+POSES['sit_b'] = dict(POSES['sit'], head=qs(('x', 2), ('y', -18)), jaw=qs(('x', 6)))
+POSES['ride_b'] = dict(POSES['ride'], tail1=qs(('x', 14), ('y', -14)), tail2=qs(('x', 18), ('y', 12)), tail3=qs(('x', 22), ('y', 10)), tail4=qs(('x', 22), ('y', 6)),
+                       head=qs(('x', -30), ('y', 6)))
+POSES['ride_c'] = dict(POSES['ride'], tail1=qs(('x', 14), ('y', 14)), tail2=qs(('x', 18), ('y', -12)), tail3=qs(('x', 22), ('y', -10)), tail4=qs(('x', 22), ('y', -6)),
+                       head=qs(('x', -30), ('y', -6)))
+POSES['swim_a'] = dict(POSES['slither_a'], _off=(0, -2.0, 0), body=qs(('x', 50), ('y', -6)), chest=qs(('x', 20)), head=qs(('x', -50), ('y', -4)))
+POSES['swim_b'] = dict(POSES['slither_b'], _off=(0, -2.4, 0), body=qs(('x', 50), ('y', 6)), chest=qs(('x', 20)), head=qs(('x', -50), ('y', 4)))
+POSES['eth_dive'] = P(_eth=True, _off=(0, 6, 0), coil=qs(('x', 34)), body=qs(('x', 26)), chest=qs(('x', 8)), head=qs(('x', -34)), jaw=qs(('x', 46)),
+                      armr=qs(('x', -96), ('z', -20)), arml=qs(('x', -96), ('z', 20)), tail1=qs(('x', -20)), tail2=qs(('x', -8)), tail3=qs(('x', -6)), tail4=qs(('x', -6)),
+                      mace=I, wingr=qs(('y', 54), ('z', -14)), wingl=qs(('y', -54), ('z', 14)))
+POSES['eth_land'] = P(_eth=True, _off=(0, 1, 0), body=qs(('x', 14)), chest=qs(('x', 10)), head=qs(('x', -20)), jaw=qs(('x', 40)),
+                      armr=qs(('x', -150), ('z', -40)), arml=qs(('x', -150), ('z', 40)), tail1=qs(('x', 30)), tail2=qs(('x', 30)), tail3=qs(('x', 30)), tail4=qs(('x', 30)),
+                      mace=qs(('x', 20)), wingr=qs(('y', -10), ('z', 40)), wingl=qs(('y', 10), ('z', -40)))
+# tired, a breath later: low on his coils he stays low (he no longer snaps back up to a regal idle between slumps)
+POSES['tired_b'] = dict(POSES['tired'], _off=(0, -0.95, 0), chest=qs(('x', 15), ('z', 3)), head=qs(('x', -14), ('z', 12)), jaw=qs(('x', 16)),
+                        armr=qs(('x', 6), ('z', -3)), arml=qs(('x', 10), ('z', 5)))
+# (2.78) the in-between keyframes: when a long chain - his tail and the mace on it - swings a long way, each display would
+# slide straight to its end and cut the corner (the mace through his arm and chest, the tail through itself); a keyframe
+# with every joint bent half way keeps it on its arc
+POSES['slither_m'] = mid(POSES['slither_a'], POSES['slither_b'])
+POSES['swim_m'] = mid(POSES['swim_a'], POSES['swim_b'])
+# (the mace: his right claw held high out of its way the whole time - over, out wide at his side, down; then swung back out
+#  wide and low behind him before it rises over his head again for the fight)
+POSES['mace_swing'] = dict(mid(POSES['mace_up'], POSES['mace_slam']), tail1=qs(('x', 60), ('y', 40)), armr=qs(('x', -150), ('z', -10)))
+POSES['mace_back'] = dict(POSES['mace_slam'], armr=qs(('x', -110), ('z', -20)), tail1=qs(('x', 44), ('y', 30)), tail2=qs(('x', 30)), tail3=qs(('x', 10)), tail4=I, mace=I)
+POSES['mace_rec'] = mid(POSES['mace_slam'], POSES['mace_back'])
+POSES['eth_dland'] = mid(POSES['eth_dive'], POSES['eth_land'])                 # (the ethereal king pulling out of his dive to land,
+POSES['eth_lift'] = mid(POSES['eth_land'], POSES['eth_beat'])                  #  and rising off the ground again)
+for _p in POSES.values():
+    if 'tail4' not in _p and 'tail3' in _p: _p['tail4'] = _p['tail3']
 DRAFT = ['idle_a', 'slither_a', 'battle', 'claw_up', 'claw', 'bite', 'mace_up', 'mace_slam', 'cast', 'cast_point', 'roar', 'tired', 'crouch', 'sit', 'ride', 'defeated',
          'eth_hover', 'eth_beat', 'eth_cast']
-# animation loops (pose, ticks to it) - previews and, later, the game's keyframes
-ANIMS = {'idle': [('idle_a', 30), ('idle_b', 30)], 'slither': [('slither_a', 12), ('slither_b', 12)],
-         'claw': [('battle', 8), ('claw_up', 8), ('claw', 4), ('battle', 10)], 'bite': [('battle', 8), ('bite', 5), ('battle', 10)],
-         'mace': [('battle', 8), ('mace_up', 12), ('mace_slam', 5), ('battle', 14)], 'roar': [('idle_a', 8), ('roar', 10), ('roar', 14), ('idle_a', 10)],
-         'cast': [('idle_a', 8), ('cast', 12), ('cast', 10), ('cast_point', 6), ('idle_a', 10)], 'tired': [('tired', 24), ('idle_b', 30), ('tired', 24)],
-         'wings': [('eth_hover', 8), ('eth_beat', 8)]}
+# animation loops (pose, ticks to it): the moves the game makes (phase131's attacks and idles - previews, and the clipping
+# audit checks the frames between them as well as the poses: each display turns and slides on its own between keyframes)
+ANIMS = {'idle': [('idle_a', 30), ('idle_b', 30), ('idle_a', 30)],
+         'slither': [('slither_a', 5), ('slither_m', 5), ('slither_b', 5), ('slither_m', 5), ('slither_a', 5)],
+         'claw': [('battle', 6), ('claw_up', 7), ('claw', 3), ('battle', 6)], 'bite': [('battle', 6), ('crouch', 6), ('bite', 3), ('battle', 6)],
+         'mace': [('battle', 6), ('mace_up', 12), ('mace_swing', 2), ('mace_slam', 2), ('mace_rec', 4), ('mace_back', 4), ('battle', 6)],
+         'roar': [('idle_a', 8), ('roar', 8), ('roar', 14), ('idle_a', 10)],
+         'cast': [('battle', 6), ('cast', 10), ('cast', 10), ('cast_point', 5), ('idle_a', 10)], 'venom': [('battle', 6), ('cast_point', 5), ('battle', 6)],
+         'tired': [('idle_a', 20), ('tired', 20), ('tired_b', 30), ('tired', 30)], 'down': [('tired', 20), ('defeated', 14)],
+         'moves': [('idle_a', 10), ('slither_a', 10), ('battle', 6), ('slither_b', 10), ('idle_b', 10)],
+         'wake': [('sleep', 16), ('idle_a', 16)], 'rest': [('idle_a', 20), ('sit', 20), ('sit_b', 20), ('sit', 20)],
+         'ride': [('ride', 8), ('ride_b', 8), ('ride_c', 8), ('ride_b', 8)],
+         'swim': [('swim_a', 5), ('swim_m', 5), ('swim_b', 5), ('swim_m', 5), ('swim_a', 5)],
+         'wings': [('eth_hover', 8), ('eth_beat', 8), ('eth_hover', 8), ('eth_cast', 8), ('eth_hover', 8)],
+         'swoop': [('eth_beat', 8), ('eth_dive', 5), ('eth_beat', 8)],
+         'grand': [('eth_hover', 8), ('eth_dive', 5), ('eth_dland', 3), ('eth_land', 3), ('eth_lift', 4), ('eth_beat', 4)]}
 
 
 def rp(R):
