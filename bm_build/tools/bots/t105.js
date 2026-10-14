@@ -35,7 +35,7 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
   await run(`execute in minecraft:overworld run tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5}`); await run(`execute in minecraft:overworld run tp TestMouse ${X + 2.5} ${Y + 1} ${Z + 0.5}`); await sleep(1200);
   await run('scoreboard players operation TestRat bm.pty = TestRat bm.pid'); await run('scoreboard players operation TestMouse bm.pty = TestRat bm.pid');
   await setToks('TestRat', 40); await setToks('TestMouse', 20);
-  await run('loot give TestRat loot bm:items/heist_plans'); await run('scoreboard players set TestRat bm.gvu 5');
+  await run('loot give TestRat loot bm:items/fixers_ledger'); await run('scoreboard players set TestRat bm.gvu 5');
   const plan = async (tier = 1, lives = 7613) => {
     await run('scoreboard players set TestRat bm.menu 1100'); await run(`scoreboard players set #act bm.pay ${7600 + tier}`); await run('execute as TestRat at @s run function bm:p70/pick_tier');
     await run(`scoreboard players set #act bm.pay ${lives}`); await run('execute as TestRat at @s run function bm:p75/pick_lives'); await sleep(4000); };
@@ -198,7 +198,7 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
   ok('Display cases at the Tailor: an oak case for 3 coins', (await cnt('TestRat', '*[minecraft:custom_data~{bm:"display_case_oak"}]')) === 1 && (await sc('bm.gbc')) === 497);
   const tcec = require('fs').readFileSync(BMB + 'out_p2/BlackMarket_DP/data/bm/function/p98/t/cecil.mcfunction', 'utf8');
   ok('Messages point to the Recruiter for contracts now', /The Recruiter in the den sells Raid Contracts/.test(tcec) && !/Goldtooth/.test(tcec));
-  await run('clear TestRat'); await setToks('TestRat', 30); await run('loot give TestRat loot bm:items/heist_plans');
+  await run('clear TestRat'); await setToks('TestRat', 30); await run('loot give TestRat loot bm:items/fixers_ledger');
   await home();
 
   // ---- 9. the Raid Crew page: who's where, and who comes first

@@ -230,9 +230,9 @@ def generate(G, builds, offers_fn):
                                  title('@s', 'actionbar', T(f'The seal cracks... the map reveals {names[d]}.', 'aqua')),
                                  'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 1 0.8'])
 
-    def return_to_hand(iid):
-        return [f'execute unless items entity @s weapon.mainhand * run item replace entity @s weapon.mainhand with {G.item_arg(iid)}',
-                f'execute unless items entity @s weapon.mainhand *[minecraft:custom_data~{{bm:"{iid}"}}] run ' + give(iid)]
+    def return_to_hand(iid):            # (2.78: a tick later - see useitem.give_back)
+        from useitem import give_back
+        return give_back(G.item_arg(iid))
 
     # ---------------- lucky map: nine fragments -> one map
     for k in range(1, 10):
@@ -243,7 +243,7 @@ def generate(G, builds, offers_fn):
        [f'execute if items entity @s container.* *[minecraft:custom_data~{{bm:"lucky_fragment_{k}"}}] run scoreboard players add #n bm.rng 1' for k in range(1, 10)] +
        ['execute if score #n bm.rng matches 9 run return run function bm:p2/lucky/make_map',
         title('@s', 'actionbar', [T('Lucky map pieces: ', 'gold'), {'score': {'name': '#n', 'objective': 'bm.rng'}, 'color': 'yellow'}, T(' / 9 (keep them in your main inventory)', 'gold')])])
-    fn('p2/lucky/make_map', [f'clear @s *[minecraft:custom_data~{{bm:"lucky_fragment_{k}"}}] 1' for k in range(1, 10)] +
+    fn('p2/lucky/make_map', ['tag @s remove bm.gb'] + [f'clear @s *[minecraft:custom_data~{{bm:"lucky_fragment_{k}"}}] 1' for k in range(1, 10)] +     # (2.78: no piece handed back)
        ['loot give @s loot bm:p2/maps/lucky', 'title @s times 10 70 20', title('@s', 'subtitle', T('The nine pieces fit together...', 'gray', italic=True)),
         title('@s', 'title', T('THE GILDED ROOST', '#ffd700', bold=True)), 'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 1 1.2'])
     # fragment sources: vanilla chests (3%), Lucky mobs (6%), the Lucky Golden Goose (50%)

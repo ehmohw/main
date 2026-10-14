@@ -132,7 +132,7 @@ const rel = (x, y, z) => `~${x - 12} ~${y - 4} ~${z - 12}`;
   await run('clear TestRat'); await run('scoreboard players set TestRat bm.gvu 1'); await run('scoreboard players reset TestRat bm.pty');
   await run('item replace entity TestRat hotbar.0 with minecraft:diamond_sword'); await run('item replace entity TestRat inventory.5 with minecraft:golden_apple 10');
   await run('item replace entity TestRat armor.head with minecraft:iron_helmet'); await run('item replace entity TestRat weapon.offhand with minecraft:shield');
-  await run('loot replace entity TestRat hotbar.4 loot bm:items/smoke_bomb'); await run('loot replace entity TestRat hotbar.8 loot bm:items/heist_plans');
+  await run('loot replace entity TestRat hotbar.4 loot bm:items/smoke_bomb'); await run('loot replace entity TestRat hotbar.8 loot bm:items/fixers_ledger');
   await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(300);
   for (let i = 0; i < 6; i++) await run('loot give TestRat loot bm:items/token'); await run('execute as TestRat at @s run function bm:p70/plans'); await sleep(200); A.cmd('trigger bm.act set 7601'); await sleep(900); A.cmd('trigger bm.act set 7613'); await sleep(3500);
   ok('Into the vault...', await inV());

@@ -38,7 +38,7 @@ const res = []; const X = 16800, Y = 100, Z = 16000;
   await home();
   await run('scoreboard players operation TestRat bm.pty = TestRat bm.pid'); await run('scoreboard players operation TestMouse bm.pty = TestRat bm.pid');
   await setToks('TestRat', 40); await setToks('TestMouse', 20);
-  await run('loot give TestRat loot bm:items/heist_plans'); await run('scoreboard players set TestRat bm.gvu 5');
+  await run('loot give TestRat loot bm:items/fixers_ledger'); await run('scoreboard players set TestRat bm.gvu 5');
 
   // ---- 1. the tile floor: the pit runs wall to wall
   await run(`place template bm:gv_tiles_t1 ${X - 12} ${Y + 20} ${Z - 12}`); await sleep(500);
@@ -65,7 +65,7 @@ const res = []; const X = 16800, Y = 100, Z = 16000;
   ok('...the crewmate in mid-air isn\'t pulled in, or charged - and is told why', !(await has('TestMouse', 'bm.gvp')) && said(B, /weren't on safe ground/) &&
      (await cnt('TestMouse', '*[minecraft:custom_data~{bm:"token"}]')) === mt0, B.chats.slice(-1).join(''));
   await run(`tp TestMouse ${X + 2.5} ${Y + 1} ${Z + 0.5}`); await sleep(500); ground(B, true); await sleep(200);
-  await run('loot give TestMouse loot bm:items/heist_plans'); await run('execute as TestMouse at @s run function bm:p70/plans'); await sleep(2500);
+  await run('loot give TestMouse loot bm:items/fixers_ledger'); await run('execute as TestMouse at @s run function bm:p70/plans'); await sleep(2500);
   ok('...once on safe ground, their own plans take them in', (await has('TestMouse', 'bm.gvp')) && (await gi('TestMouse')) === (await gi()));
 
   // ---- 3. the crew shrinks: the guards ease off

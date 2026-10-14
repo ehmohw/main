@@ -14,7 +14,7 @@ const res = [];
   await run('clear TestRat'); await run('gamemode survival TestRat'); await run('effect give TestRat resistance 600 4 true');
   await run('execute in minecraft:overworld run tp TestRat 13000.5 120 13000.5'); await run('execute in minecraft:overworld run fill 12998 119 12998 13002 119 13002 stone'); await sleep(2500);
   ok('In the Overworld: no Locker Key', !(await hasKey()));
-  for (let i = 0; i < 6; i++) await run('loot give TestRat loot bm:items/token'); await run('loot give TestRat loot bm:items/heist_plans');
+  for (let i = 0; i < 6; i++) await run('loot give TestRat loot bm:items/token'); await run('loot give TestRat loot bm:items/fixers_ledger');
   await run('scoreboard players set TestRat bm.gvhc 0'); await run('scoreboard players set TestRat bm.menu 1100'); await run('scoreboard players set #act bm.pay 7601');
   await run('execute as TestRat at @s run function bm:p70/pick_tier'); await run('scoreboard players set #act bm.pay 7613'); await run('execute as TestRat at @s run function bm:p75/pick_lives');
   await sleep(7000);

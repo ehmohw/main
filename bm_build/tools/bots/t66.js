@@ -11,7 +11,7 @@ const rel = (x, y, z) => `~${x - 12} ~${y - 4} ~${z - 12}`;
   await run(`fill ${X - 3} ${Y} ${Z - 3} ${X + 3} ${Y} ${Z + 3} stone`); await run('clear TestRat'); await run('gamemode survival TestRat');
   await run('effect give TestRat resistance 600 4 true'); await run('effect give TestRat regeneration 600 2 true'); await run('effect give TestRat saturation 600 0 true');
   await run('scoreboard players set TestRat bm.gvu 5'); await run('scoreboard players reset TestRat bm.gvcl'); await run('scoreboard players reset TestRat bm.pty');
-  await run('tag TestRat remove bm.gvzap'); await run('scoreboard players reset #best5 bm.gvrec'); await run('loot give TestRat loot bm:items/heist_plans'); await sleep(300);
+  await run('tag TestRat remove bm.gvzap'); await run('scoreboard players reset #best5 bm.gvrec'); await run('loot give TestRat loot bm:items/fixers_ledger'); await sleep(300);
   await run('execute as TestRat at @s run function bm:p70/plans'); await sleep(300);
   for (let i = 0; i < 6; i++) await run('loot give TestRat loot bm:items/token'); A.cmd('trigger bm.act set 7605'); await sleep(900); A.cmd('trigger bm.act set 7613'); await sleep(2500);   // (2.65: the fee, then the tries)
   ok('The Heist Plans: pick tier V - you\'re led down into the vault', /passed/.test(await run('execute as TestRat at @s if dimension bm:gutter')), A.chats.slice(-1)[0]);

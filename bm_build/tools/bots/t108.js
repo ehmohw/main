@@ -36,7 +36,7 @@ const DP = BMB + 'out_p2/BlackMarket_DP/data/bm';
   await run(`fill ${X - 4} ${Y} ${Z - 4} ${X + 6} ${Y} ${Z + 6} minecraft:stone`); await run(`fill ${X - 4} ${Y + 1} ${Z - 4} ${X + 6} ${Y + 4} ${Z + 6} minecraft:air`);
   await home();
   for (let i = 0; i < 40; i++) await run('loot give TestRat loot bm:items/token');
-  await run('loot give TestRat loot bm:items/heist_plans'); await run('scoreboard players set TestRat bm.gvu 5');
+  await run('loot give TestRat loot bm:items/fixers_ledger'); await run('scoreboard players set TestRat bm.gvu 5');
 
   // ---- 1. a won heist pays money: no supplies, no ingots, no heist gear from shares
   const hf = fs.readFileSync(`${DP}/function/p70/haul.mcfunction`, 'utf8');
@@ -75,7 +75,7 @@ const DP = BMB + 'out_p2/BlackMarket_DP/data/bm';
 
   // ---- 3. laurels and achievements
   await run('scoreboard players set TestRat bm.gvcl 0'); await run('advancement revoke TestRat from bm:story/raid_t1');
-  await run('clear TestRat'); for (let i = 0; i < 20; i++) await run('loot give TestRat loot bm:items/token'); await run('loot give TestRat loot bm:items/heist_plans');
+  await run('clear TestRat'); for (let i = 0; i < 20; i++) await run('loot give TestRat loot bm:items/token'); await run('loot give TestRat loot bm:items/fixers_ledger');
   await plan(1); await win();
   ok('First clear of Tier I: the Copper Laurel in the haul', await inHaul('laurel_t1'));
   ok('...and its achievement', /passed/.test(await run('execute if entity @a[name=TestRat,advancements={bm:story/raid_t1=true}]')));

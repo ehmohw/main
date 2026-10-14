@@ -13,7 +13,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
     await run(`execute in minecraft:overworld run tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(1200);
     await run('clear TestRat *[minecraft:custom_data~{bm:"token"}]');
     for (let i = 0; i < ntok; i++) await run('loot give TestRat loot bm:items/token');
-    await run('loot give TestRat loot bm:items/heist_plans'); await run('scoreboard players set TestRat bm.gvu 5');
+    await run('loot give TestRat loot bm:items/fixers_ledger'); await run('scoreboard players set TestRat bm.gvu 5');
     await run('scoreboard players set TestRat bm.menu 1100'); await run(`scoreboard players set #act bm.pay ${7600 + tier}`);
     await run('execute as TestRat at @s run function bm:p70/pick_tier');
     const p0 = await num('scoreboard players get #lpool bm.gvlp');

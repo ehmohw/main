@@ -566,14 +566,16 @@ def generate(G):
     gap = G.FUNCS['p77/kit/gap']
     gap[0] = gap[0].replace('minecraft:player_attack', 'bm:kit_strike')
     # ---- a used ability comes back with its rank's cooldown
+    #      (2.78: handed back a tick later - see useitem.give_back - in the rank's cooldown)
+    from useitem import give_back
     for r, iid in ABIL_IID.items():
         L = G.FUNCS[f'p77/kit/{iid}']
-        give_ln = [i for i, l in enumerate(L) if kit_arg(iid) in l]
-        for fast_ in (0, 1):
-            arg = kit_arg_x(iid, over={'minecraft:use_cooldown': {'seconds': float(ABIL_CD[r][fast_]), 'cooldown_group': f'bm:{iid}'}})
-            fn(f'p80/kit/back_{iid}_{fast_}', [L[i].replace(kit_arg(iid), arg) for i in give_ln])
-        L[give_ln[0]:give_ln[-1] + 1] = [f'execute if score @s bm.kr{r} matches 3.. run function bm:p80/kit/back_{iid}_1',
-                                         f'execute unless score @s bm.kr{r} matches 3.. run function bm:p80/kit/back_{iid}_0']
+        plain = give_back(kit_arg(iid))
+        k = L.index(plain[0])
+        assert L[k + 1] == plain[1], (iid, L[k:k + 2])
+        gbs = [give_back(kit_arg_x(iid, over={'minecraft:use_cooldown': {'seconds': float(ABIL_CD[r][fast_]), 'cooldown_group': f'bm:{iid}'}}))
+               for fast_ in (0, 1)]
+        L[k:k + 2] = [f'execute if score @s bm.kr{r} matches 3.. run {gbs[1][0]}', f'execute unless score @s bm.kr{r} matches 3.. run {gbs[0][0]}', 'tag @s add bm.gb']
     # ---- the ranks at work
     rk = lambda r, n: f'scores={{bm.gvrole={r},bm.kr{r}={n}..}}'
     # TANK III: spikes while you sneak

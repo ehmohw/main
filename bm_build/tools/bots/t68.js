@@ -15,7 +15,7 @@ const rel = (x, y, z) => `~${x - 12} ~${y - 4} ~${z - 12}`;
   await run('scoreboard players operation TestRat bm.pty = TestRat bm.pid'); await run('scoreboard players operation TestRat2 bm.pty = TestRat bm.pid');
   // a Blood Moon tonight
   await run('scoreboard players set #active bm.bm 1');
-  await run('loot give TestRat loot bm:items/heist_plans'); await run('loot give TestRat2 loot bm:items/heist_plans');
+  await run('loot give TestRat loot bm:items/fixers_ledger'); await run('loot give TestRat2 loot bm:items/fixers_ledger');
   await run('execute as TestRat2 at @s run function bm:p70/plans'); await sleep(300);
   ok('A party member (not the leader) can\'t plan the heist', !(await inV('TestRat2')) && B.bars.slice(-4).some(b => /leader/.test(b)), B.bars.slice(-2).join(' / '));
   for (let i = 0; i < 3; i++) { await run('loot give TestRat loot bm:items/token'); await run('loot give TestRat2 loot bm:items/token'); } await run('execute as TestRat at @s run function bm:p70/plans'); await sleep(200); A.cmd('trigger bm.act set 7601'); await sleep(900); A.cmd('trigger bm.act set 7613');

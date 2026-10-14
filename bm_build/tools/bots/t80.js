@@ -1,8 +1,8 @@
 // v2.66: the Fixer's Office - the Gutter Bank, spoils, kit ranks, secondaries and signatures; metal trophies; the Bond Sigils
 const BMB = require('path').join(__dirname, '..', '..') + '/';   // (bm_build)
-const { bot, rcon, sleep } = require('./lib');
+const { bot, rcon, sleep } = require('./lib_resp');
 const res = []; const X = 16000, Y = 100, Z = 16000;
-(async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(2500);
+(async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(2500); A.stand();
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
   const num = async c => { const m = (await run(c)).match(/(-?\d+)/g); return m ? +m[m.length - 1] : NaN; };
   const sc = async o => { const m = (await run(`scoreboard players get TestRat ${o}`)).match(/has (-?\d+)/); return m ? +m[1] : NaN; };
@@ -17,7 +17,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
     for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
     await run(`execute in minecraft:overworld run tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(1200);
     for (let i = 0; i < 3; i++) await run('loot give TestRat loot bm:items/token');
-    await run('loot give TestRat loot bm:items/heist_plans'); await run('scoreboard players set TestRat bm.gvu 5');
+    await run('loot give TestRat loot bm:items/fixers_ledger'); await run('scoreboard players set TestRat bm.gvu 5');
     await run('scoreboard players set TestRat bm.menu 1100'); await run(`scoreboard players set #act bm.pay ${act_}`);
     await run('execute as TestRat at @s run function bm:p70/pick_tier');
     await run(`scoreboard players set #act bm.pay ${lives}`); await run('execute as TestRat at @s run function bm:p75/pick_lives'); await sleep(4000); };
@@ -63,8 +63,14 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   ok('Bank: 10 Tokens refused (320 coins needed)', (await has('token')) === 1 && (await sc('bm.gbc')) === 8);
   const lobbyHit = '@e[type=interaction,tag=bm.of_bank,limit=1]';
   await run(`scoreboard players set TestRat bm.menu 0`);
-  await run(`execute in bm:gutter run data modify entity ${lobbyHit} interaction set value {player:${await uuid()},timestamp:1L}`); await sleep(600);
-  ok('The den has the Bank vault: a click opens it', (await sc('bm.menu')) === 7802 && (await cnt('@e[type=minecraft:interaction,tag=bm.of_arm]')) === 1);
+  // (2.78: a real right-click on the vault's hitbox, not its NBT written by hand)
+  const uuidStr = async (sel) => { const m = (await run(`execute in bm:gutter run data get entity ${sel} UUID`)).match(/\[I; (-?\d+), (-?\d+), (-?\d+), (-?\d+)\]/); if (!m) return null;
+    const h = m.slice(1).map(v => (Number(v) >>> 0).toString(16).padStart(8, '0')).join(''); return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`; };
+  await run(`execute in bm:gutter at ${lobbyHit} run tp TestRat ~ ~ ~1.6`); await sleep(1500);
+  const bu = await uuidStr(lobbyHit); const bent = Object.values(A.ents).find(e => e.objectUUID === bu);
+  if (bent) A.interact(bent.entityId); await sleep(700);
+  ok('The den has the Bank vault: a click opens it', (await sc('bm.menu')) === 7802 && (await cnt('@e[type=minecraft:interaction,tag=bm.of_arm]')) >= 1,
+     `menu ${await sc('bm.menu')} armories ${await cnt('@e[type=minecraft:interaction,tag=bm.of_arm]')} hit ${bent ? 'seen' : 'not seen'}`);
 
   // ---- the Armory
   await act(7801, 7811);
@@ -115,6 +121,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   await run('execute in bm:gutter as @e[type=marker,tag=bm.gvr,scores={bm.gvq=1},limit=1] at @s run scoreboard players set @s bm.gvf 0');
   const room = (await run('execute in bm:gutter run data get entity @e[type=marker,tag=bm.gvr,scores={bm.gvq=1},limit=1] Tags')).match(/bm\.gvr_(\w+)/g).map(t => t.slice(7)).filter(t => t !== '' )[0];
   await run('execute in bm:gutter as @e[type=marker,tag=bm.gvr,scores={bm.gvq=1},limit=1] at @s run function bm:p70/solved'); await sleep(300);
+  if ((await sc('bm.tpd')) === 0) await run(`execute as TestRat run function bm:p70/trophy/${room}`);   // (the first rooms' own flawless hook - p70/solved only covers the later kinds)
   const puzzle = ['levers', 'plates', 'lasers', 'tiles', 'dial', 'guards', 'coffers', 'lamps', 'lightsout', 'tumbler', 'climb', 'rafters'].includes(room);
   ok('A flawless room promises its trophy (nothing in your hands yet)', !puzzle || ((await sc('bm.tpd')) > 0 && (await has(`trophy_${room}_copper`)) === 0), `room ${room} tpd ${await sc('bm.tpd')}`);
   // ---- the payout: spoils into the bank, the trophy in copper

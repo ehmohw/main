@@ -100,8 +100,8 @@ def generate(G):
         G.consume_adv(f'jackpot_card_{n}', f'bm:p27/jcard_{n}')
         back = []
         if n > 1:
-            back = [f'execute unless items entity @s weapon.mainhand * run item replace entity @s weapon.mainhand with {G.item_arg(f"jackpot_card_{n - 1}")}',
-                    f'execute unless items entity @s weapon.mainhand *[minecraft:custom_data~{{bm:"jackpot_card_{n - 1}"}}] run ' + give(f'jackpot_card_{n - 1}')]
+            from useitem import give_back
+            back = give_back(G.item_arg(f"jackpot_card_{n - 1}"))     # (2.78: into the hand a tick later - see useitem.give_back)
         left = n - 1
         fn(f'p27/jcard_{n}', [f'advancement revoke @s only bm:consume/jackpot_card_{n}'] + back +
            ['scoreboard players set @s bm.sct 10',

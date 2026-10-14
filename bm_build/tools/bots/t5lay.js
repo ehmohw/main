@@ -10,7 +10,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
     for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
     await run('function bm:admin/heist_plans_anywhere'); await run('scoreboard players set TestRat bm.gvu 5');
     await run('execute in minecraft:overworld run tp TestRat 13000.5 120 13000.5'); await sleep(1200);
-    await run('clear TestRat'); for (let i = 0; i < 12; i++) await run('loot give TestRat loot bm:items/token'); await run('loot give TestRat loot bm:items/heist_plans');
+    await run('clear TestRat'); for (let i = 0; i < 12; i++) await run('loot give TestRat loot bm:items/token'); await run('loot give TestRat loot bm:items/fixers_ledger');
     await run('scoreboard players set TestRat bm.menu 1100'); await run('scoreboard players set #act bm.pay 7605'); await run('execute as TestRat at @s run function bm:p70/pick_tier');
     await run('scoreboard players set #act bm.pay 7613'); await run('execute as TestRat at @s run function bm:p75/pick_lives'); await sleep(7000);
     const gi = await num('scoreboard players get TestRat bm.gvi');

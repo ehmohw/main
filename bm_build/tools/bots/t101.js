@@ -1,6 +1,6 @@
 // v2.67: the vault's own rules - the Raid Crew (ledger roster, the follower cap, the crew going home), the kit on loan
 // (bound armour, bounce-back, no stashing), locked lockers, vault gems; the Haul folding away; Ethereal KillerWatt's prize
-const { bot, rcon, sleep } = require('./lib');
+const { bot, rcon, sleep } = require('./lib_resp');
 const res = []; const X = 16000, Y = 100, Z = 16000;
 (async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(2500);
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
@@ -12,7 +12,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
     for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
     await run(`execute in minecraft:overworld run tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(1200);
     for (let i = 0; i < ntok; i++) await run('loot give TestRat loot bm:items/token');
-    await run('loot give TestRat loot bm:items/heist_plans'); await run('scoreboard players set TestRat bm.gvu 5');
+    await run('loot give TestRat loot bm:items/fixers_ledger'); await run('scoreboard players set TestRat bm.gvu 5');
     await run('scoreboard players set TestRat bm.menu 1100'); await run(`scoreboard players set #act bm.pay ${7600 + tier}`);
     await run('execute as TestRat at @s run function bm:p70/pick_tier');
     await run('scoreboard players set #act bm.pay 7613'); await run('execute as TestRat at @s run function bm:p75/pick_lives');
@@ -53,13 +53,13 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   const followers = async () => (await cnt('@e[type=wolf,tag=bm.cecilpet]')) + (await cnt('@e[type=cat,tag=bm.emmapet]')) + (await cnt('@e[type=wolf,tag=bm.celipet]')) +
     (await cnt('@e[type=wolf,tag=bm.zibpet]')) + (await cnt('@e[type=wolf,tag=bm.kxpet]')) + (await cnt('@e[type=wolf,tag=bm.leopet]')) + (await cnt('@e[type=wolf,tag=bm.dmpet]'));
   const f1 = await followers();
-  ok('Contracts signed: your crew comes along by themselves - two when you raid alone', f1 === 2, `${f1} followers`);
+  ok('Contracts signed: your crew comes along by themselves - three when you raid alone (2.74)', f1 === 3, `${f1} followers`);
   ok('...Cecil first (he\'s top of the list)', (await cnt('@e[type=wolf,tag=bm.cecilpet]')) === 1);
   // the ledger: switch Cecil off
   await run('scoreboard players set TestRat bm.menu 7807'); await run('scoreboard players set TestRat bm.act 7900'); await sleep(3600);
-  ok('Raid Crew: Cecil OFF - he goes home (and someone else steps in)', (await cnt('@e[type=wolf,tag=bm.cecilpet]')) === 0 && (await followers()) === 2, `${await followers()}`);
+  ok('Raid Crew: Cecil OFF - he goes home (and someone else steps in)', (await cnt('@e[type=wolf,tag=bm.cecilpet]')) === 0 && (await followers()) === 3, `${await followers()}`);
   await run('scoreboard players set TestRat bm.menu 7807'); await run('scoreboard players set TestRat bm.act 7900'); await sleep(1500);
-  ok('...ON again - but the crew is full, so he waits', (await followers()) === 2 && (await sc('bm.crewoff')) === 0, `${await followers()} / off ${await sc('bm.crewoff')}`);
+  ok('...ON again - but the crew is full, so he waits', (await followers()) === 3 && (await sc('bm.crewoff')) === 0, `${await followers()} / off ${await sc('bm.crewoff')}`);
   // the summoning items do nothing in the vault
   await run('loot give TestRat loot bm:items/celi_charm'); const fc0 = await followers();
   await run('scoreboard players set TestRat bm.gvhc 0'); await run('execute as TestRat at @s run function bm:p66/use'); await sleep(400);

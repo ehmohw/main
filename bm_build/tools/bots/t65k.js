@@ -11,7 +11,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
     for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
     await run(`execute in minecraft:overworld run tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(1200);
     for (let i = 0; i < 6; i++) await run('loot give TestRat loot bm:items/token');
-    await run('loot give TestRat loot bm:items/heist_plans'); await run('scoreboard players set TestRat bm.gvu 5');
+    await run('loot give TestRat loot bm:items/fixers_ledger'); await run('scoreboard players set TestRat bm.gvu 5');
     await run('scoreboard players set TestRat bm.menu 1100'); await run(`scoreboard players set #act bm.pay ${act}`);
     await run(act <= 7605 ? 'execute as TestRat at @s run function bm:p70/pick_tier' : 'execute as TestRat at @s run function bm:p77/pick_mode');
     await run(`scoreboard players set #act bm.pay ${lives}`); await run('execute as TestRat at @s run function bm:p75/pick_lives'); await sleep(4000); };

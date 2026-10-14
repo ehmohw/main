@@ -23,7 +23,7 @@ THE PIT (Plan a Heist; after a Tier I clear): an arena. Waves of the tier's guar
   every fifth. Between waves, the emerald plate cashes out (one share per wave survived)."""
 from items import item, T, TOTEM, ITEMS, consumable
 from nbt import snbt, B, F, D, Int
-from useitem import hold, HOLD
+from useitem import give_back, hold, HOLD
 from structures import Build
 import phase70 as P70
 import phase70_rooms as RM
@@ -155,9 +155,7 @@ def generate(G):
     for r, (iid, nm, col, model, cd, lore) in ABIL.items():
         G.consume_adv(iid, f'bm:p77/kit/{iid}')
         fn(f'p77/kit/{iid}', [f'advancement revoke @s only bm:consume/{iid}',
-                              f'execute unless items entity @s weapon.mainhand * run item replace entity @s weapon.mainhand with {kit_arg(iid)}',
-                              f'execute unless items entity @s container.* *[minecraft:custom_data~{{bm:"{iid}"}}] unless items entity @s weapon.offhand * run item replace entity @s weapon.offhand with {kit_arg(iid)}',
-                              f'execute unless items entity @s container.* *[minecraft:custom_data~{{bm:"{iid}"}}] unless items entity @s weapon.offhand *[minecraft:custom_data~{{bm:"{iid}"}}] run give @s {kit_arg(iid)}',
+                              *give_back(kit_arg(iid)),         # (2.78: a tick later - see useitem.give_back)
                               'execute unless entity @s[tag=bm.gvp] run return run ' + say('Its power sleeps outside the vault.'),
                               f'function bm:p77/kit/{iid}_go'])
     # the Bulwark Horn

@@ -849,6 +849,8 @@ if __name__ == '__main__':
     phase131.rp(sys.modules[__name__])
     import phase132                           # (2.77: Tullius - his rig, the Doubloon, the blunderbuss and the harpoon)
     phase132.rp(sys.modules[__name__])
+    import phase136                           # (2.78: the Frog's Signet and Donado's Collar Tag)
+    phase136.rp(sys.modules[__name__])
     import phase95                            # (after every head model: the faces)
     phase95.rp(sys.modules[__name__])
     LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',

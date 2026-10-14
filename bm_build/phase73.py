@@ -86,10 +86,11 @@ def follow_rules(G, entry, second):
                            f'execute if items entity {own} player.cursor {holds(iid)} run return run scoreboard players set @s bm.fmis 0',
                            'scoreboard players add @s bm.fmis 1', f'execute if score @s bm.fmis matches 3.. run function bm:p73/fol/{kind}_stash',
                            'tag @a remove bm.fown'])
+    the = '' if "'s " in ITEMS[iid]['name'] else 'the '          # (2.78: "Tullius's Frozen Doubloon", "the Signet of the Frog Knight")
     fn(f'p73/fol/{kind}_far', [f'function bm:{go}', tellraw('@a[tag=bm.fown]', PREFIX + [T(f'{name} couldn\'t keep up and went home. ', 'gray'),
-                                                                                          T(f'(Use the {ITEMS[iid]["name"]} to call {"her" if kind in ("emma", "celi") else "him"} again.)', 'dark_gray')]),
+                                                                                          T(f'(Use {the}{ITEMS[iid]["name"]} to call {"her" if kind in ("emma", "celi") else "him"} again.)', 'dark_gray')]),
                                'tag @a remove bm.fown'])
-    fn(f'p73/fol/{kind}_stash', [f'function bm:{go}', tellraw('@a[tag=bm.fown]', PREFIX + [T(f'You put the {ITEMS[iid]["name"]} away - {name} heads home.', 'gray')]),
+    fn(f'p73/fol/{kind}_stash', [f'function bm:{go}', tellraw('@a[tag=bm.fown]', PREFIX + [T(f'You put {the}{ITEMS[iid]["name"]} away - {name} heads home.', 'gray')]),
                                  'tag @a remove bm.fown'])
 
 

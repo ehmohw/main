@@ -44,7 +44,7 @@ const BAY = [[-242, 64, -244], [-242, 65, -244], [-242, 64, -243], [-242, 65, -2
   // a party: TestRat leads
   await run('scoreboard players operation TestRat bm.pty = TestRat bm.pid'); await run('scoreboard players operation TestMouse bm.pty = TestRat bm.pid');
   await setToks('TestRat', 20); await setToks('TestMouse', 6);
-  await run('loot give TestRat loot bm:items/heist_plans'); await run('scoreboard players set TestRat bm.gvu 5');
+  await run('loot give TestRat loot bm:items/fixers_ledger'); await run('scoreboard players set TestRat bm.gvu 5');
   const plan = async (tier, lives = 7613) => {
     await run('scoreboard players set TestRat bm.menu 1100'); await run(`scoreboard players set #act bm.pay ${7600 + tier}`); await run('execute as TestRat at @s run function bm:p70/pick_tier');
     await run(`scoreboard players set #act bm.pay ${lives}`); await run('execute as TestRat at @s run function bm:p75/pick_lives'); await sleep(4000); };
@@ -172,7 +172,7 @@ const BAY = [[-242, 64, -244], [-242, 65, -244], [-242, 64, -243], [-242, 65, -2
   ok('...and a warning: storage full', A.chats.some(c => /locker and your pack are full/.test(c) && /scrapped 2 stack/.test(c)) && A.chats.some(c => /No room for 3 Tokens/.test(c)),
      A.chats.filter(c => /full|room/.test(c)).join(' | '));
   ok('...the crate is gone', (await hauls('TestRat')) === 0);
-  await run('clear TestRat'); await bayClear(); await run('loot give TestRat loot bm:items/heist_plans');
+  await run('clear TestRat'); await bayClear(); await run('loot give TestRat loot bm:items/fixers_ledger');
 
   // ---- 10. the leader picks a job they can't pay for: the plans come back - and a cheaper one goes ahead
   await fail('TestRat');

@@ -122,6 +122,8 @@ import phase132 as R132      # 2.77: Tullius - the drowned captain of the ghost 
 import phase133 as R133      # 2.77: the new pairs and trios (Tullius, Apophiss) and the hidden Royal Retinue
 import phase134 as R134      # 2.77b: follower figurines in display cases (punch: the item instead)
 import phase135 as R135      # 2.77c: weapons on the wall (Tullius's blunderbuss and harpoon, the scythe, both tendril sets)
+import phase136 as R136      # 2.78: the Frog with Mustache and Donado carry a token (the Signet, the Collar Tag), like every follower
+import phase137 as R137      # 2.78: polish - a fresh start keeps what you earned (best-ever record), fringe cases
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import allies                # 2.67: every friendly-fire list skips every follower (allies.py)
@@ -1174,6 +1176,8 @@ def build(out_dir):
     if PHASE2: R133.generate(sys.modules[__name__])
     if PHASE2: R134.generate(sys.modules[__name__])
     if PHASE2: R135.generate(sys.modules[__name__])
+    if PHASE2: R136.generate(sys.modules[__name__])
+    if PHASE2: R137.generate(sys.modules[__name__])
     R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
@@ -1188,6 +1192,14 @@ def build(out_dir):
     ld = FUNCS['load']
     adds = [l for l in ld if l.startswith('scoreboard objectives add ')]
     FUNCS['load'] = adds + [l for l in ld if not l.startswith('scoreboard objectives add ')]
+    # 2.78: uninstall removes every objective the pack makes and clears everything it schedules (it was written before most
+    #       phases had added theirs: 153 of ~950 objectives were left behind)
+    import re as _re
+    un = FUNCS['admin/uninstall']
+    keep = [l for l in un if not l.startswith('scoreboard objectives remove ')]
+    sched = sorted({m.group(1) for ls in FUNCS.values() for l in ls for m in [_re.search(r'schedule function (bm:[\w/]+)', l)] if m})
+    clears = [f'schedule clear {s}' for s in sched if f'schedule clear {s}' not in keep]
+    FUNCS['admin/uninstall'] = clears + keep[:-1] + list(dict.fromkeys(f'scoreboard objectives remove {l.split()[3]}' for l in adds)) + keep[-1:]
     for name, lines in FUNCS.items():
         with open(path('data', 'bm', 'function', name + '.mcfunction'), 'w') as f:
             f.write('\n'.join(mig263.inline_modifier(l) for l in lines) + '\n')     # 26.3: inline loot functions/conditions key on `type`

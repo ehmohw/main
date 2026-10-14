@@ -16,7 +16,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   await run(`execute in minecraft:overworld run tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await run('gamemode survival TestRat'); await run('clear TestRat'); await run('effect clear TestRat');
   await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid'); await sleep(1500);
   for (let i = 0; i < 6; i++) await run('loot give TestRat loot bm:items/token');
-  await run('loot give TestRat loot bm:items/heist_plans'); await run('scoreboard players set TestRat bm.gvu 5');
+  await run('loot give TestRat loot bm:items/fixers_ledger'); await run('scoreboard players set TestRat bm.gvu 5');
   await run('scoreboard players set TestRat bm.menu 1100'); await run('scoreboard players set #act bm.pay 7601'); await run('execute as TestRat at @s run function bm:p70/pick_tier');
   await run('scoreboard players set #act bm.pay 7613'); await run('execute as TestRat at @s run function bm:p75/pick_lives'); await sleep(4000);
   ok('In a heist', /bm:gutter/.test(await run('data get entity TestRat Dimension')));

@@ -58,8 +58,8 @@ def generate(G):
 
     # ---------------- the locket
     G.consume_adv('wilfrey_locket', 'bm:p2/wil/locket')
-    back = ['execute unless items entity @s weapon.mainhand * run item replace entity @s weapon.mainhand with ' + G.item_arg('wilfrey_locket'),
-            'execute unless items entity @s weapon.mainhand *[minecraft:custom_data~{bm:"wilfrey_locket"}] run ' + give('wilfrey_locket')]
+    from useitem import give_back
+    back = give_back(G.item_arg('wilfrey_locket'))       # (2.78: a tick later - see useitem.give_back)
     fn('p2/wil/locket', ['advancement revoke @s only bm:consume/wilfrey_locket'] + back + [
         'execute unless score @s bm.conq matches 6.. run return run ' + title('@s', 'actionbar', T('The locket is cold.', 'gray')),
         'tag @s add bm.giver', 'execute unless score @s bm.pid matches 1.. run function bm:p21/pid',
