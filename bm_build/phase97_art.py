@@ -473,8 +473,8 @@ def R(dy=0.0, cape=None, **parts):                                   # (resting:
     return P(dy, cape, alt={'arml': 'rest'}, **parts)
 KNEEL = {'legr': 'bent', 'legl': 'bent'}
 VIGIL = dict(KNEEL, arml='grip', armr='knee')                        # (kneeling: his left fist on the planted shaft, his right forearm on his knee)
-KNEE_ARM = limb(1, 44, -30)                   # (2.75: lifted with the knee - the front shin stands upright now)
-KNEE_ARM_B = limb(1, 42, -29)
+KNEE_ARM = limb(1, 56, -30)                   # (2.75: lifted with the knee - the front shin stands upright now; 2.78: a little higher,
+KNEE_ARM_B = limb(1, 56, -29)                 #  so the glove rests on the knee instead of sinking into it)
 POSES = {
     'idle_a': R(body=torso(), head=torso(), arml=limb(-1, 10, 25), armr=limb(1, -4, 12)),
     'idle_b': R(0.012, body=torso(lean=-1.5), head=torso(lean=-3), legr=limb(1, 0, 3), legl=limb(-1, 0, 3), arml=limb(-1, 8, 25), armr=limb(1, -6, 14),
@@ -518,7 +518,7 @@ POSES = {
     'swing': P(-0.08, body=torso(lean=12, turn=-40), head=torso(lean=-6, turn=30), legr=limb(1, 30, 10), legl=limb(-1, -26, 10), arml=limb(-1, 84, -30),
                armr=limb(1, 84, 24), scythe=qmul(qa('y', -90), LEVEL), cape=qa('x', -22)),
     # the spin (the charged attack): both arms out, the scythe held level - the whole rig turns about him
-    'spin': P(0.04, body=torso(lean=4), head=torso(lean=-4), legr=limb(1, 6, 12), legl=limb(-1, -6, 12), arml=limb(-1, 84, -40), armr=limb(1, 84, -20),
+    'spin': P(0.04, body=torso(lean=4), head=torso(lean=-4), legr=limb(1, 6, 12), legl=limb(-1, -6, 12), arml=limb(-1, 84, -33), armr=limb(1, 84, -18),
               scythe=LEVEL, cape=qa('x', -50)),
     # the slam: the scythe raised overhead in both hands - then brought down into the ground with everything he has
     'overhead': P(0.06, body=torso(lean=-12), head=torso(lean=4), legr=limb(1, 14, 8), legl=limb(-1, -8, 8), arml=limb(-1, 170, 6), armr=limb(1, 166, -6),
@@ -537,7 +537,7 @@ for _i in range(SWIM_FRAMES):
     _p = 2 * math.pi * _i / SWIM_FRAMES
     POSES[f'swim_{_i}'] = P(-0.86 + 0.04 * math.sin(_p + 0.8), slide=10.0, body=torso(lean=18 + 3 * math.sin(_p), tilt=3 * math.sin(_p)), head=torso(lean=-18 - 3 * math.sin(_p)),
                             arml=limb(-1, 150, 30), scythe=qmul(qa('z', 22), PLANTED), armr=limb(1, 84 + 56 * math.sin(_p), 18 + 16 * math.cos(_p)),
-                            legr=limb(1, -20 + 16 * math.cos(_p), 6 + 10 * math.sin(_p)), legl=limb(-1, -20 + 16 * math.cos(_p), 6 + 10 * math.sin(_p)),
+                            legr=limb(1, -20 + 16 * math.cos(_p), 9 + 8 * math.sin(_p)), legl=limb(-1, -20 + 16 * math.cos(_p), 9 + 8 * math.sin(_p)),
                             cape=qa('x', -48 - 6 * math.sin(_p)))
 
 

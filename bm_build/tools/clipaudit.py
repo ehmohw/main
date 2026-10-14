@@ -168,7 +168,9 @@ def _blended(art, S, a, b, t):
     xf = RK.blend(xa, xb, t); pose = art.POSES[b if t >= 0.5 else a]
     out = []
     for p in art.PARTS:
-        if art.HIDDEN(p, pose): continue
+        # (a part either end hides is out of it: one going away shrinks where it is within 2 ticks - rigfol.pose - and one
+        #  coming back grows from nothing where it was last seen)
+        if art.HIDDEN(p, art.POSES[a]) or art.HIDDEN(p, art.POSES[b]): continue
         x, y, z = art.PIVOT[p]; q, tr = xf[p]
         out.append((f'bm:{art.model_name(p, pose)}', (-x * U + tr[0] * U, y * U + tr[1] * U, -z * U + tr[2] * U), tuple(q), F.IDENT, S * art.PART_K.get(p, 1.0)))
     return out

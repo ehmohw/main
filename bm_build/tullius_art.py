@@ -481,7 +481,7 @@ POSES = {
                   armr=limb(1, 96, -4), arml=limb(-1, 10, 12), _hw=qs(('x', -84), ('z', 8))),
     # the charged strike (the harpoon frosts over): raised high in both hands, then driven down into the ground before him
     'slam_up': P(_nogun=True, _ice=True, _face='fury', body=qs(('x', -12)), head=qs(('x', -14)), legr=limb(1, -10, 10), legl=limb(-1, 14, 10),
-                 armr=limb(1, 160, -12), arml=limb(-1, 166, -16), _hw=qs(('x', -130)), tails=qs(('x', 6))),
+                 armr=limb(1, 160, -2), arml=limb(-1, 166, -4), _hw=qs(('x', -130)), tails=qs(('x', 6))),
     'slam_mid': P(_nogun=True, _ice=True, _face='fury', _off=(0, -1.0, -0.4), body=qs(('x', 12)), head=qs(('x', -18)), legr=limb(1, -20, 11), legl=limb(-1, 32, 10),
                   armr=limb(1, 118, -16), arml=limb(-1, 122, -16), _hw=qs(('x', -34)), tails=qs(('x', -8))),
     'slam': P(_nogun=True, _ice=True, _face='fury', _off=(0, -2.6, -1.0), body=qs(('x', 36)), head=qs(('x', -26)), legr=limb(1, -30, 12), legl=limb(-1, 50, 10),

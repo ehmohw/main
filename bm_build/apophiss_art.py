@@ -750,6 +750,8 @@ POSES['mace_back'] = dict(POSES['mace_slam'], armr=qs(('x', -110), ('z', -20)), 
 POSES['mace_rec'] = mid(POSES['mace_slam'], POSES['mace_back'])
 POSES['eth_dland'] = mid(POSES['eth_dive'], POSES['eth_land'])                 # (the ethereal king pulling out of his dive to land,
 POSES['eth_lift'] = mid(POSES['eth_land'], POSES['eth_beat'])                  #  and rising off the ground again)
+POSES['eth_bdive'] = mid(POSES['eth_beat'], POSES['eth_dive'])                # (2.78: the dive's way in and out, every joint half way -
+POSES['eth_hdive'] = mid(POSES['eth_hover'], POSES['eth_dive'])               #  his jaw keeps to his head's arc instead of dipping into his chest)
 for _p in POSES.values():
     if 'tail4' not in _p and 'tail3' in _p: _p['tail4'] = _p['tail3']
 DRAFT = ['idle_a', 'slither_a', 'battle', 'claw_up', 'claw', 'bite', 'mace_up', 'mace_slam', 'cast', 'cast_point', 'roar', 'tired', 'crouch', 'sit', 'ride', 'defeated',
@@ -768,8 +770,8 @@ ANIMS = {'idle': [('idle_a', 30), ('idle_b', 30), ('idle_a', 30)],
          'ride': [('ride', 8), ('ride_b', 8), ('ride_c', 8), ('ride_b', 8)],
          'swim': [('swim_a', 5), ('swim_m', 5), ('swim_b', 5), ('swim_m', 5), ('swim_a', 5)],
          'wings': [('eth_hover', 8), ('eth_beat', 8), ('eth_hover', 8), ('eth_cast', 8), ('eth_hover', 8)],
-         'swoop': [('eth_beat', 8), ('eth_dive', 5), ('eth_beat', 8)],
-         'grand': [('eth_hover', 8), ('eth_dive', 5), ('eth_dland', 3), ('eth_land', 3), ('eth_lift', 4), ('eth_beat', 4)]}
+         'swoop': [('eth_beat', 8), ('eth_bdive', 3), ('eth_dive', 5), ('eth_bdive', 4), ('eth_beat', 8)],
+         'grand': [('eth_hover', 8), ('eth_hdive', 4), ('eth_dive', 5), ('eth_dland', 3), ('eth_land', 3), ('eth_lift', 4), ('eth_beat', 4)]}
 
 
 def rp(R):

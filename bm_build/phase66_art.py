@@ -271,9 +271,10 @@ POSES = {
                    armr=limb(1, 20, 10), forer=qa('x', -70), spear=TIP_FWD),
     'stab': P(-0.02, body=torso(lean=10, turn=10), head=torso(lean=-8, turn=-8), legr=limb(1, -22), legl=limb(-1, 30), arml=limb(-1, -30, 24), forel=BENT,
               armr=limb(1, 88, 0), forer=I, spear=TIP_FWD),
-    # the throw: spear up over her shoulder, then the arm whips through - the spear is gone
+    # the throw: spear up over her shoulder, then the arm whips through - the spear is gone (2.78: drawn back a little lower, so
+    # the arm clears her head)
     'throw_back': P(body=torso(lean=-8, turn=-20), head=torso(turn=16), legr=limb(1, -18), legl=limb(-1, 22), arml=limb(-1, 50, 20), forel=qa('x', -40),
-                    armr=limb(1, -120, 14), forer=qa('x', 60), spear=qa('x', 80)),
+                    armr=limb(1, -100, 22), forer=qa('x', 70), spear=qa('x', 80)),
     'throw': P(0.01, body=torso(lean=12, turn=14), head=torso(lean=-6, turn=-10), legr=limb(1, -26), legl=limb(-1, 32), arml=limb(-1, -36, 26), forel=BENT,
                armr=limb(1, 70, 4), forer=I, spear=TIP_FWD),
 }
@@ -282,8 +283,8 @@ POSES = {
 SWIM_FRAMES = 8
 for _i in range(SWIM_FRAMES):
     _p = 2 * math.pi * _i / SWIM_FRAMES
-    POSES[f'swim_{_i}'] = P(-0.66 + 0.03 * math.sin(2 * _p), body=torso(lean=10, tilt=-3 + 2 * math.sin(_p)), head=qmul(qa('y', -8), qmul(qa('x', -8), qa('z', 6))),
-                            armr=limb(1, 158, 10), forer=qa('x', -10), spear=qmul(qa('z', 6), qa('x', -4)),
+    POSES[f'swim_{_i}'] = P(-0.66 + 0.03 * math.sin(2 * _p), body=torso(lean=10, tilt=-3 + 2 * math.sin(_p)), head=qmul(qa('y', -8), qmul(qa('x', -8), qa('z', 2))),
+                            armr=limb(1, 158, 17), forer=qa('x', -10), spear=qmul(qa('z', 6), qa('x', -4)),
                             arml=limb(-1, 78 + 30 * math.sin(_p), 18 + 10 * math.cos(_p)), forel=qa('x', -24 - 18 * math.cos(_p)),
                             legr=limb(1, -16 + 18 * math.sin(2 * _p)), legl=limb(-1, -16 - 18 * math.sin(2 * _p)))
 

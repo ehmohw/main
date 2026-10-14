@@ -143,7 +143,7 @@ class _Art:                                         # (the art, with the game's 
 
 A = _Art
 DUR_B = {'idle_a': 30, 'idle_b': 30, 'slither_a': 5, 'slither_m': 5, 'slither_b': 5, 'battle': 6, 'claw_up': 7, 'claw': 3, 'bite': 3, 'mace_up': 12,
-         'mace_swing': 2, 'mace_slam': 2, 'mace_rec': 4, 'mace_back': 4, 'tired_b': 30, 'eth_dland': 3, 'eth_lift': 4,
+         'mace_swing': 2, 'mace_slam': 2, 'mace_rec': 4, 'mace_back': 4, 'tired_b': 30, 'eth_dland': 3, 'eth_lift': 4, 'eth_bdive': 3, 'eth_hdive': 4,
          'cast': 10, 'cast_point': 5, 'roar': 8, 'tired': 20, 'crouch': 6, 'defeated': 14,
          'eth_hover': 8, 'eth_beat': 8, 'eth_cast': 8, 'eth_dive': 5, 'eth_land': 5}
 DUR_P = {'idle_a': 30, 'idle_b': 30, 'slither_a': 4, 'slither_m': 4, 'slither_b': 4, 'battle': 4, 'claw_up': 5, 'claw': 3, 'bite': 3, 'mace_up': 6,
@@ -1006,9 +1006,9 @@ def generate(G):
                           at(1, 'playsound minecraft:entity.phantom.swoop hostile @a[distance=..48] ~ ~ ~ 1.5 0.5'),
                           at('2..10', 'execute if block ~ ~7 ~ #bm:grap_pass run tp @s ~ ~0.2 ~'),
                           at('2..10', 'execute facing entity @a[tag=bm.apsw,limit=1] feet run tp @s ~ ~ ~ ~ 0'),
-                          at(11, 'function bm:p131/b/pose/eth_dive'), at(11, 'playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..48] ~ ~ ~ 1.2 1.4'),
+                          at(11, 'function bm:p131/b/pose/eth_bdive'), at(14, 'function bm:p131/b/pose/eth_dive'), at(11, 'playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..48] ~ ~ ~ 1.2 1.4'),
                           at('12..34', 'function bm:p131/b/dive'),
-                          at(35, 'function bm:p131/b/pose/eth_beat'), at('36..52', 'execute if block ~ ~6 ~ #bm:grap_pass run tp @s ~ ~0.3 ~'),
+                          at(35, 'function bm:p131/b/pose/eth_bdive'), at(39, 'function bm:p131/b/pose/eth_beat'), at('36..52', 'execute if block ~ ~6 ~ #bm:grap_pass run tp @s ~ ~0.3 ~'),
                           at('54..', 'function bm:p131/b/done')])
     fn('p131/b/dive', ['execute unless entity @a[tag=bm.apsw] run return run scoreboard players set @s bm.apt 34',
                        'execute facing entity @a[tag=bm.apsw,limit=1] feet positioned ^ ^ ^1 if block ~ ~0.5 ~ #bm:grap_pass run tp @s ~ ~ ~ facing entity @a[tag=bm.apsw,limit=1] feet',
@@ -1026,7 +1026,7 @@ def generate(G):
         at(14, f'execute as {pl(11)} run function bm:p131/b/gusted'), at('24..', 'function bm:p131/b/done')])
     fn('p131/b/gusted', [f'damage @s 8 minecraft:mob_attack by {me}', 'effect give @s minecraft:levitation 1 2 true', 'effect give @s minecraft:slow_falling 4 0 true'])
     # GRAND FANGS: he comes down hard - rings of fangs, out and out
-    fn('p131/b/a_grand', [at(1, 'function bm:p131/b/pose/eth_dive'), at(1, 'playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..48] ~ ~ ~ 1.5 0.5'),
+    fn('p131/b/a_grand', [at(1, 'function bm:p131/b/pose/eth_hdive'), at(5, 'function bm:p131/b/pose/eth_dive'), at(1, 'playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..48] ~ ~ ~ 1.5 0.5'),
                           at('2..22', 'execute if block ~ ~-0.6 ~ #bm:grap_pass run tp @s ~ ~-0.45 ~'),
                           at(20, 'function bm:p131/b/pose/eth_dland'), at(23, 'function bm:p131/b/pose/eth_land'), at(24, 'function bm:p131/b/ring3'),
                           at(24, 'particle minecraft:explosion ~ ~0.3 ~ 2 0.1 2 0 8'), at(24, 'playsound minecraft:item.mace.smash_ground_heavy hostile @a[distance=..40] ~ ~ ~ 1.5 0.5'),

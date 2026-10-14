@@ -31,16 +31,21 @@ def place(art, U, sel):
 
 
 def pose(art, pz, S, dur, sel, swap=(), hide=True, parts=None):
-    """one pose's lines: each part's solved turn and shift, its scale (0 if the pose hides it), a swapped model if asked"""
+    """one pose's lines: each part's solved turn and shift, its scale (0 if the pose hides it), a swapped model if asked.
+    2.78: a part the pose hides only shrinks away, where it is, within 2 ticks - it isn't swung to the new pose on the way
+    out (the blunderbuss used to sweep up through his face while his arms rose for the slam)"""
     U = S / 16
     xf = RK.solve(art.PIVOT, art.PARENT, pz)
     out = []
     for p in (parts or art.PARTS):
+        if hide and hasattr(art, 'HIDDEN') and art.HIDDEN(p, pz):
+            out.append(f'execute as {sel(p)} run data merge entity @s {{start_interpolation:0,interpolation_duration:{min(dur, 2)},transformation:{{scale:[0f,0f,0f]}}}}')
+            continue
         q, t = xf[p]
         bits = [f'left_rotation:{snbt(qf(q))}', f'translation:[{t[0] * U:.4f}f,{t[1] * U:.4f}f,{t[2] * U:.4f}f]']
         if hide:
             k = getattr(art, 'PART_K', {}).get(p, 1.0)
-            sc = 0 if (hasattr(art, 'HIDDEN') and art.HIDDEN(p, pz)) else round(S * k, 4)
+            sc = round(S * k, 4)
             bits.append(f'scale:[{sc}f,{sc}f,{sc}f]')
         extra = ''
         if p in swap:
