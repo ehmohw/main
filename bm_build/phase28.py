@@ -118,6 +118,9 @@ def text_lines(parts):
     return parts
 
 
+NOOP = 2           # (a button that should only close its menu: p28/act routes code 2 to nothing - 1 is the standing screen)
+
+
 def btn(label, code=None, tooltip=None, width=None):
     b = {'label': label}
     if tooltip: b['tooltip'] = tooltip
@@ -182,6 +185,7 @@ def generate(G):
              'scoreboard players set @a[scores={bm.act=..-1}] bm.act 0', 'scoreboard players set @a[scores={bm.standing=..-1}] bm.standing 0']
     fn('p28/act', ['scoreboard players operation #act bm.pay = @s bm.act', 'scoreboard players set @s bm.act 0',
                    'execute if score #act bm.pay matches 1 run return run function bm:p28/standing/show',
+                   f'execute if score #act bm.pay matches {NOOP} run return 0',
                    'execute if score #act bm.pay matches 1000..1999 run return run function bm:p28/back/act',
                    'execute if score #act bm.pay matches 2000..2099 run return run function bm:p28/gate/act'])
     fn('p28/stale', [title('@s', 'actionbar', T('That menu has closed - open it again.', 'gray'))])

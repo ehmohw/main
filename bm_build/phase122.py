@@ -54,7 +54,7 @@ def generate(G):
                      P28.body([T('Tries left now: ', 'gray'), T('$(lv)', 'white', bold=True)])],
                     [P28.btn([T('Skip it  ', 'red', bold=True), T('(costs a try)', 'gray')], YES, width=200),
                      P28.btn([T('Keep at it', 'white')], None, width=200)], columns=1, exit_label='Back')
-    ask['actions'][1]['action'] = {'type': 'minecraft:run_command', 'command': '/trigger bm.act set 1'}     # (a harmless no-op code)
+    ask['actions'][1]['action'] = {'type': 'minecraft:run_command', 'command': f'/trigger bm.act set {P28.NOOP}'}   # (closes it, nothing else - 1 opened the standing screen)
     fn('p122/ask_dlg', [f'$dialog show @s {P28.inline(ask)}'])
     fn('p122/ask', ['execute unless entity @s[tag=bm.gvp] run return 0', 'function bm:p122/find',
                     'execute if score #sk bm.rng matches 0 run return run ' + say('Stand in the puzzle room you want to skip (one that isn\'t solved yet).'),

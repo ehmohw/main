@@ -129,6 +129,7 @@ if PHASE2:
     import p2  # registers Phase 2 items on import
 
 OUT = None
+VERSION2 = 'v2.76c'                                   # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -883,7 +884,7 @@ def gen_loops(second_mob_lines):
         *[f'scoreboard objectives add {o} dummy' for o, f in DELAYED],
         *[f'scoreboard objectives add bm.b_{b} dummy' for b in BUFFS],
         'schedule function bm:loop/fast 5t replace', 'schedule function bm:loop/second 20t replace',
-        tellraw('@a[tag=!bm.quiet]', PREFIX + [T(('v2.76b' if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
+        tellraw('@a[tag=!bm.quiet]', PREFIX + [T((VERSION2 if PHASE2 else 'v1.29') + ' loaded. Ops: ', 'gray'), T('/function bm:admin/help', 'yellow')])])
     fn('tick', ['execute as @e[type=minecraft:marker,tag=bm.crypt_ctrl,scores={bm.state=1}] at @s run function bm:crypt/seq',
                 *[f'execute as @a[scores={{{o}=1}}] at @s run function {f}' for o, f in DELAYED],
                 *[f'scoreboard players remove @a[scores={{{o}=2..}}] {o} 1' for o, f in DELAYED]])
@@ -1032,7 +1033,7 @@ def build(out_dir):
     os.makedirs(OUT)
     with open(path('pack.mcmeta'), 'w') as f:
         json.dump({'pack': {'description': [{'text': 'Black Market ', 'color': 'dark_purple', 'bold': True},
-                                            {'text': ('v2.76b (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
+                                            {'text': (f'{VERSION2} (Java 26.3)' if PHASE2 else 'v1.28 (Java 26.3)'), 'color': 'gray'}],
                             'min_format': [121, 0], 'max_format': 121}}, f, indent=1)
     gen_npcs()
     second = gen_mobs()
@@ -1180,6 +1181,11 @@ def build(out_dir):
     for name, lines in FUNCS.items():
         with open(path('data', 'bm', 'function', name + '.mcfunction'), 'w') as f:
             f.write('\n'.join(mig263.inline_modifier(l) for l in lines) + '\n')     # 26.3: inline loot functions/conditions key on `type`
+    if PHASE2:                                            # 2.76c: the button-code legend, rewritten from what was just built
+        import buttons
+        lg = buttons.write(out_dir, VERSION2)
+        print(f"button legend: {lg['codes']} codes, {lg['dynamic']} built at run time, {lg['changes']} changes this version -> BUTTON_CODES.md")
+        assert not lg['problems'], 'buttons nothing handles:\n  ' + '\n  '.join(lg['problems'])
     return FUNCS
 
 
