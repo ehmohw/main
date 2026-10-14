@@ -1073,7 +1073,10 @@ def generate(G):
     from gen_dp import offer
     L = G.FUNCS['p70/r/lobby/init']
     k = next(i for i, l in enumerate(L) if l.startswith('summon minecraft:villager') and 'bm.gvrec' in l and 'Recipes:[' in l)
-    L[k] = L[k].replace('Recipes:[', 'Recipes:[' + snbt(offer(('gutter_trophy', 2), ('fcontract_tul', 1), ('gutter_medallion', 5))) + ',', 1)
+    o = offer(('gutter_trophy', 2), ('fcontract_tul', 1), ('gutter_medallion', 5))
+    L[k] = L[k].replace('Recipes:[', 'Recipes:[' + snbt(o) + ',', 1)
+    import phase103 as P103
+    P103.RECRUITER_OFFERS.append(o)
 
     # ================================================================== admin
     fn('admin/tullius', [say('Tullius rises in front of you.', ICE), 'execute rotated ~ 0 positioned ^ ^ ^6 rotated ~180 0 run function bm:p132/b/spawn'])

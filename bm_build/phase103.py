@@ -62,6 +62,8 @@ VAULT_EXIT = (34, 4, 12)                       # the treasury's way out, once th
 DEN_DOOR, VAULT_DOOR = (0, 4, 12), (35, 4, 12)  # (2.67d) the Fixer's Doors (the arches - phase70_rooms; 2.68: the den's in its west doorway)
 GOLDTOOTH_AT = (3, 4, 20)                      # (2.67d) behind his counter (z 19), facing the room
 RECRUITER_AT = (5, 4, 20)
+RECRUITER_OFFERS = []                       # (his stock, as offers: phase131/132 add theirs; 2.78 sells it from a dialog - phase137)
+RECRUITER_NPC = {}                          # (his villager, for phase137 to summon without the old trades)
 TAILOR_AT = (7, 4, 20)
 BANK_AT, ARMORY_AT, CREW_AT = (16, 4, 2), (18, 4, 2), (22, 4, 2)     # the office counter, north wall (the haul lectern at 20)
 LOCKER_AT = (8, 4, 1)                          # the copper door to the Lockers (north wall)
@@ -277,9 +279,11 @@ def generate(G):
     assert n == 1, "Goldtooth's summon wasn't found to split"
     P70.goldtooth = lambda: gtd
     # the Recruiter: contracts and gems
+    RECRUITER_OFFERS[:] = rec_rec
     recruiter = {'Tags': ['bm.gvrec', 'bm.npc', 'bm.gvprop'], 'NoAI': B(1), 'Invulnerable': B(1), 'Silent': B(1), 'PersistenceRequired': B(1),
                  'CustomName': _T('The Recruiter', '#9ad0ff', bold=True), 'CustomNameVisible': B(1),
                  'VillagerData': {'type': 'minecraft:swamp', 'profession': 'minecraft:librarian', 'level': Int(5)}, 'Offers': {'Recipes': rec_rec}}
+    RECRUITER_NPC.update(recruiter)
     tailor = {'Tags': ['bm.gvtail', 'bm.npc', 'bm.gvprop'], 'NoAI': B(1), 'Invulnerable': B(1), 'Silent': B(1), 'PersistenceRequired': B(1),
               'CustomName': _T('The Tailor', '#ff8ac8', bold=True), 'CustomNameVisible': B(1),
               'VillagerData': {'type': 'minecraft:plains', 'profession': 'minecraft:leatherworker', 'level': Int(5)}, 'Offers': {'Recipes': []}}

@@ -24,6 +24,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   for (const t of ['bm.frogpet', 'bm.donado', 'bm.cecilpet', 'bm.emmapet']) { await run(`execute in minecraft:overworld run kill @e[tag=${t}]`); await run(`execute in bm:gutter run kill @e[tag=${t},distance=0..]`); }
   await run('scoreboard players set TestRat bm.cpcd 0'); await run('scoreboard players set TestRat bm.emcd 0');
   await run('execute as TestRat run function bm:admin/contracts_none');
+  for (const k of ['cecil', 'emma', 'frog', 'donado']) await run(`advancement grant TestRat only bm:met/${k}`);    // (2.78: a contract signs only for someone you've met)
 
   // ---- signing a contract
   await run(`execute in minecraft:overworld run tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(800);
@@ -62,10 +63,13 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   const TLD = BMB + 'out_p2/BlackMarket_DP/data/bm/function/p103/tl';
   const tlAll = require('fs').readdirSync(TLD).map(f => require('fs').readFileSync(`${TLD}/${f}`, 'utf8')).join('\n');
   const tl = id => tlAll.includes(`bm:"${id}"`) || tlAll.includes(`items/${id}`);
-  ok('The Recruiter sells the raid contracts', await sells('bm.gvrec', 'fcontract_cecil') && await sells('bm.gvrec', 'fcontract_frog') && await sells('bm.gvrec', 'fcontract_killerwatt'));
+  const RCD = BMB + 'out_p2/BlackMarket_DP/data/bm/function/p137/rc';                 // (2.78: he sells from his book - t145 plays it)
+  const rcAll = require('fs').readdirSync(RCD).map(f => require('fs').readFileSync(`${RCD}/${f}`, 'utf8')).join('\n');
+  const rc = id => rcAll.includes(`bm:"${id}"`);
+  ok('The Recruiter sells the raid contracts (from his book)', rc('fcontract_cecil') && rc('fcontract_frog') && rc('fcontract_killerwatt') && !(await sells('bm.gvrec', 'fcontract_cecil')));
   ok('...the Tailor, Emma\'s new outfits', tl('cos_outfit_1') && tl('cos_outfit_2'));
   ok('...and the wardrobe (ribbons, dresses, Celi, Zib, hidden ones too)', tl('cos_ribbon_1') && tl('cos_ribbon_6') && tl('cos_dress_5') && tl('cos_celi_4') && tl('cos_zib_3'));
-  ok('...the Recruiter, Pearlman\'s gems - but no Ethereal Gem (2.67: fuse the nine)', await sells('bm.gvrec', 'gem_fire') && !(await sells('bm.gvrec', 'ethereal_gem')) && !(await sells('bm.gvgt', 'ethereal_gem')));
+  ok('...the Recruiter, Pearlman\'s gems - but no Ethereal Gem (2.67: fuse the nine)', rc('gem_fire') && !rc('ethereal_gem') && !(await sells('bm.gvgt', 'ethereal_gem')));
   await leave();
   for (const t of ['bm.cecilpet', 'bm.emmapet']) { await run(`execute in minecraft:overworld run kill @e[tag=${t}]`); await run(`execute in bm:gutter run kill @e[tag=${t},distance=0..]`); }
 

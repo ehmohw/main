@@ -111,3 +111,163 @@ def generate(G):
     act.append(tellraw('@s', PREFIX + [T('A new beginning: ', '#e8e8ff', bold=True), T('your conquest record is clear. ', 'gray'),
                                        T(f'Start again at {first["title"]} - the Fence sells every Sealed Map, and your old ones still lead the way. ', 'gray'),
                                        T('What you earned stays yours.', '#c8c4d8')]))
+
+    # ================================================================== THE RECRUITER: raid contracts only for followers you've met
+    # (2.78) His trades were the same for everyone - every follower's contract on sale from the start, spoiling the ones you
+    # haven't found yet. He is a dialog shop now (like the Tailor - it knows who you are): a follower's contract is on his
+    # books once you have met them out in the world (held their item - bm:met/<kind>, a hidden advancement); the vault's
+    # hirelings and the vault gems as before. A contract for someone you haven't met won't sign (it keeps) - for contracts
+    # bought before. Nothing is free: no starter contract (Cecil's too comes once you have his Summoning Gem).
+    import phase72 as P72, phase98 as P98, phase103 as P103, phase77 as P77, phase60 as P60, phase70_rooms as RM
+    from nbt import snbt
+    from items import ITEMS
+    GP = [T('[', 'dark_gray'), T('Heist', '#ffcf40', bold=True), T('] ', 'dark_gray')]
+    GOLD, REC = '#ffcf40', '#9ad0ff'
+    MET = {'cecil': ['cecil_gem'], 'emma': ['emma_ribbon'], 'celi': ['celi_charm'], 'zib': ['donadian_medal'], 'killerwatt': ['kw_spark'],
+           'leo': ['leo_crest'], 'demo': ['demo_seal'], 'escort': [f'skiff_escort_{c}' for c in P72.ART.ESCORT_COLS], 'apo': ['apo_oath'],
+           'tul': ['tul_coin'], 'frog': ['frog_signet'], 'donado': ['donado_tag']}
+    FOL = [(k, nm, col) for (k, nm, col, *_r) in P98.CALLED] + [(k, nm, col) for (k, nm, col, *_r) in P98.HIRED]
+    assert {k for k, *_r in FOL} == set(MET), sorted({k for k, *_r in FOL} ^ set(MET))
+    for k, toks in MET.items():
+        crit = {}
+        for t in toks:
+            assert t in ITEMS, t
+            crit[t] = {'trigger': 'minecraft:inventory_changed',
+                       'conditions': {'items': [{'items': ITEMS[t]['base'], 'predicates': {'minecraft:custom_data': snbt({'bm': t})}}]}}
+        G.wjson(f'bm/advancement/met/{k}.json', {'criteria': crit, 'requirements': [list(crit)]})
+    met = lambda k: f'entity @s[advancements={{bm:met/{k}=true}}]'
+    CALLED_K = {c[0] for c in P98.CALLED}
+    signed_fn = lambda k: f'bm:p98/signed/{k}' if k in CALLED_K else f'bm:p98/filed/{k}'
+
+    # ---- a contract for someone you haven't met won't sign (it keeps)
+    SIGN = {k: f'p89/sign/{k}' for k in ('cecil', 'emma', 'celi', 'zib', 'escort', 'killerwatt')}
+    SIGN.update({'leo': 'p96/sign', 'demo': 'p97/sign', 'apo': 'p131/sign', 'tul': 'p132/sign', 'frog': 'p89/call/frog', 'donado': 'p89/call/donado'})
+    assert set(SIGN) == set(MET)
+    for k, nm, col in FOL:
+        L = G.FUNCS[SIGN[k]]
+        j = next(i for i, l in enumerate(L) if l.startswith('scoreboard players set @s bm.gvhc'))
+        L.insert(j + 1, f'execute unless {met(k)} run return run function bm:p137/unmet {{n:"{nm}"}}')
+    fn('p137/unmet', ['$' + tellraw('@s', GP + [T('A contract for ', 'gray'), T('$(n)', 'white'), T("? You haven't met them yet - find them out in the world first. ", 'gray'),
+                                                T('(The contract keeps.)', 'dark_gray')]),
+                      'playsound minecraft:entity.villager.no player @s ~ ~ ~ 0.6 1'])
+
+    # ---- his stock, from his old trades (phase103, phase131/132): prices in coins (Medallions 16, Trophies 128)
+    worth = {'gutter_coin': 1, 'gutter_medallion': 16, 'gutter_trophy': 128}
+    sid = lambda st: st.get('components', {}).get('minecraft:custom_data', {}).get('bm', '')
+    coins = lambda o: sum(int(o[b]['count']) * worth[sid(o[b])] for b in ('buy', 'buyB') if b in o)
+    stock = {sid(o['sell']): o for o in P103.RECRUITER_OFFERS}
+    fols = [(k, nm, col, coins(stock[f'fcontract_{k}'])) for k, nm, col in FOL]
+    hires = [(i, hk, hnm, hcol, coins(stock[f'contract_{hk}'])) for i, (hk, hnm, rat, hcol, *_r) in P77.HIRE.items()]
+    gems = [(g, P60.GEMS[g][0], P60.GEMS[g][1], stock[f'gem_{g}']) for g in P60.GEMS if f'gem_{g}' in stock]
+    assert len(fols) == 12 and len(hires) == 5 and len(gems) == 9 and len(stock) == 26, (len(fols), len(hires), len(gems), len(stock))
+    def give_cmd(st):
+        comps = ','.join(c if c.startswith('!') else f'{c}={snbt(v)}' for c, v in st.get('components', {}).items())
+        return f'give @s {st["id"]}[{comps}] {int(st["count"])}'
+
+    RC = 8000                     # (his block: 8000 his page, 8001+ follower contracts, 8040 the hirelings' page, 8041+ theirs, 8050 the gems', 8051+)
+    wal = [T('You have ', 'gray'), T('$(w)', GOLD, bold=True), T(' coins to spend', 'gray'), T(' (Gutter Bank and pockets; Medallions count 16, Trophies 128).', 'dark_gray')]
+    btn = lambda lab, code: P28.btn(lab, code, width=180)
+    back = btn([T('« The Recruiter', 'gray')], RC)
+    def page(name, head, bodies, rows):
+        d = P28.multi(head, bodies, [], columns=2, exit_label='Close')
+        d['actions'] = '@@RAW:acts@@'
+        fn(f'p137/rc/{name}', ['function bm:p98/init', 'function bm:p103/wallet', f'scoreboard players set @s bm.menu {RC}',
+                               'data modify storage bm:ui rc.w set from storage bm:ui tl.w', 'data modify storage bm:ui rc.acts set value []'] + rows +
+           [f'function bm:p137/rc/{name}_dlg with storage bm:ui rc'])
+        fn(f'p137/rc/{name}_dlg', [f'$dialog show @s {P28.inline(d)}'])
+    st = lambda txt, col: T(txt, col, bold=True)
+    rows = ['scoreboard players set #rcp bm.rng 0', 'scoreboard players set #n bm.rng 0']
+    for i, (k, nm, col, pr) in enumerate(fols):
+        code = RC + 1 + i
+        rows += ['scoreboard players set #st bm.rng 0',
+                 f'execute if {met(k)} run scoreboard players add #n bm.rng 1', f'execute if {met(k)} run scoreboard players set #st bm.rng 1',
+                 f'execute if score #st bm.rng matches 1 if items entity @s container.* {holds(f"fcontract_{k}")} run scoreboard players set #st bm.rng 2',
+                 f'execute if function {signed_fn(k)} run scoreboard players set #st bm.rng 3',
+                 f'execute if score #st bm.rng matches 1 run data modify storage bm:ui rc.acts append value {snbt(btn([T(nm, col, bold=True), T("  "), T(f"{pr} coins", GOLD)], code))}',
+                 f'execute if score #st bm.rng matches 2 run data modify storage bm:ui rc.acts append value {snbt(btn([T(nm, col, bold=True), T("  "), st("IN YOUR PACK", "#ffe08a")], code))}',
+                 f'execute if score #st bm.rng matches 3 run data modify storage bm:ui rc.acts append value '
+                 f'{snbt(btn([T(nm, col, bold=True), T("  "), st("SIGNED" if k in CALLED_K else "FILED", "#7aff7a")], code))}']
+    rows += ['execute store result storage bm:ui rc.n int 1 run scoreboard players get #n bm.rng',
+             'data modify storage bm:ui rc.r_note set value ""',
+             'execute if score #n bm.rng matches 0 run data modify storage bm:ui rc.r_note set value ' +
+             snbt(T('No names on his books yet - meet a follower out in the world, then come back.', '#ffb070')),
+             f'data modify storage bm:ui rc.acts append value {snbt(btn([T("Hirelings", "#e8c070", bold=True), T(" ›", "gray")], RC + 40))}',
+             f'data modify storage bm:ui rc.acts append value {snbt(btn([T("Vault gems", "#e8b8ff", bold=True), T(" ›", "gray")], RC + 50))}']
+    page('main', [T('THE RECRUITER', REC, bold=True), T('  ·  raid contracts', 'gray')],
+         [P28.body([T('A Raid Contract signs a follower on for the vault - use it once and they come on every heist. ', 'gray'),
+                    T("He only deals in names you know: the followers you've met out in the world.", '#c8c4d8')], 360),
+          P28.body([T("Followers you've met: ", 'gray'), T('$(n)', 'white', bold=True), T(f' of {len(fols)}.  ', 'gray'), '@@RAW:r_note@@'], 360),
+          P28.body(wal, 360)], rows)
+    rows = ['scoreboard players set #rcp bm.rng 1']
+    for i, hk, hnm, hcol, pr in hires:
+        code = RC + 40 + i
+        rows += ['scoreboard players set #st bm.rng 1',
+                 f'execute if items entity @s container.* {holds(f"contract_{hk}")} run scoreboard players set #st bm.rng 2',
+                 f'execute if function bm:p98/filed/h{i} run scoreboard players set #st bm.rng 3',
+                 f'execute if score #st bm.rng matches 1 run data modify storage bm:ui rc.acts append value {snbt(btn([T(hnm, hcol, bold=True), T("  "), T(f"{pr} coins", GOLD)], code))}',
+                 f'execute if score #st bm.rng matches 2 run data modify storage bm:ui rc.acts append value {snbt(btn([T(hnm, hcol, bold=True), T("  "), st("IN YOUR PACK", "#ffe08a")], code))}',
+                 f'execute if score #st bm.rng matches 3 run data modify storage bm:ui rc.acts append value {snbt(btn([T(hnm, hcol, bold=True), T("  "), st("FILED", "#7aff7a")], code))}']
+    rows += [f'data modify storage bm:ui rc.acts append value {snbt(back)}']
+    page('hires', [T('HIRELINGS', '#e8c070', bold=True), T('  ·  the Recruiter', 'gray')],
+         [P28.body([T("The vault's own hands for hire - use a contract once and it's filed in your Fixer's Ledger (Raid Crew). One at a time on a heist; "
+                      "they never leave the vault.", 'gray')], 360), P28.body(wal, 360)], rows)
+    rows = ['scoreboard players set #rcp bm.rng 2'] + \
+           [f'data modify storage bm:ui rc.acts append value {snbt(btn([T(gn, gcol, bold=True), T("  "), T(f"{coins(o)} coins", GOLD)], RC + 51 + j))}'
+            for j, (g, gn, gcol, o) in enumerate(gems)] + [f'data modify storage bm:ui rc.acts append value {snbt(back)}']
+    page('gems', [T('VAULT GEMS', '#e8b8ff', bold=True), T('  ·  the Recruiter', 'gray')],
+         [P28.body([T("Pearlman's nine, the vault's own: hand one to Cecil or KillerWatt in here. They stay in the vault.", 'gray')], 360), P28.body(wal, 360)], rows)
+    fn('p137/rc/reopen', ['execute if score #rcp bm.rng matches 1 run return run function bm:p137/rc/hires',
+                          'execute if score #rcp bm.rng matches 2 run return run function bm:p137/rc/gems', 'function bm:p137/rc/main'])
+    fn('p137/rc/note', ['$' + tellraw('@s', GP + [T('$(t)', 'gray')]), 'function bm:p137/rc/reopen'])
+    fn('p137/rc/poor', ['$' + tellraw('@s', GP + [T("That's $(n) coins - you have ", 'red'), {'score': {'name': '#tw', 'objective': 'bm.rng'}, 'color': 'white'},
+                                                  T(' (bank and pockets).', 'red')]), 'playsound minecraft:entity.villager.no player @s ~ ~ ~ 0.8 1', 'function bm:p137/rc/reopen'])
+    def buy(pr, item_line, msg):
+        return ['function bm:p103/wallet', f'execute if score #tw bm.rng matches ..{pr - 1} run return run function bm:p137/rc/poor {{n:{pr}}}',
+                f'scoreboard players set #need bm.rng {pr}', 'function bm:p103/spend', item_line,
+                'playsound minecraft:entity.villager.yes player @s ~ ~ ~ 0.8 1', tellraw('@s', GP + msg), 'function bm:p137/rc/reopen']
+    for i, (k, nm, col, pr) in enumerate(fols):
+        fn(f'p137/rc/f{i}', ['scoreboard players set #rcp bm.rng 0',
+                             f'execute unless {met(k)} run return run function bm:p137/rc/note {{t:"He only deals in names you know."}}',
+                             f'execute if function {signed_fn(k)} run return run function bm:p137/rc/note {{t:"{nm} is signed on already."}}',
+                             f'execute if items entity @s container.* {holds(f"fcontract_{k}")} run return run function bm:p137/rc/note '
+                             f'{{t:"You have that contract - use it to sign {nm} on."}}'] +
+           buy(pr, give_cmd(stock[f'fcontract_{k}']['sell']), [T('The Recruiter hands you ', 'gray'), T(f'Raid Contract: {nm}', col, bold=True),
+                                                                 T('. Use it once to sign them on.', 'gray')]))
+    for i, hk, hnm, hcol, pr in hires:
+        fn(f'p137/rc/h{i}', ['scoreboard players set #rcp bm.rng 1',
+                             f'execute if function bm:p98/filed/h{i} run return run function bm:p137/rc/note {{t:"{hnm} is filed in your Ledger already."}}',
+                             f'execute if items entity @s container.* {holds(f"contract_{hk}")} run return run function bm:p137/rc/note '
+                             f'{{t:"You have that contract - use it to file {hnm} in your Ledger."}}'] +
+           buy(pr, give_cmd(stock[f'contract_{hk}']['sell']), [T('The Recruiter hands you ', 'gray'), T(f"{hnm}'s contract", hcol, bold=True), T('.', 'gray')]))
+    for j, (g, gn, gcol, o) in enumerate(gems):
+        fn(f'p137/rc/g{j}', ['scoreboard players set #rcp bm.rng 2'] +
+           buy(coins(o), give_cmd(o['sell']), [T('The Recruiter hands you a ', 'gray'), T(gn, gcol, bold=True), T(' - the vault\'s own.', 'gray')]))
+    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {RC}..{RC + 99} run return run function bm:p137/rc/act')
+    fn('p137/rc/act', [f'execute unless score @s bm.menu matches {RC} run return run function bm:p28/stale',
+                       f'execute if score #act bm.pay matches {RC} run return run function bm:p137/rc/main',
+                       f'execute if score #act bm.pay matches {RC + 40} run return run function bm:p137/rc/hires',
+                       f'execute if score #act bm.pay matches {RC + 50} run return run function bm:p137/rc/gems'] +
+       [f'execute if score #act bm.pay matches {RC + 1 + i} run return run function bm:p137/rc/f{i}' for i in range(len(fols))] +
+       [f'execute if score #act bm.pay matches {RC + 40 + i} run return run function bm:p137/rc/h{i}' for i, *_r in hires] +
+       [f'execute if score #act bm.pay matches {RC + 51 + j} run return run function bm:p137/rc/g{j}' for j in range(len(gems))])
+
+    # ---- at his counter (in the den and the Lounge): a click on him opens his book; his old trades are gone
+    at = RM.rel(*P103.RECRUITER_AT)
+    box = lambda tag: f'summon minecraft:interaction {at} {{Tags:["{tag}","bm.rechit"],width:1.0f,height:2.1f,response:1b}}'
+    bare = snbt(dict(P103.RECRUITER_NPC, Offers={'Recipes': []}))
+    for f_, prop, tag in (('p70/r/lobby/init', 'bm.gvprop', 'bm.gvprop'), ('p121/props', 'bm.gvprop', 'bm.lgprop')):
+        L = G.FUNCS[f_]
+        k = [i for i, l in enumerate(L) if l.startswith(f'summon minecraft:villager {at} ') and 'bm.gvrec' in l]
+        assert len(k) == 1, (f_, len(k))
+        L[k[0]] = f'summon minecraft:villager {at} ' + bare.replace(f'"{prop}"', f'"{tag}"')
+        L.append(box(tag))
+    # (dens and Lounges built before: put him right where he stands)
+    G.FUNCS['loop/second'] += ['execute in bm:gutter as @e[type=minecraft:villager,tag=bm.gvrec,distance=0..] at @s run function bm:p137/rc_fix']
+    fn('p137/rc_fix', ['execute if data entity @s Offers.Recipes[0] run data modify entity @s Offers.Recipes set value []',
+                       'execute if entity @s[tag=bm.gvprop] unless entity @e[type=minecraft:interaction,tag=bm.rechit,distance=..1] run '
+                       'summon minecraft:interaction ~ ~ ~ {Tags:["bm.gvprop","bm.rechit"],width:1.0f,height:2.1f,response:1b}',
+                       'execute if entity @s[tag=bm.lgprop] unless entity @e[type=minecraft:interaction,tag=bm.rechit,distance=..1] run '
+                       'summon minecraft:interaction ~ ~ ~ {Tags:["bm.lgprop","bm.rechit"],width:1.0f,height:2.1f,response:1b}'])
+    G.FUNCS['loop/fast'] += ['execute as @e[type=minecraft:interaction,tag=bm.rechit] if data entity @s interaction run function bm:p137/rc_click',
+                             'execute as @e[type=minecraft:interaction,tag=bm.rechit] if data entity @s attack run data remove entity @s attack']
+    fn('p137/rc_click', ['execute on target at @s run function bm:p137/rc/main', 'data remove entity @s interaction'])

@@ -27,6 +27,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   await run('execute as TestRat run function bm:admin/contracts_none');
 
   // ---- the coat check keeps the summoning items now
+  await run('advancement grant TestRat only bm:met/frog');      // (2.78: a contract works only for someone you've met)
   await run('loot give TestRat loot bm:items/cecil_gem'); await run('loot give TestRat loot bm:items/fcontract_frog');
   await heist(1);
   ok('In the heist', await inHeist());

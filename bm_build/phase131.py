@@ -1773,7 +1773,10 @@ def generate(G):
     from gen_dp import offer
     L = G.FUNCS['p70/r/lobby/init']
     k = next(i for i, l in enumerate(L) if l.startswith('summon minecraft:villager') and 'bm.gvrec' in l and 'Recipes:[' in l)
-    L[k] = L[k].replace('Recipes:[', 'Recipes:[' + snbt(offer(('gutter_trophy', 2), ('fcontract_apo', 1), ('gutter_medallion', 6))) + ',', 1)
+    o = offer(('gutter_trophy', 2), ('fcontract_apo', 1), ('gutter_medallion', 6))
+    L[k] = L[k].replace('Recipes:[', 'Recipes:[' + snbt(o) + ',', 1)
+    import phase103 as P103
+    P103.RECRUITER_OFFERS.append(o)
 
     # ================================================================== admin
     fn('admin/apophiss', [say('Apophiss comes for you: black fire, then the Serpent King.', GRN), 'execute rotated ~ 0 positioned ^ ^ ^8 run summon minecraft:husk ~ ~ ~ ' + snbt(bnbt),

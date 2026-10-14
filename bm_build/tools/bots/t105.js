@@ -160,7 +160,9 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
   ok('Goldtooth: heist supplies only (no contracts, outfits, gems or coin-changing)', ngt >= 25 && ngt <= 40 && !(await sells('bm.gvgt', 'fcontract_cecil')) &&
      !(await sells('bm.gvgt', 'cos_ribbon_1')) && !(await sells('bm.gvgt', 'gem_fire')) && !(await sells('bm.gvgt', 'gutter_medallion')) && (await sells('bm.gvgt', 'smoke_bomb')), `${ngt} trades`);
   const nrc = await nOff('bm.gvrec');
-  ok('The Recruiter: the contracts and the vault gems', nrc === 24 && (await sells('bm.gvrec', 'fcontract_cecil')) && (await sells('bm.gvrec', 'contract_medic')) && (await sells('bm.gvrec', 'gem_fire')), `${nrc} trades`);
+  const RCD = require('path').join(__dirname, '..', '..', 'out_p2/BlackMarket_DP/data/bm/function/p137/rc');     // (2.78: his book - t145 plays it)
+  const rcAll = require('fs').readdirSync(RCD).map(f => require('fs').readFileSync(`${RCD}/${f}`, 'utf8')).join('\n');
+  ok('The Recruiter: no trades - his book sells the contracts and the vault gems', nrc === 0 && ['fcontract_cecil', 'contract_medic', 'gem_fire'].every(i => rcAll.includes(`bm:"${i}"`)), `${nrc} trades`);
   ok('The Tailor stands at the counter', /The Tailor/.test(await near('bm.gvtail', 'CustomName')));
   await run(`execute in bm:gutter run tp TestRat ${at(7, 4, 17).split(' ').map((v, i) => +v + (i === 1 ? 0 : 0.5)).join(' ')} 180 0`); await sleep(1500);
   await run('scoreboard players set TestRat bm.menu 0');
@@ -220,15 +222,19 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
   let cecilSt = ''; for (let i = 2; i < 10; i++) { if ((await lbl(i, 0)) === 'Cecil') { cecilSt = await lbl(i, 2); break; } }
   ok('The page: the ones in the vault first, in line order, each saying so', r0[0] === 'Emma' && r0[1] === 'IN THE VAULT' && r1[0] === 'Celi' && r1[1] === 'IN THE VAULT', `${r0} | ${r1}`);
   ok('...Cecil, at the back, says he\'s waiting (crew full)', /WAITING/.test(cecilSt), cecilSt);
-  ok('...and the header counts the crew (2/2)', /2/.test(await run('data get storage bm:ui crew.fc')) && /2/.test(await run('data get storage bm:ui crew.lim')));
+  // (2.74: alone, THREE come along - Zib, next in line, took the third place when Cecil went to the back)
+  ok('...and the header counts the crew (3/3 - alone, three come)', /: 3$/.test(await run('data get storage bm:ui crew.fc')) && /: 3$/.test(await run('data get storage bm:ui crew.lim')) && (await fcnt('bm.zibpet')) === 1,
+     `${(await run('data get storage bm:ui crew.fc')).replace(/.*data: /, '')}/${(await run('data get storage bm:ui crew.lim')).replace(/.*data: /, '')}`);
   await run('execute in bm:gutter run kill @e[type=cat,tag=bm.emmapet,distance=0..]'); await sleep(2500);
   await run('execute as TestRat at @s run function bm:p98/crew'); await sleep(200);
   let emSt = ''; for (let i = 0; i < 10; i++) { if ((await lbl(i, 0)) === 'Emma') { emSt = await lbl(i, 2); break; } }
   ok('Emma faints: her row says RESTING, with the seconds left', /RESTING 4\ds/.test(emSt), emSt);
-  await until(async () => (await fcnt('bm.zibpet')) === 1, 6000);
-  ok('...and the next in line steps in (Zib - before Cecil, who went to the back)', (await fcnt('bm.zibpet')) === 1 && (await fcnt('bm.cecilpet')) === 0);
+  await until(async () => (await fcnt('bm.kxpet')) === 1, 6000);
+  ok('...and the next in line steps in (KillerWatt - before Cecil, who went to the back)', (await fcnt('bm.kxpet')) === 1 && (await fcnt('bm.cecilpet')) === 0);
+  // (over the limit - a raider joining makes it one each - the bench sends home the one last in line)
   await run('execute as TestRat at @s run function bm:p103/crew/bench'); await sleep(500);
-  ok('A crew over the limit sends home the one last in line (Zib, not Celi)', (await fcnt('bm.zibpet')) === 0 && (await fcnt('bm.celipet')) === 1);
+  ok('The bench sends home the one last in line (KillerWatt, not Celi or Zib)', (await fcnt('bm.kxpet')) === 0 && (await fcnt('bm.celipet')) === 1 && (await fcnt('bm.zibpet')) === 1,
+     `kx ${await fcnt('bm.kxpet')} celi ${await fcnt('bm.celipet')} zib ${await fcnt('bm.zibpet')}`);
   await run('execute as TestRat run function bm:admin/contracts_none');
   for (const k of ['cecil', 'emma', 'celi', 'zib', 'killerw', 'leo', 'demo', 'escort', 'frog', 'donado']) await run(`scoreboard players reset TestRat bm.co_${k}`);
   await run('scoreboard players reset TestRat bm.coq');

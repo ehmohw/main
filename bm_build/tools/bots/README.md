@@ -88,6 +88,18 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
   the price from the trader itself (`data get entity <npc> Offers.Recipes[i].buy.count`) before paying for a real trade.
   To find a trade, walk `Offers.Recipes[i].sell.components."minecraft:custom_data".bm` until it names the item.
 - `bm:p45/cecil/spawn` sets Cecil (the trader, with his whole stall) down wherever it runs - a stage for any trade of his.
+- In 26.3 a used consumable leaves the hand only after its advancement's function has run. A check made at once still sees
+  it held; to prove an item isn't used up, look again a second later (t144).
+- A test that changes dimension (the Lounge, the Hollow, a Warpstone crossing) needs `lib_resp.js`: it reports
+  `player_loaded` after each respawn or dimension change, and until a client has, the server ignores its moves and uses.
+  `lib.js` doesn't.
+- The Recruiter only lists a follower you've met (`bm:met/<kind>`, earned by holding that follower's token), and a follower
+  contract used before then is refused and kept. A test that buys or signs a follower's contract grants it first:
+  `advancement grant TestRat only bm:met/<kind>`. Revoke `bm:met/*` to start clean.
+- A solo player's raid crew holds three (since 2.74). A fourth follower waits on the bench.
+- To get past a heist room that isn't under test, set `#gi bm.rng` to the heist's id, run `bm:p70/ctx`, then run
+  `bm:p70/solved` as that room's marker (`bm.gvr`) - its exit opens as if it had been beaten.
+- An empty list answers "Found no elements matching ..." (a villager with no trades: `data get entity <npc> Offers.Recipes`).
 
 ## Index
 
@@ -247,6 +259,17 @@ and function calls. Three are known to be stale.
 | `t141.js` | 2.77d: the Emma doll Cecil sells - bought with trophies in a real trade (his window, the doll's trade picked, |
 |  | shift-clicked out; his price read from his offers), set down with the doll itself looking at the floor, right-clicked to |
 |  | twirl (a third of a turn), her charm curing poison but not resistance, a plain punch leaving her, sneak + punch taking her up. |
+| `t142.js` | 2.78: the Frog with Mustache and Donado carry a token like every follower - the Frog hired (his Signet; again, no |
+|  | charge), armed, sent home and called back from its menu, fainting (the Signet rests, nothing dropped), his gear handed |
+|  | back; Donado freed from a pen (his Collar Tag, counted in the three-follower limit); both tokens in a case and a frame. |
+| `t143.js` | 2.78: the Key of New Beginnings - bought from the Fence, its dialog ("No" changes nothing, "Yes" clears the record); |
+|  | what was earned stays (the Warpstone, the Hollow asleep mid-climb, Wilfrey's locket, no second Warpstone); it won't turn |
+|  | on a clear record or beside an awake boss; a pre-2.78 reset rebuilt from the Warpstone carried. |
+| `t144.js` | 2.78: "never used up" items aren't - the Tome of Blinking (7 blocks, stays in hand), a Jackpot card (the next card, one |
+|  | play fewer), a lucky map piece (stays; the ninth makes the map with none left over). |
+| `t145.js` | 2.78: the Recruiter only deals in names you know - into the Lounge with the Ledger, a click on him opens his book: no |
+|  | follower before you've met one (and no free Cecil); Celi met, her contract bought from the wallet ("IN YOUR PACK"), used |
+|  | and "SIGNED"; an unmet follower's contract refused and kept; a hireling and a vault gem bought from their pages. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
 | `head.js` | The Horseman's Head: stream, overheat, charged blast, stoking + Nova, undead XP, lantern/heart variants, night tiers, healing. |
