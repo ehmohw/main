@@ -12,7 +12,8 @@ SC = T.RIG_SCALE
 DESC = {'idle_a': 'idle - chin up, harpoon low', 'walk_a': 'walk', 'guard': 'on guard', 'thrust_back': 'thrust: drawn back', 'thrust': 'thrust: lunge',
         'throw_back': 'harpoon throw: wind-up', 'throw': 'harpoon throw: release', 'ice_cast': 'ice: gather frost', 'slam_up': 'CHARGED: frost harpoon raised',
         'slam': 'charged: driven into the ground', 'tired': 'tired (low health)', 'taunt': 'taunt: tips his hat', 'sit': 'follower: sit',
-        'defeated': 'beaten - offer him a place'}
+        'defeated': 'beaten - offer him a place', 'aim': 'blunderbuss: aim', 'fire': 'blunderbuss: fire (it kicks)', 'reload': 'blunderbuss: frost packed in',
+        'hook_pull': 'harpoon hooked in you: hauled in', 'blast': 'point-blank blast', 'swim_1': 'swimming (as Leo)'}
 
 def scene():
     return K.multi_scene(root, K.REAL_RP)
@@ -36,7 +37,7 @@ if 'faces' in what:
         if f: pose['_face'] = f
         s = scene(); rigkit.render(s, T, pose, scale=SC)
         tiles.append(K.label(s.render('front', size=280, span=1.05, center=(0, 1.86, 0)), f or 'cold stare (default)'))
-    K.sheet(tiles, OUT + '/tullius_faces.png', cols=4, title='Tullius - faces (a cold light deep in each socket)')
+    K.sheet(tiles, OUT + '/tullius_faces.png', cols=4, title='Tullius - faces (one eye lost under a flap of flesh; a cold light in the other)')
 if 'lineup' in what:
     tiles = []
     s = scene()

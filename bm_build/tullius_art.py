@@ -1,11 +1,12 @@
 """2.76: TULLIUS - the drowned captain, Leo's rival (a draft for approval: rig, textures, faces, poses).
 
 From the reference art: a vengeful undead soldier of the sunken kingdom - a skull of icy blue bone under a cracked brow,
-hollow black sockets with a cold light deep in them, frost-white hair spiking out under a tall, battered top hat (a torn
+one hollow black socket with a cold light deep in it - the other eye lost under a flap of torn flesh - frost-white hair spiking out under a tall, battered top hat (a torn
 green band, a cluster of ice crystals at his left), an emerald earring in his left ear; a torn teal frock coat with a
 high, spiky collar and great dark cuffs, a ragged green shirt, a green sash knotted at his left hip and an icy buckle on a
 strap at his right; black gloves, green stockings, big dark teal shoes; and in his LEFT hand a long barbed harpoon with a
-rope tied at its head. His element is ice: for his charged attacks the harpoon frosts over (tu_harpoon_ice).
+rope tied at its head - and in his right, an icy blunderbuss (the harpoon hooks you in, the blunderbuss finishes it). His
+element is ice: for his charged attacks the harpoon frosts over (tu_harpoon_ice). A strong swimmer and water fighter, as Leo.
 
 Rig (rigkit): the legs stand on their own; body (the hips) - head, arms, coat tails; the harpoon rides in his left fist.
 Design units: feet at y=0, facing -z, his right +x; shown at RIG_SCALE (the follower - Leo's size) or BOSS_SCALE.
@@ -22,12 +23,12 @@ from rigkit import qs, shrink, el, seg, chain, _add, _mul, _sub, _unit, I
 PREFIX = 'tu_'
 RIG_SCALE, BOSS_SCALE = 0.96, 1.4
 PIVOT0 = {'body': (0, 13.4, 0), 'legr': (2.2, 13.4, 0), 'legl': (-2.2, 13.4, 0), 'tails': (0, 14.6, 0), 'head': (0, 26.0, 0),
-          'armr': (5.9, 24.4, 0), 'arml': (-5.9, 24.4, 0), 'harpoon': (-6.3, 9.6, -0.3)}       # (the frame the parts are drawn in)
+          'armr': (5.9, 24.4, 0), 'arml': (-5.9, 24.4, 0), 'harpoon': (-6.3, 9.6, -0.3), 'gun': (6.3, 9.6, -0.3)}   # (the frame the parts are drawn in)
 LIFT = 1.8                      # his legs are long (the art): everything above the hips stands LIFT higher, the stockings stretched to meet it
 PIVOT = {k: (v[0], v[1] + LIFT, v[2]) for k, v in PIVOT0.items()}
 LEG_TOP, SHOE = 13.6, 3.4
 leg_y = lambda y: y if y <= SHOE else SHOE + (y - SHOE) * (LEG_TOP + LIFT - SHOE) / (LEG_TOP - SHOE)
-PARENT = {'body': None, 'legr': None, 'legl': None, 'tails': 'body', 'head': 'body', 'armr': 'body', 'arml': 'body', 'harpoon': 'arml'}
+PARENT = {'body': None, 'legr': None, 'legl': None, 'tails': 'body', 'head': 'body', 'armr': 'body', 'arml': 'body', 'harpoon': 'arml', 'gun': 'armr'}
 PARTS = tuple(PIVOT)
 HARPOON_K = 1.3                 # (the harpoon reaches past a model's box: built at full size, kept at 1/1.3, shown at 1.3x)
 PART_K = {'harpoon': HARPOON_K}
@@ -38,7 +39,7 @@ UP, FRONT, SIDE = (0.0, 1.0, 0.0), (0.0, 0.0, -1.0), (1.0, 0.0, 0.0)
 
 
 def HIDDEN(p, pose):
-    return p == 'harpoon' and pose.get('_thrown')
+    return (p == 'harpoon' and pose.get('_thrown')) or (p == 'gun' and (pose.get('_nogun') or pose.get('_bent')))
 
 
 def model_name(p, pose, suffix=''):
@@ -96,6 +97,26 @@ def _bone(seed):
     return im
 
 
+def _flap(seed):
+    """the flesh over his lost eye: greyer than the bone, blotched, its torn edge darker and stitched"""
+    im = _noise('#7aa8b0', seed, 6); d = ImageDraw.Draw(im); rnd = random.Random(seed)
+    for _ in range(7):
+        cx, cy = rnd.randint(4, 59), rnd.randint(4, 59); r = rnd.randint(3, 6)
+        d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=hexc('#6a96a0'))
+    d.rectangle((0, 0, 63, 3), fill=hexc('#4a7480')); d.rectangle((0, 60, 63, 63), fill=hexc('#4a7480'))
+    for x in range(6, 60, 12): d.line((x, 0, x + 2, 7), fill=hexc('#2a4450'), width=2)
+    return im
+
+
+def _brass(seed):
+    """sea-worn brass: a bright streak, green patina blooming on it"""
+    im = _shine('#9a8450', '#e6d08a', seed); d = ImageDraw.Draw(im); rnd = random.Random(seed)
+    for _ in range(10):
+        cx, cy = rnd.randint(0, 63), rnd.randint(0, 63); r = rnd.randint(2, 5)
+        d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=hexc(rnd.choice(('#5e8f74', '#4f7f66'))))
+    return im
+
+
 def _teeth(seed):
     im = _noise('#d8eef0', seed, 4); d = ImageDraw.Draw(im)
     for x in range(0, 64, 6): d.line((x, 0, x, 63), fill=hexc('#3a5a64'), width=1)
@@ -129,7 +150,8 @@ def textures():
             'tu_hat': _folds('#123a36', '#0a2422', '#1e5450', 816), 'tu_band': _folds('#3f8a3a', '#2a6026', '#5aa850', 817, torn='#24501f'),
             'tu_ice': _ice(818), 'tu_steel': _shine('#8a90b2', '#d6dcf4', 819), 'tu_shaft': _shine('#3a3d5a', '#6c709a', 820),
             'tu_rope': _rope(821), 'tu_gold': _noise('#e0b030', 822, 12), 'tu_emerald': _noise('#22c060', 823, 12),
-            'tu_buckle': _shine('#bfe4f0', '#ffffff', 824), 'tu_strap': _noise('#6a8a94', 825, 6), 'tu_frost': _ice(826, 255)}
+            'tu_buckle': _shine('#bfe4f0', '#ffffff', 824), 'tu_strap': _noise('#6a8a94', 825, 6), 'tu_frost': _ice(826, 255),
+            'tu_flap': _flap(827), 'tu_wood': _folds('#3e2a1c', '#2a1a10', '#5a3e28', 828), 'tu_brass': _brass(829)}
 
 
 # ---------------------------------------------------------------------------------------------------- models
@@ -244,6 +266,13 @@ def models():
         for sx in (1, -1):
             X = lambda a, b: (min(a * sx, b * sx), max(a * sx, b * sx))
             tilt, bh, top, pup = F[0 if sx > 0 else 1]
+            if sx > 0:                                                                  # his right eye: gone under a flap of torn flesh
+                h += [E((0.35, 29.7, -3.74), (3.2, 32.5, -3.5), 'tu_flap', None, (0.2, 0.3)),
+                      E((0.6, 29.35, -3.72), (1.4, 29.75, -3.52), 'tu_flap', None, (0.6, 0.1)), E((2.0, 29.45, -3.72), (2.9, 29.75, -3.52), 'tu_flap', None, (0.1, 0.6))]
+                h += chain([(0.6, 31.25, -3.78), (1.8, 30.85, -3.78), (3.0, 31.3, -3.78)], [0.32, 0.32], 0.12, 'tu_socket', pv, FRONT, 0.1)   # the crease where the eye was
+                h.append(E((2.0, 28.5, -3.5), (3.55, 29.4, -3.3), 'tu_bone_dk'))                                     # the hollow under his cheekbone
+                h.append(E((0.2, 32.0 + bh, -3.85), (3.4, 33.0 + bh, -3.4), 'tu_bone', ('z', tilt, (1.8, 32.0 + bh, -3.6)), (0.5, 0.4)))   # the brow ridge
+                continue
             t2 = max(30.75, top + 0.3)
             h += [E((X(0.45, 3.05)[0], 30.6, -3.62), (X(0.45, 3.05)[1], t2, -3.45), 'tu_socket'),                          # the hollow socket, rounded below
                   E((X(0.8, 2.7)[0], 30.0, -3.62), (X(0.8, 2.7)[1], 30.7, -3.45), 'tu_socket'),
@@ -317,6 +346,27 @@ def models():
             els.append(S((0, 0, -21.0), (0, 0, -31.6), 2.6, 1.2, 'tu_ice', UP, 0.0, light=9))                               # (the blade sheathed in ice)
         return els
     part('tu_harpoon', harpoon(), HARPOON_K); part('tu_harpoon_ice', harpoon(True), HARPOON_K)
+
+    # ---- the icy blunderbuss (its joint is his grip; the muzzle points along -z): a waterlogged stock, a brass barrel gone
+    #      green with the sea, a flared bell crusted in ice, a cold light down its bore
+    g = (0.0, 0.0, 0.0); S = lambda A, B, w, h, t, up=UP, ext=0.1, light=0: seg(A, B, w, h, t, g, up, ext, light=light)
+    gun = [S((0, -0.2, 0.4), (0, -0.6, 5.0), 1.3, 1.9, 'tu_wood'), S((0, -0.8, 4.8), (0, -2.2, 9.8), 1.8, 3.2, 'tu_wood'),       # the grip, the butt
+           S((0, -2.3, 9.6), (0, -2.7, 10.1), 1.9, 3.0, 'tu_brass'),                                                           # (the butt plate)
+           S((0, -0.8, -0.6), (0, -0.8, -9.0), 1.5, 1.1, 'tu_wood'),                                                           # the fore-stock
+           S((0, 0.3, 1.4), (0, 0.3, -14.2), 1.7, 1.7, 'tu_brass'),                                                            # the barrel
+           S((0.9, -0.1, 2.2), (0.9, -0.1, -0.9), 0.3, 1.4, 'tu_brass', SIDE),                                                # the lock plate
+           S((0, 1.2, 1.0), (0, 1.8, 1.8), 0.45, 0.6, 'tu_brass'),                                                             # the hammer
+           S((0, -1.6, 0.6), (0, -1.6, -0.9), 0.3, 0.3, 'tu_brass')]                                                           # the trigger guard
+    for z in (-4.2, -8.8, -12.2):
+        gun.append(S((0, 0.3, z + 0.3), (0, 0.3, z - 0.3), 2.0, 2.0, 'tu_brass'))                                            # bands
+    gun += [S((0, 0.3, -13.9), (0, 0.3, -15.3), 2.3, 2.3, 'tu_brass'), S((0, 0.3, -15.2), (0, 0.3, -16.7), 3.1, 3.1, 'tu_brass'),   # the bell
+            S((0, 0.3, -16.6), (0, 0.3, -17.9), 3.9, 3.9, 'tu_brass'), S((0, 0.3, -17.85), (0, 0.3, -18.0), 2.6, 2.6, 'tu_pupil', UP, 0.0, 10)]   # its icy bore
+    rnd = random.Random(870)
+    for _ in range(11):                                                                                                   # ice crusted on the bell and barrel
+        z = rnd.uniform(-17.6, -7.0); a = rnd.uniform(0, 2 * math.pi); r = 1.0 if z > -14 else 1.8
+        b0 = (math.cos(a) * r, 0.3 + math.sin(a) * r, z); tip = (math.cos(a) * (r + rnd.uniform(1.0, 2.2)), 0.3 + math.sin(a) * (r + rnd.uniform(1.0, 2.2)), z + rnd.uniform(-0.6, 0.6))
+        gun.append(S(b0, tip, rnd.uniform(0.5, 0.9), rnd.uniform(0.5, 0.9), 'tu_ice', UP, 0.15, 7))
+    part('tu_gun', gun)
     return M
 
 
@@ -337,59 +387,86 @@ def P(**kw):
 CARRY = qs(('y', -62), ('x', 14))                       # (the art: held low across his body, the head toward his right foot)
 UPRIGHT = qs(('x', -84))                                # (stood on its butt like a staff, head up)
 AHEAD = qs(('x', -3))                                   # (levelled at you)
+GDOWN = qs(('x', 76))                                   # (the blunderbuss hanging at his side, muzzle down)
 POSES = {
     # idle: chin up, contemptuous; the harpoon held low across him; his free hand flexing
-    'idle_a': P(body=qs(('y', 6)), head=qs(('x', -12), ('z', -4)), armr=limb(1, 2, 8), arml=limb(-1, 18, 6), _hw=CARRY, legr=limb(1, -2, 3), legl=limb(-1, 3, 3)),
-    'idle_b': P(_off=(0, -0.1, 0), body=qs(('y', 4), ('x', 2)), head=qs(('x', -8), ('z', -2), ('y', -6)), armr=limb(1, 6, 10), arml=limb(-1, 20, 6), _hw=CARRY,
+    'idle_a': P(_gw=GDOWN, body=qs(('y', 6)), head=qs(('x', -12), ('z', -4)), armr=limb(1, 2, 8), arml=limb(-1, 18, 6), _hw=CARRY, legr=limb(1, -2, 3), legl=limb(-1, 3, 3)),
+    'idle_b': P(_gw=GDOWN, _off=(0, -0.1, 0), body=qs(('y', 4), ('x', 2)), head=qs(('x', -8), ('z', -2), ('y', -6)), armr=limb(1, 6, 10), arml=limb(-1, 20, 6), _hw=CARRY,
                 legr=limb(1, -2, 3), legl=limb(-1, 3, 3), tails=qs(('x', -2))),
     # walk: a long stride, the harpoon carried at his side, coat tails swinging
-    'walk_a': P(body=qs(('y', 6), ('z', 2)), head=qs(('x', -8), ('y', -4)), legr=limb(1, 26), legl=limb(-1, -24), armr=limb(1, -22, 6), arml=limb(-1, 14, 6),
+    'walk_a': P(_gw=qs(('x', 62)), body=qs(('y', 6), ('z', 2)), head=qs(('x', -8), ('y', -4)), legr=limb(1, 26), legl=limb(-1, -24), armr=limb(1, -22, 6), arml=limb(-1, 14, 6),
                 _hw=qs(('y', -12), ('x', 10)), tails=qs(('x', -8))),
-    'walk_b': P(body=qs(('y', -6), ('z', -2)), head=qs(('x', -8), ('y', 4)), legr=limb(1, -24), legl=limb(-1, 26), armr=limb(1, 24, 6), arml=limb(-1, -8, 6),
+    'walk_b': P(_gw=qs(('x', 56)), body=qs(('y', -6), ('z', -2)), head=qs(('x', -8), ('y', 4)), legr=limb(1, -24), legl=limb(-1, 26), armr=limb(1, 24, 6), arml=limb(-1, -8, 6),
                 _hw=qs(('y', -12), ('x', 14)), tails=qs(('x', -8))),
     # on guard: feet wide, side-on (left shoulder to you), the harpoon levelled at you, his right hand forward on the shaft
-    'guard': P(_off=(0, -0.6, 0), body=qs(('y', 34), ('x', 6)), head=qs(('y', -30), ('x', -4)), legr=limb(1, -22, 10), legl=limb(-1, 24, 8),
+    'guard': P(_gw=qs(('x', 18), ('y', 12)), _off=(0, -0.6, 0), body=qs(('y', 34), ('x', 6)), head=qs(('y', -30), ('x', -4)), legr=limb(1, -22, 10), legl=limb(-1, 24, 8),
                armr=limb(1, 64, -24), arml=limb(-1, 42, 14), _hw=AHEAD, tails=qs(('x', -6))),
     # the thrust: drawn back, then driven straight in
-    'thrust_back': P(_off=(0, -0.4, 0), body=qs(('y', 44), ('x', -4)), head=qs(('y', -40)), legr=limb(1, -26, 10), legl=limb(-1, 26, 8),
+    'thrust_back': P(_gw=qs(('x', 70)), _off=(0, -0.4, 0), body=qs(('y', 44), ('x', -4)), head=qs(('y', -40)), legr=limb(1, -26, 10), legl=limb(-1, 26, 8),
                      armr=limb(1, 30, 30), arml=limb(-1, -10, 24), _hw=AHEAD, tails=qs(('x', 4))),
-    'thrust': P(_off=(0, -0.9, -1.0), body=qs(('y', 16), ('x', 14)), head=qs(('y', -14), ('x', -10)), legr=limb(1, -34, 8), legl=limb(-1, 40, 6),
+    'thrust': P(_gw=qs(('x', 66)), _off=(0, -0.9, -1.0), body=qs(('y', 16), ('x', 14)), head=qs(('y', -14), ('x', -10)), legr=limb(1, -34, 8), legl=limb(-1, 40, 6),
                 armr=limb(1, -30, 30), arml=limb(-1, 84, 2), _hw=qs(('x', 2)), tails=qs(('x', -16))),
     # the throw: the harpoon raised back over his left shoulder, aimed - then hurled (the rope pays out after it)
-    'throw_back': P(body=qs(('y', 30), ('x', -10)), head=qs(('y', -26), ('x', -6)), legr=limb(1, 22, 8), legl=limb(-1, -20, 6), armr=limb(1, 50, -10),
+    'throw_back': P(_gw=qs(('x', 70)), body=qs(('y', 30), ('x', -10)), head=qs(('y', -26), ('x', -6)), legr=limb(1, 22, 8), legl=limb(-1, -20, 6), armr=limb(1, 50, -10),
                     arml=limb(-1, 160, 14), _hw=qs(('x', -18)), tails=qs(('x', 6))),
-    'throw': P(_off=(0, -0.5, 0), body=qs(('y', -20), ('x', 16)), head=qs(('y', 16), ('x', -10)), legr=limb(1, 30, 8), legl=limb(-1, -26, 6),
+    'throw': P(_gw=qs(('x', 64)), _off=(0, -0.5, 0), body=qs(('y', -20), ('x', 16)), head=qs(('y', 16), ('x', -10)), legr=limb(1, 30, 8), legl=limb(-1, -26, 6),
                armr=limb(1, -30, 20), arml=limb(-1, 70, -6), _thrown=True, tails=qs(('x', -14))),
     # ice: frost gathered in his right hand, the harpoon stood beside him
-    'ice_cast': P(_face='fury', body=qs(('y', -14), ('x', -4)), head=qs(('y', 10), ('x', -6)), legr=limb(1, 14, 8), legl=limb(-1, -10, 6),
+    'ice_cast': P(_nogun=True, _face='fury', body=qs(('y', -14), ('x', -4)), head=qs(('y', 10), ('x', -6)), legr=limb(1, 14, 8), legl=limb(-1, -10, 6),
                   armr=limb(1, 96, -4), arml=limb(-1, 10, 12), _hw=qs(('x', -84), ('z', 8))),
     # the charged strike (the harpoon frosts over): raised high in both hands, then driven down into the ground before him
-    'slam_up': P(_ice=True, _face='fury', body=qs(('x', -12)), head=qs(('x', -14)), legr=limb(1, -10, 10), legl=limb(-1, 14, 10),
+    'slam_up': P(_nogun=True, _ice=True, _face='fury', body=qs(('x', -12)), head=qs(('x', -14)), legr=limb(1, -10, 10), legl=limb(-1, 14, 10),
                  armr=limb(1, 160, -12), arml=limb(-1, 166, -16), _hw=qs(('x', -130)), tails=qs(('x', 6))),
-    'slam_mid': P(_ice=True, _face='fury', _off=(0, -1.0, -0.4), body=qs(('x', 12)), head=qs(('x', -18)), legr=limb(1, -20, 11), legl=limb(-1, 32, 10),
+    'slam_mid': P(_nogun=True, _ice=True, _face='fury', _off=(0, -1.0, -0.4), body=qs(('x', 12)), head=qs(('x', -18)), legr=limb(1, -20, 11), legl=limb(-1, 32, 10),
                   armr=limb(1, 118, -16), arml=limb(-1, 122, -16), _hw=qs(('x', -34)), tails=qs(('x', -8))),
-    'slam': P(_ice=True, _face='fury', _off=(0, -2.6, -1.0), body=qs(('x', 36)), head=qs(('x', -26)), legr=limb(1, -30, 12), legl=limb(-1, 50, 10),
+    'slam': P(_nogun=True, _ice=True, _face='fury', _off=(0, -2.6, -1.0), body=qs(('x', 36)), head=qs(('x', -26)), legr=limb(1, -30, 12), legl=limb(-1, 50, 10),
               armr=limb(1, 66, -18), arml=limb(-1, 70, -16), _hw=qs(('x', 62)), tails=qs(('x', -24))),
     # tired: hunched, leaning his weight on the harpoon stood beside him
-    'tired': P(_face='tired', _off=(0, -0.6, 0), body=qs(('x', 18), ('z', -6)), head=qs(('x', -8), ('z', 8)), legr=limb(1, 10, 6), legl=limb(-1, -6, 4),
+    'tired': P(_gw=qs(('x', 80)), _face='tired', _off=(0, -0.6, 0), body=qs(('x', 18), ('z', -6)), head=qs(('x', -8), ('z', 8)), legr=limb(1, 10, 6), legl=limb(-1, -6, 4),
                armr=limb(1, -4, 4), arml=limb(-1, 26, 14), _hw=qs(('x', -80), ('z', -10)), tails=qs(('x', -6))),
     # the taunt: a tip of the hat with his free hand (the bent arm), the sneer
     'taunt': P(_face='sneer', _bent=True, body=qs(('y', 10), ('x', -2)), head=qs(('x', -6), ('z', -8)), legr=limb(1, 6, 4), legl=limb(-1, -4, 4),
                armr=qs(('z', -40), ('x', -40), ('y', -40)), arml=limb(-1, 18, 6), _hw=CARRY),
     # sit (a follower at rest): on the ground, one knee up, the harpoon leant against his shoulder
-    'sit': P(_off=(0, -13.0, 0), body=qs(('x', -12)), head=qs(('x', -2), ('y', 16)), legr=limb(1, 88, 6), legl=limb(-1, 60, 8), armr=limb(1, 40, 14),
+    'sit': P(_nogun=True, _off=(0, -13.0, 0), body=qs(('x', -12)), head=qs(('x', -2), ('y', 16)), legr=limb(1, 88, 6), legl=limb(-1, 60, 8), armr=limb(1, 40, 14),
              arml=limb(-1, 10, 22), _hw=qs(('x', -66), ('z', 16)), tails=qs(('x', -72))),
     # beaten: slumped where he fell, head bowed, the harpoon fallen beside him - the moment you can offer him a place
-    'defeated': P(_face='hurt', _off=(0, -13.0, 0), body=qs(('x', 26), ('z', 6)), head=qs(('x', 30), ('z', 10)), legr=limb(1, 84, 10), legl=limb(-1, 80, 12),
+    'defeated': P(_nogun=True, _face='hurt', _off=(0, -13.0, 0), body=qs(('x', 26), ('z', 6)), head=qs(('x', 30), ('z', 10)), legr=limb(1, 84, 10), legl=limb(-1, 80, 12),
                   armr=limb(1, 6, 10), arml=limb(-1, 34, 26), _hw=qs(('y', -30), ('x', 4)), tails=qs(('x', -70))),
+    # the blunderbuss: aimed down his right arm, fired (it kicks), frost packed down its bell
+    'aim': P(_gw=qs(('x', -2)), body=qs(('y', -24)), head=qs(('y', 20), ('x', -4)), armr=limb(1, 88, -6), arml=limb(-1, 10, 10), _hw=CARRY,
+             legr=limb(1, 14, 8), legl=limb(-1, -12, 6), tails=qs(('x', -4))),
+    'fire': P(_face='fury', _gw=qs(('x', -30)), _off=(0, 0, 0.6), body=qs(('y', -20), ('x', -8)), head=qs(('y', 18), ('x', -10)), armr=limb(1, 112, -4),
+              arml=limb(-1, 6, 12), _hw=CARRY, legr=limb(1, 16, 8), legl=limb(-1, -14, 6), tails=qs(('x', 6))),
+    'reload': P(_gw=qs(('x', -80)), body=qs(('y', -10)), head=qs(('x', 12), ('y', 8)), armr=limb(1, 52, -12), arml=limb(-1, 14, 8), _hw=CARRY,
+                legr=limb(1, 4, 4), legl=limb(-1, -2, 4)),
+    # the hook: the harpoon thrown, he hauls you in on its rope - then the blunderbuss, point-blank
+    'hook_pull': P(_face='fury', _thrown=True, _gw=qs(('x', 50)), body=qs(('x', -14), ('y', 16)), head=qs(('x', -2), ('y', -12)), armr=limb(1, 40, -14),
+                   arml=limb(-1, 34, 10), legr=limb(1, -20, 10), legl=limb(-1, 26, 8), tails=qs(('x', 8))),
+    'blast': P(_face='fury', _gw=qs(('x', 6)), _off=(0, -0.5, -0.5), body=qs(('x', 10), ('y', -16)), head=qs(('x', -10), ('y', 14)), armr=limb(1, 70, -8),
+               arml=limb(-1, 20, 10), _hw=CARRY, legr=limb(1, 24, 8), legl=limb(-1, -20, 8), tails=qs(('x', -8))),
 }
+# swimming (as Leo: at home in the water) - level, the harpoon levelled ahead like a lance, a crawl with his right arm,
+# a long scissor kick, the coat streaming behind; the blunderbuss slung
+SWIM_FRAMES = 8
+for _i in range(SWIM_FRAMES):
+    _ph = 2 * math.pi * _i / SWIM_FRAMES
+    POSES[f'swim_{_i}'] = P(_nogun=True, _off=(0, -9.6 + 0.4 * math.sin(2 * _ph), 0), body=qs(('x', 84), ('z', 4 * math.sin(_ph))), head=qs(('x', -64)),
+                            arml=limb(-1, 172, 6), _hw=qs(('x', -2)), armr=limb(1, 100 + 76 * math.sin(_ph), 14 + 10 * math.cos(_ph)),
+                            legr=limb(1, -84 + 22 * math.sin(2 * _ph)), legl=limb(-1, -84 - 22 * math.sin(2 * _ph)), tails=qs(('x', -6 + 6 * math.sin(2 * _ph))))
 from rigkit import qmul as _qm
 _conj = lambda q: (-q[0], -q[1], -q[2], q[3])
-for _p in POSES.values():                      # (the harpoon's world aim -> its turn in his left fist)
+for _p in POSES.values():                      # (the weapons' world aims -> their turns in his fists)
     if '_hw' in _p:
         _p['harpoon'] = _qm(_conj(_qm(_p.get('body', I), _p.get('arml', I))), _p['_hw'])
-DRAFT = ['idle_a', 'walk_a', 'guard', 'thrust_back', 'thrust', 'throw_back', 'throw', 'ice_cast', 'slam_up', 'slam', 'tired', 'taunt', 'sit', 'defeated']
-ANIMS = {'idle': [('idle_a', 30), ('idle_b', 30)], 'walk': [('walk_a', 8), ('walk_b', 8)], 'thrust': [('guard', 8), ('thrust_back', 8), ('thrust', 4), ('guard', 10)],
+    if '_gw' in _p:
+        _p['gun'] = _qm(_conj(_qm(_p.get('body', I), _p.get('armr', I))), _p['_gw'])
+DRAFT = ['idle_a', 'walk_a', 'guard', 'aim', 'fire', 'reload', 'thrust', 'throw_back', 'hook_pull', 'blast', 'ice_cast', 'slam_up', 'slam', 'swim_1',
+         'tired', 'taunt', 'sit', 'defeated']
+ANIMS = {'gun': [('aim', 8), ('aim', 6), ('fire', 2), ('fire', 4), ('reload', 12), ('aim', 8)],
+         'hook': [('guard', 6), ('throw_back', 8), ('throw', 3), ('hook_pull', 6), ('hook_pull', 6), ('blast', 4), ('blast', 4), ('guard', 10)],
+         'swim': [(f'swim_{i}', 4) for i in range(SWIM_FRAMES)],
+         'idle': [('idle_a', 30), ('idle_b', 30)], 'walk': [('walk_a', 8), ('walk_b', 8)], 'thrust': [('guard', 8), ('thrust_back', 8), ('thrust', 4), ('guard', 10)],
          'throw': [('guard', 8), ('throw_back', 10), ('throw', 4), ('guard', 12)], 'slam': [('guard', 8), ('slam_up', 14), ('slam_mid', 3), ('slam', 3), ('slam', 8), ('guard', 12)],
          'taunt': [('idle_a', 8), ('taunt', 10), ('taunt', 12), ('idle_a', 10)]}
 
