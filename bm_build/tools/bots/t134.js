@@ -34,7 +34,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     await run('clear TestRat'); await run('effect clear TestRat');
   };
   await reset();
-  await run('scoreboard players set TestRat bm.conq 6'); await run('tag TestRat add bm.got_warp');
+  await run('scoreboard players set TestRat bm.conq 6'); await run('scoreboard players set TestRat bm.conqb 6'); await run('tag TestRat add bm.got_warp');
   const tough = async () => { await run('attribute TestRat minecraft:max_health base set 200'); await run('effect give TestRat minecraft:instant_health 1 20 true');
     await run('effect give TestRat minecraft:resistance 900 3 true'); };
   let deaths = 0; A.on('update_health', p => { if (p.health <= 0) deaths++; });
@@ -57,21 +57,21 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     ok('standing on the den\'s dome (to dig in, or pearl through it): thrown back up too', await wait(3000, async () => dist(await epos('TestRat'), BACK) < 2),
        JSON.stringify(await epos('TestRat')));
     // (in, as the seal would bring you - but not worthy: no boss, and the den says why)
-    await run('scoreboard players set TestRat bm.conq 5');
+    await run('scoreboard players set TestRat bm.conq 5'); await run('scoreboard players set TestRat bm.conqb 5');
     // (as the seal would: in, with its mark - one command, or the den could find the bot unmarked between two)
     await run('execute as TestRat run function bm:admin/apophiss_den'); await run('scoreboard players set #apwake bm.p2 0'); await sleep(500); A.stand();
     await run('loot replace entity TestRat hotbar.0 loot bm:items/emma_ribbon'); await run('loot replace entity TestRat hotbar.1 loot bm:items/leo_crest');
     await run('loot replace entity TestRat hotbar.2 loot bm:items/cecil_gem');
-    await run('scoreboard players set TestRat bm.conq 6');
+    await run('scoreboard players set TestRat bm.conq 6'); await run('scoreboard players set TestRat bm.conqb 6');
     for (const k of [0, 1, 2]) { await use(A, k); await sleep(1200); }
-    await run('scoreboard players set TestRat bm.conq 5');
+    await run('scoreboard players set TestRat bm.conq 5'); await run('scoreboard players set TestRat bm.conqb 5');
     const three = async () => (await cnt('@e[type=minecraft:cat,tag=bm.emmapet]')) === 1 && (await cnt('@e[type=minecraft:wolf,tag=bm.leopet]')) === 1 && (await cnt('@e[type=minecraft:wolf,tag=bm.cecilpet]')) === 1;
     ok('(in the den with the seal\'s mark, and Emma, Leo and Cecil with the bot)', await inDen() && await three());
     A.bars.length = 0; await run('scoreboard players set #apwake bm.p2 1'); await sleep(5500);
     ok('...but the Hollow King not felled by this player: he doesn\'t rise', !(await cnt(boss)));
     ok('..."He rises only when one who has beaten the Hollow King comes back with Emma, Leo and Cecil"', /has beaten the Hollow King comes back/.test(A.bars.join(' ')), A.bars.slice(-1).join('').slice(0, 140));
     // (a conqueror - but without the three)
-    await run('scoreboard players set TestRat bm.conq 6');
+    await run('scoreboard players set TestRat bm.conq 6'); await run('scoreboard players set TestRat bm.conqb 6');
     for (const t of ['bm.emmapet', 'bm.leopet', 'bm.cecilpet']) await run(`${H}kill @e[tag=${t}]`);
     await run('clear TestRat'); await sleep(2500);
     ok('a conqueror without Emma, Leo and Cecil: still nothing', !(await cnt(boss)));
