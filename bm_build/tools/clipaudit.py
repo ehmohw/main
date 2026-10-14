@@ -145,6 +145,36 @@ def rigs():
     R['zib'] = (zr.S, list(zp), lambda p: [(f'bm:zbr_{n}', tuple(J), tuple(Rm), F.IDENT, zr.S) for n, (Rm, J) in zr.solve(zp[p]).items()])
     fr, fp = P63.frog_rig(), P63.frog_poses()
     R['frog'] = (fr.S, list(fp), lambda p: [(f'bm:frr_{n}' if n != 'head' else 'bm:frr_head_none', tuple(J), tuple(Rm), F.IDENT, fr.S) for n, (Rm, J) in fr.solve(fp[p]).items()])
+    # Cecil (phase46): five parts at fixed joints, each frame a lean/tilt of the whole, plus a head turn and the arms' swing - the
+    # same sums as phase46's cpose, frame for frame (walk, run, air, idle, sit, swim)
+    import cecil2_art as CEC, math as _m
+    from phase57_art import qa as _qa, qmul as _qm
+    def _rot(q, v):
+        x, y, z, w = q; cx = y * v[2] - z * v[1] + w * v[0]; cy = z * v[0] - x * v[2] + w * v[1]; cz = x * v[1] - y * v[0] + w * v[2]
+        return (v[0] + 2 * (y * cz - z * cy), v[1] + 2 * (z * cx - x * cz), v[2] + 2 * (x * cy - y * cx))
+    _qy = lambda a: (0.0, _m.sin(_m.radians(a) / 2), 0.0, _m.cos(_m.radians(a) / 2))
+    CF = {f'w{i}': f for i, f in enumerate([(8, 4, 0.0, -5, -2, 28), (9, 2, 0.03, -6, -1, 20), (10, 0, 0.05, -7, 0, 8), (9, -2, 0.03, -6, 1, -2),
+                                            (8, -4, 0.0, -5, 2, -8), (9, -2, 0.03, -6, 1, 0), (10, 0, 0.05, -7, 0, 12), (9, 2, 0.03, -6, -1, 22)])}
+    CF.update({f'r{i}': f for i, f in enumerate([(16, 6, 0.0, -11, -3, 44), (17, 3, 0.05, -12, -1, 30), (18, 0, 0.09, -13, 0, 12), (17, -3, 0.05, -12, 1, -4),
+                                                 (16, -6, 0.0, -11, 3, -12), (17, -3, 0.05, -12, 1, 2), (18, 0, 0.09, -13, 0, 20), (17, 3, 0.05, -12, -1, 36)])})
+    CF.update({'air': (-5, 0, 0.08, 8, 0, 34), 'i0': (1.5, 0.8, 0.0, 3, -2, 0), 'i1': (-0.5, -0.8, 0.02, -2, 3, 2), 's0': (6, 0, -0.16, 12, -4, -4),
+               's1': (7, 0, -0.17, 16, -6, -4)})
+    CF.update({f'sw{i}': (6, 6 * _m.sin(2 * _m.pi * i / 8), -0.36 + 0.03 * _m.sin(4 * _m.pi * i / 8), -12, -4 * _m.sin(2 * _m.pi * i / 8), 44 + 18 * _m.sin(2 * _m.pi * i / 8))
+               for i in range(8)})
+    COFF = {'body': ((0, 0, 0), (0, 0.5, 0)), 'head': (CEC.HEAD_AT, (0, 0, 0)), 'eyes': (CEC.HEAD_AT, (0, 0, 0)), 'arm': (CEC.ARM_AT, (0, 0, 0)), 'larm': (CEC.LARM_AT, (0, 0, 0))}
+    def cec(pose):
+        lean, tilt, bob, hl, ht, af = CF[pose]
+        R_ = _qm(_qa('x', lean), _qa('z', tilt)); out = []
+        for p, (o, t) in COFF.items():
+            L = R_
+            if p in ('head', 'eyes'): L = _qm(R_, _qm(_qa('x', hl), _qa('z', ht)))
+            if p == 'arm': L = _qm(R_, _qa('x', 6 - af))
+            if p == 'larm': L = _qm(R_, _qa('x', 0.45 * af))
+            rp = _rot(R_, tuple(o[i] + t[i] for i in range(3)))
+            right = _qy(CEC.ARM_YAW) if p == 'arm' else (_qy(CEC.LARM_YAW) if p == 'larm' else F.IDENT)
+            out.append((f'bm:cec2_{p}', (rp[0], rp[1] + bob, rp[2]), tuple(L), right, 1.0))
+        return out
+    R['cecil'] = (1.0, list(CF), cec)
     dr, dp = P63.don_rig(), P63.don_poses()
     R['donado'] = (dr.S, list(dp), lambda p: [(f'bm:dnr_{n}' if n != 'head' else 'bm:dnr_head_none', tuple(J), tuple(Rm), F.IDENT, dr.S) for n, (Rm, J) in dr.solve(dp[p]).items()])
     return R
@@ -176,7 +206,7 @@ def _blended(art, S, a, b, t):
     return out
 
 
-REST = {'apo': 'idle_a', 'tul': 'idle_a', 'leo': 'idle_a', 'demo': 'idle_a', 'emma': 'idle_a', 'kw': 'idle_a', 'celi': 'idle', 'zib': 'idle0',
+REST = {'cecil': 'i0', 'apo': 'idle_a', 'tul': 'idle_a', 'leo': 'idle_a', 'demo': 'idle_a', 'emma': 'idle_a', 'kw': 'idle_a', 'celi': 'idle', 'zib': 'idle0',
         'frog': 'idle0', 'donado': 'idle0'}
 
 
