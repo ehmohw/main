@@ -165,8 +165,11 @@ def generate(G):
                        'execute unless entity @e[type=minecraft:cat,tag=bm.pmsel2] unless predicate bm:p20/sneaking run function bm:p128/pm/try',
                        'execute unless entity @e[type=minecraft:cat,tag=bm.pmsel2] if predicate bm:p20/sneaking run ' + say("Pearlman isn't with you. (Use his card to call him.)"),
                        'tag @e[tag=bm.pmsel2] remove bm.pmsel2'])
+    # (2.77c: he counts toward the three like anyone else - three out already, and he waits his turn)
     fn('p128/pm/try', ['execute unless function bm:p74/fol_ok run return run ' + pmsay('"In there? Oh no, no. Pearlman does not do heists."'),
+                       'execute if function bm:p58/full run return 0',
                        'function bm:p128/pm/summon'])
+    G.FUNCS['p58/count'][-1:-1] = ['execute as @e[type=minecraft:cat,tag=bm.pmpet] on owner if entity @s[tag=bm.fcme] run scoreboard players add #fc bm.rng 1']
     fn('p128/pm/summon', ['execute positioned ^ ^ ^1.2 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run return run function bm:p128/pm/summon_here',
                           'function bm:p128/pm/summon_here'])
     fn('p128/pm/summon_here', [f'summon minecraft:cat ~ ~ ~ {snbt(host)}', f'summon minecraft:item_display ~ ~ ~ {snbt(pdisp)}',

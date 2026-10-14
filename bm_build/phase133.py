@@ -30,8 +30,8 @@ NEW_TRIOS = {
     'dread': ('The Dread Court', '#9a6ae0', ('apo', 'kw', 'demo'), 'The Dread Court', 'Walk with Apophiss, KillerWatt and Democratus at once'),
     'retinue': ('The Royal Retinue', '#ffd8f0', ('emma', 'leo', 'pearl'), 'The Royal Retinue', 'Walk with Emma, Leo and Pearlman at once'),
 }
-# (the last trio that matches wins: the hidden Retinue goes first, so that Pearlman - who doesn't count toward the three -
-#  walking with a whole other trio never takes its place)
+# (the last trio that matches wins: the hidden Retinue goes first. 2.77: Pearlman didn't count toward the three, so he could walk
+#  beside a whole other trio and must never take its place; 2.77c: he counts now, so there's never a fourth - the order stays)
 _old = dict(P100.TRIOS)
 P100.TRIOS.clear()
 P100.TRIOS['retinue'] = NEW_TRIOS['retinue']

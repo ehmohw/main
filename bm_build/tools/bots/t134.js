@@ -165,6 +165,8 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     await run('item replace entity TestRat hotbar.4 with minecraft:netherite_sword[minecraft:enchantments={"minecraft:sharpness":5}]');
     const bp = await epos(boss);
     await run(`${H}tp TestRat ${bp[0]} ${bp[1]} ${bp[2] + 11} 180 0`); await sleep(500); A.stand();     // (still the seal's mark: a teleport within the den keeps it)
+    // (2.77c: his rig is never doubled - one coil from his rising to his fall - sampled throughout the fight)
+    let coils = 0; const coilT = setInterval(async () => { try { coils = Math.max(coils, await cnt('@e[type=minecraft:item_display,tag=bm.apb,tag=bm.app_coil]')); } catch (e) {} }, 1500);
     ok('"the little princess" - he knows them', await wait(14000, async () => /little princess/.test(A.chats.join(' '))));
     ok('...and he made their Hollow King: "His crown of shadow was MINE. I lent it."', await wait(5000, async () => /crown of shadow was MINE/.test(A.chats.join(' '))));
     // (NoAI:0b and Invulnerable:0b aren't saved at all in 26.x: "not 1b" is the check)
@@ -202,6 +204,10 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     await run(`${H}data modify entity ${boss} Health set value ${Math.round(mx * 0.7)}f`);
     let court = 0;
     ok('at three quarters he calls his drowned court', await wait(6000, async () => (court = Math.max(court, await cnt('@e[type=minecraft:drowned,tag=bm.apcourt]'))) >= 3), `court ${court}`);
+    // (2.77c: each courtier rises where there is room for it - none in the floor or a wall, suffocating)
+    const inWall = async () => { let n = 0; for (const dy of [0, 1]) { const m = (await run(`${H}execute as @e[type=minecraft:drowned,tag=bm.apcourt] at @s unless block ~ ~${dy} ~ #minecraft:replaceable`)).match(/count: (\d+)/i); n += m ? +m[1] : 0; } return n; };
+    const w1 = await inWall(); await sleep(1000); const w2 = await inWall();
+    ok('...every courtier in open air - none caught in the floor or a wall', w1 === 0 && w2 === 0, `stuck ${w1} / ${w2}`);
     ok('..."RISE, MY COURT"', /RISE, MY COURT/.test(A.bars.join(' ')));
     await sleep(2500);
     // (half: the serpent unbound)
@@ -244,17 +250,43 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     // (the end: the bot lands the last blow - brought down where it can reach)
     await wait(4000, async () => (await sc(boss, 'bm.apatk')) === 0);
     await run(`${H}data modify entity ${boss} Health set value 4f`);
-    A.chats.length = 0;
+    A.chats.length = 0; A.titles.length = 0;
+    let jolts = 0; A.on('player_rotation', () => jolts++);
     for (let k = 0; k < 8 && (await cnt(boss)); k++) {
       const b = await epos(boss); await run(`${H}tp TestRat ${b[0]} ${Math.max(FLOOR, b[1] - 1)} ${b[2] + 1.6} 180 0`); await sleep(250);
       const box = await entOf(A, '@e[type=minecraft:interaction,tag=bm.bhit_ap,limit=1]'); if (box) A.attack(box.entityId); await sleep(700);
     }
     ok('the bot\'s blow brings him down', await wait(4000, async () => !(await cnt(boss))));
-    ok('APOPHISS FALLS - "I am yours"', await wait(5000, async () => /I am yours/.test(A.chats.join(' '))), A.chats.slice(-2).join(' | ').slice(0, 200));
-    ok('the drops: the Oath, the True Crown, the Mace', (await has('TestRat', 'apo_oath')) === 1 && (await has('TestRat', 'apo_true_crown')) === 1 && (await has('TestRat', 'apo_mace')) === 1,
-       `oath ${await has('TestRat', 'apo_oath')} crown ${await has('TestRat', 'apo_true_crown')} mace ${await has('TestRat', 'apo_mace')}`);
-    ok('...and the hoard (medallions)', (await has('TestRat', 'medallion')) >= 6, `medallions ${await has('TestRat', 'medallion')}`);
-    ok('his rig sinks and fades away', await wait(6000, async () => !(await cnt('@e[type=minecraft:item_display,tag=bm.apb]'))));
+    clearInterval(coilT);
+    ok('his rig was never doubled (one coil the whole fight)', coils === 1, `most coils at once: ${coils}`);
+    // (2.77c: his defeat - he roars and the den shakes; black fire gathers into him; he bursts into black magic; a seal opens
+    //  under it and drags it down, and closes; his crown drifts down for the bot, who walks over and picks it up)
+    ok('he roars: "NO! Not again - not to HER!"', await wait(3000, async () => /Not again - not to HER/.test(A.chats.join(' '))), A.chats.slice(-1).join('').slice(0, 120));
+    ok('...and the screen shakes (the bot\'s view jolted, again and again)', await wait(3000, async () => jolts >= 20), `jolts ${jolts}`);
+    ok('black fire gathers round him (16 tongues)', await wait(3000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.apfire]')) === 16));
+    ok('he bursts into black magic: his rig gone', await wait(5000, async () => !(await cnt('@e[type=minecraft:item_display,tag=bm.apb]'))));
+    const CRF = '@e[type=minecraft:item_display,tag=bm.apcrf,limit=1]';
+    ok('...his crown left hanging in the air where his head was', (await cnt(CRF)) === 1);
+    await sleep(900); const c0 = await epos(CRF); await sleep(1500); const c1 = await epos(CRF);
+    ok('...and drifting slowly down', c0 && c1 && c1[1] < c0[1] && c0[1] - c1[1] < 5, `y ${c0 && c0[1].toFixed(2)} -> ${c1 && c1[1].toFixed(2)}`);
+    ok('a seal opens in the floor under the black magic', await wait(4000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.apdseal]')) === 1));
+    ok('...and closes over it: APOPHISS IS SEALED', await wait(7000, async () => A.titles.some(t => /APOPHISS IS SEALED/.test(t))), A.titles.slice(-2).join(' | ').slice(0, 120));
+    ok('"...The old oath binds me to the victor. I am yours."', await wait(2000, async () => /I am yours/.test(A.chats.join(' '))));
+    ok('the drops: the Oath and the Mace - and the hoard (medallions)', (await has('TestRat', 'apo_oath')) === 1 && (await has('TestRat', 'apo_mace')) === 1 && (await has('TestRat', 'medallion')) >= 6,
+       `oath ${await has('TestRat', 'apo_oath')} mace ${await has('TestRat', 'apo_mace')} medallions ${await has('TestRat', 'medallion')}`);
+    ok('...but the crown isn\'t handed over: it is still falling', (await has('TestRat', 'apo_true_crown')) === 0);
+    ok('...and the win counted once (his tally 1)', (await sc('TestRat', 'bm.apk')) === 1, `bm.apk ${await sc('TestRat', 'bm.apk')}`);
+    const CI = '@e[type=minecraft:item,tag=bm.apcrd,limit=1]';
+    ok('the crown lands: one lies on the floor for the bot', await wait(15000, async () => (await cnt(CI)) === 1));
+    const myId = (await nbt('TestRat', 'UUID')).replace(/\s/g, ''), owner = (await nbt(CI, 'Owner')).replace(/\s/g, '');
+    ok('...the bot\'s alone, glowing, and it never goes', owner === myId && /1b/.test(await nbt(CI, 'Glowing')) && /-32768s/.test(await nbt(CI, 'Age')), `owner ${owner} me ${myId}`);
+    // (the bot was put up beside him where he flew - and a bot doesn't fall by itself: set it down on the floor first)
+    const me0 = await epos('TestRat'); await run(`${H}tp TestRat ${me0[0]} ${FLOOR} ${me0[2]}`); await wait(2000, async () => A.pos && Math.abs(A.pos.y - FLOOR) < 0.1, 100); await sleep(300);
+    const ci = await epos(CI); await A.walkTo(ci[0], ci[2]);
+    ok('the bot walks over and picks it up: Apophiss\'s True Crown', await wait(4000, async () => (await has('TestRat', 'apo_true_crown')) === 1), JSON.stringify(ci));
+    ok('nothing of it is left behind (no black fire, no seal, no markers, no falling crown)', await wait(6000, async () => !(await cnt('@e[type=minecraft:item_display,tag=bm.apfire]')) &&
+       !(await cnt('@e[type=minecraft:item_display,tag=bm.apdseal]')) && !(await cnt('@e[type=minecraft:marker,tag=bm.apend]')) && !(await cnt('@e[type=minecraft:marker,tag=bm.apflr]')) &&
+       !(await cnt(CRF))));
     ok('his court and his serpents go with him', await wait(3000, async () => !(await cnt('@e[type=minecraft:drowned,tag=bm.apcourt]')) && !(await cnt('@e[type=minecraft:vex,tag=bm.apvex]'))));
   }
 

@@ -128,13 +128,21 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
        (await hasFx('TestRat', 'hero_of_the_village'))));
     ok('...and Pearlman\'s appraisal pays twice as often while it lasts', (await sc('TestRat', 'bm.p133r')) >= 1);
     await home();
-    // (Pearlman doesn't count toward the three: with Emma, Leo AND Cecil he is a fourth - their own trio stays)
+    // (2.77c: Pearlman counts toward the three - with Emma, Leo and Cecil out, his card can't call him; their own trio stays)
     A.bars.length = 0;
-    ok('Emma, Leo, Cecil - and Pearlman as a fourth', await call(['emma', 'leo', 'cecil', 'pearl']));
-    await sleep(3500);
-    // (Pearlman gives Luck himself: the Retinue's own mark is bm.p133r)
-    ok('...still The Serpent\'s Bane, not the Retinue', /Three together: The Serpent's Bane/.test(A.bars.join(' ')) && !/Royal Retinue/.test(A.bars.join(' ')) &&
+    ok('Emma, Leo and Cecil out', await call(['emma', 'leo', 'cecil']));
+    await run('loot replace entity TestRat hotbar.3 loot bm:items/pearl_card'); await sleep(2300); A.bars.length = 0;
+    await use(A, 3); await sleep(1500);
+    ok('...Pearlman\'s card: "You already have 3 followers with you." - he stays away', !(await cnt(sel('pearl'))) && /already have 3 followers/.test(A.bars.join(' ')),
+       A.bars.slice(-2).join(' / '));
+    ok('...still The Serpent\'s Bane, not the Retinue', await wait(4000, async () => /Three together: The Serpent's Bane/.test(A.bars.join(' ')) || (await adv('trio_bane'))) &&
        !((await sc('TestRat', 'bm.p133r')) >= 1), A.bars.slice(-2).join(' / '));
+    await home();
+    // (and the other way round: Pearlman and two others out, a third can't come)
+    ok('Pearlman, Emma and Leo out', await call(['pearl', 'emma', 'leo']));
+    await run('loot replace entity TestRat hotbar.3 loot bm:items/cecil_gem'); await sleep(2300); A.bars.length = 0;
+    await use(A, 3); await sleep(1500);
+    ok('...Cecil\'s gem: he can\'t come - Pearlman makes the third', !(await cnt(sel('cecil'))) && /already have 3 followers/.test(A.bars.join(' ')), A.bars.slice(-2).join(' / '));
     await home();
   }
 

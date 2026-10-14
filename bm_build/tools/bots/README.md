@@ -73,6 +73,14 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
   boss's own tick counter. Separate checks with waits between them miss what they're looking for.
 - An item taken back out of a case lands in the hand that took it. Clear the inventory before reusing that slot.
 - Titles and subtitles are in `A.titles` (lib_resp.js).
+- A player's `Health` can't be set with `data modify` (players' data is read-only). Hurt the bot for real:
+  `damage TestRat <n> minecraft:magic` (magic ignores armour).
+- A bot's max health can carry bonuses earned in earlier tests. Measure its own baseline before checking a health bonus.
+- A real jump (for the jump statistic): the bot leaves the ground going up, a tick a step, and lands (`jump()` in t139.js).
+  To jump while sneaking, press sneak a few ticks first. The server only counts the crouch on its next tick.
+- Inline item modifiers in commands take `type:`, not `function:` (`item modify ... {type:"minecraft:set_name",...}`).
+- A bot put up in the air (beside a flying boss) stays there. Set it on the floor before it walks to pick something up.
+- The screen shake (`rotate` on players) reaches the client as `player_rotation` packets; count them to see it happen.
 - The server's rcon reads one request per read. A second request sent with it (for example, two `run()`s inside a
   `Promise.all`) is lost, and the connection goes quiet after it. `lib_resp.js` now queues requests one at a time, and
   a reply that never comes gives up after 15 s with `RCON TIMEOUT: <command>`.
@@ -206,6 +214,10 @@ and function calls. Three are known to be stale.
 |  | 2.77b: section `den` (a teleport into the den, a stand on its dome: thrown back up; no boss without a Hollow conqueror |
 |  | back with Emma, Leo and Cecil); his coming in black fire watched as one loop by his own clock; the feint at half (the |
 |  | bar gone, the court gone, the three wondering, nothing won) before THE SERPENT UNBOUND; the follower at full size. |
+|  | 2.77c: every courtier rises in open air; his defeat - the roar and the screen shake (the bot's view jolted, counted |
+|  | from its rotation packets), the black fire, the burst, the seal opening and closing, the crown drifting down and landing |
+|  | for the bot alone (glowing, never despawning) - walked to and picked up; nothing left behind; his rig never doubled |
+|  | (sampled through the whole fight) and the win counted once. |
 | `t135.js` | 2.77: Tullius (regular player, real packets): the ghost ship found by `locate` and built by its seed, swum to and climbed |
 |  | aboard by its ladder; "Tullius needs Leo" (no captain alone - the hint - then Leo's crest on deck); the fight (harpoon |
 |  | hook + point-blank, crew, frost, put overboard he leaps back aboard), drops, the setting off; his blunderbuss and harpoon |
@@ -213,12 +225,21 @@ and function calls. Three are known to be stale.
 |  | Sections: `ship`, `weapons`, `pet`. |
 | `t136.js` | 2.77: the new pairs and trios, every follower called with its own item: Frost and Brine, Old Rivals, the Tidewatch (and |
 |  | at sea), Forgiven, Venom and Volts, An Uneasy Truce, the Dread Court, the hidden Royal Retinue - and Pearlman as a fourth |
-|  | never displacing the Serpent's Bane. Sections: `tul`, `apo`, `retinue`. |
+|  | never displacing the Serpent's Bane (2.77c: Pearlman counts toward the three - refused as a fourth, and with him out, |
+|  | Cecil is). Sections: `tul`, `apo`, `retinue`. |
 | `t137.js` | 2.77b: the Wraithfire Heart forged on the ground - an Ethereal Gem and a Scorching Heart set down with the items |
 |  | themselves (both orders): the forging starts, both rise, circle closer, merge; the bot picks the heart up, Burning Blue; |
 |  | nothing left behind; six blocks apart nothing happens; Pearlman no longer offers the fusion. |
 | `t138.js` | 2.77b: follower figurines - a case set down with the case item, every follower's item right-clicked in (all ten), |
 |  | punch for the item and back, sneak + right-click turns it, empty-handed out; a wall case (Apophiss's Oath), picked up. |
+| `t139.js` | 2.77c: Apophiss's True Crown - worn with a use (swapping with the helmet), its stats measured against the shadow-crown |
+|  | and the heaviest chestplate, its passives (wither/poison gone, fire-proof, water-breathing, night sight, Regeneration when |
+|  | badly hurt, monsters weakened, Strength II at night), sneak + a real jump for five lines of fangs, the Wrath near death |
+|  | (once, then 2 minutes), set atop a block (its name kept; it turns), refused to another player (a second bot), taken back |
+|  | with sneak + punch, dropped when its block breaks. |
+| `t140.js` | 2.77c: weapons on the wall - the blunderbuss, harpoon, scythe and both tendril sets hung with sneak + use on all four |
+|  | walls (plaque, facing, name kept), taken down with sneak + punch (a plain punch doesn't), a broken wall drops one; the |
+|  | blunderbuss with a monster close fires instead; the scythe's plain use says how; the tendrils' use still puts them on. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
 | `head.js` | The Horseman's Head: stream, overheat, charged blast, stoking + Nova, undead XP, lantern/heart variants, night tiers, healing. |

@@ -62,8 +62,10 @@ TOP_B, TOP_B_DK, JEANS, SNEAK, SNEAK_W = '#6a24c8', '#43148a', '#2c4c94', '#3c2a
 
 
 def textures():
-    def chest(base, dark, decal):
-        im = _cloth(base, 61, var=0.03); d = ImageDraw.Draw(im)
+    # (2.77c: her outfits in the same detail as her dress - a weave and folds, a knit, denim twill, polished shoes)
+    from phase57_art import _fabric, _knit, _gloss, _sh
+    def chest(base, decal, knit=False):
+        im = (_knit if knit else _fabric)(base, 61); d = ImageDraw.Draw(im)
         decal(d)
         return im
     def flower(d):
@@ -72,16 +74,26 @@ def textures():
             a = k * 2 * math.pi / 5 - math.pi / 2
             x, y = 32 + 9 * math.cos(a), 26 + 9 * math.sin(a)
             d.ellipse((x - 7, y - 7, x + 7, y + 7), fill=hexc(FLOWER))
-        d.ellipse((25, 19, 39, 33), fill=hexc(FLOWER_C))
+            d.ellipse((x - 4, y - 5, x + 1, y - 1), fill=hexc('#f070d4'))          # (each petal lit)
+        d.ellipse((25, 19, 39, 33), fill=hexc(FLOWER_C)); d.ellipse((28, 21, 33, 25), fill=hexc('#fffbd0'))
     def pocket(d):
         d.rounded_rectangle((16, 40, 48, 60), radius=6, fill=hexc(TOP_B_DK)); d.line((18, 42, 46, 42), fill=hexc('#2e0c60'), width=2)
         d.line((30, 6, 34, 28), fill=hexc('#c8a8ff'), width=1)
-    sneaker = _cloth(SNEAK, 63, var=0.04); ImageDraw.Draw(sneaker).rectangle((0, 48, 63, 63), fill=hexc(SNEAK_W))
-    return {'em3_top_a': _cloth(TOP_A, 59, var=0.03), 'em3_chest_a': chest(TOP_A, TOP_A_DK, flower), 'em3_pants_a': _cloth(PANTS_A, 67, var=0.04),
-            'em3_shoe_a': _cloth(SHOE_A, 71, var=0.04), 'em3_bow_a': _cloth(BOW_A, 73, var=0.04), 'em3_bow_a_dk': _cloth(BOW_A_DK, 79, var=0.04),
-            'em3_top_b': _cloth(TOP_B, 83, var=0.04, grain=(4, 0.9)), 'em3_top_b_dk': _cloth(TOP_B_DK, 89, var=0.04, grain=(3, 0.88)),
-            'em3_chest_b': chest(TOP_B, TOP_B_DK, pocket), 'em3_jeans': _cloth(JEANS, 97, var=0.06, grain=(5, 0.92)),
-            'em3_sneaker': sneaker, 'em3_white': _cloth(SNEAK_W, 101, var=0.02)}
+    def denim(c, seed):
+        """denim: a diagonal twill, faded down the middle, a stitched seam"""
+        im = _fabric(c, seed, folds=2, weave=False); px = im.load()
+        for y in range(64):
+            for x in range(64):
+                if (x + y) % 3 == 0: px[x, y] = _sh(px[x, y], 0.86) + (255,)
+                if 22 <= x <= 40: px[x, y] = _sh(px[x, y], 1.07) + (255,)
+            if y % 3 == 0: px[1, y] = hexc('#d8a850')                            # (the seam's gold stitch)
+        return im
+    sneaker = _gloss(SNEAK, 63); ImageDraw.Draw(sneaker).rectangle((0, 48, 63, 63), fill=hexc(SNEAK_W))
+    return {'em3_top_a': _fabric(TOP_A, 59), 'em3_chest_a': chest(TOP_A, flower), 'em3_pants_a': _fabric(PANTS_A, 67, folds=3),
+            'em3_shoe_a': _gloss(SHOE_A, 71), 'em3_bow_a': _fabric(BOW_A, 73, folds=1, weave=False, top=1.12), 'em3_bow_a_dk': _fabric(BOW_A_DK, 79, folds=1, weave=False),
+            'em3_top_b': _knit(TOP_B, 83), 'em3_top_b_dk': _knit(TOP_B_DK, 89),
+            'em3_chest_b': chest(TOP_B, pocket, knit=True), 'em3_jeans': denim(JEANS, 97),
+            'em3_sneaker': sneaker, 'em3_white': _fabric(SNEAK_W, 101, folds=1, top=1.0)}
 
 
 def models():

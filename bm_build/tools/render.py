@@ -63,13 +63,13 @@ class Scene:
             self.tex[tid] = np.asarray(im).astype(np.float32) / 255.0
         return self.tex[tid]
 
-    def display(self, mid, pos=(0, 0, 0), yaw=0.0, pitch=0.0, translation=(0, 0, 0), scale=1.0, left=(0, 0, 0, 1), right=(0, 0, 0, 1)):
+    def display(self, mid, pos=(0, 0, 0), yaw=0.0, pitch=0.0, translation=(0, 0, 0), scale=1.0, left=(0, 0, 0, 1), right=(0, 0, 0, 1), ctx='fixed'):
         m = self.model(mid)
         tx = m.get('textures', {})
         def resolve(t):
             while t.startswith('#'): t = tx[t[1:]]
             return t
-        d = m.get('display', {}).get('fixed', {})
+        d = m.get('display', {}).get(ctx, {}) if ctx != 'none' else {}       # (an item_display's mode: 'none' shows the bare model)
         dr = d.get('rotation', [0, 0, 0]); dt = np.array(d.get('translation', [0, 0, 0])) / 16; ds = np.array(d.get('scale', [1, 1, 1]))
         Dm = rx(math.radians(dr[0])) @ ry(math.radians(dr[1])) @ rz(math.radians(dr[2]))
         sc = np.array(scale if isinstance(scale, (list, tuple)) else [scale] * 3, dtype=float)

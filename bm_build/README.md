@@ -1,4 +1,4 @@
-# Black Market — v2.77b (Java 26.3)
+# Black Market — v2.77c (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,65 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.77c: Apophiss's fall and his True Crown, weapons on the wall, an ice blunderbuss and a more detailed Emma
+
+### Apophiss's defeat (about 9 seconds)
+- **He roars, and the den shakes.** Every player's view jolts (a real screen shake) as he rears up: "NO! Not again - not to HER!"
+- **The dark gathers into him.** Black fire climbs round him, closer and faster. His scales go black and he trembles.
+- **He bursts into black magic.** It whirls round where he was and sinks toward the floor.
+- **He's sealed away.** A seal opens in the floor under the magic and drags it down. It closes in a flash of green: APOPHISS IS SEALED.
+- **His crown falls.** It's left in the air where his head was. It shrinks to a mortal's size as it drifts slowly down, turning and sparkling.
+  - It lands for each player who earned it: their own copy, which only they can pick up. It glows and never despawns.
+  - The first win always earns it. Later wins earn it 15% of the time, as before.
+- **Drowned Courtiers** now rise only where there's room for them. None suffocate in the den floor any more.
+- **Fixed: his fall could play twice.** If a stray copy of his model was left behind during the fight (say, after a fast dive), his death played twice and the win counted twice. Now it plays once per fight, and strays are cleared.
+
+### Apophiss's True Crown: the strongest thing anyone can wear
+- **Worn:**
+  - You're a size taller, with +8 damage, +3 reach, +12 health, +8 armour and +6 toughness.
+  - You get +10% speed and are hard to knock back.
+  - Your blows wither.
+- **Passives:**
+  - Wither, poison and fire can't touch you.
+  - You breathe water and see in the dark.
+  - Badly hurt (under half health), you regenerate.
+  - Monsters near you are weakened.
+  - At night: Strength II and Regeneration.
+- **Sneak + jump:** Serpent's Fangs in five lines (2 s). *Fixed:* the shadow-crown's handler used to swallow the jump, so these never came.
+- **Near death (30%):** the Serpent King's Wrath, once every 2 minutes.
+  - You get Resistance III, Absorption III and Regeneration II.
+  - Fangs bite every monster round you.
+- **Use it to wear it.** It swaps with whatever's on your head.
+- **Sneak + use it on a block** to set it on top. It slowly turns, gleams and smokes with green sparks, white glints and black wisps.
+  - Sneak + punch it to take it back. Only whoever set it down can.
+  - It's the very crown, its name kept.
+  - If its block is broken, it drops; it's never lost.
+
+### Weapons on the wall
+Tullius's **blunderbuss** and **harpoon**, Democratus' **scythe** and both of KillerWatt's tendril sets (**Tendrils** and **Ethereal Tendrils**) can hang on a wall.
+- **Sneak + use one on a wall** (within 3 blocks). It hangs there on a small wooden plaque, facing out from the wall.
+  - It's the very weapon, its name and enchantments kept.
+  - Sneak + punch it to take it down; only whoever hung it can.
+  - If the wall is broken, it drops.
+- **Monsters nearby:** the blunderbuss and harpoon only hang when no monster is within 8 blocks. In a fight, sneak + use is still a shot or a throw.
+- **The tendrils' use still puts them on** (it swaps with your chestplate). Sneak + use at a wall hangs them instead.
+- **The scythe's use (not sneaking)** says how to hang it.
+
+### Art
+- **Tullius's Frostbite Blunderbuss is ice now:** frosted steel, frozen wood with rime, and a bell of clear glowing ice with crystals and icicles. His own rig carries it too.
+- **Emma's doll is more detailed**, to match her big eyes:
+  - Hair in lit clumps, with fine strands and an anime shine.
+  - Knife-pleated skirt with a pale hem trim.
+  - Knit scarf, ribbed socks and collar, glossy shoes.
+  - Woven sweater with a lace band and a lit brooch.
+  - Her outfits' colours follow, and her cosmetic outfits got the same treatment.
+
+### Followers
+- **Pearlman now counts toward the three-follower limit**, like everyone else.
+
+### Updating
+Items re-sync to their new definitions (item version 34), so existing True Crowns, scythes and tendrils get their new uses and stats.
 
 ## New in 2.77b: the Wraithfire Heart forged on the ground, Apophiss's coming, his feint, his den sealed - and figurines
 

@@ -58,6 +58,117 @@ def _hair(seed, pal):
 HAIR = ('#6e3616', '#7a3e1a', '#86461e', '#925024', '#a05a2a')
 
 
+# (2.77c) her doll eyes are detailed - so her hair and clothes are now too. Her model samples each texture from its top-left
+# corner at 4 pixels a unit, so the detail is small and lives everywhere, not in one spot.
+def _sh(c, k):
+    return tuple(int(max(0, min(255, v * k))) for v in c[:3])
+
+
+def _hair2(seed, pal, shine=(7, 11)):
+    """hair in clumps: each lit in the middle, dark where it parts from the next; fine strands; an anime shine across it"""
+    rnd = random.Random(seed); P = [hexc(x)[:3] for x in pal]
+    im = Image.new('RGBA', (64, 64)); px = im.load()
+    x = 0; clumps = []
+    while x < 64:
+        w = rnd.randint(4, 7); clumps.append((x, w)); x += w
+    for x0, w in clumps:
+        wob = rnd.uniform(0, 6.28)
+        for j in range(w):
+            X = x0 + j
+            if X >= 64: break
+            t = j / max(1, w - 1)
+            base = 1.0 - 0.18 * abs(t - 0.45) * 2                 # (lit in the middle of the clump)
+            strand = rnd.uniform(-0.05, 0.05)
+            for y in range(64):
+                if rnd.random() < 0.05: strand = rnd.uniform(-0.06, 0.06)
+                k = base + strand
+                if j == 0: k *= 0.72                              # (the parting between clumps)
+                s0, s1 = shine; sy = s0 + 1.4 * math.sin(wob + X / 3)
+                if sy <= y <= sy + (s1 - s0) and 0 < j < w - 1: k *= 1.22    # (the shine)
+                if y < 2: k *= 0.9                                # (darker at the roots)
+                px[X, y] = _sh(P[2], k) + (255,)
+    for _ in range(10):                                          # (a few stray light strands)
+        X = rnd.randint(0, 63); y0 = rnd.randint(0, 50)
+        for y in range(y0, min(64, y0 + rnd.randint(6, 14))): px[X, y] = _sh(P[4], 1.02) + (255,)
+    return im
+
+
+def _fabric(c, seed, folds=2, weave=True, top=1.06):
+    """cloth with some life: a fine weave, soft folds (a dark crease with a lit edge beside it), light from above"""
+    rnd = random.Random(seed); base = hexc(c)[:3]
+    im = Image.new('RGBA', (64, 64)); px = im.load()
+    for y in range(64):
+        for x in range(64):
+            k = (1 + rnd.uniform(-0.02, 0.02)) * (top - (top - 0.94) * min(1.0, y / 36))
+            if weave: k *= 1.025 if (x + y) % 2 else 0.975
+            px[x, y] = _sh(base, k) + (255,)
+    for _ in range(folds):
+        x0 = rnd.randint(5, 58); w = rnd.uniform(0, 6.28)
+        for y in range(64):
+            xx = int(round(x0 + 1.5 * math.sin(y / 10 + w)))
+            for dx, k in ((-1, 0.9), (0, 0.82), (1, 0.9), (2, 1.1)):
+                X = (xx + dx) % 64; px[X, y] = _sh(px[X, y], k) + (255,)
+    return im
+
+
+def _knit(c, seed):
+    """a knit: rows of little V stitches, lit on one arm"""
+    base = hexc(c)[:3]; rnd = random.Random(seed)
+    im = Image.new('RGBA', (64, 64)); px = im.load()
+    for y in range(64):
+        for x in range(64):
+            j, i = x % 4, y % 3
+            k = 1.0 + rnd.uniform(-0.02, 0.02)
+            if i == 2: k *= 0.84                                  # (the gap between rows)
+            elif j in (0, 3): k *= 0.92
+            elif (j == 1) == (i == 0): k *= 1.12                  # (the lit arm of the V)
+            px[x, y] = _sh(base, k) + (255,)
+    return im
+
+
+def _pleats(c, seed, w=6):
+    """knife pleats: each panel lit at its edge and shaded into a sharp fold; the top of each tier catches the light; a pale
+    trim near the hem (the flared panels are the only ones tall enough to show it)"""
+    base = hexc(c)[:3]; rnd = random.Random(seed)
+    im = Image.new('RGBA', (64, 64)); px = im.load()
+    shade = [1.16, 1.07, 1.0, 0.94, 0.84, 0.66]
+    for y in range(64):
+        for x in range(64):
+            k = shade[x % w] * (1 + rnd.uniform(-0.02, 0.02))
+            if y == 0: k *= 1.14
+            elif y == 1: k *= 1.05
+            px[x, y] = _sh(base, k) + (255,)
+            if y == 12:                                          # (the trim: a pale band, still pleated)
+                px[x, y] = tuple(int(v * 0.4 + 235 * 0.6 * shade[x % w]) for v in base) + (255,)
+            elif y == 13: px[x, y] = _sh(base, k * 0.86) + (255,)
+    return im
+
+
+def _ribbed(c, seed):
+    """ribbed knit (socks, collar): fine vertical ribs, a band at the top"""
+    base = hexc(c)[:3]; rnd = random.Random(seed)
+    im = Image.new('RGBA', (64, 64)); px = im.load()
+    for y in range(64):
+        for x in range(64):
+            k = (1.0 if x % 2 else 0.9) * (1 + rnd.uniform(-0.015, 0.015))
+            if y < 3: k = (0.96 if y == 2 else 1.02)
+            px[x, y] = _sh(base, k) + (255,)
+    return im
+
+
+def _gloss(c, seed, sole=None):
+    """polished leather: a bright gleam near the top, darker toward the sole"""
+    base = hexc(c)[:3]; rnd = random.Random(seed)
+    im = Image.new('RGBA', (64, 64)); px = im.load()
+    for y in range(64):
+        for x in range(64):
+            k = (1.12 if y == 0 else 1.0 - 0.03 * min(y, 6)) * (1 + rnd.uniform(-0.02, 0.02))
+            if 1 <= y <= 2 and 3 <= x % 16 <= 9: k *= 1.35        # (the gleam)
+            if sole and y >= 5: k = 1.0
+            px[x, y] = (_sh(base, k) if not (sole and y >= 5) else _sh(hexc(sole), 1 + rnd.uniform(-0.03, 0.03))) + (255,)
+    return im
+
+
 def _face(eye_dark, eye_mid, eye_light, eye_glow, pupil):
     """36 x 32 on a 64 x 64 sheet: big anime eyes, soft brows, a small smile, blush and freckles, bangs on top."""
     im = Image.new('RGBA', (64, 64), hexc('#f7d7bf')); d = ImageDraw.Draw(im); P = hexc
@@ -84,25 +195,38 @@ def _face(eye_dark, eye_mid, eye_light, eye_glow, pupil):
     for yy, row in enumerate(('m....m', '.mmmm.')):
         for xx, ch in enumerate(row):
             if ch == 'm': im.putpixel((15 + xx, 28 + yy), P('#8a3428'))
-    hair_c = [P('#74391a'), P('#8a4a1e'), P('#a0582a')]; rnd = random.Random(5)
+    rnd = random.Random(5); hb = hexc('#925024')[:3]       # (2.77c: the bangs in clumps - partings, a shine, darker tips)
     for x in range(36):
         edge = 6 + int(3 * math.sin(x / 3.2)) + (2 if x < 12 else 0) + rnd.choice((0, 0, 1))
         if 4 <= x <= 14 or 22 <= x <= 32: edge = min(edge, 8)
-        for y in range(edge): im.putpixel((x, y), hair_c[(x // 3 + y // 4) % 3])
+        j = x % 5
+        for y in range(edge):
+            k = (0.7 if j == 0 else 1.0 - 0.08 * abs(j - 2.5)) * (1 + rnd.uniform(-0.03, 0.03))
+            if y in (2, 3) and j in (2, 3): k *= 1.28
+            if y == edge - 1: k *= 0.8
+            if y == 0: k *= 0.9
+            im.putpixel((x, y), _sh(hb, k) + (255,))
     for cx, s in ((9, 1), (27, -1)):
         for dx, y in ((-3, 11), (-2, 10), (-1, 10), (0, 10), (1, 10), (2, 11)): im.putpixel((cx + dx * s, y), P('#6e3618'))
     return im
 
 
 def _chest():
-    im = _cloth('#3f8fd0', 11)
-    for x in range(24): im.putpixel((x, 0), hexc('#5aa6e0'))
-    for y in range(15, 23):                                            # lace band at the waist (the face is 24 x 22.4)
-        for x in range(64):
-            if (x + (y % 2) * 2) % 4 == 0 or y == 15: im.putpixel((x, y), hexc('#2c6aa8'))
-    d = ImageDraw.Draw(im)                                             # the pink flower brooch
+    im = _fabric('#3f8fd0', 11)
+    px = im.load()
+    for x in range(64):                                                # piping along the neckline
+        px[x, 0] = hexc('#9ad0f8'); px[x, 1] = hexc('#5aa6e0')
+    for y in range(15, 23):                                            # the lace band at the waist (the face is 24 x 22.4): a darker
+        for x in range(64):                                            # band, a scalloped light edge, a row of eyelets
+            c = hexc('#2c6aa8')
+            if y == 15 + round(1.2 + 1.2 * math.sin(x * math.pi / 2)): c = hexc('#9ad0f8')
+            elif y == 19 and x % 4 == 1: c = hexc('#78b8ec')
+            elif y == 22: c = hexc('#24588e')
+            px[x, y] = c
+    d = ImageDraw.Draw(im)                                             # the pink flower brooch, lit on its upper petals
     d.polygon([(12, 2), (13.5, 5), (17, 5.5), (14.5, 7.5), (15.5, 11), (12, 9), (8.5, 11), (9.5, 7.5), (7, 5.5), (10.5, 5)], fill=hexc('#d84aa8'))
-    d.rectangle((11, 6, 12, 7), fill=hexc('#f4d040'))
+    d.polygon([(12, 2), (13.2, 4.6), (12, 5.6), (10.8, 4.6)], fill=hexc('#f07cc8'))
+    d.rectangle((11, 6, 12, 7), fill=hexc('#f4d040')); px[11, 6] = hexc('#fff0a0')
     return im
 
 
@@ -209,24 +333,24 @@ def textures():
     T = {}
     T['em2_skin'] = _cloth('#f7d7bf', 12, var=0.02)
     T['em2_cheek'] = _cloth('#efc4a6', 13, var=0.02)
-    T['em2_hair'] = _hair(1, HAIR)
-    T['em2_blue'] = _cloth('#3f8fd0', 14)
+    T['em2_hair'] = _hair2(1, HAIR)
+    T['em2_blue'] = _fabric('#3f8fd0', 14)
     T['em2_chest'] = _chest()
-    T['em2_skirt'] = _skirt(15)
-    T['em2_scarf'] = _cloth('#80d8e4', 16)
-    T['em2_scarf2'] = _cloth('#6cc8d6', 17)
-    T['em2_white'] = _cloth('#f4f4f8', 18, var=0.02)
-    T['em2_belt'] = _cloth('#5a3a1e', 19)
+    T['em2_skirt'] = _pleats('#3d72aa', 15)
+    T['em2_scarf'] = _knit('#80d8e4', 16)
+    T['em2_scarf2'] = _knit('#6cc8d6', 17)
+    T['em2_white'] = _ribbed('#f4f4f8', 18)
+    T['em2_belt'] = _gloss('#5a3a1e', 19)
     T['em2_buckle'] = _buckle()
-    T['em2_shoe'] = _shoe()
-    T['em2_pink'] = _cloth('#d04aa8', 20)
-    T['em2_pinkdark'] = _cloth('#a83288', 24)
+    T['em2_shoe'] = _gloss('#2e3c74', 4, sole='#1a2246')
+    T['em2_pink'] = _fabric('#d04aa8', 20, folds=1, weave=False, top=1.12)
+    T['em2_pinkdark'] = _fabric('#a83288', 24, folds=1, weave=False)
     T['em2_face'] = _face('#155d6e', '#22a2b2', '#5ad8dc', None, '#0a2630')
     T['ee_face'] = _face('#4a1a7a', '#8a3ad0', '#c48af0', '#f0d0ff', '#1a0630')
     T['ee_steel'] = _cloth('#8a9bb4', 25, var=0.03)
     T['ee_steel_lt'] = _cloth('#c4cedc', 26, var=0.025)
     T['ee_steel_dk'] = _cloth('#5c6c88', 27, var=0.03)
-    T['ee_navy'] = _cloth('#24345a', 28, grain=(5, 0.85))
+    T['ee_navy'] = _fabric('#24345a', 28)
     T['ee_glove'] = _cloth('#1c1c22', 29)
     T['ee_magenta'] = _magenta()
     T['ee_chest'] = _ee_chest()

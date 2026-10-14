@@ -140,6 +140,65 @@ def _ice(seed, alpha=225):
     return im
 
 
+def _frostwood(seed):
+    """2.77c (the blunderbuss): wood frozen through - cold slate-blue grain, rime feathering in from the edges"""
+    im = _noise('#2e4260', seed, 4); d = ImageDraw.Draw(im); rnd = random.Random(seed)
+    for _ in range(9):                                       # (the grain: long wavering lines, dark with a lighter edge)
+        x = rnd.randint(0, 63); w = rnd.uniform(-1.5, 1.5)
+        for y in range(64):
+            xx = int(x + 2.2 * math.sin(y / 9 + w)) % 64
+            im.putpixel((xx, y), hexc('#1c2b42')); im.putpixel(((xx + 1) % 64, y), hexc('#47618a'))
+    for _ in range(26):                                      # (rime: feathery frost, thickest near the edges)
+        x, y = rnd.choice((rnd.randint(0, 9), rnd.randint(54, 63), rnd.randint(0, 63))), rnd.randint(0, 63)
+        for _s in range(rnd.randint(3, 7)):
+            nx, ny = x + rnd.choice((-1, 0, 1)), y + rnd.choice((-1, 1))
+            d.line((x, y, nx, ny), fill=hexc(rnd.choice(('#d6f2ff', '#a8dcf4', '#ffffff'))), width=1); x, y = nx, ny
+    for _ in range(70):
+        im.putpixel((rnd.randint(0, 63), rnd.randint(0, 63)), hexc(rnd.choice(('#bfe8fa', '#e8faff'))))
+    return im
+
+
+def _froststeel(seed):
+    """frosted blue steel: a cold bright streak down it, frost stars and patches of rime, a few engraved lines"""
+    im = _shine('#86aac6', '#eefaff', seed); d = ImageDraw.Draw(im); rnd = random.Random(seed)
+    for y in (12, 40):
+        d.line((0, y, 63, y), fill=hexc('#4c6f8e'), width=1); d.line((0, y + 2, 63, y + 2), fill=hexc('#4c6f8e'), width=1)
+    for _ in range(9):                                       # (frost stars: six little arms)
+        cx, cy = rnd.randint(3, 60), rnd.randint(3, 60); r = rnd.randint(2, 3)
+        for k in range(6):
+            a = math.pi * k / 3
+            d.line((cx, cy, cx + round(r * math.cos(a)), cy + round(r * math.sin(a))), fill=(255, 255, 255, 255), width=1)
+    for _ in range(14):
+        cx, cy = rnd.randint(0, 63), rnd.randint(0, 63); r = rnd.randint(1, 3)
+        d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=hexc(rnd.choice(('#d0eefa', '#bfe4f4'))))
+    return im
+
+
+def _frosttrim(seed):
+    """frost-silver fittings: near white, a blue cast, glinting"""
+    im = _shine('#b8d4e4', '#ffffff', seed); rnd = random.Random(seed)
+    for _ in range(40):
+        im.putpixel((rnd.randint(0, 63), rnd.randint(0, 63)), hexc(rnd.choice(('#e8f8ff', '#8fb2c8'))))
+    return im
+
+
+def _clearice(seed):
+    """clear blue ice, deep in the middle, crazed with white cracks"""
+    im = Image.new('RGBA', (64, 64)); rnd = random.Random(seed); px = im.load()
+    for y in range(64):
+        for x in range(64):
+            k = 1 - min(1.0, math.hypot(x - 31.5, y - 31.5) / 45)
+            c = (int(150 + 60 * (1 - k)), int(215 + 25 * (1 - k)), 255)
+            px[x, y] = tuple(max(0, min(255, v + rnd.randint(-6, 6))) for v in c) + (230,)
+    d = ImageDraw.Draw(im)
+    for _ in range(7):
+        x, y = rnd.randint(0, 63), rnd.randint(0, 63)
+        for _s in range(rnd.randint(4, 9)):
+            nx, ny = x + rnd.randint(-4, 4), y + rnd.randint(-4, 4)
+            d.line((x, y, nx, ny), fill=(255, 255, 255, 240), width=1); x, y = nx, ny
+    return im
+
+
 def textures():
     return {'tu_coat': _folds(COAT, COAT_DK, COAT_LT, 801, torn='#3a6e72'), 'tu_coat_dk': _folds('#22484b', '#14302f', '#33605f', 802),
             'tu_cuff': _shine('#2b4749', '#5f8a8c', 803), 'tu_shirt': _folds('#2e5a2c', '#1c3a1a', '#467a40', 804, torn='#1a3018'),
@@ -151,7 +210,8 @@ def textures():
             'tu_ice': _ice(818), 'tu_steel': _shine('#8a90b2', '#d6dcf4', 819), 'tu_shaft': _shine('#3a3d5a', '#6c709a', 820),
             'tu_rope': _rope(821), 'tu_gold': _noise('#e0b030', 822, 12), 'tu_emerald': _noise('#22c060', 823, 12),
             'tu_buckle': _shine('#bfe4f0', '#ffffff', 824), 'tu_strap': _noise('#6a8a94', 825, 6), 'tu_frost': _ice(826, 255),
-            'tu_flap': _flap(827), 'tu_wood': _folds('#3e2a1c', '#2a1a10', '#5a3e28', 828), 'tu_brass': _brass(829)}
+            'tu_flap': _flap(827), 'tu_wood': _folds('#3e2a1c', '#2a1a10', '#5a3e28', 828), 'tu_brass': _brass(829),
+            'tu_gwood': _frostwood(830), 'tu_gsteel': _froststeel(831), 'tu_gtrim': _frosttrim(832), 'tu_gice': _clearice(833)}
 
 
 # ---------------------------------------------------------------------------------------------------- models
@@ -347,25 +407,30 @@ def models():
         return els
     part('tu_harpoon', harpoon(), HARPOON_K); part('tu_harpoon_ice', harpoon(True), HARPOON_K)
 
-    # ---- the icy blunderbuss (its joint is his grip; the muzzle points along -z): a waterlogged stock, a brass barrel gone
-    #      green with the sea, a flared bell crusted in ice, a cold light down its bore
+    # ---- the icy blunderbuss (its joint is his grip; the muzzle points along -z). 2.77c: ice through and through - a stock of
+    #      wood frozen slate-blue, a barrel of frosted steel with frost-silver fittings, a flared bell of clear ice, crystals
+    #      grown along it, icicles hanging under it, and the cold light down its bore
     g = (0.0, 0.0, 0.0); S = lambda A, B, w, h, t, up=UP, ext=0.1, light=0: seg(A, B, w, h, t, g, up, ext, light=light)
-    gun = [S((0, -0.2, 0.4), (0, -0.6, 5.0), 1.3, 1.9, 'tu_wood'), S((0, -0.8, 4.8), (0, -2.2, 9.8), 1.8, 3.2, 'tu_wood'),       # the grip, the butt
-           S((0, -2.3, 9.6), (0, -2.7, 10.1), 1.9, 3.0, 'tu_brass'),                                                           # (the butt plate)
-           S((0, -0.8, -0.6), (0, -0.8, -9.0), 1.5, 1.1, 'tu_wood'),                                                           # the fore-stock
-           S((0, 0.3, 1.4), (0, 0.3, -14.2), 1.7, 1.7, 'tu_brass'),                                                            # the barrel
-           S((0.9, -0.1, 2.2), (0.9, -0.1, -0.9), 0.3, 1.4, 'tu_brass', SIDE),                                                # the lock plate
-           S((0, 1.2, 1.0), (0, 1.8, 1.8), 0.45, 0.6, 'tu_brass'),                                                             # the hammer
-           S((0, -1.6, 0.6), (0, -1.6, -0.9), 0.3, 0.3, 'tu_brass')]                                                           # the trigger guard
+    gun = [S((0, -0.2, 0.4), (0, -0.6, 5.0), 1.3, 1.9, 'tu_gwood'), S((0, -0.8, 4.8), (0, -2.2, 9.8), 1.8, 3.2, 'tu_gwood'),     # the grip, the butt
+           S((0, -2.3, 9.6), (0, -2.7, 10.1), 1.9, 3.0, 'tu_gtrim'),                                                           # (the butt plate)
+           S((0, -0.8, -0.6), (0, -0.8, -9.0), 1.5, 1.1, 'tu_gwood'),                                                          # the fore-stock
+           S((0, 0.3, 1.4), (0, 0.3, -14.2), 1.7, 1.7, 'tu_gsteel'),                                                           # the barrel
+           S((0.9, -0.1, 2.2), (0.9, -0.1, -0.9), 0.3, 1.4, 'tu_gtrim', SIDE),                                                # the lock plate
+           S((0, 1.2, 1.0), (0, 1.8, 1.8), 0.45, 0.6, 'tu_gtrim'),                                                             # the hammer
+           S((0, -1.6, 0.6), (0, -1.6, -0.9), 0.3, 0.3, 'tu_gtrim')]                                                           # the trigger guard
     for z in (-4.2, -8.8, -12.2):
-        gun.append(S((0, 0.3, z + 0.3), (0, 0.3, z - 0.3), 2.0, 2.0, 'tu_brass'))                                            # bands
-    gun += [S((0, 0.3, -13.9), (0, 0.3, -15.3), 2.3, 2.3, 'tu_brass'), S((0, 0.3, -15.2), (0, 0.3, -16.7), 3.1, 3.1, 'tu_brass'),   # the bell
-            S((0, 0.3, -16.6), (0, 0.3, -17.9), 3.9, 3.9, 'tu_brass'), S((0, 0.3, -17.85), (0, 0.3, -18.0), 2.6, 2.6, 'tu_pupil', UP, 0.0, 10)]   # its icy bore
+        gun.append(S((0, 0.3, z + 0.3), (0, 0.3, z - 0.3), 2.0, 2.0, 'tu_gtrim'))                                            # bands
+    gun += [S((0, 0.3, -13.9), (0, 0.3, -15.3), 2.3, 2.3, 'tu_gice', UP, 0.1, 5), S((0, 0.3, -15.2), (0, 0.3, -16.7), 3.1, 3.1, 'tu_gice', UP, 0.1, 6),  # the bell
+            S((0, 0.3, -16.6), (0, 0.3, -17.9), 3.9, 3.9, 'tu_gice', UP, 0.1, 7), S((0, 0.3, -17.85), (0, 0.3, -18.0), 2.6, 2.6, 'tu_pupil', UP, 0.0, 10)]   # its icy bore
     rnd = random.Random(870)
-    for _ in range(11):                                                                                                   # ice crusted on the bell and barrel
-        z = rnd.uniform(-17.6, -7.0); a = rnd.uniform(0, 2 * math.pi); r = 1.0 if z > -14 else 1.8
-        b0 = (math.cos(a) * r, 0.3 + math.sin(a) * r, z); tip = (math.cos(a) * (r + rnd.uniform(1.0, 2.2)), 0.3 + math.sin(a) * (r + rnd.uniform(1.0, 2.2)), z + rnd.uniform(-0.6, 0.6))
+    for _ in range(16):                                                                                                   # ice crystals grown on the bell and barrel
+        z = rnd.uniform(-17.6, -5.0); a = rnd.uniform(0, 2 * math.pi); r = 1.0 if z > -14 else 1.8
+        b0 = (math.cos(a) * r, 0.3 + math.sin(a) * r, z); tip = (math.cos(a) * (r + rnd.uniform(1.0, 2.4)), 0.3 + math.sin(a) * (r + rnd.uniform(1.0, 2.4)), z + rnd.uniform(-0.6, 0.6))
         gun.append(S(b0, tip, rnd.uniform(0.5, 0.9), rnd.uniform(0.5, 0.9), 'tu_ice', UP, 0.15, 7))
+    for z, ln in ((-3.0, 1.6), (-5.6, 2.4), (-7.9, 1.9), (-10.4, 2.8), (-13.0, 2.1)):                                       # icicles hanging under it
+        gun.append(S((0, -0.5, z), (0, -0.5 - ln, z + 0.15), 0.55, 0.55, 'tu_ice', UP, 0.05, 7))
+    for z in (2.6, 6.8):                                                                                                  # rime crusted on the stock
+        gun.append(S((0, -0.9 - 0.25 * (z > 4), z), (0, -1.0 - 0.25 * (z > 4), z + 1.4), 2.0, 0.5, 'tu_frost', UP, 0.05, 4))
     part('tu_gun', gun)
     return M
 
