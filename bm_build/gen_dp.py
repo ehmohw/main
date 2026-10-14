@@ -120,6 +120,7 @@ import phase130 as R130      # 2.76: Wraithfire Emma - the form on/off, battle s
 import phase131 as R131      # 2.77: Apophiss - the Hollow's hidden boss (the serpent seal, his den) and the follower he becomes
 import phase132 as R132      # 2.77: Tullius - the drowned captain of the ghost ship (cold seas), and the follower he becomes
 import phase133 as R133      # 2.77: the new pairs and trios (Tullius, Apophiss) and the hidden Royal Retinue
+import phase134 as R134      # 2.77b: follower figurines in display cases (punch: the item instead)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import allies                # 2.67: every friendly-fire list skips every follower (allies.py)
@@ -132,7 +133,7 @@ if PHASE2:
     import p2  # registers Phase 2 items on import
 
 OUT = None
-VERSION2 = 'v2.77'                                   # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.77b'                                   # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1170,6 +1171,7 @@ def build(out_dir):
     if PHASE2: R131.generate(sys.modules[__name__])
     if PHASE2: R132.generate(sys.modules[__name__])
     if PHASE2: R133.generate(sys.modules[__name__])
+    if PHASE2: R134.generate(sys.modules[__name__])
     R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])

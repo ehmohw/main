@@ -1,7 +1,9 @@
 """2.76: THE WRAITHFIRE HEART - the Scorching Heart, quenched in an Ethereal Gem.
 
-PEARLMAN FUSES THEM: every visit, beside his three gems, he offers a fusion - a Scorching Heart and an Ethereal Gem in, a
-  WRAITHFIRE HEART out (Burning Blue, a hidden challenge, the first time).
+THE FORGING (2.77b - Pearlman no longer fuses it): set a Scorching Heart down (its Hearthfire) within 4 blocks of an Ethereal
+  Gem set down (its shrine) - either one first - and, as the nine gems do, they rise and glide together, circle closer and
+  closer while the heart's flame turns from orange to soul-blue, and merge in a flash: a WRAITHFIRE HEART drops (Burning
+  Blue, a hidden challenge, the first time).
 CARRIED (anywhere in your pack): fire can't touch you, and monsters that come within 4 blocks catch soul fire.
 SET DOWN (sneak + use on the top of a block): THE WRAITHFIRE HEARTH - a stronger Hearthfire. No monster spawns within 64
   blocks of it (the Hearthfire: 48); monsters within 16 burn blue and are worn down; Blood Moon horrors within 32 burn
@@ -38,7 +40,7 @@ HEART = '*[minecraft:custom_data~{bm:"wraithfire_heart"}]'
 FOE = 'type=#bm:hostile,tag=!bm.npc'
 
 item('wraithfire_heart', TOTEM, 'Wraithfire Heart', SOUL,
-     ['The Scorching Heart, quenched in an Ethereal', 'Gem. It burns blue - and cold.',
+     ['The Scorching Heart, quenched in an Ethereal', 'Gem\'s light. It burns blue - and cold.',
       ('Carried: fire can\'t touch you, and monsters', 'blue'), ('that come close catch soul fire.', 'blue'),
       ('Sneak + use on a block: the WRAITHFIRE HEARTH -', 'blue'), ('no monster spawns within 64 blocks.', 'blue'),
       ('Cecil or KillerWatt: their Wraithfire Form.', 'light_purple'), ('Emma: she can stay ethereal.', 'light_purple'),
@@ -47,7 +49,7 @@ item('wraithfire_heart', TOTEM, 'Wraithfire Heart', SOUL,
 HOLD['wraithfire_heart'] = 'bm:p127/heart/use'
 
 # (each part says where it leads - at import, before any trade or loot table is built from it)
-for _iid, _line, _col in (('scorching_heart', 'Pearlman fuses it with an Ethereal Gem.', SOUL), ('ethereal_gem', 'Pearlman fuses it with a Scorching Heart.', SOUL),
+for _iid, _line, _col in (('scorching_heart', 'Set down beside an Ethereal Gem, they fuse.', SOUL), ('ethereal_gem', 'Set down beside a Scorching Heart, they fuse.', SOUL),
                           ('cecil_gem', 'A Wraithfire Heart: his Wraithfire Form.', 'light_purple'),
                           ('kw_spark', 'Give him a Wraithfire Heart: his Wraithfire Form.', KWG),
                           ('emma_ribbon', 'Give her a Wraithfire Heart: she can stay ethereal.', PINK)):
@@ -71,24 +73,95 @@ def generate(G):
         return [f'execute if entity {where}[gamemode=!creative] if items entity {where} weapon.mainhand {HEART} run item modify entity {where} weapon.mainhand {{function:"minecraft:set_count",count:-1,add:true}}',
                 f'execute if entity {where}[gamemode=!creative] unless items entity {where} weapon.mainhand {HEART} if items entity {where} weapon.offhand {HEART} run item modify entity {where} weapon.offhand {{function:"minecraft:set_count",count:-1,add:true}}']
 
-    # ================================================================== PEARLMAN FUSES THEM
-    fuse = G.offer(('scorching_heart', 1), ('wraithfire_heart', 1), ('ethereal_gem', 1))
-    fuse['maxUses'] = Int(3)
-    G.FUNCS['load'][-1:-1] = [f'data modify storage bm:p60 fuse set value {snbt(fuse)}']
-    sp = G.FUNCS['p60/pm/spawn']
-    k = max(i for i, l in enumerate(sp) if l == 'function bm:p60/pm/stock1')
-    sp.insert(k + 1, 'data modify entity @e[type=minecraft:villager,tag=bm.pnew,limit=1,sort=nearest] Offers.Recipes append from storage bm:p60 fuse')
-    wjson('bm/advancement/p127/fused.json', {'criteria': {'t': {'trigger': 'minecraft:villager_trade', 'conditions': {
-        'villager': [{'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.pearl"]}'}}],
-        'item': {'items': ITEMS['wraithfire_heart']['base'], 'predicates': {'minecraft:custom_data': '{bm:"wraithfire_heart"}'}}}}},
-        'rewards': {'function': 'bm:p127/fused'}})
-    fn('p127/fused', ['advancement revoke @s only bm:p127/fused', 'advancement grant @s only bm:story/wraithfire',
-                      tellraw('@s', [T('Pearlman: ', '#5ac8ff', bold=True), T('"Hot and cold at once! Mind your flippers - that one bites."', 'white')]),
-                      'execute at @e[type=minecraft:villager,tag=bm.pearl,distance=..8,limit=1] run particle minecraft:soul_fire_flame ~ ~1 ~ 0.3 0.4 0.3 0.03 30',
-                      'playsound minecraft:particle.soul_escape player @s ~ ~ ~ 1.5 0.8', 'playsound minecraft:block.respawn_anchor.charge player @s ~ ~ ~ 0.8 1.2'])
+    # ================================================================== THE FORGING: a Scorching Heart set down beside an Ethereal Gem
+    #   (as the nine gems fuse, no one says so: set the two down within 4 blocks of each other - either one first - and they rise,
+    #    glide together, circle closer and closer as the heart's flame turns blue, and become one)
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.wft dummy', 'data remove storage bm:p60 fuse']      # (2.76's Pearlman offer, gone)
+    G.OBJECTIVES += ['bm.wft']
+    G.FUNCS['p82/heart/place'].append('function bm:p127/forge/near')
+    G.FUNCS['p60/spawn/ethereal'].append('function bm:p127/forge/near')
+    fn('p127/forge/near', ['execute if entity @e[type=minecraft:marker,tag=bm.wfm,distance=..12] run return 0',
+                           'execute unless entity @e[type=minecraft:interaction,tag=bm.hearth,distance=..4.5] run return 0',
+                           'execute as @e[type=minecraft:item_display,tag=bm.eshr,distance=..4.5,sort=nearest,limit=1] at @s run function bm:p127/forge/begin'])
+    # (at the gem: it and the nearest Hearthfire are taken into the forging - no picking either up now)
+    fn('p127/forge/begin', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.wfm","bm.wfnew"]}',
+                            'scoreboard players set @e[type=minecraft:marker,tag=bm.wfnew,distance=..0.5] bm.wft 0',
+                            'tag @e[type=minecraft:marker,tag=bm.wfnew,distance=..0.5] remove bm.wfnew',
+                            'tag @s add bm.wfg', 'tag @s remove bm.eshr', 'kill @e[type=minecraft:interaction,tag=bm.eshr_hit,distance=..0.6]',
+                            'execute as @e[type=minecraft:interaction,tag=bm.hearth,distance=..4.5,sort=nearest,limit=1] at @s run function bm:p127/forge/take',
+                            'playsound minecraft:block.beacon.power_select block @a[distance=..32] ~ ~ ~ 1 0.7',
+                            'playsound minecraft:block.amethyst_block.resonate block @a[distance=..32] ~ ~ ~ 1 0.6',
+                            'playsound minecraft:block.fire.ambient block @a[distance=..32] ~ ~ ~ 2 0.6',
+                            tellraw('@a[distance=..24]', [T('The heart\'s fire leans toward the gem\'s cold light...', SOUL, italic=True)])])
+    fn('p127/forge/take', ['tag @e[type=minecraft:item_display,tag=bm.hearthd,distance=..0.6,sort=nearest,limit=1] add bm.wfh2',
+                           'execute if block ~ ~ ~ minecraft:light run setblock ~ ~ ~ minecraft:air', 'kill @s'])
+    tick.append('execute as @e[type=minecraft:marker,tag=bm.wfm] at @s run function bm:p127/forge/tick')
+    HT, GM = '@e[type=minecraft:item_display,tag=bm.wfh2,distance=..8,limit=1]', '@e[type=minecraft:item_display,tag=bm.wfg,distance=..8,limit=1]'
+    at = lambda t, cmd: f'execute if score @s bm.wft matches {t} run {cmd}'
+    fn('p127/forge/tick', ['scoreboard players add @s bm.wft 1',
+                           # (both shrink a little and lose their pedestal height; then glide to where the circling begins)
+                           at(1, f'execute as {HT} run data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{translation:[0f,0f,0f],scale:[0.65f,0.65f,0.65f]}}}}'),
+                           at(1, f'execute as {GM} run data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{translation:[0f,0f,0f],scale:[0.6f,0.6f,0.6f]}}}}'),
+                           at(2, f'execute as {HT} run data modify entity @s teleport_duration set value 28'),
+                           at(2, f'execute as {GM} run data modify entity @s teleport_duration set value 28'),
+                           at(3, f'execute positioned ^ ^1.6 ^1.2 run tp {HT} ~ ~ ~'), at(3, f'execute rotated ~180 0 positioned ^ ^1.6 ^1.2 run tp {GM} ~ ~ ~ ~ 0'),
+                           at('3..30', 'function bm:p127/forge/gather'),
+                           at(30, 'playsound minecraft:block.portal.trigger block @a[distance=..32] ~ ~ ~ 0.4 1.6'),
+                           at(31, f'execute as {HT} run data modify entity @s teleport_duration set value 2'),
+                           at(31, f'execute as {GM} run data modify entity @s teleport_duration set value 2'),
+                           # (circling, ever closer, higher and faster - the heart's flame turning blue as it drinks the light)
+                           at('32..92', 'function bm:p127/forge/orbit'),
+                           at('32..92', 'function bm:p127/forge/glow'),
+                           at('40..92', 'particle minecraft:soul_fire_flame ~ ~1 ~ 0.12 0.9 0.12 0.01 3'),
+                           at(45, 'playsound minecraft:block.respawn_anchor.charge block @a[distance=..32] ~ ~ ~ 0.8 0.8'),
+                           at(60, 'playsound minecraft:block.respawn_anchor.charge block @a[distance=..32] ~ ~ ~ 1 1.1'),
+                           at(60, tellraw('@a[distance=..24]', [T('...and drinks it. The flame is turning blue.', SOUL, italic=True)])),
+                           at(75, 'playsound minecraft:particle.soul_escape block @a[distance=..32] ~ ~ ~ 2 0.7'),
+                           at(84, 'playsound minecraft:block.beacon.activate block @a[distance=..32] ~ ~ ~ 1 0.8'),
+                           at(94, 'function bm:p127/forge/done')])
+    fn('p127/forge/gather', [f'execute at {HT} run particle minecraft:flame ~ ~ ~ 0.08 0.08 0.08 0.01 2',
+                             f'execute at {GM} run particle minecraft:end_rod ~ ~ ~ 0.08 0.08 0.08 0.01 1',
+                             'particle minecraft:soul ~ ~0.2 ~ 0.6 0.05 0.6 0.01 1'])
+    # (one smooth inward spiral: k ticks in, the radius is 1.2 - 0.018k, the height 1.6 + 0.01k, and the marker turns 14 + 0.5k degrees
+    #  a tick; the heart rides one side of the circle, the gem - spinning with it - the other)
+    fn('p127/forge/orbit', ['scoreboard players operation #k bm.rng = @s bm.wft', 'scoreboard players remove #k bm.rng 32',
+                            'scoreboard players operation #d bm.rng = #k bm.rng', 'scoreboard players operation #d bm.rng *= #18 bm.rng',
+                            'scoreboard players set #r bm.rng 1200', 'scoreboard players operation #r bm.rng -= #d bm.rng',
+                            'execute store result storage bm:p127 orb.r double 0.001 run scoreboard players get #r bm.rng',
+                            'scoreboard players operation #d bm.rng = #k bm.rng', 'scoreboard players operation #d bm.rng *= #10 bm.rng',
+                            'execute store result storage bm:p127 orb.y double 0.001 run scoreboard players add #d bm.rng 1600',
+                            'scoreboard players operation #d bm.rng = #k bm.rng', 'scoreboard players operation #d bm.rng *= #5 bm.rng',
+                            'execute store result storage bm:p127 orb.s double 0.1 run scoreboard players add #d bm.rng 140',
+                            'function bm:p127/forge/spin with storage bm:p127 orb'])
+    fn('p127/forge/spin', ['$tp @s ~ ~ ~ ~$(s) 0',
+                           f'$execute rotated as @s positioned ^ ^$(y) ^$(r) run tp {HT} ~ ~ ~',
+                           f'$execute rotated as @s rotated ~180 0 positioned ^ ^$(y) ^$(r) run tp {GM} ~ ~ ~ ~ 0'])
+    G.FUNCS['load'][-1:-1] = ['scoreboard players set #18 bm.rng 18', 'scoreboard players set #10 bm.rng 10', 'scoreboard players set #5 bm.rng 5']
+    fn('p127/forge/glow', ['scoreboard players operation #t bm.rng = @s bm.wft', 'scoreboard players operation #t bm.rng %= #10 bm.rng',
+                           f'execute if score @s bm.wft matches ..59 at {HT} run particle minecraft:flame ~ ~ ~ 0.06 0.06 0.06 0.01 3',
+                           f'execute if score @s bm.wft matches 60.. at {HT} run particle minecraft:soul_fire_flame ~ ~ ~ 0.06 0.06 0.06 0.01 3',
+                           f'execute at {GM} run particle {dust((0.85, 0.75, 1.0), 1.1)} ~ ~ ~ 0.08 0.08 0.08 0 2',
+                           f'execute at {GM} run particle minecraft:end_rod ~ ~ ~ 0.05 0.05 0.05 0.01 1',
+                           'execute if score #t bm.rng matches 0 run playsound minecraft:block.amethyst_block.chime block @a[distance=..24] ~ ~ ~ 1 1.4',
+                           'execute if score #t bm.rng matches 0 run playsound minecraft:block.fire.ambient block @a[distance=..24] ~ ~ ~ 1.5 0.8'] +
+       [f'execute if score #t bm.rng matches 5 run {l}' for l in ring('minecraft:soul_fire_flame', 1.6, 20, 0.15)])
+    fn('p127/forge/done', [f'kill {HT}', f'kill {GM}',
+                           'loot spawn ~ ~2.2 ~ loot bm:items/wraithfire_heart',
+                           'data merge entity @e[type=minecraft:item,distance=..3,sort=nearest,limit=1] {Glowing:1b,PickupDelay:20s,Motion:[0.0d,0.15d,0.0d]}',
+                           'particle minecraft:flash{color:[0.35,0.85,1.0,1.0]} ~ ~2.2 ~ 0 0 0 0 1 force @a[distance=..64]',
+                           'particle minecraft:soul_fire_flame ~ ~2.2 ~ 0.2 0.2 0.2 0.25 90 force @a[distance=..64]',
+                           'particle minecraft:soul ~ ~2.2 ~ 0.3 0.3 0.3 0.12 40 force @a[distance=..64]',
+                           'particle minecraft:end_rod ~ ~2.2 ~ 0.2 0.2 0.2 0.2 40 force @a[distance=..64]'] +
+       ring('minecraft:soul_fire_flame', 2.6, 32, 0.2) +
+       ['playsound minecraft:block.respawn_anchor.set_spawn block @a[distance=..48] ~ ~ ~ 1 0.8',
+        'playsound minecraft:block.end_portal.spawn block @a[distance=..48] ~ ~ ~ 0.5 1.8',
+        'playsound minecraft:item.trident.thunder block @a[distance=..48] ~ ~ ~ 0.4 1.6',
+        tellraw('@a[distance=..24]', [T('The Scorching Heart drinks the gem\'s light dry - and burns blue. ', SOUL, italic=True), T('A Wraithfire Heart.', SOUL, bold=True)]),
+        'advancement grant @a[distance=..12] only bm:story/wraithfire', 'kill @s'])
+    G.FUNCS['admin/uninstall'].insert(0, 'kill @e[type=minecraft:marker,tag=bm.wfm]')
     wjson('bm/advancement/story/wraithfire.json', {'parent': 'bm:story/root', 'criteria': {'done': {'trigger': 'minecraft:impossible'}},
           'display': {'icon': {'id': 'minecraft:totem_of_undying', 'components': {'minecraft:item_model': 'bm:wraithfire_heart'}},
-                      'title': T('Burning Blue', 'gold'), 'description': T('Have Pearlman fuse a Scorching Heart and an Ethereal Gem', 'gray'),
+                      'title': T('Burning Blue', 'gold'), 'description': T('Set a Scorching Heart down beside an Ethereal Gem', 'gray'),
                       'frame': 'challenge', 'show_toast': True, 'announce_to_chat': True, 'hidden': True}})
 
     # ================================================================== CARRIED: fire can't touch you; what comes close catches soul fire

@@ -10,7 +10,7 @@ Phase 2, ETHEREAL: his scales go to a dark, green-veined spectre, his eyes burn 
 
 Rig (rigkit): coil (the root: his coils on the ground) - body - chest - head - jaw; arms and wings off the chest;
 tail1 - tail2 - tail3 - tail4 - mace out of the back of the coil (a long tail: it reaches over his head). Design units: the coil on y=0, facing -z, his right +x; shown at
-BOSS_SCALE (about nine blocks to the tip of his crest) or PET_SCALE (the follower he becomes - about four and a half; you\nride him).
+BOSS_SCALE (about nine blocks to the tip of his crest) or PET_SCALE (the follower he becomes - since 2.77b just as big: no\none shrinks the Serpent King; you ride him).
 Faces: the head model has a variant per expression (apo_head_x<face>): smug, shock, hurt, tired, blink - the default is
 his scowl.
 """
@@ -22,7 +22,7 @@ from phase57_art import hexc
 from rigkit import qs, shrink, el, seg, chain, frame, _add, _mul, _sub, _unit, I
 
 PREFIX = 'apo_'
-BOSS_SCALE, PET_SCALE = 2.8, 1.4
+BOSS_SCALE, PET_SCALE = 2.8, 2.8
 PIVOT = {'coil': (0, 3, 5), 'body': (0, 5, -3.4), 'chest': (0, 19.4, -2.6), 'head': (0, 28.6, -3.6), 'jaw': (0, 31.8, 0.4),
          'armr': (8.4, 26.0, -3.0), 'arml': (-8.4, 26.0, -3.0),
          'tail1': (2.0, 3.0, 13.4), 'tail2': (2.4, 3.0, 24.6), 'tail3': (2.6, 3.0, 35.4), 'tail4': (2.7, 3.0, 45.2), 'mace': (2.75, 3.0, 54.0),

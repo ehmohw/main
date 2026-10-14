@@ -49,6 +49,9 @@ function bot(name) {
     c.on('error', () => {});
     c.on('position', (p) => { c.write('teleport_confirm', { teleportId: p.teleportId, x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch }); c.pos = p; });
     c.on('action_bar', (p) => c.bars.push(text(p.text)));
+    c.titles = [];          // (titles and subtitles, as shown)
+    c.on('set_title_text', (p) => c.titles.push(text(p.text)));
+    c.on('set_title_subtitle', (p) => c.titles.push(text(p.text)));
     c.on('system_chat', (p) => (p.isActionBar ? c.bars : c.chats).push(text(p.content)));
     c.on('spawn_entity', (p) => { c.ents[p.entityId] = p; });
     c.on('entity_destroy', (p) => { for (const id of p.entityIds) delete c.ents[id]; });

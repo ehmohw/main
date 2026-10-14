@@ -1,4 +1,4 @@
-# Black Market — v2.77 (Java 26.3)
+# Black Market — v2.77b (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,36 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.77b: the Wraithfire Heart forged on the ground, Apophiss's coming, his feint, his den sealed - and figurines
+
+### The Wraithfire Heart is forged, not bought
+Pearlman no longer fuses it. Set a **Scorching Heart** down (its Hearthfire) within 4 blocks of an **Ethereal Gem** set down (its shrine), either one first.
+- Like the nine gems becoming one, nobody says so: the two rise and glide together.
+- They circle each other, closer and closer, faster and higher, while the heart's flame turns from orange to soul-blue.
+- They merge in a flash of blue fire. The Wraithfire Heart drops; Burning Blue is yours the first time.
+- The two items' lore now says how.
+
+### Apophiss
+- **He made the Hollow King.** The seal's carving says it ("He who sits this throne sits it by my leave"), the King's last words say it, and so does Apophiss.
+- **His coming** (about 7 seconds). The den goes dark and a heartbeat quickens. Black fire climbs out of the floor before his throne: sixteen tongues of it, spiralling into a vortex that tightens and quickens while he grows inside it. Then it bursts, and he roars his name. After that he speaks.
+- **His feint** (about 13 seconds, at half health). He falls: the boss bar goes, his drowned court crumbles, he sinks onto his coils and lies still.
+  - Emma, Cecil and Leo wonder aloud whether it's over.
+  - Then a heartbeat, and his eyes snap open. He laughs.
+  - He tears out of his scales as the winged ethereal king (THE SERPENT UNBOUND).
+  - He's invulnerable throughout, and nothing is won until he truly falls.
+- **His den is sealed.** Only the seal takes anyone down. Anyone else found in the den, or on its dome or just outside it, is thrown back up to the throne room. That covers an ender pearl through the floor, a chorus fruit, a teleport and a dig through the dome.
+- **He rises only for the worthy.** It takes someone who has beaten the Hollow King (once, at any time, with or without followers) coming back with Emma, Leo and Cecil as followers. All three must be in the den now. Until then, the den stays silent and says why.
+- **As a follower he's full size.** He's just as big as the boss, with reach and a click box to match.
+
+### Follower figurines in display cases
+Right-click a follower's summoning item into a display case: a little statue of them stands on the cushion. It's posed, still and has no AI, like a Smuggler's Jar's creature.
+- **Punch the case** to show the item itself instead, and again for the figurine. Sneak + punch still picks the case up.
+- **Sneak + right-click** turns it.
+- **Every follower has one:** Cecil, Emma, Celi, Zib, KillerWatt, Leo, Democratus, Apophiss, Tullius and Pearlman. Each fits floor and wall cases.
+
+### Tullius's drops (unchanged)
+Beating Tullius the first time gives his summoning coin and both his weapons, the icy blunderbuss and the harpoon. Later wins have a chance at each.
 
 ## New in 2.77: Apophiss and Tullius - two new bosses, two new followers, new pairs and trios
 

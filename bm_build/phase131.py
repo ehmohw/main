@@ -1,4 +1,6 @@
 """2.77: APOPHISS, THE SERPENT KING - the Hollow Throne's hidden boss, and the follower he becomes.
+(2.77b: he made the Hollow King - "all he is, he has from me"; the den lets in only those the seal swallows; he comes in black fire;
+ he plays dead at half; the follower is his full size.)
 
 - THE SEAL: once you've conquered the Hollow King, a great serpent coiled in the floor of his throne room glimmers
   (the moment the King falls, it flashes). Stand on it: three hollows ring it - a ribbon, a crest, a gem. Followers are
@@ -6,15 +8,21 @@
   CECIL - the three who bound him once - onto the seal together and it breaks. One or two of them and it only stirs (and
   they'll tell you who's missing). Everyone near it is swallowed into THE SERPENT'S DEN, a drowned temple deep under the
   citadel (a pad by the door goes back up).
-- THE FIGHT: he sleeps coiled before his throne and wakes when you come close. CLAW (a raking sweep), BITE (a lunge,
+- THE DEN (2.77b): only the seal takes anyone down - anyone else in it (a pearl, a chorus fruit, a teleport, a dig through
+  the dome) is thrown back up to the throne room; and he rises only when someone who has beaten the Hollow King (once, at
+  any time, in any company) comes back with Emma, Leo and Cecil as followers - the three must be in the den now.
+- HIS COMING (2.77b): the den goes dark, a heartbeat quickens, and black fire climbs out of the floor before his throne -
+  sixteen tongues spiralling into a vortex that tightens while he grows inside it - then it bursts and he roars (7 s).
+- THE FIGHT: CLAW (a raking sweep), BITE (a lunge,
   withering), MACE (his tail-mace crashes down in a quake), SERPENT'S FANGS (lines of fangs at you), VENOM (a spat glob
-  that splashes poison and wither); at three-quarters he calls his drowned court. At half - THE SERPENT UNBOUND: the
-  ethereal king tears out of his scales on violet wings and takes to the air: VOID ORBS that leave pools of dark,
+  that splashes poison and wither); at three-quarters he calls his drowned court. At half he falls - the bar goes, his
+  court crumbles, he lies still while his old enemies wonder - then a heartbeat, a laugh, and THE SERPENT UNBOUND: the
+  ethereal king tears out of his scales on violet wings and takes to the air (13 s): VOID ORBS that leave pools of dark,
   the SWOOP (a dive through you), the WINGBEAT (thrown back), GRAND FANGS (he lands in rings of fangs) and spectral
   serpents. Every player in the den when he falls shares the win (a follower's killing blow counts).
 - DROPS: the first time, THE SERPENT'S OATH (he serves you), APOPHISS'S TRUE CROWN (his crown, the emerald awake - the
   relic Cecil sells, stronger) and THE SERPENT KING'S MACE; a hoard every time; later wins have a chance at each.
-- THE FOLLOWER (the Oath): claw, bite, venom spit; every eighth blow THE SERPENT KING'S WRATH (the mace and a ring of
+- THE FOLLOWER (the Oath; 2.77b: his full size, his reach to match): claw, bite, venom spit; every eighth blow THE SERPENT KING'S WRATH (the mace and a ring of
   fangs). Smug, scowling, secretly fond. Right-click him to sit; right-click him with a saddle and he wears it - then use
   the Oath beside him to ride (walk to slither, jump to lunge; the Oath while riding: SERPENT'S FANGS ahead). Sneak + use
   the Oath: his menu. 5 minutes if he faints; an item frame keeps him; a Raid Contract at Goldtooth.
@@ -70,7 +78,7 @@ def _attr(a, amt, slot, op='add_value', ident=None):
 
 
 item('apo_true_crown', TOTEM, "Apophiss's True Crown", GRN,
-     ['His own crown, from his own den. The emerald is awake.', ('Worn: you grow a size, +5 damage, +2 reach,', 'blue'),
+     ['His own crown, from his own den. The emerald is awake.', 'The Hollow King only ever wore its shadow.', ('Worn: you grow a size, +5 damage, +2 reach,', 'blue'),
       ('+8 health, +4 armour; your blows wither.', 'blue'), ('Wither can\'t take hold of you.', 'blue'),
       ('Sneak + jump: Serpent\'s Fangs (3 s), day or night,', 'blue'), ('in three lines.', 'blue'),
       ('Night: Strength, Night Vision.', 'dark_purple'), ('Taken from Apophiss himself.', 'dark_gray')],
@@ -140,7 +148,7 @@ class _Art:                                         # (the art, with the game's 
 
 A = _Art
 DUR_B = {'idle_a': 30, 'idle_b': 30, 'slither_a': 10, 'slither_b': 10, 'battle': 6, 'claw_up': 7, 'claw': 3, 'bite': 3, 'mace_up': 12, 'mace_slam': 4,
-         'cast': 10, 'cast_point': 5, 'roar': 8, 'tired': 20, 'crouch': 6, 'sleep': 20, 'defeated': 14,
+         'cast': 10, 'cast_point': 5, 'roar': 8, 'tired': 20, 'crouch': 6, 'defeated': 14,
          'eth_hover': 8, 'eth_beat': 8, 'eth_cast': 8, 'eth_dive': 5, 'eth_land': 5}
 DUR_P = {'idle_a': 30, 'idle_b': 30, 'slither_a': 8, 'slither_b': 8, 'battle': 4, 'claw_up': 5, 'claw': 3, 'bite': 3, 'mace_up': 8, 'mace_slam': 3,
          'cast': 6, 'cast_point': 4, 'roar': 6, 'crouch': 4, 'sit': 20, 'sit_b': 20, 'ride': 8, 'ride_b': 8, 'ride_c': 8, 'swim_a': 10, 'swim_b': 10}
@@ -193,8 +201,49 @@ def _seal_tex(lit):
     return im
 
 
+def _blackfire_tex():
+    """2.77b: black fire, for his coming - 8 frames of 32 x 32 stacked (an animated texture): a near-black heart, a deep violet body, a
+    thin hot-violet rim and a few of his green sparks; tongues that lean and curl as they climb (a warped noise field that scrolls up
+    exactly one period over the loop, so it never jumps)"""
+    from PIL import Image
+    import random
+    W, NF, G = 32, 8, 8
+    im = Image.new('RGBA', (W, W * NF), (0, 0, 0, 0)); rnd = random.Random(1316)
+    grid = [[rnd.random() for _ in range(G)] for _ in range(G)]
+    def vn(x, y):                                   # value noise, tiling every 32 pixels both ways
+        gx, gy = x / 4.0, y / 4.0
+        x0, y0 = int(math.floor(gx)), int(math.floor(gy)); fx, fy = gx - x0, gy - y0
+        x0, y0 = x0 % G, y0 % G; x1, y1 = (x0 + 1) % G, (y0 + 1) % G
+        sx, sy = fx * fx * (3 - 2 * fx), fy * fy * (3 - 2 * fy)
+        a = grid[y0][x0] + (grid[y0][x1] - grid[y0][x0]) * sx
+        b = grid[y1][x0] + (grid[y1][x1] - grid[y1][x0]) * sx
+        return a + (b - a) * sy
+    rim, rim2, body, body2, core, spark = (226, 170, 255), (160, 72, 240), (58, 16, 92), (24, 6, 38), (6, 2, 10), (120, 255, 160)
+    mix = lambda c1, c2, k: tuple(int(c1[i] + (c2[i] - c1[i]) * max(0.0, min(1.0, k))) for i in range(3))
+    for f in range(NF):
+        off = f * W / NF
+        for y in range(W):
+            v = 1 - (y + 0.5) / W                   # (0 at the foot, 1 at the tip)
+            for x in range(W):
+                u, yy = (x + 0.5) / W - 0.5, y + off
+                wx = (vn(x * 0.5 + 11, yy * 0.5) - 0.5) * 9 * (0.2 + v)
+                n = vn(x + wx, yy) * 0.6 + vn((x + wx) * 2, yy * 2) * 0.4
+                half = 0.40 * (1 - v) ** 0.9 * min(1.0, 0.5 + v * 4) + 0.015
+                lean = (vn(5, yy * 0.5 + 3) - 0.5) * 0.25 * v
+                h = (1 - (abs(u - lean) / half) ** 1.6 - v ** 1.4 * 0.55 - (n - 0.5) * (0.5 + 1.3 * v)) * (1 - v ** 6)
+                if h <= 0.0:
+                    if 0.5 < v < 0.95 and n > 0.8 and abs(u - lean) < 0.25: im.putpixel((x, y + f * W), rim + (150,))
+                    continue
+                if h < 0.09: c = spark if (n > 0.78 and v < 0.6) else mix(rim, rim2, h / 0.09)
+                elif h < 0.25: c = mix(rim2, body, (h - 0.09) / 0.16)
+                elif h < 0.5: c = mix(body, body2, (h - 0.25) / 0.25)
+                else: c = mix(body2, core, (h - 0.5) / 0.3)
+                im.putpixel((x, y + f * W), c + (230 if h < 0.09 else 255,))
+    return im
+
+
 def textures():
-    return {'apo_seal': _seal_tex(False), 'apo_seal_lit': _seal_tex(True)}
+    return {'apo_seal': _seal_tex(False), 'apo_seal_lit': _seal_tex(True), 'apo_blackfire': _blackfire_tex()}
 
 
 def _oath_icon(R):
@@ -224,6 +273,10 @@ def rp(R):
         R.HATS[nm] = ({'s': f'bm:block/{nm}'}, [{'from': [0, 8, 0], 'to': [16, 8.05, 16], 'faces': {'up': face, 'down': dict(face)},
                                                   **({'light_emission': 12} if nm.endswith('lit') else {})}])
     R.ICONS['apo_oath'] = _oath_icon(R)
+    # (2.77b: a tongue of black fire - one upright plane; the display turns it to face you)
+    face = {'uv': [0, 0, 16, 16], 'texture': '#f'}
+    R.HATS['apo_blackfire'] = ({'f': 'bm:block/apo_blackfire'}, [{'from': [0, 0, 8], 'to': [16, 16, 8], 'shade': False,
+                                                                   'faces': {'north': face, 'south': dict(face)}}])
     cases = {base: [] for base in ('apo_head', 'apo_head_eth')}
     for e, m in FACE_MODEL.items():
         if m:
@@ -231,6 +284,7 @@ def rp(R):
             cases['apo_head_eth'].append((e, f'apo_head_x{m}_eth'))
     def post(R2):
         mdl = lambda n: {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
+        R2.wj('assets/bm/textures/block/apo_blackfire.png.mcmeta', {'animation': {'frametime': 2, 'interpolate': True}})
         for name, cs in cases.items():
             R2.wj(f'assets/bm/items/{name}.json', {'model': {'type': 'minecraft:select', 'property': 'minecraft:custom_model_data', 'index': 0,
                                                              'cases': [{'when': e, 'model': mdl(m)} for e, m in cs], 'fallback': mdl(name)}})
@@ -379,7 +433,7 @@ def generate(G):
     voice = {'Emma': ('#ff8ad8', '#ffd8f0'), 'Leo': ('#5ab8e0', '#d8f0ff'), 'Cecil': ('#b48cff', '#e8d8ff'), 'Apophiss': (GRN, GRN_LT)}
     chat = lambda who, txt, aud='@s': tellraw(aud, [T(f'{who}: ', voice[who][0], bold=True), T(f'"{txt}"', voice[who][1])])
     tick, fast, second = [], [], []
-    objs = ['bm.apid', 'bm.apatk', 'bm.apt', 'bm.apc', 'bm.apph', 'bm.apr', 'bm.aplone', 'bm.apk', 'bm.apcd', 'bm.aps', 'bm.apf', 'bm.apa', 'bm.apx',
+    objs = ['bm.apfi', 'bm.apid', 'bm.apatk', 'bm.apt', 'bm.apc', 'bm.apph', 'bm.apr', 'bm.aplone', 'bm.apk', 'bm.apcd', 'bm.aps', 'bm.apf', 'bm.apa', 'bm.apx',
             'bm.apm', 'bm.apv', 'bm.apch', 'bm.apz', 'bm.apq', 'bm.apsd', 'bm.apsl', 'bm.apl', 'bm.apcl', 'bm.apw', 'bm.apsn', 'bm.apfg', 'bm.apfn', 'bm.apb']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + \
         ['bossbar add bm:apob {text:"Apophiss, the Serpent King",color:"green"}', 'bossbar set bm:apob color green', 'bossbar set bm:apob style notched_10'] + \
@@ -424,6 +478,18 @@ def generate(G):
                         'tag @e[tag=bm.aptp] remove bm.aptp', 'playsound minecraft:block.portal.travel ambient @s ~ ~ ~ 0.3 1.4',
                         say('Up through the dark - back in the Hollow King\'s throne room.', GRN_LT)])
     fn('p131/tp_owned', ['execute on owner if entity @s[tag=bm.aptp] run return 1', 'return 0'])
+    # ---- no way in but the seal (2.77b): anyone in the den - or on its dome, or just outside it - whom the seal didn't swallow is thrown
+    #      back up to the throne room: a pearl through the floor, a chorus fruit, a teleport, a dig through the dome all end the same way.
+    #      (bm.apin: given by the swallow; gone the moment you're out of the den - the pad, a death, another dimension)
+    gbox = f'x={lx - 4},y={ly - 6},z={lz - 4},dx={LSX + 8},dy={LSY + 14},dz={LSZ + 8}'
+    fast.append(f'execute in bm:hollow_throne as @a[{gbox},tag=!bm.apin,gamemode=!spectator,gamemode=!creative] at @s run function bm:p131/lair/expel')
+    fn('p131/lair/expel', ['tag @s add bm.aptp', f'execute as @e[type=#bm:p131_fol,{gbox}] if function bm:p131/tp_owned run tag @s add bm.aptp',
+                           'effect give @s minecraft:darkness 3 0 true', 'effect give @s minecraft:slow_falling 2 0 true',
+                           f'execute as @e[tag=bm.aptp] in bm:hollow_throne run tp @s {BACK[0]} {BACK[1]} {BACK[2]} -90 0',
+                           'tag @e[tag=bm.aptp] remove bm.aptp', 'execute at @s run playsound minecraft:entity.warden.sonic_boom ambient @s ~ ~ ~ 0.3 1.6',
+                           say("The dark beneath the throne spits you back out. Only the serpent's seal takes anyone down there.", GRN_LT)])
+    second += ['execute as @a[tag=bm.apin] at @s unless dimension bm:hollow_throne run tag @s remove bm.apin',
+               f'execute as @a[tag=bm.apin] at @s if dimension bm:hollow_throne unless entity @s[{gbox}] run tag @s remove bm.apin']
     wjson('bm/tags/entity_type/p131_fol.json', {'values': ['minecraft:wolf', 'minecraft:cat']})
 
     # ================================================================== THE SEAL (the throne room floor)
@@ -454,6 +520,9 @@ def generate(G):
         'execute if score #sn bm.rng matches 0 as @a[distance=..2.8,scores={bm.conq=..5},gamemode=!spectator] unless score @s bm.apcl matches 1.. run function bm:p131/seal/cold'])
     second.append('scoreboard players remove @a[scores={bm.apcl=1..}] bm.apcl 1')
     fn('p131/seal/read', ['scoreboard players set @s bm.apcl 6',
+                          'execute unless entity @s[tag=bm.apread] run ' + tellraw('@s', [T('Words are cut into the stone round the serpent, worn almost smooth: ', 'gray', italic=True),
+                                                                                        T('"HE WHO SITS THIS THRONE SITS IT BY MY LEAVE. ALL HE IS, HE HAS FROM ME."', GRN_LT, italic=True)]),
+                          'tag @s add bm.apread',
                           title('@s', 'actionbar', [T('A great serpent, coiled in the stone. Three hollows ring it: ', 'gray', italic=True),
                                                     T('a ribbon', '#ff8ad8'), T(', ', 'gray'), T('a crest', '#5ab8e0'), T(', ', 'gray'), T('a gem', '#b48cff'), T('.', 'gray')]),
                           'playsound minecraft:block.sculk.charge ambient @s ~ ~ ~ 0.5 0.6'])
@@ -464,7 +533,7 @@ def generate(G):
                           'execute if score #sn bm.rng matches 2 run ' + title('@a[distance=..10]', 'actionbar', [T('The seal stirs... ', GRN, italic=True), T('two of the three. One more.', 'gray', italic=True)])])
     fn('p131/seal/more', ['scoreboard players set @s bm.apt 40',
                           f'execute if entity {near("emma")} run ' + chat('Emma', "This mark... I know this mark. Leo, Cecil - we have to be together for this. All of us.", '@a[distance=..12]'),
-                          f'execute if entity {near("leo")} run ' + chat('Leo', "That's his mark. The serpent's. If he's down there, the three of us should be the ones to go.", '@a[distance=..12]'),
+                          f'execute if entity {near("leo")} run ' + chat('Leo', "That's his mark. The serpent's - under the King's own throne. It was him behind the King all along. The three of us should be the ones to go.", '@a[distance=..12]'),
                           f'execute if entity {near("cecil")} run ' + chat('Cecil', 'A seal. With a serpent on it. Under a throne. I can\'t IMAGINE who that could be.', '@a[distance=..12]')])
     fn('p131/seal/wake', ['scoreboard players set @s bm.apw 1', 'scoreboard players set @s bm.apt 0',
                           'data modify entity @e[type=minecraft:item_display,tag=bm.apsealv,distance=..2,limit=1] item.components."minecraft:item_model" set value "bm:apo_seal_lit"',
@@ -492,7 +561,7 @@ def generate(G):
                              'effect give @a[tag=bm.aptp] minecraft:slow_falling 3 0 true',
                              'scoreboard players set #apwake bm.p2 1',
                              f'execute as @e[tag=bm.aptp] in bm:hollow_throne run tp @s {ax} {ay} {az} 180 0',
-                             'execute as @a[tag=bm.aptp] at @s run function bm:p131/arrive',
+                             'tag @a[tag=bm.aptp] add bm.apin', 'execute as @a[tag=bm.aptp] at @s run function bm:p131/arrive',
                              'tag @e[tag=bm.aptp] remove bm.aptp',
                              'playsound minecraft:entity.warden.sonic_boom hostile @a[distance=..30] ~ ~ ~ 0.6 0.5'])
     fn('p131/arrive', ['title @s times 10 60 20', title('@s', 'subtitle', T('Deep beneath the Hollow Throne', 'gray', italic=True)),
@@ -503,8 +572,14 @@ def generate(G):
                            'execute at @s run particle minecraft:dust{color:[0.3,1.0,0.45],scale:1.6} ~ ~0.2 ~ 1.8 0.1 1.8 0 60',
                            'execute at @s run playsound minecraft:block.sculk_shrieker.shriek ambient @a[distance=..48] ~ ~ ~ 0.4 0.5'])
     fn('p131/seal/dim', ['execute in bm:hollow_throne as @e[type=minecraft:item_display,tag=bm.apsealv] run data modify entity @s item.components."minecraft:item_model" set value "bm:apo_seal"'])
-    G.FUNCS['p2/hollow/credit_first'].append(tellraw('@s', PREFIX + [T('As the King falls, a cold green light flickers in the floor of his throne room - a serpent coiled in the stone. ', GRN_LT),
-                                                                      T('Something beneath the Hollow remembers you... and it remembers three old friends.', 'gray', italic=True)]))
+    G.FUNCS['p2/hollow/victory'].append(f'execute in bm:hollow_throne positioned {sx} {sy} {sz} run ' + tellraw('@a[distance=..80]', [T('The Hollow King: ', '#e5e4e2', bold=True),
+                                                                      T('"The serpent... promised me... forever..."', 'gray', italic=True)]))
+    # (and as he rises a Wither, for an instant something green and serpentine coils through the dark round him)
+    G.FUNCS['p2/hollow/ascend'] += ['particle minecraft:dust{color:[0.25,0.9,0.4],scale:2.0} ~ ~6 ~ 3 3 3 0 140 force @a[distance=..80]',
+                                    'playsound minecraft:entity.cat.hiss hostile @a[distance=..60] ~ ~ ~ 1.5 0.4',
+                                    tellraw('@a[distance=..60]', [T('(For an instant something green and serpentine coils through the dark round him - and is gone.)', GRN_LT, italic=True)])]
+    G.FUNCS['p2/hollow/credit_first'].append(tellraw('@s', PREFIX + [T('As the King falls, the power in him drains away - not into the air, but down, into the floor of his throne room, where a serpent coiled in the stone flickers cold and green. ', GRN_LT),
+                                                                      T('Whatever made him a king is still down there... and it remembers three old friends.', 'gray', italic=True)]))
 
     # ================================================================== THE RIG (boss and follower: the same parts, two sizes)
     def bsel(p=None):
@@ -538,17 +613,27 @@ def generate(G):
     # (the den: when the seal has swallowed someone and they're here, he's there - asleep before his throne)
     second.append('execute in bm:hollow_throne as @e[type=minecraft:marker,tag=bm.aplair] at @s if entity @a[distance=..40] run function bm:p131/lair/sec')
     spx, spy, spz = SPAWN
-    fn('p131/lair/sec', ['execute if score #apwake bm.p2 matches 1 unless entity @e[type=minecraft:husk,tag=bm.apboss,distance=..60] run function bm:p131/b/spawn',
-                         'scoreboard players set #apwake bm.p2 0',
+    # (2.77b: and only for the worthy, however they got here - someone who has beaten the Hollow King (ever: bm.conq), back now with
+    #  Emma, Leo and Cecil, all three in the den;
+    #  until then the den waits, and says so)
+    worthy = f'@a[{lbox},tag=bm.apin,scores={{bm.conq=6..}},gamemode=!spectator]'
+    fn('p131/lair/worthy', [f'execute unless entity {worthy} run return 0'] +
+       [f'execute unless entity @e[type=minecraft:{HOSTS[k][0]},tag={HOSTS[k][1]},{lbox}] run return 0' for k in HOSTS] + ['return 1'])
+    fn('p131/lair/sec', ['execute if score #apwake bm.p2 matches 1 unless entity @e[type=minecraft:husk,tag=bm.apboss,distance=..60] if function bm:p131/lair/worthy run function bm:p131/b/spawn',
+                         'execute if entity @e[type=minecraft:husk,tag=bm.apboss,distance=..60] run scoreboard players set #apwake bm.p2 0',
+                         f'execute unless entity @a[{lbox},tag=bm.apin] run scoreboard players set #apwake bm.p2 0',
+                         'execute if score #apwake bm.p2 matches 1 run function bm:p131/lair/waits',
                          'execute store result score #r bm.rng run random value 1..20',
                          'execute if score #r bm.rng matches 1 run playsound minecraft:ambient.underwater.loop.additions.rare ambient @a[distance=..40] ~ ~ ~ 0.8 0.6',
                          'execute if score #r bm.rng matches 2 run playsound minecraft:block.pointed_dripstone.drip_water ambient @a[distance=..40] ~ ~6 ~ 1 0.8'])
+    fn('p131/lair/waits', ['scoreboard players add #apnw bm.p2 1', 'execute unless score #apnw bm.p2 matches 4.. run return 0', 'scoreboard players set #apnw bm.p2 0',
+                           title(f'@a[{lbox},tag=bm.apin]', 'actionbar', T('The den is silent. He rises only when one who has beaten the Hollow King comes back with Emma, Leo and Cecil - all three, here.', 'gray', italic=True))])
     fn('p131/b/spawn', [f'execute positioned {spx} {spy} {spz} run summon minecraft:husk ~ ~ ~ {snbt(bnbt)}',
                         f'execute positioned {spx} {spy} {spz} as @e[type=minecraft:husk,tag=bm.apnew,distance=..2,limit=1] at @s run function bm:p131/b/init'])
     fn('p131/b/init', ['scoreboard players add #apn bm.apid 1', 'scoreboard players operation @s bm.apid = #apn bm.apid', 'tp @s ~ ~ ~ 0 0',
-                       'scoreboard players set @s bm.apatk 0', 'scoreboard players set @s bm.apt 0', 'scoreboard players set @s bm.apc 40', 'scoreboard players set @s bm.apph 0',
-                       'scoreboard players set @s bm.apr 0', 'scoreboard players set @s bm.aplone 0', 'tag @s remove bm.apnew',
-                       'scoreboard players operation #aid bm.rng = @s bm.apid', 'function bm:p131/b/rig', 'function bm:p131/b/pose/sleep', bface('blink'),
+                       'scoreboard players set @s bm.apatk 9', 'scoreboard players set @s bm.apt 0', 'scoreboard players set @s bm.apc 40', 'scoreboard players set @s bm.apph 1',
+                       'scoreboard players set @s bm.apr 0', 'scoreboard players set @s bm.aplone 0', 'tag @s remove bm.apnew', 'bossbar set bm:apob visible false',
+                       'scoreboard players operation #aid bm.rng = @s bm.apid', 'function bm:p131/b/rig', 'function bm:p131/b/hide', 'function bm:p131/b/posen/sleep', bface('blink'),
                        f'tag {bsel()} remove bm.apsel', 'team join bm.blood @s'])
     tick.append('execute as @e[type=minecraft:husk,tag=bm.apboss] at @s run function bm:p131/b/tick')
     fn('p131/b/tick', ['scoreboard players operation #aid bm.rng = @s bm.apid',
@@ -556,7 +641,6 @@ def generate(G):
                        f'execute unless entity {bsel("coil")} run function bm:p131/b/rig',
                        f'execute unless entity {bsel("mace")} run function bm:p131/b/rerig',
                        'execute rotated as @s rotated ~ 0 run function bm:p131/b/place',
-                       'execute if score @s bm.apph matches 0 run function bm:p131/b/asleep',
                        'execute if score @s bm.apatk matches 1.. run function bm:p131/b/attack',
                        'execute if score @s bm.apph matches 1 unless score @s bm.apatk matches 1.. run function bm:p131/b/move',
                        'execute if score @s bm.apph matches 2 unless score @s bm.apatk matches 1.. run function bm:p131/b/fly',
@@ -578,22 +662,113 @@ def generate(G):
     r.insert(r.index('tag @s remove bm.hbatk'), 'execute if score #hbk bm.rng matches 31 as @e[type=minecraft:husk,tag=bm.apboss] if score @s bm.apid = #hbid bm.rng at @s run function bm:p82/hb/dmg with storage bm:tmp hb')
     o = G.FUNCS['p82/hb/orphan']
     o.insert(o.index('kill @s'), 'execute if entity @s[tag=bm.bhit_ap] as @e[type=minecraft:husk,tag=bm.apboss,distance=..40] if score @s bm.apid = #hbid bm.rng run return 0')
-    # asleep: until someone comes close (or ten seconds), then he wakes
-    fn('p131/b/asleep', ['scoreboard players add @s bm.apt 1', 'particle minecraft:bubble_pop ~ ~2.4 ~ 0.6 0.4 0.6 0.02 1',
-                         f'execute if entity {pl(15)} run return run function bm:p131/b/wake', 'execute if score @s bm.apt matches 200.. run function bm:p131/b/wake'])
-    fn('p131/b/wake', ['scoreboard players set @s bm.apph 1', 'scoreboard players set @s bm.apatk 9', 'scoreboard players set @s bm.apt 0'])
-    # the intro (attack 9): he lifts his head, looks at you - and rears up roaring
-    fn('p131/b/a_wake', [at(1, 'function bm:p131/b/pose/idle_a'), at(1, bface('surprised')),
-                         at(1, 'playsound minecraft:entity.warden.emerge hostile @a[distance=..48] ~ ~ ~ 1 0.8'),
-                         at(16, bface('smug')), at(16, apchat("Hsss... the little princess. All grown up. And she brought the tin knight, and the spark-fingered boy.", '@a[distance=..48]')),
-                         at(52, chat('Emma', "We beat you once, Apophiss! We'll beat you again!", '@a[distance=..48]')),
-                         at(84, apchat('Once, child. ONCE. The Hollow kept me. The Hollow FED me.', '@a[distance=..48]')),
-                         at(96, 'function bm:p131/b/pose/roar'), at(96, bface('shock')),
-                         at(96, 'playsound minecraft:entity.ravager.roar hostile @a[distance=..64] ~ ~ ~ 2 0.5'),
-                         at(96, 'playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..64] ~ ~ ~ 1 0.6'),
-                         at(96, 'title @a[distance=..48] times 10 50 15'), at(96, title('@a[distance=..48]', 'title', T('APOPHISS', GRN, bold=True))),
-                         at(96, title('@a[distance=..48]', 'subtitle', T('the Serpent King', GRN_LT))),
-                         at(110, bface(None)), at(118, 'function bm:p131/b/begin')])
+    # ================================================================== HIS COMING (2.77b; attack 9, at once when he spawns): the den goes dark, a
+    #   heartbeat quickens - and black fire climbs out of the floor before his throne, sixteen tongues of it spiralling into a
+    #   vortex that tightens and quickens while he grows inside it; then it bursts, and he roars (7 s). Then he speaks.
+    VXN = 16
+    def vx_at(t):                                   # (the vortex, tick by tick: its radius, its turn a tick, how far it has risen)
+        e = lambda k: k * k * (3 - 2 * k)
+        if t < 20: return 5.0, 4.0, -3.0
+        if t < 60: k = (t - 20) / 40; return 5.0 - 0.8 * e(k), 4 + 6 * k, -3.0 + 3.0 * (1 - (1 - k) ** 2)
+        if t < 120: k = (t - 60) / 60; return 4.2 - 2.2 * e(k), 10 + 22 * k ** 1.5, 0.6 * k
+        if t < 145: k = (t - 120) / 25; return 2.0 - 0.5 * k, 32 + 8 * k, 0.6
+        k = min(1.0, (t - 145) / 20); return 1.5 + 11 * (1 - (1 - k) ** 2), 40 - 30 * k, 0.6 + 2 * k
+    G.FUNCS['load'][-1:-1] = ['data modify storage bm:p131 vxt set value [' +
+                              ','.join('{r:%.3fd,s:%.2fd,y:%.3fd}' % vx_at(t) for t in range(171)) + ']']
+    fire = lambda i: snbt({'Tags': ['bm.apfire', 'bm.apfnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:apo_blackfire'}},
+                           'item_display': 'fixed', 'billboard': 'vertical', 'brightness': {'block': Int(15), 'sky': Int(15)}, 'teleport_duration': Int(2),
+                           'view_range': F(2.0), 'interpolation_duration': Int(30),
+                           'transformation': {'left_rotation': RF.IDENT, 'right_rotation': RF.IDENT, 'translation': [F(0), F(0), F(0)], 'scale': [F(0)] * 3}})
+    fn('p131/b/vx_make', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.apvx"]}'] +
+       [l for i in range(VXN) for l in (f'summon minecraft:item_display ~ ~-3 ~ {fire(i)}',
+                                         f'scoreboard players set @e[type=minecraft:item_display,tag=bm.apfnew,limit=1] bm.apfi {i}',
+                                         'tag @e[type=minecraft:item_display,tag=bm.apfnew] remove bm.apfnew')] +
+       ['execute as @e[type=minecraft:item_display,tag=bm.apfire,distance=..6] run data merge entity @s {start_interpolation:0,interpolation_duration:30,'
+        'transformation:{translation:[0f,1.1f,0f],scale:[1.4f,2.2f,1.4f]}}'])
+    # (each tick: the marker turns; the tongues ride a rising spiral round it - a golden-angle scatter, wider toward the top)
+    fn('p131/b/vx', ['execute store result storage bm:p131 vi.t int 1 run scoreboard players get @s bm.apt',
+                     'function bm:p131/b/vx_pick with storage bm:p131 vi',
+                     'execute as @e[type=minecraft:marker,tag=bm.apvx,distance=..4,limit=1] at @s run function bm:p131/b/vx_spin with storage bm:p131 vx',
+                     'execute as @e[type=minecraft:marker,tag=bm.apvx,distance=..4,limit=1] at @s run function bm:p131/b/vx_fx'])
+    fn('p131/b/vx_pick', ['$data modify storage bm:p131 vx set from storage bm:p131 vxt[$(t)]'])
+    fn('p131/b/vx_spin', ['$tp @s ~ ~ ~ ~$(s) 0'] +
+       [f'$execute rotated as @s rotated ~{i * 137.5 % 360:.1f} 0 positioned ^ ^{0.2 + 0.4 * i:.2f} ^$(r) positioned ^ ^ ^{(i - 8) * 0.08:.2f} positioned ~ ~$(y) ~ '
+        f'run tp @e[type=minecraft:item_display,tag=bm.apfire,scores={{bm.apfi={i}}},distance=..30,limit=1] ~ ~ ~' for i in range(VXN)])
+    dk = 'minecraft:dust{color:[0.03,0.0,0.05],scale:2.8}'
+    fn('p131/b/vx_fx', [f'execute rotated as @s rotated ~{arm + k * 50} 0 positioned ^ ^{0.3 + k * 1.1:.1f} ^{2.6 - k * 0.15:.2f} run particle {dk} ~ ~ ~ 0.12 0.2 0.12 0 2 force @a[distance=..96]'
+                        for arm in (0, 180) for k in range(6)] +
+       ['particle minecraft:squid_ink ~ ~0.6 ~ 2.4 0.3 2.4 0.03 5 force @a[distance=..96]', 'particle minecraft:large_smoke ~ ~2.5 ~ 2 2.5 2 0.04 4 force @a[distance=..96]',
+        'particle minecraft:reverse_portal ~ ~4 ~ 4 4 4 0.25 12 force @a[distance=..96]', 'particle minecraft:dragon_breath ~ ~0.2 ~ 4 0.1 4 0.01 4 force @a[distance=..96]',
+        'particle minecraft:dust_color_transition{from_color:[0.0,0.0,0.0],to_color:[0.55,0.15,0.85],scale:2.0} ~ ~3 ~ 1.8 3 1.8 0 8 force @a[distance=..96]'])
+    vring = lambda part, r, n, y=0.15: [f'particle {part} ^{r * math.cos(2 * math.pi * k / n):.2f} ^{y} ^{r * math.sin(2 * math.pi * k / n):.2f} 0.1 0.05 0.1 0 2 force @a[distance=..96]'
+                                         for k in range(n)]
+    ringd = 'minecraft:dust{color:[0.3,0.06,0.45],scale:2.2}'
+    fn('p131/b/vx_ring', vring(ringd, 5.2, 36))
+    fn('p131/b/vx_burst', ['particle minecraft:flash{color:[0.6,0.2,0.9,1.0]} ~ ~4 ~ 0 0 0 0 1 force @a[distance=..96]',
+                           'particle minecraft:explosion_emitter ~ ~3 ~ 0 0 0 0 1 force @a[distance=..96]',
+                           'particle minecraft:squid_ink ~ ~3 ~ 1 2 1 0.6 220 force @a[distance=..96]', 'particle minecraft:large_smoke ~ ~3 ~ 1 2 1 0.4 120 force @a[distance=..96]',
+                           'particle minecraft:dust_color_transition{from_color:[0.0,0.0,0.0],to_color:[0.6,0.2,0.9],scale:3.0} ~ ~3 ~ 3 3 3 0 120 force @a[distance=..96]',
+                           'particle minecraft:reverse_portal ~ ~3 ~ 1 2 1 1.2 200 force @a[distance=..96]',
+                           'execute as @e[type=minecraft:item_display,tag=bm.apfire,distance=..12] run data merge entity @s {start_interpolation:0,interpolation_duration:18,'
+                           'transformation:{scale:[0f,0f,0f]}}',
+                           'playsound minecraft:entity.generic.explode hostile @a[distance=..96] ~ ~ ~ 2 0.6', 'playsound minecraft:entity.warden.sonic_boom hostile @a[distance=..96] ~ ~ ~ 2 0.6',
+                           'playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..96] ~ ~ ~ 2 0.6', 'playsound minecraft:entity.ravager.roar hostile @a[distance=..96] ~ ~ ~ 2 0.5'])
+    for r_ in (4, 8, 12):
+        fn(f'p131/b/vx_wave_{r_}', vring('minecraft:dust{color:[0.08,0.0,0.12],scale:3.0}', r_, 8 * r_, 0))
+    fn('p131/b/vx_end', ['kill @e[type=minecraft:item_display,tag=bm.apfire,distance=..40]', 'kill @e[type=minecraft:marker,tag=bm.apvx,distance=..8]'])
+    G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.apfire]', 'kill @e[type=minecraft:marker,tag=bm.apvx]']
+    # (a coming cut short - he left, or was removed - leaves no fire behind)
+    second.append('execute in bm:hollow_throne as @e[type=minecraft:marker,tag=bm.apvx] at @s unless entity @e[type=minecraft:husk,tag=bm.apboss,distance=..4] run function bm:p131/b/vx_end')
+    # (the tongues flicker: two sizes, three ticks each; bigger once the vortex is roaring)
+    flick = lambda sx, sy: ('execute as @e[type=minecraft:item_display,tag=bm.apfire,distance=..16] run data merge entity @s {start_interpolation:0,interpolation_duration:3,'
+                            f'transformation:{{translation:[0f,{sy / 2:.2f}f,0f],scale:[{sx}f,{sy}f,{sx}f]}}}}')
+    fn('p131/b/vx_flick', ['scoreboard players operation #f bm.rng = @s bm.apt', 'scoreboard players operation #f bm.rng %= #6 bm.rng',
+                           'execute if score @s bm.apt matches ..89 if score #f bm.rng matches 0 run ' + flick(1.5, 2.4),
+                           'execute if score @s bm.apt matches ..89 if score #f bm.rng matches 3 run ' + flick(1.3, 2.0),
+                           'execute if score @s bm.apt matches 90.. if score #f bm.rng matches 0 run ' + flick(2.1, 3.5),
+                           'execute if score @s bm.apt matches 90.. if score #f bm.rng matches 3 run ' + flick(1.8, 3.0)])
+    beats = (1, 18, 34, 48, 60, 70, 80, 88, 96, 104, 112, 118, 124, 130, 136, 141)
+    fn('p131/b/a_wake', [at(1, 'effect give @a[distance=..64] minecraft:darkness 4 0 true'),
+                         at(1, 'playsound minecraft:block.beacon.deactivate hostile @a[distance=..96] ~ ~ ~ 2 0.5'),
+                         at(1, 'playsound minecraft:ambient.soul_sand_valley.mood ambient @a[distance=..96] ~ ~ ~ 2 0.6')] +
+       [at(t, f'playsound minecraft:entity.warden.heartbeat hostile @a[distance=..96] ~ ~ ~ {0.8 + j * 0.1:.1f} {0.55 + j * 0.03:.2f}') for j, t in enumerate(beats)] +
+       [at(20, 'function bm:p131/b/vx_make'), at('20..165', 'function bm:p131/b/vx'), at('50..144', 'function bm:p131/b/vx_flick'),
+        at(20, 'playsound minecraft:block.respawn_anchor.charge hostile @a[distance=..96] ~ ~ ~ 1.5 0.5'),
+        at(20, 'playsound minecraft:entity.blaze.burn hostile @a[distance=..96] ~ ~ ~ 2 0.5')] +
+       [at(t, 'playsound minecraft:block.fire.ambient hostile @a[distance=..96] ~ ~ ~ 3 0.5') for t in range(20, 141, 15)] +
+       [at(t, 'function bm:p131/b/vx_ring') for t in range(25, 141, 12)] +
+       [at(40, 'playsound minecraft:entity.wither.ambient hostile @a[distance=..96] ~ ~ ~ 1.5 0.4'),
+        at(60, 'playsound minecraft:item.trident.thunder hostile @a[distance=..96] ~ ~ ~ 1.2 0.6'),
+        at(60, 'playsound minecraft:entity.evoker.prepare_summon hostile @a[distance=..96] ~ ~ ~ 2 0.5'),
+        at(70, 'function bm:p131/b/grow'),
+        at(80, 'playsound minecraft:block.respawn_anchor.charge hostile @a[distance=..96] ~ ~ ~ 2 0.4'),
+        at('90..144', 'particle minecraft:sculk_soul ~ ~2 ~ 1.4 2 1.4 0.06 4 force @a[distance=..96]'),
+        at('90..144', 'particle minecraft:witch ~ ~3 ~ 2 3 2 0 6 force @a[distance=..96]'),
+        at(100, 'playsound minecraft:entity.warden.sonic_charge hostile @a[distance=..96] ~ ~ ~ 2 0.5'),
+        at(100, 'playsound minecraft:entity.ender_dragon.ambient hostile @a[distance=..96] ~ ~ ~ 1.5 0.5'),
+        at(118, 'function bm:p131/b/posen/idle_a'), at(118, bface(None)),
+        at(120, 'playsound minecraft:entity.wither.spawn hostile @a[distance=..96] ~ ~ ~ 1 0.5'),
+        at(135, 'playsound minecraft:entity.warden.emerge hostile @a[distance=..96] ~ ~ ~ 2 0.6'),
+        # (the burst: he is there)
+        at(145, 'function bm:p131/b/vx_burst'), at(145, 'function bm:p131/b/pose/roar'), at(145, bface('shock')),
+        at(145, 'execute positioned ~ ~0.2 ~ run function bm:p131/b/vx_wave_4'), at(147, 'execute positioned ~ ~0.2 ~ run function bm:p131/b/vx_wave_8'),
+        at(149, 'execute positioned ~ ~0.2 ~ run function bm:p131/b/vx_wave_12'),
+        at(145, 'title @a[distance=..64] times 6 60 20'), at(145, title('@a[distance=..64]', 'title', T('APOPHISS', GRN, bold=True))),
+        at(145, title('@a[distance=..64]', 'subtitle', T('the Serpent King', GRN_LT))),
+        at(166, 'function bm:p131/b/vx_end'),
+        # (and then he speaks)
+        at(166, 'function bm:p131/b/pose/idle_a'), at(170, bface('smug')),
+        at(170, apchat("Hsss... the little princess. All grown up. And she brought the tin knight, and the spark-fingered boy.", '@a[distance=..64]')),
+        at(204, chat('Emma', "We beat you once, Apophiss! We'll beat you again!", '@a[distance=..64]')),
+        at(232, apchat('Once, child. ONCE. And while I slept, who do you think kept that "King" on his throne? His crown of shadow was MINE. I lent it. He wore it. You BROKE it.', '@a[distance=..64]')),
+        at(272, 'function bm:p131/b/pose/battle'), at(272, bface(None)),
+        at(272, 'playsound minecraft:entity.ravager.roar hostile @a[distance=..64] ~ ~ ~ 2 0.5'), at(280, 'function bm:p131/b/begin')])
+    # (his rig at nothing - and growing in, in whatever pose he is in; the no-scale poses turn him without touching his size)
+    fn('p131/b/hide', [f'execute as {bsel(p)} run data merge entity @s {{start_interpolation:-1,interpolation_duration:0,transformation:{{scale:[0f,0f,0f]}}}}' for p in A.PARTS])
+    fn('p131/b/grow', [f'execute as {bsel(p)} run data merge entity @s {{start_interpolation:0,interpolation_duration:60,transformation:{{scale:[{SB * A.PART_K.get(p, 1.0):.4f}f,{SB * A.PART_K.get(p, 1.0):.4f}f,{SB * A.PART_K.get(p, 1.0):.4f}f]}}}}'
+                       for p in A.PARTS if not A.HIDDEN(p, POSES['sleep'])])
+    for name, dur in (('sleep', 1), ('idle_a', 16)):
+        fn(f'p131/b/posen/{name}', RF.pose(A, POSES[name], SB, dur, bsel, hide=False))
     fn('p131/b/begin', ['data merge entity @s {NoAI:0b,Invulnerable:0b}', 'bossbar set bm:apob name {text:"Apophiss, the Serpent King",color:"green"}',
                         'bossbar set bm:apob color green', 'bossbar set bm:apob visible true', 'function bm:p131/b/done', 'scoreboard players set @s bm.apc 30'])
     # moving (phase 1): the husk's own feet; a slither while he goes, his slow breath while he waits
@@ -733,21 +908,57 @@ def generate(G):
        [at(10, f'execute positioned ^{x} ^ ^{z} run summon minecraft:drowned ~ ~ ~ {snbt(court)}') for x, z in ((5, 3), (-5, 3), (4, -4), (-4, -4))] +
        [at(10, f'execute positioned ^{x} ^ ^{z} run particle minecraft:block{{block_state:"minecraft:dark_prismarine"}} ~ ~0.5 ~ 0.4 0.5 0.4 0 30') for x, z in ((5, 3), (-5, 3), (4, -4), (-4, -4))] +
        [at(24, bface(None)), at('34..', 'function bm:p131/b/done')])
-    # THE SERPENT UNBOUND (at half): he tears out of his scales - the ethereal king - and takes to the air
-    fn('p131/b/a_ascend', [at(1, 'function bm:p131/b/pose/roar'), at(1, bface('shock')), at(1, 'data merge entity @s {Invulnerable:1b}'),
-                           at(1, 'playsound minecraft:entity.wither.spawn hostile @a[distance=..64] ~ ~ ~ 1 0.6'),
-                           at(1, 'title @a[distance=..48] times 5 70 20'), at(1, title('@a[distance=..48]', 'title', T('THE SERPENT UNBOUND', VIOLET, bold=True))),
-                           at(1, title('@a[distance=..48]', 'subtitle', T('Something vast and winged tears free of his scales.', 'gray', italic=True))),
-                           at('2..20', 'particle minecraft:dust{color:[0.7,0.45,1.0],scale:2} ~ ~3 ~ 1.5 2 1.5 0 10'),
-                           at('2..20', 'particle minecraft:large_smoke ~ ~2 ~ 1.4 1.6 1.4 0.02 6'),
-                           at(20, 'particle minecraft:flash{color:[0.75,0.5,1.0,1.0]} ~ ~3 ~ 0 0 0 0 1'), at(20, 'particle minecraft:explosion_emitter ~ ~2 ~ 0 0 0 0 1'),
-                           at(20, 'playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..64] ~ ~ ~ 2 0.7'),
-                           at(20, 'scoreboard players set @s bm.apph 2'), at(20, 'function bm:p131/b/look_eth'), at(20, 'function bm:p131/b/pose/eth_hover'),
-                           at(20, 'data merge entity @s {NoAI:1b,NoGravity:1b}'), at(20, bface(None)),
-                           at(20, 'bossbar set bm:apob name {text:"Apophiss, Unbound",color:"light_purple"}'), at(20, 'bossbar set bm:apob color purple'),
-                           at(20, apchat('You want to see what the Hollow made of me? LOOK.', '@a[distance=..48]')),
-                           at('21..44', 'execute if block ~ ~6 ~ #bm:grap_pass run tp @s ~ ~0.22 ~'),
-                           at(46, 'data merge entity @s {Invulnerable:0b}'), at('48..', 'function bm:p131/b/done')])
+    # THE SERPENT UNBOUND (at half - 2.77b: a feint first). He falls: the bar goes, his court crumbles with him, he sinks onto his coils
+    # and lies still - long enough for Emma, Cecil and Leo to wonder. Then a heartbeat; his eyes snap open; he laughs - and tears out
+    # of his scales, the ethereal king, wings unfurling, and takes to the air (13 s, invulnerable throughout: nothing is won here).
+    vcol = 'minecraft:dust{color:[0.7,0.45,1.0],scale:2.2}'
+    fn('p131/b/a_ascend', [at(1, 'data merge entity @s {Invulnerable:1b,NoAI:1b}'), at(1, 'bossbar set bm:apob visible false'),
+                           at(1, 'function bm:p131/b/pose/tired'), at(1, bface('hurt')),
+                           at(1, 'playsound minecraft:entity.ravager.hurt hostile @a[distance=..64] ~ ~ ~ 2 0.4'),
+                           at(1, 'playsound minecraft:entity.ender_dragon.hurt hostile @a[distance=..64] ~ ~ ~ 1.5 0.5'),
+                           at(1, 'particle minecraft:dust{color:[0.3,0.9,0.45],scale:2} ~ ~2 ~ 2 2 2 0 90'),
+                           at(1, 'execute as @e[type=minecraft:drowned,tag=bm.apcourt,distance=..64] at @s run function bm:p131/vex_go'),
+                           at(1, 'kill @e[type=minecraft:item_display,tag=bm.apglob,distance=..64]'),
+                           at(10, 'playsound minecraft:entity.ravager.death hostile @a[distance=..64] ~ ~ ~ 1 0.5'),
+                           at(12, 'function bm:p131/b/pose/defeated'), at('12..31', 'tp @s ~ ~-0.03 ~'),
+                           at('12..40', 'particle minecraft:dust{color:[0.3,0.9,0.45],scale:1.2} ~ ~0.5 ~ 1.4 0.3 1.4 0 3'),
+                           at(30, bface('blink')),
+                           at(42, chat('Emma', 'Is he... did we...?', '@a[distance=..64]')),
+                           at(78, chat('Cecil', 'Please be dead. Please, PLEASE be dead.', '@a[distance=..64]')),
+                           at(112, chat('Leo', "Stay back, Princess. Serpents play dead.", '@a[distance=..64]'))] +
+       [at(t, f'playsound minecraft:entity.warden.heartbeat hostile @a[distance=..64] ~ ~ ~ {v} {pt}') for t, v, pt in ((128, 1.0, 0.5), (146, 1.3, 0.55), (160, 1.6, 0.6), (170, 2.0, 0.65))] +
+       [at('128..175', 'particle minecraft:dust{color:[0.7,0.45,1.0],scale:1.0} ~ ~0.8 ~ 1.2 0.4 1.2 0 2'),
+        at(146, 'function bm:p131/b/posen/idle_a'),
+        # (the eyes, and the laugh)
+        at(176, bface('shock')), at(176, 'playsound minecraft:entity.witch.celebrate hostile @a[distance=..64] ~ ~ ~ 2 0.5'),
+        at(176, 'playsound minecraft:entity.cat.hiss hostile @a[distance=..64] ~ ~ ~ 2 0.4'),
+        at(176, apchat('Hsss... hss-hss-HSSS. Did you really think the Hollow would let me die so EASILY?', '@a[distance=..64]')),
+        # (the change: the scales crack, the dark swirls up round him - and the ethereal king tears free)
+        at(190, 'function bm:p131/b/pose/roar'), at(190, bface('smug')),
+        at(190, 'playsound minecraft:entity.wither.spawn hostile @a[distance=..64] ~ ~ ~ 1 0.6'),
+        at(190, 'playsound minecraft:block.portal.trigger hostile @a[distance=..64] ~ ~ ~ 1 0.5'),
+        at('190..230', f'particle {vcol} ~ ~3 ~ 1.5 2.5 1.5 0 10'),
+        at('190..230', 'particle minecraft:reverse_portal ~ ~3 ~ 2 3 2 0.3 14'),
+        at('190..230', 'particle minecraft:large_smoke ~ ~2 ~ 1.4 1.6 1.4 0.02 6'),
+        at('190..210', 'tp @s ~ ~0.03 ~')] +
+       [at(t, 'particle minecraft:block{block_state:"minecraft:dark_prismarine"} ~ ~3 ~ 1.4 2 1.4 0.3 30') for t in range(194, 231, 6)] +
+       [at(t, 'playsound minecraft:block.deepslate_tiles.break hostile @a[distance=..64] ~ ~ ~ 1.5 0.5') for t in range(194, 231, 6)] +
+       [at(205, apchat('That "king" wore a SLIVER of my power - and you could barely stand against HIM. Now face ALL of it!', '@a[distance=..64]')),
+        at(215, 'playsound minecraft:item.trident.thunder hostile @a[distance=..64] ~ ~ ~ 1.5 0.6'),
+        at(232, 'particle minecraft:flash{color:[0.75,0.5,1.0,1.0]} ~ ~3 ~ 0 0 0 0 1'), at(232, 'particle minecraft:explosion_emitter ~ ~2 ~ 0 0 0 0 1'),
+        at(232, 'playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..64] ~ ~ ~ 2 0.7'),
+        at(232, 'scoreboard players set @s bm.apph 2'), at(232, 'function bm:p131/b/look_eth'), at(232, 'function bm:p131/b/pose/eth_hover'),
+        # (his wings unfurl slower than the rest of him moves)
+        at(232, f'execute as {bsel("wingr")} run data merge entity @s {{interpolation_duration:30}}'),
+        at(232, f'execute as {bsel("wingl")} run data merge entity @s {{interpolation_duration:30}}'),
+        at(232, 'data merge entity @s {NoAI:1b,NoGravity:1b}'), at(232, bface(None)),
+        at(232, 'title @a[distance=..64] times 5 70 20'), at(232, title('@a[distance=..64]', 'title', T('THE SERPENT UNBOUND', VIOLET, bold=True))),
+        at(232, title('@a[distance=..64]', 'subtitle', T('Something vast and winged tears free of his scales.', 'gray', italic=True))),
+        at(234, apchat('You want to see what the Hollow made of me? LOOK.', '@a[distance=..64]')),
+        at('233..256', 'execute if block ~ ~6 ~ #bm:grap_pass run tp @s ~ ~0.22 ~'),
+        at(244, 'bossbar set bm:apob name {text:"Apophiss, Unbound",color:"light_purple"}'), at(244, 'bossbar set bm:apob color purple'),
+        at(244, 'bossbar set bm:apob visible true'),
+        at(258, 'data merge entity @s {Invulnerable:0b}'), at('260..', 'function bm:p131/b/done')])
     # ---- phase 2
     orb = snbt({'Tags': ['bm.aporb', 'bm.apon'], 'item': {'id': 'minecraft:ender_eye', 'count': Int(1)}, 'item_display': 'fixed', 'teleport_duration': Int(1),
                 'brightness': {'block': Int(15), 'sky': Int(15)}, 'Glowing': B(1), 'glow_color_override': Int(0xb07aff),
@@ -843,7 +1054,7 @@ def generate(G):
                       'execute if entity @a[distance=..48,gamemode=!spectator] run scoreboard players set @s bm.aplone 0',
                       'execute unless entity @a[distance=..48,gamemode=!spectator] run scoreboard players add @s bm.aplone 1',
                       'execute if score @s bm.aplone matches 30.. run function bm:p131/b/leave'])
-    fn('p131/b/leave', ['bossbar set bm:apob visible false', 'function bm:p131/b/unrig', 'tp @s ~ -400 ~', 'kill @s'])
+    fn('p131/b/leave', ['bossbar set bm:apob visible false', 'function bm:p131/b/unrig', 'function bm:p131/b/vx_end', 'tp @s ~ -400 ~', 'kill @s'])
     fn('p131/b/unrig', ['scoreboard players operation #aid bm.rng = @s bm.apid',
                         'execute as @e[type=minecraft:item_display,tag=bm.apb,distance=..40] if score @s bm.apid = #aid bm.rng run kill @s'])
     # ---- he falls: the rig with no host - the ethereal king tears away, he sinks onto his coils, and fades; the win is everyone's here
@@ -935,8 +1146,8 @@ def generate(G):
                      for p in A.PARTS if p not in ('wingr', 'wingl')] +
        [f'execute at {psel("coil")[:-1]},limit=1] run function bm:p131/burst']
        )
-    fn('p131/burst', ['particle minecraft:dust{color:[0.25,0.9,0.4],scale:1.6} ~ ~1.5 ~ 0.8 1.2 0.8 0 60', 'particle minecraft:witch ~ ~1.5 ~ 0.6 1 0.6 0.1 30',
-                      'particle minecraft:squid_ink ~ ~1 ~ 0.6 0.8 0.6 0.05 20', 'particle minecraft:flash{color:[0.4,1.0,0.5,1.0]} ~ ~1.5 ~ 0 0 0 0 1'])
+    fn('p131/burst', ['particle minecraft:dust{color:[0.25,0.9,0.4],scale:2.2} ~ ~3 ~ 1.6 2.4 1.6 0 120', 'particle minecraft:witch ~ ~3 ~ 1.2 2 1.2 0.1 60',
+                      'particle minecraft:squid_ink ~ ~2 ~ 1.2 1.6 1.2 0.05 40', 'particle minecraft:flash{color:[0.4,1.0,0.5,1.0]} ~ ~3 ~ 0 0 0 0 1'])
     fn('p131/saddle_look', [f'execute if score #sad bm.rng matches 1 run data modify entity {psel("body")[:-1]},limit=1] item.components."minecraft:item_model" set value "bm:apo_body_saddle"',
                             f'execute if score #sad bm.rng matches 1 run data modify entity {psel("chest")[:-1]},limit=1] item.components."minecraft:item_model" set value "bm:apo_chest_saddle"',
                             f'execute if score #sad bm.rng matches 0 run data modify entity {psel("body")[:-1]},limit=1] item.components."minecraft:item_model" set value "bm:apo_body"',
@@ -977,9 +1188,9 @@ def generate(G):
                      'execute if score @s bm.apsl matches 1.. run scoreboard players remove @s bm.apsl 1',
                      'execute if score @s bm.apfn matches 1.. run scoreboard players remove @s bm.apfn 1',
                      # his fights (not ridden, not sitting): the claw or the bite up close, the spit further off; the eighth blow, his WRATH
-                     f'execute if score #rid bm.rng matches 0 unless score @s bm.apx matches 1.. unless score @s bm.apm matches 1.. unless data entity @s {{Sitting:1b}} if entity @e[{foe},distance=..3.6] run function bm:p131/melee_go',
+                     f'execute if score #rid bm.rng matches 0 unless score @s bm.apx matches 1.. unless score @s bm.apm matches 1.. unless data entity @s {{Sitting:1b}} if entity @e[{foe},distance=..5.5] run function bm:p131/melee_go',
                      f'execute if score #rid bm.rng matches 0 unless score @s bm.apx matches 1.. unless score @s bm.apv matches 1.. unless data entity @s {{Sitting:1b}} '
-                     f'unless entity @e[{foe},distance=..3.6] if entity @e[{foe},distance=6..14] run function bm:p131/spit_go',
+                     f'unless entity @e[{foe},distance=..5.5] if entity @e[{foe},distance=8..18] run function bm:p131/spit_go',
                      'function bm:p131/state',
                      'execute if score #st bm.rng = @s bm.aps run scoreboard players add @s bm.apf 1',
                      'execute unless score #st bm.rng = @s bm.aps run scoreboard players set @s bm.apf 0',
@@ -994,10 +1205,10 @@ def generate(G):
                      'execute if score @s bm.aps matches 6 run function bm:p131/face_you',
                      'execute if score @s bm.aps matches 1..3 rotated as @s rotated ~ 0 run function bm:p131/place',
                      'execute if score @s bm.aps matches 10 rotated as @s rotated ~ 0 run function bm:p131/place',
-                     'execute if score @s bm.aps matches 5 rotated as @s rotated ~ 0 positioned ^ ^ ^0.4 run function bm:p131/place',
-                     'execute if score @s bm.aps matches 11 rotated as @s rotated ~ 0 positioned ^ ^ ^0.4 run function bm:p131/place',
+                     'execute if score @s bm.aps matches 5 rotated as @s rotated ~ 0 positioned ^ ^ ^0.8 run function bm:p131/place',
+                     'execute if score @s bm.aps matches 11 rotated as @s rotated ~ 0 positioned ^ ^ ^0.8 run function bm:p131/place',
                      'tag @a[tag=bm.apown] remove bm.apown', 'tag @e[tag=bm.apsel] remove bm.apsel'])
-    fn('p131/face_you', ['execute if entity @a[tag=bm.apown,distance=1.5..12] facing entity @a[tag=bm.apown,limit=1] feet rotated ~ 0 run return run function bm:p131/place',
+    fn('p131/face_you', ['execute if entity @a[tag=bm.apown,distance=2.5..14] facing entity @a[tag=bm.apown,limit=1] feet rotated ~ 0 run return run function bm:p131/place',
                          'execute rotated as @s rotated ~ 0 run function bm:p131/place'])
     # ---- his blows: the claw (10, a sweep) or the bite (12, a lunge, withering); the spit at range (8 + poison); every 8th: THE WRATH
     fn('p131/melee_go', ['scoreboard players add @s bm.apch 1', 'execute if score @s bm.apch matches 8.. run return run function bm:p131/wrath_go',
@@ -1014,19 +1225,19 @@ def generate(G):
                          'execute if score @s bm.apa matches 9 if score @s bm.apx matches 6 run function bm:p131/spit',
                          'execute if score @s bm.apa matches 12 if score @s bm.apx matches 7 run function bm:p131/wrath_hit'])
     fn('p131/claw_hit', ['tag @s add bm.apme2', 'playsound minecraft:entity.player.attack.sweep neutral @a[distance=..16] ~ ~ ~ 1 0.6',
-                         f'execute as @e[{foe},distance=..3.8,sort=nearest,limit=1] at @s run function bm:p131/clawed',
-                         f'execute as @e[{foe},distance=..3.0] run damage @s 4 minecraft:mob_attack by @e[type=minecraft:wolf,tag=bm.apme2,limit=1]',
+                         f'execute as @e[{foe},distance=..6,sort=nearest,limit=1] at @s run function bm:p131/clawed',
+                         f'execute as @e[{foe},distance=..4.8] run damage @s 4 minecraft:mob_attack by @e[type=minecraft:wolf,tag=bm.apme2,limit=1]',
                          'tag @s remove bm.apme2', 'function bm:p131/hit_count'])
     fn('p131/clawed', ['damage @s 10 minecraft:mob_attack by @e[type=minecraft:wolf,tag=bm.apme2,limit=1]', 'particle minecraft:sweep_attack ~ ~1 ~ 0.3 0.2 0.3 0 1'])
     fn('p131/bite_hit', ['tag @s add bm.apme2', 'playsound minecraft:entity.evoker_fangs.attack neutral @a[distance=..16] ~ ~ ~ 1 0.8',
-                         f'execute as @e[{foe},distance=..4.6,sort=nearest,limit=1] at @s run function bm:p131/bitten2',
+                         f'execute as @e[{foe},distance=..7,sort=nearest,limit=1] at @s run function bm:p131/bitten2',
                          'tag @s remove bm.apme2', 'function bm:p131/hit_count'])
     fn('p131/bitten2', ['damage @s 12 minecraft:mob_attack by @e[type=minecraft:wolf,tag=bm.apme2,limit=1]', 'effect give @s minecraft:wither 3 0',
                         'particle minecraft:dust{color:[0.3,0.9,0.4],scale:1} ~ ~1 ~ 0.3 0.4 0.3 0 8'])
     pglob = snbt({'Tags': ['bm.apspit', 'bm.apgn'], 'item': {'id': 'minecraft:slime_ball', 'count': Int(1)}, 'item_display': 'fixed', 'teleport_duration': Int(1),
                   'brightness': {'block': Int(15), 'sky': Int(15)},
                   'transformation': {'left_rotation': RF.IDENT, 'right_rotation': RF.IDENT, 'translation': [F(0)] * 3, 'scale': [F(0.8)] * 3}})
-    fn('p131/spit', [f'execute facing entity @e[{foe},distance=..15,sort=nearest,limit=1] eyes positioned ^ ^2.4 ^1 run summon minecraft:item_display ~ ~ ~ {pglob}',
+    fn('p131/spit', [f'execute facing entity @e[{foe},distance=..15,sort=nearest,limit=1] eyes positioned ^ ^4.6 ^2 run summon minecraft:item_display ~ ~ ~ {pglob}',
                      f'execute as @e[type=minecraft:item_display,tag=bm.apgn] at @s facing entity @e[{foe},distance=..16,sort=nearest,limit=1] eyes run tp @s ~ ~ ~ ~ ~',
                      'scoreboard players operation @e[type=minecraft:item_display,tag=bm.apgn] bm.pid = #me bm.pid',
                      'scoreboard players set @e[type=minecraft:item_display,tag=bm.apgn] bm.apl 30', 'tag @e[type=minecraft:item_display,tag=bm.apgn] remove bm.apgn'])
@@ -1045,14 +1256,15 @@ def generate(G):
                      'execute unless entity @e[tag=bm.apme2] run damage @s 8 minecraft:mob_projectile', 'effect give @s minecraft:poison 4 1'])
     fn('p131/wrath_hit', ['tag @s add bm.apme2', 'particle minecraft:explosion ~ ~0.3 ~ 2 0.1 2 0 6', 'particle minecraft:dust{color:[0.3,0.95,0.45],scale:2} ~ ~0.3 ~ 3 0.2 3 0 40',
                           'playsound minecraft:item.mace.smash_ground_heavy neutral @a[distance=..24] ~ ~ ~ 1.2 0.7',
-                          f'execute as @e[{foe},distance=..4.5] run damage @s 24 minecraft:mob_attack by @e[type=minecraft:wolf,tag=bm.apme2,limit=1]',
-                          f'effect give @e[{foe},distance=..4.5] minecraft:wither 5 1', 'function bm:p131/pet_ring', 'tag @s remove bm.apme2',
+                          f'execute as @e[{foe},distance=..6.5] run damage @s 24 minecraft:mob_attack by @e[type=minecraft:wolf,tag=bm.apme2,limit=1]',
+                          f'effect give @e[{foe},distance=..6.5] minecraft:wither 5 1', 'function bm:p131/pet_ring', 'tag @s remove bm.apme2',
                           'execute on owner if entity @s[distance=..24] run ' + apsay('KNEEL!')])
-    fn('p131/pet_ring', [f'summon minecraft:evoker_fangs ~{3 * math.cos(2 * math.pi * i / 10):.2f} ~ ~{3 * math.sin(2 * math.pi * i / 10):.2f} {{Warmup:{2 + i % 2 * 2},Tags:["bm.apfg"]}}'
-                         for i in range(10)] +
-       ['execute as @e[type=minecraft:evoker_fangs,tag=bm.apfg,distance=..6] run data modify entity @s Owner set from entity @e[type=minecraft:wolf,tag=bm.apme2,limit=1] UUID',
+    fn('p131/pet_ring', [f'summon minecraft:evoker_fangs ~{4.5 * math.cos(2 * math.pi * i / 14):.2f} ~ ~{4.5 * math.sin(2 * math.pi * i / 14):.2f} {{Warmup:{2 + i % 2 * 2},Tags:["bm.apfg"]}}'
+                         for i in range(14)] +
+       ['execute as @e[type=minecraft:evoker_fangs,tag=bm.apfg,distance=..8] run data modify entity @s Owner set from entity @e[type=minecraft:wolf,tag=bm.apme2,limit=1] UUID',
         'tag @e[type=minecraft:evoker_fangs,tag=bm.apfg] remove bm.apfg'])
-    QUIPS = ['Pathetic.', 'Kneel.', 'Another one for the den.', 'Is that all? Hss.', "Don't thank me. Truly, don't.", 'I have eaten worse. Recently.', 'Hsss-hss-hss!']
+    QUIPS = ['Pathetic.', 'Kneel.', 'Another one for the den.', 'Is that all? Hss.', "Don't thank me. Truly, don't.", 'I have eaten worse. Recently.', 'Hsss-hss-hss!',
+             'That "king" of yours had a sliver of me. Imagine what ALL of me does.', 'I made a king out of a beggar once. Do try not to disappoint me as he did.']
     fn('p131/hit_count', ['scoreboard players add @s bm.apq 1', 'execute if score @s bm.apq matches 10.. run function bm:p131/quip'])
     fn('p131/quip', ['scoreboard players set @s bm.apq 0', f'execute store result score #r bm.rng run random value 1..{len(QUIPS)}'] +
        [f'execute if score #r bm.rng matches {i + 1} on owner if entity @s[distance=..20] run ' + apsay(q) for i, q in enumerate(QUIPS)] + face('smug', 30))
@@ -1061,7 +1273,7 @@ def generate(G):
     pet = {'Tags': ['bm.appet', 'bm.apnew', 'bm.seen'], 'Silent': B(1), 'PersistenceRequired': B(1), 'Health': F(PET_HP),
            'CustomName': T('Apophiss', GRN, bold=True), 'CustomNameVisible': B(0),
            'attributes': [{'id': f'minecraft:{k}', 'base': D(v)} for k, v in dict(max_health=PET_HP, armor=12, armor_toughness=4, attack_damage=4, knockback_resistance=0.7,
-                                                                                  movement_speed=0.34, follow_range=32, step_height=1.0, scale=1.4).items()],
+                                                                                  movement_speed=0.34, follow_range=32, step_height=1.5, scale=SP).items()],
            'active_effects': [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}]}
     in_heist = 'execute if entity @s[tag=bm.gvp] if dimension bm:gutter'
     fn('p131/use', [f'{in_heist} run return run ' + say("In the vault your crew answers the Fixer's Ledger - Raid Crew.", '#9ad0ff'),
@@ -1072,7 +1284,7 @@ def generate(G):
                     'scoreboard players set #am bm.rng 0',
                     'execute on vehicle if entity @s[tag=bm.apsel2] run scoreboard players set #am bm.rng 1',
                     'execute if score #am bm.rng matches 0 if predicate bm:p20/sneaking run scoreboard players set #am bm.rng 2',
-                    'execute if score #am bm.rng matches 0 if entity @e[type=minecraft:wolf,tag=bm.apsel2,distance=..3.5] if score @s bm.apsd matches 1 run scoreboard players set #am bm.rng 3',
+                    'execute if score #am bm.rng matches 0 if entity @e[type=minecraft:wolf,tag=bm.apsel2,distance=..5.5] if score @s bm.apsd matches 1 run scoreboard players set #am bm.rng 3',
                     'execute if score #am bm.rng matches 0 if entity @e[type=minecraft:wolf,tag=bm.apsel2] run scoreboard players set #am bm.rng 4',
                     'execute if score #am bm.rng matches 1 run function bm:p131/rfangs', 'execute if score #am bm.rng matches 2 run function bm:p131/menu',
                     'execute if score #am bm.rng matches 3 run function bm:p131/mount', 'execute if score #am bm.rng matches 4 run function bm:p131/recall',
@@ -1088,8 +1300,8 @@ def generate(G):
                            'execute unless function bm:p131/ok run return run ' + say("Apophiss won't come here."),
                            'execute if function bm:p58/full run return 0',
                            'function bm:p131/summon'])
-    fn('p131/summon', ['execute positioned ^ ^ ^1.5 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run return run function bm:p131/summon_here',
-                       'execute positioned ^ ^1 ^1.5 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run return run function bm:p131/summon_here',
+    fn('p131/summon', ['execute positioned ^ ^ ^2.5 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass if block ~ ~2 ~ #bm:grap_pass run return run function bm:p131/summon_here',
+                       'execute positioned ^ ^1 ^2.5 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass if block ~ ~2 ~ #bm:grap_pass run return run function bm:p131/summon_here',
                        'function bm:p131/summon_here'])
     fn('p131/summon_here', [f'summon minecraft:wolf ~ ~ ~ {snbt(pet)}',
                             'data modify entity @e[type=minecraft:wolf,tag=bm.apnew,limit=1,sort=nearest] Owner set from entity @s UUID',
@@ -1164,7 +1376,7 @@ def generate(G):
                     'execute if entity @s[tag=bm.aprd] as @e[type=minecraft:interaction,tag=bm.aphit,distance=..8] if score @s bm.pid = #me bm.pid run kill @s',
                     'execute if entity @s[tag=bm.aprd] run return 0',
                     'execute as @e[type=minecraft:interaction,tag=bm.aphit,distance=..10] if score @s bm.pid = #me bm.pid run tag @s add bm.aphs',
-                    'execute unless entity @e[type=minecraft:interaction,tag=bm.aphs] run summon minecraft:interaction ~ ~ ~ {Tags:["bm.aphit","bm.aphs","bm.aphnew"],width:1.6f,height:3.0f,response:1b}',
+                    'execute unless entity @e[type=minecraft:interaction,tag=bm.aphs] run summon minecraft:interaction ~ ~ ~ {Tags:["bm.aphit","bm.aphs","bm.aphnew"],width:3.4f,height:6.6f,response:1b}',
                     'scoreboard players operation @e[type=minecraft:interaction,tag=bm.aphnew] bm.pid = #me bm.pid', 'tag @e[type=minecraft:interaction,tag=bm.aphnew] remove bm.aphnew',
                     'tp @e[type=minecraft:interaction,tag=bm.aphs] ~ ~ ~', 'tag @e[type=minecraft:interaction,tag=bm.aphs] remove bm.aphs'])
     second.append('execute as @e[type=minecraft:interaction,tag=bm.aphit] run function bm:p131/box_orphan')
@@ -1222,8 +1434,8 @@ def generate(G):
     fn('p131/rider_off', ['tag @s remove bm.aprider', 'attribute @s minecraft:fall_damage_multiplier modifier remove bm:ap_ride'])
     fn('p131/rfangs', ['execute if score @s bm.apfn matches 1.. run return 0', 'scoreboard players set @s bm.apfn 60',
                        'execute rotated ~ 0 run function bm:p131/rfangs_at'])
-    fn('p131/rfangs_at', [f'summon minecraft:evoker_fangs ^ ^ ^{2.4 + i * 1.3:.1f} {{Warmup:{i * 2},Tags:["bm.apfg"]}}' for i in range(12)] +
-       [f'summon minecraft:evoker_fangs ^{s} ^ ^{3.2 + i * 1.4:.1f} {{Warmup:{3 + i * 2},Tags:["bm.apfg"]}}' for s in (-1.4, 1.4) for i in range(5)] +
+    fn('p131/rfangs_at', [f'summon minecraft:evoker_fangs ^ ^ ^{3.6 + i * 1.3:.1f} {{Warmup:{i * 2},Tags:["bm.apfg"]}}' for i in range(12)] +
+       [f'summon minecraft:evoker_fangs ^{s} ^ ^{4.4 + i * 1.4:.1f} {{Warmup:{3 + i * 2},Tags:["bm.apfg"]}}' for s in (-1.8, 1.8) for i in range(5)] +
        ['execute as @e[type=minecraft:evoker_fangs,tag=bm.apfg,distance=..24] run data modify entity @s Owner set from entity @p UUID',
         'tag @e[type=minecraft:evoker_fangs,tag=bm.apfg] remove bm.apfg',
         'playsound minecraft:entity.evoker.cast_spell neutral @a[distance=..24] ~ ~ ~ 1 0.6', 'playsound minecraft:entity.ender_dragon.growl neutral @a[distance=..24] ~ ~ ~ 0.4 1.6',
@@ -1243,8 +1455,8 @@ def generate(G):
                                                  T(f'The Oath needs {PET_CD // 60} minutes before he can come back.', 'gray')])])
     fn('p131/fade', ['execute as @e[type=minecraft:item_display,tag=bm.app_pet,tag=!bm.apfade] if score @s bm.pid = #me bm.pid run function bm:p131/fade1',
                      'execute as @e[type=minecraft:item_display,tag=bm.apspit] if score @s bm.pid = #me bm.pid run kill @s',
-                     'particle minecraft:dust{color:[0.25,0.9,0.4],scale:1.6} ~ ~1.5 ~ 0.8 1.2 0.8 0 70', 'particle minecraft:witch ~ ~1.5 ~ 0.6 1 0.6 0.1 30',
-                     'particle minecraft:flash{color:[0.4,1.0,0.5,1.0]} ~ ~1.5 ~ 0 0 0 0 1',
+                     'particle minecraft:dust{color:[0.25,0.9,0.4],scale:2.2} ~ ~3 ~ 1.6 2.4 1.6 0 140', 'particle minecraft:witch ~ ~3 ~ 1.2 2 1.2 0.1 60',
+                     'particle minecraft:flash{color:[0.4,1.0,0.5,1.0]} ~ ~3 ~ 0 0 0 0 1',
                      'playsound minecraft:entity.evoker.prepare_summon neutral @a[distance=..20] ~ ~ ~ 1 1.4', 'playsound minecraft:entity.illusioner.mirror_move neutral @a[distance=..20] ~ ~ ~ 0.8 0.8'])
     fn('p131/fade1', ['tag @s add bm.apfade', 'scoreboard players set @s bm.apl 3',
                       'data merge entity @s[type=minecraft:item_display] {brightness:{block:15,sky:15},Glowing:1b,glow_color_override:3854442}'])
@@ -1261,7 +1473,7 @@ def generate(G):
     # ---- the serpent's presence: in a fight beside you, the monsters round you weaken in his shadow
     second.append('execute as @e[type=minecraft:wolf,tag=bm.appet,tag=!bm.ffpet] at @s run function bm:p131/sec')
     fn('p131/sec', ['execute on owner if entity @s[distance=..16] run tag @s add bm.apown',
-                    f'execute as @a[tag=bm.apown] at @s run effect give @e[{foe},distance=..6] minecraft:weakness 3 0',
+                    f'execute as @a[tag=bm.apown] at @s run effect give @e[{foe},distance=..8] minecraft:weakness 3 0',
                     f'execute as @a[tag=bm.apown] at @s if entity @e[{foe},distance=..6] run particle minecraft:dust{{color:[0.25,0.8,0.35],scale:0.9}} ~ ~0.2 ~ 2.5 0.1 2.5 0 6',
                     'tag @a[tag=bm.apown] remove bm.apown'])
 
@@ -1286,13 +1498,13 @@ def generate(G):
     L[k] = L[k].replace('Recipes:[', 'Recipes:[' + snbt(offer(('gutter_trophy', 2), ('fcontract_apo', 1), ('gutter_medallion', 6))) + ',', 1)
 
     # ================================================================== admin
-    fn('admin/apophiss', [say('Apophiss wakes in front of you (asleep for a moment).', GRN), 'execute rotated ~ 0 positioned ^ ^ ^8 run summon minecraft:husk ~ ~ ~ ' + snbt(bnbt),
+    fn('admin/apophiss', [say('Apophiss comes for you: black fire, then the Serpent King.', GRN), 'execute rotated ~ 0 positioned ^ ^ ^8 run summon minecraft:husk ~ ~ ~ ' + snbt(bnbt),
                           'execute rotated ~ 0 positioned ^ ^ ^8 as @e[type=minecraft:husk,tag=bm.apnew,distance=..2,limit=1] at @s run function bm:p131/b/init'])
-    fn('admin/apophiss_den', [f'execute in bm:hollow_throne run tp @s {ARRIVE[0]} {ARRIVE[1]} {ARRIVE[2]} 180 0', 'scoreboard players set #apwake bm.p2 1'])
+    fn('admin/apophiss_den', ['tag @s add bm.apin', f'execute in bm:hollow_throne run tp @s {ARRIVE[0]} {ARRIVE[1]} {ARRIVE[2]} 180 0', 'scoreboard players set #apwake bm.p2 1'])
     fn('admin/apophiss_seal', [f'execute in bm:hollow_throne run tp @s {SEAL[0] - 3} {SEAL[1]} {SEAL[2]} -90 0'])
     G.FUNCS['admin/help'] += [tellraw('@s', [T('/function bm:admin/apophiss', 'yellow'), T('  Apophiss (boss) in front of you', 'gray')]),
                               tellraw('@s', [T('/function bm:admin/apophiss_seal', 'yellow'), T('  to the serpent seal in the Hollow throne room', 'gray')]),
-                              tellraw('@s', [T('/function bm:admin/apophiss_den', 'yellow'), T('  into his den (he wakes there)', 'gray')])]
+                              tellraw('@s', [T('/function bm:admin/apophiss_den', 'yellow'), T('  into his den (he rises for a Hollow conqueror with Emma, Leo and Cecil)', 'gray')])]
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.app]', 'kill @e[type=minecraft:husk,tag=bm.apboss]', 'bossbar remove bm:apob',
                                        'kill @e[type=minecraft:item_display,tag=bm.apglob]', 'kill @e[type=minecraft:item_display,tag=bm.aporb]',
                                        'kill @e[type=minecraft:item_display,tag=bm.apspit]']

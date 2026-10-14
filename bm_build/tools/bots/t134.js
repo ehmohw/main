@@ -2,6 +2,10 @@
 // called with their own items, one by one: the seal stirs, then breaks), the den, the fight (both phases, his attacks seen
 // landing), the bot's own blows through his hitbox, the win and its drops, the pad back up; then the Serpent's Oath: his rig,
 // sitting, the saddle, riding, his fangs, his menu, his fights, fainting. rcon only sets the stage.
+// 2.77b: the den lets in only those the seal swallowed (section "den": a teleport in, a stand on the dome - thrown back up)
+// and he rises only when someone who has beaten the Hollow King comes back with Emma, Leo and Cecil; he comes in black fire (a vortex of 16 tongues, about
+// 7 seconds, then the burst and his name); at half he plays dead (the bar gone, his court too, his old enemies wondering)
+// before THE SERPENT UNBOUND; the follower is his full size.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : null; const want = k => !ONLY || ONLY.test(k);
 (async () => { const R = await rcon(); const run = c => R.run(c);
@@ -36,7 +40,47 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
   let deaths = 0; A.on('update_health', p => { if (p.health <= 0) deaths++; });
   await tough();
   await run(`${H}kill @e[type=minecraft:husk,tag=bm.apboss]`); await run(`${H}kill @e[type=minecraft:item_display,tag=bm.apb]`);
+  await run(`${H}kill @e[type=minecraft:item_display,tag=bm.apfire]`); await run(`${H}kill @e[type=minecraft:marker,tag=bm.apvx]`);
   let boss = '@e[type=minecraft:husk,tag=bm.apboss,limit=1]';
+
+  if (want('den')) {
+    // ================================================================== 0. no way in but the seal; and he rises only for the worthy
+    const BACK = [1078.5, 103, 1083.5];
+    const inDen = async () => dist(await epos('TestRat'), BACK) > 3;
+    await run('tag TestRat remove bm.apin'); await run(`${H}kill @e[type=minecraft:husk,tag=bm.apboss]`); await run('scoreboard players set #apwake bm.p2 0');
+    A.bars.length = 0;
+    await run(`${H}tp TestRat ${ARRIVE[0]} ${ARRIVE[1]} ${ARRIVE[2]} 180 0`); await sleep(400); A.stand();
+    ok('teleported into the den without the seal: thrown straight back up to the throne room', await wait(3000, async () => dist(await epos('TestRat'), BACK) < 2),
+       JSON.stringify(await epos('TestRat')));
+    ok('..."Only the serpent\'s seal takes anyone down there."', /Only the serpent's seal/.test(A.bars.join(' ')), A.bars.slice(-1).join('').slice(0, 120));
+    await run(`${H}tp TestRat 1076.5 41 1076.5 0 0`); await sleep(300); A.stand();
+    ok('standing on the den\'s dome (to dig in, or pearl through it): thrown back up too', await wait(3000, async () => dist(await epos('TestRat'), BACK) < 2),
+       JSON.stringify(await epos('TestRat')));
+    // (in, as the seal would bring you - but not worthy: no boss, and the den says why)
+    await run('scoreboard players set TestRat bm.conq 5');
+    // (as the seal would: in, with its mark - one command, or the den could find the bot unmarked between two)
+    await run('execute as TestRat run function bm:admin/apophiss_den'); await run('scoreboard players set #apwake bm.p2 0'); await sleep(500); A.stand();
+    await run('loot replace entity TestRat hotbar.0 loot bm:items/emma_ribbon'); await run('loot replace entity TestRat hotbar.1 loot bm:items/leo_crest');
+    await run('loot replace entity TestRat hotbar.2 loot bm:items/cecil_gem');
+    await run('scoreboard players set TestRat bm.conq 6');
+    for (const k of [0, 1, 2]) { await use(A, k); await sleep(1200); }
+    await run('scoreboard players set TestRat bm.conq 5');
+    const three = async () => (await cnt('@e[type=minecraft:cat,tag=bm.emmapet]')) === 1 && (await cnt('@e[type=minecraft:wolf,tag=bm.leopet]')) === 1 && (await cnt('@e[type=minecraft:wolf,tag=bm.cecilpet]')) === 1;
+    ok('(in the den with the seal\'s mark, and Emma, Leo and Cecil with the bot)', await inDen() && await three());
+    A.bars.length = 0; await run('scoreboard players set #apwake bm.p2 1'); await sleep(5500);
+    ok('...but the Hollow King not felled by this player: he doesn\'t rise', !(await cnt(boss)));
+    ok('..."He rises only when one who has beaten the Hollow King comes back with Emma, Leo and Cecil"', /has beaten the Hollow King comes back/.test(A.bars.join(' ')), A.bars.slice(-1).join('').slice(0, 140));
+    // (a conqueror - but without the three)
+    await run('scoreboard players set TestRat bm.conq 6');
+    for (const t of ['bm.emmapet', 'bm.leopet', 'bm.cecilpet']) await run(`${H}kill @e[tag=${t}]`);
+    await run('clear TestRat'); await sleep(2500);
+    ok('a conqueror without Emma, Leo and Cecil: still nothing', !(await cnt(boss)));
+    // (a teleport out of the den takes the mark with it)
+    await run(`${H}tp TestRat ${BACK[0]} ${BACK[1]} ${BACK[2]} -90 0`); await sleep(1600); A.stand();
+    ok('out of the den, the seal\'s mark is gone (coming back needs the seal again)', !/passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.apin]')));
+    await run('scoreboard players set #apwake bm.p2 0'); await reset(); await tough();
+    for (const o of ['bm.emcd', 'bm.lecd', 'bm.cpcd']) await run(`scoreboard players set TestRat ${o} 0`);
+  }
 
   if (want('seal')) {
     // ================================================================== 1. the seal: it shows, it reads, it stirs, it breaks
@@ -44,9 +88,11 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     await run(`${H}scoreboard players set @e[type=minecraft:marker,tag=bm.apseal] bm.apt 0`); await run(`${H}scoreboard players set @e[type=minecraft:marker,tag=bm.apseal] bm.apsn 0`);
     ok('the serpent seal is in the throne room floor (marker + plate)', await wait(8000, async () => (await cnt('@e[type=minecraft:marker,tag=bm.apseal]')) === 1 &&
                                                                                 (await cnt('@e[type=minecraft:item_display,tag=bm.apsealv]')) === 1));
-    await run(`${H}tp TestRat ${SEAL[0]} ${SEAL[1]} ${SEAL[2]} -90 0`); A.bars.length = 0; await sleep(500); A.stand();
+    await run('tag TestRat remove bm.apread');
+    await run(`${H}tp TestRat ${SEAL[0]} ${SEAL[1]} ${SEAL[2]} -90 0`); A.bars.length = 0; A.chats.length = 0; await sleep(500); A.stand();
     ok('standing on it, a conqueror reads it: three hollows - a ribbon, a crest, a gem', await wait(6000, async () => /Three hollows ring it/.test(A.bars.join(' '))),
        A.bars.slice(-2).join(' / ').slice(0, 160));
+    ok('...and the words cut round it: "HE WHO SITS THIS THRONE SITS IT BY MY LEAVE"', /SITS IT BY MY LEAVE/.test(A.chats.join(' ')), A.chats.slice(-1).join('').slice(0, 160));
     // (their own items, used as items - the Hollow lets its conqueror's followers in)
     await run('loot replace entity TestRat hotbar.0 loot bm:items/emma_ribbon');
     await run('loot replace entity TestRat hotbar.1 loot bm:items/leo_crest');
@@ -67,31 +113,60 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     ok('they remember (Emma, Cecil, Leo speak)', await wait(6000, async () => /really him/.test(A.chats.join(' ')) && /made sure he was dead/.test(A.chats.join(' ')) &&
                                                                        /Stay behind me, Princess/.test(A.chats.join(' '))), A.chats.slice(-4).join(' | ').slice(0, 300));
     ok('...and swallows them: the bot is in the den', await wait(8000, async () => dist(await epos('TestRat'), ARRIVE) < 3), JSON.stringify(await epos('TestRat')));
-    await sleep(800); A.stand();
+    A.stand();
+    // (his coming, watched as one from the moment they land: the fire, his rig, the spiral and his own clock, every ~100 ms
+    //  until the burst - a slow check here would miss what it's checking)
+    const ha = await hp('TestRat');
+    A.titles.length = 0;
+    let aptBurst = NaN, sawFire = 0, sawMarker = false, invul = false, scale0 = NaN, grew = 0, r1 = NaN, r2 = NaN, moved = false, prevF = null;
+    const vxr = async () => { const c = await epos('@e[type=minecraft:marker,tag=bm.apvx,limit=1]'), f = await epos('@e[type=minecraft:item_display,tag=bm.apfire,scores={bm.apfi=3},limit=1]');
+      return c && f ? [Math.hypot(f[0] - c[0], f[2] - c[2]), f] : [NaN, null]; };
+    const coil = async () => +(((await nbt('@e[type=minecraft:item_display,tag=bm.app_coil,tag=bm.apb,limit=1]', 'transformation.scale[0]')).match(/([\d.]+)f/) || [0, NaN])[1]);
+    for (const t0 = Date.now(); Date.now() - t0 < 20000;) {
+      const apt = await sc(boss, 'bm.apt');
+      if (Number.isNaN(apt)) { await sleep(100); continue; }
+      sawFire = Math.max(sawFire, await cnt('@e[type=minecraft:item_display,tag=bm.apfire]'));
+      if (await cnt('@e[type=minecraft:marker,tag=bm.apvx]')) sawMarker = true;
+      if (/1b/.test(await nbt(boss, 'Invulnerable'))) invul = true;
+      if (apt < 60 && Number.isNaN(scale0)) scale0 = await coil();
+      if (apt > 115 && apt < 145) grew = Math.max(grew, await coil());
+      if (apt >= 40 && apt <= 60 && Number.isNaN(r1)) r1 = (await vxr())[0];
+      if (apt >= 110 && apt <= 140 && Number.isNaN(r2)) r2 = (await vxr())[0];
+      if (apt >= 30 && apt <= 140) { const [, f] = await vxr(); if (prevF && f && dist(prevF, f) > 0.1) moved = true; prevF = f; }
+      if (A.titles.some(t => /APOPHISS/.test(t))) { aptBurst = apt; break; }
+      await sleep(60);
+    }
+    ok('he comes: black fire climbs out of the floor before his throne - a vortex of sixteen tongues', sawFire === 16 && sawMarker, `tongues ${sawFire} marker ${sawMarker}`);
+    ok('...and he is there inside it, but not yet seen (his rig at nothing)', scale0 === 0, `coil scale early ${scale0}`);
+    ok('...invulnerable while he comes', invul);
+    ok('...the tongues spiral, tighter as it goes', moved && r2 < r1 - 0.8, `radius ${r1.toFixed(2)} -> ${r2.toFixed(2)}`);
+    ok('...while he grows in it', grew > 0.5, `coil scale ${grew}`);
+    ok('...then the burst: APOPHISS, the Serpent King', !Number.isNaN(aptBurst), A.titles.join(' / ').slice(0, 120));
+    ok('...the whole coming lasts five to ten seconds (by his own clock)', aptBurst >= 100 && aptBurst <= 200, `the burst ${(aptBurst / 20).toFixed(1)} s after he began`);
+    ok('...and the fire is gone after', await wait(4000, async () => !(await cnt('@e[type=minecraft:item_display,tag=bm.apfire]'))));
     const air = async (x, y, z) => /passed/i.test(await run(`${H}execute if block ${x} ${y} ${z} minecraft:air`));
-    const ha = await hp('TestRat'); await sleep(2500);
     ok('...onto open floor - nobody lands in a wall (no suffocation)', (await air(1076, 6, 1097)) && (await air(1076, 7, 1097)) && (await hp('TestRat')) >= ha,
        `health ${ha} -> ${await hp('TestRat')}`);
-    const near = async t => cnt(`@e[tag=${t},x=${ARRIVE[0]},y=${ARRIVE[1]},z=${ARRIVE[2]},distance=..10]`);
+    const near = async t => cnt(`@e[tag=${t},x=${ARRIVE[0]},y=${ARRIVE[1]},z=${ARRIVE[2]},distance=..12]`);
     ok('Emma, Leo and Cecil came down with them', (await near('bm.emmapet')) === 1 && (await near('bm.leopet')) === 1 && (await near('bm.cecilpet')) === 1);
-    ok('he is there, asleep before his throne (host + 14 parts)', await wait(5000, async () => (await cnt(boss)) === 1 &&
-                                                                                (await cnt('@e[type=minecraft:item_display,tag=bm.apb]')) === 14),
-       `boss ${await cnt(boss)} parts ${await cnt('@e[type=minecraft:item_display,tag=bm.apb]')}`);
-    ok('asleep: invulnerable, his eyes shut', /Invulnerable: 1b/.test(await nbt(boss, '')) || /1b/.test(await nbt(boss, 'Invulnerable')));
+    ok('the den lets them in (the seal\'s mark)', /passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.apin]')));
   }
 
   if (want('seal') || want('fight')) {
     // ================================================================== 2. the fight
     // (the den floor is y 5; his followers fight too - rcon holds his health between the steps so each threshold is the test's)
     const FLOOR = 5;
-    if (!(await cnt(boss))) { await run(`${H}tp TestRat ${ARRIVE[0]} ${ARRIVE[1]} ${ARRIVE[2]} 180 0`); await run('scoreboard players set #apwake bm.p2 1'); await sleep(3500); A.stand(); }
+    if (!(await cnt(boss))) {          // (on its own: as the seal would - in with its mark, and the three called with their own items)
+      await run('execute as TestRat run function bm:admin/apophiss_den'); await sleep(800); A.stand();
+      for (const [k, iid] of [[0, 'emma_ribbon'], [1, 'leo_crest'], [2, 'cecil_gem']]) { await run(`loot replace entity TestRat hotbar.${k} loot bm:items/${iid}`); await use(A, k); await sleep(1200); }
+      await run('scoreboard players set #apwake bm.p2 1'); await wait(5000, async () => (await cnt(boss)) === 1);
+    }
     await run('loot replace entity TestRat hotbar.3 loot bm:items/apo_oath'); await run('clear TestRat *[minecraft:custom_data~{bm:"apo_oath"}]');
     await run('item replace entity TestRat hotbar.4 with minecraft:netherite_sword[minecraft:enchantments={"minecraft:sharpness":5}]');
     const bp = await epos(boss);
-    A.chats.length = 0;
-    await run(`${H}tp TestRat ${bp[0]} ${bp[1]} ${bp[2] + 11} 180 0`); await sleep(500); A.stand();
-    ok('coming close wakes him (the intro begins)', await wait(4000, async () => (await sc(boss, 'bm.apph')) === 1), `apph ${await sc(boss, 'bm.apph')}`);
-    ok('"the little princess" - he knows them', await wait(6000, async () => /little princess/.test(A.chats.join(' '))));
+    await run(`${H}tp TestRat ${bp[0]} ${bp[1]} ${bp[2] + 11} 180 0`); await sleep(500); A.stand();     // (still the seal's mark: a teleport within the den keeps it)
+    ok('"the little princess" - he knows them', await wait(14000, async () => /little princess/.test(A.chats.join(' '))));
+    ok('...and he made their Hollow King: "His crown of shadow was MINE. I lent it."', await wait(5000, async () => /crown of shadow was MINE/.test(A.chats.join(' '))));
     // (NoAI:0b and Invulnerable:0b aren't saved at all in 26.x: "not 1b" is the check)
     ok('the intro ends: he fights (AI on, hurtable)', await wait(9000, async () => !/1b/.test(await nbt(boss, 'NoAI')) && !/1b/.test(await nbt(boss, 'Invulnerable'))));
     const mx = +(((await run(`${H}attribute ${boss} minecraft:max_health get`)).match(/([\d.]+)\s*$/) || [0, 900])[1]);
@@ -131,15 +206,28 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     await sleep(2500);
     // (half: the serpent unbound)
     await run(`${H}data modify entity ${boss} Health set value ${Math.round(mx * 0.45)}f`);
-    ok('at half: THE SERPENT UNBOUND (phase 2)', await wait(9000, async () => (await sc(boss, 'bm.apph')) === 2), `apph ${await sc(boss, 'bm.apph')}`);
+    A.chats.length = 0; A.titles.length = 0; const k0 = await sc('TestRat', 'bm.apk');
+    ok('at half he falls: the bar goes...', await wait(4000, async () => (await sc(boss, 'bm.apatk')) === 7) && await wait(1500, async () => /hidden/.test(await run('bossbar get bm:apob visible'))));
+    ok('...his court crumbles with him', await wait(2500, async () => !(await cnt('@e[type=minecraft:drowned,tag=bm.apcourt]'))));
+    ok('...and he can\'t be hurt while he lies there', /1b/.test(await nbt(boss, 'Invulnerable')));
+    ok('"Is he... did we...?" - "Please be dead." - "Serpents play dead."', await wait(8000, async () => /did we/.test(A.chats.join(' ')) && /Please be dead/.test(A.chats.join(' ')) &&
+       /Serpents play dead/.test(A.chats.join(' '))), A.chats.slice(-3).join(' | ').slice(0, 200));
+    ok('...still lying there, nothing won (no "APOPHISS FALLS", no drops)', (await sc(boss, 'bm.apph')) === 1 && !/I am yours/.test(A.chats.join(' ')) && (await sc('TestRat', 'bm.apk')) === k0);
+    ok('a heartbeat - and a laugh: "Did you really think the Hollow would let me die so EASILY?"', await wait(5000, async () => /die so EASILY/.test(A.chats.join(' '))));
+    ok('..."That \"king\" wore a SLIVER of my power"', await wait(3000, async () => /SLIVER of my power/.test(A.chats.join(' '))));
+    ok('then: THE SERPENT UNBOUND (phase 2)', await wait(6000, async () => (await sc(boss, 'bm.apph')) === 2), `apph ${await sc(boss, 'bm.apph')}`);
+    ok('...the title says so', await wait(2000, async () => A.titles.some(t => /SERPENT UNBOUND/.test(t))), A.titles.join(' / ').slice(0, 120));
+    let aptMax = await sc(boss, 'bm.apt');
+    await wait(5000, async () => { const a = await sc(boss, 'bm.apatk'); if (a === 7) aptMax = Math.max(aptMax, await sc(boss, 'bm.apt')); return a !== 7; }, 100);
+    ok('...the feint and the change last ten to fifteen seconds (by his own clock)', aptMax >= 200 && aptMax <= 300, `${(aptMax / 20).toFixed(1)} s`);
+    ok('...and his bar is back', /currently visible/.test(await run('bossbar get bm:apob visible')));
     ok('...the ethereal king: his look changes', await wait(1500, async () => /apo_head_eth/.test(await nbt('@e[type=minecraft:item_display,tag=bm.app_head,tag=bm.apb,limit=1]', 'item'))));
-    await wait(3000, async () => (await sc(boss, 'bm.apatk')) !== 7);
     ok('...and he flies (no AI, no gravity, well up off the floor)', /1b/.test(await nbt(boss, 'NoAI')) && /1b/.test(await nbt(boss, 'NoGravity')) && (await epos(boss))[1] > FLOOR + 3.5,
        JSON.stringify(await epos(boss)));
     const wing = await nbt('@e[type=minecraft:item_display,tag=bm.app_wingr,tag=bm.apb,limit=1]', 'transformation.scale');
     ok('...on violet wings (shown)', /\[([1-9][\d.]*)f/.test(wing), wing);
     const seen2 = new Set(); let sawOrb = false, sawFangs = false, vexMax = 0, high = 0;
-    for (let k = 0; k < 160; k++) {
+    for (let k = 0; k < 240 && !(k >= 160 && sawOrb && sawFangs); k++) {
       await hold(0.25, 0.4);
       const a = await sc(boss, 'bm.apatk'); if (a > 0) seen2.add(a);
       if (await cnt('@e[type=minecraft:item_display,tag=bm.aporb]')) sawOrb = true;
@@ -196,7 +284,10 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
        A.bars.slice(-2).join(' / '));
     await sleep(1500);
     const pp = await epos(pet, O), cp = await epos('@e[type=minecraft:item_display,tag=bm.app_pet,tag=bm.app_coil,limit=1]', O);
-    ok('his rig stands with him', dist(pp, cp) < 2.5, `host ${pp} coil ${cp}`);
+    ok('his rig stands with him', dist(pp, cp) < 4, `host ${pp} coil ${cp}`);
+    const psc = await run(`${O}attribute ${pet} minecraft:scale get`), csc = await nbt('@e[type=minecraft:item_display,tag=bm.app_pet,tag=bm.app_coil,limit=1]', 'transformation.scale[0]', O);
+    ok('his full size, as the boss is (host scale 2.8, his rig as big as the boss\'s)', /2\.8/.test(psc) && +((csc.match(/([\d.]+)f/) || [0, 0])[1]) > 2.5, `host ${psc.slice(-12)} coil ${csc}`);
+    ok('...and a click box to match', /3\.4/.test(await nbt('@e[type=minecraft:interaction,tag=bm.aphit,limit=1]', 'width', O)));
     const r1 = await nbt('@e[type=minecraft:item_display,tag=bm.app_pet,tag=bm.app_head,limit=1]', 'transformation.left_rotation', O); await sleep(1600);
     const r2 = await nbt('@e[type=minecraft:item_display,tag=bm.app_pet,tag=bm.app_head,limit=1]', 'transformation.left_rotation', O);
     ok('he breathes (the idle cycle moves him)', r1 !== r2, `${r1} / ${r2}`);

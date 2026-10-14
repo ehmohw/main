@@ -66,6 +66,13 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
 - Followers in a boss fight push the boss past its thresholds. Hold its health with rcon between steps, so each threshold
   is the test's own.
 - Give the bot Resistance as well as health for a boss fight. A dead bot respawns far away and every check after fails.
+- `bossbar get <id> visible` answers "is currently visible" or "is currently hidden" (not shown / true / false).
+- Staging the bot into a guarded place (the Serpent's Den): mark it and move it in **one** command (an admin function).
+  Two rcon commands leave a tick between them, and the guard can find the bot unmarked and throw it out.
+- A sequence that plays out in a few seconds (a boss's coming) needs one tight loop that samples everything, timed by the
+  boss's own tick counter. Separate checks with waits between them miss what they're looking for.
+- An item taken back out of a case lands in the hand that took it. Clear the inventory before reusing that slot.
+- Titles and subtitles are in `A.titles` (lib_resp.js).
 - The server's rcon reads one request per read. A second request sent with it (for example, two `run()`s inside a
   `Promise.all`) is lost, and the connection goes quiet after it. `lib_resp.js` now queues requests one at a time, and
   a reply that never comes gives up after 15 s with `RCON TIMEOUT: <command>`.
@@ -196,6 +203,9 @@ and function calls. Three are known to be stale.
 | `t134.js` | 2.77: Apophiss (regular player, real packets): the serpent seal in the Hollow throne room (Emma, Leo, Cecil called with |
 |  | their items), the den, both phases of the fight, the bot's last blow, the drops, the pad back up; the Serpent's Oath - |
 |  | sitting, the saddle, riding (walk, fangs), his menu, his fights, fainting. Sections: `seal`, `fight`, `pet`. |
+|  | 2.77b: section `den` (a teleport into the den, a stand on its dome: thrown back up; no boss without a Hollow conqueror |
+|  | back with Emma, Leo and Cecil); his coming in black fire watched as one loop by his own clock; the feint at half (the |
+|  | bar gone, the court gone, the three wondering, nothing won) before THE SERPENT UNBOUND; the follower at full size. |
 | `t135.js` | 2.77: Tullius (regular player, real packets): the ghost ship found by `locate` and built by its seed, swum to and climbed |
 |  | aboard by its ladder; "Tullius needs Leo" (no captain alone - the hint - then Leo's crest on deck); the fight (harpoon |
 |  | hook + point-blank, crew, frost, put overboard he leaps back aboard), drops, the setting off; his blunderbuss and harpoon |
@@ -204,6 +214,11 @@ and function calls. Three are known to be stale.
 | `t136.js` | 2.77: the new pairs and trios, every follower called with its own item: Frost and Brine, Old Rivals, the Tidewatch (and |
 |  | at sea), Forgiven, Venom and Volts, An Uneasy Truce, the Dread Court, the hidden Royal Retinue - and Pearlman as a fourth |
 |  | never displacing the Serpent's Bane. Sections: `tul`, `apo`, `retinue`. |
+| `t137.js` | 2.77b: the Wraithfire Heart forged on the ground - an Ethereal Gem and a Scorching Heart set down with the items |
+|  | themselves (both orders): the forging starts, both rise, circle closer, merge; the bot picks the heart up, Burning Blue; |
+|  | nothing left behind; six blocks apart nothing happens; Pearlman no longer offers the fusion. |
+| `t138.js` | 2.77b: follower figurines - a case set down with the case item, every follower's item right-clicked in (all ten), |
+|  | punch for the item and back, sneak + right-click turns it, empty-handed out; a wall case (Apophiss's Oath), picked up. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
 | `head.js` | The Horseman's Head: stream, overheat, charged blast, stoking + Nova, undead XP, lantern/heart variants, night tiers, healing. |
