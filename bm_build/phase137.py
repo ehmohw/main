@@ -66,6 +66,10 @@ def generate(G):
     # the Warpstone is granted once, ever (a fresh start no longer takes the "given" mark away)
     sub('loop/second', 'execute as @a[scores={bm.conq=6..},tag=!bm.got_warp] run function bm:p2/hollow/warp_grant',
         'execute as @a[scores={bm.conqb=6..},tag=!bm.got_warp] run function bm:p2/hollow/warp_grant')
+    # the Shard of the Hollow Throne was retired in 2.48 (an old one, used, re-forms as a Hollow Gate): the admin give list
+    # no longer hands it out alongside the Hollow Gate, the maps and the Warpstone
+    G.FUNCS['admin/give/p2map'] = [l for l in G.FUNCS['admin/give/p2map'] if 'bm:"hollow_summons"' not in l]
+    assert len(G.FUNCS['admin/give/p2map']) == 7, G.FUNCS['admin/give/p2map']
     # the Hollow's trials: a challenger within reach
     sub('p2/hollow/dg', 'execute unless entity @a[distance=..100,scores={bm.conq=..5}] run return run function bm:p2/hollow/amb',
         'execute unless entity @a[distance=..100,tag=bm.hch] run return run function bm:p2/hollow/amb')
