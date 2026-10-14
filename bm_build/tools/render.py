@@ -86,8 +86,10 @@ class Scene:
             r = el.get('rotation')
             def er(p):
                 if not r: return p
-                o = np.array(r['origin']); a = math.radians(r['angle'])
-                M = {'x': rx, 'y': ry, 'z': rz}[r['axis']](a)
+                o = np.array(r['origin'])
+                if 'axis' in r: M = {'x': rx, 'y': ry, 'z': rz}[r['axis']](math.radians(r['angle']))
+                else:                                                 # (26.x: an element may turn on all three axes - Rz Ry Rx, as the game's rotationZYX)
+                    M = rz(math.radians(r.get('z', 0))) @ ry(math.radians(r.get('y', 0))) @ rx(math.radians(r.get('x', 0)))
                 return M @ (np.array(p) - o) + o
             x1, y1, z1 = f; x2, y2, z2 = t
             quads = {'north': [(x2, y2, z1), (x1, y2, z1), (x1, y1, z1), (x2, y1, z1)],

@@ -1,35 +1,41 @@
-"""2.76: APOPHISS - the serpent king (a draft for approval: rig, textures, poses).
+"""2.76: APOPHISS - the serpent king (a draft for approval: rig, textures, faces, poses).
 
-From the reference art: a great green serpent-dragon, light belly from chin to tail, a huge round head and a wide maw of
-dark red with cream fangs and a forked tongue, black eyes over purple bags under heavy black brows, a small black crown
-(ball-tipped spikes, a great emerald, a ruby, white fur), jagged teal fins down his back, clawed hands, thick hind legs
-and a long tail ending in a black spiked mace with white crescent blades. Phase 2: ETHEREAL - his scales go to a dark,
-green-veined spectre and great violet wings open from his back.
+From the reference art: a great green serpent with arms and no legs - he rears up out of his own coils like a cobra, his
+light belly running from chin to coil; a huge round head with a maw of dark red, cream fangs (the lower ones jutting past
+his lip) and a long forked tongue; glossy black eyes with white slit pupils under heavy lids, purple bags, black brushstroke brows, freckles on one cheek and
+the honeycomb marks on the other; the small black crown (ball-tipped spikes, the great emerald, a ruby, white fur); jagged
+teal fins from the back of his head down his spine; thick arms, webbed forearms, hooked claws; and a long tail that ends
+in a black spiked mace with white crescent blades.
+Phase 2, ETHEREAL: his scales go to a dark, green-veined spectre, his eyes burn green and violet wings open from his back.
 
-Rig (rigkit): body (root) - head - jaw; arms, legs, wings off the body; tail1 - tail2 - tail3 - mace.
-Design units: feet at y=0, facing -z, his right +x; drawn at BOSS_SCALE (about 5 blocks) or PET_SCALE (rideable).
-    python3 apophiss_art.py <out.png>      renders the draft poses (needs the resource pack built)
+Rig (rigkit): coil (the root: his coils on the ground) - body - chest - head - jaw; arms and wings off the chest;
+tail1 - tail2 - tail3 - tail4 - mace out of the back of the coil (a long tail: it reaches over his head). Design units: the coil on y=0, facing -z, his right +x; shown at
+BOSS_SCALE (about nine blocks to the tip of his crest) or PET_SCALE (the follower he becomes - about four and a half; you\nride him).
+Faces: the head model has a variant per expression (apo_head_x<face>): smug, shock, hurt, tired, blink - the default is
+his scowl.
 """
 import math
 import random
-import sys
 from PIL import Image, ImageDraw
 
-from phase57_art import _el, hexc
-from rigkit import qs, shrink, transform, I
+from phase57_art import hexc
+from rigkit import qs, shrink, el, seg, chain, frame, _add, _mul, _sub, _unit, I
 
 PREFIX = 'apo_'
-BOSS_SCALE, PET_SCALE = 2.0, 0.95
-PIVOT = {'body': (0, 10, 0), 'head': (0, 30, -2), 'jaw': (0, 32, -3), 'armr': (8.6, 27, -1), 'arml': (-8.6, 27, -1),
-         'legr': (5, 11, 1), 'legl': (-5, 11, 1), 'tail1': (0, 9, 6), 'tail2': (0, 6.6, 16.6), 'tail3': (0, 5.2, 26.4), 'mace': (0, 5, 34.6),
-         'wingr': (4, 27, 6.5), 'wingl': (-4, 27, 6.5)}
-PARENT = {'body': None, 'head': 'body', 'jaw': 'head', 'armr': 'body', 'arml': 'body', 'legr': 'body', 'legl': 'body',
-          'tail1': 'body', 'tail2': 'tail1', 'tail3': 'tail2', 'mace': 'tail3', 'wingr': 'body', 'wingl': 'body'}
+BOSS_SCALE, PET_SCALE = 2.8, 1.4
+PIVOT = {'coil': (0, 3, 5), 'body': (0, 5, -3.4), 'chest': (0, 19.4, -2.6), 'head': (0, 28.6, -3.6), 'jaw': (0, 31.8, 0.4),
+         'armr': (8.4, 26.0, -3.0), 'arml': (-8.4, 26.0, -3.0),
+         'tail1': (2.0, 3.0, 13.4), 'tail2': (2.4, 3.0, 24.6), 'tail3': (2.6, 3.0, 35.4), 'tail4': (2.7, 3.0, 45.2), 'mace': (2.75, 3.0, 54.0),
+         'wingr': (4.4, 26.4, 2.0), 'wingl': (-4.4, 26.4, 2.0)}
+PARENT = {'coil': None, 'body': 'coil', 'chest': 'body', 'head': 'chest', 'jaw': 'head', 'armr': 'chest', 'arml': 'chest',
+          'tail1': 'coil', 'tail2': 'tail1', 'tail3': 'tail2', 'tail4': 'tail3', 'mace': 'tail4', 'wingr': 'chest', 'wingl': 'chest'}
 PARTS = tuple(PIVOT)
-WING_K = 2.2                     # the wings reach past a model's box: built at full size, kept at 1/2.2, shown at 2.2x
+WING_K = 1.7                    # the wings reach past a model's box: built at full size, kept at 1/1.7, shown at 1.7x
 PART_K = {'wingr': WING_K, 'wingl': WING_K}
-G, G_DK, G_LT, BELLY, BELLY_DK = '#1b7d2e', '#0d5220', '#38a84c', '#b2cd68', '#90ab4a'
-FIN, FIN_LT, FIN_DK = '#0e4e48', '#22907f', '#052b27'
+FACES = ('smug', 'shock', 'hurt', 'tired', 'blink')
+G, G_DK, G_LT, BELLY, BELLY_DK = '#177a2c', '#0c5420', '#35a64a', '#b0cc66', '#8ea84a'
+FIN, FIN_LT, FIN_DK = '#0d4c47', '#23917f', '#052a26'
+UP, FRONT, SIDE = (0.0, 1.0, 0.0), (0.0, 0.0, -1.0), (1.0, 0.0, 0.0)
 
 
 def HIDDEN(p, pose):
@@ -37,7 +43,9 @@ def HIDDEN(p, pose):
 
 
 def model_name(p, pose, suffix=''):
-    return f'{PREFIX}{p}{"_eth" if pose.get("_eth") else ""}{suffix}'
+    face = f'_x{pose["_face"]}' if p == 'head' and pose.get('_face') else ''
+    sad = '_saddle' if p in ('body', 'chest') and pose.get('_saddle') else ''
+    return f'{PREFIX}{p}{face}{sad}{"_eth" if pose.get("_eth") else ""}{suffix}'
 
 
 # ---------------------------------------------------------------------------------------------------- textures
@@ -59,7 +67,7 @@ def _scales(base, dark, light, seed, glow=None):
             d.arc((cx - 5, cy - 4, cx + 5, cy + 6), 20, 160, fill=hexc(dark), width=1)
             if rnd.random() < 0.55: d.arc((cx - 3, cy - 2, cx + 3, cy + 3), 200, 300, fill=hexc(light), width=1)
     if glow:
-        for _ in range(6):                                        # the ethereal veins
+        for _ in range(7):                                        # the ethereal veins
             x, y = rnd.randint(0, 63), rnd.randint(0, 63)
             for _s in range(rnd.randint(18, 40)):
                 im.putpixel((x % 64, y % 64), hexc(glow)[:3] + (255,))
@@ -70,29 +78,27 @@ def _scales(base, dark, light, seed, glow=None):
 def _bands(base, line, seed, glow=None):
     im = _noise(base, seed, 5); d = ImageDraw.Draw(im)
     for y in range(6, 64, 12):
-        d.line((0, y, 63, y), fill=hexc(line), width=1)
+        d.line((0, y, 63, y), fill=hexc(glow or line), width=1)
         d.line((0, y + 1, 63, y + 1), fill=tuple(min(255, v + 18) for v in hexc(base)[:3]), width=1)
-    if glow:
-        for y in range(6, 64, 12): d.line((0, y, 63, y), fill=hexc(glow), width=1)
     return im
 
 
 def _fin(base, light, dark, seed, alpha=255):
     im = _noise(base, seed, 6); rnd = random.Random(seed)
-    for x in range(64):
+    for x in range(64):                                          # streaks along the fin, a dark rim
         if rnd.random() < 0.35:
-            for y in range(64): im.putpixel((x, y), tuple(min(255, int(v * 0.6 + c * 0.4)) for v, c in zip(im.getpixel((x, y))[:3], hexc(light)[:3])) + (255,))
+            for y in range(64): im.putpixel((x, y), tuple(min(255, int(v * 0.55 + c * 0.45)) for v, c in zip(im.getpixel((x, y))[:3], hexc(light)[:3])) + (255,))
     for y in range(64):
         for x in range(64):
             p = im.getpixel((x, y))
-            if y > 56 or y < 3: p = hexc(dark)[:3] + (255,)
+            if x < 3 or x > 60: p = hexc(dark)[:3] + (255,)
             im.putpixel((x, y), p[:3] + (alpha,))
     return im
 
 
 def _mace(base, spike, seed):
     im = _noise(base, seed, 5); d = ImageDraw.Draw(im); rnd = random.Random(seed)
-    for _ in range(60):
+    for _ in range(70):
         x, y = rnd.randint(0, 63), rnd.randint(0, 63); l = rnd.randint(2, 5)
         d.line((x, y, x + l, y - l), fill=hexc(spike), width=1)
     return im
@@ -102,8 +108,44 @@ def _bone(base, shade, seed):
     im = _noise(base, seed, 6)
     for y in range(64):
         for x in range(64):
-            if (x + y) % 23 < 3:
-                im.putpixel((x, y), hexc(shade)[:3] + (255,))
+            if (x + 2 * y) % 29 < 3: im.putpixel((x, y), hexc(shade)[:3] + (255,))
+    return im
+
+
+def _eye(base, glint, seed):
+    """glossy: near-black, a soft sheen across the top, the bright glint drawn as its own box"""
+    im = _noise(base, seed, 3)
+    for y in range(64):
+        for x in range(64):
+            if y < 22: im.putpixel((x, y), tuple(min(255, v + 14 - y // 2) for v in im.getpixel((x, y))[:3]) + (255,))
+    return im
+
+
+def _hex(seed):
+    """the honeycomb marks on his cheek: thin dark lines, the rest clear"""
+    im = Image.new('RGBA', (64, 64), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    def hexagon(cx, cy, r):
+        pts = [(cx + r * math.cos(math.radians(60 * i)), cy + r * math.sin(math.radians(60 * i))) for i in range(7)]
+        d.line(pts, fill=hexc('#0a4a1a'), width=2)
+    for cx, cy in ((20, 18), (38, 28), (20, 38), (38, 48), (56, 18)):
+        hexagon(cx, cy, 10.5)
+    return im
+
+
+def _brush(base, streak, seed):
+    """a brushstroke: near-black, fine lighter streaks running along it"""
+    im = _noise(base, seed, 4); rnd = random.Random(seed)
+    for y in range(64):
+        if rnd.random() < 0.3:
+            for x in range(64):
+                if rnd.random() < 0.8: im.putpixel((x, y), hexc(streak))
+    return im
+
+
+def _leather(base, stitch, seed):
+    im = _noise(base, seed, 7); d = ImageDraw.Draw(im)
+    for y in (3, 60):
+        for x in range(2, 62, 4): d.line((x, y, x + 1, y), fill=hexc(stitch))
     return im
 
 
@@ -112,35 +154,38 @@ def _membrane(seed):
     for y in range(64):
         for x in range(64):
             g = 1 + rnd.uniform(-0.08, 0.08)
-            im.putpixel((x, y), (int(122 * g), int(60 * g), int(230 * g), 150))
+            im.putpixel((x, y), (int(118 * g), int(56 * g), int(226 * g), 150))
     d = ImageDraw.Draw(im)
-    for i in range(7):
+    for _ in range(6):
         x0 = rnd.randint(0, 63)
-        d.line((x0, 0, x0 + rnd.randint(-20, 20), 63), fill=(70, 255, 150, 210), width=1)
+        d.line((x0, 0, x0 + rnd.randint(-18, 18), 63), fill=(80, 255, 160, 210), width=1)
     return im
 
 
 def textures():
     T = {'apo_scale': _scales(G, G_DK, G_LT, 701), 'apo_scale_dk': _scales(G_DK, '#073514', G, 702), 'apo_belly': _bands(BELLY, BELLY_DK, 703),
-         'apo_fin': _fin(FIN, FIN_LT, FIN_DK, 704), 'apo_claw': _noise('#0b3613', 705, 6), 'apo_mouth': _noise('#5c0b16', 706, 8),
-         'apo_tongue': _noise('#7c1830', 707, 6), 'apo_fang': _noise('#efe6c4', 708, 6), 'apo_eye': _noise('#0e0e12', 709, 3),
+         'apo_fin': _fin(FIN, FIN_LT, FIN_DK, 704), 'apo_claw': _noise('#163b14', 705, 6), 'apo_mouth': _noise('#5a0b16', 706, 8),
+         'apo_tongue': _noise('#7a1830', 707, 6), 'apo_fang': _noise('#efe6c4', 708, 6), 'apo_eye': _eye('#0c0c10', '#ffffff', 709),
          'apo_glint': _noise('#ffffff', 710, 2), 'apo_bag': _noise('#5e2d70', 711, 6), 'apo_lash': _noise('#060606', 712, 2),
-         'apo_mace': _mace('#232327', '#4a4a54', 713), 'apo_bone': _bone('#e9e4d8', '#b8b2a4', 714), 'apo_nostril': _noise('#0a2a10', 715, 3)}
+         'apo_mace': _mace('#222226', '#4a4a54', 713), 'apo_bone': _bone('#ebe6da', '#b8b2a4', 714), 'apo_dot': _noise('#08200c', 715, 3),
+         'apo_hex': _hex(716), 'apo_lid': _scales('#13702a', G_DK, G, 717), 'apo_saddle': _leather('#5a3218', '#3e200e', 718),
+         'apo_strap': _leather('#3a2012', '#24120a', 719), 'apo_gold': _noise('#e2b236', 720, 14), 'apo_brow': _brush('#121214', '#202024', 741), 'apo_pupil': _noise('#f6f6f0', 743, 4)}
     # phase 2: the ethereal spectre
     T.update({'apo_scale_eth': _scales('#0a1f14', '#05100a', '#1a4a2c', 721, glow='#3cff8a'), 'apo_scale_dk_eth': _scales('#06140c', '#020804', '#12301e', 722, glow='#2ad070'),
-              'apo_belly_eth': _bands('#2e4a36', '#1c3022', 723, glow='#7affb0'), 'apo_fin_eth': _fin('#3a1a6a', '#8a4aff', '#1a0a34', 724, alpha=220),
-              'apo_claw_eth': _noise('#1a0a34', 725, 6), 'apo_eye_eth': _noise('#30ff90', 726, 10), 'apo_mace_eth': _mace('#141418', '#8a4aff', 727),
-              'apo_bone_eth': _bone('#c8f0ff', '#7ab0c8', 728), 'apo_wing': _membrane(729), 'apo_wingbone': _noise('#1a1030', 730, 6)})
+              'apo_belly_eth': _bands('#2e4a36', '#1c3022', 723, glow='#7affb0'), 'apo_fin_eth': _fin('#3a1a6a', '#8a4aff', '#1a0a34', 724, alpha=225),
+              'apo_claw_eth': _noise('#1a0a34', 725, 6), 'apo_eye_eth': _noise('#34ff94', 726, 12), 'apo_mace_eth': _mace('#141418', '#8a4aff', 727),
+              'apo_bone_eth': _bone('#c8f0ff', '#7ab0c8', 728), 'apo_lid_eth': _scales('#0c2418', '#05100a', '#1a4a2c', 729, glow='#3cff8a'),
+              'apo_brow_eth': _brush('#0a0a10', '#3a2a6a', 742), 'apo_pupil_eth': _noise('#06140a', 744, 3), 'apo_wing': _membrane(731), 'apo_wingbone': _noise('#1a1030', 732, 6)})
     return T
 
 
 ETH_SWAP = {'apo_scale': 'apo_scale_eth', 'apo_scale_dk': 'apo_scale_dk_eth', 'apo_belly': 'apo_belly_eth', 'apo_fin': 'apo_fin_eth',
-            'apo_claw': 'apo_claw_eth', 'apo_eye': 'apo_eye_eth', 'apo_mace': 'apo_mace_eth', 'apo_bone': 'apo_bone_eth'}
+            'apo_claw': 'apo_claw_eth', 'apo_eye': 'apo_eye_eth', 'apo_mace': 'apo_mace_eth', 'apo_bone': 'apo_bone_eth', 'apo_lid': 'apo_lid_eth', 'apo_brow': 'apo_brow_eth', 'apo_pupil': 'apo_pupil_eth'}
 
 
 # ---------------------------------------------------------------------------------------------------- models
-def _crown(cx, base, cz, k):
-    """the black crown (phase59's), scaled k about its band, its band's foot at (cx, base, cz)"""
+def _crown(cx, base, cz, k, piv):
+    """the black crown (phase59's apophiss_crown, his drop), scaled k about its band, the band's foot at (cx, base, cz)"""
     c = lambda fr, to, t, rot=None: (fr, to, t, rot)
     cr = [c((2.4, 13.6, 2.4), (13.6, 15.2, 13.6), 'f'),
           c((3, 15.0, 3), (13, 18.0, 3.8), 'k'), c((3, 15.0, 12.2), (13, 18.0, 13), 'k'),
@@ -157,7 +202,99 @@ def _crown(cx, base, cz, k):
         cr += [c((x - 1.0, 15.6, z - 0.55), (x + 1.0, 17.6, z - 0.15), 'a'), c((x - 0.6, 15.9, z - 0.9), (x + 0.6, 17.3, z - 0.5), 'r')]
     TEX = {'k': 'ap_black', 'e': 'ap_emerald', 'v': 'ap_emerald_lt', 'r': 'ap_ruby', 'o': 'ap_ruby_lt', 'a': 'ap_gold', 'f': 'ap_fur'}
     m = lambda p: (cx + (p[0] - 8) * k, base + (p[1] - 13.6) * k, cz + (p[2] - 8) * k)
-    return [(m(fr), m(to), TEX[t], (rot[0], rot[1], m(rot[2])) if rot else None) for fr, to, t, rot in cr]
+    return [el(m(fr), m(to), TEX[t], piv, (rot[0], rot[1], m(rot[2])) if rot else None) for fr, to, t, rot in cr]
+
+
+def _spike(base, tip, w0, th, tex, piv, up=SIDE, bend=(0.0, 0.0, 0.0), n=3):
+    """a jagged fin spike: n tapering plates from base to tip (th thick, toward `up`), bowed by `bend` at its middle"""
+    pts = []
+    for i in range(n + 1):
+        t = i / n; b = 4 * t * (1 - t)
+        pts.append(tuple(base[k] + (tip[k] - base[k]) * t + bend[k] * b for k in range(3)))
+    return chain(pts, [w0 * (1 - 0.72 * i / max(1, n - 1)) for i in range(n)], th, tex, piv, up, ext=0.35)
+
+
+def _sail(a, b, tip, th, tex, piv, n=4, up=SIDE, ragged=0.18):
+    """a broad fin: a triangle (base a-b, point at tip) filled with n strips fanned from the tip, its back edge ragged"""
+    out = []
+    for i in range(n):
+        t0, t1 = i / n, (i + 1) / n; tm = (t0 + t1) / 2
+        q = tuple(a[k] + (b[k] - a[k]) * tm for k in range(3))
+        q = tuple(q[k] + (tip[k] - q[k]) * (ragged if i % 2 else 0.0) for k in range(3))
+        w = math.dist(tuple(a[k] + (b[k] - a[k]) * t0 for k in range(3)), tuple(a[k] + (b[k] - a[k]) * t1 for k in range(3)))
+        L = math.dist(q, tip)
+        m = tuple(q[k] + (tip[k] - q[k]) * 0.5 for k in range(3))
+        out += [seg(q, m, w * 1.1, th, tex, piv, up, 0.2, shift=(0.3 * i, 0.5 * i)), seg(m, tip, w * 0.62, th, tex, piv, up, 0.2, shift=(0.6 * i, 0.2 * i))]
+    return out
+
+
+def _saddle(A, B, w, d, piv):
+    """a leather saddle on the back of the span A-B (w wide, d deep): pad, cantle, pommel, gold trim, girth straps, stirrups"""
+    z = _unit(_sub(B, A)); n = _unit((0.0, -z[2], z[1]))               # (n: out of his back)
+    x = (1.0, 0.0, 0.0)
+    c = _add(_mul(_add(A, B), 0.5), _mul(n, d / 2))
+    L = lambda u, v, t: _add(c, _add(_mul(x, u), _add(_mul(n, v), _mul(z, t))))
+    S = lambda p0, p1, ww, hh, t, up=None: seg(p0, p1, ww, hh, t, piv, up or n, 0.0)
+    els = [S(L(0, 0.3, -3.4), L(0, 0.3, 3.4), 7.4, 0.8, 'apo_saddle'),                               # the seat
+           S(L(0, 0.32, -3.6), L(0, 0.32, 3.6), 8.0, 0.5, 'apo_gold'),                                # (its gold edge, under)
+           S(L(0, 1.2, -3.9), L(0, 1.2, -2.9), 6.6, 2.2, 'apo_saddle'), S(L(0, 2.35, -3.95), L(0, 2.35, -2.85), 6.0, 0.3, 'apo_gold'),   # the cantle
+           S(L(0, 1.0, 2.9), L(0, 1.0, 3.9), 3.2, 1.8, 'apo_saddle'), S(L(0, 2.0, 3.0), L(0, 2.0, 3.8), 2.4, 0.3, 'apo_gold')]           # the pommel
+    for t in (-1.8, 1.8):                                                                               # girth straps, right round him
+        for side in (1, -1):
+            els.append(S(L(side * (w / 2 + 0.15), -d / 2, t), L(side * (w / 2 + 0.15), 0.2, t), 0.8, 0.3, 'apo_strap', x))
+        els.append(S(L(0, -d - 0.05, t - 0.4), L(0, -d - 0.05, t + 0.4), w + 0.6, 0.3, 'apo_strap'))
+    for side in (1, -1):                                                                                # stirrups
+        els += [S(L(side * (w / 2 + 0.35), 0.0, 0.2), L(side * (w / 2 + 0.35), -3.8, 0.2), 0.7, 0.25, 'apo_strap', x),
+                S(L(side * (w / 2 + 0.6), -3.9, -0.6), L(side * (w / 2 + 0.6), -3.9, 1.0), 0.5, 0.5, 'apo_gold', x)]
+    return els
+
+
+def _eye_parts(sx, f, pv):
+    """one eye (sx +1: his right): glossy black, rounded below, a white snake's slit for a pupil (set toward his nose, as the
+    art), the purple crescent under it, the heavy upper lid edged in black, and the brow - one black brushstroke from over
+    the inner corner sweeping out past the side of his head to a fine point.
+    f: (lid inner y, lid outer y, brow inner y, brow outer y) or ('shut' | 'pain', brow inner y, brow outer y)"""
+    X = lambda a, b: (min(a * sx, b * sx), max(a * sx, b * sx))
+    E = lambda x0, y0, z0, x1, y1, z1, t, rot=None, sh=None: el((X(x0, x1)[0], y0, z0), (X(x0, x1)[1], y1, z1), t, pv, rot, shift=sh)
+    out = [E(1.4, 35.4, -12.62, 6.8, 38.6, -12.3, 'apo_eye'), E(1.8, 34.95, -12.62, 6.5, 35.4, -12.3, 'apo_eye'),       # the eye, rounded below
+           E(2.5, 34.6, -12.62, 5.9, 34.95, -12.3, 'apo_eye'),
+           E(1.5, 34.05, -12.66, 6.8, 34.6, -12.36, 'apo_bag'), E(1.4, 34.6, -12.66, 1.8, 35.4, -12.36, 'apo_bag'),       # the purple crescent
+           E(6.5, 34.6, -12.66, 6.8, 35.4, -12.36, 'apo_bag'), E(1.8, 34.6, -12.66, 2.5, 34.95, -12.36, 'apo_bag'),
+           E(5.9, 34.6, -12.66, 6.5, 34.95, -12.36, 'apo_bag')]
+    shut = isinstance(f[0], str)
+    if shut:
+        kind, bi, bo = f; yi = yo = 34.75
+    else:
+        yi, yo, bi, bo = f
+    ang = math.degrees(math.atan2(yo - yi, 6.2)); ym = (yi + yo) / 2
+    rot = lambda y: ('z', ang * sx, (sx * 4.1, y, -12.5))
+    out.append(E(1.0, ym, -12.8, 7.2, ym + max(2.0, 40.0 - min(yi, yo)), -12.26, 'apo_lid', rot(ym), (0.3, 0.6)))         # the upper lid
+    if shut:                                                                                                       # shut: a line across
+        mid = 35.0 if kind == 'shut' else 35.7
+        out += chain([(sx * 1.3, 35.45, -12.84), (sx * 4.1, mid, -12.84), (sx * 7.0, 35.45 if kind == 'shut' else 35.0, -12.84)], [0.5, 0.5], 0.3, 'apo_lash', pv, FRONT, 0.15)
+        if kind == 'pain':
+            out.append(seg((sx * 2.0, 36.4, -12.86), (sx * 4.4, 36.0, -12.86), 0.35, 0.25, 'apo_lash', pv, FRONT))
+    else:
+        out.append(E(1.0, ym - 0.45, -12.84, 7.3, ym + 0.05, -12.28, 'apo_lash', rot(ym)))                           # the lid's black line
+        slim = 0.55 if yi > 38 else 0.75                                                                            # (shocked: the slit narrows)
+        px = 3.3
+        out += [E(px - slim / 2, 35.7, -12.68, px + slim / 2, 37.6, -12.6, 'apo_pupil'),                            # the white slit
+                E(px - slim / 4, 37.6, -12.68, px + slim / 4, 38.4, -12.6, 'apo_pupil'),
+                E(px - slim / 4, 35.0, -12.68, px + slim / 4, 35.7, -12.6, 'apo_pupil')]
+    # the brow: thick over the inner corner, sweeping out and up past the side of his head, thinning to a point
+    mid_y = (bi + bo) / 2 + 0.25
+    pts = [(sx * 0.9, bi, -12.98), (sx * 4.0, mid_y, -12.98), (sx * 7.0, bo, -12.92), (sx * 8.9, bo + 0.55, -12.3), (sx * 9.7, bo + 0.95, -11.4)]
+    out += chain(pts, [1.45, 1.25, 0.8, 0.42], 0.55, 'apo_brow', pv, FRONT, 0.2)
+    return out
+
+
+def _ring(cx, cy, cz, R, w, h, a0, a1, n, tex, piv, ext=0.9, dy=None):
+    """a coil: n boxes round a circle (angle 0 = his front, +90 = his right), dy(t) lifting it along the way"""
+    pts = []
+    for i in range(n + 1):
+        a = math.radians(a0 + (a1 - a0) * i / n); y = cy + (dy(i / n) if dy else 0.0)
+        pts.append((cx + R * math.sin(a), y, cz - R * math.cos(a)))
+    return [seg(pts[i], pts[i + 1], w, h, tex, piv, UP, ext, shift=(0.29 * i, 0.53 * i)) for i in range(n)], pts
 
 
 def models():
@@ -173,206 +310,286 @@ def models():
             eth.append(e2)
         used = sorted({e['faces'][f]['texture'][1:] for e in eth for f in e['faces']})
         M[name + '_eth'] = ({t: f'bm:block/{t}' for t in used}, eth)
-    E = lambda pv: (lambda fr, to, t='apo_scale', rot=None, uv=None: _el(fr, to, t, pv, rot, uv))
 
-    # ---- the body: a deep trunk, the belly plate down its front, a hump of shoulders, fins down the spine
-    b = E(PIVOT['body'])
-    body = [b((-7.6, 6.6, -6.0), (7.6, 16.0, 7.0)), b((-8.0, 15.4, -6.6), (8.0, 23.2, 6.6)), b((-8.6, 22.4, -6.6), (8.6, 29.4, 6.2)),
-            b((-9.2, 25.6, -5.2), (9.2, 30.0, 5.0)), b((-5.6, 28.4, -6.4), (5.6, 32.4, 3.4)),
-            b((-6.0, 11.0, 6.4), (6.0, 27.0, 8.0), 'apo_scale_dk'),                                              # the back
-            b((-5.0, 7.0, -6.6), (5.0, 16.0, -6.0), 'apo_belly'), b((-5.6, 15.4, -7.2), (5.6, 23.2, -6.6), 'apo_belly'),
-            b((-5.2, 22.4, -7.2), (5.2, 29.4, -6.6), 'apo_belly'), b((-3.8, 28.4, -7.0), (3.8, 32.4, -6.4), 'apo_belly'),
-            b((-6.6, 6.0, -5.0), (6.6, 7.0, 6.0), 'apo_belly')]                                                    # under the hips
-    for y, l, a in ((26.0, 7.5, -30), (22.0, 6.5, -28), (18.0, 5.6, -26), (14.0, 4.6, -24), (10.6, 3.6, -22)):  # the spine's fins
-        body += [b((-0.45, y, 7.6), (0.45, y + 1.6, 7.6 + l), 'apo_fin', ('x', a, (0, y + 0.8, 7.6))),
-                 b((-0.35, y + 1.2, 7.6), (0.35, y + 2.6, 7.6 + l * 0.6), 'apo_fin', ('x', a - 14, (0, y + 1.6, 7.6)))]
-    part('apo_body', body)
+    # ---- the coil: one rounded loop on the ground, open in the middle - his light belly round its inside, fins along its top.
+    #      The body comes down into its front; the right half rides up over the left at the back, where it runs on into the tail
+    pv = PIVOT['coil']; cz = 5.4; R = 9.4
+    lift = lambda t: 0.9 * math.sin(math.pi * min(1.0, t) / 2)
+    rt, rp_ = _ring(0, 3.1, cz, R, 6.8, 6.2, 0, 180, 8, 'apo_scale', pv, dy=lift)                # (his right half: rising to the back)
+    lt, lp_ = _ring(0, 2.8, cz, R - 0.3, 6.6, 5.6, 180, 360, 8, 'apo_scale', pv)                  # (the left half: lower, passing under)
+    coil = rt + lt
+    caps, _ = _ring(0, 6.5, cz, R, 4.6, 1.4, 0, 180, 8, 'apo_scale_dk', pv, dy=lift)              # rounding over the top
+    caps2, _ = _ring(0, 5.9, cz, R - 0.3, 4.4, 1.2, 180, 360, 8, 'apo_scale_dk', pv)
+    coil += caps + caps2
+    for half, (a0, r0, y0, hh) in enumerate(((0, R, 3.1, 6.2), (180, R - 0.3, 2.8, 5.6))):        # the belly, round the inside
+        for i in range(8):
+            t0, t1 = math.radians(a0 + 22.5 * i), math.radians(a0 + 22.5 * (i + 1)); ri = r0 - 3.45
+            yy = y0 + (lift((i + 0.5) / 8) if half == 0 else 0.0)
+            A = (ri * math.sin(t0), yy - 0.5, cz - ri * math.cos(t0)); B = (ri * math.sin(t1), yy - 0.5, cz - ri * math.cos(t1))
+            coil.append(seg(A, B, 0.3, hh - 1.6, 'apo_belly', pv, UP, 0.6))
+    for a in (120, 150, 180):                                                                     # fins along the top of the right half
+        sn, cs = math.sin(math.radians(a)), math.cos(math.radians(a)); y = 7.0 + lift(a / 180)
+        b0 = (R * sn, y, cz - R * cs); d = (cs, 0.0, sn)                                         # (d: along the coil)
+        coil += _sail(_add(b0, _mul(d, -1.6)), _add(b0, _mul(d, 1.6)), (b0[0] + 0.6 * sn, y + 3.4, b0[2] - 0.6 * cs + 1.2), 0.7, 'apo_fin', pv, 3, up=(sn, 0.0, -cs))
+    part('apo_coil', coil)
 
-    # ---- the head: a great round skull over a wide snout, the maw's red roof and fangs, black eyes, purple bags, heavy
-    #      brows sweeping out past his cheeks, nostrils, the crown, and a crest of fins behind
-    pv = PIVOT['head']; h = E(pv)
-    head = [h((-5.4, 28.6, -5.0), (5.4, 32.6, 3.0)),                                                             # the neck's top
-            h((-7.0, 30.6, -4.4), (7.0, 38.6, 3.2)), h((-7.0, 32.4, -10.0), (7.0, 38.6, -4.4)),                      # skull: back, front
-            h((-6.0, 32.4, -13.0), (6.0, 37.0, -10.0)), h((-5.0, 32.8, -13.6), (5.0, 36.4, -13.0)),                  # the snout
-            h((-6.2, 38.6, -9.0), (6.2, 39.6, 2.2)), h((-7.6, 32.4, -8.0), (-7.0, 37.4, 1.4)), h((7.0, 32.4, -8.0), (7.6, 37.4, 1.4)),
-            h((-5.8, 32.0, -12.6), (5.8, 32.4, -4.4), 'apo_mouth'),                                                  # the maw's roof
-            h((-5.1, 29.6, -12.5), (-3.9, 32.1, -11.4), 'apo_fang'), h((3.9, 29.6, -12.5), (5.1, 32.1, -11.4), 'apo_fang'),   # fangs
-            h((-5.4, 29.0, -12.2), (-4.5, 30.0, -11.6), 'apo_fang'), h((4.5, 29.0, -12.2), (5.4, 30.0, -11.6), 'apo_fang')]
-    for x in (-2.6, -1.0, 0.6, 2.2):                                                                                  # the small teeth
-        head.append(h((x, 31.0, -12.9), (x + 0.6, 32.1, -12.4), 'apo_fang'))
-    for sx in (1, -1):                                                                                               # eyes and brows
-        x0, x1 = (1.3, 5.5) if sx > 0 else (-5.5, -1.3)
-        head += [h((x0, 34.6, -10.12), (x1, 37.8, -10.0), 'apo_eye'),
-                 h((x0 + 0.3, 34.0, -10.1), (x1 - 0.2, 34.7, -10.0), 'apo_bag'),
-                 h((min(sx * 2.4, sx * 3.3), 36.6, -10.2), (max(sx * 2.4, sx * 3.3), 37.4, -10.12), 'apo_glint'),
-                 h((min(sx * 0.6, sx * 6.6), 37.9, -10.4), (max(sx * 0.6, sx * 6.6), 38.9, -9.4), 'apo_lash', ('z', -16 * sx, (sx * 3.6, 38.4, -9.9))),
-                 h((min(sx * 6.2, sx * 9.4), 38.6, -9.2), (max(sx * 6.2, sx * 9.4), 39.3, -8.4), 'apo_lash', ('z', 30 * sx, (sx * 6.4, 38.9, -8.8))),
-                 h((min(sx * 6.4, sx * 8.6), 37.2, -9.6), (max(sx * 6.4, sx * 8.6), 37.8, -9.0), 'apo_lash', ('z', -25 * sx, (sx * 6.4, 37.5, -9.3))),
-                 h((min(sx * 1.2, sx * 2.2), 36.95, -12.7), (max(sx * 1.2, sx * 2.2), 37.08, -11.8), 'apo_nostril')]
-    for i, (dy, l, a) in enumerate(((37.6, 9.0, -35), (35.6, 8.0, -28), (33.4, 6.4, -22))):                        # the crest of fins
-        for sx in (2.2, -2.2):
-            head += [h((sx - 0.45, dy, 2.6), (sx + 0.45, dy + 2.2, 2.6 + l), 'apo_fin', ('x', a, (sx, dy + 1.1, 2.6))),
-                     h((sx - 0.35, dy + 1.6, 2.6), (sx + 0.35, dy + 3.0, 2.6 + l * 0.55), 'apo_fin', ('x', a - 16, (sx, dy + 2.2, 2.6)))]
-    for fr, to, t, rot in _crown(0, 39.4, -3.6, 0.56):
-        head.append(_el(fr, to, t, pv, rot))
-    part('apo_head', head)
+    # ---- the body: rearing up out of the coil in an S, thick; the light belly plate down its front, sails down its back.
+    #      Saddled (the follower, ridden): the saddle sits on the middle of it and the sails there are gone
+    pv = PIVOT['body']
+    spine = [(0, 3.4, -3.2), (0, 8.4, -5.6), (0, 13.2, -5.3), (0, 17.2, -3.2), (0, 21.0, -2.4)]
+    ws, ds = [11.6, 11.0, 10.6, 10.6], [9.8, 9.4, 9.2, 9.2]
+    def body(saddle=False):
+        els = []
+        for i in range(4):
+            A, B = spine[i], spine[i + 1]
+            els.append(seg(A, B, ws[i], ds[i], 'apo_scale', pv, FRONT, 0.6, shift=(0.3 * i, 0.7 * i)))
+            n = _unit((0.0, B[2] - A[2], -(B[1] - A[1])))             # (the front of this span)
+            els.append(seg(_add(A, _mul(n, ds[i] / 2)), _add(B, _mul(n, ds[i] / 2)), 6.6, 0.4, 'apo_belly', pv, FRONT, 0.45))
+            if i and not (saddle and i >= 2):                            # a sail off the back of each upper span
+                ba, bb = _add(A, _mul(n, -ds[i] / 2 + 0.3)), _add(B, _mul(n, -ds[i] / 2 + 0.3))
+                els += _sail(ba, bb, (0, bb[1] + 1.4 + 0.6 * i, bb[2] + 4.0 + 0.9 * i), 0.8, 'apo_fin', pv, 3)
+        if saddle:
+            els += _saddle(spine[2], spine[3], ws[2], ds[2], pv)
+        return els
+    part('apo_body', body()); part('apo_body_saddle', body(True))
 
-    # ---- the jaw: the lower maw, its red floor, fangs up, the forked tongue lolling out
-    j = E(PIVOT['jaw'])
-    jaw = [j((-6.2, 28.8, -12.2), (6.2, 31.9, -2.2)), j((-4.6, 28.5, -11.6), (4.6, 28.8, -3.0), 'apo_belly'),
-           j((-5.4, 31.6, -11.6), (5.4, 31.95, -2.8), 'apo_mouth'),
-           j((-4.7, 31.8, -11.5), (-3.9, 33.0, -10.8), 'apo_fang'), j((3.9, 31.8, -11.5), (4.7, 33.0, -10.8), 'apo_fang'),
-           j((-0.7, 31.2, -14.6), (0.7, 31.7, -10.8), 'apo_tongue', ('x', -12, (0, 31.4, -10.8))),
-           j((-1.5, 30.5, -16.6), (-0.4, 31.0, -14.4), 'apo_tongue', ('y', 20, (-0.6, 30.8, -14.6))),
-           j((0.4, 30.5, -16.6), (1.5, 31.0, -14.4), 'apo_tongue', ('y', -20, (0.6, 30.8, -14.6)))]
-    for x in (-2.4, 0.0, 2.0):
-        jaw.append(j((x, 31.8, -11.9), (x + 0.5, 32.6, -11.4), 'apo_fang'))
+    # ---- the chest: broad, the shoulders' bulk, the belly plate up to the chin, a fin over the back
+    pv = PIVOT['chest']
+    chest = [seg((0, 18.8, -2.6), (0, 24.8, -2.4), 12.6, 9.6, 'apo_scale', pv, FRONT, 0.4),
+             el((-7.8, 23.6, -7.3), (7.8, 29.6, 2.3), 'apo_scale', pv, shift=(0.2, 0.4)),
+             el((-6.6, 29.4, -6.4), (6.6, 30.8, 1.4), 'apo_scale', pv, shift=(0.6, 0.1)),
+             el((-4.6, 19.4, -7.75), (4.6, 29.4, -7.25), 'apo_belly', pv),
+             el((-3.4, 29.2, -7.0), (3.4, 30.6, -6.3), 'apo_belly', pv)]
+    part('apo_chest_saddle', chest + [el((-2.0, 22.0, 2.2), (2.0, 27.0, 2.6), 'apo_strap', pv), el((-1.2, 22.6, 2.5), (1.2, 26.4, 2.8), 'apo_gold', pv)])   # (a breastplate strap)
+    for y0, y1, l in ((19.4, 23.4, 5.0), (23.0, 27.4, 6.2), (26.6, 30.4, 7.0)):
+        chest += _sail((0, y0, 2.0), (0, y1, 2.0), (0, y1 + 1.6, 2.0 + l), 0.8, 'apo_fin', pv, 3)
+    part('apo_chest', chest)
+
+    # ---- the head (and its faces)
+    def head(face=None):
+        pv = PIVOT['head']; E = lambda fr, to, t='apo_scale', rot=None, sh=None: el(fr, to, t, pv, rot, shift=sh)
+        h = [E((-8.4, 32.4, -12.4), (8.4, 39.6, 1.6), sh=(0.1, 0.3)),                          # the skull
+             E((-7.4, 39.4, -11.2), (7.4, 41.0, 1.0), sh=(0.5, 0.2)), E((-5.6, 40.8, -9.4), (5.6, 41.6, -0.6), sh=(0.8, 0.6)),   # the dome
+             E((8.2, 32.8, -10.8), (9.0, 38.6, 0.4), sh=(0.3, 0.9)), E((-9.0, 32.8, -10.8), (-8.2, 38.6, 0.4), sh=(0.7, 0.4)),   # cheeks
+             E((-7.4, 31.0, 1.4), (7.4, 39.0, 3.2), sh=(0.4, 0.5)),                                                              # the back
+             E((-7.4, 32.4, -13.1), (7.4, 33.9, -12.2), sh=(0.9, 0.1)),                                                         # the snout
+             E((-8.0, 32.25, -12.9), (8.0, 32.45, 0.8), 'apo_mouth')]                                                            # the roof of his maw
+        # the eyes (the art's): glossy black with white slit pupils, a purple crescent under each, a heavy upper lid edged in
+        # black sloping down to his nose (the scowl), and over each a black brushstroke brow. Per face, per side:
+        F = {None: ((36.5, 37.9, 37.5, 39.7), (36.5, 37.9, 37.5, 39.7)),                 # (lid in, lid out, brow in, brow out)
+             'smug': ((36.4, 36.5, 38.7, 39.5), (36.9, 37.6, 37.9, 39.4)),
+             'shock': ((38.8, 38.8, 39.8, 40.0), (38.8, 38.8, 39.8, 40.0)),
+             'hurt': ((36.2, 37.9, 37.2, 39.9), ('pain', 37.3, 38.9)),
+             'tired': ((36.1, 35.8, 37.5, 37.1), (36.1, 35.8, 37.5, 37.1)),
+             'blink': (('shut', 37.7, 38.4), ('shut', 37.7, 38.4))}[face]
+        for sx in (1, -1):
+            h += _eye_parts(sx, F[0 if sx > 0 else 1], pv)
+        h += [E((1.1, 33.0, -13.28), (2.1, 33.5, -13.05), 'apo_dot'), E((-2.1, 33.0, -13.28), (-1.1, 33.5, -13.05), 'apo_dot')]    # nostrils
+        for x, y in ((4.4, 32.9), (5.5, 32.6), (5.0, 33.3)):                                                  # the freckles on his right cheek
+            h.append(E((x, y, -13.22), (x + 0.5, y + 0.45, -13.05), 'apo_dot'))
+        h.append(el((-9.12, 33.6, -8.4), (-9.04, 38.2, -2.4), 'apo_hex', pv, faces=('west',)))             # the honeycomb on his left
+        # the mouth: as wide as his head - big fangs, small teeth, side teeth
+        for sx in (1, -1):
+            X = lambda a, b: (min(a * sx, b * sx), max(a * sx, b * sx))
+            h += [E((X(4.9, 6.4)[0], 30.4, -12.95), (X(4.9, 6.4)[1], 32.45, -11.7), 'apo_fang'), E((X(5.2, 6.1)[0], 28.8, -12.75), (X(5.2, 6.1)[1], 30.5, -11.95), 'apo_fang'),
+                  E((X(5.45, 5.85)[0], 28.0, -12.6), (X(5.45, 5.85)[1], 28.9, -12.1), 'apo_fang'),
+                  E((X(2.8, 3.6)[0], 31.3, -12.95), (X(2.8, 3.6)[1], 32.45, -12.35), 'apo_fang'), E((X(0.9, 1.5)[0], 31.7, -12.95), (X(0.9, 1.5)[1], 32.45, -12.45), 'apo_fang')]
+            for z in (-9.4, -6.4, -3.4):
+                h.append(E((X(7.2, 7.9)[0], 31.4, z), (X(7.2, 7.9)[1], 32.45, z + 0.6), 'apo_fang'))
+        h += _crown(0, 41.4, -5.0, 0.62, pv)
+        # the crest: great layered sails off the back of his head, the tallest behind the crown
+        h += _sail((0, 41.2, -2.4), (0, 37.0, 3.0), (0, 51.0, 7.4), 0.9, 'apo_fin', pv, 5)
+        h += _sail((0, 38.6, 2.2), (0, 34.2, 3.4), (0, 46.0, 10.6), 0.9, 'apo_fin', pv, 4)
+        h += _sail((0, 35.4, 3.2), (0, 31.2, 3.2), (0, 40.2, 10.6), 0.9, 'apo_fin', pv, 3)
+        for sx in (1, -1):
+            h += _sail((sx * 4.4, 40.4, -0.8), (sx * 4.8, 36.0, 3.0), (sx * 7.4, 47.6, 6.4), 0.8, 'apo_fin', pv, 4)
+            h += _sail((sx * 6.0, 37.0, 1.2), (sx * 6.2, 33.0, 3.0), (sx * 9.2, 41.4, 8.6), 0.8, 'apo_fin', pv, 3)
+        return h
+    part('apo_head', head())
+    for f in FACES:
+        part(f'apo_head_x{f}', head(f))
+
+    # ---- the jaw: the lower maw (jutting a touch past the upper - his lower fangs stand in front of his lip), the light throat,
+    #      the red floor, and the forked tongue lolling out over his chin
+    pv = PIVOT['jaw']; E = lambda fr, to, t='apo_scale', sh=None: el(fr, to, t, pv, shift=sh)
+    jaw = [E((-8.0, 28.6, -12.8), (8.0, 32.2, 0.8), sh=(0.2, 0.2)), E((-6.8, 28.0, -11.6), (6.8, 28.7, -0.6), sh=(0.6, 0.5)),
+           E((7.9, 29.0, -10.4), (8.6, 32.1, 0.2), sh=(0.1, 0.8)), E((-8.6, 29.0, -10.4), (-7.9, 32.1, 0.2), sh=(0.9, 0.3)),
+           E((-5.6, 27.9, -11.0), (5.6, 28.05, -1.6), 'apo_belly'), E((-7.4, 32.1, -12.2), (7.4, 32.25, 0.4), 'apo_mouth')]
+    for sx in (1, -1):
+        X = lambda a, b: (min(a * sx, b * sx), max(a * sx, b * sx))
+        jaw += [E((X(3.8, 5.0)[0], 32.1, -13.4), (X(3.8, 5.0)[1], 33.6, -12.6), 'apo_fang'), E((X(4.1, 4.7)[0], 33.5, -13.25), (X(4.1, 4.7)[1], 34.4, -12.75), 'apo_fang'),
+                E((X(1.6, 2.2)[0], 32.1, -12.75), (X(1.6, 2.2)[1], 32.9, -12.3), 'apo_fang'), E((X(6.6, 7.2)[0], 32.1, -10.6), (X(6.6, 7.2)[1], 33.0, -10.0), 'apo_fang')]
+    jaw += chain([(0, 32.28, -7.0), (0, 32.32, -12.2), (0, 31.6, -14.2), (0, 29.8, -15.0)], [1.7, 1.6, 1.4], 0.5, 'apo_tongue', pv, UP)
+    for sx in (1, -1):
+        jaw += chain([(0, 29.9, -15.0), (sx * 1.0, 28.6, -15.5), (sx * 1.5, 27.6, -15.2)], [1.0, 0.7], 0.5, 'apo_tongue', pv, UP)
     part('apo_jaw', jaw)
 
-    # ---- arms: big shoulders, the forearm bent forward at the elbow, a broad hand, four hooked claws; fins on the forearm
+    # ---- arms: a great shoulder, the upper arm, the forearm bent forward at the elbow with its jagged web, a broad hand and
+    #      four hooked claws (and a thumb)
     def arm(sx):
-        pv = PIVOT['armr' if sx > 0 else 'arml']; a = E(pv); cx = pv[0] + 0.6 * sx
-        el = (cx, 19.0, -1.0); fa = ('x', -38, el)
-        X = lambda x0, x1: (min(cx + x0 * sx, cx + x1 * sx), max(cx + x0 * sx, cx + x1 * sx))
-        def F(x0, x1, y0, y1, z0, z1, t='apo_scale'):
-            xa, xb = X(x0, x1); return a((xa, y0, z0), (xb, y1, z1), t, fa)
-        xa, xb = X(-2.6, 2.6)
-        els = [a((xa, 23.0, -3.8), (xb, 29.4, 3.0)), a(X(-2.0, 2.0)[:1] + (18.4, -3.0), X(-2.0, 2.0)[1:] + (24.0, 1.6)),
-               F(-1.8, 1.8, 12.4, 19.6, -2.8, 0.8), F(-1.6, 1.6, 12.6, 18.0, -3.1, -2.7, 'apo_scale_dk'),
-               F(-2.3, 2.3, 9.6, 12.8, -3.2, 1.2)]                                                               # the hand
-        for i in range(4):                                                                                       # claws
-            x = -1.9 + i * 1.15
-            els += [F(x, x + 0.75, 7.2, 9.8, -3.4, -2.4, 'apo_claw'), F(x + 0.15, x + 0.6, 6.0, 7.4, -4.4, -3.6, 'apo_claw')]
-        els += [F(2.0, 2.9, 9.8, 11.8, -3.0, -2.0, 'apo_claw')]                                                 # the thumb
-        for y, l in ((17.4, 2.4), (15.6, 2.0), (13.8, 1.6)):                                                      # forearm fins
-            els.append(F(1.7, 1.7 + l, y, y + 0.8, -0.6, 0.6, 'apo_fin'))
+        pv = PIVOT['armr' if sx > 0 else 'arml']
+        Mx = lambda p: (p[0] * sx, p[1], p[2])
+        S = lambda A, B, w, h, t='apo_scale', up=FRONT, ext=0.3, sh=None: seg(Mx(A), Mx(B), w, h, t, pv, Mx(up), ext, shift=sh)
+        E = lambda fr, to, t='apo_scale', sh=None: el((min(fr[0] * sx, to[0] * sx), fr[1], fr[2]), (max(fr[0] * sx, to[0] * sx), to[1], to[2]), t, pv, shift=sh)
+        els = [E((6.2, 22.2, -6.8), (12.2, 29.0, 0.6), sh=(0.3, 0.2)), E((6.8, 28.8, -6.0), (11.6, 29.8, -0.2), sh=(0.6, 0.7)),
+               S((9.9, 24.0, -3.0), (10.6, 17.6, -3.4), 5.8, 5.6, sh=(0.2, 0.5)),
+               E((8.0, 16.0, -6.0), (13.0, 20.0, -1.0), sh=(0.8, 0.1))]
+        el_, wr = (10.5, 18.0, -3.6), (10.8, 13.2, -10.6)
+        mid = _mul(_add(el_, wr), 0.5)
+        els += [S(el_, mid, 5.2, 5.0, sh=(0.1, 0.9)), S(mid, wr, 4.4, 4.2, sh=(0.7, 0.3))]
+        for t, l in ((0.25, 3.6), (0.55, 3.0), (0.85, 2.2)):                                     # the web: jagged, off the outer forearm
+            b = tuple(el_[k] + (wr[k] - el_[k]) * t for k in range(3)); b = (b[0] + 2.0, b[1], b[2])
+            els += [S(b, (b[0] + l * 0.75, b[1] + l * 0.45, b[2] + l * 0.55), 1.8, 0.6, 'apo_scale_dk', FRONT, 0.4),
+                    S((b[0] + l * 0.6, b[1] + l * 0.36, b[2] + l * 0.44), (b[0] + l * 1.05, b[1] + l * 0.5, b[2] + l * 0.95), 0.9, 0.5, 'apo_scale_dk', FRONT, 0.3)]
+        d = _unit(_sub(wr, el_)); x, y, z = frame(d, UP)                                          # the hand, in its own frame
+        L = lambda u, v, w: _add(wr, _add(_mul(x, u), _add(_mul(y, v), _mul(z, w))))
+        els.append(S(L(0, 0, -0.4), L(0, 0, 2.8), 5.2, 2.8, 'apo_scale', y, 0.2))
+        for i in range(4):
+            u = -1.95 + 1.3 * i
+            els += [S(L(u, 0.2, 2.6), L(u * 1.1, -0.2, 4.8), 0.95, 0.95, 'apo_claw', y, 0.2),
+                    S(L(u * 1.1, -0.2, 4.8), L(u * 1.15, -1.8, 6.2), 0.75, 0.7, 'apo_claw', y, 0.2),
+                    S(L(u * 1.15, -1.8, 6.2), L(u * 1.15, -3.2, 6.4), 0.5, 0.5, 'apo_claw', y, 0.15)]
+        els += [S(L(-2.6, 0.0, 0.6), L(-3.8, -0.6, 2.4), 0.9, 0.9, 'apo_claw', y, 0.2), S(L(-3.8, -0.6, 2.4), L(-4.2, -1.8, 3.4), 0.6, 0.6, 'apo_claw', y, 0.15)]
         return els
     part('apo_armr', arm(1)); part('apo_arml', arm(-1))
 
-    # ---- legs: a huge thigh, a short shin, a broad foot, three talons
-    def leg(sx):
-        pv = PIVOT['legr' if sx > 0 else 'legl']; l = E(pv)
-        X = lambda x0, x1: (min(pv[0] + x0 * sx, pv[0] + x1 * sx), max(pv[0] + x0 * sx, pv[0] + x1 * sx))
-        box = lambda x0, x1, y0, y1, z0, z1, t='apo_scale', rot=None: l((X(x0, x1)[0], y0, z0), (X(x0, x1)[1], y1, z1), t, rot)
-        els = [box(-3.0, 3.4, 5.4, 13.4, -3.2, 4.4), box(-2.2, 2.6, 1.6, 6.4, -2.2, 2.8), box(-2.6, 2.8, 0.0, 2.0, -5.6, 2.8),
-               box(-2.0, 2.2, 5.6, 12.4, -3.4, -3.2, 'apo_scale_dk')]
-        for i in range(3):
-            x = -1.9 + i * 1.6
-            els.append(box(x, x + 1.0, 0.0, 1.4, -7.6, -5.4, 'apo_claw'))
-        return els
-    part('apo_legr', leg(1)); part('apo_legl', leg(-1))
-
-    # ---- the tail: three tapering lengths, belly underneath, little fins on top; the mace at its end
-    for name, (w, y0, y1, z0, z1, n) in (('tail1', (5.0, 4.0, 12.2, 5.0, 17.4, 3)), ('tail2', (4.0, 3.0, 9.8, 16.2, 27.0, 3)),
-                                         ('tail3', (3.0, 2.6, 7.6, 26.0, 35.2, 2))):
-        t = E(PIVOT[name])
-        els = [t((-w, y0, z0), (w, y1, z1)), t((-w * 0.65, y0 - 0.3, z0 + 0.5), (w * 0.65, y0, z1 - 0.3), 'apo_belly')]
-        for i in range(n):
-            z = z0 + 1.5 + i * (z1 - z0 - 2) / n
-            els.append(t((-0.4, y1 - 0.2, z), (0.4, y1 + 2.4 - i * 0.4, z + 2.4), 'apo_fin', ('x', -30, (0, y1, z))))
+    # ---- the tail: three tapering lengths out of the coil's back - belly under, small fins over; the mace at its end
+    for name, (A, B, w0, w1, h0, h1, nf) in (('tail1', ((2.0, 3.0, 12.8), (2.4, 3.0, 24.6), 7.0, 6.4, 6.2, 5.8, 2)),
+                                            ('tail2', ((2.4, 3.0, 24.6), (2.6, 3.0, 35.4), 6.2, 5.4, 5.6, 5.0, 2)),
+                                            ('tail3', ((2.6, 3.0, 35.4), (2.7, 3.0, 45.2), 5.2, 4.4, 4.8, 4.2, 2)),
+                                            ('tail4', ((2.7, 3.0, 45.2), (2.75, 3.0, 54.0), 4.2, 3.4, 4.0, 3.2, 1))):
+        pv = PIVOT[name]; m = _mul(_add(A, B), 0.5)
+        els = [seg(A, m, w0, h0, 'apo_scale', pv, UP, 0.5, shift=(0.2, 0.3)), seg(m, B, w1, h1, 'apo_scale', pv, UP, 0.5, shift=(0.7, 0.6)),
+               seg((A[0], A[1] - h0 / 2 + 0.05, A[2]), (B[0], B[1] - h1 / 2 + 0.05, B[2]), w1 * 0.62, 0.3, 'apo_belly', pv, UP, 0.2)]
+        for i in range(nf):
+            t = (i + 0.5) / nf; b = tuple(A[k] + (B[k] - A[k]) * t for k in range(3)); b = (b[0], b[1] + (h0 + (h1 - h0) * t) / 2 - 0.2, b[2])
+            els += _spike(b, (b[0], b[1] + 2.6 - 0.4 * i, b[2] + 2.8), 2.6, 0.6, 'apo_fin', pv)
         part(f'apo_{name}', els)
-    m = E(PIVOT['mace'])
-    mz = 38.4; my = 5.0
-    mace = [m((-3.4, my - 3.4, mz - 3.4), (3.4, my + 3.4, mz + 3.4), 'apo_mace'), m((-1.6, my - 1.6, 34.0), (1.6, my + 1.6, mz - 3.0))]
-    for ax, ang in (('x', 45), ('y', 45), ('z', 45)):                                                           # its spikes
-        mace.append(m((-2.9, my - 2.9, mz - 2.9), (2.9, my + 2.9, mz + 2.9), 'apo_mace', (ax, ang, (0, my, mz))))
-    for dx, dy, dz in ((0, 4.2, 0), (0, -4.2, 0), (4.2, 0, 0), (-4.2, 0, 0), (0, 0, 4.2), (2.6, 2.6, 2.6), (-2.6, 2.6, 2.6), (2.6, -2.6, 2.6), (-2.6, -2.6, 2.6)):
-        mace.append(m((dx - 0.5, my + dy - 0.5, mz + dz - 0.5), (dx + 0.5, my + dy + 0.5, mz + dz + 0.5), 'apo_mace'))
-    def crescent(points, plane):                                                                                   # a bone blade, a curve of pieces
-        out = []
-        for i in range(len(points) - 1):
-            (a0, b0), (a1, b1) = points[i], points[i + 1]
-            ca, cb = (a0 + a1) / 2, (b0 + b1) / 2; L = math.hypot(a1 - a0, b1 - b0) + 0.6; th = max(0.5, 1.6 - i * 0.28)
-            ang = math.degrees(math.atan2(b1 - b0, a1 - a0))
-            while ang > 45: ang -= 90
-            while ang < -45: ang += 90
-            horiz = abs(math.degrees(math.atan2(b1 - b0, a1 - a0))) % 180 < 45 or abs(math.degrees(math.atan2(b1 - b0, a1 - a0))) % 180 > 135
-            la, lb = (L / 2, th / 2) if horiz else (th / 2, L / 2)
-            if plane == 'xy':
-                out.append(m((ca - la, cb - lb, mz - 0.4), (ca + la, cb + lb, mz + 0.4), 'apo_bone', ('z', ang, (ca, cb, mz))))
-            else:                                                                                                  # 'zy': a blade off the back
-                out.append(m((-0.4, cb - lb, ca - la), (0.4, cb + lb, ca + la), 'apo_bone', ('x', -ang, (0, cb, ca))))
-        return out
-    mace += crescent([(0, my + 3.0), (1.2, my + 6.0), (0.4, my + 9.2), (-1.6, my + 11.6), (-3.6, my + 12.6)], 'xy')       # the top blade
-    mace += crescent([(3.0, my), (6.0, my + 1.0), (8.6, my + 3.0), (9.8, my + 5.8), (9.6, my + 8.2)], 'xy')              # right
-    mace += crescent([(-3.0, my), (-6.0, my - 1.0), (-8.6, my - 3.0), (-9.8, my - 5.8), (-9.6, my - 8.2)], 'xy')         # left, sweeping down
-    mace += crescent([(mz + 3.0, my), (mz + 5.6, my + 1.4), (mz + 7.4, my + 3.6), (mz + 8.0, my + 6.2)], 'zy')           # out the back
+    pv = PIVOT['mace']; c = (2.75, 3.0, 58.2)
+    mace = [seg((2.75, 3.0, 53.6), (2.75, 3.0, 55.4), 3.2, 3.2, 'apo_scale_dk', pv, UP),
+            el(_sub(c, (3.5, 3.5, 3.5)), _add(c, (3.5, 3.5, 3.5)), 'apo_mace', pv)]
+    for ax in ('x', 'y', 'z'):                                                                       # the spiky bulk
+        mace.append(el(_sub(c, (3.0, 3.0, 3.0)), _add(c, (3.0, 3.0, 3.0)), 'apo_mace', pv, (ax, 45, c), shift=(0.3, 0.5)))
+    dirs = [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1)] + [(a, b, cc) for a in (1, -1) for b in (1, -1) for cc in (1, -0.4)]
+    for dv in dirs:                                                                                  # spikes, every way
+        dv = _unit(dv)
+        mace += chain([_add(c, _mul(dv, 3.2)), _add(c, _mul(dv, 5.0)), _add(c, _mul(dv, 6.0))], [1.3, 0.6], 1.3, 'apo_mace', pv, UP if abs(dv[1]) < 0.9 else FRONT)
+    for k in range(2):                                                                               # white crescents: two across the tail...
+        pts = []
+        for i in range(6):
+            t = i / 5; r = 3.0 + 8.6 * t; a = math.radians(180 * k + 20 + 80 * t)
+            pts.append((c[0] + r * math.cos(a), c[1] + r * math.sin(a), c[2] + 0.4 * t))
+        mace += chain(pts, [2.8, 2.6, 2.1, 1.5, 0.7], 0.8, 'apo_bone', pv, (0.0, 0.0, 1.0), ext=0.3)
+    for k in (1, -1):                                                                                # ...and two hooked along it, up and down
+        pts = []
+        for i in range(6):
+            t = i / 5; r = 3.0 + 7.8 * t; a = math.radians(70 * t)
+            pts.append((c[0], c[1] + k * r * math.cos(a) * 0.95, c[2] + r * math.sin(a) * 0.9 - 0.6))
+        mace += chain(pts, [2.6, 2.4, 1.9, 1.3, 0.6], 0.8, 'apo_bone', pv, (1.0, 0.0, 0.0), ext=0.3)
     part('apo_mace', mace)
 
-    # ---- (phase 2) the wings: a bony arm from his back, three long fingers, violet membrane between (built full size)
+    # ---- (phase 2) the wings: a bony arm from his back, four long fingers, the violet membrane strung between them in fans
     def wing(sx):
-        pv = PIVOT['wingr' if sx > 0 else 'wingl']; w = E(pv); x0 = pv[0]
-        X = lambda a, b: (min(x0 + a * sx, x0 + b * sx), max(x0 + a * sx, x0 + b * sx))
-        els = []
-        def bone(a0, b0, a1, b1, z, th=1.0):                                                                     # a spar in the xy plane
-            ca, cb = (a0 + a1) / 2, (b0 + b1) / 2; L = math.hypot(a1 - a0, b1 - b0) + th
-            ang = math.degrees(math.atan2(b1 - b0, (a1 - a0) * sx)) * sx
-            xa, xb = X(ca * sx - L / 2 * sx if False else 0, 0)
-            cxw = x0 + ca * sx
-            if abs(ang) <= 45:
-                els.append(w((cxw - L / 2, pv[1] + cb - th / 2, z - th / 2), (cxw + L / 2, pv[1] + cb + th / 2, z + th / 2), 'apo_wingbone', ('z', ang, (cxw, pv[1] + cb, z))))
-            else:
-                ang2 = ang - 90 if ang > 0 else ang + 90
-                els.append(w((cxw - th / 2, pv[1] + cb - L / 2, z - th / 2), (cxw + th / 2, pv[1] + cb + L / 2, z + th / 2), 'apo_wingbone', ('z', ang2, (cxw, pv[1] + cb, z))))
-        bone(0, 0, 10, 8, 1.0, 1.6); bone(10, 8, 20, 14, 1.6, 1.3)                                                  # the arm
-        for (a1, b1) in ((34, 18), (32, 4), (26, -8)):                                                             # the fingers
-            bone(20, 14, a1, b1, 2.0, 0.8)
-        # membrane panels (thin, translucent) between the fingers - stacked strips
-        for i in range(10):
-            t = i / 9
-            a = 6 + t * 26; top = 6 + t * 10; bot = -2 - t * 6
-            xa, xb = X(a - 1.6, a + 1.6)
-            els.append(w((xa, pv[1] + bot, 1.8), (xb, pv[1] + top, 2.2), 'apo_wing'))
+        pv = PIVOT['wingr' if sx > 0 else 'wingl']; K = 0.82
+        P = lambda p: (pv[0] + sx * (p[0] - 4.4) * K, pv[1] + (p[1] - 26.4) * K, pv[2] + (p[2] - 2.0) * K)
+        S0, E0, W0 = P((4.4, 26.4, 2.0)), P((13.0, 32.4, 4.6)), P((22.0, 36.4, 6.0))
+        F = [P((37.0, 39.0, 7.4)), P((35.0, 27.0, 8.0)), P((29.0, 17.4, 7.4)), P((19.4, 12.6, 6.0))]
+        T0 = P((6.4, 15.6, 3.2))
+        n = (0.0, 0.0, 1.0)                                                                          # (the wing's plane faces back)
+        els = [seg(S0, E0, 1.9, 1.9, 'apo_wingbone', pv, n, 0.4), seg(E0, W0, 1.6, 1.6, 'apo_wingbone', pv, n, 0.4),
+               seg(W0, _add(W0, (sx * 0.6, 2.4, 0.2)), 0.9, 0.9, 'apo_wingbone', pv, n, 0.2)]                 # the thumb's hook
+        for f in F:
+            m = _mul(_add(W0, f), 0.5)
+            els += [seg(W0, m, 1.1, 1.1, 'apo_wingbone', pv, n, 0.3), seg(m, f, 0.7, 0.7, 'apo_wingbone', pv, n, 0.3)]
+        def fan(cen, a, b, k):                                                                        # membrane strips from cen to the edge a-b
+            out = []
+            for i in range(k):
+                t0, t1 = i / k, (i + 1) / k; tm = (t0 + t1) / 2
+                q = tuple(a[j] + (b[j] - a[j]) * tm for j in range(3))
+                q = tuple(q[j] + (cen[j] - q[j]) * 0.12 * math.sin(math.pi * tm) for j in range(3))       # (scalloped between the fingers)
+                wid = math.dist(tuple(a[j] + (b[j] - a[j]) * t0 for j in range(3)), tuple(a[j] + (b[j] - a[j]) * t1 for j in range(3)))
+                out.append(seg(cen, q, wid * 1.05, 0.3, 'apo_wing', pv, n, 0.0))
+            return out
+        els += fan(W0, F[0], F[1], 5) + fan(W0, F[1], F[2], 5) + fan(W0, F[2], F[3], 4) + fan(E0, F[3], T0, 4) + fan(S0, E0, T0, 2)
         return els
     part('apo_wingr', wing(1), WING_K); part('apo_wingl', wing(-1), WING_K)
     return M
 
 
 # ---------------------------------------------------------------------------------------------------- poses
-# (display frame rotations: +x on the body leans him forward, a limb swings forward with -x; his right arm out with -z)
+# Display-frame rotations (a pose names each joint's own bend; children ride along):
+#   body/chest/head: +x leans forward (head: nods down), -x rears back; +y turns to his left; +z rolls to his right
+#   jaw: +x opens.   arms: -x swings forward/up, -z (right arm) / +z (left arm) out to the side
+#   tail (it trails behind): +x lifts it, +y swings it to his right.  coil: +y turns all of him to his left
 def P(**kw):
     return kw
 
 
+TAIL_HIGH = dict(tail1=qs(('x', 26), ('y', 8)), tail2=qs(('x', 34)), tail3=qs(('x', 36)), mace=qs(('x', 24)))        # curled up behind him, the mace high
 POSES = {
-    'idle_a': P(body=qs(('x', 4)), head=qs(('x', -6)), jaw=qs(('x', 10)), armr=qs(('x', -12), ('z', -10)), arml=qs(('x', -12), ('z', 10)),
-                tail1=qs(('y', 12), ('x', 6)), tail2=qs(('y', 22)), tail3=qs(('y', 30)), mace=qs(('y', 20))),
-    'idle_b': P(_off=(0, -0.4, 0), body=qs(('x', 6)), head=qs(('x', -2)), jaw=qs(('x', 4)), armr=qs(('x', -16), ('z', -12)), arml=qs(('x', -16), ('z', 12)),
-                tail1=qs(('y', 6), ('x', 6)), tail2=qs(('y', 18)), tail3=qs(('y', 34)), mace=qs(('y', 26))),
-    'battle': P(_off=(0, -1.2, -1), body=qs(('x', 16)), head=qs(('x', -12)), jaw=qs(('x', 24)), armr=qs(('x', -48), ('z', -34)), arml=qs(('x', -48), ('z', 34)),
-                legr=qs(('x', -12), ('z', -8)), legl=qs(('x', -12), ('z', 8)),
-                tail1=qs(('x', -12)), tail2=qs(('x', -30)), tail3=qs(('x', -40)), mace=qs(('x', -20))),
-    'claw': P(_off=(0, -1.0, -1), body=qs(('x', 20), ('y', 26)), head=qs(('x', -10), ('y', -14)), jaw=qs(('x', 30)),
-              armr=qs(('x', -100), ('z', 26)), arml=qs(('x', -30), ('z', 30)), legr=qs(('x', -16)), legl=qs(('x', 10)),
-              tail1=qs(('y', -18)), tail2=qs(('y', -22)), tail3=qs(('y', -18))),
-    'bite': P(_off=(0, -2.0, -3), body=qs(('x', 30)), head=qs(('x', 6)), jaw=qs(('x', 42)), armr=qs(('x', -30), ('z', -40)), arml=qs(('x', -30), ('z', 40)),
-              legr=qs(('x', -22)), legl=qs(('x', 6)), tail1=qs(('x', -10)), tail2=qs(('x', -16)), tail3=qs(('x', -10))),
-    'mace_up': P(_off=(0, 0, 1), body=qs(('x', -8)), head=qs(('x', -10)), jaw=qs(('x', 20)), armr=qs(('x', -30), ('z', -26)), arml=qs(('x', -30), ('z', 26)),
-                 tail1=qs(('x', -38)), tail2=qs(('x', -44)), tail3=qs(('x', -44)), mace=qs(('x', -30))),
-    'mace_slam': P(_off=(0, -1.6, -2), body=qs(('x', 26)), head=qs(('x', -16)), jaw=qs(('x', 30)), armr=qs(('x', -20), ('z', -30)), arml=qs(('x', -20), ('z', 30)),
-                   legr=qs(('x', -14)), legl=qs(('x', 8)), tail1=qs(('x', -44)), tail2=qs(('x', -62)), tail3=qs(('x', -58)), mace=qs(('x', -40))),
-    'cast': P(body=qs(('x', -10)), head=qs(('x', -26)), jaw=qs(('x', 34)), armr=qs(('x', -150), ('z', -24)), arml=qs(('x', -150), ('z', 24)),
-              tail1=qs(('y', 20)), tail2=qs(('y', 26)), tail3=qs(('y', 20))),
-    'roar': P(_off=(0, 0.4, 0), body=qs(('x', -14)), head=qs(('x', -32)), jaw=qs(('x', 48)), armr=qs(('x', -60), ('z', -70)), arml=qs(('x', -60), ('z', 70)),
-              tail1=qs(('x', -20)), tail2=qs(('x', -24)), tail3=qs(('x', -30)), mace=qs(('x', -20))),
-    'tired': P(_off=(0, -3.0, -1), body=qs(('x', 34)), head=qs(('x', 18), ('z', 8)), jaw=qs(('x', 28)), armr=qs(('x', -20), ('z', -4)), arml=qs(('x', -14), ('z', 6)),
-               legr=qs(('x', -30)), legl=qs(('x', -26)), tail1=qs(('x', 8)), tail2=qs(('y', 10)), tail3=qs(('y', 16)), mace=qs(('y', 10))),
-    'crouch': P(_off=(0, -6.2, -4), body=qs(('x', 74)), head=qs(('x', -66)), jaw=qs(('x', 12)), armr=qs(('x', -78)), arml=qs(('x', -78)),
-                legr=qs(('x', -60)), legl=qs(('x', -60)), tail1=qs(('x', -60)), tail2=qs(('x', -14)), tail3=qs(('x', -6)), mace=qs(('x', 6))),
-    'walk_a': P(_off=(0, -6.0, -4), body=qs(('x', 74), ('z', 3)), head=qs(('x', -66), ('y', 6)), jaw=qs(('x', 10)), armr=qs(('x', -100)), arml=qs(('x', -56)),
-                legr=qs(('x', -40)), legl=qs(('x', -80)), tail1=qs(('x', -60), ('y', 10)), tail2=qs(('y', 14)), tail3=qs(('y', 16))),
-    'walk_b': P(_off=(0, -6.0, -4), body=qs(('x', 74), ('z', -3)), head=qs(('x', -66), ('y', -6)), jaw=qs(('x', 10)), armr=qs(('x', -56)), arml=qs(('x', -100)),
-                legr=qs(('x', -80)), legl=qs(('x', -40)), tail1=qs(('x', -60), ('y', -10)), tail2=qs(('y', -14)), tail3=qs(('y', -16))),
-    'sit': P(_off=(0, -3.4, 0), body=qs(('x', -4)), head=qs(('x', 4), ('y', 12)), jaw=qs(('x', 2)), armr=qs(('x', -30), ('z', 6)), arml=qs(('x', -30), ('z', -6)),
-             legr=qs(('x', -80)), legl=qs(('x', -80)), tail1=qs(('y', 60), ('x', 10)), tail2=qs(('y', 60)), tail3=qs(('y', 60)), mace=qs(('y', 40))),
-    'eth_hover': P(_eth=True, _off=(0, 6, 0), body=qs(('x', 10)), head=qs(('x', -14)), jaw=qs(('x', 30)), armr=qs(('x', -40), ('z', -30)), arml=qs(('x', -40), ('z', 30)),
-                   legr=qs(('x', 20)), legl=qs(('x', 26)), tail1=qs(('x', 30)), tail2=qs(('x', 20)), tail3=qs(('x', 10)), mace=qs(('x', 10)),
-                   wingr=qs(('y', 10), ('z', -6)), wingl=qs(('y', -10), ('z', 6))),
-    'eth_beat': P(_eth=True, _off=(0, 7, 0), body=qs(('x', 12)), head=qs(('x', -12)), jaw=qs(('x', 36)), armr=qs(('x', -60), ('z', -40)), arml=qs(('x', -60), ('z', 40)),
-                  legr=qs(('x', 24)), legl=qs(('x', 30)), tail1=qs(('x', 34)), tail2=qs(('x', 22)), tail3=qs(('x', 14)), mace=qs(('x', 10)),
-                  wingr=qs(('y', 30), ('z', 40)), wingl=qs(('y', -30), ('z', -40))),
+    # idle: reared up, regal, claws half raised, the mace swaying high behind; a slow breath (a/b)
+    'idle_a': P(body=qs(('x', -3)), chest=qs(('x', 5)), head=qs(('x', -2)), jaw=qs(('x', 12)), armr=qs(('x', -26), ('z', -16)), arml=qs(('x', -22), ('z', 14)), **TAIL_HIGH),
+    'idle_b': P(_off=(0, -0.3, 0), body=qs(('x', -1)), chest=qs(('x', 7)), head=qs(('x', 2), ('y', 6)), jaw=qs(('x', 8)), armr=qs(('x', -22), ('z', -14)), arml=qs(('x', -18), ('z', 12)),
+                tail1=qs(('x', 24), ('y', 14)), tail2=qs(('x', 34), ('y', 6)), tail3=qs(('x', 36)), mace=qs(('x', 30))),
+    # slither: low and forward, the tail swinging side to side behind (a/b)
+    'slither_a': P(coil=qs(('y', 8)), body=qs(('x', 22), ('y', -6)), chest=qs(('x', 12)), head=qs(('x', -28), ('y', -4)), jaw=qs(('x', 8)),
+                   armr=qs(('x', -50), ('z', -10)), arml=qs(('x', -30), ('z', 10)), tail1=qs(('x', 6), ('y', -26)), tail2=qs(('y', 30)), tail3=qs(('y', 28), ('x', 8)), mace=qs(('x', 10))),
+    'slither_b': P(coil=qs(('y', -8)), body=qs(('x', 22), ('y', 6)), chest=qs(('x', 12)), head=qs(('x', -28), ('y', 4)), jaw=qs(('x', 8)),
+                   armr=qs(('x', -30), ('z', -10)), arml=qs(('x', -50), ('z', 10)), tail1=qs(('x', 6), ('y', 26)), tail2=qs(('y', -30)), tail3=qs(('y', -28), ('x', 8)), mace=qs(('x', 10))),
+    # battle: hunched in, claws out wide, maw open, the mace poised over his head like a scorpion's sting
+    'battle': P(_off=(0, -0.4, 0), body=qs(('x', 12)), chest=qs(('x', 10)), head=qs(('x', -18)), jaw=qs(('x', 26)), armr=qs(('x', -50), ('z', -40)), arml=qs(('x', -50), ('z', 40)),
+                tail1=qs(('x', 80)), tail2=qs(('x', 30)), tail3=I, tail4=I, mace=I),
+    # the claw: a raking swipe - wound up to his right, then across
+    'claw_up': P(body=qs(('x', 6), ('y', -14)), chest=qs(('y', -16), ('x', 4)), head=qs(('y', 18), ('x', -8)), jaw=qs(('x', 18)), armr=qs(('x', -120), ('z', -50)), arml=qs(('x', -30), ('z', 30)), **TAIL_HIGH),
+    'claw': P(body=qs(('x', 16), ('y', 18)), chest=qs(('y', 20), ('x', 8)), head=qs(('y', -22), ('x', -12)), jaw=qs(('x', 30)), armr=qs(('x', -70), ('z', 40)), arml=qs(('x', -40), ('z', 34)),
+              tail1=qs(('x', 20), ('y', -20)), tail2=qs(('x', 26), ('y', -10)), tail3=qs(('x', 30)), mace=qs(('x', 20))),
+    # the bite: a lunge, the maw gaping
+    'bite': P(_off=(0, -0.6, -2), body=qs(('x', 30)), chest=qs(('x', 22)), head=qs(('x', -30)), jaw=qs(('x', 48)), armr=qs(('x', -70), ('z', -30)), arml=qs(('x', -70), ('z', 30)),
+              tail1=qs(('x', 14)), tail2=qs(('x', 20)), tail3=qs(('x', 24)), mace=qs(('x', 10))),
+    # the mace: raised high overhead and over (the wind-up), then brought crashing down beside him
+    'mace_up': P(body=qs(('x', -12)), chest=qs(('x', -4)), head=qs(('x', -14)), jaw=qs(('x', 20)), armr=qs(('x', -40), ('z', -30)), arml=qs(('x', -40), ('z', 30)),
+                 tail1=qs(('x', 60), ('y', 10)), tail2=qs(('x', 40)), tail3=qs(('x', 10)), tail4=I, mace=I),
+    'mace_slam': P(_off=(0, -0.6, 0), body=qs(('x', 18), ('y', -10)), chest=qs(('x', 14), ('y', -8)), head=qs(('x', -16), ('y', 14)), jaw=qs(('x', 34)),
+                   armr=qs(('x', -40), ('z', -36)), arml=qs(('x', -50), ('z', 36)), tail1=qs(('x', 80), ('y', 90)), tail2=qs(('x', 30)), tail3=qs(('x', 40)), tail4=qs(('x', 40)), mace=qs(('x', 40))),
+    # dark magic: reared to his full height, both claws high, green fire in them (the game adds the particles)
+    'cast': P(body=qs(('x', -10)), chest=qs(('x', -6)), head=qs(('x', -20)), jaw=qs(('x', 30)), armr=qs(('x', -160), ('z', -26)), arml=qs(('x', -160), ('z', 26)), **TAIL_HIGH),
+    'cast_point': P(body=qs(('x', 6), ('y', -10)), chest=qs(('x', 4), ('y', -10)), head=qs(('x', -6), ('y', 14)), jaw=qs(('x', 22)), armr=qs(('x', -96), ('z', -4)), arml=qs(('x', -26), ('z', 22)), **TAIL_HIGH),
+    # the roar: head flung back, maw wide, claws out
+    'roar': P(body=qs(('x', -10)), chest=qs(('x', -12)), head=qs(('x', -30)), jaw=qs(('x', 50)), armr=qs(('x', -70), ('z', -70)), arml=qs(('x', -70), ('z', 70)),
+              tail1=qs(('x', 34)), tail2=qs(('x', 36)), tail3=qs(('x', 40)), mace=qs(('x', 30))),
+    # tired (his health low): slumped over his coils, head hanging, arms limp, tongue lolling, the tail down
+    'tired': P(_face='tired', _off=(0, -0.8, 0), body=qs(('x', 16)), chest=qs(('x', 14), ('z', 4)), head=qs(('x', -12), ('z', 10)), jaw=qs(('x', 26)), armr=qs(('x', 4), ('z', -2)), arml=qs(('x', 8), ('z', 4)),
+               tail1=qs(('y', 16)), tail2=qs(('y', 20)), tail3=qs(('y', 24)), mace=qs(('y', 10))),
+    # the crouch (the art): down low on his claws, coiled to spring, the mace raised behind
+    'crouch': P(_off=(0, -0.6, 0), body=qs(('x', 40)), chest=qs(('x', 26)), head=qs(('x', -50)), jaw=qs(('x', 24)), armr=qs(('x', -18), ('z', -30)), arml=qs(('x', -18), ('z', 30)),
+                tail1=qs(('x', 44)), tail2=qs(('x', 40)), tail3=qs(('x', 34)), mace=qs(('x', 20))),
+    # sit (a follower at rest): sunk into his coils, arms folded, the tail wrapped round in front
+    'sit': P(_face='smug', _off=(0, -1.6, 0), body=qs(('x', -4)), chest=qs(('x', 4)), head=qs(('x', 6), ('y', 14)), jaw=qs(('x', 2)), armr=qs(('x', -60), ('z', 46)), arml=qs(('x', -54), ('z', -46)),
+             tail1=qs(('y', 70)), tail2=qs(('y', 56)), tail3=qs(('y', 50)), mace=qs(('y', 30))),
+    # ridden (saddled): low and long like a mount - you sit astride the middle of his back, his head up in front of you
+    'ride': P(_saddle=True, body=qs(('x', 56)), chest=qs(('x', -14)), head=qs(('x', -34)), jaw=qs(('x', 10)), armr=qs(('x', -6), ('z', -12)), arml=qs(('x', -6), ('z', 12)),
+              tail1=qs(('x', 14)), tail2=qs(('x', 18)), tail3=qs(('x', 22)), mace=qs(('x', 14))),
+    # beaten: down on his coils, crown askew, head on the ground - the moment you can offer him a place
+    'defeated': P(_face='hurt', _off=(0, -1.8, 0), body=qs(('x', 26), ('z', 6)), chest=qs(('x', 18), ('z', 6)), head=qs(('x', -8), ('z', 12)), jaw=qs(('x', 12)), armr=qs(('x', 20), ('z', -8)), arml=qs(('x', 28), ('z', 10)),
+                  tail1=qs(('y', -20)), tail2=qs(('y', -24)), tail3=qs(('y', -18)), mace=qs(('y', -10))),
+    # phase 2 - ETHEREAL: risen off the ground on violet wings
+    'eth_hover': P(_eth=True, _off=(0, 11, 0), coil=qs(('x', -8)), body=qs(('x', 4)), chest=qs(('x', 8)), head=qs(('x', -10)), jaw=qs(('x', 30)), armr=qs(('x', -50), ('z', -30)), arml=qs(('x', -50), ('z', 30)),
+                   tail1=qs(('x', 4)), tail2=qs(('x', 10)), tail3=qs(('x', 18)), mace=qs(('x', 10)), wingr=qs(('y', 14), ('z', 8)), wingl=qs(('y', -14), ('z', -8))),
+    'eth_beat': P(_eth=True, _off=(0, 12.5, 0), coil=qs(('x', -8)), body=qs(('x', 6)), chest=qs(('x', 10)), head=qs(('x', -12)), jaw=qs(('x', 34)), armr=qs(('x', -60), ('z', -36)), arml=qs(('x', -60), ('z', 36)),
+                  tail1=qs(('x', 2)), tail2=qs(('x', 6)), tail3=qs(('x', 14)), mace=qs(('x', 8)), wingr=qs(('y', 30), ('z', -40)), wingl=qs(('y', -30), ('z', 40))),
+    'eth_cast': P(_eth=True, _off=(0, 11, 0), coil=qs(('x', -10)), body=qs(('x', -8)), chest=qs(('x', -6)), head=qs(('x', -22)), jaw=qs(('x', 44)), armr=qs(('x', -150), ('z', -40)), arml=qs(('x', -150), ('z', 40)),
+                  tail1=qs(('x', 8)), tail2=qs(('x', 16)), tail3=qs(('x', 22)), mace=qs(('x', 14)), wingr=qs(('y', -6), ('z', 18)), wingl=qs(('y', 6), ('z', -18))),
 }
-DRAFT = ['idle_a', 'battle', 'claw', 'bite', 'mace_up', 'mace_slam', 'cast', 'roar', 'tired', 'crouch', 'walk_a', 'sit', 'eth_hover', 'eth_beat']
+for _p in POSES.values():                       # (a pose that doesn't name tail4 carries tail3's bend on into it)
+    if 'tail4' not in _p and 'tail3' in _p: _p['tail4'] = _p['tail3']
+DRAFT = ['idle_a', 'slither_a', 'battle', 'claw_up', 'claw', 'bite', 'mace_up', 'mace_slam', 'cast', 'cast_point', 'roar', 'tired', 'crouch', 'sit', 'ride', 'defeated',
+         'eth_hover', 'eth_beat', 'eth_cast']
+# animation loops (pose, ticks to it) - previews and, later, the game's keyframes
+ANIMS = {'idle': [('idle_a', 30), ('idle_b', 30)], 'slither': [('slither_a', 12), ('slither_b', 12)],
+         'claw': [('battle', 8), ('claw_up', 8), ('claw', 4), ('battle', 10)], 'bite': [('battle', 8), ('bite', 5), ('battle', 10)],
+         'mace': [('battle', 8), ('mace_up', 12), ('mace_slam', 5), ('battle', 14)], 'roar': [('idle_a', 8), ('roar', 10), ('roar', 14), ('idle_a', 10)],
+         'cast': [('idle_a', 8), ('cast', 12), ('cast', 10), ('cast_point', 6), ('idle_a', 10)], 'tired': [('tired', 24), ('idle_b', 30), ('tired', 24)],
+         'wings': [('eth_hover', 8), ('eth_beat', 8)]}
 
 
 def rp(R):
@@ -381,22 +598,3 @@ def rp(R):
     for name, (tex, els) in models().items():
         R.HATS[name] = (tex, els)
     R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + (PREFIX,)
-
-
-if __name__ == '__main__':
-    sys.path.insert(0, '/home/user/main/bm_build')
-    from tools.render import Scene
-    import rigkit
-    from PIL import Image as _I
-    out = sys.argv[1]
-    rp_dir = '/home/claude/bm_build/out_p2/BlackMarket_RP'
-    tiles = []
-    for name in (sys.argv[2].split(',') if len(sys.argv) > 2 else DRAFT):
-        s = Scene(rp_dir); rigkit.render(s, sys.modules[__name__], POSES[name], scale=1.0)
-        s.player_box((2.6, 0, 0))
-        im = s.render('iso', size=360, span=7.0, center=(0, 2.0, 0)); ImageDraw.Draw(im).text((8, 6), name, fill=(0, 0, 0))
-        tiles.append(im)
-    cols = 4; rows = (len(tiles) + cols - 1) // cols
-    sheet = _I.new('RGB', (cols * 360, rows * 360), 'white')
-    for i, t in enumerate(tiles): sheet.paste(t, ((i % cols) * 360, (i // cols) * 360))
-    sheet.save(out); print(out)
