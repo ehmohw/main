@@ -270,6 +270,8 @@ and function calls. Three are known to be stale.
 | `t145.js` | 2.78: the Recruiter only deals in names you know - into the Lounge with the Ledger, a click on him opens his book: no |
 |  | follower before you've met one (and no free Cecil); Celi met, her contract bought from the wallet ("IN YOUR PACK"), used |
 |  | and "SIGNED"; an unmet follower's contract refused and kept; a hireling and a vault gem bought from their pages. |
+| `t146.js` | 2.78: every follower in a frame - Zib's medal, KillerWatt's spark and Pearlman's card each hung in an item frame |
+|  | with a right-click: the follower climbs out (nobody's), still there ten seconds on, gone with the item punched out. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
 | `head.js` | The Horseman's Head: stream, overheat, charged blast, stoking + Nova, undead XP, lantern/heart variants, night tiers, healing. |

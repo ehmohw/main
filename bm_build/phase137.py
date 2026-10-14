@@ -15,8 +15,18 @@ THE KEY OF NEW BEGINNINGS (the Fence, 3 Tokens) - what a fresh start resets, and
 - THE DIALOG says all of that before you press Yes.
 - From before: a record already reset leaves no trace of how far it went - the best-ever record is rebuilt from the
   Hollow King's advancement, a Warpstone or Wilfrey's locket carried (on you or in your ender chest).
+
+EVERY FOLLOWER IN A FRAME: Zib's Donadian Medal, KillerWatt's Spark and Pearlman's card hung in an item frame bring
+them out to live by it, as every other follower's item does.
 """
 from items import T
+import phase68 as _P68
+
+_n = max(v[0] for v in _P68.KINDS.values()) + 1
+_P68.KINDS['zib'] = (_n, 'donadian_medal', 'wolf', 'bm.zibpet', 'p72/zb/summon', 'p72/zb/dismiss', 'bm.zbsel', 'Zib', '#3ad8c8')
+_P68.KINDS['kw'] = (_n + 1, 'kw_spark', 'wolf', 'bm.kxpet', 'p79/pet/summon', 'p79/pet/home', 'bm.kxsel2', 'KillerWatt', '#74d462')
+_P68.KINDS['pearl'] = (_n + 2, 'pearl_card', 'cat', 'bm.pmpet', 'p128/pm/summon', 'p128/pm/dismiss', 'bm.pmsel2', 'Pearlman', '#5ac8ff')
+_P68.HE.update({'zib', 'kw', 'pearl'})
 
 
 def generate(G):
