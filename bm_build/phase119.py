@@ -17,8 +17,12 @@ import re
 
 CREW = '#9ad0ff'
 PAGE = 7950                                   # the page; its wardrobes 7951-7957, Emma's buffs 7961-7965
-WHO = [('emma', 'Emma'), ('celi', 'Celi'), ('zib', 'Zib'), ('cecil', 'Cecil'), ('kw', 'KillerWatt'), ('leo', 'Leo'), ('demo', 'Democratus')]
-COL = {'emma': '#ff7ad0', 'celi': '#9ad8ff', 'zib': '#3ad8c8', 'cecil': '#b48cff', 'kw': '#ffe040', 'leo': '#5ab8e0', 'demo': '#7ad06a'}
+WHO = [('emma', 'Emma'), ('celi', 'Celi'), ('zib', 'Zib'), ('cecil', 'Cecil'), ('kw', 'KillerWatt'), ('leo', 'Leo'), ('demo', 'Democratus'),
+       ('apo', 'Apophiss'), ('tul', 'Tullius'), ('frog', 'The Frog'), ('don', 'Donado'), ('pearl', 'Pearlman'), ('wil', 'Wilfrey')]
+COL = {'emma': '#ff7ad0', 'celi': '#9ad8ff', 'zib': '#3ad8c8', 'cecil': '#b48cff', 'kw': '#ffe040', 'leo': '#5ab8e0', 'demo': '#7ad06a',
+       'apo': '#3ad06a', 'tul': '#7ad8ff', 'frog': '#6ac850', 'don': '#e8d29a', 'pearl': '#5ac8ff', 'wil': '#f4f4f4'}
+WD2 = 8280                                    # 2.78: the wardrobes past the seventh (8280-8285; 7958-7960 is too little room)
+wcode = lambda i: PAGE + 1 + i if i < 7 else WD2 + i - 7
 
 
 def generate(G):
@@ -58,16 +62,17 @@ def generate(G):
                                T('  - she remembers it every time she comes, on a heist too.', 'gray')], 360),
                      P28.body([T('Follower chatter: ', 'gray'), T('$(chat)', 'white', bold=True),
                                T('  - quips, banter and battle cries. (What they say when you call or change them always shows.)', 'dark_gray')], 360)],
-                    [P28.btn([T(f'{nm}\'s wardrobe', COL[w], bold=True)], PAGE + 1 + i, width=180) for i, (w, nm) in enumerate(WHO)] +
+                    [P28.btn([T(f'{nm}\'s wardrobe', COL[w], bold=True)], wcode(i), width=180) for i, (w, nm) in enumerate(WHO)] +
                     [P28.btn([T('Emma: ', '#ff8ad8'), T(nm, c, bold=True)], PAGE + 10 + m, width=180, tooltip=T(TIPS[m], 'gray')) for m, (nm, c) in P57.MODES.items()] +
                     [P28.btn([T('Chatter on / off', '#d0d0d0', bold=True)], PAGE + 18, width=180, tooltip=T('Hush what your followers say unprompted - or let them talk.', 'gray')),
                      P28.btn([T('« Raid Crew', 'gray')], MC + 7, width=180)], columns=2, exit_label='Close')
     fn('p119/page_dlg', [f'$dialog show @s {P28.inline(dlg)}'])
     G.FUNCS['p80/act'].insert(2, f'execute if score #act bm.pay matches {PAGE}..{PAGE + 19} run return run function bm:p119/act')
     fn('p119/act', [f'execute if score #act bm.pay matches {PAGE} run return run function bm:p119/page'] +
-       [f'execute if score #act bm.pay matches {PAGE + 1 + i} run return run function bm:p119/wd/{w}' for i, (w, _n) in enumerate(WHO)] +
+       [f'execute if score #act bm.pay matches {wcode(i)} run return run function bm:p119/wd/{w}' for i, (w, _n) in enumerate(WHO)] +
        [f'execute if score #act bm.pay matches {PAGE + 10 + m} run return run function bm:p119/buff{m}' for m in P57.MODES] +
        [f'execute if score #act bm.pay matches {PAGE + 18} run return run function bm:p119/hush'])
+    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {WD2}..{wcode(len(WHO) - 1)} if score @s bm.menu matches {PAGE} run return run function bm:p119/act')
     fn('p119/hush', ['execute if entity @s[tag=bm.hush] run return run function bm:p119/unhush', 'tag @s add bm.hush',
                      tellraw('@s', P + [T('Follower chatter off. ', '#d0d0d0', bold=True), T('They\'ll keep their quips to themselves.', 'gray')]), 'function bm:p119/page'])
     fn('p119/unhush', ['tag @s remove bm.hush', tellraw('@s', P + [T('Follower chatter on. ', '#d0d0d0', bold=True), T('Let them talk.', 'gray')]), 'function bm:p119/page'])

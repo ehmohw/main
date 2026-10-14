@@ -65,6 +65,8 @@ RECRUITER_AT = (5, 4, 20)
 RECRUITER_OFFERS = []                       # (his stock, as offers: phase131/132 add theirs; 2.78 sells it from a dialog - phase137)
 RECRUITER_NPC = {}                          # (his villager, for phase137 to summon without the old trades)
 TAILOR_AT = (7, 4, 20)
+EXTRA_MAIN, EXTRA_PAGES, EXTRA_ACT = [], [], []   # (2.78: more Tailor pages - phase138's auras: main-page buttons, page names, routes)
+STOCK = []                                  # (the outfits the Tailor sells, as built - for phase138)
 BANK_AT, ARMORY_AT, CREW_AT = (16, 4, 2), (18, 4, 2), (22, 4, 2)     # the office counter, north wall (the haul lectern at 20)
 LOCKER_AT = (8, 4, 1)                          # the copper door to the Lockers (north wall)
 TO_CREW_AT = (21, 4, 17)                       # "back to the crew", by the far door
@@ -329,7 +331,13 @@ def generate(G):
     # ---- the Tailor's pages
     TL = 7740
     WHO = [('emma', 'Emma', P78.PINK), ('celi', 'Celi', '#9ad8ff'), ('zib', 'Zib', '#3ad8c8'), ('cecil', 'Cecil', '#b48cff'),
-           ('kw', 'KillerWatt', '#ffe040'), ('leo', 'Leo', '#5ab8e0'), ('demo', 'Democratus', '#7ad06a')]
+           ('kw', 'KillerWatt', '#ffe040'), ('leo', 'Leo', '#5ab8e0'), ('demo', 'Democratus', '#7ad06a'),
+           ('apo', 'Apophiss', '#3ad06a'), ('tul', 'Tullius', '#7ad8ff'), ('frog', 'The Frog', '#6ac850'), ('don', 'Donado', '#e8d29a'),
+           ('pearl', 'Pearlman', '#5ac8ff'), ('wil', 'Wilfrey', '#f4f4f4')]
+    # 2.78: past the old block (TL..TL+59) the pages, stock and auras go on in 8100-8299
+    TL2 = 8100
+    pcode = lambda i: TL + 1 + i if i < 7 else TL2 + i - 7                   # a follower's page
+    scode = lambda j: TL + 10 + j if j < 40 else TL2 + 10 + j - 40          # an outfit
     stock = []                                       # (who, group, unlock score, k, item, name, colour, price)
     for who, g, cur, un, ks, iid, off, apply in P99.groups():
         for k, (cn, col) in ks.items():
@@ -337,15 +345,16 @@ def generate(G):
             assert it in price, f'{it} is not on sale'
             stock.append((who, g, un, k, it, cn, col, price[it]))
     cases = [(k_, price[k_]) for k_ in price if k_.startswith('display_case')]
-    assert len(stock) == len([k_ for k_ in price if k_.startswith('cos_')]) and TL + 10 + len(stock) <= TL + 50 and len(cases) <= 9   # (codes TL..TL+59: the Office's start at 7800)
+    assert len(stock) == len([k_ for k_ in price if k_.startswith('cos_')]) and scode(len(stock) - 1) < TL2 + 100 and len(cases) <= 9   # (codes TL..TL+59: the Office's start at 7800)
+    STOCK.extend(stock)
     wal = [_T('You have ', 'gray'), _T('$(w)', GOLD, bold=True), _T(' coins to spend', 'gray'),
            _T(' (Gutter Bank and pockets; Medallions count 16, Trophies 128).', 'dark_gray')]
     back = P28.btn([_T('« The Tailor', 'gray')], TL, width=180)
     main = P28.multi([_T('THE TAILOR', '#ff8ac8', bold=True), _T('  ·  outfits for your followers', 'gray')],
                      [P28.body([_T('Every outfit is yours for good - put it on from the follower\'s own menu (sneak + use their item). ', 'gray')], 360),
                       P28.body(wal, 360)],
-                     [P28.btn([_T(nm, col, bold=True)], TL + 1 + i, width=180) for i, (w, nm, col) in enumerate(WHO)] +
-                     [P28.btn([_T('Display cases', GOLD, bold=True)], TL + 8, width=180)], columns=2, exit_label='Close')
+                     [P28.btn([_T(nm, col, bold=True)], pcode(i), width=180) for i, (w, nm, col) in enumerate(WHO)] +
+                     [P28.btn([_T('Display cases', GOLD, bold=True)], TL + 8, width=180)] + EXTRA_MAIN, columns=2, exit_label='Close')
     fn('p103/tl/main', ['function bm:p103/wallet', f'scoreboard players set @s bm.menu {TL}', 'function bm:p103/tl/main_dlg with storage bm:ui tl'])
     fn('p103/tl/main_dlg', [f'$dialog show @s {P28.inline(main)}'])
     for i, (w, nm, col) in enumerate(WHO):
@@ -359,7 +368,7 @@ def generate(G):
                      f'execute if score #q bm.rng matches 1 run data modify storage bm:ui tl.r_{j} set value {snbt(_T("OWNED", "#7aff7a", bold=True))}']
         dlg = P28.multi([_T(nm.upper(), col, bold=True), _T('  ·  the Tailor', 'gray')],
                         [P28.body(wal, 360)],
-                        [P28.btn([_T(cn, ccol, bold=True), _T('  '), f'@@RAW:r_{j}@@'], TL + 10 + j, width=180) for j, (who, g, un, k, it, cn, ccol, pr) in mine_] + [back],
+                        [P28.btn([_T(cn, ccol, bold=True), _T('  '), f'@@RAW:r_{j}@@'], scode(j), width=180) for j, (who, g, un, k, it, cn, ccol, pr) in mine_] + [back],
                         columns=2, exit_label='Close')
         fn(f'p103/tl/p_{w}', ['function bm:p103/wallet', f'scoreboard players set @s bm.menu {TL}'] + rows + [f'function bm:p103/tl/p_{w}_dlg with storage bm:ui tl'])
         fn(f'p103/tl/p_{w}_dlg', [f'$dialog show @s {P28.inline(dlg)}'])
@@ -369,7 +378,7 @@ def generate(G):
                       for q, (c, pr) in enumerate(cases)] + [back], columns=2, exit_label='Close')
     fn('p103/tl/cases', ['function bm:p103/wallet', f'scoreboard players set @s bm.menu {TL}', 'function bm:p103/tl/cases_dlg with storage bm:ui tl'])
     fn('p103/tl/cases_dlg', [f'$dialog show @s {P28.inline(cdlg)}'])
-    PAGES = [f'p_{w}' for w, nm, col in WHO] + ['cases']
+    PAGES = [f'p_{w}' for w, nm, col in WHO] + ['cases'] + EXTRA_PAGES
     pg = lambda page: f'scoreboard players set #tlp bm.rng {PAGES.index(page)}'
     fn('p103/tl/reopen', [f'execute if score #tlp bm.rng matches {i} run return run function bm:p103/tl/{pname}' for i, pname in enumerate(PAGES)])
     poor = lambda pr, page: ('execute if score #tw bm.rng matches ..%d run return run function bm:p103/tl/poor {n:%d}' % (pr - 1, pr))
@@ -393,10 +402,11 @@ def generate(G):
                              'playsound minecraft:entity.villager.yes player @s ~ ~ ~ 0.8 1', 'function bm:p103/tl/cases'])
     fn('p103/tl/note', ['$' + tellraw('@s', P + [T('$(t)', 'gray')]), 'function bm:p103/tl/reopen'])
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {TL}..{TL + 59} run return run function bm:p103/tl/act')
+    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {TL2}..{TL2 + 99} if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')
     fn('p103/tl/act', [f'execute if score #act bm.pay matches {TL} run return run function bm:p103/tl/main'] +
-       [f'execute if score #act bm.pay matches {TL + 1 + i} run return run function bm:p103/tl/p_{w}' for i, (w, nm, col) in enumerate(WHO)] +
+       [f'execute if score #act bm.pay matches {pcode(i)} run return run function bm:p103/tl/p_{w}' for i, (w, nm, col) in enumerate(WHO)] +
        [f'execute if score #act bm.pay matches {TL + 8} run return run function bm:p103/tl/cases'] +
-       [f'execute if score #act bm.pay matches {TL + 10 + j} run return run function bm:p103/tl/b{j}' for j in range(len(stock))] +
+       [f'execute if score #act bm.pay matches {scode(j)} run return run function bm:p103/tl/b{j}' for j in range(len(stock))] + EXTRA_ACT +
        [f'execute if score #act bm.pay matches {TL + 50 + q} run return run function bm:p103/tl/c{q}' for q in range(len(cases))])
     # ---- who sells what now, in the texts
     for old_t, new_t in (('Goldtooth sells Raid Contracts in the den', 'The Recruiter in the den sells Raid Contracts'),

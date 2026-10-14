@@ -38,6 +38,13 @@ WHO = {   # follower: (name, pronoun, colour, host type, host tag, try (as you),
     'kw': ('KillerWatt', 'him', '#ffe040', 'wolf', 'bm.kxpet', 'p79/pet/try', 'p98/home/killerwatt'),
     'leo': ('Leo', 'him', '#5ab8e0', 'wolf', 'bm.leopet', 'p96/try_summon', 'p98/home/leo'),
     'demo': ('Democratus', 'him', STORM, 'wolf', 'bm.dmpet', 'p97/try_summon', 'p97/send_home'),
+    # 2.78: the wardrobes of the rest (phase138)
+    'apo': ('Apophiss', 'him', '#3ad06a', 'wolf', 'bm.appet', 'p131/try_summon', 'p98/home/apo'),
+    'tul': ('Tullius', 'him', '#7ad8ff', 'wolf', 'bm.tupet', 'p132/try_summon', 'p98/home/tul'),
+    'frog': ('the Frog', 'him', '#6ac850', 'wolf', 'bm.frogpet,tag=!bm.fvault,tag=!bm.ffpet', 'p136/fg/try', 'p138/home/frog'),
+    'don': ('Donado', 'him', '#e8d29a', 'wolf', 'bm.donado,tag=!bm.ffpet', 'p136/dn/try', 'p138/home/don'),
+    'pearl': ('Pearlman', 'him', '#5ac8ff', 'cat', 'bm.pmpet,tag=!bm.ffpet', 'p128/pm/try', 'p138/home/pearl'),
+    'wil': ('Wilfrey', 'him', '#f4f4f4', 'wolf', 'bm.wilfrey', 'p2/wil/try_summon', 'p138/home/wil'),
 }
 
 
@@ -197,7 +204,7 @@ def generate(G):
     # ================================================================== MENUS: "Call for <name>" when they're not out
     home_re = re.compile(r'label:\[\{text:"Send (?:her|him) home",color:"gray",italic:false\}\]')
     for w, (nm, pron, col, host, tag, try_, home) in WHO.items():
-        assert try_ in G.FUNCS and home in G.FUNCS, (w, try_, home)
+        assert (try_ in G.FUNCS and home in G.FUNCS) or w in ('apo', 'tul', 'frog', 'don', 'pearl', 'wil'), (w, try_, home)   # (2.78's six: built later)
         b = P99.BASE[w]
         dl = G.FUNCS[f'p99/dlg/{w}']
         assert home_re.search(dl[0]), w
@@ -209,7 +216,7 @@ def generate(G):
             f'data modify storage bm:ui wd.r_home set value {snbt(T(f"Call for {nm}", col, bold=True))}',
             f'execute if score #out bm.rng matches 1 run data modify storage bm:ui wd.r_home set value {snbt(T(f"Send {pron} home", "gray"))}']
         a = G.FUNCS[f'p99/act/{w}']
-        orig = 'p98/home/' + ('killerwatt' if w == 'kw' else w)
+        orig = P99.HOME[w]
         k = next(i for i, l in enumerate(a) if l == f'execute if score #act bm.pay matches {b} run return run function bm:{orig}')
         a[k] = f'execute if score #act bm.pay matches {b} run return run function bm:p125/hc/{w}'
         fn(f'p125/hc/{w}', out + [f'execute if score #out bm.rng matches 1 run return run function bm:{home}',

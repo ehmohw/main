@@ -25,17 +25,39 @@ NEW = {'leo': ('Leo', '#5ab8e0', 'Tabard', {1: ('Crimson Crusader', ('#2a0408', 
                                                    3: ('Royal Violet', ('#160626', '#562886', '#b48ae6')), 4: ('Gilded Storm', ('#3a2806', '#b8902a', '#ffe8a0'))}),
        'cecil': ('Cecil', '#b48cff', 'Robe', {1: ('Crimson', ('#2a060c', '#7a1a2a', '#c8506a')), 2: ('Midnight', ('#06081a', '#1e2450', '#5a64a0')),
                                               3: ('Bone', ('#5a5448', '#b8b0a0', '#f4efe4')), 4: ('Gilded', ('#3a2806', '#b08a2a', '#ffe8a0'))}),
-       'kw': ('KillerWatt', '#ffe040', 'Colours', {int(k[1:]): (nm, pal[0]) for k, (nm, pal) in KA.COS_PAL.items()})}
+       'kw': ('KillerWatt', '#ffe040', 'Colours', {int(k[1:]): (nm, pal[0]) for k, (nm, pal) in KA.COS_PAL.items()}),
+       # 2.78: the rest of the followers (their art is recoloured in phase138)
+       'apo': ('Apophiss', '#3ad06a', 'Scales', {1: ('Obsidian Coil', ('#07070c', '#2a2a38', '#7a7a92')), 2: ('Blood Wyrm', ('#200406', '#7a1418', '#e0584e')),
+                                                3: ('Frost Serpent', ('#0a2232', '#3a8ab4', '#c8ecff')), 4: ('Gilded Coil', ('#3a2806', '#b8902a', '#ffe8a0'))}),
+       'tul': ('Tullius', '#7ad8ff', 'Coat', {1: ("Admiral's Blue", ('#060c24', '#1e3a8a', '#6a8ae0')), 2: ('Corsair Crimson', ('#22040a', '#8a1a24', '#e05a64')),
+                                            3: ('Bleached Bone', ('#5a5448', '#b8b0a0', '#f4efe4')), 4: ('Gilded Captain', ('#3a2806', '#b08a2a', '#ffe8a0'))}),
+       'frog': ('the Frog with Mustache', '#6ac850', 'Skin', {1: ('Bluejay', ('#1a2a6a', '#3a7ae0', '#8ac8ff')), 2: ('Ember Toad', ('#4a0e04', '#d0501a', '#ffa060')),
+                                                             3: ('Old Bog', ('#2a1a0a', '#7a5430', '#c09a6a')), 4: ('Golden Prince', ('#3a2806', '#e0b02a', '#fff0a0'))}),
+       'don': ('Donado', '#e8d29a', 'Coat', {1: ('Chocolate', ('#1a0e06', '#5a3418', '#a07048')), 2: ('Midnight', ('#08080c', '#2a2a34', '#7a7a8a')),
+                                           3: ('Snowdrift', ('#8a8a90', '#dcdce0', '#ffffff')), 4: ('Starlit', ('#0a0626', '#4a2a9a', '#b49aff'))}),
+       'pearl': ('Pearlman', '#5ac8ff', 'Bow Tie', {1: ('Ruby', ('#3a0408', '#c0202a', '#ff7a80')), 2: ('Emerald', ('#04260e', '#1a9a44', '#7aff9a')),
+                                                    3: ('Amethyst', ('#1a0630', '#7a3ac0', '#d0a0ff')), 4: ('Gilded', ('#3a2806', '#e0b030', '#fff0a0'))}),
+       'wil': ('Wilfrey', '#f4f4f4', 'Heraldry', {1: ('Crimson Cross', ('#3a0408', '#b02020', '#ff7070')), 2: ('Azure Chevron', ('#06103a', '#2a4ab0', '#8aa8ff')),
+                                                  3: ('Verdant Bend', ('#06260a', '#2a8a30', '#90e090')), 4: ('Gilded Sun', ('#3a2806', '#e0b030', '#fff0a0'))})}
 HIDDEN = 4
 RECOLOUR = {'leo': ('le_tunic', 'le_skirt', 'le_cape'), 'demo': ('dm_hood', 'dm_hood_dk', 'dm_cape'), 'cecil': ('cec_robe', 'cec_robe_dark')}
 DYE = {'Crimson Crusader': 'red', 'Royal Purple': 'purple', 'Greenwood': 'green', 'Golden Champion': 'yellow', 'Crimson Reaper': 'red', 'Ashen Shroud': 'gray',
        'Royal Violet': 'purple', 'Gilded Storm': 'yellow', 'Crimson': 'red', 'Midnight': 'blue', 'Bone': 'white', 'Gilded': 'yellow', 'Neon': 'magenta',
-       'Golden Thunder': 'yellow'}
+       'Golden Thunder': 'yellow', 'Obsidian Coil': 'black', 'Blood Wyrm': 'red', 'Frost Serpent': 'light_blue', 'Gilded Coil': 'yellow',
+       "Admiral's Blue": 'blue', 'Corsair Crimson': 'red', 'Bleached Bone': 'white', 'Gilded Captain': 'yellow', 'Bluejay': 'light_blue',
+       'Ember Toad': 'orange', 'Old Bog': 'brown', 'Golden Prince': 'yellow', 'Chocolate': 'brown', 'Midnight': 'blue', 'Snowdrift': 'white', 'Starlit': 'purple',
+       'Ruby': 'red', 'Emerald': 'lime', 'Amethyst': 'purple', 'Gilded': 'yellow', 'Crimson Cross': 'red', 'Azure Chevron': 'blue', 'Verdant Bend': 'green',
+       'Gilded Sun': 'yellow'}
+WORD = {'apo': 'his scales', 'tul': 'his coat', 'frog': 'his skin', 'don': 'his coat', 'pearl': 'his bow tie and hat band', 'wil': 'the shield he bears'}
 for _w, (_who, _col, _word, _set) in NEW.items():
     for _k, (_n, _pal) in _set.items():
         _iid = f'cos_{_w}_{_k}'
-        item(_iid, TOTEM, f"{_who}'s {_word}: {_n}", _pal[1] if _pal[1] != '#55555c' else '#9a9aa2',
-             [f'{_n} - for {_who} alone.', ('Use: it\'s his for good - in his wardrobe.', 'blue'), ('Sneak + use his own item: his menu - change any time.', 'gray')] +
+        _short = {'frog': 'The Frog'}.get(_w, _who)
+        _menu = {'wil': 'Sneak + use his locket while he rests: his wardrobe.', 'pearl': 'Sneak + use his card: his menu - Wardrobe.'}.get(
+            _w, 'Sneak + use his own item: his menu - Wardrobe.' if _w in WORD else 'Sneak + use his own item: his menu - change any time.')
+        item(_iid, TOTEM, f"{_short}'s {_word}: {_n}", _pal[1] if _pal[1] != '#55555c' else '#9a9aa2',
+             [f'{_n} - for {_who} alone.' if _w not in WORD else f'{_n} - {WORD[_w]}, for {_who} alone.',
+              ('Use: it\'s his for good - in his wardrobe.', 'blue'), (_menu, 'gray')] +
              ([('Hidden: rare - a Gutter Trophy at Goldtooth.', 'dark_gray')] if _k == HIDDEN else []) +
              ([('With a gem in him, the gem\'s element shows instead.', 'dark_gray')] if _w in ('cecil', 'kw') else []),
              model=f'minecraft:{DYE[_n]}_dye', glint=_k == HIDDEN or None, stack=1, cat='cosmetic', comps=hold('none'))
@@ -46,7 +68,19 @@ for _iid in [i for i in ITEMS if i.startswith(('cos_ribbon_', 'cos_dress_', 'cos
     _L[:] = [l for l in _L if not (isinstance(l, dict) and l.get('text', '').startswith(('Kept:', 'Sneak + use', 'Use while', 'Use one while')))]
     _L.insert(1, T('Use: unlocked for good - in the wardrobe.', 'blue'))
     _L.insert(2, T('Sneak + use the follower\'s item: the menu.', 'gray'))
-BASE = {'emma': 9800, 'celi': 9840, 'zib': 9860, 'cecil': 9880, 'kw': 9900, 'leo': 9920, 'demo': 9940}
+BASE = {'emma': 9800, 'celi': 9840, 'zib': 9860, 'cecil': 9880, 'kw': 9900, 'leo': 9920, 'demo': 9940,
+        'apo': 9000, 'tul': 9020, 'frog': 9040, 'don': 9060, 'pearl': 9080, 'wil': 9100}         # (2.78: the rest - their own blocks of 20)
+TOP = {'emma': 9839, 'celi': 9859, 'zib': 9879, 'cecil': 9899, 'kw': 9919, 'leo': 9939, 'demo': 9959}   # each follower's last code
+TOP.update({w: b + 19 for w, b in BASE.items() if w not in TOP})
+COS = {'leo': 'bm.cosl', 'demo': 'bm.cosm', 'cecil': 'bm.cosce', 'kw': 'bm.cosk', 'apo': 'bm.cosap', 'tul': 'bm.costu', 'frog': 'bm.cosfg', 'don': 'bm.cosdn',
+       'pearl': 'bm.cospm', 'wil': 'bm.coswl'}
+NAMES = {'emma': ('Emma', '#ff7ad0', 'her'), 'celi': ('Celi', '#9ad8ff', 'her'), 'zib': ('Zib', '#3ad8c8', 'him'), 'cecil': ('Cecil', '#b48cff', 'him'),
+         'kw': ('KillerWatt', '#ffe040', 'him'), 'leo': ('Leo', '#5ab8e0', 'him'), 'demo': ('Democratus', '#7ad06a', 'him'),
+         'apo': ('Apophiss', '#3ad06a', 'him'), 'tul': ('Tullius', '#7ad8ff', 'him'), 'frog': ('the Frog with Mustache', '#6ac850', 'him'),
+         'don': ('Donado', '#e8d29a', 'him'), 'pearl': ('Pearlman', '#5ac8ff', 'him'), 'wil': ('Wilfrey', '#f4f4f4', 'him')}
+HOME = {'emma': 'p98/home/emma', 'celi': 'p98/home/celi', 'zib': 'p98/home/zib', 'cecil': 'p98/home/cecil', 'kw': 'p98/home/killerwatt',
+        'leo': 'p98/home/leo', 'demo': 'p98/home/demo', 'apo': 'p98/home/apo', 'tul': 'p98/home/tul', 'frog': 'p138/home/frog', 'don': 'p138/home/don',
+        'pearl': 'p138/home/pearl', 'wil': 'p138/home/wil'}
 P28.MENU.update({f'wd_{w}': b for w, b in BASE.items()})
 
 
@@ -132,7 +166,7 @@ def groups():
               ('emma', 'outfit', 'bm.coso', 'bm.wuo', dict(P89.OUTFITS), 'cos_outfit_{}', 22, 'p78/emma_now'),
               ('celi', 'celi', 'bm.cosc', 'bm.wuc', {k: (n, c) for k, (n, c, _c2) in P78.CELI.items()}, 'cos_celi_{}', 2, 'p78/celi_now'),
               ('zib', 'zib', 'bm.cosz', 'bm.wuz', dict(P78.ZIB), 'cos_zib_{}', 2, 'p78/zib_now')] + \
-             [(w, w, f'bm.cos{"l" if w == "leo" else "m" if w == "demo" else "ce" if w == "cecil" else "k"}', f'bm.wu{w}',
+             [(w, w, COS[w], f'bm.wu{w}',
                {k: (n, pal[1]) for k, (n, pal) in NEW[w][3].items()}, f'cos_{w}_{{}}', 2, f'p99/{w}_now') for w in NEW]
 
 
@@ -150,10 +184,6 @@ def generate(G):
     def bit(obj, k):
         return [f'scoreboard players operation #q bm.rng = @s {obj}', f'scoreboard players set #bit bm.rng {2 ** k}',
                 'scoreboard players operation #q bm.rng /= #bit bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng']
-    NAMES = {'emma': ('Emma', PINK, 'her'), 'celi': ('Celi', '#9ad8ff', 'her'), 'zib': ('Zib', '#3ad8c8', 'him'), 'cecil': ('Cecil', '#b48cff', 'him'),
-             'kw': ('KillerWatt', '#ffe040', 'him'), 'leo': ('Leo', '#5ab8e0', 'him'), 'demo': ('Democratus', '#7ad06a', 'him')}
-    HOME = {'emma': 'p98/home/emma', 'celi': 'p98/home/celi', 'zib': 'p98/home/zib', 'cecil': 'p98/home/cecil', 'kw': 'p98/home/killerwatt',
-            'leo': 'p98/home/leo', 'demo': 'p98/home/demo'}
 
     # ================================================================== unlocking: a cosmetic used once is in the wardrobe for good
     for who, g, cur, un, ks, iid, off, apply in GROUPS:
@@ -235,6 +265,8 @@ def generate(G):
                 page += [f'execute if score @s {cur} matches {k} run function bm:p99/own/{g}{k}']
                 fn(f'p99/own/{g}{k}', bit(un, k) + [f'execute if score #q bm.rng matches 0 run scoreboard players add @s {un} {2 ** k}'])
             orig = {'ribbon': 'Pink ribbon', 'dress': 'Her own dress', 'outfit': None}.get(g, 'Own clothes' if who not in ('cecil', 'kw') else 'Own colours')
+            orig = {'apo': 'His own scales', 'tul': 'His old coat', 'frog': 'His own skin', 'don': 'His own coat', 'pearl': 'The blue bow tie',
+                    'wil': 'No shield'}.get(g, orig)
             if orig:
                 page += [st(f'{g}0', 'owned', 'gray'), f'execute if score @s {cur} matches 0 run {st(f"{g}0", "wearing", GOLD)}']
                 if g == 'dress':
@@ -246,6 +278,15 @@ def generate(G):
                 if g == 'dress':
                     page += [f'execute if score @s {cur} matches {k} unless score @s bm.coso matches 0 run {st(f"{g}{k}", "owned", "gray")}']
                 btns.append(P28.btn([T(cn, cc, bold=True), T('  '), f'@@RAW:r_{g}{k}@@'], b + off + k, width=150))
+        # 2.78: the aura row - locked until you have it (a rare heist find, or dear at the Tailor), then on / off
+        import phase138 as P138
+        an, ac = P138.AURA[who][0], P138.AURA[who][1]
+        page += [st('aura', 'locked', 'dark_gray'), f'execute if entity @s[tag=bm.auown_{who}] run {st("aura", "off", "gray")}',
+                 f'execute if entity @s[tag=bm.au_{who}] run {st("aura", "on", GOLD)}']
+        used = {b} | {b + off + k for _w, g, cur, un, ks, iid, off, apply in mine for k in [0] + list(ks)}
+        assert TOP[who] not in used, (who, TOP[who])
+        btns.append(P28.btn([T(an, ac, bold=True), T('  '), '@@RAW:r_aura@@'], TOP[who], width=150,
+                            tooltip=T(f'{an}: a rare aura around {nm} - a heist find, or the Tailor\'s dearest stock. On or off here.', 'gray')))
         page.append(f'function bm:p99/dlg/{who} with storage bm:ui wd')
         fn(f'p99/menu/{who}', page)
         dlg = P28.multi([T(f"{nm}", col, bold=True), T('  ·  wardrobe', 'gray')],
@@ -257,7 +298,8 @@ def generate(G):
         # the clicks
         lines = [f'execute unless score @s bm.menu matches {b} run return run function bm:p28/stale',
                  'scoreboard players operation #me bm.pid = @s bm.pid',
-                 f'execute if score #act bm.pay matches {b} run return run function bm:{HOME[who]}']
+                 f'execute if score #act bm.pay matches {b} run return run function bm:{HOME[who]}',
+                 f'execute if score #act bm.pay matches {TOP[who]} run return run function bm:p138/au/t_{who}']
         for _w, g, cur, un, ks, iid, off, apply in mine:
             if g != 'outfit':
                 fn(f'p99/pick/{g}0', [f'scoreboard players set @s {cur} 0'] + (['scoreboard players set @s bm.coso 0'] if g == 'dress' else []) +
@@ -270,10 +312,8 @@ def generate(G):
                    [f'function bm:{apply}', f'function bm:p99/menu/{who}'])
                 lines.append(f'execute if score #act bm.pay matches {b + off + k} run return run function bm:p99/pick/{g}{k}')
         fn(f'p99/act/{who}', lines)
-    order = sorted(BASE.items(), key=lambda x: x[1])
-    top = {w: (order[i + 1][1] - 1 if i + 1 < len(order) else b + 19) for i, (w, b) in enumerate(order)}        # (each follower's own block of codes)
-    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {order[0][1]}..{top[order[-1][0]]} run return run function bm:p99/act')
-    fn('p99/act', [f'execute if score #act bm.pay matches {b}..{top[w]} run return run function bm:p99/act/{w}' for w, b in order])
+    # (2.78: each follower's own block, routed exactly - the new ones sit at 9000-9119, away from the old run)
+    G.FUNCS['p28/act'] += [f'execute if score #act bm.pay matches {b}..{TOP[w]} run return run function bm:p99/act/{w}' for w, b in BASE.items()]
     # sneak + use: the menu (KillerWatt: not while riding him - that's his Thunder Leap)
     sneak = lambda who: f'execute if predicate bm:p20/sneaking run return run function bm:p99/menu/{who}'
     for f_, who in (('p46/pet/use', 'cecil'), ('p66/use', 'celi'), ('p72/zb/use', 'zib'), ('p96/use', 'leo')):

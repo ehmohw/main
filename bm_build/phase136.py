@@ -154,12 +154,13 @@ def generate(G):
         dlg = lambda out: P28.multi([T(K['item_name'], col, bold=True)], [P28.body(desc), P28.body(tip, 300)],
                                     ([P28.btn(T('Sit / follow', 'white', bold=True), menu + 1, width=150), P28.btn(T('Hand back my gear', 'white'), menu + 2, width=150),
                                       P28.btn(T('Send him home', 'gray'), menu + 9, width=150)] if out else
-                                     [P28.btn(T(f'Call for {K["short"]}', col, bold=True), menu + 8, width=150)]), columns=2, exit_label='Close')
+                                     [P28.btn(T(f'Call for {K["short"]}', col, bold=True), menu + 8, width=150)]) + [P28.btn(T('Wardrobe', col, bold=True), menu + 3, width=150, tooltip=T('His looks - and his aura, if you have it.', 'gray'))], columns=2, exit_label='Close')
         fn(f'p136/{k}/menu', [f'scoreboard players set @s bm.menu {menu}', 'scoreboard players set #out bm.rng 0',
                               f'execute if entity @e[type=minecraft:wolf,tag={sel}] run scoreboard players set #out bm.rng 1',
                               f'execute if score #out bm.rng matches 1 run return run dialog show @s {P28.inline(dlg(True))}', f'dialog show @s {P28.inline(dlg(False))}'])
-        G.FUNCS['p28/act'] += [f'execute if score #act bm.pay matches {menu + n} run return run function bm:p136/{k}/act' for n in (1, 2, 8, 9)]
+        G.FUNCS['p28/act'] += [f'execute if score #act bm.pay matches {menu + n} run return run function bm:p136/{k}/act' for n in (1, 2, 3, 8, 9)]
         fn(f'p136/{k}/act', [f'execute unless score @s bm.menu matches {menu} run return run function bm:p28/stale', 'scoreboard players set @s bm.menu 0',
+                             f'execute if score #act bm.pay matches {menu + 3} run return run function bm:p119/plain/{ {"fg": "frog", "dn": "don"}[k] }',   # (2.78: his wardrobe)
                              'scoreboard players operation #me bm.pid = @s bm.pid', mine,
                              f'execute if score #act bm.pay matches {menu + 8} unless entity @e[type=minecraft:wolf,tag={sel}] run function bm:p136/{k}/try',
                              f'execute if score #act bm.pay matches {menu + 8} if entity @e[type=minecraft:wolf,tag={sel}] run function bm:p136/{k}/recall',

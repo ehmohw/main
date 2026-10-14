@@ -124,6 +124,8 @@ import phase134 as R134      # 2.77b: follower figurines in display cases (punch
 import phase135 as R135      # 2.77c: weapons on the wall (Tullius's blunderbuss and harpoon, the scythe, both tendril sets)
 import phase136 as R136      # 2.78: the Frog with Mustache and Donado carry a token (the Signet, the Collar Tag), like every follower
 import phase137 as R137      # 2.78: polish - a fresh start keeps what you earned (best-ever record), fringe cases
+import phase138 as R138      # 2.78: every follower dressed (the six without a wardrobe) and an aura for each
+import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import allies                # 2.67: every friendly-fire list skips every follower (allies.py)
@@ -1178,6 +1180,8 @@ def build(out_dir):
     if PHASE2: R135.generate(sys.modules[__name__])
     if PHASE2: R136.generate(sys.modules[__name__])
     if PHASE2: R137.generate(sys.modules[__name__])
+    if PHASE2: R138.generate(sys.modules[__name__])
+    if PHASE2: R139.generate(sys.modules[__name__])
     R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])

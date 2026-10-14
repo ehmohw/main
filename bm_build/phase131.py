@@ -1617,12 +1617,13 @@ def generate(G):
                                            T("Serpent's Fangs", GRN, bold=True), T('.', 'gray')], 300)],
                                 ([P28.btn(T('Sit / follow', 'white', bold=True), MENU + 1, width=150), P28.btn(T('Ride him', GRN, bold=True), MENU + 2, width=150),
                                   P28.btn(T('Take off the saddle', 'gray'), MENU + 3, width=150), P28.btn(T('Send him home', 'gray'), MENU + 9, width=150)] if out else
-                                 [P28.btn(T('Call for Apophiss', GRN, bold=True), MENU + 8, width=150)]), columns=2, exit_label='Close')
+                                 [P28.btn(T('Call for Apophiss', GRN, bold=True), MENU + 8, width=150)]) + [P28.btn(T('Wardrobe', GRN, bold=True), MENU + 4, width=150, tooltip=T('His looks - and his aura, if you have it.', 'gray'))], columns=2, exit_label='Close')
     fn('p131/menu', [f'scoreboard players set @s bm.menu {MENU}', 'scoreboard players set #out bm.rng 0',
                      'execute if entity @e[type=minecraft:wolf,tag=bm.apsel2] run scoreboard players set #out bm.rng 1',
                      f'execute if score #out bm.rng matches 1 run return run dialog show @s {snbt(dlg(True))}', f'dialog show @s {snbt(dlg(False))}'])
-    G.FUNCS['p28/act'] += [f'execute if score #act bm.pay matches {MENU + n} run return run function bm:p131/act' for n in (1, 2, 3, 8, 9)]
+    G.FUNCS['p28/act'] += [f'execute if score #act bm.pay matches {MENU + n} run return run function bm:p131/act' for n in (1, 2, 3, 4, 8, 9)]
     fn('p131/act', [f'execute unless score @s bm.menu matches {MENU} run return run function bm:p28/stale',
+                    f'execute if score #act bm.pay matches {MENU + 4} run return run function bm:p119/plain/apo',     # (2.78: his wardrobe)
                     'scoreboard players operation #me bm.pid = @s bm.pid', f'{sel_pet} run tag @s add bm.apsel2',
                     f'execute if score #act bm.pay matches {MENU + 8} unless entity @e[type=minecraft:wolf,tag=bm.apsel2] run function bm:p131/try_summon',
                     f'execute if score #act bm.pay matches {MENU + 8} if entity @e[type=minecraft:wolf,tag=bm.apsel2] run function bm:p131/recall',

@@ -189,10 +189,11 @@ def generate(G):
                                T('A Lucky Flipper', '#7ad06a', bold=True), T(' Luck.  ', 'gray'), T('Penguin Stroke', PEARL, bold=True),
                                T(' you swim like him.  ', 'gray'), T('Appraisal', '#e8b04a', bold=True), T(' 1 trade in 5 with a villager near him: an emerald back.', 'gray')], 300)],
                     [P28.btn(T('Wait here / follow me', 'white', bold=True), 8301, tooltip=T('He waits on the spot - or waddles after you again.', 'gray'), width=150),
-                     P28.btn(T('Send him home', 'gray'), 8309, width=150)], columns=2, exit_label='Close')
+                     P28.btn(T('Send him home', 'gray'), 8309, width=150), P28.btn(T('Wardrobe', PEARL, bold=True), 8302, width=150, tooltip=T('His looks - and his aura, if you have it.', 'gray'))], columns=2, exit_label='Close')
     fn('p128/pm/menu', [f'scoreboard players set @s bm.menu {MENU}', f'dialog show @s {snbt(dlg)}'])
     G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 8301..8309 run return run function bm:p128/pm/act')
     fn('p128/pm/act', [f'execute unless score @s bm.menu matches {MENU} run return run function bm:p28/stale',
+                       'execute if score #act bm.pay matches 8302 run return run function bm:p119/plain/pearl',      # (2.78: his wardrobe)
                        'scoreboard players operation #me bm.pid = @s bm.pid', f'{sel_pet} run tag @s add bm.pmsel2',
                        'execute unless entity @e[type=minecraft:cat,tag=bm.pmsel2] run return run function bm:p28/stale',
                        'execute if score #act bm.pay matches 8301 run function bm:p128/pm/sit',
