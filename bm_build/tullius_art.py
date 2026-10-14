@@ -30,7 +30,7 @@ LEG_TOP, SHOE = 13.6, 3.4
 leg_y = lambda y: y if y <= SHOE else SHOE + (y - SHOE) * (LEG_TOP + LIFT - SHOE) / (LEG_TOP - SHOE)
 PARENT = {'body': None, 'legr': None, 'legl': None, 'tails': 'body', 'head': 'body', 'armr': 'body', 'arml': 'body', 'harpoon': 'arml', 'gun': 'armr'}
 PARTS = tuple(PIVOT)
-HARPOON_K = 1.3                 # (the harpoon reaches past a model's box: built at full size, kept at 1/1.3, shown at 1.3x)
+HARPOON_K = 1.4                 # (the harpoon reaches past a model's box: built at full size, kept at 1/1.4, shown at 1.4x - the iced one reaches furthest)
 PART_K = {'harpoon': HARPOON_K}
 FACES = ('sneer', 'fury', 'hurt', 'shock', 'tired', 'blink')
 COAT, COAT_DK, COAT_LT = '#4c8a8f', '#2f5f63', '#7fbcbf'
