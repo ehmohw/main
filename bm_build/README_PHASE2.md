@@ -6,7 +6,7 @@ Install it like Phase 1.6. Put `BlackMarket_Phase2_TEST_DP.zip` in `datapacks`, 
 
 ## New in 2.80
 
-The dungeon bosses get a sense of occasion: each one **materialises** out of its own colours instead of popping in, **telegraphs its big blows** (the Tyrant's slam, Bobbery's cleave, the Archmage's lances, the Broodmother's spit, the Marksman's hail, the Hollow King's decree), has a **rage moment**, and **dies its own way** before falling as the kill of whoever brought it down. Every dungeon fight now has its own music too ("Into the Depths"; the Hollow King has two themes, one for each form). The dungeon keys, emblems and boss drops have new icons, along with every other item in the pack. See the main README.
+The dungeon bosses get a sense of occasion: each one **materialises** out of its own colours instead of popping in, **telegraphs its big blows** (the Tyrant's slam, Bobbery's cleave, the Archmage's lances, the Broodmother's spit, the Marksman's hail, the Hollow King's decree), has a **rage moment**, and **dies its own way** before falling as the kill of whoever brought it down. Every dungeon fight now has its own music too ("Into the Depths"; the Hollow King has two themes, one for each form). The emblems and boss drops have new icons, along with most items in the pack (the keys keep their vanilla trial-key look). See the main README.
 
 ## New in 2.21
 

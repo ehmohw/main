@@ -409,15 +409,6 @@ def crystal_shard(col, diag=False):
     return f
 
 
-def blood_crystal():
-    s = S()
-    c = ['#3a0608', '#6a0e12', '#a01a1e', '#d03a32', '#ff7a6a']
-    s.g(['......LLLM', '.....LhLMD', '....LhLMD.', '...LhLMD..', '..LhLMD...', '.LLLMD....', 'LLLMD.....', 'LMMD......', 'MDD.......'],
-        {'L': c[2], 'h': c[4], 'M': c[1], 'D': c[0]}, 3, 3)
-    for (x, y) in ((9, 4), (7, 6), (5, 8)): s.px(x, y, c[3])
-    return s.render()
-
-
 def ember_scale():
     s = S()
     e = ['#6a1a04', '#b03a0a', '#e8641a', '#ffa83a', '#fff0a0']
@@ -599,7 +590,7 @@ OVERRIDES = {
     'rat_prof': rat(_prof_top, _prof_mid), 'rat_soldier': rat(_soldier_top, _soldier_mid),
     'sum_horseman': sum_horseman, 'sum_lantern': sum_lantern, 'sum_pharaoh': sum_pharaoh, 'sum_roc': sum_roc, 'sum_treant': sum_treant,
     'sum_colossus': sum_colossus, 'sum_voidwalker': sum_voidwalker,
-    'blood_crystal': blood_crystal, 'ember_scale': ember_scale, 'bloomheart_gem': bloomheart_gem, 'kw_spark': kw_spark, 'void_shard': void_shard,
+    'ember_scale': ember_scale, 'bloomheart_gem': bloomheart_gem, 'kw_spark': kw_spark, 'void_shard': void_shard,
     'xenite_cyan': crystal_shard('#5ae8f0'), 'xenite_green': crystal_shard('#5aff7a'), 'xenite_red': crystal_shard('#ff4a4a'),
     'xenite_violet': crystal_shard('#b47aff'),
     'heartstone': heart(['#5a0612', '#9a1028', '#d82040', '#ff5a6a', '#ffa8b0']), 'forgeheart': heart(['#4a1004', '#8a2a08', '#d0541a', '#ff8a3a', '#ffc070'], _forge_x),

@@ -33,56 +33,7 @@ def ramp(base, n=5):
 
 
 # ================================================================== KEYS
-# the trial key's shape, bolder: a round head with a face (a dungeon key's eyes in its own colour; a vault key's gold
-# head with white eyes; a boss key's horned black head with red eyes), a collar, a shaft two pixels wide, a two-tooth bit
-HEAD_TRIAL = ['..LLLLM..',
-              '.LhLLLLM.',
-              'LhEELEEMD',
-              'LLEeLEeMD',
-              'LLLLLLMMD',
-              '.MLLLLMD.',
-              '..MMDDD..']
-HEAD_BOSS = ['L.......D',
-             'LhLLLLM.D',
-             '.LEELEEM.',
-             'LLEeLEeMD',
-             'LLLLLLMMD',
-             '.MLLLLMD.',
-             '..MMDDD..']
-
-
-def key(shaft, head=IRON, eyes=None, boss=False, eye_hi=None):
-    s = S()
-    hd = HEAD_BOSS if boss else HEAD_TRIAL
-    e = eyes or shaft[3]
-    s.g(hd, {'L': head[3], 'h': head[4], 'M': head[2], 'D': head[1], 'E': e, 'e': eye_hi or ramp(e)[1]}, 3, 1)
-    s.g(['.LLLd.', 'DMMMMD'], {'L': shaft[3], 'M': shaft[2], 'd': shaft[1], 'D': shaft[0]}, 5, 8)    # the collar
-    for y in range(10, 15):                                  # the shaft
-        s.px(7, y, shaft[3]); s.px(8, y, shaft[1])
-    s.px(7, 10, shaft[4])
-    s.g(['LL', 'M.', 'MD'], {'M': shaft[2], 'L': shaft[3], 'D': shaft[1]}, 9, 12)                # the bit
-    return s.render()
-
-
-def _dungeon_keys():
-    from p2.config import D
-    out = {}
-    lift = {'hollow': '#7a8a9c', 'keep': '#a85a48'}
-    for d in ('brood', 'frost', 'hex', 'hollow', 'keep', 'tide', 'lucky'):
-        col = ramp(lift.get(d, D[d]['color']))
-        if d not in ('hollow', 'lucky'): out[f'key_{d}'] = (lambda c=col: key(c, IRON, eyes=c[4]))       # (those two have no dungeon key)
-        out[f'vkey_{d}'] = (lambda c=col: key(c, GOLD, eyes='#ffffff', eye_hi='#a8c8ff'))
-        out[f'bkey_{d}'] = (lambda c=col: key(c, BLACK, eyes='#ff3a3a', boss=True, eye_hi='#8a0a14'))
-    out['vkey_hex'] = lambda: key(ramp('#d04ab0'), ramp('#5a2480'), eyes='#80ff70', eye_hi='#2a8a2a')
-    # the other keys of the world, in the same family
-    out['gold_key'] = lambda: key(GOLD, GOLD, eyes='#fff6c0', eye_hi='#c88a14')
-    out['silver_key'] = lambda: key(IRON, IRON, eyes='#a8ecff', eye_hi='#3a8ab0')
-    out['mail_key'] = lambda: key(BRASS, BRASS, eyes='#ffd23f', eye_hi='#8a5a10')
-    out['renewal_key'] = lambda: key(ramp('#7ad8e8'), ramp('#d8e2ea'), eyes='#ffffff', eye_hi='#4ab8d0')
-    out['market_key'] = lambda: key(PURPLE, GOLD, eyes='#ffd23f', eye_hi='#7432a8')
-    return out
-
-
+# (the dungeon, vault and boss keys and the world's other keys keep their vanilla trial-key look - only the Rat King's is drawn)
 def rat_king_key():
     """a gold key with a crowned rat's head for its bow"""
     s = S()
@@ -317,12 +268,6 @@ def m_heart(s):
          '.LLLMMD.',
          '..LMMD..',
          '...MD...'], {'L': h[3], 'h': h[4], 'M': h[2], 'D': h[1]}, 4, 7)
-
-
-def m_storm(s):
-    c = ['#2a2e3e', '#4a5068', '#727a94', '#a2a8be', '#d0d4e2']
-    s.disc(6, 9.5, 2.6, c); s.disc(9.8, 9, 3.0, c); s.disc(8, 11, 2.6, c)
-    s.g(['.Y', 'YY', 'Y.', 'y.'], {'Y': '#ffe85a', 'y': '#fff6b0'}, 7, 12)
 
 
 def m_rainbow(s):
@@ -888,7 +833,6 @@ def trophy():
 
 
 OVERRIDES = {}
-OVERRIDES.update(_dungeon_keys())
 OVERRIDES['rat_king_key'] = rat_king_key
 OVERRIDES.update(_charms())
 

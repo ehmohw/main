@@ -21,7 +21,7 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
-## New in 2.80: boss fights with a sense of occasion, music of their own, the heist's climax, every item icon redrawn, and sharper menus
+## New in 2.80: boss fights with a sense of occasion, music of their own, the heist's climax, item icons redrawn, and sharper menus
 
 ### The roaming bosses make an entrance, wind up, rage and fall
 The Headless Horseman, the Sand Pharaoh, the Storm Roc, the Elder Treant, the Magma Colossus and the Voidwalker now get the treatment Apophiss had.
@@ -50,14 +50,14 @@ The Headless Horseman, the Sand Pharaoh, the Storm Roc, the Elder Treant, the Ma
 - **Every room kind has its own look above the gold trim:** a frieze round the walls, light set into the ceiling in its own pattern, and one overhead feature (copper pipework, iron weights on chains, a great dial, a chandelier; the Gauntlet goes dark so its beams stand out).
 - **Nothing changes below the trim,** so puzzles, plates and guards are exactly where they were.
 
-### Every item icon redrawn
-- **All 418 custom item icons are drawn again in one style:** bold shapes filling the frame, a dark outline, proper shading and highlights. Nothing keeps the old thin, flat look.
+### Item icons redrawn
+- **359 custom item icons are drawn again in one style:** bold shapes filling the frame, a dark outline, proper shading and highlights.
+- **Icons built on vanilla Minecraft's own art keep their vanilla look:** the music discs, the lanterns, every key (dungeon, vault, boss and the rest), the potions and vials, the boots, the Spark, Gravewell and Crescent staffs, the Quake Maul, the Thirsting Blade, the stews, the hoppers, and the Blood Moon crystal, effigy, almanac, compass and pact.
 - **Families share one design and differ where they should.**
-  - The keys are trial keys with faces: the dungeon keys have grey heads with eyes in the dungeon's colour, the vault keys have gold heads, and the boss keys have horned black heads with red eyes.
   - Each cosmetic charm now hangs its own little emblem from its chain: a bat, a halo, a clover, coins, a crown, a saucer, a snowflake, a flame and so on. They used to be the same teardrop in different colours.
   - Coins, sigils and emblems are struck in relief on a sunken face.
   - The laurels are wreaths, the rosettes are pleated prize rosettes with tails, and the Lucky map's nine pieces are cut from one new map.
-- **The rest, one by one:** armour, boots, gauntlets, wings, blades, staffs, ray guns, scrolls, books and cards, food and potions, crates and display cases, bells, records, trinkets, the skiff's parts and escorts, the Rat Gang, the summoning items, the gems, hearts and essences.
+- **The rest, one by one:** armour, gauntlets, wings, blades, staffs, ray guns, scrolls, books and cards, food, crates and display cases, bells, trinkets, the skiff's parts and escorts, the Rat Gang, the summoning items, the gems, hearts and essences.
 - **Only the pictures change.** The items, their names and their models are the same.
 
 ### Menus

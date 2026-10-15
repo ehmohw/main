@@ -137,19 +137,6 @@ def tip_bloodmoon():
     return s.render()
 
 
-def moon_pact():
-    """the Moon Pact: a rolled letter tied with a red cord and sealed"""
-    s = S()
-    p = PAPER
-    s.line(2, 12, 12, 2, p[3], 3)
-    s.line(3, 13, 13, 3, p[1])
-    s.line(2, 11, 11, 2, p[4])
-    s.g(['.pp', 'pPp', 'pp.'], {'p': p[2], 'P': p[1]}, 11, 1); s.g(['pp.', 'pPp', '.pp'], {'p': p[2], 'P': p[1]}, 1, 11)
-    s.line(6, 9, 8, 7, '#c41a1a')
-    s.disc(8.5, 9.5, 1.8, ['#6a0a0a', '#a01414', '#e03a2a'])
-    return s.render()
-
-
 def brass_wing_scroll():
     s = S()
     _scroll(s, 3, 1, 10, 14)
@@ -165,15 +152,6 @@ def market_crest_scroll():
     s.disc(8, 7.5, 2.0, BLACK[:4])
     emboss(s, ['Y.Y', '.Y.'], {'Y': GOLD[3]}, 7, 6)
     _lines(s, 5, 12, [6], '#6a5a44')
-    return s.render()
-
-
-def blood_almanac():
-    s = S()
-    _book(s, ['#3a0608', '#6a0e12', '#a01a1e', '#d03a32', '#ff7a6a'])
-    s.disc(8, 7, 2.8, ['#e0d8c0', '#fff6e0', '#ffffff'])
-    s.disc(9.2, 6.2, 2.2, ['#6a0e12', '#a01a1e'])                                               # a blood moon, eclipsed
-    for y in (12, 13): s.px(6, y, GOLD[3]); s.px(10, y, GOLD[3])
     return s.render()
 
 
@@ -330,34 +308,6 @@ def _haft(s, col, x0, y0, x1, y1):
 
 
 # ================================================================== FOOD
-def _bowl(s, food, bits=(), rim=('#4a2c18', '#6a4024', '#8a5834', '#aa7448', '#c89060')):
-    """a wooden bowl seen from a little above, heaped with something"""
-    s.g(['..FFFFFFFFFF..',
-         '.FFFFFFFFFFFF.',
-         'RFFFFFFFFFFFFR',
-         'RRRRRRRRRRRRRR',
-         '.rrrrrrrrrrrr.',
-         '..rrrrrrrrrr..',
-         '...dddddddd...'], {'F': food[2], 'R': rim[3], 'r': rim[2], 'd': rim[1]}, 1, 6)
-    for x in range(3, 13): s.px(x, 6, food[3])
-    s.px(4, 7, food[4]); s.px(5, 7, food[3])
-    for (x, y, c) in bits: s.px(x, y, c)
-
-
-def dish_chili():
-    s = S()
-    _bowl(s, ramp('#c8301a'), [(5, 8, '#5a1a0a'), (8, 7, '#5a1a0a'), (11, 8, '#5a1a0a'), (7, 8, '#3ab83a'), (10, 7, '#3ab83a'), (6, 6, '#ffb03a')])
-    for (x, y) in ((6, 3), (7, 2), (9, 4), (10, 3)): s.px(x, y, '#d8d0c8')
-    return s.render()
-
-
-def dish_chowder():
-    s = S()
-    _bowl(s, ramp('#e8dcc0'), [(5, 8, '#e8a040'), (9, 7, '#ffb0a0'), (11, 8, '#e8a040'), (7, 7, '#3a8a3a'), (8, 8, '#d0c0a0')])
-    for (x, y) in ((6, 3), (7, 2), (9, 4), (10, 3)): s.px(x, y, '#d8d0c8')
-    return s.render()
-
-
 def dish_potpie():
     s = S()
     s.g(['...CCCCCCCCC...',
@@ -435,22 +385,6 @@ def golden_cheese_wheel():
 
 
 # ================================================================== BOTTLES, BUCKETS AND JARS
-def flask(liquid, extra=(), cork=WOOD):
-    """a round glass flask, its cork, its liquid lit like a ball, a glint on the glass"""
-    def f():
-        s = S()
-        lq = ramp(liquid) if isinstance(liquid, str) else liquid
-        s.g(['.CC.', 'CccC'], {'C': cork[3], 'c': cork[1]}, 6, 1)
-        s.g(['GG', 'GG'], {'G': GLASS[2]}, 7, 3)
-        s.px(6, 3, GLASS[3]); s.px(9, 3, GLASS[1]); s.px(6, 4, GLASS[3]); s.px(9, 4, GLASS[1])
-        s.disc(8, 10, 5.2, GLASS[:4])
-        s.disc(8, 10.5, 4.2, lq)
-        s.px(5, 8, '#ffffff'); s.px(5, 9, '#e8fbff'); s.px(6, 7, '#e8fbff')
-        for (x, y, c) in extra: s.px(x, y, c)
-        return s.render()
-    return f
-
-
 def bucket(liquid):
     def f():
         s = S()
@@ -592,19 +526,6 @@ def vacuum_satchel(on=False):
     return f
 
 
-def hopper(top):
-    def f():
-        s = S()
-        t = ramp(top)
-        s.g(['TTTTTTTTTTTTTT', 'ThTTTTTTTTTTTD', 'tttttttttttttt'], {'T': t[3], 'h': t[4], 'D': t[1], 't': t[1]}, 1, 2)
-        s.g(['.IIIIIIIIIIII.', '..IIIIIIIIII..', '...IIIIIIII...', '....IIIIII....', '.....IIII.....', '.....iiii.....',
-             '......ii......', '......ii......'], {'I': IRON[2], 'i': IRON[1]}, 1, 5)
-        for y in range(5, 10): s.px(2 + y - 5 + 1, y, IRON[3])
-        s.px(4, 3, t[4])
-        return s.render()
-    return f
-
-
 def caged_spawner():
     s = S()
     for y in range(2, 14):
@@ -664,46 +585,6 @@ def _pearl_extra(s):
 def _echo_extra(s):
     for (x, y) in ((0, 6), (0, 8), (15, 6), (15, 8)): s.px(x, y, '#a8f0ff')
     s.px(0, 7, '#5ac8ff'); s.px(15, 7, '#5ac8ff')
-
-
-def lantern(body, glow):
-    def f():
-        s = S()
-        b = ramp(body) if isinstance(body, str) else body
-        g = ramp(glow)
-        s.g(['.II.', 'I..I', '.II.'], {'I': IRON[2]}, 6, 0)
-        s.g(['.BBBBBB.', 'BbbbbbbB', 'BGGGGGGB', 'BGgWWgGB', 'BGgWWgGB', 'BGGgGGGB', 'BGGGGGGB', 'BbbbbbbB', '.BBBBBB.'],
-            {'B': b[2], 'b': b[1], 'G': g[2], 'g': g[3], 'W': g[4]}, 4, 3)
-        s.px(4, 4, b[3]); s.px(5, 3, b[4])
-        return s.render()
-    return f
-
-
-def whisker_lantern():
-    """the Whisker Lantern: a rat-sized lantern with whiskers of light either side"""
-    s = S()
-    lantern(BLACK, '#ffc040')
-    s2 = S()
-    s2.g(['.II.', 'I..I', '.II.'], {'I': IRON[2]}, 6, 1)
-    s2.g(['.BBBB.', 'BYYYYB', 'BYWWYB', 'BYWWYB', 'BYYYYB', '.BBBB.'], {'B': BLACK[2], 'Y': '#ffb020', 'W': '#fff6c0'}, 5, 4)
-    for (x, y) in ((1, 6), (2, 7), (1, 8), (14, 6), (13, 7), (14, 8)): s2.px(x, y, '#fff0c0')
-    s2.g(['BBBB'], {'B': BLACK[1]}, 6, 10)
-    return s2.render()
-
-
-def disc(label, mark=None):
-    def f():
-        s = S()
-        s.disc(8, 8, 7.0, ['#0a0a0c', '#16161a', '#222228', '#2e2e36', '#44444e'])
-        for r in (5.4, 4.0):                                  # the grooves
-            s.ring(8, 8, r, r, 0.5, ['#08080a'])
-        lb = ramp(label)
-        s.disc(8, 8, 2.6, lb)
-        s.px(8, 8, '#0a0a0c')
-        s.line(3, 5, 5, 3, '#6a6a76'); s.px(4, 3, '#8a8a96')
-        if mark: s.px(9, 7, mark); s.px(7, 9, mark)
-        return s.render()
-    return f
 
 
 # ================================================================== CHARMS, LOCKETS AND TRINKETS
@@ -884,24 +765,6 @@ def vampire_mirror():
     s.disc(10, 6, 5.2, ['#3a0608', '#6a0e12', '#a01a1e', '#d03a32'])
     s.disc(10, 6, 3.8, ['#4a5a78', '#6a80a8', '#8aa4cc', '#b8ccec'], light=(0.6, 0.8))
     s.line(8, 4, 10, 2, '#ffffff')
-    return s.render()
-
-
-def crimson_compass():
-    s = S()
-    s.disc(8, 8, 6.8, ['#3a0608', '#6a0e12', '#a01a1e', '#d03a32', '#ff7a6a'])
-    s.disc(8, 8, 5.0, ['#c8a890', '#e8d0b8', '#fff0dc'], light=(0.6, 0.8))
-    s.line(8, 8, 8, 4, '#c41a1a'); s.line(8, 8, 8, 12, '#2a1a14')
-    s.px(7, 5, '#ff5a4a'); s.px(9, 5, '#ff5a4a')
-    s.px(8, 8, GOLD[3])
-    return s.render()
-
-
-def crimson_effigy():
-    s = S()
-    c = ['#3a0608', '#6a0e12', '#a01a1e', '#d03a32', '#ff7a6a']
-    s.g(['....LLLL....', '...LhLLLM...', '...LEhLEM...', '...LLLLLM...', '....LMMD....', '.LLLLLLMMMD.', 'LhLLLLLLMMMD', 'LL.LLLLLM.MD', 'LL.LLLLLM.MD',
-         '...LL..MD...', '...LL..MD...', '..DDD..DDD..'], {'L': c[2], 'h': c[3], 'E': '#ffd23f', 'M': c[1], 'D': c[0]}, 2, 2)
     return s.render()
 
 
@@ -1090,8 +953,8 @@ def pocket_rift():
 
 OVERRIDES = {
     'bankers_card': bankers_card, 'fixers_card': fixers_card, 'pearl_card': pearl_card, 'scratch_card': scratch_card,
-    'merc_contract': merc_contract, 'blood_bounty': blood_bounty, 'tip_bloodmoon': tip_bloodmoon, 'moon_pact': moon_pact,
-    'brass_wing_scroll': brass_wing_scroll, 'market_crest_scroll': market_crest_scroll, 'blood_almanac': blood_almanac,
+    'merc_contract': merc_contract, 'blood_bounty': blood_bounty, 'tip_bloodmoon': tip_bloodmoon, 
+    'brass_wing_scroll': brass_wing_scroll, 'market_crest_scroll': market_crest_scroll, 
     'crimson_ledger': crimson_ledger, 'fixers_ledger': fixers_ledger, 'smugglers_ledger': smugglers_ledger,
     'pocket_watch': pocket_watch, 'stolen_watch': stolen_watch, 'the_alibi': the_alibi, 'thiefs_hourglass': thiefs_hourglass,
     'crimson_hourglass': crimson_hourglass, 'bidding_paddle': bidding_paddle,
@@ -1099,15 +962,9 @@ OVERRIDES = {
 OVERRIDES.update({f'lucky_fragment_{k}': lucky_fragment(k) for k in range(1, 10)})
 
 OVERRIDES.update({
-    'dish_chili': dish_chili, 'dish_chowder': dish_chowder, 'dish_potpie': dish_potpie, 'dish_roast': dish_roast,
+    'dish_potpie': dish_potpie, 'dish_roast': dish_roast,
     'dish_drumsticks': dish_drumsticks, 'coffee': coffee, 'golden_cheese_wheel': golden_cheese_wheel,
     'bottomless_lava': bucket('#ff7a1a'), 'bottomless_water': bucket('#3a7aff'),
-    'soul_vial_zombie': flask('#4a9a3a', [(8, 11, '#b8ffb0')]), 'soul_vial_skeleton': flask('#d8d8c8', [(8, 11, '#ffffff')]),
-    'soul_vial_spider': flask('#9a1e1e', [(8, 11, '#ff8a8a'), (9, 12, '#ff3a3a')]),
-    'sanguine_tonic': flask('#8a0a1a', [(9, 12, '#ff6a7a')]), 'xp_flask': flask('#7dff3a', [(8, 11, '#f4ffb0'), (10, 12, '#d8ff6a')]),
-    'vial_clear': flask(['#7ab8d8', '#a8d8f0', '#c8ecff', '#e8f8ff', '#ffffff'], [(9, 11, '#ffffff')]),
-    'vial_rain': flask('#3a6ad8', [(7, 11, '#a8c8ff'), (9, 12, '#a8c8ff'), (10, 10, '#a8c8ff')]),
-    'vial_storm': flask('#3a2a6a', [(8, 9, '#ffe85a'), (7, 10, '#ffe85a'), (8, 11, '#ffe85a'), (7, 12, '#fff6b0')]),
     'smelling_salts': smelling_salts, 'smoke_bomb': smoke_bomb, 'smuggler_jar_full': smuggler_jar_full,
     'crate_wood': lootbox(WOOD, IRON, ['LLLL', 'llll', 'LLLL'], {'L': WOOD[4], 'l': WOOD[1]}),
     'crate_stone': lootbox(STONE, IRON, ['SS.S', 'S.SS', 'SS.S'], {'S': STONE[4]}),
@@ -1117,20 +974,17 @@ OVERRIDES.update({
     'display_case_oak': display_case(WOOD), 'display_case_dark_oak': display_case(['#1e1208', '#32200e', '#4a3016', '#62421e', '#7a5428']),
     'display_case_gilded': display_case(GOLD), 'display_case_quartz': display_case(['#a8a29a', '#c8c2ba', '#e0dcd4', '#f4f0ea', '#ffffff']),
     'hoard_sack': hoard_sack, 'ender_pouch': ender_pouch, 'vacuum_satchel': vacuum_satchel(False), 'vacuum_satchel_on': vacuum_satchel(True),
-    'vacuum_hopper': hopper('#7a3ad0'), 'filter_hopper': hopper('#2ab0b8'), 'caged_spawner': caged_spawner, 'fy_bowl': fy_bowl,
+    'caged_spawner': caged_spawner, 'fy_bowl': fy_bowl,
 })
 
 OVERRIDES.update({
     'echo_bell': bell(GOLD, extra=_echo_extra), 'fair_weather_bell': bell('#ffe08a', extra=_fw_extra),
     'merchants_bell': bell(['#8a6a2a', '#b89040', '#e0b860', '#f4d488', '#fff0c0']), 'pearl_bell': bell(['#5a6a7a', '#8a9aaa', '#b8c6d4', '#e0e8f0', '#ffffff'], extra=_pearl_extra),
-    'ward_lantern': lantern(['#2a0608', '#4a0a0e', '#7a1418', '#a02028', '#c83a3a'], '#ff6a4a'), 'whisker_lantern': whisker_lantern,
-    'music_disc_big_score': disc('#ffd23f'), 'music_disc_blood_moon': disc('#e02a2a'), 'music_disc_hollow': disc('#7a8a9c'),
-    'music_disc_invasion': disc('#5ad84a'), 'music_disc_lucky': disc('#3ab84a', '#ffd23f'), 'music_disc_market': disc('#9a5ad0', '#ffd23f'),
     'lava_charm': lava_charm, 'lava_wader_charm': lava_wader_charm, 'surface_charm': surface_charm, 'water_charm': water_charm,
     'specter_charm': specter_charm, 'showstopper_charm': showstopper_charm, 'fizzle_stone': fizzle_stone, 'gale_locket': gale_locket,
     'lodestone_locket': lodestone_locket, 'wilfrey_locket': wilfrey_locket, 'wayfarers_lodestar': wayfarers_lodestar, 'horseshoe': horseshoe,
     'kraken_conch': kraken_conch, 'ocarina': ocarina, 'cipher_monocle': monocle('#a8e0ff'), 'frog_monocle': monocle('#a8e0ff', chain=True),
-    'lag_lens': lag_lens, 'vampire_mirror': vampire_mirror, 'crimson_compass': crimson_compass, 'crimson_effigy': crimson_effigy,
+    'lag_lens': lag_lens, 'vampire_mirror': vampire_mirror, 
     'enchanted_sundial': enchanted_sundial, 'emma_ribbon': emma_ribbon, 'elytra_repair_kit': elytra_repair_kit, 'copper_cog': copper_cog,
     'obsidian_skull': obsidian_skull, 'ring_burrows': ring_burrows, 'moon_ward': moon_ward,
     'phoenix_plume': phoenix_feather('#ff7a2a', '#a83a0a'), 'phoenix_ash': phoenix_feather('#6a5a5a', '#2a1a1a', ash=True),

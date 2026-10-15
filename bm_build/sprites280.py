@@ -7,7 +7,7 @@ names and their models are unchanged - only the textures. A small kit draws them
 rings for the round and diagonal shapes.
 
     gen_rp appends sprites280.post as its last hook: the icons are written over the old ones, wherever those came from.
-    2.80a: the rest of the pack's item icons followed, drawn the same way - sprites280b (keys, charms, coins, sigils,
+    2.80: most of the rest of the pack's item icons followed, drawn the same way - sprites280b (keys, charms, coins, sigils,
     emblems, rosettes, laurels, trophies), c (armour, boots, gauntlets, wings, weapons, staffs), d (papers, food, bottles,
     boxes, bells, records, trinkets) and e (Vorn tech, the skiff, the Rat Gang, summons, gems, hearts, essences)."""
 import math
@@ -808,7 +808,9 @@ for _c, _h in PAINTS.items():
 
 
 def every_override():
-    """these sixty-two, and (2.80a) every other item icon in the pack - sprites280b..e, each a family of its own"""
+    """these sixty-two, and (2.80) the rest of the pack's item icons - sprites280b..e, each a family of its own. The icons built
+    on vanilla Minecraft's own art (records, lanterns, keys, potions, boots, the rod staffs...) aren't among them: they keep
+    their vanilla look (the owner's call)."""
     import sprites280b, sprites280c, sprites280d, sprites280e
     allo = dict(OVERRIDES)
     for m in (sprites280b, sprites280c, sprites280d, sprites280e):

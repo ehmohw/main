@@ -333,14 +333,6 @@ def heisters_shiv():
     return s.render()
 
 
-def thirsting_blade():
-    r = ['#3a0608', '#6a0e12', '#a01a1e', '#e0403a', '#ff8a7a']
-    s = sword(r, ['#2a0a0a', '#4a1010', '#6a1a1a', '#8a2a2a', '#aa3a3a'], ['#1a0a08', '#2a140e', '#3e2016', '#563020', '#6e402a'], r, n=8)
-    for (x, y) in ((9, 7), (12, 4)): s.px(x, y, '#ffb0a0')
-    s.px(3, 14, '#c41a1a'); s.px(2, 15, '#8a0a10')                                       # a drop off the pommel
-    return s.render()
-
-
 def demo_scythe():
     """Democratus's scythe: a long black haft, a pale-green crescent blade sweeping off the top, storm-green bands"""
     s = S()
@@ -379,12 +371,6 @@ def _maul(head, haft, spikes=True):
     if spikes:
         for (x, y) in ((9, 0), (15, 3), (15, 6), (6, 3), (6, 6), (12, 8)): s.px(x, y, head[2])
     return s
-
-
-def quake_maul():
-    s = _maul(ramp('#c42a22'), ramp('#4a4e58'))
-    s.g(['.Y.', 'YY.', '.YY'], {'Y': '#ffe85a'}, 9, 3)                                   # a crack of the quake in it
-    return s.render()
 
 
 def sepulchre():
@@ -460,31 +446,6 @@ def staff(shaft, top):
     return f
 
 
-def top_orb(col, cage=GOLD, r=2.6):
-    def t(s):
-        s.g(['.C.C.', 'C...C', '.....', 'C...C'], {'C': cage[2]}, 9, 1)
-        s.disc(12, 4, r, ramp(col))
-        s.px(11, 3, '#ffffff')
-    return t
-
-
-def top_crescent(s):
-    s.g(['....YY.', '..YYyY.', '.Yy....', 'Yy.....', 'Yy.....', '.Yy....', '..YYyY.', '....YY.'],
-        {'Y': GOLD[3], 'y': GOLD[1]}, 8, 0)
-    s.px(13, 4, '#ff7ab8'); s.px(12, 3, '#ffb0d8')
-
-
-def top_gravewell(s):
-    s.disc(12, 4, 3.4, ['#2a0e44', '#4b1d75', '#7432a8', '#a35ad6'])
-    s.disc(12.5, 4.5, 1.9, ['#000000', '#08020e', '#120620'])
-    s.px(10, 2, '#d6b8ff')
-
-
-def top_sparks(s):
-    s.g(['..W..', '.LLL.', 'LLWLL', '.LLL.', '..L..'], {'W': '#ffffff', 'L': '#a8ecff'}, 10, 1)
-    s.px(15, 0, '#5ec3ea'); s.px(9, 0, '#5ec3ea'); s.px(15, 6, '#5ec3ea')
-
-
 def top_star(col):
     def t(s):
         c = ramp(col)
@@ -520,11 +481,6 @@ def treasurers_scepter():
 OVERRIDES = {
     'gilded_chestplate': gilded_chestplate, 'gilded_helmet': gilded_helmet, 'gilded_leggings': gilded_leggings, 'gilded_boots': gilded_boots,
     'rocket_boots': rocket_boots('#e8e8f0', '#ff8a2a'), 'rocket_boots_2': rocket_boots('#7ae8f0', '#3ab0c8'),
-    'gravity_boots': lambda: boots('#4a3a6a', '#c8a0ff', ('glow', '#b48cff')).render(),
-    'ice_skates': lambda: boots('#7a4a2a', '#f0f0f0', ('blade', '#d8e6f0')).render(),
-    'spring_boots': lambda: boots('#2a8a96', '#7ae8f0', ('spring', '#c8ccd2')).render(),
-    'triple_boots': lambda: boots('#b8302a', '#ff8a7a', ('glow', '#7dff6a')).render(),
-    'water_walking_boots': lambda: boots('#2a5ab8', '#d8f0ff', ('wave', '#9ad8ff')).render(),
     'gauntlet': gauntlet('#8a5a30', '#d8a83a'),
     'gauntlet_hearth': gauntlet(['#1e1210', '#3a2418', '#5a3a26', '#7a5236', '#9a6a46'], '#3a2a24', dots='#ff8a2a'),
     'gauntlet_magma': gauntlet(['#1e1210', '#3a2418', '#5a3a26', '#7a5236', '#9a6a46'], '#ff6a1a', dots='#ffb03a'),
@@ -537,12 +493,10 @@ OVERRIDES = {
     'wings_rat_king': wings(['#120a14', '#22142a', '#342040', '#4a3058', '#664a74'], rim=GOLD[3]),
     'star_cloak': star_cloak, 'umbrella': umbrella, 'gilded_grin': gilded_grin, 'gilded_leaf': gilded_leaf,
     'gilded_staff_topper': gilded_staff_topper,
-    'enchanted_sword': enchanted_sword, 'gutter_cutlass': gutter_cutlass, 'heisters_shiv': heisters_shiv, 'thirsting_blade': thirsting_blade,
-    'demo_scythe': demo_scythe, 'golden_spear': golden_spear, 'quake_maul': quake_maul, 'sepulchre': sepulchre,
+    'enchanted_sword': enchanted_sword, 'gutter_cutlass': gutter_cutlass, 'heisters_shiv': heisters_shiv, 
+    'demo_scythe': demo_scythe, 'golden_spear': golden_spear, 'sepulchre': sepulchre,
     'spawner_crowbar': spawner_crowbar, 'frying_pan': frying_pan, 'tinker_wrench': tinker_wrench, 'prospector_paxel': prospector_paxel,
     'grappling_hook': grappling_hook, 'levitation_wand': levitation_wand, 'treasurers_scepter': treasurers_scepter,
-    'crescent_staff': staff(GOLD, top_crescent), 'gravewell_staff': staff(['#100914', '#1e1428', '#3b2a4f', '#5d4880', '#8a72b0'], top_gravewell),
-    'staff_of_sparks': staff(COPPER, top_sparks),
     'scepter_phase': staff(BONE, top_gem('#3ad8b0')), 'scepter_rift': staff(BONE, top_gem('#b04aff')), 'scepter_star': staff(BONE, top_star('#ffe85a')),
     'void_scepter': staff(BONE, top_gem('#2ae0c0', prong=PURPLE)),
 }
