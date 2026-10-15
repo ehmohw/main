@@ -1,6 +1,7 @@
 """2.65: KILLERWATT - the storm-alien, as a boss (and, once beaten, a follower). Rig, textures and poses: phase79_art.
 
-THE STORM EFFIGY (Cecil sells it): use it outdoors in a THUNDERSTORM - the sky gathers for five seconds and KillerWatt
+THE STORM EFFIGY (2.79b: Democratus gives it to whoever beats him in a duel - KillerWatt is his successor; Cecil no longer
+  sells it): use it outdoors in a THUNDERSTORM - the sky gathers for five seconds and KillerWatt
   crashes down in front of you. (It does nothing in clear weather or under a roof.) Four and a half blocks of glassy
   green brute with four golden scythe-tendrils on his back; he grows tougher with every player who stands against him.
   THUNDER SLAM: arms up - the bent-elbow arms from the art - then down: a shockwave round him.
@@ -65,9 +66,8 @@ HOLD['kw_spark'] = 'bm:p79/spark'
 
 
 def extend_offers(O, offer):
-    # his Tendrils come from him now, not from Cecil; Cecil sells the Effigy that calls him instead
+    # his Tendrils come from him now, not from Cecil (and his Effigy from Democratus' duel - 2.79b - not from Cecil either)
     O['wizard'] = [o for o in O['wizard'] if (o['sell'].get('components') or {}).get('minecraft:custom_data', {}).get('bm') != 'killerwatt_tendrils']
-    O['wizard'] += [offer(('trophy', 4), ('kw_effigy', 1))]
 
 
 def generate(G):

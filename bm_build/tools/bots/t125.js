@@ -103,6 +103,8 @@ const X = 19000, Y = 120, Z = 19000;
     A.chats.length = 0; await sleep(5500);
     const scy = await run('clear TestRat *[minecraft:custom_data~{bm:"demo_scythe"}] 0');
     ok('...he yields - and though you\'re down to two hearts, it\'s a win: his scythe is yours', /Found 1/.test(scy) && !A.chats.some(c => /lost the duel/.test(c)), scy);
+    const eff = await run('clear TestRat *[minecraft:custom_data~{bm:"kw_effigy"}] 0');
+    ok('...and he hands over the Storm Effigy - KillerWatt, his successor (2.79b)', /Found 1/.test(eff) && A.chats.some(c => /storm needs an heir/.test(c)), eff);
     await sleep(1500);
     ok('...and his duelist body is gone with him', (await cnt('@e[type=item_display,tag=bm.dmbp]')) === 0);
     // a duelist killed outright anyway (a /kill): his body still goes

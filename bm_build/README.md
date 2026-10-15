@@ -1,4 +1,4 @@
-# Black Market — v2.79a (Java 26.3)
+# Black Market — v2.79b (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,37 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.79b: calling the bosses, Democratus' heir, and Leo in diamond
+
+### Boss summons from the raids
+- **A won heist at Tier III or higher can hold an item that calls a roaming boss out:** 1% a win at Tier III, 3% at Tier IV, 5% at Tier V, for every raider. There's one for each of the six bosses whose relic has four forms:
+  - **Horseman's Lantern:** the Headless Horseman (Overworld).
+  - **Pharaoh's Scarab:** the Sand Pharaoh (Overworld).
+  - **Thunderhead Feather:** the Storm Roc (Overworld).
+  - **Elder Acorn:** the Elder Treant (Overworld).
+  - **Smouldering Idol:** the Magma Colossus (the Nether).
+  - **Starless Eye:** the Voidwalker (the End).
+- **Use one and the boss comes now,** whatever the hour, the weather or the biome. In the Overworld you need the open sky over you.
+- **A called boss stays to fight.** The dawn, a clear sky or nightfall won't send it off. It still leaves if everyone goes away.
+- **Nothing is used up if it can't come:** in the wrong dimension, under a roof, while that boss is already out, or in a heist.
+- KillerWatt and Tullius aren't among them: they have their own ways in.
+
+### The Smouldering Gourd
+- **A won Blood Moon heist at Tier III or higher has a 5% chance (for every raider) of a Smouldering Gourd.**
+- **Use it under the open sky in the Overworld:** the Scorching Arachno-Lantern grows from it, any night, Blood Moon or not. It waits as a pumpkin and wakes when you come near, as it always does.
+
+### A little netherite in the vault's rare stores
+- **The Tier III to V vault-treasure roll** (8% to 10% a win, as before) can now give a few diamonds, a little netherite scrap or, rarely, a netherite upgrade template, as well as the tier's own gear.
+- **It's sparing:** diamonds come in about 1 win in 60 at Tier III, a template in about 1 in 370 (about 1 in 120 at Tier V).
+
+### KillerWatt's Storm Effigy comes from Democratus
+- **Cecil no longer sells the Storm Effigy.** Democratus gives you one every time you beat him in a duel: KillerWatt is his successor.
+
+### Leo in diamond
+- **Leo's Golden Champion now pairs the gold tabard with diamond armour:** his helm, pauldrons, mail, gauntlets and greaves turn polished cyan. His face and expressions stay his own.
+
+**Admin command:** `/function bm:admin/summons` gives all seven summoning items.
 
 ## New in 2.79a: gilded looks for every follower, boss trophies that look like their bosses, and Fishy at full reach
 
@@ -1323,7 +1354,7 @@ The heist is now a proper dungeon run: non-linear, different in every tier, full
 - **The den** only heals before the heist starts and after it's won, not during the run.
 
 ### KillerWatt
-- **The Storm Effigy** (Cecil sells it): use it outdoors in a **thunderstorm** and KillerWatt crashes down in front of you. It does nothing in clear weather or under a roof.
+- **The Storm Effigy** (since 2.79b, Democratus gives one to whoever beats him in a duel; Cecil no longer sells it): use it outdoors in a **thunderstorm** and KillerWatt crashes down in front of you. It does nothing in clear weather or under a roof.
 - **The fight:** a four-and-a-half-block storm brute with smooth animation throughout. He breathes and sways standing, strides as he walks, and winds up before each blow. His attacks:
   - **Thunder Slam:** a shockwave around him.
   - **Tendril Sweep:** a wide scythe circle.

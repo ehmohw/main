@@ -44,6 +44,8 @@ NEW = {'leo': ('Leo', '#5ab8e0', 'Tabard', {1: ('Crimson Crusader', ('#2a0408', 
                                                   3: ('Verdant Bend', ('#06260a', '#2a8a30', '#90e090')), 4: ('Gilded Sun', ('#3a2806', '#e0b030', '#fff0a0'))})}
 HIDDEN = 4
 RECOLOUR = {'leo': ('le_tunic', 'le_skirt', 'le_cape'), 'demo': ('dm_hood', 'dm_hood_dk', 'dm_cape'), 'cecil': ('cec_robe', 'cec_robe_dark')}
+# (2.79b: with Leo's Golden Champion his helm and armour turn diamond - polished cyan beside the gold tabard - head included)
+ARMOUR = {'leo': ('le_steel', 'le_steel_dk', 'le_mail')}
 DYE = {'Crimson Crusader': 'red', 'Royal Purple': 'purple', 'Greenwood': 'green', 'Golden Champion': 'yellow', 'Crimson Reaper': 'red', 'Ashen Shroud': 'gray',
        'Royal Violet': 'purple', 'Gilded Storm': 'yellow', 'Crimson': 'red', 'Midnight': 'blue', 'Bone': 'white', 'Gilded': 'yellow', 'Neon': 'magenta',
        'Golden Thunder': 'yellow', 'Obsidian Coil': 'black', 'Blood Wyrm': 'red', 'Frost Serpent': 'light_blue', 'Gilded Coil': 'yellow',
@@ -121,6 +123,13 @@ def textures():
             ims = {n: gild.metal(base[w][n]) for n in keys} if gild.is_gilded(w, k) else _recolour({n: base[w][n] for n in keys}, pal)   # (2.79a: polished gold)
             for name, im in ims.items():
                 out[f'{name}_c{k}'] = im
+            if gild.is_gilded(w, k):
+                for n in ARMOUR.get(w, ()):
+                    im = gild.metal(base[w][n], ramp=gild.DIAMOND, sheen=0 if n == 'le_mail' else 11, soften=n != 'le_mail')
+                    if n.endswith('_dk'):                # (the dark steel stays darker: its trim and shadowed plates)
+                        from PIL import Image
+                        im = Image.merge('RGBA', [*[c.point(lambda v: int(v * 0.68)) for c in im.split()[:3]], im.split()[3]])
+                    out[f'{n}_c{k}'] = im
     return out
 
 
@@ -129,15 +138,19 @@ def rp(R):
     import phase97_art as DA
     R.TEXTURE_MODS.append(sys.modules[__name__])
     sel_items = {}                                   # a model whose part keeps its custom_model_data: the outfit picked by it
+    import gild
+    def worn(w, k):                                  # (the textures a look recolours: its cloth - and, the gilded look, Leo's steel)
+        return RECOLOUR[w] + (ARMOUR.get(w, ()) if gild.is_gilded(w, k) else ())
     def swap(tex, w, k):
-        return {a: (f'{v}_c{k}' if any(v == f'bm:block/{t}' for t in RECOLOUR[w]) else v) for a, v in tex.items()}
+        return {a: (f'{v}_c{k}' if any(v == f'bm:block/{t}' for t in worn(w, k)) else v) for a, v in tex.items()}
     for w, prefix in (('leo', 'le_'), ('demo', 'dm_')):
         for name in [n for n in list(R.HATS) if n.startswith(prefix) and '_x' not in n and not n.startswith(prefix + 'head') and not n[len(prefix):].startswith('scythe')]:
             tex, els = R.HATS[name]
-            if not any(v == f'bm:block/{t}' for v in tex.values() for t in RECOLOUR[w]):
+            ks = [k for k in NEW[w][3] if any(v == f'bm:block/{t}' for v in tex.values() for t in worn(w, k))]
+            if not ks:
                 continue
             sel_items[name] = []
-            for k in NEW[w][3]:
+            for k in ks:
                 R.HATS[f'{name}_c{k}'] = (swap(tex, w, k), els)
                 sel_items[name].append((f'c{k}', f'{name}_c{k}'))
         assert not any(v == f'bm:block/{t}' for v in R.HATS[f'{prefix}head'][0].values() for t in RECOLOUR[w]) or w == 'demo', w
@@ -163,6 +176,16 @@ def rp(R):
         for name, cases in heads.items():
             R2.wj(f'assets/bm/items/{name}.json', {'model': {'type': 'minecraft:select', 'property': 'minecraft:custom_model_data', 'index': 0,
                                                              'cases': [{'when': e, 'model': mdl(m)} for e, m in cases], 'fallback': mdl(name)}})
+        # (2.79b) Leo's head in his gilded look: his helm in diamond, every face of his on it (his face picks itself as on the plain head)
+        import json, os
+        for k in [k for k in NEW['leo'][3] if gild.is_gilded('leo', k)]:
+            idef = json.load(open(R2.p('assets', 'bm', 'items', 'le_head.json')))['model']
+            for m in ['le_head'] + [c['model']['model'].split('/')[-1] for c in idef.get('cases', [])]:
+                src = json.load(open(R2.p('assets', 'bm', 'models', 'item', m + '.json')))
+                src['textures'] = {a: (f'{v}_c{k}' if any(v == f'bm:block/{t}' for t in ARMOUR['leo']) else v) for a, v in src['textures'].items()}
+                R2.wj(f'assets/bm/models/item/{m.replace("le_head", f"le_head_c{k}", 1)}.json', src)
+            idef = json.loads(json.dumps(idef).replace('bm:item/le_head', f'bm:item/le_head_c{k}'))
+            R2.wj(f'assets/bm/items/le_head_c{k}.json', {'model': idef})
     R.POST.append(post)
 
 
@@ -178,6 +201,7 @@ def groups():
 
 
 def generate(G):
+    import gild
     import phase57 as P57
     fn, wjson, title, tellraw, give, PREFIX = G.fn, G.wjson, G.title, G.tellraw, G.give, G.PREFIX
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
@@ -224,7 +248,10 @@ def generate(G):
             for k in NEW[w][3]] +
            ([f'execute if score #wc bm.rng matches 0 run data modify entity @e[type=minecraft:item_display,tag={sel},tag={head},limit=1] item.components."minecraft:item_model" set value "bm:dm_head"'] +
             [f'execute if score #wc bm.rng matches {k} run data modify entity @e[type=minecraft:item_display,tag={sel},tag={head},limit=1] item.components."minecraft:item_model" set value "bm:dm_head_c{k}"'
-             for k in NEW[w][3]] if w == 'demo' else []))         # (Leo's head wears none of it; his face stays his own)
+             for k in NEW[w][3]] if w == 'demo' else
+            # (Leo's head: his face stays his own - but in the gilded look his helm is diamond)
+            [f'execute unless score #wc bm.rng matches {gild.GILDED["leo"][0]} run data modify entity @e[type=minecraft:item_display,tag={sel},tag={head},limit=1] item.components."minecraft:item_model" set value "bm:le_head"',
+             f'execute if score #wc bm.rng matches {gild.GILDED["leo"][0]} run data modify entity @e[type=minecraft:item_display,tag={sel},tag={head},limit=1] item.components."minecraft:item_model" set value "bm:le_head_c{gild.GILDED["leo"][0]}"']))
         G.FUNCS[f'p{96 if w == "leo" else 97}/grow'].append(f'function bm:p99/{w}_dress')
         excl = ',tag=!bm.dmencp,tag=!bm.dmbp,tag=!bm.dmfade' if w == 'demo' else ',tag=!bm.lefade,tag=!bm.leencp'
         fn(f'p99/{w}_now', ['scoreboard players operation #me bm.pid = @s bm.pid',
@@ -336,7 +363,7 @@ def generate(G):
     G.FUNCS['p57/act'].insert(2, 'execute if score #act bm.pay matches 7306 run return run function bm:p99/menu/emma')
 
     # ================================================================== Goldtooth sells the new ones (Gutter Medallions; the hidden ones a Gutter Trophy)
-    import phase70 as P70, gild
+    import phase70 as P70
     from gen_dp import offer
     prev = P70.goldtooth
     def g99():

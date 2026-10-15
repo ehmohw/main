@@ -9,24 +9,28 @@ from PIL import Image
 
 RAMP = [(0.00, (0x3a, 0x22, 0x04)), (0.22, (0x78, 0x4c, 0x0a)), (0.45, (0xc0, 0x88, 0x1c)), (0.66, (0xea, 0xb8, 0x38)),
         (0.84, (0xff, 0xe0, 0x7a)), (1.00, (0xff, 0xfa, 0xe0))]
+# (2.79b: a diamond ramp, for steel that goes with a gilded look - Leo's helm and armour beside his gold tabard)
+DIAMOND = [(0.00, (0x06, 0x2c, 0x32)), (0.22, (0x0c, 0x5c, 0x62)), (0.45, (0x18, 0x9c, 0xa0)), (0.66, (0x34, 0xd2, 0xcf)),
+           (0.84, (0x8a, 0xf2, 0xea)), (1.00, (0xe6, 0xff, 0xfc))]
 GOLD = '#ffcf40'
 
 
-def _ramp(t):
+def _ramp(t, ramp=RAMP):
     t = max(0.0, min(1.0, t))
-    for (a, ca), (b, cb) in zip(RAMP, RAMP[1:]):
+    for (a, ca), (b, cb) in zip(ramp, ramp[1:]):
         if t <= b:
             f = (t - a) / (b - a)
             return tuple(int(ca[i] + (cb[i] - ca[i]) * f) for i in range(3))
-    return RAMP[-1][1]
+    return ramp[-1][1]
 
 
 def _lum(p):
     return (0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]) / 255
 
 
-def metal(im, sheen=11):
-    """the texture in polished gold (see the module's note); sheen: the diagonal streaks' spacing, in pixels (0: none)"""
+def metal(im, sheen=11, ramp=RAMP, soften=True):
+    """the texture in polished gold (see the module's note); sheen: the diagonal streaks' spacing, in pixels (0: none);
+    ramp: another metal's (DIAMOND); soften=False keeps every pixel's own shade (a mail's links)"""
     im = im.convert('RGBA')
     w, h = im.size
     px = im.load()
@@ -36,7 +40,7 @@ def metal(im, sheen=11):
     # (its shading, softened: a cloth's weave mustn't turn to glitter)
     soft = {}
     for (x, y) in raw:
-        nb = [raw[q] for q in ((x, y), (x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)) if q in raw]
+        nb = [raw[q] for q in (((x, y), (x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)) if soften else ((x, y),)) if q in raw]
         soft[(x, y)] = sum(nb) / len(nb)
     vals = sorted(soft.values())
     mean = sum(vals) / len(vals)
@@ -54,7 +58,7 @@ def metal(im, sheen=11):
         if down is None or down < soft[(x, y)] - 0.10: t -= 0.14        # (and shade under them)
         if sheen and (x + y) % sheen in (0, 1): t += 0.10               # (a sheen across it)
         if t0 >= 0.86 and (x * 7 + y * 13) % 5 == 0: t = 1.0            # (a glint here and there on the brightest)
-        o[x, y] = _ramp(t) + (px[x, y][3],)
+        o[x, y] = _ramp(t, ramp) + (px[x, y][3],)
     return out
 
 

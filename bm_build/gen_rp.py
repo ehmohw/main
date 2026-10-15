@@ -853,6 +853,8 @@ if __name__ == '__main__':
     phase136.rp(sys.modules[__name__])
     import phase145                           # (2.79: Fishy - his rig, the Pocket Bowl, the Cabinet's veil and rosettes)
     phase145.rp(sys.modules[__name__])
+    import phase148                           # (2.79b: the boss summons' icons)
+    phase148.rp(sys.modules[__name__])
     import phase146                           # (2.79: the Portrait of Two - its painting texture)
     phase146.rp(sys.modules[__name__])
     import phase95                            # (after every head model: the faces)

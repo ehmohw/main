@@ -1,4 +1,4 @@
-// v2.65: KillerWatt - the Storm Effigy, the boss (rig, animation, attacks, roar, reward), the Spark follower, Cecil's shop
+// v2.65: KillerWatt - the Storm Effigy, the boss (rig, animation, attacks, roar, reward), the Spark follower, Cecil's shop (no Effigy since 2.79b)
 const BMB = require('path').join(__dirname, '..', '..') + '/';   // (bm_build)
 const { bot, rcon, sleep } = require('./lib');
 const res = []; const X = 17000, Y = 120, Z = 17000;
@@ -183,7 +183,7 @@ const res = []; const X = 17000, Y = 120, Z = 17000;
   const root = BMB + 'out_p2/BlackMarket_DP/data/bm/function';
   const all = []; const walk = d => { for (const f of fs.readdirSync(d)) { const p = path.join(d, f); fs.statSync(p).isDirectory() ? walk(p) : all.push(p); } }; walk(root);
   const wiz = all.filter(p => /wizard/.test(p)).map(p => fs.readFileSync(p, 'utf8')).join('\n');
-  ok("Cecil's shop: no Tendrils, the Storm Effigy instead", wiz.length > 0 && !/bm:"killerwatt_tendrils"/.test(wiz) && /bm:"kw_effigy"/.test(wiz), `${wiz.length} chars`);
+  ok("Cecil's shop: no Tendrils, and no Storm Effigy (2.79b: Democratus gives it, on a duel won)", wiz.length > 0 && !/bm:"killerwatt_tendrils"/.test(wiz) && !/bm:"kw_effigy"/.test(wiz), `${wiz.length} chars`);
   await run('weather clear'); await run(`forceload remove ${X - 48} ${Z - 48} ${X + 48} ${Z + 48}`);
   console.log(`\n${res.filter(Boolean).length}/${res.length} passed`); process.exit(0);
 })();
