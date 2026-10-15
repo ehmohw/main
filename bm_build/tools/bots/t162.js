@@ -1,10 +1,10 @@
 // 2.79: FISHY'S CABINET OF CURIOSITIES - as a regular (non-op) player, every step a real packet (rcon sets the stage: the hall
 // in the Fixer's Lounge, the things to show, a clean cabinet): Fishy at his desk, right-clicked empty-handed - he joins you (his
-// Pocket Bowl); again - the Cabinet's menu; a wing's page, every exhibit veiled with its riddle; set out in the hall; a rare thing
+// Pocket Bowl, and his Raid Contract free - 2.79a); again - the Cabinet's menu; a wing's page, every exhibit veiled with its riddle; set out in the hall; a rare thing
 // shown to him - a replica (the cabinet records it, world-wide, with your name), the thing itself kept; shown twice - "already";
 // something ordinary - not for the cabinet; the page shows it given by you, the hall's case and plaque too; a lost bowl reissued;
 // the same shown to YOUR Fishy out in the world. Then, as an admin, a wing filled: its rosette to who gave to it (set up, taken
-// back), his power learned (the powers page), and his claws wither now.
+// back), his power at full strength (2.79a: every power from the start, 20% + 4% per exhibit in its wing), his claws wither.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
@@ -24,7 +24,9 @@ const res = [];
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
   await run('gamemode survival TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await run('clear TestRat');
-  await run('function bm:admin/cabinet_reset'); await run('tag TestRat remove bm.fymet'); await run('kill @e[type=minecraft:wolf,tag=bm.fypet]');
+  await run('function bm:admin/cabinet_reset'); await run('tag TestRat remove bm.fymet'); await run('tag TestRat remove bm.fyfc');
+  await run('clear TestRat *[minecraft:custom_data~{bm:"fcontract_fishy"}]');
+  { const fc = +(((await run('scoreboard players get TestRat bm.fcon')).match(/has (-?\d+)/) || [0, 0])[1]); if (fc > 0 && Math.floor(fc / 1024) % 2 === 1) await run(`scoreboard players set TestRat bm.fcon ${fc - 1024}`); } await run('kill @e[type=minecraft:wolf,tag=bm.fypet]');
   await run('scoreboard players set TestRat bm.fycd 0');
   await run('data remove storage bm:cab built'); await sleep(2500);
   ok('the hall: twenty cases, Fishy at his desk', (await cnt('@e[type=minecraft:item_display,tag=bm.cabslot]')) === 20 && (await cnt(HIT)) === 1 &&
@@ -36,6 +38,7 @@ const res = [];
   A.chats.length = 0; A.slot(8); await sleep(200);
   ok('right-clicked empty-handed, the first time: he joins you - his Pocket Bowl', (await clickFishy()) && (await has('fy_bowl')) === 1 && A.chats.some(c => /Pocket Bowl/.test(c)),
      A.chats.slice(-1).join(''));
+  ok('...and his Raid Contract with it, free (2.79a)', (await has('fcontract_fishy')) === 1 && A.chats.some(c => /Raid Contract.*free/.test(c)));
   await sleep(600); const n0 = A.dialogN.length;
   await clickFishy(); await wait(2000, async () => A.dialogN.length > n0, 100);
   const main = dd(A.dialogN[A.dialogN.length - 1]);
@@ -107,11 +110,16 @@ const res = [];
   const pw = await A.press(/Fishy's powers/);
   const pj = JSON.stringify(A.dialogN[A.dialogN.length - 1]);
   const prow = (nm) => JSON.stringify((dd(A.dialogN[A.dialogN.length - 1]).body || []).find(b => b.contents && b.contents.text === nm) || {});
-  ok('his menu -> his powers: Hollow Grip LEARNED, the rest locked', pw && pw.next && /LEARNED/.test(prow('Hollow Grip')) && /locked/.test(prow('Coin Toss')), prow('Hollow Grip').slice(0, 200));
+  ok('his menu -> his powers: Hollow Grip at 100%, Coin Toss at 20% (nothing shown from the Gutter)', pw && pw.next && /100%/.test(prow('Hollow Grip')) && /20%/.test(prow('Coin Toss')),
+     prow('Hollow Grip').slice(0, 200) + ' | ' + prow('Coin Toss').slice(0, 120));
+  const pall = await sc('#p_all', 'bm.cab'), all = await sc('#all', 'bm.cab');
+  ok('...the Grand Exhibition from the whole Cabinet: 20 + 2 for every three shown', pall === 20 + Math.floor(all * 2 / 3) && /Grand Exhibition/.test(pj), `${all} shown, ${pall}%`);
   // his claws wither now
   await run(`${O}summon minecraft:husk ${X + 0.5} ${Y + 1} ${Z + 3.5} {Tags:["bm.t162m","bm.seen"],PersistenceRequired:1b,attributes:[{id:"minecraft:movement_speed",base:0.0d}],Health:60f}`);
   await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z + 2.0}`);
-  const withered = await wait(8000, async () => /minecraft:wither/.test(await run(`${O}data get entity @e[type=minecraft:husk,tag=bm.t162m,limit=1] active_effects`)), 300);
+  // (2.79a: every power is his - his splash shoves it off, so the stage keeps it at his elbow, 1.5 blocks off)
+  const withered = await wait(12000, async () => { await run(`${O}execute as ${PET} at @s positioned ^ ^ ^1.5 run tp @e[type=minecraft:husk,tag=bm.t162m,limit=1] ~ ~ ~`);
+    return /minecraft:wither/.test(await run(`${O}data get entity @e[type=minecraft:husk,tag=bm.t162m,limit=1] active_effects`)); }, 250);
   ok('a husk beside him: his claws strike - and wither it (the Hollow Grip)', withered, await run(`${O}data get entity @e[type=minecraft:husk,tag=bm.t162m,limit=1] Health`));
   await run(`${O}kill @e[type=minecraft:husk,tag=bm.t162m]`); await run('kill @e[type=minecraft:wolf,tag=bm.fypet]');
   await run('function bm:admin/cabinet_reset'); await run('clear TestRat'); await run(`${O}forceload remove ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);

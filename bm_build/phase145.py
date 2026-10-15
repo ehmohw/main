@@ -9,13 +9,16 @@ THE MENU      right-click Fishy empty-handed (or his menu's THE CABINET): a page
               gave it, or veiled, with a riddle for where it is found. SET IT OUT IN THE HALL lays that wing's twenty replicas in
               the hall's cases, each with its plaque.
 A WING DONE   all twenty in: everyone who gave to it gets that wing's stained-glass ROSETTE (sneak + use on a block: set it up)
-              and its challenge - and FISHY LEARNS A POWER (every Fishy, the world's cabinet). All six: THE GOLDEN BOWL.
-FISHY         met at his desk - talk to him and he gives you his POCKET BOWL (use it to call him; sneak + use: his menu). Early on
-              he's a poor fighter (a slap of his claws); each wing finished teaches him more and toughens him:
+              and its challenge. All six: THE GOLDEN BOWL.
+FISHY         met at his desk - talk to him and he gives you his POCKET BOWL (use it to call him; sneak + use: his menu) and his
+              RAID CONTRACT, free. (2.79a) He knows every power from the start - weak at first: each power is tied to a wing, at
+              20% strength with nothing shown, 4% more for every exhibit shown in its wing (100% at twenty):
               HOLLOW GRIP (withering claws), COIN TOSS (gold coins at range), RAY ZAP (a Vorn ray), BOWL SPLASH (a water jet; quick
-              in water, and you breathe), THUNDER EXHIBIT (every sixth blow a thunderclap), GRAND COMPANY (you and your followers
-              mend and stand firm near him); all six: THE GOLDEN BOWL - his bowl and limbs gilded, far tougher, and now and then a
-              GRAND EXHIBITION (spectral replicas wheel round him and burst on every foe near).
+              in water, and you breathe), THUNDER EXHIBIT (a thunderclap every tenth blow, every sixth at full), GRAND COMPANY (you
+              and your followers mend and stand firm near him - 4 blocks round him, 8 at full); and the GRAND EXHIBITION (spectral
+              replicas wheel round him and burst on every foe near), from the whole Cabinet: 20% to 100% over all 120.
+              Weaker powers also wait longer between goes. Each wing finished toughens him; all six: THE GOLDEN BOWL - his bowl and
+              limbs gilded and far tougher.
               Right-click him: sit / stand (holding an exhibit: show it to him). A frame keeps him, a display case shows him as a
               figurine, Cecil sells his doll, the Tailor his top hats (and his Bubble Halo), the Recruiter his Raid Contract.
 """
@@ -298,7 +301,8 @@ def generate_early(G):
         tellraw('@s', GP + [T('Signed! ', '#ffcf40', bold=True), T('Fishy', ORANGE, bold=True), T(' will answer your call in the vault from now on.', 'gray')])])
     fn('p145/ok', ['execute unless dimension bm:gutter run return run function bm:p74/fol_ok', 'execute unless entity @s[tag=bm.gvp] run return 0'] + signed() +
        ['execute if score #q bm.rng matches 1 run return 1',
-        tellraw('@s', GP + [T('Fishy', ORANGE), T(' needs a ', 'gray'), T('Raid Contract', '#ffcf40'), T(' to come into the vault. The Recruiter in the den sells them.', 'gray')]), 'return 0'])
+        tellraw('@s', GP + [T('Fishy', ORANGE), T(' needs his ', 'gray'), T('Raid Contract', '#ffcf40'), T(' signed to come into the vault - he gave you one with his Pocket Bowl '
+                                                                                                     '(the Recruiter in the den has spares).', 'gray')]), 'return 0'])
 
     from gen_dp import offer
     import phase103 as P103
@@ -339,7 +343,15 @@ def generate(G):
        [l for w in WINGS for l in [f'scoreboard players set #{w} bm.cab 0'] +
         [f'execute if data storage bm:cab got.{k} run scoreboard players add #{w} bm.cab 1' for k, ids, r in CAB.EXHIBITS[w]] +
         [f'scoreboard players operation #all bm.cab += #{w} bm.cab', f'execute if score #{w} bm.cab matches 20.. run scoreboard players add #done bm.cab 1']])
-    # (a wing's power, as a flag Fishy reads every tick: #f_<wing> 1 once all twenty are in; #cap, all six)
+    # (2.79a: every power from the start, its strength a percentage: #p_<wing> 20 + 4 for each exhibit shown in its wing, 100 at
+    #  twenty; #p_all, the Grand Exhibition's, 20 + 2 for every three in the whole Cabinet, 100 at 120)
+    G.FUNCS['p145/recount'] += [l for w in WINGS for l in [f'scoreboard players operation #p_{w} bm.cab = #{w} bm.cab',
+                                                          f'execute if score #p_{w} bm.cab matches 21.. run scoreboard players set #p_{w} bm.cab 20',
+                                                          f'scoreboard players operation #p_{w} bm.cab *= #4 bm.rng', f'scoreboard players add #p_{w} bm.cab 20']] + \
+        ['scoreboard players operation #p_all bm.cab = #all bm.cab', 'scoreboard players operation #p_all bm.cab *= #2 bm.rng',
+         'scoreboard players operation #p_all bm.cab /= #3 bm.rng', 'scoreboard players add #p_all bm.cab 20',
+         'execute if score #p_all bm.cab matches 101.. run scoreboard players set #p_all bm.cab 100']
+    # (a wing finished, as a flag: #f_<wing> 1 once all twenty are in - its rosettes; #cap, all six - the Golden Bowl)
     fn('p145/flags', [l for w in WINGS for l in [f'scoreboard players set #f_{w} bm.cab 0', f'execute if score #{w} bm.cab matches 20.. run scoreboard players set #f_{w} bm.cab 1']] +
        ['scoreboard players set #cap bm.cab 0', 'execute if score #done bm.cab matches 6.. run scoreboard players set #cap bm.cab 1'])
     G.FUNCS['load'][-1:-1] = [f'data modify storage bm:cab cat set value {snbt(cat)}', 'function bm:p145/recount', 'function bm:p145/flags',
@@ -382,13 +394,13 @@ def generate(G):
                            'execute as @e[type=minecraft:interaction,tag=bm.fynhit,distance=..12,limit=1] run function bm:p145/npc/react_shock',
                            'execute as @e[type=minecraft:wolf,tag=bm.fypet,distance=..12] run function bm:p145/pet_shock'])
 
-    # ---- a wing done: Fishy learns its power (every Fishy - the world's cabinet); everyone who gave to it, its rosette
+    # ---- a wing done: its power at full strength (every Fishy - the world's cabinet); everyone who gave to it, its rosette
     for w in WINGS:
         pw, pdesc = CAB.POWERS[w]
         fn(f'p145/wing_done/{w}', [f'scoreboard players set #f_{w} bm.cab 1', 'function bm:p145/flags',
                                    tellraw('@a', CP + [T(WNAME[w].upper(), WCOL[w], bold=True), T(' WING IS COMPLETE! ', WCOL[w], bold=True),
                                                        T('Every one of its twenty stands in Fishy\'s Cabinet.', 'gray')]),
-                                   tellraw('@a', CP + [T('Fishy learns ', 'gray'), T(pw, ORANGE, bold=True), T(f' - {pdesc}. ', 'gray'),
+                                   tellraw('@a', CP + [T("Fishy's ", 'gray'), T(pw, ORANGE, bold=True), T(' is at full strength. ', 'gray'),
                                                        T('Everyone who gave to it earns its rosette.', 'dark_gray')]),
                                    'execute as @a at @s run playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 0.8 1.1',
                                    'execute as @e[type=minecraft:interaction,tag=bm.fynhit,limit=1] run function bm:p145/npc/react_bow',
@@ -468,7 +480,7 @@ def generate(G):
                       P28.body([T('Exhibits: ', 'gray'), T('$(all)', 'white', bold=True), T(' of 120.  Wings complete: ', 'gray'), T('$(done)', 'white', bold=True),
                                 T(' of 6.', 'gray')], 340)],
                      [P28.btn([T(WNAME[w], WCOL[w], bold=True), T('  '), T(f'$(c_{w})', 'white', bold=True), T(' of 20', 'gray'), f'@@RAW:r_{w}@@'], CABM + WI[w], width=170) for w in WINGS] +
-                     [P28.btn([T("Fishy's powers", ORANGE, bold=True)], CABM + 7, width=170, tooltip=T('What each finished wing has taught him.', 'gray'))],
+                     [P28.btn([T("Fishy's powers", ORANGE, bold=True)], CABM + 7, width=170, tooltip=T('His powers - and how strong the Cabinet has made each.', 'gray'))],
                      columns=2, exit_label='Close')
     fn('p145/cab/main', [f'scoreboard players set @s bm.menu {CABM}', 'data remove storage bm:ui cab',
                          'execute store result storage bm:ui cab.all int 1 run scoreboard players get #all bm.cab',
@@ -478,14 +490,20 @@ def generate(G):
     prow = []
     for w in WINGS:
         pw, pd = CAB.POWERS[w]
-        prow += [f'data modify storage bm:ui cab.r_p{w} set value {snbt([T("locked", "dark_gray"), T(f" - finish {WNAME[w]}", "dark_gray")])}',
-                 f'execute if score #f_{w} bm.cab matches 1 run data modify storage bm:ui cab.r_p{w} set value {snbt(T("LEARNED", "#7aff7a", bold=True))}']
-    prow += [f'data modify storage bm:ui cab.r_pcap set value {snbt(T("locked - every wing", "dark_gray"))}',
+        prow += [f'execute store result storage bm:ui cab.p_{w} int 1 run scoreboard players get #p_{w} bm.cab',
+                 f'execute store result storage bm:ui cab.c_{w} int 1 run scoreboard players get #{w} bm.cab']
+    prow += ['execute store result storage bm:ui cab.p_all int 1 run scoreboard players get #p_all bm.cab',
+             'execute store result storage bm:ui cab.all int 1 run scoreboard players get #all bm.cab',
+             f'data modify storage bm:ui cab.r_pcap set value {snbt(T("not yet - every wing", "dark_gray"))}',
              f'execute if score #cap bm.cab matches 1 run data modify storage bm:ui cab.r_pcap set value {snbt(T("HIS", GOLD, bold=True))}']
     pdlg = P28.multi([T("FISHY'S POWERS", ORANGE, bold=True), T('  ·  taught by the Cabinet', 'gray')],
-                     [P28.body([T('A curator, not a brawler - at first. Every wing of the Cabinet finished teaches every Fishy something new, and toughens him.', 'gray')], 340)] +
-                     [P28.body([T(CAB.POWERS[w][0], WCOL[w], bold=True), T(f' ({WNAME[w]}): {CAB.POWERS[w][1]}.  ', 'gray'), f'@@RAW:r_p{w}@@'], 340) for w in WINGS] +
-                     [P28.body([T(CAB.CAPSTONE[0], GOLD, bold=True), T(f' (all six): {CAB.CAPSTONE[1]}.  ', 'gray'), '@@RAW:r_pcap@@'], 340)],
+                     [P28.body([T('A curator, not a brawler - at first. He knows every power from the start, weak; each exhibit shown makes its wing\'s power '
+                                 'stronger (20% with none, 100% at twenty), and every Fishy shares the one Cabinet.', 'gray')], 340)] +
+                     [P28.body([T(CAB.POWERS[w][0], WCOL[w], bold=True), T(f' ({WNAME[w]}): {CAB.POWERS[w][1]}.  ', 'gray'), T(f'$(p_{w})%', 'white', bold=True),
+                                T(f' ($(c_{w}) of 20)', 'dark_gray')], 340) for w in WINGS] +
+                     [P28.body([T(CAB.GRAND[0], GOLD, bold=True), T(f' (the whole Cabinet): {CAB.GRAND[1]}.  ', 'gray'), T('$(p_all)%', 'white', bold=True),
+                                T(' ($(all) of 120)', 'dark_gray')], 340),
+                      P28.body([T(CAB.CAPSTONE[0], GOLD, bold=True), T(f' (all six): {CAB.CAPSTONE[1]}.  ', 'gray'), '@@RAW:r_pcap@@'], 340)],
                      [back], columns=1, exit_label='Close')
     fn('p145/cab/powers', [f'scoreboard players set @s bm.menu {CABM}', 'data remove storage bm:ui cab'] + prow + ['function bm:p145/cab/powers_dlg with storage bm:ui cab'])
     fn('p145/cab/powers_dlg', [f'$dialog show @s {P28.inline(pdlg)}'])
@@ -638,14 +656,22 @@ def generate(G):
     fn('p145/not_ex', [f'execute store result score #r bm.rng run random value 0..{len(NOT_EX) - 1}'] +
        [f'execute if score #r bm.rng matches {n} run ' + fysay(ln) for n, ln in enumerate(NOT_EX)] +
        ['playsound minecraft:entity.tropical_fish.flop neutral @s ~ ~ ~ 0.5 1.2'])
-    fn('p145/recruit', ['tag @s add bm.fymet', give('fy_bowl'),
+    fn('p145/recruit', ['tag @s add bm.fymet', give('fy_bowl'), 'function bm:p145/free_contract',
                         tellraw('@s', [T('Fishy: ', ORANGE, bold=True), T('"A visitor! Welcome, welcome to my Cabinet of Curiosities. Such a lot of empty plinths, I\'m afraid."', LINE_C)]),
                         tellraw('@s', [T('Fishy: ', ORANGE, bold=True), T('"Here - my Pocket Bowl. Call me, and I shall come along with you: a curator must see the world. '
-                                                                          'I am no fighter, mind - not yet. But show me the rare things you find, and the Cabinet will teach me."', LINE_C)]),
+                                                                          'I am no fighter, mind - not yet. But every rare thing you show me makes me a little stronger. '
+                                                                          'And my Raid Contract - no charge for a friend of the Cabinet."', LINE_C)]),
                         tellraw('@s', [T('Fishy ', ORANGE, bold=True), T('tips his hat and presses a tiny fishbowl into your hand. (Use it to call him; sneak + use: his menu. '
                                                                          'Right-click him empty-handed here: the Cabinet.)', 'gray', italic=True)]),
                         'execute as @e[type=minecraft:interaction,tag=bm.fynhit,distance=..8,limit=1] run function bm:p145/npc/react_bow',
                         'playsound minecraft:entity.player.levelup player @s ~ ~ ~ 0.6 1.4'])
+    fn('p145/free_contract', ['tag @s add bm.fyfc', 'execute unless score @s bm.fcon matches 0.. run scoreboard players set @s bm.fcon 0',
+                              'scoreboard players operation #q bm.rng = @s bm.fcon', f'scoreboard players set #bit bm.rng {BIT}',
+                              'scoreboard players operation #q bm.rng /= #bit bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng',
+                              'execute if score #q bm.rng matches 1 run return 0', f'execute if items entity @s container.* {holds("fcontract_fishy")} run return 0',
+                              give('fcontract_fishy'),
+                              tellraw('@s', [T('Fishy\'s Raid Contract', '#ffcf40', bold=True), T(' - free, from Fishy. Use it once and he comes into the vault with you.', 'gray')])])
+    second.append('execute as @a[tag=bm.fymet,tag=!bm.fyfc] run function bm:p145/free_contract')
     has = lambda iid: [f'execute if items entity @s container.* {holds(iid)} run scoreboard players set #has bm.rng 1',
                        f'execute if items entity @s weapon.offhand {holds(iid)} run scoreboard players set #has bm.rng 1',
                        f'execute if items entity @s enderchest.* {holds(iid)} run scoreboard players set #has bm.rng 1']
@@ -696,12 +722,13 @@ def generate(G):
                      'execute if score @s bm.fyr matches 1.. run scoreboard players remove @s bm.fyr 1',
                      'execute if score @s bm.fyu matches 1.. run scoreboard players remove @s bm.fyu 1',
                      'execute if score @s bm.fysl matches 1.. run scoreboard players remove @s bm.fysl 1',
-                     # his fights: the Grand Exhibition (the Golden Bowl); the splash when they crowd him (the Deep); his claws up close; at range, coins or the ray
-                     f'execute if score #cap bm.cab matches 1 {idle_fight} unless score @s bm.fyu matches 1.. if entity @e[{foe},distance=..7] run function bm:p145/ult_go',
-                     f'execute if score #f_deep bm.cab matches 1 {idle_fight} unless score @s bm.fyr matches 1.. if entity @e[{foe},distance=..3.5] run function bm:p145/splash_go',
+                     # his fights (2.79a: every power from the start, at the Cabinet's strength): the Grand Exhibition; the splash when they crowd
+                     # him (the Deep); his claws up close; at range, the ray (the stronger of the two at range: whichever wing has more) or coins
+                     f'execute {idle_fight} unless score @s bm.fyu matches 1.. if entity @e[{foe},distance=..7] run function bm:p145/ult_go',
+                     f'execute {idle_fight} unless score @s bm.fyr matches 1.. if entity @e[{foe},distance=..3.5] run function bm:p145/splash_go',
                      f'execute {idle_fight} unless score @s bm.fym matches 1.. if entity @e[{foe},distance=..2.8] run function bm:p145/strike_go',
-                     f'execute if score #f_skies bm.cab matches 1 {idle_fight} unless score @s bm.fyr matches 1.. unless entity @e[{foe},distance=..2.8] if entity @e[{foe},distance=..16] run function bm:p145/zap_go',
-                     f'execute if score #f_gutter bm.cab matches 1 {idle_fight} unless score @s bm.fyr matches 1.. unless entity @e[{foe},distance=..2.8] if entity @e[{foe},distance=..10] run function bm:p145/toss_go',
+                     f'execute if score #p_skies bm.cab >= #p_gutter bm.cab {idle_fight} unless score @s bm.fyr matches 1.. unless entity @e[{foe},distance=..2.8] if entity @e[{foe},distance=..16] run function bm:p145/zap_go',
+                     f'execute {idle_fight} unless score @s bm.fyr matches 1.. unless entity @e[{foe},distance=..2.8] if entity @e[{foe},distance=..10] run function bm:p145/toss_go',
                      'function bm:p145/state',
                      'execute if score #st bm.rng = @s bm.fys run scoreboard players add @s bm.fyf 1',
                      'execute unless score #st bm.rng = @s bm.fys run scoreboard players set @s bm.fyf 0',
@@ -723,13 +750,13 @@ def generate(G):
     # ---- his blows: weak at first (2), 1 more for every wing finished; the Hollow's withering claws +3
     fn('p145/strike_go', ['scoreboard players set @s bm.fya 7', 'scoreboard players set @s bm.fyx 9', 'scoreboard players set @s bm.fym 24',
                           'playsound minecraft:entity.player.attack.sweep neutral @a[distance=..12] ~ ~ ~ 0.5 1.4'])
-    fn('p145/toss_go', ['scoreboard players set @s bm.fya 8', 'scoreboard players set @s bm.fyx 10', 'scoreboard players set @s bm.fyr 40'])
-    fn('p145/zap_go', ['scoreboard players set @s bm.fya 13', 'scoreboard players set @s bm.fyx 12', 'scoreboard players set @s bm.fyr 60',
+    fn('p145/toss_go', ['scoreboard players set @s bm.fya 8', 'scoreboard players set @s bm.fyx 10'] + ['scoreboard players set #cd bm.rng 200', 'scoreboard players operation #cd bm.rng -= #p_gutter bm.cab', 'scoreboard players set #cb bm.rng 40', 'scoreboard players operation #cd bm.rng *= #cb bm.rng', 'scoreboard players operation #cd bm.rng /= #100 bm.rng', 'scoreboard players operation @s bm.fyr = #cd bm.rng'])
+    fn('p145/zap_go', ['scoreboard players set @s bm.fya 13', 'scoreboard players set @s bm.fyx 12'] + ['scoreboard players set #cd bm.rng 200', 'scoreboard players operation #cd bm.rng -= #p_skies bm.cab', 'scoreboard players set #cb bm.rng 60', 'scoreboard players operation #cd bm.rng *= #cb bm.rng', 'scoreboard players operation #cd bm.rng /= #100 bm.rng', 'scoreboard players operation @s bm.fyr = #cd bm.rng'] + [
                        'playsound minecraft:block.beacon.power_select neutral @a[distance=..16] ~ ~ ~ 0.5 1.8'])
-    fn('p145/splash_go', ['scoreboard players set @s bm.fya 9', 'scoreboard players set @s bm.fyx 10', 'scoreboard players set @s bm.fyr 100'])
+    fn('p145/splash_go', ['scoreboard players set @s bm.fya 9', 'scoreboard players set @s bm.fyx 10'] + ['scoreboard players set #cd bm.rng 200', 'scoreboard players operation #cd bm.rng -= #p_deep bm.cab', 'scoreboard players set #cb bm.rng 100', 'scoreboard players operation #cd bm.rng *= #cb bm.rng', 'scoreboard players operation #cd bm.rng /= #100 bm.rng', 'scoreboard players operation @s bm.fyr = #cd bm.rng'])
     fn('p145/thunder_go', ['scoreboard players set @s bm.fyh 0', 'scoreboard players set @s bm.fya 11', 'scoreboard players set @s bm.fyx 14', 'scoreboard players set @s bm.fym 30'] +
        face('surprised', 14))
-    fn('p145/ult_go', ['scoreboard players set @s bm.fya 12', 'scoreboard players set @s bm.fyx 30', 'scoreboard players set @s bm.fyu 600',
+    fn('p145/ult_go', ['scoreboard players set @s bm.fya 12', 'scoreboard players set @s bm.fyx 30'] + ['scoreboard players set #cd bm.rng 200', 'scoreboard players operation #cd bm.rng -= #p_all bm.cab', 'scoreboard players set #cb bm.rng 600', 'scoreboard players operation #cd bm.rng *= #cb bm.rng', 'scoreboard players operation #cd bm.rng /= #100 bm.rng', 'scoreboard players operation @s bm.fyu = #cd bm.rng'] + [
                        'playsound minecraft:block.beacon.activate neutral @a[distance=..24] ~ ~ ~ 1 1.4'] + face('happy', 30))
     fn('p145/act_tick', ['scoreboard players remove @s bm.fyx 1',
                          'execute if score @s bm.fya matches 7 if score @s bm.fyx matches 4 run function bm:p145/strike_hit',
@@ -739,18 +766,26 @@ def generate(G):
                          'execute if score @s bm.fya matches 11 if score @s bm.fyx matches 7 run function bm:p145/thunder_hit',
                          'execute if score @s bm.fya matches 12 if score @s bm.fyx matches 20..29 run function bm:p145/ult_spin',
                          'execute if score @s bm.fya matches 12 if score @s bm.fyx matches 18 run function bm:p145/ult_hit'])
-    dmg = ['scoreboard players set #pd bm.rng 2', 'scoreboard players operation #pd bm.rng += #done bm.cab']
-    fn('p145/strike_hit', ['tag @s add bm.fyme'] + dmg + ['execute if score #f_hollow bm.cab matches 1 run scoreboard players add #pd bm.rng 3',
-                                                          'playsound minecraft:entity.tropical_fish.flop neutral @a[distance=..12] ~ ~ ~ 0.8 0.8',
+    def power(full, pw):
+        """#pd: this power's full blow scaled by its strength (#p_<wing>, or #p_all), at least 1"""
+        return [f'scoreboard players set #pd bm.rng {full}', f'scoreboard players operation #pd bm.rng *= #p_{pw} bm.cab',
+                'scoreboard players operation #pd bm.rng /= #100 bm.rng', 'execute if score #pd bm.rng matches ..0 run scoreboard players set #pd bm.rng 1']
+    # (his claws: 2, and the Hollow Grip's 9 more at full - 3 to start, 11 with the Hollow wing full)
+    dmg = power(9, 'hollow') + ['scoreboard players add #pd bm.rng 2']
+    fn('p145/strike_hit', ['tag @s add bm.fyme'] + dmg + ['playsound minecraft:entity.tropical_fish.flop neutral @a[distance=..12] ~ ~ ~ 0.8 0.8',
                                                           f'execute as @e[{foe},distance=..3.4,sort=nearest,limit=1] at @s run function bm:p145/clawed',
                                                           'tag @s remove bm.fyme', 'function bm:p145/blow'])
     fn('p145/clawed', ['function bm:p145/hurt', 'particle minecraft:crit ~ ~1 ~ 0.3 0.3 0.3 0.2 6',
-                       'execute if score #f_hollow bm.cab matches 1 run effect give @s minecraft:wither 3 0',
-                       'execute if score #f_hollow bm.cab matches 1 run particle minecraft:soul_fire_flame ~ ~1 ~ 0.3 0.4 0.3 0.02 6'])
+                       # (the Hollow Grip's wither: 1 second to start, 3 at 80% and up)
+                       'scoreboard players operation #ws bm.rng = #p_hollow bm.cab', 'scoreboard players operation #ws bm.rng /= #40 bm.rng', 'scoreboard players add #ws bm.rng 1',
+                       'execute if score #ws bm.rng matches 4.. run scoreboard players set #ws bm.rng 3',
+                       'execute store result storage bm:tmp fy.w int 1 run scoreboard players get #ws bm.rng', 'function bm:p145/wither with storage bm:tmp fy',
+                       'particle minecraft:soul_fire_flame ~ ~1 ~ 0.3 0.4 0.3 0.02 6'])
+    fn('p145/wither', ['$effect give @s minecraft:wither $(w) 0'])
     fn('p145/hurt', ['execute store result storage bm:tmp fy.d int 1 run scoreboard players get #pd bm.rng', 'function bm:p145/dmg with storage bm:tmp fy'])
     fn('p145/dmg', ['$damage @s $(d) minecraft:mob_attack by @e[type=minecraft:wolf,tag=bm.fyme,limit=1]'])
     # the Gutter: gold coins flung at a foe (a little trail of them, a clink)
-    fn('p145/toss_hit', ['tag @s add bm.fyme', 'scoreboard players set #pd bm.rng 4', 'scoreboard players operation #pd bm.rng += #done bm.cab',
+    fn('p145/toss_hit', ['tag @s add bm.fyme'] + power(10, 'gutter') + [
                          'playsound minecraft:entity.experience_orb.pickup neutral @a[distance=..16] ~ ~ ~ 0.6 0.6',
                          f'execute facing entity @e[{foe},distance=..11,sort=nearest,limit=1] eyes positioned ^ ^1.4 ^ run function bm:p145/coin_trail',
                          f'execute as @e[{foe},distance=..11,sort=nearest,limit=1] at @s run function bm:p145/coined', 'tag @s remove bm.fyme', 'function bm:p145/blow'])
@@ -758,30 +793,37 @@ def generate(G):
     fn('p145/coined', ['function bm:p145/hurt', 'particle minecraft:item{item:"minecraft:gold_ingot"} ~ ~1.2 ~ 0.3 0.3 0.3 0.1 8',
                        'playsound minecraft:block.chain.hit neutral @a[distance=..16] ~ ~ ~ 0.8 1.6'])
     # the Skies: a Vorn ray from his bowl
-    fn('p145/zap_hit', ['tag @s add bm.fyme', 'scoreboard players set #pd bm.rng 6', 'scoreboard players operation #pd bm.rng += #done bm.cab',
+    fn('p145/zap_hit', ['tag @s add bm.fyme'] + power(12, 'skies') + [
                         'playsound minecraft:entity.guardian.attack neutral @a[distance=..16] ~ ~ ~ 0.4 2',
                         f'execute facing entity @e[{foe},distance=..17,sort=nearest,limit=1] eyes positioned ^ ^1.5 ^ run function bm:p145/ray',
                         f'execute as @e[{foe},distance=..17,sort=nearest,limit=1] at @s run function bm:p145/rayed', 'tag @s remove bm.fyme', 'function bm:p145/blow'])
     fn('p145/ray', [f'particle minecraft:dust{{color:[0.3,1.0,0.5],scale:0.8}} ^ ^ ^{d / 2:.1f} 0 0 0 0 1' for d in range(1, 33)])
     fn('p145/rayed', ['function bm:p145/hurt', 'particle minecraft:glow ~ ~1 ~ 0.3 0.4 0.3 0.02 10', 'effect give @s minecraft:glowing 3 0 true'])
     # the Deep: a jet of water from his bowl - foes round him shoved back and slowed
-    fn('p145/splash_hit', ['tag @s add bm.fyme', 'scoreboard players set #pd bm.rng 3', 'scoreboard players operation #pd bm.rng += #done bm.cab',
+    fn('p145/splash_hit', ['tag @s add bm.fyme'] + power(9, 'deep') + [
                            'particle minecraft:splash ~ ~1.6 ~ 1.5 0.4 1.5 0.3 80', 'particle minecraft:bubble_pop ~ ~1.2 ~ 1.5 0.5 1.5 0.05 30',
                            'playsound minecraft:entity.player.splash.high_speed neutral @a[distance=..16] ~ ~ ~ 1 1.1',
                            f'execute as @e[{foe},distance=..4.5] at @s run function bm:p145/splashed', 'tag @s remove bm.fyme', 'function bm:p145/blow'])
-    fn('p145/splashed', ['function bm:p145/hurt', 'effect give @s minecraft:slowness 4 2',
+    fn('p145/splashed', ['function bm:p145/hurt',
+                         # (slowed: I to start, II at 60%, III at full)
+                         'execute if score #p_deep bm.cab matches ..59 run effect give @s minecraft:slowness 4 0',
+                         'execute if score #p_deep bm.cab matches 60..99 run effect give @s minecraft:slowness 4 1',
+                         'execute if score #p_deep bm.cab matches 100.. run effect give @s minecraft:slowness 4 2',
                          'execute facing entity @e[type=minecraft:wolf,tag=bm.fyme,limit=1] feet positioned ^ ^ ^-1.4 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run tp @s ~ ~ ~'])
     # the Wilds: every sixth blow, a thunderclap round him
     fn('p145/blow', ['scoreboard players add @s bm.fyh 1', 'scoreboard players add @s bm.fyq 1', 'execute if score @s bm.fyq matches 8.. run function bm:p145/quip',
-                     'execute if score #f_wilds bm.cab matches 1 if score @s bm.fyh matches 6.. run function bm:p145/thunder_go'])
-    fn('p145/thunder_hit', ['tag @s add bm.fyme', 'scoreboard players set #pd bm.rng 8', 'scoreboard players operation #pd bm.rng += #done bm.cab',
+                     # (the Thunder Exhibit: every tenth blow to start, one sooner for each 20% more - every sixth at full)
+                     'scoreboard players operation #tq bm.rng = #p_wilds bm.cab', 'scoreboard players operation #tq bm.rng /= #20 bm.rng',
+                     'scoreboard players set #tn bm.rng 11', 'scoreboard players operation #tn bm.rng -= #tq bm.rng',
+                     'execute if score @s bm.fyh >= #tn bm.rng run function bm:p145/thunder_go'])
+    fn('p145/thunder_hit', ['tag @s add bm.fyme'] + power(14, 'wilds') + [
                             'particle minecraft:electric_spark ~ ~1 ~ 2.5 0.6 2.5 0.4 80', 'particle minecraft:flash{color:[0.9,0.9,1.0,1.0]} ~ ~1 ~ 0 0 0 0 1',
                             'playsound minecraft:entity.lightning_bolt.thunder neutral @a[distance=..32] ~ ~ ~ 0.6 1.6',
                             'playsound minecraft:entity.lightning_bolt.impact neutral @a[distance=..24] ~ ~ ~ 0.8 1.2',
                             f'execute as @e[{foe},distance=..5.5] at @s run function bm:p145/thundered', 'tag @s remove bm.fyme',
                             'execute on owner if entity @s[distance=..24] run ' + fysay('Behold - the Thunder Exhibit!')])
     fn('p145/thundered', ['function bm:p145/hurt', 'particle minecraft:electric_spark ~ ~1 ~ 0.3 0.6 0.3 0.2 12'])
-    # the Golden Bowl: the GRAND EXHIBITION - spectral replicas of the cabinet's pieces wheel round him, then burst on every foe near
+    # the GRAND EXHIBITION (the whole Cabinet's) - spectral replicas of the cabinet's pieces wheel round him, then burst on every foe near
     fn('p145/ult_spin', [f'particle minecraft:end_rod ^{2.2 * math.cos(a):.2f} ^{1.0 + 0.4 * math.sin(3 * a):.2f} ^{2.2 * math.sin(a):.2f} 0 0 0 0 1'
                          for a in [k * math.pi / 6 for k in range(12)]] +
        ['particle minecraft:wax_on ~ ~1 ~ 2 0.6 2 0 6', 'execute if score @s bm.fyx matches 29 run function bm:p145/ult_replicas'])
@@ -794,7 +836,7 @@ def generate(G):
                                     'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0)] * 3, 'scale': [F(0.6)] * 3}})])
     fn('p145/ult_replicas', [f'function bm:p145/ult_r{j}' for j in range(len(REPLICAS))] + ['scoreboard players set @e[type=minecraft:item_display,tag=bm.fyrep,distance=..4] bm.fyl 12'])
     tick += ['scoreboard players remove @e[type=minecraft:item_display,tag=bm.fyrep] bm.fyl 1', 'kill @e[type=minecraft:item_display,tag=bm.fyrep,scores={bm.fyl=..0}]']
-    fn('p145/ult_hit', ['tag @s add bm.fyme', 'scoreboard players set #pd bm.rng 14', 'scoreboard players operation #pd bm.rng += #done bm.cab',
+    fn('p145/ult_hit', ['tag @s add bm.fyme'] + power(20, 'all') + [
                         'execute at @e[type=minecraft:item_display,tag=bm.fyrep,distance=..4] run particle minecraft:flash{color:[1.0,0.85,0.3,1.0]} ~ ~ ~ 0 0 0 0 1',
                         'particle minecraft:totem_of_undying ~ ~1.2 ~ 2.5 0.8 2.5 0.4 120',
                         'playsound minecraft:entity.generic.explode neutral @a[distance=..32] ~ ~ ~ 0.8 1.4',
@@ -811,11 +853,14 @@ def generate(G):
     # ---- the Court: you and your followers near him mend and stand firm; the Deep: in water, you breathe
     second.append('execute as @e[type=minecraft:wolf,tag=bm.fypet,tag=!bm.ffpet] at @s run function bm:p145/sec')
     fn('p145/sec', ['scoreboard players operation #me bm.pid = @s bm.pid',
-                    'execute if score #f_court bm.cab matches 1 run function bm:p145/court',
-                    'execute if score #f_deep bm.cab matches 1 on owner if entity @s[distance=..14] at @s if block ~ ~1 ~ minecraft:water run effect give @s minecraft:water_breathing 12 0 true',
-                    'execute if score #f_deep bm.cab matches 1 if predicate bm:swim run effect give @s minecraft:dolphins_grace 3 0 true'])
-    fn('p145/court', ['execute as @a[distance=..8,gamemode=!spectator] if score @s bm.pid = #me bm.pid run function bm:p145/court_you',
-                      'execute as @e[type=#bm:p145_hosts,distance=..8] if score @s bm.pid = #me bm.pid run effect give @s minecraft:regeneration 4 0 true'])
+                    # (the Grand Company reaches 4 blocks round him to start, 6 at 50%, 8 at full)
+                    'execute if score #p_court bm.cab matches ..49 run function bm:p145/court {r:4}',
+                    'execute if score #p_court bm.cab matches 50..99 run function bm:p145/court {r:6}',
+                    'execute if score #p_court bm.cab matches 100.. run function bm:p145/court {r:8}',
+                    'execute on owner if entity @s[distance=..14] at @s if block ~ ~1 ~ minecraft:water run effect give @s minecraft:water_breathing 12 0 true',
+                    'execute if predicate bm:swim run effect give @s minecraft:dolphins_grace 3 0 true'])
+    fn('p145/court', ['$execute as @a[distance=..$(r),gamemode=!spectator] if score @s bm.pid = #me bm.pid run function bm:p145/court_you',
+                      '$execute as @e[type=#bm:p145_hosts,distance=..$(r)] if score @s bm.pid = #me bm.pid run effect give @s minecraft:regeneration 4 0 true'])
     fn('p145/court_you', ['effect give @s minecraft:regeneration 4 0 true', 'effect give @s minecraft:resistance 4 0 true'])
     wjson('bm/tags/entity_type/p145_hosts.json', {'values': ['minecraft:wolf', 'minecraft:cat']})
 
@@ -899,11 +944,11 @@ def generate(G):
     dlg = lambda out: P28.multi([T("Fishy's Pocket Bowl", ORANGE, bold=True)],
                                 [P28.body([T('Fishy', ORANGE, bold=True), T(' - gentleman, goldfish, curator. ', 'gray'),
                                            T('Show him the rare things you find (right-click him holding one): a replica for his Cabinet; you keep yours.', 'white')]),
-                                 P28.body([T('Every wing of the Cabinet finished teaches him a power - see ', 'gray'), T("Fishy's powers", ORANGE, bold=True), T('.', 'gray')], 300)],
+                                 P28.body([T('Every exhibit shown makes one of his powers stronger - see ', 'gray'), T("Fishy's powers", ORANGE, bold=True), T('.', 'gray')], 300)],
                                 ([P28.btn(T('Sit / follow', 'white', bold=True), MENU + 1, width=150), P28.btn(T('Send him home', 'gray'), MENU + 9, width=150)] if out else
                                  [P28.btn(T('Call for Fishy', ORANGE, bold=True), MENU + 8, width=150)]) +
                                 [P28.btn(T('The Cabinet', GOLD, bold=True), MENU + 3, width=150, tooltip=T('Every wing, every exhibit - shown or veiled.', 'gray')),
-                                 P28.btn(T("Fishy's powers", ORANGE, bold=True), MENU + 4, width=150, tooltip=T('What the Cabinet has taught him.', 'gray')),
+                                 P28.btn(T("Fishy's powers", ORANGE, bold=True), MENU + 4, width=150, tooltip=T('His powers - and how strong the Cabinet has made each.', 'gray')),
                                  P28.btn(T('Wardrobe', ORANGE, bold=True), MENU + 2, width=150, tooltip=T('His top hats - and his aura, if you have it.', 'gray'))],
                                 columns=2, exit_label='Close')
     fn('p145/menu', [f'scoreboard players set @s bm.menu {MENU}', 'scoreboard players set #out bm.rng 0',

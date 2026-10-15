@@ -43,6 +43,7 @@ const res = [];
   for (const t of ['bm.auown_fishy', 'bm.au_fishy']) await run(`tag TestRat remove ${t}`);
   await run('advancement revoke TestRat only bm:met/fishy');
   const fc = await score('bm.fcon'); if (fc > 0 && Math.floor(fc / 1024) % 2 === 1) await run(`scoreboard players set TestRat bm.fcon ${fc - 1024}`);
+  await run('tag TestRat add bm.fyfc');          // (his free contract counted as given - the kit carries one; t162 checks the free one)
   await sleep(1200);
   await at(X + 0.5, Y + 1, Z + 0.5, 0, 0);
   const kit = ['fy_bowl', 'cos_fishy_2', 'cos_aura_fishy', 'fcontract_fishy'];
@@ -86,7 +87,8 @@ const res = [];
   ok('his menu -> The Cabinet: the Cabinet\'s menu', pr && pr.next && /CABINET OF CURIOSITIES/.test(JSON.stringify(dd(A.dialogN[A.dialogN.length - 1]).title)));
   await sneakMenu(0); pr = await A.press(/Fishy's powers/);
   const pw = JSON.stringify(dd(A.dialogN[A.dialogN.length - 1]).body || []);
-  ok('his menu -> Fishy\'s powers: all six locked, the Golden Bowl too', pr && pr.next && (pw.match(/locked/g) || []).length >= 6 && /Golden Bowl/.test(pw), pw.slice(0, 160));
+  ok('his menu -> Fishy\'s powers: every one already his, at 20% (nothing shown yet) - the Grand Exhibition too; the Golden Bowl not yet',
+     pr && pr.next && (pw.match(/20%/g) || []).length >= 7 && /Grand Exhibition/.test(pw) && /Golden Bowl/.test(pw) && /not yet/.test(pw), pw.slice(0, 160));
 
   // ---------------------------------------------------------------- cosmetics: a top hat, kept across a recall, put back
   await hold(1); await sleep(800);

@@ -157,8 +157,8 @@ POWERS = {
     'wilds': ('Thunder Exhibit', 'every sixth blow, a thunderclap round him'),
     'court': ('Grand Company', 'you and your followers near him mend (Regeneration) and stand firm (Resistance)'),
 }
-CAPSTONE = ('The Golden Bowl', 'his bowl turns gold, he is far tougher, and now and then he holds a GRAND EXHIBITION - '
-                               'spectral replicas wheel round him and burst on every foe near')
+GRAND = ('The Grand Exhibition', 'now and then spectral replicas of the cabinet\'s pieces wheel round him and burst on every foe near')
+CAPSTONE = ('The Golden Bowl', 'his bowl and limbs turn gold, and he is far tougher')
 
 
 def keys():
