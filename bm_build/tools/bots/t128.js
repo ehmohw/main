@@ -32,9 +32,9 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     await sleep(400);
     const rec = async (i, k) => (await run(`${O}data get entity @e[type=minecraft:villager,tag=bm.pearl,limit=1] Offers.Recipes[${i}].${k}.components."minecraft:custom_data".bm`)).replace(/.*data: /, '');
     let n = 0; for (let i = 0; i < 3; i++) if (/gem_/.test(await rec(i, 'sell'))) n++;
-    const offers = [await rec(3, 'buy'), await rec(3, 'buyB'), await rec(3, 'sell')].join(' ');
-    ok('Pearlman stocks his three gems and the fusion (Scorching Heart + Ethereal Gem -> Wraithfire Heart)',
-       /scorching_heart.*ethereal_gem.*wraithfire_heart/.test(offers) && n === 3, `gems ${n}; ${offers}`);
+    const fourth = await rec(3, 'sell');
+    // (2.77b: the Wraithfire Heart is forged on the ground - a Scorching Heart set down beside an Ethereal Gem - not sold by Pearlman)
+    ok('Pearlman stocks his three gems - and no longer the fusion (the heart is forged on the ground)', n === 3 && !/wraithfire_heart/.test(fourth), `gems ${n}; 4th ${fourth.slice(0, 60)}`);
     await run(`${O}kill @e[type=minecraft:villager,tag=bm.pearl]`); await run(`${O}kill @e[type=minecraft:item_display,tag=bm.pearld]`);
   }
 

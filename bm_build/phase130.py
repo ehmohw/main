@@ -447,6 +447,7 @@ def generate(G):
                      P28.body([T('Battle style: ', 'gray'), T('$(sty)', SOUL, bold=True), T('     Wraithfire charge: ', 'gray'), T('$(ch)%', 'white', bold=True)]),
                      P28.body([T('Wraithfire Form on: she stays ethereal and fights hard - soul crescents, lances, a ward round you, ', 'gray'),
                                T('charged attacks', SOUL), T(' - and can carry you (her ribbon beside her, or sneak + right-click her). Off: she\'s her usual self. ', 'gray'),
+                               T('On or off, while she holds the heart her buffs come at level II. ', SOUL),
                                T('(In the heist lobby she\'s always her usual self.)', 'dark_gray')], 320)],
                     [btn(1), btn(2), btn(3), btn(4), btn(5), P28.btn(T('Wardrobe', '#ff8ad8', bold=True), 7306, tooltip=T('Her ribbons, dresses and outfits', 'gray'), width=120),
                      P28.btn(T('Wraithfire Form: on / off', SOUL, bold=True), 7307, tooltip=T('Her Wraithfire Form - or her usual self.', 'gray'), width=120),

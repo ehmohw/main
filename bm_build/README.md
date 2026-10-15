@@ -21,6 +21,13 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.78b: Emma's blessings at level II with the Wraithfire Heart
+
+- **While Emma holds a Wraithfire Heart, her support form blesses at level II.** That covers every form she's in: Speed II and Jump Boost II, Strength II, Resistance II, Regeneration II, and Haste II.
+  - Her Wraithfire Form can still be switched off while she keeps the heart, as before. That switch now only decides her soul-fire look, her fighting and the flying; the level II blessings stay either way.
+  - Her menu says so.
+  - Take the heart back and her blessings return to their usual levels.
+
 ## New in 2.78a: true-to-life dolls, Apophiss's two forms, Wilfrey in frames and cases, and a steadier tier curve
 
 ### Every follower's doll, remade as a miniature of them

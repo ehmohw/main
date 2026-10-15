@@ -8,7 +8,11 @@
 
 The form is yours (bm.apel on the owner: 10 ethereal, 11 wraithfire) and stays with him across summons; like the gems in
 KillerWatt and Cecil it stays on the side of the Fixer's door it was given on. A form outranks a chosen colour (it is his
-whole hide); taking the gem out puts the colour back. Importing does nothing; generate(G) runs after phase138."""
+whole hide); taking the gem out puts the colour back.
+
+EMMA AND THE WRAITHFIRE HEART: while she holds one (given to her: bm.emwf on you), her support form's blessings come at
+level II - whichever form she's in, and whether or not her Wraithfire Form is switched on (that only decides the soul-fire
+look and the flying). Importing does nothing; generate(G) runs after phase138."""
 from items import T
 import apophiss_art as A, rigfol as RF
 from apophiss_art import qs
@@ -143,6 +147,19 @@ def generate(G):
         L[k:k] = [f'scoreboard players set @s bm.apel{save_to} 0', f'execute if score @s bm.apel matches 1.. run scoreboard players operation @s bm.apel{save_to} = @s bm.apel',
                   'scoreboard players set @s bm.apel 0', f'execute if score @s bm.apel{load_from} matches 1.. run scoreboard players operation @s bm.apel = @s bm.apel{load_from}']
     G.FUNCS['p126/gem/redress'].append(f'{pet} at @s run function bm:p144/look')
+
+    # ---- Emma, holding a Wraithfire Heart: every blessing of her support form at level II (as the target; #ewf set by her pulse)
+    pu = G.FUNCS['p57/pulse']
+    k = next(i for i, l in enumerate(pu) if l.startswith('scoreboard players operation #mode bm.rng'))
+    pu[k:k] = ['scoreboard players set #ewf bm.rng 0', 'execute on owner if score @s bm.emwf matches 1 run scoreboard players set #ewf bm.rng 1']
+    n = 0
+    for name in [f for f in G.FUNCS if f.startswith('p57/buff/')]:
+        L = G.FUNCS[name]
+        up = [l.replace(' 5 0 true', ' 5 1 true') for l in L if l.startswith('effect give @s minecraft:') and l.endswith(' 5 0 true')]
+        k = max(i for i, l in enumerate(L) if l.startswith('effect give')) + 1
+        L[k:k] = [f'execute if score #ewf bm.rng matches 1 run {l}' for l in up]
+        n += len(up)
+    assert n >= 8, n
 
     s = G.FUNCS['loop/second']
     s[-1:-1] = second
