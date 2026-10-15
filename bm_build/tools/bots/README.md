@@ -177,7 +177,7 @@ and function calls. Three are known to be stale.
 | `t29.js` | first check: filter hopper placed (pointing down) |
 | `t29c.js` | - |
 | `t29e.js` | - |
-| `t30.js` | first check: newcomers' book: accepted by the game, every page |
+| `t30.js` | 2.29 checks, kept current: the newcomers' book (the real lectern book, placed by the market's own function - no helper pack), the first-token tab and recipes, boss and dawn advancements, the crafter recipe, the server settings (2.80: a dialog), the Blood Moon period (a risen Blood Moon lasts till dawn - the change shows the next night) and "Never", the Block Breaker / skiff bombs / magic PvP switches, the Grave Charm (owner and stranger), admin help |
 | `t31.js` | first check: raw `time set 1000` no longer sends the count back to day 0 |
 | `t32.js` | first check: Lucky Night started |
 | `t33.js` | v2.32: the Horseman's Head in four classes, catalysts, the Pharaoh's Crook and Thunderbird Talon (all forms), the Sand Pharaoh, |

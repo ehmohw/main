@@ -15,12 +15,14 @@ const X = 5600, Y = 100, Z = 5600;
   await run(`fill ${X - 12} ${Y + 5} ${Z - 12} ${X + 12} ${Y + 5} ${Z + 12} sea_lantern`);
   await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..30]`);
   // ---- the newcomers' book
-  await run('function bmtest:book'); await sleep(300);
+  // (the real thing: a lectern, and the market's own book function aimed at it - the old bmtest helper pack is gone)
+  await run(`setblock ${X} ${Y + 1} ${Z} minecraft:lectern`); await run(`execute positioned ${X + 4.5} ${Y - 5} ${Z - 33.5} rotated 0 0 run function bm:p50/book`); await sleep(300);
   const B = `${X} ${Y + 1} ${Z} Book.components."minecraft:written_book_content".pages`;
   let pages = 0; for (let i = 0; i < 101; i++) { if (!(await run(`execute if data block ${B}[${i}]`)).includes('passed')) break; pages = i + 1; }
-  ok('newcomers\' book: accepted by the game, every page', pages >= 40 && pages <= 100, pages + ' pages');
+  ok('newcomers\' book: accepted by the game, every page (the short who-sells-what book, 2.63)', pages >= 5 && pages <= 100, pages + ' pages');
   let all = ''; for (let i = 0; i < pages; i++) all += await run(`data get block ${B}[${i}]`);
-  ok('...lists Cecil, the tinkering goods, Zorp, and no prices', /CECIL/.test(all) && /Filter Hopper/.test(all) && /ZORP/.test(all) && !/Token[s]?\s*x?\d|\d+ Tokens/.test(all.replace(/1 Trophy = 6 Medallions = 54 Tokens/, '')));
+  ok('...lists Cecil, the tinkering machines, Zorp, and no prices (only the exchange rates)', /Cecil the Wizard/.test(all) && /tinkering machines/.test(all) && /Zorp/.test(all) &&
+     !/Token[s]?\s*x?\d|\d+ Tokens/.test(all.replace(/9 Tokens = 1 Medallion/, '').replace(/pays 2 Tokens each/, '')));
   await run(`setblock ${X} ${Y + 1} ${Z} air`);
   // ---- advancements + recipes (first token)
   await run('loot give TestRat loot bm:items/token'); await sleep(500);
@@ -47,9 +49,11 @@ const X = 5600, Y = 100, Z = 5600;
   ok('admin/settings menu opens', A.dialogN.length > n0 && /SERVER SETTINGS/.test(JSON.stringify(A.dialogN[A.dialogN.length - 1])), A.buttons().map(b => b.label).join(' | ').slice(0, 120));
   await run('execute as TestRat run function bm:admin/set/bmper_10'); await run('time set midnight'); await sleep(1500); await run('scoreboard players set #bmday bm.bm 9'); await sleep(2200);
   const cyc10 = await num('scoreboard players get #active bm.bm');
-  await run('execute as TestRat run function bm:admin/set/bmper_30'); await sleep(2200);
+  // (a Blood Moon that has risen lasts till dawn - so the change shows the next night)
+  await run('execute as TestRat run function bm:admin/set/bmper_30'); await run('time set day'); await sleep(2200);
+  await run('time set midnight'); await sleep(1500); await run('scoreboard players set #bmday bm.bm 9'); await sleep(2200);
   const cyc30 = await num('scoreboard players get #active bm.bm');
-  ok('Blood Moon every 10 days: day 9 night has one; back at 30 it does not', cyc10 === 1 && cyc30 === 0, `${cyc10} ${cyc30} day ${await num('scoreboard players get #day bm.bm')}`);
+  ok('Blood Moon every 10 days: day 9 night has one; at 30 days the next day-9 night does not', cyc10 === 1 && cyc30 === 0, `${cyc10} ${cyc30} day ${await num('scoreboard players get #day bm.bm')}`);
   await run('execute as TestRat run function bm:admin/set/bmoff_1'); await run('time set midnight'); await sleep(1500); await run('scoreboard players set #bmday bm.bm 29'); await sleep(2200);
   ok('"Never": no natural Blood Moon on cycle day 29', (await num('scoreboard players get #active bm.bm')) === 0);
   await run('execute as TestRat run function bm:admin/set/bmper_30'); await sleep(2200);
@@ -87,9 +91,12 @@ const X = 5600, Y = 100, Z = 5600;
   ok("a stranger can't open it", (await cnt('@e[type=marker,tag=bm.grave]')) === 1 && V.bars.slice(-1)[0] && V.bars.slice(-1)[0].includes("isn't yours"), V.bars.slice(-1)[0]);
   // the owner can
   await sleep(1500); console.log('  owner health', (await run('data get entity TestRat Health')).slice(-8)); await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z - 2.5} 180 20`); await sleep(2500);
-  const ai = vi; console.log('  owner clicks', ai); for (const id of ai) A.interact(id); await sleep(1200);
+  const ai = vi; console.log('  owner clicks', ai); for (const id of ai) A.interact(id);
+  for (let k = 0; k < 20 && (await inv('TestRat', 'minecraft:diamond')) !== 7; k++) await sleep(200);     // (the grave hands it all back - give it a moment)
+  await sleep(400);
   ok('the owner right-clicks: everything comes back, the grave is gone', (await inv('TestRat', 'minecraft:diamond')) === 7 && (await inv('TestRat', 'minecraft:iron_sword')) === 1 &&
-     (await inv('TestRat', '*[custom_data~{bm:"grave_charm"}]')) === 1 && !(await cnt('@e[tag=bm.grave]')) && !(await cnt('@e[tag=bm.gravehit]')) && !(await cnt('@e[tag=bm.gravev]')));
+     (await inv('TestRat', '*[custom_data~{bm:"grave_charm"}]')) === 1 && !(await cnt('@e[tag=bm.grave]')) && !(await cnt('@e[tag=bm.gravehit]')) && !(await cnt('@e[tag=bm.gravev]')),
+     `diamonds ${await inv('TestRat', 'minecraft:diamond')} sword ${await inv('TestRat', 'minecraft:iron_sword')} charm ${await inv('TestRat', '*[custom_data~{bm:"grave_charm"}]')} graves ${await cnt('@e[tag=bm.grave]')}/${await cnt('@e[tag=bm.gravehit]')}/${await cnt('@e[tag=bm.gravev]')}`);
   ok('...Six Feet Under', await adv('TestRat', 'grave'));
   // without the charm, death is vanilla
   await run('clear TestRat'); await run('give TestRat diamond 3'); await run(`tp TestRat ${X + 4.5} ${Y + 1} ${Z + 4.5}`); await sleep(400); await run('kill TestRat'); await sleep(1200);
