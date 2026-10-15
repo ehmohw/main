@@ -64,8 +64,8 @@ def register():
     bow['minecraft:lore'][1:1] = [T('Its arrows trail souls and wither', 'blue'), T('what they strike (Wither II).', 'blue')]
     gear('hollow_wings', 'elytra', 'Wings of the Damned', COL,
          ['Torn from the Hollow King\'s back.', ('+6 Armour. Unbreakable. Flying into a wall', 'blue'), ('never hurts you.', 'blue'),
-          ('Hold sneak while gliding: the wings drive you on.', 'blue'), ('On the ground, crouch and look straight up', 'blue'),
-          ('for a second: launch.', 'blue'), ('A trail of souls, wither-smoke and flame.', 'dark_purple')],
+          ('Hold sneak while gliding: the wings drive you on.', 'blue'), ('On the ground, crouch a moment, then jump:', 'blue'),
+          ('they throw you skyward - jump again to glide.', 'blue'), ('A trail of souls, wither-smoke and flame.', 'dark_purple')],
          {'bm:damned_wings': 1}, 3, attrs=[attr('armor', 6, 'chest', ident='minecraft:armor.chestplate'), attr('armor_toughness', 2, 'chest', ident='minecraft:armor.chestplate_toughness')],
          extra={'minecraft:unbreakable': {}}, bold=True)
     evil_name('hollow_wings', 'Wings of the Damned')
@@ -80,8 +80,8 @@ def generate(G, B=None):
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     near = 'gamemode=!creative,gamemode=!spectator'
     fast, second, load, tick = [], [], [], []
-    objs = ['bm.htc', 'bm.hhoe', 'bm.ewb', 'bm.ewl', 'bm.ewg'] + [f'bm.ml_{l[:6]}' for l in LOGS]
-    load += [f'scoreboard objectives add {o} dummy' for o in objs[:5]]
+    objs = ['bm.htc', 'bm.hhoe', 'bm.ewb', 'bm.ewl', 'bm.ewg', 'bm.ewj'] + [f'bm.ml_{l[:6]}' for l in LOGS]
+    load += [f'scoreboard objectives add {o} dummy' for o in objs[:6]]
     load += [f'scoreboard objectives add bm.ml_{l[:6]} minecraft.mined:minecraft.{l}' for l in LOGS]
     G.OBJECTIVES += objs
 
@@ -180,35 +180,49 @@ def generate(G, B=None):
     fn('p2/ht/arrow_fx', ['execute if entity @s[nbt={inGround:1b}] run return run tag @s remove bm.wsarrow',
                           'particle minecraft:soul ~ ~ ~ 0.05 0.05 0.05 0.01 2', 'particle minecraft:smoke ~ ~ ~ 0.05 0.05 0.05 0.01 1'])
 
-    # ---------------- Wings of the Damned: wall-proof, sneak-boost, crouch-and-look-up launch, a trail
+    # ---------------- Wings of the Damned: wall-proof, sneak-boost, crouch-then-jump launch, a trail
+    # 2.78: the boost reads the sneak KEY (gliding isn't the crouching pose, so is_sneaking never held in the air - no boost at all),
+    # and the launch is the rocket boots' kind - a Levitation burst, cleared after a few ticks (an impulse from the ground was eaten
+    # by the ground's friction and barely lifted you)
     flying = {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:flags': {'is_fall_flying': True}}}
     wjson('bm/enchantment/damned_wings.json', dict(base, description=T('Damned Wings', COL), slots=['chest'], supported_items='#minecraft:enchantable/chest_armor', effects={
         'minecraft:damage_immunity': [{'effect': {}, 'requirements': {'condition': 'minecraft:damage_source_properties', 'predicate': {
             'tags': [{'id': '#bm:p44_wall', 'expected': True}]}}}],
         'minecraft:tick': [
-            {'effect': {'type': 'minecraft:apply_impulse', 'direction': [0.0, 0.0, 1.0], 'coordinate_scale': [1.0, 1.0, 1.0], 'magnitude': 0.07},
+            {'effect': {'type': 'minecraft:apply_impulse', 'direction': [0.0, 0.0, 1.0], 'coordinate_scale': [1.0, 1.0, 1.0], 'magnitude': 0.085},
              'requirements': {'condition': 'minecraft:all_of', 'terms': [flying, {'condition': 'minecraft:entity_scores', 'entity': 'this', 'scores': {'bm.ewb': 1}},
-                                                                         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:movement': {'speed': {'max': 30.0}}}}]}},
-            {'effect': {'type': 'minecraft:apply_impulse', 'direction': [0.0, 0.0, 1.0], 'coordinate_scale': [0.0, 1.0, 0.0], 'magnitude': 0.7},   # along the look (straight up), vertical part only
-             'requirements': {'condition': 'minecraft:entity_scores', 'entity': 'this', 'scores': {'bm.ewl': {'min': 1}}}}]}))
+                                                                         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:movement': {'speed': {'max': 42.0}}}}]}}]}))
     wjson('bm/tags/damage_type/p44_wall.json', {'values': ['minecraft:fly_into_wall']})
+    wjson('bm/predicate/p2/ht_sneak_key.json', {'condition': 'minecraft:entity_properties', 'entity': 'this',
+                                                 'predicate': {'minecraft:type_specific/player': {'input': {'sneak': True}}}})
     wings = holds % 'hollow_wings'
     tick += [f'execute as @a[gamemode=!spectator] if items entity @s armor.chest {wings} at @s run function bm:p2/ht/wings',
-             'scoreboard players remove @a[scores={bm.ewl=1..}] bm.ewl 1']
+             'execute as @a[scores={bm.ewl=1..}] at @s run function bm:p2/ht/burn']
     fn('p2/ht/wings', ['scoreboard players set @s bm.ewb 0',
-                       'execute if predicate bm:p2/ht_gliding if predicate bm:p20/sneaking run scoreboard players set @s bm.ewb 1',
+                       'scoreboard players set #j bm.rng 0', 'execute if predicate bm:p26/jump_key run scoreboard players set #j bm.rng 1',
+                       'execute if predicate bm:p2/ht_gliding if predicate bm:p2/ht_sneak_key run scoreboard players set @s bm.ewb 1',
                        'execute if predicate bm:p2/ht_gliding run function bm:p2/ht/trail',
-                       'execute if predicate bm:p2/ht_gliding run return run scoreboard players set @s bm.ewg 0',
-                       'execute unless predicate bm:p20/sneaking run return run scoreboard players set @s bm.ewg 0',
-                       'execute unless entity @s[x_rotation=-90..-60] run return run scoreboard players set @s bm.ewg 0',
-                       'scoreboard players add @s bm.ewg 1', 'execute if score @s bm.ewg matches 5..19 run particle minecraft:soul ~ ~0.2 ~ 0.4 0.1 0.4 0.02 2',
-                       'execute if score @s bm.ewg matches 20 run function bm:p2/ht/launch'])
+                       'execute if predicate bm:p2/ht_gliding run scoreboard players set @s bm.ewg 0',
+                       # the launch: crouched on the ground half a second (a soul-fire charge at your feet), then a fresh jump
+                       'execute unless predicate bm:p2/ht_gliding unless predicate bm:p21/airborne if predicate bm:p2/ht_sneak_key run scoreboard players add @s bm.ewg 1',
+                       'execute unless predicate bm:p2/ht_gliding unless predicate bm:p21/airborne unless predicate bm:p2/ht_sneak_key unless score #j bm.rng matches 1 run scoreboard players set @s bm.ewg 0',
+                       'execute if score @s bm.ewg matches 10.. unless predicate bm:p21/airborne run particle minecraft:soul_fire_flame ~ ~0.1 ~ 0.35 0 0.35 0.01 2',
+                       'execute if score @s bm.ewg matches 10 run playsound minecraft:block.respawn_anchor.charge player @s ~ ~ ~ 0.6 1.6',
+                       'execute if score @s bm.ewg matches 10.. if score #j bm.rng matches 1 unless score @s bm.ewj matches 1 unless score @s bm.ewl matches 1.. run function bm:p2/ht/launch',
+                       'execute if score @s bm.ewg matches 200.. run scoreboard players set @s bm.ewg 10',
+                       'scoreboard players operation @s bm.ewj = #j bm.rng'])
     wjson('bm/predicate/p2/ht_gliding.json', flying)
-    fn('p2/ht/launch', ['scoreboard players set @s bm.ewl 2', 'particle minecraft:soul_fire_flame ~ ~0.2 ~ 0.6 0.1 0.6 0.1 40', 'particle minecraft:large_smoke ~ ~0.2 ~ 0.6 0.1 0.6 0.05 20',
+    # 8 ticks of Levitation 34: about 19 blocks up (the rocket boots: 5 ticks of 26, about 7)
+    fn('p2/ht/launch', ['scoreboard players set @s bm.ewg 0', 'scoreboard players set @s bm.ewl 8', 'effect give @s minecraft:levitation 1 34 true',
+                        'particle minecraft:soul_fire_flame ~ ~0.2 ~ 0.6 0.1 0.6 0.1 40', 'particle minecraft:large_smoke ~ ~0.2 ~ 0.6 0.1 0.6 0.05 20',
+                        'particle minecraft:soul ~ ~0.2 ~ 0.8 0.1 0.8 0.04 16',
                         'playsound minecraft:entity.wither.shoot player @a[distance=..24] ~ ~ ~ 1 0.6', 'playsound minecraft:entity.phantom.flap player @a[distance=..24] ~ ~ ~ 1.5 0.6',
-                        say('The wings throw you skyward - jump to glide.', COL)])
+                        'title @s actionbar {"text":"The wings throw you skyward - jump to glide.","color":"%s"}' % COL])
+    fn('p2/ht/burn', ['scoreboard players remove @s bm.ewl 1', 'particle minecraft:soul_fire_flame ~ ~ ~ 0.15 0 0.15 0.01 3', 'particle minecraft:large_smoke ~ ~ ~ 0.1 0 0.1 0.01 1',
+                      'execute if score @s bm.ewl matches 0 run effect clear @s minecraft:levitation'])
     fn('p2/ht/trail', ['particle minecraft:soul ^ ^0.6 ^-0.8 0.15 0.15 0.15 0.01 2', 'particle minecraft:soul_fire_flame ^0.4 ^0.8 ^-0.6 0.05 0.05 0.05 0.01 1',
                        'particle minecraft:soul_fire_flame ^-0.4 ^0.8 ^-0.6 0.05 0.05 0.05 0.01 1', 'particle minecraft:flame ^ ^0.6 ^-1 0.1 0.1 0.1 0.01 1',
                        'particle minecraft:dust{color:[0.1,0.05,0.12],scale:1.6} ^ ^0.7 ^-1.2 0.2 0.2 0.2 0 2',
-                       'execute if score @s bm.ewb matches 1 run particle minecraft:large_smoke ^ ^0.6 ^-1.2 0.1 0.1 0.1 0.02 2'])
+                       'execute if score @s bm.ewb matches 1 run particle minecraft:large_smoke ^ ^0.6 ^-1.2 0.1 0.1 0.1 0.02 2',
+                       'execute if score @s bm.ewb matches 1 run particle minecraft:soul_fire_flame ^ ^0.6 ^-1.4 0.15 0.15 0.15 0.03 3'])
     return {'fast': fast, 'second': second, 'load': load, 'tick': tick}
