@@ -7,7 +7,7 @@ the staging kit (cine.py). Each:
   dives out of a gathering storm in a spiral and lands on a lightning strike; the Treant tears itself up out of the
   ground in three lurches, the roots cracking toward it first; the Colossus erupts out of a fissure of lava and slams
   down; the Voidwalker steps out of a rift that opens in the air - and the rift snaps shut behind it. Then its title
-  card, and its song.
+  card (and its theme - phase152).
 - RAGES as a moment (it freezes, roars, the ground answers) before its rage takes hold.
 - WINDS UP its instant blows: the Colossus squats before the slam (a ring of fire marks the reach); the Pharaoh's sun-ray
   charges with an aiming line; his sandblast pulls the sand in first; his eruption cracks the ground in its reach; the
@@ -81,7 +81,7 @@ def qs(v):
 
 
 def reveal(k, t):
-    """its title card for all near, and its song for those who hadn't sensed it yet (the old 'presence' line is not shown)"""
+    """its title card for all near, and the vanilla music hushed for those who hadn't sensed it yet (its theme: phase152)"""
     ent, tag, _s, _n, sensed, song, name, col, epithet, *_ = BOSS[k]
     return a(t, *C.title_card('@a[distance=..64]', name, col, epithet),
              f'execute as @a[distance=..64,tag=!{sensed},gamemode=!spectator] at @s run function bm:cine/{k}/heard')
@@ -110,8 +110,7 @@ def generate(G):
         assert len(rm) == 1, (k, rm)
         keep.insert(rm[0], f'execute as @e[type=minecraft:{ent},tag={new}] at @s run function bm:cine/{k}/start')
         G.FUNCS[summon] = keep
-        fn(f'cine/{k}/heard', [f'tag @s add {sensed}', 'stopsound @s music', 'stopsound @s record',
-                               f'playsound minecraft:{song} record @s ~ ~ ~ 1 1 1'])
+        fn(f'cine/{k}/heard', [f'tag @s add {sensed}', 'stopsound @s music'])     # (its theme: phase152)
         C.gate(G, loops)
         # (its rage freezes it - the rest of that second's turn waits too)
         sec = G.FUNCS[loops[0]]

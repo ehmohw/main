@@ -135,6 +135,7 @@ import phase148 as R148      # 2.79b: boss summons from the raids, the Arachno-L
 import phase149 as R149      # 2.80: the roaming bosses, staged (arrivals, rages, wind-ups, deaths) - the staging kit (cine.py)
 import phase150 as R150      # 2.80: the dungeon bosses, staged (materialising, rages, wind-ups, deaths)
 import phase151 as R151      # 2.80: the heist's climax - the guardian rises, the vault door parts
+import phase152 as R152      # 2.80: boss themes - a synthesised loop per kind of fight, the vault's fanfare
 import phase140 as R140      # 2.78: Tiers IV and V bite back (tougher guards, a tougher Gutter King)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
@@ -1208,6 +1209,7 @@ def build(out_dir):
     R149.generate(sys.modules[__name__])
     if PHASE2: R150.generate(sys.modules[__name__])
     if PHASE2: R151.generate(sys.modules[__name__])
+    R152.generate(sys.modules[__name__])
     # 2.79: the mob rolls (elite, champion, lucky, prime, Blood Moon, invasion) leave alone a mob someone named or froze - a
     #  player's name-tagged pet, Wilfrey's body, the hidden trio's Eggbert, a statue: they were renamed and re-statted
     for _n, _lines in FUNCS.items():

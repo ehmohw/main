@@ -2,7 +2,7 @@
 // reached). Walking into the vault: the guardian RISES - frozen, below the floor and shrunk, the hall dark - then stands at
 // full size on the floor, free, with "The vault's guardian wakes" on the player's screen. Its fall OPENS THE VAULT as an
 // event: the great gold door parts from the middle outward (the middle column first, the edges still gold), then it is
-// all open, the way out swirls and "The vault is open" is on screen. The treasury dressed: chandeliers over the strongbox,
+// all open, the way out swirls and "The vault is open" is on screen; the heist's music hushes for the vault's fanfare. The treasury dressed: chandeliers over the strongbox,
 // candles on the gold, soul-lantern sconces, light enough to see the gold - and the strongbox ring still clear. A heist
 // room dressed in its own look (2.80): the Lever Room's copper frieze, ceiling lights and pipework, above the trim only.
 const { bot, rcon, sleep } = require('./lib_resp');
@@ -53,7 +53,7 @@ const res = [];
      Math.abs((await sz('get')) - (await sz('base get'))) < 0.01, `y ${await by()} scale ${await sz('get')} of ${await sz('base get')}`);
 
   // ---- its fall opens the vault
-  A.titles.length = 0;
+  A.titles.length = 0; const tk = Date.now();
   await run(`${G}data modify entity ${B} DeathLootTable set value "minecraft:empty"`);
   await run(`${G}kill ${B}`);
   const middle = await wait(4000, async () => await isBlock(24, 6, 12, 'minecraft:air'), 50);
@@ -61,6 +61,11 @@ const res = [];
   ok('The guardian falls: the great door parts from the middle (its edges still gold)', middle && edges);
   ok('...then it is all open', await wait(4000, async () => await isBlock(24, 6, 9, 'minecraft:air') && await isBlock(24, 6, 15, 'minecraft:air') && await isBlock(24, 4, 12, 'minecraft:air')));
   ok('..."The vault is open" on the player\'s screen', await wait(3000, async () => A.titles.some(t => /vault is open/.test(t))), A.titles.join(' | ').slice(0, 100));
+  ok('...the heist\'s music holds its breath as the door parts, and the vault\'s fanfare plays (on the jukebox channel)',
+     A.stops.some(st => st.source === 1 && st.t >= tk) && await wait(3000, async () => A.sounds.some(x => x.name === 'bm:music.boss_vault' && x.cat === 2 && x.t >= tk)));
+  await sleep(3000);
+  ok('...no heist track over the fanfare', !A.sounds.some(x => /^bm:music\.gv_/.test(x.name) && x.t >= tk));
+  ok('...then the heist\'s music comes back', await wait(9000, async () => A.sounds.some(x => /^bm:music\.gv_/.test(x.name) && x.t >= tk)));
   ok('...the way out swirls in the treasury', (await num(`execute in bm:gutter as ${V} at @s positioned ${rel(35, 4, 12)} store result score #t bm.rng if entity @e[type=minecraft:marker,tag=bm.exitm,distance=..1.5]`)) === 1);
   ok('...and the sequence is over (the vault ready for the strongbox ring)', await wait(3000, async () => !/bm\.cvault/.test(await run(`${G}data get entity ${V} Tags`))) &&
      (await num(`${G}scoreboard players get ${V} bm.gvs`)) === 2);

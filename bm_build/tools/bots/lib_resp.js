@@ -47,6 +47,14 @@ function bot(name) {
     const c = mc.createClient({ host: '127.0.0.1', port: 25565, username: name, version: '26.1.2', auth: 'offline', hideErrors: true });
     c.seq = 1; c.bars = []; c.chats = []; c.ents = {}; c.pos = null; c.windows = [];
     c.on('error', () => {});
+    // sounds heard (name + channel: 0 master, 1 music, 2 record, ...) and sounds stopped, as the client got them (2.80)
+    c.sounds = []; c.stops = [];
+    c.on('sound_effect', (p) => { try { const b = Buffer.from(p.data && p.data.data ? p.data.data : p.data); let i = 0;
+      const vi = () => { let v = 0, sh = 0, x; do { x = b[i++]; v |= (x & 0x7f) << sh; sh += 7; } while (x & 0x80); return v; };
+      const id = vi(); let name = '#' + (id - 1);
+      if (id === 0) { const n = vi(); name = b.slice(i, i + n).toString('utf8'); i += n; if (b[i++]) i += 4; }
+      c.sounds.push({ name, cat: vi(), t: Date.now() }); } catch (e) {} });
+    c.on('stop_sound', (p) => c.stops.push(Object.assign({ t: Date.now() }, p)));
     c.on('position', (p) => { c.write('teleport_confirm', { teleportId: p.teleportId, x: p.x, y: p.y, z: p.z, yaw: p.yaw, pitch: p.pitch }); c.pos = p; });
     c.on('action_bar', (p) => c.bars.push(text(p.text)));
     c.titles = [];          // (titles and subtitles, as shown)

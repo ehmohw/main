@@ -855,6 +855,8 @@ if __name__ == '__main__':
     phase145.rp(sys.modules[__name__])
     import phase148                           # (2.79b: the boss summons' icons)
     phase148.rp(sys.modules[__name__])
+    import phase152                           # (2.80: the boss themes)
+    phase152.rp(sys.modules[__name__])
     import phase146                           # (2.79: the Portrait of Two - its painting texture)
     phase146.rp(sys.modules[__name__])
     import phase95                            # (after every head model: the faces)
