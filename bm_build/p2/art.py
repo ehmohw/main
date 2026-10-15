@@ -84,9 +84,10 @@ def map_tiles():
 
 def register(G):
     grid, ICONS = G.grid, G.ICONS
-    from p2.trophy_models import TEX, models
-    for d, els in models(G.cube).items():
-        G.HATS[f'trophy3d_{d}'] = (TEX, els)
+    from p2.trophy_models import models, ATLAS
+    for d, (tex, els) in models(G.HATS['crown']).items():        # (2.79a: each boss in miniature, on its plinth)
+        G.HATS[f'trophy3d_{d}'] = (tex, els)
+    G.ATLAS_EXTRA = getattr(G, 'ATLAS_EXTRA', []) + ATLAS
     for d, cfg in D.items():
         c = cfg['color']
         if d in ('brood', 'frost', 'tide', 'hex', 'keep'):

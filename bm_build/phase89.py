@@ -162,6 +162,7 @@ def generate(G):
     fn, wjson, tellraw, title = G.fn, G.wjson, G.tellraw, G.title
     import phase70 as P70
     import phase78 as P78
+    import gild
     import phase60 as P60
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     P = [T('[', 'dark_gray'), T('Black Market', 'dark_purple', bold=True), T('] ', 'dark_gray')]
@@ -277,13 +278,13 @@ def generate(G):
             rec.append(offer(('gutter_trophy', t), (f'fcontract_{k}', 1), gm(m) if m else None))
         rec += [offer(gm(8), (f'cos_outfit_{o}', 1)) for o in OUTFITS]
         for k in P78.RIBBONS:
-            rec.append(offer(('gutter_trophy', 1) if f'cos_ribbon_{k}' in P78.HIDDEN else gm(3), (f'cos_ribbon_{k}', 1)))
+            rec.append(offer(gild.price(f'cos_ribbon_{k}', ('gutter_trophy', 1) if f'cos_ribbon_{k}' in P78.HIDDEN else gm(3)), (f'cos_ribbon_{k}', 1)))
         for k in P78.DRESSES:
-            rec.append(offer(('gutter_trophy', 1) if f'cos_dress_{k}' in P78.HIDDEN else gm(5), (f'cos_dress_{k}', 1)))
+            rec.append(offer(gild.price(f'cos_dress_{k}', ('gutter_trophy', 1) if f'cos_dress_{k}' in P78.HIDDEN else gm(5)), (f'cos_dress_{k}', 1)))
         for k in P78.CELI:
-            rec.append(offer(('gutter_trophy', 1) if f'cos_celi_{k}' in P78.HIDDEN else gm(4), (f'cos_celi_{k}', 1)))
+            rec.append(offer(gild.price(f'cos_celi_{k}', ('gutter_trophy', 1) if f'cos_celi_{k}' in P78.HIDDEN else gm(4)), (f'cos_celi_{k}', 1)))
         for k in P78.ZIB:
-            rec.append(offer(('gutter_trophy', 1) if f'cos_zib_{k}' in P78.HIDDEN else gm(4), (f'cos_zib_{k}', 1)))
+            rec.append(offer(gild.price(f'cos_zib_{k}', ('gutter_trophy', 1) if f'cos_zib_{k}' in P78.HIDDEN else gm(4)), (f'cos_zib_{k}', 1)))
         for g in P60.GEMS:                 # (2.67: the vault's own - flagged, and they never leave it: phase98)
             o = offer(gm(6), (f'gem_{g}', 1))
             o['sell'] = dict(o['sell']); c = o['sell']['components'] = dict(o['sell']['components'])     # (a copy - never the item's own)

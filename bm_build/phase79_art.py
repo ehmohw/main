@@ -412,6 +412,9 @@ def variant_textures(base):
                 out[f'{name}_{v}'] = _irid(im) if name == 'kw_gold' else _eth_tex('kw_face' if name.startswith('kw_face') else name, im)
             elif v == 'wf':
                 out[f'{name}_{v}'] = _wf_tex('kw_face' if name.startswith('kw_face') else name, im)
+            elif v == 'c4':                                 # (2.79a: Golden Thunder - polished gold, gild.py)
+                import gild
+                out[f'{name}_{v}'] = gild.metal(im)
             else:
                 body, acc = EL_PAL[v]
                 mid = '#%02x%02x%02x' % _mix(hexc(acc[0])[:3], hexc(acc[1])[:3], 0.55)

@@ -18,13 +18,14 @@ from nbt import snbt, B, F, D, Int
 PINK = '#ff8ad0'
 RIBBONS = {1: ('Gold', '#e8b830'), 2: ('Midnight', '#3a3a9a'), 3: ('Mint', '#5ad8a8'), 4: ('Snow', '#f0f2fa'), 5: ('Crimson', '#d02a3a'), 6: ('Phantom', '#7a3adf')}
 DRESSES = {1: ('Sundress', '#f0c040', '#d8a020'), 2: ('Midnight Gown', '#2c2c66', '#1e1e48'), 3: ('Sakura', '#f4a8c8', '#e088b0'),
-           4: ('Royal Gown', '#f4efe2', '#d8c890'), 5: ('Starlight Gown', '#3c1c74', '#28105a')}
-CELI = {1: ('Aurora', '#5ad8a8', '#3ab088'), 2: ('Rosehip', '#e07a98', '#c05878'), 3: ('Midnight', '#3a3a80', '#2a2a64'), 4: ('Frostfire', '#ff9a4a', '#e07428')}
+           4: ('Royal Gown', '#f4efe2', '#d8c890'), 5: ('Starlight Gown', '#3c1c74', '#28105a'), 6: ('Gilded Gown', '#ffcf40', '#e0a820')}   # (6: 2.79a)
+CELI = {1: ('Aurora', '#5ad8a8', '#3ab088'), 2: ('Rosehip', '#e07a98', '#c05878'), 3: ('Midnight', '#3a3a80', '#2a2a64'), 4: ('Frostfire', '#ff9a4a', '#e07428'),
+        5: ('Gilded', '#ffcf40', '#e0a820')}   # (5: 2.79a)
 ZIB = {1: ('Crimson Guard', '#8a1a2a'), 2: ('Forest Ranger', '#2a5a30'), 3: ('Golden Ace', '#c8962a')}
-HIDDEN = {'cos_ribbon_6', 'cos_dress_5', 'cos_celi_4', 'cos_zib_3'}
+HIDDEN = {'cos_ribbon_6', 'cos_dress_5', 'cos_celi_4', 'cos_zib_3', 'cos_dress_6', 'cos_celi_5'}   # (2.79a: the gilded ones only at the Tailor)
 DYE = {'Gold': 'yellow', 'Midnight': 'blue', 'Mint': 'lime', 'Snow': 'white', 'Crimson': 'red', 'Phantom': 'purple', 'Sundress': 'yellow',
        'Midnight Gown': 'blue', 'Sakura': 'pink', 'Royal Gown': 'white', 'Starlight Gown': 'purple', 'Aurora': 'lime', 'Rosehip': 'pink',
-       'Frostfire': 'orange', 'Crimson Guard': 'red', 'Forest Ranger': 'green', 'Golden Ace': 'yellow'}
+       'Frostfire': 'orange', 'Crimson Guard': 'red', 'Forest Ranger': 'green', 'Golden Ace': 'yellow', 'Gilded Gown': 'yellow', 'Gilded': 'yellow'}
 
 
 def _cos(iid, title, col, who, what, use):
@@ -189,15 +190,16 @@ def textures():
         out[f'em2_pink_r{k}'] = _tint(E['em2_pink'], c)
         dk = '#' + ''.join(f'{max(0, int(int(c[i:i + 2], 16) * 0.72)):02x}' for i in (1, 3, 5))
         out[f'em2_pinkdark_r{k}'] = _tint(E['em2_pinkdark'], dk)
+    import gild                                  # (2.79a: the gilded ones in polished gold - gild.py)
     for d, (nm, c, c2) in DRESSES.items():
-        out[f'em2_blue_d{d}'] = _tint(E['em2_blue'], c, BLUES)
-        out[f'em2_chest_d{d}'] = _tint(E['em2_chest'], c, BLUES)
-        out[f'em2_skirt_d{d}'] = _tint(E['em2_skirt'], c2, BLUES)
+        out[f'em2_blue_d{d}'] = gild.metal(E['em2_blue']) if gild.is_gilded('emma', d) else _tint(E['em2_blue'], c, BLUES)
+        out[f'em2_chest_d{d}'] = gild.metal(E['em2_chest']) if gild.is_gilded('emma', d) else _tint(E['em2_chest'], c, BLUES)
+        out[f'em2_skirt_d{d}'] = gild.metal(E['em2_skirt']) if gild.is_gilded('emma', d) else _tint(E['em2_skirt'], c2, BLUES)
     for k, (nm, c, c2) in CELI.items():
-        out[f'ce_tunic_o{k}'] = _tint(C['ce_tunic'], c, BLUES)
-        out[f'ce_skirt_o{k}'] = _tint(C['ce_skirt'], c2, BLUES)
+        out[f'ce_tunic_o{k}'] = gild.metal(C['ce_tunic']) if gild.is_gilded('celi', k) else _tint(C['ce_tunic'], c, BLUES)
+        out[f'ce_skirt_o{k}'] = gild.metal(C['ce_skirt']) if gild.is_gilded('celi', k) else _tint(C['ce_skirt'], c2, BLUES)
     for k, (nm, c) in ZIB.items():
-        out[f'adon_trooper_u{k}'] = _tint(Z['adon_trooper'], c, (0.5, 0.75))
+        out[f'adon_trooper_u{k}'] = gild.metal(Z['adon_trooper']) if gild.is_gilded('zib', k) else _tint(Z['adon_trooper'], c, (0.5, 0.75))
     return out
 
 

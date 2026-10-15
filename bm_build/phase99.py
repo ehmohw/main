@@ -34,7 +34,8 @@ NEW = {'leo': ('Leo', '#5ab8e0', 'Tabard', {1: ('Crimson Crusader', ('#2a0408', 
        'frog': ('the Frog with Mustache', '#6ac850', 'Skin', {1: ('Bluejay', ('#1a2a6a', '#3a7ae0', '#8ac8ff')), 2: ('Ember Toad', ('#4a0e04', '#d0501a', '#ffa060')),
                                                              3: ('Old Bog', ('#2a1a0a', '#7a5430', '#c09a6a')), 4: ('Golden Prince', ('#3a2806', '#e0b02a', '#fff0a0'))}),
        'don': ('Donado', '#e8d29a', 'Coat', {1: ('Chocolate', ('#1a0e06', '#5a3418', '#a07048')), 2: ('Midnight', ('#08080c', '#2a2a34', '#7a7a8a')),
-                                           3: ('Snowdrift', ('#8a8a90', '#dcdce0', '#ffffff')), 4: ('Starlit', ('#0a0626', '#4a2a9a', '#b49aff'))}),
+                                           3: ('Snowdrift', ('#8a8a90', '#dcdce0', '#ffffff')), 4: ('Starlit', ('#0a0626', '#4a2a9a', '#b49aff')),
+                                           5: ('Gilded', ('#3a2806', '#e0b030', '#fff0a0'))}),        # (5: 2.79a - his gilded coat)
        'pearl': ('Pearlman', '#5ac8ff', 'Bow Tie', {1: ('Ruby', ('#3a0408', '#c0202a', '#ff7a80')), 2: ('Emerald', ('#04260e', '#1a9a44', '#7aff9a')),
                                                     3: ('Amethyst', ('#1a0630', '#7a3ac0', '#d0a0ff')), 4: ('Gilded', ('#3a2806', '#e0b030', '#fff0a0'))}),
        'fishy': ('Fishy', '#ffa040', 'Top Hat', {1: ('Midnight Silk', ('#06081c', '#1e2a6a', '#6a7ad0')), 2: ('Crimson Opera', ('#22040a', '#8a1a24', '#e05a64')),
@@ -114,9 +115,11 @@ def textures():
     import phase96_art as LA, phase97_art as DA, phase45
     base = {'leo': LA.textures(), 'demo': DA.textures(), 'cecil': phase45.textures()}
     out = {}
+    import gild
     for w, keys in RECOLOUR.items():
         for k, (_n, pal) in NEW[w][3].items():
-            for name, im in _recolour({n: base[w][n] for n in keys}, pal).items():
+            ims = {n: gild.metal(base[w][n]) for n in keys} if gild.is_gilded(w, k) else _recolour({n: base[w][n] for n in keys}, pal)   # (2.79a: polished gold)
+            for name, im in ims.items():
                 out[f'{name}_c{k}'] = im
     return out
 
@@ -333,14 +336,14 @@ def generate(G):
     G.FUNCS['p57/act'].insert(2, 'execute if score #act bm.pay matches 7306 run return run function bm:p99/menu/emma')
 
     # ================================================================== Goldtooth sells the new ones (Gutter Medallions; the hidden ones a Gutter Trophy)
-    import phase70 as P70
+    import phase70 as P70, gild
     from gen_dp import offer
     prev = P70.goldtooth
     def g99():
         d = prev()
         for w in NEW:
             for k in NEW[w][3]:
-                d['Offers']['Recipes'].append(offer(('gutter_trophy', 1) if k == HIDDEN else ('gutter_medallion', 4), (f'cos_{w}_{k}', 1)))
+                d['Offers']['Recipes'].append(offer(gild.price(f'cos_{w}_{k}', ('gutter_trophy', 1) if k == HIDDEN else ('gutter_medallion', 4)), (f'cos_{w}_{k}', 1)))
         return d
     P70.goldtooth = g99
     L = G.FUNCS['p70/r/lobby/init']

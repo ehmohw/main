@@ -127,6 +127,13 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
   him. Clear both when setting the stage.
 - Summoning several followers one after another: wait ~2.3 s between the items (the shared `bm.gvhc` debounce, above),
   or one of them silently doesn't come (t134).
+- Particles reach the bot raw (`world_particles` gives `{data: Buffer}`, not parsed fields). In 26.3 the particle comes
+  first (its type as a varint, then its own data), then the two flags, then x, y and z as big-endian doubles. A dust
+  particle is type 21 with a colour int and a scale float, so its x is at byte 11 and its z at byte 27 (t165).
+- Tailor purchases of follower outfits go straight into the follower's wardrobe (the `bm.wu<w>` bits); no item lands in
+  the pack. Test the item's own use with `loot replace ... bm:items/<id>` and clear the wardrobe bit first (t165).
+- Donado (and anything else with a rig) gets new parts on its first second out: the old one-piece body is killed. Read
+  the rig's parts (`bm.dnr_torso` and so on), not `bm.dn_body` (t165).
 
 ## Index
 
@@ -317,6 +324,7 @@ and function calls. Three are known to be stale.
 | `t162.js` | 2.79: Fishy's Cabinet of Curiosities - Fishy at his desk in the Lounge, right-clicked empty-handed: he joins you (his Pocket Bowl); again: the Cabinet's menu, a wing's page (twenty veiled exhibits with riddles), set out in the hall; a rare thing shown to him: recorded world-wide with your name, announced, its case and plaque in the hall - and the thing itself kept; shown twice: "already"; an ordinary thing: not for the cabinet; a lost bowl reissued; shown to your own Fishy out in the world. As an admin, a wing filled: its rosette and advancement to who gave to it (set up and taken back by sneak + use / sneak + punch), his power learned on the powers page, his claws wither a husk |
 | `t163.js` | 2.79: Fishy, the owner's follower checklist - called with his bowl (nine-part rig; a poor fighter: 30 health, 1-point claw); his menu (Sit / follow, Send him home, The Cabinet, Fishy's powers, Wardrobe); sat from the menu and by a right-click (state 4, sit/sit_b), up again; a top hat used while he's out (worn, kept across send-home and Call, put back); his aura (locked row, used, on, off); his Raid Contract signed; the bowl in an item frame (he climbs out, stays, goes when punched out); his display-case figurine (nine parts, inside the glass); Cecil's doll bought in a real trade, set down, twirled, picked up; struck down: he faints, five minutes on the bowl. As an admin, every wing filled: the Golden Bowl - gilded limbs, 130 health, armour 10, the Grand Exhibition on a foe (replicas, then gone) |
 | `t164.js` | 2.79: the Portrait of Two - bought from the Fence in a real trade (his window, its trade picked, taken out), a painting that carries its picture; used on a wall (a block-face click): it hangs the portrait, 5 x 4; punched down: it comes back as the portrait, not a random painting. The mob roll's manners: twenty named zombies and twenty frozen (NoAI) ones seen and never renamed; two hundred plain ones - some still rolled |
+| `t165.js` | 2.79a: Gilded - the Lounge Tailor's Leo page shows the Golden Champion at 2,560 coins; pressed: in his wardrobe for good, 2,560 coins out of the bank (3000 -> 440); Donado's page lists his new Gilded coat at the same price; the item's lore (polished gold, the Tailor's dearest). Leo called, the outfit used: worn (c4 tabard), and gold motes reach the client round him (decoded from the raw particle packets); his own clothes: none. Wilfrey in the Gilded Sun: the sun shield with a glint, a golden chestplate (asset gold) where he wore none; the Crimson Cross: his own gear and a red shield. Donado called (rigged) in his Gilded coat: torso and head `_c5`, his eyes his own; back in his own coat: plain parts |
 |  | home (from her menu), and with Wilfrey out a fourth follower refused. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
