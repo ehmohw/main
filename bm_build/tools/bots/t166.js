@@ -128,7 +128,11 @@ const res = [];
     await run(`scoreboard players set #gt bm.rng ${tier}`); await run(`scoreboard players set #gn bm.rng ${night}`);
     for (let i = 0; i < runs; i += 10) {
       for (const b of [HA, HB]) await run(`${G}data remove block ${b} Items`);
-      for (let j = 0; j < 10; j++) await run('execute as TestRat at @s run function bm:p105/finds');
+      // (#gt and #gn are shared scratch - other ticking functions use #gt too - so set them right before every roll, as the payout does)
+      for (let j = 0; j < 10; j++) {
+        await run(`scoreboard players set #gt bm.rng ${tier}`); await run(`scoreboard players set #gn bm.rng ${night}`);
+        await run('execute as TestRat at @s run function bm:p105/finds');
+      }
       for (const iid of SUMS) s += await inBarrels(iid);
       g += await inBarrels('sum_lantern');
     }

@@ -120,8 +120,9 @@ def generate(G):
         ['execute store result score #r bm.rng run random value 1..100',
          f'execute if score #gn bm.rng matches 1 if score #gt bm.rng matches 3.. if score #r bm.rng matches ..{LANTERN_CHANCE} run function bm:p148/find/lantern']
     keys = list(SUMMON)
-    fn('p148/find/boss', [f'execute store result score #r bm.rng run random value 1..{len(keys)}'] +
-       [f'execute if score #r bm.rng matches {i} run function bm:p148/find/{k}' for i, k in enumerate(keys, 1)])
+    # (its own roll, #sb: the caller's #r stays as it was)
+    fn('p148/find/boss', [f'execute store result score #sb bm.rng run random value 1..{len(keys)}'] +
+       [f'execute if score #sb bm.rng matches {i} run function bm:p148/find/{k}' for i, k in enumerate(keys, 1)])
     for k, (iid, nm, col, _t, _ty, _tag, _d, who, _l0) in SUMMON.items():
         fn(f'p148/find/{k}', ins(f'bm:p148/{k}') + [
             tellraw('@a', P + [{'selector': '@s', 'color': 'white'}, T(' found a ', 'gray'), T(nm, col, bold=True), T(f' in a won heist - it calls {who}!', 'gray')]),

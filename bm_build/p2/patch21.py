@@ -95,6 +95,16 @@ def generate(G, builds):
             second.append(f'execute as @e[type=minecraft:marker,tag=bm.dg,tag=bm.d_{d},tag=!{done}] at @s rotated ~ 0 '
                           f'positioned ^{x - gx} ^{y - gy} ^{z - gz} if entity @a[distance=..24] if block ~ ~ ~ minecraft:vault '
                           f'run function bm:p2/{d}/vaultfix{i}')
+    # ---------------- 2.79c: the Hex chapel's witch spawner, lost under a pew row until now - put into the Hex dungeons that
+    # generated without it (into air only; once a dungeon)
+    H = builds['hex']
+    gx, gy, gz = dg_pos(H)
+    (x, y, z, cfg), = [s for s in H.meta['spawners'] if s[3] == 'witches']
+    at = f'^{x - gx} ^{y - gy} ^{z - gz}'
+    fn('p2/hex/witchfix', [f'execute if block {at} minecraft:air run setblock {at} minecraft:trial_spawner[ominous=false,trial_spawner_state=inactive]'
+                           f'{{normal_config:"bm:hex/{cfg}",ominous_config:"bm:hex/{cfg}_ominous",required_player_range:14,target_cooldown_length:36000}}',
+                           'tag @s add bm.hexw79'])
+    second.append('execute as @e[type=minecraft:marker,tag=bm.dg,tag=bm.d_hex,tag=!bm.hexw79] at @s rotated ~ 0 if entity @a[distance=..40] run function bm:p2/hex/witchfix')
     # ---------------- 2.76: stash vaults (beside each trial spawner) in dungeons that generated before them - the
     # dungeon's turn is read off its spoils vault's facing, then the stashes go down (only into air) with their markers
     from nbt import Double

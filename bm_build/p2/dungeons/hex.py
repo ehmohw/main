@@ -67,7 +67,7 @@ def build():
 
     # ---------------- A: narthex + nave (combat), pews, east chapel (P1), west hidden archive
     B.trial_spawner(18, GY, 14, 'vindicators')
-    B.trial_spawner(30, GY, 18, 'witches')
+    B.trial_spawner(30, GY, 17, 'witches')          # (2.79c: was z18, under a pew row - the pews overwrote it, so it never spawned)
     for z in range(9, 21, 3):
         for x in list(range(16, 22)) + list(range(27, 33)):
             B.set(x, GY, z, 'dark_oak_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]')

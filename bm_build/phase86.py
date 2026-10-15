@@ -216,7 +216,7 @@ def generate(G):
     hb[-1:-1] = ['setblock -253 64 -242 minecraft:barrel[facing=up]', 'kill @e[type=minecraft:marker,tag=bm.gvscrap,x=-253,y=64,z=-242,distance=..1]',
                  'summon minecraft:marker -252.5 64 -241.5 {Tags:["bm.gvscrap"]}',
                  'summon minecraft:text_display -252.5 65.6 -241.5 ' + box_label.replace('"bm.gvprop"', '"bm.lkt"')]
-    fn('admin/gutter_money', [G.give('gutter_medallion', 16), G.give('gutter_trophy', 2), G.give('stolen_watch', 4), G.give('forged_seal', 4), G.give('smugglers_ledger', 4)])
+    fn('admin/gutter_money', [G.give('gutter_medallion', 16), G.give('gutter_trophy', 2)])     # (2.79c: no curios - no haul has had them since 2.68)
 
     s = G.FUNCS['loop/second']
     s[-1:-1] = second

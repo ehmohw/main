@@ -38,7 +38,7 @@ HEAD = '*[minecraft:custom_data~{bm_head:1b}]'
 VARIANTS = {1: ('horseman_head', "Horseman's Head", ORANGE, 'hellfire_edge', 'minecraft:flame', 'bm:hellfire'),
             2: ('soul_head', 'Soulfire Head', '#5ad8ff', 'soulfrost_edge', 'minecraft:soul_fire_flame', 'bm:soulfrost'),
             3: ('venom_head', 'Venomfire Head', '#7aff4a', 'venom_edge', 'minecraft:copper_fire_flame', 'bm:venomfire'),
-            4: ('hallowed_head', 'Hallowed Head', '#ff8ac8', None, 'minecraft:end_rod', 'bm:hallowed')}
+            4: ('hallowed_head', 'Hallowed Head', '#ff8ac8', None, 'minecraft:end_rod', None)}          # (it heals: no ray damage)
 COPPER = ['copper_lantern', 'exposed_copper_lantern', 'weathered_copper_lantern', 'oxidized_copper_lantern', 'waxed_copper_lantern',
           'waxed_exposed_copper_lantern', 'waxed_weathered_copper_lantern', 'waxed_oxidized_copper_lantern']
 FOES_EXTRA = ['zombified_piglin', 'piglin', 'warden', 'wither', 'elder_guardian', 'ender_dragon']
@@ -142,7 +142,7 @@ def generate(G):
 
     # ------------------------------------------------------------------ registry bits
     for name, msg, extra in [('hellfire', 'bm.hellfire', {'effects': 'burning'}), ('soulfrost', 'bm.soulfrost', {'effects': 'freezing'}),
-                             ('venomfire', 'bm.venomfire', {}), ('hallowed', 'bm.hallowed', {})]:
+                             ('venomfire', 'bm.venomfire', {})]:
         wjson(f'bm/damage_type/{name}.json', dict({'exhaustion': 0.1, 'message_id': msg, 'scaling': 'when_caused_by_living_non_player'}, **extra))
     wjson('minecraft/tags/damage_type/is_freezing.json', {'replace': False, 'values': ['bm:soulfrost']})
     wjson('bm/tags/entity_type/p42_foe.json', {'values': ['#bm:hostile'] + [{'id': f'minecraft:{e}', 'required': False} for e in FOES_EXTRA]})
@@ -928,8 +928,7 @@ def rp(R):
     R.TEXTURE_MODS.append(sys.modules[__name__])
     R.LANG.update({'death.attack.bm.hellfire': '%1$s was consumed by hellfire', 'death.attack.bm.hellfire.player': '%1$s was consumed by %2$s\'s hellfire',
                    'death.attack.bm.soulfrost': '%1$s was frozen by soul fire', 'death.attack.bm.soulfrost.player': '%1$s was frozen solid by %2$s\'s soul fire',
-                   'death.attack.bm.venomfire': '%1$s was melted by venomous fire', 'death.attack.bm.venomfire.player': '%1$s was melted by %2$s\'s venomous fire',
-                   'death.attack.bm.hallowed': '%1$s was seared by holy light', 'death.attack.bm.hallowed.player': '%1$s was seared by %2$s\'s holy light'})
+                   'death.attack.bm.venomfire': '%1$s was melted by venomous fire', 'death.attack.bm.venomfire.player': '%1$s was melted by %2$s\'s venomous fire'})
 
     def post(R2):
         full = [0, 0, 16, 16]

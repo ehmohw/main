@@ -219,7 +219,8 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
   const lbl = async (i, j) => (await run(`data get storage bm:ui crew.acts[${i}].label[${j}].text`)).replace(/^.*(data|contents): /, '').replace(/"/g, '');
   await run('execute as TestRat at @s run function bm:p98/crew'); await sleep(200);
   const r0 = [await lbl(0, 0), await lbl(0, 2)], r1 = [await lbl(1, 0), await lbl(1, 2)];
-  let cecilSt = ''; for (let i = 2; i < 10; i++) { if ((await lbl(i, 0)) === 'Cecil') { cecilSt = await lbl(i, 2); break; } }
+  // (every follower has a row now: Cecil, at the back, is far down)
+  let cecilSt = ''; for (let i = 2; i < 24; i++) { if ((await lbl(i, 0)) === 'Cecil') { cecilSt = await lbl(i, 2); break; } }
   ok('The page: the ones in the vault first, in line order, each saying so', r0[0] === 'Emma' && r0[1] === 'IN THE VAULT' && r1[0] === 'Celi' && r1[1] === 'IN THE VAULT', `${r0} | ${r1}`);
   ok('...Cecil, at the back, says he\'s waiting (crew full)', /WAITING/.test(cecilSt), cecilSt);
   // (2.74: alone, THREE come along - Zib, next in line, took the third place when Cecil went to the back)
@@ -227,7 +228,7 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
      `${(await run('data get storage bm:ui crew.fc')).replace(/.*data: /, '')}/${(await run('data get storage bm:ui crew.lim')).replace(/.*data: /, '')}`);
   await run('execute in bm:gutter run kill @e[type=cat,tag=bm.emmapet,distance=0..]'); await sleep(2500);
   await run('execute as TestRat at @s run function bm:p98/crew'); await sleep(200);
-  let emSt = ''; for (let i = 0; i < 10; i++) { if ((await lbl(i, 0)) === 'Emma') { emSt = await lbl(i, 2); break; } }
+  let emSt = ''; for (let i = 0; i < 24; i++) { if ((await lbl(i, 0)) === 'Emma') { emSt = await lbl(i, 2); break; } }
   ok('Emma faints: her row says RESTING, with the seconds left', /RESTING 4\ds/.test(emSt), emSt);
   await until(async () => (await fcnt('bm.kxpet')) === 1, 6000);
   ok('...and the next in line steps in (KillerWatt - before Cecil, who went to the back)', (await fcnt('bm.kxpet')) === 1 && (await fcnt('bm.cecilpet')) === 0);

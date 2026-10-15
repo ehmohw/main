@@ -66,7 +66,8 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     for (const k of [0, 1, 2]) { await use(A, k); await sleep(2300); }      // (follower items share a 2 s use debounce, bm.gvhc)
     await run('scoreboard players set TestRat bm.conq 5'); await run('scoreboard players set TestRat bm.conqb 5');
     const three = async () => (await cnt('@e[type=minecraft:cat,tag=bm.emmapet]')) === 1 && (await cnt('@e[type=minecraft:wolf,tag=bm.leopet]')) === 1 && (await cnt('@e[type=minecraft:wolf,tag=bm.cecilpet]')) === 1;
-    ok('(in the den with the seal\'s mark, and Emma, Leo and Cecil with the bot)', await inDen() && await three());
+    const who = async () => `emma ${await cnt('@e[type=minecraft:cat,tag=bm.emmapet]')} leo ${await cnt('@e[type=minecraft:wolf,tag=bm.leopet]')} cecil ${await cnt('@e[type=minecraft:wolf,tag=bm.cecilpet]')}`;
+    ok('(in the den with the seal\'s mark, and Emma, Leo and Cecil with the bot)', await inDen() && await wait(3000, three), `${JSON.stringify(await epos('TestRat'))} ${await who()}`);
     A.bars.length = 0; await run('scoreboard players set #apwake bm.p2 1'); await sleep(5500);
     ok('...but the Hollow King not felled by this player: he doesn\'t rise', !(await cnt(boss)));
     ok('..."He rises only when one who has beaten the Hollow King comes back with Emma, Leo and Cecil"', /has beaten the Hollow King comes back/.test(A.bars.join(' ')), A.bars.slice(-1).join('').slice(0, 140));
@@ -233,7 +234,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     const wing = await nbt('@e[type=minecraft:item_display,tag=bm.app_wingr,tag=bm.apb,limit=1]', 'transformation.scale');
     ok('...on violet wings (shown)', /\[([1-9][\d.]*)f/.test(wing), wing);
     const seen2 = new Set(); let sawOrb = false, sawFangs = false, vexMax = 0, high = 0;
-    for (let k = 0; k < 240 && !(k >= 160 && sawOrb && sawFangs); k++) {
+    for (let k = 0; k < 480 && !(k >= 160 && sawOrb && sawFangs); k++) {      // (the grand fangs are a 16% pick: give them time)
       await hold(0.25, 0.4);
       const a = await sc(boss, 'bm.apatk'); if (a > 0) seen2.add(a);
       if (await cnt('@e[type=minecraft:item_display,tag=bm.aporb]')) sawOrb = true;

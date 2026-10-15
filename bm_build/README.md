@@ -1,4 +1,4 @@
-# Black Market — v2.79b (Java 26.3)
+# Black Market — v2.79c (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,22 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.79c: polish and fixes
+
+### Fixes
+- **The Hex Cathedral's witch spawner is back.** The second trial spawner in the nave was built under a row of pews, so it never existed and no witches came. It now stands between the pews on the east side. Hex dungeons that already generated get it too, the first time a player comes near (once, into empty space only).
+- **The Hallowed Head** (the Horseman's healing form) no longer carries an unused damage type and death message.
+
+### Cleanup
+- **Old loot tables and item modifiers that nothing used any more are gone:** the pre-2.68 night hauls, the old Scrap Box table, the supply-crate tables, and the old altar's take-and-socket modifiers. The build now removes a retired data file only when nothing references it.
+- **The heist haul's leftover curio pools are gone.** They had been replaced by the coin hauls in 2.68 and never reached the game. The curios themselves stay, for old inventories and the Scrap Box.
+- `admin/gutter_money` now gives only Medallions and Trophies (no curios).
+- **The build now stops if any dungeon's trial spawner is built over,** so this kind of bug can't come back unnoticed.
+
+### Testing
+- **New bot playtest (t167):** places a Hex Cathedral; checks both spawners; walks up as a regular player until witches come; then checks the old-dungeon repair.
+- **Older playtests brought up to date:** t96 (Leo, the cosmetics that stay on, the Ethereal Gem), t105 (the Raid Crew page), t134 (Apophiss) and t166 (the boss summons' haul rolls). They had drifted from the current pack, or from leftover bot state, and now pass in full.
 
 ## New in 2.79b: calling the bosses, Democratus' heir, and Leo in diamond
 

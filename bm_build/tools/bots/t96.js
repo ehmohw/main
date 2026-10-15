@@ -27,7 +27,8 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 12.5} 180 0`); await run('gamemode survival TestRat'); await run('clear TestRat'); await run('effect clear TestRat');
   await run('effect give TestRat minecraft:resistance 600 4 true'); await run('effect give TestRat minecraft:saturation 600 4 true');
   await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid');
-  for (const o of ['bm.cosr', 'bm.cosd', 'bm.coso', 'bm.cosc', 'bm.cosz', 'bm.emcd', 'bm.zbcd', 'bm.cecd', 'bm.lecd', 'bm.fcon', 'bm.cpel', 'bm.cpcd']) await run(`scoreboard players reset TestRat ${o}`);
+  // (bm.emwf / bm.emst: a Wraithfire Emma left switched on by another test keeps her ethereal for good - no dress, other buffs)
+  for (const o of ['bm.cosr', 'bm.cosd', 'bm.coso', 'bm.cosc', 'bm.cosz', 'bm.emcd', 'bm.zbcd', 'bm.cecd', 'bm.lecd', 'bm.fcon', 'bm.cpel', 'bm.cpcd', 'bm.emwf', 'bm.emst']) await run(`scoreboard players reset TestRat ${o}`);
   await run('advancement revoke TestRat only bm:story/leo_friend'); await run('advancement revoke TestRat only bm:story/leo_celi'); await run('advancement revoke TestRat only bm:story/leo_emma');
   await clearPets(); await run(`kill @e[type=marker,tag=bm.lefort]`); await run(`kill @e[type=interaction,tag=bm.leenc]`); await run('kill @e[type=drowned]');
   for (const [n, i] of ['emma_ribbon', 'celi_charm', 'donadian_medal', 'cecil_gem'].entries()) await run(`loot replace entity TestRat container.${9 + n} loot bm:items/${i}`);
@@ -111,7 +112,8 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   const gdbg = `hp ${await fl('data get entity TestRat Health')} leg ${await num('scoreboard players get @e[type=wolf,tag=bm.leopet,limit=1] bm.leg')} z ${await cnt('@e[type=zombie,tag=bm.t96z]')} eff ${(await run('data get entity TestRat active_effects')).slice(-150)}`;
   ok('You at 3 hearts with a zombie about: Leo is on guard - Resistance II and absorption for you', /: 1b?$/.test(gres.trim()) && /absorption/.test(await run('data get entity TestRat active_effects')) &&
      (await num('scoreboard players get @e[type=wolf,tag=bm.leopet,limit=1] bm.leg')) >= 25, gres + ' ' + gdbg);
-  const f2 = await cmd('type=item_display,tag=bm.lp_head,tag=!bm.leencp');
+  let f2 = '';      // (faces change every few ticks: watch for it a moment, not one snapshot)
+  for (let i = 0; i < 12 && !/worried|blink/.test(f2); i++) { f2 = await cmd('type=item_display,tag=bm.lp_head,tag=!bm.leencp'); if (!/worried|blink/.test(f2)) await sleep(150); }
   ok('...and he looks worried for you', /worried|blink/.test(f2), f2);
   await run('effect give TestRat minecraft:instant_health 1 4 true'); await run('effect give TestRat minecraft:resistance 600 4 true'); await run('effect give TestRat minecraft:saturation 600 4 true');
   await run('kill @e[type=zombie,tag=bm.t96z]'); await sleep(600);
@@ -148,8 +150,9 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   await hold('fcontract_leo'); await press(false);
   ok('Raid Contract: Leo (signed for good)', (Math.floor((await sc('bm.fcon')) / 1) & 0) === 0 && (await sc('bm.fcon')) > 0 && (await inv('fcontract_leo')) === 0, `fcon ${await sc('bm.fcon')}`);
   const DP = BMB + 'out_p2/BlackMarket_DP/data/bm';
-  const vil = t => fs.readFileSync(`${DP}/function/p70/r/lobby/init.mcfunction`, 'utf8').split('\n').filter(l => l.includes(t) && /summon minecraft:villager/.test(l)).join('\n');
-  const rec = vil('bm.gvrec'), gtd = vil('bm.gvgt');
+  // (the Recruiter is a dialog shop since 2.67 - his stock is the p137/rc pages; Goldtooth's villager trades are still in the lobby)
+  const rec = fs.readdirSync(`${DP}/function/p137/rc`).map(f => fs.readFileSync(`${DP}/function/p137/rc/${f}`, 'utf8')).join('\n');
+  const gtd = fs.readFileSync(`${DP}/function/p70/r/lobby/init.mcfunction`, 'utf8').split('\n').filter(l => l.includes('bm.gvgt') && /summon minecraft:villager/.test(l)).join('\n');
   ok('The Recruiter sells his contract - and nobody the Ethereal Gem', rec.includes('fcontract_leo') && !rec.includes('ethereal_gem') && !gtd.includes('ethereal_gem'), `len ${rec.length}/${gtd.length}`);
 
   // ================================================================== COSMETICS STAY ON
@@ -226,7 +229,8 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   const eh = await cmd('type=item_display,tag=bm.ep_head');
   ok('...a hit: her hurt face', /hurt/.test(eh), eh);
   await run(`summon minecraft:zombie ~ ~ ~ {Tags:["bm.t96z"],NoAI:1b,PersistenceRequired:1b}`.replace('~ ~ ~', `${X + 0.5} ${Y} ${Z + 16.5}`)); await sleep(1400);
-  const es = await cmd('type=item_display,tag=bm.ep_head');
+  let es = '';
+  for (let i = 0; i < 12 && !/serious|blink/.test(es); i++) { es = await cmd('type=item_display,tag=bm.ep_head'); if (!/serious|blink/.test(es)) await sleep(150); }
   ok('...a monster close: serious', /serious|blink/.test(es), es);
   await run('kill @e[type=zombie,tag=bm.t96z]');
   await run('execute as @e[type=cat,tag=bm.emmapet] at @s run function bm:p62/emma_go'); await sleep(400);

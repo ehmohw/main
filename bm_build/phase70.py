@@ -844,26 +844,8 @@ def generate(G):
         return {'pools': [{'rolls': 1, 'entries': [dict(loot_entry(i, c), weight=w) if i in ITEMS else {'type': 'minecraft:item', 'name': i, 'weight': w,
                                                                                                          'functions': [{'function': 'minecraft:set_count', 'count': c}] if c else []}
                                                    for i, w, c in entries]}]}
-    # (2.67) the Black Market haul: no Tokens, Medallions or BM Trophies here - they come only from the Fixer's capped prize (phase75
-    #        p75/prize); fewer coins; the Fence's curios (phase86) to sell to the Scrap Box. The other hauls: phase86.
-    tiers = {
-        1: [('gutter_coin', 24, uni(1, 2)), ('stolen_watch', 8, None), ('minecraft:gold_ingot', 34, uni(3, 8)), ('minecraft:emerald', 26, uni(2, 6)), ('clockwork_fragment', 8, None),
-            ('heisters_shiv', 4, None), ('smoke_bomb', 10, uni(1, 2)), ('skeleton_lockpick', 5, None), ('smugglers_boots', 2, None)],
-        2: [('gutter_coin', 24, uni(1, 3)), ('stolen_watch', 6, None), ('forged_seal', 6, None), ('minecraft:gold_block', 22, uni(1, 3)), ('minecraft:diamond', 18, uni(1, 3)), ('clockwork_fragment', 10, None),
-            ('heisters_shiv', 4, None), ('vault_breaker', 3, None), ('thiefs_cowl', 3, None), ('smugglers_boots', 3, None), ('smoke_bomb', 10, uni(1, 2)),
-            ('skeleton_lockpick', 6, None), ('minecraft:emerald', 10, uni(3, 7))],
-        3: [('gutter_coin', 24, uni(2, 4)), ('forged_seal', 6, None), ('smugglers_ledger', 4, None), ('minecraft:diamond', 22, uni(2, 4)), ('clockwork_fragment', 10, None), ('vault_breaker', 4, None), ('coinslinger', 4, None),
-            ('thiefs_cowl', 4, None), ('cipher_monocle', 3, None), ('gilded_staff_topper', 2, None), ('golden_spear', 2, None), ('frog_monocle', 2, None),
-            ('skeleton_lockpick', 6, None), ('minecraft:gold_block', 12, uni(2, 4))],
-        4: [('gutter_coin', 24, uni(3, 5)), ('forged_seal', 5, None), ('smugglers_ledger', 5, None), ('minecraft:diamond_block', 12, uni(1, 2)), ('minecraft:gold_block', 12, uni(2, 4)), ('clockwork_fragment', 10, None),
-            ('coinslinger', 5, None), ('gutter_cutlass', 5, None), ('cipher_monocle', 4, None), ('gilded_staff_topper', 3, None), ('golden_spear', 3, None),
-            ('frog_monocle', 3, None), ('minecraft:diamond', 8, uni(2, 4))],
-        5: [('gutter_coin', 24, uni(4, 7)), ('smugglers_ledger', 6, None), ('minecraft:netherite_ingot', 10, uni(1, 2)), ('clockwork_fragment', 8, None), ('gutter_cutlass', 6, None),
-            ('treasurers_scepter', 2, None), ('vault_hound_whistle', 2, None), ('cipher_monocle', 4, None), ('gilded_staff_topper', 4, None), ('golden_spear', 4, None),
-            ('frog_monocle', 4, None), ('minecraft:diamond_block', 6, None)],
-    }
-    for t, ents in tiers.items():
-        wjson(f'bm/loot_table/gv/t{t}.json', L(*ents))
+    # (2.79c) the haul tables gv/t1..t5 are phase105's (coins only - the Fixer pays the rest); the curio pools that were here never
+    #         reached the game, so they're gone. The curios themselves stay (phase86) for old inventories and their scrap value.
     wjson('bm/loot_table/gv/coins.json', L(('gutter_coin', 1, uni(2, 4))))         # (2.67: was 4-8)
     wjson('bm/loot_table/gv/guard.json', {'pools': [{'rolls': 1, 'entries': [dict(loot_entry('gutter_coin', uni(0, 2)))]},
                                                     {'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'minecraft:gold_nugget', 'functions': [{'function': 'minecraft:set_count', 'count': uni(1, 4)}]}]}]})

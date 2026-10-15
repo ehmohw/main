@@ -133,6 +133,13 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
 - Tailor purchases of follower outfits go straight into the follower's wardrobe (the `bm.wu<w>` bits); no item lands in
   the pack. Test the item's own use with `loot replace ... bm:items/<id>` and clear the wardrobe bit first (t165).
 - The Tailor's stock codes are positional (7750 on, overflowing to 8111 on): a new outfit shifts every code after it.
+- `#gt`, `#gn`, `#r` and most `#x bm.rng` scores are shared scratch: other ticking functions overwrite them between two rcon
+  commands. Set them right before the call that reads them, each time - never once before a loop of separate commands (t166).
+- A Wraithfire Emma left switched on (`bm.emwf` 1, `bm.emst` 1) keeps every Emma the bot calls ethereal for good: no dress,
+  other buffs. Reset both when a test dresses Emma or checks her pair buffs (t96).
+- The Raid Crew page has a row for every follower: scan 20+ rows for one at the back of the line (t105).
+- A dungeon placed with `place structure bm:p2_<d>` turns with a random rotation: find its blocks from its `bm.dg` marker,
+  `execute as <marker> at @s rotated ~ 0 positioned ^dx ^dy ^dz` with the template offsets from the marker (t167).
   Count from the legend (`BUTTON_CODES.md`) or press by label, never by an old offset (t105).
 - Donado (and anything else with a rig) gets new parts on its first second out: the old one-piece body is killed. Read
   the rig's parts (`bm.dnr_torso` and so on), not `bm.dn_body` (t165).
@@ -328,6 +335,7 @@ and function calls. Three are known to be stale.
 | `t164.js` | 2.79: the Portrait of Two - bought from the Fence in a real trade (his window, its trade picked, taken out), a painting that carries its picture; used on a wall (a block-face click): it hangs the portrait, 5 x 4; punched down: it comes back as the portrait, not a random painting. The mob roll's manners: twenty named zombies and twenty frozen (NoAI) ones seen and never renamed; two hundred plain ones - some still rolled |
 | `t165.js` | 2.79a: Gilded - the Lounge Tailor's Leo page shows the Golden Champion at 2,560 coins; pressed: in his wardrobe for good, 2,560 coins out of the bank (3000 -> 440); Donado's page lists his new Gilded coat at the same price; the item's lore (polished gold, the Tailor's dearest). Leo called, the outfit used: worn (c4 tabard), and gold motes reach the client round him (decoded from the raw particle packets); his own clothes: none. Wilfrey in the Gilded Sun: the sun shield with a glint, a golden chestplate (asset gold) where he wore none; the Crimson Cross: his own gear and a red shield. Donado called (rigged) in his Gilded coat: torso and head `_c5`, his eyes his own; back in his own coat: plain parts |
 | `t166.js` | 2.79b: calling the bosses, as a player - the Horseman's Lantern by day (he comes, called, and stays in daylight; a second Lantern refused and kept), the Smouldering Idol refused in the Overworld and the Elder Acorn under a roof (both kept); the Pharaoh's Scarab by night (he stays; uncalled, he sinks back at once); the Thunderhead Feather in clear weather (the Roc outlasts the 10 s of clear sky); the Elder Acorn by day; the Smouldering Gourd on an ordinary day (the Arachno-Lantern grows and stays; uncalled, it leaves); the Idol in the Nether and the Eye in the End. The haul's rolls sampled (Tier V Blood Moon: summons and gourds; Tier II: neither; Tier V ordinary night: no gourds) and the vault's rare stores (Tier V: diamonds, scrap, templates among the gear; Tier II: none) |
+| `t167.js` | 2.79c: the Hex Cathedral's witch spawner (it was built under a pew row and never existed) - a Hex dungeon placed with `place structure`: the witch spawner among the pews (`bm:hex/witches`, its ominous twin) and the vindicator spawner; walking up as a regular player, witches come (dungeon mobs); an old dungeon without it: the 2.79c patch puts it back once a player is near, and only once |
 |  | home (from her menu), and with Wilfrey out a fourth follower refused. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |

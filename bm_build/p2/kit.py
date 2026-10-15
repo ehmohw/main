@@ -461,6 +461,8 @@ def stash_vaults(B):
         return st is not None and not air(c) and 'water' not in st and 'carpet' not in st and 'slab[type=bottom' not in st
     taken = [v[:3] for v in B.meta['vaults']]
     for (x, y, z, cfg) in list(B.meta['spawners']):
+        if 'trial_spawner' not in B.b.get((x, y, z), ''):          # (2.79c: the Hex witch spawner was built over by its pews for years)
+            raise ValueError(f'{B.d}: the {cfg} trial spawner at {(x, y, z)} was overwritten by {B.b.get((x, y, z))}')
         for dx, dz in ((2, 0), (-2, 0), (0, 2), (0, -2), (1, 0), (-1, 0), (0, 1), (0, -1)):
             c = (x + dx, y, z + dz)
             if not (air(c) and air((c[0], y + 1, c[2])) and solid((c[0], y - 1, c[2]))): continue
