@@ -80,6 +80,8 @@ function bot(name) {
     c.slot = (i) => c.write('held_item_slot', { slotId: i });
     c.use = (hand = 'main_hand') => c.write('use_item', { hand, sequence: c.seq++, rotation: { x: c.pos ? c.pos.yaw : 0, y: c.pos ? c.pos.pitch : 0 } });
     c.release = () => c.write('block_dig', { status: 6, location: { x: 0, y: 0, z: 0 }, face: 0, sequence: c.seq++ });
+    // (26.3's player actions: 1 is CHANGE_DESTROY_DIRECTION, so 6 is RELEASE_USE_ITEM and 7 is SWAP_ITEM_WITH_OFFHAND - the F key)
+    c.swap = () => c.write('block_dig', { status: 7, location: { x: 0, y: 0, z: 0 }, face: 0, sequence: c.seq++ });
     c.input = (flags) => c.write('player_input', { inputs: flags });
     c.interact = (eid, sneaking = false) => c.write('use_entity', { target: eid, hand: 'main_hand', location: { x: 0, y: 0.5, z: 0 }, sneaking });
     c.attack = (eid) => c.write('attack', { entityId: eid });

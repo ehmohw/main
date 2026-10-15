@@ -42,7 +42,12 @@ def generate(G):
     # ------------------------------------------------------------------ glow only within 30 blocks
     second += [f'execute as @e[tag={t},tag=!bm.g30,type=!minecraft:player] run function bm:p44/g30' for t in GLOW_TAGS]
     fn('p44/g30', ['tag @s add bm.g30', 'data merge entity @s {Glowing:0b}', 'effect clear @s minecraft:glowing'])
-    second.append('execute as @a[gamemode=!spectator] at @s run effect give @e[tag=bm.g30,distance=..30] minecraft:glowing 2 0 true')
+    # (2.80: never an invisible one - a boss's hidden host under its rig, the Scorching Arachno-Lantern's giant, was outlined
+    #  through its own invisibility)
+    wjson('bm/predicate/p44/invis.json', {'condition': 'minecraft:entity_properties', 'entity': 'this',
+                                          'predicate': {'minecraft:effects': {'minecraft:invisibility': {}}}})
+    second.append('execute as @a[gamemode=!spectator] at @s run effect give @e[tag=bm.g30,distance=..30,predicate=!bm:p44/invis] minecraft:glowing 2 0 true')
+    second.append('effect clear @e[tag=bm.g30,predicate=bm:p44/invis] minecraft:glowing')
 
     # ------------------------------------------------------------------ the Vacuum Satchel unfolds into a barrel
     # its contents live in storage bm:vac v<player id> (in the satchel's own container format, so the pick-up code is unchanged)

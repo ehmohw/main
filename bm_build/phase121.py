@@ -9,6 +9,10 @@ GETTING THERE   the Fixer's Ledger: THE FIXER'S LOUNGE in the Office (from safe 
                 LOUNGE: the heist ends as if you'd headed home, and you step into the lounge instead - its door then
                 takes you home.
                 (You can't break anything in there - it puts you in adventure mode while you're in it.)
+THE COAT CHECK  (2.80) the Fixer checks your gear at the lounge's door, as at a heist's: heist tools, Tokens and the Ledger
+                go in with you; the Lounge's door hands the rest back as it takes you home (so does dying in there, or any
+                other way out). A heist planned from the lounge takes you home, afterwards, to where you came into the
+                lounge from; whatever you picked up in there that isn't heist gear waits for you at home.
 """
 import re
 from items import T
@@ -22,8 +26,9 @@ GOLD, LOUNGE = '#ffcf40', '#e8c070'
 OX, OY, OZ = -320, 64, -256                       # the template's corner (bm:gutter); the room's marker is +12.5 +4 +12.5
 MX, MY, MZ = OX + 12.5, OY + 4, OZ + 12.5
 BOX = (OX - 1, OY - 4, OZ - 1, 26, 20, 26)        # (x, y, z, dx, dy, dz) - inside the lounge
-VER = 3                                           # (2: the template's own room marker removed - it joined heists;
-                                                  #  3: what those heists left behind - a whole den's props - cleared)
+VER = 4                                           # (2: the template's own room marker removed - it joined heists;
+                                                  #  3: what those heists left behind - a whole den's props - cleared;
+                                                  #  4 (2.80): Fishy's hall gone to the Black Market - its gateway walled up again)
 TRIP = 7880                                       # the Office's button (the Ledger)
 C_LEAD, C_MEM, C_OUT = 7730, 7731, 7732           # the end-of-heist choices (the leader; a member waiting; a member asked to go again)
 
@@ -170,3 +175,63 @@ def generate(G):
     ur[k] = 'execute unless entity @s[tag=bm.lgbag] at @s run function bm:p72/bag/restore'
     G.FUNCS['p121/back'] += ['execute if entity @s[tag=bm.lgbag] at @s run function bm:p72/bag/restore', 'tag @s remove bm.lgbag']
     G.FUNCS['p72/bag/check'].insert(0, 'tag @s remove bm.lgbag')      # (a heist from the Lounge: its own way home gives the gear back)
+
+    # ================================================================== 2.80: THE COAT CHECK AT THE LOUNGE'S DOOR
+    # A trip in through the Ledger checks your gear as a heist does; the Lounge's door hands it back (bm.lgbag: the Fixer holds
+    # your bag while you're in the lounge). Until 2.80 a Ledger trip took your whole overworld pack into the gutter - and on
+    # into any heist planned from the lounge, which skipped the check (it skips it anywhere in the gutter, for a heist straight
+    # after a heist).
+    import phase72 as P72
+    keep_any = '*[' + '|'.join(f'minecraft:custom_data~{{bm:"{t}"}}' for t in P72.KEEP) + ']'
+    keep_not = '*[' + ','.join(f'!minecraft:custom_data~{{bm:"{t}"}}' for t in P72.KEEP) + ']'
+    G.FUNCS['p121/enter'][0:0] = ['execute unless entity @s[tag=bm.lgbag] run function bm:p121/check']
+    fn('p121/check', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid',
+                      'execute store result storage bm:lg tmp.pid int 1 run scoreboard players get @s bm.pid', 'function bm:p121/check2 with storage bm:lg tmp'])
+    # (a bag still held from before - a crash, or a trip that never came back through the door - is handed back first, here,
+    #  and the trip waits: walking in with it would bring your pack along)
+    fn('p121/check2', ['$execute if data storage bm:gv bag.p$(pid) run return run function bm:p121/stale',
+                       'tag @s add bm.lgchk', 'function bm:p72/bag/check', 'tag @s remove bm.lgchk', 'tag @s add bm.lgbag',
+                       tellraw('@s', P + [T('The Fixer checks your gear at the door. ', GOLD), T('The Lounge\'s door hands it all back as it takes you home. ', 'gray'),
+                                          T('(Heist tools, Tokens and your Ledger stay with you.)', 'dark_gray')])])
+    fn('p121/stale', ['function bm:p72/bag/restore', 'scoreboard players set #lgno bm.rng 1',
+                      tellraw('@s', P + [T('The Fixer was still minding some gear of yours - ', GOLD), T('here it is. Try the trip again in a moment.', 'gray')])])
+    # (the trip waits when that happens: p121/enter stops before it moves you)
+    G.FUNCS['p121/enter'][0:0] = ['scoreboard players set #lgno bm.rng 0']
+    k = G.FUNCS['p121/enter'].index('execute unless entity @s[tag=bm.lgbag] run function bm:p121/check') + 1
+    G.FUNCS['p121/enter'].insert(k, 'execute if score #lgno bm.rng matches 1 run return 0')
+    # (the heist's own message about the den's kit racks isn't for the lounge)
+    c2 = G.FUNCS['p72/bag/check2']
+    assert 'The Fixer checks your gear at the door' in c2[-1]
+    c2[-1] = 'execute unless entity @s[tag=bm.lgchk] run ' + c2[-1]
+    # (2.80: the lounge heals as the den does - Regeneration II and a full belly)
+    second.append(f'execute in bm:gutter positioned {bx} {by} {bz} if entity @a[dx={dx},dy={dy},dz={dz}] run function bm:p121/rest')
+    fn('p121/rest', [f'effect give @a[dx={dx},dy={dy},dz={dz}] minecraft:regeneration 3 1 true', f'effect give @a[dx={dx},dy={dy},dz={dz}] minecraft:saturation 2 0 true'])
+    # out any other way than the door (a death, a teleport): the gear comes back in the overworld, within a second
+    second.append('execute as @a[tag=bm.lgbag,tag=!bm.gvp] at @s unless dimension bm:gutter run function bm:p121/bag_home')
+    fn('p121/bag_home', ['tag @s remove bm.lgbag', 'function bm:p72/bag/restore'])
+    # A heist planned from the lounge: what you picked up in there that isn't heist gear (shopping, your lockers) waits with
+    # the Fixer and comes back with your gear at home; the way home is where you came into the lounge from (it used to be
+    # whatever an earlier heist had left, or the world's spawn), and your respawn point is saved, as from anywhere else.
+    G.FUNCS['p72/bag/check'].insert(0, 'execute if entity @s[tag=bm.lgbag] if dimension bm:gutter run function bm:p121/strip')
+    fn('p121/strip', ['execute store result score #n bm.rng run clear @s ' + keep_not + ' 0', 'execute if score #n bm.rng matches 0 run return 0',
+                      'execute store result storage bm:lg tmp.pid int 1 run scoreboard players get @s bm.pid', 'function bm:p121/strip2 with storage bm:lg tmp',
+                      tellraw('@s', P + [T('What isn\'t heist gear waits with the Fixer - ', GOLD), T('you\'ll have it back at home with the rest.', 'gray')])])
+    fn('p121/strip2', ['data modify storage bm:gv sq set from entity @s Inventory'] +
+       [f'data remove storage bm:gv sq[{{components:{{"minecraft:custom_data":{{bm:"{t}"}}}}}}]' for t in P72.KEEP] +
+       ['$data modify storage bm:gv cb.p$(pid) append from storage bm:gv sq[]'] +
+       [f'$execute unless items entity @s {sl} {keep_any} run data modify storage bm:gv cb.p$(pid) append from entity @s equipment.{k_}' for k_, sl in P72.SLOT_OF.items()] +
+       [f'clear @s {keep_not}', 'data remove storage bm:gv sq'])
+    G.FUNCS['p70/save_ret'].insert(0, 'execute if entity @s[tag=bm.lgbag] if dimension bm:gutter run return run function bm:p121/ret_set')
+    fn('p121/ret_set', ['tag @s add bm.lgstart', 'execute store result storage bm:lg tmp.pid int 1 run scoreboard players get @s bm.pid',
+                        'function bm:p121/ret_set2 with storage bm:lg tmp'])
+    fn('p121/ret_set2', ['$execute unless data storage bm:lg r.p$(pid) run return 0', 'data modify storage bm:gv tmp set value {}',
+                         '$data modify storage bm:gv tmp.dim set from storage bm:lg r.p$(pid).d',
+                         '$execute store result storage bm:gv tmp.x int 1 run data get storage bm:lg r.p$(pid).x',
+                         '$execute store result storage bm:gv tmp.y int 1 run data get storage bm:lg r.p$(pid).y',
+                         '$execute store result storage bm:gv tmp.z int 1 run data get storage bm:lg r.p$(pid).z',
+                         '$data modify storage bm:gv ret.p$(pid) set from storage bm:gv tmp'])
+    sp = G.FUNCS['p75/sp_save']
+    k = sp.index('execute if dimension bm:gutter run return 0')
+    sp[k] = 'execute if dimension bm:gutter unless entity @s[tag=bm.lgstart] run return 0'
+    sp.append('tag @s remove bm.lgstart')
+    G.FUNCS['p70/unraid'].append('tag @s remove bm.lgstart')

@@ -74,7 +74,8 @@ const res = [];
   ok('worn: fire can\'t touch you, you breathe water, you see in the dark', (await eff('fire_resistance')) && (await eff('water_breathing')) && (await eff('night_vision')));
   await run('effect give TestRat minecraft:wither 20 1'); await run('effect give TestRat minecraft:poison 20 1');
   ok('...wither and poison don\'t take hold (gone within a second)', await wait(2500, async () => !(await eff('wither')) && !(await eff('poison'))));
-  const hurtTo = async (hp) => { const h = await num('data get entity TestRat Health'); if (h > hp) await run(`damage TestRat ${(h - hp).toFixed(1)} minecraft:magic`); };
+  // (2.80: the Crown carries Protection X now, which cuts magic damage - the stage hurts with damage nothing reduces)
+  const hurtTo = async (hp) => { const h = await num('data get entity TestRat Health'); if (h > hp) await run(`damage TestRat ${(h - hp).toFixed(1)} minecraft:out_of_world`); };
   await run('effect clear TestRat minecraft:regeneration'); await hurtTo(12);
   ok('badly hurt (12 of 34 - under half): Regeneration', await wait(2500, async () => await eff('regeneration')), `health ${await num('data get entity TestRat Health')}`);
   await run('effect give TestRat minecraft:instant_health 1 4 true'); await sleep(400);

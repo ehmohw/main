@@ -21,7 +21,7 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
-## New in 2.80: boss fights with a sense of occasion, music of their own, the heist's climax, item icons redrawn, and sharper menus
+## New in 2.80: boss fights with a sense of occasion, music of their own, the heist's climax, item icons redrawn, sharper menus, a harder Apophiss with better drops, Fishy's Cabinet in the Black Market, and the Lounge's coat check
 
 ### The roaming bosses make an entrance, wind up, rage and fall
 The Headless Horseman, the Sand Pharaoh, the Storm Roc, the Elder Treant, the Magma Colossus and the Voidwalker now get the treatment Apophiss had.
@@ -64,6 +64,53 @@ The Headless Horseman, the Sand Pharaoh, the Storm Roc, the Elder Treant, the Ma
 - **The follower dolls face you in Cecil's shop.** Every doll's icon showed its back in the shop and the inventory. They now face you, turned slightly to one side, each sized to fill its slot. In a frame or set down, they look the same as before.
 - **His thumbs are on the right side now.** Each hand had its thumb on the outer edge, so his right arm wore a left hand and his left arm a right one. The thumbs now sit on the inner edge, toward his chest. This covers every form (normal, ethereal and Wraithfire), the boss and the follower, and his doll and display-case figurine.
 
+### Apophiss hits harder, lasts longer, and judges you
+A player in the Hollow King's Regalia, with potions, could stand still and outlast him. Not now.
+- **Tougher:** 1024 health (was 900: the most the game allows, and his Unbound form rises at full health again), armour 18 and toughness 10 (were 14 and 6).
+- **Harder hits:** his base attack is 12 (was 7), and every blow is about a third heavier: claw 22, bite 26, swoop 30, poison splash 14, black fire 13, gust 12. His drowned court hit harder too.
+- **The Serpent's Judgement (new):** "Kneel." A ring of soul-fire burns under the feet of every player within 40 blocks and closes in, then erupts after 1.8 seconds. In his Unbound form it's "BOW.": a wider ring, 1.5 seconds, twice in one attack. It hits for 16 (20 Unbound) plus Wither, and **armour, enchantments, Resistance and shields don't reduce it.** The title tells you to get out, and a sprint clears the ring in time; stay in it and it lands in full.
+
+### The Serpent King's Mace and the True Crown now top the Regalia
+- **The Mace has seven forms:** sword, axe, mace, pickaxe, shovel, hoe and trident. Press F (swap hands) for the next form and sneak + F for the one before. It looks the same in every form; only the spikes change colour to show which one you hold.
+- **Each form has its own enchantments:**
+  - sword: Sharpness VI, Looting IV, Sweeping Edge IV, Knockback;
+  - axe: Sharpness VI, Efficiency VI, Fortune III;
+  - mace: Density VI, Breach V, Smite VII, **Wind Burst III**;
+  - pickaxe: Efficiency VI, Fortune IV;
+  - shovel: Efficiency VI, Fortune III;
+  - hoe: Efficiency VI, Fortune IV;
+  - trident: Impaling VI, Loyalty III, Channeling.
+  All forms are unbreakable.
+- **Each form has its own bite,** on top of the Wither every blow leaves:
+  - sword: poison;
+  - axe: a cleave that hits whatever stands around the target;
+  - mace: a smash burst of fangs from a falling blow;
+  - shovel: the target is lifted off its feet;
+  - hoe: it heals you;
+  - trident: a burst of fangs.
+  The pickaxe and shovel also give Haste II while held.
+- **The Serpent's Wrath (use the mace, sword or axe form):** rings of fangs and a strike on everything close. Like the Regalia, it answers the night: a 12-second cooldown by day, 8 at night or under a moon, and 5 under a Blood Moon, an invasion or at home in the Hollow. The blow grows from 12 to 15 to 18 in the same steps.
+- **Sepulchre, the Hollow King's mace, gets Wind Burst III too.**
+- **The True Crown counts as the Regalia's helm.** Wear it with the other three Regalia pieces and the set wakes, with every night, moon and Blood Moon buff the helm gives. It now carries the helm's Protection X, Thorns III and Respiration V (plus Aqua Affinity), and it keeps all its own powers.
+- **With Apophiss at your side** (called with his Oath), the Crown raises Resistance and Regeneration to II and the Mace raises Strength to II, one step past what the Regalia gives. The Wrath's cooldown is also halved.
+
+### Fishy's Cabinet moves to the Black Market
+Showing Fishy your rare things used to mean carrying them past the Lounge's coat check. His Cabinet is now in the overworld: **a hall in every Black Market**, behind a gold-framed door off the alcove in the market's north-east corner.
+- The hall has twenty glass cases on plinths, Fishy at his desk on a raised dais with a stained-glass window behind him, a banner, and signs at the door.
+- Markets already in your world build the hall themselves the first time someone is near. If you have more than one market, each has its own hall, and all of them show the same Cabinet.
+- The old hall off the Lounge is cleared away and its gateway walled up the next time the Lounge loads. Nothing in the Cabinet's record is lost.
+- **Fishy can be seen over his desk** now that his dais raises him up.
+
+### The Fixer's Lounge checks your gear
+- **The coat check is back at the Lounge's door.** Going in through the Ledger, the Fixer keeps everything except heist tools, Tokens, the Ledger, gutter currencies and the Locker Key, as at the den. You get it all back when the Lounge's door takes you home, and also if you die in the Lounge.
+- **Anything you pick up inside stays inside.** If you plan a heist from the Lounge, what isn't heist gear waits with the Fixer and comes home with the rest.
+- **Heists planned from the Lounge are safe.** The way home is the spot you entered the Lounge from (no more landing at the world spawn), and your own respawn point is kept. When the heist is over, your gear comes back at home.
+- **The Lounge now heals you as the den does:** Regeneration II and Saturation while you're inside.
+
+### Fixes
+- **An invisible mob no longer glows.** The detection glow skips anything invisible, and clears from a mob that turns invisible.
+- **The Scorching Arachno-Lantern's health bar works.** It now reads the boss's real maximum health.
+
 ### Menus
 - **The Rat Bank:** the account page lists every currency on one button with its balance, plus **Deposit everything**. A currency's own page shows its icon, how many are in your account and how many you carry, and Deposit all, Take 1, Take 10 and Take all. Each action brings you back to that page.
 - **The Armory:** one short card per kit. Each kit opens its own page listing every rank (the ones you have are ticked, the next one is marked), what the next costs, and **Rank up**.
@@ -73,7 +120,9 @@ The Headless Horseman, the Sand Pharaoh, the Storm Roc, the Elder Treant, the Ma
 
 ### Testing
 - **New bot playtests:** t168 (the six roaming bosses), t169 (the Broodmother), t170 (the heist's climax, the room dressing and the fanfare), t171 (boss themes) and t172 (the Rat Bank, the Armory, the party list and the settings).
-- **Older playtests brought up to date:** t30 (now self-contained), t60, t105, t131, t157 and t166.
+- **New bot playtests:** t173 (the Lounge's coat check, its rest, a death inside, and a heist planned from the Lounge and left from the Ledger) and t174 (Apophiss's health and blows, his Judgement stood in and sprinted out of, the Mace's seven forms and their bites, the Wrath, the Crown as the Regalia's helm, and the bond with Apophiss).
+- **Older playtests brought up to date:** t30 (now self-contained), t60, t105, t131, t157, t166, t162 (the Cabinet now in a freshly placed Black Market) and t139 (the Crown's Protection X).
+- **The bot library can press F:** `A.swap()` (in 26.3, swap-hands is player action 7).
 
 ## New in 2.79c: polish and fixes
 

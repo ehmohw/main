@@ -1,6 +1,7 @@
 """2.79: FISHY'S CABINET OF CURIOSITIES - and Fishy, the gentleman goldfish who keeps it.
 
-THE CABINET   a hall off the Fixer's Lounge (its east doorway, the gilded one), where Fishy keeps his museum: six wings - the
+THE CABINET   (2.80) a hall in every Black Market - its gold-framed door off the alcove in the market's north-east corner -
+              where Fishy keeps his museum (until 2.80 it was off the Fixer's Lounge, past the coat check): six wings - the
               Hollow, the Gutter, the Skies, the Deep, the Wilds and the Court - of twenty exhibits each (cabinet_data.py).
 SHOW HIM      hold one of the pack's rare things and right-click Fishy (at his desk, or your own Fishy anywhere): he makes a
               REPLICA for his cabinet. You keep the thing itself - nothing is ever taken. Each exhibit is recorded once, for the
@@ -38,6 +39,7 @@ import phase68 as P68
 import phase98 as P98
 import phase100 as P100
 import phase121 as P121
+import mgeo
 import phase134 as P134
 import phase141 as P141
 import allies
@@ -51,14 +53,6 @@ WINGS = [w for w, *_ in CAB.WINGS]
 WNAME = {w: n for w, n, c, d in CAB.WINGS}
 WCOL = {w: c for w, n, c, d in CAB.WINGS}
 WDESC = {w: d for w, n, c, d in CAB.WINGS}
-# the hall: east of the lounge, through its gilded gateway (the lounge's template corner OX, OY, OZ; its floor at OY+3)
-OX, OY, OZ = P121.OX, P121.OY, P121.OZ
-HX0, HX1, HZ0, HZ1 = OX + 25, OX + 42, OZ + 5, OZ + 19         # the hall's shell (walls included)
-HALL_VER = 2
-COLS = [OX + 27, OX + 29, OX + 31, OX + 33, OX + 35]            # the cases' columns, both long walls
-DESK = (OX + 39.5, OY + 4, OZ + 12.5)                          # Fishy just behind his desk, facing the doorway (west)
-# (the lounge's own region grows to take the hall in: adventure mode there too, and its rebuild leaves the hall be)
-P121.BOX = (OX - 1, OY - 4, OZ - 1, 45, 20, 26)
 
 # ------------------------------------------------------------------------------------------------ items
 item('fy_bowl', TOTEM, "Fishy's Pocket Bowl", ORANGE,
@@ -461,7 +455,7 @@ def generate(G):
                         [P28.body([T(WDESC[w] + ' ', 'gray'), T('Veiled ones carry a riddle - where such a thing is found.', 'dark_gray')], 330)] +
                         [ibody(i) for i in range(20)],
                         [P28.btn([T('Set it out in the hall', GOLD, bold=True)], CABM + 8, width=150,
-                                 tooltip=T('Lay this wing\'s replicas in the cases of Fishy\'s hall (off the Fixer\'s Lounge).', 'gray')), back], columns=2, exit_label='Close')
+                                 tooltip=T('Lay this wing\'s replicas in the cases of Fishy\'s hall (in the Black Market).', 'gray')), back], columns=2, exit_label='Close')
         fn(f'p145/pg/{w}', [f'scoreboard players set @s bm.menu {CABM}', f'scoreboard players set @s bm.cabp {WI[w]}', 'data remove storage bm:ui cab',
                             f'execute store result storage bm:ui cab.n int 1 run scoreboard players get #{w} bm.cab'] +
            [l for k, ids, r in CAB.EXHIBITS[w] for l in (f'execute if data storage bm:cab got.{k} run function bm:p145/pg/x/{k}',
@@ -514,17 +508,25 @@ def generate(G):
        [f'execute if score #act bm.pay matches {CABM + 7} run return run function bm:p145/cab/powers',
         f'execute if score #act bm.pay matches {CABM + 8} run return run function bm:p145/cab/set_out'])
     fn('p145/cab/set_out', [f'execute if score @s bm.cabp matches {WI[w]} run function bm:p145/hall/show/{w}' for w in WINGS] +
-       [say('The hall\'s cases now show that wing (Fishy\'s hall, off the Fixer\'s Lounge).', GOLD), 'playsound minecraft:block.amethyst_block.chime player @s ~ ~ ~ 0.8 1.1'])
+       [say('The hall\'s cases now show that wing (Fishy\'s hall, in the Black Market).', GOLD), 'playsound minecraft:block.amethyst_block.chime player @s ~ ~ ~ 0.8 1.1'])
 
-    # ================================================================== THE HALL (off the Fixer's Lounge, through its gilded gateway)
-    lo, hi = f'{HX0} {OY + 3} {HZ0}', f'{HX1} {OY + 10} {HZ1}'
+    # ================================================================== THE HALL (2.80: in the Black Market - every market's own)
+    # Dug into the rock of the market's north-east corner, its door off the public alcove there (template x 54-55, z 10). Built
+    # at run time, relative to the market's bm.mkt marker, so markets already in worlds get it too and it turns with the
+    # market; only blocks that don't care which way they face. Until 2.80 it was a hall off the Fixer's Lounge - and showing
+    # Fishy your rare things meant carrying them past the coat check.
+    C = lambda x, y, z: mgeo.rel((x + 0.5, y + 0.5, z + 0.5))          # (a block's centre, in the market's frame)
+    M = lambda x, y, z: mgeo.rel((x, y, z))                            # (a point)
+    NCASE = (48, 50, 59, 61)                                           # the back wall's case columns (z 1)
+    SCASE = (48, 50, 52, 57, 59, 61)                                   # the front wall's (z 9), either side of the door
     slots = []                                    # (index 1-20, item-display position, yaw, label position)
-    for row, y in enumerate((OY + 5, OY + 7)):
-        for c, x in enumerate(COLS):
-            slots.append((row * 5 + c + 1, (x + 0.5, y + 0.5, HZ0 + 0.55), 0, (x + 0.5, y - 0.42, HZ0 + 1.02)))
-    for row, y in enumerate((OY + 5, OY + 7)):
-        for c, x in enumerate(COLS):
-            slots.append((10 + row * 5 + c + 1, (x + 0.5, y + 0.5, HZ1 + 0.45), 180, (x + 0.5, y - 0.42, HZ1 - 0.02)))
+    for row, y in enumerate((11, 13)):
+        for c, x in enumerate(NCASE):
+            slots.append((row * len(NCASE) + c + 1, (x + 0.5, y + 0.5, 1.55), 0, (x + 0.5, y - 0.42, 2.02)))
+    for row, y in enumerate((11, 13)):
+        for c, x in enumerate(SCASE):
+            slots.append((2 * len(NCASE) + row * len(SCASE) + c + 1, (x + 0.5, y + 0.5, 9.45), 180, (x + 0.5, y - 0.42, 8.98)))
+    assert len(slots) == 20 and sorted(i for i, *_ in slots) == list(range(1, 21))
     ident = [F(0), F(0), F(0), F(1)]
     def disp(tags, extra=None):
         n = {'Tags': tags, 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:cab_veiled'}}, 'item_display': 'fixed',
@@ -534,80 +536,96 @@ def generate(G):
     def label(tags, text, sc=0.32, width=150):
         return snbt({'Tags': tags, 'billboard': 'fixed', 'line_width': Int(width), 'background': Int(0x60000000), 'text': text, 'shadow': B(0),
                      'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0)] * 3, 'scale': [F(sc)] * 3}})
-    build = [f'kill @e[tag=bm.cabprop,x={HX0 - 2},y={OY},z={HZ0 - 2},dx={HX1 - HX0 + 4},dy=14,dz={HZ1 - HZ0 + 4}]',
-             f'fill {lo} {hi} minecraft:dark_oak_planks hollow',
-             f'fill {HX0 + 1} {OY + 3} {HZ0 + 1} {HX1 - 1} {OY + 3} {HZ1 - 1} minecraft:polished_deepslate',
-             f'fill {HX0 + 1} {OY + 3} {OZ + 11} {HX1 - 4} {OY + 3} {OZ + 13} minecraft:polished_blackstone_bricks',
-             f'fill {HX0 + 1} {OY + 4} {OZ + 11} {HX1 - 5} {OY + 4} {OZ + 13} minecraft:red_carpet',
-             # (the doorway: the lounge's gilded gate opened, and the hall's own wall)
-             f'fill {OX + 24} {OY + 4} {OZ + 11} {OX + 25} {OY + 7} {OZ + 13} minecraft:air',
-             f'fill {OX + 25} {OY + 8} {OZ + 10} {OX + 25} {OY + 8} {OZ + 14} minecraft:gold_block',
-             f'fill {OX + 25} {OY + 4} {OZ + 10} {OX + 25} {OY + 7} {OZ + 10} minecraft:gold_block',
-             f'fill {OX + 25} {OY + 4} {OZ + 14} {OX + 25} {OY + 7} {OZ + 14} minecraft:gold_block']
-    # the long walls: dark oak, stripped-log pillars between the cases, a bookshelf frieze; each case a lit niche, quartz behind
-    for z, zb in ((HZ0, HZ0 - 1), (HZ1, HZ1 + 1)):
-        build += [f'fill {HX0 + 1} {OY + 4} {z} {HX1 - 1} {OY + 4} {z} minecraft:polished_blackstone_bricks',
-                  f'fill {HX0 + 1} {OY + 9} {z} {HX1 - 1} {OY + 9} {z} minecraft:bookshelf']
-        for x in range(COLS[0] - 1, COLS[-1] + 2, 2):
-            build.append(f'fill {x} {OY + 5} {z} {x} {OY + 8} {z} minecraft:stripped_dark_oak_log[axis=y]')
-        for x in COLS:
-            for y in (OY + 5, OY + 7):
-                build += [f'setblock {x} {y} {z} minecraft:light[level=11,waterlogged=false]', f'setblock {x} {y} {zb} minecraft:smooth_quartz']
-    # Fishy's corner: his desk, a stained-glass window behind him, a lantern each side
-    build += [f'fill {OX + 38} {OY + 4} {OZ + 10} {OX + 38} {OY + 4} {OZ + 14} minecraft:dark_oak_planks',
-              f'fill {OX + 38} {OY + 5} {OZ + 10} {OX + 38} {OY + 5} {OZ + 14} minecraft:dark_oak_slab[type=bottom,waterlogged=false]',
-              f'setblock {OX + 38} {OY + 4} {OZ + 9} minecraft:dark_oak_planks', f'setblock {OX + 38} {OY + 4} {OZ + 15} minecraft:dark_oak_planks',
-              f'setblock {OX + 38} {OY + 5} {OZ + 9} minecraft:lantern[hanging=false,waterlogged=false]',
-              f'setblock {OX + 38} {OY + 5} {OZ + 15} minecraft:lantern[hanging=false,waterlogged=false]']
+    # (a prop summoned at a point, turned to face `yaw` in the market's frame)
+    def put(kind, p, yaw, nbt, tags_new='bm.cabnew'):
+        return [f'execute positioned {M(*p)} rotated ~{yaw} 0 run summon minecraft:{kind} ~ ~ ~ {nbt}',
+                f'execute positioned {M(*p)} rotated ~{yaw} 0 as @e[tag={tags_new},distance=..0.6] run tp @s ~ ~ ~ ~ ~']
+    fill = lambda a, b_, blk, mode='': f'fill {C(*a)} {C(*b_)} {blk}' + (f' {mode}' if mode else '')
+    setb = lambda a, blk: f'setblock {C(*a)} {blk}'
+    build = [f'execute positioned {M(55.0, 12.0, 5.5)} run kill @e[tag=bm.cabprop,distance=..13]',
+             fill((46, 9, 0), (63, 16, 10), 'minecraft:dark_oak_planks', 'hollow'),
+             fill((47, 9, 1), (62, 9, 9), 'minecraft:polished_deepslate'),
+             fill((54, 9, 4), (55, 9, 9), 'minecraft:polished_blackstone_bricks'),
+             fill((54, 10, 4), (55, 10, 8), 'minecraft:red_carpet'),
+             # the doorway, gold-framed, off the alcove
+             fill((53, 10, 10), (53, 13, 10), 'minecraft:gold_block'), fill((56, 10, 10), (56, 13, 10), 'minecraft:gold_block'),
+             fill((53, 13, 10), (56, 13, 10), 'minecraft:gold_block'), fill((54, 10, 10), (55, 12, 10), 'minecraft:air')]
+    # the two long walls: a blackstone plinth, stripped-log pillars, each case a lit niche with quartz behind; a bookshelf frieze
+    for z, zb, cols in ((1, 0, NCASE), (9, 10, SCASE)):
+        build += [fill((47, 10, z), (62, 10, z), 'minecraft:polished_blackstone_bricks'), fill((47, 15, z), (62, 15, z), 'minecraft:bookshelf'),
+                  fill((47, 11, z), (62, 14, z), 'minecraft:stripped_dark_oak_log[axis=y]')]
+        for x in cols:
+            build += [setb((x, 11, z), 'minecraft:light[level=11,waterlogged=false]'), setb((x, 12, z), 'minecraft:dark_oak_planks'),
+                      setb((x, 13, z), 'minecraft:light[level=11,waterlogged=false]'), setb((x, 14, z), 'minecraft:dark_oak_planks'),
+                      setb((x, 11, zb), 'minecraft:smooth_quartz'), setb((x, 13, zb), 'minecraft:smooth_quartz')]
+    build += [fill((54, 10, 9), (55, 14, 9), 'minecraft:air'),                                     # (the way in)
+              fill((52, 11, 1), (52, 14, 1), 'minecraft:bookshelf'), fill((57, 11, 1), (57, 14, 1), 'minecraft:bookshelf'),
+              fill((53, 10, 1), (56, 15, 1), 'minecraft:air')]                                    # (Fishy's corner, open to the window)
+    # Fishy's corner: his dais, his desk in front, a lantern each side, a stained-glass window behind him
+    build += [fill((53, 10, 1), (56, 10, 2), 'minecraft:dark_oak_planks'), fill((53, 10, 3), (56, 10, 3), 'minecraft:dark_oak_planks'),
+              fill((53, 11, 3), (56, 11, 3), 'minecraft:dark_oak_slab[type=bottom,waterlogged=false]'),
+              setb((52, 10, 3), 'minecraft:dark_oak_planks'), setb((57, 10, 3), 'minecraft:dark_oak_planks'),
+              setb((52, 11, 3), 'minecraft:lantern[hanging=false,waterlogged=false]'), setb((57, 11, 3), 'minecraft:lantern[hanging=false,waterlogged=false]')]
     glass = ['orange', 'yellow', 'light_blue', 'cyan', 'magenta', 'lime', 'pink', 'purple']
-    for dz in range(-2, 3):
-        for dy in range(0, 3):
-            build += [f'setblock {HX1} {OY + 6 + dy} {OZ + 12 + dz} minecraft:{glass[(dz + 2 + dy * 3) % len(glass)]}_stained_glass',
-                      f'setblock {HX1 + 1} {OY + 6 + dy} {OZ + 12 + dz} minecraft:sea_lantern']
-    for x in (OX + 30, OX + 34):
-        build += [f'setblock {x} {OY + 9} {OZ + 12} minecraft:iron_chain[axis=y,waterlogged=false]', f'setblock {x} {OY + 8} {OZ + 12} minecraft:lantern[hanging=true,waterlogged=false]']
-    # the cases' replicas and plaques, the banner over Fishy, the sign over the doorway
-    for i, (x, y, z), yaw, (lx, ly, lz) in slots:
-        build += [f'summon minecraft:item_display {x:.2f} {y:.2f} {z:.2f} {disp(["bm.cabprop", "bm.cabslot", "bm.cabnew"])}',
-                  f'summon minecraft:text_display {lx:.2f} {ly:.2f} {lz:.2f} {label(["bm.cabprop", "bm.cablbl", "bm.cabnew"], T("? ? ?", "dark_gray"))}',
-                  f'scoreboard players set @e[tag=bm.cabnew] bm.cabi {i}', f'execute as @e[tag=bm.cabnew] at @s run tp @s ~ ~ ~ {yaw} 0', 'tag @e[tag=bm.cabnew] remove bm.cabnew']
-    build += [f'summon minecraft:text_display {HX1 - 0.02:.2f} {OY + 5.6:.2f} {OZ + 12.5:.2f} {label(["bm.cabprop", "bm.cabban"], T("THE CABINET", GOLD, bold=True), 0.6, 220)}',
-              f'execute as @e[type=minecraft:text_display,tag=bm.cabban] run tp @s ~ ~ ~ 90 0',
-              f'summon minecraft:text_display {OX + 23.9:.2f} {OY + 8.4:.2f} {OZ + 12.5:.2f} ' +
-              label(['bm.cabprop', 'bm.cabsign'], [T("FISHY'S CABINET\n", GOLD, bold=True), T('of Curiosities ›', '#e8c070')], 0.55, 200),
-              f'execute as @e[type=minecraft:text_display,tag=bm.cabsign] run tp @s ~ ~ ~ 90 0',
-              f'summon minecraft:text_display {HX0 + 0.98:.2f} {OY + 8.1:.2f} {OZ + 12.5:.2f} ' +
-              label(['bm.cabprop', 'bm.cabsign2'], [T('Show Fishy a rare thing: a replica for his cabinet. ', 'gray'), T('You keep yours.', 'white')], 0.4, 200),
-              f'execute as @e[type=minecraft:text_display,tag=bm.cabsign2] run tp @s ~ ~ ~ -90 0',
-              f'execute positioned {DESK[0]} {DESK[1]} {DESK[2]} rotated 90 0 run function bm:p145/npc/spawn',
-              f'data modify storage bm:cab built set value {HALL_VER}', 'function bm:p145/hall/now']
-    fn('p145/hall/build', build)
-    fn('p145/hall/now', [f'execute if score #hall bm.cab matches {WI[w]} run function bm:p145/hall/show/{w}' for w in WINGS])
-    G.FUNCS['load'][-1:-1] = [f'execute in bm:gutter run forceload add {HX0 - 1} {HZ0 - 1} {HX1 + 2} {HZ1 + 2}']
-    second.append(f'execute in bm:gutter if loaded {HX0} {OY} {HZ0} if data storage bm:lg {{built:{P121.VER}}} unless data storage bm:cab {{built:{HALL_VER}}} run function bm:p145/hall/build')
-    # (the lounge rebuilt: the hall's doorway opened again; the lounge's own prop that walled it up, gone)
-    G.FUNCS['p121/build'].append('data remove storage bm:cab built')
-    pr = G.FUNCS['p121/props']
-    gate = [i for i, l in enumerate(pr) if l.startswith('fill ~13 ~ ~-3 ~13 ~5 ~3 ')]       # (x 25 of the template: the way on into a heist)
-    assert len(gate) == 1, "the lounge's walled-up gateway was not found"
-    pr.pop(gate[0])
-    # the replicas: as the wing's page - the thing itself, or the veil; and the plaque under it
+    for dx in range(4):
+        for dy in range(3):
+            build += [setb((53 + dx, 12 + dy, 0), f'minecraft:{glass[(dx + dy * 3) % len(glass)]}_stained_glass'), setb((53 + dx, 12 + dy, -1), 'minecraft:sea_lantern')]
+    # low bookcases on the end walls, and two lanterns hung from the ceiling
+    build += [fill((47, 10, 3), (47, 12, 7), 'minecraft:bookshelf'), fill((62, 10, 3), (62, 12, 7), 'minecraft:bookshelf')]
+    for x in (50, 60):
+        build += [setb((x, 15, 5), 'minecraft:iron_chain[axis=y,waterlogged=false]'), setb((x, 14, 5), 'minecraft:lantern[hanging=true,waterlogged=false]')]
+    # the cases' replicas and plaques, the banner over Fishy, the signs at the door
+    for i, pos, yaw, lpos in slots:
+        build += put('item_display', pos, yaw, disp(['bm.cabprop', 'bm.cabslot', 'bm.cabnew'])) + \
+                 put('text_display', lpos, yaw, label(['bm.cabprop', 'bm.cablbl', 'bm.cabnew'], T('? ? ?', 'dark_gray'))) + \
+                 [f'execute positioned {M(55.0, 12.0, 5.5)} run scoreboard players set @e[tag=bm.cabnew,distance=..13] bm.cabi {i}', 'tag @e[tag=bm.cabnew] remove bm.cabnew']
+    build += put('text_display', (55.0, 15.35, 2.03), 0, label(['bm.cabprop', 'bm.cabban', 'bm.cabnew'], T('THE CABINET', GOLD, bold=True), 0.6, 220))
+    build += put('text_display', (55.0, 13.45, 11.04), 0, label(['bm.cabprop', 'bm.cabsign', 'bm.cabnew'],
+                                                              [T("FISHY'S CABINET\n", GOLD, bold=True), T('of Curiosities', '#e8c070')], 0.5, 200))
+    build += put('text_display', (55.0, 13.45, 9.96), 180, label(['bm.cabprop', 'bm.cabsign2', 'bm.cabnew'],
+                                                               [T('Show Fishy a rare thing: a replica for his cabinet. ', 'gray'), T('You keep yours.', 'white')], 0.4, 200))
+    build += ['tag @e[tag=bm.cabnew] remove bm.cabnew',
+              f'execute positioned {M(55.0, 12.0, 5.5)} run summon minecraft:marker ~ ~ ~ {{Tags:["bm.cabprop","bm.cabhall"]}}',
+              f'execute positioned {M(55.0, 11.0, 2.0)} rotated ~ 0 run function bm:p145/npc/spawn',
+              f'execute positioned {M(55.0, 12.0, 5.5)} as @e[type=minecraft:marker,tag=bm.cabhall,distance=..1] at @s run function bm:p145/hall/draw']
+    fn('p145/hall/install', ['tag @s add bm.cab280'] + build)
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.cabv dummy']
+    G.OBJECTIVES += ['bm.cabv']
+    corners = [(46, 9, -1), (63, 9, -1), (46, 9, 10), (63, 9, 10)]
+    loaded = ' '.join(f'if loaded {C(*c)}' for c in corners)
+    second.append(f'execute as @e[type=minecraft:marker,tag=bm.mkt,tag=!bm.cab280] at @s rotated as @s {loaded} run function bm:p145/hall/install')
+    # (every hall shows the wing set out last, from the one record: a change redraws the halls that are loaded, and a hall that
+    #  wasn't catches up the moment someone comes near)
+    fn('p145/hall/now', ['scoreboard players add #cabv bm.cab 1', 'execute as @e[type=minecraft:marker,tag=bm.cabhall] at @s run function bm:p145/hall/draw'])
+    fn('p145/hall/draw', ['scoreboard players operation @s bm.cabv = #cabv bm.cab'] +
+       [f'execute if score #hall bm.cab matches {WI[w]} run function bm:p145/hall/draw/{w}' for w in WINGS])
+    second.append('execute as @e[type=minecraft:marker,tag=bm.cabhall] at @s if entity @a[distance=..40] unless score @s bm.cabv = #cabv bm.cab run function bm:p145/hall/draw')
+    # the replicas: as the wing's page - the thing itself, or the veil; and the plaque under it (run at a hall's marker)
     for w, i, k, ids, r in EX:
         s = i + 1
-        sel_i = f'@e[type=minecraft:item_display,tag=bm.cabslot,scores={{bm.cabi={s}}},limit=1]'
-        sel_l = f'@e[type=minecraft:text_display,tag=bm.cablbl,scores={{bm.cabi={s}}},limit=1]'
+        sel_i = f'@e[type=minecraft:item_display,tag=bm.cabslot,scores={{bm.cabi={s}}},distance=..13,limit=1]'
+        sel_l = f'@e[type=minecraft:text_display,tag=bm.cablbl,scores={{bm.cabi={s}}},distance=..13,limit=1]'
         fn(f'p145/hall/x/{k}', [f'execute as {sel_i} run loot replace entity @s contents loot bm:items/{ids[0]}',
                                 f'data modify storage bm:ui lbl set value {snbt([T(NAME[k], WCOL[w], bold=True), T(chr(10) + "given by ", "gray"), T("", "white")])}',
                                 f'data modify storage bm:ui lbl[2].text set from storage bm:cab got.{k}.by', f'data modify entity {sel_l} text set from storage bm:ui lbl'])
         fn(f'p145/hall/v/{k}', [f'item replace entity {sel_i} contents with minecraft:paper[minecraft:item_model="bm:cab_veiled"]',
                                 f'data modify entity {sel_l} text set value {snbt([T("? ? ?", "dark_gray", bold=True), T(chr(10) + r, "gray", italic=True)])}'])
     for w in WINGS:
-        fn(f'p145/hall/show/{w}', [f'scoreboard players set #hall bm.cab {WI[w]}'] +
-           [l for k, ids, r in CAB.EXHIBITS[w] for l in (f'execute if data storage bm:cab got.{k} run function bm:p145/hall/x/{k}',
-                                                         f'execute unless data storage bm:cab got.{k} run function bm:p145/hall/v/{k}')] +
+        fn(f'p145/hall/show/{w}', [f'scoreboard players set #hall bm.cab {WI[w]}', 'function bm:p145/hall/now'])
+        fn(f'p145/hall/draw/{w}', [l for k, ids, r in CAB.EXHIBITS[w] for l in (f'execute if data storage bm:cab got.{k} run function bm:p145/hall/x/{k}',
+                                                                               f'execute unless data storage bm:cab got.{k} run function bm:p145/hall/v/{k}')] +
            [f'execute store result storage bm:ui ban.n int 1 run scoreboard players get #{w} bm.cab', f'function bm:p145/hall/ban_{w} with storage bm:ui ban'])
-        fn(f'p145/hall/ban_{w}', ['$data modify entity @e[type=minecraft:text_display,tag=bm.cabban,limit=1] text set value ' +
+        fn(f'p145/hall/ban_{w}', ['$data modify entity @e[type=minecraft:text_display,tag=bm.cabban,distance=..13,limit=1] text set value ' +
                                   snbt([T(WNAME[w].upper(), WCOL[w], bold=True), T('\n$(n)', 'white'), T(' of 20', 'gray')])])
+    # THE OLD HALL (2.79 worlds): off the Fixer's Lounge in the gutter - its props and its walls go (the lounge rebuilds itself
+    # whole on the next visit, VER 4: its east gateway walled up again)
+    OX_, OY_, OZ_ = P121.OX, P121.OY, P121.OZ
+    ohx0, ohx1, ohz0, ohz1 = OX_ + 25, OX_ + 42, OZ_ + 5, OZ_ + 19
+    fn('p145/old_hall', [f'kill @e[tag=bm.cabprop,x={ohx0 - 2},y={OY_},z={ohz0 - 2},dx={ohx1 - ohx0 + 5},dy=14,dz={ohz1 - ohz0 + 4}]',
+                         f'fill {ohx0 + 1} {OY_ + 3} {ohz0} {ohx1 + 1} {OY_ + 10} {ohz1} minecraft:air',
+                         'data modify storage bm:cab old_gone set value 1b', 'data remove storage bm:cab built',
+                         f'forceload remove {ohx0 + 12} {ohz0 - 1} {ohx1 + 2} {ohz1 + 2}'])
+    second.append(f'execute in bm:gutter if loaded {ohx0 + 6} {OY_} {ohz0 + 6} unless data storage bm:cab {{old_gone:1b}} run function bm:p145/old_hall')
 
     # ================================================================== FISHY AT HIS DESK (his rig, still; his click box)
     nsel = lambda p=None: '@e[type=minecraft:item_display,tag=bm.fyn' + (f',tag=bm.fyp_{p}' if p else '') + ',distance=..4]'
@@ -1052,7 +1070,7 @@ def generate(G):
     second.append('execute as @e[type=minecraft:item_display,tag=bm.cabros] at @s if predicate bm:p141/now_and_then run particle minecraft:end_rod ~ ~0.6 ~ 0.25 0.3 0.25 0 1')
 
     # ================================================================== admin
-    fn('admin/fishy', [give('fy_bowl'), 'tag @s add bm.fymet', say('Fishy\'s Pocket Bowl. (He\'s at his desk in the Cabinet, off the Fixer\'s Lounge.)', ORANGE)])
+    fn('admin/fishy', [give('fy_bowl'), 'tag @s add bm.fymet', say('Fishy\'s Pocket Bowl. (He\'s at his desk in the Cabinet, in the Black Market.)', ORANGE)])
     fn('admin/cabinet', ['function bm:p145/cab/main'])
     for w in WINGS:
         fn(f'admin/cabinet_fill_{w}', ['function bm:p28/name/of'] + [f'execute unless data storage bm:cab got.{k} run data modify storage bm:cab got.{k}.by set from storage bm:tmp nm.name'
@@ -1063,8 +1081,8 @@ def generate(G):
     fn('admin/cabinet_fill', [f'function bm:admin/cabinet_fill_{w}' for w in WINGS])
     fn('admin/cabinet_reset', ['data remove storage bm:cab got', 'function bm:p145/recount', 'function bm:p145/flags', 'scoreboard players reset * bm.cabc',
                                'scoreboard players reset * bm.cabr', 'function bm:p145/hall/now', say('Fishy\'s Cabinet is empty again (and every claim forgotten).', ORANGE)])
-    fn('admin/cabinet_hall', ['data remove storage bm:cab built', 'execute in bm:gutter run function bm:p145/hall/build'])
-    G.FUNCS['admin/help'] += [tellraw('@s', [T('/function bm:admin/fishy', 'yellow'), T("  Fishy's Pocket Bowl (meet him in the Cabinet off the Fixer's Lounge)", 'gray')]),
+    fn('admin/cabinet_hall', ['tag @e[type=minecraft:marker,tag=bm.mkt] remove bm.cab280', say('Every loaded market\'s Cabinet is built again.', ORANGE)])
+    G.FUNCS['admin/help'] += [tellraw('@s', [T('/function bm:admin/fishy', 'yellow'), T("  Fishy's Pocket Bowl (meet him in the Cabinet, in the Black Market)", 'gray')]),
                               tellraw('@s', [T('/function bm:admin/cabinet_fill[_<wing>]', 'yellow'), T('  fill the Cabinet (or one wing) in your name; admin/cabinet_reset empties it', 'gray')])]
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.fyp]', 'kill @e[tag=bm.cabprop]', 'kill @e[type=minecraft:item_display,tag=bm.fyrep]']
     G.FUNCS['tick'] += tick

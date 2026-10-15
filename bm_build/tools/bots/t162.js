@@ -1,5 +1,5 @@
-// 2.79: FISHY'S CABINET OF CURIOSITIES - as a regular (non-op) player, every step a real packet (rcon sets the stage: the hall
-// in the Fixer's Lounge, the things to show, a clean cabinet): Fishy at his desk, right-clicked empty-handed - he joins you (his
+// 2.79: FISHY'S CABINET OF CURIOSITIES - as a regular (non-op) player, every step a real packet (rcon sets the stage: a Black
+// Market placed fresh - 2.80: the hall is in every market, built by the market itself - the things to show, a clean cabinet): Fishy at his desk, right-clicked empty-handed - he joins you (his
 // Pocket Bowl, and his Raid Contract free - 2.79a); again - the Cabinet's menu; a wing's page, every exhibit veiled with its riddle; set out in the hall; a rare thing
 // shown to him - a replica (the cabinet records it, world-wide, with your name), the thing itself kept; shown twice - "already";
 // something ordinary - not for the cabinet; the page shows it given by you, the hall's case and plaque too; a lost bowl reissued;
@@ -11,15 +11,19 @@ const res = [];
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); return !!p; };
   const wait = async (ms, fn, step = 200) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await sleep(step); } return false; };
   const sc = async (who, o) => { const m = (await run(`scoreboard players get ${who} ${o}`)).match(/has (-?\d+)/); return m ? +m[1] : NaN; };
-  const G = 'execute in bm:gutter run ';
+  const O = 'execute in minecraft:overworld run ';
+  const passes = async c => /passed/i.test(await run(c));
+  // (2.80) a market of its own, placed fresh with no turn: template (x, y, z) is the world's (CX + x, CY + y, CZ + z); the hall's middle is (55, 12, 5.5)
+  const CX = 24000, CY = 30, CZ = 24000, HX = CX + 55, HY = CY + 12, HZ = CZ + 5.5;
+  const NEAR = `x=${HX},y=${HY},z=${HZ},distance=..13`;
+  const G = O;
   const cnt = async (sel, dim = G) => { const m = (await run(`${dim}execute if entity ${sel}`)).match(/count: (\d+)/i); return m ? +m[1] : 0; };
   const has = async (iid) => { const m = (await run(`clear TestRat *[minecraft:custom_data~{bm:"${iid}"}] 0`)).match(/Found (\d+)/); return m ? +m[1] : 0; };
   const uuidOf = async (sel, dim = G) => { const m = (await run(`${dim}data get entity ${sel} UUID`)).match(/\[I; (-?\d+), (-?\d+), (-?\d+), (-?\d+)\]/); if (!m) return null;
     const h = m.slice(1).map(v => (Number(v) >>> 0).toString(16).padStart(8, '0')).join(''); return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`; };
   const entOf = async (sel, dim = G) => { const u = await uuidOf(sel, dim); return Object.values(A.ents).find(e => e.objectUUID === u); };
-  const OX = -320, OY = 64, OZ = -256;
   const dd = (d) => d && (d.data || d);
-  const HIT = '@e[type=minecraft:interaction,tag=bm.fynhit,limit=1]';
+  const HIT = `@e[type=minecraft:interaction,tag=bm.fynhit,${NEAR},limit=1]`;
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
@@ -28,11 +32,22 @@ const res = [];
   await run('clear TestRat *[minecraft:custom_data~{bm:"fcontract_fishy"}]');
   { const fc = +(((await run('scoreboard players get TestRat bm.fcon')).match(/has (-?\d+)/) || [0, 0])[1]); if (fc > 0 && Math.floor(fc / 1024) % 2 === 1) await run(`scoreboard players set TestRat bm.fcon ${fc - 1024}`); } await run('kill @e[type=minecraft:wolf,tag=bm.fypet]');
   await run('scoreboard players set TestRat bm.fycd 0');
-  await run('data remove storage bm:cab built'); await sleep(2500);
-  ok('the hall: twenty cases, Fishy at his desk', (await cnt('@e[type=minecraft:item_display,tag=bm.cabslot]')) === 20 && (await cnt(HIT)) === 1 &&
-     (await cnt('@e[type=minecraft:item_display,tag=bm.fyn]')) === 9);
+  // ---- (2.80) the stage: a Black Market placed fresh (or the one a last run placed, its Cabinet to be built again), a market key to be let in
+  await run(`${O}forceload add ${CX - 16} ${CZ - 16} ${CX + 127} ${CZ + 127}`);
+  await run('loot replace entity TestRat hotbar.7 loot bm:items/market_key');
+  const MK = `@e[type=minecraft:marker,tag=bm.mkt,x=${CX + 38.5},y=${CY + 12},z=${CZ + 46.5},distance=..2,limit=1]`;
+  await sleep(2500);
+  if (await passes(`${O}execute if entity ${MK}`)) await run(`${O}tag ${MK} remove bm.cab280`);
+  else { let pl = ''; for (let t = 0; t < 30; t++) { pl = await run(`${O}place template bm:black_market ${CX} ${CY} ${CZ}`); if (!/not loaded/.test(pl)) break; await sleep(2000); } console.log('   placed: ' + pl.slice(0, 60)); }
+  await run(`${O}tp TestRat ${HX + 0.5} ${CY + 10} ${CZ + 4.6} 180 10`);                      // (in the market: its loop runs with someone near)
+  const built = await wait(30000, async () => passes(`${O}execute if entity ${MK.replace(',limit=1', ',tag=bm.cab280,limit=1')}`), 500);
+  await sleep(1500);
+  ok('(2.80) a Black Market placed: it builds Fishy\'s Cabinet itself', built);
+  ok('the hall: twenty cases, Fishy at his desk', (await cnt(`@e[type=minecraft:item_display,tag=bm.cabslot,${NEAR}]`)) === 20 && (await cnt(HIT)) === 1 &&
+     (await cnt(`@e[type=minecraft:item_display,tag=bm.fyn,${NEAR}]`)) === 9, `${await cnt(`@e[type=minecraft:item_display,tag=bm.cabslot,${NEAR}]`)} cases, ${await cnt(HIT)} Fishy`);
+  ok('...and the old hall in the Fixer\'s Lounge is gone', /old_gone: 1b/.test(await run('data get storage bm:cab')) && (await cnt('@e[tag=bm.cabprop,x=-297,y=64,z=-253,dx=22,dy=14,dz=18]', 'execute in bm:gutter run ')) === 0);   // (a box: an unplaced selector reaches every dimension)
   // ---- into the hall, at his desk
-  const stand = async () => { await run(`${G}tp TestRat ${OX + 37.4} ${OY + 4} ${OZ + 12.5} -90 10`); await sleep(1500); };
+  const stand = async () => { await run(`${O}tp TestRat ${HX + 0.5} ${CY + 10} ${CZ + 4.6} 180 10`); await sleep(1500); };
   await stand();
   const clickFishy = async () => { const h = await entOf(HIT); if (!h) return false; A.interact(h.entityId); await sleep(900); return true; };
   A.chats.length = 0; A.slot(8); await sleep(200);
@@ -52,7 +67,7 @@ const res = [];
   ok('...all veiled, each with its riddle', items.every(b => JSON.stringify(b.item).includes('cab_veiled')) && /throne/.test(JSON.stringify(items[0].description)),
      JSON.stringify(items[0] && items[0].description).slice(0, 120));
   await A.press(/Set it out in the hall/); await sleep(800);
-  ok('set out in the hall: the Hollow\'s cases veiled', (await sc('#hall', 'bm.cab')) === 1 && /cab_veiled/.test(await run(`${G}data get entity @e[type=minecraft:item_display,tag=bm.cabslot,scores={bm.cabi=1},limit=1] item`)));
+  ok('set out in the hall: the Hollow\'s cases veiled', (await sc('#hall', 'bm.cab')) === 1 && /cab_veiled/.test(await run(`${G}data get entity @e[type=minecraft:item_display,tag=bm.cabslot,scores={bm.cabi=1},${NEAR},limit=1] item`)));
   // ---- a rare thing shown: a replica - you keep yours
   await run('loot replace entity TestRat hotbar.1 loot bm:items/trophy_hollow'); A.slot(1); await sleep(400);
   A.chats.length = 0; await clickFishy(); await sleep(1200);
@@ -60,8 +75,8 @@ const res = [];
      await run('data get storage bm:cab got.trophy_hollow'));
   ok('...the trophy itself is still yours', (await has('trophy_hollow')) === 1);
   ok('...the Hollow: 1 of 20 - and everyone is told', (await sc('#hollow', 'bm.cab')) === 1 && A.chats.some(c => /showed Fishy.*Hollow King Trophy/.test(c)), A.chats.join(' / ').slice(0, 200));
-  ok('...its case in the hall holds the replica, its plaque your name', /trophy_hollow/.test(await run(`${G}data get entity @e[type=minecraft:item_display,tag=bm.cabslot,scores={bm.cabi=1},limit=1] item`)) &&
-     /TestRat/.test(await run(`${G}data get entity @e[type=minecraft:text_display,tag=bm.cablbl,scores={bm.cabi=1},limit=1] text`)));
+  ok('...its case in the hall holds the replica, its plaque your name', /trophy_hollow/.test(await run(`${G}data get entity @e[type=minecraft:item_display,tag=bm.cabslot,scores={bm.cabi=1},${NEAR},limit=1] item`)) &&
+     /TestRat/.test(await run(`${G}data get entity @e[type=minecraft:text_display,tag=bm.cablbl,scores={bm.cabi=1},${NEAR},limit=1] text`)));
   A.chats.length = 0; await sleep(500); await clickFishy(); await sleep(800);
   ok('shown again: "already in the Cabinet" - nothing counted twice', (await sc('#hollow', 'bm.cab')) === 1 && A.chats.some(c => /already in the Cabinet/i.test(c)), A.chats.slice(-1).join(''));
   await run('loot replace entity TestRat hotbar.2 loot bm:items/token'); A.slot(2); await sleep(400);
@@ -77,7 +92,7 @@ const res = [];
   await run('clear TestRat *[minecraft:custom_data~{bm:"fy_bowl"}]'); A.slot(8); await sleep(300); await clickFishy(); await sleep(600);
   ok('the Pocket Bowl lost: empty-handed at his desk, he gives you a spare', (await has('fy_bowl')) === 1);
   // ---- your own Fishy, out in the world: show him the next thing
-  const O = 'execute in minecraft:overworld run ', X = 16540, Y = 100, Z = 16000;
+  const X = 16540, Y = 100, Z = 16000;
   await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`); await run(`${O}fill ${X - 8} ${Y} ${Z - 8} ${X + 8} ${Y} ${Z + 8} minecraft:stone`);
   await run(`${O}fill ${X - 8} ${Y + 1} ${Z - 8} ${X + 8} ${Y + 6} ${Z + 8} minecraft:air`); await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..20]`);
   await run(`${O}tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(2500);

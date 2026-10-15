@@ -15,11 +15,14 @@
   sixteen tongues spiralling into a vortex that tightens while he grows inside it - then it bursts and he roars (7 s).
 - THE FIGHT: CLAW (a raking sweep), BITE (a lunge,
   withering), MACE (his tail-mace crashes down in a quake), SERPENT'S FANGS (lines of fangs at you), VENOM (a spat glob
-  that splashes poison and wither); at three-quarters he calls his drowned court. At half he falls - the bar goes, his
+  that splashes poison and wither), THE SERPENT'S JUDGEMENT (2.80: a ring of fire under each of you erupts a breath later -
+  nothing turns it, not armour, Protection, Resistance or a shield: step out of it); at three-quarters he calls his drowned
+  court. At half he falls - the bar goes, his
   court crumbles, he lies still while his old enemies wonder - then a heartbeat, a laugh, and THE SERPENT UNBOUND: the
   ethereal king tears out of his scales on violet wings and takes to the air (13 s): VOID ORBS that leave pools of dark,
   the SWOOP (a dive through you), the WINGBEAT (thrown back), GRAND FANGS (he lands in rings of fangs) and spectral
-  serpents. Every player in the den when he falls shares the win (a follower's killing blow counts).
+  serpents, and his Judgement again, violet, wider, quicker and twice. (2.80: 1024 health, the game's ceiling - and he
+  rises Unbound at full health again; every blow about a third harder.) Every player in the den when he falls shares the win (a follower's killing blow counts).
 - DROPS: the first time, THE SERPENT'S OATH (he serves you), APOPHISS'S TRUE CROWN (his crown, the emerald awake - the
   relic Cecil sells, stronger) and THE SERPENT KING'S MACE; a hoard every time; later wins have a chance at each.
 - THE FOLLOWER (the Oath; 2.77b: his full size, his reach to match): claw, bite, venom spit; every eighth blow THE SERPENT KING'S WRATH (the mace and a ring of
@@ -29,6 +32,7 @@
 """
 import math
 import json
+import os
 from items import item, T, TOTEM, ITEMS
 from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D
@@ -46,7 +50,7 @@ import phase100 as P100
 import allies
 
 GRN, GRN_LT, VIOLET, VIOLET_LT, GOLD = '#3ad06a', '#c8f0b0', '#b07aff', '#e0ccff', '#ffcf40'
-BOSS_HP, PET_HP, PET_CD = 900, 70, 300
+BOSS_HP, PET_HP, PET_CD = 1024, 70, 300          # (2.80: 1024, the game's ceiling - and the Unbound king rises at full health again)
 SB, SP = ART.BOSS_SCALE, ART.PET_SCALE
 UB, UP = SB / 16, SP / 16
 MENU = 8600                        # his menu (bm.menu) and its buttons 8601..8609
@@ -86,24 +90,58 @@ item('apo_true_crown', TOTEM, "Apophiss's True Crown", GRN,
       ('hard to knock back, and your blows wither.', 'blue'), ('Wither, poison and fire can\'t touch you; you', 'blue'),
       ('breathe water and see in the dark.', 'blue'), ('Badly hurt: Regeneration. Monsters near you weaken.', 'blue'),
       ('Sneak + jump: Serpent\'s Fangs in five lines (2 s).', 'blue'), ('Near death: the Serpent King\'s Wrath (every 2 min).', 'blue'),
-      ('Night: Strength II and Regeneration.', 'dark_purple'), ('Use: wear it. Sneak + use on a block: set it there.', 'gray'),
+      ('Night: Strength II and Regeneration.', 'dark_purple'), ('Protection X, Thorns III, Respiration V.', 'blue'),
+      ('Counts as the Hollow King\'s Regalia: worn with', 'dark_purple'), ('the rest of it, the set wakes.', 'dark_purple'),
+      ('With Apophiss at your side: Resistance II, Regeneration II.', 'dark_purple'),
+      ('Use: wear it. Sneak + use on a block: set it there.', 'gray'),
       ('Taken from Apophiss himself.', 'dark_gray')],
-     model='bm:apo_true_crown', stack=1, cat='relic', glint=True, tier=3,
+     model='bm:apo_true_crown', stack=1, cat='relic', glint=True, tier=3, custom_extra={'bm_set': 'conqueror'},
      comps=dict(hold('none'), **{
          'minecraft:equippable': {'slot': 'head', 'swappable': True, 'equip_sound': 'minecraft:item.armor.equip_netherite'},
          'minecraft:attribute_modifiers': [_attr('scale', 0.25, 'head'), _attr('attack_damage', 8, 'head'), _attr('entity_interaction_range', 3, 'head'),
                                            _attr('block_interaction_range', 2.0, 'head'), _attr('max_health', 12, 'head'), _attr('armor', 8, 'head'),
                                            _attr('armor_toughness', 6, 'head'), _attr('knockback_resistance', 0.5, 'head'),
                                            _attr('movement_speed', 0.1, 'head', 'add_multiplied_base')],
-         'minecraft:enchantments': {'bm:serpent_venom': 1}}))
+         # (2.80: better than the Hollow King's own Deathmask in every way - his Protection, Thorns and Respiration too - and a
+         #  piece of his Regalia: the crown he only ever wore the shadow of)
+         'minecraft:enchantments': {'bm:serpent_venom': 1, 'minecraft:protection': Int(10), 'minecraft:thorns': Int(3), 'minecraft:respiration': Int(5),
+                                    'minecraft:aqua_affinity': Int(1)}}))
 HOLD['apo_true_crown'] = 'bm:p131/crown/use'
-item('apo_mace', 'minecraft:mace', "The Serpent King's Mace", GRN,
-     ['The end of his tail: black spikes, white crescents.', ('A smash from a fall: Serpent\'s Fangs burst', 'blue'), ('out round where it lands.', 'blue'),
-      ('Every blow withers.', 'blue'), ('Taken from Apophiss himself.', 'dark_gray')],
-     model='bm:apo_mace_item', stack=1, cat='weapon', glint=False, tier=3,
-     comps={'minecraft:enchantments': {'minecraft:density': Int(3), 'minecraft:wind_burst': Int(1), 'minecraft:unbreaking': Int(3)},
-            'minecraft:attribute_modifiers': [_attr('attack_damage', 9, 'mainhand', ident='minecraft:base_attack_damage'),
-                                              _attr('attack_speed', -3.4, 'mainhand', ident='minecraft:base_attack_speed')]})
+# (2.80) THE SERPENT KING'S MACE - above Sepulchre, the Hollow King's maul, in everything - and in seven forms: swap-hands
+# (F) for the next, sneak + F for the one before (as the Shifting arms). It always looks like his mace (its spikes take each
+# form's colour); every form has its own enchantments and its own bite; the mace, the sword and the axe call the Serpent
+# King's Wrath on a right-click. Its wrath gathers faster as the Regalia wakes (night, the moons, a Blood Moon - whether or
+# not you wear it, as with Sepulchre), and faster still with Apophiss at your side.
+MACE_FORMS = [  # key, name, base item, enchantments, attack damage, attack speed, spike colour, its bite
+    ('sword', 'Sword', 'minecraft:netherite_sword', {'sharpness': 6, 'looting': 4, 'sweeping_edge': 4, 'knockback': 1}, 12, -2.4, '#3ad0b0', 'blows poison as well as wither'),
+    ('axe', 'Axe', 'minecraft:netherite_axe', {'sharpness': 6, 'efficiency': 6, 'fortune': 3}, 15, -3.0, '#d04a3a', 'blows cleave the monsters round your target, and sap them'),
+    ('mace', 'Mace', 'minecraft:mace', {'density': 6, 'breach': 5, 'smite': 7, 'wind_burst': 3}, 13, -3.4, '#4a4a54', 'a smash from a fall bursts fangs round where it lands'),
+    ('pickaxe', 'Pickaxe', 'minecraft:netherite_pickaxe', {'efficiency': 6, 'fortune': 4}, 8, -2.8, '#e0b040', 'Haste II while you hold it'),
+    ('shovel', 'Shovel', 'minecraft:netherite_shovel', {'efficiency': 6, 'fortune': 3}, 8.5, -3.0, '#b07a40', 'Haste II while you hold it; blows throw monsters up'),
+    ('hoe', 'Hoe', 'minecraft:netherite_hoe', {'efficiency': 6, 'fortune': 4}, 7, 0.0, '#8ae040', 'every blow mends you'),
+    ('trident', 'Trident', 'minecraft:trident', {'impaling': 6, 'loyalty': 3, 'channeling': 1}, 11, -2.9, '#40a8e0', 'blows burst fangs round your target'),
+]
+WRATH_FORMS = ('mace', 'sword', 'axe')
+mace_id = lambda k: 'apo_mace' if k == 'mace' else f'apo_mace_{k}'
+MACE_IDS = [mace_id(f[0]) for f in MACE_FORMS]
+for _k, _nm, _base, _en, _dmg, _spd, _col, _bite in MACE_FORMS:
+    _lore = ['The end of his tail: black spikes, white crescents.', (f'{_nm} form: {_bite}.', 'blue')]
+    if _k in WRATH_FORMS:
+        _lore += [('Right-click: the Serpent King\'s Wrath - fangs burst', 'blue'), ('out in rings round you and in lines ahead;', 'blue'),
+                  ('monsters within 9 blocks wither, sicken and', 'blue'), ('take a heavy blow (12 s).', 'blue')]
+    _lore += [('Every blow withers. Unbreakable.', 'blue'), ('Swap-hands (F): the next form. Sneak + F: the one before.', 'gray'),
+              ('Sword · Axe · Mace · Pickaxe · Shovel · Hoe · Trident', 'dark_gray'),
+              ('Its wrath gathers faster as the Regalia wakes;', 'dark_purple'), ('with Apophiss at your side: Strength II.', 'dark_purple'),
+              ('Taken from Apophiss himself.', 'dark_gray')]
+    _comps = {'minecraft:enchantments': {f'minecraft:{e}': Int(v) for e, v in _en.items()}, 'minecraft:unbreakable': {},
+              'minecraft:attribute_modifiers': [_attr('attack_damage', _dmg, 'mainhand', ident='minecraft:base_attack_damage'),
+                                                _attr('attack_speed', _spd, 'mainhand', ident='minecraft:base_attack_speed')]}
+    if _k in WRATH_FORMS:
+        _comps = dict(hold('none'), **_comps)
+        HOLD[mace_id(_k)] = 'bm:p131/mace/use'
+    item(mace_id(_k), _base, "The Serpent King's Mace" + ('' if _k == 'mace' else f': {_nm}'), GRN, _lore,
+         model='bm:apo_mace_item' + ('' if _k == 'mace' else f'_{_k}'), stack=1, cat='weapon', glint=False, tier=3,
+         custom_extra={'bm_apomace': B(1)}, comps=_comps)
 item('fcontract_apo', TOTEM, 'Raid Contract: Apophiss', GRN,
      ['Signed in gold ink, sealed in wax - and venom.', ('Use once: from then on Apophiss', 'blue'), ('will come into the vault with you.', 'blue')],
      model='minecraft:paper', glint=True, stack=1, cat='magic', comps=hold('none'))
@@ -241,7 +279,9 @@ def _blackfire_tex():
 
 
 def textures():
-    return {'apo_seal': _seal_tex(False), 'apo_seal_lit': _seal_tex(True), 'apo_blackfire': _blackfire_tex()}
+    out = {'apo_seal': _seal_tex(False), 'apo_seal_lit': _seal_tex(True), 'apo_blackfire': _blackfire_tex()}
+    out.update({f'apo_mace_f_{k}': ART._mace('#222226', col, 713) for k, _n, _b, _e, _d, _s, col, _t in MACE_FORMS if k != 'mace'})     # (2.80: the forms' spikes)
+    return out
 
 
 def _oath_icon(R):
@@ -320,6 +360,8 @@ def rp(R):
     for name, (tex, els) in ART.models().items():
         R.HATS[name] = (tex, els)
     R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + (ART.PREFIX,)
+    R.LANG.update({'death.attack.bm.apo_judgement': '%1$s was judged by the Serpent King',          # (2.80: his Judgement)
+                   'death.attack.bm.apo_judgement.player': '%1$s was judged by %2$s'})
     # the seal: a plate in the floor (4 blocks across at the display's scale)
     for nm in ('apo_seal', 'apo_seal_lit'):
         face = {'uv': [0, 0, 16, 16], 'texture': '#s'}
@@ -346,6 +388,13 @@ def rp(R):
         R2.wj('assets/bm/items/apo_true_crown.json', {'model': {'type': 'minecraft:model', 'model': 'bm:item/apophiss_crown'}})
         R2.wj('assets/bm/models/item/apo_mace_held.json', held_mace(json.load(open(R2.p('assets', 'bm', 'models', 'item', 'apo_mace.json')))))
         R2.wj('assets/bm/items/apo_mace_item.json', {'model': {'type': 'minecraft:model', 'model': 'bm:item/apo_mace_held'}})
+        # (2.80: each other form - the same mace, its spikes in the form's colour)
+        held = json.load(open(R2.p('assets', 'bm', 'models', 'item', 'apo_mace_held.json')))
+        for k, *_r in MACE_FORMS:
+            if k == 'mace': continue
+            m = dict(held, textures=dict(held['textures'], apo_mace=f'bm:block/apo_mace_f_{k}'))
+            R2.wj(f'assets/bm/models/item/apo_mace_held_{k}.json', m)
+            R2.wj(f'assets/bm/items/apo_mace_item_{k}.json', {'model': {'type': 'minecraft:model', 'model': f'bm:item/apo_mace_held_{k}'}})
     R.POST.append(post)
 
 
@@ -666,7 +715,7 @@ def generate(G):
     # ================================================================== THE BOSS
     bnbt = {'Tags': ['bm.apboss', 'bm.aphost', 'bm.apnew', 'bm.seen'], 'PersistenceRequired': B(1), 'Silent': B(1), 'NoAI': B(1), 'Invulnerable': B(1),
             'CustomName': T('Apophiss', GRN, bold=True), 'IsBaby': B(0), 'CanBreakDoors': B(0), 'DeathLootTable': 'minecraft:empty', 'Health': F(BOSS_HP),
-            'attributes': [{'id': f'minecraft:{k}', 'base': D(v)} for k, v in dict(scale=2.6, max_health=BOSS_HP, attack_damage=7, armor=14, armor_toughness=6,
+            'attributes': [{'id': f'minecraft:{k}', 'base': D(v)} for k, v in dict(scale=2.6, max_health=BOSS_HP, attack_damage=12, armor=18, armor_toughness=10,
                                                                                   movement_speed=0.25, follow_range=48, knockback_resistance=1.0,
                                                                                   spawn_reinforcements=0.0, step_height=2.0, jump_strength=0.0).items()],   # (2.78: he slithers - he steps up, never hops)
             'active_effects': [{'id': f'minecraft:{e}', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}
@@ -881,12 +930,16 @@ def generate(G):
                        'execute if score @s bm.apph matches 1 if score @s bm.apr matches 0 if score #hp bm.rng <= #h4 bm.rng run return run function bm:p131/b/start {a:6}',
                        'execute if score @s bm.apph matches 2 run return run function bm:p131/b/mind2',
                        'execute store result score #r bm.rng run random value 1..100',
+                       f'execute if score #r bm.rng matches 1..20 if entity {pl(28)} run return run function bm:p131/b/start {{a:8}}',
+                       'execute store result score #r bm.rng run random value 1..100',
                        f'execute if entity {pl(5.5)} if score #r bm.rng matches 1..45 run return run function bm:p131/b/start {{a:1}}',
                        f'execute if entity {pl(8)} if score #r bm.rng matches 46..72 run return run function bm:p131/b/start {{a:2}}',
                        f'execute if entity {pl(11)} if score #r bm.rng matches 73..92 run return run function bm:p131/b/start {{a:3}}',
                        f'execute if entity {pl(24)} if score #r bm.rng matches 1..55 run return run function bm:p131/b/start {{a:4}}',
                        f'execute if entity {pl(24)} run return run function bm:p131/b/start {{a:5}}'])
     fn('p131/b/mind2', ['execute store result score #r bm.rng run random value 1..5', 'execute if score #r bm.rng matches 1 run tag @a remove bm.aptgt',
+                        'execute store result score #r bm.rng run random value 1..100',
+                        f'execute if score #r bm.rng matches 1..20 if entity {pl(40)} run return run function bm:p131/b/start {{a:16}}',
                         'execute store result score #r bm.rng run random value 1..100',
                         'execute if score #r bm.rng matches 1..30 run return run function bm:p131/b/start {a:11}',
                         f'execute if score #r bm.rng matches 31..52 if entity {pl(28)} run return run function bm:p131/b/start {{a:12}}',
@@ -907,7 +960,8 @@ def generate(G):
                        'execute store result entity @s Health float 0.01 run scoreboard players get #h2 bm.rng',
                        'function bm:p131/b/done', 'execute store result score #hp bm.rng run data get entity @s Health', 'function bm:p131/b/start {a:7}'])
     fn('p131/b/done', ['scoreboard players set @s bm.apatk 0', 'scoreboard players set @s bm.aps -1', 'scoreboard players set @s bm.apf 0', 'tag @a[tag=bm.aphitp] remove bm.aphitp'])
-    names = {1: 'claw', 2: 'bite', 3: 'mace', 4: 'fangs', 5: 'venom', 6: 'court', 7: 'ascend', 9: 'wake', 11: 'orbs', 12: 'swoop', 13: 'gust', 14: 'grand', 15: 'call'}
+    names = {1: 'claw', 2: 'bite', 3: 'mace', 4: 'fangs', 5: 'venom', 6: 'court', 7: 'ascend', 8: 'judge', 9: 'wake', 11: 'orbs', 12: 'swoop', 13: 'gust', 14: 'grand',
+             15: 'call', 16: 'judge2'}
     fn('p131/b/attack', ['scoreboard players add @s bm.apt 1', 'tag @s add bm.apme'] +
        [f'execute if score @s bm.apatk matches {n} run function bm:p131/b/a_{w}' for n, w in names.items()] + ['tag @s remove bm.apme'])
     face_t = 'execute facing entity @p[gamemode=!creative,gamemode=!spectator] feet run tp @s ~ ~ ~ ~ 0'
@@ -917,7 +971,7 @@ def generate(G):
                          at(20, 'function bm:p131/b/pose/battle'), at('26..', 'function bm:p131/b/done')])
     fn('p131/b/claw_hit', [f'particle minecraft:sweep_attack ^{x} ^3 ^{z} 0 0 0 0 1' for x, z in ((-3, 2), (-1.5, 3.5), (0, 4), (1.5, 3.5), (3, 2))] +
        ['playsound minecraft:entity.player.attack.sweep hostile @a[distance=..32] ~ ~ ~ 1.4 0.5',
-        f'execute rotated as @s rotated ~ 0 positioned ^ ^ ^3 as {pl(4.4)} run damage @s 16 minecraft:mob_attack by {me}'])
+        f'execute rotated as @s rotated ~ 0 positioned ^ ^ ^3 as {pl(4.4)} run damage @s 22 minecraft:mob_attack by {me}'])
     # BITE: down low, then a lunge - the maw shuts on you (withering)
     fn('p131/b/a_bite', [at(1, face_t), at(1, 'function bm:p131/b/pose/crouch'), at(1, 'playsound minecraft:entity.ravager.roar hostile @a[distance=..32] ~ ~ ~ 0.6 1.4'),
                          at('6..8', 'execute rotated as @s rotated ~ 0 positioned ^ ^ ^1 if block ~ ~0.5 ~ #bm:grap_pass if block ~ ~2 ~ #bm:grap_pass run tp @s ~ ~ ~'),
@@ -925,7 +979,7 @@ def generate(G):
                          at(20, 'function bm:p131/b/pose/battle'), at('26..', 'function bm:p131/b/done')])
     fn('p131/b/bite_hit', ['playsound minecraft:entity.evoker_fangs.attack hostile @a[distance=..32] ~ ~ ~ 1.4 0.6', 'playsound minecraft:entity.fox.bite hostile @a[distance=..32] ~ ~ ~ 1 0.4',
                            f'execute rotated as @s rotated ~ 0 positioned ^ ^1 ^4 as {pl(3.4)} at @s run function bm:p131/b/bitten'])
-    fn('p131/b/bitten', [f'damage @s 20 minecraft:mob_attack by {me}', 'effect give @s minecraft:wither 5 1', 'effect give @s minecraft:poison 4 0',
+    fn('p131/b/bitten', [f'damage @s 26 minecraft:mob_attack by {me}', 'effect give @s minecraft:wither 5 1', 'effect give @s minecraft:poison 4 0',
                          'particle minecraft:damage_indicator ~ ~1 ~ 0.3 0.4 0.3 0.2 8'])
     # MACE: the tail lifts the mace high over him - and brings it down in a quake (enraged: fangs where it lands)
     fn('p131/b/a_mace', [at(1, face_t), at(1, 'function bm:p131/b/pose/mace_up'), at(1, 'playsound minecraft:item.mace.smash_air hostile @a[distance=..32] ~ ~ ~ 1 0.5'),
@@ -937,7 +991,7 @@ def generate(G):
     fn('p131/b/quake', ['particle minecraft:explosion ~ ~0.3 ~ 2.5 0.1 2.5 0 10', 'particle minecraft:block{block_state:"minecraft:dark_prismarine"} ~ ~0.2 ~ 3 0.1 3 0 80',
                         'particle minecraft:dust{color:[0.2,0.9,0.4],scale:2} ~ ~0.3 ~ 3 0.2 3 0 40',
                         'playsound minecraft:item.mace.smash_ground_heavy hostile @a[distance=..40] ~ ~ ~ 1.5 0.6', 'playsound minecraft:entity.generic.explode hostile @a[distance=..40] ~ ~ ~ 1 0.6',
-                        f'execute as {pl(4.8)} run damage @s 18 minecraft:mob_attack by {me}', f'effect give {pl(4.8)} minecraft:slowness 3 1',
+                        f'execute as {pl(4.8)} run damage @s 24 minecraft:mob_attack by {me}', f'effect give {pl(4.8)} minecraft:slowness 3 1',
                         'execute store result score #hp bm.rng run data get entity @s Health',
                         'execute if score #hp bm.rng matches ..300 run function bm:p131/b/ring3'])
     # SERPENT'S FANGS: claws high, green fire in them - then lines of fangs at up to three of you
@@ -968,12 +1022,70 @@ def generate(G):
     fn('p131/splash', ['particle minecraft:item_slime ~ ~ ~ 1.2 0.6 1.2 0.2 50', 'particle minecraft:dust{color:[0.4,0.9,0.2],scale:2} ~ ~ ~ 1.4 0.6 1.4 0 30',
                        'playsound minecraft:entity.slime.squish_small hostile @a[distance=..24] ~ ~ ~ 1.5 0.5',
                        'execute as @a[distance=..3,gamemode=!creative,gamemode=!spectator] at @s run function bm:p131/splashed', 'kill @s'])
-    fn('p131/splashed', ['execute if entity @e[type=minecraft:husk,tag=bm.apboss,distance=..48] run damage @s 10 minecraft:mob_projectile by @e[type=minecraft:husk,tag=bm.apboss,limit=1,sort=nearest]',
-                         'execute unless entity @e[type=minecraft:husk,tag=bm.apboss,distance=..48] run damage @s 10 minecraft:mob_projectile',
+    fn('p131/splashed', ['execute if entity @e[type=minecraft:husk,tag=bm.apboss,distance=..48] run damage @s 14 minecraft:mob_projectile by @e[type=minecraft:husk,tag=bm.apboss,limit=1,sort=nearest]',
+                         'execute unless entity @e[type=minecraft:husk,tag=bm.apboss,distance=..48] run damage @s 14 minecraft:mob_projectile',
                          'effect give @s minecraft:poison 5 1', 'effect give @s minecraft:wither 5 0'])
+    # THE SERPENT'S JUDGEMENT (2.80): the emerald in his crown blazes - a ring of fire marks the ground under each of you, closing
+    # as it counts down, and then it erupts. Nothing turns it: not armour, not Protection, not Resistance, not a shield - only being
+    # out of the ring when it goes (bm:apo_judgement). The Unbound king's is violet, wider and quicker, and comes twice.
+    jcol = {1: (0.3, 1.0, 0.45), 2: (0.7, 0.45, 1.0)}
+    JR, JT, JD = {1: 3.0, 2: 3.5}, {1: 36, 2: 30}, {1: 16, 2: 20}         # (radius, ticks to get out - 1.8 s, 1.5 s: a sprint clears it with ping to spare - damage)
+    fn('p131/b/a_judge', [at(1, face_t), at(1, 'function bm:p131/b/pose/cast'), at(1, bface('smug')),
+                          at(1, 'playsound minecraft:entity.warden.sonic_charge hostile @a[distance=..48] ~ ~ ~ 2 0.7'),
+                          at('1..30', 'particle minecraft:dust{color:[0.3,1.0,0.45],scale:1.6} ~ ~6.4 ~ 0.5 0.3 0.5 0 3'),
+                          at(4, 'function bm:p131/b/judge_mark {k:1}'), at(4, apchat('Kneel.', '@a[distance=..48]')),
+                          at(32, 'function bm:p131/b/pose/roar'), at(44, 'function bm:p131/b/pose/battle'), at('50..', 'function bm:p131/b/done')])
+    fn('p131/b/a_judge2', [at(1, 'function bm:p131/b/pose/eth_cast'), at(1, 'playsound minecraft:entity.warden.sonic_charge hostile @a[distance=..48] ~ ~ ~ 2 0.9'),
+                           at('1..52', 'particle minecraft:dust{color:[0.7,0.45,1.0],scale:1.6} ~ ~6 ~ 0.6 0.4 0.6 0 3'),
+                           at(3, 'function bm:p131/b/judge_mark {k:2}'), at(3, apchat('BOW.', '@a[distance=..48]')),
+                           at(30, 'function bm:p131/b/judge_mark {k:2}'), at(30, 'playsound minecraft:entity.warden.sonic_charge hostile @a[distance=..48] ~ ~ ~ 2 1.1'),
+                           at(56, 'function bm:p131/b/pose/eth_hover'), at('62..', 'function bm:p131/b/done')])
+    fn('p131/b/judge_mark', [f'$execute as {pl(40)} at @s run summon minecraft:marker ~ ~ ~ {{Tags:["bm.apjm","bm.apjm$(k)","bm.apjn"]}}',
+                             'execute if entity @s[scores={bm.apph=1}] run scoreboard players set @e[type=minecraft:marker,tag=bm.apjn] bm.apl ' + str(JT[1]),
+                             'execute if entity @s[scores={bm.apph=2}] run scoreboard players set @e[type=minecraft:marker,tag=bm.apjn] bm.apl ' + str(JT[2]),
+                             'tag @e[type=minecraft:marker,tag=bm.apjn] remove bm.apjn',
+                             f'execute as {pl(40)} at @s run playsound minecraft:block.respawn_anchor.charge hostile @s ~ ~ ~ 1 0.6',
+                             title(pl(40), 'actionbar', T('The ground under you burns - GET OUT OF THE RING!', GRN, bold=True))])
+    tick.append('execute as @e[type=minecraft:marker,tag=bm.apjm] at @s run function bm:p131/jm')
+    fn('p131/jm', ['scoreboard players remove @s bm.apl 1', 'execute if block ~ ~-0.2 ~ #bm:grap_pass run tp @s ~ ~-0.25 ~',
+                   'execute if entity @s[tag=bm.apjm1] run function bm:p131/jm1', 'execute if entity @s[tag=bm.apjm2] run function bm:p131/jm2'])
+    for k in (1, 2):
+        c, R = jcol[k], JR[k]
+        dust = f'minecraft:dust{{color:[{c[0]},{c[1]},{c[2]}],scale:1.3}}'
+        rim = [f'particle {dust} ~{R * math.cos(2 * math.pi * i / 24):.2f} ~0.15 ~{R * math.sin(2 * math.pi * i / 24):.2f} 0 0 0 0 1' for i in range(24)]
+        fn(f'p131/jm{k}_rim', rim)
+        steps = (0.25, 0.5, 0.75)                                      # (the closing ring: in from the rim as the count runs down)
+        for j, f_ in enumerate(steps):
+            r = R * (1 - f_)
+            fn(f'p131/jm{k}_in{j}', [f'particle {dust} ~{r * math.cos(2 * math.pi * i / 16):.2f} ~0.2 ~{r * math.sin(2 * math.pi * i / 16):.2f} 0 0 0 0 1' for i in range(16)])
+        T0 = JT[k]
+        fn(f'p131/jm{k}', ['execute if score @s bm.apl matches ..0 run return run function bm:p131/jm' + str(k) + '_go',
+                           'execute store result score #j bm.rng run scoreboard players get @s bm.apl', 'scoreboard players operation #j bm.rng %= #2 bm.rng',
+                           f'execute if score #j bm.rng matches 0 run function bm:p131/jm{k}_rim'] +
+           [f'execute if score @s bm.apl matches {max(1, int(T0 * (1 - f_)) - 2)}..{int(T0 * (1 - f_))} run function bm:p131/jm{k}_in{j}' for j, f_ in enumerate(steps)] +
+           [f'particle minecraft:soul_fire_flame ~ ~0.2 ~ {R / 2:.1f} 0 {R / 2:.1f} 0.01 2',
+            'execute if score @s bm.apl matches 10 run playsound minecraft:block.note_block.basedrum hostile @a[distance=..16] ~ ~ ~ 1.5 0.5',
+            'execute if score @s bm.apl matches 5 run playsound minecraft:block.note_block.basedrum hostile @a[distance=..16] ~ ~ ~ 1.5 0.7'])
+        fn(f'p131/jm{k}_go', [f'particle {dust.replace("scale:1.3", "scale:2.4")} ~ ~1.5 ~ {R / 2:.1f} 1.4 {R / 2:.1f} 0 90',
+                              f'particle minecraft:soul_fire_flame ~ ~0.4 ~ {R / 2:.1f} 0.2 {R / 2:.1f} 0.15 60',
+                              'particle minecraft:sonic_boom ~ ~1 ~ 0 0 0 0 1', 'particle minecraft:explosion ~ ~0.5 ~ 0.6 0.2 0.6 0 3',
+                              'playsound minecraft:entity.warden.sonic_boom hostile @a[distance=..32] ~ ~ ~ 1.2 0.8',
+                              f'execute positioned ~ ~1 ~ as @a[distance=..{R + 0.3:.1f},gamemode=!creative,gamemode=!spectator] at @s run function bm:p131/judged{k}',
+                              'kill @s'])
+        fn(f'p131/judged{k}', [f'execute if entity @e[type=minecraft:husk,tag=bm.apboss,distance=..64] run return run function bm:p131/judged{k}_by',
+                               f'damage @s {JD[k]} bm:apo_judgement', 'effect give @s minecraft:wither 4 1'])
+        fn(f'p131/judged{k}_by', [f'damage @s {JD[k]} bm:apo_judgement by @e[type=minecraft:husk,tag=bm.apboss,limit=1,sort=nearest]', 'effect give @s minecraft:wither 4 1',
+                                  'particle minecraft:damage_indicator ~ ~1 ~ 0.3 0.4 0.3 0.2 8'])
+    # (a ring never outlives him)
+    second.append('execute as @e[type=minecraft:marker,tag=bm.apjm] at @s unless entity @e[type=minecraft:husk,tag=bm.apboss,distance=..64] run kill @s')
+    wjson('bm/damage_type/apo_judgement.json', {'exhaustion': 0.0, 'message_id': 'bm.apo_judgement', 'scaling': 'never', 'effects': 'burning'})
+    for tg in ('bypasses_armor', 'bypasses_enchantments', 'bypasses_resistance', 'bypasses_shield'):
+        f_ = G.path('data', 'minecraft', 'tags', 'damage_type', f'{tg}.json')
+        vals = json.load(open(f_))['values'] if os.path.exists(f_) else []
+        wjson(f'minecraft/tags/damage_type/{tg}.json', {'replace': False, 'values': [v for v in vals if v != 'bm:apo_judgement'] + ['bm:apo_judgement']})
     # THE COURT (once, at three quarters): a roar - and the drowned of his sunken court climb up out of the floor
     court = {'Tags': ['bm.apcourt', 'bm.seen'], 'PersistenceRequired': B(1), 'CustomName': T('Drowned Courtier', '#5ab89a'), 'DeathLootTable': 'minecraft:empty',
-             'Health': F(34), 'attributes': [{'id': 'minecraft:max_health', 'base': D(34)}, {'id': 'minecraft:attack_damage', 'base': D(7)}, {'id': 'minecraft:follow_range', 'base': D(40)}],
+             'Health': F(34), 'attributes': [{'id': 'minecraft:max_health', 'base': D(34)}, {'id': 'minecraft:attack_damage', 'base': D(9)}, {'id': 'minecraft:follow_range', 'base': D(40)}],
              'equipment': {'mainhand': {'id': 'minecraft:trident', 'count': Int(1)}, 'head': {'id': 'minecraft:golden_helmet', 'count': Int(1)}},
              'drop_chances': {'mainhand': F(0.0), 'head': F(0.0)}}
     fn('p131/b/a_court', [at(1, 'function bm:p131/b/pose/roar'), at(1, bface('shock')), at(1, 'scoreboard players set @s bm.apr 1'),
@@ -1030,7 +1142,8 @@ def generate(G):
         at(215, 'playsound minecraft:item.trident.thunder hostile @a[distance=..64] ~ ~ ~ 1.5 0.6'),
         at(232, 'particle minecraft:flash{color:[0.75,0.5,1.0,1.0]} ~ ~3 ~ 0 0 0 0 1'), at(232, 'particle minecraft:explosion_emitter ~ ~2 ~ 0 0 0 0 1'),
         at(232, 'playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..64] ~ ~ ~ 2 0.7'),
-        at(232, 'scoreboard players set @s bm.apph 2'), at(232, 'function bm:p131/b/look_eth'), at(232, 'function bm:p131/b/pose/eth_hover'),
+        at(232, 'scoreboard players set @s bm.apph 2'), at(232, 'function bm:p131/b/look_eth'),
+        at(232, 'execute store result entity @s Health float 1 run attribute @s minecraft:max_health get'),     # (2.80: whole again - the second half is a fight of its own) at(232, 'function bm:p131/b/pose/eth_hover'),
         # (his wings unfurl slower than the rest of him moves)
         at(232, f'execute as {bsel("wingr")} run data merge entity @s {{interpolation_duration:30}}'),
         at(232, f'execute as {bsel("wingl")} run data merge entity @s {{interpolation_duration:30}}'),
@@ -1070,8 +1183,8 @@ def generate(G):
                       'playsound minecraft:entity.dragon_fireball.explode hostile @a[distance=..32] ~ ~ ~ 1 0.8',
                       'execute as @a[distance=..2.6,gamemode=!creative,gamemode=!spectator] at @s run function bm:p131/burned',
                       f'execute align y positioned ~ ~0.1 ~ run summon minecraft:area_effect_cloud ~ ~ ~ {pool}', 'kill @s'])
-    fn('p131/burned', ['execute if entity @e[type=minecraft:husk,tag=bm.apboss,distance=..60] run damage @s 9 minecraft:indirect_magic by @e[type=minecraft:husk,tag=bm.apboss,limit=1,sort=nearest]',
-                       'execute unless entity @e[type=minecraft:husk,tag=bm.apboss,distance=..60] run damage @s 9 minecraft:magic', 'effect give @s minecraft:wither 4 1'])
+    fn('p131/burned', ['execute if entity @e[type=minecraft:husk,tag=bm.apboss,distance=..60] run damage @s 13 minecraft:indirect_magic by @e[type=minecraft:husk,tag=bm.apboss,limit=1,sort=nearest]',
+                       'execute unless entity @e[type=minecraft:husk,tag=bm.apboss,distance=..60] run damage @s 13 minecraft:magic', 'effect give @s minecraft:wither 4 1'])
     # (the pools never outlive him)
     second.append('execute in bm:hollow_throne as @e[type=minecraft:area_effect_cloud,tag=bm.appool] unless entity @e[type=minecraft:husk,tag=bm.apboss,distance=..60] run kill @s')
     # THE SWOOP: he climbs, folds his wings - and dives through you
@@ -1090,7 +1203,7 @@ def generate(G):
                        f'execute as {pl(3.4, ",tag=!bm.aphitp")} at @s run function bm:p131/b/swooped',
                        'execute if entity @a[tag=bm.apsw,distance=..2.2] run scoreboard players set @s bm.apt 34',
                        'execute unless block ~ ~-0.6 ~ #bm:grap_pass run scoreboard players set @s bm.apt 34'])
-    fn('p131/b/swooped', ['tag @s add bm.aphitp', f'damage @s 22 minecraft:mob_attack by {me}', 'particle minecraft:crit ~ ~1 ~ 0.3 0.5 0.3 0.4 20',
+    fn('p131/b/swooped', ['tag @s add bm.aphitp', f'damage @s 30 minecraft:mob_attack by {me}', 'particle minecraft:crit ~ ~1 ~ 0.3 0.5 0.3 0.4 20',
                           'playsound minecraft:entity.player.attack.knockback hostile @a[distance=..24] ~ ~ ~ 1 0.6'])
     # THE WINGBEAT: three great beats - and you're thrown back
     fn('p131/b/a_gust', [at(1, 'function bm:p131/b/pose/eth_beat'), at(4, 'function bm:p131/b/pose/eth_hover'), at(7, 'function bm:p131/b/pose/eth_beat'),
@@ -1098,13 +1211,13 @@ def generate(G):
        [at(t, 'playsound minecraft:entity.ender_dragon.flap hostile @a[distance=..48] ~ ~ ~ 2 0.6') for t in (1, 7, 13)] +
        [at(14, 'particle minecraft:cloud ~ ~ ~ 5 1 5 0.3 120'), at(14, 'particle minecraft:sweep_attack ~ ~1 ~ 4 0.5 4 0 12'),
         at(14, f'execute as {pl(11)} run function bm:p131/b/gusted'), at('24..', 'function bm:p131/b/done')])
-    fn('p131/b/gusted', [f'damage @s 8 minecraft:mob_attack by {me}', 'effect give @s minecraft:levitation 1 2 true', 'effect give @s minecraft:slow_falling 4 0 true'])
+    fn('p131/b/gusted', [f'damage @s 12 minecraft:mob_attack by {me}', 'effect give @s minecraft:levitation 1 2 true', 'effect give @s minecraft:slow_falling 4 0 true'])
     # GRAND FANGS: he comes down hard - rings of fangs, out and out
     fn('p131/b/a_grand', [at(1, 'function bm:p131/b/pose/eth_hdive'), at(5, 'function bm:p131/b/pose/eth_dive'), at(1, 'playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..48] ~ ~ ~ 1.5 0.5'),
                           at('2..22', 'execute if block ~ ~-0.6 ~ #bm:grap_pass run tp @s ~ ~-0.45 ~'),
                           at(20, 'function bm:p131/b/pose/eth_dland'), at(23, 'function bm:p131/b/pose/eth_land'), at(24, 'function bm:p131/b/ring3'),
                           at(24, 'particle minecraft:explosion ~ ~0.3 ~ 2 0.1 2 0 8'), at(24, 'playsound minecraft:item.mace.smash_ground_heavy hostile @a[distance=..40] ~ ~ ~ 1.5 0.5'),
-                          at(24, f'execute as {pl(4)} run damage @s 12 minecraft:mob_attack by {me}'),
+                          at(24, f'execute as {pl(4)} run damage @s 18 minecraft:mob_attack by {me}'),
                           at(44, 'function bm:p131/b/pose/eth_lift'), at(48, 'function bm:p131/b/pose/eth_beat'),
                           at('46..62', 'execute if block ~ ~6 ~ #bm:grap_pass run tp @s ~ ~0.3 ~'), at('64..', 'function bm:p131/b/done')])
     ring = []
@@ -1116,7 +1229,7 @@ def generate(G):
     fn('p131/b/ring3_at', ring)
     # THE CALL: spectral serpents out of the dark (never more than three)
     vexn = {'Tags': ['bm.apvex', 'bm.seen'], 'PersistenceRequired': B(1), 'CustomName': T('Spectral Serpent', VIOLET), 'Glowing': B(1), 'DeathLootTable': 'minecraft:empty',
-            'Health': F(18), 'attributes': [{'id': 'minecraft:max_health', 'base': D(18)}, {'id': 'minecraft:attack_damage', 'base': D(6)}]}
+            'Health': F(18), 'attributes': [{'id': 'minecraft:max_health', 'base': D(18)}, {'id': 'minecraft:attack_damage', 'base': D(8)}]}
     fn('p131/b/a_call', [at(1, 'function bm:p131/b/pose/eth_cast'), at(1, 'playsound minecraft:entity.evoker.prepare_summon hostile @a[distance=..48] ~ ~ ~ 1.5 0.6'),
                          at(12, f'execute positioned ^3 ^2 ^2 run summon minecraft:vex ~ ~ ~ {snbt(vexn)}'), at(12, f'execute positioned ^-3 ^2 ^2 run summon minecraft:vex ~ ~ ~ {snbt(vexn)}'),
                          at(12, 'particle minecraft:dragon_breath ~ ~2 ~ 3 1 3 0.02 40'), at('24..', 'function bm:p131/b/done')])
@@ -1377,7 +1490,10 @@ def generate(G):
                           'execute store result score #mh bm.rng run attribute @s minecraft:max_health get 1',
                           'execute if score #hp bm.rng < #mh bm.rng run effect give @s minecraft:regeneration 3 0 true',
                           'execute as @e[type=#bm:hostile,tag=!bm.npc,distance=..6] run effect give @s minecraft:weakness 3 0',
-                          'execute unless score #tod bm.bm matches 0..12999 run function bm:p131/crown/night'])
+                          'execute unless score #tod bm.bm matches 0..12999 run function bm:p131/crown/night',
+                          # (2.80: the Serpent's Bond - your Apophiss out: Resistance II and Regeneration II, a step past the Regalia's own)
+                          'function bm:p131/bond/q', 'execute if score #bond bm.rng matches 1 run effect give @s minecraft:resistance 3 1 true',
+                          'execute if score #bond bm.rng matches 1 run effect give @s minecraft:regeneration 3 1 true'])
     fn('p131/crown/night', ['effect give @s minecraft:strength 2 1 true', 'effect give @s minecraft:regeneration 3 0 true'])
     # near death (at or under 30%): the Serpent King's Wrath - Resistance III, Absorption III, Regeneration II, and fangs under every
     # monster round you; then two minutes before it can come again
@@ -1398,6 +1514,35 @@ def generate(G):
                                 'execute as @e[type=minecraft:evoker_fangs,tag=bm.cfnew,distance=..1] run data modify entity @s Owner set from entity @a[tag=bm.crme,limit=1] UUID',
                                 'tag @e[type=minecraft:evoker_fangs,tag=bm.cfnew] remove bm.cfnew',
                                 'effect give @s minecraft:wither 6 1', 'effect give @s minecraft:slowness 4 2'])
+    # THE SERPENT KING'S WRATH (2.80: the mace's right-click) - rings of fangs round you, five lines ahead, and every monster within
+    # nine blocks withered, sickened and struck (12 s; 8 s with his crown on)
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.amq dummy']
+    G.OBJECTIVES += ['bm.amq']
+    fast.append('scoreboard players remove @a[scores={bm.amq=1..}] bm.amq 5')
+    fn('p131/mace/use', ['execute if score @s bm.amq matches 1.. run return run function bm:p131/mace/wait',
+                         'function bm:p2/rg/tier', 'function bm:p131/bond/q', 'scoreboard players set @s bm.amq 240', 'data modify storage bm:tmp amw.d set value 12',
+                         'execute if score #rg bm.rng matches 1..2 run scoreboard players set @s bm.amq 160', 'execute if score #rg bm.rng matches 1..2 run data modify storage bm:tmp amw.d set value 15',
+                         'execute if score #rg bm.rng matches 3.. run scoreboard players set @s bm.amq 100', 'execute if score #rg bm.rng matches 3.. run data modify storage bm:tmp amw.d set value 18',
+                         'execute if score #bond bm.rng matches 1 run scoreboard players operation @s bm.amq /= #2 bm.rng',
+                         'tag @s add bm.crme', 'tag @s add bm.amme',
+                         'execute at @s align y run function bm:p131/mace/rings'] +
+       [f'execute at @s rotated ~{a} 0 run function bm:p59/crown/fangs' for a in (-40, -20, 0, 20, 40)] +
+       ['execute at @s as @e[type=#bm:p42_foe,distance=..9] at @s run function bm:p131/mace/wrath_hit with storage bm:tmp amw',
+        'tag @s remove bm.crme', 'tag @s remove bm.amme',
+        'particle minecraft:squid_ink ~ ~1 ~ 1.2 0.6 1.2 0.15 60', 'particle minecraft:dust{color:[0.25,0.95,0.45],scale:2} ~ ~0.4 ~ 3 0.2 3 0 80',
+        'particle minecraft:flash{color:[0.3,1.0,0.5,1.0]} ~ ~1 ~ 0 0 0 0 1',
+        'playsound minecraft:item.mace.smash_ground_heavy player @a[distance=..32] ~ ~ ~ 1.5 0.6',
+        'playsound minecraft:entity.ender_dragon.growl player @a[distance=..32] ~ ~ ~ 0.8 0.9',
+        title('@s', 'actionbar', T("THE SERPENT KING'S WRATH", GRN, bold=True))])
+    ring = [f'summon minecraft:evoker_fangs ~{r * math.cos(2 * math.pi * i / n):.2f} ~ ~{r * math.sin(2 * math.pi * i / n):.2f} {{Warmup:{w},Tags:["bm.amf"]}}'
+            for r, n, w in ((2.5, 8, 0), (4.5, 14, 5), (6.5, 20, 10)) for i in range(n)]
+    fn('p131/mace/rings', ring + ['execute as @e[type=minecraft:evoker_fangs,tag=bm.amf,distance=..9] run data modify entity @s Owner set from entity @a[tag=bm.amme,limit=1] UUID',
+                                  'tag @e[type=minecraft:evoker_fangs,tag=bm.amf] remove bm.amf'])
+    fn('p131/mace/wrath_hit', ['$damage @s $(d) minecraft:magic by @a[tag=bm.amme,limit=1]', 'effect give @s minecraft:wither 8 1', 'effect give @s minecraft:poison 4 1',
+                         'effect give @s minecraft:slowness 4 2', 'particle minecraft:dust{color:[0.25,0.95,0.45],scale:1.4} ~ ~1 ~ 0.3 0.5 0.3 0 10'])
+    fn('p131/mace/wait', ['scoreboard players operation #s bm.rng = @s bm.amq', 'scoreboard players add #s bm.rng 19', 'scoreboard players operation #s bm.rng /= #20 bm.rng',
+                          title('@s', 'actionbar', [T("The Serpent King's wrath is gathering... ", 'gray'), {'score': {'name': '#s', 'objective': 'bm.rng'}, 'color': 'white'},
+                                                    T(' s', 'gray')])])
     wjson('bm/advancement/p131/crown_hit.json', {'criteria': {'hit': {'trigger': 'minecraft:player_hurt_entity', 'conditions': {'player': [
         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'equipment': {'head': {'predicates': {'minecraft:custom_data': '{bm:"apo_true_crown"}'}}}}}]}}},
         'rewards': {'function': 'bm:p131/crown/hit'}})
@@ -1483,14 +1628,51 @@ def generate(G):
                            'particle minecraft:dust{color:[0.25,0.95,0.45],scale:1.0} ~ ~0.3 ~ 0.2 0.2 0.2 0 10', 'kill @s'])
     # the mace: every blow withers; a smash from a fall (the mace's own) bursts fangs out round where it lands
     wjson('bm/advancement/p131/mace_hit.json', {'criteria': {'hit': {'trigger': 'minecraft:player_hurt_entity', 'conditions': {'player': [
-        {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'equipment': {'mainhand': {'predicates': {'minecraft:custom_data': '{bm:"apo_mace"}'}}}}}]}}},
+        {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'equipment': {'mainhand': {'predicates': {'minecraft:custom_data': '{bm_apomace:1b}'}}}}}]}}},
         'rewards': {'function': 'bm:p131/mace/hit'}})
     fn('p131/mace/hit', ['advancement revoke @s only bm:p131/mace_hit', 'execute store result score #fd bm.rng run data get entity @s fall_distance 10',
-                         'execute at @s as @e[type=#bm:hostile,tag=!bm.npc,distance=..6,nbt={HurtTime:10s}] at @s run function bm:p131/mace/struck'])
+                         'scoreboard players set #mf bm.rng 0'] +
+       [f'execute if items entity @s weapon.mainhand {holds(mace_id(f[0]))} run scoreboard players set #mf bm.rng {i + 1}' for i, f in enumerate(MACE_FORMS)] +
+       ['tag @s add bm.amme', 'execute at @s as @e[type=#bm:hostile,tag=!bm.npc,distance=..6,nbt={HurtTime:10s}] at @s run function bm:p131/mace/struck', 'tag @s remove bm.amme'])
+    MF = {f[0]: i + 1 for i, f in enumerate(MACE_FORMS)}
     fn('p131/mace/struck', ['effect give @s minecraft:wither 4 1', 'particle minecraft:dust{color:[0.25,0.95,0.45],scale:1.2} ~ ~1 ~ 0.3 0.4 0.3 0 8',
-                            'execute if score #fd bm.rng matches 15.. run function bm:p131/mace/burst'])
-    fn('p131/mace/burst', [f'summon minecraft:evoker_fangs ~{2.4 * math.cos(2 * math.pi * i / 8):.2f} ~ ~{2.4 * math.sin(2 * math.pi * i / 8):.2f} {{Warmup:2}}' for i in range(8)] +
-       ['playsound minecraft:entity.evoker.cast_spell player @a[distance=..24] ~ ~ ~ 1 0.6'])
+                            f'execute if score #mf bm.rng matches {MF["sword"]} run effect give @s minecraft:poison 4 1',
+                            f'execute if score #mf bm.rng matches {MF["axe"]} run function bm:p131/mace/cleave',
+                            f'execute if score #mf bm.rng matches {MF["mace"]} if score #fd bm.rng matches 15.. run function bm:p131/mace/burst',
+                            f'execute if score #mf bm.rng matches {MF["shovel"]} run effect give @s minecraft:levitation 1 3 true',
+                            f'execute if score #mf bm.rng matches {MF["hoe"]} run effect give @a[tag=bm.amme,limit=1] minecraft:regeneration 2 2 true',
+                            f'execute if score #mf bm.rng matches {MF["trident"]} run function bm:p131/mace/burst'])
+    fn('p131/mace/cleave', ['effect give @s minecraft:weakness 4 1', 'effect give @s minecraft:slowness 3 1',
+                            'execute as @e[type=#bm:p42_foe,tag=!bm.npc,distance=0.1..3] run damage @s 4 minecraft:magic by @a[tag=bm.amme,limit=1]',
+                            'particle minecraft:sweep_attack ~ ~1 ~ 1 0.2 1 0 3'])
+    fn('p131/mace/burst', [f'summon minecraft:evoker_fangs ~{2.4 * math.cos(2 * math.pi * i / 8):.2f} ~ ~{2.4 * math.sin(2 * math.pi * i / 8):.2f} {{Warmup:2,Tags:["bm.amf"]}}' for i in range(8)] +
+       ['execute as @e[type=minecraft:evoker_fangs,tag=bm.amf,distance=..4] run data modify entity @s Owner set from entity @a[tag=bm.amme,limit=1] UUID',
+        'tag @e[type=minecraft:evoker_fangs,tag=bm.amf] remove bm.amf',
+        'playsound minecraft:entity.evoker.cast_spell player @a[distance=..24] ~ ~ ~ 1 0.6'])
+    # the forms, swapped by swap-hands (F) - put back what was in the off-hand, and hand over the next form (or, sneaking, the one before)
+    tick.append('execute as @a if items entity @s weapon.offhand *[minecraft:custom_data~{bm_apomace:1b}] at @s run function bm:p131/mf/swap')
+    swap = []
+    for i, f in enumerate(MACE_FORMS):
+        for d, nm in ((1, 'next'), (-1, 'prev')):
+            to = MACE_FORMS[(i + d) % len(MACE_FORMS)]
+            fn(f'p131/mf/{f[0]}_{nm}', ['item replace entity @s weapon.offhand from entity @s weapon.mainhand',
+                                        f'item replace entity @s weapon.mainhand with {G.item_arg(mace_id(to[0]))}',
+                                        'particle minecraft:dust{color:[0.25,0.95,0.45],scale:1.2} ~ ~1.2 ~ 0.3 0.4 0.3 0 14', 'particle minecraft:squid_ink ~ ~1.1 ~ 0.2 0.3 0.2 0.02 6',
+                                        'playsound minecraft:item.armor.equip_netherite player @a[distance=..12] ~ ~ ~ 0.8 0.9',
+                                        'playsound minecraft:entity.cat.hiss player @a[distance=..12] ~ ~ ~ 0.5 1.4',
+                                        title('@s', 'actionbar', [T("The Serpent King's Mace: ", GRN, bold=True), T(to[1], 'white', bold=True)])])
+        swap += [f'execute if items entity @s weapon.offhand {holds(mace_id(f[0]))} if predicate bm:p20/sneaking run return run function bm:p131/mf/{f[0]}_prev',
+                 f'execute if items entity @s weapon.offhand {holds(mace_id(f[0]))} run return run function bm:p131/mf/{f[0]}_next']
+    fn('p131/mf/swap', swap)
+    # held, every second: the pickaxe and shovel lend Haste II; with your Apophiss out, Strength (the Serpent's Bond)
+    G.FUNCS['loop/second'][-1:-1] = ['execute as @a[gamemode=!spectator] if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_apomace:1b}] at @s run function bm:p131/mace/held']
+    fn('p131/mace/held', [f'execute if items entity @s weapon.mainhand {holds(mace_id("pickaxe"))} run effect give @s minecraft:haste 3 1 true',
+                          f'execute if items entity @s weapon.mainhand {holds(mace_id("shovel"))} run effect give @s minecraft:haste 3 1 true',
+                          'function bm:p131/bond/q', 'execute if score #bond bm.rng matches 1 run effect give @s minecraft:strength 3 1 true',
+                          'execute if score #bond bm.rng matches 1 run particle minecraft:dust{color:[0.25,0.95,0.45],scale:0.8} ~ ~1 ~ 0.3 0.4 0.3 0 2'])
+    # (is this player's Apophiss out?)
+    fn('p131/bond/q', ['scoreboard players set #bond bm.rng 0', 'scoreboard players operation #me bm.pid = @s bm.pid',
+                       'execute as @e[type=minecraft:wolf,tag=bm.appet] if score @s bm.pid = #me bm.pid run scoreboard players set #bond bm.rng 1'])
 
     # ================================================================== THE FOLLOWER
     def psel(p=None):

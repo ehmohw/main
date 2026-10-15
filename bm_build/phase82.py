@@ -117,6 +117,8 @@ def generate(G):
                      'playsound minecraft:entity.blaze.ambient hostile @a[distance=..96] ~ ~8 ~ 3 0.5'])
     second += ['execute as @e[type=minecraft:giant,tag=bm.salboss] at @s run function bm:p82/sec']
     fn('p82/sec', ['bossbar set bm:salb visible true', 'bossbar set bm:salb players @a[distance=..72]',
+                   # (2.80: its max too - the bar was left at the default 100, so it sat full through most of the fight)
+                   'execute store result bossbar bm:salb max run attribute @s minecraft:max_health get',
                    'execute store result bossbar bm:salb value run data get entity @s Health',
                    'execute store result score #h bm.rng run data get entity @s Health', 'execute store result score #mx bm.rng run attribute @s minecraft:max_health get',
                    'scoreboard players operation #mx bm.rng /= #2 bm.rng',

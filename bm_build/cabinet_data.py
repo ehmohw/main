@@ -33,7 +33,8 @@ EXHIBITS = {
         ('music_disc_hollow', ['music_disc_hollow'], 'A record hidden somewhere in the Hollow Throne.'),
         ('apophiss_crown', ['apophiss_crown'], "A serpent's black crown. Its emerald watches."),
         ('apo_true_crown', ['apo_true_crown'], 'The crown the Hollow King only ever wore the shadow of.'),
-        ('apo_mace', ['apo_mace'], 'The end of a serpent king\'s tail, black spikes and white crescents.'),
+        ('apo_mace', ['apo_mace', 'apo_mace_sword', 'apo_mace_axe', 'apo_mace_pickaxe', 'apo_mace_shovel', 'apo_mace_hoe', 'apo_mace_trident'],
+         'The end of a serpent king\'s tail, black spikes and white crescents.'),
         ('conq_helmet', ['conq_helmet'], 'The face the Hollow King wore to battle.'),
     ],
     'gutter': [

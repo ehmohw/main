@@ -66,7 +66,7 @@ def register():
         gear(iid, base, nm, COL, ["Wrenched from the Hollow King's throne.", (held + '. Unbreakable.', 'blue')], en, 3,
              attrs=weapon_attrs(wb, bonus) if wb else None, extra={'minecraft:unbreakable': {}}, custom_extra={'bm_held': iid}, bold=True)
         evil_name(iid, nm)
-    mace_en = dict(ench(density=5, breach=4, smite=6, fire_aspect=2), **{'bm:grave_quake': 1})
+    mace_en = dict(ench(density=5, breach=4, smite=6, fire_aspect=2, wind_burst=3), **{'bm:grave_quake': 1})      # (2.80: Wind Burst III)
     gear('sepulchre', 'mace', 'Sepulchre', COL,
          ["The Hollow King's maul. Every grave it", 'struck stayed open.',
           ('Right-click: Grave Quake - the ground heaves', 'blue'), ('within 7 blocks: monsters are thrown up and', 'blue'),

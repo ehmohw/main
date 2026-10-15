@@ -33,9 +33,15 @@ DROP, DOBJ = {}, {}
 
 def setup():
     """2.78: run once every item is registered (the Phase 2 ones too) - before the item tables are written"""
+    # (2.80: once only - gen_dp is imported a second time under its own name (phase145 takes `offer` from it), which ran this
+    #  again and doubled every hung weapon's "hang it there" line)
+    if getattr(setup, 'done', False):
+        return
+    setup.done = True
     # 2.78: hung by sneak + drop (Q) facing a wall - every weapon has a drop, not all of them a use (a sword's right-click does nothing,
     # a trident's or a shield's is its own). If there's no wall, it simply drops.
     DROP.update({'cecil_staff': 'staff', 'leo_trident': 'letri', 'leo_spear': 'letri', 'apo_mace': 'apomace', 'frisbee_shield': 'frisbee'})
+    DROP.update({k: 'apomace' for k in ITEMS if k.startswith('apo_mace_')})        # (2.80: the Serpent King's Mace's other forms)
     for _i in ('ray_gun', 'plasma_blaster', 'shrink_ray', 'growth_ray', 'tractor_beam', 'levitation_wand', 'vorn_drill', 'crescent_staff',
                'gravewell_staff', 'staff_of_sparks', 'golden_spear', 'treasurers_scepter', 'blue_marlin', 'enchanted_sword', 'gutter_cutlass',
                'heisters_shiv', 'quake_maul', 'sepulchre', 'thirsting_blade', 'vault_breaker'):
