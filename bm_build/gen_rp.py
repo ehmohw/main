@@ -697,6 +697,8 @@ def build(out_dir):
     LANG.update({'death.attack.bm.blood_drain': '%1$s was drained by a Blood Moon horror',
                  'death.attack.bm.blood_drain.player': '%1$s was drained dry by %2$s'})
     wj('assets/bm/lang/en_us.json', LANG)
+    import sprites280                                                  # 2.80: the sprite repaint (written last, over the old icons)
+    POST.append(sprites280.post)
     for hook in POST: hook(sys.modules[__name__])
     # pack icon
     icon = ICONS['token'].resize((64, 64), Image.NEAREST)
