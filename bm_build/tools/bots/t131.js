@@ -175,6 +175,7 @@ const res = [];
   await sleep(1000); A.stand();
 
   // ================================================================== 8. the Rat Bank: Red Xenite's own buttons
+  await sleep(3000);       // (2.78: what you carried out of the Lounge comes back a couple of seconds after your gear - let it land first)
   await run('clear TestRat'); await run('loot replace entity TestRat hotbar.1 loot bm:items/bankers_card'); for (let k = 0; k < 5; k++) await run('loot give TestRat loot bm:items/xenite_red');
   await run('scoreboard players set TestRat bm.bk_xr 0'); await run('scoreboard players set TestRat bm.bk_tok 3');
   A.slot(1); await sleep(300); await A.useWait();
@@ -191,7 +192,7 @@ const res = [];
   await run('scoreboard players set TestRat bm.gvcl 62'); await run('scoreboard players set TestRat bm.ksig 0');
   await run('loot replace entity TestRat hotbar.0 loot bm:items/fixers_ledger'); A.slot(0); await sleep(300);
   await A.useWait();
-  await A.press(/The Armory/); show('armory');
+  await A.press(/Armory/);   // (2.78: the Office's names lost their "The") show('armory');
   await A.press(/signature/i); show('signature');
   A.chats.length = 0; const ad = A.click(/Adrenaline/); await sleep(800);
   ok('Armory: the Tier V signature "Adrenaline" can be picked', !!ad && (await sc('TestRat', 'bm.ksig')) === 9, `${ad && ad.command} | ksig ${await sc('TestRat', 'bm.ksig')} | ${A.chats.slice(-1).join('').slice(0, 120)}`);
