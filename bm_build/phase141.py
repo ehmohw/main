@@ -99,6 +99,32 @@ DOLL_FROM = {'doll_cecil': ('cecil_gem', {}), 'doll_celi': ('celi_charm', {}), '
              'doll_don': ('donado_tag', {'kh': 1.0, 'kb': 0.95, 'kl': 0.9}), 'doll_frog': ('frog_signet', {'kh': 1.0, 'kb': 1.0, 'kl': 1.0})}
 
 
+GUI_ROT = (20, 200, 0)              # (a doll faces north; an inventory slot sees a model's south side - so it turns to face you, a little to one side)
+
+
+def doll_display(R, els):
+    """2.80: a baked doll's views. Each doll is scaled and centred to fill its slot (Democratus's scythe would crowd it,
+    the Frog would sit tiny in it). Until 2.80 the bake wrote no views, so the shop showed every doll from behind. The
+    fixed view (a frame, a doll set down) stays as it was."""
+    import math
+    import numpy as np
+    import dolls_bake as DB
+    pts = []
+    for e in els:
+        f, t = e['from'], e['to']
+        c = np.array([[x, y, z] for x in (f[0], t[0]) for y in (f[1], t[1]) for z in (f[2], t[2])], dtype=float)
+        Rm, o = DB._el_rot(e.get('rotation'))
+        pts.append(c if o is None else (Rm @ (c - o).T).T + o)
+    P = np.vstack(pts) - 8.0
+    V = DB._rx(math.radians(GUI_ROT[0])) @ DB._ry(math.radians(GUI_ROT[1]))
+    Q = (V @ P.T).T
+    lo, hi = Q.min(0), Q.max(0)
+    sc = min(0.8, 15.0 / (hi[1] - lo[1]), 15.0 / (hi[0] - lo[0]))
+    tr = [round(-(lo[0] + hi[0]) / 2 * sc, 2), round(-(lo[1] + hi[1]) / 2 * sc, 2), 0]
+    return dict(R.GUI_3D, gui={'rotation': list(GUI_ROT), 'translation': tr, 'scale': [round(sc, 3)] * 3},
+                fixed={'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1, 1, 1]})
+
+
 def rp(R):
     import wilfrey_fig
     wilfrey_fig.rp(R)
@@ -117,7 +143,7 @@ def rp(R):
         rp_dir = R2.p()
         for d, (fig, kw) in DOLL_FROM.items():
             tex, els = DB.bake(rp_dir, FIG[fig][1], ground=P134.FIT[fig][0], **kw)
-            R2.wj(f'assets/bm/models/item/{d}.json', {'textures': tex, 'elements': els})
+            R2.wj(f'assets/bm/models/item/{d}.json', {'textures': tex, 'elements': els, 'display': doll_display(R2, els)})
         tex, els = DB.bake(rp_dir, [('bm:wil_doll_src', (0.0, 1.0, 0.0), I4, I4, 2.0)], kh=1.0, kb=1.0, kl=1.0)
-        R2.wj('assets/bm/models/item/doll_wil.json', {'textures': tex, 'elements': els})
+        R2.wj('assets/bm/models/item/doll_wil.json', {'textures': tex, 'elements': els, 'display': doll_display(R2, els)})
     R.POST.append(post)

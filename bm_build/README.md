@@ -60,7 +60,8 @@ The Headless Horseman, the Sand Pharaoh, the Storm Roc, the Elder Treant, the Ma
 - **The rest, one by one:** armour, gauntlets, wings, blades, staffs, ray guns, scrolls, books and cards, food, crates and display cases, bells, trinkets, the skiff's parts and escorts, the Rat Gang, the summoning items, the gems, hearts and essences.
 - **Only the pictures change.** The items, their names and their models are the same.
 
-### Apophiss's hands
+### Dolls and Apophiss's hands
+- **The follower dolls face you in Cecil's shop.** Every doll's icon showed its back in the shop and the inventory. They now face you, turned slightly to one side, each sized to fill its slot. In a frame or set down, they look the same as before.
 - **His thumbs are on the right side now.** Each hand had its thumb on the outer edge, so his right arm wore a left hand and his left arm a right one. The thumbs now sit on the inner edge, toward his chest. This covers every form (normal, ethereal and Wraithfire), the boss and the follower, and his doll and display-case figurine.
 
 ### Menus
