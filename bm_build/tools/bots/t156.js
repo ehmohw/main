@@ -1,7 +1,7 @@
-// 2.78: a doll of every follower, as a regular (non-op) player: each of the nine (Cecil, Celi, Leo, Democratus, KillerWatt,
-// Apophiss, Tullius, Zib, Pearlman) used on a block's top (a real use packet, looking at it) sets the doll down there - its
+// 2.78: a doll of every follower, as a regular (non-op) player: each of the twelve (Cecil, Celi, Leo, Democratus, KillerWatt,
+// Apophiss, Tullius, Zib, Pearlman, Donado, Wilfrey, the Frog with Mustache) - Emma's chibi style - used on a block's top (a real use packet, looking at it) sets the doll down there - its
 // model, standing on the block; right-clicking it (a real interact packet on its box) turns it; sneak + punch picks it up
-// again, into the inventory. And Cecil sells all nine (his trades). rcon only sets the stage.
+// again, into the inventory. And Cecil sells all twelve (his trades). rcon only sets the stage.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
@@ -14,7 +14,7 @@ const res = [];
   const uuidOf = async (sel) => { const m = (await run(`${O}data get entity ${sel} UUID`)).match(/\[I; (-?\d+), (-?\d+), (-?\d+), (-?\d+)\]/); if (!m) return null;
     const h = m.slice(1).map(v => (Number(v) >>> 0).toString(16).padStart(8, '0')).join(''); return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`; };
   const entOf = async (sel) => { const u = await uuidOf(sel); return Object.values(A.ents).find(e => e.objectUUID === u); };
-  const DOLLS = ['doll_cecil', 'doll_celi', 'doll_leo', 'doll_demo', 'doll_kw', 'doll_apo', 'doll_tul', 'doll_zib', 'doll_pearl'];
+  const DOLLS = ['doll_cecil', 'doll_celi', 'doll_leo', 'doll_demo', 'doll_kw', 'doll_apo', 'doll_tul', 'doll_zib', 'doll_pearl', 'doll_don', 'doll_wil', 'doll_frog'];
   const X = 16400, Y = 100, Z = 16000;
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
@@ -23,11 +23,11 @@ const res = [];
   await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
   await run(`${O}fill ${X - 8} ${Y} ${Z - 8} ${X + 8} ${Y} ${Z + 8} minecraft:stone`); await run(`${O}fill ${X - 8} ${Y + 1} ${Z - 8} ${X + 8} ${Y + 6} ${Z + 8} minecraft:air`);
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..24]`);
-  // (Cecil's trades: all nine)
+  // (Cecil's trades: all twelve)
   const trades = require('fs').readFileSync('/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function/' + 'npc/wizard.mcfunction', 'utf8').toString();
-  ok('Cecil sells all nine dolls (3 Trophies each)', DOLLS.every(d => trades.includes(`bm:"${d}"`)), DOLLS.filter(d => !trades.includes(`bm:"${d}"`)).join(','));
+  ok('Cecil sells all twelve dolls (3 Trophies each)', DOLLS.every(d => trades.includes(`bm:"${d}"`)), DOLLS.filter(d => !trades.includes(`bm:"${d}"`)).join(','));
   for (const [i, d] of DOLLS.entries()) {
-    const bx = X - 6 + i * 1.5 | 0, bz = Z;
+    const bx = X - 6 + i, bz = Z;
     await run('clear TestRat'); await run(`loot replace entity TestRat hotbar.0 loot bm:items/${d}`);
     // (standing two back from the block, looking down at its top)
     await run(`${O}tp TestRat ${bx + 0.5} ${Y + 1} ${bz + 2.5} 180 45`); await wait(2000, async () => A.pos && Math.abs(A.pos.z - (bz + 2.5)) < 0.05, 100); await sleep(300);

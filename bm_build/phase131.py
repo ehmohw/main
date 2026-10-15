@@ -330,11 +330,12 @@ def rp(R):
     face = {'uv': [0, 0, 16, 16], 'texture': '#f'}
     R.HATS['apo_blackfire'] = ({'f': 'bm:block/apo_blackfire'}, [{'from': [0, 0, 8], 'to': [16, 16, 8], 'shade': False,
                                                                    'faces': {'north': face, 'south': dict(face)}}])
-    cases = {base: [] for base in ('apo_head', 'apo_head_eth')}
+    cases = {base: [] for base in ('apo_head', 'apo_head_eth', 'apo_head_wf')}
     for e, m in FACE_MODEL.items():
         if m:
             cases['apo_head'].append((e, f'apo_head_x{m}'))
             cases['apo_head_eth'].append((e, f'apo_head_x{m}_eth'))
+            cases['apo_head_wf'].append((e, f'apo_head_x{m}_wf'))
     def post(R2):
         mdl = lambda n: {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
         R2.wj('assets/bm/textures/block/apo_blackfire.png.mcmeta', {'animation': {'frametime': 2, 'interpolate': True}})

@@ -1,5 +1,5 @@
 // 2.78: every follower in a frame - as a regular (non-op) player, every step a real packet: Zib's Donadian Medal,
-// KillerWatt's Spark and Pearlman's card each hung in an item frame with a right-click: the follower climbs out (and says
+// KillerWatt's Spark and Pearlman's card (and, 2.78a, Wilfrey's locket) each hung in an item frame with a right-click: the follower climbs out (and says
 // so), stays by the frame (nobody's - not the player's), still there ten seconds on; the item punched out of the frame:
 // the follower goes with it. rcon only sets the stage (a wall, the frames, the three items).
 const { bot, rcon, sleep } = require('./lib_resp');
@@ -24,7 +24,8 @@ const res = [];
   await run(`${O}tp TestRat ${X + 0.5} ${Y + 1} ${Z + 2.5} 0 -10`);
   await wait(2000, async () => A.pos && Math.abs(A.pos.z - (Z + 2.5)) < 0.05, 100); await sleep(400);
 
-  const KINDS = [['Zib', 'donadian_medal', 'wolf', 'bm.zibpet', -4], ['KillerWatt', 'kw_spark', 'wolf', 'bm.kxpet', 0], ['Pearlman', 'pearl_card', 'cat', 'bm.pmpet', 4]];
+  const KINDS = [['Zib', 'donadian_medal', 'wolf', 'bm.zibpet', -4], ['KillerWatt', 'kw_spark', 'wolf', 'bm.kxpet', 0], ['Pearlman', 'pearl_card', 'cat', 'bm.pmpet', 4],
+                 ['Wilfrey', 'wilfrey_locket', 'wolf', 'bm.wilfrey', -2]];
   for (const [name, iid, host, tag, dx] of KINDS) {
     await run(`${O}summon minecraft:item_frame ${X + dx} ${Y + 2} ${Z + 4} {Facing:2b,Tags:["bm.t146f"]}`); await sleep(400);
     await run(`loot replace entity TestRat hotbar.0 loot bm:items/${iid}`); await sleep(300);
@@ -38,12 +39,14 @@ const res = [];
     const pet = `@e[type=minecraft:${host},tag=${tag},tag=bm.ffpet,x=${X + dx},y=${Y + 2},z=${Z + 4},distance=..10]`;
     ok(`${name}'s item in a frame: ${name} climbs out`, (await cnt(pet)) === 1, `out ${await cnt(pet)}`);
     ok('...and says so', A.bars.some(b => new RegExp(`${name} climbs out of the frame`).test(b)), A.bars.slice(-1).join(''));
+    if (name === 'Wilfrey') ok('...in his bones (his body comes with him)', (await cnt(`@e[type=minecraft:wither_skeleton,tag=bm.wil_body,x=${X + dx},y=${Y + 2},z=${Z + 4},distance=..10]`)) === 1);
     ok('...nobody\'s - not the player\'s', (await cnt(`${pet.slice(0, -1)},scores={bm.pid=${+((await run('scoreboard players get TestRat bm.pid')).match(/has (-?\d+)/) || [0, -9])[1]}}]`)) === 0);
     await sleep(10000);
     ok('...still there by the frame ten seconds on', (await cnt(pet)) === 1);
     A.attack(fr.entityId); await sleep(500);
     ok('the item punched out of the frame: out it drops', await wait(1500, async () => (await cnt(`@e[type=minecraft:item,x=${X + dx},y=${Y + 2},z=${Z + 4},distance=..3]`)) >= 1));
     ok(`...and ${name} goes with it`, await wait(3000, async () => (await cnt(pet)) === 0));
+    if (name === 'Wilfrey') ok('...his bones too', await wait(3000, async () => (await cnt(`@e[type=minecraft:wither_skeleton,tag=bm.wil_body,x=${X + dx},y=${Y + 2},z=${Z + 4},distance=..12]`)) === 0));
     await run(`${O}kill @e[type=minecraft:item,x=${X + dx},y=${Y + 2},z=${Z + 4},distance=..4]`);
   }
   await run(`${O}kill @e[type=minecraft:item_frame,tag=bm.t146f]`);

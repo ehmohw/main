@@ -49,7 +49,8 @@ def HIDDEN(p, pose):
 def model_name(p, pose, suffix=''):
     face = f'_x{pose["_face"]}' if p == 'head' and pose.get('_face') else ''
     sad = '_saddle' if p in ('body', 'chest') and pose.get('_saddle') else ''
-    return f'{PREFIX}{p}{face}{sad}{"_eth" if pose.get("_eth") else ""}{suffix}'
+    form = '_eth' if pose.get('_eth') else '_wf' if pose.get('_wf') else ''
+    return f'{PREFIX}{p}{face}{sad}{form}{suffix}'
 
 
 # ---------------------------------------------------------------------------------------------------- textures
@@ -125,6 +126,17 @@ def _eye(base, glint, seed):
     return im
 
 
+def _glow_eye(hot, deep, seed):
+    """(2.78a) the ethereal eye: burning bright at the top, deepening below - so the dark slit reads against it"""
+    im = _noise(hot, seed, 8); a, b = hexc(hot)[:3], hexc(deep)[:3]
+    for y in range(64):
+        t = max(0.0, (y - 18) / 46)
+        for x in range(64):
+            v = im.getpixel((x, y))[:3]
+            im.putpixel((x, y), tuple(int(v[i] * (1 - t) + b[i] * t) for i in range(3)) + (255,))
+    return im
+
+
 def _hex(seed):
     """the honeycomb marks on his cheek: thin dark lines, the rest clear"""
     im = Image.new('RGBA', (64, 64), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
@@ -153,16 +165,16 @@ def _leather(base, stitch, seed):
     return im
 
 
-def _membrane(seed):
+def _membrane(seed, rgb=(118, 56, 226), vein=(80, 255, 160, 210)):
     im = Image.new('RGBA', (64, 64)); rnd = random.Random(seed)
     for y in range(64):
         for x in range(64):
             g = 1 + rnd.uniform(-0.08, 0.08)
-            im.putpixel((x, y), (int(118 * g), int(56 * g), int(226 * g), 150))
+            im.putpixel((x, y), (int(rgb[0] * g), int(rgb[1] * g), int(rgb[2] * g), 150))
     d = ImageDraw.Draw(im)
     for _ in range(6):
         x0 = rnd.randint(0, 63)
-        d.line((x0, 0, x0 + rnd.randint(-18, 18), 63), fill=(80, 255, 160, 210), width=1)
+        d.line((x0, 0, x0 + rnd.randint(-18, 18), 63), fill=vein, width=1)
     return im
 
 
@@ -176,13 +188,23 @@ def textures():
          'apo_strap': _leather('#3a2012', '#24120a', 719), 'apo_gold': _noise('#e2b236', 720, 14), 'apo_brow': _brush('#121214', '#202024', 741), 'apo_pupil': _noise('#f6f6f0', 743, 4)}
     # phase 2: the ethereal spectre
     T.update({'apo_scale_eth': _scales('#0a1f14', '#05100a', '#1a4a2c', 721, glow='#3cff8a'), 'apo_scale_dk_eth': _scales('#06140c', '#020804', '#12301e', 722, glow='#2ad070'),
-              'apo_belly_eth': _bands('#2e4a36', '#1c3022', 723, glow='#7affb0'), 'apo_fin_eth': _fin('#3a1a6a', '#8a4aff', '#1a0a34', 724, alpha=225),
-              'apo_claw_eth': _noise('#1a0a34', 725, 6), 'apo_eye_eth': _noise('#34ff94', 726, 12), 'apo_mace_eth': _mace('#141418', '#8a4aff', 727),
+              'apo_belly_eth': _bands('#2e4a36', '#1c3022', 723, glow='#7affb0'), 'apo_fin_eth': _fin('#3a1a6a', '#8a4aff', '#1a0a34', 724),
+              'apo_claw_eth': _noise('#1a0a34', 725, 6), 'apo_eye_eth': _glow_eye('#34ff94', '#0e8a4a', 726), 'apo_mace_eth': _mace('#141418', '#8a4aff', 727),
               'apo_bone_eth': _bone('#c8f0ff', '#7ab0c8', 728), 'apo_lid_eth': _scales('#0c2418', '#05100a', '#1a4a2c', 729, glow='#3cff8a'),
               'apo_brow_eth': _brush('#0a0a10', '#3a2a6a', 742), 'apo_pupil_eth': _noise('#06140a', 744, 3), 'apo_wing': _membrane(731), 'apo_wingbone': _noise('#1a1030', 732, 6)})
+    # (2.78a) the follower's Wraithfire Form (the Wraithfire Heart given to him): charred black scales, soul fire in the cracks
+    T.update({'apo_scale_wf': _scales('#101216', '#06070a', '#1e2630', 761, glow='#5ae8ff'), 'apo_scale_dk_wf': _scales('#0a0b0e', '#030405', '#161c24', 762, glow='#38b8e0'),
+              'apo_belly_wf': _bands('#26303a', '#161c22', 763, glow='#9af4ff'), 'apo_fin_wf': _fin('#0e3a4a', '#5ae8ff', '#061820', 764),
+              'apo_claw_wf': _noise('#0a1a22', 765, 6), 'apo_eye_wf': _glow_eye('#9af8ff', '#1a7ab8', 766), 'apo_mace_wf': _mace('#101014', '#5ae8ff', 767),
+              'apo_bone_wf': _bone('#d8f6ff', '#7ac8e0', 768), 'apo_lid_wf': _scales('#14181e', '#06070a', '#1e2630', 769, glow='#5ae8ff'),
+              'apo_brow_wf': _brush('#06080c', '#1a5a7a', 770), 'apo_pupil_wf': _noise('#04121a', 771, 3),
+              'apo_wing_wf': _membrane(772, (40, 150, 200), (150, 250, 255, 220)), 'apo_wingbone_wf': _noise('#0a1820', 773, 6)})
     return T
 
 
+WF_SWAP = {k: v.replace('_eth', '_wf') for k, v in {'apo_scale': 'apo_scale_eth', 'apo_scale_dk': 'apo_scale_dk_eth', 'apo_belly': 'apo_belly_eth', 'apo_fin': 'apo_fin_eth',
+           'apo_claw': 'apo_claw_eth', 'apo_eye': 'apo_eye_eth', 'apo_mace': 'apo_mace_eth', 'apo_bone': 'apo_bone_eth', 'apo_lid': 'apo_lid_eth',
+           'apo_brow': 'apo_brow_eth', 'apo_pupil': 'apo_pupil_eth', 'apo_wing': 'apo_wing_eth', 'apo_wingbone': 'apo_wingbone_eth'}.items()}
 ETH_SWAP = {'apo_scale': 'apo_scale_eth', 'apo_scale_dk': 'apo_scale_dk_eth', 'apo_belly': 'apo_belly_eth', 'apo_fin': 'apo_fin_eth',
             'apo_claw': 'apo_claw_eth', 'apo_eye': 'apo_eye_eth', 'apo_mace': 'apo_mace_eth', 'apo_bone': 'apo_bone_eth', 'apo_lid': 'apo_lid_eth', 'apo_brow': 'apo_brow_eth', 'apo_pupil': 'apo_pupil_eth'}
 
@@ -378,6 +400,13 @@ def models():
             eth.append(e2)
         used = sorted({e['faces'][f]['texture'][1:] for e in eth for f in e['faces']})
         M[name + '_eth'] = ({t: f'bm:block/{t}' for t in used}, eth)
+        wf = []                                                  # (2.78a) the follower's Wraithfire Form: black scales burning soul-blue
+        for e in els:
+            e2 = dict(e, faces={f: dict(v, texture='#' + WF_SWAP.get(v['texture'][1:], v['texture'][1:])) for f, v in e['faces'].items()})
+            e2['light_emission'] = max(e.get('light_emission', 0), 9)
+            wf.append(e2)
+        used = sorted({e['faces'][f]['texture'][1:] for e in wf for f in e['faces']})
+        M[name + '_wf'] = ({t: f'bm:block/{t}' for t in used}, wf)
 
     # ---- the coil: one rounded loop on the ground, open in the middle - his light belly round its inside, fins along its top.
     #      The body comes down into its front; the right half rides up over the left at the back, where it runs on into the tail

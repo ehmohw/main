@@ -127,6 +127,7 @@ import phase137 as R137      # 2.78: polish - a fresh start keeps what you earne
 import phase138 as R138      # 2.78: every follower dressed (the six without a wardrobe) and an aura for each
 import phase142 as R142      # 2.78: every boss makes an entrance (title card, sting, a ring of its colours)
 import phase141 as R141      # 2.78: a doll of every follower (Cecil sells them)
+import phase144 as R144      # 2.78a: Apophiss's forms - the Ethereal Gem, the Wraithfire Heart
 import phase140 as R140      # 2.78: Tiers IV and V bite back (tougher guards, a tougher Gutter King)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
@@ -1190,6 +1191,7 @@ def build(out_dir):
     R140.generate(sys.modules[__name__])
     if PHASE2: R141.generate(sys.modules[__name__])
     if PHASE2: R142.generate(sys.modules[__name__])
+    if PHASE2: R144.generate(sys.modules[__name__])
     R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])

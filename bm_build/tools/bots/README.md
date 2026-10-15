@@ -246,7 +246,7 @@ and function calls. Three are known to be stale.
 | `t137.js` | 2.77b: the Wraithfire Heart forged on the ground - an Ethereal Gem and a Scorching Heart set down with the items |
 |  | themselves (both orders): the forging starts, both rise, circle closer, merge; the bot picks the heart up, Burning Blue; |
 |  | nothing left behind; six blocks apart nothing happens; Pearlman no longer offers the fusion. |
-| `t138.js` | 2.77b: follower figurines - a case set down with the case item, every follower's item right-clicked in (all ten), |
+| `t138.js` | 2.77b: follower figurines - a case set down with the case item, every follower's item right-clicked in (all thirteen - 2.78a: the Frog, Donado, Wilfrey), |
 |  | punch for the item and back, sneak + right-click turns it, empty-handed out; a wall case (Apophiss's Oath), picked up. |
 | `t139.js` | 2.77c: Apophiss's True Crown - worn with a use (swapping with the helmet), its stats measured against the shadow-crown |
 |  | and the heaviest chestplate, its passives (wither/poison gone, fire-proof, water-breathing, night sight, Regeneration when |
@@ -270,7 +270,7 @@ and function calls. Three are known to be stale.
 | `t145.js` | 2.78: the Recruiter only deals in names you know - into the Lounge with the Ledger, a click on him opens his book: no |
 |  | follower before you've met one (and no free Cecil); Celi met, her contract bought from the wallet ("IN YOUR PACK"), used |
 |  | and "SIGNED"; an unmet follower's contract refused and kept; a hireling and a vault gem bought from their pages. |
-| `t146.js` | 2.78: every follower in a frame - Zib's medal, KillerWatt's spark and Pearlman's card each hung in an item frame |
+| `t146.js` | 2.78: every follower in a frame - Zib's medal, KillerWatt's spark, Pearlman's card (2.78a: Wilfrey's locket, his bones too) each hung in an item frame |
 |  | with a right-click: the follower climbs out (nobody's), still there ten seconds on, gone with the item punched out. |
 | `t147.js` | 2.78: Wilfrey counts toward the three-follower limit - the locket refused with three out, answered once one goes |
 | `t148.js` | 2.78: wardrobes for the rest + auras + the tidied Office - Tullius's coat (away, then worn, arm re-dressed after poses, put back), his aura (locked, used, switched off), Pearlman's bow tie, Wilfrey's shield, the Office order and even widths, Raid Crew -> Outfits -> Pearlman |
@@ -281,9 +281,10 @@ and function calls. Three are known to be stale.
 | `t153.js` | 2.78: bosses don't sit frozen - Tullius leaves when his lone fighter dies, or when his chunk reloads a minute later; Apophiss leaves on a lone death in his den |
 | `t154.js` | 2.78: the Wings of the Damned flown with the real keys - crouch then jump: a Levitation burst skyward, cut off after a few ticks; a plain jump does nothing; gliding with sneak held: pushed on every tick, without: left be |
 | `t155.js` | 2.78: more weapons on the wall by sneak + drop (Q) - Cecil's staff, Leo's trident (his own model, both forms), Apophiss's mace, the Frisbee Shield, a ray gun, the Sepulchre; a plain drop or no wall just drops; sneak + punch takes one down |
-| `t156.js` | 2.78: a doll of every follower (nine) - Cecil sells them; each set down on a block by a real use, its own model, twirls when right-clicked, back into the pack with sneak + punch |
+| `t156.js` | 2.78: a doll of every follower (2.78a: twelve, the Frog, Donado and Wilfrey too) - Cecil sells them; each set down on a block by a real use, its own model, twirls when right-clicked, back into the pack with sneak + punch |
 | `t157.js` | 2.78: every boss makes an entrance - Horseman, Pharaoh, Roc, Treant, Colossus, Voidwalker and Tullius each with a title card on the player's screen, a ring of its colours that sweeps in and goes, and the light dipping for the dark ones |
 | `t158.js` | 2.78: Apophiss and Tullius on the Recruiter's book - not before you've met them; met (their Oath / coin in your pocket), their contracts priced in coins, bought from the book, used, and "SIGNED" |
+| `t159.js` | 2.78a: Apophiss's forms - the Ethereal Gem given by a right-click on him (ethereal scales, wings out and posed), the Wraithfire Heart (soul-blue scales and wings, fire-proof; the gem handed back), a colour picked meanwhile kept under the form, sneak + right-click empty-handed takes the heart back (his scales, wings away) |
 |  | home (from her menu), and with Wilfrey out a fourth follower refused. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
