@@ -722,7 +722,8 @@ def generate(G):
                                   'execute if score #gap bm.rng matches 1200.. run return run function bm:p132/b/leave']
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.tuseen dummy']
     G.OBJECTIVES += ['bm.tuseen']
-    G.FUNCS['p62/died'][0:0] = ['tag @s add bm.dying', 'execute at @s as @e[type=minecraft:husk,tag=bm.tuboss,distance=..80] at @s unless entity @a[tag=!bm.dying,distance=..64,gamemode=!spectator] run function bm:p132/b/leave', 'tag @s remove bm.dying']
+    fn('p132/b/died', ['tag @s add bm.dying', 'execute as @e[type=minecraft:husk,tag=bm.tuboss,distance=..80] at @s unless entity @a[tag=!bm.dying,distance=..64,gamemode=!spectator] run function bm:p132/b/leave', 'tag @s remove bm.dying'])
+    G.FUNCS['p62/died'][0:0] = ['execute at @s run function bm:p132/b/died']
     fn('p132/b/leave', ['bossbar set bm:tub visible false', 'particle minecraft:splash ~ ~1 ~ 0.4 0.8 0.4 0.1 30', 'function bm:p132/b/unrig',
                         'execute as @e[type=minecraft:marker,tag=bm.tuship,distance=..40] run scoreboard players set @s bm.tuw 0', 'tp @s ~ -400 ~', 'kill @s'])
     fn('p132/b/unrig', ['scoreboard players operation #tid bm.rng = @s bm.tuid',

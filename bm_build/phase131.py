@@ -1145,7 +1145,8 @@ def generate(G):
                                   'execute if score #gap bm.rng matches 1200.. run return run function bm:p131/b/leave']
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.apseen dummy']
     G.OBJECTIVES += ['bm.apseen']
-    G.FUNCS['p62/died'][0:0] = ['tag @s add bm.dying', 'execute at @s as @e[type=minecraft:husk,tag=bm.apboss,distance=..96] at @s unless entity @a[tag=!bm.dying,distance=..64,gamemode=!spectator] run function bm:p131/b/leave', 'tag @s remove bm.dying']
+    fn('p131/b/died', ['tag @s add bm.dying', 'execute as @e[type=minecraft:husk,tag=bm.apboss,distance=..96] at @s unless entity @a[tag=!bm.dying,distance=..64,gamemode=!spectator] run function bm:p131/b/leave', 'tag @s remove bm.dying'])
+    G.FUNCS['p62/died'][0:0] = ['execute at @s run function bm:p131/b/died']
     fn('p131/b/leave', ['bossbar set bm:apob visible false', 'function bm:p131/b/unrig', 'function bm:p131/b/vx_end', 'tp @s ~ -400 ~', 'kill @s'])
     fn('p131/b/unrig', ['scoreboard players operation #aid bm.rng = @s bm.apid',
                         'execute as @e[type=minecraft:item_display,tag=bm.apb,distance=..40] if score @s bm.apid = #aid bm.rng run kill @s'])
