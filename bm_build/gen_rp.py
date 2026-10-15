@@ -857,6 +857,8 @@ if __name__ == '__main__':
     phase138.rp(sys.modules[__name__])
     import phase141                           # (2.78: every follower's doll - their figurine, one model)
     phase141.rp(sys.modules[__name__])
+    import phase143                           # (2.78: the followers in finer cloth - a pass over their finished textures, so last)
+    phase143.rp(sys.modules[__name__])
     LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',
                  'death.attack.bm.quake': '%1$s was flattened by a shockwave', 'death.attack.bm.quake.player': '%1$s was flattened by %2$s'})
     if PHASE2:
