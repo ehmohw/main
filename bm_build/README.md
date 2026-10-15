@@ -21,6 +21,19 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.78c: Apophiss's wings, whole - and he flies
+
+- **Apophiss's wings have no more gaps.** This covers the follower's Ethereal and Wraithfire forms, and the ethereal king in his boss fight.
+  - The membrane used to be a fan of separate strips, with notches between them. It is now filled panel by panel between the bones, with a scalloped edge between the fingertips.
+  - The panel between the forearm and the last finger was missing. It's there now.
+  - The membrane is solid; it used to be see-through, so his body and the sky showed through.
+- **Ride him in his Ethereal or Wraithfire Form and he flies.**
+  - Look up and walk to climb, look level to glide at your height, and look down to dive.
+  - Jump for a hard wingbeat upward.
+  - He cruises faster in the air, and his wings beat as he goes.
+  - In his own scales he still slithers and lunges as before. You take no fall damage while riding him, as before.
+- **Fixed:** after any long jump, such as teleporting to catch up with you or a long flight, his click box was left behind and another one made, so stray boxes piled up. It now always follows him.
+
 ## New in 2.78b: Emma's blessings at level II with the Wraithfire Heart
 
 - **While Emma holds a Wraithfire Heart, her support form blesses at level II.** That covers every form she's in: Speed II and Jump Boost II, Strength II, Resistance II, Regeneration II, and Haste II.

@@ -23,7 +23,10 @@ WING_HALF = (qs(('y', 38), ('z', -6)), qs(('y', -38), ('z', 6)))
 WING = {'idle_b': (qs(('y', 32), ('z', -2)), qs(('y', -32), ('z', 2))), 'crouch': (qs(('y', 14), ('z', 8)), qs(('y', -14), ('z', -8))),
         'roar': (qs(('y', 10), ('z', 14)), qs(('y', -10), ('z', -14))), 'cast': (qs(('y', 14), ('z', 8)), qs(('y', -14), ('z', -8))),
         'cast_point': (qs(('y', 20), ('z', 2)), qs(('y', -20), ('z', -2))), 'swim_a': (qs(('y', 58), ('z', -16)), qs(('y', -58), ('z', 16))),
-        'swim_b': (qs(('y', 58), ('z', -16)), qs(('y', -58), ('z', 16))), 'swim_m': (qs(('y', 58), ('z', -16)), qs(('y', -58), ('z', 16)))}
+        'swim_b': (qs(('y', 58), ('z', -16)), qs(('y', -58), ('z', 16))), 'swim_m': (qs(('y', 58), ('z', -16)), qs(('y', -58), ('z', 16))),
+        # (2.78c, ridden: spread to fly - and beating, up and down, as he goes)
+        'ride': (qs(('y', 18), ('z', 6)), qs(('y', -18), ('z', -6))), 'ride_b': (qs(('y', 12), ('z', 16)), qs(('y', -12), ('z', -16))),
+        'ride_c': (qs(('y', 26), ('z', -26)), qs(('y', -26), ('z', 26)))}
 
 GRN, GRN_LT, SOUL, ETH = '#3ad06a', '#c8f0b0', '#5ae8ff', '#7affb0'
 FORMS = {10: ('ethereal_gem', 'ETHEREAL FORM', ETH, 'the ethereal king: his blows wither and slow, and he mends as he fights.'),
@@ -147,6 +150,29 @@ def generate(G):
         L[k:k] = [f'scoreboard players set @s bm.apel{save_to} 0', f'execute if score @s bm.apel matches 1.. run scoreboard players operation @s bm.apel{save_to} = @s bm.apel',
                   'scoreboard players set @s bm.apel 0', f'execute if score @s bm.apel{load_from} matches 1.. run scoreboard players operation @s bm.apel = @s bm.apel{load_from}']
     G.FUNCS['p126/gem/redress'].append(f'{pet} at @s run function bm:p144/look')
+
+    # ---- (2.78c) ridden in either form, he FLIES: no gravity while he's ridden; look up to climb, down to dive, level to glide;
+    #      jump for a hard wingbeat up; a faster cruise. (As Ethereal KillerWatt flies; on foot nothing changes.)
+    rd = G.FUNCS['p131/ride']
+    rd.insert(0, 'scoreboard players set #af bm.rng 0')
+    rd.insert(1, 'execute on owner run scoreboard players operation #af bm.rng = @s bm.apel')
+    k = next(i for i, l in enumerate(rd) if 'bm:p131/drive' in l)
+    rd[k:k] = ['execute if score #af bm.rng matches 10.. run data modify entity @s NoGravity set value 1b',
+               'execute unless score #af bm.rng matches 10.. run data modify entity @s NoGravity set value 0b']
+    rd.append('execute if score #af bm.rng matches 10.. run function bm:p144/fly')
+    fn('p144/fly', ['execute on passengers store result score #pitch bm.rng run data get entity @s Rotation[1]',
+                    'execute if score #pitch bm.rng matches ..-20 run data modify entity @s Motion[1] set value 0.3d',
+                    'execute if score #pitch bm.rng matches 35.. run data modify entity @s Motion[1] set value -0.3d',
+                    'execute if score #pitch bm.rng matches -19..34 run data modify entity @s Motion[1] set value 0.0d',
+                    'execute if score #jp bm.rng matches 1 run data modify entity @s Motion[1] set value 0.55d',
+                    'execute if score #jp bm.rng matches 1 if score @s bm.apfn matches ..0 run playsound minecraft:entity.ender_dragon.flap neutral @a[distance=..24] ~ ~ ~ 0.6 1.3',
+                    'execute if score #jp bm.rng matches 1 if score @s bm.apfn matches ..0 run scoreboard players set @s bm.apfn 10',
+                    'execute if score #af bm.rng matches 10 run particle minecraft:reverse_portal ~ ~2 ~ 1.2 0.4 1.2 0.02 3',
+                    'execute if score #af bm.rng matches 11 run particle minecraft:soul_fire_flame ~ ~2 ~ 1.2 0.4 1.2 0.01 2'])
+    dr = G.FUNCS['p131/drive']
+    assert dr[0] == 'data modify storage bm:tmp kxd.s set value 0.36d', dr[0]
+    dr.insert(1, 'execute if score #af bm.rng matches 10.. run data modify storage bm:tmp kxd.s set value 0.55d')
+    G.FUNCS['p131/unride'].append('data modify entity @s NoGravity set value 0b')
 
     # ---- Emma, holding a Wraithfire Heart: every blessing of her support form at level II (as the target; #ewf set by her pulse)
     pu = G.FUNCS['p57/pulse']

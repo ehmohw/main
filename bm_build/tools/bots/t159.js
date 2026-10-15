@@ -25,7 +25,7 @@ const res = [];
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
   await run('gamemode survival TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await run('clear TestRat');
   for (const t of ['bm.appet', 'bm.emmapet', 'bm.leopet', 'bm.cecilpet', 'bm.kxpet', 'bm.wilfrey']) await run(`kill @e[tag=${t}]`);
-  for (const o of ['bm.apcd', 'bm.apel', 'bm.cosap']) await run(`scoreboard players set TestRat ${o} 0`);
+  for (const o of ['bm.apcd', 'bm.apel', 'bm.cosap', 'bm.apsd']) await run(`scoreboard players set TestRat ${o} 0`);
   await run(`${O}forceload add ${X - 32} ${Z - 32} ${X + 32} ${Z + 32}`);
   await run(`${O}fill ${X - 16} ${Y} ${Z - 16} ${X + 16} ${Y} ${Z + 16} minecraft:stone`); await run(`${O}fill ${X - 16} ${Y + 1} ${Z - 16} ${X + 16} ${Y + 12} ${Z + 16} minecraft:air`);
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..30]`);

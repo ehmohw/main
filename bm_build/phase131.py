@@ -1739,7 +1739,11 @@ def generate(G):
     fn('p131/box', ['execute if entity @s[tag=bm.ffpet] run return 0',
                     'execute if entity @s[tag=bm.aprd] as @e[type=minecraft:interaction,tag=bm.aphit,distance=..8] if score @s bm.pid = #me bm.pid run kill @s',
                     'execute if entity @s[tag=bm.aprd] run return 0',
-                    'execute as @e[type=minecraft:interaction,tag=bm.aphit,distance=..10] if score @s bm.pid = #me bm.pid run tag @s add bm.aphs',
+                    # (2.78c: his box found wherever it is - after a long jump (a teleport to you, a flight) a box looked for only nearby
+                    #  was left behind and another made; the nearest is kept, any strays go)
+                    'execute as @e[type=minecraft:interaction,tag=bm.aphit] if score @s bm.pid = #me bm.pid run tag @s add bm.aphs',
+                    'tag @e[type=minecraft:interaction,tag=bm.aphs,sort=nearest,limit=1] add bm.aphk', 'kill @e[type=minecraft:interaction,tag=bm.aphs,tag=!bm.aphk]',
+                    'tag @e[type=minecraft:interaction,tag=bm.aphk] remove bm.aphk',
                     'execute unless entity @e[type=minecraft:interaction,tag=bm.aphs] run summon minecraft:interaction ~ ~ ~ {Tags:["bm.aphit","bm.aphs","bm.aphnew"],width:3.4f,height:6.6f,response:1b}',
                     'scoreboard players operation @e[type=minecraft:interaction,tag=bm.aphnew] bm.pid = #me bm.pid', 'tag @e[type=minecraft:interaction,tag=bm.aphnew] remove bm.aphnew',
                     'tp @e[type=minecraft:interaction,tag=bm.aphs] ~ ~ ~', 'tag @e[type=minecraft:interaction,tag=bm.aphs] remove bm.aphs'])

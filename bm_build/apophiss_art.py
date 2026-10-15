@@ -19,7 +19,7 @@ import random
 from PIL import Image, ImageDraw
 
 from phase57_art import hexc
-from rigkit import qs, shrink, el, seg, chain, frame, transform, _add, _mul, _sub, _unit, I, mid
+from rigkit import qs, shrink, el, seg, chain, frame, transform, _add, _mul, _sub, _unit, _dot, I, mid
 
 PREFIX = 'apo_'
 BOSS_SCALE, PET_SCALE = 2.8, 2.8
@@ -165,12 +165,12 @@ def _leather(base, stitch, seed):
     return im
 
 
-def _membrane(seed, rgb=(118, 56, 226), vein=(80, 255, 160, 210)):
+def _membrane(seed, rgb=(118, 56, 226), vein=(80, 255, 160, 255)):
     im = Image.new('RGBA', (64, 64)); rnd = random.Random(seed)
     for y in range(64):
         for x in range(64):
             g = 1 + rnd.uniform(-0.08, 0.08)
-            im.putpixel((x, y), (int(rgb[0] * g), int(rgb[1] * g), int(rgb[2] * g), 150))
+            im.putpixel((x, y), (int(rgb[0] * g), int(rgb[1] * g), int(rgb[2] * g), 255))       # (2.78a: solid - see-through showed the wing's own overlaps and whatever was behind)
     d = ImageDraw.Draw(im)
     for _ in range(6):
         x0 = rnd.randint(0, 63)
@@ -198,7 +198,7 @@ def textures():
               'apo_claw_wf': _noise('#0a1a22', 765, 6), 'apo_eye_wf': _glow_eye('#9af8ff', '#1a7ab8', 766), 'apo_mace_wf': _mace('#101014', '#5ae8ff', 767),
               'apo_bone_wf': _bone('#d8f6ff', '#7ac8e0', 768), 'apo_lid_wf': _scales('#14181e', '#06070a', '#1e2630', 769, glow='#5ae8ff'),
               'apo_brow_wf': _brush('#06080c', '#1a5a7a', 770), 'apo_pupil_wf': _noise('#04121a', 771, 3),
-              'apo_wing_wf': _membrane(772, (40, 150, 200), (150, 250, 255, 220)), 'apo_wingbone_wf': _noise('#0a1820', 773, 6)})
+              'apo_wing_wf': _membrane(772, (40, 150, 200), (150, 250, 255, 255)), 'apo_wingbone_wf': _noise('#0a1820', 773, 6)})
     return T
 
 
@@ -664,16 +664,33 @@ def models():
         for f in F:
             m = _mul(_add(W0, f), 0.5)
             els += [seg(W0, m, 1.1, 1.1, 'apo_wingbone', pv, n, 0.3), seg(m, f, 0.7, 0.7, 'apo_wingbone', pv, n, 0.3)]
-        def fan(cen, a, b, k):                                                                        # membrane strips from cen to the edge a-b
+        # (2.78a) the membrane, panel by panel - each the triangle between two bones and the edge - filled with strips that run
+        # parallel to its outer edge, every one as long as the panel is wide at its outer side: no gap opens between strips or
+        # along a bone (the old fan of rectangles from the corner left notches between them, and nothing at all filled the
+        # panel between the forearm and the last finger). The edge still scallops in between the fingertips. Neighbouring
+        # panels sit a hair apart along the wing's normal, so where they meet under a bone they never flicker.
+        def sheet(cen, a, b, depth, bands=10, scallop=0.12):
+            u = _unit(_sub(b, a))
+            foot = _add(a, _mul(u, _dot(_sub(cen, a), u)))                                        # (cen dropped onto the edge's line)
+            H = math.dist(foot, cen); v = _mul(_sub(foot, cen), 1.0 / H)
+            ua, ub = _dot(_sub(a, cen), u), _dot(_sub(b, cen), u)
+            off = _mul(n, depth)
             out = []
-            for i in range(k):
-                t0, t1 = i / k, (i + 1) / k; tm = (t0 + t1) / 2
-                q = tuple(a[j] + (b[j] - a[j]) * tm for j in range(3))
-                q = tuple(q[j] + (cen[j] - q[j]) * 0.12 * math.sin(math.pi * tm) for j in range(3))       # (scalloped between the fingers)
-                wid = math.dist(tuple(a[j] + (b[j] - a[j]) * t0 for j in range(3)), tuple(a[j] + (b[j] - a[j]) * t1 for j in range(3)))
-                out.append(seg(cen, q, wid * 1.05, 0.3, 'apo_wing', pv, n, 0.0))
+            for j in range(bands):
+                h0, h1 = j / bands, (j + 1) / bands; hm = (h0 + h1) / 2
+                if hm <= 1 - scallop: pieces = [(0.0, 1.0)]
+                else:                                                                             # (the scallop: the middle of the edge falls back)
+                    t1 = math.asin(min(1.0, (1 - hm) / scallop)) / math.pi
+                    pieces = [(0.0, t1), (1 - t1, 1.0)]
+                for ta, tb in pieces:
+                    if tb - ta < 0.02: continue
+                    u0, u1 = h1 * (ua + (ub - ua) * ta), h1 * (ua + (ub - ua) * tb)
+                    base = _add(_add(cen, _mul(v, hm * H)), off)
+                    out.append(seg(_add(base, _mul(u, u0)), _add(base, _mul(u, u1)), (h1 - h0) * H * 1.04, 0.3, 'apo_wing', pv, n, 0.0,
+                                   shift=(0.37 * j + 0.2 * depth, 0.61 * j)))
             return out
-        els += fan(W0, F[0], F[1], 5) + fan(W0, F[1], F[2], 5) + fan(W0, F[2], F[3], 4) + fan(E0, F[3], T0, 4) + fan(S0, E0, T0, 2)
+        els += (sheet(W0, F[0], F[1], 0.0) + sheet(W0, F[1], F[2], 0.08) + sheet(W0, F[2], F[3], 0.0) + sheet(W0, E0, F[3], 0.08, scallop=0.0)
+                + sheet(E0, F[3], T0, 0.0) + sheet(S0, E0, T0, 0.08, scallop=0.0))
         return els
     part('apo_wingr', wing(1), WING_K); part('apo_wingl', wing(-1), WING_K)
     return M
