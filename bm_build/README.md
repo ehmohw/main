@@ -1,4 +1,4 @@
-# Black Market — v2.77d (Java 26.3)
+# Black Market — v2.78 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,95 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.78: wings that fly, weapons on every wall, a doll of every follower, bosses that make an entrance, and a Tier V that fights back
+
+### The Wings of the Damned fly properly
+- **The launch works like the Rocket Boots.** On the ground, crouch for half a second (soul fire gathers at your feet and a chime tells you it's ready), then jump. The wings throw you about 19 blocks up in a short burst, then let go. Jump again to glide.
+  - A plain jump does nothing; you have to crouch first.
+- **Holding sneak in the air now drives you on.** Before, the boost never fired: while gliding you aren't in the crouching pose, so the game never saw you sneaking. Now it reads the sneak key itself. You get a steady push forward, with extra smoke and soul fire in your trail.
+
+### Weapons on every wall
+- **Sneak and drop a weapon (Q) while facing a wall, and it hangs there** on a small wooden plaque, facing out, with its name and enchantments kept.
+  - It works for **Cecil's staff, Leo's trident, Apophiss's mace, the Frisbee Shield, the ray guns** (Ray Gun, Plasma Blaster, Shrink Ray, Growth Ray, Tractor Beam), and every weapon with its own art:
+    - the Levitation Wand and the Vorn Drill;
+    - the three staffs and the Golden Spear;
+    - the Treasurer's Scepter, the Blue Marlin, the Enchanted Sword and the Gutter Cutlass;
+    - the Heister's Shiv, the Quake Maul, the Sepulchre, the Thirsting Blade and the Vault Breaker.
+  - A drop without sneaking, or with no wall in reach, is just a drop. Sneak and punch a hung weapon to take it down.
+  - (The 2.77c five, from Tullius's blunderbuss to the tendrils, still hang with sneak + use.)
+- **Leo's trident looks like the one he carries**, in both its trident and spear forms, and sits in your hand the way a sword does.
+
+### A doll of every follower
+- **Cecil now sells a doll of each follower** beside Emma's: Cecil, Celi, Leo, Democratus, KillerWatt, Apophiss, Tullius, Zib and Pearlman, for 3 Trophies each.
+- Each is a little statue of them in their idle pose. You can hold it, and it looks right in your inventory.
+- Right-click a block to set the doll down; it shimmers now and then while it stands.
+- Right-click the doll and it twirls, in its own colours and sounds.
+- Sneak and punch it to pick it up.
+
+### Every boss makes an entrance
+- **The Headless Horseman, the Sand Pharaoh, the Storm Roc, the Elder Treant, the Magma Colossus, the Voidwalker and Captain Tullius** now arrive with:
+  - a title card (their name and an epithet) for everyone within 64 blocks;
+  - a sting in their own sounds;
+  - a ring of their own colours sweeping in to where they stand.
+- For the Horseman, the Voidwalker and Tullius, the light dips for a moment.
+
+### Tier V fights back
+Tiers I to III are unchanged. On top of the crew and Lucky Raid scaling:
+- **Tier IV guards:** +35% health, +20% damage, +3 armour.
+- **Tier V guards:**
+  - +90% health, +45% damage and +6 armour;
+  - a third less knockback, and a little faster;
+  - one in four is Hardened (Resistance I).
+- **The Gutter King:**
+  - +60% health (about 976 solo) and +6 damage;
+  - when he shells himself in gold at half health, he keeps Resistance I for the rest of the fight.
+- A crew in rank-VI kits used to walk through Tier V. Now they'll have to work for it.
+
+### The followers in finer cloth
+- **Every follower's textures have more detail:**
+  - cloth has a fine twill and soft folds;
+  - metal has a sheen and the odd glint;
+  - hair falls in strands;
+  - leather and skin have grain.
+- Faces, eyes, glows, emblems and gems are left exactly as drawn. Every recoloured outfit gets the same treatment, so they still match.
+
+### Wardrobes for everyone, and a rare aura each
+- **Six more followers have outfits at the Tailor:** Apophiss, Tullius, the Frog, Donado, Pearlman and Wilfrey.
+- **Every follower has a rare, expensive aura.** You buy it at the Tailor, or very rarely find it in Tier III to V heists. Switch it on and off from the follower's menu.
+
+### Tullius
+- **His harpoon and blunderbuss sit properly in your hand.** The harpoon is held like a sword, and the blunderbuss like a crossbow (no more sideways gun).
+- **The flickering on his face is gone.**
+- **He no longer waits, frozen, where you left him:**
+  - if the only player fighting him dies, he sinks back into the sea;
+  - if his chunk sits unloaded for a minute or more (say you respawned far away), he's gone when you come back.
+- Apophiss leaves the same way if the only player in his den dies.
+
+### Apophiss and his den
+- **He no longer hops between attacks** in his base form.
+- **Phase II always comes, rematches included:**
+  - a big hit can't skip him past half health;
+  - the transformation starts at once, even mid-attack.
+- **The holes in the den's ceiling are patched.** The lantern chains hang from a solid dome, and old chains above the dome are cleared when the den is rebuilt.
+- **His mace sits in your hand properly.** It now has a haft and grip, and is held where a sword is.
+
+### Fixes and tidying
+- **"Go to the Lounge" after a heist kept your overworld gear out of the coat check:** you got it back early. Now it stays with the Fixer until you walk out through the Lounge's door.
+- **Cecil, Emma and Leo can now be called in the Serpent's Den,** with no conquest needed.
+- **The Fixer's Office is tidier:**
+  - an even grid, with Plan a Heist first in gold;
+  - plain names;
+  - a neat standing card.
+- **The Recruiter only offers contracts for followers you've met.** Apophiss and Tullius join his book once you've met them.
+- **Every follower lives in an item frame**, Zib, KillerWatt and Pearlman included.
+- **Wilfrey now counts toward the three-follower limit.**
+- **Frog and Donado** now have summoning tokens, like every other follower.
+- **The Key of New Beginnings** keeps what you'd earned.
+- **Fixed: "never used up" items vanishing after one use.** This hit the Tome of Blinking, Jackpot cards and lucky map pieces.
+- **Figurines never poke out of their display cases.** Several poses were also fixed so limbs and weapons don't clip.
+- **The admin give list no longer hands out the retired Hollow Shard.**
+- **Updated item text:** old copies of every Black Market item refresh to the new wording (item version 35).
 
 ## New in 2.77d: Apophiss's snout, and the Emma doll Cecil sells
 
