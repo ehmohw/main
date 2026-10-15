@@ -240,14 +240,81 @@ def glowing(fn):
     return f
 
 
+# 2.80: every room kind dressed in its own look - a frieze round the walls between the gold trim (y 9) and the ceiling
+# (y 10-12), light set into the ceiling in its own pattern, and one feature overhead. Nothing comes below the trim, so
+# no puzzle, beam, guard or plate is touched; the wall-glow cells are kept. (Materials outside BASE keep their look in
+# every tier; gold - the coffers' band - turns into each tier's own metal.)
+DRESS = {
+    'levers': (('minecraft:waxed_cut_copper', 'minecraft:waxed_copper_grate'), 'minecraft:waxed_copper_bulb[lit=true]', 4, 'pipes'),
+    'plates': (('minecraft:smooth_basalt', 'minecraft:polished_basalt[axis=y]'), 'minecraft:sea_lantern', 6, 'weights'),
+    'lasers': (('minecraft:red_nether_bricks', 'minecraft:crying_obsidian'), 'minecraft:pearlescent_froglight', 6, 'dim'),
+    'tiles': (('minecraft:white_glazed_terracotta', 'minecraft:black_glazed_terracotta'), 'minecraft:glowstone', 4, None),
+    'dial': (('minecraft:chiseled_copper', 'minecraft:waxed_copper_grate'), 'minecraft:ochre_froglight', 6, 'dialface'),
+    'guards': (('minecraft:bookshelf', 'minecraft:dark_oak_planks'), 'minecraft:shroomlight', 6, 'chandelier'),
+    'coffers': (('minecraft:gold_block', 'minecraft:gilded_blackstone'), 'minecraft:verdant_froglight', 4, None),
+    'cache': (('minecraft:waxed_oxidized_cut_copper', 'minecraft:waxed_copper_grate'), 'minecraft:waxed_copper_bulb[lit=true]', 4, 'pipes'),
+}
+
+
+def dress(b, kind, length=RM.W):
+    if kind not in DRESS:
+        return b
+    (a, c), inlay, step, feature = DRESS[kind]
+    D, top = RM.D, RM.H - 1
+    keep = {pos for pos, st in b.b.items() if st == BASE['glow']}
+    walls = [(x, z) for x in range(length) for z in (0, D - 1)] + [(x, z) for z in range(1, D - 1) for x in (0, length - 1)]
+    for (x, z) in walls:
+        run = x if z in (0, D - 1) else z
+        for y in (10, 11, 12):
+            if (x, y, z) in keep:
+                continue
+            pilaster = run % 4 == 0
+            b.set(x, y, z, c if (pilaster or (y == 11 and run % 2 == 0)) and kind != 'guards' else (c if pilaster else a))
+    off = step // 2
+    for x in range(off, length - 1, step):              # light set into the ceiling
+        for z in range(off, D - 1, step):
+            b.set(x, top, z, inlay)
+    cx, cz = length // 2, D // 2
+    if feature == 'dim':                                # the Gauntlet goes dark - its beams the brighter for it
+        for (pos, st) in list(b.b.items()):
+            if st.startswith('minecraft:lantern'):
+                b.set(*pos, 'minecraft:air')
+    elif feature == 'weights':                          # the Weighing Room: iron weights on chains
+        for (x, z) in ((6, 6), (length - 7, 6), (6, D - 7), (length - 7, D - 7)):
+            b.set(x, top - 1, z, 'minecraft:iron_chain'); b.set(x, top - 2, z, 'minecraft:iron_chain'); b.set(x, top - 3, z, 'minecraft:heavy_core')
+    elif feature == 'dialface':                         # the Dial Lock: a great dial overhead
+        import math
+        for k in range(48):
+            th = 2 * math.pi * k / 48
+            b.set(cx + round(5 * math.cos(th)), top, cz + round(5 * math.sin(th)), 'minecraft:smooth_quartz')
+        for r in range(1, 5):
+            b.set(cx + r, top, cz, 'minecraft:gold_block'); b.set(cx, top, cz - min(r, 3), 'minecraft:gold_block')
+        b.set(cx, top, cz, 'minecraft:ochre_froglight')
+    elif feature == 'chandelier':                       # the Counting House: a chandelier over the counting
+        b.set(cx, top - 1, cz, 'minecraft:iron_chain'); b.set(cx, top - 2, cz, 'minecraft:iron_chain'); b.set(cx, top - 3, cz, 'minecraft:lantern[hanging=true]')
+        for (dx, dz) in ((2, 0), (-2, 0), (0, 2), (0, -2)):
+            b.set(cx + dx, top - 1, cz + dz, 'minecraft:iron_chain'); b.set(cx + dx, top - 2, cz + dz, 'minecraft:lantern[hanging=true]')
+    elif feature == 'pipes':                            # copper pipework along the ceiling
+        for x in range(1, length - 1):
+            for z in (3, D - 4):
+                b.set(x, top - 1, z, 'minecraft:lightning_rod[facing=east]')
+    return b
+
+
+def dressed(kind, fn):
+    def f():
+        return dress(fn(), kind)
+    return f
+
+
 VAULT_DOOR = {(24, y, z) for y in range(4, 9) for z in range(9, 16)}
 
 
 def tiered_rooms(extra=None):
     """{template name: builder} for every room in every tier"""
-    rooms = {'lobby': lobby2, 'dial': dial2}
+    rooms = {'lobby': lobby2, 'dial': dressed('dial', dial2)}
     for k in ('levers', 'plates', 'lasers', 'tiles', 'guards', 'coffers', 'cache'):
-        rooms[k] = glowing(RM.BUILDERS[k])
+        rooms[k] = dressed(k, glowing(RM.BUILDERS[k]))
     rooms['vault'] = lambda: wall_glow(RM.vault(), RM.VAULT_LEN)
     if extra: rooms.update(extra)
     out = {}

@@ -3,7 +3,8 @@
 // full size on the floor, free, with "The vault's guardian wakes" on the player's screen. Its fall OPENS THE VAULT as an
 // event: the great gold door parts from the middle outward (the middle column first, the edges still gold), then it is
 // all open, the way out swirls and "The vault is open" is on screen. The treasury dressed: chandeliers over the strongbox,
-// candles on the gold, soul-lantern sconces, light enough to see the gold - and the strongbox ring still clear.
+// candles on the gold, soul-lantern sconces, light enough to see the gold - and the strongbox ring still clear. A heist
+// room dressed in its own look (2.80): the Lever Room's copper frieze, ceiling lights and pipework, above the trim only.
 const { bot, rcon, sleep } = require('./lib_resp');
 const { mk, rel } = require('./h110');
 const res = [];
@@ -32,6 +33,13 @@ const res = [];
   ok('...hidden lights over the gold, a glint of gems', await isBlock(27, 10, 4, 'minecraft:light') && await isBlock(29, 4, 2, 'minecraft:diamond_block'));
   ok('...and the strongbox ring and the way to it still clear', await isBlock(28, 4, 9, 'minecraft:light_weighted_pressure_plate') && await isBlock(26, 4, 12, 'minecraft:air') &&
      await isBlock(30, 4, 12, 'minecraft:gold_block') && await isBlock(34, 4, 12, 'minecraft:air'));
+
+  // ---- a heist room dressed in its own look (the Lever Room: copper)
+  const RQ = `@e[type=minecraft:marker,tag=bm.gvr_levers,scores={bm.gvi=${GI},bm.gvq=1},limit=1]`;
+  const isR = async (x, y, z, bl) => /passed/i.test(await run(`execute in bm:gutter as ${RQ} at @s run execute if block ${rel(x, y, z)} ${bl}`));
+  ok('A heist room dressed in its own look: a copper frieze above the trim, copper lights in the ceiling, pipes overhead',
+     await isR(1, 10, 0, 'minecraft:waxed_cut_copper') && await isR(2, 15, 2, 'minecraft:waxed_copper_bulb') && await isR(5, 14, 3, 'minecraft:lightning_rod'));
+  ok('...nothing below the trim touched: the levers on the wall, the floor clear', await isR(10, 5, 23, 'minecraft:lever') && await isR(12, 7, 23, 'minecraft:pale_oak_button') && await isR(12, 5, 12, '#minecraft:air'));
 
   // ---- the guardian rises
   A.titles.length = 0;
