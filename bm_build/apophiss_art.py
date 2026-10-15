@@ -612,7 +612,9 @@ def models():
             els += [S(L(u, 0.2, 2.6), L(u * 1.1, -0.2, 4.8), 0.95, 0.95, 'apo_claw', y, 0.2),
                     S(L(u * 1.1, -0.2, 4.8), L(u * 1.15, -1.8, 6.2), 0.75, 0.7, 'apo_claw', y, 0.2),
                     S(L(u * 1.15, -1.8, 6.2), L(u * 1.15, -3.2, 6.4), 0.5, 0.5, 'apo_claw', y, 0.15)]
-        els += [S(L(-2.6, 0.0, 0.6), L(-3.8, -0.6, 2.4), 0.9, 0.9, 'apo_claw', y, 0.2), S(L(-3.8, -0.6, 2.4), L(-4.2, -1.8, 3.4), 0.6, 0.6, 'apo_claw', y, 0.15)]
+        # (the thumb: on the hand's inner edge, toward his chest - the hand is palm-down, so frame +x; it sat on the outer edge
+        #  until 2.80, which made each a mirrored hand)
+        els += [S(L(2.6, 0.0, 0.6), L(3.8, -0.6, 2.4), 0.9, 0.9, 'apo_claw', y, 0.2), S(L(3.8, -0.6, 2.4), L(4.2, -1.8, 3.4), 0.6, 0.6, 'apo_claw', y, 0.15)]
         return els
     part('apo_armr', arm(1)); part('apo_arml', arm(-1))
 

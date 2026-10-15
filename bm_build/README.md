@@ -60,6 +60,9 @@ The Headless Horseman, the Sand Pharaoh, the Storm Roc, the Elder Treant, the Ma
 - **The rest, one by one:** armour, gauntlets, wings, blades, staffs, ray guns, scrolls, books and cards, food, crates and display cases, bells, trinkets, the skiff's parts and escorts, the Rat Gang, the summoning items, the gems, hearts and essences.
 - **Only the pictures change.** The items, their names and their models are the same.
 
+### Apophiss's hands
+- **His thumbs are on the right side now.** Each hand had its thumb on the outer edge, so his right arm wore a left hand and his left arm a right one. The thumbs now sit on the inner edge, toward his chest. This covers every form (normal, ethereal and Wraithfire), the boss and the follower, and his doll and display-case figurine.
+
 ### Menus
 - **The Rat Bank:** the account page lists every currency on one button with its balance, plus **Deposit everything**. A currency's own page shows its icon, how many are in your account and how many you carry, and Deposit all, Take 1, Take 10 and Take all. Each action brings you back to that page.
 - **The Armory:** one short card per kit. Each kit opens its own page listing every rank (the ones you have are ticked, the next one is marked), what the next costs, and **Rank up**.
