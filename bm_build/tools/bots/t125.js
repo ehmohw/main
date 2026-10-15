@@ -20,6 +20,7 @@ const X = 19000, Y = 120, Z = 19000;
       await run(`execute as @e[type=${k}] run tp @s ~ -400 ~`);
     await sleep(1500);
     for (const o of ['bm.emcd', 'bm.kxcd', 'bm.dmcd', 'bm.lecd', 'bm.cecd', 'bm.cpcd']) await run(`scoreboard players set TestRat ${o} 0`);
+    await run('tag TestRat remove bm.dmduel'); await run('scoreboard players set TestRat bm.dmd 0');     // (a duel's countdown left running by an earlier run)
     await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} -90 0`); await run('gamemode survival TestRat'); await run('effect clear TestRat'); await run('clear TestRat');
     await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid'); await run('weather clear'); await run('time set day');
     await sleep(500);
@@ -88,6 +89,7 @@ const X = 19000, Y = 120, Z = 19000;
     await run('execute as @e[type=wolf,tag=bm.dmpet,limit=1] run data merge entity @s {Sitting:0b}');
     // the duel: one huge blow, past his yield
     await run('scoreboard players set TestRat bm.dmsc 0'); await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/demo_seal');
+    await run('effect give TestRat minecraft:instant_health 1 4 true'); await sleep(200);     // (full health: at three hearts or less when the fight starts, it's lost)
     await run('scoreboard players set TestRat bm.menu 9700'); await run('scoreboard players set #act bm.pay 9701'); await run('execute as TestRat at @s run function bm:p97/act');
     await sleep(800);
     const boss = '@e[type=vindicator,tag=bm.dmboss,limit=1]';

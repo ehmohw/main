@@ -121,6 +121,12 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
   `{CustomName:{text:"Rex"}}`, even though it was summoned that way (t164).
 - A plain `run('execute as TestRat run function bm:p28/act')` does nothing: `p28/act` copies `#act` from the player's own
   `bm.act` first. Press the button with `A.cmd('trigger bm.act set N')` and the menu set (t121, t150).
+- The bot keeps its health, tags and scores between runs. Heal it (`effect give TestRat minecraft:instant_health 1 4 true`)
+  before anything that reads its health: Democratus's duel is lost if you're on three hearts or less when it starts (t125).
+  A run that ends mid-countdown leaves the bot "in a duel" (`bm.dmduel`, `bm.dmd`), and the seal then refuses to call
+  him. Clear both when setting the stage.
+- Summoning several followers one after another: wait ~2.3 s between the items (the shared `bm.gvhc` debounce, above),
+  or one of them silently doesn't come (t134).
 
 ## Index
 

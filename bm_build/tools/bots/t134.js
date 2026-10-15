@@ -63,7 +63,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     await run('loot replace entity TestRat hotbar.0 loot bm:items/emma_ribbon'); await run('loot replace entity TestRat hotbar.1 loot bm:items/leo_crest');
     await run('loot replace entity TestRat hotbar.2 loot bm:items/cecil_gem');
     await run('scoreboard players set TestRat bm.conq 6'); await run('scoreboard players set TestRat bm.conqb 6');
-    for (const k of [0, 1, 2]) { await use(A, k); await sleep(1200); }
+    for (const k of [0, 1, 2]) { await use(A, k); await sleep(2300); }      // (follower items share a 2 s use debounce, bm.gvhc)
     await run('scoreboard players set TestRat bm.conq 5'); await run('scoreboard players set TestRat bm.conqb 5');
     const three = async () => (await cnt('@e[type=minecraft:cat,tag=bm.emmapet]')) === 1 && (await cnt('@e[type=minecraft:wolf,tag=bm.leopet]')) === 1 && (await cnt('@e[type=minecraft:wolf,tag=bm.cecilpet]')) === 1;
     ok('(in the den with the seal\'s mark, and Emma, Leo and Cecil with the bot)', await inDen() && await three());
@@ -193,7 +193,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     await run(`${H}data modify entity ${boss} Health set value ${Math.round(mx * 0.95)}f`);
     A.slot(4); await sleep(300);
     let dealt = 0;
-    for (let k = 0; k < 8 && dealt <= 10; k++) {          // (he moves while he fights: a few swings miss)
+    for (let k = 0; k < 16 && dealt <= 10; k++) {         // (he moves while he fights: a few swings miss - so up to sixteen)
       const b = await epos(boss); await run(`${H}tp TestRat ${b[0]} ${b[1]} ${b[2] + 2.2} 180 0`); await sleep(250);
       const box = await entOf(A, '@e[type=minecraft:interaction,tag=bm.bhit_ap,limit=1]');
       const h0 = await hp(boss); if (box) A.attack(box.entityId); await sleep(150); const h1 = await hp(boss); if (h1 < h0) dealt += h0 - h1;
