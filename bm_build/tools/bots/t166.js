@@ -63,8 +63,8 @@ const res = [];
   await wait(3000, async () => (await cnt(sel('sph'))) === 1);
   await sleep(3000);
   ok('The Pharaoh\'s Scarab, by night: the Sand Pharaoh walks out - and stays, called, in the dark', (await cnt(sel('sph', ',tag=bm.called'))) === 1);
-  await run(`${O}tag ${sel('sph')} remove bm.called`); await sleep(2500);
-  ok('...the same Pharaoh uncalled: he sinks back at once (night still sends an uncalled one home)', (await cnt(sel('sph'))) === 0);
+  await run(`${O}tag ${sel('sph')} remove bm.called`);
+  ok('...the same Pharaoh uncalled: he sinks back (night still sends an uncalled one home, once his arrival is over)', await wait(5000, async () => (await cnt(sel('sph'))) === 0));
   await run('clear TestRat');
 
   // ---------------------------------------------------------------- the Thunderhead Feather, clear skies

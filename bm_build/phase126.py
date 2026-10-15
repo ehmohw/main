@@ -124,7 +124,7 @@ def generate(G):
     cx, cy, cz = GY_CTRL
     L = lambda x, y, z: '^{:g} ^{:g} ^{:g}'.format(x - cx, y - cy + 0.5, z - cz)     # (block centres: the marker sits at .5, rotated as the structure)
     wjson('bm/tags/block/gy_cut.json', {'values': [{'id': v, 'required': False} for v in (
-        '#minecraft:dirt', '#minecraft:base_stone_overworld', '#minecraft:logs', '#minecraft:leaves', '#minecraft:sand', '#minecraft:flowers',
+        '#minecraft:dirt', '#minecraft:grass_blocks', '#minecraft:moss_blocks', '#minecraft:mud', '#minecraft:base_stone_overworld', '#minecraft:logs', '#minecraft:leaves', '#minecraft:sand', '#minecraft:flowers',
         '#minecraft:coal_ores', '#minecraft:iron_ores', '#minecraft:copper_ores', 'minecraft:gravel', 'minecraft:clay', 'minecraft:calcite',
         'minecraft:snow', 'minecraft:snow_block', 'minecraft:powder_snow', 'minecraft:short_grass', 'minecraft:tall_grass', 'minecraft:fern',
         'minecraft:large_fern', 'minecraft:dead_bush', 'minecraft:bush', 'minecraft:firefly_bush', 'minecraft:leaf_litter', 'minecraft:short_dry_grass',
@@ -132,7 +132,8 @@ def generate(G):
         'minecraft:pale_moss_carpet', 'minecraft:pale_hanging_moss', 'minecraft:brown_mushroom', 'minecraft:red_mushroom', 'minecraft:pumpkin',
         'minecraft:sugar_cane')]})
     wjson('bm/tags/block/gy_soil.json', {'values': [{'id': v, 'required': False} for v in (
-        '#minecraft:dirt', '#minecraft:base_stone_overworld', 'minecraft:gravel', 'minecraft:clay', 'minecraft:calcite',
+        '#minecraft:dirt', '#minecraft:grass_blocks', '#minecraft:moss_blocks', '#minecraft:mud', '#minecraft:base_stone_overworld', 'minecraft:gravel',
+        'minecraft:clay', 'minecraft:calcite',
         '#minecraft:coal_ores', '#minecraft:iron_ores', '#minecraft:copper_ores')]})
     G2 = GY_G
     def strips(d):

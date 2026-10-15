@@ -5,6 +5,7 @@ const { bot, rcon, sleep } = require('./lib');
 const res = []; const X = 16200, Y = 100, Z = 16000;
 (async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(2000); const B = await bot('TestMouse'); await sleep(2000);
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
+  const wait = async (ms, fn, step = 200) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await sleep(step); } return false; };
   const num = async c => { const m = (await run(c)).match(/(-?\d+)/g); return m ? +m[m.length - 1] : NaN; };
   const sc = async (o, who = 'TestRat') => { const m = (await run(`scoreboard players get ${who} ${o}`)).match(/has (-?\d+)/); return m ? +m[1] : NaN; };
   const cnt = async (who, pred) => { const o = await run(`clear ${who} ${pred} 0`); return /No items/.test(o) ? 0 : +((o.match(/(\d+)/g) || [0])[0]); };
@@ -327,7 +328,7 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
   ok('The treasury\'s door: an arch against the far wall, shut till the vault opens', (await metal(isV, 35, 7, 12)) &&
      (await doorV()) === 0 && !/failed/i.test(await run(`execute in bm:gutter if block ${atV(34, 4, 12)} minecraft:air`)));
   await run(`execute in bm:gutter as ${vm} at @s run function bm:p70/r/vault/open`); await sleep(300);
-  ok('...the vault opens: the door swirls', (await doorV()) === 1);
+  ok('...the vault opens (2.80: its great door parting, a second or two): the door swirls', await wait(4000, async () => (await doorV()) === 1));
   await win('TestRat'); await sleep(800);
   await run(`execute in bm:gutter run tp TestRat ${atV(35, 4, 12).split(' ').map((v, i) => +v + (i === 1 ? 0 : 0.5)).join(' ')}`); await sleep(700);
   ok('Won: through the door, home - the haul with you', /overworld/.test(await dim('TestRat')) && !(await has('TestRat', 'bm.gvp')));

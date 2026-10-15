@@ -1,4 +1,5 @@
-// v2.34: every roaming boss always drops its relic to a player's kill (3 kills each)
+// v2.34: every roaming boss always drops its relic to a player's kill (3 kills each). 2.80: each arrives first (5 s, untouchable)
+// and dies as a sequence (5 s) - the kill still the player's.
 const { bot, rcon, sleep } = require('./lib');
 const X = 6800, Y = 100, Z = 6800;
 (async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(1500);
@@ -13,8 +14,8 @@ const X = 6800, Y = 100, Z = 6800;
     let got = 0;
     for (let i = 0; i < 3; i++) {
       await run(`kill @e[type=item,x=${X},y=${Y},z=${Z},distance=..40]`);
-      await run('execute as TestRat at @s run function bm:admin/' + adm); await sleep(500);
-      await run(`damage @e[type=${ent},tag=${tag},limit=1] 9999 minecraft:player_attack by TestRat`); await sleep(1500);
+      await run('execute as TestRat at @s run function bm:admin/' + adm); await sleep(5600);
+      await run(`damage @e[type=${ent},tag=${tag},limit=1] 9999 minecraft:player_attack by TestRat`); await sleep(6500);
       got += await cnt(`@e[type=item,x=${X},y=${Y},z=${Z},distance=..40,nbt={Item:{components:{"minecraft:custom_data":{bm:"${relic}"}}}}]`) > 0 ? 1 : 0;
     }
     console.log((got === 3 ? 'PASS ' : 'FAIL ') + `${adm}: relic dropped ${got}/3 kills`); res.push(got === 3);

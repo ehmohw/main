@@ -251,7 +251,7 @@ def generate(G):
                          'execute if block ~ ~-1 ~ minecraft:grass_block run setblock ~ ~-1 ~ minecraft:coarse_dirt'])
     fn('p32/crash/scorch', ['execute unless predicate bm:p32/c50 run return 0',
                             'execute if block ~ ~ ~ #minecraft:replaceable run setblock ~ ~ ~ minecraft:air',
-                            'execute if block ~ ~-1 ~ #minecraft:dirt run setblock ~ ~-1 ~ minecraft:coarse_dirt',
+                            'execute if block ~ ~-1 ~ #minecraft:substrate_overworld run setblock ~ ~-1 ~ minecraft:coarse_dirt',
                             'execute if predicate bm:p32/c30 if block ~ ~-1 ~ minecraft:coarse_dirt run setblock ~ ~-1 ~ minecraft:podzol'])
     for c in ('green', 'violet', 'cyan', 'red'):
         d = {'Tags': ['bm.xdep', f'bm.xc_{c}'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': f'bm:xdep_{c}'}},

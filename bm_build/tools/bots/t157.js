@@ -1,4 +1,5 @@
-// 2.78: every boss makes an entrance. As a regular (non-op) player standing by (rcon only raises each boss, as the admin
+// 2.78: every boss makes an entrance. (2.80: the six roaming bosses now arrive in their own staged sequences - t168 - so this
+// covers Captain Tullius, who keeps this entrance.) As a regular (non-op) player standing by (rcon only raises each boss, as the admin
 // command would): the Headless Horseman, the Sand Pharaoh, the Storm Roc, the Elder Treant, the Magma Colossus, the Voidwalker
 // and Captain Tullius each arrive with a title card on the player's screen (their name, their epithet), a ring of their own
 // colours that sweeps in and is gone two seconds later, and - for the Horseman, the Voidwalker and Tullius - the light dips.
@@ -9,10 +10,7 @@ const res = [];
   const wait = async (ms, fn, step = 200) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await sleep(step); } return false; };
   const O = 'execute in minecraft:overworld run ';
   const cnt = async (sel) => { const m = (await run(`${O}execute if entity ${sel}`)).match(/count: (\d+)/i); return m ? +m[1] : 0; };
-  const BOSSES = [['horseman', 'THE HEADLESS HORSEMAN', 'he rides for your head', true, '@e[tag=bm.hhboss]'],
-                  ['pharaoh', 'THE SAND PHARAOH', 'the tomb stirs', false, null], ['storm_roc', 'THE STORM ROC', 'the sky screams', false, null],
-                  ['treant', 'THE ELDER TREANT', 'the forest remembers', false, null], ['colossus', 'THE MAGMA COLOSSUS', 'the earth bleeds fire', false, null],
-                  ['voidwalker', 'THE VOIDWALKER', 'between the stars, it waits', true, null], ['tullius', 'CAPTAIN TULLIUS', 'the drowned captain', true, null]];
+  const BOSSES = [['tullius', 'CAPTAIN TULLIUS', 'the drowned captain', true, null]];
   const X = 16600, Y = 100, Z = 16000;
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);

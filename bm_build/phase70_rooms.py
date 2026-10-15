@@ -189,6 +189,27 @@ def vault():
         b.set(35, y, 11, 'minecraft:gold_block'); b.set(35, y, 13, 'minecraft:gold_block')
     for z in (11, 12, 13):
         b.set(35, 7, z, 'minecraft:gold_block')
+    # 2.80: the treasury dressed - chandeliers over the strongbox, pillars, candlelit gold, sconces, a glint of gems, and
+    # light enough to make the gold shine (all clear of the plates, the strongbox, the door's path and the way out)
+    for (x, z) in ((28, 10), (32, 10), (28, 14), (32, 14)):
+        b.set(x, 14, z, 'minecraft:iron_chain'); b.set(x, 13, z, 'minecraft:iron_chain'); b.set(x, 12, z, 'minecraft:lantern[hanging=true]')
+    for (x, z) in ((26, 2), (34, 2), (26, 22), (34, 22)):
+        b.fill(x, 4, z, x, 14, z, PILLAR); b.set(x, 9, z, 'minecraft:gold_block'); b.set(x, 4, z, 'minecraft:gilded_blackstone')
+    for (x, z) in ((27, 3), (33, 3), (27, 21), (33, 21)):
+        b.set(x, 7, z, 'minecraft:candle[candles=4,lit=true]'); b.set(x + 1, 6, z + 1, 'minecraft:candle[candles=2,lit=true]')
+    for (x, z) in ((35, 8), (35, 16)):
+        b.set(x, 7, z, 'minecraft:candle[candles=3,lit=true]')
+    for x in range(28, 34, 3):
+        for z in (1, D - 2):
+            b.set(x, 6, z, 'minecraft:gilded_blackstone'); b.set(x, 7, z, 'minecraft:soul_lantern')
+    for (x, z, bl) in ((29, 2, 'minecraft:diamond_block'), (30, 2, 'minecraft:emerald_block'), (31, 22, 'minecraft:diamond_block'),
+                       (30, 22, 'minecraft:lapis_block'), (29, 22, 'minecraft:emerald_block'), (31, 2, 'minecraft:lapis_block')):
+        b.set(x, 4, z, bl)
+    b.set(30, 5, 2, 'minecraft:candle[candles=3,lit=true]'); b.set(30, 5, 22, 'minecraft:candle[candles=3,lit=true]')
+    for x in range(27, 34, 3):
+        for z in range(4, 21, 4):
+            if (x, z) not in ((28, 12), (30, 12), (32, 12)):
+                b.set(x, 10, z, 'minecraft:light[level=12]')
     b.marker(*CTRL, ['bm.gvr', 'bm.gvr_vault', 'bm.gvnew'])
     return b
 

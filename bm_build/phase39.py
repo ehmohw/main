@@ -467,7 +467,7 @@ def generate(G):
                             'execute if block ~ ~-1 ~ #minecraft:replaceable run return 0',        # water, or floating: no shrine here
                             'fill ~-3 ~ ~-3 ~3 ~4 ~3 minecraft:air replace #minecraft:replaceable',
                             'fill ~-2 ~-1 ~-2 ~2 ~-1 ~2 minecraft:mossy_stone_bricks', 'fill ~-1 ~-1 ~-1 ~1 ~-1 ~1 minecraft:stone_bricks',
-                            'fill ~-3 ~-1 ~-3 ~3 ~-1 ~3 minecraft:moss_block replace #minecraft:dirt',
+                            'fill ~-3 ~-1 ~-3 ~3 ~-1 ~3 minecraft:moss_block replace #minecraft:substrate_overworld',
                             'setblock ~ ~ ~ minecraft:chiseled_stone_bricks',
                             'setblock ~-2 ~ ~-2 minecraft:mossy_cobblestone_wall', 'setblock ~-2 ~1 ~-2 minecraft:lantern',
                             'setblock ~2 ~ ~2 minecraft:mossy_cobblestone_wall', 'setblock ~2 ~1 ~2 minecraft:lantern',

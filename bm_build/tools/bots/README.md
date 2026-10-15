@@ -141,6 +141,18 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
 - A dungeon placed with `place structure bm:p2_<d>` turns with a random rotation: find its blocks from its `bm.dg` marker,
   `execute as <marker> at @s rotated ~ 0 positioned ^dx ^dy ^dz` with the template offsets from the marker (t167).
   Count from the legend (`BUTTON_CODES.md`) or press by label, never by an old offset (t105).
+- A staged boss (2.80: the roaming and dungeon bosses) arrives frozen and invulnerable: nothing lands for its first 2-5 s
+  (`bm.carr`, `bm.cfrz`). Wait for `bm.carm` before hitting it. Its health carries a buffer (`bm.cbuf`, up to max health
+  1024): its real health is `Health - bm.cbuf`, its bar already shows that. To bring it to a threshold, set
+  `Health` to `bm.cbuf + n`. A killing blow starts its death (`bm.cdie`): it falls 4-5 s later (t168, t169).
+- `NoAI:0b` isn't stored: `data get entity <e> NoAI` finds nothing for a mob with its AI on. Test for "not 1b".
+- `bossbar get <id> visible` says "currently visible" / "currently hidden" (never true/false).
+- Switching to a weapon resets the attack cooldown: a hit right after `A.slot(n)` lands at a fifth of its damage. Wait
+  ~1.3 s before `A.attack()` (t168).
+- Placing a structure where a run before placed one stacks a second set of markers: kill the area's entities first (t169).
+- Remove every chunk a test forceloads. Hundreds of leftover forceloaded chunks slow the server to "Can't keep up".
+- 26.x: `#minecraft:dirt` is dirt, coarse and rooted dirt only. Grass has `#minecraft:grass_blocks`;
+  `#minecraft:substrate_overworld` and `#minecraft:supports_vegetation` cover both.
 - Donado (and anything else with a rig) gets new parts on its first second out: the old one-piece body is killed. Read
   the rig's parts (`bm.dnr_torso` and so on), not `bm.dn_body` (t165).
 
@@ -170,7 +182,7 @@ and function calls. Three are known to be stale.
 | `t33.js` | v2.32: the Horseman's Head in four classes, catalysts, the Pharaoh's Crook and Thunderbird Talon (all forms), the Sand Pharaoh, |
 | `t33p.js` | v2.32: the Horseman's Head in four classes, catalysts, the Pharaoh's Crook and Thunderbird Talon (all forms), the Sand Pharaoh, |
 | `t34.js` | v2.33: the Heartwood Branch, Molten Gauntlet and Void Scepter (all forms, catalysts); the Elder Treant, Magma Colossus and |
-| `t35.js` | v2.34: every roaming boss always drops its relic to a player's kill (3 kills each) |
+| `t35.js` | v2.34: every roaming boss always drops its relic to a player's kill (3 kills each; 2.80: after its arrival, and its staged death) |
 | `t36.js` | v2.35: sockets by material (vanilla only), red Vitality + size cycle, combos (incl. Bloodlust, Second Wind), Masterworks, |
 | `t37.js` | v2.35: sockets by material (vanilla only), red Vitality + size cycle, combos (incl. Bloodlust, Second Wind), Masterworks, |
 | `t38.js` | v2.35: the chestplate essences/resonances against a real attacker (a husk with AI: the damage command never triggers on-hit enchantments) |
@@ -325,7 +337,7 @@ and function calls. Three are known to be stale.
 | `t154.js` | 2.78: the Wings of the Damned flown with the real keys - crouch then jump: a Levitation burst skyward, cut off after a few ticks; a plain jump does nothing; gliding with sneak held: pushed on every tick, without: left be |
 | `t155.js` | 2.78: more weapons on the wall by sneak + drop (Q) - Cecil's staff, Leo's trident (his own model, both forms), Apophiss's mace, the Frisbee Shield, a ray gun, the Sepulchre; a plain drop or no wall just drops; sneak + punch takes one down |
 | `t156.js` | 2.78: a doll of every follower (2.78a: twelve, the Frog, Donado and Wilfrey too; 2.79: thirteen, Fishy) - Cecil sells them; each set down on a block by a real use, its own model, twirls when right-clicked, back into the pack with sneak + punch |
-| `t157.js` | 2.78: every boss makes an entrance - Horseman, Pharaoh, Roc, Treant, Colossus, Voidwalker and Tullius each with a title card on the player's screen, a ring of its colours that sweeps in and goes, and the light dipping for the dark ones |
+| `t157.js` | 2.78: Captain Tullius makes an entrance - his title card on the player's screen, a ring of his colours that sweeps in and goes, the light dipping. (2.80: the six roaming bosses stage their own arrivals - t168) |
 | `t158.js` | 2.78: Apophiss and Tullius on the Recruiter's book - not before you've met them; met (their Oath / coin in your pocket), their contracts priced in coins, bought from the book, used, and "SIGNED" |
 | `t159.js` | 2.78a: Apophiss's forms - the Ethereal Gem given by a right-click on him (ethereal scales, wings out and posed), the Wraithfire Heart (soul-blue scales and wings, fire-proof; the gem handed back), a colour picked meanwhile kept under the form, sneak + right-click empty-handed takes the heart back (his scales, wings away) |
 | `t161.js` | 2.78c: ridden Apophiss flies in his forms - saddle, Ethereal Gem and Oath by real clicks, then riding as a client does: look up and walk to climb, level to glide, jump for a wingbeat, down to dive; off, his weight back; his click box with him far from take-off; the gem taken back - he only slithers |
@@ -336,6 +348,9 @@ and function calls. Three are known to be stale.
 | `t165.js` | 2.79a: Gilded - the Lounge Tailor's Leo page shows the Golden Champion at 2,560 coins; pressed: in his wardrobe for good, 2,560 coins out of the bank (3000 -> 440); Donado's page lists his new Gilded coat at the same price; the item's lore (polished gold, the Tailor's dearest). Leo called, the outfit used: worn (c4 tabard), and gold motes reach the client round him (decoded from the raw particle packets); his own clothes: none. Wilfrey in the Gilded Sun: the sun shield with a glint, a golden chestplate (asset gold) where he wore none; the Crimson Cross: his own gear and a red shield. Donado called (rigged) in his Gilded coat: torso and head `_c5`, his eyes his own; back in his own coat: plain parts |
 | `t166.js` | 2.79b: calling the bosses, as a player - the Horseman's Lantern by day (he comes, called, and stays in daylight; a second Lantern refused and kept), the Smouldering Idol refused in the Overworld and the Elder Acorn under a roof (both kept); the Pharaoh's Scarab by night (he stays; uncalled, he sinks back at once); the Thunderhead Feather in clear weather (the Roc outlasts the 10 s of clear sky); the Elder Acorn by day; the Smouldering Gourd on an ordinary day (the Arachno-Lantern grows and stays; uncalled, it leaves); the Idol in the Nether and the Eye in the End. The haul's rolls sampled (Tier V Blood Moon: summons and gourds; Tier II: neither; Tier V ordinary night: no gourds) and the vault's rare stores (Tier V: diamonds, scrap, templates among the gear; Tier II: none) |
 | `t167.js` | 2.79c: the Hex Cathedral's witch spawner (it was built under a pew row and never existed) - a Hex dungeon placed with `place structure`: the witch spawner among the pews (`bm:hex/witches`, its ominous twin) and the vindicator spawner; walking up as a regular player, witches come (dungeon mobs); an old dungeon without it: the 2.79c patch puts it back once a player is near, and only once |
+| `t168.js` | 2.80: the roaming bosses staged - each of the six called with its own item: it arrives frozen in its own way (the Horseman's steed galloping in from far off, the Pharaoh and Treant out of the ground and growing, the Roc out of the sky, the Colossus out of the floor, the Voidwalker out of a rift), its title card and song, released and armed with its bar true; a second player near grows its health half again (bar and buffer right) and back; the Colossus's slam and the Pharaoh's sandblast wind up first; its rage freezes it for a moment; the player's blow starts its death (frozen, bar gone, still there two seconds on) and it falls as the player's kill (its relic); the Horseman's head falls and his steed goes; the Treant leaves a sapling; the Colossus still bursts into Magma Spawn, awake and visible |
+| `t169.js` | 2.80: a dungeon boss staged - the Broodmother in a placed Brood Nest, woken at the altar with her key: she materialises (frozen, small, growing), then moves, armed, her bar true; her web spit winds up before the web lands; her rage is a moment; the player's blow starts her death (frozen, curling up, bar gone) and she falls - "has fallen" on screen, her loot, no marker left |
+| `t170.js` | 2.80: the heist's climax - a Tier V heist: the treasury dressed (chandeliers in the tier's lanterns, candles, sconces, hidden lights, gems; the ring and the way clear); walking in, the guardian rises (frozen, below the floor, shrunk, the hall dark), its title card, then it stands free at full size; its fall parts the great door from the middle out, then all open, "The vault is open", the way out swirls, the sequence over |
 |  | home (from her menu), and with Wilfrey out a fourth follower refused. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
