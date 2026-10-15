@@ -124,8 +124,8 @@ const res = [];
   // ================================================================== THE CODEX
   if (want('codex')) {
     await asRat('function bm:admin/codex_reset');
-    ok('The Office has a Codex button (also on a heist, Leave still last)', fnText('p80/office_dlg').includes('The Codex') && fnText('p104/office_dlg').includes('The Codex') &&
-       fnText('p104/office_dlg').lastIndexOf('Leave the heist') > fnText('p104/office_dlg').lastIndexOf('The Codex'));
+    ok('The Office has a Codex button (also on a heist, Leave still last)', fnText('p80/office_dlg').includes('"Codex"') && fnText('p104/office_dlg').includes('"Codex"') &&
+       fnText('p104/office_dlg').lastIndexOf('Leave the heist') > fnText('p104/office_dlg').lastIndexOf('"Codex"'));
     await heist('library', 'a', 2); await begin();
     const q = (await qs('library'))[0];
     ok('Not yet near the Library: not in the Codex', (await num('scoreboard players get TestRat bm.cx_r_library')) !== 1);
