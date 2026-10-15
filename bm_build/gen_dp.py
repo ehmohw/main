@@ -125,6 +125,8 @@ import phase135 as R135      # 2.77c: weapons on the wall (Tullius's blunderbuss
 import phase136 as R136      # 2.78: the Frog with Mustache and Donado carry a token (the Signet, the Collar Tag), like every follower
 import phase137 as R137      # 2.78: polish - a fresh start keeps what you earned (best-ever record), fringe cases
 import phase138 as R138      # 2.78: every follower dressed (the six without a wardrobe) and an aura for each
+import phase141 as R141      # 2.78: a doll of every follower (Cecil sells them)
+import phase140 as R140      # 2.78: Tiers IV and V bite back (tougher guards, a tougher Gutter King)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
@@ -385,6 +387,7 @@ def all_offers():
     R96.extend_offers(O, offer)
     R97.extend_offers(O, offer)
     R124.extend_offers(O, offer)
+    R141.extend_offers(O, offer)
     return O
 
 
@@ -1183,6 +1186,8 @@ def build(out_dir):
     if PHASE2: R137.generate(sys.modules[__name__])
     if PHASE2: R138.generate(sys.modules[__name__])
     if PHASE2: R139.generate(sys.modules[__name__])
+    R140.generate(sys.modules[__name__])
+    if PHASE2: R141.generate(sys.modules[__name__])
     R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])
