@@ -1,4 +1,4 @@
-"""2.80: the sprite repaint - forty of the pack's weakest item icons drawn again.
+"""2.80: the sprite repaint - sixty-two of the pack's weakest item icons drawn again.
 
 The old icons were mostly one-pixel lines and flat blobs with no outline. Each is redrawn at the same 16x16 size, bolder
 (sticks two pixels wide, shapes filling the frame), with its own shading and highlights, then finished like every other
@@ -666,12 +666,142 @@ def lifeform_analyzer():
     return s.render()
 
 
+def _shade_hex(h, k):
+    """a hex colour k steps lighter (k > 0) or darker"""
+    import colorsys
+    r, g, b, _a = hx(h)
+    hh, ll, ss = colorsys.rgb_to_hls(r / 255, g / 255, b / 255)
+    ll = max(0.05, min(0.95, ll + 0.12 * k))
+    r, g, b = colorsys.hls_to_rgb(hh, ll, ss)
+    return '#%02x%02x%02x' % (round(r * 255), round(g * 255), round(b * 255))
+
+
+def _crate(ramp, accent, mark):
+    s = S()
+    dark, mid, light = ramp[1], ramp[2], ramp[3]
+    for y in range(1, 15):
+        for x in range(1, 15):
+            edge = x in (1, 2, 13, 14) or y in (1, 2, 13, 14)
+            if edge: c = ramp[3] if (x <= 2 or y <= 2) and not (x >= 13 or y >= 13) else ramp[1]
+            else: c = mid if (y - 3) % 3 else dark          # planks
+            s.px(x, y, c)
+    for t in range(3, 13):                                   # the X brace
+        s.px(t, t, light); s.px(t + 1, t, light) if t < 12 else None
+        s.px(15 - t, t, mark); s.px(14 - t, t, mark) if t < 12 else None
+    for (x, y) in ((1, 1), (14, 1), (1, 14), (14, 14), (2, 2), (13, 2), (2, 13), (13, 13)):
+        s.px(x, y, accent)                                   # corner brackets
+    for (x, y) in ((2, 1), (1, 2), (13, 1), (14, 2), (1, 13), (2, 14), (14, 13), (13, 14)):
+        s.px(x, y, _shade_hex(accent, -1) if isinstance(accent, str) else accent)
+    return s.render()
+
+
+def crate_wooden(): return _crate(WOOD, IRON[2], WOOD[4])
+def crate_iron():   return _crate(IRON, '#4e4a56', IRON[4])
+def crate_golden(): return _crate(GOLD, '#8a5a10', GOLD[4])
+
+
+def _paint_can(col):
+    s = S()
+    P, p, L = col, _shade_hex(col, 1), _shade_hex(col, -1)
+    s.g(['....wwwwww....',
+         '...w......w...',
+         '..w........w..',
+         '..w........w..',
+         '.IIIIIIIIIIII.',
+         'IiPPPPPPPPPPiI',
+         'IiPpPPPPPPPPiI',
+         '.IIIIIIIIIIII.',
+         '.IiiPiiiiiiiI.',
+         '.LLLPLLLLLLLL.',
+         '.LLLLLLLLLLLL.',
+         '.LLLLLLLLLLLL.',
+         '.IiiiiiiiiiiI.',
+         '.IiiiiiiiiiiI.',
+         '..IIIIIIIIII..'], {'w': IRON[2], 'I': IRON[2], 'i': IRON[3], 'P': P, 'p': p, 'L': L}, 1, 1)
+    s.px(3, 9, IRON[4]); s.px(3, 13, IRON[4]); s.px(3, 14, IRON[4])
+    s.px(5, 10, P); s.px(5, 11, p)
+    return s.render()
+
+
+PAINTS = {'bronze': '#c08a50', 'cobalt': '#4a7aff', 'crimson': '#ff4a4a', 'ember': '#ff8a2a', 'gold': '#ffd23f', 'graphite': '#8a8e98',
+          'green': '#7dff6a', 'midnight': '#7a5aff', 'ocean': '#3ad8d0', 'pearl': '#f4f4f8', 'rose': '#ff7ac8', 'verdant': '#5ad84a'}
+
+
+def _decal(motif):
+    s = S()
+    for y in range(2, 14):
+        for x in range(1, 15):
+            if x + y > 24: continue                          # the peeled corner
+            s.px(x, y, '#f2eee4' if (x + y) % 11 else '#e2ddd0')
+    s.g(['.c', 'cc'], {'c': '#b8b2a4'}, 13, 11)
+    s.px(12, 13, '#b8b2a4'); s.px(13, 12, '#cfc8b8')
+    motif(s)
+    return s.render()
+
+
+def skiff_decal_crest():
+    return _decal(lambda s: s.g(['BBBBBB', 'BgGGgB', 'BGGGGB', 'BBGGBB', '.BBBB.', '..BB..'], {'B': '#2e4ea0', 'G': GOLD[3], 'g': GOLD[4]}, 5, 4))
+
+
+def skiff_decal_flames():
+    return _decal(lambda s: s.g(['..r..r.', '.rRr.R.', '.RYRrR.', 'rRYYRRr', 'RYYYYYR', '.RRRRR.'], {'r': RED[2], 'R': '#ff7a1a', 'Y': '#ffe04a'}, 4, 4))
+
+
+def skiff_decal_stripes():
+    def m(s):
+        for k in range(8):
+            s.px(3 + k, 10 - k, RED[3]); s.px(4 + k, 10 - k, RED[3]); s.px(6 + k, 10 - k, '#2e4ea0'); s.px(7 + k, 10 - k, '#2e4ea0')
+    return _decal(m)
+
+
+def skiff_decal_none():
+    def m(s):
+        for x in range(3, 12):
+            if x % 2: s.px(x, 4, '#9a9488'); s.px(x, 10, '#9a9488')
+        for y in range(4, 11):
+            if y % 2 == 0: s.px(3, y, '#9a9488'); s.px(11, y, '#9a9488')
+    return _decal(m)
+
+
+def cecil_gem():
+    s = S()
+    s.g(['......pp......',
+         '.....pPPp.....',
+         '....pPLPPp....',
+         '...pPLPPPPp...',
+         '..pPLPPPPPPp..',
+         '..pPPddddPPp..',
+         '.pPPddddddPPp.',
+         '.pPdYddddYdPp.',
+         '.pPddddddddPp.',
+         '..pPddKKddPp..',
+         '...pPPddPPp...',
+         '....pPPPPp....',
+         '.....pPPp.....',
+         '......pp......'], {'p': PURPLE[1], 'P': PURPLE[3], 'L': PURPLE[4], 'd': '#1a0a2a', 'Y': '#ffe46a', 'K': '#3a1a4a'}, 1, 1)
+    return s.render()
+
+
+def donadian_medal():
+    s = S()
+    s.g(['.RR....RR.', '.RrR..RrR.', '..RrRRrR..', '...RrrR...'], {'R': RED[3], 'r': RED[1]}, 3, 0)
+    s.disc(8, 9.5, 5.4, GOLD[:5])
+    s.disc(8, 9.5, 3.8, ['#0e4a44', '#147a6e', '#1fae9c', '#38d8c0'])
+    s.g(['.GGG.', 'GKGKG', 'GGGGG', '.GgG.'], {'G': '#9aff6a', 'g': '#4ac83a', 'K': '#0a1a0a'}, 6, 7)
+    s.px(5, 6, GOLD[4]); s.px(6, 5, GOLD[4])
+    return s.render()
+
+
 OVERRIDES = {f.__name__: f for f in (
     band_of_regeneration, skeleton_lockpick, rat_familiar, blob_cane, trial_key_fob, duelists_ribbon, pool_noodle, firefly_jar,
     clockwork_key, tinkers_thimble, fallen_star, specter_sheet, dish_kebab, smuggler_jar, clockwork_fragment, mudlarks_charm,
     branch_bark, heartwood_branch, branch_seed, branch_bloom, metal_detector, four_leaf_charm, pharaoh_crook, crook_ra,
     crook_sands, crook_sun, rod_of_discord, courier_whistle, extendo_grip, pot_of_gold, bag_of_rocks, rpg_launcher, flak_rocket,
-    ectoplasm, navigators_astrolabe, mailbox_icon, vault_breaker, xenite_dowser, butter_sock, storm_ball, lifeform_analyzer)}
+    ectoplasm, navigators_astrolabe, mailbox_icon, vault_breaker, xenite_dowser, butter_sock, storm_ball, lifeform_analyzer,
+    crate_wooden, crate_iron, crate_golden, skiff_decal_crest, skiff_decal_flames, skiff_decal_stripes, skiff_decal_none, cecil_gem,
+    donadian_medal)}
+for _c, _h in PAINTS.items():
+    OVERRIDES[f'skiff_paint_{_c}'] = (lambda h: lambda: _paint_can(h))(_h)
 
 
 def post(R):
