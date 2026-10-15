@@ -30,9 +30,9 @@ const res = [];
   ok('"Take out coins" is coins only; the exchange lives on the Medallions & Trophies page', !/set 7857/.test(cd) && !/set 7858/.test(cd) && /set 7875/.test(bk) && /set 7883/.test(bk));
   // chatter from a follower's menu
   await run('tag TestRat remove bm.hush'); await run('scoreboard players set TestRat bm.menu 9920');
-  await run('scoreboard players set #act bm.pay 7735'); await run('execute as TestRat at @s run function bm:p28/act'); await sleep(300);
+  A.cmd('trigger bm.act set 7735'); await sleep(700);
   ok('Chatter from Leo\'s menu: off for all followers', /bm.hush/.test(await run('tag TestRat list')));
-  await run('scoreboard players set #act bm.pay 7735'); await run('execute as TestRat at @s run function bm:p28/act'); await sleep(300);
+  A.cmd('trigger bm.act set 7735'); await sleep(700);
   ok('...and on again', !/bm.hush\b/.test(await run('tag TestRat list')));
   ok('Every follower\'s menu has the switch', ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo'].every(w => /set 7735/.test(fs.readFileSync(OUT + `p99/dlg/${w}.mcfunction`, 'utf8'))));
   // modifiers at BEGIN

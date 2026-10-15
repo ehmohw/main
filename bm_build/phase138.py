@@ -23,11 +23,11 @@ import phase99 as P99
 import phase103 as P103
 
 GOLD = '#ffcf40'
-ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil']
+ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy']
 # follower: (host type, host tag[s]) - the animal underneath, whose owner the aura belongs to
 HOST = {'emma': ('cat', 'bm.emmapet'), 'celi': ('wolf', 'bm.celipet'), 'zib': ('wolf', 'bm.zibpet'), 'cecil': ('wolf', 'bm.cecilpet'),
         'kw': ('wolf', 'bm.kxpet'), 'leo': ('wolf', 'bm.leopet'), 'demo': ('wolf', 'bm.dmpet'), 'apo': ('wolf', 'bm.appet'), 'tul': ('wolf', 'bm.tupet'),
-        'frog': ('wolf', 'bm.frogpet'), 'don': ('wolf', 'bm.donado'), 'pearl': ('cat', 'bm.pmpet'), 'wil': ('wolf', 'bm.wilfrey')}
+        'frog': ('wolf', 'bm.frogpet'), 'don': ('wolf', 'bm.donado'), 'pearl': ('cat', 'bm.pmpet'), 'wil': ('wolf', 'bm.wilfrey'), 'fishy': ('wolf', 'bm.fypet')}
 dust = lambda r, g, b, s=1.0: f'minecraft:dust{{color:[{r},{g},{b}],scale:{s}}}'
 # follower: (aura name, colour, ring height, ring radius, the ring's mote, the haze [particle commands at the follower])
 AURA = {
@@ -49,7 +49,9 @@ AURA = {
     'don': ('Tractor Beam', '#e8d29a', 0.7, 0.6, 'minecraft:end_rod', [f'particle {dust(0.5, 1.0, 0.45, 0.8)} ~ ~0.2 ~ 0.25 0.6 0.25 0 2']),
     'pearl': ('Golden Gleam', '#5ac8ff', 0.95, 0.6, 'minecraft:wax_on', [f'particle {dust(1.0, 0.85, 0.3, 0.8)} ~ ~0.8 ~ 0.35 0.4 0.35 0 2']),
     'wil': ('Lordly Radiance', '#f4f4f4', 1.5, 0.85, dust(0.95, 0.95, 1.0, 1.2), ['particle minecraft:soul ~ ~1 ~ 0.3 0.6 0.3 0.01 1',
-                                                                                  'particle minecraft:white_ash ~ ~2 ~ 0.5 0.3 0.5 0 3'])}
+                                                                                  'particle minecraft:white_ash ~ ~2 ~ 0.5 0.3 0.5 0 3']),
+    'fishy': ('Bubble Halo', '#ffa040', 1.95, 0.75, 'minecraft:bubble_pop', ['particle minecraft:dripping_water ~ ~2.1 ~ 0.35 0.05 0.35 0 1',
+                                                                            f'particle {dust(1.0, 0.62, 0.2, 0.8)} ~ ~1.3 ~ 0.4 0.5 0.4 0 2'])}
 assert set(AURA) == set(ORDER) == set(HOST) == set(P99.BASE)
 PRICE = 1280                                 # coins at the Tailor (10 Gutter Trophies)
 FIND = {3: 8, 4: 15, 5: 25}                  # per mille, a won heist of tier III / IV / V
@@ -75,10 +77,11 @@ P103.EXTRA_ACT.extend(f'execute if score #act bm.pay matches {AURA_BUY + i} run 
 RECOL = {'apo': ('apophiss_art', ('apo_scale', 'apo_scale_dk', 'apo_fin', 'apo_belly')),
          'tul': ('tullius_art', ('tu_coat', 'tu_coat_dk', 'tu_hat')),
          'don': ('phase25', ('don_fur', 'don_ear', 'don_patch', 'don_muzzle')),
-         'pearl': ('phase60', ('pm_blue', 'pm_dblue'))}
+         'pearl': ('phase60', ('pm_blue', 'pm_dblue')),
+         'fishy': ('fishy_art', ('fy_hat', 'fy_hatband'))}
 FROG_SKIN = {1: ('light_blue_wool', 'blue_wool'), 2: ('orange_wool', 'red_wool'), 3: ('brown_wool', 'brown_terracotta'), 4: ('yellow_wool', 'yellow_terracotta')}
 ITEMS_OF = {'apo': lambda n: n.startswith('apo_'), 'tul': lambda n: n.startswith('tu_'), 'frog': lambda n: n == 'frog',
-            'don': lambda n: n == 'donado', 'pearl': lambda n: n == 'pearlman'}
+            'don': lambda n: n == 'donado', 'pearl': lambda n: n == 'pearlman', 'fishy': lambda n: n.startswith('fy_') and n != 'fy_bowl'}
 
 
 def textures():

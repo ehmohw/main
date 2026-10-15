@@ -24,27 +24,33 @@ const X = 19000, Y = 120, Z = 19000;
 
   if (want('ghost')) {
     await field();
+    // (2.76: only the pack's own gear vanishes - vanilla armour stays in sight)
     await run('item replace entity TestRat armor.chest with minecraft:iron_chestplate[minecraft:enchantments={"minecraft:protection":2}]');
     await run('loot replace entity TestRat armor.head loot bm:items/thiefs_cowl');
-    await run('item replace entity TestRat armor.feet with minecraft:leather_boots[minecraft:dyed_color=16711680]');
+    await run('loot replace entity TestRat armor.feet loot bm:items/smugglers_boots');
     const cowl0 = await run('data get entity TestRat equipment.head.components');
+    const boot0 = await run('data get entity TestRat equipment.feet.components');
     await run('effect give TestRat minecraft:invisibility 3 0 true'); await sleep(400);
     const ch = await run('data get entity TestRat equipment.chest.components');
     const hd = await run('data get entity TestRat equipment.head.components');
-    ok('Invisible: the chestplate points at the empty model (enchantments kept)', /asset_id: "bm:none"/.test(ch) && /bmg: 1b/.test(ch) && /protection/.test(ch), ch.slice(0, 160));
-    ok('Invisible: the Thief\'s Cowl (a Black Market piece) too', /asset_id: "bm:none"/.test(hd) && /thiefs_cowl/.test(hd), hd.slice(0, 160));
-    ok('Invisible: the boots too (dye kept)', /bm:none/.test(await run('data get entity TestRat equipment.feet.components')) && /dyed_color/.test(await run('data get entity TestRat equipment.feet.components')));
+    ok('Invisible: a vanilla chestplate stays in sight (only its enchantments)', !/bm:none|bmg/.test(ch) && /protection/.test(ch), ch.slice(0, 160));
+    ok('Invisible: the Thief\'s Cowl (a Black Market piece) points at the empty model', /asset_id: "bm:none"/.test(hd) && /thiefs_cowl/.test(hd), hd.slice(0, 160));
+    const bt = await run('data get entity TestRat equipment.feet.components');
+    ok('Invisible: the Smuggler\'s Boots too (their own data kept)', /bm:none/.test(bt) && /smugglers_boots/.test(bt), bt.slice(0, 160));
     // put a new piece on while invisible: hidden as well
-    await run('item replace entity TestRat armor.legs with minecraft:diamond_leggings'); await sleep(300);
-    ok('A piece put on while invisible is hidden at once', /bm:none/.test(await run('data get entity TestRat equipment.legs.components')));
+    await run('loot replace entity TestRat armor.legs loot bm:items/crimson_leggings'); await sleep(300);
+    ok('A Black Market piece put on while invisible is hidden at once', /bm:none/.test(await run('data get entity TestRat equipment.legs.components')));
     await run('effect clear TestRat minecraft:invisibility'); await sleep(400);
     const ch2 = await run('data get entity TestRat equipment.chest');
     ok('Visible again: the vanilla chestplate is exactly as it was (only its enchantments)', !/bm:none|bmg|equippable|custom_data/.test(ch2) && /protection/.test(ch2), ch2.slice(0, 200));
     const hd2 = await run('data get entity TestRat equipment.head.components');
     ok('Visible again: the Cowl\'s own data is back, the marks gone', !/bmg|bm:none/.test(hd2) && hd2.replace(/^.*?: /, '') === cowl0.replace(/^.*?: /, ''), hd2.slice(0, 120));
-    ok('Visible again: leggings and boots back to plain', !/equippable|bmg/.test(await run('data get entity TestRat equipment.legs')) && !/bm:none|bmg/.test(await run('data get entity TestRat equipment.feet')));
+    const bt2 = await run('data get entity TestRat equipment.feet.components');
+    ok('Visible again: leggings and boots back as they were', !/bmg|bm:none/.test(await run('data get entity TestRat equipment.legs')) && bt2.replace(/^.*?: /, '') === boot0.replace(/^.*?: /, ''), bt2.slice(0, 120));
     // a hidden piece taken off into the pack: put back as it lands
+    await run('loot replace entity TestRat armor.chest loot bm:items/crimson_chestplate');
     await run('effect give TestRat minecraft:invisibility 5 0 true'); await sleep(400);
+    ok('(a Black Market chestplate, hidden)', /bm:none/.test(await run('data get entity TestRat equipment.chest.components')));
     await run('item replace entity TestRat container.5 from entity TestRat armor.chest'); await run('item replace entity TestRat armor.chest with minecraft:air'); await sleep(400);
     ok('Hidden chestplate moved into the pack: put back there', !/bmg|bm:none/.test(await run('data get entity TestRat Inventory[{Slot:5b}]')), (await run('data get entity TestRat Inventory[{Slot:5b}]')).slice(0, 160));
     // dropped while hidden: put back on the ground

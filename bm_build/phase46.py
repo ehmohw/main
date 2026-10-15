@@ -436,6 +436,7 @@ def textures():
     T_ = {'em_skin': flat('#f6cfa8')}
     import phase57_art as EA
     T_.update(doll_cloth())
+    T_['em_brooch'], T_['em_gem'] = EA._brooch(), EA._brooch_gem()          # (2.79: her insignia, as on her follower model)
     # 2.75: her follower face (big teal eyes, brows, blush, a small smile) - the doll's own fringe covers the top edge, so
     # the sheet's bangs become skin (64x64 sheet, the face in its top-left 36x32)
     face = EA._face('#155d6e', '#22a2b2', '#5ad8dc', None, '#0a2630')
@@ -476,16 +477,21 @@ def rp(R):
         e = cube(fr, to, t)
         if rot: e['rotation'] = rot
         return e
-    et = {k: f'bm:block/em_{k}' for k in ('blue', 'skirt', 'scarf', 'skin', 'hair', 'shoe', 'white', 'belt', 'pink', 'face')}
+    et = {k: f'bm:block/em_{k}' for k in ('blue', 'skirt', 'scarf', 'skin', 'hair', 'shoe', 'white', 'belt', 'pink', 'face', 'brooch', 'gem')}
     up = {'origin': [5, 9.6, 8], 'axis': 'z', 'angle': 22.5}
     face = cube((4.2, 10.4, 4.5), (11.8, 17.2, 4.6), 'face', faces=('north',))
     face['faces']['north']['uv'] = [0, 0, 9, 8]                # the face's 36x32 corner of its 64x64 sheet (2.75: her follower face)
+    # 2.79: her insignia as on her follower model - the pink flower on her chest, its yellow gem raised off it
+    brooch = cube((7.0, 7.45, 6.44), (9.0, 9.45, 6.48), 'brooch', faces=('north',)); brooch['faces']['north']['uv'] = [0, 0, 4, 4]
+    gem = cube((7.62, 7.98, 6.2), (8.38, 8.92, 6.46), 'gem', faces=('north', 'east', 'west', 'up', 'down'))
+    gem['faces']['north']['uv'] = [0, 0, 2, 2.5]
+    for f in ('east', 'west', 'up', 'down'): gem['faces'][f]['uv'] = [2, 0, 2.4, 2.4]
     R.HATS['emma3d'] = (et, [
         c((5, 0, 6.5), (7.5, 1.2, 9.5), 'shoe'), c((8.5, 0, 6.5), (11, 1.2, 9.5), 'shoe'),
         c((5.6, 1.2, 7.3), (7, 3.4, 8.7), 'white'), c((9, 1.2, 7.3), (10.4, 3.4, 8.7), 'white'),
         c((3, 3.2, 4.5), (13, 5, 11.5), 'skirt'), c((4, 5, 5.5), (12, 6.5, 10.5), 'skirt'),
         c((5, 6.5, 6.3), (11, 7.2, 9.7), 'belt'), c((7.2, 6.4, 6.1), (8.8, 7.3, 6.3), 'white'),
-        c((5.3, 7.2, 6.5), (10.7, 10, 9.5), 'blue'), c((5, 9.5, 6.2), (11, 10.4, 9.8), 'scarf'), c((7.4, 8.2, 6.35), (8.6, 9.2, 6.5), 'pink'),
+        c((5.3, 7.2, 6.5), (10.7, 10, 9.5), 'blue'), c((5, 9.5, 6.2), (11, 10.4, 9.8), 'scarf'), brooch, gem,
         c((3.6, 9, 7.3), (5.3, 14.5, 8.7), 'blue', up), c((3.6, 14.5, 7.3), (5.3, 15.6, 8.7), 'skin', up),
         c((10.7, 6.5, 7.3), (12.3, 9.8, 8.7), 'blue'), c((10.8, 5.6, 7.4), (12.2, 6.5, 8.6), 'skin'),
         c((4, 10.3, 4.6), (12, 17.6, 11.4), 'skin'), face,

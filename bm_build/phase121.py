@@ -22,7 +22,8 @@ GOLD, LOUNGE = '#ffcf40', '#e8c070'
 OX, OY, OZ = -320, 64, -256                       # the template's corner (bm:gutter); the room's marker is +12.5 +4 +12.5
 MX, MY, MZ = OX + 12.5, OY + 4, OZ + 12.5
 BOX = (OX - 1, OY - 4, OZ - 1, 26, 20, 26)        # (x, y, z, dx, dy, dz) - inside the lounge
-VER = 2                                           # (2: the template's own room marker removed - it joined heists)
+VER = 3                                           # (2: the template's own room marker removed - it joined heists;
+                                                  #  3: what those heists left behind - a whole den's props - cleared)
 TRIP = 7880                                       # the Office's button (the Ledger)
 C_LEAD, C_MEM, C_OUT = 7730, 7731, 7732           # the end-of-heist choices (the leader; a member waiting; a member asked to go again)
 
@@ -59,6 +60,11 @@ def generate(G):
                                                                                         'translation': [F(0)] * 3, 'scale': [F(0.8)] * 3}})]
     fn('p121/props', props)
     fn('p121/build', [f'kill @e[tag=bm.lgprop,x={bx},y={by},z={bz},dx={dx},dy={dy},dz={dz}]',
+                      # (before VER 2 the template's room marker joined heists, and each laid a den's props here - doubled counters,
+                      #  loaner racks, the den's sheet and board; they carry the den's tags, not the lounge's)
+                      f'kill @e[tag=bm.gvprop,x={bx},y={by},z={bz},dx={dx},dy={dy},dz={dz}]',
+                      f'kill @e[tag=bm.gvsheet,x={bx},y={by},z={bz},dx={dx},dy={dy},dz={dz}]',
+                      f'kill @e[tag=bm.gvboard,x={bx},y={by},z={bz},dx={dx},dy={dy},dz={dz}]',
                       f'kill @e[type=minecraft:marker,tag=bm.lgm,x={bx},y={by},z={bz},dx={dx},dy={dy},dz={dz}]',
                       f'kill @e[type=minecraft:villager,tag=bm.npc,x={bx},y={by},z={bz},dx={dx},dy={dy},dz={dz}]',
                       f'kill @e[type=minecraft:text_display,tag=bm.plate,x={bx},y={by},z={bz},dx={dx},dy={dy},dz={dz}]',

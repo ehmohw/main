@@ -44,10 +44,16 @@ const res = [];
   await run('scoreboard players set TestRat bm.act 7899'); await sleep(700);
   ok('"Leave the heist" asks first (still on the heist)', /gutter/.test(await run('data get entity TestRat Dimension')));
   // den NPCs: an extra Goldtooth goes
-  await run('execute in bm:gutter at @e[type=minecraft:villager,tag=bm.gvgt,limit=1] run summon minecraft:villager ~1 ~ ~ {Tags:["bm.gvgt","bm.npc","bm.gvprop"],NoAI:1b,CustomName:"Goldtooth"}');
+  // (the den's own: the Fixer's Lounge, since 2.74, keeps a Goldtooth, a Recruiter and a Tailor of its own - one each per 24 blocks)
+  await run('kill @e[type=minecraft:marker,tag=t109d]');
+  await run('execute in bm:gutter at TestRat as @e[type=minecraft:villager,tag=bm.gvgt,sort=nearest,limit=1] at @s run summon minecraft:marker ~ ~ ~ {Tags:["t109d"]}');
+  await run('execute in bm:gutter at @e[type=minecraft:marker,tag=t109d,limit=1] run summon minecraft:villager ~1 ~ ~ {Tags:["bm.gvgt","bm.npc","bm.gvprop"],NoAI:1b,CustomName:"Goldtooth"}');
   await sleep(2400);
-  ok('A second Goldtooth in the den is cleared away (one stays)', (await cnt('@e[type=minecraft:villager,tag=bm.gvgt]')) === 1, `${await cnt('@e[type=minecraft:villager,tag=bm.gvgt]')}`);
-  ok('...and one Recruiter, one Tailor', (await cnt('@e[type=minecraft:villager,tag=bm.gvrec]')) === 1 && (await cnt('@e[type=minecraft:villager,tag=bm.gvtail]')) === 1);
+  const den = async (t) => +(((await run(`execute in bm:gutter at @e[type=minecraft:marker,tag=t109d,limit=1] store result score #t bm.rng if entity @e[type=minecraft:villager,tag=${t},distance=..24]`)).match(/Count: (\d+)/) || [0, 0])[1]);
+  const gt = await den('bm.gvgt');
+  ok('A second Goldtooth in the den is cleared away (one stays)', gt === 1, `${gt}`);
+  ok('...and one Recruiter, one Tailor', (await den('bm.gvrec')) === 1 && (await den('bm.gvtail')) === 1);
+  await run('execute in bm:gutter run kill @e[type=minecraft:marker,tag=t109d]');
   // the counter, the door
   const L = 'execute in bm:gutter positioned as @e[type=minecraft:marker,tag=bm.gvr_lobby,limit=1] run';
   ok('The shop counter is one block high (no slab on top)', /passed/.test(await run(`${L} execute if block ~-7 ~ ~7 minecraft:dark_oak_planks unless block ~-7 ~1 ~7 minecraft:dark_oak_slab`)));

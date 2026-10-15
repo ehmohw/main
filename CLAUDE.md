@@ -25,6 +25,20 @@ Before adding a button:
 
 The build rewrites the legend and fails if any button is unrouted. Keep lessons in its **Notes** section; the build preserves it.
 
+## New followers: the owner's checklist
+
+Every follower ships with all of these, built alongside it (never "later"):
+1. **UI test:** the follower's menu (from its summon item), pressed through by a bot test as a regular player.
+2. **Frame gimmick:** the summon item in an item frame does that follower's trick.
+3. **Display case figurine:** the follower's real model in the floor and wall display cases, never clipping out.
+4. **Matching doll from Cecil:** a chibi doll baked from its real model (`dolls_bake.py`), sold by Cecil, framable.
+5. **Sitting animations:** right-click (or sneak + right-click) to sit, with a seated pose and idle cycle.
+6. **Cosmetics:** at least one, with per-form colour variants, persisting across recall.
+7. **Rare cosmetics:** a rare, expensive particle-aura cosmetic, hard to earn from raids.
+
+`tools/bots/t163.js` (Fishy) walks the whole list as a regular player; copy it for the next follower. Also add the new
+follower to the every-follower tests (t138 figurines, t146 frames, t156 dolls, the `KINDS` lists in t145 and t158).
+
 ## Testing (the owner's rule)
 
 Never rely on just running functions. Playtest as a regular, non-operator player:

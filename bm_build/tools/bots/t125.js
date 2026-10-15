@@ -203,7 +203,7 @@ const X = 19000, Y = 120, Z = 19000;
     await run('scoreboard players set TestRat bm.act 7735'); await run('execute as TestRat at @s run function bm:p28/act'); await sleep(200);
     ok('One click on "Chatter" toggles it (the newer buttons read this click, not the last one)', /bm.hush/.test(await run('tag TestRat list')));
     await run('tag TestRat remove bm.hush');
-    ok('The Heist Plans: a Fixer\'s Lounge button', /set 7736/.test(F('p70/menu_show')) && /p121\/from_ledger/.test(F('p125/lounge')));
+    ok('The Ledger\'s Office: a Fixer\'s Lounge button (the Heist Plans are part of the Ledger since 2.75)', /set 7880/.test(F('p80/office_dlg')) && /7880[^\n]*p121\/from_ledger/.test(F('p80/act')));
   }
 
   if (want('npc')) {

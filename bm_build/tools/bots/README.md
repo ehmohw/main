@@ -101,6 +101,27 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
   `bm:p70/solved` as that room's marker (`bm.gvr`) - its exit opens as if it had been beaten.
 - An empty list answers "Found no elements matching ..." (a villager with no trades: `data get entity <npc> Offers.Recipes`).
 
+- Follower items (bowls, coins, tokens) and contracts share one use debounce, `bm.gvhc`: set to 2 on a use, counted down
+  once a second. A second item used within 1-2 s of the first (a menu opened with sneak + use, say) does nothing. Wait
+  ~2.2 s between them (t163).
+- An item taken out of a display case empty-handed comes back into the slot that was selected - the empty one. Put the
+  follower's item back where the test expects it before using that slot again (t138, t163).
+- A hostile mob summoned for a follower to fight can be rolled into an elite or Champion by the second loop (new health,
+  new speed). Summon it with the `bm.seen` tag so the roll skips it (t162, t163).
+- Dialogs the client receives come wrapped as `{data:{...}}`; unwrap with `d => d && (d.data || d)` before reading `title`
+  or `body`. Body text components put `extra` before `text`, so find a row by its `contents.text`, not a JSON regex.
+- In the Fixer's Lounge the game puts a Locker Key in hotbar.0; the Cabinet's NPC treats it (and the Ledger, and Fishy's
+  bowl) as an empty hand, but a test that wants a truly empty hand should select slot 8.
+- A new painting variant (`data/bm/painting_variant/`) loads only when the server starts: a `/reload` that adds one fails
+  with "Failed to load registries due to errors", and nothing else reloads either. After `tools/dev.sh --no-build`, stop
+  the server (rcon `stop`) and start it again with `tools/setup_test_env.sh --start` (t164).
+- `A.use()` sends use_item, a right-click into the air. Hanging a painting, frame or anything else placed on a block face
+  needs `A.useOn(x, y, z, face)` (block_place on that face; 2 north, 3 south, 4 west, 5 east) (t164).
+- A mob's `CustomName` is stored as a plain string when it's plain text: match it with `nbt={CustomName:"Rex"}`, not
+  `{CustomName:{text:"Rex"}}`, even though it was summoned that way (t164).
+- A plain `run('execute as TestRat run function bm:p28/act')` does nothing: `p28/act` copies `#act` from the player's own
+  `bm.act` first. Press the button with `A.cmd('trigger bm.act set N')` and the menu set (t121, t150).
+
 ## Index
 
 The newest tests (t128 onward, especially t131-t133) follow the owner's rule throughout. Older ones lean on rcon
@@ -210,7 +231,7 @@ and function calls. Three are known to be stale.
 | `t118.js` | 2.73: a raid boss's minions fall with it |
 | `t119.js` | 2.74: outfits and Emma's buff from the Ledger; Emma remembers her buff **(stale: its helper hands out the retired Heist Plans)** |
 | `t120.js` | 2.74: checkpoint respawn + kept pockets, kit 32/4, Lights Out / Glass Cannon only out on the heist, den names + carpet, |
-| `t121.js` | 2.74: the Fixer's Lounge; Leo's size |
+| `t121.js` | 2.74: the Fixer's Lounge - held still into it, every counter working there, its door home; the end-of-heist Go to the Lounge pressed (2.79: the real trigger, not a direct call); Leo's size |
 | `t122.js` | 2.74b: Speed Run with the alarm off, patrols stop at the vault, puzzle skip, a mistake's guard cleared, solo crew of 3, |
 | `t123.js` | 2.74: Block Party keeps you in the room; a failed puzzle's mobs go on solve |
 | `t124.js` | 2.75: the bank's exchange both ways; chatter in follower menus; modifiers at BEGIN |
@@ -246,7 +267,7 @@ and function calls. Three are known to be stale.
 | `t137.js` | 2.77b: the Wraithfire Heart forged on the ground - an Ethereal Gem and a Scorching Heart set down with the items |
 |  | themselves (both orders): the forging starts, both rise, circle closer, merge; the bot picks the heart up, Burning Blue; |
 |  | nothing left behind; six blocks apart nothing happens; Pearlman no longer offers the fusion. |
-| `t138.js` | 2.77b: follower figurines - a case set down with the case item, every follower's item right-clicked in (all thirteen - 2.78a: the Frog, Donado, Wilfrey), |
+| `t138.js` | 2.77b: follower figurines - a case set down with the case item, every follower's item right-clicked in (all fourteen - 2.78a: the Frog, Donado, Wilfrey; 2.79: Fishy), |
 |  | punch for the item and back, sneak + right-click turns it, empty-handed out; a wall case (Apophiss's Oath), picked up. |
 | `t139.js` | 2.77c: Apophiss's True Crown - worn with a use (swapping with the helmet), its stats measured against the shadow-crown |
 |  | and the heaviest chestplate, its passives (wither/poison gone, fire-proof, water-breathing, night sight, Regeneration when |
@@ -270,7 +291,7 @@ and function calls. Three are known to be stale.
 | `t145.js` | 2.78: the Recruiter only deals in names you know - into the Lounge with the Ledger, a click on him opens his book: no |
 |  | follower before you've met one (and no free Cecil); Celi met, her contract bought from the wallet ("IN YOUR PACK"), used |
 |  | and "SIGNED"; an unmet follower's contract refused and kept; a hireling and a vault gem bought from their pages. |
-| `t146.js` | 2.78: every follower in a frame - Zib's medal, KillerWatt's spark, Pearlman's card (2.78a: Wilfrey's locket, his bones too) each hung in an item frame |
+| `t146.js` | 2.78: every follower in a frame - Zib's medal, KillerWatt's spark, Pearlman's card (2.78a: Wilfrey's locket, his bones too; 2.79: Fishy's Pocket Bowl) each hung in an item frame |
 |  | with a right-click: the follower climbs out (nobody's), still there ten seconds on, gone with the item punched out. |
 | `t147.js` | 2.78: Wilfrey counts toward the three-follower limit - the locket refused with three out, answered once one goes |
 | `t148.js` | 2.78: wardrobes for the rest + auras + the tidied Office - Tullius's coat (away, then worn, arm re-dressed after poses, put back), his aura (locked, used, switched off), Pearlman's bow tie, Wilfrey's shield, the Office order and even widths, Raid Crew -> Outfits -> Pearlman |
@@ -281,12 +302,15 @@ and function calls. Three are known to be stale.
 | `t153.js` | 2.78: bosses don't sit frozen - Tullius leaves when his lone fighter dies, or when his chunk reloads a minute later; Apophiss leaves on a lone death in his den |
 | `t154.js` | 2.78: the Wings of the Damned flown with the real keys - crouch then jump: a Levitation burst skyward, cut off after a few ticks; a plain jump does nothing; gliding with sneak held: pushed on every tick, without: left be |
 | `t155.js` | 2.78: more weapons on the wall by sneak + drop (Q) - Cecil's staff, Leo's trident (his own model, both forms), Apophiss's mace, the Frisbee Shield, a ray gun, the Sepulchre; a plain drop or no wall just drops; sneak + punch takes one down |
-| `t156.js` | 2.78: a doll of every follower (2.78a: twelve, the Frog, Donado and Wilfrey too) - Cecil sells them; each set down on a block by a real use, its own model, twirls when right-clicked, back into the pack with sneak + punch |
+| `t156.js` | 2.78: a doll of every follower (2.78a: twelve, the Frog, Donado and Wilfrey too; 2.79: thirteen, Fishy) - Cecil sells them; each set down on a block by a real use, its own model, twirls when right-clicked, back into the pack with sneak + punch |
 | `t157.js` | 2.78: every boss makes an entrance - Horseman, Pharaoh, Roc, Treant, Colossus, Voidwalker and Tullius each with a title card on the player's screen, a ring of its colours that sweeps in and goes, and the light dipping for the dark ones |
 | `t158.js` | 2.78: Apophiss and Tullius on the Recruiter's book - not before you've met them; met (their Oath / coin in your pocket), their contracts priced in coins, bought from the book, used, and "SIGNED" |
 | `t159.js` | 2.78a: Apophiss's forms - the Ethereal Gem given by a right-click on him (ethereal scales, wings out and posed), the Wraithfire Heart (soul-blue scales and wings, fire-proof; the gem handed back), a colour picked meanwhile kept under the form, sneak + right-click empty-handed takes the heart back (his scales, wings away) |
 | `t161.js` | 2.78c: ridden Apophiss flies in his forms - saddle, Ethereal Gem and Oath by real clicks, then riding as a client does: look up and walk to climb, level to glide, jump for a wingbeat, down to dive; off, his weight back; his click box with him far from take-off; the gem taken back - he only slithers |
 | `t160.js` | 2.78b: Emma with a Wraithfire Heart blesses at level II - her Offense form gives Strength I; the heart given by a right-click, her Wraithfire Form switched off in her menu (she keeps it): Strength II; the heart taken back: Strength I again |
+| `t162.js` | 2.79: Fishy's Cabinet of Curiosities - Fishy at his desk in the Lounge, right-clicked empty-handed: he joins you (his Pocket Bowl); again: the Cabinet's menu, a wing's page (twenty veiled exhibits with riddles), set out in the hall; a rare thing shown to him: recorded world-wide with your name, announced, its case and plaque in the hall - and the thing itself kept; shown twice: "already"; an ordinary thing: not for the cabinet; a lost bowl reissued; shown to your own Fishy out in the world. As an admin, a wing filled: its rosette and advancement to who gave to it (set up and taken back by sneak + use / sneak + punch), his power learned on the powers page, his claws wither a husk |
+| `t163.js` | 2.79: Fishy, the owner's follower checklist - called with his bowl (nine-part rig; a poor fighter: 30 health, 1-point claw); his menu (Sit / follow, Send him home, The Cabinet, Fishy's powers, Wardrobe); sat from the menu and by a right-click (state 4, sit/sit_b), up again; a top hat used while he's out (worn, kept across send-home and Call, put back); his aura (locked row, used, on, off); his Raid Contract signed; the bowl in an item frame (he climbs out, stays, goes when punched out); his display-case figurine (nine parts, inside the glass); Cecil's doll bought in a real trade, set down, twirled, picked up; struck down: he faints, five minutes on the bowl. As an admin, every wing filled: the Golden Bowl - gilded limbs, 130 health, armour 10, the Grand Exhibition on a foe (replicas, then gone) |
+| `t164.js` | 2.79: the Portrait of Two - bought from the Fence in a real trade (his window, its trade picked, taken out), a painting that carries its picture; used on a wall (a block-face click): it hangs the portrait, 5 x 4; punched down: it comes back as the portrait, not a random painting. The mob roll's manners: twenty named zombies and twenty frozen (NoAI) ones seen and never renamed; two hundred plain ones - some still rolled |
 |  | home (from her menu), and with Wilfrey out a fourth follower refused. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |

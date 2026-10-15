@@ -97,7 +97,8 @@ const res = [];
   ok('a jump without sneaking: no fangs', (await cnt('@e[type=minecraft:evoker_fangs]')) === 0);
 
   // ---------------------------------------------------------------- near death: the Serpent King's Wrath, once
-  await run(`${O}summon minecraft:husk ${X + 0.5} ${Y + 1} ${Z + 3.5} {NoAI:1b,Tags:["bm.t139"],PersistenceRequired:1b,Health:20f}`);
+  await run('scoreboard players set TestRat bm.crw 0');            // (an earlier step's low health may have spent it already)
+  await run(`${O}summon minecraft:husk ${X + 0.5} ${Y + 1} ${Z + 3.5} {NoAI:1b,Tags:["bm.t139","bm.seen"],PersistenceRequired:1b,Health:20f}`);
   await run('effect clear TestRat minecraft:resistance'); await run('effect clear TestRat minecraft:absorption');
   await run('effect give TestRat minecraft:instant_health 1 4 true'); await sleep(300);
   A.bars.length = 0; await hurtTo(8);

@@ -369,6 +369,7 @@ for png in glob.glob(f'{RP}/assets/bm/textures/**/*.png', recursive=True):
     from PIL import Image
     im = Image.open(png)
     if '/equipment/' in png: continue
+    if '/textures/painting/' in png: continue                     # (paintings: any block size, checked with their variant above)
     w, h = im.size
     if os.path.exists(png + '.mcmeta') and h % w == 0:            # an animated strip: square frames stacked
         h = w

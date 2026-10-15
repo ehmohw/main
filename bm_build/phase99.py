@@ -37,6 +37,8 @@ NEW = {'leo': ('Leo', '#5ab8e0', 'Tabard', {1: ('Crimson Crusader', ('#2a0408', 
                                            3: ('Snowdrift', ('#8a8a90', '#dcdce0', '#ffffff')), 4: ('Starlit', ('#0a0626', '#4a2a9a', '#b49aff'))}),
        'pearl': ('Pearlman', '#5ac8ff', 'Bow Tie', {1: ('Ruby', ('#3a0408', '#c0202a', '#ff7a80')), 2: ('Emerald', ('#04260e', '#1a9a44', '#7aff9a')),
                                                     3: ('Amethyst', ('#1a0630', '#7a3ac0', '#d0a0ff')), 4: ('Gilded', ('#3a2806', '#e0b030', '#fff0a0'))}),
+       'fishy': ('Fishy', '#ffa040', 'Top Hat', {1: ('Midnight Silk', ('#06081c', '#1e2a6a', '#6a7ad0')), 2: ('Crimson Opera', ('#22040a', '#8a1a24', '#e05a64')),
+                                                  3: ('Emerald Ascot', ('#04200e', '#1a7a3a', '#6ad08a')), 4: ('Gilded Topper', ('#3a2806', '#c8962a', '#ffe08a'))}),
        'wil': ('Wilfrey', '#f4f4f4', 'Heraldry', {1: ('Crimson Cross', ('#3a0408', '#b02020', '#ff7070')), 2: ('Azure Chevron', ('#06103a', '#2a4ab0', '#8aa8ff')),
                                                   3: ('Verdant Bend', ('#06260a', '#2a8a30', '#90e090')), 4: ('Gilded Sun', ('#3a2806', '#e0b030', '#fff0a0'))})}
 HIDDEN = 4
@@ -47,8 +49,9 @@ DYE = {'Crimson Crusader': 'red', 'Royal Purple': 'purple', 'Greenwood': 'green'
        "Admiral's Blue": 'blue', 'Corsair Crimson': 'red', 'Bleached Bone': 'white', 'Gilded Captain': 'yellow', 'Bluejay': 'light_blue',
        'Ember Toad': 'orange', 'Old Bog': 'brown', 'Golden Prince': 'yellow', 'Chocolate': 'brown', 'Midnight': 'blue', 'Snowdrift': 'white', 'Starlit': 'purple',
        'Ruby': 'red', 'Emerald': 'lime', 'Amethyst': 'purple', 'Gilded': 'yellow', 'Crimson Cross': 'red', 'Azure Chevron': 'blue', 'Verdant Bend': 'green',
-       'Gilded Sun': 'yellow'}
-WORD = {'apo': 'his scales', 'tul': 'his coat', 'frog': 'his skin', 'don': 'his coat', 'pearl': 'his bow tie and hat band', 'wil': 'the shield he bears'}
+       'Gilded Sun': 'yellow', 'Midnight Silk': 'blue', 'Crimson Opera': 'red', 'Emerald Ascot': 'green', 'Gilded Topper': 'yellow'}
+WORD = {'apo': 'his scales', 'tul': 'his coat', 'frog': 'his skin', 'don': 'his coat', 'pearl': 'his bow tie and hat band', 'wil': 'the shield he bears',
+        'fishy': 'his top hat'}
 for _w, (_who, _col, _word, _set) in NEW.items():
     for _k, (_n, _pal) in _set.items():
         _iid = f'cos_{_w}_{_k}'
@@ -69,18 +72,19 @@ for _iid in [i for i in ITEMS if i.startswith(('cos_ribbon_', 'cos_dress_', 'cos
     _L.insert(1, T('Use: unlocked for good - in the wardrobe.', 'blue'))
     _L.insert(2, T('Sneak + use the follower\'s item: the menu.', 'gray'))
 BASE = {'emma': 9800, 'celi': 9840, 'zib': 9860, 'cecil': 9880, 'kw': 9900, 'leo': 9920, 'demo': 9940,
-        'apo': 9000, 'tul': 9020, 'frog': 9040, 'don': 9060, 'pearl': 9080, 'wil': 9100}         # (2.78: the rest - their own blocks of 20)
+        'apo': 9000, 'tul': 9020, 'frog': 9040, 'don': 9060, 'pearl': 9080, 'wil': 9100,         # (2.78: the rest - their own blocks of 20)
+        'fishy': 9120}                                                                             # (2.79)
 TOP = {'emma': 9839, 'celi': 9859, 'zib': 9879, 'cecil': 9899, 'kw': 9919, 'leo': 9939, 'demo': 9959}   # each follower's last code
 TOP.update({w: b + 19 for w, b in BASE.items() if w not in TOP})
 COS = {'leo': 'bm.cosl', 'demo': 'bm.cosm', 'cecil': 'bm.cosce', 'kw': 'bm.cosk', 'apo': 'bm.cosap', 'tul': 'bm.costu', 'frog': 'bm.cosfg', 'don': 'bm.cosdn',
-       'pearl': 'bm.cospm', 'wil': 'bm.coswl'}
+       'pearl': 'bm.cospm', 'wil': 'bm.coswl', 'fishy': 'bm.cosfy'}
 NAMES = {'emma': ('Emma', '#ff7ad0', 'her'), 'celi': ('Celi', '#9ad8ff', 'her'), 'zib': ('Zib', '#3ad8c8', 'him'), 'cecil': ('Cecil', '#b48cff', 'him'),
          'kw': ('KillerWatt', '#ffe040', 'him'), 'leo': ('Leo', '#5ab8e0', 'him'), 'demo': ('Democratus', '#7ad06a', 'him'),
          'apo': ('Apophiss', '#3ad06a', 'him'), 'tul': ('Tullius', '#7ad8ff', 'him'), 'frog': ('the Frog with Mustache', '#6ac850', 'him'),
-         'don': ('Donado', '#e8d29a', 'him'), 'pearl': ('Pearlman', '#5ac8ff', 'him'), 'wil': ('Wilfrey', '#f4f4f4', 'him')}
+         'don': ('Donado', '#e8d29a', 'him'), 'pearl': ('Pearlman', '#5ac8ff', 'him'), 'wil': ('Wilfrey', '#f4f4f4', 'him'), 'fishy': ('Fishy', '#ffa040', 'him')}
 HOME = {'emma': 'p98/home/emma', 'celi': 'p98/home/celi', 'zib': 'p98/home/zib', 'cecil': 'p98/home/cecil', 'kw': 'p98/home/killerwatt',
         'leo': 'p98/home/leo', 'demo': 'p98/home/demo', 'apo': 'p98/home/apo', 'tul': 'p98/home/tul', 'frog': 'p138/home/frog', 'don': 'p138/home/don',
-        'pearl': 'p138/home/pearl', 'wil': 'p138/home/wil'}
+        'pearl': 'p138/home/pearl', 'wil': 'p138/home/wil', 'fishy': 'p145/home'}
 P28.MENU.update({f'wd_{w}': b for w, b in BASE.items()})
 
 
@@ -266,7 +270,7 @@ def generate(G):
                 fn(f'p99/own/{g}{k}', bit(un, k) + [f'execute if score #q bm.rng matches 0 run scoreboard players add @s {un} {2 ** k}'])
             orig = {'ribbon': 'Pink ribbon', 'dress': 'Her own dress', 'outfit': None}.get(g, 'Own clothes' if who not in ('cecil', 'kw') else 'Own colours')
             orig = {'apo': 'His own scales', 'tul': 'His old coat', 'frog': 'His own skin', 'don': 'His own coat', 'pearl': 'The blue bow tie',
-                    'wil': 'No shield'}.get(g, orig)
+                    'wil': 'No shield', 'fishy': 'His old black topper'}.get(g, orig)
             if orig:
                 page += [st(f'{g}0', 'owned', 'gray'), f'execute if score @s {cur} matches 0 run {st(f"{g}0", "wearing", GOLD)}']
                 if g == 'dress':

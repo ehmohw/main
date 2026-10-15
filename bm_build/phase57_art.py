@@ -223,10 +223,22 @@ def _chest():
             elif y == 19 and x % 4 == 1: c = hexc('#78b8ec')
             elif y == 22: c = hexc('#24588e')
             px[x, y] = c
-    d = ImageDraw.Draw(im)                                             # the pink flower brooch, lit on its upper petals
-    d.polygon([(12, 2), (13.5, 5), (17, 5.5), (14.5, 7.5), (15.5, 11), (12, 9), (8.5, 11), (9.5, 7.5), (7, 5.5), (10.5, 5)], fill=hexc('#d84aa8'))
-    d.polygon([(12, 2), (13.2, 4.6), (12, 5.6), (10.8, 4.6)], fill=hexc('#f07cc8'))
-    d.rectangle((11, 6, 12, 7), fill=hexc('#f4d040')); px[11, 6] = hexc('#fff0a0')
+    return im                                                          # (2.79: the flower brooch is its own plate now - em2_brooch)
+
+
+def _brooch():
+    """2.79: her insignia, from the owner's drawing - the pink five-petal flower (16 x 16, top left of the sheet)"""
+    import insignia_art as INS
+    im = Image.new('RGBA', (64, 64), (0, 0, 0, 0)); im.paste(INS.emma_flower(16), (0, 0))
+    return im
+
+
+def _brooch_gem():
+    """...and its gem: the emerald-cut face (8 x 10, top left), a block of its gold for the sides (columns 8-11)"""
+    import insignia_art as INS
+    im = Image.new('RGBA', (64, 64), (0, 0, 0, 0)); im.paste(INS.emma_gem(), (0, 0))
+    for y in range(10):
+        for x in range(8, 12): im.putpixel((x, y), hexc(INS.GEM['M'] if y < 7 else INS.GEM['D']))
     return im
 
 
@@ -336,6 +348,8 @@ def textures():
     T['em2_hair'] = _hair2(1, HAIR)
     T['em2_blue'] = _fabric('#3f8fd0', 14)
     T['em2_chest'] = _chest()
+    T['em2_brooch'] = _brooch()
+    T['em2_gem'] = _brooch_gem()
     T['em2_skirt'] = _pleats('#3d72aa', 15)
     T['em2_scarf'] = _knit('#80d8e4', 16)
     T['em2_scarf2'] = _knit('#6cc8d6', 17)
@@ -426,7 +440,12 @@ def models():
             _el((-1.1, 15.6, -2.6), (1.1, 17.2, -2.25), 'em2_buckle', pv, uv={'north': [0, 0, 2.2, 1.6]}),
             _el((-3.0, 17.0, -2.0), (3.0, 22.6, 2.0), 'em2_chest', pv, uv={'north': [0, 0, 6, 5.6], 'south': [6, 2, 12, 7.6], 'east': [6, 2, 10, 7.6], 'west': [6, 2, 10, 7.6]}),
             _el((-3.3, 22.2, -2.3), (3.3, 23.5, 2.3), 'em2_scarf', pv),
-            _el((1.0, 20.2, -2.6), (2.6, 22.4, -2.25), 'em2_scarf2', pv, ('z', -22.5, (1.8, 22.4, -2.4))),
+            _el((1.8, 20.6, -2.6), (3.0, 22.4, -2.25), 'em2_scarf2', pv, ('z', -12, (2.4, 22.4, -2.4))),      # (2.79: further out - the brooch shows)
+            # 2.79: her insignia - the pink flower, a plate on her chest, and its yellow gem raised off it
+            _el((-1.45, 19.05, -2.08), (1.45, 21.95, -2.02), 'em2_brooch', pv, uv={'north': [0, 0, 4, 4]}, faces=('north',)),
+            _el((-0.5, 19.88, -2.42), (0.5, 21.12, -2.04), 'em2_gem', pv,
+                uv={'north': [0, 0, 2, 2.5], 'east': [2, 0, 2.4, 2.5], 'west': [2, 0, 2.4, 2.5], 'up': [2, 0, 3, 0.4], 'down': [2, 2, 3, 2.4]},
+                faces=('north', 'east', 'west', 'up', 'down')),
             _el((-1.0, 22.6, -2.45), (1.0, 23.6, -2.3), 'em2_white', pv),
             _el((-1.0, 23.4, -1.0), (1.0, 24.4, 1.0), 'em2_skin', pv)]
     part('em_body', pv, body)

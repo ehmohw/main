@@ -1,4 +1,4 @@
-# Black Market — v2.78 (Java 26.3)
+# Black Market — v2.79 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,68 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.79: Fishy's Cabinet of Curiosities - and Fishy, the curator who follows you
+
+### The Cabinet
+- **Fishy keeps a museum off the Fixer's Lounge.** He's a goldfish gentleman in a bowl, with a top hat and monocle. Go through the Lounge's east gate (the gilded one, now open) into his hall: twenty glass cases, a banner, and Fishy at his desk at the far end.
+- **120 exhibits in six wings of twenty:** The Hollow, The Gutter, The Skies, The Deep, The Wilds and The Court. They are the pack's rarest things: boss relics and trophies, the conquest emblems, heist finds, follower tokens and the like.
+- **Right-click Fishy at his desk** for the Cabinet's menu. Each wing's page shows its twenty exhibits as icons, with their names and who first showed each one.
+  - Exhibits nobody has shown yet are veiled, with a riddle about where to find them.
+  - **Set it out in the hall** puts that wing in the twenty cases: the shown ones as replicas with a plaque, the rest veiled. The hall shows one wing at a time, so it stays small and light on lag.
+- **Show him a rare thing and he makes a replica. You keep yours.** Right-click Fishy while holding it, either at his desk or your own Fishy out in the world. Nothing is taken or used up.
+- **One record for the whole world.** It's shared by every player on a server and by every Black Market. The first player to show an exhibit is named on it, and everyone is told. Showing one that's already in says so, and names who showed it.
+
+### Rewards for a finished wing
+- **Every Fishy learns that wing's power,** and gets tougher (+10 health and +1 armour per wing):
+  - **The Hollow - Hollow Grip:** his claws wither what they strike, and hit harder.
+  - **The Gutter - Coin Toss:** he flings gold coins at foes up to 10 blocks away.
+  - **The Skies - Ray Zap:** a Vorn ray from his bowl, up to 16 blocks.
+  - **The Deep - Bowl Splash:** a jet of water shoves foes back and slows them. In water he's quick, and you can breathe.
+  - **The Wilds - Thunder Exhibit:** every sixth blow, a thunderclap around him.
+  - **The Court - Grand Company:** you and your followers near him get Regeneration and Resistance.
+- **Everyone who gave to a wing gets its rosette and an advancement.** A rosette is a decoration: sneak + use to set it on a block, and sneak + punch to take it back.
+- **All six wings: the Golden Bowl.**
+  - Fishy's bowl and limbs turn to gold, and he gets far tougher (130 health in all).
+  - Now and then he puts on a **Grand Exhibition**: spectral replicas wheel around him and burst on every foe nearby.
+  - Everyone who gave to the Cabinet gets the grand rosette.
+
+### Fishy, the follower
+- **Recruit him early.** Right-click him empty-handed at his desk and he joins you, giving you his **Pocket Bowl**.
+  - Use the bowl to call him; use it again to call him over.
+  - **Sneak + use** opens his menu: Sit / follow, Send him home (or Call for Fishy), The Cabinet, Fishy's powers, and Wardrobe.
+  - Lost the bowl? He hands you a spare.
+- **He's a curator, not a brawler, at first:** 30 health and a weak claw, until the Cabinet teaches him.
+- **He sits when you right-click him,** and stands when you right-click again. He has his own seated, walking, running, swimming and fighting animations, and faces.
+- **He faints like the others,** and the bowl needs 5 minutes before he can come back.
+- **His wardrobe:** four top hats (Midnight Silk, Crimson Opera, Emerald Ascot and the Gilded Topper), sold on his own page at the Tailor.
+  - Hats stay on when you send him home and call him back.
+  - "His old black topper" puts his own hat back.
+- **His rare aura, the Bubble Halo:** a rare find in won heists (Tier III and up), or 1280 coins at the Tailor. Switch it on or off in his wardrobe.
+- **Everything the other followers have:**
+  - Hang the bowl in an item frame and he climbs out and stays there.
+  - Set the bowl in a display case for a little Fishy figurine.
+  - Cecil sells a Fishy doll.
+  - The Recruiter sells his **Raid Contract** (176 coins) once you've met him; sign it and he answers the Fixer's Ledger in the vault.
+
+### Admin
+- `/function bm:admin/fishy` gives his bowl.
+- `/function bm:admin/cabinet` shows the record.
+- `/function bm:admin/cabinet_fill_<wing>` and `/function bm:admin/cabinet_fill` complete a wing, or all of them, for testing.
+- `/function bm:admin/cabinet_reset` clears the record.
+- `/function bm:admin/cabinet_hall` rebuilds the hall.
+
+### Also in 2.79
+- **A new painting: the Portrait of Two.**
+  - It's a pixel-art portrait, 5 blocks wide and 4 tall. The Fence sells it for 6 Tokens.
+  - Hang it like any painting. Take it down and you get the portrait back, not a random painting.
+  - **Restart the world or server after updating**: Minecraft only loads new paintings at startup, and a `/reload` that adds one is refused.
+- **Emma's and Leo's insignias now show on their models.**
+  - **Emma** wears her pink five-petal flower on her chest, with a yellow gem raised off its centre. Her scarf's tail hangs further out so it no longer covers the flower. Cecil's Emma doll has it too.
+  - **Leo** bears the sunken kingdom's insignia, a pale-blue drop opening into two horns with a magenta gem in it. It sits flat on the front of his tabard and on the back of his cape. It used to sit inside his tunic, where it never showed. Leo's Crest has the same design, and his doll picks it up.
+- **Fixed:** in older worlds the Fixer's Lounge still held a whole extra den's worth of counters, loaner racks and boards. Heists from before 2.75 had built them there. The Lounge rebuilds once on load and clears them.
+- **Fixed:** the Elite, Champion and Lucky rolls renamed and re-statted mobs that already had a name or stood frozen. This hit a player's name-tagged pet, Wilfrey's body, Eggbert of the hidden trio, and statues. It also affected Prime animals, so a named pet sheep could become a "Prime Sheep". Named and frozen mobs are now left alone.
+- **Fixed:** the wing announcement read "THE THE HOLLOW WING IS COMPLETE".
 
 ## New in 2.78c: Apophiss's wings, whole - and he flies
 

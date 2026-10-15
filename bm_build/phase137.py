@@ -142,7 +142,7 @@ def generate(G):
     GOLD, REC = '#ffcf40', '#9ad0ff'
     MET = {'cecil': ['cecil_gem'], 'emma': ['emma_ribbon'], 'celi': ['celi_charm'], 'zib': ['donadian_medal'], 'killerwatt': ['kw_spark'],
            'leo': ['leo_crest'], 'demo': ['demo_seal'], 'escort': [f'skiff_escort_{c}' for c in P72.ART.ESCORT_COLS], 'apo': ['apo_oath'],
-           'tul': ['tul_coin'], 'frog': ['frog_signet'], 'donado': ['donado_tag']}
+           'tul': ['tul_coin'], 'frog': ['frog_signet'], 'donado': ['donado_tag'], 'fishy': ['fy_bowl']}
     FOL = [(k, nm, col) for (k, nm, col, *_r) in P98.CALLED] + [(k, nm, col) for (k, nm, col, *_r) in P98.HIRED]
     assert {k for k, *_r in FOL} == set(MET), sorted({k for k, *_r in FOL} ^ set(MET))
     for k, toks in MET.items():
@@ -158,7 +158,8 @@ def generate(G):
 
     # ---- a contract for someone you haven't met won't sign (it keeps)
     SIGN = {k: f'p89/sign/{k}' for k in ('cecil', 'emma', 'celi', 'zib', 'escort', 'killerwatt')}
-    SIGN.update({'leo': 'p96/sign', 'demo': 'p97/sign', 'apo': 'p131/sign', 'tul': 'p132/sign', 'frog': 'p89/call/frog', 'donado': 'p89/call/donado'})
+    SIGN.update({'leo': 'p96/sign', 'demo': 'p97/sign', 'apo': 'p131/sign', 'tul': 'p132/sign', 'frog': 'p89/call/frog', 'donado': 'p89/call/donado',
+                 'fishy': 'p145/sign'})
     assert set(SIGN) == set(MET)
     for k, nm, col in FOL:
         L = G.FUNCS[SIGN[k]]
@@ -176,7 +177,7 @@ def generate(G):
     fols = [(k, nm, col, coins(stock[f'fcontract_{k}'])) for k, nm, col in FOL]
     hires = [(i, hk, hnm, hcol, coins(stock[f'contract_{hk}'])) for i, (hk, hnm, rat, hcol, *_r) in P77.HIRE.items()]
     gems = [(g, P60.GEMS[g][0], P60.GEMS[g][1], stock[f'gem_{g}']) for g in P60.GEMS if f'gem_{g}' in stock]
-    assert len(fols) == 12 and len(hires) == 5 and len(gems) == 9 and len(stock) == 26, (len(fols), len(hires), len(gems), len(stock))
+    assert len(fols) == 13 and len(hires) == 5 and len(gems) == 9 and len(stock) == 27, (len(fols), len(hires), len(gems), len(stock))
     def give_cmd(st):
         comps = ','.join(c if c.startswith('!') else f'{c}={snbt(v)}' for c, v in st.get('components', {}).items())
         return f'give @s {st["id"]}[{comps}] {int(st["count"])}'

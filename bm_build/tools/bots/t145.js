@@ -18,7 +18,7 @@ const res = [];
     const h = m.slice(1).map(v => (Number(v) >>> 0).toString(16).padStart(8, '0')).join(''); return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`; };
   const O = 'execute in minecraft:overworld run ';
   const HX = 13000, HY = 121, HZ = 13000;
-  const KINDS = ['cecil', 'emma', 'celi', 'zib', 'killerwatt', 'leo', 'demo', 'escort', 'apo', 'tul', 'frog', 'donado'];
+  const KINDS = ['cecil', 'emma', 'celi', 'zib', 'killerwatt', 'leo', 'demo', 'escort', 'apo', 'tul', 'frog', 'donado', 'fishy'];
   const A = await bot('TestRat'); await sleep(2500);
   // ---- the stage: a newcomer to the vault who has met no one
   for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
@@ -52,7 +52,7 @@ const res = [];
   console.log('   [book] ' + labels().join(' | '));
   ok('Click the Recruiter: his book opens', /THE RECRUITER/.test(shown()));
   ok('...no follower\'s contract on it (not even Cecil\'s) - met no one yet', !labels().some(l => /Cecil|Emma|Celi|Zib|KillerWatt|Leo|Democratus|Skiff|Apophiss|Tullius|Frog|Donado/.test(l)), labels().join(' | '));
-  ok('...it says so ("No names on his books yet"), and counts "0 of 12"', /No names on his books yet/.test(shown()) && /"0"/.test(shown()) && /of 12/.test(shown()));
+  ok('...it says so ("No names on his books yet"), and counts "0 of 13"', /No names on his books yet/.test(shown()) && /"0"/.test(shown()) && /of 13/.test(shown()));
   ok('...the hirelings\' and the vault gems\' pages are there', labels().some(l => /Hirelings/.test(l)) && labels().some(l => /Vault gems/.test(l)));
 
   // ---- 2. a contract for someone you haven't met won't sign - and keeps

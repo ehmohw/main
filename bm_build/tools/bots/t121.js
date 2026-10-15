@@ -45,9 +45,9 @@ const res = [];
   const md = require('fs').readFileSync(BMB + 'out_p2/BlackMarket_DP/data/bm/function/p103/mem_dlg.mcfunction', 'utf8');
   const of = require('fs').readFileSync(BMB + 'out_p2/BlackMarket_DP/data/bm/function/p103/offer_show.mcfunction', 'utf8');
   ok('End of a heist: the leader, a waiting member and an asked member can all Go to the Lounge', /Go to the Lounge/.test(ad) && /set 7730/.test(ad) && /set 7731/.test(md) && /set 7732/.test(of));
-  // a leader's Go to the Lounge, simulated: send_home then the lounge
+  // a leader's Go to the Lounge: the heist's end staged (rcon), then the button pressed - the trigger it sends
   await run('tag TestRat add bm.gvask'); await run('scoreboard players set TestRat bm.gvnx 1'); await run('tag TestRat add bm.gvp'); await run('scoreboard players set TestRat bm.gvi 1');
-  await run('scoreboard players set #act bm.pay 7730'); await run('execute as TestRat at @s run function bm:p28/act'); await sleep(1500);
+  await run('scoreboard players set TestRat bm.menu 7720'); A.cmd('trigger bm.act set 7730'); await sleep(2000);
   const p3 = await pos();
   ok('Leader picks Go to the Lounge: the heist ends, into the lounge', p3 && p3[0] < -290 && !/bm.gvp/.test(await run('tag TestRat list')), `${p3}`);
   await run('execute in bm:gutter as @e[type=minecraft:marker,tag=bm.lgexit,limit=1] at @s run tp TestRat ~ ~ ~'); await sleep(1500);

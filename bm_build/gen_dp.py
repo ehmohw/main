@@ -128,6 +128,8 @@ import phase138 as R138      # 2.78: every follower dressed (the six without a w
 import phase142 as R142      # 2.78: every boss makes an entrance (title card, sting, a ring of its colours)
 import phase141 as R141      # 2.78: a doll of every follower (Cecil sells them)
 import phase144 as R144      # 2.78a: Apophiss's forms - the Ethereal Gem, the Wraithfire Heart
+import phase145 as R145      # 2.79: Fishy's Cabinet of Curiosities - and Fishy
+import phase146 as R146      # 2.79: the Portrait of Two (a painting the Fence sells)
 import phase140 as R140      # 2.78: Tiers IV and V bite back (tougher guards, a tougher Gutter King)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
@@ -143,7 +145,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.78c'                                  # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.79'                                  # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -390,6 +392,7 @@ def all_offers():
     R97.extend_offers(O, offer)
     R124.extend_offers(O, offer)
     R141.extend_offers(O, offer)
+    R146.extend_offers(O, offer)
     return O
 
 
@@ -1181,6 +1184,7 @@ def build(out_dir):
     R130.generate(sys.modules[__name__])
     if PHASE2: R131.generate(sys.modules[__name__])
     if PHASE2: R132.generate(sys.modules[__name__])
+    if PHASE2: R145.generate_early(sys.modules[__name__])
     if PHASE2: R133.generate(sys.modules[__name__])
     if PHASE2: R134.generate(sys.modules[__name__])
     if PHASE2: R135.generate(sys.modules[__name__])
@@ -1192,6 +1196,13 @@ def build(out_dir):
     if PHASE2: R141.generate(sys.modules[__name__])
     if PHASE2: R142.generate(sys.modules[__name__])
     if PHASE2: R144.generate(sys.modules[__name__])
+    if PHASE2: R145.generate(sys.modules[__name__])
+    R146.generate(sys.modules[__name__])
+    # 2.79: the mob rolls (elite, champion, lucky, prime, Blood Moon, invasion) leave alone a mob someone named or froze - a
+    #  player's name-tagged pet, Wilfrey's body, the hidden trio's Eggbert, a statue: they were renamed and re-statted
+    for _n, _lines in FUNCS.items():
+        if _n.startswith('mobs/init/') and _lines and _lines[0] == 'tag @s add bm.seen':
+            _lines[1:1] = ['execute if data entity @s CustomName run return 0', 'execute if data entity @s {NoAI:1b} run return 0']
     R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
     useitem.generate(sys.modules[__name__])

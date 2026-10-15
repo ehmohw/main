@@ -333,10 +333,10 @@ def generate(G):
     WHO = [('emma', 'Emma', P78.PINK), ('celi', 'Celi', '#9ad8ff'), ('zib', 'Zib', '#3ad8c8'), ('cecil', 'Cecil', '#b48cff'),
            ('kw', 'KillerWatt', '#ffe040'), ('leo', 'Leo', '#5ab8e0'), ('demo', 'Democratus', '#7ad06a'),
            ('apo', 'Apophiss', '#3ad06a'), ('tul', 'Tullius', '#7ad8ff'), ('frog', 'The Frog', '#6ac850'), ('don', 'Donado', '#e8d29a'),
-           ('pearl', 'Pearlman', '#5ac8ff'), ('wil', 'Wilfrey', '#f4f4f4')]
+           ('pearl', 'Pearlman', '#5ac8ff'), ('wil', 'Wilfrey', '#f4f4f4'), ('fishy', 'Fishy', '#ffa040')]
     # 2.78: past the old block (TL..TL+59) the pages, stock and auras go on in 8100-8299
     TL2 = 8100
-    pcode = lambda i: TL + 1 + i if i < 7 else TL2 + i - 7                   # a follower's page
+    pcode = lambda i: TL + 1 + i if i < 7 else (TL2 + i - 7 if i < 13 else TL2 + i - 6)      # a follower's page (2.79: past 8106, the Auras page)
     scode = lambda j: TL + 10 + j if j < 40 else TL2 + 10 + j - 40          # an outfit
     stock = []                                       # (who, group, unlock score, k, item, name, colour, price)
     for who, g, cur, un, ks, iid, off, apply in P99.groups():

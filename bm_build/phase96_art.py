@@ -135,13 +135,10 @@ def face(expr=None):
 
 
 def _emblem():
-    """the chest badge (10 x 11 texels): a pale water-drop in a crescent, a pink gem at its heart, three dots round it"""
-    P = hexc
-    im = Image.new('RGBA', (64, 64), P(BLUE)); d = ImageDraw.Draw(im)
-    d.ellipse((1, 3, 9, 11), fill=P('#bfe6f6')); d.ellipse((2, 2, 8, 9), fill=P(BLUE))      # the crescent
-    d.polygon([(5, 0), (7, 4), (5, 7), (3, 4)], fill=P('#d8f2fc'))                          # the drop
-    d.polygon([(5, 3), (6, 4), (5, 6), (4, 4)], fill=P('#e04aa8')); d.point((5, 4), fill=P('#ff9ad8'))   # the gem
-    for x, y in ((1, 2), (9, 2), (5, 10)): d.point((x, y), fill=P('#3a5ac8'))
+    """2.79: the sunken kingdom's insignia, from the owner's drawing - a pale-blue drop opening into two horns, a magenta gem
+    in its window (20 x 22, top left of a clear sheet: a flat plate on his tabard, and again on his cape)"""
+    import insignia_art as INS
+    im = Image.new('RGBA', (64, 64), (0, 0, 0, 0)); im.paste(INS.leo_badge(20, 22), (0, 0))
     return im
 
 
@@ -222,13 +219,15 @@ def models():
             _el((1.0, 8.0, -3.1), (4.6, 9.4, 1.0), 'le_skirt', pv, ('z', -12, (4.4, 9.4, 0)), uv={f: [0, 15, 3.6, 16] for f in ('north', 'south', 'east', 'west')}),
             _el((-3.9, 16.6, -2.6), (3.9, 18.0, 2.6), 'le_belt', pv),
             _el((-1.0, 16.2, -2.95), (1.5, 18.4, -2.55), 'le_rim', pv), _el((0.6, 16.3, -3.05), (1.2, 18.3, -2.9), 'le_steel_dk', pv),   # the buckle
-            _el((-1.25, 20.4, -2.35), (1.25, 23.2, -2.2), 'le_emblem', pv, uv={'north': [0, 0, 2.5, 2.8]}),
+            # 2.79: the insignia, a flat plate on the tabard's front (it was inside the tunic, never seen) - and on the cape
+            _el((-1.9, 18.1, -2.47), (1.9, 22.4, -2.42), 'le_emblem', pv, uv={'north': [0, 0, 5, 5.5]}, faces=('north',)),
             _el((-3.0, 22.8, -2.55), (3.0, 25.2, -2.25), 'le_mail', pv),
             _el((-3.2, 22.5, -2.6), (3.2, 22.9, -2.3), 'le_rim', pv),
             _el((-3.4, 24.6, -2.7), (3.4, 26.4, 2.7), 'le_mail', pv),
             _el((-3.6, 24.4, -2.75), (3.6, 24.8, 2.75), 'le_rim', pv),
             _el((-3.6, 10.0, 2.3), (3.6, 25.0, 2.8), 'le_cape', pv, ('x', -7.5, (0, 25.0, 2.5))),
-            _el((-3.6, 10.0, 2.4), (3.6, 10.6, 3.0), 'le_rim', pv, ('x', -7.5, (0, 25.0, 2.5)))]
+            _el((-3.6, 10.0, 2.4), (3.6, 10.6, 3.0), 'le_rim', pv, ('x', -7.5, (0, 25.0, 2.5))),
+            _el((-2.6, 15.6, 2.82), (2.6, 21.6, 2.87), 'le_emblem', pv, ('x', -7.5, (0, 25.0, 2.5)), uv={'south': [0, 0, 5, 5.5]}, faces=('south',))]
     part('le_body', body)
 
     # ---- head: an open-faced helm
@@ -372,8 +371,11 @@ def joint(p):
 
 
 def crest_icon(R):
-    """Leo's Crest: the blue shield-badge from his chest - the crescent, the drop, the pink gem - in a silver rim"""
-    return R.grid(['................', '...SSSSSSSSSS...', '..SBBBBBBBBBBS..', '..SBBBBWWBBBBS..', '..SBBBLWWLBBBS..', '..SBBLBWWBLBBS..',
-                   '..SBBLBPPBLBBS..', '..SBBLBPPBLBBS..', '..SBBBLBBLBBBS..', '...SBBBLLBBBS...', '...SBBBBBBBBS...', '....SBBBBBBS....',
+    """Leo's Crest: the sunken kingdom's insignia (2.79: the owner's drawing) on his blue shield-badge, in a silver rim"""
+    import insignia_art as INS
+    base = R.grid(['................', '...SSSSSSSSSS...', '..SBBBBBBBBBBS..', '..SBBBBBBBBBBS..', '..SBBBBBBBBBBS..', '..SBBBBBBBBBBS..',
+                   '..SBBBBBBBBBBS..', '..SBBBBBBBBBBS..', '..SBBBBBBBBBBS..', '...SBBBBBBBBS...', '...SBBBBBBBBS...', '....SBBBBBBS....',
                    '.....SBBBBS.....', '......SBBS......', '.......SS.......', '................'],
-                  dict(S='#dfe2e8', B='#3f8fd6', W='#d8f2fc', L='#bfe6f6', P='#e04aa8'))
+                  dict(S='#dfe2e8', B='#2c6aa8'))
+    base.alpha_composite(INS.leo_badge(10, 11), (3, 2))
+    return base

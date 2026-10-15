@@ -1,5 +1,5 @@
 // 2.78: every follower in a frame - as a regular (non-op) player, every step a real packet: Zib's Donadian Medal,
-// KillerWatt's Spark and Pearlman's card (and, 2.78a, Wilfrey's locket) each hung in an item frame with a right-click: the follower climbs out (and says
+// KillerWatt's Spark and Pearlman's card (and, 2.78a, Wilfrey's locket; 2.79, Fishy's Pocket Bowl) each hung in an item frame with a right-click: the follower climbs out (and says
 // so), stays by the frame (nobody's - not the player's), still there ten seconds on; the item punched out of the frame:
 // the follower goes with it. rcon only sets the stage (a wall, the frames, the three items).
 const { bot, rcon, sleep } = require('./lib_resp');
@@ -25,7 +25,7 @@ const res = [];
   await wait(2000, async () => A.pos && Math.abs(A.pos.z - (Z + 2.5)) < 0.05, 100); await sleep(400);
 
   const KINDS = [['Zib', 'donadian_medal', 'wolf', 'bm.zibpet', -4], ['KillerWatt', 'kw_spark', 'wolf', 'bm.kxpet', 0], ['Pearlman', 'pearl_card', 'cat', 'bm.pmpet', 4],
-                 ['Wilfrey', 'wilfrey_locket', 'wolf', 'bm.wilfrey', -2]];
+                 ['Wilfrey', 'wilfrey_locket', 'wolf', 'bm.wilfrey', -2], ['Fishy', 'fy_bowl', 'wolf', 'bm.fypet', 2]];
   for (const [name, iid, host, tag, dx] of KINDS) {
     await run(`${O}summon minecraft:item_frame ${X + dx} ${Y + 2} ${Z + 4} {Facing:2b,Tags:["bm.t146f"]}`); await sleep(400);
     await run(`loot replace entity TestRat hotbar.0 loot bm:items/${iid}`); await sleep(300);
