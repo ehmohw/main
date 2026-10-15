@@ -1,6 +1,6 @@
 """Phase 141 (2.78): A DOLL OF EVERY FOLLOWER, in the Emma doll's chibi style. Emma had a doll; now they all do - Cecil, Celi, Leo,
 Democratus, KillerWatt, Apophiss, Tullius, Zib, Pearlman, Donado, Wilfrey and the Frog with Mustache - each a big-headed, big-eyed
-little figure in their own colours with their signature thing (dolls_art). Cecil sells them beside Emma's (3 Trophies each).
+miniature of the follower themselves, baked from their own model (dolls_bake; 2.78a). Cecil sells them beside Emma's (3 Trophies each).
 Right-click a block: set it down. Right-click it: it twirls, in its own colours and sounds. It shimmers now and then while it
 stands. Sneak + punch: pick it up.
 
@@ -33,7 +33,7 @@ for _d, _n, _c, _what, *_ in DOLLS:
 
 
 # WILFREY IN A FRAME, AND IN A DISPLAY CASE (2.78a): his locket hung in a frame brings him out to keep watch by it, as every
-# other follower's item does (bare bones - a framed Wilfrey carries no gear); in a display case he stands as his doll.
+# other follower's item does (bare bones - a framed Wilfrey carries no gear); in a display case he stands as himself.
 import phase68 as _P68, phase134 as _P134
 _P68.KINDS['wil'] = (max(v[0] for v in _P68.KINDS.values()) + 1, 'wilfrey_locket', 'wolf', 'bm.wilfrey', 'p2/wil/summon', 'p141/wil_frame_off',
                      'bm.wlsel', 'Wilfrey', '#f4f4f4')
@@ -43,12 +43,12 @@ _figures0 = _P134.figures
 
 def _figures():
     F_ = _figures0()
-    F_['wilfrey_locket'] = ('Wilfrey', [('bm:doll_wil', (0.0, 0.5, 0.0), _P134.IDENT, _P134.IDENT, 1.0)])
+    F_['wilfrey_locket'] = ('Wilfrey', [('bm:wil_fig', (0.0, 1.0, 0.0), _P134.IDENT, _P134.IDENT, 2.0)])     # (wilfrey_fig: the mob himself)
     return F_
 
 
 _P134.figures = _figures
-_P134.FIT['wilfrey_locket'] = (0.000, 1.350, -0.312, 0.275, -0.244, 0.238)      # (measured: phase134.measure)
+_P134.FIT['wilfrey_locket'] = (0.000, 2.000, -0.400, 0.461, -0.250, 1.111)      # (measured: phase134.measure)
 
 
 def extend_offers(O, offer):
@@ -91,8 +91,33 @@ def generate(G):
 
 
 # ================================================================================================= the dolls' models
+# (2.78a) each doll is its follower in miniature: baked from the follower's own figurine (phase134), chibi proportions
+# (dolls_bake); the dog, the frog and Zib already wear big heads, so theirs barely grow. Wilfrey: his own chibi build.
+DOLL_FROM = {'doll_cecil': ('cecil_gem', {}), 'doll_celi': ('celi_charm', {}), 'doll_leo': ('leo_crest', {}), 'doll_demo': ('demo_seal', {}),
+             'doll_kw': ('kw_spark', {}), 'doll_apo': ('apo_oath', {'kh': 1.3}), 'doll_tul': ('tul_coin', {}),
+             'doll_zib': ('donadian_medal', {'kh': 1.1, 'kb': 0.9, 'kl': 0.85}), 'doll_pearl': ('pearl_card', {}),
+             'doll_don': ('donado_tag', {'kh': 1.0, 'kb': 0.95, 'kl': 0.9}), 'doll_frog': ('frog_signet', {'kh': 1.0, 'kb': 1.0, 'kl': 1.0})}
+
+
 def rp(R):
-    import dolls_art as DA
-    R.TEXTURE_MODS.append(DA)
-    R.HATS.update(DA.models())
-    R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + ('doll_',)
+    import wilfrey_fig
+    wilfrey_fig.rp(R)
+    tex, els = wilfrey_fig.model(chibi=True)
+    R.HATS['wil_doll_src'] = ({k: v for k, v in tex.items() if k != 'particle'}, els)
+    for d, *_ in DOLLS:                                       # (a stand-in, so each doll has its item; the bake below replaces the model)
+        R.HATS[d] = ({'s': 'minecraft:block/white_wool'}, [{'from': [6, 0, 6], 'to': [10, 8, 10], 'faces': {f: {'uv': [0, 0, 16, 16], 'texture': '#s'}
+                                                                                                         for f in ('north', 'south', 'east', 'west', 'up', 'down')}}])
+    R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + ('doll_', 'wil_doll_src')
+
+    def post(R2):
+        import dolls_bake as DB
+        import phase134 as P134, phase136                     # noqa: F401 (phase136: the Frog's and Donado's figures)
+        FIG = P134.figures()
+        I4 = (0.0, 0.0, 0.0, 1.0)
+        rp_dir = R2.p()
+        for d, (fig, kw) in DOLL_FROM.items():
+            tex, els = DB.bake(rp_dir, FIG[fig][1], ground=P134.FIT[fig][0], **kw)
+            R2.wj(f'assets/bm/models/item/{d}.json', {'textures': tex, 'elements': els})
+        tex, els = DB.bake(rp_dir, [('bm:wil_doll_src', (0.0, 1.0, 0.0), I4, I4, 2.0)], kh=1.0, kb=1.0, kl=1.0)
+        R2.wj('assets/bm/models/item/doll_wil.json', {'textures': tex, 'elements': els})
+    R.POST.append(post)

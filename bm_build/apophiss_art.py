@@ -43,7 +43,7 @@ CROWN_AT, CROWN_K = (0.0, 43.8, -4.6), 0.56          # (2.78: on the new dome, a
 
 
 def HIDDEN(p, pose):
-    return p in ('wingr', 'wingl') and not pose.get('_eth')
+    return p in ('wingr', 'wingl') and not (pose.get('_eth') or pose.get('_wf'))
 
 
 def model_name(p, pose, suffix=''):
@@ -182,7 +182,7 @@ def textures():
     T = {'apo_scale': _scales(G, G_DK, G_LT, 701), 'apo_scale_dk': _scales(G_DK, '#073514', G, 702), 'apo_belly': _bands(BELLY, BELLY_DK, 703),
          'apo_fin': _fin(FIN, FIN_LT, FIN_DK, 704), 'apo_claw': _noise('#163b14', 705, 6), 'apo_mouth': _noise('#5a0b16', 706, 8),
          'apo_tongue': _noise('#7a1830', 707, 6), 'apo_fang': _noise('#efe6c4', 708, 6), 'apo_eye': _eye('#0c0c10', '#ffffff', 709),
-         'apo_glint': _noise('#ffffff', 710, 2), 'apo_bag': _noise('#5e2d70', 711, 6), 'apo_lash': _noise('#060606', 712, 2),
+         'apo_bag': _noise('#5e2d70', 711, 6), 'apo_lash': _noise('#060606', 712, 2),
          'apo_mace': _mace('#222226', '#4a4a54', 713), 'apo_bone': _bone('#ebe6da', '#b8b2a4', 714), 'apo_dot': _noise('#08200c', 715, 3),
          'apo_hex': _hex(716), 'apo_lid': _scales('#13702a', G_DK, G, 717), 'apo_saddle': _leather('#5a3218', '#3e200e', 718),
          'apo_strap': _leather('#3a2012', '#24120a', 719), 'apo_gold': _noise('#e2b236', 720, 14), 'apo_brow': _brush('#121214', '#202024', 741), 'apo_pupil': _noise('#f6f6f0', 743, 4)}

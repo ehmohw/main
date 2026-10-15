@@ -108,15 +108,6 @@ def _flap(seed):
     return im
 
 
-def _brass(seed):
-    """sea-worn brass: a bright streak, green patina blooming on it"""
-    im = _shine('#9a8450', '#e6d08a', seed); d = ImageDraw.Draw(im); rnd = random.Random(seed)
-    for _ in range(10):
-        cx, cy = rnd.randint(0, 63), rnd.randint(0, 63); r = rnd.randint(2, 5)
-        d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=hexc(rnd.choice(('#5e8f74', '#4f7f66'))))
-    return im
-
-
 def _teeth(seed):
     im = _noise('#d8eef0', seed, 4); d = ImageDraw.Draw(im)
     for x in range(0, 64, 6): d.line((x, 0, x, 63), fill=hexc('#3a5a64'), width=1)
@@ -210,7 +201,7 @@ def textures():
             'tu_ice': _ice(818), 'tu_steel': _shine('#8a90b2', '#d6dcf4', 819), 'tu_shaft': _shine('#3a3d5a', '#6c709a', 820),
             'tu_rope': _rope(821), 'tu_gold': _noise('#e0b030', 822, 12), 'tu_emerald': _noise('#22c060', 823, 12),
             'tu_buckle': _shine('#bfe4f0', '#ffffff', 824), 'tu_strap': _noise('#6a8a94', 825, 6), 'tu_frost': _ice(826, 255),
-            'tu_flap': _flap(827), 'tu_wood': _folds('#3e2a1c', '#2a1a10', '#5a3e28', 828), 'tu_brass': _brass(829),
+            'tu_flap': _flap(827),
             'tu_gwood': _frostwood(830), 'tu_gsteel': _froststeel(831), 'tu_gtrim': _frosttrim(832), 'tu_gice': _clearice(833)}
 
 

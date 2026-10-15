@@ -21,6 +21,43 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.78a: true-to-life dolls, Apophiss's two forms, Wilfrey in frames and cases, and a steadier tier curve
+
+### Every follower's doll, remade as a miniature of them
+- **Each doll is now built from that follower's own model**, with their real textures, face, armour and weapon. It's pushed into the same chibi proportions as Emma's doll: a big head, a small body and short legs. Leo has his helm, mail and trident; Celi her hair, coat and spear; Democratus his hood, beard and scythe. Tullius has his coat, top hat and harpoon, and Apophiss his scales and crown.
+- **Three more dolls: Donado, Wilfrey and the Frog with Mustache.** Cecil sells all twelve beside Emma's, for 3 Trophies each.
+
+### Apophiss's forms
+- **Right-click Apophiss holding the Ethereal Gem** and he takes it: the ethereal king's spectral, green-veined scales, with his violet wings out.
+  - His blows wither and slow.
+  - He mends as he fights (Regeneration and Resistance).
+- **Right-click him holding the Wraithfire Heart** for his new **Wraithfire Form**: charred black scales burning soul-blue, with soul-blue wings.
+  - His blows set foes alight and weaken them.
+  - Fire can't touch him, or you while you're near him.
+- **His wings move with him.** They're folded along his back as he goes about, and thrown wide when he leaps, roars or casts.
+- **Sneak and right-click him empty-handed** to take the gem or heart back out; his own scales return.
+- The form stays with him across summons. A colour picked in his wardrobe waits under it and comes back when the form comes off.
+- Like the gems in KillerWatt and Cecil, a form stays on the side of the Fixer's door it was given on.
+- **The ethereal king looks right.** His fins were see-through (88% opaque), so the parts behind them showed through his head and back. They're solid now, and his ethereal eyes glow, with a slit you can read.
+
+### Wilfrey in frames and display cases
+- **Hang Wilfrey's locket in an item frame** and he climbs out to keep watch by it, as every other follower does. He wears bare bones there, carrying no gear. Take the locket out and he goes with it.
+- **In a display case, Wilfrey stands as himself:** a little wither skeleton, sword raised to the guard.
+- Donado and the Frog with Mustache already worked in frames and cases (since 2.78).
+
+### Tier II and Tier III raids scale properly
+- Guards now get stronger at each tier in steps between Tier I and Tier V:
+
+  | Tier | Guard health | Guard damage | Extra armour |
+  | --- | --- | --- | --- |
+  | II | +20% | +10% | +1 |
+  | III | +35% | +20% | +2 |
+  | IV | +50% | +30% | +3 |
+  | V | +90% | +45% | +6 |
+
+- Bosses scale the same way: +10% / +25% / +40% / +60% health and +0 / +2 / +4 / +6 damage for Tiers II to V.
+- Tier V guards also resist a third of knockback, move 10% faster, and are hardened one time in four.
+
 ## New in 2.78: wings that fly, weapons on every wall, a doll of every follower, bosses that make an entrance, and a Tier V that fights back
 
 ### The Wings of the Damned fly properly

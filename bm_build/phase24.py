@@ -456,15 +456,6 @@ def textures():
                 ore.putpixel((min(15, x0 + dx), min(15, y0 + dy)), md + (255,))
             ore.putpixel((x0, y0), lt + (255,))
         out[f'xenore_{c}'] = ore
-    skin = Image.new('RGBA', (16, 16)); suit = Image.new('RGBA', (16, 16)); eye = Image.new('RGBA', (16, 16))
-    for x in range(16):
-        for y in range(16):
-            n = rnd.randrange(10)
-            skin.putpixel((x, y), (150 + n, 175 + n, 150 + n, 255))
-            suit.putpixel((x, y), (190 + n, 196 + n, 205 + n, 255) if y % 4 else (120, 126, 140, 255))
-            eye.putpixel((x, y), (8, 8, 14, 255))
-    for (x, y) in ((3, 3), (4, 3), (3, 4)): eye.putpixel((x, y), (200, 255, 210, 255))
-    out['alien_skin'], out['alien_suit'], out['alien_eye'] = skin, suit, eye
     return out
 
 
@@ -487,16 +478,7 @@ def models():
                _cube((9, 16, 10.5), (12, 20, 13.5), 'x', {'origin': [10.5, 16, 12], 'axis': 'x', 'angle': -22.5}),
                _cube((3, 16, 2.5), (5, 19, 4.5), 'x')]
         M[f'xdep_{c}'] = (t, els)
-    tex = {'s': 'bm:block/alien_skin', 'u': 'bm:block/alien_suit', 'e': 'bm:block/alien_eye'}
-    M['alien3d'] = (tex, [
-        _cube((6, 0, 7), (7.5, 7, 9), 's'), _cube((8.5, 0, 7), (10, 7, 9), 's'),          # legs
-        _cube((5.5, 7, 6.5), (10.5, 14, 9.5), 'u'),                                        # torso (suit)
-        _cube((4, 8, 7.5), (5.5, 14, 8.5), 's'), _cube((10.5, 8, 7.5), (12, 14, 8.5), 's'),  # long thin arms
-        _cube((7.5, 14, 7.5), (8.5, 15.5, 8.5), 's'),                                      # neck
-        _cube((4, 15.5, 4), (12, 23, 12), 's'), _cube((4.5, 23, 4.5), (11.5, 25, 11.5), 's'),  # the big head
-        _cube((4.6, 18, 3.9), (7.4, 20.6, 4.0), 'e', {'origin': [6, 19, 4], 'axis': 'z', 'angle': -22.5}),   # almond eyes
-        _cube((8.6, 18, 3.9), (11.4, 20.6, 4.0), 'e', {'origin': [10, 19, 4], 'axis': 'z', 'angle': 22.5}),
-        _cube((7.3, 16.3, 3.95), (8.7, 16.6, 4.0), 'e')])
+    # (the grey alien3d model that stood here is phase25's Donadian now - 2.78a: the old one and its textures are gone)
     t = {'b': 'minecraft:block/polished_blackstone', 'r': 'minecraft:block/polished_blackstone_bricks', 'c': 'minecraft:block/chiseled_polished_blackstone',
          'g': 'bm:block/xen_green', 'v': 'bm:block/xen_violet', 'y': 'bm:block/xen_cyan'}
     M['xaltar'] = (t, [_cube((2, 0, 2), (14, 3, 14), 'b'), _cube((5, 3, 5), (11, 11, 11), 'r'), _cube((3, 11, 3), (13, 13, 13), 'c'),

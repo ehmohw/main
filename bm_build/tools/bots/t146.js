@@ -42,7 +42,7 @@ const res = [];
     if (name === 'Wilfrey') ok('...in his bones (his body comes with him)', (await cnt(`@e[type=minecraft:wither_skeleton,tag=bm.wil_body,x=${X + dx},y=${Y + 2},z=${Z + 4},distance=..10]`)) === 1);
     ok('...nobody\'s - not the player\'s', (await cnt(`${pet.slice(0, -1)},scores={bm.pid=${+((await run('scoreboard players get TestRat bm.pid')).match(/has (-?\d+)/) || [0, -9])[1]}}]`)) === 0);
     await sleep(10000);
-    ok('...still there by the frame ten seconds on', (await cnt(pet)) === 1);
+    ok('...still there by the frame ten seconds on (within 20 blocks: Wilfrey roams fast)', (await cnt(pet.replace('distance=..10', 'distance=..20'))) === 1);
     A.attack(fr.entityId); await sleep(500);
     ok('the item punched out of the frame: out it drops', await wait(1500, async () => (await cnt(`@e[type=minecraft:item,x=${X + dx},y=${Y + 2},z=${Z + 4},distance=..3]`)) >= 1));
     ok(`...and ${name} goes with it`, await wait(3000, async () => (await cnt(pet)) === 0));
