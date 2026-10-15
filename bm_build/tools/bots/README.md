@@ -280,6 +280,7 @@ and function calls. Three are known to be stale.
 | `t152.js` | 2.78: Cecil, Emma and Leo called in the Serpent's Den by a player who never beat the Hollow King - no conquest asked |
 | `t153.js` | 2.78: bosses don't sit frozen - Tullius leaves when his lone fighter dies, or when his chunk reloads a minute later; Apophiss leaves on a lone death in his den |
 | `t154.js` | 2.78: the Wings of the Damned flown with the real keys - crouch then jump: a Levitation burst skyward, cut off after a few ticks; a plain jump does nothing; gliding with sneak held: pushed on every tick, without: left be |
+| `t155.js` | 2.78: more weapons on the wall by sneak + drop (Q) - Cecil's staff, Leo's trident (his own model, both forms), Apophiss's mace, the Frisbee Shield, a ray gun, the Sepulchre; a plain drop or no wall just drops; sneak + punch takes one down |
 |  | home (from her menu), and with Wilfrey out a fourth follower refused. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |

@@ -152,6 +152,12 @@ def rp(R):
             disp = HF.display((0, 0, -1), (0, 1, 0), (8, 8, 8), HF.bounds(src), style=style)
             R2.wj(f'assets/bm/models/item/{nm}_held.json', {'parent': f'bm:item/{part}', 'display': disp})
             R2.wj(f'assets/bm/items/{nm}.json', {'model': {'type': 'minecraft:model', 'model': f'bm:item/{nm}_held'}})
+        # (2.78: Leo's trident, both its forms, held as a sword is - his own model (its joint the grip, the prongs up +y, their
+        #  spread across the sprite), smaller than his hand holds it)
+        src = json.load(open(R2.p('assets', 'bm', 'models', 'item', 'le_trident.json')))
+        disp = HF.display((0, 1, 0), (1, 0, 0), (8, 8, 8), HF.bounds(src), style='handheld', hand=0.6, first=0.45, gui=0.45, ground=0.35, fixed=0.5)
+        R2.wj('assets/bm/models/item/leo_trident_held.json', {'parent': 'bm:item/le_trident', 'display': disp})
+        R2.wj('assets/bm/items/leo_trident.json', {'model': {'type': 'minecraft:model', 'model': 'bm:item/leo_trident_held'}})
     R.POST.append(post)
 
 

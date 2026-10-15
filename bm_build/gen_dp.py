@@ -136,6 +136,7 @@ import mig263
 PHASE2 = '--phase2' in sys.argv
 if PHASE2:
     import p2  # registers Phase 2 items on import
+    R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
 VERSION2 = 'v2.77d'                                   # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)

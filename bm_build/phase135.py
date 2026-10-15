@@ -17,14 +17,50 @@ from nbt import snbt, B, F, Int
 XF = {'gun': ((-0.2126, 0.6744, 0.2126, 0.6744), 0.7115, (-0.1705, -0.0935, 0.1902)),
       'harpoon': ((-0.2126, 0.6744, 0.2126, 0.6744), 0.7982, (-0.3137, -0.1392, 0.1716)),
       'scythe': ((0.0, 0.0, -0.2419, 0.9703), 0.5950, (0.0754, -0.2486, 0.1230)),
-      'tendrils': ((0.0, 0.0, 0.0, 1.0), 1.0283, (0.0, -0.1001, 0.2178))}
+      'tendrils': ((0.0, 0.0, 0.0, 1.0), 1.0283, (0.0, -0.1001, 0.2178)),
+      # 2.78 (each model's long axis up the plaque's diagonal, its thin side to the wall, its back just off the board - the same sums,
+      #  tools/mount_xf.py): Cecil's staff, Leo's trident (his own model now), Apophiss's mace (its horns flat to the
+      #  wall), the Frisbee Shield, and every flat-art weapon (a sprite turned to face out, its blade up the diagonal)
+      'staff': ((0.3827, 0.9239, 0.0, 0.0), 0.5594, (0.1098, 0.1098, 0.212)),
+      'letri': ((0.3827, 0.9239, 0.0, 0.0), 0.5517, (-0.1365, -0.1365, 0.0934)),
+      'apomace': ((-0.2706, -0.6533, -0.2706, 0.6533), 0.5379, (0.1423, 0.1423, 0.265)),
+      'frisbee': ((0.2706, 0.6533, 0.6533, 0.2706), 0.62, (0.0, 0.0, 0.0991)),
+      'sprite': ((0.0, 1.0, 0.0, 0.0), 0.74, (0.0, 0.0, 0.095))}
 KIND = {'tul_blunderbuss': 'gun', 'tul_harpoon': 'harpoon', 'demo_scythe': 'scythe', 'killerwatt_tendrils': 'tendrils', 'ethereal_tendrils': 'tendrils'}
 PLAQUE = {'gun': 0.62, 'harpoon': 0.62, 'scythe': 0.62, 'tendrils': 0.8}
+DROP, DOBJ = {}, {}
+
+
+def setup():
+    """2.78: run once every item is registered (the Phase 2 ones too) - before the item tables are written"""
+    # 2.78: hung by sneak + drop (Q) facing a wall - every weapon has a drop, not all of them a use (a sword's right-click does nothing,
+    # a trident's or a shield's is its own). If there's no wall, it simply drops.
+    DROP.update({'cecil_staff': 'staff', 'leo_trident': 'letri', 'leo_spear': 'letri', 'apo_mace': 'apomace', 'frisbee_shield': 'frisbee'})
+    for _i in ('ray_gun', 'plasma_blaster', 'shrink_ray', 'growth_ray', 'tractor_beam', 'levitation_wand', 'vorn_drill', 'crescent_staff',
+               'gravewell_staff', 'staff_of_sparks', 'golden_spear', 'treasurers_scepter', 'blue_marlin', 'enchanted_sword', 'gutter_cutlass',
+               'heisters_shiv', 'quake_maul', 'sepulchre', 'thirsting_blade', 'vault_breaker'):
+        DROP[_i] = 'sprite'
+    KIND.update(DROP)
+    PLAQUE.update({'gun': 0.62, 'harpoon': 0.62, 'scythe': 0.62, 'tendrils': 0.8, 'staff': 0.62, 'letri': 0.62, 'apomace': 0.62, 'frisbee': 0.62, 'sprite': 0.62})
+    for _i in DROP:
+        _b = ITEMS[_i]['base'].split(':')[-1]
+        DOBJ.setdefault(_b, f'bm.mtq_{_b}')
+    # (Leo's trident, both forms, wears the model he carries - not a vanilla trident's)
+    for _i in ('leo_trident', 'leo_spear'):
+        ITEMS[_i]['comps']['minecraft:item_model'] = 'bm:leo_trident'
+    for _i in DROP:
+        _L = ITEMS[_i]['comps']['minecraft:lore']
+        _k = len(_L) - 1
+        if _k > 0 and str(_L[_k - 1].get('text', '')).startswith('✦'): _k -= 1
+        _L.insert(_k, T('Sneak + drop (Q) facing a wall: hang it there.', 'gray'))
+
+
 CHEST = ('killerwatt_tendrils', 'ethereal_tendrils')
 NEAR = 'entity @e[type=#bm:hostile,tag=!bm.npc,distance=..8]'
 holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
 
 for _i in KIND:
+    if _i in DROP: continue
     _L = ITEMS[_i]['comps']['minecraft:lore']
     _k = len(_L) - 1
     if _k > 0 and str(_L[_k - 1].get('text', '')).startswith('✦'): _k -= 1
@@ -66,15 +102,27 @@ def generate(G):
     kinds = list(XF)
     pick = []
     for i, k in KIND.items():
+        if i in DROP: continue
         n = kinds.index(k) + 1
         pick += [f'execute if score #mtk bm.rng matches 0 if items entity @s weapon.mainhand {holds(i)} run scoreboard players set #mth bm.rng 1',
                  f'execute if score #mtk bm.rng matches 0 if items entity @s weapon.mainhand {holds(i)} run scoreboard players set #mtk bm.rng {n}']
     for i, k in KIND.items():
+        if i in DROP: continue
         n = kinds.index(k) + 1
         pick += [f'execute if score #mtk bm.rng matches 0 if items entity @s weapon.offhand {holds(i)} run scoreboard players set #mth bm.rng 2',
                  f'execute if score #mtk bm.rng matches 0 if items entity @s weapon.offhand {holds(i)} run scoreboard players set #mtk bm.rng {n}']
     fn('p135/try', ['scoreboard players set #mtk bm.rng 0', 'scoreboard players set #mth bm.rng 0'] + pick +
-       ['execute if score #mtk bm.rng matches 0 run return 0',
+       ['execute if score #mtk bm.rng matches 0 run return 0', 'return run function bm:p135/hang'])
+    # 2.78: sneak + drop facing a wall - the item just thrown (the nearest, in reach of the hand) is the one that hangs (#mth 3)
+    src = '@e[type=minecraft:item,tag=bm.mtsrc,limit=1]'
+    fn('p135/dropped', [f'scoreboard players set @s {o} 0' for o in DOBJ.values()] +
+       ['execute unless predicate bm:p20/sneaking run return 0',
+        'execute anchored eyes positioned ^ ^ ^ as @e[type=minecraft:item,distance=..2.5,sort=nearest,limit=1] run tag @s add bm.mtsrc',
+        'scoreboard players set #mtk bm.rng 0', 'scoreboard players set #mth bm.rng 3'] +
+       [f'execute if score #mtk bm.rng matches 0 if items entity {src} contents {holds(i)} run scoreboard players set #mtk bm.rng {kinds.index(k) + 1}' for i, k in DROP.items()] +
+       ['scoreboard players set #mtl bm.rng 1', 'execute unless score #mtk bm.rng matches 0 run function bm:p135/hang',
+        'tag @e[type=minecraft:item,tag=bm.mtsrc] remove bm.mtsrc'])
+    fn('p135/hang', [
         loud('Not in the vault - hang it up out in the world.').replace('run ', 'if dimension bm:gutter run ', 1), 'execute if dimension bm:gutter run return 0',
         loud('Not here - hang it up out in the world.').replace('run ', 'if dimension bm:hollow_throne run ', 1), 'execute if dimension bm:hollow_throne run return 0',
         'execute unless score @s bm.pid matches 1.. run function bm:p21/pid',
@@ -84,6 +132,7 @@ def generate(G):
         'execute if score #placed bm.rng matches 0 run return 0',
         'execute unless entity @s[gamemode=creative] if score #mth bm.rng matches 1 run item replace entity @s weapon.mainhand with minecraft:air',
         'execute unless entity @s[gamemode=creative] if score #mth bm.rng matches 2 run item replace entity @s weapon.offhand with minecraft:air',
+        f'execute if score #mth bm.rng matches 3 run kill {src}',
         'return 1'])
     fn('p135/ray', ['execute unless block ~ ~ ~ #minecraft:replaceable align xyz positioned ~0.5 ~0.5 ~0.5 run return run function bm:p135/face',
                     'scoreboard players remove #ray bm.rng 1', 'execute if score #ray bm.rng matches 1.. positioned ^ ^ ^0.2 run function bm:p135/ray'])
@@ -118,6 +167,7 @@ def generate(G):
     new_w = '@e[type=minecraft:item_display,tag=bm.mtw,tag=bm.mtnew,distance=..0.5,limit=1]'
     fn('p135/fill', [f'execute if score #mth bm.rng matches 1 run item replace entity {new_w} contents from entity @s weapon.mainhand',
                      f'execute if score #mth bm.rng matches 2 run item replace entity {new_w} contents from entity @s weapon.offhand',
+                     f'execute if score #mth bm.rng matches 3 run item replace entity {new_w} contents from entity @e[type=minecraft:item,tag=bm.mtsrc,limit=1] contents',
                      'execute as @e[tag=bm.mtnew,distance=..0.5] run tp @s ~ ~ ~ ~ 0',
                      'summon minecraft:interaction ~ ~-0.45 ~ ' + snbt({'Tags': ['bm.mtx', 'bm.gvdeco', 'bm.mtnew'], 'width': F(0.9), 'height': F(0.9), 'response': B(1)}),
                      'scoreboard players operation @e[type=minecraft:interaction,tag=bm.mtnew,distance=..1] bm.pid = @s bm.pid',
@@ -149,5 +199,8 @@ def generate(G):
                      'tag @e[type=minecraft:item,tag=bm.mtgive] remove bm.mtgive',
                      'execute positioned ~ ~-0.45 ~ run kill @e[type=minecraft:interaction,tag=bm.mtx,distance=..0.3]', 'function bm:p135/gone'])
     G.FUNCS['loop/second'][-1:-1] = second
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} minecraft.dropped:minecraft.{b}' for b, o in DOBJ.items()]
+    G.OBJECTIVES += list(DOBJ.values())
+    G.FUNCS['tick'] += [f'execute as @a[scores={{{o}=1..}}] at @s run function bm:p135/dropped' for o in DOBJ.values()]
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.mtw]', 'kill @e[type=minecraft:block_display,tag=bm.mtp]',
                                        'kill @e[type=minecraft:interaction,tag=bm.mtx]']
