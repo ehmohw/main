@@ -89,9 +89,10 @@ const res = [];
   ok('Kit weapons are unbreakable (and say nothing of it)', /unbreakable/.test(sw) && /hidden_components/.test(sw), sw.slice(0, 120) + ' ' + kitw.slice(0, 80));
   // rooms alternate: puzzle, fight, puzzle, fight
   const order = [];
-  for (let q = 1; q <= 8; q++) { for (const k of ['levers', 'plates', 'lasers', 'tiles', 'dial', 'guards', 'coffers', 'lamps', 'lightsout', 'tumbler', 'climb', 'rafters', 'ambush', 'pit']) {
+  for (let q = 1; q <= 8; q++) { for (const k of ['levers', 'plates', 'lasers', 'tiles', 'dial', 'guards', 'coffers', 'lamps', 'lightsout', 'tumbler', 'climb', 'rafters', 'ambush', 'pit',
+                                     'isles', 'spire', 'bench', 'mason', 'dig', 'library', 'pipes', 'apoth', 'grapple']) {      // (every main room since 2.72)
     if ((await cnt(`@e[type=minecraft:marker,tag=bm.gvr_${k},scores={bm.gvq=${q},bm.gvi=${gi}}]`)) >= 1) order.push(`${q}:${k}`); } }
-  const fights = ['guards', 'ambush', 'pit'];
+  const fights = ['guards', 'ambush', 'pit', 'isles'];          // (the Sky Isles is a fight: phase112.FIGHTS)
   const bad = order.filter(o => { const [q, k] = o.split(':'); return (+q % 2 === 0) !== fights.includes(k); });
   ok('The rooms alternate: a puzzle, then a fight, then a puzzle...', order.length >= 1 && bad.length === 0, order.join(' '));
   // leaving the gutter takes the key
