@@ -4,6 +4,10 @@ The dungeons are now part of the one main pack (`BlackMarket_DP.zip` + `BlackMar
 
 Install it like Phase 1.6. Put `BlackMarket_Phase2_TEST_DP.zip` in `datapacks`, then use `BlackMarket_Phase2_TEST_RP.zip` as the resource pack. `SHA1.txt` has the resource pack hash for `server.properties`. The dungeons only generate in **new chunks**.
 
+## New in 2.80
+
+The dungeon bosses get a sense of occasion: each one **materialises** out of its own colours instead of popping in, **telegraphs its big blows** (the Tyrant's slam, Bobbery's cleave, the Archmage's lances, the Broodmother's spit, the Marksman's hail, the Hollow King's decree), has a **rage moment**, and **dies its own way** before falling as the kill of whoever brought it down. Every dungeon fight now has its own music too ("Into the Depths"; the Hollow King has two themes, one for each form). See the main README.
+
 ## New in 2.21
 
 Night cosmetics, the Hollow Throne's Angelic and Evil Wings (in its secret vault), the Experience Charm, the Horseman's song, and Hollow Throne chests that refill after each Blood Moon. See the main README.

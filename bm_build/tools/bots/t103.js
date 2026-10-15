@@ -45,7 +45,7 @@ const res = []; const X = 19300, Y = 120, Z = 19000;
 
   // ---- the Serpent's Bane: Emma, Leo, Cecil
   await call('emma'); await call('cecil');
-  ok("Emma, Leo and Cecil: the Serpent's Bane", await until(async () => (await sc('TestRat', 'bm.trio')) === 1), `trio ${await sc('TestRat', 'bm.trio')}`);
+  ok("Emma, Leo and Cecil: the Serpent's Bane", await until(async () => (await sc('TestRat', 'bm.trio')) === 2), `trio ${await sc('TestRat', 'bm.trio')}`);
   ok('...its hidden achievement', /true|passed/i.test(await run('execute if entity @a[name=TestRat,advancements={bm:story/trio_bane=true}]')));
   ok('...you regenerate and shrug off blows', (await eff('TestRat', 'regeneration')) && (await eff('TestRat', 'resistance')));
   ok('...and the three hit harder', (await eff(W.leo, 'strength')) && (await eff(W.emma, 'strength')) && (await eff(W.cecil, 'strength')));
@@ -62,14 +62,14 @@ const res = []; const X = 19300, Y = 120, Z = 19000;
 
   // ---- the Princess's Guard: Emma, Leo, Celi
   await home('cecil'); await call('celi');
-  ok("Emma, Leo and Celi: the Princess's Guard", await until(async () => (await sc('TestRat', 'bm.trio')) === 3), `trio ${await sc('TestRat', 'bm.trio')}`);
+  ok("Emma, Leo and Celi: the Princess's Guard", await until(async () => (await sc('TestRat', 'bm.trio')) === 4), `trio ${await sc('TestRat', 'bm.trio')}`);
   ok('...two more hearts for you', await until(() => eff('TestRat', 'health_boost'), 2000));
   ok('...and the three are tougher', await eff(W.celi, 'resistance'));
 
   // ---- the Storm Court: Cecil, Democratus, KillerWatt
   await home('emma'); await home('leo'); await home('celi'); await run('effect clear TestRat');
   await call('cecil'); await call('demo'); await call('kw');
-  ok('Cecil, Democratus and KillerWatt: the Storm Court', await until(async () => (await sc('TestRat', 'bm.trio')) === 2), `trio ${await sc('TestRat', 'bm.trio')}`);
+  ok('Cecil, Democratus and KillerWatt: the Storm Court', await until(async () => (await sc('TestRat', 'bm.trio')) === 3), `trio ${await sc('TestRat', 'bm.trio')}`);
   ok('...Strength II and Speed for you', await until(async () => (await effAmp('TestRat', 'strength')) === 1 && (await eff('TestRat', 'speed')), 2000));
   await run(`scoreboard players set ${W.kw} bm.kxch 0`); await run(`scoreboard players set ${W.demo} bm.dmch 0`); await sleep(4600);
   ok('...and their charged attacks build by themselves', (await sc(W.kw, 'bm.kxch')) >= 1 && (await sc(W.demo, 'bm.dmch')) >= 1, `kw ${await sc(W.kw, 'bm.kxch')} demo ${await sc(W.demo, 'bm.dmch')}`);
@@ -82,7 +82,7 @@ const res = []; const X = 19300, Y = 120, Z = 19000;
 
   // ---- the Odd Ones: Emma, Cecil, KillerWatt
   await home('demo'); await run('effect clear TestRat'); await call('emma');
-  ok('Emma, Cecil and KillerWatt: the Odd Ones', await until(async () => (await sc('TestRat', 'bm.trio')) === 4), `trio ${await sc('TestRat', 'bm.trio')}`);
+  ok('Emma, Cecil and KillerWatt: the Odd Ones', await until(async () => (await sc('TestRat', 'bm.trio')) === 5), `trio ${await sc('TestRat', 'bm.trio')}`);
   ok('...Speed II, Jump Boost and Haste for you', await until(async () => (await effAmp('TestRat', 'speed')) === 1 && (await eff('TestRat', 'jump_boost')) && (await eff('TestRat', 'haste')), 2000));
   await home('kw');
   ok('One of them leaves: the trio breaks', await until(async () => (await sc('TestRat', 'bm.trio')) === 0, 3000), `trio ${await sc('TestRat', 'bm.trio')}`);

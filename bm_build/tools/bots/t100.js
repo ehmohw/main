@@ -114,6 +114,7 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
   ok('DUEL HIM: the follower steps out and a duelist squares up', (await cnt(W)) === 0 && (await cnt(BOSS)) === 1, `${await cnt(W)} / ${await cnt(BOSS)}`);
   ok('...ten seconds to get clear (he can\'t move or be hurt)', /1b/.test(await run(`data get entity ${BOSS} NoAI`)) && /1b/.test(await run(`data get entity ${BOSS} Invulnerable`)) &&
      (await sc('TestRat', 'bm.dmd')) > 150, `dmd ${await sc('TestRat', 'bm.dmd')}`);
+  console.log('   before FIGHT: health', (await run('data get entity TestRat Health')).replace(/.*data: /, ''), 'deaths', await sc('TestRat', 'bm.dmdth'), '/', await sc('TestRat', 'bm.dmdn'));
   await run('scoreboard players set TestRat bm.dmd 2'); await sleep(400);
   ok('...FIGHT: he comes for you', !/1b/.test(await run(`data get entity ${BOSS} NoAI`)) && /0b/.test(await run(`data get entity ${BOSS} Invulnerable`)));
   await run(`effect give TestRat minecraft:resistance 60 4 true`); await run(`effect give TestRat minecraft:regeneration 60 4 true`);

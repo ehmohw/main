@@ -1,4 +1,4 @@
-# Black Market — v2.79c (Java 26.3)
+# Black Market — v2.80 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,50 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.80: boss fights with a sense of occasion, music of their own, the heist's climax, and sharper icons and menus
+
+### The roaming bosses make an entrance, wind up, rage and fall
+The Headless Horseman, the Sand Pharaoh, the Storm Roc, the Elder Treant, the Magma Colossus and the Voidwalker now get the treatment Apophiss had.
+- **Arrivals (about 5 seconds):** the Horseman gallops in out of the dark on a trail of fire; the Pharaoh rises out of a sand vortex; the Roc dives out of a storm and lands on a lightning strike; the Treant tears up out of the ground in three lurches; the Colossus erupts from a lava fissure; the Voidwalker steps out of a rift that snaps shut. It can't be hurt or move until it's done, then its title card shows.
+- **Wind-ups:** the instant blows are telegraphed. The Colossus squats before the slam with a ring of fire at its reach; the Pharaoh's sun-ray shows an aiming line; the Horseman's fire ring smoulders before it bursts; the Treant's roots crack where they'll come; the Voidwalker drags the dark in before its grasp.
+- **Rage is a moment:** the boss freezes, roars and the ground answers, then the rage takes hold.
+- **Deaths (about 5 seconds):** the Horseman's head tumbles while he burns away; the Pharaoh sinks into the sand; the Roc spirals down and crashes; the Treant crumbles and leaves a sapling; the Colossus swells and explodes (its Magma Spawn still come); the Voidwalker is dragged back into a rift. Its loot, bounties and advancements still go to the player who brought it down.
+- **More players still means a tougher boss,** as before.
+
+### The dungeon bosses too
+- **Each one materialises** out of its own colours instead of popping in, then roars and moves.
+- **Each dies its own way:** the Broodmother curls up and bursts into silk; the Frost Marksman freezes and shatters; the Drowned Tyrant sinks into a whirlpool; the Archmage blinks away; Bobbery kneels and burns away in soul fire; the Hollow King falls to one knee (then rises again, as before); the Golden Goose goes off like a jackpot.
+- **Their big blows are telegraphed:** the Tyrant's slam, Bobbery's cleave, the Archmage's lances, the Broodmother's spit, the Marksman's hail, the Hollow King's decree.
+
+### Boss themes
+- **Twelve new pieces of music, one for each kind of fight:** The Wild Hunt (Horseman, Treant), Sands of the Dead (Pharaoh, Roc), The Abyss (Colossus, Voidwalker), Into the Depths (the dungeon bosses), The Hollow King and Unbound (his second form), Apophiss and The Serpent Risen (his second form), Stormborn (KillerWatt and Democratus's duel), The Drowned Captain (Tullius), Blood Moon (the Arachno-Lantern) and Mothership (the Vorn bosses).
+- **You hear the theme of the strongest boss within 64 blocks.** It keeps playing if you step back (up to 96 blocks), loops every minute, and stops the moment the boss starts to die. Apophiss's transformation is silent; his second theme comes in with his second form.
+- **They play on the Jukebox/Note Blocks volume slider** and hold off the normal background music while they play. The roaming bosses no longer borrow vanilla music discs.
+
+### The heist's climax
+- **The vault's guardian rises:** the hall goes dark, a bell tolls, gold dust whirls in, and the guardian rises out of the floor, growing as it comes, before its title shows.
+- **Its fall opens the vault as an event:** the great gold door parts from the middle outward, column by column, light floods out, and a short fanfare plays (the heist music pauses for it).
+- **The treasury is dressed:** chandeliers in the tier's own lanterns, candles on the gold, soul-lantern sconces, a glint of gems, and enough light to see the hoard. The way to the strongbox stays clear.
+
+### Heist rooms dressed by kind
+- **Every room kind has its own look above the gold trim:** a frieze round the walls, light set into the ceiling in its own pattern, and one overhead feature (copper pipework, iron weights on chains, a great dial, a chandelier; the Gauntlet goes dark so its beams stand out).
+- **Nothing changes below the trim,** so puzzles, plates and guards are exactly where they were.
+
+### 62 item icons repainted
+- **The weakest icons are drawn again:** bolder shapes, proper outlines, shading and highlights. Among them: the Band of Regeneration, the Rat Familiar, the four Treant branches, the four Pharaoh crooks, the Fallen Star, the Specter Sheet, the Pot of Gold, the Clockwork Key, the three X-braced loot crates, the twelve skiff paint kits (now paint cans in their own colour), the four decal kits, Cecil's Gem and the Donadian Medal.
+- Only the pictures change; the items and their names are the same.
+
+### Menus
+- **The Rat Bank:** the account page lists every currency on one button with its balance, plus **Deposit everything**. A currency's own page shows its icon, how many are in your account and how many you carry, and Deposit all, Take 1, Take 10 and Take all. Each action brings you back to that page.
+- **The Armory:** one short card per kit. Each kit opens its own page listing every rank (the ones you have are ticked, the next one is marked), what the next costs, and **Rank up**.
+- **The party's members** are now a dialog: names, health, the leader starred. Only the leader gets a Kick button.
+- **Server settings** (`/function bm:admin/settings`) are now a dialog: each setting shows its state on its button and a click switches it.
+- Party invites, teleport requests and the "Stuck? Skip this puzzle" hint stay in chat on purpose: they arrive unasked, and a dialog would take over your screen mid-fight.
+
+### Testing
+- **New bot playtests:** t168 (the six roaming bosses), t169 (the Broodmother), t170 (the heist's climax, the room dressing and the fanfare), t171 (boss themes) and t172 (the Rat Bank, the Armory, the party list and the settings).
+- **Older playtests brought up to date:** t30 (now self-contained), t60, t105, t131, t157 and t166.
 
 ## New in 2.79c: polish and fixes
 
