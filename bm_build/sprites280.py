@@ -6,7 +6,10 @@ icon: a dark outline round the silhouette, then vanilla.process's top-left light
 names and their models are unchanged - only the textures. A small kit draws them: grids for detail, lines, discs and
 rings for the round and diagonal shapes.
 
-    gen_rp appends sprites280.post as its last hook: the icons are written over the old ones, wherever those came from."""
+    gen_rp appends sprites280.post as its last hook: the icons are written over the old ones, wherever those came from.
+    2.80a: the rest of the pack's item icons followed, drawn the same way - sprites280b (keys, charms, coins, sigils,
+    emblems, rosettes, laurels, trophies), c (armour, boots, gauntlets, wings, weapons, staffs), d (papers, food, bottles,
+    boxes, bells, records, trinkets) and e (Vorn tech, the skiff, the Rat Gang, summons, gems, hearts, essences)."""
 import math
 from PIL import Image
 
@@ -804,9 +807,20 @@ for _c, _h in PAINTS.items():
     OVERRIDES[f'skiff_paint_{_c}'] = (lambda h: lambda: _paint_can(h))(_h)
 
 
+def every_override():
+    """these sixty-two, and (2.80a) every other item icon in the pack - sprites280b..e, each a family of its own"""
+    import sprites280b, sprites280c, sprites280d, sprites280e
+    allo = dict(OVERRIDES)
+    for m in (sprites280b, sprites280c, sprites280d, sprites280e):
+        dup = set(allo) & set(m.OVERRIDES)
+        assert not dup, f'{m.__name__} draws {sorted(dup)} again'
+        allo.update(m.OVERRIDES)
+    return allo
+
+
 def post(R):
     import os
-    for name, f in OVERRIDES.items():
+    for name, f in every_override().items():
         pth = R.p('assets', 'bm', 'textures', 'item', name + '.png')
         assert os.path.exists(pth), name                 # (a repaint, never a new texture)
         f().save(pth)
