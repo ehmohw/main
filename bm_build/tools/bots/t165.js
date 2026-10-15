@@ -79,12 +79,12 @@ const res = [];
   const LB = '@e[type=minecraft:item_display,tag=bm.lep,tag=bm.lp_body,limit=1]';
   ok('...his tabard wears it (his body part: the c4 look)', /"c4"/.test(await nbt(LB, 'item.components."minecraft:custom_model_data"')), await nbt(LB, 'item.components."minecraft:custom_model_data"'));
   let lpos = await epos('@e[type=minecraft:wolf,tag=bm.leopet,limit=1]'); let t0 = Date.now(); await sleep(3000);
-  const sp1 = near(t0, lpos, 3);
+  const sp1 = near(t0, lpos, 8);                                                        // (he wanders as he follows; nothing else here is gilded)
   ok('...and gold sparkles round him reach the client (gold motes)', sp1 >= 6, `${sp1} gold motes in 3 s (${parts.filter(e => e.t >= t0).length} particles in all)`);
   // his own clothes again: no sparkles
   await run('scoreboard players set TestRat bm.cosl 0'); await run('execute as TestRat at @s run function bm:p99/leo_now'); await sleep(800);
   lpos = await epos('@e[type=minecraft:wolf,tag=bm.leopet,limit=1]'); t0 = Date.now(); await sleep(3000);
-  ok('in his own clothes: no sparkles', near(t0, lpos, 3) === 0, `${near(t0, lpos, 3)}`);
+  ok('in his own clothes: no sparkles', near(t0, lpos, 8) === 0, `${near(t0, lpos, 8)}`);
   await run(`${O}kill @e[tag=bm.leopet]`);
 
   // ---------------------------------------------------------------- Wilfrey in the Gilded Sun: gold

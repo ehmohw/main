@@ -145,9 +145,11 @@ def hand(R, pivot, x):
     return Fig.at((x, 12.5, 0), R, pivot)
 
 
-def bake(f, warp, height=12.5, width=11.0, base=3.5, turn=0.0):
-    """the parts warped (chibi), turned on the plinth by turn (degrees about the upright), fitted on it (feet at base, centred
-    on 8 8), as item-model elements"""
+def bake(f, warp, height=12.5, width=11.0, base=3.5, turn=0.0, feet=None):
+    """the parts warped (chibi), turned on the plinth by turn (degrees about the upright), fitted on it (feet at base), as
+    item-model elements. feet: the mob-space point set on the plinth's middle (8, 8) - a humanoid's between its feet, so a
+    raised weapon never pushes the boss off centre; by default the middle of the figure (its weapon left out). Everything,
+    weapon too, stays on the plinth (the boss within width across, a weapon out to the base's edge)."""
     T = Ry(turn)
     def W(g, p):
         k, c0, c1 = warp.get(g, (1.0, np.zeros(3), np.zeros(3)))
@@ -162,9 +164,12 @@ def bake(f, warp, height=12.5, width=11.0, base=3.5, turn=0.0):
                     if not e['item']: figpts.append(q)
     pts, figpts = np.array(pts), np.array(figpts)
     lo, hi = figpts.min(0), figpts.max(0)
-    alo, ahi = pts.min(0), pts.max(0)
-    S = min(height / (hi[1] - lo[1]), width / max(ahi[0] - alo[0], ahi[2] - alo[2]))
-    cx, cz = (alo[0] + ahi[0]) / 2, (alo[2] + ahi[2]) / 2
+    if feet is None:
+        cx, cz = (lo[0] + hi[0]) / 2, (lo[2] + hi[2]) / 2
+    else:
+        c = W('legs', np.array(feet, float)); cx, cz = c[0], c[2]
+    reach = lambda q: max(np.abs(q[:, 0] - cx).max(), np.abs(q[:, 2] - cz).max())
+    S = min(height / (hi[1] - lo[1]), width / 2 / reach(figpts), 6.4 / reach(pts))      # (a weapon may reach the base's edge, no further)
     fit = lambda w: np.array([8 + (w[0] - cx) * S, base + (w[1] - lo[1]) * S, 8 + (w[2] - cz) * S])
     els = []
     for e in f.parts:
@@ -224,19 +229,19 @@ def frost():
     armour(f, helm='a_diamond', chest='a_chain', poses=P)
     hl = hand(P['l'], (-5, 22, 0), -5)
     f.sprite('i_bow', hl + [-1.2, 1.5, -0.6], 17, 'body', Rz(-45))                                                 # (the bow, upright in his fist)
-    return bake(f, chibi(kh=1.4)), ('pi', 'sn')
+    return bake(f, chibi(kh=1.4), feet=(0, 0, 0)), ('pi', 'sn')
 
 
 def tide():
     """The Drowned Tyrant: the drowned in his gold helm, his trident held high to throw, the other hand reaching"""
     f = Fig()
-    P = {'r': Rx(15) @ Rz(125), 'l': Rx(70) @ Rz(-10)}
+    P = {'r': Rx(10) @ Rz(148), 'l': Rx(70) @ Rz(-10)}
     humanoid(f, 'drowned', left64=True, hat=True, poses=P, over='drowned_o')
     armour(f, helm='a_gold', skinny=False)
     hr = hand(P['r'], (6, 22, 0), 6)
-    f.sprite('i_trident', hr + [0.8, 2.5, -0.6], 20, 'body', Rz(-45))                                              # (upright, tines high)
+    f.sprite('i_trident', hr + [0.4, 2.0, -0.6], 20, 'body', Rz(-45))                                              # (upright, tines high)
     f.cross('tc', (-7, 2.5, -6), 6, 'legs')
-    return bake(f, chibi()), ('dp', 'pr')
+    return bake(f, chibi(), feet=(0, 0, 0)), ('dp', 'pr')
 
 
 def hex_():
@@ -253,13 +258,13 @@ def hex_():
     f.box(s, (-4, 24, -4), (4, 34, 4), uv(s, 0, 0, 8, 10, 8), 'head')
     f.box(s, (-1, 23, -6), (1, 27, -4), uv(s, 24, 0, 2, 4, 2), 'head')                                              # (his nose)
     f.cross('am', (0, 46, -1), 15, 'body', item=True)
-    return bake(f, chibi(), height=12.5), ('pb', 'pu')
+    return bake(f, chibi(), height=12.5, feet=(0, 0, 0)), ('pb', 'pu')
 
 
 def keep():
     """Bobbery: the wither skeleton in his gold-trimmed netherite, his axe swung up over his head"""
     f = Fig()
-    P = {'r': Rx(20) @ Rz(118), 'l': Rx(30) @ Rz(-15)}
+    P = {'r': Rx(15) @ Rz(140), 'l': Rx(30) @ Rz(-15)}
     humanoid(f, 'wither', arms=2, wide=False, poses=P)
     armour(f, helm='a_neth', chest='a_neth', legs='l_neth', boots='a_neth', poses=P)
     hr = hand(P['r'], (5, 22, 0), 5)
@@ -268,7 +273,7 @@ def keep():
     f.box('y', (6, 0, -10), (9, 1.2, -7), {k: [0, 0, 16, 16] for k in ('north', 'south', 'east', 'west', 'up', 'down')}, 'legs')
     for e in f.parts[-2:]:
         for fc in e['faces'].values(): fc['texture'] = '#y'
-    return bake(f, chibi()), ('nb', 'pd')
+    return bake(f, chibi(), feet=(0, 0, 0)), ('nb', 'pd')
 
 
 def hollow(crown):
@@ -284,7 +289,7 @@ def hollow(crown):
         f.parts.append(el)
     f.cross('wr', (-8, 4.5, -6), 9, 'legs')
     f.cross('wr', (8, 4, -5), 8, 'legs')
-    return bake(f, chibi()), ('pd', 'pb')
+    return bake(f, chibi(), feet=(0, 0, 0)), ('pd', 'pb')
 
 
 def lucky():
@@ -304,7 +309,7 @@ def lucky():
         f.box('y', lo, hi, full, 'legs')
     for lo, hi in (((-9, 0, -7), (-6, 0.8, -4)), ((-8, 0, 4), (-5, 1, 7)), ((5, 0, 5), (8, 0.7, 8))):              # nuggets of raw gold
         f.box('go', lo, hi, full, 'legs')
-    return bake(f, {'head': (1.35, (0, 9, -4), (0, 9, -4))}, height=9.5, width=11.0), ('gc', 'em')
+    return bake(f, {'head': (1.35, (0, 9, -4), (0, 9, -4))}, height=9.5, width=11.0, feet=(0, 0, -1)), ('gc', 'em')
 
 
 def _crown(crown):

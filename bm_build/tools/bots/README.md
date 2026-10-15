@@ -132,6 +132,8 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
   particle is type 21 with a colour int and a scale float, so its x is at byte 11 and its z at byte 27 (t165).
 - Tailor purchases of follower outfits go straight into the follower's wardrobe (the `bm.wu<w>` bits); no item lands in
   the pack. Test the item's own use with `loot replace ... bm:items/<id>` and clear the wardrobe bit first (t165).
+- The Tailor's stock codes are positional (7750 on, overflowing to 8111 on): a new outfit shifts every code after it.
+  Count from the legend (`BUTTON_CODES.md`) or press by label, never by an old offset (t105).
 - Donado (and anything else with a rig) gets new parts on its first second out: the old one-piece body is killed. Read
   the rig's parts (`bm.dnr_torso` and so on), not `bm.dn_body` (t165).
 

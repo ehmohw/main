@@ -185,15 +185,15 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
   await run('scoreboard players set TestRat bm.gbc 0');
   for (let i = 0; i < 50; i++) await run('loot give TestRat loot bm:items/gutter_coin');
   await run('loot give TestRat loot bm:items/gutter_medallion');
-  const zj = 7750 + 6 + 5 + 2 + 4;                // (Emma: 6 ribbons, 5 dresses, 2 outfits; Celi: 4 - then Zib's first)
+  const zj = 7750 + 6 + 6 + 2 + 5;                // (Emma: 6 ribbons, 6 dresses (2.79a: the Gilded Gown), 2 outfits; Celi: 5 (her Gilded) - then Zib's first)
   await run('scoreboard players set TestRat bm.menu 7740'); await act('TestRat', zj);
   ok('Pockets pay too: 50 coins and a Medallion for 64 - the 2 change goes to the bank', ((await sc('bm.wuz')) & 2) === 2 &&
      (await cnt('TestRat', '*[minecraft:custom_data~{bm:"gutter_coin"}]')) === 0 && (await cnt('TestRat', '*[minecraft:custom_data~{bm:"gutter_medallion"}]')) === 0 &&
      (await sc('bm.gbc')) === 2, `zib ${await sc('bm.wuz')} bank ${await sc('bm.gbc')}`);
-  await run('scoreboard players set TestRat bm.menu 7740'); await act('TestRat', 7750 + 13);
+  await run('scoreboard players set TestRat bm.menu 7740'); await act('TestRat', 7750 + 14);
   ok('Not enough: "That\'s 64 coins - you have 2", nothing taken', ((await sc('bm.wuc')) & 2) === 0 && (await sc('bm.gbc')) === 2 && A.chats.some(c => /That's 64 coins - you have 2/.test(c)));
   await run('scoreboard players set TestRat bm.gbc 500'); await run('loot give TestRat loot bm:items/cos_leo_1');
-  const lj = 7750 + 6 + 5 + 2 + 4 + 3;           // (... Zib 3 - then Leo's first)
+  const lj = zj + 3;                              // (... Zib 3 - then Leo's first)
   await run('scoreboard players set TestRat bm.menu 7740'); await act('TestRat', lj);
   ok('Holding that outfit already: "use it", not sold again', ((await sc('bm.wuleo')) & 2) === 0 && (await sc('bm.gbc')) === 500 && A.chats.some(c => /You have that one/.test(c)));
   await run('scoreboard players set TestRat bm.menu 7740'); await act('TestRat', 7790);

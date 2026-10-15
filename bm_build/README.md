@@ -1,4 +1,4 @@
-# Black Market — v2.79 (Java 26.3)
+# Black Market — v2.79a (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,33 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.79a: gilded looks for every follower, boss trophies that look like their bosses, and Fishy at full reach
+
+### Gilded looks
+- **Every follower now has a gilded look, in polished gold.** The textures are burnished metal, not yellow cloth: dark gold in the folds, bright gold on the edges, a sheen and the odd glint.
+  - Emma's **Gilded Gown** (new), Celi's **Gilded** outfit (new), Zib's Golden Ace, Cecil's Gilded robe, KillerWatt's Golden Thunder, Leo's Golden Champion, Democratus' Gilded Storm, Apophiss's Gilded Coil, Tullius's Gilded Captain, the Frog's Golden Prince (gold skin), Donado's **Gilded** coat (new), Pearlman's Gilded bow tie, Wilfrey's Gilded Sun and Fishy's Gilded Topper.
+- **They're dear: 2,560 coins each (20 Gutter Trophies) at the Tailor.** That's twice an aura. They aren't sold by Madame Velour or found in the vault's rare tables. Their lore says so: "Gilded: polished gold - and it sparkles."
+- **A follower in their gilded look sparkles wherever they go:** gold motes and glints around them, and now and then a little star of light. You can tell the rare look at a glance. (Cecil and KillerWatt don't sparkle while a gem's element is showing on them.)
+- **Wilfrey, the one real mob among them,** carries the Gilded Sun shield with a shine on it, and his armour turns gold. Only its look changes: the pieces keep what they are, and any empty slot gets a golden piece. Pick another look and his own gear comes back.
+- **Fix: Donado's outfits show on him again.** Since he got his rig, his outfits had only reached his old one-piece body. Now every part of him but his eyes wears the look.
+
+### Boss trophies
+- **Each of the seven dungeon trophies is now that boss in miniature,** the way Cecil's dolls are the followers. Each is built from the boss's real mob, the game's own shape and skin, in its real gear with its real weapon, in the dolls' big-headed proportions:
+  - **The Broodmother:** the spider herself, head reared, with webs behind her and a gnawed bone at her feet.
+  - **The Frost Marksman:** the stray, ragged, in his diamond helm and chainmail, his longbow upright at his side.
+  - **The Drowned Tyrant:** the drowned in his gold helm, his trident raised high.
+  - **The Archmage:** the evoker mid-spell, arms flung up, a shard of amethyst crackling above him.
+  - **Bobbery:** the wither skeleton in his netherite, his axe swung up, a spill of stolen gold at his feet.
+  - **The Hollow King:** crowned with his own crown, in netherite, his sword planted point-down before him, wither roses at his feet.
+  - **The Golden Goose:** the warm chicken herself beside her golden egg, with nuggets of raw gold about.
+- **Still plainly trophies:** each stands on a plinth in its dungeon's stone, with a gold rim and a gold plaque on the front.
+- **Trophies you already have change by themselves,** whether placed or in a chest. Nothing to replace.
+
+### Fishy at full reach
+- **Fishy has every power from the start, at 20% strength.** Each wing's power grows with that wing: +4% for every exhibit shown, full strength at all twenty. His hits get harder and his cooldowns shorter as they grow (cooldowns start at double).
+- **The Grand Exhibition grows with the whole Cabinet** (20%, plus 2% for every three exhibits of the 120). The **Golden Bowl** still needs every wing. Fishy's powers page shows each one's strength and count.
+- **His Raid Contract is free.** It comes with his bowl in the Fixer's Lounge, once. If his Raid Contract is already signed, or one is in your pack, you get nothing more.
 
 ## New in 2.79: Fishy's Cabinet of Curiosities - and Fishy, the curator who follows you
 
