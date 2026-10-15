@@ -179,13 +179,14 @@ const res = [];
   await run('clear TestRat'); await run('loot replace entity TestRat hotbar.1 loot bm:items/bankers_card'); for (let k = 0; k < 5; k++) await run('loot give TestRat loot bm:items/xenite_red');
   await run('scoreboard players set TestRat bm.bk_xr 0'); await run('scoreboard players set TestRat bm.bk_tok 3');
   A.slot(1); await sleep(300); await A.useWait();
+  await A.press(/Red Xenite/);                                    // (2.80: the account page, then Red Xenite's own page)
   const bb = A.buttons(); const di = bb.findIndex(b => /Deposit all Red Xenite/.test(b.label));
-  console.log('   [bank] ' + bb.filter((b, i) => i >= di - 1 && i <= di + 4).map(b => `${b.label} <${b.command.replace('/trigger bm.act set ', '')}>`).join(' | '));
+  console.log('   [bank] ' + bb.map(b => `${b.label} <${b.command.replace('/trigger bm.act set ', '')}>`).join(' | '));
   const n1 = A.dialogN.length; if (di >= 0) A.cmd(bb[di].command.slice(1)); await wait(2000, async () => A.dialogN.length > n1, 50);
   const xr = await sc('TestRat', 'bm.bk_xr'); const tk = +(((await run('clear TestRat *[minecraft:custom_data~{bm:"token"}] 0')).match(/Found (\d+)/) || [0, 0])[1]);
   ok('Rat Bank: "Deposit all Red Xenite" deposits the Red Xenite (and takes out no Token)', di >= 0 && xr === 5 && tk === 0 && (await sc('TestRat', 'bm.bk_tok')) === 3, `account ${xr}, tokens on you ${tk}`);
-  const bb2 = A.buttons(); const di2 = bb2.findIndex(b => /Deposit all Red Xenite/.test(b.label));
-  if (di2 >= 0) A.cmd(bb2[di2 + 1].command.slice(1)); await sleep(900);
+  const bb2 = A.buttons(); const t1 = bb2.findIndex(b => /^Take 1$/.test(b.label));
+  if (t1 >= 0) A.cmd(bb2[t1].command.slice(1)); await sleep(900);
   ok('...and its "Take 1" gives one back', (await sc('TestRat', 'bm.bk_xr')) === 4 && /Found 1\b/.test(await run('clear TestRat *[minecraft:custom_data~{bm:"xenite_red"}] 0')), `account ${await sc('TestRat', 'bm.bk_xr')}`);
 
   // ================================================================== 9. the Armory: the Tier V signature can be picked

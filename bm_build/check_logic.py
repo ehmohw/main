@@ -63,10 +63,14 @@ for rel, body in src.items():
 act_body = src.get('p28/act', '')
 ranges = [(int(a), int(b or a)) for a, b in re.findall(r'#act bm\.pay matches (\d+)(?:\.\.(\d+))?', act_body)]
 for rel, c in cmds:
-    m = re.match(r'/?trigger (\S+)(?: set (-?\d+))?$', c)
+    if rel.startswith('admin/') and re.match(r'/function bm:admin/\S+$', c):
+        continue                       # (2.80: an operator's own dialog may run admin functions - those need operator rights by design)
+    m = re.match(r'/?trigger (\S+)(?: set (-?\d+|\$\(\w+\)))?$', c)
     if not m: errs.append(f'{rel}: menu button runs {c!r} - buttons may only run /trigger (no operator rights needed)'); continue
     if m.group(1) not in enabled: errs.append(f'{rel}: button trigger {m.group(1)} is not enabled for players every tick')
     if m.group(1) == 'bm.act':
+        if m.group(2) and m.group(2).startswith('$'):
+            errs.append(f'{rel}: bm.act code {m.group(2)} filled in at run time - the legend and routes need a literal code'); continue
         v = int(m.group(2))
         if not any(a <= v <= b for a, b in ranges): errs.append(f'{rel}: bm.act code {v} has no handler range in p28/act')
 if not cmds: errs.append('no menu buttons found (lint broken?)')

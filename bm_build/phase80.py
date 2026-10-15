@@ -299,6 +299,7 @@ def generate(G):
            f'execute if score #act bm.pay matches {MENU_CODE + 6} run return run function bm:p86/theme/menu',
            f'execute if score #act bm.pay matches {MENU_CODE + 9} run return run function bm:p70/plans'] + \
         [f'execute if score #act bm.pay matches {MENU_CODE + 10 + r} run return run function bm:p80/up{r}' for r in range(1, 5)] + \
+        [f'execute if score #act bm.pay matches {MENU_CODE + 14 + r} run return run function bm:p80/rank{r}' for r in range(1, 5)] + \
         [f'execute if score #act bm.pay matches {MENU_CODE + 20} run return run function bm:p80/sec_menu',
          f'execute if score #act bm.pay matches {MENU_CODE + 30} run return run function bm:p80/sig_menu'] + \
         [f'execute if score #act bm.pay matches {MENU_CODE + 21 + i} run return run function bm:p80/sec_pick {{i:{i + 1}}}' for i in range(len(SECONDARY))] + \
@@ -424,21 +425,41 @@ def generate(G):
     ar += [f'execute if score @s bm.ksig matches {i + 1} run data modify storage bm:ui ar.sig set value "{s[0]}"' for i, s in enumerate(SIGNATURE)]
     ar += ['execute store result storage bm:ui ar.c int 1 run scoreboard players get #tc bm.rng', 'function bm:p80/armory_dlg with storage bm:ui ar']
     fn('p80/armory', ar)
+    # 2.80: the overview is one short card per kit (its rank, and whether the next is ready); each kit's ladder has a page
+    # of its own - every rank, the ones you have ticked, the next one marked, its price, and the button to buy it.
+    RANK_PAGE = lambda r: MENU_CODE + 14 + r
     rbody = lambda r: P28.body([T(ROLE_NAME[r].upper(), ROLE_COL[r], bold=True), T('   rank ', 'gray'), T(f'$(r{r})', 'white', bold=True), T('\n'),
-                                T('next: ', 'dark_gray'), T(f'$(n{r})', 'white'), T(f' - $(d{r})', 'gray'), T('\n'), raw(f'r_s{r}')], 360)
-    ladder = lambda r: [T(f'{ROLE_NAME[r]} ranks', ROLE_COL[r], bold=True)] + sum(([T(f'\n{ROMAN[n]} {PERKS[r][n][0]}: ', 'white'), T(PERKS[r][n][1], 'gray')]
-                                                                                for n in range(1, MAXR + 1)), [])
+                                raw(f'r_s{r}')], 360)
     adlg = P28.multi([T('THE ARMORY', ROLE_COL[1], bold=True), T('  ·  your kits, for good', 'gray')],
                      [P28.body([T('Clear a tier to unlock the next rank, then pay in coins, that tier\'s spoil and insignia ', 'dark_gray'),
-                                T('(bank first, then your pockets: ', 'dark_gray'), T('$(c)', GOLD), T(' coins to hand).', 'dark_gray')], 360)] +
+                                T('(bank first, then your pockets: ', 'dark_gray'), T('$(c)', GOLD), T(' coins to hand). Open a kit to see its ranks.', 'dark_gray')], 360)] +
                      [rbody(r) for r in range(1, 5)] +
                      [P28.body([T('Secondary: ', 'gray'), T('$(sec)', 'white', bold=True), T('      Signature: ', 'gray'), T('$(sig)', 'white', bold=True),
                                 T('  (with every kit)', 'dark_gray')], 360)],
-                     [P28.btn([T('⬆ ', ROLE_COL[r]), T(ROLE_NAME[r], 'white', bold=True)], MENU_CODE + 10 + r, tooltip=ladder(r), width=110) for r in range(1, 5)] +
+                     [P28.btn([T(ROLE_NAME[r], ROLE_COL[r], bold=True), T('  ›', 'gray')], RANK_PAGE(r), tooltip=T(f'The {ROLE_NAME[r]} kit\'s ranks, and the next one', 'gray'), width=110)
+                      for r in range(1, 5)] +
                      [P28.btn([T('Secondary weapon', 'white')], MENU_CODE + 20, tooltip=T('One weapon of your own, with any kit.'), width=110),
                       P28.btn([T('Signature effect', 'white')], MENU_CODE + 30, tooltip=T('One effect of your own, with any kit.'), width=110),
                       P28.btn(T('Gutter Bank', 'gray'), MENU_CODE + 2, width=110), P28.btn(T('« Office', 'gray'), MENU_CODE, width=110)],
                      columns=4)
+    for r in range(1, 5):
+        lines = ['function bm:p80/tot', 'function bm:p80/clr', 'data remove storage bm:ui ar'] + menu_open(RANK_PAGE(r)) + status_cmds(r)
+        for n in range(1, MAXR + 1):
+            nm, what = PERKS[r][n]
+            lines += [f'data modify storage bm:ui ar.r_l{n} set value {snbt(T(f"     {ROMAN[n]} {nm}: {what}", "dark_gray"))}',
+                      f'execute if score @s bm.kr{r} matches {n - 1} run data modify storage bm:ui ar.r_l{n} set value '
+                      f'{snbt([T(f"➜ {ROMAN[n]} {nm}: ", "white", bold=True), T(what, "white")])}',
+                      f'execute if score @s bm.kr{r} matches {n}.. run data modify storage bm:ui ar.r_l{n} set value '
+                      f'{snbt([T(f"✔ {ROMAN[n]} {nm}: ", "green", bold=True), T(what, "gray")])}']
+        lines += ['execute store result storage bm:ui ar.c int 1 run scoreboard players get #tc bm.rng', f'function bm:p80/rank{r}_dlg with storage bm:ui ar']
+        fn(f'p80/rank{r}', lines)
+        rdlg = P28.multi([T(f'THE {ROLE_NAME[r].upper()} KIT', ROLE_COL[r], bold=True), T('  ·  rank ', 'gray'), T(f'$(r{r})', 'white', bold=True)],
+                         [P28.body(sum(([raw(f'r_l{n}'), T('\n')] for n in range(1, MAXR + 1)), [])[:-1], 360),
+                          P28.body([T('Next: ', 'gray'), raw(f'r_s{r}')], 360),
+                          P28.body([T('$(c)', GOLD), T(' coins to hand (bank and pockets). A new rank comes with your next kit.', 'dark_gray')], 360)],
+                         [P28.btn([T('⬆ ', ROLE_COL[r]), T('Rank up', 'white', bold=True)], MENU_CODE + 10 + r, tooltip=[T(f'$(n{r})', 'white', bold=True), T(f'\n$(d{r})', 'gray')], width=150),
+                          P28.btn(T('« Armory', 'gray'), MENU_CODE + 1, width=150)], columns=2)
+        fn(f'p80/rank{r}_dlg', [f'$dialog show @s {P28.inline(rdlg)}'])
     fn('p80/armory_dlg', [f'$dialog show @s {P28.inline(adlg)}'])
     # buying a rank
     for r in range(1, 5):
@@ -465,7 +486,7 @@ def generate(G):
                 title('@s', 'subtitle', T(PERKS[r][n][0], 'white')),
                 tellraw('@s', P + [T(f'{ROLE_NAME[r]} kit, rank {ROMAN[n]}: ', ROLE_COL[r], bold=True), T(PERKS[r][n][0] + '. ', 'white'), T(PERKS[r][n][1], 'gray'),
                                    T(' (From your next kit on.)', 'dark_gray')]),
-                'function bm:p80/armory'])
+                f'function bm:p80/rank{r}'])
     # secondary and signature pickers
     def picker(kind, opts, base_code, obj):
         lines = ['function bm:p80/clr', f'data remove storage bm:ui p{kind}'] + menu_open(MENU_CODE + (20 if kind == 'sec' else 30))

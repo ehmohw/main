@@ -1,4 +1,4 @@
-const { bot, rcon, sleep } = require('./lib');
+const { bot, rcon, sleep } = require('./lib_resp');
 const X = 12300, Y = 200, Z = 12300; const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(800); const B = await bot('PartyPal'); await sleep(1500);
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
@@ -20,15 +20,18 @@ const X = 12300, Y = 200, Z = 12300; const res = [];
   ok('No friendly fire between party members', +h1 >= +h0, `${h0} -> ${h1}`);
   await sleep(1200);
   ok('The party health list is filled', +(await sc('PartyPal', `bm.ph${pa}`)) > 0, await sc('PartyPal', `bm.ph${pa}`));
-  A.chats.length = 0; A.cmd('trigger bm.party set 6'); await sleep(600);
-  ok('Members list (with [Kick] for the leader)', A.chats.filter(c => /❤/.test(c)).length === 2 && A.chats.some(c => /Kick/.test(c)), A.chats.slice(-2).join(' | '));
+  const nm0 = A.dialogN.length; A.cmd('trigger bm.party set 6'); await sleep(900);             // (2.80: a dialog, not chat)
+  const md = JSON.stringify(A.dialogN[A.dialogN.length - 1] || {});
+  ok('Members list (with Kick for the leader)', A.dialogN.length > nm0 && /TestRat/.test(md) && /PartyPal/.test(md) && (md.match(/❤/g) || []).length === 2 &&
+     A.buttons().some(b => /Kick PartyPal/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
   // boss scaling: two players near a Voidwalker
   await run('effect give TestRat resistance 120 4 true'); await run('time set night');
   await run(`execute positioned ${X} ${Y + 1} ${Z + 8} run function bm:p54/vwk/summon`); await sleep(6500);
-  const mx = await run('attribute @e[type=enderman,tag=bm.vwk,limit=1] minecraft:max_health get');
+  // (2.80: a staged boss carries a health buffer up to the 1024 cap - its true maximum is the boss bar's)
+  let mx = ''; for (let k = 0; k < 30 && !/675/.test(mx); k++) { mx = await run('bossbar get bm:vwk max'); await sleep(500); }   // (its arrival first: scaling waits for it)
   ok('A boss with 2 players near grows +50% (Voidwalker 450 -> 675)', /675/.test(mx), mx.slice(-40));
   await run('tp PartyPal ~ ~ ~').catch(() => {}); await run(`tp PartyPal ${X + 60} ${Y + 1} ${Z}`); await sleep(6000);
-  const mx2 = await run('attribute @e[type=enderman,tag=bm.vwk,limit=1] minecraft:max_health get');
+  let mx2 = ''; for (let k = 0; k < 24 && !/450/.test(mx2); k++) { mx2 = await run('bossbar get bm:vwk max'); await sleep(500); }
   ok('...and shrinks back when one leaves', /450/.test(mx2), mx2.slice(-40));
   await run('kill @e[tag=bm.vwk]'); await run('kill @e[tag=bm.vwkmin]'); await run('time set day');
   // leaving dissolves a party of two

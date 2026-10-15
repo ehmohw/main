@@ -1,4 +1,4 @@
-const { bot, rcon, sleep } = require('./lib');
+const { bot, rcon, sleep } = require('./lib_resp');
 const X = 5600, Y = 100, Z = 5600;
 (async () => { const R = await rcon(); const run = c => R.run(c);
   const res = []; const ok = (n, c, d) => { res.push(!!c); console.log(c ? 'PASS' : 'FAIL', n, d || ''); };
@@ -43,8 +43,8 @@ const X = 5600, Y = 100, Z = 5600;
   ok("recipe: a crafter makes a working Tinker's Wrench", (await inv('TestRat', '*[custom_data~{bm:"tinker_wrench"}]')) === 1 || (await cnt(`@e[type=item,x=${X - 3},y=${Y + 1},z=${Z},distance=..3,nbt={Item:{components:{"minecraft:custom_data":{bm:"tinker_wrench"}}}}]`)) === 1);
   await run(`setblock ${X - 4} ${Y + 1} ${Z - 1} air`); await run(`setblock ${X - 4} ${Y + 1} ${Z} air`); await run(`kill @e[type=item,x=${X},y=${Y},z=${Z},distance=..20]`);
   // ---- settings
-  const n0 = A.chats.length; await run('execute as TestRat run function bm:admin/settings'); await sleep(300);
-  ok('admin/settings menu prints', A.chats.slice(n0).join(' ').includes('Server settings'), A.chats.slice(n0, n0 + 2).join(' | ').slice(0, 120));
+  const n0 = A.dialogN.length; await run('execute as TestRat run function bm:admin/settings'); await sleep(600);      // (2.80: a dialog, not chat)
+  ok('admin/settings menu opens', A.dialogN.length > n0 && /SERVER SETTINGS/.test(JSON.stringify(A.dialogN[A.dialogN.length - 1])), A.buttons().map(b => b.label).join(' | ').slice(0, 120));
   await run('execute as TestRat run function bm:admin/set/bmper_10'); await run('time set midnight'); await sleep(1500); await run('scoreboard players set #bmday bm.bm 9'); await sleep(2200);
   const cyc10 = await num('scoreboard players get #active bm.bm');
   await run('execute as TestRat run function bm:admin/set/bmper_30'); await sleep(2200);

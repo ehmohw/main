@@ -70,48 +70,70 @@ def generate(G):
                      f'execute store result storage bm:ui bk.{cur} int 1 run scoreboard players get @s {obj}']
     op_lines.append('function bm:p31/bank/dlg with storage bm:ui bk')
     fn('p31/bank/open', op_lines)
-    btns = []
-    # (2.76: four codes per currency, side by side - the old 4010+i / 4020+i ... ran into each other at the 11th, Red Xenite,
-    # whose 'Deposit all' took a Token out instead)
+    # 2.80: a page per currency. The account page lists every currency with its balance (one button each); a currency's
+    # page shows its icon, what's in the account and what's on you, and the four actions - and an action brings you back
+    # to that page. (The four action codes per currency are the 2.76 ones, unchanged.)
     bank_code = lambda i, k: 4010 + 4 * i + k
-    assert bank_code(len(BANK) - 1, 3) <= 4099, 'the Rat Bank has outgrown its codes'
-    for i, (cur, obj, nm, col) in enumerate(BANK):
-        btns += [P28.btn([T('Deposit all ', 'white'), T(nm, col)], bank_code(i, 0), width=150),
-                 P28.btn(T('Take 1', 'gray'), bank_code(i, 1), width=70), P28.btn(T('Take 10', 'gray'), bank_code(i, 2), width=70), P28.btn(T('Take all', 'gray'), bank_code(i, 3), width=70)]
-    rows = []                     # 2.13: every currency the bank keeps, two to a line
-    for i in range(0, len(BANK), 2):
-        parts = []
-        for cur, obj, nm, col in BANK[i:i + 2]:
-            parts += [T(('   ' if parts else '') + nm + ': ', 'gray'), T(f'$({cur})', col)]
-        rows.append(P28.body(parts))
+    page_code = lambda i: 4060 + i
+    DEP_ALL, BACK = 4071, 4072
+    assert bank_code(len(BANK) - 1, 3) < page_code(0) and page_code(len(BANK) - 1) < DEP_ALL, 'the Rat Bank has outgrown its codes'
+    btns = [P28.btn([T(nm, col), T('   $(' + cur + ')', 'white')], page_code(i), tooltip=T(f'Deposit or take out your {nm}', 'gray'), width=150)
+            for i, (cur, obj, nm, col) in enumerate(BANK)]
+    btns.append(P28.btn(T('Deposit everything', 'gold'), DEP_ALL, tooltip=T('Every currency the bank keeps, from your pockets into your account', 'gray'), width=150))
     dlg = P28.multi([T('The Rat Bank', 'gold', bold=True), T(' - your account', 'gray')],
-                    rows + [P28.body([T('Kept against your name: safe from death, lava and thieves. The Dark Auction can draw on your Medallions.', 'dark_gray')], 300)],
-                    btns, columns=4)
+                    [P28.body([T('Pick a currency to deposit or take out.', 'gray')], 300),
+                     P28.body([T('Kept against your name: safe from death, lava and thieves. The Dark Auction can draw on your Medallions.', 'dark_gray')], 300)],
+                    btns, columns=2)
     fn('p31/bank/dlg', [f'$dialog show @s {P28.inline(dlg)}'])
     G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 4000..4099 run return run function bm:p31/bank/act')
     act = [f'execute unless score @s bm.menu matches {P28.MENU["bank"]} run return run function bm:p28/stale',
-           'execute unless function bm:p31/bank/can run return run function bm:p28/stale']
+           'execute unless function bm:p31/bank/can run return run function bm:p28/stale',
+           f'execute if score #act bm.pay matches {DEP_ALL} run return run function bm:p31/bank/dep_every',
+           f'execute if score #act bm.pay matches {BACK} run return run function bm:p31/bank/open']
     for i, (cur, obj, nm, col) in enumerate(BANK):
-        act += [f'execute if score #act bm.pay matches {bank_code(i, 0)} run return run function bm:p31/bank/dep_{cur}',
+        has = f'*[minecraft:custom_data~{{bm:"{cur}"}}]'
+        act += [f'execute if score #act bm.pay matches {page_code(i)} run return run function bm:p31/bank/page_{cur}',
+                f'execute if score #act bm.pay matches {bank_code(i, 0)} run return run function bm:p31/bank/dep_{cur}',
                 f'execute if score #act bm.pay matches {bank_code(i, 1)} run return run function bm:p31/bank/take_{cur} {{n:1}}',
                 f'execute if score #act bm.pay matches {bank_code(i, 2)} run return run function bm:p31/bank/take_{cur} {{n:10}}',
                 f'execute if score #act bm.pay matches {bank_code(i, 3)} run return run function bm:p31/bank/take_all_{cur}']
-        fn(f'p31/bank/dep_{cur}', [f'execute store result score #n bm.pay run clear @s *[minecraft:custom_data~{{bm:"{cur}"}}] 0',
-                                   'execute if score #n bm.pay matches 0 run return run ' + title('@s', 'actionbar', T(f'You have no {nm} on you.', 'gray')),
-                                   f'clear @s *[minecraft:custom_data~{{bm:"{cur}"}}]', f'scoreboard players operation @s {obj} += #n bm.pay',
-                                   'playsound minecraft:block.chain.place player @s ~ ~ ~ 0.8 1.4',
-                                   title('@s', 'actionbar', [T('Deposited ', 'gray'), {'score': {'name': '#n', 'objective': 'bm.pay'}, 'color': col}, T(f' {nm}.', 'gray')]),
-                                   'function bm:p31/bank/open'])
+        # ---- its page
+        mdl = ITEMS[cur]['comps'].get('minecraft:item_model')
+        icon = {'id': ITEMS[cur]['base'], 'count': Int(1), 'components': {'minecraft:item_name': T(nm, col)}}
+        if mdl: icon['components']['minecraft:item_model'] = mdl
+        pg = P28.multi([T(nm, col, bold=True), T('  ·  The Rat Bank', 'gray')],
+                       [{'type': 'minecraft:item', 'item': icon, 'show_decorations': B(0), 'show_tooltip': B(1), 'width': Int(22), 'height': Int(22),
+                         'description': {'contents': [T('In your account: ', 'gray'), T('$(n)', col, bold=True), T(chr(10) + 'On you: ', 'gray'), T('$(h)', 'white')],
+                                         'width': Int(220)}}],
+                       [P28.btn([T('Deposit all ', 'white'), T(nm, col), T('  ($(h))', 'gray')], bank_code(i, 0), tooltip=T(f'Every {nm[:-1] if nm.endswith("s") else nm} you carry, into your account', 'gray'), width=150),
+                        P28.btn(T('Take 1', 'gray'), bank_code(i, 1), width=150), P28.btn(T('Take 10', 'gray'), bank_code(i, 2), width=150),
+                        P28.btn([T('Take all', 'gray'), T('  ($(n))', 'dark_gray')], bank_code(i, 3), width=150),
+                        P28.btn(T('« Your account', 'gray'), BACK, width=150)], columns=2)
+        fn(f'p31/bank/page_{cur}', [f'scoreboard players set @s bm.menu {P28.MENU["bank"]}', f'execute unless score @s {obj} matches 0.. run scoreboard players set @s {obj} 0',
+                                    'data remove storage bm:ui bkp', f'execute store result storage bm:ui bkp.n int 1 run scoreboard players get @s {obj}',
+                                    f'execute store result storage bm:ui bkp.h int 1 run clear @s {has} 0',
+                                    f'function bm:p31/bank/pdlg_{cur} with storage bm:ui bkp'])
+        fn(f'p31/bank/pdlg_{cur}', [f'$dialog show @s {P28.inline(pg)}'])
+        # ---- deposits (quietly, for 'everything'; with a word and back to the page, for one)
+        fn(f'p31/bank/depq_{cur}', [f'execute store result score #n bm.pay run clear @s {has} 0', 'execute if score #n bm.pay matches 0 run return 0',
+                                    f'clear @s {has}', f'scoreboard players operation @s {obj} += #n bm.pay', 'scoreboard players operation #tot bm.pay += #n bm.pay', 'return 1'])
+        fn(f'p31/bank/dep_{cur}', ['scoreboard players set #tot bm.pay 0', f'function bm:p31/bank/depq_{cur}',
+                                   'execute if score #tot bm.pay matches 0 run ' + title('@s', 'actionbar', T(f'You have no {nm} on you.', 'gray')),
+                                   'execute if score #tot bm.pay matches 1.. run playsound minecraft:block.chain.place player @s ~ ~ ~ 0.8 1.4',
+                                   'execute if score #tot bm.pay matches 1.. run ' + title('@s', 'actionbar', [T('Deposited ', 'gray'), {'score': {'name': '#tot', 'objective': 'bm.pay'}, 'color': col}, T(f' {nm}.', 'gray')]),
+                                   f'function bm:p31/bank/page_{cur}'])
         fn(f'p31/bank/take_{cur}', ['$scoreboard players set #n bm.pay $(n)', f'scoreboard players operation #n bm.pay < @s {obj}',
-                                    'execute if score #n bm.pay matches ..0 run return run ' + title('@s', 'actionbar', T(f'No {nm} in your account.', 'gray')),
+                                    'execute if score #n bm.pay matches ..0 run ' + title('@s', 'actionbar', T(f'No {nm} in your account.', 'gray')),
+                                    f'execute if score #n bm.pay matches ..0 run return run function bm:p31/bank/page_{cur}',
                                     f'scoreboard players operation @s {obj} -= #n bm.pay',
                                     'execute store result storage bm:tmp bk.n int 1 run scoreboard players get #n bm.pay',
                                     f'function bm:p31/bank/give_{cur} with storage bm:tmp bk',
-                                    'playsound minecraft:block.chain.break player @s ~ ~ ~ 0.8 1.4', 'function bm:p31/bank/open'])
+                                    'playsound minecraft:block.chain.break player @s ~ ~ ~ 0.8 1.4', f'function bm:p31/bank/page_{cur}'])
         fn(f'p31/bank/take_all_{cur}', [f'scoreboard players operation #n bm.pay = @s {obj}',
-                                        'execute if score #n bm.pay matches ..0 run return run ' + title('@s', 'actionbar', T(f'No {nm} in your account.', 'gray')),
+                                        'execute if score #n bm.pay matches ..0 run ' + title('@s', 'actionbar', T(f'No {nm} in your account.', 'gray')),
+                                        f'execute if score #n bm.pay matches ..0 run return run function bm:p31/bank/page_{cur}',
                                         f'scoreboard players set @s {obj} 0', f'function bm:p31/bank/loop_{cur}',
-                                        'playsound minecraft:block.chain.break player @s ~ ~ ~ 0.8 1.2', 'function bm:p31/bank/open'])
+                                        'playsound minecraft:block.chain.break player @s ~ ~ ~ 0.8 1.2', f'function bm:p31/bank/page_{cur}'])
         # hand back in stacks of 64 (16 for Trophies)
         stack_n = ITEMS[cur]['comps'].get('minecraft:max_stack_size', 64)
         fn(f'p31/bank/loop_{cur}', [f'scoreboard players set #k bm.pay {stack_n}', 'scoreboard players operation #k bm.pay < #n bm.pay',
@@ -119,6 +141,11 @@ def generate(G):
                                     f'function bm:p31/bank/give_{cur} with storage bm:tmp bk', 'scoreboard players operation #n bm.pay -= #k bm.pay',
                                     f'execute if score #n bm.pay matches 1.. run function bm:p31/bank/loop_{cur}'])
         fn(f'p31/bank/give_{cur}', [f'$give @s {G.item_arg(cur)} $(n)'])
+    fn('p31/bank/dep_every', ['scoreboard players set #tot bm.pay 0'] + [f'function bm:p31/bank/depq_{cur}' for cur, *_r in BANK] +
+       ['execute if score #tot bm.pay matches 0 run ' + title('@s', 'actionbar', T('You carry nothing the bank keeps.', 'gray')),
+        'execute if score #tot bm.pay matches 1.. run playsound minecraft:block.chain.place player @s ~ ~ ~ 0.8 1.2',
+        'execute if score #tot bm.pay matches 1.. run ' + title('@s', 'actionbar', [T('Deposited ', 'gray'), {'score': {'name': '#tot', 'objective': 'bm.pay'}, 'color': 'gold'}, T(' in all.', 'gray')]),
+        'function bm:p31/bank/open'])
     fn('p31/bank/act', act)
     # optional interest (off by default): 1 Token per 50 held, paid when each Dark Auction closes
     load.append('execute unless score #interest bm.pay matches 0.. run scoreboard players set #interest bm.pay 0')
