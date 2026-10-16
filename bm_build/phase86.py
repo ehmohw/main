@@ -42,7 +42,7 @@ P72.KEEP += ['gutter_medallion', 'gutter_trophy']
 #  sat here overrode the caps and is gone)
 
 THEMES = {1: ('THE PLAIN HAUL', '#9ad0ff', 'vanilla goods and building supplies'),
-          2: ('THE BLACK MARKET HAUL', '#c070ff', 'heist gear, curios - and Tokens and Medallions'),
+          2: ('THE BLACK MARKET HAUL', '#c070ff', 'heist gear - and Tokens and Medallions'),
           3: ('THE GUTTER HAUL', GUT, 'coins, spoils, insignia and heist supplies')}
 CODE = 8410
 POT_PCT = 35                        # what the pot keeps of everything paid into it (2.67)

@@ -78,7 +78,7 @@ const X = 16000, Y = 100, Z = 16000; const res = [];
   ok('...and his click box goes when he does', (await cnt('@e[type=interaction,tag=bm.cphit]')) === 0);
 
   // ---------------------------------------------------------------- Emma: her own blue by default
-  await run('kill @e[type=cat,tag=bm.emmapet]'); await run('execute as TestRat at @s run function bm:p57/summon_here'); await sleep(800);
+  await run('kill @e[type=cat,tag=bm.emmapet]'); await run('scoreboard players reset TestRat bm.emode'); await run('execute as TestRat at @s run function bm:p57/summon_here'); await sleep(800);
   ok('Emma, newly called: her own blue dress (Healing)', /"bm:em_body"/.test(await run('data get entity @e[type=item_display,tag=bm.ep_body,limit=1] item.components')),
      await run('data get entity @e[type=item_display,tag=bm.ep_body,limit=1] item.components'));
   await run('execute as @e[type=cat,tag=bm.emmapet] at @s run function bm:p62/emma_go'); await sleep(500);
@@ -90,7 +90,7 @@ const X = 16000, Y = 100, Z = 16000; const res = [];
   await sleep(4000);
   ok('...she stays while you carry the charm', (await cnt('@e[type=wolf,tag=bm.celipet]')) === 1);
   await run('clear TestRat'); await sleep(4500);
-  ok('Put the charm away (in a chest): she heads home', (await cnt('@e[type=wolf,tag=bm.celipet]')) === 0 && A.chats.some(c => /put the .*Charm away/.test(c)), A.chats.slice(-1)[0]);
+  ok('Put the charm away (in a chest): she heads home', (await cnt('@e[type=wolf,tag=bm.celipet]')) === 0 && A.chats.some(c => /put .*Charm away/.test(c)), A.chats.slice(-1)[0]);
   await run('loot give TestRat loot bm:items/celi_charm'); await run('execute as TestRat at @s run function bm:p66/summon_here'); await sleep(1000);
   // a copy left behind (frozen in some far chunk) while you called her again elsewhere: when it wakes, it dismisses itself
   await run('execute as @e[type=wolf,tag=bm.celipet] run tag @s add bm.t73old'); await run('scoreboard players add TestRat bm.fgl 1'); await sleep(2500);

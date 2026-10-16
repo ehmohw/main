@@ -27,7 +27,7 @@ const res = [];
   await run('item replace entity TestRat hotbar.0 with air'); await run('item replace entity TestRat hotbar.0 from entity TestRat hotbar.1'); // water
   for (let i = 0; i < 9; i++) await run(`item replace entity TestRat hotbar.${i} with air`);
   await run('give TestRat minecraft:stone 1'); await run('clear TestRat');
-  await run('execute as TestRat run function bm:admin/elemental_gems'); await sleep(300);
+  await run('execute as TestRat run function bm:admin/elemental_gems'); await run('clear TestRat *[custom_data~{bm:"gem_ice"}]'); await sleep(300);   // (all nine in hand fuse, 2.67)
   A.slot(1); await sleep(300);
   const held = await run('data get entity TestRat SelectedItem.components."minecraft:custom_data".bm');
   A.use(); await sleep(250); A.release(); await sleep(1500);

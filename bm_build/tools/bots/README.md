@@ -203,7 +203,7 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
 ## Index
 
 The newest tests (t128 onward, especially t131-t133) follow the owner's rule throughout. Older ones lean on rcon
-and function calls. Three are known to be stale.
+and function calls. The ones known to be stale (wholly or in part) are marked.
 
 | Script | What it covers |
 |---|---|
@@ -214,7 +214,7 @@ and function calls. Three are known to be stale.
 | `t24i.js` | first check: sparks: first target and chain hit, far one spared |
 | `t24m.js` | Cecil in a freshly placed market: spawn, rig, facing, trades, animation |
 | `t25.js` | first check: notice text sits on the plank face, open in front |
-| `t26.js` | first check: tidal tear hurts another player, not the caster |
+| `t26.js` | first check: tidal tear hurts another player, not the caster **(summons by function, so the 3-second item rule sends followers home)** |
 | `t27.js` | first check: pact refused (and refunded) with no Blood Moon |
 | `t28.js` | first check: skiff called, pilot aboard |
 | `t29.js` | first check: filter hopper placed (pointing down) |
@@ -224,7 +224,7 @@ and function calls. Three are known to be stale.
 | `t31.js` | first check: raw `time set 1000` no longer sends the count back to day 0 |
 | `t32.js` | first check: Lucky Night started |
 | `t33.js` | v2.32: the Horseman's Head in four classes, catalysts, the Pharaoh's Crook and Thunderbird Talon (all forms), the Sand Pharaoh, |
-| `t33p.js` | v2.32: the Horseman's Head in four classes, catalysts, the Pharaoh's Crook and Thunderbird Talon (all forms), the Sand Pharaoh, |
+| `t33p.js` | v2.32: the Horseman's Head in four classes, catalysts, the Pharaoh's Crook and Thunderbird Talon (all forms), the Sand Pharaoh, **(stale: superseded by t33, which waits out the 2.80 arrivals)** |
 | `t34.js` | v2.33: the Heartwood Branch, Molten Gauntlet and Void Scepter (all forms, catalysts); the Elder Treant, Magma Colossus and |
 | `t35.js` | v2.34: every roaming boss always drops its relic to a player's kill (3 kills each; 2.80: after its arrival, and its staged death) |
 | `t36.js` | v2.35: sockets by material (vanilla only), red Vitality + size cycle, combos (incl. Bloodlust, Second Wind), Masterworks, |
@@ -234,9 +234,9 @@ and function calls. Three are known to be stale.
 | `t39b.js` | - |
 | `t40.js` | v2.37 Emma: encounter + recruit, rig follows, states, modes + buffs, quick heal, charge, ethereal strike, harmony with Cecil, falling **(stale: expects the 10-minute faint rest and send-home on 7305)** |
 | `t41.js` | v2.38: the follower cap (3), the shifter and Emma's menu don't cross, Emma's lore lines **(stale: summons by function, so the 3-second item rule sends followers home)** |
-| `t42.js` | v2.40: KillerWatt's Tendrils, Apophiss's Crown, Leo's Trident, Cecil's Staff |
+| `t42.js` | v2.40: KillerWatt's Tendrils, Apophiss's Crown, Leo's Trident, Cecil's Staff **(partly stale: Cecil no longer sells KillerWatt's gear (2.79b), and the chest-worn tendrils' yank and snatch went with 2.4x's equippable tendrils)** |
 | `t42b.js` | - |
-| `t43.js` | v2.42: two-blade tendrils + lunge; v2.41: tendrils worn on the chest (4 at the back, look-to-lash, sneak+jump fling, snatch, weather), crown at nig... |
+| `t43.js` | v2.42: two-blade tendrils + lunge; v2.41: tendrils worn on the chest (4 at the back, look-to-lash, sneak+jump fling, snatch, weather), crown at nig... **(partly stale: the chest-worn tendrils' checks predate the equippable tendrils)** |
 | `t44.js` | v2.43: tendril melee stab (+2 reach, both upper tendrils, pierce) and the charged-jump pose |
 | `t45.js` | v2.45: Pearlman, the gems (finder, display, kin), the fusion, the Ethereal shrine and status |
 | `t46.js` | v2.46: Pearlman visits like a wandering trader - one roll a day, 10% rising by 10 to 30%, reset when he comes |
@@ -244,38 +244,38 @@ and function calls. Three are known to be stale.
 | `t48.js` | v2.48: the Hollow Gate - set up, five Emblem sockets, opens, only 5-conquest players pass, way home, take back, pack up; |
 | `t49.js` | v2.49: Shifting arms, followers vanish on death, Tendril modes (toggle / ranged auto-lash / offense grab), Pearlman's trades stay open |
 | `t49b.js` | v2.49: Pearlman's trade window stays open while he turns to face you |
-| `t50.js` | first check: Blood Moon foe near a placed Ethereal Gem: slowed, weakened, slowly burned |
-| `t51.js` | first check: Donado gets his jointed rig (8 parts riding him, the old body gone) |
+| `t50.js` | first check: Blood Moon foe near a placed Ethereal Gem: slowed, weakened, slowly burned **(summons by function, so the 3-second item rule sends followers home)** |
+| `t51.js` | first check: Donado gets his jointed rig (8 parts riding him, the old body gone) **(summons by function, so the 3-second item rule sends followers home)** |
 | `t52.js` | first check: Both placed (a marker each) |
 | `t53.js` | first check: A receiver touching a transmitter is refused (it would latch on) |
-| `t54.js` | first check: Cecil summoned with his own (poison) look |
-| `t55.js` | first check: Summoned in Healing: rose dress |
+| `t54.js` | first check: Cecil summoned with his own (poison) look **(summons by function, so the 3-second item rule sends followers home)** |
+| `t55.js` | first check: Summoned in Healing: rose dress **(summons by function, so the 3-second item rule sends followers home)** |
 | `t56.js` | first check: Stars home in on the player (levitation from a hit) |
 | `t56b.js` | first check: Stars home in on the player (levitation from a hit) |
 | `t57.js` | first check: Each rat learns its variant |
 | `t58.js` | first check: Encounter: Celi stands there (9 rig parts + her hitbox) |
-| `t59.js` | first check: Cecil comes in his new (shorter, slimmer) look |
+| `t59.js` | first check: Cecil comes in his new (shorter, slimmer) look **(summons by function, so the 3-second item rule sends followers home)** |
 | `t60.js` | first check: Invite: PartyPal gets an [Accept] invite |
 | `t61.js` | - |
 | `t62.js` | first check: Market Cecil wears the new model (5 parts incl. the free arm, old body gone) |
 | `t63.js` | first check: Hang Cecil's gem in a frame: an anchor appears, and Cecil comes out |
 | `t64.js` | first check: In the vault: adventure mode |
 | `t65.js` | first check: Cecil has five parts now (his free arm is its own), all on the new rig |
-| `t65c.js` | v2.65 content: the new rooms and events, secrets, rare foes, the heist items, the layout's connectivity |
+| `t65c.js` | v2.65 content: the new rooms and events, secrets, rare foes, the heist items, the layout's connectivity **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
 | `t65k.js` | v2.65: kit abilities, hirelings, the Endless Vault, the Pit |
 | `t65m.js` | v2.65: who guards each tier, the tier guardians, the music, the themed stone |
-| `t65o.js` | v2.65: the 2.60 rooms still work in their new tiers (levers, plates, guards at I; tiles, lasers, dial at III), on a bench |
-| `t65r.js` | v2.65 raid core: tries + fee + lucky pool, respawn in the den (and back), fail-reset, the pot, passages, dial button, one-time rewards, bond |
-| `t66.js` | first check: The Heist Plans: pick tier V - you're led down into the vault |
-| `t67.js` | first check: The full Gilded set: no fall damage (fall damage x0) |
-| `t68.js` | first check: A party member (not the leader) can't plan the heist |
-| `t72.js` | first check: Display case: use it looking at the floor - a floor case stands there (case, contents, hitbox) |
+| `t65o.js` | v2.65: the 2.60 rooms still work in their new tiers (levers, plates, guards at I; tiles, lasers, dial at III), on a bench **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
+| `t65r.js` | v2.65 raid core: tries + fee + lucky pool, respawn in the den (and back), fail-reset, the pot, passages, dial button, one-time rewards, bond **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
+| `t66.js` | first check: The Heist Plans: pick tier V - you're led down into the vault **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
+| `t67.js` | first check: The full Gilded set: no fall damage (fall damage x0) **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
+| `t68.js` | first check: A party member (not the leader) can't plan the heist **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
+| `t72.js` | first check: Display case: use it looking at the floor - a floor case stands there (case, contents, hitbox) **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
 | `t73.js` | first check: A bottled cow goes in a floor case: she appears on the cushion |
 | `t74.js` | first check: …: ladders all the way up (… rows) |
 | `t78.js` | v2.65: follower cosmetics - Emma's ribbons and dresses, Celi's outfits, Zib's uniforms; Velour's stock; the hidden ones |
-| `t79.js` | v2.65: KillerWatt - the Storm Effigy, the boss (rig, animation, attacks, roar, reward), the Spark follower, Cecil's shop |
+| `t79.js` | v2.65: KillerWatt - the Storm Effigy, the boss (rig, animation, attacks, roar, reward), the Spark follower, Cecil's shop **(partly stale: using the Spark while he's out opens his menu since 2.78, rather than calling him over)** |
 | `t79b.js` | v2.66: KillerWatt the follower - riding, wall climbing, the Thunder Leap, the tendril stab, the leap, chain lightning, gems and the Ethereal Form |
-| `t80.js` | v2.66: the Fixer's Office - the Gutter Bank, spoils, kit ranks, secondaries and signatures; metal trophies; the Bond Sigils |
+| `t80.js` | v2.66: the Fixer's Office - the Gutter Bank, spoils, kit ranks, secondaries and signatures; metal trophies; the Bond Sigils **(partly stale: the Gutter Bank became a page per currency in 2.80a (t175))** |
 | `t86.js` | v2.67: haul themes + the capped prize, everything in The Haul, the pot nerf, the bank's medallions, the Scrap Box, |
 | `t87.js` | v2.67: crew scaling, hidden vaults, the hidden treasures, and the Gutter Gentry |
 | `t89.js` | v2.67: followers in the vault (raid contracts), the follower wardrobe at Goldtooth, Emma's new outfits |
