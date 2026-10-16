@@ -45,7 +45,7 @@ NEW = {'leo': ('Leo', '#5ab8e0', 'Tabard', {1: ('Crimson Crusader', ('#2a0408', 
                                                   3: ('Verdant Bend', ('#06260a', '#2a8a30', '#90e090')), 4: ('Gilded Sun', ('#3a2806', '#e0b030', '#fff0a0')), 5: ('Diamond Sun', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite Sun', ('#141014', '#4a4046', '#9a8c94'))})}
 HIDDEN = 4
 RECOLOUR = {'leo': ('le_tunic', 'le_skirt', 'le_cape'), 'demo': ('dm_hood', 'dm_hood_dk', 'dm_cape'), 'cecil': ('cec_robe', 'cec_robe_dark')}
-# (2.79b: with Leo's Golden Champion his helm and armour turn diamond - polished cyan beside the gold tabard - head included)
+# (2.79b: with Leo's metal looks his helm and armour turn to match - head included; 2.80c: gold with the Golden Champion, no longer diamond)
 ARMOUR = {'leo': ('le_steel', 'le_steel_dk', 'le_mail')}
 DYE = {'Crimson Crusader': 'red', 'Royal Purple': 'purple', 'Greenwood': 'green', 'Golden Champion': 'yellow', 'Crimson Reaper': 'red', 'Ashen Shroud': 'gray',
        'Royal Violet': 'purple', 'Gilded Storm': 'yellow', 'Crimson': 'red', 'Midnight': 'blue', 'Bone': 'white', 'Gilded': 'yellow', 'Neon': 'magenta',

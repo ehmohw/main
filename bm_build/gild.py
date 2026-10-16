@@ -10,7 +10,7 @@ from PIL import Image
 
 RAMP = [(0.00, (0x3a, 0x22, 0x04)), (0.22, (0x78, 0x4c, 0x0a)), (0.45, (0xc0, 0x88, 0x1c)), (0.66, (0xea, 0xb8, 0x38)),
         (0.84, (0xff, 0xe0, 0x7a)), (1.00, (0xff, 0xfa, 0xe0))]
-# (2.79b: a diamond ramp, for steel that goes with a gilded look - Leo's helm and armour beside his gold tabard)
+# (2.79b: a diamond ramp - Leo's steel with his Diamond Champion; 2.80c: and the diamond looks themselves)
 DIAMOND = [(0.00, (0x06, 0x2c, 0x32)), (0.22, (0x0c, 0x5c, 0x62)), (0.45, (0x18, 0x9c, 0xa0)), (0.66, (0x34, 0xd2, 0xcf)),
            (0.84, (0x8a, 0xf2, 0xea)), (1.00, (0xe6, 0xff, 0xfc))]
 # (2.80c: netherite - dark, faintly purple-brown steel; the polish still catches its edges)
@@ -90,8 +90,8 @@ _ITEM = {'emma': 'cos_dress_{}', 'celi': 'cos_celi_{}', 'zib': 'cos_zib_{}'}
 _K2 = {'emma': 7, 'celi': 6, 'zib': 4, 'don': 6}
 DIAMOND_LOOKS = {w: (_K2.get(w, 5), _ITEM.get(w, f'cos_{w}_{{}}').format(_K2.get(w, 5)), sc) for w, (k, i, sc) in GILDED.items()}
 NETHERITE_LOOKS = {w: (_K2.get(w, 5) + 1, _ITEM.get(w, f'cos_{w}_{{}}').format(_K2.get(w, 5) + 1), sc) for w, (k, i, sc) in GILDED.items()}
-# each metal: its ramp, the steel beside it (Leo's helm), its colour, its word, its lore, its price (Gutter Trophies), Wilfrey's armour
-TIERS = {'gold': {'ramp': RAMP, 'steel': DIAMOND, 'col': GOLD, 'word': 'Gilded', 'trophies': 20, 'armour': 'gold',
+# each metal: its ramp, the steel beside it (Leo's helm and armour - 2.80c: gold with the gold, no longer diamond), its colour, its word, its lore, its price (Gutter Trophies), Wilfrey's armour
+TIERS = {'gold': {'ramp': RAMP, 'steel': RAMP, 'col': GOLD, 'word': 'Gilded', 'trophies': 20, 'armour': 'gold',
                   'lore': 'Gilded: polished gold - and it sparkles.', 'looks': GILDED},
          'diamond': {'ramp': DIAMOND, 'steel': DIAMOND, 'col': '#5ee8e0', 'word': 'Diamond', 'trophies': 32, 'armour': 'diamond',
                      'lore': 'Diamond: cut and polished - and it glitters.', 'looks': DIAMOND_LOOKS},
