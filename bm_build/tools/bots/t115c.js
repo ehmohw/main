@@ -23,7 +23,7 @@ const res = [];
   if (want('salts')) {
     const gt = fnText('p70/r/lobby/init');
     ok('Goldtooth sells the Smelling Salts, the Thief\'s Hourglass and the Alarm Jammer', ['smelling_salts', 'thiefs_hourglass', 'alarm_jammer'].every(i => gt.includes(`bm:"${i}"`)));
-    await heist('levers', 'a', 2); await begin();
+    await heist('levers', 'a', 2); await begin(); await sleep(800); await begin(); await sleep(1500);   // (no kit: the ready check wants BEGIN twice - a knock-out only costs a try once the heist is under way)
     const q = (await qs('levers'))[0]; await go('levers', q, 12, 12);
     await run('effect clear TestRat'); await run('clear TestRat');
     await give('smelling_salts', 'weapon.mainhand');
