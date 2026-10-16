@@ -64,7 +64,8 @@ const res = [];
   if (w) { A.write('select_trade', { slot: s1.doll_kw }); await sleep(300);
     A.write('window_click', { windowId: w.windowId, stateId: 0, slot: 2, mouseButton: 0, mode: 1, changedSlots: [], cursorItem: undefined }); await sleep(500);
     A.close(w.windowId); await sleep(400); }
-  ok("...and KillerWatt's doll is bought for real", (await has('TestRat', 'doll_kw')) === 1 && (await has('TestRat', 'trophy')) === price, `kw ${await has('TestRat', 'doll_kw')}, trophies ${await has('TestRat', 'trophy')}`);
+  { const nk = await has('TestRat', 'doll_kw'); var kwOk = nk >= 1 && (await has('TestRat', 'trophy')) === price * 2 - nk * price; }   // (a shift-click buys all you can pay for)
+  ok("...and KillerWatt's doll is bought for real", kwOk, `kw ${await has('TestRat', 'doll_kw')}, trophies ${await has('TestRat', 'trophy')}`);
   // a second player at the counter
   const B = await bot('TestRat2'); await sleep(2500); B.stand();
   for (const k of KINDS) await run(`advancement revoke TestRat2 only bm:met/${k}`); await run('clear TestRat2'); await run('gamemode survival TestRat2');

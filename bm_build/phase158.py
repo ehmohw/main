@@ -102,4 +102,6 @@ def generate(G):
     ln = G.FUNCS['loop/second']
     k = max(i for i, l in enumerate(ln) if 'tag=bm.npc_wizard]' in l and 'bm.ofv' in l)
     # (a fresh list - his own or the night's - is wrapped up again the same second: dofv no longer matches)
-    ln.insert(k + 1, 'execute as @e[type=#bm:auto6,tag=bm.npc_wizard] at @s run function bm:p158/tick')
+    # (through a function of its own: never gated with the market chores - a wrapped doll must never show unwrapped)
+    ln.insert(k + 1, 'function bm:p158/all')
+    fn('p158/all', ['execute as @e[tag=bm.npc_wizard] at @s run function bm:p158/tick'])

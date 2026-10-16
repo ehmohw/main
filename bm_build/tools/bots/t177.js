@@ -11,7 +11,7 @@ const res = [];
   const wait = async (ms, fn, step = 300) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await sleep(step); } return false; };
   const sc = async (who, o) => { const m = (await run(`scoreboard players get ${who} ${o}`)).match(/has (-?\d+)/); return m ? +m[1] : NaN; };
   const cnt = async sel => { const s = await run(`execute if entity ${sel}`); const m = s.match(/Count: (\d+)/); return m ? +m[1] : 0; };
-  const bar = async id => /true/.test(await run(`bossbar get ${id} visible`));
+  const bar = async id => /currently visible/.test(await run(`bossbar get ${id} visible`));
   const has = async iid => { const m = (await run(`clear TestRat *[minecraft:custom_data~{bm:"${iid}"}] 0`)).match(/Found (\d+)/); return m ? +m[1] : 0; };
   const said = re => A.chats.some(c => re.test(c));
   const O = 'execute in minecraft:overworld run ';
@@ -40,7 +40,8 @@ const res = [];
   await wait(6000, async () => said(/Blood Moon has risen/));
   ok('The Blood Moon rises: its title, its word, its bar', A.titles.some(t => /Blood Moon Rises/.test(t)) && said(/Blood Moon has risen/) && await bar('bm:bloodmoon'),
      `${A.titles.slice(-2).join(' / ')} | bar ${await bar('bm:bloodmoon')}`);
-  ok('...no Invasion Night on a Blood Moon day', /Not on a Blood Moon day/.test(await run('function bm:admin/invasion_now')));
+  A.chats.length = 0; await run('execute as TestRat run function bm:admin/invasion_now'); await sleep(400);   // (an admin's word goes to the admin: here, the bot)
+  ok('...no Invasion Night on a Blood Moon day', said(/Not on a Blood Moon day/) && (await sc('#ivn', 'bm.bm')) !== 1);
   // a bed: no sleeping through it
   await run(`${O}setblock ${X + 2} ${Y} ${Z + 1} minecraft:red_bed[facing=south,part=head]`); await run(`${O}setblock ${X + 2} ${Y} ${Z} minecraft:red_bed[facing=south,part=foot]`);
   await run(`${O}kill @e[tag=bm.surge_mob,${near}]`);     // (or vanilla refuses: "monsters nearby")

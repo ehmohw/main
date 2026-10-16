@@ -1,4 +1,4 @@
-# Black Market — v2.80a (Java 26.3)
+# Black Market — v2.80b (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,25 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.80b: the special nights debugged, Happy Hour a real discount, and Cecil's dolls kept secret
+
+### Cecil's dolls wait until you've met their follower
+Cecil sold every follower's doll from the start (KillerWatt's, Apophiss's, Wilfrey's...), spoiling followers you hadn't found yet.
+- His trading window now shows a follower's doll only once **you** have met them (held their item). The others are a sealed "doll still under wraps" in the same place, out of stock: the trade won't go, so nothing can be bought by mistake.
+- A trader has one list for everyone, so it follows whoever is at his counter: the first player within 6 blocks keeps it while they stay close, then the next nearest. With no one there, every doll is wrapped.
+- Pearlman's doll needs his Calling Card, Wilfrey's his locket.
+
+### The special nights, debugged
+- **The Vorn's bioengineered beasts now leave at dawn.** The ships took their troopers, saucers and bosses home, but the big slimes (and every slime they split into) and the fire-proof phantoms stayed all day.
+- **Dawn takes only the night's own Vorn.** It used to beam up every Vorn in every world: a live alien heist's guards, the Dreadnought's guardians, and an Overseer fight (summoned with a Vorn Beacon) mid-battle, health bar and all.
+- **The midnight boss waits for you.** "A Vorn boss will land at midnight", unless no one was out under the sky right then: the night's boss was spent and never came. It now lands when someone steps outside (up to an hour before dawn).
+- **A Blood Moon over a special night** (an admin's) said "Dawn..." at midnight. It now says the Blood Moon drowns that night out.
+- **Happy Hour is a third off.** The Lucky Night's Happy Hour cleared the market's price scale; since 2.65 that scale made trophy, blood crystal and Lucky Token prices *cheaper*, so Happy Hour raised them, and barely touched token prices. Every Black Market price is now a third off until dawn, as Zorp's already were.
+
+### Testing
+- **New bot playtests:** t177 (the Blood Moon, a Lucky Night with a Leprechaun caught and its Pot of Gold tipped out, and an Invasion Night whose Vorn all leave at dawn - every step as a regular player) and t178 (Cecil's dolls, through his own trading window, with a second player at the counter).
+- **Older playtests brought up to date** with the pack as it is now: t5lay, t23, t25, t31, t32, t33, t34, t36, t37, t43, t44, t48, t49, t56, t56b, t62, t74 and t79b (the 2.80 boss arrivals, the 2.65 prices, real mob hits for "when hit" effects, 26.3's messages, the tendrils' saved mode, the Shifting kit's slots, area counts instead of world-wide ones). t73's data files are now in the repository.
 
 ## New in 2.80a: the Gutter Bank a page per currency, an airtight coat check, and a debugged raid
 
