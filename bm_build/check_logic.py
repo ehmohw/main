@@ -12,6 +12,8 @@ Run as: BM_OUT=out python3 check_logic.py   (0 errors expected)
    lives in a payment helper only reachable through one; escrow is only zeroed where it is paid back or spent on a
    delivered lot; the refund loop, the reload abort and the pending-win delivery all exist.
 5. (1.18) Standing: every trade advancement's reward revokes the trade tree so it can fire again.
+6b. (2.80h) p28/act reads the click (#act bm.pay = @s bm.act) before any line tests it.
+7. (2.80h) Macro lines: a line starting `$` must use at least one `$(name)`, or the function fails to load.
 """
 import glob, os, re, sys
 import check262 as C
@@ -120,7 +122,20 @@ for ln in src.get('p28/act', '').splitlines():
 for i, (a1, b1, f1) in enumerate(ranges):
     for a2, b2, f2 in ranges[i + 1:]:
         if a1 <= b2 and a2 <= b1: errs.append(f'p28/act: codes {a2}-{b2} ({f2}) overlap {a1}-{b1} ({f1}) - the first one wins')
+act_l = [l.strip() for l in src.get('p28/act', '').splitlines()]
+rd = next((i for i, l in enumerate(act_l) if l == 'scoreboard players operation #act bm.pay = @s bm.act'), None)
+if rd is None: errs.append('p28/act: the click is never read (#act bm.pay = @s bm.act)')
+else:
+    for i, l in enumerate(act_l[:rd]):
+        if '#act bm.pay' in l: errs.append(f'p28/act:{i + 1}: tests the click before it is read (line {rd + 1}) - it acts on the previous click')
 if len(ranges) < 8: errs.append(f'p28/act: only {len(ranges)} dialog handlers found (format changed?)')
+
+# ---------------------------------------------------------------- 7. macro lines (2.80h): a `$` line with no `$(name)` in it fails the whole function's load
+for f in sorted(glob.glob(ROOT + '**/*.mcfunction', recursive=True)):
+    rel = f[len(ROOT):-len('.mcfunction')]
+    for i, l in enumerate(open(f, encoding='utf-8').read().splitlines()):
+        if l.startswith('$') and not re.search(r'\$\([A-Za-z0-9_]+\)', l):
+            errs.append(f'{rel}:{i + 1}: a macro line with no $(...) in it - the function will not load')
 
 for e in errs: print('✗', e)
 print(f'logic lints: {len(errs)} errors')

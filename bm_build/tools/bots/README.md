@@ -239,6 +239,13 @@ it: `chunks.js`, which both rcon helpers (`lib.js`, `lib_resp.js`) send every co
   aboard within a second and a half).
 - A Lucky Night (or an Invasion) is never set on a Blood Moon day: move on to a morning that isn't one first (t177's
   `morning`, t125).
+- rcon cuts a long reply short (about 4 KB): a whole item with its components - a Haul with five stacks inside - comes back
+  truncated, and what you were looking for may be past the cut. Ask for the one path you need (`...container[{item:{id:
+  "minecraft:diamond_sword"}}].item.id`, `...lore[1].text`), as t191 does.
+- A Haul (or Haul Crate) set down is found by looking along the player's line of sight from the eyes: place it where the
+  bot is looking (t191 looks 45° down and places one block ahead), or it opens nothing and no marker minds it.
+- `bm.gvr_lobby,limit=1` finds the first lobby on the server, not your heist's: after a test that left a second instance
+  open, a test staging that way (t86) works on the wrong heist. Address your own (`scores={bm.gvi=N}`), or run it alone.
 
 ## Index
 
@@ -449,6 +456,8 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t188.js` | 2.80g: a straggler out of reach is flushed out, as a regular player - in a Counting House, the last guard sealed in a ceiling pocket is flushed onto the room's floor within 40-odd seconds, glows and the crew is told; killed, the room moves on to its next wave |
 | `t189.js` | 2.80g: the heist kit is never lost, as a regular player - the main weapon dropped (Q) over lava is straight back in hand, nothing burns; a kit weapon lying in lava doesn't burn (fireproof); a paperweight can still be put down |
 | `t190.js` | 2.80g: the vault's guardian scaled for every crew, as regular players (TestRat + TestMouse, Tier V) - whole health past 1024 (1464 for two), 1024 in the mob and the rest a reserve; the bar opens full; a sword hit and a heavy blow are paid from the reserve and the bar falls by it; the second raider leaves: the whole eases to a crew of one's and what's left keeps its share; under half of the whole, its shell goes up |
+| `t191.js` | 2.80h: the prize roll, Haul Crates and the win streak, as a regular player - stepping onto the strongbox ring pays out; THE HAUL (tier, shares, coins), then the Tokens 1.5 s later; the card says HEIST WON, streak one; "Start a new raid" seals the leftovers (a found sword) into one Haul Crate in the pack, labelled with the tier, no loose sword; the next job won: WIN STREAK x2 on screen and card; home ends the streak; the crate set down is a Haul (minded, the sword inside) |
+| `t192.js` | 2.80h: the Fixer's mercy and the crew bonuses, as regular players (TestRat + TestMouse) - on the last try [Skip this puzzle] asks the mercy (half the pot: 20 of 40, and a share); paid, the room opens, the pot halves, the last try is kept, the crew is told; a second room: spent; won by both on the ring: CREW OF 2 and CLEAN CREW in the prize roll, and the card shows crew +1 share, clean crew +1 Token and the mercy's cost |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
 | `head.js` | The Horseman's Head: stream, overheat, charged blast, stoking + Nova, undead XP, lantern/heart variants, night tiers, healing. |

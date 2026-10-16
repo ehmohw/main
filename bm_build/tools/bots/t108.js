@@ -167,7 +167,9 @@ const DP = BMB + 'out_p2/BlackMarket_DP/data/bm';
 
   // ---- 8. the finds
   await run('clear TestRat'); await run('loot give TestRat loot bm:p105/rare_t3');
-  ok('A Tier III vault treasure is the Vault Breaker or the Coinslinger', (await cnt(bm('vault_breaker'))) + (await cnt(bm('coinslinger'))) === 1);
+  { const gear = (await cnt(bm('vault_breaker'))) + (await cnt(bm('coinslinger')));       // (2.79: the rare pool also holds diamonds, netherite scrap, a template)
+    const rare = (await cnt('minecraft:diamond')) + (await cnt('minecraft:netherite_scrap')) + (await cnt('minecraft:netherite_upgrade_smithing_template'));
+    ok('A Tier III vault treasure is the Vault Breaker or the Coinslinger (or, from 2.79, a diamond, netherite scrap or a template)', gear === 1 || (gear === 0 && rare >= 1), `gear ${gear}, rare ${rare}`); }
   const fd = fs.readFileSync(`${DP}/function/p105/finds.mcfunction`, 'utf8');
   ok('Every win rolls for Forgeheart (5%), the Alibi (3%) and the Press (1%)', /matches \.\.5 run function bm:p105\/find_rare/.test(fd) && /matches \.\.3 run function bm:p105\/find_legend/.test(fd) &&
      /matches \.\.1 run function bm:p105\/find_myth/.test(fd));

@@ -1,4 +1,4 @@
-# Black Market — v2.80g (Java 26.3)
+# Black Market — v2.80h (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,35 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.80h: heist rewards - Haul Crates, a prize roll, win streaks, crew bonuses and the Fixer's mercy
+
+### Haul Crates when you carry on
+Carrying on used to unpack your haul one slot each: whatever wasn't Tokens, coins or spoils went stack by stack into your locker, then your pack. Now it's **sealed in one Haul Crate per run** (up to 27 stacks a crate), labelled with the heist's tier and how many stacks are inside, and put in your locker (or your pack if you haven't claimed one). Set it down and open it like The Haul, wherever you can place a block. Walk away and what's left folds back up into your pack. Carrying on again never reopens it. Only if there's no room anywhere for a crate do the stacks go in one by one, as before.
+
+### The prize roll
+After the payout your rewards come up across the screen one at a time, every second and a half:
+1. **The Haul**: the tier, your shares and the coins in the pot.
+2. **Your Tokens**, then any **Medallions** or a **BM Trophy**.
+3. **Each bonus** you earned (below).
+4. **Rare, legendary and mythical finds last**. Their announcements in chat wait until the roll gets to them.
+
+### Win streaks
+Every heist you win without going home raises your streak. Each step of it (up to five) is a **40% chance of one more Token** on your next win, so a five-win streak averages two extra Tokens a heist. It shows in the roll ("WIN STREAK x3") and on the card. A failed heist, or going home, ends it.
+
+### Crew bonuses
+- **Bring friends:** a crew of two or more gets one more share of the haul for each raider past the first (up to three more).
+- **Clean crew:** if nobody in a crew of two or more was knocked out all heist, everyone gets one more Token.
+
+### The Fixer's mercy
+On your last try, skipping a puzzle used to be refused, since it would end the heist. Now the Fixer will open the way **once a heist** for part of the prize instead of a try: **half the pot so far, and a share of the haul.** It asks first and shows what it will cost. The crew keeps its last try, and the card notes what the mercy cost.
+
+### Checks
+- Two new logic lints. A macro line with no `$(...)` in it, which fails to load, now fails the check; one in the new code was found this way. So does a menu route that tests a click before reading it, which acts one click late. That was found in the mercy button and fixed.
+
+### Testing
+- New bot playtests: t191 (a real win stepping onto the strongbox ring, the prize roll's order and timing, a Haul Crate on carrying on, a second win for WIN STREAK x2, home ending the streak, the crate set down and opened) and t192 (the mercy on the last try, once a heist, and a crew of two winning with the crew and clean-crew bonuses).
+- t105, t86, t108, t127 and t170 rerun clean. t108's Tier III treasure check was stale since 2.79's rare pool added diamonds, netherite scrap and a template; it now allows them. Its "no old clutter" check rarely misses on a random find (it passed on the rerun).
 
 ## New in 2.80g: the heist, reviewed - the coat check, stuck rooms, the kit and the guardian
 
