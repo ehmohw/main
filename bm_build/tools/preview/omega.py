@@ -36,7 +36,7 @@ def otile(pose, view='iso', span=9.6 * k, center=(0, 3.1 * k, 0), size=360, play
     return K.label(s.render(view, size=size, span=span, center=center), label, sub)
 
 
-def stile(pose, view='iso', span=3.4, center=(0, 1.25, 0), size=300, player=True, label='', sub=None):
+def stile(pose, view='iso', span=4.6, center=(0, 1.5, 0.7), size=300, player=True, label='', sub=None):
     s = scene(); rigkit.render(s, S, pose, scale=S.RIG_SCALE)
     if player: K.person(s, (-1.3, 0, 0.3))
     return K.label(s.render(view, size=size, span=span, center=center), label, sub)
@@ -68,9 +68,9 @@ if 'serpents' in what:
     tiles = []
     for cr in S.CRESTS:
         for f in (None,) + S.FACES:
-            pose = dict(S.POSES['idle_a'], _crest=cr, head=rigkit.I, body=rigkit.I, jaw=rigkit.qs(('x', 0 if f == 'grin' else 34 if f == 'shriek' else 22)))
+            pose = dict(S.POSES['idle_a'], _crest=cr, head=rigkit.I, body=rigkit.I, jaw=rigkit.qs(('x', 2 if f in ('grin', 'blink') else 30 if f in ('shriek', 'hurt') else 14)))
             if f: pose['_face'] = f
-            tiles.append(stile(pose, 'front', span=1.9, center=(0, 1.7, 0), size=240, player=False, label=f'crest {cr}', sub=f or 'cackle (default)'))
+            tiles.append(stile(pose, 'front', span=1.9, center=(0, 2.2, -0.2), size=240, player=False, label=f'crest {cr}', sub=f or 'scowl (default)'))
     K.sheet(tiles, OUT + '/soulserp_faces.png', cols=4, title='Soul serpents - the three crests and the faces')
     I = S.POSES['idle_a']
     tiles = [stile(I, v, player=False, label=l) for v, l in (('front', 'front'), ('side', 'side'), ('back', 'back'), ((-35, 20), '3/4'))]
@@ -100,7 +100,7 @@ if 'gifs' in what:
             else:
                 fp = dict(fp, _crest={'cackle': 'b', 'salute': 'b', 'sneak_boo': 'c', 'flick': 'c'}.get(name, 'a'))
                 rigkit.draw(s, S, xf, fp, scale=S.RIG_SCALE); K.person(s, (-1.3, 0, 0.3))
-                ims.append(s.render('iso', size=280, span=3.6, center=(0, 1.3, 0)))
+                ims.append(s.render('iso', size=280, span=4.8, center=(0, 1.5, 0.7)))
         K.gif(ims, f'{OUT}/{"omega" if who == "omega" else "soulserp"}_{name}.gif', step=2)
         print(full, len(ims), 'frames', round(time.time() - t0, 1))
 print('done', round(time.time() - t0, 1), 's')
