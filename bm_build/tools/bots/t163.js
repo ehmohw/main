@@ -167,6 +167,7 @@ const res = [];
   // ---------------------------------------------------------------- Cecil's doll of him: a real trade
   await run(`${O}execute positioned ${X + 5.5} ${Y + 1} ${Z - 3.5} rotated 180 0 run function bm:p45/cecil/spawn`); await sleep(1500);
   const CEC = `@e[type=minecraft:villager,tag=bm.npc_wizard,x=${X + 5.5},y=${Y + 1},z=${Z - 3.5},distance=..2,limit=1]`;
+  await at(X + 5.5, Y + 1, Z - 0.5, 180, 0); await sleep(2500);   // (2.80b: step up to his counter - a doll shows once its follower is met, to whoever is there)
   let idx = -1;
   for (let i = 0; i < 80 && idx < 0; i++) { const s = await nbt(CEC, `Offers.Recipes[${i}].sell.components."minecraft:custom_data".bm`); if (/Found no elements/i.test(s)) break; if (/"doll_fishy"/.test(s)) idx = i; }
   ok('Cecil sells the Fishy doll', idx >= 0, `trade #${idx}`);
