@@ -140,15 +140,10 @@ const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : null;
     ok(`Deposit: 2 Medallions and a Trophy kept as pieces (${m}, ${t}); all told ${c} coins`, m === 2 && t === 1 && c === 165);
     const ui = await run('data get storage bm:ui bk2');
     ok('...the account page shows them, and 5 loose coins', /gm: 2/.test(ui) && /gt: 1/.test(ui) && /c: 5[,}]/.test(ui), ui.slice(0, 200));
-    await run('execute as TestRat at @s run function bm:p120/bk_m1'); await sleep(200);
-    ok('Take 1 Medallion: one in your pocket, one left', (await items('*[minecraft:custom_data~{bm:"gutter_medallion"}]')) === 1 && (await num('scoreboard players get TestRat bm.gbm')) === 1 && (await num('scoreboard players get TestRat bm.gbc')) === 149);
-    await run('execute as TestRat at @s run function bm:p80/bank_take64'); await sleep(200);
-    ok('Take 64 coins: only the 5 loose ones come out - the Trophy and Medallion stay', (await items('*[minecraft:custom_data~{bm:"gutter_coin"}]')) === 5 && (await num('scoreboard players get TestRat bm.gbt')) === 1 && (await num('scoreboard players get TestRat bm.gbm')) === 1);
+    // (taking pieces out, one currency at a time: t154)
     await run('scoreboard players remove TestRat bm.gbc 40'); await run('execute as TestRat run function bm:p80/init_me');
     const c2 = await num('scoreboard players get TestRat bm.gbc'), m2 = await num('scoreboard players get TestRat bm.gbm'), t2 = await num('scoreboard players get TestRat bm.gbt');
-    ok(`Spend 40 from the bank (144 = a Trophy + a Medallion): broken into change only as far as needed (${c2} = ${t2} T, ${m2} M + ${c2 - 128 * t2 - 16 * m2})`, c2 === 104 && t2 === 0 && m2 === 6);
-    await run('execute as TestRat at @s run function bm:p120/bk_ma'); await sleep(200);
-    ok('Take all Medallions: 6 more in your pocket, 8 loose coins left', (await items('*[minecraft:custom_data~{bm:"gutter_medallion"}]')) === 7 && (await num('scoreboard players get TestRat bm.gbm')) === 0 && (await num('scoreboard players get TestRat bm.gbc')) === 8);
+    ok(`Spend 40 from the bank (165 = a Trophy, 2 Medallions + 5): broken into change only as far as needed (${c2} = ${t2} T, ${m2} M + ${c2 - 128 * t2 - 16 * m2})`, c2 === 125 && t2 === 0 && m2 === 7);
   }
 
   // ================================================================== THE TEMPLE'S STONES
@@ -187,6 +182,8 @@ const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : null;
 
   await run('function bm:admin/prime_chance'); await run('function bm:admin/fork_chance'); await run('function bm:admin/traps_chance'); await run('function bm:admin/curse_chance'); await run('function bm:admin/rooms_any');
   for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
+  // (leave it as found: off every heist, with what it carried - p70/home is the way out a heist's own exits take)
+  await run('execute as @a[name=TestRat,tag=bm.gvp] at @s run function bm:p70/home');
   const pp = res.filter(Boolean).length; console.log(`\n${pp}/${res.length} passed`);
   A.end(); R.end(); process.exit(0);
 })().catch(e => { console.error(e); process.exit(1); });

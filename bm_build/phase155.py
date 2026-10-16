@@ -15,6 +15,10 @@ ENCHANTED GEAR   the heist gear that passes the check (the Thief's Cowl, Smuggle
 A CATCH-ALL      anyone in the vault who is neither on a heist nor through the coat check (any other way in: a mod, a
                  command, a stale state after a heist) is caught within a quarter second: in the Lounge or the Locker Hall
                  their gear is checked on the spot; anywhere else they're seen out - home, their gear handed back.
+(2.80d) THE OTHER WAY   anyone still marked as on a heist while out of the gutter for half a minute (a command took them
+                 out, a crash, a lost connection) is taken off it properly - their kept gear handed back - instead of
+                 carrying the heist with them: until now a follower's "item put away" rule and a Bond Sigil's mending both
+                 stood aside for them, as for a raider in the vault.
 (The coffers and every room template carry no ender chest - nothing reaches your ender chest from inside.)"""
 from items import T
 
@@ -145,3 +149,13 @@ def generate(G):
     # (checked where they stand: the Lounge's door and the hall's plate take them to their respawn point)
     G.FUNCS['p155/check_here'] += ['function bm:p155/sp_read', 'execute if data storage bm:gv sph.d run function bm:p155/home_set with storage bm:gv tmp']
     fn('p155/home_set', ['$data modify storage bm:lg r.p$(pid) set from storage bm:gv sph', '$data modify storage bm:lk r.p$(pid) set from storage bm:gv sph'])
+    # ---- (2.80d) the other way: on a heist, but out of the gutter for 30 seconds - off it, properly (p70/unraid hands back the
+    #      gear the coat check kept; it's what every exit of a heist ends with)
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.gvstr dummy']
+    G.OBJECTIVES += ['bm.gvstr']
+    G.FUNCS['loop/second'][-1:-1] = ['execute as @a[tag=bm.gvp,tag=!bm.gvdead] at @s unless dimension bm:gutter run function bm:p155/left_out',
+                                     'execute as @a[scores={bm.gvstr=1..}] at @s if dimension bm:gutter run scoreboard players reset @s bm.gvstr',
+                                     'execute as @a[tag=!bm.gvp,scores={bm.gvstr=1..}] run scoreboard players reset @s bm.gvstr']
+    fn('p155/left_out', ['scoreboard players add @s bm.gvstr 1', 'execute unless score @s bm.gvstr matches 30.. run return 0',
+                      'scoreboard players reset @s bm.gvstr', 'function bm:p70/unraid',
+                      say('You left the gutter mid-heist - the Fixer counts you out (your gear is back with you).', 'gray')])

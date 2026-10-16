@@ -209,6 +209,10 @@ it: `chunks.js`, which both rcon helpers (`lib.js`, `lib_resp.js`) send every co
 - Two crews in a row: a heist now closes when its last raider leaves (2.80a). Before, a quick second plan joined the old
   heist and no end-of-heist screen came (t131mp).
 - 26.3 answers an `execute ... if entity` that finds nothing with "Test failed", not "Count: 0" (t23).
+- Dropping an item: 26.3's `block_dig` statuses are 5 (drop one, Q) and 4 (drop the stack, ctrl+Q); 6 is release-use and 7
+  swap hands. lib_resp's `A.drop(stack)` sends the right one (t180).
+- A heist tag left on a bot (an rcon tp out of a heist) made followers and Bond Sigils treat it as still raiding. The pack
+  now counts anyone out of the gutter 30 s as off the heist (2.80d), and t120 sends its raider home at the end.
 - One RCON reply holds about 4 KB: a trader's whole `Offers` list is cut short. Read it one recipe at a time (t25, t32).
 - Count by area, not world-wide: other tests leave their own markers, boards and slot machines behind (t25, t32).
 - 2.80: a roaming boss stages its arrival (about 5 s, untouchable, health buffered) and its death (about 5 s). Wait both
@@ -239,7 +243,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | Script | What it covers |
 |---|---|
 | `t5lay.js` | - |
-| `t23.js` | first check: mailbox model on its hitbox **(partly stale: the satchel steps predate the vacuum satchel's barrel crate (sneak to open))** |
+| `t23.js` | first check: mailbox model on its hitbox (2.80d: trimmed to what still holds) |
 | `t23b.js` | - |
 | `t23c.js` | - |
 | `t24i.js` | first check: sparks: first target and chain hit, far one spared |
@@ -262,9 +266,9 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t38.js` | v2.35: the chestplate essences/resonances against a real attacker (a husk with AI: the damage command never triggers on-hit enchantments) |
 | `t39.js` | v2.36 fixes: trades stay open (no re-teleport), Barnaby's spot, nameplates follow, Cecil's spawn on a step, admin/blood_moon |
 | `t39b.js` | - |
-| `t42.js` | v2.40: KillerWatt's Tendrils, Apophiss's Crown, Leo's Trident, Cecil's Staff **(partly stale: Cecil no longer sells KillerWatt's gear (2.79b), and the chest-worn tendrils' yank and snatch went with 2.4x's equippable tendrils)** |
+| `t42.js` | v2.40: KillerWatt's Tendrils, Apophiss's Crown, Leo's Trident, Cecil's Staff (2.80d: trimmed to what still holds) |
 | `t42b.js` | - |
-| `t43.js` | v2.42: two-blade tendrils + lunge; v2.41: tendrils worn on the chest (4 at the back, look-to-lash, sneak+jump fling, snatch, weather), crown at nig... **(partly stale: the chest-worn tendrils' checks predate the equippable tendrils)** |
+| `t43.js` | v2.42: two-blade tendrils + lunge; v2.41: tendrils worn on the chest (4 at the back, look-to-lash, sneak+jump fling, snatch, weather), crown at nig... (2.80d: trimmed to what still holds) |
 | `t44.js` | v2.43: tendril melee stab (+2 reach, both upper tendrils, pierce) and the charged-jump pose |
 | `t45.js` | v2.45: Pearlman, the gems (finder, display, kin), the fusion, the Ethereal shrine and status |
 | `t46.js` | v2.46: Pearlman visits like a wandering trader - one roll a day, 10% rising by 10 to 30%, reset when he comes |
@@ -292,14 +296,14 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t65k.js` | v2.65: kit abilities, hirelings, the Endless Vault, the Pit |
 | `t65m.js` | v2.65: who guards each tier, the tier guardians, the music, the themed stone |
 | `t65o.js` | v2.65: the 2.60 rooms still work in their new tiers (levers, plates, guards at I; tiles, lasers, dial at III), on a bench |
-| `t67.js` | first check: The full Gilded set: no fall damage (fall damage x0) **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
-| `t72.js` | first check: Display case: use it looking at the floor - a floor case stands there (case, contents, hitbox) **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
+| `t67.js` | first check: The full Gilded set: no fall damage (fall damage x0) (2.80d: trimmed to what still holds) |
+| `t72.js` | first check: Display case: use it looking at the floor - a floor case stands there (case, contents, hitbox) (2.80d: trimmed to what still holds) |
 | `t73.js` | first check: A bottled cow goes in a floor case: she appears on the cushion |
 | `t74.js` | first check: …: ladders all the way up (… rows) |
 | `t78.js` | v2.65: follower cosmetics - Emma's ribbons and dresses, Celi's outfits, Zib's uniforms; Velour's stock; the hidden ones |
 | `t79.js` | v2.65: KillerWatt - the Storm Effigy, the boss (rig, animation, attacks, roar, reward), the Spark follower, Cecil's shop **(partly stale: using the Spark while he's out opens his menu since 2.78, rather than calling him over)** |
-| `t79b.js` | v2.66: KillerWatt the follower - riding, wall climbing, the Thunder Leap, the tendril stab, the leap, chain lightning, gems and the Ethereal Form **(partly stale: the Ethereal flight check looks up from the ground; since 2.75b he takes off only on a jump in mid-air - t125 covers it)** |
-| `t80.js` | v2.66: the Fixer's Office - the Gutter Bank, spoils, kit ranks, secondaries and signatures; metal trophies; the Bond Sigils **(partly stale: the Gutter Bank became a page per currency in 2.80a (t175))** |
+| `t79b.js` | v2.66: KillerWatt the follower - riding, wall climbing, the Thunder Leap, the tendril stab, the leap, chain lightning, gems and the Ethereal Form (2.80d: trimmed to what still holds) |
+| `t80.js` | v2.66: the Fixer's Office - the Gutter Bank, spoils, kit ranks, secondaries and signatures; metal trophies; the Bond Sigils (2.80d: trimmed to what still holds) |
 | `t86.js` | v2.67: haul themes + the capped prize, everything in The Haul, the pot nerf, the bank's medallions, the Scrap Box, |
 | `t87.js` | v2.67: crew scaling, hidden vaults, the hidden treasures, and the Gutter Gentry |
 | `t89.js` | v2.67: followers in the vault (raid contracts), the follower wardrobe at Goldtooth, Emma's new outfits |
@@ -331,7 +335,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t115b.js` | 2.72 (II): room curses, forks in the road, corridor traps |
 | `t115c.js` | 2.72 (III): Smelling Salts, the Thief's Hourglass, the Alarm Jammer, Masterworks, the Codex, each tier's own finds |
 | `t118.js` | 2.73: a raid boss's minions fall with it |
-| `t120.js` | 2.74: checkpoint respawn + kept pockets, kit 32/4, Lights Out / Glass Cannon only out on the heist, den names + carpet, **(partly stale: its Gutter Bank steps predate the page-per-currency bank of 2.80a; t175 covers it)** |
+| `t120.js` | 2.74: checkpoint respawn + kept pockets, kit 32/4, Lights Out / Glass Cannon only out on the heist, den names + carpet, (2.80d: trimmed to what still holds) |
 | `t121.js` | 2.74: the Fixer's Lounge - held still into it, every counter working there, its door home; the end-of-heist Go to the Lounge pressed (2.79: the real trigger, not a direct call); Leo's size |
 | `t122.js` | 2.74b: Speed Run with the alarm off, patrols stop at the vault, puzzle skip, a mistake's guard cleared, solo crew of 3, |
 | `t123.js` | 2.74: Block Party keeps you in the room; a failed puzzle's mobs go on solve |
@@ -427,6 +431,8 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t177.js` | 2.80b: the special nights, as a regular player (rcon only picks the night and moves the clock on) - the Blood Moon rises (title, word, bar), refuses an Invasion that day, won't let a bed sleep it away, sets at dawn; a Lucky Night starts, a Leprechaun Rat caught drops a Pot of Gold, picked up and tipped out for Tokens, dawn ends it; an Invasion Night starts, the Vorn land near you, and at dawn every one lifts away - troopers, saucers and the bioengineered beasts |
 | `t178.js` | 2.80b: Cecil's dolls wait until you've met their follower - a player who has met no one finds all thirteen wrapped (out of stock, a pick buys nothing); holding KillerWatt's Spark unwraps his doll in its own slot and it's bought for real; a second player at the counter doesn't change the list until the first walks off, then sees their own; no one there, all wrapped |
 | `t179.js` | 2.80c: the diamond and netherite looks - Tullius's Diamond Captain used (his rig wears it), his wardrobe (Netherite locked, where to find it), the Netherite Captain bought at the Tailor through his dialog (6,144 coins, OWNED) and worn; Leo's diamond helm; Wilfrey's Netherite Sun shield and netherite armour |
+| `t180.js` | 2.80d: the ground forges, as a regular player - ingredients tossed with Q (ctrl+Q for a stack): the Huntmaster's Relic (the Overworld roaming bosses' weapons, F to turn, a catalyst), the Riftbound Relic, the Starheart (by night under the sky; eaten: +1 heart), the Talisman of the Three Nights (Luck II on a Lucky Night); a forge that loses a piece goes cold |
+| `t181.js` | 2.80d: the Trophy Stand, as a regular player - set down with a use, opened and folded with right-clicks (bosses on the top step, heist rooms in their best metal, laurels in front, the plaque's counts), folds itself when walked away from, picked up with sneak + punch; Madame Velour sells it |
 |  | home (from her menu), and with Wilfrey out a fourth follower refused. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
