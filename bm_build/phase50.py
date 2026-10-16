@@ -106,9 +106,9 @@ def generate(G):
     assert lect, 'the newcomers\' lectern line was not found'
     # markets already in the world: rewrite their book once
     p41 = next(l for l in G.FUNCS['loop/second'] if 'function bm:p41/patch' in l)
-    # (2.80e: bm.p50d - the book gained its ground-forges pages, so every market rewrites it once more)
-    second.append(p41.replace('tag=!bm.p41]', 'tag=!bm.p50d]').replace('function bm:p41/patch', 'function bm:p50/book'))
-    fn('p50/book', ['tag @s add bm.p50d', lect])
+    # (2.80e: bm.p50e - the book gained its ground-forges pages (and the Unbound Crown's), so every market rewrites it once more)
+    second.append(p41.replace('tag=!bm.p41]', 'tag=!bm.p50e]').replace('function bm:p41/patch', 'function bm:p50/book'))
+    fn('p50/book', ['tag @s add bm.p50e', lect])
 
     # ================================================================ 2) the advancement tab
     def icon(iid):

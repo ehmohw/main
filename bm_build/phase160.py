@@ -230,10 +230,7 @@ def generate(G):
                        f'execute if score @s bm.fgt matches {T_CLOSE} run playsound minecraft:block.beacon.power_select block @a[distance=..16] ~ ~ ~ 1 1.4',
                        f'execute if score @s bm.fgt matches {T_CLOSE}.. run particle minecraft:enchant ~ ~0.8 ~ 0.3 0.3 0.3 1 6'] +
        [f'execute if score @s bm.fgt matches {T_DONE}.. if entity @s[tag=bm.fg_{r}] run return run function bm:p160/f/{r}/done' for r, *_x in RECIPES])
-    fn('p160/f/fx', ['$execute rotated $(r) 0 positioned ~ ~0.3 ~ if entity @s[tag=bm.fg_hunt] run function bm:p160/f/hunt/fx',
-                     '$execute rotated $(r) 0 positioned ~ ~0.3 ~ if entity @s[tag=bm.fg_rift] run function bm:p160/f/rift/fx',
-                     '$execute rotated $(r) 0 positioned ~ ~0.3 ~ if entity @s[tag=bm.fg_star] run function bm:p160/f/star/fx',
-                     '$execute rotated $(r) 0 positioned ~ ~0.3 ~ if entity @s[tag=bm.fg_nights] run function bm:p160/f/nights/fx'])
+    fn('p160/f/fx', [f'$execute rotated $(r) 0 positioned ~ ~0.3 ~ if entity @s[tag=bm.fg_{r}] run function bm:p160/f/{r}/fx' for r, *_x in RECIPES])
     fn('p160/f/fail', ['execute as @e[type=minecraft:item,tag=bm.fg,distance=..4] run function bm:p160/f/free', 'particle minecraft:smoke ~ ~0.6 ~ 0.3 0.3 0.3 0.02 20',
                        'playsound minecraft:block.fire.extinguish block @a[distance=..16] ~ ~ ~ 0.8 1.2',
                        'execute as @a[distance=..12] run ' + title('@s', 'actionbar', T('A piece went missing - the forge goes cold.', 'gray')), 'kill @s'])

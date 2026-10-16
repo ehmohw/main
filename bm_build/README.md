@@ -1,4 +1,4 @@
-# Black Market — v2.80e (Java 26.3)
+# Black Market — v2.80f (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,28 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.80f: Apophiss's Unbound Crown, and no more glowing outlines on custom mobs
+
+### Apophiss's Unbound Crown
+A new ground forge: toss **Apophiss's True Crown**, a **Wraithfire Heart** and the **Hollow King's Deathmask** down together (Q). Each of the three says so in its lore, and the Newcomers' Book has a page for it.
+
+The Unbound Crown keeps everything the True Crown does: its stats, the Serpent's Fangs, the Wrath, its night power, and setting it on a block. It adds:
+- **The whole Regalia on its own.** Worn alone, it counts as the Hollow King's full Regalia. The set wakes with the night, the moons, a Blood Moon, an Invasion or at home, and its Wither Nova (crouch, look up) is yours. Its colour change touches only the Regalia's own trimmed pieces, so other armour you wear keeps its look.
+- **His wings.** Sneak in mid-air: a beat of violet wings lifts you, then you glide down (Slow Falling). Two beats per leap; they come back when you land.
+- **Soul fire.** Monsters within 5 blocks of you burn, and your Serpent's Fangs sear whatever stands before you. It's magic fire, so fire immunity doesn't save them.
+- **Void Orbs.** When the Wrath wakes, three orbs of darkness ring you for five seconds, withering and gnawing at monsters inside them.
+- **Its look:** the True Crown's shape with a soul-blue emerald and violet gems.
+- **The "Unbound" advancement** for forging it.
+
+Owned True Crowns pick up the hint line on their own. Placing either crown on a block now says "The crown gleams where you set it".
+
+### No glowing outlines on custom mobs
+Followers, bosses, Vorn, Mimics and other custom-modelled mobs are an invisible vanilla mob carrying the model, and a glowing effect outlined that hidden mob: a wolf, husk or rabbit shape around the model. Now nothing in the pack makes them glow: the Xeno Visor, the Whisker charm, the Talisman's Blood Moon and Invasion glows, Pistachio's haunt, Fishy's ray, the raid's shiny and shelled guards, and the rest. A spectral arrow's glow on one is put out within a second. The Cipher Monocle now outlines a Mimic's chest model instead of the rabbit underneath.
+
+### Testing
+- New bot playtests: t185 (glows kept off custom mobs) and t186 (the Unbound Crown: the forge, the Regalia alone, the wings, the soul fire, the Fangs, the Void Orbs).
+- t180, t30, t134, t139, t174, t23 and t72 rerun clean.
 
 ## New in 2.80e: the ground forges, easier to find
 
