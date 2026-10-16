@@ -28,7 +28,7 @@ const X = 16000, Y = 100, Z = 16000; const res = [];
   const cow = '@e[type=cow,tag=bm.dcmob,limit=1]';
   ok('A bottled cow goes in a floor case: she appears on the cushion', (await cnt('@e[type=cow,tag=bm.dcmob]')) === 1 && /Bessie/.test(await run(`data get entity ${cow} CustomName`)));
   const scl = await run(`attribute ${cow} minecraft:scale get`);
-  ok('...shrunk to fit', /0\.4/.test(scl), scl);
+  ok('...shrunk to fit (2.80d: the circle she sweeps as she turns)', /0\.39/.test(scl), scl);
   ok('...no AI, can\'t be hurt', /1b/.test(await run(`data get entity ${cow} NoAI`)) && /1b/.test(await run(`data get entity ${cow} Invulnerable`)));
   ok('...sat on a seat (can\'t be pushed out)', /passed/.test(await run(`execute as ${cow} on vehicle if entity @s[type=block_display,tag=bm.dcseat]`)));
   ok('...and the jar itself is hidden', /0\.0f, 0\.0f, 0\.0f/.test(await run(`data get entity @e[type=item_display,tag=bm.dcitem,limit=1,sort=nearest,x=${X + 0.5},y=${Y + 1},z=${Z + 1.5}] transformation.scale`)));

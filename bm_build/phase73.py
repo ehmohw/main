@@ -21,6 +21,7 @@ FIXES: one Dockmaster per market (extras removed); Pearlman's model goes when he
   Celi's spear no longer clips her hair; Emma wears her own blue by default (Healing); crash-site Xenite Altars can be
   picked up (sneak + punch)."""
 import json
+import math
 from items import item, T, TOTEM, ITEMS
 from useitem import hold, HOLD
 from nbt import snbt, B, F, D, Int
@@ -54,6 +55,23 @@ DIMS = {'allay': (.35, .6), 'armadillo': (.7, .65), 'axolotl': (.75, .42), 'bat'
         'turtle': (1.2, .4), 'vex': (.4, .8), 'villager': (.6, 1.95), 'vindicator': (.6, 1.95), 'wandering_trader': (.6, 1.95), 'witch': (.6, 1.95),
         'wither_skeleton': (.7, 2.4), 'wolf': (.6, .85), 'zoglin': (1.4, 1.4), 'zombie': (.6, 1.95), 'zombie_horse': (1.4, 1.6),
         'zombie_nautilus': (.9, .95), 'zombie_villager': (.6, 1.95), 'zombified_piglin': (.6, 1.95)}
+# (2.80d) how long their MODELS are, nose to tail (blocks, at scale 1) - longer than their hitboxes are wide: a case fits the circle a
+# turning creature sweeps, not its hitbox. Upright ones with arms (zombies, villagers...) are about 0.5 deep and 1.0 across the arms.
+LEN = {'pig': 1.15, 'cow': 1.3, 'mooshroom': 1.3, 'sheep': 1.3, 'goat': 1.3, 'horse': 2.0, 'donkey': 1.8, 'mule': 1.9, 'skeleton_horse': 2.0,
+       'zombie_horse': 2.0, 'camel': 2.4, 'camel_husk': 2.4, 'llama': 1.5, 'trader_llama': 1.5, 'wolf': 1.25, 'cat': 1.1, 'ocelot': 1.1, 'fox': 1.25,
+       'hoglin': 1.9, 'zoglin': 1.9, 'polar_bear': 1.9, 'panda': 1.9, 'sniffer': 2.4, 'ravager': 2.4, 'turtle': 1.4, 'armadillo': 0.9, 'axolotl': 1.1,
+       'spider': 1.4, 'cave_spider': 1.0, 'rabbit': 0.6, 'chicken': 0.6, 'frog': 0.7, 'strider': 1.0, 'dolphin': 1.6, 'cod': 0.7, 'salmon': 1.0,
+       'tropical_fish': 0.6, 'pufferfish': 0.7, 'tadpole': 0.4, 'phantom': 1.2, 'guardian': 1.4, 'nautilus': 1.0, 'zombie_nautilus': 1.0,
+       'silverfish': 0.5, 'endermite': 0.5, 'bee': 0.8, 'parrot': 0.6, 'bat': 0.5, 'allay': 0.5, 'vex': 0.5}
+
+
+def footprint(t, w, h):
+    """(length, width) of a creature's model in blocks at scale 1"""
+    if t in LEN: return LEN[t], w
+    if h >= 1.5 and w <= 0.75: return 0.5, 1.0                 # (upright, arms out to the sides)
+    return w, w
+
+
 RAW = {'beef': 'cooked_beef', 'porkchop': 'cooked_porkchop', 'chicken': 'cooked_chicken', 'mutton': 'cooked_mutton', 'rabbit': 'cooked_rabbit',
        'cod': 'cooked_cod', 'salmon': 'cooked_salmon', 'potato': 'baked_potato', 'kelp': 'dried_kelp'}
 FOLLOW = [   # kind, host type, host tag, item, "goes away" function, name, ticket objective
@@ -114,12 +132,18 @@ def generate(G):
     put.insert(k + 1, f'execute if data entity {sel} item.components."minecraft:custom_data".jar as @e[type=minecraft:interaction,tag=bm.dcme,limit=1] at @s run function bm:p73/dcm/show')
     G.FUNCS['p72/dc/take'].insert(0, 'execute as @e[type=minecraft:interaction,tag=bm.dcme,limit=1] at @s run function bm:p73/dcm/clear')
     G.FUNCS['p72/dc/drop'].insert(0, 'function bm:p73/dcm/clear')
-    G.FUNCS['p72/dc/spin_toggle'] += ['execute as @e[type=minecraft:interaction,tag=bm.dcme,limit=1] at @s run tag @e[tag=bm.dcmob,distance=..0.8] add bm.dcmspin']
+    # (2.80d: only on a floor case - a wall case is too shallow for a creature to turn in without poking through the glass, as the figurines)
+    G.FUNCS['p72/dc/spin_toggle'] += ['execute as @e[type=minecraft:interaction,tag=bm.dcme,limit=1] at @s unless entity @s[nbt={width:0.6f}] run tag @e[tag=bm.dcmob,distance=..0.8] add bm.dcmspin']
     G.FUNCS['p72/dc/spin_off'] += ['execute as @e[type=minecraft:interaction,tag=bm.dcme,limit=1] at @s run tag @e[tag=bm.dcmob,distance=..0.8] remove bm.dcmspin']
     size = []
     for t, (w, h) in DIMS.items():
-        fs = max(0.0625, min(1.0, 0.58 / h, 0.62 / w)); ws = max(0.0625, min(1.0, 0.55 / h, 0.3 / w))
-        size.append(f'execute if data storage bm:dcm {{j:{{eid:"minecraft:{t}"}}}} run data modify storage bm:dcm s set value {{f:{fs:.3f}d,w:{ws:.3f}d}}')
+        L, W = footprint(t, w, h)
+        # floor (0.66 across inside the glass, about 0.6 above the cushion): the circle it sweeps as it turns stays inside
+        fs = max(0.0625, min(1.0, 0.56 / h, 0.31 / (0.5 * math.hypot(L, W))))
+        # wall (0.48 across, 0.3 deep, it never turns): its long side along the wall - a long creature is shown side-on
+        side = 1 if L > W else 0
+        ws = max(0.0625, min(1.0, 0.5 / h, 0.46 / max(L, W), 0.28 / min(L, W)))
+        size.append(f'execute if data storage bm:dcm {{j:{{eid:"minecraft:{t}"}}}} run data modify storage bm:dcm s set value {{f:{fs:.3f}d,w:{ws:.3f}d,p:{side}b}}')
     fn('p73/dcm/size', size)
     case = '@e[type=minecraft:item_display,tag=bm.dcase,distance=..0.05,limit=1]'
     fn('p73/dcm/show', [f'data modify storage bm:dcm j set from entity {sel} item.components."minecraft:custom_data".jar',
@@ -128,7 +152,7 @@ def generate(G):
        [f'data modify storage bm:dcm data.{k} set value 1b' for k in ('NoAI', 'Invulnerable', 'Silent', 'PersistenceRequired', 'NoGravity')] +
        ['data modify storage bm:dcm data.Tags append value "bm.dcmob"', 'data modify storage bm:dcm data.Tags append value "bm.dcmnew"',
         'data remove storage bm:dcm data.attributes[{id:"minecraft:scale"}]',
-        'data modify storage bm:dcm s set value {f:0.3d,w:0.25d}', 'function bm:p73/dcm/size',
+        'data modify storage bm:dcm s set value {f:0.3d,w:0.25d,p:0b}', 'function bm:p73/dcm/size',
         'data modify storage bm:dcm data.attributes append value {id:"minecraft:scale",base:0.3d}',
         'execute if entity @s[nbt={width:0.6f}] run data modify storage bm:dcm data.attributes[-1].base set from storage bm:dcm s.w',
         'execute unless entity @s[nbt={width:0.6f}] run data modify storage bm:dcm data.attributes[-1].base set from storage bm:dcm s.f',
@@ -138,7 +162,12 @@ def generate(G):
         f'execute if entity @e[tag=bm.dcmob,distance=..0.8] run data merge entity {sel} {{transformation:{{scale:[0f,0f,0f]}}}}'])
     fn('p73/dcm/place', ['summon minecraft:block_display ~ ~ ~ {Tags:["bm.dcseat","bm.dcsnew"]}', 'function bm:p73/dcm/summon with storage bm:dcm',
                          'ride @e[tag=bm.dcmnew,limit=1,sort=nearest] mount @e[type=minecraft:block_display,tag=bm.dcsnew,limit=1,sort=nearest]',
-                         f'execute rotated as {case.replace("distance=..0.05", "distance=..0.6")} run rotate @e[tag=bm.dcmnew,limit=1,sort=nearest] ~ 0',
+                         # (2.80d: facing out of the case - set through its saved Rotation, which turns its head and body with it; "rotate" turned
+                         #  only the body of a creature with no AI, and its head stayed where it was)
+                         f'execute store result score #y bm.rng run data get entity {case.replace("distance=..0.05", "distance=..0.6")} Rotation[0]',
+                         'execute if entity @e[type=minecraft:interaction,tag=bm.dcme,distance=..0.6,nbt={width:0.6f}] if data storage bm:dcm {s:{p:1b}} run scoreboard players add #y bm.rng 90',
+                         'execute store result entity @e[tag=bm.dcmnew,limit=1,sort=nearest] Rotation[0] float 1 run scoreboard players get #y bm.rng',
+                         'data modify entity @e[tag=bm.dcmnew,limit=1,sort=nearest] Rotation[1] set value 0f',
                          'execute unless entity @e[tag=bm.dcmnew,distance=..1] run kill @e[type=minecraft:block_display,tag=bm.dcsnew,distance=..0.1]',
                          'execute if entity @e[tag=bm.dcmnew,distance=..1] run particle minecraft:poof ~ ~0.2 ~ 0.15 0.15 0.15 0.01 8',
                          'execute if entity @e[tag=bm.dcmnew,distance=..1] run playsound minecraft:item.bottle.empty block @a[distance=..16] ~ ~ ~ 0.8 1.2',
@@ -147,7 +176,12 @@ def generate(G):
     fn('p73/dcm/clear', ['execute as @e[tag=bm.dcmob,distance=..0.8] at @s run function bm:p73/dcm/vanish', 'kill @e[type=minecraft:block_display,tag=bm.dcseat,distance=..0.8]',
                          'execute as @e[type=minecraft:item_display,tag=bm.dcitem,distance=..0.05] run data merge entity @s {transformation:{scale:[0.5f,0.5f,0.5f]}}'])
     fn('p73/dcm/vanish', ['particle minecraft:poof ~ ~0.2 ~ 0.15 0.15 0.15 0.01 8', 'ride @s dismount', 'tp @s ~ -2000 ~', 'kill @s'])
-    tick.append('execute as @e[tag=bm.dcmspin] at @s run rotate @s ~3 ~')
+    # (turning: its saved Rotation stepped on, so its head turns with its body)
+    tick.append('execute as @e[tag=bm.dcmob,tag=bm.dcmspin] run function bm:p73/dcm/spin')
+    tick.append('execute as @e[type=minecraft:item_display,tag=bm.dcmspin] at @s run rotate @s ~3 ~')      # (the figurines: displays have no head)
+    fn('p73/dcm/spin', ['execute store result score #y bm.rng run data get entity @s Rotation[0] 100', 'scoreboard players add #y bm.rng 300',
+                        'execute if score #y bm.rng matches 18000.. run scoreboard players remove #y bm.rng 36000',
+                        'execute store result entity @s Rotation[0] float 0.01 run scoreboard players get #y bm.rng'])
 
     # ================================================================== CECIL: a click box the size of him
     P46_FIRE = EL_KEYS.index('fire') + 1
