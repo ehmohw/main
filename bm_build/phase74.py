@@ -80,6 +80,7 @@ def guide_pages(O, zorp):
     pages.append([T('BEHIND THE NORTH WALL\n\n', H, bold=True), T('The Dark Auction and the Gilded Gutter open as your ', 'black'), T('Standing', H),
                   T(' grows - spend, and the market notices.\n\nLeaving? The ', 'black'), T('LIFT', H, bold=True),
                   T(' button by the vault door takes you up.\n\n- The Management', 'black')])
+    pages[-1:-1] = phase50.EXTRA_PAGES          # (2.80e: other modules' spreads - the ground forges - before the sign-off)
     return pages
 
 
@@ -183,9 +184,7 @@ def generate(G):
                        'tp @a[tag=bm.lifter] ~ ~ ~', 'effect give @a[tag=bm.lifter] minecraft:slow_falling 2 0 true',
                        'execute as @a[tag=bm.lifter] at @s run playsound minecraft:block.chain.place player @s ~ ~ ~ 1 0.8',
                        'execute as @a[tag=bm.lifter] at @s run ' + title('@s', 'actionbar', T('Up you go.', GOLD)), 'tag @a remove bm.lifter'])
-    # (the newcomers' book: markets already in a world get the short one once)
-    second.append('execute as @e[type=minecraft:marker,tag=bm.mkt,tag=bm.p50,tag=!bm.p74b] at @s rotated as @s if entity @a[distance=..64] run function bm:p74/book')
-    fn('p74/book', ['tag @s add bm.p74b', 'function bm:p50/book'])
+    # (the newcomers' book: phase50's bm.p50d pass rewrites it in every market, old or new)
 
     # ================================================================== FOLLOWERS: welcome everywhere but the vault and the Hollow Throne
     fn('p74/fol_ok', ['execute if dimension bm:gutter run return 0', 'execute if dimension bm:hollow_throne run return 0', 'return 1'])

@@ -9,6 +9,8 @@
 //   A forge that loses a piece (taken mid-burn) goes cold, and the rest can be picked up again.
 //   The Talisman of the Three Nights: 8 Blood Crystals + 8 Lucky Tokens + a Red Xenite by night; carried on a Lucky Night:
 //     Luck II.
+// 2.80e: finding them - every ingredient's lore says where it leads; the Newcomers' Book has a GROUND FORGES spread; each
+//   forge earns its advancement in the Black Market tab when the result is picked up.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
@@ -33,11 +35,25 @@ const res = [];
   const kit = async (iids) => { await run('clear TestRat'); for (let i = 0; i < iids.length; i++) await run(`loot replace entity TestRat hotbar.${i} loot bm:items/${iids[i]}`); };
   const toss = async (n, stack = false) => { for (let i = 0; i < n; i++) { A.slot(i); await sleep(200); A.drop(stack); await sleep(250); } };
   const forged = async (iid, ms = 9000) => await wait(ms, async () => (await cnt(`@e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..12,nbt={Item:{components:{"minecraft:custom_data":{bm:"${iid}"}}}}]`)) >= 1);
+  const adv = async a => (await cnt(`@a[name=TestRat,advancements={bm:story/${a}=true}]`)) === 1;
+  const lore = async n => await run(`data get entity TestRat Inventory[{Slot:${n}b}].components."minecraft:lore"`);
+  for (const a of ['hunt', 'rift', 'star', 'nights']) await run(`advancement revoke TestRat only bm:story/forge_${a}`);
   const pickUp = async () => { const p = (await run(`${O}data get entity @e[type=minecraft:item,tag=bm.fgout,limit=1,sort=nearest,x=${X},y=${Y},z=${Z}] Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/);
     if (p) { await sleep(1500); await A.walkTo(+p[1], +p[3]); await sleep(1500); } };
 
+  // ---- the Newcomers' Book: the GROUND FORGES spread (a lectern, and the market's own book function aimed at it, as t30)
+  await run(`${O}setblock ${X + 6} ${Y + 1} ${Z + 6} minecraft:lectern`); await run(`${O}execute positioned ${X + 10.5} ${Y - 5} ${Z - 27.5} rotated 0 0 run function bm:p50/book`); await sleep(300);
+  const BK = `${X + 6} ${Y + 1} ${Z + 6} Book.components."minecraft:written_book_content".pages`;
+  let book = ''; for (let i = 0; i < 101; i++) { const r = await run(`${O}data get block ${BK}[${i}]`); if (!/has the following/.test(r)) break; book += r; }
+  ok('the Newcomers\' Book: a GROUND FORGES spread with every recipe (the Huntmaster\'s, Riftbound, Starheart, Three Nights, Wraithfire Heart)',
+     ['GROUND FORGES', 'Huntmaster', 'Riftbound', 'Starheart', 'Three Nights', 'Wraithfire Heart'].every(w => book.includes(w)), book.length + ' chars');
+  await run(`${O}setblock ${X + 6} ${Y + 1} ${Z + 6} minecraft:air`);
+
   // ---- the Huntmaster's Relic
   await stand(); await kit(['horseman_head', 'pharaoh_crook', 'storm_talon', 'heartwood_branch']);
+  ok('every relic says where it leads (the Head: "...crook, talon, branch, they fuse"; the Branch: "...head, crook, talon")',
+     /crook, talon, branch\), they fuse/.test(await lore(0)) && /head, crook, talon\), they fuse/.test(await lore(3)));
+  ok('...no forge advancement yet', !(await adv('forge_hunt')));
   A.chats.length = 0; await toss(4);
   const locked = await wait(4000, async () => (await cnt(`@e[type=minecraft:item,tag=bm.fg,x=${X},y=${Y},z=${Z},distance=..10]`)) === 4);
   ok('the four relics tossed together: the forge wakes - all four lifted and locked', locked);
@@ -47,6 +63,8 @@ const res = [];
   ok('..."FORGED" said to the player', A.chats.some(c => /FORGED.*Huntmaster/.test(c)), A.chats.slice(-2).join(' | '));
   await pickUp();
   ok('walked over: the Huntmaster\'s Head picked up', await has('hunt_head_1'));
+  ok('...the advancement "The Huntmaster"', await wait(3000, () => adv('forge_hunt')));
+  ok('...and the forged copy doesn\'t carry the hint', !/they fuse/.test(await run('data get entity TestRat SelectedItem.components."minecraft:lore"')));
   await run('clear TestRat *[custom_data~{bm:"hunt_head_1"}]'); await run('loot replace entity TestRat hotbar.0 loot bm:items/hunt_head_1');
   A.slot(0); await sleep(300); A.swap(); await sleep(400);
   ok('swap-hands (F): the next relic - the Huntmaster\'s Crook (same class)', /hunt_crook_1/.test(await held()), await held());
@@ -66,17 +84,22 @@ const res = [];
   // ---- the Riftbound Relic
   await stand(); await kit(['molten_gauntlet', 'void_scepter']); A.chats.length = 0; await toss(2);
   ok('the Gauntlet and the Scepter: the Riftbound Gauntlet', await forged('rift_gauntlet_1'));
-  await pickUp(); await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/rift_gauntlet_1'); A.slot(0); await sleep(300); A.swap(); await sleep(400);
+  await pickUp();
+  ok('...walked over: the advancement "Riftbound"', await wait(3000, () => adv('forge_rift')));
+  await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/rift_gauntlet_1'); A.slot(0); await sleep(300); A.swap(); await sleep(400);
   ok('...F: the Riftbound Scepter', /rift_scepter_1/.test(await held()), await held());
 
   // ---- the Starheart: by day it waits; at night under the sky it forges
-  await stand(); await kit(['fallen_star', 'heartstone']); A.bars.length = 0; await toss(2); await sleep(2500);
+  await stand(); await kit(['fallen_star', 'heartstone']);
+  ok('the Fallen Star and the Heartstone each name the other', /beside a Heartstone/.test(await lore(0)) && /beside a Fallen Star/.test(await lore(1)));
+  A.bars.length = 0; await toss(2); await sleep(2500);
   ok('a Fallen Star by a Heartstone, by day: nothing forged...', (await cnt(`@e[type=minecraft:item,tag=bm.fg,x=${X},y=${Y},z=${Z},distance=..10]`)) === 0);
   ok('...and it says why', A.bars.some(b => /open night sky/.test(b)), A.bars.slice(-1).join(''));
   await run('time set 14000');
   ok('...at night: the Starheart', await forged('starheart'));
   await pickUp();
   ok('...picked up', await has('starheart'));
+  ok('...the advancement "Heart of a Star"', await wait(3000, () => adv('forge_star')));
   const mh0 = +((await run('attribute TestRat minecraft:max_health get')).match(/([\d.]+)/) || [0, 0])[1];
   await run('scoreboard players set TestRat bm.shrt 0'); await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/starheart');
   A.slot(0); await sleep(300); A.use(); await sleep(2200); A.release(); await sleep(600);
@@ -100,6 +123,7 @@ const res = [];
   ok('8 Blood Crystals, 8 Lucky Tokens and a Red Xenite, by night: the Talisman of the Three Nights', await forged('three_nights_talisman'));
   await pickUp();
   ok('...picked up', await has('three_nights_talisman'));
+  ok('...the advancement "Three Nights"', await wait(3000, () => adv('forge_nights')));
   const tod = async () => +((await run('scoreboard players get #tod bm.bm')).match(/has (-?\d+)/) || [0, 0])[1];
   const goto = async t => { await run(`time add ${((t - await tod()) % 24000 + 24000) % 24000 || 24000}`); await sleep(1500); };
   await goto(1000); if (/has 1 /.test(await run('scoreboard players get #bday bm.bm'))) await goto(1000);     // (not on a Blood Moon day)

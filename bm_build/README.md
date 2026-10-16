@@ -1,4 +1,4 @@
-# Black Market — v2.80d (Java 26.3)
+# Black Market — v2.80e (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,24 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.80e: the ground forges, easier to find
+
+The forges arrived in 2.80d, but nothing in the game told you they existed. Now three things do.
+
+### The ingredients say where they lead
+- **Every relic that forges carries a hint line.** The Horseman's Head, the Pharaoh's Crook, the Roc's Talon and the Treant's Branch each name the other three. The Colossus's Gauntlet and the Voidwalker's Scepter name each other.
+- **So do the Fallen Star, the Heartstone and the Red Xenite Shard,** as the Wraithfire Heart's pieces already did.
+- Copies you already own pick up the line on their own; a relic keeps its class. The forged relics don't carry it.
+
+### The Newcomers' Book has a GROUND FORGES spread
+Two pages, just before the sign-off, list all five recipes: the Huntmaster's Relic, the Riftbound Relic, the Starheart, the Talisman of the Three Nights and the Wraithfire Heart. Markets already in your world rewrite their book once, the first time you're near.
+
+### Advancements
+Four new goals in the Black Market tab, each earned when you pick up what you forged: **The Huntmaster**, **Riftbound**, **Heart of a Star** and **Three Nights**. Each one's description gives its recipe.
+
+### Testing
+- t180 now also checks, as a regular player: the hint lines on the relics and on the star and heart, the book's forge pages, and each advancement granted on pickup (32 checks). t30 still reads the whole book.
 
 ## New in 2.80d: Dennis and Pistachio, ground forges, and the Trophy Stand
 

@@ -41,6 +41,9 @@ def _name(st):
     return st['id'].split(':')[1].replace('_', ' ').title()
 
 
+EXTRA_PAGES = []                     # (2.80d: pages other modules add after the index - phase160's ground forges)
+
+
 def guide_pages(O, zorp):
     """the trader directory and the who-sells-what index, as written-book pages (names only)"""
     H = '#6a2a8a'
@@ -72,6 +75,7 @@ def guide_pages(O, zorp):
         if cur: chunks.append(cur)
         for j, ch in enumerate(chunks):
             pages.append([T((n.upper() if j == 0 else n.upper() + ' (cont.)') + '\n', H, bold=True), T(''.join(f'- {x}\n' for x in ch), 'black')])
+    pages += EXTRA_PAGES
     return pages[:100]
 
 
@@ -102,8 +106,9 @@ def generate(G):
     assert lect, 'the newcomers\' lectern line was not found'
     # markets already in the world: rewrite their book once
     p41 = next(l for l in G.FUNCS['loop/second'] if 'function bm:p41/patch' in l)
-    second.append(p41.replace('tag=!bm.p41]', 'tag=!bm.p50]').replace('function bm:p41/patch', 'function bm:p50/book'))
-    fn('p50/book', ['tag @s add bm.p50', lect])
+    # (2.80e: bm.p50d - the book gained its ground-forges pages, so every market rewrites it once more)
+    second.append(p41.replace('tag=!bm.p41]', 'tag=!bm.p50d]').replace('function bm:p41/patch', 'function bm:p50/book'))
+    fn('p50/book', ['tag @s add bm.p50d', lect])
 
     # ================================================================ 2) the advancement tab
     def icon(iid):

@@ -29,6 +29,7 @@ from nbt import B, Short
 import phase42 as P42
 import phase53 as P53
 import phase54 as P54
+import phase50 as P50
 
 HUNTP = '*[minecraft:custom_data~{bm_hunt:1b}]'
 holds = '*[minecraft:custom_data~{bm:"%s"}]'
@@ -68,6 +69,33 @@ for _s, (_pre, _col, _fams, _first) in SETS.items():
             CATEGORY[_iid] = 'relic'
             if _f == 'head': HOLD_REPEAT[_iid] = 'bm:p42/use'
             else: HOLD[_iid] = f'bm:p53/{_f}/use'
+
+
+# (2.80d) each part says where it leads, as the Wraithfire Heart's do - added after the forged copies are built, so they don't carry it
+_HINTS = {'head': "On the ground with the other roaming terrors' relics (crook, talon, branch), they fuse.",
+          'crook': "On the ground with the other roaming terrors' relics (head, talon, branch), they fuse.",
+          'talon': "On the ground with the other roaming terrors' relics (head, crook, branch), they fuse.",
+          'branch': "On the ground with the other roaming terrors' relics (head, crook, talon), they fuse.",
+          'gauntlet': "On the ground beside the Voidwalker's Scepter, they fuse.",
+          'scepter': "On the ground beside the Magma Colossus's Gauntlet, they fuse."}
+for _f, _line in _HINTS.items():
+    for _v in range(1, 5):
+        _i = base_iid(_f, _v)
+        if _i in ITEMS: ITEMS[_i]['comps']['minecraft:lore'].insert(-1, T(_line, SETS['hunt' if _f in SETS['hunt'][2] else 'rift'][1]))
+for _i, _line, _col in (('fallen_star', 'On the ground beside a Heartstone, under the night sky, they fuse.', '#ffe9a0'),
+                        ('heartstone', 'On the ground beside a Fallen Star, under the night sky, they fuse.', '#ffe9a0'),
+                        ('xenite_red', 'On the ground with 8 Blood Crystals and 8 Lucky Tokens, by night, they fuse.', '#d05a9a')):
+    if _i in ITEMS: ITEMS[_i]['comps']['minecraft:lore'].insert(-1, T(_line, _col))
+
+# (2.80d) and the Newcomers' Book has them all, the Wraithfire Heart too
+_H = '#7a1f1f'
+P50.EXTRA_PAGES += [
+    [T('GROUND FORGES\n', _H, bold=True), T('(toss them down together, Q)\n\n', 'dark_gray'),
+     T("Huntmaster's Relic\n", '#a07a10', bold=True), T("The Horseman's Head, the Pharaoh's Crook, the Roc's Talon and the Treant's Branch.\n\n", 'black'),
+     T('Riftbound Relic\n', '#7a4ab0', bold=True), T("The Colossus's Gauntlet and the Voidwalker's Scepter.", 'black')],
+    [T('Starheart\n', '#a08a20', bold=True), T('A Fallen Star and a Heartstone, at night, under the open sky.\n\n', 'black'),
+     T('Talisman of the Three Nights\n', '#a03a70', bold=True), T('8 Blood Crystals, 8 Lucky Tokens and a Red Xenite Shard, by night.\n\n', 'black'),
+     T('Wraithfire Heart\n', '#3a6ab0', bold=True), T('A Scorching Heart set down beside an Ethereal Gem.', 'black')]]
 
 
 def set_of(fam):
@@ -292,6 +320,24 @@ def generate(G):
                             tellraw('@s', PREFIX + [T('Every ground forge\'s ingredients. Toss each set (Q) so it lies together.', 'gray')])])
     fn('admin/forged', [give('hunt_head_1'), give('rift_gauntlet_1'), give('starheart'), give('three_nights_talisman')])
 
+    # ================================================================ (2.80d) the advancement tab: one goal per forge, the recipe in its description
+    def got(iids):
+        crit = {i: {'trigger': 'minecraft:inventory_changed', 'conditions': {'items': [{'items': ITEMS[i]['base'],
+                                                                                         'predicates': {'minecraft:custom_data': G.snbt({'bm': i})}}]}} for i in iids}
+        return crit, [list(iids)]
+    for key, ico, ttl, desc, iids in (
+            ('forge_hunt', 'hunt_head_1', "The Huntmaster", "Forge the Huntmaster's Relic: the four roaming terrors' relics, tossed down together",
+             [f'hunt_{f}_{v}' for f in SETS['hunt'][2] for v in range(1, 5)]),
+            ('forge_rift', 'rift_gauntlet_1', 'Riftbound', "Forge the Riftbound Relic: the Colossus's Gauntlet and the Voidwalker's Scepter, tossed down together",
+             [f'rift_{f}_{v}' for f in SETS['rift'][2] for v in range(1, 5)]),
+            ('forge_star', 'starheart', 'Heart of a Star', 'Forge a Starheart: a Fallen Star and a Heartstone, under the open night sky', ['starheart']),
+            ('forge_nights', 'three_nights_talisman', 'Three Nights', 'Forge the Talisman of the Three Nights: Blood Crystals, Lucky Tokens and a Red Xenite Shard, by night',
+             ['three_nights_talisman'])):
+        crit, req = got(iids)
+        it = ITEMS[ico]
+        G.wjson(f'bm/advancement/story/{key}.json', {'parent': 'bm:story/root', 'criteria': crit, 'requirements': req,
+                'display': {'icon': {'id': it['base'], 'components': {'minecraft:item_model': it['comps'].get('minecraft:item_model', it['base'])}},
+                            'title': T(ttl, 'yellow'), 'description': T(desc, 'gray'), 'frame': 'goal', 'show_toast': True, 'announce_to_chat': True, 'hidden': False}})
     G.FUNCS['tick'] += tick
     s = G.FUNCS['loop/second']
     s[-1:-1] = second
