@@ -25,6 +25,13 @@ Before adding a button:
 
 The build rewrites the legend and fails if any button is unrouted. Keep lessons in its **Notes** section; the build preserves it.
 
+## Glow and custom-modelled mobs
+
+A custom-modelled mob is an invisible vanilla host carrying display entities, and the glowing outline ignores invisibility: a
+glowing host shows as a wolf, husk or rabbit outline around the model. `noglow.py` (a build pass) keeps every `glowing`
+effect and `Glowing:1b` off invisible entities (`bm:p44/invis`), and a sweep in loop/second puts out glows from outside.
+To outline a custom mob on purpose, glow its display entities (`on passengers`), never the host.
+
 ## New followers: the owner's checklist
 
 Every follower ships with all of these, built alongside it (never "later"):

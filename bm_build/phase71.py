@@ -224,7 +224,7 @@ def generate(G):
     fn('p71/monocle', ['function bm:p71/mono_scan',
                        'execute as @e[type=marker,tag=bm.gvtile,distance=..12,scores={bm.gvsafe=0}] at @s run particle minecraft:dust{color:[1.0,0.2,0.2],scale:1} ~ ~0.15 ~ 0.6 0 0.6 0 3 normal @a[tag=bm.gvmono]',
                        'execute as @e[type=marker,tag=bm.gvr_coffers,distance=..16] at @s run function bm:p71/mono_cof',
-                       'execute as @e[type=minecraft:rabbit,tag=bm.mimic,distance=..12] run data merge entity @s {Glowing:1b}'])
+                       'execute as @e[type=minecraft:rabbit,tag=bm.mimic,distance=..12] on passengers run data merge entity @s {Glowing:1b}'])
     G.FUNCS['p71/monocle'].insert(0, 'tag @s add bm.gvmono'); G.FUNCS['p71/monocle'].append('tag @s remove bm.gvmono')
     CZ = [6, 10, 14, 18]
     import phase70_rooms as RM

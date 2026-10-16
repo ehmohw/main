@@ -149,6 +149,7 @@ import phase162 as R162      # 2.80d: Dennis and Pistachio in the Black Market -
 import phase163 as R163      # 2.80d: Dennis and Pistachio, the followers (fifty trades), their pairs and the Crown's Prospect
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
+import noglow                # 2.80e: no glowing outline on custom-modelled mobs' invisible hosts (noglow.py)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import allies                # 2.67: every friendly-fire list skips every follower (allies.py)
@@ -1246,6 +1247,7 @@ def build(out_dir):
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command
     gen_tags_worldgen()
     print('allies:', allies.finalize(sys.modules[__name__]), 'friendly-fire lines now skip every follower')
+    print('noglow:', noglow.apply(sys.modules[__name__]), 'glow lines kept off invisible hosts')      # 2.80e
     for line in optimize.optimize(sys.modules[__name__]): print('optimize:', line)      # 2.15: cheaper entity selectors, quiet dungeons/markets
     print('prune:', len(prune.prune(sys.modules[__name__])), 'leftover functions dropped')
     # 1.13: every objective is created before any line of load uses it (phases prepend their own lines to load, and a
