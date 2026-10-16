@@ -12,6 +12,8 @@ const ok = (n, p, d = '') => { results.push(!!p); console.log((p ? 'PASS ' : 'FA
 const tp = async (who, x, y, z, yaw = 0, pitch = 0) => { await run(`tp ${who} ${x} ${y} ${z} ${yaw} ${pitch}`); const b = who === 'TestRat' ? A : B; await sleep(250); if (b.pos) { b.pos.yaw = yaw; b.pos.pitch = pitch; } };
 const mob = (x, y, z, tag, hp = 60, type = 'pillager') => run(`summon minecraft:${type} ${x} ${y} ${z} {Tags:["bm.seen","${tag}"],NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:${hp}f,attributes:[{id:"minecraft:max_health",base:${hp}d}]}`);
 const hp = (sel) => num(`data get entity ${sel} Health`);
+const cbuf = async (sel) => { const m = (await run(`scoreboard players get ${sel} bm.cbuf`)).match(/has (-?\d+)/); return m ? +m[1] : 0; };   // (2.80: a roaming boss carries a health buffer for its staged death)
+
 const cnt = async (sel) => { const r = await run(`execute store result score #t bm.rng if entity ${sel}`); const m = r.match(/Count: (\d+)/); return m ? +m[1] : 0; };
 const inv = async (it) => { const r = await run(`clear TestRat ${it} 0`); const m = r.match(/Found (\d+)/); return m ? +m[1] : 0; };
 const holding = async (iid) => (await run(`execute if items entity TestRat weapon.mainhand *[minecraft:custom_data~{bm:"${iid}"}]`)).includes('passed');
@@ -209,12 +211,13 @@ const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   let d_ = await score('TestRat', 'bm.pdmg'); await at_(12);
   ok('attack: a beam of the sun burns you', (await score('TestRat', 'bm.pdmg')) > d_, `damage taken ${d_} -> ${await score('TestRat', 'bm.pdmg')}`);
   await run(`kill @e[type=endermite,tag=bm.scarab]`);
-  await run(`data merge entity @e[type=husk,tag=bm.sph,limit=1] {Health:150f}`); await sleep(1200);
+  await run(`data merge entity @e[type=husk,tag=bm.sph,limit=1] {Health:${150 + await cbuf(`@e[type=husk,tag=bm.sph,limit=1]`)}f}`); await sleep(1200);
   ok('half health: he enrages', (await cnt('@e[type=husk,tag=bm.sph_rage]')) === 1);
   d_ = await score('TestRat', 'bm.pdmg'); await at_(14);
   ok('attack (enraged): the sand erupts under you', (await score('TestRat', 'bm.pdmg')) > d_, `damage taken ${d_} -> ${await score('TestRat', 'bm.pdmg')}`);
   await heal();
-  await run('damage @e[type=husk,tag=bm.sph,limit=1] 999 minecraft:player_attack by TestRat'); await sleep(6500);   // (2.80: his staged death - 5 s)
+  for (let i = 0; i < 40 && /passed/.test(await run(`execute as @e[type=husk,tag=bm.sph,limit=1] if entity @s[tag=bm.cfrz]`)); i++) await sleep(250);   // (an enrage freezes him a moment: no blow lands)
+  await run('damage @e[type=husk,tag=bm.sph,limit=1] 9999 minecraft:player_attack by TestRat'); await sleep(6500);   // (2.80: his staged death - 5 s)
   const gone = await cnt('@e[type=husk,tag=bm.sph]');
 
   ok('he falls (no model left behind)', gone === 0 && (await cnt('@e[type=item_display,tag=bm.rig53]')) === 0);
@@ -268,10 +271,11 @@ const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   const gz1 = (await pos('@e[tag=t_g,limit=1]'))[1]; await run('kill @e[tag=t_g]');
   ok('attack: a gust of wind throws you (its charge, on a zombie)', gz1 > gz0 + 1, `y ${gz0.toFixed(1)} -> ${gz1.toFixed(1)}`);
   await sleep(1500); await tp('TestRat', ...P0);
-  await run(`data merge entity @e[type=phantom,tag=bm.roc,limit=1] {Health:120f}`); await sleep(1200);
+  await run(`data merge entity @e[type=phantom,tag=bm.roc,limit=1] {Health:${120 + await cbuf(`@e[type=phantom,tag=bm.roc,limit=1]`)}f}`); await sleep(1200);
   ok('half health: it shrieks, Stormlings join', (await cnt('@e[type=phantom,tag=bm.roc_rage]')) === 1 && (await cnt('@e[type=phantom,tag=bm.rocmin]')) >= 1);
   await heal();
-  await run('damage @e[type=phantom,tag=bm.roc,limit=1] 999 minecraft:player_attack by TestRat'); await sleep(6500);
+  for (let i = 0; i < 40 && /passed/.test(await run(`execute as @e[type=phantom,tag=bm.roc,limit=1] if entity @s[tag=bm.cfrz]`)); i++) await sleep(250);   // (an enrage freezes him a moment: no blow lands)
+  await run('damage @e[type=phantom,tag=bm.roc,limit=1] 9999 minecraft:player_attack by TestRat'); await sleep(6500);
   ok('it falls', (await cnt('@e[type=phantom,tag=bm.roc]')) === 0);
   await sleep(2000);
   ok('...and are gone; Stormlings crumble; no stray bolts', (await cnt('@e[type=phantom,tag=bm.rocmin]')) === 0 &&

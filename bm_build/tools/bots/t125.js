@@ -48,7 +48,9 @@ const X = 19000, Y = 120, Z = 19000;
     await field();
     let got = 0;
     for (const night of [0, 1]) {
-      if (night) { await run('function bm:admin/lucky_night'); } else { await run('scoreboard players set #lucky bm.bm 0'); await run('time set 14000'); }
+      if (night) {   // (a Lucky Night is never set on a Blood Moon day: on to a morning that isn't one, then nightfall)
+        for (let d = 0; d < 3; d++) { const t = await sc('#tod', 'bm.bm'); await run(`time add ${((1000 - t) % 24000 + 24000) % 24000 || 24000}`); await sleep(1500); if ((await sc('#bday', 'bm.bm')) !== 1) break; }
+        await run('function bm:admin/lucky_night'); await run('time add 13000'); } else { await run('scoreboard players set #lucky bm.bm 0'); await run('time set 14000'); }
       await sleep(1500);
       if (night) ok('Lucky Night started (and copied onto the player)', /has 1/.test(await run('scoreboard players get TestRat bm.nlk')));
       let n = 0;
@@ -161,6 +163,7 @@ const X = 19000, Y = 120, Z = 19000;
     const y0 = await wy(); let top = y0;
     A.input({ jump: true }); for (let i = 0; i < 6; i++) { await sleep(50); top = Math.max(top, await wy()); } A.input({}); await sleep(900);
     ok(`Jump: he hops (${y0.toFixed(2)} -> ${top.toFixed(2)})`, top > y0 + 0.4);
+    for (let i = 0; i < 20 && !/passed/.test(await run(`execute as ${W} if predicate bm:p39/on_ground`)); i++) await sleep(100);   // (the ridden hop is a high one: down first)
     A.input({ jump: true }); await sleep(120); A.input({}); await sleep(160); A.input({ jump: true }); await sleep(250); A.input({});
     await sleep(300);
     ok('Jump again in mid-air: he takes off and flies', /bm.kxfly/.test(await run(`data get entity ${W} Tags`)) && /1b/.test(await run(`data get entity ${W} NoGravity`)));

@@ -29,7 +29,7 @@ const res = [];
   ok('Sneak + F goes back (sword -> trident)', (await held()) === 'shift_blade_trident', await held());
   await run('item replace entity TestRat weapon.offhand with minecraft:shield'); await pressF();
   ok('...and whatever was in your off-hand stays there', (await held()) === 'shift_blade_sword' && /shield/.test(await run('data get entity TestRat equipment.offhand.id')), await run('data get entity TestRat equipment.offhand.id'));
-  A.slot(2); await sleep(200); const p0 = await held(); const pk = [];   // (2.63: the kit is blade, Smite blade, pick, Silk Touch pick, bow) for (let i = 0; i < 8; i++) { await pressF(); pk.push((await held() || '').replace('shift_pick_', '')); }
+  A.slot(2); await sleep(200); const p0 = await held(); const pk = []; for (let i = 0; i < 8; i++) { await pressF(); pk.push((await held() || '').replace('shift_pick_', '')); }   // (2.63: the kit is blade, Smite blade, pick, Silk Touch pick, bow)
   ok('Shifting Pick: all eight tools', p0 === 'shift_pick_pickaxe' && pk.join(',') === 'axe,shovel,hoe,shears,rod,brush,flint,pickaxe', pk.join(','));
   A.slot(4); await sleep(200); const bw = []; for (let i = 0; i < 3; i++) { await pressF(); bw.push((await held() || '').replace('shift_bow_', '')); }
   ok('Shifting Bow: bow -> crossbow -> trident -> bow', bw.join(',') === 'crossbow,trident,bow', bw.join(','));

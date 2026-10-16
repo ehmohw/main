@@ -12,6 +12,8 @@ const ok = (n, p, d = '') => { results.push(!!p); console.log((p ? 'PASS ' : 'FA
 const tp = async (who, x, y, z, yaw = 0, pitch = 0, dim = 'overworld') => { await run(`execute in minecraft:${dim} run tp ${who} ${x} ${y} ${z} ${yaw} ${pitch}`); const b = who === 'TestRat' ? A : B; await sleep(250); if (b.pos) { b.pos.yaw = yaw; b.pos.pitch = pitch; } };
 const mob = (x, y, z, tag, hp = 100, type = 'pillager') => run(`summon minecraft:${type} ${x} ${y} ${z} {Tags:["bm.seen","${tag}"],NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:${hp}f,attributes:[{id:"minecraft:max_health",base:${hp}d}]}`);
 const hp = (sel) => num(`data get entity ${sel} Health`);
+const cbuf = async (sel) => { const m = (await run(`scoreboard players get ${sel} bm.cbuf`)).match(/has (-?\d+)/); return m ? +m[1] : 0; };   // (2.80: a roaming boss carries a health buffer for its staged death)
+
 const cnt = async (sel) => { const r = await run(`execute store result score #t bm.rng if entity ${sel}`); const m = r.match(/Count: (\d+)/); return m ? +m[1] : 0; };
 const inv = async (it) => { const r = await run(`clear TestRat ${it} 0`); const m = r.match(/Found (\d+)/); return m ? +m[1] : 0; };
 const holding = async (iid) => (await run(`execute if items entity TestRat weapon.mainhand *[minecraft:custom_data~{bm:"${iid}"}]`)).includes('passed');
@@ -128,8 +130,9 @@ const TOK = '*[custom_data~{bm:"token"}]';
       await run('effect clear TestRat levitation'); await run('effect clear TestRat slowness'); await run('effect clear TestRat darkness'); await tp('TestRat', ...P0, 0, 0);
     }
     if (extra) await extra(sel);
-    await run(`data merge entity ${sel} {Health:${key === 'mcol' ? 200 : 160}f}`); await sleep(1300);
+    await run(`data merge entity ${sel} {Health:${(key === 'mcol' ? 200 : 160) + await cbuf(`${sel}`)}f}`); await sleep(1300);
     ok(`${key}: enrages at half health`, (await cnt(`@e[tag=${tag}_rage]`)) === 1);
+    for (let i = 0; i < 40 && /passed/.test(await run(`execute as ${sel} if entity @s[tag=bm.cfrz]`)); i++) await sleep(250);   // (an enrage freezes him a moment: no blow lands)
     await run(`damage ${sel} 9999 minecraft:player_attack by TestRat`); await sleep(6500);   // (2.80: and its death)
     ok(`${key}: it falls - WANTED paid, minions crumble, bossbar gone`, (await cnt(`@e[type=minecraft:${ent},tag=${tag}]`)) === 0 && (await inv(TOK)) >= tok0 + 8 &&
        (key === 'mcol' || (await cnt(`@e[tag=${tag}min]`)) === 0) && !(await run(`bossbar get bm:${key} visible`)).includes('currently visible'), `tokens ${tok0} -> ${await inv(TOK)}, minions ${await cnt(`@e[tag=${tag}min]`)}`);
@@ -155,9 +158,9 @@ const TOK = '*[custom_data~{bm:"token"}]';
     [6, 'a magma boulder', async (d0) => { const r = await cnt('@e[type=block_display,tag=bm.r54_magma]'); return [r > 0, `boulders ${r}`]; }],
     [9, 'lava geysers under your feet (telegraphed)', async (d0) => { const g = await cnt('@e[type=marker,tag=bm.r54gey]'); return [g > 0, `geysers ${g}`]; }]],
     async (sel) => {
-      const size = await num(`data get entity ${sel} Size`), mh = await num(`attribute ${sel} minecraft:max_health get`);
+      const size = await num(`data get entity ${sel} Size`), mh = (await cbuf(sel)) ? await num(`scoreboard players get ${sel} bm.cmx`) : await num(`attribute ${sel} minecraft:max_health get`);
       ok('mcol: a gigantic magma cube (Size 7, 420 health)', size === 7 && mh === 420, `size ${size}, max health ${mh}`);
-      await run(`data merge entity ${sel} {Health:270f}`); await sleep(1300);
+      await run(`data merge entity ${sel} {Health:${270 + await cbuf(`${sel}`)}f}`); await sleep(1300);
       ok('mcol: it sheds Magma Spawn as it is hurt', (await cnt('@e[type=magma_cube,tag=bm.mcolmin]')) >= 2);
       await run('kill @e[type=magma_cube,tag=bm.mcolmin]');
     });

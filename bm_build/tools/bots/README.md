@@ -202,6 +202,13 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
 
 - Gear carried through a coat-check door (the Lounge's, a heist's) comes back a moment later, wherever it lands - not
   always in the slot it left. Wait for the item, then select its own slot before using it (t131's `holdLedger`).
+- A boss's arrival buffer stays on its health: `bm.cbuf` (up to +1000) sits on top of the real health, and `bm.cmx` holds
+  the real maximum. Set a boss's health as N + cbuf, read its max from cmx, and wait out `bm.cfrz` (an enrage's frozen,
+  untouchable moment) before the killing blow (t33, t34, t56's `cbuf`).
+- Cecil's dolls for followers not yet met are wrapped (2.80b), and a wrapped doll has no `bm` id. When scanning a trader's
+  list, stop at the end of the list (`Offers.Recipes[i]` missing), not at the first recipe without the field (t163).
+- A Lucky Night (or an Invasion) is never set on a Blood Moon day: move on to a morning that isn't one first (t177's
+  `morning`, t125).
 
 ## Index
 
@@ -211,7 +218,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | Script | What it covers |
 |---|---|
 | `t5lay.js` | - |
-| `t23.js` | first check: mailbox model on its hitbox |
+| `t23.js` | first check: mailbox model on its hitbox **(partly stale: the satchel steps predate the vacuum satchel's barrel crate (sneak to open))** |
 | `t23b.js` | - |
 | `t23c.js` | - |
 | `t24i.js` | first check: sparks: first target and chain hit, far one spared |
@@ -277,7 +284,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t74.js` | first check: …: ladders all the way up (… rows) |
 | `t78.js` | v2.65: follower cosmetics - Emma's ribbons and dresses, Celi's outfits, Zib's uniforms; Velour's stock; the hidden ones |
 | `t79.js` | v2.65: KillerWatt - the Storm Effigy, the boss (rig, animation, attacks, roar, reward), the Spark follower, Cecil's shop **(partly stale: using the Spark while he's out opens his menu since 2.78, rather than calling him over)** |
-| `t79b.js` | v2.66: KillerWatt the follower - riding, wall climbing, the Thunder Leap, the tendril stab, the leap, chain lightning, gems and the Ethereal Form |
+| `t79b.js` | v2.66: KillerWatt the follower - riding, wall climbing, the Thunder Leap, the tendril stab, the leap, chain lightning, gems and the Ethereal Form **(partly stale: the Ethereal flight check looks up from the ground; since 2.75b he takes off only on a jump in mid-air - t125 covers it)** |
 | `t80.js` | v2.66: the Fixer's Office - the Gutter Bank, spoils, kit ranks, secondaries and signatures; metal trophies; the Bond Sigils **(partly stale: the Gutter Bank became a page per currency in 2.80a (t175))** |
 | `t86.js` | v2.67: haul themes + the capped prize, everything in The Haul, the pot nerf, the bank's medallions, the Scrap Box, |
 | `t87.js` | v2.67: crew scaling, hidden vaults, the hidden treasures, and the Gutter Gentry |

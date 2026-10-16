@@ -48,8 +48,8 @@ const HERE = `x=${X},y=${Y},z=${Z},distance=..64`;
   for (const k of ['reg', 'jp']) { const r = await run(`data get entity @e[type=marker,tag=bm.slot_${k},limit=1] Pos`); const m = r.match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/);
     pos[k] = m.slice(1).map(v => Math.floor(+v)); const [x, y, z] = pos[k];
     await run(`setblock ${x} ${y - 1} ${z} stone`); await run(`setblock ${x} ${y} ${z} lever[face=floor,facing=north,powered=false]`); }
-  await run('kill @e[type=marker,tag=bm.slot_reg,limit=1,sort=furthest]');     // (keep one Lucky Slot for the test)
   const [rx, ry, rz] = pos.reg, [jx, jy, jz] = pos.jp;
+  await run(`execute positioned ${rx + 0.5} ${ry + 0.5} ${rz + 0.5} run kill @e[type=marker,tag=bm.slot_reg,distance=0.8..24]`);     // (keep the Lucky Slot with the lever for the test)
   await run(`tp TestRat ${rx + 0.5} ${ry} ${rz + 1.6} 180 40`); A.pos.yaw = 180; A.pos.pitch = 40; await sleep(800);
   A.useOn(rx, ry, rz, 1); await sleep(400);
   ok('no Tokens: the lever does nothing', !((await score('@e[type=marker,tag=bm.slot_reg,limit=1]', 'bm.sst')) > 0) && (A.bars.slice(-1)[0] || '').includes('wants Black Market Tokens'), A.bars.slice(-1)[0]);
