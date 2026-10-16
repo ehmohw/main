@@ -107,8 +107,8 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
   ok('Right-click him: he sits (and his rig sits too)', /1b/.test(await run(`data get entity ${W} Sitting`)) && (await sc(W, 'bm.dms')) === 4, `${await run(`data get entity ${W} Sitting`)} st ${await sc(W, 'bm.dms')}`);
   await run(`execute as ${W} run data merge entity @s {Sitting:0b}`);
 
-  // ---- his challenge: the duel
-  await run('scoreboard players set TestRat bm.gvhc 0');
+  // ---- his challenge: the duel (at full health: he won't duel anyone at five hearts or less, 2.80b)
+  await run('scoreboard players set TestRat bm.gvhc 0'); await run('effect give TestRat minecraft:instant_health 1 9 true'); await sleep(200);
   await run('execute as TestRat at @s run function bm:p97/menu');
   ok('Sneak + use the seal: his challenge (a menu)', (await sc('TestRat', 'bm.menu')) === 9700);
   await run('scoreboard players set TestRat bm.act 9701'); await sleep(400);

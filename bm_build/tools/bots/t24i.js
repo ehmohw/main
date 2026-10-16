@@ -8,7 +8,7 @@ const X = 5200, Y = 100, Z = 5200;
   const press = async (sneak, hold = 250) => { if (sneak) { A.input({ shift: true }); await sleep(200); } A.use(); await sleep(hold); A.release(); if (sneak) A.input({}); await sleep(500); };
   const give = async (i) => { await run('clear TestRat'); await run(`loot replace entity TestRat hotbar.0 loot bm:items/${i}`); A.slot(0); await sleep(250); };
   const num = async (c) => { const r = await run(c); const m = r.match(/(-?[\d.]+)\D*$/); return m ? parseFloat(m[1]) : null; };
-  const count = (sel) => num(`execute store result score #t bm.rng if entity ${sel}`);
+  const count = async (sel) => { const r = await run(`execute store result score #t bm.rng if entity ${sel}`); return /failed/i.test(r) ? 0 : (r.match(/(\d+)\D*$/) || [0, 0])[1] * 1; };   // (26.3: none found is "Test failed")
   await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5}`); await sleep(2500); await run('kill @e[type=!player,x=' + X + ',y=' + Y + ',z=' + Z + ',distance=..40]'); await run('gamemode survival TestRat'); await run('effect give TestRat resistance infinite 4 true'); await run('time set midnight'); await run('weather clear');
   await run(`fill ${X - 14} ${Y - 1} ${Z - 14} ${X + 14} ${Y - 1} ${Z + 14} minecraft:stone`); await run(`fill ${X - 14} ${Y} ${Z - 14} ${X + 14} ${Y + 14} ${Z + 14} minecraft:air`);
   const zombie = async (dx, dz, hp = 40) => run(`summon zombie ${X + dx + 0.5} ${Y} ${Z + dz + 0.5} {NoAI:1b,Tags:["t24"],Health:${hp}f,attributes:[{id:"minecraft:max_health",base:${hp}}]}`);

@@ -21,7 +21,7 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
-## New in 2.80b: the special nights debugged, Happy Hour a real discount, and Cecil's dolls kept secret
+## New in 2.80b: the special nights debugged, Happy Hour a real discount, Cecil's dolls kept secret, and bosses fixed
 
 ### Cecil's dolls wait until you've met their follower
 Cecil sold every follower's doll from the start (KillerWatt's, Apophiss's, Wilfrey's...), spoiling followers you hadn't found yet.
@@ -36,9 +36,14 @@ Cecil sold every follower's doll from the start (KillerWatt's, Apophiss's, Wilfr
 - **A Blood Moon over a special night** (an admin's) said "Dawn..." at midnight. It now says the Blood Moon drowns that night out.
 - **Happy Hour is a third off.** The Lucky Night's Happy Hour cleared the market's price scale; since 2.65 that scale made trophy, blood crystal and Lucky Token prices *cheaper*, so Happy Hour raised them, and barely touched token prices. Every Black Market price is now a third off until dawn, as Zorp's already were.
 
+### Bosses and items
+- **KillerWatt's jab lands again.** His jab and the Ethereal KillerWatt's Void Lances shared one attack slot, so every jab also ran the lances: the lance charge pose replaced his punch (the jab rarely connected), and even the plain KillerWatt threw void lances. The lances now have their own slot, and only the Ethereal form uses them.
+- **Democratus won't duel you at five hearts or less.** The duel is lost at three hearts, and he'd accept a challenge from someone already at three and a half: the ten-second countdown ran, then the duel was lost the moment it began. He now tells you to catch your breath first.
+- The Black Market Haul's description no longer promises the Fence's curios (no haul has had them since 2.68).
+
 ### Testing
 - **New bot playtests:** t177 (the Blood Moon, a Lucky Night with a Leprechaun caught and its Pot of Gold tipped out, and an Invasion Night whose Vorn all leave at dawn - every step as a regular player) and t178 (Cecil's dolls, through his own trading window, with a second player at the counter).
-- **Older playtests brought up to date** with the pack as it is now: t5lay, t23, t25, t31, t32, t33, t34, t36, t37, t43, t44, t48, t49, t56, t56b, t62, t74 and t79b (the 2.80 boss arrivals, the 2.65 prices, real mob hits for "when hit" effects, 26.3's messages, the tendrils' saved mode, the Shifting kit's slots, area counts instead of world-wide ones). t73's data files are now in the repository.
+- **Older playtests brought up to date** with the pack as it is now: t5lay, t23, t25, t31, t32, t33, t34, t36, t37, t43, t44, t48, t49, t56, t56b, t62, t74, t79b, t24i, t45, t73 and t100 (the 2.80 boss arrivals, the 2.65 prices, real mob hits for "when hit" effects, 26.3's messages, the tendrils' saved mode, the Shifting kit's slots, area counts instead of world-wide ones, all nine gems in hand now fuse, Emma's remembered role, a duel started at full health). Tests that predate a later rework are marked stale in the bots' index. t73's data files are now in the repository.
 
 ## New in 2.80a: the Gutter Bank a page per currency, an airtight coat check, and a debugged raid
 

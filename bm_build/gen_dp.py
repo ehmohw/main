@@ -142,6 +142,7 @@ import phase155 as R155      # 2.80a: the coat check, airtight (the Locker Hall'
 import phase156 as R156      # 2.80a: the raid debugged (a finished heist closes when its crew leaves)
 import phase157 as R157      # 2.80b: the special nights debugged (the Vorn beasts leave at dawn)
 import phase158 as R158      # 2.80b: Cecil's dolls wait until you've met their follower
+import phase159 as R159      # 2.80b: the market, dungeons and bosses, the Hollow and the items, debugged
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
@@ -1222,6 +1223,7 @@ def build(out_dir):
     R156.generate(sys.modules[__name__])
     R157.generate(sys.modules[__name__])
     R158.generate(sys.modules[__name__])
+    R159.generate(sys.modules[__name__])
     # 2.79: the mob rolls (elite, champion, lucky, prime, Blood Moon, invasion) leave alone a mob someone named or froze - a
     #  player's name-tagged pet, Wilfrey's body, the hidden trio's Eggbert, a statue: they were renamed and re-statted
     for _n, _lines in FUNCS.items():
