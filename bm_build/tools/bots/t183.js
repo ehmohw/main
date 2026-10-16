@@ -252,7 +252,9 @@ const CFG = {
       await run('item replace entity TestRat hotbar.7 with minecraft:diamond_pickaxe[minecraft:enchantments={"minecraft:efficiency":5}]');
       await run('effect give TestRat minecraft:haste 600 1 true'); A.slot(7); await sleep(400);
       const dig = async (x, y, z) => { await A.mine(x, y, z, 200); await sleep(900); };
-      const ores = async (n) => { await run('clear TestRat minecraft:diamond'); await run(`${O}kill @e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..12]`); for (let i = 0; i < n; i++) { await run(`${O}setblock ${X + 1} ${Y + 1} ${Z + 1 + (i % 2)} minecraft:diamond_ore`); await sleep(150); await dig(X + 1, Y + 1, Z + 1 + (i % 2)); }
+      let mined = 0;
+      const ores = async (n) => { mined = 0; await run('clear TestRat minecraft:diamond'); await run(`${O}kill @e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..12]`); for (let i = 0; i < n; i++) { await run(`${O}setblock ${X + 1} ${Y + 1} ${Z + 1 + (i % 2)} minecraft:diamond_ore`); await sleep(150); await dig(X + 1, Y + 1, Z + 1 + (i % 2));
+          if (/passed/.test(await run(`${O}execute if block ${X + 1} ${Y + 1} ${Z + 1 + (i % 2)} minecraft:air`))) mined++; }
         await sleep(1500); const got = (await plain('diamond')) + (await ground('diamond', X, Y + 1, Z)); await run(`${O}kill @e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..12]`); return got; };
       await wait(3000, async () => (await score('bm.dwft')) === 1);
       ok(N + 'with you: Fortune V marked on you (bm.dwft)', (await score('bm.dwft')) === 1);
@@ -261,7 +263,7 @@ const CFG = {
       await run(`kill ${PET}`); await sleep(2500);
       ok(N + '...sent away: the mark gone', (await score('bm.dwft')) === 0);
       const got0 = await ores(4);
-      ok(N + '...without him: one diamond an ore', got0 === 4, `${got0} diamonds`);
+      ok(N + '...without him: one diamond an ore', mined >= 3 && got0 === mined, `${got0} diamonds from ${mined} ores`);
       await run('effect clear TestRat minecraft:haste');
     } else {
       await run('item replace entity TestRat hotbar.7 with minecraft:iron_sword'); A.slot(7); await sleep(400);

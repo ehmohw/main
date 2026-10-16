@@ -79,6 +79,16 @@ Madame Velour sells it for 3 Trophies.
 - Set it down on a block and right-click it. It shows **your** boss trophies, your best heist-room metals and your laurels as models, with a plaque.
 - It folds away on another click, or when nobody is near. Sneak + punch picks it up.
 
+### Art
+- **Pistachio is see-through.** His ghostly head, hands and tail are translucent; his tail-coat, hat and cloche stay solid. This shows in his room, as a follower, in a display case and on his doll.
+- **Fishy's bowl is now a square glass tank,** on stepped square collars. The round bowl was built from turned slabs and looked jagged. His shoulder plates are square and his fish is a single block, to suit Minecraft's look.
+- **Fishy's, Dennis's and Pistachio's dolls are chibi, like the rest of Cecil's dolls:** a big head, a small body and short legs. (Fishy's tank and fish count as his head.)
+
+### Display cases
+- **A creature from a Smuggler's Jar turns its head with its body.** It used to spin with its head stuck facing one way, sharply twisted.
+- **It fits inside the glass.** It was sized by its hitbox, but most animals' models are longer than that. It's now sized so the circle it sweeps as it turns stays inside the case (a pig is about two-thirds of its old size).
+- **In a wall case it stays still and stands side-on.** The case is too shallow for it to turn without poking through the glass, so sneak + right-click doesn't spin it there, as with figurines. A long creature lies along the wall so it fits.
+
 ### Fixes
 - **A stray heist tag clears itself.** A command, a crash or a lost connection could leave a player still marked as on a heist. Followers' rules and the Bond Sigil then treated them as raiding. Anyone out of the gutter for 30 seconds with the tag is now properly taken off the heist, and their kept gear is handed back.
 
@@ -87,6 +97,7 @@ Madame Velour sells it for 3 Trophies.
   - t180 (the forges) and t181 (the Trophy Stand).
   - t182 (Dennis and Pistachio as traders: their rooms, lots, limits, favour, the rune and the seal at work, the 50th trade).
   - t183 (both followers through the whole checklist, their fighting, Fortune V and Looting V).
+  - t184 (a Smuggler's Jar's creature in a floor case and a wall case: its head turns with it, and it fits the glass).
   - t136 now also covers the two new pairs and the trio. t138, t145, t146, t156 and t158 include Dennis and Pistachio.
 - **Tests now unload every chunk they force-load,** and only the ones they added; a chunk the pack holds is never released. Obsolete tests were removed and stale steps brought up to date.
 

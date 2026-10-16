@@ -78,7 +78,9 @@ const X = 16000, Y = 100, Z = 16000; const res = [];
   ok('...and his click box goes when he does', (await cnt('@e[type=interaction,tag=bm.cphit]')) === 0);
 
   // ---------------------------------------------------------------- Emma: her own blue by default
-  await run('kill @e[type=cat,tag=bm.emmapet]'); await run('scoreboard players reset TestRat bm.emode'); await run('execute as TestRat at @s run function bm:p57/summon_here'); await sleep(800);
+  await run('kill @e[type=cat,tag=bm.emmapet]'); await run('scoreboard players reset TestRat bm.emode');
+  for (const o of ['bm.cosd', 'bm.cosr', 'bm.coso']) await run(`scoreboard players reset TestRat ${o}`);   // (no dress, ribbon or outfit picked by an earlier test)
+  await run('execute as TestRat at @s run function bm:p57/summon_here'); await sleep(800);
   ok('Emma, newly called: her own blue dress (Healing)', /"bm:em_body"/.test(await run('data get entity @e[type=item_display,tag=bm.ep_body,limit=1] item.components')),
      await run('data get entity @e[type=item_display,tag=bm.ep_body,limit=1] item.components'));
   await run('execute as @e[type=cat,tag=bm.emmapet] at @s run function bm:p62/emma_go'); await sleep(500);
