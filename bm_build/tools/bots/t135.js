@@ -162,7 +162,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     let leapt = false;
     ok('...and he leaps back aboard at you', await wait(14000, async () => { const a = await sc(boss, 'bm.tuatk'); if (a === 7) leapt = true; const b = await epos(boss);
                                                                           return leapt && b && b[1] >= DY + 0.5 && Math.abs(b[2] - Z) < 6.5; }),
-       `leap ${leapt} at ${JSON.stringify(await epos(boss))}`);
+       `leap ${leapt} at ${JSON.stringify(await epos(boss))} atk ${await sc(boss, 'bm.tuatk')} ph ${await sc(boss, 'bm.tuph')} tuc ${await sc(boss, 'bm.tuc')} ${await run(`${O}execute as ${boss} at @s run data get block ~ ~1.6 ~`)} ${await run(`${O}execute as ${boss} at @s if block ~ ~1.6 ~ minecraft:water`)} ${await run(`${O}data get entity ${boss} NoAI`)}`);
     // (the end: the bot lands the last blow)
     await wait(4000, async () => (await sc(boss, 'bm.tuatk')) === 0);
     await run(`${O}data modify entity ${boss} Health set value 4f`);
