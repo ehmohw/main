@@ -298,7 +298,9 @@ EL_PAL = {  # body (dark, mid, light), accents for the tendrils (dark, light)
 COS_PAL = {'c1': ('Midnight', (('#04060e', '#16224a', '#4a6ab0'), ('#1a8ac0', '#bff4ff'))),
            'c2': ('Bone', (('#3a3428', '#a89c80', '#f0e8d4'), ('#8a1a1a', '#ff6a5a'))),
            'c3': ('Neon', (('#08040c', '#2a1a34', '#5a4a6a'), ('#c0108a', '#ff8ae8'))),
-           'c4': ('Golden Thunder', (('#2a1a04', '#a07018', '#ffd870'), ('#c88a10', '#fff4b0')))}
+           'c4': ('Golden Thunder', (('#2a1a04', '#a07018', '#ffd870'), ('#c88a10', '#fff4b0'))),
+           'c5': ('Diamond Thunder', (('#06323a', '#1a9aa0', '#a8fff4'), ('#18b8c0', '#e6fffc'))),         # (2.80c)
+           'c6': ('Netherite Thunder', (('#141014', '#4a4046', '#9a8c94'), ('#5a2a20', '#ff8a4a')))}
 EL_PAL.update({k: pal for k, (_n, pal) in COS_PAL.items()})
 VARIANTS = [k for k in EL_KEYS if k != 'electric'] + ['eth', 'wf'] + list(COS_PAL)      # (2.76: wf - the Wraithfire Heart's form)
 BODY_TEX = ['kw_hide', 'kw_hide_dk', 'kw_belly', 'kw_lime', 'kw_emblem', 'kw_face', 'kw_spike', 'kw_claw']
@@ -412,9 +414,9 @@ def variant_textures(base):
                 out[f'{name}_{v}'] = _irid(im) if name == 'kw_gold' else _eth_tex('kw_face' if name.startswith('kw_face') else name, im)
             elif v == 'wf':
                 out[f'{name}_{v}'] = _wf_tex('kw_face' if name.startswith('kw_face') else name, im)
-            elif v == 'c4':                                 # (2.79a: Golden Thunder - polished gold, gild.py)
+            elif v in ('c4', 'c5', 'c6'):                   # (2.79a: Golden Thunder - polished gold, gild.py; 2.80c: diamond, netherite)
                 import gild
-                out[f'{name}_{v}'] = gild.metal(im)
+                out[f'{name}_{v}'] = gild.dress('kw', int(v[1:]), im)
             else:
                 body, acc = EL_PAL[v]
                 mid = '#%02x%02x%02x' % _mix(hexc(acc[0])[:3], hexc(acc[1])[:3], 0.55)

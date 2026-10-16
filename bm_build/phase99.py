@@ -20,28 +20,29 @@ import phase79_art as KA
 GOLD = '#ffcf40'
 # who: (name, colour, item word, {k: (cosmetic name, (dark, mid, light))}); 4 is hidden in each
 NEW = {'leo': ('Leo', '#5ab8e0', 'Tabard', {1: ('Crimson Crusader', ('#2a0408', '#9a1e2a', '#e0606a')), 2: ('Royal Purple', ('#140626', '#4a2280', '#a07ae0')),
-                                            3: ('Greenwood', ('#0a2010', '#2a6a34', '#7ac080')), 4: ('Golden Champion', ('#3a2806', '#c8962a', '#ffe08a'))}),
+                                            3: ('Greenwood', ('#0a2010', '#2a6a34', '#7ac080')), 4: ('Golden Champion', ('#3a2806', '#c8962a', '#ffe08a')), 5: ('Diamond Champion', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite Champion', ('#141014', '#4a4046', '#9a8c94'))}),
        'demo': ('Democratus', '#7ad06a', 'Cloak', {1: ('Crimson Reaper', ('#22040a', '#8a1a24', '#e05a64')), 2: ('Ashen Shroud', ('#141416', '#55555c', '#b4b4bc')),
-                                                   3: ('Royal Violet', ('#160626', '#562886', '#b48ae6')), 4: ('Gilded Storm', ('#3a2806', '#b8902a', '#ffe8a0'))}),
+                                                   3: ('Royal Violet', ('#160626', '#562886', '#b48ae6')), 4: ('Gilded Storm', ('#3a2806', '#b8902a', '#ffe8a0')), 5: ('Diamond Storm', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite Storm', ('#141014', '#4a4046', '#9a8c94'))}),
        'cecil': ('Cecil', '#b48cff', 'Robe', {1: ('Crimson', ('#2a060c', '#7a1a2a', '#c8506a')), 2: ('Midnight', ('#06081a', '#1e2450', '#5a64a0')),
-                                              3: ('Bone', ('#5a5448', '#b8b0a0', '#f4efe4')), 4: ('Gilded', ('#3a2806', '#b08a2a', '#ffe8a0'))}),
+                                              3: ('Bone', ('#5a5448', '#b8b0a0', '#f4efe4')), 4: ('Gilded', ('#3a2806', '#b08a2a', '#ffe8a0')), 5: ('Diamond', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite', ('#141014', '#4a4046', '#9a8c94'))}),
        'kw': ('KillerWatt', '#ffe040', 'Colours', {int(k[1:]): (nm, pal[0]) for k, (nm, pal) in KA.COS_PAL.items()}),
        # 2.78: the rest of the followers (their art is recoloured in phase138)
        'apo': ('Apophiss', '#3ad06a', 'Scales', {1: ('Obsidian Coil', ('#07070c', '#2a2a38', '#7a7a92')), 2: ('Blood Wyrm', ('#200406', '#7a1418', '#e0584e')),
-                                                3: ('Frost Serpent', ('#0a2232', '#3a8ab4', '#c8ecff')), 4: ('Gilded Coil', ('#3a2806', '#b8902a', '#ffe8a0'))}),
+                                                3: ('Frost Serpent', ('#0a2232', '#3a8ab4', '#c8ecff')), 4: ('Gilded Coil', ('#3a2806', '#b8902a', '#ffe8a0')), 5: ('Diamond Coil', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite Coil', ('#141014', '#4a4046', '#9a8c94'))}),
        'tul': ('Tullius', '#7ad8ff', 'Coat', {1: ("Admiral's Blue", ('#060c24', '#1e3a8a', '#6a8ae0')), 2: ('Corsair Crimson', ('#22040a', '#8a1a24', '#e05a64')),
-                                            3: ('Bleached Bone', ('#5a5448', '#b8b0a0', '#f4efe4')), 4: ('Gilded Captain', ('#3a2806', '#b08a2a', '#ffe8a0'))}),
+                                            3: ('Bleached Bone', ('#5a5448', '#b8b0a0', '#f4efe4')), 4: ('Gilded Captain', ('#3a2806', '#b08a2a', '#ffe8a0')), 5: ('Diamond Captain', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite Captain', ('#141014', '#4a4046', '#9a8c94'))}),
        'frog': ('the Frog with Mustache', '#6ac850', 'Skin', {1: ('Bluejay', ('#1a2a6a', '#3a7ae0', '#8ac8ff')), 2: ('Ember Toad', ('#4a0e04', '#d0501a', '#ffa060')),
-                                                             3: ('Old Bog', ('#2a1a0a', '#7a5430', '#c09a6a')), 4: ('Golden Prince', ('#3a2806', '#e0b02a', '#fff0a0'))}),
+                                                             3: ('Old Bog', ('#2a1a0a', '#7a5430', '#c09a6a')), 4: ('Golden Prince', ('#3a2806', '#e0b02a', '#fff0a0')), 5: ('Diamond Prince', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite Prince', ('#141014', '#4a4046', '#9a8c94'))}),
        'don': ('Donado', '#e8d29a', 'Coat', {1: ('Chocolate', ('#1a0e06', '#5a3418', '#a07048')), 2: ('Midnight', ('#08080c', '#2a2a34', '#7a7a8a')),
                                            3: ('Snowdrift', ('#8a8a90', '#dcdce0', '#ffffff')), 4: ('Starlit', ('#0a0626', '#4a2a9a', '#b49aff')),
-                                           5: ('Gilded', ('#3a2806', '#e0b030', '#fff0a0'))}),        # (5: 2.79a - his gilded coat)
+                                           5: ('Gilded', ('#3a2806', '#e0b030', '#fff0a0')),
+                                           6: ('Diamond', ('#06323a', '#1a9aa0', '#a8fff4')), 7: ('Netherite', ('#141014', '#4a4046', '#9a8c94'))}),        # (5: 2.79a - his gilded coat; 6, 7: 2.80c)
        'pearl': ('Pearlman', '#5ac8ff', 'Bow Tie', {1: ('Ruby', ('#3a0408', '#c0202a', '#ff7a80')), 2: ('Emerald', ('#04260e', '#1a9a44', '#7aff9a')),
-                                                    3: ('Amethyst', ('#1a0630', '#7a3ac0', '#d0a0ff')), 4: ('Gilded', ('#3a2806', '#e0b030', '#fff0a0'))}),
+                                                    3: ('Amethyst', ('#1a0630', '#7a3ac0', '#d0a0ff')), 4: ('Gilded', ('#3a2806', '#e0b030', '#fff0a0')), 5: ('Diamond', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite', ('#141014', '#4a4046', '#9a8c94'))}),
        'fishy': ('Fishy', '#ffa040', 'Top Hat', {1: ('Midnight Silk', ('#06081c', '#1e2a6a', '#6a7ad0')), 2: ('Crimson Opera', ('#22040a', '#8a1a24', '#e05a64')),
-                                                  3: ('Emerald Ascot', ('#04200e', '#1a7a3a', '#6ad08a')), 4: ('Gilded Topper', ('#3a2806', '#c8962a', '#ffe08a'))}),
+                                                  3: ('Emerald Ascot', ('#04200e', '#1a7a3a', '#6ad08a')), 4: ('Gilded Topper', ('#3a2806', '#c8962a', '#ffe08a')), 5: ('Diamond Topper', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite Topper', ('#141014', '#4a4046', '#9a8c94'))}),
        'wil': ('Wilfrey', '#f4f4f4', 'Heraldry', {1: ('Crimson Cross', ('#3a0408', '#b02020', '#ff7070')), 2: ('Azure Chevron', ('#06103a', '#2a4ab0', '#8aa8ff')),
-                                                  3: ('Verdant Bend', ('#06260a', '#2a8a30', '#90e090')), 4: ('Gilded Sun', ('#3a2806', '#e0b030', '#fff0a0'))})}
+                                                  3: ('Verdant Bend', ('#06260a', '#2a8a30', '#90e090')), 4: ('Gilded Sun', ('#3a2806', '#e0b030', '#fff0a0')), 5: ('Diamond Sun', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite Sun', ('#141014', '#4a4046', '#9a8c94'))})}
 HIDDEN = 4
 RECOLOUR = {'leo': ('le_tunic', 'le_skirt', 'le_cape'), 'demo': ('dm_hood', 'dm_hood_dk', 'dm_cape'), 'cecil': ('cec_robe', 'cec_robe_dark')}
 # (2.79b: with Leo's Golden Champion his helm and armour turn diamond - polished cyan beside the gold tabard - head included)
@@ -52,7 +53,9 @@ DYE = {'Crimson Crusader': 'red', 'Royal Purple': 'purple', 'Greenwood': 'green'
        "Admiral's Blue": 'blue', 'Corsair Crimson': 'red', 'Bleached Bone': 'white', 'Gilded Captain': 'yellow', 'Bluejay': 'light_blue',
        'Ember Toad': 'orange', 'Old Bog': 'brown', 'Golden Prince': 'yellow', 'Chocolate': 'brown', 'Midnight': 'blue', 'Snowdrift': 'white', 'Starlit': 'purple',
        'Ruby': 'red', 'Emerald': 'lime', 'Amethyst': 'purple', 'Gilded': 'yellow', 'Crimson Cross': 'red', 'Azure Chevron': 'blue', 'Verdant Bend': 'green',
-       'Gilded Sun': 'yellow', 'Midnight Silk': 'blue', 'Crimson Opera': 'red', 'Emerald Ascot': 'green', 'Gilded Topper': 'yellow'}
+       'Gilded Sun': 'yellow', 'Midnight Silk': 'blue', 'Crimson Opera': 'red', 'Emerald Ascot': 'green', 'Gilded Topper': 'yellow',
+       'Diamond Champion': 'light_blue', 'Diamond Storm': 'light_blue', 'Diamond': 'light_blue', 'Diamond Coil': 'light_blue', 'Diamond Captain': 'light_blue', 'Diamond Prince': 'light_blue', 'Diamond Topper': 'light_blue', 'Diamond Sun': 'light_blue', 'Diamond Thunder': 'light_blue',
+       'Netherite Champion': 'black', 'Netherite Storm': 'black', 'Netherite': 'black', 'Netherite Coil': 'black', 'Netherite Captain': 'black', 'Netherite Prince': 'black', 'Netherite Topper': 'black', 'Netherite Sun': 'black', 'Netherite Thunder': 'black'}
 WORD = {'apo': 'his scales', 'tul': 'his coat', 'frog': 'his skin', 'don': 'his coat', 'pearl': 'his bow tie and hat band', 'wil': 'the shield he bears',
         'fishy': 'his top hat'}
 for _w, (_who, _col, _word, _set) in NEW.items():
@@ -120,12 +123,12 @@ def textures():
     import gild
     for w, keys in RECOLOUR.items():
         for k, (_n, pal) in NEW[w][3].items():
-            ims = {n: gild.metal(base[w][n]) for n in keys} if gild.is_gilded(w, k) else _recolour({n: base[w][n] for n in keys}, pal)   # (2.79a: polished gold)
+            ims = {n: gild.dress(w, k, base[w][n]) for n in keys} if gild.is_gilded(w, k) else _recolour({n: base[w][n] for n in keys}, pal)   # (2.79a: polished gold)
             for name, im in ims.items():
                 out[f'{name}_c{k}'] = im
             if gild.is_gilded(w, k):
                 for n in ARMOUR.get(w, ()):
-                    im = gild.metal(base[w][n], ramp=gild.DIAMOND, sheen=0 if n == 'le_mail' else 11, soften=n != 'le_mail')
+                    im = gild.metal(base[w][n], ramp=gild.steel(w, k), sheen=0 if n == 'le_mail' else 11, soften=n != 'le_mail')
                     if n.endswith('_dk'):                # (the dark steel stays darker: its trim and shadowed plates)
                         from PIL import Image
                         im = Image.merge('RGBA', [*[c.point(lambda v: int(v * 0.68)) for c in im.split()[:3]], im.split()[3]])
@@ -250,8 +253,9 @@ def generate(G):
             [f'execute if score #wc bm.rng matches {k} run data modify entity @e[type=minecraft:item_display,tag={sel},tag={head},limit=1] item.components."minecraft:item_model" set value "bm:dm_head_c{k}"'
              for k in NEW[w][3]] if w == 'demo' else
             # (Leo's head: his face stays his own - but in the gilded look his helm is diamond)
-            [f'execute unless score #wc bm.rng matches {gild.GILDED["leo"][0]} run data modify entity @e[type=minecraft:item_display,tag={sel},tag={head},limit=1] item.components."minecraft:item_model" set value "bm:le_head"',
-             f'execute if score #wc bm.rng matches {gild.GILDED["leo"][0]} run data modify entity @e[type=minecraft:item_display,tag={sel},tag={head},limit=1] item.components."minecraft:item_model" set value "bm:le_head_c{gild.GILDED["leo"][0]}"']))
+            [f'data modify entity @e[type=minecraft:item_display,tag={sel},tag={head},limit=1] item.components."minecraft:item_model" set value "bm:le_head"'] +
+            [f'execute if score #wc bm.rng matches {k} run data modify entity @e[type=minecraft:item_display,tag={sel},tag={head},limit=1] item.components."minecraft:item_model" set value "bm:le_head_c{k}"'
+             for k in NEW['leo'][3] if gild.is_gilded('leo', k)]))
         G.FUNCS[f'p{96 if w == "leo" else 97}/grow'].append(f'function bm:p99/{w}_dress')
         excl = ',tag=!bm.dmencp,tag=!bm.dmbp,tag=!bm.dmfade' if w == 'demo' else ',tag=!bm.lefade,tag=!bm.leencp'
         fn(f'p99/{w}_now', ['scoreboard players operation #me bm.pid = @s bm.pid',

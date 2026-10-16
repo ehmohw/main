@@ -20,6 +20,7 @@ from useitem import hold, HOLD
 from nbt import snbt
 import phase28 as P28
 import phase99 as P99
+import gild
 import phase103 as P103
 
 GOLD = '#ffcf40'
@@ -91,20 +92,21 @@ def textures():
     for w, (mod, keys) in RECOL.items():
         base = importlib.import_module(mod).textures()
         for k, (_n, pal) in P99.NEW[w][3].items():
-            ims = {n: gild.metal(base[n]) for n in keys} if gild.is_gilded(w, k) else P99._recolour({n: base[n] for n in keys}, pal)   # (2.79a: polished gold)
+            ims = {n: gild.dress(w, k, base[n]) for n in keys} if gild.is_gilded(w, k) else P99._recolour({n: base[n] for n in keys}, pal)   # (2.79a: polished gold)
             for name, im in ims.items():
                 out[f'{name}_c{k}'] = im
     # (2.79a: the Golden Prince's skin - his wool, light and dark, in polished gold rather than yellow wool)
     import random
     from PIL import Image
     rng = random.Random(4096)
-    for nm, lo, hi in (('frog_gild_lt', 150, 210), ('frog_gild_dk', 80, 140)):
+    # (2.80c: and his diamond and netherite skins, the same wool through their metal)
+    for nm, lo, hi, k in [(f'frog_{t}_{s}', lo, hi, gild.TIERS[t]['looks']['frog'][0]) for t in gild.TIERS for s, lo, hi in (('lt', 150, 210), ('dk', 80, 140))]:
         im = Image.new('RGBA', (16, 16))
         for y in range(16):
             for x in range(16):
                 v = rng.randint(lo, hi) - (18 if (x + y * 3) % 5 == 0 else 0)          # (a wool's weave)
                 im.putpixel((x, y), (v, v, v, 255))
-        g = gild.metal(im, sheen=0)
+        g = gild.dress('frog', k, im, sheen=0)
         if nm.endswith('_dk'):
             g = Image.eval(g.convert('RGB'), lambda c: int(c * 0.72)).convert('RGBA')
         out[nm] = g
@@ -112,8 +114,9 @@ def textures():
 
 
 def texmap(w, k):
-    if w == 'frog' and k == 4:
-        return {'minecraft:block/lime_wool': 'bm:block/frog_gild_lt', 'minecraft:block/green_wool': 'bm:block/frog_gild_dk'}     # (2.79a)
+    if w == 'frog' and gild.is_gilded(w, k):                                                                             # (2.79a; 2.80c)
+        t = gild.tier(w, k)
+        return {'minecraft:block/lime_wool': f'bm:block/frog_{t}_lt', 'minecraft:block/green_wool': f'bm:block/frog_{t}_dk'}
     if w == 'frog':
         lt, dk = FROG_SKIN[k]
         return {'minecraft:block/lime_wool': f'minecraft:block/{lt}', 'minecraft:block/green_wool': f'minecraft:block/{dk}'}
@@ -172,10 +175,11 @@ def generate(G):
     fast = []
 
     # ================================================================== a look on a part: the "_c<k>" suffix on whatever model it wears (as the display; #wk)
-    strip = [f'execute if data storage bm:wd {{t:"_c{k}"}} run data modify storage bm:wd m set string storage bm:wd m 0 -3' for k in range(1, 6)]   # (5: Donado's Gilded)
+    KMAX = max(k for w in ITEMS_OF for k in P99.NEW[w][3])
+    strip = [f'execute if data storage bm:wd {{t:"_c{k}"}} run data modify storage bm:wd m set string storage bm:wd m 0 -3' for k in range(1, KMAX + 1)]   # (5: Donado's Gilded; 2.80c: up to 7, his Netherite)
     fn('p138/sfx', ['data modify storage bm:wd m set from entity @s item.components."minecraft:item_model"',
                     'data modify storage bm:wd t set string storage bm:wd m -3'] + strip +
-       ['execute unless score #wk bm.rng matches 1..5 run return run data modify entity @s item.components."minecraft:item_model" set from storage bm:wd m',
+       [f'execute unless score #wk bm.rng matches 1..{KMAX} run return run data modify entity @s item.components."minecraft:item_model" set from storage bm:wd m',
         'execute store result storage bm:wd k int 1 run scoreboard players get #wk bm.rng', 'function bm:p138/sfx2 with storage bm:wd'])
     fn('p138/sfx2', ['$data modify entity @s item.components."minecraft:item_model" set value "$(m)_c$(k)"'])
     # #wk: the look the follower's owner picked (as the owner, or as the follower/one of its parts with an owner)
@@ -222,7 +226,7 @@ def generate(G):
     k = next(i for i, l in enumerate(sec) if 'tag=bm.fp_body] unless items entity @s contents *[minecraft:item_model="bm:frog"]' in l)
     sec[k] = sec[k].replace('unless items entity @s contents *[minecraft:item_model="bm:frog"]',
                             ' '.join(['unless items entity @s contents *[minecraft:item_model="bm:frog"]'] +
-                                     [f'unless items entity @s contents *[minecraft:item_model="bm:frog_c{c}"]' for c in range(1, 5)]))
+                                     [f'unless items entity @s contents *[minecraft:item_model="bm:frog_c{c}"]' for c in P99.NEW['frog'][3]]))
     # ---- Pearlman: his one model, wherever his cat is (a new one too, when it was lost)
     fn('p138/pearl/dress', ['function bm:p138/k/pearl', 'execute as @e[type=minecraft:item_display,tag=bm.pmd] if score @s bm.pid = #me bm.pid run function bm:p138/sfx'])
     G.FUNCS['p128/pm/tick'].append('execute if score #ok bm.rng matches 0 run function bm:p138/pearl/dress')
@@ -232,13 +236,16 @@ def generate(G):
         ['execute as @e[type=minecraft:item_display,tag=bm.pmd] if score @s bm.pid = #me bm.pid run function bm:p138/sfx'], 'Pearlman')
     # ---- Wilfrey: a heraldic shield in his free hand (his real gear is untouched)
     SHIELD = {1: ('red', [('straight_cross', 'white'), ('border', 'yellow')]), 2: ('blue', [('triangle_bottom', 'white'), ('border', 'light_gray')]),
-              3: ('green', [('stripe_downright', 'yellow'), ('border', 'yellow')]), 4: ('yellow', [('circle', 'orange'), ('border', 'orange')])}
+              3: ('green', [('stripe_downright', 'yellow'), ('border', 'yellow')]), 4: ('yellow', [('circle', 'orange'), ('border', 'orange')]),
+              5: ('cyan', [('circle', 'light_blue'), ('border', 'white')]), 6: ('black', [('circle', 'gray'), ('border', 'brown')])}      # (5, 6: 2.80c)
     sh = lambda base, pats: 'minecraft:shield[minecraft:base_color="%s",minecraft:banner_patterns=[%s]]' % (
         base, ','.join(f'{{pattern:"minecraft:{p}",color:"{c}"}}' for p, c in pats))
-    fn('p138/wil/shield', ['execute unless score #wk bm.rng matches 1..4 run item replace entity @s weapon.offhand with minecraft:air'] +
-       [f'execute if score #wk bm.rng matches {k} run item replace entity @s weapon.offhand with {sh(*SHIELD[k])}' for k in SHIELD if k != 4] +
-       # (2.79a: the Gilded Sun shines)
-       [f'execute if score #wk bm.rng matches 4 run item replace entity @s weapon.offhand with {sh(*SHIELD[4])[:-1]},minecraft:enchantment_glint_override=true]'])
+    import gild
+    fn('p138/wil/shield', [f'execute unless score #wk bm.rng matches 1..{max(SHIELD)} run item replace entity @s weapon.offhand with minecraft:air'] +
+       [f'execute if score #wk bm.rng matches {k} run item replace entity @s weapon.offhand with {sh(*SHIELD[k])}' for k in SHIELD if not gild.is_gilded('wil', k)] +
+       # (2.79a: the Gilded Sun shines - and 2.80c the Diamond and Netherite Suns)
+       [f'execute if score #wk bm.rng matches {k} run item replace entity @s weapon.offhand with {sh(*SHIELD[k])[:-1]},minecraft:enchantment_glint_override=true]'
+        for k in SHIELD if gild.is_gilded('wil', k)])
     G.FUNCS['p2/wil/dress'] += ['scoreboard players set #wk bm.rng 0',
                                 f'execute as @a if score @s bm.pid = #me bm.pid run scoreboard players operation #wk bm.rng = @s {P99.COS["wil"]}',
                                 'function bm:p138/wil/shield']

@@ -337,7 +337,7 @@ def generate(G):
     # 2.78: past the old block (TL..TL+59) the pages, stock and auras go on in 8100-8299
     TL2 = 8100
     pcode = lambda i: TL + 1 + i if i < 7 else (TL2 + i - 7 if i < 13 else TL2 + i - 6)      # a follower's page (2.79: past 8106, the Auras page)
-    scode = lambda j: TL + 10 + j if j < 40 else TL2 + 10 + j - 40          # an outfit
+    scode = lambda j: TL + 10 + j if j < 40 else (TL2 + 10 + j - 40 if j < 80 else TL2 + 64 + j - 80)   # an outfit (2.80c: past 8150-8163, the auras)
     stock = []                                       # (who, group, unlock score, k, item, name, colour, price)
     for who, g, cur, un, ks, iid, off, apply in P99.groups():
         for k, (cn, col) in ks.items():

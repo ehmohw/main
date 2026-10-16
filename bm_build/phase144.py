@@ -15,6 +15,7 @@ level II - whichever form she's in, and whether or not her Wraithfire Form is sw
 look and the flying). Importing does nothing; generate(G) runs after phase138."""
 from items import T
 import apophiss_art as A, rigfol as RF
+import phase99 as P99
 from apophiss_art import qs
 
 # (his wings, in either form: half-folded along his back as he goes about - clear of a rider and his coils - and thrown wide
@@ -90,7 +91,7 @@ def generate(G):
                        'data modify entity @s item.components."minecraft:item_model" set from storage bm:wd m'])
     fn('p144/form', ['data modify storage bm:wd m set from entity @s item.components."minecraft:item_model"',
                      'data modify storage bm:wd t set string storage bm:wd m -3'] +
-       [f'execute if data storage bm:wd {{t:"_c{c}"}} run data modify storage bm:wd m set string storage bm:wd m 0 -3' for c in range(1, 5)] +
+       [f'execute if data storage bm:wd {{t:"_c{c}"}} run data modify storage bm:wd m set string storage bm:wd m 0 -3' for c in P99.NEW['apo'][3]] +
        ['execute if score #af bm.rng matches 10 run data modify storage bm:wd s set value "_eth"',
         'execute if score #af bm.rng matches 11 run data modify storage bm:wd s set value "_wf"',
         'function bm:p144/form2 with storage bm:wd'])

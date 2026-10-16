@@ -21,6 +21,21 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.80c: diamond and netherite looks for every follower
+
+### Diamond and netherite looks
+- **Every follower now has a diamond look and a netherite look beside their gilded one.** They're made the same way as the gilded looks, with burnished metal, light along the edges, a sheen and the odd glint, but in cut diamond (cyan to white) or dark Nether steel (charcoal with a faint purple-brown).
+  - Emma's **Diamond Gown** and **Netherite Gown**, Celi's **Diamond** and **Netherite** outfits, Zib's **Diamond Ace** and **Netherite Ace**, Cecil's **Diamond** and **Netherite** robes, KillerWatt's **Diamond Thunder** and **Netherite Thunder**, Leo's **Diamond Champion** and **Netherite Champion**, Democratus' **Diamond Storm** and **Netherite Storm**, Apophiss's **Diamond Coil** and **Netherite Coil**, Tullius's **Diamond Captain** and **Netherite Captain**, the Frog's **Diamond Prince** and **Netherite Prince**, Donado's **Diamond** and **Netherite** coats, Pearlman's **Diamond** and **Netherite** bow ties, Wilfrey's **Diamond Sun** and **Netherite Sun**, and Fishy's **Diamond Topper** and **Netherite Topper**.
+- **They're the Tailor's dearest: diamond 4,096 coins (32 Gutter Trophies), netherite 6,144 coins (48).** The gilded looks stay at 2,560. Their lore says what each one is, and they glint.
+- **Each metal sparkles in its own way.** Gold gives gold motes and glints, diamond gives cyan glitter and starlight, and netherite gives embers and drifting smoke. (As with gold, Cecil and KillerWatt don't sparkle while a gem's element is showing on them.)
+- **Leo's helm and armour turn to match:** diamond with the Diamond Champion, netherite with the Netherite Champion. (The Golden Champion keeps its diamond steel.)
+- **Wilfrey's armour turns diamond or netherite** with the Diamond Sun or the Netherite Sun, and he carries a matching shining shield: cyan with a light-blue sun, or black with a grey one. As with the Gilded Sun, only the armour's look changes.
+- Like every outfit, each one is yours for good once used or bought: pick it in the follower's wardrobe (sneak + use their item), and they keep it across recalls.
+
+### Testing
+- **New bot playtest:** t179. As a regular player it uses Tullius's Diamond Captain (his rig wears it) and opens his wardrobe (the Netherite Captain locked, and where to find it). It buys the Netherite Captain at the Tailor through his dialog (6,144 coins from the bank, then OWNED) and wears it from the wardrobe. It also checks Leo's diamond helm, and Wilfrey's Netherite Sun shield and netherite armour.
+- t105 updated for the Tailor's longer outfit list.
+
 ## New in 2.80b: the special nights debugged, Happy Hour a real discount, Cecil's dolls kept secret, and bosses fixed
 
 ### Cecil's dolls wait until you've met their follower

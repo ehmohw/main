@@ -1,4 +1,5 @@
-"""2.79a: GILDED - a follower's gilded look is polished gold, not yellow cloth.
+"""2.79a: GILDED - a follower's gilded look is polished gold, not yellow cloth. (2.80c: and a diamond look and a netherite
+look beside it - the same polish through another metal's ramp: TIERS, LOOKS.)
 
 metal(im) turns any texture into shiny gold: its shading (luminance, stretched over the image's own range) through a
 six-stop gold ramp - umber shadow, ochre, gold, bright gold, pale gold, a white-gold glint - with the contrast pushed so the
@@ -12,6 +13,9 @@ RAMP = [(0.00, (0x3a, 0x22, 0x04)), (0.22, (0x78, 0x4c, 0x0a)), (0.45, (0xc0, 0x
 # (2.79b: a diamond ramp, for steel that goes with a gilded look - Leo's helm and armour beside his gold tabard)
 DIAMOND = [(0.00, (0x06, 0x2c, 0x32)), (0.22, (0x0c, 0x5c, 0x62)), (0.45, (0x18, 0x9c, 0xa0)), (0.66, (0x34, 0xd2, 0xcf)),
            (0.84, (0x8a, 0xf2, 0xea)), (1.00, (0xe6, 0xff, 0xfc))]
+# (2.80c: netherite - dark, faintly purple-brown steel; the polish still catches its edges)
+NETHERITE = [(0.00, (0x0c, 0x0a, 0x0c)), (0.22, (0x22, 0x1c, 0x20)), (0.45, (0x3c, 0x33, 0x38)), (0.66, (0x5c, 0x50, 0x56)),
+             (0.84, (0x8c, 0x7e, 0x85)), (1.00, (0xd8, 0xcc, 0xd2))]
 GOLD = '#ffcf40'
 
 
@@ -81,14 +85,44 @@ GILDED = {'emma': (6, 'cos_dress_6', 'bm.cosd'), 'celi': (5, 'cos_celi_5', 'bm.c
           'demo': (4, 'cos_demo_4', 'bm.cosm'), 'apo': (4, 'cos_apo_4', 'bm.cosap'), 'tul': (4, 'cos_tul_4', 'bm.costu'),
           'frog': (4, 'cos_frog_4', 'bm.cosfg'), 'don': (5, 'cos_don_5', 'bm.cosdn'), 'pearl': (4, 'cos_pearl_4', 'bm.cospm'),
           'wil': (4, 'cos_wil_4', 'bm.coswl'), 'fishy': (4, 'cos_fishy_4', 'bm.cosfy')}
+# (2.80c) the diamond and the netherite looks: the next two numbers in each follower's set
+_ITEM = {'emma': 'cos_dress_{}', 'celi': 'cos_celi_{}', 'zib': 'cos_zib_{}'}
+_K2 = {'emma': 7, 'celi': 6, 'zib': 4, 'don': 6}
+DIAMOND_LOOKS = {w: (_K2.get(w, 5), _ITEM.get(w, f'cos_{w}_{{}}').format(_K2.get(w, 5)), sc) for w, (k, i, sc) in GILDED.items()}
+NETHERITE_LOOKS = {w: (_K2.get(w, 5) + 1, _ITEM.get(w, f'cos_{w}_{{}}').format(_K2.get(w, 5) + 1), sc) for w, (k, i, sc) in GILDED.items()}
+# each metal: its ramp, the steel beside it (Leo's helm), its colour, its word, its lore, its price (Gutter Trophies), Wilfrey's armour
+TIERS = {'gold': {'ramp': RAMP, 'steel': DIAMOND, 'col': GOLD, 'word': 'Gilded', 'trophies': 20, 'armour': 'gold',
+                  'lore': 'Gilded: polished gold - and it sparkles.', 'looks': GILDED},
+         'diamond': {'ramp': DIAMOND, 'steel': DIAMOND, 'col': '#5ee8e0', 'word': 'Diamond', 'trophies': 32, 'armour': 'diamond',
+                     'lore': 'Diamond: cut and polished - and it glitters.', 'looks': DIAMOND_LOOKS},
+         'netherite': {'ramp': NETHERITE, 'steel': NETHERITE, 'col': '#9a8a92', 'word': 'Netherite', 'trophies': 48, 'armour': 'netherite',
+                       'lore': 'Netherite: forged in the deep Nether - and it smoulders.', 'looks': NETHERITE_LOOKS}}
+LOOKS = {(w, k): t for t, d in TIERS.items() for w, (k, i, sc) in d['looks'].items()}
 ITEMS = {g[1] for g in GILDED.values()}
+TIER_OF_ITEM = {i: t for t, d in TIERS.items() for (k, i, sc) in d['looks'].values()}
 TROPHIES = 20                                # its price: 20 Gutter Trophies - 2,560 coins at the Tailor (an aura is 1,280)
 
 
+def tier(w, k):
+    """the metal of a follower's look (gold, diamond, netherite) - or None for a cloth one"""
+    return LOOKS.get((w, k))
+
+
 def is_gilded(w, k):
-    return w in GILDED and GILDED[w][0] == k
+    """(any of the metal looks - gold, diamond, netherite: polished through gild.metal)"""
+    return (w, k) in LOOKS
+
+
+def dress(w, k, im, **kw):
+    """the texture in that look's metal"""
+    return metal(im, ramp=TIERS[LOOKS[(w, k)]]['ramp'], **kw)
+
+
+def steel(w, k):
+    """the ramp for the steel worn with that look (Leo's helm and armour)"""
+    return TIERS[LOOKS[(w, k)]]['steel']
 
 
 def price(iid, plain):
-    """a cosmetic's Goldtooth offer price (the Tailor reads it): the gilded ones 20 Gutter Trophies"""
-    return ('gutter_trophy', TROPHIES) if iid in ITEMS else plain
+    """a cosmetic's Goldtooth offer price (the Tailor reads it): gold 20 Gutter Trophies, diamond 32, netherite 48"""
+    return ('gutter_trophy', TIERS[TIER_OF_ITEM[iid]]['trophies']) if iid in TIER_OF_ITEM else plain
