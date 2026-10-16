@@ -92,8 +92,8 @@ const res = []; const X = 16800, Y = 100, Z = 16000;
   await run('clear TestRat *[minecraft:custom_data~{bm:"token"}]'); for (let i = 0; i < 5; i++) await run('loot give TestRat loot bm:items/token');
   await run('effect clear TestRat'); await sleep(600);    // (the pockets' snapshot is a few ticks old: let it see the 5)
   await run('kill TestRat'); await sleep(4500);
-  ok('Knocked out in the vault: back in the den with the Tokens you dropped', (await has('TestRat', 'bm.gvp')) && (await cnt('TestRat', '*[minecraft:custom_data~{bm:"token"}]')) === 5 &&
-     A.bars.some(b => /back in your pockets/.test(b)), `${await cnt('TestRat', '*[minecraft:custom_data~{bm:"token"}]')} ${A.chats.slice(-3).join(' / ')} ${A.bars.slice(-2).join(' / ')} ${await dim('TestRat')}`);
+  ok('Knocked out in the vault: back where the crew last cleared the way, the Tokens still on you', (await has('TestRat', 'bm.gvp')) && (await cnt('TestRat', '*[minecraft:custom_data~{bm:"token"}]')) === 5 &&
+     A.chats.some(c => /everything you carried, just as it was/.test(c)), `${await cnt('TestRat', '*[minecraft:custom_data~{bm:"token"}]')} ${A.chats.slice(-3).join(' / ')} ${A.bars.slice(-2).join(' / ')} ${await dim('TestRat')}`);
   await setToks('TestRat', 40);
 
   // ---- 5. the leader drops out at the end: the choice passes on

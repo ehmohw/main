@@ -178,6 +178,21 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
   market. A placed market's own install (the Cabinet hall) runs from its per-second loop, which only runs with a player
   within 100 blocks of its marker (t162).
 
+- 2.80a: the vault's catch-all sees out anyone in `bm:gutter` who is neither on a heist (`bm.gvp`) nor checked (`bm.lgbag`),
+  within 5 ticks. A test that puts a survival bot in the vault by command (the Locker Hall, the Lounge, a heist room)
+  must give it the operator's pass first, `tag <bot> add bm.gvok`, and take it off at the end (t101, t107, t126...).
+- Every button press is a command, and the server kicks a client for about 10 commands in a burst (`disconnect.spam`).
+  Space presses about a second apart (t175).
+- Dialog labels can start with an icon (`⬆ `, `✦ `): match them without `^`, or strip non-ASCII first (t175).
+- The safe-ground rule for planning heists is a world setting (`#plany bm.rng`): `admin/plan_anywhere` turns it off,
+  `admin/plan_safe` back on. A test that turns it off should turn it back (t107); the old `heist_plans_*` names are gone.
+- The heist's knock-out keeps your pockets from a snapshot a few ticks old: wait half a second after changing a bot's
+  inventory before killing it (t107).
+- A follower fights whatever hostile mob is near: clear the test field of stray mobs, or a sit or a ride is interrupted by
+  a swing at a creeper (t100, t125).
+- Two crews in a row: a heist now closes when its last raider leaves (2.80a). Before, a quick second plan joined the old
+  heist and no end-of-heist screen came (t131mp).
+
 ## Index
 
 The newest tests (t128 onward, especially t131-t133) follow the owner's rule throughout. Older ones lean on rcon
@@ -377,6 +392,8 @@ and function calls. Three are known to be stale.
 | `t172.js` | 2.80: menus as regular players - the Rat Bank (Banker's Card): the account page lists all 11 currencies with balances; a currency's page (icon, in the account, on you); Deposit all / Take 10 come back to that page; « back; Deposit everything. The Armory: a card per kit, each kit's page lists its ranks (owned ticked, next marked), Rank up buys and returns. The party's members as a dialog (names, health, leader starred; Kick only for the leader, and it kicks). Server settings as an operator's dialog (state on each button, a click flips it; a regular player can't open it) |
 | `t173.js` | 2.80: the Fixer's Lounge's coat check, as a regular player - in through the Ledger's "Fixer's Lounge" (hold still): the Fixer keeps the sword and helmet, the Ledger and Tokens come in; the lounge heals (Regeneration II, Saturation refilling a drained food bar); out through its door: home where you stood, gear handed back; a death inside: gear back at home, nothing left with the Fixer; a heist planned from the lounge (Plan a Heist > Tier I > 3 tries): the fee paid, what was picked up inside set aside, the way home and respawn point are the spot you came from; left from the Ledger (Leave the heist > Leave now): home, sword, helmet and the lounge's diamonds back, respawn point your own |
 | `t174.js` | 2.80: Apophiss revised (`node t174.js [boss|mace|crown]`) - the boss: 1024 health, attack 12, armour 18; his Judgement stood in (16 through full Regalia and Resistance) and sprinted out of (nothing). The Mace: Wind Burst III; F to the next form, sneak + F back, all seven round; the pickaxe's Haste II; the sword's poison, the shovel's lift, the hoe's heal (with the Wither); the Wrath used (a husk struck, its 12 s cooldown) and again too soon. The True Crown worn with a use: Protection X, Thorns III, Respiration V; with three Regalia pieces the set wakes; Apophiss called with his Oath: Resistance II and Regeneration II from the Crown, Strength II from the Mace |
+| `t175.js` | 2.80a: the Gutter Bank a page per currency, as a regular player - every currency on its own button with its balance; Copper Cogs taken and deposited 1, 10 and all; coins taken loose only (no Medallion broken); a Medallion out and back; Deposit everything; a stale action button moves nothing |
+| `t176.js` | 2.80a: the coat check, airtight - the Locker Hall's door checks your gear and its plate hands it back; a death in the hall, then a Pearl of Return refused (and refunded); a stray put in a heist's den seen out, home, with their gear; a stray in the Lounge checked on the spot; a stale bag at the heist's door (what you carry joins it); enchanted heist boots kept at the Lounge's door |
 |  | home (from her menu), and with Wilfrey out a fourth follower refused. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |

@@ -17,6 +17,7 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
     const e = Object.values(A.ents).find(e => e.objectUUID === u); return e ? e.entityId : null; };
   await run(`forceload add ${X - 48} ${Z - 48} ${X + 48} ${Z + 48}`); await sleep(1500);
   await run(`fill ${X - 40} ${Y - 1} ${Z - 40} ${X + 40} ${Y - 1} ${Z + 40} minecraft:stone`); await run(`fill ${X - 40} ${Y} ${Z - 40} ${X + 40} ${Y + 20} ${Z + 40} minecraft:air`);
+  for (const t of ['creeper', 'zombie', 'skeleton', 'spider', 'cave_spider', 'husk', 'stray', 'bogged', 'drowned', 'witch', 'enderman', 'slime', 'phantom', 'zombie_villager', 'pillager', 'breeze']) await run(`execute positioned ${X} ${Y} ${Z} run tp @e[type=minecraft:${t},distance=..64] ~ -400 ~`);   // (a stray mob would be fought - the field is cleared)
   await run('time set day'); await run('gamerule doMobSpawning false'); await run("gamerule advance_weather false");
   for (const k of ['cat,tag=bm.emmapet', 'wolf,tag=bm.celipet', 'wolf,tag=bm.zibpet', 'wolf,tag=bm.kxpet', 'wolf,tag=bm.cecilpet', 'wolf,tag=bm.leopet', 'wolf,tag=bm.dmpet', 'vindicator,tag=bm.dmboss'])
     await run(`execute as @e[type=${k}] run tp @s ~ -400 ~`);

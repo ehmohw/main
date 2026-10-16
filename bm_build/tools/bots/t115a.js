@@ -170,18 +170,8 @@ const res = [];
     const mount = async q => { await at('minecart', q, 'ride TestRat mount @e[type=minecraft:minecart,tag=bm.gvcart,distance=..20,limit=1]'); await sleep(300); };
     const lp = async q => (await local('minecart', q)).map(v => +v.toFixed(1));
     const waitRide = async (q, ms) => { const t0 = Date.now(); let p; while (Date.now() - t0 < ms) { await sleep(500); if ((await sc('minecart', q, 'bm.gvs')) !== 2) break; } };
-    let q = await fresh('minecart', 'a', 2); await go('minecart', q, 2, 12); await sleep(600);
-    ok('The Minecart Run (A, the Rail Shooter): a cart at the station, a bow lent', (await cnt('@e[type=minecraft:minecart,tag=bm.gvcart]')) >= 1 && await has('minecraft:bow'));
-    await mount(q); await sleep(1500);
-    const moved = await lp(q);
-    ok('...get in: off it goes', (await sc('minecart', q, 'bm.gvs')) === 2 && moved[0] > 4 || moved[2] < 11, `${moved}`);
-    const a0 = await alarm(); await waitRide(q, 30000);
-    ok('...to the end without enough hits: back to the station, the alarm', (await alarm()) > a0 && !(await solved('minecart', q)), `${await lp(q)}`);
-    for (const [x, y, z] of DATA.targets) await at('minecart', q, `execute if block ${rel(x, y, z)} minecraft:target run setblock ${rel(x, y, z)} minecraft:target[power=15]`);
-    await mount(q); await sleep(800);
-    for (const [x, y, z] of DATA.targets) await at('minecart', q, `execute if block ${rel(x, y, z)} minecraft:target run setblock ${rel(x, y, z)} minecraft:target[power=15]`);
-    await waitRide(q, 30000);
-    ok('...every target hit on the ride: into the gold station - open', await solved('minecart', q), `hits ${await sc('minecart', q, 'bm.gvw')}`);
+    // (Version A, the Rail Shooter, was retired in 2.74 - the cart's speed made its targets near impossible: B and C remain)
+    let q;
     // B
     q = await fresh('minecart', 'b', 2); await go('minecart', q, 2, 12); await sleep(500);
     const a1 = await alarm(); await mount(q); await waitRide(q, 30000);

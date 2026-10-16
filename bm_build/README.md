@@ -1,4 +1,4 @@
-# Black Market — v2.80 (Java 26.3)
+# Black Market — v2.80a (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,36 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.80a: the Gutter Bank a page per currency, an airtight coat check, and a debugged raid
+
+### The Gutter Bank, one currency at a time
+The bank used to be all or nothing: **Deposit everything** took every coin and spoil you carried, and taking a spoil out handed back every one you had (all your Copper Cogs at once). It now works like the Rat Bank.
+- **Your account** lists every currency on its own button with its balance: loose Gutter Coins, Gutter Medallions, Gutter Trophies, and the six spoils (Copper Cogs, Silver Seals, Gilded Leaves, Deep Pearls, Hoard Embers, Captain's Insignia). Below them: Deposit everything, the ⇄ exchange, Buy Tokens and the Office.
+- **A currency's page** shows its icon, how many are in your account and how many you carry, with **Deposit 1 / 10 / all** and **Take 1 / 10 / all**. Each button brings you back to the same page.
+- **Taking coins takes loose coins.** A Medallion or Trophy is never broken up to pay for them; change one on the ⇄ page first.
+- A button from an old page can't act on a different currency.
+
+### The coat check, airtight
+Nothing from the overworld gets into the vault, however you come in.
+- **The Locker Hall's door now checks your gear,** as the den's and the Lounge's do. Before, the Ledger took you there with everything you carried, so a sword left in your locker could be taken out later. The hall's plate hands it all back as it takes you home. Coming in from the Lounge, you're already checked.
+- **From the Locker Hall to the Lounge,** your way home is still the place you came into the hall from (not the hall itself).
+- **The Pearl of Return won't take you into the vault.** After a death on a heist it used to take you straight back in. Now it's refused and refunded ("The vault's doors don't open that way").
+- **A catch-all.** Anyone in the vault who is neither on a heist nor through the coat check (a command, a mod, a state left over from a heist) is dealt with within a quarter of a second. In the Lounge or the Locker Hall their gear is checked on the spot. Anywhere else they're seen out: home to their respawn point (or where they came from), with their own gear.
+- **A bag the Fixer still holds** (from a hand-back that never happened, such as a crash or a lost connection) used to mean "this time you keep what you carry" at the heist's door, and everything came in. Now what you carry joins the old bag, and it all comes home together.
+- **Heist gear goes in as the Fixer sold it.** A Thief's Cowl, Smuggler's Boots or Whisperstep Boots enchanted at an anvil outside waits with the rest of your gear. The unenchanted ones still go in with you.
+
+### The raid, debugged
+- **A finished heist was still open to its own crew.** When the whole crew left together ("Go to the Lounge", "Back to the Overworld", or Leave from the Ledger), the heist kept its place for its 20-second tidy-up, still joinable. Planning another heist in that time (straight away from the Lounge, say) put the crew back into the old one: rooms beaten, vault paid out, and no end-of-heist choice ever to come. Now a heist closes the moment its last raider leaves, and the next plan is a new heist. This was the multiplayer bug where the end-of-heist screen never appeared after the first heist.
+- **The vault door never takes a paid-out heist back to "open".** The 2.80 door sequence marked the vault open as it finished. If the strongbox had already paid out by then, that made the heist joinable again.
+
+### Fixes
+- **Tullius's ghost ship could be built into an iceberg** in a frozen ocean, with packed ice over her deck and ladder and no way aboard. Ice and snow are now cleared from her bounds as she's built (water below the waterline).
+
+### Testing
+- **New bot playtests:** t175 (every Gutter Bank currency page, pressed through: take and deposit 1, 10 and all; coins loose only; Medallions whole) and t176 (the coat check: the Locker Hall's door, a death in the hall and the Pearl of Return, a stray seen out of a heist's den, a stray checked in the Lounge, a stale bag at the heist's door, enchanted boots at the Lounge's door).
+- **t131mp, the two-player end-of-heist test, now passes in full (17/17)** for the first time since 2.76.
+- **Older playtests brought up to date:** t107 and h110 (the renamed `admin/plan_anywhere` and `admin/plan_safe`), t107 (knock-outs keep your pockets since 2.74), t115a (the Pipes' solutions are now in its data file; the retired Rail Shooter is dropped), t125 and t100 (the test field is cleared of stray mobs a follower would fight), t176 (the stale bag's helmet comes back to your pack), and every test that stages a bot in the vault by command (it carries the operator's pass `bm.gvok`, which the catch-all lets be).
 
 ## New in 2.80: boss fights with a sense of occasion, music of their own, the heist's climax, item icons redrawn, sharper menus, a harder Apophiss with better drops, Fishy's Cabinet in the Black Market, and the Lounge's coat check
 

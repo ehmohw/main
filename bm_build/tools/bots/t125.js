@@ -22,6 +22,7 @@ const X = 19000, Y = 120, Z = 19000;
     for (const o of ['bm.emcd', 'bm.kxcd', 'bm.dmcd', 'bm.lecd', 'bm.cecd', 'bm.cpcd']) await run(`scoreboard players set TestRat ${o} 0`);
     await run('tag TestRat remove bm.dmduel'); await run('scoreboard players set TestRat bm.dmd 0');     // (a duel's countdown left running by an earlier run)
     await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} -90 0`); await run('gamemode survival TestRat'); await run('effect clear TestRat'); await run('clear TestRat');
+    for (const t of ['creeper', 'zombie', 'skeleton', 'spider', 'cave_spider', 'husk', 'stray', 'bogged', 'drowned', 'witch', 'enderman', 'slime', 'phantom', 'zombie_villager', 'pillager', 'breeze']) await run(`execute positioned ${X} ${Y} ${Z} run tp @e[type=minecraft:${t},distance=..64] ~ -400 ~`);   // (a stray mob would be fought - the field is cleared)
     await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid'); await run('weather clear'); await run('time set day');
     await sleep(500);
   };
