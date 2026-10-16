@@ -13,7 +13,7 @@ changes. Importing does nothing; generate(G) runs after phase30.generate."""
 from nbt import snbt, B, F, Int
 from items import T, ITEMS
 import mgeo
-import market2
+import market3 as market2
 
 W, BF = market2.W, market2.BF
 BANK = [('token', 'bm.bk_tok', 'Tokens', 'gold'), ('lucky_token', 'bm.bk_luck', 'Lucky Tokens', 'green'),

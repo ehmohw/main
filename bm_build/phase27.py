@@ -129,21 +129,7 @@ def generate(G):
     # ================================================================ market patches for 1.13-layout markets already in worlds
     # the Void Rat customer leaves the Blood Alcove
     second.append('execute as @e[type=minecraft:item_display,tag=bm.crowd] if items entity @s contents *[minecraft:item_model="bm:rat3d_void"] run kill @s')
-    # the Gilded Gutter is walled up: the same cells the new build seals, placed relative to the Forge's ambience marker
-    # (markers turn with the structure, so local ^ coordinates follow any rotation)
-    import market2
-    MB = market2.build()
-    ax, ay, az = 60, market2.W + 2, 24                              # the bm.amb_forge marker's block
-    cells = sorted(c for c in market2.VIP_SHELL if not MB.b.get(c, 'minecraft:air').endswith(':air'))
-    wjson('bm/tags/block/p27_open.json', {'values': ['minecraft:air', 'minecraft:cave_air', 'minecraft:light']})
-    patch = [f'execute if block ^{x - ax} ^{y - ay} ^{z - az} #bm:p27_open run setblock ^{x - ax} ^{y - ay} ^{z - az} {MB.b[(x, y, z)]}'
-             for (x, y, z) in cells]
-    xs, zs = [c[0] - ax for c in cells], [c[2] - az for c in cells]
-    fn('p27/vip_patch', ['tag @s add bm.vip17'] + patch)
-    second.append(f'execute as @e[type=minecraft:marker,tag=bm.amb_forge,tag=!bm.vip17] at @s rotated as @s '
-                  f'if loaded ^{min(xs)} ^ ^{min(zs)} if loaded ^{max(xs)} ^ ^{max(zs)} if loaded ^{min(xs)} ^ ^{max(zs)} if loaded ^{max(xs)} ^ ^{min(zs)} '
-                  f'run function bm:p27/vip_patch')
-    G.P27_PATCH_CELLS = len(cells)
+    # (1.17's Gilded Gutter wall patch for 1.13-layout markets went in 2.81: every market is rebuilt as the new town, sealed)
 
     f = G.FUNCS['loop/fast']
     k = f.index('scoreboard players reset @a bm.sneak')

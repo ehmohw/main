@@ -19,7 +19,7 @@ one sale in three. Importing registers the paddle; generate(G) runs after phase2
 from nbt import snbt, B, F, Int
 from items import item, T, TOTEM, ITEMS
 import mgeo
-import market2
+import market3 as market2
 
 W, BF = market2.W, market2.BF
 item('bidding_paddle', 'minecraft:carrot_on_a_stick', 'Bidding Paddle', '#c0392b',

@@ -13,7 +13,8 @@
 from items import T, ITEMS, PRICES, CATEGORY
 from nbt import snbt, B, F, Int
 
-BIN_AT = (26, None, 20)            # the market's own bin: the west end of Barnaby's counter (template coords; y = W)
+import market3
+BIN_AT = (market3.SPOTS['bin'][0], None, market3.SPOTS['bin'][1])   # 2.81: the market's own bin, by Barnaby's shop front (template coords; y = W)
 TOKEN_VALUE = {'token': 1, 'medallion': 9, 'trophy': 54}
 
 

@@ -1,4 +1,4 @@
-# Black Market — v2.80i (Java 26.3)
+# Black Market — v2.81 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,54 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.81: the Black Market, rebuilt as a rat town
+
+The market is a town now: streets, districts, houses with roofs and chimneys, and landmarks, all under the same domed cavern. Every trader, gate, back room and secret is still there, in a new place.
+
+### The town
+- **The Lookout.** The vault door opens onto a rock terrace above the town. A curling stair (west) and a ladder hoist (east) lead down to the Arrival Square and its gate arch. Under the terrace is an arcade with Dennis's Assay Office and Pistachio's Pantry.
+- **Fountain Plaza.** Round, with the falls from the dome feeding Mike's pond, lamp posts, market stalls and the **Bounty Board**.
+- **Pawn Alley** curves north to the **Dark Auction**'s gate:
+  - Old Barnaby's pawn shop, with **the Stacks** (Prof. Whiskerton) on its top floor;
+  - Madame Velour's outfitters;
+  - **the Fence**, on a roof terrace reached by an outside stair or a rope bridge from the Stacks;
+  - the clock tower.
+- **The Gilded Gutter.** Its gate (Gold Key) opens off the Fence's terrace, to the Rat Bank Teller and the Concierge.
+- **Furnace Row:**
+  - Vinny's gunsmith;
+  - Steelwhisker's armory;
+  - the Forge Pit (lava behind bars) and its great chimney;
+  - Curio Court, with the door to Fishy's Cabinet.
+- **The Gnawed Flagon:** Chef Fromage's two-storey tavern.
+- **Night Alley:** narrow and red-lit, with Cecil's tent and the Blood Alcove, a crimson keep behind a portcullis.
+- **The Wharf:**
+  - the river, stilt docks, a crane, the stone bridge and The Drop;
+  - Cheddarbeard's dock house, with Salty Sal at the counter and the mouse hole into the hidden **Rat Gang HQ** in its back wall;
+  - the boathouse;
+  - **the Lucky Den**, now a riverboat casino moored in the harbour, with its three slot machines.
+- **Unchanged:** standing, back rooms, ledgers, the special-night ambience in all seven districts, the night trades, Happy Hour and the lectern with the Newcomers' Book.
+
+### Existing markets are rebuilt in place
+Every market built before 2.81 becomes the new town the first time a player comes within 200 blocks, unless a Dark Auction is running (then it waits for the night to end).
+- **Anyone inside is moved up to the Lookout.** Anything lying on the floor goes with them.
+- **Only the market's own things are removed:** traders, crowd, signs, ledgers, slot reels and so on. Followers, pets and dropped items stay.
+- **The town is placed with the market's own turn,** and every install runs again on it: gates, back-room ledgers, the Dark Auction's podium, the Gilded Gutter, Fishy's Cabinet, Dennis's and Pistachio's rooms, the slots, the board, the lectern, the Scrap Bin and the lift button. The traders come back from the town's own spawn points.
+- **The ladder shaft is kept.** It lies beyond the end of the entrance tunnel, outside the market's box, so it is untouched, and the lift button in the vestibule is rebuilt.
+- **Nothing a player owns lives in the market.** Standing, Rat Bank balances, escrow, bounties and daily limits are all kept.
+- **Admins:** `/function bm:admin/market_rebuild` rebuilds the nearest market again.
+
+### Fixes
+- **KillerWatt.** A KillerWatt without an id (one summoned bare, not through his arrival) re-rigged himself twice a tick, adding thousands of display entities until the server's watchdog stopped it. He now gets an id first.
+- **Placing a market.** `admin/place_market` on the same spot twice no longer leaves two market markers (which would run every install twice).
+- **New build check.** The town build now checks that every bell, lantern and torch hangs from or stands on something. The clock tower's bell was hanging from air.
+
+### Testing
+- **New bot playtest t194.** A 2.80 market is placed as a fixture, turned a quarter, with its traders, a player's dog, a dropped diamond and a ladder shaft. A regular player with the Market Key walks in. Checked: the rebuild (one new marker, the player and the diamond on the Lookout, the dog kept, the shaft untouched, the new blocks turned correctly); every trader once, all 16 ledgers, the Gutter's staff, the Auctioneer, the Cabinet, Dennis's and Pistachio's rooms, the slots, the board, the lectern, the bin, the lift and the seven ambience emitters. Then, as the player: Barnaby's trades and back room, standing, the Bounty Board, the Dark Auction's and the Gilded Gutter's gates, the Rat Bank Teller and Rat Gang HQ. 24/24.
+- **Market tests rerun clean on the new town:** t25, t29, t30, t31, t32, t39, t73, t74, t162 and t182.
+  - t32 and t39 moved to fresh ground, and their stand-in markets are 2.81 ones.
+  - t39's market2-only Barnaby step and t74's retired-book check were dropped.
+  - t24m (a diagnostic log, covered by t141/t163/t178/t183) was retired.
 
 ## New in 2.80i: tough mobs, not health sponges - and creepers you can outrun
 

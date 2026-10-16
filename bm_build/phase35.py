@@ -25,7 +25,7 @@ from nbt import snbt, B, F, Int, D, Short
 import items as I
 from items import item, consumable, attr, ench, T, TOTEM, ITEMS, DYNAMIC, gear, armor_attrs, ARMOR_SLOT
 from useitem import hold, HOLD, HOLD_REPEAT
-import mgeo, market2
+import mgeo, market3 as market2
 import phase15 as P15
 
 RED, GREEN, SUN = '#ff4a4a', '#7dff6a', '#ffcc33'
@@ -98,9 +98,8 @@ for v, who, fg, bg in RATS:
 
 # ===================================================================== the market: three traders step up; the newcomers' lectern
 # 2.36: Barnaby stood right behind the counter post at x29 - he steps one block east (from either of his earlier spots)
-MOVES = [('arms', (57.5, W, 21.5), (58.5, W, 21.5)), ('fence', (44.5, W, 17.5), (44.5, W, 18.5)),
-         ('pawn', (29.5, W, 17.5), (30.5, W, 18.5)), ('pawn', (29.5, W, 18.5), (30.5, W, 18.5))]
-LECTERN = (34, BF + 1, 80)          # balcony, just inside the vault door, beside the way in
+MOVES = []                  # (2.81: every market is the new town - its traders stand where they should)
+LECTERN = market2.SPOTS['lectern']          # balcony, just inside the vault door, beside the way in
 GUIDE = [
     [T('NEWCOMERS,\nSTART HERE\n\n', '#6a2a8a', bold=True), T('Welcome to the Black Market.\n\nWe trade in ', 'black'), T('Tokens', '#6a2a8a'),
      T(', ', 'black'), T('Medallions', '#6a2a8a'), T(' and ', 'black'), T('Trophies', '#6a2a8a'),

@@ -22,7 +22,7 @@ generate(G) runs after phase27.generate."""
 from nbt import snbt, B, F, Int
 from items import item, consumable, T, TOTEM, ITEMS, ITEM_VERSION
 import mgeo
-import market2
+import market3 as market2
 
 W, BF = market2.W, market2.BF
 VALUE = {'token': 1, 'lucky_token': 5, 'blood_crystal': 3, 'medallion': 9, 'trophy': 54}
@@ -92,23 +92,16 @@ BACKROOM = {
 TRADER_NAME = {'fence': 'The Fence', 'pawn': 'Old Barnaby', 'outfitter': 'Madame Velour', 'arms': "Vinny 'Two-Blades'",
                'armory': 'Sgt. Steelwhisker', 'chef': 'Chef Fromage', 'professor': 'Prof. Whiskerton', 'lucky': 'Lucky Whiskers',
                'captain': 'Capt. Cheddarbeard', 'blood': 'The Bloodbroker'}
-FLOOR_LEDGER = {'chef': ((66.5, W, 43.5), 90), 'professor': ((31.5, BF + 1, 18.5), -90), 'lucky': ((9.5, W, 68.5), 180),
-                'captain': ((2.5, W, 18.5), 0)}
+FLOOR_LEDGER = market2.SPOTS['floor_ledger']        # 2.81: the new town's spots (market3.SPOTS)
 
 # ===================================================================== GATES (ledger id: (pos, yaw, region, kind))
-GATES = {
-    21: ((39.5, W, 15.5), 0, 'public', 'hall_in'), 22: ((39.5, W, 12.5), 180, 'hall', 'hall_out'),
-    23: ((48.5, BF + 1, 15.5), 0, 'public', 'vip_in'), 24: ((47.5, BF + 1, 13.5), 180, 'gutter', 'vip_out'),
-    25: ((5.5, W, 23.5), 0, 'public', 'den_in'), 26: ((5.5, W, 18.5), 180, 'den', 'den_out'),
-}
-GATE_DEST = {'hall_in': ((37.5, W, 12.5), 180, 'hall'), 'hall_out': ((37.5, W, 17.5), 0, 'public'),
-             'vip_in': ((46.5, BF + 1, 12.5), 180, 'gutter'), 'vip_out': ((46.5, BF + 1, 16.5), 0, 'public'),
-             'den_in': ((4.5, W, 16.5), 0, 'den'), 'den_out': ((3.5, W, 23.5), 0, 'public')}
+GATES = market2.SPOTS['gates']
+GATE_DEST = market2.SPOTS['gate_dest']
 GATE_LABEL = {'hall_in': ('The Dark Auction', 'Members: Silver Key or better'), 'hall_out': ('Exit', 'back to Pawn Alley'),
               'vip_in': ('The Gilded Gutter', 'Partners only: Gold Key or better'), 'vip_out': ('Exit', 'back to the terrace'),
               'den_in': ('Rat Gang HQ', "Family only: the Rat King's Key"), 'den_out': ('Front door', 'out to the docks')}
 # Family portraits round Fountain Plaza (feet positions of the plinths), facing the fountain
-PORTRAITS = [((31.5, W, 41.5), -45), ((45.5, W, 41.5), 45), ((31.5, W, 51.5), -135), ((45.5, W, 51.5), 135)]
+PORTRAITS = market2.SPOTS['portraits']
 
 SPAWNS = []        # (pos, what) for the install bounds check - later phases add theirs
 

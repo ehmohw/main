@@ -46,7 +46,7 @@ const TX = 16000, TY = 100, TZ = 16000; // a flat test pad
   ok('Old market: it got the lift', /bm\.p74l/.test(await run(`data get entity ${MK} Tags`)) &&
      await pass(`execute as ${MK} at @s rotated as @s positioned ^5 ^6.5 ^40 if block ~ ~ ~ #minecraft:buttons[powered=false]`) &&
      await pass(`execute as ${MK} at @s rotated as @s positioned ^5 ^7.5 ^40 if block ~ ~ ~ minecraft:dark_oak_wall_sign`));
-  ok('...and the short newcomers\' book', /bm\.p74b/.test(await run(`data get entity ${MK} Tags`)));
+  // (2.80e: the short newcomers' book is folded into the Newcomers' Book on the lectern - t194 checks it)
   // press the button like a player would
   await run(`execute as ${MK} at @s rotated as @s positioned ^5 ^6.5 ^40 run summon marker ~ ~ ~ {Tags:["t74b"]}`);
   const bp = (await pos('@e[type=marker,tag=t74b,limit=1]')).map(Math.floor); await run('kill @e[type=marker,tag=t74b]');

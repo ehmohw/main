@@ -6,7 +6,7 @@ them against the built template (open air to stand in, a real floor, reachable b
 local ^ offsets the install function uses (the marker turns with the structure, so ^ follows any rotation)."""
 import collections, math
 
-import market2
+import market3 as market2              # 2.81: the new town (market2.py keeps the shared helpers)
 
 MKT = (38.5, market2.W + 2, 46.5)          # the bm.mkt marker (template coordinates, yaw 0)
 _MB = None

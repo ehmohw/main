@@ -149,6 +149,7 @@ import phase162 as R162      # 2.80d: Dennis and Pistachio in the Black Market -
 import phase165 as R165      # 2.80g: heist review - stragglers flushed out of reach-proof corners
 import phase166 as R166      # 2.80h: heist rewards - haul crates, the prize roll, streaks, crew bonuses, the Fixer's mercy
 import phase167 as R167      # 2.80i: tough mobs, not health sponges - lighter gear, sprint-beatable speeds
+import phase168 as R168      # 2.81: every Black Market rebuilt as the new town (market3.py), once
 import phase164 as R164      # 2.80e: Apophiss's Unbound Crown - the True Crown, a Wraithfire Heart and the Deathmask, forged
 import phase163 as R163      # 2.80d: Dennis and Pistachio, the followers (fifty trades), their pairs and the Crown's Prospect
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
@@ -158,7 +159,7 @@ import optimize              # 2.15: the final selector/gating pass (optimize.py
 import useitem               # 2.13: hold-to-use items (using_item trigger)
 import allies                # 2.67: every friendly-fire list skips every follower (allies.py)
 import prune                 # 2.67: leftovers of rewritten features dropped (prune.py)
-import market2 as M2
+import market3 as M2
 import economy as ECON
 import mig263
 PHASE2 = '--phase2' in sys.argv
@@ -167,7 +168,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.80i'                                # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.81'                                # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -901,7 +902,8 @@ def gen_admin():
                       tellraw('@s', [T('/function bm:admin/place_frog_hut', 'yellow'), T("  builds the Frog with Mustache's swamp hut at your feet", 'gray')]),
                       tellraw('@s', [T('/locate structure bm:black_market', 'yellow'), T('  /  ', 'gray'), T('bm:graveyard', 'yellow'), T('  /  ', 'gray'), T('bm:frog_hut', 'yellow')]),
                       tellraw('@s', [T('/function bm:admin/uninstall', 'yellow'), T('  stops all loops before removing the pack', 'gray')])])
-    fn('admin/place_market', ['place template bm:black_market ~-38 ~-18 ~-96',
+    fn('admin/place_market', ['execute positioned ~0.5 ~-6 ~-49.5 run kill @e[type=minecraft:marker,tag=bm.mkt,distance=..1]',   # (2.81: placed again on the same spot - one marker, not two)
+                              'place template bm:black_market ~-38 ~-18 ~-96',
                               'tag @e[type=minecraft:marker,tag=bm.mkt,distance=..120] add bm.mclean',     # hand-placed: leave nearby spawners alone
                               tellraw('@s', PREFIX + [T("Market placed: you're at the end of its entrance tunnel. Walk north to the vault door.", 'gray')])])
     fn('admin/place_graveyard', ['place template bm:graveyard ~-15 ~-18 ~-2',
@@ -1042,13 +1044,13 @@ def gen_tags_worldgen():
         {'weight': 1, 'element': {'element_type': 'minecraft:single_pool_element', 'location': 'bm:graveyard_crypt',
                                   'projection': 'rigid', 'processors': 'minecraft:empty'}}]})
     # templates
-    MB = M2.build()                              # 1.13: the Black Market 2.0 cavern bazaar (market2.py)
+    MB = M2.build()                              # 2.81: the Black Market 3 rat town (market3.py; market2.py keeps the shared helpers)
     MB.export(path('data', 'bm', 'structure', 'black_market.nbt'))
     # its static proofs run in a separate interpreter: they borrow the Phase 2 walker, whose package registers items
     import subprocess
-    r = subprocess.run([sys.executable, '-c', 'import market2, sys; e = market2.check(market2.build()); print("\\n".join(e)); sys.exit(1 if e else 0)'],
+    r = subprocess.run([sys.executable, '-c', 'import market3, sys; e = market3.check(market3.build()); print("\\n".join(e)); sys.exit(1 if e else 0)'],
                        cwd=os.path.dirname(os.path.abspath(__file__)), capture_output=True, text=True)
-    if r.returncode: raise SystemExit('market2 check failed:\n' + r.stdout + r.stderr)
+    if r.returncode: raise SystemExit('market3 check failed:\n' + r.stdout + r.stderr)
     GYB = S.build_graveyard()
     GYB.export(path('data', 'bm', 'structure', 'graveyard.nbt'))
     for nm, piece in zip(('top', 'crypt'), S.graveyard_pieces(GYB)):
@@ -1241,6 +1243,7 @@ def build(out_dir):
     if PHASE2: R165.generate(sys.modules[__name__])
     if PHASE2: R166.generate(sys.modules[__name__])
     if PHASE2: R167.generate(sys.modules[__name__])
+    R168.generate(sys.modules[__name__])
     R161.generate(sys.modules[__name__])
     if PHASE2: R162.generate(sys.modules[__name__])
     # 2.79: the mob rolls (elite, champion, lucky, prime, Blood Moon, invasion) leave alone a mob someone named or froze - a
@@ -1250,6 +1253,7 @@ def build(out_dir):
             _lines[1:1] = ['execute if data entity @s CustomName run return 0', 'execute if data entity @s {NoAI:1b} run return 0']
     R95.generate(sys.modules[__name__])
     R28.finalize(sys.modules[__name__])
+    print('market rebuild: %d entity tags cleared, %d per-market lines wait for the new town' % R168.finalize(sys.modules[__name__]))
     useitem.generate(sys.modules[__name__])
     R129.check(sys.modules[__name__])                     # 2.76: no menu button is shadowed by an earlier route
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command

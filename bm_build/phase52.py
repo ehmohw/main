@@ -25,7 +25,10 @@ W_REG = [30, 25, 20, 13, 8, 4]                        # ~87% back over time
 W_JP = [30, 25, 15, 7, 5, 18]                         # three 7s: about 1 pull in 170
 PAY_REG = [4, 6, 10, 25, 60, 150]                     # three of a kind; any pair: the Token back
 POT_SEED, POT_ADD = 50, 2
-SLOTS = {56: 'reg', 59: 'jp', 62: 'reg'}             # the Den's three machines (template z; lever at x 5, y W+1)
+import market3
+_SL = market3.SPOTS['slots']
+SLX, SWX, SPZ = _SL['lever_x'], _SL['wall_x'], _SL['pot_z']
+SLOTS = _SL['zs']             # 2.81: the riverboat's three machines (template z; lever at x _SL['lever_x'], y W+1)
 
 item('four_leaf_charm', TOTEM, 'Four-Leaf Charm', 'green', ['A pressed four-leaf clover in glass.', ('Keep it anywhere in your inventory:', 'blue'),
                                                             ('Luck, always.', 'blue'), ('Sold only on Lucky Nights.', 'gray')],
@@ -138,7 +141,7 @@ def generate(G):
     S = 'storage bm:slot'
     G.FUNCS['load'][-1:-1] = [f'data modify {S} sym set value {snbt([T(s, c, bold=True) for s, c in SYM])}']
     for z, kind in SLOTS.items():
-        mgeo.need_air((4, W + 2, z), 'a slot machine\'s reels')
+        mgeo.need_air((SWX, W + 2, z), 'a slot machine\'s reels')
     reels = lambda kind: snbt({'Tags': ['bm.slotd', f'bm.slotd_{kind}'], 'billboard': 'center', 'text': [T('♣  ♦  ♥', 'white', bold=True)], 'background': Int(0xC0000000 - (1 << 32)),
                                 'line_width': Int(120), 'brightness': {'block': Int(15), 'sky': Int(15)},
                                 'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0), F(0), F(0)], 'scale': [F(0.9)] * 3}})
@@ -147,9 +150,9 @@ def generate(G):
                  'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0), F(0), F(0)], 'scale': [F(0.7)] * 3}})
     patch = ['tag @s add bm.p52']
     for z, kind in SLOTS.items():
-        patch += [f'execute positioned {rel((5.5, W + 1.5, z + 0.5))} unless entity @e[type=minecraft:marker,tag=bm.slot,distance=..0.5] run summon minecraft:marker ~ ~ ~ {{Tags:["bm.slot","bm.slot_{kind}"]}}',
-                  f'execute positioned {rel((4.5, W + 2.55, z + 0.5))} unless entity @e[type=minecraft:text_display,tag=bm.slotd,distance=..0.5] run summon minecraft:text_display ~ ~ ~ {reels(kind)}']
-    patch.append(f'execute positioned {rel((4.5, W + 3.35, 59.5))} unless entity @e[type=minecraft:text_display,tag=bm.potd,distance=..0.5] run summon minecraft:text_display ~ ~ ~ {potd}')
+        patch += [f'execute positioned {rel((SLX + 0.5, W + 1.5, z + 0.5))} unless entity @e[type=minecraft:marker,tag=bm.slot,distance=..0.5] run summon minecraft:marker ~ ~ ~ {{Tags:["bm.slot","bm.slot_{kind}"]}}',
+                  f'execute positioned {rel((SWX + 0.5, W + 2.55, z + 0.5))} unless entity @e[type=minecraft:text_display,tag=bm.slotd,distance=..0.5] run summon minecraft:text_display ~ ~ ~ {reels(kind)}']
+    patch.append(f'execute positioned {rel((SWX + 0.5, W + 3.35, SPZ + 0.5))} unless entity @e[type=minecraft:text_display,tag=bm.potd,distance=..0.5] run summon minecraft:text_display ~ ~ ~ {potd}')
     fn('p52/market', patch)
     p41 = next(l for l in G.FUNCS['loop/second'] if 'function bm:p41/patch' in l)
     second.append(p41.replace('tag=!bm.p41]', 'tag=!bm.p52]').replace('function bm:p41/patch', 'function bm:p52/market'))

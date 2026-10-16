@@ -22,7 +22,7 @@ THE VORN
 - The Vorn Skiff hides its harness, and its hull rides with you instead of trailing behind."""
 import json
 import mgeo
-import market2
+import market3 as market2
 import rot
 from items import item, T, TOTEM, DYNAMIC, consumable
 from useitem import hold, HOLD
@@ -132,16 +132,10 @@ def generate(G):
     turn = lambda f: [f'execute if entity @s[y_rotation={r}] run function bm:{f}_{n}' for r, n in rot.TURNS]
     # the docks' sign, the Dockmaster as a rat, the newcomers' book
     from phase34 import DOCK_POS, DOCK_YAW
-    neon_old, neon_new = (9.5, W + 6.2, 31.6), (12.6, W + 6.0, 26.5)
     lx, ly, lz = P35.LECTERN
     book = {'id': 'minecraft:written_book', 'count': Int(1), 'components': {'minecraft:written_book_content': {
         'title': 'Newcomers, Start Here', 'author': 'The Management', 'pages': [{'text': '', 'extra': pg} for pg in P35.GUIDE]}}}
     patch = ['tag @s add bm.p41'] + turn('p41/sync') + turn('p41/dry') + [
-        f'execute positioned {rel(neon_old)} run kill @e[type=minecraft:text_display,tag=bm.neon_docks,distance=..1.5]',
-        f'execute positioned {rel(neon_new)} unless entity @e[type=minecraft:text_display,tag=bm.neon_docks,distance=..1.5] run summon minecraft:marker ~ ~ ~ '
-        '{Tags:["bm.npc_spawn","bm.npc.neon","bm.neon_docks","bm.p41n"]}',
-        f'execute positioned {rel(neon_new)} rotated ~-90 0 run tp @e[type=minecraft:marker,tag=bm.p41n,distance=..1,limit=1] ~ ~ ~ ~ 0',
-        'tag @e[type=minecraft:marker,tag=bm.p41n] remove bm.p41n',
         f'execute positioned {rel(DOCK_POS)} unless entity @e[type=minecraft:item_display,tag=bm.rat_sprite,distance=..1.5] run kill @e[type=minecraft:villager,tag=bm.npc_dock,distance=..2]',
         f'execute positioned {rel(DOCK_POS)} unless entity @e[type=minecraft:villager,tag=bm.npc_dock,distance=..2] rotated ~{DOCK_YAW} 0 run function bm:p34/dock_spawn',
         f'execute positioned {rel((lx + 0.5, ly + 0.5, lz + 0.5))} if block ~ ~ ~ minecraft:lectern run data modify block ~ ~ ~ Book set value {snbt(book)}',

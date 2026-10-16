@@ -18,7 +18,8 @@ from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D
 
 PURPLE = '#9a5ae0'
-CECIL_POS, CECIL_YAW = (27.5, 10, 53.5), -90           # the fortune teller's tent (template), facing the plaza
+import market3
+CECIL_POS, CECIL_YAW = market3.SPOTS['cecil']           # 2.81: his tent in Night Alley (template), facing the lane
 LAVA = ['purple', 'red', 'orange', 'lime', 'cyan', 'pink']
 TRACKS = [('13', 178), ('cat', 185), ('blocks', 345), ('chirp', 185), ('far', 174), ('mall', 197), ('mellohi', 96), ('stal', 150),
           ('strad', 188), ('ward', 251), ('wait', 238), ('pigstep', 149), ('otherside', 195), ('relic', 218), ('creator', 176),
@@ -556,16 +557,7 @@ def generate(G):
     fn('p45/vorn/fix_warlord', ['tag @s add bm.v224', 'execute on passengers if items entity @s contents *[minecraft:item_model="bm:hoverboard_red"] run kill @s',
                                 f'execute on passengers if items entity @s contents *[minecraft:item_model="bm:vorn3d_warlord"] run data merge entity @s {{transformation:{{translation:[0f,{round(-HUSK_SEAT * WS + TS * WS / 2, 3)}f,0f]}}}}'])
 
-    # ------------------------------------------------------------------ 2.24 market patch: the notice board's old signs, floating counter slabs
-    import market2
-    W_ = market2.W
-    patch = G.FUNCS['p35/patch']
-    for (x, y) in ((market2.CX - 1, W_ + 2), (market2.CX, W_ + 2), (market2.CX + 1, W_ + 2), (market2.CX - 1, W_ + 1), (market2.CX + 1, W_ + 1)):
-        patch.append(f'execute positioned {mgeo.rel((x + 0.5, y + 0.5, market2.CZ - 10 + 0.5))} if block ~ ~ ~ #minecraft:wall_signs run setblock ~ ~ ~ minecraft:air')
-    cells = sorted(set(market2.COUNTERS))
-    assert cells, 'market2.COUNTERS is empty - build the market first'
-    for (x, z) in cells:
-        patch.append(f'execute positioned {mgeo.rel((x + 0.5, W_ + 1.5, z + 0.5))} if block ~ ~ ~ #minecraft:slabs run setblock ~ ~ ~ minecraft:air')
+    # (2.24's patch for the notice board's old signs and floating counter slabs went with the 1.20 layout in 2.81)
     # Zorp aboard a mothership stands in front of his counter now (step him and his model two blocks across it)
     second.append('execute as @e[type=minecraft:wandering_trader,tag=bm.npc_alien,tag=!bm.z224] at @s run function bm:p45/zorp_step')
     fn('p45/zorp_step', ['tag @s add bm.z224'] +

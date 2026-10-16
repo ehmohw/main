@@ -9,7 +9,9 @@ right-click the board to sign it (one per player per night). Bounties expire at 
 from items import T
 from nbt import snbt, B, F, Int
 
-BOARD = (38.5, 10, 36.45)         # 2.24: the plaza's notice board (planks x37-39, y11-12, z35), in front of the fountain; the hitbox covers its face
+import market3
+_BX, _BZ = market3.SPOTS['board']
+BOARD = (_BX + 0.5, 10, _BZ + 1.45)  # 2.81: the plaza's notice board (planks x33-35, y11-12, z36, market3.SPOTS); the hitbox covers its face
 # state: (kind, colour, title, task, target, kill tags, reward text)
 BOUNTIES = {1: ('blood', '#ff3b3b', 'BLOOD MOON BOUNTY', 'Slay 8 Blood Moon horrors', 8, ['bm.blood'], '10 Blood Crystals + a Medallion'),
             2: ('lucky', '#ffd23f', 'LUCKY NIGHT BOUNTY', 'Defeat 6 Lucky monsters', 6, ['bm.lucky'], '3 Lucky Tokens + a Jackpot Card'),
@@ -47,7 +49,7 @@ def generate(G):
                   'text': T('BOUNTY BOARD', '#ffd23f', bold=True),
                   'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(0), F(0)], 'scale': [F(0.55)] * 3}}
     board_hit = {'Tags': ['bm.bbhit', 'bm.npc'], 'width': F(3.0), 'height': F(3.0), 'response': B(1)}
-    tpos, hpos = mgeo.rel((BOARD[0], BOARD[1] + 1.55, 36.03)), mgeo.rel(BOARD)
+    tpos, hpos = mgeo.rel((BOARD[0], BOARD[1] + 1.55, _BZ + 1.03)), mgeo.rel(BOARD)
     G.FUNCS['p35/patch'] += [
         f'execute positioned {tpos} unless entity @e[type=minecraft:text_display,tag=bm.bboard,distance=..1.5] run summon minecraft:text_display ~ ~ ~ {snbt(board_text)}',
         f'execute positioned {tpos} as @e[type=minecraft:text_display,tag=bm.bbnew,distance=..0.5] run tp @s ~ ~ ~ ~ 0', 'tag @e[tag=bm.bbnew] remove bm.bbnew',

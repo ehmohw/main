@@ -99,7 +99,8 @@ const X = 5600, Y = 100, Z = 5600;
      `diamonds ${await inv('TestRat', 'minecraft:diamond')} sword ${await inv('TestRat', 'minecraft:iron_sword')} charm ${await inv('TestRat', '*[custom_data~{bm:"grave_charm"}]')} graves ${await cnt('@e[tag=bm.grave]')}/${await cnt('@e[tag=bm.gravehit]')}/${await cnt('@e[tag=bm.gravev]')}`);
   ok('...Six Feet Under', await adv('TestRat', 'grave'));
   // without the charm, death is vanilla
-  await run('clear TestRat'); await run('give TestRat diamond 3'); await run(`tp TestRat ${X + 4.5} ${Y + 1} ${Z + 4.5}`); await sleep(400); await run('kill TestRat'); await sleep(1200);
+  await run('clear TestRat'); await run('give TestRat diamond 3'); await run(`tp TestRat ${X + 4.5} ${Y + 1} ${Z + 4.5}`); await sleep(400); await run('kill TestRat');
+  for (let k = 0; k < 20 && !(await cnt(`@e[type=item,x=${X + 4.5},y=${Y + 1},z=${Z + 4.5},distance=..5]`)); k++) await sleep(200);   // (a busy tick can hold the drop back - give it a moment)
   ok('no charm: no grave, items drop as usual', !(await cnt('@e[type=marker,tag=bm.grave]')) && (await cnt(`@e[type=item,x=${X + 4.5},y=${Y + 1},z=${Z + 4.5},distance=..5]`)) >= 1);
   // ---- help
   const n1 = A.chats.length; await run('execute as TestRat run function bm:admin/help'); await sleep(300);

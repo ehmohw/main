@@ -375,6 +375,10 @@ def generate(G):
             'active_effects': [eff('invisibility')]}
     mine = 'execute as @e[type=minecraft:wolf,tag=bm.kxpet] if score @s bm.pid = #me bm.pid'
     G.FUNCS['p79/boss/tick'].insert(0, 'scoreboard players set #kel bm.rng 0')
+    # 2.81: a KillerWatt with no id (one summoned bare, not through his arrival) never finds his own parts and rigs anew every
+    # tick, thousands of displays a minute - give him one first
+    G.FUNCS['p79/boss/tick'][0:0] = ['execute unless score @s bm.kxid = @s bm.kxid run scoreboard players add #kwn bm.kxid 1',
+                                     'execute unless score @s bm.kxid = @s bm.kxid run scoreboard players operation @s bm.kxid = #kwn bm.kxid']
     # his parts wear his element (#kel: 0 his own, 1..9 a gem, 10 ethereal); the flexed arms too
     fn('p79/flex', [f'execute if score #kel bm.rng matches {i} run data modify entity @e[type=minecraft:item_display,tag=bm.kxsel,tag=bm.kxp_{p},limit=1] '
                     f'item.components."minecraft:item_model" set value "bm:kw_{p}_flex{s}"' for i, s in SUF.items() for p in ('armr', 'arml')])

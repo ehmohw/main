@@ -1,5 +1,5 @@
 const { bot, rcon, sleep } = require('./lib');
-const X = 5800, Y = 100, Z = 5800;
+const X = 27000, Y = 100, Z = 9000;                  // (2.81: 472 blocks from the nearest natural market)
 const HERE = `x=${X},y=${Y},z=${Z},distance=..64`;
 (async () => { const R = await rcon(); const run = c => R.run(c);
   const res = []; const ok = (n, c, d) => { res.push(!!c); console.log(c ? 'PASS' : 'FAIL', n, d || ''); };
@@ -17,8 +17,8 @@ const HERE = `x=${X},y=${Y},z=${Z},distance=..64`;
   await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..40]`);
   for (const s of ['#lnight', '#inv', '#active', '#forced']) await run(`scoreboard players set ${s} bm.bm 0`);
   await run('time set day'); await sleep(1500); await run('scoreboard players set #bmday bm.bm 5'); await sleep(1200);
-  // a fake market here (patches already "done", so only our things react) + traders
-  await run(`summon marker ${X} ${Y + 1} ${Z} {Tags:["bm.mkt","bm.p41","bm.p50","bm.p51","bm.p52","bm.t32"]}`);
+  // a fake market here (patches already "done", so only our things react) + traders - a 2.81 one (bm.m281), or it's rebuilt as the new town
+  await run(`summon marker ${X} ${Y + 1} ${Z} {Tags:["bm.mkt","bm.m281","bm.p41","bm.p50","bm.p51","bm.p52","bm.t32"]}`);
   await run(`execute positioned ${X - 6} ${Y + 1} ${Z + 6} run function bm:npc/professor`); await run(`execute positioned ${X - 8} ${Y + 1} ${Z + 6} run function bm:npc/lucky`);
   await run(`execute positioned ${X - 10} ${Y + 1} ${Z + 6} run function bm:npc/fence`); await run(`execute positioned ${X - 12} ${Y + 1} ${Z + 6} run function bm:npc/alien`);
   await sleep(2200);

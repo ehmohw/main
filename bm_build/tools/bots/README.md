@@ -246,6 +246,26 @@ it: `chunks.js`, which both rcon helpers (`lib.js`, `lib_resp.js`) send every co
   bot is looking (t191 looks 45° down and places one block ahead), or it opens nothing and no marker minds it.
 - `bm.gvr_lobby,limit=1` finds the first lobby on the server, not your heist's: after a test that left a second instance
   open, a test staging that way (t86) works on the wrong heist. Address your own (`scores={bm.gvi=N}`), or run it alone.
+- 2.81: a market marker without `bm.m281` is an OLD market - the first time a player comes within 200 blocks it is rebuilt
+  as the new town, right there (t32 and t39 once grew a whole town around their stand-in markers this way). A stand-in
+  market marker carries `bm.m281` (and the done-tags of every install it shouldn't run). And every market install waits
+  for `bm.m281`, so an untagged stand-in gets none of them.
+- `/place template` with a turn still wants the UNturned box from its origin loaded (pos to pos + size): load both (t194,
+  phase168).
+- `forceload remove` isn't counted per owner: it unloads a chunk even when something else force-loaded it too. The
+  rebuild's own remove can take a test's chunks with it - a manual check afterwards may find markers "gone" (unloaded).
+  `node chunkcheck.js` after manual pokes; `forceload remove` what's left.
+- A test fixture structure: write it into the server's copy of the pack (`world/datapacks/BlackMarket_DP/data/bm/structure/`)
+  and `/reload` - `world/generated/bm/structure(s)` isn't read. `dev.sh` puts a clean pack back.
+- Natural markets generate near test spots (304,288 / 5472,5376 / 34000,34144 ...): `locate structure bm:black_market`
+  from a spot before using it; t194 stands 555 blocks off the nearest. The void (`bm:gutter`) won't do: it sends away
+  anyone not on a heist.
+- A keyless player on a market floor is sent back to the vestibule (`market/kick`) - give the Market Key to a bot that's
+  meant to be inside (t194). Back rooms are registry dialogs (the client gets `{"dialog": n}`, not text); the Bounty
+  Board answers on the action bar (`A.bars`).
+- A stand-in follower must be a real one or a plain animal: a wolf tagged `bm.cecilpet` with no owner and no `bm.pid` set
+  Cecil's rig respawning (t194 uses a tamed wolf owned by the bot). Likewise a bare `bm.kxboss` husk (no `bm.kxid`) used to
+  rig itself twice a tick - thousands of displays, a 60 s watchdog stop; 2.81 gives such a KillerWatt an id first.
 
 ## Index
 
@@ -259,7 +279,6 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t23b.js` | - |
 | `t23c.js` | - |
 | `t24i.js` | first check: sparks: first target and chain hit, far one spared |
-| `t24m.js` | Cecil in a freshly placed market: spawn, rig, facing, trades, animation |
 | `t25.js` | first check: notice text sits on the plank face, open in front |
 | `t26.js` | first check: tidal tear hurts another player, not the caster **(summons by function, so the 3-second item rule sends followers home)** |
 | `t27.js` | first check: pact refused (and refunded) with no Blood Moon |
@@ -276,7 +295,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t36.js` | v2.35: sockets by material (vanilla only), red Vitality + size cycle, combos (incl. Bloodlust, Second Wind), Masterworks, |
 | `t37.js` | v2.35: sockets by material (vanilla only), red Vitality + size cycle, combos (incl. Bloodlust, Second Wind), Masterworks, |
 | `t38.js` | v2.35: the chestplate essences/resonances against a real attacker (a husk with AI: the damage command never triggers on-hit enchantments) |
-| `t39.js` | v2.36 fixes: trades stay open (no re-teleport), Barnaby's spot, nameplates follow, Cecil's spawn on a step, admin/blood_moon |
+| `t39.js` | v2.36 fixes: trades stay open (no re-teleport), nameplates follow, Cecil's spawn on a step, admin/blood_moon |
 | `t39b.js` | - |
 | `t42.js` | v2.40: KillerWatt's Tendrils, Apophiss's Crown, Leo's Trident, Cecil's Staff (2.80d: trimmed to what still holds) |
 | `t42b.js` | - |
@@ -459,6 +478,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t191.js` | 2.80h: the prize roll, Haul Crates and the win streak, as a regular player - stepping onto the strongbox ring pays out; THE HAUL (tier, shares, coins), then the Tokens 1.5 s later; the card says HEIST WON, streak one; "Start a new raid" seals the leftovers (a found sword) into one Haul Crate in the pack, labelled with the tier, no loose sword; the next job won: WIN STREAK x2 on screen and card; home ends the streak; the crate set down is a Haul (minded, the sword inside) |
 | `t192.js` | 2.80h: the Fixer's mercy and the crew bonuses, as regular players (TestRat + TestMouse) - on the last try [Skip this puzzle] asks the mercy (half the pot: 20 of 40, and a share); paid, the room opens, the pot halves, the last try is kept, the crew is told; a second room: spent; won by both on the ring: CREW OF 2 and CLEAN CREW in the prize roll, and the card shows crew +1 share, clean crew +1 Token and the mercy's cost |
 | `t193.js` | 2.80i: tough mobs, not health sponges, as a regular player at the end of a 30-block runway at night - chase speeds measured (blocks/s, a sprint is 5.6): a Blood Moon horror and a Champion zombie, both on their steeds, a Blood Moon and a Champion spider all under a sprint; a Blood Moon, Champion and Elite creeper at a plain creeper's pace (no boost); an unarmored Champion has no Speed and Resistance I; twelve each of Elites, Champions and horrors - no full Protection sets, bare pieces, light on average |
+| `t194.js` | 2.81: THE BLACK MARKET, REBUILT - an old (2.80) market, placed turned a quarter as a fixture with its traders, a player's dog, a dropped diamond and a ladder shaft past the tunnel; the player (Market Key) walks in: rebuilt as the new town - one marker (`bm.m281`), the player and the diamond moved to the Lookout, the dog kept, the shaft untouched; the new blocks turned like the old market; every trader once, all 16 ledgers, Teller, Concierge, Auctioneer, Fishy's Cabinet, Dennis's and Pistachio's rooms, 3 slots, board, lectern, Scrap Bin, lift button, 7 ambience emitters, nothing old left; then as the player: Barnaby's trades and back room, `/trigger bm.standing`, the Bounty Board, the Dark Auction's and the Gilded Gutter's gates, the Rat Bank Teller, Rat Gang HQ |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
 | `head.js` | The Horseman's Head: stream, overheat, charged blast, stoking + Nova, undead XP, lantern/heart variants, night tiers, healing. |

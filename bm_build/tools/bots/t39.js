@@ -1,6 +1,6 @@
-// v2.36 fixes: trades stay open (no re-teleport), Barnaby's spot, nameplates follow, Cecil's spawn on a step, admin/blood_moon
+// v2.36 fixes: trades stay open (no re-teleport), nameplates follow, Cecil's spawn on a step, admin/blood_moon
 const { bot, rcon, sleep } = require('./lib');
-const X = 9600, Y = 100, Z = 9600;
+const X = -27000, Y = 100, Z = 15000;               // (2.81: 384 blocks from the nearest natural market)
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(1500);
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
@@ -36,17 +36,6 @@ const res = [];
   for (const i of id) A.interact(i); await sleep(1000);
   const opened = A.windows.length > w0; await sleep(12000);
   ok('a trade screen stays open for 12 s', opened && closed === 0, `opened ${opened}, closed by server ${closed}`);
-  await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..40]`);
-  // ---- the market patch moves Barnaby once, then leaves him be
-  await run(`summon marker ${X} ${Y + 1} ${Z} {Tags:["bm.mkt","bm.tst39"],Rotation:[0f,0f]}`);
-  // his 2.24 spot is template (29.5, W, 18.5); the marker is at template (38.5, W+2, 46.5): ^dx ^dy ^dz = (-9, -2, -28)
-  await run(`execute as @e[tag=bm.tst39] at @s rotated as @s positioned ^-9 ^-2 ^-28 run function bm:npc/pawn`); await sleep(500);
-  const b0 = await pos('@e[tag=bm.npc_pawn,limit=1,sort=nearest,x=' + X + ',y=' + Y + ',z=' + Z + ']');
-  await run('execute as @e[tag=bm.tst39] at @s rotated as @s run function bm:p35/patch'); await sleep(300);
-  const b1 = await pos('@e[tag=bm.npc_pawn,limit=1,sort=nearest,x=' + X + ',y=' + Y + ',z=' + Z + ']');
-  await run('execute as @e[tag=bm.tst39] at @s rotated as @s run function bm:p35/patch'); await sleep(300);
-  const b2 = await pos('@e[tag=bm.npc_pawn,limit=1,sort=nearest,x=' + X + ',y=' + Y + ',z=' + Z + ']');
-  ok('Barnaby steps one block east, out from behind the post - once', b1 && Math.abs(b1[0] - b0[0] - 1) < 0.01 && b2[0] === b1[0] && b2[2] === b1[2], `${b0} -> ${b1} -> ${b2}`);
   await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..40]`);
   // ---- admin/blood_moon by day
   await run('scoreboard players set #active bm.bm 0'); await run('time set day'); await sleep(1500);

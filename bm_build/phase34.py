@@ -24,12 +24,12 @@ import sys
 from nbt import snbt, B, F, Int, D
 from items import item, consumable, attr, ench, T, TOTEM, ITEMS, DYNAMIC, hat, trail, gear, weapon_attrs, armor_attrs, ARMOR_SLOT
 from useitem import hold, HOLD
-import market2
+import market3 as market2
 import mgeo
 
 W, GF = market2.W, market2.GF
 NEW_NPCS = {'dock': ('rat', 'Salty Sal, Dockmaster', 'dark_aqua', 'fisherman', 'swamp', 'bm:rat_pirate')}   # 2.20: a rat, like every trader
-DOCK_POS, DOCK_YAW = (10.5, W, 26.5), -90
+DOCK_POS, DOCK_YAW = market2.SPOTS['dock']           # 2.81: behind the dock house counter
 
 # ===================================================================== dock goods
 item('mlg_bucket', TOTEM, 'MLG Water Bucket', '#3f76e4',
@@ -156,7 +156,7 @@ def generate(G):
     fn('p34/dock_spawn', [l for l in G.FUNCS['npc/dock'] if not l.startswith('execute rotated as @s') and not l.startswith('tag @e[tag=bm.new')] +
        ['execute rotated ~ 0 run tp @e[tag=bm.new,distance=..2] ~ ~ ~ ~ 0', 'tag @e[tag=bm.new,distance=..2] remove bm.new'])
     # the dock office: a few props for the Dockmaster (plain blocks that read fine in any rotation)
-    props = [((7, W, 24), 'minecraft:barrel'), ((8, W, 30), 'minecraft:barrel'), ((7, W, 28), 'minecraft:water_cauldron[level=3]')]
+    props = []                                    # (2.81: the dock house is built with its props)
     patch = ['tag @s add bm.p34', f'execute positioned {rel(DOCK_POS)} rotated ~{DOCK_YAW} 0 run function bm:p34/dock_spawn']
     for (c, b) in props:
         if mgeo.passable(c) and mgeo.standable((c[0], c[1] - 1, c[2])):
@@ -167,7 +167,7 @@ def generate(G):
     # water: sweep everything except the river channel, the pond, and the two falls (boxes in template coordinates)
     SX, SY, SZ = market2.SX, market2.SY, market2.SZ
     CX, CZ = market2.CX, market2.CZ
-    keep = [((18, 0, 8), (24, 17, 85)), ((CX - 7, 4, CZ - 7), (CX + 7, 11, CZ + 7)), ((CX - 1, 4, CZ - 1), (CX + 1, SY - 1, CZ + 1))]
+    keep = market2.WATER_KEEP
     # cut the market's box along every keep-box face, drop the cells inside a keep box, merge neighbours, cap at fill's limit
     cuts = [sorted({0, (SX, SY, SZ)[i]} | {k[0][i] for k in keep} | {k[1][i] + 1 for k in keep}) for i in range(3)]
     cuts[1] = [c for c in cuts[1] if c >= 2] if 2 in cuts[1] else sorted({2} | {c for c in cuts[1] if c > 2})
