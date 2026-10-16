@@ -74,9 +74,13 @@ const res = [];
   ok('Walking through the lounge\'s door takes you home, where you were', /overworld/.test(await dim()) && hp && Math.abs(+hp[1] - HX - 0.5) < 2 && Math.abs(+hp[3] - HZ - 0.5) < 2, `${await dim()} ${hp && hp.slice(1).join(',')}`);
   await sleep(1000); A.stand();
 
+  // (the Ledger's own hotbar slot, selected - what you carry comes back a moment after a door, wherever it lands)
+  const holdLedger = async () => { await wait(6000, async () => /Slot/.test(await run('data get entity TestRat Inventory[{components:{"minecraft:custom_data":{bm:"fixers_ledger"}}}]')));
+    const m = (await run('data get entity TestRat Inventory[{components:{"minecraft:custom_data":{bm:"fixers_ledger"}}}].Slot')).match(/(\d+)b?\s*$/);
+    if (m && +m[1] < 9) { A.slot(+m[1]); await sleep(300); } };
   // ================================================================== 6. a heist, planned from the Ledger's buttons
   for (let k = 0; k < 3; k++) await run('loot give TestRat loot bm:items/token');
-  A.slot(0); await sleep(200); await A.useWait();
+  await holdLedger(); await A.useWait();
   await A.press(/Plan a Heist/); show('planner');
   const tb = await A.press(/Tier I\b(?!I)/); show('tries');
   A.chats.length = 0; const lvb = await A.press(/^3\b|3 tries/i); show('after tries');
@@ -90,7 +94,7 @@ const res = [];
   const iscore = async o => { const m = (await run(`execute in bm:gutter run scoreboard players get ${inst} ${o}`)).match(/has (-?\d+)/); return m ? +m[1] : NaN; };
 
   // ---- the heist's Office: Leave the heist, Skip this puzzle; no planning, no lounge
-  await A.useWait(); show('office on a heist');
+  await holdLedger(); await A.useWait(); show('office on a heist');
   const hb = A.buttons();
   ok('On a heist the Ledger opens the heist\'s Office: "Leave the heist" and "Skip this puzzle", no "Plan a Heist"',
      hb.some(b => /Leave the heist/.test(b.label)) && hb.some(b => /Skip this puzzle/.test(b.label)) && !hb.some(b => /Plan a Heist|Fixer's Lounge/.test(b.label)));

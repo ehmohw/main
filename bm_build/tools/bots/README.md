@@ -200,6 +200,9 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
 - A mob summoned without `bm.seen` gets the pack's tiering on its next tick (an Elite, more health). Tag test mobs
   `bm.seen` when their health matters.
 
+- Gear carried through a coat-check door (the Lounge's, a heist's) comes back a moment later, wherever it lands - not
+  always in the slot it left. Wait for the item, then select its own slot before using it (t131's `holdLedger`).
+
 ## Index
 
 The newest tests (t128 onward, especially t131-t133) follow the owner's rule throughout. Older ones lean on rcon
@@ -308,7 +311,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t115c.js` | 2.72 (III): Smelling Salts, the Thief's Hourglass, the Alarm Jammer, Masterworks, the Codex, each tier's own finds |
 | `t118.js` | 2.73: a raid boss's minions fall with it |
 | `t119.js` | 2.74: outfits and Emma's buff from the Ledger; Emma remembers her buff **(stale: its helper hands out the retired Heist Plans)** |
-| `t120.js` | 2.74: checkpoint respawn + kept pockets, kit 32/4, Lights Out / Glass Cannon only out on the heist, den names + carpet, |
+| `t120.js` | 2.74: checkpoint respawn + kept pockets, kit 32/4, Lights Out / Glass Cannon only out on the heist, den names + carpet, **(partly stale: its Gutter Bank steps predate the page-per-currency bank of 2.80a; t175 covers it)** |
 | `t121.js` | 2.74: the Fixer's Lounge - held still into it, every counter working there, its door home; the end-of-heist Go to the Lounge pressed (2.79: the real trigger, not a direct call); Leo's size |
 | `t122.js` | 2.74b: Speed Run with the alarm off, patrols stop at the vault, puzzle skip, a mistake's guard cleared, solo crew of 3, |
 | `t123.js` | 2.74: Block Party keeps you in the room; a failed puzzle's mobs go on solve |
