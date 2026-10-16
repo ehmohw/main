@@ -154,7 +154,8 @@ const res = [];
   await run(`${O}fill ${X - 8} ${Y} ${Z - 8} ${X + 8} ${Y} ${Z + 8} minecraft:stone`); await run(`${O}fill ${X - 8} ${Y + 1} ${Z - 8} ${X + 8} ${Y + 6} ${Z + 8} minecraft:air`);
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..20]`);
   await at(X + 0.5, Y + 1, Z + 0.5, 0, 30);
-  await run('clear TestRat *[minecraft:custom_data~{bm:"prospector_rune"}] 1');
+  // (the runes and the seal earned above are put away first: each step below counts from none)
+  await run('clear TestRat *[minecraft:custom_data~{bm:"prospector_rune"}]'); await run('clear TestRat *[minecraft:custom_data~{bm:"tithe_seal"}]');
   await run('item replace entity TestRat hotbar.0 with minecraft:air');
   await run('loot replace entity TestRat hotbar.1 loot bm:items/prospector_rune');
   A.bars.length = 0; await use(1);
