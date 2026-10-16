@@ -134,8 +134,8 @@ P141.DOLLS.append(('doll_dennis', 'Dennis', DW_C, 'A doll of Dennis - horns, sha
                    'minecraft:wax_on'))
 P141.DOLLS.append(('doll_pistachio', 'Pistachio', PI_C, 'A doll of Pistachio - top hat, monocle, cloche and all.', 'minecraft:soul',
                    'minecraft:entity.allay.ambient_without_item', 'minecraft:soul'))
-P141.DOLL_FROM['doll_dennis'] = ('dw_horn', {'kh': 1.0, 'kb': 1.0, 'kl': 0.8})
-P141.DOLL_FROM['doll_pistachio'] = ('pi_cloche', {'kh': 1.0, 'kb': 1.0, 'kl': 1.0})
+P141.DOLL_FROM['doll_dennis'] = ('dw_horn', {'kh': 1.35, 'kb': 0.85, 'kl': 0.7})          # (chibi, as the set: dolls_bake's head-big warp)
+P141.DOLL_FROM['doll_pistachio'] = ('pi_cloche', {'kh': 1.5, 'kb': 0.8, 'kl': 1.0})
 
 # ------------------------------------------------------------------------------------------------ the registries
 for _k, _c in F_.items():

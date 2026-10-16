@@ -16,8 +16,8 @@ from rigkit import qs, el, seg, chain, I
 
 PREFIX = 'fy_'
 RIG_SCALE = 1.0
-BOWL_C, BOWL_R, BOWL_H = 20.6, 7.6, 8.6         # (the bowl: a squashed sphere round y = 20.6, cut flat below and open above)
-BOWL_LO, BOWL_HI = 13.6, 27.0
+BOWL_LO, BOWL_HI = 13.6, 27.0                  # (2.80d: a square glass tank - no longer a round bowl built of turned slabs)
+TANK_W = 6.4                                   # (its half-width)
 PIVOT = {'body': (0, 12.2, 0), 'legr': (3.4, 12.2, 0), 'legl': (-3.4, 12.2, 0),
          'armr': (8.2, 20.4, 0), 'forer': (9.9, 15.4, 0), 'arml': (-8.2, 20.4, 0), 'forel': (-9.9, 15.4, 0),
          'fish': (0, 20.0, -1.0), 'weed': (3.3, 15.6, 0.6)}
@@ -35,12 +35,6 @@ def HIDDEN(p, pose):
 def model_name(p, pose, suffix=''):
     face = f'_x{pose["_face"]}' if p == 'fish' and pose.get('_face') else ''
     return f'{PREFIX}{p}{face}{suffix}'
-
-
-def r_at(y):
-    """the bowl's radius at height y"""
-    d = (y - BOWL_C) / BOWL_H
-    return BOWL_R * math.sqrt(max(0.0, 1 - d * d))
 
 
 # ---------------------------------------------------------------------------------------------------- textures
@@ -141,46 +135,35 @@ def models():
         used = sorted({e['faces'][f]['texture'][1:] for e in els for f in e['faces']})
         M[name] = ({t: f'bm:block/{t}' for t in used}, els)
 
-    # ---- the bowl (body): a metal collar and its mount; the sand, the castle, the bubbles; then the glass round it all, panel by
-    #      panel (eight to a ring, each a thin pane with only its two broad faces, so no inner edges show through the glass)
+    # ---- the tank (body), 2.80d: square and blocky, as Minecraft builds things - a stepped metal collar and its mount; the
+    #      sand, the castle, the bubbles; then the glass round it all, one pane a side (each a thin pane with only its two broad
+    #      faces, so no inner edges show through the glass), a frame of rim along the top and a band along the bottom
     pv = PIVOT['body']
     body = []
-    def octo(y0, y1, r, tex, sh=(0, 0)):
-        """an eight-sided slab: two square boxes, one turned an eighth"""
-        a = r * 0.92
-        return [el((-a, y0, -a), (a, y1, a), tex, pv, shift=sh), el((-a, y0, -a), (a, y1, a), tex, pv, (('y', 45.0, (0, 0, 0))[:2]) + ((0, y0, 0),), shift=sh)]
-    body += octo(11.4, 12.4, 3.4, 'fy_dark') + octo(12.2, 13.9, 4.9, 'fy_metal') + octo(13.5, 14.1, 5.3, 'fy_band', (0.4, 0.2))
-    body += octo(13.9, 15.6, r_at(14.7) - 0.45, 'fy_sand') + octo(15.4, 16.2, 3.0, 'fy_sand', (0.5, 0.5))          # (a low mound in the middle)
-    # the castle (his left, toward the back): a stone tower, a slate cone of a roof, an arched dark door
+    def slab(y0, y1, a, tex, sh=(0, 0)):
+        return el((-a, y0, -a), (a, y1, a), tex, pv, shift=sh)
+    body += [slab(11.4, 12.4, 3.2, 'fy_dark'), slab(12.4, 13.6, 4.6, 'fy_metal'), slab(13.6, 14.1, TANK_W + 0.3, 'fy_band', (0.4, 0.2))]
+    body += [slab(14.1, 15.6, TANK_W - 0.1, 'fy_sand'), el((-3.0, 15.6, -3.0), (3.0, 16.2, 2.0), 'fy_sand', pv, shift=(0.5, 0.5))]   # (a low mound)
+    # the castle (his left, toward the back): a stone tower, a stepped slate roof, an arched dark door
     cx, cz = -3.3, 1.4
-    body += [el((cx - 1.3, 15.4, cz - 1.3), (cx + 1.3, 19.6, cz + 1.3), 'fy_stone', pv),
-             el((cx - 1.55, 19.4, cz - 1.55), (cx + 1.55, 19.9, cz + 1.55), 'fy_stone', pv, shift=(0.3, 0.6))]
-    for i, (y0, h) in enumerate(((19.9, 1.9), (20.8, 1.35), (21.6, 0.85), (22.3, 0.4))):
+    body += [el((cx - 1.3, 15.6, cz - 1.3), (cx + 1.3, 19.6, cz + 1.3), 'fy_stone', pv),
+             el((cx - 1.55, 19.6, cz - 1.55), (cx + 1.55, 20.1, cz + 1.55), 'fy_stone', pv, shift=(0.3, 0.6))]
+    for i, (y0, h) in enumerate(((20.1, 1.6), (21.0, 1.1), (21.9, 0.6))):
         body.append(el((cx - h, y0, cz - h), (cx + h, y0 + 0.9, cz + h), 'fy_roof', pv, shift=(0.2 * i, 0.3 * i)))
     body += [el((cx - 0.55, 15.6, cz - 1.36), (cx + 0.55, 17.6, cz - 1.31), 'fy_door', pv), el((cx - 0.35, 17.6, cz - 1.36), (cx + 0.35, 17.95, cz - 1.31), 'fy_door', pv)]
     # bubbles rising on his right, in front of the fish
-    for (x, y, s) in ((1.9, 23.0, 0.55), (2.5, 24.3, 0.7), (1.7, 25.4, 0.45)):
-        body.append(el((x - s / 2, y - s / 2, -1.6 - s / 2), (x + s / 2, y + s / 2, -1.6 + s / 2), 'fy_bubble', pv))
-    # the glass
-    ys = [BOWL_LO + i * 1.2 for i in range(int((BOWL_HI - BOWL_LO) / 1.2) + 1)]
-    for i, y0 in enumerate(ys):
-        y1 = min(BOWL_HI, y0 + 1.25)
-        r = r_at((y0 + y1) / 2)
-        w = 2 * r * math.tan(math.radians(22.5)) + 0.08
-        for k in range(8):
-            ang = 45.0 * k
-            body.append(el((-w / 2, y0, -r - 0.12), (w / 2, y1, -r + 0.02), 'fy_glass' if k % 2 == 0 else 'fy_glass_b', pv,
-                           ((0.0, ang, 0.0), (0, y0, 0)), faces=('north', 'south'), shift=(0.13 * k + 0.3 * i, 0.21 * i)))
-    # the lip: a thicker, brighter ring round the opening, turned out a touch
-    rr = r_at(BOWL_HI) + 0.35
-    w = 2 * rr * math.tan(math.radians(22.5)) + 0.1
-    for k in range(8):
-        body.append(el((-w / 2, BOWL_HI - 0.25, -rr - 0.45), (w / 2, BOWL_HI + 0.45, -rr + 0.15), 'fy_rim', pv, ((0.0, 45.0 * k, 0.0), (0, BOWL_HI, 0)),
-                       faces=('north', 'south', 'up', 'down')))
-    # the glass floor's rim (where the bowl sits in its collar)
-    for k in range(8):
-        r0 = r_at(BOWL_LO) + 0.05; w0 = 2 * r0 * math.tan(math.radians(22.5))
-        body.append(el((-w0 / 2, BOWL_LO - 0.1, -r0 - 0.15), (w0 / 2, BOWL_LO + 0.25, -r0 + 0.05), 'fy_band', pv, ((0.0, 45.0 * k, 0.0), (0, BOWL_LO, 0))))
+    for (x, y, sz) in ((1.9, 23.0, 0.55), (2.5, 24.3, 0.7), (1.7, 25.4, 0.45)):
+        body.append(el((x - sz / 2, y - sz / 2, -1.6 - sz / 2), (x + sz / 2, y + sz / 2, -1.6 + sz / 2), 'fy_bubble', pv))
+    # the glass: four panes (front and back span the width, the sides fit between them)
+    W = TANK_W
+    body += [el((-W, BOWL_LO, -W - 0.12), (W, BOWL_HI, -W), 'fy_glass', pv, faces=('north', 'south')),
+             el((-W, BOWL_LO, W), (W, BOWL_HI, W + 0.12), 'fy_glass_b', pv, faces=('north', 'south'), shift=(0.4, 0.2)),
+             el((W, BOWL_LO, -W), (W + 0.12, BOWL_HI, W), 'fy_glass_b', pv, faces=('east', 'west'), shift=(0.2, 0.5)),
+             el((-W - 0.12, BOWL_LO, -W), (-W, BOWL_HI, W), 'fy_glass', pv, faces=('east', 'west'), shift=(0.6, 0.1))]
+    # the rim: a square frame round the opening; the band round the glass floor
+    for (y0, y1, t, o) in ((BOWL_HI - 0.2, BOWL_HI + 0.5, 'fy_rim', 0.45), (BOWL_LO - 0.1, BOWL_LO + 0.3, 'fy_band', 0.25)):
+        body += [el((-W - o, y0, -W - o), (W + o, y1, -W + 0.1), t, pv), el((-W - o, y0, W - 0.1), (W + o, y1, W + o), t, pv),
+                 el((-W - o, y0, -W + 0.1), (-W + 0.1, y1, W - 0.1), t, pv), el((W - 0.1, y0, -W + 0.1), (W + o, y1, W - 0.1), t, pv)]
     part('fy_body', body)
 
     # ---- the seaweed: two ribbons waving up from the sand
@@ -194,10 +177,8 @@ def models():
     pv = PIVOT['fish']; fx, fy, fz = pv
     E = lambda fr, to, t, rot=None, sh=None, faces=None: el(fr, to, t, pv, rot, shift=sh, faces=faces)
     def fish(face=None):
-        f = [E((fx - 1.5, fy - 1.4, fz - 1.1), (fx + 1.5, fy + 1.3, fz + 1.1), 'fy_fish'),
-             E((fx - 1.25, fy - 1.65, fz - 0.9), (fx + 1.25, fy + 1.55, fz + 0.9), 'fy_fish', None, (0.4, 0.3)),
-             E((fx - 1.7, fy - 1.1, fz - 0.85), (fx + 1.7, fy + 1.0, fz + 0.85), 'fy_fish', None, (0.6, 0.6)),
-             E((fx - 1.0, fy - 1.55, fz - 1.18), (fx + 1.0, fy - 0.45, fz - 1.05), 'fy_belly')]
+        f = [E((fx - 1.6, fy - 1.5, fz - 1.1), (fx + 1.6, fy + 1.4, fz + 1.1), 'fy_fish'),               # (2.80d: one block of a fish)
+             E((fx - 1.0, fy - 1.4, fz - 1.18), (fx + 1.0, fy - 0.45, fz - 1.1), 'fy_belly', faces=('north',))]
         # the tail: swept back and round to his left, a forked fan
         f += chain([(fx - 1.2, fy - 0.2, fz + 0.7), (fx - 2.3, fy - 0.5, fz + 1.4), (fx - 3.1, fy - 0.3, fz + 1.6)], (1.2, 0.8), 0.7, 'fy_fish', pv, UP)
         f += [seg((fx - 3.0, fy - 0.3, fz + 1.6), (fx - 4.6, fy + 1.4, fz + 1.4), 1.0, 0.25, 'fy_fin', pv, FRONT),
@@ -240,9 +221,7 @@ def models():
     def upper(sx):
         pv = PIVOT['armr' if sx > 0 else 'arml']; x0, y0, _ = pv
         ex, ey = sx * 9.9, 15.4
-        a = [el((x0 - (0.7 if sx > 0 else -0.7) - 0.6, y0 - 1.8, -1.8), (x0 - (0.7 if sx > 0 else -0.7) + 0.6, y0 + 1.8, 1.8), 'fy_joint', pv),   # the shoulder plate
-             el((x0 - (0.7 if sx > 0 else -0.7) - 0.6, y0 - 1.25, -2.15), (x0 - (0.7 if sx > 0 else -0.7) + 0.6, y0 + 1.25, 2.15), 'fy_joint', pv, shift=(0.5, 0.5)),
-             el((x0 - (0.7 if sx > 0 else -0.7) - 0.6, y0 - 2.15, -1.25), (x0 - (0.7 if sx > 0 else -0.7) + 0.6, y0 + 2.15, 1.25), 'fy_joint', pv, shift=(0.2, 0.7))]
+        a = [el((x0 - (0.7 if sx > 0 else -0.7) - 0.6, y0 - 2.0, -2.0), (x0 - (0.7 if sx > 0 else -0.7) + 0.6, y0 + 2.0, 2.0), 'fy_joint', pv)]  # the shoulder plate: square
         a += chain([(x0, y0, 0), (ex, ey, 0)], [2.1], 2.1, 'fy_metal', pv, FRONT, ext=0.2)
         for t in (0.3, 0.62):                                                        # its bands
             p = (x0 + (ex - x0) * t, y0 + (ey - y0) * t, 0)

@@ -38,10 +38,19 @@ def model_name(p, pose, suffix=''):
 
 
 # ---------------------------------------------------------------------------------------------------- textures
+GHOST_A = 150                                               # (2.80d: his ghostly body is see-through - his clothes aren't)
+
+
 def _ghost(seed, base='#c8f7d2', edge='#46c864'):
     im = _noise(base, seed, 4); d = ImageDraw.Draw(im)
-    for i in range(3):                                      # the green glow at his edges
+    for i in range(3):                                      # the green glow at his edges (a touch more solid than the rest)
         d.rectangle((i, i, 63 - i, 63 - i), outline=hexc(edge)[:3] + (255 - i * 70,))
+    px = im.load()
+    for x in range(im.width):
+        for y in range(im.height):
+            r, g, b, a = px[x, y]
+            edge_px = min(x, y, im.width - 1 - x, im.height - 1 - y) < 3
+            px[x, y] = (r, g, b, min(a, 200 if edge_px else GHOST_A))
     return im
 
 
@@ -104,7 +113,7 @@ def models():
     body = [el((-3.3, 8.2, -2.4), (3.3, 15.4, 2.4), 'ps_coat', pv),
             el((-3.6, 6.6, -2.6), (3.6, 9.0, 2.6), 'ps_coat_dk', pv, shift=(0.3, 0.2)),           # the coat's skirts
             el((-2.9, 4.6, -2.1), (2.9, 7.0, 2.1), 'ps_ghost', pv),                                # his body, out from under it
-            el((-2.2, 3.8, -1.6), (2.2, 5.0, 1.8), 'ps_ghost_dk', pv),
+            el((-2.2, 3.8, -1.6), (2.2, 4.6, 1.8), 'ps_ghost_dk', pv),
             el((-1.5, 14.0, -2.5), (1.5, 15.5, -2.3), 'ps_ghost', pv, faces=('north',)),           # his neck, in the coat's V
             el((-0.55, 11.4, -2.6), (0.55, 14.6, -2.45), 'ps_tie', pv), el((-0.7, 14.4, -2.62), (0.7, 15.2, -2.45), 'ps_tie', pv, shift=(0.5, 0.5)),
             el((1.4, 12.2, -2.55), (2.6, 13.4, -2.42), 'ps_lapel', pv, faces=('north',))]          # the pocket
@@ -124,9 +133,10 @@ def models():
     #      and its fang; the top hat (its brim, its red band, its grin)
     pv = PIVOT['head']
     def head(face=None):
-        h = [el((-3.6, 15.5, -3.2), (3.6, 21.6, 3.0), 'ps_ghost', pv),
-             el((-3.95, 16.2, -2.6), (3.95, 20.4, 2.4), 'ps_ghost', pv, shift=(0.4, 0.3)),
-             el((-3.0, 15.0, -2.6), (3.0, 15.8, 2.4), 'ps_ghost_dk', pv)]
+        h = [el((-3.6, 15.5, -3.2), (3.6, 21.6, 3.0), 'ps_ghost', pv),                     # (side cheeks and chin butt onto it, never inside:
+             el((3.6, 16.2, -2.6), (3.95, 20.4, 2.4), 'ps_ghost', pv, shift=(0.4, 0.3)),          #  he's see-through, and an inner face would show)
+             el((-3.95, 16.2, -2.6), (-3.6, 20.4, 2.4), 'ps_ghost', pv, shift=(0.4, 0.3)),
+             el((-3.0, 15.0, -2.6), (3.0, 15.5, 2.4), 'ps_ghost_dk', pv)]
         tex = {None: ('ps_eye', 'ps_eye_l'), 'happy': ('ps_eye_happy', 'ps_eye_happy'), 'shock': ('ps_eye_wide', 'ps_eye_wide'),
                'squint': ('ps_eye_shut', 'ps_eye_l')}[face]
         for sx, t in ((1, tex[0]), (-1, tex[1])):
@@ -175,7 +185,7 @@ def models():
         wx, wy, wz = 5.6, 11.6, -3.2
         a = chain([(ex, ey, ez), (wx, wy, wz)], [2.0], 2.0, 'ps_coat', pv, UP, ext=0.2)
         a += [el((wx - 1.15, wy - 0.9, wz - 2.6), (wx + 1.15, wy + 0.1, wz - 0.4), 'ps_ghost', pv),           # the palm, up
-              el((wx + 1.0, wy - 0.6, wz - 1.6), (wx + 1.6, wy + 0.3, wz - 0.6), 'ps_ghost_dk', pv)]          # the thumb
+              el((wx + 1.15, wy - 0.6, wz - 1.6), (wx + 1.6, wy + 0.3, wz - 0.6), 'ps_ghost_dk', pv)]          # the thumb
         tx, ty, tz = TRAY
         a += [el((tx - 2.7, ty, tz - 2.7), (tx + 2.7, ty + 0.25, tz + 2.7), 'ps_plate', pv),
               el((tx - 2.0, ty - 0.05, tz - 3.15), (tx + 2.0, ty + 0.25, tz + 3.15), 'ps_plate', pv, shift=(0.5, 0.5)),
@@ -186,7 +196,7 @@ def models():
         wx, wy = -5.5, 8.4
         a = chain([(ex, ey, 0), (wx, wy, 0)], [2.0], 2.0, 'ps_coat', pv, FRONT, ext=0.2)
         a += [el((wx - 1.1, wy - 2.0, -1.0), (wx + 1.1, wy + 0.1, 1.0), 'ps_ghost', pv),
-              el((wx + 0.6, wy - 1.6, -1.2), (wx + 1.3, wy - 0.4, -0.4), 'ps_ghost_dk', pv)]
+              el((wx + 0.6, wy - 1.6, -1.4), (wx + 1.3, wy - 0.4, -1.0), 'ps_ghost_dk', pv)]
         return a
     part('ps_armr', upper(1)); part('ps_arml', upper(-1)); part('ps_forer', lower_r()); part('ps_forel', lower_l())
 

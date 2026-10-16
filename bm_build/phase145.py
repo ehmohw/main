@@ -78,7 +78,8 @@ item('doll_fishy', TOTEM, 'Fishy Doll', ORANGE, ['A doll of Fishy - bowl, hat, m
 HOLD['doll_fishy'] = 'bm:p141/doll_fishy/use'
 P141.DOLLS.append(('doll_fishy', 'Fishy', ORANGE, 'A doll of Fishy - bowl, hat, monocle and all.', 'minecraft:splash', 'minecraft:entity.tropical_fish.flop',
                    'minecraft:bubble_pop'))
-P141.DOLL_FROM['doll_fishy'] = ('fy_bowl', {'kh': 1.0, 'kb': 1.0, 'kl': 0.7})
+P141.DOLL_FROM['doll_fishy'] = ('fy_bowl', {'kh': 1.45, 'kb': 0.7, 'kl': 0.55,                     # (2.80d: chibi, as the set - his tank and fish
+                                            'groups': {'bm:fy_body': 'head', 'bm:fy_fish': 'head', 'bm:fy_weed': 'head'}})   #  are his "head")
 
 # ------------------------------------------------------------------------------------------------ the registries
 P46.COMPANIONS += ',tag=!bm.fypet'
@@ -113,7 +114,7 @@ def _figures():
 
 
 P134.figures = _figures
-P134.FIT['fy_bowl'] = (0.000, 1.716, -0.837, 0.869, -0.482, 0.482)      # (measured: phase134.measure)
+P134.FIT['fy_bowl'] = (0.000, 1.719, -0.837, 0.869, -0.428, 0.428)      # (measured: phase134.measure; 2.80d's square tank)
 
 # ------------------------------------------------------------------------------------------------ poses
 limb = ART.limb

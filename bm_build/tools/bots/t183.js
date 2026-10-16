@@ -95,6 +95,7 @@ const CFG = {
     A.bars.length = 0; if (hb) A.interact(hb.entityId); await sleep(1000);
     ok(N + 'right-clicked empty-handed: he stands', !!hb && /0b/.test(await nbt(PET, 'Sitting')) && A.bars.some(b => c.standUp.test(b)), hb ? A.bars.slice(-1).join('') : 'no click box seen');
     await sleep(600); hb = await entOf(hitSel); if (hb) A.interact(hb.entityId); await sleep(1000);
+    if (!/1b/.test(await nbt(PET, 'Sitting'))) { await sleep(600); hb = await entOf(hitSel); if (hb) A.interact(hb.entityId); await sleep(1000); }   // (a click lost in the debounce)
     ok(N + '...right-clicked again: he sits', /1b/.test(await nbt(PET, 'Sitting')));
     await sleep(600); hb = await entOf(hitSel); if (hb) A.interact(hb.entityId); await sleep(800);
 
@@ -220,13 +221,16 @@ const CFG = {
     ok(N + 'a foe five blocks off: his great blow first', ult, `uc ${await score(`bm.${k}uc`, PET)}`);
     await wait(3000, async () => A.bars.some(b => c.ult.test(b)));
     ok(N + '...its words to you, and what it does for you (' + c.ultFx + ')', A.bars.some(b => c.ult.test(b)) && (await hasFx('TestRat', c.ultFx)), A.bars.slice(-1).join(''));
-    const rng = await wait(8000, async () => (await score(`bm.${k}rc`, PET)) > 0, 150);
-    ok(N + '...then his ranged blow', rng, `rc ${await score(`bm.${k}rc`, PET)}`);
+    // (what the ranged blow leaves on them lasts 3-4 s: watched for together with the blow itself)
+    const mark = who === 'dennis' ? async () => hasFx(FOE, 'slowness') : async () => (await hasFx(FOE, 'glowing')) && (await hasFx('TestRat', 'speed'));
+    let marked = false;
+    const rng = await wait(8000, async () => { if (await mark()) marked = true; return (await score(`bm.${k}rc`, PET)) > 0 && marked; }, 150);
+    ok(N + '...then his ranged blow', (await score(`bm.${k}rc`, PET)) > 0, `rc ${await score(`bm.${k}rc`, PET)}`);
     ok(N + '...the foe hurt by them', (await num(FOE, 'Health')) < 400 - 10, `${await num(FOE, 'Health')}`);
-    if (who === 'dennis') ok(N + '...Gold Rush slows it', await wait(2500, async () => hasFx(FOE, 'slowness')));
-    else ok(N + '...the spirit makes it glow; you, light of foot (Speed)', await wait(2500, async () => (await hasFx(FOE, 'glowing')) && (await hasFx('TestRat', 'speed'))));
+    ok(N + (who === 'dennis' ? '...Gold Rush slows it' : '...the spirit makes it glow; you, light of foot (Speed)'), rng);
     const qx = await num(PET, 'Pos[0]'), qz = await num(PET, 'Pos[2]');
-    await run(`${O}tp ${FOE} ${qx} ${Y + 1} ${qz + 1.6}`); A.bars.length = 0;
+    A.bars.length = 0; for (const o of ['mc', 'cc']) await run(`scoreboard players set ${PET} bm.${k}${o} 0`);   // (he may have closed in already)
+    await run(`${O}tp ${FOE} ${qx} ${Y + 1} ${qz + 1.6}`);
     const crowd = await wait(6000, async () => (await score(`bm.${k}cc`, PET)) > 0, 150);
     ok(N + 'the foe up close: his crowd blow', crowd && await wait(2000, async () => A.bars.some(b => c.crowd.test(b))), A.bars.slice(-1).join(''));
     const melee = await wait(6000, async () => (await score(`bm.${k}mc`, PET)) > 0, 150);

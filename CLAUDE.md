@@ -32,6 +32,10 @@ Every follower ships with all of these, built alongside it (never "later"):
 2. **Frame gimmick:** the summon item in an item frame does that follower's trick.
 3. **Display case figurine:** the follower's real model in the floor and wall display cases, never clipping out.
 4. **Matching doll from Cecil:** a chibi doll baked from its real model (`dolls_bake.py`), sold by Cecil, framable.
+   It must fit the existing dolls' chibi art style: a big head, a small body, short legs. Use the bake's default warp
+   (`kh` 1.55, `kb` 0.82, `kl` 0.62), or something close; never `kh` 1.0, which is just a shrunk copy. If the follower's
+   "head" isn't named like one (Fishy's tank), say so with `groups`. Render the new doll beside the existing ones before
+   shipping it.
 5. **Sitting animations:** right-click (or sneak + right-click) to sit, with a seated pose and idle cycle.
 6. **Cosmetics:** at least one, with per-form colour variants, persisting across recall.
 7. **Rare cosmetics:** a rare, expensive particle-aura cosmetic, hard to earn from raids.
