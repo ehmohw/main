@@ -1,4 +1,4 @@
-# Black Market — v2.80h (Java 26.3)
+# Black Market — v2.80i (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,29 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.80i: tough mobs, not health sponges - and creepers you can outrun
+
+### Lighter gear
+Elites, Champions, Blood Moon horrors and the Lucky Night's jackpot mobs wore Protection on every piece of armour. An Elite's diamond had Protection IV, a Champion's netherite Protection V and Thorns II, which reaches the game's 80% damage-reduction cap, and a horror's netherite Protection IV. On top of two to five times the health, that made them health sponges. Now each piece rolls its own enchantment as the mob arrives:
+
+| | Bare | Prot I | Prot II | Prot III | Other |
+|---|---|---|---|---|---|
+| Elite (diamond) | 40% | 30% | 20% | - | 10% (projectile, fire or blast protection II) |
+| Champion (netherite) | 25% | 35% | 30% | 10% | - (no more Thorns II on everything) |
+| Blood Moon horror (netherite) | 30% | 40% | 30% | - | - |
+| Jackpot mob (gold) | 50% | 35% | 15% | - | - |
+
+A Champion averages about 5 protection points instead of 20. An Elite averages about 2-3 instead of 16. Unarmoured Champions (spiders, creepers and the like) wear Resistance I instead of II.
+
+### Speed
+- **Creepers get no speed boost at any tier.** A Blood Moon creeper, which is charged and blasts like a charged creeper, ran at about 1.44 times a creeper's pace, and a Champion creeper at about 1.6. Now they all run at a plain creeper's 2.75 blocks a second, so you can always get clear.
+- **Everything else:** horrors, Champions, unarmoured Elites and jackpot mobs move 10% faster than normal, with no Speed effect on top. Before, it was Speed I or II plus 15-20%. Measured: a Blood Moon spider chases at 4.8 blocks a second, a horror zombie at 2.8, against a sprinting player's 5.6.
+- **Mounted monsters are unchanged.** A monster on a horse can still outrun you.
+
+### Testing
+- New bot playtest t193: real chase speeds against a regular player at the end of a runway. A Blood Moon horror, a Champion and both on their steeds, spiders, and creepers at every tier (all at a plain creeper's pace). A gear survey of twelve each of Elites, Champions and horrors: no full Protection sets, plenty of bare pieces. An unarmoured Champion's effects.
+- t126 and t177 rerun clean.
 
 ## New in 2.80h: heist rewards - Haul Crates, a prize roll, win streaks, crew bonuses and the Fixer's mercy
 

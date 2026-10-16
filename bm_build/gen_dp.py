@@ -148,6 +148,7 @@ import phase160 as R160      # 2.80d: ground forges - the Huntmaster's and Riftb
 import phase162 as R162      # 2.80d: Dennis and Pistachio in the Black Market - ore and mob parts for Tokens, their rune and seal
 import phase165 as R165      # 2.80g: heist review - stragglers flushed out of reach-proof corners
 import phase166 as R166      # 2.80h: heist rewards - haul crates, the prize roll, streaks, crew bonuses, the Fixer's mercy
+import phase167 as R167      # 2.80i: tough mobs, not health sponges - lighter gear, sprint-beatable speeds
 import phase164 as R164      # 2.80e: Apophiss's Unbound Crown - the True Crown, a Wraithfire Heart and the Deathmask, forged
 import phase163 as R163      # 2.80d: Dennis and Pistachio, the followers (fifty trades), their pairs and the Crown's Prospect
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
@@ -166,7 +167,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.80h'                                # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.80i'                                # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1239,6 +1240,7 @@ def build(out_dir):
     if PHASE2: R164.generate(sys.modules[__name__])
     if PHASE2: R165.generate(sys.modules[__name__])
     if PHASE2: R166.generate(sys.modules[__name__])
+    if PHASE2: R167.generate(sys.modules[__name__])
     R161.generate(sys.modules[__name__])
     if PHASE2: R162.generate(sys.modules[__name__])
     # 2.79: the mob rolls (elite, champion, lucky, prime, Blood Moon, invasion) leave alone a mob someone named or froze - a
