@@ -44,7 +44,7 @@ const TX = 16000, TY = 100, TZ = 16000; // a flat test pad
   await shaft(MS, 'Old market');
   { const mp = await pos(MK); await run(`tp TestRat ${mp[0]} ${mp[1] + 1} ${mp[2]}`); await sleep(3000); }   // (the lift goes in when someone is in the market, not at the shaft)
   ok('Old market: it got the lift', /bm\.p74l/.test(await run(`data get entity ${MK} Tags`)) &&
-     await pass(`execute as ${MK} at @s rotated as @s positioned ^5 ^6.5 ^40 if block ~ ~ ~ minecraft:pale_oak_button[powered=false]`) &&
+     await pass(`execute as ${MK} at @s rotated as @s positioned ^5 ^6.5 ^40 if block ~ ~ ~ #minecraft:buttons[powered=false]`) &&
      await pass(`execute as ${MK} at @s rotated as @s positioned ^5 ^7.5 ^40 if block ~ ~ ~ minecraft:dark_oak_wall_sign`));
   ok('...and the short newcomers\' book', /bm\.p74b/.test(await run(`data get entity ${MK} Tags`)));
   // press the button like a player would
