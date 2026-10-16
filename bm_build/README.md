@@ -38,6 +38,7 @@ Cecil sold every follower's doll from the start (KillerWatt's, Apophiss's, Wilfr
 
 ### Bosses and items
 - **KillerWatt's jab lands again.** His jab and the Ethereal KillerWatt's Void Lances shared one attack slot, so every jab also ran the lances: the lance charge pose replaced his punch (the jab rarely connected), and even the plain KillerWatt threw void lances. The lances now have their own slot, and only the Ethereal form uses them.
+- **Apophiss Unbound spreads his wings.** At "THE SERPENT UNBOUND" ("something vast and winged tears free of his scales") his wings stayed folded away until the cutscene was over; they now unfurl at the title as he lifts off.
 - **Democratus won't duel you at five hearts or less.** The duel is lost at three hearts, and he'd accept a challenge from someone already at three and a half: the ten-second countdown ran, then the duel was lost the moment it began. He now tells you to catch your breath first.
 - The Black Market Haul's description no longer promises the Fence's curios (no haul has had them since 2.68).
 
