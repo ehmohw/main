@@ -207,6 +207,11 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
   untouchable moment) before the killing blow (t33, t34, t56's `cbuf`).
 - Cecil's dolls for followers not yet met are wrapped (2.80b), and a wrapped doll has no `bm` id. When scanning a trader's
   list, stop at the end of the list (`Offers.Recipes[i]` missing), not at the first recipe without the field (t163).
+- The rcon connection answers one command at a time: never send several at once (`Promise.all` over `run`) - the replies
+  get crossed and the test hangs. Loop and `await` each one.
+- A spot picked by fixed offsets can land in the world's own terrain: the ghost ship can lie beside an iceberg, so t135
+  checks for open water before putting Tullius overboard, and watches for him from the moment he lands (he can be back
+  aboard within a second and a half).
 - A Lucky Night (or an Invasion) is never set on a Blood Moon day: move on to a morning that isn't one first (t177's
   `morning`, t125).
 

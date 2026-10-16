@@ -243,7 +243,6 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   await run('item replace entity TestRat weapon.mainhand with air'); await run(`loot replace entity TestRat weapon.mainhand loot bm:items/gem_${gemIds[0]}`);
   await run(`clear TestRat *[minecraft:custom_data~{bm:"gem_${gemIds[0]}"}] 1`); await run(`loot replace entity TestRat weapon.mainhand loot bm:items/gem_${gemIds[0]}`);
   await run('advancement revoke TestRat only bm:story/ethereal_gem');
-  console.log('DBG96', (await Promise.all(gemIds.map(async k => k + ':' + await inv('gem_' + k)))).join(' '), await run('execute as TestRat if predicate bm:p20/sneaking'), await run('data get entity TestRat Pos'));
   await run('scoreboard players set TestRat bm.gmcd 0'); await run(`execute as TestRat at @s run function bm:p60/gem/use_${gemIds[0]}`); await sleep(4200);
   const left = await inv('gem_' + gemIds[1]);
   ok('All nine in your hands, use one: they rise, fuse - the Ethereal Gem, and "Nine Made One"', left === 0 && (await inv('ethereal_gem')) === 1 && (await adv('ethereal_gem')),

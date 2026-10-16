@@ -156,10 +156,16 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     // (the sea: overboard, he swims and leaps back aboard)
     await wait(5000, async () => (await sc(boss, 'bm.tuatk')) === 0);
     await run(`${O}tp TestRat ${X + 2.5} ${DY + 1} ${Z - 3.5}`); await sleep(400);
-    await run(`${O}tp ${boss} ${X + 2.5} ${DY - 6} ${Z - 11.5}`); await sleep(1500);
-    const sw = await epos(boss);
-    ok('put overboard, he is in the water (swimming)', sw && sw[1] < DY - 2, JSON.stringify(sw));
-    let leapt = false;
+    // (open water beside her - she can lie by an iceberg, and he won't swim in packed ice)
+    let ob = [2.5, -11.5];
+    for (const [dx, dz] of [[2.5, -11.5], [2.5, 11.5], [-6.5, -11.5], [8.5, -11.5], [-6.5, 11.5], [8.5, 11.5], [2.5, -14.5], [2.5, 14.5]]) {
+      if (/passed/.test(await run(`${O}execute if block ${Math.floor(X + dx)} ${DY - 6} ${Math.floor(Z + dz)} minecraft:water if block ${Math.floor(X + dx)} ${DY - 5} ${Math.floor(Z + dz)} minecraft:water`))) { ob = [dx, dz]; break; }
+    }
+    // (watched from the moment he's in: he can be back aboard within a second and a half)
+    await run(`${O}tp ${boss} ${X + ob[0]} ${DY - 6} ${Z + ob[1]}`);
+    let sw = null, leapt = false;
+    for (let i = 0; i < 6; i++) { const b = await epos(boss); if (b && b[1] < DY - 2) sw = b; if ((await sc(boss, 'bm.tuatk')) === 7) leapt = true; if (sw) break; await sleep(150); }
+    ok('put overboard, he is in the water (swimming)', !!sw, JSON.stringify(sw || await epos(boss)) + ` at ${ob}`);
     ok('...and he leaps back aboard at you', await wait(14000, async () => { const a = await sc(boss, 'bm.tuatk'); if (a === 7) leapt = true; const b = await epos(boss);
                                                                           return leapt && b && b[1] >= DY + 0.5 && Math.abs(b[2] - Z) < 6.5; }),
        `leap ${leapt} at ${JSON.stringify(await epos(boss))} atk ${await sc(boss, 'bm.tuatk')} ph ${await sc(boss, 'bm.tuph')} tuc ${await sc(boss, 'bm.tuc')} ${await run(`${O}execute as ${boss} at @s run data get block ~ ~1.6 ~`)} ${await run(`${O}execute as ${boss} at @s if block ~ ~1.6 ~ minecraft:water`)} ${await run(`${O}data get entity ${boss} NoAI`)}`);
