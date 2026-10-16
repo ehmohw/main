@@ -169,8 +169,8 @@ def _figures():
 
 
 P134.figures = _figures
-P134.FIT['dw_horn'] = (0.000, 1.970, -0.700, 0.700, -0.430, 0.400)        # (measured: phase134.measure)
-P134.FIT['pi_cloche'] = (0.000, 1.870, -0.560, 0.700, -0.600, 0.420)
+P134.FIT['dw_horn'] = (0.000, 1.921, -0.516, 0.532, -0.238, 0.320)        # (measured: phase134.measure)
+P134.FIT['pi_cloche'] = (0.019, 1.872, -0.547, 0.464, -0.259, 0.509)
 
 
 def extend_offers(O, offer):
@@ -475,6 +475,7 @@ def build(G, k, c, fn, title, tellraw, give, PREFIX, say, holds, foe, tick, fast
                          f'function bm:{pfx}/summon_here'])
     fn(f'{pfx}/summon_here', [f'summon minecraft:wolf ~ ~ ~ {snbt(pet_nbt())}',
                               f'data modify entity @e[type=minecraft:wolf,tag={new},limit=1,sort=nearest] Owner set from entity @s UUID',
+                              f'execute as @e[type=minecraft:wolf,tag={new},limit=1,sort=nearest] run function bm:{pfx}/tough',
                               f'scoreboard players set @e[type=minecraft:wolf,tag={new},limit=1,sort=nearest] {S("s")} -1',
                               f'scoreboard players set @e[type=minecraft:wolf,tag={new},limit=1,sort=nearest] {S("sl")} 24',
                               f'execute rotated ~180 0 run function bm:{pfx}/rig_here',
@@ -483,6 +484,9 @@ def build(G, k, c, fn, title, tellraw, give, PREFIX, say, holds, foe, tick, fast
                               f'execute at @e[type=minecraft:item_display,tag={sel},tag=bm.{k}p_body,limit=1] run function bm:{pfx}/burst',
                               f'tag @e[tag={sel}] remove {sel}', f'tag @e[tag={new},distance=..4] remove {new}',
                               'playsound minecraft:block.note_block.chime neutral @a[distance=..20] ~ ~ ~ 0.6 1.6', fysay(hello[1])])
+    # (a tamed wolf takes a wolf's health when its owner is set: his own put back after)
+    fn(f'{pfx}/tough', [f'attribute @s minecraft:max_health base set {c["hp"]}', f'data modify entity @s Health set value {c["hp"]}f',
+                        f'attribute @s minecraft:armor base set {c["armour"]}'])
     fn(f'{pfx}/rig_here', rig + [f'tp @e[type=minecraft:item_display,tag={new},distance=..1] ~ ~ ~ ~ 0'])
     fn(f'{pfx}/rerig', [f'kill @e[type=minecraft:item_display,tag={sel}]', f'execute rotated as @s rotated ~ 0 run function bm:{pfx}/rig_here',
                         f'scoreboard players operation @e[type=minecraft:item_display,tag={new},distance=..2] bm.pid = #me bm.pid',

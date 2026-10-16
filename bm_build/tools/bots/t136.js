@@ -2,7 +2,8 @@
 // Tullius + Celi ("Frost and Brine"), Tullius + Leo ("Old Rivals"), the three of them ("The Tidewatch", and at sea); Apophiss +
 // Emma ("Forgiven"), Apophiss + KillerWatt ("Venom and Volts"), Apophiss + Emma + Leo ("An Uneasy Truce"), Apophiss +
 // KillerWatt + Democratus ("The Dread Court"); the hidden one, Emma + Leo + Pearlman ("The Royal Retinue") - and Pearlman
-// (who doesn't count toward the three) never taking the place of a whole other trio. rcon only sets the stage (and sends the
+// (who doesn't count toward the three) never taking the place of a whole other trio. 2.80d (node t136.js dw): Dennis + Pistachio
+// ("Spade and Spoon"), Cecil + Pistachio ("The Omega Palace"), Emma + Leo + Dennis ("The Crown's Prospect"). rcon only sets the stage (and sends the
 // followers home between the scenes).
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : null; const want = k => !ONLY || ONLY.test(k);
@@ -19,9 +20,10 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
   const use = async (C, slot, sneak = false) => { C.slot(slot); await sleep(250); if (sneak) { C.input({ shift: true }); await sleep(200); } C.use(); await sleep(400); C.release(); if (sneak) { C.input({}); await sleep(150); } };
   const PETS = { emma: ['cat', 'bm.emmapet', 'emma_ribbon'], leo: ['wolf', 'bm.leopet', 'leo_crest'], cecil: ['wolf', 'bm.cecilpet', 'cecil_gem'],
                  celi: ['wolf', 'bm.celipet', 'celi_charm'], kw: ['wolf', 'bm.kxpet', 'kw_spark'], demo: ['wolf', 'bm.dmpet', 'demo_seal'],
-                 pearl: ['cat', 'bm.pmpet', 'pearl_card'], apo: ['wolf', 'bm.appet', 'apo_oath'], tul: ['wolf', 'bm.tupet', 'tul_coin'] };
+                 pearl: ['cat', 'bm.pmpet', 'pearl_card'], apo: ['wolf', 'bm.appet', 'apo_oath'], tul: ['wolf', 'bm.tupet', 'tul_coin'],
+                 dennis: ['wolf', 'bm.dwpet', 'dw_horn'], pistachio: ['wolf', 'bm.pipet', 'pi_cloche'] };
   const sel = k => `@e[type=minecraft:${PETS[k][0]},tag=${PETS[k][1]},limit=1]`;
-  const CDS = ['bm.emcd', 'bm.lecd', 'bm.cpcd', 'bm.cecd', 'bm.kxcd', 'bm.dmcd', 'bm.apcd', 'bm.tucd', 'bm.pmcd'];
+  const CDS = ['bm.emcd', 'bm.lecd', 'bm.cpcd', 'bm.cecd', 'bm.kxcd', 'bm.dmcd', 'bm.apcd', 'bm.tucd', 'bm.pmcd', 'bm.dwcd', 'bm.picd'];
   const A = await bot('TestRat'); await sleep(2500);
   A.stand(); await sleep(300);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
@@ -46,7 +48,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     for (const k of keys) if ((await cnt(sel(k))) !== 1) return false;
     return true;
   };
-  const forget = async () => { for (const k of ['pair_frost', 'pair_rivals', 'pair_forgiven', 'pair_volts', 'trio_tide', 'trio_truce', 'trio_dread', 'trio_retinue'])
+  const forget = async () => { for (const k of ['pair_frost', 'pair_rivals', 'pair_forgiven', 'pair_volts', 'trio_tide', 'trio_truce', 'trio_dread', 'trio_retinue', 'pair_spade', 'pair_palace', 'trio_prospect'])
     await run(`advancement revoke TestRat only bm:story/${k}`); };
   await run('gamemode survival TestRat'); await forget(); await home();
 
@@ -143,6 +145,35 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     await run('loot replace entity TestRat hotbar.3 loot bm:items/cecil_gem'); await sleep(2300); A.bars.length = 0;
     await use(A, 3); await sleep(1500);
     ok('...Cecil\'s gem: he can\'t come - Pearlman makes the third', !(await cnt(sel('cecil'))) && /already have 3 followers/.test(A.bars.join(' ')), A.bars.slice(-2).join(' / '));
+    await home();
+  }
+
+  if (want('dw')) {
+    // ================================================================== 2.80d: Dennis and Pistachio's pairs, and the Crown's Prospect
+    A.chats.length = 0;
+    ok('Dennis and Pistachio, each called with his own item', await call(['dennis', 'pistachio']));
+    ok('SPADE AND SPOON: the first time, its achievement and their words', await wait(4000, async () => (await adv('pair_spade')) &&
+       /Do ghosts tip/.test(A.chats.join(' ')) && /polish your helmet/.test(A.chats.join(' '))), A.chats.slice(-3).join(' | ').slice(0, 240));
+    ok('...you dig faster and find more (Haste II, Luck)', await wait(3000, async () => (await hasFx('TestRat', 'haste', 1)) && (await hasFx('TestRat', 'luck'))));
+    ok('...the pair shrug off blows (Resistance on both)', (await hasFx(sel('dennis'), 'resistance')) && (await hasFx(sel('pistachio'), 'resistance')));
+    await home();
+    A.chats.length = 0; A.bars.length = 0;
+    ok('Cecil and Pistachio', await call(['cecil', 'pistachio']));
+    ok('THE OMEGA PALACE: its achievement and their words (the kettle)', await wait(4000, async () => (await adv('pair_palace')) && /kettle/.test(A.chats.join(' '))),
+       A.chats.slice(-2).join(' | ').slice(0, 200));
+    ok('...Cecil mends you (Regeneration); both tougher', await wait(3000, async () => (await hasFx('TestRat', 'regeneration')) && (await hasFx(sel('cecil'), 'resistance')) &&
+       (await hasFx(sel('pistachio'), 'resistance'))));
+    await run(`${O}scoreboard players set ${sel('pistachio')} bm.p163s 29`); A.bars.length = 0;
+    ok('...and every half minute Pistachio feeds you (Saturation, "from the Palace kitchen")', await wait(3000, async () => A.bars.some(b => /Palace kitchen/.test(b))),
+       A.bars.slice(-1).join(''));
+    await home();
+    A.bars.length = 0;
+    ok('Emma, Leo and Dennis', await call(['emma', 'leo', 'dennis']));
+    ok('THE CROWN\'S PROSPECT: "Three together", its achievement', await wait(4000, async () => (await adv('trio_prospect')) && /Three together: The Crown's Prospect/.test(A.bars.join(' '))),
+       A.bars.slice(-2).join(' / '));
+    ok('...Strength, Resistance and Haste II for you', await wait(3000, async () => (await hasFx('TestRat', 'strength')) && (await hasFx('TestRat', 'resistance')) &&
+       (await hasFx('TestRat', 'haste', 1))));
+    ok('...the three tougher and healing', (await hasFx(sel('dennis'), 'resistance')) && (await hasFx(sel('leo'), 'regeneration')));
     await home();
   }
 

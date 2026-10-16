@@ -6,7 +6,7 @@ import draftkit as K, rigkit
 who = sys.argv[1] if len(sys.argv) > 1 else 'dennis'
 what = sys.argv[2].split(',') if len(sys.argv) > 2 else ['views', 'poses']
 F = importlib.import_module(f'{who}_art')
-EXTRA = getattr(importlib.import_module('phase162'), 'POSES_' + who.upper(), {}) if 'follower' in what else {}
+EXTRA = getattr(importlib.import_module('phase163'), 'POSES_' + who.upper(), {}) if 'follower' in what else {}
 OUT = K.OUT; os.makedirs(OUT, exist_ok=True)
 root = K.pack(F, f'{OUT}/rp_{who}')
 POSES = dict(F.POSES, **EXTRA)

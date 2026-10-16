@@ -197,6 +197,9 @@ it: `chunks.js`, which both rcon helpers (`lib.js`, `lib_resp.js`) send every co
 - 2.80a: the vault's catch-all sees out anyone in `bm:gutter` who is neither on a heist (`bm.gvp`) nor checked (`bm.lgbag`),
   within 5 ticks. A test that puts a survival bot in the vault by command (the Locker Hall, the Lounge, a heist room)
   must give it the operator's pass first, `tag <bot> add bm.gvok`, and take it off at the end (t101, t107, t126...).
+- Mining is `A.mine(x, y, z, ms)`. 26.3 numbers the dig actions 0 start, 1 change direction, 2 abort, 3 stop; sending the
+  old "2" to finish gives the block up. A block that breaks in one tick needs only the start. Set ores on top of the floor,
+  not in it: a mined floor block drops its loot into the hole (or the void), out of the bot's reach (t183).
 - Every button press is a command, and the server kicks a client for about 10 commands in a burst (`disconnect.spam`).
   Space presses about a second apart (t175).
 - Dialog labels can start with an icon (`⬆ `, `✦ `): match them without `^`, or strip non-ASCII first (t175).
@@ -369,6 +372,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 |  | at sea), Forgiven, Venom and Volts, An Uneasy Truce, the Dread Court, the hidden Royal Retinue - and Pearlman as a fourth |
 |  | never displacing the Serpent's Bane (2.77c: Pearlman counts toward the three - refused as a fourth, and with him out, |
 |  | Cecil is). Sections: `tul`, `apo`, `retinue`. |
+|  | 2.80d (`node t136.js dw`): Spade and Spoon (Dennis + Pistachio: Haste II, Luck), the Omega Palace (Cecil + Pistachio: Regeneration, Pistachio's supper), the Crown's Prospect (Emma, Leo and Dennis). |
 | `t137.js` | 2.77b: the Wraithfire Heart forged on the ground - an Ethereal Gem and a Scorching Heart set down with the items |
 |  | themselves (both orders): the forging starts, both rise, circle closer, merge; the bot picks the heart up, Burning Blue; |
 |  | nothing left behind; six blocks apart nothing happens; Pearlman no longer offers the fusion. |
@@ -434,6 +438,8 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t180.js` | 2.80d: the ground forges, as a regular player - ingredients tossed with Q (ctrl+Q for a stack): the Huntmaster's Relic (the Overworld roaming bosses' weapons, F to turn, a catalyst), the Riftbound Relic, the Starheart (by night under the sky; eaten: +1 heart), the Talisman of the Three Nights (Luck II on a Lucky Night); a forge that loses a piece goes cold |
 | `t181.js` | 2.80d: the Trophy Stand, as a regular player - set down with a use, opened and folded with right-clicks (bosses on the top step, heist rooms in their best metal, laurels in front, the plaque's counts), folds itself when walked away from, picked up with sneak + punch; Madame Velour sells it |
 |  | home (from her menu), and with Wilfrey out a fourth follower refused. |
+| `t182.js` | 2.80d: Dennis and Pistachio, the traders, as a regular player - a market placed fresh digs out their rooms; right-clicked, each one's page (the record, the favour, a button per lot with today's count); coal and rotten flesh by the 32, a diamond for 2, Pistachio's rare parts (a wither skeleton skull: 5 Tokens); the daily limit, a lot short, a new day; favour full - the Prospector's Rune, the Tithe Seal, and earned again; the rune onto a pickaxe in the other hand (not twice), its hundredth block a Token (not past the day's 8, not with a plain pick); the seal onto a sword, a zombie slain a Token; the fiftieth trade - he joins you (his horn, his cloche), a lost horn given again. |
+| `t183.js` | 2.80d: Dennis and Pistachio, the followers - the owner's checklist for each (`node t183.js dennis` / `pistachio`; both by default): called with his item, his menu, sat from the menu and by a right-click (his seated cycle), his ways, a look worn and kept across a recall, his aura, his Raid Contract, the frame, the display case, Cecil's doll bought in a real trade; his fighting (his great blow first, ranged, crowd, melee - and what each does for you), Pistachio's Phantom Escape; Fortune V (six diamond ores, a plain pickaxe: far more than six) and Looting V (a zombie dropping more flesh than a zombie can), neither without him; knocked out, he faints. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
 | `head.js` | The Horseman's Head: stream, overheat, charged blast, stoking + Nova, undead XP, lantern/heart variants, night tiers, healing. |

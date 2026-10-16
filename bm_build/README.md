@@ -1,4 +1,4 @@
-# Black Market — v2.80b (Java 26.3)
+# Black Market — v2.80d (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,75 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.80d: Dennis and Pistachio, ground forges, and the Trophy Stand
+
+### Dennis the dwarf and Pistachio the ghost
+Two new rooms are dug under the vault-door balcony, off the alcove between its twin stairs. Markets already in your world get them too: the market builds them the next time someone is near.
+- **Dennis's Assay Office:** Dennis buys the ore you mine, mostly for Tokens. Right-click him for his page. It shows your trades with him, his favour, and a button per lot with how many you've sold today.
+  - 1 Token each for 32 coal, 32 raw copper, 24 raw iron, 16 raw gold, 48 redstone, 32 lapis, 32 quartz or 32 amethyst shards.
+  - A diamond is worth 2 Tokens (the Fence's rate), and 2 ancient debris 1 Token.
+  - Each lot has its own daily limit (5, 4 or 3 a day; diamonds 8).
+- **Pistachio's Pantry:** Pistachio, butler of the Omega Palace, buys what comes off a mob's body. He never buys what a mob carries: no arrows, weapons, armour, gold or nuggets.
+  - His lots are big and pay little: 1 Token for 32 rotten flesh, bones or string, and similar lots for spider eyes, gunpowder, slimeballs, leather, feathers, ink sacs, pearls, blaze and breeze rods, magma cream, phantom membranes and prismarine shards. Each has a daily limit (5 down to 3), so a mob farm can't print Tokens.
+  - His **Rare parts** page pays well: a wither skeleton skull is 5 Tokens (3 a day); a zombie, skeleton or creeper head 3 (2 a day); a shulker shell, 2 rabbit's feet or 2 ghast tears 1.
+- **Either one's trades** have a 1 in 25 chance of something rare on top: a Medallion, a Heartstone, a Fallen Star, Lucky Tokens, or (from Pistachio) ectoplasm.
+- **Their ultimate prizes:** every trade fills that trader's favour meter (30 trades). When it's full you get his prize, and the meter starts again, so you can earn another the same way, never for free.
+  - **Dennis's Prospector's Rune** goes onto any pickaxe. Use it with the pickaxe in your other hand. Every 100 blocks that pickaxe mines has an even chance of a Token.
+  - **Pistachio's Tithe Seal** goes onto any sword, the same way. Every mob it kills has a 1% chance of a Token.
+  - A tool takes one each. An upgraded tool turns up at most 8 Tokens a day, so a cobblestone generator or a mob farm can't make a mint of it.
+- **Trade 50 times with either one, all told, and he joins you:** Dennis gives you **Dennis's Horn**, Pistachio **Pistachio's Little Cloche**. Lose it and he gives you another when you right-click him.
+
+### Dennis and Pistachio as followers
+Use the horn or cloche to call him; sneak + use opens his menu (Sit / follow, Send him home, his ways, Wardrobe).
+- **Dennis fights with his Dwarven wrench and a dwarf's love of gold:**
+  - **Wrench Whack** up close: 7 damage and a shove.
+  - **Gold Rush** at range: a fistful of gold nuggets, 5 damage and slowed.
+  - **Midas Slam** when they crowd him: a ring of gold, 9 to everything near, and up they go.
+  - **The Mother Lode**, his great blow every 45 seconds: gold pours up around him for 14 to everything near, and you're clad in it (Absorption, Resistance).
+  - While he's with you, **every ore you mine drops as if your pickaxe had Fortune V.**
+- **Pistachio's attacks are ghastly, and his buffs are for you:**
+  - **Spectral Slap** up close: 4 damage and Weakness.
+  - **The Next Course** at range: a spirit flies out of his cloche, 6 damage and they glow, and you get Speed.
+  - **The Wail** when they crowd him: 4 to everything near, slowed and weakened.
+  - **The Last Course**, every 45 seconds: every spirit at once, 12 to everything near and lifted off the ground, and a **Ghostly Ward** on you (Resistance II, Regeneration).
+  - **Phantom Escape:** when you're at 3 hearts or less, once a minute, you fade from sight and from harm for a few seconds.
+  - While he's with you, **every mob you kill drops as if your weapon had Looting V.**
+  - A tool's own Fortune or Looting isn't added on top of either buff.
+- **The follower checklist:**
+  - Right-click either one to sit or stand; each has a seated idle.
+  - Each has six looks at the Tailor (Dennis's leather jackets, Pistachio's tail-coats, including gilded, diamond and netherite), kept across recalls.
+  - Each has a rare aura: Dennis's **Gold Rush Glimmer** and Pistachio's **Ectoplasmic Mist**.
+  - In an item frame, his item lets him step out. In a display case it shows his figurine.
+  - Cecil sells their dolls once you've met them.
+  - The Recruiter in the den sells their **Raid Contracts**, so both come on heists.
+- **New pairs and a new trio:**
+  - **Spade and Spoon** (Dennis + Pistachio): you dig and loot faster (Haste II, Luck), and both are tougher.
+  - **The Omega Palace** (Cecil + Pistachio, who keep house together): Cecil mends you (Regeneration) and Pistachio feeds you every half minute (Saturation). Both are tougher.
+  - **The Crown's Prospect** (Emma, Leo and Dennis): a princess, her knight and the dwarf who mines her gold. You get Strength, Resistance and Haste II; the three are tougher and heal.
+
+### Ground forges
+Toss the pieces together on the ground and they fuse over four seconds. They're locked while they burn; if a piece is lost, the forge cools and frees the rest.
+- **The Huntmaster's Relic:** the four Overworld roaming bosses' relics. **The Riftbound Relic:** the Gauntlet and the Scepter.
+  - Each is one weapon; F turns it to the next relic. The catalysts still pick its class, and it's always at home strength.
+- **The Starheart:** a Fallen Star by a Heartstone, under the night sky. +1 heart past the Heartstone cap, up to five.
+- **The Talisman of the Three Nights:** 8 Blood Crystals, 8 Lucky Tokens and a Red Xenite, by night. Each special night's boon while you carry it.
+
+### The Trophy Stand
+Madame Velour sells it for 3 Trophies.
+- Set it down on a block and right-click it. It shows **your** boss trophies, your best heist-room metals and your laurels as models, with a plaque.
+- It folds away on another click, or when nobody is near. Sneak + punch picks it up.
+
+### Fixes
+- **A stray heist tag clears itself.** A command, a crash or a lost connection could leave a player still marked as on a heist. Followers' rules and the Bond Sigil then treated them as raiding. Anyone out of the gutter for 30 seconds with the tag is now properly taken off the heist, and their kept gear is handed back.
+
+### Testing
+- **New bot playtests:**
+  - t180 (the forges) and t181 (the Trophy Stand).
+  - t182 (Dennis and Pistachio as traders: their rooms, lots, limits, favour, the rune and the seal at work, the 50th trade).
+  - t183 (both followers through the whole checklist, their fighting, Fortune V and Looting V).
+  - t136 now also covers the two new pairs and the trio. t138, t145, t146, t156 and t158 include Dennis and Pistachio.
+- **Tests now unload every chunk they force-load,** and only the ones they added; a chunk the pack holds is never released. Obsolete tests were removed and stale steps brought up to date.
 
 ## New in 2.80c: diamond and netherite looks for every follower
 

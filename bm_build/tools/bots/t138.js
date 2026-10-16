@@ -73,7 +73,8 @@ const res = [];
   const NFROG = parts('frog_signet'), NDON = parts('donado_tag');
   const ALL = [['celi_charm', 'Celi', 9], ['demo_seal', 'Democratus', 8], ['emma_ribbon', 'Emma', 6], ['kw_spark', 'KillerWatt', 8], ['apo_oath', 'Apophiss', 12],
                ['tul_coin', 'Tullius', 9], ['donadian_medal', 'Zib', 9], ['cecil_gem', 'Cecil', 5], ['pearl_card', 'Pearlman', 1],
-               ['frog_signet', 'the Frog with Mustache', NFROG], ['donado_tag', 'Donado', NDON], ['wilfrey_locket', 'Wilfrey', 1], ['fy_bowl', 'Fishy', 9]];
+               ['frog_signet', 'the Frog with Mustache', NFROG], ['donado_tag', 'Donado', NDON], ['wilfrey_locket', 'Wilfrey', 1], ['fy_bowl', 'Fishy', 9],
+               ['dw_horn', 'Dennis', 9], ['pi_cloche', 'Pistachio', 8]];
   for (const [iid, name, n] of ALL) {
     await run(`loot replace entity TestRat hotbar.2 loot bm:items/${iid}`); A.slot(2); await sleep(300);
     box = await entOf(A, caseSel); if (box) A.interact(box.entityId); await sleep(700);

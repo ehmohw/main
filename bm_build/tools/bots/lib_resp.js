@@ -84,6 +84,9 @@ function bot(name) {
     // (26.3's player actions: 1 is CHANGE_DESTROY_DIRECTION, so 6 is RELEASE_USE_ITEM and 7 is SWAP_ITEM_WITH_OFFHAND - the F key)
     c.swap = () => c.write('block_dig', { status: 7, location: { x: 0, y: 0, z: 0 }, face: 0, sequence: c.seq++ });
     c.drop = (stack = false) => c.write('block_dig', { status: stack ? 4 : 5, location: { x: 0, y: 0, z: 0 }, face: 0, sequence: c.seq++ });   // Q (ctrl+Q: the stack)
+    // (mining: 26.3's actions are 0 START_DESTROY, 1 CHANGE_DESTROY_DIRECTION, 2 ABORT_DESTROY, 3 STOP_DESTROY - "2" gives up the block)
+    c.mine = async (x, y, z, ms = 200, face = 1) => { c.write('block_dig', { status: 0, location: { x, y, z }, face, sequence: c.seq++ }); await new Promise(r => setTimeout(r, ms));
+      c.write('block_dig', { status: 3, location: { x, y, z }, face, sequence: c.seq++ }); };
     c.input = (flags) => c.write('player_input', { inputs: flags });
     c.interact = (eid, sneaking = false) => c.write('use_entity', { target: eid, hand: 'main_hand', location: { x: 0, y: 0.5, z: 0 }, sneaking });
     c.attack = (eid) => c.write('attack', { entityId: eid });
