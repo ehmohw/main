@@ -24,11 +24,12 @@ import gild
 import phase103 as P103
 
 GOLD = '#ffcf40'
-ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy']
+ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio']
 # follower: (host type, host tag[s]) - the animal underneath, whose owner the aura belongs to
 HOST = {'emma': ('cat', 'bm.emmapet'), 'celi': ('wolf', 'bm.celipet'), 'zib': ('wolf', 'bm.zibpet'), 'cecil': ('wolf', 'bm.cecilpet'),
         'kw': ('wolf', 'bm.kxpet'), 'leo': ('wolf', 'bm.leopet'), 'demo': ('wolf', 'bm.dmpet'), 'apo': ('wolf', 'bm.appet'), 'tul': ('wolf', 'bm.tupet'),
-        'frog': ('wolf', 'bm.frogpet'), 'don': ('wolf', 'bm.donado'), 'pearl': ('cat', 'bm.pmpet'), 'wil': ('wolf', 'bm.wilfrey'), 'fishy': ('wolf', 'bm.fypet')}
+        'frog': ('wolf', 'bm.frogpet'), 'don': ('wolf', 'bm.donado'), 'pearl': ('cat', 'bm.pmpet'), 'wil': ('wolf', 'bm.wilfrey'), 'fishy': ('wolf', 'bm.fypet'),
+        'dennis': ('wolf', 'bm.dwpet'), 'pistachio': ('wolf', 'bm.pipet')}
 dust = lambda r, g, b, s=1.0: f'minecraft:dust{{color:[{r},{g},{b}],scale:{s}}}'
 # follower: (aura name, colour, ring height, ring radius, the ring's mote, the haze [particle commands at the follower])
 AURA = {
@@ -52,12 +53,17 @@ AURA = {
     'wil': ('Lordly Radiance', '#f4f4f4', 1.5, 0.85, dust(0.95, 0.95, 1.0, 1.2), ['particle minecraft:soul ~ ~1 ~ 0.3 0.6 0.3 0.01 1',
                                                                                   'particle minecraft:white_ash ~ ~2 ~ 0.5 0.3 0.5 0 3']),
     'fishy': ('Bubble Halo', '#ffa040', 1.95, 0.75, 'minecraft:bubble_pop', ['particle minecraft:dripping_water ~ ~2.1 ~ 0.35 0.05 0.35 0 1',
-                                                                            f'particle {dust(1.0, 0.62, 0.2, 0.8)} ~ ~1.3 ~ 0.4 0.5 0.4 0 2'])}
+                                                                            f'particle {dust(1.0, 0.62, 0.2, 0.8)} ~ ~1.3 ~ 0.4 0.5 0.4 0 2']),
+    'dennis': ('Gold Rush Glimmer', '#e0a040', 1.7, 0.8, 'minecraft:wax_on', ['particle minecraft:item{item:"minecraft:gold_nugget"} ~ ~1.8 ~ 0.35 0.1 0.35 0.02 1',
+                                                                             f'particle {dust(1.0, 0.82, 0.25, 0.8)} ~ ~1 ~ 0.4 0.6 0.4 0 2']),
+    'pistachio': ('Ectoplasmic Mist', '#7ae890', 1.9, 0.8, 'minecraft:soul', ['particle minecraft:sculk_soul ~ ~0.3 ~ 0.4 0.1 0.4 0.01 1',
+                                                                             f'particle {dust(0.48, 0.91, 0.56, 0.9)} ~ ~1.1 ~ 0.45 0.6 0.45 0 2'])}
 assert set(AURA) == set(ORDER) == set(HOST) == set(P99.BASE)
 PRICE = 1280                                 # coins at the Tailor (10 Gutter Trophies)
 FIND = {3: 8, 4: 15, 5: 25}                  # per mille, a won heist of tier III / IV / V
 TL2 = 8100                                   # the Tailor's second block (phase103): 8106 the auras page, 8150-8162 an aura each
 AURA_PAGE, AURA_BUY = TL2 + 6, TL2 + 50
+acode = lambda i: AURA_BUY + i if i < 14 else TL2 + 96 + (i - 14)          # (2.80d: past the fourteenth, 8196 on - 8164 on are outfits)
 
 for _w in ORDER:
     _n, _c = AURA[_w][0], AURA[_w][1]
@@ -72,17 +78,19 @@ for _w in ORDER:
 P103.EXTRA_MAIN.append(P28.btn([T('Auras', '#e080ff', bold=True), T('  (rare)', 'dark_gray')], AURA_PAGE, width=180))
 P103.EXTRA_PAGES.append('auras')
 P103.EXTRA_ACT.append(f'execute if score #act bm.pay matches {AURA_PAGE} run return run function bm:p103/tl/auras')
-P103.EXTRA_ACT.extend(f'execute if score #act bm.pay matches {AURA_BUY + i} run return run function bm:p138/tl/a{i}' for i in range(len(ORDER)))
+P103.EXTRA_ACT.extend(f'execute if score #act bm.pay matches {acode(i)} run return run function bm:p138/tl/a{i}' for i in range(len(ORDER)))
 
 # ====================================================================== the recolours (resource pack)
 RECOL = {'apo': ('apophiss_art', ('apo_scale', 'apo_scale_dk', 'apo_fin', 'apo_belly')),
          'tul': ('tullius_art', ('tu_coat', 'tu_coat_dk', 'tu_hat')),
          'don': ('phase25', ('don_fur', 'don_ear', 'don_patch', 'don_muzzle')),
          'pearl': ('phase60', ('pm_blue', 'pm_dblue')),
-         'fishy': ('fishy_art', ('fy_hat', 'fy_hatband'))}
+         'fishy': ('fishy_art', ('fy_hat', 'fy_hatband')),
+         'dennis': ('dennis_art', ('dw_jacket', 'dw_jacket_dk')), 'pistachio': ('pistachio_art', ('ps_coat', 'ps_coat_dk', 'ps_lapel'))}
 FROG_SKIN = {1: ('light_blue_wool', 'blue_wool'), 2: ('orange_wool', 'red_wool'), 3: ('brown_wool', 'brown_terracotta'), 4: ('yellow_wool', 'yellow_terracotta')}
 ITEMS_OF = {'apo': lambda n: n.startswith('apo_'), 'tul': lambda n: n.startswith('tu_'), 'frog': lambda n: n == 'frog',
-            'don': lambda n: n == 'donado' or (n.startswith('dnr_') and not n.startswith('dnr_eyes')), 'pearl': lambda n: n == 'pearlman', 'fishy': lambda n: n.startswith('fy_') and n != 'fy_bowl'}
+            'don': lambda n: n == 'donado' or (n.startswith('dnr_') and not n.startswith('dnr_eyes')), 'pearl': lambda n: n == 'pearlman', 'fishy': lambda n: n.startswith('fy_') and n != 'fy_bowl',
+            'dennis': lambda n: n.startswith('dw_') and n != 'dw_horn', 'pistachio': lambda n: n.startswith('ps_')}
 
 
 def textures():
@@ -329,7 +337,7 @@ def generate(G):
                     [P28.body([T('The rarest thing I sell: a follower\'s own aura - a ring of light and a haze all theirs. ', 'gray'),
                                T('Yours for good; switch it on and off in their wardrobe.', 'dark_gray')], 360), P28.body(wal, 360)],
                     [P28.btn([T(AURA[w][0], AURA[w][1], bold=True), T(f' ({P99.NAMES[w][0] if w != "frog" else "the Frog"})  ', 'gray'), f'@@RAW:r_a{i}@@'],
-                             AURA_BUY + i, width=200) for i, w in enumerate(ORDER)] + [P28.btn([T('« The Tailor', 'gray')], TL, width=200)],
+                             acode(i), width=200) for i, w in enumerate(ORDER)] + [P28.btn([T('« The Tailor', 'gray')], TL, width=200)],
                     columns=2, exit_label='Close')
     fn('p103/tl/auras', ['function bm:p103/wallet', f'scoreboard players set @s bm.menu {TL}'] + rows + ['function bm:p103/tl/auras_dlg with storage bm:ui tl'])
     fn('p103/tl/auras_dlg', [f'$dialog show @s {P28.inline(dlg)}'])

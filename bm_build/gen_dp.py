@@ -145,6 +145,8 @@ import phase158 as R158      # 2.80b: Cecil's dolls wait until you've met their 
 import phase159 as R159      # 2.80b: the market, dungeons and bosses, the Hollow and the items, debugged
 import phase161 as R161      # 2.80d: the Trophy Stand
 import phase160 as R160      # 2.80d: ground forges - the Huntmaster's and Riftbound relics, the Starheart, the Three Nights
+import phase162 as R162      # 2.80d: Dennis and Pistachio in the Black Market - ore and mob parts for Tokens, their rune and seal
+import phase163 as R163      # 2.80d: Dennis and Pistachio, the followers (fifty trades), their pairs and the Crown's Prospect
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
@@ -1201,6 +1203,7 @@ def build(out_dir):
     if PHASE2: R131.generate(sys.modules[__name__])
     if PHASE2: R132.generate(sys.modules[__name__])
     if PHASE2: R145.generate_early(sys.modules[__name__])
+    if PHASE2: R163.generate_early(sys.modules[__name__])
     if PHASE2: R133.generate(sys.modules[__name__])
     if PHASE2: R134.generate(sys.modules[__name__])
     if PHASE2: R135.generate(sys.modules[__name__])
@@ -1213,6 +1216,7 @@ def build(out_dir):
     if PHASE2: R142.generate(sys.modules[__name__])
     if PHASE2: R144.generate(sys.modules[__name__])
     if PHASE2: R145.generate(sys.modules[__name__])
+    if PHASE2: R163.generate(sys.modules[__name__])
     R146.generate(sys.modules[__name__])
     R147.generate(sys.modules[__name__])
     R148.generate(sys.modules[__name__])
@@ -1229,6 +1233,7 @@ def build(out_dir):
     R159.generate(sys.modules[__name__])
     R160.generate(sys.modules[__name__])
     R161.generate(sys.modules[__name__])
+    if PHASE2: R162.generate(sys.modules[__name__])
     # 2.79: the mob rolls (elite, champion, lucky, prime, Blood Moon, invasion) leave alone a mob someone named or froze - a
     #  player's name-tagged pet, Wilfrey's body, the hidden trio's Eggbert, a statue: they were renamed and re-statted
     for _n, _lines in FUNCS.items():
