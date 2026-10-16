@@ -140,12 +140,17 @@ def _unbreakable(base, comps):
     return {'minecraft:unbreakable': {}, 'minecraft:tooltip_display': td}
 
 
+# (2.80g) the kit never burns: dropped into lava or fire it floats there unharmed until it's back in your hands
+FIREPROOF = 'minecraft:damage_resistant={types:"#minecraft:is_fire"}'
+
+
 def kit_arg(iid, role=None, extra=None):
     """an item argument for a loaner: the BM item, marked bm_kit, with a line saying so"""
     if ':' in iid:
         ex = dict(_unbreakable(iid, {}), **(extra or {}))
         more = ''.join(f',{k}={snbt(v)}' for k, v in ex.items())
-        return f'{iid}[minecraft:custom_data={{bm_kit:1b}},minecraft:lore=[{snbt(T("Loaned by the Fixer - stays in the vault.", "dark_gray"))}]{more}]'
+        return (f'{iid}[minecraft:custom_data={{bm_kit:1b}},minecraft:lore=[{snbt(T("Loaned by the Fixer - stays in the vault.", "dark_gray"))}]{more},'
+                f'{FIREPROOF}]')
     it = ITEMS[iid]; parts = []
     comps = dict(it['comps'])
     am = kit_armor(it, role)
@@ -155,6 +160,7 @@ def kit_arg(iid, role=None, extra=None):
         comps['minecraft:attribute_modifiers'] = [dict(md, amount=D(md['amount'])) for md in am]
         # (2.67) loaned armour stays on until the heist is over: Curse of Binding (the exit takes it off you)
         comps['minecraft:enchantments'] = dict(comps.get('minecraft:enchantments', {}), **{'minecraft:binding_curse': 1})
+    comps.setdefault('minecraft:damage_resistant', {'types': '#minecraft:is_fire'})
     for k, v in comps.items():
         if k == 'minecraft:custom_data': v = dict(v, bm_kit=B(1))
         if k == 'minecraft:lore': v = list(v) + [T('Loaned by the Fixer - stays in the vault.', 'dark_gray')]

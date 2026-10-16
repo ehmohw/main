@@ -32,6 +32,19 @@ def generate(G):
     P = [T('[', 'dark_gray'), T('Black Market', 'dark_purple', bold=True), T('] ', 'dark_gray')]
     say = lambda txt, col='gray': tellraw('@s', P + [T(txt, col)])
 
+    # ---- (2.80g) the crafting grid and the cursor: commands only read the Inventory, so what sat in the 2x2 grid (or on the cursor,
+    #      the screen open through a "hold still" trip) was missed by the check - and lost on the way. Before every check and every
+    #      hand-back it all goes into the pack (at your feet if the pack is full), and is checked and handed back with the rest.
+    HANDS = ['player.cursor'] + [f'player.crafting.{i}' for i in range(4)]
+    for i, cs in enumerate(HANDS):
+        fn(f'p155/hand{i}', [f'execute unless items entity @s {cs} * run return 0'] +
+           [f'execute unless items entity @s container.{n} * run return run function bm:p155/hand_mv{i} {{n:{n}}}' for n in range(36)] +
+           ['summon minecraft:item ~ ~0.3 ~ {Item:{id:"minecraft:stone",count:1},Tags:["bm.hdnew"],PickupDelay:10s}',
+            f'item replace entity @e[type=minecraft:item,tag=bm.hdnew,limit=1,sort=nearest] contents from entity @s {cs}',
+            'tag @e[type=minecraft:item,tag=bm.hdnew] remove bm.hdnew', f'item replace entity @s {cs} with minecraft:air'])
+        fn(f'p155/hand_mv{i}', [f'$item replace entity @s container.$(n) from entity @s {cs}', f'item replace entity @s {cs} with minecraft:air'])
+    fn('p155/hands', [f'function bm:p155/hand{i}' for i in range(len(HANDS))])
+
     # ---- the Locker Hall's door: checked like the Lounge's (from outside the vault)
     enter = G.FUNCS['p84/lk/enter']
     enter[0:0] = ['scoreboard players set #lgno bm.rng 0',
@@ -53,6 +66,8 @@ def generate(G):
     b2 = G.FUNCS['p72/bag/check2']
     assert 'still minding your last lot' in b2[0], b2[0][:80]
     b2[0] = '$execute if data storage bm:gv bag.p$(pid) run return run function bm:p155/stale_in'
+    b2.insert(0, 'execute at @s run function bm:p155/hands')            # (2.80g: the grid and cursor into the pack first)
+    G.FUNCS['p72/bag/restore2'].insert(0, 'execute at @s run function bm:p155/hands')
     fn('p155/stale_in', ['tag @s add bm.lgchk', 'function bm:p121/strip', 'tag @s remove bm.lgchk',
                          say('The Fixer is still minding your last lot of gear - what you carry joins it. You\'ll have it all back at home.', '#ffcf40')])
     # (p121/strip says its own word in the Lounge; at the heist's door it's said above)

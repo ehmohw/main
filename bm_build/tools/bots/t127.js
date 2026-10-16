@@ -60,7 +60,8 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
      `gvpt ${await sc('TestRat', 'bm.gvpt')} ${A.chats.concat(A.bars).slice(-3).join(' | ').slice(0, 200)}`);
   await run('execute in bm:gutter as @e[type=minecraft:marker,tag=bm.lgexit,limit=1] at @s run tp TestRat ~ ~ ~'); await sleep(1500);
   // 7. the supply barrels: stocked, and topped up when a part runs out everywhere
-  await run('execute in minecraft:overworld run tp TestRat 13000.5 121 13000.5'); await run('clear TestRat');
+  await run('execute in minecraft:overworld run forceload add 13000 13000 13016 13016');     // (loaded before the stage is set)
+  await run('execute in minecraft:overworld run tp TestRat 13000.5 121 13000.5'); await run('clear TestRat'); await sleep(2000);
   await run('execute in minecraft:overworld run kill @e[type=minecraft:marker,tag=t127m]');
   await run('execute in minecraft:overworld run summon minecraft:marker 13012 121 13000 {Tags:["t127m"]}');
   for (const [x, z] of [[6, 20], [11, 20], [16, 20]]) await run(`execute in minecraft:overworld positioned 13012 121 13000 run setblock ~${x - 12} ~ ~${z - 12} minecraft:barrel`);
@@ -69,8 +70,8 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
   ok('A Tinker\'s Bench barrel holds two sets of the parts', /iron_ingot/.test(b0) && /count: 8/.test(b0), b0.slice(0, 160));
   await run('scoreboard players set @e[type=minecraft:marker,tag=t127m] bm.gvs 1');
   for (const [x, z] of [[6, 20], [11, 20], [16, 20]]) await run(`execute in minecraft:overworld positioned 13012 121 13000 run item replace block ~${x - 12} ~ ~${z - 12} container.0 with minecraft:air`);
-  await sleep(1600);
-  const b1 = await run('execute in minecraft:overworld run data get block 13006 121 13008 Items');
+  let b1 = '';
+  for (let k = 0; k < 40 && !/iron_ingot/.test(b1); k++) { await sleep(100); b1 = await run('execute in minecraft:overworld run data get block 13006 121 13008 Items'); }
   ok('Iron run out everywhere: the Fixer tops the barrels up', /iron_ingot/.test(b1), b1.slice(0, 120));
   await run('execute in minecraft:overworld run kill @e[type=minecraft:marker,tag=t127m]');
   console.log(A.chats.slice(-6).join(' | ').slice(0, 600));

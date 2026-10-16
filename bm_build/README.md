@@ -1,4 +1,4 @@
-# Black Market — v2.80f (Java 26.3)
+# Black Market — v2.80g (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,31 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.80g: the heist, reviewed - the coat check, stuck rooms, the kit and the guardian
+
+### The coat check sees your crafting grid and your cursor
+The Ledger's Lounge trip makes you hold still for three seconds, and nothing stopped you opening your inventory meanwhile. An item parked in the 2x2 crafting grid, or held on the cursor, wasn't in the inventory the Fixer checked, so it dropped back into your pack inside the vault once you closed the screen. Now the grid and the cursor are emptied into your pack before the check, on the way in and on the way home, so they're checked and handed back with everything else.
+
+### No room the crew can't finish
+A fighting room opens when no guard or wave mob is left in it. So one the crew couldn't reach kept the door shut for good: a vex resting inside a wall, a shulker on the ceiling, a blaze or phantom up in the rafters, a guard wedged behind a prop. Now any of them that no raider has come within 7 blocks of for 40 seconds, while the crew is in that room, is **flushed out** to the middle of the room's floor and glows for a few seconds ("A straggler is flushed out into the open"). Bosses keep their own arenas.
+
+### The heist kit is never lost
+A loaned weapon dropped with Q used to come back within a quarter second, which was long enough to burn up in lava or fire. Now a dropped kit item is back in your hands the moment it lands, and the whole kit is **fireproof** (like netherite), so not even a slip into lava takes it. Paperweights and food can still be put down, as before. (The armour already has Curse of Binding.)
+
+### The vault's guardian, scaled for every crew
+The guardian grows 50% stronger for each raider past the first, but no mob in Minecraft holds more than 1024 health. So from Tier IV up, every crew of two or more met the same capped guardian: a crew of six fought a third of the guardian it was owed, its bar opened part-empty, and its shell came at the wrong times. Now the health past 1024 is a **reserve** that keeps it topped up. The bar and the shell read health and reserve together against the whole. If a raider leaves mid-fight, the whole eases down and what's left keeps its share.
+
+| Guardian | Solo | Crew of 2 | Crew of 4 | Crew of 6 |
+|---|---|---|---|---|
+| Tier III | 537 | 806 | 1343 (was 1024) | 1880 (was 1024) |
+| Tier IV | 728 | 1092 (was 1024) | 1820 (was 1024) | 2548 (was 1024) |
+| Tier V | 976 | 1464 (was 1024) | 2440 (was 1024) | 3416 (was 1024) |
+
+### Testing
+- New bot playtests: t187 (the crafting grid and cursor at the coat check), t188 (a straggler sealed out of reach is flushed out, and the room moves on), t189 (a kit weapon dropped over lava comes straight back; a kit weapon in lava doesn't burn; a paperweight still drops) and t190 (the guardian in a two-raider Tier V heist: whole health, the reserve topping it up, the bar, a raider leaving, the shell at half).
+- t127 (the Tinker's Bench barrels) now loads the area before staging it; it was reading the barrel before the chunk was ready.
+- t170, t122, t172, t175, t124 and t80 rerun clean.
 
 ## New in 2.80f: Apophiss's Unbound Crown, and no more glowing outlines on custom mobs
 
