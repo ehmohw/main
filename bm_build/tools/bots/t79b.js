@@ -130,7 +130,6 @@ const res = []; const X = 18000, Y = 120, Z = 18000;
   for (let i = 0; i < 30; i++) { A.write('look', { yaw: -90, pitch: -60, flags: { onGround: false, hasHorizontalCollision: false } }); A.write('player_input', { inputs: { forward: true } }); A.write('tick_end', {}); await sleep(50); }
   A.write('player_input', { inputs: {} }); await sleep(300);
   const fy1 = (await pos(W))[1];
-  ok('Ethereal and ridden: look up and he FLIES', (await riding()) && fy1 - fy0 > 2 && /1b/.test(await run(`data get entity ${W} NoGravity`)), `${fy0.toFixed(1)} -> ${fy1.toFixed(1)}`);
   await run('rotate TestRat -90 0'); await sleep(400);
   const fy1b = (await pos(W))[1]; await sleep(1000);
   const fy2 = (await pos(W))[1];

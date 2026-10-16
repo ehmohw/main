@@ -43,6 +43,22 @@ Never rely on just running functions. Play as a regular player:
 `lib_resp.js` is the current library: `bot(name)`, `rcon()` (returns `run(cmd)` and `end()`), `sleep(ms)`. `lib.js` is
 the older one, without dialog tracking, and many early tests use it. `h110.js` holds helpers for single-room heists.
 
+## Chunks: every test leaves them as it found them (the standard)
+
+A test may force-load whatever it needs - `R.run('forceload add ...')`, in any dimension - and never has to remove
+it: `chunks.js`, which both rcon helpers (`lib.js`, `lib_resp.js`) send every command through, does it for every test.
+- Before each `forceload add` it asks the server what that dimension already holds; afterwards it remembers only the
+  chunks the test itself added. When the process exits - finished, crashed, a failed check, Ctrl+C or a sweep's
+  timeout (SIGTERM) - exactly those are released (`rc.js` runs the `forceload remove`s). Only SIGKILL skips it.
+- A chunk the pack holds is never released, even when a test asks for it again: the gutter's den, Lounge and Locker
+  Hall chunks (force-loaded for good by `bm:load` - t101 loads the den's own chunk), a raid instance's claimed slot,
+  the Hollow while it's being built. (A forceload has no owner count: removing one the pack holds unloads it for the
+  pack too, until the next `/reload`.)
+- The pack never force-loads the Overworld, the Nether or the End, so after a test or a sweep `node chunkcheck.js`
+  should list none there (`--clear` releases anything a SIGKILLed test left). The pack's own gutter and Hollow
+  chunks are listed for information only.
+- So: no `forceload remove` boilerplate in new tests, and no `forceload remove all` anywhere.
+
 ## Things that have bitten before
 
 - The bot doesn't fall by itself. After a drop, simulate the fall a tick at a time (`fall()` in `t133.js`), or the
@@ -239,7 +255,6 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t31.js` | first check: raw `time set 1000` no longer sends the count back to day 0 |
 | `t32.js` | first check: Lucky Night started |
 | `t33.js` | v2.32: the Horseman's Head in four classes, catalysts, the Pharaoh's Crook and Thunderbird Talon (all forms), the Sand Pharaoh, |
-| `t33p.js` | v2.32: the Horseman's Head in four classes, catalysts, the Pharaoh's Crook and Thunderbird Talon (all forms), the Sand Pharaoh, **(stale: superseded by t33, which waits out the 2.80 arrivals)** |
 | `t34.js` | v2.33: the Heartwood Branch, Molten Gauntlet and Void Scepter (all forms, catalysts); the Elder Treant, Magma Colossus and |
 | `t35.js` | v2.34: every roaming boss always drops its relic to a player's kill (3 kills each; 2.80: after its arrival, and its staged death) |
 | `t36.js` | v2.35: sockets by material (vanilla only), red Vitality + size cycle, combos (incl. Bloodlust, Second Wind), Masterworks, |
@@ -247,8 +262,6 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t38.js` | v2.35: the chestplate essences/resonances against a real attacker (a husk with AI: the damage command never triggers on-hit enchantments) |
 | `t39.js` | v2.36 fixes: trades stay open (no re-teleport), Barnaby's spot, nameplates follow, Cecil's spawn on a step, admin/blood_moon |
 | `t39b.js` | - |
-| `t40.js` | v2.37 Emma: encounter + recruit, rig follows, states, modes + buffs, quick heal, charge, ethereal strike, harmony with Cecil, falling **(stale: expects the 10-minute faint rest and send-home on 7305)** |
-| `t41.js` | v2.38: the follower cap (3), the shifter and Emma's menu don't cross, Emma's lore lines **(stale: summons by function, so the 3-second item rule sends followers home)** |
 | `t42.js` | v2.40: KillerWatt's Tendrils, Apophiss's Crown, Leo's Trident, Cecil's Staff **(partly stale: Cecil no longer sells KillerWatt's gear (2.79b), and the chest-worn tendrils' yank and snatch went with 2.4x's equippable tendrils)** |
 | `t42b.js` | - |
 | `t43.js` | v2.42: two-blade tendrils + lunge; v2.41: tendrils worn on the chest (4 at the back, look-to-lash, sneak+jump fling, snatch, weather), crown at nig... **(partly stale: the chest-worn tendrils' checks predate the equippable tendrils)** |
@@ -276,14 +289,10 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t63.js` | first check: Hang Cecil's gem in a frame: an anchor appears, and Cecil comes out |
 | `t64.js` | first check: In the vault: adventure mode |
 | `t65.js` | first check: Cecil has five parts now (his free arm is its own), all on the new rig |
-| `t65c.js` | v2.65 content: the new rooms and events, secrets, rare foes, the heist items, the layout's connectivity **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
 | `t65k.js` | v2.65: kit abilities, hirelings, the Endless Vault, the Pit |
 | `t65m.js` | v2.65: who guards each tier, the tier guardians, the music, the themed stone |
-| `t65o.js` | v2.65: the 2.60 rooms still work in their new tiers (levers, plates, guards at I; tiles, lasers, dial at III), on a bench **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
-| `t65r.js` | v2.65 raid core: tries + fee + lucky pool, respawn in the den (and back), fail-reset, the pot, passages, dial button, one-time rewards, bond **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
-| `t66.js` | first check: The Heist Plans: pick tier V - you're led down into the vault **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
+| `t65o.js` | v2.65: the 2.60 rooms still work in their new tiers (levers, plates, guards at I; tiles, lasers, dial at III), on a bench |
 | `t67.js` | first check: The full Gilded set: no fall damage (fall damage x0) **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
-| `t68.js` | first check: A party member (not the leader) can't plan the heist **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
 | `t72.js` | first check: Display case: use it looking at the floor - a floor case stands there (case, contents, hitbox) **(partly stale: the raid flow it drives was reworked; t100 onward cover it as a regular player)** |
 | `t73.js` | first check: A bottled cow goes in a floor case: she appears on the cushion |
 | `t74.js` | first check: …: ladders all the way up (… rows) |
@@ -322,7 +331,6 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t115b.js` | 2.72 (II): room curses, forks in the road, corridor traps |
 | `t115c.js` | 2.72 (III): Smelling Salts, the Thief's Hourglass, the Alarm Jammer, Masterworks, the Codex, each tier's own finds |
 | `t118.js` | 2.73: a raid boss's minions fall with it |
-| `t119.js` | 2.74: outfits and Emma's buff from the Ledger; Emma remembers her buff **(stale: its helper hands out the retired Heist Plans)** |
 | `t120.js` | 2.74: checkpoint respawn + kept pockets, kit 32/4, Lights Out / Glass Cannon only out on the heist, den names + carpet, **(partly stale: its Gutter Bank steps predate the page-per-currency bank of 2.80a; t175 covers it)** |
 | `t121.js` | 2.74: the Fixer's Lounge - held still into it, every counter working there, its door home; the end-of-heist Go to the Lounge pressed (2.79: the real trigger, not a direct call); Leo's size |
 | `t122.js` | 2.74b: Speed Run with the alarm off, patrols stop at the vault, puzzle skip, a mistake's guard cleared, solo crew of 3, |

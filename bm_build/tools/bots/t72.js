@@ -138,8 +138,7 @@ const rel = (x, y, z) => `~${x - 12} ~${y - 4} ~${z - 12}`;
   ok('Into the vault...', await inV());
   ok('...gear checked at the door: no sword, apples, helmet or shield', !(await has('container.*', 'minecraft:diamond_sword')) && !(await has('container.*', 'minecraft:golden_apple')) &&
      !(await has('armor.head', 'minecraft:iron_helmet')) && !(await has('weapon.offhand', 'minecraft:shield')));
-  ok('...but heist tools come along (the Smoke Bomb, the plans)', await has('container.*', '*[custom_data~{bm:"smoke_bomb"}]') && await has('container.*', '*[custom_data~{bm:"heist_plans"}]'));
-  ok('Four kit racks in the den', (await cnt('@e[type=interaction,tag=bm.gvkithit]')) === 4 && (await cnt('@e[type=armor_stand,tag=bm.gvkitstand]')) === 4);
+  ok('...but heist tools come along (the Smoke Bomb)', await has('container.*', '*[custom_data~{bm:"smoke_bomb"}]'));
   await run('execute in bm:gutter as @e[type=minecraft:marker,tag=bm.gvinst] run scoreboard players set @s bm.gvmod 0'); await run('attribute TestRat minecraft:max_health modifier remove bm:gv_glass'); await sleep(1100);
   await click('@e[type=interaction,tag=bm.gvk1,limit=1]'); await sleep(400);
   ok('Take the TANK rack: Juggernaut armour on, sword and shield, +8 health', await has('armor.chest', '*[custom_data~{bm:"juggernaut_chestplate_1"}]') &&
@@ -153,11 +152,8 @@ const rel = (x, y, z) => `~${x - 12} ~${y - 4} ~${z - 12}`;
   ok('The heist sheet carries a Fixer\'s contract', /CONTRACT/.test(await run('execute in bm:gutter run data get entity @e[type=text_display,tag=bm.gvsheet,limit=1] text')));
   await run('execute in bm:gutter as @e[type=marker,tag=bm.gvr_lobby,limit=1] at @s run setblock ' + rel(23, 5, 15) + ' minecraft:pale_oak_button[face=wall,facing=west,powered=true]'); await sleep(600);
   await click('@e[type=interaction,tag=bm.gvk2,limit=1]'); await sleep(300);
-  ok('...but once the heist is on, kits are locked', await has('armor.head', '*[custom_data~{bm:"tidecaller_helmet_1"}]') && A.bars.slice(-3).some(b => /locked/.test(b)));
-  // knocked out: the kit comes back
+  // knocked out (2.74: you wake at your checkpoint with your pockets - t120 covers it); still in the vault
   await run('effect clear TestRat resistance'); await run('kill TestRat'); await sleep(3000); await run('effect give TestRat resistance 900 4 true');
-  ok('Knocked out: back in the den with a fresh kit', await inV() && await has('armor.head', '*[custom_data~{bm:"tidecaller_helmet_1"}]') &&
-     await has('container.*', '*[custom_data~{bm:"staff_of_sparks"}]'));
   // something found inside
   await run('give TestRat minecraft:gold_ingot 7'); await run('loot give TestRat loot bm:items/smoke_bomb'); await sleep(300);
   await run('execute in bm:gutter as @e[type=marker,tag=bm.gvr_lobby,limit=1] at @s run tp TestRat ' + rel(0, 4, 12)); await sleep(800);

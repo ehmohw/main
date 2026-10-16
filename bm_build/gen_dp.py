@@ -143,6 +143,8 @@ import phase156 as R156      # 2.80a: the raid debugged (a finished heist closes
 import phase157 as R157      # 2.80b: the special nights debugged (the Vorn beasts leave at dawn)
 import phase158 as R158      # 2.80b: Cecil's dolls wait until you've met their follower
 import phase159 as R159      # 2.80b: the market, dungeons and bosses, the Hollow and the items, debugged
+import phase161 as R161      # 2.80d: the Trophy Stand
+import phase160 as R160      # 2.80d: ground forges - the Huntmaster's and Riftbound relics, the Starheart, the Three Nights
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
@@ -406,6 +408,7 @@ def all_offers():
     R124.extend_offers(O, offer)
     R141.extend_offers(O, offer)
     R146.extend_offers(O, offer)
+    R161.extend_offers(O, offer)
     return O
 
 
@@ -1224,6 +1227,8 @@ def build(out_dir):
     R157.generate(sys.modules[__name__])
     R158.generate(sys.modules[__name__])
     R159.generate(sys.modules[__name__])
+    R160.generate(sys.modules[__name__])
+    R161.generate(sys.modules[__name__])
     # 2.79: the mob rolls (elite, champion, lucky, prime, Blood Moon, invasion) leave alone a mob someone named or froze - a
     #  player's name-tagged pet, Wilfrey's body, the hidden trio's Eggbert, a statue: they were renamed and re-statted
     for _n, _lines in FUNCS.items():

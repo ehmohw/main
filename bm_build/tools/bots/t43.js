@@ -17,16 +17,12 @@ const res = [];
   await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..40]`); await run('time set noon'); await run('weather clear'); await run('kill @e[type=cat,tag=bm.emmapet]');
   await run('scoreboard players reset TestRat bm.kwmd');   // (the mode is the player's own and stays: a fresh player starts in OFFENSE)
   await run('execute as TestRat run function bm:admin/cecil_relics'); await sleep(300);
-  // ---- the tendrils, worn
+  // ---- the tendrils, worn (2.4x: worn on the wings layer - their look, lash and storm strikes are t98's; here: no armour, the lunge, yank, fling, snatch, no fall damage)
   await run('item replace entity TestRat armor.chest from entity TestRat hotbar.0'); await run('item replace entity TestRat hotbar.0 with air'); await sleep(800);
-  ok('Tendrils worn on the chest: four two-blade tendrils (8 displays) sprout at your back', (await cnt(`@e[type=item_display,tag=bm.kwt,x=${X},y=${Y},z=${Z},distance=..4]`)) === 8);
-  ok('...each a base blade and a tip blade', (await cnt('@e[type=item_display,tag=bm.kws_b]')) === 4 && (await cnt('@e[type=item_display,tag=bm.kws_t]')) === 4);
   const tp0 = await pos('@e[type=item_display,tag=bm.kwt_ul,limit=1]');
-  ok('...the upper-left one sits behind your left shoulder', tp0 && tp0[2] < Z + 0.5 - 0.1 && Math.abs(tp0[1] - (Y + 1 + 1.3)) < 0.05 && tp0[0] > X + 0.5, tp0 && tp0.map(v => v.toFixed(2)).join(' '));
   ok('...no armour (the chest slot gives none)', (await num('attribute TestRat minecraft:armor get')) === 0);
   await run(`tp TestRat ${X + 5.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(400);
   const tp1 = await pos('@e[type=item_display,tag=bm.kwt_ul,limit=1]');
-  ok('...and they follow you', tp1 && Math.abs(tp1[0] - X - 5.63) < 0.1, tp1 && tp1.map(v => v.toFixed(2)).join(' '));
   await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(300);
   await mob(X + 0.5, Z + 10.5, 'bm.z1'); await mob(X + 3.0, Z + 11.0, 'bm.z2');
   await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} facing ${X + 0.5} ${Y + 2} ${Z + 10.5}`);
@@ -37,12 +33,9 @@ const res = [];
   ok('...the striking tendril lunges forward (timer runs, then settles)', lt > 0 && lk >= 0 && lk <= 3, `kwlt max ${lt}, kwlk ${lk}`);
   await sleep(300);
   const z1 = await hp('bm.z1'), z2 = await hp('bm.z2');
-  ok('Look at a monster: a tendril lashes it (10 a lash, ~1 a second) and it arcs (5)', z1 <= 191 && z2 < 200, `${z1} / ${z2}`);
   await run('kill @e[tag=bm.t43]'); await sleep(300); await run('weather rain'); await sleep(500);
   await mob(X + 0.5, Z + 10.5, 'bm.z3'); await sleep(200); const r0 = await hp('bm.z3'); await sleep(1300); const r1 = await hp('bm.z3');
-  ok('...in the rain: 13 a lash', (r0 - r1) % 13 < 0.5 || (r0 - r1) % 13 > 12.5, `${r0} -> ${r1}`);
   await run('weather thunder'); await sleep(6000); await run('kill @e[tag=bm.t43]'); await mob(X + 0.5, Z + 10.5, 'bm.z4'); await sleep(1600);
-  ok('...in a thunderstorm: 16 a lash, and lightning falls on it', (await hp('bm.z4')) <= 184.1 && (await cnt(`@e[type=lightning_bolt,x=${X},y=${Y},z=${Z},distance=..30]`)) + 1 > 0, `${await hp('bm.z4')}`);
   ok('...storm: Speed II and Strength', /speed/.test(await effects()) && /strength/.test(await effects()));
   await run('weather clear'); await run('kill @e[tag=bm.t43]'); await run('effect clear TestRat'); await sleep(500);
   // sneak: yank

@@ -47,4 +47,9 @@ Never rely on just running functions. Playtest as a regular, non-operator player
 
 Use rcon only to set the stage.
 
+Chunks a test force-loads are released when it ends - every test, automatically (`tools/bots/chunks.js`, through the
+rcon helpers): only the chunks the test itself added, never one the pack holds (the gutter's den, Lounge and Locker Hall
+are force-loaded for good). After a sweep, `node chunkcheck.js` should show none left in the Overworld, Nether or End.
+Retire a test once newer as-a-player tests cover it, or trim its stale steps; don't leave stale tests in the index.
+
 The bots that play this way live in `bm_build/tools/bots` (`node t133.js`, for example). Its README covers the library, the gotchas learned so far, and an index of every test. Add new tests there.

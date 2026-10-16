@@ -2,6 +2,7 @@
 process.env.PV = '777';
 const mc = require('minecraft-protocol');
 const net = require('net');
+const chunks = require('./chunks');
 
 function text(nbt) {   // flatten an anonymous-NBT text component to a plain string
   const walk = (n) => {
@@ -72,7 +73,7 @@ function rcon() {
         if (wait[i]) { wait[i](body); delete wait[i]; }
       }
     });
-    s.on('connect', async () => { await send(3, 'bmtest'); res({ run: (c) => send(2, c), end: () => s.end() }); });
+    s.on('connect', async () => { await send(3, 'bmtest'); res({ run: (c) => chunks.wrap(c, (cc) => send(2, cc)), end: () => s.end() }); });
   });
 }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

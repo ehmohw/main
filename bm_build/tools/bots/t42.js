@@ -24,27 +24,14 @@ const res = [];
   // slots: 0 tendrils, 1 crown, 2 trident, 3 staff (admin gives in that order)
   let all = true; for (const k of ['killerwatt_tendrils', 'apophiss_crown', 'leo_trident', 'cecil_staff']) all = all && /Found 1 /.test(await run(`clear TestRat *[custom_data~{bm:"${k}"}] 0`));
   ok('Cecil\'s relics: all four given', all);
-  { const w = require('fs').readFileSync(BMB + 'out_p2/BlackMarket_DP/data/bm/function/npc/wizard.mcfunction', 'utf8');
-    ok('Cecil sells all four', ['killerwatt_tendrils', 'apophiss_crown', 'leo_trident', 'cecil_staff'].every(k => w.includes(k))); }
   A.slot(0); await sleep(300);
-  // ---- tendrils: zap with an arc
-  await zombie(X + 0.5, Z + 10.5, 'bm.z1'); await zombie(X + 3.5, Z + 11.5, 'bm.z2');
-  await face(X + 0.5, Y + 2, Z + 10.5);
-  await use(); await sleep(300);
-  const z1 = await hp('bm.z1'), z2 = await hp('bm.z2');
-  ok('Tendrils: a monster 10 blocks off is struck (10), the lightning arcs to its neighbour (5)', z1 <= 190.5 && z2 <= 195.5 && z2 > 180, `${z1} / ${z2}`);
+  // ---- tendrils (2.4x: worn as equipment - their zap and snatch are covered by t43): the sneak + use yank
   // sneak: yank it to you
   await run(`summon husk ${X + 0.5} ${Y + 1} ${Z + 10.5} {PersistenceRequired:1b,Silent:1b,Tags:["bm.zy","bm.t42"],attributes:[{id:"minecraft:movement_speed",base:0.0d}],active_effects:[{id:"minecraft:fire_resistance",duration:-1,amplifier:0b}]}`);
   await run('kill @e[tag=bm.z1]'); await sleep(900); const p0 = await pos('@e[tag=bm.zy,limit=1]'); await sneakUse(); await sleep(400);
   const p1 = await pos('@e[tag=bm.zy,limit=1]');
   ok('...sneak + use: the monster is yanked toward you', p0 && p1 && p1[2] < p0[2] - 1.0, `${p0 && p0[2].toFixed(2)} -> ${p1 && p1[2].toFixed(2)}`);
   await run('kill @e[tag=bm.t42]'); await sleep(1100);
-  // an item: snatched
-  await run(`summon item ${X + 0.5} ${Y + 1} ${Z + 8.5} {Item:{id:"minecraft:apple",count:1},PickupDelay:40,Tags:["bm.t42i"]}`); await sleep(300);
-  await face(X + 0.5, Y + 1.2, Z + 8.5); await use();
-  const ip = await pos('@e[tag=bm.t42i,limit=1]');
-  ok('...an item 8 blocks off is snatched to you', ip && Math.abs(ip[2] - Z - 0.5) < 1.5, ip && ip.map(v => v.toFixed(1)).join(' '));
-  await run('kill @e[tag=bm.t42i]'); await sleep(1100);
   // a block: flung toward it (the enchantment's impulse fires and clears the tag)
   await run(`fill ${X - 1} ${Y + 1} ${Z + 12} ${X + 2} ${Y + 6} ${Z + 12} stone`); await face(X + 0.5, Y + 2.5, Z + 12);
   await use(); await sleep(150);
@@ -92,7 +79,7 @@ const res = [];
   const hh = await num('data get entity TestRat Health');
   ok('...sneak + use: it mends you (+4 at once)', hh >= h0 + 3.9, `health ${h0} -> ${hh}`);
   await run('effect clear TestRat'); await run('damage TestRat 6 minecraft:out_of_world'); await sleep(100); const h1 = await num('data get entity TestRat Health'); await sneakUse(); await sleep(200);
-  ok('...then needs 20 s', (await num('data get entity TestRat Health')) < h1 + 2, `${h1}`);
+  ok('...then needs 20 s (no second +4; saturation may heal a point)', (await num('data get entity TestRat Health')) < h1 + 3.5, `${h1}`);
   await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..40]`); await run('clear TestRat'); await run(`forceload remove ${X - 30} ${Z - 30} ${X + 30} ${Z + 30}`);
   console.log(`\n${res.filter(x => x).length}/${res.length} passed`); A.end(); R.end(); process.exit(0);
 })().catch(e => { console.log('FATAL', e); process.exit(1); });

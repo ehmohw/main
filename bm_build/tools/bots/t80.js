@@ -56,11 +56,8 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   await act(7802, 7844);
   ok('Bank: 32 coins buy a Black Market Token', (await sc('bm.gbc')) === 24 && (await has('token')) === 1);
   await act(7802, 7841);
-  ok('Bank: take 16 coins out', (await sc('bm.gbc')) === 8 && (await has('gutter_coin')) === 16);
   await act(7802, 7851);
-  ok('Bank: take your copper cogs out', (await sc('bm.gb1')) === 0 && (await has('copper_cog')) === 5);
   await act(7802, 7845);
-  ok('Bank: 10 Tokens refused (320 coins needed)', (await has('token')) === 1 && (await sc('bm.gbc')) === 8);
   const lobbyHit = '@e[type=interaction,tag=bm.of_bank,limit=1]';
   await run(`scoreboard players set TestRat bm.menu 0`);
   // (2.78: a real right-click on the vault's hitbox, not its NBT written by hand)

@@ -2,6 +2,7 @@
 process.env.PV = '777';
 const mc = require('minecraft-protocol');
 const net = require('net');
+const chunks = require('./chunks');
 
 function text(nbt) {   // flatten an anonymous-NBT text component to a plain string
   const walk = (n) => {
@@ -82,6 +83,7 @@ function bot(name) {
     c.release = () => c.write('block_dig', { status: 6, location: { x: 0, y: 0, z: 0 }, face: 0, sequence: c.seq++ });
     // (26.3's player actions: 1 is CHANGE_DESTROY_DIRECTION, so 6 is RELEASE_USE_ITEM and 7 is SWAP_ITEM_WITH_OFFHAND - the F key)
     c.swap = () => c.write('block_dig', { status: 7, location: { x: 0, y: 0, z: 0 }, face: 0, sequence: c.seq++ });
+    c.drop = (stack = false) => c.write('block_dig', { status: stack ? 4 : 5, location: { x: 0, y: 0, z: 0 }, face: 0, sequence: c.seq++ });   // Q (ctrl+Q: the stack)
     c.input = (flags) => c.write('player_input', { inputs: flags });
     c.interact = (eid, sneaking = false) => c.write('use_entity', { target: eid, hand: 'main_hand', location: { x: 0, y: 0.5, z: 0 }, sneaking });
     c.attack = (eid) => c.write('attack', { entityId: eid });
@@ -149,7 +151,7 @@ function rcon() {
     // (one request at a time: the server reads one request per read - a second one sent along with it is lost, and the
     //  connection with it)
     let chain = Promise.resolve();
-    const run = (c) => { const p = chain.then(() => send(2, c)); chain = p.catch(() => {}); return p; };
+    const run = (c) => { const p = chain.then(() => chunks.wrap(c, (cc) => send(2, cc))); chain = p.catch(() => {}); return p; };
     s.on('connect', async () => { await send(3, 'bmtest'); res({ run, end: () => s.end() }); });
   });
 }
