@@ -13,17 +13,19 @@ const X = 5200, Y = 100, Z = 5200;
   await look(X + 0.5, Y, Z + 0.5, 0, 45); await run('loot replace entity TestRat hotbar.0 loot bm:items/mailbox'); A.slot(0); await sleep(200); await press();
   const mi = await run('data get entity @e[tag=bm.mbox,limit=1] Pos'), md = await run('data get entity @e[tag=bm.mbdisp,limit=1] Pos');
   ok('mailbox model on its hitbox', mi.split(':')[1] === md.split(':')[1] && mi.includes('['), mi + ' | ' + md);
-  // 2. satchel: pick-up into storage, barrel in front, folds away
-  await run('data remove storage bm:vac'); await run('clear TestRat');
+  // 2. satchel (2.4x: it holds what it swallows itself): pick-up into the satchel; sneak + use opens it (a crate you sit in);
+  //    sneak again and it closes, the items still in the satchel
+  await run('clear TestRat');
   await run('loot replace entity TestRat hotbar.0 loot bm:items/vacuum_satchel'); A.slot(0); await sleep(200);
   await look(X + 0.5, Y, Z + 0.5, 180, 0); await press();
   await run(`summon item ${X + 2} ${Y} ${Z + 0.5} {Item:{id:"minecraft:diamond",count:5}}`); await sleep(1500);
-  const st = await run('data get storage bm:vac'); ok('vacuum pulls into storage', st.includes('diamond'), st.slice(0, 200));
+  const st = await run('data get entity TestRat SelectedItem.components."minecraft:container"'); ok('vacuum pulls into the satchel', st.includes('diamond'), st.slice(0, 200));
   await press(true); await sleep(300);
-  const bar = await run(`data get block ${X} ${Y} ${Z - 1} Items`); ok('sneak: barrel with contents in front', bar.includes('diamond'), bar.slice(0, 160));
-  await look(X + 0.5, Y, Z + 12.5, 180, 0); await sleep(1600);
-  const st2 = await run('data get storage bm:vac'), gone = await run(`execute if block ${X} ${Y} ${Z - 1} minecraft:air`);
-  ok('walk away: barrel folds, contents kept', st2.includes('diamond') && gone.includes('passed'), st2.slice(0, 120) + ' ' + gone);
+  const bx = await run('data get entity @e[type=minecraft:dark_oak_chest_boat,tag=bm.c_box,limit=1,sort=nearest,x=' + X + ',y=' + Y + ',z=' + Z + '] Items');
+  ok('sneak: it opens (its crate, with the diamonds)', bx.includes('diamond'), bx.slice(0, 160));
+  A.input({ shift: true }); await sleep(1200); A.input({}); await sleep(600);
+  const st2 = await run('data get entity TestRat SelectedItem.components."minecraft:container"'), gone = await run(`execute if entity @e[type=minecraft:dark_oak_chest_boat,tag=bm.c_box,x=${X},y=${Y},z=${Z},distance=..8]`);
+  ok('sneak again: the crate folds, contents kept in the satchel', st2.includes('diamond') && !gone.includes('passed'), st2.slice(0, 120) + ' ' + gone);
   // 3. soul vial on a spawner
   await run(`setblock ${X} ${Y} ${Z + 2} minecraft:spawner`); await run('clear TestRat');
   await run('loot replace entity TestRat hotbar.0 loot bm:items/soul_vial_spider'); A.slot(0); await look(X + 0.5, Y, Z + 0.5, 0, 20); await press();
@@ -42,12 +44,12 @@ const X = 5200, Y = 100, Z = 5200;
   // 6. Soulreaver: Soul Rend
   await run('kill @e[type=pig]'); await run(`summon pig ${X + 0.5} ${Y} ${Z + 2.5} {NoAI:1b,Health:10f}`); await run('clear TestRat');
   await run('loot replace entity TestRat hotbar.0 loot bm:items/conq_blade'); A.slot(0); await look(X + 0.5, Y, Z + 0.5, 0, 0); await press();
-  const pig = await run('execute store result score #t bm.rng if entity @e[type=pig]'); ok('soul rend hits mobs in front', /: 0$|0$/.test(pig) || pig.includes('found no'), pig);
+  const pig = await run('execute store result score #t bm.rng if entity @e[type=pig]'); ok('soul rend hits mobs in front', /: 0$|0$/.test(pig) || pig.includes('found no') || pig.includes('Test failed'), pig);   // (26.3: no pig = "Test failed")
   // 7. glow only within 30
-  await run('kill @e[type=zombie]'); await run(`summon zombie ${X + 3} ${Y} ${Z} {NoAI:1b,Tags:["bm.blood"],Glowing:1b}`); await run(`summon zombie ${X + 60} ${Y} ${Z} {NoAI:1b,Tags:["bm.blood"],Glowing:1b}`);
+  await run('kill @e[type=zombie]'); await run(`summon zombie ${X + 3} ${Y} ${Z} {NoAI:1b,Tags:["bm.blood"],Glowing:1b}`); await run(`summon zombie ${X + 42} ${Y} ${Z} {NoAI:1b,Tags:["bm.blood"],Glowing:1b}`);
   await look(X + 0.5, Y, Z + 0.5, 0, 0); await sleep(2500);
   const gn = await run(`execute as @e[type=zombie,x=${X + 3},y=${Y},z=${Z},distance=..1.5] if entity @s[nbt={active_effects:[{id:"minecraft:glowing"}]}]`);
-  const gf = await run(`execute as @e[type=zombie,x=${X + 60},y=${Y},z=${Z},distance=..1.5] if entity @s[nbt={Glowing:0b}] unless entity @s[nbt={active_effects:[{id:"minecraft:glowing"}]}]`);
+  const gf = await run(`execute as @e[type=zombie,x=${X + 42},y=${Y},z=${Z},distance=..1.5] if entity @s[nbt={Glowing:0b}] unless entity @s[nbt={active_effects:[{id:"minecraft:glowing"}]}]`);
   ok('blood mob glows near, not far', gn.includes('passed') && gf.includes('passed'), gn + ' / ' + gf);
   // 8. Horseman's head hits a passive mob (fire cooks it)
   await run('kill @e[type=zombie]');

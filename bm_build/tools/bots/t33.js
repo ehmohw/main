@@ -192,7 +192,7 @@ const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   const tok0 = await inv('*[custom_data~{bm:"token"}]'), med0 = await inv('*[custom_data~{bm:"medallion"}]');
   await run(`summon text_display ${X - 5} ${Y + 3} ${Z} {Tags:["bm.bboard","bm.npc"]}`);
   await tp('TestRat', ...P0, 0, 0); parts = 0; await sleep(2000); const calm = parts;
-  await run('execute as TestRat at @s run function bm:admin/pharaoh'); await sleep(400);
+  await run('execute as TestRat at @s run function bm:admin/pharaoh'); await sleep(5600);   // (2.80: he rises first - 5 s)
   ok('the Sand Pharaoh rises: a giant visible husk (scale 2.6) in a golden crown, no model parts', (await cnt('@e[type=husk,tag=bm.sph]')) === 1 && (await num('attribute @e[type=husk,tag=bm.sph,limit=1] minecraft:scale get')) === 2.6 &&
      (await effect('@e[type=husk,tag=bm.sph,limit=1]', 'invisibility')) === null && (await cnt('@e[type=item_display,tag=bm.rig53]')) === 0 && (await run('data get entity @e[type=husk,tag=bm.sph,limit=1] equipment.head.id')).includes('golden_helmet'));
   ok('...you sense him: his song plays, a sense message', (await cnt('@a[name=TestRat,tag=bm.sphsensed]')) === 1);
@@ -214,7 +214,7 @@ const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   d_ = await score('TestRat', 'bm.pdmg'); await at_(14);
   ok('attack (enraged): the sand erupts under you', (await score('TestRat', 'bm.pdmg')) > d_, `damage taken ${d_} -> ${await score('TestRat', 'bm.pdmg')}`);
   await heal();
-  await run('damage @e[type=husk,tag=bm.sph,limit=1] 999 minecraft:player_attack by TestRat'); await sleep(250);
+  await run('damage @e[type=husk,tag=bm.sph,limit=1] 999 minecraft:player_attack by TestRat'); await sleep(6500);   // (2.80: his staged death - 5 s)
   const gone = await cnt('@e[type=husk,tag=bm.sph]');
 
   ok('he falls (no model left behind)', gone === 0 && (await cnt('@e[type=item_display,tag=bm.rig53]')) === 0);
@@ -230,7 +230,7 @@ const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   const board = await run('data get entity @e[type=text_display,tag=bm.bboard,limit=1] text');
   ok('the Bounty Board lists the WANTED bosses', board.includes('WANTED') && board.includes('Pharaoh') && board.includes('Storm Roc'), board.slice(0, 80));
   // he sinks away at dusk (and his model fades)
-  await run('execute as TestRat at @s run function bm:admin/pharaoh'); await sleep(800);
+  await run('execute as TestRat at @s run function bm:admin/pharaoh'); await sleep(5600);
   await run('time set 13000'); await sleep(1600);
   ok('at dusk he sinks back into the dunes', (await cnt('@e[type=husk,tag=bm.sph]')) === 0);
 
@@ -248,7 +248,7 @@ const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   await tp('TestRat2', X + 0.5, Y + 1, Z + 75.5);
   await run('weather thunder'); await sleep(8000); await heal();
   const tokR = await inv('*[custom_data~{bm:"token"}]');
-  await run('execute as TestRat at @s run function bm:admin/storm_roc'); await sleep(500);
+  await run('execute as TestRat at @s run function bm:admin/storm_roc'); await sleep(5600);   // (2.80: out of the sky first)
   ok('the Storm Roc comes down: a giant visible phantom (scale 4.5), no model parts', (await cnt('@e[type=phantom,tag=bm.roc]')) === 1 && (await num('attribute @e[type=phantom,tag=bm.roc,limit=1] minecraft:scale get')) === 4.5 &&
      (await effect('@e[type=phantom,tag=bm.roc,limit=1]', 'invisibility')) === null && (await cnt('@e[type=item_display,tag=bm.rig53]')) === 0);
   ok('...you sense it', (await cnt('@a[name=TestRat,tag=bm.rocsensed]')) === 1);
@@ -271,7 +271,7 @@ const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   await run(`data merge entity @e[type=phantom,tag=bm.roc,limit=1] {Health:120f}`); await sleep(1200);
   ok('half health: it shrieks, Stormlings join', (await cnt('@e[type=phantom,tag=bm.roc_rage]')) === 1 && (await cnt('@e[type=phantom,tag=bm.rocmin]')) >= 1);
   await heal();
-  await run('damage @e[type=phantom,tag=bm.roc,limit=1] 999 minecraft:player_attack by TestRat'); await sleep(250);
+  await run('damage @e[type=phantom,tag=bm.roc,limit=1] 999 minecraft:player_attack by TestRat'); await sleep(6500);
   ok('it falls', (await cnt('@e[type=phantom,tag=bm.roc]')) === 0);
   await sleep(2000);
   ok('...and are gone; Stormlings crumble; no stray bolts', (await cnt('@e[type=phantom,tag=bm.rocmin]')) === 0 &&
@@ -280,7 +280,7 @@ const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   ok('Eye of the Storm', await adv('storm_roc'));
   await run(`kill @e[type=item,${at()}]`); await run(`kill @e[type=experience_orb,${at()}]`);
   // it leaves with the storm
-  await run('execute as TestRat at @s run function bm:admin/storm_roc'); await sleep(800); await run('weather clear'); await sleep(12500);
+  await run('execute as TestRat at @s run function bm:admin/storm_roc'); await sleep(5600); await run('weather clear'); await sleep(12500);
   ok('when the storm ends it rises away', (await cnt('@e[type=phantom,tag=bm.roc]')) === 0);
   await sleep(1600);
   // a thunderstorm spawn
@@ -290,8 +290,8 @@ const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   await run('kill @e[type=phantom,tag=bm.roc]'); await run('weather clear'); await sleep(2000);
   // the Horseman's bounty too + Monster Slayer
   const tokH = await inv('*[custom_data~{bm:"token"}]');
-  await run('time set night'); await sleep(1500); await run('execute as TestRat at @s run function bm:admin/horseman'); await sleep(600);
-  await run('damage @e[type=wither_skeleton,tag=bm.hhm,limit=1] 999 minecraft:player_attack by TestRat'); await sleep(800);
+  await run('time set night'); await sleep(1500); await run('execute as TestRat at @s run function bm:admin/horseman'); await sleep(5600);
+  await run('damage @e[type=wither_skeleton,tag=bm.hhm,limit=1] 999 minecraft:player_attack by TestRat'); await sleep(6500);
   ok('the Headless Horseman pays the WANTED bounty too', (await inv('*[custom_data~{bm:"token"}]')) === tokH + 8);
   ok('Monster Slayer (all three)', await adv('monster_slayer'));
   for (const i of ['horseman_head', 'pharaoh_crook', 'storm_talon']) await run(`loot give TestRat loot bm:items/${i}`); await sleep(400);

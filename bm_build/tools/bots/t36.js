@@ -13,6 +13,11 @@ const inv = async (it) => { const r = await run(`clear TestRat ${it} 0`); const 
 const hand = async (path = '') => run(`data get entity TestRat SelectedItem${path}`);
 const cd = async () => (await run('data get entity TestRat SelectedItem.components."minecraft:custom_data"'));
 const mob = (x, y, z, tag, hp = 100, type = 'pillager', ai = false) => run(`summon minecraft:${type} ${x} ${y} ${z} {Tags:["bm.seen","${tag}"],${ai ? '' : 'NoAI:1b,'}PersistenceRequired:1b,Silent:1b,Health:${hp}f,attributes:[{id:"minecraft:max_health",base:${hp}d}]}`);
+// (a real hit: the essences' "when hit" effects need a mob's own swing - /damage by a mob never fires them)
+const hitBy = async (x, y, z, tag) => { const h0 = A.health;
+  await run(`summon minecraft:husk ${x} ${y} ${z} {Tags:["bm.seen","${tag}"],PersistenceRequired:1b,Silent:1b,Health:100f,attributes:[{id:"minecraft:max_health",base:100d}]}`);
+  for (let i = 0; i < 40 && !(A.health < h0); i++) await sleep(150);
+  await run(`data merge entity @e[tag=${tag},limit=1] {NoAI:1b}`); await sleep(300); };
 const hp = (sel) => num(`data get entity ${sel} Health`);
 const hold = async (it) => { await run(`item replace entity TestRat hotbar.0 with ${it}`); A.slot(0); await sleep(250); };
 const off = async (it) => { await run(`item replace entity TestRat weapon.offhand with ${it}`); await sleep(100); };
@@ -109,8 +114,7 @@ const last = () => A.bars.slice(-1)[0] || '';
   await hold('minecraft:netherite_chestplate'); await offL('essence_colossus'); await infuse(); await shard('red'); await altar();
   ok("Colossus's Essence + red: Magma Aura resonance on a chestplate", (await cd()).includes('bm_res: "colossus"'));
   await run('item replace entity TestRat armor.chest from entity TestRat weapon.mainhand'); await run('item replace entity TestRat hotbar.0 with air');
-  await mob(X + 0.5, Y + 1, Z + 1.8, 't_h', 100, 'zombie'); await sleep(300);
-  await sleep(600); await run('damage TestRat 2 minecraft:mob_attack by @e[tag=t_h,limit=1]'); await sleep(300);
+  await hitBy(X + 0.5, Y + 1, Z + 1.8, 't_h');
   ok('...whoever hits you burns', (await num('data get entity @e[tag=t_h,limit=1] Fire')) > 0, `Fire ${await num('data get entity @e[tag=t_h,limit=1] Fire')}, wearing ${(await run('data get entity TestRat equipment.chest.components."minecraft:enchantments"')).slice(-60)}`);
   let aura = false; for (let i = 0; i < 12 && !aura; i++) { await sleep(500); aura = (await hp('@e[tag=t_h,limit=1]')) < 100; }
   ok('...and the Magma Aura burns what stands close', aura, `${await hp('@e[tag=t_h,limit=1]')}`);

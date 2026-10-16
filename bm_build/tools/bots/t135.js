@@ -228,6 +228,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
   if (want('pet')) {
     // ================================================================== 4. the Doubloon
     await reset(); await arena(); await run('effect give TestRat minecraft:resistance 600 4 true');
+    await run('time set day'); await run('weather clear');      // (a night's events toughen the mobs he's tested against)
     await run(`${O}tp TestRat ${X2 + 0.5} ${Y2} ${Z2 + 0.5} 0 0`); await run('gamemode survival TestRat'); await sleep(2500); A.stand();
     await run('loot replace entity TestRat hotbar.0 loot bm:items/tul_coin');
     await use(A, 0);

@@ -13,6 +13,11 @@ const inv = async (it) => { const r = await run(`clear TestRat ${it} 0`); const 
 const hand = async (path = '') => run(`data get entity TestRat SelectedItem${path}`);
 const cd = async () => (await run('data get entity TestRat SelectedItem.components."minecraft:custom_data"'));
 const mob = (x, y, z, tag, hp = 100, type = 'pillager', ai = false) => run(`summon minecraft:${type} ${x} ${y} ${z} {Tags:["bm.seen","${tag}"],${ai ? '' : 'NoAI:1b,'}PersistenceRequired:1b,Silent:1b,Health:${hp}f,attributes:[{id:"minecraft:max_health",base:${hp}d}]}`);
+// (a real hit: the essences' "when hit" effects need a mob's own swing - /damage by a mob never fires them)
+const hitBy = async (x, y, z, tag) => { const h0 = A.health;
+  await run(`summon minecraft:husk ${x} ${y} ${z} {Tags:["bm.seen","${tag}"],PersistenceRequired:1b,Silent:1b,Health:100f,attributes:[{id:"minecraft:max_health",base:100d}]}`);
+  for (let i = 0; i < 40 && !(A.health < h0); i++) await sleep(150);
+  await run(`data merge entity @e[tag=${tag},limit=1] {NoAI:1b}`); await sleep(300); };
 const hp = (sel) => num(`data get entity ${sel} Health`);
 const hold = async (it) => { await run(`item replace entity TestRat hotbar.0 with ${it}`); A.slot(0); await sleep(250); };
 const off = async (it) => { await run(`item replace entity TestRat weapon.offhand with ${it}`); await sleep(100); };
@@ -49,13 +54,13 @@ const last = () => A.bars.slice(-1)[0] || '';
   ok("Treant's Essence + green: Thornmail resonance", await chest('treant', 'green'));
   await run('effect clear TestRat'); let rg = false; for (let i = 0; i < 16 && !rg; i++) { await sleep(500); rg = (await effect('TestRat', 'regeneration')) !== null; }
   ok('...slow, steady regeneration', rg);
-  await mob(X + 0.5, Y + 1, Z + 1.8, 't_h', 100, 'zombie'); await sleep(1200); await run('damage TestRat 2 minecraft:mob_attack by @e[tag=t_h,limit=1]'); await sleep(300);
+  await hitBy(X + 0.5, Y + 1, Z + 1.8, 't_h');
   ok('...whoever hits you is torn and rooted', (await hp('@e[tag=t_h,limit=1]')) < 100 && (await effect('@e[tag=t_h,limit=1]', 'slowness')) === 3);
   await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..40]`); await run('item replace entity TestRat armor.chest with air');
   // Voidwalker + cyan: Void Shroud (blink + foes float)
   ok("Voidwalker's Essence + cyan: Void Shroud resonance", await chest('voidwalker', 'cyan'));
-  await home(); await mob(X + 0.5, Y + 1, Z + 1.8, 't_h', 100, 'zombie'); await mob(X + 2.5, Y + 1, Z + 0.5, 't_b', 100, 'zombie'); await sleep(1200);
-  await run('damage TestRat 2 minecraft:mob_attack by @e[tag=t_h,limit=1]'); await sleep(300);
+  await home(); await mob(X + 2.5, Y + 1, Z + 0.5, 't_b', 100, 'zombie'); await sleep(600);
+  await hitBy(X + 0.5, Y + 1, Z + 1.8, 't_h');
   const p = (await run('data get entity TestRat Pos'));
   ok('...when hit you blink away and the foes near you float', (await effect('@e[tag=t_b,limit=1]', 'levitation')) !== null && !p.includes(`${Z + 0.5}d]`), p.slice(-50));
   await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..40]`); await run('clear TestRat');

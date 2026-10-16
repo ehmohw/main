@@ -102,8 +102,8 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
 
   // ---- right-click him: sit / stand
   await run(`tp ${W} ${X + 3.5} ${Y} ${Z + 0.5}`); await sleep(1300);
-  A.interact(await eidOf('@e[type=interaction,tag=bm.dmhit,limit=1]'));
-  await sleep(500);
+  let hit = null; for (let i = 0; i < 15 && !hit; i++) { hit = await eidOf('@e[type=interaction,tag=bm.dmhit,limit=1]'); if (!hit) await sleep(200); }   // (the client has to know the box first)
+  A.interact(hit); await sleep(500);
   ok('Right-click him: he sits (and his rig sits too)', /1b/.test(await run(`data get entity ${W} Sitting`)) && (await sc(W, 'bm.dms')) === 4, `${await run(`data get entity ${W} Sitting`)} st ${await sc(W, 'bm.dms')}`);
   await run(`execute as ${W} run data merge entity @s {Sitting:0b}`);
 

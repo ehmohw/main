@@ -33,7 +33,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
       await run('scoreboard players set #act bm.pay 7601'); await run('execute as TestRat at @s run function bm:p70/pick_tier');
       await run('scoreboard players set #act bm.pay 7613'); await run('execute as TestRat at @s run function bm:p75/pick_lives'); await sleep(7000);
       const pw = await num('execute store result score #t bm.rng run clear TestRat *[minecraft:custom_data~{bm:"paperweight"}] 0'), bf = await num('execute store result score #t bm.rng run clear TestRat minecraft:cooked_beef 0');
-      console.log((pw === 3 && bf === 16 ? 'PASS' : 'FAIL') + ' another job: paperweights', pw, 'beef', bf, '| gi', await num('scoreboard players get TestRat bm.gvi'));
+      console.log((pw === 4 && bf === 32 ? 'PASS' : 'FAIL')   /* 2.74: 4 paperweights, 32 food */ + ' another job: paperweights', pw, 'beef', bf, '| gi', await num('scoreboard players get TestRat bm.gvi'));
     }
   }
   console.log(allok ? 'PASS T5 layouts alternate' : 'FAIL T5 layouts');

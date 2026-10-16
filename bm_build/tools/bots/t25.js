@@ -15,7 +15,7 @@ const X = 7400, Y = 90, Z = 7400;
   const plank = await run(`execute if block ${Math.floor(t[0])} ${Math.floor(t[1])} ${Math.floor(t[2]) - 1} minecraft:dark_oak_planks`);
   const front = await run(`execute if block ${Math.floor(t[0])} ${Math.floor(t[1])} ${Math.floor(t[2])} #minecraft:air`);
   ok('notice text sits on the plank face, open in front', plank.includes('passed') && front.includes('passed'), plank + ' / ' + front);
-  ok('no old balcony board/text', (await run('execute store result score #t bm.rng if entity @e[tag=bm.bboard]')).includes('Count: 1') || (await run('execute store result score #t bm.rng if entity @e[tag=bm.bboard]')).match(/1$/));
+  ok('no old balcony board/text', (await run(`execute store result score #t bm.rng if entity @e[tag=bm.bboard,x=${mx},y=${my},z=${mz},distance=..120]`)).match(/Count: 1$|\b1$/));   // (this market's own: other tests leave boards elsewhere)
   // old-market simulation: a slab on a counter, a sign on the board, then patch
   const c = [mx + (12 - 38.5) + 0.5, my, mz];
   console.log(await run(`execute as @e[type=minecraft:marker,tag=bm.mkt,limit=1,sort=nearest] at @s rotated as @s positioned ^-26 ^1 ^-22 run setblock ~ ~ ~ minecraft:dark_oak_slab[type=top]`));
@@ -26,6 +26,9 @@ const X = 7400, Y = 90, Z = 7400;
   const zp = await run(`data get entity @e[type=minecraft:wandering_trader,tag=bm.npc_alien,limit=1,sort=nearest,x=${X + 300},y=${Y + 40},z=${Z}] Pos`); console.log('zorp', zp);
   const zz = zp.match(/\[([-\d.]+)d, ([-\d.]+)d, ([-\d.]+)d\]/).slice(1).map(Number);
   ok('zorp in front of the counter', (await run(`execute if block ${Math.floor(zz[0])} ${Math.floor(zz[1])} ${Math.floor(zz[2]) + 1} minecraft:cyan_terracotta`)).includes('passed'));
-  ok('zorp sells the display skiff', (await run(`data get entity @e[type=minecraft:wandering_trader,tag=bm.npc_alien,limit=1,sort=nearest,x=${X + 300},y=${Y + 40},z=${Z}] Offers`)).includes('display_skiff'));
+  let dsk = false;     // (one trade at a time: the whole list is longer than one RCON reply)
+  for (let i = 0; i < 60 && !dsk; i++) { const r = await run(`data get entity @e[type=minecraft:wandering_trader,tag=bm.npc_alien,limit=1,sort=nearest,x=${X + 300},y=${Y + 40},z=${Z}] Offers.Recipes[${i}].sell`);
+    if (!r.includes('has the following')) break; dsk = r.includes('display_skiff'); }
+  ok('zorp sells the display skiff', dsk);
   console.log(res.filter(Boolean).length + '/' + res.length);
   A.end(); R.end(); process.exit(0); })().catch(e => { console.log('FATAL', e); process.exit(1); });

@@ -192,6 +192,13 @@ the older one, without dialog tracking, and many early tests use it. `h110.js` h
   a swing at a creeper (t100, t125).
 - Two crews in a row: a heist now closes when its last raider leaves (2.80a). Before, a quick second plan joined the old
   heist and no end-of-heist screen came (t131mp).
+- 26.3 answers an `execute ... if entity` that finds nothing with "Test failed", not "Count: 0" (t23).
+- One RCON reply holds about 4 KB: a trader's whole `Offers` list is cut short. Read it one recipe at a time (t25, t32).
+- Count by area, not world-wide: other tests leave their own markers, boards and slot machines behind (t25, t32).
+- 2.80: a roaming boss stages its arrival (about 5 s, untouchable, health buffered) and its death (about 5 s). Wait both
+  out before checking it (t33, t34, t35).
+- A mob summoned without `bm.seen` gets the pack's tiering on its next tick (an Elite, more health). Tag test mobs
+  `bm.seen` when their health matters.
 
 ## Index
 
@@ -394,6 +401,7 @@ and function calls. Three are known to be stale.
 | `t174.js` | 2.80: Apophiss revised (`node t174.js [boss|mace|crown]`) - the boss: 1024 health, attack 12, armour 18; his Judgement stood in (16 through full Regalia and Resistance) and sprinted out of (nothing). The Mace: Wind Burst III; F to the next form, sneak + F back, all seven round; the pickaxe's Haste II; the sword's poison, the shovel's lift, the hoe's heal (with the Wither); the Wrath used (a husk struck, its 12 s cooldown) and again too soon. The True Crown worn with a use: Protection X, Thorns III, Respiration V; with three Regalia pieces the set wakes; Apophiss called with his Oath: Resistance II and Regeneration II from the Crown, Strength II from the Mace |
 | `t175.js` | 2.80a: the Gutter Bank a page per currency, as a regular player - every currency on its own button with its balance; Copper Cogs taken and deposited 1, 10 and all; coins taken loose only (no Medallion broken); a Medallion out and back; Deposit everything; a stale action button moves nothing |
 | `t176.js` | 2.80a: the coat check, airtight - the Locker Hall's door checks your gear and its plate hands it back; a death in the hall, then a Pearl of Return refused (and refunded); a stray put in a heist's den seen out, home, with their gear; a stray in the Lounge checked on the spot; a stale bag at the heist's door (what you carry joins it); enchanted heist boots kept at the Lounge's door |
+| `t177.js` | 2.80b: the special nights, as a regular player (rcon only picks the night and moves the clock on) - the Blood Moon rises (title, word, bar), refuses an Invasion that day, won't let a bed sleep it away, sets at dawn; a Lucky Night starts, a Leprechaun Rat caught drops a Pot of Gold, picked up and tipped out for Tokens, dawn ends it; an Invasion Night starts, the Vorn land near you, and at dawn every one lifts away - troopers, saucers and the bioengineered beasts |
 |  | home (from her menu), and with Wilfrey out a fourth follower refused. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |

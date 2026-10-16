@@ -1,5 +1,6 @@
 const { bot, rcon, sleep } = require('./lib');
 const X = 5800, Y = 100, Z = 5800;
+const HERE = `x=${X},y=${Y},z=${Z},distance=..64`;
 (async () => { const R = await rcon(); const run = c => R.run(c);
   const res = []; const ok = (n, c, d) => { res.push(!!c); console.log(c ? 'PASS' : 'FAIL', n, d || ''); };
   const score = async (h, o = 'bm.bm') => { const r = await run(`scoreboard players get ${h} ${o}`); const m = r.match(/has (-?\d+)/); return m ? +m[1] : null; };
@@ -33,14 +34,15 @@ const X = 5800, Y = 100, Z = 5800;
   parts = 0; await sleep(3000); const lp = parts;
   ok('market ambience: gold and chimes on a Lucky Night (particles reach you)', lp > calm + 10, `${calm} -> ${lp} particle packets in 3 s`);
   const pH = await price('professor', 'filter_hopper'), zH = await num(`data get entity @e[tag=bm.npc_alien,limit=1] Offers.Recipes[0].buy.count`);
-  ok('Happy Hour: the markup is off (Filter Hopper 5 -> 3)', pN === 5 && pH === 3, `${pN} -> ${pH}`);
+  ok('Happy Hour: a third off (Filter Hopper 3 -> 2)', pN === 3 && pH === 2, `${pN} -> ${pH}`);
   ok("Happy Hour: Zorp takes a third off", zH < zN, `${zN} -> ${zH}`);
   ok('Lucky Whiskers: the Four-Leaf Charm is on sale tonight', await has('lucky', 'four_leaf_charm'));
   // ---- slots (a Lucky Den built off the fake market: the patch puts machines + reels + the jackpot sign)
   await run(`summon marker ${X + 4} ${Y + 1} ${Z - 12} {Tags:["bm.t32den"],Rotation:[0f,0f]}`);
   await run('execute as @e[tag=bm.t32den] at @s rotated as @s run function bm:p52/market');
-  ok('the Den gets 3 machines (2 Lucky Slots, 1 Jackpot), reels and the jackpot sign', (await cnt('@e[type=marker,tag=bm.slot_reg]')) === 2 && (await cnt('@e[type=marker,tag=bm.slot_jp]')) === 1 &&
-     (await cnt('@e[type=text_display,tag=bm.slotd]')) === 3 && (await cnt('@e[type=text_display,tag=bm.potd]')) === 1);
+  ok('the Den gets 3 machines (2 Lucky Slots, 1 Jackpot), reels and the jackpot sign', (await cnt(`@e[type=marker,tag=bm.slot_reg,${HERE}]`)) === 2 && (await cnt(`@e[type=marker,tag=bm.slot_jp,${HERE}]`)) === 1 &&
+     (await cnt(`@e[type=text_display,tag=bm.slotd,${HERE}]`)) === 3 && (await cnt(`@e[type=text_display,tag=bm.potd,${HERE}]`)) === 1,
+     `${await cnt(`@e[type=marker,tag=bm.slot_reg,${HERE}]`)} ${await cnt(`@e[type=marker,tag=bm.slot_jp,${HERE}]`)} ${await cnt(`@e[type=text_display,tag=bm.slotd,${HERE}]`)} ${await cnt(`@e[type=text_display,tag=bm.potd,${HERE}]`)}`);
   // put a lever (on stone) at each machine
   const pos = {};
   for (const k of ['reg', 'jp']) { const r = await run(`data get entity @e[type=marker,tag=bm.slot_${k},limit=1] Pos`); const m = r.match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/);
@@ -94,7 +96,7 @@ const X = 5800, Y = 100, Z = 5800;
   ok('the pot tips out 8-16 Tokens and 3-6 Lucky Tokens', pt >= 8 && pt <= 16 && pl >= 3 && pl <= 6, `${pt} tokens, ${pl} lucky`);
   // dawn: prices back
   await run('time set day'); await sleep(2500);
-  ok('dawn: Happy Hour ends, prices back', (await score('#lnight')) === 0 && (await price('professor', 'filter_hopper')) === 5 && !(await has('lucky', 'four_leaf_charm')));
+  ok('dawn: Happy Hour ends, prices back', (await score('#lnight')) === 0 && (await price('professor', 'filter_hopper')) === 3 && !(await has('lucky', 'four_leaf_charm')));
   // ---- an Invasion Night
   await run('execute as TestRat run function bm:admin/invasion_now'); await run('time set night'); await sleep(2500);
   ok('Invasion Night started', (await score('#inv')) === 1);

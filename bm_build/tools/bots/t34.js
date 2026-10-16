@@ -111,7 +111,7 @@ const TOK = '*[custom_data~{bm:"token"}]';
   const boss = async (key, ent, tag, admin, scale, attacks, extra) => {
     await tp('TestRat', ...P0, 0, 0); await clean();
     const tok0 = await inv(TOK); parts = 0; await sleep(1500); const calm = parts;
-    await run(`execute as TestRat at @s run function bm:admin/${admin}`); await sleep(500);
+    await run(`execute as TestRat at @s run function bm:admin/${admin}`); await sleep(5600);   // (2.80: each stages its arrival - 5 s)
     const sel = `@e[type=minecraft:${ent},tag=${tag},limit=1]`;
     const sc = await num(`attribute ${sel} minecraft:scale get`);
     ok(`${key}: it appears - a vanilla ${ent}, scaled up`, (await cnt(sel)) === 1 && (scale === 0 || sc === scale), `scale ${sc}`);
@@ -130,7 +130,7 @@ const TOK = '*[custom_data~{bm:"token"}]';
     if (extra) await extra(sel);
     await run(`data merge entity ${sel} {Health:${key === 'mcol' ? 200 : 160}f}`); await sleep(1300);
     ok(`${key}: enrages at half health`, (await cnt(`@e[tag=${tag}_rage]`)) === 1);
-    await run(`damage ${sel} 9999 minecraft:player_attack by TestRat`); await sleep(1500);
+    await run(`damage ${sel} 9999 minecraft:player_attack by TestRat`); await sleep(6500);   // (2.80: and its death)
     ok(`${key}: it falls - WANTED paid, minions crumble, bossbar gone`, (await cnt(`@e[type=minecraft:${ent},tag=${tag}]`)) === 0 && (await inv(TOK)) >= tok0 + 8 &&
        (key === 'mcol' || (await cnt(`@e[tag=${tag}min]`)) === 0) && !(await run(`bossbar get bm:${key} visible`)).includes('currently visible'), `tokens ${tok0} -> ${await inv(TOK)}, minions ${await cnt(`@e[tag=${tag}min]`)}`);
     return sel;
@@ -147,7 +147,7 @@ const TOK = '*[custom_data~{bm:"token"}]';
   await sleep(2500);
   ok('trt: the log lands where it was thrown (no display left over)', (await cnt('@e[type=block_display,tag=bm.r54rock]')) === 0);
   ok('Heart of the Forest', await adv('treant'));
-  await run('execute as TestRat at @s run function bm:admin/treant'); await sleep(800); await run('time set day'); await sleep(1600);
+  await run('execute as TestRat at @s run function bm:admin/treant'); await sleep(5600); await run('time set day'); await sleep(1600);
   ok('trt: it walks back into the trees at dawn', (await cnt('@e[type=creaking,tag=bm.trt]')) === 0);
   // ---- the Magma Colossus
   await boss('mcol', 'magma_cube', 'bm.mcol', 'colossus', 0, [

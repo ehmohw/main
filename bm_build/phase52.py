@@ -3,7 +3,7 @@
 - AMBIENCE: each special night has its own feel inside every Black Market - red haze and a slow heartbeat on a Blood Moon,
   drifting gold and chimes on a Lucky Night, green static and a far-off hum on an Invasion Night. On an Invasion Night the
   Donadian motherships go to red alert and the Vorn Dreadnought's alarms never stop.
-- LUCKY NIGHT HAPPY HOUR: from dusk to dawn every Black Market trader drops the market's 1.5x markup, and Zorp knocks a
+- LUCKY NIGHT HAPPY HOUR: from dusk to dawn every Black Market trader drops the market's 1.5x markup (2.80b: a third off), and Zorp knocks a
   third off his Xenite prices. Lucky Whiskers and Zorp add a few Lucky-Night-only trades.
 - THE LUCKY DEN'S SLOT MACHINES WORK: pull a lever. Two Lucky Slots (1 Token a pull) and the PROGRESSIVE JACKPOT
   (5 Tokens a pull): every pull feeds one jackpot shared by every market; three 7s on the Jackpot machine win all of it.
@@ -96,7 +96,9 @@ def generate(G):
 
     # ================================================================ 2) Happy Hour + night-only trades (trader offers swap with the night)
     normal = G.all_offers()
-    saved = dict(G.PRICE_SCALE); G.PRICE_SCALE.clear()          # (G is the running build module: its own price scale)
+    saved = dict(G.PRICE_SCALE)                                 # (G is the running build module: its own price scale)
+    for c in saved: G.PRICE_SCALE[c] = saved[c] * 2 / 3         # 2.80b: a third off every list price (clearing the scale - the old
+                                                                # 1.5x markup - came to RAISE trophy prices once 2.65 set them at 0.7x)
     try:
         happy = G.all_offers()
     finally:
@@ -128,7 +130,7 @@ def generate(G):
     za = next(i for i, l in enumerate(ln) if l.startswith('execute as @e[tag=bm.npc_alien] unless score @s bm.ofv matches '))
     ln[za] = ln[za].replace('execute as @e[tag=bm.npc_alien]', 'execute unless score #lnight bm.bm matches 1 as @e[tag=bm.npc_alien]')
     ln.insert(za + 1, f'execute if score #lnight bm.bm matches 1 as @e[tag=bm.npc_alien] unless score @s bm.ofv matches {zv} run function bm:p52/npc/alien_lucky')
-    G.FUNCS['p22/lucky/start'].append(tellraw('@a', PREFIX + [T('HAPPY HOUR! ', GOLD, bold=True), T('Until dawn every Black Market trader sells at base price, Zorp takes a third off, and Lucky Whiskers has something special.', 'yellow')]))
+    G.FUNCS['p22/lucky/start'].append(tellraw('@a', PREFIX + [T('HAPPY HOUR! ', GOLD, bold=True), T('Until dawn every Black Market trader and Zorp take a third off, and Lucky Whiskers has something special.', 'yellow')]))
     G.FUNCS['p32/inv/start'].append(tellraw('@a', PREFIX + [T('The Fence has invasion stock tonight: ', GREEN), T('Signal Jammers, Flak Rockets, and he buys Vorn salvage.', 'gray')]))
     second.append('execute as @a if items entity @s container.* *[minecraft:custom_data~{bm:"four_leaf_charm"}] run effect give @s minecraft:luck 3 0 true')
 
