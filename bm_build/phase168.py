@@ -1,20 +1,21 @@
 """2.81: THE BLACK MARKET, REBUILT - every market already in a world becomes the new town (market3.py), once.
 
-WHEN   a market whose bm.mkt marker doesn't carry bm.m281 (every market built before 2.81) is rebuilt the first time a
+WHEN   a market whose bm.mkt marker doesn't carry the town tag (market3.TOWN_TAG; every market built before 2.81,
+       and since 2.81a the 2.81 towns too, for their counters) is rebuilt the first time a
        player comes within 200 blocks - unless a Dark Auction is running (it waits for the night to end).
 HOW    the market's box (76 x 32 x 98, turned like the market) is force-loaded; once loaded:
        - anyone inside is moved up to the Lookout, by the vault door; anything lying on the floor goes there too;
        - the market's own entities are removed: its traders and their models, the crowd, cushions, neon signs, ledgers,
          Fishy's hall, Dennis's and Pistachio's rooms, the slot machines' reels, the Bounty Board... (every tag the
          market's spawns and installs give - and only those; players' followers, pets and dropped things stay);
-       - the new town is placed over the old, with the market's own turn (its marker comes with it, carrying bm.m281);
+       - the new town is placed over the old, with the market's own turn (its marker comes with it, carrying the town tag);
        - the chunks are let go. Every install then runs again on the new marker: gates, back-room ledgers, the Dark
          Auction, the Gilded Gutter, Fishy's Cabinet, Dennis's and Pistachio's rooms, the slot machines, the board, the
          lectern, the lift button. The traders come back from the new template's markers.
        The ladder shaft (beyond the end of the dig-in tunnel) is outside the box: it stays as it is.
        Nothing anyone owns is kept in the market itself: standing, Rat Bank balances, escrow, bounties signed, daily
        limits all live on the players.
-       Every per-market install and patch now waits for bm.m281, so nothing is placed in an old market before it's
+       Every per-market install and patch now waits for the town tag, so nothing is placed in an old market before it's
        rebuilt.
 ADMIN  /function bm:admin/market_rebuild - the nearest market (within 200 blocks) is rebuilt again."""
 import re
@@ -34,10 +35,11 @@ def generate(G):
     fn, tellraw, PREFIX = G.fn, G.tellraw, G.PREFIX
     SX, SY, SZ, W, BF = market3.SX, market3.SY, market3.SZ, market3.W, market3.BF
     rel = mgeo.rel
+    TT = market3.TOWN_TAG
     corners_t = [(0, 0), (SX - 1, 0), (0, SZ - 1), (SX - 1, SZ - 1)]
     loaded = ' '.join(f'if loaded {rel((x + 0.5, W, z + 0.5))}' for x, z in corners_t)
     look = rel((38.5, BF + 1, 78.5))
-    second = [f'execute as @e[type=minecraft:marker,tag=bm.mkt,tag=!bm.m281] at @s rotated as @s if entity @a[distance=..200] run function bm:p168/tick']
+    second = [f'execute as @e[type=minecraft:marker,tag=bm.mkt,tag=!{TT}] at @s rotated as @s if entity @a[distance=..200] run function bm:p168/tick']
     fn('p168/tick', ['execute if score #state bm.auc matches 1.. run return 0',
                      'execute unless entity @s[tag=bm.rbfl] run function bm:p168/hold',
                      f'execute {loaded} run function bm:p168/go'])
@@ -59,15 +61,16 @@ def generate(G):
         fn(f'p168/fl_{n}', [f'execute positioned {minc} run forceload add ~ ~ ~{dx} ~{dz}', f'execute positioned {org} run forceload add ~ ~ ~{SX - 1} ~{SZ - 1}'])
         G.P168_GO[n] = (minc, box, dx, dz)
         fn(f'p168/go_{n}', [])          # (filled in by finalize, once every phase has added its spawns)
-    fn('admin/market_rebuild', ['execute as @e[type=minecraft:marker,tag=bm.mkt,distance=..200,sort=nearest,limit=1] run tag @s remove bm.m281',
+    fn('admin/market_rebuild', [f'execute as @e[type=minecraft:marker,tag=bm.mkt,distance=..200,sort=nearest,limit=1] run tag @s remove {TT}',
                                 tellraw('@s', PREFIX + [T('The nearest Black Market is rebuilt as soon as its chunks load.', 'gold')])])
     G.FUNCS['loop/second'][0:0] = second
     G.P168_LOOK = look
 
 
 def finalize(G):
-    """After every phase: the tags the market's entities carry, the rebuild itself, and every install waiting for bm.m281."""
+    """After every phase: the tags the market's entities carry, the rebuild itself, and every install waiting for the town tag."""
     F = G.FUNCS
+    TT = market3.TOWN_TAG
     summon = re.compile(r'summon minecraft:([a-z_]+) [^{]*(\{.*\})')
     tagre = re.compile(r'Tags:\[([^\]]*)\]')
     addre = re.compile(r'\btag @[a-z](?:\[[^\]]*\])? add ([a-z0-9_.]+)')
@@ -101,7 +104,7 @@ def finalize(G):
     import market2
     for e in market2.build().ents: market_tags |= set(e['nbt']['Tags'])
     other = tags_in(l for f, L in F.items() if f not in mk for l in L)
-    transient = {t for t in market_tags if t.endswith('new') or t in ('bm.n18', 'bm.new', 'bm.mkt', 'bm.m281', 'bm.mshaft', 'bm.msdone', 'bm.ms74', 'bm.msnew')}
+    transient = {t for t in market_tags if t.endswith('new') or t in ('bm.n18', 'bm.new', 'bm.mkt', 'bm.m281', TT, 'bm.mshaft', 'bm.msdone', 'bm.ms74', 'bm.msnew')}
     shared = (market_tags & other) - transient
     keep_shared = {'bm.npc', 'bm.npc_spawn', 'bm.e18', 'bm.p162prop', 'bm.cabprop'}      # the market's own families (other spawns of them are never in a market)
     kill = sorted((market_tags - transient - shared) | (shared & keep_shared))
@@ -126,16 +129,16 @@ def finalize(G):
             G.tellraw('@a[distance=..120]', G.PREFIX + [T('The Black Market has been rebuilt: ', 'gold'), T('streets, houses, the Lookout - the same traders, gates and rooms.', 'gray')]),
             'kill @s']
     # every per-market install and patch waits for the new town (nothing is placed in an old market before it's rebuilt)
-    pats = [('@e[type=minecraft:marker,tag=bm.mkt,tag=!', '@e[type=minecraft:marker,tag=bm.mkt,tag=bm.m281,tag=!'),
-            ('@e[type=minecraft:marker,tag=bm.mkt] at @s rotated as @s', '@e[type=minecraft:marker,tag=bm.mkt,tag=bm.m281] at @s rotated as @s'),
-            ('@e[type=minecraft:marker,tag=bm.mkt] at @s run', '@e[type=minecraft:marker,tag=bm.mkt,tag=bm.m281] at @s run')]
+    pats = [('@e[type=minecraft:marker,tag=bm.mkt,tag=!', f'@e[type=minecraft:marker,tag=bm.mkt,tag={TT},tag=!'),
+            ('@e[type=minecraft:marker,tag=bm.mkt] at @s rotated as @s', f'@e[type=minecraft:marker,tag=bm.mkt,tag={TT}] at @s rotated as @s'),
+            ('@e[type=minecraft:marker,tag=bm.mkt] at @s run', f'@e[type=minecraft:marker,tag=bm.mkt,tag={TT}] at @s run')]
     n_gated = 0
     for name in ['loop/second', 'loop/fast', 'tick'] + [f for f in F if f.endswith('install_check')]:
         L = F[name]
         for i, l in enumerate(L):
             if 'function bm:p168/tick' in l: continue
             for a, b in pats:
-                if a in l and 'tag=!bm.m281' not in l:
+                if a in l and f'tag=!{TT}' not in l:
                     L[i] = l = l.replace(a, b); n_gated += 1
     G.P168_GATED = n_gated
     return len(kill), n_gated

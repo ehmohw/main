@@ -42,6 +42,7 @@ WATER_TOP = 5
 RIVER = (12, 22)              # (x range the curving river channel stays inside)
 DOOR_BOX = M2.DOOR_BOX
 VIP_SHELL, AUCTION_SEATS, CUSHIONS, COUNTERS, HOLES = [], [], [], [], []
+TOWN_TAG = 'bm.m281a'          # (on the town's marker: a market without it is rebuilt - 2.81a: the 2.81 towns too, for their counters)
 # water the market keeps (template boxes): the river and the harbour basin, the falls, Mike's pond and the falls into it
 WATER_KEEP = [((11, 0, 8), (24, 17, 85)), ((4, 0, 59), (22, 9, 78)), ((CX - 7, 4, CZ - 7), (CX + 7, 11, CZ + 7)), ((CX - 1, 4, CZ - 1), (CX + 1, SY - 1, CZ + 1))]
 
@@ -59,13 +60,12 @@ SPOTS = {
     'gate_dest': {'hall_in': ((37.5, W, 12.5), 180, 'hall'), 'hall_out': ((37.5, W, 17.5), 0, 'public'),
                   'vip_in': ((46.5, BF + 1, 12.5), 180, 'gutter'), 'vip_out': ((46.5, BF + 1, 17.5), 0, 'public'),
                   'den_in': ((4.5, W, 16.5), 0, 'den'), 'den_out': ((3.5, W, 24.5), 0, 'public')},
-    'floor_ledger': {'chef': ((65.5, W, 43.5), 90), 'professor': ((31.5, BF + 1, 18.5), -90), 'lucky': ((13.5, W, 68.5), 180),
-                     'captain': ((2.5, W, 18.5), 0)},
+    'floor_ledger': {},                     # (2.81a: none - every trader's back-room book lies on his own counter)
     'portraits': [((31.5, W, 41.5), -45), ((45.5, W, 41.5), 45), ((31.5, W, 51.5), -135), ((45.5, W, 51.5), 135)],
 }
 NPC_POS = {   # trader markers: (x, y, z, yaw)
     'fence': (46.5, W, 18.5, 90), 'pawn': (29.5, W, 20.5, -90), 'outfitter': (30.5, W, 29.5, -90), 'captain': (3.5, W, 17.5, 0),
-    'lucky': (12.5, W, 67.5, 180), 'arms': (56.5, W, 24.5, -90), 'armory': (67.5, W, 30.5, 90), 'chef': (65.5, W, 45.5, 90),
+    'lucky': (12.5, W, 72.5, 180), 'arms': (56.5, W, 24.5, -90), 'armory': (67.5, W, 30.5, 90), 'chef': (68.5, W, 45.5, 90),
     'blood': (63.5, W, 74.5, 180), 'professor': (30.5, BF + 1, 19.5, -90),
 }
 
@@ -260,7 +260,7 @@ def build():
         for (cx, cz) in cells:
             put(cx, W + 2, cz, f'{c1 if (cx + cz) % 2 else c2}_wool'); KEEP.add((cx, cz))
         for i, (cx, cz) in enumerate(front):
-            if g(cx, W, cz) == 'air': put(cx, W, cz, ['barrel[facing=up,open=false]', 'spruce_slab[type=top,waterlogged=false]', 'barrel[facing=up,open=false]'][i])
+            if g(cx, W, cz) == 'air': put(cx, W, cz, ['barrel[facing=up,open=false]', 'stripped_spruce_log[axis=y]', 'barrel[facing=up,open=false]'][i])
             if i == 1: put(cx, W + 1, cz, 'lantern[hanging=false,waterlogged=false]')
     for ang, face, c1, c2 in [(20, 'S', 'red', 'white'), (68, 'N', 'yellow', 'brown'), (122, 'E', 'green', 'white'),
                               (208, 'E', 'orange', 'white'), (238, 'S', 'blue', 'white'), (296, 'S', 'red', 'black'), (336, 'W', 'lime', 'white')]:
@@ -378,7 +378,7 @@ def build():
             for t in (mid - 1, mid, mid + 1):
                 x, z = fcell(t); air(x, W, z); air(x, W + 1, z)
                 ix, iz = x - dx, z - dz
-                put(ix, W, iz, 'spruce_slab[type=top,waterlogged=false]' if t == mid else 'barrel[facing=up,open=false]')
+                put(ix, W, iz, f'stripped_dark_oak_log[axis={"z" if front in "EW" else "x"}]' if t == mid else 'barrel[facing=up,open=false]')
                 COUNTERS.append((ix, iz))
                 if not jetty or storeys == 1:
                     ox, oz = out(t); put(ox, W + 2, oz, f'spruce_trapdoor[facing={fdir},half=top,open=false,powered=false,waterlogged=false]'); put(ox, W + 3, oz, f'{c1 if t % 2 else c2}_carpet')
@@ -442,6 +442,7 @@ def build():
     for x in range(28, 31): put(x, BF + 1, 22, 'bookshelf'); put(x, BF + 2, 22, 'bookshelf') if x != 29 else put(x, BF + 2, 22, 'candle[candles=4,lit=true,waterlogged=false]')
     put(29, BF + 1, 18, 'lectern[facing=south,has_book=false,powered=false]')
     for z in (19, 20): air(33, BF + 1, z); air(33, BF + 2, z)               # the Stacks' door onto the rope bridge
+    for z in (18, 19, 20): put(31, BF + 1, z, 'stripped_dark_oak_log[axis=z]')   # the Professor's desk (2.81a: his back-room book lies on it)
     for z in (18, 21): put(33, BF + 1, z, 'dark_oak_log[axis=y]')
     # the Stacks' tower, on the quay behind
     for y in range(W, 24):
@@ -599,7 +600,7 @@ def build():
     house(59, 39, 71, 52, 'W', 2, 'tavern', jetty=True, fill_='smooth_sandstone', roofmat='dark_oak', lit=0.95, doorway='wide')
     counter([(67, z) for z in range(41, 51)])
     for z in range(40, 52): put(70, W, z, 'smoker[facing=west,lit=true]' if z % 4 == 1 else 'barrel[facing=west,open=false]')
-    for (x, z) in [(67, 42), (67, 46), (67, 49)]: put(x, W + 1, z, 'honeycomb_block')
+    for (x, z) in [(70, 42), (70, 46)]: put(x, W + 1, z, 'honeycomb_block')          # (2.81a: on the back bar - nothing stands on the counter)
     for (cx, cz) in [(61, 41), (61, 48), (64, 50), (62, 44)]:
         put(cx, W, cz, 'dark_oak_fence'); put(cx, W + 1, cz, 'dark_oak_pressure_plate[powered=false]')
         for (sx, sz) in ((cx - 1, cz), (cx + 1, cz)):
@@ -844,6 +845,7 @@ def build():
             for y in range(W, W + 4): rock(x, y, z)
     for z in (20, 21, 22): put(4, W, z, 'deepslate_brick_slab[type=top,waterlogged=false]')
     put(4, W + 1, 22, 'spruce_planks')
+    counter([(x, 18) for x in (2, 3, 4)])                                       # the Captain's counter (2.81a: his back-room book lies on it)
     put(1, W, 13, 'gold_block'); put(2, W, 13, 'gold_block'); put(1, W + 1, 13, 'gold_block'); put(1, W, 14, 'raw_gold_block')
     put(1, W, 16, 'chest[facing=east,type=single,waterlogged=false]'); put(5, W, 13, 'barrel[facing=up,open=false]'); put(5, W + 1, 13, 'cake')
     put(3, W + 3, 16, 'lantern[hanging=true,waterlogged=false]')
@@ -872,7 +874,7 @@ def build():
         put(sl['wall_x'], W, z, 'redstone_block'); put(sl['wall_x'], W + 1, z, 'redstone_lamp[lit=true]'); air(sl['wall_x'], W + 2, z)
         put(sl['lever_x'], W + 1, z, 'lever[face=wall,facing=east,powered=false]')
     for z in (66, 68, 70, 72): put(sl['wall_x'], W, z, 'gold_block')
-    counter([(x, 72) for x in range(10, 14)], top='gold_block')
+    counter([(x, 71) for x in range(10, 14)], top='gold_block')           # (2.81a: Lucky behind it at z 72)
     for (x, z) in [(12, 70), (13, 70)]: put(x, W, z, 'red_carpet' if (x + z) % 2 else 'black_carpet')
     put(13, W, 66, 'bell[attachment=floor,facing=west,powered=false]')
     put(11, W + 3, 69, 'lantern[hanging=true,waterlogged=false]')
@@ -981,7 +983,7 @@ def build():
     for (x, y, z) in [(38, W + 2, 46), (20, W + 2, 46), (58, W + 2, 46), (38, W + 2, 22), (38, BF + 2, 76), (8, W + 2, 26), (11, W + 2, 66),
                       (63, W + 2, 24), (63, W + 2, 70), (38, W + 2, 8), (55, BF + 2, 8), (46, BF + 2, 18), (30, BF + 2, 20), (12, W + 2, 40)]:
         M(x + 0.5, y, z + 0.5, ['bm.market_hall', 'bm.zone_m'], 0)
-    M(CX + 0.5, W + 2, CZ + 0.5, ['bm.mkt', 'bm.m281'], 0)
+    M(CX + 0.5, W + 2, CZ + 0.5, ['bm.mkt', TOWN_TAG], 0)
     for (x, y, z, yaw, nid) in [(11.5, W + 6.0, 63.6, 180, 'lucky'), (38.5, BF + 4.0, 72.4, 0, 'welcome'), (57.45, W + 5.6, 45.5, 90, 'flagon'),
                                 (63.5, W + 5.5, 22.6, 0, 'forge'), (57.45, W + 7.2, 71.5, 90, 'blood'), (37.5, W + 5.4, 15.4, 0, 'auction'),
                                 (46.5, BF + 4.4, 15.3, 0, 'vip'), (13.05, W + 5.2, 26.5, -90, 'docks'), (38.5, W + 7.5, 24.5, 0, 'alley')]:
@@ -1088,4 +1090,15 @@ def check(B):
         errs.append('the mouse hole is not a half-block gap')
     for p in DOOR_BOX:
         if B.b.get(p, '').startswith('minecraft:light'): errs.append(f'light block {p} inside the vault door fill box')
+    # (2.81a) no slab as or on a counter, nor between a trader and his customers: a slab hides the trader and the book on it
+    for (x, z) in COUNTERS:
+        for y in (W, W + 1):
+            if 'slab' in B.b.get((x, y, z), ''): errs.append(f'slab at the counter {(x, y, z)}')
+    for nm, (x, y, z, yaw) in NPC_POS.items():
+        fx, fz = round(-math.sin(math.radians(yaw))), round(math.cos(math.radians(yaw)))
+        for df in (1, 2):
+            for ds in (-1, 0, 1):
+                cx, cz = int(math.floor(x + fx * df + fz * ds)), int(math.floor(z + fz * df - fx * ds))
+                for yy in (int(y), int(y) + 1):
+                    if 'slab' in B.b.get((cx, yy, cz), ''): errs.append(f'slab in front of {nm} at {(cx, yy, cz)}')
     return sorted(set(errs))
