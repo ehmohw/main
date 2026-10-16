@@ -141,12 +141,12 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
   ok('The Lockers: a copper door on the north wall; the plate by the way out is gone', (await isb(8, 4, 1, 'minecraft:waxed_copper_door')) && (await isb(2, 4, 7, 'minecraft:air')));
   ok('"Back to the crew": a plate you can see, by the far door', (await isb(21, 3, 17, 'minecraft:emerald_block')) && (await isb(21, 4, 17, 'minecraft:polished_blackstone_pressure_plate')));
   // click the Raid Crew board, then the Lockers' door
-  await run(`execute in bm:gutter run tp TestRat ${at(22, 4, 4).split(' ').map((v, i) => +v + (i === 1 ? 0 : 0.5)).join(' ')} 180 20`); await sleep(1500);
+  await run('tag TestRat add bm.gvok'); await run(`execute in bm:gutter run tp TestRat ${at(22, 4, 4).split(' ').map((v, i) => +v + (i === 1 ? 0 : 0.5)).join(' ')} 180 20`); await sleep(1500);
   await run('scoreboard players set TestRat bm.menu 0');
   A.interact(await eidAt('bm.ofcrew', 22, 4, 2));
   await sleep(600);
   ok('Right-click the Raid Crew board: the Raid Crew page', (await sc('bm.menu')) === 7807, `${await sc('bm.menu')}`);
-  await run(`execute in bm:gutter run tp TestRat ${at(8, 4, 3).split(' ').map((v, i) => +v + (i === 1 ? 0 : 0.5)).join(' ')} 180 10`); await sleep(1500);
+  await run('tag TestRat add bm.gvok'); await run(`execute in bm:gutter run tp TestRat ${at(8, 4, 3).split(' ').map((v, i) => +v + (i === 1 ? 0 : 0.5)).join(' ')} 180 10`); await sleep(1500);
   A.interact(await eidAt('bm.lkdoor', 8, 4, 1));
   await sleep(900);
   const lx = +(await run('data get entity TestRat Pos[0]')).replace(/.*data: /, '').replace('d', '');
@@ -165,7 +165,7 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
   const rcAll = require('fs').readdirSync(RCD).map(f => require('fs').readFileSync(`${RCD}/${f}`, 'utf8')).join('\n');
   ok('The Recruiter: no trades - his book sells the contracts and the vault gems', nrc === 0 && ['fcontract_cecil', 'contract_medic', 'gem_fire'].every(i => rcAll.includes(`bm:"${i}"`)), `${nrc} trades`);
   ok('The Tailor stands at the counter', /The Tailor/.test(await near('bm.gvtail', 'CustomName')));
-  await run(`execute in bm:gutter run tp TestRat ${at(7, 4, 17).split(' ').map((v, i) => +v + (i === 1 ? 0 : 0.5)).join(' ')} 180 0`); await sleep(1500);
+  await run('tag TestRat add bm.gvok'); await run(`execute in bm:gutter run tp TestRat ${at(7, 4, 17).split(' ').map((v, i) => +v + (i === 1 ? 0 : 0.5)).join(' ')} 180 0`); await sleep(1500);
   await run('scoreboard players set TestRat bm.menu 0');
   let te = null; for (let i = 0; i < 20 && !te; i++) { te = await eidAt('bm.tailhit', 7, 4, 20); if (!te) await sleep(250); }
   if (te) A.interact(te);
@@ -316,7 +316,7 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
      (await metal(isD, 0, 8, 11)) && (await isD(0, 5, 12, "minecraft:air")) && (await isD(1, 4, 12, "minecraft:air")));
   const swirlN = async () => { await run(`execute in bm:gutter positioned ${atD(0, 4, 12)} store result score #t bm.rng if entity @e[type=block_display,tag=bm.exdoor,distance=..2]`); return num('scoreboard players get #t bm.rng'); };
   ok('...with the swirl in it', (await swirlN()) === 1);
-  await run(`execute in bm:gutter run tp TestRat ${atD(0, 4, 12).split(' ').map((v, i) => +v + (i === 1 ? 0 : 0.5)).join(' ')}`); await sleep(600);
+  await run('tag TestRat add bm.gvok'); await run(`execute in bm:gutter run tp TestRat ${atD(0, 4, 12).split(' ').map((v, i) => +v + (i === 1 ? 0 : 0.5)).join(' ')}`); await sleep(600);
   ok('Walk into it (before the heist begins): home', /overworld/.test(await dim('TestRat')) && !(await has('TestRat', 'bm.gvp')));
   await home(); await plan(1);
   const gV = await sc('bm.gvi');
@@ -330,11 +330,12 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
   await run(`execute in bm:gutter as ${vm} at @s run function bm:p70/r/vault/open`); await sleep(300);
   ok('...the vault opens (2.80: its great door parting, a second or two): the door swirls', await wait(4000, async () => (await doorV()) === 1));
   await win('TestRat'); await sleep(800);
-  await run(`execute in bm:gutter run tp TestRat ${atV(35, 4, 12).split(' ').map((v, i) => +v + (i === 1 ? 0 : 0.5)).join(' ')}`); await sleep(700);
+  await run('tag TestRat add bm.gvok'); await run(`execute in bm:gutter run tp TestRat ${atV(35, 4, 12).split(' ').map((v, i) => +v + (i === 1 ? 0 : 0.5)).join(' ')}`); await sleep(700);
   ok('Won: through the door, home - the haul with you', /overworld/.test(await dim('TestRat')) && !(await has('TestRat', 'bm.gvp')));
   await sleep(2500);
   await home();
 
   for (const p of ['TestRat', 'TestMouse']) await run(`scoreboard players reset ${p} bm.pty`);
+  await run('tag @a remove bm.gvok');   // (the operator's pass that staged the vault)
   console.log(`${res.filter(Boolean).length}/${res.length} passed`); process.exit(0);
 })().catch(e => { console.log('ERR', e); process.exit(1); });

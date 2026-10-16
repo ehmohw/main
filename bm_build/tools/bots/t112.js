@@ -89,7 +89,7 @@ const res = [];
     await run('item replace entity TestRat hotbar.0 with minecraft:red_concrete[minecraft:custom_data={bm_room:1b},minecraft:can_place_on={blocks:"minecraft:lodestone"}] 2');
     A.slot(0); await sleep(200);
     const mp = await H.mpos('mason', q); const gx = Math.floor(mp[0] - 12.5 + 11), gy = Math.floor(mp[1] - 1), gz = Math.floor(mp[2] - 12.5 + 11);
-    await run(`execute in bm:gutter run tp TestRat ${gx + 0.5} ${gy + 1} ${gz - 2.5} 0 40`); await sleep(400);
+    await run('tag TestRat add bm.gvok'); await run(`execute in bm:gutter run tp TestRat ${gx + 0.5} ${gy + 1} ${gz - 2.5} 0 40`); await sleep(400);
     A.useOn(gx, gy, gz, 1); await sleep(500);
     const placed = /passed/.test(await run(`execute in bm:gutter unless block ${gx} ${gy + 1} ${gz} minecraft:air`));
     A.useOn(gx - 1, gy, gz, 1); await sleep(500);
@@ -184,6 +184,7 @@ const res = [];
   }
   for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
   await run('function bm:admin/rooms_any'); await run('function bm:admin/variant_random');
+  await run('tag @a remove bm.gvok');   // (the operator's pass that staged the vault)
   console.log(`${res.filter(x => x).length}/${res.length} passed`);
   A.end(); R.end(); process.exit(0);
 })();

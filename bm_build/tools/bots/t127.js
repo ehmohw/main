@@ -12,7 +12,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     const sel = `@e[type=minecraft:interaction,tag=${tag},limit=1,sort=nearest,x=-307,y=68,z=-243]`;
     const p = await run(`execute in bm:gutter run data get entity ${sel} Pos`); const m = p.match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/);
     if (!m) return 'no entity';
-    await run(`execute in bm:gutter run tp TestRat ${m[1]} ${+m[2]} ${+m[3] - 1.5} 0 0`); await sleep(600);
+    await run('tag TestRat add bm.gvok'); await run(`execute in bm:gutter run tp TestRat ${m[1]} ${+m[2]} ${+m[3] - 1.5} 0 0`); await sleep(600);
     await run(`execute in bm:gutter as ${sel} run data modify entity @s interaction set value {player:[I;0,0,0,0],timestamp:1L}`);
     await run(`execute in bm:gutter as ${sel} run data modify entity @s interaction.player set from entity TestRat UUID`); await sleep(700); return 'clicked';
   };
@@ -74,6 +74,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
   ok('Iron run out everywhere: the Fixer tops the barrels up', /iron_ingot/.test(b1), b1.slice(0, 120));
   await run('execute in minecraft:overworld run kill @e[type=minecraft:marker,tag=t127m]');
   console.log(A.chats.slice(-6).join(' | ').slice(0, 600));
+  await run('tag @a remove bm.gvok');   // (the operator's pass that staged the vault)
   const pp = res.filter(Boolean).length; console.log(`\n${pp}/${res.length} passed`);
   A.end(); R.end(); process.exit(0);
 })().catch(e => { console.error(e); process.exit(1); });

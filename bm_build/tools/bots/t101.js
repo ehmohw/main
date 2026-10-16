@@ -67,7 +67,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   ok('A summoning item in the vault calls no one (the ledger does)', (await followers()) === fc0);
   // a second raider: one follower each
   const B = await bot('TestMouse'); await sleep(1500);
-  await run(`execute in bm:gutter run tp TestMouse ${'@a[name=TestRat,limit=1]'}`); await run('tag TestMouse add bm.gvp');
+  await run('tag TestMouse add bm.gvok'); await run(`execute in bm:gutter run tp TestMouse ${'@a[name=TestRat,limit=1]'}`); await run('tag TestMouse add bm.gvp');
   await run('scoreboard players operation TestMouse bm.gvi = TestRat bm.gvi'); await run('scoreboard players operation TestMouse bm.gvrun = TestRat bm.gvrun'); await run('execute as TestMouse unless score @s bm.pid matches 1.. run function bm:p21/pid');
   await sleep(2500);
   ok('A party raids light: one follower each', (await followers()) === 1, `${await followers()}`);
@@ -138,5 +138,6 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   await run('execute as TestRat at @s run function bm:p79/killed'); await sleep(300);
   ok('Beating plain KillerWatt still gives his plain Tendrils', (await items('*[minecraft:custom_data~{bm:"killerwatt_tendrils"}]')) === 1);
   await run('clear TestRat'); await run('execute as TestRat run function bm:admin/contracts_none');
+  await run('tag @a remove bm.gvok');   // (the operator's pass that staged the vault)
   console.log(`${res.filter(Boolean).length}/${res.length} passed`); process.exit(0);
 })().catch(e => { console.log('ERR', e); process.exit(1); });

@@ -25,7 +25,7 @@ const res = []; const X = 16800, Y = 100, Z = 16000;
     await run('scoreboard players set TestRat bm.menu 1100'); await run(`scoreboard players set #act bm.pay ${7600 + tier}`); await run('execute as TestRat at @s run function bm:p70/pick_tier');
     await run(`scoreboard players set #act bm.pay ${lives}`); await run('execute as TestRat at @s run function bm:p75/pick_lives'); await sleep(4000); };
   for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
-  const plany = /has 1 /.test(await run('scoreboard players get #plany bm.rng')); await run('function bm:admin/heist_plans_safe');
+  const plany = /has 1 /.test(await run('scoreboard players get #plany bm.rng')); await run('function bm:admin/plan_safe');
   await run('function bm:admin/heist_variants_never'); await run('function bm:admin/heist_boss_std');
   for (const p of ['TestRat', 'TestMouse']) {
     await run(`gamemode survival ${p}`); await run(`clear ${p}`); await run(`effect clear ${p}`);
@@ -90,7 +90,8 @@ const res = []; const X = 16800, Y = 100, Z = 16000;
 
   // ---- 4. knocked out: what you dropped comes back
   await run('clear TestRat *[minecraft:custom_data~{bm:"token"}]'); for (let i = 0; i < 5; i++) await run('loot give TestRat loot bm:items/token');
-  await run('effect clear TestRat'); await run('kill TestRat'); await sleep(4500);
+  await run('effect clear TestRat'); await sleep(600);    // (the pockets' snapshot is a few ticks old: let it see the 5)
+  await run('kill TestRat'); await sleep(4500);
   ok('Knocked out in the vault: back in the den with the Tokens you dropped', (await has('TestRat', 'bm.gvp')) && (await cnt('TestRat', '*[minecraft:custom_data~{bm:"token"}]')) === 5 &&
      A.bars.some(b => /back in your pockets/.test(b)), `${await cnt('TestRat', '*[minecraft:custom_data~{bm:"token"}]')} ${A.chats.slice(-3).join(' / ')} ${A.bars.slice(-2).join(' / ')} ${await dim('TestRat')}`);
   await setToks('TestRat', 40);
@@ -142,7 +143,7 @@ const res = []; const X = 16800, Y = 100, Z = 16000;
   const fill27 = '[' + Array.from({ length: 27 }, (_, i) => `{Slot:${i}b,id:"minecraft:cobblestone",count:64}`).join(',') + ']';
   for (const c of ['-252 64 -255', '-252 65 -255', '-251 64 -255', '-251 65 -255', '-250 64 -255', '-250 65 -255', '-249 64 -255', '-249 65 -255']) await run(`execute in bm:gutter run data modify block ${c} Items set value ${fill27}`);
   // TestRat (no bay) into the hall, clicks TestMouse's bay 1
-  await run('execute in bm:gutter run tp TestRat -253 64 -253'); await sleep(1500); A.chats.length = 0;
+  await run('tag TestRat add bm.gvok'); await run('execute in bm:gutter run tp TestRat -253 64 -253'); await sleep(1500); A.chats.length = 0;
   await run(`execute in bm:gutter as ${bay(1)} at @s run data modify entity @s interaction set value {player:[I;0,0,0,0],timestamp:1L}`);
   await run(`execute in bm:gutter as ${bay(1)} run scoreboard players operation #b bm.rng = @s bm.lkn`); await run(`execute in bm:gutter as ${bay(1)} run scoreboard players operation #o bm.rng = @s bm.lko`);
   await run(`execute in bm:gutter as ${bay(1)} run tag @s add bm.lkme`); await run('execute as TestRat at @s run function bm:p84/lk/claim'); await run(`execute in bm:gutter run tag @e[tag=bm.lkme] remove bm.lkme`);
@@ -153,7 +154,7 @@ const res = []; const X = 16800, Y = 100, Z = 16000;
   ok('...its old contents are out of it', !/diamond/.test(await run('execute in bm:gutter run data get block -254 64 -255 Items')));
   const lost = await run(`data get storage bm:lk lost.p${ridM}`);
   ok('...their keeper\'s other bays were full, so the diamonds wait as Lost & Found', /diamond/.test(lost), lost.slice(0, 160));
-  await run('clear TestMouse minecraft:barrel'); await run('execute in bm:gutter run tp TestMouse -247 64 -246'); await sleep(2500);
+  await run('clear TestMouse minecraft:barrel'); await run('tag TestMouse add bm.gvok'); await run('execute in bm:gutter run tp TestMouse -247 64 -246'); await sleep(2500);
   const lf1 = await run(`data get storage bm:lk lost.p${ridM}`); const crates = await cnt('TestMouse', 'minecraft:barrel[minecraft:custom_data~{bm_haul:1b}]');
   const near = await run('execute in bm:gutter store result score #t bm.rng if entity @e[type=minecraft:item,x=-256,y=60,z=-256,dx=16,dy=10,dz=16]');
   ok('The keeper steps into the Locker Hall: handed a Lost & Found crate with the diamonds', said(B, /Lost & Found/) && !/diamond/.test(lf1) && (crates === 1 || /Count: 1/.test(near)),
@@ -170,6 +171,7 @@ const res = []; const X = 16800, Y = 100, Z = 16000;
   await run('execute in bm:gutter run kill @e[type=minecraft:item,x=-256,y=60,z=-256,dx=16,dy=10,dz=16]');
   for (const p of ['TestRat', 'TestMouse']) { await run(`clear ${p}`); await run(`execute in minecraft:overworld run tp ${p} ${X + 0.5} ${Y + 1} ${Z + 0.5}`); await run(`scoreboard players reset ${p} bm.pty`); }
   await run(`execute in minecraft:overworld run forceload remove ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
-  if (plany) await run('function bm:admin/heist_plans_anywhere');
+  if (plany) await run('function bm:admin/plan_anywhere');
+  await run('tag @a remove bm.gvok');   // (the operator's pass that staged the vault)
   console.log(`\n${res.filter(Boolean).length}/${res.length} passed`); process.exit(0);
 })();

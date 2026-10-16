@@ -149,7 +149,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   await run('execute in bm:gutter positioned 1930 69 5 run function bm:p76/secret/set');
   ok('A loose brick: a cracked block with a hidden handle', /passed/.test(await run('execute in bm:gutter if block 1930 69 5 minecraft:cracked_deepslate_tiles')) && (await cnt('@e[type=interaction,tag=bm.gvsec]')) >= 1);
   const p1 = await pot();
-  await run('execute in bm:gutter run tp TestRat 1931.5 69 5.5');
+  await run('tag TestRat add bm.gvok'); await run('execute in bm:gutter run tp TestRat 1931.5 69 5.5');
   await run('execute in bm:gutter as @e[type=interaction,tag=bm.gvsec,x=1930,y=69,z=5,distance=..2] run data modify entity @s interaction set value {player:[I;1,2,3,4],timestamp:1L}'); await sleep(600);
   ok('...pull it: a hidden stash, coins into the pot', (await pot()) >= p1 + 2 && (await cnt('@e[type=interaction,tag=bm.gvsec,x=1930,y=69,z=5,distance=..2]')) === 0, `pot ${p1} -> ${await pot()}`);
   await run('execute in bm:gutter run kill @e[type=rabbit,tag=bm.gvthief]');
@@ -181,4 +181,5 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   await run('execute as TestRat at @s run function bm:p70/leave'); await sleep(2500);
   ok('Out again: the Second Wind and the Master Key come with you', (await num('execute store result score #t bm.rng run clear TestRat *[minecraft:custom_data~{bm:"master_key"}] 0')) === 1);
   await benchClean();
+  await run('tag @a remove bm.gvok');   // (the operator's pass that staged the vault)
   console.log(`\n${res.filter(Boolean).length}/${res.length} passed`); A.end(); R.end(); process.exit(0); })();

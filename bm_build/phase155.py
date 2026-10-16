@@ -8,12 +8,17 @@ THE LOCKER HALL  the Ledger took you there with everything you carried: a sword 
 THE HALL TO THE LOUNGE  the Ledger's Lounge trip from the Locker Hall kept the hall as its way home; it now keeps the
                  hall's own way home (where you came from in the overworld).
 THE PEARL OF RETURN  it took you to where you last died - into the vault, if you'd died on a heist. Not any more.
+A BAG STILL HELD  (a restore that never ran - a crash, a lost connection) the heist's door said "this time you keep what you
+                 carry" and let it all in. Now what you carry joins the bag, and it all comes home together.
+ENCHANTED GEAR   the heist gear that passes the check (the Thief's Cowl, Smuggler's and Whisperstep Boots) goes in as the
+                 Fixer sold it: enchanted at an anvil outside, it waits with the rest of your gear.
 A CATCH-ALL      anyone in the vault who is neither on a heist nor through the coat check (any other way in: a mod, a
                  command, a stale state after a heist) is caught within a quarter second: in the Lounge or the Locker Hall
                  their gear is checked on the spot; anywhere else they're seen out - home, their gear handed back.
 (The coffers and every room template carry no ender chest - nothing reaches your ender chest from inside.)"""
 from items import T
 
+WEAR = ['thiefs_cowl', 'smugglers_boots', 'whisperstep_boots']      # the heist gear an anvil could enchant (the Frisbee: mending at most)
 LOUNGE = '#e8c070'
 LOCK = '#c89a5a'
 
@@ -38,6 +43,56 @@ def generate(G):
     c2[-1] = 'execute unless entity @s[tag=bm.lkchk] run ' + c2[-1]
     G.FUNCS['p155/lk_check'][0:0] = ['tag @s add bm.lkchk']
     G.FUNCS['p155/lk_check'].insert(2, 'tag @s remove bm.lkchk')
+
+    # ---- a bag still held from before (a restore that never ran: a crash, a lost connection) - the heist's door let you
+    # keep what you carried. Now what you carry joins it: what isn't heist gear waits with the Fixer, and comes home with the rest
+    b2 = G.FUNCS['p72/bag/check2']
+    assert 'still minding your last lot' in b2[0], b2[0][:80]
+    b2[0] = '$execute if data storage bm:gv bag.p$(pid) run return run function bm:p155/stale_in'
+    fn('p155/stale_in', ['tag @s add bm.lgchk', 'function bm:p121/strip', 'tag @s remove bm.lgchk',
+                         say('The Fixer is still minding your last lot of gear - what you carry joins it. You\'ll have it all back at home.', '#ffcf40')])
+    # (p121/strip says its own word in the Lounge; at the heist's door it's said above)
+    st = G.FUNCS['p121/strip']
+    k = next(i for i, l in enumerate(st) if l.startswith('tellraw'))
+    st[k] = 'execute unless entity @s[tag=bm.lgchk] run ' + st[k]
+
+    # ---- heist gear goes in as the Fixer sold it: a Thief's Cowl or a pair of the boots enchanted outside (Protection,
+    # Feather Falling...) waits with the rest of your gear - the unenchanted ones still go in with you
+    import phase72 as P72
+    keep_any = '*[' + '|'.join(f'minecraft:custom_data~{{bm:"{t}"}}' for t in P72.KEEP) + ']'
+    keep_not = '*[' + ','.join(f'!minecraft:custom_data~{{bm:"{t}"}}' for t in P72.KEEP) + ']'
+    ench = 'minecraft:enchantments~[{levels:{min:1}}]'
+    keep_plain = keep_any[:-1] + ',!' + ench + ']'
+    wear_ench = '*[' + '|'.join(f'minecraft:custom_data~{{bm:"{w}"}}' for w in WEAR) + ',' + ench + ']'
+    has_ench = lambda w: f'[{{components:{{"minecraft:custom_data":{{bm:"{w}"}},"minecraft:enchantments":{{}}}}}}]'
+
+    def plain_slots(L):
+        n = 0
+        for i, l in enumerate(L):
+            if any(f' {sl} {keep_any}' in l for sl in P72.SLOT_OF.values()):
+                L[i] = l.replace(keep_any, keep_plain); n += 1
+        return n
+    b2 = G.FUNCS['p72/bag/check2']
+    assert plain_slots(b2) == 2 * len(P72.SLOT_OF)
+    rm = [i for i, l in enumerate(b2) if 'bag.p$(pid).inv[{components:' in l]
+    assert rm == list(range(rm[0], rm[-1] + 1)) and len(rm) == len(P72.KEEP), rm
+    b2[rm[-1] + 1:rm[-1] + 1] = ['$data modify storage bm:gv bag.p$(pid).inv append from storage bm:gv ench[]', 'data remove storage bm:gv ench']
+    b2[rm[0]:rm[0]] = ['data modify storage bm:gv ench set value []'] + \
+                      [f'$data modify storage bm:gv ench append from storage bm:gv bag.p$(pid).inv{has_ench(w)}' for w in WEAR]
+    k = b2.index(f'clear @s {keep_not}')
+    b2.insert(k + 1, f'clear @s {wear_ench}')
+    b2[1:1] = ['scoreboard players set #ench bm.rng 0'] + \
+              [f'execute if items entity @s {sl} {wear_ench} run scoreboard players set #ench bm.rng 1' for sl in ('container.*', 'armor.*')]
+    b2.append('execute if score #ench bm.rng matches 1 run ' +
+              say('Your enchanted heist gear waits with the rest - it goes in as the Fixer sold it, or not at all.', 'gray'))
+    # (the same for what joins a bag already held - p121/strip)
+    s1, s2 = G.FUNCS['p121/strip'], G.FUNCS['p121/strip2']
+    s1[1:1] = [f'execute store result score #n2 bm.rng run clear @s {wear_ench} 0', 'scoreboard players operation #n bm.rng += #n2 bm.rng']
+    assert plain_slots(s2) == len(P72.SLOT_OF)
+    k = s2.index('$data modify storage bm:gv cb.p$(pid) append from storage bm:gv sq[]')
+    s2[k + 1:k + 1] = [f'$data modify storage bm:gv cb.p$(pid) append from entity @s Inventory{has_ench(w)}' for w in WEAR]
+    k = s2.index(f'clear @s {keep_not}')
+    s2.insert(k + 1, f'clear @s {wear_ench}')
 
     # ---- the Lounge from the Locker Hall: its way home is the hall's way home
     le = G.FUNCS['p121/enter']

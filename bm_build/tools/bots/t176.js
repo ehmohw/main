@@ -5,6 +5,8 @@
 //   a death in the vault, then a Pearl of Return at home: it won't take you back into the vault (refunded).
 //   a stray in a heist's rooms (not on the job, not checked): seen out, home, within a second - their own gear with them.
 //   a stray in the Lounge: checked on the spot; its door hands it all back at home.
+//   a bag still with the Fixer (a restore that never ran), then a heist: what you carry joins it - it all comes home together.
+//   boots enchanted outside, into the Lounge: the Fixer keeps them (heist gear goes in as he sold it); the plain pair comes in.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
@@ -75,6 +77,37 @@ const res = [];
   if (ex) await A.walkTo(+ex[1], +ex[3]);
   await wait(6000, async () => /overworld/.test(await dim()), 300); await sleep(3500); A.stand();
   ok('...the Lounge\'s door: home, gear back', /overworld/.test(await dim()) && (await gear()), `${await dim()} ${await pos()}`);
+
+  // ================================================================== 5. a bag still held from before, at the heist's door
+  // (a restore that never ran - a crash: rcon leaves a bag with the Fixer; the heist used to say "this time you keep what you carry")
+  await run(`${O}tp TestRat ${HX + 0.5} ${HY} ${HZ + 0.5} 0 0`); await kit(); for (let k = 0; k < 4; k++) await run('loot give TestRat loot bm:items/token');
+  await run(`data modify storage bm:gv bag.p${pid} set value {inv:[{Slot:9b,id:"minecraft:apple",count:3}],eq:{}}`); await sleep(1200); A.stand();
+  A.slot(0); await sleep(300); await A.useWait(); await press(/Plan a Heist/); await press(/Tier I\b(?!I)/); A.chats.length = 0; await press(/^3\b|3 tries/i);
+  const inV = await wait(60000, async () => /gutter/.test(await dim()) && /bm\.gvp/.test(await tags()), 500);
+  await sleep(2000); A.stand();
+  ok('A bag still with the Fixer, then a heist: in the vault without the sword and helmet (they join the bag)', inV && !(await has('diamond_sword')) && !(await has('iron_helmet', 'armor.head')) &&
+     A.chats.some(c => /still minding your last lot/.test(c)), `${await dim()} sword ${await has('diamond_sword')} | ${A.chats.filter(c => /Fixer/.test(c)).slice(-2).join(' / ').slice(0, 220)}`);
+  if (inV) {
+    A.slot(0); await sleep(300); await A.useWait(); await press(/Leave the heist/); await press(/Leave now/);
+    await wait(8000, async () => /overworld/.test(await dim()), 300); await sleep(4500); A.stand();
+    const helm = (await has('iron_helmet', 'armor.head')) || (await has('iron_helmet'));      // (what joined the bag comes back to your pack, not your head)
+    ok('...Leave the heist: home with all of it - the sword, the helmet, and the old bag\'s apples', (await home()) && (await has('diamond_sword')) && helm && (await has('apple')),
+       `${await dim()} ${await pos()} sword ${await has('diamond_sword')} helmet ${helm} apples ${await has('apple')}`);
+  }
+
+  // ================================================================== 6. enchanted heist gear at the Lounge's door
+  await run(`${O}tp TestRat ${HX + 0.5} ${HY} ${HZ + 0.5} 0 0`); await kit();
+  await run('item replace entity TestRat armor.feet with minecraft:leather_boots[minecraft:custom_data={bm:"smugglers_boots"},minecraft:enchantments={"minecraft:feather_falling":4}]');
+  await run('loot replace entity TestRat hotbar.7 loot bm:items/whisperstep_boots'); await sleep(1200); A.stand();
+  const bootsOn = async () => passes('execute if items entity TestRat armor.feet *[minecraft:custom_data~{bm:"smugglers_boots"}]');
+  A.slot(0); await sleep(300); await A.useWait(); A.chats.length = 0; await press(/Fixer's Lounge/);
+  await wait(8000, async () => /gutter/.test(await dim()), 300); await sleep(1500); A.stand();
+  ok('Into the Lounge in boots enchanted outside: the Fixer keeps them; the plain Whisperstep Boots come in', /gutter/.test(await dim()) && !(await bootsOn()) && (await hasBm('whisperstep_boots')) &&
+     A.chats.some(c => /enchanted heist gear/.test(c)), `boots on ${await bootsOn()} | ${A.chats.slice(-2).join(' / ').slice(0, 200)}`);
+  const ex2 = (await run(`${GU}data get entity @e[type=minecraft:marker,tag=bm.lgexit,limit=1] Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/);
+  if (ex2) await A.walkTo(+ex2[1], +ex2[3]);
+  await wait(6000, async () => /overworld/.test(await dim()), 300); await sleep(3500); A.stand();
+  ok('...the door: home, the enchanted boots back on your feet', /overworld/.test(await dim()) && (await bootsOn()) && (await gear()));
 
   await run('clear TestRat'); await run(`${O}forceload remove ${HX - 8} ${HZ - 8} ${HX + 8} ${HZ + 8}`);
   console.log(`\n${res.filter(Boolean).length}/${res.length} passed`);

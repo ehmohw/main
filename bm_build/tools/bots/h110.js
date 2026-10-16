@@ -17,7 +17,7 @@ function mk(run) {
   const qs = async (k) => { const out = []; for (let q = 1; q <= 12; q++) if ((await cnt(room(k, q))) === 1) out.push(q); return out; };
   async function heist(kind, v, tier = 1, toks = 8) {
     for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
-    await run('function bm:admin/heist_plans_anywhere'); await run('function bm:admin/heist_variants_never');
+    await run('function bm:admin/plan_anywhere'); await run('function bm:admin/heist_variants_never');
     await run(`function bm:admin/rooms_only_${kind}`); await run(`function bm:admin/variant_${v}`);
     await run('clear TestRat'); await run('gamemode survival TestRat'); await run('effect give TestRat resistance 900 4 true'); await run('effect give TestRat saturation 900 0 true');
     await run('tag TestRat remove bm.gvzap'); await run('scoreboard players reset TestRat bm.pty'); await run('scoreboard players set TestRat bm.gvhc 0');

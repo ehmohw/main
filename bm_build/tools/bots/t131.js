@@ -98,7 +98,7 @@ const res = [];
   // ---- BEGIN: right-click the den's button
   const lp = (await run(`execute in bm:gutter run data get entity @e[type=minecraft:marker,tag=bm.gvr_lobby,scores={bm.gvi=${gi}},limit=1] Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/);
   const [lx, ly, lz] = lp.slice(1).map(v => Math.floor(+v));
-  await run(`execute in bm:gutter run tp TestRat ${lx + 9.5} ${ly + 1} ${lz + 3.5} -90 0`); await sleep(1200); A.stand();
+  await run('tag TestRat add bm.gvok'); await run(`execute in bm:gutter run tp TestRat ${lx + 9.5} ${ly + 1} ${lz + 3.5} -90 0`); await sleep(1200); A.stand();
   A.chats.length = 0; A.useOn(lx + 11, ly + 1, lz + 3, 4); await sleep(1500);
   const rdy = A.chats.join(' ');
   ok('Right-clicking BEGIN with no kit: the ready check says so ("press BEGIN again")', /Not everyone's ready/.test(rdy) && (await iscore('bm.gvst')) === 1, rdy.slice(-160));
@@ -203,6 +203,7 @@ const res = [];
   async function end() {
     await run(`${O}forceload remove ${HX - 8} ${HZ - 8} ${HX + 8} ${HZ + 8}`);
     for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
+    await run('tag @a remove bm.gvok');   // (the operator's pass that staged the vault)
     const pp = res.filter(Boolean).length; console.log(`\n${pp}/${res.length} passed`);
     A.end(); R.end(); process.exit(0);
   }

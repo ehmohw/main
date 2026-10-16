@@ -42,7 +42,10 @@ const res = [];
     for (const n of NAMES) for (let k = 0; k < 3; k++) await run(`loot give ${n} loot bm:items/token`);
     await holdLedger('TestRat');
     const opened = await A.useWait();
-    if (!opened) console.log(`   (${tag}: no Office on the Ledger - chat: ${A.chats.slice(-2).join(' / ').slice(0, 200)} | bar: ${A.bars.slice(-1).join('').slice(0, 120)})`); await A.press(/Plan a Heist/); await A.press(/Tier I\b(?!I)/);
+    if (!opened) console.log(`   (${tag}: no Office on the Ledger - chat: ${A.chats.slice(-2).join(' / ').slice(0, 200)} | bar: ${A.bars.slice(-1).join('').slice(0, 120)})`);
+    await A.press(/Plan a Heist/); await sleep(800);
+    if (!A.buttons().some(b => /Tier I\b/.test(b.label))) { show(A, `${tag}: after Plan a Heist`); console.log(`   (${tag}: bar ${A.bars.slice(-1).join('').slice(0, 160)} | chat ${A.chats.slice(-2).join(' / ').slice(0, 200)})`); }
+    await A.press(/Tier I\b(?!I)/);
     B.dialogN.length = 0; B.chats.length = 0;
     await A.press(/^3\b|3 tries/i);
     // the member may be asked to opt in: press "I'm in" if a screen asks
@@ -82,6 +85,12 @@ const res = [];
     ok(`${tag}: the strongbox pays out`, paid, paid ? '' : `boss left ${(await run('execute in bm:gutter if entity @e[tag=bm.gvboss]')).slice(0, 40)} | vault state ${(await run(`execute in bm:gutter run scoreboard players get ${vsel} bm.gvs`)).replace(/.*has /, '')}`);
     await wait(8000, async () => A.buttons().some(b => /Go to the Lounge/.test(b.label)) && B.buttons().some(b => /Go to the Lounge/.test(b.label)));
     show(A, `${tag}: leader's screen`); show(B, `${tag}: member's screen`);
+    if (!A.buttons().some(b => /Go to the Lounge/.test(b.label))) {      // (why not: the server's side of it)
+      for (const n of NAMES) console.log(`   (${n}: ${(await run(`tag ${n} list`)).replace(/.*: /, '')} | gvi ${await sc(n, 'bm.gvi')} pid ${await sc(n, 'bm.pid')} menu ${await sc(n, 'bm.menu')} gvnx ${await sc(n, 'bm.gvnx')})`);
+      console.log(`   (instance ${gi}: state ${(await run(`execute in bm:gutter run scoreboard players get @e[type=minecraft:marker,tag=bm.gvinst,scores={bm.gvi=${gi}},limit=1] bm.gvst`)).replace(/.*has /, '')}` +
+                  ` | #pq ${(await run(`scoreboard players get #pq${gi - 1} bm.gvpq`)).replace(/.*has /, '')} | #ld ${(await run(`scoreboard players get #ld${gi - 1} bm.gvld`)).replace(/.*has /, '')}` +
+                  ` | A's last chat: ${A.chats.slice(-2).join(' / ').slice(0, 200)} | A dialogs ${A.dialogN.length})`);
+    }
     ok(`${tag}: the leader and the member each get a screen with "Go to the Lounge"`, A.buttons().some(b => /Go to the Lounge/.test(b.label)) && B.buttons().some(b => /Go to the Lounge/.test(b.label)));
     return gi;
   }

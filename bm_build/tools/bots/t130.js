@@ -42,7 +42,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
   if (want('gems')) {
     // 1. the heist lobby's gems never count (Pearlman rung up in the vault - he can't be, but even so)
     for (let i = 0; i < 12; i++) await run('loot give TestRat loot bm:items/medallion');
-    await run('execute in bm:gutter run tp TestRat -307.5 68 -243.5'); await sleep(2500);
+    await run('tag TestRat add bm.gvok'); await run('execute in bm:gutter run tp TestRat -307.5 68 -243.5'); await sleep(2500);
     await run('execute in bm:gutter positioned -307.5 68 -241.5 run function bm:p60/pm/spawn'); await sleep(600);
     const g = await tradeGems('bm:gutter');
     const gt = await tags(); let bought = 0;
@@ -127,12 +127,13 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     ok('Put his card away: he heads home', (await count('@e[type=minecraft:cat,tag=bm.pmpet]')) === 0);
     // not in the vault
     await run('loot replace entity TestRat hotbar.1 loot bm:items/pearl_card');
-    await run('execute in bm:gutter run tp TestRat -307.5 68 -243.5'); await sleep(2500); A.chats.length = 0; A.bars.length = 0;
+    await run('tag TestRat add bm.gvok'); await run('execute in bm:gutter run tp TestRat -307.5 68 -243.5'); await sleep(2500); A.chats.length = 0; A.bars.length = 0;
     A.use(); await sleep(400); A.release(); await sleep(800);
     ok('In the heist lobby he won\'t come ("Pearlman does not do heists")', (await count('@e[type=minecraft:cat,tag=bm.pmpet]', 'bm:gutter')) === 0 && A.bars.some(b => /heists/.test(b)), A.bars.slice(-1).join(''));
     await run(`${O}tp TestRat ${X + 0.5} ${Y} ${Z + 0.5}`); await sleep(1500);
   }
   await run(`${O}forceload remove ${X - 40} ${Z - 40} ${X + 40} ${Z + 40}`);
+  await run('tag @a remove bm.gvok');   // (the operator's pass that staged the vault)
   const pp = res.filter(Boolean).length; console.log(`\n${pp}/${res.length} passed`);
   A.end(); R.end(); process.exit(0);
 })().catch(e => { console.error(e); process.exit(1); });

@@ -141,7 +141,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   ok('...and the chests are locked to your key', new RegExp(`bm_lk: ?${pid}\\b`).test(await run('execute in bm:gutter run data get block -253 65 -255 lock')));
   ok("...the plaque shows your name", /TestRat/.test(await run('execute in bm:gutter run data get entity @e[type=minecraft:text_display,tag=bm.lkt1,limit=1] text')));
   // opening: no key in hand -> nothing; the key in hand -> the chest opens
-  await run('execute in bm:gutter run tp TestRat -253.0 64 -253.2 180 10'); await sleep(800);
+  await run('tag TestRat add bm.gvok'); await run('execute in bm:gutter run tp TestRat -253.0 64 -253.2 180 10'); await sleep(800);
   await run('item replace entity TestRat weapon.mainhand with minecraft:stick'); A.windows.length = 0;
   A.useOn(-254, 64, -255, 3); await sleep(700);
   const w0 = A.windows.length;
@@ -228,6 +228,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
 
   await run('execute as TestRat at @s run function bm:p70/leave'); await sleep(1500);
   await run('execute in bm:gutter run forceload remove -480 -480 -320 -320');
+  await run('tag @a remove bm.gvok');   // (the operator's pass that staged the vault)
   const pass = res.filter(Boolean).length; console.log(`\n${pass}/${res.length} passed`);
   A.end(); process.exit(0);
 })();

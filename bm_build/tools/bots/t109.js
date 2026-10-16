@@ -10,7 +10,7 @@ const res = [];
   const hasKey = async () => /passed/.test(await run(`execute if items entity TestRat container.* ${KEY}`));
   const A = await bot('TestRat'); await sleep(2500);
   for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
-  await run('function bm:admin/heist_plans_anywhere'); await run('function bm:admin/heist_variants_never');
+  await run('function bm:admin/plan_anywhere'); await run('function bm:admin/heist_variants_never');
   await run('clear TestRat'); await run('gamemode survival TestRat'); await run('effect give TestRat resistance 600 4 true');
   await run('execute in minecraft:overworld run tp TestRat 13000.5 120 13000.5'); await run('execute in minecraft:overworld run fill 12998 119 12998 13002 119 13002 stone'); await sleep(2500);
   ok('In the Overworld: no Locker Key', !(await hasKey()));
@@ -30,8 +30,8 @@ const res = [];
   ok('A dropped key is gone; a fresh one is in your pack', (await cnt('@e[type=minecraft:item,tag=bm.t109k]')) === 0 && await hasKey());
   // put in a locker: pulled out
   await run('execute in bm:gutter run data modify block -254 64 -255 Items set value [{Slot:3b,id:"minecraft:trial_key",count:1,components:{"minecraft:custom_data":{bm:"locker_key",bm_lk:1}}},{Slot:4b,id:"minecraft:dirt",count:1}]');
-  await run('execute in bm:gutter run tp TestMouse -253 64 -253');
-  const B = await bot('TestMouse'); await sleep(1500); await run('execute in bm:gutter run tp TestMouse -253 64 -253'); await sleep(2500);
+  await run('tag TestMouse add bm.gvok'); await run('execute in bm:gutter run tp TestMouse -253 64 -253');
+  const B = await bot('TestMouse'); await sleep(1500); await run('tag TestMouse add bm.gvok'); await run('execute in bm:gutter run tp TestMouse -253 64 -253'); await sleep(2500);
   const bay = await run('execute in bm:gutter run data get block -254 64 -255 Items');
   ok('A key left in a Locker Hall bay is taken out (the rest stays)', !/locker_key/.test(bay) && /dirt/.test(bay), bay.slice(0, 160));
   await run('execute in bm:gutter run data modify block -254 64 -255 Items set value []');
@@ -108,6 +108,7 @@ const res = [];
   await run('execute in bm:gutter run kill @e[tag=bm.t109t]');
   for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
   await run('scoreboard players set TestRat bm.gvhr 0'); await run('scoreboard players set TestRat bm.crew 0');
+  await run('tag @a remove bm.gvok');   // (the operator's pass that staged the vault)
   console.log(`${res.filter(Boolean).length}/${res.length} passed`);
   A.end(); B.end(); R.end(); process.exit(0);
 })();

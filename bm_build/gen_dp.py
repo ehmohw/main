@@ -139,6 +139,7 @@ import phase152 as R152      # 2.80: boss themes - a synthesised loop per kind o
 import phase153 as R153      # 2.80: the last chat menus as dialogs (server settings, the party's members)
 import phase140 as R140      # 2.78: Tiers IV and V bite back (tougher guards, a tougher Gutter King)
 import phase155 as R155      # 2.80a: the coat check, airtight (the Locker Hall's door, the pearl, a catch-all in the vault)
+import phase156 as R156      # 2.80a: the raid debugged (a finished heist closes when its crew leaves)
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import optimize              # 2.15: the final selector/gating pass (optimize.py)
@@ -1216,6 +1217,7 @@ def build(out_dir):
     R153.generate(sys.modules[__name__])
     R154.generate(sys.modules[__name__])
     R155.generate(sys.modules[__name__])
+    R156.generate(sys.modules[__name__])
     # 2.79: the mob rolls (elite, champion, lucky, prime, Blood Moon, invasion) leave alone a mob someone named or froze - a
     #  player's name-tagged pet, Wilfrey's body, the hidden trio's Eggbert, a statue: they were renamed and re-statted
     for _n, _lines in FUNCS.items():
