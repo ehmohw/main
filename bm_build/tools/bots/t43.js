@@ -15,6 +15,7 @@ const res = [];
   await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(2500);
   await run(`fill ${X - 25} ${Y} ${Z - 25} ${X + 25} ${Y} ${Z + 25} stone`); await run(`fill ${X - 25} ${Y + 1} ${Z - 25} ${X + 25} ${Y + 10} ${Z + 25} air`);
   await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..40]`); await run('time set noon'); await run('weather clear'); await run('kill @e[type=cat,tag=bm.emmapet]');
+  await run('scoreboard players reset TestRat bm.kwmd');   // (the mode is the player's own and stays: a fresh player starts in OFFENSE)
   await run('execute as TestRat run function bm:admin/cecil_relics'); await sleep(300);
   // ---- the tendrils, worn
   await run('item replace entity TestRat armor.chest from entity TestRat hotbar.0'); await run('item replace entity TestRat hotbar.0 with air'); await sleep(800);

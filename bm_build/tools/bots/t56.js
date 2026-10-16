@@ -10,6 +10,7 @@ const X = 11900, Y = 200, Z = 11900; const res = [];
   await run(`execute positioned ${X} ${Y + 1} ${Z + 9} run function bm:p54/vwk/summon`); await sleep(300);
   await run('execute as @e[type=enderman,tag=bm.vwk] at @s rotated ~ 0 run function bm:p54/vwk/voidlings'); await sleep(300);
   await run('effect give @e[type=enderman,tag=bm.vwk] slowness 60 255 true');
+  const hp0 = (await run('data get entity @e[type=enderman,tag=bm.vwk,limit=1] Health')).match(/([\d.]+)f/)?.[1];   // (2.80: its arrival holds its health high a while)
   let lev = false;
   for (let i = 0; i < 4; i++) { await run('execute as @e[type=enderman,tag=bm.vwk] at @s run function bm:p54/vwk/stars');
     for (let k = 0; k < 6; k++) { await sleep(250); lev = lev || /passed/.test(await run('execute if entity @a[name=TestRat,nbt={active_effects:[{id:"minecraft:levitation"}]}]')); } }
@@ -17,7 +18,7 @@ const X = 11900, Y = 200, Z = 11900; const res = [];
   const hp = (await run('data get entity @e[type=enderman,tag=bm.vwk,limit=1] Health')).match(/([\d.]+)f/)?.[1];
   const mx = +((await run('attribute TestRat minecraft:max_health get')).match(/is ([\d.]+)/) || [0, 20])[1];
   ok('Stars home in on the player (levitation from a hit)', lev || (await run('data get entity TestRat Health')).match(/([\d.]+)f/)[1] < mx, 'hp ' + (await run('data get entity TestRat Health')).slice(-6));
-  ok('...and never hurt the Voidwalker or its Voidlings', +hp === 450 && (await cnt('@e[type=endermite,tag=bm.vwkmin]')) === 3, `boss ${hp}, voidlings ${await cnt('@e[type=endermite,tag=bm.vwkmin]')}`);
+  ok('...and never hurt the Voidwalker or its Voidlings', +hp === +hp0 && (await cnt('@e[type=endermite,tag=bm.vwkmin]')) === 3, `boss ${hp0} -> ${hp}, voidlings ${await cnt('@e[type=endermite,tag=bm.vwkmin]')}`);
   ok('No stars left over', (await cnt('@e[type=marker,tag=bm.vwstar]')) === 0);
   await run('kill @e[tag=bm.vwk]'); await run('kill @e[tag=bm.vwkmin]'); await run('time set day');
   console.log(`\n${res.filter(Boolean).length}/${res.length} passed`); process.exit(0);

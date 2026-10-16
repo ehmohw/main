@@ -15,7 +15,8 @@ const res = [];
   await run(`execute in minecraft:overworld run tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(2000);
   await run('gamemode survival TestRat'); await run('clear TestRat'); await run('effect clear TestRat'); await run(`forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
   await run(`fill ${X - 10} ${Y} ${Z - 10} ${X + 10} ${Y} ${Z + 10} stone`); await run(`fill ${X - 10} ${Y + 1} ${Z - 10} ${X + 10} ${Y + 8} ${Z + 10} air`);
-  await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..30]`); await run('scoreboard players set TestRat bm.conq 0'); await run('tag TestRat remove bm.got_warp');
+  await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..30]`); await run('scoreboard players set TestRat bm.conq 0'); await run('scoreboard players reset TestRat bm.conqb');   // (bm.conqb: the Phase 2 conquest record - 6 passes the gate too)
+  await run('tag TestRat remove bm.got_warp');
   // ---- set it up
   await run('execute as TestRat run function bm:admin/hollow_gate'); A.slot(0); await sleep(300);
   await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 50`); await sleep(400);

@@ -29,9 +29,9 @@ const res = [];
   ok('Sneak + F goes back (sword -> trident)', (await held()) === 'shift_blade_trident', await held());
   await run('item replace entity TestRat weapon.offhand with minecraft:shield'); await pressF();
   ok('...and whatever was in your off-hand stays there', (await held()) === 'shift_blade_sword' && /shield/.test(await run('data get entity TestRat equipment.offhand.id')), await run('data get entity TestRat equipment.offhand.id'));
-  A.slot(1); await sleep(200); const p0 = await held(); const pk = []; for (let i = 0; i < 8; i++) { await pressF(); pk.push((await held() || '').replace('shift_pick_', '')); }
+  A.slot(2); await sleep(200); const p0 = await held(); const pk = [];   // (2.63: the kit is blade, Smite blade, pick, Silk Touch pick, bow) for (let i = 0; i < 8; i++) { await pressF(); pk.push((await held() || '').replace('shift_pick_', '')); }
   ok('Shifting Pick: all eight tools', p0 === 'shift_pick_pickaxe' && pk.join(',') === 'axe,shovel,hoe,shears,rod,brush,flint,pickaxe', pk.join(','));
-  A.slot(2); await sleep(200); const bw = []; for (let i = 0; i < 3; i++) { await pressF(); bw.push((await held() || '').replace('shift_bow_', '')); }
+  A.slot(4); await sleep(200); const bw = []; for (let i = 0; i < 3; i++) { await pressF(); bw.push((await held() || '').replace('shift_bow_', '')); }
   ok('Shifting Bow: bow -> crossbow -> trident -> bow', bw.join(',') === 'crossbow,trident,bow', bw.join(','));
   await run('clear TestRat'); await run('item replace entity TestRat weapon.offhand with air');
   // ---- followers vanish when you die
@@ -45,6 +45,7 @@ const res = [];
   ok('...and no cooldown: you can call them straight back', !((await sc('bm.emcd')) > 0) && !((await sc('bm.cpcd')) > 0));
   await sleep(1500); await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await run('kill @e[type=item]'); await sleep(800);
   // ---- Tendrils
+  await run('scoreboard players reset TestRat bm.kwmd');   // (the mode is the player's own and stays: a fresh player starts in OFFENSE)
   await run('execute as TestRat run function bm:admin/cecil_relics'); await sleep(300);
   await run('item replace entity TestRat armor.chest from entity TestRat hotbar.0'); for (let s = 0; s < 9; s++) await run(`item replace entity TestRat hotbar.${s} with air`); await sleep(800);
   ok('Tendrils start in OFFENSE', !((await sc('bm.kwmd')) === 1));

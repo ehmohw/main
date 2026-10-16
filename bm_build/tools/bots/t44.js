@@ -13,6 +13,7 @@ const res = [];
   await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(2500);
   await run(`fill ${X - 12} ${Y} ${Z - 12} ${X + 12} ${Y} ${Z + 12} stone`); await run(`fill ${X - 12} ${Y + 1} ${Z - 12} ${X + 12} ${Y + 8} ${Z + 12} air`);
   await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..30]`); await run('time set noon'); await run('weather clear');
+  await run('scoreboard players reset TestRat bm.kwmd');   // (the mode is the player's own and stays: a fresh player starts in OFFENSE)
   await run('execute as TestRat run function bm:admin/cecil_relics'); await sleep(300);
   await run('item replace entity TestRat armor.chest from entity TestRat hotbar.0'); await run('item replace entity TestRat hotbar.0 with air'); A.slot(8); await sleep(800);
   ok('Worn: reach 3 -> 5', (await num('attribute TestRat minecraft:entity_interaction_range get')) === 5);

@@ -126,7 +126,9 @@ const res = []; const X = 18000, Y = 120, Z = 18000;
   await run('scoreboard players set TestRat bm.gvhc 0'); await run('execute as TestRat at @s run function bm:p79/spark'); await sleep(500);
   await run('rotate TestRat -90 -60'); await sleep(200);
   const fy0 = (await pos(W))[1];
-  A.input({ forward: true }); await sleep(1500); A.input({}); await sleep(300);
+  // (riding as a client does: where it looks and what it presses, every tick - the flight follows the look)
+  for (let i = 0; i < 30; i++) { A.write('look', { yaw: -90, pitch: -60, flags: { onGround: false, hasHorizontalCollision: false } }); A.write('player_input', { inputs: { forward: true } }); A.write('tick_end', {}); await sleep(50); }
+  A.write('player_input', { inputs: {} }); await sleep(300);
   const fy1 = (await pos(W))[1];
   ok('Ethereal and ridden: look up and he FLIES', (await riding()) && fy1 - fy0 > 2 && /1b/.test(await run(`data get entity ${W} NoGravity`)), `${fy0.toFixed(1)} -> ${fy1.toFixed(1)}`);
   await run('rotate TestRat -90 0'); await sleep(400);

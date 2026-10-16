@@ -42,6 +42,7 @@ const TX = 16000, TY = 100, TZ = 16000; // a flat test pad
   await run(`tp TestRat ${sp[0]} ${sp[1]} ${sp[2]}`); await sleep(4000);
   ok('Old market: its shaft is retrofitted once', /bm\.ms74/.test(await run(`data get entity ${MS} Tags`)));
   await shaft(MS, 'Old market');
+  { const mp = await pos(MK); await run(`tp TestRat ${mp[0]} ${mp[1] + 1} ${mp[2]}`); await sleep(3000); }   // (the lift goes in when someone is in the market, not at the shaft)
   ok('Old market: it got the lift', /bm\.p74l/.test(await run(`data get entity ${MK} Tags`)) &&
      await pass(`execute as ${MK} at @s rotated as @s positioned ^5 ^6.5 ^40 if block ~ ~ ~ minecraft:pale_oak_button[powered=false]`) &&
      await pass(`execute as ${MK} at @s rotated as @s positioned ^5 ^7.5 ^40 if block ~ ~ ~ minecraft:dark_oak_wall_sign`));
@@ -91,7 +92,7 @@ const TX = 16000, TY = 100, TZ = 16000; // a flat test pad
   // followers still kept out of the vault
   await run('scoreboard players reset TestRat bm.emcd');
   const fo = async (d) => /players online/.test(await run(`execute in ${d} as TestRat if function bm:p74/fol_ok run list`));
-  ok('...but not in the vault', !(await fo('bm:gutter')) && !(await fo('bm:hollow_throne')) && await fo('minecraft:overworld') && await fo('minecraft:the_nether'));
+  ok('...but not in the vault', !(await fo('bm:gutter')) && await fo('minecraft:overworld') && await fo('minecraft:the_nether'));   // (2.78: the Hollow's throne takes them - the Serpent's Den)
   // heists pay cash
   await run('clear TestRat');
   // (2.67: the haul's cash no longer carries Tokens - the Fixer's prize in the Black Market haul does, 1 at Tier I up to 5 at Tier V, Medallions from Tier III)
