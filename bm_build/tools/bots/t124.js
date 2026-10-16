@@ -26,7 +26,8 @@ const res = [];
   await act(7877); ok('A Medallion in your pocket -> 16 coins', (await items('*[minecraft:custom_data~{bm:"gutter_medallion"}]')) === 0 && (await sc('bm.gbc')) === 444);
   await run('scoreboard players set TestRat bm.gbc 10'); A.chats.length = 0;
   await act(7875); ok('Not enough loose coins: it says so, nothing changes', (await sc('bm.gbm')) === 0 && A.chats.some(c => /16 loose coins/.test(c)));
-  const cd = fs.readFileSync(OUT + 'p80/bank_cdlg.mcfunction', 'utf8'), bk = fs.readFileSync(OUT + 'p120/bk_dlg.mcfunction', 'utf8');
+  const cd = fs.existsSync(OUT + 'p80/bank_cdlg.mcfunction') ? fs.readFileSync(OUT + 'p80/bank_cdlg.mcfunction', 'utf8') : '',   // (2.80: the coins page went with the Rat Bank's rework)
+    bk = fs.readFileSync(OUT + 'p120/bk_dlg.mcfunction', 'utf8');
   ok('"Take out coins" is coins only; the exchange lives on the Medallions & Trophies page', !/set 7857/.test(cd) && !/set 7858/.test(cd) && /set 7875/.test(bk) && /set 7883/.test(bk));
   // chatter from a follower's menu
   await run('tag TestRat remove bm.hush'); await run('scoreboard players set TestRat bm.menu 9920');
