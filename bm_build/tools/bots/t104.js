@@ -30,6 +30,10 @@ const BAY = [[-242, 64, -244], [-242, 65, -244], [-242, 64, -243], [-242, 65, -2
   const fail = async who => { const I = await instOf(who); await run(`execute in bm:gutter as ${I} run function bm:p70/tag_mine`); await run(`execute in bm:gutter as ${I} run function bm:p75/fail`); };
   for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
   await run('function bm:admin/heist_variants_never'); await run('function bm:admin/heist_boss_std');
+  // (the stage: its own floor - safe ground to plan from, nothing to suffocate in)
+  await run(`execute in minecraft:overworld run forceload add ${X} ${Z}`);
+  await run(`execute in minecraft:overworld run fill ${X - 3} ${Y} ${Z - 3} ${X + 5} ${Y} ${Z + 3} minecraft:stone`);
+  await run(`execute in minecraft:overworld run fill ${X - 3} ${Y + 1} ${Z - 3} ${X + 5} ${Y + 4} ${Z + 3} minecraft:air`);
   for (const p of ['TestRat', 'TestMouse']) {
     await run(`execute in minecraft:overworld run tp ${p} ${X + (p === 'TestRat' ? 0.5 : 2.5)} ${Y + 1} ${Z + 0.5} 0 0`);
     await run(`gamemode survival ${p}`); await run(`clear ${p}`); await run(`effect clear ${p}`);
@@ -62,6 +66,7 @@ const BAY = [[-242, 64, -244], [-242, 65, -244], [-242, 64, -243], [-242, 65, -2
     let lo = 99, hi = 0;
     for (let i = 0; i < 30; i++) {
       await run(`scoreboard players set #gt bm.rng ${t}`); await run('scoreboard players set #pb bm.rng 0'); await run('scoreboard players set #plu bm.rng 0'); await run('scoreboard players set #th bm.rng 2');
+      await run('scoreboard players set TestRat bm.gstk 0'); await run('scoreboard players set #ccb bm.rng 0');     // (no streak or clean-crew bonus)
       await run('execute as TestRat at @s run function bm:p75/prize');
       const n = await num('scoreboard players get #ptk bm.rng'); lo = Math.min(lo, n); hi = Math.max(hi, n); if (t === 5 && n > sure[5]) bonus5++;
     }
@@ -70,20 +75,23 @@ const BAY = [[-242, 64, -244], [-242, 65, -244], [-242, 64, -243], [-242, 65, -2
   ok('A won heist: the fee back for sure, and never more than the tier in extra (T1 +1 ... T5 +5)', bounds, detail);
   ok('...and now and then a few extra (Tier V: about a third of the time)', bonus5 >= 3 && bonus5 <= 20, `${bonus5} of 30`);
   let luckyOk = true;
-  for (let t = 3; t <= 5; t++) { await run(`scoreboard players set #gt bm.rng ${t}`); await run('scoreboard players set #plu bm.rng 1'); await run('execute as TestRat at @s run function bm:p75/prize');
+  for (let t = 3; t <= 5; t++) { await run(`scoreboard players set #gt bm.rng ${t}`); await run('scoreboard players set #plu bm.rng 1'); await run('scoreboard players set TestRat bm.gstk 0'); await run('scoreboard players set #ccb bm.rng 0'); await run('execute as TestRat at @s run function bm:p75/prize');
     if ((await num('scoreboard players get #ptk bm.rng')) !== sure[t] + t) luckyOk = false; }
   await run('scoreboard players set #plu bm.rng 0');
   ok('...a Lucky Raid: always the most extra (Tier III +3, IV +4, V +5)', luckyOk);
   let plainOk = true;
-  for (let t = 1; t <= 5; t++) { await run('scoreboard players set #th bm.rng 1'); await run(`scoreboard players set #gt bm.rng ${t}`); await run('execute as TestRat at @s run function bm:p75/prize');
+  for (let t = 1; t <= 5; t++) { await run('scoreboard players set #th bm.rng 1'); await run(`scoreboard players set #gt bm.rng ${t}`); await run('scoreboard players set TestRat bm.gstk 0'); await run('scoreboard players set #ccb bm.rng 0'); await run('execute as TestRat at @s run function bm:p75/prize');
     if ((await num('scoreboard players get #ptk bm.rng')) !== sure[t]) plainOk = false; }
   await run('scoreboard players set #th bm.rng 2');
   ok('...a plain or gutter haul still pays the fee back (just no extra)', plainOk);
   await run('execute in bm:gutter run data remove block -200 64 -197 Items'); await run('execute in bm:gutter run data remove block -198 64 -197 Items');
 
   // ---- 3. won: the leader is asked
+  const twR = await toks('TestRat'), twM = await toks('TestMouse'); A.chats.length = 0;
   await win('TestRat');
   ok('Won: a few seconds on, the leader is asked - home, or another job', await until(async () => /bm.gvask/.test(await tags('TestRat')), 8000));
+  ok('(2.82) Won: the Tokens go straight into each raider\'s pack - the fee back, at least (Tier I: 2)', (await toks('TestRat')) >= twR + 2 && (await toks('TestMouse')) >= twM + 2 &&
+     A.chats.some(c => /straight into your pack/.test(c)), `${twR} -> ${await toks('TestRat')} / ${twM} -> ${await toks('TestMouse')}`);
   ok('...the member is not (they wait on the leader)', !/bm.gvask/.test(await tags('TestMouse')) && B.chats.some(c => /Waiting on/.test(c)), B.chats.slice(-1)[0]);
   ok('...the choice is in chat too, as buttons', A.chats.some(c => /Back to the Overworld/.test(c) && /Start a new raid/.test(c)));
 
@@ -101,14 +109,14 @@ const BAY = [[-242, 64, -244], [-242, 65, -244], [-242, 64, -243], [-242, 65, -2
   ok('...its Tokens on you', (await toks('TestRat')) === tok0 + 5, `${tok0} -> ${await toks('TestRat')}`);
   ok('...its coins (and a Gutter Medallion, as 16) into the Gutter Bank', (await sc('bm.gbc')) === gbc0 + 36, `${gbc0} -> ${await sc('bm.gbc')}`);
   ok('...its spoils into the bank as spoils', (await sc('bm.gb1')) === gb10 + 3, `${gb10} -> ${await sc('bm.gb1')}`);
-  ok('...everything else into your locker (the crate you set down too)', (await bayCount('diamond')) === 2 && (await bayCount('oak_log')) === 16 && (await bayCount('emerald')) === 3,
+  ok('...everything else sealed into a Haul Crate in your locker (the crate you set down too)', (await bayCount('diamond')) === 2 && (await bayCount('oak_log')) === 16 && (await bayCount('emerald')) === 3,
      `${await bayCount('diamond')} ${await bayCount('oak_log')} ${await bayCount('emerald')}`);
-  ok('...and the Fixer says where it all went', A.chats.some(c => /unpacks your haul/.test(c)) && A.chats.some(c => /Into your locker: 3/.test(c)), A.chats.filter(c => /Into|Tokens on/.test(c)).join(' | '));
+  ok('...and the Fixer says where it all went', A.chats.some(c => /unpacks your haul/.test(c)) && A.chats.some(c => /Sealed in 1 Haul Crate\(s\), into your locker/.test(c)), A.chats.filter(c => /unpacks|Into|Tokens on|Sealed/.test(c)).join(' | '));
   ok('...then the Heist Plans open for the leader', /bm.gvnext/.test(await tags('TestRat')) && (await sc('bm.menu')) === 1100);
   ok('...the member is asked to opt in or out', /bm.gvoffer/.test(await tags('TestMouse')) && B.chats.some(c => /Count me in/.test(c)));
   await act('TestMouse', 7722);
-  ok('The member opts in: their haul unpacked too (their fee back on them)', /bm.gvin/.test(await tags('TestMouse')) && A.chats.some(c => /TestMouse is in/.test(c)) &&
-     hM0 >= 1 && (await hauls('TestMouse')) === 0 && (await toks('TestMouse')) >= tokM0 + 2, `${hM0} crate(s); ${tokM0} -> ${await toks('TestMouse')}`);
+  ok('The member opts in: their haul unpacked too (their Tokens still on them)', /bm.gvin/.test(await tags('TestMouse')) && A.chats.some(c => /TestMouse is in/.test(c)) &&
+     (await hauls('TestMouse')) === 0 && (await toks('TestMouse')) >= tokM0, `${hM0} crate(s); ${tokM0} -> ${await toks('TestMouse')}`);
   const gi1 = await sc('bm.gvi'), tR = await toks('TestRat'), tM = await toks('TestMouse');
   await plan(2);
   ok('The new raid: both in a fresh heist (still in the vault)', (await sc('bm.gvi')) !== gi1 && (await sc('bm.gvi', 'TestMouse')) === (await sc('bm.gvi')) &&
@@ -142,7 +150,7 @@ const BAY = [[-242, 64, -244], [-242, 65, -244], [-242, 64, -243], [-242, 65, -2
   await run('scoreboard players set #lpool bm.gvlp 101');
   const I2 = await instOf('TestRat');
   await run(`execute in bm:gutter as ${I2} run scoreboard players set @s bm.gvlu 1`);
-  A.chats.length = 0;
+  A.chats.length = 0; const tL0 = await toks('TestRat');
   await win('TestRat'); await sleep(800);
   ok('A Lucky win, two raiders, a pool of 101: 50 each', (await num('scoreboard players get #lpe bm.rng')) === 50 && (await num('scoreboard players get #lrm bm.rng')) === 1);
   ok('...and the odd Token to the leader', A.chats.some(c => /odd 1 to the leader, TestRat/.test(c)), A.chats.filter(c => /LUCKY|odd/.test(c)).join(' | '));
@@ -150,10 +158,9 @@ const BAY = [[-242, 64, -244], [-242, 65, -244], [-242, 64, -243], [-242, 65, -2
 
   // ---- 8. another job - the member has 3 Tokens (enough to opt in), but the leader picks Tier III (4): left behind, home
   ok('Won again: the leader is asked', await until(async () => /bm.gvask/.test(await tags('TestRat')), 8000));
-  const tR8 = await toks('TestRat');
   await run('clear TestMouse *[minecraft:custom_data~{bm_haul:1b}]'); await setToks('TestMouse', 3);
   await act('TestRat', 7721); await act('TestMouse', 7722);
-  ok('The leader\'s Lucky haul unpacked: at least the 51 Tokens on him', (await toks('TestRat')) >= tR8 + 51, `${tR8} -> ${await toks('TestRat')}`);
+  ok('The leader\'s Lucky Tokens: at least the 51 on him, straight from the win', (await toks('TestRat')) >= tL0 + 51, `${tL0} -> ${await toks('TestRat')}`);
   ok('A member with 3 Tokens may opt in', /bm.gvin/.test(await tags('TestMouse')));
   const tR8b = await toks('TestRat');
   await plan(3);

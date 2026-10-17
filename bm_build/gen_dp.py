@@ -152,6 +152,8 @@ import phase167 as R167      # 2.80i: tough mobs, not health sponges - lighter g
 import phase168 as R168      # 2.81: every Black Market rebuilt as the new town (market3.py), once
 import phase164 as R164      # 2.80e: Apophiss's Unbound Crown - the True Crown, a Wraithfire Heart and the Deathmask, forged
 import phase163 as R163      # 2.80d: Dennis and Pistachio, the followers (fifty trades), their pairs and the Crown's Prospect
+import phase169 as R169      # 2.82: King Omega - the Omega Palace, his tomb, his coming, his fight, his peace, the King at court
+import phase170 as R170      # 2.82: King Omega, the follower (Omega's Monocle), the Serpent Kings, the Palace Household
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import noglow                # 2.80e: no glowing outline on custom-modelled mobs' invisible hosts (noglow.py)
@@ -168,7 +170,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.81a'                                # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.82'                                # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -300,6 +302,7 @@ def npc_offers():
         offer(('medallion', 6), ('trophy', 1)),
         offer(('token', 2), ('sealed_map_market', 1)),
         offer(('token', 1), ('sealed_map_graveyard', 1)),
+        offer(('token', 8), ('bankers_card', 1)),     # 2.82: the Rat Bank in your pocket, over his counter
     ]
     arms_buy = ['kokiri_sword', 'cranky_pick', 'hammer_bro_hatchet', 'hylian_shield',      # 2.24: the Fairy Bow is Cecil's
                 'zora_trident', 'super_hammer']
@@ -1211,6 +1214,7 @@ def build(out_dir):
     if PHASE2: R132.generate(sys.modules[__name__])
     if PHASE2: R145.generate_early(sys.modules[__name__])
     if PHASE2: R163.generate_early(sys.modules[__name__])
+    if PHASE2: R170.generate_early(sys.modules[__name__])
     if PHASE2: R133.generate(sys.modules[__name__])
     if PHASE2: R134.generate(sys.modules[__name__])
     if PHASE2: R135.generate(sys.modules[__name__])
@@ -1244,6 +1248,8 @@ def build(out_dir):
     if PHASE2: R166.generate(sys.modules[__name__])
     if PHASE2: R167.generate(sys.modules[__name__])
     R168.generate(sys.modules[__name__])
+    if PHASE2: R169.generate(sys.modules[__name__])
+    if PHASE2: R170.generate(sys.modules[__name__])
     R161.generate(sys.modules[__name__])
     if PHASE2: R162.generate(sys.modules[__name__])
     # 2.79: the mob rolls (elite, champion, lucky, prime, Blood Moon, invasion) leave alone a mob someone named or froze - a

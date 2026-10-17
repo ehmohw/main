@@ -1529,7 +1529,7 @@ The den's old haul lectern, and **The Crate Desk** button in the Ledger's Office
 ### Guards and guardians
 - **Twice the guards.** Every tier's roster draws on the whole hostile pool:
   - **Tier I:** Gutter Urchins, Copper Bruisers, Vault Crawlers, Coin Mites, Gutter Goo and Copper Jockeys.
-  - **Tier II:** Rimelings, Silver Widows, Ex-Tellers, Iron Brutes and Vault Bats.
+  - **Tier II:** Rimelings, Silver Widows, Ex-Tellers and Iron Brutes.
   - **Tier III:** Gilded Hogs, Gutter Gamblers, Gilt Wisps, Gilded Archers, Molten Coins and Golden Jockeys.
   - **Tier IV:** Abyss Crawlers, Gem Mites, Mirror Thieves, Rime Archers and a little Vault Ravager.
   - **Tier V:** Ash Imps, Reaper Giants, Ravager Riders, Gale Wardens, Hoard Turrets, Void Mites and Twin Embers.

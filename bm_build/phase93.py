@@ -1,7 +1,7 @@
 """2.67: THE ROGUES' GALLERY - more of the vault's guards, odd sizes and speeds, and a second guardian for every tier.
 
 NEW GUARDS     every tier's roster doubles, drawn from the whole hostile pool: Gutter Urchins and Copper Bruisers, Vault Crawlers,
-               Coin Mites and Copper Jockeys (I); Rimelings, Silver Widows, Ex-Tellers, Iron Brutes and Vault Bats (II); Gilded Hogs,
+               Coin Mites and Copper Jockeys (I); Rimelings, Silver Widows, Ex-Tellers and Iron Brutes (II); Gilded Hogs,
                Gutter Gamblers, Gilt Wisps, Gilded Archers, Molten Coins and Golden Jockeys (III); Abyss Crawlers, Gem Mites, Mirror
                Thieves, Rime Archers and the little Vault Ravager (IV); Ash Imps, Reaper Giants, Ravager Riders, Gale Wardens, Hoard
                Turrets, Void Mites and Twin Embers (V).
@@ -44,8 +44,7 @@ NEW = {
         (2, mk('cave_spider', 'Silver Widow', '#c8d0d8', {}, {}, {'scale': 1.3, 'movement_speed': 0.33})),
         (2, mk('zombie_villager', 'Ex-Teller', '#a0a8b0', {'head': 'minecraft:iron_helmet', 'mainhand': 'minecraft:iron_sword'}, {'IsBaby': B(0), 'CanBreakDoors': B(0)}, NOREIN)),
         (1, mk('vindicator', 'Iron Brute', '#8a9098', {'head': 'minecraft:iron_helmet', 'mainhand': 'minecraft:iron_axe'}, BIG,
-               {'scale': 1.4, 'movement_speed': 0.28, 'knockback_resistance': 0.5})),
-        (1, mk('phantom', 'Vault Bat', '#6a6ab0', {}, {'size': Int(0)}, {'scale': 0.7}))],
+               {'scale': 1.4, 'movement_speed': 0.28, 'knockback_resistance': 0.5}))],                          # (2.82: the Vault Bat, a phantom, is gone - phantoms stuck to the ceilings)
     3: [(2, mk('hoglin', 'Gilded Hog', GOLD, {}, {'IsImmuneToZombification': B(1), 'CannotBeHunted': B(1)}, {'scale': 0.9})),
         (2, mk('piglin', 'Gutter Gambler', GOLD, {'head': 'minecraft:golden_helmet', 'mainhand': 'minecraft:crossbow'}, {'IsImmuneToZombification': B(1), 'CannotHunt': B(1)})),
         (1, mk('vex', 'Gilt Wisp', '#fff0a0', {'mainhand': 'minecraft:golden_sword'}, SMALL, {'scale': 0.8})),

@@ -69,7 +69,8 @@ def generate(G):
         return {'translation': [F(round(v, 4)) for v in t], 'left_rotation': [F(round(v, 5)) for v in q], 'right_rotation': ident, 'scale': [F(round(v, 4)) for v in sc]}
 
     # ================================================================== THE TRIO: hosts, their display parts, poses
-    HOSTS = {'bat': ('minecraft:phantom', {'size': Int(2), 'NoGravity': B(1)}), 'egg': ('minecraft:husk', {}), 'blob': ('minecraft:husk', {})}
+    HOSTS = {'bat': ('minecraft:vex', {'NoGravity': B(1)}),          # (2.82: a vex, not a phantom - a phantom could stick to the ceiling)
+              'egg': ('minecraft:husk', {}), 'blob': ('minecraft:husk', {})}
     HITBOX = {'bat': (2.2, 1.6, -0.3), 'egg': (1.9, 2.5, 0.0), 'blob': (2.2, 2.0, 0.0)}      # (each body's own box: width, height, drop)
     ATTR = {'bat': [('minecraft:attack_damage', 7.0), ('minecraft:knockback_resistance', 0.4)],
             'egg': [('minecraft:attack_damage', 9.0), ('minecraft:movement_speed', 0.22), ('minecraft:scale', 1.35), ('minecraft:knockback_resistance', 0.7),

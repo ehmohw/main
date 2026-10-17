@@ -67,7 +67,7 @@ KEY_ORDER = ['market_key', 'silver_key', 'gold_key', 'rat_king_key']
 # special: 'mending_book', 'treasure_map'.
 TRADER_ORDER = ['fence', 'pawn', 'outfitter', 'arms', 'armory', 'chef', 'professor', 'lucky', 'captain', 'blood']
 BACKROOM = {
-    'fence': [(1, 'sealed_explorer_map', 1, ('token', 3), "Sealed Explorer's Map"), (2, 'bankers_card', 1, ('medallion', 3), "Banker's Card"),
+    'fence': [(1, 'sealed_explorer_map', 1, ('token', 3), "Sealed Explorer's Map"), (2, 'bankers_card', 1, ('token', 6), "Banker's Card"),
               (4, 'smuggler_jar', 1, ('medallion', 6), "Smuggler's Jar")],
     'pawn': [(1, 'fair_weather_bell', 1, ('token', 6), 'Fair Weather Bell'), (2, 'minecraft:totem_of_undying', 2, ('medallion', 4), '2 Totems of Undying'),
              (4, 'spawner_crowbar', 1, ('medallion', 8), 'Spawner Crowbar')],

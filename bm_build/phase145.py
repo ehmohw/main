@@ -859,7 +859,8 @@ def generate(G):
                         'execute at @e[type=minecraft:item_display,tag=bm.fyrep,distance=..4] run particle minecraft:flash{color:[1.0,0.85,0.3,1.0]} ~ ~ ~ 0 0 0 0 1',
                         'particle minecraft:totem_of_undying ~ ~1.2 ~ 2.5 0.8 2.5 0.4 120',
                         'playsound minecraft:entity.generic.explode neutral @a[distance=..32] ~ ~ ~ 0.8 1.4',
-                        'playsound minecraft:ui.toast.challenge_complete neutral @a[distance=..24] ~ ~ ~ 0.6 1.6',
+                        'playsound minecraft:entity.player.splash.high_speed neutral @a[distance=..24] ~ ~ ~ 0.7 1.3',     # (2.82: a splash and a bell, not the achievement chime)
+                        'playsound minecraft:block.bell.use neutral @a[distance=..24] ~ ~ ~ 0.6 1.5',
                         f'execute as @e[{foe},distance=..7] at @s run function bm:p145/exhibited', 'tag @s remove bm.fyme',
                         'execute on owner if entity @s[distance=..24] run ' + fysay('The GRAND EXHIBITION! Admission: free. Survival: not included.')])
     fn('p145/exhibited', ['function bm:p145/hurt', 'effect give @s minecraft:levitation 1 3', 'particle minecraft:wax_on ~ ~1 ~ 0.3 0.5 0.3 0 8'])

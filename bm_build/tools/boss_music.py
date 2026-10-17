@@ -16,6 +16,8 @@ and ffmpeg - only to rebuild, never to build the packs).
     tide      THE DROWNED CAPTAIN Captain Tullius
     blood     BLOOD MOON          the Scorching Arachno-Lantern
     vorn      MOTHERSHIP          the Vorn mothership bosses
+    omega     KING OF THE DEAD    King Omega (2.82)
+    palace    THE OMEGA PALACE    the palace's haunted halls (2.82: a quiet waltz, not a fight)
     vault     (a fanfare, once)   the vault opens"""
 import os, sys, subprocess, tempfile, wave
 import numpy as np
@@ -538,10 +540,85 @@ def vault():
     return tr
 
 
+# ------------------------------------------------------------------ 2.82: King Omega and his palace - one tune, two ways
+OMEGA3 = mel('D5 G5 A#5 A5:2 G5 F#5 A5 D5 G5:3 D5 G5 A#5 D6:2 C6 A#5 A5 F#5 G5:3')                 # (the waltz, 3/4)
+OMEGA4 = mel('D5:.5 G5:.5 A#5 A5:1.5 G5:.5 F#5 A5 D5 r G5:3 r D5:.5 G5:.5 A#5 D6:1.5 C6:.5 A#5 A5 F#5 D5 G5:3 r '
+             'A#5:.5 A5:.5 G5:.5 F#5:.5 G5 D5 D#5:2 D5:2')                                                    # (the march, 4/4)
+
+
+def musicbox(f, dur, amp=1.0):
+    """a music box's tine: a bright FM ping, an octave of shimmer, a slow fade"""
+    a = bell(f, max(dur, 1.6), amp, 2.0, 2.6, 1.6)
+    b = bell(hz(m(f) + 12) if isinstance(f, str) else fq(f) * 2, 1.2, amp * 0.25, 3.0, 4.0, 1.0)
+    a[:len(b)] += b[:len(a)]
+    return a
+
+
+def omega():
+    """KING OF THE DEAD - 120 BPM in G harmonic minor: a cathedral organ, a heartbeat on the timpani, a ghost choir, his waltz
+    turned to a march - the music box breaks through in the middle, the old king remembering"""
+    tr = Track('omega', 120, 32)
+    prog = [('G2', 'm'), ('D#2', 'M'), ('C3', 'm'), ('D2', 'M')]
+    assert bars_of(OMEGA4) == 8
+    for bar in range(32):
+        ch = chord(*prog[bar % 4]); root = ch[0]
+        brk = 20 <= bar < 24
+        tr.add(organ([root] + [x + 12 for x in ch], tr.beat * 4, 0.32 if not brk else 0.18), tr.at(bar), 0, 1, 0.65)
+        tr.add(sub(root - 12, tr.beat * 3.9, 0.42), tr.at(bar), 0, 1, 0.05)
+        for b in (0, 0.4) if bar < 4 or brk else ():
+            tr.add(timp(root - 12, 0.6 if b == 0 else 0.4, 3.0), tr.at(bar, b), 0, 1, 0.4)          # (a heartbeat)
+        if 4 <= bar < 32 and not brk:
+            drums(tr, bar, kicks=(0, 2, 2.5), snares=(1, 3), hats=[i / 2 for i in range(8)], k=0.85, s=0.5, h=0.1)
+            for b in (0, 2): tr.add(timp(root - 12, 0.5), tr.at(bar, b), 0, 1, 0.45)
+            osti = [root + 24, root + 27, root + 31, root + 27]
+            for i in range(8): tr.add(strings(osti[i % 4], tr.beat * 0.45, 0.15, 2200), tr.at(bar, i / 2), (-0.3 if i % 2 else 0.3), 1, 0.3)
+        if bar >= 12 and not brk:
+            tr.add(choir([x + 12 for x in ch], tr.beat * 4, 0.3, 0.4), tr.at(bar), 0, 1, 0.6)
+        if bar < 4:
+            tr.add(choir(['G3', 'A#3', 'D4'], tr.beat * 4, 0.22, 1.2), tr.at(bar), 0, 1, 0.75)
+            tr.add(hiss(tr.beat * 3, 0.25), tr.at(bar, 0.5), (bar % 2) * 1.4 - 0.7, 1, 0.6)
+        if bar % 8 == 4: tr.add(crash(0.3), tr.at(bar), 0.3, 1, 0.3)
+        if bar in (3, 11, 19, 23, 31): tr.add(riser(tr.beat * 4, 0.24), tr.at(bar), 0, 1, 0.3)
+    play(tr, tr.at(4), OMEGA4, lambda x, d: organ([x], d, 0.5), 0.1, 1, 0.5)
+    play(tr, tr.at(12), OMEGA4, lambda x, d: brass([x], d, 0.44, 2800, 0.04), 0.1, 1, 0.4)
+    play(tr, tr.at(12), tp(OMEGA4, -12), lambda x, d: brass([x], d, 0.3, 1600, 0.06), -0.2, 1, 0.45)
+    t = tr.at(20)
+    for x, d in OMEGA3[:12]:                                         # (the break: the waltz on a music box, half the phrase)
+        if x is not None: tr.add(musicbox(x, d * tr.beat, 0.4), t, 0.3, 1, 0.55)
+        t += d * tr.beat * 4 / 3
+    play(tr, tr.at(24), OMEGA4, lambda x, d: choir([x], d + 0.15, 0.42, 0.1), 0, 1, 0.55)
+    play(tr, tr.at(24), tp(OMEGA4, 12), lambda x, d: lead(x, d, 0.16, 2600), 0.3, 1, 0.45)
+    play(tr, tr.at(24), OMEGA4, lambda x, d: brass([x], d, 0.4, 3000, 0.03), 0.1, 1, 0.4)
+    return tr
+
+
+def palace():
+    """THE OMEGA PALACE - a haunted waltz, 72 BPM in G minor (3/4): his tune on a music box in an empty ballroom, a slow pad,
+    a far-off organ, the wind through the halls and a choir that is not quite there"""
+    tr = Track('palace', 72, 24, beats=3)
+    prog = [('G2', 'm'), ('G2', 'm'), ('D#2', 'M'), ('D2', 'M'), ('C3', 'm'), ('G2', 'm'), ('A2', 'dim'), ('D2', 'M')]
+    assert bars_of(OMEGA3, 3) == 8
+    for bar in range(24):
+        ch = chord(*prog[bar % 8]); root = ch[0]
+        tr.add(pad([x + 12 for x in ch], tr.beat * 3 + 0.6, 0.18, 900, 1.2, 1.2), tr.at(bar), 0, 1, 0.7)
+        tr.add(pluck(hz(root), tr.beat * 1.2, 0.4, 0.99) * 0.5, tr.at(bar), -0.1, 1, 0.4)                     # (oom - pah - pah)
+        for b in (1, 2): tr.add(harpsi(hz(ch[1] + 12), 0.5, 0.12) + harpsi(hz(ch[2] + 12), 0.5, 0.12), tr.at(bar, b), 0.2, 1, 0.5)
+        if bar % 4 == 0: tr.add(organ([root] + [x + 12 for x in ch], tr.beat * 6, 0.12), tr.at(bar), -0.4, 1, 0.85)  # (far off)
+        if bar % 3 == 1: tr.add(hiss(tr.beat * 4, 0.22), tr.at(bar, 1), (bar % 2) * 1.6 - 0.8, 1, 0.7)            # (the wind)
+        if 8 <= bar < 16: tr.add(choir([ch[0] + 12, ch[2] + 12], tr.beat * 3, 0.14, 1.0), tr.at(bar), 0, 1, 0.8)
+        if bar in (7, 15, 23): tr.add(bell('G6', 3.0, 0.06, 3.01, 1.0, 2.2), tr.at(bar, 2), 0.6, 1, 0.8)            # (a far-off chime)
+    play(tr, tr.at(0), OMEGA3, lambda x, d: musicbox(x, d, 0.32), 0.25, 1, 0.55)
+    play(tr, tr.at(8), OMEGA3, lambda x, d: musicbox(x, d, 0.28), -0.25, 1, 0.6)
+    play(tr, tr.at(8), tp(OMEGA3, -12), lambda x, d: theremin(x, d, 0.1), 0.1, 1, 0.7)
+    play(tr, tr.at(16), OMEGA3, lambda x, d: musicbox(x, d, 0.34), 0.25, 1, 0.55)
+    play(tr, tr.at(16), tp(OMEGA3, 12), lambda x, d: musicbox(x, d, 0.1), -0.4, 1, 0.75)
+    return tr
+
+
 TRACKS = {'hunt': hunt, 'sands': sands, 'abyss': abyss, 'dungeon': dungeon, 'hollow': hollow, 'hollow2': hollow2, 'serpent': serpent,
-          'serpent2': serpent2, 'storm': storm, 'tide': tide, 'blood': blood, 'vorn': vorn, 'vault': vault}
+          'serpent2': serpent2, 'storm': storm, 'tide': tide, 'blood': blood, 'vorn': vorn, 'vault': vault, 'omega': omega, 'palace': palace}
 LENGTH = {'hunt': 60, 'sands': 60, 'abyss': 60, 'dungeon': 60, 'hollow': 64, 'hollow2': 60, 'serpent': 64, 'serpent2': 64,
-          'storm': 60, 'tide': 60, 'blood': 60, 'vorn': 60, 'vault': 10}
+          'storm': 60, 'tide': 60, 'blood': 60, 'vorn': 60, 'vault': 10, 'omega': 64, 'palace': 60}
 
 
 def save(tr, room=1.8, bright=5000):
@@ -560,4 +637,4 @@ if __name__ == '__main__':
     for nm in (sys.argv[1:] or list(TRACKS)):
         tr = TRACKS[nm]()
         assert round(tr.seconds) == LENGTH[nm], (nm, tr.seconds)
-        save(tr, room=2.6 if nm in ('hollow', 'abyss', 'vault', 'tide') else 1.8)
+        save(tr, room=2.6 if nm in ('hollow', 'abyss', 'vault', 'tide', 'omega') else 3.4 if nm == 'palace' else 1.8)

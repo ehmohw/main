@@ -45,7 +45,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   await run('scoreboard players set #noodd bm.gvv 1');
   const DP = BMB + 'out_p2/BlackMarket_DP/data/bm/function';
   const NEWN = {1: ['Gutter Urchin', 'Copper Bruiser', 'Vault Crawler', 'Coin Mite', 'Gutter Goo', 'Copper Jockey'],
-                2: ['Rimeling', 'Silver Widow', 'Ex-Teller', 'Iron Brute', 'Vault Bat'],
+                2: ['Rimeling', 'Silver Widow', 'Ex-Teller', 'Iron Brute'],
                 3: ['Gilded Hog', 'Gutter Gambler', 'Gilt Wisp', 'Gilded Archer', 'Molten Coin', 'Golden Jockey'],
                 4: ['Abyss Crawler', 'Gem Mite', 'Mirror Thief', 'Rime Archer', 'Vault Ravager'],
                 5: ['Ash Imp', 'Reaper Giant', 'Ravager Rider', 'Gale Warden', 'Hoard Turret', 'Void Mite', 'Twin Ember']};

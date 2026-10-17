@@ -47,6 +47,20 @@ const res = [];
   ok(`...bought for ${price} ${buyId}: the portrait in the pack, the price gone`, (await has('portrait_painting')) === 1 && (await has(buyId)) === 0);
   const comp = await nbt('TestRat', 'Inventory[{components:{"minecraft:custom_data":{bm:"portrait_painting"}}}]');
   ok('...a painting that carries its picture (painting/variant bm:portrait)', /minecraft:painting/.test(comp) && /bm:portrait/.test(comp), comp.slice(0, 200));
+  // (2.82) ...and the Banker's Card, over the same counter: 8 Tokens
+  let bdx = -1;
+  for (let i = 0; i < 40 && bdx < 0; i++) { const s = await nbt(FEN, `Offers.Recipes[${i}].sell.components."minecraft:custom_data".bm`); if (/Found no elements/i.test(s)) break; if (/"bankers_card"/.test(s)) bdx = i; }
+  const bprice = bdx < 0 ? 0 : +(((await nbt(FEN, `Offers.Recipes[${bdx}].buy.count`)).match(/(\d+)/) || [0, 0])[1]);
+  const bbuy = bdx < 0 ? '' : (await nbt(FEN, `Offers.Recipes[${bdx}].buy.components."minecraft:custom_data".bm`)).replace(/"/g, '');
+  ok('(2.82) the Fence sells the Banker\'s Card for 8 Tokens', bdx >= 0 && bprice === 8 && bbuy === 'token', `trade #${bdx}: ${bprice} ${bbuy}`);
+  if (bdx >= 0) {
+    await run('clear TestRat *[minecraft:custom_data~{bm:"token"}]'); for (let i = 0; i < bprice; i++) await run('loot give TestRat loot bm:items/token');
+    A.windows.length = 0; if (fen) A.interact(fen.entityId); await sleep(900);
+    const w2 = A.windows[A.windows.length - 1];
+    if (w2) { A.write('select_trade', { slot: bdx }); await sleep(300);
+      A.write('window_click', { windowId: w2.windowId, stateId: 0, slot: 2, mouseButton: 0, mode: 1, changedSlots: [], cursorItem: undefined }); await sleep(500); A.close(w2.windowId); await sleep(400); }
+  }
+  ok('...bought in a real trade: the card in the pack, the Tokens gone', (await has('bankers_card')) === 1 && (await has('token')) === 0);
   await run(`${O}kill ${FEN}`);
 
   // ---------------------------------------------------------------- hung on the wall with a use

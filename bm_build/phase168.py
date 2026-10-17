@@ -63,6 +63,10 @@ def generate(G):
         fn(f'p168/go_{n}', [])          # (filled in by finalize, once every phase has added its spawns)
     fn('admin/market_rebuild', [f'execute as @e[type=minecraft:marker,tag=bm.mkt,distance=..200,sort=nearest,limit=1] run tag @s remove {TT}',
                                 tellraw('@s', PREFIX + [T('The nearest Black Market is rebuilt as soon as its chunks load.', 'gold')])])
+    # (2.82: a trader is never invisible - the Fence is a wandering trader, and one carried over from an older market could keep the
+    #  invisibility it drank one night for good; nothing of the pack's ever hides a trader, so it's simply cleared)
+    second.append('effect clear @e[type=#bm:p56_traders,tag=bm.npc,predicate=bm:p126/invis] minecraft:invisibility')
+    second.append('execute as @e[type=minecraft:wandering_trader,tag=bm.npc,nbt=!{NoAI:1b}] run data merge entity @s {NoAI:1b}')
     G.FUNCS['loop/second'][0:0] = second
     G.P168_LOOK = look
 

@@ -26,7 +26,6 @@ import sys
 
 from PIL import Image
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import apophiss_art as A
 import omega_art as O

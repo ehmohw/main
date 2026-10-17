@@ -5,7 +5,7 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__)); BM = os.path.dirname(os.path.dirname(HERE))
-sys.path[:0] = [HERE, BM, os.path.join(BM, 'mockups')]
+sys.path[:0] = [HERE, BM]
 import draftkit as K, rigkit
 import omega_art as O
 import soulserp_art as S

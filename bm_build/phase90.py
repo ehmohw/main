@@ -627,6 +627,9 @@ def generate(G):
                'creaking', 'giant', 'wither']
     wjson('bm/tags/entity_type/gv_hostile.json', {'values': [f'minecraft:{h}' for h in HOSTILE]})
     G.FUNCS['loop/fast'][-1:-1] = ['execute in bm:gutter as @e[type=#bm:gv_hostile,tag=!bm.gvlt,distance=0..] run function bm:p90/nodrops']
+    # (2.82: no phantom in the vault at all - one wandering in, or spawned for a sleepless raider, sticks to the ceilings)
+    G.FUNCS['loop/second'][-1:-1] = ['execute in bm:gutter as @e[type=minecraft:phantom,distance=0..] at @s run function bm:p90/nophantom']
+    fn('p90/nophantom', ['tp @s ~ -400 ~', 'kill @s'])
     fn('p90/nodrops', ['tag @s add bm.gvlt',
                        'data merge entity @s {DeathLootTable:"bm:gv/guard",drop_chances:{mainhand:0f,offhand:0f,head:0f,chest:0f,legs:0f,feet:0f,body:0f}}'])
 

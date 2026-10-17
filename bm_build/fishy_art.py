@@ -18,9 +18,10 @@ PREFIX = 'fy_'
 RIG_SCALE = 1.0
 BOWL_LO, BOWL_HI = 13.6, 27.0                  # (2.80d: a square glass tank - no longer a round bowl built of turned slabs)
 TANK_W = 6.4                                   # (its half-width)
+WATER = 25.0                                   # (2.82: the water line - the tank is full, a hand's breadth from the rim)
 PIVOT = {'body': (0, 12.2, 0), 'legr': (3.4, 12.2, 0), 'legl': (-3.4, 12.2, 0),
          'armr': (8.2, 20.4, 0), 'forer': (9.9, 15.4, 0), 'arml': (-8.2, 20.4, 0), 'forel': (-9.9, 15.4, 0),
-         'fish': (0, 20.0, -1.0), 'weed': (3.3, 15.6, 0.6)}
+         'fish': (0, 20.0, 0.0), 'weed': (3.3, 15.6, 0.6)}
 PARENT = {'body': None, 'legr': None, 'legl': None, 'armr': 'body', 'forer': 'armr', 'arml': 'body', 'forel': 'arml', 'fish': 'body', 'weed': 'body'}
 PARTS = tuple(PIVOT)
 PART_K = {'fish': 1.5}                      # (the fish built small, shown half as big again - as big in his bowl as in the art)
@@ -44,16 +45,36 @@ def _glass(seed, alpha=40, streak=150):
         for y in range(16):
             r, g, b, a = px[x, y]; v = rnd.randint(-6, 6)
             px[x, y] = (min(255, r + v), min(255, g + v), min(255, b + v), a)
-    for y in range(2, 13):                                  # (a long white glint down one side, like the art's highlights)
-        px[3, y] = (255, 255, 255, streak); px[4, y] = (240, 250, 255, streak // 2)
-    px[11, 3] = px[12, 3] = px[11, 4] = (255, 255, 255, streak)
+    for y in range(3, 12):                                  # (a soft glint down one side, like the art's highlights; 2.82: fainter, no lone dots)
+        px[4, y] = (236, 248, 255, streak // 2)
     return im
 
 
 def _rim(seed):
-    im = Image.new('RGBA', (16, 16), (204, 232, 248, 150)); px = im.load()
+    im = Image.new('RGBA', (16, 16), (196, 226, 244, 160)); px = im.load(); rnd = random.Random(seed)   # (2.82: even - no white row for thin faces to catch)
     for x in range(16):
-        px[x, 2] = (255, 255, 255, 210); px[x, 13] = (120, 160, 190, 190)
+        for y in range(16):
+            v = rnd.randint(-5, 5); r, g, b, a = px[x, y]; px[x, y] = (r + v, g + v, min(255, b + v), a)
+    return im
+
+
+def _water(seed, alpha=44):
+    """(2.82) the water in his tank: a clear blue, faint light ripples"""
+    im = Image.new('RGBA', (16, 16), (70, 150, 214, alpha)); px = im.load(); rnd = random.Random(seed)
+    for x in range(16):
+        for y in range(16):
+            v = rnd.randint(-6, 6); r, g, b, a = px[x, y]; px[x, y] = (r + v, g + v, min(255, b + v), a)
+    for _ in range(4):
+        x, y = rnd.randrange(1, 14), rnd.randrange(16)
+        for k in range(3):
+            px[x + k, y] = (150, 210, 240, alpha + 16)
+    return im
+
+
+def _surface(seed):
+    """the water's top: lighter, with ripple rings"""
+    im = _water(seed, 64); d = ImageDraw.Draw(im)
+    d.arc((2, 2, 9, 7), 0, 360, fill=(190, 230, 250, 110)); d.arc((8, 8, 14, 13), 0, 360, fill=(190, 230, 250, 96))
     return im
 
 
@@ -117,7 +138,7 @@ def _eye(seed, look=0, shut=False, happy=False, wide=False):
 
 
 def textures():
-    T = {'fy_glass': _glass(901), 'fy_glass_b': _glass(902, 30, 90), 'fy_rim': _rim(903), 'fy_bubble': _glass(904, 120, 220),
+    T = {'fy_glass': _glass(901), 'fy_glass_b': _glass(902, 30, 90), 'fy_rim': _rim(903), 'fy_water': _water(929), 'fy_water_top': _surface(930), 'fy_bubble': _glass(904, 120, 220),
          'fy_metal': _shine('#6f8c9c', '#a8c4d0', 905), 'fy_band': _shine('#8db2be', '#c8e2ea', 906), 'fy_dark': _shine('#3d5464', '#6f8c9c', 907),
          'fy_joint': _shine('#9cc2ce', '#e0f2f6', 908), 'fy_sand': _sand(909), 'fy_weed': _weed(910), 'fy_stone': _stone(911), 'fy_roof': _roof(912),
          'fy_door': _noise('#4a3f72', 913, 4), 'fy_fish': _scales(914), 'fy_belly': _scales(915, '#ffc04c', '#ffe08a', '#f0a030'), 'fy_fin': _fin(916),
@@ -152,7 +173,7 @@ def models():
         body.append(el((cx - h, y0, cz - h), (cx + h, y0 + 0.9, cz + h), 'fy_roof', pv, shift=(0.2 * i, 0.3 * i)))
     body += [el((cx - 0.55, 15.6, cz - 1.36), (cx + 0.55, 17.6, cz - 1.31), 'fy_door', pv), el((cx - 0.35, 17.6, cz - 1.36), (cx + 0.35, 17.95, cz - 1.31), 'fy_door', pv)]
     # bubbles rising on his right, in front of the fish
-    for (x, y, sz) in ((1.9, 23.0, 0.55), (2.5, 24.3, 0.7), (1.7, 25.4, 0.45)):
+    for (x, y, sz) in ((1.9, 21.4, 0.55), (2.5, 22.7, 0.7), (1.7, 23.9, 0.45)):
         body.append(el((x - sz / 2, y - sz / 2, -1.6 - sz / 2), (x + sz / 2, y + sz / 2, -1.6 + sz / 2), 'fy_bubble', pv))
     # the glass: four panes (front and back span the width, the sides fit between them)
     W = TANK_W
@@ -160,6 +181,14 @@ def models():
              el((-W, BOWL_LO, W), (W, BOWL_HI, W + 0.12), 'fy_glass_b', pv, faces=('north', 'south'), shift=(0.4, 0.2)),
              el((W, BOWL_LO, -W), (W + 0.12, BOWL_HI, W), 'fy_glass_b', pv, faces=('east', 'west'), shift=(0.2, 0.5)),
              el((-W - 0.12, BOWL_LO, -W), (-W, BOWL_HI, W), 'fy_glass', pv, faces=('east', 'west'), shift=(0.6, 0.1))]
+    # (2.82) the water: a blue sheet just inside each pane up to the water line, and its rippled surface (seen from above
+    #  and from below), so the tank reads as full - the fish swims in it, his hat just breaking the surface
+    w = W - 0.06
+    body += [el((-w, 15.6, -w), (w, WATER, -w + 0.02), 'fy_water', pv, faces=('north', 'south')),
+             el((-w, 15.6, w - 0.02), (w, WATER, w), 'fy_water', pv, faces=('north', 'south'), shift=(0.5, 0.3)),
+             el((w - 0.02, 15.6, -w), (w, WATER, w), 'fy_water', pv, faces=('east', 'west'), shift=(0.3, 0.6)),
+             el((-w, 15.6, -w), (-w + 0.02, WATER, w), 'fy_water', pv, faces=('east', 'west'), shift=(0.7, 0.2)),
+             el((-w, WATER - 0.02, -w), (w, WATER, w), 'fy_water_top', pv, faces=('up', 'down'))]
     # the rim: a square frame round the opening; the band round the glass floor
     for (y0, y1, t, o) in ((BOWL_HI - 0.2, BOWL_HI + 0.5, 'fy_rim', 0.45), (BOWL_LO - 0.1, BOWL_LO + 0.3, 'fy_band', 0.25)):
         body += [el((-W - o, y0, -W - o), (W + o, y1, -W + 0.1), t, pv), el((-W - o, y0, W - 0.1), (W + o, y1, W + o), t, pv),
@@ -180,10 +209,11 @@ def models():
         f = [E((fx - 1.6, fy - 1.5, fz - 1.1), (fx + 1.6, fy + 1.4, fz + 1.1), 'fy_fish'),               # (2.80d: one block of a fish)
              E((fx - 1.0, fy - 1.4, fz - 1.18), (fx + 1.0, fy - 0.45, fz - 1.1), 'fy_belly', faces=('north',))]
         # the tail: swept back and round to his left, a forked fan
-        f += chain([(fx - 1.2, fy - 0.2, fz + 0.7), (fx - 2.3, fy - 0.5, fz + 1.4), (fx - 3.1, fy - 0.3, fz + 1.6)], (1.2, 0.8), 0.7, 'fy_fish', pv, UP)
-        f += [seg((fx - 3.0, fy - 0.3, fz + 1.6), (fx - 4.6, fy + 1.4, fz + 1.4), 1.0, 0.25, 'fy_fin', pv, FRONT),
-              seg((fx - 3.0, fy - 0.3, fz + 1.6), (fx - 4.3, fy - 1.9, fz + 1.2), 1.0, 0.25, 'fy_fin', pv, FRONT),
-              seg((fx + 1.3, fy - 0.6, fz - 0.6), (fx + 2.4, fy - 1.3, fz - 1.0), 0.9, 0.2, 'fy_fin', pv, FRONT),               # his right fin
+        # (2.82: tucked in closer - the old fan reached out through the glass as he swam his laps)
+        f += chain([(fx - 1.2, fy - 0.2, fz + 0.6), (fx - 1.9, fy - 0.4, fz + 1.0), (fx - 2.3, fy - 0.3, fz + 1.1)], (1.1, 0.8), 0.65, 'fy_fish', pv, UP)
+        f += [seg((fx - 2.2, fy - 0.3, fz + 1.1), (fx - 3.0, fy + 1.1, fz + 1.0), 0.9, 0.25, 'fy_fin', pv, FRONT),
+              seg((fx - 2.2, fy - 0.3, fz + 1.1), (fx - 2.9, fy - 1.5, fz + 0.9), 0.9, 0.25, 'fy_fin', pv, FRONT),
+              seg((fx + 1.3, fy - 0.6, fz - 0.6), (fx + 2.0, fy - 1.2, fz - 0.8), 0.8, 0.2, 'fy_fin', pv, FRONT),               # his right fin
               seg((fx - 1.3, fy - 0.6, fz - 0.4), (fx - 2.1, fy - 1.2, fz - 0.2), 0.7, 0.2, 'fy_fin', pv, FRONT),
               seg((fx - 0.2, fy + 1.4, fz + 0.4), (fx - 0.6, fy + 1.9, fz + 1.2), 0.25, 0.7, 'fy_fin', pv, SIDE)]                # the dorsal fin, behind the hat
         # eyes: a little apart, high on the face
@@ -298,7 +328,7 @@ POSES = {
 LAP = 8
 for _i in range(LAP):
     _a = 2 * math.pi * _i / LAP
-    _x, _z = 1.7 * math.sin(_a), -1.3 * math.cos(_a)
+    _x, _z = 1.0 * math.sin(_a), -0.76 * math.cos(_a)          # (2.82: a smaller lap, round the tank's middle - tail and all inside the glass)
     POSES[f'swim_{_i}'] = P(armr=limb(1, 4, 4), arml=limb(-1, 2, 6), forer=limb(1, 10), forel=limb(-1, 8),
                             fish=qs(('y', -math.degrees(_a) - 90)), _fish_at=(_x, 0.5 * math.sin(2 * _a), _z), weed=qs(('z', 8 * math.sin(_a))))
 DRAFT = ['idle_a', 'walk_a', 'wave_a', 'bow', 'point', 'shock', 'sit', 'tired', 'swim_2', 'swim_6']

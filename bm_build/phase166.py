@@ -151,6 +151,30 @@ def generate(G):
     fn('p166/rv/next', nx + ['function bm:p166/rv/done'])
     fn('p166/rv/done', ['tag @s remove bm.rv', 'scoreboard players set @s bm.rvs 0'] + [f'scoreboard players set @s bm.rv{k} 0' for k, *_r in RARITY])
 
+    # ================================================================== (2.82) A WIN'S TOKENS: straight into your pack, not shut in The Haul
+    #  (a Haul set down and opened was the only way to see your fee back - easy to miss, and a Haul left on the floor took them
+    #  along; what the pack has no room for stays in The Haul, as before)
+    HA, HB = '-200 64 -197', '-198 64 -197'
+    tk = '*[minecraft:custom_data~{bm:"token"}]'
+    G.FUNCS['p74/haul_pack'].insert(0, 'function bm:p166/tok_out')
+    fn('p166/tok_out', ['scoreboard players operation #pks bm.rng = #ptk bm.rng',
+                        f'execute in bm:gutter store result score #utk bm.rng if items block {HA} container.* {tk}',
+                        f'execute in bm:gutter store result score #c bm.rng if items block {HB} container.* {tk}',
+                        'scoreboard players operation #utk bm.rng += #c bm.rng',
+                        'execute if score #utk bm.rng matches ..0 run return run scoreboard players operation #ptk bm.rng = #pks bm.rng'] +
+       [f'execute in bm:gutter if items block {b} container.{n} {tk} run item replace block {b} container.{n} with minecraft:air' for b in (HA, HB) for n in range(27)] +
+       ['function bm:p102/cap', 'scoreboard players operation #ptk bm.rng = #utk bm.rng', 'scoreboard players operation #ptk bm.rng < #cap bm.rng',
+        'execute if score #ptk bm.rng matches 1.. run loot give @s loot bm:p75/prize_tokens',
+        'execute if score #ptk bm.rng matches 1.. run ' + tellraw('@s', [T('[', 'dark_gray'), T('Black Market', 'dark_purple', bold=True), T('] ', 'dark_gray'),
+                                                                       {'score': {'name': '#ptk', 'objective': 'bm.rng'}, 'color': GOLD, 'bold': True},
+                                                                       T(' Token(s) straight into your pack - your fee back, and any extra.', 'gray')]),
+        'scoreboard players operation #utk bm.rng -= #ptk bm.rng', 'execute if score #utk bm.rng matches 1.. run function bm:p166/tok_back',
+        'scoreboard players operation #ptk bm.rng = #pks bm.rng'])
+    fn('p166/tok_back', ['scoreboard players set #ptk bm.rng 64', 'scoreboard players operation #ptk bm.rng < #utk bm.rng',
+                         f'execute in bm:gutter unless data block {HA} Items[26] run loot insert {HA} loot bm:p75/prize_tokens',
+                         f'execute in bm:gutter if data block {HA} Items[26] run loot insert {HB} loot bm:p75/prize_tokens',
+                         'scoreboard players operation #utk bm.rng -= #ptk bm.rng', 'execute if score #utk bm.rng matches 1.. run function bm:p166/tok_back'])
+
     # ================================================================== HAUL CRATES (carrying on: what's left sealed, one crate a run)
     up = G.FUNCS['p102/unpack']
     up[up.index('function bm:p102/place')] = 'function bm:p166/seal'

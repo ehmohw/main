@@ -24,7 +24,7 @@ import sys
 
 from PIL import Image, ImageDraw
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import apophiss_art as A
 from phase57_art import hexc
 from rigkit import qs, el, seg, chain, I, mid
@@ -263,6 +263,20 @@ POSES = {
     # sit (a follower at rest): coiled on the air, arms folded, the flame curled round in front like a lantern on the ground
     'sit': P(_face='warm', _off=(0, 0.4, 0), body=qs(('x', -4)), chest=qs(('x', 4)), head=qs(('x', 6), ('y', 14)), jaw=qs(('x', 2)),
              armr=qs(('x', -56), ('z', 14)), arml=qs(('x', -50), ('z', -14)), tail1=qs(('x', 2), ('y', 54)), tail2=qs(('y', 56)), tail3=qs(('y', 50)), tail4=qs(('y', 50)), flame=qs(('y', 30))),
+    # (2.82) HIS COMING: he CRAWLS up out of the floor of his tomb - first the claws break the surface, reaching, then they
+    # plant on the stone either side and he drags his head and chest up out of the ground, maw wide; then he heaves the rest up
+    'crawl_a': P(_face='roar', _off=(0, -34, -2), coil=qs(('x', 4)), body=qs(('x', 8)), chest=qs(('x', 6)), head=qs(('x', -26)), jaw=qs(('x', 34)),
+                 armr=qs(('x', -172), ('z', -18)), arml=qs(('x', -166), ('z', 22)), tail1=qs(('x', -30)), tail2=qs(('x', -20)), tail3=qs(('x', -10)), tail4=I),
+    'crawl_b': P(_face='roar', _off=(0, -24, -2), coil=qs(('x', 6)), body=qs(('x', 18)), chest=qs(('x', 20)), head=qs(('x', -34)), jaw=qs(('x', 44)),
+                 armr=qs(('x', -96), ('z', -30)), arml=qs(('x', -92), ('z', 32)), tail1=qs(('x', -30)), tail2=qs(('x', -20)), tail3=qs(('x', -10)), tail4=I),
+    'crawl_c': P(_face='roar', _off=(0, -10, -1), coil=qs(('x', 4)), body=qs(('x', 14)), chest=qs(('x', 14)), head=qs(('x', -24)), jaw=qs(('x', 30)),
+                 armr=qs(('x', -40), ('z', -46)), arml=qs(('x', -36), ('z', 48)), tail1=qs(('x', -10)), tail2=qs(('x', -6)), tail3=I, tail4=I),
+    # beaten: he sinks down on his coils and bows his head - a king, kneeling (the game holds him here while the brothers talk)
+    'kneel': P(_face='tired', _off=(0, 0.8, 0), body=qs(('x', 24)), chest=qs(('x', 22)), head=qs(('x', 30)), jaw=qs(('x', 4)),
+               armr=qs(('x', 6), ('z', -10)), arml=qs(('x', 6), ('z', 10)), tail1=qs(('y', 30)), tail2=qs(('y', 36)), tail3=qs(('y', 30)), tail4=qs(('y', 30))),
+    # (the follower's seated glance, the other way)
+    'sit_b': P(_face='warm', _off=(0, 0.4, 0), body=qs(('x', -4)), chest=qs(('x', 4)), head=qs(('x', 2), ('y', -18)), jaw=qs(('x', 2)),
+               armr=qs(('x', -56), ('z', 14)), arml=qs(('x', -50), ('z', -14)), tail1=qs(('x', 2), ('y', 54)), tail2=qs(('y', 56)), tail3=qs(('y', 50)), tail4=qs(('y', 50))),
     # fading (beaten, or dismissed): slumped, head down - the game fades him out in soul-fire wisps
     'fade': P(_face='blink', _off=(0, -0.8, 0), body=qs(('x', 26), ('z', 6)), chest=qs(('x', 18), ('z', 6)), head=qs(('x', 4), ('z', 12)), jaw=qs(('x', 6)),
               armr=qs(('x', 20), ('z', -8)), arml=qs(('x', 28), ('z', 10)), tail1=qs(('y', -20)), tail2=qs(('y', -24)), tail3=qs(('y', -18)), tail4=qs(('y', -18)), flame=qs(('y', -10))),
@@ -285,7 +299,8 @@ for _n, _p in POSES.items():
 POSES['glide_m'] = mid(POSES['glide_a'], POSES['glide_b'])
 POSES['flame_swing'] = mid(POSES['flame_up'], POSES['flame_throw'])
 POSES['shock'] = dict(POSES['idle_a'], _face='shock', head=qs(('x', -10)), jaw=qs(('x', 30)), arml=qs(('x', -90), ('z', 40)))
-DRAFT = ['idle_a', 'glide_a', 'monocle', 'bow', 'welcome', 'battle', 'flame_up', 'flame_throw', 'claw', 'rally', 'summon', 'tired', 'sit', 'fade', 'shock']
+DRAFT = ['idle_a', 'glide_a', 'monocle', 'bow', 'welcome', 'battle', 'flame_up', 'flame_throw', 'claw', 'rally', 'summon', 'tired', 'sit', 'fade', 'shock',
+         'crawl_a', 'crawl_b', 'crawl_c', 'kneel']
 ANIMS = {'idle': [('idle_a', 30), ('idle_b', 30), ('idle_a', 30)],
          'glide': [('glide_a', 6), ('glide_m', 6), ('glide_b', 6), ('glide_m', 6), ('glide_a', 6)],
          'monocle': [('idle_a', 10), ('monocle', 10), ('monocle', 16), ('idle_a', 10)],
@@ -295,4 +310,5 @@ ANIMS = {'idle': [('idle_a', 30), ('idle_b', 30), ('idle_a', 30)],
          'rally': [('idle_a', 8), ('rally', 8), ('rally', 16), ('idle_a', 10)],
          'summon': [('battle', 6), ('summon', 12), ('summon', 14), ('battle', 8)],
          'tired': [('idle_a', 20), ('tired', 20), ('tired', 30)], 'fade': [('tired', 16), ('fade', 18), ('fade', 10)],
-         'rest': [('idle_a', 20), ('sit', 20), ('sit', 20)]}
+         'rest': [('idle_a', 20), ('sit', 20), ('sit', 20)],
+         'crawl': [('crawl_a', 20), ('crawl_a', 10), ('crawl_b', 24), ('crawl_c', 20), ('battle', 14), ('rally', 10), ('rally', 20)]}

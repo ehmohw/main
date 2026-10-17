@@ -4,7 +4,7 @@ ROOM CURSES   now and then a room is CURSED (a purple banner over the door says 
               Tier V. Beat a cursed room and the pot takes a few extra coins. A curse only lands where it's fair:
                 FOG       darkness creeps in (any room)
                 FROST     the cold slows you (not the rooms you cross by jumping)
-                LEADEN    no jumping at all (only puzzle rooms with nothing to jump)
+                LEADEN    no jumping at all - you step up a block instead (only puzzle rooms with nothing to jump; 2.82: the step)
                 FRAGILE   your armour counts for half (fights)
                 PHANTOMS  the guards are invisible - watch for the mould at their feet (fights)
                 FRENZY    the guards are quicker and hit harder (fights)
@@ -30,7 +30,7 @@ import phase113 as P113
 GOLD = '#ffcf40'
 CURSE = '#c060ff'
 rel, relf, IDENT = RM.rel, P110.relf, P110.IDENT
-CURSES = {1: ('FOG', 'Darkness creeps in.'), 2: ('FROST', 'The cold slows you.'), 3: ('LEADEN', 'Nobody can jump in here.'),
+CURSES = {1: ('FOG', 'Darkness creeps in.'), 2: ('FROST', 'The cold slows you.'), 3: ('LEADEN', 'Nobody can jump in here - only step up.'),
           4: ('FRAGILE', 'Your armour counts for half.'), 5: ('PHANTOMS', 'The guards are invisible - watch for the mould at their feet.'),
           6: ('FRENZY', 'The guards are quicker and hit harder.'), 7: ('UNSTEADY', 'The floor lurches now and then - you float up.')}
 FIGHT = ['guards', 'ambush', 'pit']
@@ -107,7 +107,10 @@ def generate(G):
     fn('p116/curse/t2', [f'execute if score #q bm.rng matches 0 {inroom} run effect give @s minecraft:slowness 2 0 true',
                          f'execute if score #q bm.rng matches 0 {inroom} at @s run particle minecraft:snowflake ~ ~1.5 ~ 0.6 0.6 0.6 0 4'])
     fn('p116/curse/t3', [f'execute {inroom} run function bm:p116/curse/leaden'])
+    # (2.82: no jump - but a full block's step is walked up, so no ledge, raised plate or block-high landing can trap anyone: the rooms
+    #  are proven walkable on one-block steps alone (p2.verify, no jumps), and that is exactly what Leaden leaves you)
     fn('p116/curse/leaden', ['execute unless score @s bm.crl matches 1.. run attribute @s minecraft:jump_strength modifier add bm:curse_leaden -1 add_multiplied_total',
+                             'execute unless score @s bm.crl matches 1.. run attribute @s minecraft:step_height modifier add bm:curse_leaden_step 0.45 add_value',
                              'scoreboard players set @s bm.crl 3'])
     fn('p116/curse/t4', [f'execute {inroom} run function bm:p116/curse/fragile'])
     fn('p116/curse/fragile', ['execute unless score @s bm.crf matches 1.. run attribute @s minecraft:armor modifier add bm:curse_fragile -0.5 add_multiplied_total',
@@ -124,7 +127,8 @@ def generate(G):
                         'execute as @a[scores={bm.crl=0}] run function bm:p116/curse/unleaden',
                         'scoreboard players remove @a[scores={bm.crf=1..}] bm.crf 1',
                         'execute as @a[scores={bm.crf=0}] run function bm:p116/curse/unfragile']
-    fn('p116/curse/unleaden', ['attribute @s minecraft:jump_strength modifier remove bm:curse_leaden', 'scoreboard players reset @s bm.crl'])
+    fn('p116/curse/unleaden', ['attribute @s minecraft:jump_strength modifier remove bm:curse_leaden', 'attribute @s minecraft:step_height modifier remove bm:curse_leaden_step',
+                               'scoreboard players reset @s bm.crl'])
     fn('p116/curse/unfragile', ['attribute @s minecraft:armor modifier remove bm:curse_fragile', 'scoreboard players reset @s bm.crf'])
     k = next(i for i, l in enumerate(G.FUNCS['p76/first_visit']) if l == 'tag @s add bm.gvseen')
     G.FUNCS['p76/first_visit'].insert(k + 1, 'execute if score @s bm.gvcrs matches 1.. run function bm:p116/curse/warn')

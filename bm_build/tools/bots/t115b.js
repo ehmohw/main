@@ -35,10 +35,12 @@ const res = [];
     let q = (await qs('levers'))[0];
     const j0 = await attr('jump_strength');
     await go('levers', q, 12, 12); await sleep(800);
-    const j1 = await attr('jump_strength');
+    const j1 = await attr('jump_strength'), s1 = await attr('step_height');
     await go('levers', q, -6, 12); await sleep(800);
-    const j2 = await attr('jump_strength');
+    const j2 = await attr('jump_strength'), s2 = await attr('step_height');
     ok('LEADEN: jump strength 0 in the room, back on leaving', (await sc('levers', q, 'bm.gvcrs')) === 3 && j1 === 0 && j0 > 0.3 && j2 === j0, `${j0} -> ${j1} -> ${j2}`);
+    // (2.82: no jump - but a whole block is stepped up, so a ledge or raised plate never traps anyone)
+    ok('...but a full block is still stepped up in the room (no softlock); back to normal on leaving', s1 >= 1.0 && s2 < 1.0, `${s1} -> ${s2}`);
     // ...beaten: the pot takes the curse's bonus, and the crew hears it
     await go('levers', q, 12, 12); await sleep(300);
     A.bars.length = 0; const p0 = await pot();
