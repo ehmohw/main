@@ -3,8 +3,9 @@
 // Emma ("Forgiven"), Apophiss + KillerWatt ("Venom and Volts"), Apophiss + Emma + Leo ("An Uneasy Truce"), Apophiss +
 // KillerWatt + Democratus ("The Dread Court"); the hidden one, Emma + Leo + Pearlman ("The Royal Retinue") - and Pearlman
 // (who doesn't count toward the three) never taking the place of a whole other trio. 2.80d (node t136.js dw): Dennis + Pistachio
-// ("Spade and Spoon"), Cecil + Pistachio ("The Omega Palace"), Emma + Leo + Dennis ("The Crown's Prospect"). rcon only sets the stage (and sends the
-// followers home between the scenes).
+// ("Spade and Spoon"), Cecil + Pistachio ("The Omega Palace"), Emma + Leo + Dennis ("The Crown's Prospect"). 2.82 (node t136.js om): Apophiss +
+// Omega ("The Serpent Kings"), Apophiss + Pistachio + Cecil ("The Palace Household"). rcon only sets the stage (and sends the followers home
+// between the scenes).
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : null; const want = k => !ONLY || ONLY.test(k);
 (async () => { const R = await rcon(); const run = c => R.run(c);
@@ -21,9 +22,10 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
   const PETS = { emma: ['cat', 'bm.emmapet', 'emma_ribbon'], leo: ['wolf', 'bm.leopet', 'leo_crest'], cecil: ['wolf', 'bm.cecilpet', 'cecil_gem'],
                  celi: ['wolf', 'bm.celipet', 'celi_charm'], kw: ['wolf', 'bm.kxpet', 'kw_spark'], demo: ['wolf', 'bm.dmpet', 'demo_seal'],
                  pearl: ['cat', 'bm.pmpet', 'pearl_card'], apo: ['wolf', 'bm.appet', 'apo_oath'], tul: ['wolf', 'bm.tupet', 'tul_coin'],
-                 dennis: ['wolf', 'bm.dwpet', 'dw_horn'], pistachio: ['wolf', 'bm.pipet', 'pi_cloche'] };
+                 dennis: ['wolf', 'bm.dwpet', 'dw_horn'], pistachio: ['wolf', 'bm.pipet', 'pi_cloche'],
+                 om: ['wolf', 'bm.ompet', 'om_monocle'] };
   const sel = k => `@e[type=minecraft:${PETS[k][0]},tag=${PETS[k][1]},limit=1]`;
-  const CDS = ['bm.emcd', 'bm.lecd', 'bm.cpcd', 'bm.cecd', 'bm.kxcd', 'bm.dmcd', 'bm.apcd', 'bm.tucd', 'bm.pmcd', 'bm.dwcd', 'bm.picd'];
+  const CDS = ['bm.emcd', 'bm.lecd', 'bm.cpcd', 'bm.cecd', 'bm.kxcd', 'bm.dmcd', 'bm.apcd', 'bm.tucd', 'bm.pmcd', 'bm.dwcd', 'bm.picd', 'bm.omcd'];
   const A = await bot('TestRat'); await sleep(2500);
   A.stand(); await sleep(300);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
@@ -48,7 +50,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     for (const k of keys) if ((await cnt(sel(k))) !== 1) return false;
     return true;
   };
-  const forget = async () => { for (const k of ['pair_frost', 'pair_rivals', 'pair_forgiven', 'pair_volts', 'trio_tide', 'trio_truce', 'trio_dread', 'trio_retinue', 'pair_spade', 'pair_palace', 'trio_prospect'])
+  const forget = async () => { for (const k of ['pair_frost', 'pair_rivals', 'pair_forgiven', 'pair_volts', 'trio_tide', 'trio_truce', 'trio_dread', 'trio_retinue', 'pair_spade', 'pair_palace', 'trio_prospect', 'pair_kings', 'trio_household'])
     await run(`advancement revoke TestRat only bm:story/${k}`); };
   await run('gamemode survival TestRat'); await forget(); await home();
 
@@ -174,6 +176,30 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     ok('...Strength, Resistance and Haste II for you', await wait(3000, async () => (await hasFx('TestRat', 'strength')) && (await hasFx('TestRat', 'resistance')) &&
        (await hasFx('TestRat', 'haste', 1))));
     ok('...the three tougher and healing', (await hasFx(sel('dennis'), 'resistance')) && (await hasFx(sel('leo'), 'regeneration')));
+    await home();
+  }
+
+  if (want('om')) {
+    // ================================================================== 2.82: the Serpent Kings, and the Palace Household
+    A.chats.length = 0;
+    ok('Apophiss and Omega, each called with his own item', await call(['apo', 'om']));
+    ok('THE SERPENT KINGS: the first time, its achievement and the brothers\' words', await wait(4000, async () => (await adv('pair_kings')) &&
+       /People will think we get along/.test(A.chats.join(' ')) && /You simply have not noticed yet/.test(A.chats.join(' '))), A.chats.slice(-3).join(' | ').slice(0, 240));
+    ok('...you hit harder and shrug off blows (Strength, Resistance)', await wait(3000, async () => (await hasFx('TestRat', 'strength')) && (await hasFx('TestRat', 'resistance'))));
+    ok('...the brothers tougher still (Resistance II on both) and healing', (await hasFx(sel('apo'), 'resistance', 1)) && (await hasFx(sel('om'), 'resistance', 1)) &&
+       (await hasFx(sel('apo'), 'regeneration')) && (await hasFx(sel('om'), 'regeneration')));
+    await run(`${O}scoreboard players set ${sel('om')} bm.p170 149`); A.chats.length = 0;
+    ok('...and now and then they bicker (the orchard, the monocle, who\'s taller)', await wait(3000, async () => /Omega: |Apophiss: /.test(A.chats.join(' ')) &&
+       /gulls|monocle|taller/.test(A.chats.join(' '))), A.chats.slice(-2).join(' | ').slice(0, 200));
+    await home();
+    A.bars.length = 0;
+    ok('Apophiss, Pistachio and Cecil', await call(['apo', 'pistachio', 'cecil']));
+    ok('THE PALACE HOUSEHOLD: "Three together", its achievement', await wait(4000, async () => (await adv('trio_household')) && /Three together: The Palace Household/.test(A.bars.join(' '))),
+       A.bars.slice(-2).join(' / '));
+    ok('...Speed and Regeneration for you; the three tougher', await wait(3000, async () => (await hasFx('TestRat', 'speed')) && (await hasFx('TestRat', 'regeneration')) &&
+       (await hasFx(sel('apo'), 'resistance')) && (await hasFx(sel('pistachio'), 'resistance')) && (await hasFx(sel('cecil'), 'resistance'))));
+    await run('scoreboard players set TestRat bm.p170h 39'); A.bars.length = 0;
+    ok('...and supper from the palace kitchen ("Master Cecil helped")', await wait(3000, async () => A.bars.some(b => /Master Cecil helped/.test(b))), A.bars.slice(-1).join(''));
     await home();
   }
 

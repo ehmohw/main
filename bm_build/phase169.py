@@ -289,6 +289,7 @@ def _palace(C):
                           f'place template bm:p169_palace ~{OX} ~{OY} ~{OZ}'] + skirt +
        [f'execute positioned ~{PAL.CENTER[0] + OX:.1f} ~{PAL.CENTER[1] + OY:.1f} ~{PAL.CENTER[2] + OZ:.1f} as @e[type=minecraft:marker,tag=bm.omnew,distance=..2] at @s run function bm:p169/pal/init'])
     fn('p169/pal/init', ['tag @s remove bm.omnew', 'scoreboard players set @s bm.omst 0',
+                         'execute as @e[type=minecraft:marker,tag=bm.omtomb,distance=..60] run scoreboard players set @s bm.omst 0',   # (the tomb asleep: it's what wakes)
                          'execute as @e[type=minecraft:marker,tag=bm.omsockm,distance=..60] at @s run function bm:p169/sock/make',
                          'execute positioned ~ ~ ~ run playsound minecraft:ambient.soul_sand_valley.mood ambient @a[distance=..96] ~ ~ ~ 1 0.6'])
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:marker,tag=bm.omseed]', 'kill @e[type=minecraft:item_display,tag=bm.omban]']
@@ -467,7 +468,8 @@ def _tomb(C):
                            C.title('@a[distance=..20]', 'actionbar', [T('The six crowns of conquest burn on their pedestals. The tomb is waiting... ', OM_LINE, italic=True),
                                                                      T('(Apophiss must be here.)', 'gray')])])
     second.append('execute as @e[type=minecraft:marker,tag=bm.omtomb] at @s if entity @a[distance=..24] run function bm:p169/tomb/sec')
-    fn('p169/tomb/sec', ['execute if score @s bm.omst matches 1 unless entity @e[type=minecraft:husk,tag=bm.omboss,distance=..40] run scoreboard players set @s bm.omst 2',
+    fn('p169/tomb/sec', ['execute unless score @s bm.omst = @s bm.omst run scoreboard players set @s bm.omst 0',   # (a tomb never set asleep: asleep)
+                         'execute if score @s bm.omst matches 1 unless entity @e[type=minecraft:husk,tag=bm.omboss,distance=..40] run scoreboard players set @s bm.omst 2',
                          'function bm:p169/tomb/check',
                          'execute if score @s bm.omst matches 0 run particle minecraft:sculk_soul ~ ~0.2 ~ 1 0.1 2 0.01 1'])
     sp = rel(PAL.SPAWN)

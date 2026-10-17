@@ -37,6 +37,8 @@ const res = [];
   // ---- the stage: a palace, here
   await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 96} ${Z + 112}`);
   await at(X + 0.5, Y + 30, Z - 20.5, 0, 0); await sleep(4000);
+  await run(`${O}kill @e[type=!minecraft:player,x=${X - 16},y=${Y - 30},z=${Z - 16},dx=112,dy=110,dz=128]`);   // (a clean stage: no palace left from a run before)
+  await sleep(500);
   await run(`${O}execute positioned ${X} ${Y} ${Z} run function bm:admin/omega_palace`);
   const TOMB = '@e[type=minecraft:marker,tag=bm.omtomb,limit=1,sort=nearest]';
   ok('the Omega Palace placed: its tomb, six pedestals', await wait(15000, async () => (await cnt(`@e[type=minecraft:interaction,tag=bm.omsock,x=${X},y=${Y},z=${Z},distance=..120]`)) === 6, 500),
@@ -75,10 +77,12 @@ const res = [];
   ok('...and the tomb wakes: the King crawls up out of the floor', await wait(5000, async () => (await cnt(`@e[type=minecraft:husk,tag=bm.omboss,x=${tp[0]},y=${tp[1]},z=${tp[2]},distance=..24]`)) === 1));
   const BOSS = `@e[type=minecraft:husk,tag=bm.omboss,x=${tp[0]},y=${tp[1]},z=${tp[2]},distance=..40,limit=1]`;
   ok('..."Who dares disturb-- ...YOU."', await wait(15000, async () => A.chats.some(c => /Who dares disturb/.test(c))), A.chats.slice(-1).join('').slice(0, 120));
-  ok('...the fight begins: he moves, he can be hurt, his bar shows', await wait(20000, async () => /0b/.test(await nbt(BOSS, 'NoAI')) && /0b/.test(await nbt(BOSS, 'Invulnerable'))));
+  ok('...the fight begins: he moves, he can be hurt, his bar shows', await wait(20000, async () => (await cnt(BOSS.replace(',limit=1', ',nbt=!{NoAI:1b},nbt=!{Invulnerable:1b},limit=1'))) === 1));
 
   // ---- the last blow: far past his yield - his ward takes it, and he yields
-  await run(`${O}data merge entity ${BOSS} {Health:100f}`);
+  // (the stage: the fight worn down - his Grief and his Ghost Guard already past - to a hundred health, eleven percent)
+  await run(`scoreboard players set ${BOSS} bm.omph 2`); await run(`scoreboard players set ${BOSS} bm.omr 1`);
+  await run(`${O}data merge entity ${BOSS} {Health:100f}`); await sleep(500);
   await run('item replace entity TestRat hotbar.8 with minecraft:netherite_sword[minecraft:enchantments={"minecraft:sharpness":120}]');
   const bp = await pos(BOSS);
   await at(bp[0], bp[1], bp[2] - 2.2, 0, 0); A.slot(8); await sleep(400);
@@ -104,7 +108,7 @@ const res = [];
   ok('...the Peerage: Squire already (60 favour from the fight)', pr && /Squire/.test(pb), pb.slice(0, 200));
 
   // ---- clean up
-  await run(`${O}kill @e[type=minecraft:husk,tag=bm.omboss,x=${X},y=${Y},z=${Z},distance=..120]`);
+  await run(`${O}kill @e[type=!minecraft:player,x=${X - 16},y=${Y - 30},z=${Z - 16},dx=112,dy=110,dz=128]`);
   await run('kill @e[type=minecraft:wolf,tag=bm.appet]'); await run('clear TestRat'); await run('effect clear TestRat');
   if (!/has 1/.test(f0)) await run('scoreboard players set #omfree bm.omwin 0');
   await run(`${O}forceload remove ${X - 16} ${Z - 16} ${X + 96} ${Z + 112}`);
