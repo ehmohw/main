@@ -21,11 +21,12 @@ tier, so typing a trigger by hand can't buy anything the menu wouldn't sell. Imp
 generate(G) runs after phase27.generate."""
 from nbt import snbt, B, F, Int
 from items import item, consumable, T, TOTEM, ITEMS, ITEM_VERSION
+import economy as ECON
 import mgeo
 import market3 as market2
 
 W, BF = market2.W, market2.BF
-VALUE = {'token': 1, 'lucky_token': 5, 'blood_crystal': 3, 'medallion': 9, 'trophy': 54}
+VALUE = {'token': 1, 'lucky_token': 5, 'blood_crystal': 3, 'medallion': 5, 'trophy': 20}     # 2.82: 5 Tokens a Medallion, 4 Medallions a Trophy
 SWAP_SELLS = {'token', 'medallion', 'trophy', 'lucky_token', 'blood_crystal', 'diamond', 'emerald', 'netherite_ingot'}
 NO_POINTS = {'pawn'}                         # Old Barnaby buys back: nothing he hands over is a purchase
 TIERS = [  # (tier, title, points, colour, key item, what it unlocks)
@@ -89,6 +90,7 @@ BACKROOM = {
     'blood': [(1, 'minecraft:ominous_bottle', 1, ('blood_crystal', 6), 'Ominous Bottle'), (2, 'minecraft:nether_star', 1, ('blood_crystal', 24), 'Nether Star'),
               (4, 'heartstone', 3, ('trophy', 1), '3 Heartstones')],
 }
+BACKROOM = {tr: [(r, w, n, (c, ECON.cut(p)), lb) for r, w, n, (c, p), lb in st] for tr, st in BACKROOM.items()}    # 2.82: 40% off the back rooms too
 TRADER_NAME = {'fence': 'The Fence', 'pawn': 'Old Barnaby', 'outfitter': 'Madame Velour', 'arms': "Vinny 'Two-Blades'",
                'armory': 'Sgt. Steelwhisker', 'chef': 'Chef Fromage', 'professor': 'Prof. Whiskerton', 'lucky': 'Lucky Whiskers',
                'captain': 'Capt. Cheddarbeard', 'blood': 'The Bloodbroker'}
@@ -168,7 +170,7 @@ def generate(G):
     objs = ['bm.stand dummy', 'bm.tier dummy', 'bm.standing trigger', 'bm.act trigger', 'bm.menu dummy', 'bm.lgid dummy',
             'bm.greet dummy', 'bm.pay dummy', 'bm.bk_med dummy']
     load += [f'scoreboard objectives add {o}' for o in objs]
-    load += ['scoreboard players set #6 bm.pay 6', 'scoreboard players set #20 bm.pay 20', 'scoreboard players set #100 bm.pay 100']
+    load += [f'scoreboard players set #tm bm.pay {ECON.MEDALLIONS_PER_TROPHY}', 'scoreboard players set #6 bm.pay 6', 'scoreboard players set #20 bm.pay 20', 'scoreboard players set #100 bm.pay 100']
     G.P28_OBJ = [o.split()[0] for o in objs]
 
     # ------------------------------------------------------------------ menu buttons: /trigger
@@ -194,7 +196,7 @@ def generate(G):
         'scoreboard players set #bank bm.pay 0',
         'execute if score #usebank bm.pay matches 1 if score @s bm.bk_med matches 1.. run scoreboard players operation #bank bm.pay = @s bm.bk_med',
         'execute store result score #tro bm.pay run clear @s *[minecraft:custom_data~{bm:"trophy"}] 0',
-        'scoreboard players operation #tot bm.pay = #tro bm.pay', 'scoreboard players operation #tot bm.pay *= #6 bm.pay',
+        'scoreboard players operation #tot bm.pay = #tro bm.pay', 'scoreboard players operation #tot bm.pay *= #tm bm.pay',
         'scoreboard players operation #tot bm.pay += #have bm.pay', 'scoreboard players operation #tot bm.pay += #bank bm.pay',
         'execute if score #tot bm.pay < #need bm.pay run return 0',
         # 1) Medallions in the inventory
@@ -206,19 +208,19 @@ def generate(G):
         'scoreboard players operation #take bm.pay = #need bm.pay', 'scoreboard players operation #take bm.pay < #bank bm.pay',
         'scoreboard players operation @s bm.bk_med -= #take bm.pay', 'scoreboard players operation #need bm.pay -= #take bm.pay',
         'execute if score #take bm.pay matches 1.. run ' + tellraw('@s', PREFIX + [T('The Rat Bank covered ', 'gray'), {'score': {'name': '#take', 'objective': 'bm.pay'}, 'color': 'light_purple'}, T(' Medallions of that.', 'gray')]),
-        # 3) Trophies, broken into 6 Medallions each, change handed back
+        # 3) Trophies, broken into Medallions (4 each, 2.82; 6 before), change handed back
         'execute if score #need bm.pay matches 1.. run function bm:p28/pay/break',
         'return 1'])
     fn('p28/pay/break', [
-        'scoreboard players operation #t bm.pay = #need bm.pay', 'scoreboard players add #t bm.pay 5', 'scoreboard players operation #t bm.pay /= #6 bm.pay',
+        'scoreboard players operation #t bm.pay = #need bm.pay', f'scoreboard players add #t bm.pay {ECON.MEDALLIONS_PER_TROPHY - 1}', 'scoreboard players operation #t bm.pay /= #tm bm.pay',
         'execute store result storage bm:tmp pay.t int 1 run scoreboard players get #t bm.pay',
         'function bm:p28/pay/clear_tro with storage bm:tmp pay',
-        'scoreboard players operation #chg bm.pay = #t bm.pay', 'scoreboard players operation #chg bm.pay *= #6 bm.pay',
+        'scoreboard players operation #chg bm.pay = #t bm.pay', 'scoreboard players operation #chg bm.pay *= #tm bm.pay',
         'scoreboard players operation #chg bm.pay -= #need bm.pay',
         'execute store result storage bm:tmp pay.c int 1 run scoreboard players get #chg bm.pay',
         'execute if score #chg bm.pay matches 1.. run function bm:p28/pay/give_med with storage bm:tmp pay',
         tellraw('@s', PREFIX + [T('The rats broke ', 'gray'), {'score': {'name': '#t', 'objective': 'bm.pay'}, 'color': '#ffb300'},
-                                T(' Trophy into Medallions (6 each); ', 'gray'), {'score': {'name': '#chg', 'objective': 'bm.pay'}, 'color': 'light_purple'},
+                                T(f' Trophy into Medallions ({ECON.MEDALLIONS_PER_TROPHY} each); ', 'gray'), {'score': {'name': '#chg', 'objective': 'bm.pay'}, 'color': 'light_purple'},
                                 T(' came back as change.', 'gray')])])
     fn('p28/pay/clear_med', ['$clear @s *[minecraft:custom_data~{bm:"medallion"}] $(n)'])
     fn('p28/pay/clear_tro', ['$clear @s *[minecraft:custom_data~{bm:"trophy"}] $(t)'])
@@ -534,10 +536,10 @@ def generate(G):
                            title('@s', 'actionbar', T('"Family! Come in, come in." The crew makes room.', 'yellow'))])
     fn('p28/gate/den_no', [title('@s', 'actionbar', T('Crew and Family only. (There is always the mouse hole...)', 'gray'))] + shove)
     fn('p28/gate/den_out', [tp_to('den_out'), 'playsound minecraft:block.wooden_door.close block @s ~ ~ ~ 1 0.9'])
-    # the one-night pass (auction nights only, below Associate): 2 Medallions, straight from the inventory
+    # the one-night pass (auction nights only, below Associate): 1 Medallion (2.82; was 2), straight from the inventory
     wjson('bm/dialog/p28/pass.json', multi([T('The Dark Auction', 'gold', bold=True)],
-                                          [body([T('"No key, no seat... unless you buy a one-night pass. Two Medallions, valid until the last lot."', 'gray', italic=True)])],
-                                          [btn([T('Buy a one-night pass  ', 'white'), T('2 Medallions', 'light_purple')], 2001, width=240)], columns=1, exit_label='Not tonight'))
+                                          [body([T('"No key, no seat... unless you buy a one-night pass. One Medallion, valid until the last lot."', 'gray', italic=True)])],
+                                          [btn([T('Buy a one-night pass  ', 'white'), T('1 Medallion', 'light_purple')], 2001, width=240)], columns=1, exit_label='Not tonight'))
     fn('p28/gate/pass_menu', [f'scoreboard players set @s bm.menu {MENU["gate"] + 1}',
                               'execute if score @s bm.apass = #pgen bm.auc run return run function bm:p28/gate/enter_hall',
                               'dialog show @s bm:p28/pass'])
@@ -545,7 +547,7 @@ def generate(G):
                         'execute unless entity @e[type=minecraft:interaction,tag=bm.ledger,distance=..8,scores={bm.lgid=21}] run return run function bm:p28/stale',
                         'execute unless score #aopen bm.auc matches 1 run return run ' + title('@s', 'actionbar', T('The sale is over for tonight.', 'gray')),
                         'execute if score #act bm.pay matches 2001 run function bm:p28/gate/buy_pass'])
-    fn('p28/gate/buy_pass', pay_lines('medallion', 2, 'function bm:p28/back/broke {m:"Two Medallions, friend. Rules are rules."}') +
+    fn('p28/gate/buy_pass', pay_lines('medallion', 1, 'function bm:p28/back/broke {m:"One Medallion, friend. Rules are rules."}') +
        ['scoreboard players operation @s bm.apass = #pgen bm.auc', tellraw('@s', PREFIX + [T('A one-night pass to the Dark Auction is yours. It lapses when the last lot is sold.', 'gold')]),
         'function bm:p28/gate/enter_hall'])
 

@@ -142,7 +142,7 @@ item('token', TOTEM, 'Black Market Token', 'gold',
      ['A heavy coin stamped with a grinning rat.', 'Spend it at any Black Market.'],
      model='bm:token', stack=64, cat='currency')
 item('medallion', TOTEM, 'Black Market Medallion', 'light_purple',
-     ['Worth nine Tokens to the right buyer.', 'Buys Tier II goods and upgrades.'],
+     ['Worth five Tokens to the right buyer.', 'Buys Tier II goods and upgrades.'],
      model='bm:medallion', stack=64, cat='currency')
 item('trophy', TOTEM, 'Black Market Trophy', '#ffb300',
      ['Only the boldest smugglers own one.', 'Buys Tier III goods and upgrades.'],

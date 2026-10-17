@@ -15,7 +15,7 @@ from nbt import snbt, B, F, Int
 
 import market3
 BIN_AT = (market3.SPOTS['bin'][0], None, market3.SPOTS['bin'][1])   # 2.81: the market's own bin, by Barnaby's shop front (template coords; y = W)
-TOKEN_VALUE = {'token': 1, 'medallion': 9, 'trophy': 54}
+TOKEN_VALUE = {'token': 1, 'medallion': 5, 'trophy': 20}     # 2.82 (was 9 / 54)
 
 
 def extend_offers(O, offer):

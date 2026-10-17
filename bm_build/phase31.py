@@ -1,7 +1,7 @@
 """Phase 1.18 (part 4): THE GILDED GUTTER - the Partners' lounge behind the terrace (Gold Key or better at its gate).
 
 - THE CONCIERGE sells three goods that change every in-game week (regular Dark Auction lots, at their opening bid
-  in Medallions) and repairs the item in your main hand for 2 Medallions (a full repair; unbreakable things politely
+  in Medallions) and repairs the item in your main hand for 1 Medallion (a full repair; unbreakable things politely
   refused). Paid by menu - no villager trade, so no trader's offers change.
 - THE RAT BANK (the Teller): Tokens, Lucky Tokens, Medallions and Trophies kept as separate balances against your
   name - safe from death, lava and thieves. Deposit everything of one kind, or take 1, 10 or all of it back as real
@@ -184,7 +184,7 @@ def generate(G):
                     [P28.btn([T('$(n1)', 'white'), T('  $(p1) Medallions', 'light_purple')], 5001, width=260),
                      P28.btn([T('$(n2)', 'white'), T('  $(p2) Medallions', 'light_purple')], 5002, width=260),
                      P28.btn([T('$(n3)', 'white'), T('  $(p3) Medallions', 'light_purple')], 5003, width=260),
-                     P28.btn([T('Repair the item in my main hand  ', 'white'), T('2 Medallions', 'light_purple')], 5010, width=260,
+                     P28.btn([T('Repair the item in my main hand  ', 'white'), T('1 Medallion', 'light_purple')], 5010, width=260,
                              tooltip=T('A full repair. Unbreakable things need no help.', 'gray'))], columns=1)
     fn('p31/conc/dlg', [f'$dialog show @s {P28.inline(dlg)}'])
     G.FUNCS['p28/act'].append('execute if score #act bm.pay matches 5000..5099 run return run function bm:p31/conc/act')
@@ -206,7 +206,7 @@ def generate(G):
     fn('p31/conc/repair', ['execute unless items entity @s weapon.mainhand *[minecraft:max_damage] run return run ' + title('@s', 'actionbar', T('Hold something that can wear out.', 'gray')),
                            'execute if items entity @s weapon.mainhand *[minecraft:unbreakable] run return run ' + title('@s', 'actionbar', T('That will outlive us all. No repair needed.', 'gray')),
                            'execute if items entity @s weapon.mainhand *[minecraft:damage=0] run return run ' + title('@s', 'actionbar', T('Already pristine, darling.', 'gray'))] +
-       P28.pay_lines('medallion', 2, 'function bm:p28/back/broke {m:"Repairs are 2 Medallions."}') +
+       P28.pay_lines('medallion', 1, 'function bm:p28/back/broke {m:"Repairs are a Medallion."}') +
        ['item modify entity @s weapon.mainhand bm:p31/repair', 'playsound minecraft:block.anvil.use player @s ~ ~ ~ 0.8 1.2',
         title('@s', 'actionbar', T('Good as new. Better, even.', 'gold'))])
     wjson('bm/item_modifier/p31/repair.json', {'function': 'minecraft:set_damage', 'damage': 1.0})

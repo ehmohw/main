@@ -7,7 +7,7 @@ pass there for 2 Medallions while the doors are open. Operators: /function bm:ad
 
 Bidding: right-click the Bidding Paddle handed out at the door (or the ledger on the podium): +1 / +2 / +5 / +10
 Medallions over the current bid (the first bid opens at the lot's price). Medallions are paid the moment you bid -
-from your inventory, then your Rat Bank balance, then Trophies broken into 6 (change handed back) - and held in
+from your inventory, then your Rat Bank balance, then Trophies broken into 4 (change handed back) - and held in
 ESCROW, a score against your name. Outbid: refunded at once, or the next time you're online. Win: escrow spent, lot
 delivered (on your next login if you left). A crash, restart or /reload mid-sale refunds everyone and returns the lot.
 
@@ -58,6 +58,8 @@ LOTS = [
     ('bank_card', "Banker's Card", '#e8d27a', 'reg', 8, None, [('bankers_card', 1)], False),
     ('boss_key', 'Next Boss Key', '#a96bff', 'reg', 20, None, [('next_boss_key', 1)], True),
 ]
+import economy as ECON
+LOTS = [(a, b, c, k, ECON.cut(bid), *rest) for a, b, c, k, bid, *rest in LOTS]       # 2.82: 40% off the opening bids (and the Concierge's prices)
 RIVALS = [('Lord Squeakington', 'lord', (32.5, W + 1.25, 8.5)), ('Madame Nibbles', 'madame', (42.5, W + 1.25, 8.5)),     # 2.13: on cushions
           ('The Gentleman in Grey', 'grey', (33.5, W + 2.25, 10.5))]
 HALL_C = (37.5, W + 1, 7.0)
@@ -341,7 +343,7 @@ def generate(G):
                     [P28.body([T('Lot: ', 'gray'), T('$(name)', 'gold', bold=True)]),
                      P28.body([T('Current bid: ', 'gray'), T('$(price)', 'light_purple'), T(' Medallions  (', 'gray'), T('$(who)', 'white'), T(')', 'gray')]),
                      P28.body([T('Your bid in escrow: ', 'gray'), T('$(esc)', 'light_purple'), T('   Opening price: ', 'gray'), T('$(open)', 'white')]),
-                     P28.body([T('Paid from your Medallions, then your Rat Bank, then Trophies (6 each, change returned). Outbid? Refunded at once.', 'dark_gray')], 300)],
+                     P28.body([T('Paid from your Medallions, then your Rat Bank, then Trophies (4 each, change returned). Outbid? Refunded at once.', 'dark_gray')], 300)],
                     [P28.btn([T('Bid +1', 'white')], 3101), P28.btn([T('Bid +2', 'white')], 3102), P28.btn([T('Bid +5', 'white')], 3105),
                      P28.btn([T('Bid +10', 'white')], 3110), P28.btn([T('Open the bidding', 'gold')], 3100, tooltip=T('Only while nobody has bid yet: bids the opening price.', 'gray'))],
                     columns=2, exit_label='Pass')

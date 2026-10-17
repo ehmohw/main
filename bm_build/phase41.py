@@ -50,7 +50,7 @@ item('golden_cheese_wheel', TOTEM, 'Golden Cheese Wheel', GOLD,
 P35.GUIDE[:] = [
     [T('NEWCOMERS,\nSTART HERE\n\n', '#6a2a8a', bold=True), T('Welcome to the Black Market.\n\nWe trade in ', 'black'), T('Tokens', '#6a2a8a'),
      T(', ', 'black'), T('Medallions', '#6a2a8a'), T(' and ', 'black'), T('Trophies', '#6a2a8a'),
-     T(' (1 Trophy = 6 Medallions = 54 Tokens). Monsters, Blood Moons, bosses and Old Barnaby pay them out.', 'black')],
+     T(' (1 Trophy = 4 Medallions = 20 Tokens). Monsters, Blood Moons, bosses and Old Barnaby pay them out.', 'black')],
     [T('PAWN ALLEY\n', '#6a2a8a', bold=True), T('(north, under the terrace)\n\n', 'dark_gray'), T('The Fence', 'black', bold=True),
      T(': currency exchange, dungeon keys, sealed maps, mailboxes and the Courier Whistle.\n\n', 'black'), T('Old Barnaby', 'black', bold=True),
      T(': the pawnbroker - buys your Black Market goods back for half.', 'black')],

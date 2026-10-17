@@ -155,26 +155,29 @@ def generate(G):
        ['scoreboard players set #placed bm.rng 1'])
 
     # ---- a plaque (a dark rim, a lighter board, turned to a diamond) and the weapon on it, turned to face out from the wall
+    # (2.82: the displays stand OUT blocks off the wall - on its face exactly, half the facings lit them from inside the wall
+    #  block, black; the models are drawn back by the same amount, so they hang where they did)
+    OUT = 0.05
     def board(block, size, depth, z):
         q = (0.0, 0.0, 0.3827, 0.9239)                       # (45 degrees round the wall's normal)
         # (a block display's box runs 0..1 from its corner: centre it on the face after the turn)
         c = 0.7071 * size
-        return snbt({'Tags': ['bm.mtp', 'bm.mtnew'], 'block_state': f'minecraft:{block}',
+        return snbt({'Tags': ['bm.mtp', 'bm.mtnew', 'bm.mt282'], 'block_state': f'minecraft:{block}',
                      'transformation': {'left_rotation': [F(v) for v in q], 'right_rotation': [F(0), F(0), F(0), F(1)],
-                                        'translation': [F(0), F(-c), F(z)], 'scale': [F(size), F(size), F(depth)]}})
+                                        'translation': [F(0), F(-c), F(z - OUT)], 'scale': [F(size), F(size), F(depth)]}})
     for k, (q, s, t) in XF.items():
         p = PLAQUE[k]
-        w = snbt({'Tags': ['bm.mtw', 'bm.mtnew'], 'item': {'id': 'minecraft:stick', 'count': Int(1)}, 'item_display': 'none',
+        w = snbt({'Tags': ['bm.mtw', 'bm.mtnew', 'bm.mt282'], 'item': {'id': 'minecraft:stick', 'count': Int(1)}, 'item_display': 'none',
                   'transformation': {'left_rotation': [F(v) for v in q], 'right_rotation': [F(0), F(0), F(0), F(1)],
-                                     'translation': [F(v) for v in t], 'scale': [F(s)] * 3}})
-        fn(f'p135/place_{k}', [f'summon minecraft:block_display ~ ~ ~ {board("dark_oak_planks", p + 0.1, 0.04, 0.002)}',
-                               f'summon minecraft:block_display ~ ~ ~ {board("spruce_planks", p, 0.06, 0.004)}',
-                               f'summon minecraft:item_display ~ ~ ~ {w}', 'function bm:p135/fill'])
-    new_w = '@e[type=minecraft:item_display,tag=bm.mtw,tag=bm.mtnew,distance=..0.5,limit=1]'
+                                     'translation': [F(t[0]), F(t[1]), F(t[2] - OUT)], 'scale': [F(s)] * 3}})
+        fn(f'p135/place_{k}', [f'execute positioned ^ ^ ^{OUT} run summon minecraft:block_display ~ ~ ~ {board("dark_oak_planks", p + 0.1, 0.04, 0.002)}',
+                               f'execute positioned ^ ^ ^{OUT} run summon minecraft:block_display ~ ~ ~ {board("spruce_planks", p, 0.06, 0.004)}',
+                               f'execute positioned ^ ^ ^{OUT} run summon minecraft:item_display ~ ~ ~ {w}', 'function bm:p135/fill'])
+    new_w = '@e[type=minecraft:item_display,tag=bm.mtw,tag=bm.mtnew,distance=..0.6,limit=1]'
     fn('p135/fill', [f'execute if score #mth bm.rng matches 1 run item replace entity {new_w} contents from entity @s weapon.mainhand',
                      f'execute if score #mth bm.rng matches 2 run item replace entity {new_w} contents from entity @s weapon.offhand',
                      f'execute if score #mth bm.rng matches 3 run item replace entity {new_w} contents from entity @e[type=minecraft:item,tag=bm.mtsrc,limit=1] contents',
-                     'execute as @e[tag=bm.mtnew,distance=..0.5] run tp @s ~ ~ ~ ~ 0',
+                     'execute as @e[tag=bm.mtnew,distance=..0.6] positioned as @s run tp @s ~ ~ ~ ~ 0',
                      'summon minecraft:interaction ~ ~-0.45 ~ ' + snbt({'Tags': ['bm.mtx', 'bm.gvdeco', 'bm.mtnew'], 'width': F(0.9), 'height': F(0.9), 'response': B(1)}),
                      'scoreboard players operation @e[type=minecraft:interaction,tag=bm.mtnew,distance=..1] bm.pid = @s bm.pid',
                      'tag @e[tag=bm.mtnew,distance=..1] remove bm.mtnew',
@@ -204,6 +207,13 @@ def generate(G):
                      'data modify entity @e[type=minecraft:item,tag=bm.mtgive,distance=..0.5,limit=1] Item set from entity @s item',
                      'tag @e[type=minecraft:item,tag=bm.mtgive] remove bm.mtgive',
                      'execute positioned ~ ~-0.45 ~ run kill @e[type=minecraft:interaction,tag=bm.mtx,distance=..0.3]', 'function bm:p135/gone'])
+    # (and the ones already hanging, once: stepped out, their models drawn back)
+    second.append('execute as @e[type=#bm:p135_mount,tag=!bm.mt282,tag=!bm.mtnew] at @s rotated as @s run function bm:p135/nudge')
+    G.wjson('bm/tags/entity_type/p135_mount.json', {'values': ['minecraft:item_display', 'minecraft:block_display']})
+    fn('p135/nudge', ['tag @s add bm.mt282', 'execute unless entity @s[tag=bm.mtw] unless entity @s[tag=bm.mtp] run return 0',
+                      f'tp @s ^ ^ ^{OUT}', 'execute store result score #t bm.rng run data get entity @s transformation.translation[2] 10000',
+                      f'scoreboard players remove #t bm.rng {int(OUT * 10000)}',
+                      'execute store result entity @s transformation.translation[2] float 0.0001 run scoreboard players get #t bm.rng'])
     G.FUNCS['loop/second'][-1:-1] = second
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} minecraft.dropped:minecraft.{b}' for b, o in DOBJ.items()]
     G.OBJECTIVES += list(DOBJ.values())

@@ -48,10 +48,11 @@ const res = [];
   const tg = await run('tag TestRat list'); const kf = await run('scoreboard players get TestRat bm.kwf'); const kj = await run('scoreboard players get TestRat bm.kwj');
   const sn = await run('execute as TestRat if predicate bm:p20/sneaking'); const wn = await run('execute as TestRat if items entity @s armor.chest *[minecraft:custom_data~{bm:"killerwatt_tendrils"}]'); A.input({}); await sleep(300);
   ok('Sneak + jump: the fling fires (armed, then spent by the impulse)', !/bm\.kwl[123]|bm\.kwup/.test(tg) && /has \d+ \[bm.kwf/.test(kf), [kf, kj, sn, wn].map(x => x.slice(-30)).join(' | '));
-  // snatch
+  // no snatch (2.82)
   await run(`summon item ${X + 0.5} ${Y + 1} ${Z + 6.5} {Item:{id:"minecraft:apple",count:1},Tags:["bm.t43i"]}`); await sleep(1600);
   const ip = await pos('@e[tag=bm.t43i,limit=1]');
-  ok('They snatch a dropped item 6 blocks off', !ip || Math.abs(ip[2] - Z - 0.5) < 1.6, ip ? ip.map(v => v.toFixed(1)).join(' ') : 'picked up');
+  ok('(2.82) They no longer pull in dropped items: one 6 blocks off stays put', ip && Math.abs(ip[2] - Z - 6.5) < 0.6, ip ? ip.map(v => v.toFixed(1)).join(' ') : 'picked up');
+  await run('kill @e[tag=bm.t43i]');
   const h0 = await num('data get entity TestRat Health'); await run('damage TestRat 6 minecraft:fall'); await sleep(200);
   ok('No fall damage while worn', (await num('data get entity TestRat Health')) >= h0 - 0.01);
   await run('item replace entity TestRat armor.chest with air'); await sleep(400);

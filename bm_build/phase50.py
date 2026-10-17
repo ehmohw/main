@@ -49,7 +49,7 @@ def guide_pages(O, zorp):
     H = '#6a2a8a'
     pages = [[T('NEWCOMERS,\nSTART HERE\n\n', H, bold=True), T('Welcome to the Black Market.\n\nWe trade in ', 'black'), T('Tokens', H), T(', ', 'black'),
               T('Medallions', H), T(' and ', 'black'), T('Trophies', H),
-              T(' (1 Trophy = 6 Medallions = 54 Tokens). Monsters, Blood Moons, bosses and Old Barnaby pay them out.\n\nWho is where, then who sells what.', 'black')]]
+              T(' (1 Trophy = 4 Medallions = 20 Tokens). Monsters, Blood Moons, bosses and Old Barnaby pay them out.\n\nWho is where, then who sells what.', 'black')]]
     where = [(n, w) for _, n, w in TRADERS] + [('Zorp', 'aboard every Vorn mothership')]
     for i in range(0, len(where), 4):
         pg = [T('WHO IS WHERE\n\n' if i == 0 else '', H, bold=True)]

@@ -22,7 +22,7 @@ const X = 5600, Y = 100, Z = 5600;
   ok('newcomers\' book: accepted by the game, every page (the short who-sells-what book, 2.63)', pages >= 5 && pages <= 100, pages + ' pages');
   let all = ''; for (let i = 0; i < pages; i++) all += await run(`data get block ${B}[${i}]`);
   ok('...lists Cecil, the tinkering machines, Zorp, and no prices (only the exchange rates)', /Cecil the Wizard/.test(all) && /tinkering machines/.test(all) && /Zorp/.test(all) &&
-     !/Token[s]?\s*x?\d|\d+ Tokens/.test(all.replace(/9 Tokens = 1 Medallion/, '').replace(/pays 2 Tokens each/, '')));
+     !/Token[s]?\s*x?\d|\d+ Tokens/.test(all.replace(/5 Tokens = 1 Medallion/, '').replace(/pays 2 Tokens each/, '')));
   await run(`setblock ${X} ${Y + 1} ${Z} air`);
   // ---- advancements + recipes (first token)
   await run('loot give TestRat loot bm:items/token'); await sleep(500);

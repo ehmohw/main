@@ -52,7 +52,7 @@ const X = 5700, Y = 100, Z = 5700;
   const c = await contents(bx, Y + 1, bz);
   console.log('  bin now:', JSON.stringify(c));
   // expected: lava 2x3=6, wrench 1, grave charm 5 -> tokens 12 + the 1 token already there; arrows 33* -> 2 tokens + 1 arrow* left
-  ok('scrapped for half (2.65 prices): Lava Lamps (4 -> 2 each), Grave Charm (10 -> 5), arrows by the 16, Wrench', c.token === 11, 'tokens ' + c.token);   // (1 there + 4 + 5 + the rest)
+  ok('scrapped for half (2.82 prices, 40% off): Lava Lamps, Grave Charm (5 -> 2), arrows by the 16, Wrench', c.token === 8, 'tokens ' + c.token);   // (1 there + the halves of the 2.82 prices)
   ok('Lucky 7 -> 3 Trophies (Barnaby\'s old buy-back); Hero\'s Bow -> half its whole upgrade chain', c.trophy === 3 && c.medallion >= 1, `trophy ${c.trophy} medallion ${c.medallion}`);
   ok('Zorp\'s goods refund in Xenite: paint (6 green + 2 violet) -> 3 + 1', c.xenite_green === 3 && c.xenite_violet === 1);
   ok('leftovers and things never bought stay: 1 marked arrow, 10 plain arrows, dirt', c['spectral_arrow*'] === 1 && c.spectral_arrow === 10 && c.dirt === 5);

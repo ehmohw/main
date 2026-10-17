@@ -24,7 +24,7 @@ import phase60
 
 phase60.GEM_PRICE = ('medallion', 1)
 import phase62, economy
-economy.DIRECT['shift_core'] = (('trophy', 6), ('blood_crystal', 12))    # (2.65: 70% of 8 + 16, like everything else)
+economy.DIRECT['shift_core'] = (('trophy', economy.cut(6)), ('blood_crystal', economy.cut(12)))    # (2.65: 70% of 8 + 16, like everything else; 2.82: 40% off)
 for _k in phase17.HEART_CHANCE: phase17.HEART_CHANCE[_k] *= 3
 
 GOLD = '#ffcf40'
@@ -69,7 +69,7 @@ def extend_offers(O, offer):
 def guide_pages(O, zorp):
     """2.63: the newcomers' book - a short who-sells-what"""
     pages = [[T('NEWCOMERS,\nSTART HERE\n\n', H, bold=True), T('Welcome to the Black Market.\n\nWe trade in ', 'black'), T('Tokens', H), T(', ', 'black'),
-              T('Medallions', H), T(' and ', 'black'), T('Trophies', H), T(' (9 Tokens = 1 Medallion, 6 Medallions = 1 Trophy).', 'black')],
+              T('Medallions', H), T(' and ', 'black'), T('Trophies', H), T(' (5 Tokens = 1 Medallion, 4 Medallions = 1 Trophy).', 'black')],
              [T('EARNING\n\n', H, bold=True), T('- monsters (more on special nights)\n- bosses and dungeons\n- heists in the Gilded Gutter\n'
                                                   '- fishing (if you\'re lucky)\n- bounties on the board by this book\n- Diamonds: the Fence pays 2 Tokens each', 'black')]]
     for i in range(0, len(DIRECTORY), 3):

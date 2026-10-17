@@ -17,8 +17,8 @@ const HERE = `x=${X},y=${Y},z=${Z},distance=..64`;
   await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..40]`);
   for (const s of ['#lnight', '#inv', '#active', '#forced']) await run(`scoreboard players set ${s} bm.bm 0`);
   await run('time set day'); await sleep(1500); await run('scoreboard players set #bmday bm.bm 5'); await sleep(1200);
-  // a fake market here (patches already "done", so only our things react) + traders - a current one (bm.m281a), or it's rebuilt as the new town
-  await run(`summon marker ${X} ${Y + 1} ${Z} {Tags:["bm.mkt","bm.m281a","bm.p41","bm.p50","bm.p51","bm.p52","bm.t32"]}`);
+  // a fake market here (patches already "done", so only our things react) + traders - a current one (bm.m282), or it's rebuilt as the new town
+  await run(`summon marker ${X} ${Y + 1} ${Z} {Tags:["bm.mkt","bm.m282","bm.p41","bm.p50","bm.p51","bm.p52","bm.t32"]}`);
   await run(`execute positioned ${X - 6} ${Y + 1} ${Z + 6} run function bm:npc/professor`); await run(`execute positioned ${X - 8} ${Y + 1} ${Z + 6} run function bm:npc/lucky`);
   await run(`execute positioned ${X - 10} ${Y + 1} ${Z + 6} run function bm:npc/fence`); await run(`execute positioned ${X - 12} ${Y + 1} ${Z + 6} run function bm:npc/alien`);
   await sleep(2200);
@@ -34,7 +34,7 @@ const HERE = `x=${X},y=${Y},z=${Z},distance=..64`;
   parts = 0; await sleep(3000); const lp = parts;
   ok('market ambience: gold and chimes on a Lucky Night (particles reach you)', lp > calm + 10, `${calm} -> ${lp} particle packets in 3 s`);
   const pH = await price('professor', 'filter_hopper'), zH = await num(`data get entity @e[tag=bm.npc_alien,limit=1] Offers.Recipes[0].buy.count`);
-  ok('Happy Hour: a third off (Filter Hopper 3 -> 2)', pN === 3 && pH === 2, `${pN} -> ${pH}`);
+  ok('Happy Hour: a third off (the Filter Hopper)', pH === Math.max(1, Math.ceil(pN * 2 / 3)) && (pN === 1 || pH < pN), `${pN} -> ${pH}`);
   ok("Happy Hour: Zorp takes a third off", zH < zN, `${zN} -> ${zH}`);
   ok('Lucky Whiskers: the Four-Leaf Charm is on sale tonight', await has('lucky', 'four_leaf_charm'));
   // ---- slots (a Lucky Den built off the fake market: the patch puts machines + reels + the jackpot sign)
@@ -96,7 +96,7 @@ const HERE = `x=${X},y=${Y},z=${Z},distance=..64`;
   ok('the pot tips out 8-16 Tokens and 3-6 Lucky Tokens', pt >= 8 && pt <= 16 && pl >= 3 && pl <= 6, `${pt} tokens, ${pl} lucky`);
   // dawn: prices back
   await run('time set day'); await sleep(2500);
-  ok('dawn: Happy Hour ends, prices back', (await score('#lnight')) === 0 && (await price('professor', 'filter_hopper')) === 3 && !(await has('lucky', 'four_leaf_charm')));
+  ok('dawn: Happy Hour ends, prices back', (await score('#lnight')) === 0 && (await price('professor', 'filter_hopper')) === pN && !(await has('lucky', 'four_leaf_charm')));
   // ---- an Invasion Night
   await run('execute as TestRat run function bm:admin/invasion_now'); await run('time set night'); await sleep(2500);
   ok('Invasion Night started', (await score('#inv')) === 1);

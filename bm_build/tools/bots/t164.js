@@ -52,7 +52,7 @@ const res = [];
   for (let i = 0; i < 40 && bdx < 0; i++) { const s = await nbt(FEN, `Offers.Recipes[${i}].sell.components."minecraft:custom_data".bm`); if (/Found no elements/i.test(s)) break; if (/"bankers_card"/.test(s)) bdx = i; }
   const bprice = bdx < 0 ? 0 : +(((await nbt(FEN, `Offers.Recipes[${bdx}].buy.count`)).match(/(\d+)/) || [0, 0])[1]);
   const bbuy = bdx < 0 ? '' : (await nbt(FEN, `Offers.Recipes[${bdx}].buy.components."minecraft:custom_data".bm`)).replace(/"/g, '');
-  ok('(2.82) the Fence sells the Banker\'s Card for 8 Tokens', bdx >= 0 && bprice === 8 && bbuy === 'token', `trade #${bdx}: ${bprice} ${bbuy}`);
+  ok('(2.82) the Fence sells the Banker\'s Card for 5 Tokens (8, 40% off)', bdx >= 0 && bprice === 5 && bbuy === 'token', `trade #${bdx}: ${bprice} ${bbuy}`);
   if (bdx >= 0) {
     await run('clear TestRat *[minecraft:custom_data~{bm:"token"}]'); for (let i = 0; i < bprice; i++) await run('loot give TestRat loot bm:items/token');
     A.windows.length = 0; if (fen) A.interact(fen.entityId); await sleep(900);

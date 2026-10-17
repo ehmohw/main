@@ -273,8 +273,7 @@ def generate(G):
 
     # ================================================================ the mothership chart (sold by Zorp)
     G.consume_adv('sealed_map_mothership', 'bm:maps/open_mothership')
-    fn('maps/open_mothership', ['advancement revoke @s only bm:consume/sealed_map_mothership', 'loot give @s loot bm:maps/mothership',
-                                title('@s', 'actionbar', T('The seal cracks... the chart marks an alien mothership.', '#7dff6a'))])
+    G.sealed_map('sealed_map_mothership', 'mothership', '#bm:mothership', title('@s', 'actionbar', T('The seal cracks... the chart marks an alien mothership.', '#7dff6a')))
     wjson('bm/loot_table/maps/mothership.json', {'type': 'minecraft:command', 'pools': [{'rolls': 1, 'entries': [{
         'type': 'minecraft:item', 'name': 'minecraft:filled_map', 'functions': [     # 26.3: exploration_map stamps the input item, so start from a filled map
             {'function': 'minecraft:exploration_map', 'destination': 'bm:mothership', 'decoration': 'minecraft:target_x', 'zoom': 2,

@@ -343,13 +343,28 @@ def generate(G):
                           'function bm:p79/unrig', 'tp @s ~ -400 ~', 'kill @s'])
     fn('p79/boss/fallen', ['kill @e[type=minecraft:marker,tag=bm.kxstrike,distance=..64]',
                            'playsound minecraft:entity.lightning_bolt.thunder weather @a[distance=..96] ~ ~ ~ 1.5 0.5', 'playsound minecraft:entity.warden.death hostile @a[distance=..48] ~ ~ ~ 1 1.4',
-                           'particle minecraft:electric_spark ~ ~1 ~ 2 2 2 0.4 200', 'particle minecraft:flash{color:[0.75,1.0,0.6,1.0]} ~ ~1 ~ 0 0 0 0 1'])
+                           'particle minecraft:electric_spark ~ ~1 ~ 2 2 2 0.4 200', 'particle minecraft:flash{color:[0.75,1.0,0.6,1.0]} ~ ~1 ~ 0 0 0 0 1',
+                           'function bm:p79/payout'])
+    # (2.82) whatever brought him down - a follower, his own lightning, fire, a fall - the reward still comes: the killing-blow
+    #  advancement pays the moment he dies; if nobody's paid by the time his body crumples, everyone within 64 is, here
+    fn('p79/payout', ['execute store result score #now bm.rng run time query gametime', 'scoreboard players operation #now bm.rng -= #kxpaid bm.rng',
+                      'execute if score #now bm.rng matches 0..100 run return 0',
+                      'execute store result score #now bm.rng run time query gametime', 'scoreboard players operation #now bm.rng -= #kxalive bm.rng',
+                      'execute unless score #now bm.rng matches 0..40 run return 0',          # (a rig left over from long ago pays nobody)
+                      'execute store result score #kxpaid bm.rng run time query gametime',
+                      'execute unless entity @a[distance=..64,gamemode=!spectator] run return 0',
+                      'execute if entity @s[scores={bm.kxel=10}] run return run function bm:p79/payout_eth',
+                      'execute as @a[distance=..64,gamemode=!spectator] at @s run function bm:p79/reward',
+                      tellraw('@a[distance=..96]', PREFIX + [T('KILLERWATT', GRN, bold=True), T(' has fallen!', 'gray')])])
+    fn('p79/payout_eth', ['scoreboard players set #eth bm.kxek 1', 'execute as @a[distance=..64,gamemode=!spectator] at @s run function bm:p79/reward',
+                          'execute as @a[distance=..64,gamemode=!spectator] at @s run function bm:p83/eth_reward', 'scoreboard players set #eth bm.kxek 0',
+                          tellraw('@a[distance=..96]', PREFIX + [T('ETHEREAL KILLERWATT', GRN, bold=True), T(' has fallen!', 'gray')])])
     # the reward: everyone within 64 of the killing blow
     wjson('bm/advancement/p79/kill.json', {'criteria': {'k': {'trigger': 'minecraft:player_killed_entity', 'conditions': {'entity': [
         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.kxboss"]}'}},
         {'condition': 'minecraft:inverted', 'term': {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.kxeth"]}'}}}]}}},
         'rewards': {'function': 'bm:p79/killed'}})                      # (his ethereal form: phase83 runs this itself, with #eth set - no plain Tendrils)
-    fn('p79/killed', ['advancement revoke @s only bm:p79/kill', 'execute at @s as @a[distance=..64] at @s run function bm:p79/reward',
+    fn('p79/killed', ['advancement revoke @s only bm:p79/kill', 'execute store result score #kxpaid bm.rng run time query gametime', 'execute at @s as @a[distance=..64] at @s run function bm:p79/reward',
                       tellraw('@a', PREFIX + [{'selector': '@s', 'color': 'white'}, T(' brought down ', 'gray'), T('KILLERWATT', GRN, bold=True), T('!', 'gray')])])
     fn('p79/reward', ['scoreboard players add @s bm.kxk 1', 'execute if score @s bm.kxk matches 1 run function bm:p79/first',
                       'execute store result score #r bm.rng run random value 1..100',
@@ -374,11 +389,12 @@ def generate(G):
                                fall_damage_multiplier=0.0),
             'active_effects': [eff('invisibility')]}
     mine = 'execute as @e[type=minecraft:wolf,tag=bm.kxpet] if score @s bm.pid = #me bm.pid'
-    G.FUNCS['p79/boss/tick'].insert(0, 'scoreboard players set #kel bm.rng 0')
     # 2.81: a KillerWatt with no id (one summoned bare, not through his arrival) never finds his own parts and rigs anew every
     # tick, thousands of displays a minute - give him one first
-    G.FUNCS['p79/boss/tick'][0:0] = ['execute unless score @s bm.kxid = @s bm.kxid run scoreboard players add #kwn bm.kxid 1',
+    G.FUNCS['p79/boss/tick'][0:0] = ['execute store result score #kxalive bm.rng run time query gametime',
+                                     'execute unless score @s bm.kxid = @s bm.kxid run scoreboard players add #kwn bm.kxid 1',
                                      'execute unless score @s bm.kxid = @s bm.kxid run scoreboard players operation @s bm.kxid = #kwn bm.kxid']
+    G.FUNCS['p79/boss/tick'].insert(0, 'scoreboard players set #kel bm.rng 0')      # (first: phase83 swaps this line for its form checks)
     # his parts wear his element (#kel: 0 his own, 1..9 a gem, 10 ethereal); the flexed arms too
     fn('p79/flex', [f'execute if score #kel bm.rng matches {i} run data modify entity @e[type=minecraft:item_display,tag=bm.kxsel,tag=bm.kxp_{p},limit=1] '
                     f'item.components."minecraft:item_model" set value "bm:kw_{p}_flex{s}"' for i, s in SUF.items() for p in ('armr', 'arml')])

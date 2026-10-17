@@ -1,7 +1,7 @@
 """Phase 2.40: relics of an old adventure - Cecil sells them.
 
 - KILLERWATT'S TENDRILS: the storm-alien's lightning arms. Use: a tendril lashes out 24 blocks - a monster is struck for
-  10 lightning damage that arcs to two more (5 each); an item is snatched back to you; a block: the tendril grabs it and
+  10 lightning damage that arcs to two more (5 each); a block: the tendril grabs it and
   flings you toward it. Sneak + use: grab - a monster is yanked to you; at a wall, the tendril heaves you up it.
   Held: 15% faster, a taller step, and no fall damage.
 - APOPHISS'S CROWN: the serpent king's black crown with its great emerald. Worn: you grow a size, hit harder (+3), reach
@@ -26,7 +26,7 @@ item('killerwatt_tendrils', TOTEM, "KillerWatt's Tendrils", YEL,
       ('Ranged: they lash monsters ahead of you (up to', 'blue'), ('20 blocks) - 10 lightning, arcing to two more.', 'blue'),
       ('Offense: +2 reach; your blows bring a double', 'blue'), ('stab (+6, piercing), and they drag monsters in.', 'blue'),
       ('Sneak + jump: fling yourself where you look,', 'blue'), ('or up the wall in front of you.', 'blue'),
-      ('They snatch up dropped items near you.', 'blue'), ('+15% speed, taller step, no fall damage.', 'blue'),
+      ('+15% speed, taller step, no fall damage.', 'blue'),
       ('Rain: stronger, faster. Thunderstorm: far stronger,', 'aqua'), ('and they call down lightning.', 'aqua')],
      model='bm:killerwatt_tendrils', stack=1, cat='weapon', glint=False, tier=3,
      comps={'minecraft:equippable': {'slot': 'chest', 'swappable': True, 'asset_id': 'bm:kw_tendrils', 'equip_sound': 'minecraft:item.armor.equip_chain'},
@@ -267,13 +267,11 @@ def generate(G):
                        'scoreboard players remove #kr bm.rng 1', 'execute if score #kr bm.rng matches 1.. positioned ^ ^ ^0.5 run function bm:p59/kw/fray'])
     fn('p59/kw/flung', ['tag @s remove bm.kwl1', 'tag @s remove bm.kwl2', 'tag @s remove bm.kwl3', 'tag @s remove bm.kwup', 'tag @s remove bm.kwarm'])
     tick.append(f'execute as @a[tag=bm.kwarm] unless {worn} at @s run function bm:p59/kw/flung')
-    # the snatch: dropped items within 8 drift to you; in the rain or a storm: Speed
+    # in the rain or a storm: Speed (2.82: no longer snatching up dropped items - the owner asked for it gone)
     G.FUNCS['loop/second'][-1:-1] = [f'execute as @a[gamemode=!spectator] if {worn} at @s run function bm:p59/kw/sec']
-    fn('p59/kw/sec', ['execute as @e[type=minecraft:item,distance=2..8,nbt={PickupDelay:0s}] at @s run function bm:p59/kw/snatch',
-                      'execute if predicate bm:p59/rain run effect give @s minecraft:speed 2 0 true',
+    fn('p59/kw/sec', ['execute if predicate bm:p59/rain run effect give @s minecraft:speed 2 0 true',
                       'execute if predicate bm:p59/storm run effect give @s minecraft:speed 2 1 true',
                       'execute if predicate bm:p59/storm run effect give @s minecraft:strength 2 0 true'])
-    fn('p59/kw/snatch', ['particle minecraft:electric_spark ~ ~0.3 ~ 0.1 0.1 0.1 0.05 4', 'tp @s @p[distance=..9]'])
 
     # melee (2.43): your reach grows by 2, and each hand-to-hand blow brings both upper tendrils lunging over your shoulders -
     # a lightning stab on the one you hit (6 / rain 8 / storm 10) that pierces through to one behind it (half), about once every 0.7 s

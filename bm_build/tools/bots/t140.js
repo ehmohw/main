@@ -55,6 +55,8 @@ const res = [];
     ok(`[${iid}] sneak + use at the ${side} wall: it hangs there`, (await cnt(W(mx, my, mz))) === 1 && (await cnt(Xs(mx, my, mz))) === 1, A.bars.slice(-1).join('').slice(0, 100));
     ok(`[${iid}] ...on a plaque (two boards), facing out from the wall`, (await cnt(P(mx, my, mz))) === 2 && Math.abs(((await yawOf(W(mx, my, mz))) - faceYaw + 540) % 360 - 180) < 1,
        `yaw ${await yawOf(W(mx, my, mz))}`);
+    const lit = await run(`execute as ${W(mx, my, mz)} at @s if block ~ ~ ~ minecraft:air`), plit = await run(`execute as ${P(mx, my, mz).replace(']', ',limit=1]')} at @s if block ~ ~ ~ minecraft:air`);
+    ok(`[${iid}] (2.82) ...weapon and plaque stand in the room's air, not in the wall (lit by the room, not black)`, /passed/i.test(lit) && /passed/i.test(plit), `${lit} | ${plit}`);
     ok(`[${iid}] ...the very weapon (its name kept), out of the hand`, /Mine on the wall/.test(await nbt(W(mx, my, mz), 'item')) && (await has('TestRat', iid)) === 0);
     ok(`[${iid}] ..."It hangs on the wall. (Sneak + punch it to take it down.)"`, /Sneak \+ punch it to take it down/.test(A.bars.join(' ')));
   }

@@ -41,8 +41,9 @@ CX, CZ, RX, RZ = 38, 46, 36.0, 35.0
 WATER_TOP = 5
 RIVER = (12, 22)              # (x range the curving river channel stays inside)
 DOOR_BOX = M2.DOOR_BOX
-VIP_SHELL, AUCTION_SEATS, CUSHIONS, COUNTERS, HOLES = [], [], [], [], []
-TOWN_TAG = 'bm.m281a'          # (on the town's marker: a market without it is rebuilt - 2.81a: the 2.81 towns too, for their counters)
+VIP_SHELL, AUCTION_SEATS, CUSHIONS, COUNTERS, HOLES, LADDERS = [], [], [], [], [], []
+TOWN_TAG = 'bm.m282'           # (on the town's marker: a market without it is rebuilt - 2.81a: the 2.81 towns too, for their counters;
+                               #  2.82: and again, for the river's ladders and the clock tower's way out)
 # water the market keeps (template boxes): the river and the harbour basin, the falls, Mike's pond and the falls into it
 WATER_KEEP = [((11, 0, 8), (24, 17, 85)), ((4, 0, 59), (22, 9, 78)), ((CX - 7, 4, CZ - 7), (CX + 7, 11, CZ + 7)), ((CX - 1, 4, CZ - 1), (CX + 1, SY - 1, CZ + 1))]
 
@@ -552,6 +553,11 @@ def build():
     for y in (22, 23):
         for (x, z) in [(45, 31), (46, 31), (47, 31), (45, 35), (46, 35), (47, 35), (44, 32), (44, 33), (44, 34), (48, 32), (48, 33), (48, 34)]: air(x, y, z)
     put(46, 23, 33, 'bell[attachment=ceiling,facing=north,powered=false]')
+    # (2.82) parkoured up and dropped in, nobody is stuck: hay to land on, a ladder up the inside, and a door out at the foot
+    fill(45, GF, 32, 47, GF, 34, 'hay_block[axis=y]')
+    for y in range(W, 22): put(46, y, 34, 'ladder[facing=north,waterlogged=false]')      # (to the belfry's sill: above it the wall behind is open)
+    put(46, W, 31, 'dark_oak_door[facing=north,half=lower,hinge=left,open=false,powered=false]')
+    put(46, W + 1, 31, 'dark_oak_door[facing=north,half=upper,hinge=left,open=false,powered=false]')
     spire(46, 33, 24, 3, 'waxed_oxidized_cut_copper')
     for y in range(24, 27): put(46, y, 33, 'waxed_oxidized_cut_copper')        # (from y 24: the bell hangs from it)
     put(46, 27, 33, 'lightning_rod[facing=up,powered=false,waterlogged=false]')
@@ -1027,6 +1033,21 @@ def build():
                          (11, W + 2, 69, 'den'), (14, W + 2, 28, 'docks'), (38, W + 2, 24, 'alley')]:
         M(x + 0.5, y, z + 0.5, ['bm.amb', f'bm.amb_{k}'], 0)
 
+    # (2.82) a way out of the water: the quays stand four blocks over it, and a player who fell in had no way back up. A ladder
+    #  up a wall wherever the top opens onto a street (solid quay, two blocks of air over it - never up into the far bank's
+    #  rock or a house wall), no two within a few blocks of each other; the column it climbs left clear by the docks.
+    FACE = {(1, 0): 'west', (-1, 0): 'east', (0, 1): 'north', (0, -1): 'south'}
+    LADDERS.clear()
+    for (x, z) in sorted(WATER, key=lambda c: (c[1], c[0])):
+        if any(abs(x - lx) + abs(z - lz) < 6 for lx, lz in LADDERS): continue
+        if any(g(x, y, z) not in ('water', 'air') for y in range(4, W + 2)): continue
+        for (dx, dz), face in FACE.items():
+            n = (x + dx, z + dz)
+            if n in WATER or not INS(*n): continue
+            if not is_full(B.b.get((n[0], GF, n[1]), 'minecraft:air')) or g(n[0], W, n[1]) != 'air' or g(n[0], W + 1, n[1]) != 'air': continue
+            for y in range(4, GF + 1): put(x, y, z, f'ladder[facing={face},waterlogged={"true" if y <= WATER_TOP else "false"}]')
+            LADDERS.append((x, z)); break
+    B.water_cells = sorted(WATER)
     support_lanterns(B, put)
     lights = spawnproof(B, fix=True, forbid=DOOR_BOX)
     B.meta = {'lights_added': lights, 'ceil': ceil}
@@ -1084,6 +1105,9 @@ def check(B):
             errs.append(f'{nm} at {(x, y, z)} hangs from (or stands on) {n}')
     for (hx, hz), _ in HOLES:
         if B.b.get((hx, W, hz)) != 'minecraft:air': errs.append(f'mouse hole {(hx, hz)} missing')
+    # (2.82) nobody stranded in the water: every cell of the river and the basin within reach of a ladder out
+    far = [c for c in B.water_cells if not any(abs(c[0] - lx) + abs(c[1] - lz) <= 9 for lx, lz in LADDERS)]
+    if far: errs.append(f'{len(far)} water cells more than 9 blocks from a ladder out, e.g. {far[:4]}')
     cap = next(e['pos'] for e in B.ents if 'bm.npc.captain' in e['nbt']['Tags'])
     if reach(seen, int(cap[0]), int(cap[1]), int(cap[2]), 2.5): errs.append('the Captain can be reached without shrinking')
     if not all(B.b.get((4, W, z), '').startswith('minecraft:deepslate_brick_slab[type=top') for z in (20, 21, 22)):

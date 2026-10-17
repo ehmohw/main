@@ -239,6 +239,7 @@ def cost(iid, n=1):
 
 CURRENCY = {'token', 'medallion', 'trophy', 'lucky_token', 'blood_crystal', 'diamond', 'emerald', 'netherite_ingot'}
 PRICE_SCALE = {'token': 1.05, 'medallion': 1.05, 'trophy': 0.7, 'blood_crystal': 0.7, 'lucky_token': 0.7}   # 2.65: 70% of 1.7's prices (2.63 had halved them: too cheap)
+PRICE_SCALE = {k: v * ECON.CUT for k, v in PRICE_SCALE.items()}     # 2.82: 40% off on top of that
 ECON.PRICE_SCALE.update(PRICE_SCALE)                # (the Scrap Bin pays half of these prices, not the old list)
 
 
@@ -298,8 +299,8 @@ def npc_offers():
     O['fence'] = [
         offer(('diamond', 1), ('token', 2)),          # 2.63: a diamond is worth 2 Tokens
         offer(('netherite_ingot', 1), ('token', 3)),
-        offer(('token', 9), ('medallion', 1)),
-        offer(('medallion', 6), ('trophy', 1)),
+        offer(('token', ECON.TOKENS_PER_MEDALLION), ('medallion', 1)),          # 2.82: 5 Tokens a Medallion (was 9)
+        offer(('medallion', ECON.MEDALLIONS_PER_TROPHY), ('trophy', 1)),        # 2.82: 4 Medallions a Trophy (was 6)
         offer(('token', 2), ('sealed_map_market', 1)),
         offer(('token', 1), ('sealed_map_graveyard', 1)),
         offer(('token', 8), ('bankers_card', 1)),     # 2.82: the Rat Bank in your pocket, over his counter
@@ -332,7 +333,8 @@ def npc_offers():
         offer(('token', 5), ('lucky_token', 1)),
         offer(('lucky_token', 3), ('lucky_charm', 1)),
     ]
-    pawn = [offer(('medallion', 1), ('token', 6)), offer(('trophy', 1), ('medallion', 4)), offer(('token', 4), ('diamond', 1))]    # 2.63: (3 Tokens a diamond after scaling - dearer than the Fence pays)
+    # 2.63: (3 Tokens a diamond after scaling - dearer than the Fence pays); 2.82: Medallions / Trophies bought back under the new rates (5 / 4) - no loop
+    pawn = [offer(('medallion', 1), ('token', 3)), offer(('trophy', 1), ('medallion', 3)), offer(('token', 3), ('diamond', 1))]
     for iid, (cur, n) in PRICES.items():
         if CATEGORY.get(iid) in ('gear', 'builder', 'cosmetic') and iid != 'lucky_seven':
             pawn.append(offer((iid, 1), ECON.pawn(iid, (cur, n))))
@@ -340,7 +342,7 @@ def npc_offers():
     O['pawn'] = pawn
     O['captain'] = [
         offer(('gold_block', 4), ('token', 1)),
-        offer(('token', 8), ('medallion', 1)),
+        offer(('token', ECON.TOKENS_PER_MEDALLION), ('medallion', 1)),
         offer(('lucky_token', 4), ('scratch_card', 6)),
         offer(('token', 2), ('aged_cheddar', 1)),
         offer(('medallion', 3), ('pirate_hat', 1)),
@@ -706,13 +708,29 @@ def gen_lucky():
 
 
 # ================================================================ MAPS / SKINS
+def sealed_map(iid, table, dest, done):
+    """(2.82) a sealed map's opening: outside the Overworld, or with nothing of its kind within reach, the seal holds - the
+    map comes back with a word why (it used to be used up, leaving a blank map)"""
+    fn(f'maps/open_{table}', [f'advancement revoke @s only bm:consume/{iid}',
+                              f'execute unless dimension minecraft:overworld run return run function bm:maps/no_{table}',
+                              'scoreboard players set #mf bm.rng 0', f'function bm:maps/try_{table}',
+                              f'execute if score #mf bm.rng matches 0 run return run function bm:maps/no_{table}',
+                              f'loot give @s loot bm:maps/{table}', done])
+    fn(f'maps/try_{table}', [f'execute store success score #mf bm.rng run locate structure {dest}'])
+    fn(f'maps/no_{table}', sealed_refused(iid))
+
+def sealed_refused(iid):
+    return [f'execute unless dimension minecraft:overworld run ' + title('@s', 'actionbar', T('The seal won\'t crack here - open it in the Overworld.', 'red')),
+            f'loot give @s loot bm:items/{iid}',
+            f'execute if dimension minecraft:overworld run ' + title('@s', 'actionbar', T('The seal holds - nothing of the kind within reach. Try it further afield.', 'red'))]
+
+
 def gen_maps_skins():
     for iid, table, label in [('sealed_map_market', 'market', 'a Black Market'), ('sealed_map_graveyard', 'graveyard', 'a haunted graveyard'),
                               ('sealed_map_frog', 'frog_hut', "the Frog with Mustache's hut")]:
         consume_adv(iid, f'bm:maps/open_{table}')
-        fn(f'maps/open_{table}', [f'advancement revoke @s only bm:consume/{iid}',
-                                  f'loot give @s loot bm:maps/{table}',
-                                  title('@s', 'actionbar', T(f'The seal cracks... the map reveals {label}.', 'aqua'))])
+        sealed_map(iid, table, {'market': 'bm:black_market', 'graveyard': 'bm:graveyard', 'frog_hut': 'bm:frog_hut'}[table],
+                   title('@s', 'actionbar', T(f'The seal cracks... the map reveals {label}.', 'aqua')))
     for table, dest, nm, deco in [('market', 'bm:black_market', "Smuggler's Map", 'minecraft:red_x'),
                                   ('graveyard', 'bm:graveyard', "Gravedigger's Map", 'minecraft:red_x'),
                                   ('frog_hut', 'bm:frog_hut', "Croaker's Map", 'minecraft:swamp_hut')]:

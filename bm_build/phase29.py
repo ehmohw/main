@@ -600,7 +600,7 @@ def generate(G):
 
 def merc_generate(G, fn, wjson, title, tellraw, give, PREFIX, tick, fast, second, load, ident, P28):
     """Rufus Gnaw: an invisible tamed wolf (follows, teleports to you, fights) carrying his rat figure and nameplate.
-    State per player (bm.mstate): 0 never hired / 1 on duty / 2 fallen (patch him up: 2 Medallions) / 3 left unpaid.
+    State per player (bm.mstate): 0 never hired / 1 on duty / 2 fallen (patch him up: 1 Medallion) / 3 left unpaid.
     Modes (bm.mmode): 1 follow, 2 guard a spot (he stays within 8 blocks of it), 3 follow + scavenge.
     A 'generation' number (bm.mgen) lets a new summon retire any old copy stranded in an unloaded chunk."""
     def deny(msg): return 'return run ' + title('@s', 'actionbar', T(msg, 'gray'))
@@ -678,8 +678,8 @@ def merc_generate(G, fn, wjson, title, tellraw, give, PREFIX, tick, fast, second
                      P28.body([T('Purse: ', 'gray'), T('$(purse)', 'gold'), T(' Tokens (1 a day)   Loot carried: ', 'gray'), T('$(bag)', 'white'), T(' stacks', 'gray')])],
                     [P28.btn(T('Follow me', 'white'), 7001), P28.btn(T('Guard this spot', 'white'), 7002),
                      P28.btn(T('Follow and scavenge', 'white'), 7003), P28.btn(T('Hand over the loot', 'white'), 7004),
-                     P28.btn([T('Pay a week  ', 'white'), T('7 Tokens', 'gold')], 7005), P28.btn(T('Call him to me', 'white'), 7006),
-                     P28.btn([T('Patch him up  ', 'white'), T('2 Medallions', 'light_purple')], 7007)], columns=2)
+                     P28.btn([T('Pay a week  ', 'white'), T('4 Tokens', 'gold')], 7005), P28.btn(T('Call him to me', 'white'), 7006),
+                     P28.btn([T('Patch him up  ', 'white'), T('1 Medallion', 'light_purple')], 7007)], columns=2)
     fn('p29/merc/dlg', [f'$dialog show @s {P28.inline(dlg)}'])
     fn('p29/merc/first', ['scoreboard players set @s bm.mpurse 7', 'scoreboard players set @s bm.mdays 0', 'scoreboard players set @s bm.mmode 1',
                           'scoreboard players operation @s bm.mday = #day bm.bm', 'function bm:p29/merc/summon',
@@ -720,13 +720,13 @@ def merc_generate(G, fn, wjson, title, tellraw, give, PREFIX, tick, fast, second
                          'playsound minecraft:entity.villager.ambient neutral @s ~ ~ ~ 0.6 1.8',
                          title('@s', 'actionbar', T('"On my way!"', '#c0392b', italic=True))])
     G.FUNCS['p29/merc/call'].insert(0, 'tag @s add bm.mcaller'); G.FUNCS['p29/merc/call'].append('tag @s remove bm.mcaller')
-    fn('p29/merc/pay', P28.pay_lines('token', 7, 'function bm:p28/back/broke {m:"A week costs 7 Tokens."}') + [
-        'scoreboard players add @s bm.mpurse 7', 'playsound minecraft:entity.experience_orb.pickup player @s ~ ~ ~ 1 0.8',
+    fn('p29/merc/pay', P28.pay_lines('token', 4, 'function bm:p28/back/broke {m:"A week costs 4 Tokens."}') + [     # 2.82: was 7
+        'scoreboard players add @s bm.mpurse 4', 'playsound minecraft:entity.experience_orb.pickup player @s ~ ~ ~ 1 0.8',
         'execute if score @s bm.mstate matches 3 run scoreboard players operation @s bm.mday = #day bm.bm',
         'execute if score @s bm.mstate matches 3 run function bm:p29/merc/summon',
-        tellraw('@s', PREFIX + [T('7 Tokens go into the purse. ', 'gold'), T(f'{MERC_NAME} bites one to check it.', 'gray')])])
+        tellraw('@s', PREFIX + [T('4 Tokens go into the purse. ', 'gold'), T(f'{MERC_NAME} bites one to check it.', 'gray')])])
     fn('p29/merc/patch', ['execute unless score @s bm.mstate matches 2 run ' + deny("He's fine. Not a scratch."),
-                          *P28.pay_lines('medallion', 2, 'function bm:p28/back/broke {m:"The rat doctor charges 2 Medallions."}'),
+                          *P28.pay_lines('medallion', 1, 'function bm:p28/back/broke {m:"The rat doctor charges a Medallion."}'),
                           'scoreboard players operation @s bm.mday = #day bm.bm', 'function bm:p29/merc/summon',
                           tellraw('@s', PREFIX + [T(f'{MERC_NAME} is patched up and back at your side - bandaged, grumpy, ready.', 'gray')])])
     # rank: hp and damage by days of service
@@ -782,7 +782,7 @@ def merc_generate(G, fn, wjson, title, tellraw, give, PREFIX, tick, fast, second
                            'execute if score #alive bm.pay matches 1 run return 0',
                            'scoreboard players set @s bm.mstate 2',
                            tellraw('@s', PREFIX + [T(f'{MERC_NAME} has fallen! ', '#c0392b', bold=True),
-                                                   T('The market rats carry him off to be patched up (2 Medallions, from the contract).', 'gray')])])
+                                                   T('The market rats carry him off to be patched up (a Medallion, from the contract).', 'gray')])])
     hostile = 'type=#bm:hostile,type=!minecraft:creeper,tag=!bm.npc,tag=!bm.wil_body'
     fn('p29/merc/think', [
         'scoreboard players operation #p bm.pay = @s bm.pid',

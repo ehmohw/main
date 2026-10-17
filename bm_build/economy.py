@@ -1,6 +1,7 @@
 """1.10 price rebalance, applied inside gen_dp.offer() so every shop (base game, Phase 1.5-1.9, Phase 2) uses it.
 
-Currency ladder (unchanged): 1 Medallion = 9 Tokens, 1 Trophy = 6 Medallions (54 Tokens). The pawn shop pays half.
+Currency ladder (2.82): 1 Medallion = 5 Tokens, 1 Trophy = 4 Medallions (20 Tokens). The pawn shop pays a little over half.
+(Until 2.81: 9 Tokens a Medallion, 6 Medallions a Trophy.)
 Rules:
 - UNBREAKABLE gear is the most expensive thing in the market: it never has to be replaced, so it is priced in Trophies.
 - Tier upgrades cost the same at every armourer: tier II = +10 Medallions (armour) / +12 (weapons, tools), tier III = +5 Trophies.
@@ -33,18 +34,28 @@ DIRECT = {
 # 2.65: that made things too cheap - every price is now 70% of the old one (rounded up)
 HALVED = ('token', 'medallion', 'trophy', 'blood_crystal', 'lucky_token')
 DISCOUNT = 0.7
+# 2.82: everything still far too dear - 40% off every Black Market price on top (the offer scale, these fixed prices and the
+#  dialog shops' stock all take CUT), and Medallions and Trophies cheaper to buy in Tokens
+CUT = 0.6
+TOKENS_PER_MEDALLION = 5
+MEDALLIONS_PER_TROPHY = 4
+
+
+def cut(n):
+    """a dialog shop's list price, 40% off (rounded; never below 1)"""
+    return max(1, int(n * CUT + 0.5))
 
 
 def _half(c):
-    return (c[0], max(1, -(-int(round(c[1] * DISCOUNT * 10)) // 10))) if c and c[0] in HALVED else c
+    return (c[0], max(1, -(-int(round(c[1] * DISCOUNT * CUT * 10)) // 10))) if c and c[0] in HALVED else c
 
 
 DIRECT = {k: (_half(a), _half(b) if b else None) for k, (a, b) in DIRECT.items()}
 DIRECT['golden_wings'] = (DIRECT['golden_wings'][0], ('elytra', 1))       # 2.63: built on a real elytra
-DIRECT['fixers_ledger'] = (('token', 3), None)                          # 2.63: 3 Tokens (2.75: the Ledger, now the heist plans too)
+DIRECT['fixers_ledger'] = (('token', 2), None)                          # 2.63: 3 Tokens (2.75: the Ledger, now the heist plans too; 2.82: 2)
 # (item sold, currency paid) -> cost: currency exchanges
-EXCHANGE = {('medallion', 'token'): ('token', 9),            # the Captain sold them for 8 (Fence: 9)
-            ('trophy', 'blood_crystal'): ('blood_crystal', 48)}   # was 24 (= 3 Medallions' worth for a 6-Medallion Trophy)
+EXCHANGE = {('medallion', 'token'): ('token', TOKENS_PER_MEDALLION),   # the Captain sold them for 8 (Fence: 9); 2.82: 5 everywhere
+            ('trophy', 'blood_crystal'): ('blood_crystal', 20)}   # was 24, then 48 (2.82: a Trophy is 20 Tokens' worth now)
 SPECIALTY = ('shadowstep_', 'juggernaut_', 'architect_helmet', 'architect_chestplate', 'architect_leggings', 'architect_boots',
              'tidecaller_')
 
@@ -60,7 +71,7 @@ def apply(buy, sell, buyB):
     if buyB and buy[0] not in CUR and buyB[0] in ('medallion', 'trophy') and is_upgrade(s):   # every tier upgrade (1.11)
         return buy, upgrade_cost(s, buyB[0]), True, False
     if s.startswith(('crimson_', 'vampire_')) and buyB and buyB[0] == 'medallion':   # Blood Moon armour sets
-        return buy, ('medallion', 8 if s.startswith('crimson_') else 10), True, False
+        return buy, ('medallion', cut(8 if s.startswith('crimson_') else 10)), True, False     # (2.82: 40% off)
     return buy, buyB, True, True
 
 
@@ -75,8 +86,8 @@ ARMOR = ('_helmet', '_chestplate', '_leggings', '_boots', '_helmet_2', '_chestpl
 
 def upgrade_cost(iid, cur):
     """Tier II: +10 Medallions (armour) / +12 (weapons, tools). Tier III: +5 Trophies (+6 for Biggoron's Sword)."""
-    if cur == 'trophy': return ('trophy', 4)                            # 2.65: 70% (was 5; 3 at half price)
-    return ('medallion', 7 if iid.endswith(ARMOR) else 9)                # 2.65: 70% (was 10 / 12; 5 / 6 at half price)
+    if cur == 'trophy': return ('trophy', cut(4))                       # 2.65: 70% (was 5; 3 at half price); 2.82: 40% off - 2
+    return ('medallion', cut(7 if iid.endswith(ARMOR) else 9))           # 2.65: 70% (was 10 / 12); 2.82: 40% off - 4 / 5
 
 
 PRICE_SCALE = {}       # (gen_dp's, set at import: the scale every list price is sold at)

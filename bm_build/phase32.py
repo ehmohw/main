@@ -192,8 +192,7 @@ def generate(G):
              'search_radius': 200, 'skip_existing_chunks': False},
             {'function': 'minecraft:set_name', 'target': 'item_name', 'name': T('Vorn Star-Chart', RED)}]}]}]})
     G.consume_adv('sealed_map_dread', 'bm:maps/open_dread')
-    fn('maps/open_dread', ['advancement revoke @s only bm:consume/sealed_map_dread', 'loot give @s loot bm:maps/dread',
-                           title('@s', 'actionbar', T('The seal cracks... the chart marks a Vorn Dreadnought.', RED))])
+    G.sealed_map('sealed_map_dread', 'dread', 'bm:red_mothership', title('@s', 'actionbar', T('The seal cracks... the chart marks a Vorn Dreadnought.', RED)))
 
     # ------------------------------------------------------------------ CRASH SITES (built into the real terrain at runtime)
     second.append('execute as @e[type=minecraft:marker,tag=bm.crash_seed,tag=!bm.built] at @s if entity @a[distance=..112] '
