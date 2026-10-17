@@ -325,6 +325,22 @@ def sum_horseman():
     return s.render()
 
 
+def sum_monstrosity():
+    """the Crimson War Horn: a curved ravager's tusk, red-iron bands, a gold mouthpiece"""
+    s = S()
+    tusk = ['#6a5a40', '#a8946a', '#d8c8a0', '#f0e6c8', '#fffaf0']
+    for i in range(12):
+        t = i / 11
+        x = 2.5 + 10 * t; y = 3.5 + 6 * math.sin(t * math.pi * 0.8) + 2 * t
+        s.disc(x, y, 0.9 + 2.1 * t, tusk)
+    for t in (0.35, 0.6, 0.85):
+        x = 2.5 + 10 * t; y = 3.5 + 6 * math.sin(t * math.pi * 0.8) + 2 * t; r = 0.9 + 2.1 * t
+        s.line(round(x), round(y - r), round(x), round(y + r), '#8a1010')
+    s.px(2, 3, GOLD[3]); s.px(2, 4, GOLD[2]); s.px(1, 3, GOLD[1])
+    s.disc(12.5, 11.5, 1.6, ['#1a0404', '#3a0808', '#5a0c0c', '#7a1010', '#9a1818'])
+    return s.render()
+
+
 def sum_lantern():
     """the Arachno-Lantern's call: a dormant pumpkin on spider legs, red crescent eyes"""
     s = S()
@@ -588,7 +604,7 @@ OVERRIDES = {
     'pearl_statue': pearl_statue,
     'rat_chef': rat(_chef_top, _chef_mid), 'rat_lucky': rat(_lucky_top, _lucky_mid), 'rat_pirate': rat(_pirate_top, _pirate_mid),
     'rat_prof': rat(_prof_top, _prof_mid), 'rat_soldier': rat(_soldier_top, _soldier_mid),
-    'sum_horseman': sum_horseman, 'sum_lantern': sum_lantern, 'sum_pharaoh': sum_pharaoh, 'sum_roc': sum_roc, 'sum_treant': sum_treant,
+    'sum_horseman': sum_horseman, 'sum_lantern': sum_lantern, 'sum_monstrosity': sum_monstrosity, 'sum_pharaoh': sum_pharaoh, 'sum_roc': sum_roc, 'sum_treant': sum_treant,
     'sum_colossus': sum_colossus, 'sum_voidwalker': sum_voidwalker,
     'ember_scale': ember_scale, 'bloomheart_gem': bloomheart_gem, 'kw_spark': kw_spark, 'void_shard': void_shard,
     'xenite_cyan': crystal_shard('#5ae8f0'), 'xenite_green': crystal_shard('#5aff7a'), 'xenite_red': crystal_shard('#ff4a4a'),

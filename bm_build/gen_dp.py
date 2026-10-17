@@ -172,7 +172,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.82c'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.82d'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -423,6 +423,7 @@ def all_offers():
     R141.extend_offers(O, offer)
     R146.extend_offers(O, offer)
     R161.extend_offers(O, offer)
+    R148.extend_offers(O, offer)       # (2.82c: the Crimson War Horn at the Bloodbroker)
     # 2.82: follower cosmetics are raid exclusives (the Tailor in the den) - no overworld trader sells one
     global COS_OFF_MARKET
     COS_OFF_MARKET = sorted({R41._sell_id(o) for L in O.values() for o in L if R41._sell_id(o).startswith('cos_')})

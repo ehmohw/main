@@ -79,6 +79,7 @@ item('xenite_altar', TOTEM, 'Xenite Altar', '#7dff6a',
       ('(gear in your hand, shard in your off hand).', 'blue'), ('Sneak + right-click: infuse.', 'blue')],
      model='bm:xaltar', stack=1, cat='alien', comps=_use('minecraft:block.stone.place', 0.4))
 
+INV_EXTRA = []        # (2.82c: his stock once the fleet has noticed the world (#vornmet) - phase148's Vorn Fleet Beacon)
 OFFERS = [(('xenite_green', 16), None, ('ray_gun', 1)), (('xenite_violet', 12), None, ('tractor_beam', 1)),
           (('xenite_cyan', 12), None, ('cloaking_device', 1)), (('xenite_cyan', 10), None, ('xenite_dowser', 1)),
           (('xenite_violet', 16), None, ('gravity_boots', 1)), (('xenite_green', 6), ('xenite_violet', 6), ('xenite_altar', 1)),
@@ -142,6 +143,14 @@ def generate(G):
     ver = zlib.crc32(blob.encode()) % 1000000000
     fn('p17/npc/alien', [f'data modify entity @s Offers.Recipes set value {blob}', f'scoreboard players set @s bm.ofv {ver}'])
     second.append(f'execute as @e[tag=bm.npc_alien] unless score @s bm.ofv matches {ver} run function bm:p17/npc/alien')
+    # (2.82c) once the fleet has noticed the world, his stock grows (the Vorn Fleet Beacon) - hidden till then
+    O2 = O + [G.offer(buy, sell, buyB) if buyB else G.offer(buy, sell) for buy, buyB, sell in INV_EXTRA]
+    blob2 = snbt(O2)
+    ver2 = zlib.crc32(blob2.encode()) % 1000000000
+    assert ver2 != ver
+    fn('p148/zorp_unlocked', [f'data modify entity @s Offers.Recipes set value {blob2}', f'scoreboard players set @s bm.ofv {ver2}'])
+    global INV_VER
+    INV_VER = ver2            # (phase148 switches him to it, after phase52 has set up his Lucky Night list)
     fast.append('execute as @e[type=minecraft:item_display,tag=bm.alien_sprite] at @s if entity @a[distance=..24] run particle minecraft:end_rod ~ ~1.2 ~ 0.3 0.4 0.3 0.005 1')
     # he mutters too (same pop-in bubbles as the market)
     def bubble(text):

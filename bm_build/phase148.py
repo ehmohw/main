@@ -12,6 +12,10 @@ SUMMONS (a won heist, Tier III and up, every raider: 1% at Tier III, 3% at IV, 5
 THE SMOULDERING GOURD (a won BLOOD MOON heist, Tier III and up, every raider: 5%) - set it down under the open sky in the
               Overworld: the Scorching Arachno-Lantern grows from it - dormant until you come near, then awake - on any
               night, Blood Moon or not.
+THE CRIMSON WAR HORN (2.82c: the Bloodbroker, 13 Blood Crystals; a won BLOOD MOON heist, any tier, every raider: 5%) - blown
+              under the open sky on a Blood Moon, the Monstrosity and its Herald come out ten blocks ahead.
+THE CRIMSON EFFIGY and THE VORN FLEET BEACON (2.82c: a won heist, any tier, every raider: 5% each - the beacon only once the fleet
+              has noticed the world) - the beacon calls an Invasion Night tonight; Zorp sells it once invasions are unlocked.
 THE VAULT'S RARE STORES (the Tier III-V vault treasure roll, as before: 8%/9%/10% a win) now hold a few diamonds, a little
               netherite scrap and, rarely, a netherite upgrade template beside the tier's own gear - sparingly (about 1 win in
               60 for diamonds at Tier III, a template about 1 in 370).
@@ -59,6 +63,32 @@ item('sum_lantern', TOTEM, 'Smouldering Gourd', '#ff5a1a', ['A charred little go
                                                          ('◆ Blood Moon heist find (Tier III and up)', '#d02020')],
      model='bm:sum_lantern', glint=True, stack=4, cat='relic', comps=hold('none'))
 HOLD['sum_lantern'] = 'bm:p148/use/lantern'
+# (2.82c) THE CRIMSON WAR HORN - the Bloodbroker's (13 Blood Crystals, a fixed price) and a won Blood Moon heist's (5%, every
+#  raider, any tier): blown under the open sky on a Blood Moon, it calls the Monstrosity and its Herald out - now
+HORN_PRICE, HORN_CHANCE = 13, 5
+item('sum_monstrosity', TOTEM, 'Crimson War Horn', '#c01818', ['A ravager\'s tusk, bound in red iron. It sounds like the Blood Moon.',
+                                                             ('Use under the open sky on a Blood Moon:', 'blue'), ('the Monstrosity and its Herald', 'blue'),
+                                                             ('come for you - now.', 'blue'), ('◆ The Bloodbroker - or a Blood Moon heist', '#d02020')],
+     model='bm:sum_monstrosity', glint=True, stack=4, cat='blood', comps=hold('none'))
+HOLD['sum_monstrosity'] = 'bm:p148/use/monstrosity'
+# (2.82c) THE VORN FLEET BEACON - the Crimson Effigy's twin for the Vorn: an Invasion Night tonight. Only once the fleet has
+#  noticed this world (#vornmet: a Vorn killed aboard a Dreadnought) - Zorp only shows it then, and it won't work before.
+#  Zorp sells it (once unlocked); a won heist of any tier gives one 5% of the time (unlocked worlds only), and the Crimson
+#  Effigy 5% too.
+EVENT_CHANCE = 5
+item('vorn_beacon', TOTEM, 'Vorn Fleet Beacon', '#7dff6a', ['A stolen Vorn homing beacon. Switch it on and they come.',
+                                                          ('Use it: an Invasion Night TONIGHT.', 'blue'), ('Every player will know you did it.', 'red'),
+                                                          ('Only once the fleet has noticed this world.', 'gray')],
+     model='bm:vorn_beacon', glint=True, stack=4, cat='alien', comps=hold('none'))
+HOLD['vorn_beacon'] = 'bm:p148/use/beacon'
+import phase24 as _R24
+_R24.INV_EXTRA.append((('xenite_green', 24), ('xenite_red', 4), ('vorn_beacon', 1)))
+import economy as _ECON
+_ECON.DIRECT['sum_monstrosity'] = (('blood_crystal', HORN_PRICE), None)      # (the price as set: no scale, no cut)
+
+
+def extend_offers(O, offer):
+    O['blood'].append(offer(('blood_crystal', HORN_PRICE), ('sum_monstrosity', 1)))
 
 
 def generate(G):
@@ -109,6 +139,44 @@ def generate(G):
                                           T('... something enormous is growing.', 'gray')])])
     # (its dormant self also leaves on its own clock if nobody's near - that stays)
 
+    # ---- the war horn: the Monstrosity and its Herald, ten blocks ahead - on a Blood Moon only (it retreats at dawn, as ever)
+    mon = '@e[type=minecraft:ravager,tag=bm.monstrosity'
+    room = ' '.join(f'if block {p} #minecraft:air' for p in ('~ ~1 ~', '~ ~3 ~', '~2 ~3 ~', '~-2 ~3 ~', '~ ~3 ~2', '~ ~3 ~-2'))
+    fn('p148/use/monstrosity', [
+        'execute if dimension bm:gutter run return run ' + say('Nothing answers a horn in a heist - blow it out in the world.'),
+        'execute unless dimension minecraft:overworld run return run ' + say('Only the Overworld\'s Blood Moon hears it.', '#c01818'),
+        'execute unless score #active bm.bm matches 1 run return run ' + say('The horn is silent - wait for a Blood Moon.', '#c01818'),
+        f'execute if entity {mon}] run return run ' + say('The Monstrosity is already abroad.', '#c01818'),
+        'execute positioned ~ ~1.6 ~ unless predicate bm:sees_sky run return run ' + say('It needs the open sky over you.'),
+        f'execute rotated ~ 0 positioned ^ ^ ^10 positioned over motion_blocking_no_leaves {room} run function bm:monst/summon',
+        f'execute unless entity {mon}] run return run ' + say('Nothing came - find open ground ahead of you, and try again.'),
+        f'execute unless entity @s[gamemode=creative] run clear @s {holds("sum_monstrosity")} 1',
+        'playsound minecraft:event.raid.horn hostile @a[distance=..128] ~ ~ ~ 3 0.6', 'playsound minecraft:entity.ravager.roar hostile @a[distance=..96] ~ ~ ~ 2 0.7',
+        tellraw('@a[distance=..128]', P + [{'selector': '@s', 'color': 'white'}, T(' blew the ', 'gray'), T('Crimson War Horn', '#c01818', bold=True),
+                                           T(' - the Monstrosity answers!', 'gray')])])
+
+    # ---- the fleet beacon: an Invasion Night tonight (as the admin's invasion_now), once the fleet has noticed this world
+    VG = '#7dff6a'
+    fn('p148/use/beacon', [
+        'execute if dimension bm:gutter run return run ' + say('No signal down here - switch it on out in the world.'),
+        'execute unless score #vornmet bm.bm matches 1 run return run ' + say('Dead air. The fleet hasn\'t noticed this world - kill a Vorn aboard a Dreadnought first.', VG),
+        'execute if score #inv bm.bm matches 1 run return run ' + say('The Vorn are already here.', VG),
+        'execute if score #bday bm.bm matches 1 run return run ' + say('Not on a Blood Moon day - the Vorn won\'t come near it.', VG),
+        'execute if score #ivn bm.bm matches 1 if score #iday bm.bm = #day bm.bm run return run ' + say('The Vorn are already coming tonight.', VG),
+        'scoreboard players set #ivn bm.bm 1', 'scoreboard players operation #iday bm.bm = #day bm.bm',
+        'execute if score #tod bm.bm matches 23000.. run scoreboard players set #iforce bm.bm 1',
+        f'execute unless entity @s[gamemode=creative] run clear @s {holds("vorn_beacon")} 1',
+        tellraw('@a', P + [{'selector': '@s', 'color': VG}, T(' switched on a Vorn Fleet Beacon. ', 'gray'), T('The Vorn are coming tonight!', VG, bold=True)]),
+        'execute as @a at @s run playsound minecraft:block.beacon.power_select ambient @s ~ ~ ~ 0.8 0.5'])
+
+    # ---- Zorp: the beacon on his stock once the fleet has noticed the world (not on a Lucky Night - his discount list then)
+    sec = G.FUNCS['loop/second']
+    za = [i for i, l in enumerate(sec) if 'as @e[tag=bm.npc_alien] unless score @s bm.ofv matches ' in l and 'function bm:p17/npc/alien' in l]
+    assert len(za) == 1, za
+    sec[za[0]] = sec[za[0]].replace('execute ', 'execute unless score #vornmet bm.bm matches 1 ', 1)
+    sec.insert(za[0] + 1, f'execute if score #vornmet bm.bm matches 1 unless score #lnight bm.bm matches 1 as @e[tag=bm.npc_alien] '
+                          f'unless score @s bm.ofv matches {_R24.INV_VER} run function bm:p148/zorp_unlocked')
+
     # ================================================================== THE FINDS (in a won heist's haul)
     ins = lambda table: [f'execute in bm:gutter unless data block {HA} Items[26] run loot insert {HA} loot {table}',
                          f'execute in bm:gutter if data block {HA} Items[26] run loot insert {HB} loot {table}']
@@ -118,7 +186,14 @@ def generate(G):
     G.FUNCS['p105/finds'] += ['execute store result score #r bm.rng run random value 1..100'] + \
         [f'execute if score #gt bm.rng matches {t} if score #r bm.rng matches ..{c} run function bm:p148/find/boss' for t, c in BOSS_CHANCE.items()] + \
         ['execute store result score #r bm.rng run random value 1..100',
-         f'execute if score #gn bm.rng matches 1 if score #gt bm.rng matches 3.. if score #r bm.rng matches ..{LANTERN_CHANCE} run function bm:p148/find/lantern']
+         f'execute if score #gn bm.rng matches 1 if score #gt bm.rng matches 3.. if score #r bm.rng matches ..{LANTERN_CHANCE} run function bm:p148/find/lantern',
+         'execute store result score #r bm.rng run random value 1..100',
+         f'execute if score #gn bm.rng matches 1 if score #r bm.rng matches ..{HORN_CHANCE} run function bm:p148/find/horn',
+         # (2.82c: any tier, every raider - the Crimson Effigy, and the Vorn Fleet Beacon once invasions are unlocked)
+         'execute store result score #r bm.rng run random value 1..100',
+         f'execute if score #r bm.rng matches ..{EVENT_CHANCE} run function bm:p148/find/effigy',
+         'execute store result score #r bm.rng run random value 1..100',
+         f'execute if score #vornmet bm.bm matches 1 if score #r bm.rng matches ..{EVENT_CHANCE} run function bm:p148/find/beacon']
     keys = list(SUMMON)
     # (its own roll, #sb: the caller's #r stays as it was)
     fn('p148/find/boss', [f'execute store result score #sb bm.rng run random value 1..{len(keys)}'] +
@@ -127,6 +202,16 @@ def generate(G):
         fn(f'p148/find/{k}', ins(f'bm:p148/{k}') + [
             tellraw('@a', P + [{'selector': '@s', 'color': 'white'}, T(' found a ', 'gray'), T(nm, col, bold=True), T(f' in a won heist - it calls {who}!', 'gray')]),
             'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 1 0.9'])
+    wjson('bm/loot_table/p148/horn.json', {'type': 'minecraft:chest', 'pools': [{'rolls': 1, 'entries': [G.loot_entry('sum_monstrosity')]}]})
+    fn('p148/find/horn', ins('bm:p148/horn') + [
+        tellraw('@a', P + [{'selector': '@s', 'color': 'white'}, T(' found a ', 'gray'), T('Crimson War Horn', '#c01818', bold=True),
+                           T(' in a Blood Moon haul - it calls the Monstrosity!', 'gray')]),
+        'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 1 0.6'])
+    for k, iid, nm, col, what in (('effigy', 'crimson_effigy', 'Crimson Effigy', '#c01818', 'it calls a Blood Moon!'),
+                                  ('beacon', 'vorn_beacon', 'Vorn Fleet Beacon', '#7dff6a', 'it calls the Vorn!')):
+        fn(f'p148/find/{k}', ins(f'bm:items/{iid}') + [
+            tellraw('@a', P + [{'selector': '@s', 'color': 'white'}, T(' found a ', 'gray'), T(nm, col, bold=True), T(f' in a won heist - {what}', 'gray')]),
+            'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 1 0.8'])
     fn('p148/find/lantern', ins('bm:p148/lantern') + [
         tellraw('@a', P + [{'selector': '@s', 'color': 'white'}, T(' found a ', 'gray'), T('Smouldering Gourd', '#ff5a1a', bold=True),
                            T(' in a Blood Moon haul - the Arachno-Lantern sleeps in it!', 'gray')]),
@@ -188,6 +273,12 @@ def rp(R):
                                      '.kpPppkkkkppPpk.', '.kpPpkvvvvkpPpk.', 'kpPpkvvwvvvkpPpk', 'kpPpkvvvvvvkpPpk', '.kpPpkvvvvkpPpk.',
                                      '.kpPppkkkkppPpk.', '..kpPPppppPPpk..', '...kkppppppkk...', '.....kkkkkk.....'],
                                     dict(k='#10041a', p='#7a3ac0', P='#c27dff', v='#06020a', w='#ffffff'))
+    R.ICONS['sum_monstrosity'] = art(['................', '.y..............', '.yk.............', '..kbk...........', '...kbbk.........', '....kbbrk.......',
+                                      '.....kbbrbk.....', '......kbbrbbk...', '.......kbbrbbk..', '........kbbrbbk.', '.........kbbbbk.', '..........kkkk..'],
+                                     dict(k='#3a0606', b='#d8c8a0', r='#a01010', y='#ffd040'))      # (2.82c: sprites280e repaints it)
+    R.ICONS['vorn_beacon'] = art(['................', '.......gg.......', '......gGGg......', '.......kk.......', '.....kkkkkk.....', '....kvvvvvvk....',
+                                  '....kvGggGvk....', '....kvgGGgvk....', '....kvGggGvk....', '....kvvvvvvk....', '....kkkkkkkk....', '...kvvvvvvvvk...',
+                                  '...kkkkkkkkkk...'], dict(k='#1a1e24', v='#5a6474', g='#3ac84a', G='#b4ff9a'))
     R.ICONS['sum_lantern'] = art(['................', '.......ss.......', '......ss........', '....kkkkkkkk....', '...kddddddddk...',
                                   '..kddoddddoddk..', '..kdyodddoydk...', '..kddddddddddk..', '..kdoyyyyyyodk..', '..kddoyoyyoddk..',
                                   '...kddddddddk...', '..k.kkkkkkkk.k..', '.k..k..k..k..k..', 'k...k..k..k...k.'],

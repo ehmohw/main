@@ -21,6 +21,33 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82d: call the Monstrosity, call the fleet
+
+### The Crimson War Horn
+- **The Bloodbroker sells it for 13 Blood Crystals.** Blow it during a **Blood Moon**, under the open sky in the Overworld, and
+  the **Monstrosity** (and its Herald) rise about ten blocks ahead of you. The horn is spent.
+- It won't sound without a Blood Moon, while a Monstrosity is already out, underground or in the heists - and in all of those
+  cases you keep it.
+- **A won Blood Moon heist** (any tier) has a **5%** chance to find one for every raider.
+
+### The Vorn Fleet Beacon (the Crimson Effigy's twin)
+- **Switch it on and the Vorn come tonight:** an Invasion Night, as the Crimson Effigy brings a Blood Moon.
+- **Only once the fleet has noticed your world** - once someone has killed a Vorn aboard a Dreadnought (the same thing that
+  starts Invasion Nights coming on their own). Before that it's dead air, and you keep it. It also waits out a night already
+  taken: a Blood Moon, an invasion under way, or one already coming tonight.
+- **Zorp** (the mothership's trader) **sells it for 24 Green and 4 Red Xenite**, but only once the fleet has noticed the world.
+  Until then it isn't on his list at all. (On a Lucky Night his discounted list doesn't carry it; it's back at dawn.)
+
+### More from the heists
+- **Every won heist, any tier,** now has a **5%** chance for each raider to find a **Crimson Effigy**, and a **5%** chance for a
+  **Vorn Fleet Beacon** once the fleet has noticed the world (never before).
+- The **Vorn Signal** is still the Fence's heist tip, as before: it plans an Alien heist, and it doesn't call an invasion.
+
+### Tests
+- t32 brought up to date: its stand-in market carries the 2.82 Lucky Den tag (its den was being built twice), the Happy Hour
+  check allows for 2.82's price cut, the Vorn it clears go into the void first (a killed slime splits), and it only hits the
+  reactor's conduits, not the displays on the same spot.
+
 ## New in 2.82c: King Omega's tithe - and the Blood Moon's lost bosses found
 
 ### King Omega's tithe
