@@ -5,18 +5,20 @@ now. Serpents of the brothers' own kind (the owner: "more serpentine, like Apoph
 the same serpent's head with its snout, nostrils and heavy lids, the same rearing S of a body out of a coil, the light belly
 plate down the front, fins down the back - but small, leaner, and none of a king's things (no crown, no monocle, no scars):
   - pale grey-blue hide, see-through like their king's (more so), the belly plate lighter, the honeycomb marks dropped;
-  - glowing yellow eyes with black slit pupils under grey lids and thin black brows (the family's scowl);
+  - solid glowing yellow eyes under grey lids and thin black brows (the family's scowl);
   - a purple maw, cream fangs, the long purple forked tongue;
   - a little blue soul flame on the tip of the tail (where Apophiss carries his mace and Omega his great flame).
 Three crests (the art's three soldiers - mixed in a squad so they aren't clones):
-  a: the family's swept-back fins, pale
-  b: the fins dark, and one tall dark horn up through them (the middle soldier)
-  c: no fins - two big black horns curving back (the lone one)
+  a: pale spikes swept back off the back of the skull (a centre row, a pair either side)
+  b: the spikes dark, and one tall dark horn up from the crown of the head (the middle soldier)
+  c: no spikes - two big black horns curving back (the lone one)
+Cute but mischievous: smaller than a player's head-height (RIG_SCALE 0.6, about two blocks), solid glowing yellow eyes (no
+pupils), the family's scowling lids and brows.
 Faces (the brothers' lids and brows): grin (smug, half-lidded), shriek (eyes wide), hurt, blink.
 
 Rig: Apophiss's (coil - body - chest - head - jaw, arms off the chest, tail1-4 - flame), the body parts narrowed to 0.78 and
-the arms brought in to match. Design units as there (the coil on y=0, facing -z, his right +x); about 2.4 blocks tall at
-RIG_SCALE 0.75 - a head taller than a player."""
+the arms brought in to match. Design units as there (the coil on y=0, facing -z, his right +x); about two blocks tall at
+RIG_SCALE 0.6."""
 import math
 import os
 import random
@@ -31,7 +33,7 @@ import omega_art as O
 from rigkit import qs, el, seg, chain, I, mid, solve, qmul
 
 PREFIX = 'ss_'
-RIG_SCALE = 0.75
+RIG_SCALE = 0.6                                # (about two blocks - a player's height; v2 was 0.75)
 LEAN = 0.78                                    # (the body parts' width, x, against the brothers')
 ARM_X = 6.6                                    # (the arms' shoulders, brought in from the brothers' 8.4)
 PIVOT = {('flame' if k == 'mace' else k): v for k, v in A.PIVOT.items() if k not in ('wingr', 'wingl')}
@@ -64,16 +66,16 @@ def textures():
             'ss_belly': g(A._bands('#dfe6ee', '#c2cad4', 903), GHOST_A + 20), 'ss_fin': g(A._fin('#d4dae2', '#f2f6fa', '#a8b0bc', 904), 120),
             'ss_spike': A._fin('#2a2c34', '#4a4e5a', '#16161c', 905), 'ss_horn': A._noise('#141418', 906, 5),
             'ss_claw': A._noise('#3a3e4a', 907, 6), 'ss_mouth': A._noise('#3a1446', 908, 8), 'ss_tongue': A._noise('#9a3ac8', 909, 8),
-            'ss_fang': A._noise('#f0eee6', 910, 5), 'ss_eye': A._eye('#f2dc2a', '#fffbe0', 911), 'ss_pupil': A._noise('#0c0c0e', 912, 2),
+            'ss_fang': A._noise('#f0eee6', 910, 5), 'ss_eye': A._noise('#ffe23a', 911, 6),        # (solid glowing yellow - no pupils)
             'ss_lid': g(A._scales('#a2aab4', '#868e9a', '#c2c8d0', 913), 220), 'ss_brow': A._brush('#121214', '#26262a', 914), 'ss_lash': A._noise('#08080a', 915, 2),
             'ss_flame': O._flame(916), 'ss_flame_core': Image.new('RGBA', (64, 64), (236, 250, 255, 240))}
 
 
 TEXMAP = {'apo_scale': 'ss_body', 'apo_scale_dk': 'ss_body_dk', 'apo_belly': 'ss_belly', 'apo_fin': 'ss_fin', 'apo_claw': 'ss_claw',
-          'apo_mouth': 'ss_mouth', 'apo_tongue': 'ss_tongue', 'apo_fang': 'ss_fang', 'apo_eye': 'ss_eye', 'apo_pupil': 'ss_pupil',
+          'apo_mouth': 'ss_mouth', 'apo_tongue': 'ss_tongue', 'apo_fang': 'ss_fang', 'apo_eye': 'ss_eye', 'apo_pupil': 'ss_eye',
           'apo_bag': 'ss_body_dk', 'apo_lash': 'ss_lash', 'apo_lid': 'ss_lid', 'apo_brow': 'ss_brow'}
 DROP = {'apo_dot', 'apo_hex', 'ap_black', 'ap_emerald', 'ap_emerald_lt', 'ap_fur', 'ap_gold', 'ap_ruby', 'ap_ruby_lt'}   # (the family marks, the crown)
-GLOW = {'ss_eye': 13, 'ss_pupil': 13, 'ss_flame': 15, 'ss_flame_core': 15}
+GLOW = {'ss_eye': 14, 'ss_flame': 15, 'ss_flame_core': 15}
 
 
 # ---------------------------------------------------------------------------------------------------- models
@@ -106,17 +108,46 @@ def _lean(els, k=LEAN):
     return out
 
 
+def _spike(root, d, L, w, tex, pv):
+    """one tapered spike, square in section (not a flat fin): from its root along d (unit-ish), L long, w thick at the root"""
+    n = 4
+    pts = [tuple(root[i] + d[i] * L * k / n for i in range(3)) for k in range(n + 1)]
+    ws = [w * (1 - 0.8 * k / n) for k in range(n)]
+    return chain(pts, ws, ws[0], tex, pv, UP if abs(d[1]) < 0.7 else FRONT, ext=0.15, hs=ws)
+
+
+def _norm(v):
+    m = math.sqrt(sum(c * c for c in v)); return tuple(c / m for c in v)
+
+
+# the swept-back spikes off the back of the skull (the head's own fins are dropped - flat panels that read as sticks from behind):
+# a centre row and a pair either side, rooted in the skull and swept back and up, the rearmost the longest
+SPIKES = [((0, 43.2, 1.5), (0, 0.55, 0.85), 5.6, 2.2), ((0, 41.6, 5.6), (0, 0.45, 0.9), 6.8, 2.4), ((0, 38.6, 8.6), (0, 0.2, 1.0), 6.0, 2.2),
+          ((3.4, 42.6, 2.2), (0.35, 0.5, 0.8), 4.8, 1.8), ((4.4, 40.2, 6.4), (0.4, 0.3, 0.86), 5.6, 1.9),
+          ((-3.4, 42.6, 2.2), (-0.35, 0.5, 0.8), 4.8, 1.8), ((-4.4, 40.2, 6.4), (-0.4, 0.3, 0.86), 5.6, 1.9)]
+
+
 def _crest(crest, pv):
-    """the crest's extras on the head: b - one tall dark horn up through the fins; c - two black horns curving back"""
+    """a: the pale swept-back spikes; b: the same, dark, and one tall dark horn up from the crown of the head; c: no spikes -
+    two big black horns curving back"""
+    h = []
+    if crest in ('a', 'b'):
+        for root, d, L, w in SPIKES:
+            if crest == 'b' and root[0] == 0 and root[2] < 3: continue            # (the horn stands there)
+            h += _spike(root, _norm(d), L, w, 'ss_fin' if crest == 'a' else 'ss_spike', pv)
     if crest == 'b':
-        return chain([(0, 44.0, 1.0), (0, 49.5, 1.6), (0, 54.0, 3.2), (0, 56.5, 5.4)], [3.0, 2.2, 1.0], 3.0, 'ss_horn', pv, FRONT, hs=[3.0, 2.2, 1.0])
+        pts = [(0, 42.6, 0.6), (0, 46.4, 0.9), (0, 49.6, 1.8), (0, 52.2, 3.4), (0, 53.6, 5.2)]
+        ws = [2.8, 2.3, 1.7, 1.0]
+        h += chain(pts, ws, ws[0], 'ss_horn', pv, FRONT, ext=0.15, hs=ws)
     if crest == 'c':
-        h = []
-        for sx in (1, -1):
-            h += chain([(sx * 4.6, 42.8, -1.0), (sx * 6.2, 47.6, 0.6), (sx * 6.8, 51.4, 3.6), (sx * 6.0, 53.4, 7.4), (sx * 4.8, 53.6, 10.2)],
-                       [3.0, 2.4, 1.8, 0.9], 3.0, 'ss_horn', pv, FRONT, hs=[3.0, 2.4, 1.8, 0.9])
-        return h
-    return []
+        for sx in (1, -1):                                  # (up from the brow, curving back over the head: a smooth arc, tapering)
+            pts = []
+            for k in range(7):
+                t = k / 6; a = math.radians(-10 + 125 * t)
+                pts.append((sx * (4.2 + 1.8 * math.sin(math.pi * t) * 0.8), 42.4 + 7.4 * math.sin(a) * (1 - 0.15 * t), 0.2 + 7.6 * (1 - math.cos(a))))
+            ws = [3.0 * (1 - 0.72 * k / 6) for k in range(6)]
+            h += chain(pts, ws, ws[0], 'ss_horn', pv, FRONT, ext=0.15, hs=ws)
+    return h
 
 
 def models():
@@ -131,11 +162,9 @@ def models():
         part(f'ss_{p}', _retex(src[f'apo_{p}'][1]))
     pv = PIVOT['head']
     for cr in CRESTS:
-        swap = {'apo_fin': 'ss_spike'} if cr == 'b' else None
         for f in (None,) + FACES:
-            els = src[f'apo_head_x{_AFACE[f]}' if f else 'apo_head'][1]
-            if cr == 'c': els = [e for e in els if 'apo_fin' not in _tex(e)]
-            part(f'ss_head_{cr}' + (f'_x{f}' if f else ''), _retex(els, swap) + _crest(cr, pv))
+            els = [e for e in src[f'apo_head_x{_AFACE[f]}' if f else 'apo_head'][1] if 'apo_fin' not in _tex(e)]
+            part(f'ss_head_{cr}' + (f'_x{f}' if f else ''), _retex(els) + _crest(cr, pv))
     # the flame: a little soul fire on the tail's tip (Omega's, small - where his brother carries the mace)
     pv = PIVOT['flame']; c = (2.75, 2.4, 55.4)
     fl = [seg((2.75, 3.0, 53.6), (2.75, 3.0, 54.8), 1.6, 1.6, 'ss_body_dk', pv, UP)]
