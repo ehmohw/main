@@ -42,10 +42,10 @@ const res = [];
   await run(`${O}kill @e[type=minecraft:pig,x=${X},y=${Y},z=${Z},distance=..30]`);
 
   // ---- a real catch: cast into the pond, reel in on the bite
-  await run(`${O}tp TestRat ${X}.5 ${Y + 1} ${Z + 3}.5 0 30`); await sleep(1200);
+  await run(`${O}tp TestRat ${X}.5 ${Y + 1} ${Z + 4}.5 0 5`); await sleep(1200);
   let caught = 0;
   for (let k = 0; k < 3 && caught < 2; k++) {
-    look(0, 35); await sleep(200); A.use(); await sleep(1500);
+    look(0, 5); await sleep(200); A.use(); await sleep(1500);
     let bit = false; const t0 = Date.now();
     while (Date.now() - t0 < 30000) {
       const m = (await run(`${O}data get entity @e[type=minecraft:fishing_bobber,limit=1] Motion[1]`)).match(/(-?[\d.E-]+)d/);

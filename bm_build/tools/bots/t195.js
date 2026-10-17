@@ -67,6 +67,9 @@ const res = [];
   const h1 = await health();
   ok('dropped twelve blocks inside: the hay takes the fall (a scratch at most)', h1 >= h0 - 3, `${h0} -> ${h1}`);
   await at(CX + 46.5, CY + W, CZ + 32.5);
+  for (const h of ['lower', 'upper'])                // (the stage: the door shut - a run before may have left it open)
+    await run(`${O}setblock ${CX + 46} ${CY + W + (h === 'upper' ? 1 : 0)} ${CZ + 31} minecraft:dark_oak_door[facing=north,half=${h},hinge=left,open=false]`);
+  await sleep(300);
   A.useOn(CX + 46, CY + W, CZ + 31, 3); await sleep(700);
   ok('the door at the foot opens', await blk(CX + 46, CY + W, CZ + 31, 'minecraft:dark_oak_door[open=true]'));
   await A.walkTo(CX + 46.5, CZ + 29.6); await sleep(800);

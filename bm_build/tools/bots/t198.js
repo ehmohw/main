@@ -48,7 +48,7 @@ const res = [];
   // ---- a horror that drowns: still a horror's loot
   await run(`${O}fill ${X - 2} ${Y + 1} ${Z + 4} ${X + 2} ${Y + 3} ${Z + 6} minecraft:water`);
   await run('clear TestRat *[minecraft:custom_data~{bm:"blood_crystal"}]'); await run('clear TestRat *[minecraft:custom_data~{bm:"token"}]');
-  await run(`${O}summon minecraft:zombie ${X}.5 ${Y + 1} ${Z + 5}.5 {Tags:["bm.t198d"],NoAI:1b}`);
+  await run(`${O}summon minecraft:zombie ${X}.5 ${Y + 1} ${Z + 5}.5 {Tags:["bm.t198d"]}`);          // (no NoAI: a mob without AI never ticks toward drowning)
   await run(`${O}execute as @e[type=minecraft:zombie,tag=bm.t198d,limit=1] at @s run function bm:mobs/blood/zombie`);
   await run(`${O}data merge entity @e[type=minecraft:zombie,tag=bm.t198d,limit=1] {InWaterTime:900,DrownedConversionTime:2}`);
   await sleep(3500);                                              // (it drowns - and a second later the moon's loot is back on it)
