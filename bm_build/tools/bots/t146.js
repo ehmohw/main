@@ -1,5 +1,5 @@
 // 2.78: every follower in a frame - as a regular (non-op) player, every step a real packet: Zib's Donadian Medal,
-// KillerWatt's Spark and Pearlman's card (and, 2.78a, Wilfrey's locket; 2.79, Fishy's Pocket Bowl) each hung in an item frame with a right-click: the follower climbs out (and says
+// KillerWatt's Spark and Pearlman's card (and, 2.78a, Wilfrey's locket; 2.79, Fishy's Pocket Bowl; 2.80h, Dennis's horn and Pistachio's cloche; 2.82, Omega's Monocle) each hung in an item frame with a right-click: the follower climbs out (and says
 // so), stays by the frame (nobody's - not the player's), still there ten seconds on; the item punched out of the frame:
 // the follower goes with it. rcon only sets the stage (a wall, the frames, the three items).
 const { bot, rcon, sleep } = require('./lib_resp');
@@ -20,13 +20,14 @@ const res = [];
   await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
   await run(`${O}fill ${X - 8} ${Y} ${Z - 8} ${X + 8} ${Y} ${Z + 8} minecraft:stone`); await run(`${O}fill ${X - 8} ${Y + 1} ${Z - 8} ${X + 8} ${Y + 8} ${Z + 8} minecraft:air`);
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..24]`);
-  await run(`${O}fill ${X - 6} ${Y + 1} ${Z + 5} ${X + 6} ${Y + 3} ${Z + 5} minecraft:stone`);
+  await run(`${O}fill ${X - 6} ${Y + 1} ${Z + 5} ${X + 9} ${Y + 3} ${Z + 5} minecraft:stone`);
   await run(`${O}tp TestRat ${X + 0.5} ${Y + 1} ${Z + 2.5} 0 -10`);
   await wait(2000, async () => A.pos && Math.abs(A.pos.z - (Z + 2.5)) < 0.05, 100); await sleep(400);
 
   const KINDS = [['Zib', 'donadian_medal', 'wolf', 'bm.zibpet', -4], ['KillerWatt', 'kw_spark', 'wolf', 'bm.kxpet', 0], ['Pearlman', 'pearl_card', 'cat', 'bm.pmpet', 4],
                  ['Wilfrey', 'wilfrey_locket', 'wolf', 'bm.wilfrey', -2], ['Fishy', 'fy_bowl', 'wolf', 'bm.fypet', 2],
-                 ['Dennis', 'dw_horn', 'wolf', 'bm.dwpet', -6], ['Pistachio', 'pi_cloche', 'wolf', 'bm.pipet', 6]];
+                 ['Dennis', 'dw_horn', 'wolf', 'bm.dwpet', -6], ['Pistachio', 'pi_cloche', 'wolf', 'bm.pipet', 6],
+                 ['Omega', 'om_monocle', 'wolf', 'bm.ompet', 8]];
   for (const [name, iid, host, tag, dx] of KINDS) {
     await run(`${O}summon minecraft:item_frame ${X + dx} ${Y + 2} ${Z + 4} {Facing:2b,Tags:["bm.t146f"]}`); await sleep(400);
     await run(`loot replace entity TestRat hotbar.0 loot bm:items/${iid}`); await sleep(300);
