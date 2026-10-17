@@ -545,6 +545,9 @@ def generate(G):
     setb = lambda a, blk: f'setblock {C(*a)} {blk}'
     build = [f'execute positioned {M(55.0, 12.0, 5.5)} run kill @e[tag=bm.cabprop,distance=..13]',
              fill((46, 9, 0), (63, 16, 10), 'minecraft:dark_oak_planks', 'hollow'),
+             # (2.82c) the front wall faces Curio Court, three blocks from the Forge Pit's lava channel: wood there caught fire (the
+             #  market's lava check never saw this hall - it's built at run time). Brown terracotta: dark oak's colour, and it won't burn.
+             fill((46, 9, 10), (63, 16, 10), 'minecraft:brown_terracotta'),
              fill((47, 9, 1), (62, 9, 9), 'minecraft:polished_deepslate'),
              fill((54, 9, 4), (55, 9, 9), 'minecraft:polished_blackstone_bricks'),
              fill((54, 10, 4), (55, 10, 8), 'minecraft:red_carpet'),
@@ -589,12 +592,12 @@ def generate(G):
               f'execute positioned {M(55.0, 12.0, 5.5)} run summon minecraft:marker ~ ~ ~ {{Tags:["bm.cabprop","bm.cabhall"]}}',
               f'execute positioned {M(55.0, 11.0, 2.0)} rotated ~ 0 run function bm:p145/npc/spawn',
               f'execute positioned {M(55.0, 12.0, 5.5)} as @e[type=minecraft:marker,tag=bm.cabhall,distance=..1] at @s run function bm:p145/hall/draw']
-    fn('p145/hall/install', ['tag @s add bm.cab280'] + build)
+    fn('p145/hall/install', ['tag @s add bm.cab282c'] + build)
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.cabv dummy']
     G.OBJECTIVES += ['bm.cabv']
     corners = [(46, 9, -1), (63, 9, -1), (46, 9, 10), (63, 9, 10)]
     loaded = ' '.join(f'if loaded {C(*c)}' for c in corners)
-    second.append(f'execute as @e[type=minecraft:marker,tag=bm.mkt,tag=!bm.cab280] at @s rotated as @s {loaded} run function bm:p145/hall/install')
+    second.append(f'execute as @e[type=minecraft:marker,tag=bm.mkt,tag=!bm.cab282c] at @s rotated as @s {loaded} run function bm:p145/hall/install')
     # (every hall shows the wing set out last, from the one record: a change redraws the halls that are loaded, and a hall that
     #  wasn't catches up the moment someone comes near)
     fn('p145/hall/now', ['scoreboard players add #cabv bm.cab 1', 'execute as @e[type=minecraft:marker,tag=bm.cabhall] at @s run function bm:p145/hall/draw'])
@@ -1083,7 +1086,7 @@ def generate(G):
     fn('admin/cabinet_fill', [f'function bm:admin/cabinet_fill_{w}' for w in WINGS])
     fn('admin/cabinet_reset', ['data remove storage bm:cab got', 'function bm:p145/recount', 'function bm:p145/flags', 'scoreboard players reset * bm.cabc',
                                'scoreboard players reset * bm.cabr', 'function bm:p145/hall/now', say('Fishy\'s Cabinet is empty again (and every claim forgotten).', ORANGE)])
-    fn('admin/cabinet_hall', ['tag @e[type=minecraft:marker,tag=bm.mkt] remove bm.cab280', say('Every loaded market\'s Cabinet is built again.', ORANGE)])
+    fn('admin/cabinet_hall', ['tag @e[type=minecraft:marker,tag=bm.mkt] remove bm.cab282c', say('Every loaded market\'s Cabinet is built again.', ORANGE)])
     G.FUNCS['admin/help'] += [tellraw('@s', [T('/function bm:admin/fishy', 'yellow'), T("  Fishy's Pocket Bowl (meet him in the Cabinet, in the Black Market)", 'gray')]),
                               tellraw('@s', [T('/function bm:admin/cabinet_fill[_<wing>]', 'yellow'), T('  fill the Cabinet (or one wing) in your name; admin/cabinet_reset empties it', 'gray')])]
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.fyp]', 'kill @e[tag=bm.cabprop]', 'kill @e[type=minecraft:item_display,tag=bm.fyrep]']

@@ -1,9 +1,10 @@
-// 2.82b: CECIL'S TENT, THE CURIO WALK, AND A CREW PAGE THAT DOESN'T SPOIL - as a regular (non-op) player TestRat, every step a
+// 2.82b: CECIL'S TENT, THE CURIO WALK (2.82c: filled in again), AND A CREW PAGE THAT DOESN'T SPOIL - as a regular (non-op) player TestRat, every step a
 // real packet (rcon sets the stage: t162's market, rebuilt into the current town if it's older; who TestRat has met).
 //   THE MARKET'S HOSTS STAY HIDDEN: Cecil (and the Chef, the Armory) are invisible villagers under their models - a trader's
 //   invisibility is no longer cleared for them (they showed as a plain villager on top of the model); one that loses it has it
 //   back within a couple of seconds. Cecil's tent is dressed: shelves of books behind him, a counter with candles.
-//   THE CURIO WALK: from the Dark Auction's plaza TestRat walks straight east through the gallery to Fishy's Cabinet door.
+//   THE CURIO WALK (2.82c): rock again - it let you round the Dark Auction's key; the Cabinet's front wall is brown terracotta now
+//   (dark oak there caught fire from the forge pit's lava).
 //   THE RAID CREW PAGE: met only Cecil (no contracts) - the Ledger's Raid Crew lists Cecil, and no follower TestRat hasn't met;
 //   its Outfits page has only Cecil's wardrobe, and nothing of Emma's buff.
 const { bot, rcon, sleep } = require('./lib_resp');
@@ -35,7 +36,7 @@ const res = [];
     for (let t = 0; t < 30; t++) { const pl = await run(`${O}place template bm:black_market ${CX} ${CY} ${CZ}`); if (!/not loaded/.test(pl)) break; await sleep(2000); }
   }
   await at(38.5, BF + 1, 79.5, 180);
-  ok('the market is the current town (bm.m282b)', await wait(60000, async () => passes(`${O}execute if entity ${MK.replace(',limit=1', ',tag=bm.m282b,limit=1')}`), 500));
+  ok('the market is the current town (bm.m282c)', await wait(60000, async () => passes(`${O}execute if entity ${MK.replace(',limit=1', ',tag=bm.m282c,limit=1')}`), 500));
   await sleep(4000);
 
   // ---- the hosts under the models stay hidden
@@ -50,13 +51,13 @@ const res = [];
      (await block(54, W + 1, 70, 'minecraft:purple_candle')) && (await block(54, W + 1, 71, 'minecraft:amethyst_cluster')) &&
      (await block(53, W, 71, 'minecraft:purple_carpet')) && (await block(53, W + 3, 71, 'minecraft:soul_lantern')));
 
-  // ---- the Curio Walk: from the Auction's plaza straight to the Cabinet's door
-  await at(43.5, W, 12.5, -90);
-  await A.walkTo(CX + 54.5, CZ + 11.5); await sleep(500);
-  const near = A.pos && Math.hypot(A.pos.x - (CX + 54.5), A.pos.z - (CZ + 11.5)) < 0.6;
-  ok('from the Dark Auction\'s plaza, a straight walk east through the Curio Walk to Fishy\'s Cabinet door',
-     near && (await block(54, W, 10, 'minecraft:air')) && (await block(53, W + 1, 10, 'minecraft:gold_block')),
-     A.pos ? `at ${(A.pos.x - CX).toFixed(1)}, ${(A.pos.z - CZ).toFixed(1)}` : '');
+  // ---- (2.82c) the Curio Walk filled in again (it led round the Dark Auction's key); the Cabinet's front won't catch from the forge pit
+  const solid = async (x, y, z) => !(await block(x, y, z, 'minecraft:air'));
+  ok('the Curio Walk is rock again: no way from the Dark Auction\'s plaza round to the Cabinet without the key',
+     (await solid(46, W, 11)) && (await solid(48, W, 12)) && (await solid(50, W + 1, 11)) && (await solid(52, W, 12)));
+  ok('Fishy\'s Cabinet has its door; its front wall is brown terracotta - three blocks from the forge pit\'s lava, and it won\'t burn',
+     await wait(15000, async () => (await block(54, W, 10, 'minecraft:air')) && (await block(53, W + 1, 10, 'minecraft:gold_block')) &&
+       (await block(58, W + 1, 10, 'minecraft:brown_terracotta')) && (await block(62, W + 2, 10, 'minecraft:brown_terracotta')), 500));
 
   // ---- the Raid Crew page: only who you've met
   const fcon = +((await run('scoreboard players get TestRat bm.fcon')).match(/has (-?\d+)/) || [0, 0])[1];

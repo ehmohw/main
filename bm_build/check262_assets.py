@@ -337,11 +337,44 @@ def walk_item_model(f, m):
     else: E(f'{f}: item model type {t}')
 
 
+# (2.82c) 26.3 loot tables: a pool's, entry's or function's conditions are one `condition`; a `conditions` list is ignored (a
+#  late pass wrote one after the migration, and the gate it carried never applied)
+def _no_conditions(f, o):
+    if isinstance(o, dict):
+        if 'conditions' in o: E(f'{f}: loot `conditions` list (26.3 reads only `condition`)')
+        for v in o.values(): _no_conditions(f, v)
+    elif isinstance(o, list):
+        for v in o: _no_conditions(f, v)
+
+
+for f in glob.glob(f'{DP}/data/*/loot_table/**/*.json', recursive=True):
+    _no_conditions(f, json.load(open(f)))          # (raw: C.jload turns 26.3 back into 26.2's shapes)
+
+
 for f in glob.glob(f'{RP}/assets/bm/items/*.json'):
     d = C.jload(f)
     walk_item_model(f, d['model'])
+# (2.82c) the pack's atlas sources: a `single` with a `sprite` puts a texture into the atlas under another name
+RENAMED, BLOCK_SINGLES = {}, set()
+for af in glob.glob(f'{RP}/assets/minecraft/atlases/*.json'):
+    for src in C.jload(af).get('sources', []):
+        if src.get('type') in ('minecraft:single', 'single'):
+            if src.get('sprite'): RENAMED[src['sprite']] = src['resource']
+            if af.endswith('blocks.json'): BLOCK_SINGLES.add(src.get('sprite', src['resource']))
+
+
+def atlas_of(t):
+    """26.3 looks a model's texture up in the item atlas first (item/ textures), then the block atlas"""
+    ns_, path = t.split(':') if ':' in t else ('minecraft', t)
+    return 'items' if path.startswith('item/') and f'{ns_}:{path}' not in RENAMED else 'blocks'
+
+
 for f in glob.glob(f'{RP}/assets/bm/models/item/*.json'):
     d = C.jload(f)
+    # (2.82c) an item model whose faces come from both atlases is thrown out by the client (missing texture)
+    used = {fc['texture'][1:] for el in d.get('elements', []) for fc in el.get('faces', {}).values() if fc.get('texture', '').startswith('#')}
+    atl = {atlas_of(d['textures'][k]) for k in used if k in d.get('textures', {}) and not d['textures'][k].startswith('#')}
+    if len(atl) > 1: E(f'{f}: faces from both the item and the block atlas ({sorted(d["textures"][k] for k in used if k in d.get("textures", {}))}) - the client rejects it')
     if 'parent' in d:
         ns, pp = d['parent'].split(':') if ':' in d['parent'] else ('minecraft', d['parent'])
         if ns == 'bm' and not os.path.exists(f'{RP}/assets/bm/models/{pp}.json'): E(f'{f}: parent model {d["parent"]} missing')   # (2.67: a pack model can inherit another)
@@ -350,6 +383,10 @@ for f in glob.glob(f'{RP}/assets/bm/models/item/*.json'):
         ns_, path = t.split(':')
         if ns_ == 'minecraft':
             if path not in REG['texture']: E(f'{f}: vanilla texture {t} not in 26.3')
+        elif t in RENAMED:
+            r_ns, r_path = RENAMED[t].split(':')
+            if (r_path not in REG['texture']) if r_ns == 'minecraft' else not os.path.exists(f'{RP}/assets/{r_ns}/textures/{r_path}.png'):
+                E(f'{f}: texture {t} is atlas sprite {RENAMED[t]}, which is missing')
         elif not os.path.exists(f'{RP}/assets/{ns_}/textures/{path}.png'): E(f'{f}: missing texture {t}')
     for el in d.get('elements', []):
         for a in el['from'] + el['to']:

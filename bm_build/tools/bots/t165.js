@@ -35,6 +35,7 @@ const res = [];
   // ---------------------------------------------------------------- the Tailor (the Lounge's): Leo's Golden Champion, 2,560 coins
   await run('clear TestRat'); await run('scoreboard players set TestRat bm.gbc 3000'); await run('scoreboard players set TestRat bm.wuleo 0'); await run('scoreboard players set TestRat bm.cosl 0');
   await run('scoreboard players set TestRat bm.wudon 0'); await run('scoreboard players set TestRat bm.cosdn 0');
+  for (const k of ['leo', 'donado']) await run(`advancement grant TestRat only bm:met/${k}`);        // (2.82c: the Tailor lists only who you've met)
   await run('execute as TestRat at @s run function bm:p121/enter'); await sleep(2500);
   const TH = '@e[type=minecraft:interaction,tag=bm.tailhit,x=-321,y=60,z=-257,dx=26,dy=20,dz=26,limit=1]';
   const tp = await epos(TH, G);

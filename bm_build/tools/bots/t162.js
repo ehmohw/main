@@ -37,10 +37,10 @@ const res = [];
   await run('loot replace entity TestRat hotbar.7 loot bm:items/market_key');
   const MK = `@e[type=minecraft:marker,tag=bm.mkt,x=${CX + 38.5},y=${CY + 12},z=${CZ + 46.5},distance=..2,limit=1]`;
   await sleep(2500);
-  if (await passes(`${O}execute if entity ${MK}`)) await run(`${O}tag ${MK} remove bm.cab280`);
+  if (await passes(`${O}execute if entity ${MK}`)) await run(`${O}tag ${MK} remove bm.cab282c`);
   else { let pl = ''; for (let t = 0; t < 30; t++) { pl = await run(`${O}place template bm:black_market ${CX} ${CY} ${CZ}`); if (!/not loaded/.test(pl)) break; await sleep(2000); } console.log('   placed: ' + pl.slice(0, 60)); }
   await run(`${O}tp TestRat ${HX + 0.5} ${CY + 10} ${CZ + 4.6} 180 10`);                      // (in the market: its loop runs with someone near)
-  const built = await wait(30000, async () => passes(`${O}execute if entity ${MK.replace(',limit=1', ',tag=bm.cab280,limit=1')}`), 500);
+  const built = await wait(30000, async () => passes(`${O}execute if entity ${MK.replace(',limit=1', ',tag=bm.cab282c,limit=1')}`), 500);
   await sleep(1500);
   ok('(2.80) a Black Market placed: it builds Fishy\'s Cabinet itself', built);
   ok('the hall: twenty cases, Fishy at his desk', (await cnt(`@e[type=minecraft:item_display,tag=bm.cabslot,${NEAR}]`)) === 20 && (await cnt(HIT)) === 1 &&

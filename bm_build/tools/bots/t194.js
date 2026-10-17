@@ -2,7 +2,7 @@
 // everything it had still works - as a regular (non-op) player, every step a real packet. rcon sets the stage: the old market
 // placed from its 2.80 template (a test fixture, written into the world's generated structures), its traders spawned, a
 // follower (a tagged wolf) and a dropped diamond inside, a ladder-shaft marker and a block of its shaft past the tunnel's end.
-//   The player walks in: the market is rebuilt - one new marker (bm.m282b), the old one gone; the player moved up to the Lookout,
+//   The player walks in: the market is rebuilt - one new marker (bm.m282c), the old one gone; the player moved up to the Lookout,
 //   the diamond with them; the follower still there; the shaft untouched (no second one). The new town's blocks, turned like
 //   the old market (the clock tower's bell). The traders back - one of each; the installs run again: the gate and back-room
 //   ledgers, the Dark Auction's podium, the Gilded Gutter's Teller and Concierge, Fishy's Cabinet, Dennis's and Pistachio's
@@ -49,7 +49,7 @@ const res = [];
   await run(`${O}forceload add ${CX - 112} ${CZ - 8} ${CX + 100} ${CZ + 104}`); await sleep(4000);
   await run(`${O}kill @e[type=!minecraft:player,${BOX}]`);
   let pl = ''; for (let t = 0; t < 30; t++) { pl = await run(`${O}place template bm:market_v2 ${CX} ${CY} ${CZ} clockwise_90`); if (!/not loaded/.test(pl)) break; await sleep(2000); }
-  ok('the stage: an old (2.80) market placed, turned a quarter', /placed|loaded template/i.test(pl) && (await cnt(MK)) === 1 && !(await passes(`${O}execute if entity ${MK.replace(']', ',tag=bm.m282b]')}`)), pl.slice(0, 80));
+  ok('the stage: an old (2.80) market placed, turned a quarter', /placed|loaded template/i.test(pl) && (await cnt(MK)) === 1 && !(await passes(`${O}execute if entity ${MK.replace(']', ',tag=bm.m282c]')}`)), pl.slice(0, 80));
   // (the traders spawn from their markers by themselves; only if they haven't yet, spawn them now)
   await wait(8000, async () => (await cnt(`@e[tag=bm.npc_fence,${BOX}]`)) > 0, 500);
   if (!(await cnt(`@e[tag=bm.npc_fence,${BOX}]`))) { await run(`${O}execute as @e[type=minecraft:marker,tag=bm.npc_spawn,${BOX}] at @s run function bm:npc/spawn`); await sleep(800); }
@@ -66,9 +66,9 @@ const res = [];
   // ---- the player walks in: the market is rebuilt
   await run('loot give TestRat loot bm:items/market_key');                 // (a player inside came through the vault door - with the Market Key)
   await run(`${O}execute as ${MK.replace(']', ',limit=1]')} at @s rotated as @s run tp TestRat ${rel(38.5, 10, 40.5)}`); await sleep(500);
-  const rebuilt = await wait(30000, async () => passes(`${O}execute if entity ${MK.replace(']', ',tag=bm.m282b]')}`), 500);
+  const rebuilt = await wait(30000, async () => passes(`${O}execute if entity ${MK.replace(']', ',tag=bm.m282c]')}`), 500);
   await sleep(2500);
-  ok('walked in: the market is rebuilt - one marker, the new one (bm.m282b)', rebuilt && (await cnt(MK)) === 1);
+  ok('walked in: the market is rebuilt - one marker, the new one (bm.m282c)', rebuilt && (await cnt(MK)) === 1);
   const p = await posOf(); const lookout = await passes(`${O}execute as ${MK.replace(']', ',limit=1]')} at @s rotated as @s positioned ${rel(38.5, 18, 78.5)} if entity @a[name=TestRat,distance=..3]`);
   ok('the player was moved up to the Lookout, by the vault door', lookout, p && p.map(v => v.toFixed(1)).join(' '));
   ok('...the diamond with them; the follower still where it was', (await passes(`${O}execute as @e[tag=t194dia] at @s if entity @a[name=TestRat,distance=..3]`)) && (await cnt(`@e[tag=t194pet,${BOX}]`)) === 1);

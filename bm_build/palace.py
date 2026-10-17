@@ -188,11 +188,12 @@ def build():
     S(30, FY + 1, 43, 'barrel[facing=up,open=false]'); S(35, FY + 1, 43, 'barrel[facing=up,open=false]'); S(34, FY + 1, 43, 'smoker[facing=north,lit=false]')
     S(31, FY + 1, 43, 'barrel[facing=up,open=false]'); S(30, FY + 2, 43, 'candle[candles=3,lit=true,waterlogged=false]')
     # the great door (an arch of dark wood through the back wall, onto the throne room)
+    # (2.82c) the arch is cut to the doors - two wide, two high, a lintel over them; it was 4 x 4, and the 2 x 2 doors stood in it loose
     for x in range(30, 36):
         for y in range(TY + 1, TY + 7):
-            S(x, y, hz1, 'spruce_planks' if not (31 <= x <= 34 and y <= TY + 4) else 'air')
+            S(x, y, hz1, 'spruce_planks' if not (32 <= x <= 33 and y <= TY + 2) else 'air')
     for x in range(31, 35):
-        S(x, TY + 5, hz1, 'stripped_spruce_log[axis=x]')
+        S(x, TY + 3, hz1, 'stripped_spruce_log[axis=x]')
     S(32, TY + 1, hz1, 'spruce_door[facing=south,half=lower,hinge=left,open=true,powered=false]')
     S(32, TY + 2, hz1, 'spruce_door[facing=south,half=upper,hinge=left,open=true,powered=false]')
     S(33, TY + 1, hz1, 'spruce_door[facing=south,half=lower,hinge=right,open=true,powered=false]')
@@ -268,8 +269,8 @@ def build():
                 S(x, TY, z, 'polished_deepslate' if (x + z) % 2 else 'deepslate_tiles')
                 S(x, TY + 17, z, 'deepslate_bricks')
     for x in range(30, 36):                                  # the back wall of the hall is its front: the door through
-        for y in range(TY + 1, TY + 5):
-            if 31 <= x <= 34: S(x, y, tz0, 'air')
+        for y in range(TY + 1, TY + 3):
+            if 32 <= x <= 33: S(x, y, tz0, 'air')
     # its roof: a dark gable
     for h in range(0, 10):
         for z in range(tz0 - 1, tz1 + 2):

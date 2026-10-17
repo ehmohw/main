@@ -42,8 +42,9 @@ WATER_TOP = 5
 RIVER = (12, 22)              # (x range the curving river channel stays inside)
 DOOR_BOX = M2.DOOR_BOX
 VIP_SHELL, AUCTION_SEATS, CUSHIONS, COUNTERS, HOLES, LADDERS = [], [], [], [], [], []
-TOWN_TAG = 'bm.m282b'          # (on the town's marker: a market without it is rebuilt - 2.81a: the 2.81 towns too, for their counters;
-                               #  2.82: and again, for the river's ladders and the clock tower's way out)
+TOWN_TAG = 'bm.m282c'          # (on the town's marker: a market without it is rebuilt - 2.81a: the 2.81 towns too, for their counters;
+                               #  2.82: and again, for the river's ladders and the clock tower's way out; 2.82b: Cecil's tent; 2.82c:
+                               #  the Curio Walk filled in again - it let players round the Dark Auction's key)
 # water the market keeps (template boxes): the river and the harbour basin, the falls, Mike's pond and the falls into it
 WATER_KEEP = [((11, 0, 8), (24, 17, 85)), ((4, 0, 59), (22, 9, 78)), ((CX - 7, 4, CZ - 7), (CX + 7, 11, CZ + 7)), ((CX - 1, 4, CZ - 1), (CX + 1, SY - 1, CZ + 1))]
 
@@ -601,19 +602,6 @@ def build():
             if INS(x, z): put(x, GF, z, 'polished_deepslate' if (x + z) % 2 else 'deepslate_tiles'); ROAD.add((x, z)); KEEP.add((x, z))
     for (x, z) in [(52, 13), (52, 15), (59, 13), (59, 15)]:
         if INS(x, z): put(x, W, z, 'polished_blackstone_wall'); put(x, W + 1, z, 'lantern[hanging=false,waterlogged=false]')
-    # (2.82b) THE CURIO WALK: Fishy's Cabinet was round the corner from the Dark Auction, a walk through Furnace Row - nine blocks of
-    #  rock apart. A gallery through them now: out of the Auction's plaza, straight to the Cabinet's door
-    for x in range(44, 55):                       # (its back wall: the town's rock reaches only so far - the Cabinet's wall is dug at run time)
-        for y in range(GF, W + 5):
-            if (x, y, 10) not in B.b: rock(x, y, 10)
-    for x in range(45, 54):
-        for z in (11, 12):
-            put(x, GF, z, 'polished_deepslate' if (x + z) % 2 else 'deepslate_tiles'); ROAD.add((x, z)); KEEP.add((x, z))
-            for y in range(W, W + 3): air(x, y, z)
-            put(x, W + 3, z, 'dark_oak_planks')
-    for x in (47, 51): put(x, W + 2, 11, 'lantern[hanging=true,waterlogged=false]'); put(x, W + 2, 12, 'lantern[hanging=true,waterlogged=false]')
-    for z in (11, 12): put(45, W + 3, z, 'gold_block'); put(53, W + 3, z, 'gold_block')
-    B.sign(46, W + 1, 11, 'dark_oak_wall_sign[facing=south,waterlogged=false]', ["FISHY'S", 'CABINET', 'of Curiosities', '-> this way'], color='yellow', glow=True)
 
     # ================================================================ THE GNAWED FLAGON (east)
     house(59, 39, 71, 52, 'W', 2, 'tavern', jetty=True, fill_='smooth_sandstone', roofmat='dark_oak', lit=0.95, doorway='wide')

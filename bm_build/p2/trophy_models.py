@@ -21,8 +21,13 @@ SKIN = {'spider': 'minecraft:entity/spider/spider', 'stray': 'minecraft:entity/s
         'a_diamond': 'minecraft:entity/equipment/humanoid/diamond', 'a_gold': 'minecraft:entity/equipment/humanoid/gold',
         'a_chain': 'minecraft:entity/equipment/humanoid/chainmail', 'a_neth': 'minecraft:entity/equipment/humanoid/netherite',
         'l_neth': 'minecraft:entity/equipment/humanoid_leggings/netherite',
-        'i_bow': 'minecraft:item/bow', 'i_trident': 'minecraft:item/trident', 'i_axe': 'minecraft:item/netherite_axe',
-        'i_sword': 'minecraft:item/netherite_sword', 'i_bone': 'minecraft:item/bone'}
+        'i_bow': 'bm:block/tro_bow', 'i_trident': 'bm:block/tro_trident', 'i_axe': 'bm:block/tro_netherite_axe',
+        'i_sword': 'bm:block/tro_netherite_sword', 'i_bone': 'bm:block/tro_bone'}
+# (2.82c) the weapons' sprites go into the block atlas under bm names: 26.3 looks a texture up in the item atlas first, so
+# minecraft:item/bow came from there - and an item model whose faces come from two atlases is thrown out (missing texture)
+ITEM = {'bm:block/tro_bow': 'minecraft:item/bow', 'bm:block/tro_trident': 'minecraft:item/trident',
+        'bm:block/tro_netherite_axe': 'minecraft:item/netherite_axe', 'bm:block/tro_netherite_sword': 'minecraft:item/netherite_sword',
+        'bm:block/tro_bone': 'minecraft:item/bone'}
 SIZE = {'drowned': (64, 64), 'drowned_o': (64, 64), 'evoker': (64, 64)}            # (the rest are 64 x 32)
 BLOCK = {'mc': 'minecraft:block/mossy_cobblestone', 'mo': 'minecraft:block/moss_block', 'pi': 'minecraft:block/packed_ice',
          'sn': 'minecraft:block/snow', 'dp': 'minecraft:block/dark_prismarine', 'pr': 'minecraft:block/prismarine',
@@ -30,7 +35,7 @@ BLOCK = {'mc': 'minecraft:block/mossy_cobblestone', 'mo': 'minecraft:block/moss_
          'pd': 'minecraft:block/polished_deepslate', 'gc': 'minecraft:block/green_concrete', 'em': 'minecraft:block/emerald_block',
          'y': 'minecraft:block/gold_block', 'cw': 'minecraft:block/cobweb', 'wr': 'minecraft:block/wither_rose',
          'am': 'minecraft:block/amethyst_cluster', 'go': 'minecraft:block/raw_gold_block', 'tc': 'minecraft:block/tube_coral'}
-ATLAS = [v for k, v in SKIN.items()]                  # (the entity skins and the item sprites the block atlas must carry)
+ATLAS = [(ITEM[v], v) if v in ITEM else v for v in SKIN.values()]     # (the entity skins, and the item sprites renamed, the block atlas must carry)
 
 
 def Rx(a):

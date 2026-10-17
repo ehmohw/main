@@ -75,5 +75,6 @@ def rp(R):
 
     def post(R2):          # (the skin into the block atlas, beside the vanilla sources - packs add to the list, they don't replace it)
         extra = [SKIN] + [t for t in getattr(R2, 'ATLAS_EXTRA', []) if t != SKIN]       # (2.79a: and the boss trophies' skins and sprites)
-        R2.wj('assets/minecraft/atlases/blocks.json', {'sources': [{'type': 'minecraft:single', 'resource': t} for t in dict.fromkeys(extra)]})
+        src = lambda t: {'type': 'minecraft:single', 'resource': t[0], 'sprite': t[1]} if isinstance(t, tuple) else {'type': 'minecraft:single', 'resource': t}
+        R2.wj('assets/minecraft/atlases/blocks.json', {'sources': [src(t) for t in dict.fromkeys(extra)]})
     R.POST.append(post)

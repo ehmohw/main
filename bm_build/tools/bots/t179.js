@@ -54,7 +54,7 @@ const res = [];
   A.chats.length = 0; A.bars.length = 0; await A.press(/Netherite Captain/); await sleep(600);
   ok('...pressed while locked: where to find it', [...A.chats, ...A.bars].some(c => /Netherite Captain.*locked.*Tailor/.test(c)), [...A.chats, ...A.bars].slice(-1).join(''));
   // ---- the Tailor (his counter clicked for the bot: what a right-click opens)
-  await run('scoreboard players set TestRat bm.gbc 10000');
+  await run('scoreboard players set TestRat bm.gbc 10000'); await run('advancement grant TestRat only bm:met/tul');     // (2.82c: the Tailor lists only who you've met)
   for (const i of ['gutter_coin', 'gutter_medallion', 'gutter_trophy']) await run(`clear TestRat *[minecraft:custom_data~{bm:"${i}"}]`);
   const n0 = A.dialogN.length; await run('execute as TestRat at @s run function bm:p103/tl/main'); await wait(3000, async () => A.dialogN.length > n0);
   ok('the Tailor opens', A.buttons().some(b => /Tullius/.test(b.label)), labels());

@@ -109,20 +109,28 @@ HOME = {'emma': 'p98/home/emma', 'celi': 'p98/home/celi', 'zib': 'p98/home/zib',
 P28.MENU.update({f'wd_{w}': b for w, b in BASE.items()})
 
 
-def _recolour(ims, stops):
-    """recolour a set of cloth textures together: luminance (over the whole set's range) through dark - mid - light"""
+def _lum(p):
+    return (0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]) / 255
+
+
+def _lumrange(ims):
+    vals = [_lum(im.getpixel((x, y))) for im in ims.values() for y in range(im.height) for x in range(im.width) if im.getpixel((x, y))[3] > 0]
+    return min(vals), max(vals)
+
+
+def _recolour(ims, stops, rng=None):
+    """recolour a set of cloth textures together: luminance (over the whole set's range - or `rng`, another set's) through dark - mid - light"""
     from gen_rp import hexc
     s = [hexc(c)[:3] for c in stops]
-    lum = lambda p: (0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]) / 255
-    vals = [lum(im.getpixel((x, y))) for im in ims.values() for y in range(im.height) for x in range(im.width) if im.getpixel((x, y))[3] > 0]
-    lo, hi = min(vals), max(vals)
+    lum = _lum
+    lo, hi = rng or _lumrange(ims)
     out = {}
     for name, im in ims.items():
         o = im.copy()
         for y in range(im.height):
             for x in range(im.width):
                 p = im.getpixel((x, y))
-                L = (lum(p) - lo) / max(1e-6, hi - lo)
+                L = min(1.0, max(0.0, (lum(p) - lo) / max(1e-6, hi - lo)))
                 L = 0.15 + 0.75 * L
                 c = tuple(int(s[0][i] + (s[1][i] - s[0][i]) * L / 0.5) for i in range(3)) if L < 0.5 else \
                     tuple(int(s[1][i] + (s[2][i] - s[1][i]) * (L - 0.5) / 0.5) for i in range(3))

@@ -21,6 +21,37 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82c: King Omega's tithe - and the Blood Moon's lost bosses found
+
+### King Omega's tithe
+- **While King Omega walks with you** (his follower, out), every custom mob you kill - Blood Moon horrors, elites, champions,
+  lucky and jackpot mobs, primes, the aliens, the Monstrosity and its Herald, the Leprechaun - drops **three times** its
+  Tokens, Medallions, Trophies, Blood Crystals, Lucky Tokens and Xenite.
+- **Every regular mob** you kill with him out (outside the heists) has a **1 in 100** chance to drop a Token, a Blood Crystal, a
+  Lucky Token or a Green Xenite shard.
+- (The crowns - Apophiss's, the True and the Unbound - stopped making you bigger in 2.82b.)
+
+### The Blood Moon's bosses
+- **The Scorching Arachno-Lantern no longer dies the moment it spawns**, and **the Monstrosity can be met at last.** Both rise
+  from a monster's spawn, which can be up to 128 blocks from a player - and a clean-up removed anything of theirs more than 100
+  blocks from everyone, the second it appeared. They're only cleared now when nobody is within 160 blocks.
+
+### Fixes from the screenshots
+- **The Curio Walk is gone again:** it let you round the Dark Auction's door without its key. (Markets rebuild on next load.)
+- **The lava by the Forge Pit set Fishy's Cabinet on fire:** the Cabinet's front wall, three blocks from the lava, is brown
+  terracotta now (dark oak's colour, and it won't burn). Not the walkway: the Cabinet is built into the market as the game runs,
+  so the market's own "nothing that burns near lava" check never saw it. Cabinets in your world rebuild once (their displays
+  are kept).
+- **The dungeon boss trophies' missing textures** (Broodmother, Frost Marksman, Tidecaller, Hollow King, Bobbery): 26.3 renders
+  an item from one texture atlas, and their bows, tridents, axes, swords and bones came from the item atlas while their bodies
+  came from the block atlas - the game threw them out. The weapons' sprites go into the block atlas now (and the checker
+  catches a model that mixes atlases).
+- **The Omega Palace's great door** stood loose in a 4 by 4 arch: the arch is cut to the doors now, two wide and two high
+  under a lintel. Palaces already in your world are fixed once they're loaded.
+- **Apophiss's fingers and eyelids** take his outfit's colours now (and King Omega's too).
+- **The Tailor only lists the followers you've met** out in the world (their names gave them away) - their outfits and auras too.
+- **The Fence's Associate shelf** sells 2 Ominous Trial Keys (the Banker's Card is over his counter now).
+
 ## New in 2.82b: heists fixed, a town you can find your way round, savings, presses - and the screenshots
 
 ### Heists
@@ -41,8 +72,8 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 - **Cecil's tent:** the trader showing on top of him is gone (his host's invisibility was being cleared; so were the Chef's,
   the Armory's, Zorp's and the other model-hosts' - all fixed), and the tent is dressed: shelves of books, a rug, a counter
   with candles and a crystal, a soul lantern, a brewing stand and a cauldron.
-- **Fishy's Cabinet is right off the Dark Auction:** a short gallery, the Curio Walk, runs from the Auction's plaza straight
-  to the Cabinet's door. (Markets in your world are rebuilt into this version the next time they load.)
+- ~~Fishy's Cabinet is right off the Dark Auction: a short gallery, the Curio Walk~~ - taken out again in 2.82c (it let you
+  round the Dark Auction's key).
 
 ### The Rat Bank Teller: savings
 - In the Gilded Gutter, the Teller opens a **savings account** (the Banker's Card shows it anywhere, but only the Teller opens

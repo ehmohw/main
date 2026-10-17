@@ -65,6 +65,8 @@ RECRUITER_AT = (5, 4, 20)
 RECRUITER_OFFERS = []                       # (his stock, as offers: phase131/132 add theirs; 2.78 sells it from a dialog - phase137)
 RECRUITER_NPC = {}                          # (his villager, for phase137 to summon without the old trades)
 TAILOR_AT = (7, 4, 20)
+TL_MET = {'kw': 'killerwatt', 'don': 'donado'}         # (the Tailor's follower keys -> their bm:met/<kind> advancements)
+tl_met = lambda w: f'entity @s[advancements={{bm:met/{TL_MET.get(w, w)}=true}}]'
 EXTRA_MAIN, EXTRA_PAGES, EXTRA_ACT = [], [], []   # (2.78: more Tailor pages - phase138's auras: main-page buttons, page names, routes)
 STOCK = []                                  # (the outfits the Tailor sells, as built - for phase138)
 BANK_AT, ARMORY_AT, CREW_AT = (16, 4, 2), (18, 4, 2), (22, 4, 2)     # the office counter, north wall (the haul lectern at 20)
@@ -353,10 +355,14 @@ def generate(G):
     back = P28.btn([_T('« The Tailor', 'gray')], TL, width=180)
     main = P28.multi([_T('THE TAILOR', '#ff8ac8', bold=True), _T('  ·  outfits for your followers', 'gray')],
                      [P28.body([_T('Every outfit is yours for good - put it on from the follower\'s own menu (sneak + use their item). ', 'gray')], 360),
-                      P28.body(wal, 360)],
-                     [P28.btn([_T(nm, col, bold=True)], pcode(i), width=180) for i, (w, nm, col) in enumerate(WHO)] +
-                     [P28.btn([_T('Display cases', GOLD, bold=True)], TL + 8, width=180)] + EXTRA_MAIN, columns=2, exit_label='Close')
-    fn('p103/tl/main', ['function bm:p103/wallet', f'scoreboard players set @s bm.menu {TL}', 'function bm:p103/tl/main_dlg with storage bm:ui tl'])
+                      P28.body(wal, 360)], [], columns=2, exit_label='Close')
+    # (2.82c) only the followers you've met out in the world (bm:met/<kind>, phase137/158) - a name gave them away before you'd found them
+    main['actions'] = '@@RAW:acts@@'
+    acts = ['data modify storage bm:ui tl.acts set value []'] + \
+        [f'execute if {tl_met(w)} run data modify storage bm:ui tl.acts append value {snbt(P28.btn([_T(nm, col, bold=True)], pcode(i), width=180))}'
+         for i, (w, nm, col) in enumerate(WHO)] + \
+        [f'data modify storage bm:ui tl.acts append value {snbt(b)}' for b in [P28.btn([_T('Display cases', GOLD, bold=True)], TL + 8, width=180)] + EXTRA_MAIN]
+    fn('p103/tl/main', ['function bm:p103/wallet', f'scoreboard players set @s bm.menu {TL}'] + acts + ['function bm:p103/tl/main_dlg with storage bm:ui tl'])
     fn('p103/tl/main_dlg', [f'$dialog show @s {P28.inline(main)}'])
     for i, (w, nm, col) in enumerate(WHO):
         mine_ = [(j, x) for j, x in enumerate(stock) if x[0] == w]
@@ -371,7 +377,7 @@ def generate(G):
                         [P28.body(wal, 360)],
                         [P28.btn([_T(cn, ccol, bold=True), _T('  '), f'@@RAW:r_{j}@@'], scode(j), width=180) for j, (who, g, un, k, it, cn, ccol, pr) in mine_] + [back],
                         columns=2, exit_label='Close')
-        fn(f'p103/tl/p_{w}', ['function bm:p103/wallet', f'scoreboard players set @s bm.menu {TL}'] + rows + [f'function bm:p103/tl/p_{w}_dlg with storage bm:ui tl'])
+        fn(f'p103/tl/p_{w}', [f'execute unless {tl_met(w)} run return run function bm:p103/tl/main', 'function bm:p103/wallet', f'scoreboard players set @s bm.menu {TL}'] + rows + [f'function bm:p103/tl/p_{w}_dlg with storage bm:ui tl'])
         fn(f'p103/tl/p_{w}_dlg', [f'$dialog show @s {P28.inline(dlg)}'])
     cdlg = P28.multi([_T('DISPLAY CASES', GOLD, bold=True), _T('  ·  the Tailor', 'gray')],
                      [P28.body([_T('Glass cases for your trophies and finds - set one down and put something in it.', 'gray')], 360), P28.body(wal, 360)],

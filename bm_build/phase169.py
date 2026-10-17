@@ -288,7 +288,20 @@ def _palace(C):
     fn('p169/pal/build', ['kill @s', 'execute if block ~ ~-1 ~ minecraft:water run return 0', 'execute if block ~ ~-1 ~ minecraft:lava run return 0',
                           f'place template bm:p169_palace ~{OX} ~{OY} ~{OZ}'] + skirt +
        [f'execute positioned ~{PAL.CENTER[0] + OX:.1f} ~{PAL.CENTER[1] + OY:.1f} ~{PAL.CENTER[2] + OZ:.1f} as @e[type=minecraft:marker,tag=bm.omnew,distance=..2] at @s run function bm:p169/pal/init'])
-    fn('p169/pal/init', ['tag @s remove bm.omnew', 'scoreboard players set @s bm.omst 0',
+    # (2.82c) palaces already standing: the great door's arch cut down to its doors (it was 4 x 4 round 2 x 2 doors - see palace.py)
+    cx, cy, cz = PAL.CENTER
+    drel = lambda x, y, z: f'~{x - cx + 0.5:g} ~{y - cy:g} ~{z - cz + 0.5:g}'
+    hz1, tz0 = PAL.HALL[3], PAL.THRONE[2]
+    door = []
+    for x in range(31, 35):
+        for y in range(PAL.TY + 1, PAL.TY + 6):
+            if 32 <= x <= 33 and y <= PAL.TY + 2: continue              # (the doors themselves)
+            door.append(f'setblock {drel(x, y, hz1)} minecraft:' + ('stripped_spruce_log[axis=x]' if y == PAL.TY + 3 else 'spruce_planks'))
+            if y <= PAL.TY + 4: door.append(f'setblock {drel(x, y, tz0)} minecraft:stone_bricks')
+    fn('p169/pal/door282c', ['tag @s add bm.omdoor2'] + door)
+    second.append(f'execute as @e[type=minecraft:marker,tag=bm.ompal,tag=!bm.omdoor2] at @s if loaded {drel(31, PAL.TY + 1, hz1)} if loaded {drel(34, PAL.TY + 1, tz0)} '
+                  'run function bm:p169/pal/door282c')
+    fn('p169/pal/init', ['tag @s remove bm.omnew', 'tag @s add bm.omdoor2', 'scoreboard players set @s bm.omst 0',
                          'execute as @e[type=minecraft:marker,tag=bm.omtomb,distance=..60] run scoreboard players set @s bm.omst 0',   # (the tomb asleep: it's what wakes)
                          'execute as @e[type=minecraft:marker,tag=bm.omsockm,distance=..60] at @s run function bm:p169/sock/make',
                          'execute positioned ~ ~ ~ run playsound minecraft:ambient.soul_sand_valley.mood ambient @a[distance=..96] ~ ~ ~ 1 0.6'])

@@ -155,6 +155,7 @@ import phase163 as R163      # 2.80d: Dennis and Pistachio, the followers (fifty
 import phase169 as R169      # 2.82: King Omega - the Omega Palace, his tomb, his coming, his fight, his peace, the King at court
 import phase170 as R170      # 2.82: King Omega, the follower (Omega's Monocle), the Serpent Kings, the Palace Household
 import phase171 as R171      # 2.82b: the Town Directory - who's where in the rat town, and a trail of light there
+import phase172 as R172      # 2.82b: King Omega's tithe - triple currency from custom mobs, 1% from the rest, while he's out
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import noglow                # 2.80e: no glowing outline on custom-modelled mobs' invisible hosts (noglow.py)
@@ -171,7 +172,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.82b'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.82c'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -983,7 +984,12 @@ def gen_loops(second_mob_lines):
     # (2.58: a boss with Resistance could survive the void for ever - and blocked its own respawn: now it's removed outright)
     fn('despawn_far', ['tp @s ~ -400 ~', 'kill @s'])
     second = ['scoreboard players reset @a bm.csnd'] + list(second_mob_lines) + [
-        'execute as @e[tag=bm.tiered,tag=!bm.hhm] at @s unless dimension bm:gutter unless entity @a[distance=..100] run function bm:despawn_far',     # (2.64: never the heist's own - a knocked-out crew left the vault boss to vanish, an instant win)
+        'execute as @e[tag=bm.tiered,tag=!bm.hhm,tag=!bm.salboss,tag=!bm.monstrosity,tag=!bm.herald] at @s unless dimension bm:gutter unless entity @a[distance=..100] run function bm:despawn_far',     # (2.64: never the heist's own - a knocked-out crew left the vault boss to vanish, an instant win)
+        # (2.82c) the Blood Moon's bosses come from a monster's spawn, anywhere up to 128 blocks off: at 100 the sweep took them the
+        #  second they rose (the Arachno-Lantern "died" on the spot; a natural Monstrosity was never seen). They go at 160.
+        'execute as @e[tag=bm.tiered,tag=!bm.hhm] if entity @s[tag=bm.salboss] at @s unless entity @a[distance=..160] run function bm:despawn_far',
+        'execute as @e[tag=bm.tiered,tag=!bm.hhm] if entity @s[tag=bm.monstrosity] at @s unless entity @a[distance=..160] run function bm:despawn_far',
+        'execute as @e[tag=bm.tiered,tag=!bm.hhm] if entity @s[tag=bm.herald] at @s unless entity @a[distance=..160] run function bm:despawn_far',
         'execute as @e[tag=bm.lucky] at @s run particle minecraft:wax_on ~ ~1 ~ 0.3 0.5 0.3 0 3',
         'execute as @e[tag=bm.goose] at @s run particle minecraft:wax_on ~ ~0.5 ~ 0.3 0.3 0.3 0 5',
         'execute as @e[tag=bm.prime] at @s run particle minecraft:happy_villager ~ ~0.8 ~ 0.3 0.3 0.3 0 1',
@@ -1285,6 +1291,7 @@ def build(out_dir):
     if PHASE2: R169.generate(sys.modules[__name__])
     if PHASE2: R170.generate(sys.modules[__name__])
     R171.generate(sys.modules[__name__])
+    R172.generate(sys.modules[__name__])
     R161.generate(sys.modules[__name__])
     if PHASE2: R162.generate(sys.modules[__name__])
     # 2.79: the mob rolls (elite, champion, lucky, prime, Blood Moon, invasion) leave alone a mob someone named or froze - a
@@ -1301,6 +1308,7 @@ def build(out_dir):
     gen_tags_worldgen()
     print('allies:', allies.finalize(sys.modules[__name__]), 'friendly-fire lines now skip every follower')
     print('noglow:', noglow.apply(sys.modules[__name__]), 'glow lines kept off invisible hosts')      # 2.80e
+    print('omega tithe: %d custom-mob loot tables, %d currency pools tripled' % R172.finalize(sys.modules[__name__]))
     for line in optimize.optimize(sys.modules[__name__]): print('optimize:', line)      # 2.15: cheaper entity selectors, quiet dungeons/markets
     print('prune:', len(prune.prune(sys.modules[__name__])), 'leftover functions dropped')
     # 1.13: every objective is created before any line of load uses it (phases prepend their own lines to load, and a

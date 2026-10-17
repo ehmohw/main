@@ -83,13 +83,16 @@ P103.EXTRA_ACT.append(f'execute if score #act bm.pay matches {AURA_PAGE} run ret
 P103.EXTRA_ACT.extend(f'execute if score #act bm.pay matches {acode(i)} run return run function bm:p138/tl/a{i}' for i in range(len(ORDER)))
 
 # ====================================================================== the recolours (resource pack)
-RECOL = {'apo': ('apophiss_art', ('apo_scale', 'apo_scale_dk', 'apo_fin', 'apo_belly')),
+RECOL = {'apo': ('apophiss_art', ('apo_scale', 'apo_scale_dk', 'apo_fin', 'apo_belly', 'apo_claw', 'apo_lid')),
          'tul': ('tullius_art', ('tu_coat', 'tu_coat_dk', 'tu_hat')),
          'don': ('phase25', ('don_fur', 'don_ear', 'don_patch', 'don_muzzle')),
          'pearl': ('phase60', ('pm_blue', 'pm_dblue')),
          'fishy': ('fishy_art', ('fy_hat', 'fy_hatband')),
          'dennis': ('dennis_art', ('dw_jacket', 'dw_jacket_dk')), 'pistachio': ('pistachio_art', ('ps_coat', 'ps_coat_dk', 'ps_lapel')),
-         'omega': ('omega_art', ('om_body', 'om_body_dk', 'om_fin', 'om_stripe'))}
+         'omega': ('omega_art', ('om_body', 'om_body_dk', 'om_fin', 'om_stripe', 'om_claw', 'om_lid'))}
+# (2.82c) his fingers and eyelids took no outfit's colour: they go through the palette too, on the main set's brightness range
+# (so the scales come out as before, and the dark claws stay darker than the scales)
+SIDE = {'apo_claw', 'apo_lid', 'om_claw', 'om_lid'}
 FROG_SKIN = {1: ('light_blue_wool', 'blue_wool'), 2: ('orange_wool', 'red_wool'), 3: ('brown_wool', 'brown_terracotta'), 4: ('yellow_wool', 'yellow_terracotta')}
 ITEMS_OF = {'apo': lambda n: n.startswith('apo_'), 'tul': lambda n: n.startswith('tu_'), 'frog': lambda n: n == 'frog',
             'don': lambda n: n == 'donado' or (n.startswith('dnr_') and not n.startswith('dnr_eyes')), 'pearl': lambda n: n == 'pearlman', 'fishy': lambda n: n.startswith('fy_') and n != 'fy_bowl',
@@ -103,7 +106,13 @@ def textures():
     for w, (mod, keys) in RECOL.items():
         base = importlib.import_module(mod).textures()
         for k, (_n, pal) in P99.NEW[w][3].items():
-            ims = {n: gild.dress(w, k, base[n]) for n in keys} if gild.is_gilded(w, k) else P99._recolour({n: base[n] for n in keys}, pal)   # (2.79a: polished gold)
+            if gild.is_gilded(w, k):
+                ims = {n: gild.dress(w, k, base[n]) for n in keys}                                    # (2.79a: polished gold)
+            else:
+                main = {n: base[n] for n in keys if n not in SIDE}
+                ims = P99._recolour(main, pal)
+                side = {n: base[n] for n in keys if n in SIDE}
+                if side: ims.update(P99._recolour(side, pal, rng=P99._lumrange(main)))
             for name, im in ims.items():
                 out[f'{name}_c{k}'] = im
     # (2.79a: the Golden Prince's skin - his wool, light and dark, in polished gold rather than yellow wool)
@@ -332,16 +341,19 @@ def generate(G):
     TL = 7740
     pg = f'scoreboard players set #tlp bm.rng {len(P99.BASE) + 1}'          # (its place in p103/tl/reopen: after every follower's page and the cases)
     wal = [T('You have ', 'gray'), T('$(w)', GOLD, bold=True), T(' coins to spend', 'gray'), T(' (Gutter Bank and pockets; Medallions count 16, Trophies 128).', 'dark_gray')]
-    rows = []
-    for i, w in enumerate(ORDER):
-        rows += [f'data modify storage bm:ui tl.r_a{i} set value {snbt(T(f"{PRICE} coins", GOLD))}',
-                 f'execute if entity @s[tag=bm.auown_{w}] run data modify storage bm:ui tl.r_a{i} set value {snbt(T("OWNED", "#7aff7a", bold=True))}']
     dlg = P28.multi([T('AURAS', '#e080ff', bold=True), T('  ·  the Tailor', 'gray')],
                     [P28.body([T('The rarest thing I sell: a follower\'s own aura - a ring of light and a haze all theirs. ', 'gray'),
-                               T('Yours for good; switch it on and off in their wardrobe.', 'dark_gray')], 360), P28.body(wal, 360)],
-                    [P28.btn([T(AURA[w][0], AURA[w][1], bold=True), T(f' ({P99.NAMES[w][0] if w != "frog" else "the Frog"})  ', 'gray'), f'@@RAW:r_a{i}@@'],
-                             acode(i), width=200) for i, w in enumerate(ORDER)] + [P28.btn([T('« The Tailor', 'gray')], TL, width=200)],
+                               T('Yours for good; switch it on and off in their wardrobe.', 'dark_gray')], 360), P28.body(wal, 360)], [],
                     columns=2, exit_label='Close')
+    # (2.82c) only the auras of followers you've met (their names in the buttons; the macro fills r_a<i> in place)
+    dlg['actions'] = '@@RAW:acts@@'
+    abtn = lambda i, w, tag: snbt(P28.btn([T(AURA[w][0], AURA[w][1], bold=True), T(f' ({P99.NAMES[w][0] if w != "frog" else "the Frog"})  ', 'gray'), tag],
+                                          acode(i), width=200))
+    rows = ['data modify storage bm:ui tl.acts set value []'] + \
+        [l for i, w in enumerate(ORDER) for l in (
+            f'execute if {P103.tl_met(w)} unless entity @s[tag=bm.auown_{w}] run data modify storage bm:ui tl.acts append value ' + abtn(i, w, T(f'{PRICE} coins', GOLD)),
+            f'execute if {P103.tl_met(w)} if entity @s[tag=bm.auown_{w}] run data modify storage bm:ui tl.acts append value ' + abtn(i, w, T('OWNED', '#7aff7a', bold=True)))] + \
+        ['data modify storage bm:ui tl.acts append value ' + snbt(P28.btn([T('« The Tailor', 'gray')], TL, width=200))]
     fn('p103/tl/auras', ['function bm:p103/wallet', f'scoreboard players set @s bm.menu {TL}'] + rows + ['function bm:p103/tl/auras_dlg with storage bm:ui tl'])
     fn('p103/tl/auras_dlg', [f'$dialog show @s {P28.inline(dlg)}'])
     for i, w in enumerate(ORDER):
