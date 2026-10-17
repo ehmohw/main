@@ -86,7 +86,7 @@ def _attr(a, amt, slot, op='add_value', ident=None):
 #  wears it (a hold item can't use the vanilla swap, so the use does the swap itself); a sneak + use on a block sets it there.)
 item('apo_true_crown', TOTEM, "Apophiss's True Crown", GRN,
      ['His own crown, from his own den. The emerald is awake.', 'The Hollow King only ever wore its shadow.',
-      ('Worn: a size taller; +8 damage, +3 reach, +12 health,', 'blue'), ('+8 armour, +6 toughness, +10% speed; you are', 'blue'),
+      ('Worn: +8 damage, +3 reach, +12 health,', 'blue'), ('+8 armour, +6 toughness, +10% speed; you are', 'blue'),
       ('hard to knock back, and your blows wither.', 'blue'), ('Wither, poison and fire can\'t touch you; you', 'blue'),
       ('breathe water and see in the dark.', 'blue'), ('Badly hurt: Regeneration. Monsters near you weaken.', 'blue'),
       ('Sneak + jump: Serpent\'s Fangs in five lines (2 s).', 'blue'), ('Near death: the Serpent King\'s Wrath (every 2 min).', 'blue'),
@@ -98,7 +98,8 @@ item('apo_true_crown', TOTEM, "Apophiss's True Crown", GRN,
      model='bm:apo_true_crown', stack=1, cat='relic', glint=True, tier=3, custom_extra={'bm_set': 'conqueror'},
      comps=dict(hold('none'), **{
          'minecraft:equippable': {'slot': 'head', 'swappable': True, 'equip_sound': 'minecraft:item.armor.equip_netherite'},
-         'minecraft:attribute_modifiers': [_attr('scale', 0.25, 'head'), _attr('attack_damage', 8, 'head'), _attr('entity_interaction_range', 3, 'head'),
+         'minecraft:attribute_modifiers': [_attr('attack_damage', 8, 'head'),        # (2.82b: no more growing a size - players asked)
+                                            _attr('entity_interaction_range', 3, 'head'),
                                            _attr('block_interaction_range', 2.0, 'head'), _attr('max_health', 12, 'head'), _attr('armor', 8, 'head'),
                                            _attr('armor_toughness', 6, 'head'), _attr('knockback_resistance', 0.5, 'head'),
                                            _attr('movement_speed', 0.1, 'head', 'add_multiplied_base')],

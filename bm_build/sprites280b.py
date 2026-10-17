@@ -646,7 +646,7 @@ def honeycomb_brooch():
 
 def _emblem_sign():
     return {
-        'brood': ['X.....X', '.X...X.', 'X.XXX.X', '.XXOXX.', 'X.XXX.X', '.X...X.', 'X.....X'],
+        'brood': ['X..X..X', '.X.X.X.', '..XXX..', 'XXXOXXX', '..XXX..', '.X.X.X.', 'X..X..X'],
         'frost': ['...X...', '.X.X.X.', '..XXX..', 'XXXOXXX', '..XXX..', '.X.X.X.', '...X...'],
         'hex':   ['.......', '..XXX..', '.XX.XX.', 'XX.O.XX', '.XX.XX.', '..XXX..', '.......'],
         'hollow': ['.......', 'X..X..X', 'XX.X.XX', 'XXXXXXX', 'XOXOXOX', 'XXXXXXX', '.......'],
@@ -661,7 +661,10 @@ def emblem(d):
         col = {'hollow': '#5a6a80', 'keep': '#8a4a3a'}.get(d, D[d]['color'])
         inner = ramp(col)
         s = coin(GOLD, inner)
-        emboss(s, _emblem_sign()[d], {'X': ramp(inner[4])[3], 'O': inner[0]}, 5, 5, lo=inner[0])
+        if d == 'brood':                         # (2.82b: a pale spider on a pale olive coin was a smudge - on its pedestal, unreadable. Dark, with a red mark)
+            emboss(s, _emblem_sign()[d], {'X': '#1c2010', 'O': '#d23a2a'}, 5, 5)
+        else:
+            emboss(s, _emblem_sign()[d], {'X': ramp(inner[4])[3], 'O': inner[0]}, 5, 5, lo=inner[0])
         return s.render()
     return f
 

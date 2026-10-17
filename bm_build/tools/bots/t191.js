@@ -1,7 +1,7 @@
-// 2.80h: the prize roll, Haul Crates and the win streak - as a regular (non-op) player. rcon sets the stage: a Tier I heist
-// of Lever Rooms, the guardian put down once you've walked into the vault, a sword found in the vault (a second Haul).
-//   Step onto the strongbox ring: the payout - and the prize roll comes up one at a time: THE HAUL (tier, shares, coins),
-//   then the Tokens, a second and more apart. The card says HEIST WON; your streak is one.
+// 2.80h: Haul Crates and the win streak - as a regular (non-op) player. rcon sets the stage: a Tier I heist of Lever Rooms,
+// the guardian put down once you've walked into the vault, a sword found in the vault (a second Haul).
+//   Step onto the strongbox ring: the payout - and (2.82b) no prize roll across the screen any more (the card covered it):
+//   the card says HEIST WON; your streak is one.
 //   "Start a new raid": the Fixer unpacks - the sword goes into ONE sealed Haul Crate (in your pack: no locker claimed),
 //   labelled with the tier; no loose sword. Plan, pay, win again: WIN STREAK x2 on the screen and on the card.
 //   Home: the streak ends. Set the crate down: it's a Haul (minded, opens), the sword inside.
@@ -21,7 +21,6 @@ const res = [];
   for (const f of ['prime_never', 'fork_never', 'traps_never', 'curse_never']) await run(`function bm:admin/${f}`);
   await run('scoreboard players set TestRat bm.gstk 0');
   const seen = []; let nT = 0; const tick = setInterval(() => { while (nT < A.titles.length) seen.push([A.titles[nT++], Date.now()]); }, 50);
-  const titleAt = re => (seen.find(([t]) => re.test(t)) || [0, 0])[1];
 
   // ---- a won heist: the guardian down (the stage), then the strongbox ring - stepped on
   const winHeist = async () => {
@@ -35,17 +34,15 @@ const res = [];
     const vp = (await run(`${G}data get entity ${V} Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/);
     const px = Math.floor(+vp[1]) + 16, pz = Math.floor(+vp[3]) - 3;
     await run(`execute in bm:gutter as ${V} at @s run tp TestRat ${rel(24, 4, 9)} -90 0`); await sleep(600);
-    seen.length = 0; A.chats.length = 0;
+    seen.length = 0; A.chats.length = 0; const st0 = await sc('bm.gstk');
     await A.walkTo(px + 0.5, pz + 0.5); await sleep(300);
-    return wait(5000, async () => has('bm.rv') || seen.some(([t]) => /THE HAUL/.test(t)));
+    return wait(5000, async () => (await sc('bm.gstk')) === st0 + 1);        // (the payout raises the streak)
   };
   await heist('levers', 'a', 1); await begin(); await sleep(1500);
   await run('clear TestRat *[minecraft:custom_data~{bm_haul:2b}]');
   ok('stepped onto the strongbox ring: the payout', await winHeist());
-  await wait(9000, async () => titleAt(/Tokens/) > 0);
-  const tH = titleAt(/THE HAUL/), tT = titleAt(/Tokens/);
-  ok('the prize roll: THE HAUL first (tier, shares, coins)...', tH > 0 && seen.some(([t]) => /Tier 1 - \d+ shares, \d+ coins/.test(t)), seen.map(s => s[0]).join(' | ').slice(0, 200));
-  ok('...then the Tokens, a beat later (one at a time)', tT > tH && tT - tH >= 1000, `${tT - tH} ms`);
+  await sleep(6000);
+  ok('no prize roll across the screen (it hid behind the card): no THE HAUL, no Tokens title', !seen.some(([t]) => /THE HAUL|\+\d+ Tokens/.test(t)), seen.map(s => s[0]).join(' | ').slice(0, 200));
   const resOf = async () => { await run('execute as TestRat run function bm:p103/res_load'); return run('data get storage bm:ui res.r_res'); };
   ok('the card: HEIST WON; your streak is one', /HEIST WON/.test(await resOf()) && (await sc('bm.gstk')) === 1, `streak ${await sc('bm.gstk')}`);
 
@@ -70,8 +67,7 @@ const res = [];
   await sleep(1500);
   ok('the next job planned and under way (Tokens from the last one paid the fee)', await has('bm.gvp'), `gvi ${GI2}`);
   ok('...won again', await winHeist());
-  ok('...the roll shows WIN STREAK x2', await wait(14000, async () => seen.some(([t]) => /WIN STREAK x2/.test(t))), seen.map(s => s[0]).join(' | ').slice(0, 300));
-  ok('...and so does the card', /win streak x2/.test(await resOf()) && (await sc('bm.gstk')) === 2);
+  ok('...the card shows the win streak, x2', /win streak x2/.test(await resOf()) && (await sc('bm.gstk')) === 2);
 
   // ---- home: the streak ends; the crate set down is a Haul
   await wait(6000, async () => has('bm.gvask'));

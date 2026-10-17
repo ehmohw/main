@@ -47,26 +47,42 @@ def generate(G):
     from nbt import snbt
     crew = G.FUNCS['p98/crew']
     k = next(i for i, l in enumerate(crew) if l.startswith('data modify storage bm:ui crew.acts append value') and '« The Office' in l)
-    crew.insert(k, 'data modify storage bm:ui crew.acts append value ' + snbt(P28.btn([T('Outfits & Emma\'s buff', '#ff8ad8', bold=True)], PAGE, width=180,
-                                                                                   tooltip=T('Every follower\'s wardrobe, and what Emma focuses on - in the vault too.', 'gray'))))
+    # (2.82b: nobody's name before you've met them - here neither: "Emma's buff" only once you have, the wardrobes only of those met)
+    MET_K = {'kw': 'killerwatt', 'don': 'donado'}
+    met = lambda w: f'entity @s[advancements={{bm:met/{MET_K.get(w, w)}=true}}]'
+    crew[k:k] = ['execute if ' + met('emma') + ' run data modify storage bm:ui crew.acts append value ' +
+                 snbt(P28.btn([T('Outfits & Emma\'s buff', '#ff8ad8', bold=True)], PAGE, width=180,
+                              tooltip=T('Every follower\'s wardrobe, and what Emma focuses on - in the vault too.', 'gray'))),
+                 'execute unless ' + met('emma') + ' run data modify storage bm:ui crew.acts append value ' +
+                 snbt(P28.btn([T('Outfits & chatter', '#ff8ad8', bold=True)], PAGE, width=180,
+                              tooltip=T('Your followers\' wardrobes, and whether they chatter.', 'gray')))]
+    TIPS = {1: 'Speed + Jump Boost', 2: 'Strength', 3: 'Resistance', 4: 'Regeneration + quick heals', 5: 'Haste: dig and chop faster'}
     page = ['tag @s remove bm.wdled', f'scoreboard players set @s bm.menu {PAGE}', 'data remove storage bm:ui crx',
             'data modify storage bm:ui crx.mode set value "Healing"'] + \
         [f'execute if score @s bm.emode matches {m} run data modify storage bm:ui crx.mode set value "{nm}"' for m, (nm, _c) in P57.MODES.items()] + \
         ['data modify storage bm:ui crx.chat set value "on"', 'execute if entity @s[tag=bm.hush] run data modify storage bm:ui crx.chat set value "off"',
-         'function bm:p119/page_dlg with storage bm:ui crx']
+         'data modify storage bm:ui crx.acts set value []'] + \
+        [f'execute if {met(w)} run data modify storage bm:ui crx.acts append value ' + snbt(P28.btn([T(f'{nm}\'s wardrobe', COL[w], bold=True)], wcode(i), width=180))
+         for i, (w, nm) in enumerate(WHO)] + \
+        [f'execute if {met("emma")} run data modify storage bm:ui crx.acts append value ' +
+         snbt(P28.btn([T('Emma: ', '#ff8ad8'), T(nm, c, bold=True)], PAGE + 10 + m, width=180, tooltip=T(TIPS[m], 'gray'))) for m, (nm, c) in P57.MODES.items()] + \
+        ['data modify storage bm:ui crx.acts append value ' + snbt(P28.btn([T('Chatter on / off', '#d0d0d0', bold=True)], PAGE + 18, width=180,
+                                                                            tooltip=T('Hush what your followers say unprompted - or let them talk.', 'gray'))),
+         'data modify storage bm:ui crx.acts append value ' + snbt(P28.btn([T('« Raid Crew', 'gray')], MC + 7, width=180)),
+         f'execute if {met("emma")} run return run function bm:p119/page_dlg with storage bm:ui crx', 'function bm:p119/page_dlgx with storage bm:ui crx']
     fn('p119/page', page)
-    TIPS = {1: 'Speed + Jump Boost', 2: 'Strength', 3: 'Resistance', 4: 'Regeneration + quick heals', 5: 'Haste: dig and chop faster'}
-    dlg = P28.multi([T('OUTFITS & EMMA\'S BUFF', '#ff8ad8', bold=True), T('  ·  your followers, from the Ledger', 'gray')],
-                    [P28.body([T('Each follower\'s wardrobe - the outfits you\'ve unlocked, to wear any time (Goldtooth sells the rest). ', 'gray'),
-                               T('Works in the vault too, while their items wait at the coat check.', 'dark_gray')], 360),
-                     P28.body([T('Emma focuses on: ', 'gray'), T('$(mode)', 'white', bold=True),
-                               T('  - she remembers it every time she comes, on a heist too.', 'gray')], 360),
-                     P28.body([T('Follower chatter: ', 'gray'), T('$(chat)', 'white', bold=True),
-                               T('  - quips, banter and battle cries. (What they say when you call or change them always shows.)', 'dark_gray')], 360)],
-                    [P28.btn([T(f'{nm}\'s wardrobe', COL[w], bold=True)], wcode(i), width=180) for i, (w, nm) in enumerate(WHO)] +
-                    [P28.btn([T('Emma: ', '#ff8ad8'), T(nm, c, bold=True)], PAGE + 10 + m, width=180, tooltip=T(TIPS[m], 'gray')) for m, (nm, c) in P57.MODES.items()] +
-                    [P28.btn([T('Chatter on / off', '#d0d0d0', bold=True)], PAGE + 18, width=180, tooltip=T('Hush what your followers say unprompted - or let them talk.', 'gray')),
-                     P28.btn([T('« Raid Crew', 'gray')], MC + 7, width=180)], columns=2, exit_label='Close')
+    b_ward = P28.body([T('Each follower\'s wardrobe - the outfits you\'ve unlocked, to wear any time (Goldtooth sells the rest). ', 'gray'),
+                       T('Works in the vault too, while their items wait at the coat check.', 'dark_gray')], 360)
+    b_emma = P28.body([T('Emma focuses on: ', 'gray'), T('$(mode)', 'white', bold=True),
+                       T('  - she remembers it every time she comes, on a heist too.', 'gray')], 360)
+    b_chat = P28.body([T('Follower chatter: ', 'gray'), T('$(chat)', 'white', bold=True),
+                       T('  - quips, banter and battle cries. (What they say when you call or change them always shows.)', 'dark_gray')], 360)
+    dlg = P28.multi([T('OUTFITS & EMMA\'S BUFF', '#ff8ad8', bold=True), T('  ·  your followers, from the Ledger', 'gray')], [b_ward, b_emma, b_chat], [],
+                    columns=2, exit_label='Close')
+    dlg['actions'] = '@@RAW:acts@@'
+    dlgx = P28.multi([T('OUTFITS', '#ff8ad8', bold=True), T('  ·  your followers, from the Ledger', 'gray')], [b_ward, b_chat], [], columns=2, exit_label='Close')
+    dlgx['actions'] = '@@RAW:acts@@'
+    fn('p119/page_dlgx', [f'$dialog show @s {P28.inline(dlgx)}'])
     fn('p119/page_dlg', [f'$dialog show @s {P28.inline(dlg)}'])
     G.FUNCS['p80/act'].insert(2, f'execute if score #act bm.pay matches {PAGE}..{PAGE + 19} run return run function bm:p119/act')
     fn('p119/act', [f'execute if score #act bm.pay matches {PAGE} run return run function bm:p119/page'] +

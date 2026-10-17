@@ -356,7 +356,7 @@ def generate(G):
     G.FUNCS['p70/pick_tier'] = pt[:k] + ['scoreboard players operation @s bm.gvpt = #t bm.rng', 'function bm:p75/lives_menu']
     claim = pt[k:]
     lbtn = lambda c, n, col, txt: P28.btn([T(f'{n} TRIES  ', col, bold=True), T(txt, 'white')], 7610 + c, width=300,
-                                          tooltip=T(f'Your crew can be knocked out {n} times (one more per crewmate past the first).', 'gray'))
+                                          tooltip=T(f'Your crew can be knocked out {n} times - however many of you there are.', 'gray'))
     dlg = P28.multi([T('How many tries?', GOLD, bold=True)],
                     [P28.body([T('Every knock-out costs the crew a try. Run out and the heist fails: back to the den, everything gathered lost '
                                  '(you can try again).', 'gray')]),

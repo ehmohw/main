@@ -4,7 +4,7 @@
   10 lightning damage that arcs to two more (5 each); a block: the tendril grabs it and
   flings you toward it. Sneak + use: grab - a monster is yanked to you; at a wall, the tendril heaves you up it.
   Held: 15% faster, a taller step, and no fall damage.
-- APOPHISS'S CROWN: the serpent king's black crown with its great emerald. Worn: you grow a size, hit harder (+3), reach
+- APOPHISS'S CROWN: the serpent king's black crown with its great emerald. Worn: you hit harder (+3), reach
   further (+1.5), +4 health, +2 armour; your blows wither. Sneak + jump: SERPENT'S FANGS - a line of dark fangs bursts
   from the ground ahead (6 seconds to recover).
 - LEO'S TRIDENT (the vanilla trident and spear, enchanted): Sir Leo's weapon, a TRIDENT (loyalty, impaling: throw it and it comes back) that becomes a SPEAR
@@ -34,13 +34,14 @@ item('killerwatt_tendrils', TOTEM, "KillerWatt's Tendrils", YEL,
                                                 attr('entity_interaction_range', 2, 'chest')],
             'minecraft:enchantments': {'bm:kw_tendrils': 1}})
 item('apophiss_crown', TOTEM, "Apophiss's Crown", GRN,
-     ['The serpent king\'s black crown. The emerald watches you.', ('Worn: you grow a size, +3 damage, +1.5 reach,', 'blue'),
+     ['The serpent king\'s black crown. The emerald watches you.', ('Worn: +3 damage, +1.5 reach,', 'blue'),
       ('+4 health; your blows wither (+3 vs the undead).', 'blue'), ('No protection - it is a crown, not a helm.', 'gray'),
       ('Night: Strength, Night Vision; the fangs come', 'dark_purple'), ('twice as often, and more of them.', 'dark_purple'), ('Sneak + jump: Serpent\'s Fangs (6 s).', 'blue'),
       ('Taken from Apophiss by Cecil, Leo and Emma.', 'dark_gray')],
      model='bm:apophiss_crown', stack=1, cat='relic', glint=False, tier=3,
      comps={'minecraft:equippable': {'slot': 'head', 'swappable': True, 'equip_sound': 'minecraft:item.armor.equip_netherite'},
-            'minecraft:attribute_modifiers': [attr('scale', 0.2, 'head'), attr('attack_damage', 3, 'head'), attr('entity_interaction_range', 1.5, 'head'),
+            'minecraft:attribute_modifiers': [attr('attack_damage', 3, 'head'),     # (2.82b: no more growing a size)
+                                               attr('entity_interaction_range', 1.5, 'head'),
                                               attr('block_interaction_range', 1.0, 'head'), attr('max_health', 4, 'head')],
             'minecraft:enchantments': {'bm:serpent_venom': 1}})
 LEO_LORE = [('Press swap-hands (F) to change its form.', 'blue'), ('Swift; +15% speed held; hits give Speed II.', 'blue'),

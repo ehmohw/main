@@ -43,7 +43,7 @@ const res = [];
     for (let t = 0; t < 30; t++) { const pl = await run(`${O}place template bm:black_market ${CX} ${CY} ${CZ}`); if (!/not loaded/.test(pl)) break; await sleep(2000); }
   }
   await at(38.5, BF + 1, 79.5, 180);
-  ok('the market is the current town (bm.m282)', await wait(40000, async () => passes(`${O}execute if entity ${MK.replace(',limit=1', ',tag=bm.m282,limit=1')}`), 500));
+  ok('the market is the current town (bm.m282b)', await wait(40000, async () => passes(`${O}execute if entity ${MK.replace(',limit=1', ',tag=bm.m282b,limit=1')}`), 500));
   await run(`${O}tag ${MK} remove bm.dir282`);                       // (the boards put up afresh for this run - as a new town gets them)
   await wait(15000, async () => (await cnt(`@e[type=minecraft:interaction,tag=bm.dirb,${BOX}]`)) === 5, 500);
   await sleep(1500);

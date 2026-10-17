@@ -362,6 +362,13 @@ def generate(G):
                 (['scoreboard players operation #lastf bm.rng = #r bm.rng'] if nm_ == 'fight' else []) + \
                 ['function bm:p75/lay/bit', 'execute if score #q2 bm.rng matches 0 run scoreboard players operation #pool bm.rng += #bit bm.rng']   # (a fight met again: its bit is set already)
     G.FUNCS['p75/lay/rooms'].insert(0, 'scoreboard players set #lastf bm.rng -1')
+    # (2.82b: an event room only ever stands in on a puzzle's turn - up to three a heist used to eat the fight turns too, which
+    #  left one or two fights a heist. Every fight turn is a fight now)
+    lr = G.FUNCS['p75/lay/room']
+    ev = [i for i, l in enumerate(lr) if 'if function bm:p75/lay/can_event run return run function bm:p75/lay/event' in l]
+    assert len(ev) == 1, 'the event roll moved'
+    lr[ev[0]] = lr[ev[0]].replace('execute if score #ev', 'execute if score #par bm.rng matches 1 if score #ev')
+    lr[ev[0]:ev[0]] = ['scoreboard players operation #par bm.rng = #q bm.rng', 'scoreboard players operation #par bm.rng %= #2 bm.rng']
 
     EVALL = [k for k in P75.EXTRA_ROOMS if k not in P75.KINDS]
     for k in EVS:

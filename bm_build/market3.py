@@ -42,7 +42,7 @@ WATER_TOP = 5
 RIVER = (12, 22)              # (x range the curving river channel stays inside)
 DOOR_BOX = M2.DOOR_BOX
 VIP_SHELL, AUCTION_SEATS, CUSHIONS, COUNTERS, HOLES, LADDERS = [], [], [], [], [], []
-TOWN_TAG = 'bm.m282'           # (on the town's marker: a market without it is rebuilt - 2.81a: the 2.81 towns too, for their counters;
+TOWN_TAG = 'bm.m282b'          # (on the town's marker: a market without it is rebuilt - 2.81a: the 2.81 towns too, for their counters;
                                #  2.82: and again, for the river's ladders and the clock tower's way out)
 # water the market keeps (template boxes): the river and the harbour basin, the falls, Mike's pond and the falls into it
 WATER_KEEP = [((11, 0, 8), (24, 17, 85)), ((4, 0, 59), (22, 9, 78)), ((CX - 7, 4, CZ - 7), (CX + 7, 11, CZ + 7)), ((CX - 1, 4, CZ - 1), (CX + 1, SY - 1, CZ + 1))]
@@ -601,6 +601,19 @@ def build():
             if INS(x, z): put(x, GF, z, 'polished_deepslate' if (x + z) % 2 else 'deepslate_tiles'); ROAD.add((x, z)); KEEP.add((x, z))
     for (x, z) in [(52, 13), (52, 15), (59, 13), (59, 15)]:
         if INS(x, z): put(x, W, z, 'polished_blackstone_wall'); put(x, W + 1, z, 'lantern[hanging=false,waterlogged=false]')
+    # (2.82b) THE CURIO WALK: Fishy's Cabinet was round the corner from the Dark Auction, a walk through Furnace Row - nine blocks of
+    #  rock apart. A gallery through them now: out of the Auction's plaza, straight to the Cabinet's door
+    for x in range(44, 55):                       # (its back wall: the town's rock reaches only so far - the Cabinet's wall is dug at run time)
+        for y in range(GF, W + 5):
+            if (x, y, 10) not in B.b: rock(x, y, 10)
+    for x in range(45, 54):
+        for z in (11, 12):
+            put(x, GF, z, 'polished_deepslate' if (x + z) % 2 else 'deepslate_tiles'); ROAD.add((x, z)); KEEP.add((x, z))
+            for y in range(W, W + 3): air(x, y, z)
+            put(x, W + 3, z, 'dark_oak_planks')
+    for x in (47, 51): put(x, W + 2, 11, 'lantern[hanging=true,waterlogged=false]'); put(x, W + 2, 12, 'lantern[hanging=true,waterlogged=false]')
+    for z in (11, 12): put(45, W + 3, z, 'gold_block'); put(53, W + 3, z, 'gold_block')
+    B.sign(46, W + 1, 11, 'dark_oak_wall_sign[facing=south,waterlogged=false]', ["FISHY'S", 'CABINET', 'of Curiosities', '-> this way'], color='yellow', glow=True)
 
     # ================================================================ THE GNAWED FLAGON (east)
     house(59, 39, 71, 52, 'W', 2, 'tavern', jetty=True, fill_='smooth_sandstone', roofmat='dark_oak', lit=0.95, doorway='wide')
@@ -624,7 +637,6 @@ def build():
     # Cecil's tent (a purple fortune teller's tent, open to the lane)
     for x in range(51, 55):
         for z in range(69, 73):
-            put(x, GF, z, 'black_carpet') if False else None
             put(x, W + 4, z, ('purple' if (x + z) % 2 else 'black') + '_wool'); KEEP.add((x, z))
     for (x, z) in [(51, 69), (54, 69), (51, 72), (54, 72)]:
         for y in range(W, W + 4): put(x, y, z, 'dark_oak_fence')
@@ -632,7 +644,21 @@ def build():
         for y in range(W, W + 4): put(51, y, z, 'purple_wool')
     for x in range(52, 54):
         for y in range(W, W + 4): put(x, y, 69, 'purple_wool'); put(x, y, 72, 'purple_wool')
-    put(52, W, 72, 'candle[candles=2,lit=true,waterlogged=false]') if False else None
+    # (2.82b: it was bare - a tent and a wizard. Dressed: shelves of books behind him, a rug, a lantern of soul fire, his counter
+    #  with candles and a crystal; a brewing stand and a bubbling cauldron either side of the way in; amethyst on the roof)
+    for z in (70, 71):
+        for y in (W, W + 1): put(51, y, z, 'bookshelf')
+        put(51, W + 2, z, 'chiseled_bookshelf[facing=east,slot_0_occupied=true,slot_1_occupied=false,slot_2_occupied=true,slot_3_occupied=true,'
+                          'slot_4_occupied=false,slot_5_occupied=true]')
+    for x in (52, 53):
+        for z in (70, 71): put(x, W, z, 'purple_carpet')
+    put(53, W + 3, 71, 'soul_lantern[hanging=true,waterlogged=false]')
+    counter([(54, 70), (54, 71)], top='polished_blackstone_bricks')
+    put(54, W + 1, 70, 'purple_candle[candles=3,lit=true,waterlogged=false]')
+    put(54, W + 1, 71, 'amethyst_cluster[facing=up,waterlogged=false]')
+    put(55, W, 69, 'barrel[facing=up,open=false]'); put(55, W + 1, 69, 'brewing_stand[has_bottle_0=true,has_bottle_1=false,has_bottle_2=true]')
+    put(55, W, 72, 'water_cauldron[level=3]')
+    for (x, z) in ((52, 70), (53, 71)): put(x, W + 5, z, 'amethyst_cluster[facing=up,waterlogged=false]')
     # THE BLOOD ALCOVE: a squat crimson keep, corner turrets with spires, a gatehouse with the raised portcullis
     for x in range(59, 70):
         for z in range(66, 78):

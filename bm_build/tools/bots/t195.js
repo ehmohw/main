@@ -33,7 +33,7 @@ const res = [];
     for (let t = 0; t < 30; t++) { const pl = await run(`${O}place template bm:black_market ${CX} ${CY} ${CZ}`); if (!/not loaded/.test(pl)) break; await sleep(2000); }
   }
   await at(CX + 38.5, CY + W, CZ + 72.5);
-  ok('the market is the current town (bm.m282)', await wait(40000, async () => passes(`${O}execute if entity ${MK.replace(',limit=1', ',tag=bm.m282,limit=1')}`), 500));
+  ok('the market is the current town (bm.m282b)', await wait(40000, async () => passes(`${O}execute if entity ${MK.replace(',limit=1', ',tag=bm.m282b,limit=1')}`), 500));
   await sleep(8000);                                 // (a rebuild moves everyone inside up to the Lookout, then runs every install: let it settle)
 
   // ---- the river: two of the ladders the build placed (market3.LADDERS - on the market side and the far bank), climbed out

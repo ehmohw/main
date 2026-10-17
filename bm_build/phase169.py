@@ -201,7 +201,7 @@ def rp(R):
     def post(R2):
         mdl = lambda n: {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
         cases = [{'when': f, 'model': mdl(f'om_head_x{m}')} for f, m in FACE_CASES.items()] + \
-                [{'when': e, 'model': mdl(f'om_head_x{m}')} for e, m in FOL_FACE.items() if m]
+                [{'when': e, 'model': mdl(f'om_head_x{m}')} for e, m in FOL_FACE.items() if m and e not in FACE_CASES]   # (2.82b: a case listed twice - 'blink' - and the game threw the whole head out: a missing-model cube)
         R2.wj('assets/bm/items/om_head.json', {'model': {'type': 'minecraft:select', 'property': 'minecraft:custom_model_data', 'index': 0,
                                                            'cases': cases, 'fallback': mdl('om_head')}})
         for cr in SA.CRESTS:
@@ -261,7 +261,7 @@ BOX = (f'~{-PAL.CENTER[0]:.1f} ~{-PAL.CENTER[1]:.1f} ~{-PAL.CENTER[2]:.1f}', f'd
 
 
 def _palace(C):
-    G, fn, second = C.G, C.fn, C.second
+    G, fn, second, fast = C.G, C.fn, C.second, C.fast
     wj = G.wjson
     wj('bm/tags/worldgen/biome/has_structure/om_palace.json', {'values': ['minecraft:dark_forest', 'minecraft:dappled_forest', 'minecraft:pale_garden']})
     wj('bm/worldgen/structure/om_palace.json', {'type': 'minecraft:jigsaw', 'biomes': '#bm:has_structure/om_palace', 'step': 'surface_structures',
@@ -306,7 +306,6 @@ def _palace(C):
                f'execute as @e[type=minecraft:marker,tag=bm.ompal] at @s positioned {bx} run tag @a[{bd},gamemode=!spectator] add bm.ominp',
                'execute as @a[tag=bm.ominp] at @s run function bm:p169/amb/in',
                'execute as @a[tag=!bm.ominp,scores={bm.ompin=1..}] run function bm:p169/amb/out',
-               'execute as @e[type=minecraft:marker,tag=bm.omamb] at @s if entity @a[distance=..20] run function bm:p169/amb/emit',
                'execute as @e[type=minecraft:marker,tag=bm.ompal] at @s if entity @a[distance=..96] run function bm:p169/amb/pal']
     fn('p169/amb/in', ['execute unless score @s bm.ompin matches 1.. run function bm:p169/amb/enter', 'scoreboard players set @s bm.ompin 1',
                        # the waltz: not while a boss theme plays; again when it ends
@@ -343,10 +342,27 @@ def _palace(C):
             'tomb': ['particle minecraft:sculk_soul ~ ~-2 ~ 3 0.3 3 0.02 3', 'particle minecraft:soul_fire_flame ~ ~-2 ~ 5 0.2 5 0.005 2'],
             'gate': ['particle minecraft:soul ~ ~4 ~ 4 3 2 0.02 2'],
             'cecil': ['particle minecraft:witch ~ ~ ~ 2 1 2 0 1'], 'guest': ['particle minecraft:soul ~ ~ ~ 3 1 4 0.01 1']}
+    # (2.82b: those were a particle or two a second across a whole hall - nobody saw them. Four times a second now, from anywhere in
+    #  the room, and fuller: wisps that drift and rise, motes of grave-dust hanging in the air, candle smoke, ash falling, soul
+    #  fire breathing out of the tomb's floor)
+    emit = {'hall': ['particle minecraft:soul ~ ~1 ~ 6 2 8 0.015 2', 'particle minecraft:white_ash ~ ~3 ~ 7 3 9 0 6',
+                     'particle minecraft:dust{color:[0.55,0.85,0.95],scale:0.8} ~ ~2 ~ 7 2.5 9 0 2', 'particle minecraft:small_flame ~ ~3 ~ 7 2 9 0 1',
+                     'particle minecraft:smoke ~ ~3.5 ~ 7 1.5 9 0.005 1'],
+            'library': ['particle minecraft:soul ~ ~ ~ 4 1.5 6 0.01 1', 'particle minecraft:enchant ~ ~ ~ 4 1.5 6 0.4 6', 'particle minecraft:white_ash ~ ~2 ~ 4 2 6 0 3',
+                        'particle minecraft:dust{color:[0.55,0.85,0.95],scale:0.7} ~ ~1 ~ 4 1.5 6 0 1'],
+            'dining': ['particle minecraft:soul ~ ~ ~ 4 1.5 6 0.01 1', 'particle minecraft:small_flame ~ ~ ~ 4 0.5 6 0 1', 'particle minecraft:smoke ~ ~0.5 ~ 4 0.5 6 0.005 1',
+                       'particle minecraft:white_ash ~ ~2 ~ 4 2 6 0 3'],
+            'tomb': ['particle minecraft:sculk_soul ~ ~-2 ~ 3 0.3 3 0.02 2', 'particle minecraft:soul_fire_flame ~ ~-2 ~ 5 0.2 5 0.005 3',
+                     'particle minecraft:soul ~ ~ ~ 5 2 5 0.02 2', 'particle minecraft:ash ~ ~2 ~ 6 2 6 0 6',
+                     'particle minecraft:dust{color:[0.35,0.95,0.9],scale:1.0} ~ ~ ~ 5 2 5 0 2'],
+            'gate': ['particle minecraft:soul ~ ~4 ~ 4 3 2 0.02 2', 'particle minecraft:white_ash ~ ~4 ~ 5 3 3 0 3'],
+            'cecil': ['particle minecraft:witch ~ ~ ~ 2 1 2 0 1', 'particle minecraft:enchant ~ ~ ~ 2 1 2 0.3 2'],
+            'guest': ['particle minecraft:soul ~ ~ ~ 3 1 4 0.01 1', 'particle minecraft:white_ash ~ ~1 ~ 3 1.5 4 0 2']}
+    fast.append('execute as @e[type=minecraft:marker,tag=bm.omamb] at @s if entity @a[distance=..24] run function bm:p169/amb/emit')
     fn('p169/amb/emit', [f'execute if entity @s[tag=bm.omamb_{k}] run {l}' for k, ls in emit.items() for l in ls])
     # (the palace: wisps round the towers; by night two soul serpents circle the central tower)
     tw = rel((32.5, PAL.FY + 31, 12.0))
-    fn('p169/amb/pal', [f'particle minecraft:soul ~{tw[0]:.1f} ~{tw[1] - 6:.1f} ~{tw[2]:.1f} 4 6 4 0.02 4',
+    fn('p169/amb/pal', [f'particle minecraft:soul ~{tw[0]:.1f} ~{tw[1] - 6:.1f} ~{tw[2]:.1f} 4 6 4 0.02 10', 'particle minecraft:soul ~ ~4 ~ 22 4 22 0.015 8', 'particle minecraft:white_ash ~ ~6 ~ 24 6 24 0 14',
                         f'particle minecraft:soul_fire_flame ~{tw[0]:.1f} ~{tw[1]:.1f} ~{tw[2]:.1f} 1 1 1 0.01 2',
                                                 f'execute if score #tod bm.bm matches 13000..23000 positioned ~{tw[0]:.1f} ~{tw[1]:.1f} ~{tw[2]:.1f} unless entity @e[type=minecraft:marker,tag=bm.ssbig,distance=..2] run function bm:p169/amb/tower',
                         f'execute unless score #tod bm.bm matches 13000..23000 positioned ~{tw[0]:.1f} ~{tw[1]:.1f} ~{tw[2]:.1f} as @e[type=minecraft:marker,tag=bm.ssbig,distance=..2] at @s run function bm:p169/ss/go'])

@@ -21,6 +21,52 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82b: heists fixed, a town you can find your way round, savings, presses - and the screenshots
+
+### Heists
+- **Puzzles and fights take turns** - puzzle, fight, puzzle, fight. An event or themed room (a minigame, the Blaze Forge, the
+  UFO...) only ever stands in for a puzzle, never a fight, so every heist has about as many fights as puzzles. A fight can come
+  round again later in a heist (never twice in a row): a tier only has a few kinds of fight.
+- **The sudoku puzzle (the Mason's Plan Mosaic) is gone.** The Mason's Plan keeps its other variant.
+- **The tries you pick are the tries you get:** 3 tries is 3 for the whole crew, however many of you go down (it was adding
+  one per crewmate).
+- **A lost heist no longer says the vault opened** on the way out.
+- **The prize roulette at the end is gone** - the end-of-heist card covered it. The prize is in the Haul as before.
+
+### The new market
+- **The Town Directory:** five boards about the town (the Lookout, the Plaza, the Wharf, Furnace Row, Night Alley). Right-click
+  one: WHO'S WHERE - every trader and place. Pick one and a trail of dust and the action bar walk you there.
+- **Every player is put in adventure mode** on the market's shop floors, docks, stairs and the Lookout (a third player could
+  miss out before).
+- **Cecil's tent:** the trader showing on top of him is gone (his host's invisibility was being cleared; so were the Chef's,
+  the Armory's, Zorp's and the other model-hosts' - all fixed), and the tent is dressed: shelves of books, a rug, a counter
+  with candles and a crystal, a soul lantern, a brewing stand and a cauldron.
+- **Fishy's Cabinet is right off the Dark Auction:** a short gallery, the Curio Walk, runs from the Auction's plaza straight
+  to the Cabinet's door. (Markets in your world are rebuilt into this version the next time they load.)
+
+### The Rat Bank Teller: savings
+- In the Gilded Gutter, the Teller opens a **savings account** (the Banker's Card shows it anywhere, but only the Teller opens
+  one): every in-game day the bank adds 4% of each currency you keep there - 1 for every 25 - up to a daily cap (Tokens 8,
+  Lucky Tokens 8, Medallions 3, Trophies 1, the rest 4). Paid when you next come by, for up to a week of days away.
+
+### The presses
+- **The Counterfeiter's Press** now prints a Medallion about 1 day in 25, and a Trophy about 1 day in 200 (otherwise a Token).
+- **Three mythical presses**, 6% from a won heist of their kind (every raider): **the Blood Press** (Blood Moon heists, two
+  Blood Crystals a day), **the Xenite Press** (Invasion heists, two Green Xenite a day, now and then a Violet, Cyan or Red),
+  **the Lucky Press** (Lucky heists, a Lucky Token a day). One of each per player.
+
+### Fixes from the screenshots
+- **King Omega's head** showed as a missing-texture cube - one face listed twice in its model definition threw the whole head
+  out. Fixed; the checker now catches a repeated case.
+- **The Broodmother's Emblem** was an unreadable smudge on its pedestal: redrawn as a dark spider with a red mark.
+- **The Omega Palace's ambience** is visible now: drifting souls, hanging grave-dust, ash, candle smoke and soul fire in every
+  room, four times as often; wisps and ash round the palace outside.
+- **The den's Raid Crew page doesn't spoil anyone:** a follower you haven't met in the world isn't listed (one you hold a
+  contract for still is), and its Outfits page shows only the wardrobes of followers you've met - Emma's buff once you've met her.
+- **KillerWatt's drops** (and the ethereal KillerWatt's) come once per kill.
+- **The crowns no longer make you bigger:** Apophiss's Crown, the True Crown and the Unbound Crown keep every other power, but
+  wearing one leaves you your own size. Crowns you already have are updated the next time you log in or pick them up.
+
 ## New in 2.82: King Omega, the Omega Palace - and a cheaper, fairer market
 
 ### The Omega Palace

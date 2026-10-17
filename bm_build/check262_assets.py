@@ -318,6 +318,11 @@ def walk_item_model(f, m):
                 if any(x not in DCTX for x in (w if isinstance(w, list) else [w])): E(f'{f}: display_context case {w}')
         elif m.get('property') != 'minecraft:custom_model_data': E(f'{f}: select property {m.get("property")} (only custom_model_data / display_context used/checked)')
         if not isinstance(m.get('index', 0), int) or m.get('index', 0) < 0: E(f'{f}: select index')
+        seen = set()                             # (2.82b: a value listed twice and the game throws the whole definition out - Omega's head, a missing-model cube)
+        for c in m.get('cases', []):
+            for w in (c.get('when') if isinstance(c.get('when'), list) else [c.get('when')]):
+                if repr(w) in seen: E(f'{f}: select case {w!r} listed twice')
+                seen.add(repr(w))
         for c in m.get('cases', []):
             if set(c) != {'when', 'model'} or not isinstance(c['when'], (str, list)): E(f'{f}: select case keys {set(c)}')
             walk_item_model(f, c['model'])

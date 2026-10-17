@@ -2,8 +2,8 @@
 // Tier I heist of Lever Rooms with both in the crew, down to its last try, 40 coins in the pot; the guardian put down.
 //   In an unsolved Lever Room, [Skip this puzzle] on the last try: THE FIXER'S MERCY asks first - half the pot and a share.
 //   Pay: the way on opens, the pot is halved, the crew keeps its last try. A second room: the mercy is spent.
-//   Won (stepping onto the strongbox ring): a crew of two, nobody knocked out - CREW OF 2 and CLEAN CREW in the prize roll,
-//   and the card says crew +1 share, clean crew +1 Token, and what the mercy cost.
+//   Won (stepping onto the strongbox ring): a crew of two, nobody knocked out - the card says crew +1 share, clean crew +1 Token,
+//   and what the mercy cost.
 const { bot, rcon, sleep } = require('./lib_resp');
 const H_ = require('./h110'); const { rel } = H_;
 const res = [];
@@ -53,9 +53,7 @@ const res = [];
   await run(`execute in bm:gutter as ${V} at @s run tp TestRat ${rel(24, 4, 9)} -90 0`); await run(`execute in bm:gutter as ${V} at @s run tp TestMouse ${rel(24, 4, 15)} -90 0`); await sleep(600);
   seen.length = 0;
   await Promise.all([A.walkTo(vx + 16.5, vz - 2.5), M.walkTo(vx + 16.5, vz + 3.5)]); await sleep(300);
-  ok('both on the strongbox ring: the payout', await wait(5000, async () => seen.some(t => /THE HAUL/.test(t))));
-  ok('the prize roll: CREW OF 2 (+1 share)...', await wait(16000, async () => seen.some(t => /CREW OF 2/.test(t))), seen.join(' | ').slice(0, 300));
-  ok('...and CLEAN CREW (+1 Token)', seen.some(t => /CLEAN CREW/.test(t)));
+  ok('both on the strongbox ring: the payout', await wait(5000, async () => { await run('execute as TestRat run function bm:p103/res_load'); return /HEIST WON/.test(await run('data get storage bm:ui res.r_res')); }));
   await run('execute as TestRat run function bm:p103/res_load'); const rr = await run('data get storage bm:ui res.r_res');
   ok('the card: crew +1 share, clean crew +1 Token, and what the mercy cost', /crew \+1 share/.test(rr) && /clean crew \+1 Token/.test(rr) && /mercy took half the pot and a share/.test(rr), rr.slice(-300));
 

@@ -64,8 +64,10 @@ def generate(G):
     fn('admin/market_rebuild', [f'execute as @e[type=minecraft:marker,tag=bm.mkt,distance=..200,sort=nearest,limit=1] run tag @s remove {TT}',
                                 tellraw('@s', PREFIX + [T('The nearest Black Market is rebuilt as soon as its chunks load.', 'gold')])])
     # (2.82: a trader is never invisible - the Fence is a wandering trader, and one carried over from an older market could keep the
-    #  invisibility it drank one night for good; nothing of the pack's ever hides a trader, so it's simply cleared)
-    second.append('effect clear @e[type=#bm:p56_traders,tag=bm.npc,predicate=bm:p126/invis] minecraft:invisibility')
+    #  invisibility it drank one night for good. 2.82b: except the ones built invisible - the hosts under a model (Cecil, the
+    #  Armory, the Chef, Zorp...): cleared, they showed as a plain villager on top of the model. finalize() lists them, from
+    #  their own summons; theirs is put back, everyone else's cleared)
+    second.append('function bm:p168/invis')
     second.append('execute as @e[type=minecraft:wandering_trader,tag=bm.npc,nbt=!{NoAI:1b}] run data merge entity @s {NoAI:1b}')
     G.FUNCS['loop/second'][0:0] = second
     G.P168_LOOK = look
@@ -74,6 +76,20 @@ def generate(G):
 def finalize(G):
     """After every phase: the tags the market's entities carry, the rebuild itself, and every install waiting for the town tag."""
     F = G.FUNCS
+    # (the traders built invisible: a villager or wandering trader summoned with the invisibility effect - its own tag)
+    inv_tags = set()
+    for _f, L in F.items():
+        for l in L:
+            if not isinstance(l, str) or 'minecraft:invisibility' not in l: continue
+            for m in re.finditer(r'summon minecraft:(villager|wandering_trader) [^{]*\{(.*)', l):
+                t = re.search(r'Tags:\[([^\]]*)\]', m.group(2))
+                if t:
+                    tags = [x.strip().strip('"') for x in t.group(1).split(',')]
+                    inv_tags |= {x for x in tags if x.startswith(('bm.npc_', 'bm.frat_')) or x == 'bm.pearl'}
+    assert {'bm.npc_wizard', 'bm.npc_chef', 'bm.npc_armory'} <= inv_tags, sorted(inv_tags)
+    F['p168/invis'] = ['effect clear @e[type=#bm:p56_traders,tag=bm.npc,predicate=bm:p126/invis' + ''.join(f',tag=!{t}' for t in sorted(inv_tags)) +
+                       '] minecraft:invisibility'] + \
+                      [f'effect give @e[type=#bm:p56_traders,tag={t},predicate=!bm:p126/invis] minecraft:invisibility infinite 0 true' for t in sorted(inv_tags)]
     TT = market3.TOWN_TAG
     summon = re.compile(r'summon minecraft:([a-z_]+) [^{]*(\{.*\})')
     tagre = re.compile(r'Tags:\[([^\]]*)\]')

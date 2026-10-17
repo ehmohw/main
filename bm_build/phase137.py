@@ -156,6 +156,13 @@ def generate(G):
     CALLED_K = {c[0] for c in P98.CALLED}
     signed_fn = lambda k: f'bm:p98/signed/{k}' if k in CALLED_K else f'bm:p98/filed/{k}'
 
+    # ---- (2.82b) the den's Raid Crew page: a follower you haven't met isn't on it - their name gave them away before you'd found
+    #      them. (One with a contract signed already - from before - stays.)
+    for i, (k, nm, col) in enumerate(FOL):
+        L = G.FUNCS[f'p103/crew/row_{i}']
+        assert L[0].startswith(f'scoreboard players set #ad{i} '), L[0]
+        L.insert(1, f'execute unless {met(k)} unless function {signed_fn(k)} run return 0')
+
     # ---- a contract for someone you haven't met won't sign (it keeps)
     SIGN = {k: f'p89/sign/{k}' for k in ('cecil', 'emma', 'celi', 'zib', 'escort', 'killerwatt')}
     SIGN.update({'leo': 'p96/sign', 'demo': 'p97/sign', 'apo': 'p131/sign', 'tul': 'p132/sign', 'frog': 'p89/call/frog', 'donado': 'p89/call/donado',
