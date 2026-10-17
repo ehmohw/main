@@ -388,11 +388,11 @@ def generate(G):
     untag = 'tag @e[tag=bm.n18,distance=..1.5] remove bm.n18'
 
     def label_disp(lines_, y):
-        return {'Tags': ['bm.e18', 'bm.n18', 'bm.lg_label'], 'billboard': 'center', 'view_range': F(0.18), 'default_background': B(0),
+        return {'Tags': ['bm.e18', 'bm.n18', 'bm.lg_label', 'bm.see282'], 'billboard': 'center', 'view_range': F(0.18), 'default_background': B(0), 'see_through': B(1),
                 'background': Int(0x60000000), 'text': lines_, 'line_width': Int(160),
                 'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(y), F(0)], 'scale': [F(0.45)] * 3}}
 
-    def ledger_spawn(lid, kind, label):
+    def ledger_spawn(lid, kind, label, lift=0.0):
         """At the ledger's spot (feet / counter top), rotated to face where it should face."""
         box = {'Tags': ['bm.e18', 'bm.n18', 'bm.ledger'], 'response': B(1)}
         cmds = []
@@ -410,6 +410,7 @@ def generate(G):
                     'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(-0.5), F(0), F(-0.5)], 'scale': [F(1)] * 3}}
             cmds.append(f'summon minecraft:block_display ~ ~ ~ {snbt(lect)}')
             ly = 1.55
+        ly = round(ly + lift, 2)
         cmds += [f'summon minecraft:interaction ~ ~ ~ {snbt(box)}',
                  f'scoreboard players set @e[type=minecraft:interaction,tag=bm.n18,distance=..1.5] bm.lgid {lid}',
                  f'summon minecraft:text_display ~ ~ ~ {snbt(label_disp(label, ly))}', fin, untag]
@@ -443,7 +444,7 @@ def generate(G):
     for lid, (pos, yaw, region, kind) in GATES.items():
         place(pos, yaw, f'p28/spawn/lg_{lid}', f'gate ledger {kind}', region=region)
         a, b = GATE_LABEL[kind]
-        ledger_spawn(lid, 'lectern', [T(a, 'gold', bold=True), T('\n' + b, 'gray')])
+        ledger_spawn(lid, 'lectern', [T(a, 'gold', bold=True), T('\n' + b, 'gray')], lift=0.4 if kind == 'den_in' else 0.0)   # (2.82: above the mouse hole's sign)
     for kind, (pos, yaw, region) in GATE_DEST.items():
         mgeo.need_floor(pos, region, f'gate destination {kind}')
 

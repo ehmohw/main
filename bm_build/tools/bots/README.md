@@ -302,7 +302,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t39b.js` | - |
 | `t42.js` | v2.40: KillerWatt's Tendrils, Apophiss's Crown, Leo's Trident, Cecil's Staff (2.80d: trimmed to what still holds) |
 | `t42b.js` | - |
-| `t43.js` | v2.42: two-blade tendrils + lunge; v2.41: tendrils worn on the chest (4 at the back, look-to-lash, sneak+jump fling, snatch, weather), crown at nig... (2.80d: trimmed to what still holds) |
+| `t43.js` | v2.42: two-blade tendrils + lunge; v2.41: tendrils worn on the chest (4 at the back, look-to-lash, sneak+jump fling, weather; 2.82: they no longer pull items in), crown at nig... (2.80d: trimmed to what still holds) |
 | `t44.js` | v2.43: tendril melee stab (+2 reach, both upper tendrils, pierce) and the charged-jump pose |
 | `t45.js` | v2.45: Pearlman, the gems (finder, display, kin), the fusion, the Ethereal shrine and status |
 | `t46.js` | v2.46: Pearlman visits like a wandering trader - one roll a day, 10% rising by 10 to 30%, reset when he comes |
@@ -334,7 +334,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t72.js` | first check: Display case: use it looking at the floor - a floor case stands there (case, contents, hitbox) (2.80d: trimmed to what still holds) |
 | `t73.js` | first check: A bottled cow goes in a floor case: she appears on the cushion |
 | `t74.js` | first check: …: ladders all the way up (… rows) |
-| `t78.js` | v2.65: follower cosmetics - Emma's ribbons and dresses, Celi's outfits, Zib's uniforms; Velour's stock; the hidden ones |
+| `t78.js` | v2.65: follower cosmetics - Emma's ribbons and dresses, Celi's outfits, Zib's uniforms; the Tailor's stock (raid exclusives, none at Velour's - 2.82); the hidden ones |
 | `t79.js` | v2.65: KillerWatt - the Storm Effigy, the boss (rig, animation, attacks, roar, reward), the Spark follower, Cecil's shop **(partly stale: using the Spark while he's out opens his menu since 2.78, rather than calling him over)** |
 | `t79b.js` | v2.66: KillerWatt the follower - riding, wall climbing, the Thunder Leap, the tendril stab, the leap, chain lightning, gems and the Ethereal Form (2.80d: trimmed to what still holds) |
 | `t80.js` | v2.66: the Fixer's Office - the Gutter Bank, spoils, kit ranks, secondaries and signatures; metal trophies; the Bond Sigils (2.80d: trimmed to what still holds) |
@@ -365,7 +365,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t112.js` | 2.69 new rooms: the Sky Isles, the Spire, the Tinker's Bench, the Mason's Plan, the Dig; Block Party, Red Light Green Light, Memory Match |
 | `t113.js` | 2.70: the throne rooms (gold, diamond, netherite - and their odds) and Prime fights |
 | `t114.js` | 2.71: the B and C versions of the Spire, the Tinker's Bench, the Mason's Plan and the Dig |
-| `t115a.js` | 2.72 (I): the Library, the Pipes, the Apothecary, the Grapple, the Minecart Run - three ways each |
+| `t115a.js` | 2.72 (I): the Library (2.82: three shelves of twelve, all in reach without a jump), the Pipes, the Apothecary, the Grapple, the Minecart Run - three ways each |
 | `t115b.js` | 2.72 (II): room curses, forks in the road, corridor traps |
 | `t115c.js` | 2.72 (III): Smelling Salts, the Thief's Hourglass, the Alarm Jammer, Masterworks, the Codex, each tier's own finds |
 | `t118.js` | 2.73: a raid boss's minions fall with it |
@@ -482,6 +482,10 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t192.js` | 2.80h: the Fixer's mercy and the crew bonuses, as regular players (TestRat + TestMouse) - on the last try [Skip this puzzle] asks the mercy (half the pot: 20 of 40, and a share); paid, the room opens, the pot halves, the last try is kept, the crew is told; a second room: spent; won by both on the ring: CREW OF 2 and CLEAN CREW in the prize roll, and the card shows crew +1 share, clean crew +1 Token and the mercy's cost |
 | `t193.js` | 2.80i: tough mobs, not health sponges, as a regular player at the end of a 30-block runway at night - chase speeds measured (blocks/s, a sprint is 5.6): a Blood Moon horror and a Champion zombie, both on their steeds, a Blood Moon and a Champion spider all under a sprint; a Blood Moon, Champion and Elite creeper at a plain creeper's pace (no boost); an unarmored Champion has no Speed and Resistance I; twelve each of Elites, Champions and horrors - no full Protection sets, bare pieces, light on average |
 | `t194.js` | 2.81: THE BLACK MARKET, REBUILT - an old (2.80) market, placed turned a quarter as a fixture with its traders, a player's dog, a dropped diamond and a ladder shaft past the tunnel; the player (Market Key) walks in: rebuilt as the new town - one marker (`bm.m281a`), the player and the diamond moved to the Lookout, the dog kept, the shaft untouched; the new blocks turned like the old market; every trader once, all 16 ledgers (every back-room book on its trader's counter: no lectern, no slab, nothing on top, the trader beside it), Teller, Concierge, Auctioneer, Fishy's Cabinet, Dennis's and Pistachio's rooms, 3 slots, board, lectern, Scrap Bin, lift button, 7 ambience emitters, nothing old left; then as the player: Barnaby's trades and back room, `/trigger bm.standing`, the Bounty Board, the Dark Auction's and the Gilded Gutter's gates, the Rat Bank Teller, Rat Gang HQ |
+| `t195.js` | 2.82: the new market's river and clock tower, as a regular player - a ladder up the quay wall from under the water on either bank, climbed out onto the street; dropped twelve blocks into the clock tower onto hay (a scratch at most), its door opened and walked out; the town's labels - every name plate and door/ledger label shown through what's in the way, the PROGRESSIVE JACKPOT sign out of the machine's top |
+| `t196.js` | 2.82: KillerWatt pays on any death, once - on a stone floor of his own: brought down by lightning (no player) or by the player's blow, a first win gives his Tendrils, his Spark and the hoard, exactly once, one announcement |
+| `t197.js` | 2.82: fishing crates only for a real catch, as a regular player with a real rod - a pig hooked and reeled in (5 times) counts no catch (no crate, no Token roll); a bite in a pond, reeled in, counts |
+| `t198.js` | 2.82: Blood Moon drops, as a regular player striking real blows - five horrors, 1 to 3 Crystals each (never none) and their Tokens; a horror that drowned into a Drowned keeps a horror's loot |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
 | `head.js` | The Horseman's Head: stream, overheat, charged blast, stoking + Nova, undead XP, lantern/heart variants, night tiers, healing. |

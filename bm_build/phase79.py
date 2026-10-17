@@ -351,6 +351,8 @@ def generate(G):
                       'execute if score #now bm.rng matches 0..100 run return 0',
                       'execute store result score #now bm.rng run time query gametime', 'scoreboard players operation #now bm.rng -= #kxalive bm.rng',
                       'execute unless score #now bm.rng matches 0..40 run return 0',          # (a rig left over from long ago pays nobody)
+                      'scoreboard players operation #kid bm.rng = @s bm.kxid',                 # (his parts adrift while he lives - knocked or fallen away - aren't his death)
+                      'execute as @e[type=minecraft:husk,tag=bm.kxboss] if score @s bm.kxid = #kid bm.rng run return 0',
                       'execute store result score #kxpaid bm.rng run time query gametime',
                       'execute unless entity @a[distance=..64,gamemode=!spectator] run return 0',
                       'execute if entity @s[scores={bm.kxel=10}] run return run function bm:p79/payout_eth',

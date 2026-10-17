@@ -152,10 +152,16 @@ def generate(G):
     for z, kind in SLOTS.items():
         patch += [f'execute positioned {rel((SLX + 0.5, W + 1.5, z + 0.5))} unless entity @e[type=minecraft:marker,tag=bm.slot,distance=..0.5] run summon minecraft:marker ~ ~ ~ {{Tags:["bm.slot","bm.slot_{kind}"]}}',
                   f'execute positioned {rel((SWX + 0.5, W + 2.55, z + 0.5))} unless entity @e[type=minecraft:text_display,tag=bm.slotd,distance=..0.5] run summon minecraft:text_display ~ ~ ~ {reels(kind)}']
-    patch.append(f'execute positioned {rel((SWX + 0.5, W + 3.35, SPZ + 0.5))} unless entity @e[type=minecraft:text_display,tag=bm.potd,distance=..0.5] run summon minecraft:text_display ~ ~ ~ {potd}')
+    # (2.82: out in front of the jackpot machine, not sunk in its top)
+    mgeo.need_air((SWX + 1, W + 3, SPZ), 'the progressive jackpot sign')
+    patch.append(f'execute positioned {rel((SWX + 1.5, W + 3.35, SPZ + 0.5))} unless entity @e[type=minecraft:text_display,tag=bm.potd,distance=..0.5] run summon minecraft:text_display ~ ~ ~ {potd}')
+    patch.append('tag @s add bm.p52b')
     fn('p52/market', patch)
     p41 = next(l for l in G.FUNCS['loop/second'] if 'function bm:p41/patch' in l)
     second.append(p41.replace('tag=!bm.p41]', 'tag=!bm.p52]').replace('function bm:p41/patch', 'function bm:p52/market'))
+    # (2.82) a market patched before the jackpot sign moved: take the old sign down and patch it again
+    second.append('execute as @e[type=minecraft:marker,tag=bm.mkt,tag=bm.p52,tag=!bm.p52b] at @s run function bm:p52/repatch')
+    fn('p52/repatch', ['kill @e[type=minecraft:text_display,tag=bm.potd,distance=..160]', 'tag @s remove bm.p52', 'tag @s add bm.p52b'])
     # a pull: the lever changed state (either way - levers stay where they're flipped)
     tick.append('execute as @e[type=minecraft:marker,tag=bm.slot] at @s if entity @a[distance=..8] run function bm:p52/slot/tick')
     fn('p52/slot/tick', ['execute store result score #lv bm.rng if block ~ ~ ~ minecraft:lever[powered=true]',

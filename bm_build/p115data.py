@@ -5,9 +5,10 @@ import itertools
 import math
 import random
 
-# ===================================================================== THE LIBRARY: 36 books on the north wall
-LCOLS = list(range(4, 21, 2))                  # x of each book (9 a shelf)
-LROWS = [8, 7, 6, 5]                           # y of each shelf, top first
+# ===================================================================== THE LIBRARY: 36 books on the north wall, three shelves of twelve
+LCOLS = [3.75 + 1.5 * i for i in range(12)]    # x of each book (12 a shelf)
+LROWS = [7, 6, 5]                              # y of each shelf, top first (2.82: three, all within reach with no jump - Leaden)
+PER = len(LCOLS)
 LSLOTS = [(x, y) for y in LROWS for x in LCOLS]
 WORDS = ['Ledgers', 'Moths', 'Tides', 'Brass', 'Owls', 'Ashes', 'Lanterns', 'Ravens', 'Wax', 'Thorns', 'Ciphers', 'Bones', 'Salt', 'Echoes',
          'Glass', 'Embers', 'Saints', 'Rust', 'Silk', 'Comets', 'Wolves', 'Velvet', 'Mirrors', 'Dust', 'Hymns', 'Orchids', 'Coins', 'Riddles',
@@ -34,7 +35,7 @@ def library(seed=7201):
     while len(C) < 8:                          # C: the sum - three numbered books, one from each of three shelves, add up to N
         slots = rng.sample(range(36), 12)
         nums = {s: rng.randint(1, 19) for s in slots}
-        triples = [t for t in itertools.combinations(slots, 3) if len({s // 9 for s in t}) == 3]
+        triples = [t for t in itertools.combinations(slots, 3) if len({s // PER for s in t}) == 3]
         sums = {}
         for t in triples: sums.setdefault(sum(nums[s] for s in t), []).append(t)
         ok = [n for n, ts in sums.items() if len(ts) == 1 and 20 <= n <= 45]

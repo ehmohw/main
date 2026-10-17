@@ -1,9 +1,9 @@
 """2.72: FIVE NEW ROOMS, three ways each - the Library, the Pipes, the Apothecary, the Grapple, and the Minecart Run.
 
-THE LIBRARY (puzzle)     a wall of 36 books. Pull a book: right-click it. A wrong pull rings the alarm and every book slides back.
+THE LIBRARY (puzzle)     a wall of 36 books, three shelves of twelve, all in reach without a jump. Pull a book: right-click it. A wrong pull rings the alarm and every book slides back.
     A  THE CATALOGUE  the card on the desk names two to four books (more at higher tiers): find them by their titles and pull them
     B  THE ACROSTIC   the desk has a riddle; each book has a letter - pull the books that spell the answer, first letter first
-    C  THE SUM        twelve books carry numbers: pull three, one from each of three shelves, that add up to the desk's number
+    C  THE SUM        twelve books carry numbers: pull three, one from each of the three shelves, that add up to the desk's number
 THE PIPES (puzzle)       a 5x5 grid of pipe pieces; water comes in at the west and must leave at the east (pieces carrying water
                          turn blue as you go). Right-click a piece to work it.
     A  TURN           each click turns a piece a quarter round
@@ -57,6 +57,8 @@ def _pit(b, x0, x1):
 
 def library():
     b = R6.shell()
+    # (2.82: every book in easy reach from the floor - no jump needed, so a Leaden curse can't strand one; interaction reach is 3)
+    assert max(PD.LROWS) - (FY + 1 + 1.62) <= 1.5, 'a book out of reach without a jump'
     for x in range(3, 22):
         for y in range(4, 10): b.set(x, y, 1, 'minecraft:bookshelf')
     for x in range(10, 15): b.set(x, 4, 6, 'minecraft:dark_oak_planks')
@@ -169,7 +171,7 @@ def generate(G):
             L.append(f'summon minecraft:interaction {relf(x + 0.5, y, 2.2)} {{Tags:["bm.gvprop","bm.gvbk","bm.gvbkn"],width:0.62f,height:0.95f,response:1b}}')
             L.append(f'scoreboard players set @e[type=minecraft:interaction,tag=bm.gvbkn,limit=1] bm.gvy1 {i}')
             L.append(f'scoreboard players set @e[type=minecraft:interaction,tag=bm.gvbkn,limit=1] bm.gvy2 {vals[i]}')
-            L.append(f'scoreboard players set @e[type=minecraft:interaction,tag=bm.gvbkn,limit=1] bm.gvy3 {i // 9}')
+            L.append(f'scoreboard players set @e[type=minecraft:interaction,tag=bm.gvbkn,limit=1] bm.gvy3 {i // PD.PER}')
             L.append('tag @e[type=minecraft:interaction,tag=bm.gvbkn] remove bm.gvbkn')
             if words[i]:
                 L.append(label(relf(x + 0.5, y + 0.86, 2.25), T(words[i], '#f0e0c0', bold=True), 0.26, 'center', width=120, bg=False))
@@ -195,7 +197,7 @@ def generate(G):
     for j, (nums, tgt, _t3) in enumerate(PD.LIB_C):
         vals = [nums.get(s, 0) for s in range(36)]
         fn(f'p115/library/c{j}', books(vals, [str(nums[s]) if s in nums else '' for s in range(36)]) + [f'scoreboard players set @s bm.gvz {tgt}', 'scoreboard players set @s bm.gvx 3'] +
-           [sign(rel(12, 7.4, 6), 'THE SUM', f'Pull three numbered books - one from each of three different shelves - that add up to {tgt}.', 0.6)])
+           [sign(rel(12, 7.4, 6), 'THE SUM', f'Pull three numbered books - one from each shelf - that add up to {tgt}.', 0.6)])
     fn('p115/library/tick', ['execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1',
                              'execute if score @s bm.gvtm matches 3000 run scoreboard players set @s bm.gvf 1',
                              'execute as @e[type=minecraft:interaction,tag=bm.gvbk,distance=..20] if data entity @s interaction at @s run function bm:p115/library/click'])
@@ -212,8 +214,8 @@ def generate(G):
        ['scoreboard players add @s bm.gvw 1', 'execute if score @s bm.gvw >= @s bm.gvx run function bm:p115/library/won'])
     fn('p115/library/jc', ['execute unless score #val bm.rng matches 1.. run return run function bm:p115/library/wrong', 'scoreboard players operation @s bm.gvy3 += #val bm.rng',
                            'scoreboard players add @s bm.gvw 1', 'execute if score @s bm.gvw matches ..2 run return 0'] +
-       [f'execute store result score #r{r} bm.rng if entity @e[type=minecraft:interaction,tag=bm.gvbkp,distance=..20,scores={{bm.gvy3={r}}}]' for r in range(4)] +
-       [f'execute if score #r{r} bm.rng matches 2.. run return run function bm:p115/library/wrong' for r in range(4)] +
+       [f'execute store result score #r{r} bm.rng if entity @e[type=minecraft:interaction,tag=bm.gvbkp,distance=..20,scores={{bm.gvy3={r}}}]' for r in range(len(PD.LROWS))] +
+       [f'execute if score #r{r} bm.rng matches 2.. run return run function bm:p115/library/wrong' for r in range(len(PD.LROWS))] +
        ['execute unless score @s bm.gvy3 = @s bm.gvz run return run function bm:p115/library/wrong', 'function bm:p115/library/won'])
     fn('p115/library/wrong', ['scoreboard players set @s bm.gvw 0', 'scoreboard players set @s bm.gvy3 0', 'scoreboard players set @s bm.gvf 1',
                               'tag @e[type=minecraft:interaction,tag=bm.gvbkp,distance=..20] remove bm.gvbkp',

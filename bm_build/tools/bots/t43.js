@@ -1,4 +1,4 @@
-// v2.42: two-blade tendrils + lunge; v2.41: tendrils worn on the chest (4 at the back, look-to-lash, sneak+jump fling, snatch, weather), crown at night, Leo by water, Emma's Bloomheart
+// v2.42: two-blade tendrils + lunge; v2.41: tendrils worn on the chest (4 at the back, look-to-lash, sneak+jump fling, weather; 2.82: no item snatch), crown at night, Leo by water, Emma's Bloomheart
 const { bot, rcon, sleep } = require('./lib');
 const X = 9950, Y = 100, Z = 9950;
 const res = [];
@@ -17,7 +17,7 @@ const res = [];
   await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..40]`); await run('time set noon'); await run('weather clear'); await run('kill @e[type=cat,tag=bm.emmapet]');
   await run('scoreboard players reset TestRat bm.kwmd');   // (the mode is the player's own and stays: a fresh player starts in OFFENSE)
   await run('execute as TestRat run function bm:admin/cecil_relics'); await sleep(300);
-  // ---- the tendrils, worn (2.4x: worn on the wings layer - their look, lash and storm strikes are t98's; here: no armour, the lunge, yank, fling, snatch, no fall damage)
+  // ---- the tendrils, worn (2.4x: worn on the wings layer - their look, lash and storm strikes are t98's; here: no armour, the lunge, yank, fling, no fall damage (2.82: no snatch))
   await run('item replace entity TestRat armor.chest from entity TestRat hotbar.0'); await run('item replace entity TestRat hotbar.0 with air'); await sleep(800);
   const tp0 = await pos('@e[type=item_display,tag=bm.kwt_ul,limit=1]');
   ok('...no armour (the chest slot gives none)', (await num('attribute TestRat minecraft:armor get')) === 0);

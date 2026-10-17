@@ -2,7 +2,8 @@
 // sets the stage: t162's market, rebuilt into the current town if it's older). Fallen into the river: a ladder up the quay
 // wall every few blocks - climbed out onto the street (the wall stands four blocks over the water). Parkoured onto the clock
 // tower and dropped inside: a soft landing on hay (barely a scratch from twelve blocks), a ladder back up the inside, and a
-// door at the foot - opened, walked out.
+// door at the foot - opened, walked out. And its labels: names and door labels shown through counters and awnings, the jackpot
+// sign out of the machine's top.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
@@ -72,6 +73,17 @@ const res = [];
   const p2 = await pos();
   await sleep(1500); const p3 = await pos();
   ok('...and he walks out of the tower (and stays out)', p2[2] < CZ + 31 && p3[2] < CZ + 31 && Math.abs(p3[1] - (CY + W)) < 0.1, `at ${p3.map(v => v.toFixed(1)).join(' ')}`);
+
+  // ---- the town's labels (2.82): names and door labels seen through what stands in the way; the jackpot sign out of the machine's top
+  const box = `x=${CX - 16},y=${CY - 20},z=${CZ - 16},dx=144,dy=80,dz=144`;
+  await sleep(1500);
+  const nPlate = +((await run(`${O}execute if entity @e[type=minecraft:text_display,tag=bm.plate,${box}]`)).match(/\d+/) || [0])[0];
+  const nSee = +((await run(`${O}execute if entity @e[type=minecraft:text_display,tag=bm.plate,nbt={see_through:1b},${box}]`)).match(/\d+/) || [0])[0];
+  const nLg = +((await run(`${O}execute if entity @e[type=minecraft:text_display,tag=bm.lg_label,${box}]`)).match(/\d+/) || [0])[0];
+  const nLgSee = +((await run(`${O}execute if entity @e[type=minecraft:text_display,tag=bm.lg_label,nbt={see_through:1b},${box}]`)).match(/\d+/) || [0])[0];
+  ok('every trader\'s name plate and every door/ledger label shows through what\'s in the way', nPlate >= 10 && nSee === nPlate && nLg >= 10 && nLgSee === nLg,
+     `plates ${nSee}/${nPlate}, labels ${nLgSee}/${nLg}`);
+  ok('...and the PROGRESSIVE JACKPOT sign hangs in the open, not inside the machine', await passes(`${O}execute as @e[type=minecraft:text_display,tag=bm.potd,${box}] at @s if block ~ ~ ~ minecraft:air if block ~ ~0.4 ~ minecraft:air`));
 
   await run('clear TestRat'); await run('effect clear TestRat');
   console.log(`${res.filter(x => x).length}/${res.length} passed`);

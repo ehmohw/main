@@ -351,7 +351,7 @@ def generate(G):
         hp = G.ARMORED[t][0] if t in G.ARMORED else G.UNARMORED[t]
         mhp = hp * 5
         lines = [f'data merge entity @s {snbt(dict(G.NO_DROPS, PersistenceRequired=B(0), DeathLootTable=f"bm:entities/blood/{t}", CustomName=G.mob_name("Blood Moon ", "dark_red", t, True)))}',
-                 'tag @s add bm.blood', 'tag @s add bm.tiered', 'team join bm.blood @s']
+                 'tag @s add bm.blood', f'tag @s add bm.bl_{t}', 'tag @s add bm.tiered', 'team join bm.blood @s']
         curse = '"bm:blood_curse":1'
         if t in G.ARMORED:
             for slot, piece in [('head', 'helmet'), ('chest', 'chestplate'), ('legs', 'leggings'), ('feet', 'boots')]:
@@ -373,10 +373,17 @@ def generate(G):
         fn(f'mobs/blood/{t}', lines)
         wjson(f'bm/loot_table/entities/blood/{t}.json', {'type': 'minecraft:entity', 'pools': [
             {'rolls': 1, 'entries': [{'type': 'minecraft:loot_table', 'value': f'minecraft:entities/{t}'}]},
-            {'rolls': 1, 'entries': [loot_entry('blood_crystal', uni(1, 2))]},
+            {'rolls': 1, 'entries': [loot_entry('blood_crystal', uni(1, 3))]},          # (2.82: always one, up to three)
             {'rolls': 1, 'entries': [loot_entry('token', uni(2, 4))], 'conditions': [KILLED]},
             {'rolls': 1, 'entries': [loot_entry('medallion')], 'conditions': [KILLED, chance(0.15)]}]})
     second.append('execute as @e[tag=bm.blood] at @s run particle minecraft:dust{color:[0.6,0.0,0.0],scale:1.5} ~ ~1.2 ~ 0.3 0.6 0.3 0 3')
+    # (2.82) a horror that turns into another mob (a zombie drowning, a husk soaking, a skeleton freezing, a piglin in the Overworld)
+    #  keeps its tags but loses its loot table - give it back its own kind's: Crystals, Tokens and all
+    BLOOD_TYPES = list(G.ARMORED) + list(G.UNARMORED)
+    for t in ('drowned', 'zombie', 'stray', 'zombified_piglin', 'zombie_villager'):
+        if t not in BLOOD_TYPES: continue
+        second.append(f'execute as @e[type=minecraft:{t},tag=bm.blood,tag=!bm.bl_{t},tag=!bm.monstrosity,tag=!bm.herald,tag=!bm.mount] run function bm:mobs/blood_reloot/{t}')
+        fn(f'mobs/blood_reloot/{t}', [f'data modify entity @s DeathLootTable set value "bm:entities/blood/{t}"', f'tag @s add bm.bl_{t}'])
 
     # ---------------- crystal items logic
     G.consume_adv('bloodforge_sigil', 'bm:blood/sigil')

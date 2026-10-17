@@ -398,7 +398,6 @@ def all_offers():
     R75.extend_offers(O, offer)
     R76.extend_offers(O, offer)
     R77.extend_offers(O, offer)
-    R78.extend_offers(O, offer)
     R79.extend_offers(O, offer)
     R80.extend_offers(O, offer)
     R81.extend_offers(O, offer)
@@ -422,7 +421,14 @@ def all_offers():
     R141.extend_offers(O, offer)
     R146.extend_offers(O, offer)
     R161.extend_offers(O, offer)
+    # 2.82: follower cosmetics are raid exclusives (the Tailor in the den) - no overworld trader sells one
+    global COS_OFF_MARKET
+    COS_OFF_MARKET = sorted({R41._sell_id(o) for L in O.values() for o in L if R41._sell_id(o).startswith('cos_')})
+    for k in O: O[k] = [o for o in O[k] if not R41._sell_id(o).startswith('cos_')]
     return O
+
+
+COS_OFF_MARKET = []
 
 
 def gen_npcs():

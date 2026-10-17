@@ -1,4 +1,4 @@
-// v2.65: follower cosmetics - Emma's ribbons and dresses, Celi's outfits, Zib's uniforms; Velour's stock; the hidden ones
+// v2.65: follower cosmetics - Emma's ribbons and dresses, Celi's outfits, Zib's uniforms; the Tailor's stock (raid exclusives - not Velour's, 2.82); the hidden ones
 const BMB = require('path').join(__dirname, '..', '..') + '/';   // (bm_build)
 const { bot, rcon, sleep } = require('./lib');
 const fs = require('fs'); const path = require('path');
@@ -80,8 +80,9 @@ const res = []; const X = 17000, Y = 120, Z = 17000;
   const root = BMB + 'out_p2/BlackMarket_DP/data/bm';
   const all = []; const walk = d => { for (const f of fs.readdirSync(d)) { const p = path.join(d, f); fs.statSync(p).isDirectory() ? walk(p) : all.push(p); } }; walk(path.join(root, 'function'));
   const vel = all.filter(p => /outfitter/.test(p)).map(p => fs.readFileSync(p, 'utf8')).join('\n');
-  ok('Madame Velour sells the ribbons, dresses and outfits', ['cos_ribbon_1', 'cos_ribbon_5', 'cos_dress_1', 'cos_dress_4', 'cos_celi_3', 'cos_zib_2'].every(i => vel.includes(`bm:"${i}"`)));
-  ok('...but never the hidden four', ['cos_ribbon_6', 'cos_dress_5', 'cos_celi_4', 'cos_zib_3'].every(i => !vel.includes(`bm:"${i}"`)));
+  const tl = all.filter(p => /p103[\/]tl[\/]/.test(p)).map(p => fs.readFileSync(p, 'utf8')).join('\n');
+  ok('Follower cosmetics are raid exclusives (2.82): Madame Velour sells none', !/bm:"cos_/.test(vel));
+  ok('...the Tailor in the den sells the ribbons, dresses and outfits', ['cos_ribbon_1', 'cos_ribbon_5', 'cos_dress_1', 'cos_dress_4', 'cos_celi_3', 'cos_zib_2'].every(i => tl.includes(`bm:"${i}"`)));
   const lt = ['shiny', 'secret', 'champion', 'ratking'].map(t => fs.readFileSync(path.join(root, 'loot_table/p76', t + '.json'), 'utf8')).join('\n');
   ok('The hidden four drop from the vault\'s rare foes and secrets', ['cos_ribbon_6', 'cos_dress_5', 'cos_celi_4', 'cos_zib_3'].every(i => lt.includes(i)));
   await run(`forceload remove ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);

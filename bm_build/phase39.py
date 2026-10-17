@@ -408,8 +408,11 @@ def generate(G):
         'damage @s 6 minecraft:player_attack by @p[tag=bm.starc]'])
 
     # ------------------------------------------------------------------ Fishing crates
-    wjson('bm/advancement/p39/fished.json', {'criteria': {'fish': {'trigger': 'minecraft:fishing_rod_hooked'}}, 'rewards': {'function': 'bm:p39/fish'}})
-    fn('p39/fish', ['advancement revoke @s only bm:p39/fished', 'execute store result score #r bm.rng run random value 1..1000',
+    # (2.82: only a real catch - something on the line - counts; reeling in a hooked player or mob fires the trigger too, with no item)
+    wjson('bm/advancement/p39/fished.json', {'criteria': {'fish': {'trigger': 'minecraft:fishing_rod_hooked', 'conditions': {'item': {}}}},
+                                             'rewards': {'function': 'bm:p39/fish'}})
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.fishr dummy']; G.OBJECTIVES += ['bm.fishr']     # (every real catch, counted)
+    fn('p39/fish', ['advancement revoke @s only bm:p39/fished', 'scoreboard players add @s bm.fishr 1', 'execute store result score #r bm.rng run random value 1..1000',
                     'execute if score #r bm.rng matches 1..4 run return run function bm:p39/fish_golden',
                     'execute if score #r bm.rng matches 5..19 run return run function bm:p39/fish_iron',
                     'execute if score #r bm.rng matches 20..69 run return run function bm:p39/fish_wooden'])

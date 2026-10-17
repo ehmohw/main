@@ -38,7 +38,7 @@ const res = [];
     q = await fresh('library', 'c', 4); await go('library', q, 12, 10);
     const tgt = await sc('library', q, 'bm.gvz');
     const books = [];
-    for (let i = 0; i < 36; i++) { const v = await num(`execute in bm:gutter as ${room('library', q)} at @s run scoreboard players get ${bk(q, `bm.gvy1=${i}`)} bm.gvy2`); if (v > 0) books.push([i, v, Math.floor(i / 9)]); }
+    for (let i = 0; i < 36; i++) { const v = await num(`execute in bm:gutter as ${room('library', q)} at @s run scoreboard players get ${bk(q, `bm.gvy1=${i}`)} bm.gvy2`); if (v > 0) books.push([i, v, Math.floor(i / 12)]); }
     let sol = null, bad = null;
     for (const a of books) for (const b of books) for (const c of books) if (a[0] < b[0] && b[0] < c[0]) {
       if (a[1] + b[1] + c[1] === tgt && new Set([a[2], b[2], c[2]]).size === 3) sol = sol ? 'many' : [a, b, c];

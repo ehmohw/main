@@ -107,16 +107,18 @@ def generate(G):
     du = G.FUNCS['p24/dowse/use']
     du[:] = [l.replace(' (marked with light)', ' (outlined for 10 seconds)') if isinstance(l, str) else l for l in du]
 
-    # ================================================================ trader nameplates (short range, not through walls)
+    # ================================================================ trader nameplates (short range; 2.82: seen through what's in the way -
+    #  a counter, an awning, a ledger's label, the trader himself - like a vanilla name tag)
     # Static plates (traders never move), not riders: a passenger could get in the way of trading.
     import phase22
     void_oy = next(v[5] for k2, v in phase22.RATS.items() if k2 == 'void') or 0
-    plate = {'Tags': ['bm.plate', 'bm.pnew'], 'billboard': 'center', 'view_range': F(PLATE_RANGE), 'shadow': B(1),
+    plate = {'Tags': ['bm.plate', 'bm.pnew', 'bm.see282'], 'billboard': 'center', 'view_range': F(PLATE_RANGE), 'shadow': B(1), 'see_through': B(1),
              'background': Int(0x50000000), 'line_width': Int(200), 'brightness': {'block': Int(15), 'sky': Int(15)},
              'text': T('', 'white'),
              'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(2.25), F(0)], 'scale': [F(0.7)] * 3}}
     new = '@e[type=minecraft:text_display,tag=bm.pnew,limit=1,sort=nearest]'
     def height(h): return f'data merge entity {new} {{transformation:{{translation:[0f,{h}f,0f]}}}}'
+    fn('p26/plate/see', ['data merge entity @s {see_through:1b}', 'tag @s add bm.see282'])
     fn('p26/plate/add', ['tag @s add bm.plated', f'summon minecraft:text_display ~ ~ ~ {snbt(plate)}',
                          f'data modify entity {new} text set from entity @s CustomName',
                          'execute store result score #sc bm.rng run attribute @s minecraft:scale get 100',
@@ -124,7 +126,9 @@ def generate(G):
                          'execute if entity @s[tag=bm.npc_alien] run ' + height(1.95),                         # Zorp and the quartermaster
                          'execute if entity @s[tag=bm.frat_void] run ' + height(round(1.05 + float(void_oy), 2)),  # the floating Void Rat
                          'tag @e[type=minecraft:text_display,tag=bm.pnew] remove bm.pnew'])
-    plates = ['execute as @e[type=minecraft:villager,tag=bm.npc,tag=!bm.plated] at @s run function bm:p26/plate/add',
+    plates = ['execute as @e[type=minecraft:text_display,tag=bm.plate,tag=!bm.see282] run function bm:p26/plate/see',     # (2.82: plates made before)
+              'execute as @e[type=minecraft:text_display,tag=bm.lg_label,tag=!bm.see282] run function bm:p26/plate/see',
+              'execute as @e[type=minecraft:villager,tag=bm.npc,tag=!bm.plated] at @s run function bm:p26/plate/add',
               'execute as @e[type=minecraft:wandering_trader,tag=bm.npc,tag=!bm.plated] at @s run function bm:p26/plate/add',
               'execute as @e[type=minecraft:wandering_trader,tag=bm.field_rat,tag=!bm.plated] at @s run function bm:p26/plate/add',
               'execute as @e[type=minecraft:text_display,tag=bm.plate] at @s unless entity @e[type=minecraft:villager,distance=..0.3] unless entity @e[type=minecraft:wandering_trader,distance=..0.3] run kill @s']

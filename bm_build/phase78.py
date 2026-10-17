@@ -1,6 +1,6 @@
 """2.65: FOLLOWER COSMETICS, and prices back up a little.
 
-EMMA'S WARDROBE (Madame Velour): RIBBONS (Gold, Midnight, Mint, Snow, Crimson) re-tie the bow in her hair; DRESSES (the
+EMMA'S WARDROBE (2.82: raid exclusives - the Tailor in the den; Madame Velour sold them before): RIBBONS (Gold, Midnight, Mint, Snow, Crimson) re-tie the bow in her hair; DRESSES (the
   Sundress, the Midnight Gown, Sakura, the Royal Gown) re-dye her dress - her scarf still shows her buff's colour, so you
   can always tell what she's doing. Use one while she's out to dress her (it's kept - wear them as you like); sneak + use
   for her own pink ribbon or blue dress again.
@@ -55,13 +55,6 @@ for _k, (_n, _c) in ZIB.items():
 
 def _parts_with(models, prefix, keys):
     return sorted(n[len(prefix):] for n, (tex, _e) in models.items() if n.startswith(prefix) and any(k in tex for k in keys))
-
-
-def extend_offers(O, offer):
-    O['outfitter'] += [offer(('medallion', 2), (f'cos_ribbon_{k}', 1)) for k in RIBBONS if f'cos_ribbon_{k}' not in HIDDEN] + \
-                      [offer(('medallion', 4), (f'cos_dress_{k}', 1)) for k in DRESSES if f'cos_dress_{k}' not in HIDDEN] + \
-                      [offer(('medallion', 3), (f'cos_celi_{k}', 1)) for k in CELI if f'cos_celi_{k}' not in HIDDEN] + \
-                      [offer(('medallion', 3), (f'cos_zib_{k}', 1)) for k in ZIB if f'cos_zib_{k}' not in HIDDEN]
 
 
 def generate(G):
