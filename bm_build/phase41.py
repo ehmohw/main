@@ -200,6 +200,7 @@ def generate(G):
         for i in range(len(lines) - 1, -1, -1):
             if 'tag=bm.vguard' in lines[i] and 'spawn/trooper' in lines[i]:
                 lines.insert(i + 1, 'tag @e[type=minecraft:husk,tag=bm.vtroop,tag=!bm.vguardian,distance=..48] add bm.vguardian')
+                lines.insert(i + 2, 'execute as @e[type=minecraft:husk,tag=bm.vguardian,distance=..48] run data modify entity @s DeathLootTable set value "bm:p32/guardian"')
     wjson('bm/advancement/p41/vornmet.json', {'criteria': {'k': {'trigger': 'minecraft:player_killed_entity', 'conditions': {'entity': [
         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.vguardian"]}'}}]}}},
         'rewards': {'function': 'bm:p41/vornmet'}})
@@ -217,6 +218,13 @@ def generate(G):
         obj['pools'] += mig263.convert(f'bm/loot_table/p32/{t}.json', to_json(mig263.custom_data_snbt(
             {'type': 'minecraft:entity', 'pools': [{'rolls': 1, 'entries': [G.loot_entry('xenite_red')], 'conditions': [G.chance(0.01)]}]})))['pools']
         json.dump(obj, open(path, 'w'), indent=1, ensure_ascii=False)
+    # 2.82e: a Dreadnought's guards (there whenever you board, not only on an Invasion Night) drop Red Xenite 1 time in 10, not every
+    # time - a trooper's table otherwise (in p32/, so King Omega's tithe triples it too)
+    obj = json.load(open(G.path('data', 'bm', 'loot_table', 'p32', 'trooper.json')))
+    obj['pools'] = [p for p in obj['pools'] if 'xenite_red' not in json.dumps(p)]
+    obj['pools'] += mig263.convert('bm/loot_table/p32/guardian.json', to_json(mig263.custom_data_snbt(
+        {'type': 'minecraft:entity', 'pools': [{'rolls': 1, 'entries': [G.loot_entry('xenite_red')], 'conditions': [G.KILLED, G.chance(0.10)]}]})))['pools']
+    json.dump(obj, open(G.path('data', 'bm', 'loot_table', 'p32', 'guardian.json'), 'w'), indent=1, ensure_ascii=False)
 
     # ================================================================== the Vorn Skiff: the hull rides the skiff itself while it's piloted
     # (a passenger moves with its vehicle on the same tick; teleporting the hull each tick left it a tick behind). It boards as

@@ -21,6 +21,13 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82e: no Red Xenite farm aboard the Dreadnoughts
+
+- **A Dreadnought's guards** (the Vorn its alarm raises, there whenever you board) **drop Red Xenite only 1 time in 10** now. They
+  were dropping it every kill, as the Vorn of an Invasion Night do, so a Dreadnought could be farmed for it. Their other shards and
+  Tokens are unchanged, and King Omega's tithe still triples their drops.
+- **The Vorn of an Invasion Night** still drop Red Xenite every time.
+
 ## New in 2.82d: call the Monstrosity, call the fleet
 
 ### The Crimson War Horn
