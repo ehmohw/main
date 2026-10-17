@@ -118,7 +118,7 @@ def generate(G):
              'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(2.25), F(0)], 'scale': [F(0.7)] * 3}}
     new = '@e[type=minecraft:text_display,tag=bm.pnew,limit=1,sort=nearest]'
     def height(h): return f'data merge entity {new} {{transformation:{{translation:[0f,{h}f,0f]}}}}'
-    fn('p26/plate/see', ['data merge entity @s {see_through:1b}', 'tag @s add bm.see282'])
+    fn('p26/plate/see', ['data merge entity @s[type=minecraft:text_display] {see_through:1b}', 'tag @s add bm.see282'])
     fn('p26/plate/add', ['tag @s add bm.plated', f'summon minecraft:text_display ~ ~ ~ {snbt(plate)}',
                          f'data modify entity {new} text set from entity @s CustomName',
                          'execute store result score #sc bm.rng run attribute @s minecraft:scale get 100',

@@ -18,6 +18,9 @@ class PErr(Exception):
 
 
 ROOT_DP = os.environ.get('BM_OUT', '/home/claude/bm_build/out_p2') + '/BlackMarket_DP/data'
+# the pack's own structures (and structure tags, written #bm:x) - what /locate structure may name
+MY_STRUCT = {os.path.splitext(f)[0] for d in ('worldgen/structure', 'tags/worldgen/structure')
+             if os.path.isdir(os.path.join(ROOT_DP, 'bm', d)) for f in os.listdir(os.path.join(ROOT_DP, 'bm', d))}
 MY_FUNCS = {f[len(ROOT_DP) + len('/bm/function/'):-11] for f in glob.glob(ROOT_DP + '/bm/function/**/*.mcfunction', recursive=True)}
 MY_LOOT = {f[len(ROOT_DP) + len('/bm/loot_table/'):-5] for f in glob.glob(ROOT_DP + '/bm/loot_table/**/*.json', recursive=True)}
 MY_MODS = {f[len(ROOT_DP) + len('/bm/item_modifier/'):-5] for f in glob.glob(ROOT_DP + '/bm/item_modifier/**/*.json', recursive=True)}
@@ -577,7 +580,7 @@ def parse_arg(node, s, i):
         j, r = p_rl(s, i + (1 if s.startswith('#', i) else 0))
         rn = props['registry'].split(':')[-1]
         if r.startswith('bm:'):
-            if rn == 'worldgen/structure' and r[3:] not in ('black_market', 'graveyard'): raise PErr(f'unknown structure {r}')
+            if rn == 'worldgen/structure' and r[3:] not in MY_STRUCT: raise PErr(f'unknown structure {r}')
             if rn == 'advancement' and r[3:] not in MY_ADV: raise PErr(f'missing advancement {r}')
             if rn == 'worldgen/template_pool': pass
         elif rn in REG and strip_ns(ns(r)) not in REG[rn]: raise PErr(f'unknown {rn}: {r}')
