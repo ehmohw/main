@@ -191,6 +191,7 @@ def rp(R):
         R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + (art.PREFIX,)
     face = {'uv': [0, 0, 8, 16], 'texture': '#b'}
     back = {'uv': [8, 0, 0, 16], 'texture': '#b'}
+    R.HATS['om_guard'] = ({'x': 'minecraft:block/stone'}, [])          # (nothing to see: the King's off-hand ward)
     R.HATS['om_banner'] = ({'b': 'bm:block/om_banner'}, [{'from': [4, -8, 8], 'to': [12, 8, 8.1], 'faces': {'north': back, 'south': face}}])
     R.HATS['om_brazier'] = ({'s': 'minecraft:block/soul_fire_0', 'k': 'minecraft:block/polished_blackstone'},
                             [{'from': [4, 0, 4], 'to': [12, 4, 12], 'faces': {f: {'uv': [0, 0, 16, 8], 'texture': '#k'} for f in ('north', 'south', 'east', 'west', 'up', 'down')}},
@@ -517,7 +518,11 @@ def _boss(C):
                                                                                   spawn_reinforcements=0.0, step_height=2.0, jump_strength=0.0).items()],
             'active_effects': [{'id': f'minecraft:{e}', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}
                                for e in ('invisibility', 'fire_resistance', 'water_breathing')],
-            'drop_chances': {s: F(0.0) for s in ('mainhand', 'offhand', 'head', 'chest', 'legs', 'feet')}}
+            'drop_chances': {s: F(0.0) for s in ('mainhand', 'offhand', 'head', 'chest', 'legs', 'feet')},
+            # (2.82: a blow big enough to skip past his six-percent yield would kill him outright - no peace, no Monocle for anyone. An
+            #  unseen ward in his off hand takes that blow - he's left at a sliver, and yields)
+            'equipment': {'offhand': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:om_guard',
+                                                                                              'minecraft:death_protection': {'death_effects': []}}}}}
     fn('p169/b/spawn', [f'summon minecraft:husk ~ ~ ~ {snbt(bnbt)}', 'execute as @e[type=minecraft:husk,tag=bm.omnew,distance=..2,limit=1] at @s run function bm:p169/b/init'])
     fn('p169/b/init', ['tag @s remove bm.omnew', 'tp @s ~ ~ ~ 180 0', 'scoreboard players add #omn bm.omid 1', 'scoreboard players operation @s bm.omid = #omn bm.omid',
                        'scoreboard players set @s bm.omt 0', 'scoreboard players set @s bm.omc 40', 'scoreboard players set @s bm.omph 1', 'scoreboard players set @s bm.omr 0',

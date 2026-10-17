@@ -233,12 +233,10 @@ def generate(G):
 
     # ---- his blows, and the Soul Court
     hurt_by = f'@e[type=minecraft:wolf,tag={me},limit=1]'
-    fn(f'{pfx}/hurt', ['execute store result storage bm:tmp p170.d int 1 run scoreboard players get #pd bm.rng', f'function bm:{pfx}/dmg with storage bm:tmp p170',
-                       'execute store result score #h bm.rng run data get entity @s Health', f'execute if score #h bm.rng matches ..0 run function bm:{pfx}/reaped'])
+    # (his kills are his owner's in the game's eyes - a tame wolf's blow credits the player - so p170/kill gives the soul and
+    # p170/kind the kind, once, for his blows and yours alike)
+    fn(f'{pfx}/hurt', ['execute store result storage bm:tmp p170.d int 1 run scoreboard players get #pd bm.rng', f'function bm:{pfx}/dmg with storage bm:tmp p170'])
     fn(f'{pfx}/dmg', [f'$damage @s $(d) minecraft:mob_attack by {hurt_by}'])
-    # (a soul for his court, and the kind of thing it was - for Raise the Fallen)
-    fn(f'{pfx}/reaped', [f'execute as {hurt_by} at @s run function bm:{pfx}/soul'] +
-       [f'execute if entity @s[type=minecraft:{t}] run scoreboard players set {hurt_by} {S("lk")} {i}' for i, t in enumerate(RAISE)])
     fn(f'{pfx}/soul', [f'execute if score @s {S("so")} matches {MAX_SOULS}.. run return 0', f'scoreboard players add @s {S("so")} 1',
                        'particle minecraft:sculk_soul ~ ~4 ~ 0.6 1 0.6 0.04 6', 'playsound minecraft:particle.soul_escape neutral @a[distance=..16] ~ ~ ~ 1 0.8'])
     go = lambda a, x, cdo, cd, extra=(): [f'scoreboard players set @s {S("a")} {a}', f'scoreboard players set @s {S("x")} {x}', f'scoreboard players set @s {S(cdo)} {cd}'] + list(extra)
