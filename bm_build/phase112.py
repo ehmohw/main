@@ -343,16 +343,25 @@ def generate(G):
                              [f'execute if entity @s[tag=bm.gvr_{k}] if score @s bm.gvf matches 0 run function bm:p76/flawless' for k in PUZ] + \
                              ['execute if entity @s[tag=bm.gvr_spire] run function bm:p112/spire/open']
     # (the turns: the Sky Isles is a fight)
+    # (2.82b: the fights may come round again - a tier has only a few kinds of fight, and once each was used the 'none twice'
+    #  rule sent every later fight turn back to the whole list, nearly all puzzles. Now a fight never repeats the one just before
+    #  it, but may come again later; Tier I fights the Ambush too, so it has two to take turns)
     for t in range(1, 6):
         tp_ = P75.TIER_POOL[t]
-        for nm_, pool in (('fight', ['guards'] + [k for k in FIGHTS[1:] if k in tp_]), ('puzzle', [k for k in tp_ if k not in FIGHTS])):
+        fights = ['guards'] + [k for k in FIGHTS[1:] if k in tp_ or (t == 1 and k == 'ambush')]
+        puzzles = [k for k in tp_ if k not in FIGHTS]
+        for nm_, pool in (('fight', fights), ('puzzle', puzzles)):
             ids = [P75.KINDS.index(k) for k in pool]
+            again = (['execute if score #r bm.rng = #lastf bm.rng run return run function bm:p104/lay/fight%d' % t] if nm_ == 'fight' and len(ids) > 1 else
+                     ['function bm:p75/lay/bit', f'execute if score #q2 bm.rng matches 1 run return run function bm:p104/lay/{nm_}{t}'] if nm_ == 'puzzle' else [])
             G.FUNCS[f'p104/lay/{nm_}{t}'] = ['scoreboard players add #try bm.rng 1', f'execute if score #try bm.rng matches 25.. run return run function bm:p75/lay/pick{t}',
                                              f'execute store result score #i bm.rng run random value 0..{len(ids) - 1}'] + \
                 [f'execute if score #i bm.rng matches {i} run scoreboard players set #r bm.rng {j}' for i, j in enumerate(ids)] + \
                 [f'execute if score #r bm.rng matches {P75.KINDS.index(k)} if score #cy bm.rng matches {my + 1}.. run return run function bm:p104/lay/{nm_}{t}'
-                 for k, my in P75.ROOM_MAXY.items() if k in pool] + \
-                ['function bm:p75/lay/bit', f'execute if score #q2 bm.rng matches 1 run return run function bm:p104/lay/{nm_}{t}', 'scoreboard players operation #pool bm.rng += #bit bm.rng']
+                 for k, my in P75.ROOM_MAXY.items() if k in pool] + again + \
+                (['scoreboard players operation #lastf bm.rng = #r bm.rng'] if nm_ == 'fight' else []) + \
+                ['function bm:p75/lay/bit', 'execute if score #q2 bm.rng matches 0 run scoreboard players operation #pool bm.rng += #bit bm.rng']   # (a fight met again: its bit is set already)
+    G.FUNCS['p75/lay/rooms'].insert(0, 'scoreboard players set #lastf bm.rng -1')
 
     EVALL = [k for k in P75.EXTRA_ROOMS if k not in P75.KINDS]
     for k in EVS:

@@ -102,26 +102,14 @@ const res = [];
 
   // ================================================================== THE MASON'S PLAN
   if (want('mason')) {
-    for (const tier of [1, 5]) {
-      await heist('mason', 'b', tier); await begin();
-      const Q = await qs('mason'); const q = Q[0]; await go('mason', q, 6, 12); await sleep(800);
-      const p = await sc('mason', q, 'bm.gvc');
-      const fixed = [...fnText(`p114/masonb/p${p}`).matchAll(/setblock (~\S* ~\S* ~\S*) minecraft:(\w+_wool)/g)];
-      const need = [...fnText(`p114/masonb/chk${p}`).matchAll(/unless block (~\S* ~\S* ~\S*) minecraft:(\w+_concrete)/g)].map(m => [m[1], m[2]]);
-      let wool = 0; for (const f of fixed) if (await isb('mason', q, f[1], `minecraft:${f[2]}`)) wool++;
-      ok(`Tier ${tier}: variant B (the Mosaic) - a 4x4 lodestone grid, ${fixed.length} wool set, the blocks handed out`, wool === fixed.length && fixed.length + need.length === 16 &&
-         /passed/.test(await at('mason', q, `execute if block ${rel(13, 3, 13)} minecraft:lodestone unless block ${rel(14, 3, 14)} minecraft:lodestone`)) && await has('minecraft:red_concrete'),
-         `wool ${wool}/${fixed.length}`);
-      // a wrong fill (two swapped) - shut; the right one - open
-      const sw = need.map(x => [...x]); const k2 = sw.findIndex(x => x[1] !== sw[0][1]); [sw[0][1], sw[k2][1]] = [sw[k2][1], sw[0][1]];
-      for (const [r, b] of sw) await at('mason', q, `setblock ${r} minecraft:${b}`); await sleep(800);
-      ok('...two colours swapped: still shut', !(await solved('mason', q)));
-      await press('mason', q, rel(2, 5, 9), 'wall', 'east'); await sleep(300);
-      let cleared = true; for (const [r] of need) if (!(await isb('mason', q, r, 'minecraft:air'))) cleared = false;
-      let woolKept = true; for (const f of fixed) if (!(await isb('mason', q, f[1], `minecraft:${f[2]}`))) woolKept = false;
-      ok('...RESET clears your blocks (the wool stays) and hands them out again', cleared && woolKept && await has('minecraft:red_concrete'));
-      for (const [r, b] of need) await at('mason', q, `setblock ${r} minecraft:${b}`); await sleep(800);
-      ok('...every row and column one of each: open', await solved('mason', q));
+    // (2.82b: the Mosaic, a sudoku-like colour square, is retired - a Mason's Plan asked for variant B lays the copy or the Picture)
+    { let seen = [];
+      for (let i = 0; i < 3; i++) {
+        await heist('mason', 'b', 3); await begin();
+        const Q = await qs('mason'); const q = Q[0]; await go('mason', q, 6, 12); await sleep(800);
+        seen.push(await sc('mason', q, 'bm.gvvar'));
+      }
+      ok('variant B asked for: no Mosaic - the copy (A) or the Picture (C) instead, every time', seen.length === 3 && seen.every(v => v === 0 || v === 2), `variants ${seen}`);
     }
     await heist('mason', 'c', 3); await begin();
     const Q = await qs('mason'); const q = Q[0]; await go('mason', q, 6, 12); await sleep(800);

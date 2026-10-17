@@ -16,6 +16,10 @@ import mgeo
 import market3 as market2
 
 W, BF = market2.W, market2.BF
+SAVE_PER, SAVE_DAYS = 25, 7                          # (2.82b) savings: 1 a day per 25 kept; days away paid up to a week
+SAVE_PCT = 100 // SAVE_PER
+SAVE_CAP = {'token': 8, 'lucky_token': 8, 'medallion': 3, 'trophy': 1}
+SAVE_CAP_ELSE = 4                                    # (any other currency the bank comes to keep)
 BANK = [('token', 'bm.bk_tok', 'Tokens', 'gold'), ('lucky_token', 'bm.bk_luck', 'Lucky Tokens', 'green'),
         ('medallion', 'bm.bk_med', 'Medallions', 'light_purple'), ('trophy', 'bm.bk_tro', 'Trophies', '#ffb300')]
 COUNTERS = {'concierge': ([(50, BF + 1, 5), (51, BF + 1, 5), (52, BF + 1, 5)], 'minecraft:dark_oak_planks'),
@@ -68,6 +72,8 @@ def generate(G):
     for cur, obj, nm, col in BANK:
         op_lines += [f'execute unless score @s {obj} matches 0.. run scoreboard players set @s {obj} 0',
                      f'execute store result storage bm:ui bk.{cur} int 1 run scoreboard players get @s {obj}']
+    op_lines += ['data modify storage bm:ui bk.sv set value "Savings: none yet - the Teller in the Gilded Gutter opens one."',
+                 f'execute if score @s bm.bksv matches 1 run data modify storage bm:ui bk.sv set value "Savings: open - {SAVE_PCT}% a day on every currency here."']
     op_lines.append('function bm:p31/bank/dlg with storage bm:ui bk')
     fn('p31/bank/open', op_lines)
     # 2.80: a page per currency. The account page lists every currency with its balance (one button each); a currency's
@@ -75,13 +81,15 @@ def generate(G):
     # to that page. (The four action codes per currency are the 2.76 ones, unchanged.)
     bank_code = lambda i, k: 4010 + 4 * i + k
     page_code = lambda i: 4060 + i
-    DEP_ALL, BACK = 4071, 4072
+    DEP_ALL, BACK, SAVE = 4071, 4072, 4073
     assert bank_code(len(BANK) - 1, 3) < page_code(0) and page_code(len(BANK) - 1) < DEP_ALL, 'the Rat Bank has outgrown its codes'
     btns = [P28.btn([T(nm, col), T('   $(' + cur + ')', 'white')], page_code(i), tooltip=T(f'Deposit or take out your {nm}', 'gray'), width=150)
             for i, (cur, obj, nm, col) in enumerate(BANK)]
     btns.append(P28.btn(T('Deposit everything', 'gold'), DEP_ALL, tooltip=T('Every currency the bank keeps, from your pockets into your account', 'gray'), width=150))
+    btns.append(P28.btn(T('Savings account', '#7aff7a'), SAVE, tooltip=T('Daily interest on what you keep here - the Teller opens one', 'gray'), width=150))
     dlg = P28.multi([T('The Rat Bank', 'gold', bold=True), T(' - your account', 'gray')],
                     [P28.body([T('Pick a currency to deposit or take out.', 'gray')], 300),
+                     P28.body([T('$(sv)', '#7aff7a')], 300),
                      P28.body([T('Kept against your name: safe from death, lava and thieves. The Dark Auction can draw on your Medallions.', 'dark_gray')], 300)],
                     btns, columns=2)
     fn('p31/bank/dlg', [f'$dialog show @s {P28.inline(dlg)}'])
@@ -89,7 +97,8 @@ def generate(G):
     act = [f'execute unless score @s bm.menu matches {P28.MENU["bank"]} run return run function bm:p28/stale',
            'execute unless function bm:p31/bank/can run return run function bm:p28/stale',
            f'execute if score #act bm.pay matches {DEP_ALL} run return run function bm:p31/bank/dep_every',
-           f'execute if score #act bm.pay matches {BACK} run return run function bm:p31/bank/open']
+           f'execute if score #act bm.pay matches {BACK} run return run function bm:p31/bank/open',
+           f'execute if score #act bm.pay matches {SAVE} run return run function bm:p31/sav/btn']
     for i, (cur, obj, nm, col) in enumerate(BANK):
         has = f'*[minecraft:custom_data~{{bm:"{cur}"}}]'
         act += [f'execute if score #act bm.pay matches {page_code(i)} run return run function bm:p31/bank/page_{cur}',
@@ -156,6 +165,53 @@ def generate(G):
                               'scoreboard players operation @s bm.bk_tok += #i bm.pay',
                               tellraw('@s', PREFIX + [T('The Rat Bank paid you ', 'gray'), {'score': {'name': '#i', 'objective': 'bm.pay'}, 'color': 'gold'}, T(' Tokens of interest.', 'gray')])])
     fn('admin/bank_interest_on', ['scoreboard players set #interest bm.pay 1', tellraw('@s', PREFIX + [T('Rat Bank interest ON (1 Token per 50, each Dark Auction).', 'gray')])])
+    # ------------------------------------------------------------------ (2.82b) SAVINGS: opened at the Teller, paid every day
+    # (the Banker's Card took the Teller's old job - anywhere - so reaching him now opens what only he can: a savings account.
+    #  Every in-game day, 1 in 25 of each currency kept here, capped a day; days you're away are paid when you're back, up to a week)
+    load += ['scoreboard objectives add bm.bksv dummy', 'scoreboard objectives add bm.bkday dummy', 'scoreboard objectives add bm.bkint dummy']
+    G.OBJECTIVES += ['bm.bksv', 'bm.bkday', 'bm.bkint']
+    at_teller = 'entity @e[type=minecraft:interaction,tag=bm.ledger,distance=..8,scores={bm.lgid=42}]'
+    fn('p31/sav/btn', ['execute if score @s bm.bksv matches 1 run return run function bm:p31/sav/page',
+                       f'execute if {at_teller} run return run function bm:p31/sav/open',
+                       title('@s', 'actionbar', [T('Savings accounts are opened in person: ', 'gray'), T('the Teller, in the Gilded Gutter', 'gold')]),
+                       'function bm:p31/bank/open'])
+    fn('p31/sav/open', ['scoreboard players set @s bm.bksv 1', 'scoreboard players operation @s bm.bkday = #day bm.bm', 'scoreboard players set @s bm.bkint 0',
+                        'playsound minecraft:block.chiseled_bookshelf.insert player @s ~ ~ ~ 1 1.2', 'playsound minecraft:entity.villager.yes player @s ~ ~ ~ 0.6 1.4',
+                        tellraw('@s', PREFIX + [T('The Teller: ', 'gold', bold=True),
+                                                T(f'"A savings account, then. Every day the bank adds {SAVE_PCT}% of everything you keep with us. '
+                                                  'Even on days you\'re away, up to a week. Pleasure doing business."', 'gray')]),
+                        'function bm:p31/sav/page'])
+    rate_lines = [P28.body([T(nm, col, bold=True), T(f': 1 a day for every {SAVE_PER} kept (up to {SAVE_CAP.get(cur, SAVE_CAP_ELSE)} a day)', 'gray')], 300) for cur, obj, nm, col in BANK]
+    sp = P28.multi([T('Savings', '#7aff7a', bold=True), T('  ·  The Rat Bank', 'gray')],
+                   [P28.body([T(f'Open. Every in-game day the bank adds {SAVE_PCT}% of each currency in your account:', 'gray')], 300)] + rate_lines +
+                   [P28.body([T('Days you\'re away are paid when you\'re back, up to a week. Paid in so far: ', 'gray'), T('$(int)', 'white'), T(' (all currencies).', 'gray')], 300)],
+                   [P28.btn(T('« Back to your account', 'gray'), BACK, width=200)], columns=1)
+    fn('p31/sav/page', [f'scoreboard players set @s bm.menu {P28.MENU["bank"]}', 'execute store result storage bm:ui sv.int int 1 run scoreboard players get @s bm.bkint',
+                        'function bm:p31/sav/pdlg with storage bm:ui sv'])
+    fn('p31/sav/pdlg', [f'$dialog show @s {P28.inline(sp)}'])
+    second.append('execute as @a[scores={bm.bksv=1}] at @s unless score @s bm.bkday = #day bm.bm run function bm:p31/sav/due')
+    fn('p31/sav/due', ['scoreboard players operation #sd bm.pay = #day bm.bm', 'scoreboard players operation #sd bm.pay -= @s bm.bkday',
+                       'scoreboard players operation @s bm.bkday = #day bm.bm',
+                       'execute if score #sd bm.pay matches ..0 run return 0',          # (the day counter went back: nothing owed)
+                       f'execute if score #sd bm.pay matches {SAVE_DAYS + 1}.. run scoreboard players set #sd bm.pay {SAVE_DAYS}'] +
+       [f'scoreboard players set #g_{cur} bm.pay 0' for cur, *_r in BANK] +
+       ['function bm:p31/sav/day'] +
+       ['scoreboard players set #gt bm.pay 0'] + [f'scoreboard players operation #gt bm.pay += #g_{cur} bm.pay' for cur, *_r in BANK] +
+       ['execute if score #gt bm.pay matches 1.. run function bm:p31/sav/paid'])
+    day = ['scoreboard players remove #sd bm.pay 1']
+    for cur, obj, nm, col in BANK:
+        day += [f'execute unless score @s {obj} matches 0.. run scoreboard players set @s {obj} 0',
+                f'scoreboard players operation #i bm.pay = @s {obj}', f'scoreboard players operation #i bm.pay /= #{SAVE_PER} bm.pay',
+                f'execute if score #i bm.pay matches {SAVE_CAP.get(cur, SAVE_CAP_ELSE) + 1}.. run scoreboard players set #i bm.pay {SAVE_CAP.get(cur, SAVE_CAP_ELSE)}',
+                f'scoreboard players operation @s {obj} += #i bm.pay', f'scoreboard players operation #g_{cur} bm.pay += #i bm.pay',
+                'scoreboard players operation @s bm.bkint += #i bm.pay']
+    day += ['execute if score #sd bm.pay matches 1.. run function bm:p31/sav/day']
+    fn('p31/sav/day', day)
+    G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{SAVE_PER} bm.pay {SAVE_PER}']
+    fn('p31/sav/paid', ['playsound minecraft:block.amethyst_block.chime player @s ~ ~ ~ 0.6 1.4',
+                        tellraw('@s', PREFIX + [T('Your savings earned interest - added to your Rat Bank account:', 'gray')])] +
+       [f'execute if score #g_{cur} bm.pay matches 1.. run ' + tellraw('@s', [T('   +', col), {'score': {'name': f'#g_{cur}', 'objective': 'bm.pay'}, 'color': col}, T(f' {nm}', col)])
+        for cur, obj, nm, col in BANK])
     fn('admin/bank_interest_off', ['scoreboard players set #interest bm.pay 0', tellraw('@s', PREFIX + [T('Rat Bank interest off.', 'gray')])])
 
     # ------------------------------------------------------------------ the Concierge: weekly stock + repairs

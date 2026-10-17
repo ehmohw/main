@@ -654,7 +654,10 @@ def generate(G):
     fn('p70/r/vault/fight', ['scoreboard players operation #q bm.rng = @s bm.gvtm', 'scoreboard players operation #q bm.rng %= #20 bm.rng',
                              'execute unless score #q bm.rng matches 0 run return 0',
                              'execute as @e[tag=bm.gvboss,distance=..40] if score @s bm.gvi = #gi bm.rng run return 0',
-                             'execute if entity @e[tag=bm.gvboss,distance=..40] run return 0', 'function bm:p70/r/vault/open'])
+                             'execute if entity @e[tag=bm.gvboss,distance=..40] run return 0',
+                             # (2.82b: a failed heist puts its guardian away before the crew is pulled out - that's no win)
+                             'execute as @e[type=marker,tag=bm.gvinst] if score @s bm.gvi = #gi bm.rng if score @s bm.gvst matches 5 run return 0',
+                             'function bm:p70/r/vault/open'])
     G.FUNCS['p70/r/vault/fight'] = [l for l in G.FUNCS['p70/r/vault/fight'] if 'if score @s bm.gvi = #gi bm.rng run return 0' not in l]
     fn('p70/r/vault/open', ['scoreboard players set @s bm.gvs 2', f'fill {rel(24, 4, 9)} {rel(24, 8, 15)} minecraft:air replace minecraft:gold_block',
                             f'particle minecraft:wax_on {rel(24, 6, 12)} 0.3 2 3 0 80', 'playsound minecraft:block.iron_door.open block @a[distance=..40] ~ ~ ~ 1 0.5',

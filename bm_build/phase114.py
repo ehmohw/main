@@ -11,8 +11,7 @@ THE TINKER'S BENCH   A  make what the Fixer names (as before)
                      C  THE HERALD'S BANNER: copy the banner on the wall at the looms - the colours, the shapes and the
                         order they go on in. A wrong banner rings the alarm (and you get a fresh one)
 THE MASON'S PLAN     A  copy the plan (as before)
-                     B  THE MOSAIC: a 4x4 lodestone grid with a few wool blocks set; fill the rest so every row and every
-                        column has one of each colour
+                     B  (THE MOSAIC, a sudoku-like colour square - retired in 2.82b: the Plan is A or C)
                      C  THE PICTURE: a 5x5 grid and a clue for every row and column (the runs of blocks, in order); lay
                         the black blocks to draw the one picture that fits
 THE DIG              A  find the one vein of mud that goes through (as before)
@@ -203,29 +202,7 @@ def generate(G):
                 f'execute if score @s bm.gvs matches 0 if entity @a[tag=bm.gvp,distance=..12] run function bm:p114/mason{v}/start',
                 'execute if score @s bm.gvtm matches 3000 run scoreboard players set @s bm.gvf 1'] + press('mreset', (2, 5, 9), f'bm:p114/mason{v}/reset') + \
                ['scoreboard players operation #q bm.rng = @s bm.gvtm', 'scoreboard players operation #q bm.rng %= #10 bm.rng', 'execute unless score #q bm.rng matches 0 run return 0'] + checks
-    # ---- B: the mosaic (a colour square)
-    SQ = [(t, j, sol, giv) for t, L in PD.SQUARES.items() for j, (sol, giv) in enumerate(L)]
-    fn('p114/masonb/init', ['function bm:p70/ctx'] + mfloor(4) +
-       [f'execute if score #gt bm.rng matches {t} store result score @s bm.gvc run random value {10 * t}..{10 * t + 3}' for t in PD.SQUARES] +
-       [f'execute if score @s bm.gvc matches {10 * t + j} run function bm:p114/masonb/p{t}{j}' for t, j, s, g in SQ] + vbutton(2, 5, 9, 'east', 'RESET', col='#ff7a7a') +
-       [sign(rel(5, 7.4, 13), 'THE MOSAIC', 'Fill the lodestone grid so that every row and every column has one block of each colour. The wool is set already.', 0.55)])
-    for t, j, sol, giv in SQ:
-        g = set(giv)
-        fn(f'p114/masonb/p{t}{j}', [f'setblock {rel(10 + c, 4, 10 + r)} minecraft:{MCOL[sol[r][c]]}_wool' for r, c in giv])
-        fn(f'p114/masonb/chk{t}{j}', [f'execute unless block {rel(10 + c, 4, 10 + r)} minecraft:{MCOL[sol[r][c]]}_concrete run return 0'
-                                      for r in range(4) for c in range(4) if (r, c) not in g] + ['return 1'])
-        need = {}
-        for r in range(4):
-            for c in range(4):
-                if (r, c) not in g: need[sol[r][c]] = need.get(sol[r][c], 0) + 1
-        fn(f'p114/masonb/give{t}{j}', [stone(MCOL[c], n + 1) for c, n in sorted(need.items())])
-    fn('p114/masonb/tick', mtick('b', [f'execute if score @s bm.gvc matches {10 * t + j} if function bm:p114/masonb/chk{t}{j} run return run function bm:p70/solved' for t, j, s, g in SQ]))
-    fn('p114/masonb/start', ['scoreboard players set @s bm.gvs 1', 'function bm:p114/masonb/hand'])
-    fn('p114/masonb/hand', [f'clear {crew} *[minecraft:custom_data~{{bm_room:1b}}]'] +
-       [f'execute if score @s bm.gvc matches {10 * t + j} as {crew} run function bm:p114/masonb/give{t}{j}' for t, j, s, g in SQ] +
-       [crew_say('The mason\'s blocks: they only go down on the lodestone.', GOLD, 30)])
-    fn('p114/masonb/reset', [f'fill {rel(10, 4, 10)} {rel(13, 4, 13)} minecraft:air replace minecraft:{c}_concrete' for c in MCOL] + ['function bm:p114/masonb/hand'] + oops(2) +
-       ['scoreboard players set @s bm.gvf 1', 'playsound minecraft:block.stone.break block @a[distance=..20] ~ ~ ~ 1 0.8'])
+    # ---- B: (2.82b) the Mosaic - a sudoku-like colour square - is retired: a Mason's Plan is the copy (A) or the Picture (C)
     # ---- C: the picture (a 5x5 nonogram)
     fn('p114/masonc/init', ['function bm:p70/ctx'] + mfloor(5) + choose('#i', len(PD.PICTURES), 'p114/masonc/p') + ['scoreboard players operation @s bm.gvc = #i bm.rng'] +
        vbutton(2, 5, 9, 'east', 'RESET', col='#ff7a7a') +
@@ -244,6 +221,12 @@ def generate(G):
     fn('p114/masonc/reset', [f'fill {rel(10, 4, 10)} {rel(14, 4, 14)} minecraft:air replace minecraft:black_concrete', 'function bm:p114/masonc/hand'] + oops(2) +
        ['scoreboard players set @s bm.gvf 1', 'playsound minecraft:block.stone.break block @a[distance=..20] ~ ~ ~ 1 0.8'])
     dispatch('mason', None, None)
+    for f in ('p112/mason/init', 'p112/mason/tick'):
+        G.FUNCS[f] = [l for l in G.FUNCS[f] if 'p114/masonb/' not in l]
+    mi = G.FUNCS['p112/mason/init']
+    k = mi.index('function bm:p110/var') + 1
+    mi[k:k] = ['execute if score @s bm.gvvar matches 1 store result score @s bm.gvvar run random value 0..1',     # (B gone: A or C, evenly)
+               'execute if score @s bm.gvvar matches 1 run scoreboard players set @s bm.gvvar 2']
 
     # ================================================================== THE DIG
     def pick(blk, nm, lore):

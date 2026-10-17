@@ -55,6 +55,15 @@ STONES = ('stone', 'cobblestone', 'stone_bricks', 'mossy_cobblestone', 'smooth_s
 LOGS = ('oak_log', 'spruce_log', 'birch_log', 'jungle_log', 'acacia_log', 'dark_oak_log', 'mangrove_log', 'cherry_log', 'pale_oak_log',
         'crimson_stem', 'warped_stem')
 PRESS_MAX = 7
+# (2.82b) every printed day: 1 in PRESS_TRO a Trophy, PRESS_MED in 200 a Medallion, else a Token
+PRESS_TRO, PRESS_MED = 1, 8                     # (of 200: a Trophy 0.5%, a Medallion 4%)
+# the mythical presses: one for each of the rarer heists, a higher chance there (they come round seldom)
+#   key: (item, name, colour, ownership score, the heist that drops it (its #gn, or 'lucky' for a Lucky Night or a Lucky Raid), what it prints)
+MYTH_PRESS_CHANCE = 6                           # % a won heist of its kind, every raider, any tier
+PRESSES = {'blood': ('blood_press', 'The Blood Press', '#ff3030', 'bm.prsb', 1, 'Blood Moon'),
+           'xen': ('xenite_press', 'The Xenite Press', '#b6ff3c', 'bm.prsx', 3, 'Invasion'),
+           'luck': ('lucky_press', 'The Lucky Press', '#7dff6a', 'bm.prsl', 'lucky', 'Lucky')}
+PRESS_PRINTS = {'blood': 'two Blood Crystals', 'xen': 'two Green Xenite (now and then a Violet, Cyan or Red)', 'luck': 'a Lucky Token'}
 ALIBI_CD = 60
 RARE_TAG, LEGEND_TAG, MYTH_TAG = ('◆ Rare raid find', '#5ab0ff'), ('◆◆ Legendary raid find', '#ffb300'), ('◆◆◆ Mythical raid find', '#e080ff')
 
@@ -85,12 +94,20 @@ item('the_alibi', TOTEM, 'The Alibi', GOLD, ['"I was never there."', ('Use it: b
 item('counterfeiters_press', TOTEM, "The Counterfeiter's Press", '#e080ff', ['A little iron press, still inky.', ('Use it on a floor to set it down: it prints', 'blue'),
                                                                             ('a Black Market Token a day for you - up to', 'blue'),
                                                                             (f'{PRESS_MAX} waiting. Right-click it to collect.', 'blue'),
+                                                                            ('Now and then a Medallion - and, very rarely,', 'blue'), ('a BM Trophy.', 'blue'),
                                                                             ('One press per crook. Sneak + punch: pick it up.', 'gray'), MYTH_TAG],
      model='bm:press3d', stack=1, comps=hold(), cat='relic', glint=True)
 HOLD['tip_bloodmoon'] = 'bm:p105/tip/blood'
 HOLD['tip_alien'] = 'bm:p105/tip/alien'
 HOLD['the_alibi'] = 'bm:p105/alibi/use'
 HOLD['counterfeiters_press'] = 'bm:p105/press/place'
+for _k, (_iid, _nm, _col, _o, _gn, _heist) in PRESSES.items():
+    item(_iid, TOTEM, _nm, _col, ['A little iron press, its ink still warm.', ('Use it on a floor to set it down: it prints', 'blue'),
+                                  (f'{PRESS_PRINTS[_k]} a day for you -', 'blue'), (f'up to {PRESS_MAX} days\' worth waiting. Right-click', 'blue'),
+                                  ('it to collect.', 'blue'), (f'One of each press per crook. Sneak + punch: pick it up.', 'gray'),
+                                  (f'From a won {_heist} heist.', 'dark_gray'), MYTH_TAG],
+         model='bm:press3d', stack=1, comps=hold(), cat='relic', glint=True)
+    HOLD[_iid] = f'bm:p105/press/place_{_k}'
 
 
 def generate(G):
@@ -103,7 +120,7 @@ def generate(G):
     num = lambda n, col='white': {'score': {'name': n, 'objective': 'bm.rng'}, 'color': col, 'bold': True}
     rel = RM.rel
     tick, fast, second = [], [], []
-    objs = ['bm.gvfz', 'bm.lr68', 'bm.aliq', 'bm.prso', 'bm.prsd', 'bm.prs', 'bm.fgt']
+    objs = ['bm.gvfz', 'bm.lr68', 'bm.aliq', 'bm.prso', 'bm.prsd', 'bm.prs', 'bm.fgt', 'bm.prk'] + [v[3] for v in PRESSES.values()]
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
 
@@ -174,6 +191,17 @@ def generate(G):
     fn('p105/find_legend', ins('bm:items/the_alibi') + [tellraw('@a', P + [{'selector': '@s', 'color': 'white'}, T(' found a legendary ', 'gray'), T('Alibi', GOLD, bold=True),
                                                                            T(' in a won heist!', 'gray')]),
                                                       'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 1 1.3'])
+    for k, (iid, nm, col, _o, gn, heist) in PRESSES.items():
+        cond = 'if score #gn bm.rng matches 2' if gn == 'lucky' else f'if score #gn bm.rng matches {gn}'
+        G.FUNCS['p105/finds'] += ['execute store result score #r bm.rng run random value 1..100',
+                                  f'execute {cond} if score #r bm.rng matches ..{MYTH_PRESS_CHANCE} run function bm:p105/find_press_{k}']
+        if gn == 'lucky':      # (a Lucky Raid on any night counts too - once, not twice on a Lucky Night)
+            G.FUNCS['p105/finds'] += ['execute store result score #r bm.rng run random value 1..100',
+                                      f'execute if score #plu bm.rng matches 1 unless score #gn bm.rng matches 2 if score #r bm.rng matches ..{MYTH_PRESS_CHANCE} run function bm:p105/find_press_{k}']
+        fn(f'p105/find_press_{k}', ins(f'bm:items/{iid}') + [tellraw('@a', P + [{'selector': '@s', 'color': 'white'}, T(' found a mythical ', 'gray'),
+                                                                                 T(nm, col, bold=True), T(f' in a won {heist} heist!', 'gray')]),
+                                                           'playsound minecraft:ui.toast.challenge_complete player @a ~ ~ ~ 0.7 0.7',
+                                                           'execute at @s run particle minecraft:totem_of_undying ~ ~1 ~ 0.5 1 0.5 0.4 60'])
     fn('p105/find_myth', ins('bm:items/counterfeiters_press') + [tellraw('@a', P + [{'selector': '@s', 'color': 'white'}, T(' found a mythical ', 'gray'),
                                                                                     T("Counterfeiter's Press", '#e080ff', bold=True), T(' in a won heist!', 'gray')]),
                                                                'playsound minecraft:ui.toast.challenge_complete player @a ~ ~ ~ 0.7 0.7',
@@ -369,16 +397,20 @@ def generate(G):
     fn('p105/alibi/go', ['$tp @s $(x) $(y) $(z) $(r) ~'])
 
     # ================================================================== THE COUNTERFEITER'S PRESS: a Token a day
-    fn('p105/press/place', ['execute unless function bm:p37/allowed run return run ' + say('Not here.'),
-                            'execute if score @s bm.prs matches 1 run return run ' + say('You have a press set up already - one press per crook. (Sneak + punch it to pick it up.)', 'red'),
-                            'scoreboard players set #placed bm.rng 0', 'scoreboard players set #ray bm.rng 50', 'tag @s add bm.placer',
-                            'execute anchored eyes positioned ^ ^ ^ run function bm:p105/press/ray', 'tag @s remove bm.placer',
-                            'execute if score #placed bm.rng matches 0 run return run ' + say('Look at the floor within 5 blocks.'),
-                            'execute if score #placed bm.rng matches 2 run return run ' + say('Something is in the way there.'),
-                            'execute if score #placed bm.rng matches 3 run return run ' + say('On a floor - not a wall or a ceiling.'),
-                            f'execute unless entity @s[gamemode=creative] run clear @s {holds("counterfeiters_press")} 1', 'scoreboard players set @s bm.prs 1',
-                            say('The press is set up. It prints a Token a day for you - right-click it to collect.', '#e080ff'),
-                            'playsound minecraft:block.anvil.place block @a[distance=..16] ~ ~ ~ 0.6 1.3'])
+    KINDS = [('', 'counterfeiters_press', 'bm.prs', 0, 'a Token a day', '#e080ff')] + \
+            [(k, iid, o, i + 1, f'{PRESS_PRINTS[k]} a day', col) for i, (k, (iid, nm, col, o, _g, _h)) in enumerate(PRESSES.items())]
+    for k, iid, own, kn, prints, col in KINDS:
+        fn(f'p105/press/place{"_" + k if k else ""}', ['execute unless function bm:p37/allowed run return run ' + say('Not here.'),
+            f'execute if score @s {own} matches 1 run return run ' + say('You have that press set up already - one of each per crook. (Sneak + punch it to pick it up.)', 'red'),
+            f'scoreboard players set #pk bm.rng {kn}',
+            'scoreboard players set #placed bm.rng 0', 'scoreboard players set #ray bm.rng 50', 'tag @s add bm.placer',
+            'execute anchored eyes positioned ^ ^ ^ run function bm:p105/press/ray', 'tag @s remove bm.placer',
+            'execute if score #placed bm.rng matches 0 run return run ' + say('Look at the floor within 5 blocks.'),
+            'execute if score #placed bm.rng matches 2 run return run ' + say('Something is in the way there.'),
+            'execute if score #placed bm.rng matches 3 run return run ' + say('On a floor - not a wall or a ceiling.'),
+            f'execute unless entity @s[gamemode=creative] run clear @s {holds(iid)} 1', f'scoreboard players set @s {own} 1',
+            say(f'The press is set up. It prints {prints} for you - right-click it to collect.', col),
+            'playsound minecraft:block.anvil.place block @a[distance=..16] ~ ~ ~ 0.6 1.3'])
     fn('p105/press/ray', ['execute unless block ^ ^ ^0.1 #minecraft:replaceable run return run function bm:p105/press/hit',
                           'scoreboard players remove #ray bm.rng 1', 'execute if score #ray bm.rng matches 1.. positioned ^ ^ ^0.1 run function bm:p105/press/ray'])
     fn('p105/press/hit', ['execute positioned ^ ^ ^0.1 align xyz positioned ~0.5 ~0.5 ~0.5 run summon minecraft:marker ~ ~ ~ {Tags:["bm.prm"]}',
@@ -394,6 +426,7 @@ def generate(G):
                             f'execute positioned ~ ~-0.5 ~ run summon minecraft:interaction ~ ~ ~ {press_hit}',
                             'execute positioned ~ ~-0.5 ~ run scoreboard players operation @e[tag=bm.prnew,distance=..0.1] bm.prso = @a[tag=bm.placer,limit=1] bm.pid',
                             'execute positioned ~ ~-0.5 ~ run scoreboard players operation @e[tag=bm.prnew,distance=..0.1] bm.prsd = #day bm.bm',
+                            'execute positioned ~ ~-0.5 ~ run scoreboard players operation @e[tag=bm.prnew,distance=..0.1] bm.prk = #pk bm.rng',
                             'execute positioned ~ ~-0.5 ~ rotated as @a[tag=bm.placer,limit=1] run tp @e[type=minecraft:item_display,tag=bm.prnew,distance=..0.1] ~ ~ ~ ~180 0',
                             'execute positioned ~ ~-0.5 ~ run tag @e[tag=bm.prnew,distance=..0.1] remove bm.prnew', 'particle minecraft:wax_on ~ ~ ~ 0.3 0.3 0.3 0 10',
                             'scoreboard players set #placed bm.rng 1'])
@@ -407,21 +440,57 @@ def generate(G):
                               f'execute if score #n bm.rng matches {PRESS_MAX + 1}.. run scoreboard players set #n bm.rng {PRESS_MAX}',
                               'execute if score #n bm.rng matches ..0 run return run ' + title('@s', 'actionbar', T('The ink\'s still wet - come back tomorrow.', 'gray')),
                               'scoreboard players operation @e[type=minecraft:interaction,tag=bm.prme,limit=1] bm.prsd = #day bm.bm',
-                              tellraw('@s', P + [T('The press clacks out ', '#e080ff'), num('#n'), T(' Black Market Token(s).', '#e080ff')]),
-                              'function bm:p105/press/pay', 'playsound minecraft:block.anvil.use block @a[distance=..12] ~ ~ ~ 0.5 1.6'])
-    fn('p105/press/pay', ['execute if score #n bm.rng matches ..0 run return 0', 'loot give @s loot bm:items/token', 'scoreboard players remove #n bm.rng 1', 'function bm:p105/press/pay'])
+                              'scoreboard players set #pk bm.rng 0', 'execute store result score #pk bm.rng run scoreboard players get @e[type=minecraft:interaction,tag=bm.prme,limit=1] bm.prk'] +
+       [f'execute if score #pk bm.rng matches {kn} run function bm:p105/press/day{"_" + k if k else ""}' for k, _i, _o, kn, _p, _c in KINDS] +
+       ['playsound minecraft:block.anvil.use block @a[distance=..12] ~ ~ ~ 0.5 1.6'])
+    # (the Counterfeiter's: a day's print is a Token - or, now and then, a Medallion, and very rarely a Trophy)
+    fn('p105/press/day', [tellraw('@s', P + [T('The press clacks out ', '#e080ff'), num('#n'), T(' day(s) of printing:', '#e080ff')]),
+                          'scoreboard players set #ptk bm.rng 0', 'scoreboard players set #pmd bm.rng 0', 'scoreboard players set #ptr bm.rng 0', 'function bm:p105/press/pay',
+                          'execute if score #ptk bm.rng matches 1.. run ' + tellraw('@s', [T('   +', 'gold'), num('#ptk'), T(' Black Market Token(s)', 'gold')]),
+                          'execute if score #pmd bm.rng matches 1.. run ' + tellraw('@s', [T('   +', 'light_purple'), num('#pmd'), T(' Medallion(s) - a lucky plate!', 'light_purple')]),
+                          'execute if score #ptr bm.rng matches 1.. run ' + tellraw('@s', [T('   +', '#ffb300'), num('#ptr'), T(' BM Trophy - a perfect forgery!', '#ffb300', bold=True)]),
+                          'execute if score #ptr bm.rng matches 1.. run playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 1 1.2'])
+    fn('p105/press/pay', ['execute if score #n bm.rng matches ..0 run return 0', 'execute store result score #pr bm.rng run random value 1..200',
+                          f'execute if score #pr bm.rng matches ..{PRESS_TRO} run function bm:p105/press/p_tro',
+                          f'execute if score #pr bm.rng matches {PRESS_TRO + 1}..{PRESS_TRO + PRESS_MED} run function bm:p105/press/p_med',
+                          f'execute if score #pr bm.rng matches {PRESS_TRO + PRESS_MED + 1}.. run function bm:p105/press/p_tok',
+                          'scoreboard players remove #n bm.rng 1', 'function bm:p105/press/pay'])
+    fn('p105/press/p_tok', ['loot give @s loot bm:items/token', 'scoreboard players add #ptk bm.rng 1'])
+    fn('p105/press/p_med', ['loot give @s loot bm:items/medallion', 'scoreboard players add #pmd bm.rng 1'])
+    fn('p105/press/p_tro', ['loot give @s loot bm:items/trophy', 'scoreboard players add #ptr bm.rng 1'])
+    # (the mythical presses: their own currency, every day)
+    fn('p105/press/day_blood', [tellraw('@s', P + [T('The Blood Press wrings out ', '#ff3030'), num('#n', 'white'), T(' day(s) of crystals.', '#ff3030')]),
+                                'function bm:p105/press/pay_blood'])
+    fn('p105/press/pay_blood', ['execute if score #n bm.rng matches ..0 run return 0', 'loot give @s loot bm:items/blood_crystal', 'loot give @s loot bm:items/blood_crystal',
+                                'scoreboard players remove #n bm.rng 1', 'function bm:p105/press/pay_blood'])
+    fn('p105/press/day_luck', [tellraw('@s', P + [T('The Lucky Press flips out ', '#7dff6a'), num('#n', 'white'), T(' Lucky Token(s).', '#7dff6a')]),
+                               'function bm:p105/press/pay_luck'])
+    fn('p105/press/pay_luck', ['execute if score #n bm.rng matches ..0 run return 0', 'loot give @s loot bm:items/lucky_token',
+                               'scoreboard players remove #n bm.rng 1', 'function bm:p105/press/pay_luck'])
+    fn('p105/press/day_xen', [tellraw('@s', P + [T('The Xenite Press hums out ', '#b6ff3c'), num('#n', 'white'), T(' day(s) of alien shards.', '#b6ff3c')]),
+                              'function bm:p105/press/pay_xen'])
+    fn('p105/press/pay_xen', ['execute if score #n bm.rng matches ..0 run return 0', 'loot give @s loot bm:items/xenite_green', 'loot give @s loot bm:items/xenite_green',
+                              'execute store result score #pr bm.rng run random value 1..100',
+                              'execute if score #pr bm.rng matches 1..12 run loot give @s loot bm:items/xenite_violet',
+                              'execute if score #pr bm.rng matches 13..24 run loot give @s loot bm:items/xenite_cyan',
+                              'execute if score #pr bm.rng matches 25..28 run loot give @s loot bm:items/xenite_red',
+                              'scoreboard players remove #n bm.rng 1', 'function bm:p105/press/pay_xen'])
     fn('p105/press/punch', ['scoreboard players operation #po bm.rng = @s bm.prso', 'scoreboard players operation #pd bm.rng = @s bm.prsd', 'tag @s add bm.prme',
                             'execute on attacker if predicate bm:p20/sneaking if score @s bm.pid = #po bm.rng run function bm:p105/press/take',
                             'tag @s remove bm.prme', 'data remove entity @s attack'])
-    fn('p105/press/take', ['function bm:p105/press/collect', 'scoreboard players set @s bm.prs 0', G.give('counterfeiters_press'),
+    fn('p105/press/take', ['function bm:p105/press/collect',
+                           'scoreboard players set #pk bm.rng 0', 'execute store result score #pk bm.rng run scoreboard players get @e[type=minecraft:interaction,tag=bm.prme,limit=1] bm.prk'] +
+       [f'execute if score #pk bm.rng matches {kn} run function bm:p105/press/back{"_" + k if k else ""}' for k, _i, _o, kn, _p, _c in KINDS] + [
                            'execute as @e[type=minecraft:interaction,tag=bm.prme,limit=1] at @s run kill @e[type=minecraft:item_display,tag=bm.press,distance=..0.6]',
                            'kill @e[type=minecraft:interaction,tag=bm.prme]', 'playsound minecraft:block.anvil.break block @a[distance=..12] ~ ~ ~ 0.5 1.4',
                            say('You fold the press up and take it with you.')])
+    for k, iid, own, kn, _p, _c in KINDS:
+        fn(f'p105/press/back{"_" + k if k else ""}', [f'scoreboard players set @s {own} 0', G.give(iid)])
     # (a press with Tokens waiting puffs a little paper, for whoever's near)
     second.append('execute as @e[type=minecraft:interaction,tag=bm.presshit] at @s if entity @a[distance=..16] unless score @s bm.prsd = #day bm.bm run '
                   'particle minecraft:white_ash ~ ~1.1 ~ 0.15 0.05 0.15 0.01 6')
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:interaction,tag=bm.presshit]', 'kill @e[type=minecraft:item_display,tag=bm.press]']
-    fn('admin/raid_finds', [G.give(i) for i in ('forgeheart', 'the_alibi', 'counterfeiters_press') + CRATES + ('tip_bloodmoon', 'tip_alien')] +
+    fn('admin/raid_finds', [G.give(i) for i in ('forgeheart', 'the_alibi', 'counterfeiters_press') + tuple(v[0] for v in PRESSES.values()) + CRATES + ('tip_bloodmoon', 'tip_alien')] +
        [G.give(f'laurel_t{t}') for t in range(1, 6)])
 
     G.FUNCS['admin/help'] += [tellraw('@s', [T('/function bm:admin/raid_finds', 'yellow'), T('  the 2.68 raid items: crates, tip-offs, laurels, Forgeheart, the Alibi, the Press', 'gray')]),

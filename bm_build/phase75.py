@@ -405,10 +405,9 @@ def generate(G):
     # (the new instance marker takes the slot's tries)
     G.FUNCS['p70/inst_init'][-1:-1] = [f'execute if score @s bm.gvi matches {s + 1} run scoreboard players operation @s bm.gvlc = #lc{s} bm.gvlc' for s in range(SLOTS)] + \
         [f'execute if score @s bm.gvi matches {s + 1} run scoreboard players operation @s bm.gvlu = #lu{s} bm.gvlu' for s in range(SLOTS)] + \
-        [f'execute if score @s bm.gvi matches {s + 1} run scoreboard players operation #n bm.rng = #np{s} bm.gvx' for s in range(SLOTS)] + \
         ['execute unless score @s bm.gvlc matches 1.. run scoreboard players set @s bm.gvlc 5',
-         'scoreboard players operation @s bm.gvlv = @s bm.gvlc', 'scoreboard players remove #n bm.rng 1',
-         'execute if score #n bm.rng matches 4.. run scoreboard players set #n bm.rng 3', 'execute if score #n bm.rng matches 1.. run scoreboard players operation @s bm.gvlv += #n bm.rng',
+         # (2.82b: the tries are the ones picked - a try more for each raider past the first, said nowhere, made 3 come out 4 or 5)
+         'scoreboard players operation @s bm.gvlv = @s bm.gvlc',
          'scoreboard players set @s bm.gvpot 0', 'scoreboard players set @s bm.gvdc 0',
          'execute if score @s bm.gvlu matches 1 run function bm:p75/lucky_announce', 'function bm:p70/bar']
     fn('p75/lucky_announce', ['function bm:p70/tag_mine', 'title @a[tag=bm.gvme] times 10 60 20', title('@a[tag=bm.gvme]', 'title', T('LUCKY RAID!', LUCKY, bold=True)),

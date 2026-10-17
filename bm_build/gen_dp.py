@@ -154,6 +154,7 @@ import phase164 as R164      # 2.80e: Apophiss's Unbound Crown - the True Crown,
 import phase163 as R163      # 2.80d: Dennis and Pistachio, the followers (fifty trades), their pairs and the Crown's Prospect
 import phase169 as R169      # 2.82: King Omega - the Omega Palace, his tomb, his coming, his fight, his peace, the King at court
 import phase170 as R170      # 2.82: King Omega, the follower (Omega's Monocle), the Serpent Kings, the Palace Household
+import phase171 as R171      # 2.82b: the Town Directory - who's where in the rat town, and a trail of light there
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import noglow                # 2.80e: no glowing outline on custom-modelled mobs' invisible hosts (noglow.py)
@@ -963,7 +964,7 @@ def gen_loops(second_mob_lines):
         'execute as @a if items entity @s container.* *[minecraft:custom_data~{bm:"market_key"}] run tag @s add bm.haskey',
         'execute as @a[tag=!bm.haskey] if items entity @s weapon.offhand *[minecraft:custom_data~{bm:"market_key"}] run tag @s add bm.haskey',
         # zones
-        'execute as @a[gamemode=survival,tag=!bm.adv] at @s if block ~ ~-0.2 ~ #bm:zone_floor if entity @e[type=minecraft:marker,tag=bm.zone_m,distance=..28] run function bm:zone/enter',
+        'execute as @a[gamemode=survival,tag=!bm.adv] at @s if block ~ ~-0.2 ~ #bm:zone_floor_m if entity @e[type=minecraft:marker,tag=bm.zone_m,distance=..28] run function bm:zone/enter',
         'execute as @a[gamemode=survival,tag=!bm.adv] at @s if block ~ ~-0.2 ~ #bm:zone_floor if entity @e[type=minecraft:marker,tag=bm.zone_c,distance=..30] run function bm:zone/enter',
         'execute as @a[tag=bm.adv] at @s unless entity @e[type=minecraft:marker,tag=bm.zone_m,distance=..30] unless entity @e[type=minecraft:marker,tag=bm.zone_c,distance=..32] run function bm:zone/exit',
         'tag @a[tag=bm.adv,gamemode=!adventure] remove bm.adv',
@@ -1073,6 +1074,15 @@ def gen_tags_worldgen():
     # templates
     MB = M2.build()                              # 2.81: the Black Market 3 rat town (market3.py; market2.py keeps the shared helpers)
     MB.export(path('data', 'bm', 'structure', 'black_market.nbt'))
+    # (2.82b) the market's protected ground: every block the town has anyone standing on - shops' planks, docks, stairs, rugs,
+    # the Lookout's rock - not just the street floors (a player who never stepped on one never went into adventure mode)
+    stand = set()
+    for (x, y, z), st in MB.b.items():
+        if M2.is_full(st) or 'water' in st or 'lava' in st: continue
+        below = MB.b.get((x, y - 1, z))
+        if below and not below.startswith(('minecraft:air', 'minecraft:cave_air', 'minecraft:water', 'minecraft:lava', 'minecraft:light')):
+            stand.add(below.split('[')[0])
+    wjson('bm/tags/block/zone_floor_m.json', {'values': sorted(stand | set(S.MARKET_FLOOR) | {'minecraft:' + b for b in M2.FLOOR_BLOCKS})})
     # its static proofs run in a separate interpreter: they borrow the Phase 2 walker, whose package registers items
     import subprocess
     r = subprocess.run([sys.executable, '-c', 'import market3, sys; e = market3.check(market3.build()); print("\\n".join(e)); sys.exit(1 if e else 0)'],
@@ -1274,6 +1284,7 @@ def build(out_dir):
     R168.generate(sys.modules[__name__])
     if PHASE2: R169.generate(sys.modules[__name__])
     if PHASE2: R170.generate(sys.modules[__name__])
+    R171.generate(sys.modules[__name__])
     R161.generate(sys.modules[__name__])
     if PHASE2: R162.generate(sys.modules[__name__])
     # 2.79: the mob rolls (elite, champion, lucky, prime, Blood Moon, invasion) leave alone a mob someone named or froze - a

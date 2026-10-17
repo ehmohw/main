@@ -5,9 +5,8 @@ HAUL CRATES  carrying on used to unpack your haul one slot each: whatever isn't 
              with the heist's tier and how much is inside, and put in your locker (or your pack). Set it down and open it
              like The Haul, wherever you can place a block; it's never unpacked again on the next carry-on. (No room
              anywhere for a crate: the old way, stack by stack, as a last resort.)
-THE PRIZE ROLL  after the payout your rewards come up one at a time across the screen, every second and a half: the haul
-             (tier, shares, coins), the Tokens, any Medallions or BM Trophy, each bonus - and the rare, legendary and
-             mythical finds last, their announcements held back until then.
+THE PRIZE ROLL  (2.82: retired - the results card covered it. The rare, legendary and mythical finds are announced
+             after the card instead of the moment they're rolled.)
 WIN STREAKS  every heist you win without going home raises your streak. Each step of it (up to five) is a 40% chance of
              one more Token on the next win. A failed heist, or going home, ends it.
 CREW BONUSES  a crew of two or more: one more share of the haul for each raider past the first (up to three), and a CLEAN
@@ -25,19 +24,16 @@ MERCY = 7736
 CRATE_N = 27
 STREAK_CAP, STREAK_PCT = 5, 40
 CREW_CAP = 3
-STEP = 6                                     # fast-loop passes (5 ticks each) between reveal steps: 1.5 s
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V'}
 RARITY = (('r', 'rare', 'RARE FIND', '#5ab0ff'), ('l', 'legend', 'LEGENDARY FIND', '#ff9a2a'), ('m', 'myth', 'MYTHICAL FIND', '#e060ff'))
-RV = ['bm.rv1', 'bm.rv2', 'bm.rv3', 'bm.rv4', 'bm.rv5', 'bm.rv6', 'bm.rv7', 'bm.rv8']   # tokens, medallions, trophy, shares, coins, streak +, clean +, crew +
 
 
 def generate(G):
     fn, tellraw, title, wjson = G.fn, G.tellraw, G.title, G.wjson
     P = [T('[', 'dark_gray'), T('Heist', GOLD, bold=True), T('] ', 'dark_gray')]
-    objs = ['bm.gstk', 'bm.hlt', 'bm.gvmcy', 'bm.rvs', 'bm.rvt', 'bm.rvr', 'bm.rvl', 'bm.rvm'] + RV
+    objs = ['bm.gstk', 'bm.hlt', 'bm.gvmcy', 'bm.rvr', 'bm.rvl', 'bm.rvm']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
-    sc = lambda o, col='white': {'score': {'name': '@s', 'objective': o}, 'color': col, 'bold': True}
     haul = G.FUNCS['p70/haul']
     pay = G.FUNCS['p70/payout_inst']
     kh = next(i for i, l in enumerate(pay) if l.endswith('run function bm:p70/haul'))
@@ -108,48 +104,10 @@ def generate(G):
         fn(f'p166/say_{k}', [f'execute if score @s bm.rv{k} matches {n} run function bm:p166/say/{k}{n}' for n in range(1, len(lines) + 1)])
     # (each find on a new haul starts unremembered)
     haul[0:0] = [f'scoreboard players set @s bm.rv{k} 0' for k, *_r in RARITY]
-    haul += ['scoreboard players operation @s bm.hlt = #gt bm.rng',
-             'scoreboard players operation @s bm.rv1 = #rtk bm.rng', 'scoreboard players operation @s bm.rv2 = #pmd bm.rng',
-             'scoreboard players operation @s bm.rv3 = #ptr bm.rng', 'scoreboard players operation @s bm.rv4 = #sh bm.rng',
-             'scoreboard players operation @s bm.rv5 = #pot bm.rng', 'scoreboard players operation @s bm.rv6 = #stb bm.rng',
-             'scoreboard players operation @s bm.rv7 = #ccb bm.rng', 'scoreboard players operation @s bm.rv8 = #csh bm.rng',
-             'scoreboard players set @s bm.rvs 0', f'scoreboard players set @s bm.rvt {-STEP // 2}', 'tag @s add bm.rv']
-    G.FUNCS['loop/fast'].append('execute as @a[tag=bm.rv] at @s run function bm:p166/rv_tick')
-    fn('p166/rv_tick', ['scoreboard players add @s bm.rvt 1', f'execute if score @s bm.rvt matches ..{STEP - 1} run return 0',
-                        'scoreboard players set @s bm.rvt 0', 'function bm:p166/rv/next'])
-    show = lambda big, small, snd, pitch: ['title @s times 4 26 8', title('@s', 'subtitle', small), title('@s', 'title', big),
-                                           f'playsound {snd} player @s ~ ~ ~ 1 {pitch}']
-    steps = [
-        (None, show(T('THE HAUL', GOLD, bold=True), [T('Tier ', 'gray'), sc('bm.hlt'), T(' - ', 'gray'), sc('bm.rv4'), T(' shares, ', 'gray'),
-                                                       sc('bm.rv5', '#c8a050'), T(' coins in the pot', 'gray')], 'minecraft:block.chest.open', 0.8)),
-        ('bm.rv1', show([T('+', GOLD), sc('bm.rv1', GOLD), T(' Tokens', GOLD, bold=True)], T('Black Market Tokens - your fee back, and more', 'gray'),
-                        'minecraft:entity.experience_orb.pickup', 1.2)),
-        ('bm.rv2', show([T('+', 'light_purple'), sc('bm.rv2', 'light_purple'), T(' Medallion(s)', 'light_purple', bold=True)], T('Black Market Medallions', 'gray'),
-                        'minecraft:block.amethyst_block.chime', 1.0)),
-        ('bm.rv3', show(T('A BM TROPHY!', '#ffb300', bold=True), T('from a Tier V vault', 'gray'), 'minecraft:ui.toast.challenge_complete', 1.4)),
-        ('streak', None),
-        ('bm.rv7', show(T('CLEAN CREW', '#7aff7a', bold=True), T('nobody knocked out all heist: +1 Token', 'gray'), 'minecraft:entity.player.levelup', 1.2)),
-        ('bm.rv8', show([T('CREW OF ', '#7ad0ff', bold=True), {'score': {'name': '#csh1', 'objective': 'bm.rng'}, 'color': '#7ad0ff', 'bold': True}],
-                        [T('+', 'gray'), sc('bm.rv8'), T(' share(s) of the haul for the company', 'gray')], 'minecraft:entity.villager.celebrate', 1.1)),
-    ] + [(f'bm.rv{k}', show(T(head, col, bold=True), T('...in your haul', 'gray'), 'minecraft:block.note_block.bell', 0.7 + 0.25 * i) + [f'function bm:p166/say_{k}'])
-         for i, (k, _kind, head, col) in enumerate(RARITY)]
-    nx = ['scoreboard players add @s bm.rvs 1']
-    for i, (cond, body) in enumerate(steps, 1):
-        nx.append(f'execute if score @s bm.rvs matches {i} run return run function bm:p166/rv/s{i}')
-        if cond == 'streak':
-            fn(f'p166/rv/s{i}', ['execute unless score @s bm.gstk matches 2.. run return run function bm:p166/rv/next',
-                                 'execute if score @s bm.rv6 matches 1.. run return run function bm:p166/rv/stk_win', 'function bm:p166/rv/stk_try'])
-            fn('p166/rv/stk_win', show([T('WIN STREAK x', '#ff9a2a', bold=True), sc('bm.gstk', '#ff9a2a')], [T('+', 'gray'), sc('bm.rv6'), T(' Token(s) for not going home', 'gray')],
-                                       'minecraft:entity.firework_rocket.twinkle', 1.0))
-            fn('p166/rv/stk_try', show([T('WIN STREAK x', '#ff9a2a', bold=True), sc('bm.gstk', '#ff9a2a')], T('no extra Token this time - the odds grow each win', 'gray'),
-                                       'minecraft:entity.firework_rocket.launch', 1.0))
-            continue
-        pre = [] if cond is None else [f'execute unless score @s {cond} matches 1.. run return run function bm:p166/rv/next']
-        if cond == 'bm.rv8':
-            pre += ['scoreboard players operation #csh1 bm.rng = @s bm.rv8', 'scoreboard players add #csh1 bm.rng 1']
-        fn(f'p166/rv/s{i}', pre + body)
-    fn('p166/rv/next', nx + ['function bm:p166/rv/done'])
-    fn('p166/rv/done', ['tag @s remove bm.rv', 'scoreboard players set @s bm.rvs 0'] + [f'scoreboard players set @s bm.rv{k} 0' for k, *_r in RARITY])
+    # (2.82: the roll across the screen is gone - the results card covered it; the finds are announced at once, after the card)
+    haul += ['scoreboard players operation @s bm.hlt = #gt bm.rng']             # (the tier, for the Haul Crate's label)
+    haul += [f'execute if score @s bm.rv{k} matches 1.. run function bm:p166/say_{k}' for k, *_r in RARITY]
+    haul += [f'scoreboard players set @s bm.rv{k} 0' for k, *_r in RARITY]
 
     # ================================================================== (2.82) A WIN'S TOKENS: straight into your pack, not shut in The Haul
     #  (a Haul set down and opened was the only way to see your fee back - easy to miss, and a Haul left on the floor took them
