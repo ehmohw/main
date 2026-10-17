@@ -1,4 +1,4 @@
-# Black Market — v2.81a (Java 26.3)
+# Black Market — v2.82 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,105 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 2.82: King Omega, the Omega Palace - and a cheaper, fairer market
+
+### The Omega Palace
+- **A grey castle in a dark wood**, rare in Dappled Forests, Dark Oak Forests and Pale Gardens. Black spires, yellow windows,
+  a dead tree by the path, soul wisps round the towers.
+- **It's haunted, and it sounds it:** its own waltz on a music box, whispers, a far-off organ, chains, a clock that strikes
+  thirteen, guttering candles, souls drifting through the halls, and two soul serpents circling the tower at night.
+- **Admins:** `/function bm:admin/omega_palace` builds one where you stand (the door faces north).
+
+### Waking the King
+- **The tomb** stands in the throne room, ringed by six pedestals: one for each Conquest Emblem (the Broodmother's, the Frost
+  Marksman's, the Drowned Tyrant's, the Archmage's, Bobbery's and the Hollow King's).
+  - Right-click a pedestal with its own Emblem to seat it. Sneak + punch takes it back. A pedestal turns away the wrong Emblem.
+  - All six seated **and Apophiss (as your follower) by the tomb**: the King of the Dead wakes. Without Apophiss, the tomb waits.
+- **His coming (about 12 seconds):** the lights die, a heartbeat, soul fire spirals out of the floor and the Emblems pour their
+  light into it. Then claws break up through the flagstones and he crawls out. He knows exactly who woke him.
+
+### The fight: KING OF THE DEAD
+- **Claw**, a raking sweep; **Soul Flame**, the fire off his tail, thrown; **soul serpents**, two at a time and never more than
+  three (cute, and they bite); **the Pillars of the Dead**, a ring of soul fire under each of you that erupts a breath later.
+- **At three-quarters health**, his Ghost Guard. **At half**, Grief: he wails, the dark comes down, and he vanishes to strike
+  from behind three times, then comes back faster, throwing his flame in threes.
+- **Beaten low (6%), he kneels and yields.** A blow big enough to kill him outright is stopped by a ward: he's left at a sliver,
+  and still yields. The brothers talk, and it ends well.
+- **Everyone in the throne room is given Omega's Monocle**, and he takes his throne. From then on the King holds court in every
+  Omega Palace. Seat the six again with Apophiss by for a rematch (a hoard, favour, and a Monocle for anyone without one).
+- His own theme plays for the fight. Every player within 40 blocks makes him tougher.
+
+### The King at court (right-click him on his throne)
+- **The Peerage: favour with the King.** You earn it from the fight (60; a rematch 20), each new gift (40), a tithe of 4 Tokens
+  (10, five a day), and your Omega's souls (2 each).
+  - **Squire (40):** a title over your head (on or off), and the Garrison opens.
+  - **Knight (120):** your blows burn the undead.
+  - **Baron (250):** the Royal Ward - your braziers turn away hostile spawns.
+  - **Duke (450):** the undead near you falter.
+  - **Warden of the Dead (700):** two soul serpents escort you, and once a day at two hearts or less, the Royal Pardon restores you.
+- **The Ghost Garrison:** a Soul Brazier (8 Tokens, three each). A soul serpent keeps it, and by night bites anything hostile
+  within 16 blocks (and now and then plays a trick on you). With the Royal Ward, nothing hostile spawns within 24 of it.
+  Break the fire and it comes back to you.
+- **The Chronicle:** ten gifts, ten chapters of his story, a hint for each in the book. Re-read any time.
+
+### King Omega, the follower (Omega's Monocle)
+- **Use the Monocle** to call him; **sneak + use** for his menu. Full size like his brother, and a ghost: he hovers.
+- **His Soul Court:** every hostile thing that dies near him, his kill or yours, gives him one soul (up to twelve; they circle him).
+  He spends them:
+  - **Raise the Fallen (3):** two spectral copies of the last kind of foe that died fight for you for 30 seconds.
+  - **Soul Serpent Squad (5):** three serpents dart out, each biting a foe (8, withering).
+  - **The King's Pardon (all, 6 or more):** once a day, at 3 hearts or less, he pulls you back - healed, shielded, everything
+    near you thrown back.
+- **Claw and Soul Flame** need no souls. **Soul Flame (charged, every 45 seconds)** hits every foe within 7 for 14 and sets them alight.
+- **Royal Subjects:** the undead near him falter.
+- **The owner's checklist:** right-click to sit (a seated pose and idle cycle); a frame keeps him; a display case shows his
+  figurine; Cecil sells his chibi doll; the Tailor sells his looks (Spectral, Blood Moon, Verdant Wraith; gilded, diamond and
+  netherite) and his rare aura, the Court of Souls; the Recruiter has his Raid Contract.
+- **The Serpent Kings (Apophiss + Omega):** Strength and Resistance for you; both brothers tougher and healing - and they bicker.
+- **The Palace Household (Apophiss, Pistachio and Cecil):** Speed and Regeneration for you, supper from the palace kitchen now
+  and then, and the three tougher and healing.
+
+### A cheaper market
+- **40% off every Black Market price**, on top of the earlier cuts: offers, fixed prices, the Dark Auction's opening bids and the
+  Concierge.
+- **New exchange rates:** 1 Medallion = 5 Tokens (was 9), 1 Trophy = 4 Medallions (was 6). Buy-backs follow the new rates, so
+  there's no loop.
+- **The Fence sells the Banker's Card** (8 Tokens): the Rat Bank in your pocket.
+
+### Fixes
+- **The new market's river and clock tower.** The quays stand four blocks over the water: now a ladder climbs out every few
+  blocks on both banks. Inside the clock tower: hay to land on, a ladder up the inside, and a door at the foot.
+- **Names and labels in the market** show through counters and awnings, and the jackpot sign hangs in front of its machine.
+- **The Fence stays visible** at night.
+- **KillerWatt pays out on any death, once** - a follower's kill, his own lightning, fire or a fall - and never while he's alive.
+- **KillerWatt's Tendrils** (both sets) no longer pull dropped items to you.
+- **Wall-mounted custom weapons** are lit properly (half the facings rendered them dark).
+- **Sealed maps** outside the Overworld, or with nothing of their kind in reach, stay sealed and come back with a word why
+  (they used to be used up).
+- **Fishing crates** come only from a real catch. Reeling in a hooked player or mob gives nothing.
+- **Blood Moon monsters** always drop 1 to 3 Blood Crystals, and one that drowns into a Drowned keeps its drops.
+- **Madame Velour no longer sells follower cosmetics:** they are raid exclusives, at the Tailor in the den.
+- **Heists:** the Library puzzle uses three shelves, all in reach without jumping. Under the Leaden curse you can step up a
+  full block, so no room traps anyone. The Vault Bat is gone (phantoms stuck to the ceilings). A win's Tokens go straight
+  into your pack.
+- **Fishy's tank** holds water, keeps his tail inside, and has no stray white edges.
+
+### Testing
+- **New bot playtests, each as a regular player:**
+  - **t195** - the river ladders, the clock tower and the market's labels (14/14).
+  - **t196** - KillerWatt pays once on any death (3/3).
+  - **t197** - fishing crates only for a real catch (3/3).
+  - **t198** - Blood Moon drops, drowned included (4/4).
+  - **t199** - King Omega's follower checklist (41/41).
+  - **t200** - the palace, the six Emblems, Apophiss, his coming, the last blow and his ward, the peace, the Monocle and his
+    court (17/17). It found the tomb never woke: it was never set asleep.
+  - **t136 om** - the Serpent Kings and the Palace Household (10/10).
+- **Omega joins the every-follower tests:** t138 figurines, t145, t146 frames, t156 dolls and t158.
+- **Rerun clean:** t43, t78, t115a and t155.
+- **Fixed along the way:**
+  - his claw's kill counted two souls (the game credits a tame follower's kill to its owner);
+  - a big enough blow skipped his yield and killed him, so no one got a Monocle.
 
 ## New in 2.81a: every back-room book on its trader's counter
 

@@ -958,6 +958,11 @@ In 1-9999, outside every route of `p28/act` and on no button.
   first). Inserted at the top, the Fixer's mercy (7736) tested the previous click, so every press acted one click late.
   check_logic now fails a test of `#act` above the read. 7736 is the mercy's confirm (p166/m_yes, from the Skip this puzzle?
   question on the last try); 7737-7739 stay free.
+- 2.82: King Omega's two menus each check bm.menu first: his Monocle (`p170/act`, menu 2280: 2281 sit, 2282 wardrobe, 2284 his
+  ways, 2285 back, 2288 call, 2289 send home) and his court (`p169/court/act`, menu 2320: 2321 the Peerage, 2322 the Ghost
+  Garrison, 2323-2359 the court's own pages and the Chronicle). His wardrobe is the usual follower block, 2300-2319. The Tailor's
+  numbering ran out: follower pages past the 16th go to 8270-8279 and outfits past the 112th to 8200-8269, routed to
+  `p103/tl/act` only while bm.menu is the Tailor's.
 <!-- /notes -->
 
 ## Revision log
