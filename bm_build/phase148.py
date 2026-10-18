@@ -224,15 +224,22 @@ def generate(G):
     sec.insert(za[0] + 1, f'execute if score #vornmet bm.bm matches 1 unless score #lnight bm.bm matches 1 as @e[tag=bm.npc_alien] '
                           f'unless score @s bm.ofv matches {_R24.INV_VER} run function bm:p148/zorp_unlocked')
 
-    # ---- (2.82f) another job: the kit's golden apples topped back up with the paperweights and food (eaten on the last heist,
-    #      they never came back) - each kit rank's own count, from its own give list
-    gap = 'minecraft:golden_apple[minecraft:custom_data={bm_kit:1b}'
-    for r in range(1, 5):
-        lines = {k: [l for l in G.FUNCS[f'p80/kit/give_{r}_{k}'] if l.startswith(f'give @s {gap}')] for k in range(1, 7)}
-        assert all(len(v) == 1 for v in lines.values()), (r, {k: len(v) for k, v in lines.items()})
-        fn(f'p148/gap/r{r}', [f'execute if score @s bm.kr{r} matches {k} run return run {lines[k][0]}' for k in range(2, 7)] + [lines[1][0]])
-    G.FUNCS['p104/resupply'] += ['clear @s minecraft:golden_apple[minecraft:custom_data~{bm_kit:1b}]'] + \
-                                [f'execute if score @s bm.gvrole matches {r} run function bm:p148/gap/r{r}' for r in range(1, 5)]
+    # ---- (2.82m) another job: the whole kit comes out of the Armory again - the secondary (wind charges, potions, arrows),
+    #      the ranged kit's arrows, the support's potions, the golden apples, food and paperweights, each at its rank's count.
+    #      (2.68 / 2.82f topped up only the paperweights, food and apples; a spent secondary stayed spent.) The wind charges the
+    #      Fixer held at a room's door belong to the old job - they're not handed back on top.
+    G.FUNCS['p104/resupply'] = ['execute in bm:gutter as @e[type=minecraft:item] if items entity @s contents *[minecraft:custom_data~{bm_kit:1b}] run kill @s',
+                                'clear @s *[minecraft:custom_data~{bm_kit:1b}]', 'function bm:p72/kit/strip', 'scoreboard players set @s bm.gvhw 0'] + \
+                               [f'execute if score @s bm.gvrole matches {r} run function bm:p72/kit/give_{r}' for r in range(1, 5)]
+
+    # ---- (2.82m) the Arcane Study's ambush bars its door behind whoever walked in first; a crewmate who was still behind
+    #      (or comes back from a knock-out) was shut out until both waves fell. Now anyone of the crew at the bars while
+    #      they're down is pulled through to the fight. (Local x -3..0 at the door, z 10..14; into x 2.5, z 12.5.)
+    G.FUNCS['p76/r/ambush/tick'].insert(1, 'execute if score @s bm.gvs matches 1..2 positioned ~-15.5 ~ ~-2.5 if entity @a[tag=bm.gvp,dx=2.5,dy=4,dz=4] '
+                                           'positioned ~15.5 ~ ~2.5 run function bm:p148/amb_pull')
+    fn('p148/amb_pull', ['execute positioned ~-15.5 ~ ~-2.5 run tag @a[tag=bm.gvp,dx=2.5,dy=4,dz=4] add bm.ambp', 'tp @a[tag=bm.ambp] ~-10 ~ ~ -90 0',
+                         'execute as @a[tag=bm.ambp] at @s run playsound minecraft:block.iron_door.open player @s ~ ~ ~ 1 0.8',
+                         G.title('@a[tag=bm.ambp]', 'actionbar', T('The bars let you through - your crew is fighting!', '#c060ff')), 'tag @a remove bm.ambp'])
 
     # ---- (2.82g) a failed heist: the crew is walked back to the den within a second, and stays there (the den and the Locker
     #      Hall) until the choice is made - backing out of the dialog no longer lets anyone walk on into the dead heist

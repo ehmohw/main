@@ -21,6 +21,11 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82m: the whole kit for every new raid, and nobody left outside the ambush
+
+- **Start a new raid and the whole kit comes back.** Only the paperweights, food and golden apples used to be topped up for another job, so a spent secondary stayed spent: wind charges, slowness or harming potions, the crossbow's arrows, the Ranged kit's arrows and the Support kit's healing potions. Now every raider walks into the new den with the full kit their role and ranks give, secondary included, and no more than that.
+- **The Arcane Study no longer shuts a crewmate out.** Its ambush drops bars across the doorway behind the first raider in. A teammate still behind (or coming back after a knock-out) was stuck at the bars until both waves fell. Now anyone of the crew who walks up to the bars while they're down is let through to the fight.
+
 ## New in 2.82l: no free blocks from pop-up containers
 
 - **Breaking the barrel or chest a container sets down gives you nothing extra.** The Prime Cooler's barrel, the Vacuum Satchel's barrel and the Ender Pouch's ender chest each dropped as a free barrel or ender chest (or eight obsidian) when broken by hand. Now no block comes out. Whatever was inside still lands on the ground for you, the cooler comes straight back to you, and the satchel and pouch fold away.
