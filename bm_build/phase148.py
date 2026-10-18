@@ -93,8 +93,9 @@ HOLD['fixers_lamp'] = 'bm:p148/use/lamp'
 COOLER_PRICE = 8
 PRIME_CUTS = ('prime_beef', 'prime_pork', 'prime_mutton', 'prime_chicken', 'prime_rabbit')
 item('prime_cooler', TOTEM, 'Prime Cooler', '#8ad8ff',
-     ['Right-click to open it (27 slots).', ('Keeps Prime cuts cold: Prime Beef, Porkchop,', 'blue'), ('Mutton, Chicken and Rabbit.', 'blue'),
-      'Nothing else goes in - not even plain meat.', 'From Chef Fromage\'s kitchen.'],
+     ['Right-click: it unfolds into a barrel (27 slots).', ('Sneak or walk away to pack it up.', 'gray'), ('Keeps Prime cuts cold: Prime Beef, Porkchop,', 'blue'), ('Mutton, Chicken and Rabbit.', 'blue'),
+      'Nothing else goes in - not even plain meat.', ('Carried, it gathers Prime cuts', 'blue'), ('lying within 6 blocks.', 'blue'),
+      'From Chef Fromage\'s kitchen.'],
      model='bm:prime_cooler', stack=1, cat='meat', comps=dict(hold('none'), **{'minecraft:container': []}))
 DYNAMIC.add('prime_cooler')
 HOLD['prime_cooler'] = 'bm:p148/use/cooler'
@@ -267,36 +268,50 @@ def generate(G):
     fn('p148/fireproof', ['effect give @s minecraft:fire_resistance infinite 0 true', 'tag @s add bm.gvfr'])
     fn('p148/grown', ['data modify entity @s IsBaby set value 0b', 'tag @s add bm.gvad'])
 
-    # ---- (2.82i) THE PRIME COOLER: right-click opens it as a crate (phase33's satchel: the item is held in storage while it's open,
-    #      its contents moved into a chest boat you sit in, and moved back when you get out). Only Prime cuts stay in: anything
-    #      else put in is handed straight back out at the owner's feet - while it's open, and once more as it closes.
+    # ---- (2.82i) THE PRIME COOLER: right-click sets it down as a barrel (phase33's boxes, as the satchel: the item is held in
+    #      storage while it's open, its contents moved into the barrel, and back when it's packed up). Only Prime cuts stay in:
+    #      anything else put in is handed straight back out at the owner's feet - while it's open, and once more as it closes.
     cool_hand = ['scoreboard players set #hand bm.rng 0',
                  f'execute if items entity @s weapon.mainhand {holds("prime_cooler")} run scoreboard players set #hand bm.rng 1',
                  f'execute if score #hand bm.rng matches 0 if items entity @s weapon.offhand {holds("prime_cooler")} run scoreboard players set #hand bm.rng 2',
                  'execute if score #hand bm.rng matches 0 run return 0']
-    fn('p148/use/cooler', cool_hand + ['execute if score #hand bm.rng matches 1 run return run function bm:p148/cool/open {path:"SelectedItem",slot:"weapon.mainhand"}',
-                                       'function bm:p148/cool/open {path:"equipment.offhand",slot:"weapon.offhand"}'])
-    box = [l for l in G.FUNCS['p33/box/open'] if not l.startswith('$data modify storage bm:tmp bx set value')]
-    assert sum('summon minecraft:dark_oak_chest_boat' in l for l in box) == 1, box
-    fn('p148/cool/open', ['$data modify storage bm:tmp bx set value {path:"$(path)",slot:"$(slot)"}'] +
-       [l.replace('"bm.c_box"', '"bm.c_box","bm.c_cool"').replace('Satchel', 'Prime Cooler').replace('#c8a050', '#8ad8ff') for l in box])
-    assert any('"bm.c_box","bm.c_cool"' in l for l in G.FUNCS['p148/cool/open']), G.FUNCS['p148/cool/open']
-    keep = ''.join(f' unless items entity @s container.%d {holds(c)}' for c in PRIME_CUTS)
-    fn('p148/cool/bad', [f'execute if items entity @s container.{n} *{keep % ((n,) * len(PRIME_CUTS))} run return 1' for n in range(27)] + ['return 0'])
-    fn('p148/cool/purge', [f'execute if items entity @s container.{n} *{keep % ((n,) * len(PRIME_CUTS))} run function bm:p148/cool/spit {{n:{n}}}' for n in range(27)])
-    fn('p148/cool/spit', ['$data modify storage bm:tmp cool set from entity @s Items[{Slot:$(n)b}]', 'data remove storage bm:tmp cool.Slot',
-                          '$item replace entity @s container.$(n) with minecraft:air',
+    fn('p148/use/cooler', cool_hand + ['execute if score #hand bm.rng matches 1 run return run function bm:p33/box/open {path:"SelectedItem",slot:"weapon.mainhand",name:"Prime Cooler",kind:"cool"}',
+                                       'function bm:p33/box/open {path:"equipment.offhand",slot:"weapon.offhand",name:"Prime Cooler",kind:"cool"}'])
+    keep = ''.join(f' unless items block ~ ~ ~ container.%d {holds(c)}' for c in PRIME_CUTS)
+    fn('p148/cool/bad', [f'execute if items block ~ ~ ~ container.{n} *{keep % ((n,) * len(PRIME_CUTS))} run return 1' for n in range(27)] + ['return 0'])
+    fn('p148/cool/purge', [f'execute if items block ~ ~ ~ container.{n} *{keep % ((n,) * len(PRIME_CUTS))} run function bm:p148/cool/spit {{n:{n}}}' for n in range(27)])
+    fn('p148/cool/spit', ['$data modify storage bm:tmp cool set from block ~ ~ ~ Items[{Slot:$(n)b}]', 'data remove storage bm:tmp cool.Slot',
+                          '$item replace block ~ ~ ~ container.$(n) with minecraft:air',
                           'execute at @a[tag=bm.cown,limit=1] run summon minecraft:item ~ ~0.3 ~ {Tags:["bm.cspit"],Item:{id:"minecraft:stone",count:1},PickupDelay:0s}',
                           'data modify entity @e[type=minecraft:item,tag=bm.cspit,limit=1] Item set from storage bm:tmp cool',
                           'tag @e[type=minecraft:item,tag=bm.cspit] remove bm.cspit'])
-    G.FUNCS['loop/fast'] += ['execute as @e[type=minecraft:dark_oak_chest_boat,tag=bm.c_cool] at @s if function bm:p148/cool/bad run function bm:p148/cool/live']
-    fn('p148/cool/live', ['tag @a remove bm.cown', 'execute on passengers run tag @s[type=minecraft:player] add bm.cown',
+    G.FUNCS['loop/fast'] += ['execute as @e[type=minecraft:marker,tag=bm.bx_cool] at @s if block ~ ~ ~ minecraft:barrel if function bm:p148/cool/bad run function bm:p148/cool/live']
+    fn('p148/cool/live', ['tag @a remove bm.cown', 'scoreboard players operation #own bm.pid = @s bm.pid',
+                          'execute as @a if score @s bm.pid = #own bm.pid run tag @s add bm.cown',
                           'execute unless entity @a[tag=bm.cown] run return 0', 'function bm:p148/cool/purge',
                           'execute as @a[tag=bm.cown] at @s run playsound minecraft:block.chest.close player @s ~ ~ ~ 0.5 1.6',
                           G.title('@a[tag=bm.cown]', 'actionbar', T('Only Prime cuts go in the cooler.', '#8ad8ff')), 'tag @a remove bm.cown'])
-    cc = G.FUNCS['p33/crate/close']
-    k = next(i for i, l in enumerate(cc) if 'bm.c_box' in l)
-    cc.insert(k, 'execute if entity @s[tag=bm.c_cool] run function bm:p148/cool/purge')
+    # (2.82j) it gathers Prime cuts lying within 6 blocks into itself while it's anywhere in its owner's inventory (the Vacuum
+    # Satchel's pick-up, p33/vac/take: matching stacks merge, then the first free slot; what doesn't fit stays on the ground)
+    cool = holds('prime_cooler')
+    G.FUNCS['loop/fast'] += [f'execute as @a[gamemode=!spectator] if items entity @s container.* {cool} at @s if entity @e[type=minecraft:item,distance=..6,nbt={{PickupDelay:0s}}] run function bm:p148/cool/pull']
+    fn('p148/cool/pull', ['scoreboard players set #vs bm.rng -1'] +
+       [f'execute if score #vs bm.rng matches -1 if items entity @s container.{n} {cool} run scoreboard players set #vs bm.rng {n}' for n in range(36)] +
+       ['execute if score #vs bm.rng matches -1 run return 0',
+        'execute store result storage bm:tmp cpk.n int 1 run scoreboard players get #vs bm.rng',
+        'function bm:p148/cool/read with storage bm:tmp cpk', 'scoreboard players set #vtak bm.rng 0',
+        'execute as @e[type=minecraft:item,distance=..6,nbt={PickupDelay:0s},limit=16,sort=nearest] if function bm:p148/cool/prime at @s run function bm:p33/vac/take',
+        'execute if score #vtak bm.rng matches 1.. run function bm:p148/cool/write with storage bm:tmp cpk'])
+    fn('p148/cool/prime', [f'execute if items entity @s contents {holds(c)} run return 1' for c in PRIME_CUTS] + ['return 0'])
+    fn('p148/cool/read', ['data remove storage bm:tmp vac.c', '$data modify storage bm:tmp vac.c set from entity @s Inventory[{Slot:$(n)b}].components."minecraft:container"',
+                          'execute unless data storage bm:tmp vac.c run data modify storage bm:tmp vac.c set value []',
+                          'data modify storage bm:tmp cpk.c set from storage bm:tmp vac.c'])
+    fn('p148/cool/write', ['data modify storage bm:tmp cpk.c set from storage bm:tmp vac.c',
+                           'function bm:p148/cool/write_m with storage bm:tmp cpk', 'playsound minecraft:entity.item.pickup player @s ~ ~ ~ 0.4 0.6'])
+    fn('p148/cool/write_m', ['$item modify entity @s container.$(n) {type:"minecraft:set_components",components:{"minecraft:container":$(c)}}'])
+    bc = G.FUNCS['p33/box/close']
+    k = next(i for i, l in enumerate(bc) if l.startswith('execute if block ~ ~ ~ minecraft:barrel run data modify storage bm:tmp bx.src'))
+    bc.insert(k, 'execute if entity @s[tag=bm.bx_cool] if block ~ ~ ~ minecraft:barrel run function bm:p148/cool/purge')
 
     # ================================================================== THE FINDS (in a won heist's haul)
     ins = lambda table: [f'execute in bm:gutter unless data block {HA} Items[26] run loot insert {HA} loot {table}',

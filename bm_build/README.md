@@ -21,6 +21,12 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82j: the Prime Cooler unfolds into a barrel, and gathers Prime cuts
+
+- **No more boat.** Right-click the Prime Cooler and it unfolds into a barrel named "Prime Cooler" in front of you, the way the Ender Pouch sets down its chest (and the Vacuum Satchel its barrel). Right-click the barrel to open it. Sneak, or walk 6+ blocks away, and it packs itself back into the cooler with everything inside; it also packs up on its own after five minutes. Like the satchel, it won't unfold where blocks can't be placed (the Black Market, the heists, the Hollow's throne). Old hinged shulker boxes open the same way now.
+- **It gathers Prime cuts.** Carried anywhere in your inventory, the cooler pulls Prime Beef, Porkchop, Mutton, Chicken and Rabbit lying within 6 blocks straight into itself (stacks merge). Plain meat and everything else stays on the ground.
+- Still Prime cuts only: anything else put into the open barrel is handed straight back to you, and once more as it packs up.
+
 ## New in 2.82i: the Prime Cooler
 
 - **Chef Fromage sells a Prime Cooler** (8 Tokens): a cold box for Prime cuts, with 27 slots. Right-click it to sit at it, then press your inventory key to open it; sneak to close it, and the cooler is back in your hands.

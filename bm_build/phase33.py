@@ -123,7 +123,7 @@ def generate(G):
     fn('p33/crate/close', ['scoreboard players operation #own bm.pid = @s bm.pid', 'tag @a remove bm.cown',
                            'execute as @a if score @s bm.pid = #own bm.pid run tag @s add bm.cown',
                            'execute unless entity @a[tag=bm.cown] run return 0',
-                           'execute if entity @s[tag=bm.c_box] run function bm:p33/box/close',
+                           'execute if entity @s[tag=bm.c_box] run function bm:p33/box/boat_retire',
                            'tag @a remove bm.cown', 'data modify entity @s Items set value []', 'tp @s ~ -400 ~', 'kill @s'])
 
     # ------------------------------------------------------------------ ENDER POUCH (2.20): a real ender chest, for a minute
@@ -165,27 +165,79 @@ def generate(G):
                             'function bm:p33/retire/hinge_m with storage bm:tmp vh', title('@s', 'actionbar', T('The Void Rat bought your Void Hinges back.', '#c08bff'))])
     fn('p33/retire/hinge_m', ['$' + give('void_shard', '$(n)')])
 
-    # ------------------------------------------------------------------ boxes (the satchel and hinged shulker boxes): the item
-    # itself is taken out of your hand and kept in storage while it's open; its contents go into the crate
-    fn('p33/box/open', ['$data modify storage bm:tmp bx set value {path:"$(path)",slot:"$(slot)"}'] + open_crate('box', 'Satchel') + [
+    # ------------------------------------------------------------------ boxes (the satchel, the Prime Cooler and hinged shulker boxes):
+    # (2.82j) a barrel set down in front of you, the Ender Pouch's way (it was a chest boat you sat in). The item itself is taken
+    # out of your hand and kept in storage while it's open; its contents go into the barrel (named after it), and come back into
+    # the item when you sneak, walk 6+ blocks off, or after five minutes. A barrel whose owner is offline waits for them.
+    fn('p33/box/open', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #kp bm.pid = @s bm.pid',
+        'execute as @e[type=minecraft:marker,tag=bm.bxm] if score @s bm.pid = #kp bm.pid at @s run function bm:p33/box/close',
+        'scoreboard players operation #kp bm.pid = @s bm.pid', 'scoreboard players set #ok bm.rng 0',
+        'execute unless function bm:p37/allowed run return run ' + title('@s', 'actionbar', T('It won\'t unfold here.', 'gray')),
+        'execute rotated ~ 0 positioned ^ ^ ^1.6 align xyz positioned ~0.5 ~ ~0.5 run function bm:p33/box/try',
+        'execute if score #ok bm.rng matches 0 rotated ~ 0 positioned ^ ^ ^2.6 align xyz positioned ~0.5 ~ ~0.5 run function bm:p33/box/try',
+        'execute if score #ok bm.rng matches 0 run return run ' + title('@s', 'actionbar', T('No room on the ground in front of you.', 'gray')),
+        '$data modify storage bm:tmp bx set value {path:"$(path)",slot:"$(slot)",name:"$(name)",kind:"$(kind)"}',
         'execute store result storage bm:tmp bx.pid int 1 run scoreboard players get @s bm.pid',
-        'function bm:p33/box/open2 with storage bm:tmp bx'] + mount())
+        'function bm:p33/box/open2 with storage bm:tmp bx',
+        'tag @e[type=minecraft:marker,tag=bm.bxnew] remove bm.bxnew',
+        'playsound minecraft:block.barrel.open player @a[distance=..16] ~ ~ ~ 1 1',
+        title('@s', 'actionbar', T('Open it up. Sneak (or walk away) to pack it back up.', '#c8a050'))])
+    fn('p33/box/try', ['execute unless block ~ ~ ~ #bm:p33_pouch_ok run return 0', 'execute if block ~ ~-1 ~ #minecraft:replaceable run return 0',
+                       'execute if block ~ ~-1 ~ minecraft:water run return 0',
+                       'execute if entity @e[type=minecraft:marker,tag=bm.bxm,distance=..0.5] run return 0',
+                       'setblock ~ ~ ~ minecraft:barrel[facing=up]',
+                       'summon minecraft:marker ~ ~ ~ {Tags:["bm.bxm","bm.bxnew"]}',
+                       'scoreboard players operation @e[type=minecraft:marker,tag=bm.bxnew,distance=..0.5] bm.pid = #kp bm.pid',
+                       'scoreboard players set @e[type=minecraft:marker,tag=bm.bxnew,distance=..0.5] bm.shcd 300',
+                       'scoreboard players set #ok bm.rng 1', 'particle minecraft:cloud ~ ~0.5 ~ 0.3 0.3 0.3 0.02 8'])
     fn('p33/box/open2', [
         '$data modify storage bm:pbox p$(pid) set from entity @s $(path)',
         '$data modify storage bm:tmp bx.src set from entity @s $(path).components."minecraft:container"',
         '$item replace entity @s $(slot) with minecraft:air',
-        'function bm:p33/box/fill'])
+        '$tag @e[type=minecraft:marker,tag=bm.bxnew] add bm.bx_$(kind)',
+        '$execute as @e[type=minecraft:marker,tag=bm.bxnew,limit=1] at @s run data merge block ~ ~ ~ {CustomName:"$(name)"}',
+        'execute as @e[type=minecraft:marker,tag=bm.bxnew,limit=1] at @s run function bm:p33/box/fill'])
     fn('p33/box/fill', ['execute unless data storage bm:tmp bx.src[0] run return 0',
                         'data modify storage bm:tmp bx.a set value {}', 'data modify storage bm:tmp bx.a.slot set from storage bm:tmp bx.src[0].slot',
                         'data modify storage bm:tmp bx.a.id set from storage bm:tmp bx.src[0].item.id', 'data modify storage bm:tmp bx.a.count set from storage bm:tmp bx.src[0].item.count',
                         'execute unless data storage bm:tmp bx.a.count run data modify storage bm:tmp bx.a.count set value 1',
                         'function bm:p33/box/fill_one with storage bm:tmp bx.a',
                         'data remove storage bm:tmp bx.src[0]', 'function bm:p33/box/fill'])
-    fn('p33/box/fill_one', ['$data modify entity @e[type=minecraft:dark_oak_chest_boat,tag=bm.cnew,distance=..1,limit=1] Items append value {Slot:$(slot)b,id:"$(id)",count:$(count)}',
-                            'execute if data storage bm:tmp bx.src[0].item.components run data modify entity @e[type=minecraft:dark_oak_chest_boat,tag=bm.cnew,distance=..1,limit=1] Items[-1].components set from storage bm:tmp bx.src[0].item.components'])
-    fn('p33/box/close', ['execute store result storage bm:tmp bx.pid int 1 run scoreboard players get @s bm.pid', 'data modify storage bm:tmp bx.out set value []',
-                         'data modify storage bm:tmp bx.src set from entity @s Items', 'function bm:p33/box/drain',
-                         'function bm:p33/box/back with storage bm:tmp bx'])
+    fn('p33/box/fill_one', ['$data modify block ~ ~ ~ Items append value {Slot:$(slot)b,id:"$(id)",count:$(count)}',
+                            'execute if data storage bm:tmp bx.src[0].item.components run data modify block ~ ~ ~ Items[-1].components set from storage bm:tmp bx.src[0].item.components'])
+    # packing up (as the barrel's marker, there): its contents back into the item, the item back to its owner, the barrel gone
+    fn('p33/box/close', ['scoreboard players operation #own bm.pid = @s bm.pid', 'tag @a remove bm.cown',
+                         'execute as @a if score @s bm.pid = #own bm.pid run tag @s add bm.cown',
+                         'execute unless entity @a[tag=bm.cown] run return 0',
+                         'execute store result storage bm:tmp bx.pid int 1 run scoreboard players get #own bm.pid',
+                         'data modify storage bm:tmp bx.out set value []', 'data modify storage bm:tmp bx.src set value []',
+                         'execute if block ~ ~ ~ minecraft:barrel run data modify storage bm:tmp bx.src set from block ~ ~ ~ Items',
+                         'function bm:p33/box/drain', 'function bm:p33/box/back with storage bm:tmp bx',
+                         'execute if block ~ ~ ~ minecraft:barrel run data modify block ~ ~ ~ Items set value []',
+                         'execute if block ~ ~ ~ minecraft:barrel run setblock ~ ~ ~ minecraft:air',
+                         'particle minecraft:cloud ~ ~0.5 ~ 0.3 0.3 0.3 0.02 8', 'tag @a remove bm.cown', 'kill @s'])
+    second.append('execute as @e[type=minecraft:marker,tag=bm.bxm] at @s run function bm:p33/box/check')
+    fn('p33/box/check', ['scoreboard players remove @s bm.shcd 1', 'scoreboard players operation #kp bm.pid = @s bm.pid',
+                         'scoreboard players set #near bm.rng 0', 'scoreboard players set #on bm.rng 0',
+                         'execute as @a if score @s bm.pid = #kp bm.pid run scoreboard players set #on bm.rng 1',
+                         'execute if score #on bm.rng matches 0 run return 0',
+                         'execute as @a[distance=..6] if score @s bm.pid = #kp bm.pid run scoreboard players set #near bm.rng 1',
+                         'execute if score #near bm.rng matches 0 run return run function bm:p33/box/close',
+                         'execute unless block ~ ~ ~ minecraft:barrel run return run function bm:p33/box/close',
+                         'execute if score @s bm.shcd matches ..0 run function bm:p33/box/close'])
+    # sneaking packs it up - once its owner has let go of sneak since opening it (the satchel opens on sneak + right-click;
+    # and a client doesn't send sneak while a container screen is open, so sneaking can't close it under your hands)
+    fast += ['execute as @e[type=minecraft:marker,tag=bm.bxm,tag=!bm.bxarm] run function bm:p33/box/arm',
+             'execute as @a[predicate=bm:p20/sneaking] at @s if entity @e[type=minecraft:marker,tag=bm.bxarm,distance=..12] run function bm:p33/box/sneak']
+    fn('p33/box/arm', ['scoreboard players operation #kp bm.pid = @s bm.pid', 'scoreboard players set #sn bm.rng 1',
+                       'execute as @a if score @s bm.pid = #kp bm.pid unless predicate bm:p20/sneaking run scoreboard players set #sn bm.rng 0',
+                       'execute if score #sn bm.rng matches 0 run tag @s add bm.bxarm'])
+    fn('p33/box/sneak', ['scoreboard players operation #kp bm.pid = @s bm.pid',
+                         'execute as @e[type=minecraft:marker,tag=bm.bxarm,distance=..12] if score @s bm.pid = #kp bm.pid at @s run function bm:p33/box/close'])
+    # (a chest boat crate still open from before 2.82j closes the old way)
+    fn('p33/box/boat_retire', ['execute store result storage bm:tmp bx.pid int 1 run scoreboard players get @s bm.pid', 'data modify storage bm:tmp bx.out set value []',
+                              'data modify storage bm:tmp bx.src set from entity @s Items', 'function bm:p33/box/drain',
+                              'function bm:p33/box/back with storage bm:tmp bx'])
     fn('p33/box/drain', ['execute unless data storage bm:tmp bx.src[0] run return 0',
                          'data modify storage bm:tmp bx.a set value {}', 'data modify storage bm:tmp bx.a.slot set from storage bm:tmp bx.src[0].Slot',
                          'data modify storage bm:tmp bx.a.id set from storage bm:tmp bx.src[0].id', 'data modify storage bm:tmp bx.a.count set from storage bm:tmp bx.src[0].count',
@@ -217,8 +269,8 @@ def generate(G):
     wjson('bm/item_modifier/p33/vac_off.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_vac:0b}'},
                                                {'function': 'minecraft:set_components', 'components': {'minecraft:item_model': 'bm:vacuum_satchel', 'minecraft:enchantment_glint_override': False}}])
     fn('p33/vac/use', hand('vacuum_satchel') + [
-        'execute if predicate bm:p20/sneaking if score #hand bm.rng matches 1 run return run function bm:p33/box/open {path:"SelectedItem",slot:"weapon.mainhand"}',
-        'execute if predicate bm:p20/sneaking if score #hand bm.rng matches 2 run return run function bm:p33/box/open {path:"equipment.offhand",slot:"weapon.offhand"}',
+        'execute if predicate bm:p20/sneaking if score #hand bm.rng matches 1 run return run function bm:p33/box/open {path:"SelectedItem",slot:"weapon.mainhand",name:"Vacuum Satchel",kind:"box"}',
+        'execute if predicate bm:p20/sneaking if score #hand bm.rng matches 2 run return run function bm:p33/box/open {path:"equipment.offhand",slot:"weapon.offhand",name:"Vacuum Satchel",kind:"box"}',
         'execute if score #hand bm.rng matches 1 if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_vac:1b}] run return run function bm:p33/vac/off {slot:"weapon.mainhand"}',
         'execute if score #hand bm.rng matches 2 if items entity @s weapon.offhand *[minecraft:custom_data~{bm_vac:1b}] run return run function bm:p33/vac/off {slot:"weapon.offhand"}',
         'execute if score #hand bm.rng matches 1 run return run function bm:p33/vac/on {slot:"weapon.mainhand"}',
@@ -281,8 +333,8 @@ def generate(G):
                         'scoreboard players operation #gap bm.hnow -= @s bm.huse', 'scoreboard players operation @s bm.huse = #now bm.hnow',
                         'execute if score #gap bm.hnow matches 0..2 run return 0',
                         'execute unless predicate bm:p20/sneaking run return run ' + title('@s', 'actionbar', T('Sneak + right-click to open the box.', 'gray')),
-                        'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_quick:1b}] run return run function bm:p33/box/open {path:"SelectedItem",slot:"weapon.mainhand"}',
-                        'function bm:p33/box/open {path:"equipment.offhand",slot:"weapon.offhand"}'])
+                        'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_quick:1b}] run return run function bm:p33/box/open {path:"SelectedItem",slot:"weapon.mainhand",name:"Shulker Box",kind:"box"}',
+                        'function bm:p33/box/open {path:"equipment.offhand",slot:"weapon.offhand",name:"Shulker Box",kind:"box"}'])
 
     # ------------------------------------------------------------------ TOOL FUSION (Xenite Altar, sneak + right-click)
     wjson('bm/tags/item/p33_tools.json', {'values': [f'#minecraft:{t}s' for t in TOOLS]})
