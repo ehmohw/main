@@ -325,6 +325,26 @@ def generate(G):
     G.FUNCS['p70/unraid'][0:0] = ['clear @s *[minecraft:custom_data~{bm_room:1b}]']
     G.FUNCS['loop/second'].append('clear @a[tag=!bm.gvp,tag=!bm.gvdead] *[minecraft:custom_data~{bm_room:1b}]')
 
+
+    # ---- (2.82q) THE FEE MULTIPLIER: winning a Tier III / IV / V heist has a 5 / 10 / 15% chance of paying the raider's fee back
+    #      doubled, tripled or quadrupled (2x 45%, 3x 40%, 4x 15%) - the extra on top of the fee the win already returns
+    import phase90 as _P90
+    title = G.title
+    G.FUNCS['p70/haul'].append('function bm:p148/feex')
+    fn('p148/feex', ['execute unless score #gt bm.rng matches 3..5 run return 0', 'execute store result score #r bm.rng run random value 1..100',
+                     'execute if score #gt bm.rng matches 3 if score #r bm.rng matches 6.. run return 0',
+                     'execute if score #gt bm.rng matches 4 if score #r bm.rng matches 11.. run return 0',
+                     'execute if score #gt bm.rng matches 5 if score #r bm.rng matches 16.. run return 0',
+                     'execute store result score #r bm.rng run random value 1..100',
+                     'scoreboard players set #fm bm.rng 2', 'execute if score #r bm.rng matches 46..85 run scoreboard players set #fm bm.rng 3',
+                     'execute if score #r bm.rng matches 86.. run scoreboard players set #fm bm.rng 4'] +
+       [f'execute if score #gt bm.rng matches {t} run scoreboard players set #c bm.rng {_P90.FEE_T[t]}' for t in (3, 4, 5)] +
+       ['scoreboard players operation #fx bm.rng = #fm bm.rng', 'scoreboard players remove #fx bm.rng 1', 'scoreboard players operation #c bm.rng *= #fx bm.rng',
+        'scoreboard players operation #fxc bm.rng = #c bm.rng', 'function bm:p80/hand {iid:"token"}',
+        'title @s times 5 50 15', title('@s', 'title', [{'score': {'name': '#fm', 'objective': 'bm.rng'}, 'color': '#7dff6a', 'bold': True}, T('x YOUR FEE!', '#7dff6a', bold=True)]),
+        title('@s', 'subtitle', [T('The Fixer pays out big: +', 'gray'), {'score': {'name': '#fxc', 'objective': 'bm.rng'}, 'color': 'white', 'bold': True}, T(' Tokens', 'gray')]),
+        'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 1 1.2', 'playsound minecraft:entity.player.levelup player @s ~ ~ ~ 1 0.8'])
+
     # ---- (2.82g) a failed heist: the crew is walked back to the den within a second, and stays there (the den and the Locker
     #      Hall) until the choice is made - backing out of the dialog no longer lets anyone walk on into the dead heist
     fl = G.FUNCS['p75/fail']

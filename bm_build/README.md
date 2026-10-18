@@ -21,6 +21,10 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82q: the fee multiplier
+
+- **Win a Tier III, IV or V heist and the Fixer may pay your fee back several times over.** The chance is 5% at Tier III, 10% at Tier IV and 15% at Tier V. When it hits, it's 2x (45%), 3x (40%) or 4x (15%, the rarest), and a title says so. Only Tokens change: on top of the fee the win already gives back, a 2x hit pays one more fee, 3x two more, 4x three more (Tier V's fee is 6, so a 4x pays 18 extra). Every raider rolls their own.
+
 ## New in 2.82p: a heist's lent items stay in the heist
 
 - **Items a room lends you no longer come home.** The Grappling room's hook, the relay baton, puzzle tools and the like are taken when you leave a heist by any route (the Ledger's Leave, the Fixer's Door, being sent home), and swept off anyone found outside a heist.
