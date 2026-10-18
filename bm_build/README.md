@@ -21,6 +21,13 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82n: no way back, the Crew Flare, and adventure mode in the Locker Hall
+
+- **No backtracking.** When a room is solved and its exit bars lift, bars drop across its entrance. A crewmate still behind is let through when they walk up to them.
+- **A won heist keeps you in the vault.** Bars go across the vault's entrance, and anyone who gets out into the old rooms is put back in the treasury. The den, the Lounge and the Locker Hall are still fine to be in. Backing out of the Continue / Return dialog no longer lets you wander.
+- **The Crew Flare** comes with every kit, and goes when the kit does. Use it to go to a crewmate. Sneak + use it (or use it with no crewmate down there) to go to the hall before the room ahead. It only works while a heist is under way, never before BEGIN or once the heist is over, and it recharges every 20 seconds.
+- **The Locker Hall's adventure mode** is checked four times a second now, and again as you arrive. A second player there could be left in survival.
+
 ## New in 2.82m: the whole kit for every new raid, and nobody left outside the ambush
 
 - **Start a new raid and the whole kit comes back.** Only the paperweights, food and golden apples used to be topped up for another job, so a spent secondary stayed spent: wind charges, slowness or harming potions, the crossbow's arrows, the Ranged kit's arrows and the Support kit's healing potions. Now every raider walks into the new den with the full kit their role and ranks give, secondary included, and no more than that.

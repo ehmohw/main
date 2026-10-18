@@ -24,6 +24,7 @@ THE STORM EFFIGY is no longer Cecil's: Democratus gives it to whoever beats him 
 """
 from items import item, T, TOTEM, ITEMS, DYNAMIC
 from useitem import hold, HOLD
+import phase72 as _P72
 
 ROMAN = ['', 'I', 'II', 'III', 'IV', 'V']
 HA, HB = '-200 64 -197', '-198 64 -197'                 # (the haul's two barrels - as phase105)
@@ -119,6 +120,15 @@ _ECON.DIRECT['prime_cooler'] = (('token', COOLER_PRICE), None)
 def extend_offers(O, offer):
     O['blood'].append(offer(('blood_crystal', HORN_PRICE), ('sum_monstrosity', 1)))
     O['chef'].append(offer(('token', COOLER_PRICE), ('prime_cooler', 1)))
+
+
+# (2.82n) the Crew Flare: a loaner in every kit - stuck somewhere, it takes you to a crewmate
+item('crew_flare', TOTEM, 'Crew Flare', '#ff8a5a', ['A Fixer\'s flare, for when you\'re cut off.', ('Use: you\'re taken to a crewmate.', 'blue'),
+                                                    ('Sneak + use (or alone): to the hall', 'blue'), ('before the room ahead.', 'blue'),
+                                                    ('Only while a heist is under way; every 20 s.', 'gray'), ('Loaned with every kit.', 'gray')],
+     model='minecraft:recovery_compass', stack=1, cat='magic',
+     comps=dict(hold('none'), **{'minecraft:use_cooldown': {'seconds': 20.0, 'cooldown_group': 'bm:crew_flare'}}))
+HOLD['crew_flare'] = 'bm:p148/flare'
 
 
 def generate(G):
@@ -235,11 +245,48 @@ def generate(G):
     # ---- (2.82m) the Arcane Study's ambush bars its door behind whoever walked in first; a crewmate who was still behind
     #      (or comes back from a knock-out) was shut out until both waves fell. Now anyone of the crew at the bars while
     #      they're down is pulled through to the fight. (Local x -3..0 at the door, z 10..14; into x 2.5, z 12.5.)
-    G.FUNCS['p76/r/ambush/tick'].insert(1, 'execute if score @s bm.gvs matches 1..2 positioned ~-15.5 ~ ~-2.5 if entity @a[tag=bm.gvp,dx=2.5,dy=4,dz=4] '
-                                           'positioned ~15.5 ~ ~2.5 run function bm:p148/amb_pull')
+    # (2.82n) every room: anyone of the crew at a barred entrance (the ambush's, or a solved room's) is let through
+    G.FUNCS['loop/fast'].append('execute in bm:gutter as @e[type=minecraft:marker,tag=bm.gvr] at @s if block ~-12 ~ ~ minecraft:iron_bars positioned ~-15.5 ~ ~-2.5 '
+                                'if entity @a[tag=bm.gvp,dx=2.5,dy=4,dz=4] positioned ~15.5 ~ ~2.5 run function bm:p148/amb_pull')
     fn('p148/amb_pull', ['execute positioned ~-15.5 ~ ~-2.5 run tag @a[tag=bm.gvp,dx=2.5,dy=4,dz=4] add bm.ambp', 'tp @a[tag=bm.ambp] ~-10 ~ ~ -90 0',
                          'execute as @a[tag=bm.ambp] at @s run playsound minecraft:block.iron_door.open player @s ~ ~ ~ 1 0.8',
-                         G.title('@a[tag=bm.ambp]', 'actionbar', T('The bars let you through - your crew is fighting!', '#c060ff')), 'tag @a remove bm.ambp'])
+                         G.title('@a[tag=bm.ambp]', 'actionbar', T('The bars let you through - your crew is ahead!', '#c060ff')), 'tag @a remove bm.ambp'])
+
+
+    # ---- (2.82n) no backtracking: a solved room's entrance is barred as its exit opens (only open air is barred)
+    G.FUNCS['p70/solved'].insert(2, 'fill ~-12 ~ ~-1 ~-12 ~3 ~1 minecraft:iron_bars replace minecraft:air')
+    # ---- (2.82n) a won heist: the vault's entrance is barred, and anyone of the crew outside the vault (not in the den, the
+    #      Lounge or the Locker Hall) is put back in the treasury - no wandering the old rooms behind the choice dialog
+    G.FUNCS['p70/payout_inst'] += ['scoreboard players operation #vi bm.rng = @s bm.gvi',
+                                   'execute in bm:gutter as @e[type=minecraft:marker,tag=bm.gvr_vault] if score @s bm.gvi = #vi bm.rng at @s run fill ~-12 ~ ~-1 ~-12 ~3 ~1 minecraft:iron_bars replace minecraft:air']
+    G.FUNCS['loop/second'].append('execute as @e[type=minecraft:marker,tag=bm.gvinst,scores={bm.gvst=4}] at @s run function bm:p148/vlock')
+    fn('p148/vlock', ['scoreboard players operation #vi bm.rng = @s bm.gvi',
+                      'execute as @a[tag=bm.gvp] if score @s bm.gvi = #vi bm.rng at @s if dimension bm:gutter unless function bm:p121/inside unless function bm:p84/lk/inside run tag @s add bm.vout',
+                      'execute in bm:gutter as @e[type=minecraft:marker,tag=bm.gvr_vault] if score @s bm.gvi = #vi bm.rng at @s positioned ~-12.5 ~-2 ~-12.5 run tag @a[tag=bm.vout,dx=37,dy=20,dz=25] remove bm.vout',
+                      'execute in bm:gutter as @e[type=minecraft:marker,tag=bm.gvr_lobby] if score @s bm.gvi = #vi bm.rng at @s positioned ~-12.5 ~-2 ~-12.5 run tag @a[tag=bm.vout,dx=25,dy=20,dz=25] remove bm.vout',
+                      'execute in bm:gutter as @e[type=minecraft:marker,tag=bm.gvr_vault] if score @s bm.gvi = #vi bm.rng at @s run tp @a[tag=bm.vout] ~18 ~ ~ -90 0',
+                      'execute as @a[tag=bm.vout] run ' + say('The job\'s done - the Fixer keeps you in the vault. Your Ledger has the choice.', '#ffcf40'),
+                      'tag @a remove bm.vout'])
+    # ---- (2.82n) the Crew Flare: with every kit (a loaner - it goes with the kit), to a crewmate on the same heist
+    G.FUNCS['p80/kit/extras'].append(f'give @s {_P72.kit_arg("crew_flare")} 1')
+    fn('p148/flare', ['execute unless entity @s[tag=bm.gvp] run return run ' + say('The flare only burns on a heist.', 'gray'),
+                      'scoreboard players operation #fi bm.rng = @s bm.gvi', 'scoreboard players set #st bm.rng 0',
+                      'execute as @e[type=minecraft:marker,tag=bm.gvinst] if score @s bm.gvi = #fi bm.rng store result score #st bm.rng run scoreboard players get @s bm.gvst',
+                      'execute unless score #st bm.rng matches 2..3 run return run ' + say('The flare only burns while a heist is under way.', 'gray'),
+                      'tag @s add bm.flme',
+                      'execute as @a[tag=bm.gvp,tag=!bm.flme] if score @s bm.gvi = #fi bm.rng at @s if dimension bm:gutter unless function bm:p121/inside unless function bm:p84/lk/inside run tag @s add bm.flto',
+                      'execute if predicate bm:p20/sneaking run tag @a remove bm.flto',
+                      'particle minecraft:flame ~ ~1 ~ 0.3 0.6 0.3 0.05 30',
+                      'execute if entity @a[tag=bm.flto] run tp @s @a[tag=bm.flto,sort=random,limit=1]',
+                      'execute if entity @a[tag=bm.flto] run ' + say('The flare takes you to your crew.', '#ff8a5a'),
+                      'execute unless entity @a[tag=bm.flto] in bm:gutter as @e[type=minecraft:marker,tag=bm.gvcp] if score @s bm.gvi = #fi bm.rng run tp @a[tag=bm.flme] @s',
+                      'execute unless entity @a[tag=bm.flto] run ' + say('The flare takes you to the hall before the room ahead.', '#ff8a5a'),
+                      'execute at @s run playsound minecraft:entity.firework_rocket.launch player @a[distance=..16] ~ ~ ~ 1 1.2',
+                      'execute at @s run particle minecraft:flame ~ ~1 ~ 0.3 0.6 0.3 0.05 30',
+                      'tag @a remove bm.flto', 'tag @s remove bm.flme'])
+    # ---- (2.82n) the Locker Hall's adventure mode, four times a second (and again once they're through the door)
+    G.FUNCS['loop/fast'].append('execute in bm:gutter positioned -256 60 -256 as @a[dx=15,dy=12,dz=15,gamemode=survival] run function bm:p84/lk/adv')
+    G.FUNCS['p84/lk/enter'].append('execute if entity @s[gamemode=survival] run function bm:p84/lk/adv')
 
     # ---- (2.82g) a failed heist: the crew is walked back to the den within a second, and stays there (the den and the Locker
     #      Hall) until the choice is made - backing out of the dialog no longer lets anyone walk on into the dead heist
