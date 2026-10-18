@@ -268,6 +268,22 @@ def generate(G):
     fn('p148/fireproof', ['effect give @s minecraft:fire_resistance infinite 0 true', 'tag @s add bm.gvfr'])
     fn('p148/grown', ['data modify entity @s IsBaby set value 0b', 'tag @s add bm.gvad'])
 
+    # ---- (2.82k) the traders' hands stay empty: a wandering-trader NPC host that ever got a moment of AI (Zorp, aboard a mothership)
+    #      can be left holding its milk bucket or potion - and a held item shows even on an invisible host, in front of the model
+    G.FUNCS['loop/second'] += ['execute as @e[type=minecraft:wandering_trader,tag=bm.npc] if items entity @s weapon.mainhand * run item replace entity @s weapon.mainhand with minecraft:air',
+                               'execute as @e[type=minecraft:wandering_trader,tag=bm.npc] if items entity @s weapon.offhand * run item replace entity @s weapon.offhand with minecraft:air']
+
+    # ---- (2.82k) adventure mode aboard the motherships and the Vorn Dreadnoughts (as in the market and the crypts). The hull is
+    #      ~25 blocks round its beam marker (bm.tbeam / bm.tbeam_red, on the lower deck), from 5 below it to 14 above. Its own
+    #      tag (bm.advs), so the zone/exit sweep for the market and crypts doesn't undo it. The conduits, crystals, chests and
+    #      crew all work in adventure mode.
+    for t in ('bm.tbeam', 'bm.tbeam_red'):
+        G.FUNCS['loop/second'].append(f'execute as @e[type=minecraft:marker,tag={t}] at @s positioned ~-25 ~-5 ~-25 as @a[dx=50,dy=19,dz=50,gamemode=survival,tag=!bm.advs] run function bm:p148/ship/enter')
+    G.FUNCS['loop/second'].append('execute as @a[tag=bm.advs] at @s unless function bm:p148/ship/aboard run function bm:p148/ship/leave')
+    fn('p148/ship/enter', ['gamemode adventure @s', 'tag @s add bm.advs', say('Aboard the ship: blocks cannot be broken or placed here.', 'dark_aqua')])
+    fn('p148/ship/aboard', [f'execute positioned ~-25 ~-14 ~-25 if entity @e[type=minecraft:marker,tag={t},dx=50,dy=19,dz=50] run return 1' for t in ('bm.tbeam', 'bm.tbeam_red')] + ['return 0'])
+    fn('p148/ship/leave', ['tag @s remove bm.advs', 'execute if entity @s[gamemode=adventure,tag=!bm.adv] run gamemode survival @s'])
+
     # ---- (2.82i) THE PRIME COOLER: right-click sets it down as a barrel (phase33's boxes, as the satchel: the item is held in
     #      storage while it's open, its contents moved into the barrel, and back when it's packed up). Only Prime cuts stay in:
     #      anything else put in is handed straight back out at the owner's feet - while it's open, and once more as it closes.

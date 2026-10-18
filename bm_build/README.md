@@ -21,6 +21,11 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82k: adventure mode aboard the alien ships, and Zorp's hands
+
+- **Motherships and Vorn Dreadnoughts are protected ground.** Step aboard either and you're put in adventure mode, as in the Black Market and the crypts ("Aboard the ship: blocks cannot be broken or placed here."). Leave the ship and you're back in survival. Everything aboard still works in adventure mode: the traders, the crew, the chests, the Dreadnought's power conduits and both invasion-night events.
+- **Zorp no longer holds a bucket in front of his face.** A trader's body could be left holding its milk bucket or potion, which shows even though the body itself is invisible. Traders' hands are now kept empty.
+
 ## New in 2.82j: the Prime Cooler unfolds into a barrel, and gathers Prime cuts
 
 - **No more boat.** Right-click the Prime Cooler and it unfolds into a barrel named "Prime Cooler" in front of you, the way the Ender Pouch sets down its chest (and the Vacuum Satchel its barrel). Right-click the barrel to open it. Sneak, or walk 6+ blocks away, and it packs itself back into the cooler with everything inside; it also packs up on its own after five minutes. Like the satchel, it won't unfold where blocks can't be placed (the Black Market, the heists, the Hollow's throne). Old hinged shulker boxes open the same way now.
