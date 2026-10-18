@@ -21,6 +21,11 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82p: a heist's lent items stay in the heist
+
+- **Items a room lends you no longer come home.** The Grappling room's hook, the relay baton, puzzle tools and the like are taken when you leave a heist by any route (the Ledger's Leave, the Fixer's Door, being sent home), and swept off anyone found outside a heist.
+- (Hooks the old bug already let out look exactly like a bought Grappling Hook, so they can't be told apart and weren't removed.)
+
 ## New in 2.82o: the Grapple room fixed, and heists from anywhere
 
 - **No more endless hooks in the Grapple room.** The room's hook lacked the item stamp every pack item carries, so the item re-sync kept swapping it for a plain Grappling Hook, and the room kept lending another. Now it lends one hook. A dropped hook disappears and a new one comes (at most every 3 seconds), and one held on the cursor counts.

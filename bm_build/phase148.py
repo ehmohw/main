@@ -319,6 +319,12 @@ def generate(G):
     for f_ in [f for f in G.FUNCS if f.endswith('/no_dun')]:
         if not any(f'bm:{f_}' in l for L in G.FUNCS.values() for l in L): del G.FUNCS[f_]
 
+
+    # ---- (2.82p) a room's lent items (the hook, batons, puzzle tools...) never leave the heist: taken on every way out, and
+    #      swept off anyone outside one (as the kit is)
+    G.FUNCS['p70/unraid'][0:0] = ['clear @s *[minecraft:custom_data~{bm_room:1b}]']
+    G.FUNCS['loop/second'].append('clear @a[tag=!bm.gvp,tag=!bm.gvdead] *[minecraft:custom_data~{bm_room:1b}]')
+
     # ---- (2.82g) a failed heist: the crew is walked back to the den within a second, and stays there (the den and the Locker
     #      Hall) until the choice is made - backing out of the dialog no longer lets anyone walk on into the dead heist
     fl = G.FUNCS['p75/fail']

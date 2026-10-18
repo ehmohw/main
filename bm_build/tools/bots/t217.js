@@ -67,6 +67,19 @@ const res = [];
   A.use(); await sleep(200); A.release();
   const hung = await wait(10000, async () => passes(`${G}execute as ${sw} at @s if entity @a[name=TestRat,distance=..4]`), 200);
   ok('the Swinging Lamps: TestRat hooks a lamp by its chain and is hung under it over the island', hung, A.bars.slice(-3).join(' | ') + ' ' + (await run('data get entity TestRat Pos')) + ' ' + swp.join(','));
+  // ---- leaving mid-puzzle, hook in hand, through the Ledger's own buttons: no room item comes home
+  A.input({ shift: true }); await sleep(400); A.input({}); await sleep(1500);
+  await run(`${G}execute as ${room} at @s run tp TestRat ~-10 ~ ~ -90 0`); await sleep(1500);
+  const had = await hooks();
+  let lg = -1; for (let i = 0; i < 9 && lg < 0; i++) if (await passes(`execute if items entity TestRat hotbar.${i} *[minecraft:custom_data~{bm:"fixers_ledger"}]`)) lg = i;
+  A.slot(lg); await sleep(300); await A.useWait(); await sleep(600);
+  const l1 = await A.press(/Leave the heist/i); await sleep(1200);
+  const l2 = A.buttons().length ? await A.press(/Leave|Yes|Go home|Head home|Confirm/i) : true; await sleep(4000);
+  const out = !(await passes('execute if entity @a[name=TestRat,tag=bm.gvp]'));
+  const kept = await hooks();
+  ok('leaving mid-puzzle with the room\'s hook (the Ledger\'s Leave the heist): out of the heist, and the hook doesn\'t come home', had >= 1 && !!l1 && out && kept === 0,
+     `had ${had}, left ${!!l1}/${!!l2} out ${out}, kept ${kept}`);
+
   // ---- clean up
   await run(`${G}tag @e[tag=t217sw] remove t217sw`);
   A.input({ shift: true }); await sleep(400); A.input({});
