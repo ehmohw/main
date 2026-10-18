@@ -64,7 +64,6 @@ const res = [];
   await run(`${G}execute as ${room} at @s run tp TestRat ~-10 ~ ~ facing ${swp[0]} ${swp[1] + 2.5} ${swp[2]}`); await sleep(800);
   src = -1; for (let i = 0; i < 9 && src < 0; i++) if (await passes(`execute if items entity TestRat hotbar.${i} ${RH}`)) src = i;
   A.slot(src); await sleep(300); A.bars.length = 0;
-    for (let d = 1; d < 12; d++) console.log('DBG ray', d, await run(`execute as TestRat at @s anchored eyes positioned ^ ^ ^${d} if block ~ ~ ~ #bm:grap_pass`)); }
   A.use(); await sleep(200); A.release();
   const hung = await wait(10000, async () => passes(`${G}execute as ${sw} at @s if entity @a[name=TestRat,distance=..4]`), 200);
   ok('the Swinging Lamps: TestRat hooks a lamp by its chain and is hung under it over the island', hung, A.bars.slice(-3).join(' | ') + ' ' + (await run('data get entity TestRat Pos')) + ' ' + swp.join(','));
