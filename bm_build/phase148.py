@@ -284,6 +284,20 @@ def generate(G):
     fn('p148/ship/aboard', [f'execute positioned ~-25 ~-14 ~-25 if entity @e[type=minecraft:marker,tag={t},dx=50,dy=19,dz=50] run return 1' for t in ('bm.tbeam', 'bm.tbeam_red')] + ['return 0'])
     fn('p148/ship/leave', ['tag @s remove bm.advs', 'execute if entity @s[gamemode=adventure,tag=!bm.adv] run gamemode survival @s'])
 
+    # ---- (2.82l) a pop-up container broken by hand drops no block: the Prime Cooler's / shulker box's barrel (bm.bxm), the Vacuum
+    #      Satchel's barrel (bm.vacm) and the Ender Pouch's ender chest (bm.pouch) were free barrels / ender chests (or eight
+    #      obsidian) for the breaking. Checked every tick, before the drop's pick-up delay runs out; whatever was inside stays on
+    #      the ground for its owner, and the marker's own check then packs the item up (empty) or folds the pouch away.
+    G.FUNCS['tick'] += ['execute as @e[type=minecraft:marker,tag=bm.bxm] at @s unless block ~ ~ ~ minecraft:barrel run function bm:p148/broke/box',
+                        'execute as @e[type=minecraft:marker,tag=bm.vacm] at @s unless block ~ ~ ~ minecraft:barrel run function bm:p148/broke/vac',
+                        'execute as @e[type=minecraft:marker,tag=bm.pouch] at @s unless block ~ ~ ~ minecraft:ender_chest run function bm:p148/broke/pouch']
+    nobarrel = 'execute as @e[type=minecraft:item,distance=..2] if items entity @s contents minecraft:barrel run kill @s'
+    fn('p148/broke/box', [nobarrel, 'function bm:p33/box/close'])                       # (its owner gets the item back, empty)
+    fn('p148/broke/vac', [nobarrel, 'kill @s'])                                          # (the satchel's storage went into the barrel)
+    fn('p148/broke/pouch', ['execute as @e[type=minecraft:item,distance=..2] if items entity @s contents minecraft:ender_chest run kill @s',
+                            'execute as @e[type=minecraft:item,distance=..2] if items entity @s contents minecraft:obsidian run kill @s',
+                            'kill @s'])
+
     # ---- (2.82i) THE PRIME COOLER: right-click sets it down as a barrel (phase33's boxes, as the satchel: the item is held in
     #      storage while it's open, its contents moved into the barrel, and back when it's packed up). Only Prime cuts stay in:
     #      anything else put in is handed straight back out at the owner's feet - while it's open, and once more as it closes.

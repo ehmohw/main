@@ -21,6 +21,10 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82l: no free blocks from pop-up containers
+
+- **Breaking the barrel or chest a container sets down gives you nothing extra.** The Prime Cooler's barrel, the Vacuum Satchel's barrel and the Ender Pouch's ender chest each dropped as a free barrel or ender chest (or eight obsidian) when broken by hand. Now no block comes out. Whatever was inside still lands on the ground for you, the cooler comes straight back to you, and the satchel and pouch fold away.
+
 ## New in 2.82k: adventure mode aboard the alien ships, and Zorp's hands
 
 - **Motherships and Vorn Dreadnoughts are protected ground.** Step aboard either and you're put in adventure mode, as in the Black Market and the crypts ("Aboard the ship: blocks cannot be broken or placed here."). Leave the ship and you're back in survival. Everything aboard still works in adventure mode: the traders, the crew, the chests, the Dreadnought's power conduits and both invasion-night events.
