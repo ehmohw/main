@@ -21,6 +21,11 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82i: the Prime Cooler
+
+- **Chef Fromage sells a Prime Cooler** (8 Tokens): a cold box for Prime cuts, with 27 slots. Right-click it to sit at it, then press your inventory key to open it; sneak to close it, and the cooler is back in your hands.
+- **Prime cuts only.** It keeps Prime Beef, Porkchop, Mutton, Chicken and Rabbit - the cuts Prime animals drop - and nothing else. Plain raw meat, cooked food or anything else put in is handed straight back to you ("Only Prime cuts go in the cooler."), and once more as it closes, so nothing else can be slipped in.
+
 ## New in 2.82h: fireproof monsters on the Nether floors, and adult piglins
 
 - **Heist monsters keep off the burn.** A guard or boss standing on (or right beside) a magma floor - the Hot Floor modifier's rooms, the Blaze Forge - is given Fire Resistance as soon as it's there, so the floor no longer whittles it down before you arrive.

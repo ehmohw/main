@@ -22,7 +22,7 @@ THE VAULT'S RARE STORES (the Tier III-V vault treasure roll, as before: 8%/9%/10
 THE STORM EFFIGY is no longer Cecil's: Democratus gives it to whoever beats him in a duel - every duel won - because
               KillerWatt is his successor.
 """
-from items import item, T, TOTEM, ITEMS
+from items import item, T, TOTEM, ITEMS, DYNAMIC
 from useitem import hold, HOLD
 
 ROMAN = ['', 'I', 'II', 'III', 'IV', 'V']
@@ -89,6 +89,15 @@ item('fixers_lamp', TOTEM, "Fixer's Lamp", '#ffd27a', ['A brass lamp that never 
                                                      ('the heist\'s Lights Out is lifted.', 'blue'), ('Sold by Goldtooth.', 'dark_gray')],
      model='minecraft:lantern', glint=True, stack=4, cat='misc', comps=hold('none'))
 HOLD['fixers_lamp'] = 'bm:p148/use/lamp'
+# (2.82i) THE PRIME COOLER - Chef Fromage's: a cold box for Prime cuts and nothing else (27 slots, the satchel's crate trick)
+COOLER_PRICE = 8
+PRIME_CUTS = ('prime_beef', 'prime_pork', 'prime_mutton', 'prime_chicken', 'prime_rabbit')
+item('prime_cooler', TOTEM, 'Prime Cooler', '#8ad8ff',
+     ['Right-click to open it (27 slots).', ('Keeps Prime cuts cold: Prime Beef, Porkchop,', 'blue'), ('Mutton, Chicken and Rabbit.', 'blue'),
+      'Nothing else goes in - not even plain meat.', 'From Chef Fromage\'s kitchen.'],
+     model='bm:prime_cooler', stack=1, cat='meat', comps=dict(hold('none'), **{'minecraft:container': []}))
+DYNAMIC.add('prime_cooler')
+HOLD['prime_cooler'] = 'bm:p148/use/cooler'
 import phase70 as _P70
 _goldtooth0 = _P70.goldtooth
 
@@ -103,10 +112,12 @@ def _goldtooth():
 _P70.goldtooth = _goldtooth
 import economy as _ECON
 _ECON.DIRECT['sum_monstrosity'] = (('blood_crystal', HORN_PRICE), None)      # (the price as set: no scale, no cut)
+_ECON.DIRECT['prime_cooler'] = (('token', COOLER_PRICE), None)
 
 
 def extend_offers(O, offer):
     O['blood'].append(offer(('blood_crystal', HORN_PRICE), ('sum_monstrosity', 1)))
+    O['chef'].append(offer(('token', COOLER_PRICE), ('prime_cooler', 1)))
 
 
 def generate(G):
@@ -256,6 +267,37 @@ def generate(G):
     fn('p148/fireproof', ['effect give @s minecraft:fire_resistance infinite 0 true', 'tag @s add bm.gvfr'])
     fn('p148/grown', ['data modify entity @s IsBaby set value 0b', 'tag @s add bm.gvad'])
 
+    # ---- (2.82i) THE PRIME COOLER: right-click opens it as a crate (phase33's satchel: the item is held in storage while it's open,
+    #      its contents moved into a chest boat you sit in, and moved back when you get out). Only Prime cuts stay in: anything
+    #      else put in is handed straight back out at the owner's feet - while it's open, and once more as it closes.
+    cool_hand = ['scoreboard players set #hand bm.rng 0',
+                 f'execute if items entity @s weapon.mainhand {holds("prime_cooler")} run scoreboard players set #hand bm.rng 1',
+                 f'execute if score #hand bm.rng matches 0 if items entity @s weapon.offhand {holds("prime_cooler")} run scoreboard players set #hand bm.rng 2',
+                 'execute if score #hand bm.rng matches 0 run return 0']
+    fn('p148/use/cooler', cool_hand + ['execute if score #hand bm.rng matches 1 run return run function bm:p148/cool/open {path:"SelectedItem",slot:"weapon.mainhand"}',
+                                       'function bm:p148/cool/open {path:"equipment.offhand",slot:"weapon.offhand"}'])
+    box = [l for l in G.FUNCS['p33/box/open'] if not l.startswith('$data modify storage bm:tmp bx set value')]
+    assert sum('summon minecraft:dark_oak_chest_boat' in l for l in box) == 1, box
+    fn('p148/cool/open', ['$data modify storage bm:tmp bx set value {path:"$(path)",slot:"$(slot)"}'] +
+       [l.replace('"bm.c_box"', '"bm.c_box","bm.c_cool"').replace('Satchel', 'Prime Cooler').replace('#c8a050', '#8ad8ff') for l in box])
+    assert any('"bm.c_box","bm.c_cool"' in l for l in G.FUNCS['p148/cool/open']), G.FUNCS['p148/cool/open']
+    keep = ''.join(f' unless items entity @s container.%d {holds(c)}' for c in PRIME_CUTS)
+    fn('p148/cool/bad', [f'execute if items entity @s container.{n} *{keep % ((n,) * len(PRIME_CUTS))} run return 1' for n in range(27)] + ['return 0'])
+    fn('p148/cool/purge', [f'execute if items entity @s container.{n} *{keep % ((n,) * len(PRIME_CUTS))} run function bm:p148/cool/spit {{n:{n}}}' for n in range(27)])
+    fn('p148/cool/spit', ['$data modify storage bm:tmp cool set from entity @s Items[{Slot:$(n)b}]', 'data remove storage bm:tmp cool.Slot',
+                          '$item replace entity @s container.$(n) with minecraft:air',
+                          'execute at @a[tag=bm.cown,limit=1] run summon minecraft:item ~ ~0.3 ~ {Tags:["bm.cspit"],Item:{id:"minecraft:stone",count:1},PickupDelay:0s}',
+                          'data modify entity @e[type=minecraft:item,tag=bm.cspit,limit=1] Item set from storage bm:tmp cool',
+                          'tag @e[type=minecraft:item,tag=bm.cspit] remove bm.cspit'])
+    G.FUNCS['loop/fast'] += ['execute as @e[type=minecraft:dark_oak_chest_boat,tag=bm.c_cool] at @s if function bm:p148/cool/bad run function bm:p148/cool/live']
+    fn('p148/cool/live', ['tag @a remove bm.cown', 'execute on passengers run tag @s[type=minecraft:player] add bm.cown',
+                          'execute unless entity @a[tag=bm.cown] run return 0', 'function bm:p148/cool/purge',
+                          'execute as @a[tag=bm.cown] at @s run playsound minecraft:block.chest.close player @s ~ ~ ~ 0.5 1.6',
+                          G.title('@a[tag=bm.cown]', 'actionbar', T('Only Prime cuts go in the cooler.', '#8ad8ff')), 'tag @a remove bm.cown'])
+    cc = G.FUNCS['p33/crate/close']
+    k = next(i for i, l in enumerate(cc) if 'bm.c_box' in l)
+    cc.insert(k, 'execute if entity @s[tag=bm.c_cool] run function bm:p148/cool/purge')
+
     # ================================================================== THE FINDS (in a won heist's haul)
     ins = lambda table: [f'execute in bm:gutter unless data block {HA} Items[26] run loot insert {HA} loot {table}',
                          f'execute in bm:gutter if data block {HA} Items[26] run loot insert {HB} loot {table}']
@@ -358,6 +400,10 @@ def rp(R):
     R.ICONS['vorn_beacon'] = art(['................', '.......gg.......', '......gGGg......', '.......kk.......', '.....kkkkkk.....', '....kvvvvvvk....',
                                   '....kvGggGvk....', '....kvgGGgvk....', '....kvGggGvk....', '....kvvvvvvk....', '....kkkkkkkk....', '...kvvvvvvvvk...',
                                   '...kkkkkkkkkk...'], dict(k='#1a1e24', v='#5a6474', g='#3ac84a', G='#b4ff9a'))
+    R.ICONS['prime_cooler'] = art(['................', '................', '.....kkkkkk.....', '.....k....k.....', '..kkkkkkkkkkkk..',
+                                   '..kwwwwwwwwwwk..', '..kWWWWWWWWWWk..', '..kkkkkkkkkkkk..', '..kbBBBBBBBBbk..', '..kbBfBBBBBBbk..',
+                                   '..kbBBrrrrBBbk..', '..kbBrRRRrwwbk..', '..kbBBrrrrBBbk..', '..kbbbbbbbbbbk..', '..kkkkkkkkkkkk..'],
+                                  dict(k='#14303e', w='#f4fbff', W='#c8e4f0', b='#2a7aa8', B='#5ab4e0', f='#e0f8ff', r='#c83a3a', R='#ff8a7a'))
     R.ICONS['sum_lantern'] = art(['................', '.......ss.......', '......ss........', '....kkkkkkkk....', '...kddddddddk...',
                                   '..kddoddddoddk..', '..kdyodddoydk...', '..kddddddddddk..', '..kdoyyyyyyodk..', '..kddoyoyyoddk..',
                                   '...kddddddddk...', '..k.kkkkkkkk.k..', '.k..k..k..k..k..', 'k...k..k..k...k.'],
