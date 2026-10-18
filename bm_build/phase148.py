@@ -177,6 +177,16 @@ def generate(G):
     sec.insert(za[0] + 1, f'execute if score #vornmet bm.bm matches 1 unless score #lnight bm.bm matches 1 as @e[tag=bm.npc_alien] '
                           f'unless score @s bm.ofv matches {_R24.INV_VER} run function bm:p148/zorp_unlocked')
 
+    # ---- (2.82f) another job: the kit's golden apples topped back up with the paperweights and food (eaten on the last heist,
+    #      they never came back) - each kit rank's own count, from its own give list
+    gap = 'minecraft:golden_apple[minecraft:custom_data={bm_kit:1b}'
+    for r in range(1, 5):
+        lines = {k: [l for l in G.FUNCS[f'p80/kit/give_{r}_{k}'] if l.startswith(f'give @s {gap}')] for k in range(1, 7)}
+        assert all(len(v) == 1 for v in lines.values()), (r, {k: len(v) for k, v in lines.items()})
+        fn(f'p148/gap/r{r}', [f'execute if score @s bm.kr{r} matches {k} run return run {lines[k][0]}' for k in range(2, 7)] + [lines[1][0]])
+    G.FUNCS['p104/resupply'] += ['clear @s minecraft:golden_apple[minecraft:custom_data~{bm_kit:1b}]'] + \
+                                [f'execute if score @s bm.gvrole matches {r} run function bm:p148/gap/r{r}' for r in range(1, 5)]
+
     # ================================================================== THE FINDS (in a won heist's haul)
     ins = lambda table: [f'execute in bm:gutter unless data block {HA} Items[26] run loot insert {HA} loot {table}',
                          f'execute in bm:gutter if data block {HA} Items[26] run loot insert {HB} loot {table}']

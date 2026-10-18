@@ -21,6 +21,14 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82f: Lights Out, rarer and named; kit golden apples back for another job
+
+- **Lights Out is much rarer:** about 1 Tier III heist in 20 now (it was about 1 in 4). It's the modifier that keeps Darkness on
+  you for the whole heist - the "darkness after the dance room" was this, not a bug.
+- **A Lights Out heist says so on its bar,** every room of the way: "☾ LIGHTS OUT" sits beside Alarm, Tries and Pot.
+- **Kit golden apples come back for another job.** Start a new raid and the apples you ate on the last one are topped back up
+  with the paperweights and food - your kit rank's own count, no more.
+
 ## New in 2.82e: no Red Xenite farm aboard the Dreadnoughts
 
 - **A Dreadnought's guards** (the Vorn its alarm raises, there whenever you board) **drop Red Xenite only 1 time in 10** now. They
@@ -2223,7 +2231,7 @@ A raid with puzzles, guards, an alarm and five tiers. It works solo too, and it 
 - **Knocked out?** The gang drags you back to the den, and your things are where you fell.
 - **Tiers I to V:** clearing a tier unlocks the next one for you. The first clear of each tier pays a Gilded armour piece (tier V: the Treasurer's Scepter) and a finer Raid Banner.
 - **Modifiers:** each run rolls some, more at higher tiers, and each one adds extra shares:
-  - **Lights Out**
+  - **Lights Out:** Darkness on you for the whole heist (never in the den). Rare - about 1 heist in 20 - and the heist's bar says LIGHTS OUT.
   - **Hot Floor**
   - **Speed Run**
   - **Iron Guards**

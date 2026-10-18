@@ -142,6 +142,18 @@ def generate(G):
                            f'execute in bm:gutter positioned {P84.HX} {P84.HY - 3} {P84.HZ} run tag @a[tag=bm.gvme,dx=15,dy=12,dz=15] add bm.gvsafe',
                            'effect give @a[tag=bm.gvme,tag=!bm.gvsafe] minecraft:darkness 3 0 true',
                            'tag @a[tag=bm.gvsafe] remove bm.gvsafe'])
+    # (2.82f: Lights Out much rarer - drawn, it only sticks 1 time in 6, otherwise the draw goes again: about 1 Tier III heist in 20,
+    #  not 1 in 4)
+    rm = G.FUNCS['p70/roll_mod']
+    k = next(i for i, l in enumerate(rm) if l.startswith('execute if score #r bm.rng matches 0 run scoreboard players set #bit'))
+    rm[k:k] = ['execute if score #r bm.rng matches 0 store result score #q bm.rng run random value 1..6',
+               'execute if score #r bm.rng matches 0 unless score #q bm.rng matches 1 run return run function bm:p70/roll_mod']
+    # (2.82f: a Lights Out heist says so on its bar, every room of the way - its darkness read as a bug, not a modifier)
+    bar = G.FUNCS['p70/bar']
+    named = [l for l in bar if ' run bossbar set bm:gva' in l and ' name ' in l and l.endswith(']')]
+    assert len(named) == 16, len(named)                      # (alarm on and alarm off, 8 slots each)
+    bar += ['scoreboard players operation #lo bm.rng = @s bm.gvmod', 'scoreboard players operation #lo bm.rng %= #2 bm.rng']
+    bar += ['execute if score #lo bm.rng matches 1 ' + l[len('execute '):-1] + ',' + snbt(T('   ☾ LIGHTS OUT', '#a0a0c8', bold=True)) + ']' for l in named]
 
     # ================================================================== THE DEN: one name each
     for f_, tags in (('p70/r/lobby/init', ('bm.gvgt', 'bm.gvrec', 'bm.gvtail')), ('p76/r/rest/init', ('bm.gvprop',))):
