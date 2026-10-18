@@ -288,6 +288,37 @@ def generate(G):
     G.FUNCS['loop/fast'].append('execute in bm:gutter positioned -256 60 -256 as @a[dx=15,dy=12,dz=15,gamemode=survival] run function bm:p84/lk/adv')
     G.FUNCS['p84/lk/enter'].append('execute if entity @s[gamemode=survival] run function bm:p84/lk/adv')
 
+
+    # ---- (2.82o) the Grapple room: a hook lent only when you truly have none (the cursor and the crafting grid count), at most
+    #      every 3 s, and a dropped hook is gone (no pile of them); the swinging lamps (B) can be hooked anywhere on their
+    #      swing - the chains included - and the hook hangs you under the lamp over its island
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.gvhl dummy']
+    G.OBJECTIVES.append('bm.gvhl')
+    rh = '*[minecraft:custom_data~{bm_rhook:1b}]'
+    me = G.FUNCS['p115/grapple/me']
+    k = next(i for i, l in enumerate(me) if 'function bm:p115/grapple/lend' in l)
+    me[k] = me[k].replace('run function bm:p115/grapple/lend', f'unless items entity @s player.cursor {rh} unless items entity @s player.crafting.* {rh} unless score @s bm.gvhl matches 1.. run function bm:p115/grapple/lend')
+    G.FUNCS['p115/grapple/lend'].append('scoreboard players set @s bm.gvhl 60')
+    G.FUNCS['tick'].append('scoreboard players remove @a[scores={bm.gvhl=1..}] bm.gvhl 1')
+    G.FUNCS['loop/second'].append(f'execute in bm:gutter as @e[type=minecraft:item] if items entity @s contents {rh} run kill @s')
+    ray = G.FUNCS['p21/grap/ray']
+    assert 'unless block ~ ~ ~ minecraft:target run return run scoreboard players set #ghit bm.rng 3' in ray[0], ray[0]
+    ray[0] = ray[0].replace('unless block ~ ~ ~ minecraft:target run', 'unless block ~ ~ ~ minecraft:target unless block ~ ~ ~ minecraft:iron_chain run')
+    ray.insert(1, 'execute if score @s bm.gvhk matches 1.. if block ~ ~ ~ minecraft:iron_chain unless entity @e[type=minecraft:marker,tag=bm.gvswing,distance=..5] run return run scoreboard players set #ghit bm.rng 3')
+    hit = G.FUNCS['p21/grap/hit']
+    hit.insert(1, 'execute if score @s bm.gvhk matches 1.. if entity @e[type=minecraft:marker,tag=bm.gvswing,distance=..5] at @e[type=minecraft:marker,tag=bm.gvswing,distance=..5,sort=nearest,limit=1] positioned ~ ~-0.5 ~ run return run function bm:p115/hook/snap')
+
+
+    # ---- (2.82o) heists and the den's trips (Lounge, Locker Hall) start from inside dungeons, the Hollow and the Black Market too
+    bad = ('if dimension bm:hollow_throne', 'if predicate bm:p103/boss_dungeon', 'if entity @s[tag=bm.adv]')
+    hit = 0
+    for f_, L in G.FUNCS.items():
+        if f_ in ('p104/unsafe',) or (f_.startswith(('p103/lh/', 'p121/')) and f_.endswith('try')):
+            n0 = len(L); L[:] = [l for l in L if not any(b in l for b in bad)]; hit += n0 - len(L)
+    assert hit >= 6, hit
+    for f_ in [f for f in G.FUNCS if f.endswith('/no_dun')]:
+        if not any(f'bm:{f_}' in l for L in G.FUNCS.values() for l in L): del G.FUNCS[f_]
+
     # ---- (2.82g) a failed heist: the crew is walked back to the den within a second, and stays there (the den and the Locker
     #      Hall) until the choice is made - backing out of the dialog no longer lets anyone walk on into the dead heist
     fl = G.FUNCS['p75/fail']

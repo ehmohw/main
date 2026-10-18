@@ -368,7 +368,9 @@ def generate(G):
        big('JUST THE THING', 'The Fixer corks it - the way on is open.', '#c070ff') + pot(4) + ['function bm:p70/solved'])
 
     # ================================================================== THE GRAPPLE (the hook: phase21's, lent by the room)
-    HOOK = ('minecraft:carrot_on_a_stick[minecraft:custom_data={bm:"grappling_hook",bm_room:1b,bm_rhook:1b},minecraft:item_model="bm:grappling_hook",minecraft:max_stack_size=1,'
+    from items import ITEM_VERSION as _IV   # (2.82o: stamped like every BM item - without it the item re-sync swapped the room's hook for a plain one, and it lent another, and another)
+    HOOK = ('minecraft:carrot_on_a_stick[minecraft:custom_data={bm:"grappling_hook",bm_room:1b,bm_rhook:1b,bmv:' + str(_IV) + '}'
+            ',minecraft:item_model="bm:grappling_hook",minecraft:max_stack_size=1,'
             'minecraft:item_name=' + snbt(T("The Fixer's Hook", GOLD)) + ',minecraft:lore=[' + snbt(T('Bites only the lamps. Works only in its own room.', 'gray')) + ']]')
     rhook = '*[minecraft:custom_data~{bm_rhook:1b}]'
     use = G.FUNCS['p21/grap/use']
@@ -412,14 +414,14 @@ def generate(G):
         for (cx, cz) in isl: L += island(cx, cz) + lamp(cx - 1, PD.LAMP_Y, cz - 1)
         L += lamp(23, PD.LAMP_Y, 12)
         fn(f'p115/grapple/a{j}', L + [f'scoreboard players set @s bm.gvx {h}'])
-    fn('p115/grapple/a', choose('#i', len(PD.CHASMS), 'p115/grapple/a') + ['scoreboard players operation @s bm.gvc = #i bm.rng', 'scoreboard players set @s bm.gvy3 18'] +
+    fn('p115/grapple/a', choose('#i', len(PD.CHASMS), 'p115/grapple/a') + ['scoreboard players operation @s bm.gvc = #i bm.rng', 'scoreboard players set @s bm.gvy3 32'] +
        [sign(rel(2, 7.8, 9), 'THE CHASM', 'The Fixer\'s hook bites only the lamps: hook one and hang under it, sneak to let go. You get only so many hooks - some gaps you can jump. Hay: back to the start.', 0.55)])
     bl = list(ledge)
     for i, cx in enumerate(PD.LANES):
         bl += island(cx, 12) + [f'summon minecraft:marker {relf(cx - 0.5, PD.LAMP_Y, 11.5)} {{Tags:["bm.gvprop","bm.gvswing"]}}']
         for dz in PD.SWING: bl += [f'fill {rel(cx - 1, PD.LAMP_Y + 1, 11 + dz)} {rel(cx - 1, 14, 11 + dz)} minecraft:iron_chain']
     bl += lamp(23, PD.LAMP_Y, 12)
-    fn('p115/grapple/b', bl + ['scoreboard players set @s bm.gvx 99', 'scoreboard players set @s bm.gvy3 18'] +
+    fn('p115/grapple/b', bl + ['scoreboard players set @s bm.gvx 99', 'scoreboard players set @s bm.gvy3 32'] +
        [sign(rel(2, 7.8, 9), 'THE SWINGING LAMPS', 'The lamps swing over the pit: hook each one as it swings over its island, then let go (sneak). Hay: back to the start.', 0.55)])
     swing = []
     for ph, dz in enumerate(PD.SWING):

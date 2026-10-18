@@ -21,6 +21,12 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82o: the Grapple room fixed, and heists from anywhere
+
+- **No more endless hooks in the Grapple room.** The room's hook lacked the item stamp every pack item carries, so the item re-sync kept swapping it for a plain Grappling Hook, and the room kept lending another. Now it lends one hook. A dropped hook disappears and a new one comes (at most every 3 seconds), and one held on the cursor counts.
+- **The lamps can actually be reached.** The hook only reached 9 blocks in the Chasm and the Swinging Lamps, short of the first lamp from the ledge. It now reaches 16. The swinging lamps can be hooked anywhere on their swing, chain included, and you hang under the lamp over its island.
+- **Plan a heist, or head to the Lounge or Locker Hall, from anywhere:** inside dungeons, the Hollow and the Black Market too. Mounts, water and being mid-air or just hurt still stop you.
+
 ## New in 2.82n: no way back, the Crew Flare, and adventure mode in the Locker Hall
 
 - **No backtracking.** When a room is solved and its exit bars lift, bars drop across its entrance. A crewmate still behind is let through when they walk up to them.
