@@ -41,7 +41,6 @@ const res = [];
   // ---- the coins: 10 in the Haul (the stage), a Tier V win until the multiplier hits - extra coins match the multiplier
   const coin = '*[minecraft:custom_data~{bm:"gutter_coin"}]';
   const cnt = async (q) => { const o = await run(`clear TestRat ${q} 0`); return /No items/.test(o) ? 0 : +((o.match(/(\d+)/) || [0, 0])[1]); };
-  await run('execute in bm:gutter run forceload add -200 -197'); await run('clear TestRat');
   let cm = null, tm = null;
   for (let i = 0; i < 400 && cm === null; i++) {
     await run('execute in bm:gutter run setblock -200 64 -197 minecraft:air'); await run('execute in bm:gutter run setblock -198 64 -197 minecraft:air');
@@ -55,7 +54,6 @@ const res = [];
   ok('a multiplier hit pays the Haul\'s gutter coins over by the same multiplier', cm !== null && cm === tm, `tokens x${tm}, coins x${cm}`);
   await run('execute in bm:gutter run setblock -200 64 -197 minecraft:air'); await run('execute in bm:gutter run setblock -198 64 -197 minecraft:air');
   await run('execute in bm:gutter run kill @e[type=minecraft:item,x=-199,y=64,z=-197,distance=..8]');
-  await run('execute in bm:gutter run forceload remove -200 -197');
   // ---- medallions and trophies: a chance on every win, rising with the tier, and multiplied too
   const MED = '*[minecraft:custom_data~{bm:"gutter_medallion"}]', TRO = '*[minecraft:custom_data~{bm:"gutter_trophy"}]';
   const gx = {};
