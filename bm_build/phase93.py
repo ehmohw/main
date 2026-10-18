@@ -53,7 +53,7 @@ NEW = {
         (1, mk('magma_cube', 'Molten Coin', '#ff9a30', {}, {'Size': Int(1)})),
         (1, ('hoglin', dict(mk('hoglin', 'Golden Jockey', GOLD, {}, {'IsImmuneToZombification': B(1), 'CannotBeHunted': B(1)})[1],
                             Passengers=[rider(mk('piglin', 'Golden Jockey', GOLD, {'head': 'minecraft:golden_helmet', 'mainhand': 'minecraft:golden_sword'},
-                                                 {'IsBaby': B(1), 'IsImmuneToZombification': B(1), 'CannotHunt': B(1)}))])))],
+                                                 {'IsBaby': B(0), 'IsImmuneToZombification': B(1), 'CannotHunt': B(1)}))])))],     # (2.82h: an adult - a baby piglin isn't hostile)
     4: [(2, mk('spider', 'Abyss Crawler', '#3a8aa0', {}, BIG, {'scale': 1.6, 'movement_speed': 0.34})),
         (2, mk('endermite', 'Gem Mite', '#7ae8ff', {}, {}, {'scale': 2.0, 'movement_speed': 0.35, 'attack_damage': 4.0})),
         (1, mk('illusioner', 'Mirror Thief', '#a080ff', {'mainhand': 'minecraft:bow'})),

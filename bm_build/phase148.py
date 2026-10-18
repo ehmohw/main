@@ -246,6 +246,16 @@ def generate(G):
     fn('p148/failfence', fence)
     G.FUNCS['p70/inst_sec'].append('execute if score @s bm.gvst matches 5 run function bm:p148/failfence')
 
+    # ---- (2.82h) the heist's Nether: a monster standing on (or beside) a magma floor - Hot Floor's rooms, the Blaze Forge - is
+    #      fireproofed for good, so the floor doesn't burn the crew's foes down for them; and every heist piglin is grown (a baby
+    #      piglin isn't hostile)
+    G.FUNCS['loop/second'] += ['execute in bm:gutter as @e[tag=bm.gvg,tag=!bm.gvfr] at @s if function bm:p148/hot run function bm:p148/fireproof',
+                               'execute in bm:gutter as @e[tag=bm.gvboss,tag=!bm.gvfr] at @s if function bm:p148/hot run function bm:p148/fireproof',
+                               'execute in bm:gutter as @e[type=minecraft:piglin,tag=bm.gvg,tag=!bm.gvad] run function bm:p148/grown']
+    fn('p148/hot', [f'execute if block ~{dx} ~-1 ~{dz} minecraft:magma_block run return 1' for dx in (0, -1, 1) for dz in (0, -1, 1)] + ['return 0'])
+    fn('p148/fireproof', ['effect give @s minecraft:fire_resistance infinite 0 true', 'tag @s add bm.gvfr'])
+    fn('p148/grown', ['data modify entity @s IsBaby set value 0b', 'tag @s add bm.gvad'])
+
     # ================================================================== THE FINDS (in a won heist's haul)
     ins = lambda table: [f'execute in bm:gutter unless data block {HA} Items[26] run loot insert {HA} loot {table}',
                          f'execute in bm:gutter if data block {HA} Items[26] run loot insert {HB} loot {table}']

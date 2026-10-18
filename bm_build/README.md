@@ -21,6 +21,11 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82h: fireproof monsters on the Nether floors, and adult piglins
+
+- **Heist monsters keep off the burn.** A guard or boss standing on (or right beside) a magma floor - the Hot Floor modifier's rooms, the Blaze Forge - is given Fire Resistance as soon as it's there, so the floor no longer whittles it down before you arrive.
+- **Heist piglins are always adults.** A baby piglin isn't hostile, so any that turns up in a heist grows up at once, and the Golden Jockey's piglin now rides in as an adult.
+
 ## New in 2.82g: the Fixer's Lamp, Memory Match as a real puzzle, and a failed heist that stays failed
 
 - **The Fixer's Lamp** (Goldtooth, 24 Gutter Coins): light it in the den before BEGIN and the job's **Lights Out** is lifted - the
