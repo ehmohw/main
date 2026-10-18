@@ -11,7 +11,7 @@ NEW ROOMS (the event draw - one or two a heist, three from Tier III, more in a d
   THE STALKER'S WARD       pitch dark. Something moves when you don't look at it. Find and pull the three levers.
   THE BLAZE FORGE          the Nether's heat: three waves - magma cubes, blazes, then the Forge Keeper.
   THE VOID GARDEN (III+)   end-stone islands over a drop; shulkers float you off your feet. Wake the three Eye shrines.
-  THE HOLLOW RELIQUARY (rare, III+)  a shard of the Hollow Throne: watch the seals flare, then strike them in that order.
+  THE HOLLOW RELIQUARY (rare, III+)  a shard of the Hollow Throne: watch the seals flare, then press the button under each, in that order.
                            Done: a Hollow relic for each of you, in The Haul.
 """
 import random
@@ -566,7 +566,7 @@ def generate(G):
     # ================================================================== THE HOLLOW RELIQUARY (a memory: watch the seals, strike them in order)
     wisp = mk('vex', 'Hollow Wisp', '#e5e4e2', {}, {'Tags': ['bm.gvg', 'bm.gvnew2', 'bm.tiered', 'bm.seen', 'bm.gvwisp']})
     fn('p90/hollow/init', ['function bm:p70/ctx', 'scoreboard players operation @s bm.gvt = #gt bm.rng',
-                           sign(2.5, 7.5, 12, 'THE HOLLOW RELIQUARY', 'Watch the seals flare. Strike them in the same order.', '#e5e4e2')])
+                           sign(2.5, 7.5, 12, 'THE HOLLOW RELIQUARY', 'Watch the seals flare, then press the button under each seal in the same order.', '#e5e4e2')])
     seal_flash = lambda i: [f'particle minecraft:end_rod {rel(SEALS[i][0], 7, 0.6)} 0.6 0.6 0.1 0.02 30',
                             f'particle minecraft:soul_fire_flame {rel(SEALS[i][0], 7, 0.8)} 0.6 0.6 0.1 0.01 12',
                             f'playsound minecraft:block.note_block.chime block @a[distance=..20] {rel(SEALS[i][0], 7, 1)} 1 {[0.7, 0.9, 1.2, 1.5][i]}']
@@ -598,7 +598,7 @@ def generate(G):
     fn('p90/hollow/at', ['$execute store result score #v bm.rng run data get storage bm:gv hol.s$(gi)[$(k)]'])
     fn('p90/hollow/your_turn', ['scoreboard players set @s bm.gvs 2', 'scoreboard players set @s bm.gvw 0'] +
        [f'setblock {rel(x, 5, 1)} minecraft:polished_blackstone_button[face=wall,facing=south,powered=false]' for (x, _b, _c) in SEALS] +
-       [title('@a[tag=bm.gvp,distance=..16]', 'actionbar', T('Your turn: strike the seals in that order.', '#e5e4e2', bold=True))])
+       [title('@a[tag=bm.gvp,distance=..16]', 'actionbar', T('Your turn: press the buttons under the seals, in that order.', '#e5e4e2', bold=True))])
     turn = ['scoreboard players set #p bm.rng -1']
     for i, (x, _b, _c) in enumerate(SEALS):
         turn += [f'execute if block {rel(x, 5, 1)} minecraft:polished_blackstone_button[powered=true] run scoreboard players set #p bm.rng {i}',

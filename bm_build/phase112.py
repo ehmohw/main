@@ -651,4 +651,10 @@ def generate(G):
                             'execute if score @s bm.gvy3 matches ..0 run function bm:p112/memory/lost'])
     fn('p112/memory/hide', ['scoreboard players set @s bm.gvy2 0', 'execute as @e[type=minecraft:item_display,tag=bm.gvmmd,distance=..1.2,limit=1,sort=nearest] run data modify entity @s item.id set value "minecraft:paper"'])
     fn('p112/memory/won', ['scoreboard players set @s bm.gvs 3'] + big('A PERFECT MEMORY', 'Eight pairs - the Fixer is impressed') + pot(6) + ['function bm:p70/solved'])
-    fn('p112/memory/lost', ['scoreboard players set @s bm.gvs 3'] + big('OUT OF MISSES', 'The cards shuffle themselves away...', 'red') + oops(4) + ['function bm:p70/solved'])
+    # (2.82g: out of misses the door stays shut - a try lost, the cards reshuffled, the misses back - as any puzzle's failure)
+    fn('p112/memory/lost', big('OUT OF MISSES', 'A try lost - the cards shuffle themselves...', 'red') + oops(4) +
+       ['function bm:p70/ctx', 'execute as @e[type=minecraft:marker,tag=bm.gvinst] if score @s bm.gvi = #gi bm.rng at @s run function bm:p90/lose_try',
+        'execute as @e[type=minecraft:interaction,tag=bm.gvmm,distance=..16] at @s run function bm:p112/memory/hide'] +
+       choose('#i', len(SH), 'p112/memory/s') +
+       ['scoreboard players set @s bm.gvc -1', 'scoreboard players set @s bm.gvw 0', 'scoreboard players set @s bm.gvx 0'] +
+       [f'execute if score #gt bm.rng matches {t} run scoreboard players set @s bm.gvy3 {MISS[t]}' for t in range(1, 6)])

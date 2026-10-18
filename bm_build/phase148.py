@@ -83,6 +83,24 @@ item('vorn_beacon', TOTEM, 'Vorn Fleet Beacon', '#7dff6a', ['A stolen Vorn homin
 HOLD['vorn_beacon'] = 'bm:p148/use/beacon'
 import phase24 as _R24
 _R24.INV_EXTRA.append((('xenite_green', 24), ('xenite_red', 4), ('vorn_beacon', 1)))
+# ---- (2.82g) the Fixer's Lamp: Goldtooth sells it; lit in the den before BEGIN, the heist's Lights Out is lifted
+LAMP_PRICE = 24
+item('fixers_lamp', TOTEM, "Fixer's Lamp", '#ffd27a', ['A brass lamp that never goes out.', ('Use it in the den, before BEGIN:', 'blue'),
+                                                     ('the heist\'s Lights Out is lifted.', 'blue'), ('Sold by Goldtooth.', 'dark_gray')],
+     model='minecraft:lantern', glint=True, stack=4, cat='misc', comps=hold('none'))
+HOLD['fixers_lamp'] = 'bm:p148/use/lamp'
+import phase70 as _P70
+_goldtooth0 = _P70.goldtooth
+
+
+def _goldtooth():
+    from gen_dp import offer
+    d = _goldtooth0()
+    d['Offers']['Recipes'].append(offer(('gutter_coin', LAMP_PRICE), ('fixers_lamp', 1)))
+    return d
+
+
+_P70.goldtooth = _goldtooth
 import economy as _ECON
 _ECON.DIRECT['sum_monstrosity'] = (('blood_crystal', HORN_PRICE), None)      # (the price as set: no scale, no cut)
 
@@ -157,6 +175,23 @@ def generate(G):
 
     # ---- the fleet beacon: an Invasion Night tonight (as the admin's invasion_now), once the fleet has noticed this world
     VG = '#7dff6a'
+    inst = 'execute as @e[type=minecraft:marker,tag=bm.gvinst] if score @s bm.gvi = #gi bm.rng run '
+    LP = '#ffd27a'
+    fn('p148/use/lamp', [
+        'execute unless dimension bm:gutter run return run ' + say('Light it in the Fixer\'s den, before BEGIN - it lifts a heist\'s Lights Out.', LP),
+        'execute unless entity @s[tag=bm.gvp] run return run ' + say('Light it in the Fixer\'s den, before BEGIN - it lifts a heist\'s Lights Out.', LP),
+        'scoreboard players operation #gi bm.rng = @s bm.gvi', 'scoreboard players set #ls bm.rng -1', 'scoreboard players set #lo bm.rng 0',
+        inst + 'scoreboard players operation #ls bm.rng = @s bm.gvst',
+        inst + 'scoreboard players operation #lo bm.rng = @s bm.gvmod', 'scoreboard players operation #lo bm.rng %= #2 bm.rng',
+        'execute if score #ls bm.rng matches 2.. run return run ' + say('Too late - the job\'s already on. Light it before BEGIN next time.', LP),
+        'execute unless score #ls bm.rng matches 1 run return run ' + say('Light it in the Fixer\'s den, before BEGIN - it lifts a heist\'s Lights Out.', LP),
+        'execute unless score #lo bm.rng matches 1 run return run ' + say('No Lights Out on this job - keep your lamp for one that has it.', LP),
+        inst + 'scoreboard players remove @s bm.gvmod 1', inst + 'function bm:p70/bar',
+        f'execute unless entity @s[gamemode=creative] run clear @s {holds("fixers_lamp")} 1',
+        'tag @s add bm.lamplit',
+        'execute as @a[tag=bm.gvp] if score @s bm.gvi = #gi bm.rng run ' + tellraw('@s', P + [{'selector': '@a[tag=bm.lamplit]', 'color': LP}, T(' lit a Fixer\'s Lamp. ', 'gray'), T('No Lights Out on this job.', LP, bold=True)]),
+        'tag @s remove bm.lamplit',
+        'execute as @a[tag=bm.gvp] if score @s bm.gvi = #gi bm.rng at @s run playsound minecraft:block.beacon.activate player @s ~ ~ ~ 0.7 1.6'])
     fn('p148/use/beacon', [
         'execute if dimension bm:gutter run return run ' + say('No signal down here - switch it on out in the world.'),
         'execute unless score #vornmet bm.bm matches 1 run return run ' + say('Dead air. The fleet hasn\'t noticed this world - kill a Vorn aboard a Dreadnought first.', VG),
@@ -186,6 +221,30 @@ def generate(G):
         fn(f'p148/gap/r{r}', [f'execute if score @s bm.kr{r} matches {k} run return run {lines[k][0]}' for k in range(2, 7)] + [lines[1][0]])
     G.FUNCS['p104/resupply'] += ['clear @s minecraft:golden_apple[minecraft:custom_data~{bm_kit:1b}]'] + \
                                 [f'execute if score @s bm.gvrole matches {r} run function bm:p148/gap/r{r}' for r in range(1, 5)]
+
+    # ---- (2.82g) a failed heist: the crew is walked back to the den within a second, and stays there (the den and the Locker
+    #      Hall) until the choice is made - backing out of the dialog no longer lets anyone walk on into the dead heist
+    fl = G.FUNCS['p75/fail']
+    nfl = 0
+    for i, l in enumerate(fl):
+        if l.endswith(' bm.gvfail 4'): fl[i] = l[:-1] + '1'; nfl += 1
+    assert nfl == _P70.SLOTS, nfl
+    lo = G.FUNCS['p120/lights_out']
+    safe = [l for l in lo if l.endswith('add bm.gvsafe')]
+    assert len(safe) == 2, safe
+    fence = [f'execute if score @s bm.gvi matches {s + 1} unless score #fl{s} bm.gvfail matches 0 run return 0' for s in range(_P70.SLOTS)]
+    fence += ['function bm:p70/tag_mine'] + safe
+    for s_ in range(_P70.SLOTS):
+        tp = [l for l in G.FUNCS[f'p75/s{s_}/reset'] if ' in bm:gutter run tp @s ' in l]
+        assert len(tp) == 1, (s_, tp)
+        spot = tp[0].split(' run tp @s ')[1].split()[:3]
+        fence.append(f'execute if score @s bm.gvi matches {s_ + 1} in bm:gutter positioned {" ".join(spot)} run tag @a[tag=bm.gvme,distance=..18] add bm.gvsafe')
+        fence.append(f'execute if score @s bm.gvi matches {s_ + 1} as @a[tag=bm.gvme,tag=!bm.gvsafe] run function bm:p148/failback{s_}')
+        fn(f'p148/failback{s_}', ['execute in bm:gutter run tp @s ' + tp[0].split(' run tp @s ')[1],
+                                  say('The job\'s off - the Fixer walks you back. Your Ledger has the choice: a new raid, or home.', 'red')])
+    fence += ['tag @a[tag=bm.gvsafe] remove bm.gvsafe', 'tag @a[tag=bm.gvme] remove bm.gvme']
+    fn('p148/failfence', fence)
+    G.FUNCS['p70/inst_sec'].append('execute if score @s bm.gvst matches 5 run function bm:p148/failfence')
 
     # ================================================================== THE FINDS (in a won heist's haul)
     ins = lambda table: [f'execute in bm:gutter unless data block {HA} Items[26] run loot insert {HA} loot {table}',

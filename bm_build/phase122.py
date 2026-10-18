@@ -26,7 +26,7 @@ import phase70 as P70
 import phase116 as P116
 
 GOLD = '#ffcf40'
-PUZZLES = sorted(set(P116.CALM) | set(P116.JUMPY) | set(P116.HOP))
+PUZZLES = sorted(set(P116.CALM) | set(P116.JUMPY) | set(P116.HOP) | {'memory'})       # (2.82g: Memory Match is a puzzle too)
 ASK, YES, LEDGER = 7733, 7734, 7881
 SL = P70.SLOTS
 

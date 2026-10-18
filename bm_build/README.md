@@ -21,6 +21,16 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82g: the Fixer's Lamp, Memory Match as a real puzzle, and a failed heist that stays failed
+
+- **The Fixer's Lamp** (Goldtooth, 24 Gutter Coins): light it in the den before BEGIN and the job's **Lights Out** is lifted - the
+  bar loses its LIGHTS OUT and the crew is told. On a job without Lights Out, or once the heist has begun, it refuses and you keep it.
+- **Memory Match no longer opens when you fail it.** Out of misses: a try is lost, the cards reshuffle and the misses come back.
+  It now offers **Skip this puzzle** (costs a try) like every other puzzle room.
+- **The Hollow Reliquary** says what it wants: press the **button under each seal**, in the order they flared (nothing to shoot).
+- **A failed heist:** the crew is walked back to the den within a second. Until the choice is made (a new raid or home - from the
+  dialog or the Ledger), anyone stepping out of the den or the Locker Hall is walked straight back: the dead heist can't be carried on.
+
 ## New in 2.82f: Lights Out, rarer and named; kit golden apples back for another job
 
 - **Lights Out is much rarer:** about 1 Tier III heist in 20 now (it was about 1 in 4). It's the modifier that keeps Darkness on
