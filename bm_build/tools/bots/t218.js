@@ -3,7 +3,7 @@
 // sets the stage: the payout's tier, then the payout's own roll run for TestRat - 600 times a tier - and its Tokens counted).
 //   Each tier's hit rate lands near its 5 / 10 / 15%; every hit pays exactly 1, 2 or 3 extra fees (the tier's fee 4 / 5 / 6); 4x is
 //   the rarest; Tier I and II: 5%, nearly always 2x (3x 10%, 4x 5% of hits). TestRat sees the big title (as the client receives it).
-//   2.82r: a hit multiplies the Haul's gutter coins the same; every win has a tier-scaled chance at a Gutter Medallion (10-30%)
+//   2.82r/s: a hit multiplies the Haul's gutter coins, BM Medallions and Trophies the same; every win has a tier-scaled chance at a Gutter Medallion (10-30%)
 //   and Trophy (1-8%), which come multiplied on a multiplier win.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
@@ -46,12 +46,14 @@ const res = [];
     await run('execute in bm:gutter run setblock -200 64 -197 minecraft:air'); await run('execute in bm:gutter run setblock -198 64 -197 minecraft:air');
     await run('execute in bm:gutter run setblock -200 64 -197 minecraft:barrel'); await run('execute in bm:gutter run setblock -198 64 -197 minecraft:barrel');
     for (let k = 0; k < 10; k++) await run('execute in bm:gutter run loot insert -200 64 -197 loot bm:items/gutter_coin');
+    for (let k = 0; k < 2; k++) await run('execute in bm:gutter run loot insert -200 64 -197 loot bm:items/medallion');
+    await run('execute in bm:gutter run loot insert -200 64 -197 loot bm:items/trophy');
     await run('scoreboard players set #gt bm.rng 5'); await run('execute as TestRat at @s run function bm:p148/feex');
-    const t = await tok(), c = await cnt(coin);
-    if (t > 0) { tm = t / 6 + 1; cm = c / 10 + 1; }
+    const t = await tok(), c = await cnt(coin), md = await cnt('*[minecraft:custom_data~{bm:"medallion"}]'), tr = await cnt('*[minecraft:custom_data~{bm:"trophy"}]');
+    if (t > 0) { tm = t / 6 + 1; cm = (c / 10 + 1 === md / 2 + 1 && md / 2 + 1 === tr + 1) ? c / 10 + 1 : `mismatch c${c} m${md} t${tr}`; }
     await run('clear TestRat');
   }
-  ok('a multiplier hit pays the Haul\'s gutter coins over by the same multiplier', cm !== null && cm === tm, `tokens x${tm}, coins x${cm}`);
+  ok('a multiplier hit pays the Haul\'s gutter coins, BM Medallions and Trophies over by the same multiplier', cm !== null && cm === tm, `tokens x${tm}, coins x${cm}`);
   await run('execute in bm:gutter run setblock -200 64 -197 minecraft:air'); await run('execute in bm:gutter run setblock -198 64 -197 minecraft:air');
   await run('execute in bm:gutter run kill @e[type=minecraft:item,x=-199,y=64,z=-197,distance=..8]');
   // ---- medallions and trophies: a chance on every win, rising with the tier, and multiplied too

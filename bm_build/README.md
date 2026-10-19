@@ -21,10 +21,10 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
-## New in 2.82r: the win multiplier, and Gutter Medallions and Trophies from wins
+## New in 2.82s: the win multiplier, and Gutter Medallions and Trophies from wins
 
 - **Win a heist and the Fixer may pay out several times over.** The chance is 5% at Tiers I and II, 10% at Tier IV, 15% at Tier V, and 5% at Tier III. At Tiers III-V a hit is 2x (45%), 3x (40%) or 4x (15%, the rarest). At Tiers I-II it's nearly always 2x (85%), with 3x (10%) and 4x (5%) now and then. A title announces it.
-- **What the multiplier covers:** your entry fee in Tokens (paid on top of the fee the win already returns), the gutter coins in your Haul, and any Medallion or Trophy below. Every raider rolls their own.
+- **What the multiplier covers:** your entry fee in Tokens (paid on top of the fee the win already returns), and everything of value in your Haul: gutter coins, plus Black Market Medallions and Trophies. It also covers any Gutter Medallion or Trophy below. Every raider rolls their own.
 - **Gutter Medallions and Trophies from wins.** Every won heist has a chance at a Gutter Medallion (10% at Tier I up to 30% at Tier V) and a rarer chance at a Gutter Trophy (1% up to 8%), both multiplied on a multiplier win.
 
 ## New in 2.82p: a heist's lent items stay in the heist
