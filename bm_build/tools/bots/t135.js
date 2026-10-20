@@ -290,7 +290,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     // (fainting)
     await use(A, 0); await wait(4000, async () => (await cnt(pet)) === 1); await sleep(1000);
     await run(`${O}kill ${pet}`);
-    ok('he faints: his rig dissolves, the Doubloon rests 5 minutes', await wait(4000, async () => (await sc('TestRat', 'bm.tucd')) >= 290 && !(await cnt('@e[type=minecraft:item_display,tag=bm.tup_pet]'))),
+    ok('he faints: his rig dissolves, the Doubloon rests 2 minutes', await wait(4000, async () => (await sc('TestRat', 'bm.tucd')) >= 110 && !(await cnt('@e[type=minecraft:item_display,tag=bm.tup_pet]'))),
        `cd ${await sc('TestRat', 'bm.tucd')}`);
     // (his Raid Contract)
     const fcon = await sc('TestRat', 'bm.fcon'); await run('scoreboard players set TestRat bm.fcon 0');    // (staging: no contracts signed yet)

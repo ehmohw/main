@@ -51,7 +51,7 @@ def register():
         lore = ["Torn from the Hollow King's corpse.", (f'While worn: {fx}', 'blue'), ('+4 Max Health. Unbreakable.', 'blue')]
         if p == 'chestplate':
             lore.append(('Withering cannot touch you.', 'dark_purple'))
-        en = {**ench(protection=10, thorns=3), **({'boots': ench(feather_falling=6), 'helmet': ench(respiration=5),
+        en = {**ench(protection=10, thorns=3), **({'boots': ench(feather_falling=6, depth_strider=3), 'helmet': ench(respiration=5, aqua_affinity=1),
                                                   'leggings': ench(swift_sneak=5)}.get(p, {}))}
         if p == 'chestplate':
             en['bm:hollow_blood'] = 1

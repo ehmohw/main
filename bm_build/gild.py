@@ -93,11 +93,11 @@ _K2 = {'emma': 7, 'celi': 6, 'zib': 4, 'don': 6}
 DIAMOND_LOOKS = {w: (_K2.get(w, 5), _ITEM.get(w, f'cos_{w}_{{}}').format(_K2.get(w, 5)), sc) for w, (k, i, sc) in GILDED.items()}
 NETHERITE_LOOKS = {w: (_K2.get(w, 5) + 1, _ITEM.get(w, f'cos_{w}_{{}}').format(_K2.get(w, 5) + 1), sc) for w, (k, i, sc) in GILDED.items()}
 # each metal: its ramp, the steel beside it (Leo's helm and armour - 2.80c: gold with the gold, no longer diamond), its colour, its word, its lore, its price (Gutter Trophies), Wilfrey's armour
-TIERS = {'gold': {'ramp': RAMP, 'steel': RAMP, 'col': GOLD, 'word': 'Gilded', 'trophies': 20, 'armour': 'gold',
+TIERS = {'gold': {'ramp': RAMP, 'steel': RAMP, 'col': GOLD, 'word': 'Gilded', 'trophies': 5, 'armour': 'gold',
                   'lore': 'Gilded: polished gold - and it sparkles.', 'looks': GILDED},
-         'diamond': {'ramp': DIAMOND, 'steel': DIAMOND, 'col': '#5ee8e0', 'word': 'Diamond', 'trophies': 32, 'armour': 'diamond',
+         'diamond': {'ramp': DIAMOND, 'steel': DIAMOND, 'col': '#5ee8e0', 'word': 'Diamond', 'trophies': 8, 'armour': 'diamond',
                      'lore': 'Diamond: cut and polished - and it glitters.', 'looks': DIAMOND_LOOKS},
-         'netherite': {'ramp': NETHERITE, 'steel': NETHERITE, 'col': '#9a8a92', 'word': 'Netherite', 'trophies': 48, 'armour': 'netherite',
+         'netherite': {'ramp': NETHERITE, 'steel': NETHERITE, 'col': '#9a8a92', 'word': 'Netherite', 'trophies': 12, 'armour': 'netherite',
                        'lore': 'Netherite: forged in the deep Nether - and it smoulders.', 'looks': NETHERITE_LOOKS}}
 LOOKS = {(w, k): t for t, d in TIERS.items() for w, (k, i, sc) in d['looks'].items()}
 ITEMS = {g[1] for g in GILDED.values()}
@@ -126,5 +126,5 @@ def steel(w, k):
 
 
 def price(iid, plain):
-    """a cosmetic's Goldtooth offer price (the Tailor reads it): gold 20 Gutter Trophies, diamond 32, netherite 48"""
+    """a cosmetic's Goldtooth offer price (the Tailor reads it): gold 5 Gutter Trophies, diamond 8, netherite 12 (2.82t: were 20, 32, 48)"""
     return ('gutter_trophy', TIERS[TIER_OF_ITEM[iid]]['trophies']) if iid in TIER_OF_ITEM else plain

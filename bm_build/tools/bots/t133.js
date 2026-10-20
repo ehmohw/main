@@ -96,7 +96,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     await run(`${O}damage ${EM} 1000 minecraft:mob_attack`);                      // (a monster's blow too many)
     const gone = await wait(6000, async () => (await partsOf('TestRat')) === 0);
     const cd = await sc('TestRat', 'bm.emcd');
-    ok('She faints: her rig fades away, and her ribbon rests 5 minutes', gone && cd >= 280 && cd <= 300, `parts ${p0} -> ${await partsOf('TestRat')}; emcd ${cd}`);
+    ok('She faints: her rig fades away, and her ribbon rests 2 minutes (2.82t)', gone && cd >= 100 && cd <= 120, `parts ${p0} -> ${await partsOf('TestRat')}; emcd ${cd}`);
     await use(A, 8); await sleep(1500);
     ok('...her ribbon refuses meanwhile', !(await epos(EM)));
     await run('scoreboard players reset TestRat bm.emcd');                         // (the stage: the five minutes pass)

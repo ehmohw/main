@@ -168,7 +168,7 @@ const res = []; const X = 17000, Y = 120, Z = 17000;
   // he falls: five minutes
   await hold('kw_spark'); await press(false); await sleep(400);
   await run('kill @e[type=wolf,tag=bm.kxpet]'); await sleep(1000);
-  ok('If he falls: his rig crumples, and the Spark rests five minutes', (await cnt('@e[type=item_display,tag=bm.kxdying]')) === 8 && (await num('scoreboard players get TestRat bm.kxcd')) >= 295);
+  ok('If he falls: his rig crumples, and the Spark rests two minutes (2.82t)', (await cnt('@e[type=item_display,tag=bm.kxdying]')) === 8 && (await num('scoreboard players get TestRat bm.kxcd')) >= 115);
   await press(false); await sleep(300);
   ok('...he will not come while it recharges', (await cnt('@e[type=wolf,tag=bm.kxpet]')) === 0);
   // never into the vault

@@ -217,9 +217,17 @@ const res = [];
      A.chats.slice(-3).join(' | ').slice(0, 200));
   ok('...his achievement (Thick as Thieves); his page says he walks with you', await passes('execute if entity @a[name=TestRat,advancements={bm:story/dw_join=true}]') &&
      /walks with you now/.test(body()), body().slice(0, 160));
+  // (2.82t: a lost horn is no longer handed out for a click - fifty trades without it earn another)
   await run('clear TestRat *[minecraft:custom_data~{bm:"dw_horn"}]'); A.chats.length = 0; await sleep(600);
   await click('dw'); await sleep(300);
-  ok('the horn lost: right-clicked, he gives you another ("Good thing I\'ve two")', (await has('dw_horn')) === 1 && A.chats.some(c => /Good thing I've two/.test(c)), A.chats.slice(-1).join(''));
+  ok('the horn lost: right-clicked, no free horn (2.82t)', (await has('dw_horn')) === 0 && !A.chats.some(c => /Good thing I've two/.test(c)));
+  await run('scoreboard players set TestRat bm.dwlost 48');                // (48 trades already made without it)
+  for (let i = 0; i < 10; i++) await run(`scoreboard players set TestRat bm.dwq${i} 0`);
+  await run('give TestRat minecraft:raw_copper 64'); A.bars.length = 0;
+  await press(/^32 Raw Copper/); await sleep(800);
+  ok('...a trade without it: "1 more trades and Dennis trusts you with another"', (await has('dw_horn')) === 0 && A.bars.some(b => /1 more trades and Dennis/.test(b)), A.bars.slice(-1).join(''));
+  A.chats.length = 0; await press(/^32 Raw Copper/); await sleep(800);
+  ok('...the fiftieth trade without it: another horn ("Good thing I\'ve two")', (await has('dw_horn')) === 1 && A.chats.some(c => /Good thing I've two/.test(c)), A.chats.slice(-1).join(''));
   await enter('ps'); await click('ps');
   await run('give TestRat minecraft:string 32'); A.chats.length = 0;
   await press(/^32 String/); await sleep(800);

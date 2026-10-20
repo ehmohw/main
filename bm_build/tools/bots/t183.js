@@ -294,7 +294,7 @@ const CFG = {
     await sleep(2200); await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
     A.chats.length = 0; await run(`${O}damage ${PET} 200 minecraft:mob_attack`);
     ok(N + 'struck down: he faints, his rig fades away', await wait(4000, async () => (await cnt(`@e[type=minecraft:item_display,tag=bm.${k}p_pet]`)) === 0));
-    ok(N + `..."${c.name} faints!" - five minutes on his item`, A.chats.some(c2 => new RegExp(c.name + ' faints!').test(c2)) && (await score(`bm.${k}cd`)) > 280, A.chats.slice(-1).join('').slice(0, 160));
+    ok(N + `..."${c.name} faints!" - two minutes on his item (2.82t)`, A.chats.some(c2 => new RegExp(c.name + ' faints!').test(c2)) && (await score(`bm.${k}cd`)) > 100, A.chats.slice(-1).join('').slice(0, 160));
     await sleep(2200); A.bars.length = 0; await use(0); await sleep(800);
     ok(N + '...used again: "still getting his breath back", no one comes', (await cnt(PET)) === 0 && A.bars.some(b => /getting his breath back/.test(b)), A.bars.slice(-1).join(''));
 

@@ -475,7 +475,9 @@ def generate(G):
                       P28.body([T('Exhibits: ', 'gray'), T('$(all)', 'white', bold=True), T(' of 120.  Wings complete: ', 'gray'), T('$(done)', 'white', bold=True),
                                 T(' of 6.', 'gray')], 340)],
                      [P28.btn([T(WNAME[w], WCOL[w], bold=True), T('  '), T(f'$(c_{w})', 'white', bold=True), T(' of 20', 'gray'), f'@@RAW:r_{w}@@'], CABM + WI[w], width=170) for w in WINGS] +
-                     [P28.btn([T("Fishy's powers", ORANGE, bold=True)], CABM + 7, width=170, tooltip=T('His powers - and how strong the Cabinet has made each.', 'gray'))],
+                     [P28.btn([T("Fishy's powers", ORANGE, bold=True)], CABM + 7, width=170, tooltip=T('His powers - and how strong the Cabinet has made each.', 'gray')),
+                      # (2.82t: a lost bowl is replaced only here, at his desk, by asking - never handed out on its own)
+                      P28.btn([T('A spare Pocket Bowl', 'gray')], CABM + 9, width=170, tooltip=T('Lost his bowl? Fishy keeps a spare - one at a time.', 'gray'))],
                      columns=2, exit_label='Close')
     fn('p145/cab/main', [f'scoreboard players set @s bm.menu {CABM}', 'data remove storage bm:ui cab',
                          'execute store result storage bm:ui cab.all int 1 run scoreboard players get #all bm.cab',
@@ -502,12 +504,17 @@ def generate(G):
                      [back], columns=1, exit_label='Close')
     fn('p145/cab/powers', [f'scoreboard players set @s bm.menu {CABM}', 'data remove storage bm:ui cab'] + prow + ['function bm:p145/cab/powers_dlg with storage bm:ui cab'])
     fn('p145/cab/powers_dlg', [f'$dialog show @s {P28.inline(pdlg)}'])
-    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {CABM}..{CABM + 8} run return run function bm:p145/cab/act')
+    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {CABM}..{CABM + 9} run return run function bm:p145/cab/act')
     fn('p145/cab/act', [f'execute unless score @s bm.menu matches {CABM} run return run function bm:p28/stale',
                         f'execute if score #act bm.pay matches {CABM} run return run function bm:p145/cab/main'] +
        [f'execute if score #act bm.pay matches {CABM + WI[w]} run return run function bm:p145/pg/{w}' for w in WINGS] +
        [f'execute if score #act bm.pay matches {CABM + 7} run return run function bm:p145/cab/powers',
-        f'execute if score #act bm.pay matches {CABM + 8} run return run function bm:p145/cab/set_out'])
+        f'execute if score #act bm.pay matches {CABM + 8} run return run function bm:p145/cab/set_out',
+        f'execute if score #act bm.pay matches {CABM + 9} run return run function bm:p145/cab/spare'])
+    fn('p145/cab/spare', ['execute unless entity @s[tag=bm.fymet] run return 0',
+                          'execute unless entity @e[type=minecraft:interaction,tag=bm.fynhit,distance=..8] run return run ' + say('Only Fishy himself, at his desk in the Cabinet, keeps a spare bowl.', ORANGE),
+                          'scoreboard players set #has bm.rng -1', 'function bm:p145/reissue',
+                          'execute if score #has bm.rng matches 1 run ' + fysay('You have my Pocket Bowl already - or I am out with you! One at a time, I\'m afraid.')])
     fn('p145/cab/set_out', [f'execute if score @s bm.cabp matches {WI[w]} run function bm:p145/hall/show/{w}' for w in WINGS] +
        [say('The hall\'s cases now show that wing (Fishy\'s hall, in the Black Market).', GOLD), 'playsound minecraft:block.amethyst_block.chime player @s ~ ~ ~ 0.8 1.1'])
 
@@ -667,7 +674,6 @@ def generate(G):
                           'execute if function bm:p145/show run return 1',
                           'execute if data entity @s SelectedItem.components."minecraft:custom_data".bm unless function bm:p145/hand_free run return run function bm:p145/not_ex',
                           'execute unless entity @s[tag=bm.fymet] run return run function bm:p145/recruit',
-                          'function bm:p145/reissue',
                           'execute as @e[type=minecraft:interaction,tag=bm.fynhit,distance=..8,limit=1] run function bm:p145/npc/react_point',
                           'function bm:p145/cab/main'])
     tick.append('scoreboard players remove @a[scores={bm.fycl=1..}] bm.fycl 1')

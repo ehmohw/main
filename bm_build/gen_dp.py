@@ -156,6 +156,7 @@ import phase169 as R169      # 2.82: King Omega - the Omega Palace, his tomb, hi
 import phase170 as R170      # 2.82: King Omega, the follower (Omega's Monocle), the Serpent Kings, the Palace Household
 import phase171 as R171      # 2.82b: the Town Directory - who's where in the rat town, and a trail of light there
 import phase172 as R172      # 2.82b: King Omega's tithe - triple currency from custom mobs, 1% from the rest, while he's out
+import phase173 as R173      # 2.82t: the urgent fixes - Ledger, Dark Auction, Hollow, Wilfrey, followers, satchel, cooler, Apophiss, map pieces
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import noglow                # 2.80e: no glowing outline on custom-modelled mobs' invisible hosts (noglow.py)
@@ -172,7 +173,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.82s'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.82t'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1301,6 +1302,7 @@ def build(out_dir):
         if _n.startswith('mobs/init/') and _lines and _lines[0] == 'tag @s add bm.seen':
             _lines[1:1] = ['execute if data entity @s CustomName run return 0', 'execute if data entity @s {NoAI:1b} run return 0']
     R95.generate(sys.modules[__name__])
+    R173.generate(sys.modules[__name__])        # 2.82t: last - it adjusts other phases' functions
     R28.finalize(sys.modules[__name__])
     print('market rebuild: %d entity tags cleared, %d per-market lines wait for the new town' % R168.finalize(sys.modules[__name__]))
     useitem.generate(sys.modules[__name__])
@@ -1310,6 +1312,7 @@ def build(out_dir):
     print('allies:', allies.finalize(sys.modules[__name__]), 'friendly-fire lines now skip every follower')
     print('noglow:', noglow.apply(sys.modules[__name__]), 'glow lines kept off invisible hosts')      # 2.80e
     print('omega tithe: %d custom-mob loot tables, %d currency pools tripled' % R172.finalize(sys.modules[__name__]))
+    print('2.82t: %d loot tables, %d pools of map pieces / Skiff parts give one you lack' % R173.finalize(sys.modules[__name__]))
     for line in optimize.optimize(sys.modules[__name__]): print('optimize:', line)      # 2.15: cheaper entity selectors, quiet dungeons/markets
     print('prune:', len(prune.prune(sys.modules[__name__])), 'leftover functions dropped')
     # 1.13: every objective is created before any line of load uses it (phases prepend their own lines to load, and a

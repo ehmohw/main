@@ -33,6 +33,8 @@ BANK_EXTRA = [('blood_crystal', 'bm.bk_bld', 'Blood Crystals', 'dark_red'), ('em
               ('xenite_red', 'bm.bk_xr', 'Red Xenite', '#ff4a4a')]
 R31.BANK += BANK_EXTRA
 
+SATCHEL = {}                     # (2.82t) the satchel's own-bag functions, as phase33 writes them
+
 TOOLS = ('pickaxe', 'shovel', 'axe', 'hoe')
 TIERS = ('wooden', 'stone', 'copper', 'golden', 'iron', 'diamond', 'netherite')
 JUMP = {'triple': (0.62, 0.97), 'charge': (0.55, 0.69, 0.80, 0.91)}      # jump_strength per level (base 0.42 = 1.25 blocks)
@@ -294,6 +296,8 @@ def generate(G):
                         'execute unless data storage bm:tmp vac.c run data modify storage bm:tmp vac.c set value []'])
     fn('p33/vac/write', ['$item modify entity @s container.$(n) {function:"minecraft:set_components",components:{"minecraft:container":$(c)}}',
                          'playsound minecraft:entity.item.pickup player @s ~ ~ ~ 0.4 0.6'])
+    # (2.82t: kept - phase44's per-player store overrides these; phase173 puts the satchel's own bag back)
+    SATCHEL.update({n_: list(G.FUNCS[n_]) for n_ in ('p33/vac/use', 'p33/vac/pull', 'p33/vac/read', 'p33/vac/write')})
     # one item entity -> merge into matching stacks, then the first free slot; what doesn't fit stays on the ground
     fn('p33/vac/take', ['data modify storage bm:tmp vac.in set from entity @s Item', 'execute store result score #vn bm.rng run data get storage bm:tmp vac.in.count',
                         'scoreboard players set #vmax bm.rng 64', 'execute if items entity @s contents *[minecraft:max_stack_size=16] run scoreboard players set #vmax bm.rng 16',

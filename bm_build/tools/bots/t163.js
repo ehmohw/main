@@ -201,7 +201,7 @@ const res = [];
   await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
   A.chats.length = 0; await run(`${O}damage ${PET} 200 minecraft:mob_attack`);
   ok('struck down: he faints, his rig fades away', await wait(4000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.fyp_pet]')) === 0));
-  ok('..."Fishy faints!" - five minutes on the bowl', A.chats.some(c => /Fishy faints!/.test(c)) && (await score('bm.fycd')) > 280, A.chats.slice(-1).join('').slice(0, 160));
+  ok('..."Fishy faints!" - two minutes on the bowl (2.82t)', A.chats.some(c => /Fishy faints!/.test(c)) && (await score('bm.fycd')) > 100, A.chats.slice(-1).join('').slice(0, 160));
   A.bars.length = 0; await use(0); await sleep(800);
   ok('...the bowl used: "still catching his breath", no Fishy', (await cnt(PET)) === 0 && A.bars.some(b => /catching his breath/.test(b)), A.bars.slice(-1).join(''));
   await run('scoreboard players set TestRat bm.fycd 0');

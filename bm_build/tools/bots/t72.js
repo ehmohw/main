@@ -87,7 +87,7 @@ const rel = (x, y, z) => `~${x - 12} ~${y - 4} ~${z - 12}`;
   ok('He follows you - walking / running cycle', walked);
   // faint
   await run(`kill ${zw}`); await sleep(2600);
-  ok('If he faints: the medal rests 5 minutes', (await sc('TestRat', 'bm.zbcd')) >= 295 && (await cnt('@e[tag=bm.zbr]')) === 0 && A.chats.some(c => /Zib faints/.test(c)));
+  ok('If he faints: the medal rests 2 minutes', (await sc('TestRat', 'bm.zbcd')) >= 115 && (await cnt('@e[tag=bm.zbr]')) === 0 && A.chats.some(c => /Zib faints/.test(c)));
   await run('execute as TestRat at @s run function bm:p72/zb/use'); await sleep(300);
   ok('...and he won\'t come before then', (await cnt('@e[type=wolf,tag=bm.zibpet]')) === 0 && A.bars.slice(-3).some(b => /sick bay/.test(b)));
   await run('scoreboard players reset TestRat bm.zbcd');
@@ -120,7 +120,7 @@ const rel = (x, y, z) => `~${x - 12} ~${y - 4} ~${z - 12}`;
   ok('...archers take shots at it (16 health - fragile)', eh1 < 16 || (await cnt('@e[type=bat,tag=bm.eskhost]')) === 0, `escort ${eh1}/16`);
   await run('kill @e[tag=bm.t72t]');
   await run(`kill ${eh}`); await sleep(2500);
-  ok('Shot down: 5 minutes of repairs', (await sc('TestRat', 'bm.eskcd')) >= 295 && (await cnt('@e[tag=bm.eskd]')) === 0 && A.chats.some(c => /shot down/.test(c)));
+  ok('Shot down: 5 minutes of repairs', (await sc('TestRat', 'bm.eskcd')) >= 115 && (await cnt('@e[tag=bm.eskd]')) === 0 && A.chats.some(c => /shot down/.test(c)));
   await run('execute as TestRat at @s run function bm:p72/esk/use'); await sleep(300);
   ok('...and it won\'t launch before then', (await cnt('@e[type=bat,tag=bm.eskhost]')) === 0 && A.bars.slice(-3).some(b => /patched up/.test(b)));
   await run('scoreboard players reset TestRat bm.eskcd');

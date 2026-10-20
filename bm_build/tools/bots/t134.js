@@ -374,7 +374,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     // (fainting)
     await use(A, 0); await wait(4000, async () => (await cnt(pet, O)) === 1); await sleep(1000);
     await run(`${O}kill ${pet}`);
-    ok('he faints: his rig dissolves, the Oath rests 5 minutes', await wait(4000, async () => (await sc('TestRat', 'bm.apcd')) >= 290 && !(await cnt('@e[type=minecraft:item_display,tag=bm.app_pet]', O))),
+    ok('he faints: his rig dissolves, the Oath rests 2 minutes', await wait(4000, async () => (await sc('TestRat', 'bm.apcd')) >= 110 && !(await cnt('@e[type=minecraft:item_display,tag=bm.app_pet]', O))),
        `cd ${await sc('TestRat', 'bm.apcd')}`);
   }
 

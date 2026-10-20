@@ -71,7 +71,7 @@ const res = [];
 
   // ---------------------------------------------------------------- he faints: the Signet rests, nothing is dropped, he's back with his sword after
   await run(`${O}kill ${FROG}`);
-  ok('he faints: the Signet rests (5 minutes)', await wait(4000, async () => (await sc('TestRat', 'bm.fgcd')) > 250));
+  ok('he faints: the Signet rests (2 minutes)', await wait(4000, async () => (await sc('TestRat', 'bm.fgcd')) > 100));
   ok('...and nothing he wore is left lying about', (await cnt(`@e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..20,nbt={Item:{id:"minecraft:iron_sword"}}]`)) === 0);
   A.titles && (A.titles.length = 0); A.bars && (A.bars.length = 0);
   await tokenUse('frog_signet');

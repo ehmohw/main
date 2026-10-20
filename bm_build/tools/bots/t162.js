@@ -90,7 +90,10 @@ const res = [];
   ok('...its title: 1 of 20', /1/.test(JSON.stringify(page2.title)));
   // ---- a lost bowl: he has a spare
   await run('clear TestRat *[minecraft:custom_data~{bm:"fy_bowl"}]'); A.slot(8); await sleep(300); await clickFishy(); await sleep(600);
-  ok('the Pocket Bowl lost: empty-handed at his desk, he gives you a spare', (await has('fy_bowl')) === 1);
+  ok('the Pocket Bowl lost: clicking him alone hands out no free bowl (2.82t)', (await has('fy_bowl')) === 0);
+  { const n0 = A.dialogN.length; await clickFishy(); await wait(2000, async () => A.dialogN.length > n0, 100); }
+  await A.press(/A spare Pocket Bowl/); await sleep(800);
+  ok('...his menu\'s "A spare Pocket Bowl" button gives you one', (await has('fy_bowl')) === 1);
   // ---- your own Fishy, out in the world: show him the next thing
   const X = 16540, Y = 100, Z = 16000;
   await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`); await run(`${O}fill ${X - 8} ${Y} ${Z - 8} ${X + 8} ${Y} ${Z + 8} minecraft:stone`);

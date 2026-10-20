@@ -167,7 +167,7 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
   await run('clear TestRat'); await run('loot replace entity TestRat container.0 loot bm:items/demo_seal'); await run('scoreboard players set TestRat bm.gvhc 0');
   await run('execute as TestRat at @s run function bm:p97/use'); await sleep(600);
   await run(`kill ${W}`); await sleep(800);
-  ok('If he falls: his rig crackles away, and the seal rests 5 minutes', (await sc('TestRat', 'bm.dmcd')) >= 290 && (await cnt('@e[type=item_display,tag=bm.dmp,tag=!bm.dmencp,tag=!bm.dmbp,tag=!bm.dmfade]')) === 0,
+  ok('If he falls: his rig crackles away, and the seal rests 2 minutes', (await sc('TestRat', 'bm.dmcd')) >= 110 && (await cnt('@e[type=item_display,tag=bm.dmp,tag=!bm.dmencp,tag=!bm.dmbp,tag=!bm.dmfade]')) === 0,
      `cd ${await sc('TestRat', 'bm.dmcd')}`);
   await run('scoreboard players set TestRat bm.dmcd 0'); await run('weather clear'); await run("gamerule advance_weather true");
   console.log(`${res.filter(Boolean).length}/${res.length} passed`); process.exit(0);

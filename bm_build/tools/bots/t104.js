@@ -201,7 +201,7 @@ const BAY = [[-242, 64, -244], [-242, 65, -244], [-242, 64, -243], [-242, 65, -2
   await sleep(2500);
   ok('...and the Tokens carried in the vault come home in the pack (1)', (await toks('TestRat')) === 1, `${await toks('TestRat')}`);
   await run('scoreboard players set TestRat bm.cpcd 300'); await sleep(1600);
-  ok('Outside the vault a faint keeps its 5 minutes', (await sc('bm.cpcd')) > 290, `${await sc('bm.cpcd')}`);
+  ok('Outside the vault a faint keeps its 2 minutes', (await sc('bm.cpcd')) > 110, `${await sc('bm.cpcd')}`);
   await run('scoreboard players set TestRat bm.cpcd 0');
 
   // ---- 12. a member who opts in with no fee on them: home at once; one who opts out: home

@@ -130,7 +130,7 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   // fainting
   await run('execute as @e[type=cat,tag=bm.emmapet] at @s run function bm:p62/emma_go'); await sleep(400);
   await run('execute as @e[type=wolf,tag=bm.leopet] run tp @s ~ -400 ~'); await sleep(1200);
-  ok('If he falls: the crest rests five minutes', (await sc('bm.lecd')) >= 290 && (await cnt('@e[type=item_display,tag=bm.lep,tag=!bm.lefade,tag=!bm.leencp]')) === 0, `cd ${await sc('bm.lecd')}`);
+  ok('If he falls: the crest rests five minutes', (await sc('bm.lecd')) >= 110 && (await cnt('@e[type=item_display,tag=bm.lep,tag=!bm.lefade,tag=!bm.leencp]')) === 0, `cd ${await sc('bm.lecd')}`);
   await hold('leo_crest'); await press(false);
   ok('...and the crest won\'t call him till then', (await cnt('@e[type=wolf,tag=bm.leopet]')) === 0 && /patching his armour/.test(A.bars.slice(-2).join(' ')), A.bars.slice(-1)[0]);
   await run('scoreboard players set TestRat bm.lecd 0'); await press(false); await sleep(400);

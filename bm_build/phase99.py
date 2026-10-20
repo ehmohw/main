@@ -339,6 +339,12 @@ def generate(G):
                 if g == 'dress':
                     page += [f'execute if score @s {cur} matches {k} unless score @s bm.coso matches 0 run {st(f"{g}{k}", "owned", "gray")}']
                 btns.append(P28.btn([T(cn, cc, bold=True), T('  '), f'@@RAW:r_{g}{k}@@'], b + off + k, width=150))
+        # 2.82t: comes back after fainting - on unless switched off here (phase173: after the 2-minute cooldown, by itself)
+        import phase173 as P173
+        if who in P173.AR:
+            page += [st('ar', 'on', GOLD)] + bit('bm.arof', P173.AR_IDX[who]) + [f'execute if score #q bm.rng matches 1 run {st("ar", "off", "gray")}']
+            btns.append(P28.btn([T('Back after a faint', 'white', bold=True), T('  '), '@@RAW:r_ar@@'], P173.AR_CODE + P173.AR_IDX[who], width=150,
+                                tooltip=T(f'On: once the 2-minute rest after a faint is over, {nm} comes back to you.', 'gray')))
         # 2.78: the aura row - locked until you have it (a rare heist find, or dear at the Tailor), then on / off
         import phase138 as P138
         an, ac = P138.AURA[who][0], P138.AURA[who][1]

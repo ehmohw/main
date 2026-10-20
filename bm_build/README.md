@@ -21,6 +21,24 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.82t: urgent fixes - the Ledger, the Dark Auction, the Hollow, Wilfrey, followers, satchels
+
+- **Your Ledger can't be dropped in the gutter.** Thrown in the den, the Lounge or a heist, it bounces straight back to you, like the kit's weapons.
+- **The Dark Auction survives a night slept through.** Its doors used to open only between 17000 and 18000 ticks, and beds work from about 12540, so a world that always sleeps at nightfall never had an auction. The doors now open at dusk (12000) on a sale night. If everyone sleeps after that, the first lot is called at daybreak.
+- **The Hollow stays standing.** Mob griefing stays off while the Hollow King (either form) is alive in the Hollow Throne, not only while a player is inside. Dying or leaving mid-fight used to switch it back on while the Wither carried on.
+- **The final boss's Regalia:** Tombstride Treads now have Depth Strider III and the Deathmask has Aqua Affinity. Copies you already own update themselves (item version 40).
+- **Wilfrey's locket is a click.** It no longer needs a one-second hold or vanishes for a moment. Sneak + click opens his menu: Call him / Call him over, **Send him home**, and Wardrobe. His fall now costs 2 minutes, not 30.
+- **Followers rest 2 minutes after fainting** (was 5; heists keep their 45 seconds). When the rest is over, they **come back by themselves** wherever you are outside the gutter. Switch this off per follower on their wardrobe page ("Back after a faint").
+- **Summoning items are earned once.** Dennis's horn and Pistachio's cloche come with the fiftieth trade. Lose one and it takes 50 more trades without it to get another (the action bar counts down). Fishy's bowl is replaced only by asking Fishy himself, with **A spare Pocket Bowl** on his Cabinet page at his desk.
+- **Every Vacuum Satchel is its own bag again.** Your old shared satchel contents move into the first satchel you use. **Filter:** right-click with an item in your other hand and the satchel only takes that kind (up to 5 kinds). Do it again with the same item to take it off the filter.
+- **A satchel's or Prime Cooler's barrel broken while it's out** puts everything back into the item instead of scattering it.
+- **The Prime Cooler switches on and off** like the satchel: right-click toggles its gathering, and sneak + right-click sets it down as a barrel.
+- **Apophiss is weak to fire, in both forms.** A Cecil or KillerWatt with the Fire Gem (or Wraithfire) does 8 extra damage per hit to him.
+- **Lucky map pieces and Vorn Skiff parts:** each find is a piece you aren't carrying, while one is still missing. The last piece no longer takes a dozen duplicates (only the pieces in your inventory count; on a heist, what you carried in still counts).
+- **Heist wins can turn up a Lucky Map Fragment** in your haul: 6% at Tier I, rising 2% a tier to 14% at Tier V.
+- **The Lucky Horseshoe's riddle in Fishy's Cabinet** now points at the Gilded Roost's secret room (it wrongly said the Hollow).
+- **Diamond and netherite follower looks cost much less:** gold 5, diamond 8 and netherite 12 Gutter Trophies (were 20, 32 and 48). One netherite look used to take about 80 Tier V wins.
+
 ## New in 2.82s: the win multiplier, and Gutter Medallions and Trophies from wins
 
 - **Win a heist and the Fixer may pay out several times over.** The chance is 5% at Tiers I and II, 10% at Tier IV, 15% at Tier V, and 5% at Tier III. At Tiers III-V a hit is 2x (45%), 3x (40%) or 4x (15%, the rarest). At Tiers I-II it's nearly always 2x (85%), with 3x (10%) and 4x (5%) now and then. A title announces it.

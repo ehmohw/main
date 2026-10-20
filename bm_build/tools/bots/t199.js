@@ -187,7 +187,7 @@ const res = [];
   await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(2000);
   A.chats.length = 0; await run(`${O}damage ${PET} 500 minecraft:mob_attack`);
   ok('struck down: he faints, his rig fades away', await wait(5000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.omp_pet]')) === 0));
-  ok('..."Omega faints!" - five minutes on the Monocle', A.chats.some(c => /Omega faints!/.test(c)) && (await score('bm.omcd')) > 280, A.chats.slice(-1).join('').slice(0, 160));
+  ok('..."Omega faints!" - two minutes on the Monocle (2.82t)', A.chats.some(c => /Omega faints!/.test(c)) && (await score('bm.omcd')) > 100, A.chats.slice(-1).join('').slice(0, 160));
   A.bars.length = 0; await sleep(2200); await use(0); await sleep(800);
   ok('...the Monocle used: "still gathering himself", no Omega', (await cnt(PET)) === 0 && A.bars.some(b => /gathering himself/.test(b)), A.bars.slice(-1).join(''));
 

@@ -2,6 +2,7 @@
 import items as I
 from items import item, gear, attr, ench, T, TOTEM, consumable, weapon_attrs, armor_attrs, PRICES, ARMOR_SLOT
 from p2.config import D, ORDER
+from useitem import hold as _hold, HOLD as _HOLD
 
 # ===================================================================== BOSS KEYS (sold by The Fence)
 KEYS = {
@@ -41,10 +42,11 @@ item('hollow_warpstone', TOTEM, 'Warpstone of the Hollow Throne', '#e5e4e2',
      comps={'minecraft:consumable': consumable(1.2, 'toot_horn', 'minecraft:block.respawn_anchor.set_spawn', False)}, cat='p2map')
 item('wilfrey_locket', TOTEM, "Wilfrey's Locket", '#f4f4f4',
      ['A silver locket from a quiet grave.', ('Use it to call Wilfrey, the Kind Lord, to your side.', 'gray'),
-      ('Use it again to call him back to you;', 'gray'), ('sneak + use to let him rest.', 'gray'),
-      ('If he falls, his spirit needs 30 minutes.', 'dark_gray')],
+      ('Use it again to call him back to you.', 'gray'), ('Sneak + use: his menu (call, send home, wardrobe).', 'gray'),
+      ('If he falls, his spirit needs 2 minutes.', 'dark_gray')],
      model='bm:wilfrey_locket', glint=True, stack=1, bold=True,
-     comps={'minecraft:consumable': consumable(1.0, 'none', 'minecraft:block.amethyst_block.resonate', False)}, cat='p2emblem')
+     comps=_hold('none'), cat='p2emblem')          # (2.82t: a press, not a one-second "use" eaten and handed back)
+_HOLD['wilfrey_locket'] = 'bm:p2/wil/locket'
 
 # ===================================================================== CONQUEST EMBLEMS
 # Each emblem carries a numeral. The Hollow Throne's keypad wants the five numerals in conquest order.

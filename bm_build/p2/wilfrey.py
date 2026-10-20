@@ -57,14 +57,14 @@ def generate(G):
         'particle minecraft:end_rod ~ ~1 ~ 0.6 1 0.6 0.05 40'])
 
     # ---------------- the locket
-    G.consume_adv('wilfrey_locket', 'bm:p2/wil/locket')
-    from useitem import give_back
-    back = give_back(G.item_arg('wilfrey_locket'))       # (2.78: a tick later - see useitem.give_back)
-    fn('p2/wil/locket', ['advancement revoke @s only bm:consume/wilfrey_locket'] + back + [
+    # (2.82t: the locket is a press now - a right-click, not a one-second "use" eaten and handed back a tick later: call him,
+    #  call him over; sneak + use: his menu (phase173), with Send him home)
+    fn('p2/wil/locket', [
         'execute unless score @s bm.conq matches 6.. run return run ' + title('@s', 'actionbar', T('The locket is cold.', 'gray')),
+        'execute if score @s bm.gvhc matches 1.. run return 0', 'scoreboard players set @s bm.gvhc 2',
+        'execute if predicate bm:p20/sneaking run return run function bm:p173/wil/menu',
         'tag @s add bm.giver', 'execute unless score @s bm.pid matches 1.. run function bm:p21/pid',
         'execute as @e[type=minecraft:wolf,tag=bm.wilfrey] if function bm:p20/frog/is_givers run tag @s add bm.fsel',
-        'execute if entity @e[type=minecraft:wolf,tag=bm.fsel] if predicate bm:p20/sneaking run function bm:p2/wil/dismiss',
         'execute if entity @e[type=minecraft:wolf,tag=bm.fsel] unless predicate bm:p20/sneaking run function bm:p2/wil/recall',
         'execute unless entity @e[type=minecraft:wolf,tag=bm.fsel] unless predicate bm:p20/sneaking run function bm:p2/wil/try_summon',
         'tag @e[tag=bm.fsel] remove bm.fsel', 'tag @e[tag=bm.fbag] remove bm.fbag', 'tag @s remove bm.giver'])
@@ -109,7 +109,7 @@ def generate(G):
         title('@s', 'title', T('Wilfrey rises', '#f4f4f4', bold=True)),
         tellraw('@s', PREFIX + [T('Wilfrey follows and fights for you. Right-click him holding a weapon or armour to equip it (he hands back what it replaces); ', 'white'),
                                 T('empty-handed to make him hold or follow; sneak + right-click empty-handed to take everything back. ', 'gray'),
-                                T('Sneak + use the locket to let him rest.', 'gray')])])
+                                T('Sneak + use the locket for his menu (and Send him home).', 'gray')])])
     # dismiss: gear back to you, then he fades (no death, no cooldown)
     fn('p2/wil/dismiss', [f'execute as {sel} on passengers if entity @s[tag=bm.wil_bag] run tag @s add bm.fbag',
                           'function bm:p20/frog/strip',
@@ -177,8 +177,8 @@ def generate(G):
     fn('p2/wil/fallen', ['scoreboard players operation #me bm.pid = @s bm.pid',
                          'execute as @a if score @s bm.pid = #me bm.pid run function bm:p2/wil/cooldown',
                          'particle minecraft:soul ~ ~1 ~ 0.4 0.8 0.4 0.03 30', 'kill @s'])
-    fn('p2/wil/cooldown', ['scoreboard players set @s bm.wlcd 1800',
-                           tellraw('@s', PREFIX + [T('Wilfrey has fallen. ', '#f4f4f4', bold=True), T('His gear lies where he fell; his spirit needs 30 minutes before the locket can call him again.', 'gray')])])
+    fn('p2/wil/cooldown', ['scoreboard players set @s bm.wlcd 120',
+                           tellraw('@s', PREFIX + [T('Wilfrey has fallen. ', '#f4f4f4', bold=True), T('His gear lies where he fell; his spirit needs 2 minutes before the locket can call him again.', 'gray')])])
     G.FUNCS['load'][-1:-1] = ['scoreboard players set #60 bm.rng 60']
     # (3 seconds of grace either way, so a chunk edge loading one before the other never fakes a death or a double)
     second += ['execute as @e[type=minecraft:wither_skeleton,tag=bm.wil_body] if function bm:p2/wil/has_wolf run scoreboard players set @s bm.wlg 0',

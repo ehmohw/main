@@ -14,13 +14,13 @@ const X = 12200, Y = 200, Z = 12200; const res = [];
   const hy = (await run('data get entity @e[tag=bm.cp_head,limit=1] Pos[1]')).match(/([\d.]+)d/)[1], wy = (await run('data get entity @e[type=wolf,tag=bm.cecilpet,limit=1] Pos[1]')).match(/([\d.]+)d/)[1];
   ok('...his hood sits 0.94 above the ground (was 1.38)', Math.abs(hy - wy - 0.94) < 0.05, (hy - wy).toFixed(2));
   await run('kill @e[type=wolf,tag=bm.cecilpet]'); await sleep(800);
-  ok('Cecil faints: 5 minutes (300 s)', +(await sc('TestRat', 'bm.cpcd')) >= 295, await sc('TestRat', 'bm.cpcd'));
+  ok('Cecil faints: 2 minutes (120 s)', +(await sc('TestRat', 'bm.cpcd')) >= 115, await sc('TestRat', 'bm.cpcd'));
   await run('scoreboard players reset TestRat bm.cpcd');
   // the Frog faints
   await run('execute as TestRat at @s run function bm:p20/frog/summon'); await sleep(2500);
   ok('A hired Frog carries his owner\'s id', +(await sc('@e[type=wolf,tag=bm.frogpet,limit=1]', 'bm.pid')) > 0);
   await run('kill @e[type=wolf,tag=bm.frogpet]'); await sleep(2200);
-  ok('The Frog faints: 5 minutes, and a free return owed', +(await sc('TestRat', 'bm.fgcd')) >= 290 && /passed/.test(await run('execute if entity @a[name=TestRat,tag=bm.fgowed]')), await sc('TestRat', 'bm.fgcd'));
+  ok('The Frog faints: 2 minutes, and a free return owed', +(await sc('TestRat', 'bm.fgcd')) >= 110 && /passed/.test(await run('execute if entity @a[name=TestRat,tag=bm.fgowed]')), await sc('TestRat', 'bm.fgcd'));
   A.bars.length = 0; await run('execute as TestRat at @s run function bm:p20/frog/hire'); await sleep(300);
   ok('...the hut turns him away while he recovers', (await cnt('@e[type=wolf,tag=bm.frogpet]')) === 0 && /recovering/.test(A.bars.join(' ')), A.bars.slice(-1)[0]);
   await run('scoreboard players set TestRat bm.fgcd 0'); A.bars.length = 0;

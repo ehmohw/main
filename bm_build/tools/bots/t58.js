@@ -40,7 +40,7 @@ const X = 12100, Y = 200, Z = 12100; const res = [];
   await run('kill @e[tag=bm.t58]');
   // she faints: 5 minutes
   await run('kill @e[type=wolf,tag=bm.celipet]'); await sleep(1500);
-  ok('She faints: the rig is gone and the charm rests 300 s', (await cnt('@e[tag=bm.cep]')) === 0 && +(await sc('TestRat', 'bm.cecd')) >= 295, await sc('TestRat', 'bm.cecd'));
+  ok('She faints: the rig is gone and the charm rests 120 s', (await cnt('@e[tag=bm.cep]')) === 0 && +(await sc('TestRat', 'bm.cecd')) >= 115, await sc('TestRat', 'bm.cecd'));
   await run('scoreboard players reset TestRat bm.cecd');
   await run('item replace entity TestRat weapon.mainhand from entity TestRat container.0').catch(() => {});
   console.log(`\n${res.filter(Boolean).length}/${res.length} passed`); process.exit(0);

@@ -25,7 +25,7 @@ EXHIBITS = {
         ('wilfrey_aegis', ['wilfrey_aegis'], 'It held the line against the Hollow King.'),
         ('oathblade', ['oathblade'], '"I chose the world," says the blade.'),
         ('blink_tome', ['blink_tome'], 'Hidden in the Hollow: a book that skips you forward.'),
-        ('horseshoe_charm', ['horseshoe_charm'], 'Hidden in the Hollow: luck for your off hand.'),
+        ('horseshoe_charm', ['horseshoe_charm'], 'Hidden in the Gilded Roost\'s secret room: luck for your off hand.'),
         ('hollow_warpstone', ['hollow_warpstone'], "The King's own key, taken from his throne."),
         ('hollow_wings', ['hollow_wings'], "Torn from the Hollow King's back."),
         ('sepulchre', ['sepulchre'], 'A maul; every grave it struck stayed open.'),
