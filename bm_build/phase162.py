@@ -395,12 +395,13 @@ def generate(G):
                           'I collect certain... parts, for the Palace kitchen. Bring them in quantity and I shall pay.']}
     fn('p162/npc/calm', ['scoreboard players set @s bm.dwns 0', 'scoreboard players set @s bm.dwn 0'])
     tick.append('scoreboard players remove @a[scores={bm.dwcl=1..}] bm.dwcl 1')
-    trader('dw', 'Dennis', DW_C, DW_LINE, DW_MENU, DW_LOTS, [(DW_MENU, "DENNIS'S ASSAY OFFICE", list(range(len(DW_LOTS))), [])],
+    import phase174 as P174                 # (2.83: each sells his collector from the front page)
+    trader('dw', 'Dennis', DW_C, DW_LINE, DW_MENU, DW_LOTS, [(DW_MENU, "DENNIS'S ASSAY OFFICE", list(range(len(DW_LOTS))), [P174.buy_btn('ore')])],
            DW_RARE, 'prospector_rune', "Dennis's Prospector's Rune", DA, DArt, 'dw')
     nc = len(PS_COMMON)
     trader('ps', 'Pistachio', PS_C, PS_LINE, PS_MENU, PS_LOTS,
            [(PS_MENU + 1, "PISTACHIO'S PANTRY", list(range(nc)), [P28.btn(T('Rare parts »', GOLD, bold=True), PS_MENU + 2, width=230,
-                                                                         tooltip=T('Skulls, heads, shells - he pays well for these.', 'gray'))]),
+                                                                         tooltip=T('Skulls, heads, shells - he pays well for these.', 'gray')), P174.buy_btn('mob')]),
             (PS_MENU + 2, "PISTACHIO'S PANTRY  ·  rare parts", list(range(nc, len(PS_LOTS))), [P28.btn(T('« Common lots', 'gray'), PS_MENU + 1, width=230)])],
            PS_RARE_GIFT, 'tithe_seal', "Pistachio's Tithe Seal", PA, PArt, 'pi')
 

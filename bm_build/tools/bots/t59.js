@@ -8,7 +8,8 @@ const X = 12200, Y = 200, Z = 12200; const res = [];
   await run(`kill @e[type=!player,x=${X},y=${Y},z=${Z},distance=..30]`); await run('kill @e[type=wolf,tag=bm.frogpet]'); await run('kill @e[type=wolf,tag=bm.cecilpet]');
   await run('clear TestRat'); await run('scoreboard players reset TestRat bm.fgcd'); await run('tag TestRat remove bm.fgowed'); await run('scoreboard players reset TestRat bm.cpcd');
   await run(`tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5}`); await sleep(1500);
-  // Cecil v2
+  // Cecil v2 (a follower leaves within seconds if its owner doesn't carry its summoning item: give them first)
+  await run('loot give TestRat loot bm:items/cecil_gem'); await run('loot give TestRat loot bm:items/frog_signet'); await sleep(300);
   await run('execute as TestRat at @s run function bm:p46/pet/summon'); await sleep(1500);
   ok('Cecil comes in his new (shorter, slimmer) look', /cec2_head/.test(await run('data get entity @e[tag=bm.cp_head,limit=1] item.components')) && (await cnt('@e[tag=bm.cpet,tag=bm.cp2]')) === 5);
   const hy = (await run('data get entity @e[tag=bm.cp_head,limit=1] Pos[1]')).match(/([\d.]+)d/)[1], wy = (await run('data get entity @e[type=wolf,tag=bm.cecilpet,limit=1] Pos[1]')).match(/([\d.]+)d/)[1];

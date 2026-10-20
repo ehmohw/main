@@ -45,6 +45,7 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 - **Big followers never leave a ghost behind:** if Apophiss's (or Tullius's, Fishy's, Dennis's, Pistachio's, Omega's) model fades while his host lives on, the host is cleared within seconds, so a heist calls him back after his 45 seconds.
 - **The Wings of the Damned count toward the Regalia:** wear them in place of the Ribcage and the set still wakes.
 - **Heist wins can turn up a Lucky Map Fragment** in your haul: 6% at Tier I, rising 2% a tier to 14% at Tier V.
+- **A heist's Spire never opens onto empty air.** Raiding solo, a Spire or Bell Tower drawn in place of a crew-only room left its exit ten blocks above the next passage, so the doorway at the top looked out over the void. The layout now climbs with the room, as it always did for one drawn the usual way.
 - **The Lucky Horseshoe's riddle in Fishy's Cabinet** now points at the Gilded Roost's secret room (it wrongly said the Hollow).
 - **Diamond and netherite follower looks cost much less:** gold 5, diamond 8 and netherite 12 Gutter Trophies (were 20, 32 and 48). One netherite look used to take about 80 Tier V wins.
 

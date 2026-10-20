@@ -277,9 +277,11 @@ def generate(G):
     fn('p66/enc/at', ['$execute rotated $(a) 0 positioned ^ ^ ^14 positioned over motion_blocking_no_leaves run function bm:p66/enc/place'])
     wjson('bm/tags/block/p66_ground.json', {'values': ['#minecraft:dirt', '#minecraft:grass_blocks', 'minecraft:snow_block', 'minecraft:snow', 'minecraft:powder_snow',
                                                        'minecraft:packed_ice', 'minecraft:ice', 'minecraft:blue_ice', 'minecraft:stone', 'minecraft:gravel', 'minecraft:sand']})
-    fn('p66/enc/place', ['execute if block ~ ~ ~ minecraft:snow positioned ~ ~1 ~ run return run function bm:p66/enc/place2',
-                         'function bm:p66/enc/place2'])
-    fn('p66/enc/place2', ['execute unless block ~ ~-1 ~ #bm:p66_ground run return 0', 'execute unless block ~ ~ ~ #bm:grap_pass run return 0',
+    # (2.83: the ground lookup stops in a thin snow layer - she stands in it, on the ground; she used to be lifted a block
+    #  above it and stood in the air)
+    fn('p66/enc/place', ['function bm:p66/enc/place2'])
+    fn('p66/enc/place2', ['execute unless block ~ ~-1 ~ #bm:p66_ground run return 0',
+                          'execute unless block ~ ~ ~ minecraft:snow unless block ~ ~ ~ #bm:grap_pass run return 0',
                           'execute unless block ~ ~1 ~ #bm:grap_pass run return 0', 'function bm:p66/enc/spawn',
                           'execute as @a[distance=..40] run ' + title('@s', 'actionbar', T('Someone nearby is muttering... "Ugh. Where IS everyone?"', '#d8f0ff'))])
     enc_hit = snbt({'Tags': ['bm.ceenc', 'bm.cenew'], 'width': F(0.9), 'height': F(1.9), 'response': B(1)})

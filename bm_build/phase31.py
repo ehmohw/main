@@ -74,6 +74,7 @@ def generate(G):
                      f'execute store result storage bm:ui bk.{cur} int 1 run scoreboard players get @s {obj}']
     op_lines += ['data modify storage bm:ui bk.sv set value "Savings: none yet - the Teller in the Gilded Gutter opens one."',
                  f'execute if score @s bm.bksv matches 1 run data modify storage bm:ui bk.sv set value "Savings: open - {SAVE_PCT}% a day on every currency here."']
+    op_lines += ['data modify storage bm:ui bk.ac set value "off"', 'execute if score @s bm.bkac matches 1 run data modify storage bm:ui bk.ac set value "ON"']
     op_lines.append('function bm:p31/bank/dlg with storage bm:ui bk')
     fn('p31/bank/open', op_lines)
     # 2.80: a page per currency. The account page lists every currency with its balance (one button each); a currency's
@@ -92,6 +93,11 @@ def generate(G):
     import economy as _EC
     TPM, MPT = _EC.TOKENS_PER_MEDALLION, _EC.MEDALLIONS_PER_TROPHY
     btns.append(P28.btn(T('Exchange', '#7ad8ff'), EXCH, tooltip=T('Change Tokens, Medallions and Trophies in your account - no fee, either way', 'gray'), width=150))
+    # (2.83) AUTO-DEPOSIT, on the card: once a second, every currency the bank keeps goes from your pockets into your account
+    # (Tokens above 8 - a heist's fee stays on you); it rests 30 seconds after you take anything out; never in the gutter
+    AUTO, KEEP_TOK = 4079, 8
+    btns.append(P28.btn([T('Auto-deposit: ', '#c8ffb0'), T('$(ac)', 'white')], AUTO,
+                        tooltip=T(f'While you carry the card, what the bank keeps goes straight into your account (you keep {KEEP_TOK} Tokens for fees)', 'gray'), width=150))
     dlg = P28.multi([T('The Rat Bank', 'gold', bold=True), T(' - your account', 'gray')],
                     [P28.body([T('Pick a currency to deposit or take out.', 'gray')], 300),
                      P28.body([T('$(sv)', '#7aff7a')], 300),
@@ -105,7 +111,32 @@ def generate(G):
            f'execute if score #act bm.pay matches {BACK} run return run function bm:p31/bank/open',
            f'execute if score #act bm.pay matches {SAVE} run return run function bm:p31/sav/btn',
            f'execute if score #act bm.pay matches {EXCH} run return run function bm:p31/bank/xpage'] + \
-          [f'execute if score #act bm.pay matches {EXCH + 1 + k} run return run function bm:p31/bank/x{k}' for k in range(4)]
+          [f'execute if score #act bm.pay matches {EXCH + 1 + k} run return run function bm:p31/bank/x{k}' for k in range(4)] + \
+          [f'execute if score #act bm.pay matches {AUTO} run return run function bm:p31/bank/ac_toggle']
+    fn('p31/bank/ac_toggle', ['execute unless function bm:p31/bank/card_on run return run ' + title('@s', 'actionbar', T('Auto-deposit works from the Banker\'s Card - carry one.', 'gray')),
+                              'execute if score @s bm.bkac matches 1 run scoreboard players set @s bm.bkac 2',
+                              'execute unless score @s bm.bkac matches 2 run scoreboard players set @s bm.bkac 1',
+                              'execute if score @s bm.bkac matches 2 run scoreboard players set @s bm.bkac 0',
+                              'playsound minecraft:ui.button.click player @s ~ ~ ~ 0.6 1.3', 'function bm:p31/bank/open'])
+    fn('p31/bank/card_on', ['execute if items entity @s container.* *[minecraft:custom_data~{bm:"bankers_card"}] run return 1',
+                            'execute if items entity @s weapon.offhand *[minecraft:custom_data~{bm:"bankers_card"}] run return 1', 'return 0'])
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.bkac dummy', 'scoreboard objectives add bm.bkag dummy']
+    G.OBJECTIVES += ['bm.bkac', 'bm.bkag']
+    G.FUNCS['loop/second'] += ['scoreboard players remove @a[scores={bm.bkag=1..}] bm.bkag 1',
+                               'execute as @a[scores={bm.bkac=1},gamemode=!spectator] unless score @s bm.bkag matches 1.. at @s unless dimension bm:gutter if function bm:p31/bank/card_on run function bm:p31/bank/auto']
+    auto = ['scoreboard players set #atot bm.pay 0']
+    for cur, obj, nm, col in BANK:
+        has = f'*[minecraft:custom_data~{{bm:"{cur}"}}]'
+        if cur == 'token':
+            auto += [f'execute store result score #n bm.pay run clear @s {has} 0', f'execute if score #n bm.pay matches {KEEP_TOK + 1}.. run function bm:p31/bank/auto_tok']
+            continue
+        auto += [f'execute store result score #n bm.pay run clear @s {has}', f'scoreboard players operation @s {obj} += #n bm.pay', 'scoreboard players operation #atot bm.pay += #n bm.pay']
+    auto += ['execute if score #atot bm.pay matches 1.. run playsound minecraft:block.chain.place player @s ~ ~ ~ 0.3 1.8']
+    fn('p31/bank/auto', auto)
+    fn('p31/bank/auto_tok', [f'scoreboard players remove #n bm.pay {KEEP_TOK}', 'execute store result storage bm:ui at.n int 1 run scoreboard players get #n bm.pay',
+                             'scoreboard players operation @s bm.bk_tok += #n bm.pay', 'scoreboard players operation #atot bm.pay += #n bm.pay',
+                             'function bm:p31/bank/auto_tok_m with storage bm:ui at'])
+    fn('p31/bank/auto_tok_m', ['$clear @s *[minecraft:custom_data~{bm:"token"}] $(n)'])
     # the swaps, on the account (bm.bk_tok / bm.bk_med / bm.bk_tro), then back to the page
     XS = [('bm.bk_tok', TPM, 'bm.bk_med', 1, f'{TPM} Tokens', '1 Medallion'), ('bm.bk_med', 1, 'bm.bk_tok', TPM, '1 Medallion', f'{TPM} Tokens'),
           ('bm.bk_med', MPT, 'bm.bk_tro', 1, f'{MPT} Medallions', '1 Trophy'), ('bm.bk_tro', 1, 'bm.bk_med', MPT, '1 Trophy', f'{MPT} Medallions')]
@@ -162,14 +193,14 @@ def generate(G):
                                    'execute if score #tot bm.pay matches 1.. run playsound minecraft:block.chain.place player @s ~ ~ ~ 0.8 1.4',
                                    'execute if score #tot bm.pay matches 1.. run ' + title('@s', 'actionbar', [T('Deposited ', 'gray'), {'score': {'name': '#tot', 'objective': 'bm.pay'}, 'color': col}, T(f' {nm}.', 'gray')]),
                                    f'function bm:p31/bank/page_{cur}'])
-        fn(f'p31/bank/take_{cur}', ['$scoreboard players set #n bm.pay $(n)', f'scoreboard players operation #n bm.pay < @s {obj}',
+        fn(f'p31/bank/take_{cur}', ['scoreboard players set @s bm.bkag 30', '$scoreboard players set #n bm.pay $(n)', f'scoreboard players operation #n bm.pay < @s {obj}',
                                     'execute if score #n bm.pay matches ..0 run ' + title('@s', 'actionbar', T(f'No {nm} in your account.', 'gray')),
                                     f'execute if score #n bm.pay matches ..0 run return run function bm:p31/bank/page_{cur}',
                                     f'scoreboard players operation @s {obj} -= #n bm.pay',
                                     'execute store result storage bm:tmp bk.n int 1 run scoreboard players get #n bm.pay',
                                     f'function bm:p31/bank/give_{cur} with storage bm:tmp bk',
                                     'playsound minecraft:block.chain.break player @s ~ ~ ~ 0.8 1.4', f'function bm:p31/bank/page_{cur}'])
-        fn(f'p31/bank/take_all_{cur}', [f'scoreboard players operation #n bm.pay = @s {obj}',
+        fn(f'p31/bank/take_all_{cur}', ['scoreboard players set @s bm.bkag 30', f'scoreboard players operation #n bm.pay = @s {obj}',
                                         'execute if score #n bm.pay matches ..0 run ' + title('@s', 'actionbar', T(f'No {nm} in your account.', 'gray')),
                                         f'execute if score #n bm.pay matches ..0 run return run function bm:p31/bank/page_{cur}',
                                         f'scoreboard players set @s {obj} 0', f'function bm:p31/bank/loop_{cur}',
