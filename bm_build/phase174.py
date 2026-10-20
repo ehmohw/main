@@ -59,7 +59,7 @@ COLLECTORS = {
                        'ender_pearl', 'blaze_rod', 'magma_cream', 'phantom_membrane', 'prismarine_shard', 'prismarine_crystals', 'breeze_rod', 'arrow',
                        'ghast_tear', 'rabbit_hide', 'rabbit_foot', 'beef', 'porkchop', 'mutton', 'chicken', 'rabbit', 'cod', 'salmon', 'tropical_fish',
                        'pufferfish', 'shulker_shell', 'nautilus_shell', 'armadillo_scute', 'turtle_scute', 'egg', 'honeycomb', 'wither_skeleton_skull',
-                       'skeleton_skull', 'zombie_head', 'creeper_head', 'piglin_head', 'sugar', 'glass_bottle', 'stick', 'wool', '#minecraft:wool',
+                       'skeleton_skull', 'zombie_head', 'creeper_head', 'piglin_head', 'sugar', 'glass_bottle', 'stick', '#minecraft:wool',
                        'carrot', 'potato', 'iron_ingot', 'gold_nugget', 'copper_ingot', 'trident', 'bow', 'crossbow', 'golden_sword', 'iron_sword',
                        'saddle', 'emerald', 'totem_of_undying', 'heavy_core', 'trial_key', 'wind_charge', 'blaze_powder', 'goat_horn']),
 }
@@ -109,12 +109,12 @@ def generate(G):
     sf.insert(0, 'setblock ~ ~ ~ minecraft:barrier keep')
     k = next(i for i, l in enumerate(sf) if l.startswith('tp @e[tag=bm.dcnew'))
     sf.insert(k, 'execute as @e[type=minecraft:interaction,tag=bm.dcnew,distance=..0.1] run function bm:p174/dc_floor')
-    fn('p174/dc_floor', ['tag @s add bm.dcfloor', 'tag @s add bm.dc283', 'data merge entity @s {width:1.02f,height:1.02f}'])
+    fn('p174/dc_floor', ['tag @s add bm.dcfloor', 'tag @s add bm.dc283', 'data merge entity @s[type=minecraft:interaction] {width:1.02f,height:1.02f}'])
     F_['p72/dc/gone'].insert(0, 'execute if entity @s[tag=bm.dcfloor] if block ~ ~ ~ minecraft:barrier run setblock ~ ~ ~ minecraft:air')
     # (cases already in the world: a floor case's box was 0.85 wide)
     F_['loop/second'].append('execute as @e[type=minecraft:interaction,tag=bm.dchit,tag=!bm.dc283] at @s run function bm:p174/dc_old')
     fn('p174/dc_old', ['tag @s add bm.dc283', 'execute unless data entity @s {width:0.85f} run return 0',
-                       'setblock ~ ~ ~ minecraft:barrier keep', 'tag @s add bm.dcfloor', 'data merge entity @s {width:1.02f,height:1.02f}'])
+                       'setblock ~ ~ ~ minecraft:barrier keep', 'tag @s add bm.dcfloor', 'data merge entity @s[type=minecraft:interaction] {width:1.02f,height:1.02f}'])
     # (the place-check looked for another case within 0.7 of a floor spot: the bigger box doesn't change where it sits)
 
     # ================================================================== LEO: a held fort opens again for anyone without his crest
@@ -149,8 +149,12 @@ def generate(G):
     ap[:] = [l.replace('modifier add bm:bio 0.5 add_multiplied_base', 'modifier add bm:bio 0.8 add_multiplied_base') for l in ap]
     ap.insert(-1, 'attribute @s minecraft:attack_damage modifier add bm:bio 0.33 add_multiplied_base')
     # (the Tokens: a pool on each Vorn table and each bioengineered one)
-    tok = lambda chance: {'rolls': 1, 'entries': [G.loot_entry('token')], 'conditions': [{'condition': 'minecraft:random_chance', 'chance': chance}]}
+    # (this pass runs after the 26.3 loot migration, so the entry is cloned from a migrated Token pool, not built fresh)
     root = G.path('data', 'bm', 'loot_table', 'p32')
+    with open(os.path.join(root, 'trooper.json')) as h:
+        tent = next(p['entries'][0] for p in json.load(h)['pools'] if '{bm:\\"token\\"' in json.dumps(p['entries'][0]))
+    tok = lambda chance: {'rolls': 1, 'entries': [json.loads(json.dumps(tent))],
+                          'condition': {'type': 'minecraft:all_of', 'terms': [{'type': 'minecraft:killed_by_player'}, {'type': 'minecraft:random_chance', 'chance': chance}]}}
     nlt = 0
     for f, ch in [('trooper', 0.5), ('saucer', 0.5), ('bigslime', 0.5), ('bphantom', 0.5)] + \
                  [(f'bio/{x[:-5]}', 0.2) for x in sorted(os.listdir(os.path.join(root, 'bio'))) if x.endswith('.json')]:
@@ -200,15 +204,10 @@ def generate(G):
                                  f'execute if score #n bm.pay matches ..{c["price"] - 1} run return run ' + say(f'{who}: "That\'s {c["price"]} Tokens, friend - on you."', c['col']),
                                  f'clear @s *[minecraft:custom_data~{{bm:"token"}}] {c["price"]}', G.give(iid),
                                  'playsound minecraft:entity.villager.yes neutral @s ~ ~ ~ 0.6 1.1', say(f'{who}: "Pleasure. Right-click it to switch it on."', c['col'])])
-        # switching it on and off (the held one)
-        G.wjson(f'bm/item_modifier/p174/{k}_on.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_on:1b}'},
-                                                     {'function': 'minecraft:set_components', 'components': {'minecraft:enchantment_glint_override': True}}])
-        G.wjson(f'bm/item_modifier/p174/{k}_off.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_on:0b}'},
-                                                      {'function': 'minecraft:set_components', 'components': {'minecraft:enchantment_glint_override': False}}])
         use = []
         for slot in ('weapon.mainhand', 'weapon.offhand'):
-            use += [f'execute if items entity @s {slot} {on} run return run function bm:p174/col/set {{slot:"{slot}",k:"{k}",to:"off",w:"off"}}',
-                    f'execute if items entity @s {slot} {has} run return run function bm:p174/col/set {{slot:"{slot}",k:"{k}",to:"on",w:"ON"}}']
+            use += [f'execute if items entity @s {slot} {on} run return run function bm:p174/col/off {{slot:"{slot}"}}',
+                    f'execute if items entity @s {slot} {has} run return run function bm:p174/col/on {{slot:"{slot}"}}']
         fn(f'p174/col/use_{k}', use)
         # at work: once a quarter second, its kind within 8 blocks flies to you (what's lying at your feet already: your pockets are full)
         F_['loop/fast'].append(f'execute as @a[gamemode=!spectator] if items entity @s container.* {on} at @s run function bm:p174/col/pull_{k}')
@@ -219,10 +218,44 @@ def generate(G):
                                   f'execute as @e[type=minecraft:item,distance=..1.2,nbt={{PickupDelay:0s}}] if items entity @s contents #bm:{tg} run function bm:p174/col/age',
                                   'return run scoreboard players get #ff bm.rng'])
     fn('p174/col/age', ['execute store result score #ag bm.rng run data get entity @s Age', 'execute if score #ag bm.rng matches 60.. run scoreboard players set #ff bm.rng 1'])
-    fn('p174/col/set', ['$item modify entity @s $(slot) bm:p174/$(k)_$(to)', 'playsound minecraft:block.note_block.chime player @s ~ ~ ~ 0.5 1.5',
-                        '$' + title('@s', 'actionbar', T('Switched $(w).', 'gray'))])
+    # switching it on and off (the held one; both kinds share the two modifiers)
+    G.wjson('bm/item_modifier/p174/col_on.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_on:1b}'},
+                                                 {'function': 'minecraft:set_components', 'components': {'minecraft:enchantment_glint_override': True}}])
+    G.wjson('bm/item_modifier/p174/col_off.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_on:0b}'},
+                                                  {'function': 'minecraft:set_components', 'components': {'minecraft:enchantment_glint_override': False}}])
+    for to, w in (('on', 'ON'), ('off', 'off')):
+        fn(f'p174/col/{to}', [f'$item modify entity @s $(slot) bm:p174/col_{to}', 'playsound minecraft:block.note_block.chime player @s ~ ~ ~ 0.5 1.5',
+                              title('@s', 'actionbar', T(f'Switched {w}.', 'gray'))])
     fn('admin/collectors', [G.give(c['iid']) for c in COLLECTORS.values()])
 
+
+    # ================================================================== FOLLOWERS COME BACK ONLY TO THEIR ITEM; ONE WILFREY
+    # (2.82t's after-a-faint return called the follower whether or not you still carried its item, and Wilfrey - who had no
+    #  "put the item away and he goes home" rule - piled up: a test bot without the locket had four of him, and the follower
+    #  cap counted them. The return now waits until you carry the item; Wilfrey goes home three seconds after the locket
+    #  leaves you, like every other follower.)
+    import phase68 as P68, phase173 as P173
+    has = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
+    tag_iid = {v[3]: v[1] for v in P68.KINDS.values()}
+    for w, (cd, typ, tag, call) in P173.AR.items():
+        i, iid = P173.AR_IDX[w], tag_iid.get(tag)
+        assert iid, (w, tag)
+        L = F_[f'p173/ar/back_{i}']
+        k = L.index(f'function bm:{call}')
+        L.insert(k, f'execute unless items entity @s container.* {has(iid)} unless items entity @s weapon.offhand {has(iid)} run return run tag @s add bm.arw{i}')
+    loc = tag_iid['bm.wilfrey']
+    F_['loop/second'].append('execute as @e[type=minecraft:wolf,tag=bm.wilfrey] at @s run function bm:p174/wil_item')
+    own = '@a[tag=bm.fown,limit=1]'
+    fn('p174/wil_item', ['scoreboard players operation #me bm.pid = @s bm.pid', 'tag @a remove bm.fown',
+                         'execute as @a if score @s bm.pid = #me bm.pid run tag @s add bm.fown',
+                         'execute unless entity @a[tag=bm.fown] run return 0',
+                         'execute if entity @a[tag=bm.fown,tag=bm.gvp] run return run scoreboard players set @s bm.fmis 0',
+                         'execute if dimension bm:gutter run return run scoreboard players set @s bm.fmis 0',
+                         f'execute if items entity {own} container.* {has(loc)} run return run scoreboard players set @s bm.fmis 0',
+                         f'execute if items entity {own} weapon.offhand {has(loc)} run return run scoreboard players set @s bm.fmis 0',
+                         f'execute if items entity {own} player.cursor {has(loc)} run return run scoreboard players set @s bm.fmis 0',
+                         'scoreboard players add @s bm.fmis 1',
+                         'execute if score @s bm.fmis matches 3.. run function bm:p2/wil/fade', 'tag @a remove bm.fown'])
 
 def rp(R):
     g = R.grid

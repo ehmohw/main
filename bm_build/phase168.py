@@ -39,12 +39,21 @@ def generate(G):
     corners_t = [(0, 0), (SX - 1, 0), (0, SZ - 1), (SX - 1, SZ - 1)]
     loaded = ' '.join(f'if loaded {rel((x + 0.5, W, z + 0.5))}' for x, z in corners_t)
     look = rel((38.5, BF + 1, 78.5))
-    second = [f'execute as @e[type=minecraft:marker,tag=bm.mkt,tag=!{TT}] at @s rotated as @s if entity @a[distance=..200] run function bm:p168/tick']
+    second = [f'execute as @e[type=minecraft:marker,tag=bm.mkt,tag=!{TT}] at @s rotated as @s if entity @a[distance=..200] run function bm:p168/tick',
+              # (2.83: once its chunks are held it finishes even if the player who came near has gone - else they stayed force-loaded for good)
+              f'execute as @e[type=minecraft:marker,tag=bm.mkt,tag=!{TT},tag=bm.rbfl] at @s rotated as @s unless entity @a[distance=..200] run function bm:p168/tick']
     fn('p168/tick', ['execute if score #state bm.auc matches 1.. run return 0',
                      'execute unless entity @s[tag=bm.rbfl] run function bm:p168/hold',
+                     'execute if entity @s[tag=bm.rbfl] run function bm:p168/corners',
                      f'execute {loaded} run function bm:p168/go'])
     turns = [f'execute if entity @s[y_rotation={r}] run return run function bm:p168/%s_{n}' for r, n in rot.TURNS]
-    fn('p168/hold', ['tag @s add bm.rbfl'] + [t % 'fl' for t in turns])
+    # (2.83: and each corner the tick waits for, itself - for a market turned 180 the box missed one, which never loaded, so the
+    #  rebuild never ran and the rest stayed force-loaded)
+    corner_at = [f'execute positioned {rel((x + 0.5, W, z + 0.5))} run forceload %s ~ ~' for x, z in corners_t]
+    G.P168_CORNERS = corner_at
+    # (re-asserted every second while held: a rebuild held by an older version lacks some of these, and waited for good)
+    fn('p168/corners', [c % 'add' for c in corner_at] + [t % 'fl' for t in turns])
+    fn('p168/hold', ['tag @s add bm.rbfl'] + [c % 'add' for c in corner_at] + [t % 'fl' for t in turns])
     fn('p168/go', [t % 'go' for t in turns])
     ROTN = {0: 'none', 1: 'clockwise_90', 2: '180', 3: 'counterclockwise_90'}
     G.P168_GO = {}
@@ -144,7 +153,8 @@ def finalize(G):
             f'execute positioned {org} store success score #rbok bm.rng run place template bm:black_market ~ ~ ~ {["none", "clockwise_90", "180", "counterclockwise_90"][n]}',
             'execute if score #rbok bm.rng matches 0 run tag @s remove bm.rbfl',
             'execute if score #rbok bm.rng matches 0 run return run tag @e[tag=bm.rbmove] remove bm.rbmove',
-            f'execute positioned {minc} run forceload remove ~ ~ ~{dx} ~{dz}', f'execute positioned {org} run forceload remove ~ ~ ~{SX - 1} ~{SZ - 1}',
+            f'execute positioned {minc} run forceload remove ~ ~ ~{dx} ~{dz}', f'execute positioned {org} run forceload remove ~ ~ ~{SX - 1} ~{SZ - 1}'] + \
+            [c % 'remove' for c in G.P168_CORNERS] + [
             'tag @e[tag=bm.rbmove] remove bm.rbmove',
             G.tellraw('@a[distance=..120]', G.PREFIX + [T('The Black Market has been rebuilt: ', 'gold'), T('streets, houses, the Lookout - the same traders, gates and rooms.', 'gray')]),
             'kill @s']

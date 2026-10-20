@@ -37,7 +37,9 @@ function bot(name) {
     if (process.env.BOT_RESPAWN) c.on('respawn', () => { setTimeout(() => { try { c.write('player_loaded', {}); } catch (e) {} }, 300); });   // (cross-dimension tests: report loaded after each respawn)
     c.on('login', (p) => {
       c.eid = p.entityId;
-      setTimeout(() => { try { c.write('player_loaded', {}); c.write('client_command', { actionId: 0 }); } catch (e) {} res(c); }, 1500);
+      // (2.83: a test that raises the bot's max health - t134, t135 - and aborts left it at 200 for every later test; every login starts at 20)
+      const fresh = () => rcon().then((R) => R.run(`attribute ${name} minecraft:max_health base set 20`).then(() => R.end())).catch(() => {});
+      setTimeout(() => { try { c.write('player_loaded', {}); c.write('client_command', { actionId: 0 }); } catch (e) {} fresh().then(() => res(c)); }, 1500);
     });
     c.on('kick_disconnect', (p) => console.log('KICKED', name, JSON.stringify(p).slice(0, 300)));
     setTimeout(() => rej(new Error('login timeout')), 20000);

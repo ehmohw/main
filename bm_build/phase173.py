@@ -419,7 +419,7 @@ def generate(G):
 
     # ================================================================== HIGH GROUND FOR THE MACE (2.82t): ledges in the fighting rooms, a gallery round the boss
     # (built when the room is set up, only into air: the Counting House, the Arcane Study and the Champion's Pit get four short
-    #  wall ledges five blocks up, each with a ladder; the vault's guardian hall gets a two-wide gallery down both long walls)
+    #  wall ledges five blocks up, each with a ladder; the vault's guardian hall gets a two-wide gallery round all four walls)
     import phase70_rooms as RM
     rel = RM.rel
     LEDGE, RAIL = 'minecraft:polished_blackstone_bricks', 'minecraft:gilded_blackstone'
@@ -430,12 +430,16 @@ def generate(G):
                       f'fill {rel(x0, 8, zin)} {rel(x1, 8, zin)} {RAIL} replace minecraft:air',
                       f'fill {rel(lad, 4, z)} {rel(lad, 8, z)} minecraft:ladder[facing={face}] replace minecraft:air']
     fn('p173/perch', perch)
+    # (2.83: a ring round all four walls - the two long strips stopped three blocks short of each end, and the short walls had none.
+    #  The ladders go in first, so the ledge leaves each one its gap at the top.)
     gallery = []
-    for z, zin, face in ((1, 2, 'south'), (23, 22, 'north')):
-        gallery += [f'fill {rel(4, 9, z)} {rel(20, 9, z)} {LEDGE} replace minecraft:air',
-                    f'fill {rel(4, 9, zin)} {rel(20, 9, zin)} {RAIL} replace minecraft:air',
-                    f'fill {rel(3, 4, z)} {rel(3, 9, z)} minecraft:ladder[facing={face}] replace minecraft:air',
+    for z, face in ((1, 'south'), (23, 'north')):
+        gallery += [f'fill {rel(3, 4, z)} {rel(3, 9, z)} minecraft:ladder[facing={face}] replace minecraft:air',
                     f'fill {rel(21, 4, z)} {rel(21, 9, z)} minecraft:ladder[facing={face}] replace minecraft:air']
+    for a, b in (((1, 1), (23, 1)), ((1, 23), (23, 23)), ((1, 1), (1, 23)), ((23, 1), (23, 23))):
+        gallery.append(f'fill {rel(a[0], 9, a[1])} {rel(b[0], 9, b[1])} {LEDGE} replace minecraft:air')
+    for a, b in (((2, 2), (22, 2)), ((2, 22), (22, 22)), ((2, 2), (2, 22)), ((22, 2), (22, 22))):
+        gallery.append(f'fill {rel(a[0], 9, a[1])} {rel(b[0], 9, b[1])} {RAIL} replace minecraft:air')
     fn('p173/perch_vault', gallery)
     for k in ('p70/r/guards/init', 'p76/r/ambush/init', 'p76/r/pit/init'):
         F[k].append('function bm:p173/perch')

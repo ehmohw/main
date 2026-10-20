@@ -351,6 +351,17 @@ for f in glob.glob(f'{DP}/data/*/loot_table/**/*.json', recursive=True):
     _no_conditions(f, json.load(open(f)))          # (raw: C.jload turns 26.3 back into 26.2's shapes)
 
 
+# (2.83) an item tag naming an unknown item or tag fails to load whole, and every command using it fails with it
+#  ('minecraft:wool' is only a tag: the Spirit Jar's tag held it, and its pull functions never loaded)
+_MY_ITEM_TAGS = {os.path.relpath(f, f'{DP}/data/bm/tags/item')[:-5] for f in glob.glob(f'{DP}/data/bm/tags/item/**/*.json', recursive=True)}
+for f in glob.glob(f'{DP}/data/*/tags/item/**/*.json', recursive=True):
+    for v in json.load(open(f)).get('values', []):
+        v = v['id'] if isinstance(v, dict) else v
+        ns, _, k = v.lstrip('#').partition(':')
+        known = (_MY_ITEM_TAGS if ns == 'bm' else C.REG['tag/item']) if v.startswith('#') else (C.REG['item'] if ns == 'minecraft' else ())
+        if k not in known: E(f'{f}: item tag names unknown {v}')
+
+
 for f in glob.glob(f'{RP}/assets/bm/items/*.json'):
     d = C.jload(f)
     walk_item_model(f, d['model'])

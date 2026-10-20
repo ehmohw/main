@@ -21,6 +21,33 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.83: the less urgent list, part one
+
+- **The Sunken Throne's crew fight back.** Drowned only hunt someone who's in water or out at night, so on the temple's dry floors they stood about. The Tyrant's crew are now Tidebound Sailors (zombies in turtle shells, with tridents and swords) and Barnacle Bowmen (bogged): in the spawners, the waves, his calls and the fail mob. Dungeons already built pick this up too. The Drowned Tyrant himself stays a drowned in his pool; he answers a blow, and his slam and surge don't need water.
+- **Invasion nights are harder, and better paid** (still short of a Blood Moon):
+  - The Vorn come down more often: a surge about every 3 seconds under open sky, up to 12 around you (was 1 in 5, up to 8).
+  - Troopers have 40 health and hit for 6 (were 30 and 4); saucers have 50 health.
+  - Half the night's monsters are bioengineered (was a third), with 80% more health and a third more damage.
+  - Every Vorn and bioengineered monster you kill may drop an extra Token on top of its shards: 1 in 2 for troopers, saucers, big slimes and bio phantoms, 1 in 5 for the rest.
+- **Blood Moon heists can be won solo with an upgraded kit.** Their guards were the overworld's Blood Moon vindicator (120 health, full netherite, a Sharpness VI axe, Strength II and Resistance). A heist's Blood Moon Guard is now its own: the tier's health plus half again, diamond armour, a Sharpness III diamond axe and Strength I. They still drop Blood Crystals. Your followers get Resistance I and Regeneration I near Blood Moon foes.
+- **Medallions and Trophies break back down at no loss**, at Old Barnaby and the Fence: 1 Medallion for 5 Tokens, 1 Trophy for 4 Medallions (the rates they're made at).
+- **The Banker's Card has an Exchange page** that changes your account's Tokens, Medallions and Trophies up or down, no fee.
+- **The Banker's Card can auto-deposit.** Switch it on in the card's menu, and while you carry the card every currency the bank keeps goes straight from your pockets into your account. You always keep 8 Tokens on hand for heist fees. It rests for 30 seconds after you take something out, and never runs in the gutter.
+- **Dennis's Ore Magnet and Pistachio's Spirit Jar** (16 Tokens each, from a button in their shops). Right-click to switch one on. While it's on, anywhere in your pack, ores and raw materials (the Magnet) or mob drops (the Jar) within 8 blocks fly to you.
+- **Full bags say so.** The Vacuum Satchel, the Prime Cooler and the two collectors tell you when they can't fit any more, at most every 10 seconds.
+- **The Trophy Stand faces you.** An item display shows a model's back toward the way it faces, so the stand stood back to front: the tall panel faced you, the trophies hovered over the low step and the laurels sat inside the panel. The stand and its trophies are turned round, stands already placed turn by themselves, and the steps stop at the back panel, so the back no longer flickers.
+- **Floor display cases are solid:** stand on them. An invisible barrier fills the case's block and goes when you pick the case up. Cases already placed get it too.
+- **The Emma doll's bald patches are covered:** her side locks now reach the hair behind and up under the cap.
+- **The vault's gallery goes all the way round.** The guardian's hall had two ledges down the long walls that stopped three blocks short of each end, with nothing along the short walls. It's now one two-wide ring round all four walls, with the same four ladders.
+- **Guards can't hide under a room.** A guard sunk into a room's floor, or stuck just under it (like the Prime Mirror Thief under an Arcane Study), still counted as inside its room, so it was never sent back, and the room couldn't be cleared. Any guard below the floor is now brought back up to the middle of its room. (The Crumbling Rafters' pit is left alone.)
+- **A market rebuild finishes even if you walk away.** The rebuild holds the market's chunks loaded while it waits; if the player who came near left first, they stayed loaded for good. It now finishes on its own.
+- **Followers come back after a faint only if you're carrying their item.** 2.82t's return called them back regardless, and Wilfrey, who didn't go home when his locket was put away, could pile up and fill your follower slots. The return now waits until you have the item on you, and Wilfrey heads home three seconds after his locket leaves your inventory, like everyone else.
+- **Where the vault gems went:** since 2.67 they aren't at Goldtooth. The Recruiter in the den sells all nine ("Vault gems ›", at the bottom of his page).
+- **Emma, Leo and Celi turn up for everyone:**
+  - Emma: anyone without her ribbon can still hear her humming. She now also turns up in plains and birch woods, at 1 in 15 a minute (was 1 in 20).
+  - Celi: 1 in 25 a minute in the snow (was 1 in 40). She no longer stands a block up in the air over a thin snow layer.
+  - Leo: a fort that's already been held opens again for anyone without his crest. New forts generate a little closer together.
+
 ## New in 2.82t: urgent fixes - the Ledger, the Dark Auction, the Hollow, Wilfrey, followers, satchels
 
 - **Your Ledger can't be dropped in the gutter.** Thrown in the den, the Lounge or a heist, it bounces straight back to you, like the kit's weapons.

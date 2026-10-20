@@ -4,6 +4,7 @@ const { bot, rcon, sleep } = require('./lib');
 const fs = require('fs');
 const res = []; const X = 18400, Y = 110, Z = 18400;
 (async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(2500);
+  await run('scoreboard players set TestRat bm.arof 1048575');      // (2.82t: a fainted follower comes back by itself after its rest - off for every follower here, or they refill the cap mid-test)
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
   const num = async c => { const m = (await run(c)).match(/(-?\d+)/g); return m ? +m[m.length - 1] : NaN; };
   const fl = async c => { const m = (await run(c)).match(/(-?\d+(?:\.\d+)?)[fd]?\s*$/); return m ? +m[1] : NaN; };
@@ -259,5 +260,6 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   await run(`data remove storage bm:gv bag.p${pid}`); await run('clear TestRat');
 
   await run('gamerule doMobSpawning true'); await run(`forceload remove ${X - 40} ${Z - 40} ${X + 40} ${Z + 40}`);
+  await run('scoreboard players set TestRat bm.arof 0');
   console.log(`${res.filter(x => x).length}/${res.length} passed`); process.exit(0);
 })();

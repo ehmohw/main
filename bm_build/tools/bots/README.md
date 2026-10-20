@@ -320,7 +320,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t56b.js` | first check: Stars home in on the player (levitation from a hit) |
 | `t57.js` | first check: Each rat learns its variant |
 | `t58.js` | first check: Encounter: Celi stands there (9 rig parts + her hitbox) |
-| `t59.js` | first check: Cecil comes in his new (shorter, slimmer) look **(summons by function, so the 3-second item rule sends followers home)** |
+| `t59.js` | Cecil's model: his shorter, slimmer look and the hood's height (summoned by function with his gem carried; fainting moved to t219) |
 | `t60.js` | first check: Invite: PartyPal gets an [Accept] invite |
 | `t61.js` | - |
 | `t62.js` | first check: Market Cecil wears the new model (5 parts incl. the free arm, old body gone) |
@@ -507,6 +507,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t217.js` | 2.82o, as a regular player: a heist planned from inside the Black Market's zone goes through; a Swinging Lamps Grapple room lends one hook - dropped, it's cleared and exactly one comes back; on the cursor, no second is lent; hooking a lamp's chain from the ledge hangs TestRat under the lamp over its island; 2.82p: leaving mid-puzzle with the hook (the Ledger's Leave the heist) - the hook doesn't come home. |
 | `t218.js` | 2.82q/r, a regular player as the winner, the payout's rolls run 600 times a tier: the fee multiplier ~5% at Tier I/II (nearly always 2x) and 5/10/15% at Tier III/IV/V (2x/3x/4x, 4x rarest), every hit paying exactly 1-3 extra fees; the title reaches the client; a hit multiplies the Haul's gutter coins, BM Medallions and Trophies the same; Medallions ~10-30% and Trophies ~1-8% a win by tier, three at a time on a 3x win. |
 | `t219.js` | 2.82t, as a regular player: the Ledger dropped in the gutter comes back; the Regalia's Depth Strider III and Aqua Affinity; Wilfrey's locket a click (never leaves the hand), his menu (Call him over, Send him home, Wardrobe), knocked out - a 2-minute rest and back by himself, "Back after a faint" switched off - not back; two satchels two bags, a filter (the diamond taken, the dirt left), a barrel broken - all back in the bag; the Prime Cooler off and on; eight map pieces carried - every new piece the ninth; a sale night - the doors at dusk, slept through - the first lot at daybreak. |
+| `t220.js` | 2.83, as a regular player: the Banker's Card - Exchange (5 Tokens ⇄ 1 Medallion, no fee) and Auto-deposit (Medallions banked, Tokens down to 8, rests after a withdrawal); Dennis's Ore Magnet off, switched on by a right-click (raw iron flies in, rotten flesh doesn't), Pistachio's Spirit Jar, a full pack says so; a floor case solid (a barrier) and picked back up; the Trophy Stand faces you; a heist's Blood Moon Guard (diamond, Sharpness III axe, health half again over a plain guard); Celi on a snow layer; a held fort opens again. |
 | `bounty.js` | Bounty Board play-test: a market marker in the arena gets the board from the p35 patch; a bot signs it during a |
 | `fixes.js` | 2.20 fixes: XP flask (main hand), triple-jump boots logic, Ender Pouch, Hoard Sack, Golden Cheese Wheel, orphan Vorn models. |
 | `head.js` | The Horseman's Head: stream, overheat, charged blast, stoking + Nova, undead XP, lantern/heart variants, night tiers, healing. |

@@ -236,6 +236,7 @@ def optimize(G):
     # the once-a-second market chores too: trader offer syncs and chatter, the crowd, ambience, signs/portraits, the bouncers
     msec = ('bm.market_hall', 'bm.mkt', 'bm.crowd', 'bm.amb_', 'bm.walker') + tuple(f'bm.npc_{k}' for k in G.NPCS)
     def market_second(l):
+        if 'tag=bm.rbfl' in l: return False                   # (2.83: a held market rebuild finishes with nobody near - see phase168)
         if 'bm.say=1..' in l: return True                     # only market traders ever carry bm.say
         m = first_sel(l)
         if not m: return False

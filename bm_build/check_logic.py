@@ -88,6 +88,7 @@ for rel, body in src.items():
         if rel in PAY_HELPERS: continue
         if re.match(r'execute store result score \S+ \S+ run clear ', ln): continue    # takes what's there and checks how many it got
         if rel.startswith('p31/bank/dep_'): continue            # deposits clear exactly what they counted
+        if rel == 'p31/bank/auto_tok_m': continue               # auto-deposit: p31/bank/auto counted them, and keeps 8 back
         cur = m.group(1)
         if not any(re.search(r'clear @s \*\[minecraft:custom_data~\{bm:"' + re.escape(cur) + r'"\}\] 0', l) for l in lines[:i]):
             errs.append(f'{rel}:{i + 1}: takes {cur} without counting it first')

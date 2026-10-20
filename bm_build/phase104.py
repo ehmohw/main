@@ -171,10 +171,15 @@ def generate(G):
     fn('p104/leash/rid', ['execute unless score @s bm.gvrid matches 1.. run scoreboard players add #ridc bm.gvrid 1',
                           'execute unless score @s bm.gvrid matches 1.. run scoreboard players operation @s bm.gvrid = #ridc bm.gvrid',
                           'scoreboard players operation #rid bm.rng = @s bm.gvrid'])
-    room_box = lambda length: f'positioned ~-12.5 ~-4 ~-12.5 as @e[tag=bm.gvlsh] if score @s bm.gvrid = #rid bm.rng unless entity @s[dx={length},dy=15,dz=25] at @s run function bm:p104/leash/back'
+    # (2.83: the box starts at the floor's top, not under the three-block floor slab - a box test counts any overlap with the
+    #  hitbox, so a guard sunk into the floor or stuck up to two blocks under the room still counted as home, and stayed there)
+    #  (the Crumbling Rafters' pit goes down to y 1: there the old box stays, or a guard in it would be sent over the pit again and again)
+    room_box = lambda length, y0=-0.5, dy=12: (f'positioned ~-12.5 ~{y0} ~-12.5 as @e[tag=bm.gvlsh] if score @s bm.gvrid = #rid bm.rng '
+                                              f'unless entity @s[dx={length},dy={dy},dz=25] at @s run function bm:p104/leash/back')
     fn('p104/leash/room', ['scoreboard players operation #rid bm.rng = @s bm.gvrid', 'tag @s add bm.gvlrm',
                            f'execute if entity @s[tag=bm.gvr_vault] {room_box(RM.VAULT_LEN)}',
-                           f'execute unless entity @s[tag=bm.gvr_vault] {room_box(RM.W)}',
+                           f'execute if entity @s[tag=bm.gvr_rafters] {room_box(RM.W, -4, 15)}',
+                           f'execute unless entity @s[tag=bm.gvr_vault] unless entity @s[tag=bm.gvr_rafters] {room_box(RM.W)}',
                            'tag @s remove bm.gvlrm'])
     fn('p104/leash/back', ['particle minecraft:poof ~ ~1 ~ 0.3 0.5 0.3 0.02 8', 'tp @s @e[type=minecraft:marker,tag=bm.gvlrm,limit=1]',
                            'execute at @s run particle minecraft:poof ~ ~1 ~ 0.3 0.5 0.3 0.02 8'])
