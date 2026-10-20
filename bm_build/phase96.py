@@ -18,7 +18,7 @@
   on the ground, leans back on one hand, the trident across his knees - breathing, looking out to sea, now and then standing
   the trident up like a staff), the salute when he arrives, the thrust, the throw, on guard; his face blinks and changes.
 - He can be hung in an item frame like the others (his crest in a frame: he lives by it)."""
-from items import item, T, TOTEM
+from items import item, T, TOTEM, consumable
 from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D
 import phase96_art as ART
@@ -49,8 +49,14 @@ BIT = 2 ** len(P89.BIT)
 P89.BIT['leo'] = BIT                              # (admin/contracts_all signs him too)
 
 
+item('sealed_map_leo', TOTEM, "Sealed Seawatch Map", SEA,
+     ['Hold right-click to break the seal.', 'Marks the nearest Seawatch Fort,', 'where a knight keeps watch on the shore.'],
+     model='minecraft:map', glint=True, stack=16,
+     comps={'minecraft:consumable': consumable(0.8, 'none', 'minecraft:item.book.page_turn', False)}, cat='map')
+
+
 def extend_offers(O, offer):
-    pass                          # (found, never sold - only his raid contract, at Goldtooth)
+    O['fence'].append(offer(('trophy', 1), ('sealed_map_leo', 1)))      # (2.82t: Leo himself is found, never sold - but the Fence knows the way)
 
 
 def rp(R):
@@ -452,6 +458,14 @@ def generate(G):
         {'weight': 1, 'element': {'element_type': 'minecraft:single_pool_element', 'location': 'bm:leo_fort', 'projection': 'rigid', 'processors': 'minecraft:empty'}}]})
     wjson('bm/worldgen/structure_set/leo_fort.json', {'structures': [{'structure': 'bm:leo_fort', 'weight': 1}],
                                                       'placement': {'type': 'minecraft:random_spread', 'spacing': 40, 'separation': 16, 'salt': 96044817}})
+    # (2.82t) the Fence's sealed map to the nearest fort
+    G.consume_adv('sealed_map_leo', 'bm:maps/open_leo_fort')
+    G.sealed_map('sealed_map_leo', 'leo_fort', '#bm:leo_fort', title('@s', 'actionbar', T('The seal cracks... the map marks a Seawatch Fort.', SEA)))
+    wjson('bm/loot_table/maps/leo_fort.json', {'type': 'minecraft:command', 'pools': [{'rolls': 1, 'entries': [{
+        'type': 'minecraft:item', 'name': 'minecraft:filled_map', 'functions': [
+            {'function': 'minecraft:exploration_map', 'destination': '#bm:leo_fort', 'decoration': 'minecraft:red_x', 'zoom': 2,
+             'search_radius': 100, 'skip_existing_chunks': False},
+            {'function': 'minecraft:set_name', 'target': 'item_name', 'name': T('Seawatch Map', SEA)}]}]}]})
     from structures import Build
     Bd = Build(1, 1, 1)
     Bd.marker(0.5, 0.0, 0.5, ['bm.lefort_seed'], 0)

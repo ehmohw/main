@@ -7,6 +7,7 @@
 //   diamond on the ground and leaves the dirt; the other bag stays empty. Set down (sneak + use) and the barrel broken: the diamond
 //   is back in the bag, the bag back in hand.
 //   THE PRIME COOLER: right-click - OFF: a Prime cut on the ground stays there; right-click - ON: it flies in.
+//   THE FENCE'S SEAWATCH MAP: used, it cracks into a map to the nearest Seawatch Fort (or comes back if none is in reach).
 //   THE DARK AUCTION: a sale night at dusk - the doors open; the town sleeps through (the clock jumps to morning) - the first lot is
 //   called at daybreak.
 //   THE REGALIA: Tombstride Treads carry Depth Strider III, the Deathmask Aqua Affinity.
@@ -143,6 +144,15 @@ const res = [];
   for (let i = 0; i < 10; i++) await run('execute as TestRat at @s run loot give @s loot bm:p173/win_frag');
   await sleep(300); const first = await has('lucky_fragment_1');
   ok('a heist win\'s map piece: carrying the other eight, it\'s the one you lack', first >= 1 && first + (await has('lucky_fragment_9')) - 1 === 10, `piece 1 x${first}`);
+  await run('clear TestRat');
+
+  // ================================================================== THE FENCE'S SEAWATCH MAP (2.82t): held to break the seal
+  await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/sealed_map_leo');
+  const near = /passed|nearest|is at/i.test(await run('execute as TestRat at @s run locate structure #bm:leo_fort'));
+  A.slot(0); await sleep(300); A.bars.length = 0; A.use(); await sleep(1500); A.release(); await wait(5000, async () => (await hasV('minecraft:filled_map')) + (await has('sealed_map_leo')) > 0 && A.bars.length > 0, 200);
+  const mapped = await hasV('minecraft:filled_map'), back = await has('sealed_map_leo');
+  ok('the Fence\'s Seawatch Map: the seal cracks into a map to a fort (or, none in reach, it holds and comes back)',
+     near ? mapped === 1 && back === 0 : mapped === 0 && back === 1, `fort in reach ${near}, map ${mapped}, sealed ${back}, bar ${A.bars.slice(-1).join('')}`);
   await run('clear TestRat');
 
   // ================================================================== THE DARK AUCTION (no market needed for the clock)

@@ -367,8 +367,10 @@ def finalize(G):
     import mig263 as M
     root = G.path('data', 'bm', 'loot_table')
     carry = G.P173_CARRY
+    # (a mob's drop asks its killer too; a chest's or a command's has only 'this' - asking more is a load-time warning)
+    WHO = {True: ('this', 'attacking_player'), False: ('this',)}
     has = lambda sc: {'type': 'minecraft:any_of', 'terms': [{'type': 'minecraft:entity_scores', 'entity': who, 'scores': {sc: {'min': 1}}}
-                                                            for who in ('this', 'attacking_player')]}
+                                                            for who in WHO[ent]]}
     n_t = n_p = 0
     for dp, _dn, fs in os.walk(root):
         if dp.endswith(os.sep + 'items'): continue
@@ -377,6 +379,7 @@ def finalize(G):
             p = os.path.join(dp, f)
             with open(p) as h: lt = json.load(h)
             hit = False
+            ent = lt.get('type', 'minecraft:entity') == 'minecraft:entity'
             for pool in lt.get('pools', []):
                 ents = pool.get('entries', [])
                 which = [next((i for i in carry if f'bm:\\"{i}\\"' in json.dumps(e)), None) for e in ents]

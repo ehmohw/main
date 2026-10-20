@@ -35,6 +35,7 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 - **The Prime Cooler switches on and off** like the satchel: right-click toggles its gathering, and sneak + right-click sets it down as a barrel.
 - **Apophiss is weak to fire, in both forms.** A Cecil or KillerWatt with the Fire Gem (or Wraithfire) does 8 extra damage per hit to him.
 - **Lucky map pieces and Vorn Skiff parts:** each find is a piece you aren't carrying, while one is still missing. The last piece no longer takes a dozen duplicates (only the pieces in your inventory count; on a heist, what you carried in still counts).
+- **The Fence sells a Sealed Seawatch Map** for 1 Trophy. Hold right-click to break the seal; it marks the nearest Seawatch Fort, Leo's home on the shore.
 - **Heist wins can turn up a Lucky Map Fragment** in your haul: 6% at Tier I, rising 2% a tier to 14% at Tier V.
 - **The Lucky Horseshoe's riddle in Fishy's Cabinet** now points at the Gilded Roost's secret room (it wrongly said the Hollow).
 - **Diamond and netherite follower looks cost much less:** gold 5, diamond 8 and netherite 12 Gutter Trophies (were 20, 32 and 48). One netherite look used to take about 80 Tier V wins.
