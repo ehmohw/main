@@ -56,7 +56,7 @@ NEW = {
                                                  {'IsBaby': B(0), 'IsImmuneToZombification': B(1), 'CannotHunt': B(1)}))])))],     # (2.82h: an adult - a baby piglin isn't hostile)
     4: [(2, mk('spider', 'Abyss Crawler', '#3a8aa0', {}, BIG, {'scale': 1.6, 'movement_speed': 0.34})),
         (2, mk('endermite', 'Gem Mite', '#7ae8ff', {}, {}, {'scale': 2.0, 'movement_speed': 0.35, 'attack_damage': 4.0})),
-        (1, mk('illusioner', 'Mirror Thief', '#a080ff', {'mainhand': 'minecraft:bow'})),
+        (1, mk('vindicator', 'Mirror Thief', '#a080ff', {'mainhand': 'minecraft:iron_axe'})),       # (2.82t: a vindicator - illusioners barely fight)
         (2, mk('stray', 'Rime Archer', '#a0d8ff', {'head': 'minecraft:diamond_helmet',
                                                   'mainhand': {'id': 'minecraft:bow', 'count': Int(1), 'components': {'minecraft:enchantments': {'minecraft:power': 3}}}})),
         (1, mk('ravager', 'Vault Ravager', '#5a7a8a', {}, SMALL, {'scale': 0.7, 'attack_damage': 7.0}))],
@@ -92,7 +92,7 @@ ALT = {1: ('silverfish', 'The Mite Mother', '#e0c060', 'yellow', {}, {}, {'scale
            {}, {'scale': 2.6, 'movement_speed': 0.2}, 'colossus')}
 ALT_RIDER = {3: mk('piglin', 'The Gambler King', GOLD, {'head': {'id': 'minecraft:golden_helmet', 'count': Int(1), 'components': {'minecraft:enchantment_glint_override': True}},
                                                          'mainhand': 'minecraft:crossbow'}, {'IsImmuneToZombification': B(1), 'CannotHunt': B(1), 'CustomNameVisible': B(1)}),
-             4: mk('illusioner', 'The Mirror Mage', '#a080ff', {'mainhand': 'minecraft:bow'}, {'CustomNameVisible': B(1)})}
+             4: mk('pillager', 'The Mirror Mage', '#a080ff', {'mainhand': 'minecraft:crossbow'}, {'CustomNameVisible': B(1)})}
 MINION = {1: mk('silverfish', 'Mite Brood', '#e0c060', {}, {}, {'scale': 1.2, 'movement_speed': 0.3}),
           2: mk('cave_spider', 'Spiderling', '#c8d0d8', {}, {}, {'movement_speed': 0.32}),
           5: mk('wither_skeleton', 'Ash Imp', '#7a6a6a', {'mainhand': 'minecraft:stone_sword'}, SMALL, {'scale': 0.6, 'movement_speed': 0.38})}

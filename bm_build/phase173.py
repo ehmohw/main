@@ -24,7 +24,19 @@ APOPHISS         fire is his bane, in both forms: a Cecil or KillerWatt with the
                  him with every blow.
 THE LUCKY MAP    pieces and the VORN SKIFF parts: each find is one you don't carry yet, while there's one you lack (the
                  last piece no longer takes a dozen duplicates). On a heist, what you carried walking in still counts.
+KITS             every kit carries a plain Infinity bow and its arrow, for monsters out of reach (the Ranged kit has its own).
+THE SALVE        Goldtooth's Salamander Salve keeps your followers out of the fire too.
+BIG RIGS         a follower's host left without its model (Apophiss, Tullius, Fishy, Dennis, Pistachio, Omega) is cleared after 3 s,
+                 so a heist calls them back instead of counting an invisible host.
+HIGH GROUND      the fighting rooms have wall ledges five blocks up (ladders at their ends), the vault's guardian hall a gallery
+                 six up down both long walls - somewhere to jump from with a mace.
+GUTTER TRADERS   the Lounge's Goldtooth, Recruiter and Tailor take today's coins, Medallions and Insignias again: they kept
+                 the trades (and the item stamp) of the version that first summoned them; now they are refreshed when the list changes.
+THE REGALIA      the Wings of the Damned stand in for the Ribcage: wings + the other three pieces still wake the full set.
+ONE CREW         in the gutter (den, lounge, heists) players can't hurt each other.
 HEIST WINS       now and then a Lucky Map piece turns up in your haul: 6% at Tier I, 2% more each tier, 14% at Tier V.
+THE SPIRE        solo, a Spire or Bell Tower drawn in place of a crew-only room left its exit door ten blocks above the
+                 next passage, over open void: the layout now climbs with it, as it always did for a room drawn the usual way.
 """
 import json
 import os
@@ -357,6 +369,125 @@ def generate(G):
                          tellraw('@s', PREFIX + [T('Lucky! ', '#e8c547', bold=True), T('A ', 'gray'), T('Lucky Map Fragment', '#e8c547', bold=True),
                                                  T(' turned up in your haul.', 'gray')])])
     fn('admin/frag_haul', ['function bm:p173/win_frag'])
+
+    # ================================================================== EVERY KIT A BACKUP BOW (2.82t): nobody soft-locked by a monster out of reach
+    # (a plain bow with Infinity and its one arrow - the Ranged kit's Fairy Bow stays the one that hurts)
+    import phase72 as P72
+    bow = [f'give @s {P72.kit_arg("minecraft:bow", extra={"minecraft:enchantments": {"minecraft:infinity": 1}})} 1',
+           f'give @s {P72.kit_arg("minecraft:arrow")} 1']
+    nk = 0
+    for k in list(F):
+        m = re.fullmatch(r'p80/kit/give_([124])_\d+', k)
+        if not m: continue
+        L = F[k]; i = L.index('function bm:p80/kit/extras')
+        L[i:i] = bow; nk += 1
+    assert nk >= 12, nk
+
+    # ================================================================== ONE CREW (2.82t): in the gutter - den, lounge, heists - nobody hurts a crewmate
+    # (everyone there shares a team with friendly fire off; out again, a party member is back on their party's team)
+    F['load'][-1:-1] = ['team add bm.gvcrew', 'team modify bm.gvcrew friendlyFire false', 'team modify bm.gvcrew seeFriendlyInvisibles true']
+    F['loop/second'].append('execute as @a[team=!bm.gvcrew] at @s if dimension bm:gutter run team join bm.gvcrew @s')
+    F['loop/second'].append('execute as @a[team=bm.gvcrew] at @s unless dimension bm:gutter run function bm:p173/crew_out')
+    fn('p173/crew_out', ['team leave @s', 'execute if score @s bm.pty matches 1.. run function bm:p67/join_team'])
+
+    # ================================================================== THE SALAMANDER SALVE ON YOUR FOLLOWERS TOO (2.82t)
+    import phase98 as P98
+    pets = sorted({(v[3], v[4]) for v in P98.CALLED if v[3] and v[4]} | {('wolf', v[3]) for v in P98.HIRED})
+    F['loop/second'] += [f'execute as @e[type=minecraft:{h},tag={t}] if function bm:p173/salve_owner run effect give @s minecraft:fire_resistance 3 0 true'
+                         for h, t in pets]
+    fn('p173/salve_owner', ['execute on owner if entity @s[tag=bm.gvfire] run return 1', 'return 0'])
+
+    # ================================================================== A BIG RIG'S HOST LEFT WITHOUT ITS MODEL (2.82t)
+    # (Apophiss and the others built the same way: if the model fades - a faint the rig decided on - while the host lives on, that
+    #  invisible host still counted as him, so a heist's crew never called him back. Three seconds bare, and the host goes too)
+    import phase95 as FX
+    F['load'][-1:-1] = ['scoreboard objectives add bm.orph dummy']
+    G.OBJECTIVES += ['bm.orph']
+    nor = 0
+    for k in ('apo', 'tul', 'fishy', 'dennis', 'pistachio', 'omega'):
+        if k not in FX.FOLK: continue
+        host, tag, head = FX.FOLK[k][:3]
+        anyhead = re.sub(r',tag=!bm\.\w+fade', '', head)
+        F['loop/second'].append(f'execute as @e[type={host},tag={tag}] at @s run function bm:p173/orph/{k}')
+        fn(f'p173/orph/{k}', ['scoreboard players operation #me bm.pid = @s bm.pid',
+                              f'execute if function bm:p173/orph/{k}_has run return run scoreboard players set @s bm.orph 0',
+                              'scoreboard players add @s bm.orph 1', 'execute if score @s bm.orph matches 3.. run function bm:p173/orph/drop'])
+        fn(f'p173/orph/{k}_has', [f'execute as @e[{anyhead},distance=..16] if score @s bm.pid = #me bm.pid run return 1', 'return 0'])
+        nor += 1
+    assert nor >= 4, nor
+    fn('p173/orph/drop', ['execute on passengers run kill @s', 'data remove entity @s Owner', 'tp @s ~ -400 ~', 'kill @s'])
+
+    # ================================================================== HIGH GROUND FOR THE MACE (2.82t): ledges in the fighting rooms, a gallery round the boss
+    # (built when the room is set up, only into air: the Counting House, the Arcane Study and the Champion's Pit get four short
+    #  wall ledges five blocks up, each with a ladder; the vault's guardian hall gets a two-wide gallery down both long walls)
+    import phase70_rooms as RM
+    rel = RM.rel
+    LEDGE, RAIL = 'minecraft:polished_blackstone_bricks', 'minecraft:gilded_blackstone'
+    perch = []
+    for z, zin, face in ((1, 2, 'south'), (23, 22, 'north')):
+        for x0, x1, lad in ((5, 10, 11), (14, 19, 13)):      # (ladders in the middle gap: the Study's shelves and the Pit's banners line the rest)
+            perch += [f'fill {rel(x0, 8, z)} {rel(x1, 8, z)} {LEDGE} replace minecraft:air',
+                      f'fill {rel(x0, 8, zin)} {rel(x1, 8, zin)} {RAIL} replace minecraft:air',
+                      f'fill {rel(lad, 4, z)} {rel(lad, 8, z)} minecraft:ladder[facing={face}] replace minecraft:air']
+    fn('p173/perch', perch)
+    gallery = []
+    for z, zin, face in ((1, 2, 'south'), (23, 22, 'north')):
+        gallery += [f'fill {rel(4, 9, z)} {rel(20, 9, z)} {LEDGE} replace minecraft:air',
+                    f'fill {rel(4, 9, zin)} {rel(20, 9, zin)} {RAIL} replace minecraft:air',
+                    f'fill {rel(3, 4, z)} {rel(3, 9, z)} minecraft:ladder[facing={face}] replace minecraft:air',
+                    f'fill {rel(21, 4, z)} {rel(21, 9, z)} minecraft:ladder[facing={face}] replace minecraft:air']
+    fn('p173/perch_vault', gallery)
+    for k in ('p70/r/guards/init', 'p76/r/ambush/init', 'p76/r/pit/init'):
+        F[k].append('function bm:p173/perch')
+    F['p70/r/vault/init'].append('function bm:p173/perch_vault')
+
+    # ================================================================== THE GUTTER'S TRADERS KEEP UP (2.82t)
+    # (a trade's cost matches the coin's custom_data exactly, version stamp and all; the market's traders are refreshed when
+    #  their list changes (phase17), but the Lounge's Goldtooth, Recruiter and Tailor were summoned once and kept the stamp of
+    #  the version that made them - so after an update no coin, Medallion or Insignia would buy anything. Each is now
+    #  refreshed from its own summon whenever that list changes.)
+    import zlib
+    def recipes(line):
+        i = line.find('Recipes:[')
+        if i < 0: return None
+        j = i + len('Recipes:'); depth = 0
+        for k in range(j, len(line)):
+            depth += line[k] == '['; depth -= line[k] == ']'
+            if depth == 0: return line[j:k + 1]
+    nfix = 0
+    for f, L in list(F.items()):
+        for l in L:
+            if 'summon minecraft:villager' not in l or 'bm.lgprop' not in l: continue
+            m = re.search(r'Tags:\[([^\]]*)\]', l); rec = recipes(l)
+            if not m or not rec: continue
+            tags = [t.strip('" ') for t in m.group(1).split(',')]
+            key = next((t for t in tags if t not in ('bm.npc', 'bm.lgprop', 'bm.gvprop', 'bm.plated', 'bm.seen')), None)
+            if not key: continue
+            ver = zlib.crc32(rec.encode()) % 1000000000
+            k = key.replace('bm.', '')
+            fn(f'p173/npcfix/{k}', [f'data modify entity @s Offers.Recipes set value {rec}', f'scoreboard players set @s bm.ofv {ver}'])
+            F['loop/second'].append(f'execute in bm:gutter as @e[type=minecraft:villager,tag={key},tag=bm.lgprop,distance=0..] unless score @s bm.ofv matches {ver} run function bm:p173/npcfix/{k}')
+            nfix += 1
+    assert nfix >= 3, nfix
+
+    # ================================================================== THE WINGS OF THE DAMNED COUNT TOWARD THE REGALIA (2.82t)
+    # (both take the chest: with the wings on in place of the Ribcage, the rest of the Regalia still wakes as a full set)
+    cq = '*[minecraft:custom_data~{bm_set:"conqueror"}]'
+    F['p2/sets/has/conqueror'].insert(0, f'execute if items entity @s armor.chest *[minecraft:custom_data~{{bm:"hollow_wings"}}] '
+                                         f'if items entity @s armor.legs {cq} if items entity @s armor.feet {cq} '
+                                         f'if items entity @s armor.head *[minecraft:custom_data~{{bm_set:"conqueror"}}] run return 1')
+    F['p2/sets/has/conqueror'].insert(1, f'execute if items entity @s armor.chest *[minecraft:custom_data~{{bm:"hollow_wings"}}] '
+                                         f'if items entity @s armor.legs {cq} if items entity @s armor.feet {cq} '
+                                         f'if items entity @s armor.head *[minecraft:custom_data~{{bm:"apo_unbound_crown"}}] run return 1')
+
+    # ================================================================== A ROOM THAT CLIMBS LIFTS THE LAYOUT WITH IT (2.82t)
+    # (the solo stand-in for a crew-only event room drew a Spire without lifting the cursor: the next room sat ten blocks under
+    # its exit. Every layout function that places a climbing room must also lift the cursor to its exit.)
+    import phase75 as P75
+    for f, body in F.items():
+        for k, dy in P75.ROOM_DY.items():
+            if any(l.endswith(f'function bm:p75/pc/{k}') for l in body):
+                assert any(l.endswith(f'tp @s ~ ~{dy} ~') for l in body), f'{f} lays a {k} room but never lifts the cursor {dy} to its exit'
 
     # ================================================================== the admin's own (for tests)
     fn('admin/ar_off', ['scoreboard players set @s bm.arof 0', say('Every follower comes back after a faint again.', GOLD)])

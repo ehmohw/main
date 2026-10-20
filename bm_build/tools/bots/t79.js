@@ -171,13 +171,15 @@ const res = []; const X = 17000, Y = 120, Z = 17000;
   ok('If he falls: his rig crumples, and the Spark rests two minutes (2.82t)', (await cnt('@e[type=item_display,tag=bm.kxdying]')) === 8 && (await num('scoreboard players get TestRat bm.kxcd')) >= 115);
   await press(false); await sleep(300);
   ok('...he will not come while it recharges', (await cnt('@e[type=wolf,tag=bm.kxpet]')) === 0);
-  // never into the vault
+  // never into the vault (2.82t: auto-return off for this - zeroing the rest would bring him back by himself)
+  await run('scoreboard players set TestRat bm.arof 65535');
   await run('scoreboard players set TestRat bm.kxcd 0');
   // (the vault sends a player who isn't on a heist straight back out, so check the gate from inside it directly)
   await run('execute in bm:gutter positioned 5000 100 5000 as TestRat run function bm:p79/pet/try'); await sleep(300);
   ok('The Spark will not answer in the vault', (await cnt('@e[type=wolf,tag=bm.kxpet]')) === 0);
   await run('execute in bm:hollow_throne positioned 0 100 0 as TestRat run function bm:p79/pet/try'); await sleep(300);
   ok('...nor in the Hollow Throne', (await cnt('@e[type=wolf,tag=bm.kxpet]')) === 0);
+  await run('scoreboard players set TestRat bm.arof 0');
   // ---- Cecil: no Tendrils for sale any more; the Effigy instead
   const fs = require('fs'); const path = require('path');
   const root = BMB + 'out_p2/BlackMarket_DP/data/bm/function';

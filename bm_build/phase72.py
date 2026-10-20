@@ -73,10 +73,10 @@ for i, c in enumerate(ART.ESCORT_COLS):
 # ---------------------------------------------------------------- the vault: what you may bring, what you're lent
 KEEP = ['smoke_bomb', 'skeleton_lockpick', 'vorn_cracking_rig', 'cipher_monocle', 'thiefs_cowl', 'smugglers_boots', 'gutter_coin',
         'clockwork_fragment', 'clockwork_key', 'bond_sigil']
-ROLES = {1: ('Tank', '#c0392b', 'Juggernaut I (the heaviest armour), Hylian Shield, Kokiri Sword, 2 golden apples. +8 health, half knockback.',
+ROLES = {1: ('Tank', '#c0392b', 'Juggernaut I (the heaviest armour), Hylian Shield, Kokiri Sword, 2 golden apples, a plain Infinity bow. +8 health, half knockback.',
              {'head': 'juggernaut_helmet_1', 'chest': 'juggernaut_chestplate_1', 'legs': 'juggernaut_leggings_1', 'feet': 'juggernaut_boots_1',
               'offhand': 'hylian_shield'}, ['kokiri_sword', ('minecraft:golden_apple', 2)]),
-         2: ('Offense', '#ff7a1a', "Shadowstep I (iron-strong), Captain's Cutlass, a golden apple. Strength while you fight.",
+         2: ('Offense', '#ff7a1a', "Shadowstep I (iron-strong), Captain's Cutlass, a golden apple, a plain Infinity bow. Strength while you fight.",
              {'head': 'shadowstep_helmet_1', 'chest': 'shadowstep_chestplate_1', 'legs': 'shadowstep_leggings_1', 'feet': 'shadowstep_boots_1'},
              ['pirate_cutlass', ('minecraft:golden_apple', 1)]),
          3: ('Ranged', '#5ad84a', "Smuggler's set (iron-strong), Fairy Bow (no Infinity), 64 arrows and 32 spectral - more turn up in every room - "
@@ -84,7 +84,7 @@ ROLES = {1: ('Tank', '#c0392b', 'Juggernaut I (the heaviest armour), Hylian Shie
              {'head': 'smuggler_helmet', 'chest': 'smuggler_chestplate', 'legs': 'smuggler_leggings', 'feet': 'smuggler_boots'},
              ['fairy_bow', ('minecraft:arrow', 64), ('minecraft:spectral_arrow', 32),
               ('minecraft:iron_sword', 1, {'minecraft:enchantments': {'minecraft:sharpness': 2, 'minecraft:knockback': 1}}), ('minecraft:golden_apple', 1)]),
-         4: ('Support', '#7ad0ea', "Tidecaller I (iron-strong), Staff of Sparks, Emma's Bloomheart, 3 splash potions of Healing II, a golden apple. "
+         4: ('Support', '#7ad0ea', "Tidecaller I (iron-strong), Staff of Sparks, Emma's Bloomheart, 3 splash potions of Healing II, a golden apple, a plain Infinity bow. "
                                    "Crewmates near you regenerate.",
              {'head': 'tidecaller_helmet_1', 'chest': 'tidecaller_chestplate_1', 'legs': 'tidecaller_leggings_1', 'feet': 'tidecaller_boots_1'},
              ['staff_of_sparks', 'bloomheart_gem', ('minecraft:splash_potion', 3, {'minecraft:potion_contents': {'potion': 'minecraft:strong_healing'}}),

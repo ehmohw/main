@@ -157,7 +157,9 @@ def generate(G):
         j = next(i for i, l in enumerate(ev) if l.startswith('function bm:p75/lay/bit'))
         idx = {k: len(P75.KINDS) + list(P75.EXTRA_ROOMS).index(k) for k in COMPETITIVE}
         ev[j:j] = [f'execute if score #r bm.rng matches {idx[k]} if score #gpl bm.rng matches ..1 run return run function bm:p85/lay/solo' for k in COMPETITIVE]
-    fn('p85/lay/solo', ['function bm:p75/lay/pick'] + [f'execute if score #r bm.rng matches {j} run function bm:p75/pc/{k}' for j, k in enumerate(P75.KINDS)])
+    # (2.82t: a Spire or Bell Tower drawn here lifts the cursor to its exit too, or the next room is laid ten blocks low)
+    fn('p85/lay/solo', ['function bm:p75/lay/pick'] + [f'execute if score #r bm.rng matches {j} run function bm:p75/pc/{k}' for j, k in enumerate(P75.KINDS)] +
+       [f'execute if score #r bm.rng matches {P75.KINDS.index(k)} run tp @s ~ ~{dy} ~' for k, dy in P75.ROOM_DY.items()])
     music = 'scoreboard players set @a[tag=bm.gvp,distance=..15] bm.gvmz 7'
     # the prize for a contest's winner (into their haul)
     for t in range(1, 6):

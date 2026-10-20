@@ -36,6 +36,14 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 - **Apophiss is weak to fire, in both forms.** A Cecil or KillerWatt with the Fire Gem (or Wraithfire) does 8 extra damage per hit to him.
 - **Lucky map pieces and Vorn Skiff parts:** each find is a piece you aren't carrying, while one is still missing. The last piece no longer takes a dozen duplicates (only the pieces in your inventory count; on a heist, what you carried in still counts).
 - **The Fence sells a Sealed Seawatch Map** for 1 Trophy. Hold right-click to break the seal; it marks the nearest Seawatch Fort, Leo's home on the shore.
+- **Goldtooth's trades work again.** The Lounge's Goldtooth, Recruiter and Tailor still held the trades of the version that first summoned them, so no current Gutter Coin, Medallion or Captain's Insignia matched. They now refresh whenever their trade list changes.
+- **Salamander Salve** (Goldtooth, 24 coins): use it on a heist and fire and lava can't hurt you, or your followers, until that heist ends.
+- **Every kit carries a backup bow:** a plain Infinity bow and its arrow, so nothing out of reach can soft-lock a room. The Ranged kit's Fairy Bow stays the strong one.
+- **No friendly fire in the gutter:** in the den, the Lounge and on heists, players can't hurt each other.
+- **High ground for the mace:** the fighting rooms (the Counting House, the Arcane Study, the Champion's Pit) have wall ledges five blocks up with ladders, and the vault's guardian hall has a gallery down both long walls.
+- **Illusioners retired from heists:** the Arcane Study's Illusionists are now Storm Adepts (breezes); the Champion's Pit has the Glass Executioner (a vindicator) instead of the Illusionist; the Mirror Thief is a vindicator, and the Mirror Mage on the Abyssal Ravager a pillager.
+- **Big followers never leave a ghost behind:** if Apophiss's (or Tullius's, Fishy's, Dennis's, Pistachio's, Omega's) model fades while his host lives on, the host is cleared within seconds, so a heist calls him back after his 45 seconds.
+- **The Wings of the Damned count toward the Regalia:** wear them in place of the Ribcage and the set still wakes.
 - **Heist wins can turn up a Lucky Map Fragment** in your haul: 6% at Tier I, rising 2% a tier to 14% at Tier V.
 - **The Lucky Horseshoe's riddle in Fishy's Cabinet** now points at the Gilded Roost's secret room (it wrongly said the Hollow).
 - **Diamond and netherite follower looks cost much less:** gold 5, diamond 8 and netherite 12 Gutter Trophies (were 20, 32 and 48). One netherite look used to take about 80 Tier V wins.

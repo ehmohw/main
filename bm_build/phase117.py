@@ -59,8 +59,12 @@ item('alarm_jammer', TOTEM, 'Alarm Jammer', '#7ab0ff', ['A box of clockwork that
                                                        ('nothing raises the alarm.', 'blue')],
      model='bm:alarm_jammer', stack=8, cat='misc', comps=hold('none'))
 HOLD['alarm_jammer'] = 'bm:p117/jam/use'
-P70.GOLDTOOTH_STOCK += [(24, 'smelling_salts', 1), (16, 'thiefs_hourglass', 1), (20, 'alarm_jammer', 1)]
-P72.KEEP += ['thiefs_hourglass', 'alarm_jammer']
+item('salamander_salve', TOTEM, 'Salamander Salve', '#ff8a3a', ['A tin of ember-red grease that never cools.', ('Use it in a heist: fire and lava', 'blue'),
+                                                                ('can\'t hurt you until the heist ends.', 'blue'), ('One heist a tin.', 'gray')],
+     model='bm:salamander_salve', stack=8, cat='misc', comps=hold('none'))
+HOLD['salamander_salve'] = 'bm:p117/salve/use'
+P70.GOLDTOOTH_STOCK += [(24, 'smelling_salts', 1), (16, 'thiefs_hourglass', 1), (20, 'alarm_jammer', 1), (24, 'salamander_salve', 1)]
+P72.KEEP += ['thiefs_hourglass', 'alarm_jammer', 'salamander_salve']
 
 # ---------------------------------------------------------------- each tier's own finds: (id, name, colour, lore, kind)
 #  kind: ('attr', [modifiers]) an off-hand charm; ('aura', key) a look, in the off hand; ('bell'|'thimble'|'fizzle'|'astro'|'lodestar'|'fletch'|'plume')
@@ -172,6 +176,18 @@ def generate(G):
                         'tag @s add bm.gvhg', 'scoreboard players set #hg bm.rng 1',
                         f'execute if entity @s[tag=bm.gvr_minecart] run scoreboard players remove @s bm.gvy3 {HOURGLASS_T}',
                         f'execute unless entity @s[tag=bm.gvr_minecart] run scoreboard players add @s bm.gvz {HOURGLASS_T}'])
+
+    # ================================================================== THE SALAMANDER SALVE (2.82t): fire immunity for one heist
+    fn('p117/salve/use', ['execute unless entity @s[tag=bm.gvp] run return run ' + say('Save it for a heist.'),
+                          'execute if entity @s[tag=bm.gvfire] run return run ' + say('The salve is still on you - it lasts the whole heist.'),
+                          clear1('salamander_salve'), 'tag @s add bm.gvfire', 'effect give @s minecraft:fire_resistance infinite 0 true',
+                          'execute at @s run particle minecraft:flame ~ ~1 ~ 0.4 0.6 0.4 0.02 30',
+                          'execute at @s run playsound minecraft:item.firecharge.use player @a[distance=..16] ~ ~ ~ 0.8 1.4',
+                          say('Salamander Salve: fire and lava can\'t touch you until this heist ends.', '#ff8a3a')])
+    fn('p117/salve/off', ['execute unless entity @s[tag=bm.gvfire] run return 0', 'tag @s remove bm.gvfire', 'effect clear @s minecraft:fire_resistance'])
+    second += ['effect give @a[tag=bm.gvfire] minecraft:fire_resistance infinite 0 true']     # (back on after a knock-out, which clears effects)
+    for end in ('p70/haul', 'p101/after_fail', 'p70/unraid'):     # won, lost, or left: the heist is over
+        G.FUNCS[end].append('function bm:p117/salve/off')
 
     # ================================================================== THE ALARM JAMMER
     G.FUNCS['p70/alarm'].insert(0, 'execute if score @s bm.gvjam matches 1.. run return run function bm:p117/jam/hush')
@@ -427,6 +443,9 @@ def rp(R):
     ic['thiefs_hourglass'] = g(['................', '....kkkkkkkk....', '.....bbbbbb.....', '.....bssssb.....', '......bssb......', '.......sb.......', '.......bb.......', '.......bs.......',
                                 '......b..b......', '.....b.ss.b.....', '.....bssssb.....', '.....bbbbbb.....', '....kkkkkkkk....', '................', '................', '................'],
                                dict(k='#6a4a20', b='#c8e0f0', s='#e0c080'))
+    ic['salamander_salve'] = g(['................', '................', '.......ff.......', '......fyyf......', '......fyf.......', '....kkkkkkkk....', '...kwwwwwwwwk...', '...krrrrrrrrk...',
+                                '...krroorrrrk...', '...krrrrroork...', '...krrrrrrrrk...', '....kkkkkkkk....', '................', '................', '................', '................'],
+                               dict(k='#5a3020', w='#c0c0c8', r='#d84020', o='#ff9a3a', f='#ff6a1a', y='#ffe060'))
     ic['alarm_jammer'] = g(['................', '..........a.....', '.........a......', '..kkkkkkka.k....', '..kbbbbbbbbk....', '..kbggbbrrbk....', '..kbggbbrrbk....', '..kbbbbbbbbk....',
                             '..kbwwwwwwbk....', '..kbwkwkwwbk....', '..kbwwwwwwbk....', '..kkkkkkkkkk....', '................', '................', '................', '................'],
                            dict(k='#2a3040', b='#7ab0ff', g='#7dff6a', r='#ff5a5a', w='#d0e0ff', a='#c0c0c0'))

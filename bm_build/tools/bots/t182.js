@@ -195,7 +195,7 @@ const res = [];
   ok('the Tithe Seal with a sword in the other hand: pressed into it (its lore), the seal used up', /bm_tithe: 1b/.test(off2) && /Tithe Seal/.test(off2) && (await has('tithe_seal')) === 0,
      off2.replace(/.*data: /, '').slice(0, 200));
   A.slot(2); await sleep(200); A.swap(); await sleep(500);
-  await run(`${O}summon minecraft:zombie ${X + 0.5} ${Y + 1} ${Z + 2.2} {NoAI:1b,Health:1f,PersistenceRequired:1b,Tags:["bm.t182z","bm.seen"]}`); await sleep(800);
+  await run(`${O}summon minecraft:zombie ${X + 0.5} ${Y + 1} ${Z + 2.2} {NoAI:1b,Health:1f,PersistenceRequired:1b,Tags:["bm.t182z","bm.seen"],equipment:{head:{id:"minecraft:leather_helmet",count:1}},drop_chances:{head:0f}}`); await sleep(800);
   await at(X + 0.5, Y + 1, Z + 0.5, 0, 20);
   t0 = await tokens(); A.bars.length = 0;
   const zs = '@e[type=minecraft:zombie,tag=bm.t182z,limit=1]'; let z = null; await wait(3000, async () => (z = await entOf(zs)) != null);

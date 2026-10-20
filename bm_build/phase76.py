@@ -7,7 +7,7 @@ NEW ROOMS (drawn by tier - each tier has its own set, see phase75.TIER_POOL)
   THE BELL TOWER       a climb round a bell column to a landing ten blocks up - the way on is up there.
   THE CRUMBLING RAFTERS beams over a pit that give way a moment after you step on them.
   THE ARCANE STUDY     quiet... until the door slams and the casters appear. Two waves.
-  THE CHAMPION'S PIT   a champion steps out: the Gold Ooze, the Bone Duelist, the Vault Ravager, the Illusionist, the
+  THE CHAMPION'S PIT   a champion steps out: the Gold Ooze, the Bone Duelist, the Vault Ravager, the Glass Executioner, the
                        Twin Gales - and, very rarely, THE RAT KING.
 RANDOM EVENTS (now and then a room is one of these instead)
   THE RAT RAVE         a dance-off: the DJ calls a colour, be standing on it when the beat drops. Six rounds.
@@ -100,17 +100,18 @@ PEDDLER = [(6, 'healing_draught', 2), (32, 'second_wind', 1), (18, 'treasure_map
 LAMPS_X, LAMP_COL = R6.LAMPS_X, R6.LAMP_COL
 CASTERS = {   # the Arcane Study's casters by tier
     1: [('witch', 'Hex Witch', '#b080ff')],
-    2: [('witch', 'Hex Witch', '#b080ff'), ('illusioner', 'Illusionist', '#5a8aff')],
-    3: [('illusioner', 'Illusionist', '#5a8aff'), ('witch', 'Hex Witch', '#b080ff'), ('evoker', 'Gutter Evoker', '#c060ff')],
-    4: [('evoker', 'Gutter Evoker', '#c060ff'), ('illusioner', 'Illusionist', '#5a8aff'), ('witch', 'Hex Witch', '#b080ff')],
-    5: [('evoker', 'Gutter Evoker', '#c060ff'), ('evoker', 'Gutter Evoker', '#c060ff'), ('illusioner', 'Illusionist', '#5a8aff')]}
+    2: [('witch', 'Hex Witch', '#b080ff'), ('breeze', 'Storm Adept', '#9ad0ff')],
+    3: [('breeze', 'Storm Adept', '#9ad0ff'), ('witch', 'Hex Witch', '#b080ff'), ('evoker', 'Gutter Evoker', '#c060ff')],
+    4: [('evoker', 'Gutter Evoker', '#c060ff'), ('breeze', 'Storm Adept', '#9ad0ff'), ('witch', 'Hex Witch', '#b080ff')],
+    5: [('evoker', 'Gutter Evoker', '#c060ff'), ('evoker', 'Gutter Evoker', '#c060ff'), ('breeze', 'Storm Adept', '#9ad0ff')]}
 CHAMPS = [   # weight, key, type, name, colour, extra nbt, attributes
     (6, 'ooze', 'magma_cube', 'The Gold Ooze', GOLD, {'Size': Int(3)}, {}),
     (6, 'duelist', 'wither_skeleton', 'The Bone Duelist', '#d0d0d0', {'equipment': {'mainhand': {'id': 'minecraft:netherite_sword', 'count': Int(1)},
                                                                                    'head': {'id': 'minecraft:golden_helmet', 'count': Int(1)}}},
      {'scale': 1.3, 'movement_speed': 0.32}),
     (5, 'ravager', 'ravager', 'The Vault Ravager', '#c06040', {}, {}),
-    (5, 'illusionist', 'illusioner', 'The Illusionist', '#5a8aff', {}, {}),
+    (5, 'executioner', 'vindicator', 'The Glass Executioner', '#5a8aff', {'equipment': {'mainhand': {'id': 'minecraft:diamond_axe', 'count': Int(1)}}, 'Health': F(60)},
+     {'scale': 1.25, 'max_health': 60.0}),       # (2.82t: was the Illusionist - an illusioner barely fights)
     (4, 'gales', 'breeze', 'The Twin Gales', '#c0e0ff', {}, {}),
     (1, 'ratking', 'zombie', 'THE RAT KING', '#ffd040', {'IsBaby': B(0), 'Silent': B(1),
                                                         'active_effects': [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0)}]},

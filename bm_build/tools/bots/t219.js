@@ -8,6 +8,8 @@
 //   is back in the bag, the bag back in hand.
 //   THE PRIME COOLER: right-click - OFF: a Prime cut on the ground stays there; right-click - ON: it flies in.
 //   THE FENCE'S SEAWATCH MAP: used, it cracks into a map to the nearest Seawatch Fort (or comes back if none is in reach).
+//   GOLDTOOTH'S SALVE (player + follower, one heist), THE KITS' BACKUP BOW, ONE CREW (gutter team), BARE RIG HOSTS CLEARED,
+//   THE FIGHTING ROOMS' LEDGES.
 //   THE DARK AUCTION: a sale night at dusk - the doors open; the town sleeps through (the clock jumps to morning) - the first lot is
 //   called at daybreak.
 //   THE REGALIA: Tombstride Treads carry Depth Strider III, the Deathmask Aqua Affinity.
@@ -154,6 +156,50 @@ const res = [];
   ok('the Fence\'s Seawatch Map: the seal cracks into a map to a fort (or, none in reach, it holds and comes back)',
      near ? mapped === 1 && back === 0 : mapped === 0 && back === 1, `fort in reach ${near}, map ${mapped}, sealed ${back}, bar ${A.bars.slice(-1).join('')}`);
   await run('clear TestRat');
+
+  // ================================================================== GOLDTOOTH'S SALAMANDER SALVE (2.82t): one heist of fire immunity, for your followers too
+  await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/salamander_salve');
+  await run('kill @e[type=wolf,tag=bm.cecilpet]'); await run('scoreboard players set TestRat bm.cpcd 0'); await run('loot replace entity TestRat hotbar.8 loot bm:items/cecil_gem');
+  await run('execute as TestRat at @s run function bm:p46/pet/summon'); await sleep(1500);
+  A.chats.length = 0; await use(0); await sleep(500);
+  ok('the salve outside a heist: kept for one', (await has('salamander_salve')) === 1 && !/bm.gvfire/.test(await run('data get entity TestRat Tags')));
+  await run('tag TestRat add bm.gvp'); await use(0); await sleep(1600);
+  const fr = async (sel) => /minecraft:fire_resistance/.test(await run(`data get entity ${sel} active_effects`));
+  ok('...on a heist: used up, and fire can\'t touch you', (await has('salamander_salve')) === 0 && await fr('TestRat'));
+  ok('...nor your follower (Cecil)', await fr('@e[type=wolf,tag=bm.cecilpet,limit=1]'));
+  await run('execute as TestRat run function bm:p70/unraid'); await sleep(1200);
+  ok('...the heist over: the salve wears off', !(await fr('TestRat')) && !/bm.gvfire/.test(await run('data get entity TestRat Tags')));
+  await run('execute as TestRat at @s run function bm:p46/pet/dismiss'); await run('kill @e[type=wolf,tag=bm.cecilpet]'); await sleep(500);
+
+  // ================================================================== EVERY KIT A BACKUP BOW (2.82t)
+  await run('clear TestRat'); await run('execute as TestRat run function bm:p80/kit/give_1_1');      // (checked at once: loaned kit leaves the pack outside the vault)
+  const bowOut = await run('clear TestRat minecraft:bow[minecraft:custom_data~{bm_kit:1b},minecraft:enchantments={"minecraft:infinity":1}] 0');
+  const arrOut = await run('clear TestRat minecraft:arrow[minecraft:custom_data~{bm_kit:1b}] 0');
+  ok('the Tank kit carries a plain Infinity bow (and its arrow)', /Found 1/.test(bowOut) && /Found 1/.test(arrOut), `${bowOut} / ${arrOut}`);
+  await run('clear TestRat'); await run('execute as TestRat run attribute @s minecraft:max_health modifier remove bm:gv_role_tank');
+  await run('execute as TestRat run attribute @s minecraft:knockback_resistance modifier remove bm:gv_role_tank');
+
+  // ================================================================== ONE CREW (2.82t): in the gutter, nobody hurts a crewmate
+  await run('tag TestRat add bm.gvok'); await run('execute in bm:gutter run tp TestRat -316.5 68 -233.5'); await sleep(2500);      // (the Lounge; a pass for the gutter, set by rcon)
+  ok('in the gutter: on the crew team (friendly fire off)', /passed/.test(await run('execute if entity @a[name=TestRat,team=bm.gvcrew]')));
+  await run('tag TestRat remove bm.gvok'); await home(); await sleep(2500);
+  ok('...out again: off it', !/passed/.test(await run('execute if entity @a[name=TestRat,team=bm.gvcrew]')));
+
+  // ================================================================== A BIG RIG'S HOST LEFT BARE IS CLEARED (2.82t)
+  await run('kill @e[type=wolf,tag=bm.appet]'); await run('scoreboard players set TestRat bm.apcd 0'); await run('loot replace entity TestRat hotbar.8 loot bm:items/apo_oath');
+  await run('execute as TestRat at @s run function bm:p131/summon'); await sleep(5000);
+  ok('Apophiss out, model and all: his host stays (no false alarm)', (await cnt('@e[type=wolf,tag=bm.appet]')) === 1);
+  await run('tag @e[type=item_display,tag=bm.app_pet] remove bm.app_head'); await sleep(4500);      // (his rig rebuilds itself if killed - so: no head to find)
+  ok('...his model lost, the bare host is cleared within seconds', (await cnt('@e[type=wolf,tag=bm.appet]')) === 0);
+
+  // ================================================================== HIGH GROUND FOR THE MACE (2.82t)
+  await run(`${O}fill ${X - 12} ${Y - 1} ${Z - 12} ${X + 12} ${Y + 10} ${Z + 12} minecraft:air`);
+  await run(`${O}execute positioned ${X + 0.5} ${Y} ${Z + 0.5} run function bm:p173/perch`);
+  const bl = async (dx, dy, dz) => (await run(`execute in minecraft:overworld if block ${X + dx} ${Y + dy} ${Z + dz} minecraft:polished_blackstone_bricks`));
+  ok('a fighting room\'s ledge: five up along the wall, a ladder to it', /passed/.test(await bl(-5, 4, -11)) &&
+     /passed/.test(await run(`execute in minecraft:overworld if block ${X - 1} ${Y + 2} ${Z - 11} minecraft:ladder`)));
+  await run(`${O}fill ${X - 12} ${Y} ${Z - 12} ${X + 12} ${Y + 10} ${Z + 12} minecraft:air`);
+  await run(`${O}fill ${X - 8} ${Y - 1} ${Z - 8} ${X + 8} ${Y - 1} ${Z + 8} minecraft:stone`);
 
   // ================================================================== THE DARK AUCTION (no market needed for the clock)
   await run('function bm:admin/auction_stop'); await run('scoreboard players set #state bm.auc 0');
