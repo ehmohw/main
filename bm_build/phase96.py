@@ -457,7 +457,7 @@ def generate(G):
     wjson('bm/worldgen/template_pool/leo_fort/start.json', {'fallback': 'minecraft:empty', 'elements': [
         {'weight': 1, 'element': {'element_type': 'minecraft:single_pool_element', 'location': 'bm:leo_fort', 'projection': 'rigid', 'processors': 'minecraft:empty'}}]})
     wjson('bm/worldgen/structure_set/leo_fort.json', {'structures': [{'structure': 'bm:leo_fort', 'weight': 1}],
-                                                      'placement': {'type': 'minecraft:random_spread', 'spacing': 40, 'separation': 16, 'salt': 96044817}})
+                                                      'placement': {'type': 'minecraft:random_spread', 'spacing': 30, 'separation': 12, 'salt': 96044817}})
     # (2.82t) the Fence's sealed map to the nearest fort
     G.consume_adv('sealed_map_leo', 'bm:maps/open_leo_fort')
     G.sealed_map('sealed_map_leo', 'leo_fort', '#bm:leo_fort', title('@s', 'actionbar', T('The seal cracks... the map marks a Seawatch Fort.', SEA)))

@@ -27,14 +27,15 @@ BOSSES = list(D)                                      # 7: brood .. hollow, luck
 ROOMS = P81.TK                                        # 12 rooms, metals 1..6
 LAURELS = [f'laurel_t{t}' for t in range(1, 6)] + ['gutter_laurel']
 IDN = [F(0), F(0), F(0), F(1)]
+FLIP = [F(0), F(1), F(0), F(0)]                         # (2.83) half a turn: a display shows a model's back toward its facing
 # (tier, x spacing, scale, height of the step's top, depth: + toward the viewer)
 STEP = {'boss': (0.42, 0.40, 0.95, -0.40), 'room': (0.245, 0.24, 0.60, 0.0), 'laurel': (0.45, 0.34, 0.30, 0.40)}
 
 
-def disp(model, scale, tags):
+def disp(model, scale, tags, flip=True):
     return snbt({'Tags': ['bm.tsd', 'bm.tsnew'] + tags, 'item_display': 'fixed', 'teleport_duration': Int(2),
                  'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': model}},
-                 'transformation': {'left_rotation': IDN, 'right_rotation': IDN, 'translation': [F(0), F(scale / 2), F(0)],
+                 'transformation': {'left_rotation': FLIP if flip else IDN, 'right_rotation': IDN, 'translation': [F(0), F(scale / 2), F(0)],
                                     'scale': [F(scale)] * 3}})
 
 
@@ -80,7 +81,7 @@ def generate(G):
                     'execute align xyz positioned ~0.5 ~1 ~0.5 rotated as @a[tag=bm.placer,limit=1] rotated ~180 0 run function bm:p161/spawn'])
     stand = {'Tags': ['bm.tsd', 'bm.tsbase', 'bm.tsnew'], 'item_display': 'fixed',
              'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:trophy_stand'}},
-             'transformation': {'left_rotation': IDN, 'right_rotation': IDN, 'translation': [F(0), F(0.6), F(0)], 'scale': [F(3.0), F(1.2), F(1.2)]}}
+             'transformation': {'left_rotation': FLIP, 'right_rotation': IDN, 'translation': [F(0), F(0.6), F(0)], 'scale': [F(3.0), F(1.2), F(1.2)]}}
     box = {'Tags': ['bm.tstand', 'bm.tsnew'], 'width': F(1.6), 'height': F(1.3), 'response': B(1)}
     fn('p161/spawn', ['scoreboard players add #tsid bm.rng 1',
                       f'summon minecraft:item_display ~ ~ ~ {snbt(stand)}', f'summon minecraft:interaction ~ ~ ~ {snbt(box)}',
@@ -144,7 +145,7 @@ def generate(G):
         x = (t - (len(LAURELS) - 1) / 2) * sp
         fn(f'p161/sh/l{t}', ['scoreboard players add #nl bm.rng 1',
                              f'execute at @e[type=minecraft:interaction,tag=bm.tsme] rotated as @e[type=minecraft:interaction,tag=bm.tsme] positioned ^{x:.3f} ^{hy} ^{dz} '
-                             f'run summon minecraft:item_display ~ ~ ~ {disp(f"bm:{lid}", sc, ["bm.tsshow"])}'])
+                             f'run summon minecraft:item_display ~ ~ ~ {disp(f"bm:{lid}", sc, ["bm.tsshow"], flip=False)}'])
         if t < 5:
             op.append(f'execute if entity @s[advancements={{bm:story/raid_t{t + 1}=true}}] run function bm:p161/sh/l{t}')
         else:
@@ -186,10 +187,10 @@ def rp(R):
            's': 'minecraft:block/stripped_dark_oak_log'}
     # front = north (z 0), three steps rising to the back; the item display stretches it to 3 x 1.2 x 1.2 blocks
     els = [cube((0, 0, 0), (16, 1.5, 16), 's')]
-    for z0, z1, h in ((0, 16, 4.0), (5.33, 16, 8.0), (10.67, 16, 12.67)):
+    for z0, z1, h in ((0, 15.2, 4.0), (5.33, 15.2, 8.0), (10.67, 15.2, 12.67)):      # (2.83: up to the back panel, not through it)
         els += [cube((0.2, 1.5, z0), (15.8, h - 0.5, z1), 'w'), cube((0.2, h - 0.5, z0), (15.8, h, z1), 'v'),
                 cube((0.1, h - 0.9, z0 - 0.15), (15.9, h - 0.5, z0 + 0.25), 'g')]
-    els += [cube((0, 1.5, 15.2), (16, 13.2, 16), 's'), cube((0, 12.9, 15.0), (16, 13.4, 16), 'g')]
+    els += [cube((0, 1.5, 15.2), (16, 13.2, 16), 's'), cube((-0.1, 13.2, 14.9), (16.1, 13.6, 16.1), 'g')]
     R.HATS['trophy_stand'] = (tex, els)
     R.ICONS['trophy_stand_icon'] = R.grid(['................', '................', '.......Y........', '......YYY.......', '.......Y........',
                                            '..........rrrrr.', '...Y......rRRRr.', '..YYY.wwwwwwwww.', '...Y..wvvvvvvvw.', 'wwwwwwwyyyyyyyw.',

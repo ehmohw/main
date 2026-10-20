@@ -497,7 +497,8 @@ def rp(R):
         c((4, 10.3, 4.6), (12, 17.6, 11.4), 'skin'), face,
         # (2.77d: the back of her hair and her fringe stand a hair proud of the cap - no shared faces to flicker now they're detailed)
         c((3.7, 16, 4.2), (12.3, 18.6, 11.8), 'hair'), c((3.65, 11, 9.5), (12.35, 16.05, 11.85), 'hair'), c((4, 15.5, 4.15), (12, 16.6, 5), 'hair'),
-        c((3.4, 10.5, 4.8), (4.3, 15.5, 8), 'hair'), c((11.7, 10.5, 4.8), (12.6, 15.5, 8), 'hair'),
+        # (2.83: the side locks reach back to the hair behind and up under the cap - no bare scalp above her ears)
+        c((3.4, 10.5, 4.8), (4.3, 16.2, 9.7), 'hair'), c((11.7, 10.5, 4.8), (12.6, 16.2, 9.7), 'hair'),
         c((1, 13, 8), (4, 17, 11), 'hair'), c((0, 11.5, 8.5), (2, 14.5, 10.5), 'hair'), c((2.8, 16.5, 7.8), (4.6, 18.2, 10.2), 'pink')])
     R.DISPLAY_3D_EXTRA = R.DISPLAY_3D_EXTRA + ('emma3d',)
     # Cecil's element variants: the same hood and staff, re-coloured (his sleeve stays his violet robe)

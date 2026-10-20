@@ -157,6 +157,7 @@ import phase170 as R170      # 2.82: King Omega, the follower (Omega's Monocle),
 import phase171 as R171      # 2.82b: the Town Directory - who's where in the rat town, and a trail of light there
 import phase172 as R172      # 2.82b: King Omega's tithe - triple currency from custom mobs, 1% from the rest, while he's out
 import phase173 as R173      # 2.82t: the urgent fixes - Ledger, Dark Auction, Hollow, Wilfrey, followers, satchel, cooler, Apophiss, map pieces
+import phase174 as R174      # 2.83: the less urgent list, part one - Sunken Throne crew, full bags, Trophy Stand, solid cases, Emma/Leo, exchange
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import noglow                # 2.80e: no glowing outline on custom-modelled mobs' invisible hosts (noglow.py)
@@ -173,7 +174,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.82t'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.83'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -304,6 +305,8 @@ def npc_offers():
         offer(('netherite_ingot', 1), ('token', 3)),
         offer(('token', ECON.TOKENS_PER_MEDALLION), ('medallion', 1)),          # 2.82: 5 Tokens a Medallion (was 9)
         offer(('medallion', ECON.MEDALLIONS_PER_TROPHY), ('trophy', 1)),        # 2.82: 4 Medallions a Trophy (was 6)
+        offer(('medallion', 1), ('token', ECON.TOKENS_PER_MEDALLION)),          # 2.83: and back down, at no loss
+        offer(('trophy', 1), ('medallion', ECON.MEDALLIONS_PER_TROPHY)),
         offer(('token', 2), ('sealed_map_market', 1)),
         offer(('token', 1), ('sealed_map_graveyard', 1)),
         offer(('token', 8), ('bankers_card', 1)),     # 2.82: the Rat Bank in your pocket, over his counter
@@ -337,7 +340,9 @@ def npc_offers():
         offer(('lucky_token', 3), ('lucky_charm', 1)),
     ]
     # 2.63: (3 Tokens a diamond after scaling - dearer than the Fence pays); 2.82: Medallions / Trophies bought back under the new rates (5 / 4) - no loop
-    pawn = [offer(('medallion', 1), ('token', 3)), offer(('trophy', 1), ('medallion', 3)), offer(('token', 3), ('diamond', 1))]
+    # 2.83: and broken back down at the same rates (no loss - as the gutter coins already are)
+    pawn = [offer(('medallion', 1), ('token', ECON.TOKENS_PER_MEDALLION)), offer(('trophy', 1), ('medallion', ECON.MEDALLIONS_PER_TROPHY)),
+            offer(('token', 3), ('diamond', 1))]
     for iid, (cur, n) in PRICES.items():
         if CATEGORY.get(iid) in ('gear', 'builder', 'cosmetic') and iid != 'lucky_seven':
             pawn.append(offer((iid, 1), ECON.pawn(iid, (cur, n))))
@@ -1302,7 +1307,8 @@ def build(out_dir):
         if _n.startswith('mobs/init/') and _lines and _lines[0] == 'tag @s add bm.seen':
             _lines[1:1] = ['execute if data entity @s CustomName run return 0', 'execute if data entity @s {NoAI:1b} run return 0']
     R95.generate(sys.modules[__name__])
-    R173.generate(sys.modules[__name__])        # 2.82t: last - it adjusts other phases' functions
+    R173.generate(sys.modules[__name__])        # 2.82t: it adjusts other phases' functions
+    R174.generate(sys.modules[__name__])        # 2.83: last - it adjusts other phases' functions too
     R28.finalize(sys.modules[__name__])
     print('market rebuild: %d entity tags cleared, %d per-market lines wait for the new town' % R168.finalize(sys.modules[__name__]))
     useitem.generate(sys.modules[__name__])

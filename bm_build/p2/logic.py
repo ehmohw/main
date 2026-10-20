@@ -62,7 +62,7 @@ FLAVOR = {
 # 2.13: puzzles get meaner the further along the conquest road they are - a wrong answer now also calls something up
 _MOB = lambda ent, extra='': f'execute at @p[distance=..24,gamemode=!creative,gamemode=!spectator] run summon minecraft:{ent} ~ ~ ~ {{Tags:["bm.seen","bm.dgmob"]{extra}}}'
 FLAVOR['frost']['fail'].append(_MOB('stray'))
-FLAVOR['tide']['fail'].append(_MOB('drowned', ',equipment:{mainhand:{id:"minecraft:trident",count:1}},drop_chances:{mainhand:0.0f}'))
+FLAVOR['tide']['fail'].append(_MOB('zombie', ',equipment:{mainhand:{id:"minecraft:trident",count:1},head:{id:"minecraft:turtle_helmet",count:1}},drop_chances:{mainhand:0.0f,head:0.0f}'))
 FLAVOR['hex']['fail'] += ['execute at @a[distance=..16,gamemode=!creative,gamemode=!spectator] run summon minecraft:evoker_fangs ~ ~ ~ {Warmup:10}',
                           _MOB('vindicator', ',equipment:{mainhand:{id:"minecraft:iron_axe",count:1}},drop_chances:{mainhand:0.0f}')]
 FLAVOR['keep']['fail'] += [_MOB('wither_skeleton', ',equipment:{mainhand:{id:"minecraft:stone_sword",count:1}},drop_chances:{mainhand:0.0f}')]

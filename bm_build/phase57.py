@@ -1,6 +1,6 @@
 """Phase 2.37: Emma - a hidden, recruitable support companion.
 
-- FINDING HER: on a sunny day in a cherry grove, flower forest, meadow or sunflower plains, you may hear someone humming.
+- FINDING HER: on a sunny day in a cherry grove, flower forest, meadow, plains or birch wood, you may hear someone humming.
   Emma sits in the flowers nearby. Bring her a flower (any flower, in your hand) and she joins you - she gives you
   EMMA'S RIBBON. (Cecil drops a hint the first time he's summoned.) She stays 10 minutes or until you wander off.
 - EMMA'S RIBBON: use it to call her (and call her back). Sneak + use: her menu - pick her buff, see her charge, send her home.
@@ -21,8 +21,9 @@ from nbt import snbt, B, F, Int, D
 import phase57_art as ART
 
 PET_CD = 300
-ENC_ODDS = 20                   # per minute, per player in flowery biomes by day
-FLOWERY = ['minecraft:cherry_grove', 'minecraft:flower_forest', 'minecraft:meadow', 'minecraft:sunflower_plains']
+ENC_ODDS = 15                   # per minute, per player in flowery biomes by day (2.83: was 20)
+FLOWERY = ['minecraft:cherry_grove', 'minecraft:flower_forest', 'minecraft:meadow', 'minecraft:sunflower_plains',
+           'minecraft:plains', 'minecraft:birch_forest', 'minecraft:old_growth_birch_forest']     # (2.83: plains and birch woods too)
 MODES = {1: ('Speed', '#5ad8f0'), 2: ('Offense', '#ff5a5a'), 3: ('Defense', '#ff8ad0'), 4: ('Healing', '#5aaaf0'), 5: ('Mining', '#e8b04a')}   # 2.63: Mining
 PINK = '#ff7ad0'
 

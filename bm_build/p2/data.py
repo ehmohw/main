@@ -33,14 +33,18 @@ _HOG = ('hoglin', dict(_IMMUNE, CustomName=T('Hollow Tusker', '#8a96a8'), active
 _RAVAGER = ('ravager', {'CustomName': T('Hollow Ravager', '#e5e4e2', bold=True), 'active_effects': _BUFF(('resistance', 0))})
 _KNIGHT2 = ('wither_skeleton', _eq('netherite_sword', 'netherite_helmet', extra={'CustomName': T('Hollow Knight', '#8a96a8'),
                                                                                  'active_effects': _BUFF(('speed', 0), ('strength', 0))}))
+_SAILOR = lambda main, head=None, chest=None: ('zombie', _eq(main, head, chest, extra={'CustomName': T('Tidebound Sailor', '#3fb8a8')}))
+_BOWMAN = ('bogged', _eq('bow', extra={'CustomName': T('Barnacle Bowman', '#3fb8a8')}))
 WAVE_PER = {'hex': (1, 3), 'keep': (2, 3), 'hollow': (2, 3)}        # mobs per spawn point on ordinary waves / on the last wave (everyone else: 1 / 2)
 # combat trials: WAVES[d][n] = (title, [wave1 roster, wave2 roster, ...]); each spawn point picks one mob per wave
 # from the roster (two on the last wave)
 WAVES = {
+    # (2.83: the drowned only hunt players who are in water or out at night - on the temple's dry floors they stood about. The
+    #  Tyrant's crew are sailors and bowmen who fight on land; the Tyrant himself is still a drowned, in his pool)
     'tide': {1: ("The Tyrant's Tide", [
-        [('drowned', _eq('trident')), ('drowned', _eq('iron_sword'))],
-        [('drowned', _eq('trident')), ('drowned', _eq('iron_sword', 'turtle_helmet')), ('drowned', {})],
-        [('drowned', _eq('trident', 'turtle_helmet')), ('drowned', _eq('iron_sword', 'turtle_helmet'))]])},
+        [_SAILOR('trident'), _SAILOR('iron_sword'), _BOWMAN],
+        [_SAILOR('trident', 'turtle_helmet'), _SAILOR('iron_sword', 'turtle_helmet'), _BOWMAN],
+        [_SAILOR('trident', 'turtle_helmet', 'chainmail_chestplate'), _SAILOR('iron_sword', 'turtle_helmet'), _BOWMAN, _BOWMAN]])},
     'hex': {2: ('The Choir Militant', [
         [('vindicator', _eq('iron_axe')), ('pillager', _eq('crossbow'))],
         [('vindicator', _eq('iron_axe')), ('witch', {}), ('pillager', _eq('crossbow'))],
@@ -75,7 +79,7 @@ BOSS_DROP = {'brood': ('broodfang', 0.25, 'spider'), 'frost': ('frost_longbow', 
 SPAWNERS = {
     'brood': {'spiders': [('spider', None, 3), ('cave_spider', None, 1)], 'cave_spiders': [('cave_spider', None, 1)]},
     'frost': {'strays': [('stray', ['bow', 'leather_helmet'], 1)], 'frozen': [('zombie', ['iron_sword', 'leather_chestplate', 'leather_helmet'], 2), ('stray', ['bow'], 1)]},
-    'tide': {'drowned': [('drowned', ['trident'], 1), ('drowned', None, 2)], 'drowned_melee': [('drowned', ['iron_sword'], 1)]},
+    'tide': {'drowned': [('zombie', ['trident', 'turtle_helmet'], 2), ('bogged', ['bow'], 1)], 'drowned_melee': [('zombie', ['iron_sword', 'turtle_helmet'], 1)]},   # (2.83: land fighters)
     'hex': {'vindicators': [('vindicator', ['iron_axe'], 2), ('pillager', ['crossbow'], 1)], 'witches': [('witch', None, 1)]},
     'keep': {'wither_knights': [('wither_skeleton', ['stone_sword'], 3), ('skeleton', ['bow'], 1)], 'blazes': [('blaze', None, 1)]},
     # 'knights' are melee only: they guard the rooms with targets and keypads (stray arrows would hit puzzle inputs)

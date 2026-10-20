@@ -17,7 +17,7 @@ import phase66_art as ART
 
 PET_CD = 300
 HP = 30
-ENC_ODDS = 40                   # per minute, per player in a snowy biome
+ENC_ODDS = 25                   # per minute, per player in a snowy biome (2.83: was 40)
 SNOWY = ['minecraft:snowy_plains', 'minecraft:ice_spikes', 'minecraft:snowy_taiga', 'minecraft:snowy_slopes', 'minecraft:grove', 'minecraft:frozen_peaks',
          'minecraft:jagged_peaks', 'minecraft:frozen_river', 'minecraft:snowy_beach']
 ICE = '#8ed8ff'

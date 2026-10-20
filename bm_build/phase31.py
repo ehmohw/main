@@ -87,6 +87,11 @@ def generate(G):
             for i, (cur, obj, nm, col) in enumerate(BANK)]
     btns.append(P28.btn(T('Deposit everything', 'gold'), DEP_ALL, tooltip=T('Every currency the bank keeps, from your pockets into your account', 'gray'), width=150))
     btns.append(P28.btn(T('Savings account', '#7aff7a'), SAVE, tooltip=T('Daily interest on what you keep here - the Teller opens one', 'gray'), width=150))
+    # (2.83) THE EXCHANGE: change Tokens, Medallions and Trophies in your account up or down - at the Fence's rates both ways
+    EXCH = 4074                                       # the page; 4075-4078 its four swaps
+    import economy as _EC
+    TPM, MPT = _EC.TOKENS_PER_MEDALLION, _EC.MEDALLIONS_PER_TROPHY
+    btns.append(P28.btn(T('Exchange', '#7ad8ff'), EXCH, tooltip=T('Change Tokens, Medallions and Trophies in your account - no fee, either way', 'gray'), width=150))
     dlg = P28.multi([T('The Rat Bank', 'gold', bold=True), T(' - your account', 'gray')],
                     [P28.body([T('Pick a currency to deposit or take out.', 'gray')], 300),
                      P28.body([T('$(sv)', '#7aff7a')], 300),
@@ -98,7 +103,33 @@ def generate(G):
            'execute unless function bm:p31/bank/can run return run function bm:p28/stale',
            f'execute if score #act bm.pay matches {DEP_ALL} run return run function bm:p31/bank/dep_every',
            f'execute if score #act bm.pay matches {BACK} run return run function bm:p31/bank/open',
-           f'execute if score #act bm.pay matches {SAVE} run return run function bm:p31/sav/btn']
+           f'execute if score #act bm.pay matches {SAVE} run return run function bm:p31/sav/btn',
+           f'execute if score #act bm.pay matches {EXCH} run return run function bm:p31/bank/xpage'] + \
+          [f'execute if score #act bm.pay matches {EXCH + 1 + k} run return run function bm:p31/bank/x{k}' for k in range(4)]
+    # the swaps, on the account (bm.bk_tok / bm.bk_med / bm.bk_tro), then back to the page
+    XS = [('bm.bk_tok', TPM, 'bm.bk_med', 1, f'{TPM} Tokens', '1 Medallion'), ('bm.bk_med', 1, 'bm.bk_tok', TPM, '1 Medallion', f'{TPM} Tokens'),
+          ('bm.bk_med', MPT, 'bm.bk_tro', 1, f'{MPT} Medallions', '1 Trophy'), ('bm.bk_tro', 1, 'bm.bk_med', MPT, '1 Trophy', f'{MPT} Medallions')]
+    for k, (src, n, dst, m, a, b_) in enumerate(XS):
+        fn(f'p31/bank/x{k}', [f'execute unless score @s {src} matches {n}.. run return run function bm:p31/bank/xshort {{a:"{a}"}}',
+                              f'scoreboard players remove @s {src} {n}', f'scoreboard players add @s {dst} {m}',
+                              'playsound minecraft:block.chain.place player @s ~ ~ ~ 0.6 1.6',
+                              title('@s', 'actionbar', [T(a, 'gray'), T(' \u2192 ', 'white'), T(b_, 'gold')]), 'function bm:p31/bank/xpage'])
+    fn('p31/bank/xshort', ['$' + title('@s', 'actionbar', T('Your account needs $(a) for that.', 'gray')), 'function bm:p31/bank/xpage'])
+    xpg = P28.multi([T('The Exchange', '#7ad8ff', bold=True), T('  \u00b7  The Rat Bank', 'gray')],
+                    [P28.body([T('In your account: ', 'gray'), T('$(t) Tokens', 'gold'), T('  \u00b7  ', 'dark_gray'), T('$(m) Medallions', 'light_purple'),
+                               T('  \u00b7  ', 'dark_gray'), T('$(r) Trophies', '#ffb300')], 300),
+                     P28.body([T(f'{TPM} Tokens make a Medallion, {MPT} Medallions a Trophy - and they break back down the same. No fee.', 'dark_gray')], 300)],
+                    [P28.btn([T(f'{TPM} Tokens', 'gold'), T(' \u2192 ', 'white'), T('1 Medallion', 'light_purple')], EXCH + 1, width=150),
+                     P28.btn([T('1 Medallion', 'light_purple'), T(' \u2192 ', 'white'), T(f'{TPM} Tokens', 'gold')], EXCH + 2, width=150),
+                     P28.btn([T(f'{MPT} Medallions', 'light_purple'), T(' \u2192 ', 'white'), T('1 Trophy', '#ffb300')], EXCH + 3, width=150),
+                     P28.btn([T('1 Trophy', '#ffb300'), T(' \u2192 ', 'white'), T(f'{MPT} Medallions', 'light_purple')], EXCH + 4, width=150),
+                     P28.btn(T('\u00ab Your account', 'gray'), BACK, width=150)], columns=2)
+    fn('p31/bank/xpage', [f'scoreboard players set @s bm.menu {P28.MENU["bank"]}'] +
+       [f'execute unless score @s {o} matches 0.. run scoreboard players set @s {o} 0' for o in ('bm.bk_tok', 'bm.bk_med', 'bm.bk_tro')] +
+       ['data remove storage bm:ui bkx', 'execute store result storage bm:ui bkx.t int 1 run scoreboard players get @s bm.bk_tok',
+        'execute store result storage bm:ui bkx.m int 1 run scoreboard players get @s bm.bk_med',
+        'execute store result storage bm:ui bkx.r int 1 run scoreboard players get @s bm.bk_tro', 'function bm:p31/bank/xdlg with storage bm:ui bkx'])
+    fn('p31/bank/xdlg', [f'$dialog show @s {P28.inline(xpg)}'])
     for i, (cur, obj, nm, col) in enumerate(BANK):
         has = f'*[minecraft:custom_data~{{bm:"{cur}"}}]'
         act += [f'execute if score #act bm.pay matches {page_code(i)} run return run function bm:p31/bank/page_{cur}',

@@ -176,8 +176,8 @@ def generate(G, builds):
                               title('@s', 'actionbar', T('The Tyrant surges behind you!', 'aqua'))])
     fn('p2/tide/call', ['scoreboard players set @s bm.at2 0', *cap('tide', 6),
                         'playsound minecraft:entity.drowned.ambient_water hostile @a[distance=..30] ~ ~ ~ 2 0.6',
-                        at_spawn('tide', minion('tide', 'drowned', equipment={'mainhand': eq('minecraft:trident')})),
-                        at_spawn('tide', minion('tide', 'drowned', equipment={'mainhand': eq('minecraft:trident')}))])
+                        at_spawn('tide', minion('tide', 'zombie', 'Tidebound Sailor', equipment={'mainhand': eq('minecraft:trident'), 'head': eq('minecraft:turtle_helmet')})),
+                        at_spawn('tide', minion('tide', 'bogged', 'Barnacle Bowman', equipment={'mainhand': eq('minecraft:bow')}))])
     fn('p2/tide/enrage', ['tag @s add bm.rage', 'effect give @s minecraft:resistance infinite 0 true', 'effect give @s minecraft:regeneration 10 1 true',
                           'effect give @s minecraft:dolphins_grace infinite 0 true',
                           title(AUD('tide'), 'actionbar', T('The Tyrant raises the Crown of the Deep!', 'aqua', bold=True)),
