@@ -21,6 +21,13 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.86a: the Neighbor's face
+
+- **His eyes.** The big white mask round both eyes is now all of his eye-white, one shape like Sonic's, with no separate whites inside the lenses. His irises are solid near-black with a faint blue glint and a white shine. They look straight out, each set just a touch toward his nose, no longer glancing to the side.
+- **His mouth.** His lopsided smile sits off-centre, toward his left. His happy, shout and hurt mouths moved with it.
+- **His fringe** stops above his glasses.
+- **Dolls.** Cecil's Neighbor doll and the Ember Rat's golden Neighbor doll are rebaked with the new face. Ashur, the Chef and the Neighbor all have chibi dolls and golden dolls.
+
 ## New in 2.86: three new followers (Ashur, the Chef, the Neighbor) and sixteen new bonds
 
 **Ashur, the fire-mage** *(found in the hot country)*. In a desert, badlands or savanna you may come across Ashur warming her hands. Offer her coal or charcoal and she hands you **Ashur's Cinder**: use it to call her, sneak + use for her menu.

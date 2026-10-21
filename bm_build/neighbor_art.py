@@ -49,24 +49,24 @@ def _face(kind=None):
     d.polygon([(2, 10), (62, 10), (62, 33), (56, 40), (40, 41), (32, 38), (24, 41), (8, 40), (2, 33)], fill=white)
     d.line([(2, 33), (8, 40), (24, 41), (32, 38), (40, 41), (56, 40), (62, 33)], fill=mask_sh, width=1)
     d.line([(3, 12), (3, 32)], fill=mask_sh, width=2); d.line([(61, 12), (61, 32)], fill=mask_sh, width=2)
-    # the eyes (behind the glasses): big, white with a blue iris and a dark pupil, a glint top-left
-    E = ((19, 26), (45, 26))
+    # the eyes (behind the glasses). (owner's note: the big white mask round both eyes IS his eye-white, all of it, one
+    # shape like Sonic's - no separate whites inside the lenses; the iris a tall near-black oval with a faint blue glow, a
+    # white shine and a small dot - looking straight out, each just a touch toward the nose)
+    E = ((20, 26), (44, 26))
     for cx, cy in E:
         if kind == 'happy':
-            d.arc((cx - 8, cy - 3, cx + 8, cy + 9), 200, 340, fill=ink, width=3); continue
+            d.arc((cx - 7, cy - 3, cx + 7, cy + 8), 200, 340, fill=ink, width=3); continue
         if kind == 'blink':
-            d.line((cx - 8, cy + 2, cx + 8, cy + 2), fill=ink, width=3); continue
+            d.line((cx - 7, cy + 2, cx + 7, cy + 2), fill=ink, width=3); continue
         if kind == 'hurt':
-            d.line((cx - 7, cy - 3, cx + 7, cy + 1), fill=ink, width=3) if cx < 32 else d.line((cx - 7, cy + 1, cx + 7, cy - 3), fill=ink, width=3)
-            d.line((cx - 6, cy + 4, cx + 6, cy + 4), fill=ink, width=2); continue
-        # (owner's note, from the art: tall solid ovals, near-black navy - a faint blue glow low in the middle, a big white
-        #  shine top-left and a small white dot bottom-right; no white of the eye, the mask round them)
-        rx, ry = (5, 7) if kind == 'shout' else (5, 6)
+            d.line((cx - 6, cy - 3, cx + 6, cy + 1), fill=ink, width=3) if cx < 32 else d.line((cx - 6, cy + 1, cx + 6, cy - 3), fill=ink, width=3)
+            d.line((cx - 5, cy + 4, cx + 5, cy + 4), fill=ink, width=2); continue
+        rx, ry = (4, 6) if kind == 'shout' else (4, 5)
         d.ellipse((cx - rx, cy - ry, cx + rx, cy + ry), fill=hexc('#0b111e'))
-        d.ellipse((cx - rx + 2, cy - 1, cx + rx - 2, cy + ry - 1), fill=hexc('#172a4c'))
-        d.ellipse((cx - rx + 3, cy + 1, cx + rx - 3, cy + ry - 2), fill=hexc('#24426f'))
-        d.ellipse((cx - 3, cy - 4, cx, cy - 1), fill=white)                                    # the big shine
-        d.rectangle((cx + 1, cy + ry - 4, cx + 2, cy + ry - 3), fill=white)                      # the small dot
+        d.ellipse((cx - rx + 1, cy, cx + rx - 1, cy + ry - 1), fill=hexc('#172a4c'))
+        d.ellipse((cx - rx + 2, cy + 1, cx + rx - 2, cy + ry - 2), fill=hexc('#24426f'))
+        d.rectangle((cx - 2, cy - 3, cx - 1, cy - 2), fill=white)                               # the shine
+        d.point((cx + 1, cy + ry - 2), fill=white)                                              # the small dot
     # the glasses: thick black rectangular frames, the bridge, the arms off to the sides
     for x0 in (7, 34):
         d.rounded_rectangle((x0, 17, x0 + 23, 35), radius=3, outline=ink, width=3)
@@ -75,8 +75,8 @@ def _face(kind=None):
     # the fringe: ragged red-brown spikes over the top of the mask, a big lock over his right eye
     hair, hair_dk, hair_lt = hexc(HAIR), hexc('#3e120c'), hexc('#8e3a24')
     d.rectangle((0, 0, 63, 9), fill=hair)
-    d.polygon([(0, 8), (4, 18), (9, 9), (14, 20), (20, 8), (26, 15), (30, 8)], fill=hair)
-    d.polygon([(34, 8), (40, 13), (44, 8), (52, 16), (56, 8), (61, 13), (63, 8)], fill=hair)
+    d.polygon([(0, 8), (4, 15), (9, 9), (14, 16), (20, 8), (26, 14), (30, 8)], fill=hair)
+    d.polygon([(34, 8), (40, 13), (44, 8), (52, 15), (56, 8), (61, 13), (63, 8)], fill=hair)
     for x in range(1, 63, 5):
         d.line((x, 0, x + 2, 8), fill=hair_dk if x % 2 else hair_lt)
     # freckles across the nose and cheeks, the nose, the smile
@@ -87,15 +87,15 @@ def _face(kind=None):
     d.arc((27, 39, 37, 48), 20, 160, fill=hexc(SKIN_DK), width=2)                 # the button nose
     d.point((30, 46), fill=hexc('#b06a3e')); d.point((34, 46), fill=hexc('#b06a3e'))
     if kind == 'shout':
-        d.ellipse((27, 50, 37, 60), fill=hexc('#5a1416'), outline=ink); d.ellipse((29, 55, 35, 59), fill=hexc('#d0484c'))
+        d.ellipse((32, 50, 42, 60), fill=hexc('#5a1416'), outline=ink); d.ellipse((34, 55, 40, 59), fill=hexc('#d0484c'))
     elif kind == 'happy':
-        d.chord((22, 46, 44, 60), 0, 180, fill=hexc('#5a1416'), outline=ink)
-        d.rectangle((25, 53, 41, 54), fill=white); d.chord((27, 54, 39, 59), 0, 180, fill=hexc('#d0484c'))
+        d.chord((27, 46, 49, 60), 0, 180, fill=hexc('#5a1416'), outline=ink)
+        d.rectangle((30, 53, 46, 54), fill=white); d.chord((32, 54, 44, 59), 0, 180, fill=hexc('#d0484c'))
     elif kind == 'hurt':
-        d.line((24, 55, 28, 52, 32, 55, 36, 52, 40, 55), fill=ink, width=2)
+        d.line((29, 55, 33, 52, 37, 55, 41, 52, 45, 55), fill=ink, width=2)
     else:
-        d.arc((22, 44, 46, 56), 30, 120, fill=ink, width=2)                           # the lopsided smile, up on his left
-        d.line((44, 51, 46, 49), fill=ink, width=2)
+        d.arc((28, 44, 50, 55), 30, 125, fill=ink, width=2)                           # the lopsided smile, off-centre toward his left
+        d.line((47, 51, 50, 48), fill=ink, width=2)
     return im
 
 
