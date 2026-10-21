@@ -21,6 +21,30 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.85a: Dread Nights
+
+**How one comes.** Every Dread monster killed in hard mode is counted. Once the count passes a threshold (rolled between 30 and 70), the next night that isn't a Blood Moon is a **Dread Night**; it takes the place of a Lucky Night or an invasion. At dusk the world goes quiet and everyone in the Overworld is warned. A **Dread Bell** (Vesper, 3 Dread Essence) makes tonight one on purpose.
+
+**The night** (the Overworld, dusk to dawn):
+- No hostile monster spawns, and the ones already out flee. Followers won't come out; any that are out go home.
+- Nobody can sleep. A red bar counts down to dawn while the dark breathes: a heartbeat, whispers, red motes, the light failing now and then.
+- Everyone who has beaten the Hollow King is **hunted**.
+
+**Stalkers**, after the owner's drawing: tall, thin, sage-olive things with their ribs showing, long hooked claws raised, and a bald head tipped back over a gaping maw. In the dark you see only their red eyes.
+- They can't be killed. They rise at least 30 blocks away, whatever the light.
+- Their blow goes through armour, Protection, Resistance and shields, and takes a third of your health plus absorption, so **three blows kill anyone**.
+- One hunts you at first, two after midnight, three before dawn.
+- They're quicker than you walk but slower than you sprint. Get 64 blocks away and they lose you, until a new one rises 15-30 s later.
+- **Stand still** for 8 seconds (there's a warning at 5) and one steps out of the dark right behind you.
+
+**The Golden Cross** (Vesper, 1 Dread Token). Sneak + use to set it on a floor or a wall. Stalkers won't come within a 30x30 square of it (15 blocks every way): they're thrown back at its edge and never rise or step out inside it. Punch it to take it back.
+
+**Dawn.** The Stalkers come apart. If you were hunted for most of the night (6 minutes in the Overworld) and didn't die, you get **3 Dread Essence**, plus 1 for every Stalker you outran (up to 3 more).
+
+**Dread Essence** at Vesper: 2 buys 3 Dread Tokens, 3 a Dread Bell, 6 the **Stalker's Grin** (a hat of their face, eyes lit). Toss down **16 Essence with 4 Dread Tokens** to forge a **Dread Totem**: carried, no monster spawns within 32 blocks of you, and monsters near you won't turn on you (nor will a Dread monster's Pulse and Mark). It does nothing against Stalkers; only the cross does.
+
+Operators: `/function bm:admin/dread_night` starts one now; `/function bm:admin/dread_kit` gives crosses, bells, essence, a totem and the Grin.
+
 ## New in 2.84d: the Omni Token, golden dolls, the Eldritch Panoply, and hard mode only for King-slayers
 
 **The Omni Token** (a ground forge). Toss a **Dread Token**, **16 Ember Scales** and **16 Void Shards** down together and the three fuse into one Omni Token. It is the only thing the field rats' new stock takes.

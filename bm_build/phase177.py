@@ -107,6 +107,7 @@ STOCK = [  # (iid, n, price in Dread Tokens)
     ('serpent_summons', 1, 6), ('hollow_echo', 1, 6),
     ('bottomless_bucket', 1, 6), ('harvest_scythe', 1, 10), ('dawn_hourglass', 1, 12), ('dread_lantern', 1, 16), ('menders_altar', 1, 18),
     ('tome_eternity', 1, 24)]
+EXTRA = []   # (buy, sell) trades later phases add to his window (2.85a: what Dread Essence buys)
 
 # ================================================================== REFORGING: past the old maximum
 OLD_NAME = {'hero': 'Hero of Time', 'juggernaut': 'Juggernaut III', 'shadowstep': 'Shadowstep III', 'architect': 'Architect III',
@@ -297,7 +298,7 @@ def generate(G):
               'CustomName': T('Vesper, the Dread Broker', DREAD, bold=True), 'CustomNameVisible': B(1),
               'VillagerData': {'type': 'minecraft:swamp', 'profession': 'minecraft:cleric', 'level': Int(5)},
               'Offers': {'Recipes': [offer(('trophy', TPD), ('dread_token', 1)), offer(('dread_token', 1), ('trophy', TPD))] +
-                                    [offer(('dread_token', p), (iid, n)) for iid, n, p in STOCK]}}
+                                    [offer(('dread_token', p), (iid, n)) for iid, n, p in STOCK] + [offer(b, s_) for b, s_ in EXTRA]}}
     ident = [F(0), F(0), F(0), F(1)]
     book = {'Tags': ['bm.vledger_d', 'bm.npc'], 'item': {'id': 'minecraft:written_book', 'count': Int(1)}, 'item_display': 'fixed',
             'transformation': {'left_rotation': [F(-0.7071), F(0), F(0), F(0.7071)], 'right_rotation': ident, 'translation': [F(0), F(0.03), F(0)], 'scale': [F(0.55)] * 3}}

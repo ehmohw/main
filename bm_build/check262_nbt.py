@@ -104,6 +104,10 @@ def entity(kind, nbt, where):
     if 'billboard' in nbt and nbt['billboard'] not in ('fixed', 'vertical', 'horizontal', 'center'): errs.append(f'{where}: billboard')
     if 'brightness' in nbt and set(nbt['brightness']) != {'block', 'sky'}: errs.append(f'{where}: brightness')
     if 'transformation' in nbt and set(nbt['transformation']) - {'translation', 'left_rotation', 'right_rotation', 'scale'}: errs.append(f'{where}: transformation')  # partial is fine (defaults / merge)
+    # (2.85a: a passenger with no id isn't summoned at all - silently)
+    for i, p_ in enumerate(nbt.get('Passengers', []) if isinstance(nbt.get('Passengers'), list) else []):
+        if not isinstance(p_, dict) or 'id' not in p_: errs.append(f'{where}: passenger {i} has no id (it would never be summoned)'); continue
+        entity(C.strip_ns(str(p_['id'])), {k: v for k, v in p_.items() if k != 'id'}, f'{where} passenger {i}')
 
 def main():
     n = 0
