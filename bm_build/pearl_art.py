@@ -33,7 +33,7 @@ UP, FRONT = (0.0, 1.0, 0.0), (0.0, 0.0, -1.0)
 
 
 def HIDDEN(p, pose):
-    return p == 'cape' and not pose.get('_r')
+    return False                        # (her cape is its own model in each outfit: a real one in her regal outfit, a speck inside her casual one)
 
 
 def model_name(p, pose, suffix=''):
@@ -269,7 +269,7 @@ def models():
     pv = PIVOT['cape']
     cape = [el((-3.6, 0.6, 2.2), (3.6, 23.2, 2.6), 'pq_cape', pv), el((-3.9, 22.4, -1.6), (3.9, 23.6, 2.7), 'pq_gold', pv)]
     part('pq_cape_r', cape)
-    part('pq_cape', cape)                                   # (never shown - the casual look hides it - but every part needs a model)
+    part('pq_cape', [el((-0.05, 18.0, 0.0), (0.05, 18.1, 0.1), 'pq_dress_top', pv)])   # (the casual look: a speck inside her, never seen)
     return M
 
 

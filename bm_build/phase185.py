@@ -1,6 +1,6 @@
 """2.86: ASHUR, THE FIRE FOLLOWER - ASHUR'S CINDER (won from her in a hot biome: desert, badlands, savanna).
 
-FINDING HER: in a desert, badlands or savanna, under the open sky, she may turn up (about once in 25 minutes there), flame
+FINDING HER (2.87: HARD MODE ONLY - she only turns up once the world has woken to hard mode): in a desert, badlands or savanna, under the open sky, she may turn up (about once in 25 minutes there), flame
   in her palm, bored and spoiling for a fight. Right-click her holding COAL or CHARCOAL ("Got anything to burn?"): she takes
   it, likes you for it, and gives you her Cinder.
 ASHUR'S CINDER  use: call her (again: call her over); sneak + use: her menu.
@@ -471,7 +471,8 @@ def generate(G):
     second += ['scoreboard players add #aset bm.bm 1', 'execute if score #aset bm.bm matches 60.. run function bm:p185/enc/check']
     fn('p185/enc/check', ['scoreboard players set #aset bm.bm 0',
                           'execute in minecraft:overworld as @a[distance=0..,gamemode=!spectator,predicate=bm:p185/hot] at @s run function bm:p185/enc/roll'])
-    fn('p185/enc/roll', [f'execute if items entity @s container.* {holds("ashur_cinder")} run return 0', f'execute if items entity @s weapon.offhand {holds("ashur_cinder")} run return 0',
+    fn('p185/enc/roll', ['execute unless score #hard bm.cfg matches 1 run return 0',               # (2.87: a hard-mode exclusive)
+                         f'execute if items entity @s container.* {holds("ashur_cinder")} run return 0', f'execute if items entity @s weapon.offhand {holds("ashur_cinder")} run return 0',
                          'execute if entity @e[type=minecraft:interaction,tag=bm.asenc,distance=..128] run return 0',
                          'execute positioned ~ ~1.6 ~ unless predicate bm:sees_sky run return 0',
                          f'execute store result score #r bm.rng run random value 1..{ENC_ODDS}', 'execute unless score #r bm.rng matches 1 run return 0',

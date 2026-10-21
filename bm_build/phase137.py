@@ -142,7 +142,7 @@ def generate(G):
     GOLD, REC = '#ffcf40', '#9ad0ff'
     MET = {'cecil': ['cecil_gem'], 'emma': ['emma_ribbon'], 'celi': ['celi_charm'], 'zib': ['donadian_medal'], 'killerwatt': ['kw_spark'],
            'leo': ['leo_crest'], 'demo': ['demo_seal'], 'escort': [f'skiff_escort_{c}' for c in P72.ART.ESCORT_COLS], 'apo': ['apo_oath'],
-           'tul': ['tul_coin'], 'frog': ['frog_signet'], 'donado': ['donado_tag'], 'fishy': ['fy_bowl'], 'dennis': ['dw_horn'], 'pistachio': ['pi_cloche'], 'omega': ['om_monocle'], 'ashur': ['ashur_cinder'], 'chef': ['chef_ladle'], 'neighbor': ['neighbor_baton']}
+           'tul': ['tul_coin'], 'frog': ['frog_signet'], 'donado': ['donado_tag'], 'fishy': ['fy_bowl'], 'dennis': ['dw_horn'], 'pistachio': ['pi_cloche'], 'omega': ['om_monocle'], 'ashur': ['ashur_cinder'], 'chef': ['chef_ladle'], 'neighbor': ['neighbor_baton'], 'ava': ['av_locket'], 'pearlq': ['pq_pearls'], 'bloo': ['bo_claw']}
     FOL = [(k, nm, col) for (k, nm, col, *_r) in P98.CALLED] + [(k, nm, col) for (k, nm, col, *_r) in P98.HIRED]
     assert {k for k, *_r in FOL} == set(MET), sorted({k for k, *_r in FOL} ^ set(MET))
     for k, toks in MET.items():
@@ -166,7 +166,7 @@ def generate(G):
     # ---- a contract for someone you haven't met won't sign (it keeps)
     SIGN = {k: f'p89/sign/{k}' for k in ('cecil', 'emma', 'celi', 'zib', 'escort', 'killerwatt')}
     SIGN.update({'leo': 'p96/sign', 'demo': 'p97/sign', 'apo': 'p131/sign', 'tul': 'p132/sign', 'frog': 'p89/call/frog', 'donado': 'p89/call/donado',
-                 'fishy': 'p145/sign', 'dennis': 'p163/dw/sign', 'pistachio': 'p163/pi/sign', 'omega': 'p170/sign', 'ashur': 'p185/sign', 'chef': 'p186/sign', 'neighbor': 'p187/sign'})
+                 'fishy': 'p145/sign', 'dennis': 'p163/dw/sign', 'pistachio': 'p163/pi/sign', 'omega': 'p170/sign', 'ashur': 'p185/sign', 'chef': 'p186/sign', 'neighbor': 'p187/sign', 'ava': 'p189/sign', 'pearlq': 'p190/sign', 'bloo': 'p191/sign'})
     assert set(SIGN) == set(MET)
     for k, nm, col in FOL:
         L = G.FUNCS[SIGN[k]]

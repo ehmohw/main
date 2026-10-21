@@ -13,7 +13,7 @@ from items import ITEMS, T
 DOLL_KIND = {'doll_cecil': 'cecil', 'doll_celi': 'celi', 'doll_leo': 'leo', 'doll_demo': 'demo', 'doll_kw': 'killerwatt',
              'doll_apo': 'apo', 'doll_tul': 'tul', 'doll_zib': 'zib', 'doll_pearl': 'pearl', 'doll_don': 'donado',
              'doll_wil': 'wil', 'doll_frog': 'frog', 'doll_fishy': 'fishy',
-             'doll_dennis': 'dennis', 'doll_pistachio': 'pistachio', 'doll_omega': 'omega', 'doll_ashur': 'ashur', 'doll_chef': 'chef', 'doll_neighbor': 'neighbor'}
+             'doll_dennis': 'dennis', 'doll_pistachio': 'pistachio', 'doll_omega': 'omega', 'doll_ashur': 'ashur', 'doll_chef': 'chef', 'doll_neighbor': 'neighbor', 'doll_ava': 'ava', 'doll_pearlq': 'pearlq', 'doll_bloo': 'bloo'}
 NEW_MET = {'pearl': 'pearl_card', 'wil': 'wilfrey_locket'}
 
 

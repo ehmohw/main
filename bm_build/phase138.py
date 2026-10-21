@@ -24,12 +24,13 @@ import gild
 import phase103 as P103
 
 GOLD = '#ffcf40'
-ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor']
+ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo']
 # follower: (host type, host tag[s]) - the animal underneath, whose owner the aura belongs to
 HOST = {'emma': ('cat', 'bm.emmapet'), 'celi': ('wolf', 'bm.celipet'), 'zib': ('wolf', 'bm.zibpet'), 'cecil': ('wolf', 'bm.cecilpet'),
         'kw': ('wolf', 'bm.kxpet'), 'leo': ('wolf', 'bm.leopet'), 'demo': ('wolf', 'bm.dmpet'), 'apo': ('wolf', 'bm.appet'), 'tul': ('wolf', 'bm.tupet'),
         'frog': ('wolf', 'bm.frogpet'), 'don': ('wolf', 'bm.donado'), 'pearl': ('cat', 'bm.pmpet'), 'wil': ('wolf', 'bm.wilfrey'), 'fishy': ('wolf', 'bm.fypet'),
-        'dennis': ('wolf', 'bm.dwpet'), 'pistachio': ('wolf', 'bm.pipet'), 'omega': ('wolf', 'bm.ompet'), 'ashur': ('wolf', 'bm.aspet'), 'chef': ('wolf', 'bm.kkpet'), 'neighbor': ('wolf', 'bm.nbpet')}
+        'dennis': ('wolf', 'bm.dwpet'), 'pistachio': ('wolf', 'bm.pipet'), 'omega': ('wolf', 'bm.ompet'), 'ashur': ('wolf', 'bm.aspet'), 'chef': ('wolf', 'bm.kkpet'), 'neighbor': ('wolf', 'bm.nbpet'),
+        'ava': ('wolf', 'bm.avpet'), 'pearlq': ('wolf', 'bm.pqpet'), 'bloo': ('wolf', 'bm.bopet')}
 dust = lambda r, g, b, s=1.0: f'minecraft:dust{{color:[{r},{g},{b}],scale:{s}}}'
 # follower: (aura name, colour, ring height, ring radius, the ring's mote, the haze [particle commands at the follower])
 AURA = {
@@ -68,7 +69,16 @@ AURA = {
                                                                       f'particle {dust(1.0, 0.85, 0.5, 0.8)} ~ ~1 ~ 0.4 0.5 0.4 0 2']),
     'neighbor': ('Grand Symphony', '#7ab8ff', 2.0, 0.75, 'minecraft:note', ['particle minecraft:note ~ ~2.4 ~ 0.6 0.3 0.6 1 1',
                                                                           f'particle {dust(0.5, 0.75, 1.0, 0.9)} ~ ~1.2 ~ 0.45 0.6 0.45 0 2',
-                                                                          'particle minecraft:end_rod ~ ~1.6 ~ 0.5 0.6 0.5 0.01 1'])}
+                                                                          'particle minecraft:end_rod ~ ~1.6 ~ 0.5 0.6 0.5 0.01 1']),
+    'ava': ('Crown of the Deep', '#6ad8e8', 2.1, 0.75, 'minecraft:nautilus', ['particle minecraft:nautilus ~ ~2.6 ~ 0.5 0.3 0.5 0.6 2',
+                                                                           'particle minecraft:bubble_pop ~ ~1.4 ~ 0.45 0.7 0.45 0.02 2',
+                                                                           f'particle {dust(0.4, 0.85, 0.95, 0.9)} ~ ~1.1 ~ 0.45 0.6 0.45 0 2']),
+    'pearlq': ('Pearlescent Tide', '#5ae0d8', 2.05, 0.75, 'minecraft:end_rod', ['particle minecraft:end_rod ~ ~2.4 ~ 0.5 0.3 0.5 0.01 1',
+                                                                               'particle minecraft:bubble_pop ~ ~1.2 ~ 0.45 0.6 0.45 0.02 2',
+                                                                               f'particle {dust(1.0, 0.95, 0.9, 0.9)} ~ ~1.2 ~ 0.45 0.6 0.45 0 2']),
+    'bloo': ('Feral Moon', '#5a9ae8', 2.6, 0.95, 'minecraft:crit', ['particle minecraft:cherry_leaves ~ ~2.8 ~ 0.6 0.3 0.6 0.02 2',
+                                                                   'particle minecraft:crit ~ ~1.4 ~ 0.6 0.8 0.6 0.05 2',
+                                                                   f'particle {dust(0.35, 0.6, 0.95, 1.1)} ~ ~1.6 ~ 0.6 0.8 0.6 0 3'])}
 assert set(AURA) == set(ORDER) == set(HOST) == set(P99.BASE)
 PRICE = 1280                                 # coins at the Tailor (10 Gutter Trophies)
 FIND = {3: 8, 4: 15, 5: 25}                  # per mille, a won heist of tier III / IV / V
@@ -101,7 +111,10 @@ RECOL = {'apo': ('apophiss_art', ('apo_scale', 'apo_scale_dk', 'apo_fin', 'apo_b
          'omega': ('omega_art', ('om_body', 'om_body_dk', 'om_fin', 'om_stripe', 'om_claw', 'om_lid')),
          'ashur': ('ashur_art', ('as_magma', 'as_plates', 'as_hem', 'as_rock')),
          'chef': ('chef_art', ('cf_white', 'cf_white_dk', 'cf_jacket')),
-         'neighbor': ('neighbor_art', ('nb_white', 'nb_white_dk', 'nb_shirt'))}
+         'neighbor': ('neighbor_art', ('nb_white', 'nb_white_dk', 'nb_shirt')),
+         'ava': ('ava_art', ('av_navy', 'av_navy_dk', 'av_skirt', 'av_bodice', 'av_navy_g', 'av_navy_dk_g', 'av_skirt_g', 'av_bodice_g')),   # (2.87: '_g' - her ghost's, recoloured as a set of their own)
+         'pearlq': ('pearl_art', ('pq_dress', 'pq_dress_top', 'pq_gown', 'pq_gown_top', 'pq_cape')),
+         'bloo': ('bloo_art', ('bo_fur', 'bo_fur_dk', 'bo_mane'))}
 # (2.82c) his fingers and eyelids took no outfit's colour: they go through the palette too, on the main set's brightness range
 # (so the scales come out as before, and the dark claws stay darker than the scales)
 SIDE = {'apo_claw', 'apo_lid', 'om_claw', 'om_lid'}
@@ -109,7 +122,8 @@ FROG_SKIN = {1: ('light_blue_wool', 'blue_wool'), 2: ('orange_wool', 'red_wool')
 ITEMS_OF = {'apo': lambda n: n.startswith('apo_'), 'tul': lambda n: n.startswith('tu_'), 'frog': lambda n: n == 'frog',
             'don': lambda n: n == 'donado' or (n.startswith('dnr_') and not n.startswith('dnr_eyes')), 'pearl': lambda n: n == 'pearlman', 'fishy': lambda n: n.startswith('fy_') and n != 'fy_bowl',
             'dennis': lambda n: n.startswith('dw_') and n != 'dw_horn', 'pistachio': lambda n: n.startswith('ps_'), 'omega': lambda n: n.startswith('om_') and n not in ('om_monocle', 'om_banner', 'om_brazier'),
-            'ashur': lambda n: n.startswith('as_'), 'chef': lambda n: n.startswith('cf_'), 'neighbor': lambda n: n.startswith('nb_')}
+            'ashur': lambda n: n.startswith('as_'), 'chef': lambda n: n.startswith('cf_'), 'neighbor': lambda n: n.startswith('nb_'),
+            'ava': lambda n: n.startswith('av_') and n != 'av_locket', 'pearlq': lambda n: n.startswith('pq_') and n != 'pq_pearls', 'bloo': lambda n: n.startswith('bo_') and n != 'bo_claw'}
 
 
 def textures():
@@ -122,8 +136,10 @@ def textures():
             if gild.is_gilded(w, k):
                 ims = {n: gild.dress(w, k, base[n]) for n in keys}                                    # (2.79a: polished gold)
             else:
-                main = {n: base[n] for n in keys if n not in SIDE}
+                main = {n: base[n] for n in keys if n not in SIDE and not n.endswith('_g')}
                 ims = P99._recolour(main, pal)
+                ghost = {n: base[n] for n in keys if n.endswith('_g')}
+                if ghost: ims.update(P99._recolour(ghost, pal))
                 side = {n: base[n] for n in keys if n in SIDE}
                 if side: ims.update(P99._recolour(side, pal, rng=P99._lumrange(main)))
             for name, im in ims.items():
