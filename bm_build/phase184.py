@@ -293,11 +293,13 @@ def generate(G):
                               'scoreboard players operation #q bm.rng = @s bm.gvtm', 'scoreboard players operation #q bm.rng %= #20 bm.rng',
                               f'execute if score #q bm.rng matches 0 run function bm:p184/{k}/second'])
         fn(f'p184/{k}/spring', ['scoreboard players set @s bm.gvs 1', 'scoreboard players set @s bm.gvtm 0', 'scoreboard players set @s bm.gvh 0',
-                                'scoreboard players set @s bm.gvw 1', 'function bm:p70/ctx'] + bar_on + big(title_, waves[0][1], col) + list(spring) +
+                                'scoreboard players set @s bm.gvw 1', 'function bm:p70/ctx', 'execute store result score @s bm.gvh run time query gametime'] + bar_on + big(title_, waves[0][1], col) + list(spring) +
            [f'function bm:p184/{k}/w1'])
-        fn(f'p184/{k}/second', ['function bm:p70/ctx', 'execute unless entity @a[tag=bm.gvp,distance=..16] run scoreboard players add @s bm.gvh 1',
-                                'execute if entity @a[tag=bm.gvp,distance=..16] run scoreboard players set @s bm.gvh 0',
-                                f'execute if score @s bm.gvh matches 10.. run return run function bm:p184/{k}/rearm'] + list(second) + [
+        # (bm.gvh: the game time the crew was last in the fight - a room only ticks with someone near, so the gap is counted on return)
+        fn(f'p184/{k}/second', ['function bm:p70/ctx', 'execute store result score #now bm.rng run time query gametime',
+                                'scoreboard players operation #now bm.rng -= @s bm.gvh',
+                                f'execute if score #now bm.rng matches 200.. run return run function bm:p184/{k}/rearm',
+                                'execute if entity @a[tag=bm.gvp,distance=..16] store result score @s bm.gvh run time query gametime'] + list(second) + [
                                 'execute unless score @s bm.gvs matches 1 run return 0',
                                 'execute store result score #n bm.rng if entity @e[tag=bm.gvg,distance=..22]', 'execute if score #n bm.rng matches 1.. run return 0',
                                 f'execute if score @s bm.gvw matches {len(waves)}.. run return run function bm:p184/{k}/done',
@@ -354,8 +356,8 @@ def generate(G):
                   'execute if score #gt bm.rng matches 4.. run scoreboard players set #k bm.rng 40', 'scoreboard players operation #q bm.rng %= #k bm.rng',
                   'execute as @e[type=minecraft:marker,tag=bm.gvsk,tag=bm.gvskc,distance=..20] at @s run function bm:p184/sink/drop',
                   'execute if score #q bm.rng matches 0 as @e[type=minecraft:marker,tag=bm.gvsk,tag=!bm.gvskb,distance=..20,sort=random,limit=1] at @s run function bm:p184/sink/crack'],
-          tick=[f'execute positioned {relf(1, 1, 1)} as @a[tag=bm.gvp,dx=22,dy=2.6,dz=22] at @s run function bm:p184/sink/fell',
-                f'execute positioned {relf(1, 1, 1)} as @e[tag=bm.gvg,dx=22,dy=2.6,dz=22] at @s run function bm:p112/isles/gone'],
+          tick=[f'execute positioned {relf(1, 1, 1)} as @a[tag=bm.gvp,dx=22,dy=0.5,dz=22] at @s run function bm:p184/sink/fell',      # (the pit only: y 1-2.5, under the floor)
+                f'execute positioned {relf(1, 1, 1)} as @e[tag=bm.gvg,dx=22,dy=0.5,dz=22] at @s run function bm:p112/isles/gone'],
           reset=['execute as @e[type=minecraft:marker,tag=bm.gvsk,distance=..20] at @s run function bm:p184/sink/mend'], win_t='THE FLOOR HOLDS - JUST')
     fn('p184/sink/crack', ['tag @s add bm.gvskc', 'fill ~-1 ~ ~-1 ~1 ~ ~1 minecraft:cracked_deepslate_tiles',
                            'playsound minecraft:block.deepslate.break block @a[distance=..20] ~ ~1 ~ 1 0.5', 'particle minecraft:block{block_state:"minecraft:deepslate"} ~ ~1 ~ 1 0.1 1 0 20'])

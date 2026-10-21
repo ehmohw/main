@@ -148,8 +148,9 @@ const ONLY = process.argv[2];
         const s2q = () => num(`${G}execute positioned ${p2[1]} ${p2[2]} ${p2[3]} run scoreboard players get @e[type=minecraft:marker,tag=bm.gvr_larder,distance=..1,limit=1] bm.gvs`);
         await run(`${at2}tp TestRat ~-8.5 ~ ~0.5 -90 0`);
         const s2 = (await wait(8000, async () => (await s2q()) === 1)) ? 1 : await s2q();
-        await run(`${at2}tp TestRat ~-30 ~ ~0.5`);
-        const reset = (await wait(20000, async () => (await s2q()) === 0, 500)) ? 0 : await s2q();
+        await run(`${at2}tp TestRat ~-30 ~ ~0.5`); await sleep(12000);         // (out of reach: the room doesn't tick - the gap is counted on return)
+        await run(`${at2}tp TestRat ~-17.5 ~ ~0.5 -90 0`);                      // (back in the corridor, short of the fight)
+        const reset = (await wait(8000, async () => (await s2q()) === 0, 500)) ? 0 : await s2q();
         const unbarred = !(await passes(`${at2}execute if block ~-12 ~ ~ minecraft:iron_bars`));
         ok('larder: the crew out of a fight for ten seconds - it starts over, the door unbarred', s2 === 1 && reset === 0 && unbarred, `sprung ${s2} after ${reset} unbarred ${unbarred} at ${p2.slice(1).join(' ')}`);
       }
