@@ -164,31 +164,38 @@ def generate(G):
     second.append('function bm:p30/schedule')
     fn('p30/day_change', ['execute unless score #lastday bm.auc matches 0.. run return run scoreboard players operation #lastday bm.auc = #day bm.bm',
                           'scoreboard players operation #a bm.auc = #lastday bm.auc', 'scoreboard players operation #a bm.auc %= #7 bm.auc',
-                          'scoreboard players operation #b bm.auc = #lastday bm.auc', 'scoreboard players operation #b bm.auc %= #30 bm.auc',
+                          # (2.83a: the Blood Moon's own period and off switch, as the schedule uses - the sign and the
+                          #  catch-up used a fixed 30 days, so a world with another period was promised sales that never opened)
+                          'scoreboard players operation #b bm.auc = #lastday bm.auc', 'scoreboard players operation #b bm.auc %= #bmper bm.cfg',
+                          'scoreboard players add #b bm.auc 1',
                           'execute if score #a bm.auc matches 6 unless score #saled bm.auc = #lastday bm.auc run scoreboard players set #owed bm.auc 1',
-                          'execute if score #b bm.auc matches 29 unless score #saled bm.auc = #lastday bm.auc run scoreboard players set #owed bm.auc 1',
+                          'execute if score #b bm.auc = #bmper bm.cfg unless score #bmoff bm.cfg matches 1 unless score #saled bm.auc = #lastday bm.auc run scoreboard players set #owed bm.auc 1',
                           'scoreboard players operation #lastday bm.auc = #day bm.bm'])
     fn('p30/warn', ['scoreboard players operation #warnd bm.auc = #day bm.bm',
                     'scoreboard players operation #n bm.auc = #day bm.bm', 'scoreboard players add #n bm.auc 1',
                     'scoreboard players operation #m bm.auc = #n bm.auc', 'scoreboard players operation #m bm.auc %= #7 bm.auc',
-                    'scoreboard players operation #n bm.auc %= #30 bm.auc',
+                    'scoreboard players operation #n bm.auc %= #bmper bm.cfg', 'scoreboard players add #n bm.auc 1',
                     'execute if score #m bm.auc matches 6 run return run function bm:p30/warn_say',
-                    'execute if score #n bm.auc matches 29 run function bm:p30/warn_say'])
+                    'execute if score #n bm.auc = #bmper bm.cfg unless score #bmoff bm.cfg matches 1 run function bm:p30/warn_say'])
     fn('p30/warn_say', [tellraw('@a[scores={bm.tier=2..}]', PREFIX + [T('The Dark Auction opens ', 'gray'), T('tomorrow at midnight', 'gold', bold=True),
                                                                         T('. Doors at dusk. Bring Medallions.', 'gray')])])
     # days until the next sale (weekly: day%7==6; Blood Moon: day%30==29). Tonight counts until the sale is done.
     fn('p30/sign_calc', [
         'scoreboard players operation #a bm.auc = #day bm.bm', 'scoreboard players operation #a bm.auc %= #7 bm.auc',
         'scoreboard players set #dw bm.auc 6', 'scoreboard players operation #dw bm.auc -= #a bm.auc',
-        'scoreboard players operation #b bm.auc = #day bm.bm', 'scoreboard players operation #b bm.auc %= #30 bm.auc',
-        'scoreboard players set #db bm.auc 29', 'scoreboard players operation #db bm.auc -= #b bm.auc',
+        'scoreboard players operation #b bm.auc = #day bm.bm', 'scoreboard players operation #b bm.auc %= #bmper bm.cfg',
+        'scoreboard players operation #db bm.auc = #bmper bm.cfg', 'scoreboard players remove #db bm.auc 1', 'scoreboard players operation #db bm.auc -= #b bm.auc',
+        # (a Blood Moon skipped or switched off isn't a sale: the next one counts; one forced tonight is)
+        'execute if score #db bm.auc matches 0 unless score #bday bm.bm matches 1 run scoreboard players operation #db bm.auc = #bmper bm.cfg',
+        'execute if score #bmoff bm.cfg matches 1 run scoreboard players set #db bm.auc 999',
+        'execute if score #bday bm.bm matches 1 run scoreboard players set #db bm.auc 0',
         'scoreboard players operation #dn bm.auc = #dw bm.auc', 'scoreboard players operation #dn bm.auc < #db bm.auc',
         # tonight's sale already over: count from the next one
         'execute if score #dn bm.auc matches 0 if score #saled bm.auc = #day bm.bm if score #state bm.auc matches 0 run function bm:p30/sign_next',
         'scoreboard players operation #signv bm.auc = #dn bm.auc',
         'execute if score #state bm.auc matches 1..3 run scoreboard players set #signv bm.auc -1'])
     fn('p30/sign_next', ['execute if score #dw bm.auc matches 0 run scoreboard players set #dw bm.auc 7',
-                         'execute if score #db bm.auc matches 0 run scoreboard players set #db bm.auc 30',
+                         'execute if score #db bm.auc matches 0 run scoreboard players operation #db bm.auc = #bmper bm.cfg',
                          'scoreboard players operation #dn bm.auc = #dw bm.auc', 'scoreboard players operation #dn bm.auc < #db bm.auc'])
     sign_rel = mgeo.rel((37.5, W + 4.5, 15.5))
     if 'sign' not in mgeo.st((37, W + 4, 15)): raise SystemExit('phase30: the auction sign moved')
@@ -211,7 +218,8 @@ def generate(G):
                              'scoreboard players operation #saled bm.auc = #day bm.bm', 'scoreboard players set #aopen bm.auc 1',
                              'function bm:p30/start', tellraw('@s', PREFIX + [T('Dark Auction started.', 'gray')])])
     fn('admin/auction_stop', ['function bm:p30/abort', tellraw('@s', PREFIX + [T('Dark Auction stopped; every bid refunded.', 'gray')])])
-    fn('p30/abort', ['scoreboard players set #state bm.auc 0', 'scoreboard players set #aopen bm.auc 0', 'scoreboard players set #hb bm.auc 0',
+    fn('p30/abort', ['tag @a remove bm.gotpad',          # (2.83a: as close does - else whoever stood in the hall got no paddle next sale)
+                     'scoreboard players set #state bm.auc 0', 'scoreboard players set #aopen bm.auc 0', 'scoreboard players set #hb bm.auc 0',
                      'scoreboard players set #usebank bm.pay 0', 'bossbar set bm:auction visible false',
                      'data remove storage bm:auction sale', 'function bm:p30/ped_clear', 'scoreboard players add #pgen bm.auc 1',
                      tellraw('@a[scores={bm.escrow=1..}]', PREFIX + [T('The Dark Auction was interrupted. Your Medallions come straight back.', 'gray')])])

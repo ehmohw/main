@@ -275,6 +275,10 @@ def generate(G):
     MO = (3.4, 5.05, 3.4)                  # the model's corner
     fn('p114/digc/init', ['function bm:p70/ctx', f'fill {rel(9, 4, 1)} {rel(15, 14, 23)} minecraft:air', f'fill {rel(11, 4, 11)} {rel(13, 6, 13)} minecraft:calcite'] +
        [f'setblock {rel(10, 3, 10)} minecraft:gold_block'] + themed(f'fill {rel(3, 4, 3)} {rel(5, 4, 5)} {{b}}', 'pillar') +
+       # (2.83a: a step-up beside the block - two steps, then a ledge level with its top - so the top layer's middle, walled in by
+       #  the cubes round it, can still be reached from above; nobody can place a block on a heist)
+       themed(f'setblock {rel(9, 4, 15)} {{b}}', 'pillar') + themed(f'setblock {rel(9, 5, 14)} {{b}}', 'pillar') +
+       themed(f'fill {rel(9, 6, 11)} {rel(9, 6, 13)} {{b}}', 'pillar') +
        [mini('minecraft:gold_block', relf(MO[0] - 0.34, MO[1], MO[2] - 0.34)),
         ] + themed(f'setblock {rel(1, 5, 9)} {{b}}', 'pillar') + vbutton(2, 5, 9, 'east', 'RESET', col='#ff7a7a') +
        choose('#i', len(PD.MODELS), 'p114/digc/m') + ['scoreboard players operation @s bm.gvc = #i bm.rng'] +

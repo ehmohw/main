@@ -4,7 +4,7 @@ const { mk, rel, relf, fnText } = require('./h110');
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
-  const H = mk(run); const { num, cnt, room, at, sc, alarm, solved, go, qs, heist, begin, local } = H;
+  const H = mk(run); const { num, cnt, room, at, sc, alarm, solved, go, qs, heist, begin, local, mpos } = H;
   const ONLY = process.argv[2] || ''; const want = k => !ONLY || ONLY.split(',').includes(k);
   const A = await bot('TestRat'); await sleep(2500);
   const has = async (sel) => /passed/.test(await run(`execute if items entity TestRat container.* ${sel}`));
@@ -158,6 +158,17 @@ const res = [];
     ok('Variant C (the Sculptor): the wall gone, a 3x3x3 of calcite, the model on its plinth, the chisel', (await sc('dig', q, 'bm.gvvar')) === 2 &&
        await isb('dig', q, rel(12, 9, 12), 'minecraft:air') && await isb('dig', q, rel(12, 5, 12), 'minecraft:calcite') && minis === keep + 1 &&
        await has('minecraft:stone_pickaxe[minecraft:can_break={blocks:"minecraft:calcite"}]'), `model ${minis - 1}/${keep}`);
+    // (2.83a) the top layer's middle, walled in by the cubes round it: from the floor its only open face, the top, can't be seen -
+    // so the bot climbs the step-up to the ledge and chisels it from above, as a player (the chisel in hand, a real dig)
+    const inv = await run('data get entity TestRat Inventory');
+    const cs = (inv.match(/Slot: (\d+)b, id: "minecraft:stone_pickaxe"/) || [])[1];
+    if (cs !== undefined) { await run(`item replace entity TestRat hotbar.8 from entity TestRat container.${cs}`); if (+cs !== 8) await run(`item replace entity TestRat container.${cs} with minecraft:air`); }
+    A.slot(8); await sleep(200);
+    ok('...a step-up beside the block: two steps and a ledge level with its top', !(await isb('dig', q, rel(9, 6, 12), 'minecraft:air')) && !(await isb('dig', q, rel(9, 4, 15), 'minecraft:air')) && !(await isb('dig', q, rel(9, 5, 14), 'minecraft:air')));
+    await at('dig', q, `tp TestRat ${relf(9.5, 7, 12.5)} 90 40`); await sleep(800);
+    const mp = await mpos('dig', q); const bx = mp[0] - 12.5 + 12, by = mp[1] - 4 + 6, bz = mp[2] - 12.5 + 12;
+    await A.mine(bx, by, bz, 1500, 1); await sleep(600);
+    ok('...from the ledge, the chisel takes the top layer\'s middle (only its top face shows)', await isb('dig', q, rel(12, 6, 12), 'minecraft:air'));
     const gone = cube.filter(c => c[1] === 'air');
     for (const [r] of gone.slice(1)) await at('dig', q, `setblock ${r} minecraft:air`);
     const wrong = cube.find(c => c[1] === 'calcite'); await at('dig', q, `setblock ${wrong[0]} minecraft:air`); await sleep(800);

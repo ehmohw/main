@@ -21,6 +21,12 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.83a: the Dark Auction keeps its word, and the Sculptor's step-up
+
+- **The Dark Auction's gate sign now follows the real Blood Moon.** It used to count to every 30th night, while the auction actually follows the Blood Moon (its period on the settings page, Blood Moon off, a skipped moon). So the sign could say "tonight" on a night when the auction wasn't going to happen. The sign, the warning and the catch-up now all use the same rule as the moon, so if the sign says tonight, the doors open at dusk and the first lot is called at midnight.
+- **Bidding paddles after a stopped auction:** an auction stopped partway now clears who already got a paddle, so the next sale hands one out again.
+- **Heist Dig room (Sculptor variant), no more softlock:** the 3x3 calcite cube could leave its top-middle block out of reach. A step-up of the room's own pillar blocks now stands beside the cube: two steps and a ledge level with the cube's top, so you can always chisel from above.
+
 ## New in 2.83: the less urgent list, part one
 
 - **The Sunken Throne's crew fight back.** Drowned only hunt someone who's in water or out at night, so on the temple's dry floors they stood about. The Tyrant's crew are now Tidebound Sailors (zombies in turtle shells, with tridents and swords) and Barnacle Bowmen (bogged): in the spawners, the waves, his calls and the fail mob. Dungeons already built pick this up too. The Drowned Tyrant himself stays a drowned in his pool; he answers a blow, and his slam and surge don't need water.
