@@ -21,6 +21,36 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.84d: the Omni Token, golden dolls, the Eldritch Panoply, and hard mode only for King-slayers
+
+**The Omni Token** (a ground forge). Toss a **Dread Token**, **16 Ember Scales** and **16 Void Shards** down together and the three fuse into one Omni Token. It is the only thing the field rats' new stock takes.
+
+**Golden dolls at the Ember Rat** (1 Omni Token each). There's a solid-gold version of every follower's chibi doll. A follower's golden doll only shows on his list once you've met that follower; until then it stays "a golden doll still under wraps". If several players are near him, he goes by whoever is closest. Sneak + use on a block to set the doll down, and punch it to pick it back up. A doll that's been set down works for everyone within 8 blocks:
+
+| Doll | Effect | Doll | Effect |
+|---|---|---|---|
+| Emma | Regeneration | Tullius | Water Breathing, Dolphin's Grace |
+| Cecil | Fire Resistance | Frog | Jump Boost II |
+| Celi | Speed | Donado | Luck II |
+| Zib | Night Vision | Wilfrey | never hungry (Saturation) |
+| KillerWatt | Strength | Fishy | Conduit Power |
+| Leo | Resistance | Dennis | Haste |
+| Democratus | monsters slowed | Pistachio | monsters glow (16 blocks) |
+| Apophiss | monsters weakened | Omega | the undead burn (10 blocks) |
+| Pearlman | Hero of the Village | | |
+
+**The Eldritch Panoply at the Void Rat** (paid in Omni Tokens), with its own models: bone, flesh and void, with eyes that blink and glow.
+- **Armour**: Crown of Eyes (3), Carapace (4), Greaves (4), Treads (3). The full set gives 24 armour, 20 toughness and +16 health. Wearing all four gives Night Vision, keeps Darkness and Blindness off you, and weakens monsters within 6 blocks. Anything that hits you is **lashed back** for 3 damage and Wither.
+- **Maw of the Outer Dark** (4): a toothed greatsword with an eye in its pommel. 13 attack damage. One hit in three it bites again (4 damage through armour, plus Wither), and every kill gives you two hearts of Absorption.
+- **Gnawing Pick** (2): Haste I while held, and +2 block reach. **Rending Axe** (2): +4 damage. **Burrowing Spade** (2): digs twice as fast.
+
+**Hard mode is only for those who beat the Hollow King** (current conquest 6):
+- **Vesper's trades** are veiled ("Vesper's wares are veiled") while anyone within 6 blocks of him hasn't beaten the King. His Ledger turns them away too.
+- **Dread monsters** only roll where the nearest player has beaten the King.
+- A Key of New Beginnings resets your conquest, which also takes these away again until you beat the King once more.
+
+Operators: `/function bm:admin/omni` gives 16 Omni Tokens, every golden doll and the full Panoply.
+
 ## New in 2.84c: the armour rebalance, alien gear and the Partner Wheel
 
 **The armour rebalance.** Hero of Time keeps the biggest numbers (20 armour, 16 toughness, +16 health across the set), but the other end-game sets now come close, each keeping its own bonus as its trade-off:

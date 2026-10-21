@@ -41,6 +41,7 @@ const res = [];
   // (a member of the market - its key in the pack, or the rat bouncer tosses a survival player out - and the Banker's Card)
   await run('loot replace entity TestRat hotbar.8 loot bm:items/market_key'); await run('loot replace entity TestRat hotbar.7 loot bm:items/bankers_card');
   for (const o of ['bm.fward', 'bm.fvig', 'bm.fret', 'bm.bk_dread', 'bm.bk_tro']) await run(`scoreboard players set TestRat ${o} 0`);
+  await run('scoreboard players set TestRat bm.conq 6');           // (2.84d: his trades are only for those who beat the Hollow King)
   await at(VX, VY, VZ + 2.5, 180, 10);
 
   // ================================================================== 1. Vesper comes with hard mode
@@ -168,8 +169,18 @@ const res = [];
   await hold(2000);
   ok('The Echo of the Hollow King: a conqueror\'s record steps back to 5 (the King waits again)', (await sc('TestRat', 'bm.conq')) === 5 && (await has('hollow_echo')) === 0, `${await sc('TestRat', 'bm.conq')}`);
 
-  // ================================================================== 6. hard mode off: he goes
+  // ================================================================== 6. (2.84d) the record stepped back: his wares veiled, his Ledger shut
   await at(VX, VY, VZ + 2.5, 180, 10);
+  const veiled = async () => passes(`${O}execute if data entity ${VES} Offers.Recipes[{maxUses:0,sell:{id:"minecraft:paper"}}]`);
+  ok('Back at the stall with conquest 5: every one of Vesper\'s trades is veiled', await wait(4000, veiled) &&
+     !(await passes(`${O}execute if data entity ${VES} Offers.Recipes[1]`)), (await run(`${O}data get entity ${VES} Offers.Recipes[0].sell.id`)).slice(-60));
+  A.chats.length = 0; A.interact(await uuidEnt(LED)); await sleep(1200);
+  ok('...and his Ledger says no: it is for those who felled the Hollow King', /felled the Hollow King/.test(A.chats.join(' ')), A.chats.join(' | ').slice(-160));
+  await run('scoreboard players set TestRat bm.conq 6');
+  ok('...the King beaten again (conquest 6): the trades are back', await wait(4000, async () => !(await veiled()) &&
+     await passes(`${O}execute if data entity ${VES} Offers.Recipes[{sell:{components:{"minecraft:custom_data":{bm:"dread_token"}}}}]`)));
+
+  // ================================================================== 7. hard mode off: he goes
   await run('scoreboard players set #hard bm.cfg 0');
   ok('Hard mode off: Vesper and his Ledger are gone', await wait(25000, async () => !(await passes(`${O}execute if entity ${VES.replace(',distance=..3', ',distance=..4')}`)) &&
      !(await passes(`${O}execute if entity ${LED}`)), 500));
