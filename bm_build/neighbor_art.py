@@ -59,15 +59,14 @@ def _face(kind=None):
         if kind == 'hurt':
             d.line((cx - 7, cy - 3, cx + 7, cy + 1), fill=ink, width=3) if cx < 32 else d.line((cx - 7, cy + 1, cx + 7, cy - 3), fill=ink, width=3)
             d.line((cx - 6, cy + 4, cx + 6, cy + 4), fill=ink, width=2); continue
-        ry = 7 if kind == 'shout' else 6
-        d.ellipse((cx - 7, cy - ry - 1, cx + 7, cy + ry + 1), fill=ink)                       # (owner's note: a bold outline round each eye)
-        d.ellipse((cx - 5, cy - ry + 1, cx + 5, cy + ry - 1), fill=white)
-        ir = 3 if kind == 'shout' else 5
-        d.ellipse((cx - ir, cy - ir + 1, cx + ir, cy + ir + 1), fill=hexc('#2f5fae'))
-        d.ellipse((cx - ir + 1, cy - ir + 1, cx + ir - 1, cy), fill=hexc('#21447e'))
-        pr = 1 if kind == 'shout' else 2
-        d.ellipse((cx - pr, cy + 1 - pr, cx + pr, cy + 1 + pr), fill=ink)
-        d.rectangle((cx - ir + 1, cy - ir + 2, cx - ir + 2, cy - ir + 3), fill=white)
+        # (owner's note, from the art: tall solid ovals, near-black navy - a faint blue glow low in the middle, a big white
+        #  shine top-left and a small white dot bottom-right; no white of the eye, the mask round them)
+        rx, ry = (5, 7) if kind == 'shout' else (5, 6)
+        d.ellipse((cx - rx, cy - ry, cx + rx, cy + ry), fill=hexc('#0b111e'))
+        d.ellipse((cx - rx + 2, cy - 1, cx + rx - 2, cy + ry - 1), fill=hexc('#172a4c'))
+        d.ellipse((cx - rx + 3, cy + 1, cx + rx - 3, cy + ry - 2), fill=hexc('#24426f'))
+        d.ellipse((cx - 3, cy - 4, cx, cy - 1), fill=white)                                    # the big shine
+        d.rectangle((cx + 1, cy + ry - 4, cx + 2, cy + ry - 3), fill=white)                      # the small dot
     # the glasses: thick black rectangular frames, the bridge, the arms off to the sides
     for x0 in (7, 34):
         d.rounded_rectangle((x0, 17, x0 + 23, 35), radius=3, outline=ink, width=3)

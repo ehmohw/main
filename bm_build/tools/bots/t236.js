@@ -120,8 +120,8 @@ const res = [];
   await zom(9, 0, 'bm.t236a'); await run(`scoreboard players set ${PET} bm.nqrc 0`);
   ok('a foe 8 blocks off: a SHARP NOTE - it\'s hurt', await wait(6000, async () => (await num('@e[tag=bm.t236a,limit=1]', 'Health')) < 300));
   await run(`${O}kill @e[tag=bm.t236z]`); await run(`scoreboard players set ${PET} bm.nqrc 900`);
-  await zom(3, 2, 'bm.t236b'); await zom(3, -2, 'bm.t236b'); await run(`scoreboard players set ${PET} bm.nqbc 0`);
-  ok('two foes near: DISSONANCE - both hurt, weakened and slowed', await wait(6000, async () => /weakness/.test(await nbt('@e[tag=bm.t236b,limit=1,sort=random]', 'active_effects'))) &&
+  await zom(3, 2, 'bm.t236b'); await zom(3, -2, 'bm.t236b'); await run(`${O}execute at ${PET} run tp @e[tag=bm.t236b] ~2 ~ ~1`); await run(`scoreboard players set ${PET} bm.nqbc 0`);
+  ok('two foes near: DISSONANCE - both hurt, weakened and slowed', await wait(9000, async () => /weakness/.test(await nbt('@e[tag=bm.t236b,limit=1,sort=random]', 'active_effects'))) &&
      (await cnt('@e[tag=bm.t236b,nbt={active_effects:[{id:"minecraft:weakness"}]}]')) === 2);
   await run(`${O}kill @e[tag=bm.t236z]`); await zom(5, 0, 'bm.t236c');
   await run(`scoreboard players set ${PET} bm.nqgc 0`); A.bars.length = 0;

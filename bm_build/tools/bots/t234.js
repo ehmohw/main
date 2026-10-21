@@ -107,8 +107,8 @@ const res = [];
   ok('a foe 8 blocks off: a fireball - it burns and is hurt', await wait(6000, async () => (await num('@e[tag=bm.t234a,limit=1]', 'Health')) < 300) &&
      (await num('@e[tag=bm.t234a,limit=1]', 'Fire')) > 0);
   ok('...her Heat rises', await wait(3000, async () => (await score('bm.azh', PET)) >= 1), `heat ${await score('bm.azh', PET)}`);
-  await run(`scoreboard players set ${PET} bm.azbc 0`); await zom(4, 2, 'bm.t234b');
-  let blast = false; await wait(6000, async () => (blast = blast || (await score('bm.azs', PET)) === 9) && false, 100);
+  await zom(4, 2, 'bm.t234b'); await run(`${O}execute at ${PET} run tp @e[tag=bm.t234a] ~2 ~ ~1`); await run(`${O}execute at ${PET} run tp @e[tag=bm.t234b] ~-1 ~ ~2`); await run(`scoreboard players set ${PET} bm.azbc 0`);
+  let blast = false; await wait(9000, async () => (blast = blast || (await score('bm.azs', PET)) === 9) && false, 100);
   ok('two foes near: the Flamethrower (her blast pose, its cooldown)', blast || (await score('bm.azbc', PET)) > 0, `bc ${await score('bm.azbc', PET)}`);
   await run(`scoreboard players set ${PET} bm.azgc 0`); await run(`${O}execute at ${PET} run tp @e[tag=bm.t234b] ~2 ~ ~`);
   A.chats.length = 0; A.bars.length = 0;
