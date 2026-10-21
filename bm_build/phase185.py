@@ -36,7 +36,7 @@ import allies
 AS_C, AS_LINE, EMBER = '#ff7a2a', '#ffd8b0', '#ffb21a'
 NAME, W, K = 'Ashur', 'ashur', 'as'
 MENU = 2440                          # her menu (bm.menu) and its buttons 2441..2449
-PET_HP, PET_CD, MAX_HEAT = 40, 300, 10
+PET_HP, PET_CD, MAX_HEAT = 40, 120, 10
 SP = A.RIG_SCALE
 UP = SP / 16
 EXPR = ('happy', 'surprised', 'hurt', 'sleepy', 'blink', 'squint', 'serious')     # (phase95's moods...)
@@ -49,7 +49,7 @@ HOT = ['minecraft:desert', 'minecraft:badlands', 'minecraft:eroded_badlands', 'm
 item('ashur_cinder', TOTEM, "Ashur's Cinder", AS_C,
      ['A coal that never goes out, warm in the hand -', 'Ashur gives one only to people she likes.', ('Use: call Ashur (again: call her over).', 'blue'),
       ('Sneak + use: her menu.', 'blue'), ('Her Heat: every blow she lands burns hotter.', 'blue'), ('Flame Slap, Fireball, Flamethrower - and the Eruption.', 'blue'),
-      ('If she faints: 5 minutes before she can return.', 'gray'), ('"Don\'t you DARE drop it in water."', 'dark_gray')],
+      ('If she faints: 2 minutes before she can return.', 'gray'), ('"Don\'t you DARE drop it in water."', 'dark_gray')],
      model='bm:ashur_cinder', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
 HOLD['ashur_cinder'] = 'bm:p185/use'
 item('fcontract_ashur', TOTEM, 'Raid Contract: Ashur', AS_C, [('Use once: from then on Ashur', 'blue'), ('will come into the vault with you.', 'blue')],
@@ -220,7 +220,8 @@ def generate(G):
        [f'execute if score @s {S(o)} matches 1.. run scoreboard players remove @s {S(o)} 1' for o in ('mc', 'rc', 'bc', 'gc', 'sl')] +
        [f'execute {idle_fight} unless score @s {S("gc")} matches 1.. if entity @e[{foe},distance=..6] run function bm:{pfx}/great_go',
         f'execute {idle_fight} unless score @s {S("bc")} matches 1.. if entity @e[{foe},distance=..3.5] run function bm:{pfx}/blast_go',
-        f'execute {idle_fight} unless score @s {S("bc")} matches 1.. if entity @e[{foe},distance=..8,limit=2] store result score #nf bm.rng if entity @e[{foe},distance=..8] if score #nf bm.rng matches 2.. run function bm:{pfx}/blast_go',
+        f'execute store result score #nf bm.rng if entity @e[{foe},distance=..8]',
+        f'execute {idle_fight} unless score @s {S("bc")} matches 1.. if score #nf bm.rng matches 2.. run function bm:{pfx}/blast_go',
         f'execute {idle_fight} unless score @s {S("mc")} matches 1.. if entity @e[{foe},distance=..3.5] run function bm:{pfx}/melee_go',
         f'execute {idle_fight} unless score @s {S("rc")} matches 1.. unless entity @e[{foe},distance=..3.5] if entity @e[{foe},distance=..20] run function bm:{pfx}/range_go',
         f'function bm:{pfx}/state',

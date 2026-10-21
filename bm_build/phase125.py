@@ -50,6 +50,8 @@ WHO = {   # follower: (name, pronoun, colour, host type, host tag, try (as you),
     'pistachio': ('Pistachio', 'him', '#7ae890', 'wolf', 'bm.pipet', 'p163/pi/try_summon', 'p163/pi/home'),
     'omega': ('King Omega', 'him', '#9fb4ff', 'wolf', 'bm.ompet', 'p170/try_summon', 'p170/home'),
     'ashur': ('Ashur', 'her', '#ff7a2a', 'wolf', 'bm.aspet', 'p185/try_summon', 'p185/home'),          # (2.86)
+    'chef': ('the Chef', 'him', '#ffd07a', 'wolf', 'bm.kkpet', 'p186/try_summon', 'p186/home'),
+    'neighbor': ('the Neighbor', 'him', '#7ab8ff', 'wolf', 'bm.nbpet', 'p187/try_summon', 'p187/home'),
 }
 
 
@@ -209,7 +211,7 @@ def generate(G):
     # ================================================================== MENUS: "Call for <name>" when they're not out
     home_re = re.compile(r'label:\[\{text:"Send (?:her|him) home",color:"gray",italic:false\}\]')
     for w, (nm, pron, col, host, tag, try_, home) in WHO.items():
-        assert (try_ in G.FUNCS and home in G.FUNCS) or w in ('apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur'), (w, try_, home)   # (2.78's six, 2.79's Fishy: built later)
+        assert (try_ in G.FUNCS and home in G.FUNCS) or w in ('apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor'), (w, try_, home)   # (2.78's six, 2.79's Fishy: built later)
         b = P99.BASE[w]
         dl = G.FUNCS[f'p99/dlg/{w}']
         assert home_re.search(dl[0]), w

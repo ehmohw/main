@@ -21,6 +21,49 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.86: three new followers (Ashur, the Chef, the Neighbor) and sixteen new bonds
+
+**Ashur, the fire-mage** *(found in the hot country)*. In a desert, badlands or savanna you may come across Ashur warming her hands. Offer her coal or charcoal and she hands you **Ashur's Cinder**: use it to call her, sneak + use for her menu.
+- She fights with fire: a burning punch up close, fireballs at range, a Flamethrower when two or more foes crowd in, and her charged **Eruption**.
+- Every blow builds her **Heat** (up to 10) and makes her hotter still. Near her you're warded against fire.
+- Pairs with Celi as **Fire and Ice**.
+
+**The Chef** *(hidden)*. Chef Fromage's old master: short, stocky, enormous eyes, a great zigzag moustache. Eat each of the five Prime meats once, then visit Chef Fromage: his master is there tasting the sauce. Hand him a Prime cut and he gives you **the Golden Ladle**.
+- **Prime Presence:** farm animals killed near him drop their meat as Prime meat (the same amount, Looting and all).
+- **Feed him** Chef Fromage's feasts (right-click him holding one). Each kind he tastes is yours for good as **Well Fed**: a full belly every few minutes, wherever you are (every five minutes with one kind, every minute with all five).
+- All five kinds tasted, he becomes **the Master Chef** (80 health): pies at range, scalding soup for crowds, a charged **Meatball Barrage** and a **Crew Feast** every minute.
+
+**The Neighbor** *(hidden)*. The musician from next door: beret, mime's mask and glasses, sailor suit, eighth-note wings and a baton. At night, in a village, put a record in a jukebox: he comes over to listen. Hand him a note block and he gives you **the Neighbor's Baton**. He's a support follower:
+- **Tempo:** Speed and Haste while you're near him.
+- **Healing Song:** when you're hurt or a fight is on, Regeneration II for everyone near him, followers included.
+- **Sharp Note** at range, **Dissonance** for crowds (hurt, slowed, weakened), and his charged **Crescendo**: his crew healed, Strength and Resistance for ten seconds, and every foe near him hurt and thrown into the air.
+
+Each of the three has the full set: a menu, sitting (right-click), a frame trick, a display-case figurine, a chibi doll from Cecil, outfits with gilded, diamond and netherite versions, a rare aura, a Raid Contract at the Recruiter, faces, and a place on the Partner Wheel.
+
+**New pairs** (both followers within 16 blocks of each other, you within 24):
+- **Ashur + Leo, "The Sunfire Oath":** Strength and Fire Resistance; both tougher.
+- **Ashur + Emma, "Bonfire Friends":** Regeneration and Fire Resistance; both heal.
+- **Fishy + Ashur, "Steam":** Fire Resistance and Water Breathing, and Conduit Power underwater.
+- **Apophiss + Ashur, "Black Flame":** Strength II; every five seconds the monsters round you catch fire.
+- **The Chef + Emma, "The Royal Banquet":** Regeneration and a bite to eat every half minute; both heal.
+- **Dennis + Leo, "Hammer and Shield":** Haste II and Resistance; both hit harder.
+- **The Neighbor + the Chef, "Dinner and a Show":** Speed and a bite to eat every half minute; both heal.
+- **Apophiss + Democratus, "Death and Dominion":** Strength; monsters round you wither; both tougher.
+- **Fishy + the Neighbor, "The Bubble Ballad":** Luck and Water Breathing (Dolphin's Grace underwater); the Neighbor's song comes round twice as fast.
+- **The Neighbor + Apophiss, "The Serpent's Serenade":** monsters round you are charmed (slowed, weakened); Apophiss's Wrath builds faster.
+- **The Neighbor + Omega, "Requiem":** Resistance and Regeneration; the undead round you burn.
+
+**New trios** (all three at your side):
+- **Ashur, Emma and Leo, "The Hearth Guard":** Fire Resistance, Resistance and two more hearts; the three tougher.
+- **Leo, Celi and Ashur, "Frost, Flame and Steel":** Strength and Resistance; every 20 seconds frost and flame burst round you; the three heal.
+- **The Chef, Fishy and the Neighbor, "The Dinner Party":** Speed, Luck and a bite to eat every 20 seconds; the three heal.
+- **The Neighbor, Omega and Apophiss, "The Midnight Opera":** Strength II and Night Vision; monsters weakened, the undead burning; the three tougher.
+- **Emma, the Neighbor and the Chef, "The Royal Feast":** Regeneration, two more hearts, Haste and a bite to eat every 20 seconds; the three heal.
+
+(Ashur + Celi, Dennis + Pistachio, KillerWatt + Apophiss, Dennis/Leo/Emma and Apophiss/Democratus/KillerWatt were already bonds.) Every pair and trio has its own banter and a hidden achievement.
+
+**Faints:** every follower now rests for 2 minutes after fainting.
+
 ## New in 2.85d: seven new heist fights, the rats' calls, the Nether and End rooms' coin, a scarier Stalker, a royal angelic set
 
 **Seven new fights.** Fight turns used to draw from four rooms (the Counting House, the Arcane Study, the Champion's Pit and the Sky Isles); now they draw from eleven:

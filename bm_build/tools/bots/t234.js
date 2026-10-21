@@ -4,7 +4,7 @@
 // stood by a right-click; she fights - a fireball (burning, Heat rising), the Flamethrower on two, the Eruption (you warded);
 // Blue Flame worn and kept across a send-home and a call, put back; her aura; her Raid Contract signed; the wheel lists her;
 // the Cinder in a frame (she climbs out, punched out she goes); a display case (her figurine); Cecil's doll bought in a real
-// trade, set down, twirled, picked up; knocked out - she faints, five minutes on the Cinder.
+// trade, set down, twirled, picked up; knocked out - she faints, two minutes on the Cinder.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
@@ -35,12 +35,14 @@ const res = [];
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
   await run('gamemode survival TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await run('clear TestRat');
   await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
-  await run(`${O}fill ${X - 10} ${Y} ${Z - 10} ${X + 10} ${Y} ${Z + 10} minecraft:sand`); await run(`${O}fill ${X - 10} ${Y + 1} ${Z - 10} ${X + 10} ${Y + 8} ${Z + 10} minecraft:air`);
+  await run(`${O}fill ${X - 10} ${Y} ${Z - 10} ${X + 10} ${Y} ${Z + 10} minecraft:sandstone`); await run(`${O}fill ${X - 10} ${Y + 1} ${Z - 10} ${X + 10} ${Y + 8} ${Z + 10} minecraft:air`);
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..24]`);
   await run('kill @e[type=minecraft:wolf,tag=bm.aspet]'); await run('kill @e[type=minecraft:interaction,tag=bm.asenc]'); await run('kill @e[type=minecraft:item_display,tag=bm.asencp]');
   for (const o of ['bm.ascd', 'bm.cosas', 'bm.wuashur']) await run(`scoreboard players set TestRat ${o} 0`);
   for (const t of ['bm.auown_ashur', 'bm.au_ashur']) await run(`tag TestRat remove ${t}`);
   await run('advancement revoke TestRat only bm:met/ashur'); await run('advancement revoke TestRat only bm:story/ashur_friend');
+  const BIT = +require('fs').readFileSync('/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function/p185/sign.mcfunction', 'utf8').match(/scoreboard players add @s bm\.fcon (\d+)/)[1];
+  const fc = await score('bm.fcon'); if (fc > 0 && Math.floor(fc / BIT) % 2 === 1) await run(`scoreboard players set TestRat bm.fcon ${fc - BIT}`);   // (unsigned, for the contract step)
   await at(X + 0.5, Y + 1, Z + 0.5, 0, 0);
 
   // ---------------------------------------------------------------- finding her: the encounter, won with coal
@@ -108,7 +110,7 @@ const res = [];
   await run(`scoreboard players set ${PET} bm.azbc 0`); await zom(4, 2, 'bm.t234b');
   let blast = false; await wait(6000, async () => (blast = blast || (await score('bm.azs', PET)) === 9) && false, 100);
   ok('two foes near: the Flamethrower (her blast pose, its cooldown)', blast || (await score('bm.azbc', PET)) > 0, `bc ${await score('bm.azbc', PET)}`);
-  await run(`scoreboard players set ${PET} bm.azgc 0`); await run(`${O}tp @e[tag=bm.t234b] ${wx} ${Y + 1} ${wz + 2}`);
+  await run(`scoreboard players set ${PET} bm.azgc 0`); await run(`${O}execute at ${PET} run tp @e[tag=bm.t234b] ~2 ~ ~`);
   A.chats.length = 0; A.bars.length = 0;
   ok('a foe close, the charge ready: the ERUPTION', await wait(8000, async () => A.bars.some(b => /ERUPTION/.test(b))), A.bars.slice(-1).join(''));
   ok('...and you warded against fire', /fire_resistance/.test(await run('data get entity TestRat active_effects')));
@@ -128,14 +130,14 @@ const res = [];
      A.buttons().map(b => b.label).join(' | '));
   await A.press(/Her own magma/); await sleep(1000);
   ok('"Her own magma": back to her own (as_body)', /^bm:as_body$/.test(await model()) && (await score('bm.cosas')) === 0, await model());
-  A.chats.length = 0; await hold(2); await sleep(600);
+  await sleep(2200); A.chats.length = 0; await hold(2); await sleep(600);
   ok('Ashfall Crown (her rare aura) used: hers for good, and on', /bm\.auown_ashur/.test(await tags()) && /bm\.au_ashur\b/.test(await tags()), await tags());
 
   // ---------------------------------------------------------------- her Raid Contract
   await sleep(2200);
   const fc0 = await score('bm.fcon');
   A.chats.length = 0; await hold(3); await sleep(600);
-  ok('her Raid Contract used: signed, the contract gone', (await score('bm.fcon')) > fc0 && (await has('fcontract_ashur')) === 0 && A.chats.some(c => /Signed!/.test(c)),
+  ok('her Raid Contract used: signed, the contract gone', Math.floor((await score('bm.fcon')) / BIT) % 2 === 1 && (await score('bm.fcon')) > fc0 && (await has('fcontract_ashur')) === 0 && A.chats.some(c => /Signed!/.test(c)),
      A.chats.slice(-1).join('').slice(0, 160));
   const rec = require('fs').readFileSync('/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function/p137/rc/main.mcfunction', 'utf8');
   ok('...and the Recruiter sells it', /fcontract_ashur/.test(rec));
@@ -210,7 +212,7 @@ const res = [];
   await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
   A.chats.length = 0; await run(`${O}damage ${PET} 200 minecraft:mob_attack`);
   ok('struck down: she faints, her rig fades away', await wait(4000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.asp_pet]')) === 0));
-  ok('..."Ashur faints!" - five minutes on the Cinder', A.chats.some(c => /Ashur faints!/.test(c)) && (await score('bm.ascd')) > 200, A.chats.slice(-1).join('').slice(0, 160));
+  ok('..."Ashur faints!" - two minutes on the Cinder (as every follower, 2.82t)', A.chats.some(c => /Ashur faints!/.test(c)) && (await score('bm.ascd')) > 100, A.chats.slice(-1).join('').slice(0, 160));
   A.bars.length = 0; await use(0); await sleep(800);
   ok('...the Cinder used: "still rekindling", no Ashur', (await cnt(PET)) === 0 && A.bars.some(b => /rekindling/.test(b)), A.bars.slice(-1).join(''));
 

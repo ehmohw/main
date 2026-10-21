@@ -49,7 +49,8 @@ const res = [];
   const cy = +(((await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.dcase,x=${X + 0.5},y=${Y + 1},z=${Z + 1.5},distance=..1.5,limit=1] Rotation[0]`)).match(/(-?[\d.]+)f/) || [0, NaN])[1]);
   const fy = +(((await run(`${O}data get entity ${FIG.slice(0, -1)},limit=1] Rotation[0]`)).match(/(-?[\d.]+)f/) || [0, NaN])[1]);
   ok('...facing out of the case, as the case faces', Math.abs(((cy - fy) % 360 + 540) % 360 - 180) < 1, `case ${cy} figure ${fy}`);
-  ok('...still as stone (display parts only - nothing with AI)', (await cnt(`@e[type=!minecraft:player,type=!minecraft:item_display,type=!minecraft:interaction,type=!minecraft:marker,x=${X},y=${Y},z=${Z},distance=..6]`)) === 0);
+  { const stray = `@e[type=!minecraft:player,type=!minecraft:item_display,type=!minecraft:interaction,type=!minecraft:marker,type=!minecraft:text_display,x=${X},y=${Y},z=${Z},distance=..6]`;
+    ok('...still as stone (display parts only - nothing with AI)', (await cnt(stray)) === 0, (await run(`${O}execute as ${stray.slice(0, -1)},limit=1] at @s run tp @s ~ ~ ~`)).slice(0, 140)); }
   // (punch: the item; again: the figurine)
   A.bars.length = 0; box = await entOf(A, caseSel); if (box) A.attack(box.entityId); await sleep(700);
   ok('a punch: the crest itself on show, the figurine gone', (await figs()) === 0 && Math.abs((await scaleOf(itemSel)) - 0.5) < 0.01, A.bars.slice(-1).join('').slice(0, 120));
@@ -74,7 +75,7 @@ const res = [];
   const ALL = [['celi_charm', 'Celi', 9], ['demo_seal', 'Democratus', 8], ['emma_ribbon', 'Emma', 6], ['kw_spark', 'KillerWatt', 8], ['apo_oath', 'Apophiss', 12],
                ['tul_coin', 'Tullius', 9], ['donadian_medal', 'Zib', 9], ['cecil_gem', 'Cecil', 5], ['pearl_card', 'Pearlman', 1],
                ['frog_signet', 'the Frog with Mustache', NFROG], ['donado_tag', 'Donado', NDON], ['wilfrey_locket', 'Wilfrey', 1], ['fy_bowl', 'Fishy', 9],
-               ['dw_horn', 'Dennis', 9], ['pi_cloche', 'Pistachio', 8], ['om_monocle', 'Omega', 12], ['ashur_cinder', 'Ashur', 9]];
+               ['dw_horn', 'Dennis', 9], ['pi_cloche', 'Pistachio', 8], ['om_monocle', 'Omega', 12], ['ashur_cinder', 'Ashur', 9], ['chef_ladle', 'The Chef', 9], ['neighbor_baton', 'The Neighbor', 11]];
   for (const [iid, name, n] of ALL) {
     await run(`loot replace entity TestRat hotbar.2 loot bm:items/${iid}`); A.slot(2); await sleep(300);
     box = await entOf(A, caseSel); if (box) A.interact(box.entityId); await sleep(700);

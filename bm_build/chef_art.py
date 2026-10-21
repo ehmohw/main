@@ -137,7 +137,7 @@ def _bow(seed):
 
 
 def textures():
-    T = {'cf_skin': _noise(SKIN, 1402, 6), 'cf_skin_dk': _noise(SKIN_DK, 1403, 5), 'cf_white': _whites(1404), 'cf_white_dk': _whites(1405, '#dcd9d0', '#bebab0'),
+    T = {'cf_skin': _noise(SKIN, 1402, 6), 'cf_skin_dk': _noise(SKIN_DK, 1403, 5), 'cf_white': _whites(1404), 'cf_toque': _whites(1417), 'cf_white_dk': _whites(1405, '#dcd9d0', '#bebab0'),
          'cf_pleat': _pleats(1406), 'cf_jacket': _jacket(1407), 'cf_check': _check(1408), 'cf_shoe': _shine('#1a1a1c', '#4a4a52', 1409),
          'cf_stache': _shine('#121214', '#3a3a40', 1410), 'cf_bow': _bow(1411), 'cf_steel': _shine('#9aa2b4', '#eef2f8', 1412),
          'cf_steel_dk': _shine('#5e6476', '#9aa2b4', 1413), 'cf_wood': _shine('#8a5a2e', '#c08a52', 1414), 'cf_button': _noise('#1c1c1e', 1415, 2),
@@ -190,13 +190,19 @@ def models():
         h += [el((-4.25, 16.6, 1.0), (4.25, 22.6, 3.75), 'cf_hair', pv, shift=(0.2, 0.3)),
               el((-4.3, 17.6, -2.6), (-3.95, 22.6, 1.4), 'cf_hair', pv), el((3.95, 17.6, -2.6), (4.3, 22.6, 1.4), 'cf_hair', pv),
               el((-4.35, 16.4, -2.4), (-4.0, 18.2, -1.0), 'cf_hair', pv), el((4.0, 16.4, -2.4), (4.35, 18.2, -1.0), 'cf_hair', pv)]   # sideburns
+        # (owner's note: a little of it showing from the front - tufts at the temples and a ragged edge under the band)
+        for sx in (-1, 1):
+            h += [el((sx * 4.15 - 0.55, 20.0, -3.85), (sx * 4.15 + 0.55, 22.2, -3.5), 'cf_hair', pv, shift=(0.3, 0.6)),
+                  el((sx * 3.2 - 0.6, 21.3, -3.82), (sx * 3.2 + 0.6, 22.2, -3.68), 'cf_hair', pv, shift=(0.7, 0.2))]
+        for x in (-1.6, 0.0, 1.6):
+            h.append(el((x - 0.5, 21.75, -3.8), (x + 0.5, 22.2, -3.68), 'cf_hair', pv, shift=(x * 0.1 + 0.4, 0.5)))
         # the toque
         h += [el((-3.9, 22.0, -3.5), (3.9, 24.6, 3.3), 'cf_pleat', pv),
-              el((-4.7, 24.4, -4.3), (4.7, 28.6, 4.1), 'cf_white', pv, shift=(0.2, 0.3)),
-              el((-4.2, 28.4, -3.8), (4.2, 29.6, 3.6), 'cf_white', pv, shift=(0.7, 0.1)),
-              el((-3.2, 29.4, -2.8), (3.2, 30.2, 2.6), 'cf_white', pv, shift=(0.4, 0.6))]
+              el((-4.7, 24.4, -4.3), (4.7, 28.6, 4.1), 'cf_toque', pv, shift=(0.2, 0.3)),
+              el((-4.2, 28.4, -3.8), (4.2, 29.6, 3.6), 'cf_toque', pv, shift=(0.7, 0.1)),
+              el((-3.2, 29.4, -2.8), (3.2, 30.2, 2.6), 'cf_toque', pv, shift=(0.4, 0.6))]
         for x, z in ((-2.6, -2.4), (2.4, -2.0), (0.0, 2.2)):                                  # its puffs
-            h.append(el((x - 1.7, 27.6, z - 1.7), (x + 1.7, 30.0, z + 1.7), 'cf_white', pv, shift=(x * 0.1, z * 0.1)))
+            h.append(el((x - 1.7, 27.6, z - 1.7), (x + 1.7, 30.0, z + 1.7), 'cf_toque', pv, shift=(x * 0.1, z * 0.1)))
         return h
     part('cf_head', head())
     for fc in FACES:
