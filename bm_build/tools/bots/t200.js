@@ -32,6 +32,8 @@ const res = [];
   for (const o of ['bm.omwin', 'bm.omfav', 'bm.apcd']) await run(`execute as TestRat run scoreboard players reset @s ${o}`);
   await run('advancement revoke TestRat only bm:story/om_peace');
   const f0 = await run('scoreboard players get #omfree bm.omwin');
+  const hard0 = await run('scoreboard players get #hard bm.cfg'); await run('scoreboard players set #hard bm.cfg 0');   // (2.87: he's a hard-mode exclusive)
+  await run('execute as TestRat run scoreboard players reset @s bm.omrd');
   await run('scoreboard players set #omfree bm.omwin 0');
 
   // ---- the stage: a palace, here
@@ -67,6 +69,9 @@ const res = [];
   ok('a pedestal refuses the wrong Emblem ("carved for the Conquest Emblem of...")', wrong);
   ok('all six Emblems seated on their own pedestals, out of the hand', seated === 6, `${seated} seated`);
   A.bars.length = 0;
+  ok('...not in hard mode: the dead do not stir ("Hard mode only")', await wait(9000, async () => A.bars.some(b => /Hard mode only/.test(b))) && (await cnt('@e[type=minecraft:husk,tag=bm.omboss]')) === 0,
+     A.bars.slice(-1).join(''));
+  await run('scoreboard players set #hard bm.cfg 1'); A.bars.length = 0;
   ok('...without Apophiss, the tomb waits ("Apophiss must be here")', await wait(9000, async () => A.bars.some(b => /Apophiss must be here/.test(b))), A.bars.slice(-1).join(''));
 
   // ---- Apophiss comes - and so does he
@@ -107,10 +112,30 @@ const res = [];
   const pb = JSON.stringify(dd(A.dialogN[A.dialogN.length - 1]) || {});
   ok('...the Peerage: Squire already (60 favour from the fight)', pr && /Squire/.test(pb), pb.slice(0, 200));
 
+  // ---- (2.87) a rematch, from his court: he goes back down, wakes, and fights; peace again - another Monocle
+  await A.press(/« Back/); await sleep(600);
+  if (!A.buttons().some(b => /Re-challenge the King/.test(b.label))) { const n1 = A.dialogN.length; const ne2 = await entOf(NHIT); if (ne2) A.interact(ne2.entityId); await wait(3000, async () => A.dialogN.length > n1); }
+  ok('his court: "Re-challenge the King"', A.buttons().some(b => /Re-challenge the King/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
+  A.chats.length = 0; await A.click(/Re-challenge the King/); await sleep(1500);
+  ok('...pressed: "A rematch! Splendid." - the tomb wakes, the King rises again', A.chats.some(c => /A rematch! Splendid/.test(c)) &&
+     await wait(15000, async () => (await cnt(BOSS)) === 1), A.chats.slice(-1).join('').slice(0, 120));
+  ok('...and fights', await wait(25000, async () => (await cnt(BOSS.replace(',limit=1', ',nbt=!{NoAI:1b},nbt=!{Invulnerable:1b},limit=1'))) === 1));
+  await run(`scoreboard players set ${BOSS} bm.omph 2`); await run(`scoreboard players set ${BOSS} bm.omr 1`);
+  await run(`${O}data merge entity ${BOSS} {Health:100f}`); await sleep(500);
+  const bp2 = await pos(BOSS); await at(bp2[0], bp2[1], bp2[2] - 2.2, 0, 0); A.slot(8); await sleep(400);
+  A.chats.length = 0; const be2 = await entOf(BOSS); if (be2) A.attack(be2.entityId); await sleep(1500);
+  ok('...worn down, he yields again - and the rematch wins another Monocle (two now)', await wait(30000, async () => (await has('om_monocle')) >= 2), `monocles ${await has('om_monocle')}`);
+  await wait(15000, async () => (await cnt(NHIT)) === 1);
+  const np3 = await pos(NHIT); if (np3) await at(np3[0], np3[1], np3[2] - 2.5, 0, 10);
+  { const n2 = A.dialogN.length; const ne3 = await entOf(NHIT); if (ne3) A.interact(ne3.entityId); await wait(3000, async () => A.dialogN.length > n2); }
+  A.bars.length = 0; A.chats.length = 0; await A.click(/Re-challenge the King/); await sleep(1200);
+  ok('...a second rematch the same day: "Once a day, friend"', [...A.bars, ...A.chats].some(c => /Once a day/.test(c)) && (await cnt(BOSS)) === 0, [...A.bars, ...A.chats].slice(-1).join(''));
+
   // ---- clean up
   await run(`${O}kill @e[type=!minecraft:player,x=${X - 16},y=${Y - 30},z=${Z - 16},dx=112,dy=110,dz=128]`);
   await run('kill @e[type=minecraft:wolf,tag=bm.appet]'); await run('clear TestRat'); await run('effect clear TestRat');
   if (!/has 1/.test(f0)) await run('scoreboard players set #omfree bm.omwin 0');
+  await run(`scoreboard players set #hard bm.cfg ${(hard0.match(/has (-?\d+)/) || [0, 0])[1]}`);
   await run(`${O}forceload remove ${X - 16} ${Z - 16} ${X + 96} ${Z + 112}`);
   console.log(`${res.filter(x => x).length}/${res.length} passed`);
   A.end(); R.end(); process.exit(0);

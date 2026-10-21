@@ -32,7 +32,7 @@ import phase188 as P188
 FOE = 'type=#bm:hostile,tag=!bm.npc'
 O = P188.O
 REGEN = P188.REGEN
-P188.VNAME.update({'ava': 'Queen Ava', 'pearlq': 'Queen Pearl', 'bloo': 'Bloo', 'pearl': 'Pearlman', 'tul': 'Tullius', 'cecil': 'Cecil'})
+P188.VNAME.update({'ava': 'Queen Ava', 'pearlq': 'Queen Pearl', 'bloo': 'Bloo', 'pearl': 'Pearlman', 'tul': 'Tullius', 'cecil': 'Cecil', 'stalker': 'The Stalker', 'lantern': 'The Arachno-Lantern'})
 REGEN2 = 'effect give @s minecraft:regeneration 3 1 true'
 
 P188.PAIRS.update({
@@ -85,10 +85,30 @@ P188.PAIRS.update({
                  [('ashur', 'Ooh, a big angry kitty! Can I ride you?'), ('bloo', 'Touch me and I will eat your tiara.')],
                  [('ashur', 'Race you to the next monster!', 'bloo', 'Hrrn. You will lose.'),
                   ('bloo', 'Keep your fire off my fur.', 'ashur', 'No promises, fluffy.')]),
+    # (2.87: the hidden hard-mode pair - the Stalker and the Arachno-Lantern - and their own)
+    'longdark': ('stalker', 'omega', 'The Long Dark', '#a8ac70', 'The Stalker and King Omega - the hunter of the night and the king of the dead',
+                 [f'effect give {O} minecraft:night_vision 15 0 true', f'effect give {O} minecraft:resistance 3 0 true',
+                  f'execute at @s as @e[{FOE},distance=..8] run effect give @s minecraft:slowness 3 1'],
+                 [('omega', 'One of the night-things! Good evening, friend. Do sit - oh. You do not sit. You loom.'), ('stalker', '(it bows - all the way down, joint by joint)')],
+                 [('omega', 'In my kingdom we had a word for things like you: "Sir".', 'stalker', '(its head tilts, pleased)'),
+                  ('stalker', '(it stands beside the King, very still, and the dark leans in to listen)', 'omega', 'Yes, yes. I miss the dark too.')]),
+    'hearth': ('lantern', 'ashur', 'Hearth and Ember', '#ff8a2a', 'The Arachno-Lantern and Ashur - fire on eight legs, and fire in a dress',
+               [f'effect give {O} minecraft:fire_resistance 15 0 true', f'effect give {O} minecraft:strength 3 0 true',
+                f'execute at @s as @e[{FOE},distance=..8] run data merge entity @s {{Fire:80s}}'],
+               [('ashur', 'A PUMPKIN! On LEGS! And it\'s ON FIRE! You\'re my new favourite thing!'), ('lantern', '(its fires roar up, delighted)')],
+               [('ashur', 'Can I ride you? Pleeease?', 'lantern', '(it crouches low - then stands back up the moment she tries)'),
+                ('lantern', '(it puffs a ring of embers at her)', 'ashur', 'Rude! ...Do it again.')]),
+    'nightmares': ('stalker', 'lantern', 'Things in the Night', '#c84a2a', 'The Stalker and the Arachno-Lantern - two things that should not follow anyone',
+                   [f'effect give {O} minecraft:night_vision 15 0 true', f'effect give {O} minecraft:speed 3 0 true',
+                    f'execute at @s as @e[{FOE},distance=..10] run effect give @s minecraft:glowing 3 0'],
+                   [('lantern', '(it scuttles behind you, away from the Stalker)'), ('stalker', '(it looks at the pumpkin for a long time. The pumpkin looks back.)')],
+                   [('stalker', '(it holds a claw over the Lantern\'s fire - and draws it back, singed)', 'lantern', '(a puff of smug embers)'),
+                    ('lantern', '(it lights the dark ahead of you)', 'stalker', '(it steps back into the dark it just lost)')]),
 })
 P188.ICON.update({k: 'bm:av_locket' for k in ('mother', 'sisters', 'unfinished', 'captain')})
 P188.ICON.update({k: 'bm:pq_pearls' for k in ('aunt', 'pearls')})
 P188.ICON.update({k: 'bm:bo_claw' for k in ('wounds', 'alliance', 'wildfire')})
+P188.ICON.update({'longdark': 'bm:st_hook', 'hearth': 'bm:ln_gourd', 'nightmares': 'bm:st_hook'})
 
 TRIOS = {
     'royal': ('The Royal Family', '#ffd86a', ('emma', 'ava', 'pearlq'), 'The Royal Family', 'Walk with Emma, Queen Ava and Queen Pearl at once'),

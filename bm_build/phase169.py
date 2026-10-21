@@ -242,7 +242,7 @@ def generate(G):
     C = _C(G)
     C.objs('bm.ompin', 'bm.ommu', 'bm.omclk', 'bm.omst', 'bm.omt', 'bm.ssid', 'bm.ssf', 'bm.sss', 'bm.sst', 'bm.ssk', 'bm.omid', 'bm.omatk', 'bm.omc',
            'bm.omph', 'bm.omr', 'bm.omlone', 'bm.omf', 'bm.oms', 'bm.omfav', 'bm.omlore', 'bm.omtd', 'bm.omtn', 'bm.omtt', 'bm.ompd', 'bm.omhc',
-           'bm.omwin', 'bm.omseen', 'bm.omgd')
+           'bm.omwin', 'bm.omseen', 'bm.omgd', 'bm.omrd')
     G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in (2, 3, 4, 6, 8, 10, 12, 14, 20, 24, 28, 40, 60, 100, 1000)]
     _palace(C)
     _serpents(C)
@@ -492,10 +492,14 @@ def _tomb(C):
     fn('p169/tomb/check', ['execute unless score @s bm.omst matches 0 run return 0',
                            'execute store result score #n bm.rng if entity @e[type=minecraft:interaction,tag=bm.omsock,tag=bm.omfull,distance=..8]',
                            'execute unless score #n bm.rng matches 6 run return 0',
+                           'execute unless score #hard bm.cfg matches 1 run return run function bm:p169/tomb/not_hard',   # (2.87: a hard-mode exclusive)
                            f'execute if entity {ap} run return run function bm:p169/tomb/wake',
                            'scoreboard players add @s bm.omt 1', 'execute unless score @s bm.omt matches 6.. run return 0', 'scoreboard players set @s bm.omt 0',
                            C.title('@a[distance=..20]', 'actionbar', [T('The six crowns of conquest burn on their pedestals. The tomb is waiting... ', OM_LINE, italic=True),
                                                                      T('(Apophiss must be here.)', 'gray')])])
+    fn('p169/tomb/not_hard', ['scoreboard players add @s bm.omt 1', 'execute unless score @s bm.omt matches 6.. run return 0', 'scoreboard players set @s bm.omt 0',
+                              C.title('@a[distance=..20]', 'actionbar', [T('The six crowns burn - but the dead do not stir for a world that has not yet woken. ', OM_LINE, italic=True),
+                                                                        T('(Hard mode only.)', 'gray')])])
     second.append('execute as @e[type=minecraft:marker,tag=bm.omtomb] at @s if entity @a[distance=..24] run function bm:p169/tomb/sec')
     fn('p169/tomb/sec', ['execute unless score @s bm.omst = @s bm.omst run scoreboard players set @s bm.omst 0',   # (a tomb never set asleep: asleep)
                          'execute if score @s bm.omst matches 1 unless entity @e[type=minecraft:husk,tag=bm.omboss,distance=..40] run scoreboard players set @s bm.omst 2',
@@ -816,6 +820,7 @@ def _boss(C):
     fn('p169/peace/claim', ['scoreboard players add @s bm.omwin 1', 'execute if score @s bm.omwin matches 1 run scoreboard players add @s bm.omfav 60',
                             'execute if score @s bm.omwin matches 2.. run scoreboard players add @s bm.omfav 20',
                             'execute if score @s bm.omwin matches 2.. run loot give @s loot bm:chests/p169_hoard',
+                            'execute if score @s bm.omwin matches 2.. run loot give @s loot bm:items/om_monocle',               # (2.87: a rematch won - another Monocle)
                             'function bm:p170/reissue', 'advancement grant @s only bm:story/om_peace',
                             'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 0.8 1.0'])
     G.wjson('bm/advancement/story/om_peace.json', {'parent': 'bm:story/root', 'criteria': {'done': {'trigger': 'minecraft:impossible'}},
@@ -984,7 +989,7 @@ def _court(C):
                             title('@s', 'actionbar', [T('THE ROYAL PARDON - ', SOUL, bold=True), T('"Not today, my Warden. Not on my watch."', OM_LINE)])])
 
     # ---- his menus (all on bm.menu COURT)
-    codes = {'peer': COURT + 1, 'garr': COURT + 2, 'gift': COURT + 3, 'chron': COURT + 4, 'title': COURT + 5, 'back': COURT + 9,
+    codes = {'peer': COURT + 1, 'garr': COURT + 2, 'gift': COURT + 3, 'chron': COURT + 4, 'title': COURT + 5, 'rematch': COURT + 6, 'back': COURT + 9,
              'tithe': COURT + 11, 'souls': COURT + 12, 'buy': COURT + 21}
     chap = lambda i: COURT + 30 + i
     rk_names = [n for _lo, n, _c in RANKS]
@@ -999,7 +1004,9 @@ def _court(C):
                       P28.btn(T('The Ghost Garrison', SOUL, bold=True), codes['garr'], width=150, tooltip=T('Soul Braziers: his serpents keep your home.', 'gray')),
                       P28.btn(T('Offer a gift', OM_C, bold=True), codes['gift'], width=150, tooltip=T('Hand him what you hold. He tells stories to friends.', 'gray')),
                       P28.btn(T('The Chronicle', '#d0b8ff', bold=True), codes['chron'], width=150, tooltip=T('The chapters he has told you - and hints for the rest.', 'gray')),
-                      P28.btn(T('My title on / off', 'gray'), codes['title'], width=150, tooltip=T('Your rank over your head (Squire and up).', 'gray'))],
+                      P28.btn(T('My title on / off', 'gray'), codes['title'], width=150, tooltip=T('Your rank over your head (Squire and up).', 'gray')),
+                      P28.btn(T('Re-challenge the King', '#ff6a6a', bold=True), codes['rematch'], width=150,
+                              tooltip=T('Hard mode, once a day: fight him again in his tomb - every peace made wins another Monocle.', 'gray'))],
                      columns=2, exit_label='Take your leave')
     fn('p169/court/main', [f'scoreboard players set @s bm.menu {COURT}', 'function bm:p169/court/vals', 'function bm:p169/court/main_show with storage bm:tmp om'])
     fn('p169/court/main_show', [f'$dialog show @s {snbt(main)}'])
@@ -1028,6 +1035,7 @@ def _court(C):
                           f'execute if score #act bm.pay matches {codes["gift"]} run return run function bm:p169/court/gift',
                           f'execute if score #act bm.pay matches {codes["chron"]} run return run function bm:p169/court/chron',
                           f'execute if score #act bm.pay matches {codes["title"]} run return run function bm:p169/court/title',
+                          f'execute if score #act bm.pay matches {codes["rematch"]} run return run function bm:p169/court/rematch',
                           f'execute if score #act bm.pay matches {codes["tithe"]} run return run function bm:p169/court/tithe',
                           f'execute if score #act bm.pay matches {codes["souls"]} run return run function bm:p170/tithe_souls',
                           f'execute if score #act bm.pay matches {codes["buy"]} run return run function bm:p169/court/buy'] +
@@ -1035,6 +1043,16 @@ def _court(C):
     fn('p169/court/title', ['function bm:p169/rank', 'execute if score #rk bm.rng matches 0 run return run ' + omsay('A title? Earn one first, friend. Squires start at forty favour.'),
                             'execute if score @s bm.omtt matches 1 run return run function bm:p169/court/title_off', 'scoreboard players set @s bm.omtt 1',
                             omsay('There - let everyone see whose friend you are.')])
+    # (2.87) a rematch, from his menu: hard mode, once a day - he goes down to his tomb and wakes again, fighting (and every peace
+    # made after a rematch wins its maker another Monocle - phase169's peace/claim)
+    tomb_near = '@e[type=minecraft:marker,tag=bm.omtomb,distance=..64,sort=nearest,limit=1]'
+    fn('p169/court/rematch', ['execute unless score #hard bm.cfg matches 1 run return run ' + omsay('A rematch? Not in a world this gentle, friend. Come back when it has woken to its harder self.'),
+                              'execute if score @s bm.omrd = #day bm.bm run return run ' + omsay('Once a day, friend - even a dead king needs his rest. Tomorrow!'),
+                              f'execute unless entity {tomb_near} run return run ' + omsay('My tomb is too far from here to fight properly. Come to the palace.'),
+                              f'execute as {tomb_near} if score @s bm.omst matches 1 run return run ' + omsay('I am ALREADY up and fighting, friend. Look behind you.'),
+                              'scoreboard players operation @s bm.omrd = #day bm.bm', 'dialog clear @s',
+                              omchat('A rematch! Splendid. Down to the tomb with you - I shall be waiting. Do try to keep up.', '@s'),
+                              f'execute as {tomb_near} at @s run function bm:p169/tomb/wake'])
     fn('p169/court/title_off', ['scoreboard players set @s bm.omtt 0', omsay('Modest! I like that in a peer.')])
     fn('p169/court/tithe', ['execute unless score @s bm.omtd = #day bm.bm run scoreboard players set @s bm.omtn 0', 'scoreboard players operation @s bm.omtd = #day bm.bm',
                             f'execute if score @s bm.omtn matches {TITHE_DAY}.. run return run ' + omsay('Enough for today, friend! The treasury overflows. Come back tomorrow.')] +

@@ -873,6 +873,8 @@ if __name__ == '__main__':
     phase187.rp(sys.modules[__name__])
     import phase189, phase190, phase191       # (2.87: Queen Ava, Queen Pearl, Bloo - their rigs, their items, their faces)
     phase189.rp(sys.modules[__name__]); phase190.rp(sys.modules[__name__]); phase191.rp(sys.modules[__name__])
+    import phase193, phase194                 # (2.87: the Stalker, the Arachno-Lantern)
+    phase193.rp(sys.modules[__name__]); phase194.rp(sys.modules[__name__])
     import phase95                            # (after every head model: the faces)
     phase95.rp(sys.modules[__name__])
     import phase138                           # (2.78: the recoloured looks - after the faces, so their item definitions are copied too)

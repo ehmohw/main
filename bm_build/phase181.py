@@ -42,6 +42,9 @@ LOSE = 64                              # (and loses them past this)
 CROSS_R = 15                           # (the cross: a 30x30 square, 15 blocks every way)
 STILL_WARN, STILL_BLINK = 5, 8         # (seconds standing still: a warning, then one steps out behind you)
 HUNTED_MIN = 360                       # (seconds hunted in the Overworld for the dawn's essence: most of the 500 s night)
+KIN = set()                            # (2.87: followers' host tags that DO come out on a Dread Night - the Stalker, phase193)
+DAWN = []                              # (2.87: lines run as each survivor at dawn, after their essence - phase193's encounter)
+STILL = []                             # (2.87: lines run as each hunted player before the standing-still count is read)
 
 # ================================================================== THE ITEMS
 item('dread_essence', TOTEM, 'Dread Essence', ESS,
@@ -171,7 +174,7 @@ def generate(G):
         f'execute as {OW} at @s run function bm:p181/dark',
         # followers stay in tonight
         *[f'execute as @e[type=minecraft:{e[1]},tag={e[2]},tag=!bm.ffpet] at @s if dimension minecraft:overworld run function bm:p181/fol/{e[0]}'
-          for e in P179.FOLLOW.values()],
+          for e in P179.FOLLOW.values() if e[2] not in KIN],
         'execute as @e[type=minecraft:zombie,tag=bm.stalker] at @s run function bm:p181/stk/second'])
     fn('p181/hunt_in', ['tag @s add bm.dnh',
                         'execute unless entity @s[tag=bm.dnwas] store result score @s bm.dnd0 run scoreboard players get @s bm.deaths',
@@ -181,6 +184,7 @@ def generate(G):
                         'execute store result score @s bm.dnz run data get entity @s Pos[2]'])
     for e in P179.FOLLOW.values():
         kind, host, tag, iid, go, name, obj, summon = e
+        if tag in KIN: continue
         fn(f'p181/fol/{kind}', ['scoreboard players operation #me bm.pid = @s bm.pid',
                                 'execute as @a[tag=bm.ow] if score @s bm.pid = #me bm.pid run ' +
                                 title('@s', 'actionbar', [T(f'{name} won\'t stay out on a Dread Night - ', '#c8a0a0'), T('home they go.', 'gray')]),
@@ -210,7 +214,7 @@ def generate(G):
         'execute if score #dx bm.rng matches 2.. run scoreboard players set @s bm.dnst 0',
         'execute if score #dx bm.rng matches ..1 run scoreboard players add @s bm.dnst 1',
         'scoreboard players operation @s bm.dnx = #x bm.rng', 'scoreboard players operation @s bm.dny = #y bm.rng', 'scoreboard players operation @s bm.dnz = #z bm.rng',
-        'execute if function bm:p181/in_cross run scoreboard players set @s bm.dnst 0',
+        'execute if function bm:p181/in_cross run scoreboard players set @s bm.dnst 0', *STILL,
         f'execute if score @s bm.dnst matches {STILL_WARN} run function bm:p181/still_warn',
         f'execute if score @s bm.dnst matches {STILL_BLINK}.. run function bm:p181/blink',
         # how many are after you; another rises when it's time
@@ -378,7 +382,7 @@ def generate(G):
                        'function bm:p181/give_ess with storage bm:tmp dn',
                        tellraw('@s', [T('  You survived the Dread Night. ', ESS, bold=True), T('Dread Essence: ', 'gray'),
                                       {'score': {'name': '@s', 'objective': 'bm.dnesc'}, 'color': ESS}]),
-                       'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 0.8 0.7', 'scoreboard players set @s bm.dnesc 0'])
+                       'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 0.8 0.7', 'scoreboard players set @s bm.dnesc 0'] + DAWN)
     fn('p181/give_ess', ['$give @s ' + G.item_arg('dread_essence') + ' $(n)'])
 
     # ================================================================== NO MONSTER RISES - on a Dread Night, and near a Dread Totem

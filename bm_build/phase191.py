@@ -150,7 +150,7 @@ def generate(G):
                  f'execute {idle} unless score @s {S("rc")} matches 1.. unless entity @e[{foe},distance=..4] if entity @e[{foe},distance=..14] run function bm:{pfx}/pounce_go',
                  f'execute {idle} unless score @s {S("mc")} matches 1.. if entity @e[{foe},distance=..3.5] run function bm:{pfx}/melee_go',
                  # (he hunts: anything hostile within 16 and he's after it - he doesn't wait for you to be hit)
-                 f'execute unless score @s {S("x")} matches 1.. unless data entity @s {{Sitting:1b}} if entity @e[{foe},distance=4..16] facing entity @e[{foe},distance=..16,sort=nearest,limit=1] feet run function bm:{pfx}/chase']
+                 f'execute unless score @s {S("x")} matches 1.. unless data entity @s {{Sitting:1b}} if entity @e[{foe},distance=3..16] facing entity @e[{foe},distance=..16,sort=nearest,limit=1] feet run function bm:{pfx}/chase']
         fn(f'{pfx}/chase', ['execute if block ^ ^ ^0.4 #bm:grap_pass if block ^ ^1 ^0.4 #bm:grap_pass run tp @s ^ ^ ^0.22 ~ ~'])
         fn(f'{pfx}/melee_go', go(7, 5, 'mc', 14, ['playsound minecraft:entity.cat.hiss neutral @a[distance=..16] ~ ~ ~ 0.4 0.6']))
         fn(f'{pfx}/pounce_go', go(8, 14, 'rc', 100, face('surprised', 14) + ['playsound minecraft:entity.ravager.step neutral @a[distance=..16] ~ ~ ~ 1 1.2']))

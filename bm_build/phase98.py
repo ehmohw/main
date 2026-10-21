@@ -38,6 +38,12 @@ USES = ['p46/pet/use', 'p57/use', 'p66/use', 'p72/zb/use', 'p79/spark', 'p96/use
 ITEMS_OUT = ['cecil_gem', 'emma_ribbon', 'celi_charm', 'donadian_medal', 'kw_spark', 'leo_crest', 'demo_seal'] + [f'skiff_escort_{c}' for c in P72.ART.ESCORT_COLS]
 P72.KEEP[:] = [k for k in P72.KEEP if k not in ITEMS_OUT]        # (the coat check keeps them now)
 CODE = 7900                       # (the ledger's: followers 7900+, vault hires 7920+, hirelings 7930+; the page itself 7807)
+
+
+def ccode(i):
+    """(2.87) a called follower's ledger code: the first twenty 7900-7919, the rest 7884-7898 (7920 on are the vault hires)"""
+    assert i < 35, i
+    return CODE + i if i < 20 else 7884 + (i - 20)
 VAULT = '#e8b8ff'
 
 
@@ -203,7 +209,7 @@ def generate(G):
                  f'execute if function bm:p98/filed/h{i} if score @s bm.gvhr matches {i} run {st(f"h{i}", "ON", "#7aff7a")}']
     page.append('function bm:p98/page_dlg with storage bm:ui crew')
     fn('p98/crew', page)
-    btns = [P28.btn([T(nm, col, bold=True), T('  '), f'@@RAW:r_{k}@@'], CODE + i, width=180) for i, (k, nm, col, *_r) in enumerate(CALLED)] + \
+    btns = [P28.btn([T(nm, col, bold=True), T('  '), f'@@RAW:r_{k}@@'], ccode(i), width=180) for i, (k, nm, col, *_r) in enumerate(CALLED)] + \
            [P28.btn([T(nm if k != 'frog' else 'The Frog', col, bold=True), T('  '), f'@@RAW:r_{k}@@'], CODE + 20 + j, width=180) for j, (k, nm, col, *_r) in enumerate(HIRED)] + \
            [P28.btn([T(hnm, hcol, bold=True), T('  '), f'@@RAW:r_h{i}@@'], CODE + 30 + i, width=180) for i, (hk, hnm, rat, hcol, *_r) in P77.HIRE.items()] + \
            [P28.btn([T('« The Office', 'gray')], MC, width=180)]
@@ -241,7 +247,7 @@ def generate(G):
                               f'{in_heist} run function bm:p77/hire/summon{i}', say(f'{hnm}: ON - meets you on every heist.', hcol), 'function bm:p98/crew'])
     act = G.FUNCS['p80/act']
     act += [f'execute if score #act bm.pay matches {MC + 7} run return run function bm:p98/crew'] + \
-        [f'execute if score #act bm.pay matches {CODE + i} run return run function bm:p98/t/{k}' for i, (k, *_r) in enumerate(CALLED)] + \
+        [f'execute if score #act bm.pay matches {ccode(i)} run return run function bm:p98/t/{k}' for i, (k, *_r) in enumerate(CALLED)] + \
         [f'execute if score #act bm.pay matches {CODE + 20 + j} run return run function bm:p98/t/{k}' for j, (k, *_r) in enumerate(HIRED)] + \
         [f'execute if score #act bm.pay matches {CODE + 30 + i} run return run function bm:p98/t/h{i}' for i in P77.HIRE]
 

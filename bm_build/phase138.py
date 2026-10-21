@@ -24,13 +24,13 @@ import gild
 import phase103 as P103
 
 GOLD = '#ffcf40'
-ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo']
+ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern']
 # follower: (host type, host tag[s]) - the animal underneath, whose owner the aura belongs to
 HOST = {'emma': ('cat', 'bm.emmapet'), 'celi': ('wolf', 'bm.celipet'), 'zib': ('wolf', 'bm.zibpet'), 'cecil': ('wolf', 'bm.cecilpet'),
         'kw': ('wolf', 'bm.kxpet'), 'leo': ('wolf', 'bm.leopet'), 'demo': ('wolf', 'bm.dmpet'), 'apo': ('wolf', 'bm.appet'), 'tul': ('wolf', 'bm.tupet'),
         'frog': ('wolf', 'bm.frogpet'), 'don': ('wolf', 'bm.donado'), 'pearl': ('cat', 'bm.pmpet'), 'wil': ('wolf', 'bm.wilfrey'), 'fishy': ('wolf', 'bm.fypet'),
         'dennis': ('wolf', 'bm.dwpet'), 'pistachio': ('wolf', 'bm.pipet'), 'omega': ('wolf', 'bm.ompet'), 'ashur': ('wolf', 'bm.aspet'), 'chef': ('wolf', 'bm.kkpet'), 'neighbor': ('wolf', 'bm.nbpet'),
-        'ava': ('wolf', 'bm.avpet'), 'pearlq': ('wolf', 'bm.pqpet'), 'bloo': ('wolf', 'bm.bopet')}
+        'ava': ('wolf', 'bm.avpet'), 'pearlq': ('wolf', 'bm.pqpet'), 'bloo': ('wolf', 'bm.bopet'), 'stalker': ('wolf', 'bm.svpet'), 'lantern': ('wolf', 'bm.lnpet')}
 dust = lambda r, g, b, s=1.0: f'minecraft:dust{{color:[{r},{g},{b}],scale:{s}}}'
 # follower: (aura name, colour, ring height, ring radius, the ring's mote, the haze [particle commands at the follower])
 AURA = {
@@ -78,7 +78,13 @@ AURA = {
                                                                                f'particle {dust(1.0, 0.95, 0.9, 0.9)} ~ ~1.2 ~ 0.45 0.6 0.45 0 2']),
     'bloo': ('Feral Moon', '#5a9ae8', 2.6, 0.95, 'minecraft:crit', ['particle minecraft:cherry_leaves ~ ~2.8 ~ 0.6 0.3 0.6 0.02 2',
                                                                    'particle minecraft:crit ~ ~1.4 ~ 0.6 0.8 0.6 0.05 2',
-                                                                   f'particle {dust(0.35, 0.6, 0.95, 1.1)} ~ ~1.6 ~ 0.6 0.8 0.6 0 3'])}
+                                                                   f'particle {dust(0.35, 0.6, 0.95, 1.1)} ~ ~1.6 ~ 0.6 0.8 0.6 0 3']),
+    'stalker': ('The Long Night', '#a8ac70', 2.7, 0.9, 'minecraft:sculk_soul', ['particle minecraft:sculk_soul ~ ~2.6 ~ 0.4 0.3 0.4 0.01 1',
+                                                                        'particle minecraft:large_smoke ~ ~0.6 ~ 0.4 0.3 0.4 0.01 2',
+                                                                        f'particle {dust(0.5, 0.0, 0.06, 1.2)} ~ ~1.4 ~ 0.4 0.9 0.4 0 3']),
+    'lantern': ('Hallowfire', '#ff8a2a', 2.4, 1.3, 'minecraft:flame', ['particle minecraft:flame ~ ~2.2 ~ 0.7 0.3 0.7 0.01 2',
+                                                                    'particle minecraft:small_flame ~ ~0.4 ~ 0.9 0.2 0.9 0.01 2',
+                                                                    f'particle {dust(1.0, 0.45, 0.05, 1.2)} ~ ~1.4 ~ 0.8 0.6 0.8 0 3'])}
 assert set(AURA) == set(ORDER) == set(HOST) == set(P99.BASE)
 PRICE = 1280                                 # coins at the Tailor (10 Gutter Trophies)
 FIND = {3: 8, 4: 15, 5: 25}                  # per mille, a won heist of tier III / IV / V
@@ -114,7 +120,7 @@ RECOL = {'apo': ('apophiss_art', ('apo_scale', 'apo_scale_dk', 'apo_fin', 'apo_b
          'neighbor': ('neighbor_art', ('nb_white', 'nb_white_dk', 'nb_shirt')),
          'ava': ('ava_art', ('av_navy', 'av_navy_dk', 'av_skirt', 'av_bodice', 'av_navy_g', 'av_navy_dk_g', 'av_skirt_g', 'av_bodice_g')),   # (2.87: '_g' - her ghost's, recoloured as a set of their own)
          'pearlq': ('pearl_art', ('pq_dress', 'pq_dress_top', 'pq_gown', 'pq_gown_top', 'pq_cape')),
-         'bloo': ('bloo_art', ('bo_fur', 'bo_fur_dk', 'bo_mane'))}
+         'bloo': ('bloo_art', ('bo_fur', 'bo_fur_dk', 'bo_mane')), 'stalker': ('stalker_art', ('st_skin', 'st_shade', 'st_ribs', 'st_back', 'st_face')), 'lantern': ('lantern_art', ('ln_rind', 'ln_rind_dk', 'ln_rind_top', 'ln_face', 'ln_face_glare', 'ln_face_shut'))}
 # (2.82c) his fingers and eyelids took no outfit's colour: they go through the palette too, on the main set's brightness range
 # (so the scales come out as before, and the dark claws stay darker than the scales)
 SIDE = {'apo_claw', 'apo_lid', 'om_claw', 'om_lid'}
@@ -123,7 +129,7 @@ ITEMS_OF = {'apo': lambda n: n.startswith('apo_'), 'tul': lambda n: n.startswith
             'don': lambda n: n == 'donado' or (n.startswith('dnr_') and not n.startswith('dnr_eyes')), 'pearl': lambda n: n == 'pearlman', 'fishy': lambda n: n.startswith('fy_') and n != 'fy_bowl',
             'dennis': lambda n: n.startswith('dw_') and n != 'dw_horn', 'pistachio': lambda n: n.startswith('ps_'), 'omega': lambda n: n.startswith('om_') and n not in ('om_monocle', 'om_banner', 'om_brazier'),
             'ashur': lambda n: n.startswith('as_'), 'chef': lambda n: n.startswith('cf_'), 'neighbor': lambda n: n.startswith('nb_'),
-            'ava': lambda n: n.startswith('av_') and n != 'av_locket', 'pearlq': lambda n: n.startswith('pq_') and n != 'pq_pearls', 'bloo': lambda n: n.startswith('bo_') and n != 'bo_claw'}
+            'ava': lambda n: n.startswith('av_') and n != 'av_locket', 'pearlq': lambda n: n.startswith('pq_') and n != 'pq_pearls', 'bloo': lambda n: n.startswith('bo_') and n != 'bo_claw', 'stalker': lambda n: n.startswith('st_') and n != 'st_hook', 'lantern': lambda n: n.startswith('ln_') and n != 'ln_gourd'}
 
 
 def textures():

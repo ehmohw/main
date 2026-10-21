@@ -90,7 +90,7 @@ GILDED = {'emma': (6, 'cos_dress_6', 'bm.cosd'), 'celi': (5, 'cos_celi_5', 'bm.c
           'ashur': (4, 'cos_ashur_4', 'bm.cosas'),
           'chef': (4, 'cos_chef_4', 'bm.coskk'),
           'neighbor': (4, 'cos_neighbor_4', 'bm.cosnb'),
-          'ava': (4, 'cos_ava_4', 'bm.cosav'), 'pearlq': (4, 'cos_pearlq_4', 'bm.cospq'), 'bloo': (4, 'cos_bloo_4', 'bm.cosbo')}   # (2.87)
+          'ava': (4, 'cos_ava_4', 'bm.cosav'), 'pearlq': (4, 'cos_pearlq_4', 'bm.cospq'), 'bloo': (4, 'cos_bloo_4', 'bm.cosbo'), 'stalker': (4, 'cos_stalker_4', 'bm.cossv'), 'lantern': (4, 'cos_lantern_4', 'bm.cosln')}   # (2.87)
 # (2.80c) the diamond and the netherite looks: the next two numbers in each follower's set
 _ITEM = {'emma': 'cos_dress_{}', 'celi': 'cos_celi_{}', 'zib': 'cos_zib_{}'}
 _K2 = {'emma': 7, 'celi': 6, 'zib': 4, 'don': 6}

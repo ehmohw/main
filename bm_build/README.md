@@ -21,6 +21,64 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.87: the Royal Family, Bloo, two hidden hard-mode companions, and King Omega in hard mode
+
+**Queen Ava** *(Emma's mother; hard mode only)*. Apophiss killed her long ago, but she still watches over the sea. Set down a conduit at night while Emma is with you and her ghost rises out of the water. Talk to her with Emma beside you and she gives you **Queen Ava's Locket**.
+- **Living:** her Royal Ward (absorption every 15 s), the Tidal Lash, the Undertow (it drags foes in and slows them), and her charged **Tide of Crowns** (it lifts foes; for the crew, Conduit Power, Dolphin's Grace and Resistance).
+- **Ghost form** (a button in her menu): the Spectral Touch withers foes and heals you; the Lament weakens and slows them; her **Requiem** burns the undead. Once every 3 minutes, **Mother's Watch** saves you at low health (Resistance IV and an instant heal).
+- Her menu has her story in five pages: the war, the gem, the flight under the sea, the serpent, and what she wants for Emma.
+
+**Queen Pearl** *(Emma's fun aunt, queen regent)*. Set down a cake by day on a beach, an ocean or a river, after you've met Emma. She'll come for a slice: hand her a cake and she gives you **Queen Pearl's Pearls**.
+- **Casual:** a random Whim every 30 s (one of eight buffs), the Pearl Flick, the Wink (smitten foes slow down and weaken), and her **Royal Proclamation** (Strength, Regeneration II and Speed for everyone; she throws in an emerald or two).
+- **Regal form** (she hates it, and says so): steady Resistance and Strength, Absorption every 30 s, harder hits, and **By Royal Decree**.
+
+**Bloo** *(the beast of the deep woods; hard mode only)*. Democratus slaughtered his family in the great war. He fought beside the Underwater Kingdom's ancestors against him, but he hasn't forgiven humans since. Plant a sapling in a forest at night and he comes to see who is planting trees back. Give him raw salmon or cod and he hands you **Bloo's Claw**. He won't come near you if your Democratus is out.
+- He never stops attacking: a **Claw Rake** every 0.7 s (it bleeds, and every hit builds **Frenzy**), a **Pounce**, a **Feral Roar** that makes foes cower, and his charged **Wild Hunt**, a four-second rampage from foe to foe.
+- In a forest he hits harder and you regenerate. Near Democratus he hits harder still.
+
+**The Stalker** *(hidden; hard mode only)*. One of the things from the Dread Night, the one that stopped hunting you. Survive a Dread Night to dawn wearing the **Stalker's Grin**. When the others come apart, one stays behind, crouching and looking at the face you're wearing. Right-click it holding **Dread Essence** and it follows you; it gives you **the Hollow Hook**.
+- **Its claws go through armour, Protection and shields.** **Rend** every 0.8 s, and every third blow on the same foe takes a quarter of its whole health (up to 20 more). **Step from the Dark:** it folds into nothing and unfolds behind a foe. **The Stare:** foes freeze. Its charged **Harrowing**: seven strikes on foe after foe in five seconds.
+- At night, or in the dark, it hits harder, and you see in the dark beside it.
+- **Kin:** it's the only follower that comes out on a Dread Night, and while it's beside you the hunters never step out behind you for standing still.
+- It doesn't speak.
+
+**The Arachno-Lantern** *(a hidden mount; hard mode only)*. When the Scorching Arachno-Lantern falls in hard mode, everyone near who doesn't have one finds a **Kindled Gourd** in the embers. Use it and it cracks: a little Arachno-Lantern, about as big as a horse, unfolds out of it. Right-click it with the gourd and it's yours.
+- **Ride it.** Press Ride in its menu (sneak + use the gourd). Walk to stride, jump to **leap**, and walk into a wall to climb it. Fire and falls can't touch you up there. Sneak to get off.
+- From the saddle, the gourd is **the Glare**: a beam of fire from its eyes, 18 blocks ahead, every 3 s.
+- On foot it fights beside you: Ember Bite, a Tongue Lash that drags foes in, a Stomp that throws them, and its charged **Ember Rain**. You're warded against fire near it.
+
+All five have the full set: a menu, sitting (right-click), a frame trick, a display-case figurine, a chibi doll from Cecil (and a golden one from the Ember Rat), three outfits plus gilded, diamond and netherite versions, a rare aura, a Raid Contract at the Recruiter, and a place on the Partner Wheel.
+
+**New pairs:**
+- **Ava + Emma, "Mother and Daughter":** Regeneration II and Resistance; both heal.
+- **Ava + Pearl, "Sisters of the Tide":** Water Breathing, Dolphin's Grace and Conduit Power (Strength II underwater).
+- **Pearl + Emma, "The Fun Aunt":** Speed, Jump Boost II and Luck.
+- **Ava + Apophiss, "Unfinished Business":** Strength II; monsters round you wither.
+- **Ava + Tullius, "The Queen's Captain":** Water Breathing and Resistance for you and both of them.
+- **Pearl + Pearlman, "Pearls of Great Price":** Luck II and Hero of the Village.
+- **Bloo + Democratus, "Old Wounds":** Strength II; monsters round you weakened.
+- **Bloo + Leo, "The Old Alliance":** Strength and Resistance; both tougher.
+- **Bloo + Ashur, "Wildfire":** Fire Resistance and Strength; monsters round you catch fire.
+- **The Stalker + Omega, "The Long Dark":** Night Vision and Resistance; monsters round you slowed.
+- **The Arachno-Lantern + Ashur, "Hearth and Ember":** Fire Resistance and Strength; monsters round you burn.
+- **The Stalker + the Arachno-Lantern, "Things in the Night":** Night Vision and Speed; monsters round you light up.
+
+**New trios:**
+- **Emma, Ava and Pearl, "The Royal Family":** Resistance II, Regeneration II, Strength, two more hearts, Conduit Power and Dolphin's Grace.
+  - **Ethereal Echo** every 15 s: the shards of the gem flare, hurting every foe round you and healing the family.
+  - **Bloodline Ward:** once every five minutes, when you're about to fall, all three save you. You're healed in full, get Resistance IV and Fire Resistance, and every foe near is blasted away.
+- **Leo, Emma and Ava, "The Queen's Oath":** Strength II, Resistance II, Absorption IV every 40 s, and Leo's shield bash every 8 s.
+- **Leo, Emma and Pearl, "The Regent's Court":** Strength, Speed II, Haste II, Luck II, and two Whims every 30 s.
+- **Democratus, Cecil and Bloo, "The Old War":** Strength II and Resistance; every 12 s a bolt of the old storm strikes a foe; Bloo's Frenzy never fades.
+
+**Hard mode only:** Ashur, Queen Ava, Bloo, the Stalker, the Arachno-Lantern and **King Omega**. Out of hard mode, Omega's tomb waits with its six crowns burning and doesn't stir.
+
+**Fixes.** Bloo and the Stalker no longer freeze when a foe is knocked back to just out of reach (3.5 to 4 blocks): they close in again.
+
+**King Omega: Re-challenge the King.** A new button in his court. In hard mode, once a day, he goes back down to his tomb and fights you again. Win, and he yields with a hoard, favour and **another Monocle** (his summoning item) for everyone in the room.
+
+**The lore.** The kingdom wasn't always under the sea. A thousand years ago Democratus, a prince of its royal house, turned on his family when they wouldn't use the ethereal gem to help those in need. Cecil was there. The war broke the gem, scattered its elemental shards across the land (whoever found one gained its power), and drove the kingdom into the deep. Centuries later, Apophiss marched on his brother Omega because his own land was dying, and Cecil cursed Omega Island with darkness to drive him back. Now Apophiss is looking to the sea for what's left of the gem. Each new follower's story tells part of it.
+
 ## New in 2.86a: the Neighbor's face
 
 - **His eyes.** The big white mask round both eyes is now all of his eye-white, one shape like Sonic's, with no separate whites inside the lenses. His irises are solid near-black with a faint blue glint and a white shine. They look straight out, each set just a touch toward his nose, no longer glancing to the side.

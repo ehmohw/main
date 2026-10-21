@@ -23,6 +23,9 @@ import phase141 as P141
 import allies
 
 
+POS = {'her': 'her', 'him': 'his', 'it': 'its'}       # (the possessive for each pronoun)
+
+
 class Cfg:
     """W (the registry key), NAME, COL / LINE (name and speech colours), pfx ('p189'), ab (the tag stem: 'av' -> bm.avpet ...),
     q (the score stem: 'aq' -> bm.aqs ...), A (the art module), MENU (its bm.menu; buttons MENU+1..9), PET_HP, PET_CD (s),
@@ -51,6 +54,8 @@ def register(C):
     P68.KINDS[W] = (max(v[0] for v in P68.KINDS.values()) + 1, C.ITEM, 'wolf', pet, f'{C.pfx}/summon', f'{C.pfx}/dismiss', f'bm.{C.ab}sel2', C.NAME, C.COL)
     if C.pron == 'him':
         P68.HE.add(W)
+    elif C.pron == 'it':
+        P68.IT.add(W)
     P98.CALLED.append((W, C.NAME, C.COL, 'wolf', pet, f'bm.{C.ab}sel2', f'bm.{C.ab}cd', f'{C.pfx}/try_summon', f'{C.pfx}/dismiss', f'{C.pfx}/recall', f'{C.pfx}/go'))
     P100.WHO[W] = ('wolf', pet)
     P100.VOICE[C.NAME] = (C.COL, C.LINE)
@@ -297,7 +302,7 @@ def build(C, G, abilities, encounter):
                                 ([P28.btn(T('Sit / follow', 'white', bold=True), M + 1, width=150), P28.btn(T(f'Send {C.pron} home', 'gray'), M + 9, width=150)] if out else
                                  [P28.btn(T(f'Call for {C.NAME}', C.COL, bold=True), M + 8, width=150)]) + form_btn + extra +
                                 [P28.btn(T(f"{C.NAME}'s ways", C.COL, bold=True), M + 4, width=150, tooltip=T(f'What {C.they} does - and how.', 'gray')),
-                                 P28.btn(T('Wardrobe', C.COL, bold=True), M + 2, width=150, tooltip=T(f'{C.pron.capitalize()} looks - and {C.pron} aura, if you have it.', 'gray'))],
+                                 P28.btn(T('Wardrobe', C.COL, bold=True), M + 2, width=150, tooltip=T(f'{POS[C.pron].capitalize()} looks - and {POS[C.pron]} aura, if you have it.', 'gray'))],
                                 columns=2, exit_label='Close')
     fn(f'{pfx}/menu', [f'scoreboard players set @s bm.menu {M}',
                        f'execute if entity @e[type=minecraft:wolf,tag={sel2}] run return run dialog show @s {snbt(dlg(True))}',
@@ -365,7 +370,7 @@ def build(C, G, abilities, encounter):
     fn(f'{pfx}/fell', [f'function bm:{pfx}/fade', f'execute as @a if score @s bm.pid = #me bm.pid run function bm:{pfx}/cooldown'])
     fn(f'{pfx}/cooldown', [f'scoreboard players set @s bm.{ab}cd {C.PET_CD}',
                            tellraw('@s', PREFIX + [T(f'{C.NAME} faints! ', C.COL, bold=True), T(f'"{C.FAINT}" ', C.LINE),
-                                                   T(f"{C.pron.capitalize()} needs {C.PET_CD // 60} minutes before {C.they} can come back.", 'gray')])])
+                                                   T(f"{C.they.capitalize()} needs {C.PET_CD // 60} minutes before {C.they} can come back.", "gray")])])
     fn(f'{pfx}/fade', [f'execute as @e[type=minecraft:item_display,tag=bm.{ab}p_pet,tag=!{fade}] if score @s bm.pid = #me bm.pid run function bm:{pfx}/fade1'] + burst +
        [C.FADE_SOUND])
     fn(f'{pfx}/fade1', [f'tag @s add {fade}', f'scoreboard players set @s {S("l")} 3',
@@ -421,7 +426,7 @@ def build(C, G, abilities, encounter):
     # (the recruit's shared tail: met, the item, the advancement, he/she comes along)
     fn(f'{pfx}/enc/joined', [f'tag @s add bm.{ab}met', give(C.ITEM), f'advancement grant @s only bm:story/{W}_friend',
                              'playsound minecraft:entity.player.levelup player @s ~ ~ ~ 0.7 1.2',
-                             tellraw('@s', PREFIX + [T(f'{C.NAME} joins you! ', C.COL, bold=True), T(f'Use {ITEMS[C.ITEM]["name"]} to call {C.pron}; sneak + use for {C.pron} menu.', 'gray')]),
+                             tellraw('@s', PREFIX + [T(f'{C.NAME} joins you! ', C.COL, bold=True), T(f'Use {ITEMS[C.ITEM]["name"]} to call {C.pron}; sneak + use for {POS[C.pron]} menu.', 'gray')]),
                              f'execute as {X.here} at @s run function bm:{pfx}/enc/gone',
                              'execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
                              f'{sel_pet} run tag @s add {sel2}', f'execute unless entity @e[type=minecraft:wolf,tag={sel2}] unless function bm:p58/full at @s run function bm:{pfx}/summon',
