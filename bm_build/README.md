@@ -21,6 +21,38 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.84c: the armour rebalance, alien gear and the Partner Wheel
+
+**The armour rebalance.** Hero of Time keeps the biggest numbers (20 armour, 16 toughness, +16 health across the set), but the other end-game sets now come close, each keeping its own bonus as its trade-off:
+- Shadowstep III: +1 toughness and +2 health a piece (20 armour / 12 toughness / +8 health; still the light, quick set).
+- Architect III and Tidecaller III: +1 toughness and +3 health a piece (20 / 16 / +12).
+- Crimson Revenant: +1 toughness and +2 health a piece (20 / 16 / +16).
+- Vampire Lord and the Dawnbringer: +1 toughness and +2 health a piece (20 / 16 / +12).
+- Juggernaut III (32 / 16 / +12) and the Gilded Fortune set (20 / 16 / +16) were already level with Hero of Time.
+Vesper's reforged versions gain the same. Pieces you already own update themselves (protection past V adds nothing in vanilla, so toughness and health are where the sets differed).
+- **A re-sync no longer wipes upgrades.** When an item updates to a new version, it now keeps its Dread tunings and its auction infusion. A gravity infusion can no longer overwrite another infusion on the same boots.
+
+**Alien gear at Zorp's** (aboard every Donadian mothership):
+- **Donadian Xenoplate** (four pieces, Xenite): 20 armour, 14 toughness, +8 health. Full set: Jump Boost, Night Vision and a **Deflector**, two hearts of shield that recharge every 40 seconds.
+- **Plasma Cutter** (Green Xenite): every hit sets the foe alight and lights them up.
+- **Graviton Edge** (Violet Xenite): one hit in four throws the foe into the air.
+- **Phase Saber** (Cyan Xenite): quicker to swing; one hit in five cuts straight through armour for 6 damage.
+- **In hard mode Zorp's stock grows** (Red Xenite and Power Cells):
+  - **Vorn Warplate**: 20 armour, 18 toughness, +12 health. Full set: above half health, Strength and Speed; under a third, a **Shockwave** hurts, slows and throws back every monster within 5 blocks (a minute's rest).
+  - **Vorn Annihilator**: a heavy, slow greatsword (+4 damage); one hit in four arcs to three more monsters.
+  - **Graviton Pick**: full mining speed underwater, and a quarter faster everywhere.
+  - **Donadian Antennae** (a hat) and **Tractor-Beam Treads** (a trail): cosmetics.
+
+**The Partner Wheel** (Cecil, 3 Medallions): every partner on one item.
+- Hold a partner's summoning item in your off hand and use the wheel: the item goes on.
+- Use the wheel on its own: for each partner on it, **Call** them (or **Send them home**), or **Take the item back** off the wheel.
+- Only partners you've put on it are listed; nobody you haven't met shows up.
+- While you carry the wheel, its partners count as with you: they don't go home, they come back after a faint, and Emma, Leo or Wilfrey's grave won't hand you a second copy. Put the wheel down and they go home, as with any summoning item.
+- The wheel remembers your partners: lose it, and a new one opens to the same ones.
+- It stays at the heist coat check, like the summoning items (heist partners come from the Ledger).
+
+Operators: `/function bm:admin/alien_gear` gives every new alien piece.
+
 ## New in 2.84b: hard mode's Dark Auctions, hard replays and the community pots
 
 The second part of the hard-mode list. The armour rebalance, the partner wheel, Dread Nights and the Stalkers, the golden cross and Goal Day follow in the next packages.
