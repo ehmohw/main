@@ -360,3 +360,21 @@ def part_xf(pose, p):
 
 def joint(p):
     return PIVOT[{'firer': 'armr', 'forer': 'armr', 'firel': 'arml', 'forel': 'arml'}.get(p, p)]
+
+
+# ---------------------------------------------------------------------------------------------------- the rigkit view
+# (2.86: the follower runs her through rigkit/rigfol - a tree, each pose a joint's own bend. In the flat kit above every part
+#  already turns on its own but the forearms, so the tree is shallow: forearms hang from the arms, the flames from the
+#  forearms - each flame turned back by its arm's whole turn, so it burns upright as part_xf has it - and the pose's lift
+#  is the root shift, in design units.)
+def _conj(q):
+    return (-q[0], -q[1], -q[2], q[3])
+
+
+PIVOT = dict(PIVOT, firer=PALMR, firel=PALML)
+PARENT = {'body': None, 'head': None, 'armr': None, 'arml': None, 'legr': None, 'legl': None,
+          'forer': 'armr', 'forel': 'arml', 'firer': 'forer', 'firel': 'forel'}
+for _pz in POSES.values():
+    _pz['_off'] = (0.0, _pz['_dy'] / U, 0.0)
+    _pz['firer'] = _conj(qmul(_pz['armr'], _pz['forer']))
+    _pz['firel'] = _conj(qmul(_pz['arml'], _pz['forel']))
