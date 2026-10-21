@@ -21,6 +21,41 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.84a: hard mode, and Vesper the Dread Broker
+
+The first part of the hard-mode list. The rest (hard-mode Dark Auctions, dungeon replays, community pots, the armour rebalance, the partner wheel, Dread Nights and the Stalkers, the golden cross, Goal Day) follows in the next packages.
+
+**Hard mode**
+- **It wakes once anyone has beaten the Hollow King**, including worlds where someone already has. The first second such a player is online: a thunderclap, a moment of darkness, a HARD MODE title and word of what has changed. It stays on (operators can switch it off on the settings page).
+- **Blood Moons every 15 days** (the settings page can still change it).
+- **Night monsters roll again** in the Overworld, the Nether and the End: 1.2% become Dread, 6% Champions, 18% Elites. Of the rest, three in four get Strength and Resistance, and one in five of those at level II. Blood Moons, invasions and lucky nights keep their own rolls.
+- **Dread monsters** (zombies, skeletons, spiders, vindicators, husks and the rest; not ghasts, phantoms or shulkers): four to five times the health, netherite with a black-red trim, Strength II and Resistance, and a chill that dims the light near them. Twice a fight they gather themselves:
+  - **the Pulse**: the ground around them boils red for a second and a half, then bursts (7 damage, straight through armour);
+  - **the Mark**: souls fall on the spot you're standing for a second and a quarter (9 damage, through armour).
+  Step out of either and it misses. They drop what a Champion drops plus a 1 in 12 Blood Moon Crystal, never Dread Tokens. Every Dread kill is counted.
+
+**Dread Tokens**
+- **5 Black Market Trophies make one**, and one breaks back into 5: at Vesper, or on the Banker's Card's Exchange page (Trophies into Tokens only once the world is in hard mode).
+- **The Rat Bank keeps them** like any currency. Savings pay 2% (1 a day for every 50 kept), never more than 2 a day.
+
+**Vesper, the Dread Broker** stands in the red-and-white stall on the Fountain Plaza, only while hard mode is on.
+- **His trades** (right-click him): Trophies to Dread Tokens and back; a Sealed Palace Map to the nearest Omega Palace (1); the Auctioneer's Writ, which owes a Dark Auction tonight (2, one a day); the Serpent's Summons, so the next time you beat Apophiss you get the True Crown and the Mace (6); the Echo of the Hollow King, so he waits for you again and his first victory pays again (6); the Dread Compass (1); the Halo of Thorns and the Dreadwalker's Boots (2 each); and the long-term goods:
+  - **Bottomless Bucket** (6): water that refills itself.
+  - **Harvest Scythe** (10): reaps and replants every ripe crop within 3 blocks.
+  - **Dawnbreaker Hourglass** (12): the sun rises early for everyone, once every 3 days, never on a special night.
+  - **Dread Lantern** (16): set it down; no monster rises within 48 blocks.
+  - **Mender's Altar** (18): set it down; within 5 blocks your armour and held tools slowly mend.
+  - **Tome of Eternity** (24): makes the item in your off hand unbreakable.
+- **His Ledger** (the black book on his counter) opens his services. He takes tokens from your pockets first, then your bank account.
+  - **Followers' Wards**, for every follower you call, at home and on heists: Ward I-III (+3 armour and +1 toughness a level), Vigor I-III (+10% health a level), 3/4/5 tokens a level; Swift Return I-II (a faint rests 80 seconds, then 45, instead of 2 minutes), 3/5 tokens.
+  - **Tuning**: the weapon, tool or armour piece in your hand takes a tuning of your choice, a token a level. Weapons: attack damage, swing speed, reach, luck. Tools: mining speed, efficiency, block reach, luck. Armour: armour, toughness, health, knockback resistance, speed (boots only). Up to 2 levels of any one kind (3 for damage and swing speed) and 4 in all on any item. **Unbind** takes every tuning off and gives every token back.
+  - **Reforging** past the old maximum, with the item in hand:
+    - Hero of Time becomes **Fierce Deity** (4 a piece);
+    - Juggernaut III becomes **Bastion**, Shadowstep III **Umbral**, Architect III **Master Mason**, Tidecaller III **Leviathan**, Crimson Revenant **Sanguine Lord**, Vampire Lord **Nosferatu** (3 a piece);
+    - Biggoron's Sword, Kong Krusher, Giga Koopa's Greataxe, the Bow of Light and the Ultra Hammer become **Oathbreaker** (kills heal), **Abyssal Excavator** (Haste II, Night Vision deep down), **Worldfeller** (every swing cleaves), **Starpiercer** and **Meteor Maul** (6 each);
+    - any Shifting weapon, tool or armour becomes its **Dread-forged** version, with higher enchantments under every form (4).
+    Each reforged set keeps the old set's bonus and adds its own (for example the Fierce Deity's last stand: under a third of your health, Resistance II for 6 seconds). Unbind tunings before reforging.
+
 ## New in 2.83b: what the den sells passes the coat check
 
 - **Everything Goldtooth, the Recruiter and the Tailor sell now passes the coat check.** Until now only the Bond Sigil of Mending was on the Fixer's list. The other seven sigils (Fury, Bulwark, Swiftness, Warding, Fortune, Vigor, Sight), the Fixer's Lamp and Card, and Goldtooth's plain goods (golden apples, pearls, totems, diamonds...) were held at the next heist's door. Now they all go in with you. The list is read from the shopkeepers' real stock, so whatever they sell later passes too.

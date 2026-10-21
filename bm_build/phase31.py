@@ -20,6 +20,8 @@ SAVE_PER, SAVE_DAYS = 25, 7                          # (2.82b) savings: 1 a day 
 SAVE_PCT = 100 // SAVE_PER
 SAVE_CAP = {'token': 8, 'lucky_token': 8, 'medallion': 3, 'trophy': 1}
 SAVE_CAP_ELSE = 4                                    # (any other currency the bank comes to keep)
+XS_EXTRA = []                                        # (2.84a) more account swaps: (src, n, dst, m, 'a', 'b', code, col_a, col_b, gate)
+SAVE_PER_OF = {}                                     # (2.84a) a currency's own rate: 1 a day per this many kept (Dread Tokens: 50 - 2%)
 BANK = [('token', 'bm.bk_tok', 'Tokens', 'gold'), ('lucky_token', 'bm.bk_luck', 'Lucky Tokens', 'green'),
         ('medallion', 'bm.bk_med', 'Medallions', 'light_purple'), ('trophy', 'bm.bk_tro', 'Trophies', '#ffb300')]
 COUNTERS = {'concierge': ([(50, BF + 1, 5), (51, BF + 1, 5), (52, BF + 1, 5)], 'minecraft:dark_oak_planks'),
@@ -81,9 +83,10 @@ def generate(G):
     # page shows its icon, what's in the account and what's on you, and the four actions - and an action brings you back
     # to that page. (The four action codes per currency are the 2.76 ones, unchanged.)
     bank_code = lambda i, k: 4010 + 4 * i + k
-    page_code = lambda i: 4060 + i
+    page_code = lambda i: 4060 + i if i < 11 else 4090 + i - 11       # (2.84a: the 12th currency on - 4071 was taken)
     DEP_ALL, BACK, SAVE = 4071, 4072, 4073
-    assert bank_code(len(BANK) - 1, 3) < page_code(0) and page_code(len(BANK) - 1) < DEP_ALL, 'the Rat Bank has outgrown its codes'
+    assert bank_code(len(BANK) - 1, 3) < page_code(0) and page_code(min(len(BANK), 11) - 1) < DEP_ALL and page_code(len(BANK) - 1) <= 4099, \
+        'the Rat Bank has outgrown its codes'
     btns = [P28.btn([T(nm, col), T('   $(' + cur + ')', 'white')], page_code(i), tooltip=T(f'Deposit or take out your {nm}', 'gray'), width=150)
             for i, (cur, obj, nm, col) in enumerate(BANK)]
     btns.append(P28.btn(T('Deposit everything', 'gold'), DEP_ALL, tooltip=T('Every currency the bank keeps, from your pockets into your account', 'gray'), width=150))
@@ -140,6 +143,15 @@ def generate(G):
     # the swaps, on the account (bm.bk_tok / bm.bk_med / bm.bk_tro), then back to the page
     XS = [('bm.bk_tok', TPM, 'bm.bk_med', 1, f'{TPM} Tokens', '1 Medallion'), ('bm.bk_med', 1, 'bm.bk_tok', TPM, '1 Medallion', f'{TPM} Tokens'),
           ('bm.bk_med', MPT, 'bm.bk_tro', 1, f'{MPT} Medallions', '1 Trophy'), ('bm.bk_tro', 1, 'bm.bk_med', MPT, '1 Trophy', f'{MPT} Medallions')]
+    for k, (src, n, dst, m, a, b_, code, ca, cb, gate) in enumerate(XS_EXTRA):
+        fn(f'p31/bank/xe{k}', ([f'{gate} run return run function bm:p31/bank/xshut'] if gate else []) +
+           [f'execute unless score @s {src} matches {n}.. run return run function bm:p31/bank/xshort {{a:"{a}"}}',
+            f'scoreboard players remove @s {src} {n}', f'scoreboard players add @s {dst} {m}',
+            'playsound minecraft:block.chain.place player @s ~ ~ ~ 0.6 1.2',
+            title('@s', 'actionbar', [T(a, ca), T(' \u2192 ', 'white'), T(b_, cb)]), 'function bm:p31/bank/xpage'])
+        act.append(f'execute if score #act bm.pay matches {code} run return run function bm:p31/bank/xe{k}')
+    if XS_EXTRA:
+        fn('p31/bank/xshut', [title('@s', 'actionbar', T('The bank deals in Dread Tokens once the world has turned (hard mode).', 'gray')), 'function bm:p31/bank/xpage'])
     for k, (src, n, dst, m, a, b_) in enumerate(XS):
         fn(f'p31/bank/x{k}', [f'execute unless score @s {src} matches {n}.. run return run function bm:p31/bank/xshort {{a:"{a}"}}',
                               f'scoreboard players remove @s {src} {n}', f'scoreboard players add @s {dst} {m}',
@@ -153,8 +165,9 @@ def generate(G):
                     [P28.btn([T(f'{TPM} Tokens', 'gold'), T(' \u2192 ', 'white'), T('1 Medallion', 'light_purple')], EXCH + 1, width=150),
                      P28.btn([T('1 Medallion', 'light_purple'), T(' \u2192 ', 'white'), T(f'{TPM} Tokens', 'gold')], EXCH + 2, width=150),
                      P28.btn([T(f'{MPT} Medallions', 'light_purple'), T(' \u2192 ', 'white'), T('1 Trophy', '#ffb300')], EXCH + 3, width=150),
-                     P28.btn([T('1 Trophy', '#ffb300'), T(' \u2192 ', 'white'), T(f'{MPT} Medallions', 'light_purple')], EXCH + 4, width=150),
-                     P28.btn(T('\u00ab Your account', 'gray'), BACK, width=150)], columns=2)
+                     P28.btn([T('1 Trophy', '#ffb300'), T(' \u2192 ', 'white'), T(f'{MPT} Medallions', 'light_purple')], EXCH + 4, width=150)] +
+                    [P28.btn([T(a, ca), T(' \u2192 ', 'white'), T(b_, cb)], code, width=150) for (src, n, dst, m, a, b_, code, ca, cb, gate) in XS_EXTRA] +
+                    [P28.btn(T('\u00ab Your account', 'gray'), BACK, width=150)], columns=2)
     fn('p31/bank/xpage', [f'scoreboard players set @s bm.menu {P28.MENU["bank"]}'] +
        [f'execute unless score @s {o} matches 0.. run scoreboard players set @s {o} 0' for o in ('bm.bk_tok', 'bm.bk_med', 'bm.bk_tro')] +
        ['data remove storage bm:ui bkx', 'execute store result storage bm:ui bkx.t int 1 run scoreboard players get @s bm.bk_tok',
@@ -243,7 +256,7 @@ def generate(G):
                                                 T(f'"A savings account, then. Every day the bank adds {SAVE_PCT}% of everything you keep with us. '
                                                   'Even on days you\'re away, up to a week. Pleasure doing business."', 'gray')]),
                         'function bm:p31/sav/page'])
-    rate_lines = [P28.body([T(nm, col, bold=True), T(f': 1 a day for every {SAVE_PER} kept (up to {SAVE_CAP.get(cur, SAVE_CAP_ELSE)} a day)', 'gray')], 300) for cur, obj, nm, col in BANK]
+    rate_lines = [P28.body([T(nm, col, bold=True), T(f': 1 a day for every {SAVE_PER_OF.get(cur, SAVE_PER)} kept (up to {SAVE_CAP.get(cur, SAVE_CAP_ELSE)} a day)', 'gray')], 300) for cur, obj, nm, col in BANK]
     sp = P28.multi([T('Savings', '#7aff7a', bold=True), T('  ·  The Rat Bank', 'gray')],
                    [P28.body([T(f'Open. Every in-game day the bank adds {SAVE_PCT}% of each currency in your account:', 'gray')], 300)] + rate_lines +
                    [P28.body([T('Days you\'re away are paid when you\'re back, up to a week. Paid in so far: ', 'gray'), T('$(int)', 'white'), T(' (all currencies).', 'gray')], 300)],
@@ -263,13 +276,13 @@ def generate(G):
     day = ['scoreboard players remove #sd bm.pay 1']
     for cur, obj, nm, col in BANK:
         day += [f'execute unless score @s {obj} matches 0.. run scoreboard players set @s {obj} 0',
-                f'scoreboard players operation #i bm.pay = @s {obj}', f'scoreboard players operation #i bm.pay /= #{SAVE_PER} bm.pay',
+                f'scoreboard players operation #i bm.pay = @s {obj}', f'scoreboard players operation #i bm.pay /= #{SAVE_PER_OF.get(cur, SAVE_PER)} bm.pay',
                 f'execute if score #i bm.pay matches {SAVE_CAP.get(cur, SAVE_CAP_ELSE) + 1}.. run scoreboard players set #i bm.pay {SAVE_CAP.get(cur, SAVE_CAP_ELSE)}',
                 f'scoreboard players operation @s {obj} += #i bm.pay', f'scoreboard players operation #g_{cur} bm.pay += #i bm.pay',
                 'scoreboard players operation @s bm.bkint += #i bm.pay']
     day += ['execute if score #sd bm.pay matches 1.. run function bm:p31/sav/day']
     fn('p31/sav/day', day)
-    G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{SAVE_PER} bm.pay {SAVE_PER}']
+    G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{v} bm.pay {v}' for v in sorted({SAVE_PER} | set(SAVE_PER_OF.values()))]
     fn('p31/sav/paid', ['playsound minecraft:block.amethyst_block.chime player @s ~ ~ ~ 0.6 1.4',
                         tellraw('@s', PREFIX + [T('Your savings earned interest - added to your Rat Bank account:', 'gray')])] +
        [f'execute if score #g_{cur} bm.pay matches 1.. run ' + tellraw('@s', [T('   +', col), {'score': {'name': f'#g_{cur}', 'objective': 'bm.pay'}, 'color': col}, T(f' {nm}', col)])
