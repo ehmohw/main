@@ -21,6 +21,27 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.85b: angelic forging
+
+The Hollow King's Regalia and Apophiss's crowns can be **purified**. Toss one down beside a **Golden Cross** (Vesper, 1 Dread Token): light gathers round the cross, and after a few seconds the piece comes up **angelic** and the cross is spent. It keeps every enchantment.
+
+**What gets purified:** all thirteen pieces. The four Regalia armour pieces; the blade, pick, axe, shovel, hoe and bow; the Sepulchre (the mace); the True Crown and the Unbound Crown.
+
+**Angelic pieces** have no new stats:
+- They look white and gold, with a gold trim on the armour and gold motes and a halo in place of the black fire.
+- They're named "✦ Angelic … ✦".
+
+**The Regalia's power changes hours.** Wear angelic pieces (and no corrupt ones) and the Regalia sleeps by night and wakes by **day**:
+- +15% damage from dawn to dusk.
+- +30% at high noon (6:00-7:30 in game time) under a clear sky.
+- The **Blood Moon** still wakes it fully.
+
+Mixing in one corrupt piece brings back the old night Regalia.
+
+**Angelic crowns** give their night gift (Strength II and regeneration) **by day** and on a Blood Moon. They wear a gold halo, and a placed crown glows gold.
+
+**Corrupting it back:** toss an angelic piece onto **Apophiss's seal** in the Hollow's throne room. Black fire takes it, and it comes back as it was.
+
 ## New in 2.85a: Dread Nights
 
 **How one comes.** Every Dread monster killed in hard mode is counted. Once the count passes a threshold (rolled between 30 and 70), the next night that isn't a Blood Moon is a **Dread Night**; it takes the place of a Lucky Night or an invasion. At dusk the world goes quiet and everyone in the Overworld is warned. A **Dread Bell** (Vesper, 3 Dread Essence) makes tonight one on purpose.

@@ -334,6 +334,14 @@ def walk_item_model(f, m):
         if set(m) - {'type', 'property', 'on_true', 'on_false'} or 'on_true' not in m or 'on_false' not in m: E(f'{f}: condition keys {set(m)}')
         for k in ('on_true', 'on_false'):
             if k in m: walk_item_model(f, m[k])
+    elif t == 'minecraft:range_dispatch':        # (2.85b: an angelic bow, drawn as vanilla's bow is - by how long it's been pulled)
+        if m.get('property') not in ('minecraft:use_duration', 'minecraft:use_cycle', 'minecraft:damage', 'minecraft:count', 'minecraft:cooldown', 'minecraft:crossbow/pull'):
+            E(f'{f}: range_dispatch property {m.get("property")} (only the simple numeric ones used/checked)')
+        if set(m) - {'type', 'property', 'scale', 'entries', 'fallback', 'normalize', 'remaining', 'target'}: E(f'{f}: range_dispatch keys {set(m)}')
+        for e in m.get('entries', []):
+            if set(e) != {'threshold', 'model'} or not isinstance(e['threshold'], (int, float)): E(f'{f}: range_dispatch entry keys {set(e)}')
+            walk_item_model(f, e['model'])
+        if 'fallback' in m: walk_item_model(f, m['fallback'])
     else: E(f'{f}: item model type {t}')
 
 
