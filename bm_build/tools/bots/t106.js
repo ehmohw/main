@@ -1,5 +1,6 @@
-// v2.67d: the Ledger's Locker Hall trip - from safe ground in the Overworld, the Nether or the End (not the Hollow or the gutter;
-// not mid-fall, mounted or in water; not hurt in the last 10 seconds; not in a boss dungeon), after holding still for 3 seconds.
+// v2.67d: the Ledger's Locker Hall trip - from safe ground in the Overworld, the Nether or the End (not the gutter; not mid-fall,
+// mounted or in water; not hurt in the last 10 seconds), after holding still for 3 seconds. (2.82o: the Hollow and boss dungeons
+// are allowed now - those steps check the hold starts there.)
 const { bot, rcon, sleep } = require('./lib');
 const res = []; const X = 16600, Y = 100, Z = 16400;
 (async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(2500);
@@ -38,7 +39,7 @@ const res = []; const X = 16600, Y = 100, Z = 16400;
     ok(`...and back to the same spot in ${nm}`, (await dim()).includes(d.split(':')[1]) && Math.abs(q1[0] - q0[0]) < 0.3 && Math.abs(q1[1] - q0[1]) < 0.3 && Math.abs(q1[2] - q0[2]) < 0.3, `${q0} -> ${q1}`);
   }
   await plat('bm:hollow_throne', 3000, 150, 3000); await go('bm:hollow_throne', 3000, 150, 3000); await trip();
-  ok('Not from the Hollow (and it says why)', /hollow_throne/.test(await dim()) && said(/boss dungeon or the Hollow/) && !(await inHall()), A.chats.slice(-1).join(''));
+  ok('From the Hollow too (2.82o): the hold starts', /hollow_throne/.test(await dim()) && said(/Hold still/), A.chats.slice(-1).join(''));
   await run('tag TestRat remove bm.adv'); await home(); await run('gamemode survival TestRat');
 
   // ---- not a safe spot to come back to
@@ -51,7 +52,7 @@ const res = []; const X = 16600, Y = 100, Z = 16400;
   ok('Not mounted (here: in a boat)', said(/off your mount/) && !(await inHall()), A.chats.slice(-1).join(''));
   await run('ride TestRat dismount'); await run('kill @e[tag=bm.t106]'); await home();
   await run('tag TestRat add bm.adv'); await trip(); await run('tag TestRat remove bm.adv'); await run('gamemode survival TestRat');
-  ok('Not from inside a boss dungeon', said(/inside a boss dungeon/) && !(await inHall()), A.chats.slice(-1).join(''));
+  ok('From inside a boss dungeon too (2.82o): the hold starts', said(/Hold still/), A.chats.slice(-1).join('')); await home();
   ok('...the boss-dungeon check loads (structure tag + predicate)', /failed/.test(await run(`execute positioned ${X} ${Y + 1} ${Z} if predicate bm:p103/boss_dungeon`)),
      await run(`execute positioned ${X} ${Y + 1} ${Z} if predicate bm:p103/boss_dungeon`));
   // a real boss dungeon, if one has generated near enough to find
@@ -61,7 +62,7 @@ const res = []; const X = 16600, Y = 100, Z = 16400;
     await run(`forceload add ${lx} ${lz}`); await run(`tp TestRat ${lx + 0.5} 200 ${lz + 0.5}`); await sleep(4000);
     let fy = null; for (let y = 190; y >= -50 && fy === null; y -= 2) if (/passed/.test(await run(`execute positioned ${lx} ${y} ${lz} if predicate bm:p103/boss_dungeon`))) fy = y;
     if (fy !== null) { await run(`tp TestRat ${lx + 0.5} ${fy} ${lz + 0.5}`); await sleep(500); ground(true); await sleep(200); await trip();
-      ok('...and inside a real one (the Brood\'s), it says so', said(/inside a boss dungeon/) && !(await inHall()), `at ${lx} ${fy} ${lz}: ` + A.chats.slice(-1).join('')); }
+      ok('...and inside a real one (the Brood\'s), the hold starts', said(/Hold still/), `at ${lx} ${fy} ${lz}: ` + A.chats.slice(-1).join('')); await home(); }
     else console.log('SKIP  (no Brood piece found under the located start)');
     await run('tag TestRat remove bm.adv'); await run('gamemode survival TestRat'); await run(`forceload remove ${lx} ${lz}`); await home();
   } else console.log('SKIP  (no Brood dungeon located: ' + loc.slice(0, 80) + ')');

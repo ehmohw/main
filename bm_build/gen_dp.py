@@ -158,6 +158,7 @@ import phase171 as R171      # 2.82b: the Town Directory - who's where in the ra
 import phase172 as R172      # 2.82b: King Omega's tithe - triple currency from custom mobs, 1% from the rest, while he's out
 import phase173 as R173      # 2.82t: the urgent fixes - Ledger, Dark Auction, Hollow, Wilfrey, followers, satchel, cooler, Apophiss, map pieces
 import phase174 as R174      # 2.83: the less urgent list, part one - Sunken Throne crew, full bags, Trophy Stand, solid cases, Emma/Leo, exchange
+import phase175 as R175      # 2.83b: what the den's shopkeepers sell passes the coat check (and the Locker Hall's way back)
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import noglow                # 2.80e: no glowing outline on custom-modelled mobs' invisible hosts (noglow.py)
@@ -174,7 +175,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.83a'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.83b'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1308,7 +1309,8 @@ def build(out_dir):
             _lines[1:1] = ['execute if data entity @s CustomName run return 0', 'execute if data entity @s {NoAI:1b} run return 0']
     R95.generate(sys.modules[__name__])
     R173.generate(sys.modules[__name__])        # 2.82t: it adjusts other phases' functions
-    R174.generate(sys.modules[__name__])        # 2.83: last - it adjusts other phases' functions too
+    R174.generate(sys.modules[__name__])        # 2.83: it adjusts other phases' functions too
+    print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))
     R28.finalize(sys.modules[__name__])
     print('market rebuild: %d entity tags cleared, %d per-market lines wait for the new town' % R168.finalize(sys.modules[__name__]))
     useitem.generate(sys.modules[__name__])

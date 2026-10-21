@@ -21,6 +21,12 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.83b: what the den sells passes the coat check
+
+- **Everything Goldtooth, the Recruiter and the Tailor sell now passes the coat check.** Until now only the Bond Sigil of Mending was on the Fixer's list. The other seven sigils (Fury, Bulwark, Swiftness, Warding, Fortune, Vigor, Sight), the Fixer's Lamp and Card, and Goldtooth's plain goods (golden apples, pearls, totems, diamonds...) were held at the next heist's door. Now they all go in with you. The list is read from the shopkeepers' real stock, so whatever they sell later passes too.
+- **Goldtooth's plain goods are marked as his.** A golden apple bought from him passes; the same apple brought from the overworld still waits with the Fixer.
+- **No more getting stuck in the Locker Hall:** on a heist, the hall's plate back to the den used to turn away anyone carrying something the coat check didn't know ("only heist tools go back into the vault"). A sigil bought from Goldtooth did that, and with no locker to leave it in, you were stuck. Anything bought in the den now takes you back.
+
 ## New in 2.83a: the Dark Auction keeps its word, and the Sculptor's step-up
 
 - **The Dark Auction's gate sign now follows the real Blood Moon.** It used to count to every 30th night, while the auction actually follows the Blood Moon (its period on the settings page, Blood Moon off, a skipped moon). So the sign could say "tonight" on a night when the auction wasn't going to happen. The sign, the warning and the catch-up now all use the same rule as the moon, so if the sign says tonight, the doors open at dusk and the first lot is called at midnight.
