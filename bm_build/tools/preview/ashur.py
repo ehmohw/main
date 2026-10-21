@@ -41,4 +41,4 @@ if 'feet' in what:
     for v in ('front', (-30, 30), 'side'):
         s = K.multi_scene(root, K.REAL_RP); K.put_flat(s, A, A.POSES['idle'])
         tiles.append(K.label(s.render(v, size=340, span=0.55, center=(0, 0.1, -0.05)), 'feet'))
-    K.sheet(tiles, OUT + '/ashur_feet.png', cols=3, title='Ashur - bare feet, red polish, the gold anklet')
+    K.sheet(tiles, OUT + '/ashur_feet.png', cols=3, title='Ashur - bare feet, the gold anklet')

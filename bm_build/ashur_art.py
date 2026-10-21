@@ -3,7 +3,7 @@ a painted anime face (sharp violet eyes with slit pupils, angled brows, a set li
 a red-orange bob that flares up into flame at the crown and curls out in two hooks at her jaw, and a golden flame tiara with
 a red hexagonal gem on her brow. Her dress is magma: dark red rock, cracked through with glowing orange, yellow and red, the
 bodice plated in cooled hexagons with a jagged neckline, the skirt flared to the knee with a jagged, glowing hem. Bare
-shoulders and arms. Barefoot - red polish on her toes - and a gold anklet on her left ankle. Fire blooms in her palms when
+shoulders and arms. Barefoot, a gold anklet on her left ankle. Fire blooms in her palms when
 she fights (the 'firer' / 'firel' parts, shown by a pose's _fire).
 
 One item model per part, its joint at model (8, 8, 8) (the phase57_art kit, as Celi). Design units: feet at y=0, facing -z,
@@ -149,22 +149,22 @@ def _face(kind=None):
             x = x0 - 1 + i
             y = 12 + round(u * (slope + 0.18) * 7) if kind != 'hurt' else 13 - round(u * 3)
             px[x, y] = BROW; px[x, y + 1] = BROW
-    px[18, 27] = P(SKIN_DK); px[18, 28] = P(SKIN_DK)                                # the nose
+    px[18, 26] = P(SKIN_DK); px[18, 27] = P(SKIN_DK)                                # the nose
     for x, y in ((31, 28), (32, 29)): px[x, y] = P('#6a4a40')                       # a smudge of ash
     M = P('#5a1010')
     if kind == 'grin':                                                              # a hard smirk, one corner up
-        d.line((16, 31, 20, 31), fill=M); px[21, 30] = M
+        d.line((16, 29, 20, 29), fill=M); px[21, 28] = M
     elif kind == 'shout':                                                           # a snarl: a small open mouth, teeth top and bottom
-        d.rectangle((15, 30, 21, 32), fill=M); d.line((15, 30, 21, 30), fill=P('#f4e8e0')); d.line((16, 32, 20, 32), fill=P('#f4e8e0'))
+        d.rectangle((15, 28, 21, 30), fill=M); d.line((15, 28, 21, 28), fill=P('#f4e8e0')); d.line((16, 30, 20, 30), fill=P('#f4e8e0'))
     elif kind == 'hurt':
-        d.line((16, 31, 20, 31), fill=M); px[15, 32] = M; px[21, 32] = M
+        d.line((16, 29, 20, 29), fill=M); px[15, 30] = M; px[21, 30] = M
     else:                                                                           # set, a corner turned down
-        d.line((16, 31, 20, 31), fill=M); px[15, 32] = M
+        d.line((16, 29, 20, 29), fill=M); px[15, 30] = M
     return im
 
 
 def textures():
-    T = {'as_skin': _skin(1402), 'as_skin_ash': _skin(1403, ash=6), 'as_skin_dk': _cloth(SKIN_DK, 1404, var=0.02), 'as_polish': _cloth('#d0101a', 1401, var=0.0),
+    T = {'as_skin': _skin(1402), 'as_skin_ash': _skin(1403, ash=6), 'as_skin_dk': _cloth(SKIN_DK, 1404, var=0.02),
          'as_hair': _hair2(1405, HAIR, shine=(6, 9)), 'as_magma': _magma(1406), 'as_plates': _magma(1407, '#4a0a08', cell=7.0, plates=True),
          'as_hem': _hem(1408), 'as_rock': _cloth('#2a0605', 1409, var=0.05), 'as_gold': _gold(1410), 'as_gem': _gem(), 'as_fire': _fire(1411),
          'as_ember': _cloth(GLOW[2], 1412, var=0.06)}
@@ -181,7 +181,7 @@ def models():
         used = sorted({e['faces'][f]['texture'][1:] for e in els for f in e['faces']})
         M[name] = ({k: TX[k] for k in used}, els)
 
-    # ---- legs: bare - skin from the hem down, bare feet with red polish; a gold anklet (and its little flame charm) on her left
+    # ---- legs: bare - skin from the hem down, bare feet; a gold anklet (and its little flame charm) on her left
     def leg(sx):
         pv = PIVOT['legr' if sx > 0 else 'legl']
         x0, x1 = (0.55, 2.85) if sx > 0 else (-2.85, -0.55)
@@ -189,14 +189,6 @@ def models():
              _el((x0 + 0.15, 0.0, -2.0), (x1 - 0.15, 0.95, 0.9), 'as_skin', pv),                     # the foot, slim
              _el((x0 + 0.2, 0.0, -2.75), (x1 - 0.2, 0.55, -1.95), 'as_skin', pv),                     # the toes, low
              _el((x0 + 0.2, 0.0, -2.78), (x1 - 0.2, 0.06, -1.95), 'as_skin_dk', pv)]                  # (their underside)
-        # the polish: neat flat nails on top of the toes, the big toe's a little wider, on the inside of each foot
-        inner = -1 if sx > 0 else 1                                                                # (her big toe is toward the middle)
-        widths = [0.34, 0.24, 0.22, 0.2]
-        xs, x = [], (x0 + 0.32) if inner < 0 else (x1 - 0.32)
-        for w in widths:
-            xs.append((x, x + w) if inner < 0 else (x - w, x)); x += (w + 0.1) * (1 if inner < 0 else -1)
-        for (a_, b_) in xs:
-            L.append(_el((a_, 0.55, -2.72), (b_, 0.59, -2.42), 'as_polish', pv, faces=('up', 'north', 'east', 'west')))
         if sx < 0:
             L += [_el((x0 - 0.25, 1.6, -1.35), (x1 + 0.25, 2.1, 1.35), 'as_gold', pv),
                   _el((-1.9, 1.05, -1.38), (-1.45, 1.5, -1.26), 'as_gem', pv, uv={'north': [0, 0, 4, 4]})]  # the charm
