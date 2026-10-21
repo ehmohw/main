@@ -46,6 +46,10 @@ Every follower ships with all of these, built alongside it (never "later"):
 5. **Sitting animations:** right-click (or sneak + right-click) to sit, with a seated pose and idle cycle.
 6. **Cosmetics:** at least one, with per-form colour variants, persisting across recall.
 7. **Rare cosmetics:** a rare, expensive particle-aura cosmetic, hard to earn from raids.
+8. **Partner Wheel:** the follower appears on the wheel (`phase179`, built from `phase125.WHO` and the follow rules): add their
+   summoning item from the off hand, call / send home / take back from the menu, and carrying the wheel counts as carrying
+   the item. Register the follower in `WHO`; the wheel asserts every entry patches cleanly. (The Skiff Escort has its own
+   slot, `phase184`, since it's eight colours with no "has its item" rules.)
 
 `tools/bots/t163.js` (Fishy) walks the whole list as a regular player; copy it for the next follower. Also add the new
 follower to the every-follower tests (t138 figurines, t146 frames, t156 dolls, the `KINDS` lists in t145 and t158).

@@ -83,7 +83,7 @@ def audit(k, t):
             v = [0 if c == '~' else float(c[1:]) for c in m.group(1, 2, 3)]
             ty = m.group(5) or m.group(6)
             spawns.append((f, ty, int(12 + v[0]), int(4 + v[1]), int(12 + v[2])))
-    big = {'spider': 1, 'hoglin': 1, 'piglin_brute': 0, 'guardian': 0, 'captain': 0}
+    WIDE = {'spider': 1.4, 'hoglin': 1.2, 'guardian': 0.85}             # (hitbox widths at the rooms' scales; the Broodmother below)
     for f, ty, x, y, z in spawns:
         if ty == 'vex': continue                                   # (flies, through walls - kept to a short life)
         if not (through(g(x, y, z)) and through(g(x, y + 1, z))):
@@ -91,9 +91,11 @@ def audit(k, t):
         ly = y
         while ly > 1 and not (solid(g(x, ly - 1, z)) or name(g(x, ly, z)) in FLOAT): ly -= 1
         if not reach(x, ly, z): errs.append(f'{f} {ty} lands out of reach at {x},{ly},{z}')
-        r = big.get(ty, 0)
-        if r and any(solid(g(x + dx, ly, z + dz)) or solid(g(x + dx, ly + 1, z + dz)) for dx in range(-r, r + 1) for dz in range(-r, r + 1)):
-            errs.append(f'{f} {ty} (big) cramped at {x},{ly},{z}')
+        w = WIDE.get(ty, 0.6) * (2.2 if (k, ty, x, z) == ('larder', 'spider', 12, 18) else 1)
+        cells = range(int((x + 0.5 - w / 2) // 1), int((x + 0.5 + w / 2 - 1e-6) // 1) + 1)
+        zcells = range(int((z + 0.5 - w / 2) // 1), int((z + 0.5 + w / 2 - 1e-6) // 1) + 1)
+        if any(solid(g(cx, ly, cz)) or solid(g(cx, ly + 1, cz)) for cx in cells for cz in zcells):
+            errs.append(f'{f} {ty} (width {w:.2f}) cramped at {x},{ly},{z}')
     return errs, len(spawns)
 
 

@@ -34,7 +34,7 @@ const ONLY = process.argv[2];
   const KINDS = ONLY ? [ONLY] : ['siege', 'sink', 'pens', 'crossfire', 'mirror', 'larder', 'flood'];
   const FOE = { pens: 'minecraft:hoglin', crossfire: 'minecraft:skeleton', larder: 'minecraft:spider', flood: 'minecraft:drowned', siege: 'minecraft:vindicator',
                 sink: 'minecraft:vindicator', mirror: 'minecraft:vindicator' };
-  const BOSS = { pens: 'minecraft:piglin_brute', mirror: 'minecraft:illusioner', larder: 'minecraft:spider', flood: 'minecraft:drowned', crossfire: 'minecraft:skeleton' };
+  const BOSS = { pens: 'minecraft:piglin_brute', mirror: 'minecraft:evoker', larder: 'minecraft:spider', flood: 'minecraft:drowned', crossfire: 'minecraft:skeleton' };
   for (const K of KINDS) {
     // ---- the stage: no heist running; Tokens, the Ledger; heists of this one kind of room
     for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
@@ -109,6 +109,13 @@ const ONLY = process.argv[2];
     }
     if (K === 'crossfire') {
       ok('crossfire: archers up on the balconies', (await cnt(`@e[type=minecraft:skeleton,scores={bm.gvi=${GI}},x=${rx - 12},y=${ry + 4.5},z=${rz - 12},dx=24,dy=3,dz=24]`)) >= 2);
+    }
+
+    // ---- (2.85d) a fire lit beside TestRat in the heist goes out by itself - raiders in adventure mode can't punch it out
+    if (K === KINDS[0]) {
+      await run(`${G}execute at TestRat run setblock ~2 ~-1 ~ minecraft:netherrack`); await run(`${G}execute at TestRat run setblock ~2 ~ ~ minecraft:fire`);
+      const lit = await passes(`${G}execute at TestRat if block ~2 ~ ~ minecraft:fire`);
+      ok(`${K}: a fire lit beside TestRat in the heist goes out by itself`, lit && await wait(3000, async () => !(await passes(`${G}execute at TestRat if block ~2 ~ ~ minecraft:fire`))), `lit ${lit}`);
     }
 
     // ---- a blow of TestRat's own: one foe brought low and struck with a real swing

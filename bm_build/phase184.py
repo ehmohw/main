@@ -15,7 +15,7 @@ SEVEN NEW FIGHTS (the fight turns - there were four kinds; now eleven):
                            the door. Two waves and a captain. The floor mends when it's over.
   THE HOG PENS (I-IV)      vault boars come charging out of their pens; then the Swineherd himself.
   THE CROSSFIRE GALLERY (II-V)  archers on the balconies, the guards below. Ladders at both ends go up.
-  THE HALL OF MIRRORS (III-V)  glass everywhere. Guards first, then the Mirror Thief - an illusioner, doubling himself
+  THE HALL OF MIRRORS (III-V)  glass everywhere. Guards first, then the Mirror Thief - an evoker, fangs out of the floor
                            (and, at Tier V, two shard wraiths).
   THE SPIDER LARDER (I-V)  webs and bones. Spiders drop from the ceiling, then cave spiders, then the Broodmother.
   THE FLOODED VAULT (II-V) knee-deep water slows every step; the drowned come up out of it (with tridents from Tier III),
@@ -33,6 +33,7 @@ import phase76_rooms as R6
 import phase110 as P110
 import phase112 as P112
 import phase116 as P116
+import phase72 as P72
 from phase75_rooms import BASE, wall_glow
 
 GOLD = '#ffcf40'
@@ -52,6 +53,20 @@ item('void_call', TOTEM, "Void Rat's Call", VOID,
       ('A heist find.', 'dark_gray')], model='bm:void_call', stack=16, cat='relic', comps=hold())
 HOLD['ember_call'] = 'bm:p184/call/ember'
 HOLD['void_call'] = 'bm:p184/call/void'
+
+# ================================================================== THE FIRE EXTINGUISHER (Salty Sal, the Dockmaster)
+EXT_R, EXT_H = 15, 8                    # puts out fire 15 blocks every way (a 31 x 31 square), 8 up and down
+item('fire_extinguisher', TOTEM, 'Fire Extinguisher', '#ff4a3a',
+     ['A brass bottle of the docks\' best foam.', ('Use: puts out every fire within', 'blue'), (f'{EXT_R} blocks (a 30 x 30 square).', 'blue'),
+      ('Never runs dry; every 5 seconds.', 'gray'), ('Handy where you can\'t punch it out.', 'gray'), ('From Salty Sal, the Dockmaster.', 'dark_gray')],
+     model='bm:fire_extinguisher', stack=1, cat='gear',
+     comps=hold('none'))
+HOLD['fire_extinguisher'] = 'bm:p184/ext/use'
+P72.KEEP.append('fire_extinguisher')    # (through the coat check: fire in a heist room can't be punched out in adventure mode)
+
+
+def extend_offers(O, offer):
+    O['dock'].append(offer(('token', 2), ('fire_extinguisher', 1)))
 
 
 # ================================================================== THE ROOMS (templates)
@@ -103,7 +118,10 @@ def pens():
             b.set(x0, 4, z, 'minecraft:spruce_fence'); b.set(x0 + 5, 4, z, 'minecraft:spruce_fence')
         gx = x0 + 2
         for dx in (0, 1): b.set(gx + dx, 4, z0 + (4 if z0 < 10 else 0), 'minecraft:air')      # (the gates, left open)
-        b.set(x0 + 1, 4, z0 + (1 if z0 < 10 else 3), 'minecraft:hay_block'); b.set(x0 + 4, 4, z0 + (1 if z0 < 10 else 3), 'minecraft:composter')
+        zb = 1 if z0 < 10 else D - 2                         # (hay and a composter against the back wall: clear of the boar in the middle)
+        b.set(x0 + 1, 4, zb, 'minecraft:hay_block'); b.set(x0 + 4, 4, zb, 'minecraft:composter')
+    for z in (3, D - 4):                                     # (the shell's west loot piles would sit inside a pen, against its boar)
+        for (x, y) in ((3, 4), (4, 4), (3, 5)): b.set(x, y, z, 'minecraft:air')
     for x in range(8, 17, 4):                                # the troughs along the runner
         b.set(x, 4, 9, 'minecraft:cauldron'); b.set(x, 4, 15, 'minecraft:cauldron')
     b.marker(*RM.CTRL, ['bm.gvr', 'bm.gvr_pens', 'bm.gvnew'])
@@ -153,9 +171,10 @@ def mirror():
 def larder():
     b = _shell()
     rnd = random.Random(1849)
+    clear = [(x, z, 2) for (x, z) in ((6, 6), (18, 6), (6, 18), (18, 18), (12, 4), (12, 20))] + [(12, 18, 3)]   # (where they land: no clutter)
     for x in range(1, W - 1):
         for z in range(1, D - 1):
-            if 10 <= z <= 14: continue
+            if 10 <= z <= 14 or any(abs(x - cx) <= r and abs(z - cz) <= r for (cx, cz, r) in clear): continue
             r = rnd.random()
             if r < 0.10: b.set(x, 4, z, 'minecraft:cobweb')
             elif r < 0.14: b.set(x, 4, z, 'minecraft:bone_block[axis=y]')
@@ -393,9 +412,9 @@ def generate(G):
           win_t='THE GALLERY IS CLEARED')
 
     # ---- THE HALL OF MIRRORS
-    thief = mk('illusioner', 'The Mirror Thief', '#9ad0ff', {'mainhand': 'minecraft:bow'},
+    thief = mk('evoker', 'The Mirror Thief', '#9ad0ff', {},                                    # (no illusioners anywhere - an evoker, fangs and vexes)
                {'CustomNameVisible': B(1), 'Tags': ['bm.gvg', 'bm.gvnew2', 'bm.tiered', 'bm.seen', 'bm.gvcap']})
-    wraith = mk('vex', 'Shard Wraith', '#c0e8ff', {'mainhand': 'minecraft:iron_sword'}, {'LifeTicks': Int(900)})    # (vexes fly through walls: none hides in one for good)
+    wraith = mk('vex', 'Shard Wraith', '#c0e8ff', {'mainhand': 'minecraft:iron_sword'}, {'life_ticks': Int(900)})    # (vexes fly through walls: none hides in one for good)
     fight('mirror', 'THE HALL OF MIRRORS', 'Which of you is the real one? Which of HIM is?', '#9ad0ff',
           [(guards([(6, 12), (18, 12), (12, 8), (12, 16)], cap=6), 'Something moves in every mirror...'),     # (clear of the free-standing mirrors)
            (mob(*thief, 12, 12) + ['execute if score #gt bm.rng matches 5 run ' + l for l in mob(*wraith, 8, 8, 6) + mob(*wraith, 16, 16, 6)] +
@@ -429,6 +448,92 @@ def generate(G):
            (mob(*bailiff, 18, 12, 3) + ['execute if score #gt bm.rng matches 5 run ' + l for l in mob(*guardian, 12, 12, 3)], 'The Drowned Bailiff!')],
           win_t='THE WATER GOES STILL')
 
+    # ================================================================== NO BREEZES WHERE YOU CAN FALL, NO ILLUSIONERS AT ALL
+    # (a breeze's wind charges throw a raider off a ledge or into the void; an illusioner barely fights and clones itself)
+    VOIDY = ['isles', 'voidg', 'sink', 'rafters', 'girder', 'climb', 'spire', 'grapple', 'tiles']
+    hexer = mk('witch', 'Vault Hexer', '#b080ff', {})
+    G.FUNCS['p112/isles/breeze'] = [f'summon minecraft:{hexer[0]} ~ ~ ~ {snbt(hexer[1])}', 'function bm:p70/guard_set']   # (the Sky Isles' own gales)
+    G.FUNCS['loop/fast'][-1:-1] = ['execute in bm:gutter as @e[type=minecraft:breeze,distance=0..] at @s run function bm:p184/nobreeze']
+    fn('p184/nobreeze', ['scoreboard players set #vb bm.rng 0', 'tag @e[type=minecraft:marker,tag=bm.gvr,distance=..30,sort=nearest,limit=1] add bm.gvhere'] +
+       [f'execute if entity @e[type=minecraft:marker,tag=bm.gvhere,tag=bm.gvr_{k},distance=..30] run scoreboard players set #vb bm.rng 1' for k in VOIDY] +
+       ['tag @e[type=minecraft:marker,tag=bm.gvhere,distance=..30] remove bm.gvhere', 'execute if score #vb bm.rng matches 1 run function bm:p184/nobreeze_swap'])
+    fn('p184/nobreeze_swap', ['scoreboard players operation #gi bm.rng = @s bm.gvi', 'function bm:p70/ctx',
+                              f'summon minecraft:{hexer[0]} ~ ~ ~ {snbt(hexer[1])}',
+                              'execute if entity @s[tag=bm.gvcap] run tag @e[type=minecraft:witch,tag=bm.gvnew2,distance=..1] add bm.gvcap',
+                              'function bm:p70/guard_set', 'tp @s ~ -300 ~', 'kill @s'])
+    G.FUNCS['loop/second'][-1:-1] = ['execute as @e[type=minecraft:illusioner] at @s run function bm:p184/noillusioner']
+    fn('p184/noillusioner', ['particle minecraft:poof ~ ~1 ~ 0.3 0.6 0.3 0.02 12', 'tp @s ~ -400 ~', 'kill @s'])
+
+    # ================================================================== FIRE IN THE GUTTER GOES OUT (raiders can't punch it out in adventure mode)
+    G.FUNCS['loop/second'][-1:-1] = ['execute in bm:gutter as @a[distance=0..] at @s run fill ~-12 ~-5 ~-12 ~12 ~6 ~12 minecraft:air replace #minecraft:fire']
+
+    # ================================================================== THE FIRE EXTINGUISHER
+    G.OBJECTIVES += ['bm.extcd']
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.extcd dummy']
+    # (its own 5 s: a hold-to-use item never "finishes" a use, so the use_cooldown component doesn't fire on it)
+    fn('p184/ext/use', ['execute store result score #now bm.rng run time query gametime', 'scoreboard players operation #now bm.rng -= @s bm.extcd',
+                        'execute if score #now bm.rng matches 0..99 run return run ' + say('The extinguisher is still building pressure...', '#ff9a8a'),
+                        'execute store result score @s bm.extcd run time query gametime',
+                        f'execute store result score #n bm.rng run fill ~-{EXT_R} ~-{EXT_H} ~-{EXT_R} ~{EXT_R} ~{EXT_H} ~{EXT_R} minecraft:air replace #minecraft:fire',
+                        f'execute as @e[type=!minecraft:player,distance=..{EXT_R}] run data merge entity @s {{Fire:0s}}',
+                        'particle minecraft:cloud ~ ~1 ~ 2.5 0.6 2.5 0.04 70', 'particle minecraft:snowflake ~ ~1.2 ~ 4 1.2 4 0.02 90',
+                        'playsound minecraft:block.fire.extinguish player @a[distance=..24] ~ ~ ~ 1 1', 'playsound minecraft:entity.generic.extinguish_fire player @a[distance=..24] ~ ~ ~ 1 0.7',
+                        'execute if score #n bm.rng matches 1.. run ' + title('@s', 'actionbar', [T('Foam everywhere - the fire\'s out. ', '#ff6a5a'), T('(', 'gray'),
+                                                                                                    {'score': {'name': '#n', 'objective': 'bm.rng'}, 'color': 'gray'}, T(' blocks)', 'gray')]),
+                        'execute unless score #n bm.rng matches 1.. run ' + say('A burst of foam - nothing burning near.', '#ff9a8a')])
+    fn('admin/extinguisher', [give('fire_extinguisher')])
+
+    # ================================================================== THE SKIFF ESCORT ON THE PARTNER WHEEL
+    # (not a true partner - eight colours, no "has its item" rules - so one slot of its own: any colour goes on, and calling it
+    #  launches that colour, or sends it home if it's flying)
+    import phase179 as P179
+    import phase28 as P28
+    PRE = [T('[', 'dark_gray'), T('Black Market', 'dark_purple', bold=True), T('] ', 'dark_gray')]
+    EC = P72.ART.ESCORT_COLS
+    WE = P179.WMENU + 70                                     # (3420 call / send home, 3421 take it back - the wheel's free tail)
+    G.OBJECTIVES += ['bm.pwesc']
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.pwesc dummy']
+    use = G.FUNCS['p179/w/use']
+    use[-1:-1] = [f'execute if items entity @s weapon.offhand *[minecraft:custom_data~{{bm:"skiff_escort_{c}"}}] run return run function bm:p184/wesc/add{i}'
+                  for i, c in enumerate(EC)]
+    for i, c in enumerate(EC):
+        nm, col = P72.CNAME[c]
+        fn(f'p184/wesc/add{i}', ['execute if score @s bm.pwesc matches 0.. run return run ' + say('A Skiff Escort is on your wheel already - take it back off first.'),
+                                 'function bm:p179/w/pid', 'function bm:p184/wesc/addm with storage bm:tmp pw',
+                                 'item replace entity @s weapon.offhand with minecraft:air', f'scoreboard players set @s bm.pwesc {i}',
+                                 'playsound minecraft:block.enchantment_table.use player @s ~ ~ ~ 0.6 1.6', 'particle minecraft:enchant ~ ~1.2 ~ 0.3 0.4 0.3 0.6 20',
+                                 tellraw('@s', PRE + [T(f'Skiff Escort: {nm}', col, bold=True), T(' goes on your Partner Wheel. ', 'gray'),
+                                                      T('(Use the wheel to launch it.)', 'dark_gray')])])
+    fn('p184/wesc/addm', ['$data modify storage bm:pw p$(pid).esc set from entity @s equipment.offhand'])
+    b_call = P28.btn([T('Launch your ', 'white'), T('Skiff Escort', '#7dff6a', bold=True)], WE, tooltip=T('It flies at your shoulder', 'gray'))
+    b_home = P28.btn([T('Send your Skiff Escort home', '#c8c8c8')], WE, tooltip=T('It flies home', 'gray'))
+    b_out = P28.btn(T('Take the escort back', 'gray'), WE + 1, tooltip=T('Its beacon comes off the wheel', 'gray'))
+    op = G.FUNCS['p179/w/open']
+    k = next(j for j, l in enumerate(op) if 'unless data storage bm:tmp pw.acts[0]' in l)
+    op[k:k] = ['execute if score @s bm.pwesc matches 0.. run function bm:p184/wesc/row']
+    fn('p184/wesc/row', ['scoreboard players set #pwon bm.rng 0',
+                         'execute as @e[type=minecraft:bat,tag=bm.eskhost] if score @s bm.pid = #me bm.pid run scoreboard players set #pwon bm.rng 1',
+                         f'execute if score #pwon bm.rng matches 0 run data modify storage bm:tmp pw.acts append value {snbt(b_call)}',
+                         f'execute if score #pwon bm.rng matches 1 run data modify storage bm:tmp pw.acts append value {snbt(b_home)}',
+                         f'data modify storage bm:tmp pw.acts append value {snbt(b_out)}'])
+    fn('p184/wesc/call', ['execute unless score @s bm.pwesc matches 0.. run return run function bm:p28/stale',
+                          'scoreboard players operation #ec bm.rng = @s bm.pwesc', 'function bm:p72/esk/use'])
+    fn('p184/wesc/out', ['execute unless score @s bm.pwesc matches 0.. run return run function bm:p28/stale',
+                         'execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
+                         'function bm:p72/esk/vanish',
+                         'function bm:p179/w/pid', 'function bm:p184/wesc/outm with storage bm:tmp pw', 'scoreboard players reset @s bm.pwesc',
+                         'playsound minecraft:item.armor.equip_chain player @s ~ ~ ~ 0.6 1.4',
+                         tellraw('@s', PRE + [T('Your Skiff Escort', '#7dff6a', bold=True), T(' comes off your Partner Wheel.', 'gray')])])
+    fn('p184/wesc/outm', ['$execute unless data storage bm:pw p$(pid).esc run return 0',
+                          'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.pwout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
+                          '$data modify entity @e[type=minecraft:item,tag=bm.pwout,limit=1] Item set from storage bm:pw p$(pid).esc',
+                          'data modify entity @e[type=minecraft:item,tag=bm.pwout,limit=1] Owner set from entity @s UUID',
+                          'tag @e[type=minecraft:item,tag=bm.pwout] remove bm.pwout', '$data remove storage bm:pw p$(pid).esc'])
+    esk = G.FUNCS['p73/fol/esk']                             # (the escort stays out while its owner carries the wheel it's on)
+    esk.insert(4, 'execute if entity @a[tag=bm.fown,tag=bm.pwc,limit=1] if score @s bm.eskc = @a[tag=bm.fown,limit=1] bm.pwesc run return run scoreboard players set @s bm.fmis 0')
+    G.FUNCS['p179/w/act'] += [f'execute if score #act bm.pay matches {WE} run return run function bm:p184/wesc/call',
+                              f'execute if score #act bm.pay matches {WE + 1} run return run function bm:p184/wesc/out']
+
     # ================================================================== the admin's own (for tests)
     for k in ROOMS:
         fn(f'admin/fight_{k}', [f'scoreboard players set #frk bm.gvv {P75.KINDS.index(k) + 1}',
@@ -445,6 +550,10 @@ def rp(R):
                                '.......kYyk.....', '......kYyk......', '.....kYyk.......', '....kYyk........', '...kYyk.........', '..kooyk.........', '..kook..........',
                                '...kk...........', '................'],
                               dict(k='#2a1408', Y='#ffd070', y='#c08030', o='#ff7a1a', f='#ff5a10'))
+    R.ICONS['fire_extinguisher'] = g(['................', '......kkkk......', '.....kssssk.....', '......kssk.kk...', '.....kkkkkk.nk..', '....kRRRRRRk.nk.',
+                                      '....kRrRRRRk..k.', '....kRrRRRRk....', '....kRrWWWRk....', '....kRrWWWRk....', '....kRrRRRRk....',
+                                      '....kRrRRRRk....', '....kRrRRRRk....', '....kDDDDDDk....', '.....kkkkkk.....', '................'],
+                                     dict(k='#2a0a08', R='#e0302a', r='#ff8a7a', D='#8a1a14', W='#f0f0f0', s='#c8c8d0', n='#3a3a3a'))
     R.ICONS['void_call'] = g(['................', '................', '...........pp...', '..........p..p..', '...........pp...', '.........k......', '........kWk.....',
                               '.......kWwk.....', '......kWwk......', '.....kWwk.......', '....kWwk........', '...kWwk.........', '..kvvwk.........', '..kvvk..........',
                               '...kk...........', '................'],

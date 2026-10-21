@@ -20,6 +20,7 @@ BREEDABLE = {'Age', 'ForcedAge', 'AgeLocked', 'InLove', 'LoveCause'}
 ALLOWED.update({'item_frame': ENTITY | {'Facing', 'Fixed', 'Item', 'ItemRotation', 'ItemDropChance', 'Invisible', 'block_pos'},
                 'glow_item_frame': ENTITY | {'Facing', 'Fixed', 'Item', 'ItemRotation', 'ItemDropChance', 'Invisible', 'block_pos'},
                 'wolf': ENTITY | LIVING | MOB | BREEDABLE | {'Owner', 'Sitting', 'CollarColor', 'variant', 'sound_variant', 'anger_end_time', 'angry_at'}})
+ALLOWED['vex'] = ENTITY | LIVING | MOB | {'life_ticks', 'bound_pos'}     # (2.85d, checked on a live 26.3 server: life_ticks, not LifeTicks)
 HORSE = BREEDABLE | {'Bred', 'EatingHaystack', 'Tame', 'Temper', 'Owner'}          # mcdoc HorseBase (26.x)
 ALLOWED.update({'zombie_horse': ENTITY | LIVING | MOB | HORSE, 'horse': ENTITY | LIVING | MOB | HORSE | {'Variant'},
                 'skeleton_horse': ENTITY | LIVING | MOB | HORSE | {'SkeletonTrap', 'SkeletonTrapTime'},

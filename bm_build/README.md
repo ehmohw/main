@@ -28,11 +28,20 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 - **The Sinking Vault** *(II-V)*: squares of the floor give way under the fight, one every few seconds. Fall into the hay pit and you're back at the door. Two waves and a captain. The floor mends when it's won.
 - **The Hog Pens** *(I-IV)*: vault boars charge out of their pens, then come their keepers, then the Swineherd.
 - **The Crossfire Gallery** *(II-V)*: archers stand on the balconies down both long walls, with guards below. The ladders at either end go up.
-- **The Hall of Mirrors** *(III-V)*: glass everywhere. First come guards, then the Mirror Thief, an illusioner who doubles himself. At Tier V he brings two shard wraiths.
+- **The Hall of Mirrors** *(III-V)*: glass everywhere. First come guards, then the Mirror Thief, an evoker who calls fangs up through the floor. At Tier V he brings two shard wraiths (they fade after 45 seconds, so none can hide in a wall).
 - **The Spider Larder** *(I-V)*: webs and bones. Spiders drop from the ceiling, then the cave spiders come, then the Broodmother.
 - **The Flooded Vault** *(II-V)*: knee-deep water slows every step. The drowned rise out of it (with tridents from Tier III), then the Drowned Bailiff appears, with a guardian at Tier V.
 
 Every new fight bars its door when it starts; a crewmate left at the bars is let through. If the whole crew is out of the room for ten seconds, the fight starts over, so nobody gets locked out.
+
+**Safer fights everywhere:**
+- **No breezes where you can fall.** Rooms with a drop (the Sky Isles, the Void Garden, the Sinking Vault, the Rafters, the Girders, the Climb, the Spire, the Grapple and the tile pit) never keep a breeze: one that turns up there becomes a Vault Hexer, a witch. The Sky Isles' own gales are hexers now too.
+- **No illusioners anywhere.** None spawn in the pack; one that turns up is removed.
+- **Fire goes out in the heists.** Raiders in adventure mode can't punch fire out, so any fire near a player in the Gilded Gutter (a blaze's, say) goes out within a second.
+
+**The Fire Extinguisher** (Salty Sal, the Dockmaster, 2 Tokens): use it to put out every fire within 15 blocks (a 30 x 30 square, 8 blocks up and down) and any burning mob nearby. It never runs out, works once every 5 seconds, and passes the heist coat check.
+
+**The new rooms checked:** a new tool (`tools/room_audit.py`) builds each new room in every tier's materials and checks its doorways, a walkable way from the entry to the exit, and every foe's spawn (never inside a block, always where a raider can reach it, with room for big foes). It caught two Hall of Mirrors guards spawning inside the free-standing mirrors, boars and spiders spawning against props, Sinking Vault guards over squares already gone, and the Flooded Vault's loot piles floating on the water; all fixed.
 
 **The rats' calls.** A won heist now and then turns up an **Ember Rat's Call** or a **Void Rat's Call** in the haul: 4% each, for every raider, at any tier (Pearlman's Bell is 5%).
 - Blow the Ember Rat's call in the Nether, or the Void Rat's call out in the End past the dragon's island, and that rat sets up shop nearby, whatever the odds.

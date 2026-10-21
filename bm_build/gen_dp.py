@@ -438,6 +438,7 @@ def all_offers():
     R124.extend_offers(O, offer)
     R141.extend_offers(O, offer)
     R146.extend_offers(O, offer)
+    R184.extend_offers(O, offer)
     R161.extend_offers(O, offer)
     R148.extend_offers(O, offer)       # (2.82c: the Crimson War Horn at the Bloodbroker)
     R179.extend_offers(O, offer)       # (2.84c: the Partner Wheel at Cecil's)
