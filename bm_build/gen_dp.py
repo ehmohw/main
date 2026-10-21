@@ -161,6 +161,7 @@ import phase174 as R174      # 2.83: the less urgent list, part one - Sunken Thr
 import phase175 as R175      # 2.83b: what the den's shopkeepers sell passes the coat check (and the Locker Hall's way back)
 import phase176 as R176      # 2.84a: hard mode - the waking, the night's monsters, Dread mobs
 import phase177 as R177      # 2.84a: Vesper, the Dread Broker - Dread Tokens, his Ledger (wards, tuning, reforging), the long work
+import phase178 as R178      # 2.84b: hard mode's Dark Auction lots, hard dungeon replays and their relics, the community pots
 import phase154 as R154      # 2.80a: the Gutter Bank, a page per currency (one, ten or all, in and out)
 import phase139 as R139      # 2.78: the Fixer's Office tidied (an even grid, plain names, a neat standing card)
 import noglow                # 2.80e: no glowing outline on custom-modelled mobs' invisible hosts (noglow.py)
@@ -177,7 +178,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.84a'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.84b'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1314,6 +1315,7 @@ def build(out_dir):
     R174.generate(sys.modules[__name__])        # 2.83: it adjusts other phases' functions too
     R176.generate(sys.modules[__name__])        # 2.84a: hard mode
     R177.generate(sys.modules[__name__])        # 2.84a: Vesper
+    R178.generate(sys.modules[__name__])        # 2.84b: hard auctions, hard replays, community pots
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))
     R28.finalize(sys.modules[__name__])
     print('market rebuild: %d entity tags cleared, %d per-market lines wait for the new town' % R168.finalize(sys.modules[__name__]))

@@ -689,29 +689,7 @@ def generate(G):
     # the Mender's Altar and the Dread Lantern: set down, picked up, at work
     PLACED = {'menders_altar': ('bm.malt', "Mender's Altar"), 'dread_lantern': ('bm.dlan', 'Dread Lantern')}
     for iid, (tag, nm) in PLACED.items():
-        HOLD[iid] = f'bm:p177/pl/{iid}'
-        fn(f'p177/pl/{iid}', ['execute unless predicate bm:p20/sneaking run return run ' + say('Sneak + use on a block to set it down.'),
-                              'scoreboard players set #placed bm.rng 0', 'scoreboard players set #ray bm.rng 25', 'tag @s add bm.placer',
-                              f'execute anchored eyes positioned ^ ^ ^ run function bm:p177/pl/{iid}_ray', 'tag @s remove bm.placer',
-                              'execute if score #placed bm.rng matches 0 run return run ' + say('Look at the top of a block within 5 blocks.'),
-                              'execute unless entity @s[gamemode=creative] run item replace entity @s weapon.mainhand with minecraft:air'])
-        fn(f'p177/pl/{iid}_ray', [f'execute unless block ~ ~ ~ #minecraft:replaceable run return run function bm:p177/pl/{iid}_hit',
-                                  'scoreboard players remove #ray bm.rng 1', f'execute if score #ray bm.rng matches 1.. positioned ^ ^ ^0.2 run function bm:p177/pl/{iid}_ray'])
-        disp = {'Tags': [f'{tag}d', 'bm.plnew'], 'item_display': 'fixed', 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': f'bm:{iid}'}},
-                'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(0.45), F(0)], 'scale': [F(0.9)] * 3},
-                'brightness': {'block': Int(12), 'sky': Int(12)}}
-        fn(f'p177/pl/{iid}_hit', ['execute align xyz positioned ~0.5 ~1 ~0.5 unless block ~ ~ ~ #minecraft:replaceable run return 0',
-                                  f'execute align xyz positioned ~0.5 ~1 ~0.5 if entity @e[type=minecraft:interaction,tag={tag},distance=..0.6] run return 0',
-                                  f'execute align xyz positioned ~0.5 ~1 ~0.5 run summon minecraft:item_display ~ ~ ~ {snbt(disp)}',
-                                  f'execute align xyz positioned ~0.5 ~1 ~0.5 run summon minecraft:interaction ~ ~ ~ {{Tags:["{tag}","bm.plnew"],width:0.8f,height:0.9f,response:1b}}',
-                                  f'execute align xyz positioned ~0.5 ~1 ~0.5 run summon minecraft:marker ~ ~ ~ {{Tags:["{tag}m","bm.plnew"]}}',
-                                  'tag @e[tag=bm.plnew] remove bm.plnew', 'scoreboard players set #placed bm.rng 1',
-                                  'playsound minecraft:block.stone.place block @a[distance=..16] ~ ~ ~ 1 0.8'])
-        fast.append(f'execute as @e[type=minecraft:interaction,tag={tag}] if data entity @s attack at @s run function bm:p177/pl/{iid}_pick')
-        fast.append(f'execute as @e[type=minecraft:interaction,tag={tag}] if data entity @s interaction run data remove entity @s interaction')
-        fn(f'p177/pl/{iid}_pick', [f'execute on attacker run {give(iid)}', f'kill @e[type=minecraft:item_display,tag={tag}d,distance=..0.6]',
-                                   f'kill @e[type=minecraft:marker,tag={tag}m,distance=..0.6]', 'playsound minecraft:block.stone.break block @a[distance=..16] ~ ~ ~ 1 0.8', 'kill @s'])
-        G.FUNCS['admin/uninstall'][0:0] = [f'kill @e[tag={tag}]', f'kill @e[tag={tag}d]', f'kill @e[tag={tag}m]']
+        placeable(G, 'p177', iid, tag)
     second += ['execute as @e[type=minecraft:marker,tag=bm.maltm] at @s as @a[distance=..5,gamemode=!spectator] run function bm:p177/mend',
                'execute as @e[type=minecraft:marker,tag=bm.maltm] at @s if entity @a[distance=..5] run particle minecraft:happy_villager ~ ~0.8 ~ 0.3 0.2 0.3 0 2',
                'execute as @e[type=minecraft:marker,tag=bm.dlanm] at @s run particle minecraft:soul_fire_flame ~ ~0.7 ~ 0.08 0.1 0.08 0.005 1']
@@ -727,6 +705,38 @@ def generate(G):
     G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/dread_tokens', 'yellow'), T('  gives you 10 Dread Tokens', 'gray')]))
     fn('admin/dread_tokens', [f'give @s {G.item_arg("dread_token")} 10'])
 
+
+
+def placeable(G, ns, iid, tag, scale=0.9, sound='minecraft:block.stone'):
+    """A thing set down on a block (sneak + use) and picked back up (punch it): its display (tag+'d'), its click box (tag) and a
+    marker (tag+'m') where it works. Functions under <ns>/pl/<iid>."""
+    fn, give = G.fn, G.give
+    say = lambda txt: G.title('@s', 'actionbar', T(txt, 'gray'))
+    ident = [F(0), F(0), F(0), F(1)]
+    fast = G.FUNCS['loop/fast']
+    HOLD[iid] = f'bm:{ns}/pl/{iid}'
+    fn(f'{ns}/pl/{iid}', ['execute unless predicate bm:p20/sneaking run return run ' + say('Sneak + use on a block to set it down.'),
+                          'scoreboard players set #placed bm.rng 0', 'scoreboard players set #ray bm.rng 25', 'tag @s add bm.placer',
+                          f'execute anchored eyes positioned ^ ^ ^ run function bm:{ns}/pl/{iid}_ray', 'tag @s remove bm.placer',
+                          'execute if score #placed bm.rng matches 0 run return run ' + say('Look at the top of a block within 5 blocks.'),
+                          'execute unless entity @s[gamemode=creative] run item replace entity @s weapon.mainhand with minecraft:air'])
+    fn(f'{ns}/pl/{iid}_ray', [f'execute unless block ~ ~ ~ #minecraft:replaceable run return run function bm:{ns}/pl/{iid}_hit',
+                              'scoreboard players remove #ray bm.rng 1', f'execute if score #ray bm.rng matches 1.. positioned ^ ^ ^0.2 run function bm:{ns}/pl/{iid}_ray'])
+    disp = {'Tags': [f'{tag}d', 'bm.plnew'], 'item_display': 'fixed', 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': f'bm:{iid}'}},
+            'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(0.45), F(0)], 'scale': [F(scale)] * 3},
+            'brightness': {'block': Int(12), 'sky': Int(12)}}
+    fn(f'{ns}/pl/{iid}_hit', ['execute align xyz positioned ~0.5 ~1 ~0.5 unless block ~ ~ ~ #minecraft:replaceable run return 0',
+                              f'execute align xyz positioned ~0.5 ~1 ~0.5 if entity @e[type=minecraft:interaction,tag={tag},distance=..0.6] run return 0',
+                              f'execute align xyz positioned ~0.5 ~1 ~0.5 run summon minecraft:item_display ~ ~ ~ {snbt(disp)}',
+                              f'execute align xyz positioned ~0.5 ~1 ~0.5 run summon minecraft:interaction ~ ~ ~ {{Tags:["{tag}","bm.plnew"],width:0.8f,height:0.9f,response:1b}}',
+                              f'execute align xyz positioned ~0.5 ~1 ~0.5 run summon minecraft:marker ~ ~ ~ {{Tags:["{tag}m","bm.plnew"]}}',
+                              'tag @e[tag=bm.plnew] remove bm.plnew', 'scoreboard players set #placed bm.rng 1',
+                              f'playsound {sound}.place block @a[distance=..16] ~ ~ ~ 1 0.8'])
+    fast.append(f'execute as @e[type=minecraft:interaction,tag={tag}] if data entity @s attack at @s run function bm:{ns}/pl/{iid}_pick')
+    fast.append(f'execute as @e[type=minecraft:interaction,tag={tag}] if data entity @s interaction run data remove entity @s interaction')
+    fn(f'{ns}/pl/{iid}_pick', [f'execute on attacker run {give(iid)}', f'kill @e[type=minecraft:item_display,tag={tag}d,distance=..0.6]',
+                               f'kill @e[type=minecraft:marker,tag={tag}m,distance=..0.6]', f'playsound {sound}.break block @a[distance=..16] ~ ~ ~ 1 0.8', 'kill @s'])
+    G.FUNCS['admin/uninstall'][0:0] = [f'kill @e[tag={tag}]', f'kill @e[tag={tag}d]', f'kill @e[tag={tag}m]']
 
 def rp(R):
     g = R.grid

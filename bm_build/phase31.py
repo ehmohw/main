@@ -21,6 +21,7 @@ SAVE_PCT = 100 // SAVE_PER
 SAVE_CAP = {'token': 8, 'lucky_token': 8, 'medallion': 3, 'trophy': 1}
 SAVE_CAP_ELSE = 4                                    # (any other currency the bank comes to keep)
 XS_EXTRA = []                                        # (2.84a) more account swaps: (src, n, dst, m, 'a', 'b', code, col_a, col_b, gate)
+ACCT_EXTRA = []                                      # (2.84b) more buttons on the account page: (label components, code, tooltip, function)
 SAVE_PER_OF = {}                                     # (2.84a) a currency's own rate: 1 a day per this many kept (Dread Tokens: 50 - 2%)
 BANK = [('token', 'bm.bk_tok', 'Tokens', 'gold'), ('lucky_token', 'bm.bk_luck', 'Lucky Tokens', 'green'),
         ('medallion', 'bm.bk_med', 'Medallions', 'light_purple'), ('trophy', 'bm.bk_tro', 'Trophies', '#ffb300')]
@@ -101,6 +102,7 @@ def generate(G):
     AUTO, KEEP_TOK = 4079, 8
     btns.append(P28.btn([T('Auto-deposit: ', '#c8ffb0'), T('$(ac)', 'white')], AUTO,
                         tooltip=T(f'While you carry the card, what the bank keeps goes straight into your account (you keep {KEEP_TOK} Tokens for fees)', 'gray'), width=150))
+    btns += [P28.btn(lbl, code, tooltip=tip, width=150) for lbl, code, tip, _f in ACCT_EXTRA]
     dlg = P28.multi([T('The Rat Bank', 'gold', bold=True), T(' - your account', 'gray')],
                     [P28.body([T('Pick a currency to deposit or take out.', 'gray')], 300),
                      P28.body([T('$(sv)', '#7aff7a')], 300),
@@ -115,7 +117,8 @@ def generate(G):
            f'execute if score #act bm.pay matches {SAVE} run return run function bm:p31/sav/btn',
            f'execute if score #act bm.pay matches {EXCH} run return run function bm:p31/bank/xpage'] + \
           [f'execute if score #act bm.pay matches {EXCH + 1 + k} run return run function bm:p31/bank/x{k}' for k in range(4)] + \
-          [f'execute if score #act bm.pay matches {AUTO} run return run function bm:p31/bank/ac_toggle']
+          [f'execute if score #act bm.pay matches {AUTO} run return run function bm:p31/bank/ac_toggle'] + \
+          [f'execute if score #act bm.pay matches {code} run return run function bm:{f_}' for _l, code, _t, f_ in ACCT_EXTRA]
     fn('p31/bank/ac_toggle', ['execute unless function bm:p31/bank/card_on run return run ' + title('@s', 'actionbar', T('Auto-deposit works from the Banker\'s Card - carry one.', 'gray')),
                               'execute if score @s bm.bkac matches 1 run scoreboard players set @s bm.bkac 2',
                               'execute unless score @s bm.bkac matches 2 run scoreboard players set @s bm.bkac 1',

@@ -88,7 +88,7 @@ const res = [];
   const dk0 = (await sc('TestRat', 'bm.dkill')) || 0, w0 = await sc('#dk', 'bm.cfg');
   await run(`data merge entity ${D} {Health:1f}`); await run(`effect clear ${D}`);
   await run(`tp TestRat ${X + 0.5} ${Y} ${Z - 0.5} 180 0`); await sleep(800);
-  await run('item replace entity TestRat weapon.mainhand with minecraft:netherite_sword'); A.slot(0); await sleep(400);
+  A.slot(0); await sleep(300); await run('item replace entity TestRat weapon.mainhand with minecraft:netherite_sword'); await sleep(400);
   const eidOf = async sel => { const m = (await run(`data get entity ${sel} UUID`)).match(/\[I; (-?\d+), (-?\d+), (-?\d+), (-?\d+)\]/); if (!m) return null;
     const h = m.slice(1).map(v => ((+v) >>> 0).toString(16).padStart(8, '0')).join(''); const u = `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
     const e = Object.values(A.ents).find(e => e.objectUUID === u); return e ? e.entityId : null; };

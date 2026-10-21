@@ -271,7 +271,7 @@ def generate(G):
         disp_item = G.stack(gv[0][0], gv[0][1]) if gv[0][0] in ITEMS else {'id': gv[0][0] if ':' in gv[0][0] else 'minecraft:' + gv[0][0], 'count': Int(gv[0][1])}
         if gv[0][0] == 'next_boss_key': disp_item = {'id': 'minecraft:trial_key', 'count': Int(1)}
         call = CALL[4] if kind == 'head' else CALL[i % 4]
-        tag = {'head': '★ ', 'relic': '✿ ', 'reg': ''}[kind]
+        tag = {'head': '★ ', 'relic': '✿ ', 'reg': '', 'hard': '☠ '}[kind]       # (2.84b: 'hard' - hard mode's own lots)
         fn(f'p30/lot/show_{i}', [f'data modify storage bm:auction cur merge value {snbt({"name": tag + nm, "col": col, "open": opn})}',
                                  f'scoreboard players set #open bm.auc {opn}',
                                  f'execute as @e[type=minecraft:item_display,tag=bm.apedestal] run data modify entity @s item set value {snbt(disp_item)}',

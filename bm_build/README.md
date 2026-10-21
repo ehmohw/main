@@ -21,6 +21,36 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.84b: hard mode's Dark Auctions, hard replays and the community pots
+
+The second part of the hard-mode list. The armour rebalance, the partner wheel, Dread Nights and the Stalkers, the golden cross and Goal Day follow in the next packages.
+
+**Hard mode's Dark Auctions.** In a hard-mode world every Dark Auction opens with two lots of its own (marked ☠) before the usual sale: one infusion and one artifact.
+- **Infusions** (opening bids 10-14 Medallions) power up a piece of gear for good. Hold the item in your off hand, then hold right-click with the infusion. One infusion per item; a second is refused and handed back.
+  - Weapons: **Lifesteal** (every kill heals two hearts), **Frenzy** (a kill gives Speed II and Strength I for 6 s), **Reaper** (8 more experience a kill).
+  - Tools: **Quickhand** (Haste II while held), **Deepsight** (Night Vision while held, below y 50).
+  - Armour: **Vitality** (Regeneration I while worn), **Emberward** (Fire Resistance), **Swiftstride** (Speed I), **Tidebound** (Water Breathing, and Dolphin's Grace in water).
+- **Artifacts** (opening bids 7-10 Medallions): the Shard of the Hollow Crown, a Vorn Star-Chart, the Drowned Bell, a Petrified Dread Heart, the Rat King's Ledger of Debts and the First Black Market Key. Sneak + use on a block to set one down on display (each has its own faint particles; punch it to pick it back up), or scrap it at the Scrap Bin for 4-6 Medallions.
+
+**Hard replays.** In a hard-mode world, a dungeon boss fought with someone who has beaten the Hollow King is a hard replay: 75% more health, healed to full, Strength and Resistance, and the minions that join later are buffed too. Winning one pays 2 Blood Moon Crystals, and the first win of each dungeon gives that boss's **relic** (1 in 5 after that). Relics work anywhere in your pack:
+- **Broodmother's Heartsilk**: poison never takes hold; Jump Boost I.
+- **Frost Marksman's Rimeheart**: slowness never takes hold; Speed II on ice and snow.
+- **Tyrant's Pearl**: in water, Water Breathing, Dolphin's Grace and Conduit Power.
+- **Archmage's Focus**: Weakness and Mining Fatigue never take hold; Luck I.
+- **Bobbery's Fuse**: Fire Resistance and Haste I.
+- **Hollow Crownshard**: the Wither never takes hold; Strength I.
+- **Golden Egg of Plenty**: Luck II and Hero of the Village.
+
+**Community pots** (the Banker's Card: account page, Community Pots). Everyone's Tokens go into shared pots; a full pot unlocks a buff for the whole world, for good. Give 10 or 50 at a time (from your pockets first, then your bank; a pot only takes what it still needs). Once a pot is full, each player can switch its buff off or on for themselves. No buff works inside the gutter.
+- **Lamplighters' Fund** (250): Night Lights - Night Vision for everyone at night, in the Overworld.
+- **Harvest Guild** (300): Bountiful - Luck I.
+- **Miners' Union** (400): Quick Picks - Haste I.
+- **Couriers' Guild** (400): Fleet Feet - Speed I.
+- **Hearth Fund** (500): Second Wind - under 3 hearts, Regeneration II for 5 s, then a minute's rest.
+- **Bounty Office** (600): Hunter's Purse - every monster killed has a 1 in 30 chance of a Token.
+
+Operators: `/function bm:admin/hard_lots` (every infusion, artifact and relic), `admin/pots_fill` (fills and unlocks every pot) and `admin/pots_reset` (empties them).
+
 ## New in 2.84a: hard mode, and Vesper the Dread Broker
 
 The first part of the hard-mode list. The rest (hard-mode Dark Auctions, dungeon replays, community pots, the armour rebalance, the partner wheel, Dread Nights and the Stalkers, the golden cross, Goal Day) follows in the next packages.
