@@ -3,9 +3,9 @@
 THE FORGE      toss a piece of the Regalia (the Deathmask, the Ribcage, the Greaves, the Treads), one of the King's tools (the
                Soulreaver, the Gravedigger's Maw, the Headsman's Grief, the Barrow Spade, the Witherstring), Sepulchre, or
                Apophiss's True or Unbound Crown down beside a Golden Cross. Light gathers for four seconds and the thing comes up
-               ANGELIC: white and gold, the same item - its enchantments, Dread tunings and infusions kept - with no more power
+               ANGELIC: pearl white, royal purple and blue, with gold, the same item - its enchantments, Dread tunings and infusions kept - with no more power
                than before. The cross is spent.
-WHAT CHANGES   the look (white and gold; the armour's trims turn gold), the light round it (a halo, motes of sun, feathers of
+WHAT CHANGES   the look (pearl, royal purple and blue, gold grips and gems of sapphire and amethyst; the armour's trims turn gold), the light round it (a halo, motes of sun, feathers of
                light instead of souls and smoke), and WHEN IT WAKES: by day instead of by night - sunlight wakes it as night
                did (+15% damage), high noon as the moons did (+30% damage, +10% speed). The Blood Moon still wakes it fully (holy
                things burn against the moon's monsters). Night, the moons and an invasion no longer do; at home in the Nether or
@@ -21,7 +21,8 @@ import math
 from items import T, ITEMS
 from nbt import snbt, B, F, Int
 
-HOLY, HOLY_D = '#fff2b8', '#e8c860'
+HOLY, HOLY_D = '#e8e4ff', '#9a7aff'          # (2.85d: pearl and royal purple - no more washed-out yellow)
+ROYAL = '#5a7cff'
 ANGEL_IDS = ['conq_helmet', 'conq_chestplate', 'conq_leggings', 'conq_boots', 'conq_blade', 'conq_pick', 'conq_axe', 'conq_shovel',
              'conq_hoe', 'conq_bow', 'sepulchre', 'apo_true_crown', 'apo_unbound_crown']
 ARMOR = {'conq_helmet': 'head', 'conq_chestplate': 'chest', 'conq_leggings': 'legs', 'conq_boots': 'feet'}
@@ -38,7 +39,7 @@ def ids():
 
 
 def angel_name(iid):
-    return {'text': '', 'italic': False, 'extra': [{'text': '✦ ', 'color': HOLY_D}, {'text': 'Angelic ' + ITEMS[iid]['name'], 'color': HOLY, 'bold': True},
+    return {'text': '', 'italic': False, 'extra': [{'text': '✦ ', 'color': HOLY_D}, {'text': 'Angelic ', 'color': ROYAL, 'bold': True}, {'text': ITEMS[iid]['name'], 'color': HOLY, 'bold': True},
                                                    {'text': ' ✦', 'color': HOLY_D}]}
 
 
@@ -92,7 +93,7 @@ def generate(G):
     fn('p182/f/tick', ['execute unless entity @e[type=minecraft:item,tag=bm.angc,distance=..3] run return run function bm:p182/f/fail',
                        'scoreboard players remove @s bm.angf 1',
                        'particle minecraft:end_rod ~ ~0.6 ~ 0.08 1.2 0.08 0.02 20', 'particle minecraft:wax_on ~ ~0.8 ~ 0.6 0.6 0.6 0 12',
-                       'particle minecraft:dust{color:[1.0,0.92,0.55],scale:1.4} ~ ~1.5 ~ 0.4 1.0 0.4 0 16',
+                       'particle minecraft:dust{color:[0.6,0.5,1.0],scale:1.4} ~ ~1.5 ~ 0.4 1.0 0.4 0 10', 'particle minecraft:dust{color:[0.4,0.6,1.0],scale:1.2} ~ ~1.5 ~ 0.4 1.0 0.4 0 8',
                        'playsound minecraft:block.amethyst_block.chime block @a[distance=..16] ~ ~ ~ 1 1.8',
                        'execute if score @s bm.angf matches ..0 run function bm:p182/f/done'])
     fn('p182/f/fail', ['tag @s remove bm.angf', 'data modify entity @s PickupDelay set value 0s', 'scoreboard players reset @s bm.angf',
@@ -104,7 +105,7 @@ def generate(G):
                        'particle minecraft:totem_of_undying ~ ~0.8 ~ 0.3 0.4 0.3 0.4 40',
                        'playsound minecraft:item.totem.use block @a[distance=..16] ~ ~ ~ 0.7 1.4',
                        'playsound minecraft:ui.toast.challenge_complete block @a[distance=..16] ~ ~ ~ 0.8 1.3',
-                       'execute as @a[distance=..12] run ' + title('@s', 'actionbar', T('It comes up white and gold - purified.', HOLY, bold=True))])
+                       'execute as @a[distance=..12] run ' + title('@s', 'actionbar', T('It comes up pearl, purple and gold - purified.', HOLY, bold=True))])
     fn('p182/f/spend', ['tag @s remove bm.angf', 'tag @s remove bm.angc', 'data modify entity @s PickupDelay set value 0s',
                         'execute store result score #n bm.rng run data get entity @s Item.count',
                         'execute if score #n bm.rng matches ..1 run return run kill @s',
@@ -163,9 +164,9 @@ def generate(G):
         'execute if score #rg bm.rng matches 1.. run playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 0.5 1.6',
         'execute if score #rg bm.rng matches 1.. run particle minecraft:end_rod ~ ~1 ~ 0.4 0.8 0.4 0.03 20'])
     G.FUNCS['p2/rg/fast'].insert(0, 'execute if entity @s[tag=bm.angel] run return run function bm:p182/fast')
-    halo = [f'particle minecraft:dust{{color:[1.0,0.9,0.45],scale:0.6}} ~{0.3 * math.cos(2 * math.pi * i / 8):.2f} ~2.3 ~{0.3 * math.sin(2 * math.pi * i / 8):.2f} 0 0 0 0 1'
-            for i in range(8)]
-    fn('p182/fx_0', ['particle minecraft:wax_on ~ ~1.2 ~ 0.3 0.5 0.3 0 1'])
+    halo = [f'particle minecraft:dust{{color:{("[0.62,0.48,1.0]", "[0.42,0.6,1.0]", "[1.0,0.86,0.4]", "[0.42,0.6,1.0]")[i % 4]},scale:0.6}} ~{0.3 * math.cos(2 * math.pi * i / 8):.2f} ~2.3 ~{0.3 * math.sin(2 * math.pi * i / 8):.2f} 0 0 0 0 1'
+            for i in range(8)]     # (a royal halo: purple and blue, with gold at its points)
+    fn('p182/fx_0', ['particle minecraft:dust{color:[0.5,0.55,1.0],scale:0.7} ~ ~1.2 ~ 0.3 0.5 0.3 0 1'])
     fn('p182/fx_1', halo + ['particle minecraft:end_rod ~ ~1 ~ 0.3 0.6 0.3 0.005 1'])
     fn('p182/fx_2', halo + ['particle minecraft:end_rod ~ ~1 ~ 0.35 0.7 0.35 0.01 2', 'particle minecraft:wax_on ~ ~1.4 ~ 0.4 0.6 0.4 0 2'])
     fn('p182/fx_3', halo + ['particle minecraft:dust{color:[1.0,0.35,0.2],scale:1.1} ~ ~1.2 ~ 0.3 0.5 0.3 0 2', 'particle minecraft:end_rod ~ ~1 ~ 0.3 0.6 0.3 0.01 1'])
@@ -182,7 +183,7 @@ def generate(G):
     G.FUNCS['p131/crown/glow'].insert(0, f'execute if items entity @s contents {ANGEL} run return run function bm:p182/crown_glow')
     bob = lambda y: f'data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{translation:[0f,{y}f,0f]}}}}'
     fn('p182/crown_glow', ['scoreboard players add @s bm.apt 1', 'tp @s ~ ~ ~ ~4 ~',
-                           'particle minecraft:dust{color:[1.0,0.92,0.55],scale:0.6} ~ ~0.45 ~ 0.22 0.14 0.22 0 2',
+                           'particle minecraft:dust{color:[0.62,0.5,1.0],scale:0.6} ~ ~0.45 ~ 0.22 0.14 0.22 0 2',
                            'execute store result score #r bm.rng run random value 0..5',
                            'execute if score #r bm.rng matches 0..2 run particle minecraft:end_rod ~ ~0.75 ~ 0.18 0.1 0.18 0.01 1',
                            'execute if score #r bm.rng matches 3 run particle minecraft:wax_on ~ ~0.6 ~ 0.25 0.1 0.25 0 2',
@@ -198,19 +199,51 @@ def generate(G):
     print(f'2.85b: {len(IDS)} things can be purified')
 
 
-# ================================================================== THE ART: white and gold
-LO, HI = (206, 160, 62), (255, 255, 250)
+# ================================================================== THE ART: pearl, royal purple and blue, gold
+# (2.85d: the owner found the white-gold washed out and yellow - now metal runs from royal blue in its shadows through a
+#  royal purple to pearl white, wood and grips turn to rich gold, and gems to sapphire and amethyst)
+MAIN = [(0.0, (16, 18, 64)), (0.25, (38, 58, 168)), (0.45, (104, 70, 200)), (0.66, (196, 180, 240)), (0.85, (244, 240, 255)), (1.0, (255, 255, 255))]
+GOLD = [(0.0, (92, 52, 14)), (0.45, (196, 138, 36)), (0.75, (240, 196, 74)), (1.0, (255, 236, 150))]
+SAPPHIRE = [(0.0, (14, 26, 96)), (0.5, (52, 104, 228)), (1.0, (176, 212, 255))]
+AMETHYST = [(0.0, (48, 14, 92)), (0.5, (146, 76, 222)), (1.0, (230, 196, 255))]
 
 
-def _recolor(im, lo=LO, hi=HI, stretch=2.4):
+def _ramp(stops, t):
+    t = max(0.0, min(1.0, t))
+    for (t0, c0), (t1, c1) in zip(stops, stops[1:]):
+        if t <= t1:
+            k = (t - t0) / (t1 - t0) if t1 > t0 else 0
+            return tuple(int(c0[i] + (c1[i] - c0[i]) * k) for i in range(3))
+    return stops[-1][1]
+
+
+def _recolor(im, lift=0.18):
+    """holy colours by what each pixel was: plain metal or stone by its brightness (stretched over the picture's own range),
+    wood and grips to gold, green and cyan gems to sapphire, purple, blue and red ones to amethyst"""
+    import colorsys
     from PIL import Image
-    out = Image.new('RGBA', im.size, (0, 0, 0, 0)); px, po = im.load(), out.load()
+    px = im.load()
+    lum = sorted(0.3 * r + 0.59 * g + 0.11 * b for (r, g, b, a) in im.getdata() if a)
+    if not lum: return im.copy()
+    lo, hi = lum[len(lum) // 20], lum[-1 - len(lum) // 20]
+    hi = max(hi, lo + 1)
+    out = Image.new('RGBA', im.size, (0, 0, 0, 0)); po = out.load()
     for y in range(im.height):
         for x in range(im.width):
             r, g, b, a = px[x, y]
             if a == 0: continue
-            t = min(1.0, ((0.3 * r + 0.59 * g + 0.11 * b) / 255) * stretch)
-            po[x, y] = tuple(int(lo[i] + (hi[i] - lo[i]) * t) for i in range(3)) + (a,)
+            h, sat, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+            hue = h * 360
+            if (hue <= 60 or hue >= 300) and sat > 0.35 and v > 0.22:
+                c = _ramp(GOLD, 0.2 + v * 1.25)                            # (grips, staves, the bow's wood, red jewels: gold)
+            elif sat > 0.35 and v > 0.18:
+                if 15 <= hue <= 60: c = _ramp(GOLD, v * 1.1)
+                elif 60 < hue <= 200: c = _ramp(SAPPHIRE, v)
+                else: c = _ramp(AMETHYST, v)
+            else:
+                t = max(0.0, min(1.0, ((0.3 * r + 0.59 * g + 0.11 * b) - lo) / (hi - lo)))
+                c = _ramp(MAIN, lift + (1 - lift) * t ** 0.5)           # (lifted: mostly pearl, the purple and blue down in its shadows)
+            po[x, y] = c + (a,)
     return out
 
 
@@ -250,7 +283,7 @@ def rp(R):
             if ref in done: return done[ref]
             ns, path = ref.split(':', 1) if ':' in ref else ('minecraft', ref)
             src = R2.p('assets', 'bm', 'textures', *path.split('/')) + '.png' if ns == 'bm' else f'{VAN}/textures/{path}.png'
-            im = _recolor(Image.open(src).convert('RGBA'), (214, 168, 64), (255, 255, 250), 2.0)
+            im = _recolor(Image.open(src).convert('RGBA'), 0.3)
             if im.width != im.height:
                 n = max(im.size); im = im.resize((n, n), Image.NEAREST)
             nm = 'angel_' + path.replace('/', '_')
@@ -274,7 +307,7 @@ def rp(R):
             R2.wj('assets/minecraft/atlases/blocks.json', cur)
         # the armour on the body: netherite turned to white, gold in its shadows
         for layer in ('humanoid', 'humanoid_leggings'):
-            im = _recolor(Image.open(f'{VAN}/textures/entity/equipment/{layer}/netherite.png').convert('RGBA'), (214, 170, 70), (255, 255, 250), 2.6)
+            im = _recolor(Image.open(f'{VAN}/textures/entity/equipment/{layer}/netherite.png').convert('RGBA'), 0.22)
             d = R2.p('assets', 'bm', 'textures', 'entity', 'equipment', layer)
             os.makedirs(d, exist_ok=True)
             im.save(os.path.join(d, 'angelic.png'))

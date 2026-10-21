@@ -21,6 +21,37 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.85d: seven new heist fights, the rats' calls, the Nether and End rooms' coin, a scarier Stalker, a royal angelic set
+
+**Seven new fights.** Fight turns used to draw from four rooms (the Counting House, the Arcane Study, the Champion's Pit and the Sky Isles); now they draw from eleven:
+- **The Strongroom Siege** *(Tiers I-V)*: safecrackers go for the Teller's strongbox while the guards hold you off. Three waves. A bar over the box shows how much more it can take. If they crack it, that costs a try and the siege starts over.
+- **The Sinking Vault** *(II-V)*: squares of the floor give way under the fight, one every few seconds. Fall into the hay pit and you're back at the door. Two waves and a captain. The floor mends when it's won.
+- **The Hog Pens** *(I-IV)*: vault boars charge out of their pens, then come their keepers, then the Swineherd.
+- **The Crossfire Gallery** *(II-V)*: archers stand on the balconies down both long walls, with guards below. The ladders at either end go up.
+- **The Hall of Mirrors** *(III-V)*: glass everywhere. First come guards, then the Mirror Thief, an illusioner who doubles himself. At Tier V he brings two shard wraiths.
+- **The Spider Larder** *(I-V)*: webs and bones. Spiders drop from the ceiling, then the cave spiders come, then the Broodmother.
+- **The Flooded Vault** *(II-V)*: knee-deep water slows every step. The drowned rise out of it (with tridents from Tier III), then the Drowned Bailiff appears, with a guardian at Tier V.
+
+Every new fight bars its door when it starts; a crewmate left at the bars is let through. If the whole crew is out of the room for ten seconds, the fight starts over, so nobody gets locked out.
+
+**The rats' calls.** A won heist now and then turns up an **Ember Rat's Call** or a **Void Rat's Call** in the haul: 4% each, for every raider, at any tier (Pearlman's Bell is 5%).
+- Blow the Ember Rat's call in the Nether, or the Void Rat's call out in the End past the dragon's island, and that rat sets up shop nearby, whatever the odds.
+- Nothing is used up if the rat is already out, there's no floor nearby, or you're in the wrong place.
+
+**The Nether and End rooms pay in the rats' own coin.** The heists' Nether room (the Blaze Forge) and End room (the Void Garden) now pay the coin the Ember Rat and the Void Rat trade for:
+- Win a heist after your crew beat the Forge, and each of you has a 60% chance of 2-4 **Ember Scales** in the haul.
+- After the Garden, the same chance of 2-4 **Void Shards**.
+
+**The Stalker**, made more frightening:
+- Its legs and arms are much longer and thinner, with knotted knees and elbows. The arms hang far past where arms should end and rise into longer claws. It stands about 3.4 blocks tall.
+- Its face is blank: no brow, no nose, no eyes, just two long, empty hollows with something dark run down from them, in a longer, narrower skull. The Stalker's Grin hat wears the same face.
+
+**The angelic set and crowns, prettier.** The washed-out white-gold is gone:
+- The metal is pearl white, shading into royal purple and then royal blue in its shadows.
+- Grips, the bow's wood and the crowns' red jewels are rich gold; their gems are sapphire and amethyst.
+- The armour on the body matches, still with its gold trim.
+- The names read "✦ **Angelic** *(royal blue)* ... ✦", and the halo is purple and blue with gold at its points.
+
 ## New in 2.85c: the Rat Race (Goal Day)
 
 The owner's "Goal Day", renamed **the Rat Race**: one day's job for the whole server, raced against the sunset.

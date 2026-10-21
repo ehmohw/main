@@ -15,14 +15,14 @@ THE HUNTED     everyone in the Overworld who has beaten the Hollow King. STALKER
                slower than you sprint (4.8 blocks a second, measured): get far enough away (64 blocks) and they lose you - a
                new one rises 15-30 s later. Stand still and they don't need to walk: after 8 seconds in one spot (a warning
                at 5) one simply steps out of the dark behind you.
-               In the dark you see only their eyes.
+               In the dark you see only their shape - there is nothing in their faces.
 THE GOLDEN CROSS (Vesper, 1 Dread Token; sneak + use on a floor or a wall)   Stalkers won't come within a 30x30 square of it
                (15 blocks every way) - they're thrown back at its edge, and never rise or step out of the dark inside it.
                Punch it to take it back.
 DAWN           the Stalkers come apart. Anyone hunted for most of the night (6 minutes in the Overworld) who didn't die gets
                3 DREAD ESSENCE, and 1 more for every Stalker they outran (up to 3 more).
 DREAD ESSENCE  Vesper takes it: 2 for 3 Dread Tokens; 3 for a DREAD BELL (ring it: tonight is a Dread Night); 6 for the
-               STALKER'S GRIN (a hat: their face, the eyes still lit). 16 tossed down with 4 Dread Tokens forge a DREAD TOTEM.
+               STALKER'S GRIN (a hat: their face, its empty hollows). 16 tossed down with 4 Dread Tokens forge a DREAD TOTEM.
 THE DREAD TOTEM   carried anywhere in your inventory: no monster spawns within 32 blocks of you, and monsters near you won't
                turn on you (nor Dread monsters' Pulse and Mark). It does nothing against Stalkers - only the cross does.
 """
@@ -61,7 +61,7 @@ item('dread_totem', TOTEM, 'Dread Totem', DREAD,
       ('and monsters near you will not turn on you.', 'blue'), ('It does nothing against a Stalker.', 'dark_red'),
       ('Forged: 16 Dread Essence and 4 Dread Tokens.', 'gray')], model='bm:dread_totem', stack=1, cat='magic')
 hat('stalker_grin', "Stalker's Grin", DREAD, 'bm:stalker_grin', 'minecraft:dust{color:[0.7,0.0,0.05],scale:0.6} ~ ~1.8 ~ 0.15 0.05 0.15 0 1', None,
-    ['Their face. The eyes are still lit.', ('From Vesper, for Dread Essence.', 'dark_gray')])
+    ['Their face. Nothing looks out of it.', ('From Vesper, for Dread Essence.', 'dark_gray')])
 HOLD['golden_cross'] = 'bm:p181/cross/use'
 P160.RECIPES.append(('dtotem', 'Dread Totem', DREAD, ['0.69,0.06,0.16', '0.82,0.25,0.42', '0.2,0.0,0.03'],
                      (holds('dread_essence'), 16), [(holds('dread_token'), 4)], None, None))
@@ -247,7 +247,7 @@ def generate(G):
                            {'id': 'minecraft:step_height', 'base': 1.1}, {'id': 'minecraft:safe_fall_distance', 'base': 64.0},
                            {'id': 'minecraft:spawn_reinforcements', 'base': 0.0}],
             'drop_chances': {'head': F(0), 'chest': F(0), 'legs': F(0), 'feet': F(0), 'mainhand': F(0), 'offhand': F(0)},
-            'Passengers': [disp('bm.stkb', 'bm:stalker_body', 1.0, 2.0), disp('bm.stkh', 'bm:stalker_head', 2.85, 2.0, 0.05, TILT)]}
+            'Passengers': [disp('bm.stkb', 'bm:stalker_body', 1.0, 2.0), disp('bm.stkh', 'bm:stalker_head', 3.4, 2.0, 0.05, TILT)]}
     # rising: a spot 30-40 blocks off in a random direction that fits it (on the surface when you're under the sky, near your
     # own height when you aren't), not in a cross's ground - six tries a second
     fn('p181/stk/rise', ['scoreboard players set #rt bm.rng 6', 'tag @s add bm.stko', 'function bm:p181/stk/try', 'tag @s remove bm.stko'])
@@ -501,7 +501,7 @@ def generate(G):
 # ================================================================== THE ART
 def textures():
     """the Stalker, after the owner's drawing: sage-olive skin with a darker shadow side, ribs and a navel, a bald skull with
-    small black eyes (red pinpoints), and a maw - dark red, ringed with jagged teeth"""
+    a blank face with two empty hollows (2.85d: no brow, no nose, no pupils), and a maw - dark red, ringed with jagged teeth"""
     from PIL import Image, ImageDraw
     import random
     rnd = random.Random(2085)
@@ -528,11 +528,16 @@ def textures():
     d.line((7, 3, 7, 9), fill=MID)
     ribs.putpixel((7, 13), LINE + (255,)); ribs.putpixel((8, 13), DARK + (255,))
     T_['stk_ribs'] = ribs
-    face = skin(LIGHT); d = ImageDraw.Draw(face)
-    for cx in (4, 11):                                             # small black eyes, set wide (the red is lit, in the model)
-        d.ellipse((cx - 2, 6, cx + 1, 9), fill=LINE)
-    d.line((7, 12, 7, 13), fill=DARK); d.line((9, 12, 9, 13), fill=DARK)          # two slits for a nose
-    d.line((2, 4, 5, 5), fill=DARK); d.line((13, 4, 10, 5), fill=DARK)          # a heavy brow
+    face = skin(LIGHT, edge=False); px = face.load()               # a blank face: smooth, no brow, no nose - only the hollows (their own boxes)
+    for y in range(16):                                            # (sunken under the cheekbones and round the sockets, paler down the middle)
+        for x in range(16):
+            dx = abs(x - 7.5)
+            k = 1.0 + 0.05 * (1 - dx / 8) - (0.1 if 10 <= y <= 14 and 2 <= dx <= 6 else 0) - (0.12 if 3 <= y <= 11 and 2 <= dx <= 6 else 0)
+            px[x, y] = tuple(max(0, min(255, int(c * k))) for c in px[x, y][:3]) + (255,)
+    for cx in (4, 11):                                             # (and something dark has run down from each, long ago)
+        for y in range(10, 16):
+            px[cx, y] = tuple(int(c * (0.45 + 0.06 * (y - 10))) for c in px[cx, y][:3]) + (255,)
+        px[cx + (1 if cx < 8 else -1), 12] = tuple(int(c * 0.6) for c in px[cx, 12][:3]) + (255,)
     T_['stk_face'] = face
     teeth = skin(LIGHT); d = ImageDraw.Draw(teeth)                 # the upper jaw's front: lip above, jagged teeth hanging
     d.rectangle((0, 7, 15, 15), fill=(70, 14, 20, 255))
@@ -556,13 +561,14 @@ def textures():
     for x in range(16):
         claw.putpixel((x, 15), LINE + (255,))
     T_['stk_claw'] = claw
-    eye = Image.new('RGBA', (16, 16), (24, 8, 8, 255)); d = ImageDraw.Draw(eye)
-    d.ellipse((5, 5, 10, 10), fill=(255, 40, 30, 255))
+    eye = Image.new('RGBA', (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(eye)   # an empty hollow: a dark rim, black all the way down
+    d.ellipse((0, 0, 15, 15), fill=(70, 68, 44, 255)); d.ellipse((2, 1, 13, 15), fill=(26, 24, 14, 255)); d.ellipse((4, 3, 11, 15), fill=(0, 0, 0, 255))
     T_['stk_eye'] = eye
     return T_
 
 
 CUBE = None                            # (gen_rp's cube, set by rp())
+LIFT = 4.4                             # (2.85d: the longer legs lift its torso this much, in model units - its head rides 0.55 higher)
 
 
 def _b(fr, to, tex, rot=None, light=0, full=False):
@@ -575,63 +581,68 @@ def _b(fr, to, tex, rot=None, light=0, full=False):
 
 
 def stalker_models():
-    """built at half its size (the displays double it): about 2.7 blocks of thin olive thing - long legs on clawed feet, a
-    ribbed chest, a long neck, arms raised with long hooked claws, and a bald head tipped back over a gaping maw"""
+    """built at half its size (the displays double it): about 3.4 blocks of starved olive thing - long, thin legs knotted at
+    the knee, a ribbed chest, a long neck, arms that hang past where arms should end and rise into long hooked claws, and a
+    bald head tipped back over a gaping maw: no brow, no nose, no eyes - two empty hollows in a blank face"""
     Z = lambda a, o: {'angle': a, 'axis': 'z', 'origin': o}
-    X = lambda a, o: {'angle': a, 'axis': 'x', 'origin': o}
+    L = LIFT                                                       # (the torso sits this much higher on the longer legs)
     body = [
-        _b((6.3, 1.0, 7.5), (7.4, 10.4, 8.5), 'stk_skin'), _b((8.6, 1.0, 7.5), (9.7, 10.4, 8.5), 'stk_shade'),     # long legs
-        _b((6.2, 4.6, 7.3), (7.5, 5.6, 8.6), 'stk_skin'), _b((8.5, 4.6, 7.3), (9.8, 5.6, 8.6), 'stk_shade'),      # knees
-        _b((6.0, 0, 6.2), (7.6, 1.0, 8.7), 'stk_skin'), _b((8.4, 0, 6.2), (10.0, 1.0, 8.7), 'stk_shade'),         # long feet
-        _b((6.6, 9.8, 7.4), (9.4, 11.6, 8.6), 'stk_skin'),                                                        # narrow hips
-        _b((6.9, 11.6, 7.6), (9.1, 13.0, 8.4), 'stk_skin'),                                                       # a starved waist
-        _b((6.0, 13.0, 7.2), (10.0, 17.0, 8.8), 'stk_skin'),                                                      # the ribcage
-        _b((5.4, 16.2, 7.4), (10.6, 17.2, 8.6), 'stk_skin'),                                                      # bony shoulders
-        _b((7.5, 17.0, 7.7), (8.5, 19.2, 8.3), 'stk_skin'),                                                       # a long thin neck
+        _b((6.65, 0.8, 7.6), (7.45, 15.0, 8.4), 'stk_skin'), _b((8.55, 0.8, 7.6), (9.35, 15.0, 8.4), 'stk_shade'),  # long, thin legs
+        _b((6.5, 7.4, 7.45), (7.6, 8.5, 8.55), 'stk_skin'), _b((8.4, 7.4, 7.45), (9.5, 8.5, 8.55), 'stk_shade'),    # knotted knees
+        _b((6.55, 1.6, 7.5), (7.55, 2.2, 8.5), 'stk_skin'), _b((8.45, 1.6, 7.5), (9.45, 2.2, 8.5), 'stk_shade'),    # bony ankles
+        _b((6.4, 0, 6.0), (7.7, 0.8, 8.6), 'stk_skin'), _b((8.3, 0, 6.0), (9.6, 0.8, 8.6), 'stk_shade'),            # long feet
+        _b((6.7, 9.8 + L, 7.5), (9.3, 11.4 + L, 8.5), 'stk_skin'),                                                  # narrow hips
+        _b((7.1, 11.4 + L, 7.7), (8.9, 13.0 + L, 8.3), 'stk_skin'),                                                 # a starved waist
+        _b((6.2, 13.0 + L, 7.3), (9.8, 17.0 + L, 8.7), 'stk_skin'),                                                 # the ribcage
+        _b((5.6, 16.3 + L, 7.45), (10.4, 17.1 + L, 8.55), 'stk_skin'),                                              # bony shoulders
+        _b((7.6, 17.0 + L, 7.75), (8.4, 19.4 + L, 8.25), 'stk_skin'),                                               # a long thin neck
+        _b((6.9, 7.6, 7.65), (7.2, 9.8 + L, 8.35), 'stk_shade'), _b((8.8, 7.6, 7.65), (9.1, 9.8 + L, 8.35), 'stk_shade'),  # (the thighs' sinew)
     ]
-    body[8]['faces']['north']['texture'] = '#stk_ribs'
+    body[10]['faces']['north']['texture'] = '#stk_ribs'
     import math as _m
 
-    def seg(top, ang, length, w, tex, up=False, z0=7.55, z1=8.45):
+    def seg(top, ang, length, w, tex, up=False, z0=7.6, z1=8.4):
         """a limb from a joint, swung `ang` degrees about z (hanging down from the joint, or raised up from it): its box, and where it ends"""
         x, y = top
         r = _m.radians(ang)
         if up:
             return _b((x - w / 2, y, z0), (x + w / 2, y + length, z1), tex, Z(ang, [x, y, 8.0])), (x - length * _m.sin(r), y + length * _m.cos(r))
         return _b((x - w / 2, y - length, z0), (x + w / 2, y, z1), tex, Z(ang, [x, y, 8.0])), (x + length * _m.sin(r), y - length * _m.cos(r))
-    # its right arm (-x): out and down to the elbow, the forearm raised, the hand high; its left (+x): out wide, reaching
-    for side, sh, a1, a2, tex in ((-1, (5.6, 16.8), -22.5, 22.5, 'stk_skin'), (1, (10.4, 16.8), 22.5, -45, 'stk_shade')):
-        upper, elbow = seg(sh, a1, 4.0, 1.0, tex)
-        fore, hand = seg(elbow, a2, 5.0, 0.9, tex, up=True)
-        body += [upper, fore, _b((elbow[0] - 0.55, elbow[1] - 0.5, 7.45), (elbow[0] + 0.55, elbow[1] + 0.5, 8.55), tex)]
-        for k, dz in enumerate((7.25, 7.8, 8.35)):                 # three long hooked claws, the outer one splayed
+    # its right arm (-x): hanging long to a low elbow, the forearm raised; its left (+x): out wide, reaching - both far too long
+    for side, sh, a1, a2, tex in ((-1, (5.8, 16.9 + L), -22.5, 22.5, 'stk_skin'), (1, (10.2, 16.9 + L), 22.5, -45, 'stk_shade')):
+        upper, elbow = seg(sh, a1, 6.6, 0.75, tex)
+        fore, wrist = seg(elbow, a2, 7.4, 0.65, tex, up=True)
+        body += [upper, fore, _b((elbow[0] - 0.45, elbow[1] - 0.45, 7.5), (elbow[0] + 0.45, elbow[1] + 0.45, 8.5), tex)]   # a knob of an elbow
+        palm, hand = seg(wrist, a2, 1.2, 0.9, tex, up=True)
+        body.append(palm)
+        for k, dz in enumerate((7.3, 7.8, 8.3)):                   # three long hooked claws, the outer one splayed
             fa = a2 + (side * 22.5 if k == 2 else 0)
-            fbox, tip = seg((hand[0], hand[1]), fa, 3.6 - 0.4 * abs(k - 1), 0.42, 'stk_claw', up=True, z0=dz, z1=dz + 0.42)
-            hbox, _t = seg(tip, fa - side * 45, 2.2, 0.36, 'stk_claw', up=True, z0=dz, z1=dz + 0.36)
+            fbox, tip = seg((hand[0], hand[1]), fa, 4.4 - 0.5 * abs(k - 1), 0.36, 'stk_claw', up=True, z0=dz, z1=dz + 0.36)
+            hbox, _t = seg(tip, fa - side * 45, 2.6, 0.3, 'stk_claw', up=True, z0=dz, z1=dz + 0.3)
             body += [fbox, hbox]
-    for fx0 in (6.0, 8.4):                                         # and on the feet, three long toes splayed forward
+    for fx0 in (6.4, 8.3):                                         # and on the feet, three long toes splayed forward
         for k in range(3):
-            x0 = fx0 + 0.05 + 0.6 * k
-            body.append(_b((x0, 0, 4.4), (x0 + 0.35, 0.35, 6.3), 'stk_claw'))
+            x0 = fx0 + 0.05 + 0.45 * k
+            body.append(_b((x0, 0, 3.6), (x0 + 0.3, 0.3, 6.0), 'stk_claw'))
     head = [
-        _b((6.0, 8.0, 6.4), (10.0, 11.8, 10.0), 'stk_skin'),                                                     # a bald skull
-        _b((6.5, 11.8, 6.9), (9.5, 12.4, 9.5), 'stk_skin'),                                                      # its crown, rounding off
-        _b((6.01, 8.0, 6.39), (9.99, 11.8, 6.4), 'stk_face', full=True),                                         # small eyes, a nose
-        _b((6.3, 6.6, 5.2), (9.7, 8.0, 9.4), 'stk_skin'),                                                        # the upper jaw, jutting
-        _b((6.31, 6.6, 5.19), (9.69, 8.0, 5.2), 'stk_teeth', full=True),                                         # teeth hanging from it
-        _b((6.6, 5.0, 6.0), (9.4, 6.6, 9.2), 'stk_maw', full=True),                                              # the throat, wide open
-        _b((6.4, 4.2, 4.4), (9.6, 5.0, 9.2), 'stk_shade'),                                                       # the lower jaw, thrust out
-        _b((6.5, 5.0, 4.5), (9.5, 5.02, 8.8), 'stk_maw', full=True),                                             # its tongue and lower teeth
-        _b((10.0, 9.4, 8.2), (12.6, 10.2, 9.2), 'stk_skin', Z(22.5, [10.0, 9.8, 8.7])),                          # pointed ears, swept back
-        _b((3.4, 9.4, 8.2), (6.0, 10.2, 9.2), 'stk_skin', Z(-22.5, [6.0, 9.8, 8.7])),
-        _b((6.85, 9.35, 6.32), (7.35, 9.85, 6.38), 'stk_eye', light=15, full=True),                              # red pinpoints: all you see in the dark
-        _b((8.65, 9.35, 6.32), (9.15, 9.85, 6.38), 'stk_eye', light=15, full=True),
+        _b((6.4, 8.0, 6.4), (9.6, 12.6, 9.8), 'stk_skin'),                                                       # a long, narrow, bald skull
+        _b((6.8, 12.6, 6.8), (9.2, 13.1, 9.4), 'stk_skin'),                                                      # its crown, rounding off
+        _b((6.41, 8.0, 6.39), (9.59, 12.6, 6.4), 'stk_face', full=True),                                         # a blank face: no brow, no nose
+        _b((6.6, 6.6, 5.2), (9.4, 8.0, 9.4), 'stk_skin'),                                                        # the upper jaw, jutting
+        _b((6.61, 6.6, 5.19), (9.39, 8.0, 5.2), 'stk_teeth', full=True),                                         # teeth hanging from it
+        _b((6.8, 5.0, 6.0), (9.2, 6.6, 9.2), 'stk_maw', full=True),                                              # the throat, wide open
+        _b((6.6, 4.2, 4.4), (9.4, 5.0, 9.2), 'stk_shade'),                                                       # the lower jaw, thrust out
+        _b((6.7, 5.0, 4.5), (9.3, 5.02, 8.8), 'stk_maw', full=True),                                             # its tongue and lower teeth
+        _b((9.6, 10.0, 8.2), (12.0, 10.7, 9.2), 'stk_skin', Z(22.5, [9.6, 10.35, 8.7])),                         # pointed ears, swept back
+        _b((4.0, 10.0, 8.2), (6.4, 10.7, 9.2), 'stk_skin', Z(-22.5, [6.4, 10.35, 8.7])),
+        _b((6.85, 9.5, 6.36), (7.65, 11.5, 6.39), 'stk_eye', full=True),                                         # two long, empty hollows where eyes should be
+        _b((8.35, 9.5, 6.36), (9.15, 11.5, 6.39), 'stk_eye', full=True),
     ]
     # the hat: its face, worn over yours, the maw hanging open at your chin
     grin = [_b((3.4, 8.0, 2.9), (12.6, 15.6, 3.6), 'stk_skin'), _b((3.41, 8.0, 2.88), (12.59, 15.6, 2.9), 'stk_face', full=True),
             _b((3.6, 5.0, 2.4), (12.4, 8.0, 3.6), 'stk_skin'), _b((3.61, 5.0, 2.38), (12.39, 8.0, 2.4), 'stk_teeth', full=True),
             _b((3.8, 2.4, 1.6), (12.2, 3.4, 3.6), 'stk_shade'), _b((3.9, 3.4, 1.7), (12.1, 3.42, 3.4), 'stk_maw', full=True),
-            _b((4.6, 11.2, 2.8), (5.6, 12.2, 2.88), 'stk_eye', light=15, full=True), _b((10.4, 11.2, 2.8), (11.4, 12.2, 2.88), 'stk_eye', light=15, full=True),
+            _b((4.2, 10.6, 2.8), (6.2, 12.6, 2.88), 'stk_eye', full=True), _b((9.8, 10.6, 2.8), (11.8, 12.6, 2.88), 'stk_eye', full=True),
             _b((3.0, 14.4, 2.9), (13.0, 15.8, 13.0), 'stk_skin'), _b((3.0, 8.0, 12.4), (13.0, 15.8, 13.0), 'stk_shade')]
     return {'stalker_body': body, 'stalker_head': head, 'stalker_grin': grin}
 

@@ -164,6 +164,7 @@ import phase179 as R179      # 2.84c: the armour rebalance (before phase177 copi
 import phase180 as R180      # 2.84d: the Omni Token, golden dolls, the Eldritch Panoply; hard mode for King-beaters only
 import phase181 as R181      # 2.85a: Dread Nights, the Stalkers, the golden cross, Dread Essence and the Dread Totem
 import phase182 as R182      # 2.85b: angelic forging - the Regalia and the crowns purified with a Golden Cross
+import phase184 as R184      # 2.85d: heist wins call the Nether/End rats, the Forge/Garden pay their coin, seven new fight rooms
 import phase183 as R183      # 2.85c: the Rat Race (Goal Day) - the Starter's Pistol, a day's job for everyone, the Lucky Horseshoe
 import phase177 as R177      # 2.84a: Vesper, the Dread Broker - Dread Tokens, his Ledger (wards, tuning, reforging), the long work
 import phase178 as R178      # 2.84b: hard mode's Dark Auction lots, hard dungeon replays and their relics, the community pots
@@ -183,7 +184,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.85c'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.85d'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1327,6 +1328,7 @@ def build(out_dir):
     R181.generate(sys.modules[__name__])        # 2.85a: Dread Nights, Stalkers, the golden cross, the Dread Totem
     R182.generate(sys.modules[__name__])        # 2.85b: angelic forging
     print('2.85c: the Rat Race - %d jobs, %d prizes in the draw' % R183.generate(sys.modules[__name__]))
+    print('2.85d: %d new fight rooms, the rats\' calls, the Forge/Garden coin' % R184.generate(sys.modules[__name__]))
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))
     R28.finalize(sys.modules[__name__])
     print('market rebuild: %d entity tags cleared, %d per-market lines wait for the new town' % R168.finalize(sys.modules[__name__]))
