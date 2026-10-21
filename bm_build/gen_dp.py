@@ -154,6 +154,7 @@ import phase164 as R164      # 2.80e: Apophiss's Unbound Crown - the True Crown,
 import phase163 as R163      # 2.80d: Dennis and Pistachio, the followers (fifty trades), their pairs and the Crown's Prospect
 import phase169 as R169      # 2.82: King Omega - the Omega Palace, his tomb, his coming, his fight, his peace, the King at court
 import phase170 as R170      # 2.82: King Omega, the follower (Omega's Monocle), the Serpent Kings, the Palace Household
+import phase185 as R185      # 2.86: Ashur, the fire follower (Ashur's Cinder) - found in the hot country
 import phase171 as R171      # 2.82b: the Town Directory - who's where in the rat town, and a trail of light there
 import phase172 as R172      # 2.82b: King Omega's tithe - triple currency from custom mobs, 1% from the rest, while he's out
 import phase173 as R173      # 2.82t: the urgent fixes - Ledger, Dark Auction, Hollow, Wilfrey, followers, satchel, cooler, Apophiss, map pieces
@@ -184,7 +185,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.85d'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.86'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1274,6 +1275,7 @@ def build(out_dir):
     if PHASE2: R145.generate_early(sys.modules[__name__])
     if PHASE2: R163.generate_early(sys.modules[__name__])
     if PHASE2: R170.generate_early(sys.modules[__name__])
+    if PHASE2: R185.generate_early(sys.modules[__name__])
     if PHASE2: R133.generate(sys.modules[__name__])
     if PHASE2: R134.generate(sys.modules[__name__])
     if PHASE2: R135.generate(sys.modules[__name__])
@@ -1309,6 +1311,7 @@ def build(out_dir):
     R168.generate(sys.modules[__name__])
     if PHASE2: R169.generate(sys.modules[__name__])
     if PHASE2: R170.generate(sys.modules[__name__])
+    if PHASE2: R185.generate(sys.modules[__name__])
     R171.generate(sys.modules[__name__])
     R172.generate(sys.modules[__name__])
     R161.generate(sys.modules[__name__])

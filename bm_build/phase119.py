@@ -19,9 +19,9 @@ CREW = '#9ad0ff'
 PAGE = 7950                                   # the page; its wardrobes 7951-7957, Emma's buffs 7961-7965
 WHO = [('emma', 'Emma'), ('celi', 'Celi'), ('zib', 'Zib'), ('cecil', 'Cecil'), ('kw', 'KillerWatt'), ('leo', 'Leo'), ('demo', 'Democratus'),
        ('apo', 'Apophiss'), ('tul', 'Tullius'), ('frog', 'The Frog'), ('don', 'Donado'), ('pearl', 'Pearlman'), ('wil', 'Wilfrey'), ('fishy', 'Fishy'),
-       ('dennis', 'Dennis'), ('pistachio', 'Pistachio'), ('omega', 'King Omega')]
+       ('dennis', 'Dennis'), ('pistachio', 'Pistachio'), ('omega', 'King Omega'), ('ashur', 'Ashur')]
 COL = {'emma': '#ff7ad0', 'celi': '#9ad8ff', 'zib': '#3ad8c8', 'cecil': '#b48cff', 'kw': '#ffe040', 'leo': '#5ab8e0', 'demo': '#7ad06a',
-       'apo': '#3ad06a', 'tul': '#7ad8ff', 'frog': '#6ac850', 'don': '#e8d29a', 'pearl': '#5ac8ff', 'wil': '#f4f4f4', 'fishy': '#ffa040', 'dennis': '#e0a040', 'pistachio': '#7ae890', 'omega': '#9fb4ff'}
+       'apo': '#3ad06a', 'tul': '#7ad8ff', 'frog': '#6ac850', 'don': '#e8d29a', 'pearl': '#5ac8ff', 'wil': '#f4f4f4', 'fishy': '#ffa040', 'dennis': '#e0a040', 'pistachio': '#7ae890', 'omega': '#9fb4ff', 'ashur': '#ff7a2a'}
 WD2 = 8280                                    # 2.78: the wardrobes past the seventh (8280-8286; 7958-7960 is too little room)
 wcode = lambda i: PAGE + 1 + i if i < 7 else WD2 + i - 7
 

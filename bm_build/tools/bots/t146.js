@@ -27,7 +27,7 @@ const res = [];
   const KINDS = [['Zib', 'donadian_medal', 'wolf', 'bm.zibpet', -4], ['KillerWatt', 'kw_spark', 'wolf', 'bm.kxpet', 0], ['Pearlman', 'pearl_card', 'cat', 'bm.pmpet', 4],
                  ['Wilfrey', 'wilfrey_locket', 'wolf', 'bm.wilfrey', -2], ['Fishy', 'fy_bowl', 'wolf', 'bm.fypet', 2],
                  ['Dennis', 'dw_horn', 'wolf', 'bm.dwpet', -6], ['Pistachio', 'pi_cloche', 'wolf', 'bm.pipet', 6],
-                 ['Omega', 'om_monocle', 'wolf', 'bm.ompet', 8]];
+                 ['Omega', 'om_monocle', 'wolf', 'bm.ompet', 8], ['Ashur', 'ashur_cinder', 'wolf', 'bm.aspet', -8]];
   for (const [name, iid, host, tag, dx] of KINDS) {
     await run(`${O}summon minecraft:item_frame ${X + dx} ${Y + 2} ${Z + 4} {Facing:2b,Tags:["bm.t146f"]}`); await sleep(400);
     await run(`loot replace entity TestRat hotbar.0 loot bm:items/${iid}`); await sleep(300);

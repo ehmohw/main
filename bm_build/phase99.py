@@ -50,8 +50,12 @@ NEW = {'leo': ('Leo', '#5ab8e0', 'Tabard', {1: ('Crimson Crusader', ('#2a0408', 
                                                           3: ('Ivory Tails', ('#5a5448', '#b8b0a0', '#f4efe4')), 4: ('Gilded Tails', ('#3a2806', '#c8962a', '#ffe08a')), 5: ('Diamond Tails', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite Tails', ('#141014', '#4a4046', '#9a8c94'))}),
        # 2.82: King Omega's spectral hide
        'omega': ('King Omega', '#9fb4ff', 'Spirit', {1: ('Spectral Blue', ('#0a1a3a', '#3a6ac8', '#a8d0ff')), 2: ('Blood Moon', ('#24040a', '#8a1a24', '#f07a70')),
-                                                    3: ('Verdant Wraith', ('#062210', '#2a8a4a', '#a0f0b0')), 4: ('Gilded King', ('#3a2806', '#c8962a', '#ffe08a')), 5: ('Diamond King', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite King', ('#141014', '#4a4046', '#9a8c94'))})}
+                                                    3: ('Verdant Wraith', ('#062210', '#2a8a4a', '#a0f0b0')), 4: ('Gilded King', ('#3a2806', '#c8962a', '#ffe08a')), 5: ('Diamond King', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite King', ('#141014', '#4a4046', '#9a8c94'))}),
+       # 2.86: Ashur's magma dress - the rock and its glowing cracks recoloured together
+       'ashur': ('Ashur', '#ff7a2a', 'Dress', {1: ('Blue Flame', ('#040a26', '#1a52d0', '#a8f0ff')), 2: ('Verdant Ember', ('#04200a', '#2aa040', '#c0ff8a')),
+                                              3: ('Obsidian Rose', ('#160616', '#8a1a6a', '#ff8ad8')), 4: ('Gilded Magma', ('#3a2806', '#c8962a', '#ffe08a')), 5: ('Diamond Magma', ('#06323a', '#1a9aa0', '#a8fff4')), 6: ('Netherite Magma', ('#141014', '#4a4046', '#9a8c94'))})}
 HIDDEN = 4
+SHE = {'ashur'}                                  # (2.86: the first of the newer followers who's a she)
 RECOLOUR = {'leo': ('le_tunic', 'le_skirt', 'le_cape'), 'demo': ('dm_hood', 'dm_hood_dk', 'dm_cape'), 'cecil': ('cec_robe', 'cec_robe_dark')}
 # (2.79b: with Leo's metal looks his helm and armour turn to match - head included; 2.80c: gold with the Golden Champion, no longer diamond)
 ARMOUR = {'leo': ('le_steel', 'le_steel_dk', 'le_mail')}
@@ -66,18 +70,19 @@ DYE = {'Crimson Crusader': 'red', 'Royal Purple': 'purple', 'Greenwood': 'green'
        'Road Brown': 'brown', 'Biker Red': 'red', 'Forest Leather': 'green', 'Gilded Jacket': 'yellow', 'Diamond Jacket': 'light_blue', 'Netherite Jacket': 'black',
        'Midnight Tails': 'blue', 'Claret Tails': 'red', 'Ivory Tails': 'white', 'Gilded Tails': 'yellow', 'Diamond Tails': 'light_blue', 'Netherite Tails': 'black',
        'Spectral Blue': 'light_blue', 'Blood Moon': 'red', 'Verdant Wraith': 'lime', 'Gilded King': 'yellow', 'Diamond King': 'light_blue', 'Netherite King': 'black',
+       'Blue Flame': 'blue', 'Verdant Ember': 'lime', 'Obsidian Rose': 'pink', 'Gilded Magma': 'yellow', 'Diamond Magma': 'light_blue', 'Netherite Magma': 'black',
        'Netherite Champion': 'black', 'Netherite Storm': 'black', 'Netherite': 'black', 'Netherite Coil': 'black', 'Netherite Captain': 'black', 'Netherite Prince': 'black', 'Netherite Topper': 'black', 'Netherite Sun': 'black', 'Netherite Thunder': 'black'}
 WORD = {'apo': 'his scales', 'tul': 'his coat', 'frog': 'his skin', 'don': 'his coat', 'pearl': 'his bow tie and hat band', 'wil': 'the shield he bears',
-        'fishy': 'his top hat', 'dennis': 'his leather jacket', 'pistachio': 'his tail-coat', 'omega': 'his spectral hide'}
+        'fishy': 'his top hat', 'dennis': 'his leather jacket', 'pistachio': 'his tail-coat', 'omega': 'his spectral hide', 'ashur': 'her magma dress'}
 for _w, (_who, _col, _word, _set) in NEW.items():
     for _k, (_n, _pal) in _set.items():
         _iid = f'cos_{_w}_{_k}'
         _short = {'frog': 'The Frog'}.get(_w, _who)
         _menu = {'wil': 'Sneak + use his locket while he rests: his wardrobe.', 'pearl': 'Sneak + use his card: his menu - Wardrobe.'}.get(
-            _w, 'Sneak + use his own item: his menu - Wardrobe.' if _w in WORD else 'Sneak + use his own item: his menu - change any time.')
+            _w, ('Sneak + use her own item: her menu - Wardrobe.' if _w in SHE else 'Sneak + use his own item: his menu - Wardrobe.') if _w in WORD else 'Sneak + use his own item: his menu - change any time.')
         item(_iid, TOTEM, f"{_short}'s {_word}: {_n}", _pal[1] if _pal[1] != '#55555c' else '#9a9aa2',
              [f'{_n} - for {_who} alone.' if _w not in WORD else f'{_n} - {WORD[_w]}, for {_who} alone.',
-              ('Use: it\'s his for good - in his wardrobe.', 'blue'), (_menu, 'gray')] +
+              (f'Use: it\'s {"hers" if _w in SHE else "his"} for good - in {"her" if _w in SHE else "his"} wardrobe.', 'blue'), (_menu, 'gray')] +
              ([('Hidden: rare - a Gutter Trophy at Goldtooth.', 'dark_gray')] if _k == HIDDEN else []) +
              ([('With a gem in him, the gem\'s element shows instead.', 'dark_gray')] if _w in ('cecil', 'kw') else []),
              model=f'minecraft:{DYE[_n]}_dye', glint=_k == HIDDEN or None, stack=1, cat='cosmetic', comps=hold('none'))
@@ -92,20 +97,21 @@ BASE = {'emma': 9800, 'celi': 9840, 'zib': 9860, 'cecil': 9880, 'kw': 9900, 'leo
         'apo': 9000, 'tul': 9020, 'frog': 9040, 'don': 9060, 'pearl': 9080, 'wil': 9100,         # (2.78: the rest - their own blocks of 20)
         'fishy': 9120,                                                                             # (2.79)
         'dennis': 2240, 'pistachio': 2260,                                                         # (2.80d)
-        'omega': 2300}                                                                             # (2.82)
+        'omega': 2300,
+        'ashur': 2460}                                                                             # (2.82)
 TOP = {'emma': 9839, 'celi': 9859, 'zib': 9879, 'cecil': 9899, 'kw': 9919, 'leo': 9939, 'demo': 9959}   # each follower's last code
 TOP.update({w: b + 19 for w, b in BASE.items() if w not in TOP})
 COS = {'leo': 'bm.cosl', 'demo': 'bm.cosm', 'cecil': 'bm.cosce', 'kw': 'bm.cosk', 'apo': 'bm.cosap', 'tul': 'bm.costu', 'frog': 'bm.cosfg', 'don': 'bm.cosdn',
-       'pearl': 'bm.cospm', 'wil': 'bm.coswl', 'fishy': 'bm.cosfy', 'dennis': 'bm.cosdw', 'pistachio': 'bm.cospi', 'omega': 'bm.cosom'}
+       'pearl': 'bm.cospm', 'wil': 'bm.coswl', 'fishy': 'bm.cosfy', 'dennis': 'bm.cosdw', 'pistachio': 'bm.cospi', 'omega': 'bm.cosom', 'ashur': 'bm.cosas'}
 NAMES = {'emma': ('Emma', '#ff7ad0', 'her'), 'celi': ('Celi', '#9ad8ff', 'her'), 'zib': ('Zib', '#3ad8c8', 'him'), 'cecil': ('Cecil', '#b48cff', 'him'),
          'kw': ('KillerWatt', '#ffe040', 'him'), 'leo': ('Leo', '#5ab8e0', 'him'), 'demo': ('Democratus', '#7ad06a', 'him'),
          'apo': ('Apophiss', '#3ad06a', 'him'), 'tul': ('Tullius', '#7ad8ff', 'him'), 'frog': ('the Frog with Mustache', '#6ac850', 'him'),
          'don': ('Donado', '#e8d29a', 'him'), 'pearl': ('Pearlman', '#5ac8ff', 'him'), 'wil': ('Wilfrey', '#f4f4f4', 'him'), 'fishy': ('Fishy', '#ffa040', 'him'),
-         'dennis': ('Dennis', '#e0a040', 'him'), 'pistachio': ('Pistachio', '#7ae890', 'him'), 'omega': ('King Omega', '#9fb4ff', 'him')}
+         'dennis': ('Dennis', '#e0a040', 'him'), 'pistachio': ('Pistachio', '#7ae890', 'him'), 'omega': ('King Omega', '#9fb4ff', 'him'), 'ashur': ('Ashur', '#ff7a2a', 'her')}
 HOME = {'emma': 'p98/home/emma', 'celi': 'p98/home/celi', 'zib': 'p98/home/zib', 'cecil': 'p98/home/cecil', 'kw': 'p98/home/killerwatt',
         'leo': 'p98/home/leo', 'demo': 'p98/home/demo', 'apo': 'p98/home/apo', 'tul': 'p98/home/tul', 'frog': 'p138/home/frog', 'don': 'p138/home/don',
         'pearl': 'p138/home/pearl', 'wil': 'p138/home/wil', 'fishy': 'p145/home',
-        'dennis': 'p163/dw/home', 'pistachio': 'p163/pi/home', 'omega': 'p170/home'}
+        'dennis': 'p163/dw/home', 'pistachio': 'p163/pi/home', 'omega': 'p170/home', 'ashur': 'p185/home'}
 P28.MENU.update({f'wd_{w}': b for w, b in BASE.items()})
 
 
@@ -327,7 +333,7 @@ def generate(G):
                 fn(f'p99/own/{g}{k}', bit(un, k) + [f'execute if score #q bm.rng matches 0 run scoreboard players add @s {un} {2 ** k}'])
             orig = {'ribbon': 'Pink ribbon', 'dress': 'Her own dress', 'outfit': None}.get(g, 'Own clothes' if who not in ('cecil', 'kw') else 'Own colours')
             orig = {'apo': 'His own scales', 'tul': 'His old coat', 'frog': 'His own skin', 'don': 'His own coat', 'pearl': 'The blue bow tie',
-                    'wil': 'No shield', 'fishy': 'His old black topper', 'dennis': 'His old black leather', 'pistachio': 'His charcoal tails', 'omega': 'His own grey ghost'}.get(g, orig)
+                    'wil': 'No shield', 'fishy': 'His old black topper', 'dennis': 'His old black leather', 'pistachio': 'His charcoal tails', 'omega': 'His own grey ghost', 'ashur': 'Her own magma'}.get(g, orig)
             if orig:
                 page += [st(f'{g}0', 'owned', 'gray'), f'execute if score @s {cur} matches 0 run {st(f"{g}0", "wearing", GOLD)}']
                 if g == 'dress':

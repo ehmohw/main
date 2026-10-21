@@ -61,6 +61,7 @@ GIFT = {  # follower: (what it does, commands run each second at the doll)
     'dennis': ('Haste', [f'effect give {P} minecraft:haste 3 0 true']),
     'pistachio': ('monsters light up (16 blocks)', ['effect give @e[type=#bm:hostile,distance=..16] minecraft:glowing 3 0 true']),
     'omega': ('the undead burn (10 blocks)', ['execute as @e[type=#minecraft:undead,distance=..10] run data merge entity @s {Fire:60s}']),
+    'ashur': ('Fire Resistance', [f'effect give {P} minecraft:fire_resistance 15 0 true']),
     'pearl': ('Hero of the Village', [f'effect give {P} minecraft:hero_of_the_village 15 0 true']),
 }
 assert set(GIFT) == set(DOLL_OF), sorted(set(GIFT) ^ set(DOLL_OF))

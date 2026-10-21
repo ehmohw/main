@@ -24,12 +24,12 @@ import gild
 import phase103 as P103
 
 GOLD = '#ffcf40'
-ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega']
+ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur']
 # follower: (host type, host tag[s]) - the animal underneath, whose owner the aura belongs to
 HOST = {'emma': ('cat', 'bm.emmapet'), 'celi': ('wolf', 'bm.celipet'), 'zib': ('wolf', 'bm.zibpet'), 'cecil': ('wolf', 'bm.cecilpet'),
         'kw': ('wolf', 'bm.kxpet'), 'leo': ('wolf', 'bm.leopet'), 'demo': ('wolf', 'bm.dmpet'), 'apo': ('wolf', 'bm.appet'), 'tul': ('wolf', 'bm.tupet'),
         'frog': ('wolf', 'bm.frogpet'), 'don': ('wolf', 'bm.donado'), 'pearl': ('cat', 'bm.pmpet'), 'wil': ('wolf', 'bm.wilfrey'), 'fishy': ('wolf', 'bm.fypet'),
-        'dennis': ('wolf', 'bm.dwpet'), 'pistachio': ('wolf', 'bm.pipet'), 'omega': ('wolf', 'bm.ompet')}
+        'dennis': ('wolf', 'bm.dwpet'), 'pistachio': ('wolf', 'bm.pipet'), 'omega': ('wolf', 'bm.ompet'), 'ashur': ('wolf', 'bm.aspet')}
 dust = lambda r, g, b, s=1.0: f'minecraft:dust{{color:[{r},{g},{b}],scale:{s}}}'
 # follower: (aura name, colour, ring height, ring radius, the ring's mote, the haze [particle commands at the follower])
 AURA = {
@@ -59,7 +59,10 @@ AURA = {
     'pistachio': ('Ectoplasmic Mist', '#7ae890', 1.9, 0.8, 'minecraft:soul', ['particle minecraft:sculk_soul ~ ~0.3 ~ 0.4 0.1 0.4 0.01 1',
                                                                              f'particle {dust(0.48, 0.91, 0.56, 0.9)} ~ ~1.1 ~ 0.45 0.6 0.45 0 2']),
     'omega': ('Court of Souls', '#9fb4ff', 4.6, 2.4, 'minecraft:soul_fire_flame', ['particle minecraft:soul ~ ~3 ~ 1.2 1.6 1.2 0.02 3',
-                                                                                f'particle {dust(0.6, 0.75, 1.0, 1.2)} ~ ~2.5 ~ 1.2 1.4 1.2 0 3'])}
+                                                                                f'particle {dust(0.6, 0.75, 1.0, 1.2)} ~ ~2.5 ~ 1.2 1.4 1.2 0 3']),
+    'ashur': ('Ashfall Crown', '#ff7a2a', 2.05, 0.7, 'minecraft:flame', ['particle minecraft:lava ~ ~0.4 ~ 0.35 0.1 0.35 0 1',
+                                                                       f'particle {dust(1.0, 0.45, 0.1, 0.9)} ~ ~1.1 ~ 0.4 0.6 0.4 0 2',
+                                                                       'particle minecraft:white_ash ~ ~2.2 ~ 0.5 0.3 0.5 0 4'])}
 assert set(AURA) == set(ORDER) == set(HOST) == set(P99.BASE)
 PRICE = 1280                                 # coins at the Tailor (10 Gutter Trophies)
 FIND = {3: 8, 4: 15, 5: 25}                  # per mille, a won heist of tier III / IV / V
@@ -89,14 +92,16 @@ RECOL = {'apo': ('apophiss_art', ('apo_scale', 'apo_scale_dk', 'apo_fin', 'apo_b
          'pearl': ('phase60', ('pm_blue', 'pm_dblue')),
          'fishy': ('fishy_art', ('fy_hat', 'fy_hatband')),
          'dennis': ('dennis_art', ('dw_jacket', 'dw_jacket_dk')), 'pistachio': ('pistachio_art', ('ps_coat', 'ps_coat_dk', 'ps_lapel')),
-         'omega': ('omega_art', ('om_body', 'om_body_dk', 'om_fin', 'om_stripe', 'om_claw', 'om_lid'))}
+         'omega': ('omega_art', ('om_body', 'om_body_dk', 'om_fin', 'om_stripe', 'om_claw', 'om_lid')),
+         'ashur': ('ashur_art', ('as_magma', 'as_plates', 'as_hem', 'as_rock'))}
 # (2.82c) his fingers and eyelids took no outfit's colour: they go through the palette too, on the main set's brightness range
 # (so the scales come out as before, and the dark claws stay darker than the scales)
 SIDE = {'apo_claw', 'apo_lid', 'om_claw', 'om_lid'}
 FROG_SKIN = {1: ('light_blue_wool', 'blue_wool'), 2: ('orange_wool', 'red_wool'), 3: ('brown_wool', 'brown_terracotta'), 4: ('yellow_wool', 'yellow_terracotta')}
 ITEMS_OF = {'apo': lambda n: n.startswith('apo_'), 'tul': lambda n: n.startswith('tu_'), 'frog': lambda n: n == 'frog',
             'don': lambda n: n == 'donado' or (n.startswith('dnr_') and not n.startswith('dnr_eyes')), 'pearl': lambda n: n == 'pearlman', 'fishy': lambda n: n.startswith('fy_') and n != 'fy_bowl',
-            'dennis': lambda n: n.startswith('dw_') and n != 'dw_horn', 'pistachio': lambda n: n.startswith('ps_'), 'omega': lambda n: n.startswith('om_') and n not in ('om_monocle', 'om_banner', 'om_brazier')}
+            'dennis': lambda n: n.startswith('dw_') and n != 'dw_horn', 'pistachio': lambda n: n.startswith('ps_'), 'omega': lambda n: n.startswith('om_') and n not in ('om_monocle', 'om_banner', 'om_brazier'),
+            'ashur': lambda n: n.startswith('as_')}
 
 
 def textures():

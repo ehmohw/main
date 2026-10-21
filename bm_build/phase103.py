@@ -336,7 +336,7 @@ def generate(G):
            ('kw', 'KillerWatt', '#ffe040'), ('leo', 'Leo', '#5ab8e0'), ('demo', 'Democratus', '#7ad06a'),
            ('apo', 'Apophiss', '#3ad06a'), ('tul', 'Tullius', '#7ad8ff'), ('frog', 'The Frog', '#6ac850'), ('don', 'Donado', '#e8d29a'),
            ('pearl', 'Pearlman', '#5ac8ff'), ('wil', 'Wilfrey', '#f4f4f4'), ('fishy', 'Fishy', '#ffa040'),
-           ('dennis', 'Dennis', '#e0a040'), ('pistachio', 'Pistachio', '#7ae890'), ('omega', 'King Omega', '#9fb4ff')]
+           ('dennis', 'Dennis', '#e0a040'), ('pistachio', 'Pistachio', '#7ae890'), ('omega', 'King Omega', '#9fb4ff'), ('ashur', 'Ashur', '#ff7a2a')]
     # 2.78: past the old block (TL..TL+59) the pages, stock and auras go on in 8100-8299
     TL2 = 8100
     pcode = lambda i: TL + 1 + i if i < 7 else (TL2 + i - 7 if i < 13 else (TL2 + i - 6 if i < 16 else 8270 + i - 16))      # a follower's page (2.79: past 8106, the Auras page; 2.82: 8270 on)

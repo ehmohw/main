@@ -18,6 +18,7 @@ PREFIX = 'as_'
 PIVOT = {'body': (0, 13, 0), 'head': (0, 25, 0), 'armr': (4.5, 23.0, 0), 'arml': (-4.5, 23.0, 0), 'legr': (1.7, 13, 0), 'legl': (-1.7, 13, 0),
          'forer': (4.7, 18.8, 0), 'forel': (-4.7, 18.8, 0)}
 PARTS = ('body', 'head', 'armr', 'arml', 'forer', 'forel', 'legr', 'legl', 'firer', 'firel')
+PART_K = {}
 PALMR, PALML = (4.8, 13.0, -0.3), (-4.8, 13.0, -0.3)        # her palms (design units): where the fire sits
 SKIN, SKIN_DK, SKIN_LT = '#f2b48a', '#d8916a', '#ffd0ae'
 HAIR = ('#a8260c', '#c8340e', '#e04a14', '#f06a1c', '#ff9a3a')

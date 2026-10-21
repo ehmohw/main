@@ -865,6 +865,8 @@ if __name__ == '__main__':
     phase169.rp(sys.modules[__name__])
     import phase170                           # (2.82: Omega's Monocle)
     phase170.rp(sys.modules[__name__])
+    import phase185                           # (2.86: Ashur - her rig, her Cinder, her faces)
+    phase185.rp(sys.modules[__name__])
     import phase95                            # (after every head model: the faces)
     phase95.rp(sys.modules[__name__])
     import phase138                           # (2.78: the recoloured looks - after the faces, so their item definitions are copied too)
