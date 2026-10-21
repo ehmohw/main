@@ -21,6 +21,39 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.85c: the Rat Race (Goal Day)
+
+The owner's "Goal Day", renamed **the Rat Race**: one day's job for the whole server, raced against the sunset.
+
+**Starting one:** buy a **Starter's Pistol** from Goldtooth, in the heist den or the Lounge, for 2 Gutter Medallions. Fire it (use) in the Overworld between dawn and mid-afternoon:
+- Everyone hears the race is on, and a gold bar shows the job, the count and the target.
+- There's one race a day, and none while one is running. Fired too late, in the gutter or a second time that day, the pistol is handed back.
+
+**The job** is drawn from 15, never the same twice running:
+- **Mine:** iron, gold, copper or diamond ore, or nether quartz.
+- **Gather:** chop acacia logs, dig sand or quarry obsidian.
+- **Slay:** blazes, endermen, wither skeletons or guardians.
+- **Other:** catch fish, breed animals, or trade with villagers.
+
+**Scaling:** the target grows with the players online. It uses the most seen during the race, so it only ever goes up. Alone, it's 30 iron ore; with two players, 45.
+
+**Counting:** everyone's work counts, wherever they are. A mined block that was set back down comes off the count again, so carrying ore in and mining it nets nothing. It has to be the world's own.
+
+**No penalty:** if the sun sets first, the race is simply lost.
+
+**The prize:** win, and everyone online gets 3-6 Tokens and one draw:
+- Medallions or a Trophy.
+- A **Lucky Map Fragment**, one you don't carry yet.
+- A **Lucky Horseshoe** (new).
+- A Crimson Effigy.
+- Pearlman's Bell.
+- A Vorn Fleet Beacon, once the fleet has noticed the world.
+- Three Lucky Scratch Cards.
+
+**The Lucky Horseshoe:** hang it up (use) and tonight is a Lucky Night. It won't hang on a Blood Moon day, on a Dread Night, or when tonight is already lucky; you get it back.
+
+**Lucky Map Fragments from heists:** a won heist already turns one up now and then (6% at Tier I, up to 14% at Tier V), always a piece you don't carry yet.
+
 ## New in 2.85b: angelic forging
 
 The Hollow King's Regalia and Apophiss's crowns can be **purified**. Toss one down beside a **Golden Cross** (Vesper, 1 Dread Token): light gathers round the cross, and after a few seconds the piece comes up **angelic** and the cross is spent. It keeps every enchantment.

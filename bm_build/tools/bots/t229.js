@@ -71,7 +71,7 @@ const res = [];
   ok('...by night: asleep', await wait(3000, async () => (await power()) === 0), `${await power()}`);
   await run('item modify entity TestRat armor.feet bm:p182/down_conq_boots');
   ok('One corrupt piece: the old Regalia - night wakes it again', await wait(4000, async () => !(await passes('execute if entity @a[name=TestRat,tag=bm.angel]'))) &&
-     await wait(3000, async () => Math.abs((await power()) - 0.15) < 0.01), `${await power()}`);
+     await wait(3000, async () => (await power()) >= 0.15), `${await power()}`);          // (+15% a plain night, +30% under a bright moon)
   // ---- the crown by day
   await run('time set 2000'); await run('effect clear TestRat');
   await run('item replace entity TestRat armor.head with minecraft:air');

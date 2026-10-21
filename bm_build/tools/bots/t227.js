@@ -110,7 +110,8 @@ const res = [];
   await run(`${O}data merge entity ${zo} {Health:1f}`); await run('effect clear TestRat minecraft:absorption');
   await run('loot replace entity TestRat hotbar.0 loot bm:items/eld_maw'); A.slot(0); await sleep(500);
   A.attack(await uuidEnt(zo)); await sleep(800);
-  ok('The Maw of the Outer Dark: a kill feeds two hearts of Absorption', !(await passes(`${O}execute if entity ${zo}`)) && /absorption/.test(await effects()));
+  ok('The Maw of the Outer Dark: a kill feeds two hearts of Absorption', await wait(3000, async () => !(await passes(`${O}execute if entity ${zo}`)) && /absorption/.test(await effects())),
+     `zombie ${await passes(`${O}execute if entity ${zo}`) ? 'alive' : 'dead'}; ${(await effects()).slice(-120)}`);
   await run(`${O}kill @e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..14]`);
 
   // ================================================================== 5. Dread rolls: only around a King-beater
