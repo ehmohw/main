@@ -182,6 +182,9 @@ def flood():
     for _ in range(30):
         x, z = rnd.randint(2, 22), rnd.randint(2, 22)
         if not 10 <= z <= 14: b.set(x, FY, z, 'minecraft:sea_pickle[pickles=3,waterlogged=true]' if rnd.random() < 0.4 else 'minecraft:seagrass')
+    for (x, z) in ((3, 3), (W - 4, 3), (3, D - 4), (W - 4, D - 4)):    # (the shell's loot piles, sunk to the pool's floor - not afloat)
+        b.set(x, FY, z, BASE['raw']); b.set(x + 1, FY, z, BASE['metal']); b.set(x, 4, z, BASE['carpet'])
+        b.set(x + 1, 4, z, 'minecraft:air'); b.set(x, 5, z, 'minecraft:air')
     for (x, z) in ((6, 6), (18, 6), (6, 18), (18, 18)):     # sunken pillars, lanterns hung over the water
         for y in range(3, 9): b.set(x, y, z, 'minecraft:prismarine')
         b.set(x, 13, z, 'minecraft:sea_lantern')
@@ -347,10 +350,11 @@ def generate(G):
        big('THE STRONGBOX IS CRACKED', 'That cost a try. They\'re coming again.', '#ff5a5a'))
 
     # ---- THE SINKING VAULT
+    SINK_SAFE = [(6, 12), (18, 12), (9, 11), (15, 13)]         # (on the runner: never over a square that's already gone)
     fn('p184/sink/init_cells', [f'summon minecraft:marker {rel(x0 + 1, FY, z0 + 1)} {{Tags:["bm.gvprop","bm.gvsk"]}}' for (x0, z0) in SINK_CELLS])
     fight('sink', 'THE SINKING VAULT', 'Old floor, heavy boots. It won\'t hold for long - and down there is a long way back.', '#c0a070',
-          [(guards([(6, 12), (18, 12), (12, 6), (12, 18)], cap=6), 'The floor groans...'),
-           (guards([(6, 12), (18, 12), (12, 6), (12, 18)], cap=6) + [f'execute positioned {rel(18, 4, 12)} run function bm:p70/captain'], 'More - and their captain!')],
+          [(guards(SINK_SAFE, cap=6), 'The floor groans...'),
+           (guards(SINK_SAFE, cap=6) + [f'execute positioned {rel(18, 4, 12)} run function bm:p70/captain'], 'More - and their captain!')],
           spring=['execute unless entity @e[type=minecraft:marker,tag=bm.gvsk,distance=..20] run function bm:p184/sink/init_cells'],
           second=['scoreboard players operation #q bm.rng = @s bm.gvtm', 'scoreboard players set #k bm.rng 60',
                   'execute if score #gt bm.rng matches 4.. run scoreboard players set #k bm.rng 40', 'scoreboard players operation #q bm.rng %= #k bm.rng',
@@ -391,9 +395,9 @@ def generate(G):
     # ---- THE HALL OF MIRRORS
     thief = mk('illusioner', 'The Mirror Thief', '#9ad0ff', {'mainhand': 'minecraft:bow'},
                {'CustomNameVisible': B(1), 'Tags': ['bm.gvg', 'bm.gvnew2', 'bm.tiered', 'bm.seen', 'bm.gvcap']})
-    wraith = mk('vex', 'Shard Wraith', '#c0e8ff', {'mainhand': 'minecraft:iron_sword'})
+    wraith = mk('vex', 'Shard Wraith', '#c0e8ff', {'mainhand': 'minecraft:iron_sword'}, {'LifeTicks': Int(900)})    # (vexes fly through walls: none hides in one for good)
     fight('mirror', 'THE HALL OF MIRRORS', 'Which of you is the real one? Which of HIM is?', '#9ad0ff',
-          [(guards([(6, 12), (18, 12), (12, 6), (12, 18)], cap=6), 'Something moves in every mirror...'),
+          [(guards([(6, 12), (18, 12), (12, 8), (12, 16)], cap=6), 'Something moves in every mirror...'),     # (clear of the free-standing mirrors)
            (mob(*thief, 12, 12) + ['execute if score #gt bm.rng matches 5 run ' + l for l in mob(*wraith, 8, 8, 6) + mob(*wraith, 16, 16, 6)] +
             ['execute as @a[tag=bm.gvp,distance=..20] run effect give @s minecraft:blindness 2 0 true', f'particle minecraft:end_rod {rel(12, 6, 12)} 2 2 2 0.1 60',
              f'playsound minecraft:entity.illusioner.mirror_move hostile @a[distance=..30] {rel(12, 5, 12)} 1 0.8'], 'The Mirror Thief steps out of the glass!')],
