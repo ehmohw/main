@@ -39,6 +39,7 @@ module.exports = async function run(C) {
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
   await run('gamemode survival TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await run('clear TestRat');
   await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
+  await sleep(2500);                // (a chunk's entities load a moment after it does: a host left from an earlier run must be there to be cleared)
   await run(`${O}fill ${X - 10} ${Y} ${Z - 10} ${X + 10} ${Y} ${Z + 10} minecraft:sandstone`); await run(`${O}fill ${X - 10} ${Y + 1} ${Z - 10} ${X + 10} ${Y + 8} ${Z + 10} minecraft:air`);
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..24]`);
   await run(`kill @e[type=minecraft:wolf,tag=bm.${ab}pet]`); await run(`kill @e[type=minecraft:interaction,tag=bm.${ab}enc]`); await run(`kill @e[type=minecraft:item_display,tag=bm.${ab}encp]`);
