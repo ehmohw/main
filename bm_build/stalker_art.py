@@ -1,6 +1,6 @@
 """The Stalker (2.87) as a follower: the Dread Night's hunter (phase181's drawing), tamed - after the owner's drawing.
 2.88: remodelled and repainted closer to it - the drawing's flat sage with its olive shadow side (no blotches); a big round bald
-skull with two small black eyes, red at the centre, and pointed ears; a huge jagged maw gaping down the front of the face, the
+skull with two small black eyes, a tiny red point glowing at the centre of each (lit: it shows in the dark), and pointed ears; a huge jagged maw gaping down the front of the face, the
 jaw hanging, crooked teeth top and bottom round a dark red throat and a lolling tongue; a chest widening to bony shoulders,
 the pecs and the ribs down its flanks; arms far too long, ending in three long hooked olive claws; long legs that now bend at
 the knee (the shins their own parts) on long three-toed feet. And it can go on all fours: a crawl and a flat-out sprint.
@@ -120,7 +120,7 @@ def _claw():
 
 def textures():
     return {'st_skin': _skin(1933), 'st_shade': _skin(1934, SKIN_DK), 'st_ribs': _ribs(1935), 'st_back': _back(1936), 'st_face': _face(),
-            'st_eye': _eye(), 'st_teeth': _teeth(), 'st_maw': _maw(), 'st_claw': _claw(), 'st_nail': _shine('#4a4c32', '#8a8c64', 1938)}
+            'st_eye': _eye(), 'st_glow': Image.new('RGBA', (16, 16), hexc('#ff2a1a')[:3] + (255,)), 'st_teeth': _teeth(), 'st_maw': _maw(), 'st_claw': _claw(), 'st_nail': _shine('#4a4c32', '#8a8c64', 1938)}
 
 
 # ---------------------------------------------------------------------------------------------------- models
@@ -147,6 +147,9 @@ def models():
     # ---- the head: a big round bald skull (stepped round), two small black eyes with red points, a pointed ear each side,
     #      and the maw - a huge jagged mouth gaping down the front of the face, the jaw hanging, crooked teeth top and bottom
     pv = PIVOT['head']
+    def glow(e):
+        e['light_emission'] = 15
+        return e
     def head(face=None):
         drop = {'wide': 2.4, 'shut': -1.6}.get(face, 0.0)                                              # (how far the jaw hangs)
         h = [el((-3.0, 39.0, -3.2), (3.0, 44.6, 3.0), 'st_skin', pv, shift=(0.3, 0.2)),               # the dome
@@ -157,6 +160,9 @@ def models():
              el((-3.0, 39.0, -3.22), (3.0, 44.6, -3.2), 'st_face', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
              el((-2.2, 42.0, -3.28), (-0.9, 43.3, -3.22), 'st_eye', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),     # the eyes
              el((0.9, 42.0, -3.28), (2.2, 43.3, -3.22), 'st_eye', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
+             # (a pinpoint of red in each, lit from within: it glows in the dark)
+             glow(el((-1.73, 42.47, -3.31), (-1.37, 42.83, -3.29), 'st_glow', pv, faces=('north',), uv={'north': [0, 0, 16, 16]})),
+             glow(el((1.37, 42.47, -3.31), (1.73, 42.83, -3.29), 'st_glow', pv, faces=('north',), uv={'north': [0, 0, 16, 16]})),
              el((-2.7, 37.8, -4.2), (2.7, 39.4, 1.0), 'st_skin', pv, shift=(0.4, 0.5)),               # the upper jaw, jutting
              el((-2.7, 37.8, -4.22), (2.7, 39.4, -4.2), 'st_teeth', pv, faces=('north',), uv={'north': [0, 0, 16, 9]}),
              el((-2.7, 37.78, -4.2), (2.7, 37.8, 0.6), 'st_teeth', pv, faces=('down',), uv={'down': [0, 0, 16, 9]})]

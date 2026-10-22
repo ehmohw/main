@@ -21,6 +21,10 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.89a: the Stalker's eyes
+
+**The Stalker's eyes glow.** A tiny red point sits at the centre of each of its black eyes, lit from within, so it shows in the dark: on a Dread Night you may see the two pinpricks before you see the rest of it. The same goes for the hidden follower, its figurines and its doll.
+
 ## New in 2.89: the old stories, and the Lantern's new legs
 
 **The old stories.** The world's history comes out where you meet it:
