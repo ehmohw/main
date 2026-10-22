@@ -169,7 +169,7 @@ def _figures():
 
 
 P134.figures = _figures
-P134.FIT['dw_horn'] = (0.000, 1.921, -0.516, 0.532, -0.238, 0.320)        # (measured: phase134.measure)
+P134.FIT['dw_horn'] = (0.000, 1.919, -0.533, 0.535, -0.238, 0.320)        # (measured: phase134.measure)
 P134.FIT['pi_cloche'] = (0.019, 1.872, -0.547, 0.464, -0.259, 0.509)
 
 

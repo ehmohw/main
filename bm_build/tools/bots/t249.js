@@ -63,7 +63,7 @@ runT({ W: 'capshun', NAME: 'Mr. Capshun', ab: 'mz', q: 'zq', pfx: 'p198', prefix
     ok('his menu -> The story so far: he narrates ("Previously: ...")', A.chats.some(c => /Previously/.test(c)), A.chats.slice(-1).join('').slice(0, 200));
     // ---- NARRATION: badly hurt, he says so
     await run('effect clear TestRat'); await run('scoreboard players set TestRat bm.mznr 0'); await run('tag TestRat remove bm.hush');
-    await run('damage TestRat 13 minecraft:generic'); A.bars.length = 0;
+    await run('damage TestRat 15 minecraft:generic'); A.bars.length = 0;
     ok('NARRATION - badly hurt: he narrates it', await wait(4000, async () => A.bars.some(b => /narrates/.test(b))), A.bars.slice(-1).join('').slice(0, 160));
     await run('effect give TestRat minecraft:instant_health 1 4 true'); await run('effect give TestRat minecraft:resistance 900 4 true');
   } });

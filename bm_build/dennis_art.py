@@ -11,7 +11,7 @@ from PIL import Image, ImageDraw
 
 from phase57_art import hexc
 from tullius_art import _noise, _shine
-from rigkit import qs, el, seg, chain, I
+from rigkit import qs, el, chain
 
 PREFIX = 'dw_'
 RIG_SCALE = 1.0
@@ -24,6 +24,8 @@ PARTS = tuple(PIVOT)
 PART_K = {}
 FACES = ('grin', 'shout', 'hurt')
 UP, FRONT, SIDE = (0.0, 1.0, 0.0), (0.0, 0.0, -1.0), (1.0, 0.0, 0.0)
+BAND_UV = {f: [0, 0, 16, 4] for f in ('north', 'south', 'east', 'west')}       # (the band's strip, the whole way round)
+LENS_UV = {'north': [0, 0, 16, 8]}                                                  # (a lens shows its whole glint)
 
 
 def HIDDEN(p, pose):
@@ -36,89 +38,201 @@ def model_name(p, pose, suffix=''):
 
 
 # ---------------------------------------------------------------------------------------------------- textures
-def _denim(seed, base='#5f70b8', lt='#8796d6'):
-    im = _noise(base, seed, 6); d = ImageDraw.Draw(im); rnd = random.Random(seed)
-    for x in range(0, 64, 3):
-        d.line((x, 0, x + 6, 63), fill=hexc(lt)[:3] + (90,))
-    for _ in range(40):
-        x, y = rnd.randrange(64), rnd.randrange(64); im.putpixel((x, y), hexc('#4a5aa0'))
+# (2.90 rework: drawn as 32 x 32 pixel art - every texel placed on purpose, a lit top edge and a shaded bottom, seams and
+#  stitching - then doubled to the pack's 64 x 64, so he reads as crisp blocks rather than speckled noise)
+def _sheet(base, seed, var=0, n=32):
+    rnd = random.Random(seed); b = hexc(base)[:3]; im = Image.new('RGBA', (n, n))
+    for y in range(n):
+        for x in range(n):
+            d = rnd.choice((0, 0, 0, var, -var)) if var else 0
+            im.putpixel((x, y), tuple(max(0, min(255, v + d)) for v in b) + (255,))
     return im
 
 
-def _leather(seed, base='#3e4246', lt='#6a7076', dk='#26282c'):
-    im = _shine(base, lt, seed); d = ImageDraw.Draw(im); rnd = random.Random(seed)
-    for _ in range(6):                                     # creases
-        x, y = rnd.randrange(64), rnd.randrange(64)
-        d.line((x, y, x + rnd.randint(-8, 8), y + rnd.randint(6, 16)), fill=hexc(dk))
+def _up(im):
+    return im.resize((64, 64), Image.NEAREST)
+
+
+def _edge(im, lt, dk, top=1, bot=1):
+    """a lit top row and a shaded bottom row (every box catches the light from above)"""
+    d = ImageDraw.Draw(im); w, h = im.size
+    for i in range(top): d.line((0, i, w - 1, i), fill=hexc(lt))
+    for i in range(bot): d.line((0, h - 1 - i, w - 1, h - 1 - i), fill=hexc(dk))
     return im
 
 
-def _beard(seed):
-    im = _noise('#151516', seed, 5); rnd = random.Random(seed)
-    for _ in range(120):
-        x, y = rnd.randrange(64), rnd.randrange(64); im.putpixel((x, y), hexc(rnd.choice(['#3a3a3e', '#2a2a2c', '#5a5a5e'])))
-    for x in range(0, 64, 4):
-        for y in range(rnd.randrange(4), 64, 7):
-            im.putpixel((x, y), hexc('#2e2e32'))
-    return im
+def _denim(seed, base='#5468b0', lt='#6276bc', dk='#3c4c8c'):
+    im = _sheet(base, seed, 4); d = ImageDraw.Draw(im)
+    px = im.load()
+    for y in range(32):                                         # the twill: faint diagonal ribs
+        for x in range(32):
+            if (x + y) % 3 == 0: px[x, y] = hexc(lt)[:3] + (255,) if (x * 7 + y) % 5 else px[x, y]
+    d.line((15, 0, 15, 31), fill=hexc(dk)); d.line((16, 0, 16, 31), fill=hexc('#c88a3a'))      # the side seam, orange stitch
+    for y in range(1, 32, 3): d.point((16, y), fill=hexc(dk))
+    return _up(_edge(im, lt, dk))
+
+
+def _cuffroll(seed):
+    im = _sheet('#8a9ad8', seed, 3); d = ImageDraw.Draw(im)
+    for y in (6, 14, 22): d.line((0, y, 31, y), fill=hexc('#6878bc'))
+    return _up(_edge(im, '#b4c0ee', '#5464a8'))
+
+
+def _leather(seed, base='#3c4046', lt='#5c626a', dk='#25282c', hi='#727a84'):
+    im = _sheet(base, seed, 2); d = ImageDraw.Draw(im); rnd = random.Random(seed)
+    for _ in range(5):                                          # creases: a dark line with a lit pixel beside it
+        x, y = rnd.randrange(2, 30), rnd.randrange(4, 26)
+        L = rnd.randint(3, 6)
+        d.line((x, y, x + 1, y + L), fill=hexc(dk)); d.point((x + 1, y), fill=hexc(hi))
+    for y in range(2, 32, 2): d.point((1, y), fill=hexc(lt)); d.point((30, y), fill=hexc(lt))   # the stitching down each edge
+    return _up(_edge(im, hi, dk))
+
+
+def _cuff(seed):
+    im = _sheet('#1a1a1e', seed, 2); d = ImageDraw.Draw(im)
+    for x in range(1, 32, 4): d.line((x, 10, x, 21), fill=hexc('#2c2c32'))          # ribbing
+    return _up(_edge(im, '#34343a', '#0c0c0e'))
+
+
+def _tee(seed):
+    im = _sheet('#a83a48', seed, 3); d = ImageDraw.Draw(im)
+    for x in (8, 22): d.line((x, 4, x - 1, 31), fill=hexc('#8a2c3a'))                # two soft folds
+    d.line((9, 4, 8, 31), fill=hexc('#c25060'))
+    return _up(_edge(im, '#c85a6a', '#7a2432'))
+
+
+def _beard(seed, base='#17171a'):
+    """a black beard as pixel strands: long dark-grey locks running down, a few lit tips, never salt-and-pepper"""
+    im = _sheet(base, seed, 0); d = ImageDraw.Draw(im); rnd = random.Random(seed)
+    for x in range(0, 32, 3):
+        x0 = x + rnd.randint(0, 1); y0 = rnd.randint(0, 6)
+        d.line((x0, y0, x0, y0 + rnd.randint(8, 18)), fill=hexc('#2a2a30'))
+        d.point((x0, y0), fill=hexc('#3c3c44'))
+    for _ in range(10):
+        x, y = rnd.randrange(32), rnd.randrange(32); d.line((x, y, x, y + 2), fill=hexc('#0a0a0c'))
+    return _up(_edge(im, '#34343c', '#0a0a0c'))
+
+
+def _grey(seed):
+    im = _sheet('#8a8a90', seed, 0); d = ImageDraw.Draw(im)
+    for x in range(1, 32, 3): d.line((x, 0, x, 31), fill=hexc('#a6a6ac'))
+    for x in range(2, 32, 3): d.line((x, 6, x, 31), fill=hexc('#6c6c72'))
+    return _up(_edge(im, '#c0c0c6', '#55555a'))
+
+
+def _skin(seed, base='#e6b284', dk='#c8905e'):
+    im = _sheet(base, seed, 3)
+    return _up(_edge(im, '#f2c69c', dk))
 
 
 def _glass(seed):
-    im = _shine('#0b0b0f', '#2a2a36', seed); d = ImageDraw.Draw(im)
-    for x0 in (14, 40):                                     # the art's "S" glint on each lens
-        d.arc((x0, 14, x0 + 10, 26), 200, 360, fill=hexc('#e8e8f0'), width=3)
-        d.arc((x0, 24, x0 + 10, 36), 20, 180, fill=hexc('#e8e8f0'), width=3)
+    """a lens: black glass, a lit rim along the top, a white glint slashed across it - drawn in the top half (uv [0, 0, 16, 8])"""
+    im = _sheet('#0c0c12', seed, 0, 64); d = ImageDraw.Draw(im)
+    d.rectangle((0, 0, 63, 2), fill=hexc('#34344a'))
+    w, w2 = hexc('#e8e8f0'), hexc('#7a7a90')
+    for k in range(4):                                          # the glint: a bold diagonal shine and a thin one beside it
+        d.rectangle((14 + 3 * k, 22 - 4 * k, 18 + 3 * k, 25 - 4 * k), fill=w)
+        d.rectangle((26 + 2 * k, 24 - 4 * k, 27 + 2 * k, 27 - 4 * k), fill=w2)
     return im
 
 
 def _skull():
-    im = Image.new('RGBA', (16, 16), hexc('#1c1c20')); d = ImageDraw.Draw(im)
-    d.ellipse((3, 1, 12, 10), fill=hexc('#f2f2f2')); d.rectangle((5, 9, 10, 13), fill=hexc('#f2f2f2'))
+    im = Image.new('RGBA', (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    d.rectangle((4, 2, 11, 9), fill=hexc('#f2f2f2')); d.rectangle((3, 3, 12, 8), fill=hexc('#f2f2f2'))
+    d.rectangle((5, 10, 10, 12), fill=hexc('#f2f2f2'))
     d.rectangle((4, 5, 6, 7), fill=hexc('#1c1c20')); d.rectangle((9, 5, 11, 7), fill=hexc('#1c1c20'))
     d.point((7, 8), fill=hexc('#1c1c20')); d.point((8, 8), fill=hexc('#1c1c20'))
-    for x in (6, 8, 10): d.line((x, 11, x, 13), fill=hexc('#9a9a9a'))
+    for x in (6, 8): d.line((x, 11, x, 12), fill=hexc('#8a8a8a'))
+    d.line((4, 2, 11, 2), fill=hexc('#ffffff'))
     return im
 
 
 def _band(seed):
-    im = _shine('#d6ac2e', '#fff0a0', seed); d = ImageDraw.Draw(im)
-    for x in range(4, 64, 12):                              # its rivets
-        d.ellipse((x, 22, x + 7, 40), fill=hexc('#8a6418'), outline=hexc('#4a3408'))
-        d.ellipse((x + 2, 25, x + 4, 30), fill=hexc('#e8c060'))
-    d.line((0, 2, 63, 2), fill=hexc('#fff4c0')); d.line((0, 61, 63, 61), fill=hexc('#7a5810'))
+    """the riveted gold band: a 64 x 16 strip (shown through uv [0, 0, 16, 4] - the band is long and thin), four times down"""
+    strip = Image.new('RGBA', (64, 16)); d = ImageDraw.Draw(strip); rnd = random.Random(seed)
+    for y in range(16):
+        for x in range(64):
+            v = rnd.choice((0, 0, 6, -6)); b = hexc('#d6ac2e')[:3]
+            strip.putpixel((x, y), tuple(max(0, min(255, c + v)) for c in b) + (255,))
+    d.rectangle((0, 0, 63, 1), fill=hexc('#fff0a0')); d.rectangle((0, 14, 63, 15), fill=hexc('#8a6614'))
+    for x in range(3, 64, 10):                                  # its rivets: domed studs, lit top-left
+        d.rectangle((x, 4, x + 4, 11), fill=hexc('#9a7420')); d.rectangle((x + 1, 5, x + 3, 10), fill=hexc('#c89a30'))
+        d.rectangle((x + 1, 5, x + 2, 6), fill=hexc('#fff4c0')); d.line((x, 11, x + 4, 11), fill=hexc('#5a4008'))
+    im = Image.new('RGBA', (64, 64))
+    for k in range(4): im.paste(strip, (0, 16 * k))
     return im
 
 
 def _helm(seed):
-    im = _shine('#1e1e22', '#4a4a52', seed); d = ImageDraw.Draw(im)
-    for x in (15, 47):                                      # its seams
-        d.line((x, 0, x, 63), fill=hexc('#55555e'), width=2)
-    return im
+    im = _sheet('#202026', seed, 2); d = ImageDraw.Draw(im)
+    d.line((0, 0, 31, 0), fill=hexc('#55555f')); d.line((0, 1, 31, 1), fill=hexc('#3a3a42'))
+    for x in (7, 23):                                           # its plate seams, riveted
+        d.line((x, 0, x, 31), fill=hexc('#0e0e12')); d.line((x + 1, 0, x + 1, 31), fill=hexc('#3a3a44'))
+        for y in range(4, 32, 7): d.point((x + 1, y), fill=hexc('#8a8a96'))
+    d.line((0, 31, 31, 31), fill=hexc('#0e0e12'))
+    return _up(im)
+
+
+def _horn(seed, base='#e4d8b6', lt='#fff8e4', dk='#b8a882', tip=False):
+    """horn: chunky growth rings, lit on top; the tip darkens to a weathered brown"""
+    im = _sheet(base if not tip else '#a8916a', seed, 2); d = ImageDraw.Draw(im)
+    for y in range(0, 32, 5):
+        d.line((0, y, 31, y), fill=hexc(dk if not tip else '#7a6648'))
+        d.line((0, y + 1, 31, y + 1), fill=hexc(lt if not tip else '#c8b088'))
+    return _up(im)
+
+
+def _boot(seed, base='#734426', lt='#a0683c', dk='#4a2a14'):
+    im = _sheet(base, seed, 3); d = ImageDraw.Draw(im)
+    for y in range(4, 30, 4):                                   # laces up the front
+        d.line((12, y, 19, y + 2), fill=hexc('#e2d0a8')); d.line((19, y, 12, y + 2), fill=hexc('#c2ae88'))
+    d.line((0, 28, 31, 28), fill=hexc(dk))
+    return _up(_edge(im, lt, dk, 2, 1))
+
+
+def _sole(seed):
+    im = _sheet('#3a2210', seed, 2); d = ImageDraw.Draw(im)
+    for x in range(0, 32, 4): d.line((x, 0, x, 31), fill=hexc('#26160a'))
+    return _up(im)
+
+
+def _steel(seed, base='#a0a8b8', lt='#e6ecf6', dk='#6a7286'):
+    im = _sheet(base, seed, 2); d = ImageDraw.Draw(im)
+    d.line((3, 0, 3, 31), fill=hexc(lt)); d.line((4, 0, 4, 31), fill=hexc(lt)); d.line((27, 0, 27, 31), fill=hexc(dk))
+    return _up(_edge(im, lt, dk))
+
+
+def _gold(seed):
+    im = _sheet('#d8b030', seed, 3); d = ImageDraw.Draw(im)
+    d.line((2, 2, 8, 2), fill=hexc('#fff0a0')); d.line((2, 3, 2, 8), fill=hexc('#fff0a0'))
+    return _up(_edge(im, '#ffe880', '#8a6a10'))
 
 
 def _mouth(kind):
-    im = Image.new('RGBA', (16, 16), hexc('#151516')); d = ImageDraw.Draw(im)
+    im = Image.new('RGBA', (16, 16), hexc('#17171a')); d = ImageDraw.Draw(im)
     if kind == 'grin':
         d.rectangle((1, 4, 14, 11), fill=hexc('#3a1410')); d.rectangle((2, 4, 13, 7), fill=hexc('#f4f0e4'))
+        for x in (5, 8, 11): d.line((x, 4, x, 7), fill=hexc('#c8c0b0'))
     elif kind == 'shout':
-        d.ellipse((3, 1, 12, 15), fill=hexc('#3a1410')); d.rectangle((4, 1, 11, 4), fill=hexc('#f4f0e4'))
+        d.rectangle((3, 1, 12, 15), fill=hexc('#3a1410')); d.rectangle((4, 1, 11, 4), fill=hexc('#f4f0e4'))
+        d.rectangle((5, 11, 10, 14), fill=hexc('#a83a48'))
     elif kind == 'hurt':
         d.line((1, 10, 5, 6), fill=hexc('#3a1410'), width=2); d.line((5, 6, 10, 10), fill=hexc('#3a1410'), width=2)
         d.line((10, 10, 14, 6), fill=hexc('#3a1410'), width=2)
     else:
-        d.rectangle((2, 6, 13, 10), fill=hexc('#3a1410'))
+        d.rectangle((2, 6, 13, 10), fill=hexc('#3a1410')); d.line((3, 6, 12, 6), fill=hexc('#f4f0e4'))
     return im
 
 
 def textures():
-    return {'dw_skin': _noise('#e6b284', 1301, 6), 'dw_skin_dk': _noise('#c98f62', 1302, 5), 'dw_jacket': _leather(1303),
-            'dw_jacket_dk': _leather(1304, '#2a2c30', '#4a4e54', '#18181a'), 'dw_cuff': _noise('#18181a', 1305, 3),
-            'dw_shirt': _noise('#9e3a4a', 1306, 6), 'dw_denim': _denim(1307), 'dw_denim_lt': _denim(1308, '#8494d4', '#a8b4ea'),
-            'dw_boot': _shine('#6e4024', '#a06a3c', 1309), 'dw_boot_dk': _shine('#3e2210', '#6a4022', 1310), 'dw_beard': _beard(1311),
-            'dw_grey': _noise('#6a6a6e', 1312, 6), 'dw_glass': _glass(1313), 'dw_frame': _noise('#101012', 1314, 2),
-            'dw_helm': _helm(1315), 'dw_band': _band(1316), 'dw_gold': _shine('#d8b030', '#fff0a0', 1317), 'dw_horn': _shine('#e2d8bc', '#fffaf0', 1318),
-            'dw_horn_dk': _shine('#bfb294', '#e6dcc0', 1319), 'dw_skull': _skull(), 'dw_steel': _shine('#9aa2b4', '#e4eaf4', 1320),
-            'dw_steel_dk': _shine('#6a7286', '#a4acbe', 1321), 'dw_collar': _noise('#b04a5a', 1322, 5),
+    return {'dw_skin': _skin(1301), 'dw_skin_dk': _skin(1302, '#c98f62', '#a8703e'), 'dw_jacket': _leather(1303),
+            'dw_jacket_dk': _leather(1304, '#2a2c31', '#454a52', '#17181b', '#585e68'), 'dw_cuff': _cuff(1305),
+            'dw_shirt': _tee(1306), 'dw_denim': _denim(1307), 'dw_denim_lt': _cuffroll(1308),
+            'dw_boot': _boot(1309), 'dw_boot_dk': _sole(1310), 'dw_beard': _beard(1311),
+            'dw_grey': _grey(1312), 'dw_glass': _glass(1313), 'dw_frame': _up(_sheet('#101012', 1314)),
+            'dw_helm': _helm(1315), 'dw_band': _band(1316), 'dw_gold': _gold(1317), 'dw_horn': _horn(1318),
+            'dw_horn_dk': _horn(1319, tip=True), 'dw_skull': _skull(), 'dw_steel': _steel(1320),
+            'dw_steel_dk': _steel(1321, '#6a7286', '#a4acbe', '#4a5264'), 'dw_collar': _up(_edge(_sheet('#b8404e', 1322, 3), '#d8606e', '#80242e')),
             'dw_mouth': _mouth(None), 'dw_mouth_grin': _mouth('grin'), 'dw_mouth_shout': _mouth('shout'), 'dw_mouth_hurt': _mouth('hurt')}
 
 
@@ -153,30 +267,37 @@ def models():
              el((-3.2, 16.2, -3.2), (3.2, 22.4, 3.0), 'dw_skin', pv),
              el((-3.4, 17.0, 0.4), (3.4, 22.2, 3.3), 'dw_beard', pv, shift=(0.3, 0.2)),           # his hair, long at the back
              el((-3.45, 17.6, -1.2), (-3.0, 21.8, 3.2), 'dw_beard', pv), el((3.0, 17.6, -1.2), (3.45, 21.8, 3.2), 'dw_beard', pv),
-             el((-3.4, 13.4, -4.1), (3.4, 19.4, -1.8), 'dw_beard', pv, shift=(0.1, 0.6)),         # the beard, down over his chest
+             el((-3.4, 14.6, -4.1), (3.4, 19.4, -1.8), 'dw_beard', pv, shift=(0.1, 0.6)),         # the beard, a square block over his chest
              el((-3.55, 16.8, -3.4), (-2.9, 20.4, 0.2), 'dw_beard', pv), el((2.9, 16.8, -3.4), (3.55, 20.4, 0.2), 'dw_beard', pv),
-             el((-2.4, 11.8, -4.0), (2.4, 13.6, -2.4), 'dw_beard', pv, shift=(0.5, 0.2)),
-             el((-0.8, 10.8, -4.15), (0.8, 12.2, -3.6), 'dw_grey', pv),                           # the goatee's grey tip
+             el((-2.8, 12.8, -4.0), (2.8, 14.8, -2.0), 'dw_beard', pv, shift=(0.5, 0.2)),         # stepping in toward its point
+             el((-1.8, 11.6, -3.95), (1.8, 13.0, -2.3), 'dw_beard', pv, shift=(0.8, 0.4)),
+             el((-1.0, 10.6, -3.9), (1.0, 11.8, -2.6), 'dw_grey', pv),                            # the goatee's grey tip
              el((-0.6, 19.6, -3.95), (0.6, 20.7, -3.2), 'dw_skin_dk', pv),                        # the nose
              el((-1.0, 18.25, -4.16), (1.0, 18.95, -4.1), {None: 'dw_mouth', 'grin': 'dw_mouth_grin', 'shout': 'dw_mouth_shout',
                                                              'hurt': 'dw_mouth_hurt'}[face], pv, faces=('north',), uv={'north': [0, 0, 16, 16]})]
-        h += chain([(-2.4, 19.6, -4.15), (-1.0, 19.2, -4.25), (0.0, 19.35, -4.25)], [0.6, 0.5], 0.45, 'dw_grey', pv, FRONT, ext=0.08)    # the moustache
-        h += chain([(2.4, 19.6, -4.15), (1.0, 19.2, -4.25), (0.0, 19.35, -4.25)], [0.6, 0.5], 0.45, 'dw_grey', pv, FRONT, ext=0.08)
+        h += [el((-2.0, 18.95, -4.3), (2.0, 19.75, -3.9), 'dw_grey', pv),                                          # the moustache: a bar...
+              el((-2.8, 19.3, -4.25), (-1.9, 20.2, -3.85), 'dw_grey', pv), el((1.9, 19.3, -4.25), (2.8, 20.2, -3.85), 'dw_grey', pv),
+              el((-3.2, 20.0, -4.2), (-2.5, 20.6, -3.8), 'dw_grey', pv), el((2.5, 20.0, -4.2), (3.2, 20.6, -3.8), 'dw_grey', pv)]   # ...curled up at the ends
         gy = 0.25 if face == 'shout' else 0.0                                                     # (a shout: the shades jump)
-        h += [el((-2.9, 20.2 + gy, -3.5), (-0.45, 21.5 + gy, -3.25), 'dw_glass', pv), el((0.45, 20.2 + gy, -3.5), (2.9, 21.5 + gy, -3.25), 'dw_glass', pv, shift=(0.5, 0)),
+        h += [el((-2.9, 20.2 + gy, -3.5), (-0.45, 21.5 + gy, -3.25), 'dw_glass', pv, uv=LENS_UV), el((0.45, 20.2 + gy, -3.5), (2.9, 21.5 + gy, -3.25), 'dw_glass', pv, uv=LENS_UV),
               el((-0.5, 20.85 + gy, -3.5), (0.5, 21.15 + gy, -3.3), 'dw_frame', pv),
               el((-3.3, 20.9 + gy, -3.3), (-3.15, 21.2 + gy, -0.2), 'dw_frame', pv), el((3.15, 20.9 + gy, -3.3), (3.3, 21.2 + gy, -0.2), 'dw_frame', pv),
               el((-3.42, 18.6, -0.3), (-3.22, 19.5, 0.3), 'dw_gold', pv)]                                       # the earring
         # the helmet
-        h += [el((-3.65, 21.4, -3.65), (3.65, 22.55, 3.45), 'dw_band', pv),
+        h += [el((-3.65, 21.4, -3.65), (3.65, 22.55, 3.45), 'dw_band', pv, uv=BAND_UV),
               el((-3.4, 22.4, -3.4), (3.4, 24.6, 3.2), 'dw_helm', pv), el((-2.7, 24.5, -2.7), (2.7, 25.6, 2.5), 'dw_helm', pv, shift=(0.3, 0.4)),
               el((-1.6, 25.5, -1.6), (1.6, 26.15, 1.4), 'dw_helm', pv, shift=(0.6, 0.2)),
               el((-1.1, 22.7, -3.52), (1.1, 24.5, -3.42), 'dw_skull', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
               el((-0.45, 26.0, -0.45), (0.45, 26.9, 0.35), 'dw_gold', pv), el((-0.25, 26.8, -0.25), (0.25, 27.6, 0.15), 'dw_gold', pv)]
+        # the two great horns, block by block: out from the helmet, sweeping up, curling a little back in at the tips
+        HORN = [((3.3, 5.6), (22.4, 24.8), 1.1, 'dw_horn_dk'),     # the root, a dark collar against the helmet
+                ((5.3, 7.7), (23.2, 25.9), 1.0, 'dw_horn'),          # out...
+                ((6.6, 8.5), (25.6, 28.7), 0.85, 'dw_horn'),         # ...and up...
+                ((6.3, 7.8), (28.5, 30.7), 0.62, 'dw_horn_dk')]      # ...to a weathered tip, curling in
         for sx in (1, -1):
-            h += chain([(sx * 3.3, 23.4, 0), (sx * 5.3, 24.4, -0.2), (sx * 6.5, 26.3, -0.3), (sx * 6.9, 28.6, -0.3), (sx * 6.3, 30.4, -0.2)],
-                       (1.7, 0.5), 1.5, 'dw_horn', pv, FRONT, hs=[1.6, 1.3, 1.0, 0.7])
-            h.append(el((sx * 3.3 - 0.75, 22.8, -0.8), (sx * 3.3 + 0.75, 24.2, 0.8), 'dw_horn_dk', pv))           # (their roots)
+            for k, ((x0, x1), (y0, y1), hz, tx) in enumerate(HORN):
+                a, b = sorted((sx * x0, sx * x1))
+                h.append(el((a, y0, -hz - 0.15), (b, y1, hz - 0.15), tx, pv, shift=(0.3 * k, 0.17 * k)))
         return h
     part('dw_head', head())
     for fc in FACES:
@@ -213,14 +334,14 @@ def models():
     # ---- the Dwarven wrench: an adjustable spanner as long as he is tall - its jaws by his fist, a red collar, the handle down
     #      to his boots (thin across, broad front to back)
     pv = PIVOT['wrench']; x = 6.2
-    w = [el((x - 0.42, 0.7, -1.0), (x + 0.42, 4.7, 0.3), 'dw_steel', pv),                   # the handle
-         el((x - 0.52, 0.3, -1.15), (x + 0.52, 1.1, 0.45), 'dw_steel_dk', pv),               # its end
-         el((x - 0.62, 4.6, -1.25), (x + 0.62, 5.4, 0.55), 'dw_collar', pv),                 # the red collar, under his fist
-         el((x - 0.42, 5.3, -1.0), (x + 0.42, 7.4, 0.3), 'dw_steel', pv, shift=(0.5, 0.3)),  # (in his fist)
-         el((x - 0.5, 5.6, -2.6), (x + 0.5, 6.4, -1.0), 'dw_steel', pv, shift=(0.2, 0.6)),   # the head, out in front of his fist
-         el((x - 0.5, 6.4, -3.6), (x + 0.5, 7.4, -2.4), 'dw_steel', pv, shift=(0.7, 0.1)),   # the fixed jaw
-         el((x - 0.5, 4.4, -3.6), (x + 0.5, 5.6, -2.4), 'dw_steel_dk', pv),                  # the sliding jaw
-         el((x - 0.55, 5.6, -2.5), (x + 0.55, 6.4, -1.7), 'dw_steel_dk', pv)]                # the thumbscrew
+    w = [el((x - 0.55, 0.7, -1.1), (x + 0.55, 4.7, 0.4), 'dw_steel', pv),                   # the handle
+         el((x - 0.68, 0.3, -1.25), (x + 0.68, 1.1, 0.55), 'dw_steel_dk', pv),               # its end
+         el((x - 0.75, 4.6, -1.3), (x + 0.75, 5.4, 0.6), 'dw_collar', pv),                 # the red collar, under his fist
+         el((x - 0.55, 5.3, -1.1), (x + 0.55, 7.4, 0.4), 'dw_steel', pv, shift=(0.5, 0.3)),  # (in his fist)
+         el((x - 0.62, 5.6, -2.6), (x + 0.62, 6.4, -1.0), 'dw_steel', pv, shift=(0.2, 0.6)),   # the head, out in front of his fist
+         el((x - 0.62, 6.4, -3.6), (x + 0.62, 7.4, -2.4), 'dw_steel', pv, shift=(0.7, 0.1)),   # the fixed jaw
+         el((x - 0.62, 4.4, -3.6), (x + 0.62, 5.6, -2.4), 'dw_steel_dk', pv),                  # the sliding jaw
+         el((x - 0.75, 5.75, -2.4), (x + 0.75, 6.25, -1.8), 'dw_steel_dk', pv)]                # the thumbscrew
     part('dw_wrench', w)
     return M
 

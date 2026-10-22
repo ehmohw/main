@@ -305,7 +305,7 @@ def generate(G):
         # NARRATION: badly hurt, he says so (every 45 s at most)
         X.second.append('scoreboard players remove @a[scores={bm.mznr=1..}] bm.mznr 1')
         X.second.append(f'execute as @e[type=minecraft:wolf,tag={X.pet},tag=!bm.ffpet] at @s on owner if entity @s[distance=..24] unless score @s bm.mznr matches 1.. run function bm:{pfx}/narrate_check')
-        fn(f'{pfx}/narrate_check', ['execute store result score #hp bm.rng run data get entity @s Health', 'execute if score #hp bm.rng matches 9.. run return 0',
+        fn(f'{pfx}/narrate_check', ['execute store result score #hp bm.rng run data get entity @s Health', 'execute if score #hp bm.rng matches 11.. run return 0',
                                     'scoreboard players set @s bm.mznr 45', 'execute store result score #r bm.rng run random value 1..' + str(len(NARRATE)), 'execute if entity @s[tag=bm.hush] run return 0'] +
            [f'execute if score #r bm.rng matches {i + 1} run ' + X.csay(l) for i, l in enumerate(NARRATE)])
         return lines

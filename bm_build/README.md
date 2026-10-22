@@ -44,6 +44,13 @@ He is also a **fourth-wall-breaking narrator**. He narrates what you do, knows a
 
 **The Neighbor's hair** is a neat, tidy cut now: the spikes over his ears and out the back are gone (the fringe over his mask stays).
 
+**Dennis, rebuilt.** The dwarf's model is truer to the blocky style and still true to his art:
+- **His horns** are four chunky blocks each, sweeping out from the helmet and curling up to weathered tips, where they used to be thin, twig-like tubes.
+- **His beard** is one squared block stepping in to its grey point, and his moustache is a block bar curled up at the ends.
+- **His textures are redrawn as pixel art**, every texel placed by hand: a riveted gold band you can now see, a skull with no dark square behind it, glints slashed across his shades, stitched leather, twill denim with an orange side seam, laced boots, ribbed cuffs, and a chunkier wrench.
+
+His doll at Cecil's, his figurine and his frame follow the new model.
+
 ## New in 2.89b: Vesper's shop
 
 **Vesper has moved into Night Alley.** The Dread Broker no longer works from a stall on the Fountain Plaza. He has taken the empty nether-brick house in Night Alley, just south of his old stall, and made it his own:
