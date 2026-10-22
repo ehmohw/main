@@ -46,7 +46,7 @@ const res = [];
   const hs = await slotOf('conq_helmet');
   const hd = await run(`data get entity TestRat Inventory[{Slot:${hs}b}].components`);
   ok('...picked up: the angelic model, gold trim, its name - and its Protection kept', /angel_conq_helmet/.test(hd) && /minecraft:gold/.test(hd) &&
-     /Angelic/.test(hd) && /protection/.test(hd), hd.replace(/.*data: /, '').slice(0, 160));
+     /Holy /.test(hd) && /protection/.test(hd), hd.replace(/.*data: /, '').slice(0, 160));
   // the True Crown
   await run('loot give TestRat loot bm:items/apo_true_crown'); await run('loot give TestRat loot bm:items/golden_cross'); await sleep(400);
   await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} 0 60`); await sleep(400);
@@ -68,9 +68,10 @@ const res = [];
      /bm:angelic_wings/.test(wc) && !/"!minecraft:glider"/.test(wc), wc.slice(0, 240));
   await run('clear TestRat *[minecraft:custom_data~{bm:"hollow_wings"}]');
   // 2.88: holy, not angelic - its weapons burn and shine: the Holy Blade's Sun Rend sets the foe alight instead of withering it
-  await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/conq_blade'); await run('item modify entity TestRat hotbar.0 bm:p182/up_conq_blade');
-  await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} 0 0`); A.slot(0); await sleep(400);
-  const bn = await run('data get entity TestRat Inventory[{Slot:0b}].components."minecraft:item_name"');
+  // (in a slot of its own: the purified Deathmask and the crown are worn below)
+  await run('loot replace entity TestRat hotbar.8 loot bm:items/conq_blade'); await run('item modify entity TestRat hotbar.8 bm:p182/up_conq_blade');
+  await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} 0 0`); A.slot(8); await sleep(400);
+  const bn = await run('data get entity TestRat Inventory[{Slot:8b}].components."minecraft:item_name"');
   ok('...named Holy, not Angelic', /Holy/.test(bn) && !/Angelic/.test(bn), bn.slice(0, 160));
   await run(`${O}summon minecraft:husk ${X + 0.5} ${Y} ${Z + 3} {NoAI:1b,PersistenceRequired:1b,Tags:["bm.hrend","bm.seen"],attributes:[{id:"minecraft:max_health",base:200}],Health:200f}`);
   await sleep(600); A.use(); await sleep(250); A.release && A.release(); await sleep(700);
@@ -78,7 +79,7 @@ const res = [];
   const hw = /wither/.test(await run(`${O}data get entity @e[tag=bm.hrend,limit=1] active_effects`));
   const hh = +(((await run(`${O}data get entity @e[tag=bm.hrend,limit=1] Health`)).match(/([\d.]+)f/) || [0, 200])[1]);
   ok('...its Sun Rend: the foe torn and set alight - burning, not withering', hh < 200 && hf > 0 && !hw, `health ${hh}, Fire ${hf}, wither ${hw}`);
-  await run(`${O}kill @e[tag=bm.hrend]`); await run('clear TestRat');
+  await run(`${O}kill @e[tag=bm.hrend]`); await run('item replace entity TestRat hotbar.8 with minecraft:air');
 
   // ================================================================== 2. the purified set: woken by day
   await run(`item replace entity TestRat armor.head from entity TestRat hotbar.${hs}`); await run(`item replace entity TestRat hotbar.${hs} with minecraft:air`);

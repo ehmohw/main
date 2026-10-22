@@ -5,6 +5,7 @@
 //   a Stalker rises 30+ blocks off; it can't be hurt; its blow takes a third of a full Eldritch-armoured player's health.
 //   the Golden Cross (sneak + use on the floor, and on a wall): a Stalker set inside its ground is thrown back out; punched, both
 //     crosses come back.
+//   (2.88) the night's own monsters are left to walk it - one out before nightfall stays, a fresh one rises.
 //   standing still 8 s: a Stalker shut in a glass box 25 blocks off steps out of the dark behind you ("Don't stand still", "Behind you").
 //   outrun (rcon puts it 70 blocks off): it loses you. Dawn: the Stalkers come apart; 3 Essence + 1 for the one outrun.
 //   the Dread Totem forged from 16 Essence and 4 Dread Tokens tossed down; carried by day, a fresh monster never rises within 32
@@ -84,9 +85,13 @@ const res = [];
   ok('Nightfall: the Dread Night begins - and the player is hunted', await wait(4000, async () => (await sc('#dnight', 'bm.bm')) === 1) &&
      await wait(2000, async () => passes('execute if entity @a[name=TestRat,tag=bm.dnh]')), A.chats.join(' | ').slice(-120));
   await run('scoreboard players set TestRat bm.dnst -1000');          // (staged: no Stalker steps out of the dark behind a player standing about for the test)
-  ok('...the monster already out has fled', !(await passes(`${O}execute if entity @e[tag=t228a]`)));
-  await run(`${O}summon minecraft:husk ${X + 6.5} ${Y} ${Z + 0.5}`);           // (no tags: as the night would spawn it)
-  ok('...and a fresh one never rises', await wait(3000, async () => !(await passes(`${O}execute if entity @e[type=minecraft:husk,x=${X},y=${Y},z=${Z},distance=..12]`))));
+  // (2.88: the night's monsters walk it as on any night - it no longer clears them; the Stalkers are its own)
+  await sleep(2000);
+  ok('...the monster already out stays out (2.88)', await passes(`${O}execute if entity @e[tag=t228a]`));
+  await run(`${O}summon minecraft:husk ${X + 6.5} ${Y} ${Z + 0.5} {Tags:["t228a"]}`);           // (no bm.seen: as the night would spawn it)
+  await sleep(3000);
+  ok('...and a fresh one rises as on any night (2.88)', (await num(`${O}execute if entity @e[type=minecraft:husk,tag=t228a,x=${X},y=${Y},z=${Z},distance=..12]`)) === 2);
+  await run(`${O}kill @e[tag=t228a]`);
   await run('loot replace entity TestRat hotbar.3 loot bm:items/emma_ribbon'); A.slot(3); await sleep(300); A.bars.length = 0;
   A.use(); await sleep(300); A.release(); await sleep(1200);
   ok('Emma won\'t come out on a Dread Night', A.bars.some(b => /Emma won't come out/.test(b)) &&
@@ -99,7 +104,7 @@ const res = [];
   ok('A Stalker rises - at least 30 blocks away', await wait(5000, async () => { if (!(await passes(`${O}execute if entity ${STK}`))) return false;
     d0 = await dist(STK, A.pos.x, A.pos.y, A.pos.z); return true; }) && d0 >= 29, `${d0.toFixed(1)} blocks`);
   const parts = await run(`${O}execute if entity @e[type=minecraft:item_display,tag=bm.stkpart]`);
-  ok('...bound to its quarry, with a body and a head', (await sc(STK, 'bm.pid')) === (await sc('TestRat', 'bm.pid')) && /count: 2\b/i.test(parts),
+  ok('...bound to its quarry, its whole rig with it (2.88: ten jointed parts)', (await sc(STK, 'bm.pid')) === (await sc('TestRat', 'bm.pid')) && /count: 10\b/i.test(parts),
      `${await sc(STK, 'bm.pid')} vs ${await sc('TestRat', 'bm.pid')}; ${parts}`);
   // (it waits in a glass box until it's wanted)
   const box = async (on) => run(`${O}fill ${X + 29} ${Y} ${Z + 24} ${X + 31} ${Y + 3} ${Z + 26} minecraft:${on ? 'glass hollow' : 'air'}`);
@@ -146,7 +151,7 @@ const res = [];
   A.slot(cs2); await sleep(300); A.input({ shift: true }); await sleep(300); A.use(); await sleep(250); A.release(); await sleep(500); A.input({}); await sleep(300);
   ok('...and one on a wall: hung on it, facing out', /golden_cross_wall/.test(await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.gcd,x=${X + 2.5},y=${Y + 1},z=${Z + 0.5},distance=..1.2,limit=1] item`)));
   const gw = (await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.gcd,x=${X + 2.5},y=${Y + 1},z=${Z + 0.5},distance=..1.6,limit=1] Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/).slice(1).map(Number);
-  ok('...in the open cell in front of the wall, not inside it (2.88)', Math.abs(gw[0] - (X + 2.5)) < 0.05 && Math.abs(gw[1] - Y) < 0.05, `at ${gw.join(', ')}`);
+  ok('...in the open cell in front of the wall, not inside it (2.88)', Math.abs(gw[0] - (X + 2.5)) < 0.05 && Math.abs(gw[1] - (Y + 1)) < 0.05, `at ${gw.join(', ')}`);
   for (const sel of [`@e[type=minecraft:interaction,tag=bm.gci,x=${X + 2.5},y=${Y + 1},z=${Z + 0.5},distance=..1.5,limit=1]`,
                      `@e[type=minecraft:interaction,tag=bm.gci,x=${X},y=${Y},z=${Z},distance=..4,limit=1]`]) { A.attack(await uuidEnt(sel)); await sleep(700); }
   ok('...punched, both come back to the pack', (await has('golden_cross')) === 2 && !(await passes(`${O}execute if entity @e[type=minecraft:marker,tag=bm.gcm,x=${X},y=${Y},z=${Z},distance=..6]`)));

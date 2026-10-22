@@ -145,7 +145,7 @@ def finalize_chat(G):
     anchor = re.compile(r'text:"Wardrobe"[^\]]*?\]?,?(?:tooltip:\{[^}]*\},)?width:\d+,action:\{type:"minecraft:run_command",command:"/trigger bm\.act set \d+"\}\}')
     on_b, off_b = snbt(chat_btn(True)), snbt(chat_btn(False))
     back = {}
-    n = 0
+    n, hits = 0, []
     for name in sorted(F):
         if name.startswith(('p99/', 'p119/', 'p123/')): continue
         L = F[name]
@@ -169,10 +169,21 @@ def finalize_chat(G):
         if hit:
             F[name][:] = out
             n += 1
-            ms = [re.match(r'scoreboard players set @s bm\.menu (\d+)$', l) for l in out]
-            ms = [int(x.group(1)) for x in ms if x]
-            if ms and not any(l.startswith('$') for l in out):
-                back.setdefault(ms[0], name)
+            hits.append(name)
+    # (pressing it brings the menu back: by the bm.menu its function sets - or, for a menu that only shows the dialog (a macro
+    #  'menu_show', 'menu_in'/'menu_out'), the one that calls it and sets bm.menu: Emma's p57/menu, Cecil's, Wilfrey's...)
+    menu_of = lambda L: next((int(x.group(1)) for x in (re.match(r'scoreboard players set @s bm\.menu (\d+)$', l) for l in L) if x), None)
+    for name in hits:
+        m = menu_of(F[name]) if not any(l.startswith('$') for l in F[name]) else None
+        if m is not None:
+            back.setdefault(m, name); continue
+        for caller in sorted(F):
+            if caller.startswith(('p99/', 'p119/', 'p123/')): continue
+            L = F[caller]
+            if any(f'function bm:{name}' in l for l in L) and not any(l.startswith('$') for l in L):
+                mc = menu_of(L)
+                if mc is not None:
+                    back.setdefault(mc, caller); break
     # pressing it: the same menu again (the wardrobes and the wheel were already handled / are added here)
     import phase179 as P179
     back[P179.WMENU] = 'p179/w/open'

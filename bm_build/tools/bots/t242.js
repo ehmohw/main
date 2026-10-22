@@ -3,7 +3,7 @@
 // (the Hollow Hook). Its fight, all through armour: REND (the third blow takes a quarter of a foe's health), STEP FROM THE DARK
 // (behind its foe), THE STARE (frozen), THE HARROWING. KIN: it comes out on a Dread Night. Then the shared list.
 const runT = require('./rigpet_t');
-runT({ W: 'stalker', NAME: 'The Stalker', ab: 'sv', q: 'sq', pfx: 'p193', prefix: 'st_', item: 'st_hook', parts: 8, hp: 60, X: 16760, Z: 16000, pron: 'it',
+runT({ W: 'stalker', NAME: 'The Stalker', ab: 'sv', q: 'sq', pfx: 'p193', prefix: 'st_', item: 'st_hook', parts: 10, hp: 60, X: 16760, Z: 16000, pron: 'it',
   called: /already behind you/, home: /folds into the dark/, sit: /sinks down/, stand: /unfolds, joint by joint/,
   ways: ['Rend', 'Step from the Dark', 'The Stare', 'The Harrowing', 'Night-Born', 'Kin'],
   plain: 'Its own sickly olive', looks: ['Bone White', 'Ashen Grey', 'Blood Moon'],

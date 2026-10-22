@@ -4,8 +4,8 @@ THE COUNT      every Dread killed in hard mode is counted (#dkn); when the count
                the next night that isn't a Blood Moon is a DREAD NIGHT (it takes the place of a Lucky Night or an invasion).
                At dusk the world goes quiet: no birds, no wind, a warning to everyone in the Overworld. A new threshold is
                rolled when it comes.
-THE NIGHT      (13000-23000, the Overworld) no hostile monster spawns - the ones already out flee in a breath of soul smoke -
-               and nobody's followers come out (any that are out go home; calling one says it won't come). A red bar counts to
+THE NIGHT      (13000-23000, the Overworld) the night's monsters walk it as on any night (2.88: they were cleared as they
+               spawned, all night long - a strain for nothing), and nobody's followers come out (any that are out go home; calling one says it won't come). A red bar counts to
                dawn; the dark breathes - a heartbeat, whispers, red motes, the light failing now and then. Nobody can sleep.
 THE HUNTED     everyone in the Overworld who has beaten the Hollow King. STALKERS come for them (after the owner's drawing:
                tall, thin, sage-olive things, ribs showing, long hooked claws raised, a bald head tipped back over a gaping maw)
@@ -33,6 +33,8 @@ from nbt import snbt, B, F, Int
 import phase160 as P160
 import phase172 as P172
 import phase177 as P177
+import rigfol as RF
+import stalker_art as SA
 
 DREAD, DREAD_D, GOLD = '#b0102a', '#5a0812', '#ffd24a'
 ESS = '#d0406a'
@@ -78,21 +80,6 @@ def ring(r, n, y=0.1):
     return [(round(r * math.cos(2 * math.pi * i / n), 2), y, round(r * math.sin(2 * math.pi * i / n), 2)) for i in range(n)]
 
 
-def q_axis(axis, deg):
-    s, c = math.sin(math.radians(deg) / 2), math.cos(math.radians(deg) / 2)
-    return [F(round(s * a, 4)) for a in axis] + [F(round(c, 4))]
-
-
-def q_then(a_axis, a_deg, b_axis, b_deg):
-    """the turn a, then b on top of it (both about the model's own axes)"""
-    def q(axis, deg):
-        s, c = math.sin(math.radians(deg) / 2), math.cos(math.radians(deg) / 2)
-        return (s * axis[0], s * axis[1], s * axis[2], c)
-    x1, y1, z1, w1 = q(a_axis, a_deg); x2, y2, z2, w2 = q(b_axis, b_deg)
-    return [F(round(v, 4)) for v in (w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2, w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
-                                     w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2, w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2)]
-
-
 def generate(G):
     fn, wjson, title, tellraw, give = G.fn, G.wjson, G.title, G.tellraw, G.give
     import phase179 as P179
@@ -101,7 +88,8 @@ def generate(G):
     second, fast = G.FUNCS['loop/second'], G.FUNCS['loop/fast']
     OW = '@a[tag=bm.ow]'
     HUNT = '@a[tag=bm.dnh]'
-    objs = ['bm.dnsp', 'bm.dnst', 'bm.dnx', 'bm.dny', 'bm.dnz', 'bm.dnt', 'bm.dnd0', 'bm.dnesc', 'bm.stkc', 'bm.stkr']
+    objs = ['bm.dnsp', 'bm.dnst', 'bm.dnx', 'bm.dny', 'bm.dnz', 'bm.dnt', 'bm.dnd0', 'bm.dnesc', 'bm.stkc', 'bm.stkr',
+            'bm.stkid', 'bm.stka', 'bm.stkf', 'bm.stkx', 'bm.stkz', 'bm.stkd', 'bm.stkw', 'bm.stkp', 'bm.stkwc']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + [
         'execute unless score #dkn bm.cfg matches 0.. run scoreboard players set #dkn bm.cfg 0',
         'execute unless score #dnt bm.cfg matches 1.. store result score #dnt bm.cfg run random value 30..70',
@@ -109,7 +97,7 @@ def generate(G):
         'bossbar add bm:dreadnight {text:"Dread Night",color:"dark_red",bold:true}',
         'bossbar set bm:dreadnight color red', 'bossbar set bm:dreadnight style notched_10', 'bossbar set bm:dreadnight max 10000',
         'team add bm.dtot', 'team modify bm.dtot friendlyFire true', 'team modify bm.dtot seeFriendlyInvisibles false',
-        'scoreboard players set #k3 bm.rng 3', 'scoreboard players set #m1 bm.rng -1']
+        'scoreboard players set #k3 bm.rng 3', 'scoreboard players set #m1 bm.rng -1', 'scoreboard players set #k4 bm.rng 4']
     G.OBJECTIVES += objs
 
     # ================================================================== THE COUNT
@@ -144,7 +132,6 @@ def generate(G):
     fn('p181/wake', ['tp @s ~ ~0.6 ~', title('@s', 'actionbar', T('You can\'t sleep. Something is watching.', DREAD))])
 
     # ---- the start
-    reg = ','.join(f'tag=!{t}' for t in tuple(P172.NOT_REGULAR) + ('bm.boss', 'bm.npc', 'bm.minion'))
     fn('p181/start', ['scoreboard players set #dnight bm.bm 1', 'scoreboard players set #dkn bm.cfg 0',
                       'execute store result score #dnt bm.cfg run random value 30..70',
                       f'title {OW} times 20 90 40', title(OW, 'title', T('DREAD NIGHT', DREAD, bold=True)),
@@ -153,13 +140,9 @@ def generate(G):
                       f'execute as {OW} at @s run playsound minecraft:entity.lightning_bolt.thunder ambient @s ~ ~ ~ 0.6 0.4',
                       'effect give @a[tag=bm.ow] minecraft:darkness 6 0 true',
                       f'bossbar set bm:dreadnight players {OW}', 'bossbar set bm:dreadnight visible true',
-                      tellraw(OW, P + [T('A Dread Night. No monster walks tonight - nothing so kind. ', '#c8a0a0'),
+                      tellraw(OW, P + [T('A Dread Night. Something worse than the dark walks tonight. ', '#c8a0a0'),
                                        T('Those who felled the Hollow King are hunted until dawn.', DREAD, bold=True)]),
-                      f'execute as {OW} at @s as @e[type=#bm:hostile,distance=..128,{reg}] unless data entity @s CustomName '
-                      f'unless data entity @s {{NoAI:1b}} at @s run function bm:p181/flee',
                       'scoreboard players set @a bm.dnt 0', 'scoreboard players set @a bm.dnesc 0', 'tag @a remove bm.dnh', 'tag @a remove bm.dnwas'])
-    fn('p181/flee', ['particle minecraft:soul ~ ~1 ~ 0.3 0.6 0.3 0.04 12', 'particle minecraft:large_smoke ~ ~1 ~ 0.3 0.6 0.3 0.02 8',
-                     'tp @s ~ -300 ~', 'kill @s'])
 
     # ---- during: the hunted, the bar, the dark breathing
     fn('p181/during', [
@@ -234,12 +217,6 @@ def generate(G):
                          f'dx={2 * CROSS_R},dy={2 * CROSS_R},dz={2 * CROSS_R}] run return 1', 'return 0'])
 
     # ================================================================== THE STALKERS
-    ident = [F(0), F(0), F(0), F(1)]
-    TILT = q_axis((1, 0, 0), -30)                                     # (its head tipped back, as in the drawing - the maw up and out)
-    disp = lambda tag, model, t, s, fz=0.0, rot=None: {'id': 'minecraft:item_display', 'Tags': [tag, 'bm.stkpart'], 'item_display': 'fixed', 'teleport_duration': Int(2), 'interpolation_duration': Int(5),
-                                     'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': model}},
-                                     'transformation': {'left_rotation': rot or ident, 'right_rotation': ident, 'translation': [F(0), F(t), F(fz)], 'scale': [F(s)] * 3},
-                                     'view_range': F(2.0)}
     host = {'Tags': ['bm.seen', 'bm.stalker', 'bm.stknew'], 'Silent': B(1), 'PersistenceRequired': B(1), 'CanPickUpLoot': B(0), 'IsBaby': B(0),
             'CanBreakDoors': B(1), 'DeathLootTable': 'minecraft:empty', 'Health': F(1024),
             'active_effects': [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0)},
@@ -250,8 +227,57 @@ def generate(G):
                            {'id': 'minecraft:attack_knockback', 'base': 0.0}, {'id': 'minecraft:knockback_resistance', 'base': 1.0},
                            {'id': 'minecraft:step_height', 'base': 1.1}, {'id': 'minecraft:safe_fall_distance', 'base': 64.0},
                            {'id': 'minecraft:spawn_reinforcements', 'base': 0.0}],
-            'drop_chances': {'head': F(0), 'chest': F(0), 'legs': F(0), 'feet': F(0), 'mainhand': F(0), 'offhand': F(0)},
-            'Passengers': [disp('bm.stkb', 'bm:stalker_body', 1.0, 2.0), disp('bm.stkh', 'bm:stalker_head', 3.4, 2.0, 0.05, TILT)]}
+            'drop_chances': {'head': F(0), 'chest': F(0), 'legs': F(0), 'feet': F(0), 'mainhand': F(0), 'offhand': F(0)}}
+    # (2.88) its body: the Stalker's own rig (stalker_art - the follower's, remodelled after the drawing) at Dread size, its parts
+    # standing at the host's feet every tick - it crawls on all fours, sprints flat out, and draws itself up tall and still. (It
+    # used to be two stiff displays riding the host, and glided over the ground.)
+    SD = 1.2                                                           # (about 3.4 blocks drawn up to its full height)
+    psel = lambda p=None: '@e[type=minecraft:item_display,tag=bm.stksel' + (f',tag=bm.stkp_{p}]' if p else ']')
+    fn('p181/stk/rig', [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(SA, p, ["bm.stkpart", f"bm.stkp_{p}", "bm.stknp"], SD, extra={"view_range": F(2.0)})}'
+                        for p in SA.PARTS] +
+       ['scoreboard players operation @e[type=minecraft:item_display,tag=bm.stknp,distance=..2] bm.stkid = @s bm.stkid',
+        'tag @e[type=minecraft:item_display,tag=bm.stknp,distance=..2] add bm.stksel', 'execute rotated as @s rotated ~ 0 run function bm:p181/stk/place',
+        'function bm:p181/stk/pose/stand_a', 'tag @e[tag=bm.stksel] remove bm.stksel', 'tag @e[tag=bm.stknp] remove bm.stknp'])
+    fn('p181/stk/place', RF.place(SA, SD / 16, psel))
+    GAIT = {'stand_a': 30, 'stand_b': 30, 'scream': 6, 'rend': 3, 'rend_up': 4, **{f'crawl_{k}': 5 for k in range(4)}, **{f'sprint_{k}': 3 for k in range(4)}}
+    for nm, dur in GAIT.items():
+        fn(f'p181/stk/pose/{nm}', RF.pose(SA, SA.POSES[nm], SD, dur, psel, swap=('head',)))
+    G.FUNCS['load'][-1:-1] = ['scoreboard players set #k12 bm.stkf 12', 'scoreboard players set #k20 bm.stkf 20', 'scoreboard players set #k80 bm.stkf 80']
+    # every tick: its parts to it; how it moves (looked at every 4 ticks: still - drawn up tall; on the move - on all fours;
+    # running you down - flat out) picks the cycle; and a charge through the walls, when it's winding up for one
+    fn('p181/stk/tick', ['scoreboard players operation #sid bm.rng = @s bm.stkid',
+                         'execute as @e[type=minecraft:item_display,tag=bm.stkpart,distance=..8] if score @s bm.stkid = #sid bm.rng run tag @s add bm.stksel',
+                         'execute rotated as @s rotated ~ 0 run function bm:p181/stk/place',
+                         'execute if score @s bm.stkp matches 1.. run function bm:p181/stk/phase',
+                         'scoreboard players add @s bm.stkf 1',
+                         'scoreboard players operation #f bm.rng = @s bm.stkf', 'scoreboard players operation #f bm.rng %= #k4 bm.rng',
+                         'execute if score #f bm.rng matches 0 unless score @s bm.stka matches 3.. run function bm:p181/stk/gait',
+                         'execute if score @s bm.stka matches 2 run scoreboard players operation #f bm.rng = @s bm.stkf',
+                         'execute if score @s bm.stka matches 2 run scoreboard players operation #f bm.rng %= #k12 bm.stkf',
+                         *[f'execute if score @s bm.stka matches 2 if score #f bm.rng matches {3 * k} run function bm:p181/stk/pose/sprint_{k}' for k in range(4)],
+                         'execute if score @s bm.stka matches 1 run scoreboard players operation #f bm.rng = @s bm.stkf',
+                         'execute if score @s bm.stka matches 1 run scoreboard players operation #f bm.rng %= #k20 bm.stkf',
+                         *[f'execute if score @s bm.stka matches 1 if score #f bm.rng matches {5 * k} run function bm:p181/stk/pose/crawl_{k}' for k in range(4)],
+                         'execute if score @s bm.stka matches 0 run scoreboard players operation #f bm.rng = @s bm.stkf',
+                         'execute if score @s bm.stka matches 0 run scoreboard players operation #f bm.rng %= #k80 bm.stkf',
+                         'execute if score @s bm.stka matches 0 if score #f bm.rng matches 0 run function bm:p181/stk/pose/stand_a',
+                         'execute if score @s bm.stka matches 0 if score #f bm.rng matches 40 run function bm:p181/stk/pose/stand_b',
+                         'execute if score @s bm.stka matches 4 run scoreboard players remove @s bm.stkc 1',
+                         'execute if score @s bm.stka matches 4 if score @s bm.stkc matches ..0 run scoreboard players set @s bm.stka 0',
+                         'tag @e[tag=bm.stksel] remove bm.stksel'])
+    # how far it has come in 4 ticks: under 0.12 blocks it stands, under 0.6 it crawls, past that it sprints (a change starts the
+    # new cycle from its first frame)
+    fn('p181/stk/gait', ['execute store result score #x bm.rng run data get entity @s Pos[0] 100', 'execute store result score #z bm.rng run data get entity @s Pos[2] 100',
+                         'scoreboard players operation #dx bm.rng = #x bm.rng', 'scoreboard players operation #dx bm.rng -= @s bm.stkx',
+                         'scoreboard players operation #dz bm.rng = #z bm.rng', 'scoreboard players operation #dz bm.rng -= @s bm.stkz',
+                         'execute if score #dx bm.rng matches ..-1 run scoreboard players operation #dx bm.rng *= #m1 bm.rng',
+                         'execute if score #dz bm.rng matches ..-1 run scoreboard players operation #dz bm.rng *= #m1 bm.rng',
+                         'scoreboard players operation #dx bm.rng += #dz bm.rng',
+                         'scoreboard players operation @s bm.stkx = #x bm.rng', 'scoreboard players operation @s bm.stkz = #z bm.rng',
+                         'scoreboard players set #g bm.rng 0', 'execute if score #dx bm.rng matches 12.. run scoreboard players set #g bm.rng 1',
+                         'execute if score #dx bm.rng matches 60.. run scoreboard players set #g bm.rng 2',
+                         'execute unless score #g bm.rng = @s bm.stka run scoreboard players set @s bm.stkf -1',
+                         'scoreboard players operation @s bm.stka = #g bm.rng'])
     # rising: a spot 30-40 blocks off in a random direction that fits it (on the surface when you're under the sky, near your
     # own height when you aren't), not in a cross's ground - six tries a second
     fn('p181/stk/rise', ['scoreboard players set #rt bm.rng 6', 'tag @s add bm.stko', 'function bm:p181/stk/try', 'tag @s remove bm.stko'])
@@ -281,6 +307,10 @@ def generate(G):
                        'execute as @e[type=minecraft:zombie,tag=bm.stknew] at @s run function bm:p181/stk/born',
                        'scoreboard players set #ok bm.rng 1'])
     fn('p181/stk/born', ['tag @s remove bm.stknew', 'scoreboard players set @s bm.stkc 0', 'scoreboard players set @s bm.stkr 0',
+                         'scoreboard players add #stkn bm.stkid 1', 'scoreboard players operation @s bm.stkid = #stkn bm.stkid',
+                         'scoreboard players set @s bm.stka 0', 'scoreboard players set @s bm.stkf 0', 'scoreboard players set @s bm.stkd 999',
+                         'scoreboard players set @s bm.stkw 0', 'scoreboard players set @s bm.stkp 0', 'scoreboard players set @s bm.stkwc 20',
+                         'function bm:p181/stk/rig',
                          'damage @s 1 minecraft:player_attack by @a[tag=bm.stko,limit=1]',
                          'playsound minecraft:entity.warden.emerge hostile @a[distance=..48] ~ ~ ~ 0.5 0.6',
                          'particle minecraft:sculk_soul ~ ~1 ~ 0.4 1 0.4 0.02 20',
@@ -295,33 +325,77 @@ def generate(G):
                            'execute if score @s bm.stkr matches 3.. run scoreboard players set @s bm.stkr 0',
                            'execute if block ~ ~ ~ minecraft:water run data modify entity @s InWaterTime set value 0',
                            'execute if block ~ ~1 ~ minecraft:water run data modify entity @s InWaterTime set value 0',
-                           'tag @a remove bm.stko'])
+                           'function bm:p181/stk/wall_watch', 'tag @a remove bm.stko'])
+    # (2.88) THROUGH THE WALLS: a house won't save you. Six seconds without getting any closer (you've walled yourself in, or it
+    # can't find the way) and it winds up - three seconds of it, rigid, screaming, the dark gathering round it - then comes
+    # straight through whatever is between you, a block a tick, and out beside you. Not into a cross's ground; 30 s between.
+    fn('p181/stk/wall_watch', ['scoreboard players remove @s[scores={bm.stkwc=1..}] bm.stkwc 1',
+                               'execute if score @s bm.stkp matches 1.. run return 0',
+                               'execute store result score #sx bm.rng run data get entity @s Pos[0]', 'execute store result score #sy bm.rng run data get entity @s Pos[1]',
+                               'execute store result score #sz bm.rng run data get entity @s Pos[2]',
+                               'execute as @a[tag=bm.stko,limit=1] store result score #qx bm.rng run data get entity @s Pos[0]',
+                               'execute as @a[tag=bm.stko,limit=1] store result score #qy bm.rng run data get entity @s Pos[1]',
+                               'execute as @a[tag=bm.stko,limit=1] store result score #qz bm.rng run data get entity @s Pos[2]',
+                               *[l for a_ in ('x', 'y', 'z') for l in (f'scoreboard players operation #s{a_} bm.rng -= #q{a_} bm.rng',
+                                                                       f'execute if score #s{a_} bm.rng matches ..-1 run scoreboard players operation #s{a_} bm.rng *= #m1 bm.rng')],
+                               'scoreboard players operation #sx bm.rng += #sy bm.rng', 'scoreboard players operation #sx bm.rng += #sz bm.rng',
+                               # (within its reach it has you - a wall between doesn't count: pressed to a hut's wall it's still 3 off)
+                               'execute if entity @a[tag=bm.stko,distance=..2.2] run return run scoreboard players set @s bm.stkw 0',
+                               'scoreboard players operation #best bm.rng = @s bm.stkd', 'scoreboard players remove #best bm.rng 1',
+                               'execute if score #sx bm.rng < #best bm.rng run scoreboard players set @s bm.stkw -1',
+                               'execute if score #sx bm.rng < #best bm.rng run scoreboard players operation @s bm.stkd = #sx bm.rng',
+                               'scoreboard players add @s bm.stkw 1',
+                               'execute if score @s bm.stkw matches 6.. if score @s bm.stkwc matches ..0 if score #sx bm.rng matches ..40 '
+                               'unless function bm:p181/stk/quarry_crossed run function bm:p181/stk/wind_up'])
+    fn('p181/stk/quarry_crossed', ['execute as @a[tag=bm.stko,limit=1] at @s if function bm:p181/in_cross run return 1', 'return 0'])
+    fn('p181/stk/wind_up', ['scoreboard players set @s bm.stkp 80', 'scoreboard players set @s bm.stka 3', 'data merge entity @s {NoAI:1b}',
+                            'scoreboard players operation #sid bm.rng = @s bm.stkid',
+                            'execute as @e[type=minecraft:item_display,tag=bm.stkpart,distance=..8] if score @s bm.stkid = #sid bm.rng run tag @s add bm.stksel',
+                            'function bm:p181/stk/pose/scream', 'tag @e[tag=bm.stksel] remove bm.stksel',
+                            'playsound minecraft:entity.warden.sonic_charge hostile @a[distance=..48] ~ ~ ~ 1.2 0.5',
+                            'playsound minecraft:entity.warden.roar hostile @a[distance=..48] ~ ~ ~ 0.8 0.6',
+                            'execute as @a[tag=bm.stko] run ' + title('@s', 'actionbar', T('Walls won\'t stop it.', DREAD, bold=True))])
+    # (every tick while it charges: 80..21 the wind-up, the dark drawing in; 20..1 through - a block a tick toward you, through
+    # anything, till it's beside you; then out, and the chase goes on)
+    fn('p181/stk/phase', ['scoreboard players remove @s bm.stkp 1',
+                          'scoreboard players operation #me bm.pid = @s bm.pid', 'tag @a remove bm.stkq',
+                          'execute as @a[tag=bm.dnh] if score @s bm.pid = #me bm.pid run tag @s add bm.stkq',
+                          'execute unless entity @a[tag=bm.stkq] run return run function bm:p181/stk/phase_end',
+                          'execute if score @s bm.stkp matches 21.. run particle minecraft:sculk_soul ~ ~1.4 ~ 0.6 1.0 0.6 0.04 3',
+                          'execute if score @s bm.stkp matches 21.. run particle minecraft:large_smoke ~ ~1 ~ 1.2 0.4 1.2 0.01 4',
+                          'execute if score @s bm.stkp matches 21 run playsound minecraft:entity.warden.sonic_boom hostile @a[distance=..48] ~ ~ ~ 0.9 0.6',
+                          'execute if score @s bm.stkp matches ..20 run particle minecraft:sculk_soul ~ ~1 ~ 0.3 0.6 0.3 0.06 6',
+                          'execute if score @s bm.stkp matches ..20 if entity @a[tag=bm.stkq,distance=2.5..] facing entity @a[tag=bm.stkq,limit=1] feet run tp @s ^ ^ ^1',
+                          'execute if score @s bm.stkp matches ..20 unless entity @a[tag=bm.stkq,distance=2.5..] run scoreboard players set @s bm.stkp 0',
+                          'execute if score @s bm.stkp matches ..0 run function bm:p181/stk/phase_end',
+                          'tag @a remove bm.stkq'])
+    fn('p181/stk/phase_end', ['scoreboard players set @s bm.stkp 0', 'scoreboard players set @s bm.stka 0', 'scoreboard players set @s bm.stkwc 30',
+                              'scoreboard players set @s bm.stkw 0', 'scoreboard players set @s bm.stkd 999', 'data merge entity @s {NoAI:0b}',
+                              'scoreboard players set #ok bm.rng 0',
+                              'execute at @a[tag=bm.stkq,limit=1] rotated as @a[tag=bm.stkq,limit=1] rotated ~ 0 positioned ^ ^ ^-1.5 if function bm:p181/stk/fits_blink '
+                              'run function bm:p181/stk/phase_out',
+                              'execute if score #ok bm.rng matches 0 at @a[tag=bm.stkq,limit=1] run function bm:p181/stk/phase_out',
+                              'particle minecraft:sculk_soul ~ ~1.3 ~ 0.4 1 0.4 0.03 25',
+                              'execute as @a[tag=bm.stkq] at @s run playsound minecraft:entity.warden.emerge hostile @s ~ ~ ~ 1 0.8'])
+    fn('p181/stk/phase_out', ['tp @s ~ ~ ~ facing entity @a[tag=bm.stkq,limit=1] feet', 'scoreboard players set #ok bm.rng 1'])
+
     fn('p181/stk/gone', ['function bm:p181/stk/vanish', 'tag @a remove bm.stko'])
     fn('p181/stk/lost', ['scoreboard players add @a[tag=bm.stko] bm.dnesc 1',
                          'execute as @a[tag=bm.stko] run ' + title('@s', 'actionbar', T('It has lost you. For now.', '#c8a0a0', italic=True)),
                          'function bm:p181/stk/vanish', 'tag @a remove bm.stko'])
     fn('p181/stk/vanish', ['particle minecraft:sculk_soul ~ ~1.3 ~ 0.4 1 0.4 0.03 25', 'particle minecraft:large_smoke ~ ~1.3 ~ 0.3 1 0.3 0.02 15',
                            'playsound minecraft:entity.warden.dig hostile @a[distance=..24] ~ ~ ~ 0.6 1.4',
-                           'execute on passengers run kill @s', 'tp @s ~ -300 ~', 'kill @s'])
-    # four times a second: its body turns with it, its head turns to you (twitching), the cross throws it back, and it strikes
+                           'scoreboard players operation #sid bm.rng = @s bm.stkid',
+                           'execute as @e[type=minecraft:item_display,tag=bm.stkpart,distance=..12] if score @s bm.stkid = #sid bm.rng run kill @s',
+                           'tp @s ~ -300 ~', 'kill @s'])
+    # (and a rig whose Stalker has gone some other way - killed by a command, a chunk unloaded under it - doesn't linger)
+    second.append('execute as @e[type=minecraft:item_display,tag=bm.stkpart] at @s unless entity @e[type=minecraft:zombie,tag=bm.stalker,distance=..6] run kill @s')
+    # every tick its rig; four times a second the cross throws it back, and it strikes
+    G.FUNCS['tick'].append('execute as @e[type=minecraft:zombie,tag=bm.stalker] at @s run function bm:p181/stk/tick')
     fast += ['execute as @e[type=minecraft:zombie,tag=bm.stalker] at @s run function bm:p181/stk/fast']
-    sway = lambda deg: q_axis((0, 0, 1), deg)
     fn('p181/stk/fast', ['scoreboard players operation #me bm.pid = @s bm.pid', 'tag @a remove bm.stko',
                          'execute as @a[tag=bm.dnh] if score @s bm.pid = #me bm.pid run tag @s add bm.stko',
-                         'execute on passengers if entity @s[tag=bm.stkb] run rotate @s ~ 0',
-                         'execute facing entity @a[tag=bm.stko,limit=1] eyes rotated ~ 0 on passengers if entity @s[tag=bm.stkh] run rotate @s ~ 0',
-                         'scoreboard players add @s bm.stkc 1', 'execute if score @s bm.stkc matches 8.. run scoreboard players set @s bm.stkc 0',
-                         'execute if score @s bm.stkc matches 0 on passengers if entity @s[tag=bm.stkb] run data merge entity @s '
-                         f'{{start_interpolation:0,interpolation_duration:5,transformation:{{left_rotation:{snbt(sway(5))}}}}}',
-                         'execute if score @s bm.stkc matches 4 on passengers if entity @s[tag=bm.stkb] run data merge entity @s '
-                         f'{{start_interpolation:0,interpolation_duration:5,transformation:{{left_rotation:{snbt(sway(-5))}}}}}',
-                         'execute store result score #tw bm.rng run random value 1..14',
-                         'execute if score #tw bm.rng matches 1 on passengers if entity @s[tag=bm.stkh] run data merge entity @s '
-                         f'{{start_interpolation:0,interpolation_duration:1,transformation:{{left_rotation:{snbt(q_then((1, 0, 0), -30, (0, 0, 1), 28))}}}}}',
-                         'execute if score #tw bm.rng matches 2 on passengers if entity @s[tag=bm.stkh] run data merge entity @s '
-                         f'{{start_interpolation:0,interpolation_duration:1,transformation:{{left_rotation:{snbt(q_then((1, 0, 0), -30, (0, 0, 1), -22))}}}}}',
-                         'execute if score #tw bm.rng matches 3..5 on passengers if entity @s[tag=bm.stkh] run data merge entity @s '
-                         f'{{start_interpolation:0,interpolation_duration:3,transformation:{{left_rotation:{snbt(TILT)}}}}}',
+                         'execute if score @s bm.stkp matches 1.. run return run tag @a remove bm.stko',
                          'execute if function bm:p181/in_cross run return run function bm:p181/stk/repel',
                          'execute unless score @s bm.dnsp matches 1.. if entity @a[tag=bm.stko,distance=..1.9,gamemode=!creative,gamemode=!spectator] '
                          'run function bm:p181/stk/strike',
@@ -338,8 +412,10 @@ def generate(G):
     fn('p181/stk/strike', ['scoreboard players set @s bm.dnsp 6',
                            'execute as @a[tag=bm.stko,limit=1] at @s run function bm:p181/stk/hit',
                            'playsound minecraft:entity.warden.attack_impact hostile @a[distance=..24] ~ ~ ~ 1.2 0.7',
-                           'execute on passengers if entity @s[tag=bm.stkh] run data merge entity @s '
-                           f'{{start_interpolation:0,interpolation_duration:1,transformation:{{left_rotation:{snbt(q_axis((1, 0, 0), 24))}}}}}'])
+                           'scoreboard players set @s bm.stka 4', 'scoreboard players set @s bm.stkc 8', 'function bm:p181/stk/strike_pose'])
+    fn('p181/stk/strike_pose', ['scoreboard players operation #sid bm.rng = @s bm.stkid',
+                                'execute as @e[type=minecraft:item_display,tag=bm.stkpart,distance=..8] if score @s bm.stkid = #sid bm.rng run tag @s add bm.stksel',
+                                'function bm:p181/stk/pose/rend', 'tag @e[tag=bm.stksel] remove bm.stksel'])
     fn('p181/stk/hit', ['execute store result score #mh bm.rng run attribute @s minecraft:max_health get 10',
                         'execute store result score #ab bm.rng run data get entity @s AbsorptionAmount 10',
                         'scoreboard players operation #mh bm.rng += #ab bm.rng', 'scoreboard players operation #mh bm.rng /= #k3 bm.rng',
@@ -385,13 +461,14 @@ def generate(G):
                        'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 0.8 0.7', 'scoreboard players set @s bm.dnesc 0'] + DAWN)
     fn('p181/give_ess', ['$give @s ' + G.item_arg('dread_essence') + ' $(n)'])
 
-    # ================================================================== NO MONSTER RISES - on a Dread Night, and near a Dread Totem
+    # ================================================================== NO MONSTER RISES near a Dread Totem
+    # (2.88: a Dread Night no longer clears every monster as it spawns - the game only spawned more, all night, a strain for
+    #  nothing; the night's own monsters walk it now, and the Stalkers hunt among them)
     n = 0
     for t in list(G.ARMORED) + list(G.UNARMORED):
         L = G.FUNCS.get(f'mobs/init/{t}')
         if not L: continue
-        L[0:0] = ['execute unless data entity @s Tags if score #dnight bm.bm matches 1 if dimension minecraft:overworld run return run function bm:p181/nospawn',
-                  'execute unless data entity @s Tags if entity @a[tag=bm.dtot,distance=..32] run return run function bm:p181/nospawn']
+        L[0:0] = ['execute unless data entity @s Tags if entity @a[tag=bm.dtot,distance=..32] run return run function bm:p181/nospawn']
         n += 1
     assert n >= 20, n
     fn('p181/nospawn', ['tp @s ~ -300 ~', 'kill @s'])
@@ -437,6 +514,7 @@ def generate(G):
                         'playsound minecraft:block.bell.resonate player @s ~ ~ ~ 0.6 0.4'])
 
     # ================================================================== THE GOLDEN CROSS (a floor or a wall)
+    ident = [F(0), F(0), F(0), F(1)]
     def cross_disp(tag_extra, model, rot, t):
         return {'Tags': ['bm.gcd', 'bm.gcnew'] + tag_extra, 'item_display': 'fixed',
                 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': model}},
@@ -507,8 +585,8 @@ def generate(G):
 
 # ================================================================== THE ART
 def textures():
-    """the Stalker, after the owner's drawing: sage-olive skin with a darker shadow side, ribs and a navel, a bald skull with
-    a blank face with two empty hollows (2.85d: no brow, no nose, no pupils), and a maw - dark red, ringed with jagged teeth"""
+    """the Stalker's Grin's face, after the owner's drawing: sage-olive skin with a darker shadow side, a bald brow, two small
+    black eyes red at the centre (2.88), and a maw - dark red, ringed with jagged teeth"""
     from PIL import Image, ImageDraw
     import random
     rnd = random.Random(2085)
@@ -541,10 +619,6 @@ def textures():
             dx = abs(x - 7.5)
             k = 1.0 + 0.05 * (1 - dx / 8) - (0.1 if 10 <= y <= 14 and 2 <= dx <= 6 else 0) - (0.12 if 3 <= y <= 11 and 2 <= dx <= 6 else 0)
             px[x, y] = tuple(max(0, min(255, int(c * k))) for c in px[x, y][:3]) + (255,)
-    for cx in (4, 11):                                             # (and something dark has run down from each, long ago)
-        for y in range(10, 16):
-            px[cx, y] = tuple(int(c * (0.45 + 0.06 * (y - 10))) for c in px[cx, y][:3]) + (255,)
-        px[cx + (1 if cx < 8 else -1), 12] = tuple(int(c * 0.6) for c in px[cx, 12][:3]) + (255,)
     T_['stk_face'] = face
     teeth = skin(LIGHT); d = ImageDraw.Draw(teeth)                 # the upper jaw's front: lip above, jagged teeth hanging
     d.rectangle((0, 7, 15, 15), fill=(70, 14, 20, 255))
@@ -568,14 +642,13 @@ def textures():
     for x in range(16):
         claw.putpixel((x, 15), LINE + (255,))
     T_['stk_claw'] = claw
-    eye = Image.new('RGBA', (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(eye)   # an empty hollow: a dark rim, black all the way down
-    d.ellipse((0, 0, 15, 15), fill=(70, 68, 44, 255)); d.ellipse((2, 1, 13, 15), fill=(26, 24, 14, 255)); d.ellipse((4, 3, 11, 15), fill=(0, 0, 0, 255))
+    eye = Image.new('RGBA', (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(eye)   # (2.88, as drawn) a small round black eye, red at the centre
+    d.ellipse((0, 0, 15, 15), fill=(58, 60, 36, 255)); d.ellipse((2, 2, 13, 13), fill=(8, 6, 6, 255)); d.ellipse((6, 5, 9, 8), fill=(208, 24, 24, 255))
     T_['stk_eye'] = eye
     return T_
 
 
 CUBE = None                            # (gen_rp's cube, set by rp())
-LIFT = 4.4                             # (2.85d: the longer legs lift its torso this much, in model units - its head rides 0.55 higher)
 
 
 def _b(fr, to, tex, rot=None, light=0, full=False):
@@ -588,70 +661,15 @@ def _b(fr, to, tex, rot=None, light=0, full=False):
 
 
 def stalker_models():
-    """built at half its size (the displays double it): about 3.4 blocks of starved olive thing - long, thin legs knotted at
-    the knee, a ribbed chest, a long neck, arms that hang past where arms should end and rise into long hooked claws, and a
-    bald head tipped back over a gaping maw: no brow, no nose, no eyes - two empty hollows in a blank face"""
-    Z = lambda a, o: {'angle': a, 'axis': 'z', 'origin': o}
-    L = LIFT                                                       # (the torso sits this much higher on the longer legs)
-    body = [
-        _b((6.65, 0.8, 7.6), (7.45, 15.0, 8.4), 'stk_skin'), _b((8.55, 0.8, 7.6), (9.35, 15.0, 8.4), 'stk_shade'),  # long, thin legs
-        _b((6.5, 7.4, 7.45), (7.6, 8.5, 8.55), 'stk_skin'), _b((8.4, 7.4, 7.45), (9.5, 8.5, 8.55), 'stk_shade'),    # knotted knees
-        _b((6.55, 1.6, 7.5), (7.55, 2.2, 8.5), 'stk_skin'), _b((8.45, 1.6, 7.5), (9.45, 2.2, 8.5), 'stk_shade'),    # bony ankles
-        _b((6.4, 0, 6.0), (7.7, 0.8, 8.6), 'stk_skin'), _b((8.3, 0, 6.0), (9.6, 0.8, 8.6), 'stk_shade'),            # long feet
-        _b((6.7, 9.8 + L, 7.5), (9.3, 11.4 + L, 8.5), 'stk_skin'),                                                  # narrow hips
-        _b((7.1, 11.4 + L, 7.7), (8.9, 13.0 + L, 8.3), 'stk_skin'),                                                 # a starved waist
-        _b((6.2, 13.0 + L, 7.3), (9.8, 17.0 + L, 8.7), 'stk_skin'),                                                 # the ribcage
-        _b((5.6, 16.3 + L, 7.45), (10.4, 17.1 + L, 8.55), 'stk_skin'),                                              # bony shoulders
-        _b((7.6, 17.0 + L, 7.75), (8.4, 19.4 + L, 8.25), 'stk_skin'),                                               # a long thin neck
-        _b((6.9, 7.6, 7.65), (7.2, 9.8 + L, 8.35), 'stk_shade'), _b((8.8, 7.6, 7.65), (9.1, 9.8 + L, 8.35), 'stk_shade'),  # (the thighs' sinew)
-    ]
-    body[10]['faces']['north']['texture'] = '#stk_ribs'
-    import math as _m
-
-    def seg(top, ang, length, w, tex, up=False, z0=7.6, z1=8.4):
-        """a limb from a joint, swung `ang` degrees about z (hanging down from the joint, or raised up from it): its box, and where it ends"""
-        x, y = top
-        r = _m.radians(ang)
-        if up:
-            return _b((x - w / 2, y, z0), (x + w / 2, y + length, z1), tex, Z(ang, [x, y, 8.0])), (x - length * _m.sin(r), y + length * _m.cos(r))
-        return _b((x - w / 2, y - length, z0), (x + w / 2, y, z1), tex, Z(ang, [x, y, 8.0])), (x + length * _m.sin(r), y - length * _m.cos(r))
-    # its right arm (-x): hanging long to a low elbow, the forearm raised; its left (+x): out wide, reaching - both far too long
-    for side, sh, a1, a2, tex in ((-1, (5.8, 16.9 + L), -22.5, 22.5, 'stk_skin'), (1, (10.2, 16.9 + L), 22.5, -45, 'stk_shade')):
-        upper, elbow = seg(sh, a1, 6.6, 0.75, tex)
-        fore, wrist = seg(elbow, a2, 7.4, 0.65, tex, up=True)
-        body += [upper, fore, _b((elbow[0] - 0.45, elbow[1] - 0.45, 7.5), (elbow[0] + 0.45, elbow[1] + 0.45, 8.5), tex)]   # a knob of an elbow
-        palm, hand = seg(wrist, a2, 1.2, 0.9, tex, up=True)
-        body.append(palm)
-        for k, dz in enumerate((7.3, 7.8, 8.3)):                   # three long hooked claws, the outer one splayed
-            fa = a2 + (side * 22.5 if k == 2 else 0)
-            fbox, tip = seg((hand[0], hand[1]), fa, 4.4 - 0.5 * abs(k - 1), 0.36, 'stk_claw', up=True, z0=dz, z1=dz + 0.36)
-            hbox, _t = seg(tip, fa - side * 45, 2.6, 0.3, 'stk_claw', up=True, z0=dz, z1=dz + 0.3)
-            body += [fbox, hbox]
-    for fx0 in (6.4, 8.3):                                         # and on the feet, three long toes splayed forward
-        for k in range(3):
-            x0 = fx0 + 0.05 + 0.45 * k
-            body.append(_b((x0, 0, 3.6), (x0 + 0.3, 0.3, 6.0), 'stk_claw'))
-    head = [
-        _b((6.4, 8.0, 6.4), (9.6, 12.6, 9.8), 'stk_skin'),                                                       # a long, narrow, bald skull
-        _b((6.8, 12.6, 6.8), (9.2, 13.1, 9.4), 'stk_skin'),                                                      # its crown, rounding off
-        _b((6.41, 8.0, 6.39), (9.59, 12.6, 6.4), 'stk_face', full=True),                                         # a blank face: no brow, no nose
-        _b((6.6, 6.6, 5.2), (9.4, 8.0, 9.4), 'stk_skin'),                                                        # the upper jaw, jutting
-        _b((6.61, 6.6, 5.19), (9.39, 8.0, 5.2), 'stk_teeth', full=True),                                         # teeth hanging from it
-        _b((6.8, 5.0, 6.0), (9.2, 6.6, 9.2), 'stk_maw', full=True),                                              # the throat, wide open
-        _b((6.6, 4.2, 4.4), (9.4, 5.0, 9.2), 'stk_shade'),                                                       # the lower jaw, thrust out
-        _b((6.7, 5.0, 4.5), (9.3, 5.02, 8.8), 'stk_maw', full=True),                                             # its tongue and lower teeth
-        _b((9.6, 10.0, 8.2), (12.0, 10.7, 9.2), 'stk_skin', Z(22.5, [9.6, 10.35, 8.7])),                         # pointed ears, swept back
-        _b((4.0, 10.0, 8.2), (6.4, 10.7, 9.2), 'stk_skin', Z(-22.5, [6.4, 10.35, 8.7])),
-        _b((6.85, 9.5, 6.36), (7.65, 11.5, 6.39), 'stk_eye', full=True),                                         # two long, empty hollows where eyes should be
-        _b((8.35, 9.5, 6.36), (9.15, 11.5, 6.39), 'stk_eye', full=True),
-    ]
+    """the Stalker's Grin (its face, worn as a hat). (2.88: the Stalker itself is stalker_art's rig now, the follower's - its
+    two old stiff display models are gone)"""
     # the hat: its face, worn over yours, the maw hanging open at your chin
     grin = [_b((3.4, 8.0, 2.9), (12.6, 15.6, 3.6), 'stk_skin'), _b((3.41, 8.0, 2.88), (12.59, 15.6, 2.9), 'stk_face', full=True),
             _b((3.6, 5.0, 2.4), (12.4, 8.0, 3.6), 'stk_skin'), _b((3.61, 5.0, 2.38), (12.39, 8.0, 2.4), 'stk_teeth', full=True),
             _b((3.8, 2.4, 1.6), (12.2, 3.4, 3.6), 'stk_shade'), _b((3.9, 3.4, 1.7), (12.1, 3.42, 3.4), 'stk_maw', full=True),
             _b((4.2, 10.6, 2.8), (6.2, 12.6, 2.88), 'stk_eye', full=True), _b((9.8, 10.6, 2.8), (11.8, 12.6, 2.88), 'stk_eye', full=True),
             _b((3.0, 14.4, 2.9), (13.0, 15.8, 13.0), 'stk_skin'), _b((3.0, 8.0, 12.4), (13.0, 15.8, 13.0), 'stk_shade')]
-    return {'stalker_body': body, 'stalker_head': head, 'stalker_grin': grin}
+    return {'stalker_grin': grin}
 
 
 def cross_models():

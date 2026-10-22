@@ -866,9 +866,9 @@ def nsel(p=None):
 
 
 DUR_N = {'idle_a': 40, 'idle_b': 40, 'monocle': 16, 'bow': 16, 'welcome': 20}
-COURT = '^ ^0.9 ^3'                         # (2.88: where he holds court, from his throne's marker - clear of the seat, the purple back and the near pedestal)
+COURT_AT = '^ ^0.9 ^3'                         # (2.88: where he holds court, from his throne's marker - clear of the seat, the purple back and the near pedestal)
 # (2.88) at court his tail swings out to his left and leans away from him, the flame held up beside him, clear of his arm (the
-# bow's lies out long, so it only swings - leaned, it went through the floor) - see COURT
+# bow's lies out long, so it only swings - leaned, it went through the floor) - see COURT_AT
 _TAIL_N = lambda k: RK.qs(('y', -100)) if k == 'bow' else RK.qs(('z', -45), ('y', -80))
 NPOSES = {k: dict(POSES[k], tail1=RK.qmul(_TAIL_N(k), POSES[k].get('tail1', RK.I))) for k in DUR_N}
 
@@ -883,7 +883,7 @@ def _court(C):
     # stood at the throne's foot, his coil sat in the seat and his tail and its flame went through the purple back. Kings already
     # at the throne's foot are moved out (the old spot cleared, the new one filled the next second)
     second.append('execute as @e[type=minecraft:marker,tag=bm.omthrone] at @s as @e[type=minecraft:marker,tag=bm.omnpc,distance=..0.5] at @s run function bm:p169/npc/remove')
-    second.append(f'execute if score #omfree bm.omwin matches 1 as @e[type=minecraft:marker,tag=bm.omthrone] at @s if entity @a[distance=..48] positioned {COURT} '
+    second.append(f'execute if score #omfree bm.omwin matches 1 as @e[type=minecraft:marker,tag=bm.omthrone] at @s if entity @a[distance=..48] positioned {COURT_AT} '
                   'unless entity @e[type=minecraft:marker,tag=bm.omnpc,distance=..2] unless entity @e[type=minecraft:husk,tag=bm.omboss,distance=..40] run function bm:p169/npc/make')
     fn('p169/npc/make', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.omnpc","bm.omnnew"]}', 'tp @e[type=minecraft:marker,tag=bm.omnnew,distance=..1] ~ ~ ~ ~ 0',
                          'execute as @e[type=minecraft:marker,tag=bm.omnnew,distance=..1] at @s run function bm:p169/npc/init'])

@@ -1,10 +1,12 @@
-"""The Stalker (2.87) as a follower: the Dread Night's hunter (phase181's drawing), tamed - after the owner's drawing: tall and
-starved thin, sage-olive skin with a darker shadow side, ribs showing, a pinched waist, legs too long and knotted at the knee,
-arms that hang past where arms should end into long hooked claws, and a bald head tipped back over a gaping maw - no brow, no
-nose, no eyes: two empty hollows in a blank face, and something dark run down from each, long ago.
+"""The Stalker (2.87) as a follower: the Dread Night's hunter (phase181's drawing), tamed - after the owner's drawing.
+2.88: remodelled and repainted closer to it - the drawing's flat sage with its olive shadow side (no blotches); a big round bald
+skull with two small black eyes, red at the centre, and pointed ears; a huge jagged maw gaping down the front of the face, the
+jaw hanging, crooked teeth top and bottom round a dark red throat and a lolling tongue; a chest widening to bony shoulders,
+the pecs and the ribs down its flanks; arms far too long, ending in three long hooked olive claws; long legs that now bend at
+the knee (the shins their own parts) on long three-toed feet. And it can go on all fours: a crawl and a flat-out sprint.
 
-A rigkit rig: body, head (the jaw a model per expression: shut-ish, gaping wide), the arms bent at the elbow, the legs. Design
-units: feet at y=0, facing -z, its right is +x."""
+A rigkit rig: body, head (the jaw a model per expression: shut-ish, gaping wide), the arms bent at the elbow, the legs at the
+knee. Design units: feet at y=0, facing -z, its right is +x."""
 import math
 import random
 from PIL import Image, ImageDraw
@@ -15,13 +17,14 @@ from rigkit import qs, el, chain
 
 PREFIX = 'st_'
 RIG_SCALE = 0.95
-PIVOT = {'body': (0, 20.0, 0), 'legr': (1.4, 20.0, 0), 'legl': (-1.4, 20.0, 0), 'head': (0, 35.6, 0.9),
-         'armr': (4.3, 31.0, 0), 'forer': (4.9, 19.4, 0), 'arml': (-4.3, 31.0, 0), 'forel': (-4.9, 19.4, 0)}
-PARENT = {'body': None, 'legr': None, 'legl': None, 'head': 'body', 'armr': 'body', 'forer': 'armr', 'arml': 'body', 'forel': 'arml'}
+PIVOT = {'body': (0, 20.0, 0), 'legr': (1.5, 20.0, 0), 'legl': (-1.5, 20.0, 0), 'shinr': (1.5, 11.0, 0), 'shinl': (-1.5, 11.0, 0),
+         'head': (0, 36.0, 0.6), 'armr': (4.6, 31.0, 0), 'forer': (5.0, 19.6, 0), 'arml': (-4.6, 31.0, 0), 'forel': (-5.0, 19.6, 0)}
+PARENT = {'body': None, 'legr': None, 'legl': None, 'shinr': 'legr', 'shinl': 'legl', 'head': 'body', 'armr': 'body', 'forer': 'armr',
+          'arml': 'body', 'forel': 'arml'}
 PARTS = tuple(PIVOT)
 PART_K = {}
 FACES = ('wide', 'shut')
-SKIN, SKIN_DK, SKIN_LT, INK = '#a8ac70', '#858a54', '#c0c294', '#22241a'
+SKIN, SKIN_DK, SKIN_LT, INK = '#b8bc92', '#888d58', '#cdd0a8', '#22241a'   # (the drawing's sage, its olive shadow side)
 UP, FRONT = (0.0, 1.0, 0.0), (0.0, 0.0, -1.0)
 
 
@@ -35,88 +38,89 @@ def model_name(p, pose, suffix=''):
 
 
 # ---------------------------------------------------------------------------------------------------- textures
-def _skin(seed, base=SKIN, n=40):
-    """mottled, sickly skin: blotches a shade darker, a few veins"""
-    im = _noise(base, seed, 7); rnd = random.Random(seed)
-    lay = Image.new('RGBA', im.size, (0, 0, 0, 0)); dl = ImageDraw.Draw(lay)
-    for _ in range(n):
-        x, y, r = rnd.randrange(64), rnd.randrange(64), rnd.randint(2, 5)
-        dl.ellipse((x - r, y - r, x + r, y + r), fill=hexc(SKIN_DK if base != SKIN_DK else '#6e7244')[:3] + (90,))
-    im = Image.alpha_composite(im.convert('RGBA'), lay); d = ImageDraw.Draw(im)
-    for _ in range(4):
-        x, y = rnd.randrange(64), rnd.randrange(64)
-        d.line((x, y, x + rnd.randint(-6, 6), y + rnd.randint(6, 14), x + rnd.randint(-8, 8), y + rnd.randint(14, 22)), fill=hexc('#6a6e4a'))
+# (2.88: redrawn after the owner's drawing - the flat cartoon two-tone of it: clean sage with a soft olive shading, no
+#  blotches; the shadow side its own darker texture; ink lines only where the drawing has them)
+def _skin(seed, base=SKIN, n=0):
+    """smooth skin: the faintest grain, a soft fall-off to the shadow tone at the bottom of each tile"""
+    im = _noise(base, seed, 3); px = im.load(); lo = hexc(SKIN_DK if base != SKIN_DK else '#70744a')[:3]
+    for y in range(64):
+        k = max(0.0, (y - 40) / 24) * 0.35
+        for x in range(64):
+            p = px[x, y]
+            px[x, y] = tuple(int(p[i] * (1 - k) + lo[i] * k) for i in range(3)) + (255,)
     return im
 
 
 def _ribs(seed):
-    """the chest's front: collarbones, the breastbone, ribs down each side, the sunken belly and a navel"""
-    im = _skin(seed); d = ImageDraw.Draw(im); ink, sh = hexc('#4a4e30'), hexc(SKIN_DK)
-    d.line((8, 6, 28, 10), fill=ink, width=2); d.line((56, 6, 36, 10), fill=ink, width=2)          # the collarbones
-    d.line((32, 10, 32, 34), fill=sh, width=2)                                                    # the breastbone
-    for k, y in enumerate((14, 21, 28, 35, 42)):                                                   # ribs, curving down and out
-        w = 22 - k * 2
-        d.arc((32 - w - 8, y - 4, 30, y + 8), 200, 300, fill=ink, width=2)
-        d.arc((34, y - 4, 32 + w + 8, y + 8), 240, 340, fill=ink, width=2)
-    d.ellipse((30, 54, 34, 58), fill=hexc(INK))                                                    # the navel
-    d.line((26, 46, 24, 62), fill=sh); d.line((38, 46, 40, 62), fill=sh)                           # the sunken belly
+    """the chest's front, as drawn: the collarbones, the line of the pecs, the ribs showing down each flank, a navel"""
+    im = _skin(seed); d = ImageDraw.Draw(im); ink, sh = hexc('#3e4228'), hexc(SKIN_DK)
+    d.line((6, 7, 26, 11), fill=ink, width=2); d.line((58, 7, 38, 11), fill=ink, width=2)          # the collarbones
+    d.arc((4, 6, 32, 30), 20, 160, fill=ink, width=2); d.arc((32, 6, 60, 30), 20, 160, fill=ink, width=2)   # the pecs
+    for k, y in enumerate((30, 37, 44)):                                                           # ribs down each flank
+        d.line((2, y, 12 - k, y + 4), fill=ink, width=2); d.line((61, y, 51 + k, y + 4), fill=ink, width=2)
+    d.rectangle((2, 26, 9, 60), fill=sh)                                                           # (the shadowed flank)
+    d.arc((29, 50, 35, 58), 0, 300, fill=ink, width=2)                                             # the navel
     return im
 
 
 def _back(seed):
-    """the back: a ridge of spine, the shoulder blades standing out"""
+    """the back: the spine, the shoulder blades"""
     im = _skin(seed, SKIN_DK); d = ImageDraw.Draw(im); ink = hexc('#4a4e30')
-    for y in range(4, 64, 6):
-        d.rectangle((30, y, 33, y + 3), fill=hexc(SKIN))
+    d.line((32, 2, 32, 62), fill=ink, width=2)
     d.arc((6, 6, 28, 30), 180, 330, fill=ink, width=2); d.arc((36, 6, 58, 30), 210, 360, fill=ink, width=2)
     return im
 
 
 def _face(kind=None):
-    """the front of the skull (24 x 28 texels at uv [0, 0, 6, 7]): smooth, no brow and no nose; sunken under the cheekbones
-    and round the sockets (the hollows are their own boxes); a dark streak run down from each"""
-    im = _skin(1931, SKIN_LT, 10); px = im.load()
-    for y in range(28):
-        for x in range(24):
-            dx = abs(x - 11.5)
-            k = 1.0 + 0.06 * (1 - dx / 12) - (0.12 if 15 <= y <= 22 and 3 <= dx <= 9 else 0) - (0.1 if 6 <= y <= 16 and 3 <= dx <= 9 else 0)
-            px[x, y] = tuple(max(0, min(255, int(c * k))) for c in px[x, y][:3]) + (255,)
-    for cx in (6, 17):
-        for y in range(15, 28):
-            px[cx, y] = tuple(int(c * (0.42 + 0.03 * (y - 15))) for c in px[cx, y][:3]) + (255,)
-            if y % 4 == 1: px[cx + (1 if cx < 12 else -1), y] = tuple(int(c * 0.62) for c in px[cx, y][:3]) + (255,)
+    """the front of the skull: smooth and bald, lit from the left (the drawing's light), the shading down its right"""
+    im = _skin(1931, SKIN_LT); px = im.load(); dk = hexc(SKIN)[:3]
+    for y in range(64):
+        for x in range(64):
+            k = max(0.0, (x - 40) / 24) * 0.6
+            p = px[x, y]; px[x, y] = tuple(int(p[i] * (1 - k) + dk[i] * k) for i in range(3)) + (255,)
     return im
 
 
 def _eye():
-    im = Image.new('RGBA', (64, 64), (0, 0, 0, 0)); d = ImageDraw.Draw(im)       # an empty hollow: a dark rim, black all the way down
-    d.ellipse((0, 0, 63, 63), fill=hexc('#46442c')); d.ellipse((6, 4, 57, 63), fill=hexc('#1a180e')); d.ellipse((14, 10, 49, 63), fill=(0, 0, 0, 255))
+    """a small round black eye with a red pinpoint (the drawing's), a thin dark rim"""
+    im = Image.new('RGBA', (64, 64), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    d.ellipse((0, 0, 63, 63), fill=hexc('#3a3c24')); d.ellipse((5, 5, 58, 58), fill=(8, 6, 6, 255))
+    d.ellipse((24, 22, 38, 36), fill=hexc('#d01818')); d.ellipse((28, 26, 33, 31), fill=hexc('#ff6a5a'))
     return im
 
 
 def _teeth():
-    im = Image.new('RGBA', (64, 64), hexc('#46080e')[:3] + (255,)); d = ImageDraw.Draw(im)   # jagged teeth, top and bottom, round a black-red throat
-    d.ellipse((14, 14, 50, 54), fill=hexc('#240306'))
-    for x in range(0, 64, 8):
-        d.polygon([(x, 0), (x + 8, 0), (x + 4 + (x % 3), 22)], fill=hexc('#dcd4b0'), outline=hexc('#8a8468'))
-        d.polygon([(x + 4, 63), (x + 12, 63), (x + 7, 44)], fill=hexc('#dcd4b0'), outline=hexc('#8a8468'))
-    for x, y in ((18, 22), (40, 18), (30, 26)):                                  # drool
-        d.line((x, y, x, y + 14), fill=hexc('#c8bcc8'), width=2)
+    """jagged, crooked teeth - off-white, uneven - on the dark red gum"""
+    im = Image.new('RGBA', (64, 64), hexc('#5a0c14')[:3] + (255,)); d = ImageDraw.Draw(im); rnd = random.Random(1939)
+    x = 0
+    while x < 64:
+        w = rnd.randint(5, 9); h = rnd.randint(24, 54)
+        d.polygon([(x, 0), (x + w, 0), (x + w // 2 + rnd.randint(-2, 2), h)], fill=hexc('#e6dfc0'), outline=hexc('#8a8468'))
+        x += w - 1
     return im
 
 
 def _maw():
-    im = _noise('#60121a', 1932, 9); d = ImageDraw.Draw(im)
-    d.ellipse((16, 12, 48, 52), fill=hexc('#2c0408'))
-    for x in range(0, 64, 8):
-        d.polygon([(x, 63), (x + 8, 63), (x + 4, 46)], fill=hexc('#dcd4b0'))
+    """the throat: dark red going black, the tongue lolling"""
+    im = _noise('#6a141c', 1932, 6); d = ImageDraw.Draw(im)
+    d.ellipse((10, 4, 54, 50), fill=hexc('#2c0408'))
+    d.ellipse((14, 34, 50, 70), fill=hexc('#a8303a')); d.line((32, 40, 32, 63), fill=hexc('#7a1a22'), width=2)   # the tongue
+    return im
+
+
+def _claw():
+    """a long hooked claw: olive like the hand, darkening to the point"""
+    im = _noise(SKIN_DK, 1937, 3); px = im.load(); tip = hexc('#3c3e26')[:3]
+    for y in range(64):
+        k = y / 63
+        for x in range(64):
+            p = px[x, y]; px[x, y] = tuple(int(p[i] * (1 - k) + tip[i] * k) for i in range(3)) + (255,)
     return im
 
 
 def textures():
     return {'st_skin': _skin(1933), 'st_shade': _skin(1934, SKIN_DK), 'st_ribs': _ribs(1935), 'st_back': _back(1936), 'st_face': _face(),
-            'st_eye': _eye(), 'st_teeth': _teeth(), 'st_maw': _maw(), 'st_claw': _shine('#1c1e12', '#5e6044', 1937),
-            'st_nail': _shine('#2a2c1e', '#7a7c5a', 1938)}
+            'st_eye': _eye(), 'st_teeth': _teeth(), 'st_maw': _maw(), 'st_claw': _claw(), 'st_nail': _shine('#4a4c32', '#8a8c64', 1938)}
 
 
 # ---------------------------------------------------------------------------------------------------- models
@@ -126,81 +130,97 @@ def models():
         used = sorted({e['faces'][f]['texture'][1:] for e in els for f in e['faces']})
         M[name] = ({t: f'bm:block/{t}' for t in used}, els)
 
-    # ---- the body: narrow hips, a starved waist, the ribcage (ribs on the front, the spine and blades behind), bony
-    #      shoulders, and a long thin neck rising out of the back of them
+    # ---- the body (the drawing's): narrow hips, a pinched waist, a chest that widens up to bony shoulders - the pecs and the
+    #      ribs down the flanks on its front, the spine and blades behind - and a thin neck rising from the back of them
     pv = PIVOT['body']
-    body = [el((-2.4, 19.0, -1.3), (2.4, 21.6, 1.3), 'st_skin', pv, shift=(0.2, 0.4)),                 # the hips
-            el((-1.3, 21.4, -0.9), (1.3, 24.2, 0.9), 'st_shade', pv),                                  # the pinched waist
-            el((-3.2, 24.0, -1.6), (3.2, 31.0, 1.6), 'st_skin', pv, shift=(0.5, 0.2)),                 # the ribcage
-            el((-3.2, 24.0, -1.62), (3.2, 31.0, -1.6), 'st_ribs', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
-            el((-3.2, 24.0, 1.6), (3.2, 31.0, 1.62), 'st_back', pv, faces=('south',), uv={'south': [0, 0, 16, 16]}),
-            el((-4.6, 30.2, -1.2), (4.6, 31.6, 1.2), 'st_skin', pv, shift=(0.1, 0.7)),                 # bony shoulders
-            el((-0.8, 31.2, 0.1), (0.8, 36.4, 1.7), 'st_skin', pv, shift=(0.8, 0.1))]                  # the long thin neck
-    for sx in (-1, 1):                                                                                 # (hip bones jutting)
-        body.append(el((sx * 2.4 - 0.5, 20.4, -1.5), (sx * 2.4 + 0.5, 21.4, -0.9), 'st_shade', pv))
+    body = [el((-2.6, 19.2, -1.4), (2.6, 22.0, 1.4), 'st_skin', pv, shift=(0.2, 0.4)),                 # the hips
+            el((-1.7, 21.8, -1.1), (1.7, 25.0, 1.1), 'st_skin', pv, shift=(0.6, 0.1)),                 # the pinched waist
+            el((-2.6, 24.8, -1.5), (2.6, 27.2, 1.5), 'st_skin', pv, shift=(0.1, 0.6)),                 # the lower ribs
+            el((-3.6, 27.0, -1.8), (3.6, 31.2, 1.8), 'st_skin', pv, shift=(0.5, 0.2)),                 # the chest
+            el((-3.6, 24.8, -1.82), (3.6, 31.2, -1.8), 'st_ribs', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
+            el((-3.6, 24.8, 1.8), (3.6, 31.2, 1.82), 'st_back', pv, faces=('south',), uv={'south': [0, 0, 16, 16]}),
+            el((-5.0, 30.4, -1.3), (5.0, 31.8, 1.3), 'st_skin', pv, shift=(0.1, 0.7)),                 # the bony shoulders
+            el((-0.75, 31.4, -0.2), (0.75, 37.0, 1.3), 'st_skin', pv, shift=(0.8, 0.1))]               # the thin neck
+    body.append(el((2.6, 24.8, -1.3), (3.0, 31.0, 1.3), 'st_shade', pv))                              # (the shadowed flank)
     part('st_body', body)
 
-    # ---- the head: a long, narrow, bald skull, tipped back; the blank face with its two long hollows; the upper jaw jutting
-    #      with its teeth hanging; the maw wide open below it; the lower jaw thrust out; pointed ears swept back
+    # ---- the head: a big round bald skull (stepped round), two small black eyes with red points, a pointed ear each side,
+    #      and the maw - a huge jagged mouth gaping down the front of the face, the jaw hanging, crooked teeth top and bottom
     pv = PIVOT['head']
     def head(face=None):
-        drop = {'wide': 1.6, 'shut': -1.0}.get(face, 0.0)                                              # (how far the jaw hangs)
-        h = [el((-2.6, 37.4, -2.8), (2.6, 44.4, 2.4), 'st_skin', pv, shift=(0.3, 0.2)),               # the skull
-             el((-2.2, 44.4, -2.4), (2.2, 45.2, 2.0), 'st_skin', pv, shift=(0.6, 0.6)),               # its crown, rounding off
-             el((-2.6, 37.4, -2.82), (2.6, 44.4, -2.8), 'st_face', pv, faces=('north',), uv={'north': [0, 0, 6, 7]}),
-             el((-1.95, 41.0, -2.86), (-0.75, 43.6, -2.82), 'st_eye', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),   # the hollows
-             el((0.75, 41.0, -2.86), (1.95, 43.6, -2.82), 'st_eye', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
-             el((-2.4, 36.0, -4.0), (2.4, 37.6, 2.0), 'st_skin', pv, shift=(0.4, 0.5)),               # the upper jaw, jutting
-             el((-2.4, 36.0, -4.02), (2.4, 37.6, -4.0), 'st_teeth', pv, faces=('north',), uv={'north': [0, 0, 16, 5]})]
-        gap = 2.0 + drop
+        drop = {'wide': 2.4, 'shut': -1.6}.get(face, 0.0)                                              # (how far the jaw hangs)
+        h = [el((-3.0, 39.0, -3.2), (3.0, 44.6, 3.0), 'st_skin', pv, shift=(0.3, 0.2)),               # the dome
+             el((-3.4, 39.6, -2.8), (3.4, 43.8, 2.6), 'st_skin', pv, shift=(0.5, 0.5)),               # (rounded out at the temples)
+             el((-2.6, 44.6, -2.6), (2.6, 45.6, 2.4), 'st_skin', pv, shift=(0.6, 0.6)),               # its crown
+             el((-1.8, 45.6, -1.8), (1.8, 46.0, 1.6), 'st_skin', pv, shift=(0.2, 0.8)),
+             el((-2.8, 38.2, -1.0), (2.8, 39.2, 3.0), 'st_shade', pv),                                # the back of the skull, under
+             el((-3.0, 39.0, -3.22), (3.0, 44.6, -3.2), 'st_face', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
+             el((-2.2, 42.0, -3.28), (-0.9, 43.3, -3.22), 'st_eye', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),     # the eyes
+             el((0.9, 42.0, -3.28), (2.2, 43.3, -3.22), 'st_eye', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
+             el((-2.7, 37.8, -4.2), (2.7, 39.4, 1.0), 'st_skin', pv, shift=(0.4, 0.5)),               # the upper jaw, jutting
+             el((-2.7, 37.8, -4.22), (2.7, 39.4, -4.2), 'st_teeth', pv, faces=('north',), uv={'north': [0, 0, 16, 9]}),
+             el((-2.7, 37.78, -4.2), (2.7, 37.8, 0.6), 'st_teeth', pv, faces=('down',), uv={'down': [0, 0, 16, 9]})]
+        gap = 3.2 + drop
         if gap > 0.3:
-            h += [el((-2.0, 36.0 - gap, -3.0), (2.0, 36.0, 1.4), 'st_maw', pv, faces=('north', 'east', 'west'), uv={'north': [0, 0, 16, 16]})]   # the throat
-        lo = 36.0 - gap
-        h += [el((-2.3, lo - 0.9, -4.4), (2.3, lo, 1.6), 'st_shade', pv, shift=(0.2, 0.7)),            # the lower jaw, thrust out
-              el((-2.1, lo, -4.3), (2.1, lo + 0.02, 1.4), 'st_maw', pv, faces=('up',), uv={'up': [0, 8, 16, 16]}),
-              el((-2.3, lo, -4.42), (2.3, lo + 0.9, -4.4), 'st_teeth', pv, faces=('north',), uv={'north': [0, 11, 16, 16]})]
-        for sx in (-1, 1):                                                                             # the ears, pointed, swept back
-            h.append(el((sx * 2.6 - (0.0 if sx > 0 else 2.6), 40.2, 0.4), (sx * 2.6 + (2.6 if sx > 0 else 0.0), 41.0, 1.6), 'st_skin', pv,
-                        rot=('z', 22.5 * sx, (sx * 2.6, 40.6, 1.0))))
+            h += [el((-2.3, 37.8 - gap, -3.4), (2.3, 37.8, 0.8), 'st_maw', pv, faces=('north', 'east', 'west'), uv={'north': [0, 0, 16, 16]})]   # the throat
+            for sx in (-1, 1):                                                                         # the stretched cheeks
+                h.append(el((sx * 2.6 - 0.15, 37.8 - gap, -3.6), (sx * 2.6 + 0.15, 37.9, 0.4), 'st_shade', pv, faces=('east', 'west')))
+        lo = 37.8 - gap
+        h += [el((-2.5, lo - 1.1, -4.6), (2.5, lo, 0.8), 'st_skin', pv, shift=(0.2, 0.7)),             # the lower jaw, thrust out
+              el((-2.5, lo - 1.1, -4.62), (2.5, lo - 0.6, -4.6), 'st_shade', pv, faces=('north',)),
+              el((-2.3, lo, -4.4), (2.3, lo + 0.02, 0.6), 'st_maw', pv, faces=('up',), uv={'up': [0, 6, 16, 16]}),
+              el((-2.3, lo, -4.42), (2.3, lo + 1.3, -4.4), 'st_teeth', pv, faces=('north',), uv={'north': [0, 16, 16, 7]})]
+        for sx in (-1, 1):                                                                             # the ears, pointed, swept back and up
+            h.append(el((sx * 3.3 - (0.0 if sx > 0 else 2.8), 40.6, 0.0), (sx * 3.3 + (2.8 if sx > 0 else 0.0), 41.6, 1.4), 'st_skin', pv,
+                        rot=('z', 30.0 * sx, (sx * 3.3, 41.1, 0.7))))
+            h.append(el((sx * 3.3 - (0.0 if sx > 0 else 1.4), 41.6, 0.2), (sx * 3.3 + (1.4 if sx > 0 else 0.0), 42.4, 1.2), 'st_shade', pv,
+                        rot=('z', 30.0 * sx, (sx * 3.3, 41.1, 0.7))))
         return h
     part('st_head', head())
     for fc in FACES:
         part(f'st_head_x{fc}', head(fc))
 
-    # ---- the arms: far too long - thin upper arms, a knob of an elbow, thin forearms reaching down past the knee, a bony
-    #      hand, and three long hooked claws (the outer one splayed)
+    # ---- the arms: far too long - thin upper arms, a knob of an elbow, thin forearms reaching past the knee, a bony hand,
+    #      and three long hooked claws curling up at the points (the outer one splayed), olive like the rest of it
     def upper(sx):
         pv = PIVOT['armr' if sx > 0 else 'arml']; x0, y0, _ = pv
         tex = 'st_skin' if sx > 0 else 'st_shade'
-        return [el((x0 - 0.9, y0 - 1.0, -1.0), (x0 + 0.9, y0 + 0.8, 1.0), tex, pv)] + \
-            chain([(x0, y0, 0), (sx * 4.9, 19.4, 0)], [1.2], 1.2, tex, pv, FRONT, ext=0.3)
+        return [el((x0 - 1.0, y0 - 1.2, -1.1), (x0 + 1.0, y0 + 0.9, 1.1), tex, pv)] + \
+            chain([(x0, y0, 0), (sx * 5.0, 19.6, 0)], [1.2], 1.2, tex, pv, FRONT, ext=0.3)
     def lower(sx):
         pv = PIVOT['forer' if sx > 0 else 'forel']; ex, ey, _ = pv
         tex = 'st_skin' if sx > 0 else 'st_shade'
-        wx, wy = sx * 5.1, 7.6
-        a = [el((ex - 0.8, ey - 0.8, -0.8), (ex + 0.8, ey + 0.8, 0.8), tex, pv)]                       # the elbow's knob
+        wx, wy = sx * 5.2, 8.0
+        a = [el((ex - 0.85, ey - 0.85, -0.85), (ex + 0.85, ey + 0.85, 0.85), tex, pv)]                   # the elbow's knob
         a += chain([(ex, ey, 0), (wx, wy, 0)], [1.0], 1.0, tex, pv, FRONT, ext=0.2)
-        a += [el((wx - 0.8, wy - 2.0, -0.7), (wx + 0.8, wy + 0.2, 0.7), tex, pv, shift=(0.3, 0.6))]     # the hand, bony
-        for k, dz in enumerate((-0.45, 0.0, 0.45)):
-            out = (sx * 0.9 if k == 2 else sx * 0.2 * (k - 1))
-            a += chain([(wx + out * 0.3, wy - 1.8, dz), (wx + out, wy - 6.0, dz - 0.6), (wx + out * 1.2, wy - 8.6, dz - 2.6)], [0.42, 0.34], 0.42,
-                       'st_claw', pv, FRONT, ext=0.05)
+        a += [el((wx - 0.9, wy - 2.2, -0.8), (wx + 0.9, wy + 0.2, 0.8), tex, pv, shift=(0.3, 0.6))]       # the hand, bony
+        for k, dz in enumerate((-0.5, 0.0, 0.5)):
+            out = (sx * 1.0 if k == 2 else sx * 0.2 * (k - 1))
+            a += chain([(wx + out * 0.3, wy - 2.0, dz), (wx + out, wy - 5.6, dz - 0.5), (wx + out * 1.3, wy - 8.4, dz - 2.0),
+                        (wx + out * 1.4, wy - 9.4, dz - 3.6)], [0.46, 0.38, 0.28], 0.46, 'st_claw', pv, FRONT, ext=0.05)
         return a
     part('st_armr', upper(1)); part('st_arml', upper(-1)); part('st_forer', lower(1)); part('st_forel', lower(-1))
 
-    # ---- the legs: long and thin, knotted at the knee and the ankle; long feet with three splayed toes
-    def leg(sx):
+    # ---- the legs: a long thigh down to a knotted knee (the shin its own part, so it can crouch and crawl); a long shin, a
+    #      knobbly ankle, a long narrow foot with three long splayed toes and a spur of a heel
+    def thigh(sx):
         pv = PIVOT['legr' if sx > 0 else 'legl']; cx = pv[0]
         tex = 'st_skin' if sx > 0 else 'st_shade'
-        L = [el((cx - 0.8, 11.0, -0.8), (cx + 0.8, 20.4, 0.8), tex, pv, shift=(0.2, 0.3)),
-             el((cx - 1.05, 10.2, -1.05), (cx + 1.05, 12.0, 1.0), tex, pv),                                # the knee, knotted
-             el((cx - 0.65, 1.6, -0.65), (cx + 0.65, 10.6, 0.65), tex, pv, shift=(0.6, 0.2)),
-             el((cx - 0.85, 1.2, -0.85), (cx + 0.85, 2.3, 0.85), tex, pv),                                 # the ankle
-             el((cx - 0.9, 0.0, -3.4), (cx + 0.9, 1.2, 1.0), tex, pv, shift=(0.4, 0.8))]                   # the long foot
-        for dx in (-0.6, 0.0, 0.6):
-            L.append(el((cx + dx - 0.18, 0.0, -5.2), (cx + dx + 0.18, 0.35, -3.3), 'st_nail', pv))
+        return [el((cx - 1.0, 11.4, -1.0), (cx + 1.0, 20.4, 1.0), tex, pv, shift=(0.2, 0.3)),
+                el((cx - 1.15, 17.0, -1.15), (cx + 1.15, 20.6, 1.15), tex, pv, shift=(0.5, 0.1)),
+                el((cx - 1.1, 10.4, -1.15), (cx + 1.1, 12.2, 1.0), tex, pv)]                             # the knee, knotted
+    def shin(sx):
+        pv = PIVOT['shinr' if sx > 0 else 'shinl']; cx = pv[0]
+        tex = 'st_skin' if sx > 0 else 'st_shade'
+        L = [el((cx - 0.7, 1.8, -0.7), (cx + 0.7, 10.8, 0.7), tex, pv, shift=(0.6, 0.2)),
+             el((cx - 0.9, 1.2, -0.9), (cx + 0.9, 2.4, 0.9), tex, pv),                                 # the ankle
+             el((cx - 0.95, 0.0, -3.0), (cx + 0.95, 1.2, 1.4), tex, pv, shift=(0.4, 0.8)),              # the long foot
+             el((cx - 0.4, 0.0, 1.2), (cx + 0.4, 0.8, 2.2), tex, pv)]                                   # the heel's spur
+        for dx, ln in ((-0.65, 2.2), (0.0, 2.8), (0.65, 2.2)):                                          # three long toes
+            L.append(el((cx + dx - 0.25, 0.0, -3.0 - ln), (cx + dx + 0.25, 0.5, -2.9), tex, pv))
+            L.append(el((cx + dx - 0.18, 0.0, -3.5 - ln), (cx + dx + 0.18, 0.35, -2.9 - ln), 'st_nail', pv))
         return L
-    part('st_legr', leg(1)); part('st_legl', leg(-1))
+    part('st_legr', thigh(1)); part('st_legl', thigh(-1)); part('st_shinr', shin(1)); part('st_shinl', shin(-1))
     return M
 
 
@@ -260,6 +280,27 @@ POSES = {
     'tired': P(_face='shut', _off=(0, -1.0, 0), body=qs(('x', 30)), head=qs(('x', 20)), armr=limb(1, 6, 4), arml=limb(-1, 6, 4), forer=limb(1, 4), forel=limb(-1, 4),
                legr=limb(1, 12), legl=limb(-1, -6)),
 }
+CRAWL = dict(body=80, off=-4.0, arm=115, fore=50, leg=30, shin=-112, head=-64)
+
+
+# (2.88) ON ALL FOURS - the Dread Night's hunter closing in (and the follower at a run): pitched flat over the ground, the
+# long arms its front legs and the claws striking down like feet, the legs folded at the knee behind, the head craned up out
+# of the shoulders to keep its eyes - and its maw - on you. A trot (crawl) and a flat-out lope (sprint), four frames each.
+LIFT = 1.0
+def _gait(k, n, body, off, arm, arm_sw, fore, leg, leg_sw, shin, head, roll):
+    ph = 2 * math.pi * k / n; s, c = math.sin(ph), math.cos(ph)
+    return P(_face='wide', _off=(0, off + 0.6 * abs(c), 0), body=qs(('x', body), ('z', roll * s)), head=qs(('x', head), ('z', -roll * s)),
+             armr=limb(1, arm + arm_sw * s, 10), forer=limb(1, fore + LIFT * max(0.0, -s) * arm_sw), arml=limb(-1, arm - arm_sw * s, 10),
+             forel=limb(-1, fore + LIFT * max(0.0, s) * arm_sw),
+             legr=limb(1, leg - leg_sw * s, 6), shinr=limb(1, shin + 12 * c), legl=limb(-1, leg + leg_sw * s, 6), shinl=limb(-1, shin - 12 * c))
+for _k in range(4):
+    POSES[f'crawl_{_k}'] = _gait(_k, 4, CRAWL['body'], CRAWL['off'], CRAWL['arm'], 22, CRAWL['fore'], CRAWL['leg'], 20, CRAWL['shin'], CRAWL['head'], 4)
+    POSES[f'sprint_{_k}'] = _gait(_k, 4, CRAWL['body'] + 6, CRAWL['off'] - 0.6, CRAWL['arm'] + 6, 40, CRAWL['fore'], CRAWL['leg'] + 8, 34, CRAWL['shin'], CRAWL['head'] - 6, 7)
+# standing still: drawn up to its full, wrong height on its hind legs, arms hanging past its knees, the head cocked - eerie
+POSES['stand_a'] = P(**dict(IDLE, body=qs(('x', 4)), head=qs(('x', -22), ('z', 12)), armr=limb(1, 2, 6), forer=limb(1, 6), arml=limb(-1, 2, 6), forel=limb(-1, 6),
+                            legr=limb(1, 0, 3), legl=limb(-1, 0, 3)))
+POSES['stand_b'] = P(**dict(POSES['stand_a'], head=qs(('x', -26), ('z', -16)), armr=limb(1, 4, 8), forer=limb(1, 14), forel=limb(-1, 10)))
+
 SWIM_FRAMES = 8
 for _i in range(SWIM_FRAMES):                                            # (it swims like something drowned: long, slow, wrong strokes)
     _p = 2 * math.pi * _i / SWIM_FRAMES

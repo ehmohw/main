@@ -55,6 +55,12 @@ Both have the full set: a menu, sitting (right-click), a frame trick, a display-
 
 **Dread monsters are more common:** 4% of hard-mode monsters (was 1.2%). On a **Blood Moon** in hard mode, 15% of the Overworld's monsters come up Dread (before, Blood Moons had their own roll and no Dreads at all). As before, they only roll near someone who has felled the Hollow King.
 
+**The Stalkers, remade:**
+- **Closer to the drawing.** A big round bald head with ears and a huge maw of jagged teeth, small black eyes red at the centre, a V of a torso with its ribs and chest showing, long arms with olive hooked claws, thighs and shins that bend, three-toed feet. Clean sage skin with soft olive shading, no blotches. The hidden follower wears the same model.
+- **It moves like one of them now.** A Dread Night's Stalker is the full jointed model, not two stiff pieces gliding over the ground. Standing still, it draws itself up tall and lanky, swaying, its feet on the ground. Closing in, it drops onto all fours and crawls. Running you down, it goes flat out at a gallop.
+- **Walls won't stop it.** If it can't get any closer to you for six seconds (you've walled yourself in, or it can't find the way), it goes rigid and screams for three seconds while the dark gathers round it. Then it comes straight through whatever is between you, a block a tick, and out beside you. Once every 30 seconds at most, and never into a Golden Cross's ground.
+- **The night's own monsters are left alone.** A Dread Night no longer clears every monster that spawns (the game only spawned more all night, a strain for nothing). Zombies, skeletons and the rest walk it as on any night, alongside the Stalkers. A Dread Totem still keeps them off you.
+
 **Model fixes:**
 - **Bloo** has a cat-like snout, carrying his nose and snarl.
 - **Ashur's** eyes are bigger.
@@ -75,7 +81,6 @@ Both have the full set: a menu, sitting (right-click), a frame trick, a display-
 **Every follower stands on the ground:** a QC pass measured each follower's resting, walking and sitting poses against the floor and fixed the ones that weren't flush:
 - **Bones's** ball of water rests on the ground (it hung half a block up).
 - **Bloo** sits on the ground instead of a quarter-block above it.
-- **The Stalker** rests his hands on his knees when he sits (they hung down into the floor).
 - **The Arachno-Lantern** sits with its leg tips on the ground, not sunk into it.
 - **Tullius's** blunderbuss hangs at a slant at his side, so its muzzle no longer goes into the floor.
 - **Apophiss** lays his mace flat beside him when he sits (it stood down through the floor).
