@@ -263,6 +263,7 @@ def generate(G):
                          'execute if score @s bm.stka matches 0 if score #f bm.rng matches 0 run function bm:p181/stk/pose/stand_a',
                          'execute if score @s bm.stka matches 0 if score #f bm.rng matches 40 run function bm:p181/stk/pose/stand_b',
                          'execute if score @s bm.stka matches 4 run scoreboard players remove @s bm.stkc 1',
+                         'execute if score @s bm.stka matches 4 if score @s bm.stkc matches 4 run function bm:p181/stk/pose/rend_up',
                          'execute if score @s bm.stka matches 4 if score @s bm.stkc matches ..0 run scoreboard players set @s bm.stka 0',
                          'tag @e[tag=bm.stksel] remove bm.stksel'])
     # how far it has come in 4 ticks: under 0.12 blocks it stands, under 0.6 it crawls, past that it sprints (a change starts the
