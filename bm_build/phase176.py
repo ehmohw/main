@@ -7,7 +7,7 @@ THE NIGHT'S   in the Overworld, the Nether and the End, a monster that isn't any
 MONSTERS      DREAD (2.88: from 1.2%), 6% a Champion, 18% an Elite. Of the rest, three in four come out with Strength and Resistance - one
               in five of those at II. (Blood Moons, invasions and lucky nights keep their own rolls - but on a Blood Moon
               in hard mode, 15% of the Overworld's monsters come up DREAD first.)
-DREAD MOBS    far past a Champion: half again their health and more, netherite under a black-red trim, Strength II and
+DREAD MOBS    far past a Champion: half again their health and more, their own eldritch armour (dread_armor.py), Strength II and
               Resistance, a cold that dims the light around them. Twice in a fight they gather themselves -
                 THE PULSE   the ground about them boils red for a second and a half, then bursts (7, through armour);
                 THE MARK    a column of souls falls on where you stand for a second and a quarter (9, through armour).
@@ -97,9 +97,10 @@ def generate(G):
             lines = [f'data merge entity @s {snbt(dict(G.NO_DROPS, DeathLootTable=f"bm:entities/dread/{t}", CustomName=name))}',
                      'tag @s add bm.dread', 'tag @s add bm.tiered']
             if t in ARM:
+                # (2.90b: their own armour - the Dread Visage, a 3D helm worn on the head, and the cracked void-plate: dread_armor.py)
                 for slot, piece in [('head', 'helmet'), ('chest', 'chestplate'), ('legs', 'leggings'), ('feet', 'boots')]:
-                    lines.append(f'item replace entity @s armor.{slot} with minecraft:netherite_{piece}[enchantments={{"minecraft:protection":5,"minecraft:unbreaking":5}},'
-                                 f'trim={{material:"minecraft:redstone",pattern:"minecraft:silence"}}]')
+                    look = 'item_model="bm:dread_helm",equippable={slot:"head"}' if slot == 'head' else f'equippable={{slot:"{slot}",asset_id:"bm:dread"}}'
+                    lines.append(f'item replace entity @s armor.{slot} with minecraft:netherite_{piece}[enchantments={{"minecraft:protection":5,"minecraft:unbreaking":5}},{look}]')
                 lines.append(f'item replace entity @s weapon.mainhand with {G.WEAPON["champion"][ARM[t][1]]}')
             for e, a in [('strength', 1), ('resistance', 0), ('fire_resistance', 0)] + ([] if t in ARM else [('speed', 0), ('regeneration', 0)]):
                 lines.append(f'effect give @s minecraft:{e} infinite {a} true')
@@ -186,6 +187,9 @@ def generate(G):
 
 
 def rp(R):
+    import dread_armor
+    from phase180 import VAN
+    dread_armor.rp(R, VAN)
     R.LANG.update({'death.attack.bm.dread': '%1$s was torn apart by the Dread',
                    'death.attack.bm.dread.player': '%1$s was torn apart by the Dread while fighting %2$s'})
 

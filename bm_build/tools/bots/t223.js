@@ -3,7 +3,7 @@
 //   the waking: TestRat (best-ever conquest 6) online - a HARD MODE title, darkness, Blood Moons every 15 days.
 //   the night's monsters: a pen of plain zombies rolls again - some Elite/Champion/Dread, most of the rest with Strength and
 //     Resistance (a few at II).
-//   a Dread zombie (rcon sets it down, NoAI so it stays put): its name, health, tag; in netherite plate the player stands
+//   a Dread zombie (rcon sets it down, NoAI so it stays put): its name, health, tag, its eldritch armour (the Visage helm, the void-plate); in netherite plate the player stands
 //     still beside it and takes a Pulse or a Mark straight through the armour; next time the player walks off the moment
 //     the ring appears - and it misses.
 //   the player kills it (hits from the bot): bm.dkill and the world's count go up; it drops a Champion's Tokens.
@@ -65,6 +65,10 @@ const res = [];
   const D = '@e[type=minecraft:zombie,tag=bm.t223,limit=1]';
   ok('A Dread zombie: named "Dread", tagged, 100 health', /Dread/.test(await run(`data get entity ${D} CustomName`)) && /bm\.dread/.test(await run(`data get entity ${D} Tags`)) &&
      (await num(`attribute ${D} minecraft:max_health get`)) === 100, await run(`data get entity ${D} CustomName`));
+  { const eq = await run(`data get entity ${D} equipment`);
+    ok('...in its own eldritch armour: the Dread Visage (a 3D helm) and the void-plate (bm:dread) - and never dropped',
+       /item_model":\s*"bm:dread_helm"|item_model:\s*"bm:dread_helm"/.test(eq) && (eq.match(/asset_id:\s*"bm:dread"|asset_id":\s*"bm:dread"/g) || []).length === 3 &&
+       !/trim/.test(eq) && /drop_chances/.test(await run(`data get entity ${D}`)) , eq.slice(0, 300)); }
   // full netherite on the player - the Dread's gathering goes straight through it
   for (const [s, p] of [['head', 'helmet'], ['chest', 'chestplate'], ['legs', 'leggings'], ['feet', 'boots']])
     await run(`item replace entity TestRat armor.${s} with minecraft:netherite_${p}[enchantments={"minecraft:protection":4}]`);
