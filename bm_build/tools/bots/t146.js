@@ -29,7 +29,7 @@ const res = [];
                  ['Dennis', 'dw_horn', 'wolf', 'bm.dwpet', -6], ['Pistachio', 'pi_cloche', 'wolf', 'bm.pipet', 6],
                  ['Omega', 'om_monocle', 'wolf', 'bm.ompet', 8], ['Ashur', 'ashur_cinder', 'wolf', 'bm.aspet', -8], ['The Chef', 'chef_ladle', 'wolf', 'bm.kkpet', 10], ['The Neighbor', 'neighbor_baton', 'wolf', 'bm.nbpet', -10],
                  ['Queen Ava', 'av_locket', 'wolf', 'bm.avpet', 1], ['Queen Pearl', 'pq_pearls', 'wolf', 'bm.pqpet', -1], ['Bloo', 'bo_claw', 'wolf', 'bm.bopet', 3],
-                 ['The Stalker', 'st_hook', 'wolf', 'bm.svpet', -3], ['The Arachno-Lantern', 'ln_gourd', 'wolf', 'bm.lnpet', -5]];
+                 ['The Stalker', 'st_hook', 'wolf', 'bm.svpet', -3], ['The Arachno-Lantern', 'ln_gourd', 'wolf', 'bm.lnpet', -5], ['Bender', 'bv_ball', 'wolf', 'bm.bvpet', -7], ['Bones', 'bn_whistle', 'wolf', 'bm.bjpet', -9]];
   for (const [name, iid, host, tag, dx] of KINDS) {
     await run(`${O}summon minecraft:item_frame ${X + dx} ${Y + 2} ${Z + 4} {Facing:2b,Tags:["bm.t146f"]}`); await sleep(400);
     await run(`loot replace entity TestRat hotbar.0 loot bm:items/${iid}`); await sleep(300);

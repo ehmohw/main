@@ -69,6 +69,8 @@ GIFT = {  # follower: (what it does, commands run each second at the doll)
     'bloo': ('Strength', [f'effect give {P} minecraft:strength 3 0 true']),
     'stalker': ('Night Vision', [f'effect give {P} minecraft:night_vision 15 0 true']),
     'lantern': ('Fire Resistance', [f'effect give {P} minecraft:fire_resistance 15 0 true']),
+    'bender': ('Luck', [f'effect give {P} minecraft:luck 15 0 true']),
+    'bones': ("Dolphin's Grace", [f'effect give {P} minecraft:dolphins_grace 15 0 true']),
     'pearl': ('Hero of the Village', [f'effect give {P} minecraft:hero_of_the_village 15 0 true']),
 }
 assert set(GIFT) == set(DOLL_OF), sorted(set(GIFT) ^ set(DOLL_OF))
@@ -215,7 +217,7 @@ def generate(G):
     second.append('execute as @e[type=minecraft:villager,tag=bm.vesper] at @s run function bm:p180/v/tick')
     G.FUNCS['p177/spawn'].insert(1, 'execute as @e[type=minecraft:villager,tag=bm.vesper,distance=..1] run function bm:p180/v/lock')
     G.FUNCS['p177/open'].insert(0, 'execute unless score @s bm.conq matches 6.. run return run ' +
-                                tellraw('@s', PRE + [T('Vesper: ', '#b0102a', bold=True), T('"My Ledger is for those who felled the Hollow King. Come back when you have."', '#c8a0a0', italic=True)]))
+                                G.title('@s', 'actionbar', [T('Vesper: ', '#b0102a'), T('"My Ledger is for those who felled the Hollow King. Come back when you have."', '#c8a0a0', italic=True)]))
 
     # ---------------------------------------------------------------- Dread monsters: only where the nearest player has beaten the King
     n = 0

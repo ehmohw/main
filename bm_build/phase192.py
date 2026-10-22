@@ -32,7 +32,7 @@ import phase188 as P188
 FOE = 'type=#bm:hostile,tag=!bm.npc'
 O = P188.O
 REGEN = P188.REGEN
-P188.VNAME.update({'ava': 'Queen Ava', 'pearlq': 'Queen Pearl', 'bloo': 'Bloo', 'pearl': 'Pearlman', 'tul': 'Tullius', 'cecil': 'Cecil', 'stalker': 'The Stalker', 'lantern': 'The Arachno-Lantern'})
+P188.VNAME.update({'ava': 'Queen Ava', 'pearlq': 'Queen Pearl', 'bloo': 'Bloo', 'pearl': 'Pearlman', 'tul': 'Tullius', 'cecil': 'Cecil', 'stalker': 'The Stalker', 'lantern': 'The Arachno-Lantern', 'bender': 'Bender', 'bones': 'Bones'})
 REGEN2 = 'effect give @s minecraft:regeneration 3 1 true'
 
 P188.PAIRS.update({
@@ -104,11 +104,31 @@ P188.PAIRS.update({
                    [('lantern', '(it scuttles behind you, away from the Stalker)'), ('stalker', '(it looks at the pumpkin for a long time. The pumpkin looks back.)')],
                    [('stalker', '(it holds a claw over the Lantern\'s fire - and draws it back, singed)', 'lantern', '(a puff of smug embers)'),
                     ('lantern', '(it lights the dark ahead of you)', 'stalker', '(it steps back into the dark it just lost)')]),
+    # (2.88: Bender and Bones, and their own)
+    'bigscary': ('bones', 'emma', 'Who\'s My Big Scary Boy?', '#8ab0c8', 'Bones and Emma - a princess and her shark',
+                 [f'effect give {O} minecraft:dolphins_grace 15 0 true', f'effect give {O} minecraft:water_breathing 15 0 true',
+                  f'execute as {O} if predicate bm:swim run effect give @s minecraft:strength 3 1 true',
+                  f'execute at @s as @e[{FOE},distance=..8] run effect give @s minecraft:slowness 3 1'],
+                 [('emma', 'BONES! Who\'s my big scary boy? YOU are!'), ('bones', '(he rolls belly-up in his bubble, every tooth showing)')],
+                 [('emma', 'He used to sleep at the foot of my bed. In a fish tank. A very big fish tank.', 'bones', '(a proud blub)'),
+                  ('bones', '(he circles her, twice, and glares at everything else)', 'emma', 'He\'s very protective. It\'s very sweet. It\'s a LOT of teeth.')]),
+    'diggers': ('bender', 'dennis', 'Digging Buddies', '#e0a860', 'Bender and Dennis - two noses for what\'s under the ground',
+                [f'effect give {O} minecraft:haste 15 1 true', f'effect give {O} minecraft:luck 15 1 true'],
+                [('dennis', 'Now THERE\'S a lad who knows what ground\'s for! Dig, boy!'), ('bender', '(he digs. Enthusiastically. At Dennis\'s boots.)')],
+                [('dennis', 'Found a bone. Gave it to him. He buried it. Then dug it up again. Respect.', 'bender', '(tail going like mad)'),
+                 ('bender', '(he drops a muddy rock at the dwarf\'s feet)', 'dennis', 'Granite! Lovely bit o\' granite. Good lad.')]),
+    'landsea': ('bender', 'bones', 'Land and Sea', '#a8c8a0', 'Bender and Bones - the goodest boy and the scariest one',
+                [f'effect give {O} minecraft:speed 3 0 true', f'effect give {O} minecraft:dolphins_grace 15 0 true',
+                 f'execute at @s as @e[{FOE},distance=..8] run effect give @s minecraft:weakness 3 0'],
+                [('bender', '(he barks at the shark in the bubble. The shark grins at him. He barks again, delighted.)'), ('bones', '(a curious blub)')],
+                [('bender', '(he tries to lick the bubble)', 'bones', '(he bumps it from the inside, nose to nose)'),
+                 ('bones', '(he snaps at Bender\'s tail - gently - and misses on purpose)', 'bender', '(play bow!)')]),
 })
 P188.ICON.update({k: 'bm:av_locket' for k in ('mother', 'sisters', 'unfinished', 'captain')})
 P188.ICON.update({k: 'bm:pq_pearls' for k in ('aunt', 'pearls')})
 P188.ICON.update({k: 'bm:bo_claw' for k in ('wounds', 'alliance', 'wildfire')})
 P188.ICON.update({'longdark': 'bm:st_hook', 'hearth': 'bm:ln_gourd', 'nightmares': 'bm:st_hook'})
+P188.ICON.update({'bigscary': 'bm:bn_whistle', 'diggers': 'bm:bv_ball', 'landsea': 'bm:bv_ball'})
 
 TRIOS = {
     'royal': ('The Royal Family', '#ffd86a', ('emma', 'ava', 'pearlq'), 'The Royal Family', 'Walk with Emma, Queen Ava and Queen Pearl at once'),

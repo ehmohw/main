@@ -61,30 +61,34 @@ const res = [];
   ok('taking a Medallion out: it stays in the pocket (auto-deposit rests)', (await has('medallion')) === 1 && (await sc('bm.bkag')) > 0, `${await has('medallion')} ${await sc('bm.bkag')}`);
   await run('scoreboard players set TestRat bm.bkac 0'); await run('clear TestRat');
 
-  // ================================================================== THE COLLECTORS
+  // ================================================================== THE COLLECTORS (2.88: satchels - what they gather goes into them, not the pack)
   await home();
+  const inside = async (slot) => await run(`data get entity TestRat Inventory[{Slot:${slot}b}].components."minecraft:container"`);
   await run('loot replace entity TestRat hotbar.1 loot bm:items/ore_magnet'); await sleep(300);
-  await run(`${O}summon minecraft:item ${X + 5.5} ${Y} ${Z + 0.5} {Item:{id:"minecraft:raw_iron",count:3},Tags:["bm.t220i"]}`); await sleep(1500);
-  ok('the Ore Magnet off: the raw iron stays put', (await hasV('minecraft:raw_iron')) === 0);
-  await use(1); await sleep(300);
-  ok('right-click: switched on', /bm_on: ?1b/.test(await run('data get entity TestRat Inventory[{Slot:1b}].components')));
-  await wait(3000, async () => (await hasV('minecraft:raw_iron')) === 3);
-  ok('...the raw iron 5 blocks off flies into the pack', (await hasV('minecraft:raw_iron')) === 3);
+  await run(`${O}summon minecraft:item ${X + 5.5} ${Y} ${Z + 0.5} {Item:{id:"minecraft:raw_iron",count:3},Tags:["bm.t220i"]}`);
+  await wait(3000, async () => /raw_iron/.test(await inside(1)));
+  ok("Dennis's Ore Magnet carried: the raw iron 5 blocks off goes into the magnet", /raw_iron/.test(await inside(1)) && (await hasV('minecraft:raw_iron')) === 0, (await inside(1)).slice(-120));
   await run(`${O}summon minecraft:item ${X + 5.5} ${Y} ${Z + 0.5} {Item:{id:"minecraft:rotten_flesh",count:2},Tags:["bm.t220i"]}`); await sleep(1500);
-  ok('...but not rotten flesh (not its kind)', (await hasV('minecraft:rotten_flesh')) === 0);
-  await run('loot replace entity TestRat hotbar.2 loot bm:items/spirit_jar'); await use(2); await sleep(300);
-  await wait(3000, async () => (await hasV('minecraft:rotten_flesh')) === 2);
-  ok("Pistachio's Spirit Jar on: the rotten flesh comes", (await hasV('minecraft:rotten_flesh')) === 2);
-  // (a full pack)
-  for (let s = 3; s < 36; s++) await run(`item replace entity TestRat container.${s} with minecraft:stone 64`);
-  await run(`item replace entity TestRat hotbar.0 with minecraft:stone 64`); await run(`item replace entity TestRat weapon.offhand with minecraft:stone 64`);
-  await run('item replace entity TestRat container.1 with minecraft:stone 64'); await run('loot replace entity TestRat inventory.0 loot bm:items/ore_magnet');
-  await run('item modify entity TestRat inventory.0 bm:p174/col_on'); await run('scoreboard players set TestRat bm.vfcd 0');
+  ok('...but not rotten flesh (not its kind) - it stays on the ground', !/rotten_flesh/.test(await inside(1)) && (await hasV('minecraft:rotten_flesh')) === 0 &&
+     (await cnt(`@e[type=minecraft:item,x=${X + 5.5},y=${Y},z=${Z + 0.5},distance=..2]`)) >= 1);
+  await run('loot replace entity TestRat hotbar.2 loot bm:items/spirit_jar');
+  await wait(3000, async () => /rotten_flesh/.test(await inside(2)));
+  ok("Pistachio's Spirit Jar carried: the rotten flesh floats into the jar, not the pack", /rotten_flesh/.test(await inside(2)) && (await hasV('minecraft:rotten_flesh')) === 0);
+  // right-click: it unfolds into a barrel with what it gathered; walked away from, it packs up and keeps it
+  A.windows.length = 0; await use(1); await sleep(900);
+  const bw = A.windows[A.windows.length - 1];
+  ok('the magnet right-clicked: it unfolds into a barrel (a container window)', !!bw && await wait(2000, async () => (await cnt(`@e[type=minecraft:marker,tag=bm.bx_orecol]`)) === 1), bw ? JSON.stringify(bw).slice(0, 120) : 'no window');
+  if (bw) A.close(bw.windowId); await sleep(400);
+  await run(`${O}tp TestRat ${X - 7.5} ${Y} ${Z + 0.5} 0 0`); await sleep(3000);
+  ok('...walked away from: packed up, the raw iron still inside', (await cnt('@e[type=minecraft:marker,tag=bm.bx_orecol]')) === 0 && /raw_iron/.test(await inside(1)), (await inside(1)).slice(-120));
+  // (a full magnet)
+  const full = Array.from({ length: 27 }, (_, i) => `{slot:${i},item:{id:"minecraft:stone",count:64}}`).join(',');
+  await run(`item modify entity TestRat hotbar.1 {function:"minecraft:set_components",components:{"minecraft:container":[${full}]}}`); await run('scoreboard players set TestRat bm.vfcd 0');
   A.bars.length = 0;
-  await run(`${O}summon minecraft:item ${X + 4.5} ${Y} ${Z + 0.5} {Item:{id:"minecraft:raw_gold",count:1},Tags:["bm.t220i"]}`);
+  await run(`${O}summon minecraft:item ${X - 3.5} ${Y} ${Z + 0.5} {Item:{id:"minecraft:raw_gold",count:1},Tags:["bm.t220i"]}`);
   await wait(7000, async () => A.bars.some(b => /is full/.test(b)));
-  ok('a full pack: "Your Ore Magnet is full"', A.bars.some(b => /Ore Magnet is full/.test(b)), A.bars.slice(-2).join(' | '));
-  await run(`${O}kill @e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..12]`); await run('clear TestRat');
+  ok('a full magnet: "Your Ore Magnet is full"', A.bars.some(b => /Ore Magnet is full/.test(b)), A.bars.slice(-2).join(' | '));
+  await run(`${O}kill @e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..30]`); await run('clear TestRat');
 
   // ================================================================== A FLOOR DISPLAY CASE, solid
   await home(60);

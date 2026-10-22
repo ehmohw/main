@@ -21,6 +21,38 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.88: the Dread bosses, Bender and Bones
+
+**Three Dread bosses** *(hard mode only)*. Each waits at its own rare ruin, and its altar only wakes for the right three followers. Right-click the altar: it shows who's there (✔) and who's missing (✘).
+- **The Malevolent Snowbeast** at the **Frozen Folly** (snowy lands). Pistachio's living top hat took fright and came down on a snowman, and made a monster of it. Ice-shard volleys that slow and freeze, a frost nova, a freezing glare from the hat's eyes; at half health, a blizzard and strays out of the snow. *Wakes for Pistachio, Celi and Tullius.*
+- **The Watchful Witch** at the **Hexen Hollow** (dark forests and swamps). An old acquaintance of Cecil's who studied dark magic a little too hard and was swallowed by it. She drifts out of reach throwing hex bolts that wither, blinks away from anyone who closes in, and rings you with curse circles that burst (step out!). At half health she drains your life and calls up shades. *Wakes for Cecil, Apophiss and King Omega.*
+- **The Chomping Sawshark** at the **Drowned Gate** (the deep sea floor). Woken in the great war, it has kept the Underwater Kingdom from surfacing ever since, and they say it swallowed Democratus whole. It chomps, rakes with its saw, charges through the water and drags you into a whirlpool. At half health it calls guardians. *Wakes for Emma, Bones and Queen Pearl.*
+- Beat one and everyone near gets its **token**, Dread Tokens and spoils. Carry a token for a strong blessing, or set it down (sneak + use on a block) for a ward round it (sneak + punch takes it back). Vesper scraps one for 12 Dread Tokens.
+  - **Frostbitten Token:** carried, Resistance, and cold can't slow or freeze you. Set down, monsters within 16 are slowed and weakened; Resistance for all.
+  - **Hexbound Token:** carried, Strength and Night Vision, and monsters near you weakened. Set down, monsters within 16 are seared and lit up; Strength and Regeneration for all.
+  - **Sawtooth Token:** carried, Water Breathing, Dolphin's Grace, Conduit Power and Strength in water. Set down, Conduit Power, Dolphin's Grace and Regeneration in the water within 24, and monsters there take a bite.
+- **Vesper** sells a sealed map to each ruin (20 Dread Tokens).
+
+**Bender** *(the goodest boy)*. A lean fawn dog with enormous upright ears and a dark little mask. Spend time in a village and sooner or later he trots out from between the houses. Give him a bone (or anything meaty) and he drops **Bender's Ball** at your feet.
+- **Dig!** (his menu; every 5 minutes, on dirt, grass, sand, gravel, snow or mud): he digs something up. Tokens, emeralds, a Heartstone, a Medallion, Blood Crystals; now and then a diamond, a Lucky Token, a Trophy, even an Omni Token (and in hard mode, sometimes a Dread Token). Sometimes just a bone. He's very proud of the bone.
+- **Sniff out treasure** (his menu; every minute): he finds the scent of the nearest buried treasure or old ruin, points the way with a trail of glints, and tells you which way and how far.
+- He bites fast, **tackles** foes from 12 blocks away, **guard-barks** groups of foes into faltering (Resistance for you), and his charged **Good Boy!** is eight bites on foe after foe (Regeneration II for you). Beside him you have Luck.
+
+**Bones** *(Emma's pet shark)*. A grinning grey shark with a stitched scar and a skull on his flank. On land he travels in a ball of water. Rarely, out on the ocean (swimming or in a boat), a fin cuts the water beside you. Give him a raw cod, salmon or tropical fish and he spits **Bones's Whistle** into your hand. If Emma's with you, she has a few words for him.
+- **Ride him** (his menu). In water he goes where you look (up and down too) and fast. On land he floats along in his bubble. Water Breathing and Dolphin's Grace while you ride. From his back the whistle is **CHOMP**. Sneak to get off.
+- He bites harder in water, **thrashes** foes, **torpedoes** through them, and his charged **Feeding Frenzy** heals you both with every bite. Near him you have Dolphin's Grace in water.
+
+Both have the full set: a menu, sitting (right-click), a frame trick, a display-case figurine, a chibi doll from Cecil (and a golden one from the Ember Rat), three coats plus gilded, diamond and netherite versions, a rare aura (**Goodest Boy**, **Abyssal Tide**), a Raid Contract at the Recruiter, and a place on the Partner Wheel.
+
+**New pairs:**
+- **Bones + Emma, "Who's My Big Scary Boy?":** Dolphin's Grace and Water Breathing (Strength II while swimming); monsters round you slowed.
+- **Bender + Dennis, "Digging Buddies":** Haste II and Luck II.
+- **Bender + Bones, "Land and Sea":** Speed and Dolphin's Grace; monsters round you weakened.
+
+**Fixes:**
+- Vesper no longer talks in the chat. His mutterings show in the action bar now, and much less often.
+- **Dennis's Ore Magnet and Pistachio's Spirit Jar work like satchels now.** Carried anywhere in your pack, each gathers its own kind within 8 blocks into itself (ores, metals and gems; mob drops), not into your pockets. Right-click to unfold it into a barrel (27 slots) and take things out; sneak or walk away to pack it up. No more switching on and off. When it's full it says so and leaves the rest on the ground.
+
 ## New in 2.87: the Royal Family, Bloo, two hidden hard-mode companions, and King Omega in hard mode
 
 **Queen Ava** *(Emma's mother; hard mode only)*. Apophiss killed her long ago, but she still watches over the sea. Set down a conduit at night while Emma is with you and her ghost rises out of the water. Talk to her with Emma beside you and she gives you **Queen Ava's Locket**.

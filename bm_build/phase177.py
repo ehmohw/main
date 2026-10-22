@@ -325,12 +325,12 @@ def generate(G):
     fast += ['execute as @e[type=minecraft:interaction,tag=bm.vledger] if data entity @s interaction at @s run function bm:p177/ledger_click',
              'execute as @e[type=minecraft:interaction,tag=bm.vledger] if data entity @s attack run data remove entity @s attack']
     fn('p177/ledger_click', ['execute on target run function bm:p177/open', 'data remove entity @s interaction'])
-    # his voice, now and then, to anyone at the stall
+    # his voice, now and then, to anyone at the stall - in the action bar, never the chat (2.88: he talked far too often there)
     lines = ['"Trophies? Splendid. Bring five."', '"The King had debts. I collect them."', '"Something hunts the dark now. I sell to those it hasn\'t caught."',
              '"Your followers look... breakable. I can fix that."', '"Everything is for sale. Especially time."']
     second.append(f'execute as @e[type=minecraft:villager,tag=bm.vesper] at @s if entity @a[distance=..5] run function bm:p177/mutter')
-    fn('p177/mutter', ['execute store result score #vm bm.rng run random value 1..40'] +
-       [f'execute if score #vm bm.rng matches {i + 1} run ' + tellraw('@a[distance=..6]', P + [T(l, '#c8a0a0', italic=True)]) for i, l in enumerate(lines)])
+    fn('p177/mutter', ['execute store result score #vm bm.rng run random value 1..120'] +
+       [f'execute if score #vm bm.rng matches {i + 1} run ' + title('@a[distance=..6]', 'actionbar', [T('Vesper: ', '#b0102a'), T(l, '#c8a0a0', italic=True)]) for i, l in enumerate(lines)])
 
     # ---------------------------------------------------------------- the Ledger: his services
     B_ = lambda lbl, code, w=180, tip=None: P28.btn(lbl, code, tooltip=tip, width=w)

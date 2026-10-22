@@ -34,7 +34,7 @@ THE RAT BANK       (phase31, gen_dp) Medallions and Trophies break back down at 
 import json
 import os
 import re
-from items import T, item, TOTEM
+from items import T, item, TOTEM, DYNAMIC
 from useitem import hold, HOLD
 from nbt import snbt, F
 
@@ -43,8 +43,8 @@ SEA = '#3fb8a8'
 # ------------------------------------------------------------------ (2.83) the collectors: Dennis's and Pistachio's
 COLLECTORS = {
     'ore': dict(iid='ore_magnet', name="Dennis's Ore Magnet", col='#e8b04a', price=16, code=2140, menu=2100, tag='p174_ore',
-                lore=['A horseshoe of dwarf-iron that hums near ore.', ('Right-click: switch it on or off.', 'blue'),
-                      ('While on, anywhere in your pack: ores, raw metals,', 'blue'), ('gems and the like within 8 blocks fly to you.', 'blue'),
+                lore=['A horseshoe of dwarf-iron that hums near ore.', ('Right-click: it unfolds into a barrel (27 slots).', 'blue'),
+                      ('Carried anywhere in your pack, it pulls ores, raw metals,', 'blue'), ('gems and the like within 8 blocks into itself.', 'blue'),
                       ('"Saves the knees, lad."', 'dark_gray')],
                 items=['coal', 'charcoal', 'raw_copper', 'raw_iron', 'raw_gold', 'copper_ingot', 'iron_ingot', 'gold_ingot', 'iron_nugget', 'gold_nugget',
                        'redstone', 'lapis_lazuli', 'quartz', 'amethyst_shard', 'diamond', 'emerald', 'ancient_debris', 'netherite_scrap', 'flint',
@@ -52,8 +52,8 @@ COLLECTORS = {
                        '#minecraft:redstone_ores', '#minecraft:lapis_ores', '#minecraft:diamond_ores', '#minecraft:emerald_ores', 'nether_quartz_ore',
                        'raw_iron_block', 'raw_gold_block', 'raw_copper_block']),
     'mob': dict(iid='spirit_jar', name="Pistachio's Spirit Jar", col='#9ae8c8', price=16, code=2190, menu=2151, tag='p174_mob',
-                lore=['A little jar with something polite inside.', ('Right-click: switch it on or off.', 'blue'),
-                      ('While on, anywhere in your pack: whatever', 'blue'), ('monsters and beasts drop within 8 blocks floats to you.', 'blue'),
+                lore=['A little jar with something polite inside.', ('Right-click: it unfolds into a barrel (27 slots).', 'blue'),
+                      ('Carried anywhere in your pack, whatever monsters and', 'blue'), ('beasts drop within 8 blocks floats into it.', 'blue'),
                       ('"It insists on carrying them, sir."', 'dark_gray')],
                 items=['rotten_flesh', 'bone', 'bone_meal', 'string', 'spider_eye', 'gunpowder', 'slime_ball', 'leather', 'feather', 'ink_sac', 'glow_ink_sac',
                        'ender_pearl', 'blaze_rod', 'magma_cream', 'phantom_membrane', 'prismarine_shard', 'prismarine_crystals', 'breeze_rod', 'arrow',
@@ -64,7 +64,9 @@ COLLECTORS = {
                        'saddle', 'emerald', 'totem_of_undying', 'heavy_core', 'trial_key', 'wind_charge', 'blaze_powder', 'goat_horn']),
 }
 for _k, _c in COLLECTORS.items():
-    item(_c['iid'], TOTEM, _c['name'], _c['col'], _c['lore'] + [(f'{_c["price"]} Tokens.', 'gray')], model=f'bm:{_c["iid"]}', stack=1, cat='builder', comps=hold('none'))
+    item(_c['iid'], TOTEM, _c['name'], _c['col'], _c['lore'] + [('Sneak or walk away to pack it up.', 'gray'), (f'{_c["price"]} Tokens.', 'gray')],
+         model=f'bm:{_c["iid"]}', stack=1, cat='builder', comps=dict(hold('none'), **{'minecraft:container': []}))
+    DYNAMIC.add(_c['iid'])                    # (2.88: a satchel now - what it gathers lives in its own container)
     HOLD[_c['iid']] = f'bm:p174/col/use_{_k}'
 
 
@@ -203,29 +205,22 @@ def generate(G):
         fn(f'p174/col/buy_{k}', [f'execute store result score #n bm.pay run clear @s *[minecraft:custom_data~{{bm:"token"}}] 0',
                                  f'execute if score #n bm.pay matches ..{c["price"] - 1} run return run ' + say(f'{who}: "That\'s {c["price"]} Tokens, friend - on you."', c['col']),
                                  f'clear @s *[minecraft:custom_data~{{bm:"token"}}] {c["price"]}', G.give(iid),
-                                 'playsound minecraft:entity.villager.yes neutral @s ~ ~ ~ 0.6 1.1', say(f'{who}: "Pleasure. Right-click it to switch it on."', c['col'])])
-        use = []
-        for slot in ('weapon.mainhand', 'weapon.offhand'):
-            use += [f'execute if items entity @s {slot} {on} run return run function bm:p174/col/off {{slot:"{slot}"}}',
-                    f'execute if items entity @s {slot} {has} run return run function bm:p174/col/on {{slot:"{slot}"}}']
-        fn(f'p174/col/use_{k}', use)
-        # at work: once a quarter second, its kind within 8 blocks flies to you (what's lying at your feet already: your pockets are full)
-        F_['loop/fast'].append(f'execute as @a[gamemode=!spectator] if items entity @s container.* {on} at @s run function bm:p174/col/pull_{k}')
-        fn(f'p174/col/pull_{k}', [f'execute if entity @e[type=minecraft:item,distance=..1.2,nbt={{PickupDelay:0s}}] unless score @s bm.vfcd matches 1.. '
-                                  f'if function bm:p174/col/feet_{k} run function bm:p174/full {{n:"{c["name"].split(" ", 1)[1]}"}}',
-                                  f'execute as @e[type=minecraft:item,distance=1.2..8,nbt={{PickupDelay:0s}}] if items entity @s contents #bm:{tg} run tp @s ~ ~0.3 ~'])
-        fn(f'p174/col/feet_{k}', ['scoreboard players set #ff bm.rng 0',
-                                  f'execute as @e[type=minecraft:item,distance=..1.2,nbt={{PickupDelay:0s}}] if items entity @s contents #bm:{tg} run function bm:p174/col/age',
-                                  'return run scoreboard players get #ff bm.rng'])
-    fn('p174/col/age', ['execute store result score #ag bm.rng run data get entity @s Age', 'execute if score #ag bm.rng matches 60.. run scoreboard players set #ff bm.rng 1'])
-    # switching it on and off (the held one; both kinds share the two modifiers)
-    G.wjson('bm/item_modifier/p174/col_on.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_on:1b}'},
-                                                 {'function': 'minecraft:set_components', 'components': {'minecraft:enchantment_glint_override': True}}])
-    G.wjson('bm/item_modifier/p174/col_off.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_on:0b}'},
-                                                  {'function': 'minecraft:set_components', 'components': {'minecraft:enchantment_glint_override': False}}])
-    for to, w in (('on', 'ON'), ('off', 'off')):
-        fn(f'p174/col/{to}', [f'$item modify entity @s $(slot) bm:p174/col_{to}', 'playsound minecraft:block.note_block.chime player @s ~ ~ ~ 0.5 1.5',
-                              title('@s', 'actionbar', T(f'Switched {w}.', 'gray'))])
+                                 'playsound minecraft:entity.villager.yes neutral @s ~ ~ ~ 0.6 1.1', say(f'{who}: "Pleasure. Carry it and it gathers by itself - right-click to open it."', c['col'])])
+        # (2.88) a satchel: right-click unfolds it into a barrel (phase33's boxes - the item held in storage while it's open, its
+        # contents moved into the barrel and back); carried, its kind within 8 blocks goes into it, not into your pockets
+        # (the Prime Cooler's pick-up: p148/cool/read, p33/vac/take, p148/cool/write)
+        nm = c['name'].split(' ', 1)[1]
+        fn(f'p174/col/use_{k}', [f'execute if items entity @s weapon.mainhand {has} run return run function bm:p33/box/open {{path:"SelectedItem",slot:"weapon.mainhand",name:"{nm}",kind:"{k}col"}}',
+                                 f'execute if items entity @s weapon.offhand {has} run function bm:p33/box/open {{path:"equipment.offhand",slot:"weapon.offhand",name:"{nm}",kind:"{k}col"}}'])
+        F_['loop/fast'].append(f'execute as @a[gamemode=!spectator] if items entity @s container.* {has} at @s if entity @e[type=minecraft:item,distance=..8,nbt={{PickupDelay:0s}}] run function bm:p174/col/pull_{k}')
+        fn(f'p174/col/pull_{k}', ['scoreboard players set #vs bm.rng -1'] +
+           [f'execute if score #vs bm.rng matches -1 if items entity @s container.{n} {has} run scoreboard players set #vs bm.rng {n}' for n in range(36)] +
+           ['execute if score #vs bm.rng matches -1 run return 0',
+            'execute store result storage bm:tmp cpk.n int 1 run scoreboard players get #vs bm.rng',
+            'function bm:p148/cool/read with storage bm:tmp cpk', 'scoreboard players set #vtak bm.rng 0', 'scoreboard players set #vfull bm.rng 0',
+            f'execute as @e[type=minecraft:item,distance=..8,nbt={{PickupDelay:0s}},limit=16,sort=nearest] if items entity @s contents #bm:{tg} at @s run function bm:p33/vac/take',
+            'execute if score #vtak bm.rng matches 1.. run function bm:p148/cool/write with storage bm:tmp cpk',
+            f'execute if score #vfull bm.rng matches 1 unless score @s bm.vfcd matches 1.. run function bm:p174/full {{n:"{nm}"}}'])
     fn('admin/collectors', [G.give(c['iid']) for c in COLLECTORS.values()])
 
 

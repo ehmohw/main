@@ -24,13 +24,13 @@ import gild
 import phase103 as P103
 
 GOLD = '#ffcf40'
-ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern']
+ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones']
 # follower: (host type, host tag[s]) - the animal underneath, whose owner the aura belongs to
 HOST = {'emma': ('cat', 'bm.emmapet'), 'celi': ('wolf', 'bm.celipet'), 'zib': ('wolf', 'bm.zibpet'), 'cecil': ('wolf', 'bm.cecilpet'),
         'kw': ('wolf', 'bm.kxpet'), 'leo': ('wolf', 'bm.leopet'), 'demo': ('wolf', 'bm.dmpet'), 'apo': ('wolf', 'bm.appet'), 'tul': ('wolf', 'bm.tupet'),
         'frog': ('wolf', 'bm.frogpet'), 'don': ('wolf', 'bm.donado'), 'pearl': ('cat', 'bm.pmpet'), 'wil': ('wolf', 'bm.wilfrey'), 'fishy': ('wolf', 'bm.fypet'),
         'dennis': ('wolf', 'bm.dwpet'), 'pistachio': ('wolf', 'bm.pipet'), 'omega': ('wolf', 'bm.ompet'), 'ashur': ('wolf', 'bm.aspet'), 'chef': ('wolf', 'bm.kkpet'), 'neighbor': ('wolf', 'bm.nbpet'),
-        'ava': ('wolf', 'bm.avpet'), 'pearlq': ('wolf', 'bm.pqpet'), 'bloo': ('wolf', 'bm.bopet'), 'stalker': ('wolf', 'bm.svpet'), 'lantern': ('wolf', 'bm.lnpet')}
+        'ava': ('wolf', 'bm.avpet'), 'pearlq': ('wolf', 'bm.pqpet'), 'bloo': ('wolf', 'bm.bopet'), 'stalker': ('wolf', 'bm.svpet'), 'lantern': ('wolf', 'bm.lnpet'), 'bender': ('wolf', 'bm.bvpet'), 'bones': ('wolf', 'bm.bjpet')}
 dust = lambda r, g, b, s=1.0: f'minecraft:dust{{color:[{r},{g},{b}],scale:{s}}}'
 # follower: (aura name, colour, ring height, ring radius, the ring's mote, the haze [particle commands at the follower])
 AURA = {
@@ -84,13 +84,20 @@ AURA = {
                                                                         f'particle {dust(0.5, 0.0, 0.06, 1.2)} ~ ~1.4 ~ 0.4 0.9 0.4 0 3']),
     'lantern': ('Hallowfire', '#ff8a2a', 2.4, 1.3, 'minecraft:flame', ['particle minecraft:flame ~ ~2.2 ~ 0.7 0.3 0.7 0.01 2',
                                                                     'particle minecraft:small_flame ~ ~0.4 ~ 0.9 0.2 0.9 0.01 2',
-                                                                    f'particle {dust(1.0, 0.45, 0.05, 1.2)} ~ ~1.4 ~ 0.8 0.6 0.8 0 3'])}
+                                                                    f'particle {dust(1.0, 0.45, 0.05, 1.2)} ~ ~1.4 ~ 0.8 0.6 0.8 0 3']),
+    'bender': ('Goodest Boy', '#ffd27a', 1.5, 0.8, 'minecraft:heart', ['particle minecraft:heart ~ ~1.6 ~ 0.3 0.2 0.3 0 1',
+                                                                        'particle minecraft:happy_villager ~ ~0.4 ~ 0.6 0.2 0.6 0 2',
+                                                                        f'particle {dust(1.0, 0.82, 0.4, 1.0)} ~ ~0.9 ~ 0.6 0.5 0.6 0 3']),
+    'bones': ('Abyssal Tide', '#4ab8e8', 1.6, 1.2, 'minecraft:nautilus', ['particle minecraft:nautilus ~ ~1.6 ~ 0.6 0.3 0.6 0.4 2',
+                                                                        'particle minecraft:bubble_pop ~ ~0.6 ~ 0.8 0.3 0.8 0.01 3',
+                                                                        f'particle {dust(0.3, 0.72, 0.92, 1.1)} ~ ~1.0 ~ 0.8 0.5 0.8 0 3'])}
 assert set(AURA) == set(ORDER) == set(HOST) == set(P99.BASE)
 PRICE = 1280                                 # coins at the Tailor (10 Gutter Trophies)
 FIND = {3: 8, 4: 15, 5: 25}                  # per mille, a won heist of tier III / IV / V
 TL2 = 8100                                   # the Tailor's second block (phase103): 8106 the auras page, 8150-8162 an aura each
 AURA_PAGE, AURA_BUY = TL2 + 6, TL2 + 50
-acode = lambda i: AURA_BUY + i if i < 14 else (TL2 + 96 + (i - 14) if i < 18 else 8293 + (i - 18))   # (2.80d: past the fourteenth, 8196 on - 8164 on are outfits; 2.86: past the 18th, 8293 on)
+acode = lambda i: AURA_BUY + i if i < 14 else (TL2 + 96 + (i - 14) if i < 18 else (8293 + (i - 18) if i < 25 else 8380 + (i - 25)))   # (2.80d: past the fourteenth, 8196 on - 8164 on are outfits; 2.86: past the 18th, 8293 on; 2.88: past the 25th, 8380 on)
+assert len(ORDER) <= 45
 
 for _w in ORDER:
     _n, _c = AURA[_w][0], AURA[_w][1]
@@ -120,7 +127,7 @@ RECOL = {'apo': ('apophiss_art', ('apo_scale', 'apo_scale_dk', 'apo_fin', 'apo_b
          'neighbor': ('neighbor_art', ('nb_white', 'nb_white_dk', 'nb_shirt')),
          'ava': ('ava_art', ('av_navy', 'av_navy_dk', 'av_skirt', 'av_bodice', 'av_navy_g', 'av_navy_dk_g', 'av_skirt_g', 'av_bodice_g')),   # (2.87: '_g' - her ghost's, recoloured as a set of their own)
          'pearlq': ('pearl_art', ('pq_dress', 'pq_dress_top', 'pq_gown', 'pq_gown_top', 'pq_cape')),
-         'bloo': ('bloo_art', ('bo_fur', 'bo_fur_dk', 'bo_mane')), 'stalker': ('stalker_art', ('st_skin', 'st_shade', 'st_ribs', 'st_back', 'st_face')), 'lantern': ('lantern_art', ('ln_rind', 'ln_rind_dk', 'ln_rind_top', 'ln_face', 'ln_face_glare', 'ln_face_shut'))}
+         'bloo': ('bloo_art', ('bo_fur', 'bo_fur_dk', 'bo_mane')), 'stalker': ('stalker_art', ('st_skin', 'st_shade', 'st_ribs', 'st_back', 'st_face')), 'lantern': ('lantern_art', ('ln_rind', 'ln_rind_dk', 'ln_rind_top', 'ln_face', 'ln_face_glare', 'ln_face_shut')), 'bender': ('bender_art', ('bd_fur', 'bd_back', 'bd_fur_lt', 'bd_face', 'bd_face_happy', 'bd_face_blink', 'bd_face_alert')), 'bones': ('bones_art', ('bn_skin', 'bn_skin_dk', 'bn_flank', 'bn_side'))}
 # (2.82c) his fingers and eyelids took no outfit's colour: they go through the palette too, on the main set's brightness range
 # (so the scales come out as before, and the dark claws stay darker than the scales)
 SIDE = {'apo_claw', 'apo_lid', 'om_claw', 'om_lid'}
@@ -129,7 +136,7 @@ ITEMS_OF = {'apo': lambda n: n.startswith('apo_'), 'tul': lambda n: n.startswith
             'don': lambda n: n == 'donado' or (n.startswith('dnr_') and not n.startswith('dnr_eyes')), 'pearl': lambda n: n == 'pearlman', 'fishy': lambda n: n.startswith('fy_') and n != 'fy_bowl',
             'dennis': lambda n: n.startswith('dw_') and n != 'dw_horn', 'pistachio': lambda n: n.startswith('ps_'), 'omega': lambda n: n.startswith('om_') and n not in ('om_monocle', 'om_banner', 'om_brazier'),
             'ashur': lambda n: n.startswith('as_'), 'chef': lambda n: n.startswith('cf_'), 'neighbor': lambda n: n.startswith('nb_'),
-            'ava': lambda n: n.startswith('av_') and n != 'av_locket', 'pearlq': lambda n: n.startswith('pq_') and n != 'pq_pearls', 'bloo': lambda n: n.startswith('bo_') and n != 'bo_claw', 'stalker': lambda n: n.startswith('st_') and n != 'st_hook', 'lantern': lambda n: n.startswith('ln_') and n != 'ln_gourd'}
+            'ava': lambda n: n.startswith('av_') and n != 'av_locket', 'pearlq': lambda n: n.startswith('pq_') and n != 'pq_pearls', 'bloo': lambda n: n.startswith('bo_') and n != 'bo_claw', 'stalker': lambda n: n.startswith('st_') and n != 'st_hook', 'lantern': lambda n: n.startswith('ln_') and n != 'ln_gourd', 'bender': lambda n: n.startswith('bd_'), 'bones': lambda n: n.startswith('bn_') and n != 'bn_whistle'}
 
 
 def textures():
