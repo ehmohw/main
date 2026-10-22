@@ -36,10 +36,10 @@ const res = [];
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..70]`);
   await at(X + 0.5, Y, Z + 0.5, 0, 0);
   await run('effect give TestRat minecraft:regeneration 900 4 true'); await run('effect give TestRat minecraft:saturation 900 0 true');
-  // ---- the night rung in (the bell's own scores), a monster out before it falls; nightfall
-  await run('scoreboard players operation #dnday bm.bm = #day bm.bm');
+  // ---- a monster out before it falls; the night called in (the operators' Dread Night - the bell's own scores); nightfall
   await run(`${O}summon minecraft:husk ${X + 12.5} ${Y} ${Z - 12.5} {Tags:["bm.seen","t247a"],PersistenceRequired:1b,NoAI:1b}`);
-  await run('time set 13100');
+  await run('scoreboard players set #bday bm.bm 0');
+  await run('execute as TestRat at TestRat run function bm:admin/dread_night'); await run('time set 13100');
   ok('(staged) a Dread Night, and the player hunted', await wait(4000, async () => (await sc('#dnight', 'bm.bm')) === 1) &&
      await wait(3000, async () => passes('execute if entity @a[name=TestRat,tag=bm.dnh]')));
   await still();
