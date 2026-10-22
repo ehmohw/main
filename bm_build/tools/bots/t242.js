@@ -15,7 +15,7 @@ runT({ W: 'stalker', NAME: 'The Stalker', ab: 'sv', q: 'sq', pfx: 'p193', prefix
     await at(X + 0.5, Y + 1, Z + 0.5, 0, 10); A.chats.length = 0;
     await run('function bm:p181/end'); await sleep(800);
     ok('a Dread Night survived wearing the Grin: at dawn one stays behind (its rig and a click box)', await wait(5000, async () => (await cnt(ENC)) === 1) &&
-       (await cnt('@e[type=minecraft:item_display,tag=bm.svencp]')) === 8 && A.chats.some(c => /doesn't come apart/.test(c)) && A.chats.some(c => /survived the Dread Night/.test(c)),
+       (await cnt('@e[type=minecraft:item_display,tag=bm.svencp]')) === 10 && A.chats.some(c => /doesn't come apart/.test(c)) && A.chats.some(c => /survived the Dread Night/.test(c)),
        `enc ${await cnt(ENC)} parts ${await cnt('@e[type=minecraft:item_display,tag=bm.svencp]')} | ` + A.chats.slice(-2).join(' | ').slice(0, 200));
     await run('item replace entity TestRat armor.head with minecraft:air');
     const ex = await num(ENC, 'Pos[0]'), ez = await num(ENC, 'Pos[2]');
