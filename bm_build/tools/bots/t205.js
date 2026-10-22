@@ -15,9 +15,10 @@ const res = [];
   await run('effect give TestRat minecraft:resistance 900 4 true'); await sleep(800);
   // ---- the stage: a True Crown from 2.82 - its old version stamp, and its old size modifier
   await run('loot replace entity TestRat hotbar.0 loot bm:items/apo_true_crown');
-  await run('item modify entity TestRat hotbar.0 {type:"minecraft:set_custom_data",tag:"{bmv:38}"}');
+  const cur = +((await run('data get entity TestRat Inventory[{Slot:0b}].components."minecraft:custom_data".bmv')).match(/(\d+)$/) || [0, 0])[1];
+  await run(`item modify entity TestRat hotbar.0 {type:"minecraft:set_custom_data",tag:"{bmv:${cur - 3}}"}`);
   await run('item modify entity TestRat hotbar.0 {type:"minecraft:set_attributes",modifiers:[{attribute:"minecraft:scale",id:"bm:old_crown_scale",amount:0.25,operation:"add_value",slot:"head"}]}');
-  const resynced = await wait(8000, async () => /\{.*bmv: ?39/.test(await run('data get entity TestRat Inventory[{Slot:0b}].components."minecraft:custom_data"')), 500);
+  const resynced = await wait(8000, async () => new RegExp(`bmv: ?${cur}\\b`).test(await run('data get entity TestRat Inventory[{Slot:0b}].components."minecraft:custom_data"')), 500);
   ok('an old True Crown in the pack is re-synced to this version', resynced);
   A.slot(0); await sleep(300); A.use(); await sleep(300); A.release(); await sleep(1200);
   ok('...used: worn, and TestRat stays his own size (scale 1) - with the crown\'s +12 health still', (await wearing('apo_true_crown')) && (await attr('scale')) === 1 && (await attr('max_health')) >= 32,
