@@ -21,13 +21,19 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.90d: Emma's old bow is back
+
+Emma wears her old bow again: the flat two-loop bow with its knot, now at the root of her new ponytail on top of her head.
+Her ribbon cosmetics recolour it as before. Her hair has no spikes: the bang's flip and the tuft on top are gone (they
+didn't read well in blocks).
+
 ## New in 2.90c: Emma's hair, from her front view
 
 Emma's hair is rebuilt from the owner's front-on drawing of her:
 - **Bangs:** one big swept bang from the part on her left, stepping down across her brow to her right.
 - **Side locks:** down to her jaw, each curling outward at the end.
 - **Ponytail:** high on her left, hanging beside her head down to her shoulder, ragged at the end.
-- **Bow:** at the ponytail's root, one loop standing up and one out to the side. Her ribbon cosmetics still recolour it.
+- **Bow:** at the ponytail's root (her old bow again since 2.90d).
 
 Her outfits (the Flower Top and the Cozy Sweater) keep the new bangs and side locks and add their own tie. Her ethereal form
 keeps its own long hair. Her display-case figurine is re-measured, so it still fits inside the case.

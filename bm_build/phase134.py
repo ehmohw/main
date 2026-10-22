@@ -94,7 +94,7 @@ FIT = {
     'leo_crest': (0.000, 2.165, -0.829, 0.497, -0.297, 0.348),   # Leo
     'celi_charm': (0.000, 1.973, -0.660, 0.511, -0.337, 0.328),   # Celi
     'demo_seal': (0.000, 3.363, -0.821, 1.715, -0.510, 0.824),   # Democratus
-    'emma_ribbon': (0.000, 1.884, -0.379, 0.610, -0.330, 0.330),   # Emma (2.90c: her ponytail beside her head)
+    'emma_ribbon': (0.000, 1.885, -0.379, 0.610, -0.330, 0.330),   # Emma (2.90c: her ponytail beside her head)
     'kw_spark': (0.000, 3.318, -1.176, 1.176, -0.662, 0.476),   # KillerWatt
     'apo_oath': (-0.092, 9.368, -3.444, 3.360, -5.491, 3.605),   # Apophiss (2.78: his longer, lower head)
     'tul_coin': (0.000, 3.143, -1.079, 1.084, -0.525, 1.087),   # Tullius (from his feet, not the harpoon's tip below them)

@@ -471,7 +471,7 @@ def models():
             return els
         # (2.90c) her hair from the owner's front view of her: a fuller crown; a big swept bang from the part on her left,
         # stepping down across her brow to her right (no spikes - they don't read in blocks); side locks to her jaw curling
-        # out; the ponytail high on her left, hanging beside her head to her shoulder; the bow at its root
+        # out; the ponytail high on her left, hanging beside her head to her shoulder; her old bow at its root
         els += [hr((-4.9, 30.6, -4.4), (4.9, 33.4, 4.4)), hr((-4.9, 25.0, 3.4), (4.9, 30.8, 4.6)),
                 hr((4.5, 25.6, -2.4), (5.2, 30.8, 4.4)), hr((-5.2, 25.6, -2.4), (-4.5, 30.8, 4.4)),
                 hr((-4.9, 30.6, -4.7), (4.9, 31.6, -4.0)),
@@ -491,9 +491,9 @@ def models():
                 hr((-9.8, 23.4, -0.2), (-6.6, 30.4, 2.2)),
                 hr((-9.4, 21.2, 0.0), (-7.0, 23.6, 2.0)),
                 hr((-9.2, 20.2, 0.2), (-8.2, 21.4, 1.8)), hr((-7.8, 20.6, 0.2), (-7.1, 21.4, 1.8)),
-                _el((-4.3, 32.8, -0.5), (-3.1, 36.0, 0.5), 'em2_pink', pv, ('z', 18, (-3.7, 33.0, 0))),
-                _el((-7.0, 32.4, -0.5), (-4.0, 33.8, 0.5), 'em2_pink', pv, ('z', -22.5, (-4.0, 33.1, 0))),
-                _el((-4.4, 32.4, -0.7), (-3.0, 33.6, 0.7), 'em2_pinkdark', pv)]
+                # her old bow (its knot and two loops), at the ponytail's root
+                _el((-4.1, 33.6, -0.2), (-2.5, 35.0, 0.7), 'em2_pinkdark', pv),
+                _el((-6.3, 33.2, -0.1), (-4.1, 35.6, 0.5), 'em2_pink', pv), _el((-2.5, 33.2, -0.1), (-0.3, 35.6, 0.5), 'em2_pink', pv)]
         return els
     part('em_head', PIVOT['head'], head('em2_face', False))
     part('ee_head', PIVOT['head'], head('ee_face', True))
