@@ -42,9 +42,9 @@ WATER_TOP = 5
 RIVER = (12, 22)              # (x range the curving river channel stays inside)
 DOOR_BOX = M2.DOOR_BOX
 VIP_SHELL, AUCTION_SEATS, CUSHIONS, COUNTERS, HOLES, LADDERS = [], [], [], [], [], []
-TOWN_TAG = 'bm.m282c'          # (on the town's marker: a market without it is rebuilt - 2.81a: the 2.81 towns too, for their counters;
+TOWN_TAG = 'bm.m289b'          # (on the town's marker: a market without it is rebuilt - 2.81a: the 2.81 towns too, for their counters;
                                #  2.82: and again, for the river's ladders and the clock tower's way out; 2.82b: Cecil's tent; 2.82c:
-                               #  the Curio Walk filled in again - it let players round the Dark Auction's key)
+                               #  the Curio Walk filled in again - it let players round the Dark Auction's key; 2.89b: Vesper's shop)
 # water the market keeps (template boxes): the river and the harbour basin, the falls, Mike's pond and the falls into it
 WATER_KEEP = [((11, 0, 8), (24, 17, 85)), ((4, 0, 59), (22, 9, 78)), ((CX - 7, 4, CZ - 7), (CX + 7, 11, CZ + 7)), ((CX - 1, 4, CZ - 1), (CX + 1, SY - 1, CZ + 1))]
 
@@ -622,6 +622,27 @@ def build():
     house(44, 59, 48, 65, 'E', 2, 'night', style='gable', fill_='red_nether_bricks', roofmat='crimson', lit=0.0, doorway='door', sign=False)
     for z in range(56, 62, 2): put(53, W + 2, z, 'red_stained_glass_pane[waterlogged=false]')
     for z in range(60, 65, 2): put(48, W + 2, z, 'red_stained_glass_pane[waterlogged=false]')
+    # (2.89b) VESPER'S SHOP, in the nether-brick house: a shop floor by the door (x54-55), his counter across the room (x56), and the
+    #  backroom behind it (x57-58), where he stands among his stock - shelves, barrels, a cauldron, skulls - with his stock book on the counter
+    for x in (54, 55):
+        for z in range(56, 62): put(x, W, z, ('black' if (x + z) % 2 else 'red') + '_carpet')
+    counter([(56, z) for z in range(57, 61)], top='polished_blackstone_bricks')
+    put(56, W + 1, 57, 'lantern[hanging=false,waterlogged=false]')             # (a soul lantern while he's there: phase177)
+    put(56, W + 1, 60, 'red_candle[candles=3,lit=true,waterlogged=false]')
+    for z in (56, 61):                                                        # the counter's ends close off the backroom
+        put(56, W, z, 'bookshelf'); put(56, W + 1, z, 'chiseled_bookshelf[facing=west,slot_0_occupied=true,slot_1_occupied=false,slot_2_occupied=true,'
+                                                      'slot_3_occupied=false,slot_4_occupied=true,slot_5_occupied=true]')
+    for z in (58, 59):                                                        # behind him: the stock shelves
+        for y in (W, W + 1): put(58, y, z, 'bookshelf')
+        put(58, W + 2, z, 'chiseled_bookshelf[facing=west,slot_0_occupied=true,slot_1_occupied=true,slot_2_occupied=false,slot_3_occupied=true,'
+                          'slot_4_occupied=false,slot_5_occupied=true]')
+    for (x, z) in ((58, 56), (58, 57), (58, 60), (58, 61)):                   # his stock, in barrels to the ceiling
+        put(x, W, z, 'barrel[facing=up,open=false]'); put(x, W + 1, z, 'barrel[facing=west,open=false]')
+    put(58, W + 2, 57, 'wither_skeleton_skull[powered=false,rotation=4]'); put(58, W + 2, 60, 'skeleton_skull[powered=false,rotation=4]')
+    put(57, W, 56, 'water_cauldron[level=3]'); put(57, W, 61, 'decorated_pot[cracked=false,facing=west,waterlogged=false]')
+    put(54, W, 56, 'barrel[facing=up,open=false]'); put(54, W + 1, 56, 'brewing_stand[has_bottle_0=true,has_bottle_1=true,has_bottle_2=false]')
+    put(54, W, 61, 'barrel[facing=up,open=false]'); put(54, W + 1, 61, 'black_candle[candles=4,lit=true,waterlogged=false]')
+    put(55, W + 2, 58, 'soul_lantern[hanging=true,waterlogged=false]'); put(57, W + 2, 59, 'soul_lantern[hanging=true,waterlogged=false]')
     # Cecil's tent (a purple fortune teller's tent, open to the lane)
     for x in range(51, 55):
         for z in range(69, 73):

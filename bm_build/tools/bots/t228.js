@@ -22,7 +22,7 @@ const res = [];
   const O = 'execute in minecraft:overworld run ';
   const X = 13480, Y = 121, Z = 13400;
   const CX = 24000, CY = 30, CZ = 24000, W = 10;
-  const VX = CX + 53.5, VY = CY + W, VZ = CZ + 51.5;
+  const VX = CX + 57.5, VY = CY + W, VZ = CZ + 58.5;
   const VES = `@e[type=minecraft:villager,tag=bm.vesper,x=${VX},y=${VY},z=${VZ},distance=..3,limit=1]`;
   const STK = '@e[type=minecraft:zombie,tag=bm.stalker,limit=1]';
   const uuidEnt = async sel => { const m = (await run(`${O}data get entity ${sel} UUID`)).match(/\[I; (-?\d+), (-?\d+), (-?\d+), (-?\d+)\]/); if (!m) return null;
@@ -57,8 +57,8 @@ const res = [];
   // ================================================================== 1. Vesper: the Golden Cross and the Dread Bell
   await run(`${O}forceload add ${CX + 16} ${CZ + 8} ${CX + 72} ${CZ + 64}`);
   await run('loot replace entity TestRat hotbar.8 loot bm:items/market_key'); await run('loot replace entity TestRat hotbar.7 loot bm:items/bankers_card');
-  await at(VX, VY, VZ + 2.5, 180, 10);
-  ok('(staged) hard mode, a King-slayer: Vesper at his stall', await wait(25000, async () => passes(`${O}execute if entity ${VES}`), 500));
+  await at(VX - 2, VY, VZ, -90, 10);
+  ok('(staged) hard mode, a King-slayer: Vesper in his shop', await wait(25000, async () => passes(`${O}execute if entity ${VES}`), 500));
   await run('loot give TestRat loot bm:items/dread_token');
   for (let i = 0; i < 3; i++) await run('loot give TestRat loot bm:items/dread_essence');
   await sleep(2500);                                                    // (his window opens for King-slayers within the second)

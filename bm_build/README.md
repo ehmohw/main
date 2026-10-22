@@ -21,6 +21,15 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.89b: Vesper's shop
+
+**Vesper has moved into Night Alley.** The Dread Broker no longer works from a stall on the Fountain Plaza. He has taken the empty nether-brick house in Night Alley, just south of his old stall, and made it his own:
+- **the shop floor** by the door, with a red-and-black rug, a brewing stand and candles;
+- **his counter** across the room: polished blackstone, a lantern that burns with soul fire while he's in, and **his stock book** (the book you right-click for his services, now titled VESPER'S STOCK BOOK);
+- **the backroom** behind him: shelves of stock, barrels to the ceiling, skulls, a cauldron, an old pot, and soul lanterns hanging over it all.
+
+As before, he's only there while the world is in hard mode, and the shop stands dressed and empty otherwise. Existing markets rebuild themselves to the new layout the next time someone walks in, and anything left at his old stall goes.
+
 ## New in 2.89a: the Stalker's eyes
 
 **The Stalker's eyes glow.** A tiny red point sits at the centre of each of its black eyes, lit from within, so it shows in the dark: on a Dread Night you may see the two pinpricks before you see the rest of it. The same goes for the hidden follower, its figurines and its doll.

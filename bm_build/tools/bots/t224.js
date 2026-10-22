@@ -1,6 +1,6 @@
 // 2.84a: VESPER, THE DREAD BROKER, and DREAD TOKENS - as a regular (non-op) player. (The test server keeps hard mode off -
 // #hardoff 1 - so rcon turns it on for the stage, and off again at the end.)
-//   Vesper: in the red-and-white stall on the plaza of t162's market only while hard mode is on; his Ledger (the book on his counter).
+//   Vesper: in his own shop in Night Alley (t162's market) only while hard mode is on; his stock book (the Ledger, on his counter).
 //   trading: 10 Trophies -> 2 Dread Tokens at his window (5 a token, exact - not the market's discount).
 //   the Rat Bank: Dread Tokens kept like a currency; the Exchange swaps 5 banked Trophies for one; the savings page pays 2%.
 //   the Ledger: Ward I for the followers (paid from the pockets, then the bank) - and on a follower of the player's, the armour
@@ -28,7 +28,7 @@ const res = [];
   const hold = async (ms) => { A.use(); await sleep(ms); A.release(); await sleep(600); };       // (a consumable: held down for its time)
   // (t162's market: template (x, y, z) is the world's (CX + x, CY + y, CZ + z))
   const CX = 24000, CY = 30, CZ = 24000, W = 10;
-  const VX = CX + 53.5, VY = CY + W, VZ = CZ + 51.5;                  // Vesper's spot; his Ledger on the counter, a block south-west of him
+  const VX = CX + 57.5, VY = CY + W, VZ = CZ + 58.5;   // Vesper's spot; his Ledger on the counter, a block south-west of him (2.89b: his shop in Night Alley)
   const VES = `@e[type=minecraft:villager,tag=bm.vesper,x=${VX},y=${VY},z=${VZ},distance=..3,limit=1]`;
   const LED = `@e[type=minecraft:interaction,tag=bm.vledger,x=${VX - 1},y=${VY + 1},z=${VZ + 1},distance=..2,limit=1]`;
   const saved = { owed: await sc('#owed', 'bm.auc'), conq: await sc('TestRat', 'bm.conq') };
@@ -42,11 +42,11 @@ const res = [];
   await run('loot replace entity TestRat hotbar.8 loot bm:items/market_key'); await run('loot replace entity TestRat hotbar.7 loot bm:items/bankers_card');
   for (const o of ['bm.fward', 'bm.fvig', 'bm.fret', 'bm.bk_dread', 'bm.bk_tro']) await run(`scoreboard players set TestRat ${o} 0`);
   await run('scoreboard players set TestRat bm.conq 6');           // (2.84d: his trades are only for those who beat the Hollow King)
-  await at(VX, VY, VZ + 2.5, 180, 10);
+  await at(VX - 2, VY, VZ, -90, 10);
 
   // ================================================================== 1. Vesper comes with hard mode
   await run('scoreboard players set #hard bm.cfg 1');
-  ok('Hard mode on: Vesper stands in the stall', await wait(25000, async () => passes(`${O}execute if entity ${VES}`), 500));
+  ok('Hard mode on: Vesper stands behind his counter, in his shop', await wait(25000, async () => passes(`${O}execute if entity ${VES}`), 500));
   ok('...and his Ledger lies on the counter in front of him', await wait(5000, async () => passes(`${O}execute if entity ${LED}`)));
   ok('...named Vesper, the Dread Broker', /Vesper/.test(await run(`${O}data get entity ${VES} CustomName`)));
 
@@ -90,7 +90,7 @@ const res = [];
      `ward ${await sc('TestRat', 'bm.fward')}, ${await has('dread_token')} in hand, ${await sc('TestRat', 'bm.bk_dread')} banked`);
   // (a follower of the player's: a stand-in host with the player's id - the second loop finds it like any wolf follower)
   const pid = await sc('TestRat', 'bm.pid');
-  await run(`${O}summon minecraft:wolf ${VX + 3} ${VY} ${VZ + 4} {Tags:["bm.cecilpet","bm.t224"],NoAI:1b,Silent:1b,PersistenceRequired:1b}`);
+  await run(`${O}summon minecraft:wolf ${VX - 2} ${VY} ${VZ - 2} {Tags:["bm.cecilpet","bm.t224"],NoAI:1b,Silent:1b,PersistenceRequired:1b}`);
   await run(`${O}scoreboard players set @e[type=minecraft:wolf,tag=bm.t224,limit=1] bm.pid ${pid}`);
   ok('...a follower of the player\'s takes the ward (+3 armour)', await wait(4000, async () => (+((await run(`${O}attribute @e[type=minecraft:wolf,tag=bm.t224,limit=1] minecraft:armor get`)).match(/(-?[\d.]+)(?!.*\d)/) || [0, 0])[1]) >= 3),
      await run(`${O}attribute @e[type=minecraft:wolf,tag=bm.t224,limit=1] minecraft:armor get`));
@@ -170,12 +170,12 @@ const res = [];
   ok('The Echo of the Hollow King: a conqueror\'s record steps back to 5 (the King waits again)', (await sc('TestRat', 'bm.conq')) === 5 && (await has('hollow_echo')) === 0, `${await sc('TestRat', 'bm.conq')}`);
 
   // ================================================================== 6. (2.84d) the record stepped back: his wares veiled, his Ledger shut
-  await at(VX, VY, VZ + 2.5, 180, 10);
+  await at(VX - 2, VY, VZ, -90, 10);
   const veiled = async () => passes(`${O}execute if data entity ${VES} Offers.Recipes[{maxUses:0,sell:{id:"minecraft:paper"}}]`);
-  ok('Back at the stall with conquest 5: every one of Vesper\'s trades is veiled', await wait(4000, veiled) &&
+  ok('Back at his counter with conquest 5: every one of Vesper\'s trades is veiled', await wait(4000, veiled) &&
      !(await passes(`${O}execute if data entity ${VES} Offers.Recipes[1]`)), (await run(`${O}data get entity ${VES} Offers.Recipes[0].sell.id`)).slice(-60));
-  A.chats.length = 0; A.interact(await uuidEnt(LED)); await sleep(1200);
-  ok('...and his Ledger says no: it is for those who felled the Hollow King', /felled the Hollow King/.test(A.chats.join(' ')), A.chats.join(' | ').slice(-160));
+  A.chats.length = 0; A.bars.length = 0; A.interact(await uuidEnt(LED)); await sleep(1200);
+  ok('...and his Ledger says no: it is for those who felled the Hollow King', /felled the Hollow King/.test(A.chats.concat(A.bars).join(' ')), A.chats.concat(A.bars).join(' | ').slice(-160));
   await run('scoreboard players set TestRat bm.conq 6');
   ok('...the King beaten again (conquest 6): the trades are back', await wait(4000, async () => !(await veiled()) &&
      await passes(`${O}execute if data entity ${VES} Offers.Recipes[{sell:{components:{"minecraft:custom_data":{bm:"dread_token"}}}}]`)));

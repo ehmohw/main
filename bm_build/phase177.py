@@ -1,10 +1,10 @@
-"""2.84a (part two): VESPER, THE DREAD BROKER - hard mode's trader, in the Fountain Plaza's red-and-white stall, and DREAD TOKENS.
+"""2.84a (part two): VESPER, THE DREAD BROKER - hard mode's trader, in his own shop in Night Alley (2.89b; a plaza stall before), and DREAD TOKENS.
 
 DREAD TOKENS   5 Black Market Trophies make one, and one breaks back into 5 (Vesper, or the Banker's Card's Exchange page
                once the world has turned). The Rat Bank keeps them like any currency - savings pay 2% a day (1 per 50
                kept), never more than 2 a day. Dread mobs never drop them.
-VESPER         stands in the stall only while hard mode is on. Right-click him to trade; the black book on his counter
-               (VESPER'S LEDGER) opens his services. What he deals in:
+VESPER         stands behind his counter only while hard mode is on. Right-click him to trade; the black book on his counter
+               (VESPER'S STOCK BOOK) opens his services. What he deals in:
   THE LEDGER   FOLLOWERS' WARDS   Ward I-III (+3 armour, +1 toughness a level) and Vigor I-III (+10% health a level) on every
                                   follower you call - at home and on a heist - and Swift Return I-II (a faint rests 80 s,
                                   then 45 s, instead of 2 minutes).
@@ -36,10 +36,11 @@ import phase62 as P62
 DREAD = '#b0102a'
 DREAD_D = '#5a0812'
 BONE = '#d8c8b0'
-VESPER_POS = (53.5, market3.W, 51.5)            # behind the counter of the red-and-white stall on the Fountain Plaza's ring (its east side), facing south
-LEDGER_POS = (52.5, market3.W + 1.0, 52.5)      # his book, on the counter's left barrel
-LANTERN_POS = (53.5, market3.W + 1.0, 52.5)     # the counter's lantern (a soul lantern while he's there)
-for _p, _w in ((VESPER_POS, 'Vesper'), ((53.5, market3.W, 53.5), "Vesper's customers")): mgeo.need_air(_p, _w)
+VESPER_POS = (57.5, market3.W, 58.5)            # (2.89b) in his own shop in Night Alley (the nether-brick house): behind his counter, facing west
+LEDGER_POS = (56.5, market3.W + 1.0, 59.5)      # his stock book, on the counter at his left
+LANTERN_POS = (56.5, market3.W + 1.0, 57.5)     # the counter's lantern (a soul lantern while he's there)
+OLD_POS = ((53.5, market3.W, 51.5), (52.5, market3.W + 1.0, 52.5), (53.5, market3.W + 1.0, 52.5))   # (his stall on the Fountain Plaza, before 2.89b)
+for _p, _w in ((VESPER_POS, 'Vesper'), ((55.5, market3.W, 58.5), "Vesper's customers"), (LEDGER_POS, "Vesper's stock book")): mgeo.need_air(_p, _w)
 MENU = 3200                                     # (his block: 3200-3299)
 TPD = 5                                         # Trophies to a Dread Token
 
@@ -292,8 +293,9 @@ def generate(G):
                        'execute unless score @s bm.bk_dread matches 0.. run scoreboard players set @s bm.bk_dread 0',
                        'scoreboard players operation #dw bm.pay += @s bm.bk_dread', 'execute store result storage bm:ui vs.dt int 1 run scoreboard players get #dw bm.pay'])
 
-    # ---------------------------------------------------------------- Vesper and his stall (only while the world is in hard mode)
+    # ---------------------------------------------------------------- Vesper and his shop (only while the world is in hard mode)
     vpos, lpos, lnpos = mgeo.rel(VESPER_POS), mgeo.rel(LEDGER_POS), mgeo.rel(LANTERN_POS)
+    ovpos, olpos, olnpos = (mgeo.rel(p) for p in OLD_POS)
     vesper = {'Tags': ['bm.npc', 'bm.vesper', 'bm.npc_dread'], 'NoAI': B(1), 'Invulnerable': B(1), 'Silent': B(1), 'PersistenceRequired': B(1),
               'CustomName': T('Vesper, the Dread Broker', DREAD, bold=True), 'CustomNameVisible': B(1),
               'VillagerData': {'type': 'minecraft:swamp', 'profession': 'minecraft:cleric', 'level': Int(5)},
@@ -304,7 +306,7 @@ def generate(G):
             'transformation': {'left_rotation': [F(-0.7071), F(0), F(0), F(0.7071)], 'right_rotation': ident, 'translation': [F(0), F(0.03), F(0)], 'scale': [F(0.55)] * 3}}
     box = {'Tags': ['bm.vledger', 'bm.npc'], 'width': F(0.7), 'height': F(0.5), 'response': B(1)}
     sign = {'Tags': ['bm.vledger_t', 'bm.npc'], 'billboard': 'center', 'background': Int(0x70000000), 'view_range': F(0.3),
-            'text': [T("VESPER'S LEDGER\n", DREAD, bold=True), T('right-click: services', 'gray')],
+            'text': [T("VESPER'S STOCK BOOK\n", DREAD, bold=True), T('right-click: services', 'gray')],
             'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(0.55), F(0)], 'scale': [F(0.4)] * 3}}
     fn('p177/spawn', [f'summon minecraft:villager ~ ~ ~ {snbt(vesper)}', 'tp @e[type=minecraft:villager,tag=bm.vesper,distance=..1,limit=1] ~ ~ ~ ~ 0',
                       'playsound minecraft:ambient.soul_sand_valley.mood ambient @a[distance=..24] ~ ~ ~ 1 0.7',
@@ -320,7 +322,11 @@ def generate(G):
               f'execute unless score #hard bm.cfg matches 1 positioned {vpos} run kill @e[tag=bm.vesper,distance=..3]',
               f'execute unless score #hard bm.cfg matches 1 positioned {lpos} run kill @e[tag=bm.vledger,distance=..1]',
               f'execute unless score #hard bm.cfg matches 1 positioned {lpos} run kill @e[tag=bm.vledger_d,distance=..1]',
-              f'execute unless score #hard bm.cfg matches 1 positioned {lpos} run kill @e[tag=bm.vledger_t,distance=..1]']
+              f'execute unless score #hard bm.cfg matches 1 positioned {lpos} run kill @e[tag=bm.vledger_t,distance=..1]',
+              # (2.89b: he moved from his plaza stall into his own shop - whatever was left at the stall goes, its lantern back to plain)
+              f'execute positioned {ovpos} run kill @e[tag=bm.vesper,distance=..1.5]',
+              *(f'execute positioned {olpos} run kill @e[tag={t},distance=..0.8]' for t in ('bm.vledger', 'bm.vledger_d', 'bm.vledger_t')),
+              f'execute positioned {olnpos} if block ~ ~ ~ minecraft:soul_lantern run setblock ~ ~ ~ minecraft:lantern']
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[tag=bm.vesper]', 'kill @e[tag=bm.vledger]', 'kill @e[tag=bm.vledger_d]', 'kill @e[tag=bm.vledger_t]']
     fast += ['execute as @e[type=minecraft:interaction,tag=bm.vledger] if data entity @s interaction at @s run function bm:p177/ledger_click',
              'execute as @e[type=minecraft:interaction,tag=bm.vledger] if data entity @s attack run data remove entity @s attack']
@@ -334,7 +340,7 @@ def generate(G):
 
     # ---------------------------------------------------------------- the Ledger: his services
     B_ = lambda lbl, code, w=180, tip=None: P28.btn(lbl, code, tooltip=tip, width=w)
-    main = P28.multi([T("VESPER'S LEDGER", DREAD, bold=True), T('  ·  the Dread Broker', 'gray')],
+    main = P28.multi([T("VESPER'S STOCK BOOK", DREAD, bold=True), T('  ·  the Dread Broker', 'gray')],
                      [P28.body([T('"Sit. Sign nothing yet. Read."', '#c8a0a0', italic=True)], 320),
                       P28.body([T('You have ', 'gray'), T('$(dt)', DREAD, bold=True), T(' Dread Tokens (pockets and Rat Bank).', 'gray')], 320),
                       P28.body([T(f'Trade with Vesper himself (right-click him): {TPD} Trophies for a Dread Token and back, maps, writs, summonses and the long work.', 'dark_gray')], 320)],
