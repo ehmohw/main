@@ -49,13 +49,16 @@ def generate(G):
                      'title @a times 10 70 30', title('@a', 'title', T('HARD MODE', DREAD, bold=True)),
                      title('@a', 'subtitle', T('Something older than the Hollow King has noticed you.', '#c8a0a0', italic=True)),
                      'schedule function bm:p176/wake_say 4s'])
-    fn('p176/wake_say', [tellraw('@a', P + [T('The Hollow King is felled - and what made him turns its eye on this world.', DREAD, bold=True)]),
-                         tellraw('@a', [T('  • ', DREAD_D), T('Blood Moons rise every 15 days.', 'gray')]),
-                         tellraw('@a', [T('  • ', DREAD_D), T('Elites and Champions walk far more often; most monsters come out with Strength and Resistance.', 'gray')]),
-                         tellraw('@a', [T('  • ', DREAD_D), T('DREAD monsters hunt the dark. ', DREAD, bold=True),
-                                        T('When one gathers itself - a red ring at its feet, or souls falling on you - move.', 'gray')]),
-                         tellraw('@a', [T('  • ', DREAD_D), T('A new trader has taken an empty stall in the Black Market.', 'gray')]),
-                         tellraw('@a', [T('  • ', DREAD_D), T('Dungeon bosses fight harder for anyone who has beaten the King - and keep new things for them.', 'gray')])])
+    fn('p176/wake_say', [tellraw('@a', P + [T('The Hollow King has fallen, and the power behind his throne has turned its gaze on this world.', DREAD, bold=True)]),
+                         tellraw('@a', [T('  Hard mode is on:', '#c8a0a0', italic=True)]),
+                         tellraw('@a', [T('  • ', DREAD_D), T('Monsters are tougher. Elites and Champions appear far more often, and most others carry Strength and Resistance.', 'gray')]),
+                         tellraw('@a', [T('  • ', DREAD_D), T('A Blood Moon rises every ', 'gray'), {'score': {'name': '#bmper', 'objective': 'bm.cfg'}, 'color': 'gray'}, T(' days.', 'gray')]),
+                         tellraw('@a', [T('  • ', DREAD_D), T('DREAD monsters stalk the dark. ', DREAD, bold=True),
+                                        T('When one winds up (a red ring at its feet, or souls falling from above), get out of the way.', 'gray')]),
+                         tellraw('@a', [T('  • ', DREAD_D), T('Kill enough of them and a Dread Night will fall.', 'gray')]),
+                         tellraw('@a', [T('  • ', DREAD_D), T('Vesper, the Dread Broker, has opened a shop in Night Alley, in the Black Market.', 'gray')]),
+                         tellraw('@a', [T('  • ', DREAD_D), T('Dungeon bosses fight harder for anyone who has beaten the King, and drop new rewards for them.', 'gray')]),
+                         tellraw('@a', [T('  • ', DREAD_D), T('New followers and three Dread bosses are waiting to be found.', 'gray')])])
     # an operator's switch (admin/settings): off stays off until switched on again
     fn('admin/set/hard_0', ['scoreboard players set #hard bm.cfg 0', 'scoreboard players set #hardoff bm.cfg 1', 'function bm:admin/settings'])
     fn('admin/set/hard_1', ['scoreboard players set #hardoff bm.cfg 0', 'scoreboard players set #hard bm.cfg 1', 'function bm:admin/settings'])

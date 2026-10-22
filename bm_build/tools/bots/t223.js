@@ -38,7 +38,9 @@ const res = [];
   ok('...a HARD MODE title on screen', await wait(3000, async () => titles.some(t => /HARD MODE/.test(t))), titles.slice(-1).join(''));
   ok('...and a moment of darkness', /darkness/.test(await run('data get entity TestRat active_effects')));
   ok('...Blood Moons every 15 days now', (await sc('#bmper', 'bm.cfg')) === 15, `${await sc('#bmper', 'bm.cfg')}`);
-  ok('...the word: what has changed (Dread monsters, the new trader)', await wait(6000, async () => A.chats.some(c => /DREAD monsters/.test(c)) && A.chats.some(c => /new trader/.test(c))));
+  ok('...the word: what has changed (Dread monsters, the Blood Moon every 15 days, Vesper\'s shop)', await wait(6000, async () => A.chats.some(c => /power behind his throne/.test(c)) &&
+     A.chats.some(c => /DREAD monsters stalk/.test(c)) && A.chats.some(c => /Blood Moon rises every 15 days/.test(c)) && A.chats.some(c => /Vesper, the Dread Broker, has opened a shop in Night Alley/.test(c))),
+     A.chats.slice(-9).join(' | ').slice(0, 400));
 
   // ================================================================== 2. the night's monsters roll again
   await run(`${O}kill @e[type=minecraft:zombie,distance=..30,x=${X},y=${Y},z=${Z}]`);

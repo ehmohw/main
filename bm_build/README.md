@@ -21,6 +21,17 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.90a: a clearer hard-mode announcement
+
+**The message when hard mode wakes reads plainly now**, and it's up to date:
+- "The Hollow King has fallen, and the power behind his throne has turned its gaze on this world," then a short list under **Hard mode is on**.
+- **Tougher monsters:** Elites and Champions appear far more often, and most other monsters carry Strength and Resistance.
+- **The Blood Moon** line shows your world's real interval (it used to say 15 days whatever the setting).
+- **Dread monsters:** how to dodge their attacks (a red ring at its feet, or souls falling from above), and that killing enough of them brings a Dread Night.
+- **Vesper:** his shop in Night Alley (the old message still sent you to "an empty stall").
+- **Dungeon bosses** fight harder for King-slayers and drop new rewards for them.
+- **New followers and three Dread bosses** are waiting to be found.
+
 ## New in 2.90: Mr. Capshun, the narrator
 
 **Mr. Capshun** (from the owner's sketch) is a stick figure, and completely flat: a pencil-shaded disc of a head with two empty oval eyes and worried brows, and thin black lines for everything else. Turn him side-on and he all but vanishes (he knows; one of his idles is doing exactly that). He's one of the **Buddies**, the strange folk born of pure imagination, like Fishy, the Count, Eggbert and Batty. Nobody knows quite how the Buddies came to be, only that the Ethereal Gem had something to do with it.
