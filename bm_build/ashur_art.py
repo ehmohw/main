@@ -116,16 +116,16 @@ def _face(kind=None):
         for x in range(36): px[x, y] = P(SKIN_DK)
     LINE, BROW, WHITE = P('#2a0e10'), P('#7a1608'), P('#fff8f0')
     IR, IR_LT, PUP = P('#5a2aa0'), P('#9a6ae0'), P('#14081e')
-    W, BOT = 9, 25                                                           # eye width; the row of the lowest point
+    W, BOT = 11, 26                                                          # eye width; the row of the lowest point (2.88: bigger)
     slope = {'fierce': 0.42, 'shout': 0.3, 'hurt': -0.15, 'grin': 0.32}.get(kind, 0.36)
     for flip in (False, True):
-        x0 = 5 if not flip else 22                                           # the eye's outer-left pixel (her right eye on the left)
+        x0 = 4 if not flip else 21                                           # the eye's outer-left pixel (her right eye on the left)
         cols = []
         for i in range(W):
             t = i / (W - 1)                                                  # 0 outer corner .. 1 inner corner (mirrored for her left)
             u = t if not flip else 1 - t
-            top = 16 + round(u * slope * 6)                                  # the lid: higher at the outside, down toward the nose
-            bot = BOT - round(4.0 * (2 * t - 1) ** 2)                         # the rounded bottom
+            top = 14 + round(u * slope * 6)                                  # the lid: higher at the outside, down toward the nose
+            bot = BOT - round(4.5 * (2 * t - 1) ** 2)                         # the rounded bottom
             cols.append((x0 + i, top, bot))
         if kind == 'blink':
             for x, top, bot in cols: px[x, (top + bot) // 2] = LINE; px[x, (top + bot) // 2 + 1] = LINE
@@ -148,7 +148,7 @@ def _face(kind=None):
         for i in range(W + 1):
             t = i / W; u = t if not flip else 1 - t
             x = x0 - 1 + i
-            y = 12 + round(u * (slope + 0.18) * 7) if kind != 'hurt' else 13 - round(u * 3)
+            y = 10 + round(u * (slope + 0.18) * 7) if kind != 'hurt' else 11 - round(u * 3)
             px[x, y] = BROW; px[x, y + 1] = BROW
     px[18, 26] = P(SKIN_DK); px[18, 27] = P(SKIN_DK)                                # the nose
     for x, y in ((31, 28), (32, 29)): px[x, y] = P('#6a4a40')                       # a smudge of ash

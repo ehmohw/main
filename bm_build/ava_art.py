@@ -386,8 +386,9 @@ POSES = {
                  arml=limb(-1, 10, 34), forel=limb(-1, 20)),
     'wave_a': P(_face='happy', **dict(IDLE, arml=limb(-1, 10, 120), forel=limb(-1, 50), head=qs(('y', 8)))),
     # sitting: on the ground, the gown spread round her (the body sinks; the skirt folds down into the floor with it)
-    'sit_a': P(_off=(0, -5.6, 0), legr=limb(1, 84, 6), legl=limb(-1, 84, 6), head=qs(('y', -8), ('z', 4)), **CLASP),
-    'sit_b': P(_face='blink', _off=(0, -5.7, 0), body=qs(('x', 4)), legr=limb(1, 84, 6), legl=limb(-1, 84, 6), head=qs(('x', 10), ('z', -6)), **CLASP),
+    # (2.88: her legs only part-way out, so just the slipper toes peek from under the hem - not up through the skirt's front)
+    'sit_a': P(_off=(0, -5.6, 0), legr=limb(1, 68, 8), legl=limb(-1, 68, 8), head=qs(('y', -8), ('z', 4)), **CLASP),
+    'sit_b': P(_face='blink', _off=(0, -5.7, 0), body=qs(('x', 4)), legr=limb(1, 64, 10), legl=limb(-1, 72, 6), head=qs(('x', 10), ('z', -6)), **CLASP),
     'hurt': P(_face='hurt', body=qs(('x', -8)), head=qs(('x', -12)), armr=limb(1, 40, 30), forer=limb(1, 60), arml=limb(-1, 40, 30), forel=limb(-1, 60)),
     'tired': P(_face='hurt', _off=(0, -0.8, 0), body=qs(('x', 12), ('z', -4)), head=qs(('x', 16)), armr=limb(1, 0, 6), arml=limb(-1, 0, 6),
                forer=limb(1, 10), forel=limb(-1, 10)),

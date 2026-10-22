@@ -227,6 +227,13 @@ def models():
         tex = 'bo_face' if face is None else f'bo_face_{face}'
         h = [el((-HW, HB, -HZ + 0.2), (HW, HT, HZ), 'bo_fur', pv, shift=(0.2, 0.3)),
              el((-HW, HB, -HZ + 0.18), (HW, HT, -HZ + 0.2), tex, pv, faces=('north',), uv={'north': [0, 0, 10, 6.75]})]
+        # the snout: a cat's muzzle standing out of the face - the painted nose and snarl carried forward onto it, a bridge
+        # up to the brow
+        SX, SB, ST, SD = 3.0, HB + 0.02, 31.95, 1.3                 # (below the eyes: the nose and the whole snarl)
+        u = lambda x: x + HW; v = lambda y: HT - y
+        h += [el((-SX, SB, -HZ - SD + 0.02), (SX, ST, -HZ + 0.2), 'bo_fur', pv, shift=(0.4, 0.5)),
+              el((-SX, SB, -HZ - SD), (SX, ST, -HZ - SD + 0.02), tex, pv, faces=('north',), uv={'north': [u(-SX), v(ST), u(SX), v(SB)]}),
+              el((-0.75, ST, -HZ - 0.8), (0.75, ST + 1.2, -HZ + 0.2), 'bo_fur', pv, shift=(0.6, 0.2))]
         for sx in (-1, 1):                                                                   # the cheek tufts, standing out from the jaw
             h += [el((sx * HW - (0.0 if sx > 0 else 1.4), HB + 0.6, -HZ + 0.6), (sx * HW + (1.4 if sx > 0 else 0.0), HB + 3.2, -HZ + 3.0), 'bo_mane', pv,
                      rot=('z', 22.5 * sx, (sx * HW, HB + 1.8, 0)), shift=(0.3, 0.3))]

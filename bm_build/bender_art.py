@@ -57,7 +57,7 @@ def _back():
 
 def _face(kind=None):
     """the front of his head (28 x 24 texels at uv [0, 0, 7, 6]; the muzzle box covers columns 6-21 of rows 12-23, so the eyes sit
-    above it): fawn forehead with its dark streak, tan brow spots, the charcoal mask round the eyes (soft at its edges,
+    above it): fawn forehead with its dark streak, the charcoal mask round the eyes (fading out above them - no brows,
     grey-flecked) running down under the muzzle, and big almond brown eyes - a dark rim, a warm iris, the pupil, a white glint
     and a pale lower lid"""
     im = _fur(3102, FAWN, 40); px = im.load()
@@ -69,15 +69,14 @@ def _face(kind=None):
     for y in range(5, 24):                                                                   # the mask: round the eyes and down
         for x in range(28):
             dx = abs(x - 13.5)
-            band = (5 <= y <= 13 and 2.5 <= dx <= 11.5) or (y >= 11 and dx <= 8)
+            band = (6 <= y <= 13 and 3.0 <= dx <= 11.0) or (y >= 11 and dx <= 8)
             if band:
                 c = MASK if rnd.random() < 0.8 else MASK_GR
-                if y <= 6 and rnd.random() < 0.5: c = FAWN_DK                                # (soft at the top edge)
+                if y == 6 and rnd.random() < 0.75: continue                                  # (no hard line over the eyes: the
+                if y == 7 and rnd.random() < 0.35: c = FAWN_DK                               #  mask fades into the fawn - not a brow)
                 P(x, y, c)
     for sx in (-1, 1):
         x0 = 5 if sx < 0 else 18                                                             # (columns x0..x0+4)
-        for x in range(x0 + 1, x0 + 4): P(x, 4, '#e2b47c')                                   # the tan brow spot
-        P(x0 + 2, 3, '#e2b47c')
         if kind == 'blink':
             for x in range(x0, x0 + 5): P(x, 9, '#120c08')
             for x in range(x0 + 1, x0 + 4): P(x, 10, '#8a7a6a')

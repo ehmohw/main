@@ -49,6 +49,18 @@ Both have the full set: a menu, sitting (right-click), a frame trick, a display-
 - **Bender + Dennis, "Digging Buddies":** Haste II and Luck II.
 - **Bender + Bones, "Land and Sea":** Speed and Dolphin's Grace; monsters round you weakened.
 
+**The Partner Wheel:** each partner's row now has a **⚙ Menu** button. It opens that follower's own menu (buffs and roles, wardrobe and cosmetics, everything the summon item's sneak-use opens) while the item stays on the wheel.
+
+**Dread monsters are more common:** 4% of hard-mode monsters (was 1.2%). On a **Blood Moon** in hard mode, 15% of the Overworld's monsters come up Dread (before, Blood Moons had their own roll and no Dreads at all). As before, they only roll near someone who has felled the Hollow King.
+
+**Model fixes:**
+- **Bloo** has a cat-like snout, carrying his nose and snarl.
+- **Ashur's** eyes are bigger.
+- **Bender** no longer looks like he has eyebrows: the tan spots over his eyes are gone, and his mask fades out at the top instead of ending in a hard line.
+- **Queen Pearl** sits properly now: down on the ground, legs out, with her dress over her lap (the shift to her knees, the gown down to her slippers). It used to hang stiff below her like a stool, with her legs poking through the front.
+- **Queen Ava**, sitting, keeps her gown pooled round her; only her slipper toes peek out at the hem now, not up through the front of the skirt.
+- **The Malevolent Snowbeast** looks as drawn: its jaws are unhinged, a white snow jaw dropped low with fangs, and the cyan is only the inside of its mouth. The old block of ice sat half inside its chest and face. Its hat sits on its head now instead of sunk into it (the head poked through the brim when it tipped), and its arms no longer vanish into its head in the slam.
+
 **Fixes:**
 - Vesper no longer talks in the chat. His mutterings show in the action bar now, and much less often.
 - **Dennis's Ore Magnet and Pistachio's Spirit Jar work like satchels now.** Carried anywhere in your pack, each gathers its own kind within 8 blocks into itself (ores, metals and gems; mob drops), not into your pockets. Right-click to unfold it into a barrel (27 slots) and take things out; sneak or walk away to pack it up. No more switching on and off. When it's full it says so and leaves the rest on the ground.

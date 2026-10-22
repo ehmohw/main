@@ -63,6 +63,12 @@ const res = [];
   ok('...Call Emma: she comes', await wait(4000, async () => passes(`${O}execute if entity ${emma}`)));
   await sleep(5000);
   ok('...and stays (the ribbon is on the wheel, not in a pocket)', await passes(`${O}execute if entity ${emma}`));
+  // 2.88: the wheel's Menu button opens her own menu (her roles and buffs, her wardrobe) - the ribbon itself is on the wheel
+  await A.useWait(1500);
+  const mb = await A.press(/Menu/); await sleep(700);
+  const ml = A.buttons().map(b => b.label);
+  ok('...the wheel\'s Menu: Emma\'s own menu opens (not the wheel\'s page)', !!mb && mb.next && ml.length >= 3 && !ml.some(l => /Take the item back/.test(l)), ml.join(' | ').slice(0, 220));
+  A.closeDialog && A.closeDialog(); await sleep(300);
   await A.useWait(1500);
   await press(/Send Emma home/);
   ok('...Send Emma home: she goes', await wait(4000, async () => !(await passes(`${O}execute if entity ${emma}`))));

@@ -308,6 +308,9 @@ def generate(G):
         L[:] = out
     assert all(patched.values()), {w: n for w, n in patched.items() if not n}
 
+    G.wjson('bm/predicate/p179/sneak.json', {'condition': 'minecraft:any_of', 'terms': [
+        {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:flags': {'is_sneaking': True}}},
+        {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'nbt': '{Tags:["bm.pwsneak"]}'}}]})
     fn('p179/w/use', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid'] +
        [f'execute if items entity @s weapon.offhand {holds(iid)} run return run function bm:p179/w/add{i}' for i, (*_r, iid) in enumerate(PW)] +
        ['function bm:p179/w/open'])
@@ -317,7 +320,7 @@ def generate(G):
                         P28.body([T('Hold a partner\'s summoning item in your off hand and use the wheel: it goes on. ', 'gray'),
                                   T('While you carry the wheel, your partners on it come when you call and stay with you.', 'gray')], 300)])
     full = P28.multi([T('Partner Wheel', PURPLE, bold=True)],
-                     [P28.body([T('Call a partner or send them home - or take their item back off the wheel.', 'gray')], 300)], '@@ACTS@@', columns=2)
+                     [P28.body([T('Call a partner or send them home, open their menu (wardrobe, buffs and choices) - or take their item back off the wheel.', 'gray')], 300)], '@@ACTS@@', columns=3)
     fn('p179/w/show', ['$dialog show @s ' + snbt(full).replace('"@@ACTS@@"', '$(acts)')])
     op = [f'scoreboard players set @s bm.menu {WMENU}', 'scoreboard players operation #me bm.pid = @s bm.pid', 'data modify storage bm:tmp pw.acts set value []']
     op += [f'execute if score @s bm.pw{i} matches 1 run function bm:p179/w/row{i}' for i in range(len(PW))]
@@ -333,9 +336,19 @@ def generate(G):
         b_call = P28.btn([T('Call ', 'white'), T(nm, col, bold=True)], WMENU + 10 + i, tooltip=T(f'Call {nm}', 'gray'))
         b_home = P28.btn([T(f'Send {nm} home', '#c8c8c8')], WMENU + 10 + i, tooltip=T(f'{cap(nm)} goes home', 'gray'))
         b_out = P28.btn(T('Take the item back', 'gray'), WMENU + 40 + i, tooltip=T(f'{it_nm} comes off the wheel', 'gray'))
+        b_menu = P28.btn([T('\u2699 ', col), T('Menu', 'white')], WMENU + 70 + i, tooltip=T(f'{cap(nm)}\'s own menu - the wardrobe, {WHO[w][1]} ways and choices (as sneak + using {it_nm})', 'gray'))
         fn(f'p179/w/row{i}', on + [f'execute if score #pwon bm.rng matches 0 run data modify storage bm:tmp pw.acts append value {snbt(b_call)}',
                                    f'execute if score #pwon bm.rng matches 1 run data modify storage bm:tmp pw.acts append value {snbt(b_home)}',
+                                   f'data modify storage bm:tmp pw.acts append value {snbt(b_menu)}',
                                    f'data modify storage bm:tmp pw.acts append value {snbt(b_out)}'])
+        # (2.88) the partner's own menu from the wheel - their wardrobe, their buffs and choices: their item's sneak + use, as if
+        # held (in their item's use, bm:p179/sneak: sneaking - or the tag bm.pwsneak, on only for this one call)
+        use_fn = HOLD[iid].split(':', 1)[1]
+        U = G.FUNCS[use_fn]
+        assert any('predicate bm:p20/sneaking' in l for l in U), (w, use_fn)
+        U[:] = [l.replace('predicate bm:p20/sneaking', 'predicate bm:p179/sneak') for l in U]
+        fn(f'p179/w/menu{i}', [f'execute unless score @s bm.pw{i} matches 1 run return run function bm:p28/stale', 'dialog clear @s',
+                               'scoreboard players set @s bm.gvhc 0', 'tag @s add bm.pwsneak', f'function bm:{use_fn}', 'tag @s remove bm.pwsneak'])
         fn(f'p179/w/call{i}', [f'execute unless score @s bm.pw{i} matches 1 run return run function bm:p28/stale',
                                'scoreboard players operation #me bm.pid = @s bm.pid'] + on +
            [f'execute if score #pwon bm.rng matches 1 run return run function bm:{home}', f'function bm:{try_}'])
@@ -356,7 +369,8 @@ def generate(G):
                                'data modify entity @e[type=minecraft:item,tag=bm.pwout,limit=1] Owner set from entity @s UUID',
                                'tag @e[type=minecraft:item,tag=bm.pwout] remove bm.pwout', f'$data remove storage bm:pw p$(pid).k{i}'])
         act += [f'execute if score #act bm.pay matches {WMENU + 10 + i} run return run function bm:p179/w/call{i}',
-                f'execute if score #act bm.pay matches {WMENU + 40 + i} run return run function bm:p179/w/out{i}']
+                f'execute if score #act bm.pay matches {WMENU + 40 + i} run return run function bm:p179/w/out{i}',
+                f'execute if score #act bm.pay matches {WMENU + 70 + i} run return run function bm:p179/w/menu{i}']
     assert len(PW) <= 30
     fn('p179/w/act', act)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {WMENU}..{WMENU + 99} run return run function bm:p179/w/act')

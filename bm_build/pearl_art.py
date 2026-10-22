@@ -256,11 +256,17 @@ def models():
         pv = PIVOT['legr' if sx > 0 else 'legl']; cx = pv[0]
         L = [el((cx - 1.0, 0.0, -2.2), (cx + 1.0, 0.9, 1.0), 'pq_flat', pv),
              el((cx - 0.85, 0.0, -3.1), (cx + 0.85, 0.6, -2.1), 'pq_flat', pv, shift=(0.5, 0.5))]
+        # (2.88: each leg wears its half of the skirt as a drape - hidden inside the skirt while she stands, over her lap when
+        #  she sits: the gown to the slippers, the shift to the knee; tapered, so a stride doesn't push it out through the hem)
+        uv = lambda tex, top, y0, y1: {f: [0, 16 - y1 / top * 16, 6, 16 - y0 / top * 16] for f in ('north', 'south', 'east', 'west', 'up', 'down')}
         if regal:
-            L.append(el((cx - 0.9, 0.8, -1.0), (cx + 0.9, 12.0, 0.9), 'pq_gown_top', pv))
+            L += [el((cx - 0.9, 0.8, -1.0), (cx + 0.9, 12.0, 0.9), 'pq_gown_top', pv),
+                  el((cx - 1.45, 6.0, -1.5), (cx + 1.45, 13.9, 1.5), 'pq_gown', pv, uv=uv('pq_gown', 13.6, 6.0, 13.6)),
+                  el((cx - 1.25, 1.0, -1.3), (cx + 1.25, 6.1, 1.3), 'pq_gown', pv, uv=uv('pq_gown', 13.6, 1.0, 6.1))]
         else:
             L += [el((cx - 0.95, 0.8, -0.95), (cx + 0.95, 7.8, 0.95), 'pq_skin', pv),
-                  el((cx - 1.0, 7.6, -1.0), (cx + 1.0, 13.2, 1.0), 'pq_skin', pv, shift=(0.3, 0.3))]
+                  el((cx - 1.0, 7.6, -1.0), (cx + 1.0, 13.2, 1.0), 'pq_skin', pv, shift=(0.3, 0.3)),
+                  el((cx - 1.4, 8.8, -1.2), (cx + 1.4, 13.9, 1.2), 'pq_dress', pv, uv=uv('pq_dress', 14.2, 8.8, 13.9))]
         return L
     for regal, sfx in ((False, ''), (True, '_r')):
         part(f'pq_legr{sfx}', leg(1, regal)); part(f'pq_legl{sfx}', leg(-1, regal))
@@ -313,9 +319,10 @@ POSES = {
     'bow': P(_face='wink', body=qs(('x', 24)), head=qs(('x', 6)), armr=limb(1, -20, 40), forer=limb(1, 30), arml=limb(-1, 40, -20), forel=limb(-1, 60, 0, 30),
              legr=limb(1, -10), legl=limb(-1, 20)),
     'wave_a': P(_face='happy', **dict(IDLE, arml=limb(-1, 10, 130), forel=limb(-1, 50), head=qs(('y', -8)))),
-    'sit_a': P(_off=(0, -6.0, 0), legr=limb(1, 84, 4), legl=limb(-1, 84, 4), armr=limb(1, 20, 20), forer=limb(1, 40), arml=limb(-1, 20, 20), forel=limb(-1, 40),
+    # sitting: down on the ground, legs out, her skirt over her lap (the drapes on her legs); the rest of it folds into the floor
+    'sit_a': P(_off=(0, -11.2, 0), legr=limb(1, 86, 4), legl=limb(-1, 86, 4), armr=limb(1, 20, 20), forer=limb(1, 40), arml=limb(-1, 20, 20), forel=limb(-1, 40),
                head=qs(('y', 10), ('z', -6))),
-    'sit_b': P(_face='blink', _off=(0, -6.1, 0), body=qs(('x', -6)), legr=limb(1, 70, 4), legl=limb(-1, 88, 4), armr=limb(1, -30, 30), forer=limb(1, 10),
+    'sit_b': P(_face='blink', _off=(0, -11.3, 0), body=qs(('x', -6)), legr=limb(1, 76, 4), legl=limb(-1, 88, 4), armr=limb(1, -30, 30), forer=limb(1, 10),
                arml=limb(-1, -30, 30), forel=limb(-1, 10), head=qs(('x', -12), ('z', 8))),
     'hurt': P(_face='hurt', body=qs(('x', -8)), head=qs(('x', -12)), armr=limb(1, 30, 30), forer=limb(1, 60), arml=limb(-1, 30, 30), forel=limb(-1, 60)),
     'tired': P(_face='hurt', _off=(0, -0.8, 0), body=qs(('x', 12), ('z', -4)), head=qs(('x', 14)), armr=limb(1, 0, 8), arml=limb(-1, 0, 8),

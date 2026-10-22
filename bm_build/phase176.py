@@ -3,9 +3,10 @@
 THE WAKING    the first second someone who has ever beaten the King is online, the world turns: a thunderclap, a moment of
               dark, and word of what has changed. It stays on (an operator can switch it off in admin/settings).
 BLOOD MOONS   every 15 days (the settings page can still change it).
-THE NIGHT'S   in the Overworld, the Nether and the End, a monster that isn't anything else already rolls again: 1.2% a
-MONSTERS      DREAD, 6% a Champion, 18% an Elite. Of the rest, three in four come out with Strength and Resistance - one
-              in five of those at II. (Blood Moons, invasions and lucky nights keep their own rolls.)
+THE NIGHT'S   in the Overworld, the Nether and the End, a monster that isn't anything else already rolls again: 4% a
+MONSTERS      DREAD (2.88: from 1.2%), 6% a Champion, 18% an Elite. Of the rest, three in four come out with Strength and Resistance - one
+              in five of those at II. (Blood Moons, invasions and lucky nights keep their own rolls - but on a Blood Moon
+              in hard mode, 15% of the Overworld's monsters come up DREAD first.)
 DREAD MOBS    far past a Champion: half again their health and more, netherite under a black-red trim, Strength II and
               Resistance, a cold that dims the light around them. Twice in a fight they gather themselves -
                 THE PULSE   the ground about them boils red for a second and a half, then bursts (7, through armour);
@@ -20,7 +21,8 @@ from nbt import snbt, B, F
 DREAD = '#b0102a'
 DREAD_D = '#5a0812'
 TYPES_SKIP = ('ghast', 'phantom', 'shulker')       # (no Dread version: they float, shoot or hide - nothing to dodge)
-ROLL = (12, 72, 252)                                # per thousand: dread .. champion .. elite (in hard mode)
+ROLL = (40, 100, 280)                               # per thousand: dread .. champion .. elite (in hard mode; 2.88: Dread 4%, was 1.2%)
+BLOOD_DREAD = 150                                   # (per thousand, on a Blood Moon in hard mode, before the Blood Moon's own roll)
 
 
 def ring(r, n, y=0.15):
@@ -79,6 +81,13 @@ def generate(G):
             f'execute if score #hr bm.rng matches {d2 + 1}..{d3} run function bm:mobs/elite/{t}', f'execute if score #hr bm.rng matches {d2 + 1}..{d3} run return 1',
             'function bm:p176/buff', 'return 0'])
         if dread:
+            # (2.88) on a Blood Moon the Blood Moon's roll comes first, so hard mode's never ran: a Dread chance of its own ahead of it
+            b = next(i for i, l in enumerate(L) if 'mobs/blood_roll/' in l)
+            L.insert(b, f'execute if score #hard bm.cfg matches 1 if score #active bm.bm matches 1 if dimension minecraft:overworld if function bm:p176/broll/{t} run return 0')
+            fn(f'p176/broll/{t}', ['execute store result score #hr bm.rng run random value 1..1000', f'execute unless score #hr bm.rng matches 1..{BLOOD_DREAD} run return 0',
+                                   'scoreboard players set #dok bm.rng 0',
+                                   'execute as @p[gamemode=!spectator] if score @s bm.conq matches 6.. run scoreboard players set #dok bm.rng 1',
+                                   'execute unless score #dok bm.rng matches 1 run return 0', f'function bm:p176/mk/{t}', 'return 1'])
             hp = ARM[t][0] if t in ARM else UNARM[t]
             mhp = hp * 5 if t in ARM else hp * 4
             name = {'text': 'Dread ', 'color': DREAD, 'bold': True, 'extra': [{'translate': f'entity.minecraft.{t}'}]}

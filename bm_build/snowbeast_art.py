@@ -1,7 +1,7 @@
 """The Malevolent Snowbeast (2.88), a Dread boss - after the owner's drawing: Pistachio's living top hat, frightened, came down
 on a snowman and made a monster of it. A huge bottom ball, a bulky middle ball with three coal buttons and a dark-blue bow tie,
-and a round head: angry slanted eyes, a crooked curling carrot, and a great jagged maw of cyan ice that splits the face and
-hangs down over the neck. Thick, angular branch arms with twig claws (one flung up). On top, the tall dark-grey top hat with
+and a round head: angry slanted eyes, a crooked curling carrot, and its jaws unhinged - a white snow jaw dropped low over the
+neck, fanged, and the great cyan inside of its mouth showing from the upper fangs down to it. Thick, angular branch arms with twig claws (one flung up). On top, the tall dark-grey top hat with
 its red band, flaring a little at the crown - and its own small angry eyes and a fanged scowl.
 
 A rigkit rig: body (the two lower balls, the buttons, the bow tie), head (the face per expression), the ice jaw (it drops to
@@ -16,7 +16,7 @@ from rigkit import shrink, qs, el, chain
 
 PREFIX = 'sb_'
 RIG_SCALE = 1.5
-PIVOT = {'body': (0, 0.0, 0), 'head': (0, 27.0, 0), 'jaw': (0, 32.4, -4.6), 'hat': (0, 40.5, 0), 'armr': (7.4, 23.5, 0), 'arml': (-7.4, 23.5, 0)}
+PIVOT = {'body': (0, 0.0, 0), 'head': (0, 27.0, 0), 'jaw': (0, 32.4, -4.6), 'hat': (0, 41.7, 0), 'armr': (7.4, 23.5, 0), 'arml': (-7.4, 23.5, 0)}
 PARENT = {'body': None, 'head': 'body', 'jaw': 'head', 'hat': 'head', 'armr': 'body', 'arml': 'body'}
 PARTS = tuple(PIVOT)
 PART_K = {'body': 1.25}                    # (the great body built at full size, kept inside the model box)
@@ -54,7 +54,8 @@ def _under():
 
 def _face(kind=None):
     """the front of the head: two angry slanted eyes - a black wedge each, a white glint - with hard brows, and the top of the
-    ice maw: a cyan gash with white fangs at its corners, running down off the bottom"""
+    open mouth: a jagged upper lip, a row of white fangs hanging from it, the cyan inside of the mouth below (the jaw's own
+    inside carries it on down)"""
     im = _snow(2882); d = ImageDraw.Draw(im)
     squint = kind == 'squint'
     for sx in (-1, 1):                                                                                   # the eyes: angry wedges
@@ -64,14 +65,18 @@ def _face(kind=None):
         d.polygon([(inner, top_in + 2), (outer, top_out), (outer, top_out + 6), (cx, 26 if not squint else 23), (inner, top_in + 6)], fill=hexc(COAL))
         d.polygon([(cx - sx * 3, 20), (cx + sx * 3, 18), (cx + sx * 2, 21)], fill=hexc('#f4f8fa'))     # (the glint)
         d.line((inner + sx * 1, top_in - 2, outer, top_out - 6), fill=hexc('#9aa4ac'), width=2)          # (a creased brow)
-    top = 38 if kind != 'roar' else 36
-    pts = [(10, top + 6), (16, top), (22, top + 8), (32, top + 14), (42, top + 8), (48, top), (54, top + 6), (58, 64), (6, 64)]
-    d.polygon(pts, fill=hexc(ICE))                                                                     # the maw (its top half)
-    for x0 in (12, 20, 40, 48):
-        d.line((x0, top + 6, x0 + 3, 63), fill=hexc(ICE_LT), width=2)
-    d.line(pts[:7], fill=hexc('#14181c'), width=2)
-    for x, y in ((14, top + 3), (50, top + 3)):                                                         # white fangs at its corners
-        d.polygon([(x - 3, y), (x + 3, y), (x, y + 9)], fill=hexc('#f4f8fa'), outline=hexc('#14181c'))
+    top = 35 if kind != 'roar' else 33
+    lip = [(6, top + 5), (14, top), (22, top + 4), (32, top + 2), (42, top + 4), (50, top), (58, top + 5)]
+    d.polygon(lip + [(60, 64), (4, 64)], fill=hexc(ICE))                                               # the inside of the mouth
+    for y in range(top + 8, 64):                                                                       # (deepening toward the throat)
+        k = (y - top - 8) / max(1, 56 - top)
+        d.line((5, y, 59, y), fill=tuple(int(a * (1 - 0.45 * k) + b * 0.45 * k) for a, b in zip(hexc(ICE)[:3], hexc(ICE_DK)[:3])))
+    for x0 in (16, 30, 44):
+        d.line((x0, top + 10, x0 + 2, 63), fill=hexc(ICE_LT), width=1)
+    d.line(lip, fill=hexc('#14181c'), width=2)
+    for i, x in enumerate((10, 18, 26, 38, 46, 54)):                                                   # the upper fangs
+        y = top + 3; ln = 9 if i in (0, 5) else 6
+        d.polygon([(x - 3, y), (x + 3, y), (x, y + ln)], fill=hexc('#f4f8fa'), outline=hexc('#14181c'))
     return im
 
 
@@ -88,12 +93,22 @@ def _ice(seed):
 
 
 def _jaw_front():
-    """the maw's lower half, hanging over the neck: cyan ice with a jagged snow lower lip and two white fangs standing up"""
-    im = _ice(2883); d = ImageDraw.Draw(im)
-    d.polygon([(0, 64), (0, 50), (14, 58), (32, 40), (50, 58), (64, 50), (64, 64)], fill=hexc(SNOW))
-    d.line([(0, 50), (14, 58), (32, 40), (50, 58), (64, 50)], fill=hexc('#14181c'), width=2)
-    for x in (12, 52):
-        d.polygon([(x - 3, 56), (x + 3, 56), (x, 44)], fill=hexc('#f4f8fa'), outline=hexc('#14181c'))
+    """the dropped jaw's outside: snow, a jagged dark lip along its top, shading under it"""
+    im = _snow(2883); d = ImageDraw.Draw(im)
+    d.line([(0, 4), (10, 9), (20, 5), (32, 10), (44, 5), (54, 9), (64, 4)], fill=hexc('#14181c'), width=3)
+    for y in range(44, 64):
+        d.line((0, y, 63, y), fill=hexc(SNOW_SH) if y % 3 else hexc('#b4bec6'))
+    return im
+
+
+def _maw():
+    """the inside of the mouth on the jaw: cyan ice deepening toward the throat"""
+    im = _ice(2895); px = im.load(); dk = hexc(ICE_DK)
+    for y in range(64):
+        k = 0.15 + 0.5 * y / 63
+        for x in range(64):
+            r, g, b, a = px[x, y]
+            px[x, y] = (int(r * (1 - k) + dk[0] * k), int(g * (1 - k) + dk[1] * k), int(b * (1 - k) + dk[2] * k), a)
     return im
 
 
@@ -138,7 +153,7 @@ def _branch(seed):
 
 
 def textures():
-    return {'sb_snow': _snow(2887), 'sb_snow2': _snow(2888), 'sb_under': _under(), 'sb_face': _face(), 'sb_ice': _ice(2889), 'sb_jaw': _jaw_front(),
+    return {'sb_snow': _snow(2887), 'sb_snow2': _snow(2888), 'sb_under': _under(), 'sb_face': _face(), 'sb_ice': _ice(2889), 'sb_jaw': _jaw_front(), 'sb_maw': _maw(), 'sb_fang': _noise('#f4f8fa', 2896, 2),
             'sb_hat': _hat(), 'sb_hat_top': _hat_top(), 'sb_hat_low': _hat_low(), 'sb_brim': _noise('#141412', 2885, 3), 'sb_band': _noise(BAND, 2890, 5),
             'sb_carrot': _carrot(), 'sb_tie': _noise('#0e1696', 2891, 5), 'sb_branch': _branch(2892), 'sb_twig': _noise('#3e2e18', 2893, 5),
             'sb_coal': _noise(COAL, 2894, 4), **{f'sb_face_{k}': _face(k) for k in FACES}}
@@ -184,24 +199,31 @@ def models():
     for fc in FACES:
         part(f'sb_head_x{fc}', head(fc))
 
-    # ---- the ice jaw: the maw's lower half - a wedge of cyan ice hanging down over the neck
+    # ---- the jaw, unhinged: a white snow lower jaw dropped down over the neck - fangs up along its lip, cheeks up either side,
+    #      and the cyan inside of the mouth behind the lip, up to the upper fangs. (2.88: all of it out in front of the chest and the
+    #      face - the old block of ice sat half inside both)
     pv = PIVOT['jaw']
-    part('sb_jaw', [el((-6.8, 23.4, -9.8), (6.8, 32.4, -4.4), 'sb_ice', pv, shift=(0.4, 0.2)),
-                    el((-6.8, 23.4, -9.82), (6.8, 32.4, -9.8), 'sb_jaw', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
-                    el((-5.0, 21.6, -9.0), (5.0, 23.6, -5.0), 'sb_ice', pv),                                         # (its point)
-                    el((-7.6, 27.0, -8.6), (-6.6, 32.4, -5.4), 'sb_ice', pv), el((6.6, 27.0, -8.6), (7.6, 32.4, -5.4), 'sb_ice', pv)])
+    jaw = [el((-5.8, 26.4, -9.0), (5.8, 31.4, -8.5), 'sb_maw', pv, faces=('north', 'east', 'west', 'up'), uv={'north': [0, 0, 16, 16]}),   # the inside
+           el((-6.6, 23.8, -10.8), (6.6, 26.4, -8.8), 'sb_snow', pv, shift=(0.3, 0.5)),                                             # the jaw
+           el((-6.6, 23.8, -10.82), (6.6, 26.4, -10.8), 'sb_jaw', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
+           el((-5.8, 26.4, -10.2), (5.8, 26.42, -8.9), 'sb_maw', pv, faces=('up',)),                                               # (its inside)
+           el((-6.8, 23.8, -10.8), (-5.8, 31.6, -8.8), 'sb_snow', pv, shift=(0.1, 0.2)), el((5.8, 23.8, -10.8), (6.8, 31.6, -8.8), 'sb_snow', pv, shift=(0.7, 0.2))]
+    for x, ln in ((-4.4, 2.2), (-1.5, 1.6), (1.5, 1.6), (4.4, 2.2)):                                                             # the lower fangs
+        jaw.append(el((x - 0.6, 26.4, -10.5), (x + 0.6, 26.4 + ln, -9.7), 'sb_fang', pv))
+    part('sb_jaw', jaw)
 
-    # ---- the hat: the wide brim (its ends curling up, black under), the crown flaring toward the top, the red band
+    # ---- the hat: the wide brim (its ends curling up, black under), the crown flaring toward the top, the red band - sat on
+    #      the head's crown (2.88: it was sunk a pixel into it, and the head poked up through the brim when it tipped)
     pv = PIVOT['hat']
-    hat = [el((-8.4, 40.00, -7.4), (8.4, 41.40, 7.4), 'sb_hat', pv, shift=(0.2, 0.4)),
-           el((-8.4, 39.98, -7.4), (8.4, 40.00, 7.4), 'sb_brim', pv, faces=('down',)),
-           el((-10.4, 40.60, -6.2), (-8.2, 42.60, 6.2), 'sb_hat', pv, rot=('z', -22.5, (-8.4, 41.00, 0))),             # (its curled-up ends)
-           el((8.2, 40.60, -6.2), (10.4, 42.60, 6.2), 'sb_hat', pv, rot=('z', 22.5, (8.4, 41.00, 0))),
-           el((-5.2, 41.40, -4.8), (5.2, 49.40, 4.8), 'sb_hat', pv, shift=(0.5, 0.1)),
-           el((-5.2, 41.40, -4.82), (5.2, 49.40, -4.8), 'sb_hat_low', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
-           el((-5.8, 49.20, -5.4), (5.8, 57.00, 5.4), 'sb_hat', pv, shift=(0.3, 0.6)),
-           el((-5.8, 49.20, -5.42), (5.8, 57.00, -5.4), 'sb_hat_top', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
-           el((-5.35, 41.40, -4.95), (5.35, 43.40, 4.95), 'sb_band', pv)]
+    hat = [el((-8.4, 41.20, -7.4), (8.4, 42.60, 7.4), 'sb_hat', pv, shift=(0.2, 0.4)),
+           el((-8.4, 41.18, -7.4), (8.4, 41.20, 7.4), 'sb_brim', pv, faces=('down',)),
+           el((-10.4, 41.80, -6.2), (-8.2, 43.80, 6.2), 'sb_hat', pv, rot=('z', -22.5, (-8.4, 42.20, 0))),             # (its curled-up ends)
+           el((8.2, 41.80, -6.2), (10.4, 43.80, 6.2), 'sb_hat', pv, rot=('z', 22.5, (8.4, 42.20, 0))),
+           el((-5.2, 42.60, -4.8), (5.2, 50.60, 4.8), 'sb_hat', pv, shift=(0.5, 0.1)),
+           el((-5.2, 42.60, -4.82), (5.2, 50.60, -4.8), 'sb_hat_low', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
+           el((-5.8, 50.40, -5.4), (5.8, 58.20, 5.4), 'sb_hat', pv, shift=(0.3, 0.6)),
+           el((-5.8, 50.40, -5.42), (5.8, 58.20, -5.4), 'sb_hat_top', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
+           el((-5.35, 42.60, -4.95), (5.35, 44.60, 4.95), 'sb_band', pv)]
     part('sb_hat', hat)
 
     # ---- the arms: thick, crooked branches - a bend at the elbow, a spur, and three long twig claws
@@ -243,7 +265,7 @@ POSES = {
     'throw_up': P(_face='squint', body=qs(('y', 18)), head=qs(('y', -10)), armr=arm(1, 110, -40), arml=arm(-1, -6, 30), hat=qs(('x', -8))),
     'throw': P(_face='roar', body=qs(('y', -16), ('x', 6)), head=qs(('y', 8)), jaw=qs(('x', 18)), armr=arm(1, 30, 90), arml=arm(-1, -10, -10), hat=qs(('x', 6))),
     # the slam (frost nova): both arms high - and down into the ground
-    'slam_up': P(_face='roar', _off=(0, 1.0, 0), body=qs(('x', -8)), head=qs(('x', -14)), jaw=qs(('x', 24)), armr=arm(1, 140, 10), arml=arm(-1, 140, 10), hat=qs(('x', -12))),
+    'slam_up': P(_face='roar', _off=(0, 1.0, 0), body=qs(('x', -8)), head=qs(('x', -14)), jaw=qs(('x', 24)), armr=arm(1, 110, 24), arml=arm(-1, 110, 24), hat=qs(('x', -12))),
     'slam': P(_face='roar', _off=(0, -1.4, 0), body=qs(('x', 14)), head=qs(('x', 10)), jaw=qs(('x', 10)), armr=arm(1, -20, 90), arml=arm(-1, -20, 90), hat=qs(('x', 14))),
     # the roar (the blizzard): head back, the ice jaw dropped wide, arms flung out, the hat lifting with it
     'roar': P(_face='roar', body=qs(('x', -6)), head=qs(('x', -22)), jaw=qs(('x', 34)), hat=qs(('x', -16)), armr=arm(1, 90, 0, 20), arml=arm(-1, 90, 0, 20)),
