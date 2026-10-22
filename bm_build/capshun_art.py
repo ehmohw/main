@@ -1,14 +1,14 @@
 """Mr. Capshun (2.90): a stick figure - and completely flat - from the owner's sketch. One of the Buddies, the strange folk born of
 pure imagination. A big round head, pale grey and shaded at one side like pencil on paper, a bold black outline; two tall empty
 oval eyes, one a little bigger than the other; worried brows (one arched high); a small frown. Everything else is a line:
-the body, the long thin arms, the long thin legs, all in black ink. He holds a paintbrush, its bristles in the three primary
-colours.
+the body, the long thin arms, the long thin legs, all in black ink. He fights with a paintbrush (its bristles in the three primary
+colours) in his right hand and a pencil in his left - both as flat as he is.
 
 FLAT: the head is a disc with no depth (seen edge-on it's a sliver), the lines are thin strips of ink. Turned side-on he all but
 vanishes - and he knows it (one of his idles).
 
 A rigkit rig like Queen Ava's: body (the line from neck to hips), head (a model per expression - the face drawn on), arms bent
-at the elbow (the brush in his right hand), legs bent at the knee. Design units: feet at y=0, facing -z, his right is +x."""
+at the elbow (the brush in his right hand, the pencil in his left), legs bent at the knee. Design units: feet at y=0, facing -z, his right is +x."""
 import math
 from PIL import Image, ImageDraw
 
@@ -127,7 +127,7 @@ def _solid(c):
 
 def textures():
     T = {'mz_face': _face(), 'mz_back': _back(), 'mz_ink': _solid(INK), 'mz_wood': _solid('#b07a3e'), 'mz_steel': _solid('#c0c4cc'),
-         'mz_hair': _solid('#f2ead8')}
+         'mz_pink': _solid('#f08aa0'), 'mz_pencil': _solid('#f6c83a'), 'mz_wood_lt': _solid('#e8c49a'), 'mz_lead': _solid('#3a3a40')}
     for k, c in PAINT.items():
         T[f'mz_{k}'] = _solid(c)
     for k in FACES:
@@ -167,6 +167,10 @@ def models():
             els += [line((2.75, 8.2), (3.65, 4.6), fp, 0.55, 'mz_wood'), line((3.65, 4.6), (3.85, 3.8), fp, 0.8, 'mz_steel'),
                     line((3.85, 3.8), (3.98, 3.2), fp, 1.0, 'mz_blue'), line((3.98, 3.2), (4.12, 2.6), fp, 1.0, 'mz_yellow'),
                     line((4.12, 2.6), (4.24, 2.0), fp, 0.8, 'mz_red')]
+        else:                                                                       # the pencil (flat as he is): eraser by his hand, point out past it
+            els += [line((-2.9, 7.7), (-3.02, 7.2), fp, 0.78, 'mz_pink'), line((-3.02, 7.2), (-3.1, 6.8), fp, 0.78, 'mz_steel'),
+                    line((-3.1, 6.8), (-3.62, 4.4), fp, 0.72, 'mz_pencil'), line((-3.62, 4.4), (-3.74, 3.8), fp, 0.5, 'mz_wood_lt'),
+                    line((-3.74, 3.8), (-3.8, 3.45), fp, 0.28, 'mz_lead')]
         part(f'mz_fore{s}', els)
         lp, sp = PIVOT[f'leg{s}'], PIVOT[f'shin{s}']
         part(f'mz_leg{s}', [line(lp[:2], sp[:2], lp)])
@@ -223,6 +227,12 @@ POSES = {
     'rainbow_a': P(_face='grin', _off=(0, 0.4, 0), body=qs(('z', 8)), armr=limb(1, 10, 170), forer=limb(1, 0, 6), arml=limb(-1, 0, 40), forel=limb(-1, 0, 20)),
     'rainbow_b': P(_face='grin', _off=(0, 0.6, 0), armr=limb(1, 60, 110), forer=limb(1, 0), arml=limb(-1, 0, 40), forel=limb(-1, 0, 20)),
     'rainbow_c': P(_face='grin', _off=(0, 0.2, 0), body=qs(('z', -10)), armr=limb(1, 40, -50), forer=limb(1, 0), arml=limb(-1, 0, 60), forel=limb(-1, 0, 30)),
+    # the pencil jab: drawn back - then a quick stab, point first
+    'jab_up': P(_face='determined', body=qs(('y', 18)), arml=limb(-1, -30, 24), forel=limb(-1, 80), armr=limb(1, 10, 26), forer=limb(1, 20)),
+    'jab': P(_face='determined', body=qs(('y', -16), ('x', 6)), arml=limb(-1, 96, -6), forel=limb(-1, 4), armr=limb(1, -16, 24), forer=limb(1, 20)),
+    # the sketch: quick scribbles in the air with the pencil - an outline drawn round the foe
+    'scribble_a': P(_face='grin', arml=limb(-1, 84, 30), forel=limb(-1, 34), armr=limb(1, 0, 20), forer=limb(1, 0, 30)),
+    'scribble_b': P(_face='grin', arml=limb(-1, 70, -10), forel=limb(-1, 50), armr=limb(1, 0, 20), forer=limb(1, 0, 30)),
     'happy': P(_face='happy', _off=(0, 0.6, 0), armr=limb(1, 0, 140), forer=limb(1, 0, 20), arml=limb(-1, 0, 140), forel=limb(-1, 0, 20)),
     'wave_a': P(_face='happy', **dict(LOOSE, arml=limb(-1, 0, 136), forel=limb(-1, 0, 36), head=qs(('z', -6)))),
     'wave_b': P(_face='happy', **dict(LOOSE, arml=limb(-1, 0, 136), forel=limb(-1, 0, -10), head=qs(('z', -6)))),
@@ -264,5 +274,5 @@ for _k in list(POSES):
     _sit = _k.startswith('sit_')
     POSES[_k] = _ground(POSES[_k], _FEET + _SEAT + (_HANDS if _k in ('splash',) else []) if _sit or _k == 'splash' else _FEET,
                         lift=(0.8 if _k in ('run_1', 'run_3') else 0.25 if _k in ('walk_1', 'walk_3') else 0.0))
-DRAFT = ['idle_a', 'idle_b', 'idle_c', 'walk_1', 'run_1', 'jump', 'swipe_up', 'swipe', 'fling', 'paint_a', 'splash', 'rainbow_a', 'rainbow_c',
+DRAFT = ['idle_a', 'idle_b', 'idle_c', 'walk_1', 'run_1', 'jump', 'swipe_up', 'swipe', 'fling', 'jab_up', 'jab', 'scribble_a', 'paint_a', 'splash', 'rainbow_a', 'rainbow_c',
          'happy', 'sit_a', 'sit_b', 'hurt', 'swim_2']

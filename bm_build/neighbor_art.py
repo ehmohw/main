@@ -1,5 +1,5 @@
 """The Neighbor (2.86): from the owner's art. A cheerful musician of a lad with a big head: a black beret slumped to one side, an
-orange button on its crown; spiky reddish-brown hair; a white mime's mask over his eyes, thick black rectangular glasses on it and
+orange button on its crown; neat reddish-brown hair (a spiky fringe, tidy at the back and sides); a white mime's mask over his eyes, thick black rectangular glasses on it and
 big blue eyes behind them; freckles and a lopsided smile below. A white sailor's shirt - the black square collar and a black
 neckerchief knotted at the throat - with a black octopus (or is it a moustache?) on the chest; white trousers; big black shoes;
 black wristbands. A conductor's baton in his right hand, and on his back two great black eighth notes for wings.
@@ -186,15 +186,11 @@ def models():
              el((-HW, 15.0, -HZ), (HW, HT, HZ - 0.2), 'nb_skin', pv, shift=(0.3, 0.2)),
              el((-HW, 15.0, -HZ - 0.02), (HW, HT, -HZ), tex, pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
              el((-HW - 0.6, 18.2, -0.6), (-HW + 0.05, 20.6, 0.8), 'nb_skin', pv), el((HW - 0.05, 18.2, -0.6), (HW + 0.6, 20.6, 0.8), 'nb_skin', pv)]
-        # the hair: thick at the back and sides, the mask's band hidden under it; spikes sticking out over the ears and behind
-        h += [el((-HW - 0.2, 16.4, 0.6), (HW + 0.2, HT + 0.2, HZ + 0.3), 'nb_hair', pv, shift=(0.2, 0.3)),
+        # the hair: (2.89c) a neat, tidy cut - close at the back and sides, a clean line at the nape, the mask's band hidden under it
+        h += [el((-HW - 0.2, 16.6, 0.6), (HW + 0.2, HT + 0.2, HZ + 0.3), 'nb_hair', pv, shift=(0.2, 0.3)),
+              el((-HW + 0.6, 15.9, 1.4), (HW - 0.6, 16.7, HZ + 0.15), 'nb_hair', pv, shift=(0.5, 0.6)),
               el((-HW - 0.25, 19.4, -HZ + 0.2), (-HW + 0.05, HT + 0.2, 0.8), 'nb_hair', pv), el((HW - 0.05, 19.4, -HZ + 0.2), (HW + 0.25, HT + 0.2, 0.8), 'nb_hair', pv),
               el((-HW - 0.2, HT - 1.8, -HZ - 0.25), (HW + 0.2, HT + 0.2, -HZ + 0.1), 'nb_hair', pv, shift=(0.6, 0.1))]      # the fringe, standing proud
-        for sx in (-1, 1):                                                                    # spikes over the ears, swept back
-            h += chain([(sx * (HW + 0.1), 21.8, -1.4), (sx * (HW + 1.4), 20.6, 0.2), (sx * (HW + 2.1), 19.4, 1.6)], [1.6, 0.25], 0.9, 'nb_hair', pv, UP, ext=0.1)
-            h += chain([(sx * HW, 19.0, 0.6), (sx * (HW + 1.2), 17.8, 2.0), (sx * (HW + 1.6), 16.8, 3.2)], [1.2, 0.2], 0.8, 'nb_hair', pv, UP, ext=0.1)
-        for x in (-2.2, 0.2, 2.4):                                                            # and out the back
-            h += chain([(x, 20.0, HZ + 0.1), (x * 1.1, 19.2, HZ + 1.4), (x * 1.2, 18.2, HZ + 2.2)], [1.6, 0.25], 1.0, 'nb_hair', pv, UP, ext=0.1)
         for x, top in ((-2.9, HT - 2.4), (-1.0, HT - 2.8), (1.2, HT - 2.2), (3.0, HT - 2.6)):    # the fringe's spikes over the mask
             h.append(el((x - 0.7, top, -HZ - 0.3), (x + 0.7, HT - 1.4, -HZ), 'nb_hair', pv, shift=(x * 0.1, 0.4)))
         # the beret: a soft black disc, wider than his head, slumped down over his right ear; the orange button on its crown

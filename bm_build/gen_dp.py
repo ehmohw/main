@@ -166,6 +166,7 @@ import phase194 as R194      # 2.87: the Arachno-Lantern, the hidden hard-mode m
 import phase195 as R195      # 2.88: Bender, the goodest boy (Bender's Ball) - digs and sniffs out treasure
 import phase196 as R196      # 2.88: Bones, Emma's pet shark (Bones's Whistle) - a mount in his water bubble
 import phase197 as R197      # 2.88: the three Dread bosses (hard mode) and their ruins, tokens and maps
+import phase198 as R198      # 2.90: Mr. Capshun, the narrator (Mr. Capshun's Pencil) - a flat stick figure: brush, pencil and paint
 import phase188 as R188      # 2.86: the bonds - eleven new pairs and five new trios (Ashur, the Chef, the Neighbor and friends)
 import phase171 as R171      # 2.82b: the Town Directory - who's where in the rat town, and a trail of light there
 import phase172 as R172      # 2.82b: King Omega's tithe - triple currency from custom mobs, 1% from the rest, while he's out
@@ -197,7 +198,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.89b'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.90'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1298,6 +1299,7 @@ def build(out_dir):
     if PHASE2: R195.generate_early(sys.modules[__name__])
     if PHASE2: R196.generate_early(sys.modules[__name__])
     if PHASE2: R197.generate_early(sys.modules[__name__])
+    if PHASE2: R198.generate_early(sys.modules[__name__])
     if PHASE2: R133.generate(sys.modules[__name__])
     if PHASE2: R134.generate(sys.modules[__name__])
     if PHASE2: R135.generate(sys.modules[__name__])
@@ -1344,6 +1346,7 @@ def build(out_dir):
     if PHASE2: R196.generate(sys.modules[__name__])
     if PHASE2: R195.generate(sys.modules[__name__])
     if PHASE2: R197.generate(sys.modules[__name__])
+    if PHASE2: R198.generate(sys.modules[__name__])
     if PHASE2: R188.generate(sys.modules[__name__])
     if PHASE2: R192.generate(sys.modules[__name__])
     R171.generate(sys.modules[__name__])

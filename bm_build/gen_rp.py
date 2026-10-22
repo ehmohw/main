@@ -877,6 +877,8 @@ if __name__ == '__main__':
     phase193.rp(sys.modules[__name__]); phase194.rp(sys.modules[__name__])
     import phase195, phase196, phase197       # (2.88: Bender, Bones, the Dread bosses)
     phase195.rp(sys.modules[__name__]); phase196.rp(sys.modules[__name__]); phase197.rp(sys.modules[__name__])
+    import phase198                           # (2.90: Mr. Capshun)
+    phase198.rp(sys.modules[__name__])
     import phase95                            # (after every head model: the faces)
     phase95.rp(sys.modules[__name__])
     import phase138                           # (2.78: the recoloured looks - after the faces, so their item definitions are copied too)

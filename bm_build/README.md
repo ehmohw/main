@@ -21,6 +21,29 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.90: Mr. Capshun, the narrator
+
+**Mr. Capshun** (from the owner's sketch) is a stick figure, and completely flat: a pencil-shaded disc of a head with two empty oval eyes and worried brows, and thin black lines for everything else. Turn him side-on and he all but vanishes (he knows; one of his idles is doing exactly that). He's one of the **Buddies**, the strange folk born of pure imagination, like Fishy, the Count, Eggbert and Batty. Nobody knows quite how the Buddies came to be, only that the Ethereal Gem had something to do with it.
+
+He is also a **fourth-wall-breaking narrator**. He narrates what you do, knows a worrying amount about the Underwater Kingdom's history, and knows he's in a video game.
+
+- **Finding him:** spend time near a painting you've hung, anywhere in the Overworld. Sooner or later a doodle peels itself off the canvas and steps out. Right-click him holding any dye and he joins: he hands you **Mr. Capshun's Pencil** (use: call him; sneak + use: his menu).
+- **He fights with a paintbrush and a pencil**, both as flat as he is:
+  - **Brush Swipe / Pencil Jab:** a foe within 3, every second (7 / 8).
+  - **Paint Splat:** every 4 s, a glob of paint at a foe 4-14 away (8). The colour does something: red burns, blue slows, yellow lights them up and weakens them, green poisons, purple lifts them off their feet.
+  - **Sketch:** every 15 s he scribbles an outline round a foe within 10; it can barely move or hit for 3 s.
+  - **Wet Paint:** three or more foes within 6, every 25 s: a puddle of paint they're stuck in.
+  - **The Rainbow Stroke** (charged, every minute): the brush swept over in a great rainbow arc. Every foe within 8 takes 14, slowed and lit up; Strength and Regeneration for you.
+- **Paint support:**
+  - **Fresh Coat:** every 30 s beside you he paints you, and anyone with you, in your chosen colour, for 40 s of its buff.
+  - **Palette** (his menu): red Strength, orange Fire Resistance, yellow Haste, green Regeneration, blue Speed, purple Resistance, or rainbow (a different one every coat).
+- **The story so far** (his menu): he narrates the lore: the war, the broken gem, Democratus, Queen Ava, the serpent, the Buddies. Some of it he shouldn't know.
+- **Narration:** when you're badly hurt, he says so. Dramatically. (Followers' chatter off quiets him too.)
+- **Bonds:** **Imaginary Friends** with Fishy (Luck, Speed, Night Vision; foes nearby glow) and **The Arts** with the Neighbor (Haste, Jump Boost, Regeneration).
+- Everything a follower has: right-click to sit (legs out, or hugging his knees), his inks at the Tailor (Blue Ballpoint, Red Pen, Green Marker, and the gilded, diamond and netherite inks), the rare aura **Rainbow Doodles**, a frame (he climbs out of pictures; it's what he does), a figurine in the display cases, his doll at Cecil's and a golden one from the Ember Rat, the Raid Contract at the Recruiter, and the Partner Wheel.
+
+**The Neighbor's hair** is a neat, tidy cut now: the spikes over his ears and out the back are gone (the fringe over his mask stays).
+
 ## New in 2.89b: Vesper's shop
 
 **Vesper has moved into Night Alley.** The Dread Broker no longer works from a stall on the Fountain Plaza. He has taken the empty nether-brick house in Night Alley, just south of his old stall, and made it his own:
