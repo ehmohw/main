@@ -17,6 +17,7 @@ def outfit_parts():
     return sorted(n[3:] for n, (tex, _e) in models().items() if n.startswith('em_') and any(k in OUTFITS[1] for k in tex))
 
 
+HEAD_BASE = 19                                                       # (elements of her head before her ponytail and bow)
 PARTS = ('body', 'head', 'armr', 'arml', 'legr', 'legl', 'wingr', 'wingl', 'wingro', 'winglo')
 WING_LIFT = 30
 WING_SPLIT = 11.0                                                    # design units along the leading edge where the outer half hinges
@@ -454,25 +455,45 @@ def models():
     def head(face, ethereal):
         pv = PIVOT['head']; hr = lambda fr, to, rot=None: _el(fr, to, 'em2_hair', pv, rot)
         els = [_el((-4.5, 24.0, -4.0), (4.5, 32.0, 4.0), 'em2_skin', pv, uv={'north': [0, 0, 9, 8]}),
-               _el((4.5, 26.2, -0.6), (5.0, 28.0, 0.6), 'em2_cheek', pv), _el((-5.0, 26.2, -0.6), (-4.5, 28.0, 0.6), 'em2_cheek', pv),
-               hr((-4.9, 30.6, -4.4), (4.9, 32.9, 4.4)), hr((-4.9, 25.0, 3.4), (4.9, 30.8, 4.6)),
-               hr((4.5, 25.6, -2.4), (5.2, 30.8, 4.4)), hr((-5.2, 25.6, -2.4), (-4.5, 30.8, 4.4)),
-               hr((-4.9, 30.0, -4.6), (4.9, 30.8, -4.0)), hr((-4.9, 29.7, -4.6), (-1.2, 30.2, -4.0)), hr((1.8, 29.7, -4.6), (4.9, 30.2, -4.0)),
-               hr((4.2, 24.4, -3.4), (5.4, 28.6, -2.0)), hr((3.6, 23.6, -3.4), (5.4, 24.6, -2.0)), hr((-5.4, 25.4, -3.4), (-4.2, 28.6, -2.0))]
+               _el((4.5, 26.2, -0.6), (5.0, 28.0, 0.6), 'em2_cheek', pv), _el((-5.0, 26.2, -0.6), (-4.5, 28.0, 0.6), 'em2_cheek', pv)]
         els[0]['faces']['north']['texture'] = '#' + face
-        if not ethereal:
-            els += [hr((-1.6, 29.6, 4.2), (1.6, 32.6, 6.2)),
-                    hr((-2.6, 26.0, 5.0), (0.4, 31.2, 7.6), ('z', -22.5, (-1.0, 31.0, 6.3))),
-                    hr((-4.0, 22.4, 5.3), (-1.8, 27.4, 7.3), ('z', -45, (-2.9, 26.8, 6.3))),
-                    _el((-0.8, 31.4, 6.0), (0.8, 32.8, 6.9), 'em2_pinkdark', pv),
-                    _el((-3.0, 31.0, 6.1), (-0.8, 33.4, 6.7), 'em2_pink', pv), _el((0.8, 31.0, 6.1), (3.0, 33.4, 6.7), 'em2_pink', pv)]
-        else:
+        if ethereal:
+            els += [hr((-4.9, 30.6, -4.4), (4.9, 32.9, 4.4)), hr((-4.9, 25.0, 3.4), (4.9, 30.8, 4.6)),
+                    hr((4.5, 25.6, -2.4), (5.2, 30.8, 4.4)), hr((-5.2, 25.6, -2.4), (-4.5, 30.8, 4.4)),
+                    hr((-4.9, 30.0, -4.6), (4.9, 30.8, -4.0)), hr((-4.9, 29.7, -4.6), (-1.2, 30.2, -4.0)), hr((1.8, 29.7, -4.6), (4.9, 30.2, -4.0)),
+                    hr((4.2, 24.4, -3.4), (5.4, 28.6, -2.0)), hr((3.6, 23.6, -3.4), (5.4, 24.6, -2.0)), hr((-5.4, 25.4, -3.4), (-4.2, 28.6, -2.0))]
             # long hair down her back, a lock over her left shoulder, a high ponytail flicking out to her left with a flower tie
             els += [hr((-4.7, 18.5, 3.2), (4.7, 25.2, 4.8)), hr((-5.6, 17.0, -1.6), (-4.4, 25.8, 0.6), ('z', -8, (-5.0, 25.8, -0.5))),
                     hr((-2.4, 32.4, 0.4), (1.2, 35.4, 3.6)),
                     hr((-6.6, 33.0, 0.8), (-1.6, 35.8, 3.2), ('z', 30, (-1.6, 34.4, 2.0))),
                     hr((-10.4, 33.6, 1.0), (-6.0, 35.8, 3.0), ('z', 50, (-6.0, 34.6, 2.0))),
                     _el((-1.8, 34.6, 0.2), (0.6, 36.4, 3.8), 'em2_pink', pv), _el((-1.0, 35.2, -0.1), (-0.2, 36.0, 0.3), 'ee_magenta', pv)]
+            return els
+        # (2.90c) her hair from the owner's front view of her: a fuller crown; a big swept bang from the part on her left,
+        # stepping down across her brow to her right (no spikes - they don't read in blocks); side locks to her jaw curling
+        # out; the ponytail high on her left, hanging beside her head to her shoulder; the bow at its root
+        els += [hr((-4.9, 30.6, -4.4), (4.9, 33.4, 4.4)), hr((-4.9, 25.0, 3.4), (4.9, 30.8, 4.6)),
+                hr((4.5, 25.6, -2.4), (5.2, 30.8, 4.4)), hr((-5.2, 25.6, -2.4), (-4.5, 30.8, 4.4)),
+                hr((-4.9, 30.6, -4.7), (4.9, 31.6, -4.0)),
+                hr((-4.9, 30.2, -4.75), (-2.8, 30.7, -4.0)),
+                hr((-2.9, 29.9, -4.85), (0.6, 30.7, -4.0)),
+                hr((0.4, 29.5, -5.0), (3.2, 30.7, -4.0)),
+                hr((3.0, 29.0, -5.1), (5.0, 30.7, -4.0)),
+                hr((-1.5, 29.2, -4.75), (-0.5, 30.0, -4.05))]
+        for sx in (1, -1):
+            x = lambda a, b: tuple(sorted((sx * a, sx * b)))
+            (a0, a1), (b0, b1), (c0, c1) = x(4.0, 5.6), x(5.0, 6.6), x(5.9, 6.8)
+            els += [hr((a0, 24.4, -4.3), (a1, 30.2, -1.4)), hr((b0, 23.6, -4.1), (b1, 24.7, -1.8)), hr((c0, 24.4, -4.0), (c1, 25.8, -1.9))]
+        assert len(els) == HEAD_BASE                                  # (her base hair: the outfits keep it and add their own tie)
+        els += [hr((-4.4, 31.2, -0.8), (-2.2, 33.6, 2.0)),
+                hr((-9.6, 30.2, -0.4), (-4.0, 32.6, 2.4), ('z', 12, (-4.0, 31.4, 1.0))),
+                hr((-10.8, 28.6, 0.0), (-9.0, 29.8, 2.0), ('z', -30, (-9.4, 29.2, 1.0))),
+                hr((-9.8, 23.4, -0.2), (-6.6, 30.4, 2.2)),
+                hr((-9.4, 21.2, 0.0), (-7.0, 23.6, 2.0)),
+                hr((-9.2, 20.2, 0.2), (-8.2, 21.4, 1.8)), hr((-7.8, 20.6, 0.2), (-7.1, 21.4, 1.8)),
+                _el((-4.3, 32.8, -0.5), (-3.1, 36.0, 0.5), 'em2_pink', pv, ('z', 18, (-3.7, 33.0, 0))),
+                _el((-7.0, 32.4, -0.5), (-4.0, 33.8, 0.5), 'em2_pink', pv, ('z', -22.5, (-4.0, 33.1, 0))),
+                _el((-4.4, 32.4, -0.7), (-3.0, 33.6, 0.7), 'em2_pinkdark', pv)]
         return els
     part('em_head', PIVOT['head'], head('em2_face', False))
     part('ee_head', PIVOT['head'], head('ee_face', True))

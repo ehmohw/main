@@ -136,7 +136,7 @@ def models():
         # or a pink flower (the Cozy Sweater)
         etex, eels = EA.models()['em_head']
         hp = PIVOT['head']
-        els = copy.deepcopy(eels[:13])
+        els = copy.deepcopy(eels[:EA.HEAD_BASE])
         hr = lambda fr, to, rot=None: _el(fr, to, 'em2_hair', hp, rot)
         els += [hr((-1.7, 25.4, 4.3), (1.7, 31.0, 6.3), ('x', -22.5, (0, 31.0, 5.3))),           # the tail, swinging back from the tie
                 hr((-1.4, 20.6, 6.3), (1.4, 26.2, 8.1)), hr((-0.9, 19.2, 6.7), (0.9, 20.8, 7.8))]

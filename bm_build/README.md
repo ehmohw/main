@@ -21,6 +21,17 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.90c: Emma's hair, from her front view
+
+Emma's hair is rebuilt from the owner's front-on drawing of her:
+- **Bangs:** one big swept bang from the part on her left, stepping down across her brow to her right.
+- **Side locks:** down to her jaw, each curling outward at the end.
+- **Ponytail:** high on her left, hanging beside her head down to her shoulder, ragged at the end.
+- **Bow:** at the ponytail's root, one loop standing up and one out to the side. Her ribbon cosmetics still recolour it.
+
+Her outfits (the Flower Top and the Cozy Sweater) keep the new bangs and side locks and add their own tie. Her ethereal form
+keeps its own long hair. Her display-case figurine is re-measured, so it still fits inside the case.
+
 ## New in 2.90b: the Dread's armour
 
 **Dread monsters wear their own eldritch armour** in place of trimmed netherite:
