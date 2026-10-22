@@ -61,7 +61,10 @@ Both have the full set: a menu, sitting (right-click), a frame trick, a display-
 - **Queen Ava**, sitting, keeps her gown pooled round her; only her slipper toes peek out at the hem now, not up through the front of the skirt.
 - **The Malevolent Snowbeast** looks as drawn: its jaws are unhinged, a white snow jaw dropped low with fangs, and the cyan is only the inside of its mouth. The old block of ice sat half inside its chest and face. Its hat sits on its head now instead of sunk into it (the head poked through the brim when it tipped), and its arms no longer vanish into its head in the slam.
 
+**The Wings of the Damned purify too:** toss them down beside a Golden Cross like the rest of the Regalia and they come up **Angelic**, pearl and royal purple feathers with gold, the same wings (and they count toward the angelic set; unpurified wings worn with it spoil it, like any other corrupt piece).
+
 **Fixes:**
+- **Golden Crosses** stand on the floor (or hang in front of the wall) where you set them, instead of sinking into the block.
 - Vesper no longer talks in the chat. His mutterings show in the action bar now, and much less often.
 - **Dennis's Ore Magnet and Pistachio's Spirit Jar work like satchels now.** Carried anywhere in your pack, each gathers its own kind within 8 blocks into itself (ores, metals and gems; mob drops), not into your pockets. Right-click to unfold it into a barrel (27 slots) and take things out; sneak or walk away to pack it up. No more switching on and off. When it's full it says so and leaves the rest on the ground.
 

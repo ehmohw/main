@@ -1,4 +1,4 @@
-"""2.85b: ANGELIC FORGING - the Hollow King's Regalia and Apophiss's crowns, purified with a Golden Cross.
+"""2.85b: ANGELIC FORGING - the Hollow King's Regalia (2.88: and the Wings of the Damned) and Apophiss's crowns, purified with a Golden Cross.
 
 THE FORGE      toss a piece of the Regalia (the Deathmask, the Ribcage, the Greaves, the Treads), one of the King's tools (the
                Soulreaver, the Gravedigger's Maw, the Headsman's Grief, the Barrow Spade, the Witherstring), Sepulchre, or
@@ -24,11 +24,12 @@ from nbt import snbt, B, F, Int
 HOLY, HOLY_D = '#e8e4ff', '#9a7aff'          # (2.85d: pearl and royal purple - no more washed-out yellow)
 ROYAL = '#5a7cff'
 ANGEL_IDS = ['conq_helmet', 'conq_chestplate', 'conq_leggings', 'conq_boots', 'conq_blade', 'conq_pick', 'conq_axe', 'conq_shovel',
-             'conq_hoe', 'conq_bow', 'sepulchre', 'apo_true_crown', 'apo_unbound_crown']
+             'conq_hoe', 'conq_bow', 'sepulchre', 'apo_true_crown', 'apo_unbound_crown', 'hollow_wings']
+WINGS = 'hollow_wings'                        # (2.88: the Wings of the Damned purify too - pearl and gold feathers, the same wings)
 ARMOR = {'conq_helmet': 'head', 'conq_chestplate': 'chest', 'conq_leggings': 'legs', 'conq_boots': 'feet'}
 VANILLA = {'conq_helmet': 'netherite_helmet', 'conq_chestplate': 'netherite_chestplate', 'conq_leggings': 'netherite_leggings',
            'conq_boots': 'netherite_boots', 'conq_blade': 'netherite_sword', 'conq_pick': 'netherite_pickaxe', 'conq_axe': 'netherite_axe',
-           'conq_shovel': 'netherite_shovel', 'conq_hoe': 'netherite_hoe', 'conq_bow': 'bow', 'sepulchre': 'mace'}
+           'conq_shovel': 'netherite_shovel', 'conq_hoe': 'netherite_hoe', 'conq_bow': 'bow', 'sepulchre': 'mace', 'hollow_wings': 'elytra'}
 holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
 ANGEL = '*[minecraft:custom_data~{bm_angel:1b}]'
 PURE = [T('✦ Purified: it wakes by day, not by night.', HOLY_D), T('  (A Blood Moon still wakes it.)', HOLY_D)]
@@ -65,6 +66,9 @@ def generate(G):
                                                                              'equip_sound': 'minecraft:item.armor.equip_netherite'}
             up['minecraft:trim'] = {'material': 'minecraft:gold', 'pattern': 'minecraft:silence'}
             down['minecraft:trim'] = {'material': 'minecraft:quartz', 'pattern': 'minecraft:silence'}
+        if iid == WINGS:                                   # (on your back: the angelic wings, or the elytra's own again)
+            up['minecraft:equippable'] = {'slot': 'chest', 'asset_id': 'bm:angelic_wings', 'equip_sound': 'minecraft:item.armor.equip_elytra', 'damage_on_hurt': False}
+            down['minecraft:equippable'] = {'slot': 'chest', 'asset_id': 'minecraft:elytra', 'equip_sound': 'minecraft:item.armor.equip_elytra', 'damage_on_hurt': False}
         wjson(f'bm/item_modifier/p182/up_{iid}.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_angel:1b}'},
                                                        {'function': 'minecraft:set_components', 'components': up},
                                                        {'function': 'minecraft:set_lore', 'mode': 'insert', 'offset': 0, 'lore': PURE}])
@@ -131,11 +135,12 @@ def generate(G):
     # ================================================================== WHO IS ANGELIC: every Regalia piece they wear is
     some = f'*[minecraft:custom_data~{{bm_set:"conqueror"}}]'
     corrupt = f'*[minecraft:custom_data~{{bm_set:"conqueror"}},!minecraft:custom_data~{{bm_angel:1b}}]'
+    wings_corrupt = f'*[minecraft:custom_data~{{bm:"{WINGS}"}},!minecraft:custom_data~{{bm_angel:1b}}]'
     k = next(i for i, l in enumerate(second) if 'function bm:p2/rg/second' in l)
     second[k:k] = ['execute as @a[tag=bm.angel] unless items entity @s armor.* ' + some + ' run function bm:p182/unangel',
                    'execute as @a[gamemode=!spectator] if items entity @s armor.* ' + some + ' run function bm:p182/angel_tag']
     fn('p182/angel_tag', ['scoreboard players set #an bm.rng 0',
-                          f'execute if items entity @s armor.* {ANGEL} unless items entity @s armor.* {corrupt} run scoreboard players set #an bm.rng 1',
+                          f'execute if items entity @s armor.* {ANGEL} unless items entity @s armor.* {corrupt} unless items entity @s armor.chest {wings_corrupt} run scoreboard players set #an bm.rng 1',
                           'execute if score #an bm.rng matches 1 unless entity @s[tag=bm.angel] run return run function bm:p182/angel_on',
                           'execute if score #an bm.rng matches 0 if entity @s[tag=bm.angel] run function bm:p182/unangel'])
     fn('p182/angel_on', ['tag @s add bm.angel', 'scoreboard players reset @s bm.rgt'])
@@ -195,7 +200,7 @@ def generate(G):
     # ================================================================== operators
     fn('admin/angelic', [give(i) for i in IDS] + [give('golden_cross', 16)])
     if 'admin/help' in G.FUNCS:
-        G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/angelic', 'yellow'), T('  the Regalia, its tools, the crowns and 16 Golden Crosses', 'gray')]))
+        G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/angelic', 'yellow'), T('  the Regalia, its tools, the wings, the crowns and 16 Golden Crosses', 'gray')]))
     print(f'2.85b: {len(IDS)} things can be purified')
 
 
@@ -273,7 +278,7 @@ def rp(R):
                 continue
             src = f'{VAN}/textures/item/{VANILLA[iid]}.png'
             t = save(f'angel_{iid}', _recolor(Image.open(src).convert('RGBA')))
-            parent = 'minecraft:item/generated' if iid in ARMOR else 'minecraft:item/handheld'
+            parent = 'minecraft:item/generated' if iid in ARMOR or iid == WINGS else 'minecraft:item/handheld'
             R2.wj(f'assets/bm/models/item/angel_{iid}.json', {'parent': parent, 'textures': {'layer0': t}})
             R2.wj(f'assets/bm/items/angel_{iid}.json', {'model': {'type': 'minecraft:model', 'model': f'bm:item/angel_{iid}'}})
         # the crowns: their own models, every texture on them turned to white gold
@@ -312,4 +317,9 @@ def rp(R):
             os.makedirs(d, exist_ok=True)
             im.save(os.path.join(d, 'angelic.png'))
         R2.wj('assets/bm/equipment/angelic.json', {'layers': {'humanoid': [{'texture': 'bm:angelic'}], 'humanoid_leggings': [{'texture': 'bm:angelic'}]}})
+        # (2.88) the Wings of the Damned, purified: the elytra's feathers in pearl, purple and gold
+        d = R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'wings')
+        os.makedirs(d, exist_ok=True)
+        _recolor(Image.open('/home/claude/bm_build/vendor/elytra_wings.png').convert('RGBA'), 0.3).save(os.path.join(d, 'angelic_wings.png'))
+        R2.wj('assets/bm/equipment/angelic_wings.json', {'layers': {'wings': [{'texture': 'bm:angelic_wings'}]}})
     R.POST.append(post)

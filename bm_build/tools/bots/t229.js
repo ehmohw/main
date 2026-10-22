@@ -56,6 +56,17 @@ const res = [];
   const gotC = await wait(4000, async () => (await has('apo_true_crown')) === 1);
   const cm = await run(`data get entity TestRat Inventory[{Slot:${await slotOf('apo_true_crown')}b}].components."minecraft:item_model"`);
   ok('Apophiss\'s True Crown the same way: angelic', gotC && /angel_apo_true_crown/.test(cm), `${gotC} ${await slotOf('apo_true_crown')} ${cm}`);
+  // 2.88: the Wings of the Damned
+  await run('loot give TestRat loot bm:items/hollow_wings'); await run('loot give TestRat loot bm:items/golden_cross'); await sleep(400);
+  await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} 0 60`); await sleep(400);
+  await toss(['hollow_wings', 'golden_cross']); await run(`tp TestRat ${X + 0.5} ${Y} ${Z - 4.5} 0 0`);
+  await wait(9000, async () => passes(`${O}execute as @e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..8] if items entity @s contents *[minecraft:custom_data~{bm:"hollow_wings",bm_angel:1b}]`));
+  await fetch('minecraft:overworld', 'hollow_wings');
+  const gotW = await wait(4000, async () => (await has('hollow_wings')) === 1);
+  const wc = await run(`data get entity TestRat Inventory[{Slot:${await slotOf('hollow_wings')}b}].components`);
+  ok('The Wings of the Damned the same way: angelic - the holy wings on your back (still an elytra: they glide)', gotW && /angel_hollow_wings/.test(wc) &&
+     /bm:angelic_wings/.test(wc) && !/"!minecraft:glider"/.test(wc), wc.slice(0, 240));
+  await run('clear TestRat *[minecraft:custom_data~{bm:"hollow_wings"}]');
 
   // ================================================================== 2. the purified set: woken by day
   await run(`item replace entity TestRat armor.head from entity TestRat hotbar.${hs}`); await run(`item replace entity TestRat hotbar.${hs} with minecraft:air`);

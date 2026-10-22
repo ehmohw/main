@@ -454,11 +454,14 @@ def generate(G):
                           'execute positioned ^ ^ ^-0.2 align xyz positioned ~0.5 ~0.5 ~0.5 run function bm:p181/cross/from',
                           'kill @e[type=minecraft:marker,tag=bm.gch]'])
     # (a wall north of the cell faces the cross south, and so on; the display's +z is its back, against the wall)
+    back = lambda off: ' '.join('~' + ('' if c == '~' else str(-int(c[1:]))) for c in off.split())
     walls = [('n', '~ ~ ~-1', 0, (0, 0.5, 0.42)), ('s', '~ ~ ~1', 180, (0, 0.5, 0.42)), ('w', '~-1 ~ ~', 270, (0, 0.5, 0.42)), ('e', '~1 ~ ~', 90, (0, 0.5, 0.42))]
     fn('p181/cross/from', ['execute unless block ~ ~ ~ #minecraft:replaceable run return 0',
                            'execute if entity @e[type=minecraft:marker,tag=bm.gcm,distance=..0.6] run return 0',
-                           'execute positioned ~ ~-1 ~ if entity @e[type=minecraft:marker,tag=bm.gch,distance=..0.1] run return run function bm:p181/cross/floor'] +
-       [f'execute positioned {off} if entity @e[type=minecraft:marker,tag=bm.gch,distance=..0.1] run return run function bm:p181/cross/wall_{d}' for d, off, _y, _t in walls])
+                           'execute positioned ~ ~-1 ~ if entity @e[type=minecraft:marker,tag=bm.gch,distance=..0.1] positioned ~ ~1 ~ run return run function bm:p181/cross/floor'] +
+       [f'execute positioned {off} if entity @e[type=minecraft:marker,tag=bm.gch,distance=..0.1] positioned {back(off)} run return run function bm:p181/cross/wall_{d}' for d, off, _y, _t in walls])
+    # (2.88: and back to the open cell before it's set up - the check's step down / into the wall used to carry on into the
+    #  placing, and the cross went into the block under it, or into the wall)
     fn('p181/cross/floor', [f'summon minecraft:item_display ~ ~-0.5 ~ {snbt(cross_disp([], "bm:golden_cross", ident, (0, 0.45, 0)))}',
                             'execute positioned ~ ~-0.5 ~ run function bm:p181/cross/set'])
     for d, _off, yaw, t in walls:

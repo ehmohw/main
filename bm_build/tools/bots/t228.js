@@ -131,6 +131,7 @@ const res = [];
   ok('The Golden Cross, sneak + use on the floor: set up', await passes(`${O}execute if entity @e[type=minecraft:marker,tag=bm.gcm,x=${X},y=${Y},z=${Z},distance=..4]`) &&
      (await has('golden_cross')) === 0);
   const g = (await run(`${O}data get entity @e[type=minecraft:marker,tag=bm.gcm,x=${X},y=${Y},z=${Z},distance=..4,limit=1] Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/).slice(1).map(Number);
+  ok('...standing on the floor, not sunk into the block under it (2.88)', Math.abs(g[1] - Y) < 0.05, `at y ${g[1]} (the floor's top is ${Y})`);
   await box(false); await run(`${O}tp ${STK} ${g[0] + 4} ${Y} ${g[2]}`); await sleep(3000);
   const dc = await dist(STK, g[0], g[1], g[2]);
   ok('...a Stalker set four blocks from it is thrown back out of its ground', dc >= 11, `${dc.toFixed(1)} blocks from the cross after 3 s`);
@@ -144,6 +145,8 @@ const res = [];
   const cs2 = await (async () => { for (let s = 0; s < 9; s++) if (/golden_cross/.test(await run(`data get entity TestRat Inventory[{Slot:${s}b}].components."minecraft:custom_data".bm`))) return s; return -1; })();
   A.slot(cs2); await sleep(300); A.input({ shift: true }); await sleep(300); A.use(); await sleep(250); A.release(); await sleep(500); A.input({}); await sleep(300);
   ok('...and one on a wall: hung on it, facing out', /golden_cross_wall/.test(await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.gcd,x=${X + 2.5},y=${Y + 1},z=${Z + 0.5},distance=..1.2,limit=1] item`)));
+  const gw = (await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.gcd,x=${X + 2.5},y=${Y + 1},z=${Z + 0.5},distance=..1.6,limit=1] Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/).slice(1).map(Number);
+  ok('...in the open cell in front of the wall, not inside it (2.88)', Math.abs(gw[0] - (X + 2.5)) < 0.05 && Math.abs(gw[1] - Y) < 0.05, `at ${gw.join(', ')}`);
   for (const sel of [`@e[type=minecraft:interaction,tag=bm.gci,x=${X + 2.5},y=${Y + 1},z=${Z + 0.5},distance=..1.5,limit=1]`,
                      `@e[type=minecraft:interaction,tag=bm.gci,x=${X},y=${Y},z=${Z},distance=..4,limit=1]`]) { A.attack(await uuidEnt(sel)); await sleep(700); }
   ok('...punched, both come back to the pack', (await has('golden_cross')) === 2 && !(await passes(`${O}execute if entity @e[type=minecraft:marker,tag=bm.gcm,x=${X},y=${Y},z=${Z},distance=..6]`)));
