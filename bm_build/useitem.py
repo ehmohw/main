@@ -45,6 +45,8 @@ def generate(G):
             fn(f'gb/{n}', [f'execute unless items entity @s weapon.mainhand * run return run item replace entity @s weapon.mainhand with {arg}',
                            f'execute unless items entity @s weapon.offhand * run return run item replace entity @s weapon.offhand with {arg}',
                            f'give @s {arg}'])
+    # (2.89: every use runs at @s - an advancement's reward brings the player's position but not where they look, so anything
+    #  aimed with ^ ^ ^ or anchored eyes went out level and due south; the Arachno-Lantern's Glare missed all it was aimed at)
     for iid, func in sorted(HOLD_REPEAT.items()):
         wjson(f'bm/advancement/hold/{iid}.json', {
             'criteria': {'use': {'trigger': 'minecraft:using_item', 'conditions': {
@@ -55,7 +57,7 @@ def generate(G):
                            'scoreboard players operation #gap bm.hnow = #now bm.hnow', 'scoreboard players operation #gap bm.hnow -= @s bm.huse',
                            'scoreboard players operation @s bm.huse = #now bm.hnow',
                            'execute store success score #first bm.hnow if score #gap bm.hnow matches 3..',
-                           f'function {func}'])
+                           f'execute at @s run function {func}'])
     for iid, func in sorted(HOLD.items()):
         wjson(f'bm/advancement/hold/{iid}.json', {
             'criteria': {'use': {'trigger': 'minecraft:using_item', 'conditions': {
@@ -66,4 +68,4 @@ def generate(G):
                            'scoreboard players operation #gap bm.hnow = #now bm.hnow', 'scoreboard players operation #gap bm.hnow -= @s bm.huse',
                            'scoreboard players operation @s bm.huse = #now bm.hnow',
                            'execute if score #gap bm.hnow matches 0..2 run return 0',
-                           f'function {func}'])
+                           f'execute at @s run function {func}'])

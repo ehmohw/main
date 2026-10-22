@@ -35,6 +35,8 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 
 **Bloo** doesn't bury his head in his own shoulders when he swims, and his claw swipe no longer goes through his chest.
 
+**The Lantern's Glare hits what you look at.** The beam from the saddle used to fire straight ahead at eye level whatever you were looking at, so it sailed over anything on the ground. It now follows where you look, and so does every other custom item that aims where you're looking.
+
 ## New in 2.88: the Dread bosses, Bender and Bones
 
 **Three Dread bosses** *(hard mode only)*. Each waits at its own rare ruin, and its altar only wakes for the right three followers. Right-click the altar: it shows who's there (✔) and who's missing (✘).
