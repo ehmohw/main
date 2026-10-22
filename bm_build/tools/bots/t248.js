@@ -56,8 +56,9 @@ const res = [];
     for (const c of A.chats) { const m = c.match(/^(Democratus|Apophiss|KillerWatt): /); if (m) heard.add(c.slice(0, 40)); if (/what is left of their gem|still dying/.test(c)) gem = true; }
     A.chats.length = 0;
   }
-  ok('...and they talk of the old war: "where the sea-folk keep what is left of their gem" - "My land is still dying"', gem, [...heard].join(' | ').slice(0, 300));
-  ok('...from a pool of more than three exchanges', heard.size > 6, `${heard.size} lines heard`);
+  // (those two exchanges are the trio's fourth and fifth: heard at all, the banter draws from the whole pool, not its first three)
+  ok('...and they talk of the old war: "where the sea-folk keep what is left of their gem" - "My land is still dying" (past the first three exchanges)', gem,
+     [...heard].join(' | ').slice(0, 300));
 
   // ---- put things back
   for (const k in PETS) await run(`${O}kill @e[tag=${PETS[k][1]}]`);
