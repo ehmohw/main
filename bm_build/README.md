@@ -21,6 +21,13 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.90b: the Dread's armour
+
+**Dread monsters wear their own eldritch armour** in place of trimmed netherite:
+- **The Dread Visage** (the helmet) is a true 3D model on the monster's head: a hood of black chitin that swallows its face, a ring of red eyes across the brow and more opening on its sides, a slit of a maw lined with teeth, mandibles at the jaw, two great bone horns sweeping out and back, a crown of spines along its crest, and tendrils of dark flesh hanging down its back.
+- **The void-plate** (chest, legs, boots) is black and cracked with red light, with bone ribs over the breast, an eye staring out of the breastbone, and bony knee-caps.
+- It's theirs alone: a Dread never drops any of it, and its protection is the same as before.
+
 ## New in 2.90a: a clearer hard-mode announcement
 
 **The message when hard mode wakes reads plainly now**, and it's up to date:
