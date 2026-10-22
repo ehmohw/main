@@ -58,10 +58,17 @@ Both have the full set: a menu, sitting (right-click), a frame trick, a display-
 - **Ashur's** eyes are bigger.
 - **Bender** no longer looks like he has eyebrows: the tan spots over his eyes are gone, and his mask fades out at the top instead of ending in a hard line.
 - **Queen Pearl** sits properly now: down on the ground, legs out, with her dress over her lap (the shift to her knees, the gown down to her slippers). It used to hang stiff below her like a stool, with her legs poking through the front.
+- **Queen Pearl** no longer winks all the time: both eyes open, and she winks only for her Wink.
+- **Queen Ava's** pale shoulder caps no longer cut into her shoulders: their outer half rides on her arms now, lifting with them when she raises a hand.
 - **Queen Ava**, sitting, keeps her gown pooled round her; only her slipper toes peek out at the hem now, not up through the front of the skirt.
 - **The Malevolent Snowbeast** looks as drawn: its jaws are unhinged, a white snow jaw dropped low with fangs, and the cyan is only the inside of its mouth. The old block of ice sat half inside its chest and face. Its hat sits on its head now instead of sunk into it (the head poked through the brim when it tipped), and its arms no longer vanish into its head in the slam.
 
-**The Wings of the Damned purify too:** toss them down beside a Golden Cross like the rest of the Regalia and they come up **Angelic**, pearl and royal purple feathers with gold, the same wings (and they count toward the angelic set; unpurified wings worn with it spoil it, like any other corrupt piece).
+**Angelic is now Holy.** The purified Regalia, its tools, the crowns and the wings are **Holy** (the Holy Ribcage, the Holy Sepulchre...), and they look the part:
+- Their light is fire and gleaming light: a halo of little flames and glints, flames rising round you by day, embers on a Blood Moon.
+- Their weapons and tools match: the Holy Sepulchre's quake, the Wither Nova (now the **Solar Nova**), the Holy Blade's Rend (now **Sun Rend**), the dig and the felling all throw flame and glinting light instead of souls and smoke. **What withered now burns**: foes are set alight and lit up instead.
+- The Holy Bow's arrows trail light and set what they hit on fire (**Searing Shot** in place of Withering Shot; corrupt it again and it withers again).
+
+**The Wings of the Damned purify too:** toss them down beside a Golden Cross like the rest of the Regalia and they come up **Holy**, pearl and royal purple feathers with gold, the same wings, trailing flame and light. They count toward the holy set; unpurified wings worn with it spoil it, like any other corrupt piece.
 
 **Fixes:**
 - **Golden Crosses** stand on the floor (or hang in front of the wall) where you set them, instead of sinking into the block.

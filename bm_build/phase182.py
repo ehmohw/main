@@ -1,4 +1,4 @@
-"""2.85b: ANGELIC FORGING - the Hollow King's Regalia (2.88: and the Wings of the Damned) and Apophiss's crowns, purified with a Golden Cross.
+"""2.85b: HOLY FORGING (2.88: "angelic" renamed Holy; its light and its weapons' effects turned to fire and gleaming light) - the Hollow King's Regalia (2.88: and the Wings of the Damned) and Apophiss's crowns, purified with a Golden Cross.
 
 THE FORGE      toss a piece of the Regalia (the Deathmask, the Ribcage, the Greaves, the Treads), one of the King's tools (the
                Soulreaver, the Gravedigger's Maw, the Headsman's Grief, the Barrow Spade, the Witherstring), Sepulchre, or
@@ -32,15 +32,90 @@ VANILLA = {'conq_helmet': 'netherite_helmet', 'conq_chestplate': 'netherite_ches
            'conq_shovel': 'netherite_shovel', 'conq_hoe': 'netherite_hoe', 'conq_bow': 'bow', 'sepulchre': 'mace', 'hollow_wings': 'elytra'}
 holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
 ANGEL = '*[minecraft:custom_data~{bm_angel:1b}]'
-PURE = [T('✦ Purified: it wakes by day, not by night.', HOLY_D), T('  (A Blood Moon still wakes it.)', HOLY_D)]
+PURE = [T('✦ Holy: it wakes by day, not by night.', HOLY_D), T('  (A Blood Moon still wakes it.)', HOLY_D),
+        T('✦ What withered now burns: fire and light.', HOLY_D)]
 
 
 def ids():
     return [i for i in ANGEL_IDS if i in ITEMS]
 
 
+HOLY_PART = [('minecraft:soul_fire_flame', 'minecraft:flame'), ('minecraft:sculk_soul', 'minecraft:end_rod'), ('minecraft:large_smoke', 'minecraft:flame'),
+             ('minecraft:smoke', 'minecraft:small_flame'), ('minecraft:soul ', 'minecraft:wax_on '), ('minecraft:ash', 'minecraft:end_rod'),
+             ('minecraft:squid_ink', 'minecraft:flame'), ('minecraft:crimson_spore', 'minecraft:wax_on')]
+HOLY_SOUND = [('entity.wither.shoot', 'entity.blaze.shoot'), ('entity.wither.spawn', 'block.beacon.activate'), ('entity.wither.ambient', 'block.beacon.power_select'),
+              ('entity.wither.break_block', 'item.firecharge.use'), ('entity.warden.heartbeat', 'block.bell.resonate')]
+HOLY_WORD = [('WITHER NOVA', 'SOLAR NOVA'), ('still gathering death', 'still gathering light'), ('Soul Rend', 'Sun Rend')]
+
+
+def holy_line(l):
+    """a line of a Regalia effect, made holy: souls and smoke to flame and glinting light, dark dust to gold, wither to burning"""
+    import re
+    for a, b in HOLY_PART + HOLY_SOUND + HOLY_WORD:
+        l = l.replace(a, b)
+    def gold(m):
+        r, g, b = (float(v) for v in m.group(1).split(','))
+        return m.group(0) if r + g + b > 0.9 else m.group(0).replace(m.group(1), '1.0,0.8,0.32')
+    l = re.sub(r'dust\{color:\[([\d.]+,[\d.]+,[\d.]+)\]', gold, l)
+    l = re.sub(r'effect give @s minecraft:wither (\d+) \d+', lambda m: f'function bm:p182/burn_{int(m.group(1))}', l)
+    return l
+
+
+def holy_twins(G):
+    """(2.88) Holy, not angelic: the Regalia's own effects (the Wither Nova, Sepulchre's quake), the Hollow tools' (the dig, the felling,
+    the Soul Rend, the arrows), and the Wings of the Damned's trail, each with a holy twin - the same thing in fire and gleaming light,
+    and what withered burns. A root runs its twin when what it comes from is holy; everything it calls is twinned with it."""
+    import re
+    F, fn = G.FUNCS, G.fn
+    holy_wings = '*[minecraft:custom_data~{bm:"hollow_wings",bm_angel:1b}]'
+    ROOTS = {'p2/rg/gesture': 'if function bm:p182/is_angel', 'p2/rg/mace_use': 'if function bm:p182/is_angel',
+             'p2/rg/smash': 'if function bm:p182/is_angel', 'p2/rg/kill': 'if entity @s[tag=bm.angel]',
+             'p2/ht/pick': f'if items entity @s weapon.mainhand {ANGEL}', 'p2/ht/shovel': f'if items entity @s weapon.mainhand {ANGEL}',
+             'p2/ht/axe': f'if items entity @s weapon.mainhand {ANGEL}', 'p2/ht/hoe': f'if items entity @s weapon.mainhand {ANGEL}',
+             'p2/ht/blade': f'if items entity @s weapon.mainhand {ANGEL}', 'p2/ht/arrow_fx': 'if entity @s[tag=bm.harrow]',
+             'p2/ht/wings': f'if items entity @s armor.chest {holy_wings}', 'p2/ht/burn': f'if items entity @s armor.chest {holy_wings}'}
+    ref = re.compile(r'function bm:(p2/(?:rg|ht)/[\w/]+)')
+    memo = {}
+    def lit(f, seen=()):                        # (does it, or anything it calls, show or do something to make holy)
+        if f in memo: return memo[f]
+        if f not in F or f in seen: return False
+        own = any('particle ' in l or 'minecraft:wither' in l or 'playsound minecraft:entity.wither' in l for l in F[f])
+        memo[f] = own or any(lit(g, seen + (f,)) for l in F[f] for g in ref.findall(l))
+        return memo[f]
+    twins = set()
+    def twin(f):
+        if f in twins: return
+        twins.add(f)
+        for l in F[f]:
+            for g in ref.findall(l):
+                if lit(g): twin(g)
+    for r in ROOTS:
+        assert r in F, r
+        twin(r)
+    for f in sorted(twins):
+        body = [holy_line(l) for l in F[f]]
+        body = [ref.sub(lambda m: f'function bm:{m.group(1)}_holy' if m.group(1) in twins else m.group(0), l) for l in body]
+        fn(f'{f}_holy', body)
+    for r, cond in ROOTS.items():
+        F[r].insert(0, f'execute {cond} run return run function bm:{r}_holy')
+    # what withered burns (a mob set alight; anyone lit up), for as long as the wither would have lasted
+    for n in sorted({int(m) for f in twins for l in F[f] for m in re.findall(r'effect give @s minecraft:wither (\d+)', l)}):
+        fn(f'p182/burn_{n}', [f'execute unless entity @s[type=minecraft:player] run data merge entity @s {{Fire:{n * 20}s}}',
+                              f'effect give @s minecraft:glowing {n} 0 true', 'particle minecraft:flame ~ ~1 ~ 0.3 0.5 0.3 0.02 6'])
+    # the holy bow's arrows: marked at the string, so their trail is light
+    F['p2/ht/arrow'] += ['execute store success score #hb bm.rng on origin if items entity @s weapon.* *[minecraft:custom_data~{bm:"conq_bow",bm_angel:1b}]',
+                         'execute if score #hb bm.rng matches 1 run tag @s add bm.harrow']
+    G.wjson('bm/enchantment/p182/searing_shot.json', {
+        'description': {'text': 'Searing Shot', 'color': '#ffc84a'}, 'anvil_cost': 8, 'max_level': 1, 'weight': 1, 'slots': ['mainhand'],
+        'min_cost': {'base': 1, 'per_level_above_first': 0}, 'max_cost': {'base': 1, 'per_level_above_first': 0},
+        'supported_items': '#minecraft:enchantable/bow',
+        'effects': {'minecraft:projectile_spawned': [{'effect': {'type': 'minecraft:run_function', 'function': 'bm:p2/ht/arrow'}}],
+                    'minecraft:post_attack': [{'affected': 'victim', 'enchanted': 'attacker', 'effect': {'type': 'minecraft:ignite', 'duration': 6.0}}]}})
+    return len(twins)
+
+
 def angel_name(iid):
-    return {'text': '', 'italic': False, 'extra': [{'text': '✦ ', 'color': HOLY_D}, {'text': 'Angelic ', 'color': ROYAL, 'bold': True}, {'text': ITEMS[iid]['name'], 'color': HOLY, 'bold': True},
+    return {'text': '', 'italic': False, 'extra': [{'text': '✦ ', 'color': HOLY_D}, {'text': 'Holy ', 'color': ROYAL, 'bold': True}, {'text': ITEMS[iid]['name'], 'color': HOLY, 'bold': True},
                                                    {'text': ' ✦', 'color': HOLY_D}]}
 
 
@@ -69,10 +144,12 @@ def generate(G):
         if iid == WINGS:                                   # (on your back: the angelic wings, or the elytra's own again)
             up['minecraft:equippable'] = {'slot': 'chest', 'asset_id': 'bm:angelic_wings', 'equip_sound': 'minecraft:item.armor.equip_elytra', 'damage_on_hurt': False}
             down['minecraft:equippable'] = {'slot': 'chest', 'asset_id': 'minecraft:elytra', 'equip_sound': 'minecraft:item.armor.equip_elytra', 'damage_on_hurt': False}
-        wjson(f'bm/item_modifier/p182/up_{iid}.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_angel:1b}'},
+        bow_up = [{'function': 'minecraft:set_enchantments', 'enchantments': {'bm:withering_shot': 0, 'bm:p182/searing_shot': 1}}] if iid == 'conq_bow' else []
+        bow_down = [{'function': 'minecraft:set_enchantments', 'enchantments': {'bm:p182/searing_shot': 0, 'bm:withering_shot': 1}}] if iid == 'conq_bow' else []
+        wjson(f'bm/item_modifier/p182/up_{iid}.json', bow_up + [{'function': 'minecraft:set_custom_data', 'tag': '{bm_angel:1b}'},
                                                        {'function': 'minecraft:set_components', 'components': up},
                                                        {'function': 'minecraft:set_lore', 'mode': 'insert', 'offset': 0, 'lore': PURE}])
-        wjson(f'bm/item_modifier/p182/down_{iid}.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_angel:0b}'},
+        wjson(f'bm/item_modifier/p182/down_{iid}.json', bow_down + [{'function': 'minecraft:set_custom_data', 'tag': '{bm_angel:0b}'},
                                                          {'function': 'minecraft:set_components', 'components': down},
                                                          {'function': 'minecraft:set_lore', 'mode': 'replace_section', 'offset': 0, 'size': len(PURE), 'lore': []}])
     fn('p182/up', [f'execute if items entity @s contents {holds(i)} run return run item modify entity @s contents bm:p182/up_{i}' for i in IDS])
@@ -97,7 +174,7 @@ def generate(G):
     fn('p182/f/tick', ['execute unless entity @e[type=minecraft:item,tag=bm.angc,distance=..3] run return run function bm:p182/f/fail',
                        'scoreboard players remove @s bm.angf 1',
                        'particle minecraft:end_rod ~ ~0.6 ~ 0.08 1.2 0.08 0.02 20', 'particle minecraft:wax_on ~ ~0.8 ~ 0.6 0.6 0.6 0 12',
-                       'particle minecraft:dust{color:[0.6,0.5,1.0],scale:1.4} ~ ~1.5 ~ 0.4 1.0 0.4 0 10', 'particle minecraft:dust{color:[0.4,0.6,1.0],scale:1.2} ~ ~1.5 ~ 0.4 1.0 0.4 0 8',
+                       'particle minecraft:flame ~ ~0.4 ~ 0.4 0.2 0.4 0.02 8', 'particle minecraft:small_flame ~ ~1.2 ~ 0.3 0.6 0.3 0.01 6',
                        'playsound minecraft:block.amethyst_block.chime block @a[distance=..16] ~ ~ ~ 1 1.8',
                        'execute if score @s bm.angf matches ..0 run function bm:p182/f/done'])
     fn('p182/f/fail', ['tag @s remove bm.angf', 'data modify entity @s PickupDelay set value 0s', 'scoreboard players reset @s bm.angf',
@@ -109,7 +186,7 @@ def generate(G):
                        'particle minecraft:totem_of_undying ~ ~0.8 ~ 0.3 0.4 0.3 0.4 40',
                        'playsound minecraft:item.totem.use block @a[distance=..16] ~ ~ ~ 0.7 1.4',
                        'playsound minecraft:ui.toast.challenge_complete block @a[distance=..16] ~ ~ ~ 0.8 1.3',
-                       'execute as @a[distance=..12] run ' + title('@s', 'actionbar', T('It comes up pearl, purple and gold - purified.', HOLY, bold=True))])
+                       'execute as @a[distance=..12] run ' + title('@s', 'actionbar', T('It comes up in pearl, purple and gold - holy.', HOLY, bold=True))])
     fn('p182/f/spend', ['tag @s remove bm.angf', 'tag @s remove bm.angc', 'data modify entity @s PickupDelay set value 0s',
                         'execute store result score #n bm.rng run data get entity @s Item.count',
                         'execute if score #n bm.rng matches ..1 run return run kill @s',
@@ -169,13 +246,14 @@ def generate(G):
         'execute if score #rg bm.rng matches 1.. run playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 0.5 1.6',
         'execute if score #rg bm.rng matches 1.. run particle minecraft:end_rod ~ ~1 ~ 0.4 0.8 0.4 0.03 20'])
     G.FUNCS['p2/rg/fast'].insert(0, 'execute if entity @s[tag=bm.angel] run return run function bm:p182/fast')
-    halo = [f'particle minecraft:dust{{color:{("[0.62,0.48,1.0]", "[0.42,0.6,1.0]", "[1.0,0.86,0.4]", "[0.42,0.6,1.0]")[i % 4]},scale:0.6}} ~{0.3 * math.cos(2 * math.pi * i / 8):.2f} ~2.3 ~{0.3 * math.sin(2 * math.pi * i / 8):.2f} 0 0 0 0 1'
-            for i in range(8)]     # (a royal halo: purple and blue, with gold at its points)
-    fn('p182/fx_0', ['particle minecraft:dust{color:[0.5,0.55,1.0],scale:0.7} ~ ~1.2 ~ 0.3 0.5 0.3 0 1'])
-    fn('p182/fx_1', halo + ['particle minecraft:end_rod ~ ~1 ~ 0.3 0.6 0.3 0.005 1'])
-    fn('p182/fx_2', halo + ['particle minecraft:end_rod ~ ~1 ~ 0.35 0.7 0.35 0.01 2', 'particle minecraft:wax_on ~ ~1.4 ~ 0.4 0.6 0.4 0 2'])
-    fn('p182/fx_3', halo + ['particle minecraft:dust{color:[1.0,0.35,0.2],scale:1.1} ~ ~1.2 ~ 0.3 0.5 0.3 0 2', 'particle minecraft:end_rod ~ ~1 ~ 0.3 0.6 0.3 0.01 1'])
-    fn('p182/fx_5', halo + ['particle minecraft:wax_on ~ ~1 ~ 0.4 0.6 0.4 0 2'])
+    halo = [f'particle {("minecraft:small_flame", "minecraft:end_rod")[i % 2]} ~{0.3 * math.cos(2 * math.pi * i / 8):.2f} ~2.3 ~{0.3 * math.sin(2 * math.pi * i / 8):.2f} 0 0 0 0 1'
+            for i in range(8)]     # (2.88: a halo of fire and light - little flames between glints)
+    fn('p182/fx_0', ['particle minecraft:end_rod ~ ~1.2 ~ 0.3 0.5 0.3 0.002 1'])
+    fn('p182/fx_1', halo + ['particle minecraft:flame ~ ~0.5 ~ 0.3 0.3 0.3 0.005 1'])
+    fn('p182/fx_2', halo + ['particle minecraft:flame ~ ~0.6 ~ 0.35 0.4 0.35 0.01 2', 'particle minecraft:end_rod ~ ~1 ~ 0.35 0.7 0.35 0.01 2',
+                            'particle minecraft:wax_on ~ ~1.4 ~ 0.4 0.6 0.4 0 2'])
+    fn('p182/fx_3', halo + ['particle minecraft:flame ~ ~1 ~ 0.3 0.5 0.3 0.02 3', 'particle minecraft:lava ~ ~1.2 ~ 0.3 0.4 0.3 0 1'])
+    fn('p182/fx_5', halo + ['particle minecraft:wax_on ~ ~1 ~ 0.4 0.6 0.4 0 2', 'particle minecraft:small_flame ~ ~0.6 ~ 0.3 0.3 0.3 0.005 1'])
     fn('p182/fast', [f'execute if score @s bm.rgt matches {t} run function bm:p182/fx_{t}' for t in (0, 1, 2, 3, 5)] + ['function bm:p2/rg/gesture'])
 
     # ================================================================== THE CROWNS: their gift by day (and on a Blood Moon), and their light
@@ -188,7 +266,7 @@ def generate(G):
     G.FUNCS['p131/crown/glow'].insert(0, f'execute if items entity @s contents {ANGEL} run return run function bm:p182/crown_glow')
     bob = lambda y: f'data merge entity @s {{start_interpolation:0,interpolation_duration:20,transformation:{{translation:[0f,{y}f,0f]}}}}'
     fn('p182/crown_glow', ['scoreboard players add @s bm.apt 1', 'tp @s ~ ~ ~ ~4 ~',
-                           'particle minecraft:dust{color:[0.62,0.5,1.0],scale:0.6} ~ ~0.45 ~ 0.22 0.14 0.22 0 2',
+                           'particle minecraft:small_flame ~ ~0.45 ~ 0.2 0.12 0.2 0.003 1',
                            'execute store result score #r bm.rng run random value 0..5',
                            'execute if score #r bm.rng matches 0..2 run particle minecraft:end_rod ~ ~0.75 ~ 0.18 0.1 0.18 0.01 1',
                            'execute if score #r bm.rng matches 3 run particle minecraft:wax_on ~ ~0.6 ~ 0.25 0.1 0.25 0 2',
@@ -197,10 +275,12 @@ def generate(G):
                            'execute if score #f bm.rng matches 0 run ' + bob(0.14), 'execute if score #f bm.rng matches 4 run ' + bob(0.03),
                            'execute if score #f bm.rng matches 0 if score #r bm.rng matches 0..2 run playsound minecraft:block.amethyst_block.chime block @a[distance=..10] ~ ~ ~ 0.5 1.6'])
 
+    holy_twins(G)
+
     # ================================================================== operators
     fn('admin/angelic', [give(i) for i in IDS] + [give('golden_cross', 16)])
     if 'admin/help' in G.FUNCS:
-        G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/angelic', 'yellow'), T('  the Regalia, its tools, the wings, the crowns and 16 Golden Crosses', 'gray')]))
+        G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/angelic', 'yellow'), T('  the Regalia, its tools, the wings, the crowns and 16 Golden Crosses (to make holy)', 'gray')]))
     print(f'2.85b: {len(IDS)} things can be purified')
 
 

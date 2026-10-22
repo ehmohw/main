@@ -162,13 +162,12 @@ PEARL_HAIR = ('#4e2c12', '#6e4420')
 
 
 def pearl_face(kind=None):
-    """Pearl: one big blue eye - starry, a sparkle in it - and the other winking under the mint swoop that falls across her right
+    """Pearl: big blue eyes - the open one starry, a sparkle in it - the right one under the mint swoop that falls across her right
     eye (the sheet's left) from a parting high on her left; rosy cheeks; a sly, crooked smile"""
     im = Image.new('RGBA', (64, 64), hexc(PEARL_SKIN))
     for y in range(8):
         for x in range(36): _put(im, x, y, PEARL_SKIN_DK)
-    wk = kind if kind in ('happy', 'blink', 'hurt', 'shout') else 'wink'                  # her right eye: winking unless she's surprised, hurt or blinking
-    if kind in ('shout',): wk = None
+    wk = kind if kind in ('happy', 'blink', 'hurt', 'wink') else None                    # (2.88: both eyes open - she winks only for her Wink)
     _eye(im, 9, 13, PEARL_IRIS, False, wk, h=13)
     _eye(im, 27, 13, PEARL_IRIS, True, kind if kind != 'wink' else None, h=13)
     if kind not in ('happy', 'blink', 'hurt', 'wink'):                                    # the star in her open eye

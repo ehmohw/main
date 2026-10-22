@@ -274,9 +274,9 @@ def models():
              el((-1.9, 22.4, -1.9), (1.9, 24.0, -1.2), 'av_navy_dk', pv),                         # the high collar: front...
              el((-1.9, 22.4, 1.2), (1.9, 24.6, 1.9), 'av_navy_dk', pv),                           # ...back
              el((-1.95, 22.4, -1.9), (-1.3, 24.4, 1.9), 'av_navy_dk', pv), el((1.3, 22.4, -1.9), (1.95, 24.4, 1.9), 'av_navy_dk', pv)]
-    for sx in (-1, 1):                                                                          # the pale shoulder caps
-        body.append(el((sx * 2.4 - 1.6, 21.6, -2.8), (sx * 2.4 + 1.6, 22.9, 2.8), 'av_ice', pv, rot=('z', -12 * sx, (sx * 2.4, 22.2, 0))))
-        body.append(el((sx * 3.6 - 0.9, 20.6, -2.7), (sx * 3.6 + 0.9, 22.2, 2.7), 'av_ice', pv, rot=('z', -40 * sx, (sx * 3.6, 21.4, 0))))
+    for sx in (-1, 1):                                                                          # the pale shoulder caps' inner halves
+        # (2.88: kept in from the arm - the cap's outer half rides on the arm itself now, so a raised arm doesn't cut through it)
+        body.append(el((sx * 1.95 - 1.15, 21.6, -2.8), (sx * 1.95 + 1.15, 22.9, 2.8), 'av_ice', pv, rot=('z', -12 * sx, (sx * 1.95, 22.2, 0))))
     part('av_body', body)
 
     # ---- the head: Emma's head (9 x 8 x 8, the face in Emma's own pixel scale); a chin-length bob - the bangs swept across her
@@ -325,7 +325,11 @@ def models():
     # ---- the arms: long navy sleeves to the elbow; white gloves to above the elbow's crook, the scalloped cuffs
     def upper(sx):
         pv = PIVOT['armr' if sx > 0 else 'arml']; x0, y0, _ = pv
-        return chain([(x0, y0 + 0.4, 0), (sx * 4.7, 18.6, 0)], [2.3], 2.3, 'av_navy', pv, FRONT, ext=0.3)
+        a = chain([(x0, y0 + 0.4, 0), (sx * 4.7, 18.6, 0)], [2.3], 2.3, 'av_navy', pv, FRONT, ext=0.3)
+        lo, hi = sorted((x0 + sx * 1.2, x0 + sx * 1.6))
+        a += [el((x0 - 1.5, 22.6, -1.5), (x0 + 1.5, 23.8, 1.5), 'av_ice', pv),                    # the pale cap's outer half, on the shoulder
+              el((lo, 21.0, -1.45), (hi, 23.6, 1.45), 'av_ice', pv)]                                # (falling over the top of the sleeve)
+        return a
     def lower(sx):
         pv = PIVOT['forer' if sx > 0 else 'forel']; ex, ey, _ = pv
         wx, wy = sx * 4.9, 14.4
