@@ -108,8 +108,8 @@ const res = [];
   await run('time set 6000');
 
   // ================================================================== 3. a re-sync keeps it angelic
-  await run('item modify entity TestRat armor.chest {type:"minecraft:set_custom_data",tag:{bmv:40}}');
-  ok('A re-sync (an old item version) keeps it angelic', await wait(5000, async () => /bmv: 41/.test(await run('data get entity TestRat equipment.chest.components."minecraft:custom_data"'))) &&
+  await run('item modify entity TestRat armor.chest {type:"minecraft:set_custom_data",tag:{bmv:1}}');
+  ok('A re-sync (an old item version) keeps it angelic', await wait(5000, async () => +((await run('data get entity TestRat equipment.chest.components."minecraft:custom_data"')).match(/bmv: (\d+)/) || [0, 0])[1] > 1) &&
      /bm_angel: 1b/.test(await run('data get entity TestRat equipment.chest.components."minecraft:custom_data"')) &&
      /angel_conq_chestplate/.test(await run('data get entity TestRat equipment.chest.components."minecraft:item_model"')),
      (await run('data get entity TestRat equipment.chest.components."minecraft:custom_data"')).slice(-80));

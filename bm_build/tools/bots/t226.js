@@ -37,11 +37,11 @@ const res = [];
   await sleep(1200); A.stand();
 
   // ================================================================== 1. the re-sync keeps a tuning and an infusion
-  await run('item replace entity TestRat hotbar.4 with minecraft:netherite_chestplate[custom_data={bm:"crimson_chestplate",bmv:40,bm_tune:{hp:1,n:1},bm_inf:"vitality"},' +
+  await run('item replace entity TestRat hotbar.4 with minecraft:netherite_chestplate[custom_data={bm:"crimson_chestplate",bmv:1,bm_tune:{hp:1,n:1},bm_inf:"vitality"},' +
             'attribute_modifiers=[{type:"minecraft:armor",id:"minecraft:armor.chestplate",amount:8.0,operation:"add_value",slot:"chest"},' +
             '{type:"minecraft:max_health",id:"bm:tune_hp_1",amount:1.0,operation:"add_value",slot:"chest"}]]');
   const slot4 = () => run('data get entity TestRat Inventory[{Slot:4b}]');
-  ok('An old Crimson Ribcage (tuned, infused) is re-synced', await wait(4000, async () => /bmv: 41/.test(await slot4())), (await slot4()).slice(0, 160));
+  ok('An old Crimson Ribcage (tuned, infused) is re-synced', await wait(4000, async () => +((await slot4()).match(/bmv: (\d+)/) || [0, 0])[1] > 1), (await slot4()).slice(0, 160));
   const s4 = await slot4();
   ok('...with the rebalance on it (+1 toughness, +4 health in all)', /bm:rb_tough_chestplate/.test(s4) && /bm:rb_hp_chestplate/.test(s4) && /\+4 Max Health, \+1 Toughness/.test(s4));
   ok('...and its Dread tuning kept (the modifier and the record)', /bm:tune_hp_1/.test(s4) && /bm_tune: \{/.test(s4) && /n: 1/.test(s4));

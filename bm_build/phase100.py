@@ -99,8 +99,9 @@ def generate(G):
     fn('p100/formed', fm)
     # banter: every couple of minutes, one of the trio's exchanges
     line = lambda n, txt: tellraw('@s', [T(f'{n}: ', VOICE[n][0], bold=True), T(txt if n != 'KillerWatt' else txt, VOICE[n][1], italic=n == 'KillerWatt')])
-    bt = ['scoreboard players add @s bm.triob 1', 'execute if score @s bm.triob matches ..120 run return 0', 'scoreboard players set @s bm.triob 0',
-          'execute store result score #r bm.rng run random value 1..3']
+    bt = ['scoreboard players add @s bm.triob 1', 'execute if score @s bm.triob matches ..120 run return 0', 'scoreboard players set @s bm.triob 0']
+    # (each trio draws from its own pool - some have more to say than others)
+    bt += [f'execute if score #tr bm.rng matches {i} store result score #r bm.rng run random value 1..{len(BANTER[k])}' for i, k in enumerate(TRIOS, 1)]
     for i, k in enumerate(TRIOS, 1):
         for j, (a, ta, b, tb) in enumerate(BANTER[k], 1):
             fn(f'p100/say_{k}{j}', [line(a, ta if a == 'KillerWatt' else f'"{ta}"'), line(b, tb if b == 'KillerWatt' else f'"{tb}"')])

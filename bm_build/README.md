@@ -21,6 +21,20 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.89: the old stories, and the Lantern's new legs
+
+**The old stories.** The world's history comes out where you meet it:
+- **The war, a thousand years gone.** The Underwater Kingdom was not always under the sea. It fled to the deep after great loss in the war, when the **Ethereal Gem** at its heart was badly broken and its elemental pieces scattered across the land; whoever found one found a power with it. The nine gems now say they are shards of it, and the Ethereal Gem tells where it came from. (Gems you already have pick up the new lore by themselves.)
+- **Democratus**, an ancestor of the Royal Family, went rogue when his family wouldn't use the gem's power to help those in need. Cecil was involved. Walk with Democratus, Cecil and Bloo (**The Old War**) to hear them argue about it.
+- **The War of Brothers.** Several hundred years later, Apophiss's land was dying and couldn't feed his people, so he came for his brother Omega's kingdom. King Omega's Chronicle tells it: offer him **a soldier's blade** for chapter VI.
+- **Cecil's curse.** As a last resort, Cecil cursed Omega Island dark to drive Apophiss and his army off, and it never lifted. Offer King Omega **something sweet for the tea** for chapter IX. Pistachio and Cecil (the **Palace Household**) still talk about that night.
+- **Now:** Apophiss has found out where the Underwater Kingdom keeps what is left of the gem, and is planning a campaign to take it. Queen Ava and Queen Pearl (**The Royal Family**) know what it would mean; Democratus and KillerWatt (**The Dread Court**) have their eye on the serpent.
+- The trios' banter draws from each trio's whole pool now, not just its first three exchanges.
+
+**The Arachno-Lantern walks properly.** It now steps through eight frames when walking and six when running, with a shorter stride, so its legs no longer scissor through each other. Its body bobs as each set of four feet plants. Swimming, its legs splay out to the sides instead of folding up over the pumpkin.
+
+**Bloo** doesn't bury his head in his own shoulders when he swims, and his claw swipe no longer goes through his chest.
+
 ## New in 2.88: the Dread bosses, Bender and Bones
 
 **Three Dread bosses** *(hard mode only)*. Each waits at its own rare ruin, and its altar only wakes for the right three followers. Right-click the altar: it shows who's there (✔) and who's missing (✘).

@@ -152,6 +152,18 @@ P100.BANTER.update({
                ('Democratus', 'Cecil. You stood with me, at the start.', 'Cecil', 'And I walked away at the end. We both carry that.'),
                ('Cecil', 'Do you ever regret the curse on Omega\'s island?', 'Bloo', 'Hrrn. Regret is for those who did not survive.')],
 })
+# (2.89) the old stories: the war a thousand years gone, the broken gem, the rogue prince, the curse, the serpent's new campaign
+LORE_BANTER = {
+    'oldwar': [('Democratus', 'My family had the gem, and sat on it while the land starved. So I took what I could carry.', 'Cecil', 'And I helped you carry it. I was young. ...I would do it again.'),
+               ('Bloo', 'Does the little princess know her great-great-grandfather walks with us?', 'Democratus', 'Her mother knows. She has not forgiven me. She should not.')],
+    'royal': [('Queen Ava', 'Our kingdom was not always under the sea, Emma. We fled to the deep, after the great war.', 'Emma', 'A THOUSAND years ago? With the gem?! Tell me everything!'),
+              ('Queen Pearl', 'What is left of the gem is the only reason the kingdom still breathes down there.', 'Queen Ava', 'Which is why no one outside the family may ever find it.')],
+    'dread': [('Democratus', 'I hear you have been asking where the sea-folk keep what is left of their gem, serpent.', 'Apophiss', 'My land is still dying, old man. A king does what he must.'),
+              ('KillerWatt', '*sparks flicker; he stares hard at the serpent*', 'Apophiss', 'Do not look at me like that. I am only... planning.')],
+    'household': [('Pistachio', 'Master Cecil, the island has been dark three hundred years. You may stop apologising.', 'Cecil', 'It was the only spell big enough. I still hear his army screaming in the dark.')],
+}
+for _k, _v in LORE_BANTER.items():
+    P100.BANTER[_k] += _v
 
 
 def extend_offers(O_, offer):

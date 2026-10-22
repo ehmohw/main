@@ -175,6 +175,10 @@ def rigs():
             out.append((f'bm:cec2_{p}', (rp[0], rp[1] + bob, rp[2]), tuple(L), right, 1.0))
         return out
     R['cecil'] = (1.0, list(CF), cec)
+    # (2.89: the deep's royals, Bloo and the Arachno-Lantern - rigkit rigs, measured in their own design scale)
+    import ava_art as AVA, pearl_art as PQ, bloo_art as BLO, lantern_art as LAN
+    for nm, art in (('ava', AVA), ('pearl', PQ), ('bloo', BLO), ('lantern', LAN)):
+        R[nm] = (art.RIG_SCALE, list(art.POSES) + list(inbetweens(art)), rk(art, art.RIG_SCALE))
     dr, dp = P63.don_rig(), P63.don_poses()
     R['donado'] = (dr.S, list(dp), lambda p: [(f'bm:dnr_{n}' if n != 'head' else 'bm:dnr_head_none', tuple(J), tuple(Rm), F.IDENT, dr.S) for n, (Rm, J) in dr.solve(dp[p]).items()])
     return R
@@ -207,7 +211,7 @@ def _blended(art, S, a, b, t):
 
 
 REST = {'cecil': 'i0', 'apo': 'idle_a', 'tul': 'idle_a', 'leo': 'idle_a', 'demo': 'idle_a', 'emma': 'idle_a', 'kw': 'idle_a', 'celi': 'idle', 'zib': 'idle0',
-        'frog': 'idle0', 'donado': 'idle0'}
+        'frog': 'idle0', 'donado': 'idle0', 'ava': 'idle_a', 'pearl': 'idle_a', 'bloo': 'idle_a', 'lantern': 'idle_a'}
 
 
 def audit(name, S, poses, make, min_px=1.0, top=8, only=None, rp=RP):
@@ -217,7 +221,7 @@ def audit(name, S, poses, make, min_px=1.0, top=8, only=None, rp=RP):
     rests = {}
     def rest_for(pose):
         try:
-            parts = make(('rest', pose.split(':', 1)[1].split('>')[0] if ':' in pose else pose)) if name in ('apo', 'tul') else make(rest_pose)
+            parts = make(('rest', pose.split(':', 1)[1].split('>')[0] if ':' in pose else pose)) if name in ('apo', 'tul', 'ava', 'pearl', 'bloo', 'lantern') else make(rest_pose)
         except Exception:
             parts = make(rest_pose)
         sig = tuple(m for m, *_r in parts)

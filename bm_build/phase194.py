@@ -43,14 +43,14 @@ class C(RP.Cfg):
     ATTRS = dict(armor=10, attack_damage=5, movement_speed=0.36, follow_range=32, step_height=1.6)
     SCALE = 2.4
     HIT = (1.6, 2.3)
-    CYCLE = {0: (80, [(0, 'idle_a'), (40, 'idle_b')]), 1: (16, [(4 * k, f'walk_{k}') for k in range(4)]),
-             2: (12, [(3 * k, f'run_{k}') for k in range(4)]), 3: (None, [(0, 'jump')]), 4: (80, [(0, 'sit_a'), (40, 'sit_b')]),
+    CYCLE = {0: (80, [(0, 'idle_a'), (40, 'idle_b')]), 1: (16, [(2 * k, f'walk_{k}') for k in range(A.WALK_N)]),
+             2: (12, [(2 * k, f'run_{k}') for k in range(A.RUN_N)]), 3: (None, [(0, 'jump')]), 4: (80, [(0, 'sit_a'), (40, 'sit_b')]),
              6: (None, [(0, 'flare')]), 7: (None, [(0, 'lash_a'), (3, 'idle_a')]), 8: (None, [(0, 'lash_a'), (5, 'lash_b'), (10, 'idle_a')]),
              11: (None, [(0, 'rear'), (10, 'stomp'), (16, 'idle_a')]),
              12: (None, [(0, 'flare'), (20, 'idle_b'), (26, 'flare'), (46, 'idle_b'), (52, 'flare')]),
              14: (None, [(0, 'flare')]),
              10: (16, [(2 * i, f'swim_{i}') for i in range(A.SWIM_FRAMES)])}
-    DUR = {'idle_a': 30, 'idle_b': 30, **{f'walk_{k}': 4 for k in range(4)}, **{f'run_{k}': 3 for k in range(4)}, 'jump': 4, 'sit_a': 20, 'sit_b': 20,
+    DUR = {'idle_a': 30, 'idle_b': 30, **{f'walk_{k}': 2 for k in range(A.WALK_N)}, **{f'run_{k}': 2 for k in range(A.RUN_N)}, 'jump': 4, 'sit_a': 20, 'sit_b': 20,
            'lash_a': 3, 'lash_b': 2, 'rear': 10, 'stomp': 3, 'flare': 10}
     QUIPS = ['(it clacks its legs together, pleased)', '(a puff of embers from its grin)', '(its fires gutter, then roar up again)',
              '(its tongue lolls out and steams)', '(it settles lower, purring like a hearth)', '(it scuttles a tight circle round you)',

@@ -52,13 +52,15 @@ CHANCE0, CHANCE_STEP, CHANCE_MAX = 10, 10, 30     # like the wandering trader: 1
 for _k, (_n, _c, _rgb, _where, _b, _flav) in GEMS.items():
     item(f'gem_{_k}', TOTEM, _n, _c,
          [_flav, ('Use: it glints toward ' + _where + '.', 'blue'), ('Sneak + use: set it on display (punch to take it back).', 'blue'),
-          ('Odd... it hums when its kin are near.', 'dark_gray'), ('From Pearlman, the Traveling Salespenguin.', 'dark_gray')],
+          ('A shard of the Ethereal Gem. It hums near its kin.', 'dark_gray'), ('From Pearlman, the Traveling Salespenguin.', 'dark_gray')],
          model=f'bm:gem_{_k}', stack=16, cat='fun', glint=False, comps=hold('none'))
     HOLD[f'gem_{_k}'] = f'bm:p60/gem/use_{_k}'
 item('ethereal_gem', TOTEM, 'Ethereal Gem', ETH,
      ['Nine made one. It is warm, and it sings.', ('Carried: a shimmer of the nine follows you.', 'light_purple'),
       ('Use: set it down. All within 30 blocks', 'light_purple'), ('of it become Ethereal.', 'light_purple'),
-      ('Sneak + punch it to take it back.', 'gray')],
+      ('Sneak + punch it to take it back.', 'gray'),
+      ('The heart of a kingdom that was not always under', 'dark_gray'), ('the sea. Broken in the great war, its pieces scattered;', 'dark_gray'),
+      ('whoever found one found a power with it.', 'dark_gray')],
      model='bm:ethereal_gem', stack=1, cat='relic', glint=True, tier=3, comps=hold('none'))
 HOLD['ethereal_gem'] = 'bm:p60/eth/use'
 

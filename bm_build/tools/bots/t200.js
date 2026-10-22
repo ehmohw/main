@@ -5,7 +5,8 @@
 // disturb-- ...YOU."), and the fight begins. A blow far past his six-percent yield (a sword that would kill him outright): his
 // ward takes it - he lives, kneels and yields; the brothers talk; the Monocle is given; and the King takes his throne: right-
 // clicked there, his court (the Peerage - Squire already, the Ghost Garrison, the Chronicle). 2.88: nothing spawns in the palace;
-// he holds court three blocks out from the throne, clear of its seat and its purple back.
+// he holds court three blocks out from the throne, clear of its seat and its purple back. 2.89: gifts offered from his court tell
+// the old stories - the war of brothers (his brother's land dying), the boy who cursed the island dark.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
@@ -127,6 +128,20 @@ const res = [];
   const pr = await A.press(/The Peerage/);
   const pb = JSON.stringify(dd(A.dialogN[A.dialogN.length - 1]) || {});
   ok('...the Peerage: Squire already (60 favour from the fight)', pr && /Squire/.test(pb), pb.slice(0, 200));
+
+  // ---- (2.89) the old stories: gifts held out and offered - the war of brothers (his land dying), the boy who cursed the island dark
+  const gift = async (item, title, re) => {
+    await A.press(/« Back/); await sleep(600);
+    if (!A.buttons().some(b => /Offer a gift/.test(b.label))) { const n1 = A.dialogN.length; const ne2 = await entOf(NHIT); if (ne2) A.interact(ne2.entityId); await wait(3000, async () => A.dialogN.length > n1); }
+    await run(`item replace entity TestRat hotbar.6 with ${item}`); A.slot(6); await sleep(500);
+    const n2 = A.dialogN.length; await A.click(/Offer a gift/);
+    await wait(4000, async () => A.dialogN.length > n2);
+    const body = JSON.stringify(dd(A.dialogN[A.dialogN.length - 1]) || {});
+    return ok(`a gift (${item.split(':')[1]}) offered from his court: "${title}"`, body.includes(title) && re.test(body) &&
+              !/passed|count/i.test(await run(`execute if items entity TestRat hotbar.6 ${item}`)), body.slice(0, 220));
+  };
+  await gift('minecraft:iron_sword', 'VI. The War of Brothers', /land across the water was dying/);
+  await gift('minecraft:honey_bottle', 'IX. The Butler and the Boy', /cursed the whole island dark/);
 
   // ---- (2.87) a rematch, from his court: he goes back down, wakes, and fights; peace again - another Monocle
   await A.press(/« Back/); await sleep(600);

@@ -167,6 +167,10 @@ def legs(fn):
 # (the wave gait: alternating tetrapods - R0, L1, R2, L3 step together; then L0, R1, L2, R3)
 def _set(s, i):
     return (i + (0 if s > 0 else 1)) % 2
+WALK_N, RUN_N = 8, 6
+WALK_AMP, WALK_LIFT, RUN_AMP, RUN_LIFT = 13.0, 12.0, 14.0, 16.0
+
+
 def _walk(k, n=4, amp=18.0, lift=14.0):
     ph = 2 * math.pi * k / n
     return legs(lambda s, i: dict(swing=amp * math.sin(ph + math.pi * _set(s, i)), lift=max(0.0, lift * math.cos(ph + math.pi * _set(s, i)))))
@@ -175,8 +179,12 @@ def _walk(k, n=4, amp=18.0, lift=14.0):
 POSES = {
     'idle_a': P(**legs(lambda s, i: {}), head=qs(('x', 0))),
     'idle_b': P(_off=(0, -0.6, 0), **legs(lambda s, i: dict(spread=4)), head=qs(('x', 4), ('z', 3)), tongue=qs(('x', 12))),
-    **{f'walk_{k}': P(_off=(0, (0.3, -0.2, 0.3, -0.2)[k], 0), head=qs(('z', (2, 0, -2, 0)[k])), tongue=qs(('x', (8, -4, 8, -4)[k])), **_walk(k)) for k in range(4)},
-    **{f'run_{k}': P(_off=(0, (0.8, 0.0, 0.8, 0.0)[k], 0), head=qs(('x', 6)), tongue=qs(('x', -20)), **_walk(k, amp=26.0, lift=22.0)) for k in range(4)},
+    # (2.89: eight walk frames and six run frames, with a shorter stride - the legs no longer scissor through their neighbours;
+    #  the body bobs twice a cycle, as each tetrapod plants)
+    **{f'walk_{k}': P(_off=(0, 0.05 + 0.25 * math.cos(4 * math.pi * k / WALK_N), 0), head=qs(('z', 2 * math.sin(2 * math.pi * k / WALK_N))),
+                      tongue=qs(('x', 2 + 6 * math.cos(4 * math.pi * k / WALK_N))), **_walk(k, WALK_N, WALK_AMP, WALK_LIFT)) for k in range(WALK_N)},
+    **{f'run_{k}': P(_off=(0, 0.4 + 0.4 * math.cos(4 * math.pi * k / RUN_N), 0), head=qs(('x', 6)), tongue=qs(('x', -20)),
+                     **_walk(k, RUN_N, RUN_AMP, RUN_LIFT)) for k in range(RUN_N)},
     'jump': P(_off=(0, 2.0, 0), head=qs(('x', -8)), tongue=qs(('x', -30)), **legs(lambda s, i: dict(lift=-18, swing=(10, 4, -4, -10)[i]))),
     # STOMP: the front pair rears up high - and comes down
     'rear': P(_off=(0, 2.0, 0), body=qs(('x', -14)), head=qs(('x', -6)), tongue=qs(('x', -30)),
@@ -198,5 +206,5 @@ SWIM_FRAMES = 8
 for _i in range(SWIM_FRAMES):                                            # (it paddles like a water-strider: the legs splayed flat and sculling)
     _p = 2 * math.pi * _i / SWIM_FRAMES
     POSES[f'swim_{_i}'] = P(_off=(0, -12.0 + 0.5 * math.sin(2 * _p), 0), tongue=qs(('x', -10)),
-                            **legs(lambda s, i: dict(lift=40, swing=20 * math.sin(_p + math.pi * _set(s, i)))))
+                            **legs(lambda s, i: dict(lift=28, swing=20 * math.sin(_p + math.pi * _set(s, i)))))
 DRAFT = ['idle_a', 'idle_b', 'walk_0', 'walk_1', 'run_0', 'jump', 'rear', 'stomp', 'lash_b', 'flare', 'sit_a', 'sit_b', 'swim_2']

@@ -348,7 +348,7 @@ POSES = {
               forel=limb(-1, 30), wingr=flap(1, 30, -6), wingl=flap(-1, 30, -6)),
     # the swipe (his attack): a claw drawn back, then raked across
     'swipe_up': P(body=qs(('y', -20)), armr=limb(1, 60, 60), forer=limb(1, 50), arml=limb(-1, 20, 14), forel=limb(-1, 30), wingr=flap(1, 10, 10), wingl=flap(-1, 10, 10)),
-    'swipe': P(_off=(0, -0.2, 0), body=qs(('y', 24), ('x', 10)), head=qs(('x', -6)), armr=limb(1, 80, -20, 30), forer=limb(1, 20), arml=limb(-1, -10, 20),
+    'swipe': P(_off=(0, -0.2, 0), body=qs(('y', 24), ('x', 10)), head=qs(('x', -6)), armr=limb(1, 80, 0, 30), forer=limb(1, 20), arml=limb(-1, -10, 20),
                forel=limb(-1, 30), wingr=flap(1, -6, 30), wingl=flap(-1, -6, 30)),
     # the pounce: crouched, then a leap with both claws out
     'crouch': P(_off=(0, -2.0, 0), body=qs(('x', 30)), head=qs(('x', -26)), legr=limb(1, 60), legl=limb(-1, 60), armr=limb(1, 40, 20), forer=limb(1, 50),
@@ -374,7 +374,7 @@ POSES = {
 SWIM_FRAMES = 8
 for _i in range(SWIM_FRAMES):                                            # (he hates it: a furious dog-paddle, the wings beating)
     _p = 2 * math.pi * _i / SWIM_FRAMES
-    POSES[f'swim_{_i}'] = P(_off=(0, -9.0 + 0.5 * math.sin(2 * _p), 0), body=qs(('x', 40)), head=qs(('x', -40)),
+    POSES[f'swim_{_i}'] = P(_off=(0, -9.0 + 0.5 * math.sin(2 * _p), 0), body=qs(('x', 36)), head=qs(('x', -24)),
                             armr=limb(1, 90 + 40 * math.sin(_p), 20), forer=limb(1, 40 + 20 * math.cos(_p)),
                             arml=limb(-1, 90 - 40 * math.sin(_p), 20), forel=limb(-1, 40 - 20 * math.cos(_p)),
                             legr=limb(1, -10 + 26 * math.sin(2 * _p)), legl=limb(-1, -10 - 26 * math.sin(2 * _p)),
