@@ -129,3 +129,54 @@ def generate(G):
             if 'darkness everywhere' in l: L[i] = l.replace('darkness everywhere', 'darkness out on the heist (never in the den)')
     bg = G.FUNCS['p70/begin']
     bg.append('execute as @e[type=minecraft:marker,tag=bm.gvinst] if score @s bm.gvi = #gi bm.rng run function bm:p123/mods')
+
+
+def chat_btn(on):
+    """the chatter switch as a button, reading what it is now (one switch for all followers)"""
+    return P28.btn([T('Chatter: ', 'gray'), T('on' if on else 'off', 'white' if on else '#ff8a8a', bold=True)], CHAT, width=150,
+                   tooltip=T('Hush what your followers say unprompted - quips, and banter when two or three are together. One switch for all of them.', 'gray'))
+
+
+def finalize_chat(G):
+    """(2.88) the chatter switch in every follower's own menu (beside its Wardrobe button), not only a page down in the wardrobe,
+    and on the Partner Wheel: it reads on or off, and pressing it brings the same menu straight back"""
+    import re
+    F, fn = G.FUNCS, G.fn
+    anchor = re.compile(r'text:"Wardrobe"[^\]]*?\]?,?(?:tooltip:\{[^}]*\},)?width:\d+,action:\{type:"minecraft:run_command",command:"/trigger bm\.act set \d+"\}\}')
+    on_b, off_b = snbt(chat_btn(True)), snbt(chat_btn(False))
+    back = {}
+    n = 0
+    for name in sorted(F):
+        if name.startswith(('p99/', 'p119/', 'p123/')): continue
+        L = F[name]
+        out, hit = [], False
+        for l in L:
+            body = l[1:] if l.startswith('$') else l
+            m = anchor.search(body) if 'dialog show @s' in body else None
+            if not m or 'Chatter: ' in body:
+                out.append(l); continue
+            hit = True
+            mac = '$' if l.startswith('$') else ''
+            on_l = body[:m.end()] + ',' + on_b + body[m.end():]
+            off_l = body[:m.end()] + ',' + off_b + body[m.end():]
+            if off_l.startswith('dialog show'):
+                off_l = 'execute if entity @s[tag=bm.hush] run return run ' + off_l
+            else:
+                off_l = 'execute if entity @s[tag=bm.hush] ' + off_l[len('execute '):]
+                if ' run return run dialog show' not in off_l:
+                    off_l = off_l.replace(' run dialog show', ' run return run dialog show', 1)
+            out += [mac + off_l, mac + on_l]
+        if hit:
+            F[name][:] = out
+            n += 1
+            ms = [re.match(r'scoreboard players set @s bm\.menu (\d+)$', l) for l in out]
+            ms = [int(x.group(1)) for x in ms if x]
+            if ms and not any(l.startswith('$') for l in out):
+                back.setdefault(ms[0], name)
+    # pressing it: the same menu again (the wardrobes and the wheel were already handled / are added here)
+    import phase179 as P179
+    back[P179.WMENU] = 'p179/w/open'
+    ch = F['p123/chat']
+    ch += [f'execute if score @s bm.menu matches {m} run return run function bm:{f}' for m, f in sorted(back.items())]
+    assert n >= 25, f'the chatter switch went into only {n} follower menus'
+    return n

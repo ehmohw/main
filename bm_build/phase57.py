@@ -461,7 +461,7 @@ def generate(G):
     fn('p57/enc/sec', ['scoreboard players add @s bm.emt 1',
                        'execute unless entity @a[distance=..80] run return run function bm:p57/enc/gone',
                        'execute if score @s bm.emt matches 600.. run return run function bm:p57/enc/gone',
-                       'execute as @e[type=minecraft:item_display,tag=bm.emencp,distance=..2] run tag @s add bm.emsel',
+                       'execute as @e[type=minecraft:item_display,tag=bm.emencp,distance=..5] run tag @s add bm.emsel',
                        'scoreboard players operation #f bm.rng = @s bm.emt', 'scoreboard players operation #f bm.rng %= #4 bm.rng',
                        'execute if score #f bm.rng matches 0 run function bm:p57/pose/sit_a', 'execute if score #f bm.rng matches 2 run function bm:p57/pose/sit_b',
                        'execute if score #f bm.rng matches 1 run particle minecraft:note ~ ~1.5 ~ 0.3 0.2 0.3 1 1',
@@ -470,7 +470,7 @@ def generate(G):
                        'execute if entity @a[distance=..8,gamemode=!spectator] facing entity @p[distance=..8,gamemode=!spectator] feet rotated ~ 0 run function bm:p57/place',
                        'tag @e[tag=bm.emsel] remove bm.emsel'])
     G.FUNCS['load'][-1:-1] = ['scoreboard players set #4 bm.rng 4']
-    fn('p57/enc/gone', ['kill @e[type=minecraft:item_display,tag=bm.emencp,distance=..2]', 'particle minecraft:cherry_leaves ~ ~1 ~ 0.5 1 0.5 0 30', 'kill @s'])
+    fn('p57/enc/gone', ['kill @e[type=minecraft:item_display,tag=bm.emencp,distance=..8]', 'particle minecraft:cherry_leaves ~ ~1 ~ 0.5 1 0.5 0 30', 'kill @s'])
     fast += ['execute as @e[type=minecraft:interaction,tag=bm.emenc] if data entity @s interaction at @s run function bm:p57/enc/click',
              'execute as @e[type=minecraft:interaction,tag=bm.emenc] if data entity @s attack at @s run function bm:p57/enc/poke']
     fn('p57/enc/click', ['tag @s add bm.emhere', 'execute on target run function bm:p57/enc/talk', 'tag @s remove bm.emhere', 'data remove entity @s interaction'])

@@ -492,7 +492,7 @@ def generate(G):
     # she shifts her weight, the flame in her palm flickering; turns to watch anyone who comes close
     tick.append('execute as @e[type=minecraft:interaction,tag=bm.asenc] at @s run function bm:p185/enc/tick')
     fn('p185/enc/tick', [f'scoreboard players add @s {S("ef")} 1', f'scoreboard players operation #f bm.rng = @s {S("ef")}', 'scoreboard players operation #f bm.rng %= #80 bm.rng',
-                         'execute as @e[type=minecraft:item_display,tag=bm.asencp,distance=..2] run tag @s add bm.assel'] +
+                         'execute as @e[type=minecraft:item_display,tag=bm.asencp,distance=..5] run tag @s add bm.assel'] +
        [f'execute if score #f bm.rng matches {t} run function bm:p185/pose/{p}' for t, p in CYCLE[0][1]] +
        ['execute if score #f bm.rng matches 0 if entity @a[distance=..8,gamemode=!spectator] facing entity @p[distance=..8,gamemode=!spectator] feet rotated ~ 0 run function bm:p185/place',
         'execute if score #f bm.rng matches 40 if entity @a[distance=..8,gamemode=!spectator] facing entity @p[distance=..8,gamemode=!spectator] feet rotated ~ 0 run function bm:p185/place',
@@ -502,7 +502,7 @@ def generate(G):
     second.append('execute as @e[type=minecraft:interaction,tag=bm.asenc] at @s run function bm:p185/enc/sec')
     fn('p185/enc/sec', [f'scoreboard players add @s {S("el")} 1', 'execute unless entity @a[distance=..80] run return run function bm:p185/enc/gone',
                         f'execute if score @s {S("el")} matches 600.. run return run function bm:p185/enc/gone'])
-    fn('p185/enc/gone', ['kill @e[type=minecraft:item_display,tag=bm.asencp,distance=..2]', 'particle minecraft:flame ~ ~1 ~ 0.4 0.9 0.4 0.03 40',
+    fn('p185/enc/gone', ['kill @e[type=minecraft:item_display,tag=bm.asencp,distance=..8]', 'particle minecraft:flame ~ ~1 ~ 0.4 0.9 0.4 0.03 40',
                          'particle minecraft:large_smoke ~ ~1 ~ 0.3 0.6 0.3 0.01 12', 'kill @s'])
     fast += ['execute as @e[type=minecraft:interaction,tag=bm.asenc] if data entity @s interaction at @s run function bm:p185/enc/click',
              'execute as @e[type=minecraft:interaction,tag=bm.asenc] if data entity @s attack at @s run function bm:p185/enc/poke']

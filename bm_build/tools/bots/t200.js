@@ -4,7 +4,8 @@
 // the tomb waits ("Apophiss must be here"); his Oath used - he comes - and the King crawls up out of the floor ("Who dares
 // disturb-- ...YOU."), and the fight begins. A blow far past his six-percent yield (a sword that would kill him outright): his
 // ward takes it - he lives, kneels and yields; the brothers talk; the Monocle is given; and the King takes his throne: right-
-// clicked there, his court (the Peerage - Squire already, the Ghost Garrison, the Chronicle).
+// clicked there, his court (the Peerage - Squire already, the Ghost Garrison, the Chronicle). 2.88: nothing spawns in the palace;
+// he holds court three blocks out from the throne, clear of its seat and its purple back.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
@@ -47,6 +48,16 @@ const res = [];
      `${await cnt(`@e[type=minecraft:interaction,tag=bm.omsock,x=${X},y=${Y},z=${Z},distance=..120]`)} pedestals`);
   const tp = await pos(`@e[type=minecraft:marker,tag=bm.omtomb,x=${X},y=${Y},z=${Z},distance=..120,limit=1]`);
   ok('...and the tomb asleep', !!tp && (await score('bm.omst', `@e[type=minecraft:marker,tag=bm.omtomb,x=${X},y=${Y},z=${Z},distance=..120,limit=1]`)) === 0);
+  // (2.88) nothing spawns in the palace: a monster just come into being in its walls (the stage: one summoned, as a spawn would) is
+  // turned away within the second, a bat too; one that was already about (seen) is left alone
+  await at(tp[0], tp[1], tp[2] - 6.5, 0, 0); await sleep(1000);
+  await run(`${O}summon minecraft:zombie ${tp[0] + 4} ${tp[1]} ${tp[2] - 3} {Tags:["bm.t200z"],NoAI:1b}`);
+  await run(`${O}summon minecraft:bat ${tp[0] - 4} ${tp[1] + 3} ${tp[2] - 3} {Tags:["bm.t200z"],NoAI:1b}`);
+  await run(`${O}summon minecraft:zombie ${tp[0] - 4} ${tp[1]} ${tp[2] - 3} {Tags:["bm.t200w","bm.seen"],NoAI:1b,PersistenceRequired:1b}`);
+  ok('no mobs spawn in the Omega Palace: a new-spawned zombie and a bat inside are turned away', await wait(3500, async () => (await cnt('@e[tag=bm.t200z]')) === 0),
+     `${await cnt('@e[tag=bm.t200z]')} left`);
+  ok('...a monster that was already about is left alone', (await cnt('@e[tag=bm.t200w]')) === 1);
+  await run(`${O}kill @e[tag=bm.t200w]`);
 
   // ---- the six Emblems, each on its own pedestal
   for (let i = 0; i < EMB.length; i++) await run(`loot replace entity TestRat hotbar.${i} loot bm:items/emblem_${EMB[i]}`);
@@ -102,6 +113,11 @@ const res = [];
   const NHIT = `@e[type=minecraft:interaction,tag=bm.omnhit,x=${tp[0]},y=${tp[1]},z=${tp[2]},distance=..24,limit=1]`;
   ok('he takes his throne (the King at court)', await wait(15000, async () => (await cnt(NHIT)) === 1));
   const np = await pos(NHIT);
+  // (2.88) he holds court three blocks out from his throne and a little up - clear of its seat and its purple back
+  const thp = await pos(`@e[type=minecraft:marker,tag=bm.omthrone,x=${tp[0]},y=${tp[1]},z=${tp[2]},distance=..24,limit=1]`);
+  const kp = await pos(`@e[type=minecraft:marker,tag=bm.omnpc,x=${tp[0]},y=${tp[1]},z=${tp[2]},distance=..24,limit=1]`);
+  ok('...three blocks out from his throne, a little up (clear of the seat and the purple back)', !!thp && !!kp && Math.abs(kp[2] - (thp[2] - 3)) < 0.05 &&
+     Math.abs(kp[1] - (thp[1] + 0.9)) < 0.05 && Math.abs(kp[0] - thp[0]) < 0.05, `throne ${thp} king ${kp}`);
   await at(np[0], np[1], np[2] - 2.5, 0, 10); A.slot(6); await sleep(400);
   const n0 = A.dialogN.length; const ne = await entOf(NHIT); if (ne) A.interact(ne.entityId);
   await wait(3000, async () => A.dialogN.length > n0);

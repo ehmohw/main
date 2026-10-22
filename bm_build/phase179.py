@@ -325,7 +325,11 @@ def generate(G):
     fn('p179/w/show', ['$dialog show @s ' + snbt(full).replace('"@@ACTS@@"', '$(acts)')])
     op = [f'scoreboard players set @s bm.menu {WMENU}', 'scoreboard players operation #me bm.pid = @s bm.pid', 'data modify storage bm:tmp pw.acts set value []']
     op += [f'execute if score @s bm.pw{i} matches 1 run function bm:p179/w/row{i}' for i in range(len(PW))]
-    op += [f'execute unless data storage bm:tmp pw.acts[0] run return run dialog show @s {snbt(empty)}', 'function bm:p179/w/show with storage bm:tmp pw',
+    import phase123 as P123                   # (2.88: the chatter switch, last on the wheel - it reads on or off)
+    op += [f'execute unless data storage bm:tmp pw.acts[0] run return run dialog show @s {snbt(empty)}',
+           f'execute if entity @s[tag=bm.hush] run data modify storage bm:tmp pw.acts append value {snbt(P123.chat_btn(False))}',
+           f'execute unless entity @s[tag=bm.hush] run data modify storage bm:tmp pw.acts append value {snbt(P123.chat_btn(True))}',
+           'function bm:p179/w/show with storage bm:tmp pw',
            'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 0.8 1.4']
     fn('p179/w/open', op)
     assert len(PW) <= 30, f'{len(PW)} partners: the wheel\'s call codes ({WMENU + 10}+) would run into its take-out codes ({WMENU + 40}+)'

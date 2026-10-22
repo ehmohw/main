@@ -188,8 +188,8 @@ POSES = {
     # THE GLARE / EMBER RAIN: it throws its head back and the fires roar up
     'flare': P(_face='glare', _off=(0, 0.8, 0), body=qs(('x', -10)), head=qs(('x', -8)), tongue=qs(('x', -20)), **legs(lambda s, i: dict(spread=6))),
     # sitting: it folds its legs in under it and the pumpkin settles on the ground (dark, asleep on the second beat)
-    'sit_a': P(_off=(0, -15.2, 0), tongue=qs(('x', 30)), **legs(lambda s, i: dict(lift=29))),
-    'sit_b': P(_face='shut', _off=(0, -15.4, 0), head=qs(('z', 3)), tongue=qs(('x', 40)), **legs(lambda s, i: dict(lift=30))),
+    'sit_a': P(_off=(0, -10.7, 0), tongue=qs(('x', 30)), **legs(lambda s, i: dict(lift=29))),
+    'sit_b': P(_face='shut', _off=(0, -10.9, 0), head=qs(('z', 3)), tongue=qs(('x', 40)), **legs(lambda s, i: dict(lift=30))),
     'hurt': P(_face='glare', _off=(0, -0.8, 0), body=qs(('x', -8), ('z', 6)), head=qs(('x', -6)), tongue=qs(('x', -20)), **legs(lambda s, i: dict(spread=6))),
     'tired': P(_face='shut', _off=(0, -4.0, 0), body=qs(('x', 10)), tongue=qs(('x', 40)), **legs(lambda s, i: dict(lift=12, spread=10))),
     'wave_a': P(**legs(lambda s, i: dict(lift=(40 if s < 0 and i == 0 else 0), swing=(20 if s < 0 and i == 0 else 0)))),

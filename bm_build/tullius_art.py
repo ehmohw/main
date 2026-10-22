@@ -443,16 +443,16 @@ def P(**kw):
 CARRY = qs(('y', -62), ('x', 14))                       # (the art: held low across his body, the head toward his right foot)
 UPRIGHT = qs(('x', -84))                                # (stood on its butt like a staff, head up)
 AHEAD = qs(('x', -3))                                   # (levelled at you)
-GDOWN = qs(('x', 76))                                   # (the blunderbuss hanging at his side, muzzle down)
+GDOWN = qs(('x', 32))                                   # (the blunderbuss hanging at his side, muzzle down - 2.88b: slanted, clear of the floor)
 POSES = {
     # idle: chin up, contemptuous; the harpoon held low across him; his free hand flexing
     'idle_a': P(_gw=GDOWN, body=qs(('y', 6)), head=qs(('x', -12), ('z', -4)), armr=limb(1, 2, 8), arml=limb(-1, 18, 6), _hw=CARRY, legr=limb(1, -2, 3), legl=limb(-1, 3, 3)),
     'idle_b': P(_gw=GDOWN, _off=(0, -0.1, 0), body=qs(('y', 4), ('x', 2)), head=qs(('x', -8), ('z', -2), ('y', -6)), armr=limb(1, 6, 10), arml=limb(-1, 20, 6), _hw=CARRY,
                 legr=limb(1, -2, 3), legl=limb(-1, 3, 3), tails=qs(('x', -2))),
     # walk: a long stride, the harpoon carried at his side, coat tails swinging
-    'walk_a': P(_gw=qs(('x', 62)), body=qs(('y', 6), ('z', 2)), head=qs(('x', -8), ('y', -4)), legr=limb(1, 26), legl=limb(-1, -24), armr=limb(1, -22, 6), arml=limb(-1, 14, 6),
+    'walk_a': P(_gw=qs(('x', 34)), body=qs(('y', 6), ('z', 2)), head=qs(('x', -8), ('y', -4)), legr=limb(1, 26), legl=limb(-1, -24), armr=limb(1, -22, 6), arml=limb(-1, 14, 6),
                 _hw=qs(('y', -12), ('x', 10)), tails=qs(('x', -8))),
-    'walk_b': P(_gw=qs(('x', 56)), body=qs(('y', -6), ('z', -2)), head=qs(('x', -8), ('y', 4)), legr=limb(1, -24), legl=limb(-1, 26), armr=limb(1, 24, 6), arml=limb(-1, -8, 6),
+    'walk_b': P(_gw=qs(('x', 38)), body=qs(('y', -6), ('z', -2)), head=qs(('x', -8), ('y', 4)), legr=limb(1, -24), legl=limb(-1, 26), armr=limb(1, 24, 6), arml=limb(-1, -8, 6),
                 _hw=qs(('y', -12), ('x', 14)), tails=qs(('x', -8))),
     # on guard: feet wide, side-on (left shoulder to you), the harpoon levelled at you, his right hand forward on the shaft
     'guard': P(_gw=qs(('x', 18), ('y', 12)), _off=(0, -0.6, 0), body=qs(('y', 34), ('x', 6)), head=qs(('y', -30), ('x', -4)), legr=limb(1, -22, 10), legl=limb(-1, 24, 8),

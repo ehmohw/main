@@ -477,7 +477,7 @@ def generate(G):
         'tag @e[tag=bm.nbenew,distance=..1] remove bm.nbenew'])
     tick.append('execute as @e[type=minecraft:interaction,tag=bm.nbenc] at @s run function bm:p187/enc/tick')
     fn('p187/enc/tick', [f'scoreboard players add @s {S("ef")} 1', f'scoreboard players operation #f bm.rng = @s {S("ef")}', 'scoreboard players operation #f bm.rng %= #40 bm.rng',
-                         'execute as @e[type=minecraft:item_display,tag=bm.nbencp,distance=..2] run tag @s add bm.nbsel',
+                         'execute as @e[type=minecraft:item_display,tag=bm.nbencp,distance=..5] run tag @s add bm.nbsel',
                          'execute if score #f bm.rng matches 0 run function bm:p187/pose/conduct_a', 'execute if score #f bm.rng matches 10 run function bm:p187/pose/conduct_b',
                          'execute if score #f bm.rng matches 20 run function bm:p187/pose/conduct_a', 'execute if score #f bm.rng matches 30 run function bm:p187/pose/idle_b',
                          'execute if score #f bm.rng matches 0 if entity @a[distance=..8,gamemode=!spectator] facing entity @p[distance=..8,gamemode=!spectator] feet rotated ~ 0 run function bm:p187/place',
@@ -487,7 +487,7 @@ def generate(G):
     second.append('execute as @e[type=minecraft:interaction,tag=bm.nbenc] at @s run function bm:p187/enc/sec')
     fn('p187/enc/sec', [f'scoreboard players add @s {S("el")} 1', 'execute unless entity @a[distance=..48] run return run function bm:p187/enc/gone',
                         f'execute if score @s {S("el")} matches 600.. run return run function bm:p187/enc/gone'])
-    fn('p187/enc/gone', ['kill @e[type=minecraft:item_display,tag=bm.nbencp,distance=..2]', 'particle minecraft:note ~ ~1.4 ~ 0.4 0.6 0.4 1 12',
+    fn('p187/enc/gone', ['kill @e[type=minecraft:item_display,tag=bm.nbencp,distance=..8]', 'particle minecraft:note ~ ~1.4 ~ 0.4 0.6 0.4 1 12',
                          'particle minecraft:poof ~ ~1 ~ 0.4 0.8 0.4 0.03 20', 'kill @s'])
     fast += ['execute as @e[type=minecraft:interaction,tag=bm.nbenc] if data entity @s interaction at @s run function bm:p187/enc/click',
              'execute as @e[type=minecraft:interaction,tag=bm.nbenc] if data entity @s attack at @s run data remove entity @s attack']

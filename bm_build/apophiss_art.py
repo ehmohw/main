@@ -750,7 +750,7 @@ POSES = {
                 tail1=qs(('x', 44)), tail2=qs(('x', 40)), tail3=qs(('x', 34)), mace=qs(('x', 20))),
     # sit (a follower at rest): sunk into his coils, arms folded, the tail wrapped round in front
     'sit': P(_face='smug', _off=(0, -1.6, 0), body=qs(('x', -4)), chest=qs(('x', 4)), head=qs(('x', 6), ('y', 14)), jaw=qs(('x', 2)), armr=qs(('x', -56), ('z', 14)), arml=qs(('x', -50), ('z', -14)),
-             tail1=qs(('x', 2), ('y', 54)), tail2=qs(('y', 56)), tail3=qs(('y', 50)), mace=qs(('y', 30))),
+             tail1=qs(('x', 2), ('y', 54)), tail2=qs(('y', 56)), tail3=qs(('y', 50)), mace=qs(('y', 30), ('x', 90))),   # (2.88b: the mace laid flat - it stood down into the floor)
     # ridden (saddled): low and long like a mount - you sit astride the middle of his back, his head up in front of you
     'ride': P(_saddle=True, body=qs(('x', 56)), chest=qs(('x', -14)), head=qs(('x', -34)), jaw=qs(('x', 10)), armr=qs(('x', -6), ('z', -12)), arml=qs(('x', -6), ('z', 12)),
               tail1=qs(('x', 14)), tail2=qs(('x', 18)), tail3=qs(('x', 22)), mace=qs(('x', 14))),

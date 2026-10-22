@@ -51,13 +51,15 @@ Both have the full set: a menu, sitting (right-click), a frame trick, a display-
 
 **The Partner Wheel:** each partner's row now has a **⚙ Menu** button. It opens that follower's own menu (buffs and roles, wardrobe and cosmetics, everything the summon item's sneak-use opens) while the item stays on the wheel.
 
+**Chatter on/off, right where you need it:** every follower's own menu (sneak + use their item) now has a **Chatter: on / off** button beside Wardrobe, and so does the Partner Wheel. It's the one switch for all your followers' unprompted quips and banter, and the menu comes straight back after you flip it.
+
 **Dread monsters are more common:** 4% of hard-mode monsters (was 1.2%). On a **Blood Moon** in hard mode, 15% of the Overworld's monsters come up Dread (before, Blood Moons had their own roll and no Dreads at all). As before, they only roll near someone who has felled the Hollow King.
 
 **Model fixes:**
 - **Bloo** has a cat-like snout, carrying his nose and snarl.
 - **Ashur's** eyes are bigger.
 - **Bender** no longer looks like he has eyebrows: the tan spots over his eyes are gone, and his mask fades out at the top instead of ending in a hard line.
-- **Queen Pearl** sits properly now: down on the ground, legs out, with her dress over her lap (the shift to her knees, the gown down to her slippers). It used to hang stiff below her like a stool, with her legs poking through the front.
+- **Queen Pearl** sits properly now: down on the ground, legs out, with her dress over her lap. It used to hang stiff below her like a stool, with her legs poking through the front. Her dress rides higher when she sits: the shift to mid-thigh, the gown to just below the knee with white stockings under it.
 - **Queen Pearl** no longer winks all the time: both eyes open, and she winks only for her Wink.
 - **Queen Ava's** pale shoulder caps no longer cut into her shoulders: their outer half rides on her arms now, lifting with them when she raises a hand.
 - **Queen Ava**, sitting, keeps her gown pooled round her; only her slipper toes peek out at the hem now, not up through the front of the skirt.
@@ -70,7 +72,20 @@ Both have the full set: a menu, sitting (right-click), a frame trick, a display-
 
 **The Wings of the Damned purify too:** toss them down beside a Golden Cross like the rest of the Regalia and they come up **Holy**, pearl and royal purple feathers with gold, the same wings, trailing flame and light. They count toward the holy set; unpurified wings worn with it spoil it, like any other corrupt piece.
 
+**Every follower stands on the ground:** a QC pass measured each follower's resting, walking and sitting poses against the floor and fixed the ones that weren't flush:
+- **Bones's** ball of water rests on the ground (it hung half a block up).
+- **Bloo** sits on the ground instead of a quarter-block above it.
+- **The Stalker** rests his hands on his knees when he sits (they hung down into the floor).
+- **The Arachno-Lantern** sits with its leg tips on the ground, not sunk into it.
+- **Tullius's** blunderbuss hangs at a slant at his side, so its muzzle no longer goes into the floor.
+- **Apophiss** lays his mace flat beside him when he sits (it stood down through the floor).
+
+**King Omega at court** holds it three blocks out from his throne now, his tail and its soul flame curled up at his side. Standing at the throne's foot, his coil sat in the seat and his tail went through the purple back. Kings already at court move out by themselves.
+
+**Nothing spawns in the Omega Palace.** No monster (or bat) can spawn anywhere inside its walls. His own ghosts and serpents still answer him, and a monster that follows you in from outside isn't stopped at the door.
+
 **Fixes:**
+- **The Stalker** (the hidden follower) no longer leaves his head floating behind when he vanishes. The same fix covers the other new followers' meeting rigs.
 - **Golden Crosses** stand on the floor (or hang in front of the wall) where you set them, instead of sinking into the block.
 - Vesper no longer talks in the chat. His mutterings show in the action bar now, and much less often.
 - **Dennis's Ore Magnet and Pistachio's Spirit Jar work like satchels now.** Carried anywhere in your pack, each gathers its own kind within 8 blocks into itself (ores, metals and gems; mob drops), not into your pockets. Right-click to unfold it into a barrel (27 slots) and take things out; sneak or walk away to pack it up. No more switching on and off. When it's full it says so and leaves the rest on the ground.

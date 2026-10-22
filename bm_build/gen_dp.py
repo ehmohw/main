@@ -1368,6 +1368,7 @@ def build(out_dir):
     print('2.85c: the Rat Race - %d jobs, %d prizes in the draw' % R183.generate(sys.modules[__name__]))
     print('2.85d: %d new fight rooms, the rats\' calls, the Forge/Garden coin' % R184.generate(sys.modules[__name__]))
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))
+    print('2.88: the chatter switch in %d follower menus and on the wheel' % R123.finalize_chat(sys.modules[__name__]))
     R28.finalize(sys.modules[__name__])
     print('market rebuild: %d entity tags cleared, %d per-market lines wait for the new town' % R168.finalize(sys.modules[__name__]))
     useitem.generate(sys.modules[__name__])

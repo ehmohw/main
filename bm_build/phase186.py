@@ -544,7 +544,7 @@ def generate(G):
         'tag @e[tag=bm.kkenew,distance=..1] remove bm.kkenew'])
     tick.append('execute as @e[type=minecraft:interaction,tag=bm.kkenc] at @s run function bm:p186/enc/tick')
     fn('p186/enc/tick', [f'scoreboard players add @s {S("ef")} 1', f'scoreboard players operation #f bm.rng = @s {S("ef")}', 'scoreboard players operation #f bm.rng %= #80 bm.rng',
-                         'execute as @e[type=minecraft:item_display,tag=bm.kkencp,distance=..2] run tag @s add bm.kksel',
+                         'execute as @e[type=minecraft:item_display,tag=bm.kkencp,distance=..5] run tag @s add bm.kksel',
                          'execute if score #f bm.rng matches 0 run function bm:p186/pose/stir_a', 'execute if score #f bm.rng matches 20 run function bm:p186/pose/stir_b',
                          'execute if score #f bm.rng matches 40 run function bm:p186/pose/taste', 'execute if score #f bm.rng matches 60 run function bm:p186/pose/idle_a',
                          'execute if score #f bm.rng matches 0 if entity @a[distance=..8,gamemode=!spectator] facing entity @p[distance=..8,gamemode=!spectator] feet rotated ~ 0 run function bm:p186/place',
@@ -553,7 +553,7 @@ def generate(G):
     second.append('execute as @e[type=minecraft:interaction,tag=bm.kkenc] at @s run function bm:p186/enc/sec')
     fn('p186/enc/sec', [f'scoreboard players add @s {S("el")} 1', 'execute unless entity @a[distance=..48] run return run function bm:p186/enc/gone',
                         f'execute if score @s {S("el")} matches 600.. run return run function bm:p186/enc/gone'])
-    fn('p186/enc/gone', ['kill @e[type=minecraft:item_display,tag=bm.kkencp,distance=..2]', 'particle minecraft:poof ~ ~1 ~ 0.4 0.8 0.4 0.03 30', 'kill @s'])
+    fn('p186/enc/gone', ['kill @e[type=minecraft:item_display,tag=bm.kkencp,distance=..8]', 'particle minecraft:poof ~ ~1 ~ 0.4 0.8 0.4 0.03 30', 'kill @s'])
     fast += ['execute as @e[type=minecraft:interaction,tag=bm.kkenc] if data entity @s interaction at @s run function bm:p186/enc/click',
              'execute as @e[type=minecraft:interaction,tag=bm.kkenc] if data entity @s attack at @s run data remove entity @s attack']
     fn('p186/enc/click', ['tag @s add bm.kkhere', 'execute on target run function bm:p186/enc/talk', 'tag @s remove bm.kkhere', 'data remove entity @s interaction'])

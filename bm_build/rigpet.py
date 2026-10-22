@@ -410,7 +410,7 @@ def build(C, G, abilities, encounter):
     tick.append(f'execute as @e[type=minecraft:interaction,tag={enc}] at @s run function bm:{pfx}/enc/tick')
     ep = C.ENC_POSES
     fn(f'{pfx}/enc/tick', [f'scoreboard players add @s {S("ef")} 1', f'scoreboard players operation #f bm.rng = @s {S("ef")}', 'scoreboard players operation #f bm.rng %= #80 bm.rng',
-                           f'execute as @e[type=minecraft:item_display,tag=bm.{ab}encp,distance=..2] run tag @s add {sel}'] +
+                           f'execute as @e[type=minecraft:item_display,tag=bm.{ab}encp,distance=..5] run tag @s add {sel}'] +
        [f'execute if score #f bm.rng matches {t} run function bm:{pfx}/pose/{p}' for t, p in ep] +
        [f'execute if score #f bm.rng matches 0 if entity @a[distance=..8,gamemode=!spectator] facing entity @p[distance=..8,gamemode=!spectator] feet rotated ~ 0 run function bm:{pfx}/place',
         C.ENC_PARTICLE.replace('return 0', 'scoreboard players set #np bm.rng 0'), f'tag @e[tag={sel}] remove {sel}'])
@@ -418,7 +418,8 @@ def build(C, G, abilities, encounter):
     second.append(f'execute as @e[type=minecraft:interaction,tag={enc}] at @s run function bm:{pfx}/enc/sec')
     fn(f'{pfx}/enc/sec', [f'scoreboard players add @s {S("el")} 1', f'execute unless entity @a[distance=..48] run return run function bm:{pfx}/enc/gone',
                           f'execute if score @s {S("el")} matches 600.. run return run function bm:{pfx}/enc/gone'])
-    fn(f'{pfx}/enc/gone', [f'kill @e[type=minecraft:item_display,tag=bm.{ab}encp,distance=..2]', 'particle minecraft:poof ~ ~1 ~ 0.4 0.8 0.4 0.03 20', 'kill @s'])
+    # (2.88: every part, wherever its joint is - the tall ones' heads stood more than 2 blocks up, and were left behind)
+    fn(f'{pfx}/enc/gone', [f'kill @e[type=minecraft:item_display,tag=bm.{ab}encp,distance=..8]', 'particle minecraft:poof ~ ~1 ~ 0.4 0.8 0.4 0.03 20', 'kill @s'])
     fast += [f'execute as @e[type=minecraft:interaction,tag={enc}] if data entity @s interaction at @s run function bm:{pfx}/enc/click',
              f'execute as @e[type=minecraft:interaction,tag={enc}] if data entity @s attack at @s run data remove entity @s attack']
     fn(f'{pfx}/enc/click', [f'tag @s add bm.{ab}here', f'execute on target run function bm:{pfx}/enc/talk', f'tag @s remove bm.{ab}here', 'data remove entity @s interaction'])

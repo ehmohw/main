@@ -222,6 +222,11 @@ POSES = {
     'tired': P(_face='blink', _off=(0, 2.0, 0), body=qs(('z', 30)), **swish(4)),
 }
 SWIM_FRAMES = 8
+# (2.88b) on land his bubble rests on the ground - it used to hang half a block up (QC: every follower flush on the ground):
+# every bubbled pose comes down 9 units, none below -3.0 (the bubble's bottom at the host's feet); a jump still leaves it
+for _k, _v in POSES.items():
+    if _v.get('_bubble', True) and '_off' in _v:
+        _o = _v['_off']; _v['_off'] = (_o[0], max(_o[1] - 9.0, -3.0), _o[2])
 for _i in range(SWIM_FRAMES):                             # (in water: no bubble - he's home; a long, easy S-wave)
     _p = 2 * math.pi * _i / SWIM_FRAMES
     POSES[f'swim_{_i}'] = P(_bubble=False, _off=(0, -4.0 + 0.6 * math.sin(_p), 0), body=qs(('y', 8 * math.sin(_p))),

@@ -362,9 +362,9 @@ POSES = {
     'hmph': P(_face='scowl', head=qs(('y', -40), ('x', -6)), armr=limb(1, 30, -6), forer=limb(1, 84, 0, 60), arml=limb(-1, 30, -6), forel=limb(-1, 80, 0, 60), **dict(WINGS, tail=qs(('y', 24)))),
     'wave_a': P(**dict(IDLE, arml=limb(-1, 10, 80), forel=limb(-1, 40), head=qs(('y', -20)))),
     # sitting: cross-legged on the ground, arms on his knees, wings folded
-    'sit_a': P(_face='scowl', _off=(0, -7.4, 0), legr=limb(1, 84, 30, -20), legl=limb(-1, 84, 30, -20), armr=limb(1, 20, 10), forer=limb(1, 40), arml=limb(-1, 20, 10), forel=limb(-1, 40),
+    'sit_a': P(_face='scowl', _off=(0, -11.4, 0), legr=limb(1, 84, 30, -20), legl=limb(-1, 84, 30, -20), armr=limb(1, 20, 10), forer=limb(1, 40), arml=limb(-1, 20, 10), forel=limb(-1, 40),
                head=qs(('y', -16), ('x', 6)), wingr=flap(1, -16, 36), wingl=flap(-1, -16, 36), tail=qs(('x', 30), ('y', 30))),
-    'sit_b': P(_face='blink', _off=(0, -7.5, 0), body=qs(('x', 6)), legr=limb(1, 84, 30, -20), legl=limb(-1, 84, 30, -20), armr=limb(1, 26, 12), forer=limb(1, 40),
+    'sit_b': P(_face='blink', _off=(0, -11.4, 0), body=qs(('x', 6)), legr=limb(1, 84, 30, -20), legl=limb(-1, 84, 30, -20), armr=limb(1, 26, 12), forer=limb(1, 40),
                arml=limb(-1, 26, 12), forel=limb(-1, 40), head=qs(('x', 18), ('z', 6)), wingr=flap(1, -18, 38), wingl=flap(-1, -18, 38), tail=qs(('x', 30), ('y', 34))),
     'hurt': P(_face='hurt', body=qs(('x', -8)), head=qs(('x', -14)), armr=limb(1, 30, 40), forer=limb(1, 50), arml=limb(-1, 30, 40), forel=limb(-1, 50),
               wingr=flap(1, 24, -6), wingl=flap(-1, 24, -6)),

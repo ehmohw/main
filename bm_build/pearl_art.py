@@ -259,14 +259,15 @@ def models():
         # (2.88: each leg wears its half of the skirt as a drape - hidden inside the skirt while she stands, over her lap when
         #  she sits: the gown to the slippers, the shift to the knee; tapered, so a stride doesn't push it out through the hem)
         uv = lambda tex, top, y0, y1: {f: [0, 16 - y1 / top * 16, 6, 16 - y0 / top * 16] for f in ('north', 'south', 'east', 'west', 'up', 'down')}
+        # (2.88b: both drapes pulled up - the gown's to just below the knee, white stockings under it; the shift's to mid-thigh)
         if regal:
-            L += [el((cx - 0.9, 0.8, -1.0), (cx + 0.9, 12.0, 0.9), 'pq_gown_top', pv),
-                  el((cx - 1.45, 6.0, -1.5), (cx + 1.45, 13.9, 1.5), 'pq_gown', pv, uv=uv('pq_gown', 13.6, 6.0, 13.6)),
-                  el((cx - 1.25, 1.0, -1.3), (cx + 1.25, 6.1, 1.3), 'pq_gown', pv, uv=uv('pq_gown', 13.6, 1.0, 6.1))]
+            L += [el((cx - 0.9, 0.8, -1.0), (cx + 0.9, 12.0, 0.9), 'pq_under', pv),
+                  el((cx - 1.45, 8.0, -1.5), (cx + 1.45, 13.9, 1.5), 'pq_gown', pv, uv=uv('pq_gown', 13.6, 8.0, 13.6)),
+                  el((cx - 1.25, 5.6, -1.3), (cx + 1.25, 8.1, 1.3), 'pq_gown', pv, uv=uv('pq_gown', 13.6, 5.6, 8.1))]
         else:
             L += [el((cx - 0.95, 0.8, -0.95), (cx + 0.95, 7.8, 0.95), 'pq_skin', pv),
                   el((cx - 1.0, 7.6, -1.0), (cx + 1.0, 13.2, 1.0), 'pq_skin', pv, shift=(0.3, 0.3)),
-                  el((cx - 1.4, 8.8, -1.2), (cx + 1.4, 13.9, 1.2), 'pq_dress', pv, uv=uv('pq_dress', 14.2, 8.8, 13.9))]
+                  el((cx - 1.4, 10.4, -1.2), (cx + 1.4, 13.9, 1.2), 'pq_dress', pv, uv=uv('pq_dress', 14.2, 10.4, 13.9))]
         return L
     for regal, sfx in ((False, ''), (True, '_r')):
         part(f'pq_legr{sfx}', leg(1, regal)); part(f'pq_legl{sfx}', leg(-1, regal))

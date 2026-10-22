@@ -866,6 +866,11 @@ def nsel(p=None):
 
 
 DUR_N = {'idle_a': 40, 'idle_b': 40, 'monocle': 16, 'bow': 16, 'welcome': 20}
+COURT = '^ ^0.9 ^3'                         # (2.88: where he holds court, from his throne's marker - clear of the seat, the purple back and the near pedestal)
+# (2.88) at court his tail swings out to his left and leans away from him, the flame held up beside him, clear of his arm (the
+# bow's lies out long, so it only swings - leaned, it went through the floor) - see COURT
+_TAIL_N = lambda k: RK.qs(('y', -100)) if k == 'bow' else RK.qs(('z', -45), ('y', -80))
+NPOSES = {k: dict(POSES[k], tail1=RK.qmul(_TAIL_N(k), POSES[k].get('tail1', RK.I))) for k in DUR_N}
 
 
 def _court(C):
@@ -874,7 +879,11 @@ def _court(C):
     give = C.give
     # ---- the King on his throne: a rig, a host marker, a click box
     th = rel(PAL.THRONE_AT)
-    second.append('execute if score #omfree bm.omwin matches 1 as @e[type=minecraft:marker,tag=bm.omthrone] at @s if entity @a[distance=..48] '
+    # (2.88) he holds court three blocks out from his throne and a little higher, his tail curled up at his side, not behind him:
+    # stood at the throne's foot, his coil sat in the seat and his tail and its flame went through the purple back. Kings already
+    # at the throne's foot are moved out (the old spot cleared, the new one filled the next second)
+    second.append('execute as @e[type=minecraft:marker,tag=bm.omthrone] at @s as @e[type=minecraft:marker,tag=bm.omnpc,distance=..0.5] at @s run function bm:p169/npc/remove')
+    second.append(f'execute if score #omfree bm.omwin matches 1 as @e[type=minecraft:marker,tag=bm.omthrone] at @s if entity @a[distance=..48] positioned {COURT} '
                   'unless entity @e[type=minecraft:marker,tag=bm.omnpc,distance=..2] unless entity @e[type=minecraft:husk,tag=bm.omboss,distance=..40] run function bm:p169/npc/make')
     fn('p169/npc/make', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.omnpc","bm.omnnew"]}', 'tp @e[type=minecraft:marker,tag=bm.omnnew,distance=..1] ~ ~ ~ ~ 0',
                          'execute as @e[type=minecraft:marker,tag=bm.omnnew,distance=..1] at @s run function bm:p169/npc/init'])
@@ -888,7 +897,7 @@ def _court(C):
         'particle minecraft:soul ~ ~3 ~ 1.5 2.5 1.5 0.03 60', 'tag @e[tag=bm.omnsel] remove bm.omnsel'])
     fn('p169/npc/place', RF.place(OArt, UB, nsel))
     for name, dur in DUR_N.items():
-        fn(f'p169/npc/pose/{name}', RF.pose(OArt, POSES[name], SB, dur, nsel))
+        fn(f'p169/npc/pose/{name}', RF.pose(OArt, NPOSES[name], SB, dur, nsel))
     nface = lambda e: (f'data modify entity {nsel("head")[:-1]},limit=1] item.components."minecraft:custom_model_data" set value {{strings:["{e}"]}}' if e
                        else f'data remove entity {nsel("head")[:-1]},limit=1] item.components."minecraft:custom_model_data"')
     second.append('execute as @e[type=minecraft:marker,tag=bm.omnpc] at @s if entity @a[distance=..48] run function bm:p169/npc/sec')
@@ -1148,6 +1157,14 @@ def _court(C):
                           'particle minecraft:soul ~ ~0.5 ~ 0.3 0.3 0.3 0.03 16', 'kill @s'])
     # (the Royal Ward: no hostile mob is born within 24 of a warded brazier - caught the second it appears, before anything else sees it)
     G.FUNCS['loop/second'].insert(0, 'execute as @e[type=#bm:hostile,tag=!bm.seen] at @s if entity @e[type=minecraft:marker,tag=bm.omward,distance=..24] run function bm:p169/bz/spurn')
+    # (2.88) nothing spawns in the Omega Palace: a monster (or a bat) that has just come into being anywhere in its walls is
+    # turned away before the mob hooks see it (his own - the guard's ghosts, the soul serpents - are born seen; anything that
+    # walks in from outside was seen out there)
+    pb, pd = BOX
+    G.FUNCS['loop/second'].insert(0, f'execute as @e[type=minecraft:marker,tag=bm.ompal] at @s if entity @a[distance=..128] positioned {pb} '
+                                     f'as @e[type=#bm:hostile,tag=!bm.seen,{pd}] at @s run function bm:p169/bz/spurn')
+    G.FUNCS['loop/second'].insert(0, f'execute as @e[type=minecraft:marker,tag=bm.ompal] at @s if entity @a[distance=..128] positioned {pb} '
+                                     f'run kill @e[type=minecraft:bat,{pd}]')
     fn('p169/bz/spurn', ['particle minecraft:soul ~ ~1 ~ 0.3 0.5 0.3 0.02 6', 'tp @s ~ -400 ~', 'kill @s'])
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:marker,tag=bm.ombz]', 'kill @e[type=minecraft:text_display,tag=bm.omttl]']
     fn('admin/omega_favour', ['scoreboard players add @s bm.omfav 100', C.say('+100 favour with King Omega.', OM_C)])

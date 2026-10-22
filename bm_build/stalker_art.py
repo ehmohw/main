@@ -253,9 +253,9 @@ POSES = {
     # sitting: squatting on its heels, knees up past its shoulders, the claws draped over them
     # sitting: on the ground, its long legs straight out and splayed, hunched over them, the claws draped across its shins
     'sit_a': P(_face='shut', _off=(0, -18.6, 0), body=qs(('x', 22)), head=qs(('x', -24)), legr=limb(1, 88, 12), legl=limb(-1, 88, 12),
-               armr=limb(1, 30, 10), forer=limb(1, 50), arml=limb(-1, 30, 10), forel=limb(-1, 50)),
+               armr=limb(1, 50, 10), forer=limb(1, 60), arml=limb(-1, 50, 10), forel=limb(-1, 60)),   # (2.88b: hands on his knees - they hung into the floor)
     'sit_b': P(_off=(0, -18.7, 0), body=qs(('x', 26)), head=qs(('x', -34), ('z', 16)), legr=limb(1, 88, 12), legl=limb(-1, 88, 12),
-               armr=limb(1, 34, 12), forer=limb(1, 56), arml=limb(-1, 26, 10), forel=limb(-1, 100)),
+               armr=limb(1, 60, 12), forer=limb(1, 70), arml=limb(-1, 26, 10), forel=limb(-1, 100)),
     'hurt': P(_face='wide', body=qs(('x', -8)), head=qs(('x', -50)), armr=limb(1, 40, 50), forer=limb(1, 60), arml=limb(-1, 40, 50), forel=limb(-1, 60)),
     'tired': P(_face='shut', _off=(0, -1.0, 0), body=qs(('x', 30)), head=qs(('x', 20)), armr=limb(1, 6, 4), arml=limb(-1, 6, 4), forer=limb(1, 4), forel=limb(-1, 4),
                legr=limb(1, 12), legl=limb(-1, -6)),
