@@ -246,7 +246,7 @@ def generate(G):
     # every tick: its parts to it; how it moves (looked at every 4 ticks: still - drawn up tall; on the move - on all fours;
     # running you down - flat out) picks the cycle; and a charge through the walls, when it's winding up for one
     fn('p181/stk/tick', ['scoreboard players operation #sid bm.rng = @s bm.stkid',
-                         'execute as @e[type=minecraft:item_display,tag=bm.stkpart,distance=..8] if score @s bm.stkid = #sid bm.rng run tag @s add bm.stksel',
+                         'execute as @e[type=minecraft:item_display,tag=bm.stkpart] if score @s bm.stkid = #sid bm.rng run tag @s add bm.stksel',
                          'execute rotated as @s rotated ~ 0 run function bm:p181/stk/place',
                          'execute if score @s bm.stkp matches 1.. run function bm:p181/stk/phase',
                          'scoreboard players add @s bm.stkf 1',
@@ -351,7 +351,7 @@ def generate(G):
     fn('p181/stk/quarry_crossed', ['execute as @a[tag=bm.stko,limit=1] at @s if function bm:p181/in_cross run return 1', 'return 0'])
     fn('p181/stk/wind_up', ['scoreboard players set @s bm.stkp 80', 'scoreboard players set @s bm.stka 3', 'data merge entity @s {NoAI:1b}',
                             'scoreboard players operation #sid bm.rng = @s bm.stkid',
-                            'execute as @e[type=minecraft:item_display,tag=bm.stkpart,distance=..8] if score @s bm.stkid = #sid bm.rng run tag @s add bm.stksel',
+                            'execute as @e[type=minecraft:item_display,tag=bm.stkpart] if score @s bm.stkid = #sid bm.rng run tag @s add bm.stksel',
                             'function bm:p181/stk/pose/scream', 'tag @e[tag=bm.stksel] remove bm.stksel',
                             'playsound minecraft:entity.warden.sonic_charge hostile @a[distance=..48] ~ ~ ~ 1.2 0.5',
                             'playsound minecraft:entity.warden.roar hostile @a[distance=..48] ~ ~ ~ 0.8 0.6',
@@ -387,7 +387,7 @@ def generate(G):
     fn('p181/stk/vanish', ['particle minecraft:sculk_soul ~ ~1.3 ~ 0.4 1 0.4 0.03 25', 'particle minecraft:large_smoke ~ ~1.3 ~ 0.3 1 0.3 0.02 15',
                            'playsound minecraft:entity.warden.dig hostile @a[distance=..24] ~ ~ ~ 0.6 1.4',
                            'scoreboard players operation #sid bm.rng = @s bm.stkid',
-                           'execute as @e[type=minecraft:item_display,tag=bm.stkpart,distance=..12] if score @s bm.stkid = #sid bm.rng run kill @s',
+                           'execute as @e[type=minecraft:item_display,tag=bm.stkpart] if score @s bm.stkid = #sid bm.rng run kill @s',
                            'tp @s ~ -300 ~', 'kill @s'])
     # (and a rig whose Stalker has gone some other way - killed by a command, a chunk unloaded under it - doesn't linger)
     second.append('execute as @e[type=minecraft:item_display,tag=bm.stkpart] at @s unless entity @e[type=minecraft:zombie,tag=bm.stalker,distance=..6] run kill @s')
@@ -415,7 +415,7 @@ def generate(G):
                            'playsound minecraft:entity.warden.attack_impact hostile @a[distance=..24] ~ ~ ~ 1.2 0.7',
                            'scoreboard players set @s bm.stka 4', 'scoreboard players set @s bm.stkc 8', 'function bm:p181/stk/strike_pose'])
     fn('p181/stk/strike_pose', ['scoreboard players operation #sid bm.rng = @s bm.stkid',
-                                'execute as @e[type=minecraft:item_display,tag=bm.stkpart,distance=..8] if score @s bm.stkid = #sid bm.rng run tag @s add bm.stksel',
+                                'execute as @e[type=minecraft:item_display,tag=bm.stkpart] if score @s bm.stkid = #sid bm.rng run tag @s add bm.stksel',
                                 'function bm:p181/stk/pose/rend', 'tag @e[tag=bm.stksel] remove bm.stksel'])
     fn('p181/stk/hit', ['execute store result score #mh bm.rng run attribute @s minecraft:max_health get 10',
                         'execute store result score #ab bm.rng run data get entity @s AbsorptionAmount 10',
