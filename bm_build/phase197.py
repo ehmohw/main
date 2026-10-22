@@ -385,7 +385,8 @@ def build_boss(G, k, b, tick, second, fast):
     fn(f'{pfx}/mind', choose + [f'execute unless score @s bm.dbx matches 1.. run function bm:{pfx}/move'])
     fn(f'{pfx}/state', ['execute if score @s bm.dbx matches 1.. run return run scoreboard players operation #st bm.rng = @s bm.dba',
                         f'execute if entity @s[tag=bm.dbmoving] run return run scoreboard players set #st bm.rng 1', 'scoreboard players set #st bm.rng 0'])
-    fn(f'{pfx}/awake', ['data modify entity @s Invulnerable set value 0b', f'bossbar set bm:db_{k} visible true',
+    # (and out of its rising: the mind - and its fall - skip a boss still rising, so it never fought and couldn't be felled)
+    fn(f'{pfx}/awake', ['data modify entity @s Invulnerable set value 0b', 'scoreboard players set @s bm.dba 0', f'bossbar set bm:db_{k} visible true',
                         'playsound minecraft:entity.ravager.roar hostile @a[distance=..48] ~ ~ ~ 1.2 0.6'])
     # ---- moving: toward its quarry (it keeps to its ruin)
     mv = {'ground': [f'execute facing entity {tgt} feet rotated ~ 0 run tp @s ~ ~ ~ ~ ~', 'tag @s remove bm.dbmoving',

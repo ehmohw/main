@@ -184,7 +184,12 @@ def generate(G):
         fn(f'{pfx}/frenzy_tick', [f'scoreboard players operation #h bm.rng = @s {S("x")}', 'scoreboard players operation #h bm.rng %= #8 bm.rng',
                                   f'execute if score #h bm.rng matches 0 if entity @e[{foe},distance=..10] run function bm:{pfx}/frenzy_hit'])
         G.FUNCS['load'][-1:-1] = ['scoreboard players set #8 bm.rng 8']
-        fn(f'{pfx}/frenzy_hit', dmg(8) + [f'execute as @e[{foe},distance=..10,sort=random,limit=1] at @s rotated as @s rotated ~ 0 positioned ^ ^ ^1.4 if block ~ ~ ~ #bm:swim_pass run tp {host} ~ ~ ~ facing entity @s feet',
+        # (foe after foe: each bite goes to one he hasn't bitten yet this frenzy - round again once they all have)
+        fn(f'{pfx}/frenzy_hit', [f'execute unless entity @e[{foe},distance=..10,tag=!bm.bjfz] run tag @e[tag=bm.bjfz] remove bm.bjfz',
+                                 f'tag @e[{foe},distance=..10,tag=!bm.bjfz,sort=random,limit=1] add bm.bjfzn'] + dmg(8) +
+                                [f'execute as @e[tag=bm.bjfzn,limit=1] at @s rotated as @s rotated ~ 0 positioned ^ ^ ^1.4 if block ~ ~ ~ #bm:swim_pass run tp {host} ~ ~ ~ facing entity @s feet',
+                                 f'execute as @e[tag=bm.bjfzn,limit=1] unless entity @s[distance=..3] at @s run tp {host} ~ ~ ~ facing entity @s feet',
+                                 'tag @e[tag=bm.bjfzn] add bm.bjfz', 'tag @e[tag=bm.bjfzn] remove bm.bjfzn',
                                           f'execute at @s as @e[{foe},distance=..3,sort=nearest,limit=1] at @s run function bm:{pfx}/bitten',
                                           'effect give @s minecraft:instant_health 1 0 true',
                                           'execute on owner if entity @s[distance=..24] run effect give @s minecraft:regeneration 2 1 true'] + end)

@@ -113,7 +113,7 @@ module.exports = async function run(C) {
   await sneakMenu(0); A.bars.length = 0; await A.click(/Send .* home/); await sleep(1500);
   ok('Send home: goes', (await cnt(PET)) === 0 && A.bars.some(b => C.home.test(b)), A.bars.slice(-1).join(''));
   await sneakMenu(0);
-  ok(`...the menu now says Call for ${C.NAME}`, A.buttons().some(b => new RegExp(`Call for ${C.NAME}`).test(b.label)) && !A.buttons().some(b => /Send .* home/.test(b.label)));
+  ok(`...the menu now says Call for ${C.NAME}`, A.buttons().some(b => new RegExp(`Call for ${C.NAME}`).test(b.label)) && !A.buttons().some(b => /Send .* home/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
   await A.click(new RegExp(`Call for ${C.NAME}`)); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
   ok('...called from the menu: back, still in the look', (await cnt(PET)) === 1 && new RegExp(`${prefix}body_c1$`).test(await model()), await model());
   if (C.form) {

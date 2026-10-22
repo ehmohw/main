@@ -62,5 +62,6 @@ runT({ W: 'bones', NAME: 'Bones', ab: 'bj', q: 'bz', pfx: 'p196', prefix: 'bn_',
     ok('the whistle from his back: CHOMP - the foe ahead bitten', (await num('@e[tag=bm.trpc,limit=1]', 'Health')) < 300, `health ${await num('@e[tag=bm.trpc,limit=1]', 'Health')}`);
     A.ride(0, 0, { shift: true }); await sleep(800); A.ride(0, 0, {}); await sleep(300);
     ok('sneak: off his back', await wait(3000, async () => !(await riding())));
+    A.unride(); A.stand(); await sleep(300);          // (on foot again: the riding loop's inputs would swallow every sneak after this)
     await run(`${O}kill @e[tag=bm.trpz]`);
   } });

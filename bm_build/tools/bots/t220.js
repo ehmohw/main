@@ -75,9 +75,13 @@ const res = [];
   await wait(3000, async () => /rotten_flesh/.test(await inside(2)));
   ok("Pistachio's Spirit Jar carried: the rotten flesh floats into the jar, not the pack", /rotten_flesh/.test(await inside(2)) && (await hasV('minecraft:rotten_flesh')) === 0);
   // right-click: it unfolds into a barrel with what it gathered; walked away from, it packs up and keeps it
+  // (right-clicked, it sets a barrel down on the ground in front of you; you open that like any barrel)
   A.windows.length = 0; await use(1); await sleep(900);
+  const unfolded = await wait(2000, async () => (await cnt(`@e[type=minecraft:marker,tag=bm.bx_orecol]`)) === 1);
+  const bp = (await run(`${O}data get entity @e[type=minecraft:marker,tag=bm.bx_orecol,limit=1] Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/);
+  if (bp) { A.useOn(Math.floor(+bp[1]), Math.floor(+bp[2]), Math.floor(+bp[3]), 1); await sleep(900); }
   const bw = A.windows[A.windows.length - 1];
-  ok('the magnet right-clicked: it unfolds into a barrel (a container window)', !!bw && await wait(2000, async () => (await cnt(`@e[type=minecraft:marker,tag=bm.bx_orecol]`)) === 1), bw ? JSON.stringify(bw).slice(0, 120) : 'no window');
+  ok('the magnet right-clicked: it unfolds into a barrel in front of you - opened, a container window', unfolded && !!bw, bw ? JSON.stringify(bw).slice(0, 120) : `no window (unfolded ${unfolded})`);
   if (bw) A.close(bw.windowId); await sleep(400);
   await run(`${O}tp TestRat ${X - 7.5} ${Y} ${Z + 0.5} 0 0`); await sleep(3000);
   ok('...walked away from: packed up, the raw iron still inside', (await cnt('@e[type=minecraft:marker,tag=bm.bx_orecol]')) === 0 && /raw_iron/.test(await inside(1)), (await inside(1)).slice(-120));
