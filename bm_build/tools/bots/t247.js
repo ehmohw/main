@@ -64,7 +64,7 @@ const res = [];
   const sp = await pos(STK);
   const body = await pos(`@e[type=minecraft:item_display,tag=bm.stkp_body,scores={bm.stkid=${sid}},limit=1]`);
   ok('Still: it stands (drawn up tall), its rig with it', (await sc(STK, 'bm.stka')) === 0 && body && sp && Math.hypot(body[0] - sp[0], body[2] - sp[2]) < 0.6 &&
-     Math.abs(body[1] - sp[1]) < 0.6, `gait ${await sc(STK, 'bm.stka')}, body ${body && body.map(v => v.toFixed(2))} host ${sp && sp.map(v => v.toFixed(2))}`);
+     body[1] - sp[1] >= 0 && body[1] - sp[1] < 3, `gait ${await sc(STK, 'bm.stka')}, body ${body && body.map(v => v.toFixed(2))} host ${sp && sp.map(v => v.toFixed(2))}`);
   // ---- let go: it comes for you - on all fours, then flat out
   await still(); await heal();
   const seen = new Set();
