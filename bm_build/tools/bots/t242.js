@@ -25,7 +25,7 @@ runT({ W: 'stalker', NAME: 'The Stalker', ab: 'sv', q: 'sq', pfx: 'p193', prefix
     ok('right-clicked empty-handed: it leans in close - and waits', A.bars.some(b => /It waits/.test(b)), A.bars.slice(-1).join(''));
     // (the dawn paid out Dread Essence already: hold one, and count it before and after)
     await run('clear TestRat *[minecraft:custom_data~{bm:"dread_essence"}]'); await run('loot replace entity TestRat hotbar.8 loot bm:items/dread_essence');
-    await run('item modify entity TestRat hotbar.8 {function:"minecraft:set_count",count:1}'); await sleep(600);
+    await run('item modify entity TestRat hotbar.8 {type:"minecraft:set_count",count:1}'); await sleep(600);
     A.chats.length = 0; eb = await entOf(ENC); if (eb) A.interact(eb.entityId); await sleep(1500);
     ok('right-clicked holding Dread Essence: the essence taken, the Hollow Hook given', (await has('st_hook')) === 1 && (await has('dread_essence')) === 0 &&
        A.chats.some(c => /swallows it/.test(c)), `hook ${await has('st_hook')} essence ${await has('dread_essence')} | ` + A.chats.slice(-4).join(' | ').slice(0, 300));

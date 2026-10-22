@@ -86,8 +86,8 @@ const res = [];
   await run(`${O}tp TestRat ${X - 7.5} ${Y} ${Z + 0.5} 0 0`); await sleep(3000);
   ok('...walked away from: packed up, the raw iron still inside', (await cnt('@e[type=minecraft:marker,tag=bm.bx_orecol]')) === 0 && /raw_iron/.test(await inside(1)), (await inside(1)).slice(-120));
   // (a full magnet)
-  const full = Array.from({ length: 27 }, (_, i) => `{slot:${i},item:{id:"minecraft:stone",count:64}}`).join(',');
-  await run(`item modify entity TestRat hotbar.1 {function:"minecraft:set_components",components:{"minecraft:container":[${full}]}}`); await run('scoreboard players set TestRat bm.vfcd 0');
+  const full = Array.from({ length: 27 }, (_, i) => `{slot:${i},item:{id:"stone",count:64}}`).join(',');
+  await run(`item modify entity TestRat hotbar.1 {type:"minecraft:set_components",components:{"minecraft:container":[${full}]}}`); await run('scoreboard players set TestRat bm.vfcd 0');
   A.bars.length = 0;
   await run(`${O}summon minecraft:item ${X - 3.5} ${Y} ${Z + 0.5} {Item:{id:"minecraft:raw_gold",count:1},Tags:["bm.t220i"]}`);
   await wait(7000, async () => A.bars.some(b => /is full/.test(b)));
