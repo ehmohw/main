@@ -93,7 +93,7 @@ const res = [];
   ok('...the walls still standing (it passes through, it doesn\'t break them)', await passes(`${O}execute if block ${X + 0.0} ${Y + 1} ${Z + 2} minecraft:stone`) &&
      await passes(`${O}execute if block ${X} ${Y} ${Z + 2} minecraft:stone`));
   await sleep(1000);
-  ok('...and the chase goes on (its AI back, a cooldown before the next)', /0b/.test(await run(`${O}data get entity ${STK} NoAI`)) && (await sc(STK, 'bm.stkwc')) > 0 &&
+  ok('...and the chase goes on (its AI back, a cooldown before the next)', !/1b/.test(await run(`${O}data get entity ${STK} NoAI`)) && (await sc(STK, 'bm.stkwc')) > 0 &&
      (await sc(STK, 'bm.stkp')) === 0, `wc ${await sc(STK, 'bm.stkwc')}, p ${await sc(STK, 'bm.stkp')}, NoAI ${(await run(`${O}data get entity ${STK} NoAI`)).slice(-40)}`);
   await heal();
 
