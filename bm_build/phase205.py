@@ -62,6 +62,7 @@ ABIL = {
     'bones': ('Riptide Frenzy', 'a frenzy of teeth: 22 to one monster; you, Dolphin\'s Grace', None, 22, 'slowness 2 1', ['dolphins_grace 10 0'], 'minecraft:bubble', 'minecraft:entity.guardian.attack'),
     'capshun': ('Doodle Barrier', 'a doodled barrier: you and your followers Absorption III and Resistance; 6 round him', (6, 4), 0, 'slowness 2 1',
                 ['absorption 20 2', 'resistance 8 0'], 'minecraft:end_rod', 'minecraft:item.book.page_turn'),
+    'sky': ('Clear Skies', 'the clouds part: 14 to every monster round them, lit up; you, Regeneration and Haste', (14, 6), 0, 'glowing 4 0', ['regeneration 6 1', 'haste 15 1'], 'minecraft:end_rod', 'minecraft:block.beacon.power_select'),
 }
 FIRE = {'ashur', 'lantern'}                 # (their blows set monsters alight)
 BYPASS = {'stalker', 'apo'}                 # (their blows go through armour)

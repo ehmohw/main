@@ -176,6 +176,9 @@ import phase205 as R205      # 2.93: Champions of the Tide - the medal, the rega
 import phase207 as R207      # 2.93b: Bender's bonds - eleven pairs and six trios
 import phase208 as R208      # 2.93b: synergy attacks - every pair and trio charges a combined blow by its role
 import phase209 as R209      # 2.93d: Pearlman's seasons - his look by the land's season; the follower's pick of them
+import phase210 as R210      # 2.94: effect sprites - PixelLab's effects, played as flipbooks on billboarded displays
+import phase211 as R211      # 2.94: the Sky Buddies, the first trio follower (the Sky Mobile) - sunbeams, star shots, zaps, lullabies
+import phase212 as R212      # 2.94: Dennis's searing throws - diamonds and ingots, glowing hot (sear_art.py)
 import phase202 as R202      # 2.92: the kingdom's armoury - Leo's Aegis, Emma's Crescent, Tidewarden and Pearlguard, Tide Scales (kingdom_art.py)
 import phase188 as R188      # 2.86: the bonds - eleven new pairs and five new trios (Ashur, the Chef, the Neighbor and friends)
 import phase171 as R171      # 2.82b: the Town Directory - who's where in the rat town, and a trail of light there
@@ -1313,6 +1316,7 @@ def build(out_dir):
     if PHASE2: R196.generate_early(sys.modules[__name__])
     if PHASE2: R197.generate_early(sys.modules[__name__])
     if PHASE2: R198.generate_early(sys.modules[__name__])
+    if PHASE2: R211.generate_early(sys.modules[__name__])
     if PHASE2: R199.generate_early(sys.modules[__name__])
     if PHASE2: R200.generate_early(sys.modules[__name__])
     if PHASE2: R133.generate(sys.modules[__name__])
@@ -1362,6 +1366,9 @@ def build(out_dir):
     if PHASE2: R195.generate(sys.modules[__name__])
     if PHASE2: R197.generate(sys.modules[__name__])
     if PHASE2: R198.generate(sys.modules[__name__])
+    if PHASE2: R210.generate(sys.modules[__name__])
+    if PHASE2: R211.generate(sys.modules[__name__])
+    if PHASE2: R212.generate(sys.modules[__name__])
     if PHASE2: R199.generate(sys.modules[__name__])
     if PHASE2: R200.generate(sys.modules[__name__])
     if PHASE2: R201.generate(sys.modules[__name__])
@@ -1374,6 +1381,7 @@ def build(out_dir):
     if PHASE2: R192.generate(sys.modules[__name__])
     if PHASE2: R208.generate(sys.modules[__name__])
     if PHASE2: R209.generate(sys.modules[__name__])
+    if PHASE2: R210.hooks(sys.modules[__name__])
     R171.generate(sys.modules[__name__])
     R172.generate(sys.modules[__name__])
     R161.generate(sys.modules[__name__])

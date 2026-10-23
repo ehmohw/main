@@ -3,7 +3,7 @@
 DENNIS        DENNIS'S HORN (a horn off his helmet; use it to call him, sneak + use: his menu). A stout fighter with his
               Dwarven wrench and a dwarf's love of gold:
               WRENCH WHACK  up close - the wrench swung overhead and brought down (7, and a shove).
-              GOLD RUSH     at range - a fistful of gold nuggets flung (5, and the weight of it slows).
+              GOLD RUSH     at range - (2.94) searing diamonds and ingots, glowing hot, two at a time (6-9, set alight; phase212).
               MIDAS SLAM    when they crowd him - the wrench into the ground, a ring of gold bursting out (9 to all near, up they go).
               MOTHER LODE   his great blow (every 45 s) - the ground splits and gold pours up round him (14 to all near), and
                             you're clad in it a while (Absorption, Resistance).
@@ -508,7 +508,7 @@ def build(G, k, c, fn, title, tellraw, give, PREFIX, say, holds, foe, tick, fast
     fn(f'{pfx}/home', [f'execute as @e[type=minecraft:wolf,tag={pet}] if score @s bm.pid = #me bm.pid run tag @s add {sel2}',
                        f'execute if entity @e[tag={sel2}] run function bm:{pfx}/dismiss', f'tag @e[tag={sel2}] remove {sel2}'])
     # his menu (sneak + use his item)
-    powers = {'dw': [('Wrench Whack', 'up close: the wrench, overhead (7, and a shove)'), ('Gold Rush', 'at range: a fistful of gold nuggets (5, and slowed)'),
+    powers = {'dw': [('Wrench Whack', 'up close: the wrench, overhead (7, and a shove)'), ('Gold Rush', 'at range: searing diamonds and ingots - iron, gold, copper, netherite - glowing hot (6-9, set alight)'),
                      ('Midas Slam', 'when they crowd him: a ring of gold (9 to all near, up they go)'),
                      ('The Mother Lode', 'his great blow, every 45 s: gold pours up (14 to all near) - and you, clad in it (Absorption, Resistance)'),
                      ('Fortune V', 'while he\'s with you, on every ore you mine')],

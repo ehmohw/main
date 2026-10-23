@@ -30,7 +30,7 @@ def place(art, U, sel):
     return [f'execute positioned ^{-x * U:.4f} ^{y * U:.4f} ^{-z * U:.4f} run tp {sel(p)} ~ ~ ~ ~ 0' for p, (x, y, z) in art.PIVOT.items()]
 
 
-def pose(art, pz, S, dur, sel, swap=(), hide=True, parts=None):
+def pose(art, pz, S, dur, sel, swap=(), hide=True, parts=None, keep=False):
     """one pose's lines: each part's solved turn and shift, its scale (0 if the pose hides it), a swapped model if asked.
     2.78: a part the pose hides only shrinks away, where it is, within 2 ticks - it isn't swung to the new pose on the way
     out (the blunderbuss used to sweep up through his face while his arms rose for the slam)"""
@@ -48,9 +48,11 @@ def pose(art, pz, S, dur, sel, swap=(), hide=True, parts=None):
             sc = round(S * k, 4)
             bits.append(f'scale:[{sc}f,{sc}f,{sc}f]')
         extra = ''
-        if p in swap:
+        if p in swap and not keep:
             extra = f',item:{{id:"minecraft:paper",count:1,components:{{"minecraft:item_model":"bm:{art.model_name(p, pz)}"}}}}'
         out.append(f'execute as {sel(p)} run data merge entity @s {{start_interpolation:0,interpolation_duration:{dur},transformation:{{{",".join(bits)}}}{extra}}}')
+        if p in swap and keep:                             # (2.94 keep: the model alone - the item's other components, a face's custom_model_data, stay)
+            out.append(f'execute as {sel(p)} run data modify entity @s item.components."minecraft:item_model" set value "bm:{art.model_name(p, pz)}"')
     return out
 
 

@@ -63,6 +63,10 @@ def model_name(p, pose, suffix=''):
     return f'{PREFIX}{p}{"_x" + face if face else ""}{suffix}'
 
 
+EXTRA_TAGS = {p: ['bm.ybp_face'] for p in FACED}                 # (the four with faces: phase95's moods reach them all)
+SWAP = FACED                                                     # (each pose sets their model: a face of its own, or back to the mood's)
+
+
 def place_of(p):
     """a part's anchor round the joint, on screen (painting pixels, +x right, +y down)"""
     a, off, _z = LAYOUT[p]

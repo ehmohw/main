@@ -23,7 +23,7 @@ import phase141 as P141
 import allies
 
 
-POS = {'her': 'her', 'him': 'his', 'it': 'its'}       # (the possessive for each pronoun)
+POS = {'her': 'her', 'him': 'his', 'it': 'its', 'them': 'their'}       # (the possessive for each pronoun; 2.94: 'them' - the Sky Buddies)
 
 
 class Cfg:
@@ -32,7 +32,9 @@ class Cfg:
     ITEM (the summon item's id), pron ('her' / 'him'), they ('she' / 'he'), CYCLE, DUR, QUIPS, HELLO (called over, summoned, sent home),
     SIT (stand line, sit line), FAINT (her last words), POWERS [(name, what)], INTRO [text parts], ATTRS (the host's attributes),
     FACE (phase95 mood -> the art's face or None), FORM (None, or (score, suffix, on-button label, off-button label, on line, off line)),
-    BUTTONS [(n, label, tooltip, function)] (extra menu buttons on MENU + n), HIT (click-box size), SWIM_FACE, HEIST_WAIT_LINE"""
+    BUTTONS [(n, label, tooltip, function)] (extra menu buttons on MENU + n), HIT (click-box size), SWIM_FACE, HEIST_WAIT_LINE,
+    (2.94) BILLBOARD (None, or the parts' billboard: 'center' / 'vertical' - 2D sprites that always face you), SWAP (parts whose model
+    each pose sets: A.model_name(part, pose) - a sprite's frame, a part's face), and pron 'them' / they 'they' (a plural follower)"""
     EXPR = ('happy', 'surprised', 'hurt', 'sleepy', 'blink', 'squint', 'serious')
     FORM = None
     BUTTONS = ()
@@ -42,6 +44,8 @@ class Cfg:
     FORM_FX = []
     SUMMON_EXTRA = []
     ENC_PARTICLE = 'return 0'
+    BILLBOARD = None
+    SWAP = ()
 
 
 def register(C):
@@ -56,6 +60,8 @@ def register(C):
         P68.HE.add(W)
     elif C.pron == 'it':
         P68.IT.add(W)
+    elif C.pron == 'them':
+        P68.THEY.add(W)
     P98.CALLED.append((W, C.NAME, C.COL, 'wolf', pet, f'bm.{C.ab}sel2', f'bm.{C.ab}cd', f'{C.pfx}/try_summon', f'{C.pfx}/dismiss', f'{C.pfx}/recall', f'{C.pfx}/go'))
     P100.WHO[W] = ('wolf', pet)
     P100.VOICE[C.NAME] = (C.COL, C.LINE)
@@ -98,6 +104,7 @@ def contract(C, G):
     import phase103 as P103
     fn, title, tellraw = G.fn, G.title, G.tellraw
     W = C.W
+    v = _verb(C)
     GP = [T('[', 'dark_gray'), T('Heist', '#ffcf40', bold=True), T('] ', 'dark_gray')]
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     Lr = G.FUNCS['p70/r/lobby/init']
@@ -107,13 +114,13 @@ def contract(C, G):
               'scoreboard players operation #q bm.rng /= #bit bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng']
     fn(f'{C.pfx}/sign', ['execute if score @s bm.gvhc matches 1.. run return 0', 'scoreboard players set @s bm.gvhc 2',
                          'execute unless score @s bm.fcon matches 0.. run scoreboard players set @s bm.fcon 0'] + signed +
-       [f'execute if score #q bm.rng matches 1 run return run ' + say(f"{C.NAME} is already under contract.", 'gray'),
+       [f'execute if score #q bm.rng matches 1 run return run ' + say(f"{C.NAME} {v('is', 'are')} already under contract.", 'gray'),
         f'scoreboard players add @s bm.fcon {bit}', f'clear @s *[minecraft:custom_data~{{bm:"fcontract_{W}"}}] 1',
         'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 1 0.8',
         tellraw('@s', GP + [T('Signed! ', '#ffcf40', bold=True), T(C.NAME, C.COL, bold=True), T(' will answer your call in the vault from now on.', 'gray')])])
     fn(f'{C.pfx}/ok', ['execute unless dimension bm:gutter run return run function bm:p74/fol_ok', 'execute unless entity @s[tag=bm.gvp] run return 0'] + signed +
        ['execute if score #q bm.rng matches 1 run return 1',
-        tellraw('@s', GP + [T(C.NAME, C.COL), T(f' needs {C.pron} ', 'gray'), T('Raid Contract', '#ffcf40'), T(' signed to come into the vault (the Recruiter in the den sells it).', 'gray')]),
+        tellraw('@s', GP + [T(C.NAME, C.COL), T(f" {v('needs', 'need')} {POS[C.pron]} ", 'gray'), T('Raid Contract', '#ffcf40'), T(' signed to come into the vault (the Recruiter in the den sells it).', 'gray')]),
         'return 0'])
     o = offer(('gutter_trophy', 1), (f'fcontract_{W}', 1), ('gutter_medallion', 3))
     Lr[k_] = Lr[k_].replace('Recipes:[', 'Recipes:[' + snbt(o) + ',', 1)
@@ -124,10 +131,16 @@ class X:
     """the helpers a follower's hooks get (filled in by build)"""
 
 
+def _verb(C):
+    """(2.94) a verb agreeing with the follower: v('needs', 'need')"""
+    return (lambda one, many: many) if C.pron == 'them' else (lambda one, many: one)
+
+
 def build(C, G, abilities, encounter):
     import phase28 as P28
     import phase73 as P73
     A, W, pfx, ab = C.A, C.W, C.pfx, C.ab
+    v = _verb(C)
     fn, title, tellraw, give, PREFIX = G.fn, G.title, G.tellraw, G.give, G.PREFIX
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
@@ -149,7 +162,9 @@ def build(C, G, abilities, encounter):
         return f'@e[type=minecraft:item_display,tag={sel}' + (f',tag=bm.{ab}p_{p}]' if p else ']')
     sel_pet = f'execute as @e[type=minecraft:wolf,tag={pet}] if score @s bm.pid = #me bm.pid'
     face = lambda e, t: FX.face_cmd(W, e, t)
-    disp = lambda tags: [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, [f"bm.{ab}p", f"bm.{ab}p_{p}"] + tags, SP, scale0=True, extra=dict(view_range=F(1.6), brightness={"block": Int(13), "sky": Int(13)}, shadow_radius=F(0.5 if p == "body" else 0.0), shadow_strength=F(0.5)))}'
+    bb = {'billboard': C.BILLBOARD} if C.BILLBOARD else {}
+    xt = getattr(A, 'EXTRA_TAGS', {})
+    disp = lambda tags: [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, [f"bm.{ab}p", f"bm.{ab}p_{p}"] + xt.get(p, []) + tags, SP, scale0=True, extra=dict(view_range=F(1.6), brightness={"block": Int(13), "sky": Int(13)}, shadow_radius=F(0.5 if p == "body" else 0.0), shadow_strength=F(0.5), **bb))}'
                          for p in A.PARTS]
     rig = disp([f'bm.{ab}p_pet', new])
     fn(f'{pfx}/place', RF.place(A, UP, psel))
@@ -157,7 +172,7 @@ def build(C, G, abilities, encounter):
     fn(f'{pfx}/burst', burst)
     RF.cycles(fn, pfx, C.CYCLE, S('fr'), S('s'), lambda p: f'{pfx}/pose/{p}')
     for name in {p for _per, frames in C.CYCLE.values() for _t, p in frames}:
-        fn(f'{pfx}/pose/{name}', RF.pose(A, A.POSES[name], SP, C.DUR.get(name, 6), psel))
+        fn(f'{pfx}/pose/{name}', RF.pose(A, A.POSES[name], SP, C.DUR.get(name, 6), psel, swap=C.SWAP, keep=True))
     G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in RF.periods(C.CYCLE)]
     fn(f'{pfx}/grow', [f'execute as {psel(p)} run data merge entity @s {{start_interpolation:-1,interpolation_duration:0,transformation:{{scale:[{SP * A.PART_K.get(p, 1.0):.4f}f,{SP * A.PART_K.get(p, 1.0):.4f}f,{SP * A.PART_K.get(p, 1.0):.4f}f]}}}}'
                        for p in A.PARTS if not (hasattr(A, 'HIDDEN') and A.HIDDEN(p, A.POSES['idle_a']))] + [f'function bm:{pfx}/pose/idle_a'])
@@ -235,7 +250,7 @@ def build(C, G, abilities, encounter):
     fn(f'{pfx}/try_summon', [f'execute if score @s bm.{ab}cd matches 1.. store result score #m bm.rng run scoreboard players get @s bm.{ab}cd',
                              f'execute if score @s bm.{ab}cd matches 1.. run scoreboard players add #m bm.rng 59',
                              f'execute if score @s bm.{ab}cd matches 1.. run scoreboard players operation #m bm.rng /= #60 bm.rng',
-                             f'execute if score @s bm.{ab}cd matches 1.. run return run ' + title('@s', 'actionbar', [T(f'{C.NAME} is still recovering: about ', 'gray'),
+                             f'execute if score @s bm.{ab}cd matches 1.. run return run ' + title('@s', 'actionbar', [T(f"{C.NAME} {v('is', 'are')} still recovering: about ", 'gray'),
                                                                                                                        {'score': {'name': '#m', 'objective': 'bm.rng'}, 'color': 'white'}, T(' min.', 'gray')]),
                              f'execute unless function bm:{pfx}/ok run return run ' + say(f"{C.NAME} won't come here."),
                              'execute if function bm:p58/full run return 0', f'function bm:{pfx}/summon'])
@@ -279,7 +294,7 @@ def build(C, G, abilities, encounter):
                                      f'execute as @e[type=minecraft:item_display,tag={sel}] run function bm:p138/sfx'])
     fn(f'p99/{W}_now', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #has bm.rng 0',
                         f'execute as @e[type=minecraft:wolf,tag={pet}] if score @s bm.pid = #me bm.pid at @s run function bm:{pfx}/now2',
-                        'execute if score #has bm.rng matches 0 run return run ' + say(f"{C.NAME} isn't with you - {C.they}'ll wear it next time.", C.COL)])
+                        'execute if score #has bm.rng matches 0 run return run ' + say(f"{C.NAME} {v('isn', 'aren')}'t with you - {C.they}'ll wear it next time.", C.COL)])
     fn(f'{pfx}/now2', ['scoreboard players set #has bm.rng 1', 'scoreboard players operation #me bm.pid = @s bm.pid',
                        f'execute as @e[type=minecraft:item_display,tag=bm.{ab}p_pet,tag=!{fade}] if score @s bm.pid = #me bm.pid run tag @s add {sel}',
                        f'function bm:{pfx}/dress', f'tag @e[tag={sel}] remove {sel}', 'particle minecraft:poof ~ ~1 ~ 0.4 0.8 0.4 0.02 20'])
@@ -291,7 +306,8 @@ def build(C, G, abilities, encounter):
                        f'execute if entity @e[tag={sel2}] run function bm:{pfx}/dismiss', f'tag @e[tag={sel2}] remove {sel2}'])
     # ---- the menu (sneak + use)
     M = C.MENU
-    pdlg = P28.multi([T(f"{C.NAME.upper()}'S WAYS", C.COL, bold=True)], [P28.body([T(n, C.COL, bold=True), T(f' - {d}.', 'gray')], 340) for n, d in C.POWERS],
+    poss = C.NAME + ("'" if C.NAME.endswith('s') else "'s")              # (2.94: the Sky Buddies' ways)
+    pdlg = P28.multi([T(f"{poss.upper()} WAYS", C.COL, bold=True)], [P28.body([T(n, C.COL, bold=True), T(f' - {d}.', 'gray')], 340) for n, d in C.POWERS],
                      [P28.btn([T('« Back', 'gray')], M + 5, width=150)], columns=1, exit_label='Close')
     fn(f'{pfx}/powers', [f'scoreboard players set @s bm.menu {M}', f'dialog show @s {snbt(pdlg)}'])
     extra = [P28.btn(T(lbl, C.COL, bold=True), M + n, width=150, tooltip=T(tip, 'gray')) for n, lbl, tip, _f in C.BUTTONS]
@@ -301,7 +317,7 @@ def build(C, G, abilities, encounter):
     dlg = lambda out: P28.multi([T(ITEMS[C.ITEM]['name'], C.COL, bold=True)], [P28.body(C.INTRO, 300)],
                                 ([P28.btn(T('Sit / follow', 'white', bold=True), M + 1, width=150), P28.btn(T(f'Send {C.pron} home', 'gray'), M + 9, width=150)] if out else
                                  [P28.btn(T(f'Call for {C.NAME}', C.COL, bold=True), M + 8, width=150)]) + form_btn + extra +
-                                [P28.btn(T(f"{C.NAME}'s ways", C.COL, bold=True), M + 4, width=150, tooltip=T(f'What {C.they} does - and how.', 'gray')),
+                                [P28.btn(T(f"{poss} ways", C.COL, bold=True), M + 4, width=150, tooltip=T(f"What {C.they} {v('does', 'do')} - and how.", 'gray')),
                                  P28.btn(T('Wardrobe', C.COL, bold=True), M + 2, width=150, tooltip=T(f'{POS[C.pron].capitalize()} looks - and {POS[C.pron]} aura, if you have it.', 'gray'))],
                                 columns=2, exit_label='Close')
     fn(f'{pfx}/menu', [f'scoreboard players set @s bm.menu {M}',
@@ -369,8 +385,8 @@ def build(C, G, abilities, encounter):
                         f'scoreboard players add @s {S("z")} 1', f'execute if score @s {S("z")} matches 4.. run function bm:{pfx}/fell'])
     fn(f'{pfx}/fell', [f'function bm:{pfx}/fade', f'execute as @a if score @s bm.pid = #me bm.pid run function bm:{pfx}/cooldown'])
     fn(f'{pfx}/cooldown', [f'scoreboard players set @s bm.{ab}cd {C.PET_CD}',
-                           tellraw('@s', PREFIX + [T(f'{C.NAME} faints! ', C.COL, bold=True), T(f'"{C.FAINT}" ', C.LINE),
-                                                   T(f"{C.they.capitalize()} needs {C.PET_CD // 60} minutes before {C.they} can come back.", "gray")])])
+                           tellraw('@s', PREFIX + [T(f"{C.NAME} {v('faints', 'faint')}! ", C.COL, bold=True), T(f'"{C.FAINT}" ', C.LINE),
+                                                   T(f"{C.they.capitalize()} {v('needs', 'need')} {C.PET_CD // 60} minutes before {C.they} can come back.", "gray")])])
     fn(f'{pfx}/fade', [f'execute as @e[type=minecraft:item_display,tag=bm.{ab}p_pet,tag=!{fade}] if score @s bm.pid = #me bm.pid run function bm:{pfx}/fade1'] + burst +
        [C.FADE_SOUND])
     fn(f'{pfx}/fade1', [f'tag @s add {fade}', f'scoreboard players set @s {S("l")} 3',
@@ -389,7 +405,7 @@ def build(C, G, abilities, encounter):
     assert far[0] == f'function bm:{pfx}/go', far[0]
     far.insert(0, f'execute if entity @a[tag=bm.fown,tag=bm.gvp] run return run function bm:p103/fol/wait_{W}')
     fn(f'p103/fol/wait_{W}', [f'tag @a[tag=bm.fown] add bm.ow_{W}', f'function bm:{pfx}/go',
-                              tellraw('@a[tag=bm.fown]', PREFIX + [T(f'{C.NAME} waits outside the vault', C.COL), T(' - your Raid Crew answers inside. ', 'gray'),
+                              tellraw('@a[tag=bm.fown]', PREFIX + [T(f"{C.NAME} {v('waits', 'wait')} outside the vault", C.COL), T(' - your Raid Crew answers inside. ', 'gray'),
                                                                    T("(Back with you when you're home.)", 'dark_gray')]), 'tag @a remove bm.fown'])
     fn(f'p103/fol/back_{W}', [f'tag @s remove bm.ow_{W}', f'function bm:{pfx}/try_summon'])
     G.FUNCS['p103/fol/tick'].append(f'execute if entity @s[tag=bm.ow_{W}] run function bm:p103/fol/back_{W}')
@@ -427,7 +443,7 @@ def build(C, G, abilities, encounter):
     # (the recruit's shared tail: met, the item, the advancement, he/she comes along)
     fn(f'{pfx}/enc/joined', [f'tag @s add bm.{ab}met', give(C.ITEM), f'advancement grant @s only bm:story/{W}_friend',
                              'playsound minecraft:entity.player.levelup player @s ~ ~ ~ 0.7 1.2',
-                             tellraw('@s', PREFIX + [T(f'{C.NAME} joins you! ', C.COL, bold=True), T(f'Use {ITEMS[C.ITEM]["name"]} to call {C.pron}; sneak + use for {POS[C.pron]} menu.', 'gray')]),
+                             tellraw('@s', PREFIX + [T(f"{C.NAME} {v('joins', 'join')} you! ", C.COL, bold=True), T(f'Use {ITEMS[C.ITEM]["name"]} to call {C.pron}; sneak + use for {POS[C.pron]} menu.', 'gray')]),
                              f'execute as {X.here} at @s run function bm:{pfx}/enc/gone',
                              'execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
                              f'{sel_pet} run tag @s add {sel2}', f'execute unless entity @e[type=minecraft:wolf,tag={sel2}] unless function bm:p58/full at @s run function bm:{pfx}/summon',
@@ -439,7 +455,7 @@ def build(C, G, abilities, encounter):
     encounter(G, X)
     fn(f'admin/{W}', [give(C.ITEM), f'tag @s add bm.{ab}met', say(f"{ITEMS[C.ITEM]['name']}. ({C.ADMIN_HINT})", C.COL)])
     fn(f'admin/{W}_meet', [f'execute positioned ^ ^ ^3 run function bm:{pfx}/enc/spawn',
-                           tellraw('@s', PREFIX + [T(f'{C.NAME} is standing in front of you. {C.MEET_HINT}', 'gray')])])
+                           tellraw('@s', PREFIX + [T(f"{C.NAME} {v('is', 'are')} standing in front of you. {C.MEET_HINT}", 'gray')])])
     G.FUNCS['admin/help'].append(tellraw('@s', [T(f'/function bm:admin/{W}', 'yellow'), T(f"  {ITEMS[C.ITEM]['name']};", 'gray'),
                                                 T(f' /function bm:admin/{W}_meet', 'yellow'), T(f' meet {C.pron} here', 'gray')]))
     G.FUNCS['admin/uninstall'][0:0] = [f'kill @e[type=minecraft:item_display,tag=bm.{ab}p]', f'kill @e[type=minecraft:interaction,tag={enc}]']

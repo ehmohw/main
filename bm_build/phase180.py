@@ -72,6 +72,7 @@ GIFT = {  # follower: (what it does, commands run each second at the doll)
     'bender': ('Luck', [f'effect give {P} minecraft:luck 15 0 true']),
     'bones': ("Dolphin's Grace", [f'effect give {P} minecraft:dolphins_grace 15 0 true']),
     'capshun': ('Haste', [f'effect give {P} minecraft:haste 15 0 true']),
+    'sky': ('Night Vision', [f'effect give {P} minecraft:night_vision 15 0 true']),
     'pearl': ('Hero of the Village', [f'effect give {P} minecraft:hero_of_the_village 15 0 true']),
 }
 assert set(GIFT) == set(DOLL_OF), sorted(set(GIFT) ^ set(DOLL_OF))

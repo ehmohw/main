@@ -70,6 +70,7 @@ TRIB = {
     'bender': [('minecraft:bone', 16), ('minecraft:cooked_beef', 16), ('token', 8), ('heartstone', 1), ('fallen_star', 2)],
     'bones': [('minecraft:cod', 16), ('minecraft:salmon', 16), ('minecraft:tropical_fish', 8), ('minecraft:nautilus_shell', 2), ('tide_scale', 8)],
     'capshun': [('minecraft:paper', 32), ('minecraft:ink_sac', 16), ('minecraft:book', 8), ('minecraft:writable_book', 2), ('heartstone', 2)],
+    'sky': [('minecraft:sunflower', 16), ('minecraft:glow_berries', 16), ('minecraft:daylight_detector', 4), ('fallen_star', 2), ('heartstone', 2)],
 }
 
 

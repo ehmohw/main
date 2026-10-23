@@ -879,6 +879,8 @@ if __name__ == '__main__':
     phase195.rp(sys.modules[__name__]); phase196.rp(sys.modules[__name__]); phase197.rp(sys.modules[__name__])
     import phase198                           # (2.90: Mr. Capshun)
     phase198.rp(sys.modules[__name__])
+    import phase210, phase211, phase212       # (2.94: the effect sprites, the Sky Buddies, Dennis's searing throws)
+    phase210.rp(sys.modules[__name__]); phase211.rp(sys.modules[__name__]); phase212.rp(sys.modules[__name__])
     import phase199                           # (2.91: the Underwater Kingdom)
     phase199.rp(sys.modules[__name__])
     import phase200                           # (2.91: the Nether and the End)

@@ -23,6 +23,7 @@ KINDS = {  # kind: (number, item, host, pet tag, the summon (as the summoner), t
 }
 HE = {'cecil', 'leo'}
 IT = set()                     # (2.87: the Stalker and the Arachno-Lantern are neither)
+THEY = set()                   # (2.94: the Sky Buddies - three of them)
 CD = 300                                    # seconds before a fainted framed follower comes back
 FACE = {0: ('~ ~-1.8 ~', 0), 1: ('~ ~0.1 ~', 0), 2: ('~ ~ ~-0.3', 180), 3: ('~ ~ ~0.3', 0), 4: ('~-0.3 ~ ~', 90), 5: ('~0.3 ~ ~', -90)}
 
@@ -66,7 +67,7 @@ def generate(G):
     for k, (n, _it, host, tag, summon, _d, _sel, name, col) in KINDS.items():
         fn(f'p68/spawn_{k}', [f'function bm:{summon}',
                               f'execute as @e[type=minecraft:{host},tag={tag},distance=..4] if score @s bm.pid = #ff bm.pid run tag @s add bm.ffpet',
-                              'execute as @a[distance=..10] run ' + title('@s', 'actionbar', [T(f'{name} climbs out of the frame and makes ' + ('itself' if k in IT else 'himself' if k in HE else 'herself') + ' at home. ', col),
+                              'execute as @a[distance=..10] run ' + title('@s', 'actionbar', [T(f'{name} ' + ('climb out of the frame and make ' if k in THEY else 'climbs out of the frame and makes ') + ('itself' if k in IT else 'themselves' if k in THEY else 'himself' if k in HE else 'herself') + ' at home. ', col),
                                                                                              T('(Right-click the frame: sit / stand. Sneak + right-click: in / out.)', 'gray')])])
 
     # ---- every second, each anchor: is the frame still there, holding the item? is the follower out? (fainted: back in 5 minutes)
@@ -119,12 +120,12 @@ def generate(G):
                    'tag @a[tag=bm.ffsn] remove bm.ffsn', 'tag @e[tag=bm.ffas] remove bm.ffas'])
     # (as the player who clicked; the anchor tagged bm.ffas, #ff its id)
     names = lambda lines_for: [f'execute if score {ANC} bm.ffk matches {n} run ' + lines_for(k, name, col) for k, (n, _i, _h, _t, _s, _d, _sel, name, col) in KINDS.items()]
-    pron = lambda k: 'it' if k in IT else 'him' if k in HE else 'her'
+    pron = lambda k: 'it' if k in IT else 'them' if k in THEY else 'him' if k in HE else 'her'
     fn('p68/toggle_on', [f'execute if score {ANC} bm.ffon matches 1 run return run function bm:p68/send_in', 'function bm:p68/call_out'])
     fn('p68/send_in', [f'scoreboard players set {ANC} bm.ffon 0', f'scoreboard players set {ANC} bm.ffsit 0',
                        f'execute as {ANC} at @s run function bm:p68/find', 'execute as @e[tag=bm.ffp] at @s run function bm:p68/drop', 'tag @e[tag=bm.ffp] remove bm.ffp',
                        'playsound minecraft:entity.item_frame.rotate_item block @a[distance=..12] ~ ~ ~ 1 0.6'] +
-       names(lambda k, name, col: title('@s', 'actionbar', [T(f'{name} steps back into the frame. ', col), T(f'(Sneak + right-click to call {pron(k)} out again.)', 'gray')])))
+       names(lambda k, name, col: title('@s', 'actionbar', [T(f'{name} ' + ('step' if k in THEY else 'steps') + ' back into the frame. ', col), T(f'(Sneak + right-click to call {pron(k)} out again.)', 'gray')])))
     fn('p68/call_out', [f'scoreboard players set {ANC} bm.ffon 1', f'execute if score {ANC} bm.ffcd matches 1.. run return run function bm:p68/resting',
                         f'execute as {ANC} at @s run function bm:p68/spawn'])
     fn('p68/resting', [f'execute store result score #m bm.rng run scoreboard players get {ANC} bm.ffcd', 'scoreboard players add #m bm.rng 59',

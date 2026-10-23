@@ -19,9 +19,9 @@ CREW = '#9ad0ff'
 PAGE = 7950                                   # the page; its wardrobes 7951-7957, Emma's buffs 7961-7965
 WHO = [('emma', 'Emma'), ('celi', 'Celi'), ('zib', 'Zib'), ('cecil', 'Cecil'), ('kw', 'KillerWatt'), ('leo', 'Leo'), ('demo', 'Democratus'),
        ('apo', 'Apophiss'), ('tul', 'Tullius'), ('frog', 'The Frog'), ('don', 'Donado'), ('pearl', 'Pearlman'), ('wil', 'Wilfrey'), ('fishy', 'Fishy'),
-       ('dennis', 'Dennis'), ('pistachio', 'Pistachio'), ('omega', 'King Omega'), ('ashur', 'Ashur'), ('chef', 'The Chef'), ('neighbor', 'The Neighbor'), ('ava', 'Queen Ava'), ('pearlq', 'Queen Pearl'), ('bloo', 'Bloo'), ('stalker', 'The Stalker'), ('lantern', 'The Arachno-Lantern'), ('bender', 'Bender'), ('bones', 'Bones'), ('capshun', 'Mr. Capshun')]
+       ('dennis', 'Dennis'), ('pistachio', 'Pistachio'), ('omega', 'King Omega'), ('ashur', 'Ashur'), ('chef', 'The Chef'), ('neighbor', 'The Neighbor'), ('ava', 'Queen Ava'), ('pearlq', 'Queen Pearl'), ('bloo', 'Bloo'), ('stalker', 'The Stalker'), ('lantern', 'The Arachno-Lantern'), ('bender', 'Bender'), ('bones', 'Bones'), ('capshun', 'Mr. Capshun'), ('sky', 'The Sky Buddies')]
 COL = {'emma': '#ff7ad0', 'celi': '#9ad8ff', 'zib': '#3ad8c8', 'cecil': '#b48cff', 'kw': '#ffe040', 'leo': '#5ab8e0', 'demo': '#7ad06a',
-       'apo': '#3ad06a', 'tul': '#7ad8ff', 'frog': '#6ac850', 'don': '#e8d29a', 'pearl': '#5ac8ff', 'wil': '#f4f4f4', 'fishy': '#ffa040', 'dennis': '#e0a040', 'pistachio': '#7ae890', 'omega': '#9fb4ff', 'ashur': '#ff7a2a', 'chef': '#ffd07a', 'neighbor': '#7ab8ff', 'ava': '#6ad8e8', 'pearlq': '#5ae0d8', 'bloo': '#5a9ae8', 'stalker': '#a8ac70', 'lantern': '#ff8a2a', 'bender': '#e0a860', 'bones': '#8ab0c8', 'capshun': '#f0f0f0'}
+       'apo': '#3ad06a', 'tul': '#7ad8ff', 'frog': '#6ac850', 'don': '#e8d29a', 'pearl': '#5ac8ff', 'wil': '#f4f4f4', 'fishy': '#ffa040', 'dennis': '#e0a040', 'pistachio': '#7ae890', 'omega': '#9fb4ff', 'ashur': '#ff7a2a', 'chef': '#ffd07a', 'neighbor': '#7ab8ff', 'ava': '#6ad8e8', 'pearlq': '#5ae0d8', 'bloo': '#5a9ae8', 'stalker': '#a8ac70', 'lantern': '#ff8a2a', 'bender': '#e0a860', 'bones': '#8ab0c8', 'capshun': '#f0f0f0', 'sky': '#ffd04a'}
 WD2 = 8280                                    # 2.78: the wardrobes past the seventh (8280-8286; 7958-7960 is too little room)
 wcode = lambda i: PAGE + 1 + i if i < 7 else WD2 + i - 7
 
@@ -118,7 +118,7 @@ def generate(G):
         b = P99.BASE[w]
         fn(f'p119/wd/{w}', ['tag @s add bm.wdled', f'function bm:p99/menu/{w}'])
         d = G.FUNCS[f'p99/dlg/{w}'][0]
-        home = next(t for t in ('Send her home', 'Send him home', 'Send it home') if t in d)
+        home = next(t for t in ('Send her home', 'Send him home', 'Send it home', 'Send them home') if t in d)
         fn(f'p119/dlg/{w}', [d.replace(home, '« Outfits & buffs')])
         menu = G.FUNCS[f'p99/menu/{w}']
         assert menu[-1] == f'function bm:p99/dlg/{w} with storage bm:ui wd', menu[-1]

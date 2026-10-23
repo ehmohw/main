@@ -336,11 +336,11 @@ def generate(G):
            ('kw', 'KillerWatt', '#ffe040'), ('leo', 'Leo', '#5ab8e0'), ('demo', 'Democratus', '#7ad06a'),
            ('apo', 'Apophiss', '#3ad06a'), ('tul', 'Tullius', '#7ad8ff'), ('frog', 'The Frog', '#6ac850'), ('don', 'Donado', '#e8d29a'),
            ('pearl', 'Pearlman', '#5ac8ff'), ('wil', 'Wilfrey', '#f4f4f4'), ('fishy', 'Fishy', '#ffa040'),
-           ('dennis', 'Dennis', '#e0a040'), ('pistachio', 'Pistachio', '#7ae890'), ('omega', 'King Omega', '#9fb4ff'), ('ashur', 'Ashur', '#ff7a2a'), ('chef', 'The Chef', '#ffd07a'), ('neighbor', 'The Neighbor', '#7ab8ff'), ('ava', 'Queen Ava', '#6ad8e8'), ('pearlq', 'Queen Pearl', '#5ae0d8'), ('bloo', 'Bloo', '#5a9ae8'), ('stalker', 'The Stalker', '#a8ac70'), ('lantern', 'The Arachno-Lantern', '#ff8a2a'), ('bender', 'Bender', '#e0a860'), ('bones', 'Bones', '#8ab0c8'), ('capshun', 'Mr. Capshun', '#f0f0f0')]
+           ('dennis', 'Dennis', '#e0a040'), ('pistachio', 'Pistachio', '#7ae890'), ('omega', 'King Omega', '#9fb4ff'), ('ashur', 'Ashur', '#ff7a2a'), ('chef', 'The Chef', '#ffd07a'), ('neighbor', 'The Neighbor', '#7ab8ff'), ('ava', 'Queen Ava', '#6ad8e8'), ('pearlq', 'Queen Pearl', '#5ae0d8'), ('bloo', 'Bloo', '#5a9ae8'), ('stalker', 'The Stalker', '#a8ac70'), ('lantern', 'The Arachno-Lantern', '#ff8a2a'), ('bender', 'Bender', '#e0a860'), ('bones', 'Bones', '#8ab0c8'), ('capshun', 'Mr. Capshun', '#f0f0f0'), ('sky', 'The Sky Buddies', '#ffd04a')]
     # 2.78: past the old block (TL..TL+59) the pages, stock and auras go on in 8100-8299
     TL2 = 8100
     pcode = lambda i: TL + 1 + i if i < 7 else (TL2 + i - 7 if i < 13 else (TL2 + i - 6 if i < 16 else 8270 + i - 16))      # a follower's page (2.79: past 8106, the Auras page; 2.82: 8270 on)
-    scode = lambda j: TL + 10 + j if j < 40 else (TL2 + 10 + j - 40 if j < 80 else (TL2 + 64 + j - 80 if j < 112 else 8200 + j - 112))   # an outfit (2.80c: past 8150-8163, the auras; 2.82: 8200 on)
+    scode = lambda j: TL + 10 + j if j < 40 else (TL2 + 10 + j - 40 if j < 80 else (TL2 + 64 + j - 80 if j < 112 else (8200 + j - 112 if j < 182 else 3600 + j - 182)))   # an outfit (2.80c: past 8150-8163, the auras; 2.82: 8200 on; 2.94: 3600 on)
     stock = []                                       # (who, group, unlock score, k, item, name, colour, price)
     for who, g, cur, un, ks, iid, off, apply in P99.groups():
         for k, (cn, col) in ks.items():
@@ -348,7 +348,7 @@ def generate(G):
             assert it in price, f'{it} is not on sale'
             stock.append((who, g, un, k, it, cn, col, price[it]))
     cases = [(k_, price[k_]) for k_ in price if k_.startswith('display_case')]
-    assert len(stock) == len([k_ for k_ in price if k_.startswith('cos_')]) and (len(stock) <= 112 or scode(len(stock) - 1) < 8270) and len(cases) <= 9   # (codes TL..TL+59: the Office's start at 7800)
+    assert len(stock) == len([k_ for k_ in price if k_.startswith('cos_')]) and (len(stock) <= 112 or scode(len(stock) - 1) < 8270 or 3600 <= scode(len(stock) - 1) < 3700) and len(cases) <= 9   # (codes TL..TL+59: the Office's start at 7800)
     STOCK.extend(stock)
     wal = [_T('You have ', 'gray'), _T('$(w)', GOLD, bold=True), _T(' coins to spend', 'gray'),
            _T(' (Gutter Bank and pockets; Medallions count 16, Trophies 128).', 'dark_gray')]
@@ -413,6 +413,7 @@ def generate(G):
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 8200..8279 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.82: the overflow block)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 8293..8299 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.86: the auras past the 18th)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 8380..8399 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.88: the auras past the 25th)
+    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 3600..3699 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.94: the outfits past the 182nd)
     fn('p103/tl/act', [f'execute if score #act bm.pay matches {TL} run return run function bm:p103/tl/main'] +
        [f'execute if score #act bm.pay matches {pcode(i)} run return run function bm:p103/tl/p_{w}' for i, (w, nm, col) in enumerate(WHO)] +
        [f'execute if score #act bm.pay matches {TL + 8} run return run function bm:p103/tl/cases'] +
