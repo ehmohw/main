@@ -494,6 +494,21 @@ def textures():
     T_.update({'pm_black': noise('#23272e', 5), 'pm_white': noise('#d4e2e4', 5), 'pm_orange': noise('#de8a52', 8), 'pm_yellow': noise('#d6c062', 8),
                'pm_blue': noise('#2aa6da', 8), 'pm_dblue': noise('#1a6c9e', 6), 'pm_gold': noise('#d8b040', 12), 'pm_eye': noise('#0e1c2c', 3),
                'pm_teeth': noise('#f4f4ee', 3), 'pm_case': noise('#1a1a1e', 4)})
+    # (2.93d) his seasons: body, belly, hat band, feet, hat, bow tie, trim, leaf
+    SEAS = {'fall': ('#b0602c', '#c8b4e2', '#6a3a9a', '#d8b07a', '#23272e', '#2a1e34', '#e8801c', '#4a7a2a'),
+            'xmas': ('#b4323a', '#eef2f4', '#2e7a44', '#d6c062', '#23272e', '#c42a32', '#d02030', '#2a7a3a'),
+            'easter': ('#8ccfa8', '#fff2cc', '#f29cc0', '#f0c890', '#b9a3e3', '#9ccaf0', '#fbf3e0', '#ffffff'),
+            'summer': ('#2fb2c4', '#f4e2b0', '#d83a3a', '#e8b860', '#e2c27a', '#ff6f61', '#16161c', '#e8f6ff')}
+    for sk, cols in SEAS.items():
+        for part, col in zip(('body', 'belly', 'band', 'feet', 'hat', 'tie', 'trim', 'leaf'), cols):
+            T_[f'pm_{sk}_{part}'] = noise(col, 4 if part in ('trim', 'leaf') else 7)
+    for y in range(16):
+        for x in range(16):
+            if (x * 3 + y * 5) % 7 == 0: T_['pm_easter_trim'].putpixel((x, y), h3(('#f29cc0', '#9ccaf0', '#b9e39a')[(x + y) % 3]) + (255,))   # the egg's speckles
+            if x % 5 == 2 and y % 4 == 1: T_['pm_fall_trim'].putpixel((x, y), h3('#a85010') + (255,))                                       # the pumpkin's ribs
+            if (x + y) % 6 == 0: T_['pm_summer_hat'].putpixel((x, y), h3('#b89448') + (255,))                                               # the straw's weave
+            if (x - y) % 6 == 0: T_['pm_summer_tie'].putpixel((x, y), h3('#ffd84a') + (255,))                                               # hibiscus streaks
+            if (x * 2 + y) % 5 == 0: T_['pm_xmas_body'].putpixel((x, y), h3('#c8424a') + (255,))
     for y in range(16):
         for x in range(16):
             if y < 3 and (x + y) % 4 == 0: T_['pm_black'].putpixel((x, y), h3('#3c434e') + (255,))   # a sheen
@@ -558,18 +573,56 @@ def rp(R):
         # a top hat with a blue band he's tipping with one flipper, a briefcase in the other
         P = {'k': 'pm_black', 'w': 'pm_white', 'o': 'pm_orange', 'y': 'pm_yellow', 'b': 'pm_blue', 'd': 'pm_dblue', 'g': 'pm_gold',
              'e': 'pm_eye', 't': 'pm_teeth', 'c': 'pm_case', 'r': 'gm_earth'}
-        pm = [c((3, 0, 0.5), (7, 1.5, 6.5), 'y'), c((9, 0, 0.5), (13, 1.5, 6.5), 'y'),
+        def penguin(H='k', tie=True, crown=31.5, brim=0):
+          return [c((3, 0, 0.5), (7, 1.5, 6.5), 'y'), c((9, 0, 0.5), (13, 1.5, 6.5), 'y'),
               c((2.5, 1.5, 3.5), (13.5, 14, 12.5), 'k'), c((3.5, 14, 4.5), (12.5, 19, 11.5), 'k'), c((4.5, 19, 5), (11.5, 24, 11), 'k'),
               c((4, 2.5, 3.1), (12, 13.2, 3.5), 'w'), c((5, 13, 4.1), (11, 14.6, 4.5), 'w'),
               c((6.2, 5.5, 2.7), (9.8, 9.1, 3.15), 'g'), c((6.7, 6.0, 2.45), (9.3, 8.6, 2.8), 'r'),
-              c((5, 14.6, 3.8), (7.6, 16.4, 4.5), 'b'), c((8.4, 14.6, 3.8), (11, 16.4, 4.5), 'b'), c((7.4, 14.9, 3.6), (8.6, 16.1, 4.3), 'd'),
+             ] + ([c((5, 14.6, 3.8), (7.6, 16.4, 4.5), 'b'), c((8.4, 14.6, 3.8), (11, 16.4, 4.5), 'b'), c((7.4, 14.9, 3.6), (8.6, 16.1, 4.3), 'd')] if tie else []) + [
               c((6.3, 18.6, 2.4), (9.7, 20.4, 5.1), 'o'), c((6.6, 17.9, 2.8), (9.4, 18.6, 5.0), 't'), c((6.8, 17.2, 3.2), (9.2, 17.9, 5.0), 'o'),
               c((4.7, 20.3, 4.75), (7.2, 23.6, 5.05), 'e'), c((8.8, 20.3, 4.75), (11.3, 23.6, 5.05), 'e'),
               c((5.1, 22.3, 4.7), (6.1, 23.2, 4.76), 't'), c((9.2, 22.3, 4.7), (10.2, 23.2, 4.76), 't'), c((6.3, 20.7, 4.7), (6.7, 21.1, 4.76), 't'), c((10.4, 20.7, 4.7), (10.8, 21.1, 4.76), 't'),
-              c((2.5, 24, 3), (13.5, 24.8, 13), 'k'), c((4.5, 24.8, 5), (11.5, 31.5, 11), 'k'), c((4.4, 24.8, 4.9), (11.6, 26.2, 11.1), 'b'),
+              c((2.5 - brim, 24, 3 - brim), (13.5 + brim, 24.8, 13 + brim), H), c((4.5, 24.8, 5), (11.5, crown, 11), H), c((4.4, 24.8, 4.9), (11.6, 26.2, 11.1), 'b'),
               # the flipper tipping the hat, and the one with the briefcase
               c((12.6, 13.5, 6.4), (14.2, 24.4, 8.6), 'k', ('z', 7, (13.4, 13.5, 7.5))), c((12.0, 23.4, 6.6), (13.6, 24.2, 8.4), 'k'),
               c((1.6, 6, 6.2), (3.2, 14, 8.8), 'k', ('z', -22.5, (2.4, 14, 7.5))),
               c((-3.6, 0.4, 5.2), (1.4, 5.6, 9.8), 'c'), c((-2.2, 5.6, 7.1), (0.0, 6.8, 7.9), 'c')]
+        pm = penguin()
         model('pearlman', P, pm, FIXED)
+        # (2.93d) his four seasons - the earth gem's moods: the same penguin in the season's colours, his own bow tie and
+        # hat trim for each, and the gem set in a gold octagon (the fall form is the one he was drawn in)
+        octa = [c((6.4, 5.7, 2.6), (9.6, 8.9, 3.1), 'g', ('z', 45, (8, 7.3, 2.85)))]
+        def mirror(els):                     # a left-side piece, and its twin on the right (x -> 16 - x)
+            out = []
+            for (x0, y0, z0), (x1, y1, z1), t, *r in els:
+                out += [c((x0, y0, z0), (x1, y1, z1), t, *r)]
+                rr = [(r[0][0], -r[0][1], (16 - r[0][2][0], r[0][2][1], r[0][2][2]))] if r else []
+                out += [c((16 - x1, y0, z0), (16 - x0, y1, z1), t, *rr)]
+            return out
+        SEASON = {
+            # fall: a bat-wing bow tie round a little pumpkin; a purple band
+            'fall': ('k', {}, mirror([((4.6, 15.0, 3.7), (7.4, 16.8, 4.4), 'v'), ((4.0, 16.2, 3.75), (4.8, 17.4, 4.35), 'v'),
+                                  ((4.6, 14.3, 3.75), (5.4, 15.0, 4.35), 'v'), ((6.0, 14.5, 3.75), (6.8, 15.0, 4.35), 'v')]) +
+                     [c((7.1, 14.6, 3.35), (8.9, 16.3, 4.3), 'q'), c((7.5, 14.5, 3.25), (8.5, 16.4, 3.4), 'q'), c((7.8, 16.3, 3.6), (8.2, 16.9, 4.0), 'l')]),
+            # Christmas: a red bow tie round a golden bell; a sprig of holly on the band
+            'xmas': ('k', {}, mirror([((5, 14.6, 3.8), (7.6, 16.4, 4.5), 'v')]) +
+                     [c((7.3, 14.5, 3.4), (8.7, 16.2, 4.3), 'g'), c((7.6, 14.2, 3.3), (8.4, 14.6, 4.2), 'g'),
+                      c((4.6, 25.0, 4.5), (7.0, 26.0, 4.75), 'l', ('z', 22.5, (5.8, 25.5, 4.6))), c((6.2, 25.6, 4.5), (8.4, 26.6, 4.75), 'l', ('z', -22.5, (7.3, 26.1, 4.6))),
+                      c((6.3, 25.2, 4.25), (6.9, 25.8, 4.6), 'q'), c((6.9, 25.6, 4.25), (7.5, 26.2, 4.6), 'q'), c((5.9, 25.8, 4.25), (6.5, 26.4, 4.6), 'q')]),
+            # Easter: a pastel bow tie round a speckled egg; a daisy on the band of a lilac hat
+            'easter': ('h', {}, mirror([((5, 14.6, 3.8), (7.6, 16.4, 4.5), 'v')]) +
+                       [c((7.2, 14.3, 3.35), (8.8, 16.5, 4.3), 'q'), c((7.5, 14.1, 3.45), (8.5, 16.8, 4.2), 'q'),
+                        c((5.0, 24.7, 4.6), (7.4, 26.5, 4.75), 'l'), c((5.6, 24.2, 4.6), (6.8, 27.0, 4.75), 'l'), c((5.7, 25.1, 4.45), (6.7, 26.1, 4.6), 'y')]),
+            # summer: a straw boater, a hibiscus bow tie, and sunglasses
+            'summer': ('h', {'crown': 27.6, 'brim': 1.2}, mirror([((5, 14.6, 3.8), (7.6, 16.4, 4.5), 'v'), ((4.4, 20.4, 4.45), (7.4, 22.9, 4.7), 'q'),
+                                    ((3.9, 22.2, 4.6), (4.5, 22.6, 8.5), 'q')]) +
+                       [c((7.4, 14.9, 3.6), (8.6, 16.1, 4.3), 'y'), c((7.4, 22.0, 4.5), (8.6, 22.5, 4.7), 'q'),
+                        c((5.0, 22.2, 4.4), (5.8, 22.6, 4.45), 'l'), c((9.4, 22.2, 4.4), (10.2, 22.6, 4.45), 'l')]),
+        }
+        for sk, (H, hat, extra) in SEASON.items():
+            P2 = dict(P, k=f'pm_{sk}_body', w=f'pm_{sk}_belly', b=f'pm_{sk}_band', y=f'pm_{sk}_feet', h=f'pm_{sk}_hat',
+                      v=f'pm_{sk}_tie', q=f'pm_{sk}_trim', l=f'pm_{sk}_leaf', H='pm_black')
+            # the hat stays black unless the season changes it: 'k' on the hat means his black, not the body's colour
+            els = penguin(H if H == 'h' else 'H', tie=False, **hat) + octa + extra
+            model(f'pearlman_{sk}', P2, els, FIXED)
     R.POST.append(post)

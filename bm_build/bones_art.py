@@ -72,28 +72,39 @@ def _side(seed):
 
 def _face(kind=None):
     """the side of his head (each side mirrors it), after the owner's art (2.93b): a big black eye, its top cut flat by a heavy
-    lid under a jutting brow - a grumpy half-lidded glare - a sliver of white glint low in it, and (2.93c) the red stitched
-    scar running under the eye (the brow's ridge is a block of its own, on the model)"""
+    lid under a jutting brow - a grumpy half-lidded glare - its pupil a sliver of white, and (2.93d) the red stitched scar
+    slashed across it: over the lid and the cheek, under the eye itself (the eye is drawn atop it). (The brow's ridge is a
+    block of its own, on the model.)"""
     im = _skin(2882); d = ImageDraw.Draw(im)
     d.rectangle((0, 50, 63, 63), fill=hexc(BELLY))
     ex, ey = 17, 21                                                  # (high, and forward over the snout's root, as drawn)
-    INK, LID, LID_DK, SCAR = hexc('#101014'), hexc(GREY), hexc('#3a3d42'), hexc('#8a2a2a')
+    INK, LID, LID_DK, SCAR = hexc('#101014'), hexc(GREY), hexc('#3a3d42'), hexc('#a02c2c')
     # the lid's lower edge: how far down it comes (front and back of the eye), by mood
     lf, lb = {'angry': (ey + 1, ey - 3), 'happy': (ey + 1, ey + 1), 'blink': (ey + 5, ey + 5)}.get(kind, (ey - 1, ey - 2))
+    eye = Image.new('L', im.size, 0)                                 # where the eye is: the scar stops at its rim
     if kind == 'blink':
         d.line((ex - 8, ey + 5, ex + 8, ey + 5), fill=INK, width=2)
     else:
         d.ellipse((ex - 10, ey - 7, ex + 10, ey + 9), fill=INK)                                      # the eye
+        ImageDraw.Draw(eye).ellipse((ex - 10, ey - 7, ex + 10, ey + 9), fill=255)
         if kind == 'happy':                                                                        # (a pleased squint: the lower lid up)
             d.chord((ex - 9, ey + 2, ex + 9, ey + 12), 180, 360, fill=hexc(GREY))
-        d.polygon([(ex - 3, ey + 1), (ex, ey + 1), (ex - 2, ey + 7)], fill=hexc('#ffffff'))       # the glint, a sliver
+            ImageDraw.Draw(eye).chord((ex - 9, ey + 2, ex + 9, ey + 12), 180, 360, fill=0)
+        d.polygon([(ex - 4, ey), (ex - 1, ey), (ex - 2, ey + 7), (ex - 4, ey + 6)], fill=hexc('#ffffff'))   # his pupil: a white sliver
     d.polygon([(ex - 12, ey - 9), (ex + 12, ey - 9), (ex + 12, lb), (ex - 12, lf)], fill=LID)       # the heavy lid over it
+    ImageDraw.Draw(eye).polygon([(ex - 12, ey - 9), (ex + 12, ey - 9), (ex + 12, lb), (ex - 12, lf)], fill=0)
     d.line((ex - 11, lf, ex + 11, lb), fill=INK, width=3)                                       # (its edge, inked)
+    ImageDraw.Draw(eye).line((ex - 11, lf, ex + 11, lb), fill=255, width=3)
     d.line((ex - 11, ey - 9, ex + 11, ey - 9), fill=LID_DK, width=1)                             # (under the brow)
-    d.line((ex - 9, ey + 12, ex + 7, ey + 17), fill=SCAR, width=2)                               # the scar, under the eye...
-    for t in range(5):
-        cx, cy = ex - 7 + t * 3.5, ey + 12.6 + t * 1.1
-        d.line((cx - 1, cy - 3, cx + 1, cy + 3), fill=SCAR)                                       # ...and its stitches across it
+    # the scar: a slash from above the lid, down across the eye, onto the cheek - on its own layer, kept off the eye
+    sc = Image.new('RGBA', im.size, (0, 0, 0, 0)); ds = ImageDraw.Draw(sc)
+    a, b = (ex - 7, ey - 11), (ex + 9, ey + 22)
+    ds.line((*a, *b), fill=SCAR, width=3)
+    for t in range(1, 9):
+        cx, cy = a[0] + (b[0] - a[0]) * t / 9, a[1] + (b[1] - a[1]) * t / 9
+        ds.line((cx - 3.5, cy + 1.5, cx + 3.5, cy - 1.5), fill=SCAR)                                  # ...its stitches across it
+    from PIL import ImageChops
+    im.paste(sc, (0, 0), ImageChops.multiply(sc.getchannel('A'), ImageChops.invert(eye)))
     return im
 
 

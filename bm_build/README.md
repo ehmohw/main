@@ -21,6 +21,38 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.93d: Pearlman's seasons, and Bones's scar across his eye
+
+### Pearlman's seasons
+Pearlman's earth gem takes on the season of the land he is in. He has five looks:
+
+- **His own colours:** black and white, with a blue bow tie and hat band. He wears them anywhere neutral, such as plains and meadows.
+- **Fall:** the look he was drawn in. An orange-brown coat, a lavender belly, a purple hat band and tan feet, with a bat-wing
+  bow tie around a little pumpkin. He wears it in dappled, dark and birch forests and the pale garden.
+- **Christmas:** a red coat, a snow-white belly, a red bow tie around a golden bell, and holly on a green hat band. He wears it
+  in snowy biomes: snowy plains, taiga and slopes, ice spikes, frozen peaks, the grove, frozen rivers and oceans.
+- **Easter:** a mint coat, a cream belly, a lilac top hat with a daisy on its pink band, and a pastel bow tie around a speckled
+  egg. He wears it in flower forests, cherry groves and sunflower plains.
+- **Summer:** a teal coat, a sandy belly, a straw boater, a hibiscus bow tie and sunglasses. He wears it in deserts, beaches,
+  savannas, badlands, jungles and warm seas.
+
+In every season his earth gem sits in a gold octagon, as in the art.
+
+**The salesman** lands in the look of the biome he arrives in.
+
+**The follower** unlocks a season's look the first time you walk him through one of its biomes, and tells you so.
+His card's menu (sneak + use) has a new **Seasons** page with these choices:
+- **Dynamic** (the default): he changes as the land changes.
+- **Off:** always his own colours.
+- **A season you've unlocked:** he keeps that look everywhere.
+
+A season you haven't unlocked shows as locked, and its button tells you where to find it. Your choice is kept when he is
+sent home and called again. His wardrobe colour shows on his own colours; a season's outfit replaces it while he wears one.
+
+### Bones
+His stitched scar now slashes across his eye: over the lid, through the eye and down the cheek. The eye is drawn on top of
+the scar, and the white sliver in it is his pupil.
+
 ## New in 2.93c: Bones's fin and scar, the Arachno-Lantern's medal
 
 - **Bones:** his dorsal fin rebuilt from the art's side profile. It has a broad root along his back, a leading edge curving back,
