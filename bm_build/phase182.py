@@ -30,6 +30,7 @@ ARMOR = {'conq_helmet': 'head', 'conq_chestplate': 'chest', 'conq_leggings': 'le
 VANILLA = {'conq_helmet': 'netherite_helmet', 'conq_chestplate': 'netherite_chestplate', 'conq_leggings': 'netherite_leggings',
            'conq_boots': 'netherite_boots', 'conq_blade': 'netherite_sword', 'conq_pick': 'netherite_pickaxe', 'conq_axe': 'netherite_axe',
            'conq_shovel': 'netherite_shovel', 'conq_hoe': 'netherite_hoe', 'conq_bow': 'bow', 'sepulchre': 'mace', 'hollow_wings': 'elytra'}
+UP_X, DOWN_X, OWN_ART = {}, {}, set()     # (2.93: a module's own pieces - extra components either way, and art it draws itself)
 holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
 ANGEL = '*[minecraft:custom_data~{bm_angel:1b}]'
 PURE = [T('✦ Holy: it wakes by day, not by night.', HOLY_D), T('  (A Blood Moon still wakes it.)', HOLY_D),
@@ -144,6 +145,8 @@ def generate(G):
         if iid == WINGS:                                   # (on your back: the angelic wings, or the elytra's own again)
             up['minecraft:equippable'] = {'slot': 'chest', 'asset_id': 'bm:angelic_wings', 'equip_sound': 'minecraft:item.armor.equip_elytra', 'damage_on_hurt': False}
             down['minecraft:equippable'] = {'slot': 'chest', 'asset_id': 'minecraft:elytra', 'equip_sound': 'minecraft:item.armor.equip_elytra', 'damage_on_hurt': False}
+        up.update(UP_X.get(iid, {})); down.update(DOWN_X.get(iid, {}))
+        up, down = ({k: v for k, v in d.items() if v is not None} for d in (up, down))     # (None: that component isn't set at all)
         bow_up = [{'function': 'minecraft:set_enchantments', 'enchantments': {'bm:withering_shot': 0, 'bm:p182/searing_shot': 1}}] if iid == 'conq_bow' else []
         bow_down = [{'function': 'minecraft:set_enchantments', 'enchantments': {'bm:p182/searing_shot': 0, 'bm:withering_shot': 1}}] if iid == 'conq_bow' else []
         wjson(f'bm/item_modifier/p182/up_{iid}.json', bow_up + [{'function': 'minecraft:set_custom_data', 'tag': '{bm_angel:1b}'},
@@ -345,7 +348,7 @@ def rp(R):
             im.save(os.path.join(tex_dir, name + '.png'))
             return f'bm:item/{name}'
         for iid in ids():
-            if iid in ('apo_true_crown', 'apo_unbound_crown'): continue
+            if iid in ('apo_true_crown', 'apo_unbound_crown') or iid in OWN_ART: continue
             if iid == 'conq_bow':
                 tex = {s: save(f'angel_conq_bow{s}', _recolor(Image.open(f'{VAN}/textures/item/bow{s}.png').convert('RGBA'))) for s in ('', '_pulling_0', '_pulling_1', '_pulling_2')}
                 for s, t in tex.items():

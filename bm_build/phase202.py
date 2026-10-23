@@ -269,8 +269,9 @@ def generate(G):
     G.FUNCS['p199/font/ask'][1:1] = [      # (before 'nobody royal here': Leo alone is enough)
         'scoreboard players set #r_leo bm.rng 0', f'execute as {lpet} if score @s bm.pid = #me bm.pid run scoreboard players set #r_leo bm.rng 1',
         'execute if score #r_leo bm.rng matches 1 unless entity @s[tag=bm.kg_aegis] run function bm:p202/give/aegis',
+        f'execute if score #r_leo bm.rng matches 1 if entity @s[tag=bm.kg_aegis] if predicate bm:p20/sneaking unless items entity @s container.* {holds("leo_aegis")} unless items entity @s weapon.offhand {holds("leo_aegis")} run function bm:p202/again/aegis']
+    G.FUNCS['p199/font/ask'] += [         # (Emma's, last: after the full court has restored the castle, in the same visit)
         'execute if score #r_emma bm.rng matches 1 unless entity @s[tag=bm.kg_cres] run function bm:p202/give/cres',
-        f'execute if score #r_leo bm.rng matches 1 if entity @s[tag=bm.kg_aegis] if predicate bm:p20/sneaking unless items entity @s container.* {holds("leo_aegis")} unless items entity @s weapon.offhand {holds("leo_aegis")} run function bm:p202/again/aegis',
         f'execute if score #r_emma bm.rng matches 1 if entity @s[tag=bm.kg_cres] if predicate bm:p20/sneaking unless items entity @s container.* {holds("emma_crescent")} run function bm:p202/again/cres']
     line = lambda who, col, txt: tellraw('@a[distance=..24]', [T(who + ': ', col, bold=True), T(txt, 'white')])
     core = '@e[type=minecraft:marker,tag=bm.kingdom,distance=..70,sort=nearest,limit=1]'

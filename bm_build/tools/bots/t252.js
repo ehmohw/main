@@ -80,12 +80,15 @@ const res = [];
   await give(5, 'royal_pearl', 6);
   let b = await A.press(/Leo/);
   ok("Leo's page: three honours, Vitality at one rank", !!(b && b.next) && /Vitality/.test(screen()) && /●○○○○/.test(screen()) && /Might/.test(screen()), screen().slice(0, 300));
+  await run('item replace entity TestRat hotbar.8 with minecraft:iron_ingot 16');      // (2.93: Leo's tribute for a first rank)
+  const pr0 = await has('royal_pearl');
   b = await A.press(/Bulwark \+1/);
-  ok('Bulwark +1 (6 Royal Pearls): Leo\'s Bulwark I - his armour +3', (await score('bm.hn_leo')) === 1011 && (await has('royal_pearl')) === 5 &&
+  ok('Bulwark +1 (6 Royal Pearls and 16 iron, his tribute): Leo\'s Bulwark I - his armour +3', (await run('clear TestRat minecraft:iron_ingot 0')).includes('No items') && (await score('bm.hn_leo')) === 1011 && (await has('royal_pearl')) === pr0 - 6 &&
      await wait(3000, async () => / 3(\.0)?\b/.test(await run(`${O}attribute ${pet('bm.leopet')} minecraft:armor modifier value get bm:royal_bulwark`))),
      `hn ${await score('bm.hn_leo')} pearls ${await has('royal_pearl')} hnap ${await score('bm.hnap', pet('bm.leopet'))} | ${await run(`${O}data get entity ${pet('bm.leopet')} attributes`)}`.slice(0, 900));
   // Might V: wants a Fire Gem
   await run('scoreboard players set TestRat bm.hn_leo 1411'); await give(5, 'royal_pearl', 40); await give(6, 'dread_token', 8);
+  await run('item replace entity TestRat hotbar.8 with minecraft:heart_of_the_sea 1');  // (his last tribute)
   await A.press(/« Her honours/); await A.press(/Leo/);
   A.bars.length = 0; await A.press(/Might \+1/);
   ok('Might V without a Fire Gem: refused (a piece of the kingdom\'s heart)', (await score('bm.hn_leo')) === 1411 && said(/Fire Gem/));

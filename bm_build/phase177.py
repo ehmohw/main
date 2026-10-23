@@ -5,7 +5,7 @@ DREAD TOKENS   5 Black Market Trophies make one, and one breaks back into 5 (Ves
                kept), never more than 2 a day. Dread mobs never drop them.
 VESPER         stands behind his counter only while hard mode is on. Right-click him to trade; the black book on his counter
                (VESPER'S STOCK BOOK) opens his services. What he deals in:
-  THE LEDGER   (2.92: his Followers' Wards - Ward, Vigor, Swift Return - became Queen Ava's Honours, in the Underwater Kingdom)
+  THE LEDGER
                TUNING             the weapon, tool or armour piece in your hand takes a tuning of your choice - damage,
                                   swing speed, reach, luck; mining speed and efficiency; armour, toughness, health,
                                   knockback resistance, speed (boots) - a Dread Token a level, 2 levels of any one kind
@@ -246,10 +246,6 @@ WEAPON_ITEMS = ['#minecraft:swords', '#minecraft:axes', 'minecraft:mace', 'minec
 TOOL_ITEMS = ['#minecraft:pickaxes', '#minecraft:shovels', '#minecraft:hoes']
 ARMOR_SLOTS = [('#minecraft:head_armor', 'head'), ('#minecraft:chest_armor', 'chest'), ('#minecraft:leg_armor', 'legs'), ('#minecraft:foot_armor', 'feet')]
 
-# ================================================================== FOLLOWERS' WARDS
-WARD = [3, 4, 5]          # Dread Tokens for level 1..3 (Ward and Vigor alike)
-RETURN = [(80, 3), (45, 5)]   # Swift Return: (faint seconds, price) for level 1..2
-
 
 def ring(r, n, y=0.15):
     return [(round(r * math.cos(2 * math.pi * i / n), 2), y, round(r * math.sin(2 * math.pi * i / n), 2)) for i in range(n)]
@@ -268,7 +264,7 @@ def generate(G):
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
     second, fast, tick = G.FUNCS['loop/second'], G.FUNCS['loop/fast'], G.FUNCS['tick']
-    objs = ['bm.bk_dread', 'bm.fward', 'bm.fvig', 'bm.fret', 'bm.hgday', 'bm.bbu', 'bm.dkcd', 'bm.dyl']
+    objs = ['bm.bk_dread', 'bm.hgday', 'bm.bbu', 'bm.dkcd', 'bm.dyl']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs if o != 'bm.bbu'] + \
         ['scoreboard objectives add bm.bbu minecraft.used:minecraft.water_bucket']
     G.OBJECTIVES += objs
@@ -355,13 +351,6 @@ def generate(G):
                        P28.body([T('Every Dread you kill is counted. Kill enough of them, and the thing that made them will come looking.', '#c8a0a0', italic=True)], 320)],
                       [B_(T('« The Ledger', 'gray'), MENU + 9)], columns=1)
     fn('p177/about', [f'scoreboard players set @s bm.menu {MENU}', f'dialog show @s {snbt(about)}'])
-
-    # ---- followers' wards
-    # (2.92: every follower upgrade - Ward, Vigor and Swift Return - is Queen Ava's now, at the Tide Font: phase201)
-    # Swift Return: after a faint (2 minutes), the rest is cut short
-    for w, (cd, typ, tag, call) in P173.AR.items():
-        second += [f'execute as @a[scores={{bm.fret=1,{cd}=81..}}] run scoreboard players set @s {cd} 80',
-                   f'execute as @a[scores={{bm.fret=2,{cd}=46..}}] run scoreboard players set @s {cd} 45']
 
     # ---- tuning
     cls_lines = ['scoreboard players set #tc bm.rng 0'] + \

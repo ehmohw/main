@@ -21,6 +21,60 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.93a: Champions of the Tide, each follower's own tribute, and the Dread bosses' armour
+
+### Each follower's own tribute
+Every rank of Queen Ava's Honours now also asks for something that is that follower's own, on top of the pearls (and, at
+rank V, the honour's Elemental Gem). Rank 1 is common (16 pink petals for Emma, 32 redstone for KillerWatt...); ranks 2-3
+are things you'll find along the way; rank 4 is a rare one (a goat horn for Celi, a wither skeleton skull for Apophiss...);
+rank 5 is their signature treasure (a Heart of the Sea for Leo, a Gravitic Core for Zib, a Heartstone for many). Each
+follower's page shows the next rank's whole price. Vanilla items must be plain ones (the pack's look-alikes don't count).
+
+### Champions of the Tide
+Raise a follower's **Vitality, Bulwark and Might all to V** and they become Queen Ava's **Champion**:
+- **The advancement** "Champion of the Tide" (the first time), and the **Champion's Ribbon**.
+- **A gold medal** on their chest: a sapphire sea-star on a gold medal, hung from a striped ribbon. Bones wears his on his side.
+- **Regalia** where it suits them: capes (Emma, Celi, Zib, Cecil, Demo, Omega, Ashur, the Neighbor, the queens), a knight's or
+  captain's pauldrons (Leo, Tullius, Dennis), crackling lightning down KillerWatt's back (an electric beast: no clothes), and
+  a ridge of bone spines (Stalker, Bloo). No crowns or hats: their own heads are left alone. The pieces ride the follower's
+  own bones, so they move with every animation.
+- **An aura** of their own particles.
+- **Tougher:** +20 health (doubled by Vitality V), +4 toughness, half knockback. A Champion takes several hits from Blood Moon
+  monsters and a few from the Dread before falling.
+- **A new blow** every 15 s in a fight, scaled by their Might: Emma's Tidal Bloom, Celi's Moonfall Spear, Leo's Knight's Oath
+  (you and your followers get Resistance II), Apophiss's Black Flame Coil, the Stalker's Phantom Rend (through armour), Mr.
+  Capshun's Doodle Barrier... one for each of the 27.
+- **The Champion's Ribbon:** use it with Champions beside you to turn each one's medal, regalia and aura on or off, for good
+  (it survives recalls).
+
+### The Dreadborne: the Dread bosses' armour
+Each Dread boss now drops a piece of what the Dread monsters wear. Every piece is unbreakable, better than netherite, and
+has a passive and a one-in-four attack proc:
+- **Dread Visage** (Malevolent Snowbeast): the Dread's own horned, many-eyed 3D helm. Night vision; Darkness and Blindness
+  can't touch you. *Frostbite:* freezes what you hit (6 more damage, slowed).
+- **Dread Greaves** (Watchful Witch): Poison and Wither can't touch you. *Hex:* 5 more damage through armour, plus weakness
+  and wither.
+- **Dread Treads** (Chomping Sawshark): no fall damage; Dolphin's Grace while swimming. *Frenzy:* 5 more damage and Strength
+  for you.
+- **Dread Carapace** (the fourth): beat all three bosses and you're given a **Dread Heart**. Drop it on the ground beside a
+  netherite chestplate and an elytra: they forge into the Carapace, plate and wings in one (it glides). +4 health, and
+  Resistance II at low health (once a minute). *Leech:* heals you 3.
+- **Dread Rending** (the full set): sneak and strike. 24 damage through every armour to what you hit, 8 to every monster
+  around it, and it withers. Recharges in 45 s.
+
+### The Seraph's Raiment: the holy Dreadborne
+Drop a Dreadborne piece beside a **Golden Cross** (as with the Regalia) and it comes up holy, a biblically accurate seraph:
+"with two wings they covered their faces, with two they covered their feet, and with two they flew."
+- **Seraph's Gaze:** a pearl-and-gold 3D helm, its face hidden behind two crossed wings full of eyes, under a burning halo.
+- **Seraph's Wings:** the Carapace's wings in three tiers of pearl feathers, eyes in them, their edges on fire.
+- **Seraph's Treads:** feathers over the feet. The plate is pearl and gold, with eyes open across it.
+- The same passives and procs. **Seraphic Judgment** (the full holy set): sneak and strike to call a pillar of holy fire.
+  24 damage through every armour (10 more to the undead), 8 to every monster around, sets them alight, and heals you.
+  Recharges in 45 s. A mixed set (holy and dread) is neither set.
+
+### Fixes
+- Emma's Crescent is given in the same visit to the Font that restores the castle.
+
 ## New in 2.92a: the kingdom's endgame, Queen Ava's Honours, and every structure settled into the land
 
 ### Queen Ava's Honours (hard mode): follower upgrades now live in the Underwater Kingdom

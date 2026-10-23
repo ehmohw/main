@@ -171,6 +171,8 @@ import phase201 as R201      # 2.92: Queen Ava's Honours - follower Vitality/Bul
 import phase200 as R200      # 2.91: the Nether and the End - outposts, the Colossus's Forge, the Observatory, Eruptions, Void Storms, the stars (hellend.py)
 import phase199 as R199      # 2.91: the Underwater Kingdom - Emma's home castle under a bubble dome (kingdom.py); royal homecomings, the dailies
 import phase203 as R203      # 2.92: structures settle into the land (settle.py)
+import phase206 as R206      # 2.93: the Dreadborne - the Dread bosses' armour, the Carapace, Dread Rending; the Seraph's Raiment (dread_set_art.py)
+import phase205 as R205      # 2.93: Champions of the Tide - the medal, the regalia, the aura, a new blow (champion_art.py)
 import phase202 as R202      # 2.92: the kingdom's armoury - Leo's Aegis, Emma's Crescent, Tidewarden and Pearlguard, Tide Scales (kingdom_art.py)
 import phase188 as R188      # 2.86: the bonds - eleven new pairs and five new trios (Ashur, the Chef, the Neighbor and friends)
 import phase171 as R171      # 2.82b: the Town Directory - who's where in the rat town, and a trail of light there
@@ -203,7 +205,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.92a'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.93a'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1362,6 +1364,8 @@ def build(out_dir):
     if PHASE2: R201.generate(sys.modules[__name__])
     if PHASE2: R202.generate(sys.modules[__name__])
     if PHASE2: R203.generate(sys.modules[__name__])
+    if PHASE2: R205.generate(sys.modules[__name__])
+    if PHASE2: R206.generate(sys.modules[__name__])
     if PHASE2: R188.generate(sys.modules[__name__])
     if PHASE2: R192.generate(sys.modules[__name__])
     R171.generate(sys.modules[__name__])

@@ -24,7 +24,7 @@ Each follower's honours are yours and theirs for good: they carry them everywher
 every form (Wraithfire and the gem forms stack on top). Ava only walks with you in hard mode, so the honours are hard mode's.
 Vesper's Ward and Vigor are retired: every Dread Token spent on them is handed back the next time you're online. (His
 Swift Return stays with him.)"""
-from items import T
+from items import T, ITEMS
 from nbt import snbt, Int
 import re
 
@@ -38,12 +38,55 @@ DREAD = [0, 1, 2, 3, 5]
 GEM = {'v': ('water', 'Water Gem'), 'b': ('rock', 'Rock Gem'), 'm': ('fire', 'Fire Gem')}
 HASTE = [(80, 12, 3, None), (45, 24, 5, ('air', 'Air Gem'))]     # Swift Return: (faint seconds, pearls, Dread Tokens, gem)
 holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
+WARD = [3, 4, 5]                            # (Vesper's retired Ward and Vigor: Dread Tokens a level - handed back, see the refund)
+# 2.93: each follower's TRIBUTE - what Ava asks for each rank, on top of the pearls: things that are that follower's own
+# (rank 1 common, 2 uncommon, 3 a find, 4 a rare one, 5 their signature treasure - and the honour's Elemental Gem).
+# 'minecraft:...' is a plain vanilla item (never one of the pack's look-alikes); '#...' an item tag; anything else the pack's.
+TRIB = {
+    'emma': [('minecraft:pink_petals', 16), ('minecraft:prismarine_crystals', 8), ('minecraft:nautilus_shell', 2), ('minecraft:heart_of_the_sea', 1), ('tide_scale', 8)],
+    'celi': [('minecraft:snowball', 32), ('minecraft:packed_ice', 16), ('minecraft:blue_ice', 8), ('minecraft:goat_horn', 1), ('heartstone', 2)],
+    'zib': [('minecraft:glowstone_dust', 16), ('xenite_green', 4), ('xenite_cyan', 4), ('xenite_red', 2), ('gravitic_core', 1)],
+    'cecil': [('minecraft:lapis_lazuli', 16), ('minecraft:amethyst_shard', 16), ('minecraft:experience_bottle', 8), ('minecraft:ender_eye', 4), ('heartstone', 2)],
+    'kw': [('minecraft:redstone', 32), ('minecraft:copper_ingot', 16), ('minecraft:lightning_rod', 4), ('blood_crystal', 8), ('heartstone', 2)],
+    'leo': [('minecraft:iron_ingot', 16), ('minecraft:prismarine_shard', 16), ('minecraft:nautilus_shell', 2), ('tide_scale', 6), ('minecraft:heart_of_the_sea', 1)],
+    'demo': [('minecraft:wheat', 32), ('minecraft:phantom_membrane', 4), ('minecraft:lightning_rod', 4), ('blood_crystal', 8), ('heartstone', 2)],
+    'apo': [('minecraft:bone', 32), ('minecraft:wither_rose', 4), ('dread_essence', 4), ('minecraft:wither_skeleton_skull', 1), ('heartstone', 2)],
+    'tul': [('minecraft:ice', 16), ('minecraft:gunpowder', 16), ('minecraft:ghast_tear', 2), ('tide_scale', 6), ('minecraft:heart_of_the_sea', 1)],
+    'frog': [('minecraft:slime_ball', 16), ('minecraft:lily_pad', 16), ('minecraft:verdant_froglight', 4), ('minecraft:pearlescent_froglight', 2), ('heartstone', 2)],
+    'don': [('minecraft:gold_ingot', 8), ('xenite_green', 4), ('xenite_violet', 2), ('xenite_red', 2), ('gravitic_core', 1)],
+    'wil': [('minecraft:bone', 32), ('minecraft:soul_sand', 16), ('minecraft:wither_rose', 2), ('minecraft:wither_skeleton_skull', 1), ('heartstone', 2)],
+    'fishy': [('minecraft:tropical_fish', 8), ('minecraft:sea_pickle', 8), ('minecraft:prismarine_crystals', 8), ('minecraft:nautilus_shell', 2), ('heartstone', 2)],
+    'dennis': [('minecraft:raw_iron', 16), ('minecraft:gold_ingot', 16), ('minecraft:diamond', 4), ('minecraft:netherite_scrap', 2), ('heartstone', 2)],
+    'pistachio': [('minecraft:rotten_flesh', 32), ('minecraft:string', 16), ('minecraft:phantom_membrane', 4), ('minecraft:ghast_tear', 2), ('dread_essence', 6)],
+    'omega': [('minecraft:bone_block', 8), ('minecraft:soul_sand', 16), ('minecraft:wither_rose', 4), ('minecraft:wither_skeleton_skull', 1), ('dread_essence', 6)],
+    'ashur': [('minecraft:blaze_powder', 16), ('minecraft:magma_cream', 8), ('minecraft:blaze_rod', 8), ('ember_scale', 6), ('heartstone', 2)],
+    'chef': [('minecraft:cooked_beef', 16), ('minecraft:cake', 2), ('minecraft:golden_carrot', 16), ('minecraft:golden_apple', 2), ('heartstone', 2)],
+    'neighbor': [('minecraft:note_block', 8), ('minecraft:amethyst_shard', 16), ('minecraft:jukebox', 1), ('#minecraft:creeper_drop_music_discs', 1), ('heartstone', 2)],
+    'ava': [('minecraft:prismarine_shard', 16), ('minecraft:sea_lantern', 8), ('minecraft:nautilus_shell', 2), ('minecraft:heart_of_the_sea', 1), ('tide_scale', 8)],
+    'pearlq': [('minecraft:prismarine_crystals', 16), ('minecraft:gold_ingot', 16), ('minecraft:nautilus_shell', 2), ('minecraft:heart_of_the_sea', 1), ('tide_scale', 8)],
+    'bloo': [('minecraft:sweet_berries', 32), ('minecraft:rabbit_hide', 8), ('minecraft:rabbit_foot', 2), ('blood_crystal', 8), ('heartstone', 2)],
+    'stalker': [('minecraft:spider_eye', 16), ('minecraft:fermented_spider_eye', 8), ('minecraft:echo_shard', 2), ('minecraft:sculk_catalyst', 1), ('dread_essence', 8)],
+    'lantern': [('minecraft:pumpkin', 16), ('minecraft:jack_o_lantern', 8), ('minecraft:blaze_rod', 4), ('blood_crystal', 8), ('ember_scale', 6)],
+    'bender': [('minecraft:bone', 16), ('minecraft:cooked_beef', 16), ('token', 8), ('heartstone', 1), ('fallen_star', 2)],
+    'bones': [('minecraft:cod', 16), ('minecraft:salmon', 16), ('minecraft:tropical_fish', 8), ('minecraft:nautilus_shell', 2), ('tide_scale', 8)],
+    'capshun': [('minecraft:paper', 32), ('minecraft:ink_sac', 16), ('minecraft:book', 8), ('minecraft:writable_book', 2), ('heartstone', 2)],
+}
+
+
+def trib_pred(iid):
+    """the item predicate a tribute is counted and taken by (vanilla: a plain one, never the pack's look-alikes)"""
+    return holds(iid) if not iid.startswith(('minecraft:', '#')) else f'{iid}[!minecraft:custom_data]'
+
+
+def trib_name(iid, n):
+    if iid.startswith('#'): return f'{n} music disc' + ('s' if n > 1 else '')
+    if iid.startswith('minecraft:'): return f'{n} ' + iid[10:].replace('_', ' ')
+    return f'{n} ' + str(ITEMS[iid]['name'])
 
 
 def generate(G):
     import phase28 as P28
     import phase173 as P173
-    import phase177 as P177
     from phase125 import WHO
     fn, title, tellraw, give, P = G.fn, G.title, G.tellraw, G.give, G.PREFIX
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
@@ -51,7 +94,7 @@ def generate(G):
     FOL = [w for w in P173.AR if w in WHO]
     IDX = {w: i + 1 for i, w in enumerate(FOL)}
     obj = lambda w: f'bm.hn_{w}'
-    objs = [obj(w) for w in FOL] + ['bm.hnsel', 'bm.hns0', 'bm.hns1', 'bm.hns2', 'bm.hnap', 'bm.kua']
+    objs = [obj(w) for w in FOL] + ['bm.hnsel', 'bm.hns0', 'bm.hns1', 'bm.hns2', 'bm.hnap', 'bm.kua', 'bm.fret', 'bm.fward', 'bm.fvig']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + \
         [f'scoreboard players set #{n} bm.rng {n}' for n in (10, 100, 1000)]
     G.OBJECTIVES += objs
@@ -97,10 +140,10 @@ def generate(G):
 
     # ---------------------------------------------------------------- a follower's page: three honours, five ranks
     pips = {L: '●' * L + '○' * (5 - L) for L in range(6)}
-    def price_txt(k, L):
+    def price_txt(w, k, L):
         if L >= 5: return 'at its height'
         t = f'{PEARLS[L]} Royal Pearls' + (f' + {DREAD[L]} Dread Token{"s" if DREAD[L] > 1 else ""}' if DREAD[L] else '')
-        return t + (f' + a {GEM[k][1]}' if L == 4 else '')
+        return t + ' + ' + trib_name(*TRIB[w][L]) + (f' + a {GEM[k][1]}' if L == 4 else '')
     page = P28.multi([T("QUEEN AVA'S HONOURS", AVA_C, bold=True), T('  ·  ', 'gray'), '@@RAW:r_nm@@'],
                      [P28.body([T(s_nm + ' ', s_col, bold=True), T(f'$({k}p)', 'white'), T(f'   {desc}', 'dark_gray')], 320) for k, s_nm, s_col, desc in STATS] +
                      [P28.body([T('You have ', 'gray'), T('$(rp)', PEARL_C, bold=True), T(' Royal Pearls and ', 'gray'), T('$(dt)', '#b0102a', bold=True),
@@ -120,7 +163,7 @@ def generate(G):
             lines += [f'scoreboard players operation #hl bm.rng = @s {obj(w)}', f'scoreboard players operation #hl bm.rng /= #{UNIT[k]} bm.rng' if UNIT[k] > 1 else 'scoreboard players add #hl bm.rng 0',
                       'scoreboard players operation #hl bm.rng %= #10 bm.rng']
             lines += [f'execute if score #hl bm.rng matches {L} run data modify storage bm:ui hn.{k}p set value "{pips[L]}"' for L in range(6)]
-            lines += [f'execute if score #hl bm.rng matches {L} run data modify storage bm:ui hn.{k}c set value "{price_txt(k, L)}"' for L in range(6)]
+            lines += [f'execute if score #hl bm.rng matches {L} run data modify storage bm:ui hn.{k}c set value "{price_txt(w, k, L)}"' for L in range(6)]
         fn(f'p201/pg/{w}', lines)
 
     # ---------------------------------------------------------------- buying a rank
@@ -137,8 +180,11 @@ def generate(G):
             fn(f'p201/b/{w}_{k}', lines)
             for L in range(1, 6):
                 pp, dd = PEARLS[L - 1], DREAD[L - 1]
+                ti, tn = TRIB[w][L - 1]
                 pay = [f'execute store result score #c bm.rng run clear @s {holds("royal_pearl")} 0',
-                       f'execute unless score #c bm.rng matches {pp}.. run return run ' + say(f'That rank takes {pp} Royal Pearls.', 'red')]
+                       f'execute unless score #c bm.rng matches {pp}.. run return run ' + say(f'That rank takes {pp} Royal Pearls.', 'red'),
+                       f'execute store result score #c bm.rng run clear @s {trib_pred(ti)} 0',
+                       f'execute unless score #c bm.rng matches {tn}.. run return run ' + say(f'For {nm}, Queen Ava asks {trib_name(ti, tn)} as well.', 'red')]
                 if L == 5:
                     pay += [f'execute unless items entity @s container.* {holds("gem_" + GEM[k][0])} run return run ' +
                             say(f'The last rank of {s_nm} takes a {GEM[k][1]} - a piece of the kingdom\'s heart.', 'red')]
@@ -146,7 +192,8 @@ def generate(G):
                     pay += [f'scoreboard players set #need bm.pay {dd}', 'execute unless function bm:p177/pay run return run function bm:p177/poor']
                 if L == 5:
                     pay += [f'clear @s {holds("gem_" + GEM[k][0])} 1']
-                fn(f'p201/pay/{w}_{k}{L}', pay + [f'clear @s {holds("royal_pearl")} {pp}', f'scoreboard players add @s {obj(w)} {UNIT[k]}',
+                fn(f'p201/pay/{w}_{k}{L}', pay + [f'clear @s {holds("royal_pearl")} {pp}', f'clear @s {trib_pred(ti)} {tn}', f'scoreboard players add @s {obj(w)} {UNIT[k]}',
+                                                  f'function bm:p205/check/{w}',
                                                   'playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 0.8 1.2',
                                                   'particle minecraft:end_rod ~ ~1.2 ~ 0.4 0.6 0.4 0.03 20',
                                                   tellraw('@s', P + [T(f'{s_nm} {"I II III IV V".split()[L - 1]}', s_col, bold=True), T(' for ', 'gray'),
@@ -166,6 +213,11 @@ def generate(G):
                                     'playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 0.8 1.4',
                                     tellraw('@s', P + [T(f"The Tide's Haste {'I' * L}", '#9af0d8', bold=True), T(f': a faint now rests {secs} seconds, for every follower you call.', 'gray')]),
                                     'function bm:p201/open'])
+
+    # the Tide's Haste at work: after a faint (2 minutes), the rest is cut short (2.93: from Vesper's old Ledger, its rule too)
+    for w, (cd, *_r) in P173.AR.items():
+        second += [f'execute as @a[scores={{bm.fret=1,{cd}=81..}}] run scoreboard players set @s {cd} 80',
+                   f'execute as @a[scores={{bm.fret=2,{cd}=46..}}] run scoreboard players set @s {cd} 45']
 
     # ---------------------------------------------------------------- the Ethereal Gem comes home
     eth = f'items entity @s container.* {holds("ethereal_gem")}'
@@ -246,7 +298,7 @@ def generate(G):
     fn('p201/apply', ap)
 
     # ---------------------------------------------------------------- Vesper's Ward and Vigor, retired: every token back
-    refund = {L: sum(P177.WARD[:L]) for L in (1, 2, 3)}
+    refund = {L: sum(WARD[:L]) for L in (1, 2, 3)}
     second += ['execute as @a[scores={bm.fward=1..}] run function bm:p201/refund_w', 'execute as @a[scores={bm.fvig=1..}] run function bm:p201/refund_v']
     for k, o, nm in (('w', 'bm.fward', 'Ward'), ('v', 'bm.fvig', 'Vigor')):
         fn(f'p201/refund_{k}', [f'execute if score @s {o} matches {L} run function bm:p177/refund {{n:{refund[L]}}}' for L in (1, 2, 3)] +
