@@ -21,6 +21,14 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.93c: Bones's fin and scar, the Arachno-Lantern's medal
+
+- **Bones:** his dorsal fin rebuilt from the art's side profile. It has a broad root along his back, a leading edge curving back,
+  a hollowed trailing edge with a nick out of it, and a point swept well back. His stitched scar now runs under his eye.
+- **The Arachno-Lantern (follower):** the black lump under the pumpkin is gone; the legs meet inside it. As a Champion his
+  medal is pinned in the middle of his face, its disc over the nose and its ribbon up between the eyes.
+- **Regalia head pieces:** Emma's tiara, Bender's crown, Bones's pirate hat and Mr. Capshun's crown stay as they are.
+
 ## New in 2.93b: synergy attacks, Bender's Rage and his bonds, regalia on the head again, and breaches on your call
 
 ### Synergy attacks

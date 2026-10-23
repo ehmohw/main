@@ -3,7 +3,7 @@ pumpkin about as wide as a horse, lit from inside and burning at both corners of
 eight long black legs knuckled high above it. Blocky like its parent: square tiers for the pumpkin, the face painted square-cut on
 its flat front (the parent's own face), square legs.
 
-A rigkit rig: body (the chitin hub the legs grow from, under the pumpkin), head (the pumpkin - a model per expression: carved and
+A rigkit rig: body (the hub the legs grow from, hidden inside the pumpkin), head (the pumpkin - a model per expression: carved and
 dull, carved and blazing, or dark and asleep), the tongue, and eight legs (each one bent piece - up to a high knuckle, down to a
 point - swinging at the hip). Design units: feet at y=0, facing -z, its right is +x."""
 import math
@@ -70,10 +70,10 @@ def models():
         M[name] = ({t: f'bm:block/{t}' for t in used}, els)
     faceuv = [0, 0, 16, 8.8]                                                     # (the parent's face plate: 40 x 22)
 
-    # ---- the hub: black chitin under the pumpkin, where the legs grow from
+    # ---- the hub, where the legs grow from - (2.93c, the owner's call) no longer a black lump hanging under the pumpkin: the
+    #      legs meet inside it, so the bone keeps only a speck tucked away inside the pumpkin
     pv = PIVOT['body']
-    part('ln_body', [el((-5.2, 16.4, -5.2), (5.2, 21.4, 5.2), 'ln_leg', pv, shift=(0.2, 0.3)),
-                     el((-3.6, 15.2, -3.6), (3.6, 16.6, 3.6), 'ln_leg', pv, shift=(0.6, 0.6))])
+    part('ln_body', [el((-1.0, 24.0, -1.0), (1.0, 25.0, 1.0), 'ln_leg', pv)])
 
     # ---- the pumpkin: square tiers - a dark base, the broad middle tier with the face on its front, tiers stepping in above;
     #      raised ribs down the sides and back; the stem hooking over and its leaf; the fires at the corners of the grin

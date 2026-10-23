@@ -153,7 +153,7 @@ def generate(G):
                 anchor = 'bm.wil_body'
                 xf = f'transformation:{{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:{tf},scale:[1.2f,1.2f,1.2f]}},'
             else:
-                anchor = (CA.ANCHORS[w][0] if part == 'head' else CA.ANCHORS[w][2]).replace('bm.', '')
+                anchor = (CA.ANCHORS[w][0] if part == 'head' or (part == 'medal' and w in CA.MEDAL_FACE) else CA.ANCHORS[w][2]).replace('bm.', '')
                 xf = ''
             fn(f'p205/put/{w}_{part}', [
                 f'summon minecraft:item_display ~ ~ ~ {{Tags:["bm.chp","bm.chp_{w}","bm.chq_{part}","bm.chnew"],item_display:"fixed",teleport_duration:2,{xf}'

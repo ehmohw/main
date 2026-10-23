@@ -436,6 +436,10 @@ def _ornament(who, hb):
     return ornament(kind, x, y, _front(els, x, y + 1.0 * k) - 0.02, k * 0.85, up=False)
 
 
+# (2.93c) worn on the face instead: the Arachno-Lantern's pinned to the middle of his pumpkin - its disc over the nose, its
+# ribbon up between the eyes. Measured on the head's biggest block (the pumpkin, its face on the front - the model is stored
+# shrunk, so design units won't do): how far up the face the disc sits, and its size for each 22 units of face width
+MEDAL_FACE = {'lantern': (0.45, 0.95)}
 SIDE_MEDAL = {'bones'}                    # (the owner's call: Bones wears his on his side)
 BEASTS = {'bender': 0.5, 'bones': 0.45, 'lantern': 0.5, 'fishy': 0.16, 'frog': 0.45}   # (a beast's medal, on its breast: how high)
 
@@ -515,6 +519,11 @@ def models(who, hb, bb):
     hk = 'crown_top' if head_k == 'crown_top' else head_k
     head = (head_piece(hk, h) if hk else []) + _ornament(who, hb)
     body = [e for k in body_k for e in body_piece(k, b, fierce)]
+    if who in MEDAL_FACE:
+        fy, kk = MEDAL_FACE[who]
+        (x0, x1), (y0, y1), (z0, _z1) = hb['core']
+        k = kk * (x1 - x0) / 22
+        return head, body, medal(b, at=((x0 + x1) / 2, y0 + (y1 - y0) * fy, z0 - 0.02), k=k)
     if who in SIDE_MEDAL:                                           # (worn on the flank: the medal made as for a body turned side-on, turned back)
         v = BB([(b.z0, b.z1), (b.y0, b.y1), (b.x0, b.x1)])
         med = []
@@ -574,7 +583,7 @@ def build(R2, src=None):
         bb, bdisp = _resolve(src, bm_)
         head, body, med = models(who, hb, bb)
         sheet(who).save(R2.p('assets', 'bm', 'textures', 'block', f'champ_{who}.png'))
-        for part, els, disp in (('head', head, hdisp), ('body', body, bdisp), ('medal', med, bdisp)):
+        for part, els, disp in (('head', head, hdisp), ('body', body, bdisp), ('medal', med, hdisp if who in MEDAL_FACE else bdisp)):
             if not els: continue
             name = f'champ_{who}_{part}'
             m = {'textures': {'t': f'bm:block/champ_{who}', 'particle': f'bm:block/champ_{who}'}, 'elements': els or [box((8, 8, 8), (8.05, 8.05, 8.05), G)]}

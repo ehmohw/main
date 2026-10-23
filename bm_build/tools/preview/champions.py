@@ -36,12 +36,13 @@ for who, bone, piece, view in tiles:
     s.display(model_id(bone), pos=(0, 0, 0))
     if '--bare' not in sys.argv and os.path.exists(R2.p('assets', 'bm', 'models', 'item', f'champ_{who}_{piece}.json')):     # (a follower without that piece shows its own bone)
         s.display(f'bm:item/champ_{who}_{piece}', pos=(0, 0, 0))
-    if piece == 'body' and '--bare' not in sys.argv: s.display(f'bm:item/champ_{who}_medal', pos=(0, 0, 0))
+    if (piece == 'body') == (who not in CA.MEDAL_FACE) and '--bare' not in sys.argv: s.display(f'bm:item/champ_{who}_medal', pos=(0, 0, 0))
     imgs.append(K.label(s.render(view, size=220, span=SPAN.get(who, 1.6) if piece == 'body' else (2.0 if who in SPAN else 1.3), center=(0, (0.1 if who not in SPAN else 0.6) if piece == 'body' else (1.0 if who in SPAN else 0.55), 0)), who, f'{piece} {"front" if view == "front" else "back" if view[0] > 90 else "3/4"}'))
 if '--medal' in sys.argv:          # (close-ups: each medal on its chest, front and three-quarter)
     imgs = []
     for who, (_ht, _hm, _bt, bm_) in CA.ANCHORS.items():
         if only and who not in only: continue
+        bm_ = _hm if who in CA.MEDAL_FACE else bm_
         m = json.load(open(R2.p('assets', 'bm', 'models', 'item', f'champ_{who}_medal.json')))
         c = [sum((e['from'][i] + e['to'][i]) / 2 for e in m['elements']) / len(m['elements']) for i in range(3)]
         fx = m.get('display', {}).get('fixed', {})

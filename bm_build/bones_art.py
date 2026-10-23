@@ -72,8 +72,8 @@ def _side(seed):
 
 def _face(kind=None):
     """the side of his head (each side mirrors it), after the owner's art (2.93b): a big black eye, its top cut flat by a heavy
-    lid under a jutting brow - a grumpy half-lidded glare - a sliver of white glint low in it, and the red stitched scar
-    running down over the brow and across the eye (the brow's ridge is a block of its own, on the model)"""
+    lid under a jutting brow - a grumpy half-lidded glare - a sliver of white glint low in it, and (2.93c) the red stitched
+    scar running under the eye (the brow's ridge is a block of its own, on the model)"""
     im = _skin(2882); d = ImageDraw.Draw(im)
     d.rectangle((0, 50, 63, 63), fill=hexc(BELLY))
     ex, ey = 17, 21                                                  # (high, and forward over the snout's root, as drawn)
@@ -90,10 +90,10 @@ def _face(kind=None):
     d.polygon([(ex - 12, ey - 9), (ex + 12, ey - 9), (ex + 12, lb), (ex - 12, lf)], fill=LID)       # the heavy lid over it
     d.line((ex - 11, lf, ex + 11, lb), fill=INK, width=3)                                       # (its edge, inked)
     d.line((ex - 11, ey - 9, ex + 11, ey - 9), fill=LID_DK, width=1)                             # (under the brow)
-    d.line((ex + 4, ey - 16, ex - 6, ey + 11), fill=SCAR, width=2)                               # the scar...
+    d.line((ex - 9, ey + 12, ex + 7, ey + 17), fill=SCAR, width=2)                               # the scar, under the eye...
     for t in range(5):
-        cx, cy = ex + 3 - t * 2.5, ey - 13 + t * 6
-        d.line((cx - 3, cy - 1, cx + 3, cy + 1), fill=SCAR)                                       # ...and its stitches
+        cx, cy = ex - 7 + t * 3.5, ey + 12.6 + t * 1.1
+        d.line((cx - 1, cy - 3, cx + 1, cy + 3), fill=SCAR)                                       # ...and its stitches across it
     return im
 
 
@@ -142,8 +142,14 @@ def models():
             el((5.4, y0 - 5.0, -8.0), (5.42, y0 + 5.0, 4.0), 'bn_flank', pv, faces=('east',), uv={'east': [16, 0, 0, 16]}),
             el((-5.0, y0 - 5.4, -7.6), (5.0, y0 - 4.9, 3.6), 'bn_belly', pv),
             el((-4.2, y0 - 4.8, 3.6), (4.2, y0 - 4.3, 9.0), 'bn_belly', pv)]
-    body += chain([(0, y0 + 4.6, -2.0), (0, y0 + 9.0, 1.0), (0, y0 + 11.0, 4.4)], [(5.0, 1.6)][0], 1.2, 'bn_skin_dk', pv, FRONT, ext=0.2)
-    body += [el((-0.6, y0 + 4.2, -3.6), (0.6, y0 + 6.6, 2.4), 'bn_skin_dk', pv)]
+    # (2.93c) the dorsal fin, by its side profile as drawn: a broad root along the back, the leading edge curving back, the
+    #      trailing edge hollowed (a nick out of it low down), up to a point swept well back - stacked thin, thinner as it rises
+    for i in range(8):
+        t = i / 7
+        zf, zb = -3.8 + 7.0 * t ** 1.25, 3.0 + 3.0 * t ** 2.2
+        if i == 1: zb -= 0.9                                       # (the nick)
+        hx = 0.85 - 0.45 * t
+        body.append(el((-hx, y0 + 4.4 + 0.85 * i, zf), (hx, y0 + 4.4 + 0.85 * (i + 1) + 0.05, max(zb, zf + 0.6)), 'bn_skin_dk', pv, shift=(0.3 * i, 0.2 * i)))
     part('bn_body', body)
     # ---- the head: blunt and broad, the snout overhanging; the eyes on its sides; the upper teeth under the snout
     pv = PIVOT['head']
