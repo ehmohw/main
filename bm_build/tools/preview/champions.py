@@ -21,7 +21,7 @@ class R2:
 
 CA.build(R2, src=lambda *parts: os.path.join(K.REAL_RP, *parts))
 tiles = [(who, bone, piece, view) for who, (_ht, hm, _bt, bm_) in CA.ANCHORS.items() if not only or who in only
-         for bone, piece in ((bm_, 'body'),) for view in ('front', (145, 22) if '--back' in sys.argv else (35, 22))]
+         for bone, piece in ((bm_, 'body'),) for view in ('front', (145, 22) if '--back' in sys.argv else (-90, 15) if '--side' in sys.argv else (35, 22))]
 # (rendering: the bone's own model and the piece's, both at the origin in 'fixed')
 imgs = []
 SPAN = {'apo': 3.2, 'omega': 3.2}     # (the serpents' coils stand tall)

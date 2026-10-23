@@ -398,7 +398,8 @@ def models(who, hb, bb):
         med = []
         for e in medal(v, BEASTS.get(who, 0)):
             (fx, fy, fz), (tx, ty, tz) = e['from'], e['to']
-            med.append(dict(e, **{'from': [round(b.x0 + b.x1 - tz, 3), fy, fx], 'to': [round(b.x0 + b.x1 - fz, 3), ty, tx]}))
+            dz = 0.22 * (b.z1 - b.z0)                               # (toward his head, clear of the skull on his flank)
+            med.append(dict(e, **{'from': [round(b.x0 + b.x1 - tz, 3), fy, round(fx + dz, 3)], 'to': [round(b.x0 + b.x1 - fz, 3), ty, round(tx + dz, 3)]}))
         return head, body, med
     return head, body, medal(b, BEASTS.get(who, 0))
 
