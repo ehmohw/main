@@ -1,0 +1,183 @@
+{
+ "frames": [
+  {
+   "filename": "dennis-sear 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 79,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 79,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 79,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5316455696202531,
+    "y": 0.4642857142857143
+   },
+   "duration": 67
+  },
+  {
+   "filename": "dennis-sear 1.png",
+   "frame": {
+    "x": 79,
+    "y": 0,
+    "w": 79,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 79,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 79,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5316455696202531,
+    "y": 0.4642857142857143
+   },
+   "duration": 67
+  },
+  {
+   "filename": "dennis-sear 2.png",
+   "frame": {
+    "x": 158,
+    "y": 0,
+    "w": 79,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 79,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 79,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5316455696202531,
+    "y": 0.4642857142857143
+   },
+   "duration": 67
+  },
+  {
+   "filename": "dennis-sear 3.png",
+   "frame": {
+    "x": 0,
+    "y": 56,
+    "w": 79,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 79,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 79,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5316455696202531,
+    "y": 0.4642857142857143
+   },
+   "duration": 67
+  },
+  {
+   "filename": "dennis-sear 4.png",
+   "frame": {
+    "x": 79,
+    "y": 56,
+    "w": 79,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 79,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 79,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5316455696202531,
+    "y": 0.4642857142857143
+   },
+   "duration": 67
+  },
+  {
+   "filename": "dennis-sear 5.png",
+   "frame": {
+    "x": 158,
+    "y": 56,
+    "w": 79,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 79,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 79,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5316455696202531,
+    "y": 0.4642857142857143
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "dennis-sear.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 237,
+   "h": 112
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 42,
+   "y": 26
+  },
+  "frameTags": [
+   {
+    "name": "dennis-sear",
+    "from": 0,
+    "to": 5,
+    "direction": "forward"
+   }
+  ]
+ }
+}

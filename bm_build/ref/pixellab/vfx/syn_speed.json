@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "syn-speed 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 149,
+    "h": 133
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 149,
+    "h": 133
+   },
+   "sourceSize": {
+    "w": 149,
+    "h": 133
+   },
+   "pivot": {
+    "x": 0.5100671140939598,
+    "y": 0.48872180451127817
+   },
+   "duration": 63
+  },
+  {
+   "filename": "syn-speed 1.png",
+   "frame": {
+    "x": 149,
+    "y": 0,
+    "w": 149,
+    "h": 133
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 149,
+    "h": 133
+   },
+   "sourceSize": {
+    "w": 149,
+    "h": 133
+   },
+   "pivot": {
+    "x": 0.5100671140939598,
+    "y": 0.48872180451127817
+   },
+   "duration": 63
+  },
+  {
+   "filename": "syn-speed 2.png",
+   "frame": {
+    "x": 298,
+    "y": 0,
+    "w": 149,
+    "h": 133
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 149,
+    "h": 133
+   },
+   "sourceSize": {
+    "w": 149,
+    "h": 133
+   },
+   "pivot": {
+    "x": 0.5100671140939598,
+    "y": 0.48872180451127817
+   },
+   "duration": 63
+  },
+  {
+   "filename": "syn-speed 3.png",
+   "frame": {
+    "x": 0,
+    "y": 133,
+    "w": 149,
+    "h": 133
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 149,
+    "h": 133
+   },
+   "sourceSize": {
+    "w": 149,
+    "h": 133
+   },
+   "pivot": {
+    "x": 0.5100671140939598,
+    "y": 0.48872180451127817
+   },
+   "duration": 63
+  },
+  {
+   "filename": "syn-speed 4.png",
+   "frame": {
+    "x": 149,
+    "y": 133,
+    "w": 149,
+    "h": 133
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 149,
+    "h": 133
+   },
+   "sourceSize": {
+    "w": 149,
+    "h": 133
+   },
+   "pivot": {
+    "x": 0.5100671140939598,
+    "y": 0.48872180451127817
+   },
+   "duration": 63
+  },
+  {
+   "filename": "syn-speed 5.png",
+   "frame": {
+    "x": 298,
+    "y": 133,
+    "w": 149,
+    "h": 133
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 149,
+    "h": 133
+   },
+   "sourceSize": {
+    "w": 149,
+    "h": 133
+   },
+   "pivot": {
+    "x": 0.5100671140939598,
+    "y": 0.48872180451127817
+   },
+   "duration": 63
+  },
+  {
+   "filename": "syn-speed 6.png",
+   "frame": {
+    "x": 0,
+    "y": 266,
+    "w": 149,
+    "h": 133
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 149,
+    "h": 133
+   },
+   "sourceSize": {
+    "w": 149,
+    "h": 133
+   },
+   "pivot": {
+    "x": 0.5100671140939598,
+    "y": 0.48872180451127817
+   },
+   "duration": 63
+  },
+  {
+   "filename": "syn-speed 7.png",
+   "frame": {
+    "x": 149,
+    "y": 266,
+    "w": 149,
+    "h": 133
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 149,
+    "h": 133
+   },
+   "sourceSize": {
+    "w": 149,
+    "h": 133
+   },
+   "pivot": {
+    "x": 0.5100671140939598,
+    "y": 0.48872180451127817
+   },
+   "duration": 63
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "syn-speed.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 447,
+   "h": 399
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 76,
+   "y": 65
+  },
+  "frameTags": [
+   {
+    "name": "syn-speed",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

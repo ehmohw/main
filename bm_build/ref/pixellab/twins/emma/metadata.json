@@ -1,0 +1,114 @@
+{
+  "group_id": "14d9ec3e-4e23-4e52-9f2c-2278ab965c83",
+  "states": [
+    {
+      "character": {
+        "id": "e7a14892-7275-49bb-a6d8-75863e744af2",
+        "name": "Idle",
+        "prompt": "Emma, a cheerful young girl: brown hair in a high ponytail tied with a purple bow, a curl by each ear, freckles, big teal eyes; a long-sleeved blue dress with a light-blue scarf collar and a pink flower brooch, a woven brown belt with a white oval flower buckle, a full knee-length blue skirt, white knee socks, navy mary-jane shoes",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-10-23T20:49:28.745011+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "fireball": {
+            "south": [
+              "Idle/animations/fireball/south/frame_000.png",
+              "Idle/animations/fireball/south/frame_001.png",
+              "Idle/animations/fireball/south/frame_002.png",
+              "Idle/animations/fireball/south/frame_003.png",
+              "Idle/animations/fireball/south/frame_004.png",
+              "Idle/animations/fireball/south/frame_005.png",
+              "Idle/animations/fireball/south/frame_006.png",
+              "Idle/animations/fireball/south/frame_007.png",
+              "Idle/animations/fireball/south/frame_008.png"
+            ]
+          },
+          "hurt": {
+            "south": [
+              "Idle/animations/hurt/south/frame_000.png",
+              "Idle/animations/hurt/south/frame_001.png",
+              "Idle/animations/hurt/south/frame_002.png",
+              "Idle/animations/hurt/south/frame_003.png",
+              "Idle/animations/hurt/south/frame_004.png"
+            ]
+          },
+          "stomp": {
+            "south": [
+              "Idle/animations/stomp/south/frame_000.png",
+              "Idle/animations/stomp/south/frame_001.png",
+              "Idle/animations/stomp/south/frame_002.png",
+              "Idle/animations/stomp/south/frame_003.png",
+              "Idle/animations/stomp/south/frame_004.png",
+              "Idle/animations/stomp/south/frame_005.png",
+              "Idle/animations/stomp/south/frame_006.png",
+              "Idle/animations/stomp/south/frame_007.png",
+              "Idle/animations/stomp/south/frame_008.png"
+            ]
+          },
+          "idle": {
+            "south": [
+              "Idle/animations/idle/south/frame_000.png",
+              "Idle/animations/idle/south/frame_001.png",
+              "Idle/animations/idle/south/frame_002.png",
+              "Idle/animations/idle/south/frame_003.png",
+              "Idle/animations/idle/south/frame_004.png"
+            ]
+          },
+          "sit": {
+            "south": [
+              "Idle/animations/sit/south/frame_000.png",
+              "Idle/animations/sit/south/frame_001.png",
+              "Idle/animations/sit/south/frame_002.png",
+              "Idle/animations/sit/south/frame_003.png",
+              "Idle/animations/sit/south/frame_004.png"
+            ]
+          },
+          "walk": {
+            "south": [
+              "Idle/animations/walk/south/frame_000.png",
+              "Idle/animations/walk/south/frame_001.png",
+              "Idle/animations/walk/south/frame_002.png",
+              "Idle/animations/walk/south/frame_003.png",
+              "Idle/animations/walk/south/frame_004.png",
+              "Idle/animations/walk/south/frame_005.png",
+              "Idle/animations/walk/south/frame_006.png",
+              "Idle/animations/walk/south/frame_007.png",
+              "Idle/animations/walk/south/frame_008.png"
+            ]
+          },
+          "power": {
+            "south": [
+              "Idle/animations/power/south/frame_000.png",
+              "Idle/animations/power/south/frame_001.png",
+              "Idle/animations/power/south/frame_002.png",
+              "Idle/animations/power/south/frame_003.png",
+              "Idle/animations/power/south/frame_004.png",
+              "Idle/animations/power/south/frame_005.png",
+              "Idle/animations/power/south/frame_006.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-23T21:25:43.372886"
+}

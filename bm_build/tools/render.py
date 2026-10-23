@@ -102,7 +102,7 @@ class Scene:
                 uv = fc.get('uv', [0, 0, 16, 16]); tid = resolve(fc['texture'])
                 pts = [xf(er(p)) for p in quads[name]]
                 u1, v1, u2, v2 = uv
-                self.faces.append((pts, [(u1, v1), (u2, v1), (u2, v2), (u1, v2)], tid))
+                self.faces.append((pts, [(u1, v1), (u2, v1), (u2, v2), (u1, v2)], tid, el.get('shade', True)))
 
     def box(self, lo, hi, color=(1, 0, 0)):
         self.faces.append(('box', lo, hi, color))
@@ -157,14 +157,14 @@ class Scene:
                                 x, y = (P[i][:2] * (1 - t) + P[j][:2] * t).astype(int)
                                 if 0 <= x < size and 0 <= y < size: img[y, x] = col
                 continue
-            pts, uvs, tid = f
+            pts, uvs, tid, *lit = f
             tex = self.texture(tid); th, tw = tex.shape[:2]
             if blend and tex[..., 3].min() > 0.9: continue
             P = [proj(p) for p in pts]
             nrm = np.cross(np.array(pts[1]) - pts[0], np.array(pts[3]) - pts[0])
             if np.linalg.norm(nrm) < 1e-9: continue
             nrm = nrm / np.linalg.norm(nrm)
-            shade = 0.55 + 0.45 * abs(nrm @ light)
+            shade = 0.55 + 0.45 * abs(nrm @ light) if not lit or lit[0] else 1.0     # ("shade": false - a flat sprite, as lit as it's painted)
             for tri in ((0, 1, 2), (0, 2, 3)):
                 A, B, C = (P[i] for i in tri); ua, ub, uc = (np.array(uvs[i]) for i in tri)
                 xs = [A[0], B[0], C[0]]; ys = [A[1], B[1], C[1]]

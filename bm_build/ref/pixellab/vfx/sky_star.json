@@ -1,0 +1,261 @@
+{
+ "frames": [
+  {
+   "filename": "sky-star 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 105,
+    "h": 61
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 105,
+    "h": 61
+   },
+   "sourceSize": {
+    "w": 105,
+    "h": 61
+   },
+   "pivot": {
+    "x": 0.44761904761904764,
+    "y": 0.6229508196721312
+   },
+   "duration": 63
+  },
+  {
+   "filename": "sky-star 1.png",
+   "frame": {
+    "x": 105,
+    "y": 0,
+    "w": 105,
+    "h": 61
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 105,
+    "h": 61
+   },
+   "sourceSize": {
+    "w": 105,
+    "h": 61
+   },
+   "pivot": {
+    "x": 0.44761904761904764,
+    "y": 0.6229508196721312
+   },
+   "duration": 63
+  },
+  {
+   "filename": "sky-star 2.png",
+   "frame": {
+    "x": 210,
+    "y": 0,
+    "w": 105,
+    "h": 61
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 105,
+    "h": 61
+   },
+   "sourceSize": {
+    "w": 105,
+    "h": 61
+   },
+   "pivot": {
+    "x": 0.44761904761904764,
+    "y": 0.6229508196721312
+   },
+   "duration": 63
+  },
+  {
+   "filename": "sky-star 3.png",
+   "frame": {
+    "x": 0,
+    "y": 61,
+    "w": 105,
+    "h": 61
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 105,
+    "h": 61
+   },
+   "sourceSize": {
+    "w": 105,
+    "h": 61
+   },
+   "pivot": {
+    "x": 0.44761904761904764,
+    "y": 0.6229508196721312
+   },
+   "duration": 63
+  },
+  {
+   "filename": "sky-star 4.png",
+   "frame": {
+    "x": 105,
+    "y": 61,
+    "w": 105,
+    "h": 61
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 105,
+    "h": 61
+   },
+   "sourceSize": {
+    "w": 105,
+    "h": 61
+   },
+   "pivot": {
+    "x": 0.44761904761904764,
+    "y": 0.6229508196721312
+   },
+   "duration": 63
+  },
+  {
+   "filename": "sky-star 5.png",
+   "frame": {
+    "x": 210,
+    "y": 61,
+    "w": 105,
+    "h": 61
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 105,
+    "h": 61
+   },
+   "sourceSize": {
+    "w": 105,
+    "h": 61
+   },
+   "pivot": {
+    "x": 0.44761904761904764,
+    "y": 0.6229508196721312
+   },
+   "duration": 63
+  },
+  {
+   "filename": "sky-star 6.png",
+   "frame": {
+    "x": 0,
+    "y": 122,
+    "w": 105,
+    "h": 61
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 105,
+    "h": 61
+   },
+   "sourceSize": {
+    "w": 105,
+    "h": 61
+   },
+   "pivot": {
+    "x": 0.44761904761904764,
+    "y": 0.6229508196721312
+   },
+   "duration": 63
+  },
+  {
+   "filename": "sky-star 7.png",
+   "frame": {
+    "x": 105,
+    "y": 122,
+    "w": 105,
+    "h": 61
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 105,
+    "h": 61
+   },
+   "sourceSize": {
+    "w": 105,
+    "h": 61
+   },
+   "pivot": {
+    "x": 0.44761904761904764,
+    "y": 0.6229508196721312
+   },
+   "duration": 63
+  },
+  {
+   "filename": "sky-star 8.png",
+   "frame": {
+    "x": 210,
+    "y": 122,
+    "w": 105,
+    "h": 61
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 105,
+    "h": 61
+   },
+   "sourceSize": {
+    "w": 105,
+    "h": 61
+   },
+   "pivot": {
+    "x": 0.44761904761904764,
+    "y": 0.6229508196721312
+   },
+   "duration": 63
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sky-star.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 315,
+   "h": 183
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 47,
+   "y": 38
+  },
+  "frameTags": [
+   {
+    "name": "sky-star",
+    "from": 0,
+    "to": 8,
+    "direction": "forward"
+   }
+  ]
+ }
+}

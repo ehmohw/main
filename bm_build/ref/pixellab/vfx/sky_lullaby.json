@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "sky-lullaby 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 78
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7435897435897436
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sky-lullaby 1.png",
+   "frame": {
+    "x": 40,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 78
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7435897435897436
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sky-lullaby 2.png",
+   "frame": {
+    "x": 80,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 78
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7435897435897436
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sky-lullaby 3.png",
+   "frame": {
+    "x": 120,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 78
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7435897435897436
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sky-lullaby 4.png",
+   "frame": {
+    "x": 0,
+    "y": 78,
+    "w": 40,
+    "h": 78
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 78
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7435897435897436
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sky-lullaby 5.png",
+   "frame": {
+    "x": 40,
+    "y": 78,
+    "w": 40,
+    "h": 78
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 78
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7435897435897436
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sky-lullaby 6.png",
+   "frame": {
+    "x": 80,
+    "y": 78,
+    "w": 40,
+    "h": 78
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 78
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7435897435897436
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sky-lullaby 7.png",
+   "frame": {
+    "x": 120,
+    "y": 78,
+    "w": 40,
+    "h": 78
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 78
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7435897435897436
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sky-lullaby 8.png",
+   "frame": {
+    "x": 0,
+    "y": 156,
+    "w": 40,
+    "h": 78
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 78
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7435897435897436
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sky-lullaby 9.png",
+   "frame": {
+    "x": 40,
+    "y": 156,
+    "w": 40,
+    "h": 78
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 78
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7435897435897436
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sky-lullaby 10.png",
+   "frame": {
+    "x": 80,
+    "y": 156,
+    "w": 40,
+    "h": 78
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 78
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7435897435897436
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sky-lullaby 11.png",
+   "frame": {
+    "x": 120,
+    "y": 156,
+    "w": 40,
+    "h": 78
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 78
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 78
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7435897435897436
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sky-lullaby.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 160,
+   "h": 234
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 20,
+   "y": 58
+  },
+  "frameTags": [
+   {
+    "name": "sky-lullaby",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

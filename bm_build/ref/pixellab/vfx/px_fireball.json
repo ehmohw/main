@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "px-fireball 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-fireball 1.png",
+   "frame": {
+    "x": 56,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-fireball 2.png",
+   "frame": {
+    "x": 112,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-fireball 3.png",
+   "frame": {
+    "x": 0,
+    "y": 40,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-fireball 4.png",
+   "frame": {
+    "x": 56,
+    "y": 40,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-fireball 5.png",
+   "frame": {
+    "x": 112,
+    "y": 40,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-fireball 6.png",
+   "frame": {
+    "x": 0,
+    "y": 80,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-fireball 7.png",
+   "frame": {
+    "x": 56,
+    "y": 80,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "px-fireball.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 168,
+   "h": 120
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 28,
+   "y": 20
+  },
+  "frameTags": [
+   {
+    "name": "px-fireball",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

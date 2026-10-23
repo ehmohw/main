@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "apo-coil 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 96
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8958333333333334
+   },
+   "duration": 77
+  },
+  {
+   "filename": "apo-coil 1.png",
+   "frame": {
+    "x": 64,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 96
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8958333333333334
+   },
+   "duration": 77
+  },
+  {
+   "filename": "apo-coil 2.png",
+   "frame": {
+    "x": 128,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 96
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8958333333333334
+   },
+   "duration": 77
+  },
+  {
+   "filename": "apo-coil 3.png",
+   "frame": {
+    "x": 192,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 96
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8958333333333334
+   },
+   "duration": 77
+  },
+  {
+   "filename": "apo-coil 4.png",
+   "frame": {
+    "x": 0,
+    "y": 96,
+    "w": 64,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 96
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8958333333333334
+   },
+   "duration": 77
+  },
+  {
+   "filename": "apo-coil 5.png",
+   "frame": {
+    "x": 64,
+    "y": 96,
+    "w": 64,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 96
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8958333333333334
+   },
+   "duration": 77
+  },
+  {
+   "filename": "apo-coil 6.png",
+   "frame": {
+    "x": 128,
+    "y": 96,
+    "w": 64,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 96
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8958333333333334
+   },
+   "duration": 77
+  },
+  {
+   "filename": "apo-coil 7.png",
+   "frame": {
+    "x": 192,
+    "y": 96,
+    "w": 64,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 96
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8958333333333334
+   },
+   "duration": 77
+  },
+  {
+   "filename": "apo-coil 8.png",
+   "frame": {
+    "x": 0,
+    "y": 192,
+    "w": 64,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 96
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8958333333333334
+   },
+   "duration": 77
+  },
+  {
+   "filename": "apo-coil 9.png",
+   "frame": {
+    "x": 64,
+    "y": 192,
+    "w": 64,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 96
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8958333333333334
+   },
+   "duration": 77
+  },
+  {
+   "filename": "apo-coil 10.png",
+   "frame": {
+    "x": 128,
+    "y": 192,
+    "w": 64,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 96
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8958333333333334
+   },
+   "duration": 77
+  },
+  {
+   "filename": "apo-coil 11.png",
+   "frame": {
+    "x": 192,
+    "y": 192,
+    "w": 64,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 96
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8958333333333334
+   },
+   "duration": 77
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "apo-coil.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 256,
+   "h": 288
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 32,
+   "y": 86
+  },
+  "frameTags": [
+   {
+    "name": "apo-coil",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

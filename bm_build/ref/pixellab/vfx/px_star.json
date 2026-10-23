@@ -1,0 +1,183 @@
+{
+ "frames": [
+  {
+   "filename": "px-star 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 64
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "px-star 1.png",
+   "frame": {
+    "x": 64,
+    "y": 0,
+    "w": 64,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 64
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "px-star 2.png",
+   "frame": {
+    "x": 128,
+    "y": 0,
+    "w": 64,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 64
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "px-star 3.png",
+   "frame": {
+    "x": 0,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 64
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "px-star 4.png",
+   "frame": {
+    "x": 64,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 64
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "px-star 5.png",
+   "frame": {
+    "x": 128,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 64
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "px-star.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 192,
+   "h": 128
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 32,
+   "y": 32
+  },
+  "frameTags": [
+   {
+    "name": "px-star",
+    "from": 0,
+    "to": 5,
+    "direction": "forward"
+   }
+  ]
+ }
+}

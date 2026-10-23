@@ -1,7 +1,8 @@
 """2.76: a shared rig kit - one item model per part, parts parented in a tree, poses given as each part's own rotation.
 
 Design units as in phase57_art / phase79_art: feet at y=0, facing -z, his right is +x; each part's joint sits at model
-(8, 8, 8). A pose is {part: local rotation (display frame quaternion), '_off': (x, y, z) root shift in design units}.
+(8, 8, 8). A pose is {part: local rotation (display frame quaternion), '_off': (x, y, z) root shift in design units,
+'_o_<part>': (x, y, z) that part's own shift (2.94 - the Sky Buddies, whose parts share one joint and move apart by these)}.
 solve() walks the tree: a child turns with its parent and its joint is carried round with it, so a pose only says how
 each joint bends - the arm swings with the torso, the mace stays on the end of the tail. It returns, per part, the
 display transformation (left_rotation, translation in design units) for a display standing at the part's rest joint.
@@ -62,6 +63,8 @@ def solve(pivots, parents, pose):
             d = tuple(D(pivots[p])[i] - D(pivots[par])[i] for i in range(3))
             r = qrot(Qp, d)
             Q, W = qmul(Qp, q), tuple(Wp[i] + r[i] for i in range(3))
+        if '_o_' + p in pose:                       # (2.94: a part's own shift, design units - carried to its children)
+            o = D(pose['_o_' + p]); W = tuple(W[i] + o[i] for i in range(3))
         world[p] = (Q, W)
         out[p] = (Q, tuple(W[i] - D(pivots[p])[i] for i in range(3)))
     return out
@@ -85,7 +88,7 @@ def mid(pa, pb, t=0.5):
     corner: the mace through his arm). A keyframe at mid() between them keeps the chain on its arc."""
     out = {}
     for k in set(pa) | set(pb):
-        if k == '_off':
+        if k == '_off' or k.startswith('_o_'):
             a, b = pa.get(k, (0.0, 0.0, 0.0)), pb.get(k, (0.0, 0.0, 0.0)); out[k] = tuple(u + (v - u) * t for u, v in zip(a, b))
         elif k.startswith('_'):
             v = (pa if t < 0.5 else pb).get(k)

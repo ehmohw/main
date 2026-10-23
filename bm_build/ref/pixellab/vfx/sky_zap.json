@@ -1,0 +1,287 @@
+{
+ "frames": [
+  {
+   "filename": "sky-zap 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 129
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8527131782945736
+   },
+   "duration": 42
+  },
+  {
+   "filename": "sky-zap 1.png",
+   "frame": {
+    "x": 88,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 129
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8527131782945736
+   },
+   "duration": 42
+  },
+  {
+   "filename": "sky-zap 2.png",
+   "frame": {
+    "x": 176,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 129
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8527131782945736
+   },
+   "duration": 42
+  },
+  {
+   "filename": "sky-zap 3.png",
+   "frame": {
+    "x": 264,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 129
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8527131782945736
+   },
+   "duration": 42
+  },
+  {
+   "filename": "sky-zap 4.png",
+   "frame": {
+    "x": 0,
+    "y": 129,
+    "w": 88,
+    "h": 129
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 129
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8527131782945736
+   },
+   "duration": 42
+  },
+  {
+   "filename": "sky-zap 5.png",
+   "frame": {
+    "x": 88,
+    "y": 129,
+    "w": 88,
+    "h": 129
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 129
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8527131782945736
+   },
+   "duration": 42
+  },
+  {
+   "filename": "sky-zap 6.png",
+   "frame": {
+    "x": 176,
+    "y": 129,
+    "w": 88,
+    "h": 129
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 129
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8527131782945736
+   },
+   "duration": 42
+  },
+  {
+   "filename": "sky-zap 7.png",
+   "frame": {
+    "x": 264,
+    "y": 129,
+    "w": 88,
+    "h": 129
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 129
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8527131782945736
+   },
+   "duration": 42
+  },
+  {
+   "filename": "sky-zap 8.png",
+   "frame": {
+    "x": 0,
+    "y": 258,
+    "w": 88,
+    "h": 129
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 129
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8527131782945736
+   },
+   "duration": 42
+  },
+  {
+   "filename": "sky-zap 9.png",
+   "frame": {
+    "x": 88,
+    "y": 258,
+    "w": 88,
+    "h": 129
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 129
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 129
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8527131782945736
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sky-zap.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 352,
+   "h": 387
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 44,
+   "y": 110
+  },
+  "frameTags": [
+   {
+    "name": "sky-zap",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ]
+ }
+}

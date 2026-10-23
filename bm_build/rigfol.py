@@ -76,11 +76,11 @@ def blend_pose(a, b, t):
     """a pose between two (each joint slerped, the offset lerped) - an in-between key for a long swing"""
     out = {}
     for k in set(a) | set(b):
-        if k.startswith('_') and k != '_off':
+        if k.startswith('_') and k != '_off' and not k.startswith('_o_'):
             out[k] = b.get(k, a.get(k))
             continue
-        if k == '_off':
-            oa, ob = a.get('_off', (0.0, 0.0, 0.0)), b.get('_off', (0.0, 0.0, 0.0))
+        if k == '_off' or k.startswith('_o_'):
+            oa, ob = a.get(k, (0.0, 0.0, 0.0)), b.get(k, (0.0, 0.0, 0.0))
             out[k] = tuple(oa[i] * (1 - t) + ob[i] * t for i in range(3))
             continue
         qa, qb = a.get(k, RK.I), b.get(k, RK.I)

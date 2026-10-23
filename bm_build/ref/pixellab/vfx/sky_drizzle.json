@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "sky-drizzle 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 54,
+    "h": 63
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 54,
+    "h": 63
+   },
+   "sourceSize": {
+    "w": 54,
+    "h": 63
+   },
+   "pivot": {
+    "x": 1.6666666666666667,
+    "y": 2.126984126984127
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sky-drizzle 1.png",
+   "frame": {
+    "x": 54,
+    "y": 0,
+    "w": 54,
+    "h": 63
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 54,
+    "h": 63
+   },
+   "sourceSize": {
+    "w": 54,
+    "h": 63
+   },
+   "pivot": {
+    "x": 1.6666666666666667,
+    "y": 2.126984126984127
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sky-drizzle 2.png",
+   "frame": {
+    "x": 108,
+    "y": 0,
+    "w": 54,
+    "h": 63
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 54,
+    "h": 63
+   },
+   "sourceSize": {
+    "w": 54,
+    "h": 63
+   },
+   "pivot": {
+    "x": 1.6666666666666667,
+    "y": 2.126984126984127
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sky-drizzle 3.png",
+   "frame": {
+    "x": 0,
+    "y": 63,
+    "w": 54,
+    "h": 63
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 54,
+    "h": 63
+   },
+   "sourceSize": {
+    "w": 54,
+    "h": 63
+   },
+   "pivot": {
+    "x": 1.6666666666666667,
+    "y": 2.126984126984127
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sky-drizzle 4.png",
+   "frame": {
+    "x": 54,
+    "y": 63,
+    "w": 54,
+    "h": 63
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 54,
+    "h": 63
+   },
+   "sourceSize": {
+    "w": 54,
+    "h": 63
+   },
+   "pivot": {
+    "x": 1.6666666666666667,
+    "y": 2.126984126984127
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sky-drizzle 5.png",
+   "frame": {
+    "x": 108,
+    "y": 63,
+    "w": 54,
+    "h": 63
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 54,
+    "h": 63
+   },
+   "sourceSize": {
+    "w": 54,
+    "h": 63
+   },
+   "pivot": {
+    "x": 1.6666666666666667,
+    "y": 2.126984126984127
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sky-drizzle 6.png",
+   "frame": {
+    "x": 0,
+    "y": 126,
+    "w": 54,
+    "h": 63
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 54,
+    "h": 63
+   },
+   "sourceSize": {
+    "w": 54,
+    "h": 63
+   },
+   "pivot": {
+    "x": 1.6666666666666667,
+    "y": 2.126984126984127
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sky-drizzle 7.png",
+   "frame": {
+    "x": 54,
+    "y": 126,
+    "w": 54,
+    "h": 63
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 54,
+    "h": 63
+   },
+   "sourceSize": {
+    "w": 54,
+    "h": 63
+   },
+   "pivot": {
+    "x": 1.6666666666666667,
+    "y": 2.126984126984127
+   },
+   "duration": 100
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sky-drizzle.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 162,
+   "h": 189
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 90,
+   "y": 134
+  },
+  "frameTags": [
+   {
+    "name": "sky-drizzle",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

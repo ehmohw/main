@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "px-beam 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-beam 1.png",
+   "frame": {
+    "x": 128,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-beam 2.png",
+   "frame": {
+    "x": 256,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-beam 3.png",
+   "frame": {
+    "x": 384,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-beam 4.png",
+   "frame": {
+    "x": 0,
+    "y": 48,
+    "w": 128,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-beam 5.png",
+   "frame": {
+    "x": 128,
+    "y": 48,
+    "w": 128,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-beam 6.png",
+   "frame": {
+    "x": 256,
+    "y": 48,
+    "w": 128,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-beam 7.png",
+   "frame": {
+    "x": 384,
+    "y": 48,
+    "w": 128,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-beam 8.png",
+   "frame": {
+    "x": 0,
+    "y": 96,
+    "w": 128,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-beam 9.png",
+   "frame": {
+    "x": 128,
+    "y": 96,
+    "w": 128,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-beam 10.png",
+   "frame": {
+    "x": 256,
+    "y": 96,
+    "w": 128,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "px-beam 11.png",
+   "frame": {
+    "x": 384,
+    "y": 96,
+    "w": 128,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 128,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 128,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "px-beam.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 512,
+   "h": 144
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 64,
+   "y": 24
+  },
+  "frameTags": [
+   {
+    "name": "px-beam",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

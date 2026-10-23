@@ -1,0 +1,313 @@
+{
+ "frames": [
+  {
+   "filename": "ashur-inferno 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 132
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5833333333333334
+   },
+   "duration": 71
+  },
+  {
+   "filename": "ashur-inferno 1.png",
+   "frame": {
+    "x": 116,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 132
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5833333333333334
+   },
+   "duration": 71
+  },
+  {
+   "filename": "ashur-inferno 2.png",
+   "frame": {
+    "x": 232,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 132
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5833333333333334
+   },
+   "duration": 71
+  },
+  {
+   "filename": "ashur-inferno 3.png",
+   "frame": {
+    "x": 348,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 132
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5833333333333334
+   },
+   "duration": 71
+  },
+  {
+   "filename": "ashur-inferno 4.png",
+   "frame": {
+    "x": 0,
+    "y": 132,
+    "w": 116,
+    "h": 132
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 132
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5833333333333334
+   },
+   "duration": 71
+  },
+  {
+   "filename": "ashur-inferno 5.png",
+   "frame": {
+    "x": 116,
+    "y": 132,
+    "w": 116,
+    "h": 132
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 132
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5833333333333334
+   },
+   "duration": 71
+  },
+  {
+   "filename": "ashur-inferno 6.png",
+   "frame": {
+    "x": 232,
+    "y": 132,
+    "w": 116,
+    "h": 132
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 132
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5833333333333334
+   },
+   "duration": 71
+  },
+  {
+   "filename": "ashur-inferno 7.png",
+   "frame": {
+    "x": 348,
+    "y": 132,
+    "w": 116,
+    "h": 132
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 132
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5833333333333334
+   },
+   "duration": 71
+  },
+  {
+   "filename": "ashur-inferno 8.png",
+   "frame": {
+    "x": 0,
+    "y": 264,
+    "w": 116,
+    "h": 132
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 132
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5833333333333334
+   },
+   "duration": 71
+  },
+  {
+   "filename": "ashur-inferno 9.png",
+   "frame": {
+    "x": 116,
+    "y": 264,
+    "w": 116,
+    "h": 132
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 132
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5833333333333334
+   },
+   "duration": 71
+  },
+  {
+   "filename": "ashur-inferno 10.png",
+   "frame": {
+    "x": 232,
+    "y": 264,
+    "w": 116,
+    "h": 132
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 132
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 132
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5833333333333334
+   },
+   "duration": 71
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "ashur-inferno.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 464,
+   "h": 396
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 58,
+   "y": 77
+  },
+  "frameTags": [
+   {
+    "name": "ashur-inferno",
+    "from": 0,
+    "to": 10,
+    "direction": "forward"
+   }
+  ]
+ }
+}

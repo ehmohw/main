@@ -1,0 +1,114 @@
+{
+  "group_id": "60149445-27ac-4100-b2d5-b5dbcd59c86b",
+  "states": [
+    {
+      "character": {
+        "id": "4267fb25-2a3f-4d1c-999a-343b414ee06e",
+        "name": "Idle",
+        "prompt": "Leo, a young knight: warm brown skin, green eyes, short dark hair, a silver open-faced helmet with a small spike on top; silver shoulder pauldrons and gorget, grey chainmail sleeves, silver gauntlets; a light-blue tunic with a pale teardrop emblem holding a pink gem, a brown belt with a silver buckle, grey leggings with silver knee plates and pointed silver sabatons",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-10-23T20:49:33.741602+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "walk": {
+            "south": [
+              "Idle/animations/walk/south/frame_000.png",
+              "Idle/animations/walk/south/frame_001.png",
+              "Idle/animations/walk/south/frame_002.png",
+              "Idle/animations/walk/south/frame_003.png",
+              "Idle/animations/walk/south/frame_004.png",
+              "Idle/animations/walk/south/frame_005.png",
+              "Idle/animations/walk/south/frame_006.png",
+              "Idle/animations/walk/south/frame_007.png",
+              "Idle/animations/walk/south/frame_008.png"
+            ]
+          },
+          "sit": {
+            "south": [
+              "Idle/animations/sit/south/frame_000.png",
+              "Idle/animations/sit/south/frame_001.png",
+              "Idle/animations/sit/south/frame_002.png",
+              "Idle/animations/sit/south/frame_003.png",
+              "Idle/animations/sit/south/frame_004.png"
+            ]
+          },
+          "idle": {
+            "south": [
+              "Idle/animations/idle/south/frame_000.png",
+              "Idle/animations/idle/south/frame_001.png",
+              "Idle/animations/idle/south/frame_002.png",
+              "Idle/animations/idle/south/frame_003.png",
+              "Idle/animations/idle/south/frame_004.png"
+            ]
+          },
+          "slash": {
+            "south": [
+              "Idle/animations/slash/south/frame_000.png",
+              "Idle/animations/slash/south/frame_001.png",
+              "Idle/animations/slash/south/frame_002.png",
+              "Idle/animations/slash/south/frame_003.png",
+              "Idle/animations/slash/south/frame_004.png",
+              "Idle/animations/slash/south/frame_005.png",
+              "Idle/animations/slash/south/frame_006.png",
+              "Idle/animations/slash/south/frame_007.png",
+              "Idle/animations/slash/south/frame_008.png"
+            ]
+          },
+          "beam": {
+            "south": [
+              "Idle/animations/beam/south/frame_000.png",
+              "Idle/animations/beam/south/frame_001.png",
+              "Idle/animations/beam/south/frame_002.png",
+              "Idle/animations/beam/south/frame_003.png",
+              "Idle/animations/beam/south/frame_004.png",
+              "Idle/animations/beam/south/frame_005.png",
+              "Idle/animations/beam/south/frame_006.png",
+              "Idle/animations/beam/south/frame_007.png",
+              "Idle/animations/beam/south/frame_008.png"
+            ]
+          },
+          "hurt": {
+            "south": [
+              "Idle/animations/hurt/south/frame_000.png",
+              "Idle/animations/hurt/south/frame_001.png",
+              "Idle/animations/hurt/south/frame_002.png",
+              "Idle/animations/hurt/south/frame_003.png",
+              "Idle/animations/hurt/south/frame_004.png"
+            ]
+          },
+          "block": {
+            "south": [
+              "Idle/animations/block/south/frame_000.png",
+              "Idle/animations/block/south/frame_001.png",
+              "Idle/animations/block/south/frame_002.png",
+              "Idle/animations/block/south/frame_003.png",
+              "Idle/animations/block/south/frame_004.png",
+              "Idle/animations/block/south/frame_005.png",
+              "Idle/animations/block/south/frame_006.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-23T21:25:46.029433"
+}
