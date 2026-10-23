@@ -28,6 +28,7 @@ runT({ W: 'bender', NAME: 'Bender', ab: 'bv', q: 'dq', pfx: 'p195', prefix: 'bd_
   abilities: async ({ A, run, ok, wait, O, cnt, nbt, num, score, fx, PET, zom, X, Y, Z, sleep, use, sneakMenu, at }) => {
     const cd = async (o, v) => run(`scoreboard players set ${PET} bm.dq${o} ${v}`);
     for (const o of ['gc', 'bc', 'rc', 'mc']) await cd(o, 900);
+    await run(`scoreboard players set ${PET} bm.bvrg 9000`);          // (2.93b: his Rage held back - t255 plays it)
     await zom(2.5, 0, 'bm.trpr'); await run(`${O}execute at ${PET} run tp @e[tag=bm.trpr] ~1.5 ~ ~`); await cd('mc', 0);
     ok('BITE - the foe hurt', await wait(5000, async () => (await num('@e[tag=bm.trpr,limit=1]', 'Health')) < 300));
     await run(`${O}kill @e[tag=bm.trpz]`); await cd('mc', 900);

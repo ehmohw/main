@@ -6,7 +6,9 @@ Might V) is her Champion.
   CHAMPION'S REGALIA    a new outfit worn over their own model, where one suits them - a cape, a knight's or a captain's
                         pauldrons, a dwarf's belt, crackling lightning down a beast's back (KillerWatt wears no clothes), a
                         ridge of bone spines - built for each follower on its own bones (champion_art.py), so it moves with
-                        every animation. No crowns or hats: their own heads are left as they are
+                        every animation. (2.93b) On the head: Emma's tiara, Bender's crown, Bones's pirate hat, Mr. Capshun's
+                        doodled crown; those with a crown or hat already get no second one - an ornament on their own instead
+                        (a crystal in their colour out of the crown, or a crystal or rose bud pinned to the hat)
   CHAMPION'S AURA       their own particles, always round them
   A CHAMPION'S MIGHT    tougher still: +20 health (doubled by Vitality V), +4 toughness, half knockback - enough to take
                         several blows from a Blood Moon's monsters and a few from the Dread's
@@ -135,7 +137,8 @@ def generate(G):
                 [f'scoreboard players set #{c} bm.rng 0' for _p, _n, c in PARTS] + \
                 [f'execute as @a if score @s bm.pid = #me bm.pid run function bm:p205/own/{w}',
                  'tag @s remove bm.chau', 'execute if score #au bm.rng matches 1 run tag @s add bm.chau']
-        parts = [('medal', 'md')] + ([('body', 'rg')] if w != 'wil' and CA.STYLE[w][1] else [])   # (no head pieces: 2.93, the owner's call)
+        parts = [('medal', 'md')] + ([('body', 'rg')] if w != 'wil' and CA.STYLE[w][1] else []) + \
+                ([('head', 'rg')] if w != 'wil' and (CA.STYLE[w][0] or w in CA.ORNAMENT) else [])   # (2.93b: a crown or hat of their own kept, or an ornament on it)
         for part, c in parts:
             lines += [f'scoreboard players set #hp bm.rng 0',
                       f'execute if score #{c} bm.rng matches 1 as @e[type=minecraft:item_display,tag=bm.chp_{w},tag=bm.chq_{part},distance=..12] '
@@ -251,7 +254,7 @@ def generate(G):
     # (a toggle takes at once: the pieces of a part switched off go now, a part switched on comes on the next second)
     fn('p205/refresh', ['scoreboard players operation #me bm.pid = @s bm.pid'] +
        [f'execute if entity @s[tag=bm.no{c}_{w}] as @e[type=minecraft:item_display,tag=bm.chp_{w},tag=bm.chq_{part}] if score @s bm.pid = #me bm.pid run kill @s'
-        for w in FOL for part, c in (('medal', 'md'), ('body', 'rg'))])
+        for w in FOL for part, c in (('medal', 'md'), ('body', 'rg'), ('head', 'rg'))])
 
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.chp]']
     fn('admin/champion', ['# (as a player with a follower near: every honour of every follower at its height)'] +

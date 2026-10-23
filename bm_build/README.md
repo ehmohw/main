@@ -21,6 +21,55 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.93b: synergy attacks, Bender's Rage and his bonds, regalia on the head again, and breaches on your call
+
+### Synergy attacks
+Every pair and trio now charges a combined attack in a fight. There is one per role, not one per combination, and a bond's
+role comes from what it already gives:
+
+- **Offense - Combined Strike:** a burst round you. Every monster within 6 takes 10; a trio's hits for 18, then a second wave of 10.
+- **Defense - Shield Wall:** Resistance III and Absorption II for you and the bond, and the monsters near thrown back. A trio's is
+  Resistance IV.
+- **Speed - Blitz:** Speed III, and four lightning-quick hits on the monsters round you (a trio's: eight).
+- **Healing - Mending Light:** you and the bond healed, Regeneration II, poison and wither washed off.
+- **Control - Binding:** the monsters round you slowed to a crawl, weakened, lit up and lifted off their feet. A trio's reaches
+  further and pulls them in.
+
+A pair charges in 20 seconds of fighting and a trio in 35; trios hit harder. Each is coloured with the bond's own colour, and
+its name and the attack's show on your action bar.
+
+### Bender
+- **Rage!** (charged, every 40 s): a growl, and he launches himself at a monster, lands on it and goes for the head (two savage
+  bites). Then he backflips off onto the next monster near, up to five in a chain, biting each one harder (7, 10, 13, 16,
+  19 a bite). Off the last he backflips away and lands neatly on his feet.
+- **Eleven pairs:** Emma (Princess and Pup), Leo (Knight and Hound), Celi (Snow Dog), Apophiss (Hackles and Scales), Democratus
+  (Storm Dog), KillerWatt (Fetch!), Cecil (The Wizard's Familiar), the Stalker (Something's Out There), Mr. Capshun (A Dog in
+  Pencil), Fishy (Not for Eating), Pearlman (Best Customer).
+- **Six trios:**
+  - Emma and Leo: The Royal Guard Dog, with a bark every 20 s.
+  - Leo and Celi: The Winter Patrol.
+  - KillerWatt and Democratus: Storm Hounds, with lightning.
+  - Cecil and Pistachio: The Wizard's Household.
+  - Apophiss and Omega: The Kings' Hound.
+  - Mr. Capshun and Fishy: Imaginary Friends.
+
+### The Champions' regalia
+- **Head pieces kept:** Emma's tiara, Bender's crown, Bones's pirate hat and Mr. Capshun's doodled crown.
+- **No second crown:** followers who already wear a crown or a hat get an ornament on their own instead.
+  - **Crowns:** a crystal in their colour rises out of the crown (Apophiss, Omega, Ashur, Queen Ava, Queen Pearl).
+  - **Hats:** a crystal or rose bud pinned to the hat's band (Tullius, Dennis, Pistachio, the Chef, the Neighbor).
+  - **Helm and hoods:** a jewel at the brow (Leo, Democratus, Cecil).
+- **Medals:** each one now sits on its follower's own chest, fully showing, never inside clothing. Each is clear of capes,
+  sashes and collars and below beards (Dennis's hangs on his belt). Tullius's is on his coat, where it belongs.
+
+### Dome breaches
+The Tide Raiders no longer come on their own. Right-click the Dome Heart to call them (it asks once more to be sure), and the
+dome rests 10 minutes after each breach.
+
+### Bones
+Bones's eyes now follow the owner's art: a heavy brow over a half-lidded black eye, a sliver of glint, and the red stitched
+scar across it.
+
 ## New in 2.93a: Champions of the Tide, each follower's own tribute, and the Dread bosses' armour
 
 ### Each follower's own tribute

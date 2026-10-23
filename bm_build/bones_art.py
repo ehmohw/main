@@ -71,24 +71,29 @@ def _side(seed):
 
 
 def _face(kind=None):
-    """the side of his head (each side mirrors it): the heavy brow, the small black eye with its white glint, the stitched scar
-    (the left side gets it - drawn on both, he's scarred all over)"""
+    """the side of his head (each side mirrors it), after the owner's art (2.93b): a big black eye, its top cut flat by a heavy
+    lid under a jutting brow - a grumpy half-lidded glare - a sliver of white glint low in it, and the red stitched scar
+    running down over the brow and across the eye (the brow's ridge is a block of its own, on the model)"""
     im = _skin(2882); d = ImageDraw.Draw(im)
     d.rectangle((0, 50, 63, 63), fill=hexc(BELLY))
-    ex, ey = 34, 26
+    ex, ey = 17, 21                                                  # (high, and forward over the snout's root, as drawn)
+    INK, LID, LID_DK, SCAR = hexc('#101014'), hexc(GREY), hexc('#3a3d42'), hexc('#8a2a2a')
+    # the lid's lower edge: how far down it comes (front and back of the eye), by mood
+    lf, lb = {'angry': (ey + 1, ey - 3), 'happy': (ey + 1, ey + 1), 'blink': (ey + 5, ey + 5)}.get(kind, (ey - 1, ey - 2))
     if kind == 'blink':
-        d.line((ex - 6, ey + 1, ex + 6, ey + 1), fill=hexc('#101014'), width=2)
-    elif kind == 'happy':
-        d.arc((ex - 7, ey - 3, ex + 7, ey + 7), 200, 340, fill=hexc('#101014'), width=2)
+        d.line((ex - 8, ey + 5, ex + 8, ey + 5), fill=INK, width=2)
     else:
-        d.ellipse((ex - 6, ey - 5, ex + 6, ey + 6), fill=hexc('#101014'))
-        d.rectangle((ex - 1, ey - 3, ex + 1, ey - 1), fill=hexc('#ffffff'))
-    brow = 6 if kind == 'angry' else 3
-    d.polygon([(ex - 10, ey - 6 - (1 if kind == 'angry' else 0)), (ex + 10, ey - 6 - brow), (ex + 10, ey - 10 - brow), (ex - 10, ey - 9)], fill=hexc(GREY_DK))
-    d.line((ex + 2, ey - 14, ex - 8, ey + 10), fill=hexc('#8a2a2a'), width=2)                         # the scar...
-    for t in range(4):
-        cx, cy = ex + 1 - t * 3, ey - 11 + t * 6
-        d.line((cx - 3, cy - 1, cx + 3, cy + 1), fill=hexc('#8a2a2a'))                                # ...and its stitches
+        d.ellipse((ex - 10, ey - 7, ex + 10, ey + 9), fill=INK)                                      # the eye
+        if kind == 'happy':                                                                        # (a pleased squint: the lower lid up)
+            d.chord((ex - 9, ey + 2, ex + 9, ey + 12), 180, 360, fill=hexc(GREY))
+        d.polygon([(ex - 3, ey + 1), (ex, ey + 1), (ex - 2, ey + 7)], fill=hexc('#ffffff'))       # the glint, a sliver
+    d.polygon([(ex - 12, ey - 9), (ex + 12, ey - 9), (ex + 12, lb), (ex - 12, lf)], fill=LID)       # the heavy lid over it
+    d.line((ex - 11, lf, ex + 11, lb), fill=INK, width=3)                                       # (its edge, inked)
+    d.line((ex - 11, ey - 9, ex + 11, ey - 9), fill=LID_DK, width=1)                             # (under the brow)
+    d.line((ex + 4, ey - 16, ex - 6, ey + 11), fill=SCAR, width=2)                               # the scar...
+    for t in range(5):
+        cx, cy = ex + 3 - t * 2.5, ey - 13 + t * 6
+        d.line((cx - 3, cy - 1, cx + 3, cy + 1), fill=SCAR)                                       # ...and its stitches
     return im
 
 
@@ -150,6 +155,8 @@ def models():
              el((-1.8, y0 + 0.4, -22.8), (1.8, y0 + 2.4, -20.8), 'bn_skin', pv, shift=(0.2, 0.7)),                  # (the pointed tip)
              el((-5.22, y0 - 2.6, -16.0), (-5.2, y0 + 4.8, -7.6), ft, pv, faces=('west',), uv={'west': [0, 0, 16, 14.2]}),
              el((5.2, y0 - 2.6, -16.0), (5.22, y0 + 4.8, -7.6), ft, pv, faces=('east',), uv={'east': [16, 0, 0, 14.2]}),
+             # (the jutting brow over each eye: face texel row r is y0 + 4.8 - 0.13 r, column c is z -16 + 0.131 c)
+             el((-5.6, y0 + 2.9, -15.5), (-5.2, y0 + 3.8, -12.4), 'bn_skin_dk', pv), el((5.2, y0 + 2.9, -15.5), (5.6, y0 + 3.8, -12.4), 'bn_skin_dk', pv),
              el((-4.0, y0 - 3.4, -19.2), (4.0, y0 - 1.6, -16.0), 'bn_teeth', pv, faces=('north', 'east', 'west', 'down'), uv={'north': [0, 0, 16, 6]}),
              el((-4.9, y0 - 3.0, -16.0), (4.9, y0 - 2.6, -8.0), 'bn_teeth', pv, faces=('down',), uv={'down': [0, 0, 16, 6]})]
         return h

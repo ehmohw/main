@@ -75,8 +75,9 @@ const res = [];
      / 4(\.0)?\b/.test(await run(`${O}attribute ${LEO} minecraft:armor_toughness modifier value get bm:champion`)) &&
      / 20(\.0)?\b/.test(await run(`${O}attribute ${LEO} minecraft:max_health modifier value get bm:champion`))));
   const P = (part) => `@e[type=minecraft:item_display,tag=bm.chp_leo,tag=bm.chq_${part},x=${X},y=${Y},z=${Z},distance=..60]`;
-  ok('...his medal on his chest, his regalia (pauldrons and a cape - no crown) on his own bones', await wait(4000, async () =>
-     (await cnt(P('medal'))) === 1 && (await cnt(P('body'))) === 1) && (await cnt(P('head'))) === 0);
+  ok('...his medal on his chest, his regalia on his own bones: pauldrons and a cape, and (2.93b) a crystal on his helm - no crown over it', await wait(4000, async () =>
+     (await cnt(P('medal'))) === 1 && (await cnt(P('body'))) === 1 && (await cnt(P('head'))) === 1),
+     `medal ${await cnt(P('medal'))} body ${await cnt(P('body'))} head ${await cnt(P('head'))} | ${await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.chp_leo,tag=bm.chq_head,limit=1] item.components`)}`);
   await sleep(1500);
   const onBone = async (part, bone) => /passed|count: 1/i.test(await run(`${O}execute as ${P(part)} at @s if entity @e[type=minecraft:item_display,tag=${bone},distance=..0.2]`));
   ok('...each piece rides its bone: the medal and the mantle on his body', await onBone('medal', 'bm.lp_body') && await onBone('body', 'bm.lp_body'));
@@ -110,7 +111,7 @@ const res = [];
   ok('...Medal OFF: gone from his chest at once (the regalia stays)', (await cnt(P('medal'))) === 0 && (await cnt(P('body'))) === 1 && await tagged('bm.nomd_leo') && /OFF/.test(screen()),
      `medal ${await cnt(P('medal'))} head ${await cnt(P('head'))} tag ${await tagged('bm.nomd_leo')} | ${A.buttons().map(b => b.label).join(', ')}`);
   await A.press(/Regalia/); await sleep(1200);
-  ok('...Regalia OFF: the pauldrons and cape gone', (await cnt(P('body'))) === 0);
+  ok('...Regalia OFF: the pauldrons, cape and the helm crystal gone', (await cnt(P('body'))) === 0 && (await cnt(P('head'))) === 0);
   await A.press(/Aura/);
   ok('...Aura OFF', await wait(3000, async () => !/bm\.chau/.test(await run(`${O}data get entity ${LEO} Tags`))));
   await A.press(/Medal/);
@@ -121,7 +122,7 @@ const res = [];
   await give(1, 'leo_crest'); await use(1); await sleep(3500);
   ok('...called again: the medal back on him, the regalia still off (as you left it)', await wait(4000, async () => (await cnt(P('medal'))) === 1) && (await cnt(P('body'))) === 0);
   for (const nm of ['Regalia', 'Aura']) { A.dialogN.length = 0; await use(3); await sleep(800); await A.press(new RegExp(nm)); await sleep(800); }
-  ok('...regalia and aura on again', await wait(4000, async () => (await cnt(P('body'))) === 1));
+  ok('...regalia and aura on again', await wait(4000, async () => (await cnt(P('body'))) === 1 && (await cnt(P('head'))) === 1));
 
   for (const w of ['ava', 'leo']) await home(w);
   await run(`${O}kill @e[type=minecraft:item_display,tag=bm.chp]`);

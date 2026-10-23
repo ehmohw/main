@@ -48,7 +48,7 @@ ANCHORS = {
 WHOLE_BODY = {'apo', 'omega', 'fishy', 'bones'}   # (bodies with no chest on top - a serpent's coil, a bowl, a shark: fit the whole bone)
 # (2.93: no head pieces - the owner found every crown and hat messy; the regalia is the body's and the medal)
 STYLE = {
-    'emma': (None, ['cape'], False, ['minecraft:cherry_leaves ~ ~1 ~ 0.5 0.6 0.5 0 2', 'minecraft:dust{color:[1.0,0.55,0.85],scale:1.0} ~ ~1 ~ 0.5 0.6 0.5 0 3']),
+    'emma': ('tiara', ['cape'], False, ['minecraft:cherry_leaves ~ ~1 ~ 0.5 0.6 0.5 0 2', 'minecraft:dust{color:[1.0,0.55,0.85],scale:1.0} ~ ~1 ~ 0.5 0.6 0.5 0 3']),
     'celi': (None, ['cape'], True, ['minecraft:snowflake ~ ~1 ~ 0.5 0.6 0.5 0.01 3', 'minecraft:dust{color:[0.6,0.85,1.0],scale:1.0} ~ ~1 ~ 0.5 0.6 0.5 0 2']),
     'zib': (None, ['cape'], False, ['minecraft:electric_spark ~ ~1 ~ 0.4 0.5 0.4 0.05 3', 'minecraft:glow ~ ~1 ~ 0.4 0.5 0.4 0 1']),
     'cecil': (None, ['ruff', 'cape'], True, ['minecraft:enchant ~ ~1.2 ~ 0.5 0.6 0.5 0.5 6', 'minecraft:witch ~ ~1 ~ 0.4 0.5 0.4 0 1']),
@@ -71,9 +71,9 @@ STYLE = {
     'bloo': (None, ['spines'], True, ['minecraft:crimson_spore ~ ~1 ~ 0.6 0.6 0.6 0 4', 'minecraft:dust{color:[0.35,0.6,0.95],scale:1.0} ~ ~1 ~ 0.5 0.6 0.5 0 2']),
     'stalker': (None, ['spines'], True, ['minecraft:squid_ink ~ ~1 ~ 0.5 0.6 0.5 0 1', 'minecraft:dust{color:[0.45,0.0,0.05],scale:1.2} ~ ~1 ~ 0.6 0.8 0.6 0 3']),
     'lantern': (None, [], True, ['minecraft:flame ~ ~1 ~ 0.8 0.5 0.8 0.01 4', 'minecraft:small_flame ~ ~1 ~ 0.8 0.5 0.8 0.01 3']),
-    'bender': (None, ['collar'], False, ['minecraft:heart ~ ~1 ~ 0.4 0.3 0.4 0 1', 'minecraft:dust{color:[0.88,0.66,0.38],scale:0.9} ~ ~0.7 ~ 0.4 0.3 0.4 0 2']),
-    'bones': (None, [], False, ['minecraft:bubble ~ ~0.8 ~ 0.6 0.4 0.6 0 3', 'minecraft:nautilus ~ ~1 ~ 0.6 0.4 0.6 0.5 2']),
-    'capshun': (None, [], False, ['minecraft:end_rod ~ ~1 ~ 0.3 0.5 0.3 0.01 1', 'minecraft:dust{color:[1.0,1.0,1.0],scale:0.8} ~ ~1 ~ 0.3 0.5 0.3 0 2']),
+    'bender': ('crown', ['collar'], False, ['minecraft:heart ~ ~1 ~ 0.4 0.3 0.4 0 1', 'minecraft:dust{color:[0.88,0.66,0.38],scale:0.9} ~ ~0.7 ~ 0.4 0.3 0.4 0 2']),
+    'bones': ('tricorne', [], False, ['minecraft:bubble ~ ~0.8 ~ 0.6 0.4 0.6 0 3', 'minecraft:nautilus ~ ~1 ~ 0.6 0.4 0.6 0.5 2']),
+    'capshun': ('crown_flat', [], False, ['minecraft:end_rod ~ ~1 ~ 0.3 0.5 0.3 0.01 1', 'minecraft:dust{color:[1.0,1.0,1.0],scale:0.8} ~ ~1 ~ 0.3 0.5 0.3 0 2']),
 }
 COL = {'emma': '#ff8ad8', 'celi': '#9ad8ff', 'zib': '#3ad8c8', 'cecil': '#b48cff', 'kw': '#ffe040', 'leo': '#5ab8e0', 'demo': '#7ad06a',
        'apo': '#3ad06a', 'tul': '#7ad8ff', 'frog': '#6ac850', 'don': '#e8d29a', 'fishy': '#ffa040', 'dennis': '#e0a040', 'pistachio': '#7ae890',
@@ -349,15 +349,17 @@ def body_piece(kind, b, fierce):
     return out
 
 
-def medal(b, beast=False):
+def medal(b, beast=False, at=None, k=None):
     """the Champion's medal: a sapphire-and-ruby ribbon in a V, a rimmed gold medal with a raised sapphire sea-star, sized to
-    the chest it hangs on and laid flush on it (a beast wears it on its breast, in the middle)"""
-    k = max(0.7, min(1.1, b.w / 8, b.h / 7))
-    if beast:
-        x, y = b.cx, b.y0 + b.h * beast
+    the chest it hangs on and laid flush on it (a beast wears it on its breast, in the middle). at: (x, y, z) found by
+    place_medal - where it lies flat and whole on the chest, clear of everything else"""
+    k = k or max(0.7, min(1.1, b.w / 8, b.h / 7))
+    if at:
+        x, y, z = at
+    elif beast:
+        x, y, z = b.cx, b.y0 + b.h * beast, b.z0 - 0.02
     else:
-        x, y = b.cx + b.w * 0.24, b.y1 - min(4.2 * k, b.h * 0.38)
-    z = b.z0 - 0.02                                                 # (just off the chest: no z-fighting, no gap)
+        x, y, z = b.cx + b.w * 0.24, b.y1 - min(4.2 * k, b.h * 0.38), b.z0 - 0.02
     # the ribbon: a striped bar (sapphire, pearl, sapphire) on a gold pin, the medal hung from it
     rw, rt, rb = 1.15 * k, y + 3.4 * k, y + 1.2 * k
     out = [box((x - rw, rb, z - 0.3), (x - rw / 3, rt, z), SAPH), box((x - rw / 3, rb, z - 0.3), (x + rw / 3, rt, z), PEARL),
@@ -379,8 +381,128 @@ def medal(b, beast=False):
     return out
 
 
+# (2.93b) those who already wear a crown or a hat get no second one: an ornament on their own instead - a crystal in their colour
+# standing up out of the crown, or pinned to the hat's band (a crystal or a rose bud). who: (ornament, where)
+ORNAMENT = {'apo': ('crystal', 'top'), 'omega': ('crystal', 'top'), 'ashur': ('crystal', 'top'), 'ava': ('crystal', 'top'),
+            'pearlq': ('crystal', 'top', {'x': 7.05, 'y': 18.0, 'z': 8.0, 'k': 0.6}),         # (her little crown sits to one side)
+            'tul': ('crystal', 'pin', {'y': 17.6}),                                          # (his skull is small: the hat is his biggest piece)
+            'dennis': ('crystal', 'pin'), 'pistachio': ('rose', 'pin'), 'chef': ('rose', 'pin'), 'neighbor': ('rose', 'pin'),
+            'leo': ('crystal', 'brow'), 'demo': ('crystal', 'brow'), 'cecil': ('crystal', 'brow')}
+
+
+def _front(els, x, y, r=0.35):
+    """the frontmost face (least z) of a bone's model over a little patch at (x, y)"""
+    hit = [e[2][0] for e in els if e[0][0] < x + r and e[0][1] > x - r and e[1][0] < y + r and e[1][1] > y - r]
+    return min(hit) if hit else None
+
+
+def ornament(kind, x, y, z, k, up=True):
+    """a crystal cluster (the follower's colour, a pearl glint) on a gold setting, or a red rose bud on a leaf - its base at
+    (x, y), its back at z (or, standing up out of a crown, its middle at z)"""
+    if kind == 'crystal':
+        zc = z if up else z - 0.75 * k
+        out = [box((x - 1.1 * k, y, zc - 0.7 * k), (x + 1.1 * k, y + 0.6 * k, zc + 0.7 * k), G),                       # (the setting)
+               box((x - 0.5 * k, y + 0.4 * k, zc - 0.5 * k), (x + 0.5 * k, y + 3.4 * k, zc + 0.5 * k), P, rot=('y', 45, (x, y, zc))),
+               box((x - 0.25 * k, y + 3.3 * k, zc - 0.25 * k), (x + 0.25 * k, y + 3.9 * k, zc + 0.25 * k), PEARL, rot=('y', 45, (x, y, zc))),
+               box((x - 1.25 * k, y + 0.3 * k, zc - 0.35 * k), (x - 0.55 * k, y + 2.2 * k, zc + 0.35 * k), PL, rot=('z', 22.5, (x - 0.9 * k, y, zc))),
+               box((x + 0.55 * k, y + 0.3 * k, zc - 0.35 * k), (x + 1.25 * k, y + 1.8 * k, zc + 0.35 * k), PL, rot=('z', -22.5, (x + 0.9 * k, y, zc))),
+               box((x - 0.3 * k, y + 2.5 * k, zc - 0.62 * k), (x - 0.05 * k, y + 3.0 * k, zc - 0.52 * k), PEARL)]              # (a glint)
+        return out
+    zc = z - 0.8 * k                                                       # the rose bud: leaves, a cupped bud, its petals curled round
+    return [box((x - 1.6 * k, y - 0.2 * k, zc - 0.4 * k), (x - 0.2 * k, y + 0.4 * k, zc + 0.6 * k), LEAF, rot=('z', 22.5, (x - 0.2 * k, y, zc))),
+            box((x + 0.2 * k, y - 0.2 * k, zc - 0.4 * k), (x + 1.6 * k, y + 0.4 * k, zc + 0.6 * k), LEAF, rot=('z', -22.5, (x + 0.2 * k, y, zc))),
+            box((x - 0.7 * k, y + 0.2 * k, zc - 0.7 * k), (x + 0.7 * k, y + 1.6 * k, zc + 0.7 * k), RUBY),
+            box((x - 0.85 * k, y + 0.3 * k, zc - 0.85 * k), (x + 0.85 * k, y + 1.1 * k, zc + 0.85 * k), RUBY, rot=('y', 45, (x, y, zc))),
+            box((x - 0.4 * k, y + 1.5 * k, zc - 0.4 * k), (x + 0.4 * k, y + 2.1 * k, zc + 0.4 * k), RUBY, rot=('y', 22.5, (x, y, zc))),
+            box((x - 0.15 * k, y + 1.9 * k, zc - 0.15 * k), (x + 0.15 * k, y + 2.2 * k, zc + 0.15 * k), PD)]
+
+
+def _ornament(who, hb):
+    if who not in ORNAMENT: return []
+    kind, where, at = (ORNAMENT[who] + ({},))[:3]
+    els, c = hb['els'], hb['core']
+    cx, cz, w = (c[0][0] + c[0][1]) / 2, (c[2][0] + c[2][1]) / 2, c[0][1] - c[0][0]
+    k = at.get('k', max(0.7, min(1.1, w / 8)))
+    if where == 'top':                                              # (out of the crown's middle, its foot sunk in it)
+        return ornament(kind, at.get('x', cx), at.get('y', hb['top'] - 1.2 * k), at.get('z', cz), k)
+    if where == 'brow':                                             # (a jewel at the front of a helm or a hood, over the brow)
+        y = c[1][1] - 1.6 * k
+        return ornament(kind, cx, y, _front(els, cx, y + 1.0) - 0.02, k * 0.8, up=False)
+    # (pinned to a hat's band, off to one side: the hat is the biggest piece sitting on the skull)
+    hats = [e for e in els if e != c and e[1][0] >= c[1][1] - 3 and e[0][0] <= cx <= e[0][1] and e[2][0] <= cz <= e[2][1]]
+    hat = max(hats, key=lambda e: (e[0][1] - e[0][0]) * (e[1][1] - e[1][0]) * (e[2][1] - e[2][0])) if hats else c
+    y0, y1 = min(e[1][0] for e in hats or [c]), max(e[1][1] for e in hats or [c])
+    x, y = cx + (hat[0][1] - hat[0][0]) * 0.27, at.get('y', y0 + (y1 - y0) * 0.22)      # (low on the hat: its band)
+    return ornament(kind, x, y, _front(els, x, y + 1.0 * k) - 0.02, k * 0.85, up=False)
+
+
 SIDE_MEDAL = {'bones'}                    # (the owner's call: Bones wears his on his side)
 BEASTS = {'bender': 0.5, 'bones': 0.45, 'lantern': 0.5, 'fishy': 0.16, 'frog': 0.45}   # (a beast's medal, on its breast: how high)
+
+
+# per follower: drop (start lower: a low neckline, so the ribbon starts on the dress, not the skin); k (a smaller medal); over
+# (it may lie over the regalia - Dennis's beard covers his chest, so his hangs below it, on his belt)
+MEDAL_OPT = {'ashur': {'drop': 3.5}, 'pearlq': {'drop': 3.5}, 'dennis': {'k': 0.72, 'over': True}}
+
+
+def _covers(e, x, y):
+    """does a regalia element, seen from the front, cover the point (x, y)? (a sash turned on z, its true slant)"""
+    (fx, fy, _fz), (tx, ty, _tz) = e['from'], e['to']
+    r = e.get('rotation')
+    if r and r.get('axis') == 'z' and r.get('angle'):
+        o, a = r['origin'], math.radians(-r['angle'])
+        dx, dy = x - o[0], y - o[1]
+        x, y = o[0] + dx * math.cos(a) - dy * math.sin(a), o[1] + dx * math.sin(a) + dy * math.cos(a)
+    elif r:
+        (fx, tx), (fy, ty), _ = _aabb(e)
+    return fx - 0.15 < x < tx + 0.15 and fy - 0.15 < y < ty + 0.15
+
+
+def place_medal(b, bb, hb, body, beast, opt=None, why=None):
+    """where the medal lies flat and whole: on the chest's own front (not inside a high collar behind it), every bit of it
+    showing - clear of the regalia in front (a sash, a ruff, pauldrons), of the head's hanging parts (a beard, a jaw), off
+    any lapel or brooch - stepping down, then aside, until it fits. A beast's hangs in front of its collar. Failing all that:
+    where it always went, brought forward of everything there"""
+    opt = opt or {}
+    els, k = bb['els'], opt.get('k', max(0.7, min(1.1, b.w / 8, b.h / 7)))
+    drop, over = opt.get('drop', 0.0), opt.get('over', False)
+    c, u = bb['core'], bb['upper']
+    # the trunk's front: the chest's, unless the 'chest' found is a high collar standing behind (Tullius's) - then the trunk's
+    f0 = b.z0 if beast else (c[2][0] if (u[2][0] + u[2][1]) / 2 > c[2][1] - 1 else min(u[2][0], c[2][0] + 3))
+    near = [e for e in els if e[2][0] <= f0 + 1.5 and e[0][0] < b.cx + b.w * 0.25 and e[0][1] > b.cx - b.w * 0.25]
+    top = max(e[1][1] for e in near) if near and not beast else b.y1
+    # the head's hanging parts, as they fall over the chest (the head sits on the chest's top)
+    vol = lambda e: (e[0][1] - e[0][0]) * (e[1][1] - e[1][0]) * (e[2][1] - e[2][0])
+    hc = hb['core']
+    chin = min(e[1][0] for e in hb['els'] if vol(e) >= vol(hc) * 0.25)      # (the skull's foot: under a hat that is bigger than it)
+    hang = [(e[0][0], e[0][1], top - (chin - e[1][0]), top + 9) for e in hb['els']
+            if e[1][0] < chin - 0.5 and (e[2][0] + e[2][1]) / 2 < (hc[2][0] + hc[2][1]) / 2] if not beast else []
+    front = [e for e in body if _aabb(e)[2][0] < f0 + 1.0]          # (the regalia in front: not a cape behind)
+    surf = els + ([_aabb(e) for e in front] if beast or over else [])   # (a beast's medal hangs on its collar)
+    keep = [] if beast or over else front
+    xs = (0,) if beast else (0.24, -0.24, 0.3, -0.3, 0.12, -0.12)
+    y0 = b.y0 + b.h * beast if beast else top - min(4.2 * k, b.h * 0.38) - drop
+    grid = lambda r: [(r[0] + (r[1] - r[0]) * i / 4, r[2] + (r[3] - r[2]) * j / 6) for i in range(5) for j in range(7)]
+    for dy in range(10) if not beast else (0, 1, -1, 2):
+        for fx in xs:
+            x, y = b.cx + b.w * fx, y0 - dy
+            r = (x - 1.75 * k, x + 1.75 * k, y - 1.75 * k, y + 3.9 * k)
+            if r[2] < b.y0 + 0.5 or (not beast and (r[0] < b.x0 - 0.2 or r[1] > b.x1 + 0.2)):
+                if why is not None: why.append(('off', round(x, 1), round(y, 1)))
+                continue
+            pts = grid(r)
+            if any(a[0] < r[1] and a[1] > r[0] and a[2] < r[3] and a[3] > r[2] for a in hang) or \
+                    any(_covers(e, px, py) for e in keep for px, py in pts):
+                if why is not None: why.append(('covered', round(x, 1), round(y, 1)))
+                continue
+            fr = [_front(surf, px, py, 0.2) for px, py in pts]
+            if None in fr or max(fr) - min(fr) > (1.7 if over else 1.0):
+                if why is not None: why.append(('bumpy', round(x, 1), round(y, 1), None if None in fr else round(max(fr) - min(fr), 2)))
+                continue
+            return (x, y, min(fr) - 0.02)
+    x, y = (b.cx, y0) if beast else (b.cx + b.w * 0.24, y0)
+    fr = [f for f in (_front(els + [_aabb(e) for e in front], px, py, 0.2) for px, py in grid((x - 1.75 * k, x + 1.75 * k, y - 1.75 * k, y + 3.9 * k))) if f is not None]
+    return (x, y, min(fr + [b.z0]) - 0.02)
 
 
 def models(who, hb, bb):
@@ -391,7 +513,7 @@ def models(who, hb, bb):
     u, f = (bb['full'] if who in WHOLE_BODY else bb['upper']), bb['full']
     b = BB([u[0], (f[1][0], u[1][1]), u[2]])                        # (the chest's width and depth, the whole body's height)
     hk = 'crown_top' if head_k == 'crown_top' else head_k
-    head = head_piece(hk, h) if hk else []
+    head = (head_piece(hk, h) if hk else []) + _ornament(who, hb)
     body = [e for k in body_k for e in body_piece(k, b, fierce)]
     if who in SIDE_MEDAL:                                           # (worn on the flank: the medal made as for a body turned side-on, turned back)
         v = BB([(b.z0, b.z1), (b.y0, b.y1), (b.x0, b.x1)])
@@ -401,7 +523,9 @@ def models(who, hb, bb):
             dz = 0.22 * (b.z1 - b.z0)                               # (toward his head, clear of the skull on his flank)
             med.append(dict(e, **{'from': [round(b.x0 + b.x1 - tz, 3), fy, round(fx + dz, 3)], 'to': [round(b.x0 + b.x1 - fz, 3), ty, round(tx + dz, 3)]}))
         return head, body, med
-    return head, body, medal(b, BEASTS.get(who, 0))
+    beast = BEASTS.get(who, 0)
+    opt = MEDAL_OPT.get(who, {})
+    return head, body, medal(b, beast, place_medal(b, bb, hb, body, beast, opt), opt.get('k'))
 
 
 def _resolve(src, mid):
@@ -422,7 +546,7 @@ def _resolve(src, mid):
     upper = max(top, key=vol)                                       # (a body: the chest at its top, not the skirt)
     cx, cz = (core[0][0] + core[0][1]) / 2, (core[2][0] + core[2][1]) / 2
     mid = [e for e in els if e[0][0] <= cx <= e[0][1] and e[2][0] <= cz <= e[2][1]] or [core]
-    return {'full': full, 'core': core, 'upper': upper, 'top': max(e[1][1] for e in mid)}, j.get('display', {}).get('fixed')
+    return {'full': full, 'core': core, 'upper': upper, 'top': max(e[1][1] for e in mid), 'els': els}, j.get('display', {}).get('fixed')
 
 
 def _aabb(e):

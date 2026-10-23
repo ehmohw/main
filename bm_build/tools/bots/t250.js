@@ -53,7 +53,7 @@ const res = [];
   }
   await run(`${O}execute positioned ${X} ${Y} ${Z} run function bm:admin/kingdom`);
   await sleep(1500);
-  await run(`scoreboard players set ${CORE} bm.kbr -1`);                  // (no dome breach of its own accord until the one we start)
+  await run(`scoreboard players set ${CORE} bm.kbcd 0`); await run('scoreboard players reset TestRat bm.kbask');
   ok('the castle is built on the sea floor: its core, five click-boxes (Font, Treasury, Request Stand, Dome Heart, plinth), the Steward',
      (await cnt(CORE)) === 1 && (await cnt(`@e[type=minecraft:interaction,tag=bm.kbox,x=${X},y=${Y},z=${Z},distance=..70]`)) === 5 &&
      (await cnt(`@e[type=minecraft:wandering_trader,tag=bm.kstew,x=${X},y=${Y},z=${Z},distance=..70]`)) === 1,
@@ -177,7 +177,11 @@ const res = [];
 
   // ---- a dome breach: three cracks sealed, one left to burst; the leak mended at the Dome Heart
   for (const w of ['apo', 'ava']) await run(`execute as TestRat run function bm:p98/home/${w}`);
-  await run(`execute as ${CORE} at @s run function bm:p199/breach/start`); await sleep(800);
+  await at(X + 0.5, cy + 0.5, Z - 2.0, 180, -20);
+  A.chats.length = 0; await click(BOX('bm.kheart')); await sleep(600);
+  ok('the Dome Heart, right-click: it offers to call the Tide Raiders - no breach yet', said(/call the Tide Raiders/) && (await score('bm.kbr', CORE)) <= 0);
+  A.titles.length = 0; await click(BOX('bm.kheart')); await sleep(800);
+  ok('...right-click again: DOME BREACH (and the dome rests 10 minutes after)', A.titles.some(t => /DOME BREACH/.test(t)) && (await score('bm.kbcd', CORE)) > 500);
   const cracks = `@e[type=minecraft:interaction,tag=bm.kcrackbox,x=${X},y=${Y},z=${Z},distance=..70]`;
   ok('DOME BREACH: four cracks, Tide Raiders through them', (await cnt(cracks)) === 4 && (await cnt(`@e[type=minecraft:drowned,tag=bm.kraider]`)) >= 4);
   await run('kill @e[type=minecraft:drowned,tag=bm.kraider]');
@@ -211,6 +215,8 @@ const res = [];
   const wet2 = await wetNow();
   ok('the Dome Heart, sneak + right-click: the leak mended (2 pearls) - glass back, the water drained', wet2 === 0 && (await has('royal_pearl')) === pm - 2 &&
      A.titles.some(t => /dome is whole/.test(t)), `${wet2} water left, pearls ${pm} -> ${await has('royal_pearl')}`);
+  A.bars.length = 0; await click(BOX('bm.kheart')); await sleep(300); await click(BOX('bm.kheart')); await sleep(600);
+  ok('...and no new breach while the Tide Raiders regroup (the cooldown on the bar)', (await score('bm.kbr', CORE)) <= 0 && A.bars.some(t => /regrouping/.test(t)), A.bars.join(' | '));
 
   // ---- the dome shattered; raised with a Heart of the Sea
   await run(`execute as ${CORE} at @s run function bm:p199/dome/shatter`); await sleep(1500);

@@ -233,6 +233,16 @@ POSES = {
     'hurt': P(_face='blink', _off=(0, -0.6, 0), body=qs(('x', 6)), head=qs(('x', 18)), tail=qs(('x', 30))),
     'tired': P(_face='blink', _off=(0, -6.8, 0), legfr=L(84), legfl=L(84), legbr=L(-84), legbl=L(-84), head=qs(('x', 20)), tail=qs(('x', 20))),
 }
+# 2.93b RAGE: latched on a monster's head, mauling (nose down, front paws gripping, tail up and lashing); the backflip off it
+# (the whole dog turned over backwards about his middle, legs tucked); the landing (a crouch to take it)
+GRIP = dict(legfr=L(52), legfl=L(52), legbr=L(-24), legbl=L(-24))
+POSES.update({
+    'maul_a': P(_face='alert', _off=(0, 0.4, 1.6), body=qs(('x', 26)), head=qs(('x', 38)), tail=qs(('x', -72), ('y', 14)), **GRIP),
+    'maul_b': P(_face='alert', _off=(0, 0.0, 1.6), body=qs(('x', 20)), head=qs(('x', 48), ('z', 14)), tail=qs(('x', -72), ('y', -14)), **GRIP),
+    **{f'flip_{k}': P(_off=(0, 3.0, 0), body=qs(('x', -(62 + 68 * k))), head=qs(('x', -16)), legfr=L(74), legfl=L(74), legbr=L(-74), legbl=L(-74),
+                      tail=qs(('x', 30))) for k in range(5)},
+    'land': P(_face='alert', _off=(0, -1.4, 0.4), body=qs(('x', 8)), head=qs(('x', 2)), legfr=L(-26), legfl=L(-26), legbr=L(30), legbl=L(30), tail=qs(('x', -40))),
+})
 SWIM_FRAMES = 8
 for _i in range(SWIM_FRAMES):                              # (the doggy paddle)
     _p = 2 * math.pi * _i / SWIM_FRAMES

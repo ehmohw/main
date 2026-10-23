@@ -15,7 +15,8 @@ THE HIDDEN ONE: bring APOPHISS into the throne room. The carved stone behind the
 EVERY DAY: the Royal Treasury (the steward's barrels) pays a tribute of Royal Pearls; the Request Stand asks for one thing
   (it changes daily); the Steward's last trade is a daily special. Favour from requests, breaches and festivals earns ranks -
   Courtier, Knight of the Tide, Royal Champion (whose Royal Charter adds a pearl to every tribute).
-DOME BREACHES: now and then, while someone's inside, the dome cracks and Tide Raiders come through. Right-click each crack
+DOME BREACHES: (2.93b) only when someone calls them - right-click the Dome Heart twice - then the dome rests 10 minutes. The
+  dome cracks and Tide Raiders come through. Right-click each crack
   before the minute is up. A crack that bursts lets the sea in; three and the dome SHATTERS - the castle floods. The Dome Heart
   raises it again (a Heart of the Sea, or Queen Ava beside you); sneak + right-click it to mend leaks (2 Royal Pearls)."""
 import math
@@ -40,7 +41,7 @@ REQUESTS = [('kelp', 32, 2, 'kelp for the royal kitchens'), ('prismarine_shard',
 SPECIALS = [(('royal_pearl', 18), ('enchanted_golden_apple', 1)), (('royal_pearl', 14), ('netherite_scrap', 2)),
             (('royal_pearl', 12), ('totem_of_undying', 1)), (('royal_pearl', 10), ('echo_shard', 3)), (('royal_pearl', 6), ('medallion', 2)),
             (('royal_pearl', 8), ('music_disc_otherside', 1)), (('royal_pearl', 16), ('heartstone', 1))]
-BREACH_SECS, BREACH_ODDS, CRACKS, SHATTER_AT = 60, 300, 4, 3
+BREACH_SECS, BREACH_REST, CRACKS, SHATTER_AT = 60, 600, 4, 3
 
 
 # ================================================================================================ items
@@ -139,7 +140,7 @@ def generate(G):
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     P = G.PREFIX
     tick, fast, second = [], [], []
-    objs = ['bm.kgst', 'bm.kdome', 'bm.kday', 'bm.kfest', 'bm.kbr', 'bm.kbn', 'bm.kburst', 'bm.ktrib', 'bm.kreq', 'bm.kaud', 'bm.kfav',
+    objs = ['bm.kbcd', 'bm.kbask', 'bm.kgst', 'bm.kdome', 'bm.kday', 'bm.kfest', 'bm.kbr', 'bm.kbn', 'bm.kburst', 'bm.ktrib', 'bm.kreq', 'bm.kaud', 'bm.kfav',
             'bm.krank', 'bm.kin', 'bm.kcd']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + [f'scoreboard players set #{n} bm.rng {n}' for n in (7, len(REQUESTS))]
     G.OBJECTIVES += objs
@@ -481,15 +482,14 @@ def generate(G):
     second.append('execute as @e[type=minecraft:marker,tag=bm.kingdom] unless score @s bm.kday = #day bm.bm at @s run function bm:p199/shop/refresh')
 
     # ---------------------------------------------------------------- dome breaches
-    second.append('execute as @e[type=minecraft:marker,tag=bm.kingdom,scores={bm.kbr=0,bm.kdome=0}] at @s positioned ~ ~-4 ~-6 if entity @a[distance=..33,gamemode=!spectator] '
-                  'positioned ~ ~4 ~6 run function bm:p199/breach/roll')
+    # (2.93b: never of their own accord - someone calls the Tide Raiders at the Dome Heart; then the dome rests 10 minutes)
     second.append('execute as @e[type=minecraft:marker,tag=bm.kingdom,scores={bm.kbr=1..}] at @s run function bm:p199/breach/tick')
-    fn('p199/breach/roll', [f'execute store result score #r bm.rng run random value 1..{BREACH_ODDS}', 'execute unless score #r bm.rng matches 1 run return 0',
-                            'function bm:p199/breach/start'])
+    second.append('execute as @e[type=minecraft:marker,tag=bm.kingdom,scores={bm.kbcd=1..}] run scoreboard players remove @s bm.kbcd 1')
+    second.append('execute as @a[scores={bm.kbask=1..}] run scoreboard players remove @s bm.kbask 1')
     raider = {'Tags': ['bm.kraider'], 'CustomName': T('Tide Raider', '#3a8a8a'), 'PersistenceRequired': B(0),
               'equipment': {'mainhand': {'id': 'minecraft:trident', 'count': Int(1)}}, 'drop_chances': {'mainhand': F(0.05)},
               'DeathLootTable': 'bm:p202/raider'}         # (2.92: a Tide Scale each - phase202)
-    fn('p199/breach/start', [f'scoreboard players set @s bm.kbr {BREACH_SECS}', 'scoreboard players set @s bm.kburst 0',
+    fn('p199/breach/start', [f'scoreboard players set @s bm.kbr {BREACH_SECS}', 'scoreboard players set @s bm.kburst 0', f'scoreboard players set @s bm.kbcd {BREACH_REST}',
                              f'tag @e[type=minecraft:marker,tag=bm.kcrack_spot,distance=..70,sort=random,limit={CRACKS}] add bm.kcrack',
                              'execute as @e[type=minecraft:marker,tag=bm.kcrack,distance=..70] at @s run function bm:p199/breach/crack',
                              'playsound minecraft:block.glass.break block @a[distance=..64] ~ ~ ~ 1 0.5',
@@ -591,13 +591,21 @@ def generate(G):
     # the Dome Heart: raise a shattered dome (a Heart of the Sea, or Queen Ava); sneak + use: mend leaks (2 pearls; free with Ava)
     fn('p199/heart/ask', ['function bm:p199/who', f'execute store result score #ks bm.rng run scoreboard players get {core} bm.kdome',
                           'execute if score #ks bm.rng matches 1 run return run function bm:p199/heart/shattered',
-                          'execute unless predicate bm:p20/sneaking run return run ' +
-                          tellraw('@s', P + [T('The Dome Heart ', KC, bold=True), T('holds the sea back. ', 'gray'),
-                                             T('Sneak + right-click to mend any leaks (2 Royal Pearls; free with Queen Ava beside you).', 'dark_gray')]),
+                          'execute unless predicate bm:p20/sneaking run return run function bm:p199/heart/call',
                           'execute if score #r_ava bm.rng matches 1 run return run function bm:p199/heart/mend_free',
                           f'execute store result score #c bm.rng run clear @s {holds("royal_pearl")} 0',
                           'execute unless score #c bm.rng matches 2.. run return run ' + say('Mending the dome takes 2 Royal Pearls.', KC),
                           f'clear @s {holds("royal_pearl")} 2', f'execute as {core} at @s run function bm:p199/dome/mend'])
+    fn('p199/heart/call', [f'execute if score {core} bm.kbr matches 1.. run return run ' + say('The dome is already breached - seal the cracks!', '#ff5a5a'),
+                           f'execute store result score #s bm.rng run scoreboard players get {core} bm.kbcd',
+                           'execute if score #s bm.rng matches 1.. run return run title @s actionbar [{"text":"The Tide Raiders are regrouping... ","color":"%s"},{"score":{"name":"#s","objective":"bm.rng"},"color":"white"},{"text":" s","color":"gray"}]' % KC,
+                           'execute unless score @s bm.kbask matches 1.. run return run function bm:p199/heart/offer',
+                           'scoreboard players reset @s bm.kbask', f'execute as {core} at @s run function bm:p199/breach/start'])
+    fn('p199/heart/offer', ['scoreboard players set @s bm.kbask 5',
+                            tellraw('@s', P + [T('The Dome Heart ', KC, bold=True), T('holds the sea back. ', 'gray'),
+                                               T('Right-click it again to call the Tide Raiders against the dome', '#ff8a8a'),
+                                               T(' - a breach to beat back (Royal Pearls, favour, Tide Scales). ', 'gray'),
+                                               T('Sneak + right-click to mend leaks (2 Royal Pearls; free with Queen Ava beside you).', 'dark_gray')])])
     fn('p199/heart/mend_free', [line('Queen Ava', '#6ad8e8', 'Leave it to me.'), f'execute as {core} at @s run function bm:p199/dome/mend'])
     fn('p199/heart/shattered', ['execute if score #r_ava bm.rng matches 1 run return run function bm:p199/heart/raise_ava',
                                 'execute unless items entity @s weapon.mainhand minecraft:heart_of_the_sea run return run ' +

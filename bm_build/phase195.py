@@ -16,6 +16,9 @@ GUARD BARK     two or more foes within 8, every 20 s: he plants himself in front
                lit up 4 s); Resistance for you.
 GOOD BOY!      (charged, every minute) four seconds of pure loyalty: he darts from foe to foe within 10, eight bites, 9 each - and
                you get Regeneration II.
+RAGE!          (2.93b; charged, every 40 s) a growl - then he launches himself at a monster, lands on it and goes for the head,
+               two savage bites; backflips off it onto the next one near, up to five in a chain, every one bitten harder (7, 10, 13,
+               16, 19 a bite) - and off the last a backflip and a clean landing on his feet.
 HAPPY TO SEE YOU  beside you: Luck, and he finds you a little more.
 Right-click him: sit / stand (and lie down). A frame keeps him, a display case shows him as a figurine, Cecil sells his doll, the
 Ember Rat a golden one, the Tailor his coats (and his aura, Goodest Boy), the Recruiter his Raid Contract."""
@@ -53,9 +56,12 @@ class C(RP.Cfg):
              12: (None, [(0, 'happy')] + [(6 + 9 * i + k, p) for i in range(8) for k, p in ((0, 'run_1'), (3, 'bite_up'), (6, 'bite'))]),
              13: (None, [(4 * i, ('dig_a', 'dig_b')[i % 2]) for i in range(12)] + [(48, 'happy')]),
              14: (None, [(0, 'happy')]),
+             # 2.93b RAGE: its poses are played by the rage's own clock (p195/rg/*); the far-off frames only have them written out
+             15: (None, [(0, 'bite_up')] + [(9000 + i, p) for i, p in enumerate(['maul_a', 'maul_b', 'land'] + [f'flip_{k}' for k in range(5)])]),
              10: (16, [(2 * i, f'swim_{i}') for i in range(A.SWIM_FRAMES)])}
     DUR = {'idle_a': 30, 'idle_b': 30, 'walk_0': 4, 'walk_1': 4, 'walk_2': 4, 'walk_3': 4, 'run_0': 3, 'run_1': 3, 'run_2': 3, 'run_3': 3, 'jump': 4,
-           'sit_a': 20, 'sit_b': 20, 'lie': 24, 'bite_up': 3, 'bite': 2, 'dig_a': 3, 'dig_b': 3, 'sniff': 8, 'sniff_b': 8, 'happy': 8, 'wave_a': 8}
+           'sit_a': 20, 'sit_b': 20, 'lie': 24, 'bite_up': 3, 'bite': 2, 'dig_a': 3, 'dig_b': 3, 'sniff': 8, 'sniff_b': 8, 'happy': 8, 'wave_a': 8,
+           'maul_a': 3, 'maul_b': 3, 'land': 4, **{f'flip_{k}': 2 for k in range(5)}}
     QUIPS = ['Woof!', '(his tail goes so hard his whole back end wags)', 'Arf! Arf!', '(he brings you a stick. It is mostly a log.)',
              '(he leans his whole weight against your legs)', '(his ears swivel at a sound you can\'t hear)', 'Wrrrf.',
              '(he looks up at you like you hung the moon)']
@@ -69,6 +75,7 @@ class C(RP.Cfg):
               ('Tackle', 'every 5 s, a foe within 4-12: he bounds in and bowls it over (10, Slowness II)'),
               ('Guard Bark', 'two or more foes within 8, every 20 s: they falter - weakened, slowed, lit up; Resistance for you'),
               ('Good Boy!', 'charged, every minute: he darts from foe to foe within 10 - eight bites, 9 each - and you get Regeneration II'),
+              ('Rage!', 'charged, every 40 s: he leaps on a monster and goes for the head - then backflips off onto the next, up to five in a chain, each bitten harder - and lands on his feet'),
               ('Happy to See You', 'beside him, you have Luck')]
     INTRO = [T('Bender', BV_C, bold=True), T(' - the goodest boy. ', 'gray'), T('Big ears, a little mask, and a nose for buried things.', 'white')]
     BUTTONS = ((6, 'Dig!', f'He digs something up (every {DIG_CD // 60} minutes; he needs dirt, sand, gravel or snow under his paws).', 'p195/dig_ask'),
@@ -136,6 +143,97 @@ def generate_early(G):
     RP.contract(C, G)
 
 
+RAGE_CD, RAGE_CHAIN = 800, 5                    # (ticks; mobs at most)
+
+
+def rage(G, X):
+    """2.93b RAGE!: a charged attack. He launches at a monster (rg/leap), lands on its head and mauls it (rg/maul: two bites),
+    backflips off onto the next monster near that he hasn't bitten (rg/flip), up to RAGE_CHAIN of them, each bitten harder -
+    and off the last, a backflip back and a soft landing (rg/land). His host is carried through the air by hand (no gravity,
+    teleported a step a tick, its rig following); the monster he's on is tagged bm.bvrtg, those he's bitten bm.bvrhit.
+    Phases (bm.bvrp): 1 leap, 2 maul, 3 flip to the next, 4 flip off and land; bm.bvrt counts the ticks in one, bm.bvrn the
+    monsters so far."""
+    fn, S, foe, pfx, me = X.fn, X.S, X.foe, X.pfx, X.me
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in ('bm.bvrg', 'bm.bvrp', 'bm.bvrt', 'bm.bvrn')]
+    G.OBJECTIVES += ['bm.bvrg', 'bm.bvrp', 'bm.bvrt', 'bm.bvrn']
+    T_ = '@e[tag=bm.bvrtg,distance=..16,limit=1]'
+    pose = lambda p: f'function bm:{pfx}/pose/{p}'
+    step = lambda d: [f'execute facing entity {T_} eyes positioned ^ ^ ^{d} if block ~ ~ ~ #bm:grap_pass if block ~ ~0.6 ~ #bm:grap_pass run tp @s ~ ~ ~ ~ 0']
+    RH = '@e[type=minecraft:wolf,tag=bm.bvrme,limit=1]'                # (Bender, while his rage's tick runs)
+    RHn = '@e[type=minecraft:wolf,tag=bm.bvrme,distance=..1.5,limit=1]'
+    fn(f'{pfx}/rg/go', [f'scoreboard players set @s {S("a")} 15', f'scoreboard players set @s {S("x")} 600', f'scoreboard players set @s bm.bvrg {RAGE_CD}',
+        'tag @e[tag=bm.bvrhit,distance=..32] remove bm.bvrhit', 'tag @e[tag=bm.bvrtg,distance=..32] remove bm.bvrtg',
+        f'tag @e[{foe},distance=..9,sort=nearest,limit=1] add bm.bvrtg', 'tag @e[tag=bm.bvrtg,distance=..9] add bm.bvrhit',
+        'scoreboard players set @s bm.bvrn 1', 'scoreboard players set @s bm.bvrp 1', 'scoreboard players set @s bm.bvrt 0',
+        'data merge entity @s {NoGravity:1b,Motion:[0d,0d,0d]}',
+        'playsound minecraft:entity.wolf.growl neutral @a[distance=..24] ~ ~ ~ 1.4 0.6', 'particle minecraft:angry_villager ~ ~1 ~ 0.3 0.2 0.3 0 4'] +
+       X.face('surprised', 120) +
+       ['execute on owner if entity @s[distance=..24,tag=!bm.hush] run ' + X.csay('GRRRRR-')])
+    fn(f'{pfx}/rg/tick', ['tag @s add bm.bvrme', f'function bm:{pfx}/rg/step', 'tag @s remove bm.bvrme'])
+    fn(f'{pfx}/rg/step', ['scoreboard players add @s bm.bvrt 1', 'data modify entity @s Motion set value [0d,0d,0d]',
+                          f'execute if score @s bm.bvrp matches 1..3 unless entity {T_} run function bm:{pfx}/rg/next',
+                          f'execute if score @s bm.bvrp matches 1 run function bm:{pfx}/rg/leap',
+                          f'execute if score @s bm.bvrp matches 2 run function bm:{pfx}/rg/maul',
+                          f'execute if score @s bm.bvrp matches 3 run function bm:{pfx}/rg/flip',
+                          f'execute if score @s bm.bvrp matches 4 run function bm:{pfx}/rg/land',
+                          f'execute if entity {T_} facing entity {T_} feet rotated ~ 0 run return run function bm:{pfx}/place',
+                          f'execute rotated as @s rotated ~ 0 run function bm:{pfx}/place'])
+    # the leap: up and at it, a step a tick (straight onto it if there's a wall between)
+    fn(f'{pfx}/rg/leap', [f'execute if score @s bm.bvrt matches 1 run {pose("bite_up")}', f'execute if score @s bm.bvrt matches 4 run {pose("flip_0")}',
+                          'execute if score @s bm.bvrt matches 3..5 if block ~ ~1.4 ~ #bm:grap_pass run tp @s ~ ~0.35 ~'] +
+       [f'execute if score @s bm.bvrt matches 3.. run {l}' for l in step(0.95)] +
+       [f'execute if score @s bm.bvrt matches 3.. as {T_} at @s anchored eyes positioned ^ ^ ^ if entity {RHn} run return run function bm:{pfx}/rg/latch_as',
+        f'execute if score @s bm.bvrt matches 14.. run function bm:{pfx}/rg/latch',
+        'particle minecraft:cloud ~ ~0.3 ~ 0.1 0.1 0.1 0.01 1'])
+    fn(f'{pfx}/rg/latch_as', [f'execute as {RH} at @s run function bm:{pfx}/rg/latch'])
+    fn(f'{pfx}/rg/latch', ['scoreboard players set @s bm.bvrp 2', 'scoreboard players set @s bm.bvrt 0', pose('maul_a'),
+                           'playsound minecraft:entity.wolf.growl neutral @a[distance=..20] ~ ~ ~ 1.2 0.8'])
+    # on its head: held there, shaking it; two bites, each harder down the chain (7, 10, 13, 16, 19) - then off
+    fn(f'{pfx}/rg/maul', [f'execute as {T_} at @s anchored eyes positioned ^ ^ ^ rotated as @s run tp {RH} ~ ~0.15 ~ ~ 0',
+                          f'execute if score @s bm.bvrt matches 3 run {pose("maul_b")}', f'execute if score @s bm.bvrt matches 6 run {pose("maul_a")}',
+                          f'execute if score @s bm.bvrt matches 9 run {pose("maul_b")}', f'execute if score @s bm.bvrt matches 12 run {pose("maul_a")}',
+                          f'execute if score @s bm.bvrt matches 4 run function bm:{pfx}/rg/bite', f'execute if score @s bm.bvrt matches 10 run function bm:{pfx}/rg/bite',
+                          'execute if score @s bm.bvrt matches 1..12 run particle minecraft:crit ~ ~0.2 ~ 0.25 0.2 0.25 0.1 2',
+                          f'execute if score @s bm.bvrt matches 14.. run function bm:{pfx}/rg/next'])
+    fn(f'{pfx}/rg/bite', [f'tag @s add {me}', 'scoreboard players operation #pd bm.rng = @s bm.bvrn', 'scoreboard players operation #pd bm.rng *= #3 bm.rng',
+                          'scoreboard players add #pd bm.rng 4', f'execute as {T_} at @s run function bm:{pfx}/rg/bitten', f'tag @s remove {me}',
+                          'playsound minecraft:entity.wolf.growl neutral @a[distance=..20] ~ ~ ~ 1 1.4', 'playsound minecraft:entity.player.attack.crit neutral @a[distance=..20] ~ ~ ~ 0.8 1.2'])
+    G.FUNCS['load'][-1:-1] = ['scoreboard players set #3 bm.rng 3']
+    fn(f'{pfx}/rg/bitten', [f'function bm:{pfx}/hurt', 'particle minecraft:damage_indicator ~ ~1.6 ~ 0.2 0.2 0.2 0.1 4',
+                            'particle minecraft:block{block_state:"minecraft:redstone_block"} ~ ~1.6 ~ 0.2 0.2 0.2 0 6'])
+    # the next one: the nearest monster near he hasn't bitten - a flip onto it; or (none left, or five down) the last flip, back
+    fn(f'{pfx}/rg/next', ['scoreboard players set @s bm.bvrt 0', 'tag @e[tag=bm.bvrtg,distance=..32] remove bm.bvrtg',
+                          f'execute if score @s bm.bvrn matches {RAGE_CHAIN}.. run return run function bm:{pfx}/rg/last',
+                          f'execute positioned ~ ~-1 ~ run tag @e[{foe},tag=!bm.bvrhit,distance=..8,sort=nearest,limit=1] add bm.bvrtg',
+                          f'execute unless entity {T_} run return run function bm:{pfx}/rg/last',
+                          'tag @e[tag=bm.bvrtg,distance=..9] add bm.bvrhit', 'scoreboard players add @s bm.bvrn 1', 'scoreboard players set @s bm.bvrp 3',
+                          'playsound minecraft:entity.wolf.ambient neutral @a[distance=..20] ~ ~ ~ 1 1.5'])
+    fn(f'{pfx}/rg/last', ['scoreboard players set @s bm.bvrp 4', 'scoreboard players set @s bm.bvrt 0', 'summon minecraft:marker ~ ~ ~ {Tags:["bm.bvrfrom"]}',
+                          'playsound minecraft:entity.wolf.ambient neutral @a[distance=..20] ~ ~ ~ 1 1.3'])
+    # the flip onto the next: over backwards as he goes - up, then down onto it
+    flips = [f'execute if score @s bm.bvrt matches {1 + 2 * k} run {pose(f"flip_{k}")}' for k in range(5)]
+    fn(f'{pfx}/rg/flip', flips +
+       ['execute if score @s bm.bvrt matches 1..4 if block ~ ~1.4 ~ #bm:grap_pass run tp @s ~ ~0.4 ~'] + step(0.8) +
+       [f'execute if score @s bm.bvrt matches 8.. as {T_} at @s anchored eyes positioned ^ ^ ^ if entity {RHn} run return run function bm:{pfx}/rg/latch_as',
+        f'execute if score @s bm.bvrt matches 16.. run function bm:{pfx}/rg/latch',
+        'particle minecraft:dust{color:[0.88,0.66,0.38],scale:1.0} ~ ~0.6 ~ 0.2 0.2 0.2 0 2'])
+    # the last flip: back off it, over and down - feet first onto the ground, a crouch to take it, then the goodest boy again
+    fr = '@e[type=minecraft:marker,tag=bm.bvrfrom,distance=..12,sort=nearest,limit=1]'
+    fn(f'{pfx}/rg/land', flips +
+       [f'execute if score @s bm.bvrt matches 1..10 facing entity {fr} feet rotated ~180 0 positioned ^ ^ ^0.3 if block ~ ~ ~ #bm:grap_pass if block ~ ~0.6 ~ #bm:grap_pass run tp @s ~ ~ ~',
+        'execute if score @s bm.bvrt matches 1..3 if block ~ ~1.4 ~ #bm:grap_pass run tp @s ~ ~0.4 ~',
+        'execute if score @s bm.bvrt matches 5..29 if block ~ ~-0.3 ~ #bm:grap_pass run tp @s ~ ~-0.3 ~',
+        f'execute if score @s bm.bvrt matches 5..29 unless block ~ ~-0.3 ~ #bm:grap_pass run function bm:{pfx}/rg/down',
+        f'execute if score @s bm.bvrt matches 24..29 run function bm:{pfx}/rg/down',
+        f'execute if score @s bm.bvrt matches 40.. run function bm:{pfx}/rg/done'])
+    X.second.append(f'execute as @e[type=minecraft:marker,tag=bm.bvrfrom] at @s unless entity @e[type=minecraft:wolf,tag={X.pet},scores={{bm.bvrp=4}},distance=..16] run kill @s')
+    fn(f'{pfx}/rg/down', ['scoreboard players set @s bm.bvrt 30', 'data merge entity @s {NoGravity:0b}', pose('land'),
+                          'particle minecraft:poof ~ ~0.1 ~ 0.3 0.05 0.3 0.02 8', 'playsound minecraft:entity.wolf.step neutral @a[distance=..16] ~ ~ ~ 1 0.8'])
+    fn(f'{pfx}/rg/done', [f'scoreboard players set @s {S("x")} 1', 'scoreboard players set @s bm.bvrp 0', 'data merge entity @s {NoGravity:0b}',
+                          f'kill {fr}', 'tag @e[tag=bm.bvrtg,distance=..32] remove bm.bvrtg', 'tag @e[tag=bm.bvrhit,distance=..32] remove bm.bvrhit', pose('happy')] +
+       X.face('happy', 40) + ['execute on owner if entity @s[distance=..24,tag=!bm.hush] run ' + X.csay('(he lands, shakes himself off - and looks back at you, tail going. Did you see that?)')])
+
+
 def generate(G):
     fn, wjson, tellraw, title = G.fn, G.wjson, G.tellraw, G.title
     say = lambda txt, col=BV_LINE: title('@s', 'actionbar', T(txt, col))
@@ -160,7 +258,9 @@ def generate(G):
         S, go, hit, end, face, foe, pfx = X.S, X.go, X.hit, X.end, X.face, X.foe, X.pfx
         idle = X.idle_fight
         host = f'@e[type=minecraft:wolf,tag={X.me},limit=1]'
-        lines = [f'execute {idle} unless score @s {S("gc")} matches 1.. if entity @e[{foe},distance=..10] run function bm:{pfx}/good_go',
+        lines = [f'execute if score @s bm.bvrg matches 1.. run scoreboard players remove @s bm.bvrg 1',
+                 f'execute {idle} unless score @s bm.bvrg matches 1.. if entity @e[{foe},distance=..9] run function bm:{pfx}/rg/go',
+                 f'execute {idle} unless score @s {S("gc")} matches 1.. if entity @e[{foe},distance=..10] run function bm:{pfx}/good_go',
                  f'execute store result score #nf bm.rng if entity @e[{foe},distance=..8]',
                  f'execute {idle} unless score @s {S("bc")} matches 1.. if score #nf bm.rng matches 2.. run function bm:{pfx}/bark_go',
                  f'execute {idle} unless score @s {S("rc")} matches 1.. unless entity @e[{foe},distance=..3.5] if entity @e[{foe},distance=..12] run function bm:{pfx}/tackle_go',
@@ -180,7 +280,9 @@ def generate(G):
                                f'execute if score @s {S("a")} matches 12 if score @s {S("x")} matches 2..74 run function bm:{pfx}/good_tick',
                                f'execute if score @s {S("a")} matches 13 if score @s {S("x")} matches 2.. run function bm:{pfx}/digging',
                                f'execute if score @s {S("a")} matches 13 if score @s {S("x")} matches 8 run function bm:{pfx}/dug',
-                               f'execute if score @s {S("a")} matches 9 if score @s {S("x")} matches 20 run function bm:{pfx}/sniffed'])
+                               f'execute if score @s {S("a")} matches 9 if score @s {S("x")} matches 20 run function bm:{pfx}/sniffed',
+                               f'execute if score @s {S("a")} matches 15 if score @s {S("x")} matches 2.. run function bm:{pfx}/rg/tick'])
+        rage(G, X)
         # BITE
         fn(f'{pfx}/bite', hit(8) + [f'execute as @e[{foe},distance=..3.2,sort=nearest,limit=1] at @s run function bm:{pfx}/bitten'] + end)
         fn(f'{pfx}/bitten', [f'function bm:{pfx}/hurt', 'particle minecraft:crit ~ ~1 ~ 0.3 0.3 0.3 0.2 6',

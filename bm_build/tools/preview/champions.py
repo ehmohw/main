@@ -1,5 +1,6 @@
 """2.93: the Champions' regalia on their own bones - each follower's head with its head piece, its body with its body piece and
-medal (front and three-quarter), from the built pack.   python3 tools/preview/champions.py [out.png] [who ...]"""
+medal (front and three-quarter), from the built pack.   python3 tools/preview/champions.py [out.png] [who ...]
+  [--head: the heads and their pieces] [--bare: the bones alone] [--back | --side: the second view] [--medal: medal close-ups]"""
 import sys, os, json, tempfile
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); sys.path.insert(0, os.path.dirname(os.path.dirname(HERE)))
 import draftkit as K
@@ -21,7 +22,7 @@ class R2:
 
 CA.build(R2, src=lambda *parts: os.path.join(K.REAL_RP, *parts))
 tiles = [(who, bone, piece, view) for who, (_ht, hm, _bt, bm_) in CA.ANCHORS.items() if not only or who in only
-         for bone, piece in ((bm_, 'body'),) for view in ('front', (145, 22) if '--back' in sys.argv else (-90, 15) if '--side' in sys.argv else (35, 22))]
+         for bone, piece in (((hm, 'head'),) if '--head' in sys.argv else ((bm_, 'body'),)) for view in ('front', (145, 22) if '--back' in sys.argv else (-90, 15) if '--side' in sys.argv else (35, 22))]
 # (rendering: the bone's own model and the piece's, both at the origin in 'fixed')
 imgs = []
 SPAN = {'apo': 3.2, 'omega': 3.2}     # (the serpents' coils stand tall)
@@ -33,10 +34,10 @@ def model_id(mid):
 for who, bone, piece, view in tiles:
     s = K.multi_scene(tmp, K.REAL_RP)
     s.display(model_id(bone), pos=(0, 0, 0))
-    if os.path.exists(R2.p('assets', 'bm', 'models', 'item', f'champ_{who}_{piece}.json')):     # (a follower without that piece shows its own bone)
+    if '--bare' not in sys.argv and os.path.exists(R2.p('assets', 'bm', 'models', 'item', f'champ_{who}_{piece}.json')):     # (a follower without that piece shows its own bone)
         s.display(f'bm:item/champ_{who}_{piece}', pos=(0, 0, 0))
-    if piece == 'body': s.display(f'bm:item/champ_{who}_medal', pos=(0, 0, 0))
-    imgs.append(K.label(s.render(view, size=220, span=SPAN.get(who, 1.6), center=(0, 0.1 if who not in SPAN else 0.6, 0)), who, f'{piece} {"front" if view == "front" else "back" if view[0] > 90 else "3/4"}'))
+    if piece == 'body' and '--bare' not in sys.argv: s.display(f'bm:item/champ_{who}_medal', pos=(0, 0, 0))
+    imgs.append(K.label(s.render(view, size=220, span=SPAN.get(who, 1.6) if piece == 'body' else (2.0 if who in SPAN else 1.3), center=(0, (0.1 if who not in SPAN else 0.6) if piece == 'body' else (1.0 if who in SPAN else 0.55), 0)), who, f'{piece} {"front" if view == "front" else "back" if view[0] > 90 else "3/4"}'))
 if '--medal' in sys.argv:          # (close-ups: each medal on its chest, front and three-quarter)
     imgs = []
     for who, (_ht, _hm, _bt, bm_) in CA.ANCHORS.items():
