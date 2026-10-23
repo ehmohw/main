@@ -239,3 +239,8 @@ POSES = {
                tail=qs(('x', 20))),
     'lid_up': P(_face='happy', _off=(0, HOVER, 0), lid=qs(('x', -70)), arml=limb(-1, 50, 30), forel=limb(-1, 40), head=qs(('y', -10)))}
 DRAFT = ['idle_a', 'walk_a', 'wave_a', 'bow', 'point', 'shock', 'sit', 'tired', 'lid_up']
+
+
+# (2.93e: every material with life in it - matkit)
+import matkit as _mk
+textures = _mk.wrapped(textures, __name__)

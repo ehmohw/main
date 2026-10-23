@@ -208,3 +208,8 @@ for _i in range(SWIM_FRAMES):                                            # (it p
     POSES[f'swim_{_i}'] = P(_off=(0, -12.0 + 0.5 * math.sin(2 * _p), 0), tongue=qs(('x', -10)),
                             **legs(lambda s, i: dict(lift=28, swing=20 * math.sin(_p + math.pi * _set(s, i)))))
 DRAFT = ['idle_a', 'idle_b', 'walk_0', 'walk_1', 'run_0', 'jump', 'rear', 'stomp', 'lash_b', 'flare', 'sit_a', 'sit_b', 'swim_2']
+
+
+# (2.93e: every material with life in it - matkit)
+import matkit as _mk
+textures = _mk.wrapped(textures, __name__)

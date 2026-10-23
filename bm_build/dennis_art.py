@@ -373,3 +373,8 @@ POSES = {
     'tired': P(_face='hurt', _off=(0, -0.8, 0), body=qs(('x', 10), ('z', -4)), head=qs(('x', 16)), armr=limb(1, 0, 2), arml=limb(-1, 0, 2),
                forer=limb(1, 4), forel=limb(-1, 4), legr=limb(1, 6, 4), legl=limb(-1, -4, 4))}
 DRAFT = ['idle_a', 'walk_a', 'wave_a', 'bow', 'point', 'shock', 'sit', 'tired']
+
+
+# (2.93e: every material with life in it - matkit)
+import matkit as _mk
+textures = _mk.wrapped(textures, __name__)

@@ -334,3 +334,8 @@ for _i in range(LAP):
 DRAFT = ['idle_a', 'walk_a', 'wave_a', 'bow', 'point', 'shock', 'sit', 'tired', 'swim_2', 'swim_6']
 ANIMS = {'idle': [(f'swim_{i}', 6) for i in range(LAP)], 'walk': [('walk_a', 8), ('walk_b', 8)], 'wave': [('idle_a', 8), ('wave_a', 6), ('wave_b', 6), ('wave_a', 6), ('wave_b', 6), ('idle_a', 8)],
          'bow': [('idle_a', 8), ('bow', 12), ('bow', 10), ('idle_a', 10)], 'shock': [('idle_a', 8), ('shock', 4), ('shock', 14), ('idle_a', 10)]}
+
+
+# (2.93e: every material with life in it - matkit)
+import matkit as _mk
+textures = _mk.wrapped(textures, __name__)

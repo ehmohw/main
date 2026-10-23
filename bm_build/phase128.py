@@ -312,7 +312,7 @@ def rp(R):
         src = R2.p('assets', 'bm', 'models', 'item', 'pearlman.json')
         m = json.load(open(src))
         TEX = {'k': 'pmg_dark', 'w': 'pmg_light', 'o': 'pmg_mid', 'y': 'pmg_mid', 'b': 'pmg_mid', 'd': 'pmg_dark', 'g': 'pmg_light', 'e': 'pmg_eye',
-               't': 'pmg_light', 'c': 'pmg_mid', 'r': 'pmg_gem'}
+               't': 'pmg_light', 'c': 'pmg_mid', 'r': 'pmg_gem', 'H': 'pmg_dark'}
         tex = {k: f'bm:block/{v}' for k, v in TEX.items() if k in m['textures']}
         tex['base'] = 'bm:block/pmg_base'; tex['rim'] = 'bm:block/pmg_light'; tex['particle'] = 'bm:block/pmg_light'
         S, LIFT = 0.88, 3.0                               # Pearlman shrunk a touch, stood on a plinth

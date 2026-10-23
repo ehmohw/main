@@ -407,3 +407,8 @@ for _i in range(SWIM_FRAMES):                                            # (at h
 for _k in list(POSES):                                                   # her ghostly form wears the '_g' models
     POSES[f'{_k}_g'] = dict(POSES[_k], _g=True)
 DRAFT = ['idle_a', 'walk_a', 'run_a', 'ward_b', 'cast_up', 'cast', 'tide', 'curtsey', 'sit_a', 'hurt', 'idle_a_g', 'tide_g', 'sit_a_g']
+
+
+# (2.93e: every material with life in it - matkit)
+import matkit as _mk
+textures = _mk.wrapped(textures, __name__)

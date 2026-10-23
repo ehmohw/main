@@ -340,3 +340,8 @@ for _i in range(SWIM_FRAMES):                                            # (a fr
 for _k in list(POSES):                                                   # her regal outfit wears the '_r' models
     POSES[f'{_k}_r'] = dict(POSES[_k], _r=True)
 DRAFT = ['idle_a', 'idle_b', 'walk_a', 'flick_up', 'wink', 'proclaim', 'bow', 'sit_a', 'hurt', 'idle_a_r', 'walk_a_r', 'pout_r', 'sit_a_r']
+
+
+# (2.93e: every material with life in it - matkit)
+import matkit as _mk
+textures = _mk.wrapped(textures, __name__)

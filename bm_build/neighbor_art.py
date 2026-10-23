@@ -325,3 +325,8 @@ for _i in range(SWIM_FRAMES):                                            # (a br
                             legr=limb(1, -10 + 22 * math.sin(2 * _p)), legl=limb(-1, -10 - 22 * math.sin(2 * _p)),
                             wingr=flap(1, 10 * math.sin(_p), 30), wingl=flap(-1, 10 * math.sin(_p), 30))
 DRAFT = ['idle_a', 'walk_a', 'run_a', 'jump', 'conduct_a', 'conduct_b', 'strike_up', 'strike', 'crescendo', 'bow', 'sit_a', 'hurt', 'tired']
+
+
+# (2.93e: every material with life in it - matkit)
+import matkit as _mk
+textures = _mk.wrapped(textures, __name__)

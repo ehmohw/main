@@ -493,7 +493,7 @@ def textures():
     # Pearlman
     T_.update({'pm_black': noise('#23272e', 5), 'pm_white': noise('#d4e2e4', 5), 'pm_orange': noise('#de8a52', 8), 'pm_yellow': noise('#d6c062', 8),
                'pm_blue': noise('#2aa6da', 8), 'pm_dblue': noise('#1a6c9e', 6), 'pm_gold': noise('#d8b040', 12), 'pm_eye': noise('#0e1c2c', 3),
-               'pm_teeth': noise('#f4f4ee', 3), 'pm_case': noise('#1a1a1e', 4)})
+               'pm_teeth': noise('#f4f4ee', 3), 'pm_case': noise('#1a1a1e', 4), 'pm_hat': noise('#1d2027', 3)})
     # (2.93d) his seasons: body, belly, hat band, feet, hat, bow tie, trim, leaf
     SEAS = {'fall': ('#b0602c', '#c8b4e2', '#6a3a9a', '#d8b07a', '#23272e', '#2a1e34', '#e8801c', '#4a7a2a'),
             'xmas': ('#b4323a', '#eef2f4', '#2e7a44', '#d6c062', '#23272e', '#c42a32', '#d02030', '#2a7a3a'),
@@ -572,8 +572,8 @@ def rp(R):
         # Pearlman (faces model north): an egg of a penguin, white belly, globe-gem in gold, blue bow tie, a grin,
         # a top hat with a blue band he's tipping with one flipper, a briefcase in the other
         P = {'k': 'pm_black', 'w': 'pm_white', 'o': 'pm_orange', 'y': 'pm_yellow', 'b': 'pm_blue', 'd': 'pm_dblue', 'g': 'pm_gold',
-             'e': 'pm_eye', 't': 'pm_teeth', 'c': 'pm_case', 'r': 'gm_earth'}
-        def penguin(H='k', tie=True, crown=31.5, brim=0):
+             'e': 'pm_eye', 't': 'pm_teeth', 'c': 'pm_case', 'r': 'gm_earth', 'H': 'pm_hat'}
+        def penguin(H='H', tie=True, crown=31.5, brim=0):
           return [c((3, 0, 0.5), (7, 1.5, 6.5), 'y'), c((9, 0, 0.5), (13, 1.5, 6.5), 'y'),
               c((2.5, 1.5, 3.5), (13.5, 14, 12.5), 'k'), c((3.5, 14, 4.5), (12.5, 19, 11.5), 'k'), c((4.5, 19, 5), (11.5, 24, 11), 'k'),
               c((4, 2.5, 3.1), (12, 13.2, 3.5), 'w'), c((5, 13, 4.1), (11, 14.6, 4.5), 'w'),
@@ -621,8 +621,13 @@ def rp(R):
         }
         for sk, (H, hat, extra) in SEASON.items():
             P2 = dict(P, k=f'pm_{sk}_body', w=f'pm_{sk}_belly', b=f'pm_{sk}_band', y=f'pm_{sk}_feet', h=f'pm_{sk}_hat',
-                      v=f'pm_{sk}_tie', q=f'pm_{sk}_trim', l=f'pm_{sk}_leaf', H='pm_black')
-            # the hat stays black unless the season changes it: 'k' on the hat means his black, not the body's colour
+                      v=f'pm_{sk}_tie', q=f'pm_{sk}_trim', l=f'pm_{sk}_leaf')
+            # (the hat is his black felt ('H') unless the season changes it ('h'))
             els = penguin(H if H == 'h' else 'H', tie=False, **hat) + octa + extra
             model(f'pearlman_{sk}', P2, els, FIXED)
     R.POST.append(post)
+
+
+# (2.93e: every material with life in it - matkit)
+import matkit as _mk
+textures = _mk.wrapped(textures, __name__)

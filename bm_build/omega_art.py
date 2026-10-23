@@ -312,3 +312,8 @@ ANIMS = {'idle': [('idle_a', 30), ('idle_b', 30), ('idle_a', 30)],
          'tired': [('idle_a', 20), ('tired', 20), ('tired', 30)], 'fade': [('tired', 16), ('fade', 18), ('fade', 10)],
          'rest': [('idle_a', 20), ('sit', 20), ('sit', 20)],
          'crawl': [('crawl_a', 20), ('crawl_a', 10), ('crawl_b', 24), ('crawl_c', 20), ('battle', 14), ('rally', 10), ('rally', 20)]}
+
+
+# (2.93e: every material with life in it - matkit)
+import matkit as _mk
+textures = _mk.wrapped(textures, __name__)

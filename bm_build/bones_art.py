@@ -256,3 +256,8 @@ for _i in range(SWIM_FRAMES):                             # (in water: no bubble
     POSES[f'swim_{_i}'] = P(_bubble=False, _off=(0, -4.0 + 0.6 * math.sin(_p), 0), body=qs(('y', 8 * math.sin(_p))),
                             head=qs(('y', -6 * math.sin(_p))), **swish(26 * math.sin(_p + 0.8), 40 * math.sin(_p + 1.6)), **fins(6 * math.sin(_p)))
 DRAFT = ['idle_a', 'idle_b', 'walk_1', 'run_1', 'jump', 'bite_open', 'bite', 'thrash_a', 'charge', 'happy', 'sit_a', 'hurt', 'swim_2']
+
+
+# (2.93e: every material with life in it - matkit)
+import matkit as _mk
+textures = _mk.wrapped(textures, __name__)

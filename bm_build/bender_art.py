@@ -250,3 +250,8 @@ for _i in range(SWIM_FRAMES):                              # (the doggy paddle)
                             legfr=L(40 + 30 * math.sin(_p)), legfl=L(40 - 30 * math.sin(_p)), legbr=L(-20 + 20 * math.sin(_p)), legbl=L(-20 - 20 * math.sin(_p)),
                             tail=qs(('x', -10), ('y', 20 * math.sin(_p))))
 DRAFT = ['idle_a', 'idle_b', 'walk_1', 'run_1', 'jump', 'bite_up', 'bite', 'dig_a', 'sniff', 'happy', 'sit_a', 'lie', 'swim_2']
+
+
+# (2.93e: every material with life in it - matkit)
+import matkit as _mk
+textures = _mk.wrapped(textures, __name__)

@@ -21,6 +21,21 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.93e: detailed textures for Pearlman and the newer followers
+
+The newer followers now get the same material detail as Emma: weave, folds, fur, gleams. Their faces and designs are unchanged.
+
+- **Pearlman:** sleek, softly feathered plumage with a sheen, a fluffier belly, a felt top hat (now a texture of its own, not
+  his body's), a satin bow tie, a leather briefcase and scaly feet. All four seasonal forms are detailed the same way, with a
+  woven straw boater for summer.
+- **Fabrics** (Ava, Pearl, Ashur, the Chef, the Neighbor, Dennis, Pistachio): a fine weave, soft folds and light from above.
+  Satin bodices, ties and gloves get a diagonal sheen; Pearl's gown and cape are velvet; Dennis has denim twill and a knit cuff.
+- **Fur and hide:** Bender and Bloo get layered fur strokes. Bones and the Stalker get a grained, mottled hide with a faint wet gleam.
+- **Hair:** clumps with partings and a shine, as Emma's has.
+- **Details:** fish and serpent scales for Fishy and Omega, rounded ribs on the Arachno-Lantern's pumpkin, wood grain, and
+  brushed metal and gold with a bright band.
+- **Spread:** wardrobe colours, gilded looks and the dolls all pick up the new detail. Mr. Capshun stays as he is.
+
 ## New in 2.93d: Pearlman's seasons, and Bones's scar across his eye
 
 ### Pearlman's seasons

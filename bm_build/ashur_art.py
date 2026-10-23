@@ -379,3 +379,8 @@ for _pz in POSES.values():
     _pz['_off'] = (0.0, _pz['_dy'] / U, 0.0)
     _pz['firer'] = _conj(qmul(_pz['armr'], _pz['forer']))
     _pz['firel'] = _conj(qmul(_pz['arml'], _pz['forel']))
+
+
+# (2.93e: every material with life in it - matkit)
+import matkit as _mk
+textures = _mk.wrapped(textures, __name__)
