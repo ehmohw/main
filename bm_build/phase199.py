@@ -158,7 +158,9 @@ def generate(G):
     wjson('bm/worldgen/template_pool/p199_kingdom/start.json', {'fallback': 'minecraft:empty', 'elements': [
         {'weight': 1, 'element': {'element_type': 'minecraft:single_pool_element', 'location': 'bm:p199_kingdom_seed', 'projection': 'rigid', 'processors': 'minecraft:empty'}}]})
     wjson('bm/worldgen/structure_set/p199_kingdom.json', {'structures': [{'structure': 'bm:p199_kingdom', 'weight': 1}],
-                                                          'placement': {'type': 'minecraft:random_spread', 'spacing': 64, 'separation': 24, 'salt': 91990133}})
+                                                          'placement': {'type': 'minecraft:random_spread', 'spacing': 64, 'separation': 24, 'salt': 91990133,
+                                                                        # (2.92: never in an ocean monument's lap)
+                                                                        'exclusion_zone': {'other_set': 'minecraft:ocean_monuments', 'chunk_count': 6}}})
     from structures import Build
     Bs = Build(1, 1, 1)
     Bs.marker(0.5, 0.0, 0.5, ['bm.kseed'], 0)
@@ -199,6 +201,16 @@ def generate(G):
              'brightness': {'sky': Int(15), 'block': Int(15)}, 'teleport_duration': Int(3),
              'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)],
                                 'translation': [F(0), F(0.5), F(0)], 'scale': [F(1.4)] * 3}}
+    insig = {'Tags': ['bm.kinsig'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:kingdom_insignia'}},
+             'item_display': 'fixed', 'brightness': {'sky': Int(15), 'block': Int(13)},
+             'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)],
+                                'translation': [F(0), F(0), F(0)], 'scale': [F(2.6)] * 3}}
+    relf = lambda x, y, z: f'~{x - 35.5:g} ~{y - K.P:g} ~{z - 41.5:g}'      # (entity spots: the core marker stands at 35.5, P, 41.5)
+    insig['Rotation'] = [F(180), F(0)]
+    # (2.92: hung by the castle's core, so kingdoms built before 2.92 get them too)
+    fn('p199/k/insignia', ['tag @s add bm.kinsok', f'kill @e[type=minecraft:item_display,tag=bm.kinsig,distance=..70]'] +
+       [f'summon minecraft:item_display {relf(x, y, z)} {snbt(insig)}' for (x, y, z) in K.INSIGNIA])
+    second.append('execute as @e[type=minecraft:marker,tag=bm.kingdom,tag=!bm.kinsok] at @s run function bm:p199/k/insignia')
     fn('p199/k/make_heart', [f'summon minecraft:item_display ~ ~1 ~ {snbt(heart)}', box('bm.kheart', 0.9, 1.2, 1)])
     # the Royal Steward: a frozen trader (the shop) under a rat in royal blue; his treasury barrels pay the tribute
     trader = {'NoAI': B(1), 'Invulnerable': B(1), 'PersistenceRequired': B(1), 'Silent': B(1), 'DespawnDelay': Int(0),
@@ -210,7 +222,7 @@ def generate(G):
                                'execute as @e[tag=bm.kstnew,distance=..1] run tp @s ~ ~ ~ ~ 0', 'tag @e[tag=bm.kstnew,distance=..1] remove bm.kstnew',
                                f'summon minecraft:interaction ~-1 ~1 ~-0.5 {{Tags:["bm.kbox","bm.ktrib"],width:1.0f,height:0.6f,response:1b}}'])
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:marker,tag=bm.kseed]', 'kill @e[type=minecraft:interaction,tag=bm.kbox]',
-                                       'kill @e[type=minecraft:item_display,tag=bm.kheartd]', 'kill @e[type=minecraft:item_display,tag=bm.kstew_sprite]',
+                                       'kill @e[type=minecraft:item_display,tag=bm.kheartd]', 'kill @e[type=minecraft:item_display,tag=bm.kinsig]', 'kill @e[type=minecraft:item_display,tag=bm.kstew_sprite]',
                                        'execute as @e[type=minecraft:wandering_trader,tag=bm.kstew] at @s run tp @s ~ -300 ~']
     # the sealed chart (the Dockmaster's): the nearest kingdom
     G.consume_adv('sealed_map_kingdom', 'bm:maps/open_p199_kingdom')
@@ -242,6 +254,7 @@ def generate(G):
         {'rolls': {'type': 'minecraft:uniform', 'min': 1, 'max': 3}, 'entries': [E('royal_pearl', G.uni(1, 3))]},
         {'rolls': 1, 'entries': [E('token', G.uni(1, 3))], 'conditions': [G.chance(0.5)]},
         {'rolls': 1, 'entries': [E('heartstone')], 'conditions': [G.chance(0.08)]},
+        {'rolls': 1, 'entries': [E('tide_scale', G.uni(1, 3))], 'conditions': [G.chance(0.6)]},
         {'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'minecraft:heart_of_the_sea'}], 'conditions': [G.chance(0.05)]}]})
     wjson('bm/loot_table/p199/tribute.json', {'type': 'minecraft:command', 'pools': [
         {'rolls': 1, 'entries': [
@@ -429,12 +442,13 @@ def generate(G):
     fn('p199/req/ask', req)
     for i, (iid, n, pay, what) in enumerate(REQUESTS):
         fn(f'p199/req/r{i}', ['execute if score @s bm.kreq = #day bm.bm run return run ' + say('The steward has what he needed from you today. Thank you!', KC),
-                              f'execute store result score #c bm.rng run clear @s minecraft:{iid} 0',
+                              # (plain ones only: the Tidecaller Shell is a nautilus shell too, and the pack's fish are cod)
+                              f'execute store result score #c bm.rng run clear @s minecraft:{iid}[!minecraft:custom_data] 0',
                               f'execute unless score #c bm.rng matches {n}.. run return run ' +
                               tellraw('@s', P + [T('Today\'s royal request: ', KC, bold=True), T(f'{n} {iid.replace("_", " ")}', 'white'), T(f' - {what}. ', 'gray'),
                                                  T(f'Bring them here (pays {pay} Royal Pearls and favour). ', PEARL_C), T('Your favour: ', 'gray'),
                                                  {'score': {'name': '@s', 'objective': 'bm.kfav'}, 'color': GOLD}]),
-                              f'clear @s minecraft:{iid} {n}', 'scoreboard players operation @s bm.kreq = #day bm.bm', pearls(pay),
+                              f'clear @s minecraft:{iid}[!minecraft:custom_data] {n}', 'scoreboard players operation @s bm.kreq = #day bm.bm', pearls(pay),
                               'scoreboard players add @s bm.kfav 1', 'function bm:p199/rank/check',
                               'playsound minecraft:entity.villager.yes neutral @s ~ ~ ~ 1 1.3',
                               tellraw('@s', P + [T('Request fulfilled! ', KC, bold=True), T(f'+{pay} Royal Pearls, +1 favour.', PEARL_C)])])
@@ -457,7 +471,8 @@ def generate(G):
             (('royal_pearl', 14), ('conduit', 1)), (('royal_pearl', 16), ('trident', 1)), (('royal_pearl', 2), ('sea_lantern', 8)),
             (('royal_pearl', 1), ('prismarine_shard', 16)), (('royal_pearl', 4), ('sponge', 4)), (('royal_pearl', 24), ('heartstone', 1)),
             (('royal_pearl', 12), ('tidecaller_shell', 1)), (('royal_pearl', 6), ('sealed_map_db_shark', 1)), (('royal_pearl', 4), ('sealed_map_kingdom', 1))]
-    base_o = [G.offer(b, s) for b, s in base]
+    import phase202 as R202
+    base_o = [G.offer(b, s) for b, s in base] + R202.steward_offers(G.offer)      # (2.92: the armoury - phase202)
     for d, sp in enumerate(SPECIALS):
         fn(f'p199/shop/d{d}', [f'data modify entity @s Offers.Recipes set value {snbt(base_o + [G.offer(*sp)])}'])
     fn('p199/shop/refresh', ['scoreboard players operation #d bm.rng = #day bm.bm', 'scoreboard players operation #d bm.rng %= #7 bm.rng'] +
@@ -472,7 +487,8 @@ def generate(G):
     fn('p199/breach/roll', [f'execute store result score #r bm.rng run random value 1..{BREACH_ODDS}', 'execute unless score #r bm.rng matches 1 run return 0',
                             'function bm:p199/breach/start'])
     raider = {'Tags': ['bm.kraider'], 'CustomName': T('Tide Raider', '#3a8a8a'), 'PersistenceRequired': B(0),
-              'equipment': {'mainhand': {'id': 'minecraft:trident', 'count': Int(1)}}, 'drop_chances': {'mainhand': F(0.05)}}
+              'equipment': {'mainhand': {'id': 'minecraft:trident', 'count': Int(1)}}, 'drop_chances': {'mainhand': F(0.05)},
+              'DeathLootTable': 'bm:p202/raider'}         # (2.92: a Tide Scale each - phase202)
     fn('p199/breach/start', [f'scoreboard players set @s bm.kbr {BREACH_SECS}', 'scoreboard players set @s bm.kburst 0',
                              f'tag @e[type=minecraft:marker,tag=bm.kcrack_spot,distance=..70,sort=random,limit={CRACKS}] add bm.kcrack',
                              'execute as @e[type=minecraft:marker,tag=bm.kcrack,distance=..70] at @s run function bm:p199/breach/crack',

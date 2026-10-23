@@ -21,6 +21,67 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.92a: the kingdom's endgame, Queen Ava's Honours, and every structure settled into the land
+
+### Queen Ava's Honours (hard mode): follower upgrades now live in the Underwater Kingdom
+Bring **Queen Ava** to the **Tide Font** with the followers you want honoured, and right-click it. After the royal family's
+own business, Ava opens a page for each follower with you (up to three; Ava can be honoured too).
+- **The Royal Blessing:** the first time a follower stands before Ava, they get Vitality I free.
+- **Vitality I-V:** +20% health a level (V doubles it). **Bulwark I-V:** +3 armour and +1 toughness a level.
+  **Might I-V:** +15% damage a level, for their own blows and every special attack they make.
+- **Price:** level 1 is 6 Royal Pearls; then 10 + 1 Dread Token, 16 + 2, 24 + 3, and 32 + 5. Level V also takes the honour's
+  own **Elemental Gem**: Water for Vitality, Rock for Bulwark, Fire for Might. Dread Tokens come from your pockets first,
+  then the Rat Bank.
+- **The Tide's Haste (Swift Return):** on Ava's first page, for every follower you call. A faint rests 80 s at I, then 45 s
+  at II. I costs 12 pearls + 3 Dread Tokens; II costs 24 + 5 and the **Air Gem**.
+- Honours belong to that follower for good: at home, on a heist, and in every form (Wraithfire and the gem forms stack on top).
+- **Moved from Vesper:** his Followers' Wards page is gone. Every Dread Token spent on Ward or Vigor is refunded the next time
+  you're online. Swift Return levels you already bought are kept.
+
+### The Ethereal Gem comes home
+- **The Heart Comes Home:** carry the Ethereal Gem to the Font with Emma, Queen Ava and Queen Pearl. Once: **+2 hearts for
+  good**, the dome is **warded** (a breach never shatters it again), 2 Heartstones and 24 Royal Pearls.
+- **The Serpent's Restraint:** carry it to the Font with **Apophiss**, the gem he once killed for. He doesn't take it. Once:
+  Apophiss gains a rank of every honour (no gems needed), plus 2 Heartstones and 16 Royal Pearls for you.
+
+### The kingdom's armoury
+- **Leo's Aegis** (bring Leo to the Font once you're a Knight of the Tide). A custom-modelled shield, the insignia on its face:
+  - a weapon too: 12 damage swung;
+  - held: +4 armour, +2 toughness and Resistance, shared with your followers nearby;
+  - **Riposte:** a blow you block is paid back, 10 damage and a shove;
+  - **Tidal Charge:** sneak + jump to charge 7 blocks, 14 damage to everything in the way.
+- **Emma's Crescent** (bring Emma once the castle is restored and you're a Royal Champion). Her ethereal crescent axe,
+  20 damage:
+  - every third blow sends an ethereal wave 8 blocks ahead;
+  - use: **Ethereal Step**, a 6-block blink;
+  - sneak + use: **Bloom Slam**, 16 to monsters around you, plus Regeneration II and Absorption for you and your friends.
+  - Lost one? The Font calls it back for 32 pearls, with the same friend beside you.
+- **The Crown of the Deep** is now a real 3D crown: sea-gold arches, a violet diamond, sea-blue gems.
+- **Tidewarden Plate** (heavy; a great helm with a fin crest). The full set gives Resistance and water powers, and
+  **Tidewall** below 4 hearts: Absorption III and a wave that throws monsters back.
+- **Pearlguard Regalia** (light; a pearl tiara with Emma's flower). The full set gives Strength and Jump Boost, and
+  **Pearl's Grace** below 4 hearts: Invisibility, Speed III and Regeneration II.
+- Both sets come from the **Royal Steward**, for Royal Pearls, **Tide Scales** and netherite. Tide Scales are the armoury's
+  coin: earned holding off dome breaches, from Tide Raiders, in the tribute and in the towers' chests.
+- **Leo's Trident** (now 12/10 damage, Impaling V, Strength II and Resistance in water) and **Emma's Bloomheart**
+  (Regeneration III, Absorption, a 30 s recharge) moved from Cecil to the Royal Steward.
+- The **kingdom insignia** now hangs on the castle: over the gate, in the throne room, and as mosaics in the yard.
+
+### Every structure settles into the land
+Structures built on the ground used to sit in square boxes cut out of hills, on stone plinths, or with corners hanging in
+the air. Now each one, when it's built (or the first time someone comes near a generated one):
+- has any hill over it cut back into a slope, with fresh grass, sand or snow on top to match the biome;
+- has a skirt of the local soil banked under its edges, sloping down to the ground;
+- has terrain cleared out of courtyards and holes filled under it.
+This covers Wilfrey's Keep, the Hexbound Cathedral, the Frostbound Spire, the Sunken Throne, graveyards, sword shrines,
+Seawatch Forts, the three Dread ruins, the Underwater Kingdom, and the Nether outposts and Forge. The Frostbound Spire no
+longer generates on jagged peaks or snowy slopes. The Underwater Kingdom and the Sunken Throne keep clear of ocean monuments.
+Only new chunks get the new placement.
+
+### Fixes
+- The Request Stand no longer takes the pack's own items as the plain thing it asked for. The Tidecaller Shell, for one,
+  is a nautilus shell.
+
 ## New in 2.91a: the Underwater Kingdom, and the Nether and the End overhauled
 
 ### The Underwater Kingdom (deep oceans)

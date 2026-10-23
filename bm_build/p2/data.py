@@ -90,8 +90,8 @@ WORLDGEN = {  # d: (biomes, step, start_height, heightmap, adaptation, spacing, 
     'brood': (['#minecraft:is_forest', '#minecraft:is_taiga', '#minecraft:is_jungle', 'minecraft:dark_forest', 'minecraft:pale_garden',
                'minecraft:dripstone_caves', 'minecraft:lush_caves'], 'underground_structures',
               {'type': 'minecraft:uniform', 'min_inclusive': {'absolute': -12}, 'max_inclusive': {'absolute': 4}}, None, 'none', 32, 12, 61803391, 'minecraft:red_x'),
-    'frost': (['minecraft:snowy_plains', 'minecraft:ice_spikes', 'minecraft:snowy_taiga', 'minecraft:grove', 'minecraft:snowy_slopes',
-               'minecraft:frozen_peaks', 'minecraft:jagged_peaks'], 'surface_structures', {'absolute': -6}, 'WORLD_SURFACE_WG', 'beard_thin', 40, 14, 27182818, 'minecraft:target_x'),
+    # (2.92: off the peaks and slopes - a 52-high spire on a mountainside hung off cliffs or stood in a crag)
+    'frost': (['minecraft:snowy_plains', 'minecraft:ice_spikes', 'minecraft:snowy_taiga', 'minecraft:grove'], 'surface_structures', {'absolute': -6}, 'WORLD_SURFACE_WG', 'beard_thin', 40, 14, 27182818, 'minecraft:target_x'),
     'tide': (['minecraft:deep_ocean', 'minecraft:deep_cold_ocean', 'minecraft:deep_lukewarm_ocean', 'minecraft:deep_frozen_ocean'],
              'surface_structures', {'absolute': -3}, 'OCEAN_FLOOR_WG', 'none', 36, 12, 14142135, 'minecraft:monument'),
     'hex': (['minecraft:swamp', 'minecraft:mangrove_swamp'], 'surface_structures', {'absolute': -5}, 'WORLD_SURFACE_WG', 'beard_thin', 40, 14, 17320508, 'minecraft:swamp_hut'),
@@ -215,7 +215,10 @@ def generate(G, builds, offers_fn):
                                       'projection': 'rigid', 'processors': 'minecraft:empty'}}]})
         wjson(f'bm/worldgen/structure_set/p2_{d}.json', {'structures': [{'structure': f'bm:p2_{d}', 'weight': 1}],
                                                           'placement': {'type': 'minecraft:random_spread', 'spacing': spacing,
-                                                                        'separation': sep, 'salt': salt}})
+                                                                        'separation': sep, 'salt': salt,
+                                                                        # (2.92: the Sunken Throne keeps clear of ocean monuments)
+                                                                        **({'exclusion_zone': {'other_set': 'minecraft:ocean_monuments', 'chunk_count': 5}}
+                                                                           if d == 'tide' else {})}})
     wjson('bm/tags/block/dungeon_floor.json', {'values': sorted(floors)})
 
     # ---------------- sealed maps -> exploration maps

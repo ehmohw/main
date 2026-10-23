@@ -883,6 +883,8 @@ if __name__ == '__main__':
     phase199.rp(sys.modules[__name__])
     import phase200                           # (2.91: the Nether and the End)
     phase200.rp(sys.modules[__name__])
+    import phase202                           # (2.92: the kingdom's armoury - kingdom_art.py)
+    phase202.rp(sys.modules[__name__])
     import phase95                            # (after every head model: the faces)
     phase95.rp(sys.modules[__name__])
     import phase138                           # (2.78: the recoloured looks - after the faces, so their item definitions are copied too)

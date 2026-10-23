@@ -5,9 +5,7 @@ DREAD TOKENS   5 Black Market Trophies make one, and one breaks back into 5 (Ves
                kept), never more than 2 a day. Dread mobs never drop them.
 VESPER         stands behind his counter only while hard mode is on. Right-click him to trade; the black book on his counter
                (VESPER'S STOCK BOOK) opens his services. What he deals in:
-  THE LEDGER   FOLLOWERS' WARDS   Ward I-III (+3 armour, +1 toughness a level) and Vigor I-III (+10% health a level) on every
-                                  follower you call - at home and on a heist - and Swift Return I-II (a faint rests 80 s,
-                                  then 45 s, instead of 2 minutes).
+  THE LEDGER   (2.92: his Followers' Wards - Ward, Vigor, Swift Return - became Queen Ava's Honours, in the Underwater Kingdom)
                TUNING             the weapon, tool or armour piece in your hand takes a tuning of your choice - damage,
                                   swing speed, reach, luck; mining speed and efficiency; armour, toughness, health,
                                   knockback resistance, speed (boots) - a Dread Token a level, 2 levels of any one kind
@@ -270,7 +268,7 @@ def generate(G):
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
     second, fast, tick = G.FUNCS['loop/second'], G.FUNCS['loop/fast'], G.FUNCS['tick']
-    objs = ['bm.bk_dread', 'bm.fward', 'bm.fvig', 'bm.fret', 'bm.fwl', 'bm.fvl', 'bm.hgday', 'bm.bbu', 'bm.dkcd', 'bm.dyl']
+    objs = ['bm.bk_dread', 'bm.fward', 'bm.fvig', 'bm.fret', 'bm.hgday', 'bm.bbu', 'bm.dkcd', 'bm.dyl']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs if o != 'bm.bbu'] + \
         ['scoreboard objectives add bm.bbu minecraft.used:minecraft.water_bucket']
     G.OBJECTIVES += objs
@@ -333,7 +331,7 @@ def generate(G):
     fn('p177/ledger_click', ['execute on target run function bm:p177/open', 'data remove entity @s interaction'])
     # his voice, now and then, to anyone at the stall - in the action bar, never the chat (2.88: he talked far too often there)
     lines = ['"Trophies? Splendid. Bring five."', '"The King had debts. I collect them."', '"Something hunts the dark now. I sell to those it hasn\'t caught."',
-             '"Your followers look... breakable. I can fix that."', '"Everything is for sale. Especially time."']
+             '"Your followers? The drowned queen fusses over those now. I sell other things."', '"Everything is for sale. Especially time."']
     second.append(f'execute as @e[type=minecraft:villager,tag=bm.vesper] at @s if entity @a[distance=..5] run function bm:p177/mutter')
     fn('p177/mutter', ['execute store result score #vm bm.rng run random value 1..120'] +
        [f'execute if score #vm bm.rng matches {i + 1} run ' + title('@a[distance=..6]', 'actionbar', [T('Vesper: ', '#b0102a'), T(l, '#c8a0a0', italic=True)]) for i, l in enumerate(lines)])
@@ -344,8 +342,7 @@ def generate(G):
                      [P28.body([T('"Sit. Sign nothing yet. Read."', '#c8a0a0', italic=True)], 320),
                       P28.body([T('You have ', 'gray'), T('$(dt)', DREAD, bold=True), T(' Dread Tokens (pockets and Rat Bank).', 'gray')], 320),
                       P28.body([T(f'Trade with Vesper himself (right-click him): {TPD} Trophies for a Dread Token and back, maps, writs, summonses and the long work.', 'dark_gray')], 320)],
-                     [B_([T("Followers' Wards", '#ffb0b0', bold=True)], MENU + 1, tip=T('Armour, health and a quicker return for every follower you call', 'gray')),
-                      B_([T('Tuning', '#ffd27a', bold=True)], MENU + 2, tip=T('The weapon, tool or armour in your hand: a tuning of your choice', 'gray')),
+                     [                      B_([T('Tuning', '#ffd27a', bold=True)], MENU + 2, tip=T('The weapon, tool or armour in your hand: a tuning of your choice', 'gray')),
                       B_([T('Reforging', DREAD, bold=True)], MENU + 3, tip=T('Past the old maximum: sets, legendary weapons, Shifting gear', 'gray')),
                       B_([T('About the Dread', 'gray')], MENU + 4)], columns=2)
     fn('p177/open', ['execute unless score #hard bm.cfg matches 1 run return 0', f'scoreboard players set @s bm.menu {MENU}', 'function bm:p177/wallet',
@@ -360,56 +357,7 @@ def generate(G):
     fn('p177/about', [f'scoreboard players set @s bm.menu {MENU}', f'dialog show @s {snbt(about)}'])
 
     # ---- followers' wards
-    fol = P28.multi([T("Followers' Wards", '#ffb0b0', bold=True), T('  ·  Vesper', 'gray')],
-                    [P28.body([T('Every follower you call - at home and on a heist - carries what you buy here, for good.', 'gray')], 320),
-                     P28.body([T('Ward ', '#ffb0b0'), T('$(w)/3', 'white'), T('   +3 armour and +1 toughness a level', 'dark_gray')], 320),
-                     P28.body([T('Vigor ', '#ffb0b0'), T('$(v)/3', 'white'), T('   +10% health a level', 'dark_gray')], 320),
-                     P28.body([T('Swift Return ', '#ffb0b0'), T('$(r)/2', 'white'), T('   a faint rests 80 s, then 45 s (not 2 minutes)', 'dark_gray')], 320),
-                     P28.body([T('You have ', 'gray'), T('$(dt)', DREAD, bold=True), T(' Dread Tokens.', 'gray')], 320)],
-                    [B_([T('Ward +1', '#ffb0b0'), T(f'  ({"/".join(map(str, WARD))} DT)', 'gray')], MENU + 11),
-                     B_([T('Vigor +1', '#ffb0b0'), T(f'  ({"/".join(map(str, WARD))} DT)', 'gray')], MENU + 12),
-                     B_([T('Swift Return +1', '#ffb0b0'), T(f'  ({"/".join(str(p) for _s, p in RETURN)} DT)', 'gray')], MENU + 13),
-                     B_(T('« The Ledger', 'gray'), MENU + 9)], columns=2)
-    fn('p177/fol', [f'scoreboard players set @s bm.menu {MENU}', 'function bm:p177/wallet'] +
-       [f'execute unless score @s {o} matches 0.. run scoreboard players set @s {o} 0' for o in ('bm.fward', 'bm.fvig', 'bm.fret')] +
-       ['execute store result storage bm:ui vs.w int 1 run scoreboard players get @s bm.fward', 'execute store result storage bm:ui vs.v int 1 run scoreboard players get @s bm.fvig',
-        'execute store result storage bm:ui vs.r int 1 run scoreboard players get @s bm.fret', 'function bm:p177/fol_dlg with storage bm:ui vs'])
-    fn('p177/fol_dlg', [f'$dialog show @s {P28.inline(fol)}'])
-    for k, obj, nm in (('w', 'bm.fward', 'Ward'), ('v', 'bm.fvig', 'Vigor')):
-        fn(f'p177/buy_{k}', [f'execute if score @s {obj} matches 3.. run return run function bm:p177/fol_max'] +
-           [f'execute if score @s {obj} matches {lv} run return run function bm:p177/buy_{k}{lv + 1}' for lv in range(3)])
-        for lv in range(1, 4):
-            fn(f'p177/buy_{k}{lv}', [f'scoreboard players set #need bm.pay {WARD[lv - 1]}', 'execute unless function bm:p177/pay run return run function bm:p177/poor',
-                                     f'scoreboard players set @s {obj} {lv}', 'playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 0.8 0.6',
-                                     tellraw('@s', P + [T(f'{nm} {"I" * lv} - your followers will feel it the next moment they stand beside you.', 'gray')]),
-                                     'function bm:p177/fol'])
-    fn('p177/buy_r', ['execute if score @s bm.fret matches 2.. run return run function bm:p177/fol_max',
-                      'execute if score @s bm.fret matches 1 run return run function bm:p177/buy_r2', 'function bm:p177/buy_r1'])
-    for lv, (secs, price) in enumerate(RETURN, 1):
-        fn(f'p177/buy_r{lv}', [f'scoreboard players set #need bm.pay {price}', 'execute unless function bm:p177/pay run return run function bm:p177/poor', f'scoreboard players set @s bm.fret {lv}',
-                               'playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 0.8 0.8',
-                               tellraw('@s', P + [T(f'Swift Return {"I" * lv}: a faint now rests {secs} seconds.', 'gray')]), 'function bm:p177/fol'])
-    fn('p177/fol_max', [say('That is as far as it goes.', '#c8a0a0'), 'function bm:p177/fol'])
-    # the wards on every follower you call: checked a second, re-applied when you buy more
-    for w, (cd, typ, tag, call) in P173.AR.items():
-        second.append(f'execute as @e[type=minecraft:{typ},tag={tag}] at @s run function bm:p177/fb/check')
-    fn('p177/fb/check', ['execute unless score @s bm.pid matches 1.. run return 0', 'scoreboard players operation #me bm.pid = @s bm.pid',
-                         'scoreboard players set #wl bm.rng 0', 'scoreboard players set #vl bm.rng 0',
-                         'execute as @a if score @s bm.pid = #me bm.pid run function bm:p177/fb/owner',
-                         'execute unless score @s bm.fwl = #wl bm.rng run function bm:p177/fb/ward',
-                         'execute unless score @s bm.fvl = #vl bm.rng run function bm:p177/fb/vigor'])
-    fn('p177/fb/owner', ['scoreboard players operation #wl bm.rng = @s bm.fward', 'scoreboard players operation #vl bm.rng = @s bm.fvig'])
-    fn('p177/fb/ward', ['scoreboard players operation @s bm.fwl = #wl bm.rng', 'attribute @s minecraft:armor modifier remove bm:dread_ward',
-                        'attribute @s minecraft:armor_toughness modifier remove bm:dread_ward'] +
-       [f'execute if score #wl bm.rng matches {lv} run function bm:p177/fb/ward{lv}' for lv in (1, 2, 3)])
-    for lv in (1, 2, 3):
-        fn(f'p177/fb/ward{lv}', [f'attribute @s minecraft:armor modifier add bm:dread_ward {3 * lv} add_value',
-                                 f'attribute @s minecraft:armor_toughness modifier add bm:dread_ward {lv} add_value',
-                                 'particle minecraft:soul ~ ~1 ~ 0.3 0.4 0.3 0.02 6'])
-        fn(f'p177/fb/vigor{lv}', [f'attribute @s minecraft:max_health modifier add bm:dread_vigor {0.1 * lv:.1f} add_multiplied_base',
-                                  'particle minecraft:heart ~ ~1.2 ~ 0.3 0.3 0.3 0 2'])
-    fn('p177/fb/vigor', ['scoreboard players operation @s bm.fvl = #vl bm.rng', 'attribute @s minecraft:max_health modifier remove bm:dread_vigor'] +
-       [f'execute if score #vl bm.rng matches {lv} run function bm:p177/fb/vigor{lv}' for lv in (1, 2, 3)])
+    # (2.92: every follower upgrade - Ward, Vigor and Swift Return - is Queen Ava's now, at the Tide Font: phase201)
     # Swift Return: after a faint (2 minutes), the rest is cut short
     for w, (cd, typ, tag, call) in P173.AR.items():
         second += [f'execute as @a[scores={{bm.fret=1,{cd}=81..}}] run scoreboard players set @s {cd} 80',
@@ -569,15 +517,11 @@ def generate(G):
     act = [f'execute unless score @s bm.menu matches {MENU} run return run function bm:p28/stale',
            'execute unless score #hard bm.cfg matches 1 run return run function bm:p28/stale',
            f'execute unless entity @e[type=minecraft:interaction,tag=bm.vledger,distance=..8] run return run function bm:p28/stale',
-           f'execute if score #act bm.pay matches {MENU + 1} run return run function bm:p177/fol',
            f'execute if score #act bm.pay matches {MENU + 2} run return run function bm:p177/tune',
            f'execute if score #act bm.pay matches {MENU + 3} run return run function bm:p177/rf',
            f'execute if score #act bm.pay matches {MENU + 4} run return run function bm:p177/about',
            f'execute if score #act bm.pay matches {MENU + 5} run return run function bm:p177/reforge',
-           f'execute if score #act bm.pay matches {MENU + 9} run return run function bm:p177/open',
-           f'execute if score #act bm.pay matches {MENU + 11} run return run function bm:p177/buy_w',
-           f'execute if score #act bm.pay matches {MENU + 12} run return run function bm:p177/buy_v',
-           f'execute if score #act bm.pay matches {MENU + 13} run return run function bm:p177/buy_r']
+           f'execute if score #act bm.pay matches {MENU + 9} run return run function bm:p177/open']
     for (cls, key), c in TCODE.items():
         act.append(f'execute if score #act bm.pay matches {c} run return run function bm:p177/{"unbind" if key == "unbind" else f"tune/{cls}_{key}"}')
     fn('p177/act', act)

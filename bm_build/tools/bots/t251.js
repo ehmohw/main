@@ -87,6 +87,9 @@ const res = [];
   const zh0 = +((await nbt('@e[tag=bm.t251z,limit=1]', 'Health')).match(/[\d.]+/) || [0])[0];
   await run(`${N}execute as TestRat run damage @s 1 minecraft:mob_attack by @e[tag=bm.t251z,limit=1]`); await sleep(600);
   const zh1 = +((await nbt('@e[tag=bm.t251z,limit=1]', 'Health')).match(/[\d.]+/) || [0])[0];
+  if (!(zh1 < zh0)) console.log('  (nova: ' + [await effects(), await run('scoreboard players get TestRat bm.mtcd'), await run('time query gametime'),
+                                   await run('advancement test TestRat bm:p200/hurt'), await run('data get entity TestRat Health'),
+                                   await run(`execute as @e[tag=bm.t251z] run data get entity @s Pos`)].join(' | ') + ')');
   ok('...hurt, carrying it: a flame nova - the zombie beside you burned', zh1 < zh0 && +((await nbt('@e[tag=bm.t251z,limit=1]', 'Fire')).match(/-?\d+/) || [0])[0] > 0, `${zh0} -> ${zh1}`);
   await run(`${N}kill @e[tag=bm.t251z]`);
   // the Emberheart, forged on the ground in the Nether

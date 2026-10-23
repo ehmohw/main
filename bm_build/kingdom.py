@@ -28,7 +28,27 @@ ALCOVE = (33, 37, 52, 55)                # the Serpent's Alcove behind the keep:
 SEAL = [(x, y, 51) for x in (34, 35, 36) for y in (P, P + 1, P + 2)]      # the carved stone between the keep and the alcove
 CASTLE_BOX = (10, 60, 8, 60)             # what restoration rebuilds: x0, x1, z0, z1 (inside the dome only)
 
+INSIGNIA = [(35.5, P + 6.2, WALL[2] - 0.06), (35.5, P + 5.0, KEEP[1] - 6.06), (35.5, P + 6.6, KEEP[1] + 5.94)]   # (2.92) plaques, facing north
 DOOR_Z = 1                               # the Tide Door in the dome's north side (x 34..36, walk FY+1)
+
+
+def insignia_mosaic(w=7, h=11):
+    """the insignia in floor blocks: (dx, dz, block) - sea-glass light blue, its dark outline, the magenta gem (the art's top at dz 0)"""
+    from kingdom_art import insignia_sprite
+    from PIL import Image
+    im = insignia_sprite(64)
+    bb = im.getbbox(); im = im.crop(bb).resize((w, h), Image.LANCZOS)
+    out = []
+    for dz in range(h):
+        for dx in range(w):
+            r, g, b, a = im.getpixel((dx, dz))
+            if a < 90: continue
+            if r > 120 and b > 90 and g < 110: blk = 'magenta_concrete'
+            elif r + g + b > 470: blk = 'light_blue_concrete'
+            elif b > 120: blk = 'light_blue_terracotta' if g > 120 else 'cyan_terracotta'
+            else: blk = 'cyan_terracotta'
+            out.append((dx, dz, blk))
+    return out
 
 
 def dome_d(x, y, z):
@@ -170,7 +190,6 @@ def build(ruined=True):
     S(35, P + 3, z0, 'air')
     S(34, P + 3, z0, STAIR('stone_brick', 'east', 'top')); S(36, P + 3, z0, STAIR('stone_brick', 'west', 'top'))
     S(35, P + 4, z0, 'chiseled_stone_bricks')
-    S(34, P + 5, z0 - 1, 'magenta_wall_banner[facing=north]'); S(36, P + 5, z0 - 1, 'magenta_wall_banner[facing=north]')
     for (cx, cz) in GATE_T:
         for (x, z) in disc(cx, cz, 2.5):
             r = math.hypot(x - cx, z - cz)
@@ -279,7 +298,6 @@ def build(ruined=True):
         S(x, P, z, 'andesite_wall'); S(x, P + 1, z, 'lantern[hanging=false,waterlogged=false]')
     for x in (33, 37):
         S(x, P + 4, kz + 6, 'magenta_wall_banner[facing=north]')
-    S(35, P + 6, kz + 6, 'magenta_wall_banner[facing=north]')
     for (x, z) in disc(kx, kz, 4.0):
         if (x + z) % 5 == 0: S(x, P + 10, z, 'lantern[hanging=true,waterlogged=false]')
 
@@ -348,6 +366,13 @@ def build(ruined=True):
     for x in range(33, 38):                                              # its threshold and a landing inside
         for z in range(DOOR_Z + 1, DOOR_Z + 3):
             if get(x, FY, z) not in (None, 'minecraft:glass'): S(x, FY, z, 'prismarine_bricks')
+
+    # ---------------------------------------------------------------- (2.92) the kingdom's insignia: a sea-glass teardrop round a magenta gem,
+    # laid in the yard's floor either side of the fountain (from the owner's art, kingdom_art.py)
+    for (gx, gz, row) in insignia_mosaic():
+        for (x0, z0) in ((25, 26), (39, 26)):
+            S(x0 + gx, P - 1, z0 + gz, row)
+    # (the plaques: item displays the datapack hangs at INSIGNIA - over the gate, over the keep's door, behind the thrones)
 
     # ---------------------------------------------------------------- markers (the datapack finds its pieces by these)
     B.marker(CX + 0.5, P, kz - 2.5, ['bm.kgnew', 'bm.kgcore'], 180)                       # the castle (the throne room's middle)

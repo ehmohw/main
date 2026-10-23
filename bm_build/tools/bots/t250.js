@@ -40,6 +40,8 @@ const res = [];
   await run('effect give TestRat minecraft:resistance 1200 4 true'); await run('effect give TestRat minecraft:saturation 1200 0 true');
   for (const t of ['bm.kh_emma', 'bm.kh_ava', 'bm.kh_pearl', 'bm.kh_bones', 'bm.kh_court', 'bm.kh_apo', 'bm.kh_pardon']) await run(`tag TestRat remove ${t}`);
   for (const o of ['bm.ktrib', 'bm.kreq', 'bm.kaud', 'bm.kfav', 'bm.krank', 'bm.kin']) await run(`scoreboard players reset TestRat ${o}`);
+  // (the send-home functions act on the caller's own followers: #me is who's asking)
+  await run('execute as TestRat run scoreboard players operation #me bm.pid = @s bm.pid');
   for (const w of ['emma', 'ava', 'pearlq', 'bones', 'apo']) await run(`execute as TestRat run function bm:p98/home/${w}`).catch(() => {});
   await run(`${O}tp TestRat ${X + 200} 120 ${Z}`); await sleep(1500);          // (start well clear of any castle left by an earlier run)
   // ---- the stage: a deep sea, 30 down, and the castle on its floor
@@ -105,8 +107,12 @@ const res = [];
                ['gold_ingot', 8, 3], ['stone_bricks', 64, 3], ['magenta_dye', 8, 2], ['tropical_fish', 4, 3], ['light_blue_dye', 8, 2]];
   const [rid, rn, rpay] = REQ[((day % 12) + 12) % 12];
   await at(cx + 3, cy, cz - 1, -90, 15);
+  // (the pack's own items made of the same stuff - the Tidecaller Shell is a nautilus shell - are not what the steward asked for)
+  await run(`give TestRat minecraft:${rid}[minecraft:custom_data={bm:"t250_lookalike"}] ${rn}`); await sleep(300);
   A.chats.length = 0; await click(BOX('bm.kboard'));
-  ok(`the Request Stand: today's ask (${rn} ${rid.replace(/_/g, ' ')}) and your favour`, said(new RegExp(`${rn} ${rid.replace(/_/g, ' ')}`)) && said(/favour/), A.chats.slice(-1).join(''));
+  ok(`the Request Stand: today's ask (${rn} ${rid.replace(/_/g, ' ')}) and your favour - the pack's look-alikes not taken`,
+     said(new RegExp(`${rn} ${rid.replace(/_/g, ' ')}`)) && said(/favour/) && (await has('t250_lookalike')) === rn, A.chats.slice(-1).join(''));
+  await run('clear TestRat *[minecraft:custom_data~{bm:"t250_lookalike"}]');
   await run(`give TestRat minecraft:${rid} ${rn}`); await sleep(300);
   const p1 = await has('royal_pearl');
   A.chats.length = 0; await click(BOX('bm.kboard'));
@@ -116,13 +122,14 @@ const res = [];
   const STEW = '@e[type=minecraft:wandering_trader,tag=bm.kstew,limit=1]';
   const nOffers = async () => +(((await run(`${O}execute store result score #t250 bm.rng run data get entity ${STEW} Offers.Recipes`)).match(/(\d+)/) || [0, 0])[1]) &&
     +(((await run('scoreboard players get #t250 bm.rng')).match(/has (-?\d+)/)) || [0, 0])[1];
-  const special = async () => (await nbt(STEW, 'Offers.Recipes[12].sell.id')).replace(/"/g, '');
+  const special = async () => (await nbt(STEW, 'Offers.Recipes[-1].sell.id')).replace(/"/g, '');
   const n1 = await nOffers(), s1 = await special();
-  ok('the Royal Steward\'s stock: 13 trades, Royal Pearls for the kingdom\'s goods (a Heartstone among them)', n1 === 13 &&
+  // (2.92: the armoury's goods - Leo's trident, the Bloomheart, the two armour sets - come before the daily special)
+  ok('the Royal Steward\'s stock: 13 kingdom trades + the armoury, Royal Pearls for the kingdom\'s goods (a Heartstone among them)', n1 > 13 &&
      /royal_pearl/.test(await nbt(STEW, 'Offers.Recipes[0].buy')) && /heartstone/.test(await nbt(STEW, 'Offers.Recipes[8].sell')), `${n1} trades`);
   await run('scoreboard players add #bmday bm.bm 1'); await sleep(2500);
   const s2 = await special();
-  ok('...a new day: the last trade (the daily special) turns over', (await nOffers()) === 13 && s2 !== s1 && !!s2, `${s1} -> ${s2}`);
+  ok('...a new day: the last trade (the daily special) turns over', (await nOffers()) === n1 && s2 !== s1 && !!s2, `${s1} -> ${s2}`);
   await run('scoreboard players remove #bmday bm.bm 1'); await sleep(1500);
 
   // ---- the royal family: Queen Ava and Queen Pearl join Emma - the Full Court
@@ -156,11 +163,13 @@ const res = [];
   await run('scoreboard players reset TestRat bm.apcd'); await run('scoreboard players reset TestRat bm.gvhc');
   await run('loot replace entity TestRat hotbar.5 loot bm:items/apo_oath'); await sleep(1500);
   await at(cx, cy, cz - 2, 180, 0);
-  A.bars.length = 0; await use(5); await wait(6000, async () => (await cnt('@e[tag=bm.appet,tag=!bm.ffpet]')) === 1);
+  A.bars.length = 0; A.chats.length = 0;           // (the stone can open the very second he arrives: listen from the summons on)
+  await use(5); await wait(6000, async () => (await cnt('@e[tag=bm.appet,tag=!bm.ffpet]')) === 1);
   if ((await cnt('@e[tag=bm.appet,tag=!bm.ffpet]')) !== 1) console.log('  (Apophiss: ' + A.bars.slice(-2).join(' / ') + ')');
-  A.chats.length = 0;
-  ok('Apophiss brought into the throne room: the stone grinds open on the Serpent\'s Alcove', await wait(6000, async () => await block(X, cy, Z + 16, 'minecraft:air')) &&
-     (await wait(2000, async () => said(/grinds open/))));
+  const opened = await wait(6000, async () => await block(X, cy, Z + 16, 'minecraft:air')) && (await wait(2000, async () => said(/grinds open/)));
+  if (!opened) console.log('  (apophiss: ' + (await run('execute as @e[tag=bm.appet] run data get entity @s Pos')) + ' | core ' +
+                           (await run(`data get entity ${CORE} Pos`)) + ' | ' + (await run(`data get entity ${CORE} Tags`)) + ')');
+  ok('Apophiss brought into the throne room: the stone grinds open on the Serpent\'s Alcove', opened);
   await at(cx, cy, Z + 17.5, 0, 15);
   A.chats.length = 0; await click(BOX('bm.kplinth')); await sleep(800);
   ok('the plinth, Apophiss beside you: his penance - Tide-Breaker', await tagged('bm.kh_apo') && said(/never lift against the sea/) && (await has('tide_breaker')) === 1);

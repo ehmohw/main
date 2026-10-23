@@ -167,8 +167,11 @@ import phase195 as R195      # 2.88: Bender, the goodest boy (Bender's Ball) - d
 import phase196 as R196      # 2.88: Bones, Emma's pet shark (Bones's Whistle) - a mount in his water bubble
 import phase197 as R197      # 2.88: the three Dread bosses (hard mode) and their ruins, tokens and maps
 import phase198 as R198      # 2.90: Mr. Capshun, the narrator (Mr. Capshun's Pencil) - a flat stick figure: brush, pencil and paint
+import phase201 as R201      # 2.92: Queen Ava's Honours - follower Vitality/Bulwark/Might I-V at the Tide Font
 import phase200 as R200      # 2.91: the Nether and the End - outposts, the Colossus's Forge, the Observatory, Eruptions, Void Storms, the stars (hellend.py)
 import phase199 as R199      # 2.91: the Underwater Kingdom - Emma's home castle under a bubble dome (kingdom.py); royal homecomings, the dailies
+import phase203 as R203      # 2.92: structures settle into the land (settle.py)
+import phase202 as R202      # 2.92: the kingdom's armoury - Leo's Aegis, Emma's Crescent, Tidewarden and Pearlguard, Tide Scales (kingdom_art.py)
 import phase188 as R188      # 2.86: the bonds - eleven new pairs and five new trios (Ashur, the Chef, the Neighbor and friends)
 import phase171 as R171      # 2.82b: the Town Directory - who's where in the rat town, and a trail of light there
 import phase172 as R172      # 2.82b: King Omega's tithe - triple currency from custom mobs, 1% from the rest, while he's out
@@ -200,7 +203,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.91a'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.92a'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -459,6 +462,7 @@ def all_offers():
     R148.extend_offers(O, offer)       # (2.82c: the Crimson War Horn at the Bloodbroker)
     R179.extend_offers(O, offer)       # (2.84c: the Partner Wheel at Cecil's)
     R199.extend_offers(O, offer)       # (2.91: the Sealed Royal Chart at the Dockmaster's)
+    R202.extend_offers(O, offer)       # (2.92: Leo's Trident and the Bloomheart leave Cecil for the Royal Steward)
     # 2.82: follower cosmetics are raid exclusives (the Tailor in the den) - no overworld trader sells one
     global COS_OFF_MARKET
     COS_OFF_MARKET = sorted({R41._sell_id(o) for L in O.values() for o in L if R41._sell_id(o).startswith('cos_')})
@@ -1133,6 +1137,7 @@ def gen_tags_worldgen():
     GYB = S.build_graveyard()
     GYB.export(path('data', 'bm', 'structure', 'graveyard.nbt'))
     for nm, piece in zip(('top', 'crypt'), S.graveyard_pieces(GYB)):
+        if nm == 'top' and PHASE2: R203.mark_graveyard(piece)          # 2.92: it settles into the land (phase203)
         piece.export(path('data', 'bm', 'structure', f'graveyard_{nm}.nbt'))
     S.build_frog_hut().export(path('data', 'bm', 'structure', 'frog_hut.nbt'))
     R32.build_crash_seed().export(path('data', 'bm', 'structure', 'crash_site.nbt'))         # 2.13: the crater is carved at runtime
@@ -1354,6 +1359,9 @@ def build(out_dir):
     if PHASE2: R198.generate(sys.modules[__name__])
     if PHASE2: R199.generate(sys.modules[__name__])
     if PHASE2: R200.generate(sys.modules[__name__])
+    if PHASE2: R201.generate(sys.modules[__name__])
+    if PHASE2: R202.generate(sys.modules[__name__])
+    if PHASE2: R203.generate(sys.modules[__name__])
     if PHASE2: R188.generate(sys.modules[__name__])
     if PHASE2: R192.generate(sys.modules[__name__])
     R171.generate(sys.modules[__name__])
@@ -1386,6 +1394,7 @@ def build(out_dir):
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command
     gen_tags_worldgen()
     print('allies:', allies.finalize(sys.modules[__name__]), 'friendly-fire lines now skip every follower')
+    if PHASE2: print('royal might: %d follower damage lines scaled by Might (%d little functions)' % R201.finalize(sys.modules[__name__]))
     print('noglow:', noglow.apply(sys.modules[__name__]), 'glow lines kept off invisible hosts')      # 2.80e
     print('omega tithe: %d custom-mob loot tables, %d currency pools tripled' % R172.finalize(sys.modules[__name__]))
     print('2.82t: %d loot tables, %d pools of map pieces / Skiff parts give one you lack' % R173.finalize(sys.modules[__name__]))
