@@ -21,7 +21,7 @@ if dpm['min_format'] != [121, 0] or dpm["max_format"] not in (121, [121, 0]): E(
 if rpm['min_format'] != [97, 1] or rpm["max_format"] not in (97, [97, 1]): E(f'resource pack format {rpm}')
 
 # ---------------- structures: block states + block entities + entities
-BE_OK = {'lectern', 'sign', 'hanging_sign', 'chest', 'barrel', 'vault', 'trial_spawner', 'jigsaw'}         # (2.75: jigsaw - the graveyard's yard + crypt pieces)
+BE_OK = {'lectern', 'sign', 'hanging_sign', 'chest', 'barrel', 'vault', 'trial_spawner', 'jigsaw', 'mob_spawner'}   # (2.75: jigsaw - the graveyard's yard + crypt pieces; 2.91: the Forge's blaze cages)
 def loot_exists(ref):
     ns_, path_ = ref.split(':', 1)
     if ns_ == 'minecraft': return path_ in REG['loot_table']

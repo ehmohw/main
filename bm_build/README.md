@@ -21,6 +21,90 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.91a: the Underwater Kingdom, and the Nether and the End overhauled
+
+### The Underwater Kingdom (deep oceans)
+Emma's home: a ruined grey castle under a glass bubble dome on the deep sea floor, built from the owner's art. It has
+light-blue cone roofs with blue bands and magenta flags, cracked and holed walls, a fallen turret lying on the grass, and
+fire and soot in the windows. It stands on a green hill with a grey path and pink flowers.
+- **Getting in:** swim into the **Tide Door**, the shimmering pane in the dome's north side. Walk back into it to leave.
+  The Dockmaster sells a **Sealed Royal Chart** (6 Tokens) that marks the nearest castle.
+- **Royal homecomings:** right-click the **Tide Font** between the thrones with a royal beside you. Each one comes home once:
+  - Emma: the Tidecaller Shell (three minutes of Water Breathing, Dolphin's Grace and Conduit Power; 2-minute recharge).
+  - Queen Ava: the Sea-Glass Locket (carried: Water Breathing, and Regeneration in water).
+  - Queen Pearl: the Regent's Seal (carried: Hero of the Village, so traders give their best prices).
+  - Bones: the Shark-Tooth Charm (carried, in water: Strength and Speed II).
+- **The Full Court:** bring Emma, Queen Ava and Queen Pearl together (a full follower party).
+  - The castle is **restored**: the fires go out, and the fallen tower and the broken walls stand again.
+  - You get the **Crown of the Deep**: an unbreakable helmet with Respiration III, Aqua Affinity, Protection IV and +4 max
+    health, which also lets you swim, dig and breathe under water like a royal.
+  - After that, the full court at the Font holds a **Tide Festival** once a day (Royal Pearls, favour, a lucky dip).
+- **The hidden reward:** bring **Apophiss** into the throne room. The carved stone behind the thrones knows its old master
+  and opens on the Serpent's Alcove. At its plinth, with him beside you, is the penance he sealed there: **Tide-Breaker**, an
+  unbreakable trident with Loyalty III, Impaling V, Channeling and +6 damage. If Queen Ava is there too, she forgives him
+  (2 Heartstones, 16 pearls, deep favour).
+- **Reasons to come back, every day:**
+  - The **Royal Treasury** (the steward's barrels) pays a tribute of **Royal Pearls** plus a gift. You get one more pearl
+    for each royal with you, and one more once the castle is restored.
+  - The **Request Stand** asks for one thing each day (kelp, glass, gold, dye...), paid in pearls and favour.
+  - The **Royal Steward** (a rat in royal blue) sells for pearls: Heartstones, Hearts of the Sea, Conduits, tridents, the
+    Tidecaller Shell and more. His last trade is a **daily special** that changes every day.
+  - Any royal at the Font: a daily **royal audience** (a pearl for each royal).
+  - Favour earns ranks, each with a gift: **Courtier** (5), **Knight of the Tide** (12) and **Royal Champion** (25). The
+    Champion's Royal Charter adds a pearl to every tribute, for good.
+- **Dome breaches:** now and then, while someone's inside, the dome cracks and **Tide Raiders** come through.
+  - Right-click each crack before the minute is up (a pearl each; 3 pearls and favour if the dome holds).
+  - A crack that bursts lets the sea in. Sneak + right-click the **Dome Heart** over the fountain to mend leaks (2 pearls;
+    free with Queen Ava).
+  - If three cracks burst, the **dome shatters** and the castle floods. The Dome Heart raises it again with a Heart of the
+    Sea in hand, or Queen Ava beside you.
+
+### The Nether
+- **The Ember Rat's Outpost:** a Black Market branch in a little nether-brick fort.
+  - Its Ember Rat never packs up. He has his field stock plus Hellstars, Heartstones and the Smouldering Idol.
+  - It has a chest, a lava font and a charged respawn anchor.
+  - In an Eruption it's a shelter: nothing falls inside, and its walls lend Fire Resistance.
+- **The Colossus's Forge:** a lava temple with blaze cages in the gate hall, a bridge over the moat and the Great Anvil.
+  - Sneak + right-click the anvil with a Smouldering Idol (or 32 Ember Scales) to wake the **Magma Colossus**.
+  - Beat him there and the forge burns for good. Everyone who fought gets Hellstars, Ember Scales and a Heartstone.
+  - A lit forge **tempers**: right-click it holding anything that wears out, with 2 Hellstars on you, and it's unbreakable.
+  - Wake him again for more spoils whenever you like.
+- **The Eruption** (the Nether's event; there's no night to call it one): every so often, for four minutes, the Nether boils.
+  - Ash and rumbling, magma cubes spilling out, and lava bombs crashing down (watch for the rings of flame).
+  - Hellstars fall ten times as often.
+  - Ride it out and you're paid in Ember Scales, a Hellstar and maybe a Heartstone.
+
+### The End (past the dragon's island)
+- **The Void Rat's Outpost:** a stall on its own floating island.
+  - Its Void Rat stays. He has his stock plus Voidstars, Heartstones and the Starless Eye.
+  - It has an ender chest and a chest. Its **rift anchor** catches anyone who falls into the void nearby.
+- **The Voidwalker's Observatory:** a shattered observatory adrift in the void.
+  - Take a Starless Eye from its pedestal (once each).
+  - Sneak + right-click the pedestal with 3 Voidstars to call the **Voidwalker** there. Beat him for Voidstars, Void Shards
+    and a Heartstone.
+  - Its **telescope**, once a day: a Voidstar comes down beside you (two in a Void Storm), and it warns of a coming storm.
+- **The Void Storm** (the End's event): gravity heaves, rifts tear open and drag at you, and rift mites crawl out.
+  - Step through a rift for a Void Shard and a long, slow fall.
+  - Voidstars fall ten times as often.
+  - Its end pays Void Shards and a Voidstar.
+
+### Stars and forges
+Hellstars (the Nether) and Voidstars (the outer End) fall at any time, glowing where they land.
+- **Hellstar**, used: Fire Resistance and Strength. **Voidstar**, used: a Void Blink of 16 blocks where you look.
+- Sneak + use with nine:
+  - The **Ember Mantle**. Carried: Fire Resistance. When you're hurt, a flame nova burns up to 4 monsters.
+  - The **Void Mantle**. Carried: fall out of the End and you're set down where you last stood. When you're hurt, up to 3
+    monsters are flung into the air.
+- **Ground forges** (drop the pieces together):
+  - A Hellstar and a Heartstone, in the Nether: an **Emberheart** (+1 attack damage, for good, up to 3).
+  - A Voidstar and a Heartstone, in the End: a **Voidheart** (+1 block reach and +0.5 entity reach, for good, up to 3).
+  - The Star Cloak, the Ember Mantle and the Void Mantle: the **Mantle of Three Skies** (all three mantles in one slot).
+- **Better chests:** bastions, fortresses and End cities now hide Hellstars or Voidstars, Ember Scales or Void Shards,
+  Heartstones (more often than before), Medallions, and now and then a Smouldering Idol or a Starless Eye.
+
+Admin: `/function bm:admin/kingdom`, `bm:admin/ember_outpost`, `bm:admin/colossus_forge`, `bm:admin/void_outpost`,
+`bm:admin/observatory`, `bm:admin/eruption` and `bm:admin/voidstorm`.
+
 ## New in 2.90d: Emma's old bow is back
 
 Emma wears her old bow again: the flat two-loop bow with its knot, now at the root of her new ponytail on top of her head.
