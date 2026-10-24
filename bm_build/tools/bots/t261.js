@@ -54,7 +54,8 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
   const f0 = await nbt(`${COS.slice(0, -1)},limit=1]`, 'item.components."minecraft:custom_model_data"'); await sleep(900);
   ok('...the sprite animates (its frame changes)', (await nbt(`${COS.slice(0, -1)},limit=1]`, 'item.components."minecraft:custom_model_data"')) !== f0);
   await run(`${O}tp ${CELI} ${X + 4.5} ${Y + 1} ${Z + 2.5}`); await sleep(800);
-  ok('...and stays on her when she moves', Math.abs((await num(`${COS.slice(0, -1)},limit=1]`, 'Pos[0]')) - (X + 4.5)) < 0.6);
+  ok('...and stays on her when she moves', await wait(3000, async () => Math.abs((await num(`${COS.slice(0, -1)},limit=1]`, 'Pos[0]')) - (await num(CELI, 'Pos[0]'))) < 0.6 &&
+     Math.abs((await num(`${COS.slice(0, -1)},limit=1]`, 'Pos[2]')) - (await num(CELI, 'Pos[2]'))) < 0.6), `sprite x ${await num(`${COS.slice(0, -1)},limit=1]`, 'Pos[0]')} her x ${await num(CELI, 'Pos[0]')}`);
   // her own wardrobe now
   await wardrobe();
   ok('her wardrobe: "Pixel costume on"', A.buttons().some(b => /Pixel costume\s+on/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
