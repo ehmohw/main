@@ -68,8 +68,9 @@ def cycles(fn, pfx, cyc, frame_obj, state_obj, pose_fn, tw=None):
     a head cut across the arc and came off the shoulders on the way. Three in-between keys, blended joint by joint, 3 ticks
     apart. Where it came from: the state it was in last tick (bm.rfls), taken as it changes (bm.rfps)."""
     top = []
-    if tw and hasattr(tw['A'], 'PARENT') and 'idle_a' in tw.get('P', tw['A'].POSES):
-        A, G, PZ = tw['A'], tw['G'], tw.get('P', tw['A'].POSES)
+    PZ = (tw.get('P') or getattr(tw['A'], 'POSES', None) or {}) if tw else {}
+    if tw and hasattr(tw['A'], 'PARENT') and 'idle_a' in PZ:
+        A, G = tw['A'], tw['G']
         if 'bm.rfls' not in G.OBJECTIVES:
             G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.rfls dummy', 'scoreboard objectives add bm.rfps dummy']
             G.OBJECTIVES += ['bm.rfls', 'bm.rfps']

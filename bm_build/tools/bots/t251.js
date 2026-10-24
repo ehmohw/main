@@ -70,7 +70,7 @@ const res = [];
   ok('...out in the open: lava bombs come down round you (the rings)', await wait(20000, async () => (await cnt(`@e[type=minecraft:marker,tag=bm.lbomb,x=${NX + 60},y=${NY},z=${NZ},distance=..16]`)) > 0));
   ok('...a Hellstar falls nearby (glowing where it lands)', await wait(60000, async () => (await cnt(`@e[type=minecraft:item,tag=bm.hstar,x=${NX + 60},y=${NY},z=${NZ},distance=..40]`)) > 0, 500));
   const sc0 = await has('ember_scale'), hs0 = await has('hellstar');
-  A.titles.length = 0; await run('scoreboard players set #eru bm.bm 2'); await sleep(3500);
+  A.titles.length = 0; await run('scoreboard players set TestRat bm.erus 200'); await run('scoreboard players set #eru bm.bm 2'); await sleep(3500);   // (the stage: the four minutes ridden out - 2.94k needs half of it)
   ok('the Eruption ends: you rode it out - Ember Scales and a Hellstar', said(/Eruption ends/) && (await has('ember_scale')) >= sc0 + 4 && (await has('hellstar')) === hs0 + 1,
      `scales +${(await has('ember_scale')) - sc0}`);
   await run(`${N}kill @e[type=minecraft:item,x=${NX + 60},y=${NY},z=${NZ},distance=..40]`); await run(`${N}kill @e[type=minecraft:magma_cube,tag=bm.erumob]`);
@@ -164,6 +164,7 @@ const res = [];
   ok('...stepped through it: a Void Shard, and a long fall (slow)', through);
   await at(E, SX0 + 0.5, EY, EZ + 0.5);
   await run(`${E}kill @e[type=minecraft:endermite,tag=bm.riftmite]`);
+  await run('scoreboard players set TestRat bm.vsts 200');                 // (the stage: through the storm - 2.94k needs half of it)
   A.titles.length = 0; await run('scoreboard players set #vst bm.bm 2'); await sleep(3500);
   ok('the storm passes: Void Shards and a Voidstar', said(/Void Storm passes/) && (await has('voidstar')) >= 1);
   await run('scoreboard players set #vstcd bm.bm 99999');

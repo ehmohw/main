@@ -6,7 +6,8 @@
 // special turning over; Queen Ava and Queen Pearl called - their homecomings, the Full Court: the Crown of the Deep, the castle
 // restored (the fires out), the Tide Festival; Bones's homecoming; Apophiss brought in - the carved stone opens, his penance on
 // the plinth (Tide-Breaker), and with Queen Ava there her pardon; a dome breach - three cracks sealed by hand, one left to
-// burst (the sea gets in), the leak mended at the Dome Heart (2 pearls); the dome shattered - raised again with a Heart of the Sea.
+// burst (the sea gets in), the leak mended at the Dome Heart (2 pearls) - 2.94k: Adventure mode inside, the cracks signposted, the Heart
+// glowing and signed while it leaks; the dome shattered - raised again with a Heart of the Sea.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
@@ -78,9 +79,12 @@ const res = [];
   await at(X + 0.5, Y + 1, Z - 34.5, 0, 0);
   const inside = await wait(3000, async () => A.pos && A.pos.z > Z - 31);
   ok('swum into the Tide Door from the sea: you\'re inside the dome', inside, A.pos ? `z ${A.pos.z.toFixed(1)}` : '');
+const gm = async () => +(((await run('data get entity TestRat playerGameType')).match(/: (\d+)/) || [0, -1])[1]);
+  ok('...and in Adventure mode inside the dome (2.94k: the royal halls aren\'t for digging)', await wait(3000, async () => (await gm()) === 2), `mode ${await gm()}`);
   ok('..."The Underwater Kingdom" (the title)', await wait(3000, async () => A.titles.some(t => /Underwater Kingdom/.test(t))), A.titles.join(' | '));
   await at(X + 0.5, Y + 1, Z - 30.5, 180, 0);
   ok('walked into it from inside: out in the sea', await wait(3000, async () => A.pos && A.pos.z < Z - 35), A.pos ? `z ${A.pos.z.toFixed(1)}` : '');
+  ok('...and back in Survival out of it', await wait(3000, async () => (await gm()) === 0), `mode ${await gm()}`);
 
   // ---- the Tide Font with nobody
   await at(cx, cy, cz + 1, 0, 10);
@@ -197,6 +201,8 @@ const res = [];
   ok('...right-click again: DOME BREACH (and the dome rests 10 minutes after)', A.titles.some(t => /DOME BREACH/.test(t)) && (await score('bm.kbcd', CORE)) > 500);
   const cracks = `@e[type=minecraft:interaction,tag=bm.kcrackbox,x=${X},y=${Y},z=${Z},distance=..70]`;
   ok('DOME BREACH: four cracks, Tide Raiders through them', (await cnt(cracks)) === 4 && (await cnt(`@e[type=minecraft:drowned,tag=bm.kraider]`)) >= 4);
+  const signs = `@e[type=minecraft:text_display,tag=bm.kcracktxt,x=${X},y=${Y},z=${Z},distance=..70]`;
+  ok('...each crack signposted ("⚠ CRACK - right-click to seal", seen through the walls)', (await cnt(signs)) === 4 && /1b/.test(await nbt(`${signs.slice(0, -1)},limit=1]`, 'see_through')));
   await run('kill @e[type=minecraft:drowned,tag=bm.kraider]');
   const spots = [];
   for (let k = 0; k < 4; k++) {
@@ -214,6 +220,7 @@ const res = [];
     if ((await cnt(`@e[type=minecraft:interaction,tag=bm.kcrackbox,x=${x},y=${y},z=${z},distance=..0.6]`)) === 0 && (await has('royal_pearl')) === pe + 1) sealed++;
   }
   ok('three cracks sealed by hand (a pearl each)', sealed === 3, `${sealed}/3`);
+  ok('...their signs gone with them (one left)', (await cnt(signs)) === 1);
   const [bx, by, bz] = spots[3];
   // (the sea outside the glass is wet already: count only the cells that were dry before the burst)
   const cells = []; for (let dx = -1; dx <= 1; dx++) for (let dz = -1; dz <= 1; dz++) for (let dy = 0; dy <= 2; dy++) cells.push([Math.floor(bx) + dx, Math.floor(by) + dy, Math.floor(bz) + dz]);
@@ -222,12 +229,16 @@ const res = [];
   await run(`scoreboard players set ${CORE} bm.kbr 2`); await sleep(3500);
   const wet = await wetNow();
   ok('...the fourth left: it bursts - the sea gets in through the glass there', (await score('bm.kburst', CORE)) === 1 && wet > 0, `${wet} water`);
+  const HEART = `@e[type=minecraft:item_display,tag=bm.kheartd,x=${X},y=${Y},z=${Z},distance=..70,limit=1]`, MSG = `@e[type=minecraft:text_display,tag=bm.kheartmsg,x=${X},y=${Y},z=${Z},distance=..70]`;
+  ok('...the dome leaking: the Dome Heart glows red, and a sign over it says how to mend it (2.94k)', await wait(4000, async () => (await cnt(MSG)) === 1) &&
+     /1b/.test(await nbt(HEART, 'Glowing')) && (await cnt(signs)) === 0, `${await cnt(MSG)} signs, glowing ${await nbt(HEART, 'Glowing')}`);
   await at(X + 0.5, cy + 0.5, Z - 2.0, 180, -20);
   await run('give TestRat minecraft:air'); const pm = await has('royal_pearl');
   A.titles.length = 0; A.chats.length = 0; A.bars.length = 0; await click(BOX('bm.kheart'), true); await sleep(1500);
   const wet2 = await wetNow();
   ok('the Dome Heart, sneak + right-click: the leak mended (2 pearls) - glass back, the water drained', wet2 === 0 && (await has('royal_pearl')) === pm - 2 &&
      A.titles.some(t => /dome is whole/.test(t)), `${wet2} water left, pearls ${pm} -> ${await has('royal_pearl')}`);
+  ok('...the sign gone, the Heart no longer glowing', (await cnt(MSG)) === 0 && !/1b/.test(await nbt(HEART, 'Glowing')));
   A.bars.length = 0; await click(BOX('bm.kheart')); await sleep(300); await click(BOX('bm.kheart')); await sleep(600);
   ok('...and no new breach while the Tide Raiders regroup (the cooldown on the bar)', (await score('bm.kbr', CORE)) <= 0 && A.bars.some(t => /regrouping/.test(t)), A.bars.join(' | '));
 

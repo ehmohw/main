@@ -22,7 +22,9 @@ const res = [];
   await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 48} ${Z + 16}`); await sleep(2500);
   await run(`${O}fill ${X - 10} ${Y} ${Z - 10} ${X + 40} ${Y} ${Z + 10} minecraft:sandstone`); await run(`${O}fill ${X - 10} ${Y + 1} ${Z - 10} ${X + 40} ${Y + 6} ${Z + 10} minecraft:air`);
   await run(`${O}kill @e[type=!minecraft:player,x=${X + 15},y=${Y},z=${Z},distance=..40]`);
-  await run(`${O}execute as ${EMMA} run function bm:p62/emma_go`); await run(`kill ${SKY}`); await sleep(2500);
+  await run(`${O}execute as ${EMMA} run function bm:p62/emma_go`); await run(`kill ${SKY}`);
+  for (const t of ['wolf', 'cat']) await run(`${O}execute as @e[type=minecraft:${t}] if score @s bm.pid = TestRat bm.pid run tp @s ~ -300 ~`);   // (any partner of ours an earlier test left out)
+  await sleep(2500);
   await run('scoreboard players set TestRat bm.emcd 0'); await run('scoreboard players set TestRat bm.ybcd 0'); await run('scoreboard players set TestRat bm.pw0 0');
   await run(`${O}tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} -90 0`); await sleep(1500); A.stand();
   await run('loot replace entity TestRat hotbar.0 loot bm:items/partner_wheel'); await run('loot replace entity TestRat hotbar.1 loot bm:items/sky_mobile');

@@ -15,6 +15,11 @@ from items import item, T, TOTEM, ITEMS
 from nbt import snbt, B, F, Int, D
 import pxart
 import phase210 as FXS
+import phase152 as P152
+# (2.94k) THE 8-BIT SERPENT KING's own battle theme (tools/chip_music.py: two pulse channels, a triangle bass, a noise kit) while
+# he's near - and its record (phase124's 'pxapo'): the first win always, then one win in five
+P152.THEMES[17] = ('pxapo', 48)
+P152.WHO_LATE += [(17, 'type=minecraft:husk,tag=bm.pxapo')]
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 GRN, GRN_LT = '#3ad06a', '#b8ffc8'
@@ -239,7 +244,10 @@ def generate(G):
     fn('p215/won', ['execute store result score #pxacd bm.dbcd run time query gametime', 'scoreboard players add #pxacd bm.dbcd 6000','particle minecraft:electric_spark ~ ~1.5 ~ 2 2 2 0.4 120', 'playsound minecraft:block.note_block.bit hostile @a[distance=..48] ~ ~ ~ 2 2',
                     'playsound minecraft:ui.toast.challenge_complete player @a[distance=..48] ~ ~ ~ 1 1.2',
                     'execute as @a[distance=..48,gamemode=!spectator] run function bm:p215/reward', 'kill @s'])
-    fn('p215/reward', ['execute if entity @s[tag=bm.pxcrown] run return run function bm:p215/again', 'tag @s add bm.pxcrown', give('px_crown'),
+    fn('p215/disc', ['execute store result score #r bm.rng run random value 1..5', 'execute unless entity @s[tag=bm.pxdisc] run scoreboard players set #r bm.rng 1',
+                     'execute unless score #r bm.rng matches 1 run return 0', 'tag @s add bm.pxdisc', G.give('music_disc_pxapo'),
+                     G.tellraw('@s', P + [T('Among the pixels: a record - ', 'gray'), T('The 8-Bit Serpent King', GRN, bold=True), T('. His battle, in sixteen colours.', 'gray')])])
+    fn('p215/reward', ['function bm:p215/disc', 'execute if entity @s[tag=bm.pxcrown] run return run function bm:p215/again', 'tag @s add bm.pxcrown', give('px_crown'),
                        'advancement grant @s only bm:story/px_crown',
                        tellraw('@s', P + [T('The 8-Bit Serpent King shatters into a thousand pixels - and one of them is a crown. ', 'gray'),
                                           T('The 8-Bit Crown', GRN, bold=True), T(' is yours.', 'gray')])])

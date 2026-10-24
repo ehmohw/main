@@ -512,7 +512,12 @@ def generate(G):
                              'playsound minecraft:entity.elder_guardian.curse hostile @a[distance=..64] ~ ~ ~ 0.6 1.2',
                              'execute positioned ~ ~-4 ~-6 run ' + title('@a[distance=..34]', 'title', T('DOME BREACH!', '#ff5a5a', bold=True)),
                              'execute positioned ~ ~-4 ~-6 run ' + title('@a[distance=..34]', 'subtitle', T(f'Seal the {CRACKS} cracks before the sea gets in! (right-click them)', KC))])
+    # (2.94k: each crack signposted - a sign over it you can see through the walls, so it can be found from anywhere in the castle)
+    crack_sign = snbt({'Tags': ['bm.kcracktxt'], 'text': [T('⚠ CRACK', '#ff5a5a', bold=True), T('\nright-click to seal', 'white')], 'billboard': 'center',
+                       'see_through': B(1), 'background': Int(0x90400000 - (1 << 32)), 'brightness': {'block': Int(15), 'sky': Int(15)},
+                       'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0), F(0), F(0)], 'scale': [F(1.3)] * 3}})
     fn('p199/breach/crack', ['summon minecraft:interaction ~ ~ ~ {Tags:["bm.kbox","bm.kcrackbox"],width:1.4f,height:2.6f,response:1b}',
+                             f'summon minecraft:text_display ~ ~3 ~ {crack_sign}',
                              f'summon minecraft:drowned ~ ~ ~ {snbt(raider)}', f'summon minecraft:drowned ~ ~ ~ {snbt(raider)}',
                              'particle minecraft:falling_water ~ ~2 ~ 0.4 0.6 0.4 0 30'])
     fn('p199/breach/tick', ['scoreboard players remove @s bm.kbr 1',
@@ -529,16 +534,16 @@ def generate(G):
                             'execute if score #r bm.rng matches 1 run playsound minecraft:block.glass.hit block @a[distance=..20] ~ ~ ~ 1 0.6'])
     fn('p199/breach/patch', ['execute as @e[type=minecraft:interaction,tag=bm.khere] at @s run function bm:p199/breach/sealed',
                              pearls(1), say('You seal the crack with a slap of mortar and a prayer. (+1 Royal Pearl)', KC)])
-    fn('p199/breach/sealed', ['tag @e[type=minecraft:marker,tag=bm.kcrack,distance=..1.5] remove bm.kcrack', 'kill @s',
+    fn('p199/breach/sealed', ['tag @e[type=minecraft:marker,tag=bm.kcrack,distance=..1.5] remove bm.kcrack', 'kill @s', 'kill @e[type=minecraft:text_display,tag=bm.kcracktxt,distance=..4]',
                               'particle minecraft:block{block_state:"minecraft:glass"} ~ ~1.5 ~ 0.4 0.6 0.4 0 20',
                               'playsound minecraft:block.glass.place block @a[distance=..16] ~ ~ ~ 1 0.8'])
-    fn('p199/breach/won', ['scoreboard players set @s bm.kbr 0', 'kill @e[type=minecraft:drowned,tag=bm.kraider,distance=..70]',
+    fn('p199/breach/won', ['scoreboard players set @s bm.kbr 0', 'kill @e[type=minecraft:drowned,tag=bm.kraider,distance=..70]', 'kill @e[type=minecraft:text_display,tag=bm.kcracktxt,distance=..70]',
                            'execute positioned ~ ~-4 ~-6 as @a[distance=..34,gamemode=!spectator] at @s run function bm:p199/breach/hero',
                            'playsound minecraft:block.beacon.power_select block @a[distance=..64] ~ ~ ~ 1 1.2'])
     fn('p199/breach/hero', [pearls(3), 'scoreboard players add @s bm.kfav 1', 'function bm:p199/rank/check',
                             title('@s', 'title', T('The dome holds!', KC, bold=True)), title('@s', 'subtitle', T('+3 Royal Pearls, +1 favour', PEARL_C))])
     fn('p199/breach/lost', ['execute as @e[type=minecraft:marker,tag=bm.kcrack,distance=..70] at @s run function bm:p199/breach/burst',
-                            'kill @e[type=minecraft:interaction,tag=bm.kcrackbox,distance=..70]',
+                            'kill @e[type=minecraft:interaction,tag=bm.kcrackbox,distance=..70]', 'kill @e[type=minecraft:text_display,tag=bm.kcracktxt,distance=..70]',
                             f'execute if score @s bm.kburst matches {SHATTER_AT}.. run return run function bm:p199/dome/shatter',
                             'execute positioned ~ ~-4 ~-6 run ' + title('@a[distance=..34]', 'title', T('The sea gets in!', '#ff5a5a', bold=True)),
                             'execute positioned ~ ~-4 ~-6 run ' + title('@a[distance=..34]', 'subtitle', T('Mend the leaks at the Dome Heart (sneak + right-click it)', KC))])
@@ -634,6 +639,7 @@ def generate(G):
     fn('p199/dome/mend', ['scoreboard players set #kl bm.rng 0', f'execute {loaded} run scoreboard players set #kl bm.rng 1',
                           'execute if score #kl bm.rng matches 0 run return run ' + say('The dome is too far to reach all of it - come closer.', KC),
                           f'execute {loaded} run function bm:p199/dome/mend_blocks', 'scoreboard players set @s bm.kdome 0', 'scoreboard players set @s bm.kburst 0',
+                          'execute as @e[type=minecraft:item_display,tag=bm.kheartd,distance=..60] at @s run function bm:p199/dome/unsign',
                           'scoreboard players set @s bm.kdry 6',
                           'kill @e[type=minecraft:drowned,tag=bm.kraider,distance=..70]',
                           'playsound minecraft:block.conduit.activate block @a[distance=..64] ~ ~ ~ 1 0.8',
@@ -642,7 +648,25 @@ def generate(G):
     fn('p199/dome/drying', ['execute if score @s bm.kdome matches 1 run return run scoreboard players set @s bm.kdry 0', 'scoreboard players remove @s bm.kdry 1', f'execute if score @s bm.kdry matches 3 {loaded} run function bm:p199/dome/dry',
                             f'execute if score @s bm.kdry matches 0 {loaded} run function bm:p199/dome/dry'])
     second.append('execute as @e[type=minecraft:marker,tag=bm.kingdom,scores={bm.kburst=1..,bm.kdome=0}] at @s run function bm:p199/dome/leaking')
-    fn('p199/dome/leaking', ['scoreboard players add @s bm.kleak 1', 'execute as @e[type=minecraft:item_display,tag=bm.kheartd,distance=..60] at @s run particle minecraft:dripping_water ~ ~0.6 ~ 0.3 0.3 0.3 0 6',
+    # (2.94k: a leaking dome says so where you'll see it - the Dome Heart glows red, and a sign over it, seen through the walls)
+    heart_sign = snbt({'Tags': ['bm.kheartmsg'], 'text': [T('THE DOME IS LEAKING', '#ff5a5a', bold=True), T('\nsneak + right-click the Dome Heart', 'white'),
+                                                          T('\n(2 Royal Pearls - free with Queen Ava)', '#b8e8ff')],
+                       'billboard': 'center', 'see_through': B(1), 'background': Int(0x90400000 - (1 << 32)), 'brightness': {'block': Int(15), 'sky': Int(15)},
+                       'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0), F(0), F(0)], 'scale': [F(1.2)] * 3}})
+    # (2.94k) the kingdom is no place to dig: survival players inside the dome are in Adventure mode - and back in Survival
+    # when they leave it (or wherever they turn up next: died, logged out, teleported)
+    second.append('execute as @e[type=minecraft:marker,tag=bm.kingdom] at @s positioned ~ ~-4 ~-6 as @a[distance=..33,gamemode=survival] run function bm:p199/adv/in')
+    fn('p199/adv/in', ['tag @s add bm.kadv', 'gamemode adventure @s',
+                       title('@s', 'actionbar', [T('The Underwater Kingdom', KC, bold=True), T(' - the royal halls are not for digging. (Adventure mode)', 'gray')])])
+    second.append('execute as @a[tag=bm.kadv] unless function bm:p199/adv/inside run function bm:p199/adv/out')
+    fn('p199/adv/inside', ['execute at @s positioned ~ ~4 ~6 if entity @e[type=minecraft:marker,tag=bm.kingdom,distance=..34] run return 1', 'return 0'])
+    fn('p199/adv/out', ['tag @s remove bm.kadv', 'execute if entity @s[gamemode=adventure] run gamemode survival @s'])
+    G.FUNCS['admin/uninstall'][0:0] = ['execute as @a[tag=bm.kadv] run function bm:p199/adv/out']
+    fn('p199/dome/sign', [f'execute unless entity @e[type=minecraft:text_display,tag=bm.kheartmsg,distance=..3] run summon minecraft:text_display ~ ~1.6 ~ {heart_sign}',
+                          'data merge entity @s[type=minecraft:item_display] {Glowing:1b,glow_color_override:16735834}'])
+    fn('p199/dome/unsign', ['kill @e[type=minecraft:text_display,tag=bm.kheartmsg,distance=..3]', 'data merge entity @s[type=minecraft:item_display] {Glowing:0b}'])
+    fn('p199/dome/leaking', ['execute as @e[type=minecraft:item_display,tag=bm.kheartd,distance=..60] at @s run function bm:p199/dome/sign',
+                             'scoreboard players add @s bm.kleak 1', 'execute as @e[type=minecraft:item_display,tag=bm.kheartd,distance=..60] at @s run particle minecraft:dripping_water ~ ~0.6 ~ 0.3 0.3 0.3 0 6',
                              'execute unless score @s bm.kleak matches 20.. run return 0', 'scoreboard players set @s bm.kleak 0',
                              'execute positioned ~ ~-4 ~-6 run ' + title('@a[distance=..34]', 'actionbar', [T('The dome is leaking - ', '#ff8a8a'), T('sneak + right-click the Dome Heart', 'white', bold=True),
                                                                                                          T(' to mend it (2 Royal Pearls).', '#ff8a8a')])])

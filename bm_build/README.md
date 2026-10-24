@@ -23,6 +23,12 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 
 ## New in 2.94k: a clean-up of the last two days
 
+- **The 8-Bit Serpent King has his own battle theme**, as an old cartridge would play it (two pulse channels, a triangle
+  bass, a noise kit) - and it's a record: his first defeat always gives it, then one in five.
+- **Dome raids are clearer.** Every crack has a sign over it ("⚠ CRACK - right-click to seal") that shows through the walls;
+  while the dome leaks, the Dome Heart glows red with a sign over it saying how to mend it.
+- **Adventure mode in the Underwater Kingdom.** Survival players inside the dome can't dig up the royal halls; you're back
+  in Survival as soon as you leave.
 - **Z-fighting, pack-wide.** A new build pass (zfix.py) finds faces of a model that share a plane and show different
   pixels, and brings the smaller one forward a hair. Models with visible z-fighting went from 2,899 to 118.
 - **The Chomping Sawshark had the Soul Serpent's name.** Both used the `ss_` prefix, so one boss's body and textures
