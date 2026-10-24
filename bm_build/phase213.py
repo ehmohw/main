@@ -174,6 +174,8 @@ if CECIL:
     Cc.HELLO = ('"I come. Not because you called - because I chose to."', '"The sorcerer of the cartridge rises."', '"I shall return... in the sequel."')
     Cc.SIT = ('"Enough rest. Onward."', '"I shall... meditate." (he sits, the staff crystal humming)')
     Cc.FAINT = 'This is... not... the final boss...'
+    # (2.94f: his GAME OVER is charged - it charges from his summoning, so it never goes off the moment he's called)
+    Cc.SUMMON_EXTRA = Cc.SUMMON_EXTRA + [f'scoreboard players set @e[type=minecraft:wolf,tag=bm.{Cc.ab}pet,distance=..4,sort=nearest,limit=1] bm.{Cc.q}gc 1200']
     Cc.NOT_YOURS = '"You are not my player."'
     Cc.POWERS = [('Hex Bolt', 'a monster 3-16 away, every 2.5 s: a bolt of pixel magic (7, and it withers)'),
                  ('Hex', 'three monsters within 7, every 15 s: a magic circle - slowed, weakened and lit up'),
@@ -407,8 +409,7 @@ def _build(G, C):
                           'particle minecraft:witch ~ ~0.2 ~ 2 0.1 2 0 30', 'playsound minecraft:entity.illusioner.cast_spell neutral @a[distance=..16] ~ ~ ~ 1 1.2'] + X.end)
         fn(f'{pfx}/over', hit(18) + [FXS.fx('px_boom', 2.6, 0.8), f'execute as @e[{FOE},distance=..9] at @s run function bm:{pfx}/overed',
                                      'playsound minecraft:entity.generic.explode neutral @a[distance=..24] ~ ~ ~ 0.6 1.6',
-                                     'execute on owner if entity @s[distance=..24] run ' + title('@s', 'title', T('GAME OVER', '#ff4040', bold=True)),
-                                     'execute on owner if entity @s[distance=..24] run ' + title('@s', 'subtitle', T('(for them)', 'gray'))] + end)
+                                     'execute on owner if entity @s[distance=..24] run ' + X.csay('"GAME OVER." (for them)')] + end)      # (2.94f: a line, not a screen title)
         fn(f'{pfx}/overed', [f'function bm:{pfx}/hurt', FXS.fx('px_boom', 1.0, 0.8)])
         return lines
 

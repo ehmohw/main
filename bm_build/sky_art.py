@@ -27,8 +27,8 @@ FACED = ('head', 'moon', 'star', 'body')
 # a part: its anchor in the painting (the middle of its window), where that anchor sits round the joint (on screen, in painting
 # pixels: +x your right, +y down), and its depth (+ toward you)
 LAYOUT = {'back': ((536, 685), None, -3.0), 'rays': (SUN_C, (0.0, 0.0), -2.0), 'head': (SUN_C, (0.0, 0.0), -1.0),
-          'moon': ((857, 400), (+420.0, +10.0), 0.0), 'cap': ((965, 222), None, 0.6), 'star': ((809, 381), None, 1.2),
-          'body': ((460, 690), (+190.0, +300.0), 2.0)}
+          'moon': ((857, 400), (+485.0, +10.0), 0.0), 'cap': ((965, 222), None, 0.6), 'star': ((809, 381), None, 1.2),
+          'body': ((460, 690), (+215.0, +360.0), 2.0)}      # (2.94e: a little more room between them all)
 FOLLOW = {'back': 'body', 'cap': 'moon', 'star': 'moon'}          # (placed as the painting has them, round their partner)
 PARTS = ('body', 'head', 'rays', 'moon', 'cap', 'star', 'back')
 PARENT = {'body': None, 'head': None, 'rays': 'head', 'moon': None, 'cap': 'moon', 'star': None, 'back': 'body'}
@@ -141,13 +141,15 @@ def bob(k, n, amp=10.0, phase=0.0):
 
 
 def drift(k, n=4, faces=None, lift=0.0, lean=0.0, trail=0.0, amp=1.0):
-    """their float: each on its own beat (and leaning into a move, the small ones trailing behind)"""
+    """their float: each on a rhythm of their own (2.94e: more so, for charm) - Sunny bobs and rocks, Snooze sways on a slow
+    swing, Twinkle bounces twice as fast as anyone, Nimbus drifts side to side - and leaning into a move, the small ones
+    trailing behind"""
     f = faces or {}
     return Q(lift + bob(k, n, 0.45 * amp),
-             head=dict(o=(0, bob(k, n, 6 * amp, 0.9)), r=lean * 0.6, f=f.get('head')),
-             moon=dict(o=(-trail * 0.6, bob(k, n, 9 * amp, 1.6)), r=lean + bob(k, n, 3 * amp, 2.2), f=f.get('moon')),
-             star=dict(o=(bob(k, n, 5 * amp, 0.6) - trail, bob(k, n, 7 * amp, 2.6)), r=bob(k, n, 8 * amp, 1.1) + lean * 1.5, f=f.get('star')),
-             body=dict(o=(bob(k, n, 6 * amp, 3.1) - trail * 0.4, bob(k, n, 5 * amp, 0.3)), r=lean * 0.4, f=f.get('body')))
+             head=dict(o=(0, bob(k, n, 8 * amp, 0.9)), r=lean * 0.6 + bob(k, n, 3 * amp, 0.2), f=f.get('head')),
+             moon=dict(o=(bob(k, n, 4 * amp, 0.5) - trail * 0.6, bob(k, n, 11 * amp, 1.6)), r=lean + bob(k, n, 5 * amp, 2.2), f=f.get('moon')),
+             star=dict(o=(bob(2 * k, n, 7 * amp, 0.6) - trail, bob(2 * k, n, 9 * amp, 2.6)), r=bob(2 * k, n, 12 * amp, 1.1) + lean * 1.5, f=f.get('star')),
+             body=dict(o=(bob(k, n, 9 * amp, 3.1) - trail * 0.4, bob(k, n, 6 * amp, 0.3)), r=lean * 0.4 + bob(k, n, 2 * amp, 1.9), f=f.get('body')))
 
 
 POSES = {}

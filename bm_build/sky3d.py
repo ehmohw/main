@@ -522,9 +522,11 @@ CB = -1.25                                          # (his flat underside)
 
 
 def _cloud_face(expr):
-    """Nimbus: two round black eyes and his ":3" (texels round his middle; his big puff's middle is at j 2)"""
+    """Nimbus: two round black eyes and his ":3" (texels round his middle; his big puff's middle is at j 2; the mouth drawn
+    round j 0, then set 3 texels down with the eyes)"""
+    D = -3
     F = Face(); B = INK
-    eyes = ((-5, 4), (4, 4))                         # (each eye's lower-left)
+    eyes = ((-5, 1), (4, 1))                         # (each eye's lower-left: 2.94f lower on him, not at the top of his head)
     if expr is None:
         for x, y in eyes:
             F.rect(x, y, x + 1, y + 3, B); F.put(x, y + 3, hexc('#6a6a72'))
@@ -546,6 +548,7 @@ def _cloud_face(expr):
             F.rect(x, y, x + 1, y + 2, B)
             F.pts([(x - 1, y + 4), (x, y + 3), (x + 1, y + 3)] if s_ > 0 else [(x + 2, y + 4), (x + 1, y + 3), (x, y + 3)], B)
     # the mouth
+    E_, F = F, Face()
     if expr == 'surprised':
         F.rect(-1, -2, 1, 1, B); F.rect(0, -1, 0, 0, hexc('#6a6a72'))
     elif expr == 'sing':
@@ -556,10 +559,12 @@ def _cloud_face(expr):
         F.pts([(-3, -1), (-2, 0), (-1, 1), (0, 1), (1, 1), (2, 0), (3, -1)], B)
     else:                                            # (":3")
         F.pts([(-4, 1), (-4, 0), (-3, -1), (-2, -1), (-1, 0), (0, 1), (1, 0), (2, -1), (3, -1), (4, 0), (4, 1)], B)
-    return F
+    for (x, y), c in F.px.items():
+        E_.put(x, y + D, c)
+    return E_
 
 
-def _cloud(puffs, pal, F=None, seed=61, depth=0.62):
+def _cloud(puffs, pal, F=None, seed=61, depth=0.62, flat=None):
     def paint(side, X, Y, Z, b):
         i, j = math.floor(X * RES), math.floor(Y * RES)
         n = noise(i, j, seed) - 0.5
@@ -587,6 +592,7 @@ def _cloud(puffs, pal, F=None, seed=61, depth=0.62):
     lo, hi = math.floor(min(xs) * 4) / 4, math.ceil(max(xs) * 4) / 4
     base = (min(xs) + 0.5, max(xs) - 0.5)
     st, cw = 0.5, 0.25                                                  # (rows half a unit, cells a texel)
+    rows = []
     y = CB
     while y < max(cy + r for cx, cy, r in puffs):
         ym = y + st / 2
@@ -601,7 +607,16 @@ def _cloud(puffs, pal, F=None, seed=61, depth=0.62):
                         d = max(d, snap(hw * depth))
             if ym < CB + 1.0 and base[0] <= xm <= base[1]:
                 d = max(d, 1.0)
-            cells.append((x, d)); x += cw
+            cells.append([x, d]); x += cw
+        rows.append((y, cells))
+        y += st
+    if flat:                                                            # (his face: one flat panel, eyes and smile on the same plane)
+        fx0, fx1, fy0, fy1 = flat
+        zone = [c for y, cells in rows if y < fy1 and y + st > fy0 for c in cells if c[1] > 0 and fx0 <= c[0] + cw / 2 <= fx1]
+        fd = max(c[1] for c in zone)
+        for c in zone:
+            c[1] = fd
+    for y, cells in rows:
         k = 0
         while k < len(cells):
             x0, d = cells[k]; k2 = k
@@ -610,12 +625,11 @@ def _cloud(puffs, pal, F=None, seed=61, depth=0.62):
             if d > 0:
                 P.box((x0, y, -d), (cells[k2][0] + cw, y + st, d))
             k = k2 + 1
-        y += st
     return P
 
 
 def nimbus(expr=None):
-    return _cloud(PUFFS, CLOUD, _cloud_face(expr))
+    return _cloud(PUFFS, CLOUD, _cloud_face(expr), flat=(-1.75, 2.0, -1.0, 1.25))      # (the panel round his eyes and smile)
 
 
 def back():

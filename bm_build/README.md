@@ -21,6 +21,25 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94f: Nimbus's face, and a little more room
+
+- **Nimbus's eyes and smile sit flat on his face**, on one panel, instead of stepping across his puffs.
+- **The Sky Buddies spread out a little**: Snooze and Twinkle float further from Sunny, and Nimbus a little lower.
+- **Nimbus's face sits lower on his cloud**, no longer right at the top of his head.
+- **Each moves to their own rhythm**: Sunny bobs and rocks, Snooze sways on a slow swing, Twinkle bounces twice as fast as
+  anyone, and Nimbus drifts side to side.
+
+### 8-bit walks, steady
+The 8-bit walks were drawn a frame at a time, so the faces changed as they walked: 8-Bit Emma's mouth opened and shut, Leo's
+eyes came and went, and some frames were a size off. Now every walk frame (front and back) wears the character's own standing
+head, moving with the walk's bob and sway, and a frame drawn the wrong size is brought back to height. The legs and arms still
+walk as drawn. This covers 8-Bit Emma, Leo and Cecil, and every pixel costume.
+
+### 8-Bit Cecil
+- **No more "GAME OVER" when you call him.** His Game Over move is charged, and now it starts charging when he's summoned,
+  instead of going off straight away whenever a monster is near.
+- When it does go off, it's a line on your action bar, not a title across your screen.
+
 ## New in 2.94e: the Sky Buddies, modelled anew
 
 The weather trio are **brand-new 3D models**, designed from the painting rather than made out of it. They're built of

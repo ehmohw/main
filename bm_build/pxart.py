@@ -40,6 +40,46 @@ def anims_of(key):
     return sorted(os.path.basename(p) for p in glob.glob(os.path.join(d, '*', 'animations', '*')))
 
 
+STEADY = ('walk',)                                                          # (2.94f: the cycles whose heads are held steady)
+HEAD = 0.42                                                                 # (the top of a character that's its head: of its standing height)
+HEADS = {'cecil_px': 0.55}                                                  # (a tall hood: his eyes are halfway down him)
+
+
+def _steady(frames, ref, frac=HEAD):
+    """2.94f: a walk drawn frame by frame by PixelLab changes the face as it goes (a mouth opening and shutting, the eyes moving,
+    a frame a little smaller than the rest) - wonky in a walk. So: a frame drawn a size off is brought back to the standing
+    height (feet where they were), and every frame wears the standing sprite's own head, carried with the frame's bob and
+    sway: the legs and arms walk as drawn, the face holds still."""
+    rb = ref.getbbox()
+    if not rb:
+        return frames
+    rh = rb[3] - rb[1]
+    hh = int(round(rh * frac))
+    rtop = ref.crop((0, rb[1], ref.width, rb[1] + hh))
+    tb = rtop.getbbox()
+    out = []
+    for f in frames:
+        bb = f.getbbox()
+        if not bb:
+            out.append(f); continue
+        h = bb[3] - bb[1]
+        if abs(h - rh) > 2:                                                 # (a frame drawn a size off: to the standing height)
+            body = f.crop(bb)
+            w2 = max(1, int(round(body.width * rh / h)))
+            body = body.resize((w2, rh), Image.NEAREST)
+            g = Image.new('RGBA', f.size, (0, 0, 0, 0))
+            g.alpha_composite(body, (int(round((bb[0] + bb[2]) / 2 - w2 / 2)), bb[3] - rh))
+            f, bb = g, g.getbbox()
+        ftop = f.crop((0, bb[1], f.width, bb[1] + hh)).getbbox()
+        dx = 0 if not (ftop and tb) else int(round((ftop[0] + ftop[2]) / 2 - (tb[0] + tb[2]) / 2))
+        g = f.copy()
+        clear = Image.new('RGBA', (g.width, hh), (0, 0, 0, 0))
+        g.paste(clear, (0, bb[1]))
+        g.alpha_composite(rtop, (dx if dx >= 0 else 0, bb[1]), (0 if dx >= 0 else -dx, 0))
+        out.append(g)
+    return out
+
+
 class Sprite:
     """one character: key (its PixelLab folder), prefix (its textures/models: 'pxe_'), height (blocks, standing), ANIMS {our name: (its
     animation's name, frames to keep or None)} - several of ours may share one of its"""
@@ -54,6 +94,9 @@ class Sprite:
                 fr = [fr[i] for i in keep if i < len(fr)]
             self.src[name] = fr
         rot = Image.open(glob.glob(os.path.join(d, '*', 'rotations', 'south.png'))[0]).convert('RGBA')
+        for name in self.src:
+            if name in STEADY:
+                self.src[name] = _steady(self.src[name], rot, HEADS.get(key, HEAD))
         bb = rot.getbbox()
         self.px_h = bb[3] - bb[1]                                           # (the standing sprite's height in pixels)
         big = max(max(f.width, f.height) for fr in self.src.values() for f in fr)
@@ -84,6 +127,8 @@ class Sprite:
             fr = _frames(d, src, 'north')
             if fr and keep:
                 fr = [fr[i] for i in keep if i < len(fr)]
+            if fr and name in STEADY and rot_n is not None:
+                fr = _steady(fr, rot_n, HEADS.get(key, HEAD))
             k = len(self.frames[name])
             if fr:
                 dx, dy = place(fr)
