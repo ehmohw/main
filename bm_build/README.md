@@ -29,6 +29,15 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 - **Each moves to their own rhythm**: Sunny bobs and rocks, Snooze sways on a slow swing, Twinkle bounces twice as fast as
   anyone, and Nimbus drifts side to side.
 
+### The Sky Buddies, fully honoured
+Once Queen Ava has honoured the Sky Buddies all the way (her Honours, rank III), two new buttons in the Sky Mobile's menu work:
+- **Change the weather**: Clear skies, Rain or Thunderstorm, at your word, every 2 minutes.
+- **A bed on Nimbus**: Nimbus makes you a real bed on open, flat ground beside you, anywhere in the Overworld. Sleep in it,
+  and the night passes and your spawn stays where you slept. Half a minute after you get up (or if you walk off), the bed
+  is gone. It leaves nothing behind and can't be broken for a free bed.
+
+Before then, both buttons say what it takes.
+
 ### 8-bit walks, steady
 The 8-bit walks were drawn a frame at a time, so the faces changed as they walked: 8-Bit Emma's mouth opened and shut, Leo's
 eyes came and went, and some frames were a size off. Now every walk frame (front and back) wears the character's own standing

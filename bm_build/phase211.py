@@ -98,10 +98,14 @@ class C(RP.Cfg):
               ('Lullaby', 'Snooze: three or more monsters within 7 - slowed to a crawl and weakened; at night longer, and blinded'),
               ('Drizzle', 'you burning, or down to 6 hearts: Nimbus rains on you - Regeneration, Fire Resistance; the fire\'s out on your followers'),
               ('What the Sky Gives', 'every 30 s, no fight near: Haste by day, Night Vision and Speed at night, Regeneration in the rain'),
-              ('The Forecast', 'charged, every minute: all three at once - 16 to every monster within 9, set alight, slowed and lit up')]
+              ('The Forecast', 'charged, every minute: all three at once - 16 to every monster within 9, set alight, slowed and lit up'),
+              ('Master of the Weather', 'their Honour at its height (Queen Ava, rank III): clear skies, rain or a storm from their menu (every 2 minutes)'),
+              ('A Bed on Nimbus', 'their Honour at its height: a bed wherever you are in the Overworld - sleep the night through, and wake where you slept')]
     INTRO = [T('The Sky Buddies', SUN, bold=True), T(' - Sunny, Snooze (and Twinkle) and Nimbus. Buddies, born of pure imagination, like Mr. Capshun. ', 'gray'),
              T('Three of them, one heart: they come as one and fight as one.', 'white')]
-    BUTTONS = ((6, "Today's forecast", 'What the sky is giving you right now.', 'p211/today'),)
+    BUTTONS = ((6, "Today's forecast", 'What the sky is giving you right now.', 'p211/today'),
+               (7, 'Change the weather', 'Their Honour at its height: clear skies, rain or a thunderstorm, at your word.', 'p211/wx/open'),
+               (3, 'A bed on Nimbus', 'Their Honour at its height: Nimbus makes you a bed, wherever you are (in the Overworld).', 'p211/bed/try'))
     BURST = [f'particle {dust(GOLDD, 1.4)} ~ ~1.6 ~ 0.6 0.5 0.6 0 10', f'particle {dust(MOOND, 1.2)} ~ ~1.8 ~ 0.6 0.5 0.6 0 8',
              'particle minecraft:cloud ~ ~1.2 ~ 0.6 0.3 0.6 0.02 12', 'particle minecraft:end_rod ~ ~1.8 ~ 0.6 0.5 0.6 0.02 6']
     FADE_SOUND = 'playsound minecraft:block.amethyst_block.chime neutral @a[distance=..20] ~ ~ ~ 1 0.7'
@@ -353,3 +357,101 @@ def generate(G):
                          'playsound minecraft:block.amethyst_block.chime player @s ~ ~ ~ 1 1.2'])
     fn('admin/sky_seen', ['tag @s add bm.ybs1', 'tag @s add bm.ybs2', 'tag @s add bm.ybs3', say('(Every sky seen - they\'ll come down to you under the open sky.)', SUN)])
     G.FUNCS['admin/uninstall'].insert(0, 'kill @e[type=minecraft:item_display,tag=bm.ybvis]')
+    weather_and_bed(G)
+
+
+# ---------------------------------------------------------------------------------------------------- 2.94f: fully honoured
+# With their Honour at its height (Queen Ava's Honours, rank III: Vitality, Bulwark and Might all V), the Sky Buddies are the
+# weather's own: from their menu they turn the sky clear, to rain or to a thunderstorm (every 2 minutes), and Nimbus makes
+# you a bed wherever you are in the Overworld - a real one: sleep in it and the night passes, and you wake where you slept
+# (your spawn stays there, the bed gone). It goes when you're done with it, and leaves nothing behind.
+WX = 2950                                           # (the weather page's buttons: 2950 clear, 2951 rain, 2952 storm, 2953 back)
+BED = 'minecraft:light_gray_bed'
+
+
+def weather_and_bed(G):
+    import phase28 as P28
+    fn, title, tellraw = G.fn, G.title, G.tellraw
+    second = G.FUNCS['loop/second']
+    line = lambda who, txt: title('@s', 'actionbar', [T(f'{who}: ', SUN, bold=True), T(txt, SKY_LINE)])
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.ybwx dummy', 'scoreboard objectives add bm.ybbt dummy']
+    G.OBJECTIVES += ['bm.ybwx', 'bm.ybbt']
+    mine = '@e[type=minecraft:wolf,tag=bm.ybpet,tag=!bm.ffpet,distance=..24]'
+    fn('p211/full', ['execute unless score @s bm.hn_sky matches 0.. run return 0', 'scoreboard players operation #hs bm.rng = @s bm.hn_sky',
+                     'scoreboard players operation #hs bm.rng %= #1000 bm.rng', 'execute if score #hs bm.rng matches 555 run return 1', 'return 0'])
+    fn('p211/near', ['scoreboard players operation #me bm.pid = @s bm.pid', f'execute as {mine} if score @s bm.pid = #me bm.pid run return 1', 'return 0'])
+    not_full = line('Sunny', '"Not yet, pal - when Queen Ava\'s honoured us all the way (rank III), the sky\'s yours."')
+    not_near = line('Sunny', '"Call us over first - we can\'t work the weather from home."')
+    # ---- the weather
+    page = P28.multi([T('THE SKY, YOURS', SUN, bold=True)],
+                     [P28.body([T('"Say the word, pal." ', SKY_LINE), T('(every 2 minutes)', 'gray')], 300)],
+                     [P28.btn(T('Clear skies', '#ffd04a', bold=True), WX, width=150, tooltip=T('Sunny chases the clouds off.', 'gray')),
+                      P28.btn(T('Rain', '#7ab8ff', bold=True), WX + 1, width=150, tooltip=T('Nimbus lets it pour. :3', 'gray')),
+                      P28.btn(T('Thunderstorm', '#b8a0ff', bold=True), WX + 2, width=150, tooltip=T('All three, dark and loud.', 'gray')),
+                      P28.btn(T('\u00ab Back', 'gray'), WX + 3, width=150)], columns=2, exit_label='Close')
+    fn('p211/wx/open', ['execute unless function bm:p211/full run return run function bm:p211/wx/nope',
+                        'execute unless function bm:p211/near run return run function bm:p211/wx/far',
+                        f'scoreboard players set @s bm.menu {C.MENU}', f'dialog show @s {snbt(page)}'])
+    fn('p211/wx/nope', ['dialog clear @s', not_full, 'playsound minecraft:block.note_block.bass player @s ~ ~ ~ 0.6 0.8'])
+    fn('p211/wx/far', ['dialog clear @s', not_near])
+    G.FUNCS['p28/act'] += [f'execute if score #act bm.pay matches {WX + k} run return run function bm:p211/wx/act' for k in range(4)]
+    fn('p211/wx/act', [f'execute unless score @s bm.menu matches {C.MENU} run return run function bm:p28/stale',
+                       f'execute if score #act bm.pay matches {WX + 3} run return run function bm:p211/menu',
+                       'dialog clear @s',
+                       'execute unless function bm:p211/full run return run ' + not_full,
+                       'execute unless function bm:p211/near run return run ' + not_near,
+                       'execute if score @s bm.ybwx matches 1.. run return run ' + line('Snooze', '"...the sky needs a moment... (every 2 minutes)..."'),
+                       f'execute if score #act bm.pay matches {WX} run function bm:p211/wx/clear',
+                       f'execute if score #act bm.pay matches {WX + 1} run function bm:p211/wx/rain',
+                       f'execute if score #act bm.pay matches {WX + 2} run function bm:p211/wx/storm',
+                       'scoreboard players set @s bm.ybwx 120'])
+    burst = lambda c: [f'execute as {mine} if score @s bm.pid = #me bm.pid at @s run particle {dust(c, 1.6)} ~ ~2 ~ 0.8 0.6 0.8 0 30']
+    fn('p211/wx/clear', ['weather clear'] + burst(GOLDD) + ['playsound minecraft:block.beacon.activate neutral @a[distance=..24] ~ ~ ~ 0.8 1.6',
+                         line('Sunny', '"Clouds - beat it. ...There. Sun\'s out."')])
+    fn('p211/wx/rain', ['weather rain'] + burst(RAIND) + ['playsound minecraft:weather.rain neutral @a[distance=..24] ~ ~ ~ 1 1.2',
+                        line('Nimbus', '"Rain! Rain! :3"')])
+    fn('p211/wx/storm', ['weather thunder'] + burst((0.6, 0.5, 1.0)) + ['playsound minecraft:entity.lightning_bolt.thunder neutral @a[distance=..24] ~ ~ ~ 0.6 1.2',
+                         line('Sunny', '"Storm\'s coming. Twinkle\'s idea. Don\'t look at me."')])
+    second.append('scoreboard players remove @a[scores={bm.ybwx=1..}] bm.ybwx 1')
+    # ---- the bed: on the first open ground beside you, its foot by you; a marker keeps it
+    fn('p211/bed/try', ['dialog clear @s',
+                        'execute unless function bm:p211/full run return run ' + not_full,
+                        'execute unless function bm:p211/near run return run ' + not_near,
+                        'execute unless dimension minecraft:overworld run return run ' + line('Nimbus', '"Not here... beds go boom here. Back in the Overworld! :3"'),
+                        'scoreboard players operation #me bm.pid = @s bm.pid',
+                        'execute as @e[type=minecraft:marker,tag=bm.ybbed] if score @s bm.pid = #me bm.pid at @s run function bm:p211/bed/gone',
+                        'scoreboard players set #bed bm.rng 0'] +
+       [f'execute if score #bed bm.rng matches 0 align xyz positioned ~0.5 ~ ~0.5 if block ~{dx} ~ ~{dz} minecraft:air if block ~{2 * dx} ~ ~{2 * dz} minecraft:air '
+        f'unless block ~{dx} ~-1 ~{dz} #bm:grap_pass unless block ~{2 * dx} ~-1 ~{2 * dz} #bm:grap_pass positioned ~{dx} ~ ~{dz} run function bm:p211/bed/put_{f}'
+        for dx, dz, f in ((1, 0, 'east'), (-1, 0, 'west'), (0, 1, 'south'), (0, -1, 'north'))] +
+       ['execute if score #bed bm.rng matches 0 run return run ' + line('Nimbus', '"No room for a bed here... find me some open, flat ground! :3"')])
+    for dx, dz, f in ((1, 0, 'east'), (-1, 0, 'west'), (0, 1, 'south'), (0, -1, 'north')):
+        fn(f'p211/bed/put_{f}', ['scoreboard players set #bed bm.rng 1',
+                                 f'setblock ~ ~ ~ {BED}[facing={f},part=foot]', f'setblock ~{dx} ~ ~{dz} {BED}[facing={f},part=head]',
+                                 f'summon minecraft:marker ~ ~ ~ {{Tags:["bm.ybbed","bm.ybbed_{f}","bm.ybbnew"]}}',
+                                 'scoreboard players operation @e[type=minecraft:marker,tag=bm.ybbnew,distance=..1] bm.pid = #me bm.pid',
+                                 'scoreboard players set @e[type=minecraft:marker,tag=bm.ybbnew,distance=..1] bm.ybbt 0',
+                                 'tag @e[type=minecraft:marker,tag=bm.ybbnew,distance=..1] remove bm.ybbnew',
+                                 f'particle minecraft:cloud ~{dx / 2} ~0.6 ~{dz / 2} 0.8 0.2 0.8 0.02 30', f'particle {dust(MOOND, 1.2)} ~{dx / 2} ~1 ~{dz / 2} 0.8 0.3 0.8 0 16',
+                                 'playsound minecraft:block.wool.place block @a[distance=..16] ~ ~ ~ 1 0.8',
+                                 'playsound minecraft:block.amethyst_block.chime neutral @a[distance=..16] ~ ~ ~ 0.8 1.4'])
+        fn(f'p211/bed/clear_{f}', [f'execute if block ~ ~ ~ {BED} run setblock ~ ~ ~ minecraft:air', f'execute if block ~{dx} ~ ~{dz} {BED} run setblock ~{dx} ~ ~{dz} minecraft:air'])
+    G.FUNCS['p211/bed/try'].append(line('Nimbus', '"Hop on! A cloud bed, just for you. :3" (right-click it to sleep)'))
+    # (each second: a sleeper on it wakes where they slept; when no one's on it, half a minute on - or you've gone - it goes)
+    second.append('execute as @e[type=minecraft:marker,tag=bm.ybbed] at @s run function bm:p211/bed/sec')
+    fn('p211/bed/sec', ['scoreboard players add @s bm.ybbt 1',
+                        f'kill @e[type=minecraft:item,distance=..4,nbt={{Item:{{id:"{BED}"}}}}]',
+                        'scoreboard players operation #me bm.pid = @s bm.pid',
+                        'scoreboard players set #slp bm.rng 0',
+                        'execute as @a[distance=..3] if data entity @s sleeping_pos run scoreboard players set #slp bm.rng 1',
+                        'execute as @a[distance=..3] if data entity @s sleeping_pos run spawnpoint @s ~ ~ ~',
+                        'execute if score #slp bm.rng matches 1 run return run scoreboard players set @s bm.ybbt 0',
+                        f'execute unless block ~ ~ ~ {BED} run return run function bm:p211/bed/gone',
+                        'execute if score @s bm.ybbt matches 30.. run return run function bm:p211/bed/gone',
+                        'scoreboard players set #near bm.rng 0',
+                        'execute as @a[distance=..24] if score @s bm.pid = #me bm.pid run scoreboard players set #near bm.rng 1',
+                        'execute if score #near bm.rng matches 0 run function bm:p211/bed/gone'])
+    fn('p211/bed/gone', [f'execute if entity @s[tag=bm.ybbed_{f}] run function bm:p211/bed/clear_{f}' for dx, dz, f in ((1, 0, 'east'), (-1, 0, 'west'), (0, 1, 'south'), (0, -1, 'north'))] +
+       [f'kill @e[type=minecraft:item,distance=..4,nbt={{Item:{{id:"{BED}"}}}}]', 'particle minecraft:cloud ~ ~0.6 ~ 0.6 0.2 0.6 0.02 20', 'kill @s'])
+    G.FUNCS['admin/uninstall'].insert(0, 'execute as @e[type=minecraft:marker,tag=bm.ybbed] at @s run function bm:p211/bed/gone')
+
