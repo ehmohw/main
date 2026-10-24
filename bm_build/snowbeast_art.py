@@ -265,10 +265,10 @@ POSES = {
     'throw_up': P(_face='squint', body=qs(('y', 18)), head=qs(('y', -10)), armr=arm(1, 110, -40), arml=arm(-1, -6, 30), hat=qs(('x', -8))),
     'throw': P(_face='roar', body=qs(('y', -16), ('x', 6)), head=qs(('y', 8)), jaw=qs(('x', 18)), armr=arm(1, 30, 90), arml=arm(-1, -10, -10), hat=qs(('x', 6))),
     # the slam (frost nova): both arms high - and down into the ground
-    'slam_up': P(_face='roar', _off=(0, 1.0, 0), body=qs(('x', -8)), head=qs(('x', -14)), jaw=qs(('x', 24)), armr=arm(1, 110, 24), arml=arm(-1, 110, 24), hat=qs(('x', -12))),
+    'slam_up': P(_face='roar', _off=(0, 1.0, 0), body=qs(('x', -8)), head=qs(('x', -14)), jaw=qs(('x', 24)), armr=arm(1, 70, 24), arml=arm(-1, 70, 24), hat=qs(('x', -12))),        # (2.94k: 110 carried the branches over into its head)
     'slam': P(_face='roar', _off=(0, -1.4, 0), body=qs(('x', 14)), head=qs(('x', 10)), jaw=qs(('x', 10)), armr=arm(1, -20, 90), arml=arm(-1, -20, 90), hat=qs(('x', 14))),
     # the roar (the blizzard): head back, the ice jaw dropped wide, arms flung out, the hat lifting with it
-    'roar': P(_face='roar', body=qs(('x', -6)), head=qs(('x', -22)), jaw=qs(('x', 34)), hat=qs(('x', -16)), armr=arm(1, 90, 0, 20), arml=arm(-1, 90, 0, 20)),
+    'roar': P(_face='roar', body=qs(('x', -6)), head=qs(('x', -22)), jaw=qs(('x', 34)), hat=qs(('x', -16)), armr=arm(1, 62, 0, 20), arml=arm(-1, 62, 0, 20)),           # (2.94k: 90 sank them into its head)
     'hurt': P(_face='roar', body=qs(('x', -10), ('z', 6)), head=qs(('x', -12)), jaw=qs(('x', 20)), armr=arm(1, 60, -20), arml=arm(-1, 40, -10), hat=qs(('z', -14))),
     # rising out of the snow
     'spawn': P(_off=(0, -12.0, 0), body=qs(('x', 20)), head=qs(('x', 24)), armr=arm(1, -30, 40), arml=arm(-1, -30, 40)),

@@ -943,5 +943,7 @@ if __name__ == '__main__':
     _done = '/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP.done'    # 2.94b: see gen_dp
     if os.path.exists(_done): os.remove(_done)
     s = build('/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP')
+    import zfix                               # 2.94k: no two faces of a model fighting over one plane (zfix.py)
+    print('zfix:', zfix.apply('/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP'), 'faces brought forward out of z-fighting')
     s.save('/home/claude/bm_build/preview/rp_sheet.png')
     open(_done, 'w').write(str(sum(len(fs) for _b, _d, fs in os.walk(_done[:-5]))))

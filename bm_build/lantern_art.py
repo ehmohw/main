@@ -188,7 +188,7 @@ POSES = {
     'jump': P(_off=(0, 2.0, 0), head=qs(('x', -8)), tongue=qs(('x', -30)), **legs(lambda s, i: dict(lift=-18, swing=(10, 4, -4, -10)[i]))),
     # STOMP: the front pair rears up high - and comes down
     'rear': P(_off=(0, 2.0, 0), body=qs(('x', -14)), head=qs(('x', -6)), tongue=qs(('x', -30)),
-              **legs(lambda s, i: dict(lift=(40, 16, 0, 0)[i], swing=(22, 10, -5, -5)[i]))),
+              **legs(lambda s, i: dict(lift=(46, 18, 0, 0)[i], swing=(8, 4, -5, -5)[i]))),        # (2.94k: up and out - swung 22 forward they ran through the pumpkin)
     'stomp': P(_off=(0, -1.6, 0), body=qs(('x', 10)), head=qs(('x', 4)), tongue=qs(('x', 20)), **legs(lambda s, i: dict(spread=(8, 4, 0, 0)[i], swing=(16, 8, 0, 0)[i]))),
     # TONGUE LASH: it leans in, and the tongue shoots out
     'lash_a': P(_face='glare', body=qs(('x', 6)), head=qs(('x', 6)), tongue=qs(('x', 25))),

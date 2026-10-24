@@ -14,7 +14,7 @@ from phase57_art import hexc
 from tullius_art import _noise, _shine
 from rigkit import qs, el, chain
 
-PREFIX = 'ss_'
+PREFIX = 'sk_'
 RIG_SCALE = 2.4
 CY = 10.0
 PIVOT = {'body': (0, CY, 0), 'head': (0, CY, -9.0), 'jaw': (0, CY - 3.6, -10.0),
@@ -84,9 +84,9 @@ def _teeth():
 
 
 def textures():
-    return {'ss_skin': _skin(2954), 'ss_skin_dk': _skin(2955, GREY_DK, 1), 'ss_belly': _noise(BELLY, 2956, 3), 'ss_side': _side(2957),
-            'ss_teeth': _teeth(), 'ss_brow': _brow(), 'ss_tooth': _shine('#c8ccc8', '#ffffff', 2958), 'ss_gum': _noise('#5a1a1e', 2959, 3),
-            **{f'ss_brow_{k}': _brow(k) for k in FACES}}
+    return {'sk_skin': _skin(2954), 'sk_skin_dk': _skin(2955, GREY_DK, 1), 'sk_belly': _noise(BELLY, 2956, 3), 'sk_side': _side(2957),
+            'sk_teeth': _teeth(), 'sk_brow': _brow(), 'sk_tooth': _shine('#c8ccc8', '#ffffff', 2958), 'sk_gum': _noise('#5a1a1e', 2959, 3),
+            **{f'sk_brow_{k}': _brow(k) for k in FACES}}
 
 
 # ---------------------------------------------------------------------------------------------------- models
@@ -98,69 +98,69 @@ def models():
     y0 = CY
     # ---- the body: heavy at the shoulders, tapering; the tall curved dorsal fin, torn; saw-notches down the back and belly
     pv = PIVOT['body']
-    body = [el((-7.0, y0 - 6.4, -9.0), (7.0, y0 + 6.4, 4.0), 'ss_skin', pv, shift=(0.3, 0.1)),
-            el((-5.4, y0 - 5.0, 3.8), (5.4, y0 + 5.0, 12.4), 'ss_skin', pv, shift=(0.6, 0.4)),
-            el((-7.12, y0 - 6.4, -9.0), (-7.0, y0 + 6.4, 4.0), 'ss_side', pv, faces=('west',), uv={'west': [0, 0, 16, 16]}),
-            el((7.0, y0 - 6.4, -9.0), (7.12, y0 + 6.4, 4.0), 'ss_side', pv, faces=('east',), uv={'east': [16, 0, 0, 16]}),
-            el((-6.6, y0 - 6.9, -8.6), (6.6, y0 - 6.3, 3.6), 'ss_belly', pv),
-            el((-5.0, y0 - 5.6, 3.6), (5.0, y0 - 4.9, 12.0), 'ss_belly', pv)]
-    body += chain([(0, y0 + 6.0, -4.0), (0, y0 + 13.0, 0.0), (0, y0 + 19.0, 5.6), (0, y0 + 21.0, 9.6)], [9.0, 5.0, 2.0], 1.6, 'ss_skin_dk', pv, (1.0, 0.0, 0.0), ext=0.2)
+    body = [el((-7.0, y0 - 6.4, -9.0), (7.0, y0 + 6.4, 4.0), 'sk_skin', pv, shift=(0.3, 0.1)),
+            el((-5.4, y0 - 5.0, 3.8), (5.4, y0 + 5.0, 12.4), 'sk_skin', pv, shift=(0.6, 0.4)),
+            el((-7.12, y0 - 6.4, -9.0), (-7.0, y0 + 6.4, 4.0), 'sk_side', pv, faces=('west',), uv={'west': [0, 0, 16, 16]}),
+            el((7.0, y0 - 6.4, -9.0), (7.12, y0 + 6.4, 4.0), 'sk_side', pv, faces=('east',), uv={'east': [16, 0, 0, 16]}),
+            el((-6.6, y0 - 6.9, -8.6), (6.6, y0 - 6.3, 3.6), 'sk_belly', pv),
+            el((-5.0, y0 - 5.6, 3.6), (5.0, y0 - 4.9, 12.0), 'sk_belly', pv)]
+    body += chain([(0, y0 + 6.0, -4.0), (0, y0 + 13.0, 0.0), (0, y0 + 19.0, 5.6), (0, y0 + 21.0, 9.6)], [9.0, 5.0, 2.0], 1.6, 'sk_skin_dk', pv, (1.0, 0.0, 0.0), ext=0.2)
     for k, (z, h) in enumerate(((5.6, 4.0), (8.4, 3.0), (11.0, 2.4))):                                # the saw-notched back: torn spikes
-        body += chain([(0, y0 + 4.6 - k * 0.4, z), (0, y0 + 4.6 + h, z + 1.8)], [2.2], 0.8, 'ss_skin_dk', pv, (1.0, 0.0, 0.0), ext=0.1)
+        body += chain([(0, y0 + 4.6 - k * 0.4, z), (0, y0 + 4.6 + h, z + 1.8)], [2.2], 0.8, 'sk_skin_dk', pv, (1.0, 0.0, 0.0), ext=0.1)
     for k, (z, h) in enumerate(((2.0, 3.0), (6.0, 3.6), (9.6, 2.6))):                                  # ...and the belly's
-        body += chain([(0, y0 - 5.6, z), (0, y0 - 5.6 - h, z + 2.2)], [2.0], 0.8, 'ss_skin_dk', pv, (1.0, 0.0, 0.0), ext=0.1)
-    part('ss_body', body)
+        body += chain([(0, y0 - 5.6, z), (0, y0 - 5.6 - h, z + 2.2)], [2.0], 0.8, 'sk_skin_dk', pv, (1.0, 0.0, 0.0), ext=0.1)
+    part('sk_body', body)
     # ---- the head: huge and blocky like a skull - the brow ridges jutting over the eyes, the blunt snout, the upper teeth
     pv = PIVOT['head']
     def head(face=None):
-        ft = 'ss_brow' if face is None else f'ss_brow_{face}'
-        h = [el((-7.6, y0 - 3.4, -21.0), (7.6, y0 + 6.6, -8.8), 'ss_skin', pv, shift=(0.1, 0.3)),               # the skull
-             el((-6.2, y0 - 2.6, -24.6), (6.2, y0 + 2.0, -20.8), 'ss_skin', pv, shift=(0.5, 0.5)),              # the blunt snout
-             el((-7.8, y0 + 2.6, -21.6), (7.8, y0 + 6.8, -18.0), 'ss_skin_dk', pv, shift=(0.3, 0.6)),            # the brow ridges, jutting (2.94j: proud of the skull's sides - they shared its faces)
+        ft = 'sk_brow' if face is None else f'sk_brow_{face}'
+        h = [el((-7.6, y0 - 3.4, -21.0), (7.6, y0 + 6.6, -8.8), 'sk_skin', pv, shift=(0.1, 0.3)),               # the skull
+             el((-6.2, y0 - 2.6, -24.6), (6.2, y0 + 2.0, -20.8), 'sk_skin', pv, shift=(0.5, 0.5)),              # the blunt snout
+             el((-7.8, y0 + 2.6, -21.6), (7.8, y0 + 6.8, -18.0), 'sk_skin_dk', pv, shift=(0.3, 0.6)),            # the brow ridges, jutting (2.94j: proud of the skull's sides - they shared its faces)
              el((-7.82, y0 - 1.0, -21.72), (7.82, y0 + 6.8, -21.6), ft, pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
-             el((-6.0, y0 + 6.6, -20.0), (-2.4, y0 + 8.0, -14.0), 'ss_skin_dk', pv), el((2.4, y0 + 6.6, -20.0), (6.0, y0 + 8.0, -14.0), 'ss_skin_dk', pv),   # (the ridges' crests)
-             el((-6.0, y0 - 4.2, -24.4), (6.0, y0 - 2.6, -20.6), 'ss_teeth', pv, faces=('north', 'east', 'west', 'down'), uv={'north': [0, 0, 16, 6]}),
-             el((-7.4, y0 - 4.0, -21.0), (7.4, y0 - 3.4, -9.4), 'ss_gum', pv)]
+             el((-6.0, y0 + 6.6, -20.0), (-2.4, y0 + 8.0, -14.0), 'sk_skin_dk', pv), el((2.4, y0 + 6.6, -20.0), (6.0, y0 + 8.0, -14.0), 'sk_skin_dk', pv),   # (the ridges' crests)
+             el((-6.0, y0 - 4.2, -24.4), (6.0, y0 - 2.6, -20.6), 'sk_teeth', pv, faces=('north', 'east', 'west', 'down'), uv={'north': [0, 0, 16, 6]}),
+             el((-7.4, y0 - 4.0, -21.0), (7.4, y0 - 3.4, -9.4), 'sk_gum', pv)]
         for k in range(6):                                                                                  # long fangs hanging from the upper jaw
             x = -5.4 + k * 2.16
-            h += chain([(x, y0 - 3.6, -23.8 + abs(k - 2.5) * 0.4), (x + 0.2, y0 - 7.2 + abs(k - 2.5) * 0.5, -24.0 + abs(k - 2.5) * 0.4)], [0.5], 0.8, 'ss_tooth', pv, FRONT, ext=0.0)
+            h += chain([(x, y0 - 3.6, -23.8 + abs(k - 2.5) * 0.4), (x + 0.2, y0 - 7.2 + abs(k - 2.5) * 0.5, -24.0 + abs(k - 2.5) * 0.4)], [0.5], 0.8, 'sk_tooth', pv, FRONT, ext=0.0)
         for sx in (-1, 1):
             for k in range(3):
                 z = -20.0 + k * 3.4
-                h += chain([(sx * 7.0, y0 - 3.6, z), (sx * 7.2, y0 - 6.6, z - 0.2)], [0.5], 0.7, 'ss_tooth', pv, FRONT, ext=0.0)
+                h += chain([(sx * 7.0, y0 - 3.6, z), (sx * 7.2, y0 - 6.6, z - 0.2)], [0.5], 0.7, 'sk_tooth', pv, FRONT, ext=0.0)
         return h
-    part('ss_head', head())
+    part('sk_head', head())
     for fc in FACES:
-        part(f'ss_head_x{fc}', head(fc))
+        part(f'sk_head_x{fc}', head(fc))
     # ---- the jaw: huge, wide, teeth standing all round its rim
     pv = PIVOT['jaw']
-    jaw = [el((-7.2, y0 - 7.6, -23.6), (7.2, y0 - 4.2, -9.6), 'ss_belly', pv),
-           el((-6.8, y0 - 4.2, -23.2), (6.8, y0 - 4.08, -10.0), 'ss_teeth', pv, faces=('up',), uv={'up': [0, 6, 16, 16]})]
+    jaw = [el((-7.2, y0 - 7.6, -23.6), (7.2, y0 - 4.2, -9.6), 'sk_belly', pv),
+           el((-6.8, y0 - 4.2, -23.2), (6.8, y0 - 4.08, -10.0), 'sk_teeth', pv, faces=('up',), uv={'up': [0, 6, 16, 16]})]
     for k in range(6):
         x = -5.4 + k * 2.16
-        jaw += chain([(x, y0 - 4.2, -22.8), (x - 0.1, y0 - 0.8, -22.6)], [0.5], 0.8, 'ss_tooth', pv, FRONT, ext=0.0)
+        jaw += chain([(x, y0 - 4.2, -22.8), (x - 0.1, y0 - 0.8, -22.6)], [0.5], 0.8, 'sk_tooth', pv, FRONT, ext=0.0)
     for sx in (-1, 1):
         for k in range(3):
             z = -19.0 + k * 3.4
-            jaw += chain([(sx * 6.6, y0 - 4.2, z), (sx * 6.6, y0 - 1.4, z + 0.2)], [0.5], 0.7, 'ss_tooth', pv, FRONT, ext=0.0)
-    part('ss_jaw', jaw)
+            jaw += chain([(sx * 6.6, y0 - 4.2, z), (sx * 6.6, y0 - 1.4, z + 0.2)], [0.5], 0.7, 'sk_tooth', pv, FRONT, ext=0.0)
+    part('sk_jaw', jaw)
     # ---- the pectoral fins: long, sweeping out to the sides and forward like horns, notched on the trailing edge
     for sx, n in ((1, 'finr'), (-1, 'finl')):
         pv = PIVOT[n]; x0, fy, fz = pv
         f_ = chain([(x0, fy, fz), (x0 + sx * 5.0, fy + 2.0, fz - 3.6), (x0 + sx * 9.0, fy + 6.4, fz - 8.6), (x0 + sx * 10.6, fy + 10.8, fz - 13.0)],
-                   [5.6, 3.6, 1.6], 1.0, 'ss_skin_dk', pv, UP, ext=0.3)
-        f_ += chain([(x0 + sx * 6.0, fy + 3.0, fz - 4.0), (x0 + sx * 8.0, fy + 2.4, fz - 1.6)], [2.0], 0.8, 'ss_skin_dk', pv, (1.0, 0.0, 0.0), ext=0.1)   # (a torn notch)
-        part(f'ss_{n}', f_)
+                   [5.6, 3.6, 1.6], 1.0, 'sk_skin_dk', pv, UP, ext=0.3)
+        f_ += chain([(x0 + sx * 6.0, fy + 3.0, fz - 4.0), (x0 + sx * 8.0, fy + 2.4, fz - 1.6)], [2.0], 0.8, 'sk_skin_dk', pv, (1.0, 0.0, 0.0), ext=0.1)   # (a torn notch)
+        part(f'sk_{n}', f_)
     # ---- the tail: the stalk, then the great crescent (both lobes long)
     pv = PIVOT['tail']
-    part('ss_tail', [el((-4.0, y0 - 3.4, 12.0), (4.0, y0 + 4.2, 17.4), 'ss_skin', pv, shift=(0.2, 0.6)),
-                     el((-2.8, y0 - 2.0, 17.0), (2.8, y0 + 3.0, 22.0), 'ss_skin', pv, shift=(0.7, 0.3)),
-                     el((-3.8, y0 - 3.5, 12.0), (3.8, y0 - 3.3, 17.4), 'ss_belly', pv)])
+    part('sk_tail', [el((-4.0, y0 - 3.4, 12.0), (4.0, y0 + 4.2, 17.4), 'sk_skin', pv, shift=(0.2, 0.6)),
+                     el((-2.8, y0 - 2.0, 17.0), (2.8, y0 + 3.0, 22.0), 'sk_skin', pv, shift=(0.7, 0.3)),
+                     el((-3.8, y0 - 3.5, 12.0), (3.8, y0 - 3.3, 17.4), 'sk_belly', pv)])
     pv = PIVOT['tail2']; tz = pv[2]; ty = pv[1]
-    t2 = [el((-1.8, ty - 1.8, tz - 0.6), (1.8, ty + 2.0, tz + 2.6), 'ss_skin', pv)]
-    t2 += chain([(0, ty + 0.4, tz + 1.0), (0, ty + 8.0, tz + 4.0), (0, ty + 15.0, tz + 8.6)], [7.0, 3.0], 1.2, 'ss_skin_dk', pv, (1.0, 0.0, 0.0), ext=0.3)
-    t2 += chain([(0, ty - 0.4, tz + 1.0), (0, ty - 6.4, tz + 4.6), (0, ty - 11.0, tz + 8.6)], [6.0, 2.4], 1.0, 'ss_skin_dk', pv, (1.0, 0.0, 0.0), ext=0.3)
-    part('ss_tail2', t2)
+    t2 = [el((-1.8, ty - 1.8, tz - 0.6), (1.8, ty + 2.0, tz + 2.6), 'sk_skin', pv)]
+    t2 += chain([(0, ty + 0.4, tz + 1.0), (0, ty + 8.0, tz + 4.0), (0, ty + 15.0, tz + 8.6)], [7.0, 3.0], 1.2, 'sk_skin_dk', pv, (1.0, 0.0, 0.0), ext=0.3)
+    t2 += chain([(0, ty - 0.4, tz + 1.0), (0, ty - 6.4, tz + 4.6), (0, ty - 11.0, tz + 8.6)], [6.0, 2.4], 1.0, 'sk_skin_dk', pv, (1.0, 0.0, 0.0), ext=0.3)
+    part('sk_tail2', t2)
     return M
 
 
