@@ -4,6 +4,9 @@ Bring QUEEN AVA (your follower) to the TIDE FONT in the throne room, with the fo
 right-click the Font: after the royal family's own business, Ava opens her HONOURS - a page for each follower with you
 (up to three: Ava herself can be honoured too).
   THE ROYAL BLESSING   the first time a follower stands before Ava at the Font, she blesses them: Vitality I, free.
+  (2.94) ONE HONOUR, THREE RANKS - each raises all three below together, to II, IV and then V (the same height as before):
+                       I: 8 Royal Pearls and a tribute · II: 16 + 1 Dread Token and a rarer one · III: 28 + 3, their signature
+                       treasure and any one Elemental Gem (Water, Rock or Fire). The old per-honour ranks below are what it sets.
   VITALITY I-V         +20% health a level (V: twice their health)
   BULWARK I-V          +3 armour and +1 toughness a level
   MIGHT I-V            +15% damage a level - their own blows and every special attack they make (the build pass below
@@ -35,6 +38,10 @@ STATS = [('v', 'Vitality', '#ff8a9a', '+20% health a level'), ('b', 'Bulwark', '
 UNIT = {'v': 1, 'b': 10, 'm': 100}          # a follower's honours in one score: v + 10 b + 100 m + 1000 (blessed)
 PEARLS = [6, 10, 16, 24, 32]
 DREAD = [0, 1, 2, 3, 5]
+# (2.94) ONE HONOUR, THREE RANKS - each rank raises all three at once (to II, IV, then V: the same height as before), far less
+# grind: (pearls, Dread Tokens, which of the follower's tributes, an Elemental Gem?)
+RANKS = [(2, 8, 0, 0, False), (4, 16, 1, 2, False), (5, 28, 3, 4, True)]   # (to level, pearls, Dread Tokens, tribute index, gem)
+GEMS_ANY = ('water', 'rock', 'fire')
 GEM = {'v': ('water', 'Water Gem'), 'b': ('rock', 'Rock Gem'), 'm': ('fire', 'Fire Gem')}
 HASTE = [(80, 12, 3, None), (45, 24, 5, ('air', 'Air Gem'))]     # Swift Return: (faint seconds, pearls, Dread Tokens, gem)
 holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
@@ -70,6 +77,9 @@ TRIB = {
     'bender': [('minecraft:bone', 16), ('minecraft:cooked_beef', 16), ('token', 8), ('heartstone', 1), ('fallen_star', 2)],
     'bones': [('minecraft:cod', 16), ('minecraft:salmon', 16), ('minecraft:tropical_fish', 8), ('minecraft:nautilus_shell', 2), ('tide_scale', 8)],
     'capshun': [('minecraft:paper', 32), ('minecraft:ink_sac', 16), ('minecraft:book', 8), ('minecraft:writable_book', 2), ('heartstone', 2)],
+    'pxcecil': [('minecraft:amethyst_shard', 32), ('minecraft:ender_pearl', 8), ('minecraft:experience_bottle', 8), ('minecraft:echo_shard', 2), ('heartstone', 2)],
+    'pxleo': [('minecraft:iron_sword', 4), ('minecraft:shield', 2), ('minecraft:emerald', 16), ('minecraft:diamond_sword', 1), ('heartstone', 2)],
+    'pxemma': [('minecraft:fire_charge', 16), ('minecraft:red_mushroom', 16), ('minecraft:gold_block', 2), ('minecraft:totem_of_undying', 1), ('heartstone', 2)],
     'sky': [('minecraft:sunflower', 16), ('minecraft:glow_berries', 16), ('minecraft:daylight_detector', 4), ('fallen_star', 2), ('heartstone', 2)],
 }
 
@@ -102,6 +112,14 @@ def generate(G):
 
     # ---------------------------------------------------------------- at the Font, with Ava: her honours
     G.FUNCS['p199/font/ask'].append('execute if score #r_ava bm.rng matches 1 run function bm:p201/open')
+    # (2.94) walk up to the Font with Ava and she says what it's for (once a minute at most)
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.khint dummy']; G.OBJECTIVES.append('bm.khint')
+    G.FUNCS['loop/second'][-1:-1] = ['scoreboard players remove @a[scores={bm.khint=1..}] bm.khint 1',
+                                     'execute as @e[type=minecraft:interaction,tag=bm.kfont] at @s as @a[distance=..6,gamemode=!spectator] unless score @s bm.khint matches 1.. at @s run function bm:p201/hint']
+    fn('p201/hint', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #av bm.rng 0',
+                     'execute as @e[type=minecraft:wolf,tag=bm.avpet,distance=..12] if score @s bm.pid = #me bm.pid run scoreboard players set #av bm.rng 1',
+                     'execute if score #av bm.rng matches 0 run return 0', 'scoreboard players set @s bm.khint 60',
+                     G.title('@s', 'actionbar', [T('Queen Ava: ', AVA_C, bold=True), T('"Right-click the Font - and I will honour those who stand with you."', '#bfe8ff')])])
     fn('p201/open', ['scoreboard players set #ns bm.rng 0', 'scoreboard players operation #me bm.pid = @s bm.pid',
                      'scoreboard players set @s bm.hns0 0', 'scoreboard players set @s bm.hns1 0', 'scoreboard players set @s bm.hns2 0',
                      'data modify storage bm:ui hn set value {r_l0:{text:"—",color:"dark_gray"},r_l1:{text:"—",color:"dark_gray"},r_l2:{text:"—",color:"dark_gray"}}',
@@ -145,11 +163,18 @@ def generate(G):
         if L >= 5: return 'at its height'
         t = f'{PEARLS[L]} Royal Pearls' + (f' + {DREAD[L]} Dread Token{"s" if DREAD[L] > 1 else ""}' if DREAD[L] else '')
         return t + ' + ' + trib_name(*TRIB[w][L]) + (f' + a {GEM[k][1]}' if L == 4 else '')
+    def rank_txt(w, r):
+        if r >= 3: return 'at its height'
+        _to, pp, dd, ti, gem = RANKS[r]
+        return (f'{pp} Royal Pearls' + (f' + {dd} Dread Token{"s" if dd > 1 else ""}' if dd else '') + ' + ' + trib_name(*TRIB[w][ti]) +
+                (' + any Elemental Gem (Water, Rock or Fire)' if gem else ''))
     page = P28.multi([T("QUEEN AVA'S HONOURS", AVA_C, bold=True), T('  ·  ', 'gray'), '@@RAW:r_nm@@'],
+                     [P28.body([T('Honour ', AVA_C, bold=True), T('$(hp)', 'white'), T('   Vitality, Bulwark and Might together', 'dark_gray')], 320)] +
                      [P28.body([T(s_nm + ' ', s_col, bold=True), T(f'$({k}p)', 'white'), T(f'   {desc}', 'dark_gray')], 320) for k, s_nm, s_col, desc in STATS] +
                      [P28.body([T('You have ', 'gray'), T('$(rp)', PEARL_C, bold=True), T(' Royal Pearls and ', 'gray'), T('$(dt)', '#b0102a', bold=True),
                                 T(' Dread Tokens.', 'gray')], 320)],
-                     [B_([T(f'{s_nm} +1', s_col), T('  ($(' + k + 'c))', 'gray')], MENU + 11 + i, w=260) for i, (k, s_nm, s_col, _d) in enumerate(STATS)] +
+                     [B_([T('Honour +1', AVA_C, bold=True), T('  ($(hc))', 'gray')], MENU + 11, w=260,
+                         tip=T('One Honour, three ranks: each raises Vitality, Bulwark and Might together (II, IV, then V).', 'gray'))] +
                      [B_(T('« Her honours', 'gray'), MENU + 9, w=260)], columns=1)
     fn('p201/page_dlg', [f'$dialog show @s {P28.inline(page)}'])
     fn('p201/page', [f'scoreboard players set @s bm.menu {MENU}', 'function bm:p177/wallet',
@@ -165,40 +190,60 @@ def generate(G):
                       'scoreboard players operation #hl bm.rng %= #10 bm.rng']
             lines += [f'execute if score #hl bm.rng matches {L} run data modify storage bm:ui hn.{k}p set value "{pips[L]}"' for L in range(6)]
             lines += [f'execute if score #hl bm.rng matches {L} run data modify storage bm:ui hn.{k}c set value "{price_txt(w, k, L)}"' for L in range(6)]
+        lines += ['scoreboard players set #hr bm.rng 9'] + [l for k, *_r in STATS for l in (
+            f'scoreboard players operation #hl bm.rng = @s {obj(w)}', f'scoreboard players operation #hl bm.rng /= #{UNIT[k]} bm.rng' if UNIT[k] > 1 else 'scoreboard players add #hl bm.rng 0',
+            'scoreboard players operation #hl bm.rng %= #10 bm.rng', 'scoreboard players operation #hr bm.rng < #hl bm.rng')]
+        # (the rank: the lowest of the three - 0, I at II, II at IV, III at V)
+        lines += ['scoreboard players set #rk bm.rng 0', 'execute if score #hr bm.rng matches 2.. run scoreboard players set #rk bm.rng 1',
+                  'execute if score #hr bm.rng matches 4.. run scoreboard players set #rk bm.rng 2', 'execute if score #hr bm.rng matches 5.. run scoreboard players set #rk bm.rng 3']
+        lines += [f'execute if score #rk bm.rng matches {r} run data modify storage bm:ui hn.hp set value "{"●" * r + "○" * (3 - r)}"' for r in range(4)]
+        lines += [f'execute if score #rk bm.rng matches {r} run data modify storage bm:ui hn.hc set value "{rank_txt(w, r)}"' for r in range(4)]
         fn(f'p201/pg/{w}', lines)
 
-    # ---------------------------------------------------------------- buying a rank
-    for k, s_nm, s_col, _d in STATS:
-        fn(f'p201/buy_{k}', [f'execute if score @s bm.hnsel matches {IDX[w]} run function bm:p201/b/{w}_{k}' for w in FOL] + ['function bm:p201/page'])
-        for w in FOL:
-            nm, col = WHO[w][0], WHO[w][2]
-            lines = [f'execute unless score @s {obj(w)} matches 0.. run scoreboard players set @s {obj(w)} 0',
-                     f'scoreboard players operation #hl bm.rng = @s {obj(w)}',
-                     f'scoreboard players operation #hl bm.rng /= #{UNIT[k]} bm.rng' if UNIT[k] > 1 else 'scoreboard players add #hl bm.rng 0',
-                     'scoreboard players operation #hl bm.rng %= #10 bm.rng',
-                     'execute if score #hl bm.rng matches 5.. run return run ' + say(f'{nm}\'s {s_nm} is at its height.', AVA_C)]
-            lines += [f'execute if score #hl bm.rng matches {L} run return run function bm:p201/pay/{w}_{k}{L + 1}' for L in range(5)]
-            fn(f'p201/b/{w}_{k}', lines)
-            for L in range(1, 6):
-                pp, dd = PEARLS[L - 1], DREAD[L - 1]
-                ti, tn = TRIB[w][L - 1]
-                pay = [f'execute store result score #c bm.rng run clear @s {holds("royal_pearl")} 0',
-                       f'execute unless score #c bm.rng matches {pp}.. run return run ' + say(f'That rank takes {pp} Royal Pearls.', 'red'),
-                       f'execute store result score #c bm.rng run clear @s {trib_pred(ti)} 0',
-                       f'execute unless score #c bm.rng matches {tn}.. run return run ' + say(f'For {nm}, Queen Ava asks {trib_name(ti, tn)} as well.', 'red')]
-                if L == 5:
-                    pay += [f'execute unless items entity @s container.* {holds("gem_" + GEM[k][0])} run return run ' +
-                            say(f'The last rank of {s_nm} takes a {GEM[k][1]} - a piece of the kingdom\'s heart.', 'red')]
-                if dd:
-                    pay += [f'scoreboard players set #need bm.pay {dd}', 'execute unless function bm:p177/pay run return run function bm:p177/poor']
-                if L == 5:
-                    pay += [f'clear @s {holds("gem_" + GEM[k][0])} 1']
-                fn(f'p201/pay/{w}_{k}{L}', pay + [f'clear @s {holds("royal_pearl")} {pp}', f'clear @s {trib_pred(ti)} {tn}', f'scoreboard players add @s {obj(w)} {UNIT[k]}',
-                                                  f'function bm:p205/check/{w}',
-                                                  'playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 0.8 1.2',
-                                                  'particle minecraft:end_rod ~ ~1.2 ~ 0.4 0.6 0.4 0.03 20',
-                                                  tellraw('@s', P + [T(f'{s_nm} {"I II III IV V".split()[L - 1]}', s_col, bold=True), T(' for ', 'gray'),
-                                                                     T(nm, col, bold=True), T(' - Queen Ava touches the Font, and it is done.', 'gray')])])
+    # ---------------------------------------------------------------- buying a rank (2.94: one Honour - all three raised together)
+    fn('p201/buy', [f'execute if score @s bm.hnsel matches {IDX[w]} run function bm:p201/b/{w}' for w in FOL] + ['function bm:p201/page'])
+    G.FUNCS['load'][-1:-1] = ['scoreboard players set #1000 bm.rng 1000']
+    for w in FOL:
+        nm, col = WHO[w][0], WHO[w][2]
+        o = obj(w)
+        # (#hv, #hb, #hm: the three now; the rank from the lowest)
+        lines = [f'execute unless score @s {o} matches 0.. run scoreboard players set @s {o} 0',
+                 f'scoreboard players operation #hv bm.rng = @s {o}', 'scoreboard players operation #hv bm.rng %= #10 bm.rng',
+                 f'scoreboard players operation #hb bm.rng = @s {o}', 'scoreboard players operation #hb bm.rng /= #10 bm.rng', 'scoreboard players operation #hb bm.rng %= #10 bm.rng',
+                 f'scoreboard players operation #hm bm.rng = @s {o}', 'scoreboard players operation #hm bm.rng /= #100 bm.rng', 'scoreboard players operation #hm bm.rng %= #10 bm.rng',
+                 'scoreboard players operation #hr bm.rng = #hv bm.rng', 'scoreboard players operation #hr bm.rng < #hb bm.rng', 'scoreboard players operation #hr bm.rng < #hm bm.rng',
+                 'execute if score #hr bm.rng matches 5.. run return run ' + say(f'{nm}\'s Honour is at its height.', AVA_C),
+                 f'execute if score #hr bm.rng matches 4 run return run function bm:p201/pay/{w}3',
+                 f'execute if score #hr bm.rng matches 2..3 run return run function bm:p201/pay/{w}2',
+                 f'function bm:p201/pay/{w}1']
+        fn(f'p201/b/{w}', lines)
+        for r, (to, pp, dd, ti, gem) in enumerate(RANKS, 1):
+            it, tn = TRIB[w][ti]
+            pay = [f'execute store result score #c bm.rng run clear @s {holds("royal_pearl")} 0',
+                   f'execute unless score #c bm.rng matches {pp}.. run return run ' + say(f'That rank takes {pp} Royal Pearls.', 'red'),
+                   f'execute store result score #c bm.rng run clear @s {trib_pred(it)} 0',
+                   f'execute unless score #c bm.rng matches {tn}.. run return run ' + say(f'For {nm}, Queen Ava asks {trib_name(it, tn)} as well.', 'red')]
+            if gem:
+                pay += ['scoreboard players set #gm bm.rng 0'] + \
+                       [f'execute if score #gm bm.rng matches 0 if items entity @s container.* {holds("gem_" + g)} run scoreboard players set #gm bm.rng {i + 1}' for i, g in enumerate(GEMS_ANY)] + \
+                       ['execute if score #gm bm.rng matches 0 run return run ' + say("The last rank takes an Elemental Gem - Water, Rock or Fire: a piece of the kingdom's heart.", 'red')]
+            if dd:
+                pay += [f'scoreboard players set #need bm.pay {dd}', 'execute unless function bm:p177/pay run return run function bm:p177/poor']
+            if gem:
+                pay += [f'execute if score #gm bm.rng matches {i + 1} run clear @s {holds("gem_" + g)} 1' for i, g in enumerate(GEMS_ANY)]
+            # (each of the three up to the rank's level - never down; the blessing's thousand kept)
+            pay += [f'clear @s {holds("royal_pearl")} {pp}', f'clear @s {trib_pred(it)} {tn}',
+                    f'execute if score #hv bm.rng matches ..{to - 1} run scoreboard players set #hv bm.rng {to}',
+                    f'execute if score #hb bm.rng matches ..{to - 1} run scoreboard players set #hb bm.rng {to}',
+                    f'execute if score #hm bm.rng matches ..{to - 1} run scoreboard players set #hm bm.rng {to}',
+                    f'scoreboard players operation #hk bm.rng = @s {o}', 'scoreboard players operation #hk bm.rng /= #1000 bm.rng', 'scoreboard players operation #hk bm.rng *= #1000 bm.rng',
+                    'scoreboard players operation #hb bm.rng *= #10 bm.rng', 'scoreboard players operation #hm bm.rng *= #100 bm.rng',
+                    'scoreboard players operation #hk bm.rng += #hv bm.rng', 'scoreboard players operation #hk bm.rng += #hb bm.rng', 'scoreboard players operation #hk bm.rng += #hm bm.rng',
+                    f'scoreboard players operation @s {o} = #hk bm.rng', f'function bm:p205/check/{w}',
+                    'playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 0.8 1.2', 'particle minecraft:end_rod ~ ~1.2 ~ 0.4 0.6 0.4 0.03 20',
+                    tellraw('@s', P + [T(f'Honour {"I II III".split()[r - 1]}', AVA_C, bold=True), T(' for ', 'gray'), T(nm, col, bold=True),
+                                       T(f' - Vitality, Bulwark and Might {"I II III IV V".split()[to - 1]}. Queen Ava touches the Font, and it is done.', 'gray')])]
+            fn(f'p201/pay/{w}{r}', pay)
 
     # ---------------------------------------------------------------- the Tide's Haste (Swift Return, from Vesper's old Ledger)
     fn('p201/haste', ['execute unless score @s bm.fret matches 0.. run scoreboard players set @s bm.fret 0',
@@ -271,7 +316,7 @@ def generate(G):
        [f'execute if score #act bm.pay matches {MENU + 1}..{MENU + 3} run return run function bm:p201/page',
         f'execute if score #act bm.pay matches {MENU + 9} run return run function bm:p201/open',
         f'execute if score #act bm.pay matches {MENU + 5} run return run function bm:p201/haste'] +
-       [f'execute if score #act bm.pay matches {MENU + 11 + i} run return run function bm:p201/buy_{k}' for i, (k, *_r) in enumerate(STATS)])
+       [f'execute if score #act bm.pay matches {MENU + 11} run return run function bm:p201/buy'])
 
     # ---------------------------------------------------------------- the honours, worn by every follower you call (each second; re-applied on change)
     for w in FOL:

@@ -29,7 +29,7 @@ const res = [];
                  ['Dennis', 'dw_horn', 'wolf', 'bm.dwpet', -6], ['Pistachio', 'pi_cloche', 'wolf', 'bm.pipet', 6],
                  ['Omega', 'om_monocle', 'wolf', 'bm.ompet', 8], ['Ashur', 'ashur_cinder', 'wolf', 'bm.aspet', -8], ['The Chef', 'chef_ladle', 'wolf', 'bm.kkpet', 10], ['The Neighbor', 'neighbor_baton', 'wolf', 'bm.nbpet', -10],
                  ['Queen Ava', 'av_locket', 'wolf', 'bm.avpet', 1], ['Queen Pearl', 'pq_pearls', 'wolf', 'bm.pqpet', -1], ['Bloo', 'bo_claw', 'wolf', 'bm.bopet', 3],
-                 ['The Stalker', 'st_hook', 'wolf', 'bm.svpet', -3], ['The Arachno-Lantern', 'ln_gourd', 'wolf', 'bm.lnpet', -5], ['Bender', 'bv_ball', 'wolf', 'bm.bvpet', -7], ['Bones', 'bn_whistle', 'wolf', 'bm.bjpet', -9], ['Mr. Capshun', 'capshun_pencil', 'wolf', 'bm.mzpet', 9]];
+                 ['The Stalker', 'st_hook', 'wolf', 'bm.svpet', -3], ['The Arachno-Lantern', 'ln_gourd', 'wolf', 'bm.lnpet', -5], ['Bender', 'bv_ball', 'wolf', 'bm.bvpet', -7], ['Bones', 'bn_whistle', 'wolf', 'bm.bjpet', -9], ['Mr. Capshun', 'capshun_pencil', 'wolf', 'bm.mzpet', 9], ['The Sky Buddies', 'sky_mobile', 'wolf', 'bm.ybpet', 5], ['8-Bit Emma', 'cart_emma', 'wolf', 'bm.xmpet', 7], ['8-Bit Leo', 'cart_leo', 'wolf', 'bm.xlpet', 11], ['8-Bit Cecil', 'cart_cecil', 'wolf', 'bm.xcpet', -11]];
   for (const [name, iid, host, tag, dx] of KINDS) {
     await run(`${O}summon minecraft:item_frame ${X + dx} ${Y + 2} ${Z + 4} {Facing:2b,Tags:["bm.t146f"]}`); await sleep(400);
     await run(`loot replace entity TestRat hotbar.0 loot bm:items/${iid}`); await sleep(300);
@@ -42,7 +42,7 @@ const res = [];
     if (fr) A.interact(fr.entityId); await sleep(2800);
     const pet = `@e[type=minecraft:${host},tag=${tag},tag=bm.ffpet,x=${X + dx},y=${Y + 2},z=${Z + 4},distance=..10]`;
     ok(`${name}'s item in a frame: ${name} climbs out`, (await cnt(pet)) === 1, `out ${await cnt(pet)}`);
-    ok('...and says so', A.bars.some(b => new RegExp(`${name} climbs out of the frame`).test(b)), A.bars.slice(-1).join(''));
+    ok('...and says so', A.bars.some(b => new RegExp(`${name} climbs? out of the frame`).test(b)), A.bars.slice(-1).join(''));
     if (name === 'Wilfrey') ok('...in his bones (his body comes with him)', (await cnt(`@e[type=minecraft:wither_skeleton,tag=bm.wil_body,x=${X + dx},y=${Y + 2},z=${Z + 4},distance=..10]`)) === 1);
     ok('...nobody\'s - not the player\'s', (await cnt(`${pet.slice(0, -1)},scores={bm.pid=${+((await run('scoreboard players get TestRat bm.pid')).match(/has (-?\d+)/) || [0, -9])[1]}}]`)) === 0);
     await sleep(10000);

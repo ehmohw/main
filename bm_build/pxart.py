@@ -105,7 +105,8 @@ class Rig:
         self.S, self.PREFIX = sprite, prefix
         self.RIG_SCALE = sprite.size
         self.PARTS = ('body', 'head')
-        self.PIVOT = {'body': (0.0, 8.0, 0.0), 'head': (0.0, 8.0, 0.0)}
+        y = 8.0 - 96.0 / sprite.N                                             # (the quad's middle, so the feet - 6 pixels up the canvas - touch the ground)
+        self.PIVOT = {'body': (0.0, y, 0.0), 'head': (0.0, y, 0.0)}
         self.PARENT = {'body': None, 'head': None}
         self.PART_K = {}
         self.SWIM_FRAMES = 0
@@ -133,3 +134,69 @@ class Rig:
 
     def length(self, name, every):
         return every * len(self.S.frames[name])
+
+
+# ---------------------------------------------------------------------- a doll: the standing sprite, chibi, in voxels
+def chibi(im, split=0.46, kh=1.3, kb=0.8):
+    """the sprite pushed into the dolls' proportions: the head (the top of it) a third bigger, the body smaller - by whole
+    pixels (nearest), so it stays pixel art"""
+    bb = im.getbbox(); im = im.crop(bb)
+    w, h = im.size
+    hs = int(round(h * split))
+    head = im.crop((0, 0, w, hs)); body = im.crop((0, hs, w, h))
+    head = head.resize((max(1, round(w * kh)), max(1, round(hs * kh))), Image.NEAREST)
+    body = body.resize((max(1, round(w * kb)), max(1, round((h - hs) * kb))), Image.NEAREST)
+    W = max(head.width, body.width)
+    out = Image.new('RGBA', (W, head.height + body.height), (0, 0, 0, 0))
+    out.alpha_composite(body, ((W - body.width) // 2, head.height))
+    out.alpha_composite(head, ((W - head.width) // 2, 0))
+    return out
+
+
+def voxel(im, tex, height=18.0, depth=1.6):
+    """(textures, elements, the square texture) - every row's runs of solid pixels a box, the sprite on its front (north, as
+    the dolls face) and back, its edge pixels on the sides: a pixel doll you can walk round"""
+    bb = im.getbbox(); im = im.crop(bb)
+    w, h = im.size
+    n = 16
+    while n < max(w, h):
+        n *= 2
+    sq = Image.new('RGBA', (n, n), (0, 0, 0, 0)); sq.alpha_composite(im, (0, 0))
+    s = height / h                                    # (model units a pixel)
+    u = 16.0 / n                                      # (uv units a pixel)
+    ox = 8 + w * s / 2                                # (column 0 at the east edge: the north face shows it on your left)
+    a = im.split()[3].load()
+    els = []
+    for y in range(h):
+        x = 0
+        while x < w:
+            if a[x, y] < 128:
+                x += 1; continue
+            x0 = x
+            while x < w and a[x, y] >= 128:
+                x += 1
+            v0, v1 = y * u, (y + 1) * u
+            f = [round(ox - x * s, 3), round((h - 1 - y) * s, 3), round(8 - depth / 2, 3)]
+            t = [round(ox - x0 * s, 3), round((h - y) * s, 3), round(8 + depth / 2, 3)]
+            row = lambda c0, c1: [round(c0 * u, 4), v0, round(c1 * u, 4), v1]
+            els.append({'from': f, 'to': t, 'faces': {
+                'north': {'uv': row(x0, x), 'texture': '#t'}, 'south': {'uv': row(x, x0), 'texture': '#t'},
+                'up': {'uv': row(x0, x), 'texture': '#t'}, 'down': {'uv': row(x0, x), 'texture': '#t'},
+                'east': {'uv': row(x0, x0 + 1), 'texture': '#t'}, 'west': {'uv': row(x - 1, x), 'texture': '#t'}}})
+    return {'t': f'bm:block/{tex}', 'particle': f'bm:block/{tex}'}, els, sq
+
+
+def standing(key):
+    d = folder(key)
+    return Image.open(glob.glob(os.path.join(d, '*', 'rotations', 'south.png'))[0]).convert('RGBA')
+
+
+def turned(els):
+    """elements turned half round (about the model's middle): a doll made facing one way, facing the other"""
+    sw = {'north': 'south', 'south': 'north', 'east': 'west', 'west': 'east', 'up': 'up', 'down': 'down'}
+    out = []
+    for e in els:
+        f, t = e['from'], e['to']
+        out.append({'from': [round(16 - t[0], 3), f[1], round(16 - t[2], 3)], 'to': [round(16 - f[0], 3), t[1], round(16 - f[2], 3)],
+                    'faces': {sw[k]: v for k, v in e['faces'].items()}})
+    return out

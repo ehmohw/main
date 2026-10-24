@@ -88,6 +88,10 @@ def extend_offers(O, offer):
     O['dock'] += [offer(('token', 6), ('sealed_map_kingdom', 1))]
 
 
+import phase177 as _P177
+_P177.STOCK.append(('sealed_map_kingdom', 1, 2))                    # (2.94: Vesper sells it too - and the Royal Steward no longer does)
+
+
 # ================================================================================================ art: icons, the steward
 def _icons():
     from PIL import Image, ImageDraw
@@ -292,7 +296,19 @@ def generate(G):
                          'execute if score #r bm.rng matches 2 run playsound minecraft:block.fire.ambient block @a[distance=..16] ~ ~ ~ 0.6 1'])
     fast.append('execute as @e[type=minecraft:item_display,tag=bm.kheartd] at @s if entity @a[distance=..32] run tp @s ~ ~ ~ ~6 0')
 
-    # ---------------------------------------------------------------- the interactions: one dispatcher (the box knows which it is)
+    # ---------------------------------------------------------------- (2.94) what to do here: a label over the Font and the Dome Heart
+    def label(tag, lines):
+        from nbt import snbt as _sn, B as _B, F as _F, Int as _I
+        return 'summon minecraft:text_display ~ ~2.5 ~ ' + _sn({'Tags': [tag], 'billboard': 'center', 'see_through': _B(0), 'shadow': _B(1), 'background': _I(1073741824),
+                                                             'line_width': _I(200), 'view_range': _F(0.35), 'text': lines})
+    LBL = {'bm.kfont': ('bm.kfontl', [{'text': 'The Tide Font\n', 'color': KC, 'bold': True}, {'text': 'right-click', 'color': 'white'},
+                                       {'text': '\n(with Queen Ava beside you: her Honours)', 'color': 'gray'}]),
+           'bm.kheart': ('bm.kheartl', [{'text': 'The Dome Heart\n', 'color': KC, 'bold': True}, {'text': 'right-click: call a breach', 'color': 'white'},
+                                         {'text': '\nsneak + right-click: mend the dome', 'color': 'white'}, {'text': '\n(2 Royal Pearls - free with Queen Ava)', 'color': 'gray'}])}
+    for t, (lt, lines) in LBL.items():
+        second.append(f'execute as @e[type=minecraft:interaction,tag={t}] at @s if entity @a[distance=..24] unless entity @e[type=minecraft:text_display,tag={lt},distance=..4] run {label(lt, lines)}')
+        G.FUNCS['admin/uninstall'].insert(0, f'kill @e[type=minecraft:text_display,tag={lt}]')
+
     fast.append('execute as @e[type=minecraft:interaction,tag=bm.kbox] if data entity @s interaction at @s run function bm:p199/click')
     fn('p199/click', ['tag @s add bm.khere', 'execute on target run function bm:p199/clicked', 'tag @s remove bm.khere', 'data remove entity @s interaction'])
     fn('p199/clicked', ['execute if entity @e[type=minecraft:interaction,tag=bm.khere,tag=bm.kfont] run return run function bm:p199/font/ask',
@@ -471,7 +487,7 @@ def generate(G):
     base = [(('royal_pearl', 1), ('token', 2)), (('royal_pearl', 3), ('nautilus_shell', 1)), (('royal_pearl', 10), ('heart_of_the_sea', 1)),
             (('royal_pearl', 14), ('conduit', 1)), (('royal_pearl', 16), ('trident', 1)), (('royal_pearl', 2), ('sea_lantern', 8)),
             (('royal_pearl', 1), ('prismarine_shard', 16)), (('royal_pearl', 4), ('sponge', 4)), (('royal_pearl', 24), ('heartstone', 1)),
-            (('royal_pearl', 12), ('tidecaller_shell', 1)), (('royal_pearl', 6), ('sealed_map_db_shark', 1)), (('royal_pearl', 4), ('sealed_map_kingdom', 1))]
+            (('royal_pearl', 12), ('tidecaller_shell', 1)), (('royal_pearl', 6), ('sealed_map_db_shark', 1))]   # (2.94: the Sealed Royal Chart moved to Vesper - redundant here, you're already in the castle)
     import phase202 as R202
     base_o = [G.offer(b, s) for b, s in base] + R202.steward_offers(G.offer)      # (2.92: the armoury - phase202)
     for d, sp in enumerate(SPECIALS):
@@ -528,12 +544,17 @@ def generate(G):
                             'execute positioned ~ ~-4 ~-6 run ' + title('@a[distance=..34]', 'subtitle', T('Mend the leaks at the Dome Heart (sneak + right-click it)', KC))])
     fn('p199/breach/burst', ['tag @s remove bm.kcrack', 'scoreboard players add @e[type=minecraft:marker,tag=bm.kingdom,distance=..70,sort=nearest,limit=1] bm.kburst 1',
                              'fill ~-1 ~ ~-1 ~1 ~2 ~1 minecraft:water replace minecraft:glass',
+                             # (2.94: and says plainly how to mend it)
+                             tellraw('@a[distance=..60]', P + [T('The sea is getting in! ', '#ff5a5a', bold=True),
+                                                               T('Mend the dome at the ', 'gray'), T('Dome Heart', KC, bold=True),
+                                                               T(' (the floating Heart of the Sea in the keep): ', 'gray'), T('sneak + right-click it', 'white', bold=True),
+                                                               T(' - 2 Royal Pearls, or free with Queen Ava beside you.', 'gray')]),
                              'particle minecraft:block{block_state:"minecraft:glass"} ~ ~1.5 ~ 0.6 0.8 0.6 0 40',
                              'playsound minecraft:block.glass.break block @a[distance=..32] ~ ~ ~ 1 0.7'])
 
     # ---------------------------------------------------------------- the dome: mend (glass back, water out) and shatter (the sea in)
     cols = K.shell_columns()
-    mend, flood = [], []
+    mend, flood, dry = [], [], []
 
     def runs(ys):
         out, s = [], None
@@ -561,7 +582,7 @@ def generate(G):
                     mend.append(f'fill {a} {b} minecraft:glass replace #bm:p199_gap')
                     flood.append(f'fill {a} {b} minecraft:water replace #bm:p199_glass')
                 else:
-                    mend.append(f'fill {a} {b} minecraft:air replace minecraft:water')
+                    dry.append(f'fill {a} {b} minecraft:air replace #bm:p199_wet')
                     flood.append(f'fill {a} {b} minecraft:water replace minecraft:air')
                 if x is not None: start = prev = x
     wjson('bm/tags/block/p199_gap.json', {'values': ['minecraft:water', 'minecraft:air', 'minecraft:kelp', 'minecraft:kelp_plant', 'minecraft:seagrass',
@@ -571,16 +592,32 @@ def generate(G):
     fountain = [f'setblock {rel(x, K.P, z)} minecraft:water' for x in range(fx - 3, fx + 4) for z in range(fz - 3, fz + 4)
                 if math.hypot(x - fx, z - fz) <= 1.6 and (x, z) != (fx, fz)]
     door = [f'setblock {rel(x, y, K.DOOR_Z)} minecraft:light_blue_stained_glass' for x in (34, 35, 36) for y in range(K.FY + 1, K.FY + 4)]
-    fn('p199/dome/mend_blocks', mend + door + fountain)
+    # (2.94: the drying is its own pass - kelp, seagrass and bubble columns that grew in the flood go too - run again a few
+    #  seconds later for water that was still flowing; the fountain's own water put back after)
+    wjson('bm/tags/block/p199_wet.json', {'values': ['minecraft:water', 'minecraft:kelp', 'minecraft:kelp_plant', 'minecraft:seagrass', 'minecraft:tall_seagrass',
+                                                     'minecraft:bubble_column']})
+    fn('p199/dome/dry', dry + fountain)
+    fn('p199/dome/mend_blocks', mend + door + ['function bm:p199/dome/dry'])
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.kdry dummy', 'scoreboard objectives add bm.kleak dummy']
+    G.OBJECTIVES += ['bm.kdry', 'bm.kleak']
+    second.append('execute as @e[type=minecraft:marker,tag=bm.kingdom,scores={bm.kdry=1..}] at @s run function bm:p199/dome/drying')
     fn('p199/dome/flood_blocks', flood)
     loaded = ' '.join(f'if loaded ~{x} ~ ~{z}' for x in (-36, 36) for z in (-42, 30))
     fn('p199/dome/mend', [f'execute unless loaded ~-36 ~ ~-42 run return run ' + say('The dome is too far to reach all of it - come closer.', KC),
                           f'execute {loaded} run function bm:p199/dome/mend_blocks', 'scoreboard players set @s bm.kdome 0', 'scoreboard players set @s bm.kburst 0',
+                          'scoreboard players set @s bm.kdry 6',
                           'kill @e[type=minecraft:drowned,tag=bm.kraider,distance=..70]',
                           'playsound minecraft:block.conduit.activate block @a[distance=..64] ~ ~ ~ 1 0.8',
                           'execute positioned ~ ~-4 ~-6 run particle minecraft:bubble_pop ~ ~8 ~ 14 8 14 0.1 400',
                           'execute positioned ~ ~-4 ~-6 run ' + title('@a[distance=..40]', 'title', T('The dome is whole', KC, bold=True))])
-    fn('p199/dome/shatter', ['scoreboard players set @s bm.kdome 1', 'scoreboard players set @s bm.kbr 0',
+    fn('p199/dome/drying', ['execute if score @s bm.kdome matches 1 run return run scoreboard players set @s bm.kdry 0', 'scoreboard players remove @s bm.kdry 1', f'execute if score @s bm.kdry matches 3 {loaded} run function bm:p199/dome/dry',
+                            f'execute if score @s bm.kdry matches 0 {loaded} run function bm:p199/dome/dry'])
+    second.append('execute as @e[type=minecraft:marker,tag=bm.kingdom,scores={bm.kburst=1..,bm.kdome=0}] at @s run function bm:p199/dome/leaking')
+    fn('p199/dome/leaking', ['scoreboard players add @s bm.kleak 1', 'execute as @e[type=minecraft:item_display,tag=bm.kheartd,distance=..60] at @s run particle minecraft:dripping_water ~ ~0.6 ~ 0.3 0.3 0.3 0 6',
+                             'execute unless score @s bm.kleak matches 20.. run return 0', 'scoreboard players set @s bm.kleak 0',
+                             'execute positioned ~ ~-4 ~-6 run ' + title('@a[distance=..34]', 'actionbar', [T('The dome is leaking - ', '#ff8a8a'), T('sneak + right-click the Dome Heart', 'white', bold=True),
+                                                                                                         T(' to mend it (2 Royal Pearls).', '#ff8a8a')])])
+    fn('p199/dome/shatter', ['scoreboard players set @s bm.kdome 1', 'scoreboard players set @s bm.kbr 0', 'scoreboard players set @s bm.kdry 0',
                              f'execute {loaded} run function bm:p199/dome/flood_blocks',
                              'playsound minecraft:block.glass.break block @a[distance=..64] ~ ~ ~ 2 0.4',
                              'playsound minecraft:entity.generic.explode block @a[distance=..64] ~ ~ ~ 1 0.5',

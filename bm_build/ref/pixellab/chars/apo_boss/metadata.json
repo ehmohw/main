@@ -1,0 +1,131 @@
+{
+  "group_id": "9de411de-efd8-4277-ac8a-cbffaa680d3d",
+  "states": [
+    {
+      "character": {
+        "id": "ddc06312-4bdb-4954-ada2-d61488a0d7d1",
+        "name": "Idle",
+        "prompt": "Apophiss, the serpent king, a huge boss: a green serpent rearing up with a pale yellow-green belly, clawed green arms, a smooth reptile snout with no moustache and no hair, solid black eyes with small white pupils, no glasses, a small black crown with a green gem and a red jewel on white fur trim, dark teal fins and spines, a long red forked tongue, a roaring fanged mouth",
+        "size": {
+          "width": 128,
+          "height": 128
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-10-23T23:44:25.890732+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "hurt": {
+            "south": [
+              "Idle/animations/hurt/south/frame_000.png",
+              "Idle/animations/hurt/south/frame_001.png",
+              "Idle/animations/hurt/south/frame_002.png",
+              "Idle/animations/hurt/south/frame_003.png",
+              "Idle/animations/hurt/south/frame_004.png"
+            ]
+          },
+          "bite": {
+            "south": [
+              "Idle/animations/bite/south/frame_000.png",
+              "Idle/animations/bite/south/frame_001.png",
+              "Idle/animations/bite/south/frame_002.png",
+              "Idle/animations/bite/south/frame_003.png",
+              "Idle/animations/bite/south/frame_004.png",
+              "Idle/animations/bite/south/frame_005.png",
+              "Idle/animations/bite/south/frame_006.png",
+              "Idle/animations/bite/south/frame_007.png",
+              "Idle/animations/bite/south/frame_008.png"
+            ]
+          },
+          "move": {
+            "south": [
+              "Idle/animations/move/south/frame_000.png",
+              "Idle/animations/move/south/frame_001.png",
+              "Idle/animations/move/south/frame_002.png",
+              "Idle/animations/move/south/frame_003.png",
+              "Idle/animations/move/south/frame_004.png",
+              "Idle/animations/move/south/frame_005.png",
+              "Idle/animations/move/south/frame_006.png",
+              "Idle/animations/move/south/frame_007.png",
+              "Idle/animations/move/south/frame_008.png"
+            ]
+          },
+          "slam": {
+            "south": [
+              "Idle/animations/slam/south/frame_000.png",
+              "Idle/animations/slam/south/frame_001.png",
+              "Idle/animations/slam/south/frame_002.png",
+              "Idle/animations/slam/south/frame_003.png",
+              "Idle/animations/slam/south/frame_004.png",
+              "Idle/animations/slam/south/frame_005.png",
+              "Idle/animations/slam/south/frame_006.png",
+              "Idle/animations/slam/south/frame_007.png",
+              "Idle/animations/slam/south/frame_008.png"
+            ]
+          },
+          "breath": {
+            "south": [
+              "Idle/animations/breath/south/frame_000.png",
+              "Idle/animations/breath/south/frame_001.png",
+              "Idle/animations/breath/south/frame_002.png",
+              "Idle/animations/breath/south/frame_003.png",
+              "Idle/animations/breath/south/frame_004.png",
+              "Idle/animations/breath/south/frame_005.png",
+              "Idle/animations/breath/south/frame_006.png",
+              "Idle/animations/breath/south/frame_007.png",
+              "Idle/animations/breath/south/frame_008.png"
+            ]
+          },
+          "idle": {
+            "south": [
+              "Idle/animations/idle/south/frame_000.png",
+              "Idle/animations/idle/south/frame_001.png",
+              "Idle/animations/idle/south/frame_002.png",
+              "Idle/animations/idle/south/frame_003.png",
+              "Idle/animations/idle/south/frame_004.png"
+            ]
+          },
+          "roar": {
+            "south": [
+              "Idle/animations/roar/south/frame_000.png",
+              "Idle/animations/roar/south/frame_001.png",
+              "Idle/animations/roar/south/frame_002.png",
+              "Idle/animations/roar/south/frame_003.png",
+              "Idle/animations/roar/south/frame_004.png",
+              "Idle/animations/roar/south/frame_005.png",
+              "Idle/animations/roar/south/frame_006.png"
+            ]
+          },
+          "death": {
+            "south": [
+              "Idle/animations/death/south/frame_000.png",
+              "Idle/animations/death/south/frame_001.png",
+              "Idle/animations/death/south/frame_002.png",
+              "Idle/animations/death/south/frame_003.png",
+              "Idle/animations/death/south/frame_004.png",
+              "Idle/animations/death/south/frame_005.png",
+              "Idle/animations/death/south/frame_006.png",
+              "Idle/animations/death/south/frame_007.png",
+              "Idle/animations/death/south/frame_008.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-24T00:02:58.198415"
+}

@@ -47,6 +47,11 @@ class Cfg:
     BILLBOARD = None
     SWAP = ()
 
+    @staticmethod
+    def POSE_EXTRA(name, psel):
+        """(2.94) more lines for a pose's function - a sprite's frame"""
+        return []
+
 
 def register(C):
     """the module-level registries (as phase187 does them at import)"""
@@ -172,7 +177,7 @@ def build(C, G, abilities, encounter):
     fn(f'{pfx}/burst', burst)
     RF.cycles(fn, pfx, C.CYCLE, S('fr'), S('s'), lambda p: f'{pfx}/pose/{p}')
     for name in {p for _per, frames in C.CYCLE.values() for _t, p in frames}:
-        fn(f'{pfx}/pose/{name}', RF.pose(A, A.POSES[name], SP, C.DUR.get(name, 6), psel, swap=C.SWAP, keep=True))
+        fn(f'{pfx}/pose/{name}', RF.pose(A, A.POSES[name], SP, C.DUR.get(name, 6), psel, swap=C.SWAP, keep=True) + C.POSE_EXTRA(name, psel))
     G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in RF.periods(C.CYCLE)]
     fn(f'{pfx}/grow', [f'execute as {psel(p)} run data merge entity @s {{start_interpolation:-1,interpolation_duration:0,transformation:{{scale:[{SP * A.PART_K.get(p, 1.0):.4f}f,{SP * A.PART_K.get(p, 1.0):.4f}f,{SP * A.PART_K.get(p, 1.0):.4f}f]}}}}'
                        for p in A.PARTS if not (hasattr(A, 'HIDDEN') and A.HIDDEN(p, A.POSES['idle_a']))] + [f'function bm:{pfx}/pose/idle_a'])

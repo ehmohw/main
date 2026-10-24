@@ -242,9 +242,15 @@ def generate(G):
     slots = {'helmet': 'armor.head', 'chestplate': 'armor.chest', 'leggings': 'armor.legs', 'boots': 'armor.feet'}
     for t, (msg, col, mat) in msgs.items():
         comps = '{"minecraft:trim":{material:"minecraft:%s",pattern:"minecraft:silence"}}' % mat
-        fn(f'p182/wake_{t}', [f'execute if items entity @s {sl} {ANGEL} run item modify entity @s {sl} {{function:"minecraft:set_components",components:{comps}}}'
+        # (2.94: never on a piece with its own art - the Seraph's: a trim has no texture for its own equipment, and by day the
+        #  carapace's wings and the plate showed the missing-texture checks)
+        own = ''.join(f' unless items entity @s {{sl}} *[minecraft:custom_data~{{{{bm:"{i}"}}}}]' for i in sorted(OWN_ART))
+        fn(f'p182/wake_{t}', [f'execute if items entity @s {sl} {ANGEL}{own.format(sl=sl)} run item modify entity @s {sl} {{function:"minecraft:set_components",components:{comps}}}'
                               for sl in slots.values()] + [title('@s', 'actionbar', T(msg, col, italic=True))])
-    fn('p182/wake', [f'execute if score #rg bm.rng matches {t} run function bm:p182/wake_{t}' for t in msgs] +
+    # (2.94: and a trim already put on one - before this fix - taken off again)
+    unt = [f'execute if items entity @s {sl} *[minecraft:custom_data~{{bm:"{i}"}},minecraft:trim] run item modify entity @s {sl} '
+           '{function:"minecraft:set_components",components:{"!minecraft:trim":{}}}' for sl in slots.values() for i in sorted(OWN_ART)]
+    fn('p182/wake', unt + [f'execute if score #rg bm.rng matches {t} run function bm:p182/wake_{t}' for t in msgs] +
        ['scoreboard players operation @s bm.rgt = #rg bm.rng',
         'execute if score #rg bm.rng matches 1.. run playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 0.5 1.6',
         'execute if score #rg bm.rng matches 1.. run particle minecraft:end_rod ~ ~1 ~ 0.4 0.8 0.4 0.03 20'])

@@ -138,6 +138,7 @@ item('partner_wheel', TOTEM, 'Partner Wheel', PURPLE,
       ('From Cecil.', 'dark_gray')], model='bm:partner_wheel', stack=1, cat='magic', comps=hold('none'))
 HOLD['partner_wheel'] = 'bm:p179/w/use'
 WMENU = 3350                      # (its block: 3350-3449 - a partner's call/send home 3360+i, take out 3390+i)
+WMENU3 = 3700                     # (2.94: 3700-3819 - the second bank, partners 31 on)
 WMENU2 = 3450                     # (2.88: and 3450-3479 - a partner's Menu button 3450+i; 3420/3421 are the Skiff Escort's)
 
 # every follower's item and "goes away" function, as phase73's follow rules are set up (whichever phase sets them)
@@ -332,16 +333,20 @@ def generate(G):
            'function bm:p179/w/show with storage bm:tmp pw',
            'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 0.8 1.4']
     fn('p179/w/open', op)
-    assert len(PW) <= 30, f'{len(PW)} partners: the wheel\'s call codes ({WMENU + 10}+) would run into its take-out codes ({WMENU + 40}+)'
+    # (2.94: past thirty partners, a second bank - call 3700+, take out 3740+, menu 3780+)
+    c_call = lambda i: WMENU + 10 + i if i < 30 else WMENU3 + i - 30
+    c_out = lambda i: WMENU + 40 + i if i < 30 else WMENU3 + 40 + i - 30
+    c_menu = lambda i: WMENU2 + i if i < 30 else WMENU3 + 80 + i - 30
+    assert len(PW) <= 70, f'{len(PW)} partners: the second bank is full'
     act = [f'execute unless score @s bm.menu matches {WMENU} run return run function bm:p28/stale']
     for i, (w, nm, col, host, tag, try_, home, iid) in enumerate(PW):
         sel = f'@e[type=minecraft:{host},tag={tag}]'
         on = ['scoreboard players set #pwon bm.rng 0', f'execute as {sel} if score @s bm.pid = #me bm.pid run scoreboard players set #pwon bm.rng 1']
         it_nm = ITEMS[iid]['name']
-        b_call = P28.btn([T('Call ', 'white'), T(nm, col, bold=True)], WMENU + 10 + i, tooltip=T(f'Call {nm}', 'gray'))
-        b_home = P28.btn([T(f'Send {nm} home', '#c8c8c8')], WMENU + 10 + i, tooltip=T(f'{cap(nm)} goes home', 'gray'))
-        b_out = P28.btn(T('Take the item back', 'gray'), WMENU + 40 + i, tooltip=T(f'{it_nm} comes off the wheel', 'gray'))
-        b_menu = P28.btn([T('\u2699 ', col), T('Menu', 'white')], WMENU2 + i, tooltip=T(f'{cap(nm)}\'s own menu - the wardrobe, {WHO[w][1]} ways and choices (as sneak + using {it_nm})', 'gray'))
+        b_call = P28.btn([T('Call ', 'white'), T(nm, col, bold=True)], c_call(i), tooltip=T(f'Call {nm}', 'gray'))
+        b_home = P28.btn([T(f'Send {nm} home', '#c8c8c8')], c_call(i), tooltip=T(f'{cap(nm)} goes home', 'gray'))
+        b_out = P28.btn(T('Take the item back', 'gray'), c_out(i), tooltip=T(f'{it_nm} comes off the wheel', 'gray'))
+        b_menu = P28.btn([T('\u2699 ', col), T('Menu', 'white')], c_menu(i), tooltip=T(f'{cap(nm)}\'s own menu - the wardrobe, {WHO[w][1]} ways and choices (as sneak + using {it_nm})', 'gray'))
         fn(f'p179/w/row{i}', on + [f'execute if score #pwon bm.rng matches 0 run data modify storage bm:tmp pw.acts append value {snbt(b_call)}',
                                    f'execute if score #pwon bm.rng matches 1 run data modify storage bm:tmp pw.acts append value {snbt(b_home)}',
                                    f'data modify storage bm:tmp pw.acts append value {snbt(b_menu)}',
@@ -373,13 +378,14 @@ def generate(G):
                                f'$data modify entity @e[type=minecraft:item,tag=bm.pwout,limit=1] Item set from storage bm:pw p$(pid).k{i}',
                                'data modify entity @e[type=minecraft:item,tag=bm.pwout,limit=1] Owner set from entity @s UUID',
                                'tag @e[type=minecraft:item,tag=bm.pwout] remove bm.pwout', f'$data remove storage bm:pw p$(pid).k{i}'])
-        act += [f'execute if score #act bm.pay matches {WMENU + 10 + i} run return run function bm:p179/w/call{i}',
-                f'execute if score #act bm.pay matches {WMENU + 40 + i} run return run function bm:p179/w/out{i}',
-                f'execute if score #act bm.pay matches {WMENU2 + i} run return run function bm:p179/w/menu{i}']
-    assert len(PW) <= 30
+        act += [f'execute if score #act bm.pay matches {c_call(i)} run return run function bm:p179/w/call{i}',
+                f'execute if score #act bm.pay matches {c_out(i)} run return run function bm:p179/w/out{i}',
+                f'execute if score #act bm.pay matches {c_menu(i)} run return run function bm:p179/w/menu{i}']
     fn('p179/w/act', act)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {WMENU}..{WMENU + 99} run return run function bm:p179/w/act')
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {WMENU2}..{WMENU2 + 29} run return run function bm:p179/w/act')
+    if len(PW) > 30:
+        G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {WMENU3}..{WMENU3 + 119} run return run function bm:p179/w/act')
     G.FUNCS['admin/help'] += [tellraw('@s', [T('/function bm:admin/alien_gear', 'yellow'), T('  every Xenoplate and Warplate piece, the alien blades, the pick', 'gray')])]
     fn('admin/alien_gear', [give(f'{s}_{p}') for s in ('xenoplate', 'warplate') for p in PIECES] + [give(k) for k in WEAPONS] + [give('graviton_pick')])
 

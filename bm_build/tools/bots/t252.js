@@ -1,8 +1,8 @@
 // 2.92: QUEEN AVA'S HONOURS AND THE KINGDOM'S ARMOURY - as a regular (non-op) player: every click a real packet, every
 // follower called with their own item, every honour bought with the button the dialog showed (rcon sets the stage: the castle,
 // the pearls and tokens, a follower sent home between scenes, a rank). Vesper's retired Ward handed back in Dread Tokens;
-// Queen Ava and Leo at the Tide Font - Ava's Honours open, and her Royal Blessing (Vitality I) for both; Leo's page - Bulwark
-// bought (6 pearls), his armour up; Might V refused without a Fire Gem, then bought with one (his Might on his host); the Tide's
+// Queen Ava and Leo at the Tide Font - Ava's Honours open, and her Royal Blessing (Vitality I) for both; Leo's page - (2.94) one Honour,
+// three ranks: rank I (8 pearls, his tribute) - all three to II, his armour up; rank III refused without an Elemental Gem, then bought with one; the Tide's
 // Haste (Swift Return I); the Ethereal Gem with the royal family - THE HEART COMES HOME (+2 hearts; the dome warded) - and with
 // Apophiss - THE SERPENT'S RESTRAINT (a rank of every honour for him); Leo's Aegis (a Knight) and Emma's Crescent (a Champion,
 // the castle restored); the Aegis's Tidal Charge (sneak + a real jump); the Crescent's Ethereal Step (use) and Bloom Slam (sneak +
@@ -76,25 +76,25 @@ const res = [];
   ok('...the ROYAL BLESSING for both: Vitality I, free', said(/ROYAL BLESSING/) && (await score('bm.hn_leo')) === 1001 && (await score('bm.hn_ava')) === 1001,
      `leo ${await score('bm.hn_leo')} ava ${await score('bm.hn_ava')}`);
   ok("...on Leo himself (within a second): his health up a fifth", await wait(3000, async () => /0\.2/.test(await run(`${O}attribute ${pet('bm.leopet')} minecraft:max_health modifier value get bm:royal_vitality`))));
-  // Leo's page: Bulwark +1 for 6 pearls
-  await give(5, 'royal_pearl', 6);
+  // Leo's page (2.94: one Honour, three ranks - each raises all three)
+  await give(5, 'royal_pearl', 8);
   let b = await A.press(/Leo/);
-  ok("Leo's page: three honours, Vitality at one rank", !!(b && b.next) && /Vitality/.test(screen()) && /●○○○○/.test(screen()) && /Might/.test(screen()), screen().slice(0, 300));
-  await run('item replace entity TestRat hotbar.8 with minecraft:iron_ingot 16');      // (2.93: Leo's tribute for a first rank)
+  ok("Leo's page: the Honour, unranked; Vitality at one (the blessing)", !!(b && b.next) && /Honour/.test(screen()) && /○○○/.test(screen()) && /●○○○○/.test(screen()), screen().slice(0, 300));
+  await run('item replace entity TestRat hotbar.8 with minecraft:iron_ingot 16');      // (Leo's tribute for the first rank)
   const pr0 = await has('royal_pearl');
-  b = await A.press(/Bulwark \+1/);
-  ok('Bulwark +1 (6 Royal Pearls and 16 iron, his tribute): Leo\'s Bulwark I - his armour +3', (await run('clear TestRat minecraft:iron_ingot 0')).includes('No items') && (await score('bm.hn_leo')) === 1011 && (await has('royal_pearl')) === pr0 - 6 &&
-     await wait(3000, async () => / 3(\.0)?\b/.test(await run(`${O}attribute ${pet('bm.leopet')} minecraft:armor modifier value get bm:royal_bulwark`))),
-     `hn ${await score('bm.hn_leo')} pearls ${await has('royal_pearl')} hnap ${await score('bm.hnap', pet('bm.leopet'))} | ${await run(`${O}data get entity ${pet('bm.leopet')} attributes`)}`.slice(0, 900));
-  // Might V: wants a Fire Gem
-  await run('scoreboard players set TestRat bm.hn_leo 1411'); await give(5, 'royal_pearl', 40); await give(6, 'dread_token', 8);
+  b = await A.press(/Honour \+1/);
+  ok('Honour +1 (8 Royal Pearls and 16 iron, his tribute): Honour I - Vitality, Bulwark and Might II; his armour +6', (await run('clear TestRat minecraft:iron_ingot 0')).includes('No items') && (await score('bm.hn_leo')) === 1222 && (await has('royal_pearl')) === pr0 - 8 &&
+     await wait(3000, async () => / 6(\.0)?\b/.test(await run(`${O}attribute ${pet('bm.leopet')} minecraft:armor modifier value get bm:royal_bulwark`))),
+     `hn ${await score('bm.hn_leo')} pearls ${await has('royal_pearl')}`);
+  // Honour III: wants an Elemental Gem
+  await run('scoreboard players set TestRat bm.hn_leo 1444'); await run('clear TestRat *[minecraft:custom_data~{bm:"royal_pearl"}]'); await give(5, 'royal_pearl', 36); await give(6, 'dread_token', 8);
   await run('item replace entity TestRat hotbar.8 with minecraft:heart_of_the_sea 1');  // (his last tribute)
   await A.press(/« Her honours/); await A.press(/Leo/);
-  A.bars.length = 0; await A.press(/Might \+1/);
-  ok('Might V without a Fire Gem: refused (a piece of the kingdom\'s heart)', (await score('bm.hn_leo')) === 1411 && said(/Fire Gem/));
-  await give(7, 'gem_fire');
-  await A.press(/« Her honours/); await A.press(/Leo/); await A.press(/Might \+1/);
-  ok('...with one: Might V (32 pearls, 5 Dread Tokens, the gem spent) - his Might on his host', (await score('bm.hn_leo')) === 1511 && (await has('gem_fire')) === 0 &&
+  A.bars.length = 0; await A.press(/Honour \+1/);
+  ok('Honour III without an Elemental Gem: refused (a piece of the kingdom\'s heart)', (await score('bm.hn_leo')) === 1444 && said(/Elemental Gem/));
+  await give(7, 'gem_rock');
+  await A.press(/« Her honours/); await A.press(/Leo/); await A.press(/Honour \+1/);
+  ok('...with one (any of Water, Rock, Fire): Honour III (28 pearls, 3 Dread Tokens, the gem spent) - all three V, his Might on his host', (await score('bm.hn_leo')) === 1555 && (await has('gem_rock')) === 0 &&
      (await has('royal_pearl')) === 8 && await wait(3000, async () => (await score('bm.kua', pet('bm.leopet'))) === 5), `hn ${await score('bm.hn_leo')} pearls ${await has('royal_pearl')}`);
   // the Tide's Haste
   await give(5, 'royal_pearl', 12); await give(6, 'dread_token', 3);

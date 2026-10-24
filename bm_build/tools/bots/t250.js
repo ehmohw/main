@@ -125,7 +125,7 @@ const res = [];
   const special = async () => (await nbt(STEW, 'Offers.Recipes[-1].sell.id')).replace(/"/g, '');
   const n1 = await nOffers(), s1 = await special();
   // (2.92: the armoury's goods - Leo's trident, the Bloomheart, the two armour sets - come before the daily special)
-  ok('the Royal Steward\'s stock: 13 kingdom trades + the armoury, Royal Pearls for the kingdom\'s goods (a Heartstone among them)', n1 > 13 &&
+  ok('the Royal Steward\'s stock: 12 kingdom trades (2.94: the Sealed Royal Chart is Vesper\'s now) + the armoury, Royal Pearls for the kingdom\'s goods (a Heartstone among them)', n1 > 12 &&
      /royal_pearl/.test(await nbt(STEW, 'Offers.Recipes[0].buy')) && /heartstone/.test(await nbt(STEW, 'Offers.Recipes[8].sell')), `${n1} trades`);
   await run('scoreboard players add #bmday bm.bm 1'); await sleep(2500);
   const s2 = await special();

@@ -4,22 +4,22 @@
 // REQUIEM, MOTHER'S WATCH (Resistance IV at 4 hearts). Then the shared list: menu, story, sit, looks (and on her ghost), aura,
 // contract, wheel, frame, case, doll, faint.
 const runT = require('./rigpet_t');
-runT({ W: 'ava', NAME: 'Queen Ava', ab: 'av', q: 'aq', pfx: 'p189', prefix: 'av_', item: 'av_locket', parts: 8, hp: 50, X: 16740, Z: 16000,
+runT({ W: 'ava', NAME: 'Queen Ava', ab: 'av', q: 'aq', pfx: 'p189', prefix: 'av_', item: 'av_locket', parts: 10, figParts: 9, sitPart: 'pool', hp: 50, X: 16740, Z: 16000,
   called: /I am here, dear one/, home: /in the deep, watching/, sit: /Even queens tire/, stand: /Gently/, story: /Her story/,
   ways: ['Royal Ward', 'Tidal Lash', 'Undertow', 'Tide of Crowns', 'Mother', 'Requiem'],
   form: { button: /Living \/ ghostly form/, suffix: '_g', score: 'bm.avform' }, plain: 'Her royal blue', looks: ['Coral Reef', 'Abyssal Violet', 'Kelp Forest'],
   encounter: async ({ A, run, ok, wait, O, cnt, at, use, entOf, num, has, X, Y, Z, ENC, sleep }) => {
-    await run(`${O}time set 18000`); await run('scoreboard players set #hard bm.cfg 0');
+    await run(`${O}time set 18000`); await run('scoreboard players set #hard bm.cfg 0'); await run('scoreboard players set #hardoff bm.cfg 1');   // (held off: a conqueror online would wake it again)
     await run('loot replace entity TestRat hotbar.7 loot bm:items/emma_ribbon'); await run('advancement grant TestRat only bm:story/emma_friend');
     await run('scoreboard players set TestRat bm.emcd 0'); await use(7); const EM = '@e[type=minecraft:cat,tag=bm.emmapet]';
     ok('Emma called with her ribbon (she comes)', await wait(5000, async () => (await cnt(EM)) === 1));
     await run('item replace entity TestRat hotbar.1 with minecraft:conduit 2');
     await at(X + 0.5, Y + 1, Z + 0.5, 0, 50); A.slot(1); await sleep(300); A.useOn(X, Y, Z + 3, 1); await sleep(1500);
-    ok('a Conduit set down at night, Emma there - but the world isn\'t in hard mode: nobody rises', (await cnt(ENC)) === 0);
-    await run(`${O}setblock ${X} ${Y + 1} ${Z + 3} minecraft:air`); await run('scoreboard players set #hard bm.cfg 1');
+    ok('a Conduit set down at night, Emma there - but the world isn\'t in hard mode: nobody rises (2.94: and Emma says why)', (await cnt(ENC)) === 0 && A.chats.some(c => /isn\'t dark enough/.test(c)), A.chats.slice(-1).join('').slice(0, 160));
+    await run(`${O}setblock ${X} ${Y + 1} ${Z + 3} minecraft:air`); await run('scoreboard players set #hardoff bm.cfg 0'); await run('scoreboard players set #hard bm.cfg 1');
     A.chats.length = 0; A.slot(1); await sleep(300); A.useOn(X, Y, Z + 3, 1); await sleep(500);
     ok('in hard mode: the ghost of a queen rises (her rig, ghostly, and a click box)', await wait(5000, async () => (await cnt(ENC)) === 1) &&
-       (await cnt('@e[type=minecraft:item_display,tag=bm.avencp]')) === 8 && A.chats.some(c => /pale queen rises/.test(c)), A.chats.slice(-1).join(''));
+       (await cnt('@e[type=minecraft:item_display,tag=bm.avencp]')) === 10 && A.chats.some(c => /pale queen rises/.test(c)), A.chats.slice(-1).join(''));
     ok('...she\'s her ghost', /av_body_g/.test(await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.avencp,tag=bm.avp_body,limit=1] item`)));
     await run(`${O}setblock ${X} ${Y + 1} ${Z + 3} minecraft:air`);
     const ex = await num(ENC, 'Pos[0]'), ez = await num(ENC, 'Pos[2]');

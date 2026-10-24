@@ -293,15 +293,20 @@ CRAWL = dict(body=80, off=-4.0, arm=115, fore=50, leg=30, shin=-112, head=-64)
 # long arms its front legs and the claws striking down like feet, the legs folded at the knee behind, the head craned up out
 # of the shoulders to keep its eyes - and its maw - on you. A trot (crawl) and a flat-out lope (sprint), four frames each.
 LIFT = 1.0
+GAIT_FRAMES = 8                                  # (2.94: eight frames a stride, not four - and each limb lifts on its way forward and
+                                                 #  plants on its way back, so it crawls rather than gliding on all fours)
 def _gait(k, n, body, off, arm, arm_sw, fore, leg, leg_sw, shin, head, roll):
     ph = 2 * math.pi * k / n; s, c = math.sin(ph), math.cos(ph)
-    return P(_face='wide', _off=(0, off + 0.6 * abs(c), 0), body=qs(('x', body), ('z', roll * s)), head=qs(('x', head), ('z', -roll * s)),
-             armr=limb(1, arm + arm_sw * s, 10), forer=limb(1, fore + LIFT * max(0.0, -s) * arm_sw), arml=limb(-1, arm - arm_sw * s, 10),
-             forel=limb(-1, fore + LIFT * max(0.0, s) * arm_sw),
-             legr=limb(1, leg - leg_sw * s, 6), shinr=limb(1, shin + 12 * c), legl=limb(-1, leg + leg_sw * s, 6), shinl=limb(-1, shin - 12 * c))
-for _k in range(4):
-    POSES[f'crawl_{_k}'] = _gait(_k, 4, CRAWL['body'], CRAWL['off'], CRAWL['arm'], 22, CRAWL['fore'], CRAWL['leg'], 20, CRAWL['shin'], CRAWL['head'], 4)
-    POSES[f'sprint_{_k}'] = _gait(_k, 4, CRAWL['body'] + 6, CRAWL['off'] - 0.6, CRAWL['arm'] + 6, 40, CRAWL['fore'], CRAWL['leg'] + 8, 34, CRAWL['shin'], CRAWL['head'] - 6, 7)
+    # (diagonal pairs: the right arm with the left leg. A limb swings forward while its swing's rate is positive - c for armr
+    #  and legl, -c for arml and legr - and that's when it lifts; the rest of the stride it's down, pushing)
+    return P(_face='wide', _off=(0, off + 0.5 * abs(s), 0), body=qs(('x', body), ('z', roll * s)), head=qs(('x', head), ('z', -roll * s)),
+             armr=limb(1, arm + arm_sw * s, 10), forer=limb(1, fore + 1.3 * LIFT * max(0.0, c) * arm_sw),
+             arml=limb(-1, arm - arm_sw * s, 10), forel=limb(-1, fore + 1.3 * LIFT * max(0.0, -c) * arm_sw),
+             legr=limb(1, leg - leg_sw * s, 6), shinr=limb(1, shin - 34 * max(0.0, -c)),
+             legl=limb(-1, leg + leg_sw * s, 6), shinl=limb(-1, shin - 34 * max(0.0, c)))
+for _k in range(GAIT_FRAMES):
+    POSES[f'crawl_{_k}'] = _gait(_k, GAIT_FRAMES, CRAWL['body'], CRAWL['off'], CRAWL['arm'], 22, CRAWL['fore'], CRAWL['leg'], 20, CRAWL['shin'], CRAWL['head'], 4)
+    POSES[f'sprint_{_k}'] = _gait(_k, GAIT_FRAMES, CRAWL['body'] + 6, CRAWL['off'] - 0.6, CRAWL['arm'] + 6, 40, CRAWL['fore'], CRAWL['leg'] + 8, 34, CRAWL['shin'], CRAWL['head'] - 6, 7)
 # standing still: drawn up to its full, wrong height on its hind legs, arms hanging past its knees, the head cocked - eerie
 POSES['stand_a'] = P(**dict(IDLE, body=qs(('x', 4)), head=qs(('x', -22), ('z', 12)), armr=limb(1, 2, 6), forer=limb(1, 6), arml=limb(-1, 2, 6), forel=limb(-1, 6),
                             legr=limb(1, 0, 3), legl=limb(-1, 0, 3)))

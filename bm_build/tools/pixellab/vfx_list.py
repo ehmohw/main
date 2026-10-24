@@ -50,4 +50,10 @@ VFX = {
                 "squares, classic NES style, about 0.5 seconds, no loop.", "8-Bit hits and KOs"),
     'px_coin': ("A retro coin burst: spinning 8-bit gold coins pop up and scatter with sparkles, classic NES style, about 0.6 seconds, "
                 "no loop.", "8-Bit Leo's Coin Block"),
+    # Mr. Capshun's tools (2.94): the pencil's sketches, the brush's splash
+    'capshun_scribble': ("A pencil-sketch explosion: a hand-drawn black-and-white cartoon blast, scribbly graphite lines and cross-hatching burst "
+                         "outward in a jagged star, little sketched debris and curly smoke doodles fly off, all in pencil grey and black on nothing, "
+                         "like a doodle in a notebook. About 0.6 seconds, no loop.", "Mr. Capshun's sketched bombs, going off"),
+    'capshun_splash': ("A splash of wet paint: a big burst of bright paint in red, yellow and blue splatters outward from the centre, thick "
+                       "drips and droplets flying, hand-painted look, about 0.5 seconds, no loop.", "Mr. Capshun's brush, up close"),
 }

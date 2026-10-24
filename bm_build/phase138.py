@@ -24,13 +24,14 @@ import gild
 import phase103 as P103
 
 GOLD = '#ffcf40'
-ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky']
+ORDER = ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'pxemma', 'pxleo', 'pxcecil']
 # follower: (host type, host tag[s]) - the animal underneath, whose owner the aura belongs to
 HOST = {'emma': ('cat', 'bm.emmapet'), 'celi': ('wolf', 'bm.celipet'), 'zib': ('wolf', 'bm.zibpet'), 'cecil': ('wolf', 'bm.cecilpet'),
         'kw': ('wolf', 'bm.kxpet'), 'leo': ('wolf', 'bm.leopet'), 'demo': ('wolf', 'bm.dmpet'), 'apo': ('wolf', 'bm.appet'), 'tul': ('wolf', 'bm.tupet'),
         'frog': ('wolf', 'bm.frogpet'), 'don': ('wolf', 'bm.donado'), 'pearl': ('cat', 'bm.pmpet'), 'wil': ('wolf', 'bm.wilfrey'), 'fishy': ('wolf', 'bm.fypet'),
         'dennis': ('wolf', 'bm.dwpet'), 'pistachio': ('wolf', 'bm.pipet'), 'omega': ('wolf', 'bm.ompet'), 'ashur': ('wolf', 'bm.aspet'), 'chef': ('wolf', 'bm.kkpet'), 'neighbor': ('wolf', 'bm.nbpet'),
-        'ava': ('wolf', 'bm.avpet'), 'pearlq': ('wolf', 'bm.pqpet'), 'bloo': ('wolf', 'bm.bopet'), 'stalker': ('wolf', 'bm.svpet'), 'lantern': ('wolf', 'bm.lnpet'), 'bender': ('wolf', 'bm.bvpet'), 'bones': ('wolf', 'bm.bjpet'), 'capshun': ('wolf', 'bm.mzpet'), 'sky': ('wolf', 'bm.ybpet')}
+        'ava': ('wolf', 'bm.avpet'), 'pearlq': ('wolf', 'bm.pqpet'), 'bloo': ('wolf', 'bm.bopet'), 'stalker': ('wolf', 'bm.svpet'), 'lantern': ('wolf', 'bm.lnpet'), 'bender': ('wolf', 'bm.bvpet'), 'bones': ('wolf', 'bm.bjpet'), 'capshun': ('wolf', 'bm.mzpet'), 'sky': ('wolf', 'bm.ybpet'),
+        'pxemma': ('wolf', 'bm.xmpet'), 'pxleo': ('wolf', 'bm.xlpet'), 'pxcecil': ('wolf', 'bm.xcpet')}
 dust = lambda r, g, b, s=1.0: f'minecraft:dust{{color:[{r},{g},{b}],scale:{s}}}'
 # follower: (aura name, colour, ring height, ring radius, the ring's mote, the haze [particle commands at the follower])
 AURA = {
@@ -95,7 +96,10 @@ AURA = {
                                                                         f'particle {dust(1.0, 0.25, 0.25, 1.1)} ~ ~1.0 ~ 0.6 0.6 0.6 0 2',
                                                                         f'particle {dust(0.25, 0.5, 1.0, 1.1)} ~ ~1.0 ~ 0.6 0.6 0.6 0 2',
                                                                         f'particle {dust(1.0, 0.88, 0.2, 1.1)} ~ ~1.0 ~ 0.6 0.6 0.6 0 2']),
-    'sky': ('Starry Sky', '#ffe890', 2.4, 1.4, 'minecraft:end_rod', ['particle minecraft:end_rod ~ ~2.6 ~ 0.6 0.3 0.6 0.01 2', f'particle {dust(1.0, 0.85, 0.3, 1.1)} ~ ~2.0 ~ 0.8 0.5 0.8 0 3', f'particle {dust(0.85, 0.9, 1.0, 1.0)} ~ ~2.2 ~ 0.8 0.5 0.8 0 2', 'particle minecraft:falling_water ~ ~1.6 ~ 0.5 0.1 0.5 0 1'])}
+    'sky': ('Starry Sky', '#ffe890', 2.4, 1.4, 'minecraft:end_rod', ['particle minecraft:end_rod ~ ~2.6 ~ 0.6 0.3 0.6 0.01 2', f'particle {dust(1.0, 0.85, 0.3, 1.1)} ~ ~2.0 ~ 0.8 0.5 0.8 0 3', f'particle {dust(0.85, 0.9, 1.0, 1.0)} ~ ~2.2 ~ 0.8 0.5 0.8 0 2', 'particle minecraft:falling_water ~ ~1.6 ~ 0.5 0.1 0.5 0 1']),
+    'pxemma': ('Scanlines', '#ff6ac8', 2.0, 1.2, 'minecraft:electric_spark', ['particle minecraft:electric_spark ~ ~1.8 ~ 0.4 0.6 0.4 0.05 2', f'particle {dust(1.0, 1.0, 1.0, 0.6)} ~ ~1.2 ~ 0.5 0.8 0.5 0 3']),
+    'pxleo': ('Scanlines', '#4ab0ff', 2.0, 1.2, 'minecraft:electric_spark', ['particle minecraft:electric_spark ~ ~1.8 ~ 0.4 0.6 0.4 0.05 2', f'particle {dust(1.0, 1.0, 1.0, 0.6)} ~ ~1.2 ~ 0.5 0.8 0.5 0 3']),
+    'pxcecil': ('Scanlines', '#b070ff', 2.0, 1.2, 'minecraft:electric_spark', ['particle minecraft:electric_spark ~ ~1.8 ~ 0.4 0.6 0.4 0.05 2', f'particle {dust(1.0, 1.0, 1.0, 0.6)} ~ ~1.2 ~ 0.5 0.8 0.5 0 3'])}
 assert set(AURA) == set(ORDER) == set(HOST) == set(P99.BASE)
 PRICE = 1280                                 # coins at the Tailor (10 Gutter Trophies)
 FIND = {3: 8, 4: 15, 5: 25}                  # per mille, a won heist of tier III / IV / V
@@ -132,7 +136,8 @@ RECOL = {'apo': ('apophiss_art', ('apo_scale', 'apo_scale_dk', 'apo_fin', 'apo_b
          'neighbor': ('neighbor_art', ('nb_white', 'nb_white_dk', 'nb_shirt')),
          'ava': ('ava_art', ('av_navy', 'av_navy_dk', 'av_skirt', 'av_bodice', 'av_navy_g', 'av_navy_dk_g', 'av_skirt_g', 'av_bodice_g')),   # (2.87: '_g' - her ghost's, recoloured as a set of their own)
          'pearlq': ('pearl_art', ('pq_dress', 'pq_dress_top', 'pq_gown', 'pq_gown_top', 'pq_cape')),
-         'bloo': ('bloo_art', ('bo_fur', 'bo_fur_dk', 'bo_mane')), 'stalker': ('stalker_art', ('st_skin', 'st_shade', 'st_ribs', 'st_back', 'st_face')), 'lantern': ('lantern_art', ('ln_rind', 'ln_rind_dk', 'ln_rind_top', 'ln_face', 'ln_face_glare', 'ln_face_shut')), 'bender': ('bender_art', ('bd_fur', 'bd_back', 'bd_fur_lt', 'bd_face', 'bd_face_happy', 'bd_face_blink', 'bd_face_alert')), 'bones': ('bones_art', ('bn_skin', 'bn_skin_dk', 'bn_flank', 'bn_side')), 'capshun': ('capshun_art', ('mz_ink',)), 'sky': ('sky_art', ('yb_cap',))}
+         'bloo': ('bloo_art', ('bo_fur', 'bo_fur_dk', 'bo_mane')), 'stalker': ('stalker_art', ('st_skin', 'st_shade', 'st_ribs', 'st_back', 'st_face')), 'lantern': ('lantern_art', ('ln_rind', 'ln_rind_dk', 'ln_rind_top', 'ln_face', 'ln_face_glare', 'ln_face_shut')), 'bender': ('bender_art', ('bd_fur', 'bd_back', 'bd_fur_lt', 'bd_face', 'bd_face_happy', 'bd_face_blink', 'bd_face_alert')), 'bones': ('bones_art', ('bn_skin', 'bn_skin_dk', 'bn_flank', 'bn_side')), 'capshun': ('capshun_art', ('mz_ink',)), 'sky': ('sky_art', ('yb_cap',)),
+         'pxemma': ('phase213', ()), 'pxleo': ('phase213', ()), 'pxcecil': ('phase213', ())}   # (2.94: the 8-bit trio - every frame; phase213 fills the names in)
 # (2.82c) his fingers and eyelids took no outfit's colour: they go through the palette too, on the main set's brightness range
 # (so the scales come out as before, and the dark claws stay darker than the scales)
 SIDE = {'apo_claw', 'apo_lid', 'om_claw', 'om_lid'}
@@ -141,7 +146,8 @@ ITEMS_OF = {'apo': lambda n: n.startswith('apo_'), 'tul': lambda n: n.startswith
             'don': lambda n: n == 'donado' or (n.startswith('dnr_') and not n.startswith('dnr_eyes')), 'pearl': lambda n: n == 'pearlman', 'fishy': lambda n: n.startswith('fy_') and n != 'fy_bowl',
             'dennis': lambda n: n.startswith('dw_') and n != 'dw_horn', 'pistachio': lambda n: n.startswith('ps_'), 'omega': lambda n: n.startswith('om_') and n not in ('om_monocle', 'om_banner', 'om_brazier'),
             'ashur': lambda n: n.startswith('as_'), 'chef': lambda n: n.startswith('cf_'), 'neighbor': lambda n: n.startswith('nb_'),
-            'ava': lambda n: n.startswith('av_') and n != 'av_locket', 'pearlq': lambda n: n.startswith('pq_') and n != 'pq_pearls', 'bloo': lambda n: n.startswith('bo_') and n != 'bo_claw', 'stalker': lambda n: n.startswith('st_') and n != 'st_hook', 'lantern': lambda n: n.startswith('ln_') and n != 'ln_gourd', 'bender': lambda n: n.startswith('bd_'), 'bones': lambda n: n.startswith('bn_') and n != 'bn_whistle', 'capshun': lambda n: n.startswith('mz_'), 'sky': lambda n: n.startswith('yb_')}
+            'ava': lambda n: n.startswith('av_') and n != 'av_locket', 'pearlq': lambda n: n.startswith('pq_') and n != 'pq_pearls', 'bloo': lambda n: n.startswith('bo_') and n != 'bo_claw', 'stalker': lambda n: n.startswith('st_') and n != 'st_hook', 'lantern': lambda n: n.startswith('ln_') and n != 'ln_gourd', 'bender': lambda n: n.startswith('bd_'), 'bones': lambda n: n.startswith('bn_') and n != 'bn_whistle', 'capshun': lambda n: n.startswith('mz_'), 'sky': lambda n: n.startswith('yb_'),
+            'pxemma': lambda n: n.startswith('xm_'), 'pxleo': lambda n: n.startswith('xl_'), 'pxcecil': lambda n: n.startswith('xc_')}
 
 
 def textures():

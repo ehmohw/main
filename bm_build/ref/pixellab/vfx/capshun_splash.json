@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "capshun-splash 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 100
+   },
+   "pivot": {
+    "x": 0.5108695652173914,
+    "y": 0.25
+   },
+   "duration": 42
+  },
+  {
+   "filename": "capshun-splash 1.png",
+   "frame": {
+    "x": 92,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 100
+   },
+   "pivot": {
+    "x": 0.5108695652173914,
+    "y": 0.25
+   },
+   "duration": 42
+  },
+  {
+   "filename": "capshun-splash 2.png",
+   "frame": {
+    "x": 184,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 100
+   },
+   "pivot": {
+    "x": 0.5108695652173914,
+    "y": 0.25
+   },
+   "duration": 42
+  },
+  {
+   "filename": "capshun-splash 3.png",
+   "frame": {
+    "x": 276,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 100
+   },
+   "pivot": {
+    "x": 0.5108695652173914,
+    "y": 0.25
+   },
+   "duration": 42
+  },
+  {
+   "filename": "capshun-splash 4.png",
+   "frame": {
+    "x": 0,
+    "y": 100,
+    "w": 92,
+    "h": 100
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 100
+   },
+   "pivot": {
+    "x": 0.5108695652173914,
+    "y": 0.25
+   },
+   "duration": 42
+  },
+  {
+   "filename": "capshun-splash 5.png",
+   "frame": {
+    "x": 92,
+    "y": 100,
+    "w": 92,
+    "h": 100
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 100
+   },
+   "pivot": {
+    "x": 0.5108695652173914,
+    "y": 0.25
+   },
+   "duration": 42
+  },
+  {
+   "filename": "capshun-splash 6.png",
+   "frame": {
+    "x": 184,
+    "y": 100,
+    "w": 92,
+    "h": 100
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 100
+   },
+   "pivot": {
+    "x": 0.5108695652173914,
+    "y": 0.25
+   },
+   "duration": 42
+  },
+  {
+   "filename": "capshun-splash 7.png",
+   "frame": {
+    "x": 276,
+    "y": 100,
+    "w": 92,
+    "h": 100
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 100
+   },
+   "pivot": {
+    "x": 0.5108695652173914,
+    "y": 0.25
+   },
+   "duration": 42
+  },
+  {
+   "filename": "capshun-splash 8.png",
+   "frame": {
+    "x": 0,
+    "y": 200,
+    "w": 92,
+    "h": 100
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 100
+   },
+   "pivot": {
+    "x": 0.5108695652173914,
+    "y": 0.25
+   },
+   "duration": 42
+  },
+  {
+   "filename": "capshun-splash 9.png",
+   "frame": {
+    "x": 92,
+    "y": 200,
+    "w": 92,
+    "h": 100
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 100
+   },
+   "pivot": {
+    "x": 0.5108695652173914,
+    "y": 0.25
+   },
+   "duration": 42
+  },
+  {
+   "filename": "capshun-splash 10.png",
+   "frame": {
+    "x": 184,
+    "y": 200,
+    "w": 92,
+    "h": 100
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 100
+   },
+   "pivot": {
+    "x": 0.5108695652173914,
+    "y": 0.25
+   },
+   "duration": 42
+  },
+  {
+   "filename": "capshun-splash 11.png",
+   "frame": {
+    "x": 276,
+    "y": 200,
+    "w": 92,
+    "h": 100
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 92,
+    "h": 100
+   },
+   "sourceSize": {
+    "w": 92,
+    "h": 100
+   },
+   "pivot": {
+    "x": 0.5108695652173914,
+    "y": 0.25
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "capshun-splash.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 368,
+   "h": 300
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 47,
+   "y": 25
+  },
+  "frameTags": [
+   {
+    "name": "capshun-splash",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

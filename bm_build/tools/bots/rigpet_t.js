@@ -93,8 +93,13 @@ module.exports = async function run(C) {
   ok('Sit / follow: sits', /1b/.test(await nbt(PET, 'Sitting')) && A.bars.some(b => C.sit.test(b)), A.bars.slice(-1).join(''));
   await wait(3000, async () => (await score(`bm.${q}s`, PET)) === 4);
   ok('...the seated cycle plays (state 4)', (await score(`bm.${q}s`, PET)) === 4);
-  const seen = new Set(); for (let k = 0; k < 14; k++) { seen.add(await nbt(`@e[type=minecraft:item_display,tag=bm.${ab}p_pet,tag=bm.${ab}p_head,limit=1]`, 'transformation')); await sleep(250); }
+  // (2.94: a sprite moves by its frame - the head's custom_model_data - not its transformation)
+  const seen = new Set(); for (let k = 0; k < 14; k++) { seen.add(await nbt(`@e[type=minecraft:item_display,tag=bm.${ab}p_pet,tag=bm.${ab}p_head,limit=1]`, C.sprite ? 'item.components."minecraft:custom_model_data"' : 'transformation')); await sleep(C.sprite ? 600 : 250); }
   ok('...and moves while seated (sit_a -> sit_b)', seen.size >= 2, `${seen.size} distinct`);
+  if (C.sitPart) {             // (2.94: a part that shows only seated - Ava's gown pooled on the floor)
+    const sp = await nbt(`@e[type=minecraft:item_display,tag=bm.${ab}p_pet,tag=bm.${ab}p_${C.sitPart},limit=1]`, 'transformation.scale[0]');
+    ok(`...seated, her ${C.sitPart} shows`, +((sp.match(/([\d.]+)/) || [0, 0])[1]) > 0, sp);
+  }
   const hitSel = `@e[type=minecraft:interaction,tag=bm.${ab}hit,limit=1]`;
   await wait(3000, async () => (await cnt(hitSel)) === 1);
   const wx = await num(PET, 'Pos[0]'), wz = await num(PET, 'Pos[2]');
@@ -165,9 +170,11 @@ module.exports = async function run(C) {
   const FIG = `@e[type=minecraft:item_display,tag=bm.dcfg,x=${X - 4.5},y=${Y + 1},z=${Z - 3.5},distance=..2]`;
   let box = await entOf(caseSel); A.slot(0); await sleep(300); if (box) A.interact(box.entityId); await sleep(800);
   const nfig = await cnt(FIG);
-  ok('the item right-clicked into it: a little figure (the parts), shrunk to fit', nfig === C.parts, `parts ${nfig}`);
+  ok('the item right-clicked into it: a little figure (the parts), shrunk to fit', nfig === (C.figParts || C.parts),   // (2.94: a part hidden at rest - Ava's pooled gown - isn't in the figure)
+     `parts ${nfig}`);
   const ys = []; for (let k = 0; k < 12; k++) ys.push(await num(`${FIG.slice(0, -1)},limit=1,sort=random]`, 'transformation.translation[1]'));
-  ok('...standing on the cushion, inside the glass', Math.min(...ys) >= -0.01 && Math.max(...ys) < 0.62, `translation y ${Math.min(...ys).toFixed(2)}..${Math.max(...ys).toFixed(2)}`);
+  // (2.94: a sprite's quad stands on its middle - its origin is higher than a rig part's)
+  ok('...standing on the cushion, inside the glass', Math.min(...ys) >= -0.01 && Math.max(...ys) < (C.sprite ? 0.7 : 0.62), `translation y ${Math.min(...ys).toFixed(2)}..${Math.max(...ys).toFixed(2)}`);
   A.slot(8); await sleep(250); box = await entOf(caseSel); if (box) A.interact(box.entityId); await sleep(700);
   ok('...empty-handed: the item back out, the figurine gone', (await has(C.item)) === 1 && (await cnt(FIG)) === 0);
   await run(`clear TestRat *[minecraft:custom_data~{bm:"${C.item}"}]`); await run(`loot replace entity TestRat hotbar.0 loot bm:items/${C.item}`);

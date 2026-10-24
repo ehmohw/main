@@ -44,7 +44,7 @@ class C(RP.Cfg):
     pron, they = 'him', 'he'
     EXPR = ('happy', 'surprised', 'hurt', 'sleepy', 'blink', 'squint', 'serious')
     FACE = {'happy': 'happy', 'surprised': 'alert', 'hurt': 'blink', 'sleepy': 'blink', 'blink': 'blink', 'squint': 'happy', 'serious': None}
-    ATTRS = dict(armor=6, attack_damage=8, movement_speed=0.42, follow_range=32, step_height=1.1)
+    ATTRS = dict(armor=6, attack_damage=8, movement_speed=0.32, follow_range=32, step_height=1.1)
     SCALE = 0.9
     HIT = (0.8, 1.3)
     CYCLE = {0: (80, [(0, 'idle_a'), (40, 'idle_b')]), 1: (16, [(0, 'walk_0'), (4, 'walk_1'), (8, 'walk_2'), (12, 'walk_3')]),
@@ -269,7 +269,7 @@ def generate(G):
         fn(f'{pfx}/tackle_go', go(8, 12, 'rc', 100, face('surprised', 12) + ['playsound minecraft:entity.wolf.ambient neutral @a[distance=..16] ~ ~ ~ 0.8 1.4']))
         fn(f'{pfx}/bark_go', go(11, 12, 'bc', 400, face('surprised', 12)))
         fn(f'{pfx}/good_go', go(12, 80, 'gc', 1200, face('happy', 80) + ['playsound minecraft:entity.wolf.ambient neutral @a[distance=..32] ~ ~ ~ 1.4 0.7',
-                                                                          'effect give @s minecraft:speed 4 1 true',
+                                                                          'effect give @s minecraft:speed 4 0 true',
                                                                           'execute on owner if entity @s[distance=..24] run effect give @s minecraft:regeneration 5 1 true']))
         fn(f'{pfx}/act_tick', [f'scoreboard players remove @s {S("x")} 1',
                                f'execute if score @s {S("a")} matches 7 if score @s {S("x")} matches 2 run function bm:{pfx}/bite',
@@ -367,6 +367,10 @@ def generate(G):
                                 'function bm:p195/enc/joined'])
 
     RP.build(C, G, abilities, encounter)
+    # (2.94) at a run, dust kicked up at his paws - and his Rage leaves a streak - so the speed reads as speed, not a glide
+    G.FUNCS['p195/tick'][-1:-1] = ['execute if score @s bm.dqs matches 2 run particle minecraft:poof ~ ~0.1 ~ 0.2 0.05 0.2 0.01 1',
+                                   'execute if score @s bm.dqs matches 2 run particle minecraft:dust_plume ~ ~0.1 ~ 0.25 0.05 0.25 0.02 2',
+                                   'execute if score @s bm.bvrt matches 1.. run particle minecraft:cloud ~ ~0.3 ~ 0.2 0.1 0.2 0.01 2']
     sel2 = 'bm.bvsel2'
     S = lambda s: f'bm.dq{s}'
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.bvdg dummy', 'scoreboard objectives add bm.bvsn dummy']

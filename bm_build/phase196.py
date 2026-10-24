@@ -237,6 +237,12 @@ def generate(G):
                                 'function bm:p196/enc/joined'])
 
     RP.build(C, G, abilities, encounter)
+    # (2.94) zipping through the water: a spray and a stream of bubbles behind him, so his speed reads as a shark's rush
+    G.FUNCS['p196/tick'][-1:-1] = ['execute if score @s bm.bzs matches 1..2 if block ~ ~0.5 ~ minecraft:water run particle minecraft:bubble ~ ~0.5 ~ 0.4 0.3 0.4 0.05 4',
+                                   'execute if score @s bm.bzs matches 10 run particle minecraft:bubble ~ ~0.5 ~ 0.4 0.3 0.4 0.05 4',
+                                   'execute if score @s bm.bzs matches 1..2 if block ~ ~1 ~ minecraft:air if block ~ ~ ~ minecraft:water run particle minecraft:splash ~ ~1 ~ 0.5 0.2 0.5 0.1 10',
+                                   'execute if score @s bm.bzs matches 10 if block ~ ~1.2 ~ minecraft:air run particle minecraft:splash ~ ~1 ~ 0.5 0.2 0.5 0.1 10',
+                                   'execute if score @s bm.bzs matches 1..2 unless block ~ ~0.5 ~ minecraft:water run particle minecraft:poof ~ ~0.1 ~ 0.3 0.05 0.3 0.01 1']
     sel2 = '@e[type=minecraft:wolf,tag=bm.bjsel2,limit=1]'
     # ---- the whistle's use: riding him - CHOMP
     use = G.FUNCS['p196/use']

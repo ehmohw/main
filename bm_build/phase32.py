@@ -367,11 +367,14 @@ def generate(G):
                'Passengers': [disp('bm:vorn3d', TS, round(-HUSK_SEAT + TS / 2, 3), ('bm.vdisp', 'bm.vbody'))]}      # 2.24: on foot (the hoverboard is gone)
     fn('p32/spawn/trooper', ['execute unless block ~ ~ ~ #minecraft:replaceable run return 0', f'summon minecraft:husk ~ ~ ~ {snbt(trooper)}',
                              'particle minecraft:end_rod ~ ~1 ~ 0.3 1 0.3 0.05 20', 'playsound minecraft:block.beacon.power_select hostile @a[distance=..32] ~ ~ ~ 0.8 1.6'])
-    SS = 3
+    SS = 7                                    # (2.94: was 3 - the phantom's hitbox now spans the disc you see, not half of it)
     saucer = {'Tags': ['bm.seen', 'bm.vorn', 'bm.vsauc'], 'size': Int(SS), 'Silent': B(1), 'CustomName': T('Vorn Scout Saucer', GREEN),
               'DeathLootTable': 'bm:p32/saucer', 'Health': F(40), 'attributes': attrs(max_health=40, attack_damage=4, follow_range=64),
               'active_effects': [invis, fireres],
               'Passengers': [disp('bm:ufo3d', 2.8, round(-seat_phantom(SS) + 0.2, 3), ('bm.vdisp', 'bm.vufo'))]}
+    for _a in saucer['attributes']:                 # (a phantom's bite is 6 + its size: the bigger hitbox mustn't bite harder)
+        if _a['id'] == 'minecraft:attack_damage':
+            _a['modifiers'] = [{'id': 'bm:sauc_size', 'amount': D(-4.0), 'operation': 'add_value'}]
     fn('p32/spawn/saucer', ['execute unless block ~ ~ ~ #minecraft:air run return 0', f'summon minecraft:phantom ~ ~ ~ {snbt(saucer)}',
                             'playsound minecraft:block.beacon.ambient hostile @a[distance=..48] ~ ~ ~ 1 1.8'])
     bigslime = {'Tags': ['bm.seen', 'bm.vorn', 'bm.bio', 'bm.vslime'], 'Size': Int(6), 'CustomName': T('Bioengineered Slime', 'green'),
@@ -390,7 +393,7 @@ def generate(G):
              'execute as @e[tag=bm.vboss] at @s on passengers run rotate @s ~ 0']
     second += ['scoreboard players add @e[tag=bm.vtroop] bm.xat 1', 'scoreboard players add @e[tag=bm.vsauc] bm.xat 1',
                'execute as @e[tag=bm.vtroop,scores={bm.xat=3..}] at @s run function bm:p32/troop/fire',
-               'execute as @e[tag=bm.vsauc,scores={bm.xat=3..}] at @s run function bm:p32/sauc/fire',
+               'execute as @e[tag=bm.vsauc,scores={bm.xat=10..}] at @s run function bm:p32/sauc/fire',   # (2.94: ten seconds between shots, not three)
                'execute as @e[tag=bm.vsauc] at @s run particle minecraft:dust{color:[0.5,1.0,0.35],scale:1.2} ~ ~-0.3 ~ 0.6 0.1 0.6 0 6 force @a[distance=..64]',
                'execute as @e[tag=bm.vorn] at @s unless entity @a[distance=..128] run tp @s ~ -400 ~']
     tgt = '@p[distance=..{r},gamemode=!spectator,gamemode=!creative]'

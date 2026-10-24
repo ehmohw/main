@@ -46,13 +46,13 @@ class C(RP.Cfg):
     SCALE = 1.0
     HIT = (0.9, 2.7)
     CYCLE = {0: (80, [(0, 'idle_a'), (40, 'idle_b')]), 1: (16, [(0, 'walk_a'), (4, 'walk_up'), (8, 'walk_b'), (12, 'walk_up')]),
-             2: (12, [(0, 'sprint_0'), (3, 'sprint_1'), (6, 'sprint_2'), (9, 'sprint_3')]), 3: (None, [(0, 'jump')]), 4: (80, [(0, 'sit_a'), (40, 'sit_b')]),
+             2: (16, [(2 * k, f'sprint_{k}') for k in range(A.GAIT_FRAMES)]), 3: (None, [(0, 'jump')]), 4: (80, [(0, 'sit_a'), (40, 'sit_b')]),
              6: (None, [(0, 'tilt')]), 7: (None, [(0, 'rend_up'), (4, 'rend')]), 8: (None, [(0, 'fold'), (8, 'unfold'), (12, 'rend')]),
              11: (None, [(0, 'scream')]),
              12: (None, [(0, 'scream')] + [(10 + 12 * i + k, p) for i in range(7) for k, p in ((0, 'fold'), (5, 'unfold'), (8, 'rend'))]),
              14: (None, [(0, 'tilt')]),
              10: (16, [(2 * i, f'swim_{i}') for i in range(A.SWIM_FRAMES)])}
-    DUR = {'idle_a': 30, 'idle_b': 30, 'walk_a': 4, 'walk_up': 4, 'walk_b': 4, 'run_a': 3, 'run_up': 3, 'run_b': 3, 'sprint_0': 3, 'sprint_1': 3, 'sprint_2': 3, 'sprint_3': 3, 'jump': 4, 'sit_a': 20, 'sit_b': 20,
+    DUR = {'idle_a': 30, 'idle_b': 30, 'walk_a': 4, 'walk_up': 4, 'walk_b': 4, 'run_a': 3, 'run_up': 3, 'run_b': 3, **{f'sprint_{k}': 2 for k in range(A.GAIT_FRAMES)}, 'jump': 4, 'sit_a': 20, 'sit_b': 20,
            'rend_up': 4, 'rend': 2, 'fold': 5, 'unfold': 2, 'scream': 6, 'tilt': 10}
     QUIPS = ['(it clicks its claws together, slowly)', '(a long, wet breath)', '(its head turns all the way round to look at you)',
              '(it stands very still. Too still.)', '(somewhere in its throat, something laughs)', '(it tilts its head at the dark)',

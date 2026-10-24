@@ -21,6 +21,121 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94: the Sky Buddies, the 8-bit trio, pixel costumes and effect sprites
+
+### The Sky Buddies: the first trio follower
+Sunny (the sun in his shades), Snooze (the sleepy crescent moon in her nightcap) with her grumpy little star Twinkle, and
+Nimbus (the ":3" cloud). They're Buddies, like Mr. Capshun, and the first follower that's three at once: one heart between
+them, one of your three places. They're painted 2D sprites that always face you and float; Sunny's rays turn on their own.
+
+- **Finding them:** witness the sky. Under the open sky in the Overworld, each shows itself once, high up: Sunny at a clear
+  noon, Snooze and Twinkle at a full-moon midnight, Nimbus in a rainstorm. Once you've seen all three, they drift down to
+  you; right-click them for **the Sky Mobile** (use: call them; sneak + use: their menu).
+- **Sunbeam** (a monster within 14, every 4 s): 8, or 13 by day under the open sky, and it burns.
+- **Star Shot** (3-16 away, every 2.5 s): Twinkle hurls herself, 7, and the monster glows.
+- **Zap** (within 12, every 5 s): a bolt from Nimbus, 7, or 13 in the rain.
+- **Lullaby** (three or more within 7, every 20 s): slowed to a crawl and weakened; at night longer, and blinded.
+- **Drizzle** (you burning, or down to 6 hearts): Regeneration and Fire Resistance, and your followers' fires go out.
+- **What the Sky Gives** (every 30 s, no fight near): Haste by day, Night Vision and Speed at night, Regeneration in rain.
+- **The Forecast** (charged, every minute): all four at once, 16 to every monster within 9, alight, slowed and lit up.
+- **Today's Forecast** (their menu): what the sky's giving you right now.
+- The full set: sitting (right-click; they settle on Nimbus), Snooze's nightcap at the Tailor (Bubblegum Pink, Mint Dream,
+  Lavender Night, and Gilded, Diamond and Netherite), the rare aura **Starry Sky**, a frame trick, a display-case figurine,
+  a chibi doll from Cecil (and a golden one from the Ember Rat), the Raid Contract, and a place on the Partner Wheel.
+- Bonds: **Daydreamers** with Mr. Capshun, **Moon and Frost** with Celi.
+
+### The Glitched Cartridge, and the 8-bit trio
+A grey cartridge whose picture keeps changing: **5% for every raider in any won heist, any tier.**
+- **Beside your Emma, Leo or Cecil:** the game glitches and their 8-bit self tumbles out, a hidden follower of its own
+  (PixelLab sprites, always facing you, every move frame by frame). Right-click it for its cartridge.
+- **8-Bit Emma:** Fireball (a bouncing, burning projectile), Stomp (everything within 3, dazed), Extra Life (you down to 4
+  hearts: a 1-UP), Power Star (charged: three monsters near all take 12; you get Resistance and Speed).
+- **8-Bit Leo:** Sword Beam (only while your health is full), Slash, Shield Block (you hurt: Resistance II, the monsters
+  shoved back), Coin Block (no fight near: experience and Luck), Spin Attack (charged).
+- **8-Bit Cecil:** Hex Bolt (withering), Hex (a crowd slowed, weakened and lit up), Game Over (charged: 18 to everything
+  within 9).
+- Each has the full set: sitting (the seated sprite breathes), palettes at the Tailor (**Game Boy**, **Virtual Boy**, **Sepia
+  Print**, and Gilded, Diamond and Netherite Pixels: every frame recoloured), the rare aura **Scanlines**, a frame trick, a
+  figurine, a pixel doll from Cecil (the sprite itself, every pixel a little block), the Raid Contract, and the Partner Wheel.
+- All three together: **the 8-Bit Bane** (Resistance, Speed, Regeneration; Strength for them) - and their own banter.
+
+### Pixel costumes
+- **Beside any other follower,** a Glitched Cartridge unlocks their **pixel costume**: a PixelLab sprite of them that stands
+  in for their model, walking, sitting and fighting as they do. Their own model is only hidden, and comes back when it's off.
+- **Sneak + use a cartridge:** the **Pixel Wardrobe**, every costume you've unlocked, each on or off.
+- Every follower but the Sky Buddies has one (Emma, Leo and Cecil have their 8-bit selves instead).
+
+### The 8-Bit Serpent King
+Bring 8-Bit Emma, Leo and Cecil onto Apophiss's seal in the Hollow King's throne room, with a conqueror of the Hollow King:
+the seal doesn't break, it glitches, and Apophiss rears out of the static in sixteen colours (480 health, a boss bar).
+**Bite** (withering), **Black Fire** (a burning stream), **Tail Slam** (everyone within 6 thrown up), and below half a
+**Roar** (darkness, slowness). Everyone near when he falls shatters him into pixels and wins **the 8-Bit Crown**: his crown
+in pixels, a real 3D crown (four walls of little blocks) you wear for armour and health, with Luck while an 8-bit follower
+is out. (After the first, a Glitched Cartridge instead.)
+
+### Mr. Capshun's pencil and paintbrush
+- He holds **one tool at a time** now, in his right hand: PixelLab drew him a yellow pencil and a red-handled brush with red,
+  yellow and blue bristles, and he swaps between them for each attack.
+- **Brush Swipe** (up close, every second): the brush, and a splash of colour (8). It burns, slows, lights up, poisons or lifts.
+  The pencil jab is gone.
+- **Drawn to Life** (new; every 5 s, a monster 4-16 away): he sketches something in pencil, black and white, and it's real.
+  A **sketch bomb** he throws (9, and 6 to everything round it, in a scribbled blast), a **sketch anvil** dropped on its head
+  (12, and dazed), or **three sketch arrows** (4 each).
+- Sketch, Paint Splat, Wet Paint, Fresh Coat and the Rainbow Stroke are as they were, each with the right tool in hand.
+
+### Effect sprites, and Dennis's searing throws
+- The big blows are drawn now, not only sparkled: the duo and trio synergy attacks, Dennis's Mother Lode, Mr. Capshun's
+  Rainbow Stroke, the champions' Black Flame Coil and Inferno, the Sky Buddies' and the 8-bit trio's attacks each play a
+  PixelLab effect as a flipbook on a billboarded display.
+- **Dennis's Gold Rush** throws two homing, glowing-hot diamonds or ingots (iron, gold, copper or netherite) instead of nuggets.
+
+### New bonds
+- **The Reaper and the Rose** (Democratus and Emma): Regeneration; monsters near you slowed; both heal.
+- **Crown and Scythe** (Democratus and Queen Ava): Resistance and Strength; both tougher.
+- **Once Upon a Time** (Mr. Capshun and Emma): Luck and Regeneration; both heal.
+- **The Villain's Monologue** (Mr. Capshun and Apophiss): Strength; monsters near you weakened; Apophiss tougher.
+- **The Family Reunited** (Emma, Queen Ava and Democratus): Regeneration, two more hearts, Resistance; Strength for the three.
+- **Happily Ever After** (Mr. Capshun, Emma and Leo): Regeneration, Resistance, Speed and Luck; the three tougher.
+
+### Queen Ava's Honours, simpler
+- **One Honour, three ranks**, instead of Vitality, Bulwark and Might at five ranks each. Each rank raises all three together:
+  rank I to II, rank II to IV, rank III to V. The top is the same as before.
+- **Far less grind:** rank I is 8 Royal Pearls and a tribute; rank II is 16 and 1 Dread Token; rank III is 28 and 3 Dread
+  Tokens, their signature treasure, and **any one** Elemental Gem (Water, Rock or Fire). Before, it was 33 Dread Tokens and
+  three particular gems for every follower. Ranks already bought are kept.
+- **Easier to find:** the Tide Font now has a floating label (right-click it, with Queen Ava beside you, for her Honours), and
+  Ava tells you as much when you walk up to it with her.
+
+- **The Partner Wheel takes more than thirty partners:** the codes past the thirtieth go to a second bank (3700 and up).
+- **The Sky Buddies' back cloud** is drawn whole; its left end was cut off.
+- **Snooze waits for the real full moon:** the check now reads the world's own day (the moon you see), not the pack's day count.
+- **The Sealed Royal Chart** moved from the Royal Steward to Vesper (2 Dread Tokens): you only meet the Steward once you're in the castle.
+- **Queen Ava sits properly:** her gown's lower tiers fold away and the rest pools around her on the floor; nothing goes
+  through the ground. Swimming, her gown trails behind her (her legs used to hang down out of it).
+- **Bender's tail** curls up over his back, as a happy dog's does. He runs at a dog's pace now, not a zip (his Good Boy
+  rush is Speed I), and dust kicks up at his paws when he runs; his Rage charge is as fast as ever, with a streak behind it.
+- **Bones** throws up a spray and a stream of bubbles when he rushes through the water.
+- **Mr. Capshun smiles:** his default face is a smile with his eyes open; the puzzled look of the sketch is one of his idles.
+- **The Seraph's carapace and plate** no longer turn into the missing-texture checks by day: the holy set's daytime gold trim
+  is kept off pieces with their own art (and taken off any that already had it).
+- **The Dread and Seraph sets have auras:** worn whole, the Dread shows crimson motes and drifting souls, the Seraph gold
+  light, glints and a ring of light at your crown; gliding in the carapace leaves a trail.
+- **Finding Queen Ava, made clear:** place a Conduit (it doesn't need to be active, and any biome will do) at night with
+  Emma beside you, once the world is in hard mode (someone has beaten the Hollow King). With Emma there, a conduit that
+  can't bring Ava back yet gets a line from Emma saying why: not dark enough yet (no hard mode), or not night.
+- **The Skiff Escort** is back a minute after it's shot down (it was five).
+- **Vorn Scout Saucers** are easier to hit (their hitbox now spans the disc you see) and fire every 10 seconds, not 3.
+  Their bite does what it did. Every Vorn craft you down (saucers, abductors, overseers) has a 5% chance to drop a Vorn Skiff
+  part (it was 1 in 200).
+- **Boss trophies face you** on the trophy stand (they had their backs turned).
+- **Emma's sand-dollar buckle** no longer flickers against her dress.
+- **The Stalker crawls:** eight frames a stride, not four, and each limb lifts as it swings forward and plants as it pushes
+  back. It used to glide along on all fours.
+- **The dome dries out fully:** raising or mending it now also clears kelp, seagrass and bubble columns that grew in the flood,
+  and goes over it twice more a few seconds later for water that was still flowing. A breach that bursts says how to mend it
+  (sneak + right-click the Dome Heart), and the Dome Heart has a label saying so. While it leaks, it drips and reminds you.
+- **The Ember Rat's golden dolls** past the thirty-first follower no longer overflow his list (the list is kept in groups of thirty).
+
 ## New in 2.93e: detailed textures for Pearlman and the newer followers
 
 The newer followers now get the same material detail as Emma: weave, folds, fur, gleams. Their faces and designs are unchanged.
@@ -247,7 +362,7 @@ Emma's home: a ruined grey castle under a glass bubble dome on the deep sea floo
 light-blue cone roofs with blue bands and magenta flags, cracked and holed walls, a fallen turret lying on the grass, and
 fire and soot in the windows. It stands on a green hill with a grey path and pink flowers.
 - **Getting in:** swim into the **Tide Door**, the shimmering pane in the dome's north side. Walk back into it to leave.
-  The Dockmaster sells a **Sealed Royal Chart** (6 Tokens) that marks the nearest castle.
+  The Dockmaster sells a **Sealed Royal Chart** (6 Tokens) that marks the nearest castle, and (2.94) so does Vesper (2 Dread Tokens).
 - **Royal homecomings:** right-click the **Tide Font** between the thrones with a royal beside you. Each one comes home once:
   - Emma: the Tidecaller Shell (three minutes of Water Breathing, Dolphin's Grace and Conduit Power; 2-minute recharge).
   - Queen Ava: the Sea-Glass Locket (carried: Water Breathing, and Regeneration in water).
@@ -1394,7 +1509,8 @@ Two new rooms are dug under the vault-door balcony, off the alcove between its t
 Use the horn or cloche to call him; sneak + use opens his menu (Sit / follow, Send him home, his ways, Wardrobe).
 - **Dennis fights with his Dwarven wrench and a dwarf's love of gold:**
   - **Wrench Whack** up close: 7 damage and a shove.
-  - **Gold Rush** at range: a fistful of gold nuggets, 5 damage and slowed.
+  - **Gold Rush** at range: (2.94) two searing throws - a diamond or an iron, gold, copper or netherite ingot, glowing hot
+    from his forge - that home in, 6-9 damage each, and set the monster alight (gold and netherite slow it too).
   - **Midas Slam** when they crowd him: a ring of gold, 9 to everything near, and up they go.
   - **The Mother Lode**, his great blow every 45 seconds: gold pours up around him for 14 to everything near, and you're clad in it (Absorption, Resistance).
   - While he's with you, **every ore you mine drops as if your pickaxe had Fortune V.**

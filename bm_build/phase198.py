@@ -11,7 +11,10 @@ PALETTE        (his menu) the colour of the coat he paints on you: red (Strength
                green (Regeneration), blue (Speed), purple (Resistance) - or rainbow, a different one every coat.
 THE STORY SO FAR  (his menu) he narrates. Lore, mostly. Some of it he shouldn't know.
 FRESH COAT     every 30 s, beside you: he paints you (and anyone with you) in your palette's colour - 40 s of its buff.
-BRUSH SWIPE / PENCIL JAB  a foe within 3, every second: a swipe of wet paint (7) or a jab of the pencil (8).
+(2.94: ONE TOOL AT A TIME - the pencil for what he draws, the paintbrush for what he paints; he swaps them as he goes.)
+BRUSH SWIPE    a foe within 3, every second: the brush, and a splash of colour (8) - it burns, slows, lights up, poisons or lifts.
+DRAWN TO LIFE  every 5 s, a foe 4-16 away: he sketches something in pencil - and it's real: a SKETCH BOMB (thrown: 9, and 6 to all
+               round it), a SKETCH ANVIL (dropped on its head: 12, and dazed) or three SKETCH ARROWS (4 each).
 PAINT SPLAT    every 4 s, a foe 4-14 away: a glob of paint (8) - and its colour does something: red burns, blue slows, yellow
                lights them up and weakens them, green poisons, purple lifts them off their feet.
 SKETCH         every 15 s, a foe within 10: he scribbles an outline round it - it can barely move or hit for 3 s (and takes 4).
@@ -30,6 +33,8 @@ import capshun_art as A
 import rigpet as RP
 import phase141 as P141
 import phase134 as P134
+import phase210 as FXS
+import phase212 as P212
 
 MZ_C, MZ_LINE = '#f0f0f0', '#d8e4ff'
 W = 'capshun'
@@ -60,22 +65,23 @@ class C(RP.Cfg):
     SCALE = 0.9
     HIT = (0.7, 1.9)
     _sc = [(4 * i, ('scribble_a', 'scribble_b')[i % 2]) for i in range(5)]
+    SWAP = ('tool',)                                # (2.94: the pencil or the brush - the pose says)
     _pt = [(4 * i, ('paint_a', 'paint_b')[i % 2]) for i in range(6)]
-    CYCLE = {0: (160, [(0, 'idle_a'), (70, 'idle_b'), (96, 'idle_a'), (124, 'idle_c'), (146, 'idle_a')]),
+    CYCLE = {0: (160, [(0, 'idle_a'), (70, 'idle_b'), (96, 'idle_d'), (124, 'idle_c'), (146, 'idle_a')]),
              1: (16, [(0, 'walk_0'), (4, 'walk_1'), (8, 'walk_2'), (12, 'walk_3')]),
              2: (12, [(0, 'run_0'), (3, 'run_1'), (6, 'run_2'), (9, 'run_3')]), 3: (None, [(0, 'jump')]),
              4: (200, [(0, 'sit_a'), (100, 'sit_b')]),
              6: (None, [(0, 'happy'), (10, 'wave_a'), (16, 'wave_b'), (22, 'wave_a')]),
              7: (None, [(0, 'swipe_up'), (4, 'swipe')]),
-             8: (None, [(0, 'jab_up'), (3, 'jab')]),
+             8: (None, [(0, 'scribble_a'), (4, 'scribble_b'), (8, 'scribble_a'), (12, 'toss_up'), (16, 'toss')]),
              9: (None, [(0, 'fling_up'), (5, 'fling')]),
-             11: (None, _sc + [(20, 'jab')]),
+             11: (None, _sc + [(20, 'scribble_b')]),
              12: (None, [(0, 'rainbow_a'), (14, 'rainbow_b'), (22, 'rainbow_c'), (40, 'happy')]),
              13: (None, [(0, 'swipe_up'), (6, 'splash')]),
              14: (None, _pt),
              10: (16, [(2 * i, f'swim_{i}') for i in range(A.SWIM_FRAMES)])}
-    DUR = {'idle_a': 20, 'idle_b': 12, 'idle_c': 10, 'walk_0': 4, 'walk_1': 4, 'walk_2': 4, 'walk_3': 4, 'run_0': 3, 'run_1': 3, 'run_2': 3, 'run_3': 3,
-           'jump': 4, 'sit_a': 20, 'sit_b': 24, 'swipe_up': 3, 'swipe': 2, 'jab_up': 3, 'jab': 2, 'fling_up': 4, 'fling': 2, 'scribble_a': 3, 'scribble_b': 3,
+    DUR = {'idle_a': 20, 'idle_d': 12, 'idle_b': 12, 'idle_c': 10, 'walk_0': 4, 'walk_1': 4, 'walk_2': 4, 'walk_3': 4, 'run_0': 3, 'run_1': 3, 'run_2': 3, 'run_3': 3,
+           'jump': 4, 'sit_a': 20, 'sit_b': 24, 'swipe_up': 3, 'swipe': 2, 'toss_up': 3, 'toss': 2, 'fling_up': 4, 'fling': 2, 'scribble_a': 3, 'scribble_b': 3,
            'rainbow_a': 10, 'rainbow_b': 6, 'rainbow_c': 5, 'splash': 3, 'paint_a': 3, 'paint_b': 3, 'happy': 6, 'wave_a': 5, 'wave_b': 5}
     QUIPS = ['[Mr. Capshun narrates: "And so our hero pressed on - bravely, if a little lost."]',
              '"Fun fact: the Underwater Kingdom wasn\'t always underwater. They don\'t put that on the loading screen."',
@@ -97,7 +103,8 @@ class C(RP.Cfg):
     NOT_YOURS = '"Wrong protagonist, sorry. I\'m contractually someone else\'s narrator."'
     POWERS = [('Fresh Coat', 'every 30 s beside you: he paints you (and anyone with you) in your palette\'s colour - 40 s of its buff'),
               ('Palette', 'red Strength, orange Fire Resistance, yellow Haste, green Regeneration, blue Speed, purple Resistance - or rainbow, a new one every coat'),
-              ('Brush Swipe / Pencil Jab', 'a foe within 3, every second: a swipe of wet paint (7) or a jab of the pencil (8)'),
+              ('Brush Swipe', 'a foe within 3, every second: his brush, and a splash of colour (8) - it burns, slows, lights up, poisons or lifts'),
+              ('Drawn to Life', 'every 5 s, a foe 4-16 away: he sketches it in pencil and it\'s real - a bomb (9, and 6 round it), an anvil (12, dazed) or three arrows (4 each)'),
               ('Paint Splat', 'every 4 s, a foe 4-14 away (8): red burns, blue slows, yellow lights up and weakens, green poisons, purple lifts it off its feet'),
               ('Sketch', 'every 15 s: he scribbles an outline round a foe within 10 - it can barely move or hit for 3 s'),
               ('Wet Paint', 'three or more foes within 6, every 25 s: a puddle of paint they\'re stuck in'),
@@ -195,10 +202,23 @@ def rp(R):
     import sys
     R.TEXTURE_MODS.append(sys.modules[__name__])
     RP.rp(C, R, _icon())
+    for k in SKETCHES:                                   # (2.94: what he draws - flat pencil sketches, as he is)
+        face = {'uv': [0, 0, 16, 16], 'texture': '#f'}
+        R.HATS[f'mz_sk_{k}'] = ({'f': f'bm:block/mz_sk_{k}'}, [{'from': [0, 0, 8], 'to': [16, 16, 8], 'shade': False,
+                                                                'faces': {'north': face, 'south': {'uv': [16, 0, 0, 16], 'texture': '#f'}}}])
+
+
+SKETCHES = ('bomb', 'anvil', 'arrow')
 
 
 def textures():
-    return A.textures()
+    import os
+    from PIL import Image
+    T_ = A.textures()
+    D = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ref', 'pixellab', 'capshun')
+    for k in SKETCHES:
+        T_[f'mz_sk_{k}'] = Image.open(os.path.join(D, f'sketch_{k}.png')).convert('RGBA')
+    return T_
 
 
 def generate_early(G):
@@ -222,18 +242,19 @@ def generate(G):
         S, go, hit, end, face, foe, pfx = X.S, X.go, X.hit, X.end, X.face, X.foe, X.pfx
         idle = X.idle_fight
         lines = [f'execute if score @s {S("k")} matches 1.. run scoreboard players remove @s {S("k")} 1',
+                 f'execute if score @s {S("k2")} matches 1.. run scoreboard players remove @s {S("k2")} 1',
                  f'execute {idle} unless score @s {S("gc")} matches 1.. if entity @e[{foe},distance=..10] run function bm:{pfx}/rainbow_go',
                  f'execute store result score #nf bm.rng if entity @e[{foe},distance=..6]',
                  f'execute {idle} unless score @s {S("bc")} matches 1.. if score #nf bm.rng matches 3.. run function bm:{pfx}/wet_go',
                  f'execute {idle} unless score @s {S("sc")} matches 1.. if entity @e[{foe},distance=..10] run function bm:{pfx}/sketch_go',
                  f'execute {idle} unless score @s {S("mc")} matches 1.. if entity @e[{foe},distance=..3] run function bm:{pfx}/melee_go',
+                 f'execute {idle} unless score @s {S("k2")} matches 1.. unless entity @e[{foe},distance=..4] if entity @e[{foe},distance=..16] run function bm:{pfx}/draw_go',
                  f'execute {idle} unless score @s {S("rc")} matches 1.. unless entity @e[{foe},distance=..3.5] if entity @e[{foe},distance=..14] run function bm:{pfx}/splat_go',
                  f'execute {idle} unless score @s {S("k")} matches 1.. unless entity @e[{foe},distance=..6] if function bm:{pfx}/near_owner run function bm:{pfx}/coat_go']
         fn(f'{pfx}/near_owner', ['execute on owner if entity @s[distance=..10] run return 1', 'return 0'])
-        fn(f'{pfx}/melee_go', ['execute store result score #r bm.rng run random value 1..2',
-                               f'execute if score #r bm.rng matches 1 run return run function bm:{pfx}/swipe_go', f'function bm:{pfx}/jab_go'])
+        fn(f'{pfx}/melee_go', [f'function bm:{pfx}/swipe_go'])
         fn(f'{pfx}/swipe_go', go(7, 8, 'mc', 20, ['playsound minecraft:entity.player.attack.sweep neutral @a[distance=..16] ~ ~ ~ 0.5 1.4']))
-        fn(f'{pfx}/jab_go', go(8, 7, 'mc', 20, ['playsound minecraft:item.book.page_turn neutral @a[distance=..16] ~ ~ ~ 0.6 1.6']))
+        fn(f'{pfx}/draw_go', go(8, 22, 'k2', 100, face('squint', 22) + ['playsound minecraft:ui.cartography_table.take_result neutral @a[distance=..16] ~ ~ ~ 0.8 1.5']))
         fn(f'{pfx}/splat_go', go(9, 10, 'rc', 80, face('happy', 12)))
         fn(f'{pfx}/sketch_go', go(11, 26, 'sc', 300, face('squint', 20) + ['playsound minecraft:ui.cartography_table.take_result neutral @a[distance=..16] ~ ~ ~ 0.8 1.2']))
         fn(f'{pfx}/wet_go', go(13, 24, 'bc', 500, face('serious', 16)))
@@ -242,7 +263,8 @@ def generate(G):
         fn(f'{pfx}/coat_go', go(14, 24, 'k', COAT_CD, face('happy', 24) + ['playsound minecraft:item.dye.use neutral @a[distance=..16] ~ ~ ~ 1 1.2']))
         fn(f'{pfx}/act_tick', [f'scoreboard players remove @s {S("x")} 1',
                                f'execute if score @s {S("a")} matches 7 if score @s {S("x")} matches 3 run function bm:{pfx}/swipe',
-                               f'execute if score @s {S("a")} matches 8 if score @s {S("x")} matches 3 run function bm:{pfx}/jab',
+                               f'execute if score @s {S("a")} matches 8 if score @s {S("x")} matches 8..21 run function bm:{pfx}/scribbling',
+                               f'execute if score @s {S("a")} matches 8 if score @s {S("x")} matches 5 run function bm:{pfx}/draw',
                                f'execute if score @s {S("a")} matches 9 if score @s {S("x")} matches 4 run function bm:{pfx}/splat',
                                f'execute if score @s {S("a")} matches 11 if score @s {S("x")} matches 6..25 run function bm:{pfx}/scribbling',
                                f'execute if score @s {S("a")} matches 11 if score @s {S("x")} matches 6 run function bm:{pfx}/sketch',
@@ -255,12 +277,45 @@ def generate(G):
            [l for i, (_n, c, fx) in enumerate(SPLATS) for l in [f'execute if score #c bm.rng matches {i + 1} run particle {dust(c, 2.0)} ~ ~1 ~ 0.4 0.5 0.4 0 18'] +
             [f'execute if score #c bm.rng matches {i + 1} run {x}' for x in fx]])
         fn(f'{pfx}/smear', [f'particle {dust(c, 1.2)} ~ ~1 ~ 0.3 0.4 0.3 0 3' for c in RAINBOW[::3]])
-        # BRUSH SWIPE / PENCIL JAB
-        fn(f'{pfx}/swipe', hit(7) + [f'execute as @e[{foe},distance=..3.2,sort=nearest,limit=1] at @s run function bm:{pfx}/swiped'] + end)
-        fn(f'{pfx}/swiped', [f'function bm:{pfx}/hurt', f'function bm:{pfx}/smear', 'playsound minecraft:block.slime_block.hit neutral @a[distance=..16] ~ ~ ~ 0.6 1.6'])
-        fn(f'{pfx}/jab', hit(8) + [f'execute as @e[{foe},distance=..3.2,sort=nearest,limit=1] at @s run function bm:{pfx}/jabbed'] + end)
-        fn(f'{pfx}/jabbed', [f'function bm:{pfx}/hurt', 'particle minecraft:crit ~ ~1 ~ 0.2 0.3 0.2 0.2 6',
-                             f'particle {dust((0.1, 0.1, 0.1), 0.8)} ~ ~1 ~ 0.2 0.3 0.2 0 6', 'playsound minecraft:entity.arrow.hit neutral @a[distance=..16] ~ ~ ~ 0.6 1.4'])
+        # BRUSH SWIPE: up close, a splash of colour (2.94: PixelLab's splash)
+        fn(f'{pfx}/swipe', hit(8) + [f'execute as @e[{foe},distance=..3.2,sort=nearest,limit=1] at @s run function bm:{pfx}/swiped'] + end)
+        fn(f'{pfx}/swiped', [f'function bm:{pfx}/hurt', FXS.fx('capshun_splash', 3.0, 1.0), f'function bm:{pfx}/colour',
+                             'playsound minecraft:block.slime_block.hit neutral @a[distance=..16] ~ ~ ~ 0.6 1.6'])
+        # DRAWN TO LIFE (2.94): one of three pencil sketches, made real - black-and-white, PixelLab's
+        pjs = '@e[type=minecraft:wolf,tag=bm.mzpet]'
+        lead = ['particle minecraft:dust{color:[0.12,0.12,0.12],scale:0.6} ~ ~ ~ 0.05 0.05 0.05 0 1']
+        bomb = P212.projectile(G, 'mz_bomb', 'bm:mz_sk_bomb', 9, pjs, scale=0.9, fxname='capshun_scribble', trail=lead,
+                               on_hit=['scoreboard players set #pd bm.rng 6', 'execute store result storage bm:tmp p212.d int 1 run scoreboard players get #pd bm.rng',
+                                       f'execute as @e[{foe},distance=0.1..3] run function bm:p212/dmg with storage bm:tmp p212',
+                                       'playsound minecraft:entity.generic.explode neutral @a[distance=..16] ~ ~ ~ 0.6 1.6', FXS.fx('capshun_scribble', 2.4, 0.8)])
+        arrow = P212.projectile(G, 'mz_arrow', 'bm:mz_sk_arrow', 4, pjs, scale=0.6, fxname='capshun_scribble', trail=lead,
+                                on_hit=['playsound minecraft:entity.arrow.hit neutral @a[distance=..16] ~ ~ ~ 0.6 1.2'])
+        fn(f'{pfx}/d_bomb', bomb)
+        fn(f'{pfx}/d_arrow', arrow)
+        aim = f'facing entity @e[{foe},distance=..16,sort=nearest,limit=1] eyes positioned ^-0.4 ^1.4 ^0.6'
+        fn(f'{pfx}/draw', hit(12) + ['execute store result score #r bm.rng run random value 1..3',
+                                     f'execute if score #r bm.rng matches 1 {aim} run function bm:{pfx}/d_bomb',
+                                     f'execute if score #r bm.rng matches 2 as @e[{foe},distance=..16,sort=nearest,limit=1] at @s run function bm:{pfx}/d_anvil'] +
+           [f'execute if score #r bm.rng matches 3 {aim} rotated ~{d} ~ run function bm:{pfx}/d_arrow' for d in (-9, 0, 9)] +
+           ['playsound minecraft:item.book.page_turn neutral @a[distance=..16] ~ ~ ~ 0.8 1.4',
+            f'execute on owner if entity @s[distance=..24,tag=!bm.hush] if score #r bm.rng matches 2 run ' + X.csay('[Mr. Capshun narrates: "And then - an anvil. Where did it come from? Me. I drew it."]')] + end)
+        anv = snbt({'Tags': ['bm.mzanv', 'bm.mzanvnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:mz_sk_anvil'}},
+                    'item_display': 'fixed', 'billboard': 'center', 'teleport_duration': Int(1), 'view_range': F(1.5),
+                    'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0), F(0), F(0)], 'scale': [F(1.4)] * 3}})
+        fn(f'{pfx}/d_anvil', [f'summon minecraft:item_display ~ ~5 ~ {anv}', 'scoreboard players operation @e[type=minecraft:item_display,tag=bm.mzanvnew,distance=..6] bm.pid = #me bm.pid',
+                              'scoreboard players set @e[type=minecraft:item_display,tag=bm.mzanvnew,distance=..6] bm.pjt 0',
+                              'tag @e[type=minecraft:item_display,tag=bm.mzanvnew] remove bm.mzanvnew', 'playsound minecraft:ui.cartography_table.take_result neutral @a[distance=..16] ~ ~ ~ 1 0.8'])
+        X.tick.append('execute as @e[type=minecraft:item_display,tag=bm.mzanv] at @s run function bm:p198/anvil_fall')
+        fn('p198/anvil_fall', ['scoreboard players add @s bm.pjt 1', 'tp @s ~ ~-0.55 ~',
+                               'execute if score @s bm.pjt matches 9.. run return run function bm:p198/anvil_land',
+                               'execute unless block ~ ~-0.6 ~ #bm:grap_pass run function bm:p198/anvil_land'])
+        fn('p198/anvil_land', ['scoreboard players operation #me bm.pid = @s bm.pid',
+                               f'execute as {pjs} if score @s bm.pid = #me bm.pid run tag @s add bm.pjme', 'scoreboard players set #pd bm.rng 12',
+                               'execute store result storage bm:tmp p212.d int 1 run scoreboard players get #pd bm.rng',
+                               f'execute positioned ~ ~-1 ~ as @e[{foe},distance=..1.8] run function bm:p198/anvilled', 'tag @e[tag=bm.pjme] remove bm.pjme',
+                               FXS.fx('capshun_scribble', 2.0, 0.0), 'playsound minecraft:block.anvil.land neutral @a[distance=..16] ~ ~ ~ 0.8 1.0', 'kill @s'])
+        fn('p198/anvilled', ['function bm:p212/dmg with storage bm:tmp p212', 'effect give @s minecraft:slowness 3 2', 'effect give @s minecraft:nausea 4 0'])
+        G.FUNCS['admin/uninstall'].insert(0, 'kill @e[type=minecraft:item_display,tag=bm.mzanv]')
         # PAINT SPLAT: a trail of paint to the foe, then the glob
         fn(f'{pfx}/splat', hit(8) + [f'execute positioned ~ ~1.2 ~ facing entity @e[{foe},distance=..14,sort=nearest,limit=1] eyes run function bm:{pfx}/trail',
                                      f'execute as @e[{foe},distance=..14,sort=nearest,limit=1] at @s run function bm:{pfx}/splatted',

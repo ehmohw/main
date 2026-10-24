@@ -62,6 +62,9 @@ ABIL = {
     'bones': ('Riptide Frenzy', 'a frenzy of teeth: 22 to one monster; you, Dolphin\'s Grace', None, 22, 'slowness 2 1', ['dolphins_grace 10 0'], 'minecraft:bubble', 'minecraft:entity.guardian.attack'),
     'capshun': ('Doodle Barrier', 'a doodled barrier: you and your followers Absorption III and Resistance; 6 round him', (6, 4), 0, 'slowness 2 1',
                 ['absorption 20 2', 'resistance 8 0'], 'minecraft:end_rod', 'minecraft:item.book.page_turn'),
+    'pxcecil': ('Game Over', 'the screen goes black: 16 to every monster round him, withered; you, Regeneration', (16, 7), 0, 'wither 3 0', ['regeneration 6 1'], 'minecraft:witch', 'minecraft:entity.evoker.cast_spell'),
+    'pxleo': ('Spin Attack', 'a whirl of pixel steel: 14 to every monster round him; you, Resistance and Strength', (14, 6), 0, 'slowness 2 1', ['resistance 8 1', 'strength 10 0'], 'minecraft:sweep_attack', 'minecraft:entity.player.attack.sweep'),
+    'pxemma': ('1-UP', 'a pixel heart bursts: 12 to every monster round her; you, Absorption and Regeneration', (12, 6), 0, 'glowing 3 0', ['absorption 20 1', 'regeneration 6 1'], 'minecraft:heart', 'minecraft:entity.player.levelup'),
     'sky': ('Clear Skies', 'the clouds part: 14 to every monster round them, lit up; you, Regeneration and Haste', (14, 6), 0, 'glowing 4 0', ['regeneration 6 1', 'haste 15 1'], 'minecraft:end_rod', 'minecraft:block.beacon.power_select'),
 }
 FIRE = {'ashur', 'lantern'}                 # (their blows set monsters alight)

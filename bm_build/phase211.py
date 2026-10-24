@@ -299,7 +299,7 @@ def generate(G):
         # WITNESS THE SKY: each moment once (open sky, the Overworld) - its Buddy shows itself; all three: they come down
         X.second.append('execute as @a[tag=!bm.ybmet,gamemode=!spectator] at @s if dimension minecraft:overworld positioned ~ ~1.6 ~ if predicate bm:sees_sky run function bm:p211/enc/sky')
         fn('p211/enc/sky', ['execute if entity @s[tag=!bm.ybs1] if score #tod bm.bm matches 5200..6800 if predicate bm:p39/clear run function bm:p211/enc/sunny',
-                            'scoreboard players operation #mp bm.rng = #day bm.bm', 'scoreboard players operation #mp bm.rng %= #8 bm.rng',
+                            'execute store result score #mp bm.rng run time query day', 'scoreboard players operation #mp bm.rng %= #8 bm.rng',   # (the moon the sky shows: the world's own day)
                             'execute if entity @s[tag=!bm.ybs2] if score #tod bm.bm matches 17200..18800 if score #mp bm.rng matches 0 if predicate bm:p39/clear run function bm:p211/enc/snooze',
                             'execute if entity @s[tag=!bm.ybs3] if predicate bm:p29/raining run function bm:p211/enc/nimbus',
                             'execute if entity @s[tag=bm.ybs1,tag=bm.ybs2,tag=bm.ybs3] unless entity @e[type=minecraft:interaction,tag=bm.ybenc,distance=..64] run function bm:p211/enc/down'])

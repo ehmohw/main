@@ -72,6 +72,9 @@ GIFT = {  # follower: (what it does, commands run each second at the doll)
     'bender': ('Luck', [f'effect give {P} minecraft:luck 15 0 true']),
     'bones': ("Dolphin's Grace", [f'effect give {P} minecraft:dolphins_grace 15 0 true']),
     'capshun': ('Haste', [f'effect give {P} minecraft:haste 15 0 true']),
+    'pxcecil': ('Night Vision', [f'effect give {P} minecraft:night_vision 15 0 true']),
+    'pxleo': ('Resistance', [f'effect give {P} minecraft:resistance 15 0 true']),
+    'pxemma': ('Absorption', [f'effect give {P} minecraft:absorption 30 0 true']),
     'sky': ('Night Vision', [f'effect give {P} minecraft:night_vision 15 0 true']),
     'pearl': ('Hero of the Village', [f'effect give {P} minecraft:hero_of_the_village 15 0 true']),
 }
@@ -142,7 +145,7 @@ def generate(G):
     import phase177 as P177
     PRE = [T('[', 'dark_gray'), T('Black Market', 'dark_purple', bold=True), T('] ', 'dark_gray')]
     second, fast, load = G.FUNCS['loop/second'], G.FUNCS['loop/fast'], G.FUNCS['load']
-    objs = ['bm.gmask']
+    objs = ['bm.gmask'] + [f'bm.gmask{g}' for g in range(1, (len(GDOLLS) + 29) // 30)]
     load[-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
 
@@ -158,18 +161,25 @@ def generate(G):
         'minecraft:custom_data': {'bm_wrapped': B(1)}}})
     idx = {k: n for n, (_b, sell) in enumerate(R22.EMBER_OFFERS) for k in GDOLLS if isinstance(sell, tuple) and sell[0] == f'gdoll_{k}'}
     assert len(idx) == len(GDOLLS)
-    tick = ['tag @a remove bm.gcust', 'execute as @a[gamemode=!spectator,distance=..6,sort=nearest,limit=1] run tag @s add bm.gcust',
-            'scoreboard players set #gm bm.rng 0'] + \
-           [f'execute as @a[tag=bm.gcust,advancements={{bm:met/{k}=true}}] run scoreboard players add #gm bm.rng {1 << i}' for i, k in enumerate(GDOLLS)] + \
-           ['tag @a remove bm.gcust', 'execute if score @s bm.gmask = #gm bm.rng run return 0', 'scoreboard players operation @s bm.gmask = #gm bm.rng',
-            'scoreboard players operation #dr bm.rng = #gm bm.rng']
-    for i, k in reversed(list(enumerate(GDOLLS))):
-        n, sell = idx[k], snbt(G.offer(('omni_token', 1), (f'gdoll_{k}', 1))['sell'])
-        tick += [f'execute if score #dr bm.rng matches {1 << i}.. run data modify entity @s Offers.Recipes[{n}].sell set value {sell}',
-                 f'execute if score #dr bm.rng matches {1 << i}.. run data modify entity @s Offers.Recipes[{n}].maxUses set value 2147483647',
-                 f'execute if score #dr bm.rng matches ..{(1 << i) - 1} run data modify entity @s Offers.Recipes[{n}].sell set value {wrapped}',
-                 f'execute if score #dr bm.rng matches ..{(1 << i) - 1} run data modify entity @s Offers.Recipes[{n}].maxUses set value 0',
-                 f'execute if score #dr bm.rng matches {1 << i}.. run scoreboard players remove #dr bm.rng {1 << i}']
+    # (2.94: thirty dolls to a score - with the 8-bit trio there are more followers than one score has bits)
+    NG = (len(GDOLLS) + 29) // 30
+    gm = lambda g: '#gm' if g == 0 else f'#gm{g}'
+    mk = lambda g: 'bm.gmask' if g == 0 else f'bm.gmask{g}'
+    tick = ['tag @a remove bm.gcust', 'execute as @a[gamemode=!spectator,distance=..6,sort=nearest,limit=1] run tag @s add bm.gcust'] + \
+           [f'scoreboard players set {gm(g)} bm.rng 0' for g in range(NG)] + \
+           [f'execute as @a[tag=bm.gcust,advancements={{bm:met/{k}=true}}] run scoreboard players add {gm(i // 30)} bm.rng {1 << (i % 30)}' for i, k in enumerate(GDOLLS)] + \
+           ['tag @a remove bm.gcust', 'execute ' + ' '.join(f'if score @s {mk(g)} = {gm(g)} bm.rng' for g in range(NG)) + ' run return 0'] + \
+           [f'scoreboard players operation @s {mk(g)} = {gm(g)} bm.rng' for g in range(NG)]
+    for g in range(NG):
+        tick.append(f'scoreboard players operation #dr bm.rng = {gm(g)} bm.rng')
+        for i, k in reversed([(i, k) for i, k in enumerate(GDOLLS) if i // 30 == g]):
+            b = 1 << (i % 30)
+            n, sell = idx[k], snbt(G.offer(('omni_token', 1), (f'gdoll_{k}', 1))['sell'])
+            tick += [f'execute if score #dr bm.rng matches {b}.. run data modify entity @s Offers.Recipes[{n}].sell set value {sell}',
+                     f'execute if score #dr bm.rng matches {b}.. run data modify entity @s Offers.Recipes[{n}].maxUses set value 2147483647',
+                     f'execute if score #dr bm.rng matches ..{b - 1} run data modify entity @s Offers.Recipes[{n}].sell set value {wrapped}',
+                     f'execute if score #dr bm.rng matches ..{b - 1} run data modify entity @s Offers.Recipes[{n}].maxUses set value 0',
+                     f'execute if score #dr bm.rng matches {b}.. run scoreboard players remove #dr bm.rng {b}']
     fn('p180/ember_tick', tick)
     second.append('execute as @e[type=minecraft:wandering_trader,tag=bm.frat_ember] at @s run function bm:p180/ember_tick')
     # (a fresh Ember Rat is wrapped up before anyone can see him: his first second does it - and he arrives far below, then rises)

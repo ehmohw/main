@@ -75,6 +75,9 @@ AR = {'cecil': ('bm.cpcd', 'wolf', 'bm.cecilpet', 'p46/pet/try_summon'),
       'bender': ('bm.bvcd', 'wolf', 'bm.bvpet', 'p195/try_summon'),
       'bones': ('bm.bjcd', 'wolf', 'bm.bjpet', 'p196/try_summon'),
       'capshun': ('bm.mzcd', 'wolf', 'bm.mzpet', 'p198/try_summon'),
+      'pxcecil': ('bm.xccd', 'wolf', 'bm.xcpet', 'p213c/try_summon'),
+      'pxleo': ('bm.xlcd', 'wolf', 'bm.xlpet', 'p213l/try_summon'),
+      'pxemma': ('bm.xmcd', 'wolf', 'bm.xmpet', 'p213e/try_summon'),
       'sky': ('bm.ybcd', 'wolf', 'bm.ybpet', 'p211/try_summon')}
 AR_IDX = {w: i for i, w in enumerate(AR)}
 PET_CD = 120                       # a faint outside the vault: 2 minutes (was 5, Wilfrey's 30)

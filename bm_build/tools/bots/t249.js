@@ -1,11 +1,12 @@
 // 2.90: MR. CAPSHUN, the narrator, as a regular (non-op) player - the owner's checklist (rigpet_t): by a hung painting a doodle
 // peels off the canvas and steps out; asked empty-handed, he wants colour; given a dye, he joins (his pencil). His fight: BRUSH
-// SWIPE / PENCIL JAB, PAINT SPLAT, SKETCH, WET PAINT, THE RAINBOW STROKE; his support: the PALETTE (his menu) and FRESH COAT; THE STORY
+// SWIPE (2.94: the brush in his hand, a splash of colour), DRAWN TO LIFE (2.94: the pencil - a sketched bomb, anvil or arrows,
+// made real), PAINT SPLAT, SKETCH, WET PAINT, THE RAINBOW STROKE; his support: the PALETTE (his menu) and FRESH COAT; THE STORY
 // SO FAR (his menu); NARRATION when you're badly hurt. Then the shared list.
 const runT = require('./rigpet_t');
-runT({ W: 'capshun', NAME: 'Mr. Capshun', ab: 'mz', q: 'zq', pfx: 'p198', prefix: 'mz_', item: 'capshun_pencil', parts: 10, hp: 40, X: 17120, Z: 16000, pron: 'him',
+runT({ W: 'capshun', NAME: 'Mr. Capshun', ab: 'mz', q: 'zq', pfx: 'p198', prefix: 'mz_', item: 'capshun_pencil', parts: 11, hp: 40, X: 17120, Z: 16000, pron: 'him',
   called: /came running|ENTER: MR\. CAPSHUN/, home: /Exit, stage left/, sit: /most relatable thing/, stand: /Back on my feet/,
-  ways: ['Fresh Coat', 'Palette', 'Brush Swipe / Pencil Jab', 'Paint Splat', 'Sketch', 'Wet Paint', 'The Rainbow Stroke', 'Narration'],
+  ways: ['Fresh Coat', 'Palette', 'Brush Swipe', 'Drawn to Life', 'Paint Splat', 'Sketch', 'Wet Paint', 'The Rainbow Stroke', 'Narration'],
   plain: 'Plain black ink', looks: ['Blue Ballpoint', 'Red Pen', 'Green Marker'],
   encounter: async ({ A, run, ok, wait, O, cnt, at, entOf, num, has, X, Y, Z, ENC, sleep }) => {
     // (the stage: a wall with a painting on it - and the roll come up; he steps out as he would)
@@ -15,7 +16,7 @@ runT({ W: 'capshun', NAME: 'Mr. Capshun', ab: 'mz', q: 'zq', pfx: 'p198', prefix
     ok('the stage: a painting hung on the wall', (await cnt(`@e[type=minecraft:painting,x=${X},y=${Y + 2},z=${Z + 5},distance=..3]`)) === 1);
     await run(`${O}execute as @e[type=minecraft:painting,x=${X},y=${Y + 2},z=${Z + 5},distance=..3,limit=1] at @s rotated as @s positioned ^ ^ ^1 run function bm:p198/enc/drop1`);
     ok('by the painting: a doodle peels off the canvas and steps out (his rig and a click box)', await wait(5000, async () => (await cnt(ENC)) === 1) &&
-       (await cnt('@e[type=minecraft:item_display,tag=bm.mzencp]')) === 10 && A.chats.some(c => /peels itself off the painting/.test(c)), A.chats.slice(-1).join('').slice(0, 160));
+       (await cnt('@e[type=minecraft:item_display,tag=bm.mzencp]')) === 11 && A.chats.some(c => /peels itself off the painting/.test(c)), A.chats.slice(-1).join('').slice(0, 160));
     const ex = await num(ENC, 'Pos[0]'), ez = await num(ENC, 'Pos[2]');
     await at(ex + 0.5, Y + 1, ez - 2.5, 0, 10);
     let eb = null; await wait(5000, async () => (eb = await entOf(ENC)) != null, 250); A.slot(8); await sleep(250);
@@ -29,10 +30,23 @@ runT({ W: 'capshun', NAME: 'Mr. Capshun', ab: 'mz', q: 'zq', pfx: 'p198', prefix
   },
   abilities: async ({ A, run, ok, wait, O, cnt, nbt, num, score, fx, PET, zom, X, Y, Z, sleep, use, sneakMenu, at }) => {
     const cd = async (o, v) => run(`scoreboard players set ${PET} bm.zq${o} ${v}`);
-    const calm = async () => { for (const o of ['gc', 'bc', 'sc', 'rc', 'mc', 'k']) await cd(o, 900); };
+    const calm = async () => { for (const o of ['gc', 'bc', 'sc', 'rc', 'mc', 'k', 'k2']) await cd(o, 900); };
     await calm();
     await zom(2.5, 0, 'bm.trpr'); await run(`${O}execute at ${PET} run tp @e[tag=bm.trpr] ~1.5 ~ ~`); await cd('mc', 0);
-    ok('BRUSH SWIPE / PENCIL JAB - the foe hurt', await wait(5000, async () => (await num('@e[tag=bm.trpr,limit=1]', 'Health')) < 300));
+    const TOOL = '@e[type=minecraft:item_display,tag=bm.mzp_pet,tag=bm.mzp_tool,limit=1]';
+    const tools = new Set(); let splash = false;
+    const look = async () => { tools.add(await nbt(TOOL, 'item.components."minecraft:item_model"')); if ((await cnt('@e[type=minecraft:item_display,tag=bm.fxs_capshun_splash]')) >= 1) splash = true; };
+    ok('BRUSH SWIPE - the foe hurt', await wait(5000, async () => { await look(); return (await num('@e[tag=bm.trpr,limit=1]', 'Health')) < 300; }, 100));
+    for (let i = 0; i < 6; i++) { await look(); await sleep(100); }
+    ok('...the brush in his hand for it (one tool at a time)', [...tools].some(t => /mz_tool_brush/.test(t)), [...tools].join(' '));
+    ok('...and a splash of colour (the effect sprite)', splash);
+    await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await sleep(1500);
+    ok('...back to the pencil when he\'s done', /mz_tool_pencil/.test(await nbt(TOOL, 'item.components."minecraft:item_model"')), await nbt(TOOL, 'item.components."minecraft:item_model"'));
+    await run(`${O}tp ${PET} ${X} ${Y + 1} ${Z}`); await zom(10, 0, 'bm.trpd', 600); await cd('k2', 0);
+    let drawn = 0;
+    for (let i = 0; i < 3; i++) { const h0 = await num('@e[tag=bm.trpd,limit=1]', 'Health'); await cd('k2', 0);
+      if (await wait(7000, async () => (await num('@e[tag=bm.trpd,limit=1]', 'Health')) < h0)) drawn++; await sleep(500); }
+    ok('DRAWN TO LIFE - a foe 10 off: his sketches (bomb, anvil or arrows) hit it, three times running', drawn === 3, `${drawn}/3`);
     await run(`${O}kill @e[tag=bm.trpz]`); await calm();
     await run(`${O}tp ${PET} ${X} ${Y + 1} ${Z}`); await zom(9, 0, 'bm.trps'); await cd('rc', 0);
     ok('PAINT SPLAT - a foe 9 off takes a glob of paint', await wait(6000, async () => (await num('@e[tag=bm.trps,limit=1]', 'Health')) < 300));

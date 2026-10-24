@@ -18,6 +18,7 @@ Raiment, from a Golden Cross).
                      Treads feathered over the feet.  SERAPHIC JUDGMENT (the whole holy set): sneak and strike - a pillar of holy
                      fire, 24 through every armour (and 10 more to the undead), 8 to every monster round, alight; you healed.
                      45 s. (One holy piece and three dread ones is neither set.)"""
+import math
 from items import item, T, ITEMS, attr
 import phase182 as P182
 
@@ -147,6 +148,25 @@ def generate(G):
                            'playsound minecraft:item.armor.equip_netherite player @s ~ ~ ~ 1 0.6', say('The Carapace closes round you.', RED)])
     fn('p206/w/greaves', ['effect clear @s minecraft:poison', 'effect clear @s minecraft:wither'])
     fn('p206/w/treads', ['execute if block ~ ~1 ~ minecraft:water run effect give @s minecraft:dolphins_grace 3 0 true'])
+    # (2.94) THEIR AURAS - each set worn whole shows it: the Dread, crimson motes and drifting souls round you; the Seraph,
+    # gold light and white glints, and a ring of light at your crown. Gliding in the carapace leaves a trail of its own.
+    G.FUNCS['loop/fast'][-1:-1] = [f'execute as @a[gamemode=!spectator] if {wear("dread_carapace")} at @s run function bm:p206/aura']
+    G.wjson('bm/predicate/p206/gliding.json', {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:flags': {'is_fall_flying': True}}})
+    fn('p206/aura', ['execute if predicate bm:p206/gliding run return run function bm:p206/aura_glide',
+                     'execute if function bm:p206/holy_set run return run function bm:p206/aura_holy',
+                     'execute if function bm:p206/dread_set run function bm:p206/aura_dread'])
+    fn('p206/aura_dread', ['particle minecraft:dust{color:[0.72,0.06,0.14],scale:0.9} ~ ~1.1 ~ 0.35 0.6 0.35 0 3',
+                           'particle minecraft:dust{color:[0.15,0.02,0.05],scale:1.3} ~ ~0.3 ~ 0.4 0.15 0.4 0 2',
+                           'particle minecraft:sculk_soul ~ ~1.6 ~ 0.3 0.3 0.3 0.01 1'])
+    fn('p206/aura_holy', ['particle minecraft:dust{color:[1.0,0.86,0.42],scale:0.8} ~ ~1.1 ~ 0.35 0.6 0.35 0 3',
+                          'particle minecraft:end_rod ~ ~1.3 ~ 0.3 0.5 0.3 0.005 1', 'particle minecraft:wax_off ~ ~1.8 ~ 0.4 0.3 0.4 0 1'] +
+       [f'particle minecraft:dust{{color:[1.0,0.95,0.7],scale:0.5}} ^{0.3 * math.cos(2 * math.pi * i / 6):.2f} ^2.25 ^{0.3 * math.sin(2 * math.pi * i / 6):.2f} 0 0 0 0 1' for i in range(6)])
+    fn('p206/aura_glide_holy', ['particle minecraft:end_rod ^0.5 ^0.6 ^-0.6 0.1 0.1 0.1 0.01 2', 'particle minecraft:end_rod ^-0.5 ^0.6 ^-0.6 0.1 0.1 0.1 0.01 2',
+                                'particle minecraft:dust{color:[1.0,0.86,0.42],scale:1.0} ^ ^0.6 ^-0.8 0.2 0.1 0.2 0 3'])
+    fn('p206/aura_glide', [f'execute if items entity @s armor.chest {ANGEL} run return run function bm:p206/aura_glide_holy',
+                           'particle minecraft:dust{color:[0.72,0.06,0.14],scale:1.1} ^0.5 ^0.6 ^-0.6 0.1 0.1 0.1 0 3',
+                           'particle minecraft:dust{color:[0.72,0.06,0.14],scale:1.1} ^-0.5 ^0.6 ^-0.6 0.1 0.1 0.1 0 3',
+                           'particle minecraft:squid_ink ^ ^0.6 ^-0.8 0.1 0.1 0.1 0.01 1'])
     # the sets: all four pieces, every one holy or none
     fn('p206/dread_set', [f'execute unless {wear(i)} run return 0' for i in PIECES] + [f'execute if items entity @s armor.* {ANGEL} run return 0', 'return 1'])
     fn('p206/holy_set', [f'execute unless {wear(i)} run return 0' for i in PIECES] +

@@ -246,11 +246,16 @@ def generate(G):
             {'condition': 'minecraft:location_check', 'predicate': {'block': {'blocks': 'minecraft:conduit'}}}]}}},
             'rewards': {'function': 'bm:p189/enc/conduit'}})
         emma_out = 'execute as @e[type=minecraft:cat,tag=bm.emmapet,distance=..16] if score @s bm.pid = #me bm.pid'
-        fn('p189/enc/conduit', ['advancement revoke @s only bm:p189/conduit', 'execute unless score #hard bm.cfg matches 1 run return 0', 'execute if entity @s[tag=bm.avmet] run return 0',
-                                'execute store result score #nt bm.rng run time of minecraft:overworld query time', 'scoreboard players operation #nt bm.rng %= #24000 bm.bm',
-                                'execute unless score #nt bm.rng matches 13000..22999 run return 0',
+        # (2.94: with Emma beside you, a conduit that can't bring her back yet says why - in Emma's words; without Emma it stays a secret)
+        em_say = lambda txt: X.tellraw('@s', [T('Emma: ', '#ff8ad8', bold=True), T(f'"{txt}"', '#ffd0ec')])
+        fn('p189/enc/conduit', ['advancement revoke @s only bm:p189/conduit', 'execute if entity @s[tag=bm.avmet] run return 0',
                                 'scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #em bm.rng 0', f'{emma_out} run scoreboard players set #em bm.rng 1',
                                 'execute if score #em bm.rng matches 0 run return 0',
+                                'execute unless score #hard bm.cfg matches 1 run return run ' + em_say("That light... it's like the palace. I thought I felt Mother for a moment. "
+                                                                                                         "The sea isn't dark enough to give her back yet - not while the Hollow King still sits his throne."),
+                                'execute store result score #nt bm.rng run time of minecraft:overworld query time', 'scoreboard players operation #nt bm.rng %= #24000 bm.bm',
+                                'execute unless score #nt bm.rng matches 13000..22999 run return run ' + em_say("Mother always came to my window at night... "
+                                                                                                                  "Can we light it again when the stars are out?"),
                                 'execute at @s if entity @e[type=minecraft:interaction,tag=bm.avenc,distance=..48] run return 0',
                                 'execute at @s positioned ^ ^ ^3 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run return run function bm:p189/enc/rise',
                                 'execute at @s run function bm:p189/enc/rise'])

@@ -1,5 +1,5 @@
 // 2.93: CHAMPIONS OF THE TIDE - as a regular (non-op) player: Queen Ava and Leo called with their own things, Leo one rank
-// short (rcon sets the rank); his page at the Tide Font asks his last tribute and the Fire Gem; Might V bought with the
+// short (rcon sets the rank); his page at the Tide Font asks his last tribute and an Elemental Gem; Honour III (Might V) bought with the
 // dialog's own button - Leo is a Champion (the title, the advancement, the Champion's Ribbon, his new blow named); on his host the
 // champion's toughness; his medal and regalia on his own bones, keeping to them as he follows; his aura; KNIGHT'S OATH on a
 // monster near him, then its rest; four Blood Moon blows and three Dread pulses, and he stands; the Ribbon (used): medal,
@@ -59,14 +59,14 @@ const res = [];
   await give(0, 'av_locket'); await give(1, 'leo_crest'); await sleep(1000);
   await use(0); await sleep(2500); await use(1); await sleep(2500);
   ok('Queen Ava and Leo called with their own things', (await cnt(pet('bm.avpet'))) === 1 && (await cnt(pet('bm.leopet'))) === 1);
-  await run('scoreboard players set TestRat bm.hn_leo 1455');
-  await give(5, 'royal_pearl', 32); await give(6, 'dread_token', 5); await give(7, 'gem_fire');
+  await run('scoreboard players set TestRat bm.hn_leo 1444');
+  await give(5, 'royal_pearl', 28); await give(6, 'dread_token', 3); await give(7, 'gem_fire');
   await run('item replace entity TestRat hotbar.8 with minecraft:heart_of_the_sea 1');
   A.chats.length = 0; A.titles.length = 0; A.dialogN.length = 0; await click(BOX('bm.kfont')); await sleep(1200);
   await A.press(/Leo/);
-  ok("Leo's page: Might +1 asks his last tribute (a Heart of the Sea) and the Fire Gem", /heart of the sea/i.test(screen()) && /Fire Gem/.test(screen()), screen().slice(0, 400));
-  await A.press(/Might \+1/); await sleep(1500);
-  ok('Might V bought: Leo is a CHAMPION OF THE TIDE (the title), the advancement, the Champion\'s Ribbon', (await score('bm.hn_leo')) === 1555 && said(/Champion of the Tide/) &&
+  ok("Leo's page: Honour +1 (2.94: the last of three ranks) asks his last tribute (a Heart of the Sea) and an Elemental Gem", /heart of the sea/i.test(screen()) && /Elemental Gem/.test(screen()), screen().slice(0, 400));
+  await A.press(/Honour \+1/); await sleep(1500);
+  ok('Honour III bought (Might V with it): Leo is a CHAMPION OF THE TIDE (the title), the advancement, the Champion\'s Ribbon', (await score('bm.hn_leo')) === 1555 && said(/Champion of the Tide/) &&
      /true|done/i.test(await run('execute if entity @a[name=TestRat,advancements={bm:story/champion_tide=true}]').then(r => /passed|count: 1/i.test(r) ? 'true' : 'no')) &&
      (await has('champion_ribbon')) === 1, `hn ${await score('bm.hn_leo')} | ${A.titles.join(' | ')}`);
   ok("...his new blow named: Knight's Oath", said(/Knight's Oath/));

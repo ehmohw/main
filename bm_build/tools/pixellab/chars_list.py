@@ -25,9 +25,9 @@ CHARS = {
               A('punching forward with a robot fist')),
     'bloo': ('bloo', 72, "Bloo, a hulking blue furry demon cat: yellow eyes, white horns, grey bat wings, a toothy snarl, pink nose, white muscular chest and arms with big white claws, blue furry legs, a thin grey tail with a blue tuft",
              A('slashing with both claws')),
-    'apo': ('apo', 80, "Apophiss, the serpent king: a green serpent with a pale yellow-green belly, clawed green arms, a black eyepatch, a black moustache, a black crown with a green gem and a red jewel on white fur trim, dark teal fins and spines, a long red forked tongue",
+    'apo': ('apo', 80, "Apophiss, the serpent king: a green serpent with a pale yellow-green belly, clawed green arms, a smooth reptile snout with no moustache and no hair, solid black eyes with small white pupils, no glasses, a small black crown with a green gem and a red jewel on white fur trim, dark teal fins and spines, a long red forked tongue",
             A('lunging forward to bite')),
-    'chef': ('chef_ladle', 64, "The Chef, a cheerful cook: orange skin, big round white eyes, a black zig-zag moustache, a small round open mouth, a tall puffy white chef's hat, a dark red bow tie, a white chef's jacket, black and white checked trousers, holding a ladle",
+    'chef': ('chef_ladle', 64, "The Chef, a cheerful cook with a big ball-shaped perfectly round head (a circle, no square jaw, no corners), soft round cheeks with rosy blush, orange skin, a clean-shaven chin with no beard, big round white eyes, a black curly moustache, a small round open mouth, a tall puffy white chef's hat, a dark red bow tie, a white chef's jacket, black and white checked trousers, holding a ladle",
              A('swinging a ladle')),
     'neighbor': ('neighbor', 64, "The Neighbor, a musician: a black beret with an orange button, dark red-brown hair, a white mask with black square glasses and blue eyes, freckles, a white sailor shirt with a black sailor collar and an octopus emblem, white trousers, black shoes, holding a conductor's baton",
                  A('conducting energetically with a baton')),
@@ -66,7 +66,7 @@ CHARS = {
     # the third pixel follower, and the pixel boss
     'cecil_px': ('cecil', 64, "Cecil, a small hooded wizard: a purple hooded robe with a stitched hood, a black shadowy face with glowing yellow eyes and a jagged grin, black clawed hands, holding a wooden staff topped with a gold crescent and a pink crystal",
                  dict(BASE, attack=('casting a spell, the staff crystal flashing', 8), hex=('raising the staff and summoning a purple magic circle', 8), hurt=('recoiling backward from a hit', 4))),
-    'apo_boss': ('apo', 128, "Apophiss, the serpent king, a huge boss: a green serpent rearing up with a pale yellow-green belly, clawed green arms, a black eyepatch, a black moustache, a black crown with a green gem and a red jewel on white fur trim, dark teal fins and spines, a long red forked tongue, a roaring fanged mouth",
+    'apo_boss': ('apo', 128, "Apophiss, the serpent king, a huge boss: a green serpent rearing up with a pale yellow-green belly, clawed green arms, a smooth reptile snout with no moustache and no hair, solid black eyes with small white pupils, no glasses, a small black crown with a green gem and a red jewel on white fur trim, dark teal fins and spines, a long red forked tongue, a roaring fanged mouth",
                  {'idle': ('swaying menacingly, coiled', 4), 'move': ('slithering forward', 8), 'bite': ('lunging down to bite', 8), 'breath': ('breathing a stream of black fire', 8),
                   'slam': ('slamming his tail down on the ground', 8), 'roar': ('rearing up and roaring', 6), 'hurt': ('recoiling from a hit', 4), 'death': ('collapsing and fading away', 8)}),
 }

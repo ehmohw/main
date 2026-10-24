@@ -125,7 +125,7 @@ def generate(G):
         x = (i - (len(BOSSES) - 1) / 2) * sp
         fn(f'p161/sh/b{i}', ['scoreboard players add #nb bm.rng 1',
                              f'execute at @e[type=minecraft:interaction,tag=bm.tsme] rotated as @e[type=minecraft:interaction,tag=bm.tsme] positioned ^{x:.3f} ^{hy} ^{dz} '
-                             f'run summon minecraft:item_display ~ ~ ~ {disp(f"bm:trophy3d_{d}", sc, ["bm.tsshow"])}'])
+                             f'run summon minecraft:item_display ~ ~ ~ {disp(f"bm:trophy3d_{d}", sc, ["bm.tsshow"], flip=False)}'])   # (2.94: the boss figures face you - the half-turn is for the cups)
         op += [f'scoreboard players operation #q bm.rng = @s bm.tsb', f'scoreboard players operation #q bm.rng /= #p{i} bm.rng',
                'scoreboard players operation #q bm.rng %= #2 bm.rng', f'execute if score #q bm.rng matches 1 run function bm:p161/sh/b{i}']
     sp, sc, hy, dz = STEP['room']

@@ -21,10 +21,11 @@ import royal_face as RF
 PREFIX = 'av_'
 RIG_SCALE = 0.92
 PIVOT = {'body': (0, 13.0, 0), 'legr': (1.5, 6.0, 0), 'legl': (-1.5, 6.0, 0), 'head': (0, 24.4, 0),
-         'armr': (4.2, 23.0, 0), 'forer': (4.7, 18.6, 0), 'arml': (-4.2, 23.0, 0), 'forel': (-4.7, 18.6, 0)}
-PARENT = {'body': None, 'legr': None, 'legl': None, 'head': 'body', 'armr': 'body', 'forer': 'armr', 'arml': 'body', 'forel': 'arml'}
+         'armr': (4.2, 23.0, 0), 'forer': (4.7, 18.6, 0), 'arml': (-4.2, 23.0, 0), 'forel': (-4.7, 18.6, 0), 'pool': (0, 0.0, 0), 'skirt': (0, 13.0, 0)}
+PARENT = {'body': None, 'legr': None, 'legl': None, 'head': 'body', 'armr': 'body', 'forer': 'armr', 'arml': 'body', 'forel': 'arml', 'pool': None, 'skirt': 'body'}
 PARTS = tuple(PIVOT)
 PART_K = {}
+SKIRT_CUT = 5.6                                   # (2.94: the gown's tiers below this are the 'skirt' part)
 FACES = ('happy', 'shout', 'hurt', 'blink')
 SKIN, SKIN_DK, SKIN_LT = '#f4c6a4', '#d89c7c', '#ffe0c8'
 HAIR, HAIR_DK, HAIR_LT = '#6a3e1e', '#45260f', '#93603a'
@@ -36,6 +37,14 @@ GHOST_A = 150                                       # (her see-through: alpha ou
 
 
 def HIDDEN(p, pose):
+    """(2.94) seated, her gown pools on the floor round her (the pool shows, her legs are tucked away under it); swimming, the
+    gown trails behind her and her legs - not tied to her body - are hidden in it"""
+    if p == 'pool':
+        return not pose.get('_pool')
+    if p in ('legr', 'legl'):
+        return bool(pose.get('_pool') or pose.get('_swim'))
+    if p == 'skirt':                                      # (seated: the gown's lower tiers fold into the pool - nothing goes through the floor)
+        return bool(pose.get('_pool'))
     return False
 
 
@@ -258,14 +267,16 @@ def models():
         y1, y0 = 13.4 - t0 * 13.1, 13.4 - t1 * 13.1 - 0.15
         f = lambda t: t ** 0.8
         tiers.append((max(0.3, y0), y1, 3.4 + 3.8 * f(t1), 2.7 + 2.9 * f(t1)))
+    skirt = []
     for i, (y0, y1, hw, hd) in enumerate(tiers):
         gap = 0.45 + 0.28 * i                                                               # the opening at the front, widening
-        body += [el((-hw, y0, -hd + 0.6), (hw, y1, hd), 'av_skirt', pv, shift=(0.2 * i, 0.3 * i)),
+        (body if y0 >= SKIRT_CUT else skirt).__iadd__([el((-hw, y0, -hd + 0.6), (hw, y1, hd), 'av_skirt', pv, shift=(0.2 * i, 0.3 * i)),
                  el((-hw, y0, -hd), (-gap, y1, -hd + 0.6), 'av_skirt', pv, shift=(0.1 * i, 0.5)),
                  el((gap, y0, -hd), (hw, y1, -hd + 0.6), 'av_skirt', pv, shift=(0.4 * i, 0.5)),
                  el((-gap, y0, -hd + 0.3), (gap, y1, -hd + 0.45), 'av_under', pv, faces=('north',),
-                    uv={'north': [8 - gap * 1.5, 16 - (y1 / 13.4) * 16, 8 + gap * 1.5, 16 - (y0 / 13.4) * 16]})]
-    body += [el((-7.15, 0.25, -5.65), (7.15, 0.55, 5.65), 'av_navy_dk', pv),                    # the hem's edge
+                    uv={'north': [8 - gap * 1.5, 16 - (y1 / 13.4) * 16, 8 + gap * 1.5, 16 - (y0 / 13.4) * 16]})])
+    skirt += [el((-7.15, 0.25, -5.65), (7.15, 0.55, 5.65), 'av_navy_dk', pv)]                   # the hem's edge
+    body += [
              el((-3.3, 13.2, -2.5), (3.3, 14.4, 2.5), 'av_navy_dk', pv),                          # the sash
              el((-3.4, 14.2, -2.4), (3.4, 21.6, 2.4), 'av_navy', pv, shift=(0.3, 0.2)),           # the bodice
              el((-3.4, 14.2, -2.42), (3.4, 21.6, -2.4), 'av_bodice', pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
@@ -278,6 +289,10 @@ def models():
         # (2.88: kept in from the arm - the cap's outer half rides on the arm itself now, so a raised arm doesn't cut through it)
         body.append(el((sx * 1.95 - 1.15, 21.6, -2.8), (sx * 1.95 + 1.15, 22.9, 2.8), 'av_ice', pv, rot=('z', -12 * sx, (sx * 1.95, 22.2, 0))))
     part('av_body', body)
+    part('av_skirt', skirt)                                                                 # (2.94: the gown's lower tiers - folded away seated)
+    # (2.94) the gown pooled on the floor when she sits: the skirt's cloth in three low tiers, wider than its hem
+    part('av_pool', [el((-10.0, 0.02, -8.6), (10.0, 0.7, 8.6), 'av_skirt', PIVOT['pool']), el((-9.0, 0.7, -7.6), (9.0, 1.3, 7.6), 'av_skirt', PIVOT['pool'], shift=(0.4, 0.3)),
+                     el((-7.9, 1.3, -6.5), (7.9, 1.9, 6.5), 'av_skirt', PIVOT['pool'], shift=(0.8, 0.6)), el((-10.05, 0.02, -8.65), (10.05, 0.3, 8.65), 'av_navy_dk', PIVOT['pool'])])
 
     # ---- the head: Emma's head (9 x 8 x 8, the face in Emma's own pixel scale); a chin-length bob - the bangs swept across her
     #      brow to her left, a longer lock at her left cheek, a short one at her right; the bun high on her left; the crown tipped
@@ -391,8 +406,8 @@ POSES = {
     'wave_a': P(_face='happy', **dict(IDLE, arml=limb(-1, 10, 120), forel=limb(-1, 50), head=qs(('y', 8)))),
     # sitting: on the ground, the gown spread round her (the body sinks; the skirt folds down into the floor with it)
     # (2.88: her legs only part-way out, so just the slipper toes peek from under the hem - not up through the skirt's front)
-    'sit_a': P(_off=(0, -5.6, 0), legr=limb(1, 68, 8), legl=limb(-1, 68, 8), head=qs(('y', -8), ('z', 4)), **CLASP),
-    'sit_b': P(_face='blink', _off=(0, -5.7, 0), body=qs(('x', 4)), legr=limb(1, 64, 10), legl=limb(-1, 72, 6), head=qs(('x', 10), ('z', -6)), **CLASP),
+    'sit_a': P(_pool=True, _off=(0, -3.5, 0), _o_pool=(0, 3.5, 0), head=qs(('y', -8), ('z', 4)), **CLASP),
+    'sit_b': P(_pool=True, _face='blink', _off=(0, -3.5, 0), _o_pool=(0, 3.5, 0), body=qs(('x', 4)), head=qs(('x', 10), ('z', -6)), **CLASP),
     'hurt': P(_face='hurt', body=qs(('x', -8)), head=qs(('x', -12)), armr=limb(1, 40, 30), forer=limb(1, 60), arml=limb(-1, 40, 30), forel=limb(-1, 60)),
     'tired': P(_face='hurt', _off=(0, -0.8, 0), body=qs(('x', 12), ('z', -4)), head=qs(('x', 16)), armr=limb(1, 0, 6), arml=limb(-1, 0, 6),
                forer=limb(1, 10), forel=limb(-1, 10)),
@@ -400,7 +415,7 @@ POSES = {
 SWIM_FRAMES = 8
 for _i in range(SWIM_FRAMES):                                            # (at home in the water: a slow, graceful stroke)
     _p = 2 * math.pi * _i / SWIM_FRAMES
-    POSES[f'swim_{_i}'] = P(_off=(0, -6.0 + 0.4 * math.sin(2 * _p), 0), body=qs(('x', 70)), head=qs(('x', -50)),
+    POSES[f'swim_{_i}'] = P(_swim=True, _off=(0, -6.0 + 0.4 * math.sin(2 * _p), 0), body=qs(('x', 70)), head=qs(('x', -50)),
                             armr=limb(1, 150 + 30 * math.sin(_p), 20 + 20 * math.cos(_p)), forer=limb(1, 20),
                             arml=limb(-1, 150 + 30 * math.sin(_p), 20 + 20 * math.cos(_p)), forel=limb(-1, 20),
                             legr=limb(1, 10 * math.sin(2 * _p)), legl=limb(-1, -10 * math.sin(2 * _p)))

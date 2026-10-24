@@ -35,7 +35,7 @@ GOLD = '#ffcf40'
 FOE = 'type=#bm:hostile,tag=!bm.npc'
 O = '@a[tag=bm.p188o]'                       # (the pair's player, tagged while its pair runs)
 VNAME = {'ashur': 'Ashur', 'leo': 'Leo', 'emma': 'Emma', 'fishy': 'Fishy', 'apo': 'Apophiss', 'chef': 'The Chef', 'dennis': 'Dennis',
-         'neighbor': 'The Neighbor', 'demo': 'Democratus', 'omega': 'Omega', 'celi': 'Celi'}
+         'neighbor': 'The Neighbor', 'demo': 'Democratus', 'omega': 'Omega', 'celi': 'Celi', 'ava': 'Queen Ava', 'capshun': 'Mr. Capshun'}
 REGEN = 'execute unless predicate bm:p100/regen run effect give @s minecraft:regeneration 5 0 true'
 SNACK = 'effect give @s minecraft:saturation 1 0 true'
 
@@ -111,6 +111,29 @@ PAIRS = {
                 [('omega', 'Musician. The dead have not heard a song in a thousand years.'), ('neighbor', 'Then let\'s give them a good one, Your Majesty.')],
                 [('neighbor', 'Any requests, King Omega?', 'omega', 'Something slow. Something... final.'),
                  ('omega', 'Your music stirs old memories.', 'neighbor', 'Good ones, I hope!')]),
+    # (2.94) the owner's new pairs: the royal family and its reaper; Mr. Capshun and his favourite characters
+    'reaper_rose': ('demo', 'emma', 'The Reaper and the Rose', '#c890ff', 'Democratus and Emma - the darkness keeps watch over the princess',
+                    [f'execute as {O} run {REGEN}', f'execute at {O} as @e[{FOE},distance=..8] run effect give @s minecraft:slowness 2 0', REGEN, '{B} run ' + REGEN],
+                    [('Emma', 'Democratus! You came back! I knew you would.'), ('demo', 'Princess. Someone has to keep the dark away from you.')],
+                    [('Emma', 'Do you ever take off the hood?', 'demo', 'Not where the monsters can see.'),
+                     ('demo', 'Stay behind my scythe, little one.', 'Emma', 'Only if you stay behind my smile!')]),
+    'crown_scythe': ('demo', 'ava', 'Crown and Scythe', '#8ad0d8', 'Democratus and Queen Ava - the family\'s old quarrel set aside',
+                     ['effect give @s minecraft:resistance 3 0 true', f'effect give {O} minecraft:resistance 3 0 true', f'effect give {O} minecraft:strength 3 0 true',
+                      '{B} run effect give @s minecraft:resistance 3 0 true'],
+                     [('ava', 'Democratus. It has been a long time.'), ('demo', 'Too long, Your Majesty. What the family did with the gem - I have not forgiven it. But I am here.')],
+                     [('ava', 'You could come home, you know.', 'demo', 'Home is wherever the monsters are, my queen.'),
+                      ('demo', 'You still wear the crown well.', 'ava', 'And you still brood beautifully.')]),
+    'storybook': ('capshun', 'emma', 'Once Upon a Time', '#ffe4a0', 'Mr. Capshun and Emma - a narrator and his favourite heroine',
+                  [f'effect give {O} minecraft:luck 3 0 true', f'execute as {O} run {REGEN}', REGEN, '{B} run ' + REGEN],
+                  [('capshun', '[Mr. Capshun narrates: "And then the princess arrived. Finally - a protagonist."]'), ('Emma', 'Ooh, are you telling my story? Make it a good one!')],
+                  [('Emma', 'What happens next, Mr. Capshun?', 'capshun', '"I\'d tell you, but that would be spoilers."'),
+                   ('capshun', '[Mr. Capshun narrates: "She was brave. She was kind. She had excellent taste in narrators."]', 'Emma', 'Hee hee! I do!')]),
+    'monologue': ('capshun', 'apo', "The Villain's Monologue", '#9ad06a', 'Mr. Capshun and Apophiss - every villain needs a narrator',
+                  [f'effect give {O} minecraft:strength 3 0 true', f'execute at {O} as @e[{FOE},distance=..8] run effect give @s minecraft:weakness 2 0',
+                   '{B} run effect give @s minecraft:resistance 3 0 true'],
+                  [('apo', 'You. Scribbler. Write me something TERRIFYING.'), ('capshun', '[Mr. Capshun narrates: "The serpent king rose, and the monsters wept."]')],
+                  [('capshun', '"Any last words for the audience, Your Serpentness?"', 'apo', 'Yes. KNEEL.'),
+                   ('apo', 'Do I get a theme song?', 'capshun', '"Dun dun DUNNN. ...That\'s all the budget allowed."')]),
 }
 
 TRIOS = {   # key: (name, colour, members, advancement title, description)
@@ -119,8 +142,12 @@ TRIOS = {   # key: (name, colour, members, advancement title, description)
     'dinner': ('The Dinner Party', '#ffd890', ('chef', 'fishy', 'neighbor'), 'The Dinner Party', 'Walk with the Chef, Fishy and the Neighbor at once'),
     'opera': ('The Midnight Opera', '#8a8aff', ('neighbor', 'omega', 'apo'), 'The Midnight Opera', 'Walk with the Neighbor, Omega and Apophiss at once'),
     'feast': ('The Royal Feast', '#ffc0e0', ('emma', 'neighbor', 'chef'), 'The Royal Feast', 'Walk with Emma, the Neighbor and the Chef at once'),
+    'family': ('The Family Reunited', '#b8a8ff', ('emma', 'ava', 'demo'), 'The Family Reunited', 'Walk with Emma, Queen Ava and Democratus at once'),
+    'everafter': ('Happily Ever After', '#ffe0a8', ('capshun', 'emma', 'leo'), 'Happily Ever After', 'Walk with Mr. Capshun, Emma and Leo at once'),
 }
-ICON = {'hearth': 'bm:ashur_cinder', 'ffs': 'bm:ashur_cinder', 'dinner': 'bm:chef_ladle', 'opera': 'bm:neighbor_baton', 'feast': 'bm:neighbor_baton'}
+ICON = {'family': 'bm:demo_seal', 'everafter': 'bm:capshun_pencil', 'reaper_rose': 'bm:demo_seal', 'crown_scythe': 'bm:demo_seal',
+        'storybook': 'bm:capshun_pencil', 'monologue': 'bm:capshun_pencil',
+        'hearth': 'bm:ashur_cinder', 'ffs': 'bm:ashur_cinder', 'dinner': 'bm:chef_ladle', 'opera': 'bm:neighbor_baton', 'feast': 'bm:neighbor_baton'}
 P100.TRIOS.update(TRIOS)
 P100.BANTER.update({
     'hearth': [('Emma', 'Ashur keeps us warm, Leo keeps us safe!', 'Ashur', 'And you keep us... pink. Somehow.'),
@@ -135,6 +162,12 @@ P100.BANTER.update({
     'opera': [('Omega', 'Sing, minstrel. Let the dead hear you.', 'The Neighbor', 'Act one, scene one - the monsters all lose!'),
               ('Apophiss', 'An opera of serpents and ghosts. How fitting.', 'Omega', 'A king and a serpent king. The stage is ours.'),
               ('The Neighbor', 'Encore?', 'Apophiss', '...Fine. ONE encore.')],
+    'family': [('Emma', 'Mother! Democratus! All of us together!', 'Queen Ava', 'Together, my darling. As it should have been.'),
+               ('Democratus', 'I never thought I would walk beside you two again.', 'Emma', 'Well, get used to it!'),
+               ('Queen Ava', 'Brother... thank you for watching over her.', 'Democratus', 'Always.')],
+    'everafter': [('Mr. Capshun', '[Mr. Capshun narrates: "The princess, the knight and the narrator set out. Mostly the narrator."]', 'Leo', 'I believe I did most of the fighting.'),
+                  ('Emma', 'Mr. Capshun, will this story have a happy ending?', 'Mr. Capshun', '"With you two in it? Guaranteed."'),
+                  ('Leo', 'Must you narrate everything I do?', 'Mr. Capshun', '[Mr. Capshun narrates: "He said, gruffly."]')],
     'feast': [('Emma', 'A royal feast! With music!', 'The Chef', 'For the Princess - only the finest!'),
               ('The Neighbor', 'A little dinner music, Your Highness?', 'Emma', 'Yes please! Something you can dance to!'),
               ('The Chef', 'Eat, eat! You are all too skinny!', 'The Neighbor', 'I\'m a musician, Chef. We live on applause.')],
@@ -210,6 +243,10 @@ def generate(G):
        each(TRIOS['opera'][2], 'effect give @s minecraft:resistance 3 0 true') + ['function bm:p100/banter_tick'])
     fn('p100/feast', [REGEN, hb, 'effect give @s minecraft:haste 3 0 true'] + tick20 + [f'execute if score @s bm.p188 matches 0 run {SNACK}'] +
        each(TRIOS['feast'][2], REGEN) + ['function bm:p100/banter_tick'])
+    fn('p100/family', [REGEN, hb, 'effect give @s minecraft:resistance 3 0 true'] + each(TRIOS['family'][2], 'effect give @s minecraft:strength 3 0 true') +
+       each(TRIOS['family'][2], REGEN) + ['function bm:p100/banter_tick'])
+    fn('p100/everafter', [REGEN, 'effect give @s minecraft:resistance 3 0 true', 'effect give @s minecraft:speed 3 0 true', 'effect give @s minecraft:luck 3 0 true'] +
+       each(TRIOS['everafter'][2], 'effect give @s minecraft:resistance 3 0 true') + ['function bm:p100/banter_tick'])
     for k, (nm, col, mem, at, desc) in TRIOS.items():
         wjson(f'bm/advancement/story/trio_{k}.json', {'parent': 'bm:story/root', 'criteria': {'done': {'trigger': 'minecraft:impossible'}},
                                                      'display': {'icon': {'id': 'minecraft:totem_of_undying', 'components': {'minecraft:item_model': ICON[k]}},

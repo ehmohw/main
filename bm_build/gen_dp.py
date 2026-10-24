@@ -179,6 +179,9 @@ import phase209 as R209      # 2.93d: Pearlman's seasons - his look by the land'
 import phase210 as R210      # 2.94: effect sprites - PixelLab's effects, played as flipbooks on billboarded displays
 import phase211 as R211      # 2.94: the Sky Buddies, the first trio follower (the Sky Mobile) - sunbeams, star shots, zaps, lullabies
 import phase212 as R212      # 2.94: Dennis's searing throws - diamonds and ingots, glowing hot (sear_art.py)
+import phase213 as R213      # 2.94: the 8-bit trio - pixel Emma, Leo and Cecil, hidden followers (their cartridges)
+import phase214 as R214      # 2.94: the Glitched Cartridge (any heist) - the 8-bit trio, and every follower's pixel costume
+import phase215 as R215      # 2.94: the 8-Bit Serpent King - the pixel trio on Apophiss's seal; the 8-Bit Crown
 import phase202 as R202      # 2.92: the kingdom's armoury - Leo's Aegis, Emma's Crescent, Tidewarden and Pearlguard, Tide Scales (kingdom_art.py)
 import phase188 as R188      # 2.86: the bonds - eleven new pairs and five new trios (Ashur, the Chef, the Neighbor and friends)
 import phase171 as R171      # 2.82b: the Town Directory - who's where in the rat town, and a trail of light there
@@ -211,7 +214,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.93e'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.94a'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1317,6 +1320,7 @@ def build(out_dir):
     if PHASE2: R197.generate_early(sys.modules[__name__])
     if PHASE2: R198.generate_early(sys.modules[__name__])
     if PHASE2: R211.generate_early(sys.modules[__name__])
+    if PHASE2: R213.generate_early(sys.modules[__name__])
     if PHASE2: R199.generate_early(sys.modules[__name__])
     if PHASE2: R200.generate_early(sys.modules[__name__])
     if PHASE2: R133.generate(sys.modules[__name__])
@@ -1369,6 +1373,9 @@ def build(out_dir):
     if PHASE2: R210.generate(sys.modules[__name__])
     if PHASE2: R211.generate(sys.modules[__name__])
     if PHASE2: R212.generate(sys.modules[__name__])
+    if PHASE2: R213.generate(sys.modules[__name__])
+    if PHASE2: R214.generate(sys.modules[__name__])
+    if PHASE2: R215.generate(sys.modules[__name__])
     if PHASE2: R199.generate(sys.modules[__name__])
     if PHASE2: R200.generate(sys.modules[__name__])
     if PHASE2: R201.generate(sys.modules[__name__])

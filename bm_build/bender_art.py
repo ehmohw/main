@@ -181,10 +181,10 @@ def models():
                 el((x - 1.2, 0.0, z - 1.6), (x + 1.2, 0.9, z + 1.1), 'bd_paw', pv)]
     for n in ('legfr', 'legfl', 'legbr', 'legbl'):
         part(f'bd_{n}', leg(n))
-    # ---- the tail: a bushy fawn plume, curving down and out, a darker tip
+    # ---- the tail: a bushy fawn plume, curving up over his back (2.94: up, as a happy dog's is - it used to hang), a darker tip
     pv = PIVOT['tail']; tx, ty, tz = pv
-    t = chain([(tx, ty, tz), (0, ty - 1.6, tz + 3.0), (0, ty - 4.2, tz + 5.0), (0, ty - 7.0, tz + 5.8)], (2.2, 1.6), 2.0, 'bd_fur', pv, FRONT, ext=0.3)
-    t += [el((-0.8, ty - 8.4, tz + 5.0), (0.8, ty - 6.8, tz + 6.6), 'bd_tip', pv)]
+    t = chain([(tx, ty, tz), (0, ty + 1.6, tz + 2.6), (0, ty + 4.2, tz + 3.4), (0, ty + 6.2, tz + 2.4)], (2.2, 1.6), 2.0, 'bd_fur', pv, FRONT, ext=0.3)
+    t += [el((-0.8, ty + 6.0, tz + 1.0), (0.8, ty + 7.6, tz + 2.6), 'bd_tip', pv)]
     part('bd_tail', t)
     return M
 
@@ -199,7 +199,7 @@ def P(**kw):
 
 
 def wag(a):
-    return dict(tail=qs(('y', a), ('x', -20)))
+    return dict(tail=qs(('y', a), ('x', -6)))
 
 
 IDLE = dict(**wag(10), head=qs(('x', 4)))
@@ -210,18 +210,18 @@ POSES = {
                       legfl=L(-22 * math.sin(math.pi * k / 2)), legbr=L(-22 * math.sin(math.pi * k / 2)), head=qs(('x', 2)), **wag(16 * math.sin(math.pi * k / 2)))
        for k in range(4)},
     **{f'run_{k}': P(_off=(0, (0.4, 1.2, 0.4, 0.0)[k], 0), body=qs(('x', (4, -4, 4, 0)[k])), legfr=L((40, 10, -30, 10)[k]), legfl=L((30, 0, -40, 0)[k]),
-                     legbr=L((-30, -10, 40, 10)[k]), legbl=L((-40, 0, 30, 0)[k]), head=qs(('x', -4)), tail=qs(('x', -50)))
+                     legbr=L((-30, -10, 40, 10)[k]), legbl=L((-40, 0, 30, 0)[k]), head=qs(('x', -4)), tail=qs(('x', -17)))
        for k in range(4)},
-    'jump': P(_off=(0, 2.0, 0), body=qs(('x', -12)), legfr=L(50), legfl=L(50), legbr=L(-40), legbl=L(-40), tail=qs(('x', -60))),
+    'jump': P(_off=(0, 2.0, 0), body=qs(('x', -12)), legfr=L(50), legfl=L(50), legbr=L(-40), legbl=L(-40), tail=qs(('x', -20))),
     # the bite: crouched back - then a lunge, jaws first
-    'bite_up': P(_face='alert', _off=(0, -0.6, 0.6), body=qs(('x', 6)), head=qs(('x', 6)), legfr=L(-20), legfl=L(-20), legbr=L(20), legbl=L(20), tail=qs(('x', -40))),
-    'bite': P(_face='alert', _off=(0, 0.4, -2.0), body=qs(('x', -6)), head=qs(('x', -12)), legfr=L(40), legfl=L(40), legbr=L(-30), legbl=L(-30), tail=qs(('x', -50))),
+    'bite_up': P(_face='alert', _off=(0, -0.6, 0.6), body=qs(('x', 6)), head=qs(('x', 6)), legfr=L(-20), legfl=L(-20), legbr=L(20), legbl=L(20), tail=qs(('x', -13))),
+    'bite': P(_face='alert', _off=(0, 0.4, -2.0), body=qs(('x', -6)), head=qs(('x', -12)), legfr=L(40), legfl=L(40), legbr=L(-30), legbl=L(-30), tail=qs(('x', -17))),
     # digging: nose down, front paws scrabbling, tail going like mad
     'dig_a': P(_face='happy', _off=(0, -0.8, 0), body=qs(('x', 18)), head=qs(('x', 18)), legfr=L(40), legfl=L(-10), **wag(30)),
     'dig_b': P(_face='happy', _off=(0, -0.8, 0), body=qs(('x', 18)), head=qs(('x', 22)), legfr=L(-10), legfl=L(40), **wag(-30)),
     # sniffing: nose to the ground, tail up, ears forward
-    'sniff': P(_face='alert', body=qs(('x', 12)), head=qs(('x', 34), ('y', 10)), tail=qs(('x', -70))),
-    'sniff_b': P(_face='alert', body=qs(('x', 12)), head=qs(('x', 34), ('y', -10)), tail=qs(('x', -70), ('y', 10))),
+    'sniff': P(_face='alert', body=qs(('x', 12)), head=qs(('x', 34), ('y', 10)), tail=qs(('x', -23))),
+    'sniff_b': P(_face='alert', body=qs(('x', 12)), head=qs(('x', 34), ('y', -10)), tail=qs(('x', -23), ('y', 10))),
     # happy: the goodest boy, tongue out, tail a blur
     'happy': P(_face='happy', head=qs(('x', -8), ('z', 6)), **wag(40)),
     'wave_a': P(_face='happy', legfr=L(70), head=qs(('z', 10)), **wag(30)),
@@ -237,18 +237,18 @@ POSES = {
 # (the whole dog turned over backwards about his middle, legs tucked); the landing (a crouch to take it)
 GRIP = dict(legfr=L(52), legfl=L(52), legbr=L(-24), legbl=L(-24))
 POSES.update({
-    'maul_a': P(_face='alert', _off=(0, 0.4, 1.6), body=qs(('x', 26)), head=qs(('x', 38)), tail=qs(('x', -72), ('y', 14)), **GRIP),
-    'maul_b': P(_face='alert', _off=(0, 0.0, 1.6), body=qs(('x', 20)), head=qs(('x', 48), ('z', 14)), tail=qs(('x', -72), ('y', -14)), **GRIP),
+    'maul_a': P(_face='alert', _off=(0, 0.4, 1.6), body=qs(('x', 26)), head=qs(('x', 38)), tail=qs(('x', -24), ('y', 14)), **GRIP),
+    'maul_b': P(_face='alert', _off=(0, 0.0, 1.6), body=qs(('x', 20)), head=qs(('x', 48), ('z', 14)), tail=qs(('x', -24), ('y', -14)), **GRIP),
     **{f'flip_{k}': P(_off=(0, 3.0, 0), body=qs(('x', -(62 + 68 * k))), head=qs(('x', -16)), legfr=L(74), legfl=L(74), legbr=L(-74), legbl=L(-74),
                       tail=qs(('x', 30))) for k in range(5)},
-    'land': P(_face='alert', _off=(0, -1.4, 0.4), body=qs(('x', 8)), head=qs(('x', 2)), legfr=L(-26), legfl=L(-26), legbr=L(30), legbl=L(30), tail=qs(('x', -40))),
+    'land': P(_face='alert', _off=(0, -1.4, 0.4), body=qs(('x', 8)), head=qs(('x', 2)), legfr=L(-26), legfl=L(-26), legbr=L(30), legbl=L(30), tail=qs(('x', -13))),
 })
 SWIM_FRAMES = 8
 for _i in range(SWIM_FRAMES):                              # (the doggy paddle)
     _p = 2 * math.pi * _i / SWIM_FRAMES
     POSES[f'swim_{_i}'] = P(_off=(0, -6.0 + 0.4 * math.sin(2 * _p), 0), body=qs(('x', -14)), head=qs(('x', -10)),
                             legfr=L(40 + 30 * math.sin(_p)), legfl=L(40 - 30 * math.sin(_p)), legbr=L(-20 + 20 * math.sin(_p)), legbl=L(-20 - 20 * math.sin(_p)),
-                            tail=qs(('x', -10), ('y', 20 * math.sin(_p))))
+                            tail=qs(('x', -3), ('y', 20 * math.sin(_p))))
 DRAFT = ['idle_a', 'idle_b', 'walk_1', 'run_1', 'jump', 'bite_up', 'bite', 'dig_a', 'sniff', 'happy', 'sit_a', 'lie', 'swim_2']
 
 

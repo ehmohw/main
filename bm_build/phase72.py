@@ -36,6 +36,7 @@ from phase70_rooms import rel
 from phase36 import COLOURS
 
 PET_CD = 300
+ESK_CD = 60                                       # (2.94: the Skiff Escort is back in a minute)
 TEAL = '#3ad8c8'
 GOLD = '#ffcf40'
 ZB_HP = 40
@@ -514,8 +515,8 @@ def generate(G):
                          'particle minecraft:explosion ~ ~ ~ 0 0 0 0 1', 'particle minecraft:smoke ~ ~ ~ 0.2 0.2 0.2 0.05 12',
                          'playsound minecraft:entity.generic.explode neutral @a[distance=..24] ~ ~ ~ 0.5 1.6',
                          'execute as @a if score @s bm.pid = #me bm.pid run function bm:p72/esk/downed', 'kill @s'])
-    fn('p72/esk/downed', [f'scoreboard players set @s bm.eskcd {PET_CD}',
-                          tellraw('@s', PREFIX + [T('Your Skiff Escort is shot down! ', '#ff7a5a', bold=True), T(f'It needs {PET_CD // 60} minutes of repairs.', 'gray')])])
+    fn('p72/esk/downed', [f'scoreboard players set @s bm.eskcd {ESK_CD}',                 # (2.94: a minute, not five)
+                          tellraw('@s', PREFIX + [T('Your Skiff Escort is shot down! ', '#ff7a5a', bold=True), T('It needs a minute of repairs.', 'gray')])])
     second.append('scoreboard players remove @a[scores={bm.eskcd=1..}] bm.eskcd 1')
     G.FUNCS['p62/died'].insert(-1, 'execute at @s run function bm:p72/esk/vanish')
     # the reactor's reward: a colour you haven't got (while there are any)

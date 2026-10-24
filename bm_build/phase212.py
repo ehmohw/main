@@ -41,7 +41,7 @@ def projectile(G, key, model, dmg, host_sel, on_hit=(), trail=(), scale=0.7, fxn
            'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0), F(0), F(0)],
                               'scale': [F(scale)] * 3}}
     fn(f'p212/{key}/fly', ['scoreboard players add @s bm.pjt 1', f'execute if score @s bm.pjt matches {LIFE}.. run return run function bm:p212/fizzle',
-                           f'execute if entity @e[type=#bm:hostile,tag=!bm.npc,distance=..1.3] run return run function bm:p212/{key}/hit',
+                           f'execute positioned ~ ~-0.9 ~ if entity @e[type=#bm:hostile,tag=!bm.npc,distance=..1.4] run return run function bm:p212/{key}/hit',   # (2.94: aimed at the eyes - the hit, round its middle)
                            f'execute facing entity @e[type=#bm:hostile,tag=!bm.npc,distance=..20,sort=nearest,limit=1] eyes run tp @s ^ ^ ^{SPEED}',
                            f'execute unless entity @e[type=#bm:hostile,tag=!bm.npc,distance=..20] run tp @s ^ ^-0.08 ^{SPEED}',
                            'execute unless block ~ ~ ~ #bm:grap_pass run return run function bm:p212/fizzle'] + list(trail) +

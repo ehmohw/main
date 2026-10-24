@@ -30,7 +30,7 @@ SRC = os.path.join(HERE, 'ref', 'sky_buddies.png')
 PPB = 440.0                                     # (art pixels to a block)
 DU = 16.0 / RIG_SCALE / PPB                     # (design units per art pixel)
 WIN = 512                                       # (a part's window on the painting: 512 square - its texture 512 - or, for the small ones, 128 at twice the size)
-WINS = {'star': 128, 'cap': 128, 'body': 640}
+WINS = {'star': 128, 'cap': 128, 'body': 640, 'back': 704}       # (2.94: the cloud behind is wide - its left end was cut off at 512)
 CS = {'star': 8, 'cap': 8}                      # (canvas pixels per painting pixel - 4, the small ones 8)
 TEXS = {'body': 512, 'head': 512, 'rays': 512, 'moon': 512, 'back': 512, 'star': 256, 'cap': 256}
 SUN_C = (271.0, 270.0)                          # (the middle of Sunny's disc in the painting: the joint)
@@ -38,7 +38,7 @@ DISC_R = 168.0
 FACED = ('head', 'moon', 'star', 'body')
 # a part: its anchor in the painting (the middle of its window), where that anchor sits round the joint (on screen, in painting
 # pixels: +x your right, +y down), and its depth (+ toward you)
-LAYOUT = {'back': ((700, 660), None, -3.0), 'rays': (SUN_C, (0.0, 0.0), -2.0), 'head': (SUN_C, (0.0, 0.0), -1.0),
+LAYOUT = {'back': ((536, 685), None, -3.0), 'rays': (SUN_C, (0.0, 0.0), -2.0), 'head': (SUN_C, (0.0, 0.0), -1.0),
           'moon': ((857, 400), (+420.0, +10.0), 0.0), 'cap': ((965, 222), None, 0.6), 'star': ((809, 381), None, 1.2),
           'body': ((460, 690), (+190.0, +300.0), 2.0)}
 FOLLOW = {'back': 'body', 'cap': 'moon', 'star': 'moon'}          # (placed as the painting has them, round their partner)
@@ -608,13 +608,14 @@ def _back_tex():
     W0, (x0, y0) = _window('back')
     m = W0[..., 3] > 20
     ys, xs = np.nonzero(m)
-    hull = Image.new('L', (WIN, WIN), 0)
+    N = WINS.get('back', WIN)
+    hull = Image.new('L', (N, N), 0)
     ImageDraw.Draw(hull).polygon(_hull(list(zip(xs.tolist(), ys.tolist()))), fill=255)
     hull = np.asarray(hull) > 127
     fa = _masks()['body']
     fm = np.zeros(m.shape, bool)
     H, W = fa.shape
-    sx0, sy0, sx1, sy1 = max(0, x0), max(0, y0), min(W, x0 + WIN), min(H, y0 + WIN)
+    sx0, sy0, sx1, sy1 = max(0, x0), max(0, y0), min(W, x0 + N), min(H, y0 + N)
     fm[sy0 - y0:sy1 - y0, sx0 - x0:sx1 - x0] = fa[sy0:sy1, sx0:sx1]
     sil = _holes(m | (hull & _erode(fm, 3)))
     W1 = W0.copy()

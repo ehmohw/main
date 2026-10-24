@@ -239,10 +239,10 @@ def generate(G):
         'tag @e[type=minecraft:item_display,tag=bm.stknp,distance=..2] add bm.stksel', 'execute rotated as @s rotated ~ 0 run function bm:p181/stk/place',
         'function bm:p181/stk/pose/stand_a', 'tag @e[tag=bm.stksel] remove bm.stksel', 'tag @e[tag=bm.stknp] remove bm.stknp'])
     fn('p181/stk/place', RF.place(SA, SD / 16, psel))
-    GAIT = {'stand_a': 30, 'stand_b': 30, 'scream': 6, 'rend': 3, 'rend_up': 4, **{f'crawl_{k}': 5 for k in range(4)}, **{f'sprint_{k}': 3 for k in range(4)}}
+    GAIT = {'stand_a': 30, 'stand_b': 30, 'scream': 6, 'rend': 3, 'rend_up': 4, **{f'crawl_{k}': 3 for k in range(SA.GAIT_FRAMES)}, **{f'sprint_{k}': 2 for k in range(SA.GAIT_FRAMES)}}   # (2.94: eight frames a stride)
     for nm, dur in GAIT.items():
         fn(f'p181/stk/pose/{nm}', RF.pose(SA, SA.POSES[nm], SD, dur, psel, swap=('head',)))
-    G.FUNCS['load'][-1:-1] = ['scoreboard players set #k12 bm.stkf 12', 'scoreboard players set #k20 bm.stkf 20', 'scoreboard players set #k80 bm.stkf 80']
+    G.FUNCS['load'][-1:-1] = ['scoreboard players set #k12 bm.stkf 16', 'scoreboard players set #k20 bm.stkf 24', 'scoreboard players set #k80 bm.stkf 80']
     # every tick: its parts to it; how it moves (looked at every 4 ticks: still - drawn up tall; on the move - on all fours;
     # running you down - flat out) picks the cycle; and a charge through the walls, when it's winding up for one
     fn('p181/stk/tick', ['scoreboard players operation #sid bm.rng = @s bm.stkid',
@@ -254,10 +254,10 @@ def generate(G):
                          'execute if score #f bm.rng matches 0 unless score @s bm.stka matches 3.. run function bm:p181/stk/gait',
                          'execute if score @s bm.stka matches 2 run scoreboard players operation #f bm.rng = @s bm.stkf',
                          'execute if score @s bm.stka matches 2 run scoreboard players operation #f bm.rng %= #k12 bm.stkf',
-                         *[f'execute if score @s bm.stka matches 2 if score #f bm.rng matches {3 * k} run function bm:p181/stk/pose/sprint_{k}' for k in range(4)],
+                         *[f'execute if score @s bm.stka matches 2 if score #f bm.rng matches {2 * k} run function bm:p181/stk/pose/sprint_{k}' for k in range(SA.GAIT_FRAMES)],
                          'execute if score @s bm.stka matches 1 run scoreboard players operation #f bm.rng = @s bm.stkf',
                          'execute if score @s bm.stka matches 1 run scoreboard players operation #f bm.rng %= #k20 bm.stkf',
-                         *[f'execute if score @s bm.stka matches 1 if score #f bm.rng matches {5 * k} run function bm:p181/stk/pose/crawl_{k}' for k in range(4)],
+                         *[f'execute if score @s bm.stka matches 1 if score #f bm.rng matches {3 * k} run function bm:p181/stk/pose/crawl_{k}' for k in range(SA.GAIT_FRAMES)],
                          'execute if score @s bm.stka matches 0 run scoreboard players operation #f bm.rng = @s bm.stkf',
                          'execute if score @s bm.stka matches 0 run scoreboard players operation #f bm.rng %= #k80 bm.stkf',
                          'execute if score @s bm.stka matches 0 if score #f bm.rng matches 0 run function bm:p181/stk/pose/stand_a',

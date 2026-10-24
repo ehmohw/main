@@ -118,10 +118,10 @@ def generate(G):
         obj['pools'] += mig263.convert(rel, to_json(mig263.custom_data_snbt({'type': obj.get('type', 'minecraft:entity'), 'pools': pools})))['pools']
         json.dump(obj, open(path, 'w'), indent=1, ensure_ascii=False)
 
-    # ------------------------------------------------------------------ hostile UFOs: 1 in 200 for a skiff part
+    # ------------------------------------------------------------------ hostile UFOs: (2.94) 5% for a skiff part (it was 1 in 200)
     from phase35 import PARTS
     for t in ('saucer', 'abductor', 'overseer'):
-        add_pools(f'bm/loot_table/p32/{t}.json', [{'rolls': 1, 'entries': [G.loot_entry(p) for p, _, _ in PARTS], 'conditions': [G.chance(0.005)]}])
+        add_pools(f'bm/loot_table/p32/{t}.json', [{'rolls': 1, 'entries': [G.loot_entry(p) for p, _, _ in PARTS], 'conditions': [G.chance(0.05)]}])
 
     # ------------------------------------------------------------------ bigger trader rats (markets already in worlds catch up)
     # each sprite is looked at once (reading an entity's data every second is not free)
