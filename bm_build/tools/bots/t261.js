@@ -41,7 +41,7 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
   A.chats.length = 0; await A.press(/Pixel costume/); await sleep(1200);
   ok('...pressed while locked: it says how to unlock it (a Glitched Cartridge)', A.chats.some(c => /locked.*Glitched Cartridge/.test(c)) && !/bm\.pxo_celi/.test(await tags()), A.chats.slice(-1).join('').slice(0, 160));
   A.closeDialog && A.closeDialog();
-  A.chats.length = 0; await use(6); await sleep(1500);
+  await sleep(2200); A.chats.length = 0; await use(6); await sleep(1500);         // (past the 2-second use guard)
   ok('the cartridge used beside her: her pixel costume (unlocked, on), the cartridge spent', /bm\.pxu_celi/.test(await tags()) && /bm\.pxo_celi/.test(await tags()) &&
      (await has('glitch_cart')) === 0 && A.chats.some(c => /sixteen colours/.test(c)), A.chats.slice(-1).join('').slice(0, 160));
   const COS = '@e[type=minecraft:item_display,tag=bm.pxcos_celi]';
