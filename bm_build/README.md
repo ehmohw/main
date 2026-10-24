@@ -21,6 +21,37 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94k: a clean-up of the last two days
+
+- **Z-fighting, pack-wide.** A new build pass (zfix.py) finds faces of a model that share a plane and show different
+  pixels, and brings the smaller one forward a hair. Models with visible z-fighting went from 2,899 to 118.
+- **The Chomping Sawshark had the Soul Serpent's name.** Both used the `ss_` prefix, so one boss's body and textures
+  overwrote the other's. The Sawshark is `sk_` now.
+- **Clipping:** the Snowbeast's arms no longer swing into its head (the slam, the roar); the Arachno-Lantern rears up and
+  out, not through its own pumpkin.
+- **Followers sit down, lie down and get up in steps.** Every part used to swing straight to the new pose, so a head
+  could leave its shoulders on the way. Three blended in-between keys now carry them there (every rigged follower).
+- **The Stalker's crawl and sprint are rebuilt.** Each claw and foot is solved onto the ground: planted through its
+  stance, lifted forward in an arc. No more floating or sinking.
+- **Bender (and every wolf follower) leaves Wilfrey alone.** His body is a wither skeleton, and wolves hunt skeletons.
+  Champions, the 8-bit trio and every rigged follower's abilities skip him and Omega's Risen too.
+- **The Nimbus bed** no longer moves your spawn when you click it by day (or with monsters near); its spawn is only ever
+  its owner's; a broken one drops nothing.
+- **Exploits closed:** the Void Storm's rifts (a shard every pass), the ? Block (picked up and set down: Tokens forever),
+  the Tide Raiders' scales (dropped even when a breach's end cleared them), the forge and observatory bosses (a win when
+  merely led away), the Eruption and Void Storm survivor rewards (only for those through half of it), the 8-Bit Serpent
+  King (back at once; now five minutes), the Crescent bought back from your off hand.
+- **The Dread altars** rest one at a time (not every ruin of that kind in the world), hint only for your own trio, and
+  the boss bar starts each fight in its own colour.
+- **The Arcade's props** only go down in the Overworld, the Nether and the End; only their owner picks them up; a Warp
+  Pipe picked up and set down pairs again properly.
+- **Fixed:** the Tidal Charge and Ethereal Step stopping after a block when you looked down; the Crescent's own wave
+  setting off another; the Void Mantle setting you a block off at negative coordinates; the Dread Carapace forge
+  sometimes not taking the plate or wings; mending a whole dome or paying while it wasn't loaded; Wilfrey's pixel costume
+  (his body showed through); a Champion's regalia floating over a pixel costume; a big last blow on the 8-Bit Serpent
+  King paying nothing; another player taking your glitched 8-bit encounter; the Partner Wheel's recall setting a partner
+  over a drop or past a wall; Bones stuck behind a reef; a pixel costume's sit playing only its last frame.
+
 ## New in 2.94j: fixes, a recall, and tougher Dread bosses
 
 - **The Partner Wheel calls everyone back.** Sneak + use the wheel and every partner of yours out in this world comes to

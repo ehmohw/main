@@ -36,7 +36,7 @@ import phase134 as P134
 import phase210 as FXS
 import phase212 as P212
 
-FOE = 'type=#bm:hostile,tag=!bm.npc'
+FOE = 'type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body'
 HERE = os.path.dirname(os.path.abspath(__file__))
 # the palettes (phase99 looks): dark - mid - light, by brightness
 LOOKS = {1: ('Game Boy', ('#0f380f', '#306230', '#9bbc0f')), 2: ('Virtual Boy', ('#1a0000', '#a01010', '#ff6060')),
@@ -81,6 +81,7 @@ def cycle(S):
 
 
 class Base(RP.Cfg):
+    TWEEN = False                  # (2.94k: sprites - frames, not joints: nothing to blend between)
     PET_HP, PET_CD = 50, 120
     ATTRS = dict(armor=6, attack_damage=4, movement_speed=0.34, follow_range=32, step_height=1.1)
     SCALE = 0.9
@@ -416,12 +417,17 @@ def _build(G, C):
     def encounter(G, X):
         # the Glitched Cartridge (phase214) calls enc/glitch - as you, at your own Emma / Leo / Cecil
         fn(f'{pfx}/enc/glitch', ['execute if entity @e[type=minecraft:interaction,tag=bm.' + ab + 'enc,distance=..32] run return 0',
-                                 f'function bm:{pfx}/enc/spawn', 'particle minecraft:electric_spark ~ ~1 ~ 0.5 0.8 0.5 0.3 40',
+                                 f'function bm:{pfx}/enc/spawn', f'scoreboard players operation @e[type=minecraft:interaction,tag=bm.{ab}enc,distance=..4] bm.pid = @s bm.pid',   # (whose glitch it was)
+                                 'particle minecraft:electric_spark ~ ~1 ~ 0.5 0.8 0.5 0.3 40',
                                  'particle minecraft:dust{color:[0.2,1.0,0.4],scale:1.4} ~ ~1 ~ 0.6 0.8 0.6 0 30',
                                  'playsound minecraft:block.note_block.bit neutral @a[distance=..24] ~ ~ ~ 1 0.5',
                                  'playsound minecraft:block.note_block.bit neutral @a[distance=..24] ~ ~ ~ 1 2'])
-        fn(f'{pfx}/enc/talk', [f'execute if items entity @s container.* {X.holds(C.ITEM)} run return run ' +
-                               title('@s', 'actionbar', [T(f'{C.NAME}: ', C.COL, bold=True), T('"You already have my cartridge, player one!"', C.LINE)]),
+        have = title('@s', 'actionbar', [T(f'{C.NAME}: ', C.COL, bold=True), T('"You already have my cartridge, player one!"', C.LINE)])
+        fn(f'{pfx}/enc/talk', [f'execute if score {X.here} bm.pid matches 1.. unless score @s bm.pid = {X.here} bm.pid run return run ' +      # (2.94k: the one who glitched them)
+                               title('@s', 'actionbar', [T(f'{C.NAME}: ', C.COL, bold=True), T('"Wait - you\'re not the player who pressed START!"', C.LINE)]),
+                               f'execute if items entity @s container.* {X.holds(C.ITEM)} run return run ' + have,
+                               f'execute if items entity @s weapon.offhand {X.holds(C.ITEM)} run return run ' + have,
+                               f'execute if entity @s[tag=bm.pw_{W}] run return run ' + have,
                                f'function bm:{pfx}/enc/recruit'])
         fn(f'{pfx}/enc/recruit', [f'execute as {X.here} at @s run particle minecraft:electric_spark ~ ~1 ~ 0.4 0.6 0.4 0.2 20',
                                   f'execute as {X.here} at @s run playsound minecraft:entity.player.levelup neutral @a[distance=..16] ~ ~ ~ 0.8 2',

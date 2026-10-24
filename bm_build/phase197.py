@@ -264,8 +264,8 @@ def generate(G):
                   tellraw('@s', [T(f'The {b["ruin"]}: ', b['ruin_col'], bold=True), T(f'the altar will wake {b["NAME"]} only for these three, together:', 'gray')])] + names
         fn(f'p197/{k}/ask', lines)
         # (2.94j: beaten, the altar rests a day - it could be fought back to back, spoils every time)
-        fn(f'p197/{k}/resting', ['execute store result score #gt bm.dbcd run time query gametime', f'execute if score #gt bm.dbcd < #dbcd_{k} bm.dbcd run return 1', 'return 0'])
-        fn(f'p197/{k}/spent', ['scoreboard players operation #left bm.dbcd = #dbcd_' + k + ' bm.dbcd', 'scoreboard players operation #left bm.dbcd -= #gt bm.dbcd',
+        fn(f'p197/{k}/resting', ['execute store result score #gt bm.dbcd run time query gametime', f'execute if score #gt bm.dbcd < @e[type=minecraft:interaction,tag=bm.dbaltar_{k},distance=..64,sort=nearest,limit=1] bm.dbcd run return 1', 'return 0'])
+        fn(f'p197/{k}/spent', [f'scoreboard players operation #left bm.dbcd = @e[type=minecraft:interaction,tag=bm.dbaltar_{k},distance=..64,sort=nearest,limit=1] bm.dbcd', 'scoreboard players operation #left bm.dbcd -= #gt bm.dbcd',
                                'scoreboard players set #1200 bm.dbcd 1200', 'scoreboard players operation #left bm.dbcd /= #1200 bm.dbcd', 'scoreboard players add #left bm.dbcd 1',
                                'playsound minecraft:block.respawn_anchor.deplete block @s ~ ~ ~ 0.6 0.5',
                                title('@s', 'actionbar', [T(f'The altar is spent - {b["NAME"]} sleeps. ', '#c8a0a0'), T('It stirs again in ', 'gray'),
@@ -286,10 +286,12 @@ def generate(G):
         ring += [T('.  (Right-click it.)', 'dark_gray')]
         second.append(f'execute if score #hard bm.cfg matches 1 as @e[type=minecraft:interaction,tag=bm.dbaltar_{k}] at @s if entity @a[distance=..8,gamemode=!spectator] '
                       f'unless entity @e[tag=bm.db_{k},distance=..96] run function bm:p197/{k}/near')
-        fn(f'p197/{k}/near', [f'execute if function bm:p197/{k}/resting as @a[distance=..4,gamemode=!spectator] unless score @s bm.dbcl matches 1.. at @s run function bm:p197/{k}/spent_near',
+        fn(f'p197/{k}/near', ['scoreboard players set #t0 bm.rng 0', 'scoreboard players set #t1 bm.rng 0', 'scoreboard players set #t2 bm.rng 0', f'execute if function bm:p197/{k}/resting as @a[distance=..4,gamemode=!spectator] unless score @s bm.dbcl matches 1.. at @s run function bm:p197/{k}/spent_near',
                               f'execute if function bm:p197/{k}/resting run return 0',
                               'scoreboard players set #sn bm.rng 0'] +
-           [f'execute if entity @e[tag={tag},distance=..9] run scoreboard players add #sn bm.rng 1' for nm, tag in b['trio']] +
+           ['scoreboard players set #me bm.pid -1', 'execute as @p[distance=..8,gamemode=!spectator] run scoreboard players operation #me bm.pid = @s bm.pid'] +
+           [f'execute as @e[tag={tag},distance=..9] if score @s bm.pid = #me bm.pid run scoreboard players set #t{j} bm.rng 1' for j, (nm, tag) in enumerate(b['trio'])] +
+           [f'execute if score #t{j} bm.rng matches 1 run scoreboard players add #sn bm.rng 1' for j in range(3)] +       # (2.94k: the trio of the one standing there - not anyone's)
            ['execute if score #sn bm.rng matches 1..2 run particle minecraft:soul ~ ~1 ~ 0.8 0.3 0.8 0.01 4',
             'execute if score #sn bm.rng matches 1 run ' + title('@a[distance=..10]', 'actionbar', [T('The altar stirs... ', b['COL'], italic=True), T('one of the three is here.', 'gray', italic=True)]),
             'execute if score #sn bm.rng matches 2 run ' + title('@a[distance=..10]', 'actionbar', [T('The altar stirs... ', b['COL'], italic=True), T('two of the three. One more.', 'gray', italic=True)]),
@@ -452,7 +454,7 @@ def build_boss(G, k, b, tick, second, fast):
     fn(f'{pfx}/state', ['execute if score @s bm.dbx matches 1.. run return run scoreboard players operation #st bm.rng = @s bm.dba',
                         f'execute if entity @s[tag=bm.dbmoving] run return run scoreboard players set #st bm.rng 1', 'scoreboard players set #st bm.rng 0'])
     # (and out of its rising: the mind - and its fall - skip a boss still rising, so it never fought and couldn't be felled)
-    fn(f'{pfx}/awake', ['data modify entity @s Invulnerable set value 0b', 'scoreboard players set @s bm.dba 0', f'bossbar set bm:db_{k} visible true',
+    fn(f'{pfx}/awake', ['data modify entity @s Invulnerable set value 0b', 'scoreboard players set @s bm.dba 0', f'bossbar set bm:db_{k} visible true', f'bossbar set bm:db_{k} color {b["bar"]}',
                         'playsound minecraft:entity.ravager.roar hostile @a[distance=..48] ~ ~ ~ 1.2 0.6'])
     # ---- moving: toward its quarry (it keeps to its ruin)
     mv = {'ground': [f'execute facing entity {tgt} feet rotated ~ 0 run tp @s ~ ~ ~ ~ ~', 'tag @s remove bm.dbmoving',
@@ -524,7 +526,8 @@ def build_boss(G, k, b, tick, second, fast):
     fn(f'{pfx}/falling', ['tag @s add bm.dbfall', 'data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.dba 31', 'scoreboard players set @s bm.dbx 60',
                           'kill @e[tag=bm.dbminion,distance=..48]', f'bossbar set bm:db_{k} value 0',
                           'playsound minecraft:entity.wither.death hostile @a[distance=..64] ~ ~ ~ 0.6 0.8'])
-    fn(f'{pfx}/fall', ['execute store result score #dbcd_' + k + ' bm.dbcd run time query gametime', f'scoreboard players add #dbcd_{k} bm.dbcd {COOL}',
+    fn(f'{pfx}/fall', ['execute store result score #gt bm.dbcd run time query gametime', f'scoreboard players add #gt bm.dbcd {COOL}',
+                       f'scoreboard players operation @e[type=minecraft:interaction,tag=bm.dbaltar_{k},distance=..64,sort=nearest,limit=1] bm.dbcd = #gt bm.dbcd',   # (this altar's rest - not every one in the world)
                        f'execute as @a[distance=..64,gamemode=!spectator] at @s run function bm:{pfx}/reward', 'particle minecraft:explosion_emitter ~ ~1 ~ 0 0 0 0 1',
                        DEATH[k], f'function bm:{pfx}/sink'])
     G.wjson(f'bm/loot_table/p197/{k}_spoils.json', {'type': 'minecraft:chest', 'pools': [

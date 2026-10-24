@@ -442,6 +442,9 @@ def generate(G):
     # ---------------------------------------------------------------- the props: set down, used, picked up
     for k, (nm, c, l, h) in PROPS.items():
         fn(f'p216/place/{k}', ['execute if score @s bm.gvhc matches 1.. run return 0', 'scoreboard players set @s bm.gvhc 2',
+                               # (2.94k: the Overworld, the Nether and the End only - a pipe or a save point in a heist or a boss's realm was a way back in)
+                               'execute unless dimension minecraft:overworld unless dimension minecraft:the_nether unless dimension minecraft:the_end run return run ' + say('Not here - it only works out in the world.'),
+                               'execute unless score @s bm.pid matches 1.. run function bm:p21/pid',
                                'scoreboard players set #placed bm.rng 0', 'scoreboard players set #ray bm.rng 25', 'tag @s add bm.placer',
                                f'execute anchored eyes positioned ^ ^ ^ run function bm:p216/ray/{k}', 'tag @s remove bm.placer',
                                'execute if score #placed bm.rng matches 0 run ' + say('Look at the top of a block within 5 blocks to set it down.')])
@@ -460,14 +463,17 @@ def generate(G):
     fn('p216/click', ['tag @s add bm.arcthis', 'execute on target run tag @s add bm.arcu'] +
        [f'execute if entity @s[tag=bm.arcpb_{k}] as @a[tag=bm.arcu,limit=1] at @s run function bm:p216/use_{k}' for k in PROPS] +
        ['tag @a remove bm.arcu', 'tag @s remove bm.arcthis', 'data remove entity @s interaction'])
-    fn('p216/punch', ['execute on attacker if predicate bm:p20/sneaking run tag @s add bm.arcu',
+    fn('p216/punch', ['scoreboard players operation #bp bm.rng = @s bm.pid',      # (2.94k: its owner's to pick up - not anyone's)
+                      'execute on attacker if predicate bm:p20/sneaking if score @s bm.pid = #bp bm.rng run tag @s add bm.arcu',
                       'execute if entity @a[tag=bm.arcu] run function bm:p216/pickup', 'tag @a remove bm.arcu', 'data remove entity @s attack'])
     fn('p216/pickup', [f'execute if entity @s[tag=bm.arcpb_{k}] run loot spawn ~ ~0.5 ~ loot bm:items/{k}' for k in PROPS] +
+       ['execute if entity @s[tag=bm.arcpb_warp_pipe] run function bm:p216/pipe/lift'] +
        ['kill @e[type=minecraft:item_display,tag=bm.arcprop,distance=..0.3]', 'playsound minecraft:entity.item.pickup block @a[distance=..16] ~ ~ ~ 1 1', 'kill @s'])
     THIS = '@e[type=minecraft:interaction,tag=bm.arcthis,limit=1]'
     # ? block: a Token, once a day each
-    fn('p216/use_q_block', [f'execute if score {THIS} bm.arcq = #day bm.bm run return run function bm:p216/q_empty',
-                            f'scoreboard players operation {THIS} bm.arcq = #day bm.bm', f'execute at {THIS} run loot spawn ~ ~1.2 ~ loot bm:items/token',
+    # (2.94k: once a day for YOU - the stamp was on the block, and a block picked up and set down again was a new one: Tokens forever)
+    fn('p216/use_q_block', ['execute if score @s bm.arcq = #day bm.bm run return run function bm:p216/q_empty',
+                            'scoreboard players operation @s bm.arcq = #day bm.bm', f'execute at {THIS} run loot spawn ~ ~1.2 ~ loot bm:items/token',
                             f'execute at {THIS} run particle minecraft:wax_on ~ ~1 ~ 0.3 0.3 0.3 0 12', 'playsound minecraft:block.note_block.bell player @a[distance=..16] ~ ~ ~ 1 2',
                             'playsound minecraft:entity.experience_orb.pickup player @a[distance=..16] ~ ~ ~ 1 1.6'])
     fn('p216/q_empty', ['playsound minecraft:block.wood.hit player @s ~ ~ ~ 1 0.6', say('Empty. (It fills again tomorrow.)', GOLD)])
@@ -491,10 +497,23 @@ def generate(G):
                               'function bm:p216/pipe/go with storage bm:tmp arc'])
     fn('p216/pipe/go', ['$execute unless data storage bm:arc pipes.p$(pid)n$(n) run return run function bm:p216/pipe/alone',
                         '$data modify storage bm:tmp arc.to set from storage bm:arc pipes.p$(pid)n$(n)',
+                        'scoreboard players set #pv bm.rng 0'] +
+                       # (2.94k: out into the world only - the Overworld, the Nether or the End: a pipe left in a heist's or a boss's realm leads nowhere)
+                       [x for dim in ('overworld', 'the_nether', 'the_end') for x in
+                        ('data modify storage bm:tmp arc.chk set from storage bm:tmp arc.to.d',
+                         f'execute store success score #pd bm.rng run data modify storage bm:tmp arc.chk set value "minecraft:{dim}"',
+                         'execute if score #pd bm.rng matches 0 run scoreboard players set #pv bm.rng 1')] +
+                       ['execute if score #pv bm.rng matches 0 run return run function bm:p216/pipe/alone',
                         'playsound minecraft:block.note_block.bit player @a[distance=..16] ~ ~ ~ 1 0.6',
                         'function bm:p216/pipe/tp with storage bm:tmp arc.to'])
     fn('p216/pipe/tp', ['$execute in $(d) run tp @s $(x) $(y) $(z)', 'execute at @s run playsound minecraft:block.note_block.bit player @a[distance=..16] ~ ~ ~ 1 1.2',
                         'execute at @s run particle minecraft:happy_villager ~ ~1 ~ 0.4 0.6 0.4 0 12'])
+    # (a pipe picked up: its end of the pair forgotten, and the next one you set down takes its place)
+    fn('p216/pipe/lift', ['execute store result storage bm:tmp arc.pid int 1 run scoreboard players get @s bm.pid',
+                          'execute store result storage bm:tmp arc.n int 1 run scoreboard players get @s bm.arcp', 'function bm:p216/pipe/forget with storage bm:tmp arc',
+                          'scoreboard players set #pp bm.rng 1', 'scoreboard players operation #pp bm.rng -= @s bm.arcp',
+                          'scoreboard players operation @a[tag=bm.arcu,limit=1] bm.arcpn = #pp bm.rng'])
+    fn('p216/pipe/forget', ['$data remove storage bm:arc pipes.p$(pid)n$(n)'])
     fn('p216/pipe/alone', [say('This pipe leads nowhere yet - set its pair down somewhere.', '#3ac83a')])
     G.FUNCS['load'][-1:-1] = ['scoreboard players set #2 bm.rng 2']
     # arcade cabinet: a game
@@ -509,7 +528,8 @@ def generate(G):
                                     f'execute at {THIS} run particle minecraft:wax_on ~ ~1 ~ 0.4 0.4 0.4 0 16'])
     # save point: spawn here, healed - once a minute
     second.append('scoreboard players remove @a[scores={bm.arcsv=1..}] bm.arcsv 1')
-    fn('p216/use_save_point', ['execute if score @s bm.arcsv matches 1.. run return run ' + say('The crystal is still recharging.', '#7ae0ff'),
+    fn('p216/use_save_point', ['execute unless dimension minecraft:overworld unless dimension minecraft:the_nether unless dimension minecraft:the_end run return run ' + say('The crystal is dark here.', '#7ae0ff'),
+                               'execute if score @s bm.arcsv matches 1.. run return run ' + say('The crystal is still recharging.', '#7ae0ff'),
                                'scoreboard players set @s bm.arcsv 60', 'execute at @s run spawnpoint @s ~ ~ ~', 'effect give @s minecraft:instant_health 1 3 true',
                                'playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 1 1.6', say('Progress saved. (Your spawn is here; you\'re healed.)', '#7ae0ff')])
 

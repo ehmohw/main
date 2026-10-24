@@ -153,6 +153,7 @@ def generate(G):
                          'execute if entity @a[tag=bm.bjown,distance=2.5..] facing entity @a[tag=bm.bjown,limit=1] eyes run function bm:p196/uw_stroke',
                          'tag @a[tag=bm.bjown] remove bm.bjown'])
         fn('p196/uw_stroke', ['execute if block ^ ^ ^0.8 #bm:swim_pass if block ^ ^0.6 ^0.8 #bm:swim_pass positioned ^ ^ ^0.32 rotated ~ 0 run return run tp @s ~ ~ ~ ~ ~',
+                              'execute rotated ~ 0 if block ~ ~1.3 ~ #bm:swim_pass if block ~ ~1.8 ~ #bm:swim_pass run return run tp @s ~ ~0.25 ~ ~ ~',   # (2.94k: blocked - up and over it)
                               'execute rotated ~ 0 run tp @s ~ ~ ~ ~ ~'])
         fn(f'{pfx}/bite_go', go(7, 5, 'mc', 16, ['playsound minecraft:entity.dolphin.attack neutral @a[distance=..16] ~ ~ ~ 0.8 0.6']))
         fn(f'{pfx}/thrash_go', go(8, 14, 'rc', 100, face('surprised', 14) + ['playsound minecraft:entity.guardian.attack neutral @a[distance=..16] ~ ~ ~ 0.6 1.4']))

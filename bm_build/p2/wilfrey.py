@@ -144,6 +144,9 @@ def generate(G):
                          'execute as @e[type=minecraft:wither_skeleton,tag=bm.wil_body] if score @s bm.pid = #me bm.pid run tp @s ~ ~ ~ ~ 0',
                          'execute as @e[type=minecraft:interaction,tag=bm.wil_box] if score @s bm.pid = #me bm.pid run tp @s ~ ~ ~'])
     G.FUNCS['load'][-1:-1] = ['team add bm.wil', 'team modify bm.wil collisionRule never']
+    # (2.94k) his body is a wither skeleton - and every wolf hunts skeletons, tame or not: Bender, and every follower on a wolf, went
+    # for him without end. Teammates never: each follower's wolf joins his team.
+    G.FUNCS['loop/second'].append('execute as @e[type=minecraft:wolf,team=] if score @s bm.pid matches 1.. run team join bm.wil @s')
     G.FUNCS['p20/frog/refresh_more'] = ['execute if entity @s[tag=bm.wilfrey] run function bm:p2/wil/refresh']
 
     # ---------------- clicking Wilfrey (the interaction box follows him)

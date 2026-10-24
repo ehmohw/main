@@ -304,9 +304,39 @@ def _gait(k, n, body, off, arm, arm_sw, fore, leg, leg_sw, shin, head, roll):
              arml=limb(-1, arm - arm_sw * s, 10), forel=limb(-1, fore + 1.3 * LIFT * max(0.0, -c) * arm_sw),
              legr=limb(1, leg - leg_sw * s, 6), shinr=limb(1, shin - 34 * max(0.0, -c)),
              legl=limb(-1, leg + leg_sw * s, 6), shinl=limb(-1, shin - 34 * max(0.0, c)))
+def _ik_gait(k, n, body, off, head, roll, arm_z, arm_stride, leg_z, leg_stride, lift, bob):
+    """(2.94k) on all fours, for real: each claw and foot solved (gaitkit) onto a track - planted flat through its stance and
+    sliding back under the body, lifted forward in an arc. Diagonal pairs (the right arm with the left leg), a little bob and roll."""
+    import gaitkit as GK
+    ph = k / n
+    s = math.sin(2 * math.pi * ph)
+    base = P(_face='wide', _off=(0, off + bob * abs(math.sin(2 * math.pi * ph)), 0), body=qs(('x', body), ('z', roll * s)),
+             head=qs(('x', head), ('z', -roll * s)), armr=limb(1, 110, 10), arml=limb(-1, 110, 10), forer=limb(1, 50), forel=limb(-1, 50),
+             legr=limb(1, 30, 6), legl=limb(-1, 30, 6), shinr=limb(1, -110), shinl=limb(-1, -110))
+    out = dict(base)
+    for upper, lower, sx, kind, phase in (('armr', 'forer', 1, 'arm', ph), ('legl', 'shinl', -1, 'leg', ph),
+                                          ('arml', 'forel', -1, 'arm', ph + 0.5), ('legr', 'shinr', 1, 'leg', ph + 0.5)):
+        if kind == 'arm':
+            ty, tz = GK.track(phase, 0.55, arm_z, arm_stride, lift)
+            mk = lambda a, b, u=upper, l=lower, x=sx: {u: limb(x, a, 10), l: limb(x, b)}
+            a, b, _e = GK.reach(A_SELF, out, upper, lower, mk, (ty, tz), ((20, 200), (-20, 170)))
+        else:
+            ty, tz = GK.track(phase, 0.55, leg_z, leg_stride, lift * 0.8)
+            mk = lambda a, b, u=upper, l=lower, x=sx: {u: limb(x, a, 6), l: limb(x, b)}
+            a, b, _e = GK.reach(A_SELF, out, upper, lower, mk, (ty, tz), ((-60, 140), (-170, 10)))
+        lo = GK.lowest(A_SELF, dict(out, **mk(a, b)), lower)
+        if lo < -0.2:                                   # (its lowest corner - a toe, a claw - on the ground, not the middle of them)
+            rng = ((20, 200), (-20, 170)) if kind == 'arm' else ((-60, 140), (-170, 10))
+            a, b, _e = GK.reach(A_SELF, out, upper, lower, mk, (ty - lo, tz), rng)
+        out.update(mk(a, b))
+    return out
+
+
+import sys as _sys
+A_SELF = _sys.modules[__name__]
 for _k in range(GAIT_FRAMES):
-    POSES[f'crawl_{_k}'] = _gait(_k, GAIT_FRAMES, CRAWL['body'], CRAWL['off'], CRAWL['arm'], 22, CRAWL['fore'], CRAWL['leg'], 20, CRAWL['shin'], CRAWL['head'], 4)
-    POSES[f'sprint_{_k}'] = _gait(_k, GAIT_FRAMES, CRAWL['body'] + 6, CRAWL['off'] - 0.6, CRAWL['arm'] + 6, 40, CRAWL['fore'], CRAWL['leg'] + 8, 34, CRAWL['shin'], CRAWL['head'] - 6, 7)
+    POSES[f'crawl_{_k}'] = _ik_gait(_k, GAIT_FRAMES, 72, -4.0, -58, 3, 24.0, 12.0, -1.0, 10.0, 3.2, 0.4)
+    POSES[f'sprint_{_k}'] = _ik_gait(_k, GAIT_FRAMES, 76, -4.6, -62, 6, 26.0, 16.0, -2.0, 13.0, 4.2, 0.8)
 # standing still: drawn up to its full, wrong height on its hind legs, arms hanging past its knees, the head cocked - eerie
 POSES['stand_a'] = P(**dict(IDLE, body=qs(('x', 4)), head=qs(('x', -22), ('z', 12)), armr=limb(1, 2, 6), forer=limb(1, 6), arml=limb(-1, 2, 6), forel=limb(-1, 6),
                             legr=limb(1, 0, 3), legl=limb(-1, 0, 3)))

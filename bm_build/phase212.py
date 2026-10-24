@@ -41,16 +41,16 @@ def projectile(G, key, model, dmg, host_sel, on_hit=(), trail=(), scale=0.7, fxn
            'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0), F(0), F(0)],
                               'scale': [F(scale)] * 3}}
     fn(f'p212/{key}/fly', ['scoreboard players add @s bm.pjt 1', f'execute if score @s bm.pjt matches {LIFE}.. run return run function bm:p212/fizzle',
-                           f'execute positioned ~ ~-0.9 ~ if entity @e[type=#bm:hostile,tag=!bm.npc,distance=..1.4] run return run function bm:p212/{key}/hit',   # (2.94: aimed at the eyes - the hit, round its middle)
-                           f'execute facing entity @e[type=#bm:hostile,tag=!bm.npc,distance=..20,sort=nearest,limit=1] eyes run tp @s ^ ^ ^{SPEED}',
-                           f'execute unless entity @e[type=#bm:hostile,tag=!bm.npc,distance=..20] run tp @s ^ ^-0.08 ^{SPEED}',
+                           f'execute positioned ~ ~-0.9 ~ if entity @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=..1.4] run return run function bm:p212/{key}/hit',   # (2.94: aimed at the eyes - the hit, round its middle)
+                           f'execute facing entity @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=..20,sort=nearest,limit=1] eyes run tp @s ^ ^ ^{SPEED}',
+                           f'execute unless entity @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=..20] run tp @s ^ ^-0.08 ^{SPEED}',
                            'execute unless block ~ ~ ~ #bm:grap_pass run return run function bm:p212/fizzle'] + list(trail) +
        ['scoreboard players operation #sp bm.rng = @s bm.pjt', 'scoreboard players operation #sp bm.rng %= #8 bm.rng'] +
        [f'execute if score #sp bm.rng matches {i} run data merge entity @s {{start_interpolation:0,interpolation_duration:1,transformation:{{right_rotation:{_spin(i + 1)}}}}}'
         for i in range(8)])
     fn(f'p212/{key}/hit', ['scoreboard players operation #me bm.pid = @s bm.pid', f'scoreboard players set #pd bm.rng {dmg}',
                            f'execute as {host_sel} if score @s bm.pid = #me bm.pid run tag @s add bm.pjme',
-                           f'execute as @e[type=#bm:hostile,tag=!bm.npc,distance=..1.6,sort=nearest,limit=1] at @s run function bm:p212/{key}/hurt',
+                           f'execute as @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=..1.6,sort=nearest,limit=1] at @s run function bm:p212/{key}/hurt',
                            'tag @e[tag=bm.pjme] remove bm.pjme', FXS.fx(fxname, 0.9), 'kill @s'])
     fn(f'p212/{key}/hurt', ['execute store result storage bm:tmp p212.d int 1 run scoreboard players get #pd bm.rng', 'function bm:p212/dmg with storage bm:tmp p212'] +
        list(on_hit))
@@ -84,9 +84,9 @@ def generate(G):
     L = G.FUNCS['p163/dw/range_hit']
     i = next(i for i, l in enumerate(L) if 'p163/dw/nuggets' in l)
     j = next(i for i, l in enumerate(L) if 'p163/dw/gilded' in l)
-    L[i] = ('execute facing entity @e[type=#bm:hostile,tag=!bm.npc,distance=..12,sort=nearest,limit=1] eyes positioned ^0.3 ^1.1 ^0.6 rotated ~-8 ~ '
+    L[i] = ('execute facing entity @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=..12,sort=nearest,limit=1] eyes positioned ^0.3 ^1.1 ^0.6 rotated ~-8 ~ '
             'run function bm:p212/dw/throw')
-    L[j] = ('execute facing entity @e[type=#bm:hostile,tag=!bm.npc,distance=..12,sort=nearest,limit=1] eyes positioned ^-0.3 ^1.1 ^0.6 rotated ~8 ~ '
+    L[j] = ('execute facing entity @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=..12,sort=nearest,limit=1] eyes positioned ^-0.3 ^1.1 ^0.6 rotated ~8 ~ '
             'run function bm:p212/dw/throw')
     L.insert(0, 'playsound minecraft:item.firecharge.use neutral @a[distance=..16] ~ ~ ~ 0.6 1.2')
     G.FUNCS['p163/dw/range_hit'] = [l for l in L if not l.startswith('scoreboard players set #pd bm.rng')]

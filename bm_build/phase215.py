@@ -133,7 +133,11 @@ def generate(G):
     L = G.FUNCS['p131/seal/sec']
     k = next(i for i, l in enumerate(L) if l == 'scoreboard players set #sn bm.rng 0')
     L.insert(k, f'execute if entity {near("bm.xmpet")} if entity {near("bm.xlpet")} if entity {near("bm.xcpet")} '
-                f'if entity @a[distance=..8,scores={{bm.conq=6..}},gamemode=!spectator] unless entity {host} run return run function bm:p215/wake')
+                f'if entity @a[distance=..8,scores={{bm.conqb=6..}},gamemode=!spectator] unless entity {host} run return run function bm:p215/try')
+    # (2.94k: bm.conqb, a conqueror ever - as the seal's own Apophiss; and after he falls, five minutes before the seal glitches again)
+    fn('p215/try', ['execute store result score #gt bm.dbcd run time query gametime',
+                    'execute if score #gt bm.dbcd < #pxacd bm.dbcd run return run ' + G.title('@a[distance=..10]', 'actionbar', T('The seal crackles with static... not yet.', GRN)),
+                    'function bm:p215/wake'])
     hnbt = {'Tags': ['bm.pxapo', 'bm.seen', 'bm.boss'], 'Silent': B(1), 'PersistenceRequired': B(1), 'Health': F(HP), 'DeathLootTable': 'minecraft:empty',
             'CustomName': T('The 8-Bit Serpent King', GRN, bold=True), 'CustomNameVisible': B(0),
             'attributes': [{'id': f'minecraft:{a}', 'base': D(v)} for a, v in (('max_health', HP), ('armor', 10), ('attack_damage', 12), ('movement_speed', 0.24),
@@ -222,16 +226,17 @@ def generate(G):
                     # (nobody left near for a while: he fades back into the seal)
                     'execute if entity @a[distance=..48,gamemode=!spectator] run return run scoreboard players set @s bm.pxah 0',
                     'scoreboard players add @s bm.pxah 1', 'execute if score @s bm.pxah matches 60.. run function bm:p215/fade'])
-    fn('p215/fade', ['tp @s ~ -300 ~', 'kill @s'])
+    fn('p215/fade', ['tag @e[type=minecraft:item_display,tag=bm.pxa_spr,distance=..24] add bm.pxa_faded', 'tp @s ~ -300 ~', 'kill @s'])
     # ---- he falls: shattered into pixels - the crown (or a cartridge) for everyone near
-    fn('p215/gone', ['execute unless score @s bm.pxah matches ..60 run return run kill @s',
+    # (2.94k: faded is not beaten - but a last blow from over 60 health is: he went from the sprite's last health to nothing in a tick)
+    fn('p215/gone', ['execute if entity @s[tag=bm.pxa_faded] run return run kill @s',
                      'tag @s add bm.pxa_dying', 'tag @s remove bm.pxa_spr', 'scoreboard players set @s bm.pxaf 0'])
     tick.append('execute as @e[type=minecraft:item_display,tag=bm.pxa_dying] at @s run function bm:p215/dying')
     fn('p215/dying', ['scoreboard players add @s bm.pxaf 1', 'scoreboard players operation #fi bm.rng = @s bm.pxaf', 'scoreboard players operation #fi bm.rng /= #3 bm.rng'] +
        [f'execute if score #fi bm.rng matches {i} run data modify entity @s item.components."minecraft:custom_model_data" set value {{strings:["death_{i}"]}}' for i in range(n['death'])] +
        ['particle minecraft:dust{color:[0.2,1.0,0.4],scale:1.6} ~ ~1 ~ 1.5 1.5 1.5 0 6',
         f'execute if score @s bm.pxaf matches {3 * n["death"] + 6}.. run function bm:p215/won'])
-    fn('p215/won', ['particle minecraft:electric_spark ~ ~1.5 ~ 2 2 2 0.4 120', 'playsound minecraft:block.note_block.bit hostile @a[distance=..48] ~ ~ ~ 2 2',
+    fn('p215/won', ['execute store result score #pxacd bm.dbcd run time query gametime', 'scoreboard players add #pxacd bm.dbcd 6000','particle minecraft:electric_spark ~ ~1.5 ~ 2 2 2 0.4 120', 'playsound minecraft:block.note_block.bit hostile @a[distance=..48] ~ ~ ~ 2 2',
                     'playsound minecraft:ui.toast.challenge_complete player @a[distance=..48] ~ ~ ~ 1 1.2',
                     'execute as @a[distance=..48,gamemode=!spectator] run function bm:p215/reward', 'kill @s'])
     fn('p215/reward', ['execute if entity @s[tag=bm.pxcrown] run return run function bm:p215/again', 'tag @s add bm.pxcrown', give('px_crown'),

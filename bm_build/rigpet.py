@@ -149,7 +149,7 @@ def build(C, G, abilities, encounter):
     fn, title, tellraw, give, PREFIX = G.fn, G.title, G.tellraw, G.give, G.PREFIX
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
-    foe = 'type=#bm:hostile,tag=!bm.npc'
+    foe = 'type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body'
     tick, fast, second = [], [], []
     S = lambda s: f'bm.{C.q}{s}'
     objs = [S(s) for s in ('s', 'fr', 'x', 'a', 'mc', 'rc', 'bc', 'gc', 'sc', 'sl', 'z', 'qp', 'hc', 'l', 'fg', 'ef', 'el', 'k', 'k2')] + [f'bm.{ab}cd']
@@ -175,7 +175,7 @@ def build(C, G, abilities, encounter):
     fn(f'{pfx}/place', RF.place(A, UP, psel))
     burst = C.BURST
     fn(f'{pfx}/burst', burst)
-    RF.cycles(fn, pfx, C.CYCLE, S('fr'), S('s'), lambda p: f'{pfx}/pose/{p}')
+    RF.cycles(fn, pfx, C.CYCLE, S('fr'), S('s'), lambda p: f'{pfx}/pose/{p}', tw=dict(G=G, A=A, S=SP, sel=psel, swap=C.SWAP) if getattr(C, 'TWEEN', True) else None)
     for name in {p for _per, frames in C.CYCLE.values() for _t, p in frames}:
         fn(f'{pfx}/pose/{name}', RF.pose(A, A.POSES[name], SP, C.DUR.get(name, 6), psel, swap=C.SWAP, keep=True) + C.POSE_EXTRA(name, psel))
     G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in RF.periods(C.CYCLE)]

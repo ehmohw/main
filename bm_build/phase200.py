@@ -162,7 +162,7 @@ def generate(G):
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     P = G.PREFIX
     tick, fast, second = [], [], []
-    objs = ['bm.fst', 'bm.fwk', 'bm.lbt', 'bm.rft', 'bm.mtcd', 'bm.ehrt', 'bm.vhrt', 'bm.vgx', 'bm.vgy', 'bm.vgz', 'bm.gaze', 'bm.veye', 'bm.ofwk']
+    objs = ['bm.erus', 'bm.vsts', 'bm.fst', 'bm.fwk', 'bm.lbt', 'bm.rft', 'bm.mtcd', 'bm.ehrt', 'bm.vhrt', 'bm.vgx', 'bm.vgy', 'bm.vgz', 'bm.gaze', 'bm.veye', 'bm.ofwk']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + \
         [f'bossbar add bm:eruption {snbt(T("Eruption", HC))}', 'bossbar set bm:eruption color red', f'bossbar set bm:eruption max {ERU_SECS}',
          'bossbar set bm:eruption style notched_10', f'bossbar add bm:voidstorm {snbt(T("Void Storm", VC))}', 'bossbar set bm:voidstorm color purple',
@@ -327,14 +327,14 @@ def generate(G):
     wjson('bm/predicate/p200/on_ground.json', {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:flags': {'is_on_ground': True}}})
     fn('p200/m/void', ['execute unless dimension minecraft:the_end run return 0', 'execute if entity @s[y=-400,dy=399] run return 0',
                        'execute unless predicate bm:p200/on_ground run return 0',
-                       'execute store result score @s bm.vgx run data get entity @s Pos[0]', 'execute store result score @s bm.vgy run data get entity @s Pos[1]',
-                       'execute store result score @s bm.vgz run data get entity @s Pos[2]'])
+                       'execute store result score @s bm.vgx run data get entity @s Pos[0] 10', 'execute store result score @s bm.vgy run data get entity @s Pos[1]',
+                       'execute store result score @s bm.vgz run data get entity @s Pos[2] 10'])      # (2.94k: tenths - a whole block floored, then +.5, set a negative x or z a block off)
     fn('p200/m/rescue', ['execute unless score @s bm.vgy matches 1.. run return run function bm:p200/m/rescue_up',
-                         'execute store result storage bm:p200 r.x int 1 run scoreboard players get @s bm.vgx',
+                         'execute store result storage bm:p200 r.x double 0.1 run scoreboard players get @s bm.vgx',
                          'execute store result storage bm:p200 r.y int 1 run scoreboard players get @s bm.vgy',
-                         'execute store result storage bm:p200 r.z int 1 run scoreboard players get @s bm.vgz',
+                         'execute store result storage bm:p200 r.z double 0.1 run scoreboard players get @s bm.vgz',
                          'function bm:p200/m/rescue_tp with storage bm:p200 r'])
-    fn('p200/m/rescue_tp', ['$tp @s $(x).5 $(y) $(z).5', 'effect give @s minecraft:slow_falling 4 0 true', 'particle minecraft:reverse_portal ~ ~1 ~ 0.4 0.8 0.4 0.05 40',
+    fn('p200/m/rescue_tp', ['$tp @s $(x) $(y) $(z)', 'effect give @s minecraft:slow_falling 4 0 true', 'particle minecraft:reverse_portal ~ ~1 ~ 0.4 0.8 0.4 0.05 40',
                             'playsound minecraft:entity.enderman.teleport player @s ~ ~ ~ 1 0.6', say('The void gives you back.', VC)])
     fn('p200/m/rescue_up', ['tp @s ~ 120 ~', 'effect give @s minecraft:slow_falling 40 0 true', say('The void gives you back - from on high.', VC)])
     wjson('bm/advancement/p200/hurt.json', {'criteria': {'hurt': {'trigger': 'minecraft:entity_hurt_player'}}, 'rewards': {'function': 'bm:p200/m/hurt'}})
@@ -395,7 +395,7 @@ def generate(G):
                           'execute as @a[tag=bm.innether] at @s run playsound minecraft:ambient.basalt_deltas.mood ambient @s ~ ~ ~ 1 0.5'])
     second += ['execute if score #eru bm.bm matches 1.. run function bm:p200/eru/second']
     fn('p200/eru/second', ['scoreboard players remove #eru bm.bm 1', 'execute store result bossbar bm:eruption value run scoreboard players get #eru bm.bm',
-                           'bossbar set bm:eruption players @a[tag=bm.innether]', 'tag @a[tag=bm.innether] add bm.erup',
+                           'bossbar set bm:eruption players @a[tag=bm.innether]', 'tag @a[tag=bm.innether] add bm.erup', 'scoreboard players add @a[tag=bm.innether] bm.erus 1',
                            'execute as @a[tag=bm.innether] at @s run function bm:p200/eru/player',
                            'execute if score #eru bm.bm matches 0 run function bm:p200/eru/end'])
     fn('p200/eru/player', ['particle minecraft:ash ~ ~3 ~ 10 4 10 0 40 normal @s', 'particle minecraft:lava ~ ~6 ~ 12 3 12 0 4 normal @s',
@@ -429,7 +429,7 @@ def generate(G):
                           'function bm:p200/eru/spill_at with storage bm:p200 b'])
     fn('p200/eru/spill_at', ['$execute positioned ~$(x) ~ ~$(z) if block ~ ~ ~ minecraft:air if block ~ ~1 ~ minecraft:air run summon minecraft:magma_cube ~ ~ ~ {Size:1,Tags:["bm.erumob"]}'])
     fn('p200/eru/end', ['bossbar set bm:eruption visible false', f'scoreboard players set #erucd bm.bm {ERU_CD}',
-                        'execute as @a[tag=bm.erup,tag=bm.innether] at @s run function bm:p200/eru/survivor', 'tag @a remove bm.erup'])
+                        f'execute as @a[tag=bm.erup,tag=bm.innether,scores={{bm.erus={ERU_SECS // 2}..}}] at @s run function bm:p200/eru/survivor', 'tag @a remove bm.erup', 'scoreboard players reset * bm.erus'])   # (2.94k: through half of it at least - not just its last second)
     fn('p200/eru/survivor', [title('@s', 'title', T('The Eruption ends', HC, bold=True)), title('@s', 'subtitle', T('You rode it out - the Nether pays its dues', '#ffb070')),
                              'loot give @s loot bm:p200/eru_reward', 'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 0.8 0.9'])
     E = G.loot_entry
@@ -451,7 +451,7 @@ def generate(G):
     second += ['execute if score #vst bm.bm matches 1.. run function bm:p200/vst/second',
                'execute as @e[type=minecraft:marker,tag=bm.vrift] at @s run function bm:p200/vst/rift_age']
     fn('p200/vst/second', ['scoreboard players remove #vst bm.bm 1', 'execute store result bossbar bm:voidstorm value run scoreboard players get #vst bm.bm',
-                           'bossbar set bm:voidstorm players @a[tag=bm.outerend]', 'tag @a[tag=bm.outerend] add bm.vstp',
+                           'bossbar set bm:voidstorm players @a[tag=bm.outerend]', 'tag @a[tag=bm.outerend] add bm.vstp', 'scoreboard players add @a[tag=bm.outerend] bm.vsts 1',
                            'scoreboard players operation #m bm.rng = #vst bm.bm', 'scoreboard players operation #m bm.rng %= #20 bm.rng',
                            'execute if score #m bm.rng matches 0 as @a[tag=bm.outerend] at @s run function bm:p200/vst/heave',
                            'execute as @a[tag=bm.outerend] at @s run function bm:p200/vst/player',
@@ -477,12 +477,15 @@ def generate(G):
     fn('p200/vst/rift', ['particle minecraft:reverse_portal ~ ~ ~ 0.4 0.6 0.4 0.02 10', 'particle minecraft:portal ~ ~ ~ 0.2 0.3 0.2 1.2 10',
                          'particle minecraft:dust{color:[0.1,0.0,0.2],scale:2.0} ~ ~ ~ 0.2 0.4 0.2 0 4',
                          'execute as @a[distance=..1.3,gamemode=!spectator] at @s run function bm:p200/vst/through',
+                         # (2.94k: through it once, and it closes - standing under one paid a shard every pass)
+                         'execute if entity @a[distance=..1.3,gamemode=!spectator] run return run function bm:p200/vst/rift_close',
                          'execute as @a[distance=1.3..5,gamemode=!spectator] at @s facing entity @e[type=minecraft:marker,tag=bm.vrift,sort=nearest,limit=1] feet run tp @s ^ ^ ^0.25'])
+    fn('p200/vst/rift_close', ['particle minecraft:reverse_portal ~ ~ ~ 0.3 0.3 0.3 0.2 30', 'playsound minecraft:block.portal.travel ambient @a[distance=..16] ~ ~ ~ 0.3 1.8', 'kill @s'])
     fn('p200/vst/through', ['tp @s ~ ~10 ~', 'effect give @s minecraft:slow_falling 8 0 true', give('void_shard'),
                             'playsound minecraft:entity.enderman.teleport player @s ~ ~ ~ 1 0.5', say('Through the rift! (+1 Void Shard)', VC)])
     fn('p200/vst/end', ['bossbar set bm:voidstorm visible false', f'scoreboard players set #vstcd bm.bm {VST_CD}',
                         'kill @e[type=minecraft:marker,tag=bm.vrift]',
-                        'execute as @a[tag=bm.vstp,tag=bm.outerend] at @s run function bm:p200/vst/survivor', 'tag @a remove bm.vstp'])
+                        f'execute as @a[tag=bm.vstp,tag=bm.outerend,scores={{bm.vsts={VST_SECS // 2}..}}] at @s run function bm:p200/vst/survivor', 'tag @a remove bm.vstp', 'scoreboard players reset * bm.vsts'])
     fn('p200/vst/survivor', [title('@s', 'title', T('The Void Storm passes', VC, bold=True)), title('@s', 'subtitle', T('The End settles - and leaves you something', '#e0c8ff')),
                              'loot give @s loot bm:p200/vst_reward', 'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 0.8 0.9'])
     wjson('bm/loot_table/p200/vst_reward.json', {'type': 'minecraft:command', 'pools': [
@@ -538,12 +541,14 @@ def generate(G):
     second.append('execute as @e[type=minecraft:marker,tag=bm.forge,scores={bm.fwk=1..}] at @s run function bm:p200/forge/watch')
     fn('p200/forge/watch', ['scoreboard players add @s bm.fwk 1', 'execute if score @s bm.fwk matches ..4 run return 0',
                             'execute if entity @e[type=minecraft:magma_cube,tag=bm.mcol,distance=..60] run return 0',
+                            # (2.94k: strayed - led off or knocked away - is not beaten: back to its moat)
+                            'execute if entity @e[type=minecraft:magma_cube,tag=bm.mcol,distance=..200] run return run tp @e[type=minecraft:magma_cube,tag=bm.mcol,distance=60..200,sort=nearest,limit=1] ~ ~-2 ~10',
                             'scoreboard players set @s bm.fwk 0',
                             'execute unless entity @a[distance=..40,gamemode=!spectator] run return run tag @a remove bm.ffight',
                             'function bm:p200/forge/won'])
     fn('p200/forge/won', ['execute unless score @s bm.fst matches 1 run ' + title('@a[distance=..40]', 'title', T('The forge burns again', HC, bold=True)),
                           'scoreboard players set @s bm.fst 1',
-                          'execute as @a[distance=..40,gamemode=!spectator] at @s run function bm:p200/forge/spoils', 'tag @a remove bm.ffight',
+                          'execute as @a[distance=..40,gamemode=!spectator,tag=bm.ffight] at @s run function bm:p200/forge/spoils', 'tag @a remove bm.ffight',        # (those who were there when it rose)
                           'particle minecraft:lava ~ ~2 ~ 3 2 3 0 60', 'playsound minecraft:block.anvil.use block @a[distance=..40] ~ ~ ~ 1 0.6'])
     fn('p200/forge/spoils', ['loot give @s loot bm:p200/forge_spoils', 'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 0.8 1',
                              tellraw('@s', P + [T('The Colossus falls at its own forge: ', HC), T('Hellstars, Ember Scales and a Heartstone are yours.', '#ffb070')])])
@@ -584,13 +589,15 @@ def generate(G):
     fn('p200/obs/call', [f'execute store result score #c bm.rng run clear @s {holds("voidstar")} 0',
                          'execute unless score #c bm.rng matches 3.. run return run ' + say('Calling him here takes 3 Voidstars.', VC),
                          f'clear @s {holds("voidstar")} 3', f'execute as {obs} at @s run function bm:p200/obs/rise'])
-    fn('p200/obs/rise', ['scoreboard players set @s bm.ofwk 1', 'execute positioned ~ ~ ~-6 run function bm:p54/vwk/summon',
+    fn('p200/obs/rise', ['scoreboard players set @s bm.ofwk 1', 'execute positioned ~ ~ ~-6 run function bm:p54/vwk/summon', 'tag @a[distance=..40] add bm.ofight',
                          title('@a[distance=..40]', 'title', T('The lens turns...', VC, bold=True)),
                          title('@a[distance=..40]', 'subtitle', T('The Voidwalker comes to his observatory!', '#e0c8ff'))])
     second.append('execute as @e[type=minecraft:marker,tag=bm.observ,scores={bm.ofwk=1..}] at @s run function bm:p200/obs/watch')
     fn('p200/obs/watch', ['scoreboard players add @s bm.ofwk 1', 'execute if score @s bm.ofwk matches ..4 run return 0',
-                          'execute if entity @e[type=minecraft:enderman,tag=bm.vwk,distance=..80] run return 0', 'scoreboard players set @s bm.ofwk 0',
-                          'execute if entity @a[distance=..40,gamemode=!spectator] as @a[distance=..40,gamemode=!spectator] at @s run function bm:p200/obs/spoils'])
+                          'execute if entity @e[type=minecraft:enderman,tag=bm.vwk,distance=..80] run return 0',
+                          'execute if entity @e[type=minecraft:enderman,tag=bm.vwk,distance=..240] run return run tp @e[type=minecraft:enderman,tag=bm.vwk,distance=80..240,sort=nearest,limit=1] ~ ~ ~-6',
+                          'scoreboard players set @s bm.ofwk 0',
+                          'execute as @a[distance=..40,gamemode=!spectator,tag=bm.ofight] at @s run function bm:p200/obs/spoils', 'tag @a remove bm.ofight'])
     fn('p200/obs/spoils', ['loot give @s loot bm:p200/obs_spoils', 'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 0.8 1',
                            tellraw('@s', P + [T('The Voidwalker falls among his stars: ', VC), T('Voidstars, Void Shards and a Heartstone are yours.', '#e0c8ff')])])
     wjson('bm/loot_table/p200/obs_spoils.json', {'type': 'minecraft:command', 'pools': [

@@ -431,6 +431,7 @@ def weather_and_bed(G):
                                  f'summon minecraft:marker ~ ~ ~ {{Tags:["bm.ybbed","bm.ybbed_{f}","bm.ybbnew"]}}',
                                  'scoreboard players operation @e[type=minecraft:marker,tag=bm.ybbnew,distance=..1] bm.pid = #me bm.pid',
                                  'scoreboard players set @e[type=minecraft:marker,tag=bm.ybbnew,distance=..1] bm.ybbt 0',
+                                 'data modify entity @e[type=minecraft:marker,tag=bm.ybbnew,distance=..1,limit=1] data.sp set from entity @s respawn',   # (your own spawn, kept)
                                  'tag @e[type=minecraft:marker,tag=bm.ybbnew,distance=..1] remove bm.ybbnew',
                                  f'particle minecraft:cloud ~{dx / 2} ~0.6 ~{dz / 2} 0.8 0.2 0.8 0.02 30', f'particle {dust(MOOND, 1.2)} ~{dx / 2} ~1 ~{dz / 2} 0.8 0.3 0.8 0 16',
                                  'playsound minecraft:block.wool.place block @a[distance=..16] ~ ~ ~ 1 0.8',
@@ -440,11 +441,11 @@ def weather_and_bed(G):
     # (each second: a sleeper on it wakes where they slept; when no one's on it, half a minute on - or you've gone - it goes)
     second.append('execute as @e[type=minecraft:marker,tag=bm.ybbed] at @s run function bm:p211/bed/sec')
     fn('p211/bed/sec', ['scoreboard players add @s bm.ybbt 1',
-                        f'kill @e[type=minecraft:item,distance=..4,nbt={{Item:{{id:"{BED}"}}}}]',
                         'scoreboard players operation #me bm.pid = @s bm.pid',
                         'scoreboard players set #slp bm.rng 0',
                         'execute as @a[distance=..3] if data entity @s sleeping_pos run scoreboard players set #slp bm.rng 1',
-                        'execute as @a[distance=..3] if data entity @s sleeping_pos run spawnpoint @s ~ ~ ~',
+                        'execute as @a[distance=..3] if score @s bm.pid = #me bm.pid if data entity @s sleeping_pos run spawnpoint @s ~ ~ ~',      # (its owner only)
+                        'execute as @a[distance=..3] if score @s bm.pid = #me bm.pid if data entity @s sleeping_pos run tag @e[type=minecraft:marker,tag=bm.ybbed,distance=..0.5] add bm.ybslept',
                         'execute if score #slp bm.rng matches 1 run return run scoreboard players set @s bm.ybbt 0',
                         f'execute unless block ~ ~ ~ {BED} run return run function bm:p211/bed/gone',
                         'execute if score @s bm.ybbt matches 30.. run return run function bm:p211/bed/gone',
@@ -452,6 +453,27 @@ def weather_and_bed(G):
                         'execute as @a[distance=..24] if score @s bm.pid = #me bm.pid run scoreboard players set #near bm.rng 1',
                         'execute if score #near bm.rng matches 0 run function bm:p211/bed/gone'])
     fn('p211/bed/gone', [f'execute if entity @s[tag=bm.ybbed_{f}] run function bm:p211/bed/clear_{f}' for dx, dz, f in ((1, 0, 'east'), (-1, 0, 'west'), (0, 1, 'south'), (0, -1, 'north'))] +
-       [f'kill @e[type=minecraft:item,distance=..4,nbt={{Item:{{id:"{BED}"}}}}]', 'particle minecraft:cloud ~ ~0.6 ~ 0.6 0.2 0.6 0.02 20', 'kill @s'])
+       [f'kill @e[type=minecraft:item,distance=..4,nbt={{Item:{{id:"{BED}"}}}},nbt=!{{PickupDelay:0s}}]', 'scoreboard players operation #me bm.pid = @s bm.pid',
+        'execute unless entity @s[tag=bm.ybslept] if data entity @s data.sp.pos run function bm:p211/bed/unspawn',
+        'particle minecraft:cloud ~ ~0.6 ~ 0.6 0.2 0.6 0.02 20', 'kill @s'])
+    # (2.94k) a bed takes your spawn the moment you right-click it - by day, or with monsters near, before it says no. Gone
+    # without your having slept in it, and your spawn still on it: your own spawn back, as it was.
+    fn('p211/bed/unspawn', ['data modify storage bm:p211 sp set value {}', 'data modify storage bm:p211 sp.x set from entity @s data.sp.pos[0]',
+                            'data modify storage bm:p211 sp.y set from entity @s data.sp.pos[1]', 'data modify storage bm:p211 sp.z set from entity @s data.sp.pos[2]',
+                            'data modify storage bm:p211 sp.d set from entity @s data.sp.dimension', 'data modify storage bm:p211 sp.yaw set from entity @s data.sp.yaw',
+                            'data modify storage bm:p211 sp.pitch set from entity @s data.sp.pitch',
+                            'execute store result score #bx bm.rng run data get entity @s Pos[0]', 'execute store result score #by bm.rng run data get entity @s Pos[1]',
+                            'execute store result score #bz bm.rng run data get entity @s Pos[2]',
+                            'execute as @a if score @s bm.pid = #me bm.pid run function bm:p211/bed/unspawn_me'])
+    fn('p211/bed/unspawn_me', ['execute unless data entity @s respawn.pos run return 0',
+                               'execute store result score #rx bm.rng run data get entity @s respawn.pos[0]', 'execute store result score #ry bm.rng run data get entity @s respawn.pos[1]',
+                               'execute store result score #rz bm.rng run data get entity @s respawn.pos[2]',
+                               'scoreboard players operation #rx bm.rng -= #bx bm.rng', 'scoreboard players operation #ry bm.rng -= #by bm.rng', 'scoreboard players operation #rz bm.rng -= #bz bm.rng',
+                               'execute unless score #rx bm.rng matches -1..1 run return 0', 'execute unless score #ry bm.rng matches -1..1 run return 0',
+                               'execute unless score #rz bm.rng matches -1..1 run return 0',
+                               'function bm:p211/bed/unspawn_tp with storage bm:p211 sp'])
+    fn('p211/bed/unspawn_tp', ['$execute in $(d) run spawnpoint @s $(x) $(y) $(z) $(yaw) $(pitch)'])
+    # (a broken Nimbus bed drops nothing to keep: the fresh drop - still on its pickup delay - is gone the tick it lands; your own beds lying near are left be)
+    G.FUNCS['tick'].append(f'execute as @e[type=minecraft:marker,tag=bm.ybbed] at @s run kill @e[type=minecraft:item,distance=..4,nbt={{Item:{{id:"{BED}"}}}},nbt=!{{PickupDelay:0s}}]')
     G.FUNCS['admin/uninstall'].insert(0, 'execute as @e[type=minecraft:marker,tag=bm.ybbed] at @s run function bm:p211/bed/gone')
 

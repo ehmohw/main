@@ -119,8 +119,11 @@ def generate(G):
                       f'execute as @e[type=minecraft:item,distance=..2.5] if items entity @s contents {plate} run scoreboard players set #fp bm.rng 1',
                       f'execute as @e[type=minecraft:item,distance=..2.5] if items entity @s contents {wings} run scoreboard players set #fw bm.rng 1',
                       'execute unless score #fp bm.rng matches 1 run return 0', 'execute unless score #fw bm.rng matches 1 run return 0',
-                      f'execute as @e[type=minecraft:item,distance=..2.5,limit=1] if items entity @s contents {plate} run function bm:p206/spend',
-                      f'execute as @e[type=minecraft:item,distance=..2.5,limit=1] if items entity @s contents {wings} run function bm:p206/spend',
+                      # (2.94k: the first that IS a plate - limit=1 took any item, then tested it, so the plate or wings could go unspent)
+                      f'execute as @e[type=minecraft:item,distance=..2.5] if items entity @s contents {plate} unless entity @e[type=minecraft:item,tag=bm.fsel,distance=..3] run tag @s add bm.fsel',
+                      'execute as @e[type=minecraft:item,tag=bm.fsel,distance=..3] run function bm:p206/spend', 'tag @e[type=minecraft:item,tag=bm.fsel] remove bm.fsel',
+                      f'execute as @e[type=minecraft:item,distance=..2.5] if items entity @s contents {wings} unless entity @e[type=minecraft:item,tag=bm.fsel,distance=..3] run tag @s add bm.fsel',
+                      'execute as @e[type=minecraft:item,tag=bm.fsel,distance=..3] run function bm:p206/spend', 'tag @e[type=minecraft:item,tag=bm.fsel] remove bm.fsel',
                       'function bm:p206/spend', 'loot spawn ~ ~0.4 ~ loot bm:items/dread_carapace',
                       'particle minecraft:squid_ink ~ ~0.6 ~ 0.4 0.4 0.4 0.08 40', 'particle minecraft:dust{color:[0.82,0.1,0.18],scale:1.8} ~ ~0.8 ~ 0.6 0.6 0.6 0 40',
                       'particle minecraft:sculk_soul ~ ~0.8 ~ 0.5 0.5 0.5 0.03 20',
@@ -212,7 +215,7 @@ def generate(G):
     fn('p206/rend_hit', ['damage @s 24 bm:dread_rend by ' + me, 'effect give @s minecraft:wither 5 1',
                          'particle minecraft:sweep_attack ~ ~1 ~ 0.6 0.4 0.6 0 6', 'particle minecraft:squid_ink ~ ~1 ~ 0.6 0.8 0.6 0.1 40',
                          'particle minecraft:dust{color:[0.82,0.1,0.18],scale:2.0} ~ ~1 ~ 1.5 0.6 1.5 0 60',
-                         'execute as @e[type=#bm:hostile,distance=0.1..4,tag=!bm.dsv] run damage @s 8 bm:dread_rend by ' + me])
+                         'execute as @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=0.1..4,tag=!bm.dsv] run damage @s 8 bm:dread_rend by ' + me])
     fn('p206/judgment', ['scoreboard players set @s bm.dscd ' + str(CD),
                          'execute as @e[tag=bm.dsv] at @s run function bm:p206/judge_hit', 'effect give @s minecraft:instant_health 1 1',
                          'playsound minecraft:block.beacon.activate player @a[distance=..24] ~ ~ ~ 1 1.6',
@@ -223,7 +226,7 @@ def generate(G):
                           'data merge entity @s {Fire:120s}',
                           'particle minecraft:end_rod ~ ~4 ~ 0.15 4 0.15 0.01 80', 'particle minecraft:flame ~ ~2 ~ 0.3 2 0.3 0.02 60',
                           'particle minecraft:flash{color:[1.0,0.95,0.8,1.0]} ~ ~1 ~ 0 0 0 0 1', 'particle minecraft:totem_of_undying ~ ~1 ~ 1.2 0.5 1.2 0.2 40',
-                          'execute as @e[type=#bm:hostile,distance=0.1..4,tag=!bm.dsv] run function bm:p206/judge_splash'])
+                          'execute as @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=0.1..4,tag=!bm.dsv] run function bm:p206/judge_splash'])
     fn('p206/judge_splash', ['damage @s 8 bm:seraph_fire by ' + me, 'data merge entity @s {Fire:60s}'])
 
     fn('admin/dreadborne', [give(i) for i in PIECES] + [give('dread_heart'), give('golden_cross', 4)])

@@ -149,7 +149,7 @@ def generate(G):
                       f'if score @s bm.pid = #me bm.pid run function bm:p205/keep',
                       f'execute if score #{c} bm.rng matches 1 if score #hp bm.rng matches 0 run function bm:p205/put/{w}_{part}']
         lines += [f'execute if score @s bm.chcd matches 1.. run scoreboard players remove @s bm.chcd 1',
-                  f'execute unless score @s bm.chcd matches 1.. if entity @e[type=#bm:hostile,distance=..{(ABIL[w][2] or (0, 8))[1] + 2}] run function bm:p205/ab/{w}']
+                  f'execute unless score @s bm.chcd matches 1.. if entity @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=..{(ABIL[w][2] or (0, 8))[1] + 2}] run function bm:p205/ab/{w}']
         fn(f'p205/sec/{w}', lines)
         for part, _c in parts:
             if w == 'wil':
@@ -191,9 +191,9 @@ def generate(G):
         if nova:
             d, r = nova
             L += [f'particle {part} ~ ~0.6 ~ {r / 2:.1f} 0.3 {r / 2:.1f} 0.05 60', f'particle minecraft:dust{{color:[1.0,0.84,0.4],scale:1.4}} ~ ~0.4 ~ {r / 2:.1f} 0.1 {r / 2:.1f} 0 40',
-                  f'execute as @e[type=#bm:hostile,distance=..{r}] at @s run function bm:p205/hit/{w}']
+                  f'execute as @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=..{r}] at @s run function bm:p205/hit/{w}']
         if strike:
-            L += [f'execute as @e[type=#bm:hostile,distance=..10,sort=nearest,limit=1] at @s run function bm:p205/hit/{w}']
+            L += [f'execute as @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=..10,sort=nearest,limit=1] at @s run function bm:p205/hit/{w}']
         if own:
             L += ['scoreboard players operation #me bm.pid = @s bm.pid',
                   f'execute as @a[distance=..24] if score @s bm.pid = #me bm.pid at @s run function bm:p205/own_fx/{w}']

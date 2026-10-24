@@ -308,7 +308,7 @@ def build(G, k, c, fn, title, tellraw, give, PREFIX, say, holds, foe, tick, fast
     CYCLE.update({st: (None, fr) for st, fr in atk.items()})
     DUR = {'idle_a': 20, 'idle_b': 20, 'walk_a': 6, 'walk_b': 6, 'run_a': 4, 'run_b': 4, 'air': 5, 'sit': 14, 'sit_b': 18, 'bow': 10, 'paddle_a': 10, 'paddle_b': 10,
            'swing_back': 4, 'swing': 2, 'toss': 4, 'slam_up': 6, 'slam': 2, 'ult': 10, 'slap_back': 3, 'slap': 2, 'serve': 4, 'wail': 4}
-    RF.cycles(fn, pfx, CYCLE, S('fr'), S('s'), lambda p: f'{pfx}/pose/{p}')
+    RF.cycles(fn, pfx, CYCLE, S('fr'), S('s'), lambda p: f'{pfx}/pose/{p}', tw=dict(G=G, A=A, P=POSES, S=SP, sel=psel))   # (2.94k: sitting down / getting up in steps)
     for name in {p for _per, frames in CYCLE.values() for _t, p in frames}:
         fn(f'{pfx}/pose/{name}', RF.pose(A, POSES[name], SP, DUR.get(name, 6), psel, swap=()))
     G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in RF.periods(CYCLE)]

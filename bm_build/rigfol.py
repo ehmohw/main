@@ -56,10 +56,43 @@ def pose(art, pz, S, dur, sel, swap=(), hide=True, parts=None, keep=False):
     return out
 
 
-def cycles(fn, pfx, cyc, frame_obj, state_obj, pose_fn):
+TW, TWG = (1, 2, 3), 3                 # (2.94k: in-between keys - three, 3 ticks apart)
+DOWN, UP = (4, 6), (0, 1, 2)           # (sitting, lying down to sleep - and up again into standing, walking, running)
+
+
+def cycles(fn, pfx, cyc, frame_obj, state_obj, pose_fn, tw=None):
     """the state machine's frames: cyc = {state: (period or None, [(tick, pose)])}; writes <pfx>/anim and one function per state.
-    (as the host) frame_obj counts ticks in the state; state_obj is the state; pose_fn(name) -> the pose function's name"""
+    (as the host) frame_obj counts ticks in the state; state_obj is the state; pose_fn(name) -> the pose function's name.
+    (2.94k) tw = dict(G, A, S, sel, swap): SITTING DOWN, LYING DOWN, GETTING UP in steps. Every part's display interpolates on
+    its own - its offset in a straight line, its turn about itself - so in one long swing from standing to sitting (or back)
+    a head cut across the arc and came off the shoulders on the way. Three in-between keys, blended joint by joint, 3 ticks
+    apart. Where it came from: the state it was in last tick (bm.rfls), taken as it changes (bm.rfps)."""
     top = []
+    if tw and hasattr(tw['A'], 'PARENT') and 'idle_a' in tw.get('P', tw['A'].POSES):
+        A, G, PZ = tw['A'], tw['G'], tw.get('P', tw['A'].POSES)
+        if 'bm.rfls' not in G.OBJECTIVES:
+            G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.rfls dummy', 'scoreboard objectives add bm.rfps dummy']
+            G.OBJECTIVES += ['bm.rfls', 'bm.rfps']
+        first = {st: frames[0][1] for st, (_per, frames) in cyc.items() if frames}
+
+        def tween(name, a, b):
+            for i in TW:
+                fn(f'{pfx}/pose/tw_{name}_{i}', pose(A, blend_pose(PZ[a], PZ[b], i / (len(TW) + 1)), tw['S'], TWG, tw['sel'], swap=tw.get('swap', ()), keep=True))
+            fn(f'{pfx}/tw/{name}', [f'execute if score @s {frame_obj} matches {TWG * (i - 1)} run function bm:{pfx}/pose/tw_{name}_{i}' for i in TW] +
+               [f'execute if score @s {frame_obj} matches {TWG * len(TW)} run function bm:{pose_fn(b)}'])
+        top += [f'execute if score @s {frame_obj} matches 0 run scoreboard players operation @s bm.rfps = @s bm.rfls',
+                f'scoreboard players operation @s bm.rfls = @s {state_obj}']
+        end = TWG * len(TW)
+        for down in DOWN:
+            if down not in first:
+                continue
+            tween(f'in{down}', 'idle_a', first[down])
+            top.append(f'execute if score @s {state_obj} matches {down} if score @s {frame_obj} matches ..{end} run return run function bm:{pfx}/tw/in{down}')
+            for up in UP:
+                if up in first:
+                    tween(f'up{down}_{up}', first[down], first[up])
+                    top.append(f'execute if score @s {state_obj} matches {up} if score @s bm.rfps matches {down} if score @s {frame_obj} matches ..{end} '
+                               f'run return run function bm:{pfx}/tw/up{down}_{up}')
     for st, (period, frames) in cyc.items():
         lines = [f'scoreboard players operation #f bm.rng = @s {frame_obj}']
         if period:

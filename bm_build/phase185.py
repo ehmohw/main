@@ -191,7 +191,7 @@ def generate(G):
     burst = ['particle minecraft:flame ~ ~1 ~ 0.5 0.9 0.5 0.04 50', 'particle minecraft:lava ~ ~1 ~ 0.4 0.6 0.4 0 10',
              'particle minecraft:flash{color:[1.0,0.55,0.15,1.0]} ~ ~1 ~ 0 0 0 0 1']
     fn(f'{pfx}/burst', burst)
-    RF.cycles(fn, pfx, CYCLE, S('fr'), S('s'), lambda p: f'{pfx}/pose/{p}')
+    RF.cycles(fn, pfx, CYCLE, S('fr'), S('s'), lambda p: f'{pfx}/pose/{p}', tw=dict(G=G, A=A, P=POSES, S=SP, sel=psel))   # (2.94k: sitting down / getting up in steps)
     for name in {p for _per, frames in CYCLE.values() for _t, p in frames}:
         fn(f'{pfx}/pose/{name}', RF.pose(A, POSES[name], SP, DUR.get(name, 6), psel))
     G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in RF.periods(CYCLE)]

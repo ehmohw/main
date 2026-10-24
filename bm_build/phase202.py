@@ -184,7 +184,7 @@ def generate(G):
                            'execute positioned ^ ^ ^1 unless block ~ ~1 ~ #bm:p202_pass run return 0',
                            'tp @s ^ ^ ^1', 'particle minecraft:bubble_pop ~ ~1 ~ 0.4 0.5 0.4 0.05 10', 'particle minecraft:cloud ~ ~0.5 ~ 0.3 0.2 0.3 0.02 4',
                            f'execute as @e[{foe},tag=!bm.aghit,distance=..2.2] at @s run function bm:p202/aegis/rammed',
-                           'execute at @s run function bm:p202/aegis/step'])
+                           'execute at @s rotated ~ 0 run function bm:p202/aegis/step'])        # (2.94k: level every step - at @s brought your pitch back)
     fn('p202/aegis/rammed', ['tag @s add bm.aghit', 'damage @s 14 minecraft:player_attack by @p[tag=bm.agme]',
                              'execute facing entity @p[tag=bm.agme] feet rotated ~180 0 run tp @s ^ ^0.6 ^2.5', 'particle minecraft:crit ~ ~1 ~ 0.3 0.4 0.3 0.2 12',
                              'playsound minecraft:item.shield.block neutral @a[distance=..16] ~ ~ ~ 1 0.5'])
@@ -193,12 +193,14 @@ def generate(G):
     wjson('bm/advancement/p202/crescent_hit.json', {'criteria': {'hit': {'trigger': 'minecraft:player_hurt_entity', 'conditions': {'player': [
         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'equipment': {'mainhand': {'predicates': {'minecraft:custom_data': '{bm:"emma_crescent"}'}}}}}]}}},
         'rewards': {'function': 'bm:p202/cres/hit'}})
-    fn('p202/cres/hit', ['advancement revoke @s only bm:p202/crescent_hit', 'scoreboard players add @s bm.crh 1',
+    fn('p202/cres/hit', ['advancement revoke @s only bm:p202/crescent_hit', 'execute if entity @s[tag=bm.crme] run return 0',   # (2.94k: its own cuts aren't blows)
+                         'scoreboard players add @s bm.crh 1',
                          'execute if score @s bm.crh matches 3.. at @s run function bm:p202/cres/wave'])
     fn('p202/cres/wave', ['scoreboard players set @s bm.crh 0', 'tag @s add bm.crme', 'scoreboard players set #cw bm.rng 0',
                           'playsound minecraft:entity.player.attack.sweep player @a[distance=..20] ~ ~ ~ 1 0.6',
                           'playsound minecraft:block.amethyst_block.chime player @a[distance=..20] ~ ~ ~ 1 1.6',
-                          'execute anchored eyes positioned ^ ^-0.4 ^1 run function bm:p202/cres/wstep', 'tag @e[tag=bm.crhit] remove bm.crhit', 'tag @s remove bm.crme'])
+                          'execute anchored eyes positioned ^ ^-0.4 ^1 run function bm:p202/cres/wstep', 'tag @e[tag=bm.crhit] remove bm.crhit', 'tag @s remove bm.crme',
+                          'scoreboard players set @s bm.crh 0'])
     fn('p202/cres/wstep', ['scoreboard players add #cw bm.rng 1', 'execute if score #cw bm.rng matches 9.. run return 0',
                            'particle minecraft:end_rod ^-1 ^ ^ 0 0 0 0 1', 'particle minecraft:end_rod ^1 ^ ^ 0 0 0 0 1', 'particle minecraft:end_rod ^ ^ ^ 0 0 0 0 1',
                            'particle minecraft:cherry_leaves ^ ^ ^ 0.8 0.3 0.2 0 3', 'particle minecraft:dust{color:[1.0,0.55,0.9],scale:1.4} ^-0.6 ^0.2 ^ 0 0 0 0 1',
@@ -215,7 +217,7 @@ def generate(G):
     fn('p202/cres/blink', ['scoreboard players add #cs bm.rng 1', 'execute if score #cs bm.rng matches 7.. run return 0',
                            'execute positioned ^ ^ ^1 unless block ~ ~ ~ #bm:p202_pass run return 0',
                            'execute positioned ^ ^ ^1 unless block ~ ~1 ~ #bm:p202_pass run return 0', 'tp @s ^ ^ ^1',
-                           'execute at @s run function bm:p202/cres/blink'])
+                           'execute at @s rotated ~ 0 run function bm:p202/cres/blink'])
     fn('p202/cres/slam', ['execute if score @s bm.crcd2 matches 1.. run return run ' + say('The Crescent is still gathering its bloom...', '#ff7ae0'),
                           'scoreboard players set @s bm.crcd2 240', 'tag @s add bm.crme',
                           f'execute as @e[{foe},distance=..5] at @s run function bm:p202/cres/slammed',
@@ -272,7 +274,7 @@ def generate(G):
         f'execute if score #r_leo bm.rng matches 1 if entity @s[tag=bm.kg_aegis] if predicate bm:p20/sneaking unless items entity @s container.* {holds("leo_aegis")} unless items entity @s weapon.offhand {holds("leo_aegis")} run function bm:p202/again/aegis']
     G.FUNCS['p199/font/ask'] += [         # (Emma's, last: after the full court has restored the castle, in the same visit)
         'execute if score #r_emma bm.rng matches 1 unless entity @s[tag=bm.kg_cres] run function bm:p202/give/cres',
-        f'execute if score #r_emma bm.rng matches 1 if entity @s[tag=bm.kg_cres] if predicate bm:p20/sneaking unless items entity @s container.* {holds("emma_crescent")} run function bm:p202/again/cres']
+        f'execute if score #r_emma bm.rng matches 1 if entity @s[tag=bm.kg_cres] if predicate bm:p20/sneaking unless items entity @s container.* {holds("emma_crescent")} unless items entity @s weapon.offhand {holds("emma_crescent")} run function bm:p202/again/cres']
     line = lambda who, col, txt: tellraw('@a[distance=..24]', [T(who + ': ', col, bold=True), T(txt, 'white')])
     core = '@e[type=minecraft:marker,tag=bm.kingdom,distance=..70,sort=nearest,limit=1]'
     fn('p202/give/aegis', ['execute unless score @s bm.krank matches 2.. run return run ' +
@@ -304,7 +306,7 @@ def generate(G):
     G.FUNCS['p199/trib/ask'].insert(-2, 'loot give @s loot bm:p202/tribute_scales')
     E = G.loot_entry
     wjson('bm/loot_table/p202/tribute_scales.json', {'type': 'minecraft:command', 'pools': [{'rolls': 1, 'entries': [E('tide_scale', G.uni(1, 2))]}]})
-    wjson('bm/loot_table/p202/raider.json', {'type': 'minecraft:entity', 'pools': [{'rolls': 1, 'entries': [E('tide_scale')]},
+    wjson('bm/loot_table/p202/raider.json', {'type': 'minecraft:entity', 'pools': [{'rolls': 1, 'entries': [E('tide_scale')], 'conditions': [{'condition': 'minecraft:killed_by_player'}]},   # (2.94k: a breach's end clears its raiders - no scales for those)
                                                                                      {'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'minecraft:rotten_flesh'}]}]})
     G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/kingdom_gear', 'yellow'), T("  the kingdom's armoury: the Aegis, the Crescent, both sets, scales", 'gray')]))
     fn('admin/kingdom_gear', [give('leo_aegis'), give('emma_crescent'), give('crown_of_the_deep')] + [give(i) for i in ARMOR_IDS] + [give('tide_scale', 32)])

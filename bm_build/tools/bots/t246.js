@@ -32,7 +32,7 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
   await run(`${O}forceload add ${X - 32} ${Z - 32} ${X + 32} ${Z + 32}`);
   await run(`${O}fill ${X - 16} ${Y} ${Z - 16} ${X + 16} ${Y} ${Z + 16} minecraft:snow_block`); await run(`${O}fill ${X - 16} ${Y + 1} ${Z - 16} ${X + 16} ${Y + 14} ${Z + 16} minecraft:air`);
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..40]`); await run('scoreboard players set #hardoff bm.cfg 0'); await run('scoreboard players set #hard bm.cfg 1');   // (the server holds hard mode off: let it on)
-  await run('advancement revoke TestRat only bm:story/db_snow'); await run('execute as TestRat run function bm:p21/pid'); await run('tag TestRat remove bm.dbdisc'); await run('tag TestRat remove bm.dbdisc2'); await run('scoreboard players reset #dbcd_snow bm.dbcd'); await run('tag TestRat remove bm.dbread_snow');
+  await run('advancement revoke TestRat only bm:story/db_snow'); await run('execute as TestRat run function bm:p21/pid'); await run('tag TestRat remove bm.dbdisc'); await run('tag TestRat remove bm.dbdisc2'); await run(`${O}scoreboard players reset @e[tag=bm.dbaltar_snow] bm.dbcd`); await run('tag TestRat remove bm.dbread_snow');
   // ---- the stage: the Frozen Folly built here
   await run(`${O}execute positioned ${X} ${Y + 1} ${Z} run function bm:p197/snow/ruin/build`); await sleep(800);
   const ALT = `@e[type=minecraft:interaction,tag=bm.dbaltar_snow,x=${X},y=${Y},z=${Z},distance=..20,limit=1]`;
@@ -100,7 +100,7 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
   await sleep(2500); alt = await entOf(ALT); A.bars.length = 0; if (alt) A.interact(alt.entityId); await sleep(1200);
   ok('the altar rests after its win: right-clicked with the three - "spent", it stirs again in 20 min; nothing rises', A.bars.some(b => /altar is spent.*stirs again in 20 min/.test(b)) &&
      (await cnt('@e[tag=bm.db_snow]')) === 0, A.bars.slice(-1).join(''));
-  await run(`${O}kill @e[tag=bm.trdb]`); await run('scoreboard players reset #dbcd_snow bm.dbcd');
+  await run(`${O}kill @e[tag=bm.trdb]`); await run(`${O}scoreboard players reset @e[tag=bm.dbaltar_snow] bm.dbcd`);
   // ---- the token: carried, set down, taken back
   await run('effect clear TestRat'); await run('clear TestRat minecraft:netherite_sword');
   await run('clear TestRat *[minecraft:custom_data~{bm:"tok_frost"}]'); await run('loot replace entity TestRat hotbar.1 loot bm:items/tok_frost');

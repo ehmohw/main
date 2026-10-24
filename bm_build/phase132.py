@@ -828,7 +828,7 @@ def generate(G):
              7: (None, [(0, 'thrust_back'), (4, 'thrust')]), 8: (None, [(0, 'aim'), (6, 'fire'), (9, 'reload')]),
              9: (None, [(0, 'throw_back'), (5, 'throw'), (7, 'hook_pull'), (16, 'blast')]), 12: (None, [(0, 'aim'), (8, 'blast')]),
              10: (3 * ART.SWIM_FRAMES, [(3 * i, f'swim_{i}') for i in range(ART.SWIM_FRAMES)])}
-    RF.cycles(fn, 'p132', CYCLE, 'bm.tuf', 'bm.tus', lambda p: f'p132/pose/{p}')
+    RF.cycles(fn, 'p132', CYCLE, 'bm.tuf', 'bm.tus', lambda p: f'p132/pose/{p}', tw=dict(G=G, A=A, P=POSES, S=SP, sel=psel, swap=SWAP))
     used = {p for _per, frames in CYCLE.values() for _t, p in frames}
     for name, pz in POSES.items():
         if name in DUR_P and name in used:

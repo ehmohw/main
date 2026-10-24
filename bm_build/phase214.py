@@ -34,6 +34,7 @@ ANIMS = ('idle', 'walk', 'sit', 'attack')
 # head the follower sprite lost) - its animations by ours
 SRC = {'apo': ('apo_boss', {'idle': 'idle', 'walk': 'move', 'sit': 'idle', 'attack': 'bite'})}
 PIXEL = {'emma': 'p213e', 'leo': 'p213l', 'cecil': 'p213c'}      # (theirs is a follower of its own)
+ENC = {'emma': 'xm', 'leo': 'xl', 'cecil': 'xc'}
 MET = {'emma': 'bm.xmmet', 'leo': 'bm.xlmet', 'cecil': 'bm.xcmet'}
 
 
@@ -107,8 +108,8 @@ def generate(G):
     P = G.PREFIX
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     tick, second = [], []
-    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.pxf dummy', 'scoreboard objectives add bm.pxvr dummy']
-    G.OBJECTIVES += ['bm.pxf', 'bm.pxvr']
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.pxf dummy', 'scoreboard objectives add bm.pxvr dummy', 'scoreboard objectives add bm.pxst dummy']
+    G.OBJECTIVES += ['bm.pxf', 'bm.pxvr', 'bm.pxst']
 
     # ---- found in a won heist (any tier, every raider)
     G.wjson('bm/loot_table/p214/cart.json', {'type': 'minecraft:chest', 'pools': [{'rolls': 1, 'entries': [G.loot_entry('glitch_cart')]}]})
@@ -137,6 +138,7 @@ def generate(G):
         nm = {'emma': '8-Bit Emma', 'leo': '8-Bit Leo', 'cecil': '8-Bit Cecil'}[w]
         fn(f'p214/on/{w}', ['scoreboard players set #done bm.rng 1',
                             f'execute if entity @a[tag=bm.pxuser,tag={MET[w]}] run return run execute as {U} run ' + say(f'The cartridge flickers - but {nm} is already out.', COL),
+                            f'execute if entity @e[type=minecraft:interaction,tag=bm.{ENC[w]}enc,distance=..32] run return run execute as {U} run ' + say(f'The cartridge flickers - {nm} is already glitching out nearby.', COL),   # (2.94k: kept)
                             f'execute as {U} positioned ^ ^ ^1.5 run function bm:{pfx}/enc/glitch', spend] + glitch +
            [f'execute as {U} run ' + tellraw('@s', [T('The cartridge glitches - colours smear across the air - and out of the static tumbles ', COL, italic=True),
                                                      T(nm, COL, bold=True), T('.', COL, italic=True)])])
@@ -176,6 +178,18 @@ def generate(G):
         else:
             hide = ['execute on passengers if entity @s[type=#bm:p214_displays,tag=!bm.pxcos] run function bm:p214/keep']
             show = ['execute on passengers if entity @s[type=#bm:p214_displays,tag=bm.pxhid] run function bm:p214/show1']
+        # (2.94k: a Champion's medal and regalia are displays of their own - hidden with the model, back with it)
+        import phase173 as _P173
+        if k in _P173.AR: hide += [f'execute as @e[type=minecraft:item_display,tag=bm.chp_{k},tag=!bm.pxhid,distance=..12] if score @s bm.pid = #me bm.pid run function bm:p214/keep']
+        if k in _P173.AR: show += [f'execute as @e[type=minecraft:item_display,tag=bm.chp_{k},tag=bm.pxhid,distance=..12] if score @s bm.pid = #me bm.pid run function bm:p214/show1']
+        if k == 'wil':          # (2.94k: Wilfrey's body is a mob of its own, not a passenger - hidden too: unseen, shrunk, nameless)
+            body = '@e[type=minecraft:wither_skeleton,tag=bm.wil_body,distance=..4'
+            hide += [f'execute as {body},tag=!bm.pxhid] if score @s bm.pid = #me bm.pid run function bm:p214/wil_hide']
+            show += [f'execute as {body},tag=bm.pxhid] if score @s bm.pid = #me bm.pid run function bm:p214/wil_show']
+            fn('p214/wil_hide', ['tag @s add bm.pxhid', 'effect give @s minecraft:invisibility infinite 0 true', 'attribute @s minecraft:scale base set 0.0625',
+                                 'data modify entity @s CustomNameVisible set value 0b'])
+            fn('p214/wil_show', ['tag @s remove bm.pxhid', 'effect clear @s minecraft:invisibility', 'attribute @s minecraft:scale base reset',
+                                 'data modify entity @s CustomNameVisible set value 1b'])
         nbt = {'Tags': ['bm.pxcos', f'bm.pxcos_{k}', 'bm.pxnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': f'bm:pk_{k}'}},
                'item_display': 'fixed', 'teleport_duration': Int(1), 'view_range': F(1.6),
                'brightness': {'block': Int(13), 'sky': Int(13)}, 'shadow_radius': F(0.4), 'shadow_strength': F(0.5),
@@ -207,7 +221,10 @@ def generate(G):
                 'scoreboard players operation #me bm.pid = @s bm.pid',
                 f'execute as {cos} if score @s bm.pid = #me bm.pid positioned ~ ~{up} ~ run function bm:p214/f/{k}']
         fn(f'p214/h/{k}', anim)
-        fr = ['tp @s ~ ~ ~ ~ 0', 'scoreboard players add @s bm.pxf 1', 'scoreboard players operation #fi bm.rng = @s bm.pxf',
+        fr = ['tp @s ~ ~ ~ ~ 0',
+              # (2.94k: a new state starts its animation from the top - sitting down played only its last frame)
+              'execute unless score @s bm.pxst = #st bm.rng run scoreboard players set @s bm.pxf 0', 'scoreboard players operation @s bm.pxst = #st bm.rng',
+              'scoreboard players add @s bm.pxf 1', 'scoreboard players operation #fi bm.rng = @s bm.pxf',
               'scoreboard players operation #fi bm.rng %= #3 bm.rng', 'execute unless score #fi bm.rng matches 0 run return 0',
               'scoreboard players operation #fi bm.rng = @s bm.pxf', 'scoreboard players operation #fi bm.rng /= #3 bm.rng']
         for st, a in enumerate(('idle', 'walk', 'sit', 'attack')):

@@ -334,7 +334,10 @@ def generate(G):
     fn('p179/w/fetch', ['particle minecraft:reverse_portal ~ ~0.8 ~ 0.3 0.5 0.3 0.05 20',
                         'scoreboard players add #pwn bm.rng 1', 'execute store result storage bm:tmp pw.yaw float 45 run scoreboard players get #pwn bm.rng',
                         'execute at @a[tag=bm.pwme,limit=1] run function bm:p179/w/fetch_at with storage bm:tmp pw'])
-    fn('p179/w/fetch_at', ['$execute rotated $(yaw) 0 positioned ^ ^ ^1.5 if block ~ ~ ~ #minecraft:air if block ~ ~1 ~ #minecraft:air run return run function bm:p179/w/land',
+    # (2.94k: the ring spot clear all the way from you - not through a wall - and ground under it, not a drop or lava; else onto you)
+    fn('p179/w/fetch_at', ['$execute rotated $(yaw) 0 positioned ^ ^ ^0.75 if block ~ ~ ~ #minecraft:air if block ~ ~1 ~ #minecraft:air positioned ^ ^ ^0.75 '
+                           'if block ~ ~ ~ #minecraft:air if block ~ ~1 ~ #minecraft:air unless block ~ ~-1 ~ #bm:grap_pass unless block ~ ~-1 ~ minecraft:lava '
+                           'run return run function bm:p179/w/land',
                            'tp @s ~ ~ ~', 'execute at @s run particle minecraft:portal ~ ~0.8 ~ 0.3 0.5 0.3 0.4 20'])
     fn('p179/w/land', ['tp @s ~ ~ ~',
                            'execute at @s run particle minecraft:portal ~ ~0.8 ~ 0.3 0.5 0.3 0.4 20'])

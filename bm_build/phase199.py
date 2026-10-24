@@ -631,7 +631,8 @@ def generate(G):
     fn('p199/dome/flood_blocks', flood)
     loaded = ' '.join(f'if loaded ~{x} ~ ~{z}' for x in (-36, 36) for z in (-42, 30))
     fn('p199/dome/unwet_once', [f'execute {loaded} run function bm:p199/dome/dry', f'execute {loaded} run tag @s add bm.kunwet'])
-    fn('p199/dome/mend', [f'execute unless loaded ~-36 ~ ~-42 run return run ' + say('The dome is too far to reach all of it - come closer.', KC),
+    fn('p199/dome/mend', ['scoreboard players set #kl bm.rng 0', f'execute {loaded} run scoreboard players set #kl bm.rng 1',
+                          'execute if score #kl bm.rng matches 0 run return run ' + say('The dome is too far to reach all of it - come closer.', KC),
                           f'execute {loaded} run function bm:p199/dome/mend_blocks', 'scoreboard players set @s bm.kdome 0', 'scoreboard players set @s bm.kburst 0',
                           'scoreboard players set @s bm.kdry 6',
                           'kill @e[type=minecraft:drowned,tag=bm.kraider,distance=..70]',
@@ -654,9 +655,13 @@ def generate(G):
                              'execute positioned ~ ~-4 ~-6 run ' + title('@a[distance=..40]', 'subtitle', T('The Dome Heart can raise it: a Heart of the Sea, or Queen Ava', KC))])
 
     # the Dome Heart: raise a shattered dome (a Heart of the Sea, or Queen Ava); sneak + use: mend leaks (2 pearls; free with Ava)
-    fn('p199/heart/ask', ['function bm:p199/who', f'execute store result score #ks bm.rng run scoreboard players get {core} bm.kdome',
+    # (2.94k: nothing is paid unless the whole dome is loaded to mend - and a whole, unleaking dome isn't charged for)
+    fn('p199/heart/ask', ['function bm:p199/who', 'scoreboard players set #kl bm.rng 0', f'execute as {core} at @s {loaded} run scoreboard players set #kl bm.rng 1',
+                          'execute if score #kl bm.rng matches 0 run return run ' + say('The dome is too far to reach all of it - come closer.', KC),
+                          f'execute store result score #ks bm.rng run scoreboard players get {core} bm.kdome',
                           'execute if score #ks bm.rng matches 1 run return run function bm:p199/heart/shattered',
                           'execute unless predicate bm:p20/sneaking run return run function bm:p199/heart/call',
+                          f'execute unless score {core} bm.kburst matches 1.. run return run ' + say('The dome is whole - no leaks to mend.', KC),
                           'execute if score #r_ava bm.rng matches 1 run return run function bm:p199/heart/mend_free',
                           f'execute store result score #c bm.rng run clear @s {holds("royal_pearl")} 0',
                           'execute unless score #c bm.rng matches 2.. run return run ' + say('Mending the dome takes 2 Royal Pearls.', KC),

@@ -1703,7 +1703,7 @@ def generate(G):
              6: (None, [(0, 'roar')]), 7: (None, [(0, 'claw_up'), (5, 'claw')]), 8: (None, [(0, 'battle'), (4, 'bite')]), 9: (None, [(0, 'cast'), (6, 'cast_point')]),
              12: (None, [(0, 'mace_up'), (5, 'mace_swing'), (7, 'mace_slam'), (11, 'mace_rec'), (14, 'mace_back')]),
              10: (20, [(0, 'swim_a'), (5, 'swim_m'), (10, 'swim_b'), (15, 'swim_m')])}
-    RF.cycles(fn, 'p131', CYCLE, 'bm.apf', 'bm.aps', lambda p: f'p131/pose/{p}')
+    RF.cycles(fn, 'p131', CYCLE, 'bm.apf', 'bm.aps', lambda p: f'p131/pose/{p}', tw=dict(G=G, A=A, P=POSES, S=SP, sel=psel))
     G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in RF.periods(CYCLE)]
     fn('p131/state', ['execute if score @s bm.apsl matches 1.. run return run scoreboard players set #st bm.rng 6',
                       'execute if score @s bm.apx matches 1.. run return run scoreboard players operation #st bm.rng = @s bm.apa',
