@@ -21,6 +21,20 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94i: a sharper opening
+
+- **The opening sting no longer sounds like a victory.** A Dread boss's opening (its big attack spent, 3 seconds to strike)
+  now plays a snare roll into power-chord stabs, violins hammering a climbing minor figure, and a hard, clipped C-minor hit
+  that cuts off: your turn, not a win.
+
+## New in 2.94i: the turn into the Lament
+
+- **The warning and opening stings are gone**, and so is the 3-second opening after a big attack: cutting in over the music
+  broke up the song. The Dread bosses fight as they did before 2.94h.
+- **A turn between the two themes.** When a Dread boss enrages at half health, The Dread no longer cuts straight to the
+  Lament: an 8-second bridge plays. A great stab as it enrages, the strings tumbling down, the bell tolling, a slowing
+  heartbeat, then the violin left alone on the note the Lament begins on.
+
 ## New in 2.94h: The Dread - Lament, and the music of the fight
 
 - **The Dread - Lament**: a desperate, melancholy variation of the Dread bosses' theme. A lone violin over piano and a

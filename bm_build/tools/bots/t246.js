@@ -1,8 +1,7 @@
 // 2.88: THE DREAD BOSSES, as a regular (non-op) player - hard mode: a ruin's altar right-clicked without its trio lists who's
 // missing; with Pistachio, Celi and Tullius beside you the Malevolent Snowbeast rises; it fights (ice-shard volleys fly); brought
 // down, it falls - the Frostbitten Token, the spoils, the advancement (2.94g: its theme, The Dread, plays while it fights and stops as it
-// falls; the first win gives its record; 2.94h: its frost nova warned of, then an opening - its armour gone 3 s; in phase two the
-// music turns to the Lament); the token carried (Resistance), set down as a ward (sneak +
+// falls; the first win gives its record; 2.94i: in phase two the music turns - an 8 s bridge, then the Lament); the token carried (Resistance), set down as a ward (sneak +
 // use on a block) and taken back (sneak + punch); the Watchful Witch's altar refuses you too. Vesper sells the three maps and
 // scraps the tokens. rcon only sets the stage (the ruin built, the trio standing by as yours).
 const { bot, rcon, sleep } = require('./lib_resp');
@@ -59,22 +58,11 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
      /slowness/.test(await fx())), `shots ${await cnt('@e[type=minecraft:marker,tag=bm.dbshot_ice]')}`);
   const bmt = async () => +(((await run('scoreboard players get TestRat bm.bmt')).match(/has (-?\d+)/) || [0, 0])[1]);
   ok('...and its theme plays: The Dread (2.94g)', await wait(4000, async () => (await bmt()) === 14), `theme ${await bmt()}`);
-  // ---- (2.94h) a big attack: the warning, then the opening - close in for its frost nova
-  const SB = '@e[tag=bm.db_snow,limit=1]';
-  const armor = async () => +(((await run(`${O}attribute ${SB} minecraft:armor get`)).match(/is (-?[\d.]+)/) || [0, NaN])[1]);
-  const a0 = await armor();
-  { const bx = await num(SB, 'Pos[0]'), by = await num(SB, 'Pos[1]'), bz = await num(SB, 'Pos[2]');
-    for (const st of [7, 8, 11]) await run(`${O}scoreboard players set ${SB} bm.dbk${st} ${st === 8 ? 0 : 200}`);
-    A.bars.length = 0; await at(bx, by, bz - 4, 0, 10); }
-  ok('a big attack gathers (its frost nova): the warning on your bar ("gathers itself")', await wait(8000, async () => A.bars.some(b => /gathers itself/.test(b))), A.bars.slice(-1).join(''));
-  ok('...spent: an opening - "STRIKE NOW!", its armour gone', await wait(4000, async () => A.bars.some(b => /STRIKE NOW/.test(b))) && (await armor()) === 0 &&
-     /bm\.dbopen/.test(await run(`${O}data get entity ${SB} Tags`)), `armor ${await armor()} (was ${a0}) | ${A.bars.slice(-1).join('')}`);
-  ok('...and 3 seconds on, its armour back', await wait(5000, async () => (await armor()) === a0) && !/bm\.dbopen/.test(await run(`${O}data get entity ${SB} Tags`)), `armor ${await armor()}`);
-  await at(ax, ay, az - 12, 0, 0);
   // ---- brought low (the stage: most of its health gone), then the player's own blows finish it
   await run(`${O}damage @e[tag=bm.db_snow,limit=1] 700 minecraft:generic`); await sleep(400);
   ok('...half down: enraged (phase two)', await wait(3000, async () => /1/.test(await run(`${O}scoreboard players get @e[tag=bm.db_snow,limit=1] bm.dbph`))));
-  ok('...and the music turns to its Lament (the last stand)', await wait(4000, async () => (await bmt()) === 15), `theme ${await bmt()}`);
+  ok('...and the music turns: first the bridge (the turn), then its Lament (the last stand)', await wait(4000, async () => (await bmt()) === 16) &&
+     await wait(12000, async () => (await bmt()) === 15, 500), `theme ${await bmt()}`);
   A.chats.length = 0;
   await run('item replace entity TestRat hotbar.0 with minecraft:netherite_sword[minecraft:enchantments={"minecraft:sharpness":5}]'); A.slot(0);
   for (let i = 0; i < 40 && (await cnt('@e[tag=bm.db_snow]')) > 0 && !(await has('tok_frost')); i++) {

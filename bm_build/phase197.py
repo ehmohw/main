@@ -33,12 +33,14 @@ import phase152 as P152
 P152.THEMES[14] = ('dread', 120)
 P152.WHO_LATE += [(14, 'type=minecraft:husk,tag=bm.db,tag=!bm.dbfall'), (14, 'type=minecraft:drowned,tag=bm.db,tag=!bm.dbfall')]
 # (2.94h) THE LAMENT - the same fight gone desperate - for a Dread boss's second phase, its last stand (and a record of its own);
-# and two stings laid over the theme: INCOMING as a boss gathers itself for one of its big attacks, AN OPENING when it's spent
+# (2.94i) and THE TURN between them: the moment it enrages, 8 s of bridge (a stab, the strings tumbling, the bell, a slowing
+# heartbeat, the violin left alone on the Lament's first note) - while its bm.dbtt runs down, then the Lament
 P152.THEMES[15] = ('dread2', 120)
-P152.WHO_LATE += [(15, 'type=minecraft:husk,tag=bm.db,tag=!bm.dbfall,scores={bm.dbph=1}'), (15, 'type=minecraft:drowned,tag=bm.db,tag=!bm.dbfall,scores={bm.dbph=1}')]
-P152.STINGS += ['dread_warn', 'dread_open']
-BIG = {'snow': (8, 11, 12), 'witch': (9, 11, 12), 'shark': (9, 11, 12)}     # (the big attacks: a warning, then an opening)
-OPEN = 60                                                                    # (ticks the boss stands spent: its armour gone)
+P152.THEMES[16] = ('dread_turn', 8)
+TURN = 8
+for _h in ('husk', 'drowned'):
+    P152.WHO_LATE += [(15, f'type=minecraft:{_h},tag=bm.db,tag=!bm.dbfall,scores={{bm.dbph=1}}'),
+                      (16, f'type=minecraft:{_h},tag=bm.db,tag=!bm.dbfall,scores={{bm.dbph=1,bm.dbtt=1..}}')]
 import phase177 as P177
 import snowbeast_art, witch_art, sawshark_art
 
@@ -139,7 +141,7 @@ def generate(G):
     fn, wjson, tellraw, title, give = G.fn, G.wjson, G.tellraw, G.title, G.give
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     tick, fast, second = [], [], []
-    objs = ['bm.dbid', 'bm.dbs', 'bm.dbf', 'bm.dbx', 'bm.dba', 'bm.dbph', 'bm.dbgone', 'bm.dbk7', 'bm.dbk8', 'bm.dbk9', 'bm.dbk11', 'bm.dbk12', 'bm.dbt',
+    objs = ['bm.dbid', 'bm.dbs', 'bm.dbf', 'bm.dbx', 'bm.dba', 'bm.dbph', 'bm.dbtt', 'bm.dbgone', 'bm.dbk7', 'bm.dbk8', 'bm.dbk9', 'bm.dbk11', 'bm.dbk12', 'bm.dbt',
             'bm.dbwin_snow', 'bm.dbwin_witch', 'bm.dbwin_shark']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + ['scoreboard players set #2 bm.rng 2', 'scoreboard players set #9 bm.rng 9',
                                                                                      'scoreboard players set #5 bm.rng 5', 'scoreboard players set #10 bm.rng 10']
@@ -365,18 +367,13 @@ def build_boss(G, k, b, tick, second, fast):
         choose.append(' '.join(x for x in [f'execute unless score @s bm.dbx matches 1.. unless score @s bm.dbk{st} matches 1..',
                                            'if score @s bm.dbph matches 1' if phase2 else '', cond, f'run function bm:{pfx}/go{st}'] if x))
     for a in A_:
-        warn = ['execute as @a[distance=..48,gamemode=!spectator] at @s run playsound bm:music.boss_dread_warn record @s ~ ~ ~ 1 1',
-                title('@a[distance=..32,gamemode=!spectator]', 'actionbar', [T('\u26a0 ', '#ff4040', bold=True), T(f'{b["NAME"]} gathers itself...', '#ffb0b0')])] \
-            if a['st'] in BIG[k] else []
         fn(f'{pfx}/go{a["st"]}', [f'scoreboard players set @s bm.dba {a["st"]}', f'scoreboard players set @s bm.dbx {a["dur"]}',
-                                  f'scoreboard players set @s bm.dbk{a["st"]} {a["cd"]}', f'execute facing entity {tgt} feet rotated ~ 0 run tp @s ~ ~ ~ ~ ~'] + a.get('start', []) + warn)
+                                  f'scoreboard players set @s bm.dbk{a["st"]} {a["cd"]}', f'execute facing entity {tgt} feet rotated ~ 0 run tp @s ~ ~ ~ ~ ~'] + a.get('start', []))
     beats = []
     for a in A_:
         for x, f_ in a['beats'].items():
             cond = f'matches {x}' if isinstance(x, int) else f'matches {x}'
             beats.append(f'execute if score @s bm.dba matches {a["st"]} if score @s bm.dbx {cond} run function bm:{pfx}/{f_}')
-        if a['st'] in BIG[k]:                                                    # (2.94h: spent - an opening)
-            beats.append(f'execute if score @s bm.dba matches {a["st"]} if score @s bm.dbx matches 1 run function bm:{pfx}/opening')
     fn(f'{pfx}/tick', ['tag @s add bm.dbme', 'scoreboard players operation #id bm.rng = @s bm.dbid',
                        f'execute as @e[type=minecraft:item_display,tag=bm.dbr_{k}] if score @s bm.dbid = #id bm.rng run tag @s add bm.dbsel',
                        f'tag @a[tag=bm.dbtgt] remove bm.dbtgt',
@@ -389,9 +386,7 @@ def build_boss(G, k, b, tick, second, fast):
        [f'execute if score @s bm.dbk{st} matches 1.. run scoreboard players remove @s bm.dbk{st} 1' for st in (7, 8, 9, 11, 12)] +
        [f'execute if score @s bm.dbph matches 1 if score @s bm.dbk{st} matches 1.. run scoreboard players remove @s bm.dbk{st} 1' for st in (7, 8, 9, 11)] +
        beats +
-       [f'execute if entity @s[tag=bm.dbopen] if score @s bm.dbx matches 1.. run particle minecraft:crit ~ ~{1 + b["scale"]:.1f} ~ {0.4 * b["scale"]:.1f} {0.5 * b["scale"]:.1f} {0.4 * b["scale"]:.1f} 0.3 3',
-        f'execute if entity @s[tag=bm.dbopen] unless score @s bm.dbx matches 1.. run function bm:{pfx}/closed',
-        'execute if score @s bm.dba matches 30 if score @s bm.dbx matches 1 run function bm:{pfx}/awake'.replace('{pfx}', pfx),
+       ['execute if score @s bm.dba matches 30 if score @s bm.dbx matches 1 run function bm:{pfx}/awake'.replace('{pfx}', pfx),
         'execute if score @s bm.dba matches 31 if score @s bm.dbx matches 1 run function bm:{pfx}/fall'.replace('{pfx}', pfx),
         f'execute if entity {tgt} unless score @s bm.dba matches 30..31 run function bm:{pfx}/mind',
         f'function bm:{pfx}/state',
@@ -402,14 +397,6 @@ def build_boss(G, k, b, tick, second, fast):
         f'execute rotated as @s rotated ~ 0 run function bm:{pfx}/place',
         'tag @e[tag=bm.dbsel] remove bm.dbsel', 'tag @s remove bm.dbme'])
     fn(f'{pfx}/mind', choose + [f'execute unless score @s bm.dbx matches 1.. run function bm:{pfx}/move'])
-    # (2.94h) AN OPENING: a big attack spent, it stands - its armour gone a moment, the hype in the music: strike now
-    fn(f'{pfx}/opening', ['scoreboard players set @s bm.dba 0', f'scoreboard players set @s bm.dbx {OPEN}', 'tag @s add bm.dbopen',
-                          'attribute @s minecraft:armor modifier add bm:db_open -100 add_value',
-                          'attribute @s minecraft:armor_toughness modifier add bm:db_open -100 add_value',
-                          'execute as @a[distance=..48,gamemode=!spectator] at @s run playsound bm:music.boss_dread_open record @s ~ ~ ~ 1 1',
-                          title('@a[distance=..32,gamemode=!spectator]', 'actionbar', [T(f'{b["NAME"]} is spent - ', '#ffe080'), T('STRIKE NOW!', '#ffd21a', bold=True)])])
-    fn(f'{pfx}/closed', ['tag @s remove bm.dbopen', 'attribute @s minecraft:armor modifier remove bm:db_open',
-                         'attribute @s minecraft:armor_toughness modifier remove bm:db_open'])
     fn(f'{pfx}/state', ['execute if score @s bm.dbx matches 1.. run return run scoreboard players operation #st bm.rng = @s bm.dba',
                         f'execute if entity @s[tag=bm.dbmoving] run return run scoreboard players set #st bm.rng 1', 'scoreboard players set #st bm.rng 0'])
     # (and out of its rising: the mind - and its fall - skip a boss still rising, so it never fought and couldn't be felled)
@@ -439,12 +426,13 @@ def build_boss(G, k, b, tick, second, fast):
                        f'tp @s @e[type=minecraft:interaction,tag=bm.dbaltar_{k},sort=nearest,limit=1]', f'execute at @s run tp @s ~ ~{1 if k != "snow" else 0} ~4',
                        'playsound minecraft:entity.enderman.teleport hostile @a[distance=..32] ~ ~ ~ 1 0.5'])
     # ---- half health: phase two
-    fn(f'{pfx}/phase2', ['scoreboard players set @s bm.dbph 1', 'scoreboard players set @s bm.dbk12 0', f'bossbar set bm:db_{k} color red',
+    fn(f'{pfx}/phase2', ['scoreboard players set @s bm.dbph 1', f'scoreboard players set @s bm.dbtt {TURN - 1}', 'scoreboard players set @s bm.dbk12 0', f'bossbar set bm:db_{k} color red',
                          'playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..64] ~ ~ ~ 1 0.6',
                          tellraw('@a[distance=..48]', [T(b['NAME'], b['COL'], bold=True), T(' is enraged!', 'red')])])
     # ---- every second: the bossbar, and if nobody's near for 30 s, it sinks back into its ruin
     second.append(f'execute as @e[tag=bm.db_{k}] at @s run function bm:{pfx}/sec')
-    fn(f'{pfx}/sec', ['execute store result score #hp bm.rng run data get entity @s Health', f'scoreboard players remove #hp bm.rng {FLOOR}',
+    fn(f'{pfx}/sec', ['execute if score @s bm.dbtt matches 1.. run scoreboard players remove @s bm.dbtt 1',      # (2.94i: the turn's music running out)
+                      'execute store result score #hp bm.rng run data get entity @s Health', f'scoreboard players remove #hp bm.rng {FLOOR}',
                       'execute if score #hp bm.rng matches ..-1 run scoreboard players set #hp bm.rng 0',
                       f'execute store result bossbar bm:db_{k} value run scoreboard players get #hp bm.rng',
                       f'bossbar set bm:db_{k} players @a[distance=..64]',

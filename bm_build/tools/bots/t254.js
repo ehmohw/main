@@ -52,8 +52,8 @@ const res = [];
   // the forge: drop the heart, a netherite chestplate and an elytra together
   await run('clear TestRat'); await give(0, 'dread_heart');
   await run('item replace entity TestRat hotbar.1 with minecraft:netherite_chestplate'); await run('item replace entity TestRat hotbar.2 with minecraft:elytra');
-  await at(X + 0.5, Y, Z + 0.5, 0, 60);
-  for (const sl of [1, 2, 0]) { A.slot(sl); await sleep(300); A.drop(); await sleep(500); }
+  await at(X + 0.5, Y, Z + 0.5, 0, 90);                                        // (straight down: the three land together - within the forge's 2.5)
+  for (const sl of [1, 2, 0]) { A.slot(sl); await sleep(150); A.drop(); await sleep(200); }   // (quick: a dropped item can be picked up again after 2 s)
   await at(X + 5.5, Y, Z + 0.5, 0, 60);                                        // (step back while it forges)
   ok('THE FORGE: the heart dropped beside a netherite chestplate and an elytra - the Dread Carapace comes up, the three spent',
      await wait(4000, async () => (await cnt(`@e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..6,nbt={Item:{components:{"minecraft:custom_data":{bm:"dread_carapace"}}}}]`)) === 1) &&

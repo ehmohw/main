@@ -29,7 +29,6 @@ WHO_LATE = [(12, 'tag=bm.vboss'), (9, 'type=minecraft:husk,tag=bm.kxboss'), (9, 
             (7, 'type=minecraft:husk,tag=bm.apboss,scores={bm.apph=..1,bm.apatk=..6}'),       # (not while he transforms: a=7)
             (7, 'type=minecraft:husk,tag=bm.apboss,scores={bm.apph=..1,bm.apatk=8..}'),
             (8, 'type=minecraft:husk,tag=bm.apboss,scores={bm.apph=2}')]
-STINGS = []                         # (2.94h: short music laid over a theme - phase197's Dread stings; registered as music.boss_<name>)
 OLD_SONGS = ('music_disc.13', 'music_disc.relic', 'music_disc.precipice', 'music_disc.mellohi', 'music_disc.pigstep', 'music_disc.5')
 
 
@@ -111,7 +110,7 @@ def rp(R):
         sj = R2.p('assets', 'bm', 'sounds.json')
         snd = json.load(open(sj)) if os.path.exists(sj) else {}
         os.makedirs(R2.p('assets', 'bm', 'sounds', 'music'), exist_ok=True)
-        for nm in [v[0] for v in THEMES.values()] + ['vault'] + STINGS:
+        for nm in [v[0] for v in THEMES.values()] + ['vault']:
             shutil.copy(os.path.join(here, 'vendor', f'boss_{nm}.ogg'), R2.p('assets', 'bm', 'sounds', 'music', f'boss_{nm}.ogg'))
             snd[f'music.boss_{nm}'] = {'sounds': [{'name': f'bm:music/boss_{nm}', 'stream': True}]}
         R2.wj('assets/bm/sounds.json', snd)

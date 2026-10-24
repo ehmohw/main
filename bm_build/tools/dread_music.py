@@ -226,7 +226,7 @@ def disc():
     return compose(tr, ending=True)
 
 
-# ====================================================================== 2.94h: THE DREAD - LAMENT, and the stings
+# ====================================================================== 2.94h: THE DREAD - LAMENT (and 2.94i: the turn between them)
 # THE LAMENT - the same fight, gone desperate: 120 BPM, C minor (60 bars, a 120 s loop). A slow line for a lone violin (the
 # theme's own contour), a piano's broken chords, a cello under it, a heartbeat; it swells into the theme's plea (B) for the
 # whole string section and choir, collapses to the piano and the violin alone, and rises once more. It plays in a Dread boss's
@@ -317,42 +317,34 @@ def lament_disc():
     return lament_compose(tr, ending=True)
 
 
-# THE STINGS (laid over the theme): INCOMING - a Dread boss gathers itself for a big attack: low strings crowd in, the violin
-# screams upward, a timpani roll swells to a stab and a gasp of choir (worrisome, desperate). AN OPENING - the attack is spent:
-# a snare roll into a rising brass call, the violins race up, and a great C major chord (the minor key broken: hit it NOW).
-def warn():
-    tr = Track('dread_warn', 120, 3)                                       # (6 s: the sting in the first 3.5, its tail after)
-    for i, x in enumerate(('C2', 'C#2', 'G2', 'G#2')):
-        tr.add(violin(x, 2.6, 0.18, trem=16, depth=0.002, bright=0.6) * np.linspace(0.3, 1.2, len(violin(x, 2.6, 0.18, trem=16, depth=0.002, bright=0.6))),
-               0.0, (-0.4 + 0.25 * i), 1, 0.4)
-    t = T(2.6); f = hz('G5') * (2 ** (np.clip(t / 2.6, 0, 1) * 1.0)); ph = np.cumsum(f) / SR
-    scream = sum(np.sin(2 * np.pi * k * ph) / k for k in range(1, 9)) * np.clip(t / 2.0, 0, 1) * 0.25
-    tr.add(bp(scream, 600, 5000) * 1.4, 0.0, 0.2, 1, 0.4)
-    for i in range(20):
-        tr.add(timp('C2', 0.12 + 0.03 * i, 3.5), i * 0.13, 0, 1, 0.3)
-    tr.add(brass(['C2', 'C#3', 'G3'], 0.5, 0.6, 1600, 0.01), 2.6, 0, 1, 0.4)
-    tr.add(choir(['C4', 'C#4', 'G4'], 1.2, 0.5, 0.05), 2.6, 0, 1, 0.6)
-    tr.add(crash(0.35), 2.6, 0, 1, 0.4)
-    return tr
-
-
-def opening():
-    tr = Track('dread_open', 120, 3)
-    for i in range(12):
-        tr.add(snare(0.15 + 0.035 * i), i * 0.08, 0.1, 1, 0.3)
-    for t0, notes in ((0.95, ['G#2', 'G#3', 'C4', 'D#4']), (1.25, ['A#2', 'A#3', 'D4', 'F4']), (1.6, ['C3', 'C4', 'E4', 'G4'])):
-        tr.add(brass(notes, 0.28 if t0 < 1.5 else 1.6, 0.6, 3200, 0.01), t0, 0, 1, 0.35)
-        tr.add(kick(0.9), t0, 0, 1, 0.05)
-    runs(tr, 0.95, ['G4', 'A#4', 'C5', 'D5', 'E5', 'F5', 'G5', 'A#5'], 0.3, 0.2, 0.3, dur=0.0825 / (60 / 120) * 0.5 * 2)
-    tr.add(violin('C6', 1.5, 0.42, depth=0.007), 1.6, 0.15, 1, 0.4)
-    tr.add(violin('G5', 1.5, 0.3, depth=0.007), 1.6, -0.15, 1, 0.4)
-    tr.add(timp('C2', 0.9), 1.6, 0, 1, 0.4); tr.add(crash(0.5), 1.6, 0, 1, 0.45)
-    tr.add(choir(['C4', 'E4', 'G4', 'C5'], 1.6, 0.4, 0.05), 1.6, 0, 1, 0.55)
+# THE TURN (2.94i) - 8 s between The Dread and the Lament, the moment a Dread boss enrages: a great stab as it does, the strings
+# tumbling down in a chromatic cascade over a dying timpani roll, the bell tolling twice over an organ pedal and a sorrowing
+# choir, a heartbeat slowing - and the violin left alone on the high C, falling to the G the Lament's line begins on.
+def turn():
+    tr = Track('dread_turn', 120, 4)                                       # (8 s; its last second silence - the Lament takes over)
+    tr.add(brass(['C2', 'G2', 'C3', 'D#3', 'G3'], 0.9, 0.5, 2600, 0.005), 0.0, 0, 1, 0.4)
+    tr.add(choir(['C4', 'D#4', 'G4', 'C5'], 1.2, 0.5, 0.02), 0.0, 0, 1, 0.6)
+    tr.add(timp('C2', 1.0), 0.0, 0, 1, 0.4); tr.add(crash(0.45, 3.0), 0.0, 0.2, 1, 0.5)
+    for i in range(24):                                                    # (the strings tumble: G6 down two octaves, quickening)
+        t0 = 0.35 + 2.4 * (1 - (1 - i / 24) ** 1.4)
+        x = m('G6') - i
+        tr.add(violin(x, 0.22, 0.42 - 0.006 * i, attack=0.01, scoop=0.0, depth=0.0, voices=2), t0, 0.25 - 0.02 * i, 1, 0.45)
+    for i in range(14):
+        tr.add(timp('C2', 0.4 - 0.02 * i, 3.0), 0.3 + i * 0.16, 0, 1, 0.35)
+    tr.add(organ(['C2', 'C3', 'G3'], 4.0, 0.3), 2.8, 0, 1, 0.7)
+    tr.add(choir(['G#3', 'C4', 'D#4'], 1.8, 0.3, 0.5), 3.0, 0, 1, 0.7)
+    tr.add(choir(['G3', 'B3', 'D4'], 1.8, 0.28, 0.4), 4.8, 0, 1, 0.7)
+    for t0 in (3.0, 5.0):
+        tr.add(bell('C6', 3.5, 0.2, 2.76, 1.2, 2.6), t0, 0.2, 1, 0.65)
+    for t0, g in ((4.2, 0.45), (5.2, 0.38), (6.4, 0.3)):                   # (the heartbeat, slowing)
+        heart(tr, t0, g)
+    tr.add(violin('C6', 2.4, 0.3, depth=0.009, attack=0.3), 3.6, 0.1, 1, 0.5)
+    tr.add(violin('G5', 1.4, 0.26, depth=0.009, attack=0.15), 5.9, 0.1, 1, 0.55)
     return tr
 
 
 def save_sting(tr):
-    """a sting, not a loop: rendered, then its last second faded so no tail wraps round"""
+    """music played once, not a loop (the turn): rendered, then its last second faded so no tail wraps round"""
     st = tr.render(1.8)
     k = int(1.0 * SR); st[:, -k:] *= np.linspace(1, 0, k)
     import tempfile
@@ -367,7 +359,7 @@ def save_sting(tr):
 
 
 if __name__ == '__main__':
-    what = sys.argv[1:] or ['loop', 'disc', 'lament', 'stings']
+    what = sys.argv[1:] or ['loop', 'disc', 'lament', 'turn']
     if 'loop' in what:
         save_loop(loop(), room=2.2)
     if 'disc' in what:
@@ -375,8 +367,8 @@ if __name__ == '__main__':
     if 'lament' in what:
         save_loop(lament(), room=2.8)
         save_mono(lament_disc(), 'dread2', 2.8)
-    if 'stings' in what:
-        save_sting(warn()); save_sting(opening())
+    if 'turn' in what:
+        save_sting(turn())
     if 'preview' in what:                                              # (a quick listen: the violin alone, then a phrase)
         tr = Track('violin_test', 120, 4)
         play(tr, 0, mel('C5 D5 D#5 G5 C6:2 B5 G5 D#6:2 D6:.5 C6:.5 B5 C6:4'), lambda x, d: vln(x, d, 0.5), 0, 1, 0.3)
