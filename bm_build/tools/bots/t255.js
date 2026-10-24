@@ -17,7 +17,8 @@ const res = [];
   const use = async (slot) => { A.slot(slot); await sleep(300); A.use(); await sleep(400); A.release(); await sleep(2400); };
   const X = 16900, Y = 100, Z = 16000;
   const BV = '@e[type=minecraft:wolf,tag=bm.bvpet,limit=1]';
-  const zom = async (dx, dz, tag, hp = 300) => run(`${O}summon minecraft:zombie ${X + dx} ${Y + 1} ${Z + dz} {Tags:["${tag}","bm.t255z"],PersistenceRequired:1b,Silent:1b,` +
+  // (bm.seen: never made Elite or Lucky; still - NoAI - for the rage, whose chain lands him among them: a tiered one's blows could knock him out)
+  const zom = async (dx, dz, tag, hp = 300, still = false) => run(`${O}summon minecraft:zombie ${X + dx} ${Y + 1} ${Z + dz} {Tags:["${tag}","bm.t255z","bm.seen"],PersistenceRequired:1b,Silent:1b,${still ? 'NoAI:1b,' : ''}` +
                                           `attributes:[{id:"minecraft:max_health",base:${hp}d},{id:"minecraft:movement_speed",base:0d},{id:"minecraft:knockback_resistance",base:1d}],Health:${hp}f}`);
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
@@ -77,7 +78,7 @@ const res = [];
   await wait(8000, async () => (await cnt('@e[type=minecraft:cat,tag=bm.emmapet]')) + (await cnt('@e[type=minecraft:wolf,tag=bm.leopet]')) === 0); await sleep(1000);
   ok('Emma and Leo sent home (Bender alone for his rage)', (await cnt('@e[type=minecraft:cat,tag=bm.emmapet]')) + (await cnt('@e[type=minecraft:wolf,tag=bm.leopet]')) === 0);
   await run(`${O}tp ${BV} ${X + 0.5} ${Y + 1} ${Z + 3.5}`);
-  for (const [dx, dz] of [[0, 8], [2.5, 10], [-2.5, 10]]) await zom(dx, dz, 'bm.t255r');
+  for (const [dx, dz] of [[0, 8], [2.5, 10], [-2.5, 10]]) await zom(dx, dz, 'bm.t255r', 300, true);
   await sleep(500); A.bars.length = 0;
   await run(`scoreboard players set ${BV} bm.bvrg 0`);
   ok('RAGE! - he growls and launches at a monster (his rage begun)', await wait(4000, async () => (await score('bm.dqa', BV)) === 15), `state ${await score('bm.dqa', BV)}`);

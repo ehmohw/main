@@ -44,6 +44,7 @@ const res = [];
   // (a member of the market - its key in the pack, or the rat bouncer tosses a survival player out - and the Banker's Card)
   await run('loot replace entity TestRat hotbar.8 loot bm:items/market_key'); await run('loot replace entity TestRat hotbar.7 loot bm:items/bankers_card');
   for (const o of ['bm.fward', 'bm.fvig', 'bm.fret', 'bm.bk_dread', 'bm.bk_tro']) await run(`scoreboard players set TestRat ${o} 0`);
+  await run('scoreboard players set TestRat bm.bksv 1');          // (a savings account already opened at the Teller - t201's)
   await run('scoreboard players set TestRat bm.conq 6');           // (2.84d: his trades are only for those who beat the Hollow King)
   await at(VX - 2, VY, VZ, -90, 10);
 

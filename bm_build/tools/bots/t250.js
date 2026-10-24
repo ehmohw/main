@@ -45,7 +45,7 @@ const res = [];
   for (const w of ['emma', 'ava', 'pearlq', 'bones', 'apo']) await run(`execute as TestRat run function bm:p98/home/${w}`).catch(() => {});
   await run(`${O}tp TestRat ${X + 200} 120 ${Z}`); await sleep(1500);          // (start well clear of any castle left by an earlier run)
   // ---- the stage: a deep sea, 30 down, and the castle on its floor
-  await run(`${O}forceload add ${X - 48} ${Z - 48} ${X + 48} ${Z + 48}`);
+  await run(`${O}forceload add ${X - 48} ${Z - 48} ${X + 48} ${Z + 48}`); await sleep(2500);   // (its entities load a moment after: an earlier run's castle core must be there to be cleared)
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..90]`);
   for (let z = Z - 46; z <= Z + 46; z += 8) {
     await run(`${O}fill ${X - 46} ${Y - 5} ${z} ${X + 46} ${Y - 1} ${Math.min(z + 7, Z + 46)} minecraft:sand`);
