@@ -35,7 +35,7 @@ const res = [];
   const A = await bot('TestRat'); await sleep(2500);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(600);
   ok('TestRat is a regular player', /unknown|incomplete|permission/i.test(A.chats.join(' ')));
-  await run(`${O}forceload add ${CX + 16} ${CZ + 8} ${CX + 72} ${CZ + 64}`);
+  await run(`${O}forceload add ${CX} ${CZ} ${CX + 76} ${CZ + 84}`);    // (the whole town: the market's patch, which places Vesper, runs only with it loaded)
   await run('gamemode survival TestRat'); await run('effect clear TestRat'); await run('clear TestRat');
   // (a member of the market - its key in the pack, or the rat bouncer tosses a survival player out - and the Banker's Card)
   await run('loot replace entity TestRat hotbar.8 loot bm:items/market_key'); await run('loot replace entity TestRat hotbar.7 loot bm:items/bankers_card');
