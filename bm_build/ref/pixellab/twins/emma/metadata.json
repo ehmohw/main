@@ -1,11 +1,11 @@
 {
-  "group_id": "14d9ec3e-4e23-4e52-9f2c-2278ab965c83",
+  "group_id": "58913269-6339-4db0-bf1e-aaf49df74d40",
   "states": [
     {
       "character": {
-        "id": "e7a14892-7275-49bb-a6d8-75863e744af2",
+        "id": "af65738b-61c4-444f-b419-d21a9079b720",
         "name": "Idle",
-        "prompt": "Emma, a cheerful young girl: brown hair in a high ponytail tied with a purple bow, a curl by each ear, freckles, big teal eyes; a long-sleeved blue dress with a light-blue scarf collar and a pink flower brooch, a woven brown belt with a white oval flower buckle, a full knee-length blue skirt, white knee socks, navy mary-jane shoes",
+        "prompt": "Emma, a cheerful young girl: brown hair in a high ponytail tied with a purple bow, a curl by each ear, freckles, big teal eyes; a long-sleeved blue dress with a light-blue scarf collar and a pink flower brooch, a woven brown belt with a white oval flower buckle, a full knee-length blue skirt, white knee socks, navy mary-jane shoes; a big open-mouthed happy smile, bright sparkling eyes, playful, cheeky and full of charm",
         "size": {
           "width": 64,
           "height": 64
@@ -13,7 +13,7 @@
         "template_id": "mannequin",
         "directions": 8,
         "view": "low top-down",
-        "created_at": "2026-10-23T20:49:28.745011+00:00"
+        "created_at": "2026-10-24T04:14:45.895872+00:00"
       },
       "folder": "Idle",
       "frames": {
@@ -28,7 +28,77 @@
           "south-west": "Idle/rotations/south-west.png"
         },
         "animations": {
+          "power": {
+            "north": [
+              "Idle/animations/power/north/frame_000.png",
+              "Idle/animations/power/north/frame_001.png",
+              "Idle/animations/power/north/frame_002.png",
+              "Idle/animations/power/north/frame_003.png",
+              "Idle/animations/power/north/frame_004.png",
+              "Idle/animations/power/north/frame_005.png",
+              "Idle/animations/power/north/frame_006.png"
+            ],
+            "south": [
+              "Idle/animations/power/south/frame_000.png",
+              "Idle/animations/power/south/frame_001.png",
+              "Idle/animations/power/south/frame_002.png",
+              "Idle/animations/power/south/frame_003.png",
+              "Idle/animations/power/south/frame_004.png",
+              "Idle/animations/power/south/frame_005.png",
+              "Idle/animations/power/south/frame_006.png"
+            ]
+          },
+          "stomp": {
+            "south": [
+              "Idle/animations/stomp/south/frame_000.png",
+              "Idle/animations/stomp/south/frame_001.png",
+              "Idle/animations/stomp/south/frame_002.png",
+              "Idle/animations/stomp/south/frame_003.png",
+              "Idle/animations/stomp/south/frame_004.png",
+              "Idle/animations/stomp/south/frame_005.png",
+              "Idle/animations/stomp/south/frame_006.png",
+              "Idle/animations/stomp/south/frame_007.png",
+              "Idle/animations/stomp/south/frame_008.png"
+            ]
+          },
+          "walk": {
+            "south": [
+              "Idle/animations/walk/south/frame_000.png",
+              "Idle/animations/walk/south/frame_001.png",
+              "Idle/animations/walk/south/frame_002.png",
+              "Idle/animations/walk/south/frame_003.png",
+              "Idle/animations/walk/south/frame_004.png",
+              "Idle/animations/walk/south/frame_005.png",
+              "Idle/animations/walk/south/frame_006.png",
+              "Idle/animations/walk/south/frame_007.png",
+              "Idle/animations/walk/south/frame_008.png"
+            ]
+          },
+          "stomp-1d0d9e73": {
+            "north": [
+              "Idle/animations/stomp-1d0d9e73/north/frame_000.png",
+              "Idle/animations/stomp-1d0d9e73/north/frame_001.png",
+              "Idle/animations/stomp-1d0d9e73/north/frame_002.png",
+              "Idle/animations/stomp-1d0d9e73/north/frame_003.png",
+              "Idle/animations/stomp-1d0d9e73/north/frame_004.png",
+              "Idle/animations/stomp-1d0d9e73/north/frame_005.png",
+              "Idle/animations/stomp-1d0d9e73/north/frame_006.png",
+              "Idle/animations/stomp-1d0d9e73/north/frame_007.png",
+              "Idle/animations/stomp-1d0d9e73/north/frame_008.png"
+            ]
+          },
           "fireball": {
+            "north": [
+              "Idle/animations/fireball/north/frame_000.png",
+              "Idle/animations/fireball/north/frame_001.png",
+              "Idle/animations/fireball/north/frame_002.png",
+              "Idle/animations/fireball/north/frame_003.png",
+              "Idle/animations/fireball/north/frame_004.png",
+              "Idle/animations/fireball/north/frame_005.png",
+              "Idle/animations/fireball/north/frame_006.png",
+              "Idle/animations/fireball/north/frame_007.png",
+              "Idle/animations/fireball/north/frame_008.png"
+            ],
             "south": [
               "Idle/animations/fireball/south/frame_000.png",
               "Idle/animations/fireball/south/frame_001.png",
@@ -50,28 +120,6 @@
               "Idle/animations/hurt/south/frame_004.png"
             ]
           },
-          "stomp": {
-            "south": [
-              "Idle/animations/stomp/south/frame_000.png",
-              "Idle/animations/stomp/south/frame_001.png",
-              "Idle/animations/stomp/south/frame_002.png",
-              "Idle/animations/stomp/south/frame_003.png",
-              "Idle/animations/stomp/south/frame_004.png",
-              "Idle/animations/stomp/south/frame_005.png",
-              "Idle/animations/stomp/south/frame_006.png",
-              "Idle/animations/stomp/south/frame_007.png",
-              "Idle/animations/stomp/south/frame_008.png"
-            ]
-          },
-          "idle": {
-            "south": [
-              "Idle/animations/idle/south/frame_000.png",
-              "Idle/animations/idle/south/frame_001.png",
-              "Idle/animations/idle/south/frame_002.png",
-              "Idle/animations/idle/south/frame_003.png",
-              "Idle/animations/idle/south/frame_004.png"
-            ]
-          },
           "sit": {
             "south": [
               "Idle/animations/sit/south/frame_000.png",
@@ -79,30 +127,53 @@
               "Idle/animations/sit/south/frame_002.png",
               "Idle/animations/sit/south/frame_003.png",
               "Idle/animations/sit/south/frame_004.png"
+            ],
+            "north": [
+              "Idle/animations/sit/north/frame_000.png",
+              "Idle/animations/sit/north/frame_001.png",
+              "Idle/animations/sit/north/frame_002.png",
+              "Idle/animations/sit/north/frame_003.png",
+              "Idle/animations/sit/north/frame_004.png"
             ]
           },
-          "walk": {
-            "south": [
-              "Idle/animations/walk/south/frame_000.png",
-              "Idle/animations/walk/south/frame_001.png",
-              "Idle/animations/walk/south/frame_002.png",
-              "Idle/animations/walk/south/frame_003.png",
-              "Idle/animations/walk/south/frame_004.png",
-              "Idle/animations/walk/south/frame_005.png",
-              "Idle/animations/walk/south/frame_006.png",
-              "Idle/animations/walk/south/frame_007.png",
-              "Idle/animations/walk/south/frame_008.png"
+          "idle": {
+            "north": [
+              "Idle/animations/idle/north/frame_000.png",
+              "Idle/animations/idle/north/frame_001.png",
+              "Idle/animations/idle/north/frame_002.png",
+              "Idle/animations/idle/north/frame_003.png",
+              "Idle/animations/idle/north/frame_004.png"
             ]
           },
-          "power": {
+          "idle-a8b8cb6f": {
             "south": [
-              "Idle/animations/power/south/frame_000.png",
-              "Idle/animations/power/south/frame_001.png",
-              "Idle/animations/power/south/frame_002.png",
-              "Idle/animations/power/south/frame_003.png",
-              "Idle/animations/power/south/frame_004.png",
-              "Idle/animations/power/south/frame_005.png",
-              "Idle/animations/power/south/frame_006.png"
+              "Idle/animations/idle-a8b8cb6f/south/frame_000.png",
+              "Idle/animations/idle-a8b8cb6f/south/frame_001.png",
+              "Idle/animations/idle-a8b8cb6f/south/frame_002.png",
+              "Idle/animations/idle-a8b8cb6f/south/frame_003.png",
+              "Idle/animations/idle-a8b8cb6f/south/frame_004.png"
+            ]
+          },
+          "walk-c84279a2": {
+            "north": [
+              "Idle/animations/walk-c84279a2/north/frame_000.png",
+              "Idle/animations/walk-c84279a2/north/frame_001.png",
+              "Idle/animations/walk-c84279a2/north/frame_002.png",
+              "Idle/animations/walk-c84279a2/north/frame_003.png",
+              "Idle/animations/walk-c84279a2/north/frame_004.png",
+              "Idle/animations/walk-c84279a2/north/frame_005.png",
+              "Idle/animations/walk-c84279a2/north/frame_006.png",
+              "Idle/animations/walk-c84279a2/north/frame_007.png",
+              "Idle/animations/walk-c84279a2/north/frame_008.png"
+            ]
+          },
+          "hurt-cd6db5d0": {
+            "north": [
+              "Idle/animations/hurt-cd6db5d0/north/frame_000.png",
+              "Idle/animations/hurt-cd6db5d0/north/frame_001.png",
+              "Idle/animations/hurt-cd6db5d0/north/frame_002.png",
+              "Idle/animations/hurt-cd6db5d0/north/frame_003.png",
+              "Idle/animations/hurt-cd6db5d0/north/frame_004.png"
             ]
           }
         }
@@ -110,5 +181,5 @@
     }
   ],
   "export_version": "3.1",
-  "export_date": "2026-10-23T21:25:43.372886"
+  "export_date": "2026-10-24T04:47:53.385302"
 }

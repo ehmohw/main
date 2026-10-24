@@ -140,7 +140,7 @@ def generate(G):
                                                                                 ('follow_range', 48), ('knockback_resistance', 1.0), ('scale', 1.8))],
             'active_effects': [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}]}
     snbt_spr = snbt({'Tags': ['bm.pxa_spr'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:pxa_boss'}},
-                     'item_display': 'fixed', 'billboard': 'center', 'teleport_duration': Int(1), 'view_range': F(3.0),
+                     'item_display': 'fixed', 'teleport_duration': Int(1), 'view_range': F(3.0),
                      'brightness': {'block': Int(15), 'sky': Int(15)}, 'shadow_radius': F(1.6), 'shadow_strength': F(0.6),
                      'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0), F(0), F(0)],
                                         'scale': [F(round(S.size, 4))] * 3}})
@@ -176,7 +176,7 @@ def generate(G):
                      f'execute as {sprite} positioned ~ ~{up} ~ run function bm:p215/frame'])
     # the frame: (the sprite; #me the state, #fi the host's tick)
     order = ['idle', 'move', 'bite', 'breath', 'slam', 'roar', 'roar', 'hurt']        # (state 6: his coming - the roar)
-    fr = ['tp @s ~ ~ ~', 'scoreboard players operation #f2 bm.rng = #fi bm.rng', 'scoreboard players operation #f2 bm.rng %= #2 bm.rng',
+    fr = ['tp @s ~ ~ ~ ~ 0', 'scoreboard players operation #f2 bm.rng = #fi bm.rng', 'scoreboard players operation #f2 bm.rng %= #2 bm.rng',
           'execute unless score #f2 bm.rng matches 0 run return 0', 'scoreboard players operation #fi bm.rng /= #2 bm.rng']
     for st, a in enumerate(order):
         fr += [f'execute if score #me bm.rng matches {st} run scoreboard players set #n bm.rng {n[a]}',

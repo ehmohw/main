@@ -1,0 +1,55 @@
+{
+  "group_id": "59aa188b-6c35-4f6f-be60-e0d9927e17b0",
+  "states": [
+    {
+      "character": {
+        "id": "c06e9b11-42b0-4091-a3be-5c8f00a39d30",
+        "name": "Idle",
+        "prompt": "Bit, a cheerful grey rat merchant in 8-bit video game style: big round ears, pink nose, buck teeth, a red cap worn backwards, a green apron over a striped shirt, a coin pouch at his belt",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-10-24T05:35:25.541933+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "idle": {
+            "south": [
+              "Idle/animations/idle/south/frame_000.png",
+              "Idle/animations/idle/south/frame_001.png",
+              "Idle/animations/idle/south/frame_002.png",
+              "Idle/animations/idle/south/frame_003.png",
+              "Idle/animations/idle/south/frame_004.png"
+            ]
+          },
+          "idle-600ffd0d": {
+            "north": [
+              "Idle/animations/idle-600ffd0d/north/frame_000.png",
+              "Idle/animations/idle-600ffd0d/north/frame_001.png",
+              "Idle/animations/idle-600ffd0d/north/frame_002.png",
+              "Idle/animations/idle-600ffd0d/north/frame_003.png",
+              "Idle/animations/idle-600ffd0d/north/frame_004.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-24T05:40:02.191649"
+}

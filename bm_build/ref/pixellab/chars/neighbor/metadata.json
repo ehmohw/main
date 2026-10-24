@@ -1,11 +1,11 @@
 {
-  "group_id": "ad1da7bf-6830-41d8-9fb9-361c571b9ddc",
+  "group_id": "5a762291-4e28-49a1-b624-949b489566b4",
   "states": [
     {
       "character": {
-        "id": "b164e1bb-69f4-48b4-befb-62ac570565f2",
+        "id": "7b67137b-e048-4df2-8621-d0ec75c9ea25",
         "name": "Idle",
-        "prompt": "The Neighbor, a musician: a black beret with an orange button, dark red-brown hair, a white mask with black square glasses and blue eyes, freckles, a white sailor shirt with a black sailor collar and an octopus emblem, white trousers, black shoes, holding a conductor's baton",
+        "prompt": "The Neighbor, a musician: a black beret with an orange button, dark red-brown hair, a white mask with black square glasses and blue eyes, freckles, a white sailor shirt with a black sailor collar and an octopus emblem, white trousers, black shoes, holding a conductor's baton, two big black musical eighth-note shapes spread out from his back like wings, one on each side",
         "size": {
           "width": 64,
           "height": 64
@@ -13,7 +13,7 @@
         "template_id": "mannequin",
         "directions": 8,
         "view": "low top-down",
-        "created_at": "2026-10-23T21:54:54.827114+00:00"
+        "created_at": "2026-10-24T04:14:45.491056+00:00"
       },
       "folder": "Idle",
       "frames": {
@@ -35,31 +35,27 @@
               "Idle/animations/sit/south/frame_002.png",
               "Idle/animations/sit/south/frame_003.png",
               "Idle/animations/sit/south/frame_004.png"
-            ]
-          },
-          "attack": {
-            "south": [
-              "Idle/animations/attack/south/frame_000.png",
-              "Idle/animations/attack/south/frame_001.png",
-              "Idle/animations/attack/south/frame_002.png",
-              "Idle/animations/attack/south/frame_003.png",
-              "Idle/animations/attack/south/frame_004.png",
-              "Idle/animations/attack/south/frame_005.png",
-              "Idle/animations/attack/south/frame_006.png",
-              "Idle/animations/attack/south/frame_007.png",
-              "Idle/animations/attack/south/frame_008.png"
-            ]
-          },
-          "idle": {
-            "south": [
-              "Idle/animations/idle/south/frame_000.png",
-              "Idle/animations/idle/south/frame_001.png",
-              "Idle/animations/idle/south/frame_002.png",
-              "Idle/animations/idle/south/frame_003.png",
-              "Idle/animations/idle/south/frame_004.png"
+            ],
+            "north": [
+              "Idle/animations/sit/north/frame_000.png",
+              "Idle/animations/sit/north/frame_001.png",
+              "Idle/animations/sit/north/frame_002.png",
+              "Idle/animations/sit/north/frame_003.png",
+              "Idle/animations/sit/north/frame_004.png"
             ]
           },
           "walk": {
+            "north": [
+              "Idle/animations/walk/north/frame_000.png",
+              "Idle/animations/walk/north/frame_001.png",
+              "Idle/animations/walk/north/frame_002.png",
+              "Idle/animations/walk/north/frame_003.png",
+              "Idle/animations/walk/north/frame_004.png",
+              "Idle/animations/walk/north/frame_005.png",
+              "Idle/animations/walk/north/frame_006.png",
+              "Idle/animations/walk/north/frame_007.png",
+              "Idle/animations/walk/north/frame_008.png"
+            ],
             "south": [
               "Idle/animations/walk/south/frame_000.png",
               "Idle/animations/walk/south/frame_001.png",
@@ -71,11 +67,55 @@
               "Idle/animations/walk/south/frame_007.png",
               "Idle/animations/walk/south/frame_008.png"
             ]
+          },
+          "attack": {
+            "north": [
+              "Idle/animations/attack/north/frame_000.png",
+              "Idle/animations/attack/north/frame_001.png",
+              "Idle/animations/attack/north/frame_002.png",
+              "Idle/animations/attack/north/frame_003.png",
+              "Idle/animations/attack/north/frame_004.png",
+              "Idle/animations/attack/north/frame_005.png",
+              "Idle/animations/attack/north/frame_006.png",
+              "Idle/animations/attack/north/frame_007.png",
+              "Idle/animations/attack/north/frame_008.png"
+            ]
+          },
+          "idle": {
+            "north": [
+              "Idle/animations/idle/north/frame_000.png",
+              "Idle/animations/idle/north/frame_001.png",
+              "Idle/animations/idle/north/frame_002.png",
+              "Idle/animations/idle/north/frame_003.png",
+              "Idle/animations/idle/north/frame_004.png"
+            ]
+          },
+          "attack-6d440d1a": {
+            "south": [
+              "Idle/animations/attack-6d440d1a/south/frame_000.png",
+              "Idle/animations/attack-6d440d1a/south/frame_001.png",
+              "Idle/animations/attack-6d440d1a/south/frame_002.png",
+              "Idle/animations/attack-6d440d1a/south/frame_003.png",
+              "Idle/animations/attack-6d440d1a/south/frame_004.png",
+              "Idle/animations/attack-6d440d1a/south/frame_005.png",
+              "Idle/animations/attack-6d440d1a/south/frame_006.png",
+              "Idle/animations/attack-6d440d1a/south/frame_007.png",
+              "Idle/animations/attack-6d440d1a/south/frame_008.png"
+            ]
+          },
+          "idle-cf6725d5": {
+            "south": [
+              "Idle/animations/idle-cf6725d5/south/frame_000.png",
+              "Idle/animations/idle-cf6725d5/south/frame_001.png",
+              "Idle/animations/idle-cf6725d5/south/frame_002.png",
+              "Idle/animations/idle-cf6725d5/south/frame_003.png",
+              "Idle/animations/idle-cf6725d5/south/frame_004.png"
+            ]
           }
         }
       }
     }
   ],
   "export_version": "3.1",
-  "export_date": "2026-10-23T22:58:58.541252"
+  "export_date": "2026-10-24T04:48:27.843052"
 }

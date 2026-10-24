@@ -1,6 +1,6 @@
-"""2.94: THE SKY BUDDIES - Sunny, Snooze, Twinkle and Nimbus, cut from the owner's painting (ref/sky_buddies.png) and kept
-as painted: smooth, not pixelated. Each part is a flat 2D sprite on its own item display, billboarded (it always faces you),
-floating.
+"""2.94: THE SKY BUDDIES - Sunny, Snooze, Twinkle and Nimbus, cut from the owner's painting (ref/sky_buddies.png). (2.94c) Each
+part is a voxel sculpture of its painting - pixelated, puffed out, blocky 3D (see DENS) - on its own item display, floating; until
+2.94c each was a flat sprite, billboarded.
 
 THE PARTS   head (Sunny's disc: the shades, the smirk), rays (his rays, a part of their own so they can spin), moon (Snooze,
             asleep), cap (Snooze's nightcap - a texture of its own, so the wardrobe can recolour it), star (Twinkle, grumpy),
@@ -392,6 +392,8 @@ def _sun_faces():
     L1, L2 = w(234, 262), w(372, 258)
 
     def face(kind):
+        if kind == 'bare':                                             # (2.94c: the back of his head - no shades, no smirk)
+            return plain.copy()
         if kind is None:
             cv = asis.copy(); cv.over(shades); return cv
         pen = Pen('head')
@@ -468,6 +470,8 @@ def _moon_faces():
     E = w(964, 349)
 
     def face(kind):
+        if kind == 'bare':                                             # (2.94c: the back - no face)
+            return plain.copy()
         if kind is None:
             return asis.copy()
         cv = plain.copy(); pen = Pen('moon'); ex, ey = E
@@ -509,6 +513,8 @@ def _star_faces():
     L, R, M = w(799, 382), w(825, 382), w(811, 398)
 
     def face(kind):
+        if kind == 'bare':                                             # (2.94c: the back - no face)
+            return plain.copy()
         if kind is None:
             return asis.copy()
         cv = plain.copy(); pen = Pen('star')
@@ -552,6 +558,8 @@ def _cloud_faces():
     L, R, M = w(404, 688), w(479, 688), w(441, 724)
 
     def face(kind):
+        if kind == 'bare':                                             # (2.94c: the back - no face)
+            return plain.copy()
         if kind is None:
             return asis.copy()
         cv = plain.copy(); pen = Pen('body')
@@ -667,33 +675,160 @@ def textures():
         T[f'{PREFIX}{p}'] = f(None).tex()
         for e in EXPR[p]:
             T[f'{PREFIX}{p}_{e}'] = f(e).tex()
+        T[f'{PREFIX}{p}_bare'] = f('bare').tex()
     T[f'{PREFIX}rays'] = _clean('rays', line=3.4)[0].tex()
     T[f'{PREFIX}cap'] = _cap_tex().tex()
     T[f'{PREFIX}back'] = _back_tex().tex()
+    T = {k: _pix(im, G_of(k[len(PREFIX):].split('_')[0])) for k, im in T.items()}    # (2.94c: pixel art, a texel a voxel)
     _CACHE['tex'] = T
     return T
 
 
 # ---------------------------------------------------------------------------------------------------- models
+# 2.94c: THREE DIMENSIONS, BLOCKY. The flat billboarded sprites "didn't work for them as they did for a stick figure", and the owner
+# asked for the pack's blocky look (Emma's: boxes, and pixel textures at Minecraft's density) while honouring the painting. So
+# each part is a voxel sculpture of its painting: the painting pixelated to a grid (DENS pixels to the block - ink first, so the
+# outlines, the shades and the smirks survive), its outline puffed out in whole voxels (a sphere's profile over each cell's
+# distance to the edge - thick in the middle, a voxel thick at the rim), the pixelated painting on its front, the same with the
+# face painted out on its back, and on every side the pixel at that edge - a voxel model you can walk round.
+DENS = 36                                         # (pixels to the block - the small ones at least MIN_G across)
+MIN_G = 18
+SQUASH = {'head': 0.7, 'rays': 0.7, 'moon': 1.0, 'cap': 1.0, 'star': 1.0, 'body': 0.85, 'back': 0.75}
+ZC = {}
+
+
+def G_of(p):
+    return max(MIN_G, int(round(WINS.get(p, WIN) / PPB * DENS)))
+
+
+def _pix(im, g):
+    """a painted texture -> pixel art, g x g (on a power-of-two canvas): a cell is solid if most of it is; its colour the ink's
+    if a fifth of it is ink (lines stay lines), else the white's if a third is white (glints, teeth), else its own mean"""
+    a = np.asarray(im.convert('RGBA')).astype(np.float32)
+    n = a.shape[0]; c = n / g
+    N = 16
+    while N < g:
+        N *= 2
+    out = np.zeros((N, N, 4), np.uint8)
+    for r in range(g):
+        for q in range(g):
+            blk = a[int(r * c):max(int((r + 1) * c), int(r * c) + 1), int(q * c):max(int((q + 1) * c), int(q * c) + 1)].reshape(-1, 4)
+            sol = blk[blk[:, 3] >= 128]
+            if len(sol) < 0.45 * len(blk):
+                continue
+            lum = sol[:, :3] @ np.array([0.3, 0.59, 0.11])
+            ink, white = sol[lum < 70], sol[lum > 232]
+            col = ink if len(ink) >= 0.2 * len(sol) else white if len(white) >= 0.34 * len(sol) else sol[(lum >= 70) & (lum <= 232)]
+            if not len(col):
+                col = sol
+            out[r, q, :3] = col[:, :3].mean(axis=0); out[r, q, 3] = 255
+    return Image.fromarray(out, 'RGBA')
+
+
+def _texs_of(p, T):
+    return [T[f'{PREFIX}{p}']] + [T[f'{PREFIX}{p}_{e}'] for e in EXPR.get(p, ())]
+
+
+def _relief(p, T=None):
+    """(the boxes [(c0, c1, r0, r1, thickness in design units)], g) - each row's runs of one thickness, alike rows merged"""
+    key = ('relief', p)
+    if key in _CACHE:
+        return _CACHE[key]
+    T = T or textures()
+    g = G_of(p)
+    cell = np.zeros((g, g), bool)
+    for im in _texs_of(p, T):
+        cell |= np.asarray(im)[:g, :g, 3] >= 128
+    ys, xs = np.nonzero(cell)
+    pad = np.pad(cell, 1)
+    ey, ex = np.nonzero(~pad); ey, ex = ey - 1, ex - 1
+    d = np.zeros((g, g))
+    for y, x in zip(ys, xs):
+        d[y, x] = np.sqrt(((ey - y) ** 2 + (ex - x) ** 2).min()) - 0.5
+    R = max(d.max(), 0.5)
+    vox = 16.0 / RIG_SCALE / DENS                                     # (design units a voxel)
+    # a pillow: the full thickness over the middle (one flat face - no steps across a face), rounding off near the rim
+    rim = max(1.5, 0.32 * R)
+    th = 2 * R * SQUASH[p] * np.sqrt(np.clip(d / rim, 0, 1)) * (0.55 if R > 6 else 1.0)   # (in voxels)
+    lev = np.where(cell, np.maximum(1, np.round(th)), 0).astype(int)  # (whole voxels)
+    runs = []
+    for r in range(g):
+        q = 0
+        while q < g:
+            if not lev[r, q]:
+                q += 1; continue
+            q0, L = q, lev[r, q]
+            while q < g and lev[r, q] == L:
+                q += 1
+            runs.append([q0, q, r, r + 1, L])
+    boxes = []
+    for run in runs:
+        prev = next((b for b in boxes if b[0] == run[0] and b[1] == run[1] and b[3] == run[2] and b[4] == run[4]), None)
+        if prev:
+            prev[3] = run[3]
+        else:
+            boxes.append(run)
+    _CACHE[key] = ([(q0, q1, r0, r1, L * vox) for q0, q1, r0, r1, L in boxes], g)
+    return _CACHE[key]
+
+
+def _depths():
+    """each part's middle in depth (design units, + toward you) - nested round each other, as the painting overlaps them"""
+    if ZC:
+        return ZC
+    t = {p: max(b[4] for b in _relief(p)[0]) for p in PARTS}
+    ZC['body'] = 0.0
+    ZC['back'] = ZC['body'] - (t['body'] + t['back']) * 0.3
+    ZC['head'] = ZC['body'] - (t['body'] + t['head']) * 0.32
+    ZC['rays'] = ZC['head']
+    ZC['moon'] = ZC['head'] + t['head'] * 0.1
+    ZC['star'] = ZC['moon'] + (t['moon'] + t['star']) * 0.35
+    ZC['cap'] = ZC['moon']
+    return ZC
+
+
 def _quad(p, tex):
-    """a part's sprite: one flat quad, its anchor where the layout puts it round the joint (front: north; a back face too)"""
-    (ax, ay), _o, z = LAYOUT[p]
+    """a part as voxels (see DENS): its boxes; the front `tex`, the back bare (mirrored, as seen from behind), the sides the
+    edge pixels of the bare painting"""
+    boxes, g = _relief(p)
     ox, oy = place_of(p)
-    half = WINS.get(p, WIN) / 2 * DU
+    W = WINS.get(p, WIN)
+    half = W / 2 * DU
     cx, cy = -ox * DU, -oy * DU                                         # (design: +x is his right - your left)
     jx, jy, jz = JOINT
-    fr = (jx + cx - half, jy + cy - half, jz - z * 0.25 - 0.002)
-    to = (jx + cx + half, jy + cy + half, jz - z * 0.25 + 0.002)
-    e = el(fr, to, tex, JOINT, faces=('north', 'south'), uv={'north': [0, 0, 16, 16], 'south': [16, 0, 0, 16]})
-    e['shade'] = False
-    return [e]
+    zc = jz - _depths()[p]                                              # (rigkit's front is -z)
+    cpx = W / g                                                         # (painting pixels a cell)
+    X = lambda q: jx + cx + half - q * cpx * DU
+    Y = lambda r: jy + cy + half - r * cpx * DU
+    N = 16
+    while N < g:
+        N *= 2
+    k = 16.0 / N                                                        # (uv units a texel)
+    bare = f'{PREFIX}{p}_bare' if p in FACED else tex
+    els = []
+    for q0, q1, r0, r1, t in boxes:
+        fr = (X(q1), Y(r1), zc - t / 2)
+        to = (X(q0), Y(r0), zc + t / 2)
+        U = lambda a, b, c_, d_: [round(a * k, 4), round(c_ * k, 4), round(b * k, 4), round(d_ * k, 4)]
+        e = el(fr, to, tex, JOINT)
+        e['faces'] = {'north': {'uv': U(q0, q1, r0, r1), 'texture': '#' + tex},
+                      'south': {'uv': U(q1, q0, r0, r1), 'texture': '#' + bare},
+                      'east': {'uv': U(q0, q0 + 1, r0, r1), 'texture': '#' + bare},
+                      'west': {'uv': U(q1 - 1, q1, r0, r1), 'texture': '#' + bare},
+                      'up': {'uv': U(q0, q1, r0, r0 + 1), 'texture': '#' + bare},
+                      'down': {'uv': U(q0, q1, r1 - 1, r1), 'texture': '#' + bare}}
+        els.append(e)
+    return els
 
 
 def models():
     M = {}
 
     def part(name, tex, p):
-        M[name] = ({tex: f'bm:block/{tex}'}, _quad(p, tex))
+        texs = {tex: f'bm:block/{tex}'}
+        if p in FACED:
+            texs[f'{PREFIX}{p}_bare'] = f'bm:block/{PREFIX}{p}_bare'
+        M[name] = (texs, _quad(p, tex))
     for p in PARTS:
         part(f'{PREFIX}{p}', f'{PREFIX}{p}', p)
         for e in EXPR.get(p, ()):

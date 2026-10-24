@@ -1,6 +1,6 @@
 // 2.94: THE GLITCHED CARTRIDGE and the PIXEL COSTUMES (phase214), as a regular (non-op) player: a cartridge used with no follower
 // near (it only buzzes, and is kept); used beside your Celi (called with her own charm): her pixel costume - the cartridge spent,
-// a billboarded sprite on her, her own model hidden (view range 0); the sprite walks with her; her own wardrobe (sneak + use her
+// a flat two-sided sprite on her (2.94c: turned as she is, no longer billboarded), her own model hidden (view range 0); the sprite walks with her; her own wardrobe (sneak + use her
 // charm - 2.94b: the costume is a row there, no Pixel Wardrobe): "Pixel costume locked" before the cartridge, then "on" pressed -
 // off (the sprite gone, her model back), pressed again - on; and the cartridge is in a won heist's finds.
 const { bot, rcon, sleep } = require('./lib_resp');
@@ -45,7 +45,9 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
   ok('the cartridge used beside her: her pixel costume (unlocked, on), the cartridge spent', /bm\.pxu_celi/.test(await tags()) && /bm\.pxo_celi/.test(await tags()) &&
      (await has('glitch_cart')) === 0 && A.chats.some(c => /sixteen colours/.test(c)), A.chats.slice(-1).join('').slice(0, 160));
   const COS = '@e[type=minecraft:item_display,tag=bm.pxcos_celi]';
-  ok('...a sprite on her (billboarded, a frame playing)', await wait(3000, async () => (await cnt(COS)) === 1) && /center/.test(await nbt(`${COS.slice(0, -1)},limit=1]`, 'billboard')));
+  ok('...a sprite on her (flat - not billboarded - and turned as she is)', await wait(3000, async () => (await cnt(COS)) === 1) && /fixed/.test(await nbt(`${COS.slice(0, -1)},limit=1]`, 'billboard')) &&
+     await wait(3000, async () => { await run(`${O}execute as ${CELI} at @s run tp @s ~ ~ ~ 90 0`); await sleep(300); const a = await num(`${COS.slice(0, -1)},limit=1]`, 'Rotation[0]'); const b = await num(CELI, 'Rotation[0]'); return Math.abs(((a - b) % 360 + 540) % 360 - 180) < 25; }),
+     `sprite yaw ${await num(`${COS.slice(0, -1)},limit=1]`, 'Rotation[0]')} her yaw ${await num(CELI, 'Rotation[0]')}`);
   const HID = '@e[type=minecraft:item_display,tag=bm.cep,tag=bm.pxhid]';
   ok('...and her own model hidden (view range 0)', await wait(3000, async () => (await cnt(HID)) >= 3) &&
      (await num(`${HID.slice(0, -1)},limit=1]`, 'view_range')) === 0, `hidden ${await cnt(HID)}`);

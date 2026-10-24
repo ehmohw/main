@@ -1,5 +1,5 @@
 // 2.94: THE 8-BIT SERPENT KING (phase215), as a regular (non-op) player - a conqueror on Apophiss's seal in the Hollow throne room
-// with 8-Bit Emma, Leo and Cecil, called with their own cartridges: the seal glitches and he rears up (a husk host, a billboarded
+// with 8-Bit Emma, Leo and Cecil, called with their own cartridges: the seal glitches and he rears up (a husk host, a flat two-sided (2.94c: not billboarded)
 // sprite, a boss bar, the title); his blows land on you; brought low (rcon sets his health), the bot's own blows finish him -
 // his death plays, he shatters, and the 8-Bit Crown is yours (and the advancement); worn on your head with a right-click.
 const { bot, rcon, sleep } = require('./lib_resp');
@@ -23,6 +23,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   for (const t of ['bm.xmpet', 'bm.xlpet', 'bm.xcpet', 'bm.emmapet', 'bm.leopet', 'bm.cecilpet']) await run(`kill @e[tag=${t}]`);
   await run(`${H}kill @e[type=minecraft:husk,tag=bm.pxapo]`); await run(`${H}kill @e[type=minecraft:item_display,tag=bm.pxa_spr]`);
   await run(`${H}kill @e[type=minecraft:husk,tag=bm.apboss]`);
+  await sleep(2500);                                                     // (2.94c: a killed follower's faint lands a few ticks on - then its cooldown is cleared)
   for (const o of ['bm.xmcd', 'bm.xlcd', 'bm.xccd']) await run(`scoreboard players set TestRat ${o} 0`);
   await run('scoreboard players set TestRat bm.conq 6'); await run('scoreboard players set TestRat bm.conqb 6');
   await run('attribute TestRat minecraft:max_health base set 200'); await run('effect give TestRat minecraft:instant_health 1 20 true');
@@ -33,12 +34,14 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await run('loot replace entity TestRat hotbar.2 loot bm:items/cart_cecil');
   A.chats.length = 0;
   const came = [];
-  for (const [k, t] of [[0, 'bm.xmpet'], [1, 'bm.xlpet'], [2, 'bm.xcpet']]) { await use(k); came.push(await wait(2000, async () => (await cnt(`@e[type=minecraft:wolf,tag=${t}]`)) === 1)); await sleep(400); }
+  for (const [k, t] of [[0, 'bm.xmpet'], [1, 'bm.xlpet'], [2, 'bm.xcpet']]) { await use(k); came.push(await wait(3500, async () => (await cnt(`@e[type=minecraft:wolf,tag=${t}]`)) === 1)); await sleep(400); }
   ok('8-Bit Emma, Leo and Cecil answer their cartridges in the Hollow (one by one)', came.every(Boolean), JSON.stringify(came));
   const BOSS = '@e[type=minecraft:husk,tag=bm.pxapo,limit=1]';
   ok('all three on the seal: it glitches - the 8-Bit Serpent King rears up (host and sprite)', await wait(6000, async () => (await cnt(BOSS)) === 1 &&
      (await cnt('@e[type=minecraft:item_display,tag=bm.pxa_spr]')) === 1) && A.chats.some(c => /glitches/.test(c)), A.chats.slice(-1).join('').slice(0, 160));
-  ok('...his sprite always faces you (billboarded) and plays his frames', /center/.test(await nbt('@e[type=minecraft:item_display,tag=bm.pxa_spr,limit=1]', 'billboard')) &&
+  ok('...his sprite turned as he is (flat, not billboarded) and plays his frames', /fixed/.test(await nbt('@e[type=minecraft:item_display,tag=bm.pxa_spr,limit=1]', 'billboard')) &&
+     await (async () => { await sleep(300); const a = +((await nbt('@e[type=minecraft:item_display,tag=bm.pxa_spr,limit=1]', 'Rotation[0]')).match(/(-?[\d.]+)/) || [0, 999])[1];
+       const b = +((await nbt('@e[type=minecraft:husk,tag=bm.pxapo,limit=1]', 'Rotation[0]')).match(/(-?[\d.]+)/) || [0, -999])[1]; return Math.abs(((a - b) % 360 + 540) % 360 - 180) < 30; })() &&
      /strings/.test(await nbt('@e[type=minecraft:item_display,tag=bm.pxa_spr,limit=1]', 'item.components')));
   ok('...and a boss bar shows him to you', /TestRat/.test(await run('bossbar get bm:pxapo players')), await run('bossbar get bm:pxapo players'));
   const php = async () => +(((await nbt('@a[name=TestRat,limit=1]', 'Health')).match(/([\d.]+)/) || [0, 0])[1]);

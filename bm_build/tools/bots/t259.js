@@ -8,9 +8,9 @@ runT({ W: 'pxleo', NAME: '8-Bit Leo', ab: 'xl', q: 'xo', pfx: 'p213l', prefix: '
   called: /Hyaah/, home: /Saving your game/, sit: /save point/, stand: /Back to the quest/,
   ways: ['Sword Beam', 'Slash', 'Shield Block', 'Coin Block', 'Spin Attack'], plain: 'Sixteen colours', looks: ['Game Boy', 'Virtual Boy', 'Sepia Print'],
   encounter: require('./px_enc')('leo', 'leo_crest', 'bm.xlmet', 'cart_leo'),
-  abilities: async ({ A, run, ok, wait, O, cnt, nbt, num, fx, PET, zom, sleep }) => {
-    const cd = async (o, v) => run(`scoreboard players set ${PET} bm.xo${o} ${v}`);
-    const calm = async () => { for (const o of ['gc', 'mc', 'rc', 'k', 'k2']) await cd(o, 900); };
+  abilities: async ({ A, run, ok, wait, O, cnt, nbt, num, fx, PET, zom, sleep, X, Y, Z }) => {
+    const cd = async (o, v) => run(`scoreboard players set ${PET.replace(',limit=1', '')} bm.xo${o} ${v}`);   // (2.94c: every 8-Bit Leo there)
+    const calm = async () => { for (const o of ['gc', 'mc', 'rc', 'k', 'k2']) await cd(o, 900); await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z + 0.5}`); };   // (2.94c: back to the middle)
     const hp = async (t) => num(`@e[tag=${t},limit=1]`, 'Health');
     await calm(); await run('effect give TestRat minecraft:instant_health 1 4 true'); await sleep(300);
     await zom(9, 0, 'bm.trpb'); await cd('rc', 0);
@@ -18,7 +18,7 @@ runT({ W: 'pxleo', NAME: '8-Bit Leo', ab: 'xl', q: 'xo', pfx: 'p213l', prefix: '
     await run(`${O}kill @e[tag=bm.trpz]`); await calm();
     await zom(2.5, 0, 'bm.trps'); await cd('mc', 0);
     ok('SLASH - a foe beside him: slashed', await wait(5000, async () => (await hp('bm.trps')) < 300));
-    await calm(); await run('effect clear TestRat'); await run('damage TestRat 8 minecraft:generic'); A.bars.length = 0; await cd('k', 0);
+    await calm(); await run('effect clear TestRat'); { const h = +(((await run('data get entity TestRat Health')).match(/([\d.]+)f/) || [0, 20])[1]); await run(`damage TestRat ${Math.max(1, Math.ceil(h - 10))} minecraft:generic`); } A.bars.length = 0; await cd('k', 0);   // (2.94c: down to 10 whatever the max)
     ok('SHIELD BLOCK - you hurt, a foe near: Resistance II behind his shield', await wait(5000, async () => /resistance/.test(await fx())) && A.bars.some(b => /shield/.test(b)), A.bars.slice(-1).join(''));
     await run(`${O}kill @e[tag=bm.trpz]`); await run('effect give TestRat minecraft:instant_health 1 4 true'); await run('effect clear TestRat');
     await run('effect give TestRat minecraft:resistance 900 4 true'); await calm(); await sleep(500);

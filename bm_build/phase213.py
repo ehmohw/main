@@ -1,5 +1,6 @@
 """2.94: THE 8-BIT TRIO - Emma, Leo and Cecil as they'd look in an old cartridge game: hidden followers of their own, pixel
-sprites (PixelLab, from the owner's art - pxart.py), billboarded so they always face you, every animation frame by frame.
+sprites (PixelLab, from the owner's art - pxart.py), flat and two-sided (2.94c: a back of their own; no longer billboarded), every
+animation frame by frame.
 
 FINDING THEM - THE GLITCHED CARTRIDGE (phase214): a cartridge that drops from any raid tier. Use it beside your own Emma, Leo
 or Cecil and the game glitches: their 8-bit self tumbles out of the screen. Right-click it, and it hands you its cartridge.
@@ -64,6 +65,8 @@ def sprite(key, sp, anims, height):
     S = pxart.Sprite(key, sp, height, anims)
     last = S.frames['sit'][-1]
     S.frames['rest'] = [last, _breathe(last)]                      # (seated: the last frame of sitting down, breathing)
+    lb = S.backs['sit'][-1]
+    S.backs['rest'] = [lb, _breathe(lb)]                           # (2.94c: and from behind)
     return S
 
 
@@ -82,7 +85,7 @@ class Base(RP.Cfg):
     ATTRS = dict(armor=6, attack_damage=4, movement_speed=0.34, follow_range=32, step_height=1.1)
     SCALE = 0.9
     HIT = (0.9, 1.8)
-    BILLBOARD = 'center'
+    BILLBOARD = None                                              # (2.94c: flat and two-sided, turned as she is - never billboarded)
     SWAP = ()
     pron, they = 'her', 'she'
     EXPR = ('happy', 'surprised', 'hurt', 'sleepy', 'blink', 'squint', 'serious')

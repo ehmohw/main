@@ -6,7 +6,8 @@ A grey cartridge with a scratched label, found in a won heist's haul (5% for eve
     (ref/pixellab/chars/<key>) that stands in for their model, always facing you, walking, sitting and fighting as they do.
   The cartridge is spent either way (one each). The costume is a row in the follower's own wardrobe (2.94b: it had a
   Pixel Wardrobe of its own, off the cartridge): locked until the cartridge, then on or off.
-How a costume is worn: a billboarded sprite stands on the follower's host; the follower's own displays are hidden (their view
+How a costume is worn: a flat two-sided sprite (its back drawn too - 2.94c: it was billboarded, always turned to you) stands on
+the follower's host, turned as it is; the follower's own displays are hidden (their view
 range to 0, the old one kept in a score) and come back when it's taken off."""
 import os
 from items import item, T, TOTEM, ITEMS
@@ -25,16 +26,20 @@ COSTUMES = {'celi': ('Celi', 1.9, 'bm.cep'), 'demo': ('Democratus', 3.0, 'bm.dmp
             'neighbor': ('the Neighbor', 1.9, 'bm.nbp'), 'stalker': ('the Stalker', 2.4, 'bm.svp'), 'lantern': ('the Arachno-Lantern', 2.0, 'bm.lnp'),
             'ava': ('Queen Ava', 2.0, 'bm.avp'), 'pistachio': ('Pistachio', 1.6, 'bm.pip'), 'pearl': ('Pearlman', 1.1, 'bm.pmd'),
             'pearlq': ('Queen Pearl', 2.0, 'bm.pqp'), 'omega': ('King Omega', 3.0, 'bm.omp'), 'ashur': ('Ashur', 2.2, 'bm.asp'), 'bones': ('Bones', 2.0, 'bm.bjp'),
-            'bender': ('Bender', 1.1, 'bm.bvp'), 'zib': ('Zib', 1.3, None), 'frog': ('the Frog', 1.2, None), 'don': ('Donado', 2.0, None),
+            'bender': ('Bender', 1.1, 'bm.bvp'), 'zib': ('Zib', 1.3, None), 'frog': ('the Frog', 1.2, None), 'don': ('Donado', 1.3, None),
             'wil': ('Wilfrey', 1.8, None), 'dennis': ('Dennis', 1.9, 'bm.dwp'), 'capshun': ('Mr. Capshun', 2.2, 'bm.mzp')}
 ANIMS = ('idle', 'walk', 'sit', 'attack')
+# (2.94c) a costume drawn from another character's art: Apophiss wears his Hollow boss sprite (the spines down his back and
+# head the follower sprite lost) - its animations by ours
+SRC = {'apo': ('apo_boss', {'idle': 'idle', 'walk': 'move', 'sit': 'idle', 'attack': 'bite'})}
 PIXEL = {'emma': 'p213e', 'leo': 'p213l', 'cecil': 'p213c'}      # (theirs is a follower of its own)
 MET = {'emma': 'bm.xmmet', 'leo': 'bm.xlmet', 'cecil': 'bm.xcmet'}
 
 
 def _have(k):
+    k = SRC.get(k, (k,))[0]
     d = os.path.join(HERE, 'ref', 'pixellab', 'chars', k)
-    return os.path.isdir(d) and all(a in pxart.anims_of(k) for a in ('idle', 'walk'))
+    return os.path.isdir(d) and all(a in pxart.anims_of(k) for a in ('idle',))
 
 
 KEYS = [k for k in COSTUMES if _have(k)]
@@ -43,8 +48,9 @@ _SPR = {}
 
 def spr(k):
     if k not in _SPR:
-        have = pxart.anims_of(k)
-        _SPR[k] = pxart.Sprite(k, f'pk_{k}_', COSTUMES[k][1], {a: (a if a in have else 'idle', None) for a in ANIMS})
+        src, names = SRC.get(k, (k, {}))
+        have = pxart.anims_of(src)
+        _SPR[k] = pxart.Sprite(src, f'pk_{k}_', COSTUMES[k][1], {a: (names.get(a, a) if names.get(a, a) in have else 'idle', None) for a in ANIMS})
     return _SPR[k]
 
 
@@ -170,7 +176,7 @@ def generate(G):
             hide = ['execute on passengers if entity @s[type=#bm:p214_displays,tag=!bm.pxcos] run function bm:p214/keep']
             show = ['execute on passengers if entity @s[type=#bm:p214_displays,tag=bm.pxhid] run function bm:p214/show1']
         nbt = {'Tags': ['bm.pxcos', f'bm.pxcos_{k}', 'bm.pxnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': f'bm:pk_{k}'}},
-               'item_display': 'fixed', 'billboard': 'center', 'teleport_duration': Int(1), 'view_range': F(1.6),
+               'item_display': 'fixed', 'teleport_duration': Int(1), 'view_range': F(1.6),
                'brightness': {'block': Int(13), 'sky': Int(13)}, 'shadow_radius': F(0.4), 'shadow_strength': F(0.5),
                'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0), F(0), F(0)],
                                   'scale': [F(round(S.size, 4))] * 3}}
@@ -200,7 +206,7 @@ def generate(G):
                 'scoreboard players operation #me bm.pid = @s bm.pid',
                 f'execute as {cos} if score @s bm.pid = #me bm.pid positioned ~ ~{up} ~ run function bm:p214/f/{k}']
         fn(f'p214/h/{k}', anim)
-        fr = ['tp @s ~ ~ ~', 'scoreboard players add @s bm.pxf 1', 'scoreboard players operation #fi bm.rng = @s bm.pxf',
+        fr = ['tp @s ~ ~ ~ ~ 0', 'scoreboard players add @s bm.pxf 1', 'scoreboard players operation #fi bm.rng = @s bm.pxf',
               'scoreboard players operation #fi bm.rng %= #3 bm.rng', 'execute unless score #fi bm.rng matches 0 run return 0',
               'scoreboard players operation #fi bm.rng = @s bm.pxf', 'scoreboard players operation #fi bm.rng /= #3 bm.rng']
         for st, a in enumerate(('idle', 'walk', 'sit', 'attack')):

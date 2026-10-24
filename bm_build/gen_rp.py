@@ -883,6 +883,8 @@ if __name__ == '__main__':
     phase210.rp(sys.modules[__name__]); phase211.rp(sys.modules[__name__]); phase212.rp(sys.modules[__name__])
     import phase213, phase214, phase215       # (2.94: the 8-bit trio, the pixel costumes, the 8-Bit Serpent King)
     phase213.rp(sys.modules[__name__]); phase214.rp(sys.modules[__name__]); phase215.rp(sys.modules[__name__])
+    import phase216                           # (2.94d: the Arcade)
+    phase216.rp(sys.modules[__name__])
     import phase199                           # (2.91: the Underwater Kingdom)
     phase199.rp(sys.modules[__name__])
     import phase200                           # (2.91: the Nether and the End)

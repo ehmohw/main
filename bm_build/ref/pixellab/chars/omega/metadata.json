@@ -1,11 +1,11 @@
 {
-  "group_id": "56305889-7eae-4ce2-9a1a-a63907802f27",
+  "group_id": "df36d87a-6473-4e0a-a81f-0691b3f59e1b",
   "states": [
     {
       "character": {
-        "id": "6b7369fa-661d-4c3e-9c77-90ed623a5970",
+        "id": "d14bba11-ce0b-4efc-803f-f10d5fec9c16",
         "name": "Idle",
-        "prompt": "King Omega, a grey ghostly sea serpent: a coiled grey serpent body, yellow glowing eyes, a gold monocle, a gold spiked crown with a purple dome, a purple fanged mouth with a purple tongue, pale translucent fins along the back, clawed grey arms, a blue spirit flame at the tail tip",
+        "prompt": "King Omega, a grey ghostly sea serpent: a coiled grey serpent body, yellow glowing eyes, a gold monocle, a gold spiked crown with a purple dome, a purple fanged mouth with a purple tongue, a row of tall jagged silver-white spikes on the back of his head and running all the way down his back, clawed grey arms, a blue spirit flame at the tail tip",
         "size": {
           "width": 96,
           "height": 96
@@ -13,7 +13,7 @@
         "template_id": "mannequin",
         "directions": 8,
         "view": "low top-down",
-        "created_at": "2026-10-23T22:58:56.240738+00:00"
+        "created_at": "2026-10-24T04:14:43.942351+00:00"
       },
       "folder": "Idle",
       "frames": {
@@ -28,22 +28,13 @@
           "south-west": "Idle/rotations/south-west.png"
         },
         "animations": {
-          "idle": {
-            "south": [
-              "Idle/animations/idle/south/frame_000.png",
-              "Idle/animations/idle/south/frame_001.png",
-              "Idle/animations/idle/south/frame_002.png",
-              "Idle/animations/idle/south/frame_003.png",
-              "Idle/animations/idle/south/frame_004.png"
-            ]
-          },
           "sit": {
-            "south": [
-              "Idle/animations/sit/south/frame_000.png",
-              "Idle/animations/sit/south/frame_001.png",
-              "Idle/animations/sit/south/frame_002.png",
-              "Idle/animations/sit/south/frame_003.png",
-              "Idle/animations/sit/south/frame_004.png"
+            "north": [
+              "Idle/animations/sit/north/frame_000.png",
+              "Idle/animations/sit/north/frame_001.png",
+              "Idle/animations/sit/north/frame_002.png",
+              "Idle/animations/sit/north/frame_003.png",
+              "Idle/animations/sit/north/frame_004.png"
             ]
           },
           "walk": {
@@ -57,9 +48,31 @@
               "Idle/animations/walk/south/frame_006.png",
               "Idle/animations/walk/south/frame_007.png",
               "Idle/animations/walk/south/frame_008.png"
+            ],
+            "north": [
+              "Idle/animations/walk/north/frame_000.png",
+              "Idle/animations/walk/north/frame_001.png",
+              "Idle/animations/walk/north/frame_002.png",
+              "Idle/animations/walk/north/frame_003.png",
+              "Idle/animations/walk/north/frame_004.png",
+              "Idle/animations/walk/north/frame_005.png",
+              "Idle/animations/walk/north/frame_006.png",
+              "Idle/animations/walk/north/frame_007.png",
+              "Idle/animations/walk/north/frame_008.png"
             ]
           },
           "attack": {
+            "north": [
+              "Idle/animations/attack/north/frame_000.png",
+              "Idle/animations/attack/north/frame_001.png",
+              "Idle/animations/attack/north/frame_002.png",
+              "Idle/animations/attack/north/frame_003.png",
+              "Idle/animations/attack/north/frame_004.png",
+              "Idle/animations/attack/north/frame_005.png",
+              "Idle/animations/attack/north/frame_006.png",
+              "Idle/animations/attack/north/frame_007.png",
+              "Idle/animations/attack/north/frame_008.png"
+            ],
             "south": [
               "Idle/animations/attack/south/frame_000.png",
               "Idle/animations/attack/south/frame_001.png",
@@ -71,11 +84,36 @@
               "Idle/animations/attack/south/frame_007.png",
               "Idle/animations/attack/south/frame_008.png"
             ]
+          },
+          "sit-c7f9b438": {
+            "south": [
+              "Idle/animations/sit-c7f9b438/south/frame_000.png",
+              "Idle/animations/sit-c7f9b438/south/frame_001.png",
+              "Idle/animations/sit-c7f9b438/south/frame_002.png",
+              "Idle/animations/sit-c7f9b438/south/frame_003.png",
+              "Idle/animations/sit-c7f9b438/south/frame_004.png"
+            ]
+          },
+          "idle": {
+            "north": [
+              "Idle/animations/idle/north/frame_000.png",
+              "Idle/animations/idle/north/frame_001.png",
+              "Idle/animations/idle/north/frame_002.png",
+              "Idle/animations/idle/north/frame_003.png",
+              "Idle/animations/idle/north/frame_004.png"
+            ],
+            "south": [
+              "Idle/animations/idle/south/frame_000.png",
+              "Idle/animations/idle/south/frame_001.png",
+              "Idle/animations/idle/south/frame_002.png",
+              "Idle/animations/idle/south/frame_003.png",
+              "Idle/animations/idle/south/frame_004.png"
+            ]
           }
         }
       }
     }
   ],
   "export_version": "3.1",
-  "export_date": "2026-10-23T23:25:17.255469"
+  "export_date": "2026-10-24T04:47:27.753967"
 }

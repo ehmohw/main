@@ -35,7 +35,13 @@ GOLD = '#ffcf40'
 FOE = 'type=#bm:hostile,tag=!bm.npc'
 O = '@a[tag=bm.p188o]'                       # (the pair's player, tagged while its pair runs)
 VNAME = {'ashur': 'Ashur', 'leo': 'Leo', 'emma': 'Emma', 'fishy': 'Fishy', 'apo': 'Apophiss', 'chef': 'The Chef', 'dennis': 'Dennis',
-         'neighbor': 'The Neighbor', 'demo': 'Democratus', 'omega': 'Omega', 'celi': 'Celi', 'ava': 'Queen Ava', 'capshun': 'Mr. Capshun'}
+         'neighbor': 'The Neighbor', 'demo': 'Democratus', 'omega': 'Omega', 'celi': 'Celi', 'ava': 'Queen Ava', 'capshun': 'Mr. Capshun',
+         'cecil': 'Cecil', 'pxemma': '8-Bit Emma', 'pxleo': '8-Bit Leo', 'pxcecil': '8-Bit Cecil', 'bender': 'Bender', 'don': 'Donado', 'zib': 'Zib'}
+# (2.94c) Zib and Donado, older than the bond list, join it
+P100.WHO.setdefault('zib', ('wolf', 'bm.zibpet'))
+P100.WHO.setdefault('don', ('wolf', 'bm.donado'))
+P100.VOICE.setdefault('Zib', ('#3ad8c8', '#b8f4ee'))
+P100.VOICE.setdefault('Donado', ('#e8d29a', '#f6ecd0'))
 REGEN = 'execute unless predicate bm:p100/regen run effect give @s minecraft:regeneration 5 0 true'
 SNACK = 'effect give @s minecraft:saturation 1 0 true'
 
@@ -134,6 +140,35 @@ PAIRS = {
                   [('apo', 'You. Scribbler. Write me something TERRIFYING.'), ('capshun', '[Mr. Capshun narrates: "The serpent king rose, and the monsters wept."]')],
                   [('capshun', '"Any last words for the audience, Your Serpentness?"', 'apo', 'Yes. KNEEL.'),
                    ('apo', 'Do I get a theme song?', 'capshun', '"Dun dun DUNNN. ...That\'s all the budget allowed."')]),
+    # (2.94c) each of the 8-bit three with the one they came out of; Bender and his friends from the stars
+    'player_two': ('pxemma', 'emma', 'Player Two Has Joined', '#ff8ad8', 'Emma and 8-Bit Emma - the princess and her pixel self',
+                   [f'execute as {O} run {REGEN}', f'effect give {O} minecraft:speed 3 0 true', REGEN, '{B} run ' + REGEN],
+                   [('Emma', 'Wait - is that ME? But all... blocky?'), ('pxemma', 'Player one! I\'ve waited SO long for a co-op game!')],
+                   [('Emma', 'Can you really jump that high?', 'pxemma', 'Every jump is a power-up jump when you\'re 8-bit!'),
+                    ('pxemma', 'High five, player one!', 'Emma', 'High... sixteen? Your hand is a square!')]),
+    'two_knights': ('pxleo', 'leo', 'Knight of Two Worlds', '#6ac0ff', 'Leo and 8-Bit Leo - the same oath, in two resolutions',
+                    [f'effect give {O} minecraft:resistance 3 0 true', f'effect give {O} minecraft:strength 3 0 true',
+                     'effect give @s minecraft:resistance 3 0 true', '{B} run effect give @s minecraft:resistance 3 0 true'],
+                    [('Leo', 'You carry my shield. And my... posture.'), ('pxleo', 'And your oath, sir knight. Every pixel of it.')],
+                    [('Leo', 'Do you ever tire, little one?', 'pxleo', 'Never! I respawn!'),
+                     ('pxleo', 'Your armour has so many colours.', 'Leo', 'And yours has sixteen. Choose them wisely.')]),
+    'remaster': ('pxcecil', 'cecil', 'The Remaster', '#c090ff', 'Cecil and 8-Bit Cecil - the original and the remaster',
+                 [f'execute as {O} run {REGEN}', f'effect give {O} minecraft:haste 3 0 true', f'execute at {O} as @e[{FOE},distance=..8] run effect give @s minecraft:weakness 2 0',
+                  '{B} run ' + REGEN],
+                 [('Cecil', 'A copy of me? Hmph. The hat is wrong.'), ('pxcecil', 'I am the REMASTER. The hat is iconic.')],
+                 [('pxcecil', 'My spells load faster than yours.', 'Cecil', 'Mine have more than sixteen colours.'),
+                  ('Cecil', 'Do you remember the old spells?', 'pxcecil', 'Every one. They\'re on my cartridge.')]),
+    'good_boys': ('bender', 'don', 'Good Boys', '#e8c070', 'Bender and Donado - two very good boys',
+                  [f'effect give {O} minecraft:speed 3 0 true', f'execute as {O} run {REGEN}', REGEN, '{B} run ' + REGEN],
+                  [('bender', '(a happy bark, tail going like mad)'), ('don', 'Greetings, Earth dog. Your tail is moving very fast.')],
+                  [('bender', '(drops a stick at Donado\'s feet)', 'don', 'I do not understand this offering. ...I will throw it.'),
+                   ('don', 'Who is a good boy?', 'bender', '(a bark that clearly means "BOTH OF US")')]),
+    'space_dog': ('bender', 'zib', 'Space Dog', '#5ad8b8', 'Bender and Zib - the first dog in orbit',
+                  [f'effect give {O} minecraft:speed 3 0 true', f'effect give {O} minecraft:jump_boost 3 1 true',
+                   'effect give @s minecraft:speed 3 0 true', '{B} run effect give @s minecraft:resistance 3 0 true'],
+                  [('zib', 'Specimen acquired! A four-legged Earthling!'), ('bender', '(sniffs Zib\'s antennae, sneezes)')],
+                  [('zib', 'Would you like to see my ship, Earth dog?', 'bender', '(spins in a circle - that\'s a yes)'),
+                   ('bender', '(barks at the stars)', 'zib', 'Yes! That one is home! You have very good taste.')]),
 }
 
 TRIOS = {   # key: (name, colour, members, advancement title, description)
@@ -144,8 +179,10 @@ TRIOS = {   # key: (name, colour, members, advancement title, description)
     'feast': ('The Royal Feast', '#ffc0e0', ('emma', 'neighbor', 'chef'), 'The Royal Feast', 'Walk with Emma, the Neighbor and the Chef at once'),
     'family': ('The Family Reunited', '#b8a8ff', ('emma', 'ava', 'demo'), 'The Family Reunited', 'Walk with Emma, Queen Ava and Democratus at once'),
     'everafter': ('Happily Ever After', '#ffe0a8', ('capshun', 'emma', 'leo'), 'Happily Ever After', 'Walk with Mr. Capshun, Emma and Leo at once'),
+    'space_pack': ('The Space Pack', '#9ad8a0', ('bender', 'don', 'zib'), 'The Space Pack', 'Walk with Bender, Donado and Zib at once'),
 }
-ICON = {'family': 'bm:demo_seal', 'everafter': 'bm:capshun_pencil', 'reaper_rose': 'bm:demo_seal', 'crown_scythe': 'bm:demo_seal',
+ICON = {'player_two': 'bm:cart_emma', 'two_knights': 'bm:cart_leo', 'remaster': 'bm:cart_cecil', 'good_boys': 'bm:bv_ball', 'space_dog': 'bm:bv_ball',
+        'space_pack': 'bm:donadian_medal', 'family': 'bm:demo_seal', 'everafter': 'bm:capshun_pencil', 'reaper_rose': 'bm:demo_seal', 'crown_scythe': 'bm:demo_seal',
         'storybook': 'bm:capshun_pencil', 'monologue': 'bm:capshun_pencil',
         'hearth': 'bm:ashur_cinder', 'ffs': 'bm:ashur_cinder', 'dinner': 'bm:chef_ladle', 'opera': 'bm:neighbor_baton', 'feast': 'bm:neighbor_baton'}
 P100.TRIOS.update(TRIOS)
@@ -168,6 +205,9 @@ P100.BANTER.update({
     'everafter': [('Mr. Capshun', '[Mr. Capshun narrates: "The princess, the knight and the narrator set out. Mostly the narrator."]', 'Leo', 'I believe I did most of the fighting.'),
                   ('Emma', 'Mr. Capshun, will this story have a happy ending?', 'Mr. Capshun', '"With you two in it? Guaranteed."'),
                   ('Leo', 'Must you narrate everything I do?', 'Mr. Capshun', '[Mr. Capshun narrates: "He said, gruffly."]')],
+    'space_pack': [('Zib', 'Away team assembled! Two dogs and one superior alien.', 'Donado', 'I am also an alien, Zib.'),
+                   ('Bender', '(chases the tractor beam\'s glow round and round)', 'Donado', 'He does this every time.'),
+                   ('Donado', 'Report, Zib?', 'Zib', 'Monsters: few. Dogs: excellent. Mission: going well!')],
     'feast': [('Emma', 'A royal feast! With music!', 'The Chef', 'For the Princess - only the finest!'),
               ('The Neighbor', 'A little dinner music, Your Highness?', 'Emma', 'Yes please! Something you can dance to!'),
               ('The Chef', 'Eat, eat! You are all too skinny!', 'The Neighbor', 'I\'m a musician, Chef. We live on applause.')],
@@ -247,6 +287,12 @@ def generate(G):
        each(TRIOS['family'][2], REGEN) + ['function bm:p100/banter_tick'])
     fn('p100/everafter', [REGEN, 'effect give @s minecraft:resistance 3 0 true', 'effect give @s minecraft:speed 3 0 true', 'effect give @s minecraft:luck 3 0 true'] +
        each(TRIOS['everafter'][2], 'effect give @s minecraft:resistance 3 0 true') + ['function bm:p100/banter_tick'])
+    # (2.94c) THE SPACE PACK: Speed, Jump Boost and Luck for you; every 20 seconds Donado's tractor beam lifts the monsters
+    #         round you off their feet (and Bender barks at them); the three heal
+    fn('p100/space_pack', ['effect give @s minecraft:speed 3 0 true', 'effect give @s minecraft:jump_boost 3 0 true', 'effect give @s minecraft:luck 3 0 true'] + tick20 +
+       ['execute if score @s bm.p188 matches 0 run function bm:p188/beam_up'] + each(TRIOS['space_pack'][2], REGEN) + ['function bm:p100/banter_tick'])
+    fn('p188/beam_up', [f'effect give @e[{FOE},distance=..8] minecraft:levitation 2 0', f'execute at @e[{FOE},distance=..8] run particle minecraft:end_rod ~ ~0.5 ~ 0.2 0.8 0.2 0.02 8',
+                        'playsound minecraft:block.beacon.activate player @a[distance=..16] ~ ~ ~ 0.6 1.8', 'playsound minecraft:entity.wolf.ambient player @a[distance=..16] ~ ~ ~ 1 1.2'])
     for k, (nm, col, mem, at, desc) in TRIOS.items():
         wjson(f'bm/advancement/story/trio_{k}.json', {'parent': 'bm:story/root', 'criteria': {'done': {'trigger': 'minecraft:impossible'}},
                                                      'display': {'icon': {'id': 'minecraft:totem_of_undying', 'components': {'minecraft:item_model': ICON[k]}},

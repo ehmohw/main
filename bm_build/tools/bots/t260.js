@@ -7,9 +7,9 @@ runT({ W: 'pxcecil', NAME: '8-Bit Cecil', ab: 'xc', q: 'xd', pfx: 'p213c', prefi
   called: /Not because you called/, home: /sequel/, sit: /meditate/, stand: /Onward/,
   ways: ['Hex Bolt', 'Hex', 'Game Over'], plain: 'Sixteen colours', looks: ['Game Boy', 'Virtual Boy', 'Sepia Print'],
   encounter: require('./px_enc')('cecil', 'cecil_gem', 'bm.xcmet', 'cart_cecil'),
-  abilities: async ({ A, run, ok, wait, O, cnt, nbt, num, fx, PET, zom, sleep }) => {
-    const cd = async (o, v) => run(`scoreboard players set ${PET} bm.xd${o} ${v}`);
-    const calm = async () => { for (const o of ['gc', 'bc', 'rc']) await cd(o, 900); };
+  abilities: async ({ A, run, ok, wait, O, cnt, nbt, num, fx, PET, zom, sleep, X, Y, Z }) => {
+    const cd = async (o, v) => run(`scoreboard players set ${PET.replace(',limit=1', '')} bm.xd${o} ${v}`);   // (2.94c: every 8-Bit Cecil there)
+    const calm = async () => { for (const o of ['gc', 'bc', 'rc']) await cd(o, 900); await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z + 0.5}`); };   // (2.94c: back to the middle)
     const hp = async (t) => num(`@e[tag=${t},limit=1]`, 'Health');
     await calm();
     await zom(9, 0, 'bm.trpb'); await cd('rc', 0);

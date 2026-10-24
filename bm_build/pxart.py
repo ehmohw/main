@@ -1,9 +1,12 @@
 """2.94: PIXEL SPRITES - a character drawn by PixelLab (ref/pixellab/twins/<k>, ref/pixellab/chars/<k>: the export of a character,
-its south-facing animations - south is toward you, and a billboarded sprite always faces you) made into the game's pieces:
+its south-facing animations - south is toward you - and (2.94c) its north-facing ones, the same animations seen from behind)
+made into the game's pieces:
 
   every frame a texture, put on one canvas (a power of two) so the character's feet stand on the same spot in every animation
     (each animation's first frame is lined up with the standing sprite's feet, the rest of it moves as drawn)
-  every frame a model - one flat quad, unshaded - and one item definition that picks the frame by the display's
+  every frame a model - one flat quad, unshaded: the front frame on its front, the back frame on its back (2.94c: it was
+    billboarded, always turned to you - from above you saw its face looking up at you; now it's flat as a paper doll, turned
+    as the follower is, and edge-on from the side it's a line) - and one item definition that picks the frame by the display's
     custom_model_data string ("walk_3"): so a look's recoloured copy of that definition (phase138's "_c<k>") keeps every frame
   for rigpet (a sprite follower): PARTS body (nothing to see - the shadow) and head (the sprite), POSES "<anim>_<i>", a pose
     setting the frame (pose_extra), RIG_SCALE the quad's size so the character stands as tall as asked.
@@ -15,7 +18,7 @@ import os
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOTS = (os.path.join(HERE, 'ref', 'pixellab', 'twins'), os.path.join(HERE, 'ref', 'pixellab', 'chars'))
+ROOTS = (os.path.join(HERE, 'ref', 'pixellab', 'twins'), os.path.join(HERE, 'ref', 'pixellab', 'chars'), os.path.join(HERE, 'ref', 'pixellab', 'arcade'))
 
 
 def folder(key):
@@ -26,8 +29,8 @@ def folder(key):
     raise FileNotFoundError(key)
 
 
-def _frames(d, anim):
-    fs = glob.glob(os.path.join(d, '*', 'animations', anim, 'south', '*.png'))
+def _frames(d, anim, side='south'):
+    fs = glob.glob(os.path.join(d, '*', 'animations', anim, side, '*.png'))
     fs.sort(key=lambda f: int(''.join(c for c in os.path.basename(f) if c.isdigit()) or 0))
     return [Image.open(f).convert('RGBA') for f in fs]
 
@@ -61,33 +64,58 @@ class Sprite:
         self.ppb = self.px_h / height                                        # (pixels to the block)
         self.size = n / self.ppb                                             # (the quad's side, in blocks)
         self.frames = {}
+        place = lambda fr: (int(round(n / 2 - ((fr[0].getbbox() or (0, 0, fr[0].width, 0))[0] + (fr[0].getbbox() or (0, 0, fr[0].width, 0))[2]) / 2)),
+                            int(n - 6 - (fr[0].getbbox() or (0, 0, 0, fr[0].height))[3]))
         for name, fr in self.src.items():
-            b0 = fr[0].getbbox() or (0, 0, fr[0].width, fr[0].height)
-            dx = int(round(n / 2 - (b0[0] + b0[2]) / 2))
-            dy = int(n - 6 - b0[3])
+            dx, dy = place(fr)
             out = []
             for f in fr:
                 c = Image.new('RGBA', (n, n), (0, 0, 0, 0))
                 c.alpha_composite(f, (dx, dy))
                 out.append(c)
             self.frames[name] = out
+        # (2.94c) the backs: each animation's north frames, its feet where the front's are, frame for frame (a count that
+        # differs is matched by its place in the cycle); an animation drawn only from the front gets the front's outline,
+        # filled from the character's own back view - never its face
+        rot_n = glob.glob(os.path.join(d, '*', 'rotations', 'north.png'))
+        rot_n = Image.open(rot_n[0]).convert('RGBA') if rot_n else None
+        self.backs = {}
+        for name, (src, keep) in anims.items():
+            fr = _frames(d, src, 'north')
+            if fr and keep:
+                fr = [fr[i] for i in keep if i < len(fr)]
+            k = len(self.frames[name])
+            if fr:
+                dx, dy = place(fr)
+                out = []
+                for i in range(k):
+                    c = Image.new('RGBA', (n, n), (0, 0, 0, 0))
+                    c.alpha_composite(fr[min(len(fr) - 1, i * len(fr) // k)], (dx, dy))
+                    out.append(c)
+            else:
+                out = [_back_of(f, rot_n) for f in self.frames[name]]
+            self.backs[name] = out
 
     # ------------------------------------------------------------------ the pieces
     def textures(self):
-        return {f'{self.prefix}{a}_{i}': im for a, fr in self.frames.items() for i, im in enumerate(fr)}
+        T = {f'{self.prefix}{a}_{i}': im for a, fr in self.frames.items() for i, im in enumerate(fr)}
+        T.update({f'{self.prefix}b_{a}_{i}': im for a, fr in self.backs.items() for i, im in enumerate(fr)})
+        return T
 
     def frame_names(self):
         return [f'{a}_{i}' for a, fr in self.frames.items() for i in range(len(fr))]
 
-    def quad(self, tex):
-        face = {'uv': [0, 0, 16, 16], 'texture': '#f'}
-        return ({'f': f'bm:block/{tex}'}, [{'from': [0, 0, 8], 'to': [16, 16, 8], 'shade': False,
-                                             'faces': {'north': face, 'south': {'uv': [16, 0, 0, 16], 'texture': '#f'}}}])
+    def quad(self, tex, back=None):
+        """a flat two-sided quad: the front frame on its north face (rigkit's front: design -z, the way the follower faces), the
+        back frame on its south face - each seen the right way round from its own side"""
+        return ({'f': f'bm:block/{tex}', 'b': f'bm:block/{back or tex}'},
+                [{'from': [0, 0, 8], 'to': [16, 16, 8], 'shade': False,
+                  'faces': {'north': {'uv': [0, 0, 16, 16], 'texture': '#f'},
+                            'south': {'uv': [0, 0, 16, 16] if back else [16, 0, 0, 16], 'texture': '#b'}}}])
 
     def models(self, head=None):
         """{model: (textures, elements)} - a quad per frame; and (for a rigpet follower) its empty body"""
-        M = {f'{self.prefix}{fn}': self.quad(f'{self.prefix}{fn}') for fn in self.frame_names()}
-        return M
+        return {f'{self.prefix}{fn}': self.quad(f'{self.prefix}{fn}', f'{self.prefix}b_{fn}') for fn in self.frame_names()}
 
     def item_def(self, R2, item, first='idle_0'):
         """the one item definition: the frame by the display's custom_model_data"""
@@ -125,7 +153,7 @@ class Rig:
     def models(self):
         M = dict(self.S.models())
         M[f'{self.PREFIX}body'] = ({'f': f'bm:block/{self.S.prefix}idle_0'}, [])                 # (nothing to see: it carries the shadow)
-        M[f'{self.PREFIX}head'] = self.S.quad(f'{self.S.prefix}idle_0')
+        M[f'{self.PREFIX}head'] = self.S.quad(f'{self.S.prefix}idle_0', f'{self.S.prefix}b_idle_0')
         return M
 
     def cycle(self, name, every, start=0):
@@ -172,6 +200,18 @@ def _back(im, back):
                 yy = min((r for r in range(h) if any(cp[q, r][3] >= 128 for q in range(w))), key=lambda r: abs(r - y))
                 op[x, y] = cp[min((q for q in range(w) if cp[q, yy][3] >= 128), key=lambda q: abs(q - x)), yy]
     return out
+
+
+def _back_of(front, rot_n):
+    """a back for a frame drawn only from the front: its outline, filled from the back view (the front mirrored, if none)"""
+    if rot_n is None:
+        return front.transpose(Image.FLIP_LEFT_RIGHT)
+    bb = front.getbbox()
+    if not bb:
+        return front.copy()
+    out = Image.new('RGBA', front.size, (0, 0, 0, 0))
+    out.alpha_composite(_back(front.crop(bb), rot_n), (bb[0], bb[1]))
+    return out.transpose(Image.FLIP_LEFT_RIGHT)
 
 
 def voxel(im, tex, height=18.0, depth=1.6, back=None):

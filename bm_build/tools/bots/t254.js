@@ -107,6 +107,13 @@ const res = [];
   hp = await hpOf();
   const fire = +((await run(`${O}data get entity ${ZB} Fire`)).match(/(-?\d+)s/) || [0, 0])[1];
   ok('SERAPHIC JUDGMENT (the holy set): 24 through armour and 10 more to the undead, set alight', hp <= 300 - 34 && fire > 0 && said(/SERAPHIC JUDGMENT/), `hp ${hp} fire ${fire}`);
+  // (2.94c) a trim on the Seraph's Wings or plate (a smithing table's) has no texture there: taken straight off
+  await run('item modify entity TestRat armor.chest {function:"minecraft:set_components",components:{"minecraft:trim":{material:"minecraft:gold",pattern:"minecraft:silence"}}}');
+  await run('item modify entity TestRat armor.legs {function:"minecraft:set_components",components:{"minecraft:trim":{material:"minecraft:gold",pattern:"minecraft:silence"}}}');
+  ok("a trim put on the Seraph's Wings and Greaves: taken off within seconds (no missing-texture checks)",
+     await wait(4000, async () => !/trim/.test(await run('data get entity TestRat equipment.chest')) && !/trim/.test(await run('data get entity TestRat equipment.legs'))),
+     (await run('data get entity TestRat equipment.chest')).slice(0, 160));
+  ok("...the wings still the Seraph's own (its equipment asset)", /seraph_wings/.test(await run('data get entity TestRat equipment.chest')));
   // a mixed set is neither
   await run('loot replace entity TestRat armor.head loot bm:items/dread_visage'); await run('scoreboard players reset TestRat bm.dscd');
   z = await zombie(); A.bars.length = 0;

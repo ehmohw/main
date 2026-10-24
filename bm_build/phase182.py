@@ -250,6 +250,9 @@ def generate(G):
     # (2.94: and a trim already put on one - before this fix - taken off again)
     unt = [f'execute if items entity @s {sl} *[minecraft:custom_data~{{bm:"{i}"}},minecraft:trim] run item modify entity @s {sl} '
            '{function:"minecraft:set_components",components:{"!minecraft:trim":{}}}' for sl in slots.values() for i in sorted(OWN_ART)]
+    # (2.94c: and every second, whoever wears one - a smithing table's trim too, not only a wake's: it has no texture there)
+    fn('p182/untrim', unt)
+    second.append('execute as @a if items entity @s armor.* *[minecraft:trim] run function bm:p182/untrim')
     fn('p182/wake', unt + [f'execute if score #rg bm.rng matches {t} run function bm:p182/wake_{t}' for t in msgs] +
        ['scoreboard players operation @s bm.rgt = #rg bm.rng',
         'execute if score #rg bm.rng matches 1.. run playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 0.5 1.6',

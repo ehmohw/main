@@ -21,6 +21,67 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94d: the Arcade, pixel followers you can walk round, the Sky Buddies in 3D
+
+### The Arcade (hard mode)
+The empty house west of Fountain Plaza opens as **the Arcade** while the world is in hard mode. Two pixel traders keep it,
+flat as paper dolls and drawn front and back: **Bit**, a rat in a backwards cap, and a **Pixel Villager**. Right-click either
+to trade, in Dread Tokens. Out of hard mode the house is empty again.
+- **Four armour sets** (homages; netherite and more, +2 health a piece, unbreakable):
+  - **Bounty Hunter** power suit: fire and lava can't hurt you, the visor sees in the dark, Jump Boost II and Speed.
+  - **Blue Bomber**: every blow fires a buster shot at the nearest monster too; Strength.
+  - **Plumber**: no fall damage, Jump Boost II, and **STOMP**: land on a monster from above for 14, and bounce off it
+    (monster to monster, a chain).
+  - **Vampire Hunter**: the undead take 8 more from every blow; Regeneration by night.
+- **Weapons**:
+  - **8-Bit Blade**: at full health, right-click for a sword beam.
+  - **Vampire Killer**: a whip with 3 blocks more reach, and 8 more to the undead.
+  - **Arm Buster**: right-click for buster shots.
+  - **Fire Flower**: fireballs that set what they hit alight.
+- **Chips**, a weapon's upgrades. Hold the chip with the weapon in your off hand and use it; any sword, axe, mace, trident or
+  arcade weapon takes one of each, for good.
+  - **Glitch**: one blow in five does 6 more and blinks the monster away.
+  - **MissingNo.**: a kill, one time in four, adds one to the stack in your sixth hotbar slot.
+  - **Game Genie**: +4 attack damage.
+  - **Turbo**: +0.8 attack speed.
+- **Props**, set down on a block (sneak + punch to pick up):
+  - **? Block**: a Token a day.
+  - **Warp Pipes**: set two down, and one takes you to the other, anywhere.
+  - **Arcade Cabinet**: a game, a score, and Luck.
+  - **Blade in the Stone** and **Triangles of Power**: for show.
+  - **Save Point**: sets your spawn and heals you.
+- **Practical items**:
+  - **Heart Container**: +1 heart for good, up to 3.
+  - **Super Star**: 10 s invincible; whatever you touch is hurt.
+  - **Power Mushroom**: a minute bigger and stronger.
+  - **1-UP Mushroom**: held when you'd die, you live.
+
+### Pixel followers, flat and two-sided
+- **No more billboards.** 8-Bit Emma, Leo and Cecil, every pixel costume and the 8-Bit Serpent King are flat sprites
+  with a back drawn too, turned the way they face. Seen from the side they're a line. They used to turn to face you always:
+  from above, you saw them looking up at you.
+- **Redrawn:** **8-Bit Emma** is playful now (a big smile, a bounce, a wink). **King Omega** has his spikes down his head
+  and back. **The Neighbor** has his musical-note wings. **Apophiss's** costume is his Hollow boss sprite. **Donado's** is
+  smaller.
+- **New bonds:**
+  - Emma and 8-Bit Emma, *Player Two Has Joined*.
+  - Leo and 8-Bit Leo, *Knight of Two Worlds*.
+  - Cecil and 8-Bit Cecil, *The Remaster*.
+  - Bender and Donado, *Good Boys*.
+  - Bender and Zib, *Space Dog*.
+  - All three of Bender, Donado and Zib, *The Space Pack*: Speed, Jump Boost and Luck, and every 20 seconds Donado's
+    tractor beam lifts the monsters round you.
+
+### The Sky Buddies in 3D
+Sunny, Snooze, Twinkle and Nimbus are blocky 3D now: each a voxel sculpture of the painting (pixel art at about 36 pixels a
+block), puffed out like a soft toy, its face on the front and its painting without the face behind. They no longer turn
+to face you.
+
+### Fixes
+- **Snooze's full moon** reads the real moon: 26.3's moon timeline. The day count it used before was no moon at all.
+- **The Dread and Seraph pieces never wear a trim** (it has no texture on their own art). Any trim, even one from a
+  smithing table, comes off within a second.
+
 ## New in 2.94c: the Dark Auction on servers, pixel costumes in the wardrobe
 
 - **The Dark Auction begins at midnight again.** In a world that had never held a sale, the auction's state was never set,
