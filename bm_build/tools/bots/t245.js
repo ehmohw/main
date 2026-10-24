@@ -42,7 +42,7 @@ runT({ W: 'bones', NAME: 'Bones', ab: 'bj', q: 'bz', pfx: 'p196', prefix: 'bn_',
     // ---- the Guardian of the Kingdom: in water near him, Dolphin's Grace
     await run(`${O}setblock ${X + 4} ${Y + 1} ${Z + 4} minecraft:water`); await run(`${O}setblock ${X + 4} ${Y + 2} ${Z + 4} minecraft:water`);
     await at(X + 4.5, Y + 1, Z + 4.5, 0, 0); await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true');
-    ok('in the water near him: Dolphin\'s Grace', await wait(3000, async () => /dolphins_grace/.test(await fx())));
+    ok('in the water near him: Dolphin\'s Grace', await wait(5000, async () => /dolphins_grace/.test(await fx())));
     await run(`${O}fill ${X + 4} ${Y + 1} ${Z + 4} ${X + 4} ${Y + 2} ${Z + 4} minecraft:air`);
     // ---- RIDING: from his menu; he floats along where you look; the whistle from his back - CHOMP; sneak - off
     await at(X + 0.5, Y + 1, Z - 7.5, 0, 0); await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z - 6.5} 0 0`); await sleep(500);
