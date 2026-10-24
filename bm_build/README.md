@@ -21,6 +21,21 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94e: the Sky Buddies, modelled anew
+
+The weather trio are **brand-new 3D models**, designed from the painting rather than made out of it. They're built of
+boxes and painted in pixel art, like Emma:
+- **Sunny** is a round, stepped ball of a sun with 3D shades: two black lenses with their glints, a bridge, a bar across
+  the top, and arms running back along his sides. His brows and smirk are painted on, and his twelve rays are stepped
+  wedges that still spin. The shades slide down his nose when he's surprised and go up on his forehead when he's sleepy.
+- **Snooze** is a slim, chunky crescent traced from the painting's outline, with the long lower horn, her crater and a
+  sleepy face. Her **nightcap** is a cone of boxes that leans over, with a fur band and a bobble. It still takes every
+  colour from the Tailor.
+- **Twinkle** is a fat little five-point star, scowling.
+- **Nimbus** is a cloud of puffs on a flat base, with a big ":3". A darker cloud sits behind him.
+
+Every face, pose, the doll, the golden doll, the figurine and the frame use the new models.
+
 ## New in 2.94d: the Arcade, pixel followers you can walk round, the Sky Buddies in 3D
 
 ### The Arcade (hard mode)
