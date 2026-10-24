@@ -27,6 +27,11 @@ from items import item, T, TOTEM, ITEMS, consumable
 from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D
 import rigfol as RF
+import phase152 as P152
+# (2.94g) THE DREAD - their battle theme (tools/dread_music.py: violin, organ and choir, a fight for your life), while any of the
+# three is near and not yet falling; and its record (phase124's 'dread'), from each one's spoils: the first win always, then one in five
+P152.THEMES[14] = ('dread', 120)
+P152.WHO_LATE += [(14, 'type=minecraft:husk,tag=bm.db,tag=!bm.dbfall'), (14, 'type=minecraft:drowned,tag=bm.db,tag=!bm.dbfall')]
 import phase177 as P177
 import snowbeast_art, witch_art, sawshark_art
 
@@ -428,7 +433,7 @@ def build_boss(G, k, b, tick, second, fast):
                        f'execute as @e[type=minecraft:item_display,tag=bm.dbr_{k}] if score @s bm.dbid = #id bm.rng run kill @s',
                        'kill @e[tag=bm.dbminion,distance=..48]', f'bossbar set bm:db_{k} players', 'tp @s ~ -400 ~', 'kill @s'])
     # ---- the fall
-    fn(f'{pfx}/falling', ['data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.dba 31', 'scoreboard players set @s bm.dbx 60',
+    fn(f'{pfx}/falling', ['tag @s add bm.dbfall', 'data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.dba 31', 'scoreboard players set @s bm.dbx 60',
                           'kill @e[tag=bm.dbminion,distance=..48]', f'bossbar set bm:db_{k} value 0',
                           'playsound minecraft:entity.wither.death hostile @a[distance=..64] ~ ~ ~ 0.6 0.8'])
     fn(f'{pfx}/fall', [f'execute as @a[distance=..64,gamemode=!spectator] at @s run function bm:{pfx}/reward', 'particle minecraft:explosion_emitter ~ ~1 ~ 0 0 0 0 1',
@@ -437,6 +442,8 @@ def build_boss(G, k, b, tick, second, fast):
         {'rolls': 1, 'entries': [G.loot_entry('dread_token', G.uni(3, 6))]},
         {'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'minecraft:emerald', 'functions': [{'function': 'minecraft:set_count', 'count': {'type': 'minecraft:uniform', 'min': 4, 'max': 10}}]}]},
         {'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'minecraft:diamond', 'functions': [{'function': 'minecraft:set_count', 'count': {'type': 'minecraft:uniform', 'min': 1, 'max': 3}}]}]}]})
+    fn('p197/disc', ['tag @s add bm.dbdisc', give('music_disc_dread'),
+                     tellraw('@s', G.PREFIX + [T('In the spoils: a record - ', 'gray'), T('The Dread', '#e0283a', bold=True), T('. Its battle, every note of it.', 'gray')])])
     adv = {'snow': ('Hat Trick', 'Defeat the Malevolent Snowbeast at the Frozen Folly'), 'witch': ('Old Acquaintance', 'Defeat the Watchful Witch at the Hexen Hollow'),
            'shark': ('Bigger Teeth', 'Defeat the Chomping Sawshark at the Drowned Gate')}[k]
     G.wjson(f'bm/advancement/story/db_{k}.json', {'parent': 'bm:story/root', 'criteria': {'won': {'trigger': 'minecraft:impossible'}},
@@ -444,7 +451,10 @@ def build_boss(G, k, b, tick, second, fast):
                                                               'title': T(adv[0], 'yellow'), 'description': T(adv[1], 'gray'), 'frame': 'challenge'}})
     fn(f'{pfx}/reward', [give(b['token']), f'loot give @s loot bm:p197/{k}_spoils', f'scoreboard players add @s bm.dbwin_{k} 1',
                          f'advancement grant @s only bm:story/db_{k}',
-                         tellraw('@s', G.PREFIX + [T(f'{b["NAME"]} has fallen! ', b['COL'], bold=True), T('Its token is yours - carry it, set it down, or let Vesper scrap it.', 'gray')])])
+                         tellraw('@s', G.PREFIX + [T(f'{b["NAME"]} has fallen! ', b['COL'], bold=True), T('Its token is yours - carry it, set it down, or let Vesper scrap it.', 'gray')]),
+                         'execute store result score #r bm.rng run random value 1..5',
+                         'execute unless entity @s[tag=bm.dbdisc] run scoreboard players set #r bm.rng 1',
+                         'execute if score #r bm.rng matches 1 run function bm:p197/disc'])
     fn(f'admin/db_{k}', [f'execute rotated ~ 0 positioned ^ ^ ^8 run function bm:{pfx}/rise'])
 
     # ---- its attacks

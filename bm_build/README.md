@@ -21,6 +21,21 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94g: The Dread
+
+The three Dread bosses (the Malevolent Snowbeast, the Watchful Witch and the Chomping Sawshark) have a battle theme of their
+own: **The Dread**. It's desperate and wicked, in C minor at 168 BPM:
+- a tolling intro of organ, choir and bells;
+- a frantic chase of driving strings and war drums under the violin's theme;
+- a pleading section where the violin climbs over the choir;
+- a half-time, wicked passage of organ and chanting where the violin tears through runs;
+- then everything at once.
+
+It plays while one of them is near and stops the moment it starts to fall.
+
+It's also a **music disc**. Beating a Dread boss gives it the first time, and one time in five after that. It plays in any
+jukebox and isn't one of the six records for "Crate Digger".
+
 ## New in 2.94f: Nimbus's face, and a little more room
 
 - **Nimbus's eyes and smile sit flat on his face**, on one panel, instead of stepping across his puffs.

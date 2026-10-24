@@ -1,6 +1,7 @@
 // 2.88: THE DREAD BOSSES, as a regular (non-op) player - hard mode: a ruin's altar right-clicked without its trio lists who's
 // missing; with Pistachio, Celi and Tullius beside you the Malevolent Snowbeast rises; it fights (ice-shard volleys fly); brought
-// down, it falls - the Frostbitten Token, the spoils, the advancement; the token carried (Resistance), set down as a ward (sneak +
+// down, it falls - the Frostbitten Token, the spoils, the advancement (2.94g: its theme, The Dread, plays while it fights and stops as it
+// falls; the first win gives its record); the token carried (Resistance), set down as a ward (sneak +
 // use on a block) and taken back (sneak + punch); the Watchful Witch's altar refuses you too. Vesper sells the three maps and
 // scraps the tokens. rcon only sets the stage (the ruin built, the trio standing by as yours).
 const { bot, rcon, sleep } = require('./lib_resp');
@@ -29,17 +30,18 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
   await run('effect give TestRat minecraft:resistance 900 4 true'); await run('effect give TestRat minecraft:instant_health 1 10 true');
   await run(`${O}forceload add ${X - 32} ${Z - 32} ${X + 32} ${Z + 32}`);
   await run(`${O}fill ${X - 16} ${Y} ${Z - 16} ${X + 16} ${Y} ${Z + 16} minecraft:snow_block`); await run(`${O}fill ${X - 16} ${Y + 1} ${Z - 16} ${X + 16} ${Y + 14} ${Z + 16} minecraft:air`);
-  await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..40]`); await run('scoreboard players set #hard bm.cfg 1');
-  await run('advancement revoke TestRat only bm:story/db_snow'); await run('execute as TestRat run function bm:p21/pid');
+  await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..40]`); await run('scoreboard players set #hardoff bm.cfg 0'); await run('scoreboard players set #hard bm.cfg 1');   // (the server holds hard mode off: let it on)
+  await run('advancement revoke TestRat only bm:story/db_snow'); await run('execute as TestRat run function bm:p21/pid'); await run('tag TestRat remove bm.dbdisc');
   // ---- the stage: the Frozen Folly built here
   await run(`${O}execute positioned ${X} ${Y + 1} ${Z} run function bm:p197/snow/ruin/build`); await sleep(800);
   const ALT = `@e[type=minecraft:interaction,tag=bm.dbaltar_snow,x=${X},y=${Y},z=${Z},distance=..20,limit=1]`;
   ok('the Frozen Folly: its altar', (await cnt(ALT)) === 1);
   const ax = await num(ALT, 'Pos[0]'), ay = await num(ALT, 'Pos[1]'), az = await num(ALT, 'Pos[2]');
   await at(ax, ay, az - 2.2, 0, 20);
-  let alt = await entOf(ALT); A.slot(8); await sleep(200); A.chats.length = 0; if (alt) A.interact(alt.entityId); await sleep(1000);
+  let alt = null; await wait(4000, async () => (alt = await entOf(ALT)) != null);          // (the client has the altar before it's clicked)
+  A.slot(8); await sleep(200); A.chats.length = 0; if (alt) A.interact(alt.entityId); await sleep(1000);
   ok('right-clicked alone: it lists the trio, all missing (✘ Pistachio, Celi, Tullius)', ['Pistachio', 'Celi', 'Tullius'].every(n => A.chats.some(c => new RegExp(`✘.*${n}`).test(c))) &&
-     (await cnt('@e[tag=bm.db_snow]')) === 0, A.chats.slice(-4).join(' | ').slice(0, 220));
+     (await cnt('@e[tag=bm.db_snow]')) === 0, A.chats.slice(-4).join(' | ').slice(0, 220) + ' bars: ' + A.bars.slice(-2).join(' | ') + ` alt ${!!alt}`);
   // ---- the stage: Pistachio, Celi and Tullius standing by - yours
   const pid = +((await run('scoreboard players get TestRat bm.pid')).match(/has (-?\d+)/) || [0, 0])[1];
   for (const [t, dx] of [['bm.pipet', -2], ['bm.celipet', 2], ['bm.tupet', 3]]) {
@@ -50,11 +52,12 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
   ok('with the three beside you: the Malevolent Snowbeast rises (host, rig)', await wait(3000, async () => (await cnt('@e[tag=bm.db_snow]')) === 1) &&
      (await cnt('@e[type=minecraft:item_display,tag=bm.dbr_snow]')) >= 6);
   await run(`${O}kill @e[tag=bm.trdb]`);
-  ok('...invulnerable while it rises, then awake', /1b/.test(await nbt('@e[tag=bm.db_snow,limit=1]', 'Invulnerable')) &&
-     await wait(6000, async () => /0b/.test(await nbt('@e[tag=bm.db_snow,limit=1]', 'Invulnerable'))));
+  ok('...then awake (no longer invulnerable)', await wait(8000, async () => /0b/.test(await nbt('@e[tag=bm.db_snow,limit=1]', 'Invulnerable'))));
   await at(ax, ay, az - 12, 0, 0);
   ok('it fights: ice shards fly at you (or the cold catches you)', await wait(15000, async () => (await cnt('@e[type=minecraft:marker,tag=bm.dbshot_ice]')) >= 1 ||
      /slowness/.test(await fx())), `shots ${await cnt('@e[type=minecraft:marker,tag=bm.dbshot_ice]')}`);
+  const bmt = async () => +(((await run('scoreboard players get TestRat bm.bmt')).match(/has (-?\d+)/) || [0, 0])[1]);
+  ok('...and its theme plays: The Dread (2.94g)', await wait(4000, async () => (await bmt()) === 14), `theme ${await bmt()}`);
   // ---- brought low (the stage: most of its health gone), then the player's own blows finish it
   await run(`${O}damage @e[tag=bm.db_snow,limit=1] 700 minecraft:generic`); await sleep(400);
   ok('...half down: enraged (phase two)', await wait(3000, async () => /1/.test(await run(`${O}scoreboard players get @e[tag=bm.db_snow,limit=1] bm.dbph`))));
@@ -68,6 +71,8 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
   ok('brought down by your blows: it falls - the Frostbitten Token is yours', await wait(6000, async () => (await has('tok_frost')) === 1) &&
      A.chats.some(c => /has fallen!/.test(c)), A.chats.slice(-2).join(' | ').slice(0, 200));
   ok('...the spoils (Dread Tokens) and the advancement', (await has('dread_token')) >= 3 && (await cnt('@a[name=TestRat,advancements={bm:story/db_snow=true}]')) === 1);
+  ok('...the music stops as it falls', await wait(4000, async () => (await bmt()) === 0), `theme ${await bmt()}`);
+  ok('...and its record is yours, the first win: The Dread (a music disc)', (await has('music_disc_dread')) === 1 && A.chats.some(c => /a record - The Dread/.test(c)));
   ok('...its rig gone with it, the bossbar empty', (await cnt('@e[type=minecraft:item_display,tag=bm.dbr_snow]')) === 0);
   // ---- the token: carried, set down, taken back
   await run('effect clear TestRat'); await run('clear TestRat minecraft:netherite_sword');
@@ -87,7 +92,8 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
   const WALT = `@e[type=minecraft:interaction,tag=bm.dbaltar_witch,x=${X - 10},y=${Y},z=${Z - 10},distance=..20,limit=1]`;
   const wx = await num(WALT, 'Pos[0]'), wy = await num(WALT, 'Pos[1]'), wz = await num(WALT, 'Pos[2]');
   await at(wx, wy, wz - 2.2, 0, 20);
-  const wa = await entOf(WALT); A.slot(8); A.chats.length = 0; if (wa) A.interact(wa.entityId); await sleep(1000);
+  let wa = null; await wait(4000, async () => (wa = await entOf(WALT)) != null);
+  A.slot(8); A.chats.length = 0; if (wa) A.interact(wa.entityId); await sleep(1000);
   ok("the Hexen Hollow's altar: it wakes only for Cecil, Apophiss and King Omega", ['Cecil', 'Apophiss', 'King Omega'].every(n => A.chats.some(c => new RegExp(`✘.*${n}`).test(c))),
      A.chats.slice(-4).join(' | ').slice(0, 220));
   // ---- Vesper: the maps and the scrapping
@@ -99,6 +105,7 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..40]`);
   await run(`${O}fill ${X - 16} ${Y + 1} ${Z - 16} ${X + 16} ${Y + 14} ${Z + 16} minecraft:air`);
   await run(`${O}forceload remove ${X - 32} ${Z - 32} ${X + 32} ${Z + 32}`);
+  await run('scoreboard players set #hard bm.cfg 0'); await run('scoreboard players set #hardoff bm.cfg 1');   // (held off again)
   const n = res.filter(x => x).length; console.log(`${n}/${res.length} passed`);
   A.end(); R.end(); process.exit(n === res.length ? 0 : 1);
 })();
