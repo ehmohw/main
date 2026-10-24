@@ -36,7 +36,7 @@ const res = [];
   await run('effect give TestRat minecraft:resistance 1500 4 true'); await run('effect give TestRat minecraft:saturation 1500 0 true');
   await run('tag TestRat remove bm.dheart'); for (const k of ['snow', 'witch', 'shark']) await run(`scoreboard players reset TestRat bm.dbwin_${k}`);
   await run('scoreboard players reset TestRat bm.dscd');
-  await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
+  await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`); await sleep(2500);   // (its entities load a moment after: a last run's leftovers are cleared below)
   await run(`${O}fill ${X - 8} ${Y - 1} ${Z - 8} ${X + 8} ${Y - 1} ${Z + 8} minecraft:stone`);
   await run(`${O}fill ${X - 8} ${Y} ${Z - 8} ${X + 8} ${Y + 6} ${Z + 8} minecraft:air`);
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..20]`);
