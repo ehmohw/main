@@ -34,7 +34,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await run('loot replace entity TestRat hotbar.2 loot bm:items/cart_cecil');
   A.chats.length = 0;
   const came = [];
-  for (const [k, t] of [[0, 'bm.xmpet'], [1, 'bm.xlpet'], [2, 'bm.xcpet']]) { await use(k); came.push(await wait(3500, async () => (await cnt(`@e[type=minecraft:wolf,tag=${t}]`)) === 1)); await sleep(400); }
+  for (const [k, t] of [[0, 'bm.xmpet'], [1, 'bm.xlpet'], [2, 'bm.xcpet']]) { await use(k); came.push(await wait(3500, async () => (await cnt(`@e[type=minecraft:wolf,tag=${t}]`)) === 1)); await sleep(2200); }
   ok('8-Bit Emma, Leo and Cecil answer their cartridges in the Hollow (one by one)', came.every(Boolean), JSON.stringify(came));
   const BOSS = '@e[type=minecraft:husk,tag=bm.pxapo,limit=1]';
   ok('all three on the seal: it glitches - the 8-Bit Serpent King rears up (host and sprite)', await wait(6000, async () => (await cnt(BOSS)) === 1 &&
