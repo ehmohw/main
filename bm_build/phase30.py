@@ -83,6 +83,9 @@ def generate(G):
         # a crash, restart or /reload mid-sale: everyone is refunded (the settle loop), the lot goes back into the pool
         'execute if score #state bm.auc matches 2.. run function bm:p30/abort',
         'execute unless score #pgen bm.auc matches 0.. run scoreboard players set #pgen bm.auc 0',
+        # 2.94b: a world that has never held a sale has no #state at all, and the doors only open on 0 - so on a server
+        #        where no one had run auction_now, the Dark Auction never began (the sign said "tonight!" all night)
+        'execute unless score #state bm.auc matches 0.. run scoreboard players set #state bm.auc 0',
         'scoreboard players set #usebank bm.pay 0', 'scoreboard players set #2 bm.auc 2', 'scoreboard players set #7 bm.auc 7',
         'scoreboard players set #30 bm.auc 30', 'scoreboard players set #20 bm.auc 20', 'scoreboard players set #10 bm.auc 10']
     G.FUNCS['admin/uninstall'][-1:-1] = ['bossbar remove bm:auction', 'scoreboard objectives remove bm.auc', 'scoreboard objectives remove bm.escrow']
@@ -145,7 +148,8 @@ def generate(G):
     G.FUNCS['p21/grap/use'][1:1] = ['execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm:"bidding_paddle"}] run return run function bm:p30/menu']
 
     # ------------------------------------------------------------------ schedule: the sign, the warning, doors, start
-    sch = ['scoreboard players operation #wk bm.auc = #day bm.bm', 'scoreboard players operation #wk bm.auc %= #7 bm.auc',
+    sch = ['execute unless score #state bm.auc matches 0.. run scoreboard players set #state bm.auc 0',    # (2.94b: see load)
+           'scoreboard players operation #wk bm.auc = #day bm.bm', 'scoreboard players operation #wk bm.auc %= #7 bm.auc',
            'scoreboard players set #tonight bm.auc 0',
            'execute if score #wk bm.auc matches 6 run scoreboard players set #tonight bm.auc 1',
            'execute if score #bday bm.bm matches 1 run scoreboard players set #tonight bm.auc 1',

@@ -153,15 +153,40 @@ def chibi(im, split=0.46, kh=1.3, kb=0.8):
     return out
 
 
-def voxel(im, tex, height=18.0, depth=1.6):
+def _back(im, back):
+    """the back view lined up behind the front, column for column: mirrored (seen from behind, left is right), its outline
+    moved onto the front's, and every front pixel it doesn't cover filled from the nearest back pixel in its row (so the back
+    has no holes, and nothing of the face shows through)"""
+    b = back.transpose(Image.FLIP_LEFT_RIGHT); bb = b.getbbox(); b = b.crop(bb)
+    w, h = im.size
+    c = Image.new('RGBA', (w, h), (0, 0, 0, 0)); c.alpha_composite(b, ((w - b.width) // 2, h - b.height))   # (feet to feet, centred)
+    fa, cp = im.load(), c.load()
+    out = Image.new('RGBA', (w, h), (0, 0, 0, 0)); op = out.load()
+    for y in range(h):
+        solid = [x for x in range(w) if cp[x, y][3] >= 128]
+        for x in range(w):
+            if fa[x, y][3] < 128: continue
+            if cp[x, y][3] >= 128: op[x, y] = cp[x, y]
+            elif solid: op[x, y] = cp[min(solid, key=lambda q: abs(q - x)), y]
+            else:                                     # (a row the back doesn't reach: the nearest row it does)
+                yy = min((r for r in range(h) if any(cp[q, r][3] >= 128 for q in range(w))), key=lambda r: abs(r - y))
+                op[x, y] = cp[min((q for q in range(w) if cp[q, yy][3] >= 128), key=lambda q: abs(q - x)), yy]
+    return out
+
+
+def voxel(im, tex, height=18.0, depth=1.6, back=None):
     """(textures, elements, the square texture) - every row's runs of solid pixels a box, the sprite on its front (north, as
-    the dolls face) and back, its edge pixels on the sides: a pixel doll you can walk round"""
+    the dolls face) and on its back (the back view, if given - 2.94b: else the front again, so a hooded face showed on the back
+    of the hood), its edge pixels on the sides: a pixel doll you can walk round"""
     bb = im.getbbox(); im = im.crop(bb)
     w, h = im.size
     n = 16
-    while n < max(w, h):
+    while n < max(w, h) or (back is not None and n < 2 * w):
         n *= 2
     sq = Image.new('RGBA', (n, n), (0, 0, 0, 0)); sq.alpha_composite(im, (0, 0))
+    bx = 0
+    if back is not None:                              # (the back beside the front on the texture)
+        bx = n // 2; sq.alpha_composite(_back(im, back), (bx, 0))
     s = height / h                                    # (model units a pixel)
     u = 16.0 / n                                      # (uv units a pixel)
     ox = 8 + w * s / 2                                # (column 0 at the east edge: the north face shows it on your left)
@@ -180,15 +205,15 @@ def voxel(im, tex, height=18.0, depth=1.6):
             t = [round(ox - x0 * s, 3), round((h - y) * s, 3), round(8 + depth / 2, 3)]
             row = lambda c0, c1: [round(c0 * u, 4), v0, round(c1 * u, 4), v1]
             els.append({'from': f, 'to': t, 'faces': {
-                'north': {'uv': row(x0, x), 'texture': '#t'}, 'south': {'uv': row(x, x0), 'texture': '#t'},
+                'north': {'uv': row(x0, x), 'texture': '#t'}, 'south': {'uv': row(bx + x, bx + x0), 'texture': '#t'},
                 'up': {'uv': row(x0, x), 'texture': '#t'}, 'down': {'uv': row(x0, x), 'texture': '#t'},
                 'east': {'uv': row(x0, x0 + 1), 'texture': '#t'}, 'west': {'uv': row(x - 1, x), 'texture': '#t'}}})
     return {'t': f'bm:block/{tex}', 'particle': f'bm:block/{tex}'}, els, sq
 
 
-def standing(key):
+def standing(key, side='south'):
     d = folder(key)
-    return Image.open(glob.glob(os.path.join(d, '*', 'rotations', 'south.png'))[0]).convert('RGBA')
+    return Image.open(glob.glob(os.path.join(d, '*', 'rotations', f'{side}.png'))[0]).convert('RGBA')
 
 
 def turned(els):

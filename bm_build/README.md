@@ -21,6 +21,22 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94c: the Dark Auction on servers, pixel costumes in the wardrobe
+
+- **The Dark Auction begins at midnight again.** In a world that had never held a sale, the auction's state was never set,
+  and the doors only opened from the "closed" state. The gate sign said "tonight!" all night and nothing happened. The
+  state now starts closed when the pack loads, and the schedule checks it too. In a world stuck this way, the doors open
+  within a second of loading 2.94c if it's a sale night; past midnight, the first lot is called straight away.
+- **Pixel costumes are in each follower's own wardrobe.** A **Pixel costume** row sits beside their aura: *locked* until
+  you use a Glitched Cartridge beside them, then *on* or *off*. The separate Pixel Wardrobe (sneak + use a cartridge) is
+  gone. Emma, Leo and Cecil are unchanged: the cartridge still brings out their 8-bit selves as followers of their own.
+- **Bender's pixel costume stands on four legs.** He was drawn upright on two.
+- **8-Bit Emma walks properly:** a new walk cycle, her steps alternating and her eyes open, facing you.
+- **The 8-bit dolls have backs.** The back of each doll is that follower's real back view (the back of Cecil's hood, Emma's
+  ponytail, Leo's armour). It used to repeat the front, so Cecil's face showed on the back of his hood.
+- **No more constant dust.** Bender no longer kicks up dust at every run, and Bones no longer sprays bubbles at every swim.
+  Bender's Rage now throws up one burst of dust as he launches; Bones's Torpedo keeps its wake.
+
 ## New in 2.94b: the pack loads again
 
 2.94a's datapack zip was packaged while a rebuild was still writing it, so it held only 3039 of the pack's 28453 files.
@@ -73,7 +89,8 @@ A grey cartridge whose picture keeps changing: **5% for every raider in any won 
 ### Pixel costumes
 - **Beside any other follower,** a Glitched Cartridge unlocks their **pixel costume**: a PixelLab sprite of them that stands
   in for their model, walking, sitting and fighting as they do. Their own model is only hidden, and comes back when it's off.
-- **Sneak + use a cartridge:** the **Pixel Wardrobe**, every costume you've unlocked, each on or off.
+- **Wearing it:** a **Pixel costume** row in the follower's own wardrobe, on or off (2.94c; it began as a Pixel Wardrobe
+  off the cartridge).
 - Every follower but the Sky Buddies has one (Emma, Leo and Cecil have their 8-bit selves instead).
 
 ### The 8-Bit Serpent King
@@ -124,8 +141,7 @@ is out. (After the first, a Glitched Cartridge instead.)
 - **Queen Ava sits properly:** her gown's lower tiers fold away and the rest pools around her on the floor; nothing goes
   through the ground. Swimming, her gown trails behind her (her legs used to hang down out of it).
 - **Bender's tail** curls up over his back, as a happy dog's does. He runs at a dog's pace now, not a zip (his Good Boy
-  rush is Speed I), and dust kicks up at his paws when he runs; his Rage charge is as fast as ever, with a streak behind it.
-- **Bones** throws up a spray and a stream of bubbles when he rushes through the water.
+  rush is Speed I); his Rage charge is as fast as ever (2.94c: one burst of dust as he launches, no dust at every run).
 - **Mr. Capshun smiles:** his default face is a smile with his eyes open; the puzzled look of the sketch is one of his idles.
 - **The Seraph's carapace and plate** no longer turn into the missing-texture checks by day: the holy set's daytime gold trim
   is kept off pieces with their own art (and taken off any that already had it).

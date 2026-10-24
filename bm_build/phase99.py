@@ -393,6 +393,15 @@ def generate(G):
         assert TOP[who] not in used, (who, TOP[who])
         btns.append(P28.btn([T(an, ac, bold=True), T('  '), '@@RAW:r_aura@@'], TOP[who], width=150,
                             tooltip=T(f'{an}: a rare aura around {nm} - a heist find, or the Tailor\'s dearest stock. On or off here.', 'gray')))
+        # 2.94b: the pixel costume row (a Glitched Cartridge used beside them unlocks it) - locked, then on / off, here in
+        #        their own wardrobe (it had a Pixel Wardrobe of its own, off the cartridge)
+        import phase214 as P214
+        if who in P214.KEYS:
+            assert TOP[who] - 1 not in used, (who, TOP[who] - 1)
+            page += [st('px', 'locked', 'dark_gray'), f'execute if entity @s[tag=bm.pxu_{who}] run {st("px", "off", "gray")}',
+                     f'execute if entity @s[tag=bm.pxu_{who},tag=bm.pxo_{who}] run {st("px", "on", P214.COL)}']
+            btns.append(P28.btn([T('Pixel costume', P214.COL, bold=True), T('  '), '@@RAW:r_px@@'], TOP[who] - 1, width=150,
+                                tooltip=T(f'{nm} as a PixelLab sprite. Unlocked by using a Glitched Cartridge beside {pron}. On or off here.', 'gray')))
         page.append(f'function bm:p99/dlg/{who} with storage bm:ui wd')
         fn(f'p99/menu/{who}', page)
         dlg = P28.multi([T(f"{nm}", col, bold=True), T('  ·  wardrobe', 'gray')],
@@ -406,6 +415,8 @@ def generate(G):
                  'scoreboard players operation #me bm.pid = @s bm.pid',
                  f'execute if score #act bm.pay matches {b} run return run function bm:{HOME[who]}',
                  f'execute if score #act bm.pay matches {TOP[who]} run return run function bm:p138/au/t_{who}']
+        if who in P214.KEYS:
+            lines.append(f'execute if score #act bm.pay matches {TOP[who] - 1} run return run function bm:p214/t/{who}')
         for _w, g, cur, un, ks, iid, off, apply in mine:
             if g != 'outfit':
                 fn(f'p99/pick/{g}0', [f'scoreboard players set @s {cur} 0'] + (['scoreboard players set @s bm.coso 0'] if g == 'dress' else []) +

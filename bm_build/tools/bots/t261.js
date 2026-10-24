@@ -1,7 +1,8 @@
 // 2.94: THE GLITCHED CARTRIDGE and the PIXEL COSTUMES (phase214), as a regular (non-op) player: a cartridge used with no follower
 // near (it only buzzes, and is kept); used beside your Celi (called with her own charm): her pixel costume - the cartridge spent,
-// a billboarded sprite on her, her own model hidden (view range 0); the sprite walks with her; the Pixel Wardrobe (sneak + use):
-// "Celi: on" pressed - off (the sprite gone, her model back), pressed again - on; and the cartridge is in a won heist's finds.
+// a billboarded sprite on her, her own model hidden (view range 0); the sprite walks with her; her own wardrobe (sneak + use her
+// charm - 2.94b: the costume is a row there, no Pixel Wardrobe): "Pixel costume locked" before the cartridge, then "on" pressed -
+// off (the sprite gone, her model back), pressed again - on; and the cartridge is in a won heist's finds.
 const { bot, rcon, sleep } = require('./lib_resp');
 const fs = require('fs');
 const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
@@ -34,6 +35,12 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
   const CELI = '@e[type=minecraft:wolf,tag=bm.celipet,limit=1]';
   ok('Celi called (her own charm)', (await cnt(CELI)) === 1);
   await run(`${O}tp ${CELI} ${X + 0.5} ${Y + 1} ${Z + 2.5}`); await sleep(500);
+  const wardrobe = async () => { const n0 = A.dialogN.length; await use(7, true); return wait(3000, async () => A.dialogN.length > n0); };
+  await wardrobe();
+  ok('her wardrobe (sneak + use her charm) has a "Pixel costume" row - locked', A.buttons().some(b => /Pixel costume\s+locked/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
+  A.chats.length = 0; await A.press(/Pixel costume/); await sleep(1200);
+  ok('...pressed while locked: it says how to unlock it (a Glitched Cartridge)', A.chats.some(c => /locked.*Glitched Cartridge/.test(c)) && !/bm\.pxo_celi/.test(await tags()), A.chats.slice(-1).join('').slice(0, 160));
+  A.closeDialog && A.closeDialog();
   A.chats.length = 0; await use(6); await sleep(1500);
   ok('the cartridge used beside her: her pixel costume (unlocked, on), the cartridge spent', /bm\.pxu_celi/.test(await tags()) && /bm\.pxo_celi/.test(await tags()) &&
      (await has('glitch_cart')) === 0 && A.chats.some(c => /sixteen colours/.test(c)), A.chats.slice(-1).join('').slice(0, 160));
@@ -46,15 +53,14 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
   ok('...the sprite animates (its frame changes)', (await nbt(`${COS.slice(0, -1)},limit=1]`, 'item.components."minecraft:custom_model_data"')) !== f0);
   await run(`${O}tp ${CELI} ${X + 4.5} ${Y + 1} ${Z + 2.5}`); await sleep(800);
   ok('...and stays on her when she moves', Math.abs((await num(`${COS.slice(0, -1)},limit=1]`, 'Pos[0]')) - (X + 4.5)) < 0.6);
-  // the Pixel Wardrobe
-  await run('loot replace entity TestRat hotbar.6 loot bm:items/glitch_cart');
-  const n0 = A.dialogN.length; await use(6, true); await wait(3000, async () => A.dialogN.length > n0);
-  ok('sneak + use: the Pixel Wardrobe - "Celi: on"', A.buttons().some(b => /Celi: on/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
-  await A.press(/Celi: on/); await sleep(2000);
+  // her own wardrobe now
+  await wardrobe();
+  ok('her wardrobe: "Pixel costume on"', A.buttons().some(b => /Pixel costume\s+on/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
+  await A.press(/Pixel costume/); await sleep(2000);
   ok('...pressed: off - the sprite gone, her own model back', (await cnt(COS)) === 0 && (await cnt(HID)) === 0 &&
      (await num('@e[type=minecraft:item_display,tag=bm.cep,limit=1]', 'view_range')) > 0 && !/bm\.pxo_celi/.test(await tags()));
-  ok('...the wardrobe now reads "Celi: off"', A.buttons().some(b => /Celi: off/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
-  await A.press(/Celi: off/); await sleep(2000);
+  ok('...the wardrobe now reads "Pixel costume off"', A.buttons().some(b => /Pixel costume\s+off/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
+  await A.press(/Pixel costume/); await sleep(2000);
   ok('...pressed again: on', (await cnt(COS)) === 1 && /bm\.pxo_celi/.test(await tags()));
   ok('a won heist can find one (the finds roll it, any tier)', /bm:p214\/find/.test(fs.readFileSync(`${DP}/p105/finds.mcfunction`, 'utf8')));
   await run('execute as TestRat run function bm:p98/home/celi'); await sleep(1500);

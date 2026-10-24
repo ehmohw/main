@@ -217,11 +217,18 @@ if CECIL:
                              ('8-Bit Leo', 'If we fall in a pit we lose a life. Be careful.', '8-Bit Cecil', 'I have never lost a life. I have only... respawned strategically.')]
 
 
+def _doll(C, tex):
+    """the doll: the standing sprite in voxels, its back the back view (2.94b: it was the front again - a face on the back of
+    Cecil's hood)"""
+    key = {'pxemma': 'emma', 'pxleo': 'leo', 'pxcecil': 'cecil_px'}[C.W]
+    return pxart.voxel(pxart.standing(key), tex, height=15.0, back=pxart.standing(key, 'north'))
+
+
 def textures():
     T_ = {}
     for C in ALL:
         T_.update(C.S.textures())
-        T_[f'doll_{C.W}_t'] = pxart.voxel((pxart.standing({'pxemma': 'emma', 'pxleo': 'leo', 'pxcecil': 'cecil_px'}[C.W])), 'x')[2]
+        T_[f'doll_{C.W}_t'] = _doll(C, 'x')[2]
     return T_
 
 
@@ -263,7 +270,7 @@ def rp(R):
     def post(R2):
         for C in ALL:                                                   # (the head: its frame, from the pose's custom_model_data)
             C.S.item_def(R2, f'{C.ab}_head')
-            tex, els, _sq = pxart.voxel((pxart.standing({'pxemma': 'emma', 'pxleo': 'leo', 'pxcecil': 'cecil_px'}[C.W])), f'doll_{C.W}_t', height=15.0)
+            tex, els, _sq = _doll(C, f'doll_{C.W}_t')
             els = pxart.turned(els)                                     # (its front where the other dolls have theirs)
             R2.wj(f'assets/bm/models/item/doll_{C.W}.json', {'textures': tex, 'elements': els, 'display': P141.doll_display(R2, els)})
     R.POST.append(post)                                                 # (after rigpet's head and the dolls' stand-ins - before phase138 copies them)

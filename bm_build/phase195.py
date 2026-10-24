@@ -180,6 +180,9 @@ def rage(G, X):
                           f'execute rotated as @s rotated ~ 0 run function bm:{pfx}/place'])
     # the leap: up and at it, a step a tick (straight onto it if there's a wall between)
     fn(f'{pfx}/rg/leap', [f'execute if score @s bm.bvrt matches 1 run {pose("bite_up")}', f'execute if score @s bm.bvrt matches 4 run {pose("flip_0")}',
+                          # (2.94b) the launch: one burst of dust where he pushes off, so the dash reads as speed
+                          'execute if score @s bm.bvrt matches 3 run particle minecraft:dust_plume ~ ~0.1 ~ 0.35 0.05 0.35 0.06 18',
+                          'execute if score @s bm.bvrt matches 3 run particle minecraft:poof ~ ~0.2 ~ 0.3 0.05 0.3 0.06 10',
                           'execute if score @s bm.bvrt matches 3..5 if block ~ ~1.4 ~ #bm:grap_pass run tp @s ~ ~0.35 ~'] +
        [f'execute if score @s bm.bvrt matches 3.. run {l}' for l in step(0.95)] +
        [f'execute if score @s bm.bvrt matches 3.. as {T_} at @s anchored eyes positioned ^ ^ ^ if entity {RHn} run return run function bm:{pfx}/rg/latch_as',
@@ -367,10 +370,7 @@ def generate(G):
                                 'function bm:p195/enc/joined'])
 
     RP.build(C, G, abilities, encounter)
-    # (2.94) at a run, dust kicked up at his paws - and his Rage leaves a streak - so the speed reads as speed, not a glide
-    G.FUNCS['p195/tick'][-1:-1] = ['execute if score @s bm.dqs matches 2 run particle minecraft:poof ~ ~0.1 ~ 0.2 0.05 0.2 0.01 1',
-                                   'execute if score @s bm.dqs matches 2 run particle minecraft:dust_plume ~ ~0.1 ~ 0.25 0.05 0.25 0.02 2',
-                                   'execute if score @s bm.bvrt matches 1.. run particle minecraft:cloud ~ ~0.3 ~ 0.2 0.1 0.2 0.01 2']
+    # (2.94b: the dust at every run is gone - the owner found it constant; only the Rage's launch kicks up a burst, see rg/leap)
     sel2 = 'bm.bvsel2'
     S = lambda s: f'bm.dq{s}'
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.bvdg dummy', 'scoreboard objectives add bm.bvsn dummy']

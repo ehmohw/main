@@ -16,7 +16,7 @@ const res = [];
   const A = await bot('TestRat'); await sleep(2500);
   const bars = []; A.on('boss_bar', (p) => bars.push(p));
   const titles = []; A.on('set_title_text', (p) => titles.push(JSON.stringify(p)));
-  await run('function bm:admin/auction_stop'); await run('scoreboard players set #state bm.auc 0');
+  await run('function bm:admin/auction_stop'); await run('scoreboard players reset #state bm.auc');   // 2.94b: as a world that never held a sale (no #state at all)
   await run('scoreboard players set TestRat bm.tier 2'); await run('gamemode adventure TestRat');
   const MX = 16938, MZ = 16994;
   await run(`${O}forceload add ${MX - 64} ${MZ - 64} ${MX + 64} ${MZ + 64}`); await sleep(3000);

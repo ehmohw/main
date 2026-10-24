@@ -4,7 +4,8 @@ A grey cartridge with a scratched label, found in a won heist's haul (5% for eve
   beside your Emma, Leo or Cecil - the game glitches, and their 8-bit self tumbles out (phase213: a hidden follower of its own);
   beside any other follower - it glitches THEM: from then on they can wear their PIXEL COSTUME, a PixelLab sprite of them
     (ref/pixellab/chars/<key>) that stands in for their model, always facing you, walking, sitting and fighting as they do.
-  The cartridge is spent either way (one each). Sneak + use: the Pixel Wardrobe - every costume you've unlocked, on or off.
+  The cartridge is spent either way (one each). The costume is a row in the follower's own wardrobe (2.94b: it had a
+  Pixel Wardrobe of its own, off the cartridge): locked until the cartridge, then on or off.
 How a costume is worn: a billboarded sprite stands on the follower's host; the follower's own displays are hidden (their view
 range to 0, the old one kept in a score) and come back when it's taken off."""
 import os
@@ -17,7 +18,6 @@ import phase138 as P138
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 COL = '#7aff9a'
-MENU = 3830                                       # (3830: the Pixel Wardrobe; 3831+i a costume's switch)
 FIND = 5                                          # (% a won heist, every raider)
 # the costumes: follower -> (its name, how tall it stands in blocks, the displays to hide: a base tag found by bm.pid - or None: the host's passengers)
 COSTUMES = {'celi': ('Celi', 1.9, 'bm.cep'), 'demo': ('Democratus', 3.0, 'bm.dmp'), 'kw': ('KillerWatt', 2.8, 'bm.kxp'), 'tul': ('Tullius', 2.6, 'bm.tup'),
@@ -51,7 +51,7 @@ def spr(k):
 item('glitch_cart', TOTEM, 'Glitched Cartridge', COL,
      ['A grey game cartridge. The label is scratched,', 'and the picture on it keeps changing.',
       ('Use beside your Emma, Leo or Cecil: their 8-bit self tumbles out.', 'blue'),
-      ('Use beside any other follower: their pixel costume.', 'blue'), ('Sneak + use: the Pixel Wardrobe - costumes on or off.', 'blue'),
+      ('Use beside any other follower: their pixel costume,', 'blue'), ('on or off in their wardrobe from then on.', 'blue'),
       ('"Have you tried blowing on it?"', 'dark_gray')],
      model='bm:glitch_cart', stack=16, cat='magic', glint=True, comps=hold('none'), tier=3)
 HOLD['glitch_cart'] = 'bm:p214/use'
@@ -115,7 +115,6 @@ def generate(G):
     # ---- use: beside which follower?
     hosts = [(w, P138.HOST[w]) for w in list(PIXEL) + KEYS]
     use = ['execute if score @s bm.gvhc matches 1.. run return 0', 'scoreboard players set @s bm.gvhc 2',
-           'execute if predicate bm:p20/sneaking run return run function bm:p214/menu',
            'execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
            'tag @s add bm.pxuser', 'scoreboard players set #done bm.rng 0']
     for w, (ht, tag) in hosts:
@@ -138,33 +137,21 @@ def generate(G):
         nm = COSTUMES[k][0]
         fn(f'p214/on/{k}', ['scoreboard players set #done bm.rng 1',
                             f'execute if entity @a[tag=bm.pxuser,tag=bm.pxu_{k}] run return run execute as {U} run ' +
-                            say(f'{nm[0].upper() + nm[1:]} already has a pixel costume - sneak + use the cartridge to put it on or off.', COL),
+                            say(f'{nm[0].upper() + nm[1:]} already has a pixel costume - it\'s in their wardrobe.', COL),
                             f'tag {U} add bm.pxu_{k}', f'tag {U} add bm.pxo_{k}', spend] + glitch +
            [f'execute as {U} run ' + tellraw('@s', P + [T('The cartridge glitches - and ', 'gray'), T(nm, COL, bold=True),
-                                                         T(' flickers into sixteen colours. ', 'gray'), T('(A pixel costume: sneak + use a Glitched Cartridge to take it off.)', 'dark_gray')])])
+                                                         T(' flickers into sixteen colours. ', 'gray'), T('(A pixel costume - on or off in their wardrobe.)', 'dark_gray')])])
 
-    # ---- the Pixel Wardrobe (sneak + use): every costume unlocked, on or off
-    full = P28.multi([T('Pixel Wardrobe', COL, bold=True)], [P28.body([T('Your followers\' pixel costumes - each one on or off.', 'gray')], 300)], '@@ACTS@@', columns=2)
-    none = P28.notice([T('Pixel Wardrobe', COL, bold=True)], [P28.body([T('No pixel costumes yet. ', 'white'),
-                                                                        T('Use a Glitched Cartridge beside a follower to glitch them into one.', 'gray')], 300)])
-    fn('p214/show', ['$dialog show @s ' + snbt(full).replace('"@@ACTS@@"', '$(acts)')])
-    menu = [f'scoreboard players set @s bm.menu {MENU}', 'data modify storage bm:tmp px.acts set value []']
-    for i, k in enumerate(KEYS):
+    # ---- the switch, from the follower's own wardrobe (phase99: the "Pixel costume" row; 2.94b - it was the Pixel Wardrobe)
+    import phase99 as P99
+    for k in KEYS:
         nm = COSTUMES[k][0]
-        on = P28.btn([T(nm[0].upper() + nm[1:] + ': ', 'white'), T('on', COL, bold=True)], MENU + 1 + i, width=150, tooltip=T('Take the costume off', 'gray'))
-        off = P28.btn([T(nm[0].upper() + nm[1:] + ': ', 'white'), T('off', 'gray')], MENU + 1 + i, width=150, tooltip=T('Put the costume on', 'gray'))
-        menu += [f'execute if entity @s[tag=bm.pxu_{k},tag=bm.pxo_{k}] run data modify storage bm:tmp px.acts append value {snbt(on)}',
-                 f'execute if entity @s[tag=bm.pxu_{k},tag=!bm.pxo_{k}] run data modify storage bm:tmp px.acts append value {snbt(off)}']
-        fn(f'p214/t/{k}', [f'execute unless entity @s[tag=bm.pxu_{k}] run return run function bm:p28/stale',
+        fn(f'p214/t/{k}', [f'execute unless entity @s[tag=bm.pxu_{k}] run return run function bm:p214/locked/{k}',
                            f'execute if entity @s[tag=bm.pxo_{k}] run return run function bm:p214/t/{k}_off', f'tag @s add bm.pxo_{k}',
-                           'playsound minecraft:block.note_block.bit player @s ~ ~ ~ 1 1.6', 'function bm:p214/menu'])
-        fn(f'p214/t/{k}_off', [f'tag @s remove bm.pxo_{k}', 'playsound minecraft:block.note_block.bit player @s ~ ~ ~ 1 0.6', 'function bm:p214/menu'])
-    menu += [f'execute unless data storage bm:tmp px.acts[0] run return run dialog show @s {snbt(none)}', 'function bm:p214/show with storage bm:tmp px',
-             'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 0.8 1.4']
-    fn('p214/menu', menu)
-    fn('p214/act', [f'execute unless score @s bm.menu matches {MENU} run return run function bm:p28/stale'] +
-       [f'execute if score #act bm.pay matches {MENU + 1 + i} run return run function bm:p214/t/{k}' for i, k in enumerate(KEYS)])
-    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {MENU + 1}..{MENU + 29} run return run function bm:p214/act')
+                           'playsound minecraft:block.note_block.bit player @s ~ ~ ~ 1 1.6', f'function bm:p99/menu/{k}'])
+        fn(f'p214/t/{k}_off', [f'tag @s remove bm.pxo_{k}', 'playsound minecraft:block.note_block.bit player @s ~ ~ ~ 1 0.6', f'function bm:p99/menu/{k}'])
+        fn(f'p214/locked/{k}', [tellraw('@s', P + [T('Pixel costume', COL, bold=True), T(f' is locked - use a ', 'gray'), T('Glitched Cartridge', COL),
+                                                     T(f' beside {nm} (a find in any won heist).', 'gray')]), f'function bm:p99/menu/{k}'])
 
     # ---- wearing it (each second, as each follower's host): the sprite on, its own displays hidden - or the other way round
     hide1 = ['execute store result score @s bm.pxvr run data get entity @s view_range 100', 'data modify entity @s view_range set value 0f', 'tag @s add bm.pxhid']

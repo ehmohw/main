@@ -49,7 +49,7 @@ CHARS = {
               A('hurling a fireball')),
     'bones': ('bones', 72, "Bones, a grey shark swimming upright: a scar across his half-closed eye, a skull-and-crossbones mark on his side, big jagged teeth, pale grey belly, dark grey fins",
               A('lunging forward with a big bite')),
-    'bender': ('bv_ball', 64, "Bender, a tan dog standing upright on two legs: tan fur, big upright pointed ears, a black muzzle, grey around the eyes, a white chest, a dark collar, white paws",
+    'bender': ('bv_ball', 64, "Bender, a tan dog on all four legs: tan fur, big upright pointed ears, a black muzzle, grey around the eyes, a white chest, a dark collar, white paws",
                A('pouncing forward with a bark')),
     'zib': ('donadian_medal', 56, "Zib, a small teal alien: two antennae with green tips, glowing red eyes, a wide toothy grin, teal skin, a dark navy and gold uniform with a belt",
             A('firing a little ray gun')),
