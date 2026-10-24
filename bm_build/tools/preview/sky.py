@@ -1,5 +1,5 @@
 """The Sky Buddies preview sheets.  python3 tools/preview/sky.py [faces,poses,turn,lineup,anim]
-Billboarded: in the game the rig always faces you, so every tile is drawn as the camera sees it (the rig turned to the view)."""
+(2.94e: blocky 3D models, turned as they are - never billboarded: 'turn' walks round them.)"""
 import sys, os
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); sys.path.insert(0, os.path.dirname(os.path.dirname(HERE)))
 import draftkit as K, sky_art as A, rigkit, phase57_art as EM
@@ -11,7 +11,7 @@ C = (0.35, 1.0, 0)
 
 def tile(pose, view=(0, 0), span=2.6, center=C, size=340, label='', sub=None):
     s = K.multi_scene(root, K.REAL_RP)
-    rigkit.render(s, A, pose, scale=A.RIG_SCALE, yaw=-view[0])          # (billboard: turned to whoever looks)
+    rigkit.render(s, A, pose, scale=A.RIG_SCALE)
     return K.label(s.render(view, size=size, span=span, center=center), label, sub)
 
 
@@ -20,14 +20,14 @@ if 'faces' in what:
     for p in A.FACED:
         for e in (None,) + A.EXPR[p]:
             pose = dict(A.POSES['idle_a'], **{f'_face_{p}': e}) if e else dict(A.POSES['idle_a'])
-            tiles.append(tile(pose, label=f'{p}: {e or "as painted"}', size=240))
+            tiles.append(tile(pose, label=f'{p}: {e or "as drawn"}', size=240))
     K.sheet(tiles, OUT + '/sky_faces.png', cols=7, title='The Sky Buddies - every face (each part: as painted, then its six)')
 if 'poses' in what:
     K.sheet([tile(A.POSES[n], label=n) for n in A.DRAFT], OUT + '/sky_poses.png', cols=4, title='The Sky Buddies - poses')
 if 'turn' in what:
     K.sheet([tile(A.POSES['idle_a'], v, label=l) for v, l in (((0, 0), 'from the front'), ((70, 10), 'walk round them...'), ((160, 20), '...behind'),
                                                              ((250, -15), 'from below'))],
-            OUT + '/sky_billboard.png', cols=4, title='Billboarded - the same from any side')
+            OUT + '/sky_turn.png', cols=4, title='The Sky Buddies - from every side')
 if 'lineup' in what:
     s = K.multi_scene(root, K.REAL_RP)
     rigkit.render(s, A, A.POSES['idle_a'], at=(0.0, 0, 0), scale=A.RIG_SCALE, yaw=12)
