@@ -63,7 +63,7 @@ runT({ W: 'sky', NAME: 'The Sky Buddies', ab: 'yb', q: 'yq', pfx: 'p211', prefix
     await at(X + 0.5, Y + 1, Z - 1.5, 0, 10); await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z + 0.5}`); await sleep(800);
     await run('effect clear TestRat'); await run('damage TestRat 10 minecraft:generic'); A.bars.length = 0; await cd('k', 0);
     ok('DRIZZLE - badly hurt: Nimbus rains on you (Regeneration, Fire Resistance)', await wait(6000, async () => /regeneration/.test(await fx()) && /fire_resistance/.test(await fx())) &&
-       A.bars.some(b => /Drizzle/.test(b)), A.bars.slice(-1).join(''));
+       A.bars.some(b => /Drizzle/.test(b)), A.bars.slice(-1).join('') + ` | hp ${await num('@a[name=TestRat,limit=1]', 'Health')} max ${await run('attribute TestRat minecraft:max_health get')} fx ${(await fx()).slice(0, 160)}`);
     await run('effect give TestRat minecraft:instant_health 1 4 true'); await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true');
     await calm(); await cd('k2', 0); A.bars.length = 0;
     ok("WHAT THE SKY GIVES - by day, no fight near: Haste", await wait(6000, async () => /haste/.test(await fx())) && A.bars.some(b => /Sun's out/.test(b)), A.bars.slice(-1).join(''));
