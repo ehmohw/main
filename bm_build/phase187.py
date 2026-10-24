@@ -283,7 +283,7 @@ def generate(G):
                                      'particle minecraft:sonic_boom ~ ~1 ~ 0 0 0 0 1', 'particle minecraft:note ~ ~1 ~ 3 0.5 3 0.1 20',
                                      f'execute as @e[{foe},distance=..6] at @s run function bm:{pfx}/sour'] + end)
     fn(f'{pfx}/sour', [f'function bm:{pfx}/hurt', 'effect give @s minecraft:slowness 4 1', 'effect give @s minecraft:weakness 4 0'])
-    fn(f'{pfx}/great_hit', hit(8) + ['playsound minecraft:ui.toast.challenge_complete neutral @a[distance=..24] ~ ~ ~ 0.8 1.2',
+    fn(f'{pfx}/great_hit', hit(8) + ['playsound minecraft:block.note_block.chime neutral @a[distance=..24] ~ ~ ~ 1 1.5',      # (2.94f: no achievement jingle)
                                      'playsound minecraft:block.note_block.bell neutral @a[distance=..24] ~ ~ ~ 1 1.2',
                                      'playsound minecraft:block.note_block.bell neutral @a[distance=..24] ~ ~ ~ 1 1.6',
                                      'particle minecraft:note ~ ~2 ~ 4 1.5 4 1 60', 'particle minecraft:end_rod ~ ~1 ~ 3 1 3 0.05 30',

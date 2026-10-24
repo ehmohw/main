@@ -38,6 +38,9 @@ Once Queen Ava has honoured the Sky Buddies all the way (her Honours, rank III),
 
 Before then, both buttons say what it takes.
 
+### The Neighbor
+- His Great Finale no longer plays the achievement jingle; a high chime rings out instead.
+
 ### 8-bit walks, steady
 The 8-bit walks were drawn a frame at a time, so the faces changed as they walked: 8-Bit Emma's mouth opened and shut, Leo's
 eyes came and went, and some frames were a size off. Now every walk frame (front and back) wears the character's own standing
