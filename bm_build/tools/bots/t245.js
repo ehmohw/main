@@ -12,7 +12,7 @@ runT({ W: 'bones', NAME: 'Bones', ab: 'bj', q: 'bz', pfx: 'p196', prefix: 'bn_',
     await at(X + 0.5, Y + 1, Z + 0.5, 0, 10); A.chats.length = 0;
     await run(`${O}execute as TestRat at @s positioned ~ ~ ~4 run function bm:p196/enc/fin`);
     ok('out on the ocean: a fin cuts the water - a grinning grey shark (his rig and a click box)', await wait(5000, async () => (await cnt(ENC)) === 1) &&
-       (await cnt('@e[type=minecraft:item_display,tag=bm.bjencp]')) === 8 && A.chats.some(c => /A fin cuts the water/.test(c)), A.chats.slice(-1).join('').slice(0, 160));
+       (await cnt('@e[type=minecraft:item_display,tag=bm.bjencp]')) === 8 && A.chats.some(c => /A fin cuts the water/.test(c)), `enc ${await cnt(ENC.replace(',limit=1', ''))} parts ${await cnt('@e[type=minecraft:item_display,tag=bm.bjencp]')} | ` + A.chats.slice(-1).join('').slice(0, 160));
     const ex = await num(ENC, 'Pos[0]'), ez = await num(ENC, 'Pos[2]');
     await at(ex + 0.5, Y + 1, ez - 2.5, 0, 10);
     let eb = null; await wait(5000, async () => (eb = await entOf(ENC)) != null, 250); A.slot(8); await sleep(250);
@@ -42,7 +42,8 @@ runT({ W: 'bones', NAME: 'Bones', ab: 'bj', q: 'bz', pfx: 'p196', prefix: 'bn_',
     // ---- the Guardian of the Kingdom: in water near him, Dolphin's Grace
     await run(`${O}setblock ${X + 4} ${Y + 1} ${Z + 4} minecraft:water`); await run(`${O}setblock ${X + 4} ${Y + 2} ${Z + 4} minecraft:water`);
     await at(X + 4.5, Y + 1, Z + 4.5, 0, 0); await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true');
-    ok('in the water near him: Dolphin\'s Grace', await wait(5000, async () => /dolphins_grace/.test(await fx())));
+    ok('in the water near him: Dolphin\'s Grace', await wait(5000, async () => /dolphins_grace/.test(await fx())),
+       `me ${await run('data get entity TestRat Pos')} | him ${await run(`data get entity ${PET} Pos`)} ${await run(`data get entity ${PET} Tags`)}`);
     await run(`${O}fill ${X + 4} ${Y + 1} ${Z + 4} ${X + 4} ${Y + 2} ${Z + 4} minecraft:air`);
     // ---- RIDING: from his menu; he floats along where you look; the whistle from his back - CHOMP; sneak - off
     await at(X + 0.5, Y + 1, Z - 7.5, 0, 0); await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z - 6.5} 0 0`); await sleep(500);

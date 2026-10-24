@@ -197,7 +197,7 @@ def generate(G):
         X.second.append(f'execute as @e[type=minecraft:wolf,tag={X.pet},tag=!bm.ffpet] at @s run function bm:{pfx}/sec')
         fn(f'{pfx}/sec', ['effect give @s minecraft:water_breathing 3 0 true',
                           'execute on owner if entity @s[distance=..24] if predicate bm:swim run effect give @s minecraft:dolphins_grace 3 0 true',
-                          'execute on owner if entity @s[distance=..24] if block ~ ~ ~ minecraft:water run effect give @s minecraft:dolphins_grace 3 0 true',
+                          'execute on owner if entity @s[distance=..24] at @s if block ~ ~ ~ minecraft:water run effect give @s minecraft:dolphins_grace 3 0 true',   # (at @s: the water you stand in, not his)
                           'execute store result score #r bm.rng run random value 1..5',
                           'execute if score #r bm.rng matches 1 unless predicate bm:swim run particle minecraft:dripping_water ~ ~1.6 ~ 0.6 0.3 0.6 0 2'])
         return lines

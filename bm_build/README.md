@@ -81,6 +81,8 @@ to face you.
 - **Snooze's full moon** reads the real moon: 26.3's moon timeline. The day count it used before was no moon at all.
 - **The Dread and Seraph pieces never wear a trim** (it has no texture on their own art). Any trim, even one from a
   smithing table, comes off within a second.
+- **Bones's Guardian of the Kingdom**: Dolphin's Grace now reaches you whenever you stand in water near him, not only
+  while swimming (it was checking the water under him).
 
 ## New in 2.94c: the Dark Auction on servers, pixel costumes in the wardrobe
 
