@@ -163,5 +163,7 @@ const res = [];
   await run(`${O}forceload remove ${X - 48} ${Z - 48} ${X + 48} ${Z + 48}`);
   for (const w of ['emma', 'ava', 'pearlq', 'apo', 'leo']) await home(w);
   await run('scoreboard players set #hard bm.cfg 0');
+  // (the Heart's blessing off again: +2 hearts left on the bot throws every later test's "badly hurt" out)
+  await run('tag TestRat remove bm.keth_r'); await run('tag TestRat remove bm.keth_a'); await run('attribute TestRat minecraft:max_health modifier remove bm:heart_home');
   process.exit(0);
 })();

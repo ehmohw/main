@@ -272,6 +272,8 @@ it: `chunks.js`, which both rcon helpers (`lib.js`, `lib_resp.js`) send every co
   Cecil's rig respawning (t194 uses a tamed wolf owned by the bot). Likewise a bare `bm.kxboss` husk (no `bm.kxid`) used to
   rig itself twice a tick - thousands of displays, a 60 s watchdog stop; 2.81 gives such a KillerWatt an id first.
 
+- **Give back what a test grants for good.** A lasting max-health modifier left on TestRat (t252's `bm:heart_home`, kept alive by the `bm.keth_r` tag) throws every later "badly hurt" check out (t257's Drizzle, t238's Mother's Watch): remove the tag and the modifier at the end, as t252 and t264 do.
+- **Town tests force-load the whole town** (`CX..CX+76`, `CZ..CZ+84`): the market's patch (`p35/patch`), which places Vesper, Bit and the Pixel Villager, runs only when all of it is loaded (t224, t264).
 - **Hard mode on the test server.** TestRat has beaten the Hollow King, so hard mode would wake by itself: the server keeps it off with `#hardoff bm.cfg 1`. A test that needs it sets `#hard bm.cfg 1` (t224) or `#hardoff 0` (t223, to see it wake) and puts it back at the end.
 - **`p98/home/<who>` sends home the caller's follower only if `#me bm.pid` is the caller's id** (the menus set it). A test that
   cleans up with them sets it first (`execute as TestRat run scoreboard players operation #me bm.pid = @s bm.pid`); without it
