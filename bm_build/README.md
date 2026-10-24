@@ -21,6 +21,17 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94b: the pack loads again
+
+2.94a's datapack zip was packaged while a rebuild was still writing it, so it held only 3039 of the pack's 28453 files.
+Worlds using it failed to load ("must start in Safe Mode": the enchantments couldn't find the `#bm:hostile` tag). 2.94b
+is the same content, packaged whole. The build now stamps each pack once it is finished, and packaging refuses a pack
+without its stamp or with a different file count. It also checks that every file made it into the zip.
+
+**If your world was stuck:** replace `BlackMarket_DP.zip` (and the resource pack) with 2.94b's, then open the world normally.
+Opening it in Safe Mode doesn't damage it, but it would have run without the pack, so re-enable the pack under Data Packs if
+it was turned off.
+
 ## New in 2.94: the Sky Buddies, the 8-bit trio, pixel costumes and effect sprites
 
 ### The Sky Buddies: the first trio follower
