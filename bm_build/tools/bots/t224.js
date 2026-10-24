@@ -37,6 +37,10 @@ const res = [];
   ok('TestRat is a regular player', /unknown|incomplete|permission/i.test(A.chats.join(' ')));
   await run(`${O}forceload add ${CX} ${CZ} ${CX + 76} ${CZ + 84}`);    // (the whole town: the market's patch, which places Vesper, runs only with it loaded)
   await run('gamemode survival TestRat'); await run('effect clear TestRat'); await run('clear TestRat');
+  // (t162's market - placed if a last run hasn't)
+  const MK = `@e[type=minecraft:marker,tag=bm.mkt,x=${CX + 38.5},y=${CY + 12},z=${CZ + 46.5},distance=..2,limit=1]`;
+  await sleep(2500);
+  if (!(await passes(`${O}execute if entity ${MK}`))) { let pl = ''; for (let i = 0; i < 30; i++) { pl = await run(`${O}place template bm:black_market ${CX} ${CY} ${CZ}`); if (!/not loaded/.test(pl)) break; await sleep(2000); } console.log('   placed: ' + pl.slice(0, 60)); }
   // (a member of the market - its key in the pack, or the rat bouncer tosses a survival player out - and the Banker's Card)
   await run('loot replace entity TestRat hotbar.8 loot bm:items/market_key'); await run('loot replace entity TestRat hotbar.7 loot bm:items/bankers_card');
   for (const o of ['bm.fward', 'bm.fvig', 'bm.fret', 'bm.bk_dread', 'bm.bk_tro']) await run(`scoreboard players set TestRat ${o} 0`);
