@@ -3,8 +3,7 @@
 //   Vesper: in his own shop in Night Alley (t162's market) only while hard mode is on; his stock book (the Ledger, on his counter).
 //   trading: 10 Trophies -> 2 Dread Tokens at his window (5 a token, exact - not the market's discount).
 //   the Rat Bank: Dread Tokens kept like a currency; the Exchange swaps 5 banked Trophies for one; the savings page pays 2%.
-//   the Ledger: Ward I for the followers (paid from the pockets, then the bank) - and on a follower of the player's, the armour
-//     shows; Swift Return I cuts a faint's rest to 80 s; tuning the sword in hand twice (Attack Damage) and unbinding it all
+//   the Ledger: tuning the sword in hand twice (Attack Damage; paid from the pockets, then the bank) and unbinding it all
 //     for every token back; reforging Hero of Time's Tunic into the Fierce Deity's.
 //   his goods: the Auctioneer's Writ owes a Dark Auction tonight; the Tome of Eternity makes the off hand unbreakable; the
 //     Dread Compass points at a Dread zombie; the Bottomless Bucket pours and fills itself again; the Echo of the Hollow King
@@ -82,26 +81,10 @@ const res = [];
   const lEid = await uuidEnt(LED);
   A.dialogN.length = 0; A.interact(lEid); await sleep(1200);
   ok('Right-clicking the book on his counter opens Vesper\'s Ledger (3 Dread Tokens: 2 in hand, 1 banked)',
-     A.buttons().some(b => /Followers' Wards/.test(b.label)) && /\b3\b/.test(JSON.stringify(A.dialogN[A.dialogN.length - 1] || '')),
+     A.buttons().some(b => /^Tuning/.test(b.label)) && A.buttons().some(b => /^Reforging/.test(b.label)) && /\b3\b/.test(JSON.stringify(A.dialogN[A.dialogN.length - 1] || '')),
      `eid ${lEid} at ${(await run('data get entity TestRat Pos')).replace(/.*data: /, '')} | ${A.buttons().map(b => b.label).join(' | ').slice(0, 160)}`);
-  await press(/Followers' Wards/);
-  await press(/Ward \+1/);
-  ok('Ward I for 3 tokens - both in hand, then the banked one', (await sc('TestRat', 'bm.fward')) === 1 && (await has('dread_token')) === 0 && (await sc('TestRat', 'bm.bk_dread')) === 0,
-     `ward ${await sc('TestRat', 'bm.fward')}, ${await has('dread_token')} in hand, ${await sc('TestRat', 'bm.bk_dread')} banked`);
-  // (a follower of the player's: a stand-in host with the player's id - the second loop finds it like any wolf follower)
-  const pid = await sc('TestRat', 'bm.pid');
-  await run(`${O}summon minecraft:wolf ${VX - 2} ${VY} ${VZ - 2} {Tags:["bm.cecilpet","bm.t224"],NoAI:1b,Silent:1b,PersistenceRequired:1b}`);
-  await run(`${O}scoreboard players set @e[type=minecraft:wolf,tag=bm.t224,limit=1] bm.pid ${pid}`);
-  ok('...a follower of the player\'s takes the ward (+3 armour)', await wait(4000, async () => (+((await run(`${O}attribute @e[type=minecraft:wolf,tag=bm.t224,limit=1] minecraft:armor get`)).match(/(-?[\d.]+)(?!.*\d)/) || [0, 0])[1]) >= 3),
-     await run(`${O}attribute @e[type=minecraft:wolf,tag=bm.t224,limit=1] minecraft:armor get`));
-  await run(`${O}kill @e[type=minecraft:wolf,tag=bm.t224]`);
+  // (2.92: the followers' Ward and Swift Return moved to Queen Ava's Honours - t252)
   await run('scoreboard players set TestRat bm.bk_dread 20');
-  await press(/Swift Return \+1/);
-  await run('scoreboard players set TestRat bm.cpcd 120');
-  ok('Swift Return I: a faint rests 80 seconds, not 120', (await sc('TestRat', 'bm.fret')) === 1 && await wait(2500, async () => (await sc('TestRat', 'bm.cpcd')) <= 80),
-     `ret ${await sc('TestRat', 'bm.fret')}, cd ${await sc('TestRat', 'bm.cpcd')}`);
-  await run('scoreboard players set TestRat bm.cpcd 0');
-  await press(/The Ledger/);
 
   // ---- tuning the sword in hand
   await run('item replace entity TestRat hotbar.0 with minecraft:diamond_sword'); A.slot(0); await sleep(400);
@@ -109,7 +92,7 @@ const res = [];
   ok('Tuning, with a sword in hand: the weapon page', A.buttons().some(b => /Attack Damage/.test(b.label)), A.buttons().map(b => b.label).join(' | ').slice(0, 200));
   await press(/Attack Damage/); await press(/Attack Damage/);
   const tuned = await hand();
-  ok('...Attack Damage twice: two tunings on the sword, 2 tokens paid', /bm:tune_dmg_1/.test(tuned) && /bm:tune_dmg_2/.test(tuned) && /bm_tune: \{[^}]*n: 2/.test(tuned) && (await sc('TestRat', 'bm.bk_dread')) === 15,
+  ok('...Attack Damage twice: two tunings on the sword, 2 tokens paid', /bm:tune_dmg_1/.test(tuned) && /bm:tune_dmg_2/.test(tuned) && /bm_tune: \{[^}]*n: 2/.test(tuned) && (await sc('TestRat', 'bm.bk_dread')) === 20 && (await has('dread_token')) === 0,
      `${(tuned.match(/bm_tune: \{[^}]*\}/) || [''])[0]} bank ${await sc('TestRat', 'bm.bk_dread')}`);
   await press(/Unbind all/);
   const unb = await hand();
@@ -121,7 +104,7 @@ const res = [];
   await run('loot replace entity TestRat hotbar.0 loot bm:items/hero_chestplate'); await sleep(300);
   await press(/^Reforging/);
   await press(/Reforge what I hold/);
-  ok('Reforging the Hero of Time\'s Tunic: the Fierce Deity\'s in hand, 4 tokens paid (2 in hand first)', /deity_chestplate/.test(await hand()) && (await has('dread_token')) === 0 && (await sc('TestRat', 'bm.bk_dread')) === 13,
+  ok('Reforging the Hero of Time\'s Tunic: the Fierce Deity\'s in hand, 4 tokens paid (2 in hand first)', /deity_chestplate/.test(await hand()) && (await has('dread_token')) === 0 && (await sc('TestRat', 'bm.bk_dread')) === 18,
      `${((await hand()).match(/bm: "([a-z_]+)"/) || [])[1]} / ${await has('dread_token')} in hand, ${await sc('TestRat', 'bm.bk_dread')} banked`);
   ok('...and it still counts toward the Hero of Time set (bm_up)', /bm_up: "hero"/.test(await hand()));
   A.cmd('trigger bm.act set 2'); await sleep(400);
