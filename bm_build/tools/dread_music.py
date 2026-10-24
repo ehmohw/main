@@ -20,7 +20,7 @@ optional bowed tremolo. Deterministic; run it to rebuild the .ogg files (needs n
 import os, sys, wave, subprocess
 import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from gv_music import SR, R, Track, m, hz, fq, mix, T, env, lp, hp, bp, bell, bass, sub, organ, brass, choir, strings, kick, snare, hat, riser, chord
+from gv_music import SR, R, Track, m, hz, fq, mix, T, env, lp, hp, bp, bell, bass, sub, organ, brass, choir, strings, kick, snare, hat, riser, chord, pad
 from boss_music import timp, crash, mel, tp, bars_of, play, drums, save as save_loop
 from disc_music import save_mono
 
@@ -226,12 +226,157 @@ def disc():
     return compose(tr, ending=True)
 
 
+# ====================================================================== 2.94h: THE DREAD - LAMENT, and the stings
+# THE LAMENT - the same fight, gone desperate: 120 BPM, C minor (60 bars, a 120 s loop). A slow line for a lone violin (the
+# theme's own contour), a piano's broken chords, a cello under it, a heartbeat; it swells into the theme's plea (B) for the
+# whole string section and choir, collapses to the piano and the violin alone, and rises once more. It plays in a Dread boss's
+# second phase - the last stand - and is a record of its own.
+L1 = mel('G5:1.5 C6:.5 D#6:2 D6 C6 B5 C6 G5:3 G#5 F5:2 D#5 D5 '
+         'C6:1.5 D#6:.5 G#6:2 G6 F6 D#6 D6 D6:2 B5 G5 C6:4')
+L2 = L1[:-4] + mel('D6 F6 G#6 B6 C7:4')
+PROG_L = [('C3', 'm'), ('C3', 'm'), ('G#2', 'M'), ('F2', 'm'), ('G#2', 'M'), ('A#2', 'M'), ('G2', 'M'), ('C3', 'm')]
+for _x in (L1, L2):
+    assert bars_of(_x) == 8, bars_of(_x)
+LBPM, LBARS, LEND = 120, 60, 4
+
+
+def piano(f, dur, amp=1.0, bright=1.0):
+    """a piano note: slightly stretched partials, each dying away at its own rate, a hammer's knock"""
+    f0 = fq(f); t = T(dur + 1.2); n = len(t)
+    s = np.zeros(n)
+    for k in range(1, 9):
+        fk = f0 * k * (1 + 0.0004 * k * k)
+        if fk > SR / 2 - 500: break
+        s += np.sin(2 * np.pi * fk * t) * (1.0 / k ** 1.3) * np.exp(-t * (0.9 + 0.55 * k) * (1.0 + f0 / 900)) * (bright if k > 3 else 1.0)
+    s[:240] += lp(R.noise(240), 2500) * np.linspace(0.25, 0, 240)
+    e = np.ones(n); r0 = int((dur + 0.05) * SR)
+    if r0 < n: e[r0:] = np.exp(-(np.arange(n - r0) / SR) / 0.12)
+    return amp * s * e * 0.9
+
+
+def cello(x, d, amp=0.3):
+    return violin((m(x) if isinstance(x, str) else x), d, amp, vib=5.0, depth=0.005, attack=0.08, bright=0.55)
+
+
+def heart(tr, t, amp=0.5):
+    tr.add(kick(amp, 10), t, 0, 1, 0.1); tr.add(kick(amp * 0.7, 12), t + 0.32, 0, 1, 0.1)
+
+
+def lament_compose(tr, ending=False):
+    for bar in range(LBARS + (LEND if ending else 0)):
+        root, kind = PROG_L[bar % 8] if bar < LBARS else ('C3', 'm')
+        ch = ch_of(kind, root); r = ch[0]
+        sec = bar // 8 if bar < LBARS else 9
+        # the piano: broken chords in eighths (everywhere but the climax's first half)
+        if sec not in (4,) and bar < LBARS:
+            arp = [r, ch[1] + 12, ch[2] + 12, r + 24, ch[1] + 24, ch[2] + 12, r + 12, ch[1] + 12]
+            for i, x in enumerate(arp):
+                tr.add(piano(x, tr.beat * 0.9, {0: 0.1, 5: 0.12}.get(sec, 0.16), 0.8), tr.at(bar, i / 2), (-0.3 + 0.08 * i), 1, 0.45)
+        if sec in (0, 5, 7) and bar % 2 == 0:
+            tr.add(bell(hz(r + 24), 4.0, 0.06, 2.76, 1.0, 2.6), tr.at(bar), 0.3, 1, 0.7)
+        if sec >= 1 and sec != 5 and bar < LBARS:
+            tr.add(cello(r - 12 if bar % 2 == 0 else ch[1] - 12, tr.beat * 4, 0.24), tr.at(bar), -0.25, 1, 0.45)
+            heart(tr, tr.at(bar), 0.35 if sec < 3 else 0.5)
+        if sec in (2, 3, 4, 6, 7):
+            tr.add(choir([x + 12 for x in ch], tr.beat * 4, 0.22 if sec in (2, 6) else 0.36, 0.6), tr.at(bar), 0, 1, 0.65)
+        if sec in (3, 4, 7):                                                # (the swell: the strings pulse in eighths, timpani)
+            for i in range(8):
+                tr.add(strings(r + 12 + (0 if i % 2 == 0 else 7), tr.beat * 0.45, 0.13 if sec != 4 else 0.2, 2000), tr.at(bar, i / 2), -0.3 if i % 2 else 0.3, 1, 0.3)
+            if bar % 2 == 0: tr.add(timp(r - 12, 0.5), tr.at(bar), 0, 1, 0.4)
+        if sec == 4:                                                        # (the climax: drums, brass beneath)
+            drums(tr, bar, kicks=(0, 1.5, 2), snares=(1, 3), hats=[i / 2 for i in range(8)], k=0.9, s=0.6, h=0.1)
+            tr.add(brass([r - 12, r - 5, r], tr.beat * 3.8, 0.4, 1600, 0.2), tr.at(bar), -0.15, 1, 0.4)
+            if bar % 4 == 0: tr.add(crash(0.25), tr.at(bar), 0.3, 1, 0.4)
+        if bar in (23, 55):
+            tr.add(riser(tr.beat * 4, 0.25), tr.at(bar), 0, 1, 0.3)
+        if bar >= LBARS and bar == LBARS:                                   # (the disc's ending)
+            tr.add(piano(r, tr.beat * 8, 0.4) + piano(ch[1] + 12, tr.beat * 8, 0.3) + piano(ch[2] + 12, tr.beat * 8, 0.3), tr.at(bar), 0, 1, 0.6)
+            tr.add(violin('C5', tr.beat * 7, 0.34, depth=0.008), tr.at(bar), 0.1, 1, 0.5)
+            tr.add(bell('C7', 6.0, 0.14, 2.76, 0.7, 2.6), tr.at(bar, 1), 0.3, 1, 0.8)
+    lv = lambda x, d: vln(x, d, 0.4, depth=0.009, attack=0.07)
+    play(tr, tr.at(0), L1[:len(L1) // 2], lambda x, d: vln(x, d, 0.3, depth=0.009, attack=0.07), 0.1, 1, 0.5)                   # (alone, the first half of the line)
+    play(tr, tr.at(8), L1, lv, 0.1, 1, 0.45)
+    play(tr, tr.at(16), L2, lv, 0.1, 1, 0.45)
+    play(tr, tr.at(24), B1, lambda x, d: section(x, d, 0.34, attack=0.06), 0.15, 1, 0.45)
+    play(tr, tr.at(32), B1, lambda x, d: section(x, d, 0.46, attack=0.05), 0.15, 1, 0.45)
+    play(tr, tr.at(32), tp(B1, -12), lambda x, d: section(x, d, 0.28, attack=0.05), -0.15, 1, 0.45)
+    play(tr, tr.at(40), L1, lambda x, d: vln(x, d, 0.26, depth=0.01, attack=0.09), 0.1, 1, 0.55)
+    play(tr, tr.at(48), L2, lambda x, d: section(x, d, 0.36, attack=0.07), 0.1, 1, 0.45)
+    play(tr, tr.at(48), tp(L2, -12), lambda x, d: cello(x, d, 0.22), -0.2, 1, 0.45)
+    return tr
+
+
+def lament():
+    tr = Track('dread2', LBPM, LBARS)
+    assert round(tr.seconds) == 120
+    return lament_compose(tr)
+
+
+def lament_disc():
+    tr = Track('dread2_disc', LBPM, LBARS + LEND)
+    return lament_compose(tr, ending=True)
+
+
+# THE STINGS (laid over the theme): INCOMING - a Dread boss gathers itself for a big attack: low strings crowd in, the violin
+# screams upward, a timpani roll swells to a stab and a gasp of choir (worrisome, desperate). AN OPENING - the attack is spent:
+# a snare roll into a rising brass call, the violins race up, and a great C major chord (the minor key broken: hit it NOW).
+def warn():
+    tr = Track('dread_warn', 120, 3)                                       # (6 s: the sting in the first 3.5, its tail after)
+    for i, x in enumerate(('C2', 'C#2', 'G2', 'G#2')):
+        tr.add(violin(x, 2.6, 0.18, trem=16, depth=0.002, bright=0.6) * np.linspace(0.3, 1.2, len(violin(x, 2.6, 0.18, trem=16, depth=0.002, bright=0.6))),
+               0.0, (-0.4 + 0.25 * i), 1, 0.4)
+    t = T(2.6); f = hz('G5') * (2 ** (np.clip(t / 2.6, 0, 1) * 1.0)); ph = np.cumsum(f) / SR
+    scream = sum(np.sin(2 * np.pi * k * ph) / k for k in range(1, 9)) * np.clip(t / 2.0, 0, 1) * 0.25
+    tr.add(bp(scream, 600, 5000) * 1.4, 0.0, 0.2, 1, 0.4)
+    for i in range(20):
+        tr.add(timp('C2', 0.12 + 0.03 * i, 3.5), i * 0.13, 0, 1, 0.3)
+    tr.add(brass(['C2', 'C#3', 'G3'], 0.5, 0.6, 1600, 0.01), 2.6, 0, 1, 0.4)
+    tr.add(choir(['C4', 'C#4', 'G4'], 1.2, 0.5, 0.05), 2.6, 0, 1, 0.6)
+    tr.add(crash(0.35), 2.6, 0, 1, 0.4)
+    return tr
+
+
+def opening():
+    tr = Track('dread_open', 120, 3)
+    for i in range(12):
+        tr.add(snare(0.15 + 0.035 * i), i * 0.08, 0.1, 1, 0.3)
+    for t0, notes in ((0.95, ['G#2', 'G#3', 'C4', 'D#4']), (1.25, ['A#2', 'A#3', 'D4', 'F4']), (1.6, ['C3', 'C4', 'E4', 'G4'])):
+        tr.add(brass(notes, 0.28 if t0 < 1.5 else 1.6, 0.6, 3200, 0.01), t0, 0, 1, 0.35)
+        tr.add(kick(0.9), t0, 0, 1, 0.05)
+    runs(tr, 0.95, ['G4', 'A#4', 'C5', 'D5', 'E5', 'F5', 'G5', 'A#5'], 0.3, 0.2, 0.3, dur=0.0825 / (60 / 120) * 0.5 * 2)
+    tr.add(violin('C6', 1.5, 0.42, depth=0.007), 1.6, 0.15, 1, 0.4)
+    tr.add(violin('G5', 1.5, 0.3, depth=0.007), 1.6, -0.15, 1, 0.4)
+    tr.add(timp('C2', 0.9), 1.6, 0, 1, 0.4); tr.add(crash(0.5), 1.6, 0, 1, 0.45)
+    tr.add(choir(['C4', 'E4', 'G4', 'C5'], 1.6, 0.4, 0.05), 1.6, 0, 1, 0.55)
+    return tr
+
+
+def save_sting(tr):
+    """a sting, not a loop: rendered, then its last second faded so no tail wraps round"""
+    st = tr.render(1.8)
+    k = int(1.0 * SR); st[:, -k:] *= np.linspace(1, 0, k)
+    import tempfile
+    fd, wav = tempfile.mkstemp(suffix='.wav'); os.close(fd)
+    with wave.open(wav, 'wb') as w:
+        w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
+        w.writeframes((st.T * 32767).astype('<i2').tobytes())
+    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'vendor', f'boss_{tr.name}.ogg')
+    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', wav, '-c:a', 'libvorbis', '-q:a', '4', out], check=True)
+    os.remove(wav)
+    print(f'{out}: {tr.seconds:.0f} s')
+
+
 if __name__ == '__main__':
-    what = sys.argv[1:] or ['loop', 'disc']
+    what = sys.argv[1:] or ['loop', 'disc', 'lament', 'stings']
     if 'loop' in what:
         save_loop(loop(), room=2.2)
     if 'disc' in what:
         save_mono(disc(), 'dread', 2.2)
+    if 'lament' in what:
+        save_loop(lament(), room=2.8)
+        save_mono(lament_disc(), 'dread2', 2.8)
+    if 'stings' in what:
+        save_sting(warn()); save_sting(opening())
     if 'preview' in what:                                              # (a quick listen: the violin alone, then a phrase)
         tr = Track('violin_test', 120, 4)
         play(tr, 0, mel('C5 D5 D#5 G5 C6:2 B5 G5 D#6:2 D6:.5 C6:.5 B5 C6:4'), lambda x, d: vln(x, d, 0.5), 0, 1, 0.3)

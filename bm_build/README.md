@@ -21,6 +21,20 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94h: The Dread - Lament, and the music of the fight
+
+- **The Dread - Lament**: a desperate, melancholy variation of the Dread bosses' theme. A lone violin over piano and a
+  heartbeat swells into the theme's plea for the full strings and choir, collapses, and rises once more. It plays in a Dread
+  boss's **second phase**, its last stand. It's a music disc too: your second Dread boss win gives it (The Dread comes
+  first), and after that one win in five gives one of the two.
+- **Incoming!** When a Dread boss gathers itself for one of its big attacks, a worrisome sting plays over the music and
+  your action bar warns you. The big attacks are:
+  - the Snowbeast's frost nova, glare and blizzard;
+  - the Witch's curse, life drain and shades;
+  - the Sawshark's saw charge, whirlpool and guardians.
+- **An opening!** When one of those attacks is spent, the boss stands for 3 seconds with its armour gone. An epic sting
+  plays and the action bar says "STRIKE NOW!".
+
 ## New in 2.94g: The Dread
 
 The three Dread bosses (the Malevolent Snowbeast, the Watchful Witch and the Chomping Sawshark) have a battle theme of their

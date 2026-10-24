@@ -26,6 +26,7 @@ DISCS = {   # key: (title, lore, length s, label palette dark->light, descriptio
     'market': ('The Black Market', "From Old Barnaby's crate of records.", 100, ('#2a1238', '#8a3ab0', '#e0a8ff'), '#c080ff'),
     'hollow': ('The Hollow', 'Hidden in the Hollow Throne.', 104, ('#26344e', '#8aa8d0', '#eef4ff'), '#b8d0f0'),
     'dread': ('The Dread', 'Torn from a Dread boss - its battle, every note of it.', 130, ('#2a0408', '#a01020', '#ff6a6a'), '#e0283a'),    # (2.94g: phase197 drops it)
+    'dread2': ('The Dread - Lament', 'Torn from a Dread boss - its last stand.', 128, ('#10101e', '#5a3a7a', '#c8a8e8'), '#a888d0'),    # (2.94h)
 }
 MARKET_PRICE = 6
 BIG_SCORE = 4                    # % of won hauls
@@ -94,7 +95,7 @@ def generate(G):
         add_pools('bm/loot_table/p2/hollow/isle.json', [disc_pool('hollow', 0.12)])
 
     # ================================================================== Crate Digger: all six records
-    six = ['blood_moon'] + [k for k in DISCS if k != 'dread']             # (2.94g: the Dread's record is hard mode's own - not one of the six)
+    six = ['blood_moon'] + [k for k in DISCS if k not in ('dread', 'dread2')]             # (2.94g: the Dread's record is hard mode's own - not one of the six)
     def icon(iid):
         it = ITEMS[iid]
         return {'id': it['base'], 'components': {'minecraft:item_model': it['comps'].get('minecraft:item_model', it['base'])}}
