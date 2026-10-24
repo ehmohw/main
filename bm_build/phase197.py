@@ -13,7 +13,12 @@ THE CHOMPING SAWSHARK (the Drowned Gate, on the deep sea floor). Woken in the gr
   surfacing ever since, and they say it swallowed Democratus whole. It chomps, rakes with its saw, charges through the water,
   drags you into a whirlpool, and at half health it calls guardians to its side. Its altar wakes for EMMA, BONES and QUEEN PEARL
   (the kingdom's own).
-Hard mode only. The altar (right-click it) says who's missing. Beat one and everyone near gets its TOKEN, Dread Tokens and spoils.
+Hard mode only. The altar (right-click it) says who's missing; (2.94j) stand by it and its words and its three hollows hint at
+  who it waits for (as the Serpent's Seal does), and it stirs as they come near.
+(2.94j) THE ENRAGE: at half health it FRENZIES - for 16 s nothing can hurt it, and every second a sigil opens under everyone
+  near and bursts a moment later (magic: armour is no help - keep moving); then it TIRES (7 s, still and open) and can be hit
+  again. They're tougher, too: health to the cap, armour toughness, Resistance II. And a boss beaten, its altar RESTS a full day
+  (20 minutes) before it will wake that boss again. Beat one and everyone near gets its TOKEN, Dread Tokens and spoils.
 
 THE TOKENS: carried (anywhere on you), a strong blessing; set down on a block (sneak + use), a ward around it for everyone
   (sneak + punch to take it back); or Vesper scraps one for 12 Dread Tokens.
@@ -46,23 +51,30 @@ import snowbeast_art, witch_art, sawshark_art
 
 DREAD = '#b0102a'
 holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
+# (2.94j) THE DREAD, HARDER: health to the cap (max_health stops at 1024 - the floor's 200 under it), armour toughness, and Resistance
+# II always on (40% off every blow - the Soulreaver's Smite on an undead host and its Soul Rend's magic shredded them); THE FRENZY -
+# at the enrage, FRENZY seconds it can't be hurt at all and its sigils burst under everyone (magic: armour won't help - move!),
+# then TIRED seconds spent: still, open - hit it; and THE ALTAR'S REST - a boss beaten, its altar sleeps COOL ticks (a full day)
+TOUGH, RESIST = 10, 1
+FRENZY, TIRED = 16, 7
+COOL = 24000
 FLOOR = 200          # (each host's health above its "real" pool: at this, it falls - no lucky blow kills it outright)
 
 BOSSES = {
-    'snow': dict(NAME='The Malevolent Snowbeast', COL='#9ad8ff', A=snowbeast_art, host='husk', hp=720, scale=2.6, armor=10, move='ground', speed=0.17,
+    'snow': dict(NAME='The Malevolent Snowbeast', COL='#9ad8ff', A=snowbeast_art, host='husk', hp=820, scale=2.6, armor=14, move='ground', speed=0.17,
                  bar='blue', token='tok_frost', ruin='Frozen Folly', ruin_col='#bfe8ff', map='sealed_map_db_snow', mapname='Frostbitten Map',
                  trio=[('Pistachio', 'bm.pipet'), ('Celi', 'bm.celipet'), ('Tullius', 'bm.tupet')],
                  biomes=['minecraft:snowy_plains', 'minecraft:ice_spikes', 'minecraft:snowy_taiga', 'minecraft:grove', 'minecraft:snowy_slopes',
                          'minecraft:frozen_peaks', 'minecraft:jagged_peaks', 'minecraft:snowy_beach'],
                  rise=('The snow on the altar heaves...', 'Somewhere, a hat screams.'),
                  lore='Pistachio\'s living hat, frightened, came down on a snowman - and made a monster of it.'),
-    'witch': dict(NAME='The Watchful Witch', COL='#7aff5a', A=witch_art, host='husk', hp=640, scale=1.5, armor=6, move='float', speed=0.2,
+    'witch': dict(NAME='The Watchful Witch', COL='#7aff5a', A=witch_art, host='husk', hp=760, scale=1.5, armor=10, move='float', speed=0.2,
                   bar='green', token='tok_hex', ruin='Hexen Hollow', ruin_col='#a8ff8a', map='sealed_map_db_witch', mapname='Hexed Map',
                   trio=[('Cecil', 'bm.cecilpet'), ('Apophiss', 'bm.appet'), ('King Omega', 'bm.ompet')],
                   biomes=['minecraft:dark_forest', 'minecraft:swamp', 'minecraft:mangrove_swamp', 'minecraft:pale_garden', 'minecraft:old_growth_spruce_taiga'],
                   rise=('The cauldron boils over with shadow...', 'Someone is watching. Someone has always been watching.'),
                   lore='An old acquaintance of Cecil\'s who studied dark magic a little too hard - and was swallowed by it.'),
-    'shark': dict(NAME='The Chomping Sawshark', COL='#ffd21a', A=sawshark_art, host='drowned', hp=820, scale=3.4, armor=12, move='swim', speed=0.3,
+    'shark': dict(NAME='The Chomping Sawshark', COL='#ffd21a', A=sawshark_art, host='drowned', hp=824, scale=3.4, armor=16, move='swim', speed=0.3,
                   bar='white', token='tok_saw', ruin='Drowned Gate', ruin_col='#8ae8d8', map='sealed_map_db_shark', mapname='Drowned Map',
                   trio=[('Emma', 'bm.emmapet'), ('Bones', 'bm.bjpet'), ('Queen Pearl', 'bm.pqpet')],
                   biomes=['minecraft:deep_ocean', 'minecraft:deep_cold_ocean', 'minecraft:deep_lukewarm_ocean', 'minecraft:deep_frozen_ocean',
@@ -141,7 +153,7 @@ def generate(G):
     fn, wjson, tellraw, title, give = G.fn, G.wjson, G.tellraw, G.title, G.give
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     tick, fast, second = [], [], []
-    objs = ['bm.dbid', 'bm.dbs', 'bm.dbf', 'bm.dbx', 'bm.dba', 'bm.dbph', 'bm.dbtt', 'bm.dbgone', 'bm.dbk7', 'bm.dbk8', 'bm.dbk9', 'bm.dbk11', 'bm.dbk12', 'bm.dbt',
+    objs = ['bm.dbcl', 'bm.dbcd', 'bm.dbfz', 'bm.dbtr', 'bm.dbmt', 'bm.dbid', 'bm.dbs', 'bm.dbf', 'bm.dbx', 'bm.dba', 'bm.dbph', 'bm.dbtt', 'bm.dbgone', 'bm.dbk7', 'bm.dbk8', 'bm.dbk9', 'bm.dbk11', 'bm.dbk12', 'bm.dbt',
             'bm.dbwin_snow', 'bm.dbwin_witch', 'bm.dbwin_shark']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + ['scoreboard players set #2 bm.rng 2', 'scoreboard players set #9 bm.rng 9',
                                                                                      'scoreboard players set #5 bm.rng 5', 'scoreboard players set #10 bm.rng 10']
@@ -237,6 +249,7 @@ def generate(G):
         trio = b['trio']
         lines = ['execute unless score #hard bm.cfg matches 1 run return run ' + say(f'The altar is cold. (Hard mode only.)', '#c8a0a0'),
                  f'execute at @e[tag=bm.dbhere,limit=1] if entity @e[tag=bm.db_{k},distance=..96] run return run ' + say(f'{b["NAME"]} is already awake.', b['COL']),
+                 f'execute if function bm:p197/{k}/resting run return run function bm:p197/{k}/spent',
                  'scoreboard players operation #me bm.pid = @s bm.pid']
         for j, (nm, tag) in enumerate(trio):
             lines += [f'scoreboard players set #t{j} bm.rng 0', f'execute as @e[tag={tag},distance=..24] if score @s bm.pid = #me bm.pid run scoreboard players set #t{j} bm.rng 1']
@@ -250,6 +263,43 @@ def generate(G):
         lines += ['playsound minecraft:block.respawn_anchor.deplete block @s ~ ~ ~ 0.6 0.6',
                   tellraw('@s', [T(f'The {b["ruin"]}: ', b['ruin_col'], bold=True), T(f'the altar will wake {b["NAME"]} only for these three, together:', 'gray')])] + names
         fn(f'p197/{k}/ask', lines)
+        # (2.94j: beaten, the altar rests a day - it could be fought back to back, spoils every time)
+        fn(f'p197/{k}/resting', ['execute store result score #gt bm.dbcd run time query gametime', f'execute if score #gt bm.dbcd < #dbcd_{k} bm.dbcd run return 1', 'return 0'])
+        fn(f'p197/{k}/spent', ['scoreboard players operation #left bm.dbcd = #dbcd_' + k + ' bm.dbcd', 'scoreboard players operation #left bm.dbcd -= #gt bm.dbcd',
+                               'scoreboard players set #1200 bm.dbcd 1200', 'scoreboard players operation #left bm.dbcd /= #1200 bm.dbcd', 'scoreboard players add #left bm.dbcd 1',
+                               'playsound minecraft:block.respawn_anchor.deplete block @s ~ ~ ~ 0.6 0.5',
+                               title('@s', 'actionbar', [T(f'The altar is spent - {b["NAME"]} sleeps. ', '#c8a0a0'), T('It stirs again in ', 'gray'),
+                                                          {'score': {'name': '#left', 'objective': 'bm.dbcd'}, 'color': 'white'}, T(' min.', 'gray')])])
+
+    # ---- (2.94j) the altar speaks for itself, as the Serpent's Seal does: stand by it and the words cut in it, and the three
+    # hollows round it (each one of the three it waits for) - then "right-click"; and as the three come near, it stirs
+    HINT = {'snow': ('"WHAT THE HAT TOOK IN FRIGHT, THE COLD KEEPS. THREE MAY ASK IT BACK."', [('a top hat', '#7ad8a0'), ('a snowflake', '#bfe8ff'), ('an icicle', '#5ae0d8')]),
+            'witch': ('"SHE LOOKED TOO LONG INTO THE DARK. AN OLD FRIEND, A SERPENT AND A KING OF THE DEAD MAY CALL HER OUT."',
+                      [('a pink crystal', '#ff8ad8'), ('a serpent\'s scale', '#5ad06a'), ('a ghostly crown', '#c8c8d8')]),
+            'shark': ('"HERE THE DEEP KEEPS ITS JAILER. ONLY THE KINGDOM\'S OWN MAY KNOCK."', [('a ribbon', '#ff8ad8'), ('a shark\'s tooth', '#8ab0c8'), ('a pearl', '#f0f0ff')])}
+    second.append('scoreboard players remove @a[scores={bm.dbcl=1..}] bm.dbcl 1')
+    for k, b in BOSSES.items():
+        words, hollows = HINT[k]
+        ring = [T('An altar of the Dread. Three hollows ring it: ', 'gray', italic=True)]
+        for j, (h, c) in enumerate(hollows):
+            ring += [T(h, c)] + ([T(', ', 'gray')] if j < 2 else [])
+        ring += [T('.  (Right-click it.)', 'dark_gray')]
+        second.append(f'execute if score #hard bm.cfg matches 1 as @e[type=minecraft:interaction,tag=bm.dbaltar_{k}] at @s if entity @a[distance=..8,gamemode=!spectator] '
+                      f'unless entity @e[tag=bm.db_{k},distance=..96] run function bm:p197/{k}/near')
+        fn(f'p197/{k}/near', [f'execute if function bm:p197/{k}/resting as @a[distance=..4,gamemode=!spectator] unless score @s bm.dbcl matches 1.. at @s run function bm:p197/{k}/spent_near',
+                              f'execute if function bm:p197/{k}/resting run return 0',
+                              'scoreboard players set #sn bm.rng 0'] +
+           [f'execute if entity @e[tag={tag},distance=..9] run scoreboard players add #sn bm.rng 1' for nm, tag in b['trio']] +
+           ['execute if score #sn bm.rng matches 1..2 run particle minecraft:soul ~ ~1 ~ 0.8 0.3 0.8 0.01 4',
+            'execute if score #sn bm.rng matches 1 run ' + title('@a[distance=..10]', 'actionbar', [T('The altar stirs... ', b['COL'], italic=True), T('one of the three is here.', 'gray', italic=True)]),
+            'execute if score #sn bm.rng matches 2 run ' + title('@a[distance=..10]', 'actionbar', [T('The altar stirs... ', b['COL'], italic=True), T('two of the three. One more.', 'gray', italic=True)]),
+            'execute if score #sn bm.rng matches 3 run ' + title('@a[distance=..10]', 'actionbar', [T('The altar is awake to all three. ', b['COL'], italic=True), T('(Right-click it.)', 'dark_gray')]),
+            f'execute if score #sn bm.rng matches 0 as @a[distance=..4,gamemode=!spectator] unless score @s bm.dbcl matches 1.. at @s run function bm:p197/{k}/read'])
+        fn(f'p197/{k}/spent_near', ['scoreboard players set @s bm.dbcl 6', f'function bm:p197/{k}/spent'])
+        fn(f'p197/{k}/read', ['scoreboard players set @s bm.dbcl 6',
+                              f'execute unless entity @s[tag=bm.dbread_{k}] run ' + tellraw('@s', [T('Words are cut into the altar, half worn away: ', 'gray', italic=True), T(words, b['ruin_col'], italic=True)]),
+                              f'tag @s add bm.dbread_{k}', title('@s', 'actionbar', ring),
+                              'playsound minecraft:block.sculk.charge ambient @s ~ ~ ~ 0.5 0.6'])
 
     # ================================================================== each boss: its rig, its mind, its fall
     for k, b in BOSSES.items():
@@ -336,10 +386,12 @@ def build_boss(G, k, b, tick, second, fast):
     host = {'Tags': ['bm.db', f'bm.db_{k}', 'bm.dbnew', 'bm.boss', 'bm.seen'], 'NoAI': B(1), 'Silent': B(1), 'PersistenceRequired': B(1),
             'CustomName': T(b['NAME'], b['COL']), 'Invulnerable': B(1), 'NoGravity': B(1 if b['move'] != 'ground' else 0),
             'attributes': [{'id': 'minecraft:max_health', 'base': D(hp_max)}, {'id': 'minecraft:scale', 'base': D(b['scale'])},
-                           {'id': 'minecraft:armor', 'base': D(b['armor'])}, {'id': 'minecraft:knockback_resistance', 'base': D(1.0)},
+                           {'id': 'minecraft:armor', 'base': D(b['armor'])}, {'id': 'minecraft:armor_toughness', 'base': D(TOUGH)},
+                           {'id': 'minecraft:knockback_resistance', 'base': D(1.0)},
                            {'id': 'minecraft:follow_range', 'base': D(48)}],
             'Health': F(hp_max), 'active_effects': [{'id': 'minecraft:invisibility', 'duration': Int(-1), 'amplifier': B(0), 'show_particles': B(0)},
-                                                    {'id': 'minecraft:fire_resistance', 'duration': Int(-1), 'amplifier': B(0), 'show_particles': B(0)}]}
+                                                    {'id': 'minecraft:fire_resistance', 'duration': Int(-1), 'amplifier': B(0), 'show_particles': B(0)},
+                                                    {'id': 'minecraft:resistance', 'duration': Int(-1), 'amplifier': B(RESIST), 'show_particles': B(0)}]}
     off = {'snow': '~ ~ ~5', 'witch': '~ ~1 ~5', 'shark': '~ ~2 ~6'}[k]
     fn(f'{pfx}/rise', [f'execute positioned {off} run summon minecraft:{b["host"]} ~ ~ ~ {snbt(host)}',
                        f'execute positioned {off} run function bm:{pfx}/rig'] +
@@ -426,12 +478,38 @@ def build_boss(G, k, b, tick, second, fast):
                        f'tp @s @e[type=minecraft:interaction,tag=bm.dbaltar_{k},sort=nearest,limit=1]', f'execute at @s run tp @s ~ ~{1 if k != "snow" else 0} ~4',
                        'playsound minecraft:entity.enderman.teleport hostile @a[distance=..32] ~ ~ ~ 1 0.5'])
     # ---- half health: phase two
-    fn(f'{pfx}/phase2', ['scoreboard players set @s bm.dbph 1', f'scoreboard players set @s bm.dbtt {TURN - 1}', 'scoreboard players set @s bm.dbk12 0', f'bossbar set bm:db_{k} color red',
+    fn(f'{pfx}/phase2', ['scoreboard players set @s bm.dbph 1', f'scoreboard players set @s bm.dbtt {TURN - 1}', 'scoreboard players set @s bm.dbk12 0', f'bossbar set bm:db_{k} color purple',
                          'playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..64] ~ ~ ~ 1 0.6',
-                         tellraw('@a[distance=..48]', [T(b['NAME'], b['COL'], bold=True), T(' is enraged!', 'red')])])
+                         'data modify entity @s Invulnerable set value 1b', f'scoreboard players set @s bm.dbfz {FRENZY}',
+                         tellraw('@a[distance=..48]', [T(b['NAME'], b['COL'], bold=True), T(' is enraged! ', 'red'), T('Nothing can touch it now - ', 'gray'),
+                                                       T('dodge its sigils', '#ff5a7a', bold=True), T(' (armour won\'t help) until it tires.', 'gray')])])
+    # (each second of the frenzy: a sigil under everyone near - it bursts 1.2 s later; then it tires)
+    fn(f'{pfx}/frenzy', ['scoreboard players remove @s bm.dbfz 1',
+                         f'execute if score @s bm.dbfz matches 1..{FRENZY - 2} as @a[distance=..32,gamemode=!spectator,gamemode=!creative] at @s run '
+                         f'summon minecraft:marker ~ ~0.1 ~ {{Tags:["bm.dbfzm","bm.dbfzm_{k}"]}}',
+                         title('@a[distance=..32]', 'actionbar', [T('Enraged - it can\'t be hurt. ', '#ff5a7a', bold=True), T('Keep moving!', 'gray')]),
+                         f'execute if score @s bm.dbfz matches 0 run function bm:{pfx}/tire'])
+    fn(f'{pfx}/tire', ['data modify entity @s Invulnerable set value 0b', f'scoreboard players set @s bm.dbtr {TIRED}', f'bossbar set bm:db_{k} color red',
+                       f'scoreboard players set @s bm.dbx {TIRED * 20}', 'scoreboard players set @s bm.dba 0',
+                       'playsound minecraft:entity.ravager.stunned hostile @a[distance=..48] ~ ~ ~ 1.2 0.7',
+                       tellraw('@a[distance=..48]', [T(b['NAME'], b['COL'], bold=True), T(' is exhausted - ', 'gray'), T('strike now!', 'gold', bold=True)])])
+    fn(f'{pfx}/tired', ['scoreboard players remove @s bm.dbtr 1', 'particle minecraft:cloud ~ ~2 ~ 0.8 0.6 0.8 0.02 10',
+                        'particle minecraft:falling_water ~ ~2.5 ~ 0.8 0.4 0.8 0 10',
+                        title('@a[distance=..32]', 'actionbar', [T('Exhausted - ', 'gold', bold=True), T('it can be hurt again.', 'gray')])])
+    FX = {'snow': ('minecraft:snowflake', 'minecraft:block.glass.break', '0.6,0.9,1.0'), 'witch': ('minecraft:witch', 'minecraft:entity.evoker.prepare_attack', '0.5,1.0,0.35'),
+          'shark': ('minecraft:bubble_pop', 'minecraft:entity.guardian.attack', '1.0,0.82,0.1')}[k]
+    tick.append(f'execute as @e[type=minecraft:marker,tag=bm.dbfzm_{k}] at @s run function bm:{pfx}/sigil')
+    fn(f'{pfx}/sigil', ['scoreboard players add @s bm.dbmt 1',
+                        f'execute if score @s bm.dbmt matches ..23 run particle minecraft:dust{{color:[{FX[2]}],scale:1.4}} ~ ~ ~ 1.2 0 1.2 0 6',
+                        'execute if score @s bm.dbmt matches 1 run playsound minecraft:block.respawn_anchor.charge hostile @a[distance=..16] ~ ~ ~ 0.8 1.6',
+                        'execute if score @s bm.dbmt matches 24.. run function bm:{pfx}/burst'.replace('{pfx}', pfx)])
+    fn(f'{pfx}/burst', [f'particle {FX[0]} ~ ~0.5 ~ 1.2 0.6 1.2 0.05 40', 'particle minecraft:explosion ~ ~0.5 ~ 0.6 0.2 0.6 0 2', f'playsound {FX[1]} hostile @a[distance=..20] ~ ~ ~ 1.2 0.8',
+                        f'execute as @a[distance=..2.2,gamemode=!spectator] run damage @s 7 minecraft:magic by @e[tag=bm.db_{k},limit=1,sort=nearest]', 'kill @s'])
     # ---- every second: the bossbar, and if nobody's near for 30 s, it sinks back into its ruin
     second.append(f'execute as @e[tag=bm.db_{k}] at @s run function bm:{pfx}/sec')
     fn(f'{pfx}/sec', ['execute if score @s bm.dbtt matches 1.. run scoreboard players remove @s bm.dbtt 1',      # (2.94i: the turn's music running out)
+                      f'execute if score @s bm.dbfz matches 1.. run function bm:{pfx}/frenzy', f'execute if score @s bm.dbtr matches 1.. run function bm:{pfx}/tired',
+                      f'effect give @s minecraft:resistance infinite {RESIST} true',
                       'execute store result score #hp bm.rng run data get entity @s Health', f'scoreboard players remove #hp bm.rng {FLOOR}',
                       'execute if score #hp bm.rng matches ..-1 run scoreboard players set #hp bm.rng 0',
                       f'execute store result bossbar bm:db_{k} value run scoreboard players get #hp bm.rng',
@@ -446,7 +524,8 @@ def build_boss(G, k, b, tick, second, fast):
     fn(f'{pfx}/falling', ['tag @s add bm.dbfall', 'data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.dba 31', 'scoreboard players set @s bm.dbx 60',
                           'kill @e[tag=bm.dbminion,distance=..48]', f'bossbar set bm:db_{k} value 0',
                           'playsound minecraft:entity.wither.death hostile @a[distance=..64] ~ ~ ~ 0.6 0.8'])
-    fn(f'{pfx}/fall', [f'execute as @a[distance=..64,gamemode=!spectator] at @s run function bm:{pfx}/reward', 'particle minecraft:explosion_emitter ~ ~1 ~ 0 0 0 0 1',
+    fn(f'{pfx}/fall', ['execute store result score #dbcd_' + k + ' bm.dbcd run time query gametime', f'scoreboard players add #dbcd_{k} bm.dbcd {COOL}',
+                       f'execute as @a[distance=..64,gamemode=!spectator] at @s run function bm:{pfx}/reward', 'particle minecraft:explosion_emitter ~ ~1 ~ 0 0 0 0 1',
                        DEATH[k], f'function bm:{pfx}/sink'])
     G.wjson(f'bm/loot_table/p197/{k}_spoils.json', {'type': 'minecraft:chest', 'pools': [
         {'rolls': 1, 'entries': [G.loot_entry('dread_token', G.uni(3, 6))]},

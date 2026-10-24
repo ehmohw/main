@@ -94,8 +94,8 @@ def finalize(G):
                 t = re.search(r'Tags:\[([^\]]*)\]', m.group(2))
                 if t:
                     tags = [x.strip().strip('"') for x in t.group(1).split(',')]
-                    inv_tags |= {x for x in tags if x.startswith(('bm.npc_', 'bm.frat_')) or x == 'bm.pearl'}
-    assert {'bm.npc_wizard', 'bm.npc_chef', 'bm.npc_armory'} <= inv_tags, sorted(inv_tags)
+                    inv_tags |= {x for x in tags if x.startswith(('bm.npc_', 'bm.frat_')) or x in ('bm.pearl', 'bm.arcnpc')}
+    assert {'bm.npc_wizard', 'bm.npc_chef', 'bm.npc_armory', 'bm.arcnpc'} <= inv_tags, sorted(inv_tags)   # (2.94j: the Arcade's pair too - their invisibility was cleared every second)
     F['p168/invis'] = ['effect clear @e[type=#bm:p56_traders,tag=bm.npc,predicate=bm:p126/invis' + ''.join(f',tag=!{t}' for t in sorted(inv_tags)) +
                        '] minecraft:invisibility'] + \
                       [f'effect give @e[type=#bm:p56_traders,tag={t},predicate=!bm:p126/invis] minecraft:invisibility infinite 0 true' for t in sorted(inv_tags)]

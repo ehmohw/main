@@ -29,7 +29,7 @@ const res = [];
   const A = await bot('TestRat'); await sleep(2500);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(600);
   ok('TestRat is a regular player', /unknown|incomplete|permission/i.test(A.chats.join(' ')));
-  await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
+  await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`); await run('weather clear');                                   // (rain puts the Plasma Cutter's fire out)
   await run(`${O}fill ${X - 8} ${Y - 1} ${Z - 8} ${X + 8} ${Y - 1} ${Z + 8} minecraft:stone`);
   await run(`${O}fill ${X - 8} ${Y} ${Z - 8} ${X + 8} ${Y + 4} ${Z + 8} minecraft:air`);
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..12]`);

@@ -596,13 +596,41 @@ def generate(G):
     #  seconds later for water that was still flowing; the fountain's own water put back after)
     wjson('bm/tags/block/p199_wet.json', {'values': ['minecraft:water', 'minecraft:kelp', 'minecraft:kelp_plant', 'minecraft:seagrass', 'minecraft:tall_seagrass',
                                                      'minecraft:bubble_column']})
-    fn('p199/dome/dry', dry + fountain)
+    # (2.94j) and its blocks out of the water: the castle is set down by `place template` on the sea floor, and that WATERLOGS every
+    # wall, lantern, campfire, slab, stair and chest it puts in the sea - so with the dome whole they went on pouring water into
+    # it. Each one inside the dome, waterlogged, is set again dry (a chest keeps what's in it).
+    WL = ('campfire', 'chest', 'andesite_wall', 'stone_brick_wall', 'lantern', 'soul_lantern', 'quartz_stairs', 'stone_brick_stairs',
+          'prismarine_brick_slab', 'stone_brick_slab', 'cobblestone_slab')
+    unwet = {}
+    for ruined in (True, False):
+        for (x, y, z), st in K.build(ruined=ruined).b.items():
+            if y <= K.FY or not K.in_dome(x, y, z) or K.is_shell(x, y, z): continue
+            nm = st.split('[')[0].replace('minecraft:', '')
+            if nm not in WL or 'type=double' in st: continue
+            props = [p_ for p_ in (st.split('[', 1)[1].rstrip(']').split(',') if '[' in st else []) if not p_.startswith('waterlogged=')]
+            dry_st = f'minecraft:{nm}[{",".join(props + ["waterlogged=false"])}]'
+            if nm == 'chest':
+                face = next((p_ for p_ in props if p_.startswith('facing=')), 'facing=north').split('=')[1]
+                unwet[(x, y, z, nm)] = f'execute positioned {rel(x, y, z)} if block ~ ~ ~ minecraft:chest[waterlogged=true] run function bm:p199/dome/unwet_chest_{face}'
+            else:
+                unwet[(x, y, z, nm)] = f'execute if block {rel(x, y, z)} minecraft:{nm}[waterlogged=true] run setblock {rel(x, y, z)} {dry_st}'
+    for face in sorted({l.rsplit('_', 1)[1] for l in unwet.values() if 'unwet_chest_' in l}):        # (the ways its chests face)
+        fn(f'p199/dome/unwet_chest_{face}', ['data remove storage bm:tmp kch', 'data modify storage bm:tmp kch.i set from block ~ ~ ~ Items',
+                                             'data modify storage bm:tmp kch.l set from block ~ ~ ~ LootTable', 'data modify storage bm:tmp kch.s set from block ~ ~ ~ LootTableSeed',
+                                             f'setblock ~ ~ ~ minecraft:chest[facing={face},type=single,waterlogged=false]',
+                                             'data modify block ~ ~ ~ Items set from storage bm:tmp kch.i', 'data modify block ~ ~ ~ LootTable set from storage bm:tmp kch.l',
+                                             'data modify block ~ ~ ~ LootTableSeed set from storage bm:tmp kch.s'])
+    fn('p199/dome/unwet', list(unwet.values()))
+    fn('p199/dome/dry', dry + fountain + ['function bm:p199/dome/unwet'])
+    # (a world whose kingdom was set down before: dried once, the dome whole)
+    second.append('execute as @e[type=minecraft:marker,tag=bm.kingdom,tag=!bm.kunwet,scores={bm.kdome=0}] at @s run function bm:p199/dome/unwet_once')
     fn('p199/dome/mend_blocks', mend + door + ['function bm:p199/dome/dry'])
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.kdry dummy', 'scoreboard objectives add bm.kleak dummy']
     G.OBJECTIVES += ['bm.kdry', 'bm.kleak']
     second.append('execute as @e[type=minecraft:marker,tag=bm.kingdom,scores={bm.kdry=1..}] at @s run function bm:p199/dome/drying')
     fn('p199/dome/flood_blocks', flood)
     loaded = ' '.join(f'if loaded ~{x} ~ ~{z}' for x in (-36, 36) for z in (-42, 30))
+    fn('p199/dome/unwet_once', [f'execute {loaded} run function bm:p199/dome/dry', f'execute {loaded} run tag @s add bm.kunwet'])
     fn('p199/dome/mend', [f'execute unless loaded ~-36 ~ ~-42 run return run ' + say('The dome is too far to reach all of it - come closer.', KC),
                           f'execute {loaded} run function bm:p199/dome/mend_blocks', 'scoreboard players set @s bm.kdome 0', 'scoreboard players set @s bm.kburst 0',
                           'scoreboard players set @s bm.kdry 6',

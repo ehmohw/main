@@ -16,7 +16,9 @@ THE WEAPONS  the 8-BIT BLADE (at full health, right-click: a sword beam), the VA
 THE CHIPS    a weapon's upgrades: hold the chip, the weapon in your off hand, use the chip. Any sword, axe, mace, trident or
              arcade weapon takes one of each, for good:
                GLITCH        one blow in five glitches the monster: 6 more, and it blinks somewhere near
-               MISSINGNO.    a kill, one in four: the stack in your sixth hotbar slot grows by one
+               MISSINGNO.    a kill, one in 64: the stack in your sixth hotbar slot grows by one (2.94j: was one in four;
+                             every custom currency - Tokens, Medallions, Trophies, Gutter Coins,
+                             Royal Pearls, Dread and Omni Tokens, Xenite... - never glitches)
                GAME GENIE    +4 attack damage
                TURBO         +0.8 attack speed
 THE PROPS    set them down on a block (sneak + punch one to pick it up):
@@ -108,7 +110,7 @@ HOLD['fire_flower'] = 'bm:p216/w/fire'
 # ================================================================== the chips
 CHIPS = {   # key: (name, colour, what it does)
     'glitch': ('Glitch Chip', '#ff4ad8', ['THE GLITCH: one blow in five glitches', 'the monster - 6 more, and it blinks away.']),
-    'missingno': ('MissingNo. Chip', '#b0a0ff', ['MISSINGNO.: a kill, one in four - the', 'stack in your sixth hotbar slot grows by one.']),
+    'missingno': ('MissingNo. Chip', '#b0a0ff', ['MISSINGNO.: a kill, one in 64 - the stack in', 'your sixth hotbar slot grows by one.', '(Never a currency.)']),
     'genie': ('Game Genie Chip', GOLD, ['A cheat code: +4 attack damage.']),
     'turbo': ('Turbo Chip', '#ff5050', ['TURBO: +0.8 attack speed.']),
 }
@@ -161,6 +163,13 @@ def spr(k):
     if k not in _SPR:
         _SPR[k] = pxart.Sprite(k, f'arc_{k}_', {'bit_rat': RAT_H, 'px_villager': VIL_H}[k], {'idle': ('idle', None)})
     return _SPR[k]
+
+
+def mno_immune():
+    """(2.94j) every custom currency - each item made as one (cat 'currency': Tokens, Medallions, Trophies, Gutter Coins, Royal
+    Pearls, Dread and Omni Tokens, Blood Crystals, the scales and shards...) and King Omega's tithe list (the Xenite) - never glitches"""
+    import phase172 as P172
+    return sorted({k for k, v in ITEMS.items() if v.get('cat') == 'currency'} | {c for c in P172.CURRENCY if c in ITEMS})
 
 
 def _have_traders():
@@ -417,12 +426,15 @@ def generate(G):
                               'playsound minecraft:block.note_block.bit player @s ~ ~ ~ 1 1.2', 'playsound minecraft:block.anvil.use player @s ~ ~ ~ 0.4 1.8',
                               'particle minecraft:electric_spark ~ ~1 ~ 0.4 0.6 0.4 0.2 20',
                               tellraw('@s', P + [T(nm, c, bold=True), T(' is in the weapon for good.', 'gray')])])
-    # MISSINGNO.: a kill with it, one in four - the sixth hotbar slot's stack grows by one
+    # MISSINGNO.: a kill with it, one in 64 - the sixth hotbar slot's stack grows by one
     G.wjson('bm/advancement/p216/kill.json', {'criteria': {'kill': {'trigger': 'minecraft:player_killed_entity', 'conditions': {'player': [
         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'equipment': {'mainhand': {'predicates': {'minecraft:custom_data': '{bm_chip_missingno:1b}'}}}}}]}}},
         'rewards': {'function': 'bm:p216/kill'}})
-    fn('p216/kill', ['advancement revoke @s only bm:p216/kill', 'execute unless predicate bm:p216/quarter run return 0',
-                     'execute unless items entity @s hotbar.5 * run return 0',
+    # (2.94j: one in 64, not one in four - and never the market's money: it was a Dread and Omni Token press)
+    G.wjson('bm/predicate/p216/mno.json', {'condition': 'minecraft:random_chance', 'chance': 1 / 64})
+    fn('p216/kill', ['advancement revoke @s only bm:p216/kill', 'execute unless predicate bm:p216/mno run return 0',
+                     'execute unless items entity @s hotbar.5 * run return 0'] +
+       [f'execute if items entity @s hotbar.5 *[minecraft:custom_data~{{bm:"{c}"}}] run return 0' for c in mno_immune()] + [
                      'item modify entity @s hotbar.5 {function:"minecraft:set_count",count:1,add:true}',
                      'particle minecraft:dust{color:[0.7,0.6,1.0],scale:1.4} ~ ~1 ~ 0.4 0.6 0.4 0 20', 'playsound minecraft:block.note_block.bit player @s ~ ~ ~ 1 0.6',
                      title('@s', 'actionbar', [T('MISSINGNO. ', '#b0a0ff', bold=True), T('- your sixth slot glitches up by one.', 'gray')])])

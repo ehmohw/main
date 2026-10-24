@@ -22,7 +22,8 @@ THE PARTNER WHEEL (Cecil, 3 Medallions)   every partner on one item. Hold a part
               the wheel: it goes on. Use the wheel alone: call any partner on it, send them home, or take their item back
               out. While you carry the wheel, its partners count as with you (they don't go home, they come back after a
               faint, the ones you've met don't turn up again). Only partners you've put on it are listed. The wheel remembers
-              your partners - a new wheel opens to the same ones.
+              your partners - a new wheel opens to the same ones. (2.94j) Sneak + use the wheel: every partner of yours out in
+              this world is brought back to your side at once, in a ring round you.
 """
 import re
 import json
@@ -134,6 +135,7 @@ HARD_ZORP = [(a, b, (f'warplate_{p}', 1)) for p, (a, b) in WAR_PRICE.items()] + 
 item('partner_wheel', TOTEM, 'Partner Wheel', PURPLE,
      ['Every partner, on one wheel.', ('Hold a partner\'s summoning item in your', 'blue'), ('off hand and use the wheel: it goes on.', 'blue'),
       ('Use the wheel alone: call a partner, send', 'blue'), ('them home, or take their item back out.', 'blue'),
+      ('Sneak + use: your partners out in the world', 'blue'), ('come back to your side at once.', 'blue'),
       ('Carry it and its partners stay with you.', 'dark_aqua'), ('It remembers your partners - even a new wheel.', 'gray'),
       ('From Cecil.', 'dark_gray')], model='bm:partner_wheel', stack=1, cat='magic', comps=hold('none'))
 HOLD['partner_wheel'] = 'bm:p179/w/use'
@@ -169,7 +171,7 @@ def generate(G):
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
     second, load = G.FUNCS['loop/second'], G.FUNCS['load']
-    objs = ['bm.xdf', 'bm.wsw']
+    objs = ['bm.xdf', 'bm.wsw', 'bm.pwrc']
 
     # ---------------------------------------------------------------- a re-sync keeps tunings and infusions
     rs = G.FUNCS['p18/refresh/slot']
@@ -315,7 +317,28 @@ def generate(G):
         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'nbt': '{Tags:["bm.pwsneak"]}'}}]})
     fn('p179/w/use', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid'] +
        [f'execute if items entity @s weapon.offhand {holds(iid)} run return run function bm:p179/w/add{i}' for i, (*_r, iid) in enumerate(PW)] +
-       ['function bm:p179/w/open'])
+       ['execute if predicate bm:p20/sneaking run return run function bm:p179/w/recall', 'function bm:p179/w/open'])
+    # (2.94j) sneak + use: every partner of yours out in this world comes to you at once - a ring of them round you, as they were
+    # (sitting stays sitting); eight seconds' rest between
+    fn('p179/w/recall', ['execute if score @s bm.pwrc matches 1.. run return run ' + say('The wheel is still turning...'),
+                         'scoreboard players set @s bm.pwrc 8', 'scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #pwn bm.rng 0',
+                         'tag @s add bm.pwme'] +
+       [f'execute as @e[type=minecraft:{host},tag={tag}] if score @s bm.pid = #me bm.pid at @s run function bm:p179/w/fetch' for host, tag in
+        dict.fromkeys((host, tag) for w, nm, col, host, tag, *_r in PW)] +
+       ['tag @s remove bm.pwme',
+        'execute if score #pwn bm.rng matches 0 run return run ' + say('None of your partners are out to call back.'),
+        'playsound minecraft:block.enchantment_table.use player @s ~ ~ ~ 0.7 1.8', 'particle minecraft:enchant ~ ~1.2 ~ 0.4 0.5 0.4 0.8 30',
+        'execute if score #pwn bm.rng matches 1 run return run ' + say('The wheel turns - your partner is back at your side.', PURPLE),
+        say('The wheel turns - your partners are back at your side.', PURPLE)])
+    # (around you: each one a step further round the ring, a block and a half out)
+    fn('p179/w/fetch', ['particle minecraft:reverse_portal ~ ~0.8 ~ 0.3 0.5 0.3 0.05 20',
+                        'scoreboard players add #pwn bm.rng 1', 'execute store result storage bm:tmp pw.yaw float 45 run scoreboard players get #pwn bm.rng',
+                        'execute at @a[tag=bm.pwme,limit=1] run function bm:p179/w/fetch_at with storage bm:tmp pw'])
+    fn('p179/w/fetch_at', ['$execute rotated $(yaw) 0 positioned ^ ^ ^1.5 if block ~ ~ ~ #minecraft:air if block ~ ~1 ~ #minecraft:air run return run function bm:p179/w/land',
+                           'tp @s ~ ~ ~', 'execute at @s run particle minecraft:portal ~ ~0.8 ~ 0.3 0.5 0.3 0.4 20'])
+    fn('p179/w/land', ['tp @s ~ ~ ~',
+                           'execute at @s run particle minecraft:portal ~ ~0.8 ~ 0.3 0.5 0.3 0.4 20'])
+    second.append('scoreboard players remove @a[scores={bm.pwrc=1..}] bm.pwrc 1')
     fn('p179/w/pid', ['execute store result storage bm:tmp pw.pid int 1 run scoreboard players get @s bm.pid'])
     empty = P28.notice([T('Partner Wheel', PURPLE, bold=True)],
                        [P28.body([T('No partners on your wheel yet.', 'white')], 300),

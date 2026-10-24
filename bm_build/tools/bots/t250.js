@@ -54,6 +54,18 @@ const res = [];
   await run(`${O}execute positioned ${X} ${Y} ${Z} run function bm:admin/kingdom`);
   await sleep(1500);
   await run(`scoreboard players set ${CORE} bm.kbcd 0`); await run('scoreboard players reset TestRat bm.kbask');
+  // (2.94j) set down in the sea, `place template` waterlogged every wall, lantern, campfire, slab, stair and chest - and with the dome
+  // whole they poured water in. A moment on, each one inside the dome is dry (the pack's own list of them, every one checked).
+  const UW = require('fs').readFileSync('/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function/p199/dome/unwet.mcfunction', 'utf8').split('\n')
+    .map(l => l.match(/^execute (?:if block (\S+ \S+ \S+) (minecraft:[a-z_]+)\[waterlogged=true\]|positioned (\S+ \S+ \S+) if block ~ ~ ~ (minecraft:chest)\[waterlogged=true\])/)).filter(Boolean)
+    .map(m => [m[1] || m[3], m[2] || m[4]]);
+  await sleep(2500); let wl = 0, there = 0;
+  for (const [p, b] of UW) {
+    if (/passed/.test(await run(`${O}execute at ${CORE} if block ${p} ${b}`))) there++;
+    if (/passed/.test(await run(`${O}execute at ${CORE} if block ${p} ${b}[waterlogged=true]`))) wl++;
+  }
+  ok('the dome whole, nothing inside it waterlogged - no wall, lantern, campfire, slab, stair or chest pouring water (2.94j)', UW.length >= 20 && there >= 20 && wl === 0,
+     `${UW.length} listed, ${there} there, ${wl} wet`);
   ok('the castle is built on the sea floor: its core, five click-boxes (Font, Treasury, Request Stand, Dome Heart, plinth), the Steward',
      (await cnt(CORE)) === 1 && (await cnt(`@e[type=minecraft:interaction,tag=bm.kbox,x=${X},y=${Y},z=${Z},distance=..70]`)) === 5 &&
      (await cnt(`@e[type=minecraft:wandering_trader,tag=bm.kstew,x=${X},y=${Y},z=${Z},distance=..70]`)) === 1,
@@ -87,11 +99,12 @@ const res = [];
   ok('...again: no second homecoming or audience today (the Font still names who\'s missing)', (await has('royal_pearl')) === 5 && (await has('tidecaller_shell')) === 1 &&
      said(/royal family together/));
   // the Tidecaller Shell
-  await run('clear TestRat minecraft:emma_ribbon'); await run(`item replace entity TestRat hotbar.1 with minecraft:air`);
+  await sleep(2200);                                                      // (past the 2-second use guard; the shell is wherever it landed in the hotbar)
   for (let s = 0; s < 9; s++) { if (/tidecaller/.test(await run(`data get entity TestRat Inventory[{Slot:${s}b}]`))) { await use(s); break; } }
   await sleep(500);
   ok('the Tidecaller Shell used: Water Breathing, Dolphin\'s Grace, Conduit Power', /water_breathing/.test(await run('data get entity TestRat active_effects')) &&
-     /conduit_power/.test(await run('data get entity TestRat active_effects')) && /dolphins_grace/.test(await run('data get entity TestRat active_effects')));
+     /conduit_power/.test(await run('data get entity TestRat active_effects')) && /dolphins_grace/.test(await run('data get entity TestRat active_effects')),
+     `shell at ${((await run('data get entity TestRat Inventory')).match(/Slot: (\d+)b, id: "[^"]+", components: \{[^}]*tidecaller/) || [0, '?'])[1]} | ${A.bars.slice(-1).join('')} | ${(await run('data get entity TestRat active_effects')).slice(0, 160)}`);
 
   // ---- the Royal Treasury
   await at(cx - 3, cy, cz, 90, 20);

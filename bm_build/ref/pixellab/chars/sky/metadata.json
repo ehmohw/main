@@ -1,0 +1,125 @@
+{
+  "group_id": "1abe7c4b-e971-49f8-b148-1c9140866aeb",
+  "states": [
+    {
+      "character": {
+        "id": "f13eeec7-f0b4-4ce4-bc2d-a8215b1105e7",
+        "name": "Idle",
+        "prompt": "The Sky Buddies, four floating sky friends drifting together with no bodies or legs: Sunny, a round golden-yellow sun with orange triangular rays all round, black sunglasses and a cocky smirk; Snooze, a pale cream crescent moon asleep, wearing a light blue nightcap with a white pom-pom; Twinkle, a small grumpy yellow star beside the moon; Nimbus, a fluffy grey cloud below them with a happy ':3' face",
+        "size": {
+          "width": 96,
+          "height": 96
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-10-24T18:45:42.408722+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "walk": {
+            "south": [
+              "Idle/animations/walk/south/frame_000.png",
+              "Idle/animations/walk/south/frame_001.png",
+              "Idle/animations/walk/south/frame_002.png",
+              "Idle/animations/walk/south/frame_003.png",
+              "Idle/animations/walk/south/frame_004.png",
+              "Idle/animations/walk/south/frame_005.png",
+              "Idle/animations/walk/south/frame_006.png",
+              "Idle/animations/walk/south/frame_007.png",
+              "Idle/animations/walk/south/frame_008.png"
+            ]
+          },
+          "sit": {
+            "south": [
+              "Idle/animations/sit/south/frame_000.png",
+              "Idle/animations/sit/south/frame_001.png",
+              "Idle/animations/sit/south/frame_002.png",
+              "Idle/animations/sit/south/frame_003.png",
+              "Idle/animations/sit/south/frame_004.png"
+            ]
+          },
+          "idle": {
+            "south": [
+              "Idle/animations/idle/south/frame_000.png",
+              "Idle/animations/idle/south/frame_001.png",
+              "Idle/animations/idle/south/frame_002.png",
+              "Idle/animations/idle/south/frame_003.png",
+              "Idle/animations/idle/south/frame_004.png"
+            ]
+          },
+          "sit-70d662a7": {
+            "north": [
+              "Idle/animations/sit-70d662a7/north/frame_000.png",
+              "Idle/animations/sit-70d662a7/north/frame_001.png",
+              "Idle/animations/sit-70d662a7/north/frame_002.png",
+              "Idle/animations/sit-70d662a7/north/frame_003.png",
+              "Idle/animations/sit-70d662a7/north/frame_004.png"
+            ]
+          },
+          "attack": {
+            "south": [
+              "Idle/animations/attack/south/frame_000.png",
+              "Idle/animations/attack/south/frame_001.png",
+              "Idle/animations/attack/south/frame_002.png",
+              "Idle/animations/attack/south/frame_003.png",
+              "Idle/animations/attack/south/frame_004.png",
+              "Idle/animations/attack/south/frame_005.png",
+              "Idle/animations/attack/south/frame_006.png",
+              "Idle/animations/attack/south/frame_007.png",
+              "Idle/animations/attack/south/frame_008.png"
+            ]
+          },
+          "idle-86609c9a": {
+            "north": [
+              "Idle/animations/idle-86609c9a/north/frame_000.png",
+              "Idle/animations/idle-86609c9a/north/frame_001.png",
+              "Idle/animations/idle-86609c9a/north/frame_002.png",
+              "Idle/animations/idle-86609c9a/north/frame_003.png",
+              "Idle/animations/idle-86609c9a/north/frame_004.png"
+            ]
+          },
+          "attack-bef06636": {
+            "north": [
+              "Idle/animations/attack-bef06636/north/frame_000.png",
+              "Idle/animations/attack-bef06636/north/frame_001.png",
+              "Idle/animations/attack-bef06636/north/frame_002.png",
+              "Idle/animations/attack-bef06636/north/frame_003.png",
+              "Idle/animations/attack-bef06636/north/frame_004.png",
+              "Idle/animations/attack-bef06636/north/frame_005.png",
+              "Idle/animations/attack-bef06636/north/frame_006.png",
+              "Idle/animations/attack-bef06636/north/frame_007.png",
+              "Idle/animations/attack-bef06636/north/frame_008.png"
+            ]
+          },
+          "walk-c8e238f5": {
+            "north": [
+              "Idle/animations/walk-c8e238f5/north/frame_000.png",
+              "Idle/animations/walk-c8e238f5/north/frame_001.png",
+              "Idle/animations/walk-c8e238f5/north/frame_002.png",
+              "Idle/animations/walk-c8e238f5/north/frame_003.png",
+              "Idle/animations/walk-c8e238f5/north/frame_004.png",
+              "Idle/animations/walk-c8e238f5/north/frame_005.png",
+              "Idle/animations/walk-c8e238f5/north/frame_006.png",
+              "Idle/animations/walk-c8e238f5/north/frame_007.png",
+              "Idle/animations/walk-c8e238f5/north/frame_008.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-24T19:09:19.648585"
+}

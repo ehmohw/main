@@ -122,7 +122,7 @@ def item(iid, base, name, color, lore=(), model=None, glint=None, stack=None, co
     if custom_extra:
         custom.update(custom_extra)
     c['minecraft:custom_data'] = dict(custom, bmv=ITEM_VERSION)
-    ITEMS[iid] = {'base': base, 'comps': c, 'custom': custom, 'name': name}
+    ITEMS[iid] = {'base': base, 'comps': c, 'custom': custom, 'name': name, 'cat': cat}
     CATEGORY[iid] = cat
     if price:
         PRICES[iid] = price

@@ -143,6 +143,17 @@ def generate(G):
                  # (he hunts: anything hostile within 14, and he closes in - fast in water)
                  f'execute unless score @s {S("x")} matches 1.. unless data entity @s {{Sitting:1b}} if predicate bm:swim if entity @e[{foe},distance=2.5..14] facing entity @e[{foe},distance=..14,sort=nearest,limit=1] eyes run function bm:{pfx}/chase']
         fn(f'{pfx}/chase', ['execute if block ^ ^ ^0.6 #bm:swim_pass if block ^ ^1 ^0.6 #bm:swim_pass run tp @s ^ ^ ^0.3 ~ ~'])
+        # (2.94j) underwater with you and no fight near, he SWIMS to you - down too - instead of the wolf under him bobbing up to the
+        # surface and turning circles there (its pathfinding can't swim): each tick a stroke toward you, facing you, buoyancy cancelled
+        lines.append(f'execute unless entity @s[tag=bm.bjrd] unless data entity @s {{Sitting:1b}} if block ~ ~0.4 ~ minecraft:water unless entity @e[{foe},distance=..14] run function bm:{pfx}/uw')
+        fn(f'{pfx}/uw', ['execute on owner if entity @s[distance=..32] at @s if block ~ ~0.5 ~ minecraft:water run tag @s add bm.bjown',          # (you in the water too)
+                         'execute unless entity @a[tag=bm.bjown] run return 0',
+                         'data modify entity @s Motion set value [0.0d, 0.0d, 0.0d]',
+                         'execute if entity @a[tag=bm.bjown,distance=..2.5] facing entity @a[tag=bm.bjown,limit=1] eyes rotated ~ 0 run tp @s ~ ~ ~ ~ ~',
+                         'execute if entity @a[tag=bm.bjown,distance=2.5..] facing entity @a[tag=bm.bjown,limit=1] eyes run function bm:p196/uw_stroke',
+                         'tag @a[tag=bm.bjown] remove bm.bjown'])
+        fn('p196/uw_stroke', ['execute if block ^ ^ ^0.8 #bm:swim_pass if block ^ ^0.6 ^0.8 #bm:swim_pass positioned ^ ^ ^0.32 rotated ~ 0 run return run tp @s ~ ~ ~ ~ ~',
+                              'execute rotated ~ 0 run tp @s ~ ~ ~ ~ ~'])
         fn(f'{pfx}/bite_go', go(7, 5, 'mc', 16, ['playsound minecraft:entity.dolphin.attack neutral @a[distance=..16] ~ ~ ~ 0.8 0.6']))
         fn(f'{pfx}/thrash_go', go(8, 14, 'rc', 100, face('surprised', 14) + ['playsound minecraft:entity.guardian.attack neutral @a[distance=..16] ~ ~ ~ 0.6 1.4']))
         fn(f'{pfx}/torpedo_go', go(9, 12, 'bc', 160, face('surprised', 12) + ['playsound minecraft:entity.dolphin.jump neutral @a[distance=..16] ~ ~ ~ 1 0.6']))

@@ -100,8 +100,8 @@ def models():
     pv = PIVOT['body']
     body = [el((-7.0, y0 - 6.4, -9.0), (7.0, y0 + 6.4, 4.0), 'ss_skin', pv, shift=(0.3, 0.1)),
             el((-5.4, y0 - 5.0, 3.8), (5.4, y0 + 5.0, 12.4), 'ss_skin', pv, shift=(0.6, 0.4)),
-            el((-7.02, y0 - 6.4, -9.0), (-7.0, y0 + 6.4, 4.0), 'ss_side', pv, faces=('west',), uv={'west': [0, 0, 16, 16]}),
-            el((7.0, y0 - 6.4, -9.0), (7.02, y0 + 6.4, 4.0), 'ss_side', pv, faces=('east',), uv={'east': [16, 0, 0, 16]}),
+            el((-7.12, y0 - 6.4, -9.0), (-7.0, y0 + 6.4, 4.0), 'ss_side', pv, faces=('west',), uv={'west': [0, 0, 16, 16]}),
+            el((7.0, y0 - 6.4, -9.0), (7.12, y0 + 6.4, 4.0), 'ss_side', pv, faces=('east',), uv={'east': [16, 0, 0, 16]}),
             el((-6.6, y0 - 6.9, -8.6), (6.6, y0 - 6.3, 3.6), 'ss_belly', pv),
             el((-5.0, y0 - 5.6, 3.6), (5.0, y0 - 4.9, 12.0), 'ss_belly', pv)]
     body += chain([(0, y0 + 6.0, -4.0), (0, y0 + 13.0, 0.0), (0, y0 + 19.0, 5.6), (0, y0 + 21.0, 9.6)], [9.0, 5.0, 2.0], 1.6, 'ss_skin_dk', pv, (1.0, 0.0, 0.0), ext=0.2)
@@ -116,8 +116,8 @@ def models():
         ft = 'ss_brow' if face is None else f'ss_brow_{face}'
         h = [el((-7.6, y0 - 3.4, -21.0), (7.6, y0 + 6.6, -8.8), 'ss_skin', pv, shift=(0.1, 0.3)),               # the skull
              el((-6.2, y0 - 2.6, -24.6), (6.2, y0 + 2.0, -20.8), 'ss_skin', pv, shift=(0.5, 0.5)),              # the blunt snout
-             el((-7.6, y0 + 2.6, -21.6), (7.6, y0 + 6.8, -18.0), 'ss_skin_dk', pv, shift=(0.3, 0.6)),            # the brow ridges, jutting
-             el((-7.62, y0 - 1.0, -21.62), (7.62, y0 + 6.8, -21.6), ft, pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
+             el((-7.8, y0 + 2.6, -21.6), (7.8, y0 + 6.8, -18.0), 'ss_skin_dk', pv, shift=(0.3, 0.6)),            # the brow ridges, jutting (2.94j: proud of the skull's sides - they shared its faces)
+             el((-7.82, y0 - 1.0, -21.72), (7.82, y0 + 6.8, -21.6), ft, pv, faces=('north',), uv={'north': [0, 0, 16, 16]}),
              el((-6.0, y0 + 6.6, -20.0), (-2.4, y0 + 8.0, -14.0), 'ss_skin_dk', pv), el((2.4, y0 + 6.6, -20.0), (6.0, y0 + 8.0, -14.0), 'ss_skin_dk', pv),   # (the ridges' crests)
              el((-6.0, y0 - 4.2, -24.4), (6.0, y0 - 2.6, -20.6), 'ss_teeth', pv, faces=('north', 'east', 'west', 'down'), uv={'north': [0, 0, 16, 6]}),
              el((-7.4, y0 - 4.0, -21.0), (7.4, y0 - 3.4, -9.4), 'ss_gum', pv)]
@@ -135,7 +135,7 @@ def models():
     # ---- the jaw: huge, wide, teeth standing all round its rim
     pv = PIVOT['jaw']
     jaw = [el((-7.2, y0 - 7.6, -23.6), (7.2, y0 - 4.2, -9.6), 'ss_belly', pv),
-           el((-6.8, y0 - 4.22, -23.2), (6.8, y0 - 4.2, -10.0), 'ss_teeth', pv, faces=('up',), uv={'up': [0, 6, 16, 16]})]
+           el((-6.8, y0 - 4.2, -23.2), (6.8, y0 - 4.08, -10.0), 'ss_teeth', pv, faces=('up',), uv={'up': [0, 6, 16, 16]})]
     for k in range(6):
         x = -5.4 + k * 2.16
         jaw += chain([(x, y0 - 4.2, -22.8), (x - 0.1, y0 - 0.8, -22.6)], [0.5], 0.8, 'ss_tooth', pv, FRONT, ext=0.0)

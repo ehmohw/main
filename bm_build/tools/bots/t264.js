@@ -3,7 +3,7 @@
 // each (Dread Tokens). Then on a pad: the sets worn (rcon hands over the rest of a set) - the BOUNTY HUNTER's fire resistance and
 // night sight, the BLUE BOMBER's buster shot on a blow, the PLUMBER's STOMP (falling onto a monster), the VAMPIRE HUNTER's 8 more to
 // the undead; the ARM BUSTER, FIRE FLOWER and 8-BIT BLADE's shots; the chips onto a sword in the off hand (Game Genie: its damage
-// up); the props - a ? block set down (a Token, then "Empty"), two Warp Pipes (one takes you to the other), a Save Point (your
+// up; 2.94j - MISSINGNO. kills never glitch a currency in the sixth slot, one in 64); the props - a ? block set down (a Token, then "Empty"), two Warp Pipes (one takes you to the other), a Save Point (your
 // spawn), picked up again (sneak + punch); the Heart Container (+1 heart), the Super Star (Resistance V), the Power Mushroom
 // (bigger). Hard mode off: the traders are gone.
 const { bot, rcon, sleep } = require('./lib_resp');
@@ -79,6 +79,9 @@ const res = [];
   ok('Hard mode on: Bit and the Pixel Villager behind their counter, in the empty house', await wait(25000, async () => (await cnt(RAT)) === 1 && (await cnt(VIL)) === 1, 500));
   ok('...each a flat pixel sprite (front and back), turned to the room', (await cnt(`@e[type=minecraft:item_display,tag=bm.arcspr,x=${CX + 25.5},y=${CY + W},z=${CZ + 51.6},distance=..3]`)) === 2 &&
      !/billboard: "center"/.test(await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.arcspr_rat,limit=1]`)));
+  await sleep(3000);
+  ok('...and the villagers under them stay invisible, seconds on (2.94j: the market\'s sweep cleared it - plain villagers showed)',
+     (await cnt(`@e[type=minecraft:villager,tag=bm.arcnpc,predicate=bm:p126/invis,x=${CX + 25.5},y=${CY + W},z=${CZ + 51.6},distance=..4]`)) === 2);
   ok('...and the shop\'s own props about it (the arcade cabinet, the pipe, the ? block)', (await cnt(`@e[type=minecraft:item_display,tag=bm.arcshop,x=${CX + 25.5},y=${CY + W},z=${CZ + 54.5},distance=..6]`)) === 3);
   const tokens = async n => { await run('clear TestRat *[minecraft:custom_data~{bm:"dread_token"}]'); await run('loot replace entity TestRat hotbar.0 loot bm:items/dread_token');
     await run(`item modify entity TestRat hotbar.0 {type:"minecraft:set_count",count:${n}}`); A.slot(0); await sleep(300); };
@@ -151,6 +154,25 @@ const res = [];
   ok('...a second one on the same sword: refused, kept', A.bars.some(b => /already/.test(b)) && (await has('chip_genie')) === 1, A.bars.slice(-1).join(''));
   await give('hotbar.5', 'chip_missingno'); await use(5);
   ok('...and a MISSINGNO. CHIP beside it', /bm_chip_missingno: 1b/.test(await run('data get entity TestRat equipment.offhand')));
+  // (2.94j) MISSINGNO. never glitches the market's money: the chipped sword in hand, five Dread Tokens in the sixth slot, twenty
+  // kills - still five; and its odds are one in 64 (it was one in four - a Token press)
+  await run('item replace entity TestRat hotbar.0 from entity TestRat weapon.offhand'); await run('item replace entity TestRat weapon.offhand with air');
+  await give('hotbar.5', 'dread_token'); await run('item modify entity TestRat hotbar.5 {type:"minecraft:set_count",count:5}'); A.slot(0); await sleep(400);
+  await run(`${O}fill ${X - 2} ${Y + 1} ${Z + 2} ${X + 2} ${Y + 3} ${Z + 4} minecraft:air`);
+  let kills = 0;
+  for (let i = 0; i < 20; i++) {
+    await run(`${O}summon minecraft:zombie ${X + 0.5} ${Y + 1} ${Z + 1.8} {Tags:["bm.t264mn"],NoAI:1b,Health:1f,attributes:[{id:"minecraft:max_health",base:1}]}`);
+    const z = `@e[type=minecraft:zombie,tag=bm.t264mn,limit=1]`; await wait(2000, async () => (await uuidEnt(z)) !== null, 100);
+    const eid = await uuidEnt(z); if (eid !== null) { A.attack(eid); await sleep(700); }
+    if ((await cnt('@e[type=minecraft:zombie,tag=bm.t264mn]')) === 0) kills++; else await run('kill @e[tag=bm.t264mn]');
+  }
+  const toks = +(((await run('clear TestRat *[minecraft:custom_data~{bm:"dread_token"}] 0')).match(/Found (\d+)/) || [0, 0])[1]);
+  ok('MISSINGNO.: twenty kills with Dread Tokens in the sixth slot - still five (the currencies never glitch)', kills >= 15 && toks === 5, `${kills} kills, ${toks} tokens`);
+  const mno = JSON.parse(require('fs').readFileSync('/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/predicate/p216/mno.json', 'utf8'));
+  const kf = require('fs').readFileSync('/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function/p216/kill.mcfunction', 'utf8');
+  ok('...(every custom currency is turned away before the stack grows: Tokens, Medallions, Trophies, Gutter Coins, Royal Pearls, Blood Crystals, Xenite...)', ['token', 'medallion', 'trophy', 'lucky_token', 'dread_token', 'omni_token', 'gutter_coin', 'gutter_medallion', 'royal_pearl', 'blood_crystal', 'xenite_green']
+     .every(c => kf.indexOf(`{bm:"${c}"}] run return 0`) >= 0 && kf.indexOf(`{bm:"${c}"}] run return 0`) < kf.indexOf('set_count')));
+  ok('...and its odds are one in 64', Math.abs(mno.chance - 1 / 64) < 1e-9, JSON.stringify(mno));
   await run('item replace entity TestRat weapon.offhand with air'); await run('clear TestRat');
 
   // ================================================================== 5. the props

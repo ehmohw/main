@@ -21,6 +21,29 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94j: fixes, a recall, and tougher Dread bosses
+
+- **The Partner Wheel calls everyone back.** Sneak + use the wheel and every partner of yours out in this world comes to
+  your side at once, in a ring round you (8 seconds between). Handy when they're stuck behind a wall, sitting, or a floor below.
+- **The Sky Buddies have a pixel costume.** All four of them on one 16-bit sprite drawn from the painting, idle, drifting,
+  resting and flaring. A Glitched Cartridge used beside them unlocks it; it's a row in their wardrobe.
+- **The Dread bosses are tougher.** Health to the cap, armour toughness, and Resistance II at all times: the Soulreaver
+  shredded them.
+- **The enrage is a frenzy.** At half health a Dread boss can't be hurt for 16 seconds, and sigils open under everyone near
+  and burst a moment later. It's magic, so armour won't help: keep moving. Then it tires for 7 seconds, still and open.
+  Strike now.
+- **The altars rest.** A Dread boss beaten, its altar sleeps a full day (20 minutes) before it wakes that boss again, so it
+  can't be farmed back to back. Right-click it to see how long is left.
+- **The altars hint.** Stand by one and its words and its three hollows tell you who it waits for, then "Right-click it",
+  as the Serpent's Seal does. It stirs as the three come near.
+- **MissingNo. is rarer** (one kill in 64, was one in four) and **never touches a currency**: no item made as a currency
+  (Tokens, Medallions, Trophies, Gutter Coins, Royal Pearls, Dread and Omni Tokens, Blood Crystals, Xenite...) glitches up.
+- **Bones swims underwater.** He follows you down instead of bobbing at the surface and turning circles.
+- **The Underwater Kingdom stays dry.** Its walls, lanterns, campfires, slabs, stairs and chests were set down waterlogged,
+  so with the dome whole they poured water in. They're dried when the dome mends, and once in a world that already has one.
+- **The Arcade's traders are sprites again.** A market sweep kept taking their invisibility away, so plain villagers showed.
+- **The Chomping Sawshark's mouth no longer flickers** (faces sharing a plane in its jaw, brow and flanks).
+
 ## New in 2.94i: a sharper opening
 
 - **The opening sting no longer sounds like a victory.** A Dread boss's opening (its big attack spent, 3 seconds to strike)

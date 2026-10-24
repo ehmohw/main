@@ -63,6 +63,8 @@ CHARS = {
                A('throwing a glowing hot gold ingot')),
     'capshun': ('capshun_pencil', 64, "Mr. Capshun, a flat stick figure: a big round pale grey head with two tall empty oval eyes and worried brows, a thin black ink line body with long thin arms and legs, holding a paintbrush and a pencil",
                 A('swiping a paintbrush')),
+    'sky': ('sky_buddies', 96, "The Sky Buddies, four floating sky friends drifting together with no bodies or legs: Sunny, a round golden-yellow sun with orange triangular rays all round, black sunglasses and a cocky smirk; Snooze, a pale cream crescent moon asleep, wearing a light blue nightcap with a white pom-pom; Twinkle, a small grumpy yellow star beside the moon; Nimbus, a fluffy grey cloud below them with a happy ':3' face",
+            A('Sunny flaring bright and Nimbus crackling a little lightning bolt', {'walk': ('floating forward toward the viewer, all four bobbing as they drift', 8), 'sit': ('settling down low and resting, Snooze dozing', 4), 'idle': ('floating idle, bobbing gently', 4)})),
     # the third pixel follower, and the pixel boss
     'cecil_px': ('cecil', 64, "Cecil, a small hooded wizard: a purple hooded robe with a stitched hood, a black shadowy face with glowing yellow eyes and a jagged grin, black clawed hands, holding a wooden staff topped with a gold crescent and a pink crystal",
                  dict(BASE, attack=('casting a spell, the staff crystal flashing', 8), hex=('raising the staff and summoning a purple magic circle', 8), hurt=('recoiling backward from a hit', 4))),

@@ -27,7 +27,8 @@ COSTUMES = {'celi': ('Celi', 1.9, 'bm.cep'), 'demo': ('Democratus', 3.0, 'bm.dmp
             'ava': ('Queen Ava', 2.0, 'bm.avp'), 'pistachio': ('Pistachio', 1.6, 'bm.pip'), 'pearl': ('Pearlman', 1.1, 'bm.pmd'),
             'pearlq': ('Queen Pearl', 2.0, 'bm.pqp'), 'omega': ('King Omega', 3.0, 'bm.omp'), 'ashur': ('Ashur', 2.2, 'bm.asp'), 'bones': ('Bones', 2.0, 'bm.bjp'),
             'bender': ('Bender', 1.1, 'bm.bvp'), 'zib': ('Zib', 1.3, None), 'frog': ('the Frog', 1.2, None), 'don': ('Donado', 1.3, None),
-            'wil': ('Wilfrey', 1.8, None), 'dennis': ('Dennis', 1.9, 'bm.dwp'), 'capshun': ('Mr. Capshun', 2.2, 'bm.mzp')}
+            'wil': ('Wilfrey', 1.8, None), 'dennis': ('Dennis', 1.9, 'bm.dwp'), 'capshun': ('Mr. Capshun', 2.2, 'bm.mzp'),
+            'sky': ('the Sky Buddies', 2.4, 'bm.ybp')}                  # (2.94j: all four on one sprite, from the owner's painting)
 ANIMS = ('idle', 'walk', 'sit', 'attack')
 # (2.94c) a costume drawn from another character's art: Apophiss wears his Hollow boss sprite (the spines down his back and
 # head the follower sprite lost) - its animations by ours
