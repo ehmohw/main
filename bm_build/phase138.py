@@ -142,6 +142,8 @@ RECOL = {'apo': ('apophiss_art', ('apo_scale', 'apo_scale_dk', 'apo_fin', 'apo_b
 # (so the scales come out as before, and the dark claws stay darker than the scales)
 SIDE = {'apo_claw', 'apo_lid', 'om_claw', 'om_lid'}
 FROG_SKIN = {1: ('light_blue_wool', 'blue_wool'), 2: ('orange_wool', 'red_wool'), 3: ('brown_wool', 'brown_terracotta'), 4: ('yellow_wool', 'yellow_terracotta')}
+import shiny as _SH
+FROG_SKIN[_SH.KEY['frog']] = _SH.FROG_SKIN                  # (2.94t: his shiny skin)
 ITEMS_OF = {'apo': lambda n: n.startswith('apo_'), 'tul': lambda n: n.startswith('tu_'), 'frog': lambda n: n == 'frog',
             'don': lambda n: n == 'donado' or (n.startswith('dnr_') and not n.startswith('dnr_eyes')), 'pearl': lambda n: n == 'pearlman', 'fishy': lambda n: n.startswith('fy_') and n != 'fy_bowl',
             'dennis': lambda n: n.startswith('dw_') and n != 'dw_horn', 'pistachio': lambda n: n.startswith('ps_'), 'omega': lambda n: n.startswith('om_') and n not in ('om_monocle', 'om_banner', 'om_brazier'),
@@ -311,6 +313,8 @@ def generate(G):
     SHIELD = {1: ('red', [('straight_cross', 'white'), ('border', 'yellow')]), 2: ('blue', [('triangle_bottom', 'white'), ('border', 'light_gray')]),
               3: ('green', [('stripe_downright', 'yellow'), ('border', 'yellow')]), 4: ('yellow', [('circle', 'orange'), ('border', 'orange')]),
               5: ('cyan', [('circle', 'light_blue'), ('border', 'white')]), 6: ('black', [('circle', 'gray'), ('border', 'brown')])}      # (5, 6: 2.80c)
+    import shiny as _SH2
+    SHIELD[_SH2.KEY['wil']] = _SH2.WIL_SHIELD                # (2.94t: his shiny heraldry)
     sh = lambda base, pats: 'minecraft:shield[minecraft:base_color="%s",minecraft:banner_patterns=[%s]]' % (
         base, ','.join(f'{{pattern:"minecraft:{p}",color:"{c}"}}' for p, c in pats))
     import gild

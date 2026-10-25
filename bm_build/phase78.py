@@ -29,6 +29,8 @@ DYE = {'Gold': 'yellow', 'Midnight': 'blue', 'Mint': 'lime', 'Snow': 'white', 'C
        'Midnight Gown': 'blue', 'Sakura': 'pink', 'Royal Gown': 'white', 'Starlight Gown': 'purple', 'Aurora': 'lime', 'Rosehip': 'pink',
        'Frostfire': 'orange', 'Crimson Guard': 'red', 'Forest Ranger': 'green', 'Golden Ace': 'yellow', 'Gilded Gown': 'yellow', 'Gilded': 'yellow',
        'Diamond Gown': 'light_blue', 'Netherite Gown': 'black', 'Diamond': 'light_blue', 'Netherite': 'black', 'Diamond Ace': 'light_blue', 'Netherite Ace': 'black'}
+import shiny as _SH                                   # (2.94t: their shiny looks - never sold, found: phase221)
+_SH.extend_78(__import__(__name__))
 
 
 def _cos(iid, title, col, who, what, use):

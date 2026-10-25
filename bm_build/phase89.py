@@ -354,6 +354,7 @@ def generate(G):
     from gen_dp import offer
     prev = P70.goldtooth
     def gm(n): return ('gutter_medallion', n)
+    import shiny as _SH
     def g89():
         d = prev()
         rec = d['Offers']['Recipes']
@@ -362,11 +363,11 @@ def generate(G):
         rec += [offer(gm(8), (f'cos_outfit_{o}', 1)) for o in OUTFITS]
         for k in P78.RIBBONS:
             rec.append(offer(gild.price(f'cos_ribbon_{k}', ('gutter_trophy', 1) if f'cos_ribbon_{k}' in P78.HIDDEN else gm(3)), (f'cos_ribbon_{k}', 1)))
-        for k in P78.DRESSES:
+        for k in [k for k in P78.DRESSES if not _SH.is_shiny(f'cos_dress_{k}')]:
             rec.append(offer(gild.price(f'cos_dress_{k}', ('gutter_trophy', 1) if f'cos_dress_{k}' in P78.HIDDEN else gm(5)), (f'cos_dress_{k}', 1)))
-        for k in P78.CELI:
+        for k in [k for k in P78.CELI if not _SH.is_shiny(f'cos_celi_{k}')]:
             rec.append(offer(gild.price(f'cos_celi_{k}', ('gutter_trophy', 1) if f'cos_celi_{k}' in P78.HIDDEN else gm(4)), (f'cos_celi_{k}', 1)))
-        for k in P78.ZIB:
+        for k in [k for k in P78.ZIB if not _SH.is_shiny(f'cos_zib_{k}')]:
             rec.append(offer(gild.price(f'cos_zib_{k}', ('gutter_trophy', 1) if f'cos_zib_{k}' in P78.HIDDEN else gm(4)), (f'cos_zib_{k}', 1)))
         for g in P60.GEMS:                 # (2.67: the vault's own - flagged, and they never leave it: phase98)
             o = offer(gm(6), (f'gem_{g}', 1))

@@ -106,6 +106,8 @@ DYE = {'Crimson Crusader': 'red', 'Royal Purple': 'purple', 'Greenwood': 'green'
        'Netherite Champion': 'black', 'Netherite Storm': 'black', 'Netherite': 'black', 'Netherite Coil': 'black', 'Netherite Captain': 'black', 'Netherite Prince': 'black', 'Netherite Topper': 'black', 'Netherite Sun': 'black', 'Netherite Thunder': 'black', 'Blue Ballpoint': 'blue', 'Game Boy': 'green', 'Virtual Boy': 'red', 'Sepia Print': 'brown', 'Gilded Pixels': 'yellow', 'Diamond Pixels': 'light_blue', 'Netherite Pixels': 'black', 'Bubblegum Pink': 'pink', 'Mint Dream': 'lime', 'Lavender Night': 'purple', 'Gilded Nightcap': 'yellow', 'Diamond Nightcap': 'light_blue', 'Netherite Nightcap': 'black', 'Red Pen': 'red', 'Green Marker': 'green', 'Gilded Ink': 'yellow', 'Diamond Ink': 'light_blue', 'Netherite Ink': 'black'}
 WORD = {'apo': 'his scales', 'tul': 'his coat', 'frog': 'his skin', 'don': 'his coat', 'pearl': 'his bow tie and hat band', 'wil': 'the shield he bears',
         'fishy': 'his top hat', 'dennis': 'his leather jacket', 'pistachio': 'his tail-coat', 'omega': 'his spectral hide', 'ashur': 'her magma dress', 'chef': 'his chef\'s whites', 'neighbor': 'his sailor suit', 'ava': 'her gown', 'pearlq': 'her dress and gown', 'bloo': 'his fur', 'stalker': 'its skin', 'lantern': 'its rind', 'bender': 'his coat', 'bones': 'his skin', 'capshun': 'his ink', 'pxcecil': "8-Bit Cecil's palette", 'pxleo': "8-Bit Leo's palette", 'pxemma': "8-Bit Emma's palette", 'sky': "Snooze's nightcap"}
+import shiny as _SH                                   # (2.94t: each follower's shiny look - never sold, found: phase221)
+_SH.extend_new(NEW, DYE)
 for _w, (_who, _col, _word, _set) in NEW.items():
     for _k, (_n, _pal) in _set.items():
         _iid = f'cos_{_w}_{_k}'
@@ -461,7 +463,7 @@ def generate(G):
     def g99():
         d = prev()
         for w in NEW:
-            for k in NEW[w][3]:
+            for k in [k for k in NEW[w][3] if not _SH.is_shiny(f'cos_{w}_{k}')]:
                 d['Offers']['Recipes'].append(offer(gild.price(f'cos_{w}_{k}', ('gutter_trophy', 1) if k == HIDDEN else ('gutter_medallion', 4)), (f'cos_{w}_{k}', 1)))
         return d
     P70.goldtooth = g99

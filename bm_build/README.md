@@ -21,6 +21,15 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94t: shiny followers
+
+Like a shiny in Pokémon: every follower has a **shiny look**, a rare colouring all their own (Emma's Shiny Lilac Gown, Apophiss's Shiny Albino, Bloo's Shiny Rose Pelt, KillerWatt's Shiny Ultraviolet, and so on).
+- **Finding one:** now and then (one summon in a hundred) a follower you call turns up **trying something new today**. You get a burst of sparkles, "✦ Shiny! ✦" on screen, and a line from them about it. The shiny look goes into their wardrobe for good, and they're wearing it now. Change back any time from their menu.
+- A follower whose shiny look you already have doesn't roll again. Shiny looks are **never sold**: the Tailor and Goldtooth don't stock them.
+- **A shiny follower glitters:** a few gold motes around them, and now and then a star, whatever else they're wearing.
+- **The Follower Gallery** shows a gold ✦ beside each follower whose shiny look you've found.
+- Admins: `/function bm:admin/shiny_next` makes your next summon a shiny one.
+
 ## New in 2.94s
 
 - **Keep up, for partners frozen in unloaded chunks:** a partner left in a chunk that has unloaded (you pearled, sailed or portalled away) used to be frozen there, unseen. With **Keep up** on, they now despawn and come back to your side, under the same rules as before: once you're on the ground or in water, in survival or adventure. You'll see "*Emma got lost - back at your side...*". The frozen copy goes home by itself if its chunk ever loads again, so you never get two.

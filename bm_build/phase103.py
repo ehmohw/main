@@ -341,10 +341,12 @@ def generate(G):
     TL2 = 8100
     pcode = lambda i: TL + 1 + i if i < 7 else (TL2 + i - 7 if i < 13 else (TL2 + i - 6 if i < 16 else 8270 + i - 16))      # a follower's page (2.79: past 8106, the Auras page; 2.82: 8270 on)
     scode = lambda j: TL + 10 + j if j < 40 else (TL2 + 10 + j - 40 if j < 80 else (TL2 + 64 + j - 80 if j < 112 else (8200 + j - 112 if j < 182 else 3600 + j - 182)))   # an outfit (2.80c: past 8150-8163, the auras; 2.82: 8200 on; 2.94: 3600 on)
+    import shiny as _SH
     stock = []                                       # (who, group, unlock score, k, item, name, colour, price)
     for who, g, cur, un, ks, iid, off, apply in P99.groups():
         for k, (cn, col) in ks.items():
             it = iid.format(k)
+            if _SH.is_shiny(it): continue                 # (2.94t: a shiny look is never sold - only found)
             assert it in price, f'{it} is not on sale'
             stock.append((who, g, un, k, it, cn, col, price[it]))
     cases = [(k_, price[k_]) for k_ in price if k_.startswith('display_case')]

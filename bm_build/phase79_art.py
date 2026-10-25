@@ -301,6 +301,8 @@ COS_PAL = {'c1': ('Midnight', (('#04060e', '#16224a', '#4a6ab0'), ('#1a8ac0', '#
            'c4': ('Golden Thunder', (('#2a1a04', '#a07018', '#ffd870'), ('#c88a10', '#fff4b0'))),
            'c5': ('Diamond Thunder', (('#06323a', '#1a9aa0', '#a8fff4'), ('#18b8c0', '#e6fffc'))),         # (2.80c)
            'c6': ('Netherite Thunder', (('#141014', '#4a4046', '#9a8c94'), ('#5a2a20', '#ff8a4a')))}
+import shiny as _SH
+COS_PAL['c%d' % (len(COS_PAL) + 1)] = _SH.KW                  # (2.94t: his shiny colours)
 EL_PAL.update({k: pal for k, (_n, pal) in COS_PAL.items()})
 VARIANTS = [k for k in EL_KEYS if k != 'electric'] + ['eth', 'wf'] + list(COS_PAL)      # (2.76: wf - the Wraithfire Heart's form)
 BODY_TEX = ['kw_hide', 'kw_hide_dk', 'kw_belly', 'kw_lime', 'kw_emblem', 'kw_face', 'kw_spike', 'kw_claw']

@@ -187,6 +187,7 @@ import phase217 as R217      # 2.94m: Emma's Easter eggs - a hug for Cecil, her 
 import phase218 as R218      # 2.94o: the raid reward overhaul - tiered finds, no duplicates, bad-luck protection, the odds
 import phase219 as R219      # 2.94r: more bonds - Bender and Mr. Capshun with everyone, and a few more pairs and trios
 import phase220 as R220      # 2.94r: the Follower Gallery - a Pokedex of partners off the Partner Wheel, figurines in 3D
+import phase221 as R221      # 2.94t: shiny followers - one summon in a hundred, trying something new today
 import phase202 as R202      # 2.92: the kingdom's armoury - Leo's Aegis, Emma's Crescent, Tidewarden and Pearlguard, Tide Scales (kingdom_art.py)
 import phase188 as R188      # 2.86: the bonds - eleven new pairs and five new trios (Ashur, the Chef, the Neighbor and friends)
 import phase171 as R171      # 2.82b: the Town Directory - who's where in the rat town, and a trail of light there
@@ -219,7 +220,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.94s'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.94t'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1416,6 +1417,7 @@ def build(out_dir):
     R178.generate(sys.modules[__name__])        # 2.84b: hard auctions, hard replays, community pots
     R179.generate(sys.modules[__name__])        # 2.84c: rebalance re-sync, alien gear, the Partner Wheel
     if PHASE2: R220.generate(sys.modules[__name__])      # 2.94r: the Follower Gallery (on the wheel's page; after the wheel)
+    if PHASE2: R221.generate(sys.modules[__name__])      # 2.94t: shiny followers (after the wheel and the gallery)
     R180.generate(sys.modules[__name__])        # 2.84d: Omni Token, golden dolls, Eldritch Panoply, King-beaters' hard mode
     R181.generate(sys.modules[__name__])        # 2.85a: Dread Nights, Stalkers, the golden cross, the Dread Totem
     R182.generate(sys.modules[__name__])        # 2.85b: angelic forging
