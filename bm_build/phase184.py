@@ -448,9 +448,10 @@ def generate(G):
            (mob(*bailiff, 18, 12, 3) + ['execute if score #gt bm.rng matches 5 run ' + l for l in mob(*guardian, 12, 12, 3)], 'The Drowned Bailiff!')],
           win_t='THE WATER GOES STILL')
 
-    # ================================================================== NO BREEZES WHERE YOU CAN FALL, NO ILLUSIONERS AT ALL
-    # (a breeze's wind charges throw a raider off a ledge or into the void; an illusioner barely fights and clones itself)
-    VOIDY = ['isles', 'voidg', 'sink', 'rafters', 'girder', 'climb', 'spire', 'grapple', 'tiles']
+    # ================================================================== NO BREEZES WHERE YOU CAN FALL (OR WADE), NO ILLUSIONERS AT ALL
+    # (a breeze's wind charges throw a raider off a ledge or into the void; an illusioner barely fights and clones itself;
+    #  2.94n: nor in the Flooded Vault - knee-deep, slowed, and knocked about by gusts from a foe that keeps its distance)
+    VOIDY = ['isles', 'voidg', 'sink', 'rafters', 'girder', 'climb', 'spire', 'grapple', 'tiles', 'flood']
     hexer = mk('witch', 'Vault Hexer', '#b080ff', {})
     G.FUNCS['p112/isles/breeze'] = [f'summon minecraft:{hexer[0]} ~ ~ ~ {snbt(hexer[1])}', 'function bm:p70/guard_set']   # (the Sky Isles' own gales)
     G.FUNCS['loop/fast'][-1:-1] = ['execute in bm:gutter as @e[type=minecraft:breeze,distance=0..] at @s run function bm:p184/nobreeze']

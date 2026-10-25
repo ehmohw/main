@@ -168,8 +168,12 @@ def build(C, G, abilities, encounter):
     sel_pet = f'execute as @e[type=minecraft:wolf,tag={pet}] if score @s bm.pid = #me bm.pid'
     face = lambda e, t: FX.face_cmd(W, e, t)
     bb = {'billboard': C.BILLBOARD} if C.BILLBOARD else {}
+    # (2.94n) lit by the world, as Emma, Cecil and the older followers are: a fixed brightness kept them as bright in the dark
+    # as at noon. Only one that shines by itself keeps it (Cfg.BRIGHT: the Arachno-Lantern's lit pumpkin); parts already out
+    # lose it on their next second.
+    lit = {'brightness': {'block': Int(C.BRIGHT), 'sky': Int(C.BRIGHT)}} if getattr(C, 'BRIGHT', None) else {}
     xt = getattr(A, 'EXTRA_TAGS', {})
-    disp = lambda tags: [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, [f"bm.{ab}p", f"bm.{ab}p_{p}"] + xt.get(p, []) + tags, SP, scale0=True, extra=dict(view_range=F(1.6), brightness={"block": Int(13), "sky": Int(13)}, shadow_radius=F(0.5 if p == "body" else 0.0), shadow_strength=F(0.5), **bb))}'
+    disp = lambda tags: [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, [f"bm.{ab}p", f"bm.{ab}p_{p}"] + xt.get(p, []) + tags, SP, scale0=True, extra=dict(view_range=F(1.6), **lit, shadow_radius=F(0.5 if p == "body" else 0.0), shadow_strength=F(0.5), **bb))}'
                          for p in A.PARTS]
     rig = disp([f'bm.{ab}p_pet', new])
     fn(f'{pfx}/place', RF.place(A, UP, psel))
@@ -397,6 +401,9 @@ def build(C, G, abilities, encounter):
     fn(f'{pfx}/fade1', [f'tag @s add {fade}', f'scoreboard players set @s {S("l")} 3',
                         f'data merge entity @s[type=minecraft:item_display] {{brightness:{{block:15,sky:15}},Glowing:1b,glow_color_override:{int(C.COL[1:], 16)}}}'])
     second.append(f'scoreboard players remove @a[scores={{bm.{ab}cd=1..}}] bm.{ab}cd 1')
+    if not lit:
+        second.append(f'execute as @e[type=minecraft:item_display,tag=bm.{ab}p,tag=!bm.rplit,tag=!{fade}] run function bm:{pfx}/unlit')
+        fn(f'{pfx}/unlit', ['data remove entity @s brightness', 'tag @s add bm.rplit'])
     G.FUNCS['p62/died'].insert(-1, f'execute as @e[type=minecraft:wolf,tag={pet}] if score @s bm.pid = #me bm.pid at @s run function bm:{pfx}/go')
     fn(f'{pfx}/go', ['scoreboard players add #gone bm.rng 1', f'function bm:{pfx}/fade', 'execute on passengers run kill @s[type=!minecraft:player]',
                      'data remove entity @s Owner', 'tp @s ~ -500 ~', 'kill @s'])

@@ -126,7 +126,7 @@ def generate(G):
     RLEFT = sorted({i for t in RID.values() for c in t for i, _n in c[2]} | {c[0] for t in RID.values() for c in t})
     fn('p114/benchb/init', ['function bm:p70/ctx', 'scoreboard players set @s bm.gvc 0',
                             f'summon minecraft:interaction {relf(12.5, 4, 2.5)} {{Tags:["bm.gvprop","bm.gvhatch"],width:1.2f,height:1.6f,response:1b}}',
-                            label(rel(12, 6.6, 2), T("THE FIXER'S HATCH", GOLD, bold=True), 0.5)] +
+                            label(rel(12, 7.45, 2), T("THE FIXER'S HATCH", GOLD, bold=True), 0.5)] +
        [f'execute if score #gt bm.rng matches {t} store result score @s bm.gvc run random value {10 * t}..{10 * t + 2}' for t in RID] +
        [f'execute if score @s bm.gvc matches {10 * t + j} run ' + sign(rel(12, 8.2, 1), "THE FIXER'S RIDDLE", f'He won\'t say what he wants - only this: "{c[1]}" You have the parts for three things. Make the right one and hand it in. A wrong one rings the alarm.', 0.6)
         for t, cs in RID.items() for j, c in enumerate(cs)])
@@ -160,7 +160,7 @@ def generate(G):
     fn('p114/benchc/init', ['function bm:p70/ctx', 'scoreboard players set @s bm.gvc 0'] +
        [f'setblock {rel(x, 4, z)} minecraft:loom[facing=north]' for x, z in P112.BENCHES] +
        [f'summon minecraft:interaction {relf(12.5, 4, 2.5)} {{Tags:["bm.gvprop","bm.gvhatch"],width:1.2f,height:1.6f,response:1b}}',
-        label(rel(12, 6.6, 2), T("THE FIXER'S HATCH", GOLD, bold=True), 0.5),
+        label(rel(12, 7.45, 2), T("THE FIXER'S HATCH", GOLD, bold=True), 0.5),
         sign(rel(6, 8.2, 1), "THE HERALD'S BANNER", 'Make a banner just like the one on the wall, at the looms: the same colours, the same shapes - laid on in the same order. Hand it in at the hatch.', 0.55)] +
        [f'execute if score #gt bm.rng matches {t} store result score @s bm.gvc run random value {10 * t}..{10 * t + 3}' for t in PD.BANNERS] +
        [f'execute if score @s bm.gvc matches {10 * t + j} run setblock {rel(12, 7, 1)} minecraft:white_wall_banner[facing=south]{{patterns:{pats(d)}}}'

@@ -21,6 +21,19 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94n: fixes
+
+- **The Arcade's own props face the room** in every market. A summon takes no rotation, so the arcade cabinet, the Warp
+  Pipe and the ? block always faced south - right only in a market laid out that way, edge-on in any other. They're turned
+  to the market's facing now, and props already standing turn themselves round the next time the market is patched.
+- **Followers in the dark.** Ava, Queen Pearl, Bloo, the Stalker, Bender, Bones, Mr. Capshun, the Sky Buddies and the 8-bit
+  trio were drawn at a fixed brightness - as bright at midnight as at noon. They're lit by the world now, like Emma, Cecil
+  and the rest (only the Arachno-Lantern's lit pumpkin still shines).
+- **No breezes in the Flooded Vault.** Its guard can no longer be a breeze (a Vault Hexer comes instead), as in the rooms
+  with drops.
+- **"THE FIXER'S HATCH"** sign in the Tinker's Bench and the Apothecary was inside the hatch's top gold block; it sits
+  on top of it now.
+
 ## New in 2.94m: Emma's Easter eggs
 
 - **A hug for Cecil.** When Emma and Cecil are both out with you, idle and close, with no monster near, Emma may (rarely)

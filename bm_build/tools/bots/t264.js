@@ -84,6 +84,14 @@ const res = [];
   ok('...and the villagers under them stay invisible, seconds on (2.94j: the market\'s sweep cleared it - plain villagers showed)',
      (await cnt(`@e[type=minecraft:villager,tag=bm.arcnpc,predicate=bm:p126/invis,x=${CX + 25.5},y=${CY + W},z=${CZ + 51.6},distance=..4]`)) === 2);
   ok('...and the shop\'s own props about it (the arcade cabinet, the pipe, the ? block)', (await cnt(`@e[type=minecraft:item_display,tag=bm.arcshop,x=${CX + 25.5},y=${CY + W},z=${CZ + 54.5},distance=..6]`)) === 3);
+  // (2.94n) the props face the way the market does: a summon took no rotation, so in a market turned any other way they stood
+  // edge-on. Turned 90 degrees off (rcon, the stage): the market's patch turns it back to the market's own facing.
+  const yawOf = async sel => +(((await run(`${O}data get entity ${sel} Rotation[0]`)).match(/(-?[\d.]+)f$/) || [0, NaN])[1]);
+  const CAB = `@e[type=minecraft:item_display,tag=bm.arcp_arcade_cabinet,x=${CX + 25.5},y=${CY + W},z=${CZ + 54.5},distance=..6,limit=1]`;
+  const mktYaw = await yawOf(`@e[type=minecraft:marker,tag=bm.mkt,x=${CX},y=${CY},z=${CZ},distance=..120,limit=1]`);
+  await run(`${O}execute as ${CAB} at @s run tp @s ~ ~ ~ ${mktYaw + 90} 0`);
+  ok('...a prop turned 90 degrees off is turned back to the market\'s facing (its patch, every 10 s)', await wait(15000, async () => Math.abs(((await yawOf(CAB)) - mktYaw + 540) % 360 - 180) < 1, 500),
+     `market ${mktYaw}, cabinet ${await yawOf(CAB)}`);
   const tokens = async n => { await run('clear TestRat *[minecraft:custom_data~{bm:"dread_token"}]'); await run('loot replace entity TestRat hotbar.0 loot bm:items/dread_token');
     await run(`item modify entity TestRat hotbar.0 {type:"minecraft:set_count",count:${n}}`); A.slot(0); await sleep(300); };
   await tokens(6);

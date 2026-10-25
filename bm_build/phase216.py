@@ -299,9 +299,14 @@ def generate(G):
          'tp @e[type=minecraft:item_display,tag=bm.arcspr_vil,distance=..1,limit=1] ~ ~ ~ ~ 0'] if have else []))
     shop_props = []
     for k, pos, yaw in PROPS_IN:
-        shop_props.append((k, mgeo.rel(pos)))
-    fn('p216/shop_props', [f'execute positioned {p} unless entity @e[type=minecraft:item_display,tag=bm.arcshop,distance=..0.6] rotated ~ 0 run '
-                           f'summon minecraft:item_display ~ ~ ~ {snbt(_prop_nbt(k, ["bm.npc", "bm.arcshop"]))}' for k, p in shop_props])
+        shop_props.append((k, mgeo.rel(pos), yaw))
+    # (as the market's marker, rotated as it. A summon takes no rotation from the context - every prop came out facing south,
+    #  right only in a market laid out that way - so each is turned to the market's facing (and its own yaw) after it's
+    #  summoned, and those already standing are turned the same way each time the market's patch runs: 2.94n)
+    fn('p216/shop_props', [l for k, p, yaw in shop_props for l in (
+        f'execute positioned {p} unless entity @e[type=minecraft:item_display,tag=bm.arcshop,distance=..0.6] run '
+        f'summon minecraft:item_display ~ ~ ~ {snbt(_prop_nbt(k, ["bm.npc", "bm.arcshop"]))}',
+        f'execute positioned {p} as @e[type=minecraft:item_display,tag=bm.arcshop,tag=bm.arcp_{k},distance=..0.6] run tp @s ~ ~ ~ ~{yaw or ""} 0')])
     patch = G.FUNCS['p35/patch']
     patch += [f'execute if score #hard bm.cfg matches 1 positioned {rpos} unless entity @e[type=minecraft:villager,tag=bm.arcrat,distance=..2] rotated ~ 0 run function bm:p216/spawn_rat',
               f'execute if score #hard bm.cfg matches 1 positioned {vpos} unless entity @e[type=minecraft:villager,tag=bm.arcvil,distance=..2] rotated ~ 0 run function bm:p216/spawn_vil',

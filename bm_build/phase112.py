@@ -435,7 +435,7 @@ def generate(G):
         return f'minecraft:{i}[minecraft:custom_data={{bm_room:1b}}]' if room else f'minecraft:{i}'
     fn('p112/bench/init', ['function bm:p70/ctx', 'scoreboard players set @s bm.gvc 0',
                            f'summon minecraft:interaction {relf(12.5, 4, 2.5)} {{Tags:["bm.gvprop","bm.gvhatch"],width:1.2f,height:1.6f,response:1b}}',
-                           label(rel(12, 6.6, 2), T("THE FIXER'S HATCH", GOLD, bold=True), 0.5)] +
+                           label(rel(12, 7.45, 2), T("THE FIXER'S HATCH", GOLD, bold=True), 0.5)] +
        [f'execute if score #gt bm.rng matches {t} run ' + c for t in range(1, 6) for c in [f'execute store result score @s bm.gvc run random value {10 * t}..{10 * t + len(RECIPES[t]) - 1}']] +
        [f'execute if score @s bm.gvc matches {10 * t + j} run function bm:p112/bench/r{t}{j}' for t in range(1, 6) for j in range(len(RECIPES[t]))])
     for t, rs in RECIPES.items():

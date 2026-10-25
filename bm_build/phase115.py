@@ -310,7 +310,7 @@ def generate(G):
     # ================================================================== THE APOTHECARY
     def hatch():
         return [f'summon minecraft:interaction {relf(12.5, 4, 2.5)} {{Tags:["bm.gvprop","bm.gvhatch"],width:1.2f,height:1.6f,response:1b}}',
-                label(rel(12, 6.6, 2), T("THE FIXER'S HATCH", GOLD, bold=True), 0.5)]
+                label(rel(12, 7.45, 2), T("THE FIXER'S HATCH", GOLD, bold=True), 0.5)]
     WATER = room_item('potion', ',minecraft:potion_contents={potion:"minecraft:water"}')
     def bottle(it, pid): return f'minecraft:{it}[minecraft:potion_contents={{potion:"minecraft:{pid}"}}]'
     APA = [(t, j, nm, it, pid) for t, L in BREW_A.items() for j, (nm, it, pid) in enumerate(L)]

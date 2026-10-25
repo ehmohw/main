@@ -8,7 +8,7 @@
 //   THE SINKING VAULT: squares of the floor give way during the fight; down in the hay pit: back at the door. Won: the floor mended.
 //   THE HOG PENS: vault boars (hoglins), then the Swineherd. THE CROSSFIRE GALLERY: archers up on the balconies.
 //   THE HALL OF MIRRORS: guards, then the Mirror Thief (an illusioner). THE SPIDER LARDER: spiders from the ceiling, then the
-//   Broodmother. THE FLOODED VAULT: the drowned, then the Drowned Bailiff.
+//   Broodmother. THE FLOODED VAULT: the drowned, then the Drowned Bailiff (2.94n: no breezes - one staged there becomes a Vault Hexer).
 //   the whole crew out of a fight for ten seconds: it starts over (nobody locked out).
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
@@ -130,11 +130,18 @@ const ONLY = process.argv[2];
     await run(`${at}tp TestRat ~-8.5 ~ ~0.5 -90 0`);
 
     // ---- the waves (the stage: each wave's foes killed by rcon once out) until it's won
-    let waves = new Set([await sc('bm.gvw')]), boss = false;
+    let waves = new Set([await sc('bm.gvw')]), boss = false, breezes = 0;
+    if (K === 'flood') {                                     // (2.94n: no breezes in the Flooded Vault - one staged there turns into a Vault Hexer)
+      await run(`${at}summon minecraft:breeze ~ ~ ~4 {Tags:["bm.gvg","bm.t231bz"],PersistenceRequired:1b}`);
+      await run(`${G}scoreboard players set @e[tag=bm.t231bz] bm.gvi ${GI}`);
+      ok('flood: a breeze among its guards is swapped for a Vault Hexer at once', await wait(3000, async () => (await cnt(`@e[type=minecraft:breeze,x=${rx},y=${ry},z=${rz},distance=..22]`)) === 0 &&
+         (await cnt(`@e[type=minecraft:witch,scores={bm.gvi=${GI}},x=${rx},y=${ry},z=${rz},distance=..22]`)) >= 1, 200));
+    }
     const t0 = Date.now();
     while ((await sc('bm.gvs')) === 1 && Date.now() - t0 < 90000) {
       await sleep(1200);
       waves.add(await sc('bm.gvw'));
+      if (K === 'flood') breezes += await cnt(`@e[type=minecraft:breeze,x=${rx},y=${ry},z=${rz},distance=..22]`);
       if (BOSS[K] && (await cnt(`@e[type=${BOSS[K]},tag=bm.gvcap,scores={bm.gvi=${GI}},x=${rx},y=${ry},z=${rz},distance=..22]`)) >= 1) boss = true;
       if (K === 'crossfire' && (await cnt(`@e[type=minecraft:skeleton,scores={bm.gvi=${GI}},x=${rx},y=${ry},z=${rz},distance=..22]`)) >= 1) boss = true;
       await run(`${G}execute as ${gv} at @s run tp @s ~ -300 ~`); await run(`${G}kill @e[tag=bm.gvg,scores={bm.gvi=${GI}},y=-400,dy=200]`);
@@ -145,6 +152,7 @@ const ONLY = process.argv[2];
     const exitOpen = !(await passes(`${at}execute if block ~12 ~ ~ minecraft:iron_bars`));
     ok(`${K}: wave after wave (${[...waves].sort().join(',')})${BOSS[K] ? ' and its boss' : ''} - won: the exit opens`, won && waves.size >= 2 && exitOpen && (!BOSS[K] || boss),
        `gvs ${await sc('bm.gvs')} exit ${exitOpen} boss ${boss}`);
+    if (K === 'flood') ok('flood: not a breeze seen all fight', breezes === 0, `${breezes}`);
     if (K === 'sink') ok('sink: won - the floor mended', (await cnt(`@e[type=minecraft:marker,tag=bm.gvskb,x=${rx},y=${ry},z=${rz},distance=..22]`)) === 0);
     if (K === 'larder') {
       // ---- everyone out for ten seconds: a fresh fight starts over (another larder down the line)
