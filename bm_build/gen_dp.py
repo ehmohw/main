@@ -189,6 +189,7 @@ import phase219 as R219      # 2.94r: more bonds - Bender and Mr. Capshun with e
 import phase220 as R220      # 2.94r: the Follower Gallery - a Pokedex of partners off the Partner Wheel, figurines in 3D
 import phase222 as R222      # 2.94u: dashes in place of one-tick teleports onto foes
 import phase223 as R223      # 2.94u: signature moves (Emma, Leo, Celi, Democratus, Apophiss, Ashur, Cecil)
+import phase224 as R224      # 2.94u: signature moves for the rest of the fighters
 import atk                   # 2.94u: the attack kit - impact and hit-stop on every follower blow
 import phase221 as R221      # 2.94t: shiny followers - one summon in a hundred, trying something new today
 import phase202 as R202      # 2.92: the kingdom's armoury - Leo's Aegis, Emma's Crescent, Tidewarden and Pearlguard, Tide Scales (kingdom_art.py)
@@ -1423,6 +1424,7 @@ def build(out_dir):
     if PHASE2: R221.generate(sys.modules[__name__])      # 2.94t: shiny followers (after the wheel and the gallery)
     if PHASE2: R222.generate(sys.modules[__name__])      # 2.94u: dashes (after every follower's attacks)
     if PHASE2: R223.generate(sys.modules[__name__])      # 2.94u: signature moves
+    if PHASE2: R224.generate(sys.modules[__name__])      # 2.94u: ...and the rest
     if PHASE2: print('attack kit: %d follower blows with an impact, %d animations with a hit-stop' % atk.finalize(sys.modules[__name__]))
     R180.generate(sys.modules[__name__])        # 2.84d: Omni Token, golden dolls, Eldritch Panoply, King-beaters' hard mode
     R181.generate(sys.modules[__name__])        # 2.85a: Dread Nights, Stalkers, the golden cross, the Dread Totem

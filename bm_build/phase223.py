@@ -96,7 +96,7 @@ def generate(G):
     fn('p96/sg/smitten', [f'damage @s 11 minecraft:mob_attack {lby}', f'execute as @e[{FOE},distance=0.1..2.2] run damage @s 3 minecraft:mob_attack {lby}',
                           'particle minecraft:splash ~ ~1 ~ 0.4 0.4 0.4 0.2 20', 'particle minecraft:sweep_attack ~ ~1 ~ 0.3 0.1 0.3 0 1'])
     atk.sig(G, 'p96', kid=1, tick_fn='p96/tick', state_fn='p96/state', anim_fn='p96/anim', s_obj='bm.les', place_fn='p96/place', col=col('leo'),
-            trigger=f'execute unless data entity @s {{Sitting:1b}} unless score @s bm.lek matches 1.. if entity @e[{FOE},distance=3.5..10]', cd=160, end=26,
+            trigger=f'execute unless data entity @s {{Sitting:1b}} unless score @s bm.lek matches 1.. if entity @e[{FOE},distance=3.5..10]', busy='bm.lek', cd=160, end=26,
             dash_kw=dict(reach=1.9, speed=1.0, lift=1), timeline={
                 1: ['function bm:p96/pose/guard', 'playsound minecraft:item.armor.equip_iron neutral @a[distance=..16] ~ ~ ~ 1 0.9'],
                 5: [f'DASH 1 @e[{FOE},distance=..10,sort=nearest,limit=1]'],
@@ -123,7 +123,7 @@ def generate(G):
               'playsound minecraft:entity.player.big_fall neutral @a[distance=..16] ~ ~ ~ 0.4 1.6']
     tl[22] = ['function bm:p66/pose/idle']
     atk.sig(G, 'p66', kid=1, tick_fn='p66/tick', state_fn='p66/state', anim_fn='p66/anim', s_obj='bm.ces', place_fn='p66/place', col=col('celi'),
-            trigger=f'execute unless data entity @s {{Sitting:1b}} if entity @e[{FOE},distance=3.5..10]', cd=140, end=24,
+            trigger=f'execute unless data entity @s {{Sitting:1b}} unless score @s bm.cek matches 1.. if entity @e[{FOE},distance=3.5..10]', busy='bm.cek', cd=140, end=24,
             dash_kw=dict(reach=1.7, speed=1.2, lift=0), timeline=tl)
 
     # ================================================================== DEMOCRATUS: the reaping whirl
@@ -146,7 +146,7 @@ def generate(G):
     tl[43] = ['function bm:p97/sg/sweep']
     tl[52] = ['function bm:p97/pose/idle_a']
     atk.sig(G, 'p97', kid=1, tick_fn='p97/tick', state_fn='p97/state', anim_fn='p97/frame', s_obj='bm.dms', place_fn='p97/place', col=col('demo'),
-            trigger='execute unless data entity @s {Sitting:1b} if function bm:p97/sg/two', cd=240, end=54, face='none',
+            trigger='execute unless data entity @s {Sitting:1b} unless score @s bm.dmk matches 1.. if function bm:p97/sg/two', busy='bm.dmk', cd=240, end=54, face='none',
             each=['execute if score @s bm.ksg matches 9..40 run function bm:p97/sg/spinplace',
                   f'execute unless score @s bm.ksg matches 9..40 if entity @e[{FOE},distance=..20] facing entity @e[{FOE},distance=..20,sort=nearest,limit=1] feet rotated ~ 0 run function bm:p97/place'],
             timeline=tl)
@@ -159,7 +159,7 @@ def generate(G):
     fn('p131/sg/lash', ['tag @s add bm.apme2', f'execute as @e[{FOE},distance=..4.5] run damage @s 8 minecraft:mob_attack {aby}', 'tag @s remove bm.apme2',
                         'particle minecraft:sweep_attack ~ ~1.2 ~ 1.8 0.3 1.8 0 6', 'playsound minecraft:entity.player.attack.sweep neutral @a[distance=..20] ~ ~ ~ 1 0.5'])
     atk.sig(G, 'p131', kid=1, tick_fn='p131/tick', state_fn='p131/state', anim_fn='p131/anim', s_obj='bm.aps', place_fn='p131/place', col=col('apo'),
-            trigger=f'execute unless data entity @s {{Sitting:1b}} if entity @e[{FOE},distance=4..12]', cd=200, end=31,
+            trigger=f'execute unless data entity @s {{Sitting:1b}} unless score @s bm.apx matches 1.. if entity @e[{FOE},distance=4..12]', busy='bm.apx', cd=200, end=31,
             dash_kw=dict(reach=2.6, speed=1.1, lift=0), timeline={
                 1: ['function bm:p131/pose/crouch', 'playsound minecraft:entity.ravager.ambient neutral @a[distance=..20] ~ ~ ~ 0.6 1.6'],
                 5: ['function bm:p131/pose/battle', 'playsound minecraft:entity.cat.hiss neutral @a[distance=..20] ~ ~ ~ 1 0.5', 'particle minecraft:item_slime ~ ~0.5 ~ 0.6 0.2 0.6 0 6'],
@@ -181,13 +181,13 @@ def generate(G):
                          'particle minecraft:flame ~ ~0.5 ~ 1.4 0.4 1.4 0.06 50', 'particle minecraft:lava ~ ~0.5 ~ 1 0.2 1 0 12',
                          'playsound minecraft:entity.blaze.shoot neutral @a[distance=..24] ~ ~ ~ 1 0.8', 'playsound minecraft:item.firecharge.use neutral @a[distance=..24] ~ ~ ~ 1 0.6'])
     atk.sig(G, 'p185', kid=1, tick_fn='p185/tick', state_fn='p185/state', anim_fn='p185/anim', s_obj='bm.azs', place_fn='p185/place', col=col('ashur'),
-            trigger=f'execute unless data entity @s {{Sitting:1b}} if entity @e[{FOE},distance=3..12]', cd=200, end=29, face='none',
+            trigger=f'execute unless data entity @s {{Sitting:1b}} unless score @s bm.azx matches 1.. if entity @e[{FOE},distance=3..12]', busy='bm.azx', cd=200, end=29, face='none',
             dash_kw=dict(reach=1.2, speed=0.9, lift=2, trail=['function bm:p185/sg/flames', 'function bm:p185/sg/burn']),
             each=['execute if score @s bm.ksg matches 1000 run function bm:p185/sg/wheelplace',
                   f'execute unless score @s bm.ksg matches 1000 if entity @e[{FOE},distance=..20] facing entity @e[{FOE},distance=..20,sort=nearest,limit=1] feet rotated ~ 0 run function bm:p185/place'],
             timeline={
                 1: ['function bm:p185/pose/crouch', 'particle minecraft:flame ~ ~0.3 ~ 0.4 0.1 0.4 0.02 12', 'playsound minecraft:block.fire.ambient neutral @a[distance=..16] ~ ~ ~ 1 1.4'],
-                5: ['function bm:p185/pose/jump', 'tag @e[tag=bm.asfw] remove bm.asfw', f'DASH 1 @e[{FOE},distance=..12,sort=nearest,limit=1]'],
+                5: ['function bm:p185/pose/jump', 'tag @e[tag=bm.asfw] remove bm.asfw', f'DASH 1 @e[{FOE},distance=..12,sort=furthest,limit=1]'],
                 6: ['function bm:p185/pose/crouch', 'particle minecraft:poof ~ ~0.1 ~ 0.4 0.05 0.4 0.03 8'],
                 16: ['function bm:p185/pose/erupt', 'function bm:p185/sg/erupt'],
                 26: ['function bm:p185/pose/idle']})

@@ -116,7 +116,7 @@ def dash(G, pfx, col, reach=1.6, speed=0.9, lift=3, onto=False, pass_='#bm:grap_
 
 
 # ======================================================================== signature moves
-def sig(G, pfx, *, kid=1, tick_fn, state_fn, anim_fn, s_obj, place_fn, col, trigger, cd, timeline, end, face='foe', st=21, dash_kw=None, each=()):
+def sig(G, pfx, *, kid=1, tick_fn, state_fn, anim_fn, s_obj, place_fn, col, trigger, cd, timeline, end, face='foe', st=21, dash_kw=None, each=(), busy=None):
     """a timeline-driven special (as Bender's Rage): `trigger` (an `execute ... if ...` condition, run as the follower at it, each
     tick it's free) starts it; bm.ksg counts its ticks (bm.ksw: which of the follower's specials - kid); `timeline` {t: [cmds]}
     plays (as the follower, at it); a cmd 'DASH a <selector>' dashes to that foe (the timeline holds - bm.ksg 1000 - until it
@@ -146,7 +146,12 @@ def sig(G, pfx, *, kid=1, tick_fn, state_fn, anim_fn, s_obj, place_fn, col, trig
     fn(f'{pfx}/sg/{kid}/end', ['scoreboard players set @s bm.ksg 0', 'scoreboard players set @s bm.ksw 0', f'scoreboard players set @s bm.kcd{kid} {cd}',
                                'data merge entity @s {NoGravity:0b}'])
     T = G.FUNCS[tick_fn]
-    k = next(i for i, l in enumerate(T) if l.startswith('scoreboard players operation #me bm.pid = @s bm.pid')) + 1
+    if busy:                                                  # (its own moves don't start while this one plays)
+        b = f'unless score @s {busy} matches 1.. '
+        for i, l in enumerate(T):
+            if l.startswith('execute ') and b in l and 'run function' in l and 'bm.ksg' not in l:
+                T[i] = 'execute unless score @s bm.ksg matches 1.. ' + l[len('execute '):]
+    k = next((i + 1 for i, l in enumerate(T) if l.startswith('scoreboard players operation #me bm.pid = @s bm.pid')), 0)
     add = []
     if arr:                                                   # (a move with a dash in it: the follower's dash)
         dl = dash(G, pfx, col, **(dash_kw or {})) if f'{pfx}/k/tick' not in G.FUNCS else f'execute if score @s bm.kd matches 1.. run function bm:{pfx}/k/tick'
@@ -163,6 +168,7 @@ def sig(G, pfx, *, kid=1, tick_fn, state_fn, anim_fn, s_obj, place_fn, col, trig
     if gate_st not in G.FUNCS[state_fn]: G.FUNCS[state_fn].insert(0, gate_st)
     gate_an = f'execute if score @s {s_obj} matches {st} run return 0'
     if gate_an not in G.FUNCS[anim_fn]: G.FUNCS[anim_fn].insert(0, gate_an)
+    if face == 'none': return
     i = T.index(f'function bm:{anim_fn}') + 1
     pl = ([f'execute if score @s {s_obj} matches {st} if entity @e[{foe},distance=..20] facing entity @e[{foe},distance=..20,sort=nearest,limit=1] feet rotated ~ 0 run function bm:{place_fn}',
            f'execute if score @s {s_obj} matches {st} unless entity @e[{foe},distance=..20] rotated as @s rotated ~ 0 run function bm:{place_fn}'] if face == 'foe' else
