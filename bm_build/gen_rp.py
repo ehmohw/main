@@ -700,6 +700,8 @@ def build(out_dir):
     import sprites280                                                  # 2.80: the sprite repaint (written last, over the old icons)
     POST.append(sprites280.post)
     for hook in POST: hook(sys.modules[__name__])
+    import gild                                                         # 2.94s: the metal looks' hems and collars, from the models
+    print('metal hems: %d textures' % gild.pipe(OUT))
     # pack icon
     icon = ICONS['token'].resize((64, 64), Image.NEAREST)
     icon.save(p('pack.png'))
