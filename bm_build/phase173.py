@@ -245,16 +245,23 @@ def generate(G):
     k = next(i for i, l in enumerate(uc) if l == 'execute if score #hand bm.rng matches 0 run return 0')
     uc[k + 1:] = ['execute if predicate bm:p20/sneaking if score #hand bm.rng matches 1 run return run function bm:p33/box/open {path:"SelectedItem",slot:"weapon.mainhand",name:"Prime Cooler",kind:"cool"}',
                   'execute if predicate bm:p20/sneaking run return run function bm:p33/box/open {path:"equipment.offhand",slot:"weapon.offhand",name:"Prime Cooler",kind:"cool"}',
+                  # (2.94p: a cycle - off -> gathering -> gathering and AUTO-CONVERT (phase148: two cuts, one Token) -> off)
                   'execute if score #hand bm.rng matches 1 if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_coff:1b}] run return run function bm:p173/cool/on {slot:"weapon.mainhand"}',
                   'execute if score #hand bm.rng matches 2 if items entity @s weapon.offhand *[minecraft:custom_data~{bm_coff:1b}] run return run function bm:p173/cool/on {slot:"weapon.offhand"}',
+                  'execute if score #hand bm.rng matches 1 unless items entity @s weapon.mainhand *[minecraft:custom_data~{bm_cconv:1b}] run return run function bm:p173/cool/conv {slot:"weapon.mainhand"}',
+                  'execute if score #hand bm.rng matches 2 unless items entity @s weapon.offhand *[minecraft:custom_data~{bm_cconv:1b}] run return run function bm:p173/cool/conv {slot:"weapon.offhand"}',
                   'execute if score #hand bm.rng matches 1 run return run function bm:p173/cool/off {slot:"weapon.mainhand"}',
                   'function bm:p173/cool/off {slot:"weapon.offhand"}']
-    G.wjson('bm/item_modifier/p173/cool_off.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_coff:1b}'},
+    G.wjson('bm/item_modifier/p173/cool_off.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_coff:1b,bm_cconv:0b}'},
                                                      {'function': 'minecraft:set_components', 'components': {'minecraft:enchantment_glint_override': False}}])
-    G.wjson('bm/item_modifier/p173/cool_on.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_coff:0b}'},
+    G.wjson('bm/item_modifier/p173/cool_conv.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_coff:0b,bm_cconv:1b}'},
+                                                      {'function': 'minecraft:set_components', 'components': {'minecraft:enchantment_glint_override': True}}])
+    G.wjson('bm/item_modifier/p173/cool_on.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_coff:0b,bm_cconv:0b}'},
                                                     {'function': 'minecraft:set_components', 'components': {'minecraft:enchantment_glint_override': True}}])
     fn('p173/cool/on', ['$item modify entity @s $(slot) bm:p173/cool_on', 'playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 0.6 1.6',
-                        say('Prime Cooler: ON - Prime cuts nearby fly into it.', '#8ad8ff')])
+                        say('Prime Cooler: ON - Prime cuts nearby fly into it. (Use again: auto-convert them to Tokens.)', '#8ad8ff')])
+    fn('p173/cool/conv', ['$item modify entity @s $(slot) bm:p173/cool_conv', 'playsound minecraft:entity.experience_orb.pickup player @s ~ ~ ~ 0.7 1.4',
+                          say('Prime Cooler: gathering and AUTO-CONVERT - every two cuts become a Token.', '#ffcf40'), 'function bm:p148/cool/conv'])
     fn('p173/cool/off', ['$item modify entity @s $(slot) bm:p173/cool_off', 'playsound minecraft:block.beacon.deactivate player @s ~ ~ ~ 0.6 1.6',
                          say('Prime Cooler: OFF.', 'gray')])
     lf = F['loop/fast']

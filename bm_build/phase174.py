@@ -89,7 +89,7 @@ def generate(G):
     # ================================================================== FULL BAGS
     # (p33/vac/take: what's left of the stack after merging and a free slot - unchanged means nothing fit)
     tk = F_['p33/vac/take']
-    k = next(i for i, l in enumerate(tk) if l.startswith('execute store result score #vn bm.rng run data get storage bm:tmp vac.in.count'))
+    k = next(i for i, l in enumerate(tk) if l.endswith('store result score #vn bm.rng run data get storage bm:tmp vac.in.count'))     # (2.94p: 'execute if data ... store')
     tk.insert(k + 1, 'scoreboard players operation #vn0 bm.rng = #vn bm.rng')
     k = next(i for i, l in enumerate(tk) if 'run function bm:p33/vac/newslot' in l)
     tk.insert(k + 1, 'execute if score #vn bm.rng = #vn0 bm.rng run scoreboard players set #vfull bm.rng 1')

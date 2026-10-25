@@ -21,6 +21,14 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94p: the Prime Cooler's auto-convert
+
+**Use** the Prime Cooler to cycle it: **gathering** (Prime cuts nearby fly in) -> **gathering and AUTO-CONVERT** -> **off**, and round again. Sneak + use still opens it.
+
+- **Auto-convert** turns every two cuts of any kind (Prime Beef, Porkchop, Mutton, Chicken...) into one Token, about once a second. An odd cut waits in the cooler for its pair. It glows while it's on.
+- It works from your inventory or your off hand.
+- **Fixed:** a single cut flying into a cooler (or a Vacuum Satchel) that already held one of the same kind could be lost. Both now merge the stacks correctly.
+
 ## New in 2.94o: the raid reward overhaul
 
 Rare finds rise with the tier now (a Tier V heist is 10-15 minutes), with three promises on top. Per raider, per won heist:

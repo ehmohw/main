@@ -121,15 +121,37 @@ const res = [];
   await run('clear TestRat');
 
   // ================================================================== THE PRIME COOLER
+  // (use cycles it - 2.94p: gathering (as it comes) -> gathering and AUTO-CONVERT -> off -> gathering)
   await home();
   await run('loot replace entity TestRat hotbar.4 loot bm:items/prime_cooler');
-  await use(4); await sleep(500);
+  const tokens = async () => +(((await run('clear TestRat *[minecraft:custom_data~{bm:"token"}] 0')).match(/Found (\d+)/) || [0, 0])[1]);
+  const cuts = async (slot = 'Inventory[{Slot:4b}]') => { const c = await run(`data get entity TestRat ${slot}.components."minecraft:container"`);
+    return c.split('item: {').slice(1).reduce((a, seg) => a + +((seg.match(/count: (\d+), id:/) || [0, 1])[1]), 0); };   // (each stack's count sits before its id; a stack of one shows none)
+  const ground = () => passes(`${O}execute if entity @e[type=minecraft:item,x=${X + 3.5},y=${Y},z=${Z + 0.5},distance=..2]`);
   await run(`${O}loot spawn ${X + 3.5} ${Y} ${Z + 0.5} loot bm:items/prime_beef`); await sleep(2500);
-  ok('the Prime Cooler switched OFF: the Prime Beef stays on the ground', await passes(`${O}execute if entity @e[type=minecraft:item,x=${X + 3.5},y=${Y},z=${Z + 0.5},distance=..2]`));
-  await use(4); await sleep(2500);
-  ok('...switched ON: it flies into the cooler', !(await passes(`${O}execute if entity @e[type=minecraft:item,x=${X + 3.5},y=${Y},z=${Z + 0.5},distance=..2]`)) &&
-     /prime_beef/.test(await run('data get entity TestRat Inventory[{Slot:4b}].components."minecraft:container"')));
-  await run('clear TestRat');
+  ok('the Prime Cooler as it comes, gathering: Prime Beef nearby flies into it', !(await ground()) && (await cuts()) === 1, `cuts ${await cuts()}`);
+  const t0 = await tokens();
+  await run(`${O}loot spawn ${X + 3.5} ${Y} ${Z + 0.5} loot bm:items/prime_pork`); await run(`${O}loot spawn ${X + 3.5} ${Y} ${Z + 0.5} loot bm:items/prime_chicken`); await sleep(2500);
+  const c3 = await cuts();
+  await sleep(2200); A.bars.length = 0; await use(4); await sleep(2500);
+  ok('...used: gathering and AUTO-CONVERT - three cuts (beef, pork, chicken) make one Token, one cut left in it', c3 === 3 && (await tokens()) === t0 + 1 && (await cuts()) === 1,
+     `cuts ${c3} -> ${await cuts()}, tokens ${t0} -> ${await tokens()} | ${A.bars.slice(-2).join(' / ')}`);
+  await run(`${O}loot spawn ${X + 3.5} ${Y} ${Z + 0.5} loot bm:items/prime_mutton`); await sleep(3000);
+  ok('...a cut gathered while it converts: the pair makes another Token, the cooler empty', (await tokens()) === t0 + 2 && (await cuts()) === 0, `tokens ${await tokens()}, cuts ${await cuts()}`);
+  await sleep(2200); await use(4); await sleep(500);
+  await run(`${O}loot spawn ${X + 3.5} ${Y} ${Z + 0.5} loot bm:items/prime_beef`); await sleep(2500);
+  ok('...used again: OFF - Prime Beef stays on the ground', await ground());
+  await run(`${O}kill @e[type=minecraft:item,x=${X + 3.5},y=${Y},z=${Z + 0.5},distance=..3]`);
+  await sleep(2200); await use(4); await sleep(500);
+  await run(`${O}loot spawn ${X + 3.5} ${Y} ${Z + 0.5} loot bm:items/prime_beef`); await run(`${O}loot spawn ${X + 3.5} ${Y} ${Z + 0.5} loot bm:items/prime_beef`); await sleep(3000);
+  ok('...and again: gathering (only) - two cuts in, kept as cuts', !(await ground()) && (await cuts()) === 2 && (await tokens()) === t0 + 2,
+     `cuts ${await cuts()}, tokens ${await tokens()}, ground ${await ground()} | ${(await run('data get entity TestRat Inventory[{Slot:4b}].components')).replace(/.*data: /, '').slice(0, 300)}`);
+  // in the off hand (an empty main hand: the off hand's cooler is used), cycled to auto-convert there
+  await run('item replace entity TestRat weapon.offhand from entity TestRat hotbar.4'); await run('item replace entity TestRat hotbar.4 with minecraft:air');
+  await sleep(2200); A.slot(4); await sleep(250); A.use(); A.use('off_hand'); await sleep(400); A.release(); await sleep(2500);   // (an empty main hand: the client then uses the off hand)
+  ok('...in the off hand, used: auto-convert - its two cuts make a Token', (await cuts('equipment.offhand')) === 0 && (await tokens()) === t0 + 3,
+     `cuts ${await cuts('equipment.offhand')}, tokens ${await tokens()}`);
+  await run('clear TestRat'); await run('item replace entity TestRat weapon.offhand with minecraft:air');
 
   // ================================================================== THE LUCKY MAP
   for (let k = 1; k <= 8; k++) await run(`loot give TestRat loot bm:items/lucky_fragment_${k}`);

@@ -299,7 +299,9 @@ def generate(G):
     # (2.82t: kept - phase44's per-player store overrides these; phase173 puts the satchel's own bag back)
     SATCHEL.update({n_: list(G.FUNCS[n_]) for n_ in ('p33/vac/use', 'p33/vac/pull', 'p33/vac/read', 'p33/vac/write')})
     # one item entity -> merge into matching stacks, then the first free slot; what doesn't fit stays on the ground
-    fn('p33/vac/take', ['data modify storage bm:tmp vac.in set from entity @s Item', 'execute store result score #vn bm.rng run data get storage bm:tmp vac.in.count',
+    # (2.94p: a stack of one may carry no count - it's 1, never 0: a single item merged into a single one replaced it)
+    fn('p33/vac/take', ['data modify storage bm:tmp vac.in set from entity @s Item', 'scoreboard players set #vn bm.rng 1',
+                        'execute if data storage bm:tmp vac.in.count store result score #vn bm.rng run data get storage bm:tmp vac.in.count',
                         'scoreboard players set #vmax bm.rng 64', 'execute if items entity @s contents *[minecraft:max_stack_size=16] run scoreboard players set #vmax bm.rng 16',
                         'execute if items entity @s contents *[minecraft:max_stack_size=1] run scoreboard players set #vmax bm.rng 1',
                         'data modify storage bm:tmp vac.c2 set value []', 'function bm:p33/vac/merge',
@@ -312,10 +314,12 @@ def generate(G):
     fn('p33/vac/merge', ['execute unless data storage bm:tmp vac.c[0] run return 0',
                          'execute if score #vn bm.rng matches 1.. if score #vmax bm.rng matches 2.. run function bm:p33/vac/try',
                          'data modify storage bm:tmp vac.c2 append from storage bm:tmp vac.c[0]', 'data remove storage bm:tmp vac.c[0]', 'function bm:p33/vac/merge'])
-    fn('p33/vac/try', ['data modify storage bm:tmp vac.a set from storage bm:tmp vac.c[0].item', 'data modify storage bm:tmp vac.a.count set from storage bm:tmp vac.in.count',
-                       'execute store success score #vd bm.rng run data modify storage bm:tmp vac.a set from storage bm:tmp vac.in',
+    fn('p33/vac/try', ['data modify storage bm:tmp vac.a set from storage bm:tmp vac.c[0].item', 'data remove storage bm:tmp vac.a.count',
+                       'data modify storage bm:tmp vac.b set from storage bm:tmp vac.in', 'data remove storage bm:tmp vac.b.count',
+                       'execute store success score #vd bm.rng run data modify storage bm:tmp vac.a set from storage bm:tmp vac.b',
                        'execute if score #vd bm.rng matches 1 run return 0',
-                       'execute store result score #vc bm.rng run data get storage bm:tmp vac.c[0].item.count',
+                       'scoreboard players set #vc bm.rng 1',
+                       'execute if data storage bm:tmp vac.c[0].item.count store result score #vc bm.rng run data get storage bm:tmp vac.c[0].item.count',
                        'scoreboard players operation #vsp bm.rng = #vmax bm.rng', 'scoreboard players operation #vsp bm.rng -= #vc bm.rng',
                        'scoreboard players operation #vsp bm.rng < #vn bm.rng', 'execute if score #vsp bm.rng matches ..0 run return 0',
                        'scoreboard players operation #vc bm.rng += #vsp bm.rng', 'scoreboard players operation #vn bm.rng -= #vsp bm.rng',

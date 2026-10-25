@@ -96,6 +96,7 @@ PRIME_CUTS = ('prime_beef', 'prime_pork', 'prime_mutton', 'prime_chicken', 'prim
 item('prime_cooler', TOTEM, 'Prime Cooler', '#8ad8ff',
      ['Right-click: it unfolds into a barrel (27 slots).', ('Sneak or walk away to pack it up.', 'gray'), ('Keeps Prime cuts cold: Prime Beef, Porkchop,', 'blue'), ('Mutton, Chicken and Rabbit.', 'blue'),
       'Nothing else goes in - not even plain meat.', ('Carried, it gathers Prime cuts', 'blue'), ('lying within 6 blocks.', 'blue'),
+      ('Use: gathering on -> AUTO-CONVERT -> off.', 'gold'), ('Auto-convert: 2 cuts of any kind', 'gold'), ('make 1 Token. Sneak + use: open it.', 'gray'),
       'From Chef Fromage\'s kitchen.'],
      model='bm:prime_cooler', stack=1, cat='meat', comps=dict(hold('none'), **{'minecraft:container': []}))
 DYNAMIC.add('prime_cooler')
@@ -448,7 +449,8 @@ def generate(G):
                  f'execute if items entity @s weapon.mainhand {holds("prime_cooler")} run scoreboard players set #hand bm.rng 1',
                  f'execute if score #hand bm.rng matches 0 if items entity @s weapon.offhand {holds("prime_cooler")} run scoreboard players set #hand bm.rng 2',
                  'execute if score #hand bm.rng matches 0 run return 0']
-    fn('p148/use/cooler', cool_hand + ['execute if score #hand bm.rng matches 1 run return run function bm:p33/box/open {path:"SelectedItem",slot:"weapon.mainhand",name:"Prime Cooler",kind:"cool"}',
+    fn('p148/use/cooler', cool_hand + [
+                                       'execute if score #hand bm.rng matches 1 run return run function bm:p33/box/open {path:"SelectedItem",slot:"weapon.mainhand",name:"Prime Cooler",kind:"cool"}',
                                        'function bm:p33/box/open {path:"equipment.offhand",slot:"weapon.offhand",name:"Prime Cooler",kind:"cool"}'])
     keep = ''.join(f' unless items block ~ ~ ~ container.%d {holds(c)}' for c in PRIME_CUTS)
     fn('p148/cool/bad', [f'execute if items block ~ ~ ~ container.{n} *{keep % ((n,) * len(PRIME_CUTS))} run return 1' for n in range(27)] + ['return 0'])
@@ -476,6 +478,40 @@ def generate(G):
         'execute as @e[type=minecraft:item,distance=..6,nbt={PickupDelay:0s},limit=16,sort=nearest] if function bm:p148/cool/prime at @s run function bm:p33/vac/take',
         'execute if score #vtak bm.rng matches 1.. run function bm:p148/cool/write with storage bm:tmp cpk'])
     fn('p148/cool/prime', [f'execute if items entity @s contents {holds(c)} run return 1' for c in PRIME_CUTS] + ['return 0'])
+    # (2.94p) AUTO-CONVERT (switched on in phase173's cycle - use: off, gathering, gathering + auto-convert): every second the
+    #  cuts in it become Tokens - two cuts of any kind, one Token; an odd one waits for its pair
+    conv = '*[minecraft:custom_data~{bm:"prime_cooler",bm_cconv:1b}]'
+    G.FUNCS['loop/second'] += [f'execute as @a[gamemode=!spectator] if items entity @s container.* {conv} at @s run function bm:p148/cool/conv',
+                               f'execute as @a[gamemode=!spectator] unless items entity @s container.* {conv} if items entity @s weapon.offhand {conv} at @s run function bm:p148/cool/conv']
+    # (the cooler: the first one switched on in the pockets, else the off hand; its contents counted, paid out in pairs)
+    fn('p148/cool/conv', ['scoreboard players set #vs bm.rng -1'] +
+       [f'execute if score #vs bm.rng matches -1 if items entity @s container.{n} {conv} run scoreboard players set #vs bm.rng {n}' for n in range(36)] +
+       [f'execute if score #vs bm.rng matches -1 if items entity @s weapon.offhand {conv} run scoreboard players set #vs bm.rng 99',
+        'execute if score #vs bm.rng matches -1 run return 0',
+        'data remove storage bm:tmp vac.c',
+        'execute if score #vs bm.rng matches 99 run data modify storage bm:tmp vac.c set from entity @s equipment.offhand.components."minecraft:container"',
+        'execute unless score #vs bm.rng matches 99 store result storage bm:tmp cpk.n int 1 run scoreboard players get #vs bm.rng',
+        'execute unless score #vs bm.rng matches 99 run function bm:p148/cool/read with storage bm:tmp cpk',
+        'execute unless data storage bm:tmp vac.c[0] run return 0',
+        'scoreboard players set #cn bm.rng 0'] +
+       [l for i in range(27) for l in (f'scoreboard players set #cc bm.rng 1',                    # (a stack of one carries no count: it's 1)
+                                       f'execute if data storage bm:tmp vac.c[{i}].item.count store result score #cc bm.rng run data get storage bm:tmp vac.c[{i}].item.count',
+                                       f'execute if data storage bm:tmp vac.c[{i}] run scoreboard players operation #cn bm.rng += #cc bm.rng')] +
+       ['execute if score #cn bm.rng matches ..1 run return 0',
+        'scoreboard players operation #ct bm.rng = #cn bm.rng', 'scoreboard players operation #ct bm.rng /= #2 bm.rng',
+        'scoreboard players operation #cl bm.rng = #cn bm.rng', 'scoreboard players operation #cl bm.rng %= #2 bm.rng',
+        'data modify storage bm:tmp cpk.k set from storage bm:tmp vac.c[0]', 'data modify storage bm:tmp cpk.k.slot set value 0', 'data modify storage bm:tmp cpk.k.item.count set value 1',
+        'data modify storage bm:tmp vac.c set value []',
+        'execute if score #cl bm.rng matches 1 run data modify storage bm:tmp vac.c append from storage bm:tmp cpk.k',
+        'data modify storage bm:tmp cpk.c set from storage bm:tmp vac.c',
+        'execute if score #vs bm.rng matches 99 run function bm:p148/cool/write_off with storage bm:tmp cpk',
+        'execute unless score #vs bm.rng matches 99 run function bm:p148/cool/write_m with storage bm:tmp cpk',
+        'scoreboard players operation #cg bm.rng = #ct bm.rng', 'function bm:p148/cool/pay',
+        'playsound minecraft:entity.experience_orb.pickup player @s ~ ~ ~ 0.7 1.2',
+        G.title('@s', 'actionbar', [T('Prime Cooler: ', '#8ad8ff', bold=True), {'score': {'name': '#cn', 'objective': 'bm.rng'}, 'color': 'white'},
+                                    T(' cuts -> ', 'gray'), {'score': {'name': '#ct', 'objective': 'bm.rng'}, 'color': '#ffcf40', 'bold': True}, T(' Tokens', '#ffcf40')])])
+    fn('p148/cool/write_off', ['$item modify entity @s weapon.offhand {type:"minecraft:set_components",components:{"minecraft:container":$(c)}}'])
+    fn('p148/cool/pay', ['loot give @s loot bm:items/token', 'scoreboard players remove #cg bm.rng 1', 'execute if score #cg bm.rng matches 1.. run function bm:p148/cool/pay'])
     fn('p148/cool/read', ['data remove storage bm:tmp vac.c', '$data modify storage bm:tmp vac.c set from entity @s Inventory[{Slot:$(n)b}].components."minecraft:container"',
                           'execute unless data storage bm:tmp vac.c run data modify storage bm:tmp vac.c set value []',
                           'data modify storage bm:tmp cpk.c set from storage bm:tmp vac.c'])
