@@ -143,6 +143,16 @@ WMENU = 3350                      # (its block: 3350-3449 - a partner's call/sen
 WMENU3 = 3700                     # (2.94: 3700-3819 - the second bank, partners 31 on)
 WMENU2 = 3450                     # (2.88: and 3450-3479 - a partner's Menu button 3450+i; 3420/3421 are the Skiff Escort's)
 
+KEEP = 3351                       # (2.94q: the "Keep up" switch, in the wheel's block)
+
+
+def keep_btn(on):
+    import phase28 as P28
+    return P28.btn([T('Keep up: ', 'gray'), T('on' if on else 'off', 'white' if on else '#ff8a8a', bold=True)], KEEP, width=150,
+                   tooltip=T('A partner left too far behind (or in another world) comes back to your side once you\'re on the ground or in water, '
+                             'in survival or adventure - while you carry their item or it\'s on the wheel.', 'gray'))
+
+
 # every follower's item and "goes away" function, as phase73's follow rules are set up (whichever phase sets them)
 FOLLOW = {}
 _orig_rules = P73.follow_rules
@@ -356,6 +366,8 @@ def generate(G):
     op += [f'execute unless data storage bm:tmp pw.acts[0] run return run dialog show @s {snbt(empty)}',
            f'execute if entity @s[tag=bm.hush] run data modify storage bm:tmp pw.acts append value {snbt(P123.chat_btn(False))}',
            f'execute unless entity @s[tag=bm.hush] run data modify storage bm:tmp pw.acts append value {snbt(P123.chat_btn(True))}',
+           f'execute if entity @s[tag=bm.pwkeep] run data modify storage bm:tmp pw.acts append value {snbt(keep_btn(True))}',
+           f'execute unless entity @s[tag=bm.pwkeep] run data modify storage bm:tmp pw.acts append value {snbt(keep_btn(False))}',
            'function bm:p179/w/show with storage bm:tmp pw',
            'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 0.8 1.4']
     fn('p179/w/open', op)
@@ -364,7 +376,8 @@ def generate(G):
     c_out = lambda i: WMENU + 40 + i if i < 30 else WMENU3 + 40 + i - 30
     c_menu = lambda i: WMENU2 + i if i < 30 else WMENU3 + 80 + i - 30
     assert len(PW) <= 70, f'{len(PW)} partners: the second bank is full'
-    act = [f'execute unless score @s bm.menu matches {WMENU} run return run function bm:p28/stale']
+    act = [f'execute unless score @s bm.menu matches {WMENU} run return run function bm:p28/stale',
+           f'execute if score #act bm.pay matches {KEEP} run return run function bm:p179/k/toggle']
     for i, (w, nm, col, host, tag, try_, home, iid) in enumerate(PW):
         sel = f'@e[type=minecraft:{host},tag={tag}]'
         on = ['scoreboard players set #pwon bm.rng 0', f'execute as {sel} if score @s bm.pid = #me bm.pid run scoreboard players set #pwon bm.rng 1']
@@ -408,6 +421,48 @@ def generate(G):
                 f'execute if score #act bm.pay matches {c_out(i)} run return run function bm:p179/w/out{i}',
                 f'execute if score #act bm.pay matches {c_menu(i)} run return run function bm:p179/w/menu{i}']
     fn('p179/w/act', act)
+
+    # ---------------------------------------------------------------- (2.94q) KEEP UP WITH YOU: a switch on the wheel
+    # A partner left too far behind (or in another world) goes home as ever - but with it on, they're back at your side as soon
+    # as you're on the ground or in water, in survival or adventure (not gliding, riding or falling; never in creative). Only
+    # while you still carry their item, or it's on your wheel. A heist's "waits outside the vault" comes first.
+    fn('p179/k/toggle', ['execute if entity @s[tag=bm.pwkeep] run return run function bm:p179/k/off',
+                         'tag @s add bm.pwkeep', 'playsound minecraft:block.note_block.chime player @s ~ ~ ~ 0.6 1.5',
+                         tellraw('@s', PRE + [T('Keep up: on. ', PURPLE, bold=True), T('A partner left behind comes back to your side once you\'re on the ground or in water.', 'gray')]),
+                         'function bm:p179/w/open'])
+    fn('p179/k/off', ['tag @s remove bm.pwkeep'] + [f'tag @s remove bm.pwk_{w}' for w, *_r in PW] +
+       ['playsound minecraft:block.note_block.chime player @s ~ ~ ~ 0.6 0.9',
+        tellraw('@s', PRE + [T('Keep up: off. ', PURPLE, bold=True), T('A partner left behind goes home and waits for your call.', 'gray')]),
+        'function bm:p179/w/open'])
+    G.wjson('bm/predicate/p179/landed.json', {'condition': 'minecraft:all_of', 'terms': [
+        {'condition': 'minecraft:any_of', 'terms': [
+            {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:flags': {'is_on_ground': True}}},
+            {'condition': 'minecraft:location_check', 'predicate': {'fluid': {'fluids': '#minecraft:water'}}}]},
+        {'condition': 'minecraft:inverted', 'term': {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:vehicle': {}}}}]})
+    kept = 0
+    for i, (w, nm, col, host, tag, try_, home, iid) in enumerate(PW):
+        e = FOLLOW.get(host_tag(w))
+        far = G.FUNCS.get(f'p73/fol/{e[0]}_far') if e else None
+        if far is None: continue                       # (Wilfrey: never too far - his locket calls him)
+        go = f'function bm:{e[4]}'
+        assert go in far, (w, far)
+        far.insert(far.index(go), f'execute if entity @a[tag=bm.fown,tag=bm.pwkeep] run return run function bm:p179/k/lag{i}')
+        fn(f'p179/k/lag{i}', [f'tag @a[tag=bm.fown] add bm.pwk_{w}', go,
+                              tellraw('@a[tag=bm.fown]', PRE + [T(f'{cap(nm)} fell behind', col), T(' - back at your side once you\'re on solid ground or in water.', 'gray')]),
+                              'tag @a remove bm.fown'])
+        Hh = holds(iid)
+        fn(f'p179/k/back{i}', [f'tag @s remove bm.pwk_{w}',
+                               f'execute unless entity @s[tag=bm.pw_{w}] unless items entity @s container.* {Hh} unless items entity @s weapon.offhand {Hh} run return 0',
+                               'scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #pwon bm.rng 0',
+                               f'execute as @e[type=minecraft:{host},tag={tag}] if score @s bm.pid = #me bm.pid run scoreboard players set #pwon bm.rng 1',
+                               'execute if score #pwon bm.rng matches 1 run return 0',
+                               f'function bm:{try_}'])
+        kept += 1
+    assert kept >= len(PW) - 1, kept
+    fn('p179/k/tick', [f'execute if entity @s[tag=bm.pwk_{w}] run function bm:p179/k/back{i}' for i, (w, *_r) in enumerate(PW)
+                       if f'p179/k/back{i}' in G.FUNCS])
+    second.append('execute as @a[tag=bm.pwkeep,tag=!bm.gvp,gamemode=!creative,gamemode=!spectator] at @s '
+                  'if predicate bm:p179/landed run function bm:p179/k/tick')
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {WMENU}..{WMENU + 99} run return run function bm:p179/w/act')
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {WMENU2}..{WMENU2 + 29} run return run function bm:p179/w/act')
     if len(PW) > 30:

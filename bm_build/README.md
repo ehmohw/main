@@ -21,6 +21,17 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94q: the Partner Wheel's "Keep up"
+
+A new switch on the Partner Wheel's page: **Keep up: on / off** (off at first).
+
+- With it on, a partner left too far behind (or stranded in another dimension) still goes home, but comes back to your side once you're **on the ground or in water**, in **survival or adventure**.
+- It waits while you're gliding, falling, riding or in creative. You'll see "*Emma fell behind - back at your side once you're on solid ground or in water.*"
+- It only applies while you still carry the partner's item, or it's on your wheel. Put the item away and they stay home.
+- In a heist, a partner still waits outside the vault, as before.
+- Switched off, it's the old way: "*...couldn't keep up and went home.*"
+- One gap: a partner left in a chunk that has since unloaded is frozen there, and the game can't see them. Call them again as usual.
+
 ## New in 2.94p: the Prime Cooler's auto-convert
 
 **Use** the Prime Cooler to cycle it: **gathering** (Prime cuts nearby fly in) -> **gathering and AUTO-CONVERT** -> **off**, and round again. Sneak + use still opens it.
