@@ -197,10 +197,16 @@ def generate(G):
     # ---------------------------------------------------------------- the Frog
     fr, fp = frog_rig(), frog_poses()
     from phase21 import WEAP_BASE
+    # (2.94u) his sword in his left front foot - the grip on the foot, the blade up and a little forward, its flat to the side -
+    # and it goes where the foot goes (it used to hang off his body, a hand's breadth out in the air)
+    BASE = qmul((0.0, 0.0, -math.sin(math.radians(6)), math.cos(math.radians(6))), qmul((-math.sin(math.radians(15)), 0.0, 0.0, math.cos(math.radians(15))), (0.0, -0.7071, 0.0, 0.7071)))   # (as Donado's: tip up and ahead; leant a touch out)
+    GRIP = (-0.17, -0.17, 0.0)                                    # (the sprite's hilt from its centre, at 0.6 - after the fixed flip)
+    FOOT = (0.11, -0.02, 0.09)                                  # (the outside of his foot, from the leg's joint)
     def frog_weap(S, dur):
-        R, J = S['body']; J0 = fr.solve({})['body'][1]
-        v = tuple(WEAP_BASE[i] - J0[i] for i in range(3)); o = _rot(R, v); T = tuple(J[i] + o[i] for i in range(3))
-        Rw = qmul(R, (0.0, 0.7071, 0.0, 0.7071))
+        R, J = S['fl']
+        Rw = qmul(R, BASE)
+        f, g = _rot(R, FOOT), _rot(Rw, GRIP)
+        T = tuple(J[i] + f[i] - g[i] for i in range(3))
         return [f'execute on passengers if entity @s[tag=bm.fp_weap] run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:{dur},'
                 f'transformation:{{left_rotation:[{Rw[0]:.4f}f,{Rw[1]:.4f}f,{Rw[2]:.4f}f,{Rw[3]:.4f}f],translation:[{T[0]:.4f}f,{T[1]:.4f}f,{T[2]:.4f}f]}}}}']
     build(fr, fp, 'bm.frogpet', 'p63/frog', frog_weap)

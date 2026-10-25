@@ -1425,6 +1425,7 @@ def build(out_dir):
     if PHASE2: R222.generate(sys.modules[__name__])      # 2.94u: dashes (after every follower's attacks)
     if PHASE2: R223.generate(sys.modules[__name__])      # 2.94u: signature moves
     if PHASE2: R224.generate(sys.modules[__name__])      # 2.94u: ...and the rest
+    if PHASE2: print('alternate swings: %d followers' % atk.alternates(sys.modules[__name__]))
     if PHASE2: print('attack kit: %d follower blows with an impact, %d animations with a hit-stop' % atk.finalize(sys.modules[__name__]))
     R180.generate(sys.modules[__name__])        # 2.84d: Omni Token, golden dolls, Eldritch Panoply, King-beaters' hard mode
     R181.generate(sys.modules[__name__])        # 2.85a: Dread Nights, Stalkers, the golden cross, the Dread Totem

@@ -30,7 +30,7 @@ const res = [];
     let last = await pos(host), big = 0, moved = 0;
     const t0 = Date.now();
     while (Date.now() - t0 < ms) { await sleep(40); const p = await pos(host); if (!p || !last) continue;
-      const d = Math.hypot(p[0] - last[0], p[2] - last[2]); big = Math.max(big, d); moved += d; last = p; }
+      const d = Math.hypot(p[0] - last[0], p[2] - last[2]); if (d > 1.3 && process.env.DBG) console.log('   jump', JSON.stringify(last), JSON.stringify(p), await run(`${O}scoreboard players get ${host} bm.ksg`), await run(`${O}scoreboard players get ${host} bm.kd`)); big = Math.max(big, d); moved += d; last = p; }
     return { big, moved };
   };
   const zombie = async (dx, dz, tag) => { await run(`${O}summon minecraft:husk ${X + dx} ${Y + 1} ${Z + dz} {NoAI:1b,PersistenceRequired:1b,Health:200f,Tags:["${tag}","bm.seen"],attributes:[{id:"minecraft:max_health",base:200d}]}`); };

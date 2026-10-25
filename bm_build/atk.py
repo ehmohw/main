@@ -24,6 +24,51 @@ def rgb(col):
     return ','.join(f'{int(col[i:i + 2], 16) / 255:.2f}' for i in (1, 3, 5))
 
 
+# (2.94u) ALTERNATE SWINGS: a follower's ordinary blow (its melee state, 7) swung one of two ways, at random each time - the second
+# made from its own approved poses (a wind-up from another of its moves into the strike), on the same frames, so the hit lands as before
+ALT = {'p132': {'thrust_back': 'throw_back'},                       # Tullius: an overhand thrust
+       'p145': {'strike_back': 'thunder_up'},                       # Fishy: a downward strike
+       'p163/dw': {'swing_back': 'slam_up', 'swing': 'slam'},       # Dennis: the overhead
+       'p163/pi': {'slap_back': 'serve'},                           # Pistachio: the backhand
+       'p170': {'claw_up': 'flame_up', 'claw': 'flame_swing'},      # King Omega: the sweep
+       'p186': {'whack_up': 'throw_back'},                          # the Chef: from behind the shoulder
+       'p187': {'strike_up': 'crescendo'},                          # the Neighbor: the big downbeat
+       'p189': {'cast_up': 'ward_a'},                               # Queen Ava
+       'p190': {'flick_up': 'twirl'},                               # Queen Pearl: a twirl into the flick
+       'p191': {'swipe_up': 'crouch'},                              # Bloo: up from a crouch
+       'p193': {'rend_up': 'fold'},                                 # the Stalker: unfolding into it
+       'p194': {'lash_a': 'lash_b'},                                # the Arachno-Lantern: the other leg
+       'p196': {'bite_open': 'thrash_a'},                           # Bones
+       'p198': {'swipe_up': 'toss_up'},                             # Mr. Capshun
+       'p96': {'thrust_back': 'throw_back'},                        # Leo: an overhand thrust
+       'p66': {'stab_back': 'throw_back'},                          # Celi: an overhand stab
+       'p97': {'swing_back': 'overhead', 'swing': 'slam'},          # Democratus: the overhead
+       'p131': {'claw_up': 'battle', 'claw': 'bite'},               # Apophiss: a bite
+       'p57': {'strike_up': 'cast'},                                # Emma
+       'p185': {'cast_back': 'crouch'}}                             # Ashur: up from a crouch
+
+
+def alternates(G):
+    """(late, before finalize) the alternate swings: returns how many"""
+    if 'bm.kalt' not in G.OBJECTIVES:
+        G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.kalt dummy']; G.OBJECTIVES.append('bm.kalt')
+    n = 0
+    for pfx, alt in ALT.items():
+        A = G.FUNCS[f'{pfx}/anim/7']
+        assert A[0].startswith('scoreboard players operation #f bm.rng = '), (pfx, A[0])
+        out = [A[0], 'execute if score #f bm.rng matches 0 store result score @s bm.kalt run random value 0..1']
+        for l in A[1:]:
+            hit = [(a, b) for a, b in alt.items() if l.endswith(f'run function bm:{pfx}/pose/{a}')]
+            if not hit: out.append(l); continue
+            a, b = hit[0]
+            assert f'{pfx}/pose/{b}' in G.FUNCS, (pfx, b)
+            out += [l.replace('execute if ', 'execute unless score @s bm.kalt matches 1 if ', 1),
+                    l.replace('execute if ', 'execute if score @s bm.kalt matches 1 if ', 1)[:-len(a)] + b]
+        assert len(out) > len(A) + 1, pfx
+        G.FUNCS[f'{pfx}/anim/7'] = out; n += 1
+    return n
+
+
 def finalize(G):
     """(late) the impact and the hit-stop on every follower blow"""
     import phase125 as P125

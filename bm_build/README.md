@@ -21,6 +21,49 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94u: how followers fight
+
+Every fighting follower now fights with more weight and more style.
+- **Blows land harder:** every follower blow gives a short **hit freeze** (their animation holds a beat on the impact), a burst of crits in their own colour, and a heavier hit sound.
+- **No more blinking across the field:** followers who used to teleport onto a monster (Bloo's pounce, Bender's bound, Bones' torpedo, Queen Ava's flit, Emma's Falling Star) now **dash** there: a quick, smooth glide that you can follow, with a trail behind them. They stop just short of the target and never pass through walls.
+- **Alternate swings:** 20 followers now swing their ordinary blow one of two ways, at random. Dennis brings the wrench overhead; Democratus brings the scythe down; Bones thrashes; Leo and Celi stab overhand; and so on. Both swings use poses the follower already had, and land on the same beat.
+- **Signature moves:** each fighter now has a move of their own, which they use every so often in a fight. Each one has a wind-up, a strike and a recovery. Follow-up blows land at least half a second after the first, so each hits in full.
+
+| Follower | Move | What it does |
+|---|---|---|
+| Emma | **Crescent Dive** | In her Ethereal Form: she swoops to a monster up to 14 away, cleaves it, and glides back to you |
+| Emma | **Petal Waltz** | In her Ethereal Form, with 2+ monsters near: she dances from one to the next, slashing each, then rises and slams down in a ring of petals |
+| Leo | **Shield Charge** | Charges in behind his shield: a bash (slowed), then the overhead smite |
+| Celi | **Lunge and Vault** | A spear lunge across the gap (slowed), then she vaults back off it |
+| Democratus | **Reaping Whirl** | With 2+ monsters near: he spins, the scythe drawing them in and cutting them three times, then a great sweep |
+| Apophiss | **Coil and Strike** | Coils, strikes from range (poisoned), then lashes with his tail all round |
+| Ashur | **Fire Wheel** | Cartwheels through the line to the farthest monster, burning all she passes, and erupts where she lands |
+| Cecil | **Staff Twirl** | Rings of magic orbit his staff, then a beam blasts his foe and those beside it |
+| KillerWatt | **Storm Leap** | Leaps onto a monster and slams down: a shockwave all round, then a roar |
+| Zib | **Orbital Strike** | Aims at the sky; a beam comes down on his target and those beside it |
+| Tullius | **Anchor's Away** | Throws his harpoon, reels himself in, thrusts, then fires the blunderbuss in a cone |
+| Fishy | **Tidal Bubble** | With 2+ monsters near: bubbles lift them, then thunder slams down all round |
+| Dennis | **Mother Lode Rush** | Charges in with a whack, then slams the ground in a burst of gold |
+| Pistachio | **Silver Service** | Glides in with a slap, then wails (all round, weakened) |
+| King Omega | **Soul Glide** | Glides in on the dark, claws, then sweeps soul fire all round |
+| The Chef | **Kitchen Fury** | Charges in: two cleaver whacks |
+| The Neighbor | **Grand Finale** | With 2+ monsters near: he conducts, builds to a crescendo, and the final note blasts all round |
+| Queen Ava | **Riptide** | Rides the current in, strikes, then the tide crashes all round |
+| Queen Pearl | **Royal Twirl** | Twirls in, flicks, then a proclamation all round (slowed) |
+| Bloo | **Savage Leap** | Leaps in with a withering swipe, then roars (all round, weakened) |
+| The Stalker | **Night Hunt** | Sprints in on all fours, rends, then screams (all round, darkness) |
+| The Arachno-Lantern | **Ember Pounce** | Leaps in and stomps, then flares embers all round (set alight) |
+| Bones | **Death Roll** | Charges in with a bite, then rolls with it, twice |
+| Mr. Capshun | **Ink Rush** | Dashes in with a brush swipe, then flings a splat of paint all round |
+| The Sky Buddies | **Storm Front** | Gather a storm and a drizzle, then a beam comes down on the target and those beside it |
+| 8-Bit Emma | **Super Stomp** | Powers up, jumps onto a monster, and stomps all round |
+| 8-Bit Leo | **Dash Slash** | Dashes in: a slash, then a second all round |
+| 8-Bit Cecil | **Hex Bolt** | Draws a hex, then blasts his target and those beside it |
+
+A follower doesn't start their signature move while sitting or in the middle of another move, and their own moves wait while it plays.
+
+**Fixed:** the Frog with Mustache now holds his sword in his front foot. It stands up beside him and follows the foot when he hops, swims and sits. It used to hang in the air off his side.
+
 ## New in 2.94t: shiny followers
 
 Like a shiny in Pokémon: every follower has a **shiny look**, a rare colouring all their own (Emma's Shiny Lilac Gown, Apophiss's Shiny Albino, Bloo's Shiny Rose Pelt, KillerWatt's Shiny Ultraviolet, and so on).

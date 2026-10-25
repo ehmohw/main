@@ -46,6 +46,7 @@ const res = [];
     ['The Sky Buddies', 'sky_mobile', 'bm.ybpet', 'p211/home', [[6, 6]], 0], ['8-Bit Emma', 'cart_emma', 'bm.xmpet', 'p213e/home', [[0, 6]], 1],
     ['8-Bit Leo', 'cart_leo', 'bm.xlpet', 'p213l/home', [[-6, 0]], 1], ['8-Bit Cecil', 'cart_cecil', 'bm.xcpet', 'p213c/home', [[6, 6]], 0]];
   await run('tag TestRat add bm.lnmet');                // (the Lantern hatched and taken home already: the stage)
+  for (const o of ['bm.apcd','bm.ascd','bm.avcd','bm.bjcd','bm.bocd','bm.bvcd','bm.cecd','bm.cpcd','bm.dmcd','bm.dncd','bm.dwcd','bm.emcd','bm.fgcd','bm.fycd','bm.kkcd','bm.kxcd','bm.lecd','bm.lncd','bm.mzcd','bm.nbcd','bm.omcd','bm.picd','bm.pqcd','bm.svcd','bm.tucd','bm.wlcd','bm.xccd','bm.xlcd','bm.xmcd','bm.ybcd','bm.zbcd']) await run(`scoreboard players set TestRat ${o} 0`);   // (none of them still recovering from an earlier test)
   const only = process.argv[2] ? new RegExp(process.argv[2], 'i') : null;
   for (const [name, iid, tag, home, foes, moves] of K) {
     if (only && !only.test(name)) continue;
