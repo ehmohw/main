@@ -224,7 +224,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.94u'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.94v'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1425,6 +1425,7 @@ def build(out_dir):
     if PHASE2: R222.generate(sys.modules[__name__])      # 2.94u: dashes (after every follower's attacks)
     if PHASE2: R223.generate(sys.modules[__name__])      # 2.94u: signature moves
     if PHASE2: R224.generate(sys.modules[__name__])      # 2.94u: ...and the rest
+    if PHASE2: print('bite impacts: %d followers' % atk.biters(sys.modules[__name__]))
     if PHASE2: print('alternate swings: %d followers' % atk.alternates(sys.modules[__name__]))
     if PHASE2: print('attack kit: %d follower blows with an impact, %d animations with a hit-stop' % atk.finalize(sys.modules[__name__]))
     R180.generate(sys.modules[__name__])        # 2.84d: Omni Token, golden dolls, Eldritch Panoply, King-beaters' hard mode

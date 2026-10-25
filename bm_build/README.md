@@ -21,6 +21,11 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94v: the attack kit, the rest of the way
+
+- **The Frog with Mustache, Donado and Wilfrey** fight with their own bites, and now those bites land with the same impact as everyone else's: a burst of crits in their colour and the heavier hit sound.
+- **Leo's Guard:** when you're hurt with monsters near, Leo used to snap to your side. He now **dashes** to you, shield up, the same smooth glide as the others. That was the last instant teleport in a follower's fighting. The Stalker's blink behind its prey stays on purpose: it's a horror.
+
 ## New in 2.94u: how followers fight
 
 Every fighting follower now fights with more weight and more style.

@@ -235,3 +235,9 @@ def generate(G):
             trigger=f'execute unless data entity @s {{Sitting:1b}} unless score @s bm.zbk matches 1.. if entity @e[{FOE},distance=..16]', cd=240, end=26, face='none', st=99999, busy='bm.zbk',
             timeline={1: ['function bm:p72/zb/p/charge', 'particle minecraft:end_rod ~ ~1 ~ 0.3 0.4 0.3 0.05 10', snd('block.beacon.activate', 0.6, 1.8)],
                       8: ['function bm:p72/zb/p/aim'], 16: ['function bm:p72/zb/p/fire', 'function bm:p72/zb/sg/beam'], 22: ['function bm:p72/zb/p/idle0']})
+
+    # ---- LEO'S GUARD: he dashes to the one he's guarding (shield up) - no longer a snap to their side
+    g = G.FUNCS['p96/guard']
+    i = next(i for i, l in enumerate(g) if l.startswith('execute at @a[tag=bm.leguard,limit=1] positioned ^ ^ ^1.2'))
+    g[i:i + 1] = ['execute if entity @a[tag=bm.leguard,distance=2..] run tag @a[tag=bm.leguard,limit=1] add bm.ktn',
+                  'execute if entity @a[tag=bm.ktn] run function bm:p96/k/go {a:2}']

@@ -69,6 +69,24 @@ def alternates(G):
     return n
 
 
+# (2.94u) the followers who fight with their own (vanilla) bite - the Frog with Mustache, Donado, Wilfrey: no blow function to hook,
+# so a monster just hurt (HurtTime 9: once a hit, whichever ticks first) near one asks who hit it (on attacker) - and the impact plays where it was struck
+BITERS = {'bm.frogpet': '#6ac850', 'bm.donado': '#e8d29a', 'bm.wilfrey': '#f4f4f4'}
+
+
+def biters(G):
+    fn = G.fn
+    for tag, col in BITERS.items():
+        r, g, b = (int(col[i:i + 2], 16) / 255 for i in (1, 3, 5))
+        k = tag[3:]
+        fn(f'atk/bite/{k}', ['particle minecraft:crit ~ ~1.0 ~ 0.25 0.3 0.25 0.3 6',
+                             f'particle minecraft:dust{{color:[{r:.2f},{g:.2f},{b:.2f}],scale:1.1}} ~ ~1 ~ 0.3 0.35 0.3 0 6',
+                             'playsound minecraft:entity.player.attack.strong neutral @a[distance=..16] ~ ~ ~ 0.45 1.15'])
+        G.FUNCS['tick'].append(f'execute as @e[type=minecraft:wolf,tag={tag}] at @s as @e[type=#bm:hostile,distance=..4] if data entity @s {{HurtTime:9s}} '
+                               f'at @s on attacker if entity @s[tag={tag}] run function bm:atk/bite/{k}')   # (at the one struck)
+    return len(BITERS)
+
+
 def finalize(G):
     """(late) the impact and the hit-stop on every follower blow"""
     import phase125 as P125
