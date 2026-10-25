@@ -6,6 +6,7 @@
 //   in creative: not back; survival again: back.
 //   in the Nether: both back there.
 //   Bender's ball dropped: Emma back, Bender not (no item, not on the wheel).
+//   left in a chunk that unloads (frozen, never "too far"): "Emma got lost", back at your side.
 //   "Keep up" pressed off: Emma "couldn't keep up and went home", and not back.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
@@ -91,6 +92,15 @@ const res = [];
   await wait(5000, async () => A.chats.some(c => /Emma fell behind/.test(c)));
   ok('his ball gone (no item, not on the wheel): Emma back, Bender not', await wait(9000, async () => (await near(EMMA)) === 1) && (await cnt(BEN)) === 0,
      `${await cnt(EMMA)} ${await cnt(BEN)} | ${A.chats.join(' | ').slice(0, 300)} | ball: ${/bv_ball/.test(await run('data get entity TestRat Inventory'))} tags: ${await run('tag TestRat list')}`.slice(0, 900));
+
+  // ---- left in a chunk that unloads (frozen there, never "too far"): rcon strands her in one - she's carried into an unloaded
+  //      chunk 3000 blocks off, and saved there with it. "Emma got lost", and back at your side.
+  await sleep(1500); A.chats.length = 0;
+  await run(`effect give ${EMMA} minecraft:resistance 60 4 true`); await run(`effect give ${EMMA} minecraft:fire_resistance 60 0 true`);   // (whatever's there, it can't hurt her)
+  await run(`${O}execute at ${EMMA} run tp @e[type=!minecraft:player,distance=..4] 24000.5 100 24000.5`);   // (her host and her model's parts together, as a chunk unloads them)
+  ok('Emma stranded in a chunk that isn\'t loaded (frozen, unseen): "Emma got lost"', await wait(12000, async () => A.chats.some(c => /Emma got lost/.test(c))),
+     A.chats.join(' | ').slice(0, 300));
+  ok('...and back at your side', await wait(9000, async () => (await near(EMMA)) === 1));
 
   // ---- switched off: "couldn't keep up", and not back
   await sleep(2500); n0 = A.dialogN.length; await use(0); await wait(3000, async () => A.dialogN.length > n0);

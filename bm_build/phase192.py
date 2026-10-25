@@ -50,7 +50,7 @@ P188.PAIRS.update({
                  ('ava', 'You are a good queen, Pearl.', 'pearlq', 'Don\'t. You\'ll make me cry and my mascara will run. Underwater.')]),
     'aunt': ('pearlq', 'emma', 'The Fun Aunt', '#ffb0e8', 'Queen Pearl and Emma - trouble, times two',
              [f'effect give {O} minecraft:speed 3 0 true', f'effect give {O} minecraft:jump_boost 3 1 true', f'effect give {O} minecraft:luck 3 0 true'],
-             [('Emma', 'Aunt Pearl! Did you bring cake?'), ('pearlq', 'Did I bring cake? Darling, I never go ANYWHERE without cake. Check my crown.')],
+             [('Emma', 'Aunt Pearl! Did you bring cake?'), ('pearlq', 'Did I bring cake? Darling, I never go ANYWHERE without cake. There\'s a slice in my handbag - don\'t tell your mother.')],
              [('pearlq', 'Don\'t tell the council, but I gave the royal seahorses the day off.', 'Emma', 'Again?!'),
               ('Emma', 'When I\'m queen, can I still have fun?', 'pearlq', 'When you\'re queen you can make fun the LAW.')]),
     'unfinished': ('ava', 'apo', 'Unfinished Business', '#3ad0a0', 'Queen Ava and Apophiss - the queen and the serpent who killed her',

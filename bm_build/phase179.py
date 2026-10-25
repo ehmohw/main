@@ -439,7 +439,7 @@ def generate(G):
             {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:flags': {'is_on_ground': True}}},
             {'condition': 'minecraft:location_check', 'predicate': {'fluid': {'fluids': '#minecraft:water'}}}]},
         {'condition': 'minecraft:inverted', 'term': {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:vehicle': {}}}}]})
-    kept = 0
+    kept, objs_k = 0, []
     for i, (w, nm, col, host, tag, try_, home, iid) in enumerate(PW):
         e = FOLLOW.get(host_tag(w))
         far = G.FUNCS.get(f'p73/fol/{e[0]}_far') if e else None
@@ -458,7 +458,24 @@ def generate(G):
                                'execute if score #pwon bm.rng matches 1 run return 0',
                                f'function bm:{try_}'])
         kept += 1
+        # (2.94r) left in a chunk that has since unloaded, a partner is frozen there - unseen, never "too far". So each one out
+        # stamps its player every second (bm.pwo<i>, 5); when the stamps stop and nothing sent it home (going home clears it),
+        # it's lost: back at your side as above. (The frozen one goes home by itself when its chunk loads: its ticket is old.)
+        objs_k.append(f'bm.pwo{i}')
+        second.append(f'execute as @e[type=minecraft:{host},tag={tag.split(",")[0]}] run function bm:p179/k/seen{i}')
+        fn(f'p179/k/seen{i}', ['scoreboard players operation #pwg bm.rng = @s bm.pid',
+                               f'execute as @a[tag=bm.pwkeep] if score @s bm.pid = #pwg bm.rng run scoreboard players set @s bm.pwo{i} 5'])
+        G.FUNCS[e[4]][0:0] = ['scoreboard players operation #pwg bm.rng = @s bm.pid',
+                              f'execute as @a if score @s bm.pid = #pwg bm.rng run scoreboard players reset @s bm.pwo{i}']
+        second += [f'scoreboard players remove @a[tag=bm.pwkeep,scores={{bm.pwo{i}=1..}}] bm.pwo{i} 1',
+                   f'execute as @a[tag=bm.pwkeep,scores={{bm.pwo{i}=0}}] run function bm:p179/k/lost{i}']
+        fn(f'p179/k/lost{i}', [f'scoreboard players reset @s bm.pwo{i}', f'tag @s add bm.pwk_{w}',
+                               tellraw('@s', PRE + [T(f'{cap(nm)} got lost', col), T(' - back at your side once you\'re on solid ground or in water.', 'gray')])])
     assert kept >= len(PW) - 1, kept
+    load[-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs_k]
+    G.OBJECTIVES += objs_k
+    fn('p179/k/off_clear', [f'scoreboard players reset @s {o}' for o in objs_k])
+    G.FUNCS['p179/k/off'].insert(0, 'function bm:p179/k/off_clear')
     fn('p179/k/tick', [f'execute if entity @s[tag=bm.pwk_{w}] run function bm:p179/k/back{i}' for i, (w, *_r) in enumerate(PW)
                        if f'p179/k/back{i}' in G.FUNCS])
     second.append('execute as @a[tag=bm.pwkeep,tag=!bm.gvp,gamemode=!creative,gamemode=!spectator] at @s '

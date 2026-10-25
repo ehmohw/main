@@ -21,6 +21,11 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94s
+
+- **Keep up, for partners frozen in unloaded chunks:** a partner left in a chunk that has unloaded (you pearled, sailed or portalled away) used to be frozen there, unseen. With **Keep up** on, they now despawn and come back to your side, under the same rules as before: once you're on the ground or in water, in survival or adventure. You'll see "*Emma got lost - back at your side...*". The frozen copy goes home by itself if its chunk ever loads again, so you never get two.
+- **Queen Pearl's cake line**, again: "*Darling, I never go ANYWHERE without cake. There's a slice in my handbag - don't tell your mother.*"
+
 ## New in 2.94r: the Follower Gallery
 
 A Pokédex of partners, opened from the **Partner Wheel's** page with the new **Gallery** button.
@@ -51,11 +56,11 @@ A new switch on the Partner Wheel's page: **Keep up: on / off** (off at first).
 - It only applies while you still carry the partner's item, or it's on your wheel. Put the item away and they stay home.
 - In a heist, a partner still waits outside the vault, as before.
 - Switched off, it's the old way: "*...couldn't keep up and went home.*"
-- One gap: a partner left in a chunk that has since unloaded is frozen there, and the game can't see them. Call them again as usual.
+- (2.94s) A partner frozen in a chunk that has since unloaded comes back too.
 
 Also in 2.94q:
 - **The Scorching Arachno-Lantern** is five times as common in hard mode: 1 in 500 Blood Moon spawns under the open sky, up from 1 in 2,500. Normal mode is unchanged. Its spawn rules were checked again: a Blood Moon, the Overworld, under the open sky, not in water, one at a time.
-- **Queen Pearl's** answer to "Did you bring cake?" now makes sense: "*Darling, I never go ANYWHERE without cake. Check my crown.*"
+- **Queen Pearl's** answer to "Did you bring cake?" now makes sense: "*Darling, I never go ANYWHERE without cake. There's a slice in my handbag - don't tell your mother.*"
 
 ## New in 2.94p: the Prime Cooler's auto-convert
 
