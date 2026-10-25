@@ -32,6 +32,10 @@ A new switch on the Partner Wheel's page: **Keep up: on / off** (off at first).
 - Switched off, it's the old way: "*...couldn't keep up and went home.*"
 - One gap: a partner left in a chunk that has since unloaded is frozen there, and the game can't see them. Call them again as usual.
 
+Also in 2.94q:
+- **The Scorching Arachno-Lantern** is five times as common in hard mode: 1 in 500 Blood Moon spawns under the open sky, up from 1 in 2,500. Normal mode is unchanged. Its spawn rules were checked again: a Blood Moon, the Overworld, under the open sky, not in water, one at a time.
+- **Queen Pearl's** answer to "Did you bring cake?" now makes sense: "*Darling, I never go ANYWHERE without cake. Check my crown.*"
+
 ## New in 2.94p: the Prime Cooler's auto-convert
 
 **Use** the Prime Cooler to cycle it: **gathering** (Prime cuts nearby fly in) -> **gathering and AUTO-CONVERT** -> **off**, and round again. Sneak + use still opens it.

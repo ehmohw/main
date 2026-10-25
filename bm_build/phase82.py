@@ -75,7 +75,7 @@ def generate(G):
                                 f'left_rotation:{snbt(qf(q))},translation:{snbt([F(round(v, 4)) for v in t])},scale:{snbt([F(round(s, 4))] * 3)}}}}}'
                                 for p, (t, q, s) in xf.items()])
 
-    # ================================================================== THE SPAWN: one Blood Moon spawn in a few thousand, under the open sky
+    # ================================================================== THE SPAWN: one Blood Moon spawn in 2500 (500 in hard mode), under the open sky
     host = {'Tags': ['bm.salboss', 'bm.salhost', 'bm.salnew', 'bm.seen', 'bm.blood', 'bm.tiered'], 'Silent': B(1), 'PersistenceRequired': B(1), 'NoGravity': B(1),
             'CustomName': T('The Scorching Arachno-Lantern', ORANGE, bold=True), 'Health': F(HP), 'DeathLootTable': 'minecraft:empty',
             'attributes': [{'id': 'minecraft:max_health', 'base': D(HP)}, {'id': 'minecraft:armor', 'base': D(10)}, {'id': 'minecraft:armor_toughness', 'base': D(6)},
@@ -92,7 +92,8 @@ def generate(G):
     roll = ('execute if score #sr bm.rng matches 1 if dimension minecraft:overworld unless entity @e[type=minecraft:giant,tag=bm.salboss] '
             'if predicate bm:sees_sky unless block ~ ~-1 ~ #minecraft:air unless block ~ ~ ~ minecraft:water run return run function bm:p82/spawn')
     for t in ('zombie', 'husk', 'skeleton', 'stray', 'spider', 'creeper', 'witch', 'enderman'):
-        G.FUNCS[f'mobs/blood_roll/{t}'][0:0] = ['execute store result score #sr bm.rng run random value 1..2500', roll]
+        G.FUNCS[f'mobs/blood_roll/{t}'][0:0] = ['execute store result score #sr bm.rng run random value 1..2500',
+                                                 'execute if score #hard bm.cfg matches 1 store result score #sr bm.rng run random value 1..500', roll]   # (2.94q: five times as likely in hard mode)
 
     # ================================================================== THE HEARTBEAT
     tick.append('execute as @e[type=minecraft:giant,tag=bm.salboss] at @s run function bm:p82/tick')
