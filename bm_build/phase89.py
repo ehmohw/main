@@ -97,27 +97,48 @@ def textures():
 
 
 # ===================================================================== (2.94m) her KILLERWATT LOOK - an Easter egg: KillerWatt called while
-# she's with you (phase217). Glassy green from head to toe like him, his comma on her chest, a tattered hem, clawed hands,
-# yellow shoes, four lightning tendrils off her back - her own face, gone green. A look only: the parts are models of their own
-# (emkw_*), not a wardrobe outfit - on or off in her wardrobe once she has it.
+# she's with you (phase217). Her own dress and hair, recoloured green and yellow, with four lightning tendrils off her back.
+# A look only: the parts are models of their own (emkw_*), not a wardrobe outfit - on or off in her wardrobe once she has it.
 KW_PARTS = ('body', 'head', 'armr', 'arml', 'legr', 'legl')
 
 
+KW_GREEN = ('#14481a', '#3aa830', '#7ade4a', '#d4ffb0')          # (dark .. light: a ramp her shades are laid along)
+KW_YELLOW = ('#5a4a06', '#c8b018', '#f6e030', '#fffbd0')
+KW_PALE = ('#5a6a48', '#a8c890', '#d8ecbe', '#f4ffe4')
+KW_FORCE = {'em2_hair': KW_GREEN, 'em2_skin': KW_PALE, 'em2_cheek': KW_PALE, 'em2_shoe': KW_YELLOW, 'em2_pink': KW_YELLOW,
+            'em2_pinkdark': KW_YELLOW, 'em2_brooch': KW_YELLOW, 'em2_gem': KW_YELLOW, 'em2_buckle': KW_YELLOW}
+
+
+def _ramp(pal, l):
+    l = max(0.0, min(1.0, l)) * (len(pal) - 1); k = min(int(l), len(pal) - 2); t = l - k
+    a, b = hexc(pal[k]), hexc(pal[k + 1])
+    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
+
+
+def kw_recolour(name, im):
+    """(2.94m) one of her own textures, green and yellow: her shades kept (each pixel's lightness laid along a ramp) - blues,
+    browns and her hair go green; pinks, golds and her shoes yellow; whites and skin a pale green"""
+    import colorsys
+    out = im.copy(); px = out.load()
+    for y in range(im.size[1]):
+        for x in range(im.size[0]):
+            r, g, b, a = im.getpixel((x, y))
+            if not a: continue
+            h, l, sat = colorsys.rgb_to_hls(r / 255, g / 255, b / 255)
+            pal = KW_FORCE.get(name)
+            if pal is None:
+                pal = KW_PALE if sat < 0.18 or l > 0.9 else (KW_YELLOW if (h < 0.11 and l > 0.45) or h > 0.78 else KW_GREEN)
+            px[x, y] = _ramp(pal, l * 1.05) + (a,)
+    return out
+
+
 def kw_textures():
-    import math
-    from phase57_art import _gloss
-    from phase79_art import _slime
     import phase95_art as FA
-    chest = _slime('#5ccf3c', 301, '#8ef062', '#3a9a2c'); d = ImageDraw.Draw(chest)
-    d.ellipse((22, 12, 42, 32), fill=hexc('#f6e030')); d.ellipse((27, 17, 37, 27), fill=hexc('#3a9a2c'))         # his comma: a ring...
-    d.polygon([(36, 28), (42, 24), (34, 46), (26, 50), (31, 40)], fill=hexc('#f6e030'))                            # ...and its tail
-    d.line((25, 15, 29, 13), fill=hexc('#fffbc0'), width=2)
+    T = {f'emkw__{k}': kw_recolour(k, im) for k, im in EA.textures().items() if k.startswith('em2_') and k != 'em2_face'}
     bolt = _cloth('#ffe838', 319, var=0.04); bd = ImageDraw.Draw(bolt)
     for y in range(0, 64, 9): bd.line((0, y, 63, y + 4), fill=hexc('#fff6a0'), width=2)                          # (a crackle along it)
-    T = {'emkw_slime': _slime('#5ccf3c', 301, '#8ef062', '#3a9a2c'), 'emkw_slime_dk': _slime('#3faa30', 303, '#62c84a', '#287a22', gloss=False),
-         'emkw_hair': _slime('#4cc236', 307, '#9af46a', '#2e8a24'), 'emkw_skin': _cloth('#dcebc0', 311, var=0.02),
-         'emkw_bolt': bolt, 'emkw_shoe': _gloss('#e8dc2a', 313, sole='#a89a10'), 'emkw_claw': _cloth('#f2ffd8', 317, var=0.02),
-         'emkw_chest': chest, 'emkw_face': FA.emma_kw_face(None)}
+    T['emkw_bolt'] = bolt
+    T['emkw_face'] = FA.emma_kw_face(None)
     for e in FA.EMMA_EXPR:
         T[f'emkw_face_{e}'] = FA.emma_kw_face(e)
     return T
@@ -198,50 +219,21 @@ def models():
                     _el((-2.4, 30.8, 4.6), (2.4, 32.2, 5.5), 'em2_pink', hp), _el((-0.7, 29.2, 4.6), (0.7, 33.8, 5.5), 'em2_pink', hp),
                     _el((-0.6, 30.9, 5.7), (0.6, 32.1, 6.0), 'ee_magenta', hp)]
         part(f'em_head_o{o}', els)
-    # ---- (2.94m) the KillerWatt look
-    pv = PIVOT['body']
-    body = [_el((-3.4, 11.0, -2.3), (3.4, 16.0, 2.3), 'emkw_slime_dk', pv),
-            _el((-3.1, 15.6, -2.1), (3.1, 22.6, 2.1), 'emkw_slime', pv, uv={'north': [0, 0, 16, 16]})]          # (no neck: the head sits on the top)
-    body[1]['faces']['north']['texture'] = '#emkw_chest'
-    for z in (-2.32, 2.32):                                                                  # the tattered hem: points hanging off the top
-        for x in (-2.3, -0.75, 0.75, 2.3):
-            body.append(_el((x - 0.55, 14.85, z - 0.13), (x + 0.55, 15.95, z + 0.13), 'emkw_slime', pv, ('z', 45, (x, 15.4, z))))
-    for x in (-3.42, 3.42):
-        for z in (-1.1, 1.1):
-            body.append(_el((x - 0.13, 14.85, z - 0.55), (x + 0.13, 15.95, z + 0.55), 'emkw_slime', pv, ('x', 45, (x, 15.4, z))))
-    for (x, y, z), segs in TENDRILS:                                                         # four lightning tendrils off her back
-        for fr, to, rot, org in _bolt_chain(x, y, z, segs):
-            for sx in (1, -1):
-                f2, t2 = ((fr[0], fr[1], fr[2]), (to[0], to[1], to[2])) if sx > 0 else ((-to[0], fr[1], fr[2]), (-fr[0], to[1], to[2]))
-                body.append(_el(f2, t2, 'emkw_bolt', pv, ('z', rot * sx, (org[0] * sx, org[1], org[2])) if rot else None))
-    part('emkw_body', body)
-    for sx, nm in ((1, 'armr'), (-1, 'arml')):
-        p = PIVOT[nm]; cx = p[0]
-        arm = [_el((cx - 1, 14.6, -1), (cx + 1, 22.8, 1), 'emkw_slime', p), _el((cx - 0.95, 13.0, -0.95), (cx + 0.95, 14.6, 0.95), 'emkw_slime_dk', p)]
-        arm += [_el((cx - 0.16, 12.0, dz - 0.16), (cx + 0.16, 13.05, dz + 0.16), 'emkw_claw', p) for dz in (-0.6, 0.0, 0.6)]      # claws
-        arm.append(_el((cx + sx * 0.95, 18.0, -0.3), (cx + sx * 1.55, 18.6, 0.3), 'emkw_slime_dk', p, ('z', 45 * sx, (cx + sx * 1.1, 18.3, 0))))   # an elbow spike
-        part(f'emkw_{nm}', arm)
-    for sx, nm in ((1, 'legr'), (-1, 'legl')):
-        p = PIVOT[nm]
-        x0, x1 = (0.7, 2.7) if sx > 0 else (-2.7, -0.7)
-        part(f'emkw_{nm}', [_el((x0 - 0.05, 1.3, -1.05), (x1 + 0.05, 12.0, 1.05), 'emkw_slime', p),
-                            _el((x0 - 0.3, 0, -2.5), (x1 + 0.3, 1.6, 1.2), 'emkw_shoe', p), _el((x0 - 0.05, 0, -3.0), (x1 + 0.05, 0.9, -2.45), 'emkw_shoe', p)])
-    etex, eels = EA.models()['em_head']
-    hp = PIVOT['head']
-    els = copy.deepcopy(eels[:EA.HEAD_BASE])
-    for e in els:
-        for f in e['faces'].values():
-            f['texture'] = {'#em2_hair': '#emkw_hair', '#em2_skin': '#emkw_skin', '#em2_cheek': '#emkw_skin'}.get(f['texture'], f['texture'])
-    hr = lambda fr, to, rot=None: _el(fr, to, 'emkw_hair', hp, rot)
-    els += [hr((-1.7, 25.4, 4.3), (1.7, 31.0, 6.3), ('x', -22.5, (0, 31.0, 5.3))),                       # a high tail, swinging back
-            hr((-1.4, 20.6, 6.3), (1.4, 26.2, 8.1)), hr((-0.9, 19.2, 6.7), (0.9, 20.8, 7.8)),
-            hr((-0.5, 30.6, 4.6), (0.5, 33.6, 5.6), ('z', 22.5, (0, 30.6, 5.1))),                         # its spikes
-            hr((1.0, 29.8, 4.6), (2.0, 32.4, 5.6), ('z', -45, (1.5, 29.8, 5.1))), hr((-2.0, 29.8, 4.6), (-1.0, 32.4, 5.6), ('z', 45, (-1.5, 29.8, 5.1))),
-            _el((-1.0, 30.4, 4.3), (1.0, 32.4, 5.9), 'emkw_slime_dk', hp),                                # a green bow
-            _el((-3.8, 30.2, 4.5), (-0.8, 33.0, 5.5), 'emkw_slime', hp, ('z', 22.5, (-1.0, 31.4, 5.0))),
-            _el((0.8, 30.2, 4.5), (3.8, 33.0, 5.5), 'emkw_slime', hp, ('z', -22.5, (1.0, 31.4, 5.0)))]
-    part('emkw_head', els)
-    M['emkw_head'][0]['em2_face'] = 'bm:block/emkw_face'                                     # (her face key, his look: phase95 swaps in emkw_face_*)
+    # ---- (2.94m) the KillerWatt look: her own parts, recoloured - and four lightning tendrils off her back
+    EM = EA.models()
+    for p in KW_PARTS:
+        tex, els = EM[f'em_{p}']
+        els = copy.deepcopy(els)
+        tex = {k: ('bm:block/emkw_face' if k == 'em2_face' else f'bm:block/emkw__{k}') for k in tex}
+        if p == 'body':
+            pv = PIVOT['body']
+            for (x, y, z), segs in TENDRILS:
+                for fr, to, rot, org in _bolt_chain(x, y, z, segs):
+                    for sx in (1, -1):
+                        f2, t2 = (fr, to) if sx > 0 else ((-to[0], fr[1], fr[2]), (-fr[0], to[1], to[2]))
+                        els.append(_el(f2, t2, 'emkw_bolt', pv, ('z', rot * sx, (org[0] * sx, org[1], org[2])) if rot else None))
+            tex['emkw_bolt'] = 'bm:block/emkw_bolt'
+        M[f'emkw_{p}'] = (tex, els)
     return M
 
 

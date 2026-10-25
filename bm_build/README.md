@@ -21,6 +21,20 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94m: Emma's Easter eggs
+
+- **A hug for Cecil.** When Emma and Cecil are both out with you, idle and close, with no monster near, Emma may (rarely)
+  throw her arms round him: a side hug at his left, one arm across his chest and the other round to his back, her head on
+  his hood. Cecil is put out at first ("Personal space, Emma!"), then gives in, glances aside and blushes. It's rare: about
+  one second in 600 while they idle together, then not again for half an hour.
+- **Her KillerWatt look.** Call KillerWatt while Emma is with you, or Emma while he is, and a jolt arcs between them. She
+  comes out of it in his green and yellow, with four lightning tendrils off her back. It's hers for good from then on: on
+  or off in her wardrobe ("KillerWatt look"). Until then the row only hints at how to get it.
+- **"Frik you!"** Hit too often in quick succession (about five blows), Emma rounds on them: an angry face, "Frik you!" in
+  a bubble over her head and in chat. Then not again for 30 seconds.
+- **Panic.** At a third of her health or less she may panic: wide eyes swimming with tears, a wobbling wail, a line in
+  chat (then not again for 20 seconds).
+
 ## New in 2.94l: chips or tunings, tool chips, the Eject Button, plainer 8-bit meetings
 
 - **Glitched Cartridges are one a follower, and spent when used.** Since every follower needs their own, every won heist

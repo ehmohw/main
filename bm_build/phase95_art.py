@@ -15,7 +15,7 @@ from phase57_art import hexc
 
 EMMA_EXPR = ('blink', 'wink', 'happy', 'sad', 'hurt', 'serious', 'surprised', 'sleepy', 'panic', 'angry')      # (2.94m: panic and angry - her Easter eggs)
 CELI_EXPR = ('blink', 'tsk', 'huff', 'hurt', 'serious', 'surprised', 'sleepy')
-CECIL_EXPR = ('blink', 'deadpan', 'roll', 'sly', 'hurt', 'serious', 'surprised', 'sleepy')
+CECIL_EXPR = ('blink', 'deadpan', 'roll', 'sly', 'hurt', 'serious', 'surprised', 'sleepy', 'blush')     # (2.94m: blush - Emma's hug)
 
 
 # ===================================================================== EMMA
@@ -263,13 +263,13 @@ def cecil_eyes(base_els, expr):
         cy = (y0 + y1) / 2; h = y1 - y0
         ang = e['rotation']['angle'] if 'rotation' in e else 0.0
         side = 1 if ang < 0 else -1                                   # (which eye)
-        def setv(hk=1.0, dy=0.0, a=None, wk=1.0):
-            cx = (x0 + x1) / 2; w = (x1 - x0) * wk
+        def setv(hk=1.0, dy=0.0, a=None, wk=1.0, dx=0.0):
+            cx = (x0 + x1) / 2 + dx; w = (x1 - x0) * wk
             nh = max(0.18, h * hk)
             e['from'] = [round(cx - w / 2, 4), round(cy + dy - nh / 2, 4), z0]; e['to'] = [round(cx + w / 2, 4), round(cy + dy + nh / 2, 4), z1]
             if 'rotation' in e:
                 o = e['rotation']['origin']
-                e['rotation'] = dict(e['rotation'], angle=ang if a is None else a, origin=[o[0], round(o[1] + dy, 4), o[2]])
+                e['rotation'] = dict(e['rotation'], angle=ang if a is None else a, origin=[round(o[0] + dx, 4), round(o[1] + dy, 4), o[2]])
         if expr == 'blink': setv(0.2)
         elif expr == 'deadpan': setv(0.5, -0.12, 8.0 * (-1 if ang < 0 else 1))
         elif expr == 'roll': setv(0.55, 0.45, 0.0, 0.8)
@@ -277,6 +277,16 @@ def cecil_eyes(base_els, expr):
         elif expr == 'serious': setv(0.6, -0.05, ang * 1.4 if abs(ang * 1.4) <= 45 else ang)
         elif expr == 'surprised': setv(1.45, 0.12, ang * 0.4, 0.9)                 # (2.67) wide, the slant all but gone
         elif expr == 'sleepy': setv(0.28, -0.22, ang * 0.3)                         # a drowsy sliver
+        elif expr == 'blush':                                         # (2.94m) put out - but secretly pleased: narrowed, glancing
+            setv(0.55, -0.08, ang * 0.5, 0.9, 0.45)                     # aside, and a pink squiggle on each cheek (texture z)
+            out.append(e)
+            cx = (x0 + x1) / 2; zf = round(z0 - 0.04, 4)
+            for k in range(3):
+                sx = cx - 0.6 + 0.6 * k; sy = cy - h * 1.35
+                out.append({'from': [round(sx - 0.38, 4), round(sy - 0.11, 4), zf], 'to': [round(sx + 0.38, 4), round(sy + 0.11, 4), round(zf + 0.08, 4)],
+                            'faces': {f: {'uv': [0, 0, 4, 4], 'texture': '#z'} for f in ('north', 'south', 'east', 'west', 'up', 'down')},
+                            'rotation': {'axis': 'z', 'angle': 45.0 if k % 2 else -45.0, 'origin': [round(sx, 4), round(sy, 4), zf]}})
+            continue
         elif expr == 'hurt':                                          # > < : each eye two short strokes
             cx = (x0 + x1) / 2; w = (x1 - x0); L = w * 0.62
             dy = L / 2 * math.sin(math.radians(30))                 # (the two strokes meet at the inner end: a chevron)

@@ -1,6 +1,7 @@
 // 2.94m: EMMA'S EASTER EGGS (phase217), as a regular (non-op) player - Emma and Cecil called with their own items: she hugs him
-// (rcon makes the rare roll certain: #hug1): her hug state and pose, both held still, his eyes closed, her line and his; it ends
-// and both walk free again, and won't come again for half an hour. KillerWatt called with his Spark while she's out: the jolt,
+// (rcon makes the rare roll certain: #hug1): her hug state and pose, both held still; Cecil put out at first ("Personal space"),
+// then he blushes ("Fine. Just this once."), his free arm tucked out of her way; it ends, both walk free again, and won't come again for half
+// an hour. KillerWatt called with his Spark while she's out: the jolt,
 // her KillerWatt look (her parts swap to emkw_*), in her wardrobe for good - turned off and on again from it (sneak + use her
 // ribbon -> Wardrobe -> "KillerWatt look"). Hit six times fast (rcon deals the blows, 0.65 s apart): an angry face, the "Frik you!" bubble
 // riding over her head, her line - and the bubble gone a few seconds later. Low on health: she panics (the face and a line).
@@ -32,6 +33,7 @@ const res = [];
   await run('clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await sleep(3000);
   for (const o of ['bm.emcd', 'bm.cpcd', 'bm.kxcd']) await run(`scoreboard players set TestRat ${o} 0`);
   for (let i = 0; i < 40; i++) await run(`tag TestRat remove bm.arw${i}`);              // (none of them walking back by himself after a faint)
+  for (let i = 0; i < 40; i++) await run(`tag TestRat remove bm.arw${i}`);              // (none of them walking back by himself after a faint)
   await run('tag TestRat remove bm.emkw_u'); await run('tag TestRat remove bm.emkw_o'); await run('tag TestRat remove bm.hush');
   await run(`${O}tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(800);
   for (const [i, iid] of ['emma_ribbon', 'cecil_gem', 'kw_spark'].entries()) await run(`loot replace entity TestRat hotbar.${i} loot bm:items/${iid}`);
@@ -49,11 +51,13 @@ const res = [];
      await (async () => {
        const p = async s => ((await run(`${O}data get entity ${s} Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/) || []).slice(1).map(Number);
        const a = await p(EM), b = await p(CE); return Math.hypot(a[0] - b[0], a[2] - b[2]) < 0.9; })());
-  ok('...her face beams (happy), his eyes closed (blink)', (await face()) === 'happy' &&
-     /"blink"/.test(await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.cpet,tag=bm.cp_eyes,limit=1] item.components."minecraft:custom_model_data"`)), await face());
-  ok('...her line and his, in chat', A.chats.some(c => /C'mere, you/.test(c)) && A.chats.some(c => /Just this once/.test(c)), A.chats.slice(-2).join(' | ').slice(0, 200));
-  ok('...it ends: both free again (no NoAI), back to idle', await wait(8000, async () => (await sc(EM, 'bm.emhg')) === 0 && !/1b/.test(await run(`${O}data get entity ${EM} NoAI`)) &&
-     !/1b/.test(await run(`${O}data get entity ${CE} NoAI`)) && (await sc(EM, 'bm.ems')) !== 20));
+  const ceyes = async () => run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.cpet,tag=bm.cp_eyes,limit=1] item.components."minecraft:custom_model_data"`);
+  ok('...her face beams (happy); Cecil put out at first (deadpan), "Personal space"', (await face()) === 'happy' && /"deadpan"/.test(await ceyes()) &&
+     A.chats.some(c => /C'mere, you/.test(c)) && A.chats.some(c => /Personal space/.test(c)), `${await face()} ${await ceyes()} | ${A.chats.slice(-2).join(' | ').slice(0, 200)}`);
+  ok('...then he gives in: he blushes, "Fine. Just this once." (his free arm tucked back out of her way)', await wait(4000, async () => /"blush"/.test(await ceyes()) &&
+     (await cnt('@e[type=minecraft:item_display,tag=bm.cp_larm,tag=bm.cphug]')) === 1 && A.chats.some(c => /Just this once/.test(c)), 200), `${await ceyes()}`);
+  ok('...it ends: both free again (no NoAI), back to idle, his arm his own', await wait(8000, async () => (await sc(EM, 'bm.emhg')) === 0 && !/1b/.test(await run(`${O}data get entity ${EM} NoAI`)) &&
+     !/1b/.test(await run(`${O}data get entity ${CE} NoAI`)) && (await sc(EM, 'bm.ems')) !== 20 && (await cnt('@e[type=minecraft:item_display,tag=bm.cphug]')) === 0));
   ok('...and not again for half an hour', (await sc(EM, 'bm.emhc')) > 1700, `rest ${await sc(EM, 'bm.emhc')}`);
 
   // ================================================================== 2. her KillerWatt look
@@ -102,6 +106,7 @@ const res = [];
   // ---------------------------------------------------------------- clean up
   for (const t of ['cat,tag=bm.emmapet', 'wolf,tag=bm.cecilpet', 'wolf,tag=bm.kxpet']) await run(`kill @e[type=minecraft:${t}]`);
   await run('kill @e[type=minecraft:text_display,tag=bm.emfrik]');
+  await sleep(1500); for (let i = 0; i < 40; i++) await run(`tag TestRat remove bm.arw${i}`);
   await sleep(1500); for (let i = 0; i < 40; i++) await run(`tag TestRat remove bm.arw${i}`);
   await run('clear TestRat'); await run('effect clear TestRat'); await run('tag TestRat remove bm.emkw_u'); await run('tag TestRat remove bm.emkw_o');
   await run(`${O}forceload remove ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);

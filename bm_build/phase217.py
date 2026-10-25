@@ -2,11 +2,13 @@
 
 - A HUG FOR CECIL: when Emma and Cecil are both out with you, idle and close, with no monster near, Emma may - rarely - throw
   her arms round him (one in 600 a second while they're idle together, and never again for half an hour after). Both stand
-  still for a moment: she leans in, cheek to the side, one heel kicked up; his eyes close; hearts. (State 20 on her rig.)
+  still for a moment: he turns to you, she steps in at his left, turned to him - one arm round behind his back, the other
+  across his chest, her head tipped onto his hood (a side hug, as in the art). Cecil, as in the art: put out at first ("Personal
+  space!"), then he gives in - his eyes glance aside and he blushes (a pink squiggle on each cheek: phase95_art's 'blush');
+  hearts. His free arm tucks back out of her way. (State 20 on her rig.)
 - HER KILLERWATT LOOK: call KillerWatt while Emma is with you (or Emma while he is) and a jolt arcs between them - she comes
-  out of it glassy green like him: his comma on her chest, a tattered hem, clawed hands, four lightning tendrils off her back,
-  her own face gone green, eyes glowing (phase89's emkw_* parts, her faces recoloured - phase95_art.emma_kw_face). A look only. It's hers for good
-  from then on - on or off in her wardrobe ("KillerWatt look").
+  out of it recoloured in his green and yellow (her own dress and hair, phase89's emkw_* parts), with four lightning tendrils
+  off her back, her eyes aglow. A look only. It's hers for good from then on - on or off in her wardrobe ("KillerWatt look").
 - "FRIK YOU!": hit too often too fast (her hits pile up 10 each and drain 2 a second; at 40 - five quick blows) she rounds on them - an angry face,
   "Frik you!" in a spiky white bubble over her head, in chat too. Then not again for 30 seconds.
 - PANIC: at a third of her health or less she may panic (one in four a second, then not for 20 seconds) - wide eyes swimming
@@ -20,7 +22,8 @@ PINK = '#ff7ad0'
 GREEN = '#7ae63a'
 HUG_ODDS = 600                # (1 in this, a second, while they're idle together)
 HUG_REST = 1800               # (seconds before another)
-HUG_TICKS = 70
+HUG_TICKS = 90
+CEC_PUT_OUT = 30              # (ticks of Cecil put out before he gives in)
 FRIK_AT, FRIK_REST, PANIC_REST = 40, 30, 20
 
 
@@ -50,27 +53,43 @@ def generate(G):
                         'unless data entity @s {NoAI:1b} run tag @s add bm.emhugc',
                         'execute unless entity @e[type=minecraft:wolf,tag=bm.emhugc] run return 0',
                         'function bm:p217/hug/start', 'tag @e[type=minecraft:wolf,tag=bm.emhugc] remove bm.emhugc'])
-    # (both held still a moment: she steps in front of him, turned to him; he turns to her)
+    # (both held still a moment: he turns to you; she steps in at his left, turned in to him)
     C = '@e[type=minecraft:wolf,tag=bm.emhugc,limit=1]'
     fn('p217/hug/start', [f'scoreboard players set @s bm.emhg {HUG_TICKS}', f'scoreboard players set @s bm.emhc {HUG_REST}',
-                          'tag @s add bm.emhugging', f'tag {C} add bm.emhugging',
+                          'tag @s add bm.emhugging', f'tag {C} add bm.emhugging', 'execute on owner run tag @s add bm.emhugown',
                           f'data modify entity @s NoAI set value 1b', f'data modify entity {C} NoAI set value 1b',
-                          f'execute at {C} rotated as {C} rotated ~ 0 positioned ^ ^ ^0.6 run tp @s ~ ~ ~ ~180 0',
-                          f'execute as {C} at @s facing entity @e[type=minecraft:cat,tag=bm.emhugging,limit=1,sort=nearest] feet run tp @s ~ ~ ~ ~ 0',
-                          ] + [f'execute as {C} run {l}' for l in P95.face_cmd('cecil', 'blink', HUG_TICKS)] + P95.face_cmd('emma', 'happy', HUG_TICKS) +
-       ['particle minecraft:heart ~ ~1.6 ~ 0.4 0.3 0.4 0 6', 'playsound minecraft:entity.cat.purr neutral @a[distance=..16] ~ ~ ~ 1 1.3',
+                          f'execute as {C} at @s facing entity @a[tag=bm.emhugown,limit=1] feet run tp @s ~ ~ ~ ~ 0',     # (he turns to you...)
+                          f'execute at {C} rotated as {C} rotated ~ 0 positioned ^0.491 ^ ^0.379 run tp @s ~ ~ ~ ~80 0',      # (...she at his left, turned in)
+                          ] + [f'execute as {C} run {l}' for l in P95.face_cmd('cecil', 'deadpan', CEC_PUT_OUT)] + P95.face_cmd('emma', 'happy', HUG_TICKS) +
+       ['tag @a remove bm.emhugown', 'particle minecraft:heart ~ ~1.6 ~ 0.4 0.3 0.4 0 6', 'playsound minecraft:entity.cat.purr neutral @a[distance=..16] ~ ~ ~ 1 1.3',
         emline(T('(she throws her arms around Cecil) ', '#ffd0ec', italic=True), T('"Cecil!! C\'mere, you! You\'re the BEST."', '#ffd0ec')),
-        own([T('Cecil: ', '#b48cff', bold=True), T('"...Mrph. Fine. Just this once." ', '#d8c8ff'), T('(He doesn\'t pull away.)', '#d8c8ff', italic=True)])])
+        own([T('Cecil: ', '#b48cff', bold=True), T('"Hey- HEY. Personal space, Emma. I\'m holding a staff here."', '#d8c8ff')])])
+    # (Cecil, as in the art: put out at first - then he gives in, and he blushes)
+    fn('p217/hug/soften', [f'execute as @e[type=minecraft:wolf,tag=bm.cecilpet,tag=bm.emhugging,distance=..3] run {l}' for l in P95.face_cmd('cecil', 'blush', HUG_TICKS - CEC_PUT_OUT)] +
+       ['particle minecraft:heart ~ ~1.5 ~ 0.4 0.2 0.4 0 3',
+        own([T('Cecil: ', '#b48cff', bold=True), T('"...Mrph. Fine. Just this once." ', '#d8c8ff'),
+             T('(He doesn\'t pull away. His eyes glow a little warmer - is he blushing?)', '#d8c8ff', italic=True)])])
+    from phase57_art import qa, qmul
+    q = qa('x', 36.1)                                     # (his free arm tucked back, out of her way)
+    hold = f'left_rotation:[{q[0]:.4f}f,{q[1]:.4f}f,{q[2]:.4f}f,{q[3]:.4f}f],translation:[0f,0f,0f]'
+    fn('p217/hug/cecil', [
+                          'execute as @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_larm,tag=!bm.cphug] run data merge entity @s '
+                          f'{{start_interpolation:0,interpolation_duration:8,transformation:{{{hold}}}}}',
+                          'tag @e[type=minecraft:item_display,tag=bm.cpsel,tag=bm.cp_larm] add bm.cphug'])
+    # (as Cecil each tick, in place of his own animation while she hugs him: held still, his free arm tucked back out of her way)
+    G.FUNCS['p46/pet/anim'].insert(0, 'execute if entity @s[tag=bm.emhugging] run return run function bm:p217/hug/cecil')
     # (each tick of it, as her host, from her tick: hold the pose where she stands; hearts now and then)
     fn('p217/hug/tick', ['scoreboard players remove @s bm.emhg 1',
                          'execute rotated as @s rotated ~ 0 run function bm:p57/place',
+                         f'execute if score @s bm.emhg matches {HUG_TICKS - CEC_PUT_OUT} run function bm:p217/hug/soften',
                          'execute if score @s bm.emhg matches 20 run particle minecraft:heart ~ ~1.7 ~ 0.3 0.2 0.3 0 3',
                          'execute if score @s bm.emhg matches 45 run particle minecraft:heart ~ ~1.7 ~ 0.3 0.2 0.3 0 3',
                          'execute if score @s bm.emhg matches ..0 run function bm:p217/hug/end'])
     fn('p217/hug/end', ['scoreboard players set @s bm.emhg 0', 'data modify entity @s NoAI set value 0b', 'tag @s remove bm.emhugging',
                         'scoreboard players operation #me bm.pid = @s bm.pid',
                         'execute as @e[type=minecraft:wolf,tag=bm.cecilpet,tag=bm.emhugging] if score @s bm.pid = #me bm.pid run function bm:p217/hug/free'])
-    fn('p217/hug/free', ['data modify entity @s NoAI set value 0b', 'tag @s remove bm.emhugging'])
+    fn('p217/hug/free', ['data modify entity @s NoAI set value 0b', 'tag @s remove bm.emhugging', 'scoreboard players operation #me bm.pid = @s bm.pid',
+                         'execute as @e[type=minecraft:item_display,tag=bm.cphug] if score @s bm.pid = #me bm.pid run tag @s remove bm.cphug'])
     # (a hug cut short - unloaded, or Emma gone - never leaves either of them frozen)
     sec += ['execute as @e[type=minecraft:wolf,tag=bm.cecilpet,tag=bm.emhugging] at @s unless entity @e[type=minecraft:cat,tag=bm.emhugging,distance=..4] run function bm:p217/hug/free',
             'execute as @e[type=minecraft:cat,tag=bm.emmapet,tag=bm.emhugging] unless score @s bm.emhg matches 1.. run function bm:p217/hug/end']

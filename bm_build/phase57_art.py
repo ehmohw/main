@@ -657,11 +657,11 @@ POSES = {
     # wave at Cecil
     'wave_a': P(body=torso(tilt=-3), head=torso(tilt=8), armr=limb(1, 24, -26), arml=limb(-1, 10, 150)),
     'wave_b': P(body=torso(tilt=-3), head=torso(tilt=8), armr=limb(1, 24, -26), arml=limb(-1, 10, 118)),
-    # (2.94m) the rare hug for Cecil: arms flung round him, leaning in, cheek to the side - one heel kicked up, rocking a little
-    'hug_a': P(body=torso(lean=12, tilt=3), head=torso(lean=10, tilt=14, turn=-12), armr=limb(1, 82, -34), arml=limb(-1, 82, -34),
-               legl=limb(-1, -28)),
-    'hug_b': P(body=torso(lean=12, tilt=-3), head=torso(lean=10, tilt=10, turn=-12), armr=limb(1, 78, -40), arml=limb(-1, 78, -40),
-               legl=limb(-1, -42)),
+    # (2.94m) the rare hug for Cecil - a side hug, as in the art: she stands at his left, turned in to him (phase217 places her),
+    # her near arm round to his back, the other across his chest, her head tipped onto his hood; rocking a little. (Placement and
+    # angles were searched against both models for no overlap at all - her own dress and her KillerWatt look alike.)
+    'hug_a': P(body=torso(lean=-3.95, tilt=-4.26), head=torso(lean=3.21, tilt=-25.2, turn=-16.73), armr=limb(1, 13.05, 65.29), arml=limb(-1, 90.33, -38.49)),
+    'hug_b': P(body=torso(lean=-3.95, tilt=-1.76), head=torso(lean=3.21, tilt=-21.2, turn=-16.73), armr=limb(1, 13.05, 65.29), arml=limb(-1, 90.33, -38.49)),
     # ethereal: hovering, legs trailing, axe at the ready, wings beating
     'strike_up': P(0.12, body=torso(lean=-6, turn=-15), head=torso(lean=-6), legr=limb(1, -10), legl=limb(-1, -30), armr=limb(1, 165, 15), arml=limb(-1, 20, 60), **WINGS_UP),
     'strike_dn': P(0.0, body=torso(lean=16, turn=15), head=torso(lean=6), legr=limb(1, -30), legl=limb(-1, -10), armr=limb(1, -18, -8), arml=limb(-1, -10, 50), **WINGS_DN),

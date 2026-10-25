@@ -55,6 +55,8 @@ def textures():
         T[f'ee_face_{e}'] = ART.emma_face(e, *ART.EMMA_EYES_ETH)
     for e in ART.CELI_EXPR:
         T[f'ce_face_{e}'] = ART.celi_face(e)
+    from PIL import Image
+    T['cec_blush'] = Image.new('RGBA', (16, 16), (255, 110, 150, 255))         # (2.94m: Cecil's blush, for Emma's hug)
     return T
 
 
@@ -78,7 +80,7 @@ def rp(R):
         tex, els = R.HATS[name]
         heads[name] = []
         for e in ART.CECIL_EXPR:
-            R.HATS[f'{name}_x{e}'] = (tex, ART.cecil_eyes(els, e))
+            R.HATS[f'{name}_x{e}'] = (dict(tex, z='bm:block/cec_blush') if e == 'blush' else tex, ART.cecil_eyes(els, e))
             heads[name].append((e, f'{name}_x{e}'))
     def post(R2):
         mdl = lambda n: {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
