@@ -21,6 +21,31 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94o: the raid reward overhaul
+
+Rare finds rise with the tier now (a Tier V heist is 10-15 minutes), with three promises on top. Per raider, per won heist:
+
+|                  | I   | II  | III | IV  | V   | was |
+|------------------|-----|-----|-----|-----|-----|-----|
+| Rare find        | 6%  | 8%  | 10% | 13% | 16% | 5% flat |
+| Legendary        | 3%  | 4%  | 6%  | 8%  | 10% | 3% flat |
+| **Mythic**       | 1%  | 2%  | 3%  | 5%  | 7%  | 1% flat |
+| Aura             | -   | -   | 2%  | 4%  | 6%  | 0.8 / 1.5 / 2.5% |
+| Boss summon      | -   | -   | 3%  | 6%  | 10% | 1 / 3 / 5% |
+| The tier's gear  | 8%  | 10% | 12% | 15% | 18% | 6-10% |
+| BM Medallion     | -   | -   | 8%  | 20% | 35% | 5 / 12 / 22% |
+| BM Trophy        | -   | -   | -   | -   | 5%  | 1.5% |
+
+Gutter Coins a share at Tiers IV and V are half again (8-12 and 11-15). At Tier V a mythic comes about once in fourteen
+wins - three hours or so.
+
+- **No duplicates.** A rare, legendary or mythic find gives the one of its pair you haven't found yet; the tier's gear, a
+  piece you haven't had from a heist; an aura, one you don't own. Once you have them all, any.
+- **Bad-luck protection.** Every won Tier IV or V heist without a mythic counts. After 20 in a row, the next one brings a
+  mythic for certain. The count shows at the end of each Tier IV-V win ("Mythic luck: 4/20").
+- **Your first Tier V win of the day** brings a legendary at least: if the haul has no legendary or mythic, one is added.
+- **Raid Odds** in the Ledger: the Office, then the Codex, then Raid Odds - the table, your mythic count, today's bonus.
+
 ## New in 2.94n: fixes
 
 - **The Arcade's own props face the room** in every market. A summon takes no rotation, so the arcade cabinet, the Warp

@@ -28,7 +28,7 @@ import phase72 as _P72
 
 ROMAN = ['', 'I', 'II', 'III', 'IV', 'V']
 HA, HB = '-200 64 -197', '-198 64 -197'                 # (the haul's two barrels - as phase105)
-BOSS_CHANCE = {3: 1, 4: 3, 5: 5}                       # % a won heist, every raider
+BOSS_CHANCE = {3: 3, 4: 6, 5: 10}                      # % a won heist, every raider (2.94o: was 1 / 3 / 5)
 LANTERN_CHANCE = 5                                     # % a won Blood Moon heist, Tier III and up, every raider
 # key: (item, name, colour, the boss's own placing (as a player, at them), its body, its tag, its dimension, who, lore)
 SUMMON = {

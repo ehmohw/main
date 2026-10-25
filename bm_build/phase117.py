@@ -383,6 +383,7 @@ def generate(G):
     G.FUNCS['p116/curse/won'] += [f'execute if score @s bm.gvcrs matches {c} as @a[tag=bm.gvp,distance=..300] if score @s bm.gvi = #gi bm.rng at @s run function bm:p117/cx/c{c}' for c in P116.CURSES]
     # the pages
     G.FUNCS['p80/act'].insert(2, f'execute if score #act bm.pay matches {C_CODEX} run return run function bm:p117/cx/menu')
+    G.FUNCS['p80/act'].insert(2, f'execute if score #act bm.pay matches {C_SEC + 5} run return run function bm:p218/odds')        # (2.94o)
     for s in SECS:
         G.FUNCS['p80/act'].insert(2, f'execute if score #act bm.pay matches {C_SEC + s - 1} run return run function bm:p117/cx/page{s}')
     menu = [f'scoreboard players set @s bm.menu {C_CODEX}', 'data remove storage bm:ui cx']
@@ -397,6 +398,8 @@ def generate(G):
         body += [T('\n📖 ', CODEX), T(snm + '   ', 'white'), T(f'$(n{s})', CODEX, bold=True), T(f' of {len(ents)}', 'gray'), T(f'\n     $(w{s})', 'dark_gray')]
     dlg = P28.multi([T('THE CODEX', CODEX, bold=True), T('  ·  what you\'ve seen in the vault', 'gray')], [P28.body(body, 300)],
                     [P28.btn([T('📖 ', CODEX), T(snm, 'white', bold=True)], C_SEC + s - 1, width=150) for s, (snm, _e, _r) in SECS.items()] +
+                    [P28.btn([T('🎲 ', '#ffcf40'), T('Raid Odds', 'white', bold=True)], C_SEC + 5, width=150,           # (2.94o: phase218)
+                             tooltip=T('What a won heist can bring, tier by tier - and your mythic luck.', 'gray'))] +
                     [P28.btn([T('◀ ', P80.OFFICE), T('The Office', 'white')], P80.MENU_CODE, width=150)], columns=2)
     fn('p117/cx/menu_dlg', [f'$dialog show @s {P28.inline(dlg)}'])
     for s, (snm, ents, rw) in SECS.items():

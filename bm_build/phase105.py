@@ -39,12 +39,15 @@ LAUREL = {1: ('copper', 'Copper Laurel', '#d9824a', (0.85, 0.51, 0.29)), 2: ('si
           5: ('netherite', 'Netherite Laurel', '#a898b0', (0.42, 0.38, 0.44))}      # (2.75: was Ember - too like the Copper one)
 TIER_ADV = {1: ('Into the Gutter', 'Clear a Tier I heist in the Gilded Gutter Vault'), 2: ('Silver Tongued', 'Clear a Tier II heist'),
             3: ('Gilt-Edged', 'Clear a Tier III heist'), 4: ('Pearl Diver', 'Clear a Tier IV heist'), 5: ('Keeper of the Hoard', 'Clear a Tier V heist - the deepest vault')}
-SHARE_COINS = {1: (2, 3), 2: (3, 4), 3: (4, 6), 4: (5, 8), 5: (7, 10)}                   # Gutter Coins a share
+SHARE_COINS = {1: (2, 3), 2: (3, 4), 3: (4, 6), 4: (8, 12), 5: (11, 15)}                  # Gutter Coins a share (2.94o: IV and V half again)
 NIGHT_AMT = {t: (2 + t, 4 + 2 * t) for t in range(1, 6)}                                  # the night's own currency, by tier
-RARE_CHANCE = {1: 6, 2: 7, 3: 8, 4: 9, 5: 10}                                             # % a win: a piece of the tier's raid-only gear
+RARE_CHANCE = {1: 8, 2: 10, 3: 12, 4: 15, 5: 18}                                         # % a win: a piece of the tier's raid-only gear (2.94o: was 6-10)
 RARE_POOL = {1: ['heisters_shiv'], 2: ['heisters_shiv', 'vault_breaker'], 3: ['vault_breaker', 'coinslinger'],
              4: ['coinslinger', 'gutter_cutlass'], 5: ['gutter_cutlass', 'treasurers_scepter']}
-FIND_RARE, FIND_LEGEND, FIND_MYTH = 5, 3, 1                                               # % a win, every raider, any tier
+# % a win, every raider, by tier (2.94o: they rise with the tier - a Tier V heist is 10-15 minutes; they were a flat 5 / 3 / 1)
+FIND_RARE = {1: 6, 2: 8, 3: 10, 4: 13, 5: 16}
+FIND_LEGEND = {1: 3, 2: 4, 3: 6, 4: 8, 5: 10}
+FIND_MYTH = {1: 1, 2: 2, 3: 3, 4: 5, 5: 7}                                                # (Tier V: one in about fourteen wins - three hours)
 CORE_PERMILLE = 10                                                                        # a Shifting Core: 1 in 100
 DESK = 8500
 PRICES = {'crate_raw': 16, 'crate_adventure': 32, 'crate_mineral': 48, 'tip_bloodmoon': 64, 'tip_alien': 64, 'crate_stone': 6, 'crate_wood': 8}
@@ -179,9 +182,9 @@ def generate(G):
         wjson(f'bm/loot_table/p105/rare_t{t}.json', {'pools': [{'rolls': 1, 'entries': [ent(i, 1) for i in pool]}]})
     fn('p105/finds', ['execute store result score #r bm.rng run random value 1..100'] +
        [f'execute if score #gt bm.rng matches {t} if score #r bm.rng matches ..{c} run function bm:p105/find_gear{t}' for t, c in RARE_CHANCE.items()] +
-       ['execute store result score #r bm.rng run random value 1..100', f'execute if score #r bm.rng matches ..{FIND_RARE} run function bm:p105/find_rare',
-        'execute store result score #r bm.rng run random value 1..100', f'execute if score #r bm.rng matches ..{FIND_LEGEND} run function bm:p105/find_legend',
-        'execute store result score #r bm.rng run random value 1..100', f'execute if score #r bm.rng matches ..{FIND_MYTH} run function bm:p105/find_myth'])
+       [l for kind, odds in (('rare', FIND_RARE), ('legend', FIND_LEGEND), ('myth', FIND_MYTH))
+        for l in ['execute store result score #r bm.rng run random value 1..100'] +
+        [f'execute if score #gt bm.rng matches {t} if score #r bm.rng matches ..{c} run function bm:p105/find_{kind}' for t, c in odds.items()]])
     for t in RARE_POOL:
         fn(f'p105/find_gear{t}', ins(f'bm:p105/rare_t{t}') + [tellraw('@s', P + [T('A vault treasure in your haul! ', '#9ae8ff', bold=True),
                                                                                   T(f'A piece of Tier {ROMAN[t]}\'s own gear.', 'gray')])])

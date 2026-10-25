@@ -102,7 +102,7 @@ AURA = {
     'pxcecil': ('Scanlines', '#b070ff', 2.0, 1.2, 'minecraft:electric_spark', ['particle minecraft:electric_spark ~ ~1.8 ~ 0.4 0.6 0.4 0.05 2', f'particle {dust(1.0, 1.0, 1.0, 0.6)} ~ ~1.2 ~ 0.5 0.8 0.5 0 3'])}
 assert set(AURA) == set(ORDER) == set(HOST) == set(P99.BASE)
 PRICE = 1280                                 # coins at the Tailor (10 Gutter Trophies)
-FIND = {3: 8, 4: 15, 5: 25}                  # per mille, a won heist of tier III / IV / V
+FIND = {3: 20, 4: 40, 5: 60}                 # per mille, a won heist of tier III / IV / V (2.94o: was 8 / 15 / 25)
 TL2 = 8100                                   # the Tailor's second block (phase103): 8106 the auras page, 8150-8162 an aura each
 AURA_PAGE, AURA_BUY = TL2 + 6, TL2 + 50
 acode = lambda i: AURA_BUY + i if i < 14 else (TL2 + 96 + (i - 14) if i < 18 else (8293 + (i - 18) if i < 25 else 8380 + (i - 25)))   # (2.80d: past the fourteenth, 8196 on - 8164 on are outfits; 2.86: past the 18th, 8293 on; 2.88: past the 25th, 8380 on)
