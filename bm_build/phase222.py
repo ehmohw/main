@@ -67,6 +67,6 @@ def generate(G):
     i = next(k for k, l in enumerate(sd) if l.startswith('execute at @e[tag=bm.emstar') and l.endswith('run tp @s ~ ~ ~'))
     sd[i:i + 1] = ['tag @e[tag=bm.emstar,distance=..40,limit=1] add bm.ktn', 'function bm:p57/k/go {a:1}']
     fn('p57/k/at1', ['particle minecraft:soul_fire_flame ~ ~0.5 ~ 0.6 0.2 0.6 0.04 20'])
-    line = atk.dash(G, 'p57', col('emma'), reach=1.4, speed=1.4, lift=0)
+    line = atk.dash(G, 'p57', col('emma'), reach=1.4, speed=1.1, lift=0)
     T = F['p57/tick']
     T.insert(1, line)

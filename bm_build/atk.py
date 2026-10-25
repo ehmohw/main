@@ -113,3 +113,58 @@ def dash(G, pfx, col, reach=1.6, speed=0.9, lift=3, onto=False, pass_='#bm:grap_
     for i in range(1, 9):
         if f'{pfx}/k/at{i}' not in G.FUNCS: fn(f'{pfx}/k/at{i}', ['return 0'])
     return f'execute if score @s bm.kd matches 1.. run function bm:{pfx}/k/tick'
+
+
+# ======================================================================== signature moves
+def sig(G, pfx, *, kid=1, tick_fn, state_fn, anim_fn, s_obj, place_fn, col, trigger, cd, timeline, end, face='foe', st=21, dash_kw=None, each=()):
+    """a timeline-driven special (as Bender's Rage): `trigger` (an `execute ... if ...` condition, run as the follower at it, each
+    tick it's free) starts it; bm.ksg counts its ticks (bm.ksw: which of the follower's specials - kid); `timeline` {t: [cmds]}
+    plays (as the follower, at it); a cmd 'DASH a <selector>' dashes to that foe (the timeline holds - bm.ksg 1000 - until it
+    arrives, then goes on at t+1). While it runs the follower's own animation is held (its state `st`, no cycle) and it faces its
+    foe (face='foe') or keeps its own heading ('own'). `end`: its last tick (all is put back). cd: ticks before it comes again
+    (bm.kcd<kid>). A follower's specials share its dash (a's must differ)."""
+    fn = G.fn
+    for o in ('bm.ksg', 'bm.ksw', f'bm.kcd{kid}'):
+        if o not in G.OBJECTIVES:
+            G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy']; G.OBJECTIVES.append(o)
+    foe = 'type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body'
+    lines, arr = [], {}
+    for t in sorted(timeline):
+        for c in timeline[t]:
+            if c.startswith('DASH '):
+                _d, a, sel = c.split(' ', 2)
+                arr[int(a)] = t                       # (the next tick it counts on to t + 1: the blow)
+                lines += [f'execute if score @s bm.ksg matches {t} run tag {sel} add bm.ktn',
+                          f'execute if score @s bm.ksg matches {t} if entity @e[tag=bm.ktn] run function bm:{pfx}/k/go {{a:{a}}}',
+                          f'execute if score @s bm.ksg matches {t} if score @s bm.kd matches 1.. run return run scoreboard players set @s bm.ksg 1000']
+            else:
+                lines.append(f'execute if score @s bm.ksg matches {t} run {c}')
+    for a, t in arr.items():
+        fn(f'{pfx}/k/at{a}', [f'scoreboard players set @s bm.ksg {t}'])
+    fn(f'{pfx}/sg/{kid}/tick', list(each) + ['execute if score @s bm.ksg matches 1000 run return 0', 'scoreboard players add @s bm.ksg 1'] + lines +
+       [f'execute if score @s bm.ksg matches {end}.. run function bm:{pfx}/sg/{kid}/end'])
+    fn(f'{pfx}/sg/{kid}/end', ['scoreboard players set @s bm.ksg 0', 'scoreboard players set @s bm.ksw 0', f'scoreboard players set @s bm.kcd{kid} {cd}',
+                               'data merge entity @s {NoGravity:0b}'])
+    T = G.FUNCS[tick_fn]
+    k = next(i for i, l in enumerate(T) if l.startswith('scoreboard players operation #me bm.pid = @s bm.pid')) + 1
+    add = []
+    if arr:                                                   # (a move with a dash in it: the follower's dash)
+        dl = dash(G, pfx, col, **(dash_kw or {})) if f'{pfx}/k/tick' not in G.FUNCS else f'execute if score @s bm.kd matches 1.. run function bm:{pfx}/k/tick'
+        for a, t in arr.items():                              # (dash() makes empty arrivals - ours again)
+            fn(f'{pfx}/k/at{a}', [f'scoreboard players set @s bm.ksg {t}'])
+        if dl not in T: add.append(dl)
+    add += [f'execute if score @s bm.kcd{kid} matches 1.. run scoreboard players remove @s bm.kcd{kid} 1',
+            f'{trigger.replace("execute ", f"execute unless score @s bm.ksg matches 1.. unless score @s bm.kcd{kid} matches 1.. ", 1)} run function bm:{pfx}/sg/{kid}/go',
+            f'execute if score @s bm.ksw matches {kid} if score @s bm.ksg matches 1.. run function bm:{pfx}/sg/{kid}/tick']
+    fn(f'{pfx}/sg/{kid}/go', ['scoreboard players set @s bm.ksg 1', f'scoreboard players set @s bm.ksw {kid}'])
+    T[k:k] = add
+    if arr: G.FUNCS[f'{pfx}/k/stop'].append(f'execute if score @s bm.ksw matches {kid} if score @s bm.ksg matches 1000 run scoreboard players set @s bm.ksg {end - 4}')
+    gate_st = f'execute if score @s bm.ksg matches 1.. run return run scoreboard players set #st bm.rng {st}'
+    if gate_st not in G.FUNCS[state_fn]: G.FUNCS[state_fn].insert(0, gate_st)
+    gate_an = f'execute if score @s {s_obj} matches {st} run return 0'
+    if gate_an not in G.FUNCS[anim_fn]: G.FUNCS[anim_fn].insert(0, gate_an)
+    i = T.index(f'function bm:{anim_fn}') + 1
+    pl = ([f'execute if score @s {s_obj} matches {st} if entity @e[{foe},distance=..20] facing entity @e[{foe},distance=..20,sort=nearest,limit=1] feet rotated ~ 0 run function bm:{place_fn}',
+           f'execute if score @s {s_obj} matches {st} unless entity @e[{foe},distance=..20] rotated as @s rotated ~ 0 run function bm:{place_fn}'] if face == 'foe' else
+          [f'execute if score @s {s_obj} matches {st} rotated as @s rotated ~ 0 run function bm:{place_fn}'])
+    if face != 'none' and pl[0] not in T: T[i:i] = pl
