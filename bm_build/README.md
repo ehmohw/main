@@ -21,6 +21,24 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94l: chips or tunings, tool chips, the Eject Button, plainer 8-bit meetings
+
+- **Glitched Cartridges are one a follower, and spent when used.** Since every follower needs their own, every won heist
+  (any tier) now finds one one time in five, for every raider. (It was one in twenty.)
+- **An 8-bit follower who glitches in is plainly a new follower to recruit.** When 8-Bit Emma, Leo or Cecil tumbles out
+  of a cartridge, your screen says "8-BIT EMMA APPEARED! / Right-click her to recruit her", a "▶ PRESS START -
+  right-click to recruit" sign hangs over them, their model glows in their colour, and chat says what to do. The sign
+  goes once they join you.
+- **Chips or tunings, never both.** The 8-bit chips and Vesper's tunings overlap (damage, speed, luck, mining), so one
+  weapon or tool takes one or the other. A chip won't go into an item Vesper has tuned, and Vesper won't tune an item
+  with a chip in it. Each one tells you how to clear the item: Vesper unbinds his tunings for every token back, and an
+  Eject Button pops the chips out.
+- **The Eject Button** (the Pixel Villager, 1 Dread Token): press it with a chipped weapon or tool in your off hand. Every
+  chip comes out and goes back to you as a chip, with its lore line and bonus gone. The button is used up.
+- **Chips for tools**, from the Pixel Villager, onto a pickaxe, shovel, hoe or axe in your off hand: the **Speedrun Chip**
+  (+6 mining efficiency, 3 Dread Tokens), the **Warp Zone Chip** (+1.5 reach, 3) and the **Lucky Block Chip** (+2 luck,
+  4). Weapon chips stay on weapons and tool chips on tools. An axe counts as both.
+
 ## New in 2.94k: a clean-up of the last two days
 
 - **The 8-Bit Serpent King has his own battle theme**, as an old cartridge would play it (two pulse channels, a triangle

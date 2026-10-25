@@ -21,6 +21,12 @@ THE CHIPS    a weapon's upgrades: hold the chip, the weapon in your off hand, us
                              Royal Pearls, Dread and Omni Tokens, Xenite... - never glitches)
                GAME GENIE    +4 attack damage
                TURBO         +0.8 attack speed
+             (2.94k) and a tool's - any pickaxe, shovel, hoe or axe:
+               SPEEDRUN      +6 mining efficiency
+               WARP ZONE     1.5 blocks more reach
+               LUCKY BLOCK   +2 Luck in hand
+             CHIPS OR TUNINGS: an item takes the 8-bit chips or Vesper's tunings, never both (they overlap). The EJECT
+             BUTTON (a Token) pops every chip out of the item in your off hand, back to you.
 THE PROPS    set them down on a block (sneak + punch one to pick it up):
                ? BLOCK            right-click: a Token pops out (once a day each)
                WARP PIPE          set two down: right-click either - you come out of the other (anywhere, any dimension)
@@ -113,12 +119,25 @@ CHIPS = {   # key: (name, colour, what it does)
     'missingno': ('MissingNo. Chip', '#b0a0ff', ['MISSINGNO.: a kill, one in 64 - the stack in', 'your sixth hotbar slot grows by one.', '(Never a currency.)']),
     'genie': ('Game Genie Chip', GOLD, ['A cheat code: +4 attack damage.']),
     'turbo': ('Turbo Chip', '#ff5050', ['TURBO: +0.8 attack speed.']),
+    # (2.94k) the tool chips
+    'speedrun': ('Speedrun Chip', '#7ad04a', ['SPEEDRUN: it digs faster -', '+6 mining efficiency.']),
+    'warpzone': ('Warp Zone Chip', '#3ad0c0', ['WARP ZONE: you reach 1.5 blocks', 'further with it in hand.']),
+    'lucky': ('Lucky Block Chip', GOLD, ['LUCKY BLOCK: +2 Luck with it', 'in hand (better finds).']),
 }
+TOOL_CHIPS = ('speedrun', 'warpzone', 'lucky')
+CHIP_ATTR = {'genie': ('attack_damage', 4), 'turbo': ('attack_speed', 0.8), 'speedrun': ('mining_efficiency', 6), 'warpzone': ('block_interaction_range', 1.5),
+             'lucky': ('luck', 2)}
 for _k, (_nm, _c, _l) in CHIPS.items():
-    item(f'chip_{_k}', TOTEM, _nm, _c, [(x, _c) for x in _l] + [('Hold it, the weapon in your off hand: use.', 'blue'),
-                                                               ('A sword, axe, mace, trident or arcade weapon;', 'gray'), ('one of each on a weapon, for good.', 'gray')],
+    _what = (('Hold it, the tool in your off hand: use.', 'blue'), ('A pickaxe, shovel, hoe or axe;', 'gray'), ('one of each on a tool, for good.', 'gray')) \
+        if _k in TOOL_CHIPS else (('Hold it, the weapon in your off hand: use.', 'blue'), ('A sword, axe, mace, trident or arcade weapon;', 'gray'), ('one of each on a weapon, for good.', 'gray'))
+    item(f'chip_{_k}', TOTEM, _nm, _c, [(x, _c) for x in _l] + list(_what) + [('Chips or Vesper\'s tunings - never both on one item.', 'dark_gray')],
          model=f'bm:chip_{_k}', stack=16, cat='magic', glint=True, comps=hold('none'))
     HOLD[f'chip_{_k}'] = f'bm:p216/chip/{_k}'
+# (2.94k) and out again: the Eject Button
+item('chip_eject', TOTEM, 'Eject Button', '#ff5a5a', ['Press it: every chip in the weapon or tool', 'in your off hand pops out - back to you.',
+                                                      ('Hold it, the chipped item in your off hand: use.', 'blue'), ('Used up.', 'gray')],
+     model='bm:chip_eject', stack=16, cat='magic', comps=hold('none'))
+HOLD['chip_eject'] = 'bm:p216/eject'
 
 # ================================================================== the props
 PROPS = {   # key: (name, colour, lore, model height in blocks)
@@ -153,6 +172,7 @@ ITEMS['oneup_mushroom']['comps'].pop('!minecraft:death_protection')          # (
 RAT_STOCK = [(i, 1, 4) for _k, (_sn, _c, _pcs, _pow) in SETS.items() for i, _s, _n in _pcs] + \
     [('pixel_blade', 1, 6), ('vampire_killer', 1, 6), ('arm_buster', 1, 6), ('fire_flower', 1, 6)]
 VIL_STOCK = [('chip_glitch', 1, 3), ('chip_missingno', 1, 5), ('chip_genie', 1, 4), ('chip_turbo', 1, 3),
+             ('chip_speedrun', 1, 3), ('chip_warpzone', 1, 3), ('chip_lucky', 1, 4), ('chip_eject', 1, 1),
              ('q_block', 1, 2), ('warp_pipe', 2, 3), ('arcade_cabinet', 1, 2), ('blade_stone', 1, 2), ('power_triangles', 1, 2), ('save_point', 1, 3),
              ('heart_container', 1, 5), ('super_star', 1, 2), ('power_mushroom', 2, 1), ('oneup_mushroom', 1, 3)]
 
@@ -208,7 +228,7 @@ def rp(R):
     R.TEXTURE_MODS.append(sys.modules[__name__])
     keys = [i for _k, (_sn, _c, _pcs, _pow) in SETS.items() for i, _s, _n in _pcs] + \
         ['pixel_blade', 'vampire_killer', 'arm_buster', 'fire_flower', 'heart_container', 'super_star', 'power_mushroom', 'oneup_mushroom'] + \
-        [f'chip_{k}' for k in CHIPS] + list(PROPS)
+        [f'chip_{k}' for k in CHIPS] + ['chip_eject'] + list(PROPS)
     for k in keys:
         R.ICONS[k] = AA.icon(k)
     for k, im in _shots().items():
@@ -402,30 +422,58 @@ def generate(G):
                        'playsound minecraft:entity.player.attack.sweep player @a[distance=..16] ~ ~ ~ 1 1.6'])
     fn('p216/w/beam_go', beam)
 
-    # ---------------------------------------------------------------- the chips: onto the weapon in your off hand
-    WEAPON = '#bm:p216_weapons'
+    # ---------------------------------------------------------------- the chips: onto the weapon (or tool) in your off hand
+    WEAPON, TOOL = '#bm:p216_weapons', '#bm:p216_tools'
     G.wjson('bm/tags/item/p216_weapons.json', {'values': ['#minecraft:swords', '#minecraft:axes', 'minecraft:mace', 'minecraft:trident', 'minecraft:totem_of_undying']})
+    G.wjson('bm/tags/item/p216_tools.json', {'values': ['#minecraft:pickaxes', '#minecraft:shovels', '#minecraft:hoes', '#minecraft:axes']})
     arc_weapon = ' '.join(f'unless items entity @s weapon.offhand {holds(i)}' for i in ('pixel_blade', 'vampire_killer', 'arm_buster', 'fire_flower'))
+    flagged = lambda slot: [f'execute if items entity @s {slot} *[minecraft:custom_data~{{bm_chip_{k}:1b}}] run return 1' for k in CHIPS] + ['return 0']
+    # (2.94k) CHIPS OR TUNINGS: an item takes the 8-bit chips or Vesper's tunings, never both (they overlap - damage, speed, reach,
+    # luck, mining)
+    fn('p216/chipped', flagged('weapon.mainhand'))
+    fn('p216/chipped_off', flagged('weapon.offhand'))
+    fn('p216/tune_chipped', [say('That one carries 8-bit chips - it\'s chips or tunings, not both. (An Eject Button pops them out.)', '#c8a0a0'),
+                             'function bm:p177/tune'])
     for k, (nm, c, l) in CHIPS.items():
         flag = f'bm_chip_{k}'
-        comps = {'minecraft:custom_data': {flag: B(1)}}
         mod = [{'function': 'minecraft:set_custom_data', 'tag': snbt({flag: B(1)})},
-               {'function': 'minecraft:set_lore', 'mode': 'append', 'lore': [T(f'◆ {nm}', c)]}]
-        if k == 'genie':
+               {'function': 'minecraft:set_lore', 'mode': 'append', 'lore': [T(f'◆ {nm}', c, insertion=flag)]}]
+        if k in CHIP_ATTR:
+            at_, amt = CHIP_ATTR[k]
             mod.append({'function': 'minecraft:set_attributes', 'replace': False, 'modifiers': [
-                {'attribute': 'minecraft:attack_damage', 'id': 'bm:chip_genie', 'amount': 4, 'operation': 'add_value', 'slot': 'mainhand'}]})
-        if k == 'turbo':
-            mod.append({'function': 'minecraft:set_attributes', 'replace': False, 'modifiers': [
-                {'attribute': 'minecraft:attack_speed', 'id': 'bm:chip_turbo', 'amount': 0.8, 'operation': 'add_value', 'slot': 'mainhand'}]})
+                {'attribute': f'minecraft:{at_}', 'id': f'bm:chip_{k}', 'amount': amt, 'operation': 'add_value', 'slot': 'mainhand'}]})
         G.wjson(f'bm/item_modifier/p216/chip_{k}.json', mod)
-        fn(f'p216/chip/{k}', ['execute if score @s bm.gvhc matches 1.. run return 0', 'scoreboard players set @s bm.gvhc 2',
-                              f'execute unless items entity @s weapon.offhand {WEAPON} run return run ' + say(f'Put the weapon in your off hand first (a sword, axe, mace, trident or arcade weapon).', c),
-                              f'execute if items entity @s weapon.offhand minecraft:totem_of_undying {arc_weapon} run return run ' + say('That isn\'t a weapon.', c),
-                              f'execute if items entity @s weapon.offhand *[minecraft:custom_data~{{{flag}:1b}}] run return run ' + say(f'That weapon has the {nm} already.', c),
+        tool = k in TOOL_CHIPS
+        kind = [f'execute unless items entity @s weapon.offhand {TOOL} run return run ' + say('Put the tool in your off hand first (a pickaxe, shovel, hoe or axe).', c)] if tool else \
+               [f'execute unless items entity @s weapon.offhand {WEAPON} run return run ' + say('Put the weapon in your off hand first (a sword, axe, mace, trident or arcade weapon).', c),
+                f'execute if items entity @s weapon.offhand minecraft:totem_of_undying {arc_weapon} run return run ' + say('That isn\'t a weapon.', c)]
+        fn(f'p216/chip/{k}', ['execute if score @s bm.gvhc matches 1.. run return 0', 'scoreboard players set @s bm.gvhc 2'] + kind + [
+                              'execute if items entity @s weapon.offhand *[minecraft:custom_data~{bm_tune:{}}] run return run ' +
+                              say('Vesper has tuned that one - it\'s chips or tunings, not both. (He unbinds his for every token back.)', c),
+                              f'execute if items entity @s weapon.offhand *[minecraft:custom_data~{{{flag}:1b}}] run return run ' + say(f'That one has the {nm} already.', c),
                               f'item modify entity @s weapon.offhand bm:p216/chip_{k}', f'clear @s {holds("chip_" + k)} 1',
                               'playsound minecraft:block.note_block.bit player @s ~ ~ ~ 1 1.2', 'playsound minecraft:block.anvil.use player @s ~ ~ ~ 0.4 1.8',
                               'particle minecraft:electric_spark ~ ~1 ~ 0.4 0.6 0.4 0.2 20',
-                              tellraw('@s', P + [T(nm, c, bold=True), T(' is in the weapon for good.', 'gray')])])
+                              tellraw('@s', P + [T(nm, c, bold=True), T(' is in it for good. ', 'gray'), T('(An Eject Button takes it out again.)', 'dark_gray')])])
+    # (2.94k) the Eject Button: the item to Vesper's kept-loaded barrel a moment, every chip out of it (its mark, its line, its
+    # bonus) and back to you as a chip; the item back in your off hand
+    import phase177 as P177
+    BAR = P177.TUNE_BARREL
+    BI = f'block {BAR} Items[0].components'
+    fn('p216/eject', ['execute if score @s bm.gvhc matches 1.. run return 0', 'scoreboard players set @s bm.gvhc 2',
+                      'execute unless function bm:p216/chipped_off run return run ' + say('Nothing chipped in your off hand.', '#ff5a5a'),
+                      f'execute in bm:gutter unless block {BAR} minecraft:barrel run setblock {BAR} minecraft:barrel',
+                      f'execute in bm:gutter run item replace block {BAR} container.0 from entity @s weapon.offhand', 'scoreboard players set #ej bm.rng 0'] +
+       [f'execute in bm:gutter if data {BI}."minecraft:custom_data".bm_chip_{k} run function bm:p216/ej/{k}' for k in CHIPS] +
+       [f'execute in bm:gutter run item replace entity @s weapon.offhand from block {BAR} container.0',
+        f'execute in bm:gutter run item replace block {BAR} container.0 with minecraft:air', f'clear @s {holds("chip_eject")} 1',
+        'playsound minecraft:block.note_block.bit player @s ~ ~ ~ 1 0.6', 'playsound minecraft:block.piston.contract player @s ~ ~ ~ 0.6 1.6',
+        'particle minecraft:electric_spark ~ ~1 ~ 0.4 0.6 0.4 0.2 20',
+        tellraw('@s', P + [T('Eject! ', '#ff5a5a', bold=True), {'score': {'name': '#ej', 'objective': 'bm.rng'}, 'color': 'white'}, T(' chip(s) back in your hands.', 'gray')])])
+    for k, (nm, c, l) in CHIPS.items():
+        fn(f'p216/ej/{k}', ['scoreboard players add #ej bm.rng 1', give(f'chip_{k}'),
+                            f'data remove {BI}."minecraft:custom_data".bm_chip_{k}', f'data remove {BI}."minecraft:lore"[{{insertion:"bm_chip_{k}"}}]'] +
+           ([f'data remove {BI}."minecraft:attribute_modifiers"[{{id:"bm:chip_{k}"}}]'] if k in CHIP_ATTR else []))
     # MISSINGNO.: a kill with it, one in 64 - the sixth hotbar slot's stack grows by one
     G.wjson('bm/advancement/p216/kill.json', {'criteria': {'kill': {'trigger': 'minecraft:player_killed_entity', 'conditions': {'player': [
         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'equipment': {'mainhand': {'predicates': {'minecraft:custom_data': '{bm_chip_missingno:1b}'}}}}}]}}},
@@ -566,3 +614,13 @@ def _prop_nbt(k, tags):
             'item_display': 'fixed', 'view_range': F(1.5),
             'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)],
                                'translation': [F(0), F(0.5), F(0)], 'scale': [F(1)] * 3}}            # (the model's floor on the block)
+
+
+def finalize(G):
+    """(2.94l) Vesper's tunings refuse a chipped item - his functions are only written after this phase's, so patched here"""
+    n = 0
+    for name, L in G.FUNCS.items():
+        if name.startswith('p177/tune/'):
+            L.insert(2, 'execute if function bm:p216/chipped run return run function bm:p216/tune_chipped'); n += 1
+    assert n, 'no Vesper tunings to patch'
+    return n

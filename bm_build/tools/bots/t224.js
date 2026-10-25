@@ -103,6 +103,12 @@ const res = [];
   const unb = await hand();
   ok('...unbound: the tunings gone, the sword still a sword, and the 2 tokens back in hand', /diamond_sword/.test(unb) && !/bm:tune_/.test(unb) && !/bm_tune/.test(unb) && (await has('dread_token')) === 2,
      `${unb.slice(0, 160)} / ${await has('dread_token')} tokens`);
+  // (2.94l) chips or tunings: a sword with an 8-bit chip in it - Vesper won't tune it
+  await run('item replace entity TestRat hotbar.0 with minecraft:diamond_sword[custom_data={bm_chip_genie:1b}]'); A.slot(0); await sleep(400);
+  await press(/The Ledger/); await press(/^Tuning/); A.bars.length = 0; await press(/Attack Damage/);
+  ok('...a sword with an 8-bit chip in it: Attack Damage refused - chips or tunings - nothing paid', A.bars.some(b => /chips or tunings/.test(b)) && !/bm_tune/.test(await hand()) && (await has('dread_token')) === 2,
+     A.bars.slice(-1).join(''));
+  await run('item replace entity TestRat hotbar.0 with air');
   await press(/The Ledger/);
 
   // ---- reforging Hero of Time's Tunic
@@ -121,6 +127,7 @@ const res = [];
   await run(`${O}fill ${X - 4} ${Y} ${Z - 4} ${X + 30} ${Y + 4} ${Z + 6} minecraft:air`);
   await at(X + 0.5, Y, Z + 0.5, 0, 0); await run('gamemode survival TestRat');
   // ---- the Auctioneer's Writ
+  await run('time set 6000'); await sleep(2500);      // (noon, and its day change settled: at dusk its doors would open by themselves)
   if ((await sc('#state', 'bm.auc')) !== 0) { await run('function bm:p30/abort'); await sleep(500); }     // (the stage: no auction sitting)
   await run('scoreboard players set #owed bm.auc 0'); await run('scoreboard players set #saled bm.auc -1');
   const st = await sc('#state', 'bm.auc');

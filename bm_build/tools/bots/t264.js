@@ -3,7 +3,8 @@
 // each (Dread Tokens). Then on a pad: the sets worn (rcon hands over the rest of a set) - the BOUNTY HUNTER's fire resistance and
 // night sight, the BLUE BOMBER's buster shot on a blow, the PLUMBER's STOMP (falling onto a monster), the VAMPIRE HUNTER's 8 more to
 // the undead; the ARM BUSTER, FIRE FLOWER and 8-BIT BLADE's shots; the chips onto a sword in the off hand (Game Genie: its damage
-// up; 2.94j - MISSINGNO. kills never glitch a currency in the sixth slot, one in 64); the props - a ? block set down (a Token, then "Empty"), two Warp Pipes (one takes you to the other), a Save Point (your
+// up; 2.94j - MISSINGNO. kills never glitch a currency in the sixth slot, one in 64; 2.94l - the Eject Button takes them out again, a
+// tuned sword takes none, and the tool chips go onto a pickaxe); the props - a ? block set down (a Token, then "Empty"), two Warp Pipes (one takes you to the other), a Save Point (your
 // spawn), picked up again (sneak + punch); the Heart Container (+1 heart), the Super Star (Resistance V), the Power Mushroom
 // (bigger). Hard mode off: the traders are gone.
 const { bot, rcon, sleep } = require('./lib_resp');
@@ -173,6 +174,34 @@ const res = [];
   ok('...(every custom currency is turned away before the stack grows: Tokens, Medallions, Trophies, Gutter Coins, Royal Pearls, Blood Crystals, Xenite...)', ['token', 'medallion', 'trophy', 'lucky_token', 'dread_token', 'omni_token', 'gutter_coin', 'gutter_medallion', 'royal_pearl', 'blood_crystal', 'xenite_green']
      .every(c => kf.indexOf(`{bm:"${c}"}] run return 0`) >= 0 && kf.indexOf(`{bm:"${c}"}] run return 0`) < kf.indexOf('set_count')));
   ok('...and its odds are one in 64', Math.abs(mno.chance - 1 / 64) < 1e-9, JSON.stringify(mno));
+  // (2.94l) THE EJECT BUTTON: the chipped sword back in the off hand - both chips out (each back as a chip), the sword clean
+  await run('item replace entity TestRat weapon.offhand from entity TestRat hotbar.0'); await run('item replace entity TestRat hotbar.0 with air');
+  await run('clear TestRat *[minecraft:custom_data~{bm:"chip_genie"}]'); await run('clear TestRat *[minecraft:custom_data~{bm:"chip_missingno"}]');
+  await give('hotbar.6', 'chip_eject'); A.chats.length = 0; await use(6);
+  const ej = await run('data get entity TestRat equipment.offhand');
+  ok('an EJECT BUTTON pressed, the chipped sword in the off hand: both chips back, the sword clean (no mark, no line, no bonus), the button spent',
+     /diamond_sword/.test(ej) && !/bm_chip_/.test(ej) && !/bm:chip_/.test(ej) && !/◆/.test(ej) && (await has('chip_genie')) === 1 && (await has('chip_missingno')) === 1 && (await has('chip_eject')) === 0,
+     `${ej.slice(0, 200)} | ${A.chats.slice(-1).join('')}`);
+  await give('hotbar.6', 'chip_eject'); A.bars.length = 0; await use(6);
+  ok('...again, nothing left in it: "Nothing chipped", the button kept', A.bars.some(b => /Nothing chipped/.test(b)) && (await has('chip_eject')) === 1, A.bars.slice(-1).join(''));
+  // (2.94l) CHIPS OR TUNINGS: a sword Vesper has tuned takes no chip
+  await run('item replace entity TestRat weapon.offhand with minecraft:diamond_sword[custom_data={bm_tune:{dmg:1,n:1}},attribute_modifiers=[{type:"minecraft:attack_damage",id:"bm:tune_dmg_1",amount:1.0,operation:"add_value",slot:"mainhand"}]]');
+  await run('clear TestRat *[minecraft:custom_data~{bm:"chip_genie"}]'); await run('clear TestRat *[minecraft:custom_data~{bm:"chip_missingno"}]'); await give('hotbar.4', 'chip_genie');
+  A.bars.length = 0; await use(4);
+  ok('a Game Genie Chip on a sword Vesper has tuned: refused - chips or tunings - and the chip kept',
+     A.bars.some(b => /chips or tunings/.test(b)) && (await has('chip_genie')) === 1 && !/bm_chip_/.test(await run('data get entity TestRat equipment.offhand')), A.bars.slice(-1).join(''));
+  // (2.94l) TOOL CHIPS: a pickaxe in the off hand - the Speedrun Chip (mining speed), the Lucky Block Chip (luck); a weapon chip turned away
+  await run('item replace entity TestRat weapon.offhand with minecraft:diamond_pickaxe');
+  await give('hotbar.7', 'chip_speedrun'); await use(7);
+  await give('hotbar.8', 'chip_lucky'); await use(8);
+  const pk = await run('data get entity TestRat equipment.offhand');
+  ok('the SPEEDRUN and LUCKY BLOCK CHIPS on a pickaxe: in it (mining efficiency, luck), both spent', /bm_chip_speedrun: 1b/.test(pk) && /bm_chip_lucky: 1b/.test(pk) &&
+     /bm:chip_speedrun/.test(pk) && /bm:chip_lucky/.test(pk) && (await has('chip_speedrun')) === 0 && (await has('chip_lucky')) === 0, pk.slice(0, 220));
+  A.bars.length = 0; await use(4);
+  ok('...the Game Genie Chip (a weapon\'s) on the pickaxe: refused, kept', A.bars.some(b => /weapon/.test(b)) && (await has('chip_genie')) === 1 && !/bm_chip_genie/.test(await run('data get entity TestRat equipment.offhand')), A.bars.slice(-1).join(''));
+  await run('item replace entity TestRat weapon.offhand with minecraft:diamond_sword');
+  await give('hotbar.7', 'chip_warpzone'); A.bars.length = 0; await use(7);
+  ok('...and the Warp Zone Chip (a tool\'s) on a sword: refused, kept', A.bars.some(b => /tool/.test(b)) && (await has('chip_warpzone')) === 1, A.bars.slice(-1).join(''));
   await run('item replace entity TestRat weapon.offhand with air'); await run('clear TestRat');
 
   // ================================================================== 5. the props

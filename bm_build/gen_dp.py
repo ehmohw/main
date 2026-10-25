@@ -215,7 +215,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.94k'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.94l'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1405,6 +1405,7 @@ def build(out_dir):
     R174.generate(sys.modules[__name__])        # 2.83: it adjusts other phases' functions too
     R176.generate(sys.modules[__name__])        # 2.84a: hard mode
     R177.generate(sys.modules[__name__])        # 2.84a: Vesper
+    if PHASE2: print('chips or tunings: %d of Vesper\'s tunings refuse a chipped item' % R216.finalize(sys.modules[__name__]))
     R178.generate(sys.modules[__name__])        # 2.84b: hard auctions, hard replays, community pots
     R179.generate(sys.modules[__name__])        # 2.84c: rebalance re-sync, alien gear, the Partner Wheel
     R180.generate(sys.modules[__name__])        # 2.84d: Omni Token, golden dolls, Eldritch Panoply, King-beaters' hard mode

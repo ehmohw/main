@@ -1,6 +1,6 @@
 """2.94: THE GLITCHED CARTRIDGE - and the followers' pixel costumes.
 
-A grey cartridge with a scratched label, found in a won heist's haul (5% for every raider, any tier). Blow on it, use it:
+A grey cartridge with a scratched label, found in a won heist's haul (20% for every raider, any tier). Blow on it, use it:
   beside your Emma, Leo or Cecil - the game glitches, and their 8-bit self tumbles out (phase213: a hidden follower of its own);
   beside any other follower - it glitches THEM: from then on they can wear their PIXEL COSTUME, a PixelLab sprite of them
     (ref/pixellab/chars/<key>) that stands in for their model, always facing you, walking, sitting and fighting as they do.
@@ -19,7 +19,7 @@ import phase138 as P138
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 COL = '#7aff9a'
-FIND = 5                                          # (% a won heist, every raider)
+FIND = 20                                         # (% a won heist, every raider, any tier - 2.94k: was 5; one cartridge a follower)
 # the costumes: follower -> (its name, how tall it stands in blocks, the displays to hide: a base tag found by bm.pid - or None: the host's passengers)
 COSTUMES = {'celi': ('Celi', 1.9, 'bm.cep'), 'demo': ('Democratus', 3.0, 'bm.dmp'), 'kw': ('KillerWatt', 2.8, 'bm.kxp'), 'tul': ('Tullius', 2.6, 'bm.tup'),
             'fishy': ('Fishy', 1.9, 'bm.fyp'), 'bloo': ('Bloo', 1.7, 'bm.bop'), 'apo': ('Apophiss', 3.6, 'bm.app'), 'chef': ('the Chef', 2.0, 'bm.kkp'),

@@ -35,6 +35,11 @@ ICONS = {
     'chip_glitch': 'a corrupted game cartridge chip with glitchy colorful static and broken pixels',
     'chip_missingno': 'a glitched game chip shaped like a scrambled block of random pixels, a missing number glitch',
     'chip_genie': 'a golden cheat device cartridge with a genie lamp emblem',
+    # (2.94k) the tool chips, and the eject button
+    'chip_speedrun': 'a green game cartridge chip with a stopwatch and a pickaxe emblem, speed lines',
+    'chip_warpzone': 'a teal game cartridge chip with a swirling warp pipe portal emblem',
+    'chip_lucky': 'a yellow game cartridge chip with a lucky question mark block and a four-leaf clover emblem',
+    'chip_eject': 'a big round red arcade eject button on a small grey console base with an up arrow',
     'chip_turbo': 'a red game controller chip with a turbo button and speed lines',
     # props and display pieces
     'q_block': 'a golden question mark block from a platform game, a yellow square block with a white question mark',

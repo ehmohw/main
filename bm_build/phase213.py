@@ -414,6 +414,12 @@ def _build(G, C):
         fn(f'{pfx}/overed', [f'function bm:{pfx}/hurt', FXS.fx('px_boom', 1.0, 0.8)])
         return lines
 
+    sign = snbt({'Tags': ['bm.pxencsign', f'bm.{ab}encsign'], 'text': [T('▶ PRESS START', C.COL, bold=True), T(f'\n{C.NAME} - right-click to recruit', 'white')],
+                 'billboard': 'center', 'see_through': B(1), 'background': Int(0x90102010 - (1 << 32)), 'brightness': {'block': Int(15), 'sky': Int(15)}})
+    # (the sign goes when they've joined you, or gone)
+    X_second = f'execute as @e[type=minecraft:text_display,tag=bm.{ab}encsign] at @s unless entity @e[type=minecraft:interaction,tag=bm.{ab}enc,distance=..4] run kill @s'
+    G.FUNCS['loop/second'].append(X_second)
+
     def encounter(G, X):
         # the Glitched Cartridge (phase214) calls enc/glitch - as you, at your own Emma / Leo / Cecil
         fn(f'{pfx}/enc/glitch', ['execute if entity @e[type=minecraft:interaction,tag=bm.' + ab + 'enc,distance=..32] run return 0',
@@ -421,7 +427,14 @@ def _build(G, C):
                                  'particle minecraft:electric_spark ~ ~1 ~ 0.5 0.8 0.5 0.3 40',
                                  'particle minecraft:dust{color:[0.2,1.0,0.4],scale:1.4} ~ ~1 ~ 0.6 0.8 0.6 0 30',
                                  'playsound minecraft:block.note_block.bit neutral @a[distance=..24] ~ ~ ~ 1 0.5',
-                                 'playsound minecraft:block.note_block.bit neutral @a[distance=..24] ~ ~ ~ 1 2'])
+                                 'playsound minecraft:block.note_block.bit neutral @a[distance=..24] ~ ~ ~ 1 2',
+                                 # (2.94k: plainly a new follower, waiting to be recruited - a title, a sign over them, a glow, a line in chat)
+                                 'title @s times 5 50 15', title('@s', 'title', T(f'{C.NAME.upper()} APPEARED!', C.COL, bold=True)),
+                                 title('@s', 'subtitle', T(f'Right-click {C.pron} to recruit {C.pron}', 'white')),
+                                 f'summon minecraft:text_display ~ ~2.6 ~ {sign}',
+                                 f'execute as @e[type=minecraft:item_display,tag=bm.{ab}encp,distance=..4] run data merge entity @s[type=minecraft:item_display] {{Glowing:1b,glow_color_override:{int(C.COL[1:], 16)}}}',
+                                 tellraw('@s', [T('▶ ', C.COL, bold=True), T(C.NAME, C.COL, bold=True), T(f' is a new follower - {C.they} isn\'t yours yet. ', 'gray'),
+                                                T(f'Right-click {C.pron} to recruit {C.pron}', 'white', bold=True), T(f' ({RP.POS[C.pron]} cartridge becomes {RP.POS[C.pron]} summoning item).', 'gray')])])
         have = title('@s', 'actionbar', [T(f'{C.NAME}: ', C.COL, bold=True), T('"You already have my cartridge, player one!"', C.LINE)])
         fn(f'{pfx}/enc/talk', [f'execute if score {X.here} bm.pid matches 1.. unless score @s bm.pid = {X.here} bm.pid run return run ' +      # (2.94k: the one who glitched them)
                                title('@s', 'actionbar', [T(f'{C.NAME}: ', C.COL, bold=True), T('"Wait - you\'re not the player who pressed START!"', C.LINE)]),
