@@ -21,6 +21,11 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94w: Keep up fixes
+
+- **Sending a partner home with Keep up on** (from the Partner Wheel, their menu, or anywhere else) brought them straight back, as if they'd got lost. Now they go home and stay there until you call them.
+- **A partner who faints with Keep up on** no longer gets "*... got lost*". Their own comeback after the faint brings them back, as before.
+
 ## New in 2.94v: the attack kit, the rest of the way
 
 - **The Frog with Mustache, Donado and Wilfrey** fight with their own bites, and now those bites land with the same impact as everyone else's: a burst of crits in their colour and the heavier hit sound.

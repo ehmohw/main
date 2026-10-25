@@ -7,6 +7,7 @@
 //   in the Nether: both back there.
 //   Bender's ball dropped: Emma back, Bender not (no item, not on the wheel).
 //   left in a chunk that unloads (frozen, never "too far"): "Emma got lost", back at your side.
+//   (2.94w) "Send Emma home" on the wheel: home, and stays (not "lost"); called again. Bender faints: not "lost".
 //   "Keep up" pressed off: Emma "couldn't keep up and went home", and not back.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
@@ -101,6 +102,22 @@ const res = [];
   ok('Emma stranded in a chunk that isn\'t loaded (frozen, unseen): "Emma got lost"', await wait(12000, async () => A.chats.some(c => /Emma got lost/.test(c))),
      A.chats.join(' | ').slice(0, 300));
   ok('...and back at your side', await wait(9000, async () => (await near(EMMA)) === 1));
+
+  // ---- (2.94w) sent home from the wheel's page: home she goes, and stays (not "lost", not called back)
+  await sleep(2500); n0 = A.dialogN.length; await use(0); await wait(3000, async () => A.dialogN.length > n0);
+  A.chats.length = 0; await A.press(/Send Emma home/); await sleep(800);
+  ok('"Send Emma home" pressed on the wheel: she goes', await wait(5000, async () => (await cnt(EMMA)) === 0));
+  await sleep(10000);
+  ok('...and stays home - not "lost", not brought back', (await cnt(EMMA)) === 0 && !A.chats.some(c => /Emma got lost|Emma fell behind/.test(c)), `${await cnt(EMMA)} | ${A.chats.join(' | ').slice(0, 300)}`);
+  n0 = A.dialogN.length; await use(0); await wait(3000, async () => A.dialogN.length > n0); await A.press(/Call Emma/);
+  ok('called again from the wheel: she comes', await wait(5000, async () => (await near(EMMA)) === 1));
+  // ---- (2.94w) Bender faints (rcon: the blow - as a monster's would): not "lost" - his own comeback, not keep up's
+  await run('loot replace entity TestRat hotbar.1 loot bm:items/bv_ball'); await run('scoreboard players set TestRat bm.bvcd 0'); await sleep(400);
+  await use(1); ok('Bender called with his ball again', await wait(5000, async () => (await cnt(BEN)) === 1)); await sleep(2000);
+  A.chats.length = 0; await run(`${O}execute as ${BEN} run damage @s 500 minecraft:generic`);
+  ok('he faints', await wait(5000, async () => (await cnt(BEN)) === 0 || (await sc('TestRat', 'bm.bvcd')) > 0), `${await cnt(BEN)} cd ${await sc('TestRat', 'bm.bvcd')}`);
+  await sleep(10000);
+  ok('...and keep up doesn\'t call him "lost"', !A.chats.some(c => /Bender got lost/.test(c)), A.chats.join(' | ').slice(0, 300));
 
   // ---- switched off: "couldn't keep up", and not back
   await sleep(2500); n0 = A.dialogN.length; await use(0); await wait(3000, async () => A.dialogN.length > n0);

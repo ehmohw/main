@@ -464,12 +464,24 @@ def generate(G):
         objs_k.append(f'bm.pwo{i}')
         second.append(f'execute as @e[type=minecraft:{host},tag={tag.split(",")[0]}] run function bm:p179/k/seen{i}')
         fn(f'p179/k/seen{i}', ['scoreboard players operation #pwg bm.rng = @s bm.pid',
-                               f'execute as @a[tag=bm.pwkeep] if score @s bm.pid = #pwg bm.rng run scoreboard players set @s bm.pwo{i} 5'])
+                               f'execute as @a[tag=bm.pwkeep] if score @s bm.pid = #pwg bm.rng unless score @s bm.pwo{i} matches ..-1 run scoreboard players set @s bm.pwo{i} 5'])
         G.FUNCS[e[4]][0:0] = ['scoreboard players operation #pwg bm.rng = @s bm.pid',
                               f'execute as @a if score @s bm.pid = #pwg bm.rng run scoreboard players reset @s bm.pwo{i}']
+        # (2.94w) sent home - from the wheel, their menu or their item - is never "lost": every way home clears the stamp (as you,
+        # and as them: their own dismiss, which their menu's button runs)
+        G.FUNCS[home][0:0] = [f'scoreboard players set @s bm.pwo{i} -1', f'tag @s remove bm.pwk_{w}']      # (-1: sent home, till called)
+        G.FUNCS[try_][0:0] = [f'scoreboard players reset @s bm.pwo{i}']
+        for l in list(G.FUNCS[home]):
+            m = re.search(r'run function bm:([\w/]+)$', l)
+            if m and m.group(1) in G.FUNCS and m.group(1) != e[4] and not m.group(1).startswith('p179/'):
+                G.FUNCS[m.group(1)][0:0] = ['scoreboard players operation #pwg bm.rng = @s bm.pid',
+                                            f'execute as @a if score @s bm.pid = #pwg bm.rng run scoreboard players set @s bm.pwo{i} -1']
         second += [f'scoreboard players remove @a[tag=bm.pwkeep,scores={{bm.pwo{i}=1..}}] bm.pwo{i} 1',
                    f'execute as @a[tag=bm.pwkeep,scores={{bm.pwo{i}=0}}] run function bm:p179/k/lost{i}']
-        fn(f'p179/k/lost{i}', [f'scoreboard players reset @s bm.pwo{i}', f'tag @s add bm.pwk_{w}',
+        # (2.94w) fainted is not lost: while they're still recovering (their item's cooldown), the faint's own comeback brings them
+        cdo = re.search(r'@s (bm\.[a-z0-9]+cd) matches 1\.\.', ' '.join(G.FUNCS[try_]))
+        fn(f'p179/k/lost{i}', [f'scoreboard players reset @s bm.pwo{i}'] +
+           ([f'execute if score @s {cdo.group(1)} matches 1.. run return 0'] if cdo else []) + [f'tag @s add bm.pwk_{w}',
                                tellraw('@s', PRE + [T(f'{cap(nm)} got lost', col), T(' - back at your side once you\'re on solid ground or in water.', 'gray')])])
     assert kept >= len(PW) - 1, kept
     load[-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs_k]
