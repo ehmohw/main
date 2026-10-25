@@ -21,6 +21,27 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94r: the Follower Gallery
+
+A Pokédex of partners, opened from the **Partner Wheel's** page with the new **Gallery** button.
+- **The list:** every follower in the pack, numbered #01 to #32, with how many you've met. Ones you've met show in their own colour. Ones you haven't show as **???**; hover for a hint where to look.
+- **View in 3D:** eight at a time, as their own figurines (from their real models), about 1.4 blocks tall, in an arc in front of you. Each turns slowly on a turntable with its number and name above it. Followers you haven't met stand as **dark silhouettes** under "???". A page stays a minute, or until you open another.
+
+## New in 2.94r: more bonds
+
+**Bender** now has a pair with every follower, and so does **Mr. Capshun**. There are seven more pairs, and three new trios. They follow the same rules as the old ones. A pair forms when the two are out together, within 16 blocks of each other, with you close by. It has a hidden achievement and an introduction the first time, then banter now and then. A trio needs all three at your side, and one trio runs at a time.
+
+**Bender + ...** Tullius *Ship's Dog* (Water Breathing, Dolphin's Grace) · the Frog *Frog and Dog* (Jump Boost II, Speed) · Wilfrey *The Gentle One* (Regeneration, Hero of the Village) · Pistachio *Ghost Dog* (Night Vision, Luck; a biscuit every 30 s) · King Omega *The King's Good Boy* (Resistance; the undead burn) · Ashur *Hot Dog* (Fire Resistance, Speed) · the Chef *Table Scraps* (a bite to eat every 20 s; both heal) · the Neighbor *Howl Along* (Speed, Jump Boost) · Queen Ava *A Dog for the Palace* (Water Breathing, Regeneration) · Queen Pearl *Spoiled Rotten* (Luck, Speed; cake every 30 s) · Bloo *Hackles Down* (Strength, Speed) · the Arachno-Lantern *Chase!* (Fire Resistance; embers every 10 s) · 8-Bit Cecil *A Wild Dog Appeared* (Haste II, Luck) · 8-Bit Leo *Pixel Hound* (Strength, Resistance) · 8-Bit Emma *Press A to Pet* (Speed, Jump Boost II) · the Sky Buddies *Chasing Clouds* (Jump Boost II, Slow Falling).
+
+**Mr. Capshun + ...** Celi *The Ice Queen's Chronicle* · Zib *First Contact* · Cecil *The Wizard's Biography* · KillerWatt *Shocking Twist* · Leo *The Hero's Journey* · Democratus *A Dark Chapter* · Tullius *The Ballad of the Drowned Captain* · the Frog *The Frog Prince (Unauthorised)* · Donado *The Collar Tag Chronicles* · Pearlman *Product Placement* · Wilfrey *The Gentle One's Tale* · Dennis *Dig Deeper* · Pistachio *The Butler Did It* · King Omega *Epilogue* · Ashur *Plot Heat* · the Chef *A Recipe for Adventure* · Queen Ava *The Lost Queen* · Queen Pearl *The Regent's Gossip* · Bloo *The Beast of the Old Songs* · the Stalker *A Horror Story* · the Arachno-Lantern *A Spooky Tale* · Bones *Jaws, but Nice* · 8-Bit Cecil *Retcon* · 8-Bit Leo *Sprite Work* · 8-Bit Emma *Fan Art*. (Each gives its own buff. The full list is in `phase219.py`.)
+
+**More pairs:** Tullius + Bones *Shark and Sailor* · Queen Ava + Bones *The Kingdom's Guardian* · Fishy + Bones *Natural Predators* · the Chef + Pistachio *Below Stairs* · Dennis + Pearlman *Weighed in Gold* · Zib + Donado *The Away Team* · the Sky Buddies + the Arachno-Lantern *Harvest Moon*.
+
+**New trios:**
+- **The Haunting** (King Omega, Pistachio, Wilfrey): Night Vision, Resistance and Regeneration. Every 15 s the undead round you are laid to rest.
+- **The Tide Court** (Queen Ava, Tullius, Bones): Water Breathing, Conduit Power, Dolphin's Grace and Strength. Every 20 s a wave throws the monsters back.
+- **The Market Guild** (Pearlman, Dennis, Pistachio): Luck II, Haste II and Hero of the Village, plus your cut, an emerald, every minute.
+
 ## New in 2.94q: the Partner Wheel's "Keep up"
 
 A new switch on the Partner Wheel's page: **Keep up: on / off** (off at first).

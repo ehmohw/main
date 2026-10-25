@@ -185,6 +185,8 @@ import phase215 as R215      # 2.94: the 8-Bit Serpent King - the pixel trio on 
 import phase216 as R216      # 2.94d: the Arcade - hard mode's 8-bit shop: pixel armour sets, weapons, chips, props
 import phase217 as R217      # 2.94m: Emma's Easter eggs - a hug for Cecil, her KillerWatt look, "Frik you!", panic
 import phase218 as R218      # 2.94o: the raid reward overhaul - tiered finds, no duplicates, bad-luck protection, the odds
+import phase219 as R219      # 2.94r: more bonds - Bender and Mr. Capshun with everyone, and a few more pairs and trios
+import phase220 as R220      # 2.94r: the Follower Gallery - a Pokedex of partners off the Partner Wheel, figurines in 3D
 import phase202 as R202      # 2.92: the kingdom's armoury - Leo's Aegis, Emma's Crescent, Tidewarden and Pearlguard, Tide Scales (kingdom_art.py)
 import phase188 as R188      # 2.86: the bonds - eleven new pairs and five new trios (Ashur, the Chef, the Neighbor and friends)
 import phase171 as R171      # 2.82b: the Town Directory - who's where in the rat town, and a trail of light there
@@ -217,7 +219,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.94q'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.94r'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1405,6 +1407,7 @@ def build(out_dir):
     R95.generate(sys.modules[__name__])
     if PHASE2: R217.generate(sys.modules[__name__])      # 2.94m: Emma's Easter eggs (after her faces)
     if PHASE2: R218.generate(sys.modules[__name__])      # 2.94o: the raid reward overhaul (after every heist find)
+    if PHASE2: R219.generate(sys.modules[__name__])      # 2.94r: more bonds (the pairs ride phase188's engine)
     R173.generate(sys.modules[__name__])        # 2.82t: it adjusts other phases' functions
     R174.generate(sys.modules[__name__])        # 2.83: it adjusts other phases' functions too
     R176.generate(sys.modules[__name__])        # 2.84a: hard mode
@@ -1412,6 +1415,7 @@ def build(out_dir):
     if PHASE2: print('chips or tunings: %d of Vesper\'s tunings refuse a chipped item' % R216.finalize(sys.modules[__name__]))
     R178.generate(sys.modules[__name__])        # 2.84b: hard auctions, hard replays, community pots
     R179.generate(sys.modules[__name__])        # 2.84c: rebalance re-sync, alien gear, the Partner Wheel
+    if PHASE2: R220.generate(sys.modules[__name__])      # 2.94r: the Follower Gallery (on the wheel's page; after the wheel)
     R180.generate(sys.modules[__name__])        # 2.84d: Omni Token, golden dolls, Eldritch Panoply, King-beaters' hard mode
     R181.generate(sys.modules[__name__])        # 2.85a: Dread Nights, Stalkers, the golden cross, the Dread Totem
     R182.generate(sys.modules[__name__])        # 2.85b: angelic forging
