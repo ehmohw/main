@@ -13,7 +13,7 @@ import math, random
 from PIL import Image, ImageDraw
 from phase57_art import hexc
 
-EMMA_EXPR = ('blink', 'wink', 'happy', 'sad', 'hurt', 'serious', 'surprised', 'sleepy')
+EMMA_EXPR = ('blink', 'wink', 'happy', 'sad', 'hurt', 'serious', 'surprised', 'sleepy', 'panic', 'angry')      # (2.94m: panic and angry - her Easter eggs)
 CELI_EXPR = ('blink', 'tsk', 'huff', 'hurt', 'serious', 'surprised', 'sleepy')
 CECIL_EXPR = ('blink', 'deadpan', 'roll', 'sly', 'hurt', 'serious', 'surprised', 'sleepy')
 
@@ -72,6 +72,13 @@ def emma_face(expr, eye_dark, eye_mid, eye_light, eye_glow, pupil):
         eye_open(9, False, lid); eye_open(27, True, lid)
     elif expr == 'surprised':
         eye_wide(9, False); eye_wide(27, True)
+    elif expr == 'panic':                                                            # (2.94m) wide, swimming with tears
+        eye_wide(9, False); eye_wide(27, True)
+        for cx in (9, 27):
+            d.ellipse((cx - 5, 22, cx - 2, 25), fill=P('#bfe6ff')); d.ellipse((cx + 2, 22, cx + 5, 25), fill=P('#bfe6ff'))
+            im.putpixel((cx - 4, 23), P('#ffffff')); im.putpixel((cx + 3, 23), P('#ffffff'))
+    elif expr == 'angry':                                                            # (2.94m) a glare: the lids down a little, the iris small
+        eye_open(9, False, 3); eye_open(27, True, 3)
     elif expr == 'blink':
         eye_closed(9, False); eye_closed(27, True)
     elif expr == 'wink':
@@ -81,8 +88,8 @@ def emma_face(expr, eye_dark, eye_mid, eye_light, eye_glow, pupil):
     elif expr == 'hurt':
         eye_hurt(9, False); eye_hurt(27, True)
     for cx in (8, 28):                                                               # blush and freckles (more of it when happy or hurt)
-        r = 5 if expr in ('happy', 'wink', 'hurt') else 4
-        d.ellipse((cx - r, 26, cx + r, 29), fill=P('#f6b4aa'))
+        r = 5 if expr in ('happy', 'wink', 'hurt', 'panic', 'angry') else 4
+        d.ellipse((cx - r, 26, cx + r, 29), fill=P('#ee8c86' if expr == 'angry' else '#f6b4aa'))
         for fx, fy in ((-2, 27), (0, 28), (2, 27)): im.putpixel((cx + fx, fy), P('#c8705c'))
     MOUTH = '#8a3428'
     if expr in (None, 'blink'):
@@ -104,6 +111,12 @@ def emma_face(expr, eye_dark, eye_mid, eye_light, eye_glow, pupil):
         d.ellipse((16, 27, 19, 31), fill=P(MOUTH)); d.ellipse((17, 28, 18, 30), fill=P('#5a1a14'))
     elif expr == 'sleepy':                                                           # soft, barely parted
         d.line((16, 29, 19, 29), fill=P(MOUTH)); im.putpixel((17, 30), P(MOUTH))
+    elif expr == 'panic':                                                            # (2.94m) a wobbling wail, the tongue curled
+        d.polygon([(13, 29), (15, 27), (17, 28), (19, 27), (21, 28), (23, 27), (23, 31), (13, 31)], fill=P('#4a1410'))
+        d.ellipse((16, 29, 22, 32), fill=P('#c04a58'))
+    elif expr == 'angry':                                                            # (2.94m) "Frik you!" - a shout
+        d.ellipse((14, 26, 22, 32), fill=P('#4a1410')); d.chord((15, 29, 21, 33), 180, 360, fill=P('#c04a58'))
+        d.line((15, 27, 21, 27), fill=P('#ffffff'))
     hair_c = [P('#74391a'), P('#8a4a1e'), P('#a0582a')]; rnd = random.Random(5)
     for x in range(36):
         edge = 6 + int(3 * math.sin(x / 3.2)) + (2 if x < 12 else 0) + rnd.choice((0, 0, 1))
@@ -119,6 +132,10 @@ def emma_face(expr, eye_dark, eye_mid, eye_light, eye_glow, pupil):
             pts = ((-3, 10), (-2, 9), (-1, 8), (0, 8), (1, 8), (2, 9))
         elif expr == 'sleepy':                                                       # slack, low
             pts = ((-3, 12), (-2, 11), (-1, 11), (0, 11), (1, 11), (2, 12))
+        elif expr == 'panic':                                                        # (2.94m) inner ends high, worried
+            pts = ((-3, 11), (-2, 11), (-1, 10), (0, 9), (1, 8), (2, 8))
+        elif expr == 'angry':                                                        # (2.94m) a hard V, two rows thick
+            pts = ((-3, 8), (-2, 8), (-1, 9), (0, 10), (1, 11), (2, 12), (-3, 9), (-2, 9), (-1, 10), (0, 11), (1, 12))
         else:
             pts = ((-3, 11), (-2, 10), (-1, 10), (0, 10), (1, 10), (2, 11))
         for dx, y in pts: im.putpixel((cx + dx * s, y), P(BROW))
@@ -126,6 +143,22 @@ def emma_face(expr, eye_dark, eye_mid, eye_light, eye_glow, pupil):
 
 
 EMMA_EYES = ('#155d6e', '#22a2b2', '#5ad8dc', None, '#0a2630')
+EMMA_EYES_KW = ('#0a4a3a', '#1ec890', '#9affd0', '#eaffa0', '#04201a')
+
+
+def emma_kw_face(expr):
+    """(2.94m) her KillerWatt look: the same face, gone glassy green - green bangs and brows, a pale green skin, glowing eyes;
+    her own mouth, every expression"""
+    im = emma_face(expr, *EMMA_EYES_KW)
+    P = hexc
+    swap = {P('#f7d7bf'): P('#dcebc0'), P('#efc4a6'): P('#c6dca2'), P('#74391a'): P('#2e8a2a'), P('#8a4a1e'): P('#46b03a'),
+            P('#a0582a'): P('#66d04a'), P('#6e3618'): P('#1a5418'), P('#f6b4aa'): P('#b4e08a'), P('#ee8c86'): P('#9ad86a'),
+            P('#c8705c'): P('#5a9a3a')}
+    px = im.load()
+    for y in range(32):
+        for x in range(36):
+            if px[x, y] in swap: px[x, y] = swap[px[x, y]]
+    return im
 EMMA_EYES_ETH = ('#4a1a7a', '#8a3ad0', '#c48af0', '#f0d0ff', '#1a0630')
 
 

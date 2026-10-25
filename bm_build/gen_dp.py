@@ -183,6 +183,7 @@ import phase213 as R213      # 2.94: the 8-bit trio - pixel Emma, Leo and Cecil,
 import phase214 as R214      # 2.94: the Glitched Cartridge (any heist) - the 8-bit trio, and every follower's pixel costume
 import phase215 as R215      # 2.94: the 8-Bit Serpent King - the pixel trio on Apophiss's seal; the 8-Bit Crown
 import phase216 as R216      # 2.94d: the Arcade - hard mode's 8-bit shop: pixel armour sets, weapons, chips, props
+import phase217 as R217      # 2.94m: Emma's Easter eggs - a hug for Cecil, her KillerWatt look, "Frik you!", panic
 import phase202 as R202      # 2.92: the kingdom's armoury - Leo's Aegis, Emma's Crescent, Tidewarden and Pearlguard, Tide Scales (kingdom_art.py)
 import phase188 as R188      # 2.86: the bonds - eleven new pairs and five new trios (Ashur, the Chef, the Neighbor and friends)
 import phase171 as R171      # 2.82b: the Town Directory - who's where in the rat town, and a trail of light there
@@ -215,7 +216,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.94l'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.94m'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1401,6 +1402,7 @@ def build(out_dir):
         if _n.startswith('mobs/init/') and _lines and _lines[0] == 'tag @s add bm.seen':
             _lines[1:1] = ['execute if data entity @s CustomName run return 0', 'execute if data entity @s {NoAI:1b} run return 0']
     R95.generate(sys.modules[__name__])
+    if PHASE2: R217.generate(sys.modules[__name__])      # 2.94m: Emma's Easter eggs (after her faces)
     R173.generate(sys.modules[__name__])        # 2.82t: it adjusts other phases' functions
     R174.generate(sys.modules[__name__])        # 2.83: it adjusts other phases' functions too
     R176.generate(sys.modules[__name__])        # 2.84a: hard mode

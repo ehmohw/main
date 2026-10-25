@@ -93,7 +93,54 @@ def textures():
             'em3_shoe_a': _gloss(SHOE_A, 71), 'em3_bow_a': _fabric(BOW_A, 73, folds=1, weave=False, top=1.12), 'em3_bow_a_dk': _fabric(BOW_A_DK, 79, folds=1, weave=False),
             'em3_top_b': _knit(TOP_B, 83), 'em3_top_b_dk': _knit(TOP_B_DK, 89),
             'em3_chest_b': chest(TOP_B, pocket, knit=True), 'em3_jeans': denim(JEANS, 97),
-            'em3_sneaker': sneaker, 'em3_white': _fabric(SNEAK_W, 101, folds=1, top=1.0)}
+            'em3_sneaker': sneaker, 'em3_white': _fabric(SNEAK_W, 101, folds=1, top=1.0), **kw_textures()}
+
+
+# ===================================================================== (2.94m) her KILLERWATT LOOK - an Easter egg: KillerWatt called while
+# she's with you (phase217). Glassy green from head to toe like him, his comma on her chest, a tattered hem, clawed hands,
+# yellow shoes, four lightning tendrils off her back - her own face, gone green. A look only: the parts are models of their own
+# (emkw_*), not a wardrobe outfit - on or off in her wardrobe once she has it.
+KW_PARTS = ('body', 'head', 'armr', 'arml', 'legr', 'legl')
+
+
+def kw_textures():
+    import math
+    from phase57_art import _gloss
+    from phase79_art import _slime
+    import phase95_art as FA
+    chest = _slime('#5ccf3c', 301, '#8ef062', '#3a9a2c'); d = ImageDraw.Draw(chest)
+    d.ellipse((22, 12, 42, 32), fill=hexc('#f6e030')); d.ellipse((27, 17, 37, 27), fill=hexc('#3a9a2c'))         # his comma: a ring...
+    d.polygon([(36, 28), (42, 24), (34, 46), (26, 50), (31, 40)], fill=hexc('#f6e030'))                            # ...and its tail
+    d.line((25, 15, 29, 13), fill=hexc('#fffbc0'), width=2)
+    bolt = _cloth('#ffe838', 319, var=0.04); bd = ImageDraw.Draw(bolt)
+    for y in range(0, 64, 9): bd.line((0, y, 63, y + 4), fill=hexc('#fff6a0'), width=2)                          # (a crackle along it)
+    T = {'emkw_slime': _slime('#5ccf3c', 301, '#8ef062', '#3a9a2c'), 'emkw_slime_dk': _slime('#3faa30', 303, '#62c84a', '#287a22', gloss=False),
+         'emkw_hair': _slime('#4cc236', 307, '#9af46a', '#2e8a24'), 'emkw_skin': _cloth('#dcebc0', 311, var=0.02),
+         'emkw_bolt': bolt, 'emkw_shoe': _gloss('#e8dc2a', 313, sole='#a89a10'), 'emkw_claw': _cloth('#f2ffd8', 317, var=0.02),
+         'emkw_chest': chest, 'emkw_face': FA.emma_kw_face(None)}
+    for e in FA.EMMA_EXPR:
+        T[f'emkw_face_{e}'] = FA.emma_kw_face(e)
+    return T
+
+
+def _bolt_chain(x, y, z, segs):
+    """a zigzag in the x-y plane: (direction in degrees, length, thickness) a segment, each from where the last ended - the
+    directions are model-legal (a multiple of 22.5 off an axis, within 45)"""
+    import math
+    out = []
+    for ang, L, t in segs:
+        a = math.radians(ang); x1, y1 = x + L * math.cos(a), y + L * math.sin(a)
+        cx, cy, Le = (x + x1) / 2, (y + y1) / 2, L + t * 0.6
+        if abs(ang) <= 45:
+            out.append(((cx - Le / 2, cy - t / 2, z - t / 2), (cx + Le / 2, cy + t / 2, z + t / 2), ang, (cx, cy, z)))
+        else:
+            out.append(((cx - t / 2, cy - Le / 2, z - t / 2), (cx + t / 2, cy + Le / 2, z + t / 2), ang - 90 if ang > 0 else ang + 90, (cx, cy, z)))
+        x, y = x1, y1
+    return out
+
+
+TENDRILS = [((1.4, 21.5, 2.9), [(22.5, 5.0, 1.05), (-22.5, 2.6, 0.95), (67.5, 4.4, 0.8), (67.5, 1.7, 0.45)]),
+            ((1.6, 18.4, 2.9), [(-22.5, 4.6, 1.05), (22.5, 2.4, 0.95), (-67.5, 4.2, 0.8), (-67.5, 1.7, 0.45)])]
 
 
 def models():
@@ -151,6 +198,50 @@ def models():
                     _el((-2.4, 30.8, 4.6), (2.4, 32.2, 5.5), 'em2_pink', hp), _el((-0.7, 29.2, 4.6), (0.7, 33.8, 5.5), 'em2_pink', hp),
                     _el((-0.6, 30.9, 5.7), (0.6, 32.1, 6.0), 'ee_magenta', hp)]
         part(f'em_head_o{o}', els)
+    # ---- (2.94m) the KillerWatt look
+    pv = PIVOT['body']
+    body = [_el((-3.4, 11.0, -2.3), (3.4, 16.0, 2.3), 'emkw_slime_dk', pv),
+            _el((-3.1, 15.6, -2.1), (3.1, 22.6, 2.1), 'emkw_slime', pv, uv={'north': [0, 0, 16, 16]})]          # (no neck: the head sits on the top)
+    body[1]['faces']['north']['texture'] = '#emkw_chest'
+    for z in (-2.32, 2.32):                                                                  # the tattered hem: points hanging off the top
+        for x in (-2.3, -0.75, 0.75, 2.3):
+            body.append(_el((x - 0.55, 14.85, z - 0.13), (x + 0.55, 15.95, z + 0.13), 'emkw_slime', pv, ('z', 45, (x, 15.4, z))))
+    for x in (-3.42, 3.42):
+        for z in (-1.1, 1.1):
+            body.append(_el((x - 0.13, 14.85, z - 0.55), (x + 0.13, 15.95, z + 0.55), 'emkw_slime', pv, ('x', 45, (x, 15.4, z))))
+    for (x, y, z), segs in TENDRILS:                                                         # four lightning tendrils off her back
+        for fr, to, rot, org in _bolt_chain(x, y, z, segs):
+            for sx in (1, -1):
+                f2, t2 = ((fr[0], fr[1], fr[2]), (to[0], to[1], to[2])) if sx > 0 else ((-to[0], fr[1], fr[2]), (-fr[0], to[1], to[2]))
+                body.append(_el(f2, t2, 'emkw_bolt', pv, ('z', rot * sx, (org[0] * sx, org[1], org[2])) if rot else None))
+    part('emkw_body', body)
+    for sx, nm in ((1, 'armr'), (-1, 'arml')):
+        p = PIVOT[nm]; cx = p[0]
+        arm = [_el((cx - 1, 14.6, -1), (cx + 1, 22.8, 1), 'emkw_slime', p), _el((cx - 0.95, 13.0, -0.95), (cx + 0.95, 14.6, 0.95), 'emkw_slime_dk', p)]
+        arm += [_el((cx - 0.16, 12.0, dz - 0.16), (cx + 0.16, 13.05, dz + 0.16), 'emkw_claw', p) for dz in (-0.6, 0.0, 0.6)]      # claws
+        arm.append(_el((cx + sx * 0.95, 18.0, -0.3), (cx + sx * 1.55, 18.6, 0.3), 'emkw_slime_dk', p, ('z', 45 * sx, (cx + sx * 1.1, 18.3, 0))))   # an elbow spike
+        part(f'emkw_{nm}', arm)
+    for sx, nm in ((1, 'legr'), (-1, 'legl')):
+        p = PIVOT[nm]
+        x0, x1 = (0.7, 2.7) if sx > 0 else (-2.7, -0.7)
+        part(f'emkw_{nm}', [_el((x0 - 0.05, 1.3, -1.05), (x1 + 0.05, 12.0, 1.05), 'emkw_slime', p),
+                            _el((x0 - 0.3, 0, -2.5), (x1 + 0.3, 1.6, 1.2), 'emkw_shoe', p), _el((x0 - 0.05, 0, -3.0), (x1 + 0.05, 0.9, -2.45), 'emkw_shoe', p)])
+    etex, eels = EA.models()['em_head']
+    hp = PIVOT['head']
+    els = copy.deepcopy(eels[:EA.HEAD_BASE])
+    for e in els:
+        for f in e['faces'].values():
+            f['texture'] = {'#em2_hair': '#emkw_hair', '#em2_skin': '#emkw_skin', '#em2_cheek': '#emkw_skin'}.get(f['texture'], f['texture'])
+    hr = lambda fr, to, rot=None: _el(fr, to, 'emkw_hair', hp, rot)
+    els += [hr((-1.7, 25.4, 4.3), (1.7, 31.0, 6.3), ('x', -22.5, (0, 31.0, 5.3))),                       # a high tail, swinging back
+            hr((-1.4, 20.6, 6.3), (1.4, 26.2, 8.1)), hr((-0.9, 19.2, 6.7), (0.9, 20.8, 7.8)),
+            hr((-0.5, 30.6, 4.6), (0.5, 33.6, 5.6), ('z', 22.5, (0, 30.6, 5.1))),                         # its spikes
+            hr((1.0, 29.8, 4.6), (2.0, 32.4, 5.6), ('z', -45, (1.5, 29.8, 5.1))), hr((-2.0, 29.8, 4.6), (-1.0, 32.4, 5.6), ('z', 45, (-1.5, 29.8, 5.1))),
+            _el((-1.0, 30.4, 4.3), (1.0, 32.4, 5.9), 'emkw_slime_dk', hp),                                # a green bow
+            _el((-3.8, 30.2, 4.5), (-0.8, 33.0, 5.5), 'emkw_slime', hp, ('z', 22.5, (-1.0, 31.4, 5.0))),
+            _el((0.8, 30.2, 4.5), (3.8, 33.0, 5.5), 'emkw_slime', hp, ('z', -22.5, (1.0, 31.4, 5.0)))]
+    part('emkw_head', els)
+    M['emkw_head'][0]['em2_face'] = 'bm:block/emkw_face'                                     # (her face key, his look: phase95 swaps in emkw_face_*)
     return M
 
 
@@ -304,6 +395,7 @@ def generate(G):
 def rp(R):
     import sys
     R.TEXTURE_MODS.append(sys.modules[__name__])
+    R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + ('emkw_',)          # (2.94m: her KillerWatt look's parts, at rig scale)
     EM = EA.models()
     for name, (tex, els) in models().items():
         if name.startswith('em_body_o'):

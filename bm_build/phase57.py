@@ -85,7 +85,7 @@ def generate(G):
 
     # ---- poses (left_rotation + a shared lift) - see phase57_art.POSES
     DUR = {'idle_a': 20, 'idle_b': 20, 'idle_hop': 4, 'walk_a': 4, 'walk_up': 4, 'walk_b': 4, 'run_a': 3, 'run_up': 3, 'run_b': 3, 'jump': 3,
-           'sit_a': 15, 'sit_b': 15, 'cast': 4, 'wave_a': 6, 'wave_b': 6, 'strike_up': 3, 'strike_dn': 3}
+           'sit_a': 15, 'sit_b': 15, 'cast': 4, 'wave_a': 6, 'wave_b': 6, 'strike_up': 3, 'strike_dn': 3, 'hug_a': 12, 'hug_b': 12}
     DUR.update({f'fly_{i}': 3 for i in range(ART.FLY_FRAMES)})
     DUR.update({f'hover_{i}': 3 for i in range(ART.HOVER_FRAMES)})
     DUR.update({f'swim_{i}': 3 for i in range(ART.SWIM_FRAMES)})
@@ -99,13 +99,14 @@ def generate(G):
                                 f'{{start_interpolation:0,interpolation_duration:{d},transformation:{{{xf_nbt(pose, p)}}}}}'
                                 for p in ART.PARTS])
 
-    # ---- the animation driver: state 0 idle, 1 walk, 2 run, 3 air, 4 sit, 5 fly, 6 cast, 7 strike, 8 wave
+    # ---- the animation driver: state 0 idle, 1 walk, 2 run, 3 air, 4 sit, 5 fly, 6 cast, 7 strike, 8 wave, 9 hover, 10 swim, 20 hug
     CYCLE = {0: (240, [(0, 'idle_a'), (40, 'idle_b'), (80, 'idle_a'), (120, 'idle_hop'), (124, 'idle_b'), (160, 'idle_a'), (200, 'idle_b')]),
              3: (None, [(0, 'jump')]), 4: (60, [(0, 'sit_a'), (30, 'sit_b')]),
              5: (3 * ART.FLY_FRAMES, [(3 * i, f'fly_{i}') for i in range(ART.FLY_FRAMES)]),
              6: (None, [(0, 'cast')]), 7: (None, [(0, 'strike_up'), (3, 'strike_dn')]), 8: (12, [(0, 'wave_a'), (6, 'wave_b')]),
              9: (3 * ART.HOVER_FRAMES, [(3 * i, f'hover_{i}') for i in range(ART.HOVER_FRAMES)]),
-             10: (3 * ART.SWIM_FRAMES, [(3 * i, f'swim_{i}') for i in range(ART.SWIM_FRAMES)])}
+             10: (3 * ART.SWIM_FRAMES, [(3 * i, f'swim_{i}') for i in range(ART.SWIM_FRAMES)]),
+             20: (24, [(0, 'hug_a'), (12, 'hug_b')])}                       # (2.94m: the hug - phase217; 11-12 are phase130's carry)
     anim = []
     for st, (period, frames) in CYCLE.items():
         lines = []

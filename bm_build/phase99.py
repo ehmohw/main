@@ -402,6 +402,13 @@ def generate(G):
                      f'execute if entity @s[tag=bm.pxu_{who},tag=bm.pxo_{who}] run {st("px", "on", P214.COL)}']
             btns.append(P28.btn([T('Pixel costume', P214.COL, bold=True), T('  '), '@@RAW:r_px@@'], TOP[who] - 1, width=150,
                                 tooltip=T(f'{nm} as a PixelLab sprite. Unlocked by using a Glitched Cartridge beside {pron}. On or off here.', 'gray')))
+        # 2.94m: Emma's KillerWatt look (an Easter egg - KillerWatt called while she's with you unlocks it, phase217) - locked, off, on
+        if who == 'emma':
+            assert TOP[who] - 2 not in used, (who, TOP[who] - 2)
+            page += [st('kw', '???', 'dark_gray'), f'execute if entity @s[tag=bm.emkw_u] run {st("kw", "off", "gray")}',
+                     f'execute if entity @s[tag=bm.emkw_u,tag=bm.emkw_o] run {st("kw", "on", "#7ae63a")}']
+            btns.append(P28.btn([T('KillerWatt look', '#7ae63a', bold=True), T('  '), '@@RAW:r_kw@@'], TOP[who] - 2, width=150,
+                                tooltip=T('Emma, gone glassy green like KillerWatt - his grin, his tendrils. A secret: how do you get it?', 'gray')))
         page.append(f'function bm:p99/dlg/{who} with storage bm:ui wd')
         fn(f'p99/menu/{who}', page)
         dlg = P28.multi([T(f"{nm}", col, bold=True), T('  ·  wardrobe', 'gray')],
@@ -417,6 +424,8 @@ def generate(G):
                  f'execute if score #act bm.pay matches {TOP[who]} run return run function bm:p138/au/t_{who}']
         if who in P214.KEYS:
             lines.append(f'execute if score #act bm.pay matches {TOP[who] - 1} run return run function bm:p214/t/{who}')
+        if who == 'emma':
+            lines.append(f'execute if score #act bm.pay matches {TOP[who] - 2} run return run function bm:p217/kw/t')
         for _w, g, cur, un, ks, iid, off, apply in mine:
             if g != 'outfit':
                 fn(f'p99/pick/{g}0', [f'scoreboard players set @s {cur} 0'] + (['scoreboard players set @s bm.coso 0'] if g == 'dress' else []) +

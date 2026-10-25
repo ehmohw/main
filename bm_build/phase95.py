@@ -58,7 +58,7 @@ def textures():
     return T
 
 
-FACE_KEYS = (('em_head', 'em2_face', ART.EMMA_EXPR), ('ee_head', 'ee_face', ART.EMMA_EXPR), ('ce_head', 'ce_face', ART.CELI_EXPR))
+FACE_KEYS = (('em_head', 'em2_face', ART.EMMA_EXPR), ('ee_head', 'ee_face', ART.EMMA_EXPR), ('ce_head', 'ce_face', ART.CELI_EXPR), ('emkw_head', 'em2_face', ART.EMMA_EXPR))      # (2.94m: her KillerWatt look - its own face set, emkw_face_*)
 
 
 def rp(R):
@@ -72,7 +72,7 @@ def rp(R):
             assert key in tex, (name, key)
             heads[name] = []
             for e in ex:
-                R.HATS[f'{name}_x{e}'] = (dict(tex, **{key: f'bm:block/{key}_{e}'}), els)
+                R.HATS[f'{name}_x{e}'] = (dict(tex, **{key: f'{tex[key]}_{e}'}), els)      # (2.94m: the head's own face, with that expression)
                 heads[name].append((e, f'{name}_x{e}'))
     for name in [n for n in ('cec2_eyes', 'cec2_eyes_ethereal', 'cec2_eyes_wraith') if n in R.HATS]:     # (2.76: the wraith eyes too)
         tex, els = R.HATS[name]
