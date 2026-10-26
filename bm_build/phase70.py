@@ -244,7 +244,9 @@ def generate(G):
                     'execute if score #ok bm.rng matches 0 run effect give @s minecraft:slow_falling 30 0 true',
                     'function bm:p70/unraid'])
     fn('p70/home2', ['$execute if data storage bm:gv ret.p$(pid) run function bm:p70/home3 with storage bm:gv ret.p$(pid)'])
-    fn('p70/home3', ['scoreboard players set #ok bm.rng 1', '$execute in $(dim) run tp @s $(x).5 $(y) $(z).5', 'effect give @s minecraft:resistance 3 4 true'])
+    # (2.94x: the stored x, z are floored - "$(x).5" was a block off below 0; the block's centre instead)
+    fn('p70/home3', ['scoreboard players set #ok bm.rng 1', '$execute in $(dim) positioned $(x) $(y) $(z) align xz positioned ~0.5 ~ ~0.5 run tp @s ~ ~ ~',
+                     'effect give @s minecraft:resistance 3 4 true'])
     fn('p70/unraid', ['tag @s remove bm.gvp', 'tag @s remove bm.gvwait', 'tag @s remove bm.gvdead', 'scoreboard players reset @s bm.gvi',
                       'attribute @s minecraft:max_health modifier remove bm:gv_glass', 'effect clear @s minecraft:darkness'] +
        [f'bossbar set bm:gva{s} players @a[tag=bm.gvp,scores={{bm.gvi={s + 1}}}]' for s in range(SLOTS)] +
@@ -352,7 +354,10 @@ def generate(G):
                           'attribute @s minecraft:max_health base get', 'execute store result entity @s Health float 1 run scoreboard players get #h bm.rng',
                           'execute if score #gn bm.rng matches 1 if entity @s[type=minecraft:vindicator] run function bm:mobs/blood/vindicator',
                           'execute if score #gn bm.rng matches 2 if entity @s[type=minecraft:vindicator] run function bm:mobs/lucky/vindicator',
-                          'execute if score #gn bm.rng matches 1..2 run data modify entity @s PersistenceRequired set value 1b'])
+                          'execute if score #gn bm.rng matches 1..2 run data modify entity @s PersistenceRequired set value 1b',
+                          # (2.94x: dressed for the night, but a guard's loot is still a guard's - the Blood Moon's and the Lucky
+                          #  Night's own tables had them dropping emeralds, charms and Tokens in the vault)
+                          'execute if score #gn bm.rng matches 1..2 run data modify entity @s DeathLootTable set value "bm:gv/guard"'])
     G.FUNCS['p70/guard_set1'] = [l if 'attributes[{id:"minecraft:max_health"}]' not in l else
                                  'execute store result storage bm:gv h double 1 run scoreboard players get #h bm.rng' for l in G.FUNCS['p70/guard_set1']]
     G.FUNCS['p70/guard_set1'] = [l if l != 'attribute @s minecraft:max_health base get' else 'function bm:p70/hp with storage bm:gv' for l in G.FUNCS['p70/guard_set1']]

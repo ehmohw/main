@@ -21,6 +21,19 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94x: the Smuggler's Waytoken
+
+**The Fence** now sells the **Smuggler's Waytoken** (3 Medallions; 2 on a Lucky Night): a brass token that takes you to a Black Market of your choosing, and back.
+- **Stamp it:** use it inside a Black Market. It's stamped for that one, and its description says which ("Stamped: the Black Market at X, Z"). Sneak + use it inside another market to restamp it.
+- **Go:** use it anywhere in the Overworld, the Nether or the End, and you're on that market's doorstep. The token remembers where you were.
+- **Come back:** use it again at that market, and you're back where you were, on the same block and facing the same way.
+- Each token keeps its own stamp and its own way back, so you can carry a few, each stamped for a different market. If you're riding, you're set down first. The token doesn't work on a heist or in the pack's own worlds (the Gutter, the Hollow Throne).
+
+**Fixed:**
+- **Heist guards on Blood Moon and Lucky Night heists** dropped emeralds, charms and Tokens: dressing them for the night gave them the night's loot. Their drops are now a guard's again. They keep the night's look and strength, and the Crimson Ledger still heals you on every kill.
+- **Opening a hidden passage** in a heist (the two cracked bricks) put the bricks in your pack. The wall still crumbles, but nothing drops.
+- **Coming back from a heist** at negative coordinates set you down one block over, sometimes inside a wall. It's the right block now.
+
 ## New in 2.94w: Keep up fixes
 
 - **Sending a partner home with Keep up on** (from the Partner Wheel, their menu, or anywhere else) brought them straight back, as if they'd got lost. Now they go home and stay there until you call them.

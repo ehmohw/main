@@ -190,6 +190,7 @@ import phase220 as R220      # 2.94r: the Follower Gallery - a Pokedex of partne
 import phase222 as R222      # 2.94u: dashes in place of one-tick teleports onto foes
 import phase223 as R223      # 2.94u: signature moves (Emma, Leo, Celi, Democratus, Apophiss, Ashur, Cecil)
 import phase224 as R224      # 2.94u: signature moves for the rest of the fighters
+import phase225 as R225      # 2.94x: the Smuggler's Waytoken (the Fence) - to a market of your choosing and back
 import atk                   # 2.94u: the attack kit - impact and hit-stop on every follower blow
 import phase221 as R221      # 2.94t: shiny followers - one summon in a hundred, trying something new today
 import phase202 as R202      # 2.92: the kingdom's armoury - Leo's Aegis, Emma's Crescent, Tidewarden and Pearlguard, Tide Scales (kingdom_art.py)
@@ -224,7 +225,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.94w'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.94x'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -483,6 +484,7 @@ def all_offers():
     R148.extend_offers(O, offer)       # (2.82c: the Crimson War Horn at the Bloodbroker)
     R179.extend_offers(O, offer)       # (2.84c: the Partner Wheel at Cecil's)
     R199.extend_offers(O, offer)       # (2.91: the Sealed Royal Chart at the Dockmaster's)
+    R225.extend_offers(O, offer)       # (2.94x: the Smuggler's Waytoken at the Fence's)
     R202.extend_offers(O, offer)       # (2.92: Leo's Trident and the Bloomheart leave Cecil for the Royal Steward)
     # 2.82: follower cosmetics are raid exclusives (the Tailor in the den) - no overworld trader sells one
     global COS_OFF_MARKET
@@ -1425,6 +1427,7 @@ def build(out_dir):
     if PHASE2: R222.generate(sys.modules[__name__])      # 2.94u: dashes (after every follower's attacks)
     if PHASE2: R223.generate(sys.modules[__name__])      # 2.94u: signature moves
     if PHASE2: R224.generate(sys.modules[__name__])      # 2.94u: ...and the rest
+    R225.generate(sys.modules[__name__])                 # 2.94x: the Smuggler's Waytoken
     if PHASE2: print('bite impacts: %d followers' % atk.biters(sys.modules[__name__]))
     if PHASE2: print('alternate swings: %d followers' % atk.alternates(sys.modules[__name__]))
     if PHASE2: print('attack kit: %d follower blows with an impact, %d animations with a hit-stop' % atk.finalize(sys.modules[__name__]))

@@ -200,7 +200,8 @@ def generate(G):
     second.append('execute as @e[type=minecraft:interaction,tag=bm.gvhvi] at @s if entity @a[tag=bm.gvp,distance=..5] run particle minecraft:white_ash ~ ~1 ~ 0.3 0.6 0.3 0 6')
     fast.append('execute as @e[type=minecraft:interaction,tag=bm.gvhvi] if data entity @s interaction at @s run function bm:p87/hv/open')
     fast.append('execute as @e[type=minecraft:interaction,tag=bm.gvhvi] if data entity @s attack at @s run function bm:p87/hv/open')
-    fn('p87/hv/open', ['fill ~ ~ ~ ~ ~1 ~ minecraft:air destroy', 'scoreboard players operation #gi bm.rng = @s bm.gvi',
+    # (2.94x: it crumbles - its dust and its sound - but nothing drops: the bricks are the vault's, not loot)
+    fn('p87/hv/open', ['fill ~ ~ ~ ~ ~1 ~ minecraft:air destroy', 'kill @e[type=minecraft:item,distance=..2.5,nbt={Age:0s}]', 'scoreboard players operation #gi bm.rng = @s bm.gvi',
                        'execute as @e[type=minecraft:marker,tag=bm.gvhvd,distance=..5] run tag @s add bm.gvhvopen',
                        'particle minecraft:reverse_portal ~ ~1 ~ 0.4 0.8 0.4 0.4 60', 'playsound minecraft:block.grindstone.use block @a[distance=..24] ~ ~ ~ 1 0.5',
                        'playsound minecraft:ambient.cave block @a[distance=..24] ~ ~ ~ 1 1.2',
