@@ -144,7 +144,7 @@ def generate(G):
             down['minecraft:trim'] = {'material': 'minecraft:quartz', 'pattern': 'minecraft:silence'}
         if iid == WINGS:                                   # (on your back: the angelic wings, or the elytra's own again)
             up['minecraft:equippable'] = {'slot': 'chest', 'asset_id': 'bm:angelic_wings', 'equip_sound': 'minecraft:item.armor.equip_elytra', 'damage_on_hurt': False}
-            down['minecraft:equippable'] = {'slot': 'chest', 'asset_id': 'minecraft:elytra', 'equip_sound': 'minecraft:item.armor.equip_elytra', 'damage_on_hurt': False}
+            down['minecraft:equippable'] = {'slot': 'chest', 'asset_id': 'bm:damned_wings', 'equip_sound': 'minecraft:item.armor.equip_elytra', 'damage_on_hurt': False}
         up.update(UP_X.get(iid, {})); down.update(DOWN_X.get(iid, {}))
         up, down = ({k: v for k, v in d.items() if v is not None} for d in (up, down))     # (None: that component isn't set at all)
         bow_up = [{'function': 'minecraft:set_enchantments', 'enchantments': {'bm:withering_shot': 0, 'bm:p182/searing_shot': 1}}] if iid == 'conq_bow' else []
@@ -345,6 +345,8 @@ def _recolor(im, lift=0.18):
 
 
 def rp(R):
+    import sprites294
+    R.ICONS['hollow_wings'] = sprites294.hollow_wings()          # (2.94y: the Wings of the Damned's own icon)
     from PIL import Image
     VAN = '/home/claude/mc263/client/assets/minecraft'
 
@@ -369,7 +371,8 @@ def rp(R):
                                                                                      'entries': [{'threshold': 0.65, 'model': m('_pulling_1')}, {'threshold': 0.9, 'model': m('_pulling_2')}]}}})
                 continue
             src = f'{VAN}/textures/item/{VANILLA[iid]}.png'
-            t = save(f'angel_{iid}', _recolor(Image.open(src).convert('RGBA')))
+            import sprites294                                # (2.94y: the holy wings drawn for themselves, not recoloured)
+            t = save(f'angel_{iid}', sprites294.angel_hollow_wings() if iid == WINGS else _recolor(Image.open(src).convert('RGBA')))
             parent = 'minecraft:item/generated' if iid in ARMOR or iid == WINGS else 'minecraft:item/handheld'
             R2.wj(f'assets/bm/models/item/angel_{iid}.json', {'parent': parent, 'textures': {'layer0': t}})
             R2.wj(f'assets/bm/items/angel_{iid}.json', {'model': {'type': 'minecraft:model', 'model': f'bm:item/angel_{iid}'}})
@@ -412,6 +415,10 @@ def rp(R):
         # (2.88) the Wings of the Damned, purified: the elytra's feathers in pearl, purple and gold
         d = R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'wings')
         os.makedirs(d, exist_ok=True)
-        _recolor(Image.open('/home/claude/bm_build/vendor/elytra_wings.png').convert('RGBA'), 0.3).save(os.path.join(d, 'angelic_wings.png'))
+        # (2.94y: white feathers in rows, a gold leading edge and gold tips - and the damned ones: charred membrane on bone, soul-fire tips)
+        import sprites294
+        sprites294.holy_wings_tex().save(os.path.join(d, 'angelic_wings.png'))
         R2.wj('assets/bm/equipment/angelic_wings.json', {'layers': {'wings': [{'texture': 'bm:angelic_wings'}]}})
+        sprites294.damned_wings_tex().save(os.path.join(d, 'damned_wings.png'))
+        R2.wj('assets/bm/equipment/damned_wings.json', {'layers': {'wings': [{'texture': 'bm:damned_wings'}]}})
     R.POST.append(post)

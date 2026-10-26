@@ -112,7 +112,9 @@ def generate(G):
             fn(f'p176/mk/{t}', lines)
             wjson(f'bm/loot_table/entities/dread/{t}.json', {'type': 'minecraft:entity', 'pools': [
                 {'rolls': 1, 'entries': [{'type': 'minecraft:loot_table', 'value': f'bm:entities/champion/{t}'}]},
-                {'rolls': 1, 'entries': [G.loot_entry('blood_crystal')], 'conditions': [G.KILLED, G.chance(1 / 12)]}]})
+                {'rolls': 1, 'entries': [G.loot_entry('blood_crystal')], 'conditions': [G.KILLED, G.chance(1 / 12)]},
+                # (2.94y) a Dread Token, one in twenty - a flat chance: Looting doesn't touch it (random_chance, no count bonus)
+                {'rolls': 1, 'entries': [G.loot_entry('dread_token')], 'conditions': [G.KILLED, G.chance(0.05)]}]})
     assert n >= 20, n
     # the rest: three in four with Strength and Resistance, one in five of those at II
     fn('p176/buff', ['execute store result score #hb bm.rng run random value 1..100', 'execute if score #hb bm.rng matches 76.. run return 0',

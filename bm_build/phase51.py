@@ -106,6 +106,11 @@ def generate(G):
             if what == 'treasure_map': continue
             backroom.append(('minecraft:enchanted_book' if what == 'mending_book' else what, n, cost))
     table = refund_table(O, zorp, backroom)
+    # (2.94y) the Dark Auction's relics scrap for a Trophy and 2 Medallions (they paid 3 Medallions): as much as can be given
+    # under what one costs in the backroom (2 Trophies), so a relic bought there never scraps for a profit
+    import phase30
+    for lot in phase30.LOTS:
+        if lot[3] == 'relic': table[lot[0]] = (1, [('trophy', 1), ('medallion', 2)])
     G.SCRAP_TABLE = table
     cur = sorted({c for _, pay in table.values() for c, _ in pay})
     money_nbt = {c: dict(G.stack(c, 1)) for c in cur}

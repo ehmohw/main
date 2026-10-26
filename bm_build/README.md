@@ -21,6 +21,16 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94y: new art, relics worth more, Dread Tokens from Dread mobs
+
+- **Redrawn as vanilla items are** (16 × 16, a dark one-pixel outline, lit from the top left):
+  - the **Dread Token** (a skull struck on crimson in an iron rim) and the **Ravenous Heart** (a fanged maw, dripping);
+  - the five **alien weapons**: the Ray Gun's green bulb, the Vorn Plasma Blaster, the Shrink Ray's narrowing pink emitter, the Growth Ray's flared red dish, and the Tractor Beam's violet orb;
+  - the **Smuggler's Waytoken**, now a rat in profile inlaid in silver on brass.
+- **The Wings of the Damned** have their own look, worn and in your inventory: a charred membrane on bone ribs, with soul fire at the torn tips. **Purified**, they become the Holy Wings: white feathers in rows, a gold leading edge and gold-tipped feathers, with a faint pearl sheen.
+- **The Dark Auction's relics** (Auroral Crown, Brass Wing Scroll, Rat Familiar, Bloomwalker Boots, Showstopper Charm, Market Crest Scroll) now scrap for **a Trophy and 2 Medallions** each, up from 3 Medallions. That's as much as it can be while staying under their backroom price, so buying one to scrap never pays.
+- **Dread mobs** now have a **5% chance to drop a Dread Token** when you kill them. Looting doesn't change the odds.
+
 ## New in 2.94x: the Smuggler's Waytoken
 
 **The Fence** now sells the **Smuggler's Waytoken** (3 Medallions; 2 on a Lucky Night): a brass token that takes you to a Black Market of your choosing, and back.

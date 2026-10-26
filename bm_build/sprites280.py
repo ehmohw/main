@@ -817,6 +817,8 @@ def every_override():
         dup = set(allo) & set(m.OVERRIDES)
         assert not dup, f'{m.__name__} draws {sorted(dup)} again'
         allo.update(m.OVERRIDES)
+    import sprites294                                     # (2.94y: redrawn again - these win)
+    allo.update(sprites294.OVERRIDES)
     return allo
 
 

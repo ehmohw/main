@@ -67,7 +67,9 @@ def register():
           ('Hold sneak while gliding: the wings drive you on.', 'blue'), ('On the ground, crouch a moment, then jump:', 'blue'),
           ('they throw you skyward - jump again to glide.', 'blue'), ('A trail of souls, wither-smoke and flame.', 'dark_purple')],
          {'bm:damned_wings': 1}, 3, attrs=[attr('armor', 6, 'chest', ident='minecraft:armor.chestplate'), attr('armor_toughness', 2, 'chest', ident='minecraft:armor.chestplate_toughness')],
-         extra={'minecraft:unbreakable': {}}, bold=True)
+         extra={'minecraft:unbreakable': {}, 'minecraft:item_model': 'bm:hollow_wings',      # (2.94y: their own look - on your back too)
+                'minecraft:equippable': {'slot': 'chest', 'asset_id': 'bm:damned_wings', 'equip_sound': 'minecraft:item.armor.equip_elytra',
+                                         'damage_on_hurt': False}}, bold=True)
     evil_name('hollow_wings', 'Wings of the Damned')
 
 
