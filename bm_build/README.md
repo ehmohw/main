@@ -21,6 +21,21 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.95e: blows that suit who's swinging them
+
+- **Not everyone vanishes for the Piercing Blow any more.** The fighters go in where you can see them, on their own poses, landing the same 14 of armour-piercing damage in several blows:
+  - **Bender: Savage Maul.** He pounces, claws the monster four times, then clambers up onto its head and chomps on it.
+  - **Leo: Shield Bash.** A bash of the shield stuns it (it can't move or hit back for a moment), then he runs it through with the trident three times.
+  - **Bloo: Feral Frenzy.** A pounce, a frenzy of claws, and a roar over it.
+  - **Bones: Death Roll.** His jaws clamp on, and he rolls it, thrashing.
+  - **Democratus: Reaper's Toll.** The scythe comes down through its guard and reaps it on the backswing.
+  - **The Chef: Order Up!** He tenderises it with a flurry of whacks, then serves the finisher.
+  - **Tullius: Hook and Broadside.** He harpoons it and drags it in, runs it through twice, and finishes it with the blunderbuss, point-blank.
+  - The ones who vanish still do, because it's who they are: Omega's ghastly realm, Cecil's shadows, the Stalker's dark, Pistachio through the walls, Wilfrey's grave, Mr. Capshun's eraser, Kettle's hide-and-seek.
+- **The Partner Wheel shows each partner's summoning item** as a little icon beside their name.
+- **Kettle is now exactly as tall as Mr. Capshun.**
+- **Fixed:** every signature move (Emma's Crescent Dive, Leo's Shield Charge and the rest) skipped its very first moment, so the wind-up pose and sound never played. They play now.
+
 ## New in 2.95d: Kettle, the first Buddy
 
 - **Kettle** is the very first Buddy the Gem of Creativity ever made: a tall stick figure, flat as a drawing, and the embodiment of childlike simplicity and fun. He isn't a narrator and he doesn't know he's in a game. He just wants to play.

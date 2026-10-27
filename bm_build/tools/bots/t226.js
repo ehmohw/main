@@ -59,6 +59,8 @@ const res = [];
   await A.useWait(1500);
   ok('Use the wheel: its page offers Call Emma (and only partners on it)', A.buttons().some(b => /Call Emma/.test(b.label)) && !A.buttons().some(b => /Leo|Cecil/.test(b.label)),
      A.buttons().map(b => b.label).join(' | '));
+  ok('...beside her name, her summoning item\'s own icon (Emma\'s Ribbon, an inline sprite from the items atlas)',
+     /"sprite":\{[^}]*"value":"bm:item\/emma_ribbon"/.test(A.dialogs[A.dialogs.length - 1]) || /bm:item\/emma_ribbon/.test(A.dialogs[A.dialogs.length - 1]), (A.dialogs[A.dialogs.length - 1] || '').slice(0, 200));
   await press(/Call Emma/);
   ok('...Call Emma: she comes', await wait(4000, async () => passes(`${O}execute if entity ${emma}`)));
   await sleep(5000);

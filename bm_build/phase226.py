@@ -11,6 +11,18 @@ Might V) learns a second signature move, one that goes straight through armour.
   CECIL        Shadow Veil: he veils himself in shadows, and strikes from inside them.
   (everyone else: FLAV below - Emma slips into sea-spray, KillerWatt pours himself into the ground as current and erupts
    under his prey, Mr. Capshun erases himself and redraws behind it...)
+(2.95e) NOT EVERYONE VANISHES - the move suits the one making it. The fighters go in where you can see them, on their own
+poses (atk.sig), the same 14 of rend in all, split across the blows:
+  BENDER       Savage Maul: he pounces, claws the monster four times over - then clambers up and chomps on its head.
+  LEO          Shield Bash: a bash of the shield stuns it (it can't move or hit back for a moment), and the trident goes
+               through it, three times.
+  BLOO         Feral Frenzy: a pounce and a frenzy of claws, and a roar over it.
+  BONES        Death Roll: his jaws clamp on, and he rolls it, thrashing.
+  DEMOCRATUS   Reaper's Toll: the scythe raised high and brought down through its guard, and reaped on the backswing.
+  THE CHEF     Order Up!: tenderised with a flurry of whacks - and the finisher, served.
+  TULLIUS      Hook and Broadside: harpooned and dragged in, run through twice, and the blunderbuss point-blank.
+The ones who vanish do it because it's who they are: Omega's ghastly realm, Cecil's shadows, the Stalker's dark, Pistachio
+through the walls, Wilfrey's grave, Mr. Capshun's eraser, Kettle's hide-and-seek, Zib's beam...
 Champions made before this version learn it at once; the honours page and the Champion's announcement name it."""
 from items import T
 
@@ -137,6 +149,64 @@ FLAV = {
 }
 TICKS = {'vanish': 1, 'move': 8, 'show': 11, 'end': 15}
 
+# (2.95e) THE ASSAULTS - seen, not vanished. Each: its own animation's hooks, its busy score, the hits (rend, and what else each
+# blow does at the foe, as the foe), and a timeline on its own poses ('H<n>': hit n; 'DASH': to the marked foe; 'RIDE a..b': on
+# the foe's head those ticks; 'PULL a..b': the foe dragged in those ticks)
+STUN = ['effect give @s minecraft:slowness 3 9 true', 'effect give @s minecraft:weakness 3 9 true',
+        'particle minecraft:wax_off ~ ~2.1 ~ 0.25 0.05 0.25 0.6 10', 'particle minecraft:crit ~ ~1.8 ~ 0.3 0.1 0.3 0.2 12']
+SLASH = lambda c: [f'particle minecraft:dust{{color:[{c}],scale:1.1}} ~ ~1 ~ 0.35 0.4 0.35 0 10', 'particle minecraft:sweep_attack ~ ~1 ~ 0.2 0.1 0.2 0 1']
+ASSAULT = {
+    'bender': dict(pfx='p195', s_obj='bm.dqs', anim='p195/anim', busy='bm.dqx', end=36, dash=dict(reach=1.4, speed=1.0, lift=2),
+                   hits={1: (2, SLASH('0.88,0.66,0.38') + ['particle minecraft:crit ~ ~1.2 ~ 0.3 0.3 0.3 0.3 8'], 'minecraft:entity.player.attack.sweep', 1.6),
+                         2: (3, ['particle minecraft:crit ~ ~1.8 ~ 0.25 0.15 0.25 0.4 14', 'effect give @s minecraft:slowness 1 4 true'], 'minecraft:entity.fox.bite', 0.7)},
+                   tl={1: ['P maul_a', 'S minecraft:entity.wolf.growl 1 0.8'], 3: ['DASH'],
+                       4: ['P maul_a', 'H1'], 6: ['P maul_b', 'H1'], 8: ['P maul_a', 'H1'], 10: ['P maul_b', 'H1'],
+                       12: ['P bite_up', 'data merge entity @s {NoGravity:1b}', 'S minecraft:entity.wolf.ambient 1 1.4', 'RIDE 13..25'],
+                       15: ['P bite', 'H2'], 18: ['P bite_up'], 21: ['P bite', 'H2'], 23: ['P bite_up'],
+                       26: ['data merge entity @s {NoGravity:0b}', 'P jump'], 30: ['P land'], 33: ['P idle_a']}),
+    'leo': dict(pfx='p96', s_obj='bm.les', anim='p96/anim', busy='bm.lek', end=28, dash=dict(reach=1.9, speed=1.0, lift=1),
+                hits={1: (2, STUN, 'minecraft:item.shield.block', 0.8),
+                      2: (4, ['particle minecraft:splash ~ ~1 ~ 0.3 0.4 0.3 0.2 16', 'particle minecraft:enchanted_hit ~ ~1.1 ~ 0.2 0.3 0.2 0.3 10'], 'minecraft:item.trident.hit', 1.1)},
+                tl={1: ['P guard', 'S minecraft:item.armor.equip_iron 1 0.9'], 3: ['DASH'],
+                    4: ['P guard', 'H1', 'S minecraft:block.anvil.land 0.4 1.4'], 8: ['P thrust_back'], 10: ['P thrust', 'H2'],
+                    12: ['P thrust_back'], 14: ['P thrust', 'H2'], 16: ['P thrust_back'], 18: ['P thrust', 'H2'], 25: ['P idle_a']}),
+    'bloo': dict(pfx='p191', s_obj='bm.bks', anim='p191/anim', busy='bm.bkx', end=31, dash=dict(reach=1.5, speed=1.1, lift=2),
+                 hits={1: (2, SLASH('0.35,0.60,0.91') + ['particle minecraft:crimson_spore ~ ~1 ~ 0.3 0.3 0.3 0 8'], 'minecraft:entity.player.attack.sweep', 1.3),
+                       2: (4, ['particle minecraft:crit ~ ~1 ~ 0.5 0.5 0.5 0.4 20'], 'minecraft:entity.ravager.roar', 1.2)},
+                 tl={1: ['P crouch', 'S minecraft:entity.fox.sniff 1 0.6'], 4: ['P pounce', 'DASH'], 5: ['H1'],
+                     7: ['P swipe_up'], 8: ['P swipe', 'H1'], 10: ['P swipe_up'], 11: ['P swipe', 'H1'], 13: ['P swipe_up'], 14: ['P swipe', 'H1'],
+                     16: ['P swipe_up'], 17: ['P swipe', 'H1'], 20: ['P roar', 'H2'], 28: ['P idle_a']}),
+    'bones': dict(pfx='p196', s_obj='bm.bzs', anim='p196/anim', busy='bm.bzx', end=26, dash=dict(reach=1.6, speed=1.1, lift=1),
+                  hits={1: (5, ['particle minecraft:splash ~ ~1 ~ 0.3 0.3 0.3 0.2 16', 'effect give @s minecraft:slowness 2 9 true'], 'minecraft:entity.guardian.attack', 1.2),
+                        2: (3, ['particle minecraft:splash ~ ~0.8 ~ 0.5 0.3 0.5 0.3 20', 'particle minecraft:bubble ~ ~1 ~ 0.3 0.3 0.3 0.1 10'], 'minecraft:entity.dolphin.splash', 0.8)},
+                  tl={1: ['P charge', 'S minecraft:entity.dolphin.splash 1 0.7'], 3: ['DASH'], 4: ['P bite_open'], 6: ['P bite', 'H1'],
+                      8: ['P thrash_a', 'H2'], 11: ['P thrash_b', 'H2'], 14: ['P thrash_a', 'H2'], 17: ['P thrash_b'], 23: ['P idle_a']}),
+    'demo': dict(pfx='p97', s_obj='bm.dms', anim='p97/frame', busy='bm.dmk', end=28, dash=dict(reach=2.2, speed=1.0, lift=2),
+                 hits={1: (9, ['particle minecraft:electric_spark ~ ~1 ~ 0.4 0.6 0.4 0.3 30', 'particle minecraft:sweep_attack ~ ~1 ~ 0.1 0.4 0.1 0 2'], 'minecraft:entity.lightning_bolt.impact', 1.6),
+                       2: (5, ['particle minecraft:sweep_attack ~ ~1 ~ 0.6 0.2 0.6 0 3'], 'minecraft:entity.player.attack.sweep', 0.7)},
+                 tl={1: ['P swing_back', 'S minecraft:item.trident.thunder 0.4 1.5'], 4: ['DASH'], 5: ['P overhead'], 10: ['P slam', 'H1'],
+                     14: ['P swing_back'], 17: ['P swing', 'H2'], 25: ['P idle_a']}),
+    'chef': dict(pfx='p186', s_obj='bm.kqs', anim='p186/anim', busy='bm.kqx', end=27, dash=dict(reach=1.6, speed=1.0, lift=1),
+                 hits={1: (3, ['particle minecraft:crit ~ ~1.2 ~ 0.3 0.3 0.3 0.3 10'], 'minecraft:entity.player.attack.strong', 1.3),
+                       2: (5, ['particle minecraft:flame ~ ~1 ~ 0.3 0.4 0.3 0.05 16', 'particle minecraft:crit ~ ~1.2 ~ 0.4 0.4 0.4 0.4 16'], 'minecraft:block.bell.use', 1.6)},
+                 tl={1: ['P whack_up', 'S minecraft:entity.player.attack.knockback 0.6 1.6'], 3: ['DASH'], 4: ['P whack', 'H1'],
+                     6: ['P whack_up'], 7: ['P whack', 'H1'], 9: ['P whack_up'], 10: ['P whack', 'H1'],
+                     13: ['P throw_back'], 17: ['P throw', 'H2'], 24: ['P idle_a']}),
+    'tul': dict(pfx='p132', s_obj='bm.tus', anim='p132/anim', busy='bm.tux', end=33, dash=None,
+                hits={1: (4, ['particle minecraft:snowflake ~ ~1 ~ 0.3 0.4 0.3 0.05 16', 'particle minecraft:enchanted_hit ~ ~1.1 ~ 0.2 0.3 0.2 0.3 8'], 'minecraft:item.trident.hit', 0.9),
+                      2: (6, ['particle minecraft:snowflake ~ ~1 ~ 0.5 0.5 0.5 0.3 40', 'particle minecraft:poof ~ ~1 ~ 0.4 0.4 0.4 0.05 16'], 'minecraft:entity.generic.explode', 1.5)},
+                tl={1: ['P hook_pull', 'S minecraft:entity.fishing_bobber.throw 1 0.6', 'PULL 3..9'], 5: ['S minecraft:entity.fishing_bobber.retrieve 1 0.6'],
+                    10: ['P thrust_back'], 12: ['P thrust', 'H1'], 14: ['P thrust_back'], 16: ['P thrust', 'H1'],
+                    20: ['P aim'], 24: ['P blast', 'H2'], 30: ['P idle_a']}),
+}
+NAMES = {'bender': ('Savage Maul', 'pounces, claws the monster savagely and chomps on its head'),
+         'leo': ('Shield Bash', 'stuns the monster with a bash of his shield, then runs it through with his trident, again and again'),
+         'bloo': ('Feral Frenzy', 'pounces and tears into the monster in a frenzy of claws, and roars over it'),
+         'bones': ('Death Roll', 'clamps his jaws on the monster and rolls it, thrashing'),
+         'demo': ("Reaper's Toll", 'brings the scythe down through the monster\'s guard and reaps it on the backswing'),
+         'chef': ('Order Up!', 'tenderises the monster with a flurry of whacks, then serves the finisher'),
+         'tul': ('Hook and Broadside', 'harpoons the monster, drags it in, runs it through and lets the blunderbuss finish it point-blank')}
+
 
 def generate(G):
     import phase173 as P173
@@ -165,6 +235,12 @@ def generate(G):
     FOE = '@e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=..12,sort=nearest,limit=1]'
     for w in FOL:
         nm, col = WHO[w][0], WHO[w][2]
+        if w in ASSAULT:
+            assault(G, w, typ(w), host, ME[w], col)
+            name, desc = NAMES[w]
+            G.FUNCS[f'p205/check/{w}'].insert(-2, tellraw('@s', G.PREFIX + [T('...and a piercing blow: ', 'gray'), T(name, '#ff7a7a', bold=True),
+                                                                            T(f' - {nm} {desc}, straight through armour.', 'gray')]))
+            continue
         name, desc, where, out, sign, back, s_out, s_in = FLAV[w]
         me = ME.get(w, 'prme')
         ptag, pid = PT[w]
@@ -232,7 +308,75 @@ def generate(G):
     second += ['execute as @e[type=minecraft:item_display,tag=bm.prhid] run scoreboard players remove @s bm.prh 1',
                'execute as @e[type=minecraft:item_display,tag=bm.prhid,scores={bm.prh=..0}] run function bm:p226/show']
     for w in FOL:          # (a move cut short - the follower sent home, a faint, an unloaded chunk: never left frozen)
+        if w in ASSAULT: continue
         second.append(f'execute as {host(w, "scores={bm.prt=1..},tag=!bm.champ")} at @s run function bm:p226/end')
+
+
+def assault(G, w, typ, host, me, col):
+    """(2.95e) the piercing blow as a choreographed assault on the follower's own poses (atk.sig, kid 3): every 18 s (p226/sec)
+    the foe is marked and bm.prgo set; the move starts as soon as the follower is free"""
+    import atk
+    fn = G.fn
+    A = ASSAULT[w]
+    pfx = A['pfx']
+    if 'bm.prgo' not in G.OBJECTIVES:
+        G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.prgo dummy']; G.OBJECTIVES.append('bm.prgo')
+    by = f'by @e[type=minecraft:{typ},tag=bm.{me},limit=1]'
+    for i, (dmg, fx, snd, pitch) in A['hits'].items():
+        fn(f'p226/a/{w}/h{i}', [f'tag @s add bm.{me}', f'execute as @e[tag=bm.prfoe,distance=..4.5,limit=1] at @s run function bm:p226/a/{w}/d{i}',
+                                f'tag @s remove bm.{me}', f'playsound {snd} neutral @a[distance=..20] ~ ~ ~ 1 {pitch}'])
+        fn(f'p226/a/{w}/d{i}', list(fx) + [f'damage @s {dmg} bm:rend {by}'])
+    assert sum(A['hits'][int(c[1:])][0] for t in A['tl'].values() for c in t if c[0] == 'H' and c[1:].isdigit()) == DMG, w
+    tl, each = {}, ['scoreboard players operation #pk bm.rng = @s bm.prk', 'tag @e[tag=bm.prfoe] remove bm.prfoe',
+                    'execute as @e[tag=bm.prtg,distance=..24] if score @s bm.prk = #pk bm.rng run tag @s add bm.prfoe']
+    for t, cmds in A['tl'].items():
+        out = []
+        for c in cmds:
+            if c.startswith('P '): out.append(f'function bm:{pfx}/pose/{c[2:]}')
+            elif c.startswith('S '):
+                snd, vol, pit = c[2:].split(); out.append(f'playsound {snd} neutral @a[distance=..20] ~ ~ ~ {vol} {pit}')
+            elif c == 'DASH': out.append('DASH 8 @e[tag=bm.prfoe,limit=1]')
+            elif c[0] == 'H': out.append(f'function bm:p226/a/{w}/h{c[1:]}')
+            elif c.startswith('RIDE '):          # (on its head: wherever its eyes are, a little under)
+                each.append(f'execute if score @s bm.ksg matches {c[5:]} run function bm:p226/a/ride')
+            elif c.startswith('PULL '):          # (hooked: dragged in toward the follower, a step a tick)
+                each.append(f'execute if score @s bm.ksg matches {c[5:]} run function bm:p226/a/pull')
+            else: out.append(c)
+        tl[t] = out
+    tl.setdefault(1, [])
+    tl[1] = ['scoreboard players set @s bm.prgo 0',
+             f'execute unless entity @e[tag=bm.prfoe,distance=..14] run return run scoreboard players set @s bm.ksg {A["end"] - 1}'] + tl[1]
+    tl[A['end'] - 1] = tl.get(A['end'] - 1, []) + ['data merge entity @s {NoGravity:0b}', 'function bm:p226/a/clean']
+    atk.sig(G, pfx, kid=3, tick_fn=f'{pfx}/tick', state_fn=f'{pfx}/state', anim_fn=A['anim'], s_obj=A['s_obj'], place_fn=f'{pfx}/place', col=col,
+            trigger='execute if score @s bm.prgo matches 1 unless data entity @s {Sitting:1b}', busy=A['busy'], cd=20, end=A['end'],
+            dash_kw=A['dash'], timeline=tl, each=each)
+    # (each second: a Champion, rested, a monster near, its owner near, not sitting, not ridden) - the foe marked, and go
+    fn(f'p226/sec/{w}', ['execute if score @s bm.prcd matches 1.. run return run scoreboard players remove @s bm.prcd 1',
+                         'execute if score @s bm.prgo matches 1 run return 0',
+                         'execute if data entity @s {Sitting:1b} run return 0',
+                         'execute on passengers if entity @s[type=minecraft:player] run return 0',
+                         f'execute unless entity {FOE12} run return 0',
+                         'scoreboard players operation #me bm.pid = @s bm.pid',
+                         'scoreboard players set #o bm.rng 0', 'execute as @a[distance=..32] if score @s bm.pid = #me bm.pid run scoreboard players set #o bm.rng 1',
+                         'execute if score #o bm.rng matches 0 run return 0',
+                         f'scoreboard players set @s bm.prcd {CD}', 'scoreboard players set @s bm.prgo 1',
+                         'scoreboard players add #prk bm.rng 1', 'scoreboard players operation @s bm.prk = #prk bm.rng',
+                         f'execute as {FOE12} run function bm:p226/mark'])
+    G.FUNCS['loop/second'].append(f'execute as {host(w, "tag=bm.champ")} at @s run function bm:p226/sec/{w}')
+    G.FUNCS['loop/second'].append(f'execute as {host(w, "scores={bm.prgo=1},tag=!bm.champ")} run scoreboard players set @s bm.prgo 0')
+    if 'p226/a/ride' not in G.FUNCS:
+        fn('p226/a/ride', ['tag @s add bm.prride',
+                           'execute as @e[tag=bm.prfoe,limit=1] at @s anchored eyes positioned ^ ^ ^ run tp @e[tag=bm.prride,limit=1] ~ ~-0.15 ~',
+                           'tag @s remove bm.prride'])
+        fn('p226/a/pull', ['tag @s add bm.prride',
+                           'execute as @e[tag=bm.prfoe,distance=2.2..14,limit=1] at @s facing entity @e[tag=bm.prride,limit=1] feet run function bm:p226/a/pulled',
+                           'tag @s remove bm.prride'])
+        fn('p226/a/pulled', ['execute positioned ^ ^ ^0.8 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run tp @s ~ ~ ~',
+                             'particle minecraft:snowflake ~ ~1 ~ 0.1 0.1 0.1 0 2'])
+        fn('p226/a/clean', ['execute as @e[tag=bm.prtg] if score @s bm.prk = #pk bm.rng run tag @s remove bm.prtg', 'tag @e[tag=bm.prfoe] remove bm.prfoe'])
+
+
+FOE12 = '@e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=..12,sort=nearest,limit=1]'
 
 
 def rp(R):

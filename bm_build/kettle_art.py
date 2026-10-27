@@ -17,7 +17,7 @@ import sys
 from rigkit import qs, el, seg, point
 
 PREFIX = 'kt_'
-RIG_SCALE = 0.95
+RIG_SCALE = 0.78                                   # (2.95e: as tall as Mr. Capshun - his head tops out where Capshun's does)
 PIVOT = {'body': (0, 14.0, 0), 'head': (0, 25.4, 0),
          'armr': (0.3, 24.0, 0), 'forer': (3.0, 17.4, 0), 'arml': (-0.3, 24.0, 0), 'forel': (-3.0, 17.4, 0),
          'legr': (0.25, 14.0, 0), 'shinr': (1.7, 7.2, 0), 'legl': (-0.25, 14.0, 0), 'shinl': (-1.7, 7.2, 0), 'tool': (3.4, 10.6, 0)}

@@ -191,9 +191,11 @@ def sig(G, pfx, *, kid=1, tick_fn, state_fn, anim_fn, s_obj, place_fn, col, trig
         if o not in G.OBJECTIVES:
             G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy']; G.OBJECTIVES.append(o)
     foe = 'type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body'
-    lines, arr = [], {}
+    lines, arr, first = [], {}, []
     for t in sorted(timeline):
         for c in timeline[t]:
+            if t == 1 and not c.startswith('DASH '):      # (2.95e: tick 1 is played by the start itself - the tick after it counts on to 2)
+                first.append(c); continue
             if c.startswith('DASH '):
                 _d, a, sel = c.split(' ', 2)
                 arr[int(a)] = t                       # (the next tick it counts on to t + 1: the blow)
@@ -224,7 +226,7 @@ def sig(G, pfx, *, kid=1, tick_fn, state_fn, anim_fn, s_obj, place_fn, col, trig
     add += [f'execute if score @s bm.kcd{kid} matches 1.. run scoreboard players remove @s bm.kcd{kid} 1',
             f'{trigger.replace("execute ", f"execute unless score @s bm.ksg matches 1.. unless score @s bm.kcd{kid} matches 1.. ", 1)} run function bm:{pfx}/sg/{kid}/go',
             f'execute if score @s bm.ksw matches {kid} if score @s bm.ksg matches 1.. run function bm:{pfx}/sg/{kid}/tick']
-    fn(f'{pfx}/sg/{kid}/go', ['scoreboard players set @s bm.ksg 1', f'scoreboard players set @s bm.ksw {kid}'])
+    fn(f'{pfx}/sg/{kid}/go', ['scoreboard players set @s bm.ksg 1', f'scoreboard players set @s bm.ksw {kid}'] + (list(each) + first if first else []))
     T[k:k] = add
     if arr: G.FUNCS[f'{pfx}/k/stop'].append(f'execute if score @s bm.ksw matches {kid} if score @s bm.ksg matches 1000 run scoreboard players set @s bm.ksg {end - 4}')
     gate_st = f'execute if score @s bm.ksg matches 1.. run return run scoreboard players set #st bm.rng {st}'

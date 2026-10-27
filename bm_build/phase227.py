@@ -53,7 +53,7 @@ class C(RP.Cfg):
     FACE = {'happy': 'happy', 'surprised': 'surprised', 'hurt': 'surprised', 'sleepy': 'blink', 'blink': 'blink', 'squint': 'grin', 'serious': 'determined'}
     ATTRS = dict(armor=4, attack_damage=6, movement_speed=0.4, follow_range=32, step_height=1.1)
     SCALE = 0.9
-    HIT = (0.7, 2.2)
+    HIT = (0.7, 1.9)
     SWAP = ('tool',)
     CYCLE = {0: (200, [(0, 'idle_a'), (80, 'idle_c'), (112, 'idle_a'), (150, 'idle_d'), (176, 'idle_a')]),
              1: (16, [(0, 'walk_0'), (4, 'walk_1'), (8, 'walk_2'), (12, 'walk_3')]),
@@ -115,7 +115,7 @@ HOLD['doll_kettle'] = 'bm:p141/doll_kettle/use'
 P141.DOLLS.append(('doll_kettle', 'Kettle', KT_C, 'A doll of Kettle - all arms and legs, and a grin.', 'minecraft:happy_villager',
                    'minecraft:entity.chicken.egg', 'minecraft:poof'))
 P141.DOLL_FROM['doll_kettle'] = ('kettle_plane', {'kh': 1.6, 'kb': 0.72, 'kl': 0.56, 'groups': {'bm:kt_shinr': 'legs', 'bm:kt_shinl': 'legs'}})
-P134.FIT['kettle_plane'] = (0.0, 2.15, -0.3, 0.3, -0.6, 0.6)
+P134.FIT['kettle_plane'] = (0.0, 1.85, -0.3, 0.3, -0.55, 0.55)
 POSES = A.POSES
 
 # ---- his bonds (phase188 runs the pairs): with Mr. Capshun - SKETCH & PLAY (the toys are below); with Fishy and the Sky Buddies

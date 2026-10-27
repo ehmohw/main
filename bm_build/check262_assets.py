@@ -388,6 +388,16 @@ def atlas_of(t):
     return 'items' if path.startswith('item/') and f'{ns_}:{path}' not in RENAMED else 'blocks'
 
 
+# (2.95e) an inline sprite in text (`"object":"atlas"`) must name a texture the atlas really holds
+for ln in ALL_LINES:
+    for m in re.finditer(r'atlas:"minecraft:(\w+)",[^}]*?sprite:"([\w:/.\-]+)"|sprite:"([\w:/.\-]+)"[^}]*?atlas:"minecraft:(\w+)"', ln):
+        atl, spr = (m.group(1), m.group(2)) if m.group(1) else (m.group(4), m.group(3))
+        ns_, path = spr.split(':') if ':' in spr else ('minecraft', spr)
+        if atl == 'items' and not path.startswith('item/') and spr not in RENAMED: E(f'inline sprite {spr}: not in the items atlas (only item/ textures)')
+        elif ns_ == 'minecraft' and path not in REG['texture']: E(f'inline sprite {spr}: not in 26.3')
+        elif ns_ != 'minecraft' and not os.path.exists(f'{RP}/assets/{ns_}/textures/{path}.png'): E(f'inline sprite {spr}: texture missing')
+
+
 for f in glob.glob(f'{RP}/assets/bm/models/item/*.json'):
     d = C.jload(f)
     # (2.82c) an item model whose faces come from both atlases is thrown out by the client (missing texture)

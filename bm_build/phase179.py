@@ -382,8 +382,13 @@ def generate(G):
         sel = f'@e[type=minecraft:{host},tag={tag}]'
         on = ['scoreboard players set #pwon bm.rng 0', f'execute as {sel} if score @s bm.pid = #me bm.pid run scoreboard players set #pwon bm.rng 1']
         it_nm = ITEMS[iid]['name']
-        b_call = P28.btn([T('Call ', 'white'), T(nm, col, bold=True)], c_call(i), tooltip=T(f'Call {nm}', 'gray'))
-        b_home = P28.btn([T(f'Send {nm} home', '#c8c8c8')], c_call(i), tooltip=T(f'{cap(nm)} goes home', 'gray'))
+        # (2.95e) their summoning item's own icon beside the name - a sprite from the items atlas, inline in the text
+        mdl = ITEMS[iid]['comps'].get('minecraft:item_model', f'minecraft:{ITEMS[iid]["base"].split(":")[-1]}')
+        ns_, path_ = mdl.split(':', 1) if ':' in mdl else ('minecraft', mdl)
+        icon = {'type': 'object', 'object': 'atlas', 'atlas': 'minecraft:items', 'sprite': f'{ns_}:item/{path_}',
+                'fallback': {'text': '\u25c6', 'color': col}}
+        b_call = P28.btn([icon, T(' Call ', 'white'), T(nm, col, bold=True)], c_call(i), tooltip=T(f'Call {nm}', 'gray'))
+        b_home = P28.btn([icon, T(f' Send {nm} home', '#c8c8c8')], c_call(i), tooltip=T(f'{cap(nm)} goes home', 'gray'))
         b_out = P28.btn(T('Take the item back', 'gray'), c_out(i), tooltip=T(f'{it_nm} comes off the wheel', 'gray'))
         b_menu = P28.btn([T('\u2699 ', col), T('Menu', 'white')], c_menu(i), tooltip=T(f'{cap(nm)}\'s own menu - the wardrobe, {WHO[w][1]} ways and choices (as sneak + using {it_nm})', 'gray'))
         fn(f'p179/w/row{i}', on + [f'execute if score #pwon bm.rng matches 0 run data modify storage bm:tmp pw.acts append value {snbt(b_call)}',

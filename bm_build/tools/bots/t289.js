@@ -3,7 +3,9 @@
 // seconds the Champion vanishes - every part of their model gone - comes back at the zombie, and lands one blow of REND straight
 // through the armour: 14 x Might V = 24.5 off its health, armour or no armour. Then they're whole again, free to move.
 // King Omega (Ghastly Lunge: out of the ground), Cecil (Shadow Veil), Emma (a cat), KillerWatt, the Frog (no "by" tag of his own).
-// ALL=1: every follower, the same way (Wilfrey's conquests staged by rcon).
+// (2.95e) not everyone vanishes: Bender (Savage Maul - claws, then up on its head, chomping) and Leo (Shield Bash - stunned, then
+// the trident three times) go in where you can see them, every part of them in sight, the same 24.5 split over several blows.
+// ALL=1: every follower, the same way (Wilfrey's conquests staged by rcon); Bloo, Bones, Democratus, the Chef and Tullius assault too.
 // (the Champion's other blow is held off for the test - rcon - so every drop in health is told apart)
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
@@ -12,7 +14,7 @@ const res = [];
   const wait = async (ms, fn, step = 250) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await sleep(step); } return false; };
   const O = 'execute in minecraft:overworld run ';
   const cnt = async (sel) => { const m = (await run(`${O}execute if entity ${sel}`)).match(/count: (\d+)/i); return m ? +m[1] : 0; };
-  const num = async (c) => { const o = await run(c); const m = o.match(/has (-?\d+) \[/) || o.match(/(-?[\d.]+)f?$/); return m ? +m[1] : NaN; };
+  const num = async (c) => { const o = await run(c); const m = o.match(/has (-?\d+) \[/) || o.match(/(-?[\d.]+)[fd]?$/); return m ? +m[1] : NaN; };
   const X = 18300, Y = 100, Z = 16560;
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
@@ -23,11 +25,12 @@ const res = [];
   await run(`${O}tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(1500); A.stand();
   const K = [['omega', 'King Omega', 'om_monocle', 'wolf', 'bm.ompet', 'bm.omcd', 'omega'], ['cecil', 'Cecil', 'cecil_gem', 'wolf', 'bm.cecilpet', 'bm.cpcd', 'cecil'],
              ['emma', 'Emma', 'emma_ribbon', 'cat', 'bm.emmapet', 'bm.emcd', 'emma'], ['kw', 'KillerWatt', 'kw_spark', 'wolf', 'bm.kxpet', 'bm.kxcd', 'killerwatt'],
-             ['frog', 'the Frog', 'frog_signet', 'wolf', 'bm.frogpet', 'bm.fgcd', 'frog']];
+             ['frog', 'the Frog', 'frog_signet', 'wolf', 'bm.frogpet', 'bm.fgcd', 'frog'],
+             ['bender', 'Bender', 'bv_ball', 'wolf', 'bm.bvpet', 'bm.bvcd', 'bender'], ['leo', 'Leo', 'leo_crest', 'wolf', 'bm.leopet', 'bm.lecd', 'leo']];
+  const ASSAULT = ['bender', 'leo', 'bloo', 'bones', 'demo', 'chef', 'tul'];
   if (process.env.ALL) K.push(
     ['celi', 'celi', 'celi_charm', 'wolf', 'bm.celipet', 'bm.cecd', 'celi'],
     ['zib', 'zib', 'donadian_medal', 'wolf', 'bm.zibpet', 'bm.zbcd', 'zib'],
-    ['leo', 'leo', 'leo_crest', 'wolf', 'bm.leopet', 'bm.lecd', 'leo'],
     ['demo', 'demo', 'demo_seal', 'wolf', 'bm.dmpet', 'bm.dmcd', 'demo'],
     ['apo', 'apo', 'apo_oath', 'wolf', 'bm.appet', 'bm.apcd', 'apo'],
     ['tul', 'tul', 'tul_coin', 'wolf', 'bm.tupet', 'bm.tucd', 'tul'],
@@ -44,7 +47,6 @@ const res = [];
     ['bloo', 'bloo', 'bo_claw', 'wolf', 'bm.bopet', 'bm.bocd', 'bloo'],
     ['stalker', 'stalker', 'st_hook', 'wolf', 'bm.svpet', 'bm.svcd', 'stalker'],
     ['lantern', 'lantern', 'ln_gourd', 'wolf', 'bm.lnpet', 'bm.lncd', 'lantern'],
-    ['bender', 'bender', 'bv_ball', 'wolf', 'bm.bvpet', 'bm.bvcd', 'bender'],
     ['bones', 'bones', 'bn_whistle', 'wolf', 'bm.bjpet', 'bm.bjcd', 'bones'],
     ['capshun', 'capshun', 'capshun_pencil', 'wolf', 'bm.mzpet', 'bm.mzcd', 'capshun'],
     ['pxcecil', 'pxcecil', 'cart_cecil', 'wolf', 'bm.xcpet', 'bm.xccd', 'pxcecil'],
@@ -52,6 +54,35 @@ const res = [];
     ['pxemma', 'pxemma', 'cart_emma', 'wolf', 'bm.xmpet', 'bm.xmcd', 'pxemma'],
     ['sky', 'sky', 'sky_mobile', 'wolf', 'bm.ybpet', 'bm.ybcd', 'sky'],
     ['kettle', 'Kettle', 'kettle_plane', 'wolf', 'bm.ktpet', 'bm.ktcd', 'kettle']);
+  const after_ = async (w, H) => {
+    await run(`${O}kill @e[type=minecraft:zombie,tag=bm.t289foe]`);
+    const home = K.find(k => k[0] === w)[6];
+    await run(`${O}execute as TestRat at @s run function bm:p98/home/${home}`); await wait(5000, async () => (await cnt(H)) === 0);
+    await run(`scoreboard players reset TestRat bm.hn_${w}`);
+  };
+  const assault = async (w, nm, H, typ) => {
+    let hp = 200, drops = [], seen = 0, hidMax = 0, stun = false, up = 0; const t0 = Date.now();
+    while (Date.now() - t0 < 14000) {
+      const h = await num(`${O}data get entity @e[type=minecraft:zombie,tag=bm.t289foe,limit=1] Health`);
+      const on = (await num(`${O}scoreboard players get ${H} bm.ksw`)) === 3 && (await num(`${O}scoreboard players get ${H} bm.ksg`)) >= 1;
+      if (on) seen++;
+      if (h < hp - 0.01) { if (seen) drops.push(+(hp - h).toFixed(1)); hp = h; }
+      const hid = await cnt('@e[type=minecraft:item_display,tag=bm.prhid]'); if (hid > hidMax) hidMax = hid;
+      if (w === 'leo' && /slowness/.test(await run(`${O}data get entity @e[type=minecraft:zombie,tag=bm.t289foe,limit=1] active_effects`))) stun = true;
+      if (w === 'bender' && on) { const y = await num(`${O}data get entity ${H} Pos[1]`); if (y > up) up = y; }
+      if (seen && !on) { await sleep(400); const h2 = await num(`${O}data get entity @e[type=minecraft:zombie,tag=bm.t289foe,limit=1] Health`); if (h2 < hp - 0.01) drops.push(+(hp - h2).toFixed(1)); break; }
+      await sleep(40);
+    }
+    const sum = drops.reduce((a, b) => a + b, 0);
+    ok(`...${nm} doesn't vanish: the move plays out in plain sight, on their own poses (no part of them hidden)`, seen > 0 && hidMax === 0, `move ticks seen ${seen}, parts hidden ${hidMax}`);
+    ok(`...several blows straight through full diamond, 24.5 in all (14 x Might V, split; with a blow of their own the same moment, more)`, drops.length >= 3 && sum > 24 && sum < 42, `drops ${drops.join(', ')} = ${sum.toFixed(1)}`);
+    if (w === 'leo') ok('...the shield bash stuns it first (slowed to a standstill, weakened)', stun);
+    if (w === 'bender') ok('...and Bender up on its head, chomping', up > Y + 1.9, `highest ${up.toFixed(2)}`);
+    await sleep(1500);
+    ok('...and then back on the ground, free to move (gravity back)', !/NoGravity: 1b/.test(await run(`${O}data get entity ${H} NoGravity`)) && (await num(`${O}scoreboard players get ${H} bm.ksw`)) !== 3,
+       `${await run(`${O}data get entity ${H} NoGravity`)}; ksw ${await run(`${O}scoreboard players get ${H} bm.ksw`)}`);
+    if (process.env.HOLD) await sleep(+process.env.HOLD); await after_(w, H);
+  };
   await run('scoreboard players set TestRat bm.conq 6'); await run('scoreboard players set TestRat bm.conqb 6');
   await run('tag TestRat add bm.emmet'); await run('tag TestRat add bm.lnmet');
   for (const [w, nm, iid, typ, host, cd, home] of K.filter(k => !process.env.ONLY || process.env.ONLY.split(',').includes(k[0]))) {
@@ -65,6 +96,7 @@ const res = [];
     await run(`${O}scoreboard players set ${H} bm.chcd 999`); await run(`${O}scoreboard players set ${H} bm.prcd 3`);
     await run(`${O}kill @e[type=minecraft:zombie,tag=bm.t289foe]`);
     await run(`${O}summon minecraft:zombie ${X + 0.5} ${Y + 1} ${Z + 9.5} {Tags:["bm.t289foe"],NoAI:1b,Silent:1b,PersistenceRequired:1b,Health:200f,attributes:[{id:"minecraft:max_health",base:200d},{id:"minecraft:armor",base:20d},{id:"minecraft:armor_toughness",base:8d}],equipment:{head:{id:"minecraft:diamond_helmet",count:1},chest:{id:"minecraft:diamond_chestplate",count:1},legs:{id:"minecraft:diamond_leggings",count:1},feet:{id:"minecraft:diamond_boots",count:1}}}`);
+    if (ASSAULT.includes(w)) { await assault(w, nm, H, typ); continue; }
     let hp = 200, gone = 0, hidMax = 0, drops = [], after = []; const t0 = Date.now();
     while (Date.now() - t0 < 12000) {
       const h = await num(`${O}data get entity @e[type=minecraft:zombie,tag=bm.t289foe,limit=1] Health`);
