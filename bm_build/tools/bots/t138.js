@@ -76,7 +76,7 @@ const res = [];
                ['tul_coin', 'Tullius', 9], ['donadian_medal', 'Zib', 9], ['cecil_gem', 'Cecil', 5], ['pearl_card', 'Pearlman', 1],
                ['frog_signet', 'the Frog with Mustache', NFROG], ['donado_tag', 'Donado', NDON], ['wilfrey_locket', 'Wilfrey', 1], ['fy_bowl', 'Fishy', 9],
                ['dw_horn', 'Dennis', 9], ['pi_cloche', 'Pistachio', 8], ['om_monocle', 'Omega', 12], ['ashur_cinder', 'Ashur', 9], ['chef_ladle', 'The Chef', 9], ['neighbor_baton', 'The Neighbor', 11],
-               ['av_locket', 'Queen Ava', 9], ['pq_pearls', 'Queen Pearl', 9], ['bo_claw', 'Bloo', 11], ['st_hook', 'The Stalker', 10], ['ln_gourd', 'The Arachno-Lantern', 11], ['bv_ball', 'Bender', 7], ['bn_whistle', 'Bones', 8], ['capshun_pencil', 'Mr. Capshun', 11], ['kettle_plane', 'Kettle', 11], ['sky_mobile', 'The Sky Buddies', 7], ['cart_emma', '8-Bit Emma', 2], ['cart_leo', '8-Bit Leo', 2], ['cart_cecil', '8-Bit Cecil', 2]];
+               ['av_locket', 'Queen Ava', 9], ['pq_pearls', 'Queen Pearl', 9], ['bo_claw', 'Bloo', 11], ['st_hook', 'The Stalker', 10], ['ln_gourd', 'The Arachno-Lantern', 11], ['bv_ball', 'Bender', 7], ['bn_whistle', 'Bones', 8], ['capshun_pencil', 'Mr. Capshun', 11], ['kettle_plane', 'Kettle', 10], ['sky_mobile', 'The Sky Buddies', 7], ['cart_emma', '8-Bit Emma', 2], ['cart_leo', '8-Bit Leo', 2], ['cart_cecil', '8-Bit Cecil', 2]];
   for (const [iid, name, n] of ALL) {
     await run(`loot replace entity TestRat hotbar.2 loot bm:items/${iid}`); A.slot(2); await sleep(300);
     box = await entOf(A, caseSel); if (box) A.interact(box.entityId); await sleep(700);

@@ -50,6 +50,9 @@ WMENU = 2360                       # Wilfrey's menu (bm.menu) and its buttons 23
 AR_CODE = 2370                     # "Back after a faint" on each wardrobe page: 2370 + the follower's index
 AR_CODE2 = 3486                    # (2.95: 2370-2400 holds 31 - the 32nd on (Kettle, the Gem, the Gentry...) count on from 3486)
 ar_code = lambda i: AR_CODE + i if i <= 30 else AR_CODE2 + i - 31
+# (2.95d) ...and their bits: a score holds 31 - the 32nd follower on keeps theirs in a second one
+ar_obj = lambda i: 'bm.arof' if i < 31 else 'bm.arof2'
+ar_bit = lambda i: 2 ** (i % 31)
 # (wardrobe key: cooldown score, the follower's host type and tag, the function that calls them - as you, at you)
 AR = {'cecil': ('bm.cpcd', 'wolf', 'bm.cecilpet', 'p46/pet/try_summon'),
       'emma': ('bm.emcd', 'cat', 'bm.emmapet', 'p57/try_summon'),
@@ -116,7 +119,7 @@ def generate(G):
     F = G.FUNCS
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     holds = lambda iid: f'*[minecraft:custom_data~{{bm:"{iid}"}}]'
-    objs = ['bm.arof', 'bm.dwlost', 'bm.pilost'] + [f'bm.lf{k}' for k in range(1, 10)] + [f'bm.sp{k}' for k in range(1, 7)]
+    objs = ['bm.arof', 'bm.arof2', 'bm.dwlost', 'bm.pilost'] + [f'bm.lf{k}' for k in range(1, 10)] + [f'bm.sp{k}' for k in range(1, 7)]
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
 
@@ -196,8 +199,8 @@ def generate(G):
         second += [f'execute as @a[tag=!bm.arw{i}] at @s unless dimension bm:gutter if score @s {cd} matches {PET_CD - 10}.. run tag @s add bm.arw{i}',
                    f'execute as @a[tag=bm.arw{i}] unless score @s {cd} matches 1.. at @s run function bm:p173/ar/back_{i}']
         fn(f'p173/ar/back_{i}', [f'tag @s remove bm.arw{i}', 'execute if dimension bm:gutter run return 0',
-                                 'execute unless score @s bm.arof matches 0.. run scoreboard players set @s bm.arof 0',
-                                 f'scoreboard players operation #q bm.rng = @s bm.arof', f'scoreboard players set #bit bm.rng {2 ** i}',
+                                 f'execute unless score @s {ar_obj(i)} matches 0.. run scoreboard players set @s {ar_obj(i)} 0',
+                                 f'scoreboard players operation #q bm.rng = @s {ar_obj(i)}', f'scoreboard players set #bit bm.rng {ar_bit(i)}',
                                  'scoreboard players operation #q bm.rng /= #bit bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng',
                                  'execute if score #q bm.rng matches 1 run return 0',
                                  'scoreboard players operation #me bm.pid = @s bm.pid',
@@ -212,11 +215,11 @@ def generate(G):
     fn('p173/ar/act', [f'execute if score #act bm.pay matches {ar_code(i)} run return run function bm:p173/ar/t_{i}' for w, i in AR_IDX.items()])
     for w, i in AR_IDX.items():
         fn(f'p173/ar/t_{i}', [f'execute unless score @s bm.menu matches {P99.BASE[w]} run return run function bm:p28/stale',
-                              'execute unless score @s bm.arof matches 0.. run scoreboard players set @s bm.arof 0',
-                              'scoreboard players operation #q bm.rng = @s bm.arof', f'scoreboard players set #bit bm.rng {2 ** i}',
+                              f'execute unless score @s {ar_obj(i)} matches 0.. run scoreboard players set @s {ar_obj(i)} 0',
+                              f'scoreboard players operation #q bm.rng = @s {ar_obj(i)}', f'scoreboard players set #bit bm.rng {ar_bit(i)}',
                               'scoreboard players operation #q bm.rng /= #bit bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng',
-                              f'execute if score #q bm.rng matches 0 run scoreboard players add @s bm.arof {2 ** i}',
-                              f'execute if score #q bm.rng matches 1 run scoreboard players remove @s bm.arof {2 ** i}',
+                              f'execute if score #q bm.rng matches 0 run scoreboard players add @s {ar_obj(i)} {ar_bit(i)}',
+                              f'execute if score #q bm.rng matches 1 run scoreboard players remove @s {ar_obj(i)} {ar_bit(i)}',
                               'playsound minecraft:ui.button.click player @s ~ ~ ~ 0.6 1.2', f'function bm:p99/menu/{w}'])
 
     # ================================================================== DENNIS AND PISTACHIO: the summoning item, earned
@@ -520,7 +523,7 @@ def generate(G):
                 assert any(l.endswith(f'tp @s ~ ~{dy} ~') for l in body), f'{f} lays a {k} room but never lifts the cursor {dy} to its exit'
 
     # ================================================================== the admin's own (for tests)
-    fn('admin/ar_off', ['scoreboard players set @s bm.arof 0', say('Every follower comes back after a faint again.', GOLD)])
+    fn('admin/ar_off', ['scoreboard players set @s bm.arof 0', 'scoreboard players set @s bm.arof2 0', say('Every follower comes back after a faint again.', GOLD)])
 
 
 def finalize(G):

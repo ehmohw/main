@@ -50,7 +50,8 @@ const res = [];
     ['pxcecil', 'pxcecil', 'cart_cecil', 'wolf', 'bm.xcpet', 'bm.xccd', 'pxcecil'],
     ['pxleo', 'pxleo', 'cart_leo', 'wolf', 'bm.xlpet', 'bm.xlcd', 'pxleo'],
     ['pxemma', 'pxemma', 'cart_emma', 'wolf', 'bm.xmpet', 'bm.xmcd', 'pxemma'],
-    ['sky', 'sky', 'sky_mobile', 'wolf', 'bm.ybpet', 'bm.ybcd', 'sky']);
+    ['sky', 'sky', 'sky_mobile', 'wolf', 'bm.ybpet', 'bm.ybcd', 'sky'],
+    ['kettle', 'Kettle', 'kettle_plane', 'wolf', 'bm.ktpet', 'bm.ktcd', 'kettle']);
   await run('scoreboard players set TestRat bm.conq 6'); await run('scoreboard players set TestRat bm.conqb 6');
   await run('tag TestRat add bm.emmet'); await run('tag TestRat add bm.lnmet');
   for (const [w, nm, iid, typ, host, cd, home] of K.filter(k => !process.env.ONLY || process.env.ONLY.split(',').includes(k[0]))) {

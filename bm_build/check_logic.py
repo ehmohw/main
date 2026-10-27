@@ -14,6 +14,9 @@ Run as: BM_OUT=out python3 check_logic.py   (0 errors expected)
 5. (1.18) Standing: every trade advancement's reward revokes the trade tree so it can fire again.
 6b. (2.80h) p28/act reads the click (#act bm.pay = @s bm.act) before any line tests it.
 7. (2.80h) Macro lines: a line starting `$` must use at least one `$(name)`, or the function fails to load.
+9. (2.95d) Whole numbers: none past 2147483647 (a score holds 31 bits - a follower's bit 2^31 would not load).
+8. (2.95d) Predicates: a `minecraft:time_check` names its world clock (26.3: "clock") - without one the whole pack fails to
+   load, and the server with it (registry loading).
 """
 import glob, os, re, sys
 import check262 as C
@@ -137,6 +140,29 @@ for f in sorted(glob.glob(ROOT + '**/*.mcfunction', recursive=True)):
     for i, l in enumerate(open(f, encoding='utf-8').read().splitlines()):
         if l.startswith('$') and not re.search(r'\$\([A-Za-z0-9_]+\)', l):
             errs.append(f'{rel}:{i + 1}: a macro line with no $(...) in it - the function will not load')
+
+# 8. (2.95d) predicates: a time_check names its clock
+import json
+def _walk(o, rel):
+    if isinstance(o, dict):
+        if 'minecraft:time_check' in (o.get('condition'), o.get('type')) and 'clock' not in o:
+            errs.append(f'{rel}: a time_check without its "clock" (26.3) - the pack, and the server, will not load')
+        for v in o.values(): _walk(v, rel)
+    elif isinstance(o, list):
+        for v in o: _walk(v, rel)
+for f in glob.glob(os.path.join(os.environ.get('BM_OUT', 'out'), 'BlackMarket_DP', 'data', '*', 'predicate', '**', '*.json'), recursive=True) + \
+         glob.glob(os.path.join(os.environ.get('BM_OUT', 'out'), 'BlackMarket_DP', 'data', '*', 'advancement', '**', '*.json'), recursive=True):
+    try: _walk(json.load(open(f)), os.path.relpath(f))
+    except ValueError: errs.append(f'{f}: not JSON')
+
+# 9. (2.95d) whole numbers past a score's reach
+_BIG = re.compile(r'(?<![\w\-/:])(?<![^.]\.)(\d{10,})(?![\w/]|\.(?!\.))')
+for f in glob.glob(ROOT + '**/*.mcfunction', recursive=True):
+    rel = f[len(ROOT):]
+    for i, l in enumerate(open(f)):
+        for m in _BIG.finditer(l):
+            if int(m.group(1)) > 2147483647:
+                errs.append(f'{rel}:{i + 1}: {m.group(1)} is past what a score (or an int) holds - the function will not load'); break
 
 for e in errs: print('✗', e)
 print(f'logic lints: {len(errs)} errors')

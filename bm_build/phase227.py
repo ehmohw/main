@@ -284,7 +284,7 @@ def generate(G):
         fn('p227/enc/check', ['execute unless predicate bm:p227/sunny run return 0'] +
            [f'execute if biome ~ ~ ~ minecraft:{b} run return run function bm:p227/enc/roll' for b in BIOMES])
         G.wjson('bm/predicate/p227/sunny.json', {'condition': 'minecraft:all_of', 'terms': [
-            {'condition': 'minecraft:time_check', 'value': {'min': 0, 'max': 12000}, 'period': 24000},
+            {'condition': 'minecraft:time_check', 'clock': 'minecraft:overworld', 'value': {'min': 0, 'max': 12000}, 'period': 24000},
             {'condition': 'minecraft:weather_check', 'raining': False}]})
         fn('p227/enc/roll', ['execute store result score #r bm.rng run random value 1..300',
                              'scoreboard players set #lim bm.rng 1', 'scoreboard players operation #me bm.pid = @s bm.pid',

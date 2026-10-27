@@ -71,6 +71,9 @@ def generate(G):
         assert set(found) == set(DOLL_KIND), (f, sorted(set(DOLL_KIND) ^ set(found)))
         lists[cond] = found
     # ---- who is at the counter: the one already there while within 8 blocks, else the nearest within 6
+    CH = 30
+    NCH = (len(DOLL_KIND) + CH - 1) // CH
+    MASK = lambda c: 'bm.dmask' if c == 0 else f'bm.dmask{c}'
     fn('p158/tick', [
         'scoreboard players operation #wdp bm.rng = @s bm.dpid',
         'tag @a remove bm.dcust',
@@ -80,25 +83,29 @@ def generate(G):
         'scoreboard players set @s bm.dpid 0',
         'execute as @a[tag=bm.dcust] run scoreboard players operation #wdp bm.rng = @s bm.pid',
         'execute if entity @a[tag=bm.dcust] run scoreboard players operation @s bm.dpid = #wdp bm.rng',
-        'scoreboard players set #dm bm.rng 0'] +
-       [f'execute as @a[tag=bm.dcust,advancements={{bm:met/{k}=true}}] run scoreboard players add #dm bm.rng {1 << i}'
+        ] +
+       # (2.95d: a bit a doll, thirty to a mask - a score holds 31 bits, and the 32nd follower's would overflow it)
+       [f'scoreboard players set #dm{c} bm.rng 0' for c in range(NCH)] +
+       [f'execute as @a[tag=bm.dcust,advancements={{bm:met/{k}=true}}] run scoreboard players add #dm{i // CH} bm.rng {1 << (i % CH)}'
         for i, k in enumerate(DOLL_KIND.values())] +
        ['tag @a remove bm.dcust',
         # (unchanged customer, unchanged list: nothing to do)
-        'execute if score @s bm.dmask = #dm bm.rng if score @s bm.dofv = @s bm.ofv run return 0',
-        'scoreboard players operation @s bm.dmask = #dm bm.rng', 'scoreboard players operation @s bm.dofv = @s bm.ofv'] +
+        'execute ' + ' '.join(f'if score @s {MASK(c)} = #dm{c} bm.rng' for c in range(NCH)) + ' if score @s bm.dofv = @s bm.ofv run return 0'] +
+       [f'scoreboard players operation @s {MASK(c)} = #dm{c} bm.rng' for c in range(NCH)] + ['scoreboard players operation @s bm.dofv = @s bm.ofv'] +
        [f'execute {cond} run function bm:p158/apply_{j}' for j, cond in enumerate(lists)])
     for j, (cond, found) in enumerate(lists.items()):
-        body = ['scoreboard players operation #dr bm.rng = #dm bm.rng']
+        body = [f'scoreboard players operation #dr{c} bm.rng = #dm{c} bm.rng' for c in range(NCH)]
         # (bit by bit, highest first: #dr >= 2^i means the bit is set; take it off and go on)
         for i, d in reversed(list(enumerate(DOLL_KIND))):
             n, sell = found[d]
-            body += [f'execute if score #dr bm.rng matches {1 << i}.. run data modify entity @s Offers.Recipes[{n}].sell set value {sell}',
-                     f'execute if score #dr bm.rng matches {1 << i}.. run data modify entity @s Offers.Recipes[{n}].maxUses set value 2147483647',
-                     f'execute if score #dr bm.rng matches ..{(1 << i) - 1} run data modify entity @s Offers.Recipes[{n}].sell set value {wrapped}',
-                     f'execute if score #dr bm.rng matches ..{(1 << i) - 1} run data modify entity @s Offers.Recipes[{n}].maxUses set value 0',
-                     f'execute if score #dr bm.rng matches {1 << i}.. run scoreboard players remove #dr bm.rng {1 << i}']
+            c, b = i // CH, 1 << (i % CH)
+            body += [f'execute if score #dr{c} bm.rng matches {b}.. run data modify entity @s Offers.Recipes[{n}].sell set value {sell}',
+                     f'execute if score #dr{c} bm.rng matches {b}.. run data modify entity @s Offers.Recipes[{n}].maxUses set value 2147483647',
+                     f'execute if score #dr{c} bm.rng matches ..{b - 1} run data modify entity @s Offers.Recipes[{n}].sell set value {wrapped}',
+                     f'execute if score #dr{c} bm.rng matches ..{b - 1} run data modify entity @s Offers.Recipes[{n}].maxUses set value 0',
+                     f'execute if score #dr{c} bm.rng matches {b}.. run scoreboard players remove #dr{c} bm.rng {b}']
         fn(f'p158/apply_{j}', body)
+    G.FUNCS['load'] += [f'scoreboard objectives add {MASK(c)} dummy' for c in range(1, NCH)]
     G.FUNCS['load'] += ['scoreboard objectives add bm.dpid dummy', 'scoreboard objectives add bm.dmask dummy', 'scoreboard objectives add bm.dofv dummy']
     ln = G.FUNCS['loop/second']
     k = max(i for i, l in enumerate(ln) if 'tag=bm.npc_wizard]' in l and 'bm.ofv' in l)

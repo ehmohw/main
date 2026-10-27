@@ -21,6 +21,30 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.95d: Kettle, the first Buddy
+
+- **Kettle** is the very first Buddy the Gem of Creativity ever made: a tall stick figure, flat as a drawing, and the embodiment of childlike simplicity and fun. He isn't a narrator and he doesn't know he's in a game. He just wants to play.
+- **Finding him:** on a sunny day in a meadow, plain, flower field or cherry grove, he comes skipping by now and then, bouncing a ball off his head. Hand him a **sheet of paper** and he folds you **Kettle's Paper Plane**: use it to call him, and sneak + use for his menu. He turns up three times as often with Mr. Capshun beside you.
+- **How he fights (the way a kid plays):**
+  - **Tag:** "you're it!" The monster is slowed, weakened and lit up.
+  - **Paper Planes:** three at a time.
+  - **Kickball:** the ball bounces on to the next monster.
+  - **Cartwheel:** he cartwheels into a monster and sends it flying.
+  - **Jump Rope:** when a crowd gathers round him, he trips them up as he skips.
+  - **Recess! (charged):** every monster nearby is tossed into the air, and you and your followers get Speed II and Jump Boost.
+  - **Let's Play!:** out of a fight, he tags you for Speed and Jump Boost.
+- **Sketch & Play, with Mr. Capshun:** you get Speed, Jump Boost and Luck. Every 20 seconds Capshun sketches a toy over a monster for Kettle to play with: a ball bounced on its head, a kite that lifts it off its feet, or a slide it tumbles down and away. Kettle also has bonds with **Fishy** (Fish Out of Water) and the **Sky Buddies** (Cloud Watching).
+- **Everything a follower has:**
+  - he sits cross-legged, or lies back watching the clouds;
+  - his wardrobe is **Crayon** (red, blue, green, gilded, diamond, netherite), and his rare aura is **Playground Chalk**;
+  - a shiny look (**Shiny Sidewalk Chalk**);
+  - a frame, a display-case figurine and a doll from Cecil;
+  - the Partner Wheel and a Raid Contract;
+  - Queen Ava's Honours: his Champion blow is **Tag Team**, and his Piercing Blow is **Hide and Seek**.
+- **Fixed under the hood:**
+  - Some per-player records (who comes back after a faint, which of Cecil's dolls you've unlocked) kept one bit per follower in a single number, and a 32nd follower would have overflowed it. They now spill into a second number.
+  - Two new build checks catch the mistakes that slipped past before: a number too big for a score, and a time check missing its clock. Either one stops the pack from loading.
+
 ## New in 2.95c: the Piercing Blow
 
 - **Every Champion of the Tide** (a follower honoured to rank III by Queen Ava) learns a second signature move that **goes straight through armour**. In a fight, every 18 seconds, they vanish (their whole model, regalia and all), come back at the monster's back, beneath it or above it, and land one blow of **Rend**: 14 damage, scaled by their Might (24.5 at Might V). Armour and shields don't stop it, and neither does the half-second a monster is untouchable just after being hit.
