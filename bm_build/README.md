@@ -21,6 +21,12 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.95a: followers lit by the world, and every room that isn't a fight can be skipped
+
+- **No more glowing followers:** the Chef, King Omega, Ashur, the Neighbor, Pistachio, Cecil and the Arachno-Lantern were as bright at midnight as at noon. They now take the light of wherever they stand. The only parts still lit are those meant to glow: Cecil's eyes and the Lantern's pumpkin head. Followers already out in your world are put right within a second or two.
+- **Skip any room that isn't a fight:** the Ledger's **Skip this room** button (and the "Stuck?" offer in the chat as you walk in) now works in the game and event rooms too, not just the puzzles. That covers the Button Dash, Shooting Gallery, Girder Climb, Tall Grass, Pipe Plaza, Block Temple, Block Party, Red Light Green Light, Rat Says, Whack-a-Rat, the Coin Scramble, the Bumper Brawl, the Minecart Run, the Rat Rave, the Storm Vault, the Enchanted Grove, the Vorn Landing, the Stalker's Ward, the Void Garden and the Hollow Reliquary. It still costs the crew a try and isn't allowed on your last one. A skipped room is left as its own finish would leave it: the Stalker's creakings gone, riders off the carts, Block Party's floor and the Brawl's ring put back.
+- Fights still can't be skipped, since beating the enemies is the way on. Nor can the den, the vault, the Fork, the Throne's coffer or a room that's already open when you walk in.
+
 ## New in 2.94z
 
 - **The Tailor:** Mr. Capshun's and the Sky Buddies' pages didn't open, and nor did Bones's or the 8-Bit trio's. Their buttons now work.

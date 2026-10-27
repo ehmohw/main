@@ -33,6 +33,7 @@ W = 'lantern'
 
 class C(RP.Cfg):
     BRIGHT = 13                     # (2.94n: its pumpkin shines - it alone keeps a fixed brightness)
+    BRIGHT_PARTS = ('head',)        # (2.94z: the pumpkin head alone - its spider body is lit by the world)
     W, NAME, COL, LINE, pfx, ab, q = W, 'The Arachno-Lantern', LN_C, LN_LINE, 'p194', 'ln', 'lj'
     A = A
     MENU = 2740

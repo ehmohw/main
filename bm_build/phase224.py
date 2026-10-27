@@ -241,3 +241,11 @@ def generate(G):
     i = next(i for i, l in enumerate(g) if l.startswith('execute at @a[tag=bm.leguard,limit=1] positioned ^ ^ ^1.2'))
     g[i:i + 1] = ['execute if entity @a[tag=bm.leguard,distance=2..] run tag @a[tag=bm.leguard,limit=1] add bm.ktn',
                   'execute if entity @a[tag=bm.ktn] run function bm:p96/k/go {a:2}']
+
+
+    # ---- (2.94z) FOLLOWERS LIT BY THE WORLD: the Chef, King Omega, Ashur, the Neighbor, Pistachio and Cecil (all but his eyes) were
+    #      summoned with a fixed brightness - as bright in the dark as at noon. New ones aren't; the parts already out lose it once.
+    for k, part, fade, keep in (('kk', 'bm.kkp', 'bm.kkfade', ''), ('om', 'bm.omp', 'bm.omfade', ''), ('as', 'bm.asp', 'bm.asfade', ''),
+                                ('nb', 'bm.nbp', 'bm.nbfade', ''), ('pi', 'bm.pip', 'bm.pifade', ''), ('cp', 'bm.cpet', 'bm.cpfade', ',tag=!bm.cp_eyes')):
+        G.FUNCS['loop/second'].append(f'execute as @e[type=minecraft:item_display,tag={part},tag=!bm.rplit,tag=!{fade}{keep}] run function bm:atk/unlit')
+    fn('atk/unlit', ['data remove entity @s brightness', 'tag @s add bm.rplit'])

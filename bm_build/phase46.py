@@ -78,15 +78,16 @@ def generate(G):
     qy = lambda a: [F(0), F(round(_mm.sin(_mm.radians(a) / 2), 5)), F(0), F(round(_mm.cos(_mm.radians(a) / 2), 5))]
     def part(model, tag, ty, bright, yaw=0):
         return snbt({'Tags': ['bm.cpet', 'bm.cp2', 'bm.cp3', tag, 'bm.cpnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': model}},
-                     'item_display': 'fixed', 'teleport_duration': Int(2), 'brightness': {'block': Int(bright), 'sky': Int(bright)},
+                     'item_display': 'fixed', 'teleport_duration': Int(2), **({'brightness': {'block': Int(bright), 'sky': Int(bright)}} if bright else {}),
                      'interpolation_duration': Int(15), 'start_interpolation': Int(0),
                      'transformation': {'left_rotation': ident, 'right_rotation': qy(yaw) if yaw else ident, 'translation': [F(0), F(ty), F(0)], 'scale': [F(0)] * 3}})
     # (2.56: the follower is redrawn - cecil2_art; the market's Cecil keeps his tall look)
-    rig = [f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_body", "bm.cp_body", 0.5, 13)}',
-           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_head", "bm.cp_head", 0.0, 13)}',
+    # (2.94z: lit by the world, all but his eyes - bright 0: no fixed brightness)
+    rig = [f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_body", "bm.cp_body", 0.5, 0)}',
+           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_head", "bm.cp_head", 0.0, 0)}',
            f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_eyes", "bm.cp_eyes", 0.0, 15)}',
-           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_arm", "bm.cp_arm", 0.0, 13, CA.ARM_YAW)}',
-           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_larm", "bm.cp_larm", 0.0, 13, CA.LARM_YAW)}']   # (2.60: his free arm, its own part)
+           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_arm", "bm.cp_arm", 0.0, 0, CA.ARM_YAW)}',
+           f'summon minecraft:item_display ~ ~ ~ {part("bm:cec2_larm", "bm.cp_larm", 0.0, 0, CA.LARM_YAW)}']   # (2.60: his free arm, its own part)
     sel_pet = 'execute as @e[type=minecraft:wolf,tag=bm.cecilpet] if score @s bm.pid = #me bm.pid'
     fn('p46/pet/use', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
                        f'{sel_pet} run tag @s add bm.cpsel',

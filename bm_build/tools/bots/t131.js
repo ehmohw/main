@@ -93,11 +93,11 @@ const res = [];
   const inst = `@e[type=minecraft:marker,tag=bm.gvinst,scores={bm.gvi=${gi}},limit=1]`;
   const iscore = async o => { const m = (await run(`execute in bm:gutter run scoreboard players get ${inst} ${o}`)).match(/has (-?\d+)/); return m ? +m[1] : NaN; };
 
-  // ---- the heist's Office: Leave the heist, Skip this puzzle; no planning, no lounge
+  // ---- the heist's Office: Leave the heist, Skip this room; no planning, no lounge
   await holdLedger(); await A.useWait(); show('office on a heist');
   const hb = A.buttons();
-  ok('On a heist the Ledger opens the heist\'s Office: "Leave the heist" and "Skip this puzzle", no "Plan a Heist"',
-     hb.some(b => /Leave the heist/.test(b.label)) && hb.some(b => /Skip this puzzle/.test(b.label)) && !hb.some(b => /Plan a Heist|Fixer's Lounge/.test(b.label)));
+  ok('On a heist the Ledger opens the heist\'s Office: "Leave the heist" and "Skip this room", no "Plan a Heist"',
+     hb.some(b => /Leave the heist/.test(b.label)) && hb.some(b => /Skip this room/.test(b.label)) && !hb.some(b => /Plan a Heist|Fixer's Lounge/.test(b.label)));
 
   // ---- BEGIN: right-click the den's button
   const lp = (await run(`execute in bm:gutter run data get entity @e[type=minecraft:marker,tag=bm.gvr_lobby,scores={bm.gvi=${gi}},limit=1] Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/);
@@ -125,17 +125,17 @@ const res = [];
     if (puzzle && !skipped) {
       const lv0 = await iscore('bm.gvlv');
       await A.useWait();
-      await A.press(/Skip this puzzle/); show('skip?');
+      await A.press(/Skip this room/); show('skip?');
       // (2.76c) "Keep at it" first: the question closes, nothing else - it used to open the standing screen
       const kb = await A.press(/Keep at it/); await sleep(600);
       const s0 = (await run(`execute in bm:gutter run scoreboard players get ${sel} bm.gvs`)).match(/has (-?\d+)/);
       const pm = ((await run('scoreboard players get TestRat bm.menu')).match(/has (-?\d+)/) || [])[1];
       ok('"Keep at it" just closes the question - no other screen opens (not the standing screen), no try spent, the room still to solve',
          !!kb && !kb.next && pm !== '1' && (await iscore('bm.gvlv')) === lv0 && !(s0 && +s0[1] === 3), `next screen ${kb && kb.next}; menu ${pm}; tries ${await iscore('bm.gvlv')}`);
-      await A.useWait(); await A.press(/Skip this puzzle/);
+      await A.useWait(); await A.press(/Skip this room/);
       const yb = await A.press(/Skip it|Yes|skip/i); await sleep(1200);
       const s = (await run(`execute in bm:gutter run scoreboard players get ${sel} bm.gvs`)).match(/has (-?\d+)/);
-      ok(`In a puzzle room (${r.kind}) the Ledger's "Skip this puzzle" asks, then opens the way for a try`, yb && s && +s[1] === 3 && (await iscore('bm.gvlv')) === lv0 - 1,
+      ok(`In a puzzle room (${r.kind}) the Ledger's "Skip this room" asks, then opens the way for a try`, yb && s && +s[1] === 3 && (await iscore('bm.gvlv')) === lv0 - 1,
          `${yb && yb.label} | solved ${s && s[1]} | tries ${lv0} -> ${await iscore('bm.gvlv')}`);
       skipped = true; continue;
     }

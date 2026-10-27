@@ -177,7 +177,7 @@ def generate(G):
         return f'@e[type=minecraft:item_display,tag={sel}' + (f',tag=bm.omp_{p}]' if p else ']')
     sel_pet = f'execute as @e[type=minecraft:wolf,tag={pet}] if score @s bm.pid = #me bm.pid'
     face = lambda e, t: FX.face_cmd(W, e, t)
-    rig = [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, ["bm.omp", f"bm.omp_{p}", "bm.omp_pet", new], SP, scale0=True, extra=dict(view_range=F(2.5), brightness={"block": Int(13), "sky": Int(13)}, shadow_radius=F(0.9 if p == "coil" else 0.0), shadow_strength=F(0.5)))}'
+    rig = [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, ["bm.omp", f"bm.omp_{p}", "bm.omp_pet", new], SP, scale0=True, extra=dict(view_range=F(2.5), shadow_radius=F(0.9 if p == "coil" else 0.0), shadow_strength=F(0.5)))}'
            for p in A.PARTS]
     fn(f'{pfx}/place', RF.place(A, UP, psel))
     burst = ['particle minecraft:soul ~ ~3 ~ 1.4 2.4 1.4 0.04 90', 'particle minecraft:soul_fire_flame ~ ~3 ~ 1.2 2 1.2 0.05 50',

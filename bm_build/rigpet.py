@@ -172,8 +172,11 @@ def build(C, G, abilities, encounter):
     # as at noon. Only one that shines by itself keeps it (Cfg.BRIGHT: the Arachno-Lantern's lit pumpkin); parts already out
     # lose it on their next second.
     lit = {'brightness': {'block': Int(C.BRIGHT), 'sky': Int(C.BRIGHT)}} if getattr(C, 'BRIGHT', None) else {}
+    # (2.94z) ...and only the parts that shine (Cfg.BRIGHT_PARTS: the Lantern's pumpkin head, not its spider body); all, if unsaid
+    lit_parts = getattr(C, 'BRIGHT_PARTS', None)
+    lit_of = lambda p: lit if lit and (lit_parts is None or p in lit_parts) else {}
     xt = getattr(A, 'EXTRA_TAGS', {})
-    disp = lambda tags: [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, [f"bm.{ab}p", f"bm.{ab}p_{p}"] + xt.get(p, []) + tags, SP, scale0=True, extra=dict(view_range=F(1.6), **lit, shadow_radius=F(0.5 if p == "body" else 0.0), shadow_strength=F(0.5), **bb))}'
+    disp = lambda tags: [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, [f"bm.{ab}p", f"bm.{ab}p_{p}"] + xt.get(p, []) + tags, SP, scale0=True, extra=dict(view_range=F(1.6), **lit_of(p), shadow_radius=F(0.5 if p == "body" else 0.0), shadow_strength=F(0.5), **bb))}'
                          for p in A.PARTS]
     rig = disp([f'bm.{ab}p_pet', new])
     fn(f'{pfx}/place', RF.place(A, UP, psel))
@@ -401,8 +404,9 @@ def build(C, G, abilities, encounter):
     fn(f'{pfx}/fade1', [f'tag @s add {fade}', f'scoreboard players set @s {S("l")} 3',
                         f'data merge entity @s[type=minecraft:item_display] {{brightness:{{block:15,sky:15}},Glowing:1b,glow_color_override:{int(C.COL[1:], 16)}}}'])
     second.append(f'scoreboard players remove @a[scores={{bm.{ab}cd=1..}}] bm.{ab}cd 1')
-    if not lit:
-        second.append(f'execute as @e[type=minecraft:item_display,tag=bm.{ab}p,tag=!bm.rplit,tag=!{fade}] run function bm:{pfx}/unlit')
+    if not lit or lit_parts is not None:
+        keep = ''.join(f',tag=!bm.{ab}p_{p}' for p in (lit_parts or ()))
+        second.append(f'execute as @e[type=minecraft:item_display,tag=bm.{ab}p,tag=!bm.rplit,tag=!{fade}{keep}] run function bm:{pfx}/unlit')
         fn(f'{pfx}/unlit', ['data remove entity @s brightness', 'tag @s add bm.rplit'])
     G.FUNCS['p62/died'].insert(-1, f'execute as @e[type=minecraft:wolf,tag={pet}] if score @s bm.pid = #me bm.pid at @s run function bm:{pfx}/go')
     fn(f'{pfx}/go', ['scoreboard players add #gone bm.rng 1', f'function bm:{pfx}/fade', 'execute on passengers run kill @s[type=!minecraft:player]',

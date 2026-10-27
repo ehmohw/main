@@ -1,6 +1,6 @@
 // 2.80h: the Fixer's mercy and the crew bonuses - as regular (non-op) players, TestRat and TestMouse. rcon sets the stage: a
 // Tier I heist of Lever Rooms with both in the crew, down to its last try, 40 coins in the pot; the guardian put down.
-//   In an unsolved Lever Room, [Skip this puzzle] on the last try: THE FIXER'S MERCY asks first - half the pot and a share.
+//   In an unsolved Lever Room, [Skip this room] on the last try: THE FIXER'S MERCY asks first - half the pot and a share.
 //   Pay: the way on opens, the pot is halved, the crew keeps its last try. A second room: the mercy is spent.
 //   Won (stepping onto the strongbox ring): a crew of two, nobody knocked out - the card says crew +1 share, clean crew +1 Token,
 //   and what the mercy cost.
@@ -27,10 +27,10 @@ const res = [];
   ok('a heist of Lever Rooms, a crew of two, down to its last try', qs.length >= 2 && (await num(`${G}scoreboard players get ${I} bm.gvlv`)) === 1, `rooms ${qs}`);
   await H.go('levers', qs[0], 4, 12); await run(`execute as TestMouse at TestRat run tp @s ~1 ~ ~`); await sleep(800);
 
-  // ---- [Skip this puzzle] on the last try: the mercy asks first
+  // ---- [Skip this room] on the last try: the mercy asks first
   A.dialogN.length = 0; A.cmd('trigger bm.act set 7733'); await sleep(900);
   const d = JSON.stringify(A.dialogN.slice(-1)[0] || '');
-  ok('[Skip this puzzle] on the last try: the Fixer\'s mercy asks first (half the pot, 20 of 40, and a share)', /Fixer's mercy/.test(d) && /20 of 40 coins/.test(d), d.slice(0, 160));
+  ok('[Skip this room] on the last try: the Fixer\'s mercy asks first (half the pot, 20 of 40, and a share)', /Fixer's mercy/.test(d) && /20 of 40 coins/.test(d), d.slice(0, 160));
   await A.press(/Pay the Fixer/); await sleep(1200);
   ok('...paid: the way on opens', await H.solved('levers', qs[0]));
   ok('...the pot is halved, the crew keeps its last try', (await num(`${G}scoreboard players get ${I} bm.gvpot`)) === 20 && (await num(`${G}scoreboard players get ${I} bm.gvlv`)) === 1,

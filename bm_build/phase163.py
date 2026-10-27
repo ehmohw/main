@@ -291,7 +291,7 @@ def build(G, k, c, fn, title, tellraw, give, PREFIX, say, holds, foe, tick, fast
         return f'@e[type=minecraft:item_display,tag={sel}' + (f',tag=bm.{k}p_{p}]' if p else ']')
     sel_pet = f'execute as @e[type=minecraft:wolf,tag={pet}] if score @s bm.pid = #me bm.pid'
     face = lambda e, t: FX.face_cmd(W, e, t)
-    bright = {'brightness': {'block': Int(15), 'sky': Int(15)}} if k == 'pi' else {}
+    bright = {}                     # (2.94z: lit by the world - Pistachio's whole body was as bright at midnight as at noon)
     rig = [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, [f"bm.{k}p", f"bm.{k}p_{p}", f"bm.{k}p_pet", new], SP, extra=dict(bright, shadow_radius=F(0.5 if p == "body" else 0.0), shadow_strength=F(0.5)))}'
            for p in A.PARTS]
     fn(f'{pfx}/place', RF.place(A, UP, psel))
