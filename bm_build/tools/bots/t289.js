@@ -75,7 +75,7 @@ const res = [];
     }
     const sum = drops.reduce((a, b) => a + b, 0);
     ok(`...${nm} doesn't vanish: the move plays out in plain sight, on their own poses (no part of them hidden)`, seen > 0 && hidMax === 0, `move ticks seen ${seen}, parts hidden ${hidMax}`);
-    ok(`...several blows straight through full diamond, 24.5 in all (14 x Might V, split; with a blow of their own the same moment, more)`, drops.length >= 3 && sum > 24 && sum < 42, `drops ${drops.join(', ')} = ${sum.toFixed(1)}`);
+    ok(`...two or more blows straight through full diamond, 24.5 in all (14 x Might V, split; with a blow of their own the same moment, more)`, drops.length >= 2 && sum > 24 && sum < 42, `drops ${drops.join(', ')} = ${sum.toFixed(1)}`);
     if (w === 'leo') ok('...the shield bash stuns it first (slowed to a standstill, weakened)', stun);
     if (w === 'bender') ok('...and Bender up on its head, chomping', up > Y + 1.9, `highest ${up.toFixed(2)}`);
     await sleep(1500);

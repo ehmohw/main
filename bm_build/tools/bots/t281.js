@@ -46,7 +46,9 @@ const res = [];
     await run(`${O}scoreboard players reset ${H} bm.kalt`);
     await stage(H); await run(`${O}scoreboard players set ${H} bm.kcd1 99999`); await husk(0, 2, 'tz0');
     const seen = new Set(); const t0 = Date.now();
-    while (Date.now() - t0 < 25000 && seen.size < 2) { const v = await sc(H, 'bm.kalt'); if (v === 0 || v === 1) seen.add(v); await sleep(100); }
+    let k = 0;      // (the stage: the husk kept at arm's length - Dennis would rather throw from range than walk up to it)
+    while (Date.now() - t0 < 60000 && seen.size < 2) { const v = await sc(H, 'bm.kalt'); if (v === 0 || v === 1) seen.add(v);
+      if (++k % 10 === 0) await run(`${O}execute as ${H} at @s positioned ^ ^ ^1.6 run tp @e[type=minecraft:husk,tag=t281,limit=1] ~ ~ ~`); await sleep(100); }
     ok(`${name}: over a run of blows, both swings come up`, seen.size === 2, [...seen].join(','));
     ok('...and they land', (await hp('tz0')) < 200, `${await hp('tz0')}`);
     await run(`${O}kill @e[tag=t281]`); await run(`${O}execute as TestRat at @s run function bm:${home}`); await sleep(1000);

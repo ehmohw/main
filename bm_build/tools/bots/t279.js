@@ -68,7 +68,7 @@ const res = [];
   await run(`${O}scoreboard players set ${AP} bm.kcd1 999`); await husk(-9, 0, 'td'); await stage(AP);
   w = await watch(AP, 6000);
   ok('Apophiss - COIL AND STRIKE: across the gap in steps', w.on && w.far > 3 && w.big <= 2.5, JSON.stringify(w));
-  ok('...the strike and the lash land (24 or more)', (await hp('td')) <= 176, `${await hp('td')}`);
+  ok('...the strike and the lash land (16 + 8, less the husk\'s own 2 armour points: 22 or more)', (await hp('td')) <= 178, `${await hp('td')}`);
   await run(`${O}kill @e[tag=t279]`); await run(`${O}execute as ${AP} run function bm:p131/go`); await sleep(800);
 
   // ---- Ashur
