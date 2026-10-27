@@ -20,7 +20,7 @@ const res = [];
   await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
   await run(`${O}fill ${X - 12} ${Y} ${Z - 8} ${X + 12} ${Y} ${Z + 8} minecraft:stone`); await run(`${O}fill ${X - 12} ${Y + 1} ${Z - 8} ${X + 12} ${Y + 8} ${Z + 8} minecraft:air`);
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..24]`);
-  await run(`${O}fill ${X - 11} ${Y + 1} ${Z + 5} ${X + 11} ${Y + 3} ${Z + 5} minecraft:stone`);
+  await run(`${O}fill ${X - 12} ${Y + 1} ${Z + 5} ${X + 12} ${Y + 3} ${Z + 5} minecraft:stone`);
   await run(`${O}tp TestRat ${X + 0.5} ${Y + 1} ${Z + 2.5} 0 -10`);
   await wait(2000, async () => A.pos && Math.abs(A.pos.z - (Z + 2.5)) < 0.05, 100); await sleep(400);
 
@@ -29,7 +29,7 @@ const res = [];
                  ['Dennis', 'dw_horn', 'wolf', 'bm.dwpet', -6], ['Pistachio', 'pi_cloche', 'wolf', 'bm.pipet', 6],
                  ['Omega', 'om_monocle', 'wolf', 'bm.ompet', 8], ['Ashur', 'ashur_cinder', 'wolf', 'bm.aspet', -8], ['The Chef', 'chef_ladle', 'wolf', 'bm.kkpet', 10], ['The Neighbor', 'neighbor_baton', 'wolf', 'bm.nbpet', -10],
                  ['Queen Ava', 'av_locket', 'wolf', 'bm.avpet', 1], ['Queen Pearl', 'pq_pearls', 'wolf', 'bm.pqpet', -1], ['Bloo', 'bo_claw', 'wolf', 'bm.bopet', 3],
-                 ['The Stalker', 'st_hook', 'wolf', 'bm.svpet', -3], ['The Arachno-Lantern', 'ln_gourd', 'wolf', 'bm.lnpet', -5], ['Bender', 'bv_ball', 'wolf', 'bm.bvpet', -7], ['Bones', 'bn_whistle', 'wolf', 'bm.bjpet', -9], ['Mr. Capshun', 'capshun_pencil', 'wolf', 'bm.mzpet', 9], ['The Sky Buddies', 'sky_mobile', 'wolf', 'bm.ybpet', 5], ['8-Bit Emma', 'cart_emma', 'wolf', 'bm.xmpet', 7], ['8-Bit Leo', 'cart_leo', 'wolf', 'bm.xlpet', 11], ['8-Bit Cecil', 'cart_cecil', 'wolf', 'bm.xcpet', -11]];
+                 ['The Stalker', 'st_hook', 'wolf', 'bm.svpet', -3], ['The Arachno-Lantern', 'ln_gourd', 'wolf', 'bm.lnpet', -5], ['Bender', 'bv_ball', 'wolf', 'bm.bvpet', -7], ['Bones', 'bn_whistle', 'wolf', 'bm.bjpet', -9], ['Mr. Capshun', 'capshun_pencil', 'wolf', 'bm.mzpet', 9], ['Kettle', 'kettle_plane', 'wolf', 'bm.ktpet', 12], ['The Sky Buddies', 'sky_mobile', 'wolf', 'bm.ybpet', 5], ['8-Bit Emma', 'cart_emma', 'wolf', 'bm.xmpet', 7], ['8-Bit Leo', 'cart_leo', 'wolf', 'bm.xlpet', 11], ['8-Bit Cecil', 'cart_cecil', 'wolf', 'bm.xcpet', -11]];
   for (const [name, iid, host, tag, dx] of KINDS) {
     await run(`${O}summon minecraft:item_frame ${X + dx} ${Y + 2} ${Z + 4} {Facing:2b,Tags:["bm.t146f"]}`); await sleep(400);
     await run(`loot replace entity TestRat hotbar.0 loot bm:items/${iid}`); await sleep(300);

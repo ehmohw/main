@@ -41,6 +41,7 @@ SAY = {
     'bender': '(he is trying something new today - blue merle - and he will NOT stop showing you)',
     'bones': '(he is trying something new today: tiger stripes. The grin is even bigger.)',
     'capshun': '"[He was trying something new today. Purple. A bold choice, for a stick.]"',
+    'kettle': '"Look! I\'m PINK today! Pink is the best colour. Until tomorrow."',
     'sky': 'Sunny: "We\'re trying something new today! Sherbet! Nimbus picked it." Nimbus: ":3"',
     'pxemma': "I'm trying something new today! NEON! Like the arcade at night!",
     'pxleo': 'Trying something new today! The arcade palette - for honour, and for style!',

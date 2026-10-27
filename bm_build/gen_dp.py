@@ -192,6 +192,7 @@ import phase223 as R223      # 2.94u: signature moves (Emma, Leo, Celi, Democrat
 import phase224 as R224      # 2.94u: signature moves for the rest of the fighters
 import phase225 as R225      # 2.94x: the Smuggler's Waytoken (the Fence) - to a market of your choosing and back
 import phase226 as R226      # 2.95c: the Piercing Blow - every Champion's armour-piercing move
+import phase227 as R227      # 2.95d: Kettle, the first Buddy (Kettle's Paper Plane) - tag, paper planes, kickball, cartwheels, RECESS!
 import atk                   # 2.94u: the attack kit - impact and hit-stop on every follower blow
 import phase221 as R221      # 2.94t: shiny followers - one summon in a hundred, trying something new today
 import phase202 as R202      # 2.92: the kingdom's armoury - Leo's Aegis, Emma's Crescent, Tidewarden and Pearlguard, Tide Scales (kingdom_art.py)
@@ -1337,6 +1338,7 @@ def build(out_dir):
     if PHASE2: R196.generate_early(sys.modules[__name__])
     if PHASE2: R197.generate_early(sys.modules[__name__])
     if PHASE2: R198.generate_early(sys.modules[__name__])
+    if PHASE2: R227.generate_early(sys.modules[__name__])
     if PHASE2: R211.generate_early(sys.modules[__name__])
     if PHASE2: R213.generate_early(sys.modules[__name__])
     if PHASE2: R199.generate_early(sys.modules[__name__])
@@ -1388,6 +1390,7 @@ def build(out_dir):
     if PHASE2: R195.generate(sys.modules[__name__])
     if PHASE2: R197.generate(sys.modules[__name__])
     if PHASE2: R198.generate(sys.modules[__name__])
+    if PHASE2: R227.generate(sys.modules[__name__])      # 2.95d: Kettle
     if PHASE2: R210.generate(sys.modules[__name__])
     if PHASE2: R211.generate(sys.modules[__name__])
     if PHASE2: R212.generate(sys.modules[__name__])

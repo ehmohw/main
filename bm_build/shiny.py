@@ -33,6 +33,7 @@ LOOKS = {
     'lantern': ('Shiny Moonlit Rind', ('#0a0e2a', '#5a6ad0', '#d0d8ff'), 'blue'),
     'bender': ('Shiny Blue Merle', ('#14181e', '#6a7a8a', '#d0dce8'), 'light_gray'),
     'bones': ('Shiny Tiger', ('#2a1604', '#c87a2a', '#ffd090'), 'orange'),
+    'kettle': ('Shiny Sidewalk Chalk', ('#3a0a2a', '#ff7ac8', '#ffe0f4'), 'pink'),
     'capshun': ('Shiny Purple Crayon', ('#200630', '#8a3ad0', '#e0b0ff'), 'purple'),
     'sky': ('Shiny Sherbet', ('#3a1a04', '#ff9a4a', '#ffe0b0'), 'orange'),
     'pxemma': ('Shiny Neon Arcade', ('#14002a', '#ff2ab0', '#7affff'), 'magenta'),

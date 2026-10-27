@@ -23,7 +23,7 @@ PT = {'cecil': ('bm.cpet', True), 'emma': ('bm.emp', True), 'celi': ('bm.cep', T
       'omega': ('bm.omp', True), 'ashur': ('bm.asp', True), 'chef': ('bm.kkp', True), 'neighbor': ('bm.nbp', True), 'ava': ('bm.avp', True),
       'pearlq': ('bm.pqp', True), 'bloo': ('bm.bop', True), 'stalker': ('bm.svp', True), 'lantern': ('bm.lnp', True), 'bender': ('bm.bvp', True),
       'bones': ('bm.bjp', True), 'capshun': ('bm.mzp', True), 'pxcecil': ('bm.xcp', True), 'pxleo': ('bm.xlp', True), 'pxemma': ('bm.xmp', True),
-      'sky': ('bm.ybp', True)}
+      'sky': ('bm.ybp', True), 'kettle': ('bm.ktp', True)}
 
 # (name, what it looks like, where they come back: behind / below / above, the vanish, the sign at the foe while they're gone,
 #  the return, the sound going, the sound coming)
@@ -128,6 +128,9 @@ FLAV = {
     'pxemma': ('Star Warp', 'warps out on a pixel star and drops in from above', 'above',
                [P('minecraft:dust{color:[1.0,0.6,0.85],scale:1.5}', 30)], ['minecraft:dust{color:[1.0,0.9,0.4],scale:1.2} ~ ~3 ~ 0.2 0.2 0.2 0 3'],
                [P('minecraft:dust{color:[1.0,0.9,0.4],scale:1.5}', 40, 0.5, 0.5, 0)], 'minecraft:block.note_block.bit', 'minecraft:entity.player.levelup'),
+    'kettle': ('Hide and Seek', 'counts to three with his eyes shut, hides - and pops out right behind the monster', 'behind',
+               [P('minecraft:poof', 20), P('minecraft:happy_villager', 10)], ['minecraft:happy_villager ^ ^1 ^-1.2 0.2 0.4 0.2 0 1'],
+               [P('minecraft:crit', 30, 0.4, 0.6, 0.3), P('minecraft:happy_villager', 16)], 'minecraft:entity.chicken.egg', 'minecraft:entity.player.attack.knockback'),
     'sky': ('Storm Front', 'blow away on the wind and come down on the monster out of a thundercloud', 'above',
             [P('minecraft:cloud', 40, 0.5, 0.8, 0.05)], ['minecraft:cloud ~ ~3.2 ~ 0.6 0.1 0.6 0 4'],
             [P('minecraft:electric_spark', 40, 0.5, 0.8, 0.3), P('minecraft:end_rod', 20, 0.3, 0.6, 0.1)], 'minecraft:entity.breeze.wind_burst', 'minecraft:entity.lightning_bolt.thunder'),

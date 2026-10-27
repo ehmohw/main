@@ -51,6 +51,7 @@ Every follower ships with all of these, built alongside it (never "later"):
    summoning item from the off hand, call / send home / take back from the menu, and carrying the wheel counts as carrying
    the item. Register the follower in `WHO`; the wheel asserts every entry patches cleanly. (The Skiff Escort has its own
    slot, `phase184`, since it's eight colours with no "has its item" rules.)
+9. **Shiny variant:** a rare shiny palette ("trying something new today", `shiny.py`), like every other follower's.
 
 `tools/bots/t163.js` (Fishy) walks the whole list as a regular player; copy it for the next follower. Also add the new
 follower to the every-follower tests (t138 figurines, t146 frames, t156 dolls, the `KINDS` lists in t145 and t158).

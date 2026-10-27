@@ -76,6 +76,7 @@ TRIB = {
     'lantern': [('minecraft:pumpkin', 16), ('minecraft:jack_o_lantern', 8), ('minecraft:blaze_rod', 4), ('blood_crystal', 8), ('ember_scale', 6)],
     'bender': [('minecraft:bone', 16), ('minecraft:cooked_beef', 16), ('token', 8), ('heartstone', 1), ('fallen_star', 2)],
     'bones': [('minecraft:cod', 16), ('minecraft:salmon', 16), ('minecraft:tropical_fish', 8), ('minecraft:nautilus_shell', 2), ('tide_scale', 8)],
+    'kettle': [('minecraft:paper', 32), ('minecraft:slime_ball', 16), ('minecraft:string', 16), ('minecraft:feather', 16), ('heartstone', 2)],
     'capshun': [('minecraft:paper', 32), ('minecraft:ink_sac', 16), ('minecraft:book', 8), ('minecraft:writable_book', 2), ('heartstone', 2)],
     'pxcecil': [('minecraft:amethyst_shard', 32), ('minecraft:ender_pearl', 8), ('minecraft:experience_bottle', 8), ('minecraft:echo_shard', 2), ('heartstone', 2)],
     'pxleo': [('minecraft:iron_sword', 4), ('minecraft:shield', 2), ('minecraft:emerald', 16), ('minecraft:diamond_sword', 1), ('heartstone', 2)],

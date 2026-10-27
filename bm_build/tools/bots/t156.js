@@ -14,7 +14,7 @@ const res = [];
   const uuidOf = async (sel) => { const m = (await run(`${O}data get entity ${sel} UUID`)).match(/\[I; (-?\d+), (-?\d+), (-?\d+), (-?\d+)\]/); if (!m) return null;
     const h = m.slice(1).map(v => (Number(v) >>> 0).toString(16).padStart(8, '0')).join(''); return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`; };
   const entOf = async (sel) => { const u = await uuidOf(sel); return Object.values(A.ents).find(e => e.objectUUID === u); };
-  const DOLLS = ['doll_cecil', 'doll_celi', 'doll_leo', 'doll_demo', 'doll_kw', 'doll_apo', 'doll_tul', 'doll_zib', 'doll_pearl', 'doll_don', 'doll_wil', 'doll_frog', 'doll_fishy', 'doll_dennis', 'doll_pistachio', 'doll_omega', 'doll_ashur', 'doll_chef', 'doll_neighbor', 'doll_ava', 'doll_pearlq', 'doll_bloo', 'doll_stalker', 'doll_lantern', 'doll_bender', 'doll_bones', 'doll_capshun', 'doll_sky', 'doll_pxemma', 'doll_pxleo', 'doll_pxcecil'];
+  const DOLLS = ['doll_cecil', 'doll_celi', 'doll_leo', 'doll_demo', 'doll_kw', 'doll_apo', 'doll_tul', 'doll_zib', 'doll_pearl', 'doll_don', 'doll_wil', 'doll_frog', 'doll_fishy', 'doll_dennis', 'doll_pistachio', 'doll_omega', 'doll_ashur', 'doll_chef', 'doll_neighbor', 'doll_ava', 'doll_pearlq', 'doll_bloo', 'doll_stalker', 'doll_lantern', 'doll_bender', 'doll_bones', 'doll_capshun', 'doll_sky', 'doll_pxemma', 'doll_pxleo', 'doll_pxcecil', 'doll_kettle'];
   const X = 16400, Y = 100, Z = 16000;
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);

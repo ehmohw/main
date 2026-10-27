@@ -48,6 +48,8 @@ from nbt import snbt
 GOLD = '#ffcf40'
 WMENU = 2360                       # Wilfrey's menu (bm.menu) and its buttons 2361..2364
 AR_CODE = 2370                     # "Back after a faint" on each wardrobe page: 2370 + the follower's index
+AR_CODE2 = 3486                    # (2.95: 2370-2400 holds 31 - the 32nd on (Kettle, the Gem, the Gentry...) count on from 3486)
+ar_code = lambda i: AR_CODE + i if i <= 30 else AR_CODE2 + i - 31
 # (wardrobe key: cooldown score, the follower's host type and tag, the function that calls them - as you, at you)
 AR = {'cecil': ('bm.cpcd', 'wolf', 'bm.cecilpet', 'p46/pet/try_summon'),
       'emma': ('bm.emcd', 'cat', 'bm.emmapet', 'p57/try_summon'),
@@ -78,7 +80,8 @@ AR = {'cecil': ('bm.cpcd', 'wolf', 'bm.cecilpet', 'p46/pet/try_summon'),
       'pxcecil': ('bm.xccd', 'wolf', 'bm.xcpet', 'p213c/try_summon'),
       'pxleo': ('bm.xlcd', 'wolf', 'bm.xlpet', 'p213l/try_summon'),
       'pxemma': ('bm.xmcd', 'wolf', 'bm.xmpet', 'p213e/try_summon'),
-      'sky': ('bm.ybcd', 'wolf', 'bm.ybpet', 'p211/try_summon')}
+      'sky': ('bm.ybcd', 'wolf', 'bm.ybpet', 'p211/try_summon'),
+      'kettle': ('bm.ktcd', 'wolf', 'bm.ktpet', 'p227/try_summon')}
 AR_IDX = {w: i for i, w in enumerate(AR)}
 PET_CD = 120                       # a faint outside the vault: 2 minutes (was 5, Wilfrey's 30)
 FILTER_MAX = 5
@@ -203,8 +206,10 @@ def generate(G):
         # (the Frog and Donado come back owed a free return at their hut: no need, they're back)
     F['loop/second'] += second
     import phase99 as P99
-    F['p28/act'].append(f'execute if score #act bm.pay matches {AR_CODE}..{AR_CODE + len(AR) - 1} run return run function bm:p173/ar/act')
-    fn('p173/ar/act', [f'execute if score #act bm.pay matches {AR_CODE + i} run return run function bm:p173/ar/t_{i}' for w, i in AR_IDX.items()])
+    F['p28/act'].append(f'execute if score #act bm.pay matches {AR_CODE}..{AR_CODE + min(len(AR), 31) - 1} run return run function bm:p173/ar/act')
+    if len(AR) > 31:
+        F['p28/act'].append(f'execute if score #act bm.pay matches {AR_CODE2}..{AR_CODE2 + len(AR) - 32} run return run function bm:p173/ar/act')
+    fn('p173/ar/act', [f'execute if score #act bm.pay matches {ar_code(i)} run return run function bm:p173/ar/t_{i}' for w, i in AR_IDX.items()])
     for w, i in AR_IDX.items():
         fn(f'p173/ar/t_{i}', [f'execute unless score @s bm.menu matches {P99.BASE[w]} run return run function bm:p28/stale',
                               'execute unless score @s bm.arof matches 0.. run scoreboard players set @s bm.arof 0',
@@ -425,7 +430,7 @@ def generate(G):
     F['load'][-1:-1] = ['scoreboard objectives add bm.orph dummy']
     G.OBJECTIVES += ['bm.orph']
     nor = 0
-    for k in ('apo', 'tul', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky'):
+    for k in ('apo', 'tul', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'kettle'):
         if k not in FX.FOLK: continue
         host, tag, head = FX.FOLK[k][:3]
         anyhead = re.sub(r',tag=!bm\.\w+fade', '', head)

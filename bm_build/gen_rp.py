@@ -879,6 +879,8 @@ if __name__ == '__main__':
     phase195.rp(sys.modules[__name__]); phase196.rp(sys.modules[__name__]); phase197.rp(sys.modules[__name__])
     import phase198                           # (2.90: Mr. Capshun)
     phase198.rp(sys.modules[__name__])
+    import phase227                           # (2.95d: Kettle)
+    phase227.rp(sys.modules[__name__])
     import phase210, phase211, phase212       # (2.94: the effect sprites, the Sky Buddies, Dennis's searing throws)
     phase210.rp(sys.modules[__name__]); phase211.rp(sys.modules[__name__]); phase212.rp(sys.modules[__name__])
     import phase213, phase214, phase215       # (2.94: the 8-bit trio, the pixel costumes, the 8-Bit Serpent King)
