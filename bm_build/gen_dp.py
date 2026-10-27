@@ -191,6 +191,7 @@ import phase222 as R222      # 2.94u: dashes in place of one-tick teleports onto
 import phase223 as R223      # 2.94u: signature moves (Emma, Leo, Celi, Democratus, Apophiss, Ashur, Cecil)
 import phase224 as R224      # 2.94u: signature moves for the rest of the fighters
 import phase225 as R225      # 2.94x: the Smuggler's Waytoken (the Fence) - to a market of your choosing and back
+import phase226 as R226      # 2.95c: the Piercing Blow - every Champion's armour-piercing move
 import atk                   # 2.94u: the attack kit - impact and hit-stop on every follower blow
 import phase221 as R221      # 2.94t: shiny followers - one summon in a hundred, trying something new today
 import phase202 as R202      # 2.92: the kingdom's armoury - Leo's Aegis, Emma's Crescent, Tidewarden and Pearlguard, Tide Scales (kingdom_art.py)
@@ -225,7 +226,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.95b'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.95c'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1433,6 +1434,7 @@ def build(out_dir):
     if PHASE2: R223.generate(sys.modules[__name__])      # 2.94u: signature moves
     if PHASE2: R224.generate(sys.modules[__name__])      # 2.94u: ...and the rest
     R225.generate(sys.modules[__name__])                 # 2.94x: the Smuggler's Waytoken
+    if PHASE2: R226.generate(sys.modules[__name__])      # 2.95c: the Piercing Blow
     if PHASE2: print('bite impacts: %d followers' % atk.biters(sys.modules[__name__]))
     if PHASE2: print('alternate swings: %d followers' % atk.alternates(sys.modules[__name__]))
     if PHASE2: print('attack kit: %d follower blows with an impact, %d animations with a hit-stop' % atk.finalize(sys.modules[__name__]))

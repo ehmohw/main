@@ -21,6 +21,20 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.95c: the Piercing Blow
+
+- **Every Champion of the Tide** (a follower honoured to rank III by Queen Ava) learns a second signature move that **goes straight through armour**. In a fight, every 18 seconds, they vanish (their whole model, regalia and all), come back at the monster's back, beneath it or above it, and land one blow of **Rend**: 14 damage, scaled by their Might (24.5 at Might V). Armour and shields don't stop it, and neither does the half-second a monster is untouchable just after being hit.
+- **Each one does it their own way:**
+  - **King Omega** dives into the ghastly realm and lunges out of it beneath the monster.
+  - **Cecil** veils himself in shadows and strikes from inside them.
+  - **Emma** slips into sea-spray. **Celi** drops out of a whiteout above.
+  - **KillerWatt** pours himself into the ground as current and erupts under his prey.
+  - **Apophiss** rises from the earth as a shadow. **Dennis** tunnels up, pick first. **Wilfrey** climbs out of a grave.
+  - **Mr. Capshun** erases himself and redraws himself behind it. **The Lantern** snuffs his flame and re-lights there.
+  - **Bender** is simply too fast to see. **The Sky Buddies** come down out of a thundercloud.
+  - The rest each have their own way too.
+- Your Champions already have it. The Champion's announcement names it for any made from now on.
+
 ## New in 2.95b: the ones who shine, and KillerWatt as he really is
 
 - **Glowing again:** **KillerWatt** (he's living current), the **Sky Buddies** (sun, star and storm), and **Cecil in his Ethereal or Wraithfire Form** all shine by themselves again, day or night. Back in his own robes, Cecil is lit by the world as before; his eyes still glow. **Emma's Ethereal Form** still shines too. Followers already out in your world pick this up within a second or two.
