@@ -45,7 +45,7 @@ P100.BANTER.update({
               ('Leo', 'One wrong move near the Princess, serpent.', 'Apophiss', 'Relax, tin knight. If I wanted her, I would have had her years ago.'),
               ('Apophiss', 'This is humiliating.', 'Emma', "It's called being FRIENDS!")],
     'dread': [('Democratus', 'A serpent, a storm and a reaper. The living should be very afraid.', 'Apophiss', 'They usually are. It is the best part.'),
-              ('KillerWatt', '*thunder rumbles; he bumps his head against the serpent*', 'Apophiss', '...Fine. You may stay. You are warm, at least.'),
+              ('KillerWatt', '*a tendril brushes the serpent\'s scales, feeling for a way in*', 'Apophiss', 'Try it, parasite. My venom would boil your little spark dry.'),
               ('Apophiss', 'Kneel, little mortals! Kneel to the Dread Court!', 'Democratus', 'They cannot hear you over the thunder.')],
     'retinue': [('Pearlman', 'Princess! Sir Leo! Pearlman is honoured, HONOURED! Have you seen my newest wares?', 'Emma', 'Pearlman! Do you have ribbons?!'),
                 ('Leo', 'Stay close, Princess - and keep an eye on your coin purse.', 'Pearlman', 'Sir Leo! Pearlman is wounded. Only slightly. Ten percent off?'),
@@ -125,9 +125,9 @@ def generate(G):
                      [('Emma', 'Apophiss, you can have my healing. All of it!', 'Apophiss', 'Hmph. ...Thank you, princess.'),
                       ('Apophiss', 'Stop hugging my tail.', 'Emma', 'No!')]),
         'volts': ('bm.appet', ('wolf', 'bm.kxpet'), 'Venom and Volts', '#74d462',
-                  [('KillerWatt', '*sparks crackle - he sniffs at the serpent, curious*'), ('Apophiss', 'Ah. Finally, someone worth talking to.')],
+                  [('KillerWatt', '*the shard on his chest flickers - he studies the serpent like a host*'), ('Apophiss', 'Ah. Something with no conscience at all. How refreshing.')],
                   [('KillerWatt', '*thunder rolls in his chest*', 'Apophiss', 'I know. Them too. Pathetic.'),
-                   ('Apophiss', 'You and I could rule this world, you know.', 'KillerWatt', '*a happy crackle*')]),
+                   ('Apophiss', 'You and I could rule this world, you know.', 'KillerWatt', '*a dry crackle - he would rather wear it*')]),
     }
     for k, (htag, (ptype, ptag), nm, col, intro, banter) in PAIRS.items():
         fn(f'p133/{k}_first', [f'advancement grant @s only bm:story/pair_{k}',

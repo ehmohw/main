@@ -21,6 +21,11 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.95b: the ones who shine, and KillerWatt as he really is
+
+- **Glowing again:** **KillerWatt** (he's living current), the **Sky Buddies** (sun, star and storm), and **Cecil in his Ethereal or Wraithfire Form** all shine by themselves again, day or night. Back in his own robes, Cecil is lit by the world as before; his eyes still glow. **Emma's Ethereal Form** still shines too. Followers already out in your world pick this up within a second or two.
+- **KillerWatt, in character:** he's Democratus's successor, the pure embodiment of his sin: all the depravity with none of the conscience, a parasite who takes living things over through his current. The shard on his chest was cut from Democratus's scythe, and before that from the Ethereal Gem that Emma's family kept. His lines with Emma now play it that way. He covets her light and she won't flinch. **Sparks Fly** keeps its bonus, but the bonus comes from the friction between them, not from affection. Emma's **KillerWatt look** is now the mark left by a possession she threw off. His lines with **Democratus** (who sees his own anger with nothing left to answer to), **Apophiss**, **Cecil** and **Bender** were rewritten to match.
+
 ## New in 2.95a: followers lit by the world, and every room that isn't a fight can be skipped
 
 - **No more glowing followers:** the Chef, King Omega, Ashur, the Neighbor, Pistachio, Cecil and the Arachno-Lantern were as bright at midnight as at noon. They now take the light of wherever they stand. The only parts still lit are those meant to glow: Cecil's eyes and the Lantern's pumpkin head. Followers already out in your world are put right within a second or two.

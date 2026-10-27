@@ -460,15 +460,15 @@ def generate(G):
                       'execute as @a[tag=bm.dmown] unless entity @s[advancements={bm:story/demo_kw=true}] run function bm:p97/duo_kw_first'])
     fn('p97/heir', ['effect give @s minecraft:resistance 3 0 true', 'scoreboard players add @s bm.kxch 1'])
     fn('p97/duo_kw_first', ['advancement grant @s only bm:story/demo_kw',
-                            tellraw('@s', PREFIX + [T("The Storm's Heir! ", STORM, bold=True), T('Democratus walks with the one the storm chose after him: you\'re quicker, KillerWatt is tougher and charges faster, and Democratus heals.', 'gray')]),
-                            tellraw('@s', [T('Democratus: ', STORM, bold=True), T('"So you are the one the lightning chose. ...Try to deserve it, beast."', STORM_LT)]),
-                            tellraw('@s', [T('KillerWatt: ', '#74d462', bold=True), T('*sparks crawl over his tendrils - a low, rolling growl*', '#c8f0c0', italic=True)])])
+                            tellraw('@s', PREFIX + [T("The Storm's Heir! ", STORM, bold=True), T('Democratus walks beside what came after him: his gem, his storm - and none of his conscience. You\'re quicker, KillerWatt is tougher and charges faster, and Democratus heals.', 'gray')]),
+                            tellraw('@s', [T('Democratus: ', STORM, bold=True), T('"So this is my anger, with nothing left to answer to. ...Stay where I can see you."', STORM_LT)]),
+                            tellraw('@s', [T('KillerWatt: ', '#74d462', bold=True), T('*the shard on his chest - cut from Democratus\'s own scythe - flares at its old master*', '#c8f0c0', italic=True)])])
     BANTER = [('cecil', [('Democratus', 'Your robe is smouldering again, boy.', 'Cecil', 'It is SUPPOSED to do that.'),
                          ('Cecil', 'I could have handled that one alone.', 'Democratus', 'Slowly. I was there first.'),
                          ('Democratus', 'When I was your age I reaped storms, not chickens.', 'Cecil', 'When you were my age storms were still being invented.')]),
-              ('kw', [('Democratus', 'When I am dust, the lightning is yours. Not before.', 'KillerWatt', '*a proud, crackling rumble*'),
-                      ('KillerWatt', '*thunder rolls from somewhere deep in his chest*', 'Democratus', 'Yes, yes. I was that loud once, too.'),
-                      ('Democratus', 'Stop showing off. The storm sees you.', 'KillerWatt', '*sparks fly - he does it anyway*')])]
+              ('kw', [('Democratus', 'That shard was cut from my scythe. It was never meant to sit in something like you.', 'KillerWatt', '*he taps the gem with one claw, slowly - and grins*'),
+                      ('KillerWatt', '*thunder rolls from somewhere deep in his chest - it sounds like laughter*', 'Democratus', 'Laugh. I had reasons. You only have appetite.'),
+                      ('Democratus', 'I wanted the crown set right. You only want to wear the people under it.', 'KillerWatt', '*sparks lick a passing beetle until it walks like a puppet*')])]
     who = {'Democratus': (STORM, STORM_LT), 'Cecil': ('#b48cff', '#e8d8ff'), 'KillerWatt': ('#74d462', '#c8f0c0')}
     line = lambda n, txt: tellraw('@a[tag=bm.dmown]', [T(f'{n}: ', who[n][0], bold=True), T(txt if n == 'KillerWatt' else f'"{txt}"', who[n][1], italic=n == 'KillerWatt')])
     bl = ['scoreboard players set @s bm.dmb 0', 'execute store result score #r bm.rng run random value 1..6']

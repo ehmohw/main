@@ -410,7 +410,7 @@ def generate(G):
             page += [st('kw', '???', 'dark_gray'), f'execute if entity @s[tag=bm.emkw_u] run {st("kw", "off", "gray")}',
                      f'execute if entity @s[tag=bm.emkw_u,tag=bm.emkw_o] run {st("kw", "on", "#7ae63a")}']
             btns.append(P28.btn([T('KillerWatt look', '#7ae63a', bold=True), T('  '), '@@RAW:r_kw@@'], TOP[who] - 2, width=150,
-                                tooltip=T('Emma, gone glassy green like KillerWatt - his grin, his tendrils. A secret: how do you get it?', 'gray')))
+                                tooltip=T('Emma, marked glassy green by a possession she threw off - his colours, his tendrils. A secret: how do you get it?', 'gray')))
         page.append(f'function bm:p99/dlg/{who} with storage bm:ui wd')
         fn(f'p99/menu/{who}', page)
         dlg = P28.multi([T(f"{nm}", col, bold=True), T('  ·  wardrobe', 'gray')],

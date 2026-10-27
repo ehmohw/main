@@ -51,6 +51,7 @@ GOLDD, MOOND, STARD, RAIND = (1.0, 0.82, 0.3), (0.85, 0.9, 1.0), (1.0, 0.95, 0.4
 
 
 class C(RP.Cfg):
+    BRIGHT = 15                                       # (2.95b: sun, star and storm - they shine by themselves, day or night)
     W, NAME, COL, LINE, pfx, ab, q = W, 'The Sky Buddies', SUN, SKY_LINE, 'p211', 'yb', 'yq'
     A = A
     MENU = MENU

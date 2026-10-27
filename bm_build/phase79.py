@@ -101,6 +101,8 @@ def generate(G):
                                     'scale': [F(S * (ART.TEND_K if p in ART.TEND_PARTS else 1))] * 3}}
             if boss:
                 n['brightness'] = {'sky': Int(12), 'block': Int(12)}         # (a storm at night: he glows a little, so you can see him coming)
+            else:
+                n['brightness'] = {'sky': Int(15), 'block': Int(15)}         # (2.95b: the follower is living current - he lights himself)
             return snbt(n)
         # (as the host, at it; #kid its link) a fresh set of parts
         fn(f'p79/{kind}/rig', [f'summon minecraft:item_display ~ ~ ~ {part_nbt(p)}' for p in ART.PARTS] +

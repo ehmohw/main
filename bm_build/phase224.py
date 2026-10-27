@@ -246,6 +246,21 @@ def generate(G):
     # ---- (2.94z) FOLLOWERS LIT BY THE WORLD: the Chef, King Omega, Ashur, the Neighbor, Pistachio and Cecil (all but his eyes) were
     #      summoned with a fixed brightness - as bright in the dark as at noon. New ones aren't; the parts already out lose it once.
     for k, part, fade, keep in (('kk', 'bm.kkp', 'bm.kkfade', ''), ('om', 'bm.omp', 'bm.omfade', ''), ('as', 'bm.asp', 'bm.asfade', ''),
-                                ('nb', 'bm.nbp', 'bm.nbfade', ''), ('pi', 'bm.pip', 'bm.pifade', ''), ('cp', 'bm.cpet', 'bm.cpfade', ',tag=!bm.cp_eyes')):
+                                ('nb', 'bm.nbp', 'bm.nbfade', ''), ('pi', 'bm.pip', 'bm.pifade', ''), ('cp', 'bm.cpet', 'bm.cpfade', ',tag=!bm.cp_eyes,tag=!bm.cpeth')):
         G.FUNCS['loop/second'].append(f'execute as @e[type=minecraft:item_display,tag={part},tag=!bm.rplit,tag=!{fade}{keep}] run function bm:atk/unlit')
     fn('atk/unlit', ['data remove entity @s brightness', 'tag @s add bm.rplit'])
+    # (2.95b) ...but some do shine by themselves. Cecil in his Ethereal or Wraithfire Form (#el 10..11) is light through and through,
+    # and back in his own robes he's lit by the world again (his eyes aside); bm.cpeth keeps the pass above off a lit Cecil.
+    mine = 'if score @s bm.pid = #me bm.pid'
+    G.FUNCS['p46/pet/dress'] += [
+        f'execute if score #el bm.rng matches 10..11 as @e[type=minecraft:item_display,tag=bm.cpet] {mine} run data merge entity @s[type=minecraft:item_display] {{brightness:{{block:15,sky:15}}}}',
+        f'execute if score #el bm.rng matches 10..11 as @e[type=minecraft:item_display,tag=bm.cpet] {mine} run tag @s add bm.cpeth',
+        f'execute unless score #el bm.rng matches 10..11 as @e[type=minecraft:item_display,tag=bm.cpet,tag=bm.cpeth] {mine} run tag @s remove bm.cpeth',
+        f'execute unless score #el bm.rng matches 10..11 as @e[type=minecraft:item_display,tag=bm.cpet,tag=!bm.cp_eyes] {mine} run data remove entity @s brightness']
+    # ...KillerWatt the follower is living current, and the Sky Buddies are sun, star and storm: summoned lit now, and any
+    # already out (unlit by 2.94n's pass) lit again on their next second
+    G.FUNCS['loop/second'] += [
+        'execute as @e[type=minecraft:item_display,tag=bm.kxp,tag=!bm.kxp_boss,tag=!bm.kxlit] run function bm:atk/relit_kw',
+        'execute as @e[type=minecraft:item_display,tag=bm.ybp,tag=bm.rplit] run function bm:atk/relit']
+    fn('atk/relit', ['data merge entity @s[type=minecraft:item_display] {brightness:{block:15,sky:15}}', 'tag @s remove bm.rplit'])
+    fn('atk/relit_kw', ['data merge entity @s[type=minecraft:item_display] {brightness:{block:15,sky:15}}', 'tag @s add bm.kxlit'])

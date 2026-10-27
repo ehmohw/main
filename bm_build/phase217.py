@@ -6,8 +6,9 @@
   across his chest, her head tipped onto his hood (a side hug, as in the art). Cecil, as in the art: put out at first ("Personal
   space!"), then he gives in - his eyes glance aside and he blushes (a pink squiggle on each cheek: phase95_art's 'blush');
   hearts. His free arm tucks back out of her way. (State 20 on her rig.)
-- HER KILLERWATT LOOK: call KillerWatt while Emma is with you (or Emma while he is) and a jolt arcs between them - she comes
-  out of it recoloured in his green and yellow (her own dress and hair, phase89's emkw_* parts), with four lightning tendrils
+- HER KILLERWATT LOOK: call KillerWatt while Emma is with you (or Emma while he is) and he tries to take her - his current arcs
+  into her, the way he takes any living thing. She throws him out (2.95b: no "zappy" giggle - he's a parasite, and that was a
+  possession that failed), but he leaves a mark: she comes out of it recoloured in his green and yellow (her own dress and hair, phase89's emkw_* parts), with four lightning tendrils
   off her back, her eyes aglow. A look only. It's hers for good from then on - on or off in her wardrobe ("KillerWatt look").
 - "FRIK YOU!": hit too often too fast (her hits pile up 10 each and drain 2 a second; at 40 - five quick blows) she rounds on them - an angry face,
   "Frik you!" in a spiky white bubble over her head, in chat too. Then not again for 30 seconds.
@@ -108,13 +109,13 @@ def generate(G):
     fn('p217/kw/unlock', ['tag @s add bm.emkw_u', 'tag @s add bm.emkw_o', 'function bm:p78/emma_now',
                           'scoreboard players operation #me bm.pid = @s bm.pid',
                           'execute as @e[type=minecraft:cat,tag=bm.emmapet] if score @s bm.pid = #me bm.pid at @s run function bm:p217/kw/jolt',
-                          tellraw('@s', P + [T('KillerWatt crackles - and a jolt arcs into Emma. ', '#ffe040'), T('She comes out of it glassy green, eyes aglow.', GREEN)]),
-                          tellraw('@s', [T('Emma: ', PINK, bold=True), T('"Whoa. I feel... ZAPPY. Heh. Heheheh."', '#ffd0ec')]),
+                          tellraw('@s', P + [T('KillerWatt lunges - his current arcs into Emma, reaching for her the way he takes any living thing. ', '#ffe040'), T('She throws him out - but comes out of it glassy green, eyes aglow.', GREEN)]),
+                          tellraw('@s', [T('Emma: ', PINK, bold=True), T('"Get - OUT! ...Ugh. He left something behind. I can still feel it buzzing under my skin."', '#ffd0ec')]),
                           tellraw('@s', P + [T('KillerWatt look', GREEN, bold=True), T(' is in Emma\'s wardrobe for good. ', 'gray'),
                                              T('(Sneak + use her ribbon: Wardrobe - on or off.)', 'dark_gray')])])
     fn('p217/kw/jolt', ['particle minecraft:electric_spark ~ ~1 ~ 0.5 0.9 0.5 0.4 60', 'particle minecraft:flash{color:[0.6,1.0,0.4,1.0]} ~ ~1 ~ 0 0 0 0 1',
                         'playsound minecraft:entity.lightning_bolt.impact neutral @a[distance=..24] ~ ~ ~ 0.5 1.8'] +
-       P95.face_cmd('emma', 'happy', 40))
+       P95.face_cmd('emma', 'angry', 40))
     # (her wardrobe's row - phase99, code TOP-2)
     fn('p217/kw/t', ['execute unless entity @s[tag=bm.emkw_u] run return run function bm:p217/kw/locked',
                      'execute if entity @s[tag=bm.emkw_o] run return run function bm:p217/kw/off',

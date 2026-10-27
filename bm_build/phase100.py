@@ -27,14 +27,14 @@ BANTER = {
              ('Cecil', 'Apophiss had more teeth than sense.', 'Emma', 'And you had more sparks than sense! We made a good team.'),
              ('Leo', 'Stay close, both of you. Last time I nearly lost you.', 'Cecil', 'Last time you nearly lost your helmet, knight.')],
     'storm': [('Democratus', 'A mage, a beast and a reaper. The storm keeps strange company.', 'Cecil', 'Speak for yourself, old man.'),
-              ('KillerWatt', '*thunder rolls in his chest*', 'Democratus', 'Yes. Let them hear us coming.'),
+              ('KillerWatt', '*thunder rolls in his chest*', 'Democratus', 'Quiet. You are not the storm. You are what it left behind.'),
               ('Cecil', 'If either of you steals my kill again...', 'Democratus', 'Then be faster, boy.')],
     'guard': [('Leo', 'A princess, a knight and... whatever Celi is.', 'Celi', 'The one who actually gets things done.'),
               ('Emma', 'My two favourite grumps!', 'Celi', 'I am NOT a grump. Leo is the grump.'),
               ('Celi', 'Why do I have to guard the princess?', 'Leo', 'Because she likes you. Heaven knows why.')],
-    'odd': [('Emma', 'Cecil, KillerWatt - group hug!', 'Cecil', 'Absolutely not. Do not let the lightning lizard near me.'),
-            ('KillerWatt', '*sparks crackle - he nuzzles Emma*', 'Emma', 'See? He likes us! You like us too, Cecil.'),
-            ('Cecil', 'How did I end up with a princess and a thunder-beast?', 'Emma', 'Lucky, I guess!')],
+    'odd': [('Emma', "Cecil, walk on my other side. I don't want him behind me.", 'Cecil', 'Hehe... sensible. I\'d hex him myself if someone weren\'t holding his leash.'),
+            ('KillerWatt', '*sparks crawl along the ground toward the hem of Cecil\'s robe*', 'Cecil', 'Touch the robe and I turn your lightning into lukewarm bathwater.'),
+            ('Cecil', 'How did I end up with a princess and that... thing?', 'Emma', 'Same as me. Somebody has to keep an eye on him.')],
 }
 
 

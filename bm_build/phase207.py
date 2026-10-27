@@ -62,11 +62,11 @@ _pair('stormdog', 'demo', 'Storm Dog', '#7ad06a', 'Bender and Democratus - the o
       [('Democratus', 'A dog that does not flinch at thunder. You and I will get along.'), ('Bender', '(he sits beside the scythe, very proud)')],
       [('Democratus', 'I had hounds, once. A thousand years ago.', 'Bender', '(he puts his head on the old man\'s knee)'),
        ('Bender', '(he barks at the lightning)', 'Democratus', 'Yes. It answers to me, not you. Good try.')])
-_pair('fetch', 'kw', 'Fetch!', '#74d462', 'Bender and KillerWatt - the fastest game of fetch in the world',
+_pair('fetch', 'kw', 'Fetch!', '#74d462', 'Bender and KillerWatt - the fastest, cruellest game of fetch in the world',
       [f'effect give {O} minecraft:speed 3 1 true', f'effect give {O} minecraft:jump_boost 3 0 true'],
-      [('KillerWatt', '*a tendril picks up a stick. Sparks. Throws it a quarter of a mile.*'), ('Bender', '(he is GONE)')],
-      [('Bender', '(he brings back the stick, faintly smoking)', 'KillerWatt', '*he throws it again. Further.*'),
-       ('KillerWatt', '*he watches the dog chase his tail, utterly baffled*', 'Bender', '(he catches it. He is very surprised.)')])
+      [('KillerWatt', '*a tendril snaps a stick a quarter of a mile into the dark - not for the dog. To watch him run.*'), ('Bender', '(he is GONE)')],
+      [('Bender', '(he brings back the stick, faintly smoking)', 'KillerWatt', '*he throws it again. Further. And again, until the dog is panting.*'),
+       ('KillerWatt', '*his current creeps toward the dog - Bender growls, hackles up, and it pulls back*', 'Bender', '(he does not turn his back on him. Ever.)')])
 _pair('familiar', 'cecil', "The Wizard's Familiar", '#b48cff', 'Bender and Cecil - every wizard needs a familiar; this one\'s a dog',
       [f'effect give {O} minecraft:night_vision 15 0 true', f'effect give {O} minecraft:luck 3 0 true', f'execute as {O} run {REGEN}'],
       [('Cecil', 'Traditionally a familiar is a cat. Or a raven.'), ('Bender', '(he wags so hard he falls over)')],
@@ -109,9 +109,9 @@ P100.BANTER.update({
     'patrol': [('Celi', 'Why is the dog faster than me in the snow? I LIVE in the snow.', 'Leo', 'Four legs, Celi.'),
                ('Bender', '(he bounds through a snowdrift and vanishes completely)', 'Celi', 'Ha! ...Leo. Leo, where did he go.'),
                ('Leo', 'Patrol formation. Bender on point.', 'Bender', '(he is already twenty blocks ahead)')],
-    'hounds': [('Democratus', 'Three of us who do not fear the storm.', 'KillerWatt', '*sparks crawl over the dog\'s fur; he wags harder*'),
+    'hounds': [('Democratus', 'Three of us who do not fear the storm.', 'KillerWatt', '*sparks crawl toward the dog\'s fur - and the scythe comes down between them*'),
                ('Bender', '(he barks at the sky; the sky barks back)', 'Democratus', 'Ha! The storm likes him.'),
-               ('KillerWatt', '*he crouches low beside Bender, both of them watching the dark*', 'Democratus', 'Hunt well, you two.')],
+               ('KillerWatt', '*he crouches low beside Bender, watching the dark - watching the dog more*', 'Democratus', 'Eyes on the enemy, beast. Not the hound.')],
     'household2': [('Pistachio', 'Master Cecil, the dog has tracked mud across the entire palace.', 'Cecil', 'He\'s family now, Pistachio. Family tracks mud.'),
                    ('Bender', '(he chases the ghost butler\'s coat-tails, straight through him)', 'Pistachio', 'Most undignified. ...Good boy.'),
                    ('Cecil', 'Pistachio, could you conjure him a bone?', 'Pistachio', 'I could conjure him a ham, sir. He has earned a ham.')],

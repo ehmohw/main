@@ -9,6 +9,9 @@ DEMOCRATUS   drawn bigger (0.92 -> 1.06: he stands over Leo now, and Leo over Em
 KILLERWATT   right-click him: he sits down on his haunches (again: he stands) - his own seated poses. The Spark still mounts him.
 SPARKS FLY   (Emma + KillerWatt, the pair that was missing): you're quicker (Speed, Haste) and a shield of sparks comes back every
              half minute (Absorption); KillerWatt is tougher and charges faster; Emma brightens (Regeneration).
+             (2.95b: no friendship in it. KillerWatt is Democratus's sin with the conscience burnt out - a parasite. The shard in his
+             chest was cut from the Ethereal Gem her family kept, and it hums at her light: he wants her, as a host. She keeps her
+             guard up and burns brighter to spite him; he feeds on the glow. The bonus is the friction.)
 MENUS        every follower's menu says "Call for <name>" when they're not out (it said "Send her home" either way) - and calls them.
 THE HEIST PLANS  a "Fixer's Lounge" button (the den without a heist - no fee).
 TRADERS      one name each: the Market's (and the den's) traders showed their nameplate AND the game's own name tag.
@@ -202,16 +205,18 @@ def generate(G):
     fn('p125/duo/ek_kw', ['effect give @s minecraft:resistance 3 0 true', 'scoreboard players add @s bm.kxch 1'])
     EM, EML, KW, KWL = '#ff8ad8', '#ffd0ec', '#74d462', '#c8f0c0'
     fn('p125/duo/ek_first', ['advancement grant @s only bm:story/emma_kw', 'effect give @s minecraft:absorption 30 0 true',
-                             tellraw('@s', PREFIX + [T('Sparks Fly! ', KW, bold=True), T('KillerWatt is gentle as a lamb around Emma, and she adores him: you\'re quicker on your feet and with your hands, a shield of sparks comes back every half minute; KillerWatt is tougher and charges faster, and Emma brightens.', 'gray')]),
-                             tellraw('@s', [T('Emma: ', EM, bold=True), T('"Look at you! You\'re just a big sparkly puppy, aren\'t you?"', EML)]),
-                             tellraw('@s', [T('KillerWatt: ', KW, bold=True), T('*the thunder in his chest softens to a purr*', KWL, italic=True)])])
-    banter = [('Emma', "Who's a good thunder-beast? YOU are!", 'KillerWatt', '*his tendrils curl happily - sparks fizz harmlessly off Emma\'s hair*'),
-              ('KillerWatt', '*he lowers his head so Emma can scratch behind his crest*', 'Emma', 'See? A big softie.'),
-              ('Emma', 'Your sparks tickle!', 'KillerWatt', '*a low, rumbling purr, like thunder far away*')]
+                             tellraw('@s', PREFIX + [T('Sparks Fly! ', KW, bold=True), T('The shard in KillerWatt\'s chest hums at Emma\'s light, and he hasn\'t taken his eyes off her since. She won\'t give him the satisfaction of flinching. Between his hunger and her nerve: you\'re quicker on your feet and with your hands, a shield of sparks comes back every half minute; KillerWatt is tougher and charges faster - he feeds on her glow - and Emma burns brighter to spite him.', 'gray')]),
+                             tellraw('@s', [T('Emma: ', EM, bold=True), T('"Keep your sparks to yourself. I know what that gem was before you got your claws on it."', EML)]),
+                             tellraw('@s', [T('KillerWatt: ', KW, bold=True), T('*the shard in his chest pulses in time with her heartbeat - and he grins*', KWL, italic=True)])])
+    banter = [('Emma', "Don't. Even. Think about it.", 'KillerWatt', '*a tendril of current creeps toward her hand - and snaps back when she glares*'),
+              ('KillerWatt', '*he circles her slowly, the way he sizes up a host*', 'Emma', "Find another body to crawl into. This one's taken."),
+              ('Emma', 'That gem used to sing. Now it just screams.', 'KillerWatt', '*the shard flares a sick green - he laughs without a sound*'),
+              ('KillerWatt', '*a bat jerks in the air, eyes flashing green - and drops when he lets it go*', 'Emma', "You didn't have to do that. You never have to. You just like it."),
+              ('Emma', 'Democratus at least believed he was saving us.', 'KillerWatt', '*a crackling hiss, like a laugh - whatever Democratus believed, none of it came with him*')]
     voice = {'Emma': (EM, EML), 'KillerWatt': (KW, KWL)}
     line = lambda w, txt: tellraw('@s', [T(f'{w}: ', voice[w][0], bold=True), T(txt if w == 'KillerWatt' else f'"{txt}"', voice[w][1], italic=w == 'KillerWatt')])
-    fn('p125/duo/ek_banter', ['execute store result score #b bm.rng run random value 1..3'] +
-       [f'execute if score #b bm.rng matches {i} on owner if entity @s[tag=!bm.hush] run function bm:p125/duo/ekb{i}' for i in range(1, 4)])
+    fn('p125/duo/ek_banter', [f'execute store result score #b bm.rng run random value 1..{len(banter)}'] +
+       [f'execute if score #b bm.rng matches {i} on owner if entity @s[tag=!bm.hush] run function bm:p125/duo/ekb{i}' for i in range(1, len(banter) + 1)])
     for i, (a, at_, b, bt) in enumerate(banter, 1):
         fn(f'p125/duo/ekb{i}', [line(a, at_), line(b, bt)])
     G.wjson('bm/advancement/story/emma_kw.json', {
