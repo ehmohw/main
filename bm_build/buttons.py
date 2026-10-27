@@ -251,7 +251,7 @@ def legend(F, D, version, doc=DOC):
     static = sorted((c for c in by_code if c.isdigit()), key=int)
     dynamic = sorted(c for c in by_code if not c.isdigit())
     top = routes.get('p28/act', [])
-    rows, dead, no_line, multi = [], [], [], []
+    rows, dead, no_line, multi, wrong = [], [], [], [], []
     for c in static:
         bs = by_code[c]; hops = path_of(routes, guards, body, int(c))
         if not hops: dead.append(c)
@@ -260,6 +260,15 @@ def legend(F, D, version, doc=DOC):
         if len({_same(w) for w in words}) > 1: multi.append((c, words))
         where = sorted({b['title'] + f" ({b['fn']})" if b['title'] else b['fn'] for b in bs})
         menus = sorted({m for b in bs for m in b['menus']})
+        # (2.94z) routed - but only for another menu: a way with a bm.menu check none of its buttons' menus passes goes nowhere for
+        #  them (the Tailor's last six pages sat in the wardrobe pages' block, routed for the wardrobe's menu only)
+        def allows(way, m):
+            t = ' '.join(way)
+            rs = [tuple(int(v) if v else None for v in r) for r in re.findall(r'(?:bm\.menu matches |\[menu )(-?\d+)?(?:\.\.(-?\d+)?)?', t)]
+            return not rs or any((lo is None or m >= lo) and (m <= (hi if hi is not None else lo) if '..' not in t or hi is not None else True) for lo, hi in rs)
+        for b in bs:
+            if hops and b['menus'] and not any(allows(w, m) for w in hops for m in b['menus']):
+                wrong.append((c, b['fn'], b['menus']))
         link = all(b['kind'] == 'link' for b in bs)
         rows.append((c, ' / '.join(words), '; '.join(where[:3]) + (f' (+{len(where) - 3} more)' if len(where) > 3 else ''), ', '.join(map(str, menus)) or '—',
                      ' / '.join(' → '.join(w) for w in hops) if hops else '**not routed**', link))
@@ -309,7 +318,9 @@ def legend(F, D, version, doc=DOC):
     # ---- write it
     esc = lambda s: str(s).replace('|', '\\|')
     problems = [f'- **{c}** is on a button but no line of `p28/act` routes it - pressing it does nothing.' for c in dead] + \
-               [f'- **{c}** reaches a router with no line for it and nothing below its routes - pressing it does nothing.' for c in no_line]
+               [f'- **{c}** reaches a router with no line for it and nothing below its routes - pressing it does nothing.' for c in no_line] + \
+               [f'- **{c}** (shown by `{fn}`, menu {", ".join(map(str, ms))}) is routed only for another menu - pressing it there does nothing.'
+                for c, fn, ms in wrong]
     out = [f'# Button codes (`/trigger bm.act set N`) - {version}', '',
            'Written by `buttons.py` at the end of every build (`python3 gen_dp.py --phase2`); for any build: '
            '`python3 buttons.py <BlackMarket_DP dir> <version>`. Edit only the **Notes** - they are kept as written.', '',

@@ -1,6 +1,6 @@
 // 2.82c: KING OMEGA'S TITHE, THE BLOOD MOON'S BOSSES THAT VANISHED, THE TAILOR'S NAMES, THE PALACE DOOR, THE FENCE'S BACK ROOM -
 // as a regular (non-op) player TestRat, every step a real packet (rcon sets the stage: blood mobs and a Blood Moon, where a boss
-// rises, which followers TestRat has met; the Tailor's counter is "clicked" for the bot - what a right-click opens).
+// rises, which followers TestRat has met (2.94z: and, every one met, each one's page opens - Mr. Capshun's and the Sky Buddies' didn't); the Tailor's counter is "clicked" for the bot - what a right-click opens).
 //   THE TAILOR: met only Cecil - his main page lists Cecil (and the display cases, the auras), no follower TestRat hasn't met;
 //   the auras page shows Cecil's aura only; a page code for an unmet follower (Emma's) sends you back to the main page.
 //   THE TITHE: King Omega called with his Monocle (a real use). A Blood Moon zombie killed with Omega out drops three times its
@@ -47,11 +47,12 @@ const res = [];
   await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid');
 
   // ---- the Tailor: only who you've met
-  const MET = ['emma', 'leo', 'omega', 'pistachio', 'fishy', 'apo', 'tul', 'demo', 'killerwatt', 'celi', 'zib', 'escort', 'frog', 'donado', 'dennis', 'pearl', 'wil', 'cecil'];
+  const MET = ['emma', 'leo', 'omega', 'pistachio', 'fishy', 'apo', 'tul', 'demo', 'killerwatt', 'celi', 'zib', 'escort', 'frog', 'donado', 'dennis', 'pearl', 'wil', 'cecil',
+               'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'pxemma', 'pxleo', 'pxcecil'];
   const had = {};
   for (const k of MET) { had[k] = await passes(`execute if entity @a[name=TestRat,advancements={bm:met/${k}=true}]`); await run(`advancement revoke TestRat only bm:met/${k}`); }
   await run('advancement grant TestRat only bm:met/cecil');
-  const UNMET = /Emma|Leo|King Omega|Pistachio|Fishy|Apophiss|Tullius|Democratus|KillerWatt|Celi|Zib|Frog|Donado|Dennis|Pearlman|Wilfrey/;
+  const UNMET = /Emma|Leo|King Omega|Pistachio|Fishy|Apophiss|Tullius|Democratus|KillerWatt|Celi|Zib|Frog|Donado|Dennis|Pearlman|Wilfrey|Ashur|Chef|Neighbor|Queen|Bloo|Stalker|Lantern|Bender|Bones|Capshun|8-Bit|Sky Buddies/;
   let n0 = A.dialogN.length; await run('execute as TestRat at @s run function bm:p103/tl/main'); await wait(3000, async () => A.dialogN.length > n0);
   const main = A.buttons().map(b => b.label);
   ok('the Tailor, met only Cecil: Cecil, the display cases and the auras - and no follower TestRat hasn\'t met',
@@ -70,9 +71,9 @@ const res = [];
   // ---- King Omega, called with his Monocle
   await run('scoreboard players set TestRat bm.omcd 0');
   await run('loot replace entity TestRat hotbar.0 loot bm:items/om_monocle'); A.slot(0); await sleep(300);
-  A.use(); await sleep(400); A.release();
+  A.bars.length = 0; A.use(); await sleep(400); A.release();
   const OM = '@e[type=minecraft:wolf,tag=bm.ompet,limit=1]';
-  ok('King Omega, called with his Monocle', await wait(5000, async () => (await ecnt(OM)) === 1));
+  ok('King Omega, called with his Monocle', await wait(5000, async () => (await ecnt(OM)) === 1), A.bars.slice(-2).join(' | '));
   ok('...and with him out, TestRat carries his tithe (bm.omact)', await wait(3000, async () => passes('execute if entity @a[name=TestRat,tag=bm.omact]')));
 
   // ---- a Blood Moon zombie, killed by TestRat's own blow
@@ -174,6 +175,34 @@ const res = [];
   ok('the Fence\'s Associate shelf: 2 Ominous Trial Keys (the Banker\'s Card is over his counter now)', /2 Ominous Trial Keys/.test(dlg) && !/Banker/.test(dlg));
 
   // ---- clean up
+  // ---- (2.94z) every follower met: each one's page opens from the Tailor (Mr. Capshun's and the Sky Buddies' never had - their
+  //      codes sat in the wardrobe pages' block, routed for that menu only; Bones and the 8-Bit three with them)
+  const ALL = ['cecil', 'emma', 'celi', 'zib', 'killerwatt', 'leo', 'demo', 'apo', 'tul', 'frog', 'donado', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq',
+               'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'pxemma', 'pxleo', 'pxcecil', 'pearl', 'wil'];
+  const hadAll = {}; for (const k of ALL) hadAll[k] = await passes(`execute if entity @a[name=TestRat,advancements={bm:met/${k}=true}]`);
+  for (const k of ALL) await run(`advancement grant TestRat only bm:met/${k}`);
+  n0 = A.dialogN.length; await run('execute as TestRat at @s run function bm:p103/tl/main'); await wait(3000, async () => A.dialogN.length > n0);
+  const names = A.buttons().map(b => b.label).filter(l => !/Display cases|Auras|Close|coins/.test(l));
+  const shut = [];
+  const openMain = async () => { const n = A.dialogN.length; await run('execute as TestRat at @s run function bm:p103/tl/main'); await wait(3000, async () => A.dialogN.length > n); await sleep(300); };
+  for (const nm of names) {
+    const esc = nm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    let opened = false;
+    for (let t = 0; t < 2 && !opened; t++) {                // (a press lost in transit: the Tailor opened again, and once more)
+      if (t) await openMain();
+      n0 = A.dialogN.length; await A.press(new RegExp('^' + esc + '$')); await wait(3000, async () => A.dialogN.length > n0); await sleep(400);
+      opened = A.buttons().some(b => /« The Tailor/.test(b.label));
+      if (!opened && t) console.log('   (on screen after ' + nm + ': ' + A.buttons().map(b => b.label).join(' | ').slice(0, 200) + ')');
+    }
+    if (!opened) shut.push(nm);
+    await openMain();
+  }
+  ok(`every follower met: each one's page opens from the Tailor (${names.length} of them - Mr. Capshun and the Sky Buddies among them)`,
+     names.length >= 30 && names.some(l => /Capshun/.test(l)) && names.some(l => /Sky Buddies/.test(l)) && !shut.length, 'no page: ' + shut.join(', '));
+  A.cmd('trigger bm.act set 2'); await sleep(300);
+  for (const k of ALL) if (!hadAll[k]) await run(`advancement revoke TestRat only bm:met/${k}`);
+  await run('advancement grant TestRat only bm:met/cecil');
+
   for (const k of MET) await run(`advancement ${had[k] ? 'grant' : 'revoke'} TestRat only bm:met/${k}`);
   await run(`${O}kill @e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..16]`);
   await run('clear TestRat'); await run('effect clear TestRat');

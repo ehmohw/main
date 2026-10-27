@@ -21,6 +21,12 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.94z
+
+- **The Tailor:** Mr. Capshun's and the Sky Buddies' pages didn't open, and nor did Bones's or the 8-Bit trio's. Their buttons now work.
+- **Bender's RAGE!, chomp by chomp:** he chomps the first monster in the chain **3 times** before backflipping to the next, then **once** on each after. Fully honoured by Queen Ava (Vitality, Bulwark and Might all V), it's **5 chomps** on the first and **2** on each after. The chomps come half a second apart, so each lands in full. While he's on a monster, his own wolf bite no longer slips in between.
+- **Adventure mode on heists:** a raider who set off from inside a Black Market could be dropped back into survival in the vault, because the market's "you've left the market" check ran as they arrived. It now leaves raiders alone, along with anyone in the Lounge, the Locker Hall, a ship or the Kingdom.
+
 ## New in 2.94y: new art, relics worth more, Dread Tokens from Dread mobs
 
 - **Redrawn as vanilla items are** (16 × 16, a dark one-pixel outline, lit from the top left):

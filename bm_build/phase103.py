@@ -416,6 +416,12 @@ def generate(G):
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 8293..8299 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.86: the auras past the 18th)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 8380..8399 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.88: the auras past the 25th)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 3600..3699 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.94: the outfits past the 182nd)
+    # (2.94z) the pages past the 26th (Bones on: codes 8280..) sit in the wardrobe pages' block (p119 owns 8280-8304, for its own
+    # menu) - routed one by one, as the Tailor's: Mr. Capshun's and the Sky Buddies' pages had never opened
+    owned = lambda c: TL <= c <= TL + 59 or TL2 <= c <= TL2 + 99 or 8200 <= c <= 8279 or 8293 <= c <= 8299 or 8380 <= c <= 8399 or 3600 <= c <= 3699
+    for i, (w, nm, col) in enumerate(WHO):
+        if not owned(pcode(i)):
+            G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {pcode(i)} if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')
     fn('p103/tl/act', [f'execute if score #act bm.pay matches {TL} run return run function bm:p103/tl/main'] +
        [f'execute if score #act bm.pay matches {pcode(i)} run return run function bm:p103/tl/p_{w}' for i, (w, nm, col) in enumerate(WHO)] +
        [f'execute if score #act bm.pay matches {TL + 8} run return run function bm:p103/tl/cases'] +

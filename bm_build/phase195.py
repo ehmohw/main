@@ -147,15 +147,18 @@ RAGE_CD, RAGE_CHAIN = 800, 5                    # (ticks; mobs at most)
 
 
 def rage(G, X):
-    """2.93b RAGE!: a charged attack. He launches at a monster (rg/leap), lands on its head and mauls it (rg/maul: two bites),
+    """2.93b RAGE!: a charged attack. He launches at a monster (rg/leap), lands on its head and mauls it (rg/maul - 2.94z: the first
+    of the chain three chomps, each after it one; fully honoured by Queen Ava (Vitality, Bulwark and Might all V) five on the
+    first and two on each after; a chomp every half second, so each lands in full),
     backflips off onto the next monster near that he hasn't bitten (rg/flip), up to RAGE_CHAIN of them, each bitten harder -
     and off the last, a backflip back and a soft landing (rg/land). His host is carried through the air by hand (no gravity,
     teleported a step a tick, its rig following); the monster he's on is tagged bm.bvrtg, those he's bitten bm.bvrhit.
     Phases (bm.bvrp): 1 leap, 2 maul, 3 flip to the next, 4 flip off and land; bm.bvrt counts the ticks in one, bm.bvrn the
     monsters so far."""
     fn, S, foe, pfx, me = X.fn, X.S, X.foe, X.pfx, X.me
-    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in ('bm.bvrg', 'bm.bvrp', 'bm.bvrt', 'bm.bvrn')]
-    G.OBJECTIVES += ['bm.bvrg', 'bm.bvrp', 'bm.bvrt', 'bm.bvrn']
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in ('bm.bvrg', 'bm.bvrp', 'bm.bvrt', 'bm.bvrn', 'bm.bvrb')] + \
+        ['scoreboard players set #1000 bm.rng 1000']
+    G.OBJECTIVES += ['bm.bvrg', 'bm.bvrp', 'bm.bvrt', 'bm.bvrn', 'bm.bvrb']
     T_ = '@e[tag=bm.bvrtg,distance=..16,limit=1]'
     pose = lambda p: f'function bm:{pfx}/pose/{p}'
     step = lambda d: [f'execute facing entity {T_} eyes positioned ^ ^ ^{d} if block ~ ~ ~ #bm:grap_pass if block ~ ~0.6 ~ #bm:grap_pass run tp @s ~ ~ ~ ~ 0']
@@ -165,7 +168,7 @@ def rage(G, X):
         'tag @e[tag=bm.bvrhit,distance=..32] remove bm.bvrhit', 'tag @e[tag=bm.bvrtg,distance=..32] remove bm.bvrtg',
         f'tag @e[{foe},distance=..9,sort=nearest,limit=1] add bm.bvrtg', 'tag @e[tag=bm.bvrtg,distance=..9] add bm.bvrhit',
         'scoreboard players set @s bm.bvrn 1', 'scoreboard players set @s bm.bvrp 1', 'scoreboard players set @s bm.bvrt 0',
-        'data merge entity @s {NoGravity:1b,Motion:[0d,0d,0d]}',
+        'data merge entity @s {NoGravity:1b,NoAI:1b,Motion:[0d,0d,0d]}',      # (2.94z: NoAI - his chomps are the rage's; a wolf's own bite slipped in)
         'playsound minecraft:entity.wolf.growl neutral @a[distance=..24] ~ ~ ~ 1.4 0.6', 'particle minecraft:angry_villager ~ ~1 ~ 0.3 0.2 0.3 0 4'] +
        X.face('surprised', 120) +
        ['execute on owner if entity @s[distance=..24,tag=!bm.hush] run ' + X.csay('GRRRRR-')])
@@ -189,15 +192,25 @@ def rage(G, X):
         f'execute if score @s bm.bvrt matches 14.. run function bm:{pfx}/rg/latch',
         'particle minecraft:cloud ~ ~0.3 ~ 0.1 0.1 0.1 0.01 1'])
     fn(f'{pfx}/rg/latch_as', [f'execute as {RH} at @s run function bm:{pfx}/rg/latch'])
+    # (how many chomps this one gets - bm.bvrb: the first of the chain 3, the rest 1; fully honoured (the honours' score, Vitality +
+    #  10 Bulwark + 100 Might (+ 1000 blessed), ends 555) 5 and 2)
     fn(f'{pfx}/rg/latch', ['scoreboard players set @s bm.bvrp 2', 'scoreboard players set @s bm.bvrt 0', pose('maul_a'),
+                           'scoreboard players set #fu bm.rng 0', 'scoreboard players operation #fu bm.rng = @s bm.hnap',     # (unset: no honours yet)
+                           'scoreboard players operation #fu bm.rng %= #1000 bm.rng',
+                           'scoreboard players set @s bm.bvrb 1', 'execute if score #fu bm.rng matches 555 run scoreboard players set @s bm.bvrb 2',
+                           'execute if score @s bm.bvrn matches 1 run scoreboard players set @s bm.bvrb 3',
+                           'execute if score @s bm.bvrn matches 1 if score #fu bm.rng matches 555 run scoreboard players set @s bm.bvrb 5',
                            'playsound minecraft:entity.wolf.growl neutral @a[distance=..20] ~ ~ ~ 1.2 0.8'])
-    # on its head: held there, shaking it; two bites, each harder down the chain (7, 10, 13, 16, 19) - then off
-    fn(f'{pfx}/rg/maul', [f'execute as {T_} at @s anchored eyes positioned ^ ^ ^ rotated as @s run tp {RH} ~ ~0.15 ~ ~ 0',
-                          f'execute if score @s bm.bvrt matches 3 run {pose("maul_b")}', f'execute if score @s bm.bvrt matches 6 run {pose("maul_a")}',
-                          f'execute if score @s bm.bvrt matches 9 run {pose("maul_b")}', f'execute if score @s bm.bvrt matches 12 run {pose("maul_a")}',
-                          f'execute if score @s bm.bvrt matches 4 run function bm:{pfx}/rg/bite', f'execute if score @s bm.bvrt matches 10 run function bm:{pfx}/rg/bite',
-                          'execute if score @s bm.bvrt matches 1..12 run particle minecraft:crit ~ ~0.2 ~ 0.25 0.2 0.25 0.1 2',
-                          f'execute if score @s bm.bvrt matches 14.. run function bm:{pfx}/rg/next'])
+    # on its head: held there, shaking it; its chomps half a second apart (a monster shrugs off most of a second blow sooner), each
+    # harder down the chain (7, 10, 13, 16, 19) - then off, four ticks after the last
+    MAX = 5
+    fn(f'{pfx}/rg/maul', [f'execute as {T_} at @s anchored eyes positioned ^ ^ ^ rotated as @s run tp {RH} ~ ~0.15 ~ ~ 0'] +
+       [f'execute if score @s bm.bvrt matches {t} run {pose("maul_b" if (t // 3) % 2 else "maul_a")}' for t in range(3, 10 * MAX + 4, 3)] +
+       [f'execute if score @s bm.bvrt matches {4 + 10 * k} if score @s bm.bvrb matches {k + 1}.. run function bm:{pfx}/rg/bite' for k in range(MAX)] +
+       ['scoreboard players operation #e bm.rng = @s bm.bvrb', 'scoreboard players operation #e bm.rng *= #10 bm.rng', 'scoreboard players remove #e bm.rng 2',
+        'execute if score @s bm.bvrt < #e bm.rng run particle minecraft:crit ~ ~0.2 ~ 0.25 0.2 0.25 0.1 2',
+        'scoreboard players add #e bm.rng 6',
+        f'execute if score @s bm.bvrt >= #e bm.rng run function bm:{pfx}/rg/next'])
     fn(f'{pfx}/rg/bite', [f'tag @s add {me}', 'scoreboard players operation #pd bm.rng = @s bm.bvrn', 'scoreboard players operation #pd bm.rng *= #3 bm.rng',
                           'scoreboard players add #pd bm.rng 4', f'execute as {T_} at @s run function bm:{pfx}/rg/bitten', f'tag @s remove {me}',
                           'playsound minecraft:entity.wolf.growl neutral @a[distance=..20] ~ ~ ~ 1 1.4', 'playsound minecraft:entity.player.attack.crit neutral @a[distance=..20] ~ ~ ~ 0.8 1.2'])
@@ -229,10 +242,12 @@ def rage(G, X):
         f'execute if score @s bm.bvrt matches 5..29 unless block ~ ~-0.3 ~ #bm:grap_pass run function bm:{pfx}/rg/down',
         f'execute if score @s bm.bvrt matches 24..29 run function bm:{pfx}/rg/down',
         f'execute if score @s bm.bvrt matches 40.. run function bm:{pfx}/rg/done'])
+    # (and a rage cut short any way at all - its timer run out, a reload - never leaves him without his wits)
+    X.second.append(f'execute as @e[type=minecraft:wolf,tag={X.pet},nbt={{NoAI:1b}}] unless score @s bm.bvrp matches 1.. run data merge entity @s {{NoAI:0b,NoGravity:0b}}')
     X.second.append(f'execute as @e[type=minecraft:marker,tag=bm.bvrfrom] at @s unless entity @e[type=minecraft:wolf,tag={X.pet},scores={{bm.bvrp=4}},distance=..16] run kill @s')
     fn(f'{pfx}/rg/down', ['scoreboard players set @s bm.bvrt 30', 'data merge entity @s {NoGravity:0b}', pose('land'),
                           'particle minecraft:poof ~ ~0.1 ~ 0.3 0.05 0.3 0.02 8', 'playsound minecraft:entity.wolf.step neutral @a[distance=..16] ~ ~ ~ 1 0.8'])
-    fn(f'{pfx}/rg/done', [f'scoreboard players set @s {S("x")} 1', 'scoreboard players set @s bm.bvrp 0', 'data merge entity @s {NoGravity:0b}',
+    fn(f'{pfx}/rg/done', [f'scoreboard players set @s {S("x")} 1', 'scoreboard players set @s bm.bvrp 0', 'data merge entity @s {NoGravity:0b,NoAI:0b}',
                           f'kill {fr}', 'tag @e[tag=bm.bvrtg,distance=..32] remove bm.bvrtg', 'tag @e[tag=bm.bvrhit,distance=..32] remove bm.bvrhit', pose('happy')] +
        X.face('happy', 40) + ['execute on owner if entity @s[distance=..24,tag=!bm.hush] run ' + X.csay('(he lands, shakes himself off - and looks back at you, tail going. Did you see that?)')])
 

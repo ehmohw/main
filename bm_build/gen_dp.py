@@ -225,7 +225,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.94y'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.94z'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -874,7 +874,12 @@ def gen_structures_logic():
     # ---- zones (adventure mode inside markets & crypts)
     fn('zone/enter', ['gamemode adventure @s', 'tag @s add bm.adv',
                       title('@s', 'actionbar', T('Protected ground: blocks cannot be broken or placed here.', 'dark_aqua'))])
-    fn('zone/exit', ['execute if entity @s[gamemode=adventure] run gamemode survival @s', 'tag @s remove bm.adv'])
+    # (2.94z) out of a market zone but into another place that keeps you in adventure (a heist, the Lounge or the Locker Hall, a
+    #  ship, the Kingdom): only the market's tag goes - it had put raiders who left from a market back in survival
+    fn('zone/exit', ['execute if entity @s[tag=bm.gvp] run return run tag @s remove bm.adv', 'execute if entity @s[tag=bm.gvadv] run return run tag @s remove bm.adv',
+                     'execute if entity @s[tag=bm.lgadv] run return run tag @s remove bm.adv', 'execute if entity @s[tag=bm.advs] run return run tag @s remove bm.adv',
+                     'execute if entity @s[tag=bm.kadv] run return run tag @s remove bm.adv',
+                     'execute if entity @s[gamemode=adventure] run gamemode survival @s', 'tag @s remove bm.adv'])
     # ---- market door
     fn('market/door', [
         'execute if entity @a[tag=bm.haskey,distance=..3.5,gamemode=!spectator] run return run function bm:market/door_open',
