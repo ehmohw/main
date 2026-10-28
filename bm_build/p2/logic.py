@@ -69,6 +69,7 @@ FLAVOR['keep']['fail'] += [_MOB('wither_skeleton', ',equipment:{mainhand:{id:"mi
 FLAVOR['hollow']['fail'] += [_MOB('wither_skeleton', ',CustomName:{text:"Hollow Knight",color:"#8a96a8"},equipment:{mainhand:{id:"minecraft:netherite_sword",count:1}},drop_chances:{mainhand:0.0f}')] * 2
 TARGET_TIME = {'frost': 800, 'hollow': 400}          # ticks to strike every target (default 600)
 PITCH = [0.5, 0.63, 0.75, 0.84, 1.0, 1.12, 1.26, 1.5, 1.68, 2.0]
+EXTRA = {}          # (2.98) kind -> f(G, d, n, ctx) -> (body, reset): puzzle kinds a dungeon adds (phase237)
 SYMBOLS = ['minecraft:gold_block', 'minecraft:emerald_block', 'minecraft:diamond_block', 'minecraft:redstone_block', 'minecraft:lapis_block']
 
 
@@ -400,6 +401,9 @@ def generate(G, builds):
                 body = [f'execute as @e[type=minecraft:ender_pearl,distance=..{R + 8}] at @s run function bm:p2/util/pearl_zap',
                         f'execute if score #act bm.rng matches 1 as {el_sel(d, n, "goal", R)} at @s if entity @a[distance=..1.6,gamemode=!spectator] as {ctrl} at @s run function bm:p2/{d}/pz{n}_solve']
                 reset = ['scoreboard players set @s bm.done 0']
+            elif kind in EXTRA:
+                # (2.98: a kind of puzzle a dungeon brings with it - the Undercrown's sigils, echoes and shard sockets, phase237)
+                body, reset = EXTRA[kind](G, d, n, dict(p=p, els=els, R=R, ctrl=ctrl, pre=pre, press=press, fail=fail, cfg=cfg, fl=fl))
             else:
                 raise ValueError(kind)
             fn(f'p2/{d}/pz{n}', head + body)

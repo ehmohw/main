@@ -201,6 +201,7 @@ import phase229 as R229      # 2.97: Henry and Nia, the owner's cats (Henry's Co
 import phase234 as R234      # 2.96c: together - riding Bender, the night cuddle, Henry and Bender's Dog Pile
 import phase235 as R235      # 2.97: the Doodles - the Doodle Dragon, the Eraser, the Cursor, the Ink Blot, the Speech Bubble   (after Henry and Nia: the frame kinds and contract bits stay as they were)
 import phase236 as R236      # 2.97: the Lightbringer (hard mode) and the Pale Dryad
+import phase237 as R237      # 2.98: the Undercrown - the final dungeon, hidden in the Nether (its kinds of trial register on import)
 R233.add_pairs()             # 2.98: the Creative Forms
 R229.add_pairs()             # 2.97: the cats' pairs with everyone - after every follower is imported
 import atk                   # 2.94u: the attack kit - impact and hit-stop on every follower blow
@@ -1468,6 +1469,7 @@ def build(out_dir):
     R180.generate(sys.modules[__name__])        # 2.84d: Omni Token, golden dolls, Eldritch Panoply, King-beaters' hard mode
     R181.generate(sys.modules[__name__])        # 2.85a: Dread Nights, Stalkers, the golden cross, the Dread Totem
     R182.generate(sys.modules[__name__])        # 2.85b: angelic forging
+    if PHASE2: R237.generate(sys.modules[__name__])      # 2.98: the Undercrown (after the Dread Nights: it ends them)
     print('2.85c: the Rat Race - %d jobs, %d prizes in the draw' % R183.generate(sys.modules[__name__]))
     print('2.85d: %d new fight rooms, the rats\' calls, the Forge/Garden coin' % R184.generate(sys.modules[__name__]))
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))
