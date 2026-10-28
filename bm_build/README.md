@@ -21,6 +21,11 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.95f: Emma's Axe Roll
+
+- **Emma's Piercing Blow is now the Axe Roll.** She dashes in, leaps into the air in a tucked somersault with her axe held overhead in both hands, and slams it down on the monster: 14 armour-piercing damage. Anything standing round it is caught in a shockwave of petals (4 more).
+- Her two aerial specials (Crescent Dive and Petal Waltz) are unchanged.
+
 ## New in 2.95e: blows that suit who's swinging them
 
 - **Not everyone vanishes for the Piercing Blow any more.** The fighters go in where you can see them, on their own poses, landing the same 14 of armour-piercing damage in several blows:

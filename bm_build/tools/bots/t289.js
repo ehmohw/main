@@ -3,7 +3,7 @@
 // seconds the Champion vanishes - every part of their model gone - comes back at the zombie, and lands one blow of REND straight
 // through the armour: 14 x Might V = 24.5 off its health, armour or no armour. Then they're whole again, free to move.
 // King Omega (Ghastly Lunge: out of the ground), Cecil (Shadow Veil), Emma (a cat), KillerWatt, the Frog (no "by" tag of his own).
-// (2.95e) not everyone vanishes: Bender (Savage Maul - claws, then up on its head, chomping) and Leo (Shield Bash - stunned, then
+// (2.95e) not everyone vanishes: Emma (Axe Roll - up in a somersault, the axe slammed down), Bender (Savage Maul - claws, then up on its head, chomping) and Leo (Shield Bash - stunned, then
 // the trident three times) go in where you can see them, every part of them in sight, the same 24.5 split over several blows.
 // ALL=1: every follower, the same way (Wilfrey's conquests staged by rcon); Bloo, Bones, Democratus, the Chef and Tullius assault too.
 // (the Champion's other blow is held off for the test - rcon - so every drop in health is told apart)
@@ -27,7 +27,7 @@ const res = [];
              ['emma', 'Emma', 'emma_ribbon', 'cat', 'bm.emmapet', 'bm.emcd', 'emma'], ['kw', 'KillerWatt', 'kw_spark', 'wolf', 'bm.kxpet', 'bm.kxcd', 'killerwatt'],
              ['frog', 'the Frog', 'frog_signet', 'wolf', 'bm.frogpet', 'bm.fgcd', 'frog'],
              ['bender', 'Bender', 'bv_ball', 'wolf', 'bm.bvpet', 'bm.bvcd', 'bender'], ['leo', 'Leo', 'leo_crest', 'wolf', 'bm.leopet', 'bm.lecd', 'leo']];
-  const ASSAULT = ['bender', 'leo', 'bloo', 'bones', 'demo', 'chef', 'tul'];
+  const ASSAULT = ['emma', 'bender', 'leo', 'bloo', 'bones', 'demo', 'chef', 'tul'];
   if (process.env.ALL) K.push(
     ['celi', 'celi', 'celi_charm', 'wolf', 'bm.celipet', 'bm.cecd', 'celi'],
     ['zib', 'zib', 'donadian_medal', 'wolf', 'bm.zibpet', 'bm.zbcd', 'zib'],
@@ -69,15 +69,16 @@ const res = [];
       if (h < hp - 0.01) { if (seen) drops.push(+(hp - h).toFixed(1)); hp = h; }
       const hid = await cnt('@e[type=minecraft:item_display,tag=bm.prhid]'); if (hid > hidMax) hidMax = hid;
       if (w === 'leo' && /slowness/.test(await run(`${O}data get entity @e[type=minecraft:zombie,tag=bm.t289foe,limit=1] active_effects`))) stun = true;
-      if (w === 'bender' && on) { const y = await num(`${O}data get entity ${H} Pos[1]`); if (y > up) up = y; }
+      if ((w === 'bender' || w === 'emma') && on) { const y = await num(`${O}data get entity ${H} Pos[1]`); if (y > up) up = y; }
       if (seen && !on) { await sleep(400); const h2 = await num(`${O}data get entity @e[type=minecraft:zombie,tag=bm.t289foe,limit=1] Health`); if (h2 < hp - 0.01) drops.push(+(hp - h2).toFixed(1)); break; }
       await sleep(40);
     }
     const sum = drops.reduce((a, b) => a + b, 0);
     ok(`...${nm} doesn't vanish: the move plays out in plain sight, on their own poses (no part of them hidden)`, seen > 0 && hidMax === 0, `move ticks seen ${seen}, parts hidden ${hidMax}`);
-    ok(`...two or more blows straight through full diamond, 24.5 in all (14 x Might V, split; with a blow of their own the same moment, more)`, drops.length >= 2 && sum > 24 && sum < 42, `drops ${drops.join(', ')} = ${sum.toFixed(1)}`);
+    ok(`...two or more blows straight through full diamond, 24.5 in all (14 x Might V, split; with a blow of their own the same moment, more)`, drops.length >= (w === 'emma' ? 1 : 2) && sum > 24 && sum < 42, `drops ${drops.join(', ')} = ${sum.toFixed(1)}`);
     if (w === 'leo') ok('...the shield bash stuns it first (slowed to a standstill, weakened)', stun);
     if (w === 'bender') ok('...and Bender up on its head, chomping', up > Y + 1.9, `highest ${up.toFixed(2)}`);
+    if (w === 'emma') ok('...and Emma up in the air for her roll (a block and more) before the slam', up > Y + 2.2, `highest ${up.toFixed(2)}`);
     await sleep(1500);
     ok('...and then back on the ground, free to move (gravity back)', !/NoGravity: 1b/.test(await run(`${O}data get entity ${H} NoGravity`)) && (await num(`${O}scoreboard players get ${H} bm.ksw`)) !== 3,
        `${await run(`${O}data get entity ${H} NoGravity`)}; ksw ${await run(`${O}scoreboard players get ${H} bm.ksw`)}`);

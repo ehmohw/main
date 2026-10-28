@@ -665,7 +665,15 @@ POSES = {
     # ethereal: hovering, legs trailing, axe at the ready, wings beating
     'strike_up': P(0.12, body=torso(lean=-6, turn=-15), head=torso(lean=-6), legr=limb(1, -10), legl=limb(-1, -30), armr=limb(1, 165, 15), arml=limb(-1, 20, 60), **WINGS_UP),
     'strike_dn': P(0.0, body=torso(lean=16, turn=15), head=torso(lean=6), legr=limb(1, -30), legl=limb(-1, -10), armr=limb(1, -18, -8), arml=limb(-1, -10, 50), **WINGS_DN),
+    # (2.95e) her Piercing Blow, AXE ROLL: up into the air, a tucked somersault with the axe held over her head in both hands
+    # (eight frames, the whole of her turning about her middle - _roll), then high over it, and down on it with everything
+    'slam_up': P(0.1, body=torso(lean=-10), head=torso(lean=-10), legr=limb(1, 30), legl=limb(-1, -10), armr=limb(1, 175, 8), arml=limb(-1, 175, -8)),
+    'slam': P(-0.18, body=torso(lean=34), head=torso(lean=10), legr=limb(1, 60), legl=limb(-1, -24), armr=limb(1, 30, 6), arml=limb(-1, 30, -6)),
 }
+TUCK = dict(body=torso(lean=20), head=torso(lean=16), legr=limb(1, 95), legl=limb(-1, 85), armr=limb(1, 150, 8), arml=limb(-1, 150, -8))
+ROLL_C = (0, 13, 0)                                                   # (design units: her middle, where a somersault turns)
+for _i in range(8):
+    POSES[f'roll_{_i}'] = dict(P(0.0, **TUCK), _roll=qa('x', 45 * (_i + 1)))
 
 
 # ---- ethereal flight: 8 frames a beat, the outer halves a beat behind the inner (a ripple root to tip)
@@ -737,6 +745,18 @@ def _qrot(q, v):
 
 
 def part_xf(pose, p):
+    rot, tr = _part_xf(pose, p)
+    R = pose.get('_roll')
+    if R is None: return rot, tr
+    # (2.95e) the whole of her turned about her middle: each part's pivot carried round it, and the part turned with it
+    U = RIG_SCALE / 16
+    pv = PIVOT[p]
+    d = (-(pv[0] - ROLL_C[0]) * U, (pv[1] - ROLL_C[1]) * U, -(pv[2] - ROLL_C[2]) * U)          # design -> display frame
+    v = _qrot(R, (tr[0] + d[0], tr[1] + d[1], tr[2] + d[2]))
+    return qmul(R, rot), (v[0] - d[0], v[1] - d[1], v[2] - d[2])
+
+
+def _part_xf(pose, p):
     dy = pose['_dy']
     if p in ('wingro', 'winglo'):
         sx = 1 if p == 'wingro' else -1

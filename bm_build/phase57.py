@@ -86,6 +86,7 @@ def generate(G):
     # ---- poses (left_rotation + a shared lift) - see phase57_art.POSES
     DUR = {'idle_a': 20, 'idle_b': 20, 'idle_hop': 4, 'walk_a': 4, 'walk_up': 4, 'walk_b': 4, 'run_a': 3, 'run_up': 3, 'run_b': 3, 'jump': 3,
            'sit_a': 15, 'sit_b': 15, 'cast': 4, 'wave_a': 6, 'wave_b': 6, 'strike_up': 3, 'strike_dn': 3, 'hug_a': 12, 'hug_b': 12}
+    DUR.update({f'roll_{i}': 1 for i in range(8)}); DUR.update({'slam_up': 3, 'slam': 2})       # (2.95e: the Axe Roll)
     DUR.update({f'fly_{i}': 3 for i in range(ART.FLY_FRAMES)})
     DUR.update({f'hover_{i}': 3 for i in range(ART.HOVER_FRAMES)})
     DUR.update({f'swim_{i}': 3 for i in range(ART.SWIM_FRAMES)})

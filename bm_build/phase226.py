@@ -13,6 +13,8 @@ Might V) learns a second signature move, one that goes straight through armour.
    under his prey, Mr. Capshun erases himself and redraws behind it...)
 (2.95e) NOT EVERYONE VANISHES - the move suits the one making it. The fighters go in where you can see them, on their own
 poses (atk.sig), the same 14 of rend in all, split across the blows:
+  EMMA         Axe Roll: up into the air in a tucked somersault, the axe held over her head - and slammed down on it (and a
+               shockwave of petals round it).
   BENDER       Savage Maul: he pounces, claws the monster four times over - then clambers up and chomps on its head.
   LEO          Shield Bash: a bash of the shield stuns it (it can't move or hit back for a moment), and the trident goes
                through it, three times.
@@ -192,6 +194,15 @@ ASSAULT = {
                  tl={1: ['P whack_up', 'S minecraft:entity.player.attack.knockback 0.6 1.6'], 3: ['DASH'], 4: ['P whack', 'H1'],
                      6: ['P whack_up'], 7: ['P whack', 'H1'], 9: ['P whack_up'], 10: ['P whack', 'H1'],
                      13: ['P throw_back'], 17: ['P throw', 'H2'], 24: ['P idle_a']}),
+    'emma': dict(pfx='p57', s_obj='bm.ems', anim='p57/anim', busy='bm.emk', end=27, dash=dict(reach=1.8, speed=1.0, lift=1), own_place=True,
+                 hits={1: (14, ['particle minecraft:flash{color:[1.0,0.75,0.9,1.0]} ~ ~0.5 ~ 0 0 0 0 1', 'particle minecraft:explosion ~ ~0.3 ~ 0 0 0 0 1',
+                                'particle minecraft:cherry_leaves ~ ~0.5 ~ 1.2 0.2 1.2 0 40', 'particle minecraft:block{block_state:"minecraft:dirt"} ~ ~0.1 ~ 0.8 0.1 0.8 0 30'],
+                           'minecraft:entity.generic.explode', 1.3)},
+                 tl={1: ['P idle_hop', 'S minecraft:entity.phantom.flap 0.8 1.4'], 2: ['DASH'],
+                     3: ['data merge entity @s {NoGravity:1b}', 'S minecraft:entity.player.attack.sweep 1 0.7', 'RISE 3..10'] + [f'P roll_0'],
+                     **{3 + i: [f'P roll_{i}', 'particle minecraft:cherry_leaves ~ ~1.2 ~ 0.3 0.3 0.3 0 3'] for i in range(1, 8)},
+                     11: ['P slam_up', 'S minecraft:block.amethyst_block.chime 1 0.6'], 13: ['DROP 13..17'],
+                     17: ['P slam', 'H1', 'function bm:p226/a/emma/wave', 'data merge entity @s {NoGravity:0b}'], 23: ['P idle_a']}),
     'tul': dict(pfx='p132', s_obj='bm.tus', anim='p132/anim', busy='bm.tux', end=33, dash=None,
                 hits={1: (4, ['particle minecraft:snowflake ~ ~1 ~ 0.3 0.4 0.3 0.05 16', 'particle minecraft:enchanted_hit ~ ~1.1 ~ 0.2 0.3 0.2 0.3 8'], 'minecraft:item.trident.hit', 0.9),
                       2: (6, ['particle minecraft:snowflake ~ ~1 ~ 0.5 0.5 0.5 0.3 40', 'particle minecraft:poof ~ ~1 ~ 0.4 0.4 0.4 0.05 16'], 'minecraft:entity.generic.explode', 1.5)},
@@ -205,6 +216,7 @@ NAMES = {'bender': ('Savage Maul', 'pounces, claws the monster savagely and chom
          'bones': ('Death Roll', 'clamps his jaws on the monster and rolls it, thrashing'),
          'demo': ("Reaper's Toll", 'brings the scythe down through the monster\'s guard and reaps it on the backswing'),
          'chef': ('Order Up!', 'tenderises the monster with a flurry of whacks, then serves the finisher'),
+         'emma': ('Axe Roll', 'leaps into the air, rolls with her axe held overhead, and slams it down on the monster'),
          'tul': ('Hook and Broadside', 'harpoons the monster, drags it in, runs it through and lets the blunderbuss finish it point-blank')}
 
 
@@ -339,6 +351,10 @@ def assault(G, w, typ, host, me, col):
             elif c[0] == 'H': out.append(f'function bm:p226/a/{w}/h{c[1:]}')
             elif c.startswith('RIDE '):          # (on its head: wherever its eyes are, a little under)
                 each.append(f'execute if score @s bm.ksg matches {c[5:]} run function bm:p226/a/ride')
+            elif c.startswith('RISE '):          # (up into the air, a step a tick, while there's room)
+                each.append(f'execute if score @s bm.ksg matches {c[5:]} if block ~ ~2.2 ~ #bm:grap_pass run tp @s ~ ~0.32 ~')
+            elif c.startswith('DROP '):          # (and down on it, fast, to the ground)
+                each.append(f'execute if score @s bm.ksg matches {c[5:]} if block ~ ~-0.6 ~ #bm:grap_pass run tp @s ~ ~-0.6 ~')
             elif c.startswith('PULL '):          # (hooked: dragged in toward the follower, a step a tick)
                 each.append(f'execute if score @s bm.ksg matches {c[5:]} run function bm:p226/a/pull')
             else: out.append(c)
@@ -349,7 +365,11 @@ def assault(G, w, typ, host, me, col):
     tl[A['end'] - 1] = tl.get(A['end'] - 1, []) + ['data merge entity @s {NoGravity:0b}', 'function bm:p226/a/clean']
     atk.sig(G, pfx, kid=3, tick_fn=f'{pfx}/tick', state_fn=f'{pfx}/state', anim_fn=A['anim'], s_obj=A['s_obj'], place_fn=f'{pfx}/place', col=col,
             trigger='execute if score @s bm.prgo matches 1 unless data entity @s {Sitting:1b}', busy=A['busy'], cd=20, end=A['end'],
-            dash_kw=A['dash'], timeline=tl, each=each)
+            dash_kw=A['dash'], timeline=tl, each=each, own_place=A.get('own_place', False))
+    if w == 'emma':                          # (the slam's shockwave: what stands round her foe)
+        fn('p226/a/emma/wave', [f'tag @s add bm.{me}', f'execute at @e[tag=bm.prfoe,limit=1] as @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.prfoe,distance=..3.5] run damage @s 4 bm:rend {by}',
+                                f'tag @s remove bm.{me}', 'execute at @e[tag=bm.prfoe,limit=1] run function bm:p226/a/emma/ring'])
+        fn('p226/a/emma/ring', [f'execute rotated {a} 0 positioned ^ ^0.2 ^2 run particle minecraft:cherry_leaves ~ ~ ~ 0.1 0.1 0.1 0 2' for a in range(0, 360, 30)])
     # (each second: a Champion, rested, a monster near, its owner near, not sitting, not ridden) - the foe marked, and go
     fn(f'p226/sec/{w}', ['execute if score @s bm.prcd matches 1.. run return run scoreboard players remove @s bm.prcd 1',
                          'execute if score @s bm.prgo matches 1 run return 0',

@@ -179,13 +179,14 @@ def dash(G, pfx, col, reach=1.6, speed=0.9, lift=3, onto=False, pass_='#bm:grap_
 
 
 # ======================================================================== signature moves
-def sig(G, pfx, *, kid=1, tick_fn, state_fn, anim_fn, s_obj, place_fn, col, trigger, cd, timeline, end, face='foe', st=21, dash_kw=None, each=(), busy=None):
+def sig(G, pfx, *, kid=1, tick_fn, state_fn, anim_fn, s_obj, place_fn, col, trigger, cd, timeline, end, face='foe', st=21, dash_kw=None, each=(), busy=None, own_place=False):
     """a timeline-driven special (as Bender's Rage): `trigger` (an `execute ... if ...` condition, run as the follower at it, each
     tick it's free) starts it; bm.ksg counts its ticks (bm.ksw: which of the follower's specials - kid); `timeline` {t: [cmds]}
     plays (as the follower, at it); a cmd 'DASH a <selector>' dashes to that foe (the timeline holds - bm.ksg 1000 - until it
     arrives, then goes on at t+1). While it runs the follower's own animation is held (its state `st`, no cycle) and it faces its
     foe (face='foe') or keeps its own heading ('own'). `end`: its last tick (all is put back). cd: ticks before it comes again
-    (bm.kcd<kid>). A follower's specials share its dash (a's must differ)."""
+    (bm.kcd<kid>). A follower's specials share its dash (a's must differ). own_place (2.95e): this move places the model its own way
+    (another of the follower's specials uses another place_fn) - its lines run only for it, the others' not while it plays."""
     fn = G.fn
     for o in ('bm.ksg', 'bm.ksw', f'bm.kcd{kid}'):
         if o not in G.OBJECTIVES:
@@ -238,4 +239,10 @@ def sig(G, pfx, *, kid=1, tick_fn, state_fn, anim_fn, s_obj, place_fn, col, trig
     pl = ([f'execute if score @s {s_obj} matches {st} if entity @e[{foe},distance=..20] facing entity @e[{foe},distance=..20,sort=nearest,limit=1] feet rotated ~ 0 run function bm:{place_fn}',
            f'execute if score @s {s_obj} matches {st} unless entity @e[{foe},distance=..20] rotated as @s rotated ~ 0 run function bm:{place_fn}'] if face == 'foe' else
           [f'execute if score @s {s_obj} matches {st} rotated as @s rotated ~ 0 run function bm:{place_fn}'])
+    if own_place:
+        g = f'if score @s bm.ksw matches {kid} '
+        for k, l in enumerate(T):                             # (the other specials' placing: not while this one plays)
+            if l.startswith(f'execute if score @s {s_obj} matches {st} ') and 'run function bm:' in l and f'bm:{place_fn}' not in l and 'bm.ksw' not in l:
+                T[k] = l.replace('execute ', f'execute unless score @s bm.ksw matches {kid} ', 1)
+        pl = [l.replace('execute ', 'execute ' + g, 1) for l in pl]
     if face != 'none' and pl[0] not in T: T[i:i] = pl
