@@ -16,7 +16,7 @@ def generate(G):
     emsay = lambda txt: title('@s', 'actionbar', [T('Emma: ', PINK, bold=True), T(txt, '#ffd0ec')])
 
     # ------------------------------------------------------------------ the follower cap
-    HOSTS = [('wolf', 'bm.frogpet'), ('wolf', 'bm.mercpet'), ('wolf', 'bm.cecilpet'), ('cat', 'bm.emmapet')]
+    HOSTS = [('wolf', 'bm.frogpet'), ('wolf', 'bm.cecilpet'), ('cat', 'bm.emmapet')]       # (2.96: the mercenary rat counts as a rigpet follower - rigpet adds him)
     fn('p58/count', ['tag @s add bm.fcme', 'scoreboard players set #fc bm.rng 0'] +
        [f'execute as @e[type=minecraft:{t},tag={tag}] on owner if entity @s[tag=bm.fcme] run scoreboard players add #fc bm.rng 1' for t, tag in HOSTS] +
        ['tag @s remove bm.fcme'])
@@ -32,17 +32,7 @@ def generate(G):
     h = G.FUNCS['p20/frog/hire']                                                   # the Frog: before the Medallion is taken
     k = next(i for i, l in enumerate(h) if 'clear @s' in l)
     h.insert(k, gate)
-    G.FUNCS['p29/merc/first'].insert(0, gate)                                      # the mercenary rat: signing on, being called, patched, paid back
-    c = G.FUNCS['p29/merc/call']
-    k = next(i for i, l in enumerate(c) if 'run function bm:p29/merc/summon' in l)
-    c[k] = c[k].replace('run function bm:p29/merc/summon', 'unless function bm:p58/full run function bm:p29/merc/summon')
-    p = G.FUNCS['p29/merc/patch']
-    k = next(i for i, l in enumerate(p) if 'bm.pay' in l or 'pay/' in l)
-    p.insert(k, gate)
-    pay = G.FUNCS['p29/merc/pay']
-    for i, l in enumerate(pay):
-        if l == 'execute if score @s bm.mstate matches 3 run function bm:p29/merc/summon':
-            pay[i] = 'execute if score @s bm.mstate matches 3 unless function bm:p58/full run function bm:p29/merc/summon'
+    # (2.96: the mercenary rat is a rigpet follower now - phase228; its try_summon checks p58/full like the rest)
 
     # ------------------------------------------------------------------ Emma's story
     def swap(fname, old, new):

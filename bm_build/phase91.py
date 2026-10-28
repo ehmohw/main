@@ -513,7 +513,7 @@ def generate(G):
                           'tp @e[type=minecraft:interaction,tag=bm.gvtbme,limit=1] ~ ~ ~',
                           'playsound minecraft:block.stone.place block @a[distance=..16] ~ ~ ~ 1 0.8', 'particle minecraft:block{block_state:"minecraft:mossy_cobblestone"} ~ ~0.1 ~ 0.3 0.05 0.3 0 6'])
     import re as _re, phase46 as _P46
-    PALS = sorted(set(_re.findall(r'tag=!([\w.]+)', _P46.COMPANIONS)) | {'bm.zibpet', 'bm.kxpet', 'bm.eskhost', 'bm.hire'})
+    PALS = sorted((set(_re.findall(r'tag=!([\w.]+)', _P46.COMPANIONS)) | {'bm.zibpet', 'bm.kxpet', 'bm.eskhost', 'bm.hire'}) - {'bm.mercpet'})      # (2.96: the old mercenary is gone)
     fn('p91/temple/pal', [f'execute if entity @s[tag={t}] run return 1' for t in PALS] + ['return 0'])
     fn('p91/temple/done', ['scoreboard players set @s bm.gvs 2', 'execute as @e[type=minecraft:block_display,tag=bm.gvtb,distance=..20] run data merge entity @s {Glowing:1b}'] + pot(6) +
        big('THE TEMPLE OPENS', 'Every switch pressed. The way on is open.', '#7adf8a') + ['playsound minecraft:block.end_portal_frame.fill block @a[distance=..20] ~ ~ ~ 1 0.8',

@@ -34,6 +34,12 @@ FOLLOWERS = {  # key: (on the contract, in a sentence, colour, its summoning che
     'killerwatt': ('KillerWatt', 'KillerWatt', '#ffe040', 'p79/pet/try', (2, 4)),
     'frog': ('The Frog with Mustache', 'the Frog with Mustache', '#6ac850', None, (1, 4)), 'donado': ('Donado', 'Donado', '#e8d29a', None, (1, 4))}
 BIT = {k: 2 ** i for i, k in enumerate(k for k, v in FOLLOWERS.items() if v[3])}      # (a called follower's contract is signed for good: one bit each)
+FCON2 = {}          # (2.96: past thirty bits, a second score - bm.fcon2 - for the followers after; rigpet.register fills it)
+
+
+def fobj(k):
+    """the score a follower's contract bit lives in, and the bit"""
+    return ('bm.fcon2', FCON2[k]) if k in FCON2 else ('bm.fcon', BIT[k])
 HIRED = {'frog': ('bm.frogpet', 'p20/frog/summon', 'p20/frog/refresh', 'bm.fvcf', 'fg'), 'donado': ('bm.donado', 'p25/don/summon', 'p25/don/refresh', 'bm.fvcn', 'dn')}
 KIT = [('weapon.mainhand', 'minecraft:iron_sword'), ('armor.head', 'minecraft:iron_helmet'), ('armor.chest', 'minecraft:iron_chestplate')]
 P72.KEEP += ['cecil_gem', 'emma_ribbon', 'celi_charm', 'donadian_medal', 'kw_spark'] + [f'skiff_escort_{c}' for c in P72.ART.ESCORT_COLS] + \
@@ -249,7 +255,7 @@ def generate(G):
     import phase60 as P60
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     P = [T('[', 'dark_gray'), T('Black Market', 'dark_purple', bold=True), T('] ', 'dark_gray')]
-    objs = ['bm.coso', 'bm.fcon']
+    objs = ['bm.coso', 'bm.fcon', 'bm.fcon2']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
 
@@ -293,8 +299,8 @@ def generate(G):
         L = G.FUNCS[chk]
         assert any('execute unless function bm:p74/fol_ok' in l for l in L), chk
         L[:] = [l.replace('execute unless function bm:p74/fol_ok', f'execute unless function bm:p89/ok/{k}') for l in L]
-    fn('admin/contracts_all', [f'scoreboard players set @s bm.fcon {sum(BIT.values())}', tellraw('@s', P + [T('Every follower is under contract.', 'gray')])])
-    fn('admin/contracts_none', ['scoreboard players set @s bm.fcon 0', tellraw('@s', P + [T('Every contract torn up.', 'gray')])])
+    fn('admin/contracts_all', [f'scoreboard players set @s bm.fcon {sum(BIT.values())}', f'scoreboard players set @s bm.fcon2 {sum(FCON2.values())}', tellraw('@s', P + [T('Every follower is under contract.', 'gray')])])
+    fn('admin/contracts_none', ['scoreboard players set @s bm.fcon 0', 'scoreboard players set @s bm.fcon2 0', tellraw('@s', P + [T('Every contract torn up.', 'gray')])])
 
     # ---- the Frog with Mustache and Donado: their contracts call a vault hire of their own (the one at home stays home)
     objs = [v[3] for v in HIRED.values()]

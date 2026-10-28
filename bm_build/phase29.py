@@ -66,9 +66,7 @@ coas('bankers_card', "Banker's Card", '#e8d27a',
 coas('fair_weather_bell', 'Fair Weather Bell', '#ffe08a',
      ['Ring it and the clouds remember an errand.', ('Right-click: clears rain and storms', 'blue'), ('for a day.', 'blue'), ('Once per day.', 'gray')],
      'bm:fair_weather_bell')
-coas('merc_contract', 'Mercenary Contract', '#c0392b',
-     ['Signed: Rufus Gnaw, Rat for Hire.', ('Right-click: give him orders.', 'blue'), ('Crossbow at range, blade up close.', 'gray'),
-      ('Wages: 1 Token a day, from his purse.', 'gray')], 'bm:merc_contract', bold=True)
+# (2.96: the Mercenary Contract is phase228's now - Rufus Gnaw, a whole follower, for keeps)
 item('donado_trophy', TOTEM, 'Donado Trophy', '#e8d29a',
      ['A statue of the bravest Earth-dog.', ('Use it to set it down. Right-click it to turn it;', 'gray'), ('sneak + punch it to pick it up.', 'gray')],
      model='bm:statue_donado', stack=16, cat='relic', comps=_use('minecraft:block.stone.place'))
@@ -139,7 +137,7 @@ def generate(G):
     # right-click dispatch: carrot-on-a-stick clicks share the grappling hook's hook (main hand)
     disp = {'ring_burrows': 'p29/burrow/use', 'pocket_rift': 'p29/rift/use', 'smuggler_jar': 'p29/jar/use', 'spawner_crowbar': 'p29/crow/use',
             'caged_spawner': 'p29/cage/use', 'lodestone_locket': 'p29/locket/use', 'bankers_card': 'p31/bank/card',
-            'fair_weather_bell': 'p29/bell/use', 'merc_contract': 'p29/merc/use'}
+            'fair_weather_bell': 'p29/bell/use'}
     gu = G.FUNCS['p21/grap/use']
     gu[1:1] = [f'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{{bm:"{i}"}}] run return run function bm:{f}' for i, f in disp.items()]
     G.P29_CLICK = gu
@@ -586,7 +584,7 @@ def generate(G):
                         'playsound minecraft:entity.firework_rocket.twinkle player @a[distance=..16] ~ ~ ~ 0.6 1.4'])
 
     # ================================================================== RUFUS GNAW, RAT FOR HIRE
-    merc_generate(G, fn, wjson, title, tellraw, give, PREFIX, tick, fast, second, load, ident, P28)
+    # (2.96: he's phase228's now - a rigpet follower for keeps; merc_generate stays below for the record, unbuilt)
 
     G.FUNCS['load'][-1:-1] = load
     G.FUNCS['tick'] += tick

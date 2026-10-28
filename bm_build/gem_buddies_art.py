@@ -1,29 +1,45 @@
 """2.95e: THE GEM'S BUDDIES - the ten the Gem of Creativity conjures for a moment to fight beside it, each a small 3D rig in the
-pack's blocky follower style (the owner's drawings are the design reference only - shapes and colours - never the textures):
+pack's blocky follower style (the owner's drawings are the design reference only - shapes, colours and FACES - never the textures):
 
-  GRACE      a hummingbird: green, a pink crest and pink-edged wings, a long dark beak.     flap / DIVE-PECK
-  ROBO       a boxy grey robot: a screen face, long arms with claws, thruster feet.          STOMP / ROCKET PUNCH
-  ZAPPER     a curious little lightning bolt, all spikes, a green button nose.               curious bob / ZAP
-  DESSA      a light bulb with a sleepy happy face, a screw base, wiry arms.                 flicker / FLASH-BURST
-  BUBBLES    a PAIR of bubbles (a big one and its little one), blue and shiny.               bounce in tandem / POP-SPLASH
-  CHASE      a green gummy blob with two lobes on top, stubby arms and legs.                 squash-and-stretch hop / TACKLE
-  LIMER      the round fellow - a pale ball wearing a green leafy covering - on stick legs.  roll / BODY SLAM
-  CHICO      a drumstick: the meat is his head, the bone his body.                           wobble / SWING-WHACK
-  SPIKE      a saw blade round a black ball with an angry face.                              spin up / BUZZ-SAW DASH
-  CHEFERONI  a pizza in a chef's hat, a big moustache, on yellow stick legs.                 toss the dough / SLICE THROW
+  GRACE      a hummingbird: yellow-green, a pink crest and a pink throat stripe, a long dark beak; small white eyes, tall pupils.
+                                                                                             flap / DIVE-PECK
+  ROBO       a boxy grey robot: a red dot of a nose and a crooked cream grin; his eyes on STALKS (a big one, a little one) and a
+             curly antenna with a red bulb; a trapezoid chest with a panel; long arms with C-clamp hands; jet boots.
+                                                                                             STOMP / ROCKET PUNCH
+  ZAPPER     a curious lightning bolt - one jagged bolt (a broad top, a ledge, a long tail to a point) - round white eyes glancing
+             sideways under a raised brow, a green gem of a nose, a wavy unsure little mouth.   curious bob / ZAP
+  DESSA      a light bulb, eyes closed in two happy arches, a wavy little smile; arms of light; a screw base.
+                                                                                             flicker / FLASH-BURST
+  BUBBLES    a PAIR of bubbles: the big one with two tall dark eyes and a great round open mouth, its little one beside it.
+                                                                                             bounce in tandem / POP-SPLASH
+  CHASE      a glossy green gummy: three round lobes on his head (the middle one shortest), big hollow white eyes - no pupils -
+             a wide toothy grin under a little moustache tuft, a narrow neck, a pear of a body, stubby arms and feet.
+                                                                                             squash-and-stretch hop / TACKLE
+  LIMER      the round fellow - a pale ball with sleepy lidded eyes, a big curl of a nose and a little "o" of a mouth - in his
+             loopy green covering, on stick legs.                                            roll / BODY SLAM
+  CHICO      a drumstick: worried brows, shiny black eyes, an open fretful mouth; crispy at the bottom, the bone his body.
+                                                                                             wobble / SWING-WHACK
+  SPIKE      a circular saw: a ring of hooked steel teeth round a glossy black hub with an angry face - heavy brows, a jagged
+             fanged grin, a green blob of goo at the corner of his mouth.                     spin up / BUZZ-SAW DASH
+  CHEFERONI  a whole pizza: crust, cheese, slices and pepperoni; angry brows, a great curly moustache over an open mouth, a
+             curl of hair, a tilted chef's hat; thin black arms, long yellow legs.           toss the dough / SLICE THROW
 
 Each is a rigkit rig (an object with PREFIX, PIVOT, PARENT, PARTS, POSES, HIDDEN, model_name, models, textures, RIG_SCALE): RIGS
 below, by name. Design units: feet at y=0, facing -z, its right is +x. Every one has the poses appear (popping out of a sparkle),
 idle_a, idle_b, its wind-up and strike, happy and vanish; GROW gives the display scale through appear/vanish (they pop in small and
 pop out small). Faces are a model per expression on the part with the face (pose key _face); some parts have a variant shape (pose
-key _v: {part: variant} - Chase's squash and stretch, Bubbles' pop, Dessa's lit glass)."""
+key _v: {part: variant} - Chase's squash and stretch, Bubbles' pop, Dessa's lit glass).
+
+(2.95e, reworked after the owner's look: every face is that Buddy's own, drawn from the owner's art - no shared eye or mouth -
+painted at 16 px a unit and smoothed (drawn 4x over and brought down), so the lines stay clean; the coats are smooth, softly lit
+colour, not 2-px noise. Zapper, Spike and Chase were rebuilt to the drawings' shapes.)"""
 import math
 import random
 from types import SimpleNamespace
 from PIL import Image, ImageDraw
 
 from phase57_art import hexc
-from rigkit import qs, el, seg, chain
+from rigkit import qs, el, seg, chain, euler
 
 GROW = {'appear': (0.15, 1.15, 1.0), 'vanish': (1.0, 1.2, 0.0)}     # (the display's scale, keyframe by keyframe)
 def T(*r):
@@ -38,27 +54,43 @@ def L(*r):
 
 FACES = ('blink', 'happy', 'fierce', 'wow', 'look')
 DRAFT = ['appear', 'idle_a', 'idle_b', 'wind', 'strike', 'happy', 'vanish']
+PPU, SS = 16, 4                    # (face textures: 16 px a unit, 256 px over 16 units; drawn SS times over, then brought down)
 
 
 # ==================================================================================================== painting
-def tex(col, seed, var=0.05, cell=2, size=64, spots=None):
-    """a hand-painted coat: one colour in 2-px cells, each a touch lighter or darker (a little life in it); spots: [(colour, p)]"""
-    im = Image.new('RGBA', (size, size)); d = ImageDraw.Draw(im); r = random.Random(seed); c = hexc(col)
-    for y in range(0, size, cell):
-        for x in range(0, size, cell):
-            k = 1 + (r.random() - 0.5) * 2 * var
-            cc = tuple(max(0, min(255, int(v * k))) for v in c[:3]) + (255,)
-            for sc, p in (spots or ()):
-                if r.random() < p: cc = hexc(sc)
-            d.rectangle((x, y, x + cell - 1, y + cell - 1), fill=cc)
+def _field(seed, n, size):
+    rnd = random.Random(seed); g = [[rnd.random() for _ in range(n + 1)] for _ in range(n + 1)]
+    out = [[0.0] * size for _ in range(size)]
+    for y in range(size):
+        for x in range(size):
+            fx, fy = x / size * n, y / size * n; ix, iy = int(fx), int(fy); tx, ty = fx - ix, fy - iy
+            tx, ty = tx * tx * (3 - 2 * tx), ty * ty * (3 - 2 * ty)
+            a = g[iy][ix] * (1 - tx) + g[iy][ix + 1] * tx; b = g[iy + 1][ix] * (1 - tx) + g[iy + 1][ix + 1] * tx
+            out[y][x] = a * (1 - ty) + b * ty
+    return out
+
+
+def tex(col, seed, var=0.04, cell=None, size=64, spots=None, n=5):
+    """a smooth coat: one colour, gently varied over broad soft areas (no pixel noise); spots: [(colour, p)] - soft round flecks"""
+    im = Image.new('RGBA', (size, size)); px = im.load(); c = hexc(col); f = _field(seed, n, size)
+    for y in range(size):
+        for x in range(size):
+            k = 1 + (f[y][x] - 0.5) * 2 * var
+            px[x, y] = tuple(max(0, min(255, int(v * k))) for v in c[:3]) + (255,)
+    if spots:
+        d = ImageDraw.Draw(im); r = random.Random(seed + 7)
+        for sc, p in spots:
+            for _ in range(int(p * size * size / 14)):
+                x, y, s = r.uniform(0, size), r.uniform(0, size), r.uniform(size / 64, size / 30)
+                d.ellipse((x - s, y - s * 0.8, x + s, y + s * 0.8), fill=hexc(sc))
     return im
 
 
-def lit(im, w, h, ppu=8, hi='#ffffff', a=110, rim=None, rim_a=150):
+def lit(im, w, h, ppu=4, hi='#ffffff', a=110, rim=None, rim_a=150):
     """light from the upper left over the (w x h unit) window at the top left of a texture, a darker rim at the lower right"""
     px = im.load(); W, H = int(w * ppu), int(h * ppu)
-    for y in range(H):
-        for x in range(W):
+    for y in range(min(H, im.height)):
+        for x in range(min(W, im.width)):
             u, v = (x + 0.5) / W - 0.32, (y + 0.5) / H - 0.28
             g = max(0.0, 1 - math.hypot(u * 1.6, v * 1.6) * 1.6)
             c = px[x, y]
@@ -74,53 +106,55 @@ def lit(im, w, h, ppu=8, hi='#ffffff', a=110, rim=None, rim_a=150):
     return im
 
 
-def oval(d, cx, cy, rx, ry, fill, outline=None, width=1):
-    d.ellipse((cx - rx, cy - ry, cx + rx, cy + ry), fill=fill, outline=outline, width=width)
+# ---- drawing (on the 4x canvas: every size is a fraction of the face box, so each face scales cleanly)
+def E(d, cx, cy, rx, ry, fill=None, outline=None, w=0):
+    d.ellipse((cx - rx, cy - ry, cx + rx, cy + ry), fill=hexc(fill) if fill else None, outline=hexc(outline) if outline else None, width=int(w))
 
 
-def eye(d, cx, cy, rx, ry, kind=None, iris='#2a2a2a', white='#ffffff', ink='#141414', look=(0, 0), lid=None, angry=0):
-    """a big cartoon eye: a white, a dark pupil looking `look`, two glints; blink: a curved closed line; happy: an upturned arc;
-    fierce: a brow slanting in (angry: +1 for the right eye, -1 the left); wow: wide, the pupil small"""
-    if kind == 'blink':
-        d.arc((cx - rx, cy - ry * 0.6, cx + rx, cy + ry * 0.9), 20, 160, fill=ink, width=max(2, int(rx / 2.5))); return
-    if kind == 'happy':
-        d.arc((cx - rx, cy - ry * 0.3, cx + rx, cy + ry * 1.5), 200, 340, fill=ink, width=max(2, int(rx / 2.5))); return
-    ry2 = ry * (1.15 if kind == 'wow' else 1.0)
-    oval(d, cx, cy, rx, ry2, hexc(white), hexc(ink), max(1, int(rx / 4)))
-    pr = rx * (0.38 if kind == 'wow' else 0.55)
-    lx, ly = look
-    oval(d, cx + lx * rx * 0.35, cy + ly * ry * 0.3 + ry * 0.12, pr, pr * 1.2, hexc(iris))
-    oval(d, cx + lx * rx * 0.35 - pr * 0.35, cy + ly * ry * 0.3 - pr * 0.3, pr * 0.32, pr * 0.32, hexc('#ffffff'))
-    oval(d, cx + lx * rx * 0.35 + pr * 0.4, cy + ly * ry * 0.3 + pr * 0.55, pr * 0.15, pr * 0.15, hexc('#ffffff'))
-    if kind == 'fierce':                                     # (the brow, cutting across the top of the eye)
-        s = angry or 1
-        d.polygon([(cx - rx * 1.2, cy - ry * (1.25 if s > 0 else 0.35)), (cx + rx * 1.2, cy - ry * (0.35 if s > 0 else 1.25)),
-                   (cx + rx * 1.2, cy - ry * (1.55 if s > 0 else 1.55)), (cx - rx * 1.2, cy - ry * 1.55)], fill=lid or hexc(ink))
+def ln(d, pts, col, w):
+    """a stroke with round ends and joints"""
+    w = max(1, int(w)); d.line(pts, fill=hexc(col), width=w, joint='curve')
+    for x, y in (pts[0], pts[-1]): d.ellipse((x - w / 2, y - w / 2, x + w / 2, y + w / 2), fill=hexc(col))
 
 
-def mouth(d, cx, cy, w, kind, ink='#141414', inner='#7a1c26', tongue='#e0607a'):
-    """smile / grin (open, a tongue) / o (surprised) / wavy / frown / fangs (a jagged angry grin)"""
-    I = hexc(ink); lw = max(2, int(w / 6))
-    if kind == 'smile':
-        d.arc((cx - w, cy - w * 0.7, cx + w, cy + w * 0.6), 25, 155, fill=I, width=lw)
-    elif kind == 'grin':
-        d.chord((cx - w, cy - w * 0.5, cx + w, cy + w * 0.9), 0, 180, fill=hexc(inner), outline=I, width=lw)
-        oval(d, cx, cy + w * 0.55, w * 0.45, w * 0.22, hexc(tongue))
-    elif kind == 'o':
-        oval(d, cx, cy + w * 0.2, w * 0.45, w * 0.55, hexc(inner), I, lw)
-    elif kind == 'wavy':
-        pts = [(cx - w + i * w / 4, cy + (2 if i % 2 else -2) * w / 10) for i in range(9)]
-        d.line(pts, fill=I, width=lw)
-    elif kind == 'frown':
-        d.arc((cx - w * 0.8, cy, cx + w * 0.8, cy + w), 205, 335, fill=I, width=lw)
-    elif kind == 'fangs':
-        d.chord((cx - w, cy - w * 0.4, cx + w, cy + w * 0.8), 0, 180, fill=hexc(inner), outline=I, width=lw)
-        for i in range(4):
-            x = cx - w * 0.75 + i * w * 0.5
-            d.polygon([(x - w * 0.2, cy + w * 0.08), (x + w * 0.2, cy + w * 0.08), (x, cy + w * 0.4)], fill=hexc('#ffffff'))
+def clip(cx, cy, rx, ry, keep, n=96):
+    """the part of an ellipse where keep(x, y) holds, as a polygon (a lid, an eye cut by a brow)"""
+    pts = [(cx + rx * math.cos(2 * math.pi * i / n), cy + ry * math.sin(2 * math.pi * i / n)) for i in range(n)]
+    return [p_ for p_ in pts if keep(*p_)]
 
 
-FACE_MOUTH = {None: 'smile', 'blink': 'smile', 'happy': 'grin', 'fierce': 'fangs', 'wow': 'o', 'look': 'smile'}
+def bez(*p, n=24):
+    """a Bezier curve's points (3 or 4 control points)"""
+    out = []
+    for i in range(n + 1):
+        t = i / n
+        if len(p) == 3:
+            out.append(tuple((1 - t) ** 2 * p[0][k] + 2 * (1 - t) * t * p[1][k] + t * t * p[2][k] for k in range(2)))
+        else:
+            out.append(tuple((1 - t) ** 3 * p[0][k] + 3 * (1 - t) ** 2 * t * p[1][k] + 3 * (1 - t) * t * t * p[2][k] + t ** 3 * p[3][k] for k in range(2)))
+    return out
+
+
+def arc(cx, cy, rx, ry, a0, a1, n=24):
+    """points round an ellipse from a0 to a1 degrees (0 = right, 90 = down - image coordinates)"""
+    return [(cx + rx * math.cos(math.radians(a0 + (a1 - a0) * i / n)), cy + ry * math.sin(math.radians(a0 + (a1 - a0) * i / n))) for i in range(n + 1)]
+
+
+def face_tex(base, w, h, paint, seed=1, var=0.03, hi=110, rim=None, rim_a=150, under=None, rot=0.0):
+    """a face texture (256 px, 16 px a unit): the base colour softly lit over the w x h unit window at its top left (a ball's
+    whole front, say), then paint(draw, W, H) draws the face over that same window on a canvas SS times the size - brought down
+    smoothly. under(draw, W, H): painted on the base before the light (a pizza's toppings, a robot's panel)"""
+    size = 256
+    im = tex(base, seed, var, size=size, n=4)
+    W, H = int(w * PPU * SS), int(h * PPU * SS)
+    if under:
+        lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); under(ImageDraw.Draw(lay), W, H)
+        im.alpha_composite(lay.resize((int(w * PPU), int(h * PPU)), Image.LANCZOS), (0, 0))
+    lit(im, w, h, PPU, a=hi, rim=rim, rim_a=rim_a)
+    lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); paint(ImageDraw.Draw(lay), W, H)
+    if rot: lay = lay.rotate(rot, resample=Image.BICUBIC)          # (a face kept upright on a part that leans)
+    im.alpha_composite(lay.resize((int(w * PPU), int(h * PPU)), Image.LANCZOS), (0, 0))
+    return im
 
 
 # ==================================================================================================== the rig builder
@@ -139,6 +173,10 @@ class Rig:
     def t(self, key, im):
         self.T[self.prefix + key] = im
         return self.prefix + key
+
+    def fk(self, f, key='face'):
+        """the texture name of a face: face, face_<expr>"""
+        return self.prefix + key + (f'_{f}' if f else '')
 
     def ns(self):
         P, prefix = self, self.prefix
@@ -172,7 +210,7 @@ def ball(c, r, tex_, pv, yr=None, zr=None, shift=(0.0, 0.0), light=0, face=None,
     face: a texture painted over the whole front (the window 2r x 2yr at the top left of it) - laid over the front of every
     slice at its own depth, so the face sits ON the ball"""
     x, y, z = c; ry, rz = yr or r, zr or r
-    L = []
+    out = []
     for i in range(n):
         y0 = y - ry + i * 2 * ry / n; y1 = y0 + 2 * ry / n
         near = 0.0 if y0 < y < y1 else min(abs(y0 - y), abs(y1 - y))
@@ -182,13 +220,13 @@ def ball(c, r, tex_, pv, yr=None, zr=None, shift=(0.0, 0.0), light=0, face=None,
             if face:
                 x0, x1 = x - r * kx, x + r * kx
                 e['faces']['north'] = {'uv': [round((x + r) - x1, 4), round((y + ry) - y1, 4), round((x + r) - x0, 4), round((y + ry) - y0, 4)], 'texture': '#' + face}
-            L.append(e)
-    return L
+            out.append(e)
+    return out
 
 
 def disc(c, r, th, tex_, pv, face=None, n=9, light=0):
-    """a flat round disc standing up, facing front (a pizza): n strips across, the face over the front of all of them"""
-    x, y, z = c; L = []
+    """a flat round disc standing up, facing front (a pizza, a saw's hub): n strips across, the face over the front of all of them"""
+    x, y, z = c; out = []
     for i in range(n):
         y0 = y - r + i * 2 * r / n; y1 = y0 + 2 * r / n
         near = 0.0 if y0 < y < y1 else min(abs(y0 - y), abs(y1 - y))
@@ -196,56 +234,101 @@ def disc(c, r, th, tex_, pv, face=None, n=9, light=0):
         e = el((x - r * f, y0, z - th), (x + r * f, y1, z + th), tex_, pv, shift=(0.11 * i, 0.23 * i), light=light)
         if face:
             e['faces']['north'] = {'uv': [round(r - r * f, 4), round((y + r) - y1, 4), round(r + r * f, 4), round((y + r) - y0, 4)], 'texture': '#' + face}
-        L.append(e)
-    return L
+        out.append(e)
+    return out
 
 
-def plate(fr, to, tex_, pv, w, h, light=0):
+def plate(fr, to, tex_, pv, w, h, light=0, rot=None):
     """a face plate on the front (north) of a box: the window w x h units at the top left of the face texture"""
-    return el(fr, to, tex_, pv, faces=('north',), uv={'north': [0, 0, w, h]}, light=light)
+    return el(fr, to, tex_, pv, faces=('north',), uv={'north': [0, 0, w, h]}, light=light, rot=rot)
 
 
-def face_tex(base, w, h, paint, ppu=8, seed=1, var=0.03, hi=110, rim=None, fw=None, fh=None, fy=0.5, rim_a=150):
-    """a face texture: the base colour painted and lit over the w x h window (a whole ball's front), then paint(draw, W, H) draws
-    the face (pixels) in an fw x fh box within it, centred across and fy of the way down"""
-    size = 128
-    im = lit(tex(base, seed, var, 2, size), w, h, ppu, a=hi, rim=rim, rim_a=rim_a)
-    fw, fh = fw or w, fh or h
-    lay = Image.new('RGBA', (int(fw * ppu), int(fh * ppu)), (0, 0, 0, 0)); paint(ImageDraw.Draw(lay), fw * ppu, fh * ppu)
-    im.alpha_composite(lay, (int((w - fw) / 2 * ppu), int(max(0, fy * h - fh / 2) * ppu)))
-    return im
+def _rm(ax, ay, az):
+    """Rz Ry Rx (degrees) as rows"""
+    a, b, c = (math.radians(v) for v in (ax, ay, az))
+    Rx = [[1, 0, 0], [0, math.cos(a), -math.sin(a)], [0, math.sin(a), math.cos(a)]]
+    Ry = [[math.cos(b), 0, math.sin(b)], [0, 1, 0], [-math.sin(b), 0, math.cos(b)]]
+    Rz = [[math.cos(c), -math.sin(c), 0], [math.sin(c), math.cos(c), 0], [0, 0, 1]]
+    mm = lambda A, B: [[sum(A[i][k] * B[k][j] for k in range(3)) for j in range(3)] for i in range(3)]
+    return mm(Rz, mm(Ry, Rx))
 
 
-def looks(face):
-    return {'look': (1, -0.2)}.get(face, (0, 0))
+def turn(els, ang, origin):
+    """turn a group of elements (model units out of el()) by Euler angles ang=(x, y, z) about a design-unit origin - each
+    element's own turn composed with it (a baked tilt: a cocked hat, a leaning bolt)"""
+    R = _rm(*ang); out = []
+    for e in els:
+        e = dict(e); fr, to = e['from'], e['to']
+        if 'rotation' in e:
+            r0 = e['rotation']; o = r0['origin']
+            R0 = _rm(r0.get('x', 0), r0.get('y', 0), r0.get('z', 0)) if 'axis' not in r0 else _rm(*[r0['angle'] if r0['axis'] == k else 0 for k in 'xyz'])
+        else:
+            o = [(fr[i] + to[i]) / 2 for i in range(3)]; R0 = _rm(0, 0, 0)
+        O = origin                                          # (model units, as mo() gives it)
+        v = [o[i] - O[i] for i in range(3)]
+        o2 = [sum(R[i][k] * v[k] for k in range(3)) + O[i] for i in range(3)]
+        dlt = [o2[i] - o[i] for i in range(3)]
+        e['from'] = [round(fr[i] + dlt[i], 4) for i in range(3)]; e['to'] = [round(to[i] + dlt[i], 4) for i in range(3)]
+        Rn = [[sum(R[i][k] * R0[k][j] for k in range(3)) for j in range(3)] for i in range(3)]
+        ax, ay, az = euler(Rn)
+        e['rotation'] = {'origin': [round(v_, 4) for v_ in o2], 'x': ax, 'y': ay, 'z': az}
+        out.append(e)
+    return out
+
+
+def mo(p, pv):
+    """a design point -> model units for the part with joint pv (what el() does to a point)"""
+    return [p[i] + 8 - pv[i] for i in range(3)]
 
 
 # ==================================================================================================== GRACE - the hummingbird
 def grace():
     R = Rig('gb_grace_', 1.0)
-    G, GL, PINK, PINKL, BEAK = '#5cae2e', '#8ed34a', '#d8409a', '#f07cc4', '#3a3530'
-    body, belly = R.t('body', lit(tex(G, 11, 0.07), 6, 6, 4, a=70)), R.t('belly', tex('#cfe9a0', 12, 0.05))
-    wing, wing2 = R.t('wing', tex(PINK, 13, 0.08, spots=[(GL, 0.12)])), R.t('wing_g', tex(G, 14, 0.08, spots=[(PINK, 0.1)]))
-    crest, beak = R.t('crest', tex(PINK, 15, 0.1, spots=[(PINKL, 0.25)])), R.t('beak', tex(BEAK, 16, 0.05))
+    G, GD, HEAD, PINK, PINKL, BEAK, INK = '#4e9a24', '#2c6a14', '#8cc63a', '#de5cb4', '#f2a0dc', '#3e3a34', '#162410'
+    body = R.t('body', lit(tex(G, 11, 0.06), 6, 6, 4, a=70, rim=GD))
+    headc = R.t('head', lit(tex(HEAD, 12, 0.05), 4.4, 4.0, 4, a=90, rim='#5a9a24', rim_a=90))
+    throat = R.t('throat', tex(PINK, 18, 0.05, spots=[(PINKL, 0.08)]))
+    wing, wing2 = R.t('wing', tex(G, 13, 0.06, spots=[('#6ab634', 0.1)])), R.t('wing_d', tex(GD, 14, 0.05))
+    crest = R.t('crest', tex(PINK, 15, 0.06, spots=[(PINKL, 0.25)]))
+    beak = R.t('beak', lit(tex(BEAK, 16, 0.04), 2, 8, 4, hi='#9a968a', a=120))
+
+    def eye(d, W, H, cx, cy, s, f, side):
+        """her eye as drawn: a small white oval, a tall dark pupil set toward the beak, a crease behind it"""
+        lw = s * 0.16
+        if f == 'blink':
+            ln(d, arc(cx, cy - s * 0.2, s * 0.6, s * 0.55, 20, 160), INK, lw); return
+        if f == 'happy':
+            ln(d, arc(cx, cy + s * 0.5, s * 0.6, s * 0.75, 200, 340), INK, lw); return
+        rx, ry = (s * 0.62, s * 0.95) if f == 'wow' else ((s * 0.55, s * 0.6) if f == 'fierce' else (s * 0.5, s * 0.85))
+        E(d, cx, cy, rx, ry, '#fafaf2', INK, lw)
+        lx = {'look': -side * 0.22}.get(f, side * 0.14) * s
+        pr = (s * 0.14, s * 0.24) if f == 'wow' else (s * 0.2, s * 0.5 if f != 'fierce' else s * 0.38)
+        E(d, cx + lx, cy + s * 0.06, pr[0], pr[1], '#141008')
+        E(d, cx + lx - pr[0] * 0.3, cy - pr[1] * 0.45, pr[0] * 0.4, pr[0] * 0.4, '#ffffff')
+        a0 = 125 if side > 0 else -55
+        ln(d, arc(cx, cy, rx + s * 0.4, ry + s * 0.18, a0, a0 + 90, n=12), INK, s * 0.09)                       # (the crease behind)
+        if f == 'fierce':
+            ln(d, [(cx - side * s * 1.0, cy - s * 1.15), (cx + side * s * 0.8, cy - s * 0.55)], INK, s * 0.26)
 
     def face(f):
         def p(d, W, H):
-            eye(d, W * 0.24, H * 0.42, W * 0.16, H * 0.2, f, iris='#1c1410', look=looks(f), angry=1)
-            eye(d, W * 0.76, H * 0.42, W * 0.16, H * 0.2, f, iris='#1c1410', look=looks(f), angry=-1)
-            oval(d, W * 0.12, H * 0.78, W * 0.09, H * 0.06, hexc('#f08cb4'))         # (rosy cheeks)
-            oval(d, W * 0.88, H * 0.78, W * 0.09, H * 0.06, hexc('#f08cb4'))
-        return R.t(f'face{"_" + f if f else ""}', face_tex(G, 4.4, 4.0, p, seed=17, hi=90, rim='#3a7a1c', rim_a=110, fw=4.2, fh=3.0, fy=0.52))
+            s = W * 0.11
+            eye(d, W, H, W * 0.22, H * 0.4, s, f, 1)
+            eye(d, W, H, W * 0.78, H * 0.4, s, f, -1)
+        return R.t(f'face{"_" + f if f else ""}', face_tex(HEAD, 4.4, 4.0, p, seed=17, hi=90, rim='#5a9a24', rim_a=90))
     for f in (None,) + FACES: face(f)
     HY = 13.0
     R.part('body', (0, 9.0, 0), None, lambda v, f: [
         *ball((0, 9.0, 0.6), 2.4, body, (0, 9.0, 0), yr=2.6, zr=3.0),
-        el((-1.6, 6.8, -2.0), (1.6, 9.6, -1.6), belly, (0, 9.0, 0), faces=('north', 'down'))])
+        el((-0.7, 7.4, -2.62), (0.7, 10.9, -2.2), throat, (0, 9.0, 0), faces=('north', 'east', 'west', 'up', 'down'))])     # (the pink stripe)
     R.part('head', (0, 11.4, -1.4), 'body', lambda v, f: [
-        *ball((0, HY, -2.0), 2.2, body, (0, 11.4, -1.4), yr=2.0, zr=2.0, shift=(0.4, 0.1), face=R.prefix + 'face' + (f'_{f}' if f else '')),
-        seg((0, HY - 0.6, -4.0), (0, HY - 2.2, -10.5), 0.55, 0.55, beak, (0, 11.4, -1.4)),
-        *chain([(0, HY + 1.8, -1.6), (0, HY + 4.0, 0.2), (0, HY + 4.6, 2.4)], [1.0, 0.7], 0.5, crest, (0, 11.4, -1.4), (0.0, 0.0, -1.0)),
-        *chain([(0.7, HY + 1.6, -1.0), (1.4, HY + 3.6, 0.6), (1.6, HY + 3.8, 2.2)], [0.8, 0.5], 0.4, crest, (0, 11.4, -1.4), (0.0, 0.0, -1.0)),
-        *chain([(-0.7, HY + 1.6, -1.0), (-1.4, HY + 3.6, 0.6), (-1.6, HY + 3.8, 2.2)], [0.8, 0.5], 0.4, crest, (0, 11.4, -1.4), (0.0, 0.0, -1.0))],
+        *ball((0, HY, -2.0), 2.2, headc, (0, 11.4, -1.4), yr=2.0, zr=2.0, shift=(0.4, 0.1), face=R.fk(f)),
+        seg((0, HY - 0.5, -4.0), (0, HY - 2.4, -10.5), 0.6, 0.6, beak, (0, 11.4, -1.4)),
+        el((-0.7, HY - 2.0, -3.6), (0.7, HY - 1.2, -2.6), throat, (0, 11.4, -1.4)),                                  # (pink under the chin)
+        *chain([(0, HY + 1.8, -1.6), (0, HY + 4.2, 0.2), (0, HY + 4.8, 2.6)], [1.5, 0.9], 0.6, crest, (0, 11.4, -1.4), (0.0, 0.0, -1.0)),
+        *chain([(0.7, HY + 1.6, -1.0), (1.5, HY + 3.8, 0.6), (1.8, HY + 4.0, 2.4)], [1.2, 0.7], 0.5, crest, (0, 11.4, -1.4), (0.0, 0.0, -1.0)),
+        *chain([(-0.7, HY + 1.6, -1.0), (-1.5, HY + 3.8, 0.6), (-1.8, HY + 4.0, 2.4)], [1.2, 0.7], 0.5, crest, (0, 11.4, -1.4), (0.0, 0.0, -1.0)),
+        *chain([(0, HY + 1.0, 0.4), (0, HY + 2.0, 2.6), (0, HY + 1.6, 4.4)], [1.0, 0.6], 0.5, crest, (0, 11.4, -1.4), (0.0, 1.0, 0.0))],
         faced=True)
     for s, n in ((1, 'wingr'), (-1, 'wingl')):
         pv = (s * 2.0, 10.4, 0.2)
@@ -272,73 +355,115 @@ def grace():
 # ==================================================================================================== ROBO - the robot
 def robo():
     R = Rig('gb_robo_', 1.0)
-    GREY, GREYD, GREYL, RED = '#8a9096', '#5c6268', '#b8bec4', '#d83a2a'
-    metal = R.t('metal', lit(tex(GREY, 21, 0.06, spots=[('#7a8086', 0.08)]), 8, 8, 4, a=60, rim='#3a3e44'))
-    dark, light_ = R.t('dark', tex(GREYD, 22, 0.05)), R.t('light', tex(GREYL, 23, 0.04))
-    rust, flame = R.t('panel', tex('#c8a432', 24, 0.06)), R.t('flame', tex('#ffb030', 25, 0.15, spots=[('#ff6a20', 0.3), ('#fff2a0', 0.2)]))
+    GREY, GREYD, GREYL, LINE, RED = '#9a9c9e', '#5e6062', '#c6c8ca', '#3c3e40', '#d42a1e'
+    metal = R.t('metal', lit(tex(GREY, 21, 0.04), 8, 8, 4, a=70, rim='#4a4c4e'))
+    dark, light_ = R.t('dark', tex(GREYD, 22, 0.04)), R.t('light', lit(tex(GREYL, 23, 0.03), 4, 8, 4, a=60))
+    flame = R.t('flame', tex('#ffcc30', 25, 0.1, spots=[('#ff4a1a', 0.3), ('#fff8c0', 0.2)]))
+    eyew = R.t('eyew', lit(tex('#eeeeec', 26, 0.02), 2, 2, 4, a=60, rim='#a0a0a0'))
+    stalk = R.t('stalk', tex('#4c4e50', 27, 0.03))
+    redb = R.t('red', lit(tex(RED, 28, 0.05), 2, 2, 4, a=120))
 
-    def face(f):
-        def p(d, W, H):                                   # (a screen: two glowing eyes that change, a mouth of dots)
-            d.rounded_rectangle((W * 0.06, H * 0.08, W * 0.94, H * 0.92), radius=int(W * 0.1), fill=hexc('#14202a'), outline=hexc('#2c3a46'), width=3)
-            E = '#7ff0ff' if f != 'fierce' else '#ff5040'
-            for cx, s in ((0.32, 1), (0.68, -1)):
-                x, y = W * cx, H * 0.42
-                if f == 'blink': d.rectangle((x - W * 0.1, y, x + W * 0.1, y + H * 0.04), fill=hexc(E))
-                elif f == 'happy': d.arc((x - W * 0.1, y - H * 0.06, x + W * 0.1, y + H * 0.16), 200, 340, fill=hexc(E), width=4)
-                elif f == 'fierce':
-                    d.polygon([(x - W * 0.11, y - H * 0.1 * s), (x + W * 0.11, y + H * 0.1 * s), (x + W * 0.11, y + H * 0.14), (x - W * 0.11, y + H * 0.14)], fill=hexc(E))
-                else:
-                    r = W * (0.13 if f == 'wow' else 0.1); lx = looks(f)[0] * W * 0.04
-                    d.ellipse((x - r + lx, y - r, x + r + lx, y + r), fill=hexc(E))
-                    d.ellipse((x - r * 0.4 + lx, y - r * 0.6, x - r * 0.05 + lx, y - r * 0.25), fill=hexc('#ffffff'))
-            k = {None: 'smile', 'blink': 'smile', 'look': 'smile', 'happy': 'grin', 'fierce': 'flat', 'wow': 'o'}[f]
-            y = H * 0.74
-            if k == 'o': d.ellipse((W * 0.44, y - H * 0.06, W * 0.56, y + H * 0.08), outline=hexc(E), width=3)
-            else:
-                for i in range(5):
-                    x = W * (0.3 + i * 0.1); dy = {'smile': (1 - ((i - 2) / 2) ** 2) * H * 0.05, 'grin': (1 - ((i - 2) / 2) ** 2) * H * 0.09, 'flat': 0}[k]
-                    d.rectangle((x - 3, y + dy - 3, x + 3, y + dy + 3), fill=hexc(E))
-        return R.t(f'face{"_" + f if f else ""}', face_tex(GREY, 6.0, 4.6, p, seed=26, hi=40))
-    for f in (None,) + FACES: face(f)
+    def head_face(f):
+        """his face, as drawn: a grey plate with a dark outline and a glint, a red dot of a nose, a crooked cream grin of
+        squared teeth (the grin changes with his mood; his eyes are on the stalks)"""
+        def p(d, W, H):
+            lw = W * 0.025
+            d.rounded_rectangle((lw, lw, W - lw, H - lw), radius=int(W * 0.06), outline=hexc(LINE), width=int(lw * 1.6))
+            E(d, W * 0.2, H * 0.2, W * 0.07, H * 0.045, '#e8eaec'); E(d, W * 0.12, H * 0.3, W * 0.025, H * 0.025, '#e8eaec')    # (the shine)
+            nr = W * (0.05 if f != 'fierce' else 0.065)
+            E(d, W * 0.58, H * 0.36, nr, nr, RED if f != 'fierce' else '#ff3a1a', '#7a1410', lw * 0.7)
+            E(d, W * 0.565, H * 0.345, nr * 0.35, nr * 0.35, '#ffb0a0')
+            T_, S_ = '#e2daa0', '#b8ae6c'
+            if f == 'wow':                                          # (his jaw dropped: a dark mouth, the teeth along its top)
+                d.rectangle((W * 0.24, H * 0.52, W * 0.86, H * 0.9), fill=hexc('#2a2a2a'), outline=hexc(LINE), width=int(lw))
+                d.rectangle((W * 0.26, H * 0.54, W * 0.84, H * 0.62), fill=hexc(T_))
+                return
+            if f == 'fierce':                                       # (clenched: a flat top, teeth set edge to edge)
+                pts = [(0.22, 0.58), (0.88, 0.58), (0.88, 0.9), (0.22, 0.9)]
+            elif f == 'happy':                                      # (the grin opened up wide)
+                pts = [(0.2, 0.5), (0.46, 0.46), (0.44, 0.66), (0.66, 0.6), (0.64, 0.44), (0.9, 0.42), (0.9, 0.92), (0.2, 0.92)]
+            else:                                                   # (the crooked grin: up on the left, a dip, up on the right)
+                pts = [(0.22, 0.56), (0.46, 0.52), (0.44, 0.72), (0.66, 0.66), (0.64, 0.5), (0.88, 0.48), (0.88, 0.9), (0.22, 0.9)]
+            P = [(x * W, y * H) for x, y in pts]
+            d.polygon(P, fill=hexc(T_), outline=hexc(LINE), width=int(lw))
+            d.rectangle((W * 0.235, H * 0.82, W * 0.865, H * 0.885), fill=hexc(S_))
+            for x in (0.36, 0.54, 0.74):
+                ln(d, [(W * x, H * 0.7), (W * x, H * 0.88)], '#c8be80', lw * 0.6)
+            if f == 'fierce':
+                for i in range(7):
+                    x = 0.24 + i * 0.09; ln(d, [(W * x, H * 0.6), (W * (x + 0.045), H * 0.66), (W * (x + 0.09), H * 0.6)], LINE, lw * 0.6)
+        return R.t(f'face{"_" + f if f else ""}', face_tex(GREY, 6.4, 4.8, p, seed=29, hi=60))
+
+    def eyeball(f, big):
+        """an eye on a stalk: white, shaded low; a black pupil with a glint (or a grey lid coming down)"""
+        def p(d, W, H):
+            E(d, W * 0.5, H * 0.62, W * 0.42, H * 0.3, '#c8c8c4')                               # (shade)
+            lx = {'look': 0.2, 'happy': 0.0}.get(f, 0.06) * W; ly = {'happy': -0.12, 'wow': 0.0}.get(f, 0.04) * H
+            pr = W * (0.12 if f == 'wow' else 0.18)
+            if f != 'blink':
+                E(d, W * 0.5 + lx, H * 0.5 + ly, pr, pr, '#141414'); E(d, W * 0.44 + lx, H * 0.43 + ly, pr * 0.4, pr * 0.4, '#ffffff')
+            if f in ('blink', 'fierce'):                             # (the lid: all the way down, or half and slanting)
+                lid = [(0, 0), (W, 0), (W, H * (0.62 if f == 'blink' else (0.3 if big else 0.5))), (0, H * (0.62 if f == 'blink' else (0.5 if big else 0.3)))]
+                d.polygon(lid, fill=hexc('#8a8c8e'))
+                ln(d, [lid[3], lid[2]], LINE, W * 0.06)
+        return R.t(f'eye{"_b" if big else "_s"}{"_" + f if f else ""}', face_tex('#eeeeec', 2.2 if big else 1.2, 2.2 if big else 1.2, p, seed=31, hi=70, rim='#9a9a9a', rim_a=90))
+    for f in (None,) + FACES:
+        head_face(f); eyeball(f, True); eyeball(f, False)
     by = 9.0
-    R.part('body', (0, by, 0), None, lambda v, f: [
-        el((-3.6, by - 3.0, -2.4), (3.6, by + 3.6, 2.4), metal, (0, by, 0)),
-        el((-2.4, by - 1.8, -2.62), (2.4, by + 1.6, -2.4), rust, (0, by, 0), faces=('north',)),           # (the chest panel)
-        el((-0.8, by - 0.8, -2.8), (0.8, by + 0.6, -2.6), R.t('lamp', tex(RED, 27, 0.05)), (0, by, 0), faces=('north', 'east', 'west', 'up', 'down'), light=12),
-        el((-2.8, by - 4.2, -1.8), (2.8, by - 3.0, 1.8), dark, (0, by, 0))])
-    hy = by + 3.6
-    R.part('head', (0, hy, 0), 'body', lambda v, f: [
-        el((-3.2, hy + 0.2, -2.6), (3.2, hy + 5.0, 2.4), metal, (0, hy, 0), shift=(0.3, 0.5)),
-        plate((-3.0, hy + 0.3, -2.63), (3.0, hy + 4.9, -2.6), R.prefix + 'face' + (f'_{f}' if f else ''), (0, hy, 0), 6.0, 4.6, light=6),
-        el((-0.25, hy + 5.0, -0.25), (0.25, hy + 7.0, 0.25), dark, (0, hy, 0)),                            # (the antenna)
-        el((-0.6, hy + 7.0, -0.6), (0.6, hy + 8.2, 0.6), R.t('bulb', tex(RED, 28, 0.08)), (0, hy, 0), light=14),
-        el((-3.8, hy + 1.6, -1.0), (-3.2, hy + 3.4, 1.0), dark, (0, hy, 0)), el((3.2, hy + 1.6, -1.0), (3.8, hy + 3.4, 1.0), dark, (0, hy, 0))],
-        faced=True)
+    panel = R.t('panel', face_tex(GREY, 5.0, 5.4, lambda d, W, H: (
+        d.polygon([(W * 0.08, H * 0.06), (W * 0.92, H * 0.06), (W * 0.82, H * 0.94), (W * 0.18, H * 0.94)], fill=hexc(GREYL), outline=hexc(LINE), width=int(W * 0.04)),
+        ln(d, [(W * 0.56, H * 0.3), (W * 0.56, H * 0.7)], LINE, W * 0.05)), seed=24, hi=50))
+
+    def body(v, f):
+        return [el((-3.8, by + 1.2, -2.4), (3.8, by + 3.6, 2.4), metal, (0, by, 0)),               # (the chest, wide at the top...)
+                el((-3.3, by - 1.0, -2.2), (3.3, by + 1.2, 2.2), metal, (0, by, 0), shift=(0.3, 0.2)),
+                el((-2.8, by - 3.0, -2.0), (2.8, by - 1.0, 2.0), metal, (0, by, 0), shift=(0.6, 0.5)),   # (...narrow at the waist)
+                plate((-2.5, by - 2.6, -2.62), (2.5, by + 2.8, -2.6), panel, (0, by, 0), 5.0, 5.4),
+                el((-2.4, by - 4.2, -1.8), (2.4, by - 3.0, 1.8), dark, (0, by, 0)),
+                el((-1.5, by + 3.6, -1.4), (1.5, by + 4.6, 1.4), dark, (0, by, 0))]                 # (the neck)
+    R.part('body', (0, by, 0), None, body)
+    hy = by + 4.6
+
+    def head(v, f):
+        pv = (0, hy, 0)
+        Lh = [el((-3.2, hy, -2.4), (3.2, hy + 4.8, 2.4), metal, pv, shift=(0.3, 0.5)),
+              plate((-3.2, hy, -2.43), (3.2, hy + 4.8, -2.4), R.fk(f), pv, 6.4, 4.8)]
+        # the eyes on stalks: the big one on his right, the little one on his left; the curly antenna between
+        Lh += [el((1.75, hy + 4.8, -0.25), (2.25, hy + 7.0, 0.25), stalk, pv), *ball((2.0, hy + 8.0, -0.2), 1.1, eyew, pv, face=R.fk(f, 'eye_b'), n=5),
+               el((-2.35, hy + 4.8, -0.2), (-1.95, hy + 6.0, 0.2), stalk, pv), *ball((-2.15, hy + 6.55, -0.2), 0.6, eyew, pv, face=R.fk(f, 'eye_s'), n=4)]
+        Lh += chain([(0.2, hy + 4.8, 0), (0.0, hy + 6.0, 0), (0.9, hy + 6.8, 0), (0.5, hy + 7.6, 0), (-0.2, hy + 7.0, 0), (0.3, hy + 8.6, 0)],
+                    [0.3] * 5, 0.3, stalk, pv, (0.0, 0.0, -1.0), ext=0.1)
+        Lh += ball((0.3, hy + 9.1, 0), 0.55, redb, pv, n=3)
+        return Lh
+    R.part('head', (0, hy, 0), 'body', head, faced=True)
+
+    def clamp(cx, cy, cz, pv, r=1.1):
+        """a C-clamp hand, open at the top, in the plane facing front"""
+        pts = [(cx + r * math.cos(math.radians(a)), cy + r * math.sin(math.radians(a)), cz) for a in range(120, 421, 50)]
+        return chain(pts, [0.65] * (len(pts) - 1), 0.7, metal, pv, (0.0, 0.0, -1.0), ext=0.15)
     for s, n in ((1, 'armr'), (-1, 'arml')):
-        pv = (s * 4.2, by + 2.6, 0)
+        pv = (s * 4.0, by + 3.0, 0)
         def arm(v, f, pv=pv, s=s):
             x = pv[0]; y = pv[1]
-            L = [el((x - 0.9, y - 1.0, -1.0), (x + 0.9, y + 1.0, 1.0), dark, pv),                              # (the shoulder)
-                 seg((x + s * 0.4, y, 0), (x + s * 0.9, y - 7.0, 0), 0.9, 0.9, light_, pv),
-                 el((x + s * 0.9 - 1.3, y - 8.4, -1.3), (x + s * 0.9 + 1.3, y - 6.8, 1.3), dark, pv)]
-            for c in (-1, 1):                                                                                 # (the claw)
-                L.append(seg((x + s * 0.9, y - 8.4, c * 0.7), (x + s * 0.9, y - 10.6, c * 1.4), 0.6, 0.5, metal, pv))
+            A = [el((x - 0.9, y - 0.9, -0.9), (x + 0.9, y + 0.9, 0.9), dark, pv),
+                 *chain([(x, y, 0), (x + s * 1.4, y - 3.6, 0), (x + s * 1.0, y - 7.4, 0)], [0.9, 0.85], 0.9, light_, pv)]
+            A += clamp(x + s * 1.0, y - 8.6, 0, pv)
             if v == 'rocket':
-                L.append(el((x + s * 0.9 - 0.7, y - 0.5, -0.7), (x + s * 0.9 + 0.7, y + 0.7, 0.7), flame, pv, light=15))
-            return L
+                A.append(el((x + s * 1.0 - 0.7, y - 0.5, -0.7), (x + s * 1.0 + 0.7, y + 0.7, 0.7), flame, pv, light=15))
+            return A
         R.part(n, pv, 'body', arm, variants=('rocket',))
     for s, n in ((1, 'legr'), (-1, 'legl')):
-        pv = (s * 1.8, by - 4.0, 0)
-        R.part(n, pv, None if False else 'body', (lambda pv: lambda v, f: [
-            seg((pv[0], pv[1], 0), (pv[0], 2.4, 0), 1.0, 1.0, light_, pv),
-            el((pv[0] - 1.4, 0.4, -1.8), (pv[0] + 1.4, 2.6, 1.6), metal, pv),                                   # (the thruster foot)
-            el((pv[0] - 1.0, 0.0, -1.2), (pv[0] + 1.0, 0.4, 1.0), dark, pv)] +
-            ([el((pv[0] - 0.8, -1.6, -0.8), (pv[0] + 0.8, 0.0, 0.8), flame, pv, light=15)] if v == 'jet' else []))(pv), variants=('jet',))
+        pv = (s * 1.7, by - 4.0, 0)
+        R.part(n, pv, 'body', (lambda pv, s: lambda v, f: [
+            seg((pv[0], pv[1], 0), (pv[0] + s * 0.3, 2.2, 0), 1.6, 1.6, light_, pv),
+            el((pv[0] + s * 0.3 - 1.5, 0.6, -2.2), (pv[0] + s * 0.3 + 1.5, 2.4, 1.4), metal, pv),            # (the boot)
+            el((pv[0] + s * 0.3 - 1.4, 0.0, -2.0), (pv[0] + s * 0.3 + 1.4, 0.6, 1.2), dark, pv)] +
+            ([el((pv[0] + s * 0.3 - 0.9, -1.8, -1.0), (pv[0] + s * 0.3 + 0.9, 0.0, 0.6), flame, pv, light=15)] if v == 'jet' else []))(pv, s), variants=('jet',))
     arms = lambda r, l: dict(armr=L(('x', r[0]), ('z', r[1])), arml=L(('x', l[0]), ('z', l[1])))
     R.POSES.update({
         'appear': dict(_face='wow', _v={'legr': 'jet', 'legl': 'jet'}, _off=(0, 3.0, 0), **arms((0, 60), (0, -60))),
         'idle_a': dict(**arms((4, 6), (-4, -6)), head=T(('x', 3))),
-        'idle_b': dict(_face='look', **arms((0, 10), (20, -8)), head=T(('y', -22), ('z', 6)), body=T(('y', 6))),
+        'idle_b': dict(_face='look', **arms((0, 10), (0, 130)), head=T(('y', -22), ('z', 6)), body=T(('y', 6))),        # (a wave, as drawn)
         'stomp_up': dict(_face='fierce', _off=(0, 1.4, 0), legr=L(('x', -60)), **arms((0, 30), (0, -30)), body=T(('z', -6))),
         'stomp': dict(_face='fierce', _off=(0, -0.8, 0), **arms((-10, 40), (-10, -40)), body=T(('x', 6))),
         'wind': dict(_face='fierce', body=T(('y', 28)), **arms((50, 0), (-30, -14)), head=T(('y', -18))),
@@ -352,47 +477,88 @@ def robo():
 # ==================================================================================================== ZAPPER - the lightning bolt
 def zapper():
     R = Rig('gb_zapper_', 1.0)
-    Y, YL, YD = '#f6d21e', '#fff27a', '#d8a40c'
-    gold = R.t('bolt', lit(tex(Y, 31, 0.05, spots=[(YL, 0.08)]), 6, 6, 4, a=90, rim=YD))
-    hot = R.t('hot', tex('#fffbe0', 32, 0.04, spots=[(YL, 0.3)]))
-    blue = R.t('ice', tex('#9ad8f4', 33, 0.05))
+    Y, YL, YD, INK = '#ffe11a', '#fff38a', '#e0a800', '#7a5a08'
+    gold = R.t('bolt', lit(tex(Y, 31, 0.04), 6, 6, 4, a=110, rim=YD))
+    hot = R.t('hot', lit(tex('#fffbe0', 32, 0.03), 6, 6, 4, a=60))
+    blue = R.t('arc', tex('#a8e4ff', 33, 0.04))
 
     def face(f):
+        """his face as drawn: round white eyes, grey low down, small black pupils glancing aside; one brow way up, the other
+        down and in (curious); a green gem of a nose; a wavy, unsure little mouth"""
         def p(d, W, H):
-            eye(d, W * 0.3, H * 0.4, W * 0.16, H * 0.2, f, iris='#3a2a0a', look=looks(f) if f else (0.5, -0.3), angry=1)
-            eye(d, W * 0.7, H * 0.36, W * 0.14, H * 0.18, f, iris='#3a2a0a', look=looks(f) if f else (0.5, -0.3), angry=-1)
-            oval(d, W * 0.52, H * 0.62, W * 0.08, H * 0.07, hexc('#2ca850'), hexc('#1a6a30'), 2)       # (the green button nose)
-            mouth(d, W * 0.52, H * 0.78, W * 0.1, {None: 'wavy', 'look': 'o', 'blink': 'smile'}.get(f, FACE_MOUTH[f]))
-        return R.t(f'face{"_" + f if f else ""}', face_tex(Y, 5.0, 4.6, p, seed=34, hi=120))
+            lw = W * 0.018
+            ex, ey, er = (W * 0.28, H * 0.38), (W * 0.7, H * 0.38), W * (0.14 if f != 'wow' else 0.16)
+            for (cx, cy), side in ((ex, 1), (ey, -1)):
+                if f in ('blink', 'happy'):
+                    ln(d, arc(cx, cy + (er * 0.6 if f == 'happy' else -er * 0.2), er * 0.9, er * (0.8 if f == 'happy' else 0.5), 200 if f == 'happy' else 20, 340 if f == 'happy' else 160), '#3a2a06', lw * 1.6)
+                    continue
+                E(d, cx, cy, er, er * 1.05, '#ffffff', INK, lw)
+                d.chord((cx - er, cy - er * 1.05, cx + er, cy + er * 1.05), 20, 160, fill=hexc('#cfcfd4'))          # (grey shade low in the eye)
+                E(d, cx, cy, er, er * 1.05, None, INK, lw)
+                lx = {'look': -0.45, 'fierce': 0.0, 'wow': 0.0}.get(f, 0.42) * er; ly = {'fierce': 0.0}.get(f, 0.1) * er
+                pr = er * (0.22 if f == 'wow' else 0.36)
+                E(d, cx + lx, cy + ly, pr, pr * 1.1, '#101010'); E(d, cx + lx - pr * 0.35, cy + ly - pr * 0.4, pr * 0.35, pr * 0.35, '#ffffff')
+            # brows: curious - his right one arched high, the left low and slanting in; level and high when amazed; both down in a fight
+            bw = lw * 1.7; BR = '#6a4a0a'
+            if f == 'fierce':
+                ln(d, [(ex[0] - er, ex[1] - er * 1.25), (ex[0] + er * 0.9, ex[1] - er * 0.7)], BR, bw * 1.5)
+                ln(d, [(ey[0] + er, ey[1] - er * 1.25), (ey[0] - er * 0.9, ey[1] - er * 0.7)], BR, bw * 1.5)
+            elif f == 'wow':
+                ln(d, arc(ex[0], ex[1] - er * 1.0, er * 0.9, er * 0.5, 200, 340), BR, bw); ln(d, arc(ey[0], ey[1] - er * 1.0, er * 0.9, er * 0.5, 200, 340), BR, bw)
+            elif f == 'look':
+                ln(d, arc(ey[0], ey[1] - er * 1.0, er * 0.9, er * 0.6, 200, 340), BR, bw)
+                ln(d, [(ex[0] - er * 0.9, ex[1] - er * 1.15), (ex[0] + er * 0.8, ex[1] - er * 1.2)], BR, bw)
+            else:
+                ln(d, arc(ex[0], ex[1] - er * 1.05, er * 0.9, er * 0.6, 200, 340), BR, bw)
+                ln(d, [(ey[0] - er * 0.9, ey[1] - er * 1.05), (ey[0] + er * 0.9, ey[1] - er * 1.35)], BR, bw)
+            # the nose: an emerald - a dark rim, a lighter facet, a glint
+            nx, ny = W * 0.49, H * 0.62
+            E(d, nx, ny, W * 0.1, H * 0.07, '#139a48', '#08542a', lw * 1.2)
+            d.polygon([(nx - W * 0.04, ny - H * 0.035), (nx + W * 0.02, ny - H * 0.045), (nx + W * 0.005, ny + H * 0.005)], fill=hexc('#5ad890'))
+            E(d, nx - W * 0.03, ny - H * 0.03, W * 0.014, H * 0.012, '#ffffff')
+            mx, my = W * 0.47, H * 0.79
+            if f == 'happy':
+                ln(d, arc(mx, my - H * 0.03, W * 0.07, H * 0.05, 20, 160), '#3a2a06', lw * 1.5)
+            elif f == 'wow':
+                E(d, mx, my, W * 0.035, H * 0.045, '#5a2a10', '#3a2a06', lw)
+            elif f == 'fierce':
+                ln(d, [(mx - W * 0.08, my), (mx - W * 0.04, my - H * 0.025), (mx, my), (mx + W * 0.04, my - H * 0.025), (mx + W * 0.08, my)], '#3a2a06', lw * 1.4)
+            else:                                                     # (the wavy, unsure little mouth: a dip and a wobble)
+                ln(d, bez((mx - W * 0.075, my + H * 0.01), (mx - W * 0.035, my - H * 0.045), (mx + W * 0.01, my + H * 0.02), (mx + W * 0.07, my - H * 0.02)), '#3a2a06', lw * 1.4)
+                ln(d, [(mx + W * 0.07, my - H * 0.02), (mx + W * 0.085, my + H * 0.012)], '#3a2a06', lw * 1.2)
+        return R.t(f'face{"_" + f if f else ""}', face_tex(Y, 5.2, 5.6, p, seed=34, hi=120, rim=YD, rim_a=80, rot=20.0))
     for f in (None,) + FACES: face(f)
-    cy = 9.0
+    # the bolt, seen from the front - one classic jagged lightning bolt: a broad slab leaning over (his face on it, kept upright),
+    # a step jutting out under it, and a long tail tapering to a point down at the other side. (Design x is his right - the
+    # viewer's left; the slab leans over to the viewer's right, the tail runs down to the viewer's left.)
+    cy = 11.0
+    LEAN = 20.0
+
     def core(v, f):
-        t = hot if v == 'charged' else gold
-        L = [el((-2.5, cy - 2.2, -1.6), (2.5, cy + 2.4, 1.6), t, (0, cy, 0), light=10 if v else 6),
-             plate((-2.5, cy - 2.2, -1.63), (2.5, cy + 2.4, -1.6), R.prefix + 'face' + (f'_{f}' if f else ''), (0, cy, 0), 5.0, 4.6, light=10)]
-        for a, ln in ((90, 3.6), (40, 4.4), (140, 3.0), (-15, 3.2), (195, 2.8), (65, 2.4)):            # (spikes all round the edge)
-            r = math.radians(a); A = (math.cos(r) * 2.0, cy + math.sin(r) * 1.9, 0.0); B = (math.cos(r) * (2.0 + ln), cy + math.sin(r) * (1.9 + ln), 0.0)
-            L.append(seg(A, B, 1.1, 1.0, t, (0, cy, 0), (0.0, 0.0, -1.0), light=8))
+        t = hot if v == 'charged' else gold; pv = (0, cy, 0); lt = 10 if v else 5
+        slab = [el((-2.6, cy - 4.2, -1.3), (2.6, cy + 4.0, 1.3), t, pv, light=lt),
+                plate((-2.6, cy - 3.0, -1.33), (2.6, cy + 2.6, -1.3), R.fk(f), pv, 5.2, 5.6, light=10)]
+        Lb = turn(slab, (0.0, 0.0, LEAN), mo((0, cy, 0), pv))
+        Lb += [el((-4.4, cy - 5.6, -1.2), (2.2, cy - 3.6, 1.2), t, pv, shift=(0.3, 0.6), light=lt)]                    # (the step, out under it)
+        Lb += chain([(-3.2, cy - 4.6, 0), (-1.0, cy - 7.8, 0), (1.2, cy - 10.0, 0), (2.6, cy - 11.0, 0)], [3.4, 2.2, 0.8], 2.0, t, pv, (0.0, 0.0, -1.0), ext=0.3)
         if v == 'charged':
-            L += [seg((-2.6, cy + 1.0, -1.0), (-5.6, cy + 3.4, -2.0), 0.3, 0.3, blue, (0, cy, 0), light=15),
-                  seg((2.6, cy - 1.0, -1.0), (5.8, cy - 2.6, -2.2), 0.3, 0.3, blue, (0, cy, 0), light=15)]
-        return L
+            Lb += [seg((2.8, cy + 2.0, -1.0), (5.8, cy + 4.4, -2.0), 0.3, 0.3, blue, pv, light=15),
+                   seg((-4.4, cy - 4.0, -1.0), (-7.2, cy - 2.4, -2.2), 0.3, 0.3, blue, pv, light=15)]
+        return Lb
     R.part('core', (0, cy, 0), None, core, variants=('charged',), faced=True)
-    R.part('tail', (0, cy - 2.0, 0), 'core', lambda v, f: chain([(0.6, cy - 2.0, 0.4), (-1.8, cy - 4.6, 0.6), (1.2, cy - 6.2, 0.8), (-0.6, cy - 8.4, 1.0)],
-                                                              [1.8, 1.4, 1.0], 1.2, gold, (0, cy - 2.0, 0), (0.0, 0.0, -1.0)))
-    for s, n in ((1, 'armr'), (-1, 'arml')):
-        pv = (s * 2.4, cy - 0.4, 0)
-        R.part(n, pv, 'core', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 1.6, pv[1] - 1.2, -0.2), (pv[0] + s * 2.6, pv[1] - 0.2, -0.4)],
-                                                                [0.7, 0.55], 0.6, gold, pv, (0.0, 0.0, -1.0)))(pv, s))
+    for s, n in ((1, 'armr'), (-1, 'arml')):                          # (little zigzag bolts for arms)
+        pv = (s * 2.6 + 0.6, cy - 1.0 + s * 0.9, 0)
+        R.part(n, pv, 'core', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 1.2, pv[1] + 0.8, -0.1), (pv[0] + s * 1.8, pv[1] - 0.6, -0.2), (pv[0] + s * 2.8, pv[1] + 0.2, -0.3)],
+                                                                [0.7, 0.6, 0.45], 0.6, gold, pv, (0.0, 0.0, -1.0), ext=0.2))(pv, s))
     R.POSES.update({
         'appear': dict(_face='wow', _v={'core': 'charged'}, _off=(0, 1.4, 0), core=T(('z', 18))),
-        'idle_a': dict(_off=(0, 0.8, 0), core=T(('z', -10)), tail=T(('z', 8)), armr=L(('z', 10)), arml=L(('z', -20))),
-        'idle_b': dict(_face='look', _off=(0, 1.4, 0), core=T(('z', 24), ('y', -18)), tail=T(('z', -12)), armr=L(('z', -30))),     # (head cocked - curious)
-        'bob_0': dict(_face='look', _off=(0, 2.0, 0), core=T(('z', 30), ('x', -10)), tail=T(('z', -20)), armr=L(('z', 40)), arml=L(('z', -10))),
-        'bob_1': dict(_face='wow', _off=(0, 0.4, 0), core=T(('z', -26), ('y', 20)), tail=T(('z', 18)), armr=L(('z', -10)), arml=L(('z', 40))),
-        'wind': dict(_face='fierce', _v={'core': 'charged'}, _off=(0, 2.4, 1.6), core=T(('x', 18)), armr=L(('z', 60)), arml=L(('z', -60)), tail=T(('x', -20))),
-        'strike': dict(_face='fierce', _v={'core': 'charged'}, _off=(0, 0.0, -5.0), core=T(('x', -36)), armr=L(('z', -20)), arml=L(('z', 20)), tail=T(('x', 30))),
-        'happy': dict(_face='happy', _off=(0, 2.0, 0), core=T(('z', -16)), armr=L(('z', 70)), arml=L(('z', -70)), tail=T(('z', 16))),
+        'idle_a': dict(_off=(0, 0.8, 0), core=T(('z', -4)), armr=L(('z', 10)), arml=L(('z', -20))),
+        'idle_b': dict(_face='look', _off=(0, 1.4, 0), core=T(('z', 16), ('y', -18)), armr=L(('z', -30))),     # (head cocked - curious)
+        'bob_0': dict(_face='look', _off=(0, 2.0, 0), core=T(('z', 22), ('x', -10)), armr=L(('z', 40)), arml=L(('z', -10))),
+        'bob_1': dict(_face='wow', _off=(0, 0.4, 0), core=T(('z', -18), ('y', 20)), armr=L(('z', -10)), arml=L(('z', 40))),
+        'wind': dict(_face='fierce', _v={'core': 'charged'}, _off=(0, 2.4, 1.6), core=T(('x', 18)), armr=L(('z', 60)), arml=L(('z', -60))),
+        'strike': dict(_face='fierce', _v={'core': 'charged'}, _off=(0, 0.0, -5.0), core=T(('x', -36)), armr=L(('z', -20)), arml=L(('z', 20))),
+        'happy': dict(_face='happy', _off=(0, 2.0, 0), core=T(('z', -12)), armr=L(('z', 70)), arml=L(('z', -70))),
         'vanish': dict(_face='blink', _v={'core': 'charged'}, _off=(0, 3.0, 0), core=T(('y', 180))),
     })
     return R.ns()
@@ -401,42 +567,63 @@ def zapper():
 # ==================================================================================================== DESSA - the light bulb
 def dessa():
     R = Rig('gb_dessa_', 1.0)
-    GL, GLD = '#f8e64a', '#e0c020'
-    glass = {None: R.t('glass', lit(tex(GL, 41, 0.04), 8, 8, 4, a=130, rim=GLD, rim_a=110)),
-             'dim': R.t('glass_dim', lit(tex('#b8a838', 42, 0.04), 8, 8, 4, a=60)),
-             'flash': R.t('glass_flash', tex('#fffce8', 43, 0.03))}
-    base, ring = R.t('base', tex('#8c9094', 44, 0.06)), R.t('ring', tex('#5e6266', 45, 0.05))
-    wire = R.t('wire', tex('#3a3a3a', 46, 0.04))
-    fil = R.t('filament', tex('#ff9a30', 47, 0.1))
+    GL, GLD, INK = '#f6ec48', '#d8c41a', '#4a3c0a'
+    glass = {None: R.t('glass', lit(tex(GL, 41, 0.03), 8, 8, 4, a=150, rim=GLD, rim_a=110)),
+             'dim': R.t('glass_dim', lit(tex('#b8ac3a', 42, 0.03), 8, 8, 4, a=60)),
+             'flash': R.t('glass_flash', tex('#fffcea', 43, 0.02))}
+    base, ring = R.t('base', lit(tex('#8e9294', 44, 0.04), 4, 4, 4, a=80)), R.t('ring', tex('#5a5e62', 45, 0.04))
+    glow = R.t('glow', tex('#fff6a0', 46, 0.03))
+    fil = R.t('filament', tex('#e8a030', 47, 0.06))
 
     def face(f, v):
-        col = {None: GL, 'dim': '#b8a838', 'flash': '#fffce8'}[v]
-        def p(d, W, H):          # (her look: eyes closed in two happy curves, a little wavy smile - sleepy and sweet)
-            k = {None: 'happy', 'happy': 'happy', 'blink': 'blink', 'look': None, 'wow': 'wow', 'fierce': 'fierce'}[f]
-            eye(d, W * 0.3, H * 0.42, W * 0.14, H * 0.17, k, iris='#4a3a10', look=looks(f), angry=1)
-            eye(d, W * 0.7, H * 0.42, W * 0.14, H * 0.17, k, iris='#4a3a10', look=looks(f), angry=-1)
-            mouth(d, W * 0.5, H * 0.7, W * 0.13, {None: 'wavy', 'happy': 'grin', 'blink': 'wavy', 'look': 'smile', 'wow': 'o', 'fierce': 'fangs'}[f])
-            oval(d, W * 0.16, H * 0.66, W * 0.07, H * 0.05, hexc('#f4a040'))
-            oval(d, W * 0.84, H * 0.66, W * 0.07, H * 0.05, hexc('#f4a040'))
-        return R.t(f'face{"_" + v if v else ""}{"_" + f if f else ""}', face_tex(col, 7.2, 7.6, p, seed=48, hi=120 if v != 'dim' else 50, rim=None if v == 'flash' else '#c8a010', rim_a=90, fw=5.6, fh=4.8, fy=0.52))
+        col = {None: GL, 'dim': '#b8ac3a', 'flash': '#fffcea'}[v]
+        def p(d, W, H):          # (as drawn: her eyes shut in two happy pointed arches, a wavy little smile with a curl at its end)
+            lw = W * 0.022; ex, ey = (W * 0.32, H * 0.42), (W * 0.68, H * 0.42); er = W * 0.1
+            E(d, W * 0.24, H * 0.2, W * 0.08, H * 0.05, '#fffff0'); E(d, W * 0.17, H * 0.3, W * 0.025, H * 0.04, '#fffff0')   # (the glass's shine)
+            for cx, cy in (ex, ey):
+                if f in (None, 'happy'):                     # (^ : a peak, its two sides bowing out a little)
+                    k = 1.25 if f == 'happy' else 1.0
+                    ln(d, bez((cx - er, cy + er * 0.55 * k), (cx - er * 0.55, cy - er * 0.2 * k), (cx - er * 0.08, cy - er * 0.75 * k)), INK, lw)
+                    ln(d, bez((cx - er * 0.08, cy - er * 0.75 * k), (cx + er * 0.45, cy - er * 0.25 * k), (cx + er, cy + er * 0.5 * k)), INK, lw)
+                elif f == 'blink':                            # (drowsing: two soft dashes)
+                    ln(d, arc(cx, cy - er * 0.2, er * 0.85, er * 0.35, 30, 150), INK, lw)
+                elif f == 'fierce':                           # (determined: two slanted strokes)
+                    s = 1 if cx < W / 2 else -1
+                    ln(d, [(cx - s * er, cy - er * 0.5), (cx + s * er * 0.8, cy + er * 0.15)], INK, lw * 1.3)
+                else:                                          # (wide awake: two round dark eyes with a glint)
+                    lx = er * (0.25 if f == 'look' else 0)
+                    E(d, cx + lx, cy, er * 0.42, er * 0.5, '#2a2008'); E(d, cx + lx - er * 0.14, cy - er * 0.18, er * 0.15, er * 0.15, '#ffffff')
+            mx, my = W * 0.52, H * 0.66
+            if f == 'happy':
+                d.chord((mx - W * 0.1, my - H * 0.06, mx + W * 0.1, my + H * 0.1), 0, 180, fill=hexc('#8a5a14'), outline=hexc(INK), width=int(lw))
+            elif f == 'wow':
+                E(d, mx, my + H * 0.02, W * 0.04, H * 0.05, '#8a5a14', INK, lw)
+            elif f == 'fierce':
+                ln(d, [(mx - W * 0.08, my + H * 0.02), (mx + W * 0.08, my - H * 0.005)], INK, lw)
+            else:                                              # (the wavy smile, curling up at its end)
+                ln(d, bez((mx - W * 0.1, my - H * 0.02), (mx - W * 0.06, my + H * 0.05), (mx - W * 0.02, my + H * 0.05), (mx + W * 0.01, my)), INK, lw)
+                ln(d, bez((mx + W * 0.01, my), (mx + W * 0.04, my + H * 0.05), (mx + W * 0.09, my + H * 0.04), (mx + W * 0.1, my - H * 0.03)), INK, lw)
+                ln(d, arc(mx + W * 0.115, my - H * 0.035, W * 0.018, H * 0.02, 180, 360, n=8), INK, lw * 0.8)
+        return R.t(f'face{"_" + v if v else ""}{"_" + f if f else ""}', face_tex(col, 7.2, 7.6, p, seed=48, hi=130 if v != 'dim' else 50, rim=None if v == 'flash' else '#c8b010', rim_a=80))
     for v in (None, 'dim', 'flash'):
         for f in (None,) + FACES: face(f, v)
     gy = 10.4
     def bulb(v, f):
         lt = {None: 11, 'dim': 3, 'flash': 15}[v]
-        L = ball((0, gy, 0), 3.6, glass[v], (0, gy, 0), yr=3.8, zr=3.4, light=lt, face=R.prefix + 'face' + (f'_{v}' if v else '') + (f'_{f}' if f else ''), n=8)
-        L += [el((-1.9, gy - 5.0, -1.9), (1.9, gy - 3.0, 1.9), glass[v], (0, gy, 0), light=lt),                  # (the neck)
-              seg((-0.8, gy - 3.0, 0.6), (0.8, gy - 3.0, 0.6), 0.25, 0.25, fil, (0, gy, 0), light=15)]
-        return L
+        Lb = ball((0, gy, 0), 3.6, glass[v], (0, gy, 0), yr=3.8, zr=3.4, light=lt, face=R.prefix + 'face' + (f'_{v}' if v else '') + (f'_{f}' if f else ''), n=8)
+        Lb += [el((-1.9, gy - 5.0, -1.9), (1.9, gy - 3.0, 1.9), glass[v], (0, gy, 0), light=lt),                  # (the neck)
+               *chain([(-0.6, gy - 4.6, 0), (-0.3, gy - 3.4, -0.2), (0.2, gy - 2.8, -0.4), (0.0, gy - 2.2, -0.6)], [0.18] * 3, 0.18, fil, (0, gy, 0), (0.0, 0.0, -1.0))]
+        return Lb
     R.part('bulb', (0, gy, 0), None, bulb, variants=('dim', 'flash'), faced=True)
     R.part('base', (0, gy - 5.0, 0), 'bulb', lambda v, f: [
         el((-2.0, 1.2 + i * 1.0, -2.0), (2.0, 2.0 + i * 1.0, 2.0), base if i % 2 else ring, (0, gy - 5.0, 0)) for i in range(4)] + [
         el((-1.2, 0.0, -1.2), (1.2, 1.2, 1.2), ring, (0, gy - 5.0, 0))])
-    for s, n in ((1, 'armr'), (-1, 'arml')):
-        pv = (s * 3.4, gy - 1.6, 0)
-        R.part(n, pv, 'bulb', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 2.0, pv[1] - 1.6, -0.4), (pv[0] + s * 3.0, pv[1] - 0.6, -0.8)],
-                                                                [0.35, 0.3], 0.35, wire, pv, (0.0, 0.0, -1.0)) +
-                                                          [el((pv[0] + s * 3.0 - 0.45, pv[1] - 1.05, -1.25), (pv[0] + s * 3.0 + 0.45, pv[1] - 0.15, -0.35), wire, pv)])(pv, s))
+    for s, n in ((1, 'armr'), (-1, 'arml')):                         # (arms of light: wavy glowing lines, as drawn)
+        pv = (s * 3.2, gy - 2.2, 0)
+        R.part(n, pv, 'bulb', (lambda pv, s: lambda v, f: [
+            *[dict(e, light_emission=12) for e in chain([(pv[0], pv[1], 0), (pv[0] + s * 1.2, pv[1] - 1.2, -0.2), (pv[0] + s * 2.4, pv[1] - 0.6, -0.4), (pv[0] + s * 3.0, pv[1] + 0.6, -0.6)],
+                                                         [0.3, 0.3, 0.3], 0.3, glow, pv, (0.0, 0.0, -1.0))],
+            *[dict(e, light_emission=12) for e in chain([(pv[0] + s * 3.0, pv[1] + 0.6, -0.6), (pv[0] + s * 2.7, pv[1] + 1.3, -0.6)], [0.25], 0.25, glow, pv, (0.0, 0.0, -1.0))]])(pv, s))
     R.POSES.update({
         'appear': dict(_face='wow', _v={'bulb': 'flash'}, _off=(0, 1.0, 0), armr=L(('z', 50)), arml=L(('z', -50))),
         'idle_a': dict(bulb=T(('z', -5)), armr=L(('z', -10)), arml=L(('z', 10))),
@@ -453,86 +640,162 @@ def dessa():
 # ==================================================================================================== BUBBLES - a pair of bubbles
 def bubbles():
     R = Rig('gb_bubbles_', 1.0)
-    B, BL, BD = '#8ed2f2', '#d4f1ff', '#4a9cc8'
-    skin = R.t('skin', lit(tex(B, 51, 0.03), 8, 8, 4, a=160, rim=BD))
-    skin2 = R.t('skin2', lit(tex(B, 52, 0.03), 6, 6, 4, a=160, rim=BD))
+    B, BL, BD, INK = '#90d6ee', '#d0f2fc', '#4aa4c4', '#2e5a68'
+    skin = R.t('skin', lit(tex(B, 51, 0.03), 9.2, 8.4, 4, a=170, rim=BD))
+    skin2 = R.t('skin2', lit(tex(B, 52, 0.03), 5.2, 5.2, 4, a=170, rim=BD))
     shine = R.t('shine', tex('#ffffff', 53, 0.01))
     drop = R.t('drop', tex(BL, 54, 0.04))
 
-    def face(f, small=False):
+    def face(f):
+        """as drawn: two tall dark teal eyes, close together, each with a big glint - and the great round open mouth off to one
+        side: a thick teal rim, dark inside, a red tongue at the bottom"""
         def p(d, W, H):
-            r = 0.15 if not small else 0.17
-            eye(d, W * 0.3, H * 0.38, W * r, H * 0.2, f, iris='#163a5a', look=looks(f), angry=1)
-            eye(d, W * 0.68, H * 0.38, W * r, H * 0.2, f, iris='#163a5a', look=looks(f), angry=-1)
-            mouth(d, W * 0.5, H * 0.72, W * 0.14, {None: 'o', 'look': 'o'}.get(f, FACE_MOUTH[f]), inner='#3a2030')
-            oval(d, W * 0.12, H * 0.14, W * 0.08, H * 0.06, hexc('#ffffff'))          # (the bubble's glint)
-        return R.t(f'face{"_s" if small else ""}{"_" + f if f else ""}', (face_tex(B, 8.8, 8.8, p, seed=55, hi=170, rim=BD, rim_a=120, fw=5.6, fh=4.8, fy=0.54) if not small else face_tex(B, 5.2, 5.2, p, seed=56, hi=170, rim=BD, rim_a=120, fw=3.6, fh=3.2, fy=0.54)))
-    for f in (None,) + FACES:
-        face(f); face(f, True)
-    cy = 5.6
+            lw = W * 0.02
+            E(d, W * 0.22, H * 0.2, W * 0.07, H * 0.05, '#ffffff'); E(d, W * 0.14, H * 0.3, W * 0.02, H * 0.03, '#ffffff')       # (the bubble's shine)
+            for cx in (W * 0.3, W * 0.47):
+                cy = H * 0.36
+                if f == 'blink': ln(d, arc(cx, cy, W * 0.055, H * 0.035, 20, 160), INK, lw * 1.6); continue
+                if f == 'happy': ln(d, arc(cx, cy + H * 0.04, W * 0.055, H * 0.07, 200, 340), INK, lw * 1.8); continue
+                rx, ry = (W * 0.055, H * 0.12) if f == 'wow' else (W * 0.048, H * 0.1)
+                lx = W * (0.018 if f == 'look' else 0)
+                if f == 'fierce':                                       # (the top cut off on a slant, sloping in toward the middle)
+                    s = 1 if cx < W * 0.4 else -1
+                    y0, y1 = cy - ry * (0.6 if s > 0 else 0.0), cy - ry * (0.0 if s > 0 else 0.6)
+                    cut = lambda x, y, cx=cx, y0=y0, y1=y1, rx=rx: y > y0 + (y1 - y0) * (x - cx + rx) / (2 * rx)
+                    d.polygon(clip(cx, cy, rx, ry, cut), fill=hexc(INK))
+                    ln(d, [(cx - rx * 1.5, y0 - (y1 - y0) * 0.25), (cx + rx * 1.5, y1 + (y1 - y0) * 0.25)], INK, lw * 1.3)
+                    continue
+                E(d, cx + lx, cy, rx, ry, INK)
+                E(d, cx + lx - rx * 0.25, cy - ry * 0.4, rx * 0.45, rx * 0.45, '#ffffff'); E(d, cx + lx + rx * 0.3, cy + ry * 0.45, rx * 0.2, rx * 0.2, '#e0f4fa')
+            mx, my, mr = W * 0.68, H * 0.66, W * (0.15 if f != 'wow' else 0.18)
+            if f == 'fierce': mr *= 0.8
+            E(d, mx, my, mr, mr * 1.05, '#3e7482', INK, lw)                                   # (the rim)
+            E(d, mx + mr * 0.05, my + mr * 0.08, mr * 0.68, mr * 0.75, '#173a46')              # (inside)
+            d.chord((mx - mr * 0.55, my + mr * 0.1, mx + mr * 0.65, my + mr * 0.85), 0, 180, fill=hexc('#8a2a18'))   # (the tongue)
+            d.chord((mx - mr * 0.35, my + mr * 0.25, mx + mr * 0.4, my + mr * 0.7), 0, 180, fill=hexc('#b84a2e'))
+        return R.t(f'face{"_" + f if f else ""}', face_tex(B, 9.2, 8.4, p, seed=55, hi=170, rim=BD, rim_a=110))
+    for f in (None,) + FACES: face(f)
+    cy = 5.2
     def big(v, f):
         if v == 'pop':                                   # (popped: a splash of droplets where it was)
             return [el((x - 0.7, cy + y - 0.7, z - 0.7), (x + 0.7, cy + y + 0.7, z + 0.7), drop, (0, cy, 0), light=6)
                     for x, y, z in ((-4, 1, 0), (4, 2, -1), (0, 5, 0), (-3, -3, 1), (3, -3, -2), (0, -1, -4), (5, -1, 2), (-5, 3, -2))]
-        return ball((0, cy, 0), 4.4, skin, (0, cy, 0), yr=4.4, zr=4.2, face=R.prefix + 'face' + (f'_{f}' if f else ''), n=9) + [
-            el((-3.4, cy + 2.2, -3.4), (-2.2, cy + 3.4, -2.8), shine, (0, cy, 0), light=10)]
+        return ball((0, cy, 0), 4.6, skin, (0, cy, 0), yr=4.2, zr=4.0, face=R.fk(f), n=9) + [
+            el((2.6, cy + 2.0, -3.4), (3.6, cy + 3.0, -2.8), shine, (0, cy, 0), light=10)]
     R.part('big', (0, cy, 0), None, big, variants=('pop',), faced=True)
-    sc = (6.4, 3.2, 1.6)
+    sc = (-6.2, 3.4, 1.4)                                  # (its little one, beside it - no face of its own, as drawn)
     R.part('small', sc, 'big', lambda v, f: [el((sc[0] + x - 0.5, sc[1] + y - 0.5, sc[2] + z - 0.5), (sc[0] + x + 0.5, sc[1] + y + 0.5, sc[2] + z + 0.5), drop, sc, light=6)
-                                             for x, y, z in ((-1.5, 1, 0), (1.8, 0.5, -1), (0, -1.6, 1), (1, 2.2, 0.5))] if v == 'pop' else ball(sc, 2.6, skin2, sc, yr=2.6, zr=2.4, face=R.prefix + 'face_s' + (f'_{f}' if f else '')) + [
-        el((sc[0] - 2.0, sc[1] + 1.2, sc[2] - 2.0), (sc[0] - 1.2, sc[1] + 2.0, sc[2] - 1.6), shine, sc, light=10)], variants=('pop',), faced=True)
+                                             for x, y, z in ((-1.5, 1, 0), (1.8, 0.5, -1), (0, -1.6, 1), (1, 2.2, 0.5))] if v == 'pop' else ball(sc, 2.6, skin2, sc, yr=2.4, zr=2.4) + [
+        el((sc[0] + 0.8, sc[1] + 1.0, sc[2] - 2.0), (sc[0] + 1.6, sc[1] + 1.8, sc[2] - 1.6), shine, sc, light=10)], variants=('pop',))
     R.POSES.update({
-        'appear': dict(_face='wow', _off=(0, 2.0, 0), _o_small=(1.0, 2.0, 0)),
+        'appear': dict(_face='wow', _off=(0, 2.0, 0), _o_small=(-1.0, 2.0, 0)),
         'idle_a': dict(_off=(0, 0.8, 0), _o_small=(0, -0.6, 0), big=T(('z', -4))),
-        'idle_b': dict(_face='look', _off=(0, 0.2, 0), _o_small=(0, 1.0, -0.6), big=T(('y', -16)), small=T(('y', 20))),
+        'idle_b': dict(_face='look', _off=(0, 0.2, 0), _o_small=(0, 1.0, -0.6), big=T(('y', 16)), small=T(('y', -20))),
         'bounce_0': dict(_off=(0, 2.4, 0), _o_small=(0, -1.6, 0)), 'bounce_1': dict(_off=(0, 0.0, 0), _o_small=(0, 2.0, 0)),
-        'wind': dict(_face='fierce', _off=(0, 3.6, 1.6), _o_small=(-1.0, 1.2, 1.0), big=T(('x', 14))),
+        'wind': dict(_face='fierce', _off=(0, 3.6, 1.6), _o_small=(1.0, 1.2, 1.0), big=T(('x', 14))),
         'strike': dict(_face='wow', _v={'big': 'pop', 'small': 'pop'}, _off=(0, 0.0, -4.0)),
-        'happy': dict(_face='happy', _off=(0, 1.6, 0), _o_small=(0, 1.8, 0), big=T(('z', 10)), small=T(('z', -16))),
-        'vanish': dict(_face='happy', _off=(0, 4.0, 0), _o_small=(-2.0, 2.0, 0)),
+        'happy': dict(_face='happy', _off=(0, 1.6, 0), _o_small=(0, 1.8, 0), big=T(('z', -10)), small=T(('z', 16))),
+        'vanish': dict(_face='happy', _off=(0, 4.0, 0), _o_small=(2.0, 2.0, 0)),
     })
     return R.ns()
 
 
-# ==================================================================================================== CHASE - the green blob
+# ==================================================================================================== CHASE - the green gummy
 def chase():
     R = Rig('gb_chase_', 1.0)
-    G, GL, GD = '#34c83a', '#7ef06a', '#1c8a24'
-    goo = R.t('goo', lit(tex(G, 61, 0.04, spots=[(GL, 0.05)]), 8, 8, 4, a=150, rim=GD))
+    G, GL, GD, INK = '#1ed23a', '#8af08a', '#0c8a22', '#0a1a0a'
+    goo = R.t('goo', lit(tex(G, 61, 0.03), 6, 6, 4, a=150, rim=GD, rim_a=130))
+    gloss = R.t('gloss', tex('#d8ffd8', 63, 0.02))
 
     def face(f):
+        """as drawn: big hollow white eyes (no pupils) in thick dark rims, a short brow line over each; a wide toothy grin,
+        and a little dark moustache tuft just above it"""
         def p(d, W, H):
-            eye(d, W * 0.32, H * 0.36, W * 0.12, H * 0.2, f, iris='#0c2a10', look=looks(f), angry=1)
-            eye(d, W * 0.68, H * 0.36, W * 0.12, H * 0.2, f, iris='#0c2a10', look=looks(f), angry=-1)
-            mouth(d, W * 0.48, H * 0.66, W * 0.16, FACE_MOUTH[f] if f else 'grin', inner='#145018')
-        for v, (w, h) in SH.items():            # (a face for each shape he takes - squashed wide, stretched tall)
-            R.t(f'face{"_" + v if v else ""}{"_" + f if f else ""}',
-                face_tex(G, 2 * w, 2 * h, p, seed=62, hi=170, rim=GD, rim_a=110, fw=min(5.6, 2 * w * 0.86), fh=min(5.2, 2 * h * 0.62), fy=0.44))
-    SH = {None: (3.4, 4.2), 'squash': (4.4, 3.0), 'stretch': (2.7, 5.4)}             # (half width, half height)
+            lw = W * 0.03
+            E(d, W * 0.2, H * 0.16, W * 0.06, H * 0.04, '#e8ffe8'); E(d, W * 0.12, H * 0.26, W * 0.02, H * 0.03, '#e8ffe8')      # (the gloss)
+            eyes = ((W * 0.32, H * 0.38, -1), (W * 0.67, H * 0.38, 1))
+            for cx, cy, s in eyes:
+                rx, ry = W * 0.11, H * 0.17
+                if f == 'wow': rx, ry = W * 0.125, H * 0.2
+                if f == 'blink':
+                    ln(d, arc(cx, cy - ry * 0.1, rx, ry * 0.45, 25, 155), INK, lw); continue
+                if f == 'happy':                      # (still hollow and white - just squeezed up into crescents by the grin)
+                    d.chord((cx - rx, cy - ry * 0.9, cx + rx, cy + ry * 0.9), 180, 360, fill=hexc('#ffffff'), outline=hexc(INK), width=int(lw))
+                    ln(d, [(cx - rx, cy), (cx + rx, cy)], INK, lw)
+                    continue
+                lx = (s * 0.0 if f != 'look' else 0.25 * rx)
+                if f == 'fierce':                     # (a heavy brow cutting down across the top of the eye, sloping in)
+                    yo, yi = cy - ry * 0.75, cy - ry * 0.1            # (outer end higher, inner lower)
+                    x_o, x_i = cx - s * rx, cx + s * rx
+                    cut = lambda x, y, x_o=x_o, x_i=x_i, yo=yo, yi=yi: y > yo + (yi - yo) * (x - x_o) / (x_i - x_o)
+                    P = clip(cx, cy, rx, ry, cut)
+                    d.polygon(P, fill=hexc('#ffffff'), outline=hexc(INK), width=int(lw))
+                    ln(d, [(x_o - s * rx * 0.3, yo - (yi - yo) * 0.15), (x_i + s * rx * 0.2, yi + (yi - yo) * 0.1)], INK, lw * 1.5)
+                    continue
+                E(d, cx + lx, cy, rx * (0.85 if f == 'look' and s < 0 else 1), ry, '#ffffff', INK, lw)
+            if f not in ('fierce',):                   # (the little brow lines)
+                for cx, cy, s in eyes:
+                    by = cy - H * (0.24 if f != 'wow' else 0.28)
+                    ln(d, arc(cx + s * W * 0.01, by, W * 0.05, H * 0.025, 200, 340, n=10), INK, lw * 0.7)
+            mx, my = W * 0.49, H * 0.72
+            # the moustache tuft: a few short dark strokes
+            for i in range(6):
+                x = mx - W * 0.035 + i * W * 0.014
+                ln(d, [(x, my - H * 0.1), (x + W * 0.008, my - H * 0.05)], '#0c200a', lw * 0.6)
+            if f == 'wow':
+                E(d, mx, my + H * 0.04, W * 0.07, H * 0.08, '#2a0a0a', INK, lw)
+                d.chord((mx - W * 0.06, my - H * 0.03, mx + W * 0.06, my + H * 0.03), 0, 180, fill=hexc('#ffffff'))
+                return
+            if f == 'fierce':                         # (gritted: a box of teeth)
+                d.rounded_rectangle((mx - W * 0.16, my - H * 0.03, mx + W * 0.16, my + H * 0.07), radius=int(W * 0.03), fill=hexc('#ffffff'), outline=hexc(INK), width=int(lw))
+                ln(d, [(mx - W * 0.15, my + H * 0.02), (mx + W * 0.15, my + H * 0.02)], INK, lw * 0.6)
+                for i in range(1, 6):
+                    x = mx - W * 0.16 + i * W * 0.32 / 6; ln(d, [(x, my - H * 0.025), (x, my + H * 0.065)], INK, lw * 0.5)
+                return
+            k = 1.45 if f == 'happy' else 1.25
+            # the grin: a wide smile - white teeth across the top, a dark line under them, curling up at the corners
+            top = bez((mx - W * 0.19 * k, my - H * 0.03), (mx, my + H * 0.015), (mx + W * 0.19 * k, my - H * 0.03))
+            bot = bez((mx + W * 0.19 * k, my - H * 0.03), (mx + W * 0.02, my + H * 0.15 * k), (mx - W * 0.19 * k, my - H * 0.03))
+            d.polygon(top + bot, fill=hexc('#ffffff'), outline=hexc(INK), width=int(lw))
+            ln(d, bez((mx - W * 0.17 * k, my - H * 0.015), (mx, my + H * 0.075 * k), (mx + W * 0.17 * k, my - H * 0.015)), INK, lw * 0.6)
+            for x in (-0.09, -0.03, 0.03, 0.09):
+                ln(d, [(mx + W * x * k, my + H * 0.0), (mx + W * x * k, my + H * 0.035 * k)], '#7a8a7a', lw * 0.4)
+            for s in (-1, 1):                         # (the corners, pulled up)
+                ln(d, [(mx + s * W * 0.19 * k, my - H * 0.03), (mx + s * W * 0.22 * k, my - H * 0.06)], INK, lw * 0.8)
+        return R.t(f'face{"_" + f if f else ""}', face_tex(G, 5.6, 4.8, p, seed=62, hi=150, rim=GD, rim_a=120))
     for f in (None,) + FACES: face(f)
+    SH = {None: (2.6, 2.9), 'squash': (3.3, 2.2), 'stretch': (2.2, 3.5)}             # (the pear of a body: half width, half height)
+
     def body(v, f):
-        w, h = SH[v]; cy = 3.2 + h
-        return ball((0, cy, 0), w, goo, (0, 7.4, 0), yr=h, zr=w * 0.85, face=R.prefix + 'face' + (f'_{v}' if v else '') + (f'_{f}' if f else ''), n=8)
-    R.part('body', (0, 7.4, 0), None, body, variants=('squash', 'stretch'), faced=True)
-    for s, n in ((1, 'lober'), (-1, 'lobel')):
-        pv = (s * 1.6, 11.2, 0)
-        R.part(n, pv, 'body', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1] - 0.6, 0), (pv[0] + s * 0.6, pv[1] + 2.0, 0), (pv[0] + s * 0.3, pv[1] + 3.6, 0)],
-                                                                [1.9, 1.5], 1.7, goo, pv, (0.0, 0.0, -1.0), ext=0.5))(pv, s))
-    for s, n in ((1, 'armr'), (-1, 'arml')):
-        pv = (s * 3.4, 7.0, 0)
-        R.part(n, pv, 'body', (lambda pv, s: lambda v, f: [seg((pv[0], pv[1], 0), (pv[0] + s * 2.2, pv[1] - 1.8, -0.4), 1.4, 1.4, goo, pv, ext=0.4)])(pv, s))
-    for s, n in ((1, 'legr'), (-1, 'legl')):
-        pv = (s * 1.6, 3.6, 0)
-        R.part(n, pv, 'body', (lambda pv: lambda v, f: [el((pv[0] - 1.0, 0.0, -1.4), (pv[0] + 1.0, pv[1] + 0.4, 1.0), goo, pv)])(pv))
+        w, h = SH[v]; cy = 2.0 + h; pv = (0, 4.4, 0)
+        return ball((0, cy, 0), w, goo, pv, yr=h, zr=w * 0.82, n=7) + ball((0, cy + h * 0.75, 0), w * 0.62, goo, pv, yr=h * 0.45, zr=w * 0.55, n=3) + [
+            el((w * 0.35, cy + h * 0.25, -w * 0.84), (w * 0.52, cy + h * 0.55, -w * 0.78), gloss, pv, faces=('north',), light=4)]
+    R.part('body', (0, 4.4, 0), None, body, variants=('squash', 'stretch'))
+    hy = 9.4
+    R.part('head', (0, 7.4, 0), 'body', lambda v, f: [
+        el((-1.1, 6.8, -1.0), (1.1, 7.8, 1.0), goo, (0, 7.4, 0)),                                                     # (the narrow neck)
+        *ball((0, hy, 0), 2.8, goo, (0, 7.4, 0), yr=2.4, zr=2.1, face=R.fk(f), n=7),
+        el((1.0, hy + 0.9, -2.02), (1.5, hy + 1.6, -1.95), gloss, (0, 7.4, 0), faces=('north',), light=4)], faced=True)
+    for n, x, top in (('lober', 2.05, 3.4), ('lobem', 0.0, 2.2), ('lobel', -2.05, 3.4)):      # (three round lobes, the middle one shortest)
+        pv = (x, hy + 1.4, 0)
+        R.part(n, pv, 'head', (lambda pv, x, top: lambda v, f: ball((x * 1.0, hy + 1.3 + top / 2, 0), 0.85, goo, pv, yr=top / 2 + 0.55, zr=0.85, n=10) + [
+            el((x + 0.2, hy + top + 0.2, -0.92), (x + 0.5, hy + top + 0.9, -0.88), gloss, pv, faces=('north',), light=4)])(pv, x, top))
+    for s, n in ((1, 'armr'), (-1, 'arml')):                           # (stubby arm lobes)
+        pv = (s * 2.2, 5.6, 0)
+        R.part(n, pv, 'body', (lambda pv, s: lambda v, f: ball((pv[0] + s * 1.0, pv[1] - 0.8, 0), 0.75, goo, pv, yr=1.2, zr=0.75, n=4))(pv, s))
+    for s, n in ((1, 'legr'), (-1, 'legl')):                           # (stubby legs, round feet)
+        pv = (s * 1.4, 2.2, 0)
+        R.part(n, pv, 'body', (lambda pv, s: lambda v, f: ball((pv[0] + s * 0.2, 1.1, 0), 0.9, goo, pv, yr=1.2, zr=0.9, n=4) +
+                                                       ball((pv[0] + s * 0.35, 0.55, -0.5), 1.1, goo, pv, yr=0.55, zr=1.2, n=3))(pv, s))
     R.POSES.update({
         'appear': dict(_face='wow', _v={'body': 'stretch'}, _off=(0, 1.6, 0), armr=L(('z', 70)), arml=L(('z', -70))),
-        'idle_a': dict(armr=L(('z', -10)), arml=L(('z', 10)), lober=L(('z', -8)), lobel=L(('z', 8))),
-        'idle_b': dict(_face='look', body=T(('y', -14), ('z', 6)), lober=L(('z', 20)), lobel=L(('z', 14)), armr=L(('z', 30))),
-        'hop_0': dict(_v={'body': 'squash'}, _off=(0, -0.4, 0), lober=L(('z', -24)), lobel=L(('z', 24))),
+        'idle_a': dict(armr=L(('z', -10)), arml=L(('z', 10)), lober=L(('z', -6)), lobel=L(('z', 6))),
+        'idle_b': dict(_face='look', head=T(('y', -14), ('z', 6)), lober=L(('z', 16)), lobel=L(('z', 10)), lobem=L(('x', 10)), armr=L(('z', 40))),
+        'hop_0': dict(_v={'body': 'squash'}, _off=(0, -0.6, 0), lober=L(('z', -20)), lobel=L(('z', 20)), lobem=L(('x', -10))),
         'hop_1': dict(_v={'body': 'stretch'}, _off=(0, 3.0, 0), lober=L(('z', 10)), lobel=L(('z', -10)), armr=L(('z', 40)), arml=L(('z', -40))),
         'wind': dict(_face='fierce', _v={'body': 'squash'}, _off=(0, -0.4, 1.0), body=T(('x', 14)), armr=L(('x', 50)), arml=L(('x', 50))),
-        'strike': dict(_face='fierce', _v={'body': 'stretch'}, _off=(0, 0.4, -5.0), body=T(('x', -46)), armr=L(('x', -80)), arml=L(('x', -80)), lober=L(('x', 30)), lobel=L(('x', 30))),
-        'happy': dict(_face='happy', _v={'body': 'stretch'}, _off=(0, 1.2, 0), armr=L(('z', 120)), arml=L(('z', -120)), lober=L(('z', -20)), lobel=L(('z', 20))),
+        'strike': dict(_face='fierce', _v={'body': 'stretch'}, _off=(0, 0.4, -5.0), body=T(('x', -46)), armr=L(('x', -80)), arml=L(('x', -80)), lober=L(('x', 30)), lobel=L(('x', 30)), lobem=L(('x', 30))),
+        'happy': dict(_face='happy', _v={'body': 'stretch'}, _off=(0, 1.2, 0), armr=L(('z', 120)), arml=L(('z', -120)), lober=L(('z', -16)), lobel=L(('z', 16))),
         'vanish': dict(_face='happy', _v={'body': 'squash'}, armr=L(('z', 90))),
     })
     return R.ns()
@@ -541,37 +804,76 @@ def chase():
 # ==================================================================================================== LIMER - the round fellow in his green covering
 def limer():
     R = Rig('gb_limer_', 1.0)
-    S, SD = '#c8c0b0', '#8c8474'
-    skin = R.t('skin', lit(tex(S, 71, 0.05, spots=[('#b4ac9c', 0.08)]), 8, 8, 4, a=110, rim=SD))
-    leaf, leaf2 = R.t('leaf', tex('#2e8a2a', 72, 0.12, spots=[('#46b03c', 0.2), ('#1c5a1a', 0.15)])), R.t('leaf2', tex('#3ca236', 73, 0.12, spots=[('#1c5a1a', 0.2)]))
-    stick = R.t('stick', tex('#2a2a2a', 74, 0.05))
+    S, SD, INK = '#cbbfb0', '#968a7c', '#16120e'
+    skin = R.t('skin', lit(tex(S, 71, 0.04), 8.4, 8.8, 4, a=110, rim=SD))
+
+    def loops(seed, base, cols):
+        """his covering, as drawn: a tangle of little dark green loops"""
+        im = tex(base, seed, 0.03, size=128); d = ImageDraw.Draw(im); r = random.Random(seed)
+        for _ in range(150):
+            x, y, s = r.uniform(-4, 132), r.uniform(-4, 132), r.uniform(4.0, 8.0)
+            d.ellipse((x - s, y - s * 0.85, x + s, y + s * 0.85), outline=hexc(r.choice(cols)), width=2)
+        return im
+    leaf, leaf2 = R.t('leaf', loops(72, '#1e5a16', ('#3a9a2a', '#0e3a0c', '#2c7a20'))), R.t('leaf2', loops(73, '#246a1a', ('#46a834', '#0e3a0c')))
+    stick = R.t('stick', tex('#1a1a1a', 74, 0.03))
 
     def face(f):
+        """as drawn: two sleepy eyes - heavy black lids over a sliver of white, a dark pupil peeping out - a big curl of a nose,
+        and a little round "o" of a mouth down low"""
         def p(d, W, H):
-            eye(d, W * 0.32, H * 0.36, W * 0.11, H * 0.16, f, iris='#1a1a1a', look=looks(f) if f else (0.3, 0), angry=1)
-            eye(d, W * 0.66, H * 0.34, W * 0.11, H * 0.16, f, iris='#1a1a1a', look=looks(f) if f else (0.3, 0), angry=-1)
-            d.arc((W * 0.5, H * 0.38, W * 0.66, H * 0.6), 270, 120, fill=hexc('#3a3630'), width=3)        # (his nose - the curl the owner drew)
-            mouth(d, W * 0.42, H * 0.74, W * 0.1, {None: 'o', 'look': 'o'}.get(f, FACE_MOUTH[f]), inner='#4a2a20')
-        return R.t(f'face{"_" + f if f else ""}', face_tex(S, 8.4, 8.8, p, seed=75, hi=110, rim=SD, rim_a=110, fw=5.6, fh=4.6, fy=0.36))
+            lw = W * 0.02
+            for cx, cy, s in ((W * 0.34, H * 0.3, -1), (W * 0.64, H * 0.27, 1)):
+                rx, ry = W * 0.085, H * 0.042
+                tilt = s * H * 0.012
+                if f == 'blink':
+                    ln(d, [(cx - rx, cy - tilt), (cx, cy + ry * 0.4), (cx + rx, cy + tilt)], INK, lw * 1.4); continue
+                if f == 'happy':
+                    ln(d, arc(cx, cy + ry * 1.2, rx, ry * 1.6, 200, 340), INK, lw * 1.5); continue
+                if f == 'wow': ry *= 1.9
+                E(d, cx, cy, rx, ry, '#f4f0ea', INK, lw)
+                lx = rx * {'look': 0.45}.get(f, 0.1)
+                E(d, cx + lx, cy + ry * 0.2, rx * 0.3, ry * 0.7, INK); E(d, cx + lx - rx * 0.1, cy, rx * 0.1, rx * 0.1, '#ffffff')
+                lid = 0.62 if f is None or f == 'look' else 0.3                      # (how far the heavy lid comes down)
+                if f == 'fierce':                                                      # (a slanting lid, low at the middle)
+                    yo, yi = cy - ry * 0.3, cy + ry * 0.35
+                    x_o, x_i = cx + s * rx, cx - s * rx
+                    lidcut = lambda x, y, x_o=x_o, x_i=x_i, yo=yo, yi=yi: y < yo + (yi - yo) * (x - x_o) / (x_i - x_o)
+                else:
+                    yl = cy - ry + 2 * ry * lid
+                    lidcut = lambda x, y, yl=yl: y < yl
+                d.polygon(clip(cx, cy, rx * 1.04, ry * 1.06, lidcut), fill=hexc(INK))
+            # the nose: a big round curl, open on the left - a soft shadow inside it
+            nx, ny, nr = W * 0.62, H * 0.42, W * 0.085
+            d.ellipse((nx - nr * 0.9, ny - nr * 0.7, nx + nr * 0.9, ny + nr * 0.8), fill=hexc('#bcae9c'))
+            ln(d, arc(nx, ny, nr, nr * 0.85, -150, 150, n=28), INK, lw * 1.2)
+            mx, my = W * 0.42, H * 0.6
+            mr = W * {'wow': 0.04, 'happy': 0.03, 'fierce': 0.028}.get(f, 0.024)
+            if f == 'happy':
+                ln(d, arc(mx, my - H * 0.01, mr * 1.4, mr * 0.9, 20, 160), INK, lw * 1.2)
+            elif f == 'fierce':
+                ln(d, arc(mx, my + H * 0.02, mr * 1.3, mr * 0.8, 200, 340), INK, lw * 1.2)
+            else:
+                E(d, mx, my, mr, mr * 1.2, '#2a1a12', INK, lw * 0.8); E(d, mx + mr * 0.2, my + mr * 0.3, mr * 0.4, mr * 0.4, '#7a3a2a')
+        return R.t(f'face{"_" + f if f else ""}', face_tex(S, 8.4, 8.8, p, seed=75, hi=110, rim=SD, rim_a=110))
     for f in (None,) + FACES: face(f)
     cy = 9.0
     def body(v, f):
-        L = ball((0, cy, 0), 4.2, skin, (0, cy, 0), yr=4.4, zr=4.0, face=R.prefix + 'face' + (f'_{f}' if f else ''), n=8)
-        for i in range(14):                                               # (the covering: a ring of leafy tufts round his lower half)
-            a = math.radians(i * 360 / 14); x, z = math.sin(a) * 4.1, -math.cos(a) * 3.9
-            L.append(el((x - 1.2, cy - 3.6, z - 1.2), (x + 1.2, cy - 1.6, z + 1.2), leaf if i % 2 else leaf2, (0, cy, 0), shift=(0.17 * i, 0.31 * i)))
-        L.append(el((-3.4, cy - 4.4, -3.4), (3.4, cy - 3.2, 3.4), leaf2, (0, cy, 0)))
-        L += chain([(0, cy + 4.3, 0), (0.4, cy + 5.6, 0), (1.2, cy + 6.0, 0), (1.4, cy + 5.2, 0)], [0.3, 0.3, 0.3], 0.3, stick, (0, cy, 0), (0.0, 0.0, -1.0))
-        return L
+        Lb = ball((0, cy, 0), 4.2, skin, (0, cy, 0), yr=4.4, zr=4.0, face=R.fk(f), n=8)
+        for i in range(16):                                               # (the covering: a ring of loopy tufts round his lower half)
+            a = math.radians(i * 360 / 16); x, z = math.sin(a) * 4.1, -math.cos(a) * 3.9
+            Lb.append(el((x - 1.2, cy - 3.8 + (i % 3) * 0.15, z - 1.2), (x + 1.2, cy - 1.6 + (i % 2) * 0.2, z + 1.2), leaf if i % 2 else leaf2, (0, cy, 0), shift=(0.17 * i, 0.31 * i)))
+        Lb.append(el((-3.4, cy - 4.4, -3.4), (3.4, cy - 3.2, 3.4), leaf2, (0, cy, 0)))
+        Lb += chain([(0, cy + 4.3, 0), (0.4, cy + 5.6, 0), (1.2, cy + 6.0, 0), (1.4, cy + 5.2, 0), (0.8, cy + 5.0, 0)], [0.25] * 4, 0.25, stick, (0, cy, 0), (0.0, 0.0, -1.0))
+        return Lb
     R.part('body', (0, cy, 0), None, body, faced=True)
     for s, n in ((1, 'legr'), (-1, 'legl')):
         pv = (s * 1.6, cy - 4.2, 0)
-        R.part(n, pv, 'body', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 0.8, 2.2, 0), (pv[0] + s * 0.6, 0.2, 0)], [0.35, 0.35], 0.35, stick, pv) +
-                                                         [el((pv[0] + s * 0.6 - 0.5, 0.0, -1.2), (pv[0] + s * 0.6 + 0.5, 0.4, 0.3), stick, pv)])(pv, s))
+        R.part(n, pv, 'body', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 0.8, 2.2, 0), (pv[0] + s * 0.6, 0.2, 0)], [0.3, 0.3], 0.3, stick, pv) +
+                                                         [el((pv[0] + s * 0.6 - 0.5, 0.0, -1.2), (pv[0] + s * 0.6 + 0.5, 0.35, 0.3), stick, pv)])(pv, s))
     for s, n in ((1, 'armr'), (-1, 'arml')):
         pv = (s * 4.0, cy - 0.6, 0)
         R.part(n, pv, 'body', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 1.6, pv[1] - 2.4, -0.2), (pv[0] + s * 1.8, pv[1] - 4.6, -0.6)],
-                                                                [0.35, 0.35], 0.35, stick, pv))(pv, s))
+                                                                [0.3, 0.3], 0.3, stick, pv))(pv, s))
     R.POSES.update({
         'appear': dict(_face='wow', _off=(0, 1.6, 0), armr=L(('z', 60)), arml=L(('z', -60))),
         'idle_a': dict(body=T(('z', -4)), armr=L(('z', 6)), arml=L(('z', -6))),
@@ -589,33 +891,71 @@ def limer():
 # ==================================================================================================== CHICO - the drumstick
 def chico():
     R = Rig('gb_chico_', 1.0)
-    M, ML, MD = '#9a5a2a', '#c48040', '#5e3214'
-    meat = R.t('meat', lit(tex(M, 81, 0.07, spots=[(ML, 0.1), (MD, 0.08)]), 8, 8, 4, a=100, rim=MD))
-    bone, stick = R.t('bone', lit(tex('#f2ead8', 82, 0.03), 6, 6, 4, a=60)), R.t('stick', tex('#2a2a2a', 83, 0.05))
+    M, ML, MD, INK = '#9c6a30', '#c8a448', '#5a3410', '#120a04'
+    meat = R.t('meat', lit(tex(M, 81, 0.05), 8, 8, 4, a=100, hi='#e8cc6a', rim=MD))
+    crisp = R.t('crisp', tex('#5e3612', 85, 0.05, spots=[('#7a4a1a', 0.1)]))
+    bone, stick = R.t('bone', lit(tex('#f2ead8', 82, 0.03), 4, 4, 4, a=60)), R.t('stick', tex('#1a1a1a', 83, 0.03))
 
     def face(f):
+        """as drawn: shiny black eyes (no whites) with a big glint, thin worried brows lifted in the middle, an open fretful
+        mouth - red inside, a row of top teeth - and crispy freckles"""
         def p(d, W, H):
-            eye(d, W * 0.3, H * 0.34, W * 0.13, H * 0.18, f, iris='#1a0e06', look=looks(f), angry=1)
-            eye(d, W * 0.68, H * 0.32, W * 0.13, H * 0.18, f, iris='#1a0e06', look=looks(f), angry=-1)
-            mouth(d, W * 0.48, H * 0.68, W * 0.14, {None: 'o', 'look': 'o'}.get(f, FACE_MOUTH[f]), inner='#5a1a14')
-            for x, y in ((0.18, 0.86), (0.82, 0.8), (0.6, 0.12), (0.12, 0.12)):                   # (crispy freckles)
-                oval(d, W * x, H * y, 3, 3, hexc(MD))
-        return R.t(f'face{"_" + f if f else ""}', face_tex(M, 6.8, 8.4, p, seed=84, hi=100, rim=MD, rim_a=110, fw=5.2, fh=4.8, fy=0.46))
+            lw = W * 0.018
+            r = random.Random(86)
+            for _ in range(26):                                   # (freckles)
+                x, y = r.uniform(0.08, 0.92), r.uniform(0.08, 0.92)
+                if 0.22 < y < 0.5 and 0.2 < x < 0.8: continue
+                E(d, W * x, H * y, W * 0.006, H * 0.005, '#5a3410')
+            eyes = ((W * 0.36, H * 0.38, -1), (W * 0.64, H * 0.36, 1))
+            for cx, cy, s in eyes:
+                rx, ry = W * 0.06, H * 0.075
+                if f == 'wow': rx, ry = rx * 1.2, ry * 1.25
+                if f == 'blink': ln(d, arc(cx, cy, rx, ry * 0.5, 20, 160), INK, lw * 1.5); continue
+                if f == 'happy': ln(d, arc(cx, cy + ry * 0.5, rx, ry * 0.8, 200, 340), INK, lw * 2.2); continue
+                if f == 'fierce': ry *= 0.7
+                lx = rx * (0.4 if f == 'look' else 0)
+                E(d, cx + lx, cy, rx, ry, INK)
+                E(d, cx + lx + rx * 0.3, cy - ry * 0.4, rx * 0.32, rx * 0.32, '#ffffff'); E(d, cx + lx - rx * 0.35, cy + ry * 0.45, rx * 0.12, rx * 0.12, '#ffffff')
+            # brows: worried (inner ends up), relaxed when happy, down and in when fierce, way up when amazed
+            for cx, cy, s in eyes:
+                by = cy - H * 0.12
+                if f == 'fierce':
+                    ln(d, [(cx + s * W * 0.07, by - H * 0.02), (cx - s * W * 0.06, by + H * 0.035)], '#2a1606', lw * 1.6)
+                elif f == 'happy':
+                    ln(d, arc(cx, by + H * 0.02, W * 0.06, H * 0.025, 200, 340), '#2a1606', lw)
+                else:
+                    up = 0.05 if f == 'wow' else 0.0
+                    ln(d, bez((cx + s * W * 0.07, by + H * 0.01 - H * up), (cx, by - H * 0.035 - H * up), (cx - s * W * 0.06, by - H * 0.045 - H * up)), '#2a1606', lw)
+            mx, my = W * 0.42, H * 0.66
+            if f == 'happy':
+                d.chord((mx - W * 0.09, my - H * 0.05, mx + W * 0.09, my + H * 0.09), 0, 180, fill=hexc('#b8402a'), outline=hexc(INK), width=int(lw))
+                d.rectangle((mx - W * 0.08, my - H * 0.01, mx + W * 0.08, my + H * 0.012), fill=hexc('#f4ece0'))
+                return
+            k = {'wow': 2.0, 'fierce': 1.3}.get(f, 1.6)
+            # the fretful mouth: a lopsided open shape, a row of top teeth along it
+            pts = bez((mx - W * 0.085 * k, my - H * 0.01), (mx - W * 0.02, my - H * 0.045 * k), (mx + W * 0.07 * k, my - H * 0.02), (mx + W * 0.075 * k, my + H * 0.01)) + \
+                bez((mx + W * 0.075 * k, my + H * 0.01), (mx + W * 0.07 * k, my + H * 0.06 * k), (mx - W * 0.03, my + H * 0.07 * k), (mx - W * 0.085 * k, my - H * 0.01))
+            d.polygon(pts, fill=hexc('#b8402a'), outline=hexc(INK), width=int(lw))
+            d.polygon(bez((mx - W * 0.075 * k, my - H * 0.008), (mx - W * 0.02, my - H * 0.04 * k), (mx + W * 0.065 * k, my - H * 0.018)) +
+                      bez((mx + W * 0.065 * k, my - H * 0.002), (mx - W * 0.02, my - H * 0.01 * k), (mx - W * 0.075 * k, my + H * 0.01)), fill=hexc('#f6eee2'))
+            if f == 'fierce':
+                for x in (-0.04, 0.0, 0.04): ln(d, [(mx + W * x, my - H * 0.03), (mx + W * x, my + H * 0.01)], '#7a6a5a', lw * 0.5)
+        return R.t(f'face{"_" + f if f else ""}', face_tex(M, 6.8, 8.4, p, seed=84, hi=100, rim=MD, rim_a=110))
     for f in (None,) + FACES: face(f)
     my = 11.6
-    R.part('meat', (0, 8.4, 0), None, lambda v, f: ball((0, my, 0), 3.4, meat, (0, 8.4, 0), yr=4.2, zr=3.2, face=R.prefix + 'face' + (f'_{f}' if f else ''), n=8) + [
-        el((-2.2, my - 6.0, -2.0), (2.2, my - 3.2, 2.0), meat, (0, 8.4, 0), shift=(0.4, 0.6)),                     # (tapering to the bone)
+    R.part('meat', (0, 8.4, 0), None, lambda v, f: ball((0, my, 0), 3.4, meat, (0, 8.4, 0), yr=4.2, zr=3.2, face=R.fk(f), n=8) + [
+        el((-2.2, my - 6.0, -2.0), (2.2, my - 3.6, 2.0), crisp, (0, 8.4, 0), shift=(0.4, 0.6)),                     # (crispy, tapering to the bone)
         ], faced=True)
     R.part('bone', (0, 5.6, 0), 'meat', lambda v, f: [el((-0.7, 3.0, -0.7), (0.7, 5.8, 0.7), bone, (0, 5.6, 0)),
                                                        el((-1.5, 2.2, -0.8), (-0.1, 3.4, 0.8), bone, (0, 5.6, 0)), el((0.1, 2.2, -0.8), (1.5, 3.4, 0.8), bone, (0, 5.6, 0))])
     for s, n in ((1, 'legr'), (-1, 'legl')):
         pv = (s * 0.8, 2.4, 0)
-        R.part(n, pv, 'bone', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 1.2, 0.2, 0)], [0.3], 0.3, stick, pv) +
-                                                        [el((pv[0] + s * 1.2 - 0.5, 0.0, -1.0), (pv[0] + s * 1.2 + 0.5, 0.35, 0.3), stick, pv)])(pv, s))
+        R.part(n, pv, 'bone', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 1.2, 0.2, 0)], [0.25], 0.25, stick, pv) +
+                                                        [el((pv[0] + s * 1.2 - 0.5, 0.0, -1.0), (pv[0] + s * 1.2 + 0.5, 0.3, 0.3), stick, pv)])(pv, s))
     for s, n in ((1, 'armr'), (-1, 'arml')):
         pv = (s * 2.8, 9.0, 0)
         R.part(n, pv, 'meat', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 1.8, pv[1] - 1.6, -0.2), (pv[0] + s * 2.4, pv[1] - 3.4, -0.4)],
-                                                               [0.3, 0.3], 0.3, stick, pv))(pv, s))
+                                                               [0.25, 0.25], 0.25, stick, pv))(pv, s))
     R.POSES.update({
         'appear': dict(_face='wow', _off=(0, 1.2, 0), armr=L(('z', 70)), arml=L(('z', -70))),
         'idle_a': dict(meat=T(('z', -6)), armr=L(('z', 10)), arml=L(('z', -4))),
@@ -629,44 +969,82 @@ def chico():
     return R.ns()
 
 
-# ==================================================================================================== SPIKE - the saw blade
+# ==================================================================================================== SPIKE - the circular saw
 def spike():
     R = Rig('gb_spike_', 1.0)
-    BK = '#2a2c30'
-    core = R.t('core', lit(tex(BK, 91, 0.06), 8, 8, 4, a=70, rim='#101012'))
-    steel, steeld = R.t('steel', lit(tex('#d4d8dc', 92, 0.04), 6, 6, 4, a=80)), R.t('steeld', tex('#8a8e94', 93, 0.05))
-    green = R.t('green', tex('#3ac850', 94, 0.05))
+    BK, INK = '#2e3034', '#000000'
+    hub = R.t('hub', lit(tex(BK, 91, 0.04), 7.6, 7.6, 4, a=80, rim='#0e0e10'))
+    steel, steeld, steelr = R.t('steel', lit(tex('#e8e6e8', 92, 0.02), 4, 4, 4, a=60, rim='#a0a0a8')), R.t('steeld', tex('#bebdc4', 93, 0.03)), R.t('ring', tex('#8c8c94', 97, 0.03))
+    goo = R.t('goo', tex('#2ee24e', 94, 0.03))
 
     def face(f):
-        def p(d, W, H):                       # (his default is a scowl - the owner drew him angry - with a green mouth)
-            k = 'fierce' if f in (None, 'look') else f
-            eye(d, W * 0.32, H * 0.4, W * 0.14, H * 0.17, k, iris='#0a0a0a', white='#e8eaec', ink='#000000', look=looks(f), angry=1, lid=hexc('#000000'))
-            eye(d, W * 0.7, H * 0.4, W * 0.14, H * 0.17, k, iris='#0a0a0a', white='#e8eaec', ink='#000000', look=looks(f), angry=-1, lid=hexc('#000000'))
-            mouth(d, W * 0.5, H * 0.74, W * 0.18, {None: 'fangs', 'look': 'frown', 'happy': 'grin', 'blink': 'frown'}.get(f, FACE_MOUTH[f]), ink='#0e3a14', inner='#3ac850')
-        return R.t(f'face{"_" + f if f else ""}', face_tex(BK, 7.2, 7.2, p, seed=95, hi=60, rim='#08080a', rim_a=120, fw=5.6, fh=4.8, fy=0.5))
+        """as drawn: a glossy black hub; heavy angry brows; dark eyes with a glint; a jagged fanged grin off to his left, a blob
+        of green goo at the corner of his mouth"""
+        def p(d, W, H):
+            lw = W * 0.02
+            E(d, W * 0.36, H * 0.24, W * 0.18, H * 0.1, '#5c5e64'); E(d, W * 0.3, H * 0.2, W * 0.08, H * 0.04, '#8a8c92')       # (the gloss)
+            eyes = ((W * 0.36, H * 0.48, -1, 0.07), (W * 0.62, H * 0.44, 1, 0.08))
+            for cx, cy, s, r_ in eyes:
+                rx, ry = W * r_ * 0.8, H * r_
+                if f == 'wow': rx, ry = rx * 1.1, ry * 1.2
+                if f == 'blink':
+                    ln(d, [(cx - rx, cy), (cx + rx, cy + s * H * 0.01)], '#d8d8dc', lw * 1.2); continue
+                if f == 'happy':                               # (a nasty glee: eyes squeezed into upturned crescents)
+                    ln(d, arc(cx, cy + ry * 0.5, rx, ry * 0.7, 200, 340), '#d8d8dc', lw * 1.8); continue
+                lx = rx * (0.45 if f == 'look' else 0)
+                E(d, cx + lx, cy, rx, ry, '#050505', '#c8c8cc', lw * 0.6)
+                E(d, cx + lx - rx * 0.3, cy - ry * 0.35, rx * 0.3, rx * 0.3, '#ffffff'); E(d, cx + lx + rx * 0.35, cy + ry * 0.4, rx * 0.12, rx * 0.12, '#ffffff')
+            # the brows: heavy wedges sloping down to the middle (up and apart when amazed)
+            for cx, cy, s, r_ in eyes:
+                if f == 'wow':
+                    ln(d, arc(cx, cy - H * 0.13, W * 0.07, H * 0.03, 200, 340), '#000000', lw * 2); continue
+                lo = 0.06 if f == 'fierce' else 0.08
+                d.polygon([(cx + s * W * 0.1, cy - H * 0.16), (cx - s * W * 0.09, cy - H * lo), (cx - s * W * 0.08, cy - H * (lo - 0.03)), (cx + s * W * 0.1, cy - H * 0.11)], fill=hexc('#000000'))
+            # the mouth: a jagged grin on his left, two white fangs; the green goo at its near corner
+            mx, my = W * 0.62, H * 0.7
+            k = {'happy': 1.25, 'fierce': 1.2, 'wow': 0.7}.get(f, 1.0)
+            if f == 'wow':
+                d.polygon([(mx - W * 0.06, my - H * 0.04), (mx + W * 0.04, my - H * 0.06), (mx + W * 0.07, my + H * 0.03), (mx - W * 0.03, my + H * 0.05)], fill=hexc('#111111'), outline=hexc('#d8d8dc'))
+            else:
+                zz = [(mx - W * 0.16 * k, my + H * 0.02), (mx - W * 0.08 * k, my - H * 0.04 * k), (mx - W * 0.02, my + H * 0.02), (mx + W * 0.06 * k, my - H * 0.06 * k), (mx + W * 0.15 * k, my - H * 0.12 * k)]
+                if f in ('fierce', 'happy'):                    # (open: the dark of his mouth under the jag)
+                    d.polygon(zz + [(mx + W * 0.13 * k, my + H * 0.02), (mx - W * 0.04, my + H * 0.1 * k), (mx - W * 0.14 * k, my + H * 0.06)], fill=hexc('#0a0a0a'))
+                ln(d, zz, '#d8d8dc', lw * 1.1)
+                for fx, fy, up in ((-0.08, -0.04, False), (0.06, -0.06, False), (0.12, -0.1, True)):
+                    x, y = mx + W * fx * k, my + H * fy * k
+                    if up: d.polygon([(x - W * 0.02, y + H * 0.03), (x + W * 0.02, y + H * 0.03), (x, y - H * 0.04)], fill=hexc('#ffffff'))
+                    else: d.polygon([(x - W * 0.025, y), (x + W * 0.025, y), (x + W * 0.005, y + H * 0.07)], fill=hexc('#ffffff'))
+            gx, gy = W * 0.36, H * 0.76                         # (the goo)
+            d.polygon(bez((gx - W * 0.12, gy - H * 0.04), (gx - W * 0.02, gy - H * 0.12), (gx + W * 0.08, gy - H * 0.02)) +
+                      bez((gx + W * 0.08, gy - H * 0.02), (gx + W * 0.02, gy + H * 0.06), (gx - W * 0.02, gy + H * 0.14), (gx - W * 0.1, gy + H * 0.08)),
+                      fill=hexc('#2ee24e'), outline=hexc('#000000'), width=int(lw))
+            E(d, gx - W * 0.04, gy - H * 0.04, W * 0.02, H * 0.012, '#b8ffc4')
+        return R.t(f'face{"_" + f if f else ""}', face_tex(BK, 7.6, 7.6, p, seed=95, hi=40, rim='#08080a', rim_a=120))
     for f in (None,) + FACES: face(f)
-    cy = 7.4
-    R.part('core', (0, cy, 0), None, lambda v, f: ball((0, cy, 0), 3.6, core, (0, cy, 0), yr=3.6, zr=2.6, face=R.prefix + 'face' + (f'_{f}' if f else '')), faced=True)
+    cy = 7.6
+    R.part('core', (0, cy, 0), None, lambda v, f: disc((0, cy, 0), 3.8, 1.0, hub, (0, cy, 0), face=R.fk(f), n=11), faced=True)
+
     def blade(v, f):
-        L = []
+        pv = (0, cy, 0.0); B = []
+        B += disc((0, cy, 0.1), 5.1, 0.25, steelr, pv, n=11)                                  # (the steel disc behind the hub)
         n = 16
-        for i in range(n):                    # (the teeth: a ring of hooked blades round him, in the plane facing front)
-            a = math.radians(i * 360 / n); b = math.radians(i * 360 / n + 26)
-            A = (math.cos(a) * 4.0, cy + math.sin(a) * 4.0, 0.0); B = (math.cos(b) * 6.6, cy + math.sin(b) * 6.6, 0.0)
-            L.append(seg(A, B, 1.5, 0.5, steel if i % 2 else steeld, (0, cy, 0), (0.0, 0.0, -1.0)))
-        L.append(el((-4.4, cy - 4.4, -0.3), (4.4, cy + 4.4, 0.3), steeld, (0, cy, 0)))
+        P_ = lambda r_, a_: (math.cos(a_) * r_, cy + math.sin(a_) * r_, 0.0)
+        for i in range(n):                    # (the teeth: broad blades, hooked and swept round the same way, in the saw's plane)
+            a = math.radians(i * 360 / n)
+            t = steel if i % 2 else steeld
+            B += chain([P_(4.0, a), P_(5.5, a + 0.1), P_(6.6, a + 0.3), P_(7.2, a + 0.55)], [2.1, 1.5, 0.7], 0.45, t, pv, (0.0, 0.0, -1.0), ext=0.25)
         if v == 'spin':
-            L += [seg((math.cos(math.radians(a)) * 5.0, cy + math.sin(math.radians(a)) * 5.0, -0.5),
-                      (math.cos(math.radians(a + 60)) * 5.0, cy + math.sin(math.radians(a + 60)) * 5.0, -0.5), 0.2, 0.2, R.t('spark', tex('#fff0a0', 96, 0.1)), (0, cy, 0), light=15)
+            B += [seg((math.cos(math.radians(a)) * 6.6, cy + math.sin(math.radians(a)) * 6.6, -0.5),
+                      (math.cos(math.radians(a + 50)) * 6.6, cy + math.sin(math.radians(a + 50)) * 6.6, -0.5), 0.2, 0.2, R.t('spark', tex('#fff0a0', 96, 0.05)), pv, light=15)
                   for a in (0, 120, 240)]
-        return L
-    R.part('blade', (0, cy, 0.4), 'core', blade, variants=('spin',))
+        return B
+    R.part('blade', (0, cy, 0.0), 'core', blade, variants=('spin',))
     R.POSES.update({
         'appear': dict(_face='wow', _v={'blade': 'spin'}, _off=(0, 1.4, 0), blade=T(('z', 40))),
-        'idle_a': dict(_off=(0, 0.4, 0), blade=T(('z', 11))),
-        'idle_b': dict(_face='look', _off=(0, 0.6, 0), core=T(('y', -20), ('z', 8)), blade=T(('z', -11))),
-        'spin_0': dict(_face='fierce', _v={'blade': 'spin'}, blade=T(('z', 0))), 'spin_1': dict(_face='fierce', _v={'blade': 'spin'}, blade=T(('z', 11.25))),
-        'wind': dict(_face='fierce', _v={'blade': 'spin'}, _off=(0, 0.0, 1.6), core=T(('x', 20)), blade=T(('z', 22))),
+        'idle_a': dict(_off=(0, 0.4, 0), blade=T(('z', 10))),
+        'idle_b': dict(_face='look', _off=(0, 0.6, 0), core=T(('y', -20), ('z', 8)), blade=T(('z', -10))),
+        'spin_0': dict(_face='fierce', _v={'blade': 'spin'}, blade=T(('z', 0))), 'spin_1': dict(_face='fierce', _v={'blade': 'spin'}, blade=T(('z', 10))),
+        'wind': dict(_face='fierce', _v={'blade': 'spin'}, _off=(0, 0.0, 1.6), core=T(('x', 20)), blade=T(('z', 20))),
         'strike': dict(_face='fierce', _v={'blade': 'spin'}, _off=(0, -0.6, -6.0), core=T(('x', -24)), blade=T(('z', 5))),
         'happy': dict(_face='happy', _off=(0, 1.2, 0), core=T(('z', 12)), blade=T(('z', -20))),
         'vanish': dict(_face='blink', _v={'blade': 'spin'}, core=T(('y', 90))),
@@ -677,51 +1055,83 @@ def spike():
 # ==================================================================================================== CHEFERONI - the pizza chef
 def cheferoni():
     R = Rig('gb_cheferoni_', 1.0)
-    CR, CH = '#d8a058', '#f6e2a0'
-    crust = R.t('crust', lit(tex(CR, 101, 0.07, spots=[('#b07a3a', 0.1)]), 8, 8, 4, a=80))
-    cheese = R.t('cheese', tex(CH, 102, 0.05, spots=[('#f0c860', 0.15)]))
-    hat, hatb = R.t('hat', lit(tex('#fafafa', 103, 0.03), 6, 6, 4, a=40, rim='#c8c8c8')), R.t('hatband', tex('#e4e4e4', 104, 0.03))
-    yel, dough = R.t('limb', tex('#f2d44a', 105, 0.05)), R.t('dough', lit(tex('#f4e6c4', 106, 0.04), 6, 6, 4, a=70))
-    pep = R.t('pep', tex('#c0302a', 107, 0.08, spots=[('#8a1a16', 0.15)]))
+    CR, CRD, CH, INK = '#c8ab8e', '#a08468', '#f2e8b2', '#101010'
+    crust = R.t('crust', lit(tex(CR, 101, 0.04), 4, 4, 4, a=60, rim=CRD))
+    cheese = R.t('cheese', tex(CH, 102, 0.04, spots=[('#e8d68a', 0.15)]))
+    hat, hatb = R.t('hat', lit(tex('#f8f8f8', 103, 0.02), 6, 6, 4, a=40, rim='#c4c4c4')), R.t('hatband', tex('#e2e2e2', 104, 0.02))
+    yel, dough = R.t('limb', lit(tex('#f4e06a', 105, 0.03), 2, 8, 4, a=60, rim='#c8b040')), R.t('dough', lit(tex('#f4e6c4', 106, 0.03), 6, 6, 4, a=70))
+    blk = R.t('arm', tex('#141414', 108, 0.02))
+    pep = R.t('pep', tex('#b8362a', 107, 0.05, spots=[('#8a1a16', 0.15)]))
+
+    def pizza_under(d, W, H):
+        """the pizza: a crust rim, the cheese, eight slice cuts, pepperoni scattered all over (as drawn)"""
+        cx, cy, r = W / 2, H / 2, W * 0.5
+        E(d, cx, cy, r * 0.995, r * 0.995, CR, CRD, W * 0.012)
+        E(d, cx, cy, r * 0.8, r * 0.8, CH, '#b89a72', W * 0.01)
+        rr = random.Random(110)
+        for _ in range(40):                                   # (the cheese, melted unevenly)
+            a, t = rr.uniform(0, 6.283), rr.uniform(0, r * 0.7)
+            E(d, cx + math.cos(a) * t, cy + math.sin(a) * t, W * rr.uniform(0.02, 0.05), H * rr.uniform(0.015, 0.03), '#ead98e')
+        for i in range(8):                                    # (the slice cuts)
+            a = math.radians(i * 45 + 8)
+            ln(d, [(cx + math.cos(a) * r * 0.05, cy + math.sin(a) * r * 0.05), (cx + math.cos(a) * r * 0.8, cy + math.sin(a) * r * 0.8)], '#3e3020', W * 0.006)
+        for _ in range(26):                                   # (pepperoni)
+            a, t = rr.uniform(0, 6.283), rr.uniform(r * 0.12, r * 0.7)
+            x, y, s = cx + math.cos(a) * t, cy + math.sin(a) * t, W * rr.uniform(0.022, 0.042)
+            if abs(x - cx) < W * 0.2 and H * 0.36 < y < H * 0.78: continue          # (not over his face)
+            E(d, x, y, s, s, '#b8362a', '#7a1a12', W * 0.006); E(d, x - s * 0.3, y - s * 0.3, s * 0.25, s * 0.25, '#d86a5a')
 
     def face(f):
-        def p(d, W, H):                      # (the pizza face: cheese, pepperoni round the edge, two eyes and a great black moustache)
-            oval(d, W / 2, H / 2, W * 0.42, H * 0.42, hexc(CH), hexc('#c8902a'), 3)
-            r_ = random.Random(110)
-            for _ in range(60):              # (melted cheese - a little darker here and there)
-                x, y = W / 2 + (r_.random() - 0.5) * W * 0.7, H / 2 + (r_.random() - 0.5) * H * 0.7
-                if math.hypot(x - W / 2, y - H / 2) < W * 0.38: d.rectangle((x, y, x + 3, y + 3), fill=hexc('#f0c860'))
-            for a in range(0, 360, 60):     # (the slice cuts)
-                r = math.radians(a); d.line((W / 2, H / 2, W / 2 + math.cos(r) * W * 0.41, H / 2 + math.sin(r) * H * 0.41), fill=hexc('#d8a850'), width=2)
-            for a in range(20, 380, 52):    # (pepperoni round the edge)
-                r = math.radians(a); x, y = W / 2 + math.cos(r) * W * 0.31, H / 2 + math.sin(r) * H * 0.31
-                oval(d, x, y, W * 0.055, H * 0.055, hexc('#c0302a'), hexc('#8a1a16'), 2)
-                oval(d, x - W * 0.015, y - H * 0.015, W * 0.012, H * 0.012, hexc('#e06a5a'))
-            eye(d, W * 0.4, H * 0.42, W * 0.075, H * 0.09, f, iris='#1a1208', look=looks(f), angry=1)
-            eye(d, W * 0.6, H * 0.42, W * 0.075, H * 0.09, f, iris='#1a1208', look=looks(f), angry=-1)
-            W, H = W * 0.75, H * 0.75; mx, my = W * 0.5 / 0.75, H * 0.58 / 0.75                                                          # (the moustache: two curls)
+        """as drawn: angry slanted brows, small black eyes with a glint, a great black curly moustache over an open mouth
+        with a red tongue, and a curl of hair over the crust at the top"""
+        def p(d, W, H):
+            lw = W * 0.012
+            for i in range(4):                                # (the curly "wow" hair on top of the crust)
+                x = W * (0.4 + i * 0.05)
+                ln(d, arc(x, H * 0.035, W * 0.022, H * 0.022, 150, 520, n=20), INK, lw * 0.8)
+            eyes = ((W * 0.41, H * 0.45, -1), (W * 0.59, H * 0.45, 1))
+            for cx, cy, s in eyes:
+                r = W * (0.022 if f != 'wow' else 0.03)
+                if f == 'blink': ln(d, arc(cx, cy, r * 1.4, r * 0.6, 20, 160), INK, lw * 1.6); continue
+                if f == 'happy': ln(d, arc(cx, cy + r * 0.6, r * 1.4, r * 1.1, 200, 340), INK, lw * 1.8); continue
+                lx = r * (0.6 if f == 'look' else 0)
+                E(d, cx + lx, cy, r, r * 1.15, INK); E(d, cx + lx - r * 0.35, cy - r * 0.4, r * 0.32, r * 0.32, '#ffffff')
+            for cx, cy, s in eyes:                            # (the brows: angry, slanting down to the middle; up when happy or amazed)
+                by = cy - H * 0.07
+                if f in ('happy', 'wow'):
+                    ln(d, arc(cx, by - H * 0.01, W * 0.04, H * 0.02, 200, 340), INK, lw * 2.2)
+                else:
+                    lo = 0.03 if f == 'fierce' else 0.02
+                    ln(d, [(cx + s * W * 0.05, by - H * 0.025), (cx - s * W * 0.04, by + H * lo)], INK, lw * (3.2 if f == 'fierce' else 2.6))
+            # the mouth, open below the moustache, a red tongue in it
+            mx, my = W * 0.5, H * 0.63
+            k = {'wow': 1.3, 'fierce': 1.25, 'happy': 1.15, 'blink': 0.8}.get(f, 1.0)
+            d.chord((mx - W * 0.05 * k, my - H * 0.04 * k, mx + W * 0.05 * k, my + H * 0.075 * k), 0, 360 if f == 'wow' else 180, fill=hexc('#5a1410'), outline=hexc(INK), width=int(lw))
+            E(d, mx, my + H * 0.045 * k, W * 0.03 * k, H * 0.022 * k, '#d84a4a')
+            # the moustache: two great black curls
             for s in (-1, 1):
-                d.ellipse((mx + s * W * 0.02 - (W * 0.16 if s < 0 else 0), my - H * 0.06, mx + s * W * 0.02 + (W * 0.16 if s > 0 else 0), my + H * 0.07), fill=hexc('#141414'))
-                d.ellipse((mx + s * W * 0.17 - W * 0.04, my - H * 0.1, mx + s * W * 0.17 + W * 0.04, my - H * 0.02), fill=hexc('#141414'))
-            if f in ('happy', 'wow', 'fierce'): mouth(d, mx, my + H * 0.14, W * 0.08, {'happy': 'grin', 'wow': 'o', 'fierce': 'fangs'}[f])
-        return R.t(f'face{"_" + f if f else ""}', face_tex(CR, 10.8, 10.8, p, seed=108, hi=60, fw=10.8, fh=10.8))
+                pts = bez((mx, my - H * 0.03), (mx + s * W * 0.06, my - H * 0.08), (mx + s * W * 0.13, my - H * 0.05), (mx + s * W * 0.13, my - H * 0.1))
+                ln(d, pts, INK, W * 0.032)
+                ln(d, arc(mx + s * W * 0.115, my - H * 0.11, W * 0.022, H * 0.022, (0 if s > 0 else 180) - 90, (0 if s > 0 else 180) + 160 * s, n=12), INK, W * 0.016)
+        return R.t(f'face{"_" + f if f else ""}', face_tex(CR, 10.8, 10.8, p, seed=108, hi=50, under=pizza_under))
     for f in (None,) + FACES: face(f)
     cy = 11.0
-    def pizza(v, f):
-        return disc((0, cy, 0), 5.4, 0.8, crust, (0, cy, 0), face=R.prefix + 'face' + (f'_{f}' if f else ''), n=11)
-    R.part('pizza', (0, cy, 0), None, pizza, faced=True)
-    R.part('hat', (0, cy + 4.6, 0), 'pizza', lambda v, f: [
-        el((-2.4, cy + 4.0, -1.4), (2.4, cy + 5.6, 1.4), hatb, (0, cy + 4.6, 0)),
-        *ball((0, cy + 7.6, 0), 3.0, hat, (0, cy + 4.6, 0), yr=2.2, zr=2.6)])
-    for s, n in ((1, 'armr'), (-1, 'arml')):
-        pv = (s * 4.6, cy - 1.0, 0)
-        R.part(n, pv, 'pizza', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 2.4, pv[1] - 2.4, -0.4), (pv[0] + s * 2.8, pv[1] - 5.0, -0.8)],
-                                                                [0.5, 0.45], 0.5, yel, pv) + [el((pv[0] + s * 2.8 - 0.7, pv[1] - 5.8, -1.5), (pv[0] + s * 2.8 + 0.7, pv[1] - 4.6, -0.1), yel, pv)])(pv, s))
-    for s, n in ((1, 'legr'), (-1, 'legl')):
+    R.part('pizza', (0, cy, 0), None, lambda v, f: disc((0, cy, 0), 5.4, 0.8, crust, (0, cy, 0), face=R.fk(f), n=11), faced=True)
+    hpv = (-1.2, cy + 4.8, 0)                                  # (the hat, cocked over to his left - the viewer's right)
+    R.part('hat', hpv, 'pizza', lambda v, f: turn([
+        el((-3.0, cy + 4.4, -1.2), (0.6, cy + 6.2, 1.2), hatb, hpv),
+        *ball((-1.2, cy + 7.4, 0), 2.3, hat, hpv, yr=1.6, zr=2.0),
+        *ball((-2.4, cy + 7.8, 0), 1.25, hat, hpv, yr=1.2, zr=1.5, n=4), *ball((0.0, cy + 7.9, 0), 1.25, hat, hpv, yr=1.2, zr=1.5, n=4)],
+        (0.0, 0.0, 18.0), mo(hpv, hpv)))
+    for s, n in ((1, 'armr'), (-1, 'arml')):                  # (thin black arms)
+        pv = (s * 5.0, cy - 1.0, 0)
+        R.part(n, pv, 'pizza', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 2.0, pv[1] - 2.6, -0.4), (pv[0] + s * 2.4, pv[1] - 5.2, -0.8)],
+                                                                [0.28, 0.28], 0.28, blk, pv) + [el((pv[0] + s * 2.4 - 0.35, pv[1] - 5.6, -1.1), (pv[0] + s * 2.4 + 0.35, pv[1] - 5.0, -0.5), blk, pv)])(pv, s))
+    for s, n in ((1, 'legr'), (-1, 'legl')):                  # (long yellow legs, round yellow feet)
         pv = (s * 1.8, cy - 5.0, 0)
-        R.part(n, pv, 'pizza', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 0.4, 0.4, 0)], [0.55], 0.55, yel, pv) +
-                                                         [el((pv[0] + s * 0.4 - 0.7, 0.0, -1.6), (pv[0] + s * 0.4 + 0.7, 0.6, 0.4), R.t('shoe', tex('#3a2a20', 109, 0.05)), pv)])(pv, s))
-    hand = (4.6 + 2.8, cy - 6.0, -0.8)
+        R.part(n, pv, 'pizza', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 0.4, 0.8, 0)], [0.6], 0.6, yel, pv) +
+                                                         ball((pv[0] + s * 0.4, 0.55, -0.6), 0.95, yel, pv, yr=0.55, zr=1.3, n=3))(pv, s))
+    hand = (5.0 + 2.4, cy - 6.0, -0.8)
     def round_dough():                       # (a round flat sheet of dough, sliced across like the pizza)
         n, r = 9, 3.4
         out = []

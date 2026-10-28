@@ -52,8 +52,9 @@ module.exports = async function run(C) {
   if (C.form) await run(`scoreboard players set TestRat ${C.form.score} 0`);
   for (const t of [`bm.auown_${W}`, `bm.au_${W}`, `bm.${ab}met`]) await run(`tag TestRat remove ${t}`);
   await run(`advancement revoke TestRat only bm:met/${W}`); await run(`advancement revoke TestRat only bm:story/${W}_friend`);
-  const BIT = +fs.readFileSync(`${DP}/${C.pfx}/sign.mcfunction`, 'utf8').match(/scoreboard players add @s bm\.fcon (\d+)/)[1];
-  const fc = await score('bm.fcon'); if (fc > 0 && Math.floor(fc / BIT) % 2 === 1) await run(`scoreboard players set TestRat bm.fcon ${fc - BIT}`);
+  const [, FCON, BITS] = fs.readFileSync(`${DP}/${C.pfx}/sign.mcfunction`, 'utf8').match(/scoreboard players add @s (bm\.fcon2?) (\d+)/);   // (2.96: past thirty, bm.fcon2)
+  const BIT = +BITS;
+  const fc = await score(FCON); if (fc > 0 && Math.floor(fc / BIT) % 2 === 1) await run(`scoreboard players set TestRat ${FCON} ${fc - BIT}`);
   await run('scoreboard players set #hard bm.cfg 1');
   await at(X + 0.5, Y + 1, Z + 0.5, 0, 0);
 
@@ -142,9 +143,9 @@ module.exports = async function run(C) {
 
   // ---------------------------------------------------------------- the Raid Contract
   await sleep(2200);
-  const fc0 = await score('bm.fcon');
+  const fc0 = await score(FCON);
   A.chats.length = 0; await hold(3); await sleep(600);
-  ok('the Raid Contract used: signed, the contract gone', Math.floor((await score('bm.fcon')) / BIT) % 2 === 1 && (await score('bm.fcon')) > fc0 && (await has(`fcontract_${W}`)) === 0 && A.chats.some(c => /Signed!/.test(c)),
+  ok('the Raid Contract used: signed, the contract gone', Math.floor((await score(FCON)) / BIT) % 2 === 1 && (await score(FCON)) > fc0 && (await has(`fcontract_${W}`)) === 0 && A.chats.some(c => /Signed!/.test(c)),
      A.chats.slice(-1).join('').slice(0, 160));
   ok('...and the Recruiter sells it', new RegExp(`fcontract_${W}`).test(fs.readFileSync(`${DP}/p137/rc/main.mcfunction`, 'utf8')));
   ok('the Partner Wheel lists her/him', require('child_process').execSync(`grep -rl "${C.pfx}/try_summon" ${DP}/p179 | head -1`).toString().length > 0);

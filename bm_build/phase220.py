@@ -32,7 +32,7 @@ HINT = {
     'ava': 'Hard mode: the kingdom\'s old light, at night, with Emma beside you.', 'pearlq': 'A cake by the sea, by day - if Emma is your friend.',
     'bloo': 'Hard mode: plant a sapling in a forest at night.', 'stalker': 'Hard mode: wear its face through a Dread Night, to dawn.',
     'lantern': 'Hard mode: fell the great Arachno-Lantern.', 'bender': 'Spend time in a village. Bring a bone.',
-    'bones': 'A fin, out on the ocean. Bring a fish.', 'capshun': 'Spend time near a painting you\'ve hung.', 'kettle': 'A sunny day in a meadow or a flower field. Bring paper.',
+    'bones': 'A fin, out on the ocean. Bring a fish.', 'capshun': 'Spend time near a painting you\'ve hung.', 'kettle': 'A sunny day in a meadow or a flower field. Bring paper.', 'rufus': 'The Dark Auction sells his contract.',
     'pxcecil': 'A Glitched Cartridge, used beside Cecil.', 'pxleo': 'A Glitched Cartridge, used beside Leo.',
     'pxemma': 'A Glitched Cartridge, used beside Emma.', 'sky': 'Watch the sky: a clear noon, a full-moon midnight, a storm.'}
 

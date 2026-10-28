@@ -37,7 +37,7 @@ PT = {'cecil': ('bm.cpet', True), 'emma': ('bm.emp', True), 'celi': ('bm.cep', T
       'omega': ('bm.omp', True), 'ashur': ('bm.asp', True), 'chef': ('bm.kkp', True), 'neighbor': ('bm.nbp', True), 'ava': ('bm.avp', True),
       'pearlq': ('bm.pqp', True), 'bloo': ('bm.bop', True), 'stalker': ('bm.svp', True), 'lantern': ('bm.lnp', True), 'bender': ('bm.bvp', True),
       'bones': ('bm.bjp', True), 'capshun': ('bm.mzp', True), 'pxcecil': ('bm.xcp', True), 'pxleo': ('bm.xlp', True), 'pxemma': ('bm.xmp', True),
-      'sky': ('bm.ybp', True), 'kettle': ('bm.ktp', True)}
+      'sky': ('bm.ybp', True), 'kettle': ('bm.ktp', True), 'rufus': ('bm.rup', True)}
 
 # (name, what it looks like, where they come back: behind / below / above, the vanish, the sign at the foe while they're gone,
 #  the return, the sound going, the sound coming)
@@ -145,6 +145,7 @@ FLAV = {
     'kettle': ('Hide and Seek', 'counts to three with his eyes shut, hides - and pops out right behind the monster', 'behind',
                [P('minecraft:poof', 20), P('minecraft:happy_villager', 10)], ['minecraft:happy_villager ^ ^1 ^-1.2 0.2 0.4 0.2 0 1'],
                [P('minecraft:crit', 30, 0.4, 0.6, 0.3), P('minecraft:happy_villager', 16)], 'minecraft:entity.chicken.egg', 'minecraft:entity.player.attack.knockback'),
+    'rufus': ('Dirty Fighting', 'throws grit in its eyes', 'behind', [], [], [], 'minecraft:entity.rabbit.attack', 'minecraft:item.crossbow.shoot'),
     'sky': ('Storm Front', 'blow away on the wind and come down on the monster out of a thundercloud', 'above',
             [P('minecraft:cloud', 40, 0.5, 0.8, 0.05)], ['minecraft:cloud ~ ~3.2 ~ 0.6 0.1 0.6 0 4'],
             [P('minecraft:electric_spark', 40, 0.5, 0.8, 0.3), P('minecraft:end_rod', 20, 0.3, 0.6, 0.1)], 'minecraft:entity.breeze.wind_burst', 'minecraft:entity.lightning_bolt.thunder'),
@@ -203,6 +204,13 @@ ASSAULT = {
                      **{3 + i: [f'P roll_{i}', 'particle minecraft:cherry_leaves ~ ~1.2 ~ 0.3 0.3 0.3 0 3'] for i in range(1, 8)},
                      11: ['P slam_up', 'S minecraft:block.amethyst_block.chime 1 0.6'], 13: ['DROP 13..17'],
                      17: ['P slam', 'H1', 'function bm:p226/a/emma/wave', 'data merge entity @s {NoGravity:0b}'], 23: ['P idle_a']}),
+    'rufus': dict(pfx='p228', s_obj='bm.rgs', anim='p228/anim', busy='bm.rgx', end=36, dash=dict(reach=1.5, speed=1.0, lift=1),
+                  hits={1: (2, ['effect give @s minecraft:blindness 3 0 true'] + STUN[:2] + ['particle minecraft:falling_dust{block_state:"minecraft:sand"} ~ ~1.6 ~ 0.3 0.2 0.3 0 20'], 'minecraft:entity.rabbit.attack', 0.8),
+                        2: (4, SLASH('0.75,0.22,0.17'), 'minecraft:entity.player.attack.sweep', 1.4),
+                        3: (4, ['particle minecraft:crit ~ ~1 ~ 0.2 0.3 0.2 0.4 16', 'particle minecraft:poof ~ ~1 ~ 0.2 0.2 0.2 0.05 6'], 'minecraft:item.crossbow.shoot', 0.9)},
+                  tl={1: ['P slash_up', 'S minecraft:entity.rabbit.ambient 1 0.6'], 3: ['DASH'],
+                      4: ['P slash', 'H1'], 7: ['P slash_up'], 9: ['P slash', 'H2'], 12: ['P slash_up'], 14: ['P slash', 'H2'],
+                      18: ['P aim', 'S minecraft:item.crossbow.loading_end 1 1.2'], 23: ['P shoot', 'H3'], 28: ['P reload'], 33: ['P idle_a']}),
     'tul': dict(pfx='p132', s_obj='bm.tus', anim='p132/anim', busy='bm.tux', end=33, dash=None,
                 hits={1: (4, ['particle minecraft:snowflake ~ ~1 ~ 0.3 0.4 0.3 0.05 16', 'particle minecraft:enchanted_hit ~ ~1.1 ~ 0.2 0.3 0.2 0.3 8'], 'minecraft:item.trident.hit', 0.9),
                       2: (6, ['particle minecraft:snowflake ~ ~1 ~ 0.5 0.5 0.5 0.3 40', 'particle minecraft:poof ~ ~1 ~ 0.4 0.4 0.4 0.05 16'], 'minecraft:entity.generic.explode', 1.5)},
@@ -217,6 +225,7 @@ NAMES = {'bender': ('Savage Maul', 'pounces, claws the monster savagely and chom
          'demo': ("Reaper's Toll", 'brings the scythe down through the monster\'s guard and reaps it on the backswing'),
          'chef': ('Order Up!', 'tenderises the monster with a flurry of whacks, then serves the finisher'),
          'emma': ('Axe Roll', 'leaps into the air, rolls with her axe held overhead, and slams it down on the monster'),
+         'rufus': ('Dirty Fighting', 'throws grit in the monster\'s eyes, slashes it twice and finishes it with the crossbow, point-blank'),
          'tul': ('Hook and Broadside', 'harpoons the monster, drags it in, runs it through and lets the blunderbuss finish it point-blank')}
 
 

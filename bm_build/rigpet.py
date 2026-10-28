@@ -59,7 +59,10 @@ def register(C):
     HOLD[C.ITEM] = f'bm:{C.pfx}/use'
     P46.COMPANIONS += f',tag=!{pet}'
     allies.ALLIES += [pet]
-    P89.BIT[W] = 2 ** len(P89.BIT)
+    if len(P89.BIT) < 30:
+        P89.BIT[W] = 2 ** len(P89.BIT)
+    else:                                                                 # (2.96: the first score is full - the second)
+        P89.FCON2[W] = 2 ** len(P89.FCON2)
     P68.KINDS[W] = (max(v[0] for v in P68.KINDS.values()) + 1, C.ITEM, 'wolf', pet, f'{C.pfx}/summon', f'{C.pfx}/dismiss', f'bm.{C.ab}sel2', C.NAME, C.COL)
     if C.pron == 'him':
         P68.HE.add(W)
@@ -114,13 +117,13 @@ def contract(C, G):
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     Lr = G.FUNCS['p70/r/lobby/init']
     k_ = next(i for i, l in enumerate(Lr) if l.startswith('summon minecraft:villager') and 'bm.gvrec' in l and 'Recipes:[' in l)
-    bit = P89.BIT[W]
-    signed = ['scoreboard players operation #q bm.rng = @s bm.fcon', f'scoreboard players set #bit bm.rng {bit}',
+    fo, bit = P89.fobj(W)
+    signed = [f'scoreboard players operation #q bm.rng = @s {fo}', f'scoreboard players set #bit bm.rng {bit}',
               'scoreboard players operation #q bm.rng /= #bit bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng']
     fn(f'{C.pfx}/sign', ['execute if score @s bm.gvhc matches 1.. run return 0', 'scoreboard players set @s bm.gvhc 2',
-                         'execute unless score @s bm.fcon matches 0.. run scoreboard players set @s bm.fcon 0'] + signed +
+                         f'execute unless score @s {fo} matches 0.. run scoreboard players set @s {fo} 0'] + signed +
        [f'execute if score #q bm.rng matches 1 run return run ' + say(f"{C.NAME} {v('is', 'are')} already under contract.", 'gray'),
-        f'scoreboard players add @s bm.fcon {bit}', f'clear @s *[minecraft:custom_data~{{bm:"fcontract_{W}"}}] 1',
+        f'scoreboard players add @s {fo} {bit}', f'clear @s *[minecraft:custom_data~{{bm:"fcontract_{W}"}}] 1',
         'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 1 0.8',
         tellraw('@s', GP + [T('Signed! ', '#ffcf40', bold=True), T(C.NAME, C.COL, bold=True), T(' will answer your call in the vault from now on.', 'gray')])])
     fn(f'{C.pfx}/ok', ['execute unless dimension bm:gutter run return run function bm:p74/fol_ok', 'execute unless entity @s[tag=bm.gvp] run return 0'] + signed +

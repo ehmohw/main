@@ -13,7 +13,7 @@ ME = {'bm.kxme': ('kw', None), 'bm.cpme': ('cecil', 'p46/pet/anim'), 'bm.emme': 
       'bm.apme2': ('apo', 'p131/anim'), 'bm.leme': ('leo', 'p96/anim'), 'bm.zbme': ('zib', 'p72/zb/anim'), 'bm.ceme': ('celi', 'p66/anim'),
       'bm.ybme': ('sky', 'p211/anim'), 'bm.xmme': ('pxemma', 'p213e/anim'), 'bm.xlme': ('pxleo', 'p213l/anim'), 'bm.xcme': ('pxcecil', 'p213c/anim'),
       'bm.tume2': ('tul', 'p132/anim'), 'bm.svme': ('stalker', 'p193/anim'), 'bm.pqme': ('pearlq', 'p190/anim'), 'bm.pime': ('pistachio', 'p163/pi/anim'),
-      'bm.ompme': ('omega', 'p170/anim'), 'bm.nbme': ('neighbor', 'p187/anim'), 'bm.mzme': ('capshun', 'p198/anim'), 'bm.ktme': ('kettle', 'p227/anim'), 'bm.lnme': ('lantern', 'p194/anim'),
+      'bm.ompme': ('omega', 'p170/anim'), 'bm.nbme': ('neighbor', 'p187/anim'), 'bm.mzme': ('capshun', 'p198/anim'), 'bm.ktme': ('kettle', 'p227/anim'), 'bm.rume': ('rufus', 'p228/anim'), 'bm.lnme': ('lantern', 'p194/anim'),
       'bm.kkme': ('chef', 'p186/anim'), 'bm.fyme': ('fishy', 'p145/anim'), 'bm.dwme': ('dennis', 'p163/dw/anim'), 'bm.bvme': ('bender', 'p195/anim'),
       'bm.bome': ('bloo', 'p191/anim'), 'bm.bjme': ('bones', 'p196/anim'), 'bm.avme': ('ava', 'p189/anim'), 'bm.aspme': ('ashur', 'p185/anim')}
 HOLD = 2                                     # (ticks of hit-stop)

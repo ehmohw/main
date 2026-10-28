@@ -61,7 +61,7 @@ def generate(G):
     P = PREFIX
     BIT = P89.BIT
     init = ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
-            'execute unless score @s bm.fcon matches 0.. run scoreboard players set @s bm.fcon 0', 'execute unless score @s bm.crew matches 0.. run scoreboard players set @s bm.crew 0',
+            'execute unless score @s bm.fcon matches 0.. run scoreboard players set @s bm.fcon 0', 'execute unless score @s bm.fcon2 matches 0.. run scoreboard players set @s bm.fcon2 0', 'execute unless score @s bm.crew matches 0.. run scoreboard players set @s bm.crew 0',
             'execute unless score @s bm.crewoff matches 0.. run scoreboard players set @s bm.crewoff 0']
     fn('p98/init', init)
     def bit(obj, b):
@@ -77,7 +77,7 @@ def generate(G):
     def mine(host, tag, extra=''):
         return f'@e[type=minecraft:{host},tag={tag}{extra}]'
     for k, nm, col, host, tag, sel, cd, try_, dis, rec, go in CALLED:
-        fn(f'p98/signed/{k}', bit('bm.fcon', BIT[k]) + ['return run scoreboard players get #q bm.rng'])
+        fn(f'p98/signed/{k}', bit(*P89.fobj(k)) + ['return run scoreboard players get #q bm.rng'])
         fn(f'p98/on/{k}', [f'execute unless function bm:p98/signed/{k} run return 0'] + bit('bm.crewoff', OFF[k]) +
            ['execute if score #q bm.rng matches 1 run return 0', 'return 1'])
         fn(f'p98/has/{k}', [f'execute as {mine(host, tag)} if score @s bm.pid = #me bm.pid run return 1', 'return 0'])

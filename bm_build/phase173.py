@@ -84,7 +84,8 @@ AR = {'cecil': ('bm.cpcd', 'wolf', 'bm.cecilpet', 'p46/pet/try_summon'),
       'pxleo': ('bm.xlcd', 'wolf', 'bm.xlpet', 'p213l/try_summon'),
       'pxemma': ('bm.xmcd', 'wolf', 'bm.xmpet', 'p213e/try_summon'),
       'sky': ('bm.ybcd', 'wolf', 'bm.ybpet', 'p211/try_summon'),
-      'kettle': ('bm.ktcd', 'wolf', 'bm.ktpet', 'p227/try_summon')}
+      'kettle': ('bm.ktcd', 'wolf', 'bm.ktpet', 'p227/try_summon'),
+      'rufus': ('bm.rucd', 'wolf', 'bm.rupet', 'p228/try_summon')}
 AR_IDX = {w: i for i, w in enumerate(AR)}
 PET_CD = 120                       # a faint outside the vault: 2 minutes (was 5, Wilfrey's 30)
 FILTER_MAX = 5
@@ -433,7 +434,7 @@ def generate(G):
     F['load'][-1:-1] = ['scoreboard objectives add bm.orph dummy']
     G.OBJECTIVES += ['bm.orph']
     nor = 0
-    for k in ('apo', 'tul', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'kettle'):
+    for k in ('apo', 'tul', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'kettle', 'rufus'):
         if k not in FX.FOLK: continue
         host, tag, head = FX.FOLK[k][:3]
         anyhead = re.sub(r',tag=!bm\.\w+fade', '', head)

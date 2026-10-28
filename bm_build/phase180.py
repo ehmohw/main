@@ -73,6 +73,7 @@ GIFT = {  # follower: (what it does, commands run each second at the doll)
     'bones': ("Dolphin's Grace", [f'effect give {P} minecraft:dolphins_grace 15 0 true']),
     'capshun': ('Haste', [f'effect give {P} minecraft:haste 15 0 true']),
     'kettle': ('Jump Boost', [f'effect give {P} minecraft:jump_boost 15 0 true']),
+    'rufus': ('Luck', [f'effect give {P} minecraft:luck 15 0 true']),
     'pxcecil': ('Night Vision', [f'effect give {P} minecraft:night_vision 15 0 true']),
     'pxleo': ('Resistance', [f'effect give {P} minecraft:resistance 15 0 true']),
     'pxemma': ('Absorption', [f'effect give {P} minecraft:absorption 30 0 true']),

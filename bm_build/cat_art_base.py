@@ -76,7 +76,7 @@ def eyes(im, kind, iris, rim, pupil='#0c0a08', lid='#2a2420', glint='#ffffff', c
 # ---------------------------------------------------------------------------------------------------- the rig
 def make(prefix, look, build):
     """look(prefix) -> {texture name: image} with the keys below; build: dict(stock=1.0 (width), long=1.0, tall=1.0, scale=..)"""
-    k, L_, hgt = build.get('stock', 1.0), build.get('long', 1.0), build.get('tall', 1.0)
+    k, L_, hgt = build.get('stock', 1.0), build.get('long', 1.0), build.get('tall', 1.0)      # (head_tex: the head's own coat, if not 'fur')
     bw = 2.2 * k                                                                 # (half the body's width)
     by0, by1 = 3.8 * hgt, 8.4 * hgt
     zf, zb = -6.0 * L_, 6.4 * L_
@@ -119,7 +119,7 @@ def make(prefix, look, build):
 
         def head(face=None):
             ft = T('face') if face is None else T(f'face_{face}')
-            h = [el((-hw, hy - 0.8, hz - 4.6), (hw, hy + 3.4, hz), T('fur'), pv, shift=(0.3, 0.6)),
+            h = [el((-hw, hy - 0.8, hz - 4.6), (hw, hy + 3.4, hz), T(build.get('head_tex', 'fur')), pv, shift=(0.3, 0.6)),
                  el((-hw, hy - 0.8, hz - 4.62), (hw, hy + 3.4, hz - 4.6), ft, pv, faces=('north',), uv={'north': [0, 0, 2 * hw, 4.2]}),
                  el((-hw, hy + 3.4, hz - 4.6), (hw, hy + 3.42, hz), T('crown'), pv, faces=('up',), uv={'up': [0, 0, 2 * hw, 4.6]}),
                  el((-hw - 0.35, hy - 0.4, hz - 3.6), (hw + 0.35, hy + 1.4, hz - 0.8), T('cheek'), pv, faces=('east', 'west', 'down', 'south'), shift=(0.2, 0.1)),

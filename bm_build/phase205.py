@@ -60,6 +60,7 @@ ABIL = {
     'lantern': ('Pumpkin Barrage', 'a barrage of fire: 16 to monsters round him', (16, 6), 0, 'glowing 2 0', [], 'minecraft:small_flame', 'minecraft:entity.blaze.shoot'),
     'bender': ('Pounce', 'a pounce: 22 to one monster, pinned', None, 22, 'slowness 3 4', [], 'minecraft:crit', 'minecraft:entity.wolf.growl'),
     'bones': ('Riptide Frenzy', 'a frenzy of teeth: 22 to one monster; you, Dolphin\'s Grace', None, 22, 'slowness 2 1', ['dolphins_grace 10 0'], 'minecraft:bubble', 'minecraft:entity.guardian.attack'),
+    'rufus': ('Bounty Collected', 'a bounty collected: 22 to one monster, pinned; you, Luck II', None, 22, 'slowness 3 4', ['luck 20 1'], 'minecraft:crit', 'minecraft:item.crossbow.shoot'),
     'kettle': ('Tag Team', 'tag, you\'re it: you and your followers Speed II and Strength; 8 to monsters round him', (8, 5), 0, 'slowness 3 1',
                ['speed 10 1', 'strength 10 0'], 'minecraft:happy_villager', 'minecraft:entity.experience_orb.pickup'),
     'capshun': ('Doodle Barrier', 'a doodled barrier: you and your followers Absorption III and Resistance; 6 round him', (6, 4), 0, 'slowness 2 1',

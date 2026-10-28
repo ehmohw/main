@@ -1,4 +1,4 @@
-"""The Gem's Buddies - preview sheets (rigkit).  python3 tools/preview/gem_buddies.py [lineup,poses,faces] [names...]"""
+"""The Gem's Buddies - preview sheets (rigkit).  python3 tools/preview/gem_buddies.py [lineup,poses,faces,vsref] [names...]"""
 import sys, os
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); sys.path.insert(0, os.path.dirname(os.path.dirname(HERE)))
 import draftkit as K, gem_buddies_art as GB, kettle_art as KA, rigkit
@@ -44,3 +44,23 @@ if 'lineup' in what:
     K.sheet([K.label(im, 'size',
                      'a player, Kettle, then Grace, Robo, Zapper, Dessa, Bubbles, Chase, Limer, Chico, Spike, Cheferoni')],
             f'{OUT}/gem_buddies_lineup.png', cols=1, title="The Gem's Buddies - to scale")
+if 'vsref' in what:
+    # each Buddy front on (whole, and the face close up) beside the owner's own drawing of it (ref/owner/buddies - reference only)
+    from PIL import Image
+    BM = os.path.dirname(os.path.dirname(HERE))
+    FOC = {'grace': (0.72, 0.62), 'robo': (0.78, 0.6), 'zapper': (0.62, 0.55), 'dessa': (0.66, 0.6), 'bubbles': (0.34, 0.62),
+           'chase': (0.6, 0.5), 'limer': (0.62, 0.58), 'chico': (0.72, 0.55), 'spike': (0.48, 0.55), 'cheferoni': (0.72, 0.62)}
+    FULL = {'grace': (0.6, 1.3), 'robo': (0.65, 1.45), 'zapper': (0.55, 1.3), 'dessa': (0.5, 1.2), 'bubbles': (0.38, 1.1),
+            'chase': (0.48, 1.0), 'limer': (0.52, 1.1), 'chico': (0.52, 1.15), 'spike': (0.48, 1.0), 'cheferoni': (0.62, 1.35)}
+    tiles = []
+    for n in names:
+        A = GB.RIGS[n]; cy, sp = FOC[n]; fy, fs = FULL[n]
+        s = K.multi_scene(roots[n]); rigkit.render(s, A, A.POSES['idle_a'], scale=A.RIG_SCALE)
+        full = s.render('front', size=300, span=fs, center=(0, fy, 0))
+        s = K.multi_scene(roots[n]); rigkit.render(s, A, A.POSES['idle_a'], scale=A.RIG_SCALE)
+        im = s.render('front', size=300, span=sp, center=(0, cy, 0))
+        ref = Image.open(f'{BM}/ref/owner/buddies/{n}.png').convert('RGBA'); ref.thumbnail((300, 300))
+        bg = Image.new('RGBA', (300, 300), (255, 255, 255, 255)); bg.alpha_composite(ref, ((300 - ref.width) // 2, (300 - ref.height) // 2))
+        pair = Image.new('RGB', (912, 300), 'white'); pair.paste(full.convert('RGB'), (0, 0)); pair.paste(im.convert('RGB'), (306, 0)); pair.paste(bg.convert('RGB'), (612, 0))
+        tiles.append(K.label(pair, n.capitalize(), 'the model, front | its face | the owner\'s drawing'))
+    K.sheet(tiles, f'{OUT}/gem_buddies_faces_vs_ref.png', cols=2, title="The Gem's Buddies - faces against the owner's art")
