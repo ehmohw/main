@@ -7,7 +7,7 @@ wiring for later.)
 
 The look (2nd pass, after the owner's note "more polished, not as creepy, smaller"): a sweet, slightly chibi girl about chest
 high on a player (her cap's crown at ~1.15 blocks) - a big head under a big mushroom hat, a small body, short limbs. Warm
-pale-cream skin with a peach blush; big friendly glowing-blue eyes with dark pupils and a shine; a small smile. Her hat is a
+pale-cream skin with a peach blush; big anime-style glowing-blue eyes (a dark lash line, a dark-to-light iris, a dark pupil, a big shine); a small smile. Her hat is a
 soft, rounded BLUE mushroom dome with raised ORANGE spots (faintly glowing), orange gills underneath and a slightly turned-down
 rim, a tiny glowing mushroom sprouting from its crown. A neat pale silver-mint bob, two soft locks framing her face. A moss-green
 dress: the bodice, a darker leaf sash, puffed moss sleeves, and a full flared skirt of moss over pale-oak leaves with a leafy
@@ -133,76 +133,75 @@ def _shoe():
 
 
 def _face(kind=None):
-    """the face: 7 x 6.6 units (28 x 26 px from the top-left; the cap's rim hides rows 0-9). Warm cream, the brows, a peach
-    blush on each cheek, the mouth. Her right eye is our left: cols 6-10; her left cols 17-21; eyes on rows 13-19 (their own
-    glowing overlay, _eyes); blush rows 19-20; the mouth on rows 22-23."""
+    """the face: 7 x 6.6 units (28 x 26 px from the top-left; the cap's rim hides rows 0-9). Warm cream; a peach blush low on
+    each cheek (rows 21-22, out toward the edges), the mouth small (rows 23-24). The eyes are their own glowing overlay (_eyes):
+    big, anime-style - her right eye (our left) cols 5-10, her left cols 17-22, rows 11-20. No brows at rest (the cap's rim
+    shades her forehead); fierce, sad and surprised show a short brow on row 10."""
     im = _soft(SKIN, SKIN_L, SKIN_D, 4441, 0.08); d = ImageDraw.Draw(im)
     R = lambda x0, y0, x1, y1, c: d.rectangle((x0, y0, x1, y1), fill=hexc(c))
-    for x0 in (3, 21):                                                        # (blush)
-        R(x0, 19, x0 + 3, 20, BLUSH); R(x0 + 1, 21, x0 + 2, 21, '#f6c7b8')
-    for x0, inner in ((6, 1), (17, -1)):                                      # brows (inner: +1 if the inner end is to the right)
-        a, b = (x0, x0 + 4)
-        if kind == 'fierce':                                                  # (down toward the middle - cute-determined)
-            for i in range(5):
-                x = a + i; yy = 10 + (i if inner > 0 else 4 - i) // 2
-                R(x, yy, x, yy, BROW)
-        elif kind == 'sad':                                                   # (up in the middle)
-            for i in range(5):
-                x = a + i; yy = 12 - (i if inner > 0 else 4 - i) // 2
-                R(x, yy, x, yy, BROW)
+    for x0 in (2, 22):                                                        # (blush)
+        R(x0, 21, x0 + 3, 21, BLUSH); R(x0 + 1, 22, x0 + 2, 22, '#f6c7b8')
+    for x0, inner in ((5, 1), (17, -1)):                                      # (inner: +1 if the eye's inner side is to the right)
+        if kind == 'fierce':                                                  # (short, set low at the middle)
+            R(x0 + 3, 10, x0 + 5, 10, BROW) if inner > 0 else R(x0, 10, x0 + 2, 10, BROW)
+        elif kind == 'sad':                                                   # (raised at the middle: only the inner end shows)
+            R(x0 + 4, 10, x0 + 5, 10, BROW) if inner > 0 else R(x0, 10, x0 + 1, 10, BROW)
         elif kind == 'surprised':
-            R(a + 1, 10, b - 1, 10, BROW)
-        else:
-            R(a + 1, 11, b - 1, 11, BROW)
-    if kind == 'happy':                                                       # (an open smile)
-        R(11, 22, 16, 22, MOUTH); R(12, 23, 15, 23, '#8f4643'); R(13, 23, 14, 23, '#e58f8a')
+            R(x0 + 1, 10, x0 + 4, 10, BROW)
+    if kind == 'happy':                                                       # (a small open smile)
+        R(12, 23, 15, 23, '#8f4643'); R(13, 24, 14, 24, '#e58f8a')
     elif kind == 'surprised':
-        R(13, 22, 14, 23, '#8f4643')
+        R(13, 23, 14, 24, '#8f4643')
     elif kind == 'sad':
-        R(13, 22, 14, 22, MOUTH); R(12, 23, 12, 23, MOUTH); R(15, 23, 15, 23, MOUTH)
+        R(13, 23, 14, 23, MOUTH); R(12, 24, 12, 24, MOUTH); R(15, 24, 15, 24, MOUTH)
     elif kind == 'fierce':
-        R(12, 22, 15, 22, MOUTH)
+        R(12, 23, 15, 23, MOUTH)
     elif kind == 'sleepy':
-        R(13, 23, 14, 23, MOUTH)
+        R(13, 24, 14, 24, MOUTH)
     else:                                                                     # (a small smile)
-        R(12, 22, 12, 22, MOUTH); R(13, 23, 14, 23, MOUTH); R(15, 22, 15, 22, MOUTH)
+        R(12, 23, 12, 23, MOUTH); R(13, 24, 14, 24, MOUTH); R(15, 23, 15, 23, MOUTH)
     return im
 
 
 def _eyes(kind=None):
-    """the eyes' overlay (transparent but for the eyes and freckles; light_emission on its element): big, friendly, glowing
-    blue - a darker top to the iris, lighter below, a dark pupil and a white shine"""
+    """the eyes' overlay (transparent but for the eyes, freckles and a tear; light_emission on its element): big anime eyes -
+    a dark upper lash line with a flick at the outer corner, the glowing iris dark at the top and light at the bottom, a dark
+    pupil, one big white shine and a small second highlight. The closed shapes (happy, blink, sleepy) are drawn to match."""
     im = Image.new('RGBA', (64, 64), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
     R = lambda x0, y0, x1, y1, c: d.rectangle((x0, y0, x1, y1), fill=hexc(c))
-    for x0, outer in ((6, -1), (17, 1)):
-        ox = x0 if outer < 0 else x0 + 4                                       # (the outer corner's column)
-        if kind == 'blink':                                                   # (shut: a soft, contented curve)
-            R(x0, 15, x0, 15, LASH); R(x0 + 1, 16, x0 + 3, 16, LASH); R(x0 + 4, 15, x0 + 4, 15, LASH)
-        elif kind == 'happy':                                                 # (smiling arches)
-            R(x0, 16, x0, 17, EYE); R(x0 + 4, 16, x0 + 4, 17, EYE); R(x0 + 1, 15, x0 + 3, 15, EYE_B)
-            R(x0 + 1, 14, x0 + 3, 14, LASH); R(x0, 15, x0, 15, LASH); R(x0 + 4, 15, x0 + 4, 15, LASH)
-        elif kind == 'sleepy':                                                # (heavy lids: the lower half)
-            R(x0, 16, x0 + 4, 16, LASH); R(x0, 17, x0 + 4, 18, EYE); R(x0 + 1, 19, x0 + 3, 19, EYE_B)
-            R(x0 + 2, 17, x0 + 3, 18, PUPIL); R(x0 + 1, 17, x0 + 1, 17, '#ffffff')
+    MID = '#3aa5e8'
+    grad = {13: EYE_T, 14: EYE_T, 15: MID, 16: MID, 17: EYE, 18: EYE, 19: EYE_B, 20: EYE_B}
+    for x0, outer in ((5, -1), (17, 1)):
+        ox, ix = (x0, x0 + 5) if outer < 0 else (x0 + 5, x0)                  # (outer / inner columns)
+        if kind == 'blink':                                                   # (shut: a soft, contented curve, a lash flick)
+            R(x0, 16, x0, 16, LASH); R(x0 + 1, 17, x0 + 4, 17, LASH); R(x0 + 5, 16, x0 + 5, 16, LASH)
+            R(ox + outer, 15, ox + outer, 15, LASH)
+        elif kind == 'happy':                                                 # (smiling arches, thick)
+            R(x0, 17, x0, 18, LASH); R(x0 + 5, 17, x0 + 5, 18, LASH); R(x0 + 1, 15, x0 + 1, 16, LASH); R(x0 + 4, 15, x0 + 4, 16, LASH)
+            R(x0 + 2, 14, x0 + 3, 15, LASH); R(x0 + 2, 16, x0 + 3, 16, EYE_B); R(x0 + 1, 17, x0 + 1, 17, EYE); R(x0 + 4, 17, x0 + 4, 17, EYE)
+        elif kind == 'sleepy':                                                # (heavy lids: the lower half of the eye)
+            R(x0, 15, x0 + 5, 16, LASH); R(ox + outer, 15, ox + outer, 15, LASH)
+            for y in range(17, 21):
+                a, b = (x0 + 1, x0 + 4) if y == 20 else (x0, x0 + 5)
+                R(a, y, b, y, grad[y])
+            R(x0 + 2, 17, x0 + 3, 19, PUPIL); R(x0 + 1, 17, x0 + 1, 17, '#ffffff'); R(x0 + 4, 19, x0 + 4, 19, '#dff8ff')
         else:
-            top = 12 if kind == 'surprised' else (15 if kind == 'fierce' else 14)
-            R(x0, top - 1, x0 + 4, top - 1, LASH)                             # (the lash line)
-            if kind not in ('surprised',): R(ox, top - 2, ox, top - 2, LASH)  # (a little flick at the outer corner)
-            if kind == 'fierce':                                              # (the lid slants down to the middle)
-                ix = x0 + 4 if outer < 0 else x0
-                R(ix, top, ix, top, LASH)
-            for y in range(top, 20):
-                c = EYE_T if y < top + 2 else (EYE if y < 18 else EYE_B)
-                a, b = x0, x0 + 4
-                if y in (top, 19): a, b = x0 + 1, x0 + 3                       # (rounded)
+            top = 12 if kind == 'surprised' else 13
+            R(x0, top - 2, x0 + 5, top - 1, LASH)                             # (the upper lash line, two pixels thick)
+            if kind not in ('surprised', 'sad'): R(ox + outer, top - 2, ox + outer, top - 2, LASH)  # (the flick)
+            for y in range(top, 21):
+                c = grad.get(y, EYE_T)
+                a, b = (x0 + 1, x0 + 4) if y == 20 else (x0, x0 + 5)          # (rounded at the bottom)
                 R(a, y, b, y, c)
-            if kind == 'surprised':
-                R(x0 + 2, 15, x0 + 2, 16, PUPIL); R(x0 + 1, 13, x0 + 1, 14, '#ffffff')
+            if kind == 'sad': R(ox + outer, top, ox + outer, top, LASH)
+            if kind == 'fierce':                                              # (the lid slants down to the middle)
+                R(ix, top, ix, top, LASH); R(x0 + 2, top, x0 + 3, top, EYE_T)
+            if kind == 'surprised':                                           # (a small pupil, wide eyes)
+                R(x0 + 2, 15, x0 + 3, 17, PUPIL); R(x0 + 1, 13, x0 + 2, 14, '#ffffff'); R(x0 + 4, 18, x0 + 4, 18, '#dff8ff')
             else:
-                R(x0 + 2, top + 1, x0 + 3, 18, PUPIL); R(x0 + 1, top + 1, x0 + 1, top + 2, '#ffffff'); R(x0 + 3, 18, x0 + 3, 18, '#dff8ff')
-            if kind == 'sad':                                                 # (a glowing tear at her left eye's outer corner)
-                if outer > 0: R(x0 + 4, 20, x0 + 4, 21, GLOW)
-    for x, y in ((4, 22), (6, 22), (21, 22), (23, 22)):                       # (a few soft glowing freckles)
+                R(x0 + 2, top + 1, x0 + 3, 19, PUPIL); R(x0 + 1, top + 1, x0 + 2, top + 2, '#ffffff'); R(x0 + 4, 18, x0 + 4, 18, '#dff8ff')
+            if kind == 'sad' and outer > 0: R(x0 + 5, 21, x0 + 5, 22, GLOW)    # (a glowing tear)
+    for x, y in ((3, 23), (5, 23), (22, 23), (24, 23)):                       # (a few soft glowing freckles)
         R(x, y, x, y, GLOW_D)
     return im
 
