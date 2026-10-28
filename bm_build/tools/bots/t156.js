@@ -27,7 +27,7 @@ const res = [];
   const trades = require('fs').readFileSync('/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function/' + 'npc/wizard.mcfunction', 'utf8').toString();
   ok(`Cecil sells all ${DOLLS.length} dolls`, DOLLS.every(d => trades.includes(`bm:"${d}"`)), DOLLS.filter(d => !trades.includes(`bm:"${d}"`)).join(','));
   for (const [i, d] of DOLLS.entries()) {
-    const bx = X - 6 + i, bz = Z;
+    const bx = X - 6 + (i % 20), bz = Z - 6 + 5 * Math.floor(i / 20);   // (2.97: rows of twenty - forty-six dolls run off one row's floor)
     await run('clear TestRat'); await run(`loot replace entity TestRat hotbar.0 loot bm:items/${d}`);
     // (standing two back from the block, looking down at its top)
     await run(`${O}tp TestRat ${bx + 0.5} ${Y + 1} ${bz + 2.5} 180 45`); await wait(2000, async () => A.pos && Math.abs(A.pos.z - (bz + 2.5)) < 0.05, 100); await sleep(300);
