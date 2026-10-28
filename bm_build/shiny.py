@@ -44,6 +44,7 @@ LOOKS = {
     'speech': ('Shiny Comic Pop', ('#3a0a04', '#ff6a2a', '#ffe8a0'), 'orange'),
     'lightbringer': ('Shiny Starlit Raiment', ('#0a0a2a', '#6a7ae0', '#e8f0ff'), 'light_blue'),
     'dryad': ('Shiny Moonglow Cap', ('#06202a', '#3ad0c0', '#c8fff4'), 'cyan'),
+    'sovereign': ("Shiny Aurel's Light", ('#3a2c10', '#f0d070', '#fffaf0'), 'yellow'),
     'henry': ('Shiny Starlit Collar', ('#0a0a3a', '#6a6ae0', '#e0e0ff'), 'blue'),
     'nia': ('Shiny Rainbow Collar', ('#3a1a4a', '#e08ad8', '#fff0c0'), 'pink'),
     'rufus': ('Shiny Gold Bandana', ('#3a2806', '#e0b030', '#fff0a0'), 'yellow'),

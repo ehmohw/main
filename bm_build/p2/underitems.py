@@ -35,7 +35,7 @@ gear('black_crown', 'netherite_helmet', N('crown'), COL, LO('crown') + [('+6 Max
                                                                         ('Dread near you are weakened.', 'blue')],
      ench(protection=8, unbreaking=10, mending=1), 3,
      attrs=armor_attrs('netherite', 'helmet', [attr('max_health', 6, 'head')], bonus_tough=3), model='bm:black_crown', bold=True,
-     custom_extra={'bm_fx': 'black_crown'})
+     custom_extra={'bm_fx': 'black_crown'}, extra={'minecraft:equippable': {'slot': 'head', 'equip_sound': 'minecraft:item.armor.equip_netherite'}})
 item('sov_heart', TOTEM, N('heart'), COL, LO('heart') + [('Carried: once a day, a blow that would kill you', 'blue'), ('leaves you standing instead.', 'blue')],
      model='bm:sov_heart', glint=True, stack=1, cat='magic', bold=True)
 
@@ -45,12 +45,13 @@ item('dawnshard', TOTEM, N('dawnshard'), HOLY, LO('dawnshard') + [('Held: the gr
 item('unwriting', TOTEM, N('unwriting'), '#c8c0b0', LO('unwriting')[:1] + [(LO('unwriting')[1], 'blue'), ('(once a minute)', 'gray')],
      model='bm:unwriting', stack=1, cat='magic', comps={'minecraft:consumable': consumable(0.6, 'none', 'minecraft:item.book.page_turn', False)})
 gear('chainwhip', 'netherite_sword', N('chainwhip'), '#9a8c94', LO('chainwhip') + [('+2 Reach. A hit drags the foe to you.', 'blue')],
-     ench(sharpness=6, knockback=0, unbreaking=10, mending=1), 3,
+     ench(sharpness=6, unbreaking=10, mending=1), 3,
      attrs=weapon_attrs('netherite_sword', 1, [attr('entity_interaction_range', 2, 'mainhand')]), model='bm:chainwhip', custom_extra={'bm_fx': 'chainwhip'})
 item('nine_lives', TOTEM, N('nine_lives'), '#d8d8e8', LO('nine_lives')[:1] + [(LO('nine_lives')[1], 'blue')], model='bm:nine_lives', stack=1, cat='magic')
 item('ulantern_wick', TOTEM, "The Lantern's Wick", '#ffb347', ['A wick that never burns down, from the Lantern Crawl.', ('In your off hand: you see in the dark,', 'blue'),
                                                             ('and monsters within 16 glow.', 'blue')], model='bm:ulantern_wick', stack=1, cat='magic')
 gear('unbound_helm', 'netherite_helmet', "Unbound Knight's Helm", '#8a96a8', ['The knights who were set to guard the chains.', 'They answered to Wilfrey, once.',
                                                                              ('+2 Armor, +1 Toughness; Thorns.', 'blue')],
-     ench(protection=6, thorns=4, unbreaking=10, mending=1), 3, attrs=armor_attrs('netherite', 'helmet', bonus_armor=2, bonus_tough=1), model='bm:unbound_helm')
+     ench(protection=6, thorns=4, unbreaking=10, mending=1), 3, attrs=armor_attrs('netherite', 'helmet', bonus_armor=2, bonus_tough=1), model='bm:unbound_helm',
+     extra={'minecraft:equippable': {'slot': 'head', 'equip_sound': 'minecraft:item.armor.equip_netherite'}})
 RELICS = ('dawnshard', 'ulantern_wick', 'unwriting', 'chainwhip', 'nine_lives', 'unbound_helm')

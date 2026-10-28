@@ -37,7 +37,7 @@ PT = {'cecil': ('bm.cpet', True), 'emma': ('bm.emp', True), 'celi': ('bm.cep', T
       'omega': ('bm.omp', True), 'ashur': ('bm.asp', True), 'chef': ('bm.kkp', True), 'neighbor': ('bm.nbp', True), 'ava': ('bm.avp', True),
       'pearlq': ('bm.pqp', True), 'bloo': ('bm.bop', True), 'stalker': ('bm.svp', True), 'lantern': ('bm.lnp', True), 'bender': ('bm.bvp', True),
       'bones': ('bm.bjp', True), 'capshun': ('bm.mzp', True), 'pxcecil': ('bm.xcp', True), 'pxleo': ('bm.xlp', True), 'pxemma': ('bm.xmp', True),
-      'sky': ('bm.ybp', True), 'kettle': ('bm.ktp', True), 'rufus': ('bm.rup', True), 'henry': ('bm.hyp', True), 'nia': ('bm.nip', True), 'gem': ('bm.cgp', True), 'batty': ('bm.ytp', True), 'eggbert': ('bm.ebp', True), 'count': ('bm.knp', True), 'dragon': ('bm.ddp', True), 'eraser': ('bm.ezp', True), 'cursor': ('bm.uxp', True), 'inkblot': ('bm.ibp', True), 'speech': ('bm.wbp', True), 'lightbringer': ('bm.lhp', True), 'dryad': ('bm.pyp', True)}
+      'sky': ('bm.ybp', True), 'kettle': ('bm.ktp', True), 'rufus': ('bm.rup', True), 'henry': ('bm.hyp', True), 'nia': ('bm.nip', True), 'gem': ('bm.cgp', True), 'batty': ('bm.ytp', True), 'eggbert': ('bm.ebp', True), 'count': ('bm.knp', True), 'dragon': ('bm.ddp', True), 'eraser': ('bm.ezp', True), 'cursor': ('bm.uxp', True), 'inkblot': ('bm.ibp', True), 'speech': ('bm.wbp', True), 'lightbringer': ('bm.lhp', True), 'dryad': ('bm.pyp', True), 'sovereign': ('bm.xvp', True)}
 
 # (name, what it looks like, where they come back: behind / below / above, the vanish, the sign at the foe while they're gone,
 #  the return, the sound going, the sound coming)
@@ -178,6 +178,9 @@ FLAV = {
     'dryad': ('Mycelium', 'sinks into the moss and springs up beneath the monster in a burst of spores', 'below',
                [P('minecraft:spore_blossom_air', 30, 0.5, 0.3, 0)], ['minecraft:spore_blossom_air ~ ~0.1 ~ 0.4 0 0.4 0 2'],
                [P('minecraft:spore_blossom_air', 40, 0.5, 0.8, 0), P('minecraft:crit', 20)], 'minecraft:block.moss.break', 'minecraft:block.rooted_dirt.break'),
+    'sovereign': ('Chainstep', 'snaps its chain taut - and is suddenly behind the monster, greatsword already falling', 'behind',
+               [P('minecraft:sculk_soul', 20), P('minecraft:large_smoke', 10)], ['minecraft:sculk_soul ^ ^1 ^-1.2 0.2 0.3 0.2 0 1'],
+               [P('minecraft:sculk_soul', 30, 0.4, 0.6, 0.1), P('minecraft:crit', 20)], 'minecraft:block.chain.break', 'minecraft:entity.warden.attack_impact'),
     'henry': ('Nine Lives', '', 'behind', [], [], [], 'minecraft:entity.cat.hiss', 'minecraft:entity.cat.hiss'),
     'nia': ('Tortitude', '', 'behind', [], [], [], 'minecraft:entity.cat.hiss', 'minecraft:entity.cat.hiss'),
     'rufus': ('Dirty Fighting', 'throws grit in its eyes', 'behind', [], [], [], 'minecraft:entity.rabbit.attack', 'minecraft:item.crossbow.shoot'),

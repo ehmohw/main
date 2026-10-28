@@ -119,7 +119,7 @@ class DBuild(Build):
 
     def vault(self, x, y, z, facing, key_iid, loot):
         key = stack_nbt(key_iid)
-        om = 'true' if key_iid.startswith('bkey_') else 'false'      # victor's vault = ominous, spoils vault = regular
+        om = 'true' if key_iid.startswith('bkey_') or key_iid.endswith('_victor') else 'false'   # (2.98: the Undercrown's ukey_victor)      # victor's vault = ominous, spoils vault = regular
         self.set(x, y, z, f'vault[facing={facing},ominous={om},vault_state=inactive]',
                  {'id': 'minecraft:vault', 'config': {'key_item': key, 'loot_table': loot,
                                                       'activation_range': Double(4.0), 'deactivation_range': Double(4.5)}})

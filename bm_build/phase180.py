@@ -86,6 +86,7 @@ GIFT = {  # follower: (what it does, commands run each second at the doll)
     'speech': ('Strength', [f'effect give {P} minecraft:strength 15 0 true']),
     'lightbringer': ('Resistance', [f'effect give {P} minecraft:resistance 15 0 true']),
     'dryad': ('Saturation', [f'effect give {P} minecraft:saturation 1 0 true']),
+    'sovereign': ('Strength', [f'effect give {P} minecraft:strength 15 0 true']),
     'nia': ('Regeneration', [f'effect give {P} minecraft:regeneration 15 0 true']),
     'pxcecil': ('Night Vision', [f'effect give {P} minecraft:night_vision 15 0 true']),
     'pxleo': ('Resistance', [f'effect give {P} minecraft:resistance 15 0 true']),

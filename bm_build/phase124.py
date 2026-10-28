@@ -28,6 +28,8 @@ DISCS = {   # key: (title, lore, length s, label palette dark->light, descriptio
     'dread': ('The Dread', 'Torn from a Dread boss - its battle, every note of it.', 130, ('#2a0408', '#a01020', '#ff6a6a'), '#e0283a'),    # (2.94g: phase197 drops it)
     'dread2': ('The Dread - Lament', 'Torn from a Dread boss - its last stand.', 128, ('#10101e', '#5a3a7a', '#c8a8e8'), '#a888d0'),    # (2.94h)
     'pxapo': ('The 8-Bit Serpent King', 'Glitched out of an old cartridge - his battle, in sixteen colours.', 96, ('#0a2a12', '#3ad06a', '#b8ffc8'), '#3ad06a'),    # (2.94k: phase215 drops it)
+    'sovereign': ('The Dread Sovereign', 'From the ashes of the Dread Sovereign - its three forms, its fall.', 184, ('#14040a', '#8a0a1e', '#ff5a64'), '#d0182e'),    # (2.98: phase238 drops it)
+    'aurel': ('Aurel', 'A pale record from the ashes - an elegy for the first light.', 120, ('#3a3220', '#c8b070', '#fff4d0'), '#fff4d0'),    # (2.98: the second fall)
 }
 MARKET_PRICE = 6
 BIG_SCORE = 4                    # % of won hauls
@@ -96,7 +98,7 @@ def generate(G):
         add_pools('bm/loot_table/p2/hollow/isle.json', [disc_pool('hollow', 0.12)])
 
     # ================================================================== Crate Digger: all six records
-    six = ['blood_moon'] + [k for k in DISCS if k not in ('dread', 'dread2', 'pxapo')]             # (2.94g: the Dread's record is hard mode's own - not one of the six)
+    six = ['blood_moon'] + [k for k in DISCS if k not in ('dread', 'dread2', 'pxapo', 'sovereign', 'aurel')]             # (2.94g: the Dread's record is hard mode's own - not one of the six)
     def icon(iid):
         it = ITEMS[iid]
         return {'id': it['base'], 'components': {'minecraft:item_model': it['comps'].get('minecraft:item_model', it['base'])}}

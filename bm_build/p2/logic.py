@@ -388,7 +388,7 @@ def generate(G, builds):
                                               [f'function bm:p2/{d}/pz{n}_one{k}'] * per)
                     one = [f'execute store result score #wr bm.rng run random value 1..{len(wave)}']
                     for i, (ent, nbt) in enumerate(wave, 1):
-                        nb = dict(nbt); nb['Tags'] = ['bm.dgmob', 'bm.wm', wm]; nb['PersistenceRequired'] = Byte(1)
+                        nb = dict(nbt); nb['Tags'] = list(nbt.get('Tags', [])) + ['bm.dgmob', 'bm.wm', wm]; nb['PersistenceRequired'] = Byte(1)   # (2.98: a roster's own tags kept)
                         one.append(f'execute if score #wr bm.rng matches {i} run summon minecraft:{ent} ~ ~ ~ {snbt(nb)}')
                     fn(f'p2/{d}/pz{n}_one{k}', one)
                 fn(f'p2/{d}/pz{n}_wnext', nxt)

@@ -204,9 +204,55 @@ ELEMENT_BLOCK = {'lever': 'lever', 'key': 'button', 'seq': 'button', 'listen': '
                  'pull': 'button', 'target': 'target', 'bulb': 'copper_bulb', 'reel': 'gold_block'}
 
 
+def door_cells(x, y, z, axis, w, h):
+    return [((x + dw, y + dy, z) if axis == 'x' else (x, y + dy, z + dw)) for dw in range(-w, w + 1) for dy in range(h)]
+
+
+def verify_under(B, G, UM, starts, all_open, notes):
+    """2.98: the Undercrown's own doors, with every gate open (and every bridge down): each hidden room is sealed while its door
+    is shut and reachable once it opens (its relic, its chest), its sigils can be walked onto; the Hoard stays shut but its
+    door can be walked up to; and the walk never leaks out past the Hidden Gate into the approach cave."""
+    errs, d = [], B.d
+    base = dict(G.override)
+    hid_chests = [c for c in B.meta['chests'] if c[3] and '/hidden' in c[3]]
+    for k, h in UM['hidden'].items():
+        cells = door_cells(*h['door'][:6])
+        rel = [r for r in UM['relics'] if r[0] == k]
+        if not rel: errs.append(f'{d}: hidden room {k} has no relic')
+        for (_, x, y, z) in rel:
+            if reach(all_open, x, y, z): errs.append(f'{d}: hidden room {k}: relic reachable with its door shut')
+        for (who, x, y, z) in h['sigils']:
+            if (x, y, z) not in all_open: errs.append(f'{d}: hidden room {k}: the {who} sigil at {(x, y, z)} cannot be walked onto')
+        G.override = dict(base)
+        for c in cells: G.override[c] = 'minecraft:air'
+        opened = G.bfs(starts)
+        G.override = dict(base)
+        for (_, x, y, z) in rel:
+            if not reach(opened, x, y, z): errs.append(f'{d}: hidden room {k}: relic unreachable with its door open')
+        mine = [c for c in hid_chests if reach(opened, *c[:3]) and not reach(all_open, *c[:3])]
+        if not mine: errs.append(f'{d}: hidden room {k}: no chest of its own behind the door')
+        gained = len(opened - all_open)
+        notes.append(f'hidden room {k}: +{gained} standable cells, {len(mine)} chest(s)')
+    if UM['hoard']:
+        x, y, z, ax, w, h, blk = UM['hoard']
+        hc = [c for c in B.meta['chests'] if c[3] and '/hoard' in c[3]]
+        if not any(abs(c[0] - x - 0.5) <= 3.5 and abs(c[1] - y) <= 2 and abs(c[2] - z - 0.5) <= 3.5 for c in all_open):
+            errs.append(f'{d}: the Hoard door cannot be walked up to')
+        if any(reach(all_open, *c[:3]) for c in hc): errs.append(f'{d}: a Hoard chest is reachable with the Hoard shut')
+        G.override = dict(base)
+        for c in door_cells(x, y, z, ax, w, h): G.override[c] = 'minecraft:air'
+        opened = G.bfs(starts)
+        G.override = dict(base)
+        if not hc or not all(reach(opened, *c[:3]) for c in hc): errs.append(f'{d}: the Hoard\'s chests are unreachable with it open')
+    leak = [c for c in all_open if c in B.outside or (c[0], c[1] - 1, c[2]) in B.outside]
+    if leak: errs.append(f'{d}: the walk leaks out into the approach cave at {sorted(leak)[:3]}')
+    return errs
+
+
 def verify(B, outside='solid', base_y=0, extra_starts=()):
     errs, notes = [], []
     d, cfg = B.d, D[B.d]
+    UM = B.meta.get('under')          # 2.98: the Undercrown (no altar: the fight starts in its arena; bridges, hidden rooms, the hoard)
     gate_blk = cfg['gate']
     # ---------------- wiring
     for (x, y, z, axis, n) in B.meta['gates']:
@@ -269,9 +315,9 @@ def verify(B, outside='solid', base_y=0, extra_starts=()):
         if k == 'offering' and kinds.count('offer') < 1: errs.append(f'{d} P{n} offering has no pedestal')
         if k == 'slots' and (kinds.count('reel') != 3 or 'pull' not in kinds): errs.append(f'{d} P{n} slot machine incomplete')
     if not B.meta['entrance']: errs.append(f'{d}: no entrance marker')
-    if not B.meta['arena'] or not B.meta['altar']: errs.append(f'{d}: arena/altar missing')
+    if not B.meta['arena'] or (not B.meta['altar'] and not UM): errs.append(f'{d}: arena/altar missing')
     tags = [t for m in B.meta['markers'] for t in m[3]]
-    for need in ('bm.dg', 'bm.zone_d', 'bm.dgfx', 'bm.arena', 'bm.altar', 'bm.mspawn', 'bm.entr'):
+    for need in ('bm.dg', 'bm.zone_d', 'bm.dgfx', 'bm.arena', 'bm.mspawn', 'bm.entr') + (() if UM else ('bm.altar',)):
         if need not in tags: errs.append(f'{d}: no {need} marker')
     # every marker within the dungeon radius of the controller (resets/gates find each other by distance)
     ctrl = [m for m in B.meta['markers'] if 'bm.dg' in m[3]]
@@ -296,11 +342,18 @@ def verify(B, outside='solid', base_y=0, extra_starts=()):
     for (x, y, z, k) in B.meta['sdoors']: pass
     def elems(n): return [e for e in B.meta['puzzles'].get(n, {}).get('elements', []) if e[0] not in ('goal',)]
     puzzles = sorted(B.meta['puzzles'])
+    def bridges(upto):                # 2.98: a bridge's cells are floor once its trial is solved
+        for (n, x1, y1, z1, x2, y2, z2, blk) in (UM['bridges'] if UM else []):
+            if n <= upto:
+                for x in range(x1, x2 + 1):
+                    for y in range(y1, y2 + 1):
+                        for z in range(z1, z2 + 1): G.override[(x, y, z)] = 'minecraft:' + blk
     for opened in range(0, ngate + 1):
         G.override = {}
         for g in gates:
             if g[4] <= opened:
                 for c in plane(g): G.override[c] = OPEN_LIGHT
+        bridges(opened)
         seen = G.bfs(starts)
         for n in puzzles:
             el = elems(n)
@@ -314,12 +367,21 @@ def verify(B, outside='solid', base_y=0, extra_starts=()):
                                   if (e[1] + o[0], e[2] + o[1], e[3] + o[2]) in B.b and G.free(e[1] + o[0], e[2] + o[1], e[3] + o[2])]
                     if not open_faces: errs.append(f'{d} P{n} {e[0]} at {e[1:4]} has no exposed face')
             ok = [reach(seen, e[1], e[2], e[3], 32.0 if e[0] in ('target', 'bulb', 'reel') else 4.5) for e in el]
-            if n <= opened + 1 and not all(ok):
+            # 2.98: a sigil is walked onto (by a follower, at the player's heel): its own cell must be stood on, not just reached
+            cur = [(tuple(e[1:4]) in seen) if e[0] == 'sigil' else ok[i] for i, e in enumerate(el)]
+            if n <= opened + 1 and not all(cur):
+                ok = cur
                 bad = [el[i][:4] for i, o in enumerate(ok) if not o]
                 errs.append(f'{d}: with gates 1..{opened} open, puzzle {n} elements unreachable: {bad[:4]}')
             if n > opened + 1 and any(ok):
                 bad = [el[i][:4] for i, o in enumerate(ok) if o]
                 errs.append(f'{d}: SKIP RISK - with gates 1..{opened} open, puzzle {n} elements reachable: {bad[:4]}')
+        if UM:                        # 2.98: no altar - the arena itself must stay shut until every gate is open
+            arx, ary, arz = B.meta['arena']
+            alt = any(abs(c[0] - arx) <= 2 and abs(c[2] - arz) <= 2 and abs(c[1] - ary) <= 3 for c in seen)
+            if opened < ngate and alt: errs.append(f'{d}: SKIP RISK - arena reachable with only gates 1..{opened} open')
+            if opened == ngate and not alt: errs.append(f'{d}: arena centre unreachable with all gates open')
+            continue
         ax, ay, az = B.meta['altar']
         alt = reach(seen, ax, ay, az, 2.5)
         if opened < ngate and alt: errs.append(f'{d}: SKIP RISK - altar reachable with only gates 1..{opened} open')
@@ -333,7 +395,10 @@ def verify(B, outside='solid', base_y=0, extra_starts=()):
     G.override = {}
     for g in gates:
         for c in plane(g): G.override[c] = OPEN_LIGHT
+    bridges(ngate)
     all_open = G.bfs(starts)
+    if UM:
+        errs += verify_under(B, G, UM, starts, all_open, notes)
     for (x, y, z, k) in B.meta['sdoors']:
         btn = [e for e in B.meta['elements'] if e[0] == 'sbtn' and e[4] == k]
         if btn and not reach(all_open, btn[0][1], btn[0][2], btn[0][3]): errs.append(f'{d}: hidden button {k} unreachable')

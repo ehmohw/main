@@ -202,6 +202,8 @@ import phase234 as R234      # 2.96c: together - riding Bender, the night cuddle
 import phase235 as R235      # 2.97: the Doodles - the Doodle Dragon, the Eraser, the Cursor, the Ink Blot, the Speech Bubble   (after Henry and Nia: the frame kinds and contract bits stay as they were)
 import phase236 as R236      # 2.97: the Lightbringer (hard mode) and the Pale Dryad
 import phase237 as R237      # 2.98: the Undercrown - the final dungeon, hidden in the Nether (its kinds of trial register on import)
+import phase238 as R238      # 2.98: the Dread Sovereign - the final boss, its coming, its three forms, its fall (its themes register on import)
+import phase239 as R239      # 2.98: the Bound Sovereign - what's left of it, a follower (hard mode)
 R233.add_pairs()             # 2.98: the Creative Forms
 R229.add_pairs()             # 2.97: the cats' pairs with everyone - after every follower is imported
 import atk                   # 2.94u: the attack kit - impact and hit-stop on every follower blow
@@ -1356,6 +1358,7 @@ def build(out_dir):
     if PHASE2: R232.generate_early(sys.modules[__name__])
     if PHASE2: R235.generate_early(sys.modules[__name__])
     if PHASE2: R236.generate_early(sys.modules[__name__])
+    if PHASE2: R239.generate_early(sys.modules[__name__])
     if PHASE2: R211.generate_early(sys.modules[__name__])
     if PHASE2: R213.generate_early(sys.modules[__name__])
     if PHASE2: R199.generate_early(sys.modules[__name__])
@@ -1421,6 +1424,7 @@ def build(out_dir):
     if PHASE2: R214.generate(sys.modules[__name__])
     if PHASE2: R235.generate(sys.modules[__name__])      # 2.97: the Doodles (after the Glitched Cartridge: the Cursor comes out of one)
     if PHASE2: R236.generate(sys.modules[__name__])      # 2.97: the Lightbringer and the Pale Dryad
+    if PHASE2: R239.generate(sys.modules[__name__])      # 2.98: the Bound Sovereign
     if PHASE2: R215.generate(sys.modules[__name__])
     if PHASE2: R216.generate(sys.modules[__name__])
     if PHASE2: R199.generate(sys.modules[__name__])
@@ -1470,6 +1474,7 @@ def build(out_dir):
     R181.generate(sys.modules[__name__])        # 2.85a: Dread Nights, Stalkers, the golden cross, the Dread Totem
     R182.generate(sys.modules[__name__])        # 2.85b: angelic forging
     if PHASE2: R237.generate(sys.modules[__name__])      # 2.98: the Undercrown (after the Dread Nights: it ends them)
+    if PHASE2: R238.generate(sys.modules[__name__])      # 2.98: the Dread Sovereign
     print('2.85c: the Rat Race - %d jobs, %d prizes in the draw' % R183.generate(sys.modules[__name__]))
     print('2.85d: %d new fight rooms, the rats\' calls, the Forge/Garden coin' % R184.generate(sys.modules[__name__]))
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))

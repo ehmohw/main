@@ -117,14 +117,14 @@ def _shards(G, d_, n, c):
             f'execute as {el_sel(d, n, "socket", R, ",tag=!bm.got")} at @s run function bm:p2/{d}/pz{n}_offer']
     off = []
     for k, sid in U.SHARD.items():
-        off.append(f'execute if entity @s[tag=bm.ok_{k}] as @e[type=minecraft:item,distance=..1.6] if items entity @s contents {holds(sid)} run function bm:p2/{d}/pz{n}_take_{k}')
+        off.append(f'execute if entity @s[tag=bm.ok_{k}] as @e[type=minecraft:item,distance=..1.6] if items entity @s contents {holds(sid)} at @s run function bm:p2/{d}/pz{n}_take_{k}')
         fn(f'p2/{d}/pz{n}_take_{k}', ['kill @s', f'execute as {el_sel(d, n, "socket", 3, f",tag=bm.ok_{k},sort=nearest,limit=1")} at @s run function bm:p237/shard/set_{k}',
                                       f'execute as {c["ctrl"]} at @s run function bm:p2/{d}/pz{n}_tally'])
     fn(f'p2/{d}/pz{n}_offer', off)
     fn(f'p2/{d}/pz{n}_tally', [f'execute store result score #h bm.rng if entity {el_sel(d, n, "socket", R, ",tag=bm.got")}',
                                f'execute if score #h bm.rng matches 3.. run return run function bm:p237/shard/all',
                                title('@a[distance=..20]', 'actionbar', [T('The Throne Gate takes the shard: ', COL), {'score': {'name': '#h', 'objective': 'bm.rng'}, 'color': 'white'}, T(' / 3', COL)])])
-    fn('p237/shard/all', ['execute as @a[distance=..24,gamemode=!spectator] run function bm:p237/key',
+    fn('p237/shard/all', ['execute as @a[distance=..24,gamemode=!spectator] at @s run function bm:p237/key',
                           f'execute as {c["ctrl"]} at @s run function bm:p2/{d}/pz{n}_solve'])
     reset = ['scoreboard players set @s bm.done 0', f'tag {el_sel(d, n, "socket", R)} remove bm.got',
              f'execute as {el_sel(d, n, "socket", R)} at @s run kill @e[type=minecraft:item_display,tag=bm.ushow,distance=..2]']
@@ -169,6 +169,8 @@ def generate(G):
     # ---- the framework runs it (only its own lines: the shared ones are already there)
     from p2 import logic
     parts = logic.generate(G, {d: Bu})
+    for f_ in (f'p2/{d}/rearm', f'p2/{d}/xdoor_open'):     # (no arena exit door; it re-forms instead)
+        G.FUNCS.pop(f_, None)
     mine = lambda ls: [l for l in ls if f'd_{d}' in l]
     tick += mine(parts['tick'])
     second[-1:-1] = mine(parts['second'])
@@ -202,16 +204,21 @@ def generate(G):
     fast.append(f'execute as @e[type=minecraft:marker,tag=bm.d_{d},tag=bm.lit] at @s run particle minecraft:dust{{color:[0.82,0.1,0.18],scale:1.6}} ~ ~0.1 ~ 0.6 0 0.6 0 6')
 
     # ---- bridges appear when their trial is solved; the reset takes them back
-    fn('p237/bridge/make', ['$fill ~ ~ ~ ~$(dx) ~$(dy) ~$(dz) $(b) replace minecraft:air', 'particle minecraft:snowflake ~ ~1 ~ 3 1 3 0.02 60',
-                            'playsound minecraft:block.glass.place block @a[distance=..32] ~ ~ ~ 1 0.6', 'playsound minecraft:block.powder_snow.place block @a[distance=..32] ~ ~ ~ 1 0.5'])
-    fn('p237/bridge/clear', ['$fill ~ ~ ~ ~$(dx) ~$(dy) ~$(dz) minecraft:air replace $(b)'])
+    BRIDGES = sorted({'minecraft:' + b_[7] for b_ in M['bridges']})
+    fn('p237/bridge/make', [f'execute if data entity @s {{data:{{b:"{b}"}}}} run function bm:p237/bridge/make_{b.split(":")[1]} with entity @s data' for b in BRIDGES] +
+       ['particle minecraft:snowflake ~ ~1 ~ 3 1 3 0.02 60', 'playsound minecraft:block.glass.place block @a[distance=..32] ~ ~ ~ 1 0.6',
+        'playsound minecraft:block.powder_snow.place block @a[distance=..32] ~ ~ ~ 1 0.5'])
+    fn('p237/bridge/clear', [f'execute if data entity @s {{data:{{b:"{b}"}}}} run function bm:p237/bridge/clear_{b.split(":")[1]} with entity @s data' for b in BRIDGES])
+    for b in BRIDGES:
+        fn(f'p237/bridge/make_{b.split(":")[1]}', [f'$fill ~ ~ ~ ~$(dx) ~$(dy) ~$(dz) {b} replace minecraft:air'])
+        fn(f'p237/bridge/clear_{b.split(":")[1]}', [f'$fill ~ ~ ~ ~$(dx) ~$(dy) ~$(dz) minecraft:air replace {b}'])
     for n in sorted({b_[0] for b_ in M['bridges']}):
-        G.FUNCS[f'p2/{d}/pz{n}_solve'].insert(2, f'execute as @e[type=minecraft:marker,tag=bm.ubridge,tag=bm.g{n},tag=bm.d_{d},distance=..340] at @s run function bm:p237/bridge/make with entity @s data')
+        G.FUNCS[f'p2/{d}/pz{n}_solve'].insert(2, f'execute as @e[type=minecraft:marker,tag=bm.ubridge,tag=bm.g{n},tag=bm.d_{d},distance=..340] at @s run function bm:p237/bridge/make')
     # ---- the echoes: phase197's own Dread bosses, weaker, with nothing of their own to give
     import phase197 as P197
     for k, b in P197.BOSSES.items():
         nm, col, _ = L.ECHO[k]
-        fn(f'p237/echo/rise_{k}', [f'function bm:p197/{k}/rise', f'execute as @e[tag=bm.db_{k},tag=!bm.dbecho,distance=..12,sort=nearest,limit=1] run function bm:p237/echo/init_{k}'])
+        fn(f'p237/echo/rise_{k}', [f'function bm:p197/{k}/rise', f'execute as @e[tag=bm.db_{k},tag=!bm.dbecho,distance=..12,sort=nearest,limit=1] at @s run function bm:p237/echo/init_{k}'])
         fn(f'p237/echo/init_{k}', ['tag @s add bm.dbecho', f'attribute @s minecraft:max_health base set {ECHO_HP + P197.FLOOR}',
                                    f'data modify entity @s Health set value {ECHO_HP + P197.FLOOR}.0f', f'data modify entity @s CustomName set value {snbt(T(nm, col))}',
                                    f'bossbar set bm:db_{k} name {snbt(T(nm, col))}', f'bossbar set bm:db_{k} max {ECHO_HP}',
@@ -221,7 +228,7 @@ def generate(G):
         fn(f'p237/echo/fall_{k}', ['particle minecraft:sculk_soul ~ ~2 ~ 1.5 2 1.5 0.08 120', 'particle minecraft:explosion_emitter ~ ~1 ~ 0 0 0 0 1',
                                    'playsound minecraft:entity.warden.death hostile @a[distance=..64] ~ ~ ~ 1 0.6',
                                    tellraw('@a[distance=..64]', [T(L.FIGHT[f'echo_{k}'], VCOL, italic=True)]),
-                                   f'execute as @a[distance=..64,gamemode=!spectator] run function bm:p237/echo/spoils_{k}',
+                                   f'execute as @a[distance=..64,gamemode=!spectator] at @s run function bm:p237/echo/spoils_{k}',
                                    f'execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.pzt_echo,tag=bm.d_{d},distance=..96,sort=nearest,limit=1] at @s run function bm:p237/echo/won',
                                    f'function bm:p197/{k}/sink'])
         fn(f'p237/echo/spoils_{k}', [give(U.SHARD[k]), 'function bm:p237/key', G.give('dread_token', 2),
@@ -240,7 +247,7 @@ def generate(G):
                                    'playsound minecraft:block.end_portal_frame.fill block @a[distance=..16] ~ ~ ~ 1 0.6'])
 
     # ---- the Dread in its waves are Dread (phase176 dresses them)
-    mk = [f'execute if entity @s[tag=bm.udk_{t}] run function bm:p176/mk/{t}' for t in ('zombie', 'skeleton', 'stray', 'husk', 'vindicator', 'wither_skeleton', 'spider')
+    mk = [f'execute if entity @s[tag=bm.udk_{t}] run function bm:p176/mk/{t}' for t in sorted({e for w_ in U.WAVES.values() for r_ in w_[1] for e, _n in r_} | {'wither_skeleton'})
           if f'p176/mk/{t}' in G.FUNCS]
     fn('p237/dress', mk + ['tag @s add bm.dread', 'tag @s add bm.udone'])
     tick.append('execute as @e[tag=bm.udread,tag=!bm.udone] run function bm:p237/dress')
@@ -249,7 +256,7 @@ def generate(G):
     for key in sorted({v[0] for v in M['voices']}):
         fn(f'p237/voice/{key}', [f'tag @s add bm.uv_{key}', tellraw('@s', [T(L.VOICE[key], VCOL, italic=True)]),
                                  'playsound minecraft:entity.warden.nearby_closer hostile @s ~ ~ ~ 0.7 0.5'])
-        second.append(f'execute as @e[type=minecraft:marker,tag=bm.uv_{key}] at @s as @a[distance=..7,tag=!bm.uv_{key},gamemode=!spectator] run function bm:p237/voice/{key}')
+        second.append(f'execute as @e[type=minecraft:marker,tag=bm.uv_{key}] at @s as @a[distance=..7,tag=!bm.uv_{key},gamemode=!spectator] at @s run function bm:p237/voice/{key}')
 
     # ================================================================== FINDING IT: the Summons, the Hidden Gate
     ox_, oy_, oz_ = W(*M['outer']) if M['outer'] else W(205, 96, 205)
@@ -270,18 +277,23 @@ def generate(G):
                           'execute if score #go bm.rng matches 1 unless entity @s[tag=bm.open] run function bm:p237/gate/open',
                           'execute if entity @s[tag=bm.open] unless entity @a[distance=..14] run function bm:p237/gate/close',
                           'execute unless entity @s[tag=bm.open] if entity @a[distance=..5] unless score #go bm.rng matches 1 run function bm:p237/gate/barred'])
-    fn('p237/gate/open', ['tag @s add bm.open', 'function bm:p237/door/open with entity @s data',
+    fn('p237/gate/open', ['tag @s add bm.open', 'function bm:p237/door/open',
                           'playsound minecraft:block.respawn_anchor.deplete block @a[distance=..24] ~ ~ ~ 1 0.5', 'playsound minecraft:entity.warden.sonic_charge block @a[distance=..24] ~ ~ ~ 0.6 0.4',
                           'particle minecraft:dust{color:[0.82,0.1,0.18],scale:2} ~ ~2 ~ 1 1.5 1 0 60',
                           title('@a[distance=..10]', 'actionbar', T('The seam weeps itself open.', COL, italic=True))])
-    fn('p237/gate/close', ['tag @s remove bm.open', 'function bm:p237/door/close with entity @s data'])
+    fn('p237/gate/close', ['tag @s remove bm.open', 'function bm:p237/door/close'])
     fn('p237/gate/barred', ['scoreboard players set #gb bm.rng 0', 'execute as @a[distance=..5,tag=!bm.usum] run scoreboard players set #gb bm.rng 1',
                             'execute if score #gb bm.rng matches 1 run return run ' + title('@a[distance=..5]', 'actionbar', T('A seam of crying obsidian in the cliff. It does not know you.', 'gray', italic=True)),
                             title('@a[distance=..5]', 'actionbar', T('Three hollows in the rock, waiting. (Carry the three Dread Tokens.)', COL, italic=True))])
     # a door of marker data {ax, w, h, b}, opened (air) and shut (its block) - the gate, the hidden rooms, the Hoard
-    for nm_, a_, b_ in (('open', '$(b)', 'minecraft:air'), ('close', 'minecraft:air', '$(b)')):
-        fn(f'p237/door/{nm_}', ['$execute if data entity @s data{ax:"x"} run fill ~-$(w) ~ ~ ~$(w) ~' + '$(hh)' + f' ~ {b_} replace {a_}',
-                                '$execute if data entity @s data{ax:"z"} run fill ~ ~ ~-$(w) ~ ~' + '$(hh)' + f' ~$(w) {b_} replace {a_}'])
+    DOORS = sorted({'minecraft:crying_obsidian'} | {'minecraft:' + h['door'][6] for h in M['hidden'].values()} | ({'minecraft:' + M['hoard'][6]} if M['hoard'] else set()))
+    bk = lambda b: b.split(':')[1].split('[')[0]
+    for nm_ in ('open', 'close'):
+        fn(f'p237/door/{nm_}', [f'execute if data entity @s {{data:{{b:"{b}"}}}} run return run function bm:p237/door/{nm_}_{bk(b)} with entity @s data' for b in DOORS])
+        for b in DOORS:
+            a_, b_ = (b, 'minecraft:air') if nm_ == 'open' else ('minecraft:air', b)
+            fn(f'p237/door/{nm_}_{bk(b)}', ['$execute if entity @s[nbt={data:{ax:"x"}}] run fill ~-$(w) ~ ~ ~$(w) ~$(hh) ~ ' + f'{b_} replace {a_}',
+                                             '$execute if entity @s[nbt={data:{ax:"z"}}] run fill ~ ~ ~-$(w) ~ ~$(hh) ~$(w) ' + f'{b_} replace {a_}'])
     second.append(f'execute in {NETHER} as @e[type=minecraft:marker,tag=bm.ugate,{BOX}] unless data entity @s data.hh store result entity @s data.hh int 1 run data get entity @s data.h 0.999')
     second.append(f'execute in {NETHER} as @e[type=minecraft:marker,tag=bm.uhs,{BOX}] unless data entity @s data.hh store result entity @s data.hh int 1 run data get entity @s data.h 0.999')
     second.append(f'execute in {NETHER} as @e[type=minecraft:marker,tag=bm.uhoard,{BOX}] unless data entity @s data.hh store result entity @s data.hh int 1 run data get entity @s data.h 0.999')
@@ -307,7 +319,7 @@ def generate(G):
                           f'execute in {NETHER} store success score #uload bm.p2 if loaded {OX} {OY} {OZ} if loaded {OX + SX - 1} {OY} {OZ + SZ - 1} if loaded {OX} {OY} {OZ + SZ - 1} if loaded {OX + SX - 1} {OY} {OZ}',
                           'execute unless score #uload bm.p2 matches 1 run return run scoreboard players set #uwait bm.p2 0',
                           'scoreboard players add #uwait bm.p2 1', 'execute unless score #uwait bm.p2 matches 4.. run return 0',
-                          f'execute in {NETHER} as @a[{BOX}] run function bm:p237/out',
+                          f'execute in {NETHER} as @a[{BOX}] at @s run function bm:p237/out',
                           # (what the last copy left: its markers, displays, foes and dropped things - never anyone's follower)
                           *[f'execute in {NETHER} run kill @e[{s_},{BOX}]' for s_ in CLEAR],
                           'scoreboard players set #ubuilt bm.p2 0',
@@ -320,7 +332,7 @@ def generate(G):
     # out: carried to the approach cave, outside the seam
     fn('p237/out', [f'execute in {NETHER} run tp @s {ox_ + 0.5} {oy_} {oz_ + 0.5}', 'tag @s remove bm.uin',
                     'particle minecraft:reverse_portal ~ ~1 ~ 0.3 0.8 0.3 0.05 30', 'playsound minecraft:block.respawn_anchor.deplete player @s ~ ~ ~ 0.6 1.4'])
-    fast.append('execute as @e[type=minecraft:marker,tag=bm.urift] at @s as @a[distance=..1.3,gamemode=!spectator] run function bm:p237/out')
+    fast.append('execute as @e[type=minecraft:marker,tag=bm.urift] at @s as @a[distance=..1.3,gamemode=!spectator] at @s run function bm:p237/out')
     fast.append('execute as @e[type=minecraft:marker,tag=bm.urift] at @s if entity @a[distance=..24] run particle minecraft:reverse_portal ~ ~1 ~ 0.3 0.8 0.3 0.02 6')
 
     # ---- the fall: three minutes, then everyone out and the Undercrown re-formed (phase238 calls this)
@@ -334,7 +346,7 @@ def generate(G):
     second.append('execute if score #ucol bm.p2 matches 1.. run function bm:p237/collapse_sec')
 
     # ---- the idle reset (20 minutes alone) re-locks what the framework doesn't know about
-    G.FUNCS[f'p2/{d}/reset'] += [f'execute as @e[type=minecraft:marker,tag=bm.ubridge,tag=bm.d_{d},distance=..340] at @s run function bm:p237/bridge/clear with entity @s data',
+    G.FUNCS[f'p2/{d}/reset'] += [f'execute as @e[type=minecraft:marker,tag=bm.ubridge,tag=bm.d_{d},distance=..340] at @s run function bm:p237/bridge/clear',
                                  f'execute as @e[type=minecraft:marker,tag=bm.uhs,tag=bm.open,distance=..340] at @s run function bm:p237/hidden/close',
                                  f'kill @e[type=minecraft:item_display,tag=bm.ushow,distance=..340]',
                                  f'tag @e[type=minecraft:marker,tag=bm.d_{d},tag=bm.lit,distance=..340] remove bm.lit']
@@ -348,11 +360,11 @@ def generate(G):
             lines.append(f'execute as @e[type=minecraft:marker,tag=bm.uhsg,tag=bm.uhs_{k},tag=bm.sw_{w_},distance=..40] at @s if entity {host(w_, 1.8)} run scoreboard players add #hs bm.rng 1')
         lines.append(f'execute if score #hs bm.rng matches {len(req)}.. run function bm:p237/hidden/open_{k}')
         fn(f'p237/hidden/try_{k}', lines)
-        fn(f'p237/hidden/open_{k}', ['tag @s add bm.open', 'function bm:p237/door/open with entity @s data',
+        fn(f'p237/hidden/open_{k}', ['tag @s add bm.open', 'function bm:p237/door/open',
                                      'particle minecraft:end_rod ~ ~1.5 ~ 1 1.5 1 0.02 40', 'playsound minecraft:block.beacon.activate block @a[distance=..24] ~ ~ ~ 1 0.6',
                                      title('@a[distance=..16]', 'actionbar', [T(title_, '#c8a8ff', bold=True), T(' opens for its friends.', 'gray', italic=True)])])
         second.append(f'execute as @e[type=minecraft:marker,tag=bm.uhs_{k},tag=bm.uhs,tag=!bm.open] at @s if entity @a[distance=..20] run function bm:p237/hidden/try_{k}')
-    fn('p237/hidden/close', ['tag @s remove bm.open', 'function bm:p237/door/close with entity @s data'])
+    fn('p237/hidden/close', ['tag @s remove bm.open', 'function bm:p237/door/close'])
     # the faint stir of a hidden sigil whose follower is near
     fast.append('execute as @e[type=minecraft:marker,tag=bm.uhsg] at @s if entity @a[distance=..10] run particle minecraft:soul ~ ~0.2 ~ 0.4 0 0.4 0.01 1')
     # ---- relic pedestals: the room's Black Seal (once a player each rebuild), its relic (once a player, ever)
@@ -445,13 +457,13 @@ def generate(G):
     fn('p237/hoard/tick', ['execute if entity @s[tag=bm.open] run return 0',
                            'execute unless score #ufell bm.p2 matches 1 if entity @a[distance=..4] run return run ' + title('@a[distance=..4]', 'actionbar', T('A sealed door behind the throne. It will not open while its master sits there.', 'gray', italic=True)),
                            'execute as @a[distance=..4,gamemode=!spectator] if items entity @s container.* *[minecraft:custom_data~{bm:"ublack_seal"}] run function bm:p237/hoard/count',
-                           'execute if score #ufell bm.p2 matches 1 as @a[distance=..4,tag=bm.uhoardok,limit=1] run function bm:p237/hoard/open'])
+                           'execute if score #ufell bm.p2 matches 1 as @a[distance=..4,tag=bm.uhoardok,limit=1] at @s run function bm:p237/hoard/open'])
     fn('p237/hoard/count', ['tag @s remove bm.uhoardok', 'execute store result score #sc bm.rng run clear @s *[minecraft:custom_data~{bm:"ublack_seal"}] 0',
                             'execute if score #sc bm.rng matches 6.. run return run tag @s add bm.uhoardok',
                             title('@s', 'actionbar', [T('Six seal-hollows in the door. You carry ', 'gray'), {'score': {'name': '#sc', 'objective': 'bm.rng'}, 'color': 'white'}, T('.', 'gray')])])
     fn('p237/hoard/open', ['clear @s *[minecraft:custom_data~{bm:"ublack_seal"}] 6', 'tag @s remove bm.uhoardok',
                            'execute as @e[type=minecraft:marker,tag=bm.uhoard,distance=..6,sort=nearest,limit=1] at @s run function bm:p237/hoard/door'])
-    fn('p237/hoard/door', ['tag @s add bm.open', 'function bm:p237/door/open with entity @s data', 'playsound minecraft:block.vault.open_shutter block @a[distance=..24] ~ ~ ~ 1 0.5',
+    fn('p237/hoard/door', ['tag @s add bm.open', 'function bm:p237/door/open', 'playsound minecraft:block.vault.open_shutter block @a[distance=..24] ~ ~ ~ 1 0.5',
                            'particle minecraft:wax_off ~ ~2 ~ 1 1.5 1 0 40', title('@a[distance=..16]', 'title', T('The Sovereign\'s Hoard', COL, bold=True))])
     second.append('execute as @e[type=minecraft:marker,tag=bm.uhoard] at @s if entity @a[distance=..6] run function bm:p237/hoard/tick')
 
@@ -479,7 +491,7 @@ def generate(G):
     fn('p237/nine', ['scoreboard players set @s bm.u9cd 1200', 'effect give @s minecraft:slow_falling 4 0', 'particle minecraft:end_rod ~ ~1 ~ 0.4 0.6 0.4 0.02 20',
                      'playsound minecraft:entity.cat.purreow player @a[distance=..16] ~ ~ ~ 1 1.2', title('@s', 'actionbar', T('Your Ninth Life catches you. (Again tomorrow.)', '#d8d8e8'))])
     fast.append('execute as @a[gamemode=!spectator,gamemode=!creative] unless score @s bm.u9cd matches 1.. if items entity @s container.* *[minecraft:custom_data~{bm:"nine_lives"}] '
-                'if function bm:p237/falling run function bm:p237/nine')
+                'if function bm:p237/falling at @s run function bm:p237/nine')
     fn('p237/falling', ['execute store result score #fd bm.rng run data get entity @s fall_distance', 'execute if score #fd bm.rng matches 9.. run return 1', 'return 0'])
     second.append('scoreboard players remove @a[scores={bm.u9cd=1..}] bm.u9cd 1')
     second.append('scoreboard players remove @a[scores={bm.uucd=1..}] bm.uucd 1')

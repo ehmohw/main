@@ -52,6 +52,7 @@ SAY = {
     'speech': '"TRYING SOMETHING NEW TODAY! In FULL COLOUR! KA-POW!"',
     'lightbringer': '"I am trying something new today - starlight. The Divine One said it suits me."',
     'dryad': '"I\'m trying something new today! My cap glows like the moon!"',
+    'sovereign': '"...I am trying something new today. Gold. The light. I remember it - a little."',
     'henry': '(he is trying something new today: a sparkly starlit collar. He is very handsome and he knows it.)',
     'nia': '(she is trying something new today: a shimmering rainbow collar, and her bell sounds like starlight)',
     'rufus': '"Gold bandana today. Don\'t look at me like that - a rat can treat himself."',

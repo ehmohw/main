@@ -35,6 +35,9 @@ FORM 3 - TRUE (boss_sovereign3, a 120 s loop). F minor, the void, F# minor. 184 
   bars 52-67  THE LAST LIGHT S3 a semitone higher, F# minor, everything again, bells on every beat
   bars 68-83  NO WAY OUT     the Dread's theme (A, then its ending) for the violins in octaves, F# minor
   bars 84-91  THE PLUNGE     F# minor hammered; the strings tumble a semitone down to C, the dominant - and round again
+THE ENTRANCE (boss_sovereign_intro, 20 s, once, as it rises): six bars of form 1's tempo, ending on form 1's downbeat -
+  near-silence (a heartbeat, chains far off), a choir building, the bells, the organ swelling to the dominant, THE ROAR at
+  16.7 s, then form 1's own last bar (the Neapolitan, a snare roll, a riser) so the loop follows as if from itself.
 THE TURN (boss_sovereign_turn, 8 s, once, between forms): the chains snap, six wings unfurl in a choir glissando, the bell, the
   Dread's head cried by the violin, a timpani and snare roll to the brink; the last second silence.
 THE RECORD (disc_sovereign, mono, ~3 min): the three forms condensed, with both turns, and an ending - F# minor hammered, the
@@ -43,7 +46,7 @@ AUREL (disc_aurel, mono, 2 min): an elegy. A solo violin over a soft (flute-stop
   major; it climbs once, grieves through the minor iv (Bb minor), and comes to rest on F major.
 
 Deterministic; run it to rebuild the .ogg files (needs numpy, scipy and ffmpeg):
-    python3 tools/sovereign_music.py [p1] [p2] [p3] [turn] [disc] [aurel] [check]"""
+    python3 tools/sovereign_music.py [p1] [p2] [p3] [turn] [intro] [disc] [aurel] [check]"""
 import os, sys, wave, subprocess, tempfile
 import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -908,6 +911,97 @@ def turn():
     return tr
 
 
+# ====================================================================== THE ENTRANCE
+# 20 s under the boss's entrance - six bars of form 1's tempo (72 BPM, 10/3 s a bar), so it ends on form 1's own downbeat:
+# near-silence, a heartbeat and chains far off (bars 0-1); a choir building (from bar 1); the bells tolling (from bar 2); the
+# organ swelling, F minor to the dominant (bars 3-4); THE ROAR (bar 5, 16.7 s) on F minor; then the drag into the fight - a
+# snare roll and a riser on the Neapolitan (Gb), as form 1's own last bar has, so its first bar follows as if round the loop.
+IBARS, ITAIL = 6, 3
+
+
+def roar(dur=3.0, amp=1.0, f=62.0):
+    """the Sovereign's roar: a throat of detuned low saws, its pitch flung up and dragged down, rasping (a growl at 31 and 47
+    Hz), its vowel opening from 'o' to 'a', breath through it"""
+    t = T(dur); n = len(t)
+    f0 = f * (1 + 0.55 * (1 - np.exp(-t * 9)) * np.exp(-t * 0.8))
+    growl = 1 + 0.35 * np.sin(2 * np.pi * 31 * t) + 0.2 * np.sin(2 * np.pi * 47 * t + 1)
+    s = np.zeros(n)
+    for mult, a in ((1.0, 1.0), (1.5, 0.55), (2.0, 0.45)):
+        for v in (-0.02, -0.007, 0.0, 0.006, 0.019):
+            ph = np.cumsum(f0 * mult * (1 + v)) / SR + R.r()
+            s += a * (2 * (ph % 1) - 1)
+    s = s / 10 * growl
+    w = np.clip(t / (dur * 0.4), 0, 1)
+    s = formant(s, 'o') * (1 - w) + formant(s, 'a') * w + lp(s, 380) * 0.8
+    s += bp(R.noise(n), 400, 3500) * growl * 0.35 * np.exp(-t * 0.8)
+    return amp * s * env(n, 0.03, 0.4, 0.75, dur * 0.55)
+
+
+def intro_compose(tr):
+    fm, c7, gb = chd('F2', 'm'), chd('C2', '7b9'), chd('Gb2', 'M')
+    # ---- 1. near-silence: a faint pedal, a heartbeat, chains somewhere far off
+    tr.add(drone([m('F1'), m('F2')], tr.barlen * 5, 0.08, 0.25), tr.at(0), 0, 1, 0.5)
+    beats = [b * 2 for b in range(4)] + [8 + b * 2 for b in range(2)] + [12 + b for b in range(5)]          # (it quickens)
+    for i, b in enumerate(beats):
+        heart(tr, tr.at(0, b), 0.07 + 0.03 * i)
+    for t0, pan, sd in ((0.9, -0.7, 1), (3.1, 0.65, 2), (5.6, -0.4, 3), (8.0, 0.8, 4), (10.4, -0.8, 5)):
+        tr.add(lp(rattle(1.4, 0.04 + 0.012 * sd, 18, 8800 + sd), 3500), t0, pan, 1, 0.9)
+    for t0, pan, sd in ((2.2, 0.5, 1), (6.9, -0.6, 2), (9.5, 0.3, 3)):
+        tr.add(lp(clank(0.05 + 0.02 * sd, 420, 1.6, 8900 + sd), 2500), t0, pan, 1, 0.9)
+    # ---- 2. the choir: monks, 'oo', then 'oh', then the full choir
+    tr.add(chorus([m('F2'), m('F3')], tr.barlen * 2 + 0.5, 0.14, 3.0, 'u'), tr.at(1), 0, 1, 0.75)
+    tr.add(chorus([m('F2'), m('C3'), m('F3'), m('Ab3')], tr.barlen + 0.5, 0.24, 1.5, 'o'), tr.at(2), 0, 1, 0.7)
+    tr.add(chorus([m('F2'), m('C3'), m('F3'), m('Ab3'), m('C4')], tr.barlen + 0.5, 0.32, 1.0, 'o'), tr.at(3), 0, 1, 0.7)
+    tr.add(chorus([x + 12 for x in c7[:4]] + [c7[4] + 12], tr.barlen + 0.3, 0.4, 0.8, 'a'), tr.at(4), 0, 1, 0.65)
+    # ---- 3. the bells: far off at first, then near
+    for (bar, b), a, f, wet in (((2, 0), 0.26, 'F3', 0.85), ((3, 0), 0.36, 'F3', 0.75), ((3, 2), 0.2, 'C4', 0.75),
+                                ((4, 0), 0.46, 'C3', 0.65), ((4, 2), 0.3, 'E4', 0.65), ((4, 3), 0.26, 'Db5', 0.65)):
+        tr.add(great_bell(f, 6.0, a, 1.0, bar * 4 + int(b)), tr.at(bar, b), 0.3 if b else -0.15, 1, wet)
+    # ---- 4. the organ swells: F minor, then the dominant (its flat ninth), crescendo into the roar
+    sw = lambda sig, a0, a1: sig * np.linspace(a0, a1, len(sig))
+    tr.add(sw(great_organ([m('F1'), m('F2'), m('C3'), m('F3'), m('Ab3')], tr.barlen + 0.2, 0.42, 2.5, 0.5), 0.6, 1.0), tr.at(3), 0, 1, 0.65)
+    tr.add(sw(great_organ([c7[0] - 12, c7[0]] + [x + 12 for x in c7], tr.barlen, 0.55, 0.3, 1.0), 0.7, 1.35), tr.at(4), 0, 1, 0.6)
+    tr.add(sub(m('C1'), tr.barlen, 0.4), tr.at(4), 0, 1, 0.1)
+    for i in range(16):                                                  # (a timpani roll, swelling)
+        tr.add(timp(m('C2'), 0.12 + 0.03 * i), tr.at(4, i / 4), 0, 1, 0.4)
+    tr.add(suck(tr.beat * 2, 0.5), tr.at(4, 2), 0, 1, 0.3)
+    # ---- 5. THE ROAR, and every chain at once
+    hit = tr.at(5)
+    tr.add(roar(3.0, 0.9), hit, 0, 1, 0.45)
+    tr.add(boom(1.0, 100, 26, 3.2), hit, 0, 1, 0.4)
+    tr.add(crash(0.55, 3.5), hit, 0.2, 1, 0.5)
+    tr.add(chain_hit(1.0, 9100, 9), hit, -0.1, 1, 0.4)
+    tr.add(rattle(2.2, 0.5, 60, 9101, True), hit + 0.03, -0.4, 1, 0.5)
+    tr.add(rattle(2.0, 0.42, 50, 9102, True), hit + 0.12, 0.45, 1, 0.5)
+    tr.add(brass([m('F2'), m('C3'), m('F3'), m('Ab3'), m('C4')], 1.3, 0.55, 2600, 0.005), hit, 0, 1, 0.4)
+    tr.add(great_organ([m('F1'), m('F2')] + [x + 12 for x in fm] + [m('F4')], tr.beat * 2, 0.55, 0.01), hit, 0, 1, 0.6)
+    tr.add(chorus([m('F4'), m('Ab4'), m('C5'), m('F5')], tr.beat * 1.8, 0.45, 0.04, 'a'), hit, 0, 1, 0.6)
+    tr.add(great_bell('F3', 6.0, 0.6, 1.0, 9103), hit, -0.15, 1, 0.55)
+    tr.add(taiko(1.0), hit, 0, 1, 0.35); tr.add(timp('F2', 0.9), hit, 0, 1, 0.4)
+    # ---- 6. into the fight: the Neapolitan, a roll and a riser (form 1's own last bar), its first bell next
+    tr.add(great_organ([gb[0] - 12, gb[0]] + gb[1:], tr.beat * 2.2, 0.32, 0.3, 0.4), tr.at(5, 2), 0, 1, 0.6)
+    tr.add(chorus([gb[0], gb[2], gb[0] + 12], tr.beat * 2.2, 0.26, 0.4, 'u'), tr.at(5, 2), 0, 1, 0.7)
+    tr.add(violin(m('Gb4'), tr.beat * 2, 0.16, trem=11, depth=0.003), tr.at(5, 2), 0.3, 1, 0.55)
+    for i in range(8): tr.add(snare(0.08 + 0.035 * i, 170), tr.at(5, 2 + i / 4), 0.1, 1, 0.4)
+    tr.add(rise(tr.beat * 2, 0.28), tr.at(5, 2), 0, 1, 0.35)
+    tr.add(clank(0.3, 2100, 0.3, 9104), tr.at(5, 3.5), 0.3, 1, 0.4)
+    tr.add(clank(0.26, 1900, 0.3, 9105), tr.at(5, 3.75), -0.3, 1, 0.4)
+
+
+def intro():
+    tr = Track('sovereign_intro', P1BPM, IBARS + ITAIL)                 # (three spare bars, so nothing wraps round to its silence)
+    intro_compose(View(tr, P1BPM))
+    return tr
+
+
+def save_intro(tr, room=3.0, level=0.23):
+    """the entrance: rendered with form 1's room, then cut at exactly 20 s (the last 30 ms faded) - form 1 begins there"""
+    st = render(tr, room, level)
+    k = int(round(IBARS * 4 * 60 / P1BPM * SR)); assert k == 20 * SR
+    st = st[:, :k].copy(); f = int(0.03 * SR); st[:, -f:] *= np.linspace(1, 0, f)
+    _guarded(st, os.path.join(VENDOR, f'boss_{tr.name}.ogg'), 4)
+
+
 # ====================================================================== THE RECORD: the three forms condensed, and an ending
 DISC_P1 = [(0, 2), (8, 16), (28, 32)]
 DISC_P2 = [(0, 4), (24, 32), (36, 44), (48, 56), (68, 76)]
@@ -1057,7 +1151,7 @@ def save_disc(tr, name, room=2.4, rms_db=None):
     _guarded(mono, os.path.join(VENDOR, f'disc_{name}.ogg'), 3, mono=True)
 
 
-def check(names=('boss_sovereign1', 'boss_sovereign2', 'boss_sovereign3', 'boss_sovereign_turn', 'disc_sovereign', 'disc_aurel',
+def check(names=('boss_sovereign_intro', 'boss_sovereign1', 'boss_sovereign2', 'boss_sovereign3', 'boss_sovereign_turn', 'disc_sovereign', 'disc_aurel',
                  'boss_dread', 'boss_dread2', 'disc_dread')):
     """levels (RMS, peak), clipping, and the loop seam: the jump across the wrap against the music's own steps, and the
     loudness either side of it"""
@@ -1076,14 +1170,21 @@ def check(names=('boss_sovereign1', 'boss_sovereign2', 'boss_sovereign3', 'boss_
               f'seam jump {seam:.3f} (99.9% step {step:.3f})  last/first 0.25 s {db(e1):5.1f}/{db(e0):5.1f} dB')
 
 
+def seeded(k, build, *a):
+    """each piece from its own seed, so it renders the same alone or with the rest"""
+    R.g = np.random.default_rng(2980 + k)
+    return build(*a)
+
+
 if __name__ == '__main__':
-    what = sys.argv[1:] or ['p1', 'p2', 'p3', 'turn', 'disc', 'aurel', 'check']
-    if 'p1' in what: save_loop(p1(), 3.0, 0.23)
-    if 'p2' in what: save_loop(p2(), 2.2)
-    if 'p3' in what: save_loop(p3(), 2.6, 0.26)                # (the most intense: its fight hotter than the Dread's)
-    if 'turn' in what: save_sting(turn(), 2.4, 0.31)
+    what = sys.argv[1:] or ['p1', 'p2', 'p3', 'turn', 'intro', 'disc', 'aurel', 'check']
+    if 'p1' in what: save_loop(seeded(1, p1), 3.0, 0.23)
+    if 'p2' in what: save_loop(seeded(2, p2), 2.2)
+    if 'p3' in what: save_loop(seeded(3, p3), 2.6, 0.27)                # (the most intense: its fight hotter than the Dread's)
+    if 'turn' in what: save_sting(seeded(4, turn), 2.4, 0.31)
+    if 'intro' in what: save_intro(seeded(5, intro))
     if 'disc' in what:
-        d = disc(); assert 170 <= d.seconds <= 200, d.seconds
+        d = seeded(6, disc); assert 170 <= d.seconds <= 200, d.seconds
         save_disc(d, 'sovereign', 2.6)
-    if 'aurel' in what: save_disc(aurel().tr, 'aurel', 3.2, -17.0)                 # (quiet: the Lament's record's level)
+    if 'aurel' in what: save_disc(seeded(7, aurel).tr, 'aurel', 3.2, -17.0)                 # (quiet: the Lament's record's level)
     if 'check' in what: check()

@@ -1,4 +1,4 @@
-"""The Dread Sovereign preview sheets (rigkit).   python3 tools/preview/dread_sovereign.py [forms,turn,poses,faces,follower,lineup,hero,clip]
+"""The Dread Sovereign preview sheets (rigkit).   python3 tools/preview/dread_sovereign.py [forms,turn,poses,entrance,faces,follower,lineup,hero,clip]
 forms: the three phases and the follower side by side with a player; turn: a turnaround of each form; poses: the boss poses, a
 sheet per form; faces: the helm's slit and the great eye; follower: its poses; lineup: the follower beside a player and Bender;
 hero: a low-angle shot of the true form; clip: a report of parts cutting into each other, pose by pose (boxes overlapping by
@@ -8,7 +8,7 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); sys
 import draftkit as K, rigkit
 import dread_sovereign_art as A
 OUT = K.OUT; os.makedirs(OUT, exist_ok=True)
-what = sys.argv[1].split(',') if len(sys.argv) > 1 else ['forms', 'turn', 'poses', 'faces', 'follower', 'lineup', 'hero', 'clip']
+what = sys.argv[1].split(',') if len(sys.argv) > 1 else ['forms', 'turn', 'poses', 'entrance', 'faces', 'follower', 'lineup', 'hero', 'clip']
 root = K.pack(A, OUT + '/rp_ds')
 FLOOR, FLOOR2 = '#2a1418', '#3a1c20'
 
@@ -65,6 +65,12 @@ if 'poses' in what:
     for f in ('armored', 'broken', 'true'):
         tiles = [boss_tile(A.BOSS_POSES[f][n], label=n, size=360) for n in A.BOSS_DRAFT[f]]
         K.sheet(tiles, OUT + f'/ds_poses_{f}.png', cols=6, title=f'The Dread Sovereign - {f} - boss poses')
+
+if 'entrance' in what:                                       # (the 20-second entrance, keyframe by keyframe)
+    seq = ['dormant', 'wake_0', 'wake_1', 'rise', 'wake_2', 'wake_3', 'roar']
+    K.sheet([boss_tile(A.BOSS_POSES['armored'][n], label=f'{i + 1}. {n}', size=360) for i, n in enumerate(seq)] +
+            [boss_tile(A.BOSS_POSES['armored'][n], view='side', label=f'{n} (side)', size=360) for n in ('wake_1', 'wake_2', 'wake_3')],
+            OUT + '/ds_entrance.png', cols=5, title='The Dread Sovereign - the entrance (armored)')
 
 if 'faces' in what:
     tiles = []

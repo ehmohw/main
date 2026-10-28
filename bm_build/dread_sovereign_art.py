@@ -1052,6 +1052,25 @@ def _boss(name, form):
         if form != 'armored': return None
         p = P(_face='wide', body=T(4), chest=T(4), head=T(-6), legr=limb(1, 36, 4), shinr=knee(92), legl=limb(-1, 70, 4), shinl=knee(72),
               armr=limb(1, 30, 22), forer=limb(1, 30), weapon=qs(('x', 64)), arml=limb(-1, 20, 34), forel=limb(-1, 40), **wings('spread', form, cl=(22, 10)))
+    # ---- the entrance (armored): dormant -> wake_0 -> wake_1 -> rise -> wake_2 -> wake_3 -> roar
+    elif name == 'wake_0':                                    # (still kneeling, the sword still planted - the head lifts, the slit lights)
+        if form != 'armored': return None
+        p = P(_face='narrowed', body=T(2), chest=T(6), head=T(-6), legr=limb(1, 0, 4), shinr=knee(90), legl=limb(-1, 84, 4), shinl=knee(84),
+              armr=limb(1, 52, 6, 30), forer=limb(1, 40, 0, 10), weapon=qs(('x', 74), ('y', 18)), arml=limb(-1, 50, 8, 22), forel=limb(-1, 50, 0, 4),
+              **wings('rest', form, cl=(30, 8)))
+    elif name == 'wake_1':                                    # (one hand pushing down on the throne's arm beside it, rising off the knee)
+        if form != 'armored': return None
+        p = P(_face='narrowed', body=T(10), chest=T(14, -8), head=T(-10, 6), legr=limb(1, 24, 4), shinr=knee(100), legl=limb(-1, 74, 4), shinl=knee(76),
+              armr=limb(1, 46, 8, 24), forer=limb(1, 36, 0, 10), weapon=qs(('x', 74), ('y', 18)),
+              arml=limb(-1, 6, 34), forel=limb(-1, 10, -10), **wings('rest', form, cl=(26, 10)))
+    elif name == 'wake_2':                                    # (standing: the greatsword dragged up off the floor behind it, its point grinding)
+        if form != 'armored': return None
+        p = P(_face='wide', chest=T(14, 10), head=T(-8, -8), **STAND, armr=limb(1, -24, 18, -10), forer=limb(1, 14), weapon=qs(('x', 160)),
+              arml=limb(-1, 34, 20), forel=limb(-1, 46), **wings('rest', form, cl=(18, 8)))
+    elif name == 'wake_3':                                    # (the greatsword raised high overhead in both hands, point to the roof)
+        if form != 'armored': return None
+        p = P(_face='wide', chest=T(-8), head=T(-12), **STAND, armr=limb(1, 168, 6), forer=limb(1, 8), weapon=qs(('x', 90)),
+              arml=limb(-1, 160, 18), forel=limb(-1, 24), **wings('spread', form, cl=(16, 12)))
     elif name.startswith('walk_'):                            # (slow and heavy: short steps, the body rolling over them; true: drifting)
         k = int(name[-1]); ph = math.pi * k / 2; sw = s_(ph)
         if true:
@@ -1135,10 +1154,10 @@ def _boss(name, form):
 
 
 BOSS_TIP = {'idle_a': 1.2, 'idle_b': 2.0, 'walk_0': 2.0, 'walk_1': 2.0, 'walk_2': 2.0, 'walk_3': 2.0, 'heart_pulse': 1.5,
-            'dormant': -4.0, 'stagger': -3.0, 'slam': -2.0, 'death_1': 1.0, 'death_2': 0.4}
+            'dormant': -4.0, 'stagger': -3.0, 'slam': -2.0, 'death_1': 1.0, 'death_2': 0.4, 'wake_0': -4.0, 'wake_1': -3.0, 'wake_2': 0.3}
 
 
-BOSS_NAMES = ['idle_a', 'idle_b', 'dormant', 'rise', 'walk_0', 'walk_1', 'walk_2', 'walk_3', 'slam_up', 'slam', 'sweep_up', 'sweep', 'stab',
+BOSS_NAMES = ['idle_a', 'idle_b', 'dormant', 'wake_0', 'wake_1', 'rise', 'wake_2', 'wake_3', 'walk_0', 'walk_1', 'walk_2', 'walk_3', 'slam_up', 'slam', 'sweep_up', 'sweep', 'stab',
               'roar', 'summon', 'wing_gust', 'eye_beam_up', 'eye_beam', 'heart_pulse', 'stagger', 'death_0', 'death_1', 'death_2']
 BOSS_POSES = {f: {n: p for n in BOSS_NAMES if (p := _boss(n, f)) is not None} for f in ('armored', 'broken', 'true')}
 BOSS_DRAFT = {f: [n for n in BOSS_NAMES if n in BOSS_POSES[f] and n not in ('walk_0', 'walk_2', 'walk_3')] for f in BOSS_POSES}

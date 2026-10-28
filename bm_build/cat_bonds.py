@@ -101,6 +101,8 @@ B = {
                      ('Angel Kitty', (('regeneration', 1),), '"Oh, sweet one. The Divine One made you very well."', '(Nia winds round her robe, purring, in a halo of gold)')),
     'dryad': (('Mushroom Prowl', (('night_vision', 0), ('speed', 0)), '"Shh, Henry - the mushrooms are sleeping!"', '(Henry sniffs a glowing mushroom. It glows brighter. He is suspicious of it.)'),
               ('Moss Nap', (('regeneration', 1),), '"She can nap in my moss! It\'s the softest moss."', '(Nia kneads the moss, and falls asleep in a ring of glowing mushrooms)')),
+    'sovereign': (('Two Shadows', (('night_vision', 0), ('strength', 0)), '"...a small dark thing that does not fear me. Sit, then."', '(Henry sits on its sabaton. It does not move for an hour.)'),
+                  ('Warm Iron', (('regeneration', 1),), '"She is... purring. At me. Why?"', '(Nia curls up in the crook of its gauntlet, and it holds very, very still)')),
 }
 # (2.96c) Nia is the gentle one - a support follower: her side of every pair looks after you. Each keeps Regeneration, and
 # nothing of hers makes you hit harder (Strength becomes Resistance; Haste, Absorption)
