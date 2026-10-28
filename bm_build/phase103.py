@@ -336,11 +336,12 @@ def generate(G):
            ('kw', 'KillerWatt', '#ffe040'), ('leo', 'Leo', '#5ab8e0'), ('demo', 'Democratus', '#7ad06a'),
            ('apo', 'Apophiss', '#3ad06a'), ('tul', 'Tullius', '#7ad8ff'), ('frog', 'The Frog', '#6ac850'), ('don', 'Donado', '#e8d29a'),
            ('pearl', 'Pearlman', '#5ac8ff'), ('wil', 'Wilfrey', '#f4f4f4'), ('fishy', 'Fishy', '#ffa040'),
-           ('dennis', 'Dennis', '#e0a040'), ('pistachio', 'Pistachio', '#7ae890'), ('omega', 'King Omega', '#9fb4ff'), ('ashur', 'Ashur', '#ff7a2a'), ('chef', 'The Chef', '#ffd07a'), ('neighbor', 'The Neighbor', '#7ab8ff'), ('ava', 'Queen Ava', '#6ad8e8'), ('pearlq', 'Queen Pearl', '#5ae0d8'), ('bloo', 'Bloo', '#5a9ae8'), ('stalker', 'The Stalker', '#a8ac70'), ('lantern', 'The Arachno-Lantern', '#ff8a2a'), ('bender', 'Bender', '#e0a860'), ('bones', 'Bones', '#8ab0c8'), ('capshun', 'Mr. Capshun', '#f0f0f0'), ('pxcecil', '8-Bit Cecil', '#b070ff'), ('pxleo', '8-Bit Leo', '#4ab0ff'), ('pxemma', '8-Bit Emma', '#ff6ac8'), ('sky', 'The Sky Buddies', '#ffd04a'), ('kettle', 'Kettle', '#8ad8ff'), ('rufus', 'Rufus Gnaw', '#c0392b')]
+           ('dennis', 'Dennis', '#e0a040'), ('pistachio', 'Pistachio', '#7ae890'), ('omega', 'King Omega', '#9fb4ff'), ('ashur', 'Ashur', '#ff7a2a'), ('chef', 'The Chef', '#ffd07a'), ('neighbor', 'The Neighbor', '#7ab8ff'), ('ava', 'Queen Ava', '#6ad8e8'), ('pearlq', 'Queen Pearl', '#5ae0d8'), ('bloo', 'Bloo', '#5a9ae8'), ('stalker', 'The Stalker', '#a8ac70'), ('lantern', 'The Arachno-Lantern', '#ff8a2a'), ('bender', 'Bender', '#e0a860'), ('bones', 'Bones', '#8ab0c8'), ('capshun', 'Mr. Capshun', '#f0f0f0'), ('pxcecil', '8-Bit Cecil', '#b070ff'), ('pxleo', '8-Bit Leo', '#4ab0ff'), ('pxemma', '8-Bit Emma', '#ff6ac8'), ('sky', 'The Sky Buddies', '#ffd04a'), ('kettle', 'Kettle', '#8ad8ff'), ('rufus', 'Rufus Gnaw', '#c0392b'), ('henry', 'Henry', '#9a9ab8'), ('nia', 'Nia', '#e0a050'), ('gem', 'The Gem of Creativity', '#5ae0a0'), ('batty', 'Batty', '#8a8ad8'), ('eggbert', 'Eggbert', '#d8d4c0'), ('count', 'The Count', '#a8c8f0')]
     # 2.78: past the old block (TL..TL+59) the pages, stock and auras go on in 8100-8299
     TL2 = 8100
-    pcode = lambda i: TL + 1 + i if i < 7 else (TL2 + i - 7 if i < 13 else (TL2 + i - 6 if i < 16 else 8270 + i - 16))      # a follower's page (2.79: past 8106, the Auras page; 2.82: 8270 on)
+    pcode = lambda i: TL + 1 + i if i < 7 else (TL2 + i - 7 if i < 13 else (TL2 + i - 6 if i < 16 else (8270 + i - 16 if i < 39 else 3690 + i - 39)))      # a follower's page (2.79: past 8106, the Auras page; 2.82: 8270 on; 2.98: past 8292 (8293 on are auras), 3690 on)
     scode = lambda j: TL + 10 + j if j < 40 else (TL2 + 10 + j - 40 if j < 80 else (TL2 + 64 + j - 80 if j < 112 else (8200 + j - 112 if j < 182 else 3600 + j - 182)))   # an outfit (2.80c: past 8150-8163, the auras; 2.82: 8200 on; 2.94: 3600 on)
+    assert len(WHO) <= 49
     import shiny as _SH
     stock = []                                       # (who, group, unlock score, k, item, name, colour, price)
     for who, g, cur, un, ks, iid, off, apply in P99.groups():
@@ -422,6 +423,7 @@ def generate(G):
     for i, (w, nm, col) in enumerate(WHO):
         if not owned(pcode(i)):
             G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {pcode(i)} if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')
+    assert scode(len(stock) - 1) < 3690, len(stock)            # (3690 on: the pages past the 39th)
     fn('p103/tl/act', [f'execute if score #act bm.pay matches {TL} run return run function bm:p103/tl/main'] +
        [f'execute if score #act bm.pay matches {pcode(i)} run return run function bm:p103/tl/p_{w}' for i, (w, nm, col) in enumerate(WHO)] +
        [f'execute if score #act bm.pay matches {TL + 8} run return run function bm:p103/tl/cases'] +

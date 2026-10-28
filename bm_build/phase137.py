@@ -142,7 +142,7 @@ def generate(G):
     GOLD, REC = '#ffcf40', '#9ad0ff'
     MET = {'cecil': ['cecil_gem'], 'emma': ['emma_ribbon'], 'celi': ['celi_charm'], 'zib': ['donadian_medal'], 'killerwatt': ['kw_spark'],
            'leo': ['leo_crest'], 'demo': ['demo_seal'], 'escort': [f'skiff_escort_{c}' for c in P72.ART.ESCORT_COLS], 'apo': ['apo_oath'],
-           'tul': ['tul_coin'], 'frog': ['frog_signet'], 'donado': ['donado_tag'], 'fishy': ['fy_bowl'], 'dennis': ['dw_horn'], 'pistachio': ['pi_cloche'], 'omega': ['om_monocle'], 'ashur': ['ashur_cinder'], 'chef': ['chef_ladle'], 'neighbor': ['neighbor_baton'], 'ava': ['av_locket'], 'pearlq': ['pq_pearls'], 'bloo': ['bo_claw'], 'stalker': ['st_hook'], 'lantern': ['ln_gourd'], 'bender': ['bv_ball'], 'bones': ['bn_whistle'], 'capshun': ['capshun_pencil'], 'kettle': ['kettle_plane'], 'rufus': ['merc_contract'], 'pxcecil': ['cart_cecil'], 'pxleo': ['cart_leo'], 'pxemma': ['cart_emma'], 'sky': ['sky_mobile']}
+           'tul': ['tul_coin'], 'frog': ['frog_signet'], 'donado': ['donado_tag'], 'fishy': ['fy_bowl'], 'dennis': ['dw_horn'], 'pistachio': ['pi_cloche'], 'omega': ['om_monocle'], 'ashur': ['ashur_cinder'], 'chef': ['chef_ladle'], 'neighbor': ['neighbor_baton'], 'ava': ['av_locket'], 'pearlq': ['pq_pearls'], 'bloo': ['bo_claw'], 'stalker': ['st_hook'], 'lantern': ['ln_gourd'], 'bender': ['bv_ball'], 'bones': ['bn_whistle'], 'capshun': ['capshun_pencil'], 'kettle': ['kettle_plane'], 'rufus': ['merc_contract'], 'henry': ['henry_tag'], 'nia': ['nia_bell'], 'gem': ['creativity_gem'], 'batty': ['gentry_batty'], 'eggbert': ['gentry_eggbert'], 'count': ['gentry_count'], 'pxcecil': ['cart_cecil'], 'pxleo': ['cart_leo'], 'pxemma': ['cart_emma'], 'sky': ['sky_mobile']}
     FOL = [(k, nm, col) for (k, nm, col, *_r) in P98.CALLED] + [(k, nm, col) for (k, nm, col, *_r) in P98.HIRED]
     assert {k for k, *_r in FOL} == set(MET), sorted({k for k, *_r in FOL} ^ set(MET))
     for k, toks in MET.items():
@@ -166,7 +166,7 @@ def generate(G):
     # ---- a contract for someone you haven't met won't sign (it keeps)
     SIGN = {k: f'p89/sign/{k}' for k in ('cecil', 'emma', 'celi', 'zib', 'escort', 'killerwatt')}
     SIGN.update({'leo': 'p96/sign', 'demo': 'p97/sign', 'apo': 'p131/sign', 'tul': 'p132/sign', 'frog': 'p89/call/frog', 'donado': 'p89/call/donado',
-                 'fishy': 'p145/sign', 'dennis': 'p163/dw/sign', 'pistachio': 'p163/pi/sign', 'omega': 'p170/sign', 'ashur': 'p185/sign', 'chef': 'p186/sign', 'neighbor': 'p187/sign', 'ava': 'p189/sign', 'pearlq': 'p190/sign', 'bloo': 'p191/sign', 'stalker': 'p193/sign', 'lantern': 'p194/sign', 'bender': 'p195/sign', 'bones': 'p196/sign', 'capshun': 'p198/sign', 'kettle': 'p227/sign', 'rufus': 'p228/sign', 'pxcecil': 'p213c/sign', 'pxleo': 'p213l/sign', 'pxemma': 'p213e/sign', 'sky': 'p211/sign'})
+                 'fishy': 'p145/sign', 'dennis': 'p163/dw/sign', 'pistachio': 'p163/pi/sign', 'omega': 'p170/sign', 'ashur': 'p185/sign', 'chef': 'p186/sign', 'neighbor': 'p187/sign', 'ava': 'p189/sign', 'pearlq': 'p190/sign', 'bloo': 'p191/sign', 'stalker': 'p193/sign', 'lantern': 'p194/sign', 'bender': 'p195/sign', 'bones': 'p196/sign', 'capshun': 'p198/sign', 'kettle': 'p227/sign', 'rufus': 'p228/sign', 'henry': 'p229/sign', 'nia': 'p230/sign', 'gem': 'p231/sign', 'batty': 'p232b/sign', 'eggbert': 'p232e/sign', 'count': 'p232c/sign', 'pxcecil': 'p213c/sign', 'pxleo': 'p213l/sign', 'pxemma': 'p213e/sign', 'sky': 'p211/sign'})
     assert set(SIGN) == set(MET)
     for k, nm, col in FOL:
         L = G.FUNCS[SIGN[k]]
@@ -184,11 +184,12 @@ def generate(G):
     fols = [(k, nm, col, coins(stock[f'fcontract_{k}'])) for k, nm, col in FOL]
     hires = [(i, hk, hnm, hcol, coins(stock[f'contract_{hk}'])) for i, (hk, hnm, rat, hcol, *_r) in P77.HIRE.items()]
     gems = [(g, P60.GEMS[g][0], P60.GEMS[g][1], stock[f'gem_{g}']) for g in P60.GEMS if f'gem_{g}' in stock]
-    assert len(fols) <= 38 and len(hires) == 5 and len(gems) == 9 and len(stock) == len(fols) + 14, (len(fols), len(hires), len(gems), len(stock))   # (2.86: the followers' contracts grow; 8001-8039 hold 38)
+    assert len(fols) <= 79 and len(hires) == 5 and len(gems) == 9 and len(stock) == len(fols) + 14, (len(fols), len(hires), len(gems), len(stock))   # (2.86: the followers' contracts grow; 8001-8039 hold 39, then (2.98) 8060-8099)
     def give_cmd(st):
         comps = ','.join(c if c.startswith('!') else f'{c}={snbt(v)}' for c, v in st.get('components', {}).items())
         return f'give @s {st["id"]}[{comps}] {int(st["count"])}'
 
+    rcf = lambda i: RC + 1 + i if i < 39 else RC + 60 + (i - 39)
     RC = 8000                     # (his block: 8000 his page, 8001+ follower contracts, 8040 the hirelings' page, 8041+ theirs, 8050 the gems', 8051+)
     wal = [T('You have ', 'gray'), T('$(w)', GOLD, bold=True), T(' coins to spend', 'gray'), T(' (Gutter Bank and pockets; Medallions count 16, Trophies 128).', 'dark_gray')]
     btn = lambda lab, code: P28.btn(lab, code, width=180)
@@ -203,7 +204,7 @@ def generate(G):
     st = lambda txt, col: T(txt, col, bold=True)
     rows = ['scoreboard players set #rcp bm.rng 0', 'scoreboard players set #n bm.rng 0']
     for i, (k, nm, col, pr) in enumerate(fols):
-        code = RC + 1 + i
+        code = rcf(i)
         rows += ['scoreboard players set #st bm.rng 0',
                  f'execute if {met(k)} run scoreboard players add #n bm.rng 1', f'execute if {met(k)} run scoreboard players set #st bm.rng 1',
                  f'execute if score #st bm.rng matches 1 if items entity @s container.* {holds(f"fcontract_{k}")} run scoreboard players set #st bm.rng 2',
@@ -272,7 +273,7 @@ def generate(G):
                        f'execute if score #act bm.pay matches {RC} run return run function bm:p137/rc/main',
                        f'execute if score #act bm.pay matches {RC + 40} run return run function bm:p137/rc/hires',
                        f'execute if score #act bm.pay matches {RC + 50} run return run function bm:p137/rc/gems'] +
-       [f'execute if score #act bm.pay matches {RC + 1 + i} run return run function bm:p137/rc/f{i}' for i in range(len(fols))] +
+       [f'execute if score #act bm.pay matches {rcf(i)} run return run function bm:p137/rc/f{i}' for i in range(len(fols))] +
        [f'execute if score #act bm.pay matches {RC + 40 + i} run return run function bm:p137/rc/h{i}' for i, *_r in hires] +
        [f'execute if score #act bm.pay matches {RC + 51 + j} run return run function bm:p137/rc/g{j}' for j in range(len(gems))])
 

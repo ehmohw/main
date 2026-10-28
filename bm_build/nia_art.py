@@ -165,4 +165,5 @@ def look(p):
     return T
 
 
-globals().update(B.make('ni_', look, dict(stock=0.92, long=1.0, tall=1.0, scale=1.0, head_tex='headfur')))
+globals().update(B.make('ni_', look, dict(stock=0.92, long=1.0, tall=1.0, scale=1.0, head_tex='headfur',
+                                                  collar=dict(band='#b89ad8', band_dk='#8a6aaa', tag='#e8c040', tag_dk='#a8801a', size=0.75))))

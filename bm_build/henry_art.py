@@ -69,4 +69,5 @@ def look(p):
     return T
 
 
-globals().update(B.make('hy_', look, dict(stock=1.12, long=1.04, tall=1.04, scale=1.0)))
+globals().update(B.make('hy_', look, dict(stock=1.12, long=1.04, tall=1.04, scale=1.0,
+                                                  collar=dict(band='#c02828', band_dk='#7a1414', tag='#d8dce0', tag_dk='#8a9098', size=0.6))))

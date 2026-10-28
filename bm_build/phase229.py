@@ -1,0 +1,378 @@
+"""2.97: HENRY AND NIA - two cats, the owner's own (nia_art.py / henry_art.py on cat_art_base.py; the machinery is rigpet's).
+Henry is a black cat with a red collar and a silver tag; Nia a tortoiseshell with a lilac collar and a little gold bell.
+
+Nia has passed away. She is honoured here as the owner asked: she comes to you on clear, starry nights - always first where Henry is,
+because she was always waiting for him - and her bell carries her name: "In loving memory of Nia". Nothing in her story is sad to
+play; she is simply, gently, there.
+
+HENRY (Henry's Collar Tag)  he's found in a village at night, watching; offer him a fish (cod or salmon) and he's yours.
+  SWIPE a foe within 2.2, every second (6). POUNCE a foe 3-8 off, every 5 s: a leap onto it (9). HISS two or more foes close,
+  every 15 s: they're driven back, slowed and weakened (3). BLACK CAT'S LUCK (charged, every minute): a flurry of three swipes
+  (6 each), and Luck II for you. PURR out of a fight beside you, every 45 s: Regeneration and Absorption for you.
+  NIGHT PROWLER: by night his blows are harder (+2), and you see in the dark beside him.
+NIA (Nia's Bell)  on a clear night under the open sky, with Henry beside you, now and then she's there in the grass - waiting for
+  him. Stroke her (right-click) and she stays.
+  SWIPE (5), POUNCE (8), HISS, as Henry. BELL CHIME (charged, every minute): her bell rings - you and your followers Regeneration
+  II; the monsters round her glow and slow (4). KNEAD out of a fight beside you, every 45 s: she kneads - Regeneration and a bite
+  to eat. STARLIGHT: by night, a soft starlight round her.
+THEIR BONDS: a pair with everyone (cat_bonds.py) - and her two special ones, with Emma ("The Princess's Kitty": every 30 s she
+curls up in Emma's lap and a shower of petals heals you all) and with Queen Ava ("The Queen's Companion": every 30 s a glowing tide
+heals you all, and the water lets you breathe). And the owner's eleven trios.
+Every follower's list: sitting (a loaf, curled asleep), the collar wardrobe and a rare aura, a shiny collar, the Partner Wheel, a
+frame, a display case, Cecil's doll, the honours (Champion blow and Piercing Blow), a Raid Contract."""
+import math
+from items import item, T, TOTEM, ITEMS
+from useitem import hold, HOLD
+from nbt import snbt, B, F, Int, D
+import nia_art as NA
+import henry_art as HA
+import rigpet as RP
+import phase141 as P141
+import phase134 as P134
+import cat_bonds as CB
+
+CYC = {0: (240, [(0, 'idle_a'), (60, 'idle_b'), (110, 'groom'), (150, 'idle_a'), (200, 'idle_b')]),
+       1: (16, [(0, 'walk_0'), (4, 'walk_1'), (8, 'walk_2'), (12, 'walk_3')]),
+       2: (12, [(0, 'run_0'), (3, 'run_1'), (6, 'run_2'), (9, 'run_3')]), 3: (None, [(0, 'jump')]),
+       4: (480, [(0, 'sit_a'), (120, 'sit_b'), (240, 'sleep'), (420, 'sit_a')]),
+       6: (None, [(0, 'happy'), (12, 'cuddle')]),
+       7: (None, [(0, 'swipe_up'), (3, 'swipe')]),
+       8: (None, [(0, 'pounce_up'), (6, 'pounce'), (14, 'idle_a')]),
+       11: (None, [(0, 'hiss')]),
+       12: (None, [(0, 'swipe_up'), (3, 'swipe'), (6, 'swipe_up'), (9, 'swipe'), (12, 'swipe_up'), (15, 'swipe'), (22, 'happy')]),
+       14: (None, [(0, 'cuddle'), (10, 'knead_a'), (16, 'knead_b'), (22, 'knead_a'), (28, 'knead_b'), (34, 'cuddle')]),
+       10: (16, [(2 * i, f'swim_{i}') for i in range(8)])}
+DURS = {'idle_a': 20, 'idle_b': 16, 'groom': 14, 'walk_0': 4, 'walk_1': 4, 'walk_2': 4, 'walk_3': 4, 'run_0': 3, 'run_1': 3, 'run_2': 3, 'run_3': 3,
+        'jump': 4, 'sit_a': 20, 'sit_b': 24, 'sleep': 30, 'happy': 6, 'cuddle': 10, 'swipe_up': 2, 'swipe': 2, 'pounce_up': 5, 'pounce': 3,
+        'hiss': 4, 'knead_a': 5, 'knead_b': 5, 'hurt': 3}
+FACE = {'happy': 'happy', 'surprised': 'alert', 'hurt': 'alert', 'sleepy': 'blink', 'blink': 'blink', 'squint': 'happy', 'serious': 'alert'}
+
+
+class Henry(RP.Cfg):
+    W, NAME, COL, LINE, pfx, ab, q = 'henry', 'Henry', CB.HENRY_C, CB.HENRY_LINE, 'p229', 'hy', 'hq'
+    A = HA
+    MENU = 4300
+    PET_HP, PET_CD = 30, 120
+    ITEM = 'henry_tag'
+    pron, they = 'him', 'he'
+    EXPR = ('happy', 'surprised', 'hurt', 'sleepy', 'blink', 'squint', 'serious')
+    FACE = FACE
+    ATTRS = dict(armor=2, attack_damage=5, movement_speed=0.4, follow_range=32, step_height=1.1)
+    SCALE = 0.6
+    HIT = (0.6, 0.7)
+    CYCLE, DUR = CYC, DURS
+    QUIPS = ['(Henry flicks his tail. That one\'s handled.)', '(Henry sits, and washes a paw, very pleased with himself.)', '(a low, satisfied "mrrp")',
+             '(Henry looks back at you: did you see that?)', '(Henry yawns. Monsters are boring.)', '(slow blink. A cat\'s "I love you".)']
+    HELLO = ('(Henry trots up with his tail high, and headbutts your leg)', '(Henry appears out of nowhere, the way black cats do. "Mrrp.")',
+             '(Henry stretches, yawns, and saunters off home)')
+    SIT = ('(Henry stands, stretches front and back, and is ready)', '(Henry folds himself into a loaf)')
+    FAINT = '(Henry lies down, tired out)'
+    NOT_YOURS = '(Henry looks at you. Henry looks away. Henry is somebody else\'s cat.)'
+    POWERS = [('Swipe', 'a foe within 2.2, every second: 6'), ('Pounce', 'a foe 3-8 off, every 5 s: a leap onto it (9)'),
+              ('Hiss', 'two or more foes close, every 15 s: driven back, slowed and weakened (3)'),
+              ("Black Cat's Luck", 'charged, every minute: three swipes (6 each) and Luck II for you'),
+              ('Purr', 'out of a fight beside you, every 45 s: Regeneration and Absorption for you'),
+              ('Night Prowler', 'by night his blows are harder (+2), and you see in the dark beside him')]
+    INTRO = [T('Henry', CB.HENRY_C, bold=True), T(' - a black cat with a red collar and a silver tag. ', 'gray'),
+             T('Lucky, whatever they say about black cats: he chose you.', 'white')]
+    BUTTONS = ()
+    BURST = ['particle minecraft:poof ~ ~0.3 ~ 0.3 0.2 0.3 0.02 8', 'particle minecraft:squid_ink ~ ~0.4 ~ 0.2 0.2 0.2 0.01 4']
+    FADE_SOUND = 'playsound minecraft:entity.cat.ambient neutral @a[distance=..20] ~ ~ ~ 1 0.8'
+    SUMMON_EXTRA = ['playsound minecraft:entity.cat.purreow neutral @a[distance=..24] ~ ~ ~ 0.8 0.9']
+    ENC_POSES = [(0, 'sit_a'), (30, 'groom'), (60, 'idle_a')]
+    ENC_PARTICLE = 'return 0'
+    ADV = ('Black Cat', 'Win Henry over with a fish')
+    ADMIN_HINT = 'In a village at night: offer him a cod or a salmon.'
+    MEET_HINT = 'A village, at night. Bring a fish.'
+
+
+class Nia(RP.Cfg):
+    W, NAME, COL, LINE, pfx, ab, q = 'nia', 'Nia', CB.NIA_C, CB.NIA_LINE, 'p230', 'ni', 'nq'
+    A = NA
+    MENU = 4350
+    PET_HP, PET_CD = 30, 120
+    ITEM = 'nia_bell'
+    pron, they = 'her', 'she'
+    EXPR = ('happy', 'surprised', 'hurt', 'sleepy', 'blink', 'squint', 'serious')
+    FACE = FACE
+    ATTRS = dict(armor=2, attack_damage=4, movement_speed=0.4, follow_range=32, step_height=1.1)
+    SCALE = 0.55
+    HIT = (0.6, 0.7)
+    CYCLE, DUR = CYC, DURS
+    QUIPS = ['(Nia\'s bell jingles as she trots back to you)', '(Nia gives you a slow blink: all\'s well)', '(a small, proud "mew")',
+             '(Nia washes behind one ear, entirely unbothered)', '(Nia flops over to show you her belly. It is a trap.)', '(Nia purrs)']
+    HELLO = ('(Nia comes running, her bell jingling, and winds round your legs)', '(the grass rustles, a bell jingles, and Nia is there, purring)',
+             '(Nia blinks at you slowly, and pads off under the stars)')
+    SIT = ('(Nia uncurls, stretches, and is ready)', '(Nia tucks her paws in and settles down to knead)')
+    FAINT = '(Nia curls up small, and rests)'
+    NOT_YOURS = '(Nia sniffs your hand, kindly - but she\'s waiting for someone else)'
+    POWERS = [('Swipe', 'a foe within 2.2, every second: 5'), ('Pounce', 'a foe 3-8 off, every 5 s: a leap onto it (8)'),
+              ('Hiss', 'two or more foes close, every 15 s: driven back, slowed and weakened (3)'),
+              ('Bell Chime', 'charged, every minute: you and your followers Regeneration II; the monsters round her glow and slow (4)'),
+              ('Knead', 'out of a fight beside you, every 45 s: Regeneration and a bite to eat'),
+              ('Starlight', 'by night, a soft starlight round her')]
+    INTRO = [T('Nia', CB.NIA_C, bold=True), T(' - a tortoiseshell with a lilac collar and a little gold bell. ', 'gray'),
+             T('In loving memory of Nia: forever curious, forever loved.', 'white', italic=True)]
+    BUTTONS = ()
+    BURST = ['particle minecraft:end_rod ~ ~0.4 ~ 0.3 0.2 0.3 0.01 6', 'particle minecraft:poof ~ ~0.3 ~ 0.3 0.2 0.3 0.02 6']
+    FADE_SOUND = 'playsound minecraft:block.amethyst_block.chime neutral @a[distance=..20] ~ ~ ~ 0.8 1.6'
+    SUMMON_EXTRA = ['playsound minecraft:block.bell.resonate neutral @a[distance=..24] ~ ~ ~ 0.3 2.0',
+                    'playsound minecraft:entity.cat.purr neutral @a[distance=..24] ~ ~ ~ 1 1.1']
+    ENC_POSES = [(0, 'sleep'), (40, 'sit_a'), (70, 'cuddle')]
+    ENC_PARTICLE = 'execute if score #f bm.rng matches 20 run particle minecraft:end_rod ~ ~0.6 ~ 0.4 0.3 0.4 0.005 3'
+    ADV = ('Waiting Under the Stars', 'Find Nia, on a clear night, with Henry beside you')
+    ADMIN_HINT = 'On a clear night under the open sky, with Henry beside you.'
+    MEET_HINT = 'A clear, starry night, with Henry beside you.'
+
+
+RP.register(Henry)
+RP.register(Nia)
+item('henry_tag', TOTEM, "Henry's Collar Tag", CB.HENRY_C,
+     ['A little round silver tag, off a red collar.', 'It says HENRY on one side, and on the other: "If found, he\'s not lost - he\'s exploring."',
+      ('Use: call Henry (again: call him over).', 'blue'), ('Sneak + use: his menu.', 'blue'), ('Swipes, pounces, hisses - and purrs.', 'blue'),
+      ('If he faints: 2 minutes before he can return.', 'gray')],
+     model='bm:henry_tag', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
+item('nia_bell', TOTEM, "Nia's Bell", CB.NIA_C,
+     ['A little gold bell from a lilac collar.', 'It still rings, softly, when nobody touches it.', ('In loving memory of Nia.', 'light_purple'),
+      ('Forever curious, forever loved.', 'light_purple'),
+      ('Use: call Nia (again: call her over).', 'blue'), ('Sneak + use: her menu.', 'blue'), ('She swipes, pounces, kneads - and her bell heals.', 'blue'),
+      ('If she rests: 2 minutes before she can return.', 'gray')],
+     model='bm:nia_bell', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
+for _w, _nm, _c, _txt, _p, _s in (('henry', 'Henry', CB.HENRY_C, 'A doll of Henry - black as midnight, with his red collar.', 'minecraft:squid_ink', 'minecraft:entity.cat.ambient'),
+                                  ('nia', 'Nia', CB.NIA_C, 'A doll of Nia - every one of her colours, and her little bell.', 'minecraft:end_rod', 'minecraft:entity.cat.purr')):
+    item(f'doll_{_w}', TOTEM, f'{_nm} Doll', _c, [_txt, ('Right-click a block: set it down.', 'blue'), ('Right-click it: it twirls.', 'blue'),
+                                                  ('Sneak + punch: pick it up.', 'gray')], model=f'bm:doll_{_w}', stack=16, cat='fun', comps=hold('none'))
+    HOLD[f'doll_{_w}'] = f'bm:p141/doll_{_w}/use'
+    P141.DOLLS.append((f'doll_{_w}', _nm, _c, _txt, _p, _s, 'minecraft:poof'))
+P141.DOLL_FROM['doll_henry'] = ('henry_tag', {'kh': 1.55, 'kb': 0.82, 'kl': 0.62})
+P141.DOLL_FROM['doll_nia'] = ('nia_bell', {'kh': 1.55, 'kb': 0.82, 'kl': 0.62})
+P134.FIT['henry_tag'] = (0.0, 0.7, -0.3, 0.3, -0.55, 0.55)
+P134.FIT['nia_bell'] = (0.0, 0.7, -0.3, 0.3, -0.55, 0.55)
+
+# ---- THEIR BONDS: a pair with everyone (phase188 runs them) - and the trios (phase100)
+import phase188 as P188
+import phase100 as P100
+_O = P188.O
+P188.VNAME.update({'henry': 'Henry', 'nia': 'Nia'})
+
+
+def fx_cmds(effects, secs=3):
+    return [f'effect give {_O} minecraft:{e} {15 if e == "night_vision" else secs} {a} true' if e != 'saturation' else f'effect give {_O} minecraft:saturation 1 0 true'
+            for e, a in effects]
+
+
+def add_pairs():
+    """(at the end of the imports: everyone who's registered by then gets a pair with each cat)"""
+    for w, ((hn, hfx, hl, ha), (nn, nfx, nl, na)) in CB.B.items():
+        if w not in P100.WHO: continue
+        P188.PAIRS[f'hy_{w}'] = ('henry', w, hn, CB.HENRY_C, f'Henry and {P188.VNAME.get(w, w)}', fx_cmds(hfx), [(w, hl), ('henry', ha)],
+                                 [('henry', '(Henry rubs against their leg and purrs)', w, '"...Alright, alright. Good cat."')])
+        extra = ['scoreboard players add @s bm.p188 1', f'execute if score @s bm.p188 matches 30.. run function bm:{CB.SPECIAL[w]}',
+                 'execute if score @s bm.p188 matches 30.. run scoreboard players set @s bm.p188 0'] if w in CB.SPECIAL else []     # (phase188 makes it the pair's own counter)
+        P188.PAIRS[f'ni_{w}'] = ('nia', w, nn, CB.NIA_C, f'Nia and {P188.VNAME.get(w, w)}', fx_cmds(nfx) + extra, [(w, nl), ('nia', na)],
+                                 [('nia', '(Nia\'s bell jingles as she trots over for a stroke)', w, '"Hello, little one."')])
+        P188.ICON[f'hy_{w}'] = 'bm:henry_tag'; P188.ICON[f'ni_{w}'] = 'bm:nia_bell'
+    tn, tfx, tl, ta = CB.TOGETHER
+    P188.PAIRS['hy_nia'] = ('henry', 'nia', tn, CB.NIA_C, 'Henry and Nia, together again', fx_cmds(tfx), [('henry', tl), ('nia', ta)],
+                            [('henry', '(Henry grooms the top of Nia\'s head)', 'nia', '(Nia purrs, eyes shut)'),
+                             ('nia', '(Nia\'s bell jingles; Henry\'s ears turn to it, every time)', 'henry', '(Henry settles down beside her)')])
+    P188.ICON['hy_nia'] = 'bm:nia_bell'
+    for k, (nm, col, mem, fx) in CB.TRIOS.items():
+        P100.TRIOS[k] = (nm, col, mem, nm, 'Walk with ' + ', '.join(P188.VNAME.get(m, m) for m in mem[:-1]) + ' and ' + P188.VNAME.get(mem[-1], mem[-1]) + ' at once')
+        P188.ICON[k] = 'bm:nia_bell' if 'nia' in mem else 'bm:henry_tag'
+    P100.BANTER.update(CB.BANTER)
+    P100.VOICE.setdefault('Henry', (CB.HENRY_C, CB.HENRY_LINE)); P100.VOICE.setdefault('Nia', (CB.NIA_C, CB.NIA_LINE))
+
+
+def extend_offers(O, offer):
+    pass
+
+
+def _icon(kind):
+    """the summon items' icons (16 x 16, by hand): Henry's round silver tag on a red loop; Nia's gold bell on a lilac loop"""
+    from PIL import Image, ImageDraw
+    im = Image.new('RGBA', (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    if kind == 'henry':
+        d.arc((3, 0, 12, 7), 200, 340, fill=(200, 30, 40, 255), width=2)
+        d.ellipse((4, 5, 11, 12), fill=(200, 205, 214, 255), outline=(110, 115, 125, 255))
+        d.ellipse((5, 6, 8, 8), fill=(240, 244, 250, 255))
+        d.line((6, 9, 9, 9), fill=(90, 95, 105, 255))
+    else:
+        d.arc((3, 0, 12, 7), 200, 340, fill=(190, 160, 230, 255), width=2)
+        d.pieslice((3, 4, 12, 15), 180, 360, fill=(232, 182, 50, 255), outline=(150, 100, 20, 255))
+        d.rectangle((3, 9, 12, 11), fill=(232, 182, 50, 255), outline=(150, 100, 20, 255))
+        d.point((7, 12), fill=(120, 80, 10, 255)); d.point((5, 6), fill=(255, 240, 170, 255)); d.point((6, 6), fill=(255, 240, 170, 255))
+    return im.resize((32, 32), 0)
+
+
+def rp(R):
+    import sys
+    R.TEXTURE_MODS.append(sys.modules[__name__])
+    RP.rp(Henry, R, _icon('henry'))
+    RP.rp(Nia, R, _icon('nia'))
+
+
+def textures():
+    T_ = dict(HA.textures()); T_.update(NA.textures())
+    return T_
+
+
+def generate_early(G):
+    RP.contract(Henry, G)
+    RP.contract(Nia, G)
+
+
+def _abilities(cat):
+    """the cats' shared fighting, with each one's own charged move and its out-of-a-fight kindness"""
+    def abilities(G, X):
+        fn, S, go, end, face, foe, pfx = G.fn, X.S, X.go, X.end, X.face, X.foe, X.pfx
+        idle = X.idle_fight
+        night = cat == 'henry'
+
+        def hit(d):
+            return X.hit(d) + ([f'execute if predicate bm:p229/night run scoreboard players add #pd bm.rng 2'] if night else [])
+        sw, pc = (6, 9) if cat == 'henry' else (5, 8)
+        lines = [f'execute if score @s {S("k")} matches 1.. run scoreboard players remove @s {S("k")} 1',
+                 f'execute if score @s {S("k2")} matches 1.. run scoreboard players remove @s {S("k2")} 1',
+                 f'execute {idle} unless score @s {S("gc")} matches 1.. if entity @e[{foe},distance=..6] run function bm:{pfx}/charge_go',
+                 f'execute store result score #nf bm.rng if entity @e[{foe},distance=..4]',
+                 f'execute {idle} unless score @s {S("k2")} matches 1.. if score #nf bm.rng matches 2.. run function bm:{pfx}/hiss_go',
+                 f'execute {idle} unless score @s {S("mc")} matches 1.. if entity @e[{foe},distance=..2.2] run function bm:{pfx}/swipe_go',
+                 f'execute {idle} unless score @s {S("rc")} matches 1.. unless entity @e[{foe},distance=..2.5] if entity @e[{foe},distance=..8] run function bm:{pfx}/pounce_go',
+                 f'execute {idle} unless score @s {S("k")} matches 1.. unless entity @e[{foe},distance=..12] if function bm:{pfx}/near_owner run function bm:{pfx}/kind_go']
+        fn(f'{pfx}/near_owner', ['execute on owner if entity @s[distance=..6] run return 1', 'return 0'])
+        fn(f'{pfx}/swipe_go', go(7, 6, 'mc', 20, ['playsound minecraft:entity.cat.hiss neutral @a[distance=..16] ~ ~ ~ 0.3 1.6']))
+        fn(f'{pfx}/pounce_go', go(8, 16, 'rc', 100, face('serious', 14)))
+        fn(f'{pfx}/hiss_go', go(11, 14, 'k2', 300, face('serious', 14) + ['playsound minecraft:entity.cat.hiss neutral @a[distance=..16] ~ ~ ~ 1 0.9']))
+        fn(f'{pfx}/charge_go', go(12, 24, 'gc', 1200, face('serious', 22)))
+        fn(f'{pfx}/kind_go', go(14, 40, 'k', 900, face('happy', 40) + ['playsound minecraft:entity.cat.purr neutral @a[distance=..16] ~ ~ ~ 1 1']))
+        fn(f'{pfx}/act_tick', [f'scoreboard players remove @s {S("x")} 1',
+                               f'execute if score @s {S("a")} matches 7 if score @s {S("x")} matches 3 run function bm:{pfx}/swipe',
+                               f'execute if score @s {S("a")} matches 8 if score @s {S("x")} matches 4..10 run function bm:{pfx}/leap',
+                               f'execute if score @s {S("a")} matches 8 if score @s {S("x")} matches 3 run function bm:{pfx}/pounce',
+                               f'execute if score @s {S("a")} matches 11 if score @s {S("x")} matches 10 run function bm:{pfx}/hiss',
+                               f'execute if score @s {S("a")} matches 12 if score @s {S("x")} matches 21 run function bm:{pfx}/charge_a',
+                               f'execute if score @s {S("a")} matches 12 if score @s {S("x")} matches 15 run function bm:{pfx}/charge_a',
+                               f'execute if score @s {S("a")} matches 12 if score @s {S("x")} matches 9 run function bm:{pfx}/charge_b',
+                               f'execute if score @s {S("a")} matches 14 if score @s {S("x")} matches 20 run function bm:{pfx}/kind'])
+        fn(f'{pfx}/swipe', hit(sw) + [f'execute as @e[{foe},distance=..2.6,sort=nearest,limit=1] at @s run function bm:{pfx}/swiped'] + end)
+        fn(f'{pfx}/swiped', [f'function bm:{pfx}/hurt', 'particle minecraft:sweep_attack ~ ~0.6 ~ 0.1 0.1 0.1 0 1',
+                             'playsound minecraft:entity.player.attack.sweep neutral @a[distance=..16] ~ ~ ~ 0.5 1.8'])
+        fn(f'{pfx}/leap', [f'execute if entity @e[{foe},distance=1.4..9] facing entity @e[{foe},distance=..9,sort=nearest,limit=1] feet rotated ~ 0 '
+                           f'positioned ^ ^ ^0.8 if block ~ ~ ~ #bm:grap_pass if block ~ ~0.6 ~ #bm:grap_pass run tp @s ~ ~ ~',
+                           'particle minecraft:poof ~ ~0.2 ~ 0.1 0.05 0.1 0 1'])
+        fn(f'{pfx}/pounce', hit(pc) + [f'execute as @e[{foe},distance=..2.4,sort=nearest,limit=1] at @s run function bm:{pfx}/pounced'] + end)
+        fn(f'{pfx}/pounced', [f'function bm:{pfx}/hurt', 'effect give @s minecraft:slowness 2 1', 'particle minecraft:crit ~ ~0.8 ~ 0.3 0.3 0.3 0.2 10',
+                              'playsound minecraft:entity.cat.hiss neutral @a[distance=..16] ~ ~ ~ 0.6 1.2'])
+        fn(f'{pfx}/hiss', hit(3) + [f'execute as @e[{foe},distance=..4.5] at @s run function bm:{pfx}/hissed'] + end)
+        fn(f'{pfx}/hissed', [f'function bm:{pfx}/hurt', 'effect give @s minecraft:slowness 3 1', 'effect give @s minecraft:weakness 3 0',
+                             f'execute facing entity @e[type=minecraft:wolf,tag={X.me},limit=1] feet rotated ~ 0 positioned ^ ^ ^-1.5 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run tp @s ~ ~ ~',
+                             'particle minecraft:angry_villager ~ ~1.4 ~ 0.2 0.1 0.2 0 1'])
+        if cat == 'henry':      # BLACK CAT'S LUCK: three swipes, and your luck turns
+            fn(f'{pfx}/charge_a', hit(6) + [f'execute as @e[{foe},distance=..3,sort=nearest,limit=1] at @s run function bm:{pfx}/swiped'] + end)
+            fn(f'{pfx}/charge_b', hit(6) + [f'execute as @e[{foe},distance=..3,sort=nearest,limit=1] at @s run function bm:{pfx}/swiped'] + end +
+               ['execute on owner if entity @s[distance=..16] run effect give @s minecraft:luck 30 1 true', 'particle minecraft:squid_ink ~ ~0.6 ~ 0.4 0.3 0.4 0.02 16'])
+            fn(f'{pfx}/kind', ['execute on owner if entity @s[distance=..8] run function bm:p229/purr_you'])
+            fn('p229/purr_you', ['effect give @s minecraft:regeneration 10 0 true', 'effect give @s minecraft:absorption 30 0 true',
+                                 'particle minecraft:heart ~ ~1.2 ~ 0.3 0.3 0.3 0 3', 'playsound minecraft:entity.cat.purr player @s ~ ~ ~ 1 1'])
+        else:                   # BELL CHIME: her bell heals you all; the monsters round her glow
+            fn(f'{pfx}/charge_a', ['playsound minecraft:block.bell.use neutral @a[distance=..24] ~ ~ ~ 0.6 2.0', 'particle minecraft:end_rod ~ ~0.6 ~ 0.6 0.4 0.6 0.02 10'])
+            fn(f'{pfx}/charge_b', hit(4) + [f'execute as @e[{foe},distance=..8] at @s run function bm:{pfx}/chimed'] + end +
+               ['scoreboard players operation #me bm.pid = @s bm.pid', 'execute as @a[distance=..24] if score @s bm.pid = #me bm.pid run effect give @s minecraft:regeneration 8 1 true',
+                *[f'execute as @e[type=minecraft:{t},distance=..16] if score @s bm.pid = #me bm.pid run effect give @s minecraft:regeneration 8 1 true' for t in ('wolf', 'cat')],
+                'playsound minecraft:block.bell.resonate neutral @a[distance=..24] ~ ~ ~ 0.4 2.0',
+                f'execute rotated 0 0 run particle minecraft:end_rod ~ ~0.5 ~ 2 0.3 2 0.01 30'])
+            fn(f'{pfx}/chimed', [f'function bm:{pfx}/hurt', 'effect give @s minecraft:glowing 4 0', 'effect give @s minecraft:slowness 4 0'])
+            fn(f'{pfx}/kind', ['execute on owner if entity @s[distance=..8] run function bm:p230/knead_you'])
+            fn('p230/knead_you', ['effect give @s minecraft:regeneration 10 0 true', 'effect give @s minecraft:saturation 1 1 true',
+                                  'particle minecraft:heart ~ ~1.2 ~ 0.3 0.3 0.3 0 3', 'playsound minecraft:entity.cat.purr player @s ~ ~ ~ 1 1.2'])
+        return lines
+    return abilities
+
+
+def generate(G):
+    fn, wjson, tellraw, title = G.fn, G.wjson, G.tellraw, G.title
+    G.wjson('bm/predicate/p229/night.json', {'condition': 'minecraft:time_check', 'clock': 'minecraft:overworld', 'value': {'min': 13000, 'max': 23000}, 'period': 24000})
+    G.wjson('bm/predicate/p229/clear_night.json', {'condition': 'minecraft:all_of', 'terms': [
+        {'condition': 'minecraft:time_check', 'clock': 'minecraft:overworld', 'value': {'min': 13000, 'max': 23000}, 'period': 24000},
+        {'condition': 'minecraft:weather_check', 'raining': False},
+        {'condition': 'minecraft:location_check', 'offsetY': 1.6, 'predicate': {'can_see_sky': True}}]})
+    hsay = lambda txt: title('@s', 'actionbar', [T('Henry ', CB.HENRY_C, bold=True), T(txt, CB.HENRY_LINE)])
+    nsay = lambda txt: title('@s', 'actionbar', [T('Nia ', CB.NIA_C, bold=True), T(txt, CB.NIA_LINE)])
+
+    # ---- HENRY: in a village at night, watching; a fish wins him over
+    def h_enc(G, X):
+        X.second.append('execute as @a[tag=!bm.hymet,gamemode=!spectator] at @s if dimension minecraft:overworld if predicate bm:p229/night run function bm:p229/enc/check')
+        fn('p229/enc/check', ['execute unless entity @e[type=minecraft:villager,distance=..32] run return 0',
+                              'execute store result score #r bm.rng run random value 1..240', 'execute unless score #r bm.rng matches 1 run return 0',
+                              'execute if entity @e[type=minecraft:interaction,tag=bm.hyenc,distance=..64] run return 0',
+                              'execute positioned ^ ^ ^5 run function bm:p229/enc/place'])
+        fn('p229/enc/place', ['execute if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass unless block ~ ~-1 ~ #bm:grap_pass run return run function bm:p229/enc/step',
+                              'execute positioned ~ ~1 ~ if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run function bm:p229/enc/step'])
+        fn('p229/enc/step', ['function bm:p229/enc/spawn', 'playsound minecraft:entity.cat.ambient neutral @a[distance=..24] ~ ~ ~ 1 0.8',
+                             X.tellraw('@a[tag=!bm.hymet,distance=..16]', [T('Two yellow-green eyes in the dark: a black cat with a red collar is sitting in the lane, watching you. ', CB.HENRY_LINE, italic=True),
+                                                                            T('His tag catches the moonlight.', 'gray', italic=True)])])
+        fish = 'minecraft:cod', 'minecraft:salmon', 'minecraft:cooked_cod', 'minecraft:cooked_salmon'
+        fn('p229/enc/talk', [f'execute if items entity @s container.* {X.holds("henry_tag")} run return run ' + hsay('(is already yours. He sits on your foot to prove it.)')] +
+           [f'execute if items entity @s weapon.mainhand {f} run return run function bm:p229/enc/recruit' for f in fish] +
+           [hsay('(sniffs your empty hand, and looks at you as if you\'ve forgotten something)'), 'playsound minecraft:entity.cat.ambient player @s ~ ~ ~ 1 1.2'])
+        fn('p229/enc/recruit', ['item modify entity @s weapon.mainhand {function:"minecraft:set_count",count:-1,add:true}',
+                                f'execute as {X.here} at @s run particle minecraft:heart ~ ~0.8 ~ 0.3 0.3 0.3 0 4',
+                                f'execute as {X.here} at @s run playsound minecraft:entity.cat.eat neutral @a[distance=..16] ~ ~ ~ 1 1',
+                                X.tellraw('@s', [T('He eats the fish delicately, washes his whiskers - and leaves his little silver tag at your feet. ', CB.HENRY_LINE, italic=True),
+                                                 T('HENRY, it says. He\'s decided.', 'gray', italic=True)]),
+                                'function bm:p229/enc/joined'])
+    RP.build(Henry, G, _abilities('henry'), h_enc)
+
+    # ---- NIA: a clear night under the sky, Henry beside you - she's waiting for him
+    def n_enc(G, X):
+        X.second.append('execute as @a[tag=!bm.nimet,tag=bm.hymet,gamemode=!spectator] at @s if dimension minecraft:overworld if predicate bm:p229/clear_night run function bm:p230/enc/check')
+        fn('p230/enc/check', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #hy bm.rng 0',
+                              'execute as @e[type=minecraft:wolf,tag=bm.hypet,distance=..16] if score @s bm.pid = #me bm.pid run scoreboard players set #hy bm.rng 1',
+                              'execute if score #hy bm.rng matches 0 run return 0',
+                              'execute store result score #r bm.rng run random value 1..180', 'execute unless score #r bm.rng matches 1 run return 0',
+                              'execute if entity @e[type=minecraft:interaction,tag=bm.nienc,distance=..64] run return 0',
+                              'execute positioned ^ ^ ^5 run function bm:p230/enc/place'])
+        fn('p230/enc/place', ['execute if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass unless block ~ ~-1 ~ #bm:grap_pass run return run function bm:p230/enc/step',
+                              'execute positioned ~ ~1 ~ if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run function bm:p230/enc/step'])
+        fn('p230/enc/step', ['function bm:p230/enc/spawn', 'particle minecraft:end_rod ~ ~0.6 ~ 0.6 0.4 0.6 0.005 16',
+                             'playsound minecraft:block.bell.resonate neutral @a[distance=..24] ~ ~ ~ 0.3 2.0',
+                             X.tellraw('@a[tag=!bm.nimet,distance=..16]', [T('A little bell rings, somewhere in the grass. Henry stops dead, ears up - and runs. ', CB.NIA_LINE, italic=True),
+                                                                            T('There, under the stars, a tortoiseshell cat is curled up, waiting. She was always waiting for him.', 'gray', italic=True)])])
+        fn('p230/enc/talk', [f'execute if items entity @s container.* {X.holds("nia_bell")} run return run ' + nsay('(blinks at you slowly. She\'s right here.)'),
+                             'function bm:p230/enc/recruit'])
+        fn('p230/enc/recruit', [f'execute as {X.here} at @s run particle minecraft:end_rod ~ ~0.6 ~ 0.4 0.4 0.4 0.01 20',
+                                f'execute as {X.here} at @s run playsound minecraft:entity.cat.purr neutral @a[distance=..16] ~ ~ ~ 1 1.1',
+                                X.tellraw('@s', [T('You stroke her, and she leans into your hand, purring. Henry touches his nose to hers. ', CB.NIA_LINE, italic=True),
+                                                 T('When she stands, there\'s a little gold bell in the grass where she lay - and she stays.', 'gray', italic=True)]),
+                                X.tellraw('@s', [T('In loving memory of Nia. ', 'light_purple', italic=True), T('Forever curious, forever loved.', 'light_purple', italic=True)]),
+                                'function bm:p230/enc/joined'])
+    RP.build(Nia, G, _abilities('nia'), n_enc)
+
+    # ---- NIGHT PROWLER (Henry): by night, Night Vision beside him; STARLIGHT (Nia): a soft starlight round her by night
+    G.FUNCS['loop/second'] += ['execute as @e[type=minecraft:wolf,tag=bm.hypet,tag=!bm.ffpet] at @s if predicate bm:p229/night on owner if entity @s[distance=..16] run effect give @s minecraft:night_vision 15 0 true',
+                               'execute as @e[type=minecraft:wolf,tag=bm.nipet,tag=!bm.ffpet] at @s if predicate bm:p229/night run particle minecraft:end_rod ~ ~0.5 ~ 0.3 0.2 0.3 0.003 1']
+    # ---- NIA'S SPECIAL PAIRS (every 30 s): with Emma, she curls up in her lap - petals heal you all; with Queen Ava, a glowing tide
+    fn('p230/sp/emma', [f'execute as {_O} at @s run function bm:p230/sp/heal',
+                        'particle minecraft:cherry_leaves ~ ~1 ~ 1.2 0.6 1.2 0 40', 'playsound minecraft:entity.cat.purr neutral @a[distance=..16] ~ ~ ~ 1 1.2',
+                        f'execute as {_O} unless entity @s[tag=bm.hush] run ' + title('@s', 'actionbar', [T('Emma: ', '#ff8ad8', bold=True), T('"She fell asleep in my lap again! Shh - nobody move."', '#ffd0ec')])])
+    fn('p230/sp/ava', [f'execute as {_O} at @s run function bm:p230/sp/heal', f'execute as {_O} run effect give @s minecraft:water_breathing 60 0 true',
+                       'particle minecraft:glow ~ ~0.5 ~ 1.5 0.3 1.5 0 30', 'particle minecraft:bubble ~ ~0.5 ~ 1.5 0.3 1.5 0.05 20',
+                       f'execute as {_O} unless entity @s[tag=bm.hush] run ' + title('@s', 'actionbar', [T('Queen Ava: ', '#6ad8e8', bold=True), T('"Rest here, little one. The tide will keep you."', '#c8f4fa')])])
+    fn('p230/sp/heal', ['effect give @s minecraft:regeneration 6 1 true', 'effect give @s minecraft:absorption 30 1 true',
+                        'scoreboard players operation #me bm.pid = @s bm.pid',
+                        *[f'execute as @e[type=minecraft:{t},distance=..16] if score @s bm.pid = #me bm.pid run effect give @s minecraft:regeneration 6 1 true' for t in ('wolf', 'cat')]])
+
+    # ---- the trios (phase100 calls p100/<key> as the player)
+    mine = lambda k: f'@e[type=minecraft:{P100.WHO[k][0]},tag={P100.WHO[k][1]},distance=..24]'
+    REGEN = 'execute unless predicate bm:p100/regen run effect give @s minecraft:regeneration 5 0 true'
+    for k, (nm, col, mem, fxs) in CB.TRIOS.items():
+        fn(f'p100/{k}', [f'effect give @s minecraft:{e} {15 if e == "night_vision" else 3} {a} true' for e, a in fxs] +
+           [f'execute as {mine(m)} if function bm:p100/is_mine run {REGEN}' for m in mem] + ['function bm:p100/banter_tick'])
+        wjson(f'bm/advancement/story/trio_{k}.json', {'parent': 'bm:story/root', 'criteria': {'done': {'trigger': 'minecraft:impossible'}},
+                                                     'display': {'icon': {'id': 'minecraft:totem_of_undying', 'components': {'minecraft:item_model': P188.ICON[k]}},
+                                                                 'title': T(nm, 'yellow'), 'description': T(P100.TRIOS[k][4], 'gray'), 'frame': 'goal', 'show_toast': True,
+                                                                 'announce_to_chat': True, 'hidden': True}})
+
+
+_O = P188.O

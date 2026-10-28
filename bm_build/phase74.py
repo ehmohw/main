@@ -243,7 +243,9 @@ def generate(G):
         f.insert(k + 2, 'tag @e[type=minecraft:rabbit,tag=bm.mnew,distance=..3] add bm.gvmimic')
 
     # ================================================================== THE VAULT: adventure mode inside (no breaking the vault's walls); survival again on the way out
-    second.append('execute as @a[tag=bm.gvp,gamemode=survival] at @s if dimension bm:gutter run function bm:p74/vault_adv')
+    # (2.96: everyone in the Gutter, not only a heist's crew - the den, the lobby before BEGIN, a crewmate waiting: all of it is the
+    #  heist's ground, and a survival player there could dig through the vault's walls or the den's)
+    second.append('execute as @a[gamemode=survival] at @s if dimension bm:gutter run function bm:p74/vault_adv')
     fn('p74/vault_adv', ['tag @s add bm.gvadv', 'gamemode adventure @s'])
     for s_ in range(70):
         if f'p70/s{s_}/enter' not in G.FUNCS: break

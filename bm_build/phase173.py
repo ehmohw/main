@@ -85,7 +85,13 @@ AR = {'cecil': ('bm.cpcd', 'wolf', 'bm.cecilpet', 'p46/pet/try_summon'),
       'pxemma': ('bm.xmcd', 'wolf', 'bm.xmpet', 'p213e/try_summon'),
       'sky': ('bm.ybcd', 'wolf', 'bm.ybpet', 'p211/try_summon'),
       'kettle': ('bm.ktcd', 'wolf', 'bm.ktpet', 'p227/try_summon'),
-      'rufus': ('bm.rucd', 'wolf', 'bm.rupet', 'p228/try_summon')}
+      'rufus': ('bm.rucd', 'wolf', 'bm.rupet', 'p228/try_summon'),
+      'henry': ('bm.hycd', 'wolf', 'bm.hypet', 'p229/try_summon'),
+      'nia': ('bm.nicd', 'wolf', 'bm.nipet', 'p230/try_summon'),
+      'gem': ('bm.cgcd', 'wolf', 'bm.cgpet', 'p231/try_summon'),
+      'batty': ('bm.ytcd', 'wolf', 'bm.ytpet', 'p232b/try_summon'),
+      'eggbert': ('bm.ebcd', 'wolf', 'bm.ebpet', 'p232e/try_summon'),
+      'count': ('bm.kncd', 'wolf', 'bm.knpet', 'p232c/try_summon')}
 AR_IDX = {w: i for i, w in enumerate(AR)}
 PET_CD = 120                       # a faint outside the vault: 2 minutes (was 5, Wilfrey's 30)
 FILTER_MAX = 5
@@ -434,7 +440,7 @@ def generate(G):
     F['load'][-1:-1] = ['scoreboard objectives add bm.orph dummy']
     G.OBJECTIVES += ['bm.orph']
     nor = 0
-    for k in ('apo', 'tul', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'kettle', 'rufus'):
+    for k in ('apo', 'tul', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'kettle', 'rufus', 'henry', 'nia', 'gem', 'batty', 'eggbert', 'count'):
         if k not in FX.FOLK: continue
         host, tag, head = FX.FOLK[k][:3]
         anyhead = re.sub(r',tag=!bm\.\w+fade', '', head)

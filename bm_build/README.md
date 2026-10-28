@@ -21,6 +21,66 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.96: Rufus for keeps, Henry and Nia, the Gem of Creativity and the Gutter Gentry
+
+Seven new followers. Each one has everything a follower has:
+- sitting poses;
+- a wardrobe of six looks (including gilded, diamond and netherite) and a rare aura;
+- a shiny look;
+- a frame, a display-case figurine and a doll from Cecil;
+- the Partner Wheel, a Raid Contract, and Queen Ava's Honours (a Champion blow and a Piercing Blow);
+- a pair with each of Bender, Mr. Capshun, Henry and Nia.
+
+- **Rufus Gnaw, rat for hire, for keeps.** The old mercenary is a full follower now, and his contract never runs out: use the Mercenary Contract once and he signs on for good.
+  - **Payday:** from his menu, pay a week's wages into his purse (4 Tokens for 7 days). Each new day he takes a day's wage. **Paid today:**
+    - his blows hit 30% harder and he's tougher;
+    - you get Luck;
+    - he scavenges twice as often;
+    - his charged **Payday Volley** is his to use.
+
+    **Unpaid**, he grumbles, but he stays and fights.
+  - **Ranks by days paid:** Veteran at 7 and Captain at 28. Each adds health and harder blows.
+  - **How he fights:** Crossbow, Blade, Dirty Trick (a smoke bomb) and Scavenge (he hands you things he found).
+  - **Bonds:** pairs with Bender, Mr. Capshun, Dennis, Leo, Tullius, Emma and Cecil. Trios: **Soldiers of Fortune** (Leo, Tullius), **Odd Jobs** (Bender, Capshun) and **The Heist Crew** (Dennis, Pistachio).
+- **Henry, the black cat** (red collar, silver tag). He's found in a village at night, watching you; offer him a fish and he's yours.
+  - **How he fights:** Swipe, Pounce, Hiss and Black Cat's Luck (Luck II for you).
+  - **Purr:** out of a fight, Regeneration and Absorption.
+  - **Night Prowler:** by night his blows hit harder, and you see in the dark beside him.
+- **Nia, the tortoiseshell, in loving memory.** On a clear, starry night with Henry beside you, a bell rings in the grass, and there she is. She was always waiting for him. Stroke her and she stays, and her bell is yours: "In loving memory of Nia".
+  - **Bell Chime:** Regeneration II for you all, and the monsters round her glow.
+  - **Knead:** out of a fight, Regeneration and a bite to eat.
+  - **Her special pairs:**
+    - **Emma:** every 30 s she curls up in Emma's lap and a shower of petals heals you all.
+    - **Queen Ava:** every 30 s a glowing tide heals you all, and you can breathe underwater.
+- **Henry and Nia's bonds:** they have a pair with every follower, like Bender and Mr. Capshun. They also have eleven trios:
+  - Two Cats and a Dog (with Bender);
+  - The Night Court (Emma, Cecil, Henry);
+  - The Autumn Court (Emma, Cecil, Nia);
+  - The Wild Pride, The Gentle Giant and The Night Hunt (with Bloo);
+  - The Queen's Garden (Emma, Ava, Nia);
+  - Playdate and The Midnight Romp (with Emma and Bender);
+  - Emma's Cats (Emma, Henry, Nia);
+  - The Fishbowl Standoff (Fishy, Henry, Nia).
+- **The Gem of Creativity.** It made every Buddy there is.
+  - **Getting it:** walk with **Mr. Capshun, Kettle and Emma** at once (the trio **The Creative Spark**), and the Gem comes down out of the sky to you, once.
+  - **It feels in text:** an emoticon floats over it and changes with its mood: `:)` `c:` `:3` `o3o` `^-^` `:o` `;(` `>:(` `<3` `-_-` and more.
+  - **Conjure:** it fights by conjuring its Buddies in 3D (Grace, Robo, Zapper, Dessa, Bubbles, Chase, Limer, Chico, Spike, Cheferoni). Each one pops out of a sparkle at a monster with its own attack.
+  - **Masterpiece (charged):** three Buddies at once.
+  - **Prism:** a flash off its facets at anything close.
+  - **Inspiration:** out of a fight, Haste and Luck for you.
+- **The Creative Forms.** Walk the Gem beside one of its Buddies and that Buddy takes on a creative form: it sparkles in the Gem's colours, and the two of them give you something nobody else does. The Buddies with a form are Fishy, Batty, Eggbert, the Count, Mr. Capshun, the Sky Buddies and Kettle. Emma, Queen Ava, Democratus, KillerWatt and Queen Pearl have one too. And Bender just chases its sparkles (**Fetch the Rainbow**).
+- **The Gutter Gentry, reformed: Batty, Eggbert and the Count.** The Gem made them too, but the Gutter made them outlaws, and you're their second chance.
+  - **Getting them:** each win over the Gutter Gentry leaves one of them a Calling Token: Batty's first, then Eggbert's, then the Count's. Use it and he answers.
+  - **Their chibi costume:** each has one, as his second form (from the menu).
+  - **Batty:** Bite, Screech, Wing Gust and Night Flight.
+  - **Eggbert:** Claw, Goo (thrown), Ooze Spill and Yolk.
+  - **The Count:** Cane, Bloblings, A Gentleman's Duel and Noblesse Oblige.
+  - **All three at once:** **The Gutter Gentry, Reformed** gives you Strength, Speed and Luck. Every 20 s the Gentry also ambush the monsters round you.
+- **Adventure mode across the whole Gutter.** The den, the lobby before a heist starts, a crewmate left waiting: anyone in survival there is put in adventure, so nobody can dig through the vault's walls. You're back in survival when you leave.
+- **Fixed under the hood:**
+  - The Fixer's Ledger, the Recruiter and the Tailor ran out of button codes with the new followers; each has a new block now.
+  - Recoloured animated textures (the Gem's looks and shiny) now keep their animation.
+
 ## New in 2.95f: Emma's Axe Roll
 
 - **Emma's Piercing Blow is now the Axe Roll.** She dashes in, leaps into the air in a tucked somersault with her axe held overhead in both hands, and slams it down on the monster: 14 armour-piercing damage. Anything standing round it is caught in a shockwave of petals (4 more).

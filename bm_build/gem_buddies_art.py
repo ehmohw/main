@@ -283,7 +283,7 @@ def mo(p, pv):
 
 # ==================================================================================================== GRACE - the hummingbird
 def grace():
-    R = Rig('gb_grace_', 1.0)
+    R = Rig('gz_grace_', 1.0)
     G, GD, HEAD, PINK, PINKL, BEAK, INK = '#4e9a24', '#2c6a14', '#8cc63a', '#de5cb4', '#f2a0dc', '#3e3a34', '#162410'
     body = R.t('body', lit(tex(G, 11, 0.06), 6, 6, 4, a=70, rim=GD))
     headc = R.t('head', lit(tex(HEAD, 12, 0.05), 4.4, 4.0, 4, a=90, rim='#5a9a24', rim_a=90))
@@ -354,7 +354,7 @@ def grace():
 
 # ==================================================================================================== ROBO - the robot
 def robo():
-    R = Rig('gb_robo_', 1.0)
+    R = Rig('gz_robo_', 1.0)
     GREY, GREYD, GREYL, LINE, RED = '#9a9c9e', '#5e6062', '#c6c8ca', '#3c3e40', '#d42a1e'
     metal = R.t('metal', lit(tex(GREY, 21, 0.04), 8, 8, 4, a=70, rim='#4a4c4e'))
     dark, light_ = R.t('dark', tex(GREYD, 22, 0.04)), R.t('light', lit(tex(GREYL, 23, 0.03), 4, 8, 4, a=60))
@@ -476,7 +476,7 @@ def robo():
 
 # ==================================================================================================== ZAPPER - the lightning bolt
 def zapper():
-    R = Rig('gb_zapper_', 1.0)
+    R = Rig('gz_zapper_', 1.0)
     Y, YL, YD, INK = '#ffe11a', '#fff38a', '#e0a800', '#7a5a08'
     gold = R.t('bolt', lit(tex(Y, 31, 0.04), 6, 6, 4, a=110, rim=YD))
     hot = R.t('hot', lit(tex('#fffbe0', 32, 0.03), 6, 6, 4, a=60))
@@ -566,7 +566,7 @@ def zapper():
 
 # ==================================================================================================== DESSA - the light bulb
 def dessa():
-    R = Rig('gb_dessa_', 1.0)
+    R = Rig('gz_dessa_', 1.0)
     GL, GLD, INK = '#f6ec48', '#d8c41a', '#4a3c0a'
     glass = {None: R.t('glass', lit(tex(GL, 41, 0.03), 8, 8, 4, a=150, rim=GLD, rim_a=110)),
              'dim': R.t('glass_dim', lit(tex('#b8ac3a', 42, 0.03), 8, 8, 4, a=60)),
@@ -639,7 +639,7 @@ def dessa():
 
 # ==================================================================================================== BUBBLES - a pair of bubbles
 def bubbles():
-    R = Rig('gb_bubbles_', 1.0)
+    R = Rig('gz_bubbles_', 1.0)
     B, BL, BD, INK = '#90d6ee', '#d0f2fc', '#4aa4c4', '#2e5a68'
     skin = R.t('skin', lit(tex(B, 51, 0.03), 9.2, 8.4, 4, a=170, rim=BD))
     skin2 = R.t('skin2', lit(tex(B, 52, 0.03), 5.2, 5.2, 4, a=170, rim=BD))
@@ -702,7 +702,7 @@ def bubbles():
 
 # ==================================================================================================== CHASE - the green gummy
 def chase():
-    R = Rig('gb_chase_', 1.0)
+    R = Rig('gz_chase_', 1.0)
     G, GL, GD, INK = '#1ed23a', '#8af08a', '#0c8a22', '#0a1a0a'
     goo = R.t('goo', lit(tex(G, 61, 0.03), 6, 6, 4, a=150, rim=GD, rim_a=130))
     gloss = R.t('gloss', tex('#d8ffd8', 63, 0.02))
@@ -803,7 +803,7 @@ def chase():
 
 # ==================================================================================================== LIMER - the round fellow in his green covering
 def limer():
-    R = Rig('gb_limer_', 1.0)
+    R = Rig('gz_limer_', 1.0)
     S, SD, INK = '#cbbfb0', '#968a7c', '#16120e'
     skin = R.t('skin', lit(tex(S, 71, 0.04), 8.4, 8.8, 4, a=110, rim=SD))
 
@@ -890,7 +890,7 @@ def limer():
 
 # ==================================================================================================== CHICO - the drumstick
 def chico():
-    R = Rig('gb_chico_', 1.0)
+    R = Rig('gz_chico_', 1.0)
     M, ML, MD, INK = '#9c6a30', '#c8a448', '#5a3410', '#120a04'
     meat = R.t('meat', lit(tex(M, 81, 0.05), 8, 8, 4, a=100, hi='#e8cc6a', rim=MD))
     crisp = R.t('crisp', tex('#5e3612', 85, 0.05, spots=[('#7a4a1a', 0.1)]))
@@ -971,7 +971,7 @@ def chico():
 
 # ==================================================================================================== SPIKE - the circular saw
 def spike():
-    R = Rig('gb_spike_', 1.0)
+    R = Rig('gz_spike_', 1.0)
     BK, INK = '#2e3034', '#000000'
     hub = R.t('hub', lit(tex(BK, 91, 0.04), 7.6, 7.6, 4, a=80, rim='#0e0e10'))
     steel, steeld, steelr = R.t('steel', lit(tex('#e8e6e8', 92, 0.02), 4, 4, 4, a=60, rim='#a0a0a8')), R.t('steeld', tex('#bebdc4', 93, 0.03)), R.t('ring', tex('#8c8c94', 97, 0.03))
@@ -1054,7 +1054,7 @@ def spike():
 
 # ==================================================================================================== CHEFERONI - the pizza chef
 def cheferoni():
-    R = Rig('gb_cheferoni_', 1.0)
+    R = Rig('gz_cheferoni_', 1.0)
     CR, CRD, CH, INK = '#c8ab8e', '#a08468', '#f2e8b2', '#101010'
     crust = R.t('crust', lit(tex(CR, 101, 0.04), 4, 4, 4, a=60, rim=CRD))
     cheese = R.t('cheese', tex(CH, 102, 0.04, spots=[('#e8d68a', 0.15)]))

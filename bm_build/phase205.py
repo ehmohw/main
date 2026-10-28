@@ -60,6 +60,12 @@ ABIL = {
     'lantern': ('Pumpkin Barrage', 'a barrage of fire: 16 to monsters round him', (16, 6), 0, 'glowing 2 0', [], 'minecraft:small_flame', 'minecraft:entity.blaze.shoot'),
     'bender': ('Pounce', 'a pounce: 22 to one monster, pinned', None, 22, 'slowness 3 4', [], 'minecraft:crit', 'minecraft:entity.wolf.growl'),
     'bones': ('Riptide Frenzy', 'a frenzy of teeth: 22 to one monster; you, Dolphin\'s Grace', None, 22, 'slowness 2 1', ['dolphins_grace 10 0'], 'minecraft:bubble', 'minecraft:entity.guardian.attack'),
+    'gem': ('Masterpiece', 'a masterpiece: 16 to monsters round it; you and your followers, Haste II and Regeneration', (16, 6), 0, 'glowing 3 0', ['regeneration 8 0', 'haste 15 1'], 'minecraft:end_rod', 'minecraft:block.amethyst_block.resonate'),
+    'batty': ('Sonic Screech', 'a screech: 16 to monsters round him, dizzied', (16, 6), 0, 'nausea 5 0', [], 'minecraft:sonic_boom', 'minecraft:entity.bat.death'),
+    'eggbert': ('Ooze Flood', 'a flood of ooze: 16 to monsters round him, stuck fast', (16, 5), 0, 'slowness 4 3', [], 'minecraft:squid_ink', 'minecraft:block.honey_block.slide'),
+    'count': ('Checkmate', 'checkmate: 22 to one monster; you, Resistance', None, 22, 'weakness 5 1', ['resistance 10 0'], 'minecraft:enchanted_hit', 'minecraft:block.note_block.bell'),
+    'henry': ('Black Cat Crossing', 'he crosses its path: 22 to one monster, and it\'s cursed (slowed, weakened); you, Luck II', None, 22, 'weakness 4 1', ['luck 20 1'], 'minecraft:squid_ink', 'minecraft:entity.cat.hiss'),
+    'nia': ('Bell of the Brave', 'her bell rings out: 16 to monsters round her; you and your followers, Regeneration II', (16, 6), 0, 'glowing 3 0', ['regeneration 8 1'], 'minecraft:end_rod', 'minecraft:block.bell.use'),
     'rufus': ('Bounty Collected', 'a bounty collected: 22 to one monster, pinned; you, Luck II', None, 22, 'slowness 3 4', ['luck 20 1'], 'minecraft:crit', 'minecraft:item.crossbow.shoot'),
     'kettle': ('Tag Team', 'tag, you\'re it: you and your followers Speed II and Strength; 8 to monsters round him', (8, 5), 0, 'slowness 3 1',
                ['speed 10 1', 'strength 10 0'], 'minecraft:happy_villager', 'minecraft:entity.experience_orb.pickup'),
@@ -210,7 +216,7 @@ def generate(G):
         fn(f'p205/hit/{w}', hit)
         if own:
             fx = [f'effect give @s minecraft:{e.split()[0]} {e.split()[1]} {e.split()[2]}' for e in own]
-            if w in ('leo', 'neighbor', 'capshun', 'kettle'):     # (the whole party: your followers too)
+            if w in ('leo', 'neighbor', 'capshun', 'kettle', 'nia', 'gem'):     # (the whole party: your followers too)
                 fx += [f'execute as {host(o, "distance=..16")} if score @s bm.pid = #me bm.pid run effect give @s minecraft:{e.split()[0]} {e.split()[1]} {e.split()[2]}'
                        for o in FOL for e in own[:1]]
             fn(f'p205/own_fx/{w}', fx + [title('@s', 'actionbar', [T(nm, col, bold=True), T(' - ', 'gray'), T(name, GOLD, bold=True)])])

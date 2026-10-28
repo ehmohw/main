@@ -883,6 +883,10 @@ if __name__ == '__main__':
     phase227.rp(sys.modules[__name__])
     import phase228                           # (2.96: Rufus Gnaw)
     phase228.rp(sys.modules[__name__])
+    import phase229                           # (2.97: Henry and Nia)
+    phase229.rp(sys.modules[__name__])
+    import phase231, phase232                 # (2.98: the Gem, the Gutter Gentry)
+    phase231.rp(sys.modules[__name__]); phase232.rp(sys.modules[__name__])
     import phase210, phase211, phase212       # (2.94: the effect sprites, the Sky Buddies, Dennis's searing throws)
     phase210.rp(sys.modules[__name__]); phase211.rp(sys.modules[__name__]); phase212.rp(sys.modules[__name__])
     import phase213, phase214, phase215       # (2.94: the 8-bit trio, the pixel costumes, the 8-Bit Serpent King)
@@ -953,5 +957,13 @@ if __name__ == '__main__':
     s = build('/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP')
     import zfix                               # 2.94k: no two faces of a model fighting over one plane (zfix.py)
     print('zfix:', zfix.apply('/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP'), 'faces brought forward out of z-fighting')
+    # 2.98: a recoloured copy of an animated texture (a cosmetic _cN, a shiny) is an animated strip too - it takes its source's .mcmeta
+    import glob, re as _re, shutil
+    _rp = '/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP'
+    for _m in glob.glob(_rp + '/assets/*/textures/**/*.png.mcmeta', recursive=True):
+        _base = _m[:-len('.png.mcmeta')]
+        for _cp in glob.glob(_base + '_*.png'):
+            if _re.fullmatch(r'_(c\d+|shiny\w*|sh\w*)', _cp[len(_base):-4]) and not os.path.exists(_cp + '.mcmeta'):
+                shutil.copy(_m, _cp + '.mcmeta')
     s.save('/home/claude/bm_build/preview/rp_sheet.png')
     open(_done, 'w').write(str(sum(len(fs) for _b, _d, fs in os.walk(_done[:-5]))))

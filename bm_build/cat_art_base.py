@@ -73,6 +73,21 @@ def eyes(im, kind, iris, rim, pupil='#0c0a08', lid='#2a2420', glint='#ffffff', c
         for x in range(x0 + 1, x0 + w - 1): P(x, top - 1, lid)                   # the upper lid line
 
 
+def collar_tex(band, band_dk, tag, tag_dk, **_kw):
+    """(2.96) a collar: the band across the top (a darker stitched edge), the tag's metal in the bottom-left corner (uv 0,12-3,15)"""
+    im = Image.new('RGBA', (64, 64), hexc(band)); px = im.load()
+    for x in range(64):
+        px[x, 0] = px[x, 2] = hexc(band_dk)
+        if x % 4 == 1: px[x, 1] = hexc(band_dk)
+    for y in range(48, 64):
+        for x in range(16):
+            edge = x in (0, 15) or y in (48, 63)
+            px[x, y] = hexc(tag_dk if edge or (x + y) % 7 == 0 else tag)
+    for x, y in ((5, 52), (6, 52), (5, 53)):
+        px[x, y] = (255, 255, 255, 255)
+    return im
+
+
 # ---------------------------------------------------------------------------------------------------- the rig
 def make(prefix, look, build):
     """look(prefix) -> {texture name: image} with the keys below; build: dict(stock=1.0 (width), long=1.0, tall=1.0, scale=..)"""
@@ -93,7 +108,9 @@ def make(prefix, look, build):
         return f'{prefix}{p}{face}{suffix}'
 
     def textures():
-        return look(prefix)
+        T_ = look(prefix)
+        if 'collar' in build: T_[T('collar')] = collar_tex(**build['collar'])
+        return T_
 
     def models():
         M = {}
@@ -112,6 +129,13 @@ def make(prefix, look, build):
                    uv={'north': [0, 0, 3.0 * k, by1 - by0 - 1.0]}),
                 el((-1.5 * k, by1 - 1.5, zf - 1.02), (1.5 * k, by1 + 0.6, zf - 1.0), T('throat'), pv, faces=('north',),
                    uv={'north': [0, 0, 3.0 * k, 2.1]})]
+        if 'collar' in build:                                                     # (2.96: the collar - its own texture, so a wardrobe can recolour it)
+            cy0, cy1, cz0, cz1, cw = by1 - 1.1, by1 - 0.35, zf - 1.18, zf + 1.38, 1.7 * k + 0.16
+            body.append(el((-cw, cy0, cz0), (cw, cy1, cz1), T('collar'), pv, faces=('north', 'south', 'east', 'west', 'down', 'up'),
+                           uv={f: [0, 0, 4, 0.75] for f in ('north', 'south', 'east', 'west')} | {'down': [0, 0, 4, 2.5], 'up': [0, 0, 4, 2.5]}))
+            ts = build['collar'].get('size', 0.7); tz = cz0 - 0.32
+            body.append(el((-ts / 2, cy0 - ts * 0.85, tz), (ts / 2, cy0 + ts * 0.15, cz0 + 0.02), T('collar'), pv,
+                           uv={f: [0, 12, 3, 15] for f in ('north', 'south', 'east', 'west', 'up', 'down')}))
         part(T('body'), body)
         # ---- the head: a round skull, cheeks, the short muzzle and chin, tall pointed ears (stepped), the face painted on
         pv = PIVOT['head']; hy = PIVOT['head'][1]; hz = zf
@@ -189,7 +213,27 @@ def make(prefix, look, build):
                    tail=qs(('x', 74), ('y', 40))),
         'happy': P(_face='happy', head=qs(('z', 10)), **tail(-30, 8)),
         'hurt': P(_face='blink', _off=(0, -0.6, 0), body=qs(('x', 6)), head=qs(('x', 18)), **tail(10, 0)),
+        # (2.96) the pounce: crouched low, rear up, tail low - then the leap, front paws out
+        'pounce_up': P(_face='alert', _off=(0, -1.0, 0.6), body=qs(('x', 9)), head=qs(('x', -12)), legfr=L(34), legfl=L(30), legbr=L(-24), legbl=L(-28), **tail(-34, 4)),
+        'pounce': P(_face='alert', _off=(0, 2.4, -1.4), body=qs(('x', -10)), head=qs(('x', 6)), legfr=L(80), legfl=L(74), legbr=L(-58), legbl=L(-62), **tail(-6, 0)),
+        # cuddling up: sitting, the head tilted and rubbing
+        'cuddle': P(_face='happy', _off=(0, -2.4, 3.2), body=qs(('x', -40)), head=qs(('x', 30), ('z', 22), ('y', -10)), legfr=L(-40), legfl=L(-40), legbr=L(88), legbl=L(88),
+                    tail=qs(('x', 74), ('y', 40))),
+        # asleep: curled up, the head tucked round to the tail
+        'sleep': P(_face='blink', _off=(0, -5.0, 0), _hide=('legfr', 'legfl', 'legbr', 'legbl'), head=qs(('x', 20), ('y', 34), ('z', 10)), tail=qs(('y', 140), ('x', 30))),
+        # the hiss: up tall on stiff legs, the head down and forward, tail straight up
+        'hiss': P(_face='alert', _off=(0, 0.6, 0), body=qs(('x', 4)), head=qs(('x', 14)), legfr=L(-6), legfl=L(-6), legbr=L(6), legbl=L(6), **tail(70, 0)),
+        # kneading: in the loaf, the front paws working up and down
+        **{f'knead_{c}': P(_face='happy', _off=(0, -4.8, 0), _hide=('legbr', 'legbl'), legfr=L(108 if c == 'a' else 84), legfl=L(84 if c == 'a' else 108),
+                           head=qs(('x', 4)), tail=qs(('y', 110), ('x', 24))) for c in 'ab'},
     }
-    DRAFT = ['idle_a', 'idle_b', 'walk_1', 'walk_3', 'run_1', 'jump', 'swipe_up', 'swipe', 'sit_a', 'sit_b', 'lie', 'groom']
+    POSES['knead'] = POSES['knead_a']
+    SWIM_FRAMES = 8
+    for i in range(SWIM_FRAMES):                                                 # (paddling: level, low in the water, head up)
+        a = s(2 * math.pi * i / SWIM_FRAMES)
+        POSES[f'swim_{i}'] = P(_off=(0, -3.6 + 0.2 * a, 0), head=qs(('x', -22)), legfr=L(30 + 40 * a), legfl=L(30 - 40 * a),
+                               legbr=L(-20 - 30 * a), legbl=L(-20 + 30 * a), **tail(-4, 10 * a))
+    DRAFT = ['idle_a', 'idle_b', 'walk_1', 'walk_3', 'run_1', 'jump', 'swipe_up', 'swipe', 'sit_a', 'sit_b', 'lie', 'groom',
+             'pounce_up', 'pounce', 'cuddle', 'sleep', 'hiss', 'knead_a', 'knead_b', 'swim_0', 'swim_2', 'swim_4', 'swim_6']
     return dict(PREFIX=prefix, PIVOT=PIVOT, PARENT=PARENT, PARTS=tuple(PIVOT), PART_K={}, FACES=FACES, POSES=POSES, DRAFT=DRAFT,
-                HIDDEN=HIDDEN, model_name=model_name, models=models, textures=textures, RIG_SCALE=build.get('scale', 1.0), UP=(0.0, 1.0, 0.0), FRONT=FRONT)
+                HIDDEN=HIDDEN, model_name=model_name, models=models, textures=textures, SWIM_FRAMES=SWIM_FRAMES, RIG_SCALE=build.get('scale', 1.0), UP=(0.0, 1.0, 0.0), FRONT=FRONT)

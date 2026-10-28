@@ -192,8 +192,14 @@ import phase223 as R223      # 2.94u: signature moves (Emma, Leo, Celi, Democrat
 import phase224 as R224      # 2.94u: signature moves for the rest of the fighters
 import phase225 as R225      # 2.94x: the Smuggler's Waytoken (the Fence) - to a market of your choosing and back
 import phase226 as R226      # 2.95c: the Piercing Blow - every Champion's armour-piercing move
-import phase228 as R228      # 2.96: Rufus Gnaw, rat for hire - for keeps (the Mercenary Contract)
 import phase227 as R227      # 2.95d: Kettle, the first Buddy (Kettle's Paper Plane) - tag, paper planes, kickball, cartwheels, RECESS!
+import phase228 as R228      # 2.96: Rufus Gnaw, rat for hire - for keeps (the Mercenary Contract)
+import phase231 as R231      # 2.98: the Gem of Creativity - the follower (it conjures its Buddies; it feels in text)
+import phase232 as R232      # 2.98: the Gutter Gentry, reformed - Batty, Eggbert and the Count
+import phase233 as R233      # 2.98: the Creative Forms - a pair with the Gem for every Buddy (and five more)
+import phase229 as R229      # 2.97: Henry and Nia, the owner's cats (Henry's Collar Tag, Nia's Bell)
+R233.add_pairs()             # 2.98: the Creative Forms
+R229.add_pairs()             # 2.97: the cats' pairs with everyone - after every follower is imported
 import atk                   # 2.94u: the attack kit - impact and hit-stop on every follower blow
 import phase221 as R221      # 2.94t: shiny followers - one summon in a hundred, trying something new today
 import phase202 as R202      # 2.92: the kingdom's armoury - Leo's Aegis, Emma's Crescent, Tidewarden and Pearlguard, Tide Scales (kingdom_art.py)
@@ -228,7 +234,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.95f'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.96'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1341,6 +1347,9 @@ def build(out_dir):
     if PHASE2: R198.generate_early(sys.modules[__name__])
     if PHASE2: R227.generate_early(sys.modules[__name__])
     if PHASE2: R228.generate_early(sys.modules[__name__])
+    if PHASE2: R229.generate_early(sys.modules[__name__])
+    if PHASE2: R231.generate_early(sys.modules[__name__])
+    if PHASE2: R232.generate_early(sys.modules[__name__])
     if PHASE2: R211.generate_early(sys.modules[__name__])
     if PHASE2: R213.generate_early(sys.modules[__name__])
     if PHASE2: R199.generate_early(sys.modules[__name__])
@@ -1394,6 +1403,9 @@ def build(out_dir):
     if PHASE2: R198.generate(sys.modules[__name__])
     if PHASE2: R227.generate(sys.modules[__name__])      # 2.95d: Kettle
     if PHASE2: R228.generate(sys.modules[__name__])      # 2.96: Rufus
+    if PHASE2: R229.generate(sys.modules[__name__])      # 2.97: Henry and Nia
+    if PHASE2: R231.generate(sys.modules[__name__])      # 2.98: the Gem
+    if PHASE2: R232.generate(sys.modules[__name__])      # 2.98: the Gutter Gentry
     if PHASE2: R210.generate(sys.modules[__name__])
     if PHASE2: R211.generate(sys.modules[__name__])
     if PHASE2: R212.generate(sys.modules[__name__])

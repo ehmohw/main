@@ -27,7 +27,7 @@ const res = [];
              ['emma', 'Emma', 'emma_ribbon', 'cat', 'bm.emmapet', 'bm.emcd', 'emma'], ['kw', 'KillerWatt', 'kw_spark', 'wolf', 'bm.kxpet', 'bm.kxcd', 'killerwatt'],
              ['frog', 'the Frog', 'frog_signet', 'wolf', 'bm.frogpet', 'bm.fgcd', 'frog'],
              ['bender', 'Bender', 'bv_ball', 'wolf', 'bm.bvpet', 'bm.bvcd', 'bender'], ['leo', 'Leo', 'leo_crest', 'wolf', 'bm.leopet', 'bm.lecd', 'leo']];
-  const ASSAULT = ['emma', 'rufus', 'bender', 'leo', 'bloo', 'bones', 'demo', 'chef', 'tul'];
+  const ASSAULT = ['emma', 'rufus', 'henry', 'nia', 'bender', 'leo', 'bloo', 'bones', 'demo', 'chef', 'tul'];
   if (process.env.ALL) K.push(
     ['celi', 'celi', 'celi_charm', 'wolf', 'bm.celipet', 'bm.cecd', 'celi'],
     ['zib', 'zib', 'donadian_medal', 'wolf', 'bm.zibpet', 'bm.zbcd', 'zib'],
@@ -54,7 +54,13 @@ const res = [];
     ['pxemma', 'pxemma', 'cart_emma', 'wolf', 'bm.xmpet', 'bm.xmcd', 'pxemma'],
     ['sky', 'sky', 'sky_mobile', 'wolf', 'bm.ybpet', 'bm.ybcd', 'sky'],
     ['kettle', 'Kettle', 'kettle_plane', 'wolf', 'bm.ktpet', 'bm.ktcd', 'kettle'],
-    ['rufus', 'Rufus Gnaw', 'merc_contract', 'wolf', 'bm.rupet', 'bm.rucd', 'rufus']);
+    ['rufus', 'Rufus Gnaw', 'merc_contract', 'wolf', 'bm.rupet', 'bm.rucd', 'rufus'],
+    ['henry', 'Henry', 'henry_tag', 'wolf', 'bm.hypet', 'bm.hycd', 'henry'],
+    ['nia', 'Nia', 'nia_bell', 'wolf', 'bm.nipet', 'bm.nicd', 'nia'],
+    ['gem', 'The Gem of Creativity', 'creativity_gem', 'wolf', 'bm.cgpet', 'bm.cgcd', 'gem'],
+    ['batty', 'Batty', 'gentry_batty', 'wolf', 'bm.ytpet', 'bm.ytcd', 'batty'],
+    ['eggbert', 'Eggbert', 'gentry_eggbert', 'wolf', 'bm.ebpet', 'bm.ebcd', 'eggbert'],
+    ['count', 'The Count', 'gentry_count', 'wolf', 'bm.knpet', 'bm.kncd', 'count']);
   const after_ = async (w, H) => {
     await run(`${O}kill @e[type=minecraft:zombie,tag=bm.t289foe]`);
     const home = K.find(k => k[0] === w)[6];

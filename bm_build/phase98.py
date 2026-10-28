@@ -41,9 +41,10 @@ CODE = 7900                       # (the ledger's: followers 7900+, vault hires 
 
 
 def ccode(i):
-    """(2.87) a called follower's ledger code: the first twenty 7900-7919, the rest 7884-7898 (7920 on are the vault hires)"""
-    assert i < 35, i
-    return CODE + i if i < 20 else 7884 + (i - 20)
+    """(2.87) a called follower's ledger code: the first twenty 7900-7919, the next fifteen 7884-7898 (7920 on are the vault hires),
+    then (2.98) 7986-7999"""
+    assert i < 49, i
+    return CODE + i if i < 20 else 7884 + (i - 20) if i < 35 else 7986 + (i - 35)
 VAULT = '#e8b8ff'
 
 
@@ -55,20 +56,23 @@ def generate(G):
     fn, wjson, title, tellraw, give, PREFIX = G.fn, G.wjson, G.title, G.tellraw, G.give, G.PREFIX
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     tick, fast, second = [], [], []
-    objs = ['bm.crew', 'bm.crewoff', 'bm.eskl']
+    objs = ['bm.crew', 'bm.crewoff', 'bm.crewoff2', 'bm.eskl']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
     P = PREFIX
     BIT = P89.BIT
     init = ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
             'execute unless score @s bm.fcon matches 0.. run scoreboard players set @s bm.fcon 0', 'execute unless score @s bm.fcon2 matches 0.. run scoreboard players set @s bm.fcon2 0', 'execute unless score @s bm.crew matches 0.. run scoreboard players set @s bm.crew 0',
-            'execute unless score @s bm.crewoff matches 0.. run scoreboard players set @s bm.crewoff 0']
+            'execute unless score @s bm.crewoff matches 0.. run scoreboard players set @s bm.crewoff 0', 'execute unless score @s bm.crewoff2 matches 0.. run scoreboard players set @s bm.crewoff2 0']
     fn('p98/init', init)
     def bit(obj, b):
         return [f'scoreboard players operation #q bm.rng = @s {obj}', f'scoreboard players set #bit bm.rng {b}',
                 'scoreboard players operation #q bm.rng /= #bit bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng']
-    OFF = {k: 2 ** i for i, (k, *_r) in enumerate(CALLED)}
+    OFF = {k: 2 ** i for i, (k, *_r) in enumerate(CALLED) if i < 31}
     OFF.update({k: 2 ** (12 + j) for j, (k, *_r) in enumerate(HIRED)})
+    # (2.96: past the 31st follower the bits go on in a second score, bm.crewoff2)
+    OFF2 = {k: 2 ** (i - 31) for i, (k, *_r) in enumerate(CALLED) if i >= 31}
+    off_obj = lambda k: ('bm.crewoff2', OFF2[k]) if k in OFF2 else ('bm.crewoff', OFF[k])
     FILED = {k: 2 ** j for j, (k, *_r) in enumerate(HIRED)}
     FILED.update({i: 2 ** (1 + i) for i in P77.HIRE})
     in_heist = 'execute if entity @s[tag=bm.gvp] if dimension bm:gutter'
@@ -78,12 +82,12 @@ def generate(G):
         return f'@e[type=minecraft:{host},tag={tag}{extra}]'
     for k, nm, col, host, tag, sel, cd, try_, dis, rec, go in CALLED:
         fn(f'p98/signed/{k}', bit(*P89.fobj(k)) + ['return run scoreboard players get #q bm.rng'])
-        fn(f'p98/on/{k}', [f'execute unless function bm:p98/signed/{k} run return 0'] + bit('bm.crewoff', OFF[k]) +
+        fn(f'p98/on/{k}', [f'execute unless function bm:p98/signed/{k} run return 0'] + bit(*off_obj(k)) +
            ['execute if score #q bm.rng matches 1 run return 0', 'return 1'])
         fn(f'p98/has/{k}', [f'execute as {mine(host, tag)} if score @s bm.pid = #me bm.pid run return 1', 'return 0'])
     for k, nm, col, tag, cd in HIRED:
         fn(f'p98/filed/{k}', bit('bm.crew', FILED[k]) + ['return run scoreboard players get #q bm.rng'])
-        fn(f'p98/on/{k}', [f'execute unless function bm:p98/filed/{k} run return 0'] + bit('bm.crewoff', OFF[k]) +
+        fn(f'p98/on/{k}', [f'execute unless function bm:p98/filed/{k} run return 0'] + bit(*off_obj(k)) +
            ['execute if score #q bm.rng matches 1 run return 0', 'return 1'])
         fn(f'p98/has/{k}', [f'execute as {mine("wolf", tag, ",tag=bm.fvault")} if score @s bm.pid = #me bm.pid run return 1', 'return 0'])
     for i in P77.HIRE:
@@ -224,19 +228,19 @@ def generate(G):
     # (the clicks)
     for i, (k, nm, col, host, tag, sel, cd, *_r) in enumerate(CALLED):
         fn(f'p98/t/{k}', ['function bm:p98/init', f'execute unless function bm:p98/signed/{k} run return run ' +
-                          say(f'No contract for {nm} yet - Goldtooth sells Raid Contracts in the den.', col)] + bit('bm.crewoff', OFF[k]) +
+                          say(f'No contract for {nm} yet - Goldtooth sells Raid Contracts in the den.', col)] + bit(*off_obj(k)) +
            [f'execute if score #q bm.rng matches 0 run return run function bm:p98/t/{k}_off', f'function bm:p98/t/{k}_on'])
-        fn(f'p98/t/{k}_off', [f'scoreboard players add @s bm.crewoff {OFF[k]}', f'{in_heist} run function bm:p98/home/{k}',
+        fn(f'p98/t/{k}_off', [f'scoreboard players add @s {off_obj(k)[0]} {off_obj(k)[1]}', f'{in_heist} run function bm:p98/home/{k}',
                               say(f'{nm}: OFF - stays home on heists.', col), 'function bm:p98/crew'])
-        fn(f'p98/t/{k}_on', [f'scoreboard players remove @s bm.crewoff {OFF[k]}', f'{in_heist} unless score @s {cd} matches 1.. run function bm:p98/call/{k}',
+        fn(f'p98/t/{k}_on', [f'scoreboard players remove @s {off_obj(k)[0]} {off_obj(k)[1]}', f'{in_heist} unless score @s {cd} matches 1.. run function bm:p98/call/{k}',
                              say(f'{nm}: ON - comes along on heists.', col), 'function bm:p98/crew'])
     for j, (k, nm, col, tag, cd) in enumerate(HIRED):
         fn(f'p98/t/{k}', ['function bm:p98/init', f'execute unless function bm:p98/filed/{k} run return run ' +
-                          say(f'No contract for {nm} filed - Goldtooth sells them; use it once.', col)] + bit('bm.crewoff', OFF[k]) +
+                          say(f'No contract for {nm} filed - Goldtooth sells them; use it once.', col)] + bit(*off_obj(k)) +
            [f'execute if score #q bm.rng matches 0 run return run function bm:p98/t/{k}_off', f'function bm:p98/t/{k}_on'])
-        fn(f'p98/t/{k}_off', [f'scoreboard players add @s bm.crewoff {OFF[k]}', f'{in_heist} run function bm:p98/home/{k}',
+        fn(f'p98/t/{k}_off', [f'scoreboard players add @s {off_obj(k)[0]} {off_obj(k)[1]}', f'{in_heist} run function bm:p98/home/{k}',
                               say(f'{nm}: OFF - stays home on heists.', col), 'function bm:p98/crew'])
-        fn(f'p98/t/{k}_on', [f'scoreboard players remove @s bm.crewoff {OFF[k]}', f'{in_heist} run function bm:p98/call/{k}',
+        fn(f'p98/t/{k}_on', [f'scoreboard players remove @s {off_obj(k)[0]} {off_obj(k)[1]}', f'{in_heist} run function bm:p98/call/{k}',
                              say(f'{nm}: ON - signs on for every heist.', col), 'function bm:p98/crew'])
     for i, (hk, hnm, rat, hcol, *_r) in P77.HIRE.items():
         fn(f'p98/t/h{i}', ['function bm:p98/init', f'execute unless function bm:p98/filed/h{i} run return run ' +
