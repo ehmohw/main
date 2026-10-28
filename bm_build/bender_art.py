@@ -229,9 +229,12 @@ POSES = {
     'sit_a': P(_off=(0, -3.4, 2.0), body=qs(('x', -30)), head=qs(('x', 26)), legfr=L(-30), legfl=L(-30), legbr=L(84), legbl=L(84), tail=qs(('x', 60))),
     'sit_b': P(_face='happy', _off=(0, -3.4, 2.0), body=qs(('x', -30)), head=qs(('x', 24), ('z', 14)), legfr=L(-30), legfl=L(-30), legbr=L(84), legbl=L(84), tail=qs(('x', 60), ('y', 20))),
     # lying down (the second photo): chest down, front legs out, head up and turned
-    'lie': P(_off=(0, -6.8, 0), legfr=L(84), legfl=L(84), legbr=L(-84), legbl=L(-84), head=qs(('y', 30), ('x', -4)), tail=qs(('x', 20), ('y', 40))),
+    'lie': P(_off=(0, -5.55, 0), legfr=L(84), legfl=L(84), legbr=L(-84), legbl=L(-84), head=qs(('y', 30), ('x', -4)), tail=qs(('x', 20), ('y', 40))),
+    # (2.96c) asleep: lying down, his head laid on his front paws, eyes shut, his tail curled round
+    'sleep': P(_face='blink', _off=(0, -5.55, 0), legfr=L(84), legfl=L(84), legbr=L(-84), legbl=L(-84), head=qs(('x', 26)), tail=qs(('x', 20), ('y', 60))),
+    'sleep_b': P(_face='blink', _off=(0, -5.7, 0), legfr=L(84), legfl=L(84), legbr=L(-84), legbl=L(-84), head=qs(('x', 27)), tail=qs(('x', 20), ('y', 62))),
     'hurt': P(_face='blink', _off=(0, -0.6, 0), body=qs(('x', 6)), head=qs(('x', 18)), tail=qs(('x', 30))),
-    'tired': P(_face='blink', _off=(0, -6.8, 0), legfr=L(84), legfl=L(84), legbr=L(-84), legbl=L(-84), head=qs(('x', 20)), tail=qs(('x', 20))),
+    'tired': P(_face='blink', _off=(0, -5.55, 0), legfr=L(84), legfl=L(84), legbr=L(-84), legbl=L(-84), head=qs(('x', 20)), tail=qs(('x', 20))),
 }
 # 2.93b RAGE: latched on a monster's head, mauling (nose down, front paws gripping, tail up and lashing); the backflip off it
 # (the whole dog turned over backwards about his middle, legs tucked); the landing (a crouch to take it)

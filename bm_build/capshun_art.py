@@ -256,6 +256,10 @@ POSES = {
     # ...and hugging his knees
     'sit_b': P(_face='blink', body=qs(('x', 8)), legr=limb(1, 118, 6), shinr=limb(1, -128), legl=limb(-1, 118, 6), shinl=limb(-1, -128),
                armr=limb(1, 84, 10), forer=limb(1, 30, -20), arml=limb(-1, 84, 10), forel=limb(-1, 30, -20), head=qs(('x', 14), ('z', -4))),
+    # (2.96c) riding Bender: astride his back, his legs straddling down either side of him (out, then straight down past his flanks),
+    #  his hands forward on Bender's shoulders - the pencil still in his right
+    'ride': P(_face='happy', body=qs(('x', -4)), head=qs(('z', 4)), legr=limb(1, 26, 70), shinr=limb(1, -16, -54), legl=limb(-1, 26, 70), shinl=limb(-1, -16, -54),
+              armr=limb(1, 40, 30), forer=limb(1, 36), arml=limb(-1, 40, 30), forel=limb(-1, 36)),
     'hurt': P(_face='surprised', body=qs(('x', -10)), head=qs(('x', -10)), armr=limb(1, 20, 60), forer=limb(1, 0, 40), arml=limb(-1, 20, 60), forel=limb(-1, 0, 40)),
     'tired': P(_face='blink', _off=(0, -0.6, 0), body=qs(('x', 16), ('z', -6)), head=qs(('x', 22)), armr=limb(1, 0, 2), forer=limb(1, 4), arml=limb(-1, 0, 2), forel=limb(-1, 4)),
 }

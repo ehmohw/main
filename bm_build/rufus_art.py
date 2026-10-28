@@ -312,6 +312,9 @@ POSES = {
     'sit_b': P(_off=(0, -2.4, 0.8), _face='shade', body=qs(('x', -34)), head=qs(('x', 14)), legr=limb(1, 62, -4), legl=limb(-1, 52, -6, -10),
                footr=qs(('x', -30)), footl=qs(('x', -20)),
                armr=limb(1, -50, 18), forer=limb(1, -20), arml=limb(-1, -50, 18), forel=limb(-1, -20), _tool='none', tail=qs(('y', 50), ('x', 70))),
+    # (2.96c) riding Bender: astride, his short legs gripping either side, paws on the scruff, tail out behind for balance
+    'ride': P(_face='grin', _tool='none', legr=limb(1, 40, 46), legl=limb(-1, 40, 46), footr=qs(('x', -30)), footl=qs(('x', -30)),
+              armr=limb(1, 60, 6), forer=limb(1, 30), arml=limb(-1, 60, 6), forel=limb(-1, 30), head=qs(('x', 6)), tail=qs(('x', 50), ('y', 0))),
     'hurt': P(_face='hurt', _off=(0, 0, 0.4), body=qs(('x', -12)), head=qs(('x', -14)), armr=limb(1, 30, 30), forer=limb(1, 20), arml=limb(-1, 30, 30), forel=limb(-1, 20),
               legr=limb(1, 14), legl=limb(-1, -8), **tail(0, -30)),
     # worn out: hunched, the blade point down, the head hanging

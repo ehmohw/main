@@ -87,6 +87,16 @@ B = {
     'count': (('The Count\'s Cat', (('strength', 0), ('luck', 0)), '"A black cat! How dreadfully gothic. I approve."', '(Henry sits in the Count\'s hat)'),
               ('Afternoon Tea', (('regeneration', 0), ('resistance', 0)), '"Would the lady care for a saucer of milk?"', '(the lady would)')),
 }
+# (2.96c) Nia is the gentle one - a support follower: her side of every pair looks after you. Each keeps Regeneration, and
+# nothing of hers makes you hit harder (Strength becomes Resistance; Haste, Absorption)
+_SOFT = {'strength': 'resistance', 'haste': 'absorption'}
+for _w, (_h, (_nn, _fx, _nl, _na)) in list(B.items()):
+    _fx = tuple((_SOFT.get(e, e), a) for e, a in _fx)
+    if not any(e == 'regeneration' for e, _a in _fx):
+        _fx = (('regeneration', 0),) + _fx
+    _seen = []
+    _fx = tuple(x for x in _fx if not (x[0] in _seen or _seen.append(x[0])))
+    B[_w] = (_h, (_nn, _fx, _nl, _na))
 # (the two of them, together - and the special ones)
 TOGETHER = ('Together Again', (('regeneration', 1), ('luck', 0), ('speed', 0)), '(Henry trots up to Nia and touches his nose to hers)', '(Nia purrs, and curls her tail round his)')
 SPECIAL = {'emma': 'p230/sp/emma', 'ava': 'p230/sp/ava'}
@@ -96,8 +106,8 @@ TRIOS = {
     'cat_pack': ('Two Cats and a Dog', '#b8a8ff', ('henry', 'bender', 'nia'), (('speed', 0), ('regeneration', 0), ('luck', 0))),
     'night_court': ('The Night Court', '#9a9ab8', ('emma', 'cecil', 'henry'), (('night_vision', 0), ('regeneration', 0), ('haste', 0))),
     'autumn_court': ('The Autumn Court', '#e0a050', ('emma', 'cecil', 'nia'), (('regeneration', 0), ('haste', 0), ('luck', 0))),
-    'wild_pride': ('The Wild Pride', '#5a9ae8', ('bloo', 'henry', 'nia'), (('strength', 0), ('regeneration', 0), ('speed', 0))),
-    'gentle_giant': ('The Gentle Giant', '#7aa8e8', ('bloo', 'nia', 'bender'), (('strength', 0), ('regeneration', 0), ('resistance', 0))),
+    'wild_pride': ('The Wild Pride', '#5a9ae8', ('bloo', 'henry', 'nia'), (('strength', 0), ('regeneration', 0), ('resistance', 0))),
+    'gentle_giant': ('The Gentle Giant', '#7aa8e8', ('bloo', 'nia', 'bender'), (('regeneration', 1), ('resistance', 0), ('absorption', 0))),
     'night_hunt': ('The Night Hunt', '#4a5a9a', ('bloo', 'bender', 'henry'), (('strength', 0), ('speed', 0), ('night_vision', 0))),
     'queens_garden': ("The Queen's Garden", '#6ad8e8', ('emma', 'ava', 'nia'), (('regeneration', 1), ('water_breathing', 0), ('absorption', 0))),
     'playdate': ('Playdate', '#ff8ad8', ('emma', 'bender', 'nia'), (('speed', 0), ('regeneration', 0), ('jump_boost', 0))),

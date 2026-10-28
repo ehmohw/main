@@ -255,6 +255,9 @@ POSES = {
     # ...and lying back, watching the clouds
     'sit_b': P(_face='happy', body=qs(('x', -80)), head=qs(('x', 10)), legr=limb(1, 90, 6), shinr=limb(1, 0), legl=limb(-1, 70, 6), shinl=limb(-1, 30),
                armr=limb(1, -150, 10), forer=limb(1, -60), arml=limb(-1, -150, 10), forel=limb(-1, -60)),
+    # (2.96c) riding Bender: astride, legs down either side, one hand on Bender's neck - the other up in the air: WHEEE
+    'ride': P(_face='grin', _tool='none', body=qs(('x', -6)), head=qs(('z', -6)), legr=limb(1, 26, 70), shinr=limb(1, -16, -54), legl=limb(-1, 26, 70), shinl=limb(-1, -16, -54),
+              armr=limb(1, 0, 150), forer=limb(1, 0, 20), arml=limb(-1, 40, 30), forel=limb(-1, 36)),
     'hurt': P(_face='surprised', body=qs(('x', -10)), head=qs(('x', -10)), armr=limb(1, 20, 60), forer=limb(1, 0, 40), arml=limb(-1, 20, 60), forel=limb(-1, 0, 40)),
     'tired': P(_face='blink', _off=(0, -0.6, 0), body=qs(('x', 16), ('z', -6)), head=qs(('x', 22)), armr=limb(1, 0, 2), forer=limb(1, 4), arml=limb(-1, 0, 2), forel=limb(-1, 4)),
 }

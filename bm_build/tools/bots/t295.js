@@ -1,13 +1,15 @@
 // 2.97: NIA, the owner's tortoiseshell (in loving memory), as a regular (non-op) player - the owner's checklist (rigpet_t). Henry
 // called with his tag; on a clear night under the open sky (rcon: the night, the clear sky, and the roll come up) a bell rings in the
 // grass and Henry runs to her - she was always waiting for him; stroked (right-click), she stays, and leaves her bell (Nia's
-// Bell) - "In loving memory of Nia". Her ways: SWIPE, POUNCE, HISS, BELL CHIME (her bell: Regeneration II for you; the monsters
-// round her glow), KNEAD (out of a fight: Regeneration and a bite), STARLIGHT. Her special pairs: with Emma, every 30 s she
+// Bell) - "In loving memory of Nia". Her ways (2.96c: a gentle support follower - she almost never scratches): COMFORT (you hurt,
+// in a fight: Regeneration), GUARDIAN CURL (you at a third of your health: Resistance II, Absorption), BELL CHIME (Regeneration II
+// for you; the monsters round her glow - unhurt), SHOO (two foes close: pushed back and slowed, unhurt), GENTLE PAWS (a monster
+// beside her that hasn't hurt her isn't scratched), KNEAD (out of a fight: Regeneration and a bite), STARLIGHT. Her special pairs: with Emma, every 30 s she
 // curls up in Emma's lap - petals heal you all (Absorption II); with Queen Ava, a glowing tide (Water Breathing). Then the list.
 const runT = require('./rigpet_t');
 runT({ W: 'nia', NAME: 'Nia', ab: 'ni', q: 'nq', pfx: 'p230', prefix: 'ni_', item: 'nia_bell', parts: 7, figParts: 7, hp: 30, X: 17500, Z: 16000, pron: 'her',
   called: /winds round your legs|a bell jingles/, home: /pads off under the stars/, sit: /tucks her paws in/, stand: /uncurls, stretches/,
-  ways: ['Swipe', 'Pounce', 'Hiss', 'Bell Chime', 'Knead', 'Starlight'],
+  ways: ['Comfort', 'Guardian Curl', 'Bell Chime', 'Shoo', 'Gentle Paws', 'Knead', 'Starlight'],
   plain: 'Her lilac collar', looks: ['Rose Collar', 'Sky Collar', 'Mint Collar'], lookPart: 'body',
   encounter: async ({ A, run, ok, wait, O, cnt, at, entOf, num, has, X, Y, Z, ENC, sleep, use }) => {
     await run('tag TestRat add bm.hymet'); await run('scoreboard players set TestRat bm.hycd 0');
@@ -33,15 +35,29 @@ runT({ W: 'nia', NAME: 'Nia', ab: 'ni', q: 'nq', pfx: 'p230', prefix: 'ni_', ite
     const hp = async (t) => num(`@e[tag=${t},limit=1]`, 'Health');
     const fxOf = async (t) => nbt(`@e[tag=${t},limit=1]`, 'active_effects');
     await run(`${O}time set noon`); await calm();
-    await zom(2.0, 0, 'bm.trps'); await run(`${O}execute at ${PET} run tp @e[tag=bm.trps] ~1.4 ~ ~`); await cd('mc', 0);
-    ok('SWIPE - a foe beside her: clawed', await wait(5000, async () => (await hp('bm.trps')) < 300));
+    const hurtMe = async (n) => { await run('effect clear TestRat'); await run(`damage TestRat ${n} minecraft:generic`); };
+    const healMe = async () => { await run('effect give TestRat minecraft:instant_health 1 4 true'); await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); };
+    await zom(2.0, 0, 'bm.trps'); await run(`${O}execute at ${PET} run tp @e[tag=bm.trps] ~1.4 ~ ~`); await run(`${O}data merge entity @e[tag=bm.trps,limit=1] {NoAI:1b}`); await cd('mc', 0);
+    await sleep(3000);
+    ok('GENTLE PAWS - a monster beside her that hasn\'t hurt her: not a scratch', (await hp('bm.trps')) >= 300, String(await hp('bm.trps')));
     await run(`${O}kill @e[tag=bm.trpz]`); await calm();
-    await run(`${O}tp ${PET} ${X} ${Y + 1} ${Z}`); await zom(6, 0, 'bm.trpp'); await cd('rc', 0);
-    ok('POUNCE - a foe 6 off: she leaps onto it', await wait(6000, async () => (await hp('bm.trpp')) < 300));
-    await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true');
-    await run(`${O}tp ${PET} ${X} ${Y + 1} ${Z}`); await zom(3, 0, 'bm.trpc'); await cd('gc', 0);
-    ok('BELL CHIME - her bell: Regeneration II for you; the monster round her glows', await wait(8000, async () => /regeneration/.test(await fx()) && /glowing/.test(await fxOf('bm.trpc'))));
-    await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await sleep(3000);   // (the charged flurry plays out first)
+    await run(`${O}tp ${PET} ${X} ${Y + 1} ${Z}`); await zom(8, 0, 'bm.trpf'); await run(`${O}data merge entity @e[tag=bm.trpf,limit=1] {NoAI:1b}`);
+    await at(X + 0.5, Y + 1, Z - 1.5, 0, 10); await hurtMe(4); await cd('sc', 0);
+    ok('COMFORT - you hurt, in a fight: she purrs against you - Regeneration', await wait(6000, async () => /regeneration/.test(await fx())));
+    await healMe(); await calm();
+    await hurtMe(15); await cd('bc', 0);
+    ok('GUARDIAN CURL - you at a third of your health: she curls round your feet - Resistance and Absorption',
+       await wait(7000, async () => /resistance/.test(await fx()) && /absorption/.test(await fx())));
+    await healMe(); await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await sleep(2500);
+    await run(`${O}tp ${PET} ${X} ${Y + 1} ${Z}`); await zom(3, 0, 'bm.trpc'); await run(`${O}data merge entity @e[tag=bm.trpc,limit=1] {NoAI:1b}`); await cd('gc', 0);
+    ok('BELL CHIME - her bell: Regeneration II for you; the monster round her glows - and is not hurt',
+       await wait(8000, async () => /regeneration/.test(await fx()) && /glowing/.test(await fxOf('bm.trpc'))) && (await hp('bm.trpc')) >= 300);
+    await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await sleep(1500);
+    await run(`${O}tp ${PET} ${X} ${Y + 1} ${Z}`);
+    for (const [dx, dz] of [[1.5, 1], [1.5, -1]]) await zom(dx, dz, 'bm.trph');
+    await run(`${O}execute at ${PET} run tp @e[tag=bm.trph] ~1.5 ~ ~1`); await run(`${O}execute as @e[tag=bm.trph] run data merge entity @s {NoAI:1b}`); await cd('k2', 0);
+    ok('SHOO - two foes close: a soft hiss - slowed, and not hurt', await wait(6000, async () => /slowness/.test(await fxOf('bm.trph'))) && (await hp('bm.trph')) >= 300);
+    await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await sleep(1500);
     await at(X + 0.5, Y + 1, Z - 1.5, 0, 10); await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z + 0.5}`); await sleep(800);
     await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await cd('k', 0);
     ok('KNEAD - out of a fight beside you: Regeneration and a bite to eat', await wait(7000, async () => /regeneration/.test(await fx())));

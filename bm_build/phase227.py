@@ -71,6 +71,8 @@ class C(RP.Cfg):
     DUR = {'idle_a': 20, 'idle_b': 5, 'idle_c': 16, 'idle_d': 14, 'walk_0': 4, 'walk_1': 4, 'walk_2': 4, 'walk_3': 4, 'run_0': 3, 'run_1': 3, 'run_2': 3, 'run_3': 3,
            'jump': 4, 'sit_a': 20, 'sit_b': 30, 'tag_up': 3, 'tag': 2, 'throw_up': 4, 'throw': 2, 'kick_up': 4, 'kick': 2,
            'cart_0': 2, 'cart_1': 2, 'cart_2': 2, 'cart_3': 2, 'recess_a': 10, 'recess_b': 4, 'rope_a': 3, 'rope_b': 3, 'happy': 6, 'wave_a': 5, 'wave_b': 5}
+    CYCLE[16] = (None, [(0, 'ride')])                   # (2.96c: riding Bender - phase234 seats him)
+    DUR['ride'] = 6
     QUIPS = ['"Tag! You\'re it!"', '"Again! Again!"', '"Ha! Missed me!"', '"Ready or not, here I come!"', '"Last one there\'s a rotten egg!"',
              '"Look! A cloud shaped like a duck!"', '"Is it recess yet? It\'s ALWAYS recess."', '"Wanna see me do a cartwheel? Watch! WATCH!"',
              '"I bet I can jump higher than you!"', '"My plane flew SO far. Did you see? Did you see?"', '"Everybody plays! That\'s the rule."',

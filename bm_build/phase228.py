@@ -62,6 +62,8 @@ class C(RP.Cfg):
     DUR = {'idle_a': 20, 'idle_b': 14, 'idle_c': 16, 'walk_0': 4, 'walk_1': 4, 'walk_2': 4, 'walk_3': 4, 'run_0': 3, 'run_1': 3, 'run_2': 3, 'run_3': 3,
            'jump': 4, 'sit_a': 20, 'sit_b': 30, 'slash_up': 3, 'slash': 2, 'aim': 5, 'shoot': 2, 'reload': 5, 'happy': 6, 'salute': 6,
            'count_coins': 10, 'hurt': 3, 'tired': 10}
+    CYCLE[16] = (None, [(0, 'ride')])                   # (2.96c: riding Bender - phase234 seats him)
+    DUR['ride'] = 6
     QUIPS = ['"Business is business."', '"That one\'s on the house."', '"Another day, another Token."', '"Duck, boss."',
              '"I charge extra for ugly ones. That one\'s extra."', '"Never miss. Well. Rarely miss."', '"You call that a monster? I\'ve seen scarier rent."',
              '"Pay a rat, get a rat. Pay ME, get the best rat."', '"Bolts aren\'t free, you know. ...They are for you, boss."',

@@ -15,7 +15,7 @@ from PIL import Image, ImageDraw
 from phase57_art import hexc
 from rigkit import qs, el, chain
 
-FACES = ('blink', 'happy', 'alert')
+FACES = ('blink', 'happy', 'alert', 'fierce')
 FRONT = (0.0, 0.0, -1.0)
 
 
@@ -57,6 +57,17 @@ def eyes(im, kind, iris, rim, pupil='#0c0a08', lid='#2a2420', glint='#ffffff', c
             continue
         if kind == 'happy':                                                     # (content: closed, curved up)
             for i, x in enumerate(range(x0, x0 + w)): P(x, row + h // 2 - (1 if 0 < i < w - 1 else 0), lid)
+            continue
+        if kind == 'fierce':                                                    # (2.96c: narrowed, a slit pupil, the lid slanting down to the nose)
+            inner = x0 + w - 1 if x0 == cols[0] else x0
+            for y in range(row + 1, row + h - 1):
+                for x in range(x0, x0 + w):
+                    edge = x in (x0, x0 + w - 1) or y in (row + 1, row + h - 2)
+                    P(x, y, rim if edge else iris[0])
+                P(x0 + w // 2, y, pupil)
+            for i, x in enumerate(range(x0, x0 + w)):
+                drop = (i if inner == x0 + w - 1 else w - 1 - i) * 2 // w
+                P(x, row + drop, lid)
             continue
         top = row - (1 if kind == 'alert' else 0)
         for y in range(top, row + h):
@@ -200,33 +211,54 @@ def make(prefix, look, build):
            for i in range(4)},
         'jump': P(_off=(0, 3.0, 0), body=qs(('x', -18)), legfr=L(56), legfl=L(56), legbr=L(-46), legbl=L(-46), head=qs(('x', 14)), **tail(-10, 0)),
         # the swipe: up on the haunches, a front paw raised and batting
-        'swipe_up': P(_face='alert', _off=(0, -0.4, 0.6), body=qs(('x', -14)), head=qs(('x', 10)), legfr=L(96), legfl=L(10), legbr=L(10), legbl=L(10), **tail(-24, 10)),
-        'swipe': P(_face='alert', _off=(0, -0.2, -0.6), body=qs(('x', -6)), head=qs(('x', 4)), legfr=L(36), legfl=L(14), legbr=L(-8), legbl=L(-8), **tail(-24, -10)),
+        'swipe_up': P(_face='alert', _off=(0, 1.1, 0.6), body=qs(('x', -14)), head=qs(('x', 10)), legfr=L(96), legfl=L(10), legbr=L(10), legbl=L(10), **tail(-10, 10)),
+        'swipe': P(_face='alert', _off=(0, 0.6, -0.6), body=qs(('x', -6)), head=qs(('x', 4)), legfr=L(36), legfl=L(14), legbr=L(-8), legbl=L(-8), **tail(-24, -10)),
         # sitting: haunches down, front legs straight, chest up, the tail curled round the side
         'sit_a': P(_off=(0, -2.4, 3.2), body=qs(('x', -40)), head=qs(('x', 38)), legfr=L(-40), legfl=L(-40), legbr=L(88), legbl=L(88), tail=qs(('x', 74), ('y', 40))),
         # the loaf: tucked up - legs folded out of sight under her - tail wrapped along the side
-        'sit_b': P(_face='happy', _off=(0, -5.0, 0), _hide=('legfr', 'legfl', 'legbr', 'legbl'), head=qs(('x', -2)), tail=qs(('y', 118), ('x', 26))),
+        'sit_b': P(_face='happy', _off=(0, -3.55, 0), _hide=('legfr', 'legfl', 'legbr', 'legbl'), head=qs(('x', -2)), tail=qs(('y', 118), ('x', 26))),
         # lying: chest down, front paws out ahead, hind legs tucked, head up
-        'lie': P(_off=(0, -5.0, 0), _hide=('legbr', 'legbl'), legfr=L(84), legfl=L(84), head=qs(('y', 20), ('x', -2)), tail=qs(('y', 70), ('x', 22))),
+        'lie': P(_off=(0, -3.55, 0), _hide=('legbr', 'legbl'), legfr=L(84), legfl=L(84), head=qs(('y', 20), ('x', -2)), tail=qs(('y', 70), ('x', 22))),
         # grooming: sitting, a front paw raised to the mouth, the head bent down to it
         'groom': P(_face='blink', _off=(0, -2.4, 3.2), body=qs(('x', -40)), head=qs(('x', 62), ('y', 14)), legfr=L(30), legfl=L(-40), legbr=L(88), legbl=L(88),
                    tail=qs(('x', 74), ('y', 40))),
         'happy': P(_face='happy', head=qs(('z', 10)), **tail(-30, 8)),
         'hurt': P(_face='blink', _off=(0, -0.6, 0), body=qs(('x', 6)), head=qs(('x', 18)), **tail(10, 0)),
         # (2.96) the pounce: crouched low, rear up, tail low - then the leap, front paws out
-        'pounce_up': P(_face='alert', _off=(0, -1.0, 0.6), body=qs(('x', 9)), head=qs(('x', -12)), legfr=L(34), legfl=L(30), legbr=L(-24), legbl=L(-28), **tail(-34, 4)),
+        'pounce_up': P(_face='alert', _off=(0, 0.65, 0.6), body=qs(('x', 9)), head=qs(('x', -12)), legfr=L(34), legfl=L(30), legbr=L(-24), legbl=L(-28), **tail(-34, 4)),
         'pounce': P(_face='alert', _off=(0, 2.4, -1.4), body=qs(('x', -10)), head=qs(('x', 6)), legfr=L(80), legfl=L(74), legbr=L(-58), legbl=L(-62), **tail(-6, 0)),
         # cuddling up: sitting, the head tilted and rubbing
         'cuddle': P(_face='happy', _off=(0, -2.4, 3.2), body=qs(('x', -40)), head=qs(('x', 30), ('z', 22), ('y', -10)), legfr=L(-40), legfl=L(-40), legbr=L(88), legbl=L(88),
                     tail=qs(('x', 74), ('y', 40))),
         # asleep: curled up, the head tucked round to the tail
-        'sleep': P(_face='blink', _off=(0, -5.0, 0), _hide=('legfr', 'legfl', 'legbr', 'legbl'), head=qs(('x', 20), ('y', 34), ('z', 10)), tail=qs(('y', 140), ('x', 30))),
+        'sleep': P(_face='blink', _off=(0, -3.55, 0), _hide=('legfr', 'legfl', 'legbr', 'legbl'), head=qs(('x', 20), ('y', 34), ('z', 10)), tail=qs(('y', 140), ('x', 30))),
         # the hiss: up tall on stiff legs, the head down and forward, tail straight up
         'hiss': P(_face='alert', _off=(0, 0.6, 0), body=qs(('x', 4)), head=qs(('x', 14)), legfr=L(-6), legfl=L(-6), legbr=L(6), legbl=L(6), **tail(70, 0)),
         # kneading: in the loaf, the front paws working up and down
-        **{f'knead_{c}': P(_face='happy', _off=(0, -4.8, 0), _hide=('legbr', 'legbl'), legfr=L(108 if c == 'a' else 84), legfl=L(84 if c == 'a' else 108),
+        **{f'knead_{c}': P(_face='happy', _off=(0, -3.5, 0), _hide=('legbr', 'legbl'), legfr=L(108 if c == 'a' else 84), legfl=L(84 if c == 'a' else 108),
                            head=qs(('x', 4)), tail=qs(('y', 110), ('x', 24))) for c in 'ab'},
     }
+    # ---- 2.96c: Henry's flair - his flurry (swipe left, swipe right, the bite), the backflip off a foe and the landing, the
+    #  strut after; perched on Bender's back (low on splayed legs, the feet level with it), swiping from there; and the cuddle
+    #  (asleep against Bender, the breath in and out)
+    POSES.update({
+        'swipe_l': P(_face='fierce', _off=(0, 1.15, 0.6), body=qs(('x', -14), ('y', 8)), head=qs(('x', 10), ('y', -6)), legfl=L(100), legfr=L(10), legbr=L(10), legbl=L(10), **tail(-8, -14)),
+        'swipe_r': P(_face='fierce', _off=(0, 1.15, 0.6), body=qs(('x', -14), ('y', -8)), head=qs(('x', 10), ('y', 6)), legfr=L(100), legfl=L(10), legbr=L(10), legbl=L(10), **tail(-8, 14)),
+        'rake': P(_face='fierce', _off=(0, 0.7, 1.4), body=qs(('x', -30)), head=qs(('x', 22)), legfr=L(118), legfl=L(84), legbr=L(26), legbl=L(26), **tail(24, 0)),
+        'bite': P(_face='fierce', _off=(0, 0.75, -1.4), body=qs(('x', 10)), head=qs(('x', 26)), legfr=L(-24), legfl=L(-18), legbr=L(22), legbl=L(26), **tail(-40, 0)),
+        **{f'flip_{k}': P(_face='fierce', body=qs(('x', -72 * (k + 1))), head=qs(('x', 30)), legfr=L(70), legfl=L(70), legbr=L(-70), legbl=L(-70), tail=qs(('x', 60)))
+           for k in range(4)},
+        'land': P(_off=(0, 0.2, 0), body=qs(('x', 6)), head=qs(('x', -10)), legfr=L(36), legfl=L(36), legbr=L(-40), legbl=L(-40), **tail(-30, 0)),
+        'strut': P(_face='happy', _off=(0, 0.5, 0), head=qs(('x', -14), ('z', 6)), legfr=L(-4), legfl=L(8), legbr=L(-6), legbl=L(4), tail=qs(('x', 78), ('y', 10))),
+        'perch': P(_face='alert', _off=(0, -1.15, 0), legfr=L(-36), legfl=L(-36), legbr=L(40), legbl=L(40), head=qs(('x', -6)), tail=qs(('y', 60), ('x', 40))),
+        'perch_l': P(_face='fierce', _off=(0, -1.75, 0), body=qs(('x', -20), ('y', 10)), legfl=L(110), legfr=L(-40), legbr=L(48), legbl=L(48), head=qs(('x', 8), ('y', -8)), tail=qs(('y', 50), ('x', 34))),
+        'perch_r': P(_face='fierce', _off=(0, -1.75, 0), body=qs(('x', -20), ('y', -10)), legfr=L(110), legfl=L(-40), legbr=L(48), legbl=L(48), head=qs(('x', 8), ('y', 8)), tail=qs(('y', 70), ('x', 34))),
+        'perch_hop': P(_face='fierce', _off=(0, 1.6, -1.0), body=qs(('x', -16)), head=qs(('x', 8)), legfr=L(72), legfl=L(66), legbr=L(-56), legbl=L(-60), **tail(-8, 0)),
+        'sleep_b': P(_face='blink', _off=(0, -3.7, 0), _hide=('legfr', 'legfl', 'legbr', 'legbl'), head=qs(('x', 21), ('y', 34), ('z', 10)), tail=qs(('y', 142), ('x', 30))),
+    })
+    # (the cuddle on Bender's other side: the same curl, mirrored - the head tucked round towards him)
+    POSES['sleep_m'] = P(_face='blink', _off=(0, -3.55, 0), _hide=('legfr', 'legfl', 'legbr', 'legbl'), head=qs(('x', 20), ('y', -34), ('z', -10)), tail=qs(('y', -140), ('x', 30)))
+    POSES['sleep_mb'] = P(_face='blink', _off=(0, -3.7, 0), _hide=('legfr', 'legfl', 'legbr', 'legbl'), head=qs(('x', 21), ('y', -34), ('z', -10)), tail=qs(('y', -142), ('x', 30)))
     POSES['knead'] = POSES['knead_a']
     SWIM_FRAMES = 8
     for i in range(SWIM_FRAMES):                                                 # (paddling: level, low in the water, head up)

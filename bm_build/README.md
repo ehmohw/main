@@ -21,6 +21,30 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.96c: together - riding Bender, the night cuddle, and two very different cats
+
+- **Riding Bender.** Out with Bender, Mr. Capshun, Kettle or the rat mercenary will now and then hop up onto his back and ride along, astride him with their legs down either side. Their seat rises and falls with his back through every walk, run and jump, and turns as he turns. Only one rides at a time, and every so often they hop off for a walk.
+  - **They hop off** before he uses a charged move (Good Boy!, Rage!), and when he sits, digs, sniffs out treasure or swims. When things are calm again, they climb back on.
+  - **Right-click a rider** to sit it: it gets down and sits.
+- **The night cuddle.** With Bender, Henry and Nia all out together at night, everything calm and you close by, there's a chance every second that they lie down together. Bender flops down asleep, and Henry and Nia curl up one on each side of his chest, all three facing the same way. They breathe, purr and snore. If you go to bed near them, they settle at once.
+  - **They wake** at morning, when a monster comes near, when you walk off, or when you sit one of them.
+  - A hidden achievement goes with it: *A Dog and Two Cats, Asleep*.
+- **Nia is the gentle one now: a support follower.** She almost never scratches; her only blow is a soft swat at a monster that has just hurt her.
+  - **Comfort:** while you're hurt in a fight, she purrs against you, healing you and your followers nearby.
+  - **Guardian Curl:** when you drop to a third of your health, she runs to you and curls round your feet (Regeneration II, Resistance II, Absorption II).
+  - **Bell Chime:** her charged move, every 45 seconds. It heals you and your followers, and makes the monsters round her glow and slow without hurting them.
+  - **Shoo:** a soft hiss that pushes monsters back without harming them.
+  - **Starlight:** at night, it soothes your followers near her.
+  - **Her pairings:** every pairing of hers now looks after you (Regeneration always, never Strength), now and then soothes your other followers, and her trios lean the same way.
+- **Henry has flair, and a temper.** Now and then he bites instead of swiping.
+  - **Nine Lives Flurry:** his charged move is a choreography, like Bender's Rage. He leaps onto a monster's chest: swipe, feint, rake, bite. Then he backflips onto the next monster (up to three), lands, and struts off with his tail high. You get Luck II.
+- **Dog Pile (Henry and Bender).** With Bender beside him, Henry's charged move becomes a double act. He springs onto Bender's back and rides him into the fight, swiping at whatever Bender charges into. Then he leaps off onto a monster for the finish, and Bender bites it at the same moment. Bender holds his own charged moves while they do it.
+- **No clipping:** every seat and the cuddle are fitted by measuring each character's real model against Bender's in every pose, so no part sinks into another.
+- **The Gem's Buddies:**
+  - **Chase, reworked.** His body is a real gummy pear now: narrow under his neck, round and full at the bottom, standing on his stubby feet. Before, it was a second copy of his head turned upside down. He no longer hovers in any pose, he has a little gummy nose, and his eyes are the same size.
+  - **Spike:** the green smudge is gone from his face.
+- Henry's and Nia's paws and tails no longer dip below the ground in their swipe, pounce, loaf, lying and kneading poses.
+
 ## New in 2.96b: Creative Forms, redesigned
 
 Each of the twelve now has an outfit of their own, made for who they are, worn on their real model. It goes on while they walk beside the Gem of Creativity and comes off a few seconds after they part. It stays on through every pose, face, form and look. The drawn characters wear drawn pieces, flat and in their own style.

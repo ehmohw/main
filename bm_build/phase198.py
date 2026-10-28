@@ -83,6 +83,8 @@ class C(RP.Cfg):
     DUR = {'idle_a': 20, 'idle_d': 12, 'idle_b': 12, 'idle_c': 10, 'walk_0': 4, 'walk_1': 4, 'walk_2': 4, 'walk_3': 4, 'run_0': 3, 'run_1': 3, 'run_2': 3, 'run_3': 3,
            'jump': 4, 'sit_a': 20, 'sit_b': 24, 'swipe_up': 3, 'swipe': 2, 'toss_up': 3, 'toss': 2, 'fling_up': 4, 'fling': 2, 'scribble_a': 3, 'scribble_b': 3,
            'rainbow_a': 10, 'rainbow_b': 6, 'rainbow_c': 5, 'splash': 3, 'paint_a': 3, 'paint_b': 3, 'happy': 6, 'wave_a': 5, 'wave_b': 5}
+    CYCLE[16] = (None, [(0, 'ride')])                   # (2.96c: riding Bender - phase234 seats him)
+    DUR['ride'] = 6
     QUIPS = ['[Mr. Capshun narrates: "And so our hero pressed on - bravely, if a little lost."]',
              '"Fun fact: the Underwater Kingdom wasn\'t always underwater. They don\'t put that on the loading screen."',
              '"I\'ve read ahead. The Ethereal Gem? Big deal. Keep an eye on it."',

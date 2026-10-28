@@ -62,6 +62,14 @@ class C(RP.Cfg):
     DUR = {'idle_a': 30, 'idle_b': 30, 'walk_0': 4, 'walk_1': 4, 'walk_2': 4, 'walk_3': 4, 'run_0': 3, 'run_1': 3, 'run_2': 3, 'run_3': 3, 'jump': 4,
            'sit_a': 20, 'sit_b': 20, 'lie': 24, 'bite_up': 3, 'bite': 2, 'dig_a': 3, 'dig_b': 3, 'sniff': 8, 'sniff_b': 8, 'happy': 8, 'wave_a': 8,
            'maul_a': 3, 'maul_b': 3, 'land': 4, **{f'flip_{k}': 2 for k in range(5)}}
+    CYCLE[17] = (120, [(0, 'sleep'), (60, 'sleep_b')])     # (2.96c: the night cuddle with Henry and Nia - phase234)
+    DUR.update(sleep=30, sleep_b=30)
+
+    @staticmethod
+    def POSE_EXTRA(name, psel):
+        """(2.96c) each pose says how his back rises and falls in it (bm.bvbob) - a rider's seat follows it (phase234)"""
+        import together_fit as TF
+        return [f'scoreboard players set @s bm.bvbob {TF.bob_index(name)}']
     QUIPS = ['Woof!', '(his tail goes so hard his whole back end wags)', 'Arf! Arf!', '(he brings you a stick. It is mostly a log.)',
              '(he leans his whole weight against your legs)', '(his ears swivel at a sound you can\'t hear)', 'Wrrrf.',
              '(he looks up at you like you hung the moon)']
@@ -243,7 +251,7 @@ def rage(G, X):
         f'execute if score @s bm.bvrt matches 24..29 run function bm:{pfx}/rg/down',
         f'execute if score @s bm.bvrt matches 40.. run function bm:{pfx}/rg/done'])
     # (and a rage cut short any way at all - its timer run out, a reload - never leaves him without his wits)
-    X.second.append(f'execute as @e[type=minecraft:wolf,tag={X.pet},nbt={{NoAI:1b}}] unless score @s bm.bvrp matches 1.. run data merge entity @s {{NoAI:0b,NoGravity:0b}}')
+    X.second.append(f'execute as @e[type=minecraft:wolf,tag={X.pet},tag=!bm.cdl,nbt={{NoAI:1b}}] unless score @s bm.bvrp matches 1.. run data merge entity @s {{NoAI:0b,NoGravity:0b}}')
     X.second.append(f'execute as @e[type=minecraft:marker,tag=bm.bvrfrom] at @s unless entity @e[type=minecraft:wolf,tag={X.pet},scores={{bm.bvrp=4}},distance=..16] run kill @s')
     fn(f'{pfx}/rg/down', ['scoreboard players set @s bm.bvrt 30', 'data merge entity @s {NoGravity:0b}', pose('land'),
                           'particle minecraft:poof ~ ~0.1 ~ 0.3 0.05 0.3 0.02 8', 'playsound minecraft:entity.wolf.step neutral @a[distance=..16] ~ ~ ~ 1 0.8'])

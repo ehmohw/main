@@ -193,6 +193,9 @@ def build(C, G, abilities, encounter):
                        for p in A.PARTS if not (hasattr(A, 'HIDDEN') and A.HIDDEN(p, A.POSES['idle_a']))] + [f'function bm:{pfx}/pose/idle_a'])
     fn(f'{pfx}/state', [f'execute if score @s {S("sl")} matches 1.. run return run scoreboard players set #st bm.rng 6',
                         f'execute if score @s {S("x")} matches 1.. run return run scoreboard players operation #st bm.rng = @s {S("a")}',
+                        # (2.96c: phase234 - riding Bender (16; he seats them), curled up with him at night (17))
+                        'execute if entity @s[tag=bm.rdr] run return run scoreboard players set #st bm.rng 16',
+                        'execute if entity @s[tag=bm.cdl] run return run scoreboard players set #st bm.rng 17',
                         'execute if data entity @s {Sitting:1b} run return run scoreboard players set #st bm.rng 4',
                         'execute store result score #og bm.rng run data get entity @s OnGround',
                         'execute if score #og bm.rng matches 0 if predicate bm:swim run return run scoreboard players set #st bm.rng 10',
@@ -205,7 +208,7 @@ def build(C, G, abilities, encounter):
                         'execute if score #vx bm.rng matches 500.. run return run scoreboard players set #st bm.rng 1',
                         'scoreboard players set #st bm.rng 0'])
     tick.append(f'execute as @e[type=minecraft:wolf,tag={pet}] at @s run function bm:{pfx}/tick')
-    idle_fight = f'unless score @s {S("x")} matches 1.. unless data entity @s {{Sitting:1b}}'
+    idle_fight = f'unless score @s {S("x")} matches 1.. unless data entity @s {{Sitting:1b}} unless entity @s[tag=bm.rdr] unless entity @s[tag=bm.cdl]'
 
     # ---- the helpers for the follower's own abilities
     hurt_by = f'@e[type=minecraft:wolf,tag={me},limit=1]'
@@ -230,14 +233,17 @@ def build(C, G, abilities, encounter):
         f'scoreboard players operation @s {S("s")} = #st bm.rng',
         f'function bm:{pfx}/anim',
         f'execute on owner run tag @s add {own}',
-        f'execute if score @s {S("s")} matches 7..13 if entity @e[{foe},distance=..18] facing entity @e[{foe},distance=..18,sort=nearest,limit=1] feet rotated ~ 0 run function bm:{pfx}/place',
-        f'execute if score @s {S("s")} matches 7..13 unless entity @e[{foe},distance=..18] rotated as @s rotated ~ 0 run function bm:{pfx}/place',
-        f'execute if score @s {S("s")} matches 0 run function bm:{pfx}/face_you', f'execute if score @s {S("s")} matches 4 run function bm:{pfx}/face_you',
-        f'execute if score @s {S("s")} matches 6 run function bm:{pfx}/face_you', f'execute if score @s {S("s")} matches 14 run function bm:{pfx}/face_you',
-        f'execute if score @s {S("s")} matches 1..3 rotated as @s rotated ~ 0 run function bm:{pfx}/place',
-        f'execute if score @s {S("s")} matches 10 rotated as @s rotated ~ 0 run function bm:{pfx}/place',
+        f'execute unless entity @s[tag=bm.rdr] run function bm:{pfx}/places',
         f'function bm:{pfx}/box',
         f'tag @a[tag={own}] remove {own}', f'tag @e[tag={sel}] remove {sel}'])
+    # (2.96c: placed where it stands - unless it rides Bender: then he seats it, phase234)
+    fn(f'{pfx}/places', [f'execute if score @s {S("s")} matches 7..13 if entity @e[{foe},distance=..18] facing entity @e[{foe},distance=..18,sort=nearest,limit=1] feet rotated ~ 0 run return run function bm:{pfx}/place',
+                         f'execute if score @s {S("s")} matches 7..13 unless entity @e[{foe},distance=..18] rotated as @s rotated ~ 0 run return run function bm:{pfx}/place',
+                         f'execute if score @s {S("s")} matches 0 run return run function bm:{pfx}/face_you', f'execute if score @s {S("s")} matches 4 run return run function bm:{pfx}/face_you',
+                         f'execute if score @s {S("s")} matches 6 run return run function bm:{pfx}/face_you', f'execute if score @s {S("s")} matches 14 run return run function bm:{pfx}/face_you',
+                         f'execute if score @s {S("s")} matches 1..3 rotated as @s rotated ~ 0 run return run function bm:{pfx}/place',
+                         f'execute if score @s {S("s")} matches 10 rotated as @s rotated ~ 0 run return run function bm:{pfx}/place',
+                         f'execute if score @s {S("s")} matches 17 rotated as @s rotated ~ 0 run return run function bm:{pfx}/place'])
     fn(f'{pfx}/face_you', [f'execute if entity @a[tag={own},distance=2.5..14] facing entity @a[tag={own},limit=1] feet rotated ~ 0 run return run function bm:{pfx}/place',
                            f'execute rotated as @s rotated ~ 0 run function bm:{pfx}/place'])
     fn(f'{pfx}/blow', [f'scoreboard players add @s {S("qp")} 1', f'execute if score @s {S("qp")} matches 7.. run function bm:{pfx}/quip'])

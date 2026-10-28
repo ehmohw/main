@@ -13,14 +13,15 @@ pack's blocky follower style (the owner's drawings are the design reference only
   BUBBLES    a PAIR of bubbles: the big one with two tall dark eyes and a great round open mouth, its little one beside it.
                                                                                              bounce in tandem / POP-SPLASH
   CHASE      a glossy green gummy: three round lobes on his head (the middle one shortest), big hollow white eyes - no pupils -
-             a wide toothy grin under a little moustache tuft, a narrow neck, a pear of a body, stubby arms and feet.
+             a little gummy nose, a wide toothy grin under a little moustache tuft, a narrow neck, a pear of a body (2.96c: a
+             real pear, not a second head upside down), stubby arms and feet - and his feet on the ground in every pose.
                                                                                              squash-and-stretch hop / TACKLE
   LIMER      the round fellow - a pale ball with sleepy lidded eyes, a big curl of a nose and a little "o" of a mouth - in his
              loopy green covering, on stick legs.                                            roll / BODY SLAM
   CHICO      a drumstick: worried brows, shiny black eyes, an open fretful mouth; crispy at the bottom, the bone his body.
                                                                                              wobble / SWING-WHACK
   SPIKE      a circular saw: a ring of hooked steel teeth round a glossy black hub with an angry face - heavy brows, a jagged
-             fanged grin, a green blob of goo at the corner of his mouth.                     spin up / BUZZ-SAW DASH
+             fanged grin.                                                                    spin up / BUZZ-SAW DASH
   CHEFERONI  a whole pizza: crust, cheese, slices and pepperoni; angry brows, a great curly moustache over an open mouth, a
              curl of hair, a tilted chef's hat; thin black arms, long yellow legs.           toss the dough / SLICE THROW
 
@@ -221,6 +222,24 @@ def ball(c, r, tex_, pv, yr=None, zr=None, shift=(0.0, 0.0), light=0, face=None,
                 x0, x1 = x - r * kx, x + r * kx
                 e['faces']['north'] = {'uv': [round((x + r) - x1, 4), round((y + ry) - y1, 4), round((x + r) - x0, 4), round((y + ry) - y0, 4)], 'texture': '#' + face}
             out.append(e)
+    return out
+
+
+def pear(y0, h, radii, tex_, pv, zk=0.8, n=9, light=0):
+    """(2.96c) a pear standing on its base at y0, h tall, sliced as a ball is (a cross of two boxes a layer): radii = (at the
+    base, at the widest - a quarter of the way up - and at the top), the sides easing between them"""
+    rb, rm, rt = radii
+    out = []
+    for i in range(n):
+        a, b = y0 + i * h / n, y0 + (i + 1) * h / n
+        t = (i + 0.5) / n
+        if t < 0.25:
+            r = rb + (rm - rb) * math.sin(t / 0.25 * math.pi / 2)
+        else:
+            u = (t - 0.25) / 0.75
+            r = rt + (rm - rt) * (0.5 + 0.5 * math.cos(u * math.pi))
+        for j, (kx, kz) in enumerate(((1.0, 0.74), (0.74, 1.0))):
+            out.append(el((-r * kx, a, -r * zk * kz), (r * kx, b, r * zk * kz), tex_, pv, shift=(0.13 * i + 0.4 * j, 0.29 * i), light=light))
     return out
 
 
@@ -706,6 +725,7 @@ def chase():
     G, GL, GD, INK = '#1ed23a', '#8af08a', '#0c8a22', '#0a1a0a'
     goo = R.t('goo', lit(tex(G, 61, 0.03), 6, 6, 4, a=150, rim=GD, rim_a=130))
     gloss = R.t('gloss', tex('#d8ffd8', 63, 0.02))
+    nose = R.t('nose', lit(tex('#14b22e', 64, 0.03), 1, 1, 16, a=170, rim=GD, rim_a=160))
 
     def face(f):
         """as drawn: big hollow white eyes (no pupils) in thick dark rims, a short brow line over each; a wide toothy grin,
@@ -713,7 +733,7 @@ def chase():
         def p(d, W, H):
             lw = W * 0.03
             E(d, W * 0.2, H * 0.16, W * 0.06, H * 0.04, '#e8ffe8'); E(d, W * 0.12, H * 0.26, W * 0.02, H * 0.03, '#e8ffe8')      # (the gloss)
-            eyes = ((W * 0.32, H * 0.38, -1), (W * 0.67, H * 0.38, 1))
+            eyes = ((W * 0.33, H * 0.38, -1), (W * 0.67, H * 0.38, 1))       # (2.96c: square about the middle - one read smaller)
             for cx, cy, s in eyes:
                 rx, ry = W * 0.11, H * 0.17
                 if f == 'wow': rx, ry = W * 0.125, H * 0.2
@@ -737,7 +757,7 @@ def chase():
                 for cx, cy, s in eyes:
                     by = cy - H * (0.24 if f != 'wow' else 0.28)
                     ln(d, arc(cx + s * W * 0.01, by, W * 0.05, H * 0.025, 200, 340, n=10), INK, lw * 0.7)
-            mx, my = W * 0.49, H * 0.72
+            mx, my = W * 0.5, H * 0.76                  # (2.96c: a little lower - room for his nose)
             # the moustache tuft: a few short dark strokes
             for i in range(6):
                 x = mx - W * 0.035 + i * W * 0.014
@@ -764,18 +784,19 @@ def chase():
                 ln(d, [(mx + s * W * 0.19 * k, my - H * 0.03), (mx + s * W * 0.22 * k, my - H * 0.06)], INK, lw * 0.8)
         return R.t(f'face{"_" + f if f else ""}', face_tex(G, 5.6, 4.8, p, seed=62, hi=150, rim=GD, rim_a=120))
     for f in (None,) + FACES: face(f)
-    SH = {None: (2.6, 2.9), 'squash': (3.3, 2.2), 'stretch': (2.2, 3.5)}             # (the pear of a body: half width, half height)
+    # (2.96c, the owner's look: the body was a round ball with a smaller one on it - his head again, upside down. Now a real
+    #  pear, as drawn: narrow under the neck, swelling to a full round bottom, flat where it sits on his legs)
+    SH = {None: (1.0, 1.0), 'squash': (1.15, 0.86), 'stretch': (0.88, 1.12)}           # (squash and stretch: width, height)
 
     def body(v, f):
-        w, h = SH[v]; cy = 2.0 + h; pv = (0, 4.4, 0)
-        return ball((0, cy, 0), w, goo, pv, yr=h, zr=w * 0.82, n=7) + ball((0, cy + h * 0.75, 0), w * 0.62, goo, pv, yr=h * 0.45, zr=w * 0.55, n=3) + [
-            el((w * 0.35, cy + h * 0.25, -w * 0.84), (w * 0.52, cy + h * 0.55, -w * 0.78), gloss, pv, faces=('north',), light=4)]
+        kw, kh = SH[v]; pv = (0, 4.4, 0)
+        return pear(1.8, 5.6 * kh, (2.3 * kw, 3.0 * kw, 1.25 * kw), goo, pv, zk=0.8, n=9)
     R.part('body', (0, 4.4, 0), None, body, variants=('squash', 'stretch'))
     hy = 9.4
     R.part('head', (0, 7.4, 0), 'body', lambda v, f: [
         el((-1.1, 6.8, -1.0), (1.1, 7.8, 1.0), goo, (0, 7.4, 0)),                                                     # (the narrow neck)
         *ball((0, hy, 0), 2.8, goo, (0, 7.4, 0), yr=2.4, zr=2.1, face=R.fk(f), n=7),
-        el((1.0, hy + 0.9, -2.02), (1.5, hy + 1.6, -1.95), gloss, (0, 7.4, 0), faces=('north',), light=4)], faced=True)
+        *ball((0, hy - 0.5, -2.1), 0.46, nose, (0, 7.4, 0), yr=0.33, zr=0.38, n=3)], faced=True)      # (2.96c: his nose, a little gummy bump)
     for n, x, top in (('lober', 2.05, 3.4), ('lobem', 0.0, 2.2), ('lobel', -2.05, 3.4)):      # (three round lobes, the middle one shortest)
         pv = (x, hy + 1.4, 0)
         R.part(n, pv, 'head', (lambda pv, x, top: lambda v, f: ball((x * 1.0, hy + 1.3 + top / 2, 0), 0.85, goo, pv, yr=top / 2 + 0.55, zr=0.85, n=10) + [
@@ -788,14 +809,14 @@ def chase():
         R.part(n, pv, 'body', (lambda pv, s: lambda v, f: ball((pv[0] + s * 0.2, 1.1, 0), 0.9, goo, pv, yr=1.2, zr=0.9, n=4) +
                                                        ball((pv[0] + s * 0.35, 0.55, -0.5), 1.1, goo, pv, yr=0.55, zr=1.2, n=3))(pv, s))
     R.POSES.update({
-        'appear': dict(_face='wow', _v={'body': 'stretch'}, _off=(0, 1.6, 0), armr=L(('z', 70)), arml=L(('z', -70))),
+        'appear': dict(_face='wow', _v={'body': 'stretch'}, armr=L(('z', 70)), arml=L(('z', -70))),      # (2.96c: feet on the ground - he hovered)
         'idle_a': dict(armr=L(('z', -10)), arml=L(('z', 10)), lober=L(('z', -6)), lobel=L(('z', 6))),
         'idle_b': dict(_face='look', head=T(('y', -14), ('z', 6)), lober=L(('z', 16)), lobel=L(('z', 10)), lobem=L(('x', 10)), armr=L(('z', 40))),
         'hop_0': dict(_v={'body': 'squash'}, _off=(0, -0.6, 0), lober=L(('z', -20)), lobel=L(('z', 20)), lobem=L(('x', -10))),
         'hop_1': dict(_v={'body': 'stretch'}, _off=(0, 3.0, 0), lober=L(('z', 10)), lobel=L(('z', -10)), armr=L(('z', 40)), arml=L(('z', -40))),
         'wind': dict(_face='fierce', _v={'body': 'squash'}, _off=(0, -0.4, 1.0), body=T(('x', 14)), armr=L(('x', 50)), arml=L(('x', 50))),
         'strike': dict(_face='fierce', _v={'body': 'stretch'}, _off=(0, 0.4, -5.0), body=T(('x', -46)), armr=L(('x', -80)), arml=L(('x', -80)), lober=L(('x', 30)), lobel=L(('x', 30)), lobem=L(('x', 30))),
-        'happy': dict(_face='happy', _v={'body': 'stretch'}, _off=(0, 1.2, 0), armr=L(('z', 120)), arml=L(('z', -120)), lober=L(('z', -16)), lobel=L(('z', 16))),
+        'happy': dict(_face='happy', _v={'body': 'stretch'}, armr=L(('z', 120)), arml=L(('z', -120)), lober=L(('z', -16)), lobel=L(('z', 16))),
         'vanish': dict(_face='happy', _v={'body': 'squash'}, armr=L(('z', 90))),
     })
     return R.ns()
@@ -975,11 +996,10 @@ def spike():
     BK, INK = '#2e3034', '#000000'
     hub = R.t('hub', lit(tex(BK, 91, 0.04), 7.6, 7.6, 4, a=80, rim='#0e0e10'))
     steel, steeld, steelr = R.t('steel', lit(tex('#e8e6e8', 92, 0.02), 4, 4, 4, a=60, rim='#a0a0a8')), R.t('steeld', tex('#bebdc4', 93, 0.03)), R.t('ring', tex('#8c8c94', 97, 0.03))
-    goo = R.t('goo', tex('#2ee24e', 94, 0.03))
 
     def face(f):
-        """as drawn: a glossy black hub; heavy angry brows; dark eyes with a glint; a jagged fanged grin off to his left, a blob
-        of green goo at the corner of his mouth"""
+        """as drawn: a glossy black hub; heavy angry brows; dark eyes with a glint; a jagged fanged grin off to his left
+        (2.96c: the green goo at its corner gone - the owner's ask)"""
         def p(d, W, H):
             lw = W * 0.02
             E(d, W * 0.36, H * 0.24, W * 0.18, H * 0.1, '#5c5e64'); E(d, W * 0.3, H * 0.2, W * 0.08, H * 0.04, '#8a8c92')       # (the gloss)
@@ -1000,7 +1020,7 @@ def spike():
                     ln(d, arc(cx, cy - H * 0.13, W * 0.07, H * 0.03, 200, 340), '#000000', lw * 2); continue
                 lo = 0.06 if f == 'fierce' else 0.08
                 d.polygon([(cx + s * W * 0.1, cy - H * 0.16), (cx - s * W * 0.09, cy - H * lo), (cx - s * W * 0.08, cy - H * (lo - 0.03)), (cx + s * W * 0.1, cy - H * 0.11)], fill=hexc('#000000'))
-            # the mouth: a jagged grin on his left, two white fangs; the green goo at its near corner
+            # the mouth: a jagged grin on his left, two white fangs
             mx, my = W * 0.62, H * 0.7
             k = {'happy': 1.25, 'fierce': 1.2, 'wow': 0.7}.get(f, 1.0)
             if f == 'wow':
@@ -1014,11 +1034,6 @@ def spike():
                     x, y = mx + W * fx * k, my + H * fy * k
                     if up: d.polygon([(x - W * 0.02, y + H * 0.03), (x + W * 0.02, y + H * 0.03), (x, y - H * 0.04)], fill=hexc('#ffffff'))
                     else: d.polygon([(x - W * 0.025, y), (x + W * 0.025, y), (x + W * 0.005, y + H * 0.07)], fill=hexc('#ffffff'))
-            gx, gy = W * 0.36, H * 0.76                         # (the goo)
-            d.polygon(bez((gx - W * 0.12, gy - H * 0.04), (gx - W * 0.02, gy - H * 0.12), (gx + W * 0.08, gy - H * 0.02)) +
-                      bez((gx + W * 0.08, gy - H * 0.02), (gx + W * 0.02, gy + H * 0.06), (gx - W * 0.02, gy + H * 0.14), (gx - W * 0.1, gy + H * 0.08)),
-                      fill=hexc('#2ee24e'), outline=hexc('#000000'), width=int(lw))
-            E(d, gx - W * 0.04, gy - H * 0.04, W * 0.02, H * 0.012, '#b8ffc4')
         return R.t(f'face{"_" + f if f else ""}', face_tex(BK, 7.6, 7.6, p, seed=95, hi=40, rim='#08080a', rim_a=120))
     for f in (None,) + FACES: face(f)
     cy = 7.6

@@ -1,12 +1,13 @@
 // 2.97: HENRY, the owner's black cat, as a regular (non-op) player - the owner's checklist (rigpet_t). In a village at night
 // (rcon: the night, a villager, and the roll come up) a black cat with a red collar sits watching; right-clicked empty-handed he
 // sniffs your hand; given a cod he eats it and leaves his tag (Henry's Collar Tag). His ways: SWIPE, POUNCE (a leap onto a foe 6
-// off), HISS (two foes close: slowed and weakened), BLACK CAT'S LUCK (three swipes; Luck II for you), PURR (out of a fight:
+// off), HISS (two foes close: slowed and weakened), NINE LIVES FLURRY (2.96c: onto a monster - swipe, swipe, rake, bite - a
+// backflip, a landing and a strut; Luck II for you), PURR (out of a fight:
 // Regeneration and Absorption), NIGHT PROWLER (by night, Night Vision beside him). Then the shared list.
 const runT = require('./rigpet_t');
 runT({ W: 'henry', NAME: 'Henry', ab: 'hy', q: 'hq', pfx: 'p229', prefix: 'hy_', item: 'henry_tag', parts: 7, figParts: 7, hp: 30, X: 17400, Z: 16000, pron: 'him',
   called: /headbutts your leg|out of nowhere/, home: /saunters off home/, sit: /folds himself into a loaf/, stand: /stretches front and back/,
-  ways: ['Swipe', 'Pounce', 'Hiss', "Black Cat's Luck", 'Purr', 'Night Prowler'],
+  ways: ['Swipe', 'Pounce', 'Hiss', 'Nine Lives Flurry', 'Dog Pile', 'Purr', 'Night Prowler'],
   plain: 'His red collar', looks: ['Navy Collar', 'Emerald Collar', 'Gold Collar'], lookPart: 'body',
   encounter: async ({ A, run, ok, wait, O, cnt, at, entOf, num, has, X, Y, Z, ENC, sleep }) => {
     await run('time set midnight'); await run('weather clear');
@@ -44,8 +45,10 @@ runT({ W: 'henry', NAME: 'Henry', ab: 'hy', q: 'hq', pfx: 'p229', prefix: 'hy_',
     ok('HISS - two foes close: slowed and weakened', await wait(6000, async () => /weakness/.test(await fxOf('bm.trph'))));
     await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true');
     await run(`${O}tp ${PET} ${X} ${Y + 1} ${Z}`); await zom(2, 0, 'bm.trpc'); await cd('gc', 0);
-    ok("BLACK CAT'S LUCK - swipes, and Luck II for you", await wait(8000, async () => (await hp('bm.trpc')) < 290 && /luck/.test(await fx())));
-    await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await sleep(3000);   // (the charged flurry plays out first)
+    ok('NINE LIVES FLURRY - onto it: swipe, swipe, rake, bite - and, landed, Luck II for you',
+       await wait(12000, async () => (await hp('bm.trpc')) < 285 && /luck/.test(await fx())), String(await hp('bm.trpc')));
+    ok('...and he has his wits back after (no AI and gravity restored, the flurry over)', await wait(4000, async () => (await nbt(PET, 'NoAI')) !== '1b'));
+    await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await sleep(1500);
     await at(X + 0.5, Y + 1, Z - 1.5, 0, 10); await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z + 0.5}`); await sleep(800);
     await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await cd('k', 0);
     ok('PURR - out of a fight beside you: Regeneration and Absorption', await wait(7000, async () => /regeneration/.test(await fx()) && /absorption/.test(await fx())));

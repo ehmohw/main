@@ -198,6 +198,7 @@ import phase231 as R231      # 2.98: the Gem of Creativity - the follower (it co
 import phase232 as R232      # 2.98: the Gutter Gentry, reformed - Batty, Eggbert and the Count
 import phase233 as R233      # 2.98: the Creative Forms - a pair with the Gem for every Buddy (and five more)
 import phase229 as R229      # 2.97: Henry and Nia, the owner's cats (Henry's Collar Tag, Nia's Bell)
+import phase234 as R234      # 2.96c: together - riding Bender, the night cuddle, Henry and Bender's Dog Pile
 R233.add_pairs()             # 2.98: the Creative Forms
 R229.add_pairs()             # 2.97: the cats' pairs with everyone - after every follower is imported
 import atk                   # 2.94u: the attack kit - impact and hit-stop on every follower blow
@@ -234,7 +235,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.96b'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.96c'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1404,6 +1405,7 @@ def build(out_dir):
     if PHASE2: R227.generate(sys.modules[__name__])      # 2.95d: Kettle
     if PHASE2: R228.generate(sys.modules[__name__])      # 2.96: Rufus
     if PHASE2: R229.generate(sys.modules[__name__])      # 2.97: Henry and Nia
+    if PHASE2: R234.generate(sys.modules[__name__])      # 2.96c: riding Bender, the cuddle, the Dog Pile
     if PHASE2: R231.generate(sys.modules[__name__])      # 2.98: the Gem
     if PHASE2: R232.generate(sys.modules[__name__])      # 2.98: the Gutter Gentry
     if PHASE2: R233.generate(sys.modules[__name__])      # 2.96a: the Creative Forms' looks, on and off
