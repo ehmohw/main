@@ -227,7 +227,7 @@ def generate(G):
     for i, f in FORM.items():
         fn(f'p238/{f}/body', [f'function bm:p238/{f}/anim', f'execute rotated as @s rotated ~ 0 run function bm:p238/place/{f}'])
     fn('p238/asleep', ['execute rotated 0 0 run function bm:p238/place/armored',
-                       f'execute if entity {FIGHT[:-1]},distance=..26] run function bm:p238/wake'])
+                       f'execute positioned {CX} {CY + 1} {CZ} if entity @a[distance=..24,gamemode=!spectator,gamemode=!creative] run function bm:p238/wake'])   # (someone crosses the hall)
     fn('p238/state', ['execute if score @s bm.svx matches 1.. run return run scoreboard players operation #st bm.rng = @s bm.sva',
                       'execute if entity @s[tag=bm.svmove] run return run scoreboard players set #st bm.rng 1', 'scoreboard players set #st bm.rng 0'])
 
@@ -632,7 +632,7 @@ def generate(G):
                        'execute unless entity @s[tag=bm.svfirst] run function bm:p238/first',
                        'execute if score @s bm.svwin matches 2 run function bm:p238/second'])
     fn('p238/first', ['tag @s add bm.svfirst', give('dread_ember'), give('music_disc_sovereign'),
-                      'execute if score #hard bm.cfg matches 1 run ' + give('sov_eye'),
+                      'execute if score #hard bm.cfg matches 1 run function bm:p239/enc/joined',      # (its Eye - and what's left of it, bound to you)
                       tellraw('@s', [T('  In its ashes: ', 'gray'), T('the Dread Ember', COL, bold=True), T(' (the Nights, if ever you miss them), ', 'gray'),
                                      T('its record', COL), T(' - and ', 'gray'), T('the Sovereign\'s Eye', COL, bold=True), T('. Something in it is listening.', 'gray', italic=True)])])
     fn('p238/second', [give('music_disc_aurel'), tellraw('@s', [T('  Something else in the ashes: a pale record. ', 'gray'), T('Aurel', L.HOLY, bold=True), T('.', 'gray')])])

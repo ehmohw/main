@@ -22,23 +22,23 @@ CROSSES = ('iron_chain', 'chain', 'lantern', 'candle', 'amethyst_cluster', 'glow
 LIGHTS = {  # block -> (level, channel)   channels: 0 warm, 1 soul, 2 purple, 3 white
     'lava': (15, 0), 'magma_block': (6, 0), 'shroomlight': (15, 0), 'crying_obsidian': (10, 2), 'soul_lantern': (12, 1),
     'soul_campfire': (12, 1), 'pearlescent_froglight': (15, 3), 'ochre_froglight': (15, 0), 'verdant_froglight': (15, 3),
-    'red_candle': (9, 0), 'purple_candle': (9, 2), 'candle': (9, 0), 'amethyst_cluster': (5, 2), 'glow_lichen': (7, 1),
-    'blast_furnace': (13, 0), 'redstone_block': (0, 0), 'sov_eye': (12, 0)}
-CH_COL = np.array([(1.0, 0.42, 0.14), (0.22, 0.72, 0.85), (0.62, 0.22, 1.0), (1.0, 0.94, 0.82)], np.float32)
-SELF_LIT = {'lava': 1.35, 'magma_block': 0.85, 'shroomlight': 1.3, 'crying_obsidian': 0.9, 'soul_lantern': 1.3, 'soul_campfire': 1.2,
+    'red_candle': (6, 0), 'purple_candle': (6, 2), 'candle': (7, 0), 'sov_glow': (9, 4), 'amethyst_cluster': (5, 2), 'glow_lichen': (7, 1),
+    'blast_furnace': (13, 0), 'redstone_block': (0, 0), 'sov_eye': (13, 4), 'well': (12, 4)}
+CH_COL = np.array([(1.0, 0.42, 0.14), (0.22, 0.72, 0.85), (0.62, 0.22, 1.0), (1.0, 0.94, 0.82), (1.0, 0.1, 0.08)], np.float32)
+SELF_LIT = {'lava': 1.05, 'magma_block': 0.55, 'shroomlight': 1.3, 'crying_obsidian': 0.9, 'soul_lantern': 1.3, 'soul_campfire': 1.2,
             'pearlescent_froglight': 1.3, 'ochre_froglight': 1.3, 'red_candle': 1.3, 'purple_candle': 1.2, 'candle': 1.2,
-            'amethyst_cluster': 0.8, 'glow_lichen': 0.7, 'blast_furnace': 0.6, 'sov_eye': 1.6, 'sov_glow': 1.1}
+            'amethyst_cluster': 0.8, 'glow_lichen': 0.7, 'blast_furnace': 0.6, 'sov_eye': 1.6, 'sov_glow': 1.1, 'well': 1.5}
 ALIAS = {'magma_block': 'magma', 'lava': 'lava_still', 'snow_block': 'snow', 'smooth_quartz': 'quartz_block_bottom',
          'quartz_block': 'quartz_block_side', 'waxed_copper_bulb': 'copper_bulb', 'stripped_dark_oak_wood': 'stripped_dark_oak_log',
          'dark_oak_wood': 'dark_oak_log', 'red_candle': 'red_candle_lit', 'purple_candle': 'purple_candle_lit', 'candle': 'candle_lit',
          'soul_campfire': 'soul_campfire_fire', 'vault': 'vault_side_off', 'lectern': 'lectern_sides', 'blast_furnace': 'blast_furnace_front_on',
-         'bell': 'bell_side', 'dark_oak_slab': 'dark_oak_planks', 'chest': 'barrel_side', 'reinforced_deepslate': 'reinforced_deepslate_side',
+         'bell': 'gold_block', 'dark_oak_slab': 'dark_oak_planks', 'chest': 'barrel_side', 'reinforced_deepslate': 'reinforced_deepslate_side',
          'anvil': 'anvil', 'smithing_table': 'smithing_table_front', 'iron_chain': 'iron_chain'}
 TOP = {'basalt': 'basalt_top', 'polished_basalt': 'polished_basalt_top', 'bone_block': 'bone_block_top', 'purpur_pillar': 'purpur_pillar_top',
        'quartz_pillar': 'quartz_pillar_top', 'dark_oak_log': 'dark_oak_log_top', 'target': 'target_top', 'bookshelf': 'oak_planks',
        'pearlescent_froglight': 'pearlescent_froglight_top', 'ochre_froglight': 'ochre_froglight_top', 'barrel': 'barrel_top',
        'lectern': 'lectern_top', 'reinforced_deepslate': 'reinforced_deepslate_top', 'stripped_dark_oak_log': 'stripped_dark_oak_log_top',
-       'smithing_table': 'smithing_table_top', 'anvil': 'anvil_top', 'bell': 'bell_top', 'vault': 'vault_top', 'blast_furnace': 'blast_furnace_top'}
+       'smithing_table': 'smithing_table_top', 'anvil': 'anvil_top', 'vault': 'vault_top', 'blast_furnace': 'blast_furnace_top'}
 SIDE = {'basalt': 'basalt_side', 'polished_basalt': 'polished_basalt_side', 'bone_block': 'bone_block_side', 'target': 'target_side',
         'pearlescent_froglight': 'pearlescent_froglight_side', 'ochre_froglight': 'ochre_froglight_side', 'barrel': 'barrel_side'}
 
@@ -79,7 +79,8 @@ def flat(rgb, a=1.0):
     return t
 
 
-FLAT = {'chest': (150, 105, 50), 'sov_body': (22, 16, 20), 'sov_plate': (48, 38, 44), 'sov_eye': (255, 40, 40), 'sov_glow': (200, 20, 30)}
+FLAT = {'chest': (150, 105, 50), 'sov_body': (22, 16, 20), 'sov_plate': (48, 38, 44), 'sov_eye': (255, 40, 40), 'sov_glow': (200, 20, 30),
+        'well': (255, 50, 60)}
 
 
 class Scene:
@@ -170,9 +171,9 @@ class Scene:
         A = self.A
         opaque = (self.kind[A] == SOLID)
         ems = self.emisarr[A]
-        L = np.zeros((4,) + A.shape, np.float32)
+        L = np.zeros((5,) + A.shape, np.float32)
         fp = ndimage.generate_binary_structure(3, 1)
-        for c in range(4):
+        for c in range(5):
             E = np.where(ems[..., 1] == c, ems[..., 0], 0).astype(np.float32)
             if not E.any(): continue
             l = E.copy()
@@ -308,7 +309,7 @@ class Scene:
         pt = O + D * t[:, None]
         nrm = np.zeros((N, 3), np.float32); nrm[np.arange(N), ax] = sg
         q = pt + nrm * 0.5 - 0.5
-        L = np.stack([ndimage.map_coordinates(self.L[c], q.T, order=1, mode='nearest') for c in range(4)], 1)
+        L = np.stack([ndimage.map_coordinates(self.L[c], q.T, order=1, mode='nearest') for c in range(5)], 1)
         Ln = (np.clip(L, 0, 15) / 15.0) ** 2.2
         lightc = Ln @ CH_COL * P['gain']
         shade = np.where(ax == 1, np.where(sg > 0, 1.0, 0.45), np.where(ax == 0, 0.78, 0.62)).astype(np.float32)
@@ -385,62 +386,75 @@ class Ortho:
         xs = ((np.arange(W) + 0.5) / W - 0.5) * self.w
         ys = (0.5 - (np.arange(H) + 0.5) / H) * self.w * H / W
         X, Y = np.meshgrid(xs, ys)
-        O = self.c[None, :] - self.f[None, :] * 600 + X.reshape(-1, 1) * self.r[None, :] + Y.reshape(-1, 1) * self.u[None, :]
+        O = self.c[None, :] - self.f[None, :] * 260 + X.reshape(-1, 1) * self.r[None, :] + Y.reshape(-1, 1) * self.u[None, :]
         D = np.broadcast_to(self.f, O.shape).astype(np.float32).copy()
         return O.astype(np.float32), D
 
 
 # ==================================================================================================== the shots
 def sovereign(x0=112, y0=13, z0=11):
-    """a kneeling silhouette ~11 tall on the throne, for scale: black plate, red seams, one great red eye"""
-    vox = []
+    """the Dread Sovereign, kneeling on its throne (a stand-in, ~13 tall, for scale): black plate, red seams, six folded wings
+    with shut eyes, a crown of spikes, one great red eye in the helm"""
+    vox = {}
     def box(x1, y1, z1, x2, y2, z2, st):
         for x in range(x1, x2 + 1):
             for y in range(y1, y2 + 1):
-                for z in range(z1, z2 + 1): vox.append(((x, y, z), st))
-    box(x0 - 3, y0, z0 + 1, x0 - 2, y0 + 1, z0 + 4, 'sov_plate')        # shins on the floor (kneeling)
-    box(x0 + 2, y0, z0 + 1, x0 + 3, y0 + 1, z0 + 4, 'sov_plate')
-    box(x0 - 3, y0 + 2, z0, x0 + 3, y0 + 4, z0 + 2, 'sov_body')         # thighs / hips
-    box(x0 - 3, y0 + 5, z0, x0 + 3, y0 + 8, z0 + 2, 'sov_body')         # chest
-    box(x0 - 4, y0 + 7, z0, x0 + 4, y0 + 8, z0 + 2, 'sov_plate')        # pauldrons
-    box(x0 - 5, y0 + 2, z0 + 1, x0 - 4, y0 + 7, z0 + 2, 'sov_body')     # arms down to the floor
-    box(x0 + 4, y0 + 2, z0 + 1, x0 + 5, y0 + 7, z0 + 2, 'sov_body')
-    box(x0 - 1, y0 + 9, z0, x0 + 1, y0 + 10, z0 + 2, 'sov_plate')       # helm
-    vox.append(((x0, y0 + 9, z0 + 3), 'sov_eye')); vox.append(((x0, y0 + 10, z0 + 3), 'sov_eye'))
-    for y in range(y0 + 3, y0 + 8, 2): vox.append(((x0, y, z0 + 3), 'sov_glow'))
-    for dx in (-1, 1): vox.append(((x0 + dx, y0 + 11, z0 + 1), 'sov_plate'))
-    vox.append(((x0, y0 + 11, z0 + 1), 'sov_eye'))
-    return vox
+                for z in range(z1, z2 + 1): vox[(x, y, z)] = st
+    box(x0 - 3, y0, z0 + 1, x0 - 2, y0 + 1, z0 + 5, 'sov_plate')        # shins on the floor (it kneels)
+    box(x0 + 2, y0, z0 + 1, x0 + 3, y0 + 1, z0 + 5, 'sov_plate')
+    box(x0 - 3, y0 + 2, z0, x0 + 3, y0 + 4, z0 + 3, 'sov_body')         # thighs, hips
+    box(x0 - 3, y0 + 5, z0, x0 + 3, y0 + 9, z0 + 2, 'sov_body')         # chest
+    box(x0 - 5, y0 + 8, z0, x0 + 5, y0 + 9, z0 + 2, 'sov_plate')        # pauldrons
+    box(x0 - 6, y0 + 1, z0 + 1, x0 - 5, y0 + 7, z0 + 3, 'sov_body')     # arms, the fists on the floor
+    box(x0 + 5, y0 + 1, z0 + 1, x0 + 6, y0 + 7, z0 + 3, 'sov_body')
+    box(x0 - 6, y0, z0 + 3, x0 - 5, y0, z0 + 4, 'sov_plate'); box(x0 + 5, y0, z0 + 3, x0 + 6, y0, z0 + 4, 'sov_plate')
+    box(x0 - 1, y0 + 10, z0, x0 + 1, y0 + 12, z0 + 2, 'sov_plate')      # helm
+    for dx, h in ((-2, 2), (0, 3), (2, 2)): box(x0 + dx, y0 + 13, z0 + 1, x0 + dx, y0 + 12 + h, z0 + 1, 'sov_plate')   # crown
+    vox[(x0, y0 + 11, z0 + 3)] = 'sov_eye'
+    for y in range(y0 + 3, y0 + 10, 2): vox[(x0, y, z0 + 3)] = 'sov_glow'    # red seams down the plate
+    for side in (-1, 1):                                                # six wings folded up behind, each with shut eyes
+        for w, (lean, top) in enumerate(((3, 22), (6, 20), (9, 17))):
+            for y in range(y0 + 6, y0 + top):
+                x = x0 + side * (3 + w + (y - y0 - 6) * lean // 14)
+                vox[(x, y, z0 - 1)] = 'sov_plate'
+                vox[(x + side, y, z0 - 1)] = 'sov_body'
+                if (y - y0) % 4 == 0: vox[(x, y, z0)] = 'sov_glow'
+    return list(vox.items())
 
 
-def eye_decals(B):
-    """the Stair's eyes: (wall cell, face axis, face sign) -> decal"""
+def eye_decals(B, size=1.4):
+    """the Stair's eyes as the runtime shows them: a red almond `size` wide on the wall face behind each eye marker"""
     from p2.kit import VEC
-    dec = {}
+    eyes = []
     for (x, y, z, f) in B.meta['under']['eyes']:
         fx, fz = VEC[f]
-        wall = (x - fx, y, z - fz)
         axn = 0 if fx else 2
-        dec[(wall, axn, fx or fz)] = 1
+        plane = (x if fx > 0 else x + 1) if fx else (z if fz > 0 else z + 1)      # the wall face's coordinate
+        eyes.append((axn, fx or fz, plane, x + 0.5 if axn == 2 else z + 0.5, y + 0.5))
     def apply(sc, pt, bid, ax, sg, u, v, col):
-        if not dec: return col
-        n = np.zeros((len(pt), 3)); n[np.arange(len(pt)), ax] = sg
-        cell = np.floor(pt - n * 0.5).astype(int)
-        keys = [(tuple(c), int(a), int(s)) for c, a, s in zip(cell, ax, sg)]
-        m = np.array([k in dec for k in keys]) if len(keys) else np.zeros(0, bool)
-        if not m.any(): return col
-        uu, vv = u[m] - 0.5, v[m] - 0.5
-        half_h = 0.30 * np.clip(1 - (uu / 0.47) ** 2, 0, 1)
-        inside = np.abs(vv) < half_h
-        lid = inside & (np.abs(vv) > half_h - 0.06)
-        pupil = inside & (np.abs(uu) < 0.06 + 0.0 * vv) & (np.abs(vv) < half_h * 0.95)
-        c = col[m]
-        c[inside] = np.array((1.25, 0.12, 0.08)) * (0.75 + 0.5 * (1 - (np.abs(uu[inside]) / 0.47)))[:, None]
-        c[lid] = (0.25, 0.02, 0.02)
-        c[pupil] = (0.05, 0.0, 0.0)
-        col[m] = c
+        for (axn, sgn, plane, cu, cv) in eyes:
+            m = (ax == axn) & (sg == sgn) & (np.abs(pt[:, axn] - plane) < 0.02)
+            if not m.any(): continue
+            uu = (pt[m, 2] if axn == 0 else pt[m, 0]) - cu
+            vv = pt[m, 1] - cv
+            hw = size / 2
+            half_h = 0.36 * size * np.clip(1 - (uu / hw) ** 2, 0, 1) ** 0.8
+            inside = (np.abs(uu) < hw) & (np.abs(vv) < half_h)
+            if not inside.any(): continue
+            lid = inside & (np.abs(vv) > half_h - 0.07)
+            pupil = inside & (np.abs(uu) < 0.07) & (np.abs(vv) < half_h - 0.05)
+            c = col[m]
+            glow = (0.7 + 0.6 * (1 - np.abs(uu) / hw))[:, None]
+            c[inside] = (np.array((1.3, 0.1, 0.06)) * glow[inside])
+            c[lid] = (0.18, 0.01, 0.02)
+            c[pupil] = (0.03, 0.0, 0.0)
+            col[m] = c
         return col
     return apply
+
+
+def wells(B):
+    return [((x, y, z), 'well') for (i, x, y, z) in B.meta['under']['wells']]
 
 
 def cutaway(B, cam_side=(1, 1), reach=4):
@@ -460,7 +474,10 @@ def cutaway(B, cam_side=(1, 1), reach=4):
             sh[xs_d, zs_d] = top[xs_s, zs_s]
             H = np.maximum(H, sh)
     Y = np.arange(sy)[None, :, None]
-    return Y > H[:, None, :]
+    rm = Y > H[:, None, :]
+    for (x, y, z) in B.outside:                              # the approach cave: its own roof always goes
+        if y > top[x, z] and B.b[(x, y, z)] and not B.b[(x, y, z)].endswith(':air'): rm[x, y, z] = True
+    return rm
 
 
 SHOTS = {}
@@ -476,66 +493,79 @@ def shot(name):
 @shot('1_cutaway')
 def s1(B):
     rm = cutaway(B, cam_side=(1, 1))
-    sc = Scene(B, extra=sovereign(), remove=rm)
-    cam = Ortho((112, 40, 118), (-1.0, -0.95, -1.0), 330)
-    return sc.render(cam, P=dict(fill=0.0, ambient=(0.16, 0.12, 0.13), gain=2.6, fog_d=2000, exposure=1.8), decals=eye_decals(B))
+    sx, sy, sz = B.size
+    X, Y, Z = np.meshgrid(np.arange(sx), np.arange(sy), np.arange(sz), indexing='ij')
+    rm |= ((X - 112) ** 2 + (Z - 145) ** 2 <= 38.5 ** 2) & (Y > 58)          # the Hall cut open above the Hexed landing
+    rm |= (Z >= 60) & (Z < 108) & (Y > 56)                                    # (and the Lantern Crawl lifted off the Stair)
+    # only the skin: every solid cell with carved space beside it (the sealing rock and the deepslate behind are left out)
+    air = np.zeros((sx, sy, sz), bool)
+    for (x, y, z), st in B.b.items():
+        if st.endswith(':air') or 'light[' in st: air[x, y, z] = True
+    near = ndimage.binary_dilation(air, structure=np.ones((3, 3, 3), bool))
+    rm |= ~near
+    sc = Scene(B, extra=sovereign() + wells(B), remove=rm)
+    cam = Ortho((116, 52, 110), (-0.62, -1.05, -1.0), 352)
+    return sc.render(cam, P=dict(fill=0.0, ambient=(0.62, 0.52, 0.55), gain=2.2, fog_d=6000, exposure=1.9), decals=eye_decals(B))
 
 
 @shot('2_hall_of_chains')
 def s2(B):
     sc = Scene(B)
-    rm = None
-    cam = Persp((128, 93.6, 155), (104, 10, 140), fov=78)
-    return sc.render(cam, P=dict(fill=0.3, fill_r=30, gain=3.0))
+    cam = Persp((131, 98, 133), (102, 30, 158), fov=75)
+    return sc.render(cam, P=dict(gain=4.0, ambient=(0.1, 0.07, 0.08), fill=0.4, fill_r=40, glass=0.32))
 
 
 @shot('3_throne')
 def s3(B):
-    sc = Scene(B, extra=sovereign())
-    cam = Persp((112, 16.6, 78.5), (112, 28, 20), fov=80)
-    return sc.render(cam, P=dict(fill=0.25, fill_r=40, gain=3.0, fog_d=400))
+    sc = Scene(B, extra=sovereign() + wells(B))
+    cam = Persp((112, 32, 74), (112, 24, 22), fov=90)
+    return sc.render(cam, P=dict(gain=4.5, ambient=(0.24, 0.16, 0.18), fill=0.2, fill_r=60, exposure=1.5))
 
 
 @shot('4_eyes')
 def s4(B):
     sc = Scene(B)
-    cam = Persp((112, 20.2, 115.4), (112, 15, 88), fov=72)
-    return sc.render(cam, P=dict(fill=0.35, fill_r=18, gain=3.2), decals=eye_decals(B))
+    cam = Persp((114.6, 21, 113), (108.5, 20, 99), fov=84)
+    return sc.render(cam, P=dict(gain=3.2, ambient=(0.07, 0.05, 0.06), fill=0.1, fill_r=14, exposure=1.4), decals=eye_decals(B))
 
 
 @shot('5_frozen_falls')
 def s5(B):
     sc = Scene(B)
-    cam = Persp((53, 84, 158), (30, 82, 132), fov=82)
-    return sc.render(cam, P=dict(fill=0.35, fill_r=30, gain=3.0))
+    cam = Persp((53, 86, 133), (31, 82, 164), fov=88)
+    return sc.render(cam, P=dict(gain=3.1, ambient=(0.055, 0.05, 0.07), fill=0.15, fill_r=25, exposure=1.45))
 
 
 @shot('6_hexed_library')
 def s6(B):
     sc = Scene(B)
-    cam = Persp((174, 58, 152), (204, 60, 126), fov=82)
-    return sc.render(cam, P=dict(fill=0.35, fill_r=28, gain=3.0))
+    cam = Persp((175, 57, 152), (203, 61, 124), fov=84)
+    return sc.render(cam, P=dict(gain=3.5, ambient=(0.08, 0.06, 0.09), fill=0.22, fill_r=30))
 
 
 @shot('7_warship')
 def s7(B):
-    sc = Scene(B)
-    cam = Persp((147, 50, 190), (108, 32, 210), fov=80)
-    return sc.render(cam, P=dict(fill=0.2, fill_r=40, gain=2.8))
+    """the cavern's north side cut away (the ship all but fills it): the Kingdom's warship hung in its chains over the lava"""
+    sx, sy, sz = B.size
+    X, Y, Z = np.meshgrid(np.arange(sx), np.arange(sy), np.arange(sz), indexing='ij')
+    rm = (Z < 193) & (X > 60) & (X < 170) & (Y < 90)
+    sc = Scene(B, remove=rm)
+    cam = Persp((119, 58, 150), (119, 36, 206), fov=70)
+    return sc.render(cam, P=dict(gain=4.2, ambient=(0.2, 0.13, 0.14), fill=0.0, fog_d=600))
 
 
 @shot('8_approach')
 def s8(B):
     sc = Scene(B)
-    cam = Persp((214, 103, 210), (191, 101, 206), fov=78)
-    return sc.render(cam, P=dict(fill=0.35, fill_r=25, gain=3.0))
+    cam = Persp((216, 104, 213), (191, 101, 206), fov=76)
+    return sc.render(cam, P=dict(gain=3.5, ambient=(0.1, 0.07, 0.08), fill=0.3, fill_r=30))
 
 
 @shot('9_last_light')
 def s9(B):
     sc = Scene(B)
-    cam = Persp((92.5, 17, 90.5), (83, 13, 81), fov=84)
-    return sc.render(cam, P=dict(fill=0.3, fill_r=20, gain=2.6))
+    cam = Persp((93.5, 16, 85), (82, 17, 85), fov=84)
+    return sc.render(cam, P=dict(gain=1.5, ambient=(0.03, 0.025, 0.03), fill=0.04, fill_r=15, exposure=0.8))
 
 
 def main():

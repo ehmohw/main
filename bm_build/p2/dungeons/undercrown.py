@@ -16,7 +16,8 @@ Walk y in brackets. North is -z. The Hall of Chains' axis is (112, 145).
       -> DROWNED LANDING (36, south) -> G15 -> the HUB FLOOR RING (18). Its windows onto the shaft are barred low, open above.
   THE FROZEN WARD (78, x8..72 z29..170)
       P1  sigil: Pistachio, on the landing, before the hat-lock door (a top hat of packed ice)          -> G1
-      P2  targets: THE FROZEN FALLS x28..55 z128..168 - five frozen lavafalls, each with a target in a framed sign: claw (4) and
+      P2  targets: THE FROZEN FALLS x28..55 z128..168 - icicles hang from its vault, snow drifts against its walls; seven-wide
+          frozen lavafalls (two silent ones), each with a target in a framed sign: claw (4) and
           hat (1) on the west wall, empty frame (5) and snowflake (2) on the south, icicle (3) on the north. The verse
           (BOOKS['frozen']) is on the lectern; a barrel of arrows beside it                                -> G2
       P3  sigil: Celi (32,78,121) + Tullius (52,78,121) on the near shore of a lava lake (z101..117) -> bridge 3 (packed ice,
@@ -35,8 +36,8 @@ Walk y in brackets. North is -z. The Hall of Chains' axis is (112, 145).
       P9  sigil: King Omega, in the bone room x202..216 z158..168                                       -> G9: THE OSSUARY x184..200
       P10 echo (witch): a round hex arena, centre (163,52,170), r15; a ward vault                         -> G10: a corridor north to
           the entry hall - and the stair's own G10 below the landing
-  THE DROWNED WARD (x44..154 z177..222) - a great lava cavern (lava y13..15) with the Kingdom's warship hung in it from chains,
-      its bow rammed into the cavern's west rock. Hull x93..146 z195..216: hold (24), gun deck (33), main deck (38).
+  THE DROWNED WARD (x44..154 z177..222) - a great lava cavern (lava y7..9, its vault rising to ~y78 over the ship) with the
+      Kingdom's warship hung in it by colossal chains, a dozen blocks over the drop, its bow rammed into the cavern's west rock. Hull x93..146 z195..216: hold (24), gun deck (33), main deck (38).
       P11 sigil: Queen Pearl, on the ledge (36) before the gangway's gatehouse                          -> G11
       P12 simon: THE KINGDOM'S SONG - five bells on the main deck, a button on each bell's plinth; the conch (listen button) on
           the mainmast; BOOKS['drowned']                                                                 -> G12: the companionway down
@@ -56,13 +57,16 @@ Walk y in brackets. North is -z. The Hall of Chains' axis is (112, 145).
   THE THRONE OF THE DREAD - exactly undercfg.ARENA: the floor (y11..12) over air (7..10) over the lava sea (2..6), the dome
       to 64; six pillars (r26, on islands r6, on rock cones), each with its Wellspring's air cell at y16 on its inward face and
       chains wound round it; obsidian slabs on three islands; the outer floor is void-glass with red cracks (it falls in phase
-      3). THE THRONE (112,13,11) on its dais: meta['under']['dais'] lists the dais' columns - its own island, solid down to the
+      3). THE THRONE (112,13,11): a colossus' seat of red nether brick and gilded blackstone edged in crying obsidian, its spikes
+      tipped with light, standing in a black apse cut into the north wall and dome, a great red rose window burning behind it
+      and chains radiating from its crown into the dome. It stands on its dais: meta['under']['dais'] lists the dais' columns - its own island, solid down to the
       sea floor and joined to the two northern pillars' islands; the fight must leave it standing. Chains run from the
       throne to the six pillars. A rift by the throne, for after. Behind the throne's arch: THE HOARD's door (z7) and the Hoard,
       a crescent behind the north wall (gold, three chests, the 'hoard' voice).
 HIDDEN ROOMS (undercfg.HIDDEN: each a door that looks like its wall, its followers' sigils beside it, a sign, a relic, a chest)
-  last_light  the Lightbringer's sigil in the antechamber (99,13,84); the door in its west wall -> a white chapel (froglight,
-              quartz, gold), BOOKS['vigil'], the 'last_light' voice
+  last_light  the Lightbringer's sigil in the antechamber (99,13,84); the door in its west wall -> a white chapel under a coved
+              quartz vault: pews, a gold-trimmed altar under a stained-glass sun lit from behind, candles, banners, BOOKS['vigil'],
+              the 'last_light' voice
   lantern     the Arachno-Lantern's sigil on the stair at the north turn (112,64,114); the door in the outer wall -> the maze
   archive     the Eraser's sigil in the Hexed entry hall (161,52,129); the door is a white_concrete patch in the north wall,
               "painted over" -> the Erased Archive, BOOKS['unwritten']
@@ -97,9 +101,9 @@ VOID = [('polished_blackstone_bricks', 5), ('deepslate_tiles', 3), ('deepslate_b
 FLOOR = [('polished_blackstone', 3), ('deepslate_tiles', 2), ('polished_deepslate', 2), ('polished_blackstone_bricks', 1)]
 RED = [('red_nether_bricks', 5), ('nether_wart_block', 1), ('crimson_planks', 1)]
 ROCK = [('blackstone', 4), ('basalt[axis=y]', 2), ('netherrack', 2), ('deepslate', 1)]
-ICE = [('packed_ice', 5), ('blue_ice', 2), ('blackstone', 1)]
-ICE_FLOOR = [('packed_ice', 4), ('blue_ice', 1), ('polished_blackstone', 1), ('snow_block', 1)]
-HEX = [('polished_blackstone_bricks', 4), ('purpur_block', 1), ('obsidian', 1), ('blackstone', 1), ('deepslate_tiles', 1)]
+ICE = [('packed_ice', 6), ('blue_ice', 2)]                    # (black veins are drawn through it afterwards: ice_veins)
+ICE_FLOOR = [('packed_ice', 6), ('blue_ice', 2), ('snow_block', 0.5)]
+HEX = [('polished_blackstone_bricks', 6), ('deepslate_tiles', 2), ('obsidian', 1), ('cracked_polished_blackstone_bricks', 1)]
 BONE = [('bone_block[axis=y]', 4), ('bone_block[axis=x]', 1), ('smooth_quartz', 1), ('calcite', 1)]
 HULL = [('prismarine', 3), ('dark_prismarine', 3), ('prismarine_bricks', 2), ('weathered_copper', 1), ('oxidized_copper', 1)]
 
@@ -600,16 +604,17 @@ def tunnel(k):
 
 
 # ===================================================================================================== THE FROZEN WARD
-def lavafall(k, x, z, y0, y1, ax, back):
-    """a frozen 'lavafall' on a wall face: a glass core (orange/red, magma glowing dimly behind it) sheathed in ice.
-    ax: the wall plane's axis ('x' - the fall spans x; 'z' - spans z); back = (dx, dz) into the wall"""
+def lavafall(k, x, z, y0, y1, ax, back, w=3):
+    """a frozen 'lavafall' on a wall face: a glass core (orange/red, magma glowing dimly behind it) sheathed in ice, w wide
+    (the core is w-2 wide). ax: the wall plane's axis ('x' - the fall spans x; 'z' - spans z); back = (dx, dz) into the wall"""
     s = k.s
+    h = w // 2
     for y in range(y0, y1 + 1):
-        for o in (-1, 0, 1):
+        for o in range(-h, h + 1):
             cx, cz = (x + o, z) if ax == 'x' else (x, z + o)
-            if o == 0:
-                s(cx, y, cz, 'orange_stained_glass' if (y * 3 + x + z) % 4 else 'red_stained_glass')
-                s(cx + back[0], y, cz + back[1], 'magma_block')
+            if abs(o) < h:
+                s(cx, y, cz, 'orange_stained_glass' if (y * 3 + x + z + o * 5) % 4 else 'red_stained_glass')
+                s(cx + back[0], y, cz + back[1], 'shroomlight' if (y + o) % 7 == 0 and abs(o) == 0 else 'magma_block')
             else:
                 s(cx, y, cz, 'blue_ice' if (y + o) % 3 == 0 else 'packed_ice')
 
@@ -646,6 +651,54 @@ def frame_deco(k, kind, x, y, z, ax, front):
         for (u, v) in ring: s(*at(u, v), 'polished_blackstone')
 
 
+def ice_veins(k, box, n=160):
+    """black ice-veins: crooked lines of blackstone wandering over the Frozen Ward's ice faces (not random specks)"""
+    B, rnd = k.B, random.Random(4411)
+    (x0, y0, z0), (x1, y1, z1) = box
+    ice = lambda q: B.b.get(q, '').split(':')[-1].split('[')[0] in ('packed_ice', 'blue_ice')
+    def face(q):
+        return ice(q) and any(B.b.get((q[0] + a, q[1] + b, q[2] + c), '').endswith(':air') for a, b, c in
+                              ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)))
+    seeds = [q for q in B.b if x0 <= q[0] <= x1 and y0 <= q[1] <= y1 and z0 <= q[2] <= z1 and face(q)]
+    seeds.sort()
+    for _ in range(n):
+        q = seeds[rnd.randrange(len(seeds))]
+        d = rnd.choice(((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)))
+        for _ in range(rnd.randint(5, 14)):
+            if not face(q): break
+            B.set(*q, 'blackstone')
+            if rnd.random() < 0.35: d = rnd.choice(((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)))
+            q = (q[0] + d[0], q[1] + d[1], q[2] + d[2])
+
+
+def frozen_cavern(k, x1, z1, x2, z2, W):
+    """the Frozen Falls' drama: icicle clusters hanging from the vault, ice teeth rising from the floor, snow drifted against
+    the walls (nothing within reach of the doors, and no icicle lower than ten blocks over the floor)"""
+    B, s, rnd = k.B, k.s, random.Random(5150)
+    air = lambda q: B.b.get(q, '').endswith(':air')
+    keep_clear = lambda x, z: (36 <= x <= 40 and z <= 131) or (x >= 52 and 143 <= z <= 153) or (37 <= x <= 45 and 146 <= z <= 153)
+    for _ in range(46):                                         # icicles: a long blue spike, shorter ones round it
+        cx, cz = rnd.randint(x1 + 1, x2 - 1), rnd.randint(z1 + 1, z2 - 1)
+        for (dx, dz, f) in ((0, 0, 1.0), (1, 0, 0.55), (-1, 0, 0.45), (0, 1, 0.6), (0, -1, 0.4), (1, 1, 0.3)):
+            x, z = cx + dx, cz + dz
+            y = W + 1
+            while y < W + 30 and air((x, y, z)): y += 1
+            if y >= W + 30 or not air((x, y - 1, z)): continue
+            ln = max(1, int(rnd.randint(3, 9) * f))
+            bottom = max(W + 10, y - ln)
+            for yy in range(bottom, y): s(x, yy, z, 'blue_ice' if yy < bottom + 2 or (dx, dz) == (0, 0) else 'packed_ice')
+    for x in range(x1, x2 + 1):                                 # drifts: snow banked against every wall, deeper in the corners
+        for z in range(z1, z2 + 1):
+            if keep_clear(x, z) or not air((x, W, z)): continue
+            walls = sum(not air((x + a, W, z + b)) and B.b.get((x + a, W, z + b), '').split(':')[-1].split('[')[0] in
+                        ('packed_ice', 'blue_ice', 'blackstone') for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+            if walls and rnd.random() < 0.75:
+                s(x, W, z, 'snow_block')
+                if walls >= 2 and air((x, W + 1, z)): s(x, W + 1, z, 'snow_block')
+            elif not walls and rnd.random() < 0.011 and air((x, W + 1, z)):
+                for yy in range(W, W + rnd.randint(2, 4)): s(x, yy, z, 'blue_ice' if yy == W else 'packed_ice')
+
+
 def frozen(k):
     B, s, rnd = k.B, k.s, k.rnd
     W = FROZEN_Y
@@ -680,16 +733,19 @@ def frozen(k):
     FALLS = [('claw', 4, 27, 136, 'z', (-1, 0)), ('hat', 1, 27, 160, 'z', (-1, 0)), ('empty', 5, 36, 169, 'x', (0, 1)),
              ('flake', 2, 48, 169, 'x', (0, 1)), ('icicle', 3, 50, 127, 'x', (0, -1))]
     for kind, order, x, z, ax, back in FALLS:
-        lavafall(k, x, z, W, W + 15, ax, back)
+        lavafall(k, x, z, W, W + 17, ax, back, w=7)
         frame_deco(k, kind, x, W + 6, z, ax, (-back[0], -back[1]))
         B.target(2, x, W + 6, z, order=order)
         ox, oz = back
-        for u in (-1, 0, 1):                                 # a little frozen pool at its foot
-            for v in (1, 2):
+        for u in range(-3, 4):                               # where it froze as it hit the floor: a pool of blue ice, a frozen splash
+            for v in (1, 2, 3):
+                if abs(u) == 3 and v == 3: continue
                 cx, cz = (x + u - ox * v, z - oz * v) if ax == 'x' else (x - ox * v, z + u - oz * v)
-                s(cx, W - 1, cz, 'blue_ice')
-    for z in (130, 166):                                    # two silent falls with nothing in them
-        lavafall(k, 56 if False else 27, z, W, W + 12, 'z', (-1, 0)) if z == 130 else None
+                s(cx, W - 1, cz, 'blue_ice' if (u + v) % 3 else 'orange_stained_glass')
+                if v == 1 and abs(u) >= 2: s(cx, W, cz, 'packed_ice')
+    lavafall(k, 27, 147, W, W + 14, 'z', (-1, 0), w=5)        # the silent falls, with nothing in them
+    lavafall(k, 42, 169, W, W + 14, 'x', (0, 1), w=5)
+    frozen_cavern(k, 28, 128, 55, 168, W)
     B.lectern(41, W, 150, 'south', *L.BOOKS['frozen'])
     s(41, W - 1, 150, 'chiseled_polished_blackstone')
     k.sign(43, W, 151, 0, ['THE FROZEN', 'FALLS', 'Read the verse.', 'Strike in order.'], color='aqua', wall=False)
@@ -802,6 +858,7 @@ def frozen(k):
     B.gate(42, W, 95, 'x', 3)
     B.gate(42, W, 61, 'x', 4)
     B.gate(58, W, 44, 'z', 5)
+    ice_veins(k, ((8, W - 2, 20), (70, W + 26, 170)))
 
 
 # ===================================================================================================== THE HEXED WARD
@@ -1029,25 +1086,26 @@ def drowned(k):
         for z in range(183, 224):
             e = ((x - 120) / 29.0) ** 4 + ((z - 204.3) / 16.2) ** 4
             if e > 1.6: continue
-            top = 58 + int(4 * math.sin(x / 5.0) * math.cos(z / 4.0)) - int(max(0.0, e - 0.6) * 18)
+            hi = 20 * min(1.0, max(0.0, (144 - x) / 8.0))            # the vault rises to ~78 over the ship (not by the Hexed arena)
+            top = 58 + int(hi) + int(4 * math.sin(x / 5.0) * math.cos(z / 4.0)) - int(max(0.0, e - 0.6) * (18 + hi))
             if e <= 1.0 - rnd.random() * 0.05:
-                for y in range(10, 13): s(x, y, z, k.pick(ROCK))
-                for y in range(13, 16): s(x, y, z, 'lava')
-                for y in range(16, top + 1): s(x, y, z, 'air')
+                for y in range(4, 7): s(x, y, z, k.pick(ROCK))
+                for y in range(7, 10): s(x, y, z, 'lava')
+                for y in range(10, top + 1): s(x, y, z, 'air')
                 for y in range(top + 1, top + 4): s(x, y, z, k.pick(ROCK))
             else:
-                for y in range(9, 66):
+                for y in range(3, 84):
                     if (x, y, z) not in B.b: s(x, y, z, k.pick(ROCK))
     for x in range(86, 155):                                 # make sure every lava cell is held: rock round the lake's rim
         for z in range(183, 224):
-            for y in range(13, 16):
+            for y in range(7, 10):
                 if B.b.get((x, y, z), '').endswith('lava'):
                     for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
                         q = (x + dx, y, z + dz)
                         if q not in B.b or B.b[q].endswith(':air'): s(*q, k.pick(ROCK))
     for x in range(102, 133):
         for z in range(188, 192):
-            for y in range(10, W): s(x, y, z, k.pick(ROCK) if y < W - 1 else k.pick(FLOOR))
+            for y in range(4, W): s(x, y, z, k.pick(ROCK) if y < W - 1 else k.pick(FLOOR))
             for y in range(W, W + 6): s(x, y, z, 'air')
     for x in range(102, 133): s(x, W, 191, 'polished_blackstone_wall') if x % 3 == 0 and not 113 <= x <= 121 else None
     B.voice('drowned', 117, W, 189, r=6)
@@ -1065,7 +1123,7 @@ def drowned(k):
     k.sign(115, W + 2, 190, 'north', ["THE QUEEN'S", 'SHIP KNOWS', 'HER STEP.', ''], color='aqua')
     k.hang(110, W + 4, 189, 1); k.hang(125, W + 4, 189, 1)
     # ---------------- the rock the ship's bow is rammed into
-    k.fill(84, 10, 197, 95, 34, 214, ROCK)
+    k.fill(84, 4, 197, 95, 34, 214, ROCK)
     # ---------------- THE WARSHIP: hull, keel, three decks
     for x in range(SHIP_X0, SHIP_X1 + 1):
         hw = hw_at(x)
@@ -1125,11 +1183,11 @@ def drowned(k):
                 if rnd.random() < 0.55 and (z + y) % 4: s(mx + 1, y, z, rnd.choice(('gray_wool', 'black_wool', 'light_gray_wool')))
         for y in range(HOLD, DECK + 7): s(mx + 1, y, 205, 'air') if y >= DECK else None
     for (x, z) in ((98, 201), (98, 210), (110, 195), (110, 216), (126, 195), (126, 216), (142, 197), (142, 214)):
-        for y in range(DECK + 2, 66):
+        for y in range(DECK + 2, 84):
             if B.b.get((x, y, z), '').endswith(':air'): s(x, y, z, CHAIN_Y)
             elif y > DECK + 4: break
-    for (x, z) in ((104, 193), (134, 193), (104, 218), (134, 218)):          # four colossal links to the vault
-        for y0 in range(DECK - 6, 60, 5):
+    for (x, z) in ((104, 193), (134, 193), (104, 218), (134, 218)):          # four colossal links, from the hull up into the vault
+        for y0 in range(DECK - 6, 84, 5):
             j = (y0 // 5) % 2
             for dy in range(7):
                 for dw in range(-2, 3):
@@ -1416,30 +1474,71 @@ def throne_room(k):
         if 70 <= a <= 110: continue
         for y in range(18, top):
             if B.b.get((x, y, z), '').endswith(':air'): s(x, y, z, CHAIN_Y)
-    # ---- the throne: a colossal back over an arch (the Hoard's door behind it), arms, a crown of spikes
+    # ---- the throne: a colossus' seat. An apse is cut into the north wall and dome behind it (black, with a great red rose window
+    #      burning at its back); the throne stands before it in red nether brick and gilded blackstone, edged in crying obsidian,
+    #      its spikes tipped with shroomlight; its back arches over the Hoard's door; chains radiate from it into the dome
+    k.fill(ACX - 16, 21, 0, ACX + 16, 70, 30, VOID, soft=True)
+    def apse_hw(y):
+        return 13.0 if y <= 50 else 13.0 * math.sqrt(max(0.0, 1 - ((y - 50) / 14.0) ** 2))
+    for x in range(ACX - 14, ACX + 15):
+        for y in range(23, 65):
+            if abs(x - ACX) > apse_hw(y): continue
+            for z in range(4, 31 if y > 30 else 9):
+                st = B.b.get((x, y, z), '')
+                if st.endswith(':air') and y > 30: break           # reached the arena's own air
+                if any(math.hypot(x - px, z - pz) <= A['pil_w'] + 0.6 for (_, px, pz) in PIL): break
+                s(x, y, z, 'air')
+            s(x, y, 3, 'black_concrete'); s(x, y, 2, 'obsidian'); s(x, y, 1, k.pick(VOID))
+        s(x, 23, 4, 'obsidian')
+    for x in range(ACX - 15, ACX + 16):                            # the apse's floor over the Hoard's ceiling
+        for z in range(3, 8):
+            if B.b.get((x, 23, z), '').endswith(':air') or (x, 23, z) not in B.b: s(x, 23, z, 'obsidian')
+            if B.b.get((x, 22, z), '').endswith(':air') and z < 9: s(x, 22, z, k.pick(VOID))
+    RX, RY, RR = ACX, 46, 12.0                                      # the rose window: red glass over fire, black tracery
+    for x in range(ACX - 13, ACX + 14):
+        for y in range(RY - 13, RY + 14):
+            d = math.hypot(x - RX, y - RY)
+            if d > RR: continue
+            ang = math.degrees(math.atan2(y - RY, x - RX)) % 45
+            tracery = d < 1.6 or abs(d - 5.5) < 0.55 or abs(d - 9) < 0.5 or (d > 2 and min(ang, 45 - ang) * math.pi / 180 * d < 0.5)
+            s(x, y, 3, 'black_concrete' if tracery else 'red_stained_glass')
+            if not tracery: s(x, y, 2, 'shroomlight' if (x + y) % 3 == 0 or d < 4 else 'magma_block')
+            if d > RR - 1.2: s(x, y, 3, 'gilded_blackstone')
     for x in range(ACX - 11, ACX + 12):
         dx = abs(x - ACX)
-        top = 44 - int(dx * 0.9) + (4 if dx in (0, 5, 10) else 0)
+        top = 46 - int(dx * 1.2) + (6 if dx == 0 else 3 if dx in (4, 8) else 0)
         for z in (8, 9):
             for y in range(13, top + 1):
                 arch = dx <= 3 and y <= 13 + 8 - (1 if dx == 3 else 0)
                 if arch: s(x, y, z, 'air'); continue
-                st = 'polished_blackstone_bricks'
-                if dx in (4, 7) and z == 9: st = 'gilded_blackstone' if y % 2 else 'polished_blackstone'
-                if y >= top - 1: st = 'gilded_blackstone'
-                if dx <= 1 and 30 <= y <= 33 and z == 9: st = 'magma_block'
-                if dx == 0 and y == 37 and z == 9: st = 'shroomlight'
+                st = 'red_nether_bricks' if (dx + y) % 9 else 'nether_wart_block'
+                if dx in (3, 6, 9) or y in (24, 32): st = 'gilded_blackstone'
+                if dx <= 3 and y in (22, 23): st = 'gilded_blackstone'
                 s(x, y, z, st)
-    for x in range(ACX - 3, ACX + 4):                              # the arch's floor and its sides
-        s(x, 12, 8, 'polished_blackstone'); s(x, 12, 9, 'polished_blackstone')
-    for side in (-1, 1):
-        for x in range(ACX + side * 7, ACX + side * 12, side):
+        if dx in (0, 4, 8): s(x, top + 1, 9, 'shroomlight')
+    sil = {(x, y) for x in range(ACX - 11, ACX + 12) for y in range(13, 60) if B.b.get((x, y, 9), '').split(':')[-1].startswith(
+        ('red_nether', 'nether_wart', 'gilded'))}
+    for (x, y) in sil:                                             # the lit outline: every edge of the silhouette
+        if any((x + a, y + b) not in sil for a, b in ((1, 0), (-1, 0), (0, 1))):
+            if not (abs(x - ACX) <= 4 and y <= 22): s(x, y, 9, 'crying_obsidian')
+    for side in (-1, 1):                                           # the arms: great blocks, gilded, edged and tipped with light
+        for x in range(ACX + side * 7, ACX + side * 13, side):
             for z in range(10, 18):
-                for y in range(13, 20 + (1 if z < 12 else 0)):
-                    s(x, y, z, 'polished_blackstone_bricks' if y < 19 else 'gilded_blackstone')
-        for y in range(13, 26): s(ACX + side * 11, y, 9, 'polished_blackstone_bricks')
+                for y in range(13, 22 + (2 if z < 12 else 0)):
+                    edge = x == ACX + side * 7 or z == 17 or y == 21 + (2 if z < 12 else 0)
+                    s(x, y, z, 'gilded_blackstone' if y >= 21 + (2 if z < 12 else 0) else 'crying_obsidian' if edge and (y + z) % 4 == 0
+                      else 'red_nether_bricks' if edge else 'polished_blackstone_bricks')
+        fx = ACX + side * 8
+        for y in range(22, 28): s(fx, y, 16, 'gilded_blackstone' if y < 27 else 'shroomlight')
+        for y in range(13, 30): s(ACX + side * 12, y, 9, 'gilded_blackstone' if y % 4 else 'crying_obsidian')
+        s(ACX + side * 12, 30, 9, 'shroomlight')
+    for x in range(ACX - 3, ACX + 4):                              # the arch's floor
+        s(x, 12, 8, 'polished_blackstone'); s(x, 12, 9, 'polished_blackstone')
     for z in range(10, 18): s(ACX, 13, z, 'red_carpet')
-    for z in range(18, 30): s(ACX, 13, z, 'red_carpet') if False else None
+    for i in range(12):                                            # chains radiating from the throne's crown into the dome
+        a = math.radians(200 + i * 140 / 11)
+        tx, tz = ACX + 26 * math.cos(a), ACZ + 26 * math.sin(a)
+        chain_line(k, (ACX, 50, 10), (round(tx), int(dome_top(26)) - 1, round(tz)))
     B.throne(*A['throne'])
     for (i, px, pz) in PIL:
         chain_line(k, (ACX, 34, 10), (round(px), 40, round(pz)))
@@ -1499,22 +1598,61 @@ def antechamber(k):
     for x in (104, 120):
         k.hang(x, 18, 84, 4)
     B.fx(112, 18, 84)
-    # ---- THE LAST LIGHT (the Lightbringer): a white chapel behind the west wall
-    k.room(82, 13, 79, 93, 21, 91, wall=[('white_wool', 1)], floor=[('smooth_quartz', 3), ('white_concrete', 1)], ceil=[('smooth_quartz', 1)])
-    k.fill(80, 11, 77, 95, 23, 93, VOID, soft=True)
+    # ---- THE LAST LIGHT (the Lightbringer): a white chapel behind the west wall - a holy place hidden in the dark. A coved
+    #      quartz vault, pews, a gold-trimmed altar under a stained-glass sun (white and yellow glass over froglight), banners,
+    #      candles, a chandelier of light
+    k.room(82, 13, 79, 93, 24, 91, wall=[('white_wool', 1)], floor=[('smooth_quartz', 3), ('white_concrete', 1)], ceil=[('smooth_quartz', 1)])
+    k.fill(79, 11, 77, 95, 26, 93, VOID, soft=True)
     k.air(94, 13, 83, 94, 15, 85)
     B.hidden('last_light', 95, 13, 84, 'z', 1, 3, 'polished_blackstone_bricks', [('lightbringer', 99, 13, 84)])
+    for z in range(79, 92):                                    # (the chapel's side of the shared wall is white too)
+        for y in range(13, 25):
+            if not B.b.get((94, y, z), '').endswith(':air'): s(94, y, z, 'white_wool')
     k.sign(98, 13, 81, 8, ['THE LAST LIGHT', 'IS KEPT FOR', 'ONE WHO KNOWS', 'THE WAY.'], color='yellow', wall=False)
+    for x in range(82, 94):                                    # the coved vault, a gold rib every third bay
+        for z in range(79, 92):
+            cap = 24 - max(0, abs(z - 85) - 3) // 2
+            for y in range(cap + 1, 25): s(x, y, z, 'gold_block' if x % 3 == 0 and y == cap + 1 else 'smooth_quartz')
+    for z in range(79, 92):
+        for x in range(82, 94):
+            if x % 3 == 0: s(x, 25, z, 'smooth_quartz')
     for (x, z) in ((84, 81), (84, 89), (91, 81), (91, 89)):
         for y in range(13, 21): s(x, y, z, 'quartz_pillar[axis=y]')
-        s(x, 21, z, 'pearlescent_froglight[axis=y]')
-    for z in range(80, 91): s(83, 13, z, 'white_carpet')
+        s(x, 21, z, 'pearlescent_froglight[axis=y]'); s(x, 22, z, 'gold_block')
+    # the stained-glass sun in the west wall, lit from behind
+    for z in range(81, 90):
+        for y in range(14, 24):
+            d = math.hypot(z - 85, (y - 18.5) * 0.9)
+            if d > 4.6:
+                if d <= 5.4: s(81, y, z, 'gold_block')
+                continue
+            ang = math.degrees(math.atan2(y - 18.5, z - 85)) % 30
+            s(81, y, z, 'yellow_stained_glass' if d < 1.8 or ang < 12 else 'white_stained_glass')
+            s(80, y, z, 'pearlescent_froglight[axis=y]')
+    # the altar: quartz and gold, a little sun on it, candles
+    for z in range(83, 88):
+        s(82, 13, z, 'gold_block' if z in (83, 87) else 'chiseled_quartz_block')
+        s(83, 13, z, 'gold_block' if z in (83, 87) else 'smooth_quartz')
+    s(82, 14, 85, 'gold_block'); s(82, 15, 85, 'pearlescent_froglight[axis=y]')
+    for z in (84, 86): s(83, 14, z, 'candle[candles=4,lit=true,waterlogged=false]')
+    for z in (83, 87): s(82, 14, z, 'candle[candles=3,lit=true,waterlogged=false]')
     s(84, 12, 85, 'gold_block'); s(85, 12, 85, 'gold_block')
     s(86, 13, 85, 'air'); s(86, 12, 85, 'gold_block'); B.relic('last_light', 86, 13, 85)
     B.lectern(89, 13, 85, 'west', *L.BOOKS['vigil'])
     B.chest(83, 13, 80, 'east', loot='bm:p2/under/hidden')
-    s(87, 21, 85, 'pearlescent_froglight[axis=y]')
-    for z in (80, 90): s(88, 13, z, 'candle[candles=4,lit=true,waterlogged=false]')
+    # pews either side of the aisle, a runner up it, candle stands, banners of the heralds
+    for x in (88, 90, 92):
+        for z in list(range(80, 84)) + list(range(87, 91)):
+            if (x, z) in ((91, 81), (91, 89)): continue
+            s(x, 13, z, 'birch_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]')
+    for x in range(84, 94):
+        if x not in (86, 89): s(x, 13, 85, 'yellow_carpet')
+    for (x, z) in ((93, 80), (93, 90), (86, 80), (86, 90)):
+        s(x, 13, z, 'quartz_pillar[axis=y]'); s(x, 14, z, 'candle[candles=4,lit=true,waterlogged=false]')
+    for x in (85, 88, 91):
+        s(x, 18, 79, 'white_wall_banner[facing=south]'); s(x, 18, 91, 'white_wall_banner[facing=north]')
+    for y in range(20, 24): s(88, y, 85, 'iron_chain[axis=y,waterlogged=false]')
+    s(88, 19, 85, 'pearlescent_froglight[axis=y]')
     B.voice('last_light', 88, 13, 85, r=5)
 
 

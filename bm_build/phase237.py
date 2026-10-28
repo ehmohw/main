@@ -40,7 +40,7 @@ OX, OY, OZ = U.ORIGIN
 SX, SY, SZ = U.SIZE
 NETHER = 'minecraft:the_nether'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
-UVER = 1                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out)
+UVER = 2                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out)
 COLLAPSE = 180                            # seconds between its fall and the rebuild
 EYE = (110, 130, 160)                     # the eyes' cycle (ticks): shut .. twitch (warning) .. open .. (round again)
 TOKENS = {'snow': 'tok_frost', 'witch': 'tok_hex', 'shark': 'tok_saw'}
@@ -260,7 +260,7 @@ def generate(G):
 
     # ================================================================== FINDING IT: the Summons, the Hidden Gate
     ox_, oy_, oz_ = W(*M['outer']) if M['outer'] else W(205, 96, 205)
-    ITEMS['usummons']['comps']['minecraft:lodestone_tracker'] = {'target': {'dimension': NETHER, 'pos': __import__('nbt').IntArray([ox_, oy_, oz_])}, 'tracked': B(0)}
+    ITEMS['usummons']['comps']['minecraft:lodestone_tracker'] = {'target': {'dimension': NETHER, 'pos': __import__('nbt').IntArray([ox_, oy_, oz_])}, 'tracked': False}
     second.append('execute if score #hard bm.cfg matches 1 as @a[tag=!bm.usum,scores={bm.dbwin_snow=1..,bm.dbwin_witch=1..,bm.dbwin_shark=1..}] at @s run function bm:p237/summons')
     fn('p237/summons', ['tag @s add bm.usum', give('usummons'), 'scoreboard players set #uwant bm.p2 1',
                         'title @s times 10 80 30', title('@s', 'subtitle', T('Something under the Nether has noticed what you did.', 'gray', italic=True)),

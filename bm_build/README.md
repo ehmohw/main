@@ -21,6 +21,56 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.98: THE UNDERCROWN - the final dungeon, and the Dread Sovereign
+
+**Hard mode.** Beat all three Dread bosses (the Malevolent Snowbeast, the Watchful Witch and the Chomping Sawshark) and a voice speaks: *"You broke my three. Come, then."* You receive **the Sovereign's Summons**, a compass that, in the Nether, points to the Undercrown. Elsewhere it spins.
+
+**The story.** Before the Lightbringer there was another herald of the Divine One, the first and the brightest: **Aurel**. He was sent down into the Nether to keep the dark from rising. He listened to it too long, and the first light went out. What wore what was left is **the Dread Sovereign**. It was chained beneath the Nether, and a warden was set over it: the Hollow King. When you broke the King, the lid slid, and the Dread rose. The three Dread bosses were the Sovereign's hands: fear, hunger and war. The books in the Undercrown tell the rest.
+
+**The Undercrown** is the largest dungeon in the game: 224 x 224 blocks, the full height of the Nether, cut into its rock. From outside it is only a seam of crying obsidian in a cliff. Carry the three Dread Tokens to it and it opens.
+- **The Hall of Chains:** a shaft 80 blocks deep, with colossal chains over a lava pool and floors of tinted glass. A spiral stair inside its walls leads down past three wards, gated below each one.
+- **Three wards, each sealed by the followers its Dread boss demanded:**
+  - *The Frozen Ward:* Pistachio, Celi and Tullius.
+  - *The Hexed Ward:* Cecil, Apophiss and King Omega.
+  - *The Drowned Ward:* Emma, Bones and Queen Pearl.
+- **Follower sigils:** a follower's emblem is set in the floor, with its name above. Lead that follower onto it, and sit it there when a door needs two. Anyone's followers count.
+- **Inside the wards:**
+  - the Frozen Falls (strike the targets in the order fear arrives);
+  - an ice bridge over a lava lake;
+  - the inverted Hexed library (hex sigils);
+  - a serpent crawl and an ossuary;
+  - a warship of the Underwater Kingdom hanging in chains over the lava, where you ring the Kingdom's Song on its bells;
+  - waves of Dread Thralls and Dried Drowned.
+- **The Echoes:** at the end of each ward, the echo of its Dread boss rises. Beat it for its **Crown Shard** and an Undercrown Key.
+- **The Throne Gate:** drop the three Crown Shards on their sockets.
+- **The Stair of a Thousand Eyes:** the walls are eyelids. When the eyes open, anyone who moves is seen: Darkness, a wound, and Dread Knights step out of the walls. Move while they're shut.
+- **Hidden rooms**, opened by followers nobody is promised. Each holds a relic, a Black Seal and a chest:
+  - **the Last Light** (the Lightbringer): the Dawnshard;
+  - **the Lantern Crawl** (the Arachno-Lantern; a pitch-dark maze): the Lantern's Wick;
+  - **the Erased Archive** (the Eraser rubs out a painted-over wall): the Page of Unwriting;
+  - **the Chainmaker's Forge** (Bender): the Sovereign's Chain, a whip;
+  - **Nine Lives** (Henry and Nia, through the cat-flap): the Ninth Life;
+  - **the Ossuary of the Unbound** (Wilfrey): an Unbound Knight's Helm.
+- **Two classic secret rooms**, and **the Sovereign's Hoard** behind the throne, opened after the fall by six Black Seals.
+
+**The Dread Sovereign** kneels on its throne, about 11 blocks tall, until someone crosses the hall.
+- **Its entrance (20 seconds):** the battle door slams and the dark falls. Its six chains burn one by one and the Wellsprings kindle. It lifts its head and speaks, the chains snap, and it rises from the throne, drags its greatsword up off the floor, raises it, and roars with its wings flung open. It has its own music.
+- **Armored:** it slams (jump the shockwave), sweeps (get behind a pillar), lunges, drags you in with its chains, and calls Dread Knights. Six Wellsprings on the pillars mend it until you shatter them.
+- **Broken:** its six wings unfurl, every eye in them open. It throws homing bolts, pulses its heart in rings (stand between them) and gusts you back. It also uses its three's own moves: the Snowbeast's ice volley, the Witch's curse circles and the Sawshark's whirlpool. Shoot out all six wing-eyes and it crashes down, its heart open.
+- **True:** the helm shatters, showing one vast red eye. The hall's outer floor falls into the lava. It sweeps an eye beam (get something solid between you, or hold up the Dawnshard), roots you in place and calls the dark. Every 40 seconds another island falls. At the end it frenzies, then tires, and the eye shuts: strike it.
+- Each form has its own pool of health, scaled to how many fight it. Each has its own music (the turns too), and its record drops from the ashes.
+
+**When it falls:**
+- **The Dread Nights end.** None comes, and the Dread Bell will not ring.
+- **The Dread Ember**, from its ashes, kindles them again. Kindle it again to end them.
+- Everyone who fought it gets **the reckoning**, so the Lightbringer is no longer to be found.
+- Its spoils: **Sovereign's Edge** (a greatsword whose full swings cut a void arc), **the Black Crown**, **the Heart of the Dread** (once a day it keeps you standing), a Victor's Key and its record. A second win brings *Aurel*, an elegy for the first light.
+- After three minutes **the Undercrown comes apart and is rebuilt**: everyone inside is carried out, and every block, trial, sigil and chest is reset.
+
+**The Bound Sovereign** (the Sovereign's Eye, hard mode, the first time it falls) is what's left of it, bound to you by its own chains. It comes with the full follower list.
+- Its powers: Cleave, Eye Bolt, Chains, Dread Ward, a Vigil out of a fight, and the Dread near it are weakened.
+- It pairs with Bender, Mr. Capshun, Henry and Nia, and, if she was ever yours, with **the Lightbringer** (*The First and the Last Light*).
+
 ## New in 2.97: seven new followers - the Doodles, the Lightbringer and the Pale Dryad
 
 Each one comes with the full follower list: a menu and its ways, sitting, a wardrobe (three colours, then gilded, diamond and netherite), a rare aura, a shiny form, the Partner Wheel, a frame trick, a display-case figure, Cecil's doll, the Champion blow and Piercing Blow, a Raid Contract, and a pair with Bender, Mr. Capshun, Henry and Nia.
