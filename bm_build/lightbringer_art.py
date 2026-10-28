@@ -75,8 +75,6 @@ ROYAL, ROYAL_D, ROYAL_L = '#3a5ad8', '#20307e', '#6a8cff'
 PURPLE, PURPLE_D, PURPLE_L = '#6a3cc0', '#3e1e7a', '#9a72e6'
 SKIN, SKIN_D = '#fbe8da', '#e8c8b4'
 HAIR, HAIR_D, HAIR_L = '#f2dc96', '#c8a456', '#fff4c4'
-IRIS = ('#9a5e06', '#e0a420', '#ffe680', '#5a3002')    # dark top, mid, light bottom, pupil
-LASH = '#6a4618'
 A_ROBE, A_SKIN, A_HAIR, A_FEATHER = 178, 205, 212, 186  # (her translucency, out of 255)
 
 
@@ -227,86 +225,120 @@ def _put(im, x, y, c):
 
 
 # ---- the face: 36 x 32 px on a 64 sheet (4 texels a unit - Emma's scale, as the royal family's), the head's front uv [0, 0, 9, 8]
-EYES = ((9, 12), (26, 12))                          # (each eye's top-centre; the sheet's left eye is her right)
-EYE_H = 12
+EYES = ((9, 11), (26, 11))                          # (each eye's top-centre; the sheet's left eye is her right)
+EYE_W, EYE_H = 12, 14
+LASH = '#4a2814'                                    # (a deep warm brown, never black)
+IRIS_RAMP = ['#a8620a', '#c87e12', '#e29e1e', '#f4be38', '#fcd862', '#fff0a2']   # deep amber at the top to pale gold
+PUPIL, PUPIL_L = '#4a2404', '#7a4208'
+WHITE = '#fffaf4'
+FACE_SKIN = ('#ffe8da', '#fff0e6', '#fde0d0')       # (warm porcelain peach)
 
 
-def _eye(im, cx, y0, flip, kind):
-    """one eye, the royal family's way - a thick lash over the top with a flick at the outer corner, the iris graded dark to
-    light down it (gold), a big pupil, two white glints. flip: the eye on the sheet's right (her left), mirrored."""
-    w, h = 10, EYE_H
-    x0 = cx - w // 2
+def _eye(im, glow, cx, y0, flip, kind):
+    """one eye - big, gentle anime eyes: a soft curved upper lid drawn as a clean warm-brown lash line with a flick at the
+    outer corner, a faint lower lash; a luminous gold iris graded from deep amber at the top to pale gold at the bottom, a
+    thin lighter rim, a dark pupil, one clear white highlight and a small second one. glow: the same eye's iris alone (the
+    light-15 overlay). flip: the eye on the sheet's right (her left), mirrored - its outer corner is to the right."""
+    w, h = EYE_W, EYE_H + (1 if kind == 'surprised' else 0)
     o = 1 if flip else -1                                                     # (toward the outer corner)
-    if kind == 'happy':                                                       # closed and curved up: ^
-        for i, dy in enumerate((5, 3, 2, 1, 1, 1, 1, 2, 3, 5)):
-            _put(im, x0 + i, y0 + 3 + dy, LASH); _put(im, x0 + i, y0 + 4 + dy, LASH)
-        return
-    if kind == 'blink':                                                       # closed, lashes curved down - calm
-        for i, dy in enumerate((0, 1, 2, 2, 3, 3, 2, 2, 1, 0)):
-            _put(im, x0 + i, y0 + 6 + dy, LASH);
-        _put(im, cx + o * 6, y0 + 5, LASH)
+    xs = range(cx - w // 2, cx + w // 2)
+    dxn = lambda x: (x + 0.5 - cx) / (w / 2)                                 # (-1 .. 1 across the eye)
+    inner = lambda x: max(0.0, min(1.0, 0.5 - 0.5 * dxn(x) * (-o)))           # (0 at the outer corner, 1 at the inner)
+    if kind in ('happy', 'blink'):                                            # closed: a clean curved lash line
+        for x in xs:
+            d = dxn(x)
+            y = y0 + 9 - round(3.4 * (1 - d * d)) if kind == 'happy' else y0 + 7 + round(2.6 * (1 - d * d))
+            _put(im, x, y, LASH)
+            if abs(d) < 0.7: _put(im, x, y + (1 if kind == 'happy' else -1) * 0 + 1, LASH)
+        ox = cx + (w // 2 if flip else -w // 2 - 1)
+        if kind == 'blink':
+            _put(im, ox, y0 + 6, LASH); _put(im, ox + o, y0 + 5, LASH)          # (the lashes' flick)
+        else:
+            _put(im, ox, y0 + 10, LASH)
         return
     if kind == 'hurt':                                                        # squeezed shut: > <
-        for i in range(5):
-            xa = x0 + 2 + i if not flip else x0 + 7 - i
-            _put(im, xa, y0 + 4 + i, LASH); _put(im, xa, y0 + 12 - i, LASH)
+        tip = cx + (3 if not flip else -4)
+        far = cx + (-5 if not flip else 4)
+        for i in range(9):
+            t = i / 8
+            x = round(far + (tip - far) * t)
+            _put(im, x, round(y0 + 3 + 4 * t), LASH); _put(im, x, round(y0 + 11 - 4 * t), LASH)
+            if 0.3 < t < 0.85: _put(im, x, round(y0 + 3 + 4 * t) + 1, LASH); _put(im, x, round(y0 + 11 - 4 * t) - 1, LASH)
         return
-    lid = {None: 2, 'fierce': 4, 'sad': 2, 'surprised': 0}.get(kind, 2)       # (serene: the lids a little lowered)
-    hh = h + (1 if kind == 'surprised' else 0)
-    top = y0 + lid
-    for y in range(y0, y0 + hh):
-        t = (y - y0) / (hh - 1)
-        half = round((w / 2) * math.sqrt(max(0.0, 1 - (2 * t - 1) ** 2 * 0.9)))
-        if y < top: continue
-        for x in range(cx - half, cx + half):
-            _put(im, x, y, '#ffffff')
-            if abs(x - cx + 0.5) < half - 1 and top < y < y0 + hh - 1:
-                _put(im, x, y, IRIS[0] if t < 0.42 else (IRIS[1] if t < 0.72 else IRIS[2]))
-    pr = 1 if kind == 'surprised' else 2                                      # (surprise: the pupil shrinks)
-    for y in range(y0 + 5 - (pr - 2), y0 + 9 + (pr - 2) + 1):
-        for x in range(cx - pr, cx + pr):
-            if y >= top + 1 and not (pr == 2 and y in (y0 + 5, y0 + 9) and x in (cx - 2, cx + 1)):
-                _put(im, x, y, IRIS[3])
-    if lid < 4:
-        gx = cx - 3 if not flip else cx + 1
-        for dx, dy in ((0, 0), (1, 0), (0, 1), (1, 1)):
-            _put(im, gx + dx, top + 1 + dy, '#ffffff')
-    _put(im, cx + (1 if not flip else -2), y0 + hh - 3, '#ffffff')
-    # the lash line over the top (fierce: slanting down to the inner corner), the flick at the outer corner
-    for i, x in enumerate(range(cx - 5, cx + 5)):
-        s = 0
-        if kind == 'fierce':
-            s = (i // 3) if not flip else ((9 - i) // 3)
-            s = s - 1
-        _put(im, x, top - 1 + s, LASH); _put(im, x, top + s, LASH)
-    _put(im, cx - 6, top, LASH); _put(im, cx + 5, top, LASH)
-    ox = cx - 6 if not flip else cx + 5
-    _put(im, ox + o, top - 1, LASH); _put(im, ox + 2 * o, top - 2, LASH)
+    # the open eye: the white inside an ellipse, under a lid line that arcs (higher in the middle)
+    L, A, slant = {None: (3, 2.4, 0), 'fierce': (5, 1.4, 2), 'sad': (3, 2.2, -2), 'surprised': (0, 0, 0)}[kind]
+    def lid(x):
+        d = dxn(x)
+        return y0 + L - round(A * (1 - d * d)) + round(slant * inner(x) if slant > 0 else -slant * (1 - inner(x)))
+    vis = set()
+    for y in range(y0, y0 + h):
+        t = (y + 0.5 - y0) / h
+        half = (w / 2) * math.sqrt(max(0.0, 1 - (2 * t - 1) ** 2 * 0.86))
+        for x in xs:
+            if abs(x + 0.5 - cx) < half and y >= lid(x):
+                vis.add((x, y))
+    for x, y in vis:
+        _put(im, x, y, WHITE)
+    # the iris: an upright ellipse, sitting low in the eye; its colour graded down it; a lighter rim at its sides and foot
+    ir = 3.3 if kind == 'surprised' else 4.3
+    icy, ih = y0 + h * 0.55, h * 0.5 if kind != 'surprised' else h * 0.38
+    iris = {(x, y) for (x, y) in vis if ((x + 0.5 - cx) / ir) ** 2 + ((y + 0.5 - icy) / ih) ** 2 <= 1 and y < y0 + h - 1}
+    if iris:
+        top, bot = min(y for _, y in iris), max(y for _, y in iris)
+        for x, y in iris:
+            t = (y - top) / max(1, bot - top)
+            c = IRIS_RAMP[min(len(IRIS_RAMP) - 1, int(t * len(IRIS_RAMP)))]
+            edge = any((x + dx, y + dy) not in iris for dx, dy in ((1, 0), (-1, 0), (0, 1)))
+            if edge and y > top + 1: c = _mix(c, '#fff4c4', 0.4)
+            _put(im, x, y, c)
+        pr = 1.4 if kind == 'surprised' else 2.0                              # the pupil
+        pcy = icy - 0.5
+        for x, y in iris:
+            if ((x + 0.5 - cx) / pr) ** 2 + ((y + 0.5 - pcy) / (pr * 1.35)) ** 2 <= 1:
+                _put(im, x, y, PUPIL_L if y + 0.5 > pcy + pr else PUPIL)
+        hx = cx - 3 if kind != 'surprised' else cx - 2                        # one clear highlight (up and to the viewer's left on both)
+        for dx, dy in ((0, 0), (1, 0), (0, 1), (1, 1), (0, 2)):
+            if (hx + dx, top + 1 + dy) in iris: _put(im, hx + dx, top + 1 + dy, '#ffffff')
+        if (cx + 2, bot - 2) in iris: _put(im, cx + 2, bot - 2, '#ffffff')    # and a small second one
+        for x, y in iris:                                                     # (the glow overlay: the iris alone)
+            glow.putpixel((x, y), im.getpixel((x, y)))
+    # the upper lash line along the top of the open eye, the flick at the outer corner; a faint lower lash
+    tops = {}
+    for x, y in vis:
+        tops[x] = min(y, tops.get(x, 99))
+    for x, ty in tops.items():
+        _put(im, x, ty - 1, LASH)
+        if abs(dxn(x)) < 0.75: _put(im, x, ty, LASH)
+    ox = max(tops) if flip else min(tops)
+    _put(im, ox + o, tops[ox] - 1, LASH); _put(im, ox + o, tops[ox] - 2, LASH); _put(im, ox + 2 * o, tops[ox] - 3, LASH)
     for x in range(cx - 3, cx + 3):
-        _put(im, x, y0 + hh, '#e8b8a0')
+        _put(im, x, y0 + h, '#dca896')
+    _put(im, cx + o * 4, y0 + h - 1, '#dca896')
     if kind == 'sad':                                                         # a tear at the outer corner
-        _put(im, cx + o * 4, y0 + hh + 1, '#bfe6ff'); _put(im, cx + o * 4, y0 + hh + 2, '#e8f8ff')
+        for dy, c in ((0, '#bfe6ff'), (1, '#e8f8ff'), (2, '#bfe6ff')):
+            _put(im, cx + o * 5, y0 + h + dy, c)
 
 
 def _brows(im, kind):
-    col = '#c89a48'
+    """thin, soft, pale gold (her hair's own), set above the eyes under the fringe's points"""
+    col = HAIR_D
     for (cx, _), flip in zip(EYES, (False, True)):
-        for i, x in enumerate(range(cx - 3, cx + 3)):
-            t = i if not flip else 5 - i                                     # (0 at the outer end, 5 at the inner)
-            y = 8
-            if kind == 'fierce': y = 7 + t // 2                              # down toward the middle
-            elif kind == 'sad': y = 9 - t // 2                               # up toward the middle
-            elif kind == 'surprised': y = 6 - (1 if 1 <= t <= 4 else 0)
-            elif kind in ('hurt',): y = 8 + (1 if t > 3 else 0)
-            else: y = 8 - (1 if 1 <= t <= 4 else 0)                         # (a soft arch)
+        for i, x in enumerate(range(cx - 3, cx + 4)):
+            t = i if not flip else 6 - i                                     # (0 at the outer end, 6 at the inner)
+            # (row 8 and above sits under the fringe's 3D edge: the brows live in rows 9-11)
+            if kind == 'fierce': y = 9 + round(t / 3)                        # down toward the middle
+            elif kind == 'sad': y = 11 - round(t / 3)                        # up toward the middle
+            elif kind == 'surprised': y = 9                                  # (raised, high and level)
+            elif kind == 'hurt': y = 10 + (1 if t > 4 else 0)
+            else: y = 10 - (1 if 1 <= t <= 5 else 0)                        # (a soft arch)
             _put(im, x, y, col)
 
 
 def _mouth(im, kind):
-    ink, lip, inner = '#b4645a', '#e89a90', '#7a2e30'
+    ink, lip, inner = '#c06a5c', '#f0a49a', '#8a3a38'
     x, y = 15, 28
     rows = {'happy': ('.mmmmmm.', 'mwwwwwwm', '.mpppm..', '..mmm...'),
-            'fierce': ('mmmmmm',),
+            'fierce': ('.mmmm.',),
             'sad': ('..mm..', '.m..m.', 'm....m'),
             'surprised': ('.mm.', 'mrrm', 'mrrm', '.mm.'),
             'hurt': ('m.m.m.m', '.m.m.m.'),
@@ -319,19 +351,20 @@ def _mouth(im, kind):
             if ch != '.': _put(im, x + dx, y + dy, {'m': ink, 'w': '#ffffff', 'p': lip, 'r': inner}[ch])
 
 
-def _face(kind=None):
-    """her face: fair, a little see-through (the skin's alpha) with every feature solid - pale-gold bangs parted in the
-    middle and falling to each temple, soft arched brows, big gold eyes, a blush, a small nose, a gentle mouth"""
-    im = _shade(SKIN, ('#fdf0e6', '#f6e0d0'), 4101, 0.12)                   # (the face plate is solid: she has to read clearly)
-    for y in range(32):                                                      # (a touch of shade at its edges and under the fringe)
+def _face(kind=None, glow=None):
+    """her face (solid, so she reads clearly): warm porcelain, pale-gold bangs parted in the middle and falling to each
+    temple, soft pale-gold brows, big luminous gold eyes, a soft blush, a small nose, a gentle mouth. glow: an image to
+    take the irises alone (the eyes' light-15 overlay)."""
+    im = _shade(FACE_SKIN[0], FACE_SKIN[1:], 4101, 0.08)
+    for y in range(32):                                                      # (a touch of shade at its edges)
         for x in range(36):
             r, g, b, a = im.getpixel((x, y))
-            if y > 29 or x < 1 or x > 34: im.putpixel((x, y), (int(r * 0.97), int(g * 0.94), int(b * 0.93), a))
+            if y > 29 or x < 1 or x > 34: im.putpixel((x, y), (int(r * 0.98), int(g * 0.95), int(b * 0.93), a))
     # the bangs: a centre part (a small V of brow at x 17-18), the fringe sweeping down to each side, longer at the temples
     hd, hm, hl = hexc(HAIR_D, 255), hexc(HAIR, 255), hexc(HAIR_L, 255)
     for x in range(36):
         dx = abs(x - 17.5)
-        edge = int(3.5 + min(dx, 11) * 0.5 + (3 if dx > 14 else 0) + (6 if dx > 16 else 0))
+        edge = int(3.5 + min(dx, 11) * 0.4 + (3 if dx > 14 else 0) + (6 if dx > 16 else 0))
         edge += (1, 0, -1)[(x // 2) % 3] if 2 < dx < 14 else 0                # (pointed locks)
         for y in range(edge):
             j = (x + y // 3) % 4
@@ -339,16 +372,21 @@ def _face(kind=None):
             if y == edge - 1: c = hd
             _put(im, x, y, c)
     _brows(im, kind)
+    glow = glow if glow is not None else Image.new('RGBA', (64, 64), (0, 0, 0, 0))
     for (cx, y0), flip in zip(EYES, (False, True)):
-        _eye(im, cx, y0, flip, kind)
+        _eye(im, glow, cx, y0, flip, kind)
     if kind not in ('fierce', 'hurt'):                                       # the blush
         for cx in (5, 30):
             for x in range(cx - 3, cx + 4):
-                for y in (25, 26):
-                    if not (y == 26 and x in (cx - 3, cx + 3)): _put(im, x, y, '#f6b4b0')
-    _put(im, 17, 24, '#e2b29a'); _put(im, 18, 25, '#e2b29a')                # the nose
+                for y in (26, 27):
+                    if not (y == 27 and x in (cx - 3, cx + 3)): _put(im, x, y, '#f8bcb4')
+    _put(im, 17, 24, '#ecb8a2'); _put(im, 18, 25, '#ecb8a2')                # the nose
     _mouth(im, kind)
     return im
+
+
+def _eyes_glow(kind=None):
+    g = Image.new('RGBA', (64, 64), (0, 0, 0, 0)); _face(kind, g); return g
 
 
 def textures():
@@ -358,13 +396,13 @@ def textures():
          'lb_feather': _feather(4010), 'lb_covert': _covert(4011), 'lb_tip': _tip(4012), 'lb_tip_blue': _tip(4013, True),
          'lb_halo': _cells(lambda x, y, r: r.choice((GOLD_L, GOLD_W, GOLD_W, GOLD)), 4014), 'lb_light': _light(4015),
          'lb_sapph': _gem(ROYAL, '#b0c8ff', ROYAL_D, 4016), 'lb_ameth': _gem(PURPLE_L, '#e6d4ff', PURPLE_D, 4017),
-         'lb_face': _face()}
+         'lb_face': _face(), 'lb_eyes': _eyes_glow()}
     for k in FACES:
         T[f'lb_face_{k}'] = _face(k)
+        if k in OPEN_EYES: T[f'lb_eyes_{k}'] = _eyes_glow(k)
     return T
 
 
-# ---------------------------------------------------------------------------------------------------- models
 def _faces_but(*drop):
     return tuple(f for f in ('north', 'south', 'east', 'west', 'up', 'down') if f not in drop)
 
@@ -571,7 +609,7 @@ def models():
             ((-2.9, HB + 2.2, 5.4), (2.9, HT - 2.6, 5.9))                                       # the back, stepped out round
         S = [((sx * 5.1 if sx > 0 else -5.75, HB + 1.8, -1.6), (5.75 if sx > 0 else -5.1, HT - 1.6, 2.8)) for sx in (1, -1)]   # (fullness over the ears)
         h = [el((-4.5, HB, -4.0), (4.5, HT - 1.4, 3.4), 'lb_skin', pv, faces=('east', 'west', 'down')),
-             el((-4.5, HB, -4.0), (4.5, HT, -4.0), tex, pv, faces=('north',), uv={'north': [0, 0, 9, 8]}),
+             dict(el((-4.5, HB, -4.0), (4.5, HT, -4.0), tex, pv, faces=('north',), uv={'north': [0, 0, 9, 8]}), shade=False),   # (unshaded: warm and clear)
              hr(*C1, faces=('north', 'south', 'east', 'west', 'down'), sh=(0.2, 0.1)),
              hr(*C2, faces=('north', 'south', 'east', 'west'), sh=(0.6, 0.4)),
              hr(*C3, faces=('north', 'south', 'east', 'west', 'up'), sh=(0.4, 0.7)),
@@ -590,15 +628,16 @@ def models():
         for sx, Sd in zip((1, -1), S):                                                             # (the sides' outer faces round the fullness)
             side = ((4.5, HB + 1.0, -2.6), (5.1, HT - 1.4, 3.4)) if sx > 0 else ((-5.1, HB + 1.0, -2.6), (-4.5, HT - 1.4, 3.4))
             h += _uncovered(side, Sd, 0, sx, 'lb_hair', pv)
-        for x in (-3.9, -2.4, -1.0, 1.0, 2.4, 3.9):                                            # pointed locks over her brow
-            dy = 0.25 if abs(x) < 2 else 0.0
-            h.append(el((x - 0.48, HT - 2.48 + dy, -4.62), (x + 0.48, HT - 1.52 + dy, -4.04), 'lb_hair', pv, faces=('north', 'east', 'west', 'down'),
+        for x in (-3.6, -0.85, 0.85, 3.6):                                                     # pointed locks over her brow (between and
+            dy = 0.25 if abs(x) < 2 else 0.0                                                   #  outside the brows, so they show)
+            h.append(el((x - 0.4, HT - 2.4 + dy, -4.62), (x + 0.4, HT - 1.6 + dy, -4.04), 'lb_hair', pv, faces=('north', 'east', 'west', 'down'),
                         rot=('z', 45, (x, HT - 2.0 + dy, -4.33)), shift=(0.1 * x, 0.3)))
-        if face in OPEN_EYES:                                     # her eyes, lit: the face's own eye windows again, just in front, glowing
+        if face in OPEN_EYES:                                     # her eyes, lit: each iris again (alone - its own texture), just in front, glowing
+            gt = 'lb_eyes' if face is None else f'lb_eyes_{face}'
             for (cx, y0), flip in zip(EYES, (False, True)):
-                u0, u1, v0, v1 = (cx - 6) / 4, (cx + 6) / 4, (y0 - 1) / 4, (y0 + EYE_H + 1) / 4
-                h.append(el((4.5 - u1, HT - v1, -4.03), (4.5 - u0, HT - v0, -4.02), tex, pv, faces=('north',),
-                            uv={'north': [u0, v0, u1, v1]}, light=15))
+                u0, u1, v0, v1 = (cx - 6) / 4, (cx + 6) / 4, (y0 - 1) / 4, (y0 + EYE_H + 2) / 4
+                h.append(dict(el((4.5 - u1, HT - v1, -4.03), (4.5 - u0, HT - v0, -4.02), gt, pv, faces=('north',),
+                                 uv={'north': [u0, v0, u1, v1]}, light=15), shade=False))
         return h
     part('lb_head', head())
     for fc in FACES:

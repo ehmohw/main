@@ -128,6 +128,11 @@ if 'faces' in what:
         pose = {k: v for k, v in dict(I, _face=f).items() if v is not None}
         tiles.append(tile(pose, 'front', span=0.72, center=(0, 1.7, 0), size=260, label=f or 'default (serene)'))
     K.sheet(tiles, OUT + '/lightbringer_faces.png', cols=4, title='The Lightbringer - faces')
+    tiles = []                                                                         # (and close: just the face, large)
+    for f in (None,) + A.FACES:
+        pose = {k: v for k, v in dict(I, _face=f, head=rigkit.I).items() if v is not None}
+        tiles.append(tile(pose, 'front', span=0.5, center=(0, 1.57, 0), size=360, label=f or 'default (serene)'))
+    K.sheet(tiles, OUT + '/lightbringer_faces_close.png', cols=4, title='The Lightbringer - faces, close')
 if 'lineup' in what:
     rb = K.pack(BD, OUT + '/rp_bender')
     s = K.multi_scene(root, rb)
