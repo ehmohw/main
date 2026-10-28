@@ -196,6 +196,8 @@ import phase227 as R227      # 2.95d: Kettle, the first Buddy (Kettle's Paper Pl
 import phase228 as R228      # 2.96: Rufus Gnaw, rat for hire - for keeps (the Mercenary Contract)
 import phase231 as R231      # 2.98: the Gem of Creativity - the follower (it conjures its Buddies; it feels in text)
 import phase232 as R232      # 2.98: the Gutter Gentry, reformed - Batty, Eggbert and the Count
+import phase235 as R235      # 2.97: the Doodles - the Doodle Dragon, the Eraser, the Cursor, the Ink Blot, the Speech Bubble
+import phase236 as R236      # 2.97: the Lightbringer (hard mode) and the Pale Dryad
 import phase233 as R233      # 2.98: the Creative Forms - a pair with the Gem for every Buddy (and five more)
 import phase229 as R229      # 2.97: Henry and Nia, the owner's cats (Henry's Collar Tag, Nia's Bell)
 import phase234 as R234      # 2.96c: together - riding Bender, the night cuddle, Henry and Bender's Dog Pile
@@ -235,7 +237,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.96e'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.97'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1351,6 +1353,8 @@ def build(out_dir):
     if PHASE2: R229.generate_early(sys.modules[__name__])
     if PHASE2: R231.generate_early(sys.modules[__name__])
     if PHASE2: R232.generate_early(sys.modules[__name__])
+    if PHASE2: R235.generate_early(sys.modules[__name__])
+    if PHASE2: R236.generate_early(sys.modules[__name__])
     if PHASE2: R211.generate_early(sys.modules[__name__])
     if PHASE2: R213.generate_early(sys.modules[__name__])
     if PHASE2: R199.generate_early(sys.modules[__name__])
@@ -1414,6 +1418,8 @@ def build(out_dir):
     if PHASE2: R212.generate(sys.modules[__name__])
     if PHASE2: R213.generate(sys.modules[__name__])
     if PHASE2: R214.generate(sys.modules[__name__])
+    if PHASE2: R235.generate(sys.modules[__name__])      # 2.97: the Doodles (after the Glitched Cartridge: the Cursor comes out of one)
+    if PHASE2: R236.generate(sys.modules[__name__])      # 2.97: the Lightbringer and the Pale Dryad
     if PHASE2: R215.generate(sys.modules[__name__])
     if PHASE2: R216.generate(sys.modules[__name__])
     if PHASE2: R199.generate(sys.modules[__name__])

@@ -1,12 +1,16 @@
-"""The Eraser (draft, for approval - not in the pack yet): the Gem of Creativity's one mistake. It made the Eraser when it tried to
+"""The Eraser (2.97, wired in phase235): the Gem of Creativity's one mistake. It made the Eraser when it tried to
 take a Buddy back, and what came out was a thing that can UNMAKE - rub anything out of the world as if it had never been drawn.
 Which is exactly why it is so nervous: timid, gentle, guilty and very, very polite - it says sorry to the things it rubs out.
 Mr. Capshun (who knows he is in a video game, and is made of pencil) is terrified of it.
 
 The look: it IS a block - a chunky, classic pink rubber eraser standing on end, in the pack's blocky style. Its top end is cut at a
 slant like the old wedge-ended pink erasers, and the low corner (the end it rubs with) is worn: greyed with graphite, crumbs still
-clinging to it. A worried face on its front - big tall anxious eyes, brows up in the middle, a small wobbly mouth, a little blush -
-and a maker's stamp pressed into its back. Small chunky rose-pink arms (a stubby upper arm and a mitten), short legs with big flat
+clinging to it. A worried face on its front - big tall anxious eyes, brows up in the middle, a small wobbly mouth, a little blush.
+(The owner: "not super clear that the eraser is an eraser" -) round its lower part, the blue-and-white paper SLEEVE the common
+plastic erasers come in: a thin printed band a hair proud of the rubber on all four sides, royal blue with a darker edge line top and
+bottom and a white stripe under each, a white label with ERASER on the front, ERASER in white on the back; the pink rubber shows
+above it (the face, all of it) and below it. Its textures (er_sleeve*) are new names of their own, so the wardrobe's recolours of the
+rubber leave the sleeve blue. Small chunky rose-pink arms (a stubby upper arm and a mitten), short legs with big flat
 feet. About knee-to-waist height on a player.
 
 It leaves pink crumbs behind when it attacks: rubbing a foe out sheds tiny crumb cubes off its worn corner and its base as it
@@ -32,6 +36,7 @@ PREFIX = 'er_'
 RIG_SCALE = 1.0
 BW, BD = 4.0, 2.2                                  # (the block's half-width and half-depth)
 BY0, BY1 = 2.2, 9.8                                # (its bottom, and the top of its straight sides - the slanted end rises above)
+SL0, SL1, SLP = 2.75, 6.0, 0.22                     # (the sleeve: its bottom and top, and how far it stands proud of the rubber)
 SLANT = 11.3                                       # (the wedge end's slope, degrees: down towards its right, the worn corner)
 PIVOT = {'body': (0, 2.6, 0), 'armr': (4.72, 7.0, -0.6), 'forer': (4.72, 4.8, -0.6), 'arml': (-4.72, 7.0, -0.6), 'forel': (-4.72, 4.8, -0.6),
          'legr': (2.0, 2.5, 0), 'legl': (-2.0, 2.5, 0), 'shed': (0, 2.6, 0), 'crumbs': (0, 0, -6.4)}
@@ -69,10 +74,10 @@ def _face(kind=None):
     Every expression keeps the brows worried; it is never quite at ease."""
     def p(d, W, H):
         lw = W * 0.016
-        eyes = ((W * 0.30, H * 0.42, -1), (W * 0.70, H * 0.42, 1))         # (viewer's left, viewer's right; s = which side)
-        rx, ry = W * 0.12, H * 0.165
+        eyes = ((W * 0.30, H * 0.27, -1), (W * 0.70, H * 0.27, 1))         # (viewer's left, viewer's right; s = which side)
+        rx, ry = W * 0.105, H * 0.128
         for cx, cy, s in eyes:                                               # (the blush first - the rest is drawn over it)
-            E(d, cx + s * W * 0.06, H * 0.655, W * 0.075, H * 0.035, BLUSH)
+            E(d, cx + s * W * 0.08, H * 0.42, W * 0.07, H * 0.03, BLUSH)
         for cx, cy, s in eyes:
             if kind == 'blink':                                              # (shut, the lids sagging - still worried)
                 ln(d, arc(cx, cy - ry * 0.1, rx * 0.9, ry * 0.45, 20, 160), INK, lw * 1.8); continue
@@ -81,7 +86,7 @@ def _face(kind=None):
             if kind == 'wince':                                              # (squeezed shut: > <)
                 k = -s
                 ln(d, [(cx - k * rx * 0.8, cy - ry * 0.5), (cx + k * rx * 0.7, cy), (cx - k * rx * 0.8, cy + ry * 0.5)], INK, lw * 2.0); continue
-            ex, ey = (rx * 1.15, ry * 1.12) if kind == 'scared' else (rx, ry)
+            ex, ey = (rx * 1.15, ry * 1.1) if kind == 'scared' else (rx, ry)
             E(d, cx, cy, ex, ey, WHITE, INK, lw)
             if kind == 'scared':                                             # (tiny pupils in huge eyes)
                 pr, px_, py_ = rx * 0.32, cx - s * rx * 0.05, cy + ry * 0.05
@@ -98,14 +103,14 @@ def _face(kind=None):
                           [(cx + ex + lw, cut), (cx - ex - lw, cut)], fill=hexc(PINK))
                 ln(d, [(cx - ex * 0.98, cut), (cx + ex * 0.98, cut + s * H * 0.01)], INK, lw * 1.4)
         # the brows: lifted in the middle - worried (higher when scared, pinched when wincing or trying hard)
-        lift = {'scared': 0.05, 'wince': -0.01, 'focus': -0.005, 'sad': 0.02}.get(kind, 0.0)
+        lift = {'scared': 0.03, 'wince': -0.01, 'focus': -0.005, 'sad': 0.015}.get(kind, 0.0)
         for cx, cy, s in eyes:
-            o, i = (cx + s * W * 0.10, H * (0.19 - lift * 0.4)), (cx - s * W * 0.07, H * (0.09 - lift))
-            ln(d, bez(o, (cx + s * W * 0.02, H * (0.115 - lift * 0.7)), i), INK, lw * 2.4)
+            o, i = (cx + s * W * 0.10, H * (0.125 - lift * 0.4)), (cx - s * W * 0.07, H * (0.05 - lift))
+            ln(d, bez(o, (cx + s * W * 0.02, H * (0.065 - lift * 0.7)), i), INK, lw * 2.4)
         # the mouth: small and wobbly, under the eyes and between them
-        mx, my = W * 0.5, H * 0.69
+        mx, my = W * 0.5, H * 0.45                                      # (kept clear of the sleeve's top edge)
         if kind == 'scared':                                                 # (open: a wobbly little "o")
-            pts = [(mx + W * 0.055 * math.cos(t) * (1 + 0.08 * math.sin(5 * t)), my + H * 0.05 * math.sin(t) * (1 + 0.08 * math.cos(4 * t)))
+            pts = [(mx + W * 0.055 * math.cos(t) * (1 + 0.08 * math.sin(5 * t)), my + H * 0.042 * math.sin(t) * (1 + 0.08 * math.cos(4 * t)))
                    for t in [2 * math.pi * k / 48 for k in range(48)]]
             d.polygon(pts, fill=hexc('#6a2a38'), outline=hexc(INK)); ln(d, pts + pts[:1], INK, lw * 1.3)
         elif kind == 'happy':                                                # (a small shy smile, wobbling at the ends)
@@ -117,9 +122,9 @@ def _face(kind=None):
             ln(d, [(mx + W * 0.1 * t, my + H * 0.013 * math.sin(3 * math.pi * t) + H * down * t * t) for t in [k / 20 - 1 for k in range(41)]], INK, lw * 1.5)
         if kind in ('scared', 'focus', 'sad'):                               # (a bead of sweat - or, sad, a tear)
             if kind == 'sad':
-                sx, sy, r = W * 0.27, H * 0.6, W * 0.022
+                sx, sy, r = W * 0.25, H * 0.45, W * 0.022
             else:
-                sx, sy, r = W * 0.88, H * 0.24, W * 0.03
+                sx, sy, r = W * 0.88, H * 0.17, W * 0.03
             d.polygon([(sx, sy - r * 2.4), (sx - r * 0.95, sy - r * 0.3), (sx + r * 0.95, sy - r * 0.3)], fill=hexc(SWEAT))
             E(d, sx, sy, r, r, SWEAT); E(d, sx - r * 0.35, sy - r * 0.3, r * 0.28, r * 0.28, WHITE)
     return face_tex(PINK, FW, FH, p, seed=4101, var=0.03, hi=45, rim=PINK_D, rim_a=80)
@@ -130,17 +135,35 @@ GLYPH = {'E': ('111', '100', '110', '100', '111'), 'R': ('110', '101', '110', '1
 
 
 def _back():
-    """its back: the maker's stamp pressed into the rubber - a frame and ERASER in blocky letters"""
-    im = lit(tex(PINK, 4111, 0.035), 2 * BW, FH, 4, a=50, rim=PINK_D, rim_a=80); d = ImageDraw.Draw(im)
-    deep, edge = hexc('#d88796'), hexc('#fbd0d7')
-    x0, y0, x1, y1 = 3, 9, 28, 20
-    for (a, b, c, e_) in ((x0, y0, x1, y0), (x0, y1, x1, y1), (x0, y0, x0, y1), (x1, y0, x1, y1)):
-        d.line((a, b, c, e_), fill=deep)
-    d.line((x0 + 1, y1 + 1, x1 + 1, y1 + 1), fill=edge); d.line((x1 + 1, y0 + 1, x1 + 1, y1 + 1), fill=edge)    # (the lip of the press)
-    for i, ch in enumerate('ERASER'):
-        for r, row in enumerate(GLYPH[ch]):
-            for c, on in enumerate(row):
-                if on == '1': d.point((5 + i * 4 + c, 12 + r), fill=deep)
+    """its back: plain rubber (the ERASER stamp moved onto the sleeve)"""
+    return lit(tex(PINK, 4111, 0.035), 2 * BW, FH, 4, a=50, rim=PINK_D, rim_a=80)
+
+
+BLUE, BLUE_D, PAPER = '#2b5fd4', '#173a8c', '#f4f6fa'
+
+
+def _sleeve(kind):
+    """the paper sleeve's print (4 px a unit, 13 rows for its 3.25 units): royal blue paper in faint cells, a darker blue edge line
+    top and bottom with a white stripe inside each; kind 'front' - a white label with ERASER on it in blue, 'back' - ERASER in white
+    on the blue, 'side' - the stripes alone"""
+    im = tex(BLUE, {'front': 4141, 'back': 4142, 'side': 4143}[kind], 0.025); d = ImageDraw.Draw(im)
+    w = round(2 * (BW + SLP) * 4) if kind != 'side' else round(2 * (BD + SLP) * 4)
+    for y in (0, 12): d.line((0, y, 63, y), fill=hexc(BLUE_D))
+    for y in (1, 11): d.line((0, y, 63, y), fill=hexc(PAPER))
+    word = 'ERASER'; x0 = (w - (len(word) * 4 - 1)) // 2
+    if kind == 'front':
+        d.rectangle((x0 - 2, 3, x0 + len(word) * 4 - 1 + 1, 9), fill=hexc(PAPER))
+    if kind in ('front', 'back'):
+        ink = hexc(BLUE if kind == 'front' else PAPER)
+        for i, ch in enumerate(word):
+            for r, row in enumerate(GLYPH[ch]):
+                for c, on in enumerate(row):
+                    if on == '1': d.point((x0 + i * 4 + c, 4 + r), fill=ink)
+    px = im.load(); rnd = random.Random(4144)                                          # (paper: a faint grain, pixel by pixel)
+    for y in range(64):
+        for x in range(64):
+            v = rnd.randint(-5, 5); r_, g_, b_, a_ = px[x, y]
+            px[x, y] = (max(0, min(255, r_ + v)), max(0, min(255, g_ + v)), max(0, min(255, b_ + v)), a_)
     return im
 
 
@@ -177,7 +200,9 @@ def textures():
          'er_limb': lit(tex(ROSE, 4126, 0.04), 1.5, 2.6, 4, a=50, rim=ROSE_D, rim_a=80),
          'er_sole': tex(ROSE_D, 4127, 0.04),
          'er_crumb': tex('#e9a2ae', 4128, 0.06, spots=[('#b48a92', 0.4)]),
-         'er_crumb_g': tex('#c4a2a8', 4129, 0.06, spots=[('#8a7a80', 0.4)])}
+         'er_crumb_g': tex('#c4a2a8', 4129, 0.06, spots=[('#8a7a80', 0.4)]),
+         'er_sleeve': _sleeve('side'), 'er_sleeve_front': _sleeve('front'), 'er_sleeve_back': _sleeve('back'),
+         'er_sleeve_edge': tex('#dfe3ec', 4145, 0.03)}
     for k in FACES:
         T[f'er_face_{k}'] = _face(k)
     return T
@@ -199,14 +224,20 @@ def _body(face=None):
     # crumbs still clinging to the worn corner
     nubs = [el((2.9, 10.15, -1.5), (3.5, 10.65, -0.9), 'er_crumb', pv), el((3.85, 9.75, 0.5), (4.35, 10.2, 1.05), 'er_crumb_g', pv),
             el((1.9, 10.45, 0.9), (2.35, 10.85, 1.35), 'er_crumb', pv)]
-    return [main, slab] + nubs
+    # the paper sleeve round its lower part, a hair proud of the rubber all round (its top and bottom: the paper's cut edge)
+    sl = el((-BW - SLP, SL0, -BD - SLP), (BW + SLP, SL1, BD + SLP), 'er_sleeve', pv)
+    for fc, t in (('north', 'er_sleeve_front'), ('south', 'er_sleeve_back'), ('up', 'er_sleeve_edge'), ('down', 'er_sleeve_edge')):
+        sl['faces'][fc]['texture'] = '#' + t
+    return [main, slab, sl] + nubs
 
 
 def _arm(sx):
     s = 'r' if sx > 0 else 'l'; ap, fp = PIVOT[f'arm{s}'], PIVOT[f'fore{s}']
-    x0, x1 = sorted((sx * 4.02, sx * 5.42)); h0, h1 = sorted((sx * 4.0, sx * 5.46))
+    # (2.97: set out past the sleeve, so it hangs clear of it - a shoulder nub joins it to the rubber above the sleeve)
+    x0, x1 = sorted((sx * 4.3, sx * 5.7)); h0, h1 = sorted((sx * 4.28, sx * 5.74)); n0, n1 = sorted((sx * 3.9, sx * 4.45))
     z = ap[2]
-    arm = [el((x0, 4.6, z - 0.7), (x1, 7.6, z + 0.7), 'er_limb', ap, shift=(0.2, 0.1))]
+    arm = [el((x0, 4.6, z - 0.7), (x1, 7.6, z + 0.7), 'er_limb', ap, shift=(0.2, 0.1)),
+           el((n0, 6.45, z - 0.5), (n1, 7.45, z + 0.5), 'er_limb', ap, shift=(0.7, 0.4))]
     fore = [el((h0, 2.9, z - 0.76), (h1, 5.0, z + 0.76), 'er_limb', fp, shift=(0.6, 0.5))]                      # (a chunky mitten)
     return arm, fore
 
@@ -235,9 +266,9 @@ def _crumbs():
 def _shed():
     """crumbs coming off it as it scrubs: bits breaking from the worn corner and the front edge, more dropping by its base"""
     pv = PIVOT['shed']
-    bits = [((4.35, 9.3, -1.2), 0.7), ((4.75, 8.1, 0.4), 0.55), ((4.5, 6.6, -1.4), 0.6), ((3.4, 11.0, -2.3), 0.55), ((5.0, 5.2, -0.4), 0.5),   # (off the worn corner)
+    bits = [((4.35, 9.3, -1.2), 0.7), ((4.75, 8.1, 0.4), 0.55), ((4.4, 6.6, -2.0), 0.6), ((3.4, 11.0, -2.3), 0.55), ((4.7, 6.1, -2.3), 0.45),   # (off the worn corner)
             ((-1.6, 2.5, -2.75), 0.6), ((0.6, 2.1, -3.1), 0.55), ((2.7, 2.4, -2.8), 0.65), ((-3.3, 2.0, -2.9), 0.55), ((1.6, 1.7, -3.5), 0.5),  # (dropping off its front edge)
-            ((1.6, 9.6, -2.75), 0.5), ((-2.5, 3.3, -2.7), 0.45)]
+            ((1.6, 9.6, -2.75), 0.5), ((-2.5, 6.3, -2.6), 0.45)]
     return [el((x - r / 2, y - r / 2, z - r / 2), (x + r / 2, y + r / 2, z + r / 2), 'er_crumb_g' if i % 4 == 3 else 'er_crumb', pv, shift=(0.17 * i, 0.31 * i))
             for i, ((x, y, z), r) in enumerate(bits)]
 
@@ -278,9 +309,9 @@ SITLEGS = {'_o_legr': (0.0, 0.5, -2.4), '_o_legl': (0.0, 0.5, -2.4)}
 REST = dict(armr=limb(1, 6, 6), forer=limb(1, 14), arml=limb(-1, 6, 6), forel=limb(-1, 14))
 POSES = {
     # standing, fidgeting: its little hands drawn up in front of it
-    'idle_a': P(armr=limb(1, 26, -4), forer=limb(1, 44, 0, 20), arml=limb(-1, 22, -4), forel=limb(-1, 48, 0, 20)),
+    'idle_a': P(armr=limb(1, 26, 0), forer=limb(1, 44, 4, 14), arml=limb(-1, 22, 0), forel=limb(-1, 48, 4, 14)),
     # a nervous glance over its shoulder, one mitten raised to its mouth
-    'idle_b': P(_face='scared', body=B(yaw=-16, roll=-3), armr=limb(1, 48, -6), forer=limb(1, 84, 0, 30), arml=limb(-1, 8, 10), forel=limb(-1, 16)),
+    'idle_b': P(_face='scared', body=B(yaw=-16, roll=-3), armr=limb(1, 48, 2), forer=limb(1, 84, 4, 24), arml=limb(-1, 8, 10), forel=limb(-1, 16)),
     # "sorry!": a little apologetic bow
     'idle_c': P(_face='sad', body=B(lean=20), armr=limb(1, 14, -2), forer=limb(1, 20), arml=limb(-1, 14, -2), forel=limb(-1, 20)),
     'happy': P(_face='happy', _off=(0, 1.4, 0), body=B(roll=5), armr=limb(1, 10, 74), forer=limb(1, 0, 30), arml=limb(-1, 10, 74), forel=limb(-1, 0, 30),
@@ -295,7 +326,7 @@ POSES = {
     # ...and the seated idle: swinging its feet, rocking a little, a shy smile
     'sit_b': P(_face='happy', body=B(lean=-8, roll=-4), legr=limb(1, 104, 4), legl=limb(-1, 74, 10), **SITLEGS, armr=limb(1, 10, 22), forer=limb(1, 10), arml=limb(-1, 10, 22),
                forel=limb(-1, 10)),
-    'jump': P(_face='scared', body=B(lean=-4), legr=limb(1, 30, 8), legl=limb(-1, 18, 8), armr=limb(1, 10, 120), forer=limb(1, 0, 20), arml=limb(-1, 10, 120), forel=limb(-1, 0, 20)),
+    'jump': P(_face='scared', body=B(lean=-4), legr=limb(1, 30, 8), legl=limb(-1, 18, 8), armr=limb(1, 10, 100), forer=limb(1, 0, 30), arml=limb(-1, 10, 100), forel=limb(-1, 0, 30)),
     # RUB OUT: it leans right in, mittens braced on the foe, and scrubs side to side - crumbs flying - trying very hard not to look
     'rub_0': P(_face='focus', _crumbs=1, _shed=1, _off=(0.7, 0, -0.8), body=B(lean=30, yaw=10, roll=8), armr=limb(1, 78, 6), forer=limb(1, 20), arml=limb(-1, 88, 6),
                forel=limb(-1, 20), legr=limb(1, -26), legl=limb(-1, 0)),
@@ -306,7 +337,7 @@ POSES = {
                forel=limb(-1, 70, 0, 26), legr=limb(1, -10), legl=limb(-1, 12)),
     # BOUNCE: a crouch on splayed feet, arms back - up - and down flat on the foe (it's rubber: it bounces)
     'hop_up': P(_face='focus', body=B(lean=10), legr=limb(1, 0, 26), legl=limb(-1, 0, 26), armr=limb(1, -36, 24), forer=limb(1, 10), arml=limb(-1, -36, 24), forel=limb(-1, 10)),
-    'hop': P(_face='scared', body=B(lean=-8), legr=limb(1, 36, 8), legl=limb(-1, 36, 8), armr=limb(1, 10, 136), forer=limb(1, 0, 20), arml=limb(-1, 10, 136), forel=limb(-1, 0, 20)),
+    'hop': P(_face='scared', body=B(lean=-8), legr=limb(1, 36, 8), legl=limb(-1, 36, 8), armr=limb(1, 10, 100), forer=limb(1, 0, 40), arml=limb(-1, 10, 100), forel=limb(-1, 0, 40)),
     'slam': P(_face='wince', _crumbs=1, _shed=1, body=B(lean=6), legr=limb(1, 0, 30), legl=limb(-1, 0, 30), armr=limb(1, 10, 76), forer=limb(1, 0, -10), arml=limb(-1, 10, 76), forel=limb(-1, 0, -10)),
     # HIDE: scared - it cowers on splayed feet, ducks its face and turns half away, mittens pressed over its eyes (as far as its
     # little arms reach)

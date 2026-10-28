@@ -336,11 +336,11 @@ def generate(G):
            ('kw', 'KillerWatt', '#ffe040'), ('leo', 'Leo', '#5ab8e0'), ('demo', 'Democratus', '#7ad06a'),
            ('apo', 'Apophiss', '#3ad06a'), ('tul', 'Tullius', '#7ad8ff'), ('frog', 'The Frog', '#6ac850'), ('don', 'Donado', '#e8d29a'),
            ('pearl', 'Pearlman', '#5ac8ff'), ('wil', 'Wilfrey', '#f4f4f4'), ('fishy', 'Fishy', '#ffa040'),
-           ('dennis', 'Dennis', '#e0a040'), ('pistachio', 'Pistachio', '#7ae890'), ('omega', 'King Omega', '#9fb4ff'), ('ashur', 'Ashur', '#ff7a2a'), ('chef', 'The Chef', '#ffd07a'), ('neighbor', 'The Neighbor', '#7ab8ff'), ('ava', 'Queen Ava', '#6ad8e8'), ('pearlq', 'Queen Pearl', '#5ae0d8'), ('bloo', 'Bloo', '#5a9ae8'), ('stalker', 'The Stalker', '#a8ac70'), ('lantern', 'The Arachno-Lantern', '#ff8a2a'), ('bender', 'Bender', '#e0a860'), ('bones', 'Bones', '#8ab0c8'), ('capshun', 'Mr. Capshun', '#f0f0f0'), ('pxcecil', '8-Bit Cecil', '#b070ff'), ('pxleo', '8-Bit Leo', '#4ab0ff'), ('pxemma', '8-Bit Emma', '#ff6ac8'), ('sky', 'The Sky Buddies', '#ffd04a'), ('kettle', 'Kettle', '#8ad8ff'), ('rufus', 'Rufus Gnaw', '#c0392b'), ('henry', 'Henry', '#9a9ab8'), ('nia', 'Nia', '#e0a050'), ('gem', 'The Gem of Creativity', '#5ae0a0'), ('batty', 'Batty', '#8a8ad8'), ('eggbert', 'Eggbert', '#d8d4c0'), ('count', 'The Count', '#a8c8f0')]
+           ('dennis', 'Dennis', '#e0a040'), ('pistachio', 'Pistachio', '#7ae890'), ('omega', 'King Omega', '#9fb4ff'), ('ashur', 'Ashur', '#ff7a2a'), ('chef', 'The Chef', '#ffd07a'), ('neighbor', 'The Neighbor', '#7ab8ff'), ('ava', 'Queen Ava', '#6ad8e8'), ('pearlq', 'Queen Pearl', '#5ae0d8'), ('bloo', 'Bloo', '#5a9ae8'), ('stalker', 'The Stalker', '#a8ac70'), ('lantern', 'The Arachno-Lantern', '#ff8a2a'), ('bender', 'Bender', '#e0a860'), ('bones', 'Bones', '#8ab0c8'), ('capshun', 'Mr. Capshun', '#f0f0f0'), ('pxcecil', '8-Bit Cecil', '#b070ff'), ('pxleo', '8-Bit Leo', '#4ab0ff'), ('pxemma', '8-Bit Emma', '#ff6ac8'), ('sky', 'The Sky Buddies', '#ffd04a'), ('kettle', 'Kettle', '#8ad8ff'), ('rufus', 'Rufus Gnaw', '#c0392b'), ('henry', 'Henry', '#9a9ab8'), ('nia', 'Nia', '#e0a050'), ('gem', 'The Gem of Creativity', '#5ae0a0'), ('batty', 'Batty', '#8a8ad8'), ('eggbert', 'Eggbert', '#d8d4c0'), ('count', 'The Count', '#a8c8f0'), ('dragon', 'The Doodle Dragon', '#5ac048'), ('eraser', 'The Eraser', '#f08aa0'), ('cursor', 'The Cursor', '#cfe8ff'), ('inkblot', 'The Ink Blot', '#7a7aaa'), ('speech', 'The Speech Bubble', '#ffd060'), ('lightbringer', 'The Lightbringer', '#ffe08a'), ('dryad', 'The Pale Dryad', '#6aa8f0')]
     # 2.78: past the old block (TL..TL+59) the pages, stock and auras go on in 8100-8299
     TL2 = 8100
-    pcode = lambda i: TL + 1 + i if i < 7 else (TL2 + i - 7 if i < 13 else (TL2 + i - 6 if i < 16 else (8270 + i - 16 if i < 39 else 3690 + i - 39)))      # a follower's page (2.79: past 8106, the Auras page; 2.82: 8270 on; 2.98: past 8292 (8293 on are auras), 3690 on)
-    scode = lambda j: TL + 10 + j if j < 40 else (TL2 + 10 + j - 40 if j < 80 else (TL2 + 64 + j - 80 if j < 112 else (8200 + j - 112 if j < 182 else 3600 + j - 182)))   # an outfit (2.80c: past 8150-8163, the auras; 2.82: 8200 on; 2.94: 3600 on)
+    pcode = lambda i: TL + 1 + i if i < 7 else (TL2 + i - 7 if i < 13 else (TL2 + i - 6 if i < 16 else (8270 + i - 16 if i < 39 else (3690 + i - 39 if i < 49 else 3900 + i - 49))))      # a follower's page (2.79: past 8106, the Auras page; 2.82: 8270 on; 2.98: past 8292 (8293 on are auras), 3690 on; 2.97: past 3699, 3900 on)
+    scode = lambda j: TL + 10 + j if j < 40 else (TL2 + 10 + j - 40 if j < 80 else (TL2 + 64 + j - 80 if j < 112 else (8200 + j - 112 if j < 182 else (3600 + j - 182 if j < 272 else 3820 + j - 272))))   # an outfit (2.80c: past 8150-8163, the auras; 2.82: 8200 on; 2.94: 3600 on; 2.97: past 3689, 3820 on)
     assert len(WHO) <= 49
     import shiny as _SH
     stock = []                                       # (who, group, unlock score, k, item, name, colour, price)
@@ -351,7 +351,7 @@ def generate(G):
             assert it in price, f'{it} is not on sale'
             stock.append((who, g, un, k, it, cn, col, price[it]))
     cases = [(k_, price[k_]) for k_ in price if k_.startswith('display_case')]
-    assert len(stock) == len([k_ for k_ in price if k_.startswith('cos_')]) and (len(stock) <= 112 or scode(len(stock) - 1) < 8270 or 3600 <= scode(len(stock) - 1) < 3700) and len(cases) <= 9   # (codes TL..TL+59: the Office's start at 7800)
+    assert len(stock) == len([k_ for k_ in price if k_.startswith('cos_')]) and (len(stock) <= 112 or scode(len(stock) - 1) < 8270 or 3600 <= scode(len(stock) - 1) < 3700 or 3820 <= scode(len(stock) - 1) < 3900) and len(cases) <= 9   # (codes TL..TL+59: the Office's start at 7800)
     STOCK.extend(stock)
     wal = [_T('You have ', 'gray'), _T('$(w)', GOLD, bold=True), _T(' coins to spend', 'gray'),
            _T(' (Gutter Bank and pockets; Medallions count 16, Trophies 128).', 'dark_gray')]
@@ -417,13 +417,15 @@ def generate(G):
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 8293..8299 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.86: the auras past the 18th)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 8380..8399 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.88: the auras past the 25th)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 3600..3699 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.94: the outfits past the 182nd)
+    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 3820..3899 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.97: the outfits past the 272nd)
+    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 8420..8459 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.97: the auras past the 45th)
     # (2.94z) the pages past the 26th (Bones on: codes 8280..) sit in the wardrobe pages' block (p119 owns 8280-8304, for its own
     # menu) - routed one by one, as the Tailor's: Mr. Capshun's and the Sky Buddies' pages had never opened
     owned = lambda c: TL <= c <= TL + 59 or TL2 <= c <= TL2 + 99 or 8200 <= c <= 8279 or 8293 <= c <= 8299 or 8380 <= c <= 8399 or 3600 <= c <= 3699
     for i, (w, nm, col) in enumerate(WHO):
         if not owned(pcode(i)):
             G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {pcode(i)} if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')
-    assert scode(len(stock) - 1) < 3690, len(stock)            # (3690 on: the pages past the 39th)
+    assert scode(len(stock) - 1) < 3690 or 3820 <= scode(len(stock) - 1) < 3900, len(stock)            # (3690 on: the pages past the 39th; 3820 on: the outfits past the 272nd)
     fn('p103/tl/act', [f'execute if score #act bm.pay matches {TL} run return run function bm:p103/tl/main'] +
        [f'execute if score #act bm.pay matches {pcode(i)} run return run function bm:p103/tl/p_{w}' for i, (w, nm, col) in enumerate(WHO)] +
        [f'execute if score #act bm.pay matches {TL + 8} run return run function bm:p103/tl/cases'] +

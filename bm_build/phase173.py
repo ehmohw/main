@@ -91,7 +91,14 @@ AR = {'cecil': ('bm.cpcd', 'wolf', 'bm.cecilpet', 'p46/pet/try_summon'),
       'gem': ('bm.cgcd', 'wolf', 'bm.cgpet', 'p231/try_summon'),
       'batty': ('bm.ytcd', 'wolf', 'bm.ytpet', 'p232b/try_summon'),
       'eggbert': ('bm.ebcd', 'wolf', 'bm.ebpet', 'p232e/try_summon'),
-      'count': ('bm.kncd', 'wolf', 'bm.knpet', 'p232c/try_summon')}
+      'count': ('bm.kncd', 'wolf', 'bm.knpet', 'p232c/try_summon'),
+      'dragon': ('bm.ddcd', 'wolf', 'bm.ddpet', 'p235d/try_summon'),
+      'eraser': ('bm.ezcd', 'wolf', 'bm.ezpet', 'p235e/try_summon'),
+      'cursor': ('bm.uxcd', 'wolf', 'bm.uxpet', 'p235c/try_summon'),
+      'inkblot': ('bm.ibcd', 'wolf', 'bm.ibpet', 'p235i/try_summon'),
+      'speech': ('bm.wbcd', 'wolf', 'bm.wbpet', 'p235b/try_summon'),
+      'lightbringer': ('bm.lhcd', 'wolf', 'bm.lhpet', 'p236l/try_summon'),
+      'dryad': ('bm.pycd', 'wolf', 'bm.pypet', 'p236p/try_summon')}
 AR_IDX = {w: i for i, w in enumerate(AR)}
 PET_CD = 120                       # a faint outside the vault: 2 minutes (was 5, Wilfrey's 30)
 FILTER_MAX = 5
@@ -440,7 +447,7 @@ def generate(G):
     F['load'][-1:-1] = ['scoreboard objectives add bm.orph dummy']
     G.OBJECTIVES += ['bm.orph']
     nor = 0
-    for k in ('apo', 'tul', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'kettle', 'rufus', 'henry', 'nia', 'gem', 'batty', 'eggbert', 'count'):
+    for k in ('apo', 'tul', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'kettle', 'rufus', 'henry', 'nia', 'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad'):
         if k not in FX.FOLK: continue
         host, tag, head = FX.FOLK[k][:3]
         anyhead = re.sub(r',tag=!bm\.\w+fade', '', head)

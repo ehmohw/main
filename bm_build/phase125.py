@@ -71,6 +71,13 @@ WHO = {   # follower: (name, pronoun, colour, host type, host tag, try (as you),
     'batty': ('Batty', 'him', '#8a8ad8', 'wolf', 'bm.ytpet', 'p232b/try_summon', 'p232b/home'),
     'eggbert': ('Eggbert', 'him', '#d8d4c0', 'wolf', 'bm.ebpet', 'p232e/try_summon', 'p232e/home'),
     'count': ('The Count', 'him', '#a8c8f0', 'wolf', 'bm.knpet', 'p232c/try_summon', 'p232c/home'),
+    'dragon': ('The Doodle Dragon', 'him', '#5ac048', 'wolf', 'bm.ddpet', 'p235d/try_summon', 'p235d/home'),
+    'eraser': ('The Eraser', 'it', '#f08aa0', 'wolf', 'bm.ezpet', 'p235e/try_summon', 'p235e/home'),
+    'cursor': ('The Cursor', 'it', '#cfe8ff', 'wolf', 'bm.uxpet', 'p235c/try_summon', 'p235c/home'),
+    'inkblot': ('The Ink Blot', 'it', '#7a7aaa', 'wolf', 'bm.ibpet', 'p235i/try_summon', 'p235i/home'),
+    'speech': ('The Speech Bubble', 'it', '#ffd060', 'wolf', 'bm.wbpet', 'p235b/try_summon', 'p235b/home'),
+    'lightbringer': ('The Lightbringer', 'her', '#ffe08a', 'wolf', 'bm.lhpet', 'p236l/try_summon', 'p236l/home'),
+    'dryad': ('The Pale Dryad', 'her', '#6aa8f0', 'wolf', 'bm.pypet', 'p236p/try_summon', 'p236p/home'),
     'pxcecil': ('8-Bit Cecil', 'him', '#b070ff', 'wolf', 'bm.xcpet', 'p213c/try_summon', 'p213c/home'),
     'pxleo': ('8-Bit Leo', 'him', '#4ab0ff', 'wolf', 'bm.xlpet', 'p213l/try_summon', 'p213l/home'),
     'pxemma': ('8-Bit Emma', 'her', '#ff6ac8', 'wolf', 'bm.xmpet', 'p213e/try_summon', 'p213e/home'),
@@ -236,7 +243,7 @@ def generate(G):
     # ================================================================== MENUS: "Call for <name>" when they're not out
     home_re = re.compile(r'label:\[\{text:"Send (?:her|him|it|them) home",color:"gray",italic:false\}\]')
     for w, (nm, pron, col, host, tag, try_, home) in WHO.items():
-        assert (try_ in G.FUNCS and home in G.FUNCS) or w in ('apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'kettle', 'rufus', 'henry', 'nia', 'gem', 'batty', 'eggbert', 'count', 'pxcecil', 'pxleo', 'pxemma', 'sky'), (w, try_, home)   # (2.78's six, 2.79's Fishy: built later)
+        assert (try_ in G.FUNCS and home in G.FUNCS) or w in ('apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'kettle', 'rufus', 'henry', 'nia', 'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad', 'pxcecil', 'pxleo', 'pxemma', 'sky'), (w, try_, home)   # (2.78's six, 2.79's Fishy: built later)
         b = P99.BASE[w]
         dl = G.FUNCS[f'p99/dlg/{w}']
         assert home_re.search(dl[0]), w

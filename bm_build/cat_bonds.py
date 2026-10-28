@@ -86,6 +86,21 @@ B = {
                 ('Warm Spot', (('resistance', 0), ('regeneration', 0)), '"She\'s... sitting on me. Like a hen. I don\'t hate it."', '(Nia is keeping Eggbert warm)')),
     'count': (('The Count\'s Cat', (('strength', 0), ('luck', 0)), '"A black cat! How dreadfully gothic. I approve."', '(Henry sits in the Count\'s hat)'),
               ('Afternoon Tea', (('regeneration', 0), ('resistance', 0)), '"Would the lady care for a saucer of milk?"', '(the lady would)')),
+    # (2.97) the Doodles, the Lightbringer, the Pale Dryad
+    'dragon': (('Dragon and Cat', (('fire_resistance', 0), ('strength', 0)), '"RAWR! ...why isn\'t he scared? Everybody\'s scared of dragons."', '(Henry yawns. He is a black cat. He fears nothing.)'),
+               ('Tail Warmer', (('regeneration', 0), ('fire_resistance', 0)), '"She\'s sleeping on my tail! It\'s warm! Don\'t move!"', '(Nia curls up on the dragon\'s warm tail and purrs)')),
+    'eraser': (('Cat and Mouse', (('speed', 0), ('luck', 0)), '"P-please don\'t bat me around. I\'m not a mouse. I\'m an eraser."', '(Henry bats it around, very gently)'),
+               ('Soft Paws', (('regeneration', 0), ('resistance', 0)), '"She\'s not scared of me? Nobody\'s not scared of me."', '(Nia sniffs the Eraser, and licks off a pink crumb)')),
+    'cursor': (('The Red Dot', (('speed', 1),), '"Want to chase the pointer, Henry?"', '(Henry crouches. His tail twitches. He POUNCES. He misses. He pretends he didn\'t.)'),
+               ('Gentle Click', (('regeneration', 0), ('haste', 0)), '"*click* ...she purred! She purrs when I click!"', '(Nia head-bumps the pointer, purring)')),
+    'inkblot': (('Black on Black', (('night_vision', 0), ('strength', 0)), '(the Ink Blot turns into a little black cat, too)', '(Henry stares at it. It stares back. Two black cats.)'),
+                ('Inky Paws', (('regeneration', 0), ('luck', 0)), '(it shapes itself into a ball of yarn)', '(Nia bats it, delighted, and gets ink on her paw)')),
+    'speech': (('MEOW!', (('strength', 0), ('speed', 0)), '"MEOW! ...that\'s what he SHOULD say. He just looks at me."', '(Henry just looks at it)'),
+               ('Purr Caption', (('regeneration', 0), ('absorption', 0)), '"*purr purr purr* - I\'m captioning her! She\'s very happy!"', '(Nia purrs louder, as if on cue)')),
+    'lightbringer': (('Blessed Shadow', (('night_vision', 0), ('resistance', 0)), '"Even a black cat is welcome in the light, little one."', '(Henry sits in her light and, slowly, blinks)'),
+                     ('Angel Kitty', (('regeneration', 1),), '"Oh, sweet one. The Divine One made you very well."', '(Nia winds round her robe, purring, in a halo of gold)')),
+    'dryad': (('Mushroom Prowl', (('night_vision', 0), ('speed', 0)), '"Shh, Henry - the mushrooms are sleeping!"', '(Henry sniffs a glowing mushroom. It glows brighter. He is suspicious of it.)'),
+              ('Moss Nap', (('regeneration', 1),), '"She can nap in my moss! It\'s the softest moss."', '(Nia kneads the moss, and falls asleep in a ring of glowing mushrooms)')),
 }
 # (2.96c) Nia is the gentle one - a support follower: her side of every pair looks after you. Each keeps Regeneration, and
 # nothing of hers makes you hit harder (Strength becomes Resistance; Haste, Absorption)

@@ -21,6 +21,21 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.97: seven new followers - the Doodles, the Lightbringer and the Pale Dryad
+
+Each one comes with the full follower list: a menu and its ways, sitting, a wardrobe (three colours, then gilded, diamond and netherite), a rare aura, a shiny form, the Partner Wheel, a frame trick, a display-case figure, Cecil's doll, the Champion blow and Piercing Blow, a Raid Contract, and a pair with Bender, Mr. Capshun, Henry and Nia.
+
+**The Doodles** - the Gem of Creativity's makings, out of Kettle's and Mr. Capshun's drawn world. Normal mode.
+- **The Doodle Dragon** (Kettle's Dragon Drawing): Kettle drew him in crayon. Walk with Kettle and now and then his dragon climbs off the page; offer him a dye. He claws, stomps and breathes **crayon fire** - a scribbled red, orange and yellow flame that sets monsters alight - and once a minute lets out a Big Blaze. Out of a fight he keeps you warm (Fire Resistance).
+- **The Eraser** (The Eraser's Lucky Crumb): the Gem's mistake - it can unmake, and it's very sorry about it. A pink eraser in the classic blue-and-white paper sleeve. Walk with the Gem and you may find it hiding; offer it paper, a fresh start. It rubs monsters out, bounces on them, and once a minute UNMAKES one; every blow **leaves pink crumbs on the ground** for a few seconds. Out of a fight it rubs out your troubles (poison, wither, slowness and the rest). Mr. Capshun is terrified of it.
+- **The Cursor** (The Cursor's Mouse): "the player's hand". Use a Glitched Cartridge with nobody beside you and it slips out of the screen. It clicks, SELECTS a monster (it glows and weakens), DRAGS them in, and turns into an hourglass - LOADING... - freezing everything near, then hitting them all. Out of a fight: Undo.
+- **The Ink Blot** (A Little Ink Pot): spilled from Mr. Capshun's pen, and a shapeshifter - a fist to punch, a pen nib to spike, a splash of ink in their eyes, a shield round you. Walk with Mr. Capshun and offer the blot an ink sac.
+- **The Speech Bubble** (A Blank Caption Card): Mr. Capshun's narration, come to life. It fights in comic sound effects - BAM!, POW!, and when it puffs itself up, KRAK! and ZAP! - raises the alarm ("!") when monsters close in, and thinks ("...") to inspire you. Walk with Mr. Capshun and offer it a book and quill.
+
+**The Lightbringer** (The Herald's Feather) - **hard mode only**, and only before you face what stands behind the Dread. A herald of the Divine One: translucent, in white and gold with royal blue and purple, a halo and a staff of light. By day, in the open, wearing something holy (anything a Golden Cross has made holy), she may come down to you. She smites monsters with pillars of light (the undead hardest), blesses you when you're hurt, wards you and your followers with her wings, and prays over you out of a fight. **She loves it when you wear holy things**: beside her you heal, and her smite, blessing and prayer grow stronger.
+
+**The Pale Dryad** (A Glowing Mushroom): a little spirit of the Pale Garden, all blue and orange mushrooms, who **glows softly at night**. Find her in a Pale Garden at night and offer her a mushroom. She swipes, puffs drowsy spores, bursts roots up under monsters, heals you and your followers, and blooms for you out of a fight.
+
 ## New in 2.96e: square Buddies
 
 - **The round Buddies are blocks now**, like a slime or a vanilla mob's head, each with its face across the front: Bubbles and her little one, Dessa's bulb, Chase, Limer, Chico, Zapper's body, Spike's hub and Grace's head and body. Their pixel-shaded coats and drawn faces stay. Robo is unchanged.

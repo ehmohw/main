@@ -31,6 +31,8 @@ module.exports = async function run(C) {
   const PET = `@e[type=minecraft:wolf,tag=bm.${ab}pet,tag=!bm.ffpet,limit=1]`;
   const BODY = `@e[type=minecraft:item_display,tag=bm.${ab}p_pet,tag=bm.${ab}p_body,tag=!bm.${ab}fade,limit=1]`;
   const LP = C.lookPart || 'body';                // (2.94: the part a look recolours - the Sky Buddies' nightcap)
+  const LM = C.lookModel || `${prefix}${LP}`;     // (2.97: the model it wears at rest, when that's a shape's - the Ink Blot's ib_body_blot)
+  const SEAT = C.seatPart || 'head';              // (2.97: the part watched moving while seated - the Eraser has no head, only a body)
   const LOOK = `@e[type=minecraft:item_display,tag=bm.${ab}p_pet,tag=bm.${ab}p_${LP},tag=!bm.${ab}fade,limit=1]`;
   const model = async (sel = LOOK) => (await nbt(sel, 'item.components."minecraft:item_model"')).replace(/"/g, '');
   const ENC = `@e[type=minecraft:interaction,tag=bm.${ab}enc,limit=1]`;
@@ -97,7 +99,7 @@ module.exports = async function run(C) {
   await wait(3000, async () => (await score(`bm.${q}s`, PET)) === 4);
   ok('...the seated cycle plays (state 4)', (await score(`bm.${q}s`, PET)) === 4);
   // (2.94: a sprite moves by its frame - the head's custom_model_data - not its transformation)
-  const seen = new Set(); for (let k = 0; k < 14; k++) { seen.add(await nbt(`@e[type=minecraft:item_display,tag=bm.${ab}p_pet,tag=bm.${ab}p_head,limit=1]`, C.sprite ? 'item.components."minecraft:custom_model_data"' : 'transformation')); await sleep(C.sprite ? 600 : 250); }
+  const seen = new Set(); for (let k = 0; k < 14; k++) { seen.add(await nbt(`@e[type=minecraft:item_display,tag=bm.${ab}p_pet,tag=bm.${ab}p_${SEAT},limit=1]`, C.sprite ? 'item.components."minecraft:custom_model_data"' : 'transformation')); await sleep(C.sprite ? 600 : 250); }
   ok('...and moves while seated (sit_a -> sit_b)', seen.size >= 2, `${seen.size} distinct`);
   if (C.sitPart) {             // (2.94: a part that shows only seated - Ava's gown pooled on the floor)
     const sp = await nbt(`@e[type=minecraft:item_display,tag=bm.${ab}p_pet,tag=bm.${ab}p_${C.sitPart},limit=1]`, 'transformation.scale[0]');
@@ -121,23 +123,23 @@ module.exports = async function run(C) {
   // ---------------------------------------------------------------- cosmetics: the first look, kept across a send-home; the aura
   await sneakMenu(0); await A.press(/Send .* home/); await sleep(1200); await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
   await hold(1); await sleep(800);
-  ok(`the first look used while out: picked (bm.cos${ab} 1) and worn (${prefix}${LP}_c1)`, (await score(`bm.cos${ab}`)) === 1 && new RegExp(`${prefix}${LP}_c1$`).test(await model()), await model());
+  ok(`the first look used while out: picked (bm.cos${ab} 1) and worn (${LM}_c1)`, (await score(`bm.cos${ab}`)) === 1 && new RegExp(`${LM}_c1$`).test(await model()), await model());
   await sneakMenu(0); A.bars.length = 0; await A.click(/Send .* home/); await sleep(1500);
   ok('Send home: goes', (await cnt(PET)) === 0 && A.bars.some(b => C.home.test(b)), A.bars.slice(-1).join(''));
   await sneakMenu(0);
   ok(`...the menu now says Call for ${C.NAME}`, A.buttons().some(b => new RegExp(`Call for ${C.NAME}`).test(b.label)) && !A.buttons().some(b => /Send .* home/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
   await A.click(new RegExp(`Call for ${C.NAME}`)); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
-  ok('...called from the menu: back, still in the look', (await cnt(PET)) === 1 && new RegExp(`${prefix}${LP}_c1$`).test(await model()), await model());
+  ok('...called from the menu: back, still in the look', (await cnt(PET)) === 1 && new RegExp(`${LM}_c1$`).test(await model()), await model());
   if (C.form) {
     await sneakMenu(0); await A.press(C.form.button); await sleep(1200);
     ok(`...the other form: the look on it too (${prefix}${LP}${C.form.suffix}_c1)`, new RegExp(`${prefix}${LP}${C.form.suffix}_c1$`).test(await model()), await model());
     await sneakMenu(0); await A.press(C.form.button); await sleep(1200);
-    ok('...and back', new RegExp(`${prefix}${LP}_c1$`).test(await model()), await model());
+    ok('...and back', new RegExp(`${LM}_c1$`).test(await model()), await model());
   }
   await sneakMenu(0); const w1 = await A.press(/Wardrobe/);
   ok('the menu -> Wardrobe: the looks', w1 && w1.next && [C.plain, ...C.looks].every(l => A.buttons().some(b => b.label.includes(l))), A.buttons().map(b => b.label).join(' | '));
   await A.press(new RegExp(C.plain)); await sleep(1000);
-  ok(`"${C.plain}": back to the own look (${prefix}${LP})`, new RegExp(`^bm:${prefix}${LP}$`).test(await model()) && (await score(`bm.cos${ab}`)) === 0, await model());
+  ok(`"${C.plain}": back to the own look (${LM})`, new RegExp(`^bm:${LM}$`).test(await model()) && (await score(`bm.cos${ab}`)) === 0, await model());
   await sleep(2200); A.chats.length = 0; await hold(2); await sleep(600);
   ok('the rare aura used: owned for good, and on', new RegExp(`bm\\.auown_${W}`).test(await tags()) && new RegExp(`bm\\.au_${W}\\b`).test(await tags()), await tags());
 

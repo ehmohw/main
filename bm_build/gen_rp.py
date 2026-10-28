@@ -887,6 +887,8 @@ if __name__ == '__main__':
     phase229.rp(sys.modules[__name__])
     import phase231, phase232                 # (2.98: the Gem, the Gutter Gentry)
     phase231.rp(sys.modules[__name__]); phase232.rp(sys.modules[__name__])
+    import phase235, phase236                 # (2.97: the Doodles, the Lightbringer, the Pale Dryad)
+    phase235.rp(sys.modules[__name__]); phase236.rp(sys.modules[__name__])
     import phase210, phase211, phase212       # (2.94: the effect sprites, the Sky Buddies, Dennis's searing throws)
     phase210.rp(sys.modules[__name__]); phase211.rp(sys.modules[__name__]); phase212.rp(sys.modules[__name__])
     import phase213, phase214, phase215       # (2.94: the 8-bit trio, the pixel costumes, the 8-Bit Serpent King)

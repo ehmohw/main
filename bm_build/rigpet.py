@@ -46,6 +46,7 @@ class Cfg:
     ENC_PARTICLE = 'return 0'
     BILLBOARD = None
     SWAP = ()
+    SWAP_START = False
 
     @staticmethod
     def POSE_EXTRA(name, psel):
@@ -96,6 +97,9 @@ def rp(C, R, icon):
     R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + (A.PREFIX,)
     R.ICONS[C.ITEM] = icon
     forms = [''] + ([C.FORM[1]] if C.FORM else [])
+
+    if A.PREFIX + 'head' not in A.models():                              # (2.97a: no plain head - its faces are another part's: rigface)
+        return
 
     def post(R2):
         mdl = lambda n: {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
@@ -179,7 +183,9 @@ def build(C, G, abilities, encounter):
     lit_parts = getattr(C, 'BRIGHT_PARTS', None)
     lit_of = lambda p: lit if lit and (lit_parts is None or p in lit_parts) else {}
     xt = getattr(A, 'EXTRA_TAGS', {})
-    disp = lambda tags: [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, [f"bm.{ab}p", f"bm.{ab}p_{p}"] + xt.get(p, []) + tags, SP, scale0=True, extra=dict(view_range=F(1.6), **lit_of(p), shadow_radius=F(0.5 if p == "body" else 0.0), shadow_strength=F(0.5), **bb))}'
+    # (2.97a: SWAP_START - a swapped part starts out as its idle model: one whose every model is a shape or a face has no plain one)
+    start = (lambda p: A.model_name(p, A.POSES['idle_a']) if p in C.SWAP else None) if getattr(C, 'SWAP_START', False) else (lambda p: None)
+    disp = lambda tags: [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, [f"bm.{ab}p", f"bm.{ab}p_{p}"] + xt.get(p, []) + tags, SP, model=start(p), scale0=True, extra=dict(view_range=F(1.6), **lit_of(p), shadow_radius=F(0.5 if p == "body" else 0.0), shadow_strength=F(0.5), **bb))}'
                          for p in A.PARTS]
     rig = disp([f'bm.{ab}p_pet', new])
     fn(f'{pfx}/place', RF.place(A, UP, psel))
@@ -208,6 +214,7 @@ def build(C, G, abilities, encounter):
                         'execute if score #vx bm.rng matches 500.. run return run scoreboard players set #st bm.rng 1',
                         'scoreboard players set #st bm.rng 0'])
     tick.append(f'execute as @e[type=minecraft:wolf,tag={pet}] at @s run function bm:{pfx}/tick')
+    anchor = 'head' if 'head' in A.PARTS else A.PARTS[0]                     # (2.97a: the part whose loss means the rig is gone - a head, or its body)
     idle_fight = f'unless score @s {S("x")} matches 1.. unless data entity @s {{Sitting:1b}} unless entity @s[tag=bm.rdr] unless entity @s[tag=bm.cdl]'
 
     # ---- the helpers for the follower's own abilities
@@ -223,7 +230,7 @@ def build(C, G, abilities, encounter):
     ab_lines = abilities(G, X)
     fn(f'{pfx}/tick', ['scoreboard players operation #me bm.pid = @s bm.pid',
                        f'execute as @e[type=minecraft:item_display,tag=bm.{ab}p_pet,tag=!{fade}] if score @s bm.pid = #me bm.pid run tag @s add {sel}',
-                       f'execute unless entity {psel("head")} run function bm:{pfx}/rerig',
+                       f'execute unless entity {psel(anchor)} run function bm:{pfx}/rerig',
                        f'execute if score @s {S("x")} matches 1.. run function bm:{pfx}/act_tick'] +
        [f'execute if score @s {S(o)} matches 1.. run scoreboard players remove @s {S(o)} 1' for o in ('mc', 'rc', 'bc', 'gc', 'sc', 'sl')] +
        ab_lines +
