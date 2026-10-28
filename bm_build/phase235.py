@@ -284,8 +284,8 @@ _DOLL = {'dragon': 'A doll of the Doodle Dragon - crayon green, wings and all.',
          'cursor': 'A doll of the Cursor - a little white pointer with a smile.', 'inkblot': 'A doll of the Ink Blot - a soft black blot with big eyes.',
          'speech': 'A doll of the Speech Bubble - it says "BAM!" when you squeeze it.'}
 # (each figure's extent, measured: phase134.measure)
-FIT = {'dragon': (-0.015, 1.610, -0.950, 0.950, -0.095, 0.051), 'eraser': (0.000, 0.744, -0.350, 0.349, -0.140, 0.231),
-       'cursor': (0.638, 0.897, -0.319, 0.228, -0.031, 0.031), 'inkblot': (-0.017, 1.138, -0.588, 0.550, -0.011, 0.013),
+FIT = {'dragon': (-0.015, 1.610, -0.950, 0.950, -0.095, 0.051), 'eraser': (0.000, 0.744, -0.367, 0.367, -0.151, 0.234),
+       'cursor': (0.638, 0.897, -0.319, 0.228, -0.031, 0.031), 'inkblot': (-0.015, 1.350, -0.623, 0.623, -0.663, 0.584),
        'speech': (-0.046, 1.408, -0.658, 0.656, -0.045, 0.051)}
 for _C in DOODLES:
     _w = _C.W

@@ -13,7 +13,7 @@ runT({ W: 'lightbringer', NAME: 'The Lightbringer', ab: 'lh', q: 'lz', pfx: 'p23
     await run('time set noon'); await run('scoreboard players set #hard bm.cfg 1');
     await at(X + 0.5, Y + 1, Z + 0.5, 0, 10); A.chats.length = 0;
     await run(`${O}execute as TestRat at @s rotated 0 0 positioned ^ ^ ^5 run function bm:p236l/enc/place`);
-    ok('hard mode, by day, in the open: a herald comes down in a pillar of light', await wait(5000, async () => (await cnt(ENC)) === 1) && A.chats.some(c => /herald of the Divine One/.test(c)), A.chats.slice(-1).join('').slice(0, 160));
+    ok('hard mode, by day, in the open: a herald comes down in a pillar of light', await wait(5000, async () => (await cnt(ENC)) === 1 && A.chats.some(c => /herald of the Divine One/.test(c))), A.chats.slice(-1).join('').slice(0, 160));
     const ex = await num(ENC, 'Pos[0]'), ez = await num(ENC, 'Pos[2]');
     await at(ex + 0.5, Y + 1, ez - 2.5, 0, 10);
     const talk = async () => { const eb = await entOf(ENC); A.bars.length = 0; A.chats.length = 0; if (eb) A.interact(eb.entityId); await sleep(1200); };
