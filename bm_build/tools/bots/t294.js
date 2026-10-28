@@ -45,7 +45,7 @@ runT({ W: 'henry', NAME: 'Henry', ab: 'hy', q: 'hq', pfx: 'p229', prefix: 'hy_',
     await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true');
     await run(`${O}tp ${PET} ${X} ${Y + 1} ${Z}`); await zom(2, 0, 'bm.trpc'); await cd('gc', 0);
     ok("BLACK CAT'S LUCK - swipes, and Luck II for you", await wait(8000, async () => (await hp('bm.trpc')) < 290 && /luck/.test(await fx())));
-    await run(`${O}kill @e[tag=bm.trpz]`); await calm();
+    await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await sleep(3000);   // (the charged flurry plays out first)
     await at(X + 0.5, Y + 1, Z - 1.5, 0, 10); await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z + 0.5}`); await sleep(800);
     await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await cd('k', 0);
     ok('PURR - out of a fight beside you: Regeneration and Absorption', await wait(7000, async () => /regeneration/.test(await fx()) && /absorption/.test(await fx())));

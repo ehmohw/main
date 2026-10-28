@@ -41,7 +41,7 @@ runT({ W: 'nia', NAME: 'Nia', ab: 'ni', q: 'nq', pfx: 'p230', prefix: 'ni_', ite
     await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true');
     await run(`${O}tp ${PET} ${X} ${Y + 1} ${Z}`); await zom(3, 0, 'bm.trpc'); await cd('gc', 0);
     ok('BELL CHIME - her bell: Regeneration II for you; the monster round her glows', await wait(8000, async () => /regeneration/.test(await fx()) && /glowing/.test(await fxOf('bm.trpc'))));
-    await run(`${O}kill @e[tag=bm.trpz]`); await calm();
+    await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await sleep(3000);   // (the charged flurry plays out first)
     await at(X + 0.5, Y + 1, Z - 1.5, 0, 10); await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z + 0.5}`); await sleep(800);
     await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await cd('k', 0);
     ok('KNEAD - out of a fight beside you: Regeneration and a bite to eat', await wait(7000, async () => /regeneration/.test(await fx())));
