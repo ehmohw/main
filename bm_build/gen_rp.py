@@ -887,8 +887,6 @@ if __name__ == '__main__':
     phase229.rp(sys.modules[__name__])
     import phase231, phase232                 # (2.98: the Gem, the Gutter Gentry)
     phase231.rp(sys.modules[__name__]); phase232.rp(sys.modules[__name__])
-    import creative                           # (2.96a: the Creative Forms' rainbow tint - every part of the twelve takes it)
-    creative.rp(sys.modules[__name__])
     import phase210, phase211, phase212       # (2.94: the effect sprites, the Sky Buddies, Dennis's searing throws)
     phase210.rp(sys.modules[__name__]); phase211.rp(sys.modules[__name__]); phase212.rp(sys.modules[__name__])
     import phase213, phase214, phase215       # (2.94: the 8-bit trio, the pixel costumes, the 8-Bit Serpent King)
@@ -954,6 +952,9 @@ if __name__ == '__main__':
         p2.art.register(sys.modules[__name__])
         import p2.regalia
         p2.regalia.rp(sys.modules[__name__])
+    if PHASE2:
+        import creative                       # (2.96a: the Creative Forms' outfits - their pass goes last, after every model of the twelve is written)
+        creative.rp(sys.modules[__name__])
     _done = '/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP.done'    # 2.94b: see gen_dp
     if os.path.exists(_done): os.remove(_done)
     s = build('/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP')

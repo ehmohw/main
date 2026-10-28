@@ -3,10 +3,10 @@ it takes on a CREATIVE FORM - it sparkles with the Gem's colours, and the two of
 The Buddies (the Gem made them all): Fishy, the Gutter Gentry (Batty, Eggbert, the Count), Mr. Capshun, the Sky Buddies, Kettle.
 And the owner's five: Emma, Queen Ava, Democratus, KillerWatt and Queen Pearl.
 (phase188 runs the pairs: the Gem's host leads every one.)
-2.96a: and the form is a LOOK, not only a sparkle - each of them puts on their creative look (creative.py: their own outfit painted in
-every colour at once) the moment the pair forms, and takes it off again (back to whatever they wore) a few seconds after they part.
-It's worn through their own wardrobe (the look score its menu sets), so a look picked meanwhile is kept, and a creative look left on
-by a logout comes off the next second.)"""
+2.96a: and the form is an OUTFIT, not only a sparkle - each of them puts on their creative outfit (creative.py: a beret, a smock,
+a rainbow cape, a crown of crayons...) the moment the pair forms, and takes it off again (back to whatever they wore) a few seconds after they part.
+It's a flag on their parts beside whatever they wear, so it goes over every look, pose and face, and a part that stops being dressed
+(the pair parted, the Gem sent home, a logout) is itself again a second later.)"""
 import phase188 as P188
 _O = P188.O
 _SP = '{B} at @s run particle minecraft:end_rod ~ ~1 ~ 0.4 0.5 0.4 0.02 3'
@@ -57,13 +57,13 @@ def add_pairs():
 
 
 def generate(G):
-    """(2.96a) the creative look: while the pair runs, a rainbow over every part of the partner (creative.py's tint), running part to
-    part a few times a second; off again (colours removed: their own look) when they part"""
+    """(2.96a) the creative outfit: while the pair runs, the outfit flag raised on every part of the partner (creative.py: each part's
+    item definition then shows its outfitted twin), kept up a few times a second; lowered (their own look) when they part"""
     import phase100 as P100
     import creative
     fn = G.fn
     assert set(FORMS) == set(creative.FORMS), set(FORMS) ^ set(creative.FORMS)
-    objs = [f'bm.cf{w}' for w in FORMS] + ['bm.cfi', 'bm.cfu']
+    objs = [f'bm.cf{w}' for w in FORMS] + ['bm.cfu']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
     fast, sec = G.FUNCS['loop/fast'], G.FUNCS['loop/second']
@@ -73,22 +73,16 @@ def generate(G):
         fn(f'p233/on/{w}', [f'execute unless score @s bm.cf{w} matches 1.. run playsound minecraft:block.amethyst_block.resonate player @a[distance=..16] ~ ~ ~ 1 1.4',
                             f'scoreboard players set @s bm.cf{w} 3'])
         sec.append(f'execute as @a[scores={{bm.cf{w}=1..}}] run scoreboard players remove @s bm.cf{w} 1')
-        # (a few times a second: your partner's parts - every display about them - take the rainbow's next colours)
+        # (a few times a second: your partner's parts - every display about them - wear the outfit)
         fast.append(f'execute as @a[scores={{bm.cf{w}=1..}}] at @s run function bm:p233/paint/{w}')
         fn(f'p233/paint/{w}', ['scoreboard players operation #me bm.pid = @s bm.pid',
                                f'execute as @e[type=minecraft:{host},tag={tag},distance=..32] if score @s bm.pid = #me bm.pid at @s '
                                f'as @e[type=minecraft:item_display,distance=..3.5,tag=!bm.cgp] run function bm:p233/part'])
-    n = len(creative.COLOURS)
-    fn('p233/part', ['execute unless score @s bm.cfi matches 0.. store result score @s bm.cfi run random value 0..%d' % (n - 1), 'tag @s add bm.cft',
-                     'execute store result score @s bm.cfu run time query gametime',
-                     'scoreboard players operation #h bm.rng = @s bm.cfi', 'scoreboard players operation #h bm.rng += #cfc bm.rng', 'scoreboard players operation #h bm.rng %%= #%d bm.rng' % n] +
-       [f'execute if score #h bm.rng matches {i} run return run data modify entity @s item.components."minecraft:custom_model_data".colors set value [{c}]'
-        for i, c in enumerate(creative.COLOURS)])
-    fast.insert(0, 'scoreboard players add #cfc bm.rng 1')
-    G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}']
-    # (and a part not painted for a second - the pair parted, or it wandered off - is itself again)
+    fn('p233/part', ['tag @s add bm.cft', 'execute store result score @s bm.cfu run time query gametime',
+                     'data modify entity @s item.components."minecraft:custom_model_data".flags set value [1b]'])
+    # (and a part not dressed for a second - the pair parted, or it wandered off - is itself again)
     sec.append('execute store result score #now bm.rng run time query gametime')
     sec.append('execute as @e[type=minecraft:item_display,tag=bm.cft] run function bm:p233/fade')
     fn('p233/fade', ['scoreboard players operation #age bm.rng = #now bm.rng', 'scoreboard players operation #age bm.rng -= @s bm.cfu',
                      'execute if score #age bm.rng matches ..20 run return 0',
-                     'data remove entity @s item.components."minecraft:custom_model_data".colors', 'tag @s remove bm.cft', 'scoreboard players reset @s bm.cfi'])
+                     'data remove entity @s item.components."minecraft:custom_model_data".flags', 'tag @s remove bm.cft'])

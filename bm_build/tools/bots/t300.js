@@ -2,7 +2,7 @@
 //   the Gutter Gentry, Reformed (Batty, Eggbert and the Count: its hidden achievement, Strength, Speed and Luck);
 //   Batty and Bender, "Fetch!" (Jump Boost); the Count and Mr. Capshun, "The Villain's Redemption" (Strength);
 //   the Creative Forms - Kettle, "First Sketch" (Jump Boost); Batty, "Prism Wings" (Slow Falling); Emma, "Dream Petals"
-//   (Regeneration) - and (2.96a) Kettle in his creative look (every part in the rainbow; his own colours once the Gem is gone); Bender, "Fetch the Rainbow" (Speed); and Henry and the Gem, "Shiny Thing" (Luck).
+//   (Regeneration) - and (2.96a) Kettle in his creative outfit (his parts dressed - the outfit flag up; out of it once the Gem is gone); Bender, "Fetch the Rainbow" (Speed); and Henry and the Gem, "Shiny Thing" (Luck).
 // (rcon sets the stage: an empty field, the followers met, their rests cleared.)
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
@@ -51,11 +51,11 @@ const res = [];
   await bond("The Villain's Redemption", 'pair_ct_capshun', ['gentry_count', 'capshun_pencil'], ['wolf,tag=bm.knpet', 'wolf,tag=bm.mzpet'], 'strength');
   await reset();
   await bond('Creative Form: First Sketch', 'pair_cf_kettle', ['creativity_gem', 'kettle_plane'], ['wolf,tag=bm.cgpet', 'wolf,tag=bm.ktpet'], 'jump_boost');
-  // (2.96a) the form is a look: every part of Kettle washed in the rainbow while he's beside the Gem - and his own again once they part
-  const painted = async () => { const m = (await run(`${O}execute as @e[type=minecraft:wolf,tag=bm.ktpet,limit=1] at @s if entity @e[type=minecraft:item_display,distance=..3.5,tag=bm.cft]`)).match(/count: (\d+)/i); return m ? +m[1] : 0; };
-  ok('...Kettle in his creative form: his parts painted in the rainbow', await wait(4000, async () => (await painted()) >= 3), `parts ${await painted()}`);
+  // (2.96a) the form is an outfit: Kettle's parts dressed (the outfit flag up: his crayon crown and scarf) while he's beside the Gem - his own look again once they part
+  const painted = async () => { const m = (await run(`${O}execute as @e[type=minecraft:wolf,tag=bm.ktpet,limit=1] at @s if entity @e[type=minecraft:item_display,distance=..3.5,tag=bm.cft,nbt={item:{components:{"minecraft:custom_model_data":{flags:[1b]}}}}]`)).match(/count: (\d+)/i); return m ? +m[1] : 0; };
+  ok('...Kettle in his creative form: his parts in their outfit (crayon crown, scarf)', await wait(4000, async () => (await painted()) >= 3), `parts ${await painted()}`);
   await run(`${O}tp @e[type=minecraft:wolf,tag=bm.cgpet] ${X} ${Y - 40} ${Z}`); await run(`${O}kill @e[type=minecraft:wolf,tag=bm.cgpet]`);    // (the Gem gone)
-  ok('...the Gem gone: Kettle his own colours again', await wait(9000, async () => (await painted()) === 0), `parts ${await painted()}`);
+  ok('...the Gem gone: Kettle out of it again', await wait(9000, async () => (await painted()) === 0), `parts ${await painted()}`);
   await reset();
   await bond('Creative Form: Prism Wings', 'pair_cf_batty', ['creativity_gem', 'gentry_batty'], ['wolf,tag=bm.cgpet', 'wolf,tag=bm.ytpet'], 'slow_falling');
   await reset();

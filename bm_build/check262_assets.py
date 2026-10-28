@@ -329,9 +329,12 @@ def walk_item_model(f, m):
         if 'fallback' in m: walk_item_model(f, m['fallback'])
         if set(m) - {'type', 'property', 'index', 'cases', 'fallback', 'transformation'}: E(f'{f}: select keys {set(m)}')
     elif t == 'minecraft:condition':             # (2.67: the Frisbee Shield - a blocking pose while it's held up, like the vanilla shield's own definition)
-        if m.get('property') not in ('minecraft:using_item', 'minecraft:broken', 'minecraft:damaged', 'minecraft:selected', 'minecraft:carried'):
+        if m.get('property') not in ('minecraft:using_item', 'minecraft:broken', 'minecraft:damaged', 'minecraft:selected', 'minecraft:carried', 'minecraft:custom_model_data'):
             E(f'{f}: condition property {m.get("property")} (only the simple boolean ones used/checked)')
-        if set(m) - {'type', 'property', 'on_true', 'on_false'} or 'on_true' not in m or 'on_false' not in m: E(f'{f}: condition keys {set(m)}')
+        # (2.96a: custom_model_data - the display's flag at `index`, a non-negative int: the Creative Forms' outfits)
+        extra = {'index'} if m.get('property') == 'minecraft:custom_model_data' else set()
+        if m.get('property') == 'minecraft:custom_model_data' and not (isinstance(m.get('index', 0), int) and m.get('index', 0) >= 0): E(f'{f}: condition index {m.get("index")}')
+        if set(m) - {'type', 'property', 'on_true', 'on_false'} - extra or 'on_true' not in m or 'on_false' not in m: E(f'{f}: condition keys {set(m)}')
         for k in ('on_true', 'on_false'):
             if k in m: walk_item_model(f, m[k])
     elif t == 'minecraft:range_dispatch':        # (2.85b: an angelic bow, drawn as vanilla's bow is - by how long it's been pulled)

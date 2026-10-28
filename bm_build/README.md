@@ -21,14 +21,28 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
-## New in 2.96a: the Gem's face, and Creative Forms you can see
+## New in 2.96b: Creative Forms, redesigned
+
+Each of the twelve now has an outfit of their own, made for who they are, worn on their real model. It goes on while they walk beside the Gem of Creativity and comes off a few seconds after they part. It stays on through every pose, face, form and look. The drawn characters wear drawn pieces, flat and in their own style.
+
+- **Fishy, Rainbow Fin:** a betta's tail flowing out behind his tank, and fins sweeping up off his shoulders.
+- **Batty, Prism Wings:** his own wings turned to stained glass, with their bones as the lead; a prism on a gold chain.
+- **Eggbert, Golden Yolk:** a Fabergé egg. His shell is ruby enamel with a gold lattice and pearls, his spots are set sapphires, and a jewelled finial sits on top.
+- **The Count, Starlit Gentleman:** a midnight opera cape strewn with stars and lined in red satin, with a high collar; a starlit band on his topper.
+- **Mr. Capshun, Full Colour:** drawn in his own ink lines and coloured in: a red beret and a blue neckerchief.
+- **Kettle, First Sketch:** drawn in crayon: a paper crown and a scribbled hero's cape.
+- **The Sky Buddies, Aurora:** in their pixel style, the aurora's ribbons in the sky behind them and stars twinkling round the moon.
+- **Emma, Dream Petals:** a crown of flowers, and fairy wings of great pink petals swept back behind her.
+- **Queen Ava, Living Tide:** a train of living water from her shoulders, pooling behind her, and a necklace of shells and pearls.
+- **Democratus, Painted Reaper:** a garland of marigolds round his shoulders, and marigolds tucked in his hood.
+- **KillerWatt, Rainbow Current:** his lightning running through every colour, with rainbow current crackling down his arms.
+- **Queen Pearl, Pearlescent:** two strands of pearls at her collar, and a pearlescent overskirt in three tiers with pearls along each hem.
+
+## New in 2.96a: the Gem's face
 
 - **The Gem's emoticons are on its face now.** Each one is lit on the gem's front facet, white with a dark outline so it reads over the swirl. No line of text floats over it any more.
   - **Its faces:** `:)` `c:` `:3` `o3o` `^-^` `:o` `;)` `:D` `owo` `<3` `;(` `D:` `:c` `T_T` `>:(` `>:o` `:|` `-_-` `zZz` `u_u` `\o/` `*o*`, and new: `o.o` `O.o` `o.O` `o.e`.
   - **They follow its mood:** an angry face in a fight, worried when you're hurt, sleepy when it sits, a heart beside you, and a new face now and then when it's idle.
-- **A Creative Form is a real look now, not just sparkles.** While one of the twelve walks beside the Gem, every part of them is washed in the Gem's rainbow, and the colours run across them as they go. A few seconds after they part, they're back in their own colours. It works whatever they're wearing and whatever pose or form they're in.
-  - **The twelve:** Fishy, Batty, Eggbert, the Count, Mr. Capshun, the Sky Buddies, Kettle, Emma, Queen Ava, Democratus, KillerWatt and Queen Pearl.
-
 ## New in 2.96: Rufus for keeps, Henry and Nia, the Gem of Creativity and the Gutter Gentry
 
 Seven new followers. Each one has everything a follower has:

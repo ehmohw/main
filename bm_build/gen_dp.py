@@ -234,7 +234,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.96a'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.96b'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1472,6 +1472,9 @@ def build(out_dir):
     gen_tags_worldgen()
     print('allies:', allies.finalize(sys.modules[__name__]), 'friendly-fire lines now skip every follower')
     if PHASE2: print('royal might: %d follower damage lines scaled by Might (%d little functions)' % R201.finalize(sys.modules[__name__]))
+    if PHASE2:
+        import creative
+        print('creative: %d lines set only the strings of a display\'s custom_model_data (the outfit flag beside them stays)' % creative.keep_flags(sys.modules[__name__]))      # 2.96a
     print('noglow:', noglow.apply(sys.modules[__name__]), 'glow lines kept off invisible hosts')      # 2.80e
     print('omega tithe: %d custom-mob loot tables, %d currency pools tripled' % R172.finalize(sys.modules[__name__]))
     print('2.82t: %d loot tables, %d pools of map pieces / Skiff parts give one you lack' % R173.finalize(sys.modules[__name__]))
