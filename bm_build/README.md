@@ -21,6 +21,12 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.96e: square Buddies
+
+- **The round Buddies are blocks now**, like a slime or a vanilla mob's head, each with its face across the front: Bubbles and her little one, Dessa's bulb, Chase, Limer, Chico, Zapper's body, Spike's hub and Grace's head and body. Their pixel-shaded coats and drawn faces stay. Robo is unchanged.
+- **Cheferoni** is a square pizza, filling his slab right out to the crust.
+- **Grace's eyes** are black with a little white shine. Her wide white eye from the drawing is now her startled face, and she only wears it when she's surprised.
+
 ## New in 2.96d: the Gem's Buddies, blockier and closer to the drawings
 
 - **The blocky look:** every Buddy except Robo now has the pack's blocky style. Their round shapes are built from a few chunky, rounded-block layers, like a vanilla mob's head, instead of many thin slices. Their coats are pixel-shaded in small square cells, like a block's texture, instead of smoothly airbrushed. Their faces stay as drawn. Robo is unchanged.

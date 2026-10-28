@@ -234,12 +234,15 @@ class Rig:
 def ball(c, r, tex_, pv, yr=None, zr=None, shift=(0.0, 0.0), light=0, face=None, n=7, smooth=False):
     """a round ball, sliced: layers, each a cross of two boxes as wide as the sphere is there - round from every side.
     face: a texture painted over the whole front (the window 2r x 2yr at the top left of it) - laid over the front of every
-    slice at its own depth, so the face sits ON the ball. (2.96d, the blocky look: a few chunky layers - three, five for a big
-    one - each as wide as the ball at its middle, in steps of an eighth: a rounded block, as a vanilla mob is; smooth=True, the
-    n fine slices Robo keeps)"""
+    slice at its own depth, so the face sits ON the ball. (2.96d, the blocky look: a block - a vanilla mob's head, a slime -
+    its face over the whole front; smooth=True, the n fine slices Robo keeps)"""
     x, y, z = c; ry, rz = yr or r, zr or r
-    if not smooth:
-        n = 5 if min(r, ry) >= 1.6 else 3
+    if not smooth:                                    # (2.96d, the owner's word: round Buddies needn't be round - a block, its face on the front)
+        k = 0.9
+        e = el((x - r * k, y - ry * k, z - rz * k), (x + r * k, y + ry * k, z + rz * k), tex_, pv, shift=shift, light=light)
+        if face:
+            e['faces']['north'] = {'uv': [0, 0, round(2 * r, 4), round(2 * ry, 4)], 'texture': '#' + face}
+        return [e]
     out = []
     for i in range(n):
         y0 = y - ry + i * 2 * ry / n; y1 = y0 + 2 * ry / n
@@ -280,8 +283,12 @@ def disc(c, r, th, tex_, pv, face=None, n=9, light=0, smooth=False):
     """a flat round disc standing up, facing front (a pizza, a saw's hub): strips across, the face over the front of all of them
     (2.96d: five chunky strips - the blocky look; smooth=True, n fine ones)"""
     x, y, z = c; out = []
-    if not smooth:
-        n = 5
+    if not smooth:                                    # (2.96d: a square slab - the blocky look)
+        k = 0.9
+        e = el((x - r * k, y - r * k, z - th), (x + r * k, y + r * k, z + th), tex_, pv, light=light)
+        if face:
+            e['faces']['north'] = {'uv': [0, 0, round(2 * r, 4), round(2 * r, 4)], 'texture': '#' + face}
+        return [e]
     for i in range(n):
         y0 = y - r + i * 2 * r / n; y1 = y0 + 2 * r / n
         near = 0.0 if y0 < y < y1 else min(abs(y0 - y), abs(y1 - y))
@@ -348,13 +355,22 @@ def grace():
     beak = R.t('beak', lit(tex(BEAK, 16, 0.04), 2, 8, 4, hi='#9a968a', a=120))
 
     def eye(d, W, H, cx, cy, s, f, side):
-        """her eye as drawn: a small white oval, a tall dark pupil set toward the beak, a crease behind it"""
+        """her eye: black, with a bit of white shine; startled ('wow') as drawn - a white oval, a tall dark pupil set toward the
+        beak, a crease behind it"""
         lw = s * 0.16
         if f == 'blink':
             ln(d, arc(cx, cy - s * 0.2, s * 0.6, s * 0.55, 20, 160), INK, lw); return
         if f == 'happy':
             ln(d, arc(cx, cy + s * 0.5, s * 0.6, s * 0.75, 200, 340), INK, lw); return
-        rx, ry = (s * 0.62, s * 0.95) if f == 'wow' else ((s * 0.55, s * 0.6) if f == 'fierce' else (s * 0.5, s * 0.85))
+        if f != 'wow':                     # (2.96d, the owner's word: her eyes are just black, with a bit of white shine - the
+            rx, ry = s * 0.42, s * (0.5 if f == 'fierce' else 0.6)          #  drawing's wide white eye is her startled one)
+            lx = {'look': -side * 0.12}.get(f, 0.0) * s
+            E(d, cx + lx, cy, rx, ry, '#120e08')
+            E(d, cx + lx - rx * 0.35, cy - ry * 0.4, rx * 0.32, rx * 0.32, '#ffffff'); E(d, cx + lx + rx * 0.3, cy + ry * 0.35, rx * 0.13, rx * 0.13, '#ffffff')
+            if f == 'fierce':
+                ln(d, [(cx - side * s * 0.9, cy - s * 0.95), (cx + side * s * 0.7, cy - s * 0.45)], INK, s * 0.26)
+            return
+        rx, ry = s * 0.62, s * 0.95
         E(d, cx, cy, rx, ry, '#fafaf2', INK, lw)
         lx = {'look': -side * 0.22}.get(f, side * 0.14) * s
         pr = (s * 0.14, s * 0.24) if f == 'wow' else (s * 0.2, s * 0.5 if f != 'fierce' else s * 0.38)
@@ -1147,20 +1163,21 @@ def cheferoni():
     pep = R.t('pep', tex('#b8362a', 107, 0.05, spots=[('#8a1a16', 0.15)]))
 
     def pizza_under(d, W, H):
-        """the pizza: a crust rim, the cheese, eight slice cuts, pepperoni scattered all over (as drawn)"""
+        """the pizza: a crust rim, the cheese, eight slice cuts, pepperoni scattered all over (as drawn) - (2.96d) square, filling
+        his square slab: the blocky look"""
         cx, cy, r = W / 2, H / 2, W * 0.5
-        E(d, cx, cy, r * 0.995, r * 0.995, CR, CRD, W * 0.012)
-        E(d, cx, cy, r * 0.8, r * 0.8, CH, '#b89a72', W * 0.01)
+        d.rectangle((0, 0, W - 1, H - 1), fill=hexc(CR), outline=hexc(CRD), width=int(W * 0.024))
+        hs = r * 0.8
+        d.rectangle((cx - hs, cy - hs, cx + hs, cy + hs), fill=hexc(CH), outline=hexc('#b89a72'), width=int(W * 0.01))
         rr = random.Random(110)
-        for _ in range(40):                                   # (the cheese, melted unevenly)
-            a, t = rr.uniform(0, 6.283), rr.uniform(0, r * 0.7)
-            E(d, cx + math.cos(a) * t, cy + math.sin(a) * t, W * rr.uniform(0.02, 0.05), H * rr.uniform(0.015, 0.03), '#ead98e')
-        for i in range(8):                                    # (the slice cuts)
-            a = math.radians(i * 45 + 8)
-            ln(d, [(cx + math.cos(a) * r * 0.05, cy + math.sin(a) * r * 0.05), (cx + math.cos(a) * r * 0.8, cy + math.sin(a) * r * 0.8)], '#3e3020', W * 0.006)
-        for _ in range(26):                                   # (pepperoni)
-            a, t = rr.uniform(0, 6.283), rr.uniform(r * 0.12, r * 0.7)
-            x, y, s = cx + math.cos(a) * t, cy + math.sin(a) * t, W * rr.uniform(0.022, 0.042)
+        for _ in range(48):                                   # (the cheese, melted unevenly)
+            x, y = rr.uniform(cx - hs * 0.9, cx + hs * 0.9), rr.uniform(cy - hs * 0.9, cy + hs * 0.9)
+            E(d, x, y, W * rr.uniform(0.02, 0.05), H * rr.uniform(0.015, 0.03), '#ead98e')
+        for i in range(8):                                    # (the slice cuts, out to the crust)
+            a = math.radians(i * 45 + 8); t = hs / max(abs(math.cos(a)), abs(math.sin(a)))
+            ln(d, [(cx + math.cos(a) * r * 0.05, cy + math.sin(a) * r * 0.05), (cx + math.cos(a) * t, cy + math.sin(a) * t)], '#3e3020', W * 0.006)
+        for _ in range(30):                                   # (pepperoni)
+            x, y, s = rr.uniform(cx - hs * 0.85, cx + hs * 0.85), rr.uniform(cy - hs * 0.85, cy + hs * 0.85), W * rr.uniform(0.022, 0.042)
             if abs(x - cx) < W * 0.2 and H * 0.36 < y < H * 0.78: continue          # (not over his face)
             E(d, x, y, s, s, '#b8362a', '#7a1a12', W * 0.006); E(d, x - s * 0.3, y - s * 0.3, s * 0.25, s * 0.25, '#d86a5a')
 
