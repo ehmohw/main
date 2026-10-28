@@ -203,7 +203,6 @@ def _eyes(kind=None):
             R(x0, 13, x0 + 4, 13, LASH); R(x0, 14, x0 + 4, 15, EYE); R(x0 + 1, 16, x0 + 3, 16, EYE_D)
             R(x0 + 1, 14, x0 + 3, 14, EYE_L); R(x0 + (1 if m else 3), 14, x0 + (1 if m else 3), 14, '#ffffff')
             if kind == 'sad':                                                 # (the outer corners droop; a glowing tear)
-                R(x0, 13, x0 + 4, 13, (0, 0, 0, 0)) if False else None
                 R(x0 + (0 if m else 4), 16, x0 + (0 if m else 4), 16, EYE_D)
                 if not m: R(x0 + 3, 18, x0 + 3, 19, GLOW)
     for x, y in ((3, 18), (5, 19), (2, 19), (20, 18), (18, 19), (21, 19)):     # (glowing freckles on her cheeks)
@@ -343,7 +342,7 @@ def models():
         def arm(lit):
             a = [B(sx, 3.55, 5.35, 15.2, 20.9, -0.95, 0.95, 'pd_bark', ap, shift=(0.4 + 0.2 * sx, 0.5)),
                  B(sx, 3.5, 5.4, 19.6, 20.95, -1.0, 1.0, 'pd_leaf', ap, shift=(0.2, 0.6))]          # (leaves over the shoulder)
-            a += mush((X + sx * 0.9, 20.3, -0.3), (sx * 1.0, 1.0, -0.1), ap, 'blue', lit, 1.15)
+            a += mush((X + sx * 0.9, 20.0, -0.3), (sx * 1.25, 0.65, -0.1), ap, 'blue', lit, 1.15)
             a += mush((X + sx * 0.9, 18.8, 0.45), (sx * 1.2, 0.6, 0.25), ap, 'orange', lit, 0.95)
             a += mush((X + sx * 0.9, 17.6, -0.5), (sx * 0.9, 0.35, -0.35), ap, 'blue', lit, 0.75)
             return a
@@ -432,7 +431,7 @@ POSES = {
                armr=limb(1, 28, 6, -16), forer=limb(1, 46), arml=limb(-1, 28, 6, -16), forel=limb(-1, 46)),
     # (the seated idle's other beat) leaning back on her hands, one knee up, nodding off
     'sit_b': P(_face='sleepy', body=qs(('x', -22)), head=qs(('z', -12), ('x', 10)),
-               legr=limb(1, 92, 4), shinr=knee(6), legl=limb(-1, 100, 8), shinl=knee(76), footl=qs(('x', -14)), footr=qs(('x', -12)),
+               legr=limb(1, 92, 4), shinr=knee(6), legl=limb(-1, 100, 2), shinl=knee(80), footl=qs(('x', -14)), footr=qs(('x', -12)),
                armr=limb(1, -26, 16), forer=limb(1, 0), arml=limb(-1, -26, 16), forel=limb(-1, 0)),
     'happy': P(_face='happy', head=qs(('z', 8), ('x', -6)), armr=limb(1, 130, 46), forer=limb(1, 0, 10), arml=limb(-1, 130, 46), forel=limb(-1, 0, 10),
                legr=limb(1, 10), shinr=knee(30), legl=limb(-1, 0, 2)),

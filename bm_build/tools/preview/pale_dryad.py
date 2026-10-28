@@ -47,13 +47,14 @@ if 'views' in what:
                                               ((145, 15), 'back 3/4'), ((-30, 50), 'from above'))],
             f'{OUT}/pale_dryad_views.png', cols=3, title='The Pale Dryad - turnaround')
 if 'poses' in what:
-    K.sheet([tile(A.POSES[n], label=n, sub='(mushrooms flaring)' if A.POSES[n].get('_glow') else None) for n in A.DRAFT],
+    K.sheet([tile(A.POSES[n], (-60, 22) if n.startswith('swim') else (-35, 15), center=(0, 0.45, 0) if n.startswith('swim') else (0, 0.88, 0),
+                  label=n, sub='(mushrooms flaring)' if A.POSES[n].get('_glow') else ('(low in the water)' if n.startswith('swim') else None)) for n in A.DRAFT],
             f'{OUT}/pale_dryad_poses.png', cols=6, title='The Pale Dryad - poses')
 if 'faces' in what:
     tiles = []
     for f in (None,) + A.FACES:
         pose = {k: v for k, v in dict(I, _face=f).items() if v is not None}
-        tiles.append(tile(dict(pose, head=rigkit.I), 'front', span=0.62, center=(0, 1.38, 0), size=240, label=f or 'default'))
+        tiles.append(tile(dict(pose, head=rigkit.I), 'front', span=0.62, center=(0, 1.3, 0), size=240, label=f or 'default'))
     K.sheet(tiles, f'{OUT}/pale_dryad_faces.png', cols=7, title='The Pale Dryad - faces')
 if 'night' in what:
     tiles = []
@@ -68,8 +69,8 @@ if 'lineup' in what:
     HROOT = K.pack(HY, f'{OUT}/rp_henry')
     s = K.multi_scene(ROOT, HROOT)
     rigkit.render(s, A, A.POSES['idle_a'], at=(0.0, 0, 0), scale=A.RIG_SCALE, yaw=-15)
-    rigkit.render(s, A, A.POSES['heal'], at=(1.6, 0, 0.3), scale=A.RIG_SCALE, yaw=-50)
-    rigkit.render(s, HY, HY.POSES['sit_a'], at=(0.8, 0, -0.4), scale=HY.RIG_SCALE, yaw=-30)
+    rigkit.render(s, A, A.POSES['heal'], at=(2.1, 0, 0.3), scale=A.RIG_SCALE, yaw=-50)
+    rigkit.render(s, HY, HY.POSES['sit_a'], at=(1.0, 0, -0.2), scale=HY.RIG_SCALE, yaw=-30)
     K.person(s, (-1.1, 0, 0.3))
-    K.sheet([K.label(s.render((-12, 8), size=720, span=4.6, center=(0.3, 1.0, 0)), 'size', 'a player, the Pale Dryad (and again, healing), Henry')],
+    K.sheet([K.label(s.render((-12, 8), size=720, span=4.6, center=(0.5, 1.0, 0)), 'size', 'a player, the Pale Dryad (and again, healing), Henry')],
             f'{OUT}/pale_dryad_lineup.png', cols=1, title='The Pale Dryad - to scale')

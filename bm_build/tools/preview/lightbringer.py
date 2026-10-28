@@ -81,7 +81,7 @@ def _sat(a, b):
 
 
 MEET = {frozenset(p) for p in [('body', 'head'), ('body', 'armr'), ('body', 'arml'), ('armr', 'forer'), ('arml', 'forel'), ('forer', 'staff'),
-                               ('body', 'hair'), ('body', 'skirt'), ('head', 'hair'), ('legr', 'skirt'), ('legl', 'skirt'),
+                               ('hair', 'hairlo'), ('body', 'skirt'), ('head', 'hair'), ('legr', 'skirt'), ('legl', 'skirt'),
                                ('body', 'pool'), ('pool', 'legr'), ('pool', 'legl')]}
 
 
@@ -92,7 +92,8 @@ def clip_report(names, tol=0.15):
         pose = A.POSES[n]; bx = boxes(pose)
         hits = {}
         for (pa, ca, ea), (pb, cb, eb) in itertools.combinations(bx, 2):
-            if pa == pb or frozenset((pa, pb)) in MEET: continue
+            ha, hb = (any(f['texture'].startswith('#lb_hair') for f in e['faces'].values()) for e in (ea, eb))
+            if pa == pb or (frozenset((pa, pb)) in MEET and ha == hb): continue     # (hair against anything but hair is always checked)
             if {pa, pb} & {'wingr', 'wingl'} and {pa, pb} & {'body', 'hair'} and \
                     (ea if pa.startswith('wing') else eb).get('_root') and _sat(ca, cb) / U < 0.5: continue    # (a wing's root on her back)
             if ca[:, 1].max() < min(cb[:, 1]) or cb[:, 1].max() < ca[:, 1].min(): continue
