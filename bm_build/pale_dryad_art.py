@@ -1,66 +1,70 @@
-"""(draft) THE PALE DRYAD - a spirit of the Pale Garden, the eerie pale-oak woods (Wilfrey's Keep stands in pale gardens and
-dark forests). Gentle, odd, sleepy and as old as the woods: a healer and a binder - roots that hold monsters fast, spores that
-heal, mushrooms that glow. She glows softly at night: her small blue mushrooms, the faint spots on her orange ones and her eyes
-give off a soft light (light_emission, moderate - never neon) while her bark stays unlit, so the glow reads as coming from the
-mushrooms. (The night-only part - extra glow particles after dark - is wiring for later.)
+"""(draft) THE PALE DRYAD - a little forest sprite of the Pale Garden, the pale-oak woods (Wilfrey's Keep stands in pale gardens
+and dark forests). Gentle, a bit odd, often sleepy, and far older than she looks: a healer and a binder - roots that hold monsters
+fast, spores that heal, mushrooms that glow. She glows softly at night: her small blue mushrooms, the faint orange spots on her
+cap and the dot on her orange mushroom, and her eyes give off a soft light (light_emission, moderate - never neon) while the rest
+of her stays unlit, so the glow reads as coming from the mushrooms. (The night-only part - extra glow particles after dark - is
+wiring for later.)
 
-The look, in the pack's blocky follower style: a dryad woman a little shorter than a player (her cap's crown tops out about
-where a player's head does). Her body is pale-oak bark - grey-white, with darker grain running down it; her face is the same
-bark worn smooth, with gentle glowing blue eyes and a few glowing freckles. Her hat and hair is one great BLUE mushroom cap with
-ORANGE spots and orange gills underneath, a downturned rim, and a couple of tiny glowing mushrooms sprouting from its crown;
-mycelium hangs from under it as pale, faintly blue strands (a fringe at the back, locks either side of her face). Clusters of
-small blue (glowing) and orange mushrooms grow from her shoulders and the backs of her forearms, and orange shelf fungi and
-blue caps climb her back. A bodice of moss, a moss sash at the waist, and a skirt of pale moss over pale-oak leaves with a
-jagged leafy hem. Twig fingers; root feet, with roots splaying from the toes and heel.
+The look (2nd pass, after the owner's note "more polished, not as creepy, smaller"): a sweet, slightly chibi girl about chest
+high on a player (her cap's crown at ~1.15 blocks) - a big head under a big mushroom hat, a small body, short limbs. Warm
+pale-cream skin with a peach blush; big friendly glowing-blue eyes with dark pupils and a shine; a small smile. Her hat is a
+soft, rounded BLUE mushroom dome with raised ORANGE spots (faintly glowing), orange gills underneath and a slightly turned-down
+rim, a tiny glowing mushroom sprouting from its crown. A neat pale silver-mint bob, two soft locks framing her face. A moss-green
+dress: the bodice, a darker leaf sash, puffed moss sleeves, and a full flared skirt of moss over pale-oak leaves with a leafy
+hem. Rounded hands; little orange mushroom shoes with cream spots and a tiny root curl at the heel. A few deliberate mushrooms:
+one cluster on her left shoulder (two blue, one orange), one on her back, the tiny one on the cap.
 
-The rig (rigkit): hips (the root: the sash), body (torso, bodice, back fungi; bends at the waist), head (a face per
-expression; the cap, gills, hair and the eyes' glowing overlay on it), arms bent at the elbow, legs bent at the knee, root
-feet. The skirt is carried in two halves by the thighs (each leg swings its own half, so a stride or a seat never pushes a leg
-through it). Design units: feet at y=0, facing -z, her right is +x; RIG_SCALE 0.9 (about 1.73 blocks to the cap's crown).
+The rig (rigkit): hips (the root: the sash), body (bodice, back cluster; bends at the waist), head (a face per expression; the
+cap, gills, hair and the eyes' glowing overlay on it), arms bent at the elbow, legs bent at the knee, feet (shoes), and the skirt
+as two panels on the hips, front and back, meeting at her sides - each swings on the hip line with the thigh that leads it, so
+the skirt is whole from the front (no split down the middle) and a stride or a seat never pushes a leg through it. Design
+units: feet at y=0, facing -z, her right is +x; RIG_SCALE 0.8 (the cap's crown at ~1.15 blocks, 1.2 to the tip of its tiny mushroom).
 
 Pose keys: _face (an expression), _glow (True: every mushroom flares - the healing and bloom poses; a '_lit' model per mushroomed
-part), _off (the root's shift - worked out for every grounded pose so the lowest root-toe, or her seat, rests on y=0)."""
+part), skirtf / skirtb (worked out from the thighs unless a pose sets them), _off (the root's shift - worked out for every
+grounded pose so her shoes, or her seat, rest on y=0)."""
 import math
 import random
-import sys
 from PIL import Image, ImageDraw
 
 from phase57_art import hexc
 from rigkit import qs, qa, qmul, qrot, el, seg, solve, D
 
 PREFIX = 'pd_'
-RIG_SCALE = 0.9
+RIG_SCALE = 0.8
 UP, FRONT = (0.0, 1.0, 0.0), (0.0, 0.0, -1.0)
-PIVOT = {'hips': (0, 12.5, 0), 'body': (0, 12.6, 0), 'head': (0, 20.9, 0.0),
-         'armr': (4.45, 20.3, 0), 'forer': (4.45, 15.2, 0), 'arml': (-4.45, 20.3, 0), 'forel': (-4.45, 15.2, 0),
-         'legr': (1.7, 12.5, 0), 'shinr': (1.7, 6.0, 0), 'footr': (1.7, 1.5, 0),
-         'legl': (-1.7, 12.5, 0), 'shinl': (-1.7, 6.0, 0), 'footl': (-1.7, 1.5, 0),
-         'skirtf': (0, 12.5, 0), 'skirtb': (0, 12.5, 0)}
+PIVOT = {'hips': (0, 8.0, 0), 'body': (0, 8.2, 0), 'head': (0, 13.6, 0),
+         'armr': (3.35, 12.0, 0), 'forer': (3.35, 9.6, 0), 'arml': (-3.35, 12.0, 0), 'forel': (-3.35, 9.6, 0),
+         'legr': (1.1, 8.0, 0), 'shinr': (1.1, 4.2, 0), 'footr': (1.1, 1.2, 0),
+         'legl': (-1.1, 8.0, 0), 'shinl': (-1.1, 4.2, 0), 'footl': (-1.1, 1.2, 0),
+         'skirtf': (0, 8.0, 0), 'skirtb': (0, 8.0, 0)}
 PARENT = {'hips': None, 'body': 'hips', 'head': 'body', 'armr': 'body', 'forer': 'armr', 'arml': 'body', 'forel': 'arml',
           'legr': 'hips', 'shinr': 'legr', 'footr': 'shinr', 'legl': 'hips', 'shinl': 'legl', 'footl': 'shinl',
           'skirtf': 'hips', 'skirtb': 'hips'}
 PARTS = tuple(PIVOT)
 PART_K = {}
 FACES = ('happy', 'sleepy', 'blink', 'fierce', 'surprised', 'sad')
-GLOWS = ('head', 'body', 'armr', 'arml', 'forer', 'forel')         # (the parts with mushrooms: a '_lit' model each, for _glow)
-# the cap: (bottom, top, half-width) of each rounded slab, brim to crown - a soft dome; set a little back on her head (CZ)
-CAP = [(25.8, 26.7, 5.8), (26.7, 27.7, 5.3), (27.7, 28.6, 4.5), (28.6, 29.4, 3.4), (29.4, 30.0, 2.0)]
-CZ = 0.5
+GLOWS = ('head', 'body', 'arml')                                  # (the parts with mushrooms: a '_lit' model each, for _glow)
+# the cap: (bottom, top, half-width) of each rounded slab, brim to crown - a soft dome, set a little back on her head (CZ)
+CAP = [(18.2, 19.0, 5.6), (19.0, 19.9, 5.4), (19.9, 20.7, 5.0), (20.7, 21.5, 4.4), (21.5, 22.2, 3.6), (22.2, 22.7, 2.6), (22.7, 23.0, 1.5)]
+CZ = 0.3
 
 # light_emission (0-15): a soft glow at rest, a flare when she heals or blooms
 L_BLUE, L_SPOT, L_EYES, L_CAP, L_FLARE = 8, 4, 6, 3, 15
 
-# ---- colours
-BARK, BARK_L, BARK_D, GRAIN, GRAIN_D = '#d8d3ca', '#e5e1d9', '#c6bfb4', '#a39b90', '#80786d'
-SKIN, SKIN_D = '#e4e0d8', '#d4cec4'
-MOSS, MOSS_D, MOSS_L = '#9aa688', '#7f8c6f', '#b4bea0'
-LEAF, LEAF_D, LEAF_L = '#7f8b74', '#66725c', '#98a48a'
-BLUE, BLUE_D, BLUE_L, BLUE_H = '#2a5fc4', '#1e4796', '#3c78dc', '#5f98ee'
-ORANGE, ORANGE_D, ORANGE_L = '#ee7d1f', '#c05a12', '#ffa244'
-STEM, STEM_D = '#eee8da', '#d5ccba'
-GLOW, GLOW_L, GLOW_D = '#6fd6ff', '#c6f5ff', '#3aa6e6'
-HAIR, HAIR_D, HAIR_B = '#ebeae2', '#d0d3cb', '#bfd9e3'
-EYE, EYE_L, EYE_D, LASH = '#58d2ff', '#d2faff', '#2a8fd0', '#5a534b'
+# ---- colours: pale cream, soft moss green, blue cap with orange spots, a little orange
+SKIN, SKIN_D, SKIN_L, BLUSH = '#f4e5d2', '#ebd7c0', '#f8ede0', '#f2b3a2'
+MOSS, MOSS_D, MOSS_L = '#9fb88b', '#8ea97a', '#b0c79c'
+LEAF, LEAF_D, LEAF_L = '#86a170', '#76905f', '#97b281'
+SASH, SASH_D = '#6f8c5b', '#64804f'
+BLUE, BLUE_D, BLUE_L, BLUE_H = '#3a6fd0', '#3262bd', '#4a80de', '#6e9ff0'
+ORANGE, ORANGE_D, ORANGE_L = '#f0913a', '#dc7c2a', '#ffad5c'
+CREAM, CREAM_D = '#fbf3e4', '#efe3cd'
+GLOW, GLOW_L, GLOW_D = '#78d8ff', '#c9f4ff', '#4cb6ee'
+HAIR, HAIR_D, HAIR_L = '#e2f4ec', '#cde8dd', '#f1fbf7'
+EYE_T, EYE, EYE_B, PUPIL, LASH = '#2f86d2', '#4fc4fb', '#a4ebff', '#1c3a72', '#5b4743'
+BROW, MOUTH = '#b49a89', '#b65d57'
+ROOT, ROOT_D = '#a58b72', '#8f765f'
 
 
 def HIDDEN(p, pose):
@@ -83,143 +87,137 @@ def _cells(fn, seed, cell=2):
     return im
 
 
-def _mottle(base, var, seed, p=0.25):
-    return _cells(lambda x, y, r: r.choice(var) if r.random() < p else base, seed)
-
-
-def _bark(seed, base=BARK, lines=4, light=(BARK_L, BARK_D)):
-    """pale-oak bark: grey-white cells, darker grain lines running down it, wandering and broken, the odd knot"""
-    rnd = random.Random(seed)
-    g = [[base if rnd.random() > 0.25 else rnd.choice(light) for _ in range(32)] for _ in range(32)]
-    for _ in range(lines):
-        x, y = rnd.randrange(32), 0
-        while y < 32:
-            g[y][x % 32] = GRAIN if rnd.random() > 0.15 else GRAIN_D
-            y += 1
-            if rnd.random() < 0.18: x += rnd.choice((-1, 1))
-            if rnd.random() < 0.07: y += rnd.randint(2, 4)
-    for _ in range(2):                                                         # (knots)
-        x, y = rnd.randrange(1, 31), rnd.randrange(1, 31)
-        g[y][x] = GRAIN_D; g[y - 1][x] = GRAIN; g[y + 1][x] = GRAIN
-    return _cells(lambda x, y, r: g[y][x], seed)
-
-
-def _cap(seed, lit=False):
-    """the great cap: blue, softly mottled in patches (the orange spots are raised elements of their own, so they can glow)"""
-    base, var = (BLUE, (BLUE_D, BLUE_L)) if not lit else (BLUE_L, (BLUE, BLUE_H))
-    rnd = random.Random(seed)
+def _soft(base, light, dark, seed, p=0.16):
+    """gentle cell shading: mostly the base, a few cells a shade lighter or darker, in soft patches (never speckle-gritty)"""
+    rnd = random.Random(seed * 7 + 1)
     patch = [[rnd.random() for _ in range(5)] for _ in range(5)]
     def c(x, y, r):
-        p = patch[y * 4 // 32][x * 4 // 32]
+        k = patch[y * 4 // 32][x * 4 // 32]
         q = r.random()
-        if q < 0.18: return var[0]
-        if q < 0.18 + 0.25 * p: return var[1]
+        if q < p * (0.4 + k): return light
+        if q > 1 - p * (1.4 - k) * 0.6: return dark
         return base
     return _cells(c, seed)
 
 
-def _gills(lit=False):
-    """orange gills: darker lines every other cell (they run in toward the stem)"""
-    a, b, c = (ORANGE, ORANGE_D, ORANGE_L) if not lit else ('#ffb24e', '#e88a22', '#ffd890')
-    return _cells(lambda x, y, r: b if x % 2 == 0 else (c if r.random() < 0.2 else a), 4410)
-
-
-def _hair():
-    """mycelium: pale strands, faintly blue, a darker line between them"""
-    return _cells(lambda x, y, r: HAIR_D if x % 3 == 0 else (HAIR_B if r.random() < 0.22 else HAIR), 4420)
-
-
 def _leaves():
-    """pale-oak leaves: overlapping dull grey-green leaves, each a lighter top and a darker lower edge"""
+    """pale-oak leaves, tidy: rows of overlapping leaves - a lighter tip, a darker edge below"""
     def c(x, y, r):
-        k = (y + (x // 3) * 2) % 4
+        k = (y + (x // 3) % 2 * 2) % 4
         if k == 3: return LEAF_D
-        if k == 0: return LEAF_L if r.random() < 0.6 else LEAF
-        return LEAF if r.random() > 0.15 else LEAF_D
+        if k == 0: return LEAF_L
+        return LEAF
     return _cells(c, 4430)
 
 
+def _hair():
+    """the bob: pale silver-mint, a faint strand line every few cells, a soft sheen band"""
+    def c(x, y, r):
+        if x % 4 == 3: return HAIR_D
+        if 5 <= y <= 6: return HAIR_L
+        return HAIR
+    return _cells(c, 4420)
+
+
+def _gills(lit=False):
+    a, b = (ORANGE_L, ORANGE) if not lit else ('#ffd08a', '#ffb860')
+    return _cells(lambda x, y, r: b if x % 2 == 0 else a, 4410)
+
+
+def _shoe():
+    """a little orange mushroom shoe: orange, two cream spots on each side"""
+    im = _soft(ORANGE, ORANGE_L, ORANGE_D, 4440, 0.12); d = ImageDraw.Draw(im)
+    for x, y in ((2, 2), (8, 1), (13, 3)):
+        d.rectangle((x, y, x + 1, y + 1), fill=hexc(CREAM))
+    return im
+
+
 def _face(kind=None):
-    """the face: 6 x 6 units (24 x 24 px from the top-left; the cap's gills hide rows 0-6). Smooth pale bark, a whisper of grain
-    at the edges, the brows and mouth (the eyes are their own glowing overlay, _eyes). Her right eye is our left: cols 4-8,
-    her left cols 15-19; the eyes on rows 13-16, the mouth round row 20."""
-    rnd = random.Random(4440)
-    im = _cells(lambda x, y, r: SKIN if r.random() > 0.18 else SKIN_D, 4441)
-    d = ImageDraw.Draw(im)
+    """the face: 7 x 6.6 units (28 x 26 px from the top-left; the cap's rim hides rows 0-9). Warm cream, the brows, a peach
+    blush on each cheek, the mouth. Her right eye is our left: cols 6-10; her left cols 17-21; eyes on rows 13-19 (their own
+    glowing overlay, _eyes); blush rows 19-20; the mouth on rows 22-23."""
+    im = _soft(SKIN, SKIN_L, SKIN_D, 4441, 0.08); d = ImageDraw.Draw(im)
     R = lambda x0, y0, x1, y1, c: d.rectangle((x0, y0, x1, y1), fill=hexc(c))
-    for x in (0, 1, 22, 23):                                                  # (grain at the temples)
-        for y in range(6, 24):
-            if rnd.random() < 0.35: R(x, y, x, y, GRAIN)
-    R(11, 17, 12, 17, SKIN_D); R(11, 18, 12, 18, BARK_D)                     # (a knot of a nose)
-    if kind == 'fierce':                                                      # brows: down hard toward the middle
-        for i in range(5):
-            R(4 + i, 10 + i // 2, 4 + i, 11 + i // 2, GRAIN_D); R(19 - i, 10 + i // 2, 19 - i, 11 + i // 2, GRAIN_D)
-    elif kind == 'sad':                                                       # (up in the middle)
-        for i in range(5):
-            R(4 + i, 12 - i // 2, 4 + i, 12 - i // 2, GRAIN); R(19 - i, 12 - i // 2, 19 - i, 12 - i // 2, GRAIN)
+    for x0 in (3, 21):                                                        # (blush)
+        R(x0, 19, x0 + 3, 20, BLUSH); R(x0 + 1, 21, x0 + 2, 21, '#f6c7b8')
+    for x0, inner in ((6, 1), (17, -1)):                                      # brows (inner: +1 if the inner end is to the right)
+        a, b = (x0, x0 + 4)
+        if kind == 'fierce':                                                  # (down toward the middle - cute-determined)
+            for i in range(5):
+                x = a + i; yy = 10 + (i if inner > 0 else 4 - i) // 2
+                R(x, yy, x, yy, BROW)
+        elif kind == 'sad':                                                   # (up in the middle)
+            for i in range(5):
+                x = a + i; yy = 12 - (i if inner > 0 else 4 - i) // 2
+                R(x, yy, x, yy, BROW)
+        elif kind == 'surprised':
+            R(a + 1, 10, b - 1, 10, BROW)
+        else:
+            R(a + 1, 11, b - 1, 11, BROW)
+    if kind == 'happy':                                                       # (an open smile)
+        R(11, 22, 16, 22, MOUTH); R(12, 23, 15, 23, '#8f4643'); R(13, 23, 14, 23, '#e58f8a')
     elif kind == 'surprised':
-        R(4, 9, 8, 9, GRAIN); R(15, 9, 19, 9, GRAIN)
-    elif kind in ('sleepy', 'blink'):
-        R(4, 12, 8, 12, GRAIN); R(15, 12, 19, 12, GRAIN)
-    else:
-        R(5, 11, 8, 11, GRAIN); R(15, 11, 18, 11, GRAIN); R(4, 12, 4, 12, GRAIN); R(19, 12, 19, 12, GRAIN)
-    M = '#7a5a52'                                                             # (the mouth: a dark rosy brown)
-    if kind == 'happy':
-        R(9, 20, 9, 20, M); R(10, 21, 13, 21, M); R(14, 20, 14, 20, M)
-    elif kind == 'surprised':
-        R(10, 20, 13, 22, M); R(11, 21, 12, 21, '#4a3632')
+        R(13, 22, 14, 23, '#8f4643')
     elif kind == 'sad':
-        R(10, 21, 13, 21, M); R(9, 22, 9, 22, M); R(14, 22, 14, 22, M)
+        R(13, 22, 14, 22, MOUTH); R(12, 23, 12, 23, MOUTH); R(15, 23, 15, 23, MOUTH)
     elif kind == 'fierce':
-        R(9, 21, 14, 21, M); R(9, 20, 9, 20, M); R(14, 20, 14, 20, M)
+        R(12, 22, 15, 22, MOUTH)
     elif kind == 'sleepy':
-        R(11, 21, 12, 21, M)
-    else:                                                                     # (a soft little smile)
-        R(10, 21, 13, 21, M); R(9, 20, 9, 20, M); R(14, 20, 14, 20, M)
+        R(13, 23, 14, 23, MOUTH)
+    else:                                                                     # (a small smile)
+        R(12, 22, 12, 22, MOUTH); R(13, 23, 14, 23, MOUTH); R(15, 22, 15, 22, MOUTH)
     return im
 
 
 def _eyes(kind=None):
-    """the eyes' overlay (transparent but for the eyes, lashes and freckles; light_emission on its element): glowing blue"""
+    """the eyes' overlay (transparent but for the eyes and freckles; light_emission on its element): big, friendly, glowing
+    blue - a darker top to the iris, lighter below, a dark pupil and a white shine"""
     im = Image.new('RGBA', (64, 64), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
     R = lambda x0, y0, x1, y1, c: d.rectangle((x0, y0, x1, y1), fill=hexc(c))
-    for x0 in (4, 15):
-        m = x0 == 4                                                           # (her right eye: the glint on its outer side)
-        if kind == 'blink':                                                   # (shut: a soft downward curve of lashes)
-            R(x0, 14, x0, 14, LASH); R(x0 + 1, 15, x0 + 3, 15, LASH); R(x0 + 4, 14, x0 + 4, 14, LASH)
+    for x0, outer in ((6, -1), (17, 1)):
+        ox = x0 if outer < 0 else x0 + 4                                       # (the outer corner's column)
+        if kind == 'blink':                                                   # (shut: a soft, contented curve)
+            R(x0, 15, x0, 15, LASH); R(x0 + 1, 16, x0 + 3, 16, LASH); R(x0 + 4, 15, x0 + 4, 15, LASH)
         elif kind == 'happy':                                                 # (smiling arches)
-            R(x0, 15, x0, 15, EYE_D); R(x0 + 1, 14, x0 + 3, 14, EYE); R(x0 + 4, 15, x0 + 4, 15, EYE_D); R(x0 + 2, 14, x0 + 2, 14, EYE_L)
-            R(x0 + 1, 13, x0 + 3, 13, LASH)
-        elif kind == 'sleepy':                                                # (heavy lids: the lower half glows)
-            R(x0, 14, x0 + 4, 14, LASH); R(x0, 15, x0 + 4, 15, EYE); R(x0 + 1, 16, x0 + 3, 16, EYE_D); R(x0 + 2, 15, x0 + 2, 15, EYE_L)
-        elif kind == 'fierce':                                                # (narrowed, brighter)
-            R(x0, 14, x0 + 4, 15, EYE); R(x0 + 1, 14, x0 + 3, 14, EYE_L)
-            if m: R(x0 + 3, 13, x0 + 4, 13, LASH)
-            else: R(x0, 13, x0 + 1, 13, LASH)
-        elif kind == 'surprised':                                             # (wide and round)
-            R(x0 + 1, 12, x0 + 3, 12, EYE_D); R(x0, 13, x0 + 4, 16, EYE); R(x0 + 1, 17, x0 + 3, 17, EYE_D)
-            R(x0 + 1, 14, x0 + 3, 15, EYE_L); R(x0 + 2, 14, x0 + 2, 15, '#ffffff')
-        else:                                                                 # default / sad: a soft almond, lash on top, a glint
-            R(x0, 13, x0 + 4, 13, LASH); R(x0, 14, x0 + 4, 15, EYE); R(x0 + 1, 16, x0 + 3, 16, EYE_D)
-            R(x0 + 1, 14, x0 + 3, 14, EYE_L); R(x0 + (1 if m else 3), 14, x0 + (1 if m else 3), 14, '#ffffff')
-            if kind == 'sad':                                                 # (the outer corners droop; a glowing tear)
-                R(x0 + (0 if m else 4), 16, x0 + (0 if m else 4), 16, EYE_D)
-                if not m: R(x0 + 3, 18, x0 + 3, 19, GLOW)
-    for x, y in ((3, 18), (5, 19), (2, 19), (20, 18), (18, 19), (21, 19)):     # (glowing freckles on her cheeks)
+            R(x0, 16, x0, 17, EYE); R(x0 + 4, 16, x0 + 4, 17, EYE); R(x0 + 1, 15, x0 + 3, 15, EYE_B)
+            R(x0 + 1, 14, x0 + 3, 14, LASH); R(x0, 15, x0, 15, LASH); R(x0 + 4, 15, x0 + 4, 15, LASH)
+        elif kind == 'sleepy':                                                # (heavy lids: the lower half)
+            R(x0, 16, x0 + 4, 16, LASH); R(x0, 17, x0 + 4, 18, EYE); R(x0 + 1, 19, x0 + 3, 19, EYE_B)
+            R(x0 + 2, 17, x0 + 3, 18, PUPIL); R(x0 + 1, 17, x0 + 1, 17, '#ffffff')
+        else:
+            top = 12 if kind == 'surprised' else (15 if kind == 'fierce' else 14)
+            R(x0, top - 1, x0 + 4, top - 1, LASH)                             # (the lash line)
+            if kind not in ('surprised',): R(ox, top - 2, ox, top - 2, LASH)  # (a little flick at the outer corner)
+            if kind == 'fierce':                                              # (the lid slants down to the middle)
+                ix = x0 + 4 if outer < 0 else x0
+                R(ix, top, ix, top, LASH)
+            for y in range(top, 20):
+                c = EYE_T if y < top + 2 else (EYE if y < 18 else EYE_B)
+                a, b = x0, x0 + 4
+                if y in (top, 19): a, b = x0 + 1, x0 + 3                       # (rounded)
+                R(a, y, b, y, c)
+            if kind == 'surprised':
+                R(x0 + 2, 15, x0 + 2, 16, PUPIL); R(x0 + 1, 13, x0 + 1, 14, '#ffffff')
+            else:
+                R(x0 + 2, top + 1, x0 + 3, 18, PUPIL); R(x0 + 1, top + 1, x0 + 1, top + 2, '#ffffff'); R(x0 + 3, 18, x0 + 3, 18, '#dff8ff')
+            if kind == 'sad':                                                 # (a glowing tear at her left eye's outer corner)
+                if outer > 0: R(x0 + 4, 20, x0 + 4, 21, GLOW)
+    for x, y in ((4, 22), (6, 22), (21, 22), (23, 22)):                       # (a few soft glowing freckles)
         R(x, y, x, y, GLOW_D)
     return im
 
 
 def textures():
-    T = {'pd_bark': _bark(4401), 'pd_bark2': _bark(4402, lines=9), 'pd_barkl': _bark(4403, base=BARK_L, lines=5),
-         'pd_moss': _mottle(MOSS, (MOSS_D, MOSS_L), 4404), 'pd_leaf': _leaves(),
-         'pd_cap': _cap(4405), 'pd_cap_lit': _cap(4405, True), 'pd_gill': _gills(), 'pd_gill_lit': _gills(True),
-         'pd_hair': _hair(), 'pd_stem': _mottle(STEM, (STEM_D,), 4406, 0.2),
-         'pd_mblue': _mottle(GLOW_D, (GLOW, BLUE_L), 4407, 0.35), 'pd_mblue_lit': _mottle(GLOW_L, (GLOW, '#ffffff'), 4408, 0.35),
-         'pd_morange': _mottle(ORANGE, (ORANGE_D, ORANGE_L), 4409, 0.3), 'pd_morange_lit': _mottle('#ffb24e', ('#ffd890', ORANGE_L), 4411, 0.3),
-         'pd_cspot': _mottle(ORANGE, (ORANGE_L, '#ffb85a'), 4415, 0.35), 'pd_cspot_lit': _mottle('#ffd27a', ('#ffe9b0', '#fff4d8'), 4416, 0.35),
-         'pd_mspot': _mottle('#ffe6a8', ('#fff4d0',), 4412, 0.3), 'pd_mspot_lit': _mottle('#fff6dc', ('#ffffff',), 4413, 0.3),
-         'pd_root': _bark(4414, base=BARK_D, lines=10, light=(BARK, GRAIN)),
+    T = {'pd_skin': _soft(SKIN, SKIN_L, SKIN_D, 4401, 0.08), 'pd_skinb': _soft(SKIN_D, SKIN, '#e0c9b0', 4402, 0.12),
+         'pd_moss': _soft(MOSS, MOSS_L, MOSS_D, 4404), 'pd_leaf': _leaves(), 'pd_sash': _soft(SASH, MOSS_D, SASH_D, 4403),
+         'pd_cap': _soft(BLUE, BLUE_L, BLUE_D, 4405), 'pd_cap_lit': _soft(BLUE_L, BLUE_H, BLUE, 4405),
+         'pd_gill': _gills(), 'pd_gill_lit': _gills(True), 'pd_hair': _hair(),
+         'pd_cspot': _soft(ORANGE, ORANGE_L, ORANGE_D, 4415, 0.2), 'pd_cspot_lit': _soft('#ffd27a', '#ffe9b0', '#ffc35a', 4416, 0.2),
+         'pd_stem': _soft(CREAM, '#fffaf0', CREAM_D, 4406, 0.12),
+         'pd_mblue': _soft(GLOW_D, GLOW, '#3f9fd8', 4407, 0.2), 'pd_mblue_lit': _soft(GLOW_L, '#ffffff', GLOW, 4408, 0.2),
+         'pd_morange': _soft(ORANGE, ORANGE_L, ORANGE_D, 4409, 0.15), 'pd_morange_lit': _soft('#ffb860', '#ffd890', ORANGE_L, 4411, 0.15),
+         'pd_mspot': _soft('#ffe6a8', '#fff4d0', '#ffdc90', 4412, 0.2), 'pd_mspot_lit': _soft('#fff6dc', '#ffffff', '#fff0c8', 4413, 0.2),
+         'pd_shoe': _shoe(), 'pd_sole': _soft(CREAM_D, CREAM, '#e2d3b8', 4417, 0.1), 'pd_root': _soft(ROOT, '#b39a80', ROOT_D, 4414, 0.15),
          'pd_face': _face(), 'pd_eyes': _eyes()}
     for k in FACES:
         T[f'pd_face_{k}'] = _face(k); T[f'pd_eyes_{k}'] = _eyes(k)
@@ -233,21 +231,20 @@ def B(sx, x0, x1, y0, y1, z0, z1, tex, piv, **kw):
     return el((a, y0, z0), (b, y1, z1), tex, piv, **kw)
 
 
-def mush(A, d, piv, kind='blue', lit=False, size=1.0, up=(0.0, 1.0, 0.0)):
-    """a small mushroom growing from A along d (design units: its length). Blue ones glow; orange ones carry a faint glowing
-    spot on top. lit: the flare (_glow) - all of it bright and at full light"""
+def mush(A, d, piv, kind='blue', lit=False, size=1.0):
+    """a small mushroom growing from A along d: a cream stem, a two-step cap. Blue ones glow; an orange one carries a faintly
+    glowing dot on its crown. lit: the flare (_glow) - all of it bright and at full light"""
     L = math.sqrt(sum(v * v for v in d)); u = tuple(v / L for v in d)
     Bt = tuple(A[i] + d[i] for i in range(3))
-    tip = tuple(Bt[i] + u[i] * 0.55 * size for i in range(3))
-    cw = 1.8 * size
-    sfx = '_lit' if lit else ''
+    tip = tuple(Bt[i] + u[i] * 0.5 * size for i in range(3))
+    cw = 1.5 * size; sfx = '_lit' if lit else ''
     lc = (L_FLARE if lit else L_BLUE) if kind == 'blue' else (L_FLARE if lit else 0)
-    out = [seg(A, Bt, 0.6 * size, 0.6 * size, 'pd_stem', piv, up=up),
-           seg(tuple(Bt[i] - u[i] * 0.15 * size for i in range(3)), tip, cw, cw, f'pd_m{kind}{sfx}', piv, up=up, light=lc),
-           seg(tip, tuple(tip[i] + u[i] * 0.35 * size for i in range(3)), cw * 0.6, cw * 0.6, f'pd_m{kind}{sfx}', piv, up=up, light=lc)]
-    if kind == 'orange':                                                       # (the glowing spot on its crown)
-        top = tuple(tip[i] + u[i] * 0.35 * size for i in range(3))
-        out.append(seg(top, tuple(top[i] + u[i] * 0.06 for i in range(3)), cw * 0.34, cw * 0.34, f'pd_mspot{sfx}', piv, up=up,
+    out = [seg(A, Bt, 0.5 * size, 0.5 * size, 'pd_stem', piv),
+           seg(tuple(Bt[i] - u[i] * 0.15 * size for i in range(3)), tip, cw, cw, f'pd_m{kind}{sfx}', piv, light=lc),
+           seg(tip, tuple(tip[i] + u[i] * 0.32 * size for i in range(3)), cw * 0.6, cw * 0.6, f'pd_m{kind}{sfx}', piv, light=lc)]
+    if kind == 'orange':
+        top = tuple(tip[i] + u[i] * 0.32 * size for i in range(3))
+        out.append(seg(top, tuple(top[i] + u[i] * 0.06 for i in range(3)), cw * 0.3, cw * 0.3, f'pd_mspot{sfx}', piv,
                        light=L_FLARE if lit else L_SPOT))
     return out
 
@@ -259,38 +256,31 @@ def models():
         used = sorted({e['faces'][f]['texture'][1:] for e in els for f in e['faces']})
         M[name] = ({t: f'bm:block/{t}' for t in used}, els)
 
-    # ---- the hips: the moss sash, knotted at her left hip, its ends hanging
+    # ---- the hips: the leaf sash, a little bow at her left hip
     pv = PIVOT['hips']
-    part('pd_hips', [el((-3.3, 10.7, -2.45), (3.3, 13.4, 2.45), 'pd_moss', pv, shift=(0.2, 0.4)),
-                     el((-3.0, 12.6, -2.5), (3.0, 13.0, 2.5), 'pd_leaf', pv, shift=(0.5, 0.2)),               # (a band of leaves)
-                     el((-3.48, 11.6, -1.0), (-3.3, 13.0, 0.4), 'pd_moss', pv, shift=(0.6, 0.1)),             # (the knot)
-                     el((-3.46, 10.0, -0.6), (-3.3, 11.6, 0.0), 'pd_leaf', pv)])
+    part('pd_hips', [el((-2.3, 7.6, -1.65), (2.3, 9.0, 1.65), 'pd_sash', pv, shift=(0.2, 0.4)),
+                     el((-2.4, 6.5, -1.75), (2.4, 7.6, 1.75), 'pd_moss', pv, shift=(0.5, 0.6)),              # (the skirt's yoke)
+                     el((-2.75, 8.0, -0.7), (-2.3, 8.9, 0.3), 'pd_sash', pv, shift=(0.6, 0.1)),              # (the bow)
+                     el((-2.7, 7.0, -0.45), (-2.4, 8.0, -0.05), 'pd_sash', pv, shift=(0.3, 0.3))])
 
-    # ---- the body: waist, chest (bark), the moss bodice, a leaf collar, the neck; fungi up her back
+    # ---- the body: the moss bodice (a darker band at its top), and the back cluster
     pv = PIVOT['body']
 
     def body(lit):
-        b = [el((-2.75, 12.6, -1.6), (2.75, 15.4, 1.6), 'pd_bark', pv, shift=(0.1, 0.5)),                  # waist
-             el((-3.25, 15.2, -1.75), (3.25, 20.9, 1.75), 'pd_bark2', pv, shift=(0.3, 0.2)),                # chest
-             el((-3.3, 17.2, -2.15), (3.3, 19.9, 1.85), 'pd_moss', pv, shift=(0.4, 0.3)),                 # the bodice
-             el((-2.0, 16.6, -2.1), (2.0, 17.2, -1.75), 'pd_moss', pv, shift=(0.7, 0.6)),
-             el((-1.2, 20.9, -1.1), (1.2, 21.3, 1.1), 'pd_barkl', pv),                                      # neck
-             # the leaf collar over the shoulders
-             el((-3.2, 20.6, -1.9), (3.2, 21.2, -1.2), 'pd_leaf', pv, shift=(0.2, 0.1)),
-             el((-3.2, 20.6, 1.2), (3.2, 21.2, 1.9), 'pd_leaf', pv, shift=(0.5, 0.3))]
-        # fungi up her back: orange shelves low, blue caps by the shoulder blades
-        for (x0, x1, y, w) in ((-1.9, 0.3, 13.6, 1.4), (-0.3, 2.1, 15.6, 1.3), (-1.6, 0.2, 17.6, 1.1)):
-            b += [el((x0, y, 1.6 if y < 15 else 1.75), (x1, y + 0.55, 1.6 + w + (0 if y < 15 else 0.15)), 'pd_morange' + ('_lit' if lit else ''), pv,
-                     light=L_FLARE if lit else 0),
-                  el(((x0 + x1) / 2 - 0.25, y + 0.55, 1.9 + w * 0.4), ((x0 + x1) / 2 + 0.25, y + 0.6, 2.4 + w * 0.4), 'pd_mspot' + ('_lit' if lit else ''), pv,
-                     light=L_FLARE if lit else L_SPOT)]
-        b += mush((1.2, 18.6, 1.75), (0.3, 0.7, 1.0), pv, 'blue', lit, 0.9)
-        b += mush((0.3, 19.8, 1.75), (-0.2, 0.4, 1.0), pv, 'blue', lit, 0.7)
-        b += mush((-1.0, 15.0, 1.6), (-0.4, 0.5, 0.9), pv, 'blue', lit, 0.65)
+        b = [el((-1.95, 8.2, -1.4), (1.95, 10.4, 1.4), 'pd_moss', pv, shift=(0.1, 0.5)),                   # waist
+             el((-2.3, 10.2, -1.5), (2.3, 13.6, 1.5), 'pd_moss', pv, shift=(0.3, 0.2)),                     # chest
+             el((-2.35, 12.9, -1.55), (2.35, 13.4, 1.55), 'pd_sash', pv, shift=(0.5, 0.1)),                 # (a band at the neckline)
+             el((-0.9, 13.4, -0.9), (0.9, 13.65, 0.9), 'pd_skin', pv)]                                      # neck
+        # the back cluster: an orange shelf, two blue caps above it
+        sf = '_lit' if lit else ''
+        b += [el((-1.3, 10.8, 1.5), (0.5, 11.25, 2.5), f'pd_morange{sf}', pv, light=L_FLARE if lit else 0),
+              el((-0.65, 11.25, 1.85), (-0.15, 11.32, 2.25), f'pd_mspot{sf}', pv, light=L_FLARE if lit else L_SPOT)]
+        b += mush((0.6, 11.8, 1.5), (0.3, 0.4, 0.9), pv, 'blue', lit, 0.75)
+        b += mush((-0.8, 12.4, 1.5), (-0.3, 0.25, 0.8), pv, 'blue', lit, 0.6)
         return b
     part('pd_body', body(False)); part('pd_body_lit', body(True))
 
-    # ---- the head: smooth bark, the face, the eyes' glow; the great cap (a soft dome, a downturned rim), gills; mycelium hair
+    # ---- the head: cream, the face, the eyes' glow; the cap (a soft dome, a slightly turned-down rim), gills; the bob
     pv = PIVOT['head']
 
     def layer(y0, y1, w, tex, sh, k=0.72):
@@ -302,130 +292,105 @@ def models():
     def cap(lit):
         cp, gl, st = ('pd_cap_lit', 'pd_gill_lit', 'pd_cspot_lit') if lit else ('pd_cap', 'pd_gill', 'pd_cspot')
         lc = L_FLARE if lit else L_CAP
-        c = layer(25.45, 25.8, CAP[0][2] - 0.45, gl, (0.1, 0.1))                # (the gills, under the brim)
+        y0b = CAP[0][0]; w0, k = CAP[0][2], 0.72
+        c = layer(y0b - 0.3, y0b, w0 - 0.45, gl, (0.1, 0.1))                    # (the gills, under the brim)
         for i, (y0, y1, w) in enumerate(CAP):
             c += layer(y0, y1, w, cp, (0.17 * i, 0.23 * i))
-        w0, k = CAP[0][2], 0.72                                                # (the rim, turned down a little)
-        c += [el((-w0 * k, 25.35, CZ - w0), (w0 * k, 25.8, CZ - w0 + 0.4), cp, pv, shift=(0.5, 0.3)),
-              el((-w0 * k, 25.35, CZ + w0 - 0.4), (w0 * k, 25.8, CZ + w0), cp, pv, shift=(0.3, 0.9)),
-              el((-w0, 25.35, CZ - w0 * k), (-w0 + 0.4, 25.8, CZ + w0 * k), cp, pv, shift=(0.8, 0.4)),
-              el((w0 - 0.4, 25.35, CZ - w0 * k), (w0, 25.8, CZ + w0 * k), cp, pv, shift=(0.6, 0.7))]
-        # the orange spots: raised a hair proud of the cap, glowing faintly - on each step's ledge, the crown and the brim's edge
+        c += [el((-w0 * k, y0b - 0.4, CZ - w0), (w0 * k, y0b, CZ - w0 + 0.35), cp, pv, shift=(0.5, 0.3)),     # (the rim, turned down)
+              el((-w0 * k, y0b - 0.4, CZ + w0 - 0.35), (w0 * k, y0b, CZ + w0), cp, pv, shift=(0.3, 0.9)),
+              el((-w0, y0b - 0.4, CZ - w0 * k), (-w0 + 0.35, y0b, CZ + w0 * k), cp, pv, shift=(0.8, 0.4)),
+              el((w0 - 0.35, y0b - 0.4, CZ - w0 * k), (w0, y0b, CZ + w0 * k), cp, pv, shift=(0.6, 0.7))]
+        # the orange spots: raised a hair proud of the cap, glowing faintly - on the steps' ledges, the crown and the brim's edge
         for i, (y0, y1, w) in enumerate(CAP):
             wn = CAP[i + 1][2] if i + 1 < len(CAP) else 0.0
             ring = w - wn
-            s = min(1.1, ring - 0.2) if wn else 0.9
+            s = min(1.0, ring - 0.2) if wn else 0.8
             if s < 0.35: continue
             r = (w + wn) / 2 if wn else 0.0
-            pts = [(0.0, 0.0), (0.55, -0.6), (-0.6, 0.45)] if not wn else \
+            pts = [(0.45, -0.5), (-0.5, 0.4)] if not wn else \
                   [(r, -0.3 + 0.5 * (i % 2)), (-r, 0.4 - 0.6 * (i % 2)), (0.4 - 0.7 * (i % 2), -r), (-0.9 + 0.8 * (i % 2), r)]
             for j, (px, pz) in enumerate(pts):
                 c.append(el((px - s / 2, y1, CZ + pz - s / 2), (px + s / 2, y1 + 0.12, CZ + pz + s / 2), st, pv, light=lc, shift=(0.2 * j, 0.1)))
-        w, kk = CAP[0][2], 0.72                                                # (on the brim's edge, front and sides)
-        for x, zz, ax in ((-2.2, -w, 'z'), (1.6, -w, 'z'), (w, -1.4, 'x'), (-w, 0.9, 'x'), (w, 2.0, 'x'), (0.4, w, 'z')):
+        for x, zz, ax in ((-1.9, -w0, 'z'), (1.5, -w0, 'z'), (w0, -1.2, 'x'), (-w0, 0.8, 'x'), (w0, 1.9, 'x'), (0.4, w0, 'z')):
+            d = -1 if (zz if ax == 'z' else x) < 0 else 1                      # (and on the brim's edge)
             if ax == 'z':
-                d = -1 if zz < 0 else 1
                 a0, a1 = sorted((zz, zz + 0.1 * d))
-                c.append(el((x - 0.45, CAP[0][0] + 0.15, CZ + a0), (x + 0.45, CAP[0][1] - 0.1, CZ + a1), st, pv, light=lc))
+                c.append(el((x - 0.4, y0b + 0.15, CZ + a0), (x + 0.4, CAP[0][1] - 0.1, CZ + a1), st, pv, light=lc))
             else:
-                d = -1 if x < 0 else 1
                 a0, a1 = sorted((x, x + 0.1 * d))
-                c.append(el((a0, CAP[0][0] + 0.15, CZ + zz - 0.45), (a1, CAP[0][1] - 0.1, CZ + zz + 0.45), st, pv, light=lc))
+                c.append(el((a0, y0b + 0.15, CZ + zz - 0.4), (a1, CAP[0][1] - 0.1, CZ + zz + 0.4), st, pv, light=lc))
+        c += mush((0.6, CAP[-1][1], CZ - 0.4), (0.15, 0.7, -0.1), pv, 'blue', lit, 0.5)     # (the tiny one on the crown)
         return c
 
     def head(face=None, lit=False):
         ft, et = ('pd_face', 'pd_eyes') if face is None else (f'pd_face_{face}', f'pd_eyes_{face}')
-        cp, gl = ('pd_cap_lit', 'pd_gill_lit') if lit else ('pd_cap', 'pd_gill')
-        h = [el((-3.0, 21.0, -3.0), (3.0, 27.0, 3.0), 'pd_barkl', pv, faces=('south', 'east', 'west', 'up', 'down'), shift=(0.3, 0.6)),
-             el((-3.0, 21.0, -3.02), (3.0, 27.0, -3.0), ft, pv, faces=('north',), uv={'north': [0, 0, 6, 6]}),
-             el((-3.0, 21.0, -3.06), (3.0, 27.0, -3.04), et, pv, faces=('north',), uv={'north': [0, 0, 6, 6]}, light=L_FLARE if lit else L_EYES),
-             ]
-        h += cap(lit)
-        # mycelium hair: a fringe at the back and sides under the cap, strands of uneven length; locks beside her face
-        h += [el((-3.4, 22.6, 3.0), (3.4, 25.7, 3.5), 'pd_hair', pv),
-              el((-3.4, 22.6, -2.6), (-3.0, 25.7, 3.0), 'pd_hair', pv, shift=(0.3, 0.0)),
-              el((3.0, 22.6, -2.6), (3.4, 25.7, 3.0), 'pd_hair', pv, shift=(0.6, 0.0))]
-        rnd = random.Random(4450)
-        for i in range(7):                                                     # (back strands)
-            x = -3.4 + i * 6.8 / 7
-            h.append(el((x + 0.05, 22.6 - rnd.choice((0.6, 1.0, 1.2, 0.8)), 3.05), (x + 6.8 / 7 - 0.1, 22.6, 3.45), 'pd_hair', pv, shift=(0.1 * i, 0.3)))
-        for sx in (-1, 1):
-            for i, ln in enumerate((1.4, 0.8, 1.1, 0.6, 1.2)):                 # (side strands)
-                z = -2.6 + i * 5.6 / 5
-                h.append(B(sx, 3.02, 3.38, 22.6 - ln, 22.6, z + 0.05, z + 5.6 / 5 - 0.1, 'pd_hair', pv, shift=(0.2 * i, 0.5)))
-            h.append(B(sx, 2.5, 3.4, 20.7, 25.7, -3.35, -3.05, 'pd_hair', pv, shift=(0.5, 0.2)))  # (a lock framing her face)
-            h.append(B(sx, 2.75, 3.25, 20.1, 20.7, -3.32, -3.08, 'pd_hair', pv, shift=(0.1, 0.7)))
-        # tiny glowing mushrooms sprouting from the crown
-        h += mush((0.9, CAP[-1][1], CZ - 0.7), (0.2, 0.9, -0.1), pv, 'blue', lit, 0.55)
-        h += mush((-0.8, CAP[-1][1], CZ + 0.6), (-0.15, 0.7, 0.1), pv, 'blue', lit, 0.45)
-        h += mush((-3.75, CAP[2][1], CZ - 0.3), (-0.4, 0.8, -0.1), pv, 'orange', lit, 0.5)
-        return h
+        h = [el((-3.5, 13.6, -3.3), (3.5, 20.2, 3.3), 'pd_skin', pv, faces=('south', 'east', 'west', 'up', 'down'), shift=(0.3, 0.6)),
+             el((-3.5, 13.6, -3.32), (3.5, 20.2, -3.3), ft, pv, faces=('north',), uv={'north': [0, 0, 7, 6.6]}),
+             el((-3.5, 13.6, -3.36), (3.5, 20.2, -3.34), et, pv, faces=('north',), uv={'north': [0, 0, 7, 6.6]}, light=L_FLARE if lit else L_EYES),
+             # the bob: round the sides and back, to her jaw; two soft locks framing her face
+             el((-3.9, 14.6, 3.3), (3.9, 18.0, 3.75), 'pd_hair', pv, shift=(0.2, 0.1)),
+             el((-3.9, 14.0, -2.6), (-3.5, 18.0, 3.3), 'pd_hair', pv, shift=(0.4, 0.1)),
+             el((3.5, 14.0, -2.6), (3.9, 18.0, 3.3), 'pd_hair', pv, shift=(0.6, 0.1)),
+             el((-3.95, 13.75, -3.6), (-2.95, 18.0, -2.6), 'pd_hair', pv, shift=(0.1, 0.4)),
+             el((2.95, 13.75, -3.6), (3.95, 18.0, -2.6), 'pd_hair', pv, shift=(0.3, 0.4))]
+        for i in range(5):                                                     # (the bob's hem at the back, softly scalloped)
+            x0 = -3.9 + i * 1.56
+            h.append(el((x0 + 0.04, 14.0 if i % 2 else 14.2, 3.3), (x0 + 1.52, 14.6, 3.75), 'pd_hair', pv, shift=(0.15 * i, 0.5)))
+        return h + cap(lit)
     for lit in (False, True):
         s = '_lit' if lit else ''
         part(f'pd_head{s}', head(None, lit))
         for fc in FACES:
             part(f'pd_head_x{fc}{s}', head(fc, lit))
 
-    # ---- arms: bark, mushrooms on the outer side of the shoulder and the back of the forearm; twig fingers
+    # ---- arms: puffed moss sleeves, cream arms, rounded hands; the shoulder cluster on her left
     for s, sx in (('r', 1), ('l', -1)):
         ap, fp = PIVOT[f'arm{s}'], PIVOT[f'fore{s}']
-        X = ap[0]
 
         def arm(lit):
-            a = [B(sx, 3.55, 5.35, 15.2, 20.9, -0.95, 0.95, 'pd_bark', ap, shift=(0.4 + 0.2 * sx, 0.5)),
-                 B(sx, 3.5, 5.4, 19.6, 20.95, -1.0, 1.0, 'pd_leaf', ap, shift=(0.2, 0.6))]          # (leaves over the shoulder)
-            a += mush((X + sx * 0.9, 20.0, -0.3), (sx * 1.25, 0.65, -0.1), ap, 'blue', lit, 1.15)
-            a += mush((X + sx * 0.9, 18.8, 0.45), (sx * 1.2, 0.6, 0.25), ap, 'orange', lit, 0.95)
-            a += mush((X + sx * 0.9, 17.6, -0.5), (sx * 0.9, 0.35, -0.35), ap, 'blue', lit, 0.75)
+            a = [B(sx, 2.72, 3.98, 9.6, 11.7, -0.63, 0.63, 'pd_skin', ap, shift=(0.4, 0.5)),
+                 B(sx, 2.65, 4.05, 10.9, 12.6, -0.78, 0.78, 'pd_moss', ap, shift=(0.2, 0.6))]              # (the puffed sleeve)
+            if sx < 0:                                                         # (the shoulder cluster: on her left, out the side)
+                a += mush((-3.7, 11.2, 0.63), (-0.55, 0.15, 0.75), ap, 'blue', lit, 0.85)
+                a += mush((-3.98, 10.1, 0.3), (-0.8, -0.05, 0.2), ap, 'orange', lit, 0.65)
+                a += mush((-4.05, 11.6, 0.5), (-0.6, 0.1, 0.25), ap, 'blue', lit, 0.5)
             return a
+        part(f'pd_arm{s}', arm(False))
+        if sx < 0: part(f'pd_arm{s}_lit', arm(True))
+        part(f'pd_fore{s}', [B(sx, 2.75, 3.95, 7.5, 9.65, -0.6, 0.6, 'pd_skin', fp, shift=(0.6, 0.3)),
+                             B(sx, 2.66, 4.04, 6.6, 7.6, -0.7, 0.7, 'pd_skin', fp, shift=(0.3, 0.1)),        # the hand, rounded
+                             B(sx, 2.8, 3.9, 6.35, 6.6, -0.56, 0.56, 'pd_skin', fp, shift=(0.5, 0.2)),
+                             B(sx, 2.58, 2.66, 6.85, 7.45, -0.55, -0.05, 'pd_skin', fp)])                  # (the thumb)
 
-        def fore(lit):
-            f = [B(sx, 3.6, 5.3, 10.9, 15.25, -0.9, 0.9, 'pd_bark2', fp, shift=(0.6, 0.3 + 0.2 * sx)),
-                 B(sx, 3.62, 5.28, 9.8, 10.9, -0.95, 0.85, 'pd_barkl', fp, shift=(0.3, 0.1))]            # the hand
-            for i, z in enumerate((-0.7, -0.05, 0.6)):                                                    # twig fingers
-                f.append(B(sx, 3.85 + 0.15 * i, 4.3 + 0.15 * i, 9.0 + 0.2 * (i == 1) - 0.2, 9.8, z - 0.2, z + 0.2, 'pd_root', fp, shift=(0.1 * i, 0.4)))
-            f.append(B(sx, 3.3, 3.62, 9.6, 10.6, -0.9, -0.4, 'pd_root', fp))                              # (the thumb)
-            f += mush((X + sx * 0.6, 13.6, 0.9), (sx * 0.5, 0.4, 1.0), fp, 'orange', lit, 0.6)          # (on the back of the forearm)
-            f += mush((X + sx * 0.9, 12.6, 0.3), (sx * 1.0, 0.4, 0.3), fp, 'blue', lit, 0.6)
-            return f
-        part(f'pd_arm{s}', arm(False)); part(f'pd_arm{s}_lit', arm(True))
-        part(f'pd_fore{s}', fore(False)); part(f'pd_fore{s}_lit', fore(True))
-
-        # ---- legs: the thigh (bark) - under the skirt
+        # ---- legs: cream, a faint bark hint on the shins; little orange mushroom shoes, a root curl at the heel
         lp, kp, fp2 = PIVOT[f'leg{s}'], PIVOT[f'shin{s}'], PIVOT[f'foot{s}']
-        part(f'pd_leg{s}', [B(sx, 0.6, 2.8, 6.0, 10.6, -1.1, 1.1, 'pd_bark', lp)])
-        part(f'pd_shin{s}', [B(sx, 0.7, 2.7, 1.4, 6.1, -1.0, 1.0, 'pd_bark2', kp, shift=(0.5, 0.1 + 0.3 * sx)),
-                             B(sx, 0.62, 2.78, 3.2, 3.8, -1.08, 1.08, 'pd_root', kp),                      # (a root wound round)
-                             B(sx, 0.62, 2.78, 4.4, 4.8, -1.08, 1.08, 'pd_root', kp, shift=(0.5, 0.5))])
-        # ---- the root foot: a broad base, roots splaying from the toes and the heel (from the ankle, so a pose sets it flat)
-        X = abs(fp2[0])
-        ft = [B(sx, 0.35, 3.05, 0.0, 1.5, -2.2, 1.3, 'pd_root', fp2),
-              B(sx, 0.7, 2.7, 1.4, 1.9, -1.0, 1.0, 'pd_root', fp2, shift=(0.3, 0.3))]
-        for dx, dz, w in ((-0.75, -0.1, 0.5), (0.0, 0.25, 0.6), (0.8, 0.7, 0.55)):    # (three toes, splayed)
-            x0 = sx * (X + dx * 1.0)
-            ft.append(seg((x0, 0.5, -2.0), (x0 + sx * dz * 1.4, 0.25, -3.6), w, 0.5, 'pd_root', fp2))
-        ft.append(seg((sx * (X + 1.1), 0.4, 0.3), (sx * (X + 2.0), 0.25, 0.9), 0.5, 0.45, 'pd_root', fp2))   # (one out to the side)
-        ft.append(seg((sx * X, 0.4, 1.2), (sx * (X - 0.3), 0.25, 2.4), 0.55, 0.5, 'pd_root', fp2))            # (and the heel's)
-        part(f'pd_foot{s}', ft)
+        part(f'pd_leg{s}', [B(sx, 0.35, 1.85, 4.2, 6.6, -0.75, 0.75, 'pd_skin', lp)])
+        part(f'pd_shin{s}', [B(sx, 0.4, 1.8, 1.1, 4.3, -0.7, 0.7, 'pd_skinb', kp, shift=(0.5, 0.1))])
+        part(f'pd_foot{s}', [B(sx, 0.2, 2.0, 0.0, 0.35, -1.75, 0.85, 'pd_sole', fp2),                          # the sole
+                             B(sx, 0.2, 2.0, 0.35, 1.25, -1.45, 0.85, 'pd_shoe', fp2, shift=(0.2, 0.1)),      # the shoe
+                             B(sx, 0.35, 1.85, 0.35, 0.95, -1.75, -1.45, 'pd_shoe', fp2, shift=(0.6, 0.3)),   # (its rounded toe)
+                             B(sx, 0.45, 1.75, 1.25, 1.55, -1.1, 0.6, 'pd_shoe', fp2, shift=(0.4, 0.6)),
+                             B(sx, 0.9, 1.3, 0.1, 0.55, 0.85, 1.25, 'pd_root', fp2),                          # (a root curl at the heel)
+                             B(sx, 0.9, 1.3, 0.55, 0.85, 1.05, 1.4, 'pd_root', fp2)])
 
-    # ---- the skirt: a full skirt of pale moss over pale-oak leaves, flaring to a jagged leafy hem just above her knees. Two
-    #      panels on the hips, front and back, meeting at her sides; each swings on the hip line with the thigh that leads it
-    #      (the front with the more forward leg, the back with the one further back), so a stride or a seat never pushes a leg
-    #      through it and there's no split down the middle. Its top tucks up under the sash.
+    # ---- the skirt: moss over pale-oak leaves, flaring to a leafy hem just above her knees. Two panels on the hips, front and
+    #      back, meeting at her sides; each swings on the hip line with the thigh that leads it (the front with the more forward
+    #      leg, the back with the one further back). Its top tucks up under the sash.
     for nm, sz in (('skirtf', -1), ('skirtb', 1)):
         pv = PIVOT[nm]
-        z = lambda a, b: tuple(sorted((sz * a, sz * b)))
-        sk = [el((-3.5, 9.3, z(0, 2.55)[0]), (3.5, 10.9, z(0, 2.55)[1]), 'pd_moss', pv, shift=(0.2 + 0.3 * sz, 0.3)),
-              el((-3.62, 9.05, z(0, 2.68)[0]), (3.62, 9.45, z(0, 2.68)[1]), 'pd_leaf', pv, shift=(0.5, 0.1)),   # (a band of leaves)
-              el((-3.9, 7.0, z(0, 2.95)[0]), (3.9, 9.3, z(0, 2.95)[1]), 'pd_leaf', pv, shift=(0.1, 0.4 + 0.2 * sz))]
-        for i in range(9):                                                     # (the hem: leaf tips along the front / back)
-            x0 = -3.85 + i * 0.86
-            lo = 6.3 + 0.35 * (i % 2) + (0.15 if i in (2, 6) else 0)
-            sk.append(el((x0, lo, z(2.3, 2.95)[0]), (x0 + 0.6, 7.0, z(2.3, 2.95)[1]), 'pd_leaf', pv, shift=(0.11 * i, 0.7)))
-        for sx in (-1, 1):                                                     # (and down the sides)
-            for j, zz in enumerate((0.15, 1.15, 2.1)):
-                a0, a1 = sorted((sx * 3.3, sx * 3.9))
-                sk.append(el((a0, 6.4 + 0.35 * (j % 2), z(zz, zz + 0.7)[0]), (a1, 7.0, z(zz, zz + 0.7)[1]), 'pd_leaf', pv, shift=(0.3 * j, 0.8)))
+        z = lambda a, b: sorted((sz * a, sz * b))
+        sk = [el((-2.6, 6.3, z(0, 1.95)[0]), (2.6, 6.6, z(0, 1.95)[1]), 'pd_moss', pv, shift=(0.2 + 0.3 * sz, 0.3)),
+              el((-2.72, 6.05, z(0, 2.08)[0]), (2.72, 6.4, z(0, 2.08)[1]), 'pd_sash', pv, shift=(0.5, 0.1)),    # (a band)
+              el((-3.0, 5.4, z(0, 2.3)[0]), (3.0, 6.1, z(0, 2.3)[1]), 'pd_leaf', pv, shift=(0.1, 0.4 + 0.2 * sz)),
+              el((-3.35, 4.7, z(0, 2.55)[0]), (3.35, 5.4, z(0, 2.55)[1]), 'pd_leaf', pv, shift=(0.4, 0.2 + 0.2 * sz))]   # (flaring)
+        for i in range(7):                                                     # (the hem: leaf points along the front / back)
+            x0 = -3.3 + i * 0.95
+            lo = 4.25 + 0.2 * (i % 2)
+            sk.append(el((x0, lo, z(2.0, 2.55)[0]), (x0 + 0.65, 4.7, z(2.0, 2.55)[1]), 'pd_leaf', pv, shift=(0.11 * i, 0.7)))
+        for sxx in (-1, 1):                                                    # (and at the sides)
+            for j, zz in enumerate((0.1, 1.05)):
+                a0, a1 = sorted((sxx * 2.8, sxx * 3.35))
+                sk.append(el((a0, 4.3 + 0.2 * j, z(zz, zz + 0.7)[0]), (a1, 4.7, z(zz, zz + 0.7)[1]), 'pd_leaf', pv, shift=(0.3 * j, 0.8)))
         part(f'pd_{nm}', sk)
     return M
 
@@ -446,85 +411,85 @@ def P(**kw):
 
 
 s = math.sin
-REST = dict(armr=limb(1, 4, 7), forer=limb(1, 14), arml=limb(-1, 4, 7), forel=limb(-1, 14))
-STAND = dict(legr=limb(1, 0, 2), legl=limb(-1, 0, 2))
+REST = dict(armr=limb(1, 4, 9), forer=limb(1, 12), arml=limb(-1, 4, 9), forel=limb(-1, 12))
+STAND = dict(legr=limb(1, 0, 1), legl=limb(-1, 0, 1))
 POSES = {
-    # serene: a gentle tilt of the head, arms soft at her sides
+    # sweet and still: a little tilt of the head, hands soft at her sides
     'idle_a': P(**REST, **STAND, head=qs(('z', 5))),
-    # sleepy: the head drooping to one side, a little sway, arms hanging loose
-    'idle_b': P(_face='sleepy', body=qs(('z', 3), ('x', 3)), head=qs(('z', -11), ('x', 9)),
-                armr=limb(1, 0, 5), forer=limb(1, 6), arml=limb(-1, 0, 5), forel=limb(-1, 6), legr=limb(1, 4, 2), shinr=knee(8), legl=limb(-1, -2, 2)),
-    # a glowing mushroom cupped in her right palm, admired
-    'idle_c': P(_face='happy', head=qs(('x', 20), ('y', -10)), armr=limb(1, 26, 4, -10), forer=limb(1, 62), arml=limb(-1, 2, 7), forel=limb(-1, 12), **STAND),
+    # sleepy: the head nodding to one side, a little sway
+    'idle_b': P(_face='sleepy', body=qs(('z', 3), ('x', 3)), head=qs(('z', -10), ('x', 8)),
+                armr=limb(1, 0, 7), forer=limb(1, 6), arml=limb(-1, 0, 7), forel=limb(-1, 6), legr=limb(1, 4, 1), shinr=knee(8), legl=limb(-1, -2, 1)),
+    # holding up her hand to look at something in her palm, pleased
+    'idle_c': P(_face='happy', head=qs(('x', 16), ('y', -10)), armr=limb(1, 20, 8, -10), forer=limb(1, 70), arml=limb(-1, 2, 9), forel=limb(-1, 12), **STAND),
     **{f'walk_{k}': P(head=qs(('z', 3 * s(math.pi * k / 2))), body=qs(('y', -4 * s(math.pi * k / 2))),
-                      legr=limb(1, 22 * s(math.pi * k / 2)), shinr=knee(34 * max(0.0, -s(math.pi * k / 2)) + 6),
-                      legl=limb(-1, -22 * s(math.pi * k / 2)), shinl=knee(34 * max(0.0, s(math.pi * k / 2)) + 6),
-                      armr=limb(1, -18 * s(math.pi * k / 2), 7), forer=limb(1, 16), arml=limb(-1, 18 * s(math.pi * k / 2), 7), forel=limb(-1, 16))
+                      legr=limb(1, 22 * s(math.pi * k / 2)), shinr=knee(30 * max(0.0, -s(math.pi * k / 2)) + 4),
+                      legl=limb(-1, -22 * s(math.pi * k / 2)), shinl=knee(30 * max(0.0, s(math.pi * k / 2)) + 4),
+                      armr=limb(1, -20 * s(math.pi * k / 2), 9), forer=limb(1, 14), arml=limb(-1, 20 * s(math.pi * k / 2), 9), forel=limb(-1, 14))
        for k in range(4)},
-    **{f'run_{k}': P(body=qs(('x', 12)), head=qs(('x', -10)),
-                     legr=limb(1, (40, 8, -30, 8)[k]), shinr=knee((14, 70, 40, 20)[k]), legl=limb(-1, (-30, 8, 40, 8)[k]), shinl=knee((40, 20, 14, 70)[k]),
-                     armr=limb(1, (-30, 0, 34, 0)[k], 9), forer=limb(1, 60), arml=limb(-1, (34, 0, -30, 0)[k], 9), forel=limb(-1, 60))
+    **{f'run_{k}': P(body=qs(('x', 10)), head=qs(('x', -8)),
+                     legr=limb(1, (38, 8, -28, 8)[k]), shinr=knee((14, 64, 40, 20)[k]), legl=limb(-1, (-28, 8, 38, 8)[k]), shinl=knee((40, 20, 14, 64)[k]),
+                     armr=limb(1, (-30, 0, 34, 0)[k], 12), forer=limb(1, 56), arml=limb(-1, (34, 0, -30, 0)[k], 12), forel=limb(-1, 56))
        for k in range(4)},
-    'jump': P(_face='happy', legr=limb(1, 40), shinr=knee(70), legl=limb(-1, 14), shinl=knee(40),
-              armr=limb(1, 10, 62), forer=limb(1, 20), arml=limb(-1, 10, 62), forel=limb(-1, 20), head=qs(('x', -8))),
-    # sitting on the ground, legs out before her, hands resting on her lap
-    'sit_a': P(skirtb=qs(('x', 80)), body=qs(('x', -4)), head=qs(('z', 5)), legr=limb(1, 84, 4), shinr=knee(10), legl=limb(-1, 84, 4), shinl=knee(10),
-               footr=qs(('x', -10)), footl=qs(('x', -10)),
-               armr=limb(1, 28, 6, -16), forer=limb(1, 46), arml=limb(-1, 28, 6, -16), forel=limb(-1, 46)),
+    'jump': P(_face='happy', legr=limb(1, 36), shinr=knee(60), legl=limb(-1, 12), shinl=knee(36),
+              armr=limb(1, 10, 60), forer=limb(1, 20), arml=limb(-1, 10, 60), forel=limb(-1, 20), head=qs(('x', -6))),
+    # sitting on the ground, legs out before her, hands in her lap; the back of the skirt spread on the ground behind
+    'sit_a': P(skirtb=qs(('x', 78)), body=qs(('x', -4)), head=qs(('z', 6)), legr=limb(1, 84, 3), shinr=knee(8), legl=limb(-1, 84, 3), shinl=knee(8),
+               footr=qs(('x', -8)), footl=qs(('x', -8)),
+               armr=limb(1, 30, 8, -14), forer=limb(1, 40), arml=limb(-1, 30, 8, -14), forel=limb(-1, 40)),
     # (the seated idle's other beat) leaning back on her hands, one knee up, nodding off
-    'sit_b': P(skirtb=qs(('x', 80)), _face='sleepy', body=qs(('x', -22)), head=qs(('z', -12), ('x', 10)),
-               legr=limb(1, 92, 4), shinr=knee(6), legl=limb(-1, 100, 2), shinl=knee(80), footl=qs(('x', -14)), footr=qs(('x', -12)),
-               armr=limb(1, -26, 16), forer=limb(1, 0), arml=limb(-1, -26, 16), forel=limb(-1, 0)),
-    'happy': P(_face='happy', head=qs(('z', 8), ('x', -6)), armr=limb(1, 130, 46), forer=limb(1, 0, 10), arml=limb(-1, 130, 46), forel=limb(-1, 0, 10),
-               legr=limb(1, 10), shinr=knee(30), legl=limb(-1, 0, 2)),
+    'sit_b': P(skirtb=qs(('x', 70)), _face='sleepy', body=qs(('x', -16)), head=qs(('z', -12), ('x', 10)),
+               legr=limb(1, 90, 3), shinr=knee(6), legl=limb(-1, 96, 4), shinl=knee(72), footl=qs(('x', -14)), footr=qs(('x', -12)),
+               armr=limb(1, -30, 14), forer=limb(1, 0), arml=limb(-1, -30, 14), forel=limb(-1, 0)),
+    'happy': P(_face='happy', head=qs(('z', 8), ('x', -4)), armr=limb(1, 20, 96), forer=limb(1, 0, 50), arml=limb(-1, 20, 96), forel=limb(-1, 0, 50),
+               legr=limb(1, 10), shinr=knee(30), legl=limb(-1, 0, 1)),
     # struck: rocked back, arms flung out
-    'hurt': P(_face='surprised', body=qs(('x', -12)), head=qs(('x', -10), ('z', 6)), armr=limb(1, 26, 34), forer=limb(1, 30), arml=limb(-1, 26, 34), forel=limb(-1, 30),
-              legr=limb(1, 16), shinr=knee(20), legl=limb(-1, -10), shinl=knee(6)),
-    # fainted: lying on her side, curled a little, the cap's rim on the ground under her cheek
-    'tired': P(_face='blink', hips=qs(('x', -90)), head=qs(('x', 62), ('z', 10)),
-               legr=limb(1, 6, 4), shinr=knee(4), legl=limb(-1, 30, 6), shinl=knee(56),
-               armr=limb(1, 0, 64), forer=limb(1, 0, 20), arml=limb(-1, 10, 40), forel=limb(-1, 30)),
-    # ROOTS: the hand raised high - then down on her knees, the hand plunged into the ground (roots burst up round the foe)
-    'root_up': P(_face='fierce', body=qs(('x', -6), ('y', 8)), head=qs(('x', 16)), armr=limb(1, 150, 42), forer=limb(1, 16), arml=limb(-1, 20, 36), forel=limb(-1, 24),
-                 legr=limb(1, 6, 8), legl=limb(-1, 0, 8)),
-    'root': P(_face='fierce', body=qs(('x', 50)), head=qs(('x', -26)), armr=limb(1, 65, 6), forer=limb(1, 0), arml=limb(-1, 0, 30), forel=limb(-1, 10),
-              legr=limb(1, -40, 8), shinr=knee(75), legl=limb(-1, -40, 8), shinl=knee(75), footr=knee(30), footl=knee(30)),
+    'hurt': P(_face='surprised', body=qs(('x', -10)), head=qs(('x', -8), ('z', 6)), armr=limb(1, 26, 34), forer=limb(1, 30), arml=limb(-1, 26, 34), forel=limb(-1, 30),
+              legr=limb(1, 14), shinr=knee(20), legl=limb(-1, -8), shinl=knee(6)),
+    # fainted: on her back, the head tipped so the cap rests on the ground, one knee drawn up
+    'tired': P(_face='blink', hips=qs(('x', -90)), head=qs(('x', 50)), skirtb=qs(('x', -6)),
+               legr=limb(1, 6, 3), shinr=knee(4), legl=limb(-1, 34, 4), shinl=knee(60),
+               armr=limb(1, 0, 40), forer=limb(1, 0, 20), arml=limb(-1, 10, 40), forel=limb(-1, 30)),
+    # ROOTS: the hand raised high - then down on her knees, a hand plunged into the ground (roots burst up round the foe)
+    'root_up': P(_face='fierce', body=qs(('x', -6), ('y', 8)), head=qs(('x', 12)), armr=limb(1, 40, 100), forer=limb(1, 0, 40), arml=limb(-1, 20, 34), forel=limb(-1, 24),
+                 legr=limb(1, 6, 4), legl=limb(-1, 0, 4)),
+    'root': P(_face='fierce', skirtb=qs(('x', 52)), body=qs(('x', 50)), head=qs(('x', -30)), armr=limb(1, 60, 6), forer=limb(1, 0), arml=limb(-1, 0, 30), forel=limb(-1, 10),
+              legr=limb(1, -40, 4), shinr=knee(75), legl=limb(-1, -40, 4), shinl=knee(75), footr=knee(30), footl=knee(30)),
     # (holding them fast: both hands pressed to the earth)
-    'root_hold': P(_face='fierce', body=qs(('x', 50)), head=qs(('x', -30)), armr=limb(1, 58, 2, -6), forer=limb(1, 0), arml=limb(-1, 58, 2, -6), forel=limb(-1, 0),
-                   legr=limb(1, -40, 8), shinr=knee(75), legl=limb(-1, -40, 8), shinl=knee(75), footr=knee(30), footl=knee(30)),
-    # SPORES: a breath in, the cap tipped back - then a deep bow, a puff of healing spores off the cap
-    'spore_up': P(_face='surprised', body=qs(('x', -8)), head=qs(('x', -20)), armr=limb(1, -16, 24), forer=limb(1, 20), arml=limb(-1, -16, 24), forel=limb(-1, 20),
-                  legr=limb(1, 0, 3), legl=limb(-1, 0, 3)),
-    'spore': P(_face='blink', _glow=True, body=qs(('x', 16)), head=qs(('x', 24)), armr=limb(1, -34, 20), forer=limb(1, 10), arml=limb(-1, -34, 20), forel=limb(-1, 10),
-               legr=limb(1, -8, 2), shinr=knee(12), legl=limb(-1, 4, 2)),
+    'root_hold': P(_face='fierce', skirtb=qs(('x', 52)), body=qs(('x', 50)), head=qs(('x', -32)), armr=limb(1, 54, 2, -6), forer=limb(1, 0), arml=limb(-1, 54, 2, -6), forel=limb(-1, 0),
+                   legr=limb(1, -40, 4), shinr=knee(75), legl=limb(-1, -40, 4), shinl=knee(75), footr=knee(30), footl=knee(30)),
+    # SPORES: a breath in, the cap tipped back - then a little bow, a puff of healing spores off the cap
+    'spore_up': P(_face='surprised', body=qs(('x', -8)), head=qs(('x', -16)), armr=limb(1, -16, 26), forer=limb(1, 20), arml=limb(-1, -16, 26), forel=limb(-1, 20),
+                  legr=limb(1, 0, 2), legl=limb(-1, 0, 2)),
+    'spore': P(_face='blink', _glow=True, body=qs(('x', 14)), head=qs(('x', 20)), armr=limb(1, -30, 20), forer=limb(1, 10), arml=limb(-1, -30, 20), forel=limb(-1, 10),
+               legr=limb(1, -8, 1), shinr=knee(12), legl=limb(-1, 4, 1)),
     # HEAL: hands cupped at her heart - then opened wide, every mushroom glowing
-    'heal_up': P(_face='blink', _glow=True, head=qs(('x', 12)), armr=limb(1, 30, 8, -14), forer=limb(1, 100, -14), arml=limb(-1, 30, 8, -14), forel=limb(-1, 100, -14),
+    'heal_up': P(_face='blink', _glow=True, head=qs(('x', 10)), armr=limb(1, 26, 8, -10), forer=limb(1, 96, -18), arml=limb(-1, 26, 8, -10), forel=limb(-1, 96, -18),
                  **STAND),
-    'heal': P(_face='happy', _glow=True, head=qs(('x', -12)), body=qs(('x', -4)), armr=limb(1, 26, 70), forer=limb(1, 16), arml=limb(-1, 26, 70), forel=limb(-1, 16),
+    'heal': P(_face='happy', _glow=True, head=qs(('x', -10)), body=qs(('x', -4)), armr=limb(1, 26, 74), forer=limb(1, 14), arml=limb(-1, 26, 74), forel=limb(-1, 14),
               **STAND),
-    # SWIPE: the bark arm drawn up and back - then raked across
-    'swipe_up': P(_face='fierce', body=qs(('y', 24)), head=qs(('y', -14)), armr=limb(1, 128, 40), forer=limb(1, 36), arml=limb(-1, 34, 22), forel=limb(-1, 40),
-                  legr=limb(1, -14, 4), shinr=knee(16), legl=limb(-1, 18, 4)),
-    'swipe': P(_face='fierce', body=qs(('y', -30), ('x', 10)), head=qs(('y', 18), ('x', -6)), armr=limb(1, 82, -4, -30), forer=limb(1, 6),
-               arml=limb(-1, -24, 26), forel=limb(-1, 20), legr=limb(1, 26), shinr=knee(26), legl=limb(-1, -16), shinl=knee(18)),
-    # BLOOM (charged): gathering low, then arms flung up and out - every mushroom on her flaring
-    'bloom_up': P(_face='fierce', _glow=True, body=qs(('x', 16)), head=qs(('x', 12)), armr=limb(1, -26, 30), forer=limb(1, 30), arml=limb(-1, -26, 30), forel=limb(-1, 30),
-                  legr=limb(1, 40, 8), shinr=knee(64), legl=limb(-1, 40, 8), shinl=knee(64)),
-    'bloom': P(_face='happy', _glow=True, body=qs(('x', -6)), head=qs(('x', -18)), armr=limb(1, 140, 44), forer=limb(1, 0, 12), arml=limb(-1, 140, 44), forel=limb(-1, 0, 12),
-               legr=limb(1, 0, 6), legl=limb(-1, 0, 6)),
+    # SWIPE: the arm drawn up and back - then swept across
+    'swipe_up': P(_face='fierce', body=qs(('y', 24)), head=qs(('y', -12)), armr=limb(1, 60, 86), forer=limb(1, 50), arml=limb(-1, 34, 22), forel=limb(-1, 40),
+                  legr=limb(1, -14, 2), shinr=knee(16), legl=limb(-1, 18, 2)),
+    'swipe': P(_face='fierce', body=qs(('y', -30), ('x', 8)), head=qs(('y', 18), ('x', -4)), armr=limb(1, 80, -4, -30), forer=limb(1, 6),
+               arml=limb(-1, -24, 26), forel=limb(-1, 20), legr=limb(1, 24), shinr=knee(24), legl=limb(-1, -16), shinl=knee(16)),
+    # BLOOM (charged): gathering low - then arms flung up and out, every mushroom on her flaring
+    'bloom_up': P(_face='fierce', _glow=True, body=qs(('x', 14)), head=qs(('x', 10)), armr=limb(1, -24, 30), forer=limb(1, 30), arml=limb(-1, -24, 30), forel=limb(-1, 30),
+                  legr=limb(1, 36, 4), shinr=knee(58), legl=limb(-1, 36, 4), shinl=knee(58)),
+    'bloom': P(_face='happy', _glow=True, body=qs(('x', -6)), head=qs(('x', -14)), armr=limb(1, 30, 96), forer=limb(1, 0, 50), arml=limb(-1, 30, 96), forel=limb(-1, 0, 50),
+               legr=limb(1, 0, 4), legl=limb(-1, 0, 4)),
 }
 SWIM_FRAMES = 8
-for _i in range(SWIM_FRAMES):                              # (a slow breaststroke, low in the water, the cap riding on top)
+for _i in range(SWIM_FRAMES):                              # (a little breaststroke, low in the water, the cap riding on top)
     _p = 2 * math.pi * _i / SWIM_FRAMES
-    POSES[f'swim_{_i}'] = P(_face='sleepy' if _i in (3, 4) else None, hips=qs(('x', 72)), head=qs(('x', -58)),
-                            armr=limb(1, 140 + 30 * s(_p), 30 + 30 * s(_p)), forer=limb(1, 20 + 20 * s(_p)),
-                            arml=limb(-1, 140 + 30 * s(_p), 30 + 30 * s(_p)), forel=limb(-1, 20 + 20 * s(_p)),
-                            legr=limb(1, -10 + 16 * s(2 * _p), 6), shinr=knee(30 + 20 * s(_p)), legl=limb(-1, -10 - 16 * s(2 * _p), 6), shinl=knee(30 + 20 * s(_p)))
-    if POSES[f'swim_{_i}']['_face'] is None: del POSES[f'swim_{_i}']['_face']
+    POSES[f'swim_{_i}'] = P(hips=qs(('x', 70)), head=qs(('x', -56)),
+                            armr=limb(1, 130 + 30 * s(_p), 30 + 30 * s(_p)), forer=limb(1, 20 + 20 * s(_p)),
+                            arml=limb(-1, 130 + 30 * s(_p), 30 + 30 * s(_p)), forel=limb(-1, 20 + 20 * s(_p)),
+                            legr=limb(1, -10 + 16 * s(2 * _p), 3), shinr=knee(30 + 20 * s(_p)), legl=limb(-1, -10 - 16 * s(2 * _p), 3), shinl=knee(30 + 20 * s(_p)))
+    if _i in (3, 4): POSES[f'swim_{_i}']['_face'] = 'sleepy'
 
 
-# ---- ground every pose: the feet set flat (standing poses), then the lowest point of the feet - or of her whole body, seated
-#      or lying - put on y=0
+# ---- the skirt follows the thighs; the feet set flat (standing poses); then every pose grounded: the lowest point of her shoes -
+#      or of her whole body, seated or lying - put on y=0
 _GEO = {}
 
 
@@ -597,14 +562,14 @@ _FEET = ('footr', 'footl', 'shinr', 'shinl')
 for _k in list(POSES):
     _pz = POSES[_k] = _skirt(POSES[_k])
     if _k.startswith('swim_'):
-        POSES[_k] = _ground(_pz, PARTS, -4.0)                                  # (low in the water: the waterline about her shoulders)
+        POSES[_k] = _ground(_pz, PARTS, -3.0)                                  # (low in the water: the waterline about her chest)
         continue
-    if not (_k.startswith(('walk_', 'run_', 'sit_')) or _k in ('jump', 'tired') ):
+    if not (_k.startswith(('walk_', 'run_', 'sit_')) or _k in ('jump', 'tired')):
         _pz = _flat_feet(_pz)
     if _k.startswith('sit_') or _k == 'tired':
         POSES[_k] = _ground(_pz, PARTS)
     else:
-        POSES[_k] = _ground(_pz, _FEET, {'jump': 4.0, 'happy': 1.0, 'run_1': 1.2, 'run_3': 1.2}.get(_k, 0.0))
+        POSES[_k] = _ground(_pz, _FEET, {'jump': 3.0, 'happy': 0.8, 'run_1': 1.0, 'run_3': 1.0}.get(_k, 0.0))
 
 DRAFT = ['idle_a', 'idle_b', 'idle_c', 'walk_0', 'walk_1', 'run_0', 'run_1', 'jump', 'sit_a', 'sit_b', 'happy', 'hurt', 'tired',
          'swim_0', 'swim_2', 'root_up', 'root', 'root_hold', 'spore_up', 'spore', 'heal_up', 'heal', 'swipe_up', 'swipe', 'bloom_up', 'bloom']

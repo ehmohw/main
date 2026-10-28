@@ -11,7 +11,7 @@ what = sys.argv[1].split(',') if len(sys.argv) > 1 else ['views', 'poses', 'face
 ROOT = K.pack(A, f'{OUT}/rp_pd')
 
 
-def tile(pose, view=(-35, 15), span=2.1, center=(0, 0.88, 0), size=360, label='', sub=None):
+def tile(pose, view=(-35, 15), span=1.45, center=(0, 0.6, 0), size=360, label='', sub=None):
     s = K.multi_scene(ROOT); rigkit.render(s, A, pose, scale=A.RIG_SCALE)
     return K.label(s.render(view, size=size, span=span, center=center), label, sub)
 
@@ -47,20 +47,20 @@ if 'views' in what:
                                               ((145, 15), 'back 3/4'), ((-30, 50), 'from above'))],
             f'{OUT}/pale_dryad_views.png', cols=3, title='The Pale Dryad - turnaround')
 if 'poses' in what:
-    K.sheet([tile(A.POSES[n], (-60, 22) if n.startswith('swim') else (-35, 15), center=(0, 0.45, 0) if n.startswith('swim') else (0, 0.88, 0),
+    K.sheet([tile(A.POSES[n], (-60, 22) if n.startswith('swim') else (-35, 15), center=(0, 0.3, 0) if n.startswith('swim') else (0, 0.62, 0),
                   label=n, sub='(mushrooms flaring)' if A.POSES[n].get('_glow') else ('(low in the water)' if n.startswith('swim') else None)) for n in A.DRAFT],
             f'{OUT}/pale_dryad_poses.png', cols=6, title='The Pale Dryad - poses')
 if 'faces' in what:
     tiles = []
     for f in (None,) + A.FACES:
         pose = {k: v for k, v in dict(I, _face=f).items() if v is not None}
-        tiles.append(tile(dict(pose, head=rigkit.I), 'front', span=0.62, center=(0, 1.3, 0), size=240, label=f or 'default'))
+        tiles.append(tile(dict(pose, head=rigkit.I), 'front', span=0.48, center=(0, 0.8, 0), size=240, label=f or 'default'))
     K.sheet(tiles, f'{OUT}/pale_dryad_faces.png', cols=7, title='The Pale Dryad - faces')
 if 'night' in what:
     tiles = []
     for pose, v, l in ((I, (-35, 15), 'night: at rest'), (I, (145, 15), 'night: from behind'), (A.POSES['heal'], (-35, 15), 'night: healing (_glow)')):
         s = night_scene(); rigkit.render(s, A, pose, scale=A.RIG_SCALE)
-        im = night(s.render(v, size=320, span=2.3, center=(0, 0.9, 0)))
+        im = night(s.render(v, size=320, span=1.6, center=(0, 0.62, 0)))
         from PIL import ImageDraw
         ImageDraw.Draw(im).text((8, 6), l, fill=(220, 225, 235))
         tiles.append(im)
@@ -69,8 +69,8 @@ if 'lineup' in what:
     HROOT = K.pack(HY, f'{OUT}/rp_henry')
     s = K.multi_scene(ROOT, HROOT)
     rigkit.render(s, A, A.POSES['idle_a'], at=(0.0, 0, 0), scale=A.RIG_SCALE, yaw=-15)
-    rigkit.render(s, A, A.POSES['heal'], at=(2.1, 0, 0.3), scale=A.RIG_SCALE, yaw=-50)
-    rigkit.render(s, HY, HY.POSES['sit_a'], at=(1.0, 0, -0.2), scale=HY.RIG_SCALE, yaw=-30)
-    K.person(s, (-1.1, 0, 0.3))
-    K.sheet([K.label(s.render((-12, 8), size=720, span=4.6, center=(0.5, 1.0, 0)), 'size', 'a player, the Pale Dryad (and again, healing), Henry')],
+    rigkit.render(s, A, A.POSES['heal'], at=(1.7, 0, 0.3), scale=A.RIG_SCALE, yaw=-50)
+    rigkit.render(s, HY, HY.POSES['sit_a'], at=(0.85, 0, -0.1), scale=HY.RIG_SCALE, yaw=-30)
+    K.person(s, (-0.95, 0, 0.3))
+    K.sheet([K.label(s.render((-12, 8), size=720, span=3.8, center=(0.35, 0.95, 0)), 'size', 'a player, the Pale Dryad (and again, healing), Henry')],
             f'{OUT}/pale_dryad_lineup.png', cols=1, title='The Pale Dryad - to scale')
