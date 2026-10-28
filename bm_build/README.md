@@ -21,6 +21,14 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.96a: the Gem's face, and Creative Forms you can see
+
+- **The Gem's emoticons are on its face now.** Each one is lit on the gem's front facet, white with a dark outline so it reads over the swirl. No line of text floats over it any more.
+  - **Its faces:** `:)` `c:` `:3` `o3o` `^-^` `:o` `;)` `:D` `owo` `<3` `;(` `D:` `:c` `T_T` `>:(` `>:o` `:|` `-_-` `zZz` `u_u` `\o/` `*o*`, and new: `o.o` `O.o` `o.O` `o.e`.
+  - **They follow its mood:** an angry face in a fight, worried when you're hurt, sleepy when it sits, a heart beside you, and a new face now and then when it's idle.
+- **A Creative Form is a real look now, not just sparkles.** While one of the twelve walks beside the Gem, every part of them is washed in the Gem's rainbow, and the colours run across them as they go. A few seconds after they part, they're back in their own colours. It works whatever they're wearing and whatever pose or form they're in.
+  - **The twelve:** Fishy, Batty, Eggbert, the Count, Mr. Capshun, the Sky Buddies, Kettle, Emma, Queen Ava, Democratus, KillerWatt and Queen Pearl.
+
 ## New in 2.96: Rufus for keeps, Henry and Nia, the Gem of Creativity and the Gutter Gentry
 
 Seven new followers. Each one has everything a follower has:
@@ -63,7 +71,7 @@ Seven new followers. Each one has everything a follower has:
   - The Fishbowl Standoff (Fishy, Henry, Nia).
 - **The Gem of Creativity.** It made every Buddy there is.
   - **Getting it:** walk with **Mr. Capshun, Kettle and Emma** at once (the trio **The Creative Spark**), and the Gem comes down out of the sky to you, once.
-  - **It feels in text:** an emoticon floats over it and changes with its mood: `:)` `c:` `:3` `o3o` `^-^` `:o` `;(` `>:(` `<3` `-_-` and more.
+  - **It feels in text:** an emoticon on its face changes with its mood: `:)` `c:` `:3` `o3o` `^-^` `:o` `;(` `>:(` `<3` `-_-` and more.
   - **Conjure:** it fights by conjuring its Buddies in 3D (Grace, Robo, Zapper, Dessa, Bubbles, Chase, Limer, Chico, Spike, Cheferoni). Each one pops out of a sparkle at a monster with its own attack.
   - **Masterpiece (charged):** three Buddies at once.
   - **Prism:** a flash off its facets at anything close.

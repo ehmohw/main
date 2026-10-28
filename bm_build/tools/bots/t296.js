@@ -2,7 +2,7 @@
 // Spark forms: Mr. Capshun, Kettle and Emma called with their own items (real uses) - and down out of the sky, once, comes the Gem.
 // Its ways: CONJURE (a foe within 14: one of its 3D Buddies pops out of a sparkle at it, its own attack), PRISM (a foe close: a flash
 // off its facets), INSPIRATION (out of a fight: Haste and Luck for you), MASTERPIECE (three foes: three Buddies at once). It feels in
-// text - an emoticon riding over it (:) c: :o :3 o3o ^-^ ;( ...): >:( in a fight. Then the shared list.
+// text - an emoticon on its face (2.96a: lit on its table facet - :) c: :o :3 o3o ^-^ ;( o.O ...): >:( in a fight. Then the shared list.
 const runT = require('./rigpet_t');
 runT({ W: 'gem', NAME: 'The Gem of Creativity', ab: 'cg', q: 'cq', pfx: 'p231', prefix: 'cg_', item: 'creativity_gem', parts: 3, figParts: 3, hp: 40, X: 17400, Z: 17600, pron: 'it',
   called: /floats down to you/, home: /twinkles goodbye/, sit: /settles low and dims/, stand: /lifts and brightens/,
@@ -30,12 +30,14 @@ runT({ W: 'gem', NAME: 'The Gem of Creativity', ab: 'cg', q: 'cq', pfx: 'p231', 
     const cd = async (o, v) => run(`scoreboard players set ${PET} bm.cq${o} ${v}`);
     const calm = async () => { for (const o of ['gc', 'rc', 'mc', 'k']) await cd(o, 900); };
     const hp = async (t) => num(`@e[tag=${t},limit=1]`, 'Health');
-    const EMO = '@e[type=minecraft:text_display,tag=bm.cgemo,limit=1]';
+    const HEAD = '@e[type=minecraft:item_display,tag=bm.cgp_head,tag=bm.cgp_pet,limit=1]';
+    const face = async () => await nbt(HEAD, 'item.components."minecraft:custom_model_data".strings[0]');
     await run(`${O}time set noon`); await calm();
-    ok('an emoticon rides over it (how it feels, in text)', await wait(4000, async () => (await cnt(EMO)) === 1));
+    ok('no line of text floats over it any more (its face is on the gem)', (await cnt('@e[type=minecraft:text_display,tag=bm.cgemo]')) === 0);
+    ok('...an emoticon lit on its face, now and then (out of a fight)', await wait(15000, async () => /m_/.test(await face())), await face());
     await zom(2.0, 0, 'bm.trps'); await run(`${O}execute at ${PET} run tp @e[tag=bm.trps] ~1.4 ~ ~`); await cd('mc', 0);
     ok('PRISM - a foe beside it: a flash off its facets', await wait(5000, async () => (await hp('bm.trps')) < 300));
-    ok('...and in a fight its face says so (>:( >:o :|)', await wait(4000, async () => /(>:\(|>:o|:\|)/.test(await nbt(EMO, 'text'))), await nbt(EMO, 'text'));
+    ok('...and in a fight its face says so, on its facet (>:( >:o :|)', await wait(4000, async () => /m_(angry|shout|flat)/.test(await face())), await face());
     await run(`${O}kill @e[tag=bm.trpz]`); await calm();
     await run(`${O}tp ${PET} ${X} ${Y + 1} ${Z}`); await zom(9, 0, 'bm.trpp'); await cd('rc', 0);
     ok('CONJURE - a foe 9 off: one of its Buddies pops out of a sparkle at it', await wait(6000, async () => (await cnt('@e[type=minecraft:marker,tag=bm.cgbdm]')) >= 1));

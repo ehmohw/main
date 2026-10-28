@@ -63,8 +63,10 @@ class Scene:
             self.tex[tid] = np.asarray(im).astype(np.float32) / 255.0
         return self.tex[tid]
 
-    def display(self, mid, pos=(0, 0, 0), yaw=0.0, pitch=0.0, translation=(0, 0, 0), scale=1.0, left=(0, 0, 0, 1), right=(0, 0, 0, 1), ctx='fixed'):
+    def display(self, mid, pos=(0, 0, 0), yaw=0.0, pitch=0.0, translation=(0, 0, 0), scale=1.0, left=(0, 0, 0, 1), right=(0, 0, 0, 1), ctx='fixed', tint=None):
+        """(tint: an RGB int, as a display's custom_model_data colour - multiplies the faces with a tintindex)"""
         m = self.model(mid)
+        tm = np.array([(tint >> 16) & 255, (tint >> 8) & 255, tint & 255]) / 255 if tint is not None else None
         tx = m.get('textures', {})
         def resolve(t):
             while t.startswith('#'): t = tx[t[1:]]
@@ -102,7 +104,7 @@ class Scene:
                 uv = fc.get('uv', [0, 0, 16, 16]); tid = resolve(fc['texture'])
                 pts = [xf(er(p)) for p in quads[name]]
                 u1, v1, u2, v2 = uv
-                self.faces.append((pts, [(u1, v1), (u2, v1), (u2, v2), (u1, v2)], tid, el.get('shade', True)))
+                self.faces.append((pts, [(u1, v1), (u2, v1), (u2, v2), (u1, v2)], tid, el.get('shade', True), tm if 'tintindex' in fc else None))
 
     def box(self, lo, hi, color=(1, 0, 0)):
         self.faces.append(('box', lo, hi, color))
@@ -184,6 +186,8 @@ class Scene:
                 v = (w1 * ua[1] + w2 * ub[1] + w3 * uc[1]) / 16 * th
                 ui = np.clip(u.astype(int), 0, tw - 1); vi = np.clip(v.astype(int), 0, th - 1)
                 texel = tex[vi, ui]
+                if len(lit) > 1 and lit[1] is not None:
+                    texel = texel.copy(); texel[..., :3] *= lit[1]
                 sub = zb[y0:y1 + 1, x0:x1 + 1]
                 a = texel[..., 3]
                 if not blend:                                         # opaque texels (alpha > 0.9) write depth

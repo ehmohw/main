@@ -46,7 +46,7 @@ EXTRA = {'grace': (['effect give @s minecraft:levitation 1 0'], 'minecraft:entit
 PUP = [(0, 'appear', 4), (5, 'idle_a', 4), (9, 'wind', 3), (13, 'strike', 2), (14, 'HIT', 0), (20, 'happy', 5), (27, 'vanish', 4), (32, 'GONE', 0)]
 # the emoticons: (mood, the faces it picks from)
 EMO = {'fight': ['>:(', '>:o', ':|'], 'hurt': [';(', 'D:', ':o'], 'rest': ['-_-', 'zZz', 'u_u'], 'conjure': ['\\o/', ':D', '*o*'],
-       'love': ['<3', 'c:', '^-^'], 'idle': [':)', 'c:', ':3', 'o3o', '^-^', ':o', ';)', ':D', 'owo'], 'worry': [';(', ':c', 'T_T']}
+       'love': ['<3', 'c:', '^-^'], 'idle': [':)', 'c:', ':3', 'o3o', '^-^', ':o', ';)', ':D', 'owo', 'o.o', 'O.o', 'o.O', 'o.e'], 'worry': [';(', ':c', 'T_T']}
 
 
 class C(RP.Cfg):
@@ -56,8 +56,11 @@ class C(RP.Cfg):
     PET_HP, PET_CD = 40, 120
     ITEM = 'creativity_gem'
     pron, they = 'it', 'it'
-    EXPR = ('happy', 'surprised', 'hurt', 'sleepy', 'blink', 'squint', 'serious')
-    FACE = {e: None for e in EXPR}
+    # (2.96a: its faces are its emoticons, on its table facet - gem_art.EMOTES; the moods everyone shares land on one of them,
+    #  and m_<key> is each emoticon by name, for its own mood picks: p231/emo)
+    EXPR = ('happy', 'surprised', 'hurt', 'sleepy', 'blink', 'squint', 'serious') + tuple(f'm_{k}' for k, _t in A.EMOTES)
+    FACE = dict({'happy': 'caret', 'surprised': 'bigsmall', 'hurt': 'cry', 'sleepy': 'meh', 'blink': None, 'squint': 'angry', 'serious': 'flat'},
+                **{f'm_{k}': (None if k == 'smile' else k) for k, _t in A.EMOTES})
     ATTRS = dict(armor=4, attack_damage=4, movement_speed=0.38, follow_range=32, step_height=1.1)
     SCALE = 0.7
     HIT = (0.6, 1.2)
@@ -300,17 +303,19 @@ def generate(G):
                                                                      'title': T('The Creative Spark', 'yellow'), 'description': T('Walk with Mr. Capshun, Kettle and Emma at once', 'gray'),
                                                                      'frame': 'goal', 'show_toast': True, 'announce_to_chat': True, 'hidden': True}})
 
-    # ================================================================== ITS FEELINGS: a line of text over it, by mood (each second)
-    emo = {'Tags': ['bm.cgemo', 'bm.cgemonew'], 'billboard': 'center', 'text': T(':)', '#ffffff', bold=True), 'default_background': B(0),
-           'background': Int(0), 'shadow': B(1), 'see_through': B(0), 'view_range': F(0.6), 'line_width': Int(60),
-           'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0), F(1.15), F(0)], 'scale': [F(0.9)] * 3}}
+    # ================================================================== ITS FEELINGS: an emoticon on its face, by mood (each second)
+    # (2.96a: on the gem itself - its head's faces, gem_art.EMOTES - where a line of text floated over it before)
+    import phase95 as FX
+    KEY = {t: k for k, t in A.EMOTES}
+    assert all(t in KEY for faces in EMO.values() for t in faces), [t for faces in EMO.values() for t in faces if t not in KEY]
     G.FUNCS['loop/second'].append(f'execute as @e[type=minecraft:wolf,tag={pet}] at @s run function bm:p231/emo/sec')
     pick = lambda mood: ([f'execute store result score #e bm.rng run random value 1..{len(EMO[mood])}'] +
-                         [f'execute if score #e bm.rng matches {i + 1} run data modify storage bm:tmp cge.t set value {snbt(T(e, "#ffffff", bold=True))}' for i, e in enumerate(EMO[mood])])
+                         [f'execute if score #e bm.rng matches {i + 1} run return run function bm:p231/emo/x/{KEY[e]}' for i, e in enumerate(EMO[mood])])
     for mood in EMO:
-        fn(f'p231/emo/{mood}', pick(mood) + ['function bm:p231/emo/put'])
-    fn('p231/emo/sec', ['execute unless entity @e[type=minecraft:text_display,tag=bm.cgemo,distance=..3] run function bm:p231/emo/make',
-                        'execute if score @s bm.cgemt matches 1.. run scoreboard players remove @s bm.cgemt 1',
+        fn(f'p231/emo/{mood}', pick(mood))
+    for k, _t in A.EMOTES:
+        fn(f'p231/emo/x/{k}', FX.face_cmd(W, f'm_{k}', 30))
+    fn('p231/emo/sec', ['execute if score @s bm.cgemt matches 1.. run scoreboard players remove @s bm.cgemt 1',
                         'scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #lowhp bm.rng 0',
                         'execute on owner store result score #ph bm.rng run data get entity @s Health', 'execute if score #ph bm.rng matches ..6 run scoreboard players set #lowhp bm.rng 1',
                         'execute store result score #mh bm.rng run data get entity @s Health', 'execute store result score #mm bm.rng run attribute @s minecraft:max_health get',
@@ -320,13 +325,10 @@ def generate(G):
                         'execute if score #mh bm.rng < #mm bm.rng run return run function bm:p231/emo/hurt',
                         'execute if data entity @s {Sitting:1b} run return run function bm:p231/emo/rest',
                         f'execute if entity @e[{foe},distance=..10] run return run function bm:p231/emo/fight',
-                        'execute store result score #r bm.rng run random value 1..6', 'execute unless score #r bm.rng matches 1 run return 0',
+                        'execute store result score #r bm.rng run random value 1..4', 'execute unless score #r bm.rng matches 1 run return 0',
                         'execute on owner if entity @s[distance=..3] run return run function bm:p231/emo/love',
                         'function bm:p231/emo/idle'])
-    fn('p231/emo/put', ['execute as @e[type=minecraft:text_display,tag=bm.cgemo,distance=..3,sort=nearest,limit=1] run data modify entity @s text set from storage bm:tmp cge.t'])
-    fn('p231/emo/make', [f'summon minecraft:text_display ~ ~ ~ {snbt(emo)}', 'ride @e[type=minecraft:text_display,tag=bm.cgemonew,distance=..1,limit=1] mount @s',
-                         'tag @e[type=minecraft:text_display,tag=bm.cgemonew] remove bm.cgemonew'])
     G.FUNCS['load'][-1:-1] = ['scoreboard players set #3 bm.rng 3']
-    G.FUNCS['loop/second'].append('execute as @e[type=minecraft:text_display,tag=bm.cgemo] unless function bm:p231/emo/kept run kill @s')
-    fn('p231/emo/kept', ['execute on vehicle if entity @s[type=minecraft:wolf] run return 1', 'return fail'])
+    # (the line of text it wore before 2.96a: put out wherever one is left)
+    G.FUNCS['loop/second'].append('kill @e[type=minecraft:text_display,tag=bm.cgemo]')
     G.FUNCS['admin/uninstall'].insert(0, 'kill @e[type=minecraft:text_display,tag=bm.cgemo]')

@@ -234,7 +234,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.96'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.96a'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1406,6 +1406,7 @@ def build(out_dir):
     if PHASE2: R229.generate(sys.modules[__name__])      # 2.97: Henry and Nia
     if PHASE2: R231.generate(sys.modules[__name__])      # 2.98: the Gem
     if PHASE2: R232.generate(sys.modules[__name__])      # 2.98: the Gutter Gentry
+    if PHASE2: R233.generate(sys.modules[__name__])      # 2.96a: the Creative Forms' looks, on and off
     if PHASE2: R210.generate(sys.modules[__name__])
     if PHASE2: R211.generate(sys.modules[__name__])
     if PHASE2: R212.generate(sys.modules[__name__])

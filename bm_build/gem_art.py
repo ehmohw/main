@@ -5,9 +5,11 @@ TABLE, eight sloped CROWN facets and a deeper PAVILION narrowing to the culet, e
 elements turn on all three axes) so the light catches each one differently. Every colour of the rainbow swirls out of a pale heart,
 little white doodles (notes, flowers, sparkles) drifting inside it: the swirl is an ANIMATED texture (32 frames, interpolated).
 
-It has no painted face: the datapack shows its feelings as text emoticons above it (:) c: :o :3 o3o ^-^ ;( ...), so FACES = ().
-It floats - its poses only move, tilt and spin it. Parts: the GEM (body); its CORE, a star of light on the table (hidden when it's
-dim); its HALO, a ring of tiny facet glints orbiting it (each pose turns the ring - the glints travel round as it glides).
+Its face is a text emoticon, lit on its table facet (2.96a - it floated over it before): :) c: :o :3 o3o ^-^ ;( and the rest
+(EMOTES), each a little pixel-font plate (FONT) standing just proud of the table, glowing white with a dark outline so it reads
+over every colour of the swirl. The plain head (cg_head) is :) ; cg_head_x<key> each of the others (phase231 picks them by mood).
+It floats - its poses only move, tilt and spin it. Parts: the GEM (body); its FACE on the table (hidden when it's dim); its HALO,
+a ring of tiny facet glints orbiting it (each pose turns the ring - the glints travel round as it glides).
 
 THE ANIMATED TEXTURES: cg_table, cg_crown and cg_pav are vertical strips of 32 64x64 frames. The resource pack writes each with
 textures() as usual (assets/bm/textures/block/<name>.png) and beside it the .png.mcmeta in ANIMATED - write_mcmeta(R2) does that,
@@ -127,7 +129,56 @@ def textures():
         T[f'cg_{kind}'] = strip
     T['cg_glint'] = _glint()
     T['cg_core'] = _core()
+    for key, txt in EMOTES:
+        T[f'cg_emo_{key}'] = emote_texture(txt)
     return T
+
+
+# ---------------------------------------------------------------------------------------------------- the face: text emoticons
+# (key, text) - the head's faces, :) first (the plain head's)
+EMOTES = [('smile', ':)'), ('cee', 'c:'), ('cat', ':3'), ('kiss', 'o3o'), ('caret', '^-^'), ('oh', ':o'), ('wink', ';)'), ('grin', ':D'),
+          ('owo', 'owo'), ('heart', '<3'), ('cry', ';('), ('dee', 'D:'), ('sad', ':c'), ('tears', 'T_T'), ('angry', '>:('), ('shout', '>:o'),
+          ('flat', ':|'), ('meh', '-_-'), ('zzz', 'zZz'), ('uu', 'u_u'), ('cheer', '\\o/'), ('stars', '*o*'),
+          ('dots', 'o.o'), ('bigsmall', 'O.o'), ('smallbig', 'o.O'), ('oe', 'o.e')]
+# a 5-row pixel font, just the marks the emoticons use ('#' lit)
+FONT = {':': ['.', '#', '.', '#', '.'], ';': ['.', '#', '.', '#', '#'], ')': ['#.', '.#', '.#', '.#', '#.'], '(': ['.#', '#.', '#.', '#.', '.#'],
+        '|': ['#', '#', '#', '#', '#'], 'o': ['...', '###', '#.#', '###', '...'], 'D': ['##.', '#.#', '#.#', '#.#', '##.'],
+        '-': ['...', '...', '###', '...', '...'], '_': ['...', '...', '...', '...', '###'], 'z': ['....', '####', '..#.', '.#..', '####'],
+        'Z': ['###', '..#', '.#.', '#..', '###'], 'u': ['...', '#.#', '#.#', '###', '...'], '\\': ['#..', '#..', '.#.', '..#', '..#'],
+        '/': ['..#', '..#', '.#.', '#..', '#..'], '*': ['...', '#.#', '.#.', '#.#', '...'], '<': ['..#', '.#.', '#..', '.#.', '..#'],
+        '>': ['#..', '.#.', '..#', '.#.', '#..'], '3': ['##.', '..#', '.#.', '..#', '##.'], 'c': ['...', '.##', '#..', '.##', '...'],
+        '^': ['.#.', '#.#', '...', '...', '...'], 'w': ['.....', '#...#', '#.#.#', '.#.#.', '.....'], 'T': ['###', '.#.', '.#.', '.#.', '.#.'],
+        '.': ['.', '.', '.', '.', '#'], 'O': ['###', '#.#', '#.#', '#.#', '###'], 'e': ['...', '.#.', '###', '#..', '.##']}
+EMO_PX = 0.55                             # (units per texture pixel: 16 px -> an 8.8-unit plate - a face across the gem, readable from a few blocks off)
+
+
+def emote_texture(txt):
+    """32 x 32: the emoticon in white (each font pixel 2 x 2), a thin dark outline round every mark, the rest clear"""
+    cols = []
+    for i, ch in enumerate(txt):
+        g = FONT[ch]
+        if i: cols.append(['.'] * 5)
+        cols += [[row[x] for row in g] for x in range(len(g[0]))]
+    S = 32
+    w = len(cols) * 2; x0 = (S - w) // 2; y0 = (S - 10) // 2
+    lit = {(x0 + 2 * x + i, y0 + 2 * y + j) for x, col in enumerate(cols) for y, c in enumerate(col) if c == '#' for i in (0, 1) for j in (0, 1)}
+    im = Image.new('RGBA', (S, S), (0, 0, 0, 0)); px = im.load()
+    for (x, y) in lit:
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                if 0 <= x + dx < S and 0 <= y + dy < S and (x + dx, y + dy) not in lit:
+                    px[x + dx, y + dy] = (34, 14, 52, 255)
+    for (x, y) in lit:
+        px[x, y] = (255, 255, 255, 255)
+    return im
+
+
+def face_elements(key):
+    """the emoticon on its plate, just proud of the table, lit"""
+    z = 8 + ZT - 0.3
+    h = 8 * EMO_PX
+    return [{'from': [8 - h, 8 - h, z - 0.02], 'to': [8 + h, 8 + h, z + 0.02], 'light_emission': 15,
+             'faces': {'north': {'uv': [0, 0, 16, 16], 'texture': f'#cg_emo_{key}'}}}]
 
 
 # ---------------------------------------------------------------------------------------------------- models
@@ -228,7 +279,9 @@ def models():
         used = sorted({e['faces'][f]['texture'][1:] for e in els for f in e['faces']})
         M[name] = ({t: f'bm:block/{t}' for t in used}, els)
     part('cg_body', gem_elements())
-    part('cg_head', core_elements())
+    part('cg_head', face_elements('smile'))
+    for key, _t in EMOTES[1:]:
+        part(f'cg_head_x{key}', face_elements(key))
     part('cg_halo', halo_elements())
     return M
 
