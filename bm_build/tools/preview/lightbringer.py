@@ -58,7 +58,7 @@ def boxes(pose):
                     R.rz(math.radians(r.get('z', 0))) @ R.ry(math.radians(r.get('y', 0))) @ R.rx(math.radians(r.get('x', 0)))
                 cs = [M @ (c - o) + o for c in cs]
             w = [E @ (Q @ (sc * (R.ry(math.pi) @ (c / 16 - 0.5))) + np.array(tr)) + np.array(pos) for c in cs]
-            out.append((p, np.array(w), dict(e, _root=p.startswith('wing') and m['elements'].index(e) < 2)))
+            out.append((p, np.array(w), dict(e, _joint=A.JOINTS.get(mid.split('/')[-1].split('_x')[0], {}).get(m['elements'].index(e), ()))))
     return out
 
 
@@ -94,8 +94,7 @@ def clip_report(names, tol=0.15):
         for (pa, ca, ea), (pb, cb, eb) in itertools.combinations(bx, 2):
             ha, hb = (any(f['texture'].startswith('#lb_hair') for f in e['faces'].values()) for e in (ea, eb))
             if pa == pb or (frozenset((pa, pb)) in MEET and ha == hb): continue     # (hair against anything but hair is always checked)
-            if {pa, pb} & {'wingr', 'wingl'} and {pa, pb} & {'body', 'hair'} and \
-                    (ea if pa.startswith('wing') else eb).get('_root') and _sat(ca, cb) / U < 0.5: continue    # (a wing's root on her back)
+            if (pb in ea['_joint'] or pa in eb['_joint']) and _sat(ca, cb) / U < 0.8: continue    # (where a wing or a lock grows out of her)
             if ca[:, 1].max() < min(cb[:, 1]) or cb[:, 1].max() < ca[:, 1].min(): continue
             d = _sat(ca, cb) / U
             if d > tol:
@@ -116,6 +115,13 @@ if 'poses' in what:
     K.sheet([tile(A.POSES[n], v, label=f'{n}', sub=l) for n in ('ward', 'wings_spread', 'smite', 'run_0', 'pray', 'tired')
              for v, l in (((60, 10), 'side 3/4'), ((160, 14), 'back 3/4'))],
             OUT + '/lightbringer_poses_back.png', cols=4, title='The Lightbringer - the big poses from behind')
+if 'hair' in what or 'views' in what:
+    K.sheet([tile(I, v, span=2.1, center=(0, 1.05, 0), size=420, label=l) for v, l in (('back', 'back'), ((150, 10), 'back 3/4'), ('side', 'side'),
+                                                                                    ((-25, 8), 'front 3/4'))] +
+            [tile(A.POSES[n], v, span=2.5, center=(0, 0.85, 0), size=420, label=n, sub=l)
+             for n, v, l in (('run_0', (120, 10), 'streaming back'), ('pray', (130, 12), 'draped back over the robe'),
+                             ('tired', (100, 10), 'kneeling, slumped'), ('swim_2', (120, 25), 'laid back'))],
+            OUT + '/lightbringer_hair.png', cols=4, title='The Lightbringer - her hair, close')
 if 'faces' in what:
     tiles = []
     for f in (None,) + A.FACES:

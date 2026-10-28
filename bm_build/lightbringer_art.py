@@ -64,6 +64,7 @@ PARENT = {'body': None, 'skirt': 'body', 'head': 'body', 'halo': 'head', 'hair':
           'arml': 'body', 'forel': 'arml', 'staff': 'forer', 'wingr': 'body', 'wingl': 'body', 'legr': None, 'legl': None, 'pool': None}
 PARTS = tuple(PIVOT)
 PART_K = {}
+JOINTS = {}                                         # (model -> {element index: parts it grows out of} - for the preview's clip check)
 FACES = ('happy', 'fierce', 'sad', 'blink', 'surprised', 'hurt')
 OPEN_EYES = (None, 'fierce', 'sad', 'surprised')     # (the faces whose eyes glow)
 
@@ -168,9 +169,9 @@ def _hair(seed):
 def _hairtip(seed):
     """a lock's tip: pale gold running to white-gold light down its length (lit, like the feathers' tips)"""
     def c(x, y, r):
-        t = min(1.0, y / 24)
-        base = _mix(HAIR_L, GOLD_W, t)
-        return GOLD_L if x % 5 == 2 else (base if r.random() > 0.15 else GOLD_W)
+        t = min(1.0, y / 20)
+        if x % 5 == 2: return GOLD_W
+        return _mix(GOLD_L, GOLD, t * 0.6) if r.random() > 0.2 else GOLD_W
     return _cells(c, seed)
 
 
@@ -456,6 +457,24 @@ def _wing(sx):
     return els
 
 
+def _uncovered(A, B, axis, sign, tex, pv):
+    """the face of box A (on axis 0/1/2, the +1 or -1 side) that box B, stacked against it there, leaves showing - strips
+    round B's footprint, so A has no face inside B (it would show through her translucent hair)"""
+    u, v = [i for i in range(3) if i != axis]
+    at = A[1][axis] if sign > 0 else A[0][axis]
+    a0, a1, b0, b1 = A[0], A[1], B[0], B[1]
+    rects = [((a0[u], a0[v]), (a1[u], b0[v])), ((a0[u], b1[v]), (a1[u], a1[v])), ((a0[u], b0[v]), (b0[u], b1[v])), ((b1[u], b0[v]), (a1[u], b1[v]))]
+    face = {(0, 1): 'east', (0, -1): 'west', (1, 1): 'up', (1, -1): 'down', (2, 1): 'south', (2, -1): 'north'}[(axis, sign)]
+    out = []
+    for (p0, q0), (p1, q1) in rects:
+        if p1 - p0 < 1e-3 or q1 - q0 < 1e-3: continue
+        lo, hi = [0.0] * 3, [0.0] * 3
+        lo[u], hi[u], lo[v], hi[v] = p0, p1, q0, q1
+        lo[axis], hi[axis] = (at - 0.01, at) if sign > 0 else (at, at + 0.01)
+        out.append(el(tuple(lo), tuple(hi), tex, pv, faces=(face,)))
+    return out
+
+
 def _ring_up(A, B, tex, pv):
     """the top face of box A that box B (stacked on it) leaves showing - four strips, so A has no top inside B"""
     (ax0, _, az0), (ax1, ay, az1) = A; (bx0, _, bz0), (bx1, _, bz1) = B
@@ -517,9 +536,10 @@ def models():
     # the long locks that frame her face, falling on down in front of her shoulders to the breast (on the body: the head's
     # nod doesn't swing them into her chest); their tips lit
     for sx in (-1, 1):
-        pts = [(sx * 4.55, 24.4, -3.45), (sx * 4.1, 22.8, -3.2), (sx * 3.55, 20.4, -3.0), (sx * 3.2, 18.9, -2.9)]
-        body += chain(pts[:3], [1.15, 0.95], 0.7, 'lb_hair', pv, FRONT, ext=0.05)
-        body.append(seg(pts[2], pts[3], 0.7, 0.6, 'lb_hairtip', pv, FRONT, ext=0.0, light=12))
+        JOINTS.setdefault('lb_body', {})[len(body)] = ('head',)                     # (where the lock leaves her cheek)
+        pts = [(sx * 4.15, 24.1, -3.35), (sx * 3.15, 22.4, -2.95), (sx * 2.75, 20.0, -2.8), (sx * 2.6, 18.7, -2.75)]
+        body += chain(pts[:3], [1.2, 1.05], 0.7, 'lb_hair', pv, FRONT, ext=0.05)
+        body.append(seg(pts[2], pts[3], 0.75, 0.6, 'lb_hairtip', pv, FRONT, ext=0.0, light=12))
     part('lb_body', body)
     skirt = []
     for i in range(5, len(ROBE_Y) - 1):
@@ -545,23 +565,31 @@ def models():
     def head(face=None):
         tex = 'lb_face' if face is None else f'lb_face_{face}'
         hr = lambda fr, to, faces=None, sh=None, rot=None: el(fr, to, 'lb_hair', pv, faces=faces, shift=sh, rot=rot)
-        C1, C2, C3 = ((-4.9, HT - 1.4, -4.4), (4.9, HT + 0.6, 4.6)), ((-4.2, HT + 0.6, -3.5), (4.2, HT + 1.3, 4.0)), \
-            ((-2.9, HT + 1.3, -2.2), (2.9, HT + 1.8, 2.8))                                     # the crown, in three soft steps
-        B1, B2 = ((-4.9, HB - 0.4, 4.0), (4.9, HT - 1.4, 4.6)), ((-4.1, HB + 1.2, 4.6), (4.1, HT - 1.9, 5.3))   # the back, stepped out
-        h = [el((-4.5, HB, -4.0), (4.5, HT - 1.4, 4.0), 'lb_skin', pv, faces=('east', 'west', 'down')),
+        C1, C2, C3 = ((-4.9, HT - 1.4, -4.4), (4.9, HT + 0.4, 4.6)), ((-4.4, HT + 0.4, -3.9), (4.4, HT + 1.3, 4.2)), \
+            ((-3.3, HT + 1.3, -2.7), (3.3, HT + 2.0, 3.3))                                     # the crown, in three soft steps
+        B1, B2, B3 = ((-4.6, HB - 0.6, 3.4), (4.6, HT - 1.4, 4.6)), ((-4.0, HB + 0.8, 4.6), (4.0, HT - 1.4, 5.4)), \
+            ((-2.9, HB + 2.2, 5.4), (2.9, HT - 2.6, 5.9))                                       # the back, stepped out round
+        S = [((sx * 5.1 if sx > 0 else -5.75, HB + 1.8, -1.6), (5.75 if sx > 0 else -5.1, HT - 1.6, 2.8)) for sx in (1, -1)]   # (fullness over the ears)
+        h = [el((-4.5, HB, -4.0), (4.5, HT - 1.4, 3.4), 'lb_skin', pv, faces=('east', 'west', 'down')),
              el((-4.5, HB, -4.0), (4.5, HT, -4.0), tex, pv, faces=('north',), uv={'north': [0, 0, 9, 8]}),
              hr(*C1, faces=('north', 'south', 'east', 'west', 'down'), sh=(0.2, 0.1)),
              hr(*C2, faces=('north', 'south', 'east', 'west'), sh=(0.6, 0.4)),
              hr(*C3, faces=('north', 'south', 'east', 'west', 'up'), sh=(0.4, 0.7)),
              hr(*B1, faces=('east', 'west', 'down'), sh=(0.5, 0.3)),
-             hr(*B2, faces=('south', 'east', 'west', 'up', 'down'), sh=(0.3, 0.5)),
-             hr((4.5, HB + 1.0, -2.6), (5.1, HT - 1.4, 4.0), faces=('east', 'north', 'down'), sh=(0.1, 0.4)),             # the sides
-             hr((-5.1, HB + 1.0, -2.6), (-4.5, HT - 1.4, 4.0), faces=('west', 'north', 'down'), sh=(0.6, 0.2)),
+             hr(*B2, faces=('east', 'west', 'up', 'down'), sh=(0.3, 0.5)),
+             hr(*B3, faces=('south', 'east', 'west', 'up', 'down'), sh=(0.7, 0.2)),
+             hr(*S[0], faces=('north', 'south', 'east', 'up', 'down'), sh=(0.4, 0.4)),
+             hr(*S[1], faces=('north', 'south', 'west', 'up', 'down'), sh=(0.6, 0.6)),
+             hr((4.5, HB + 1.0, -2.6), (5.1, HT - 1.4, 3.4), faces=('north', 'down'), sh=(0.1, 0.4)),                     # the sides
+             hr((-5.1, HB + 1.0, -2.6), (-4.5, HT - 1.4, 3.4), faces=('north', 'down'), sh=(0.6, 0.2)),
              hr((0.35, HT - 2.0, -4.6), (4.9, HT - 1.4, -4.0), faces=('north', 'east', 'west', 'down'), sh=(0.3, 0.6)),   # the fringe, parted
              hr((-4.9, HT - 2.0, -4.6), (-0.35, HT - 1.4, -4.0), faces=('north', 'east', 'west', 'down'), sh=(0.7, 0.2)),
              hr((4.0, HB - 0.3, -4.5), (5.15, HT - 1.4, -2.6), faces=('north', 'east', 'south', 'down', 'west'), sh=(0.2, 0.7)),   # the locks at her cheeks
              hr((-5.15, HB - 0.3, -4.5), (-4.0, HT - 1.4, -2.6), faces=('north', 'west', 'south', 'down', 'east'), sh=(0.8, 0.5))]
-        h += _ring_up(C1, C2, 'lb_hair', pv) + _ring_up(C2, C3, 'lb_hair', pv) + _ring_back(B1, B2, 'lb_hair', pv)
+        h += _ring_up(C1, C2, 'lb_hair', pv) + _ring_up(C2, C3, 'lb_hair', pv) + _ring_back(B1, B2, 'lb_hair', pv) + _ring_back(B2, B3, 'lb_hair', pv)
+        for sx, Sd in zip((1, -1), S):                                                             # (the sides' outer faces round the fullness)
+            side = ((4.5, HB + 1.0, -2.6), (5.1, HT - 1.4, 3.4)) if sx > 0 else ((-5.1, HB + 1.0, -2.6), (-4.5, HT - 1.4, 3.4))
+            h += _uncovered(side, Sd, 0, sx, 'lb_hair', pv)
         for x in (-3.9, -2.4, -1.0, 1.0, 2.4, 3.9):                                            # pointed locks over her brow
             dy = 0.25 if abs(x) < 2 else 0.0
             h.append(el((x - 0.48, HT - 2.48 + dy, -4.62), (x + 0.48, HT - 1.52 + dy, -4.04), 'lb_hair', pv, faces=('north', 'east', 'west', 'down'),
@@ -585,17 +613,18 @@ def models():
     #      parting into three layered locks - the middle one to a point at the backs of her knees, the two beside it swaying
     #      out and flipping up at the ends; every tip lit
     pv = PIVOT['hair']
-    up = chain([(0, 24.3, 3.6), (0, 22.0, 3.3), (0, 19.0, 3.2)], [4.4, 3.8], 1.1, 'lb_hair', pv, FRONT, ext=0.02)
+    up = chain([(0, 23.9, 3.55), (0, 22.0, 3.3), (0, 19.0, 3.2)], [5.6, 3.9], 1.1, 'lb_hair', pv, FRONT, ext=0.02)
     up += [seg((0, 20.2, 3.2), (0, 19.3, 3.2), 4.0, 1.34, 'lb_gold', pv, FRONT, ext=0.0, light=6),              # the clasp
            el((-0.45, 19.3, 3.87), (0.45, 20.2, 4.02), 'lb_sapph', pv, faces=('south', 'east', 'west', 'up', 'down'), light=6)]
-    up += chain([(0, 19.0, 3.3), (0, 14.6, 3.5)], [2.0], 1.0, 'lb_hair', pv, FRONT, ext=0.02)
+    up += chain([(0, 19.0, 3.3), (0, 14.6, 3.5)], [2.2], 1.0, 'lb_hair', pv, FRONT, ext=0.02)
     for sx in (-1, 1):
-        up += chain([(sx * 1.6, 19.0, 3.15), (sx * 1.85, 14.6, 3.35)], [1.25], 0.9, 'lb_hair', pv, FRONT, ext=0.02)
+        up += chain([(sx * 1.7, 19.0, 3.15), (sx * 1.95, 14.6, 3.35)], [1.25], 0.9, 'lb_hair', pv, FRONT, ext=0.02)
+    JOINTS['lb_hair'] = {0: ('head',)}                                                 # (where the fall leaves her nape)
     part('lb_hair', up)
     pv = PIVOT['hairlo']
-    lo = _lock([(0, 14.6, 3.5), (0, 11.0, 3.85), (0, 8.0, 4.2), (0, 6.2, 4.35), (0, 4.9, 4.45)], [2.0, 1.75, 1.3, 0.7], 2, pv)
+    lo = _lock([(0, 14.6, 3.5), (0, 11.0, 3.85), (0, 8.0, 4.2), (0, 6.2, 4.35), (0, 4.9, 4.45)], [2.2, 1.9, 1.4, 0.75], 2, pv)
     for sx in (-1, 1):
-        lo += _lock([(sx * 1.85, 14.6, 3.35), (sx * 2.2, 11.5, 3.65), (sx * 2.6, 9.3, 3.95), (sx * 2.95, 8.0, 4.1), (sx * 3.45, 8.4, 4.15)],
+        lo += _lock([(sx * 1.95, 14.6, 3.35), (sx * 2.2, 11.5, 3.65), (sx * 2.6, 9.3, 3.95), (sx * 2.95, 8.0, 4.1), (sx * 3.45, 8.4, 4.15)],
                     [1.25, 1.15, 0.95, 0.65], 2, pv, h=0.9)
     part('lb_hairlo', lo)
 
@@ -645,6 +674,7 @@ def models():
     part('lb_staff', st)
 
     part('lb_wingr', _wing(1)); part('lb_wingl', _wing(-1))
+    for w in ('lb_wingr', 'lb_wingl'): JOINTS[w] = {0: ('body', 'hair'), 1: ('body', 'hair')}                 # (the root on her back)
     return M
 
 
@@ -687,7 +717,7 @@ POSES = {
     'idle_b': held(P(_off=(0, HOVER + 0.4, 0), **STAFF_ARM, arml=limb(-1, 14, 20), forel=limb(-1, 24, 0, -40), **TOES,
                      head=qs(('x', -16), ('y', 6)), hair=qs(('z', -2)), hairlo=qs(('z', -3)), **wings(-6, 8)), 3, 6),
     # a quiet moment: eyes closed, head bowed, the wings drooping a little
-    'idle_c': held(P(_face='blink', _off=(0, HOVER - 0.3, 0), **REST, head=qs(('x', 14)), body=qs(('x', 3)), **wings(4, -4)), 0, 6),
+    'idle_c': held(P(_face='blink', _off=(0, HOVER - 0.3, 0), **REST, head=qs(('x', 10)), body=qs(('x', 3)), **wings(4, 0)), 0, 6),
     # gliding: she doesn't step - a slow bob, the robe and feet trailing, a soft beat of the wings
     **{f'walk_{i}': held(P(_off=(0, HOVER + 0.5 + 0.35 * s(math.pi * i / 2), 0), body=qs(('x', 5), ('z', 2 * s(math.pi * i / 2))),
                            skirt=qs(('x', -7)), **STAFF_ARM, arml=limb(-1, 6 + 10 * s(math.pi * i / 2), 8), forel=limb(-1, 24),
@@ -702,22 +732,22 @@ POSES = {
       for i in range(4)},
     # a jump: the wings flung up for the downbeat
     'jump': held(P(_face='happy', _off=(0, HOVER + 4.0, 0), **STAFF_ARM, arml=limb(-1, 30, 30), forel=limb(-1, 20), legr=qs(('x', -50)),
-                   legl=qs(('x', -44)), head=qs(('x', -8)), hair=qs(('x', 8)), hairlo=qs(('x', 10)), **wings(10, 28)), 0, 8),
+                   legl=qs(('x', -44)), head=qs(('x', -8)), hair=qs(('x', 8)), hairlo=qs(('x', 10)), **wings(18, 16)), 0, 8),
     # SMITE: the staff raised high over her head, her left hand marking the foe ...
     'smite_up': held(P(_face='fierce', _off=(0, HOVER + 0.8, 0), body=qs(('y', 14), ('x', -4)), armr=limb(1, 140, 54), forer=limb(1, 10),
                        arml=limb(-1, 62, 28, 6), forel=limb(-1, 10), head=qs(('y', -10), ('x', -6), ('z', -6)), **TOES, **wings(4, 18)), -6, 10),
     # ... and brought down to point at it: the beam is called down where it points
-    'smite': held(P(_face='fierce', _off=(0, HOVER + 0.2, -0.4), body=qs(('y', -10), ('x', 10)), armr=limb(1, 84, 6), forer=limb(1, 6),
-                    arml=limb(-1, 10, 30), forel=limb(-1, 30), head=qs(('x', -4), ('y', 6)), hair=qs(('x', 14), ('z', 4)), hairlo=qs(('x', 6)), **TOES, **wings(0, 24)), 62, 6),
+    'smite': held(P(_face='fierce', _off=(0, HOVER + 0.2, -0.4), body=qs(('y', -10), ('x', 10)), armr=limb(1, 84, 16), forer=limb(1, 6),
+                    arml=limb(-1, 10, 30), forel=limb(-1, 30), head=qs(('x', -4), ('y', 6)), hair=qs(('x', 14), ('z', 4)), hairlo=qs(('x', 6)), **TOES, **wings(0, 18)), 62, 6),
     # (the follow-through: the staff swung back upright, the wings closing)
     'smite_end': held(P(_face='fierce', _off=(0, HOVER, 0), body=qs(('x', 3)), **STAFF_ARM, arml=limb(-1, 20, 18), forel=limb(-1, 30),
                         head=qs(('x', 2)), **TOES, **wings(0, 10)), 4, 6),
     # BLESS: the staff held out, her left hand cupped low before her, gathering light ...
     'bless_a': held(P(_face='blink', _off=(0, HOVER, 0), body=qs(('x', 4)), armr=limb(1, 30, 16), forer=limb(1, 20),
-                      arml=limb(-1, 24, 10), forel=limb(-1, 50, 0, 50), head=qs(('x', 16)), **TOES, **wings(4, -4)), 0, 4),
+                      arml=limb(-1, 24, 10), forel=limb(-1, 50, 0, 50), head=qs(('x', 12)), **TOES, **wings(4, 0)), 0, 4),
     # ... and arms opened wide, palms up: healing light poured out round her
     'bless': held(P(_face='happy', _off=(0, HOVER + 0.8, 0), body=qs(('x', -6)), armr=limb(1, 20, 62), forer=limb(1, 20),
-                    arml=limb(-1, 20, 62), forel=limb(-1, 20, 0, 40), head=qs(('x', -12)), hairlo=qs(('x', 6)), **TOES, **wings(-10, 20)), 0, 16),
+                    arml=limb(-1, 20, 62), forel=limb(-1, 20, 0, 40), head=qs(('x', -12)), hairlo=qs(('x', 6)), **TOES, **wings(-6, 16)), 0, 16),
     # WARD: the wings lifted ...
     'ward_up': held(P(_face='fierce', _off=(0, HOVER + 0.4, 0), **STAFF_ARM, arml=limb(-1, 30, 14), forel=limb(-1, 50),
                       head=qs(('x', 4)), **TOES, **wings(0, 26)), 0, 6),
@@ -725,10 +755,10 @@ POSES = {
     'ward': held(P(_face='fierce', _off=(0, HOVER, 0), body=qs(('x', 4)), armr=limb(1, 40, 4), forer=limb(1, 40, 0, 20),
                    arml=limb(-1, 40, 4), forel=limb(-1, 60, 0, 60), head=qs(('x', 6)), **TOES, **wings(-62, 0, 10)), 0, 14),
     # PRAY: kneeling on her robe, the staff planted at her side, her left hand at her breast, head bowed, the wings folded down
-    'pray': held(P(_pool=True, _face='blink', _off=(0, -4.6, 0), _o_staff=(0, 4.0, 0), **STAFF_ARM, **HEART, head=qs(('x', 20)), hairlo=qs(('x', 50)), **wings(8, -8)), 0, 8),
+    'pray': held(P(_pool=True, _face='blink', _off=(0, -4.6, 0), _o_staff=(0, 4.0, 0), **STAFF_ARM, **HEART, head=qs(('x', 12)), hairlo=qs(('x', 40)), **wings(8, -8)), 0, 8),
     # WINGS SPREAD (the charged move): gathered in, hunched ... then flung open wide, the staff held high, rising
     'wings_spread_up': held(P(_face='fierce', _off=(0, HOVER - 0.6, 0), body=qs(('x', 14)), **STAFF_ARM, arml=limb(-1, 20, 4), forel=limb(-1, 50, 0, 40),
-                              head=qs(('x', 16)), hair=qs(('x', 12)), **TOES, **wings(24, -6)), 0, 10),
+                              head=qs(('x', 12)), hair=qs(('x', 12)), **TOES, **wings(24, -6)), 0, 10),
     'wings_spread': held(P(_face='surprised', _off=(0, HOVER + 2.6, 0), body=qs(('x', -8)), armr=limb(1, 130, 60), forer=limb(1, 6),
                            arml=limb(-1, 30, 76), forel=limb(-1, 10), head=qs(('x', -16)), legr=qs(('x', -50)), legl=qs(('x', -44)),
                            hair=qs(('x', 6)), hairlo=qs(('x', 16)), **wings(10, -20)), 0, 14),
@@ -743,13 +773,13 @@ POSES = {
     'hurt': held(P(_face='hurt', _off=(0, HOVER - 0.4, 0.5), body=qs(('x', -12)), head=qs(('x', -14)), **STAFF_ARM, arml=limb(-1, 34, 30),
                    forel=limb(-1, 50), **TOES, hair=qs(('x', 8)), hairlo=qs(('x', 8)), **wings(12, 8)), -8, 6),
     # worn out: she sinks to the ground on her robe, slumped, her head down, the staff leaning on her shoulder, the wings fallen
-    'tired': held(P(_pool=True, _face='sad', _off=(0, -4.4, 0), _o_staff=(0, 3.4, 0), body=qs(('x', 12)), head=qs(('x', 24)), armr=limb(1, 20, 8), forer=limb(1, 30),
-                    arml=limb(-1, 20, 4), forel=limb(-1, 40, 0, 30), hair=qs(('x', 12)), hairlo=qs(('x', 50)), **wings(14, -14)), -6, 14),
+    'tired': held(P(_pool=True, _face='sad', _off=(0, -4.4, 0), _o_staff=(0, 3.4, 0), body=qs(('x', 12)), head=qs(('x', 16)), armr=limb(1, 20, 8), forer=limb(1, 30),
+                    arml=limb(-1, 20, 4), forel=limb(-1, 40, 0, 30), hair=qs(('x', 12)), hairlo=qs(('x', 34)), **wings(14, -14)), -6, 14),
 }
 SWIM_FRAMES = 8
 for _i in range(SWIM_FRAMES):                                  # (gliding through the water: a slow breaststroke, the wings laid back along her)
     _p = 2 * math.pi * _i / SWIM_FRAMES
-    POSES[f'swim_{_i}'] = P(_swim=True, _staff='none', _off=(0, 3.0 + 0.4 * math.sin(2 * _p), 0), body=qs(('x', 70)), head=qs(('x', -28)),
+    POSES[f'swim_{_i}'] = P(_swim=True, _staff='none', _off=(0, 3.0 + 0.4 * math.sin(2 * _p), 0), body=qs(('x', 70)), head=qs(('x', -20)),
                             skirt=qs(('x', -10)), armr=limb(1, 118 + 20 * math.sin(_p), 70 + 10 * math.cos(_p)), forer=limb(1, 16),
                             arml=limb(-1, 118 + 20 * math.sin(_p), 70 + 10 * math.cos(_p)), forel=limb(-1, 16),
                             hair=qs(('x', 10)), hairlo=qs(('x', 8 * math.sin(_p))), **wings(24, 8 + 3 * math.sin(_p)))
