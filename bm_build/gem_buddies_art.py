@@ -72,35 +72,59 @@ def _field(seed, n, size):
     return out
 
 
-def tex(col, seed, var=0.04, cell=None, size=64, spots=None, n=5):
-    """a smooth coat: one colour, gently varied over broad soft areas (no pixel noise); spots: [(colour, p)] - soft round flecks"""
+def tex(col, seed, var=0.04, cell=None, size=64, spots=None, n=5, pix=True):
+    """a coat: one colour, varied over broad areas. (2.96d, the owner's ask - the blocky, cobblestone look of the pack's other
+    models:) pix - painted in square cells half a design unit across, each its own shade, a few darker and lighter (as a vanilla
+    block is); pix=False - smooth, as Robo keeps. spots: [(colour, p)] - flecks"""
     im = Image.new('RGBA', (size, size)); px = im.load(); c = hexc(col); f = _field(seed, n, size)
-    for y in range(size):
-        for x in range(size):
-            k = 1 + (f[y][x] - 0.5) * 2 * var
-            px[x, y] = tuple(max(0, min(255, int(v * k))) for v in c[:3]) + (255,)
+    if pix:
+        cz = cell or max(2, size // 32); r = random.Random(seed * 31 + 5); v2 = max(var, 0.05)
+        for cy in range(0, size, cz):
+            for cx in range(0, size, cz):
+                k = 1 + (f[cy][cx] - 0.5) * 2 * var + r.uniform(-1, 1) * v2 * 0.9
+                q = r.random()
+                if q < 0.07: k *= 0.88
+                elif q < 0.11: k *= 1.08
+                col_ = tuple(max(0, min(255, int(v * k))) for v in c[:3]) + (255,)
+                for y in range(cy, min(size, cy + cz)):
+                    for x in range(cx, min(size, cx + cz)):
+                        px[x, y] = col_
+    else:
+        for y in range(size):
+            for x in range(size):
+                k = 1 + (f[y][x] - 0.5) * 2 * var
+                px[x, y] = tuple(max(0, min(255, int(v * k))) for v in c[:3]) + (255,)
     if spots:
         d = ImageDraw.Draw(im); r = random.Random(seed + 7)
         for sc, p in spots:
             for _ in range(int(p * size * size / 14)):
                 x, y, s = r.uniform(0, size), r.uniform(0, size), r.uniform(size / 64, size / 30)
-                d.ellipse((x - s, y - s * 0.8, x + s, y + s * 0.8), fill=hexc(sc))
+                if pix:                                       # (square flecks, on the cells)
+                    cz = cell or max(2, size // 32); x, y = int(x) // cz * cz, int(y) // cz * cz; k = max(1, int(s * 2 / cz + 0.5)) * cz
+                    d.rectangle((x, y, x + k - 1, y + k - 1), fill=hexc(sc))
+                else:
+                    d.ellipse((x - s, y - s * 0.8, x + s, y + s * 0.8), fill=hexc(sc))
     return im
 
 
-def lit(im, w, h, ppu=4, hi='#ffffff', a=110, rim=None, rim_a=150):
-    """light from the upper left over the (w x h unit) window at the top left of a texture, a darker rim at the lower right"""
+def lit(im, w, h, ppu=4, hi='#ffffff', a=110, rim=None, rim_a=150, pix=True):
+    """light from the upper left over the (w x h unit) window at the top left of a texture, a darker rim at the lower right
+    (pix: worked out cell by cell and in a few steps - pixel-art shading; pix=False smooth, as Robo keeps)"""
     px = im.load(); W, H = int(w * ppu), int(h * ppu)
+    cz = max(1, im.width // 32) if pix else 1
     for y in range(min(H, im.height)):
         for x in range(min(W, im.width)):
-            u, v = (x + 0.5) / W - 0.32, (y + 0.5) / H - 0.28
+            sx, sy = (x // cz * cz + cz / 2, y // cz * cz + cz / 2) if pix else (x + 0.5, y + 0.5)
+            u, v = sx / W - 0.32, sy / H - 0.28
             g = max(0.0, 1 - math.hypot(u * 1.6, v * 1.6) * 1.6)
+            if pix: g = round(g * 4) / 4
             c = px[x, y]
             if g > 0:
                 t = hexc(hi); k = g * a / 255
                 c = tuple(int(c[i] * (1 - k) + t[i] * k) for i in range(3)) + (255,)
             if rim:
-                e = max(0.0, (x + 0.5) / W + (y + 0.5) / H - 1.45) * 2.2
+                e = max(0.0, sx / W + sy / H - 1.45) * 2.2
+                if pix: e = round(min(1.0, e) * 3) / 3
                 if e > 0:
                     t = hexc(rim); k = min(1.0, e) * rim_a / 255
                     c = tuple(int(c[i] * (1 - k) + t[i] * k) for i in range(3)) + (255,)
@@ -142,17 +166,17 @@ def arc(cx, cy, rx, ry, a0, a1, n=24):
     return [(cx + rx * math.cos(math.radians(a0 + (a1 - a0) * i / n)), cy + ry * math.sin(math.radians(a0 + (a1 - a0) * i / n))) for i in range(n + 1)]
 
 
-def face_tex(base, w, h, paint, seed=1, var=0.03, hi=110, rim=None, rim_a=150, under=None, rot=0.0):
+def face_tex(base, w, h, paint, seed=1, var=0.03, hi=110, rim=None, rim_a=150, under=None, rot=0.0, pix=True):
     """a face texture (256 px, 16 px a unit): the base colour softly lit over the w x h unit window at its top left (a ball's
     whole front, say), then paint(draw, W, H) draws the face over that same window on a canvas SS times the size - brought down
     smoothly. under(draw, W, H): painted on the base before the light (a pizza's toppings, a robot's panel)"""
     size = 256
-    im = tex(base, seed, var, size=size, n=4)
+    im = tex(base, seed, var, size=size, n=4, pix=pix)
     W, H = int(w * PPU * SS), int(h * PPU * SS)
     if under:
         lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); under(ImageDraw.Draw(lay), W, H)
         im.alpha_composite(lay.resize((int(w * PPU), int(h * PPU)), Image.LANCZOS), (0, 0))
-    lit(im, w, h, PPU, a=hi, rim=rim, rim_a=rim_a)
+    lit(im, w, h, PPU, a=hi, rim=rim, rim_a=rim_a, pix=pix)
     lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); paint(ImageDraw.Draw(lay), W, H)
     if rot: lay = lay.rotate(rot, resample=Image.BICUBIC)          # (a face kept upright on a part that leans)
     im.alpha_composite(lay.resize((int(w * PPU), int(h * PPU)), Image.LANCZOS), (0, 0))
@@ -207,16 +231,24 @@ class Rig:
                                RIG_SCALE=P.scale, GROW=GROW, UP=(0.0, 1.0, 0.0), FRONT=(0.0, 0.0, -1.0))
 
 
-def ball(c, r, tex_, pv, yr=None, zr=None, shift=(0.0, 0.0), light=0, face=None, n=7):
-    """a round ball, sliced: n layers, each a cross of two boxes as wide as the sphere is there - round from every side.
+def ball(c, r, tex_, pv, yr=None, zr=None, shift=(0.0, 0.0), light=0, face=None, n=7, smooth=False):
+    """a round ball, sliced: layers, each a cross of two boxes as wide as the sphere is there - round from every side.
     face: a texture painted over the whole front (the window 2r x 2yr at the top left of it) - laid over the front of every
-    slice at its own depth, so the face sits ON the ball"""
+    slice at its own depth, so the face sits ON the ball. (2.96d, the blocky look: a few chunky layers - three, five for a big
+    one - each as wide as the ball at its middle, in steps of an eighth: a rounded block, as a vanilla mob is; smooth=True, the
+    n fine slices Robo keeps)"""
     x, y, z = c; ry, rz = yr or r, zr or r
+    if not smooth:
+        n = 5 if min(r, ry) >= 1.6 else 3
     out = []
     for i in range(n):
         y0 = y - ry + i * 2 * ry / n; y1 = y0 + 2 * ry / n
         near = 0.0 if y0 < y < y1 else min(abs(y0 - y), abs(y1 - y))
-        f = max(0.38, math.sqrt(max(0.0, 1 - (near / ry) ** 2)))
+        if smooth:
+            f = max(0.38, math.sqrt(max(0.0, 1 - (near / ry) ** 2)))
+        else:
+            mid = abs((y0 + y1) / 2 - y)
+            f = max(0.5, round(math.sqrt(max(0.0, 1 - (mid / ry) ** 2)) * 8) / 8)
         for j, (kx, kz) in enumerate(((f, f * 0.74), (f * 0.74, f))):
             e = el((x - r * kx, y0, z - rz * kz), (x + r * kx, y1, z + rz * kz), tex_, pv, shift=(shift[0] + 0.13 * i + 0.4 * j, shift[1] + 0.29 * i), light=light)
             if face:
@@ -244,9 +276,12 @@ def pear(y0, h, radii, tex_, pv, zk=0.8, n=9, light=0):
     return out
 
 
-def disc(c, r, th, tex_, pv, face=None, n=9, light=0):
-    """a flat round disc standing up, facing front (a pizza, a saw's hub): n strips across, the face over the front of all of them"""
+def disc(c, r, th, tex_, pv, face=None, n=9, light=0, smooth=False):
+    """a flat round disc standing up, facing front (a pizza, a saw's hub): strips across, the face over the front of all of them
+    (2.96d: five chunky strips - the blocky look; smooth=True, n fine ones)"""
     x, y, z = c; out = []
+    if not smooth:
+        n = 5
     for i in range(n):
         y0 = y - r + i * 2 * r / n; y1 = y0 + 2 * r / n
         near = 0.0 if y0 < y < y1 else min(abs(y0 - y), abs(y1 - y))
@@ -343,18 +378,21 @@ def grace():
         el((-0.7, 7.4, -2.62), (0.7, 10.9, -2.2), throat, (0, 9.0, 0), faces=('north', 'east', 'west', 'up', 'down'))])     # (the pink stripe)
     R.part('head', (0, 11.4, -1.4), 'body', lambda v, f: [
         *ball((0, HY, -2.0), 2.2, headc, (0, 11.4, -1.4), yr=2.0, zr=2.0, shift=(0.4, 0.1), face=R.fk(f)),
-        seg((0, HY - 0.5, -4.0), (0, HY - 2.4, -10.5), 0.6, 0.6, beak, (0, 11.4, -1.4)),
+        *chain([(0, HY - 0.4, -3.8), (0, HY - 1.0, -6.6), (0, HY - 2.1, -9.2), (0, HY - 3.3, -10.8)], [0.75, 0.6, 0.42], 0.6, beak, (0, 11.4, -1.4)),   # (long, curving down, as drawn)
         el((-0.7, HY - 2.0, -3.6), (0.7, HY - 1.2, -2.6), throat, (0, 11.4, -1.4)),                                  # (pink under the chin)
-        *chain([(0, HY + 1.8, -1.6), (0, HY + 4.2, 0.2), (0, HY + 4.8, 2.6)], [1.5, 0.9], 0.6, crest, (0, 11.4, -1.4), (0.0, 0.0, -1.0)),
-        *chain([(0.7, HY + 1.6, -1.0), (1.5, HY + 3.8, 0.6), (1.8, HY + 4.0, 2.4)], [1.2, 0.7], 0.5, crest, (0, 11.4, -1.4), (0.0, 0.0, -1.0)),
-        *chain([(-0.7, HY + 1.6, -1.0), (-1.5, HY + 3.8, 0.6), (-1.8, HY + 4.0, 2.4)], [1.2, 0.7], 0.5, crest, (0, 11.4, -1.4), (0.0, 0.0, -1.0)),
-        *chain([(0, HY + 1.0, 0.4), (0, HY + 2.0, 2.6), (0, HY + 1.6, 4.4)], [1.0, 0.6], 0.5, crest, (0, 11.4, -1.4), (0.0, 1.0, 0.0))],
+        *chain([(0, HY + 1.8, -1.6), (0, HY + 4.6, 0.4), (0, HY + 5.4, 3.4)], [1.8, 1.0], 0.7, crest, (0, 11.4, -1.4), (0.0, 0.0, -1.0)),       # (the crest: a fan
+        *chain([(0.8, HY + 1.6, -1.0), (1.7, HY + 4.0, 0.8), (2.2, HY + 4.4, 3.2)], [1.4, 0.8], 0.6, crest, (0, 11.4, -1.4), (0.0, 0.0, -1.0)),       #  of feathers swept
+        *chain([(-0.8, HY + 1.6, -1.0), (-1.7, HY + 4.0, 0.8), (-2.2, HY + 4.4, 3.2)], [1.4, 0.8], 0.6, crest, (0, 11.4, -1.4), (0.0, 0.0, -1.0)),    #  back off her head)
+        *chain([(0, HY + 1.2, 0.4), (0, HY + 2.6, 3.2), (0, HY + 2.2, 5.6)], [1.3, 0.7], 0.6, crest, (0, 11.4, -1.4), (0.0, 1.0, 0.0))],
         faced=True)
     for s, n in ((1, 'wingr'), (-1, 'wingl')):
         pv = (s * 2.0, 10.4, 0.2)
+        # (2.96d: a broad wing swept back, as drawn - tapering in blocky steps out to its tip, a darker band of coverts at the root)
+        WG = ((0.0, 3.2, -1.8, 2.4), (3.2, 5.8, -1.2, 3.1), (5.8, 7.9, -0.3, 3.6))
         R.part(n, pv, 'body', (lambda pv, s: lambda v, f: [
-            el((pv[0] + (0 if s > 0 else -7.5), pv[1] - 0.2, pv[2] - 1.6), (pv[0] + (7.5 if s > 0 else 0), pv[1] + 0.2, pv[2] + 2.0), wing, pv),
-            el((pv[0] + (0 if s > 0 else -4.5), pv[1] - 0.25, pv[2] - 1.8), (pv[0] + (4.5 if s > 0 else 0), pv[1] + 0.25, pv[2] + 0.6), wing2, pv)])(pv, s))
+            *[el((pv[0] + (x0 if s > 0 else -x1), pv[1] - 0.2, pv[2] + z0), (pv[0] + (x1 if s > 0 else -x0), pv[1] + 0.2, pv[2] + z1), wing, pv, shift=(0.3 * i, 0.2 * i))
+              for i, (x0, x1, z0, z1) in enumerate(WG)],
+            el((pv[0] + (0 if s > 0 else -4.2), pv[1] - 0.3, pv[2] - 2.0), (pv[0] + (4.2 if s > 0 else 0), pv[1] + 0.3, pv[2] + 0.4), wing2, pv)])(pv, s))
     R.part('tail', (0, 8.2, 3.2), 'body', lambda v, f: [
         *chain([(0.4, 8.2, 3.2), (1.6, 6.8, 6.8)], [1.6], 0.35, wing, (0, 8.2, 3.2), (0.0, 1.0, 0.0)),
         *chain([(-0.4, 8.2, 3.2), (-1.6, 6.8, 6.8)], [1.6], 0.35, wing2, (0, 8.2, 3.2), (0.0, 1.0, 0.0))])
@@ -376,12 +414,12 @@ def grace():
 def robo():
     R = Rig('gz_robo_', 1.0)
     GREY, GREYD, GREYL, LINE, RED = '#9a9c9e', '#5e6062', '#c6c8ca', '#3c3e40', '#d42a1e'
-    metal = R.t('metal', lit(tex(GREY, 21, 0.04), 8, 8, 4, a=70, rim='#4a4c4e'))
-    dark, light_ = R.t('dark', tex(GREYD, 22, 0.04)), R.t('light', lit(tex(GREYL, 23, 0.03), 4, 8, 4, a=60))
-    flame = R.t('flame', tex('#ffcc30', 25, 0.1, spots=[('#ff4a1a', 0.3), ('#fff8c0', 0.2)]))
-    eyew = R.t('eyew', lit(tex('#eeeeec', 26, 0.02), 2, 2, 4, a=60, rim='#a0a0a0'))
-    stalk = R.t('stalk', tex('#4c4e50', 27, 0.03))
-    redb = R.t('red', lit(tex(RED, 28, 0.05), 2, 2, 4, a=120))
+    metal = R.t('metal', lit(tex(GREY, 21, 0.04, pix=False), 8, 8, 4, a=70, rim='#4a4c4e', pix=False))
+    dark, light_ = R.t('dark', tex(GREYD, 22, 0.04, pix=False)), R.t('light', lit(tex(GREYL, 23, 0.03, pix=False), 4, 8, 4, a=60, pix=False))
+    flame = R.t('flame', tex('#ffcc30', 25, 0.1, spots=[('#ff4a1a', 0.3), ('#fff8c0', 0.2)], pix=False))
+    eyew = R.t('eyew', lit(tex('#eeeeec', 26, 0.02, pix=False), 2, 2, 4, a=60, rim='#a0a0a0', pix=False))
+    stalk = R.t('stalk', tex('#4c4e50', 27, 0.03, pix=False))
+    redb = R.t('red', lit(tex(RED, 28, 0.05, pix=False), 2, 2, 4, a=120, pix=False))
 
     def head_face(f):
         """his face, as drawn: a grey plate with a dark outline and a glint, a red dot of a nose, a crooked cream grin of
@@ -412,7 +450,7 @@ def robo():
             if f == 'fierce':
                 for i in range(7):
                     x = 0.24 + i * 0.09; ln(d, [(W * x, H * 0.6), (W * (x + 0.045), H * 0.66), (W * (x + 0.09), H * 0.6)], LINE, lw * 0.6)
-        return R.t(f'face{"_" + f if f else ""}', face_tex(GREY, 6.4, 4.8, p, seed=29, hi=60))
+        return R.t(f'face{"_" + f if f else ""}', face_tex(GREY, 6.4, 4.8, p, seed=29, hi=60, pix=False))
 
     def eyeball(f, big):
         """an eye on a stalk: white, shaded low; a black pupil with a glint (or a grey lid coming down)"""
@@ -426,13 +464,13 @@ def robo():
                 lid = [(0, 0), (W, 0), (W, H * (0.62 if f == 'blink' else (0.3 if big else 0.5))), (0, H * (0.62 if f == 'blink' else (0.5 if big else 0.3)))]
                 d.polygon(lid, fill=hexc('#8a8c8e'))
                 ln(d, [lid[3], lid[2]], LINE, W * 0.06)
-        return R.t(f'eye{"_b" if big else "_s"}{"_" + f if f else ""}', face_tex('#eeeeec', 2.2 if big else 1.2, 2.2 if big else 1.2, p, seed=31, hi=70, rim='#9a9a9a', rim_a=90))
+        return R.t(f'eye{"_b" if big else "_s"}{"_" + f if f else ""}', face_tex('#eeeeec', 2.2 if big else 1.2, 2.2 if big else 1.2, p, seed=31, hi=70, rim='#9a9a9a', rim_a=90, pix=False))
     for f in (None,) + FACES:
         head_face(f); eyeball(f, True); eyeball(f, False)
     by = 9.0
     panel = R.t('panel', face_tex(GREY, 5.0, 5.4, lambda d, W, H: (
         d.polygon([(W * 0.08, H * 0.06), (W * 0.92, H * 0.06), (W * 0.82, H * 0.94), (W * 0.18, H * 0.94)], fill=hexc(GREYL), outline=hexc(LINE), width=int(W * 0.04)),
-        ln(d, [(W * 0.56, H * 0.3), (W * 0.56, H * 0.7)], LINE, W * 0.05)), seed=24, hi=50))
+        ln(d, [(W * 0.56, H * 0.3), (W * 0.56, H * 0.7)], LINE, W * 0.05)), seed=24, hi=50, pix=False))
 
     def body(v, f):
         return [el((-3.8, by + 1.2, -2.4), (3.8, by + 3.6, 2.4), metal, (0, by, 0)),               # (the chest, wide at the top...)
@@ -449,11 +487,11 @@ def robo():
         Lh = [el((-3.2, hy, -2.4), (3.2, hy + 4.8, 2.4), metal, pv, shift=(0.3, 0.5)),
               plate((-3.2, hy, -2.43), (3.2, hy + 4.8, -2.4), R.fk(f), pv, 6.4, 4.8)]
         # the eyes on stalks: the big one on his right, the little one on his left; the curly antenna between
-        Lh += [el((1.75, hy + 4.8, -0.25), (2.25, hy + 7.0, 0.25), stalk, pv), *ball((2.0, hy + 8.0, -0.2), 1.1, eyew, pv, face=R.fk(f, 'eye_b'), n=5),
-               el((-2.35, hy + 4.8, -0.2), (-1.95, hy + 6.0, 0.2), stalk, pv), *ball((-2.15, hy + 6.55, -0.2), 0.6, eyew, pv, face=R.fk(f, 'eye_s'), n=4)]
+        Lh += [el((1.75, hy + 4.8, -0.25), (2.25, hy + 7.0, 0.25), stalk, pv), *ball((2.0, hy + 8.0, -0.2), 1.1, eyew, pv, face=R.fk(f, 'eye_b'), n=5, smooth=True),
+               el((-2.35, hy + 4.8, -0.2), (-1.95, hy + 6.0, 0.2), stalk, pv), *ball((-2.15, hy + 6.55, -0.2), 0.6, eyew, pv, face=R.fk(f, 'eye_s'), n=4, smooth=True)]
         Lh += chain([(0.2, hy + 4.8, 0), (0.0, hy + 6.0, 0), (0.9, hy + 6.8, 0), (0.5, hy + 7.6, 0), (-0.2, hy + 7.0, 0), (0.3, hy + 8.6, 0)],
                     [0.3] * 5, 0.3, stalk, pv, (0.0, 0.0, -1.0), ext=0.1)
-        Lh += ball((0.3, hy + 9.1, 0), 0.55, redb, pv, n=3)
+        Lh += ball((0.3, hy + 9.1, 0), 0.55, redb, pv, n=3, smooth=True)
         return Lh
     R.part('head', (0, hy, 0), 'body', head, faced=True)
 

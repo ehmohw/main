@@ -21,8 +21,10 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
-## New in 2.96d: Chase and Zapper, as drawn
+## New in 2.96d: the Gem's Buddies, blockier and closer to the drawings
 
+- **The blocky look:** every Buddy except Robo now has the pack's blocky style. Their round shapes are built from a few chunky, rounded-block layers, like a vanilla mob's head, instead of many thin slices. Their coats are pixel-shaded in small square cells, like a block's texture, instead of smoothly airbrushed. Their faces stay as drawn. Robo is unchanged.
+- **Grace:** her wings are broad and swept back, tapering in steps out to the tip. Her long beak curves down, and her crest is a fuller fan of feathers swept back off her head.
 - **Chase** is one gummy now, as in the original art: his lower half is his head turned upside down. It's the same round shape under his face, with its three lobes hanging down where the top's stand up He floats a little above the ground, has no nose, and one eye is a little bigger than the other. No mole by his grin. His lobes go round his middle like an octopus's tentacles: three on top and three below, spread evenly round him and splaying outward, so none hangs limp in the middle. He has no separate arms; the lobes under him do the job, waving when he's happy and reaching out when he tackles.
 - **Zapper** is no longer a lightning bolt. He's an unevenly rounded little body with broad, jagged lightning spikes all the way round, every one its own size, and pale blue glints between them. Two of the spikes are his arms. When he zaps, his left arm stretches out into the long zigzag bolt from the drawing, the one he uses to touch the light bulb and light her up.
 
