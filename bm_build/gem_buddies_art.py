@@ -6,15 +6,16 @@ pack's blocky follower style (the owner's drawings are the design reference only
   ROBO       a boxy grey robot: a red dot of a nose and a crooked cream grin; his eyes on STALKS (a big one, a little one) and a
              curly antenna with a red bulb; a trapezoid chest with a panel; long arms with C-clamp hands; jet boots.
                                                                                              STOMP / ROCKET PUNCH
-  ZAPPER     a curious lightning bolt - one jagged bolt (a broad top, a ledge, a long tail to a point) - round white eyes glancing
-             sideways under a raised brow, a green gem of a nose, a wavy unsure little mouth.   curious bob / ZAP
+  ZAPPER     an unevenly rounded little body with jagged lightning spikes all the way round (2.96c - not a bolt; the long bolt
+             in the drawing is an arm he stretches out to light Dessa up), pale blue glints between the spikes; round white eyes
+             glancing sideways under a raised brow, a green gem of a nose, a wavy unsure little mouth.   curious bob / ZAP
   DESSA      a light bulb, eyes closed in two happy arches, a wavy little smile; arms of light; a screw base.
                                                                                              flicker / FLASH-BURST
   BUBBLES    a PAIR of bubbles: the big one with two tall dark eyes and a great round open mouth, its little one beside it.
                                                                                              bounce in tandem / POP-SPLASH
-  CHASE      a glossy green gummy: three round lobes on his head (the middle one shortest), big hollow white eyes - no pupils -
-             a little gummy nose, a wide toothy grin under a little moustache tuft, a narrow neck, a pear of a body (2.96c: a
-             real pear, not a second head upside down), stubby arms and feet - and his feet on the ground in every pose.
+  CHASE      a glossy green gummy: three round lobes on top of him, big hollow white eyes - no pupils -
+             no nose, one eye a little the bigger, a wide toothy grin; his lower half is his head upside down - three lobes on
+             top and three below, round his middle like an octopus's tentacles (those below his arms, too); he floats.
                                                                                              squash-and-stretch hop / TACKLE
   LIMER      the round fellow - a pale ball with sleepy lidded eyes, a big curl of a nose and a little "o" of a mouth - in his
              loopy green covering, on stick legs.                                            roll / BODY SLAM
@@ -498,7 +499,7 @@ def zapper():
     R = Rig('gz_zapper_', 1.0)
     Y, YL, YD, INK = '#ffe11a', '#fff38a', '#e0a800', '#7a5a08'
     gold = R.t('bolt', lit(tex(Y, 31, 0.04), 6, 6, 4, a=110, rim=YD))
-    hot = R.t('hot', lit(tex('#fffbe0', 32, 0.03), 6, 6, 4, a=60))
+    hot = R.t('hot', lit(tex('#fff27a', 32, 0.03), 6, 6, 4, a=60))
     blue = R.t('arc', tex('#a8e4ff', 33, 0.04))
 
     def face(f):
@@ -545,39 +546,61 @@ def zapper():
             else:                                                     # (the wavy, unsure little mouth: a dip and a wobble)
                 ln(d, bez((mx - W * 0.075, my + H * 0.01), (mx - W * 0.035, my - H * 0.045), (mx + W * 0.01, my + H * 0.02), (mx + W * 0.07, my - H * 0.02)), '#3a2a06', lw * 1.4)
                 ln(d, [(mx + W * 0.07, my - H * 0.02), (mx + W * 0.085, my + H * 0.012)], '#3a2a06', lw * 1.2)
-        return R.t(f'face{"_" + f if f else ""}', face_tex(Y, 5.2, 5.6, p, seed=34, hi=120, rim=YD, rim_a=80, rot=20.0))
+        return R.t(f'face{"_" + f if f else ""}', face_tex(Y, 6.6, 6.6, p, seed=34, hi=120, rim=YD, rim_a=80))
     for f in (None,) + FACES: face(f)
-    # the bolt, seen from the front - one classic jagged lightning bolt: a broad slab leaning over (his face on it, kept upright),
-    # a step jutting out under it, and a long tail tapering to a point down at the other side. (Design x is his right - the
-    # viewer's left; the slab leans over to the viewer's right, the tail runs down to the viewer's left.)
-    cy = 11.0
-    LEAN = 20.0
+    # (2.96c, the owner's art (ref/owner/buddies/zapper.png): not a lightning bolt - an unevenly rounded little body, his face on
+    #  it, with jagged lightning spikes all the way round. The long bolt in the drawing is one of them stretched out: an arm,
+    #  reaching to touch the light bulb (Dessa) and light her up - so his arms are two of the spikes, and the left one reaches
+    #  out, a long zigzag of a bolt, when he zaps.)
+    cy = 9.0
+    R0 = 2.7                                                           # (where a spike grows out of him)
+
+    def spike(a, L, t, pv, w=1.5, kink=0.7, th=1.0):
+        """one jagged lightning spike in the plane of his face, at a degrees (0: his right, 90: up), L long"""
+        c, s_ = math.cos(math.radians(a)), math.sin(math.radians(a))
+        P = lambda r, k: (c * r - s_ * k, cy + s_ * r + c * k, 0.0)
+        return chain([P(R0, 0), P(R0 + 0.45 * L, kink), P(R0 + 0.62 * L, -kink * 0.5), P(R0 + L, 0)], [w, w * 0.68, w * 0.4], th, t, pv, (0.0, 0.0, -1.0), ext=0.2)
+    SPIKES = [(4, 4.0, 3.0), (40, 5.2, 3.4), (78, 4.4, 3.2), (108, 5.6, 3.0), (142, 4.0, 3.4), (176, 4.8, 3.0), (268, 4.6, 3.2), (296, 3.4, 2.6), (350, 3.0, 2.4)]
+    ARMS = {'armr': 324, 'arml': 222}
 
     def core(v, f):
         t = hot if v == 'charged' else gold; pv = (0, cy, 0); lt = 10 if v else 5
-        slab = [el((-2.6, cy - 4.2, -1.3), (2.6, cy + 4.0, 1.3), t, pv, light=lt),
-                plate((-2.6, cy - 3.0, -1.33), (2.6, cy + 2.6, -1.3), R.fk(f), pv, 5.2, 5.6, light=10)]
-        Lb = turn(slab, (0.0, 0.0, LEAN), mo((0, cy, 0), pv))
-        Lb += [el((-4.4, cy - 5.6, -1.2), (2.2, cy - 3.6, 1.2), t, pv, shift=(0.3, 0.6), light=lt)]                    # (the step, out under it)
-        Lb += chain([(-3.2, cy - 4.6, 0), (-1.0, cy - 7.8, 0), (1.2, cy - 10.0, 0), (2.6, cy - 11.0, 0)], [3.4, 2.2, 0.8], 2.0, t, pv, (0.0, 0.0, -1.0), ext=0.3)
+        B = ball((0, cy, 0), 3.3, t, pv, yr=3.3, zr=2.4, face=R.fk(f), n=9, light=lt)
+        B += ball((1.3, cy + 1.5, 0.5), 2.4, t, pv, yr=2.2, zr=1.7, n=5, light=lt) + ball((-1.5, cy - 1.3, 0.4), 2.5, t, pv, yr=2.3, zr=1.7, n=5, light=lt)
+        for i, (a, L, w) in enumerate(SPIKES):                          # (broad jagged blades, every one its own size)
+            B += spike(a, L, t, pv, w=w, kink=0.9 if i % 2 else -0.9)
+        for a in (22, 58):                                             # (the pale blue glints between his spikes, as drawn)
+            B += spike(a, 2.6, blue, pv, w=1.6, kink=0.3, th=0.5)
         if v == 'charged':
-            Lb += [seg((2.8, cy + 2.0, -1.0), (5.8, cy + 4.4, -2.0), 0.3, 0.3, blue, pv, light=15),
-                   seg((-4.4, cy - 4.0, -1.0), (-7.2, cy - 2.4, -2.2), 0.3, 0.3, blue, pv, light=15)]
-        return Lb
+            B += [seg((2.8, cy + 3.2, -1.0), (5.8, cy + 5.4, -2.0), 0.3, 0.3, blue, pv, light=15),
+                  seg((-4.0, cy - 2.0, -1.0), (-7.0, cy - 0.4, -2.2), 0.3, 0.3, blue, pv, light=15)]
+        return B
     R.part('core', (0, cy, 0), None, core, variants=('charged',), faced=True)
-    for s, n in ((1, 'armr'), (-1, 'arml')):                          # (little zigzag bolts for arms)
-        pv = (s * 2.6 + 0.6, cy - 1.0 + s * 0.9, 0)
-        R.part(n, pv, 'core', (lambda pv, s: lambda v, f: chain([(pv[0], pv[1], 0), (pv[0] + s * 1.2, pv[1] + 0.8, -0.1), (pv[0] + s * 1.8, pv[1] - 0.6, -0.2), (pv[0] + s * 2.8, pv[1] + 0.2, -0.3)],
-                                                                [0.7, 0.6, 0.45], 0.6, gold, pv, (0.0, 0.0, -1.0), ext=0.2))(pv, s))
+    for n, a in ARMS.items():                                          # (his arms: two of the spikes - the left one reaches)
+        c, s_ = math.cos(math.radians(a)), math.sin(math.radians(a))
+        pv = (c * R0, cy + s_ * R0, 0.0)
+
+        def arm(v, f, a=a, pv=pv, c=c, s_=s_):
+            if v != 'reach':
+                return spike(a, 4.2, gold, pv, w=2.8, kink=0.8)
+            # reaching: a long bolt - out and forward, zigzagging, to a point
+            pts, k = [pv], 1
+            for i in range(1, 7):
+                r = i * 1.6
+                side = (0.9 if i % 2 else -0.9) if i < 6 else 0.0
+                pts.append((pv[0] + c * r * 0.6 - s_ * side, pv[1] + s_ * r * 0.4 + c * side, -r * 0.8))
+            return chain(pts, [1.3, 1.1, 0.95, 0.8, 0.6, 0.35], 0.9, hot, pv, (0.0, 1.0, 0.0), ext=0.2) + [
+                seg(pts[-1], (pts[-1][0], pts[-1][1], pts[-1][2] - 1.0), 0.25, 0.25, blue, pv, light=15)]
+        R.part(n, pv, 'core', arm, variants=('reach',))
     R.POSES.update({
-        'appear': dict(_face='wow', _v={'core': 'charged'}, _off=(0, 1.4, 0), core=T(('z', 18))),
-        'idle_a': dict(_off=(0, 0.8, 0), core=T(('z', -4)), armr=L(('z', 10)), arml=L(('z', -20))),
-        'idle_b': dict(_face='look', _off=(0, 1.4, 0), core=T(('z', 16), ('y', -18)), armr=L(('z', -30))),     # (head cocked - curious)
-        'bob_0': dict(_face='look', _off=(0, 2.0, 0), core=T(('z', 22), ('x', -10)), armr=L(('z', 40)), arml=L(('z', -10))),
-        'bob_1': dict(_face='wow', _off=(0, 0.4, 0), core=T(('z', -18), ('y', 20)), armr=L(('z', -10)), arml=L(('z', 40))),
-        'wind': dict(_face='fierce', _v={'core': 'charged'}, _off=(0, 2.4, 1.6), core=T(('x', 18)), armr=L(('z', 60)), arml=L(('z', -60))),
-        'strike': dict(_face='fierce', _v={'core': 'charged'}, _off=(0, 0.0, -5.0), core=T(('x', -36)), armr=L(('z', -20)), arml=L(('z', 20))),
-        'happy': dict(_face='happy', _off=(0, 2.0, 0), core=T(('z', -12)), armr=L(('z', 70)), arml=L(('z', -70))),
+        'appear': dict(_face='wow', _v={'core': 'charged'}, _off=(0, 1.4, 0), core=T(('z', 12))),
+        'idle_a': dict(_off=(0, 0.8, 0), core=T(('z', -4)), armr=L(('z', 10)), arml=L(('z', -10))),
+        'idle_b': dict(_face='look', _off=(0, 1.4, 0), core=T(('z', 12), ('y', -18)), armr=L(('z', -20))),     # (head cocked - curious)
+        'bob_0': dict(_face='look', _off=(0, 2.0, 0), core=T(('z', 16), ('x', -10)), armr=L(('z', 30)), arml=L(('z', -10))),
+        'bob_1': dict(_face='wow', _off=(0, 0.4, 0), core=T(('z', -14), ('y', 20)), armr=L(('z', -10)), arml=L(('z', 30))),
+        'wind': dict(_face='fierce', _v={'core': 'charged'}, _off=(0, 2.4, 1.6), core=T(('x', 18)), armr=L(('z', 40)), arml=L(('z', -40))),
+        'strike': dict(_face='fierce', _v={'core': 'charged', 'arml': 'reach'}, _off=(0, 1.0, -2.0), core=T(('x', -12), ('y', -20))),
+        'happy': dict(_face='happy', _off=(0, 2.0, 0), core=T(('z', -12)), armr=L(('z', 50)), arml=L(('z', -50))),
         'vanish': dict(_face='blink', _v={'core': 'charged'}, _off=(0, 3.0, 0), core=T(('y', 180))),
     })
     return R.ns()
@@ -725,7 +748,6 @@ def chase():
     G, GL, GD, INK = '#1ed23a', '#8af08a', '#0c8a22', '#0a1a0a'
     goo = R.t('goo', lit(tex(G, 61, 0.03), 6, 6, 4, a=150, rim=GD, rim_a=130))
     gloss = R.t('gloss', tex('#d8ffd8', 63, 0.02))
-    nose = R.t('nose', lit(tex('#14b22e', 64, 0.03), 1, 1, 16, a=170, rim=GD, rim_a=160))
 
     def face(f):
         """as drawn: big hollow white eyes (no pupils) in thick dark rims, a short brow line over each; a wide toothy grin,
@@ -733,9 +755,9 @@ def chase():
         def p(d, W, H):
             lw = W * 0.03
             E(d, W * 0.2, H * 0.16, W * 0.06, H * 0.04, '#e8ffe8'); E(d, W * 0.12, H * 0.26, W * 0.02, H * 0.03, '#e8ffe8')      # (the gloss)
-            eyes = ((W * 0.33, H * 0.38, -1), (W * 0.67, H * 0.38, 1))       # (2.96c: square about the middle - one read smaller)
+            eyes = ((W * 0.33, H * 0.37, -1), (W * 0.67, H * 0.39, 1))       # (2.96c, as drawn: the eye on his right a little the bigger)
             for cx, cy, s in eyes:
-                rx, ry = W * 0.11, H * 0.17
+                rx, ry = W * 0.11 * (1.0 if s < 0 else 0.86), H * 0.17 * (1.0 if s < 0 else 0.86)
                 if f == 'wow': rx, ry = W * 0.125, H * 0.2
                 if f == 'blink':
                     ln(d, arc(cx, cy - ry * 0.1, rx, ry * 0.45, 25, 155), INK, lw); continue
@@ -752,16 +774,13 @@ def chase():
                     d.polygon(P, fill=hexc('#ffffff'), outline=hexc(INK), width=int(lw))
                     ln(d, [(x_o - s * rx * 0.3, yo - (yi - yo) * 0.15), (x_i + s * rx * 0.2, yi + (yi - yo) * 0.1)], INK, lw * 1.5)
                     continue
-                E(d, cx + lx, cy, rx * (0.85 if f == 'look' and s < 0 else 1), ry, '#ffffff', INK, lw)
+                E(d, cx + lx, cy, rx, ry, '#ffffff', INK, lw)
             if f not in ('fierce',):                   # (the little brow lines)
                 for cx, cy, s in eyes:
                     by = cy - H * (0.24 if f != 'wow' else 0.28)
                     ln(d, arc(cx + s * W * 0.01, by, W * 0.05, H * 0.025, 200, 340, n=10), INK, lw * 0.7)
-            mx, my = W * 0.5, H * 0.76                  # (2.96c: a little lower - room for his nose)
-            # the moustache tuft: a few short dark strokes
-            for i in range(6):
-                x = mx - W * 0.035 + i * W * 0.014
-                ln(d, [(x, my - H * 0.1), (x + W * 0.008, my - H * 0.05)], '#0c200a', lw * 0.6)
+            mx, my = W * 0.46, H * 0.74                 # (as drawn: the grin a touch to his right)
+            # (2.96d: no moustache tuft - at his size it read as a mole; the owner had it taken off)
             if f == 'wow':
                 E(d, mx, my + H * 0.04, W * 0.07, H * 0.08, '#2a0a0a', INK, lw)
                 d.chord((mx - W * 0.06, my - H * 0.03, mx + W * 0.06, my + H * 0.03), 0, 180, fill=hexc('#ffffff'))
@@ -784,40 +803,51 @@ def chase():
                 ln(d, [(mx + s * W * 0.19 * k, my - H * 0.03), (mx + s * W * 0.22 * k, my - H * 0.06)], INK, lw * 0.8)
         return R.t(f'face{"_" + f if f else ""}', face_tex(G, 5.6, 4.8, p, seed=62, hi=150, rim=GD, rim_a=120))
     for f in (None,) + FACES: face(f)
-    # (2.96c, the owner's look: the body was a round ball with a smaller one on it - his head again, upside down. Now a real
-    #  pear, as drawn: narrow under the neck, swelling to a full round bottom, flat where it sits on his legs)
-    SH = {None: (1.0, 1.0), 'squash': (1.15, 0.86), 'stretch': (0.88, 1.12)}           # (squash and stretch: width, height)
+    # (2.96c, the owner's art (ref/owner/buddies/chase.png): one gummy, no neck, no feet - his lower half is his head turned
+    #  upside down: the same round shape under the face, its three lobes hanging down where the top's stand up (the middle one
+    #  shortest). He floats a little over the ground. No nose; the eye on his right (the viewer's left) a little the bigger)
+    SH = {None: (1.0, 1.0), 'squash': (1.12, 0.85), 'stretch': (0.9, 1.15)}            # (squash and stretch: width, height)
+    lo = 6.0                                                                          # (the middle of the lower half)
 
     def body(v, f):
-        kw, kh = SH[v]; pv = (0, 4.4, 0)
-        return pear(1.8, 5.6 * kh, (2.3 * kw, 3.0 * kw, 1.25 * kw), goo, pv, zk=0.8, n=9)
-    R.part('body', (0, 4.4, 0), None, body, variants=('squash', 'stretch'))
+        kw, kh = SH[v]; pv = (0, lo, 0)
+        return ball((0, lo, 0), 2.8 * kw, goo, pv, yr=2.4 * kh, zr=2.1 * kw, n=7) + [
+            el((-1.6 * kw, lo - 0.2, -1.95 * kw), (-1.15 * kw, lo + 0.9, -1.9 * kw), gloss, pv, faces=('north',), light=4)]
+    R.part('body', (0, lo, 0), None, body, variants=('squash', 'stretch'))
     hy = 9.4
-    R.part('head', (0, 7.4, 0), 'body', lambda v, f: [
-        el((-1.1, 6.8, -1.0), (1.1, 7.8, 1.0), goo, (0, 7.4, 0)),                                                     # (the narrow neck)
-        *ball((0, hy, 0), 2.8, goo, (0, 7.4, 0), yr=2.4, zr=2.1, face=R.fk(f), n=7),
-        *ball((0, hy - 0.5, -2.1), 0.46, nose, (0, 7.4, 0), yr=0.33, zr=0.38, n=3)], faced=True)      # (2.96c: his nose, a little gummy bump)
-    for n, x, top in (('lober', 2.05, 3.4), ('lobem', 0.0, 2.2), ('lobel', -2.05, 3.4)):      # (three round lobes, the middle one shortest)
-        pv = (x, hy + 1.4, 0)
-        R.part(n, pv, 'head', (lambda pv, x, top: lambda v, f: ball((x * 1.0, hy + 1.3 + top / 2, 0), 0.85, goo, pv, yr=top / 2 + 0.55, zr=0.85, n=10) + [
-            el((x + 0.2, hy + top + 0.2, -0.92), (x + 0.5, hy + top + 0.9, -0.88), gloss, pv, faces=('north',), light=4)])(pv, x, top))
-    for s, n in ((1, 'armr'), (-1, 'arml')):                           # (stubby arm lobes)
-        pv = (s * 2.2, 5.6, 0)
-        R.part(n, pv, 'body', (lambda pv, s: lambda v, f: ball((pv[0] + s * 1.0, pv[1] - 0.8, 0), 0.75, goo, pv, yr=1.2, zr=0.75, n=4))(pv, s))
-    for s, n in ((1, 'legr'), (-1, 'legl')):                           # (stubby legs, round feet)
-        pv = (s * 1.4, 2.2, 0)
-        R.part(n, pv, 'body', (lambda pv, s: lambda v, f: ball((pv[0] + s * 0.2, 1.1, 0), 0.9, goo, pv, yr=1.2, zr=0.9, n=4) +
-                                                       ball((pv[0] + s * 0.35, 0.55, -0.5), 1.1, goo, pv, yr=0.55, zr=1.2, n=3))(pv, s))
+    R.part('head', (0, 7.7, 0), 'body', lambda v, f: [
+        *ball((0, hy, 0), 2.8, goo, (0, 7.7, 0), yr=2.4, zr=2.1, face=R.fk(f), n=7)], faced=True)
+    # (2.96d, the owner's word: the lobes go round his middle like an octopus's tentacles - three on top, three below, spaced
+    #  evenly round him (two to the front corners, one behind), each splaying out away from the middle; none left hanging
+    #  limp in front. Each is built standing straight, then tilted out on its own line: (x, z) where it grows, its tilt)
+    TENT = {'r': (1.8, -0.9, (-8.0, 0.0, -20.0)), 'l': (-1.8, -0.9, (-8.0, 0.0, 20.0)), 'm': (0.0, 1.5, (22.0, 0.0, 0.0))}
+
+    def lobe(x, z, base, top, ang, pv, down=False, shine=True):
+        k = -1 if down else 1
+        els = ball((x, base + k * top / 2, z), 0.85, goo, pv, yr=top / 2 + 0.55, zr=0.85, n=10)
+        if shine and not down:
+            els += [el((x + 0.2, base + top - 1.1, z - 0.92), (x + 0.5, base + top - 0.4, z - 0.88), gloss, pv, faces=('north',), light=4)]
+        a_ = ang if not down else (-ang[0], ang[1], -ang[2])
+        return turn(els, a_, mo((x, base, z), pv))
+    for key, (x, z, ang) in TENT.items():
+        top = 3.4 if key != 'm' else 3.0
+        pv = (x, hy + 1.4, z)
+        R.part('lobe' + key, pv, 'head', (lambda x, z, top, ang, pv: lambda v, f: lobe(x, z, hy + 1.3, top, ang, pv))(x, z, top, ang, pv))
+        pv2 = (x, lo - 1.4, z)
+        R.part('leg' + key, pv2, 'body', (lambda x, z, top, ang, pv: lambda v, f: lobe(x, z, lo - 1.3, top, ang, pv, down=True))(x, z, top, ang, pv2))
+    # (no arms of his own: the lobes hanging under him do for arms - the owner's word - swung out, up, forward)
     R.POSES.update({
-        'appear': dict(_face='wow', _v={'body': 'stretch'}, armr=L(('z', 70)), arml=L(('z', -70))),      # (2.96c: feet on the ground - he hovered)
-        'idle_a': dict(armr=L(('z', -10)), arml=L(('z', 10)), lober=L(('z', -6)), lobel=L(('z', 6))),
-        'idle_b': dict(_face='look', head=T(('y', -14), ('z', 6)), lober=L(('z', 16)), lobel=L(('z', 10)), lobem=L(('x', 10)), armr=L(('z', 40))),
-        'hop_0': dict(_v={'body': 'squash'}, _off=(0, -0.6, 0), lober=L(('z', -20)), lobel=L(('z', 20)), lobem=L(('x', -10))),
-        'hop_1': dict(_v={'body': 'stretch'}, _off=(0, 3.0, 0), lober=L(('z', 10)), lobel=L(('z', -10)), armr=L(('z', 40)), arml=L(('z', -40))),
-        'wind': dict(_face='fierce', _v={'body': 'squash'}, _off=(0, -0.4, 1.0), body=T(('x', 14)), armr=L(('x', 50)), arml=L(('x', 50))),
-        'strike': dict(_face='fierce', _v={'body': 'stretch'}, _off=(0, 0.4, -5.0), body=T(('x', -46)), armr=L(('x', -80)), arml=L(('x', -80)), lober=L(('x', 30)), lobel=L(('x', 30)), lobem=L(('x', 30))),
-        'happy': dict(_face='happy', _v={'body': 'stretch'}, armr=L(('z', 120)), arml=L(('z', -120)), lober=L(('z', -16)), lobel=L(('z', 16))),
-        'vanish': dict(_face='happy', _v={'body': 'squash'}, armr=L(('z', 90))),
+        'appear': dict(_face='wow', _v={'body': 'stretch'}, _off=(0, 1.6, 0), legr=L(('z', 50)), legl=L(('z', -50))),
+        'idle_a': dict(_off=(0, 1.0, 0), lober=L(('z', -6)), lobel=L(('z', 6)), legr=L(('z', 4)), legl=L(('z', -4))),
+        'idle_b': dict(_face='look', _off=(0, 1.5, 0), head=T(('y', -14), ('z', 6)), lober=L(('z', 16)), lobel=L(('z', 10)), lobem=L(('x', 10)),
+                       legr=L(('z', 40)), legl=L(('z', 6))),
+        'hop_0': dict(_v={'body': 'squash'}, _off=(0, 0.3, 0), lober=L(('z', -20)), lobel=L(('z', 20)), lobem=L(('x', -10)), legr=L(('z', 14)), legl=L(('z', -14))),
+        'hop_1': dict(_v={'body': 'stretch'}, _off=(0, 3.4, 0), lober=L(('z', 10)), lobel=L(('z', -10)), legr=L(('z', 40)), legl=L(('z', -40)), legm=L(('x', -14))),
+        'wind': dict(_face='fierce', _v={'body': 'squash'}, _off=(0, 0.6, 1.0), body=T(('x', 14)), legr=L(('x', -50)), legl=L(('x', -50))),
+        'strike': dict(_face='fierce', _v={'body': 'stretch'}, _off=(0, 1.2, -5.0), body=T(('x', -46)), lober=L(('x', 30)), lobel=L(('x', 30)),
+                       lobem=L(('x', 30)), legr=L(('x', 80)), legl=L(('x', 80)), legm=L(('x', 40))),
+        'happy': dict(_face='happy', _v={'body': 'stretch'}, _off=(0, 2.0, 0), lober=L(('z', -16)), lobel=L(('z', 16)), legr=L(('z', 120)), legl=L(('z', -120))),
+        'vanish': dict(_face='happy', _v={'body': 'squash'}, _off=(0, 1.0, 0), legr=L(('z', 90))),
     })
     return R.ns()
 
