@@ -115,7 +115,7 @@ def face(expr=None):
         d.rectangle((ix, top, ix + 2, y0 + 4), fill=P(IRIS_DK)); d.rectangle((ix, y0 + 2, ix + 2, y0 + 4), fill=P(IRIS))
         d.point((ix + 1, y0 + 4), fill=P(IRIS_LT))
         d.rectangle((ix + 1, y0 + 1, ix + 1, y0 + 2), fill=P(PUPIL))
-        d.point((ix + (2 if not flip else 0), top), fill=P('#ffffff'))
+        d.point((ix + 2, top), fill=P('#ffffff'))                                                 # (the glint: the same side in both)
         if lid: d.rectangle((x0, top, x0 + 8, top + lid - 1), fill=P(SKIN))
         d.line((x0, top + lid, x0 + 8, top + lid), fill=P(LID))
         d.point((x0 + (8 if not flip else 0), top + lid + 1), fill=P(LID))

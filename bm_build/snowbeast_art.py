@@ -63,7 +63,7 @@ def _face(kind=None):
         inner, outer = cx - sx * 9, cx + sx * 9
         top_in, top_out = (18, 12) if not squint else (19, 15)
         d.polygon([(inner, top_in + 2), (outer, top_out), (outer, top_out + 6), (cx, 26 if not squint else 23), (inner, top_in + 6)], fill=hexc(COAL))
-        d.polygon([(cx - sx * 3, 20), (cx + sx * 3, 18), (cx + sx * 2, 21)], fill=hexc('#f4f8fa'))     # (the glint)
+        d.polygon([(cx + 3, 20), (cx - 3, 18), (cx - 2, 21)], fill=hexc('#f4f8fa'))                    # (the glint: the same in both)
         d.line((inner + sx * 1, top_in - 2, outer, top_out - 6), fill=hexc('#9aa4ac'), width=2)          # (a creased brow)
     top = 35 if kind != 'roar' else 33
     lip = [(6, top + 5), (14, top), (22, top + 4), (32, top + 2), (42, top + 4), (50, top), (58, top + 5)]

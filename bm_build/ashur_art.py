@@ -139,7 +139,7 @@ def _face(kind=None):
                 px[x, top] = LINE; px[x, top - 1] = LINE                          # the heavy lid
             px[cx, cols[cx - x0][1] + 1] = PUP
             for y in range(cols[cx - x0][1] + 1, BOT - 1): px[cx, y] = PUP       # the slit pupil
-            gx = cx - 1 if not flip else cx + 1
+            gx = cx - 1                                                          # (the same side in both eyes: one light)
             px[gx, cols[gx - x0][1] + 2] = WHITE                                   # one glint
             ox, oy = (cols[0][0] - 1, cols[0][1] - 1) if not flip else (cols[-1][0] + 1, cols[-1][1] - 1)
             px[ox, oy] = LINE; px[ox + (-1 if not flip else 1), oy - 1] = LINE     # the lash flick

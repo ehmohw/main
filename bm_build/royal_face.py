@@ -20,7 +20,7 @@ def _put(im, x, y, c):
 
 def _eye(im, cx, y0, iris, flip, kind=None, lash=LASH, h=13):
     """one eye: (cx, y0) its top-centre. iris = (dark, mid, light, pupil). flip: the left-hand eye on the sheet (her right eye)
-    is drawn as is; the other mirrored (glint and lash flick to the outside)."""
+    is drawn as is; the other's lash flick mirrored to the outside (the glints sit the same way in both: one light)."""
     dark, mid, light, pupil = iris
     w = 10
     x0 = cx - w // 2
@@ -53,10 +53,10 @@ def _eye(im, cx, y0, iris, flip, kind=None, lash=LASH, h=13):
         for x in range(cx - 2, cx + 2):
             if not ((y in (y0 + 4, y0 + 9)) and x in (cx - 2, cx + 1)):
                 _put(im, x, y, pupil)
-    gx = cx - 3 if not flip else cx + 1
+    gx = cx - 3                                                                          # (the glints sit the same way in both eyes: one light)
     for dx, dy in ((0, 0), (1, 0), (0, 1), (1, 1), (2, 1), (1, 2)):
         _put(im, gx + dx, y0 + 2 + dy, '#ffffff')
-    _put(im, cx + (1 if not flip else -2), y0 + hh - 4, '#ffffff')
+    _put(im, cx + 1, y0 + hh - 4, '#ffffff')
     # the lash line over the top, thick; the flick at the outer corner; a soft lower lash
     for x in range(cx - 5, cx + 5):
         _put(im, x, top - 1, lash); _put(im, x, top, lash)

@@ -106,7 +106,7 @@ def bat_face(kind=None, chibi=False):
             else:
                 px = cx + 0.4 * s                                                          # (low and inward: sleepy)
                 d.rectangle(P(px - 0.7, y0 + 1.1) + P(px + 0.7, y1 - 0.15), fill=hexc(F.PUPIL))
-                d.rectangle(P(px - 0.5 * s - 0.15, y0 + 1.3) + P(px - 0.5 * s + 0.15, y0 + 1.7), fill=hexc('#ffffff'))
+                d.rectangle(P(px - 0.5 - 0.15, y0 + 1.3) + P(px - 0.5 + 0.15, y0 + 1.7), fill=hexc('#ffffff'))   # (the glint: the same side in both)
             if kind == 'angry':                                                            # (the brows down hard at the middle)
                 for i in range(12):
                     t = i / 11; x = x0 - 0.3 + (x1 - x0 + 0.6) * t

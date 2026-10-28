@@ -129,7 +129,7 @@ def _face(kind=None):
             cx = 10 if not flip else 29                                                      # the slit, straight ahead
             for y in range(10, 15):
                 P(cx, y, ink); P(cx + 1, y, ink)
-            P(cx - 2 if not flip else cx + 3, 11, white)
+            P(cx - 2, 11, white)                                                             # (the glint: the same side in both)
     # the brows: heavy bars over the eyes, slammed down toward the nose (3 texels deep)
     if kind != 'happy':
         for flip in (False, True):

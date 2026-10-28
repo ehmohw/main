@@ -63,7 +63,7 @@ def face(expr=None):
         d.polygon([(x0, y0 + 2), (x0 + 2, top), (x0 + 7, top), (x0 + 8, y0 + 2), (x0 + 6, y0 + 4), (x0 + 2, y0 + 4)], fill=P('#f4f0e8'))
         d.rectangle((x0 + 3, top, x0 + 5, y0 + 4), fill=P('#2f8a3a')); d.rectangle((x0 + 3, y0 + 2, x0 + 5, y0 + 4), fill=P('#56c45e'))
         d.rectangle((x0 + 4, y0 + 1, x0 + 4, y0 + 2), fill=P('#0e1a10'))
-        d.point((x0 + (5 if not flip else 3), top), fill=P('#ffffff'))
+        d.point((x0 + 5, top), fill=P('#ffffff'))                                                  # (the glint: the same side in both)
         if lid:                                                                              # (the upper lid lowered: narrowed)
             d.rectangle((x0, top, x0 + 8, top + lid - 1), fill=P(SKIN))
         d.line((x0, top + lid, x0 + 8, top + lid), fill=P(LID))                              # the upper lid

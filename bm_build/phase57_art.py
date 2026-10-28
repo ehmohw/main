@@ -182,9 +182,9 @@ def _face(eye_dark, eye_mid, eye_light, eye_glow, pupil):
         d.ellipse((x0 + 1, y0 + 5, x0 + 9, y0 + 13), fill=P(eye_mid))
         d.ellipse((x0 + 2, y0 + 8, x0 + 8, y0 + 13), fill=P(eye_light))
         d.ellipse((x0 + 3, y0 + 4, x0 + 7, y0 + 10), fill=P(pupil))
-        hx = x0 + 2 if not flip else x0 + 5
+        hx = x0 + 2                                            # (the shines sit the same way in both eyes: one light)
         d.ellipse((hx, y0 + 2, hx + 3, y0 + 5), fill=P('#ffffff'))
-        d.point((x0 + (6 if not flip else 3), y0 + 10), fill=P('#ffffff')); d.point((x0 + (7 if not flip else 2), y0 + 10), fill=P('#ffffff'))
+        d.point((x0 + 6, y0 + 10), fill=P('#ffffff')); d.point((x0 + 7, y0 + 10), fill=P('#ffffff'))
         d.arc((x0 - 1, y0 - 1, x0 + 11, y0 + 10), 195, 345, fill=P('#2a1610'), width=2)
         ox = x0 + 10 if not flip else x0; sx = 1 if not flip else -1
         d.line((ox, y0 + 2, ox + 2 * sx, y0), fill=P('#2a1610'), width=1); d.point((ox + sx, y0 + 4), fill=P('#2a1610'))

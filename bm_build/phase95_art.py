@@ -33,9 +33,9 @@ def emma_face(expr, eye_dark, eye_mid, eye_light, eye_glow, pupil):
         d.ellipse((x0 + 1, y0 + 5, x0 + 9, y0 + 13), fill=P(eye_mid))
         d.ellipse((x0 + 2, y0 + 8, x0 + 8, y0 + 13), fill=P(eye_light))
         d.ellipse((x0 + 3, y0 + 4, x0 + 7, y0 + 10), fill=P(pupil))
-        hx = x0 + 2 if not flip else x0 + 5
+        hx = x0 + 2                                                                 # (the shines sit the same way in both eyes: one light)
         d.ellipse((hx, y0 + 2, hx + 3, y0 + 5), fill=P('#ffffff'))
-        d.point((x0 + (6 if not flip else 3), y0 + 10), fill=P('#ffffff')); d.point((x0 + (7 if not flip else 2), y0 + 10), fill=P('#ffffff'))
+        d.point((x0 + 6, y0 + 10), fill=P('#ffffff')); d.point((x0 + 7, y0 + 10), fill=P('#ffffff'))
         if lid:                                                                     # (serious: the upper lid comes down)
             d.rectangle((x0 - 1, y0 - 1, x0 + 11, y0 + lid), fill=P('#f7d7bf'))
             d.line((x0 - 1, y0 + lid, x0 + 11, y0 + lid), fill=P(LASH), width=2)
@@ -59,7 +59,7 @@ def emma_face(expr, eye_dark, eye_mid, eye_light, eye_glow, pupil):
         d.ellipse((x0 + 2, y0 + 3, x0 + 8, y0 + 11), fill=P(eye_dark))
         d.ellipse((x0 + 2, y0 + 6, x0 + 8, y0 + 11), fill=P(eye_mid))
         d.ellipse((x0 + 4, y0 + 5, x0 + 6, y0 + 8), fill=P(pupil))
-        d.point((x0 + (3 if not flip else 6), y0 + 4), fill=P('#ffffff'))
+        d.point((x0 + 3, y0 + 4), fill=P('#ffffff'))
         d.arc((x0 - 2, y0 - 2, x0 + 12, y0 + 10), 195, 345, fill=P(LASH), width=2)
         ox = x0 + 11 if not flip else x0 - 1; sx = 1 if not flip else -1
         d.line((ox, y0 + 1, ox + 2 * sx, y0 - 1), fill=P(LASH), width=1)
@@ -184,7 +184,7 @@ def celi_face(expr):
         d.line((x0 - 1, y0 + 5, x0 + 11, y0 + 5), fill=P(LID), width=2)
         ox = x0 + 11 if not flip else x0 - 1; sx = 1 if not flip else -1
         d.line((ox, y0 + 5, ox + 2 * sx, y0 + 3), fill=P(LID), width=1)
-        if not squint: d.point((cx + (2 if not flip else -2) + look, y0 + 7), fill=P('#ffffff'))
+        if not squint: d.point((cx + 2 + look, y0 + 7), fill=P('#ffffff'))
     def shut(cx, flip, down=True):
         x0, y0 = cx - 5, 14
         d.ellipse((x0 - 1, y0 - 2, x0 + 11, y0 + 6), fill=P('#a888d8'))
@@ -198,7 +198,7 @@ def celi_face(expr):
         d.ellipse((x0, y0 - 2, x0 + 10, y0 + 9), fill=P('#fff6c0'))
         d.ellipse((x0 + 3, y0 + 1, x0 + 7, y0 + 6), fill=P('#f4c830')); d.ellipse((x0 + 4, y0 + 2, x0 + 6, y0 + 5), fill=P('#c88a10'))
         d.arc((x0 - 1, y0 - 3, x0 + 11, y0 + 8), 200, 340, fill=P(LID), width=2)
-        d.point((x0 + (4 if not flip else 6), y0 + 2), fill=P('#ffffff'))
+        d.point((x0 + 4, y0 + 2), fill=P('#ffffff'))
     if expr in (None, 'serious'):
         eye(9, False); eye(27, True)
     elif expr == 'surprised':

@@ -34,8 +34,14 @@ if 'faces' in what:
     for f in (None,) + A.FACES:
         pose = {k: v for k, v in dict(A.POSES['idle_a'], _face=f, body=None).items() if v is not None}
         s = K.multi_scene(root); rigkit.render(s, A, pose, scale=A.RIG_SCALE)
-        tiles.append(K.label(s.render('front', size=260, span=0.95, center=(0, 0.72, 0)), f or 'default'))
+        tiles.append(K.label(s.render('front', size=260, span=0.9, center=(0, 0.52, 0)), f or 'default'))
     K.sheet(tiles, OUT + '/ink_blot_faces.png', cols=9, title='The Ink Blot - faces')
+if 'figurine' in what or 'lineup' in what:
+    # (the display case's figurine: phase134 solves idle_a at RIG_SCALE - every part must sit within the body's height)
+    import phase134
+    for mid, tr, L, R, sc in phase134._rigkit(A, A.POSES['idle_a'], A.RIG_SCALE):
+        print('figurine', mid, 'translation (blocks)', tuple(round(v, 3) for v in tr))
+        assert -0.8 <= tr[0] <= 0.8 and 0.0 <= tr[1] <= 1.5 and -0.8 <= tr[2] <= 0.8, (mid, tr)
 if 'lineup' in what:
     rc = K.pack(CA, OUT + '/rp_mz')
     s = K.multi_scene(root, rc, K.REAL_RP)

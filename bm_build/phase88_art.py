@@ -74,7 +74,7 @@ def _bat_face():
         d.rectangle(P(x0, y1 - 0.5) + P(x1, y1), fill=hexc(EYE_DK))
         px = cx + 0.4 * s                                                                     # pupil: low and inward (sleepy)
         d.rectangle(P(px - 0.7, y0 + 1.1) + P(px + 0.7, y1 - 0.15), fill=hexc(PUPIL))
-        d.rectangle(P(px - 0.5 * s - 0.15, y0 + 1.3) + P(px - 0.5 * s + 0.15, y0 + 1.7), fill=hexc('#ffffff'))
+        d.rectangle(P(px - 0.5 - 0.15, y0 + 1.3) + P(px - 0.5 + 0.15, y0 + 1.7), fill=hexc('#ffffff'))   # (the glint: the same side in both)
         d.rectangle(P(x0 - 0.3, y0 - 0.3) + P(x1 + 0.3, y0 + 1.0), fill=hexc(FUR_DK))          # the heavy lid, half shut
         d.rectangle(P(x0 - 0.3, y0 + 0.9) + P(x1 + 0.3, y0 + 1.2), fill=hexc(INK))
         d.rectangle(P(cx - 1.3 * s - 0.6, 1.0) + P(cx - 1.3 * s + 0.6, 1.45), fill=hexc(INK))  # a little brow at the inner end

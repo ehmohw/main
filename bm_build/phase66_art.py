@@ -49,7 +49,7 @@ def _face():
         d.line((x0 - 1, y0 + 5, x0 + 11, y0 + 5), fill=P('#2a1a3a'), width=2)              # the lid line
         ox = x0 + 11 if not flip else x0 - 1; sx = 1 if not flip else -1
         d.line((ox, y0 + 5, ox + 2 * sx, y0 + 3), fill=P('#2a1a3a'), width=1)              # lashes flick out
-        d.point((cx + (2 if not flip else -2), y0 + 7), fill=P('#ffffff'))
+        d.point((cx + 2, y0 + 7), fill=P('#ffffff'))                                       # (the glint: the same side in both)
     eye(9, False); eye(27, True)
     for cx, s in ((9, 1), (27, -1)):                                                       # brows: orange, low, a little cross
         for dx, y in ((-4, 11), (-3, 10), (-2, 10), (-1, 10), (0, 10), (1, 10), (2, 11)): im.putpixel((cx + dx * s, y), P('#d06a20'))

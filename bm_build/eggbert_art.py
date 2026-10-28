@@ -50,8 +50,9 @@ def textures():
 
 # ---------------------------------------------------------------------------------------------------- models
 def _eyes(face=None, chibi=False):
-    """the two eyes in the crack, each at a low point of its zigzag (the big one his right, the small one his left); the left
-    eye's picture is mirrored, so an angry slant meets in the middle"""
+    """the two eyes in the crack, each at a low point of its zigzag (the big one his right, the small one his left); both show
+    the picture as it is, so the glints sit the same way in both eyes (one light) - but for angry, where the left eye's picture
+    is mirrored so the slant meets in the middle"""
     tex = f'ge_eye_{face}' if face else 'ge_eye'
     tex += CHIBI if chibi else ''
     pv = (0, 0, 0)
@@ -64,7 +65,7 @@ def _eyes(face=None, chibi=False):
     return [el((xa - big[0], yb - big[1], z0), (xa + big[0], yb + big[1], -5.8), tex, pv, faces=('north', 'east', 'west', 'up', 'down'),
                uv={'north': [0, 0, 16, 16]}),
             el((xb - small[0], ys - small[1], z0), (xb + small[0], ys + small[1], -5.8), tex, pv, faces=('north', 'east', 'west', 'up', 'down'),
-               uv={'north': [16, 0, 0, 16]})]
+               uv={'north': [16, 0, 0, 16] if face == 'angry' else [0, 0, 16, 16]})]
 
 
 def models():
