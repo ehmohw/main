@@ -131,8 +131,8 @@ if 'items' in what:
         for v, l in (('front', 'front'), ((-32, 12), '3/4'), ('side', 'side')):
             s = K.multi_scene(ROOT)
             s.solid((-0.5, -1.0, -0.5), (0.5, 0.0, 0.5), '#5a5a62' if kind == 'dread' else '#8a8e96')          # (the block it was placed on)
-            s.display(f'bm:item/{A.STATUES[kind]}', pos=(0, 0.5, 0), yaw=180.0, ctx='fixed')      # (item_display 'fixed' at the air block's centre; facing the viewer)
-            steve(s, (1.4, 0, 0.3), yaw=0)
+            s.display(f'bm:item/{A.STATUES[kind]}', pos=(0, 0.5, 0), yaw=0.0, ctx='fixed')        # (item_display 'fixed' at the air block's centre, yaw 0: facing south, the viewer)
+            steve(s, (1.5, 0, 1.2), yaw=0)
             floor(s, kind, 3.0)
             im = s.render(v, size=380, span=4.2, center=(0.4, 1.3, 0))
             tiles.append(label(im, f'{A.STATUES[kind]} - placed', f'{l}; item_display fixed, scale 1'))
