@@ -4,6 +4,8 @@ poses    every pose, beside a player
 items    the two icons (vanilla.process'd, as shipped) at 8x, and 1x / 2x in a slot, beside vanilla items
 turn     idle_a and rise_2: front, 3/4, side, back, from above
 night    a dark sheet: dormant, rise_2, grab_0 - unlit (moonlight) vs drawn at full brightness (GLOW), light_emission bright
+mouth    the maw close: shut, half open, wide - front and 3/4 - the 2.99a first draft (single jaw; $MR_BEFORE, a copy of the old
+         mire_art.py) above the jagged petal maw
 The scratch pack is written through mire_art.rp (as gen_rp would, its POST included). PNGs to $MR_OUT
 (default /home/user/main/previews/v299a_mire). tools/render has no lights: the dark tiles tint each face after the scene is
 built (pale_dryad.py's way) - unlit faces dimmed to moonlight, light_emission faces kept bright in proportion to their level."""
@@ -20,7 +22,7 @@ import vanilla
 
 OUT = os.environ.get('MR_OUT', '/home/user/main/previews/v299a_mire'); os.makedirs(OUT, exist_ok=True)
 ROOT = os.path.join(os.environ.get('MR_TMP', K.OUT), 'rp_mire')
-what = sys.argv[1].split(',') if len(sys.argv) > 1 else ['lineup', 'poses', 'items', 'turn', 'night']
+what = sys.argv[1].split(',') if len(sys.argv) > 1 else ['lineup', 'poses', 'items', 'turn', 'night', 'mouth']
 try:
     FNB = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 16); FNT = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 13)
 except OSError:
@@ -187,8 +189,8 @@ if 'turn' in what:
         for v, l in (('front', 'front'), ((-35, 14), '3/4'), ('side', 'side'), ('back', 'back'), ((-20, 60), 'from above')):
             tiles.append(tile(n, view=v, size=380, text=n, sub=l, player=False))
     tiles.append(tile('dormant', view=(-25, 35), size=380, span=7.0, center=(0, 0.2, 0), text='dormant', sub='the puddle, close', player=False))
-    tiles.append(tile('shriek', view=(-10, 8), size=380, span=5.0, center=(0, 4.6, -0.6), text='shriek', sub='the mouth, close', player=False))
-    tiles.append(tile('rise_2', view=(-10, 12), size=380, span=4.6, center=(0, 4.6, -0.8), text='rise_2', sub='the head, close', player=False))
+    tiles.append(tile('shriek', view=(-10, 8), size=380, span=5.0, center=(0, 5.0, 0.9), text='shriek', sub='the maw, close', player=False))
+    tiles.append(tile('rise_2', view=(-35, 12), size=380, span=4.6, center=(0, 4.8, 1.0), text='rise_2', sub='the head, close', player=False))
     tiles.append(tile('idle_a', view=(-40, 5), size=380, span=5.0, center=(1.6, 3.2, -1.2), text='idle_a', sub='a tentacle, close', player=False))
     p = os.path.join(OUT, 'mire_turn.png'); K.sheet(tiles, p, cols=5, title='The Dread Mire - turnarounds and close-ups'); print(p)
 
@@ -226,3 +228,28 @@ if 'items' in what:
         d.rectangle((hx + i * 40, 216, hx + i * 40 + 35, 251), fill=(139, 139, 139)); strip.paste(big, (hx + i * 40 + 2, 218), big)
     d.text((hx, 258), 'a hotbar (2x): the remnant, the musk - beside ink sac, honey bottle, potion, echo shard, slimeball', fill=(30, 30, 30), font=FNT)
     p = os.path.join(OUT, 'mire_items.png'); strip.save(p); print(p)
+
+# ---------------------------------------------------------------------------------------------------- the maw, before / after
+if 'mouth' in what:
+    import importlib.util
+    src = os.environ.get('MR_BEFORE', os.path.join(os.environ.get('MR_TMP', K.OUT), 'before', 'mire_before.py'))
+    rows = []
+    if os.path.exists(src):
+        spec = importlib.util.spec_from_file_location('mire_before', src); B = importlib.util.module_from_spec(spec); sys.modules['mire_before'] = B; spec.loader.exec_module(B)
+        A_, ROOT_ = A, ROOT
+        A = B; ROOT = os.path.join(os.environ.get('MR_TMP', K.OUT), 'rp_mire_before'); build_pack(ROOT)
+        A, ROOT_B, ROOT = A_, ROOT, ROOT_
+        rows.append(('before (2.99a draft: one jaw)', B, ROOT_B, [(n, dict(B.POSES['rise_2'], jaw=B.JAW(a))) for n, a in (('shut', 0), ('half open', 22), ('wide', 60))]))
+    base = {k: v for k, v in A.POSES['rise_2'].items() if k not in A.MAW}
+    rows.append(('after (the jagged maw: four petals)', A, ROOT, [(n, dict(base, **A.MAWOPEN(a))) for n, a in (('shut', 0), ('half open', 26), ('wide (shriek)', 78))]))
+    tiles = []
+    for title, M, root, poses in rows:
+        for n, pz in poses:
+            c = rigkit.point(M, pz, 'head', (0.0, 37.0, -4.0), scale=M.SCALE)
+            pz = dict(pz, _hide=tuple(p for p in M.PARTS if p[0] == 't' and p[1].isdigit()))       # (the tentacles out of the way)
+            for v, l in (((-14, 10), 'front'), ((-62, 10), '3/4, from its side')):
+                s = K.multi_scene(root); rigkit.render(s, M, pz, scale=M.SCALE)
+                im = s.render(v, size=340, span=4.2, center=(c[0], c[1] - 0.2, c[2]))
+                tiles.append(label(im, f'{title.split(" (")[0]}: {n}', l))
+    p = os.path.join(OUT, 'mire_mouth.png')
+    K.sheet(tiles, p, cols=6, title='The Dread Mire - its maw: the first draft (top), the jagged petal maw (below) - shut, half open, wide (tentacles hidden)'); print(p)

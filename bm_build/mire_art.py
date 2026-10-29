@@ -86,19 +86,34 @@ OUT = {t: tuple(v / math.hypot(*d) for v in d) for t, d in
        {'t1': (0.8, 0.0, -0.6), 't2': (-0.8, 0.0, -0.6), 't3': (0.8, 0.0, 0.6), 't4': (-0.8, 0.0, 0.6)}.items()}
 
 PIVOT = {'puddle': (0.0, 0.0, 0.0), 'mound': (0.0, 1.0, 0.0), 'seg1': (0.0, 8.0, 0.0), 'seg2': (0.0, 16.0, 0.3),
-         'seg3': (0.0, 24.0, 0.5), 'head': (0.0, 31.5, 1.0), 'jaw': (0.0, 37.0, -1.0)}
-PARENT = {'puddle': None, 'mound': 'puddle', 'seg1': 'mound', 'seg2': 'seg1', 'seg3': 'seg2', 'head': 'seg3', 'jaw': 'head'}
+         'seg3': (0.0, 24.0, 0.5), 'head': (0.0, 31.5, 1.0)}
+PARENT = {'puddle': None, 'mound': 'puddle', 'seg1': 'mound', 'seg2': 'seg1', 'seg3': 'seg2', 'head': 'seg3'}
+# the maw: a stepped spearhead on the head's front, four petals hinged round its base ring (centre CY, base plane ZB, half-size
+# MR), MN steps over ML to its point, plates MT thick. PETAL[name] = quarter turns (seen from the front) from the top one
+CY, ZB, MR, ML, MN, MT = 37.0, -1.6, 5.0, 14.0, 6, 1.6
+PETAL = {'maw_u': 0, 'maw_r': 1, 'jaw': 2, 'maw_l': 3}
+MAW = tuple(PETAL)
+
+
+def _qt(dx, dy, k):
+    """(dx, dy) about the maw's axis turned k quarter turns: the top (0, +1) -> its right (+1, 0) -> the bottom -> its left"""
+    for _ in range(k % 4): dx, dy = dy, -dx
+    return dx, dy
+
+
+for _m, _k in PETAL.items():
+    _dx, _dy = _qt(0.0, MR, _k); PIVOT[_m] = (_dx, CY + _dy, ZB); PARENT[_m] = 'head'
 for _t in TENT:
     _x, _y, _z = ROOT[_t]
     PIVOT[_t + 'a'] = (_x, _y, _z); PIVOT[_t + 'b'] = (_x, _y + LEN['a'], _z); PIVOT[_t + 'c'] = (_x, _y + LEN['a'] + LEN['b'], _z)
     PARENT[_t + 'a'] = 'seg3'; PARENT[_t + 'b'] = _t + 'a'; PARENT[_t + 'c'] = _t + 'b'
 PARTS = tuple(PIVOT)
-TRUNK = ('mound', 'seg1', 'seg2', 'seg3', 'head', 'jaw')
+TRUNK = ('mound', 'seg1', 'seg2', 'seg3', 'head') + MAW
 TPARTS = tuple(t + s for t in TENT for s in SEGS)
 PART_K = {}                                     # (every part fits its model box at its own size)
 GLOW = PARTS                                    # (phase246: brightness 15 on these - see the docstring)
 TIP = {t: (t + 'c', tuple(PIVOT[t + 'c'][i] + APEX[i] for i in range(3))) for t in TENT}
-MOUTH = ('head', (0.0, 34.3, -3.0))
+MOUTH = ('head', (0.0, CY, ZB - 0.3))
 
 
 def model_id(part):
@@ -191,6 +206,23 @@ EMBER = ['dddddddddddddddd',
          'cccddeeddddddddd',
          'dcdddeeddddddcdd',
          'dddddddddddddddd']
+# the maw's lining: a deep, dark wet red, lit - darker squares, a few brighter ones (deeper in, the throat is brighter: ember, hot)
+MAWT = ['aaaaaaaaaaaaaaaa',
+        'abbaaaaaaaaOOaaa',
+        'abbaaaaaaaaOOaaa',
+        'aaaaaaOOaaaaaaaa',
+        'aaaaaaOOaaaaabba',
+        'aaaaaaaaaaaaabba',
+        'aOOaaaaaaaaaaaaa',
+        'aOOaaaaaabbaaaaa',
+        'aaaaaaaaabbaaaaa',
+        'aaaaaaaaaaaaaOOa',
+        'aaaabbaaaaaaaOOa',
+        'aaaabbaaaaaaaaaa',
+        'aaaaaaaaOOaaaaaa',
+        'aaOOaaaaOOaaabba',
+        'aaOOaaaaaaaaabba',
+        'aaaaaaaaaaaaaaaa']
 ANIMATED = {}                                                       # {texture: its .png.mcmeta}
 
 
@@ -268,7 +300,8 @@ def _barb():
 def textures():
     """{name: RGBA} for assets/bm/textures/block (the animated ones are strips; rp's post writes their .mcmeta)"""
     T = {'mr_hide': _grid(HIDE), 'mr_rib': _grid(RIB), 'mr_fold': _grid(FOLD), 'mr_ember': _grid(EMBER),
-         'mr_fang': _fang(), 'mr_drip': _drip(), 'mr_barb': _barb(), 'mr_void': _grid(['0' * 16] * 16)}
+         'mr_fang': _fang(), 'mr_drip': _drip(), 'mr_barb': _barb(), 'mr_void': _grid(['0' * 16] * 16),
+         'mr_maw': _grid(MAWT), 'mr_spine': _grid(['aaaaaaaaaaaaaaaa', 'aaaaaaaaaaaaaaaa'] + ['OOOOOOOOOOOOOOOO'] * 2 + ['oooooooooooooooo'] * 3 + ['3333333333333333'] * 3 + ['2222222222222222'] * 5 + ['1111111111111111']), 'mr_hot': _grid(['f' * 16] * 2 + ['ffeeeeeeeeeeeeff'] + ['feeeeeeeeeeeeeef'] * 11 + ['ffeeeeeeeeeeeeff'] + ['f' * 16])}
     pulse = [1.0, 0.94, 0.82, 0.68, 0.58, 0.68, 0.82, 0.94]
     T['mr_glow'] = _strip([_vein_frame(k) for k in pulse])
     T['mr_pool'] = _strip([_pool_frame(i, 8) for i in range(8)])
@@ -277,9 +310,9 @@ def textures():
     return T
 
 
-MATS = ('hide', 'rib', 'fold', 'ember', 'fang', 'drip', 'barb', 'void', 'glow', 'pool')
-LIGHT = {'glow': 15, 'ember': 15}                                   # (light_emission by material; the puddle's layers set their own)
-FULL = {'fang', 'drip', 'barb'}                                     # (the whole texture on every face)
+MATS = ('hide', 'rib', 'fold', 'ember', 'fang', 'drip', 'barb', 'void', 'glow', 'pool', 'maw', 'hot', 'spine')
+LIGHT = {'glow': 15, 'ember': 15, 'maw': 15, 'hot': 15}                                   # (light_emission by material; the puddle's layers set their own)
+FULL = {'fang', 'drip', 'barb', 'spine'}                                     # (the whole texture on every face)
 F6 = ('north', 'south', 'east', 'west', 'up', 'down')
 
 # ---------------------------------------------------------------------------------------------------- building helpers
@@ -504,68 +537,94 @@ def _seg3():
     return S
 
 
-MOUTH_Y = 37.1                                                       # (the lips' seam)
-
-
 def _head():
+    """the head-mass behind the maw: swollen, bulging, the hood down its back, brain-like folds over its crown, pustules; on its
+    front the throat (lit, deepest at its hot centre) ringed with black fangs; pinprick eyes scattered round the maw's base"""
     H = []
-    # the mass: a swollen dome over the throat, bulging at its sides, the hood flaring down its back
-    H += [E((-6.0, 32.4, -1.8), (6.0, 40.6, 6.8), 'hide'), E((-5.0, 31.6, -2.2), (5.0, 41.6, 7.6), 'hide'),
+    H += [E((-6.0, 32.4, ZB), (6.0, 40.6, 6.8), 'hide'), E((-5.0, 31.6, ZB), (5.0, 41.6, 7.6), 'hide'),
           E((-6.9, 33.8, -0.6), (6.9, 39.0, 5.0), 'hide'),
           E((-5.6, 28.4, 5.8), (5.6, 34.4, 8.6), 'rib'), E((-4.4, 27.2, 6.6), (4.4, 30.0, 9.0), 'rib'),       # (the hood)
           E((-6.6, 29.6, 3.2), (-5.4, 34.6, 7.2), 'rib'), E((5.4, 29.6, 3.2), (6.6, 34.6, 7.2), 'rib')]
-    # the upper lip over the mouth, its heavy brow; the cheeks down either side of the jaw (the ring's sides)
-    H += [E((-6.0, MOUTH_Y + 0.1, -8.4), (6.0, 41.0, -1.8), 'hide'), E((-5.0, 40.8, -7.6), (5.0, 41.8, -1.8), 'hide'),
-          E((-4.6, 39.0, -9.0), (4.6, 41.0, -8.4), 'fold'), E((-2.4, 40.6, -9.4), (2.4, 41.8, -8.8), 'fold')]
-    for sx in (1, -1):
-        x0, x1 = sorted((sx * 4.85, sx * 6.4))
-        b0, b1 = sorted((sx * 5.6, sx * 6.9))
-        H += [E((x0, 31.4, -8.0), (x1, MOUTH_Y + 0.2, -1.8), 'hide'), E((b0, 32.0, -7.4), (b1, 35.0, -3.0), 'hide')]
-    # the crown: brain-like folds, staggered
-    for (x0, x1, z0, z1, hh) in ((-4.8, -0.6, -6.6, -5.0, 1.2), (0.6, 4.6, -6.0, -4.4, 1.0), (-5.2, -1.4, -3.4, -1.8, 1.0),
-                                 (-0.2, 5.0, -2.8, -1.2, 1.3), (-4.6, 0.4, 0.2, 1.8, 1.2), (1.4, 5.2, 0.8, 2.4, 1.0),
-                                 (-4.0, 3.0, 3.4, 5.0, 1.1), (-3.0, 3.6, 5.8, 7.2, 0.9)):
+    for (x0, x1, z0, z1, hh) in ((-4.8, -0.6, -1.4, 0.0, 1.2), (0.6, 4.6, -1.0, 0.6, 1.0), (-5.2, -1.4, 1.2, 2.8, 1.0),
+                                 (-0.2, 5.0, 1.6, 3.2, 1.3), (-4.6, 0.4, 3.8, 5.2, 1.2), (1.4, 5.2, 4.4, 5.8, 1.0), (-3.0, 3.6, 6.0, 7.2, 0.9)):
         H.append(E((x0, 41.4, z0), (x1, 41.6 + hh, z1), 'fold'))
-    H += [E((-0.8, 42.0, -6.0), (0.8, 43.2, 0.0), 'fold')]
-    # pustules, swollen and glossy, a crack of light in each
-    H += [E((6.6, 36.4, 0.6), (7.8, 39.0, 3.6), 'hide'), E((7.75, 37.4, 1.6), (7.95, 38.1, 2.6), 'glow'),
-          E((-7.6, 38.0, 1.4), (-6.6, 40.0, 3.8), 'hide'), E((-7.75, 38.6, 2.2), (-7.55, 39.4, 2.9), 'glow'),
+    H += [E((-0.8, 42.0, -1.2), (0.8, 43.2, 3.0), 'fold')]
+    H += [E((6.6, 36.4, 1.6), (7.8, 39.0, 4.2), 'hide'), E((7.75, 37.4, 2.4), (7.95, 38.1, 3.4), 'glow'),        # (pustules)
+          E((-7.6, 34.6, 1.4), (-6.6, 36.6, 3.8), 'hide'), E((-7.75, 35.2, 2.2), (-7.55, 36.0, 2.9), 'glow'),
           E((-3.0, 37.8, 7.4), (0.2, 40.2, 8.6), 'hide'), E((-1.8, 38.6, 8.55), (-0.8, 39.2, 8.75), 'glow')]
-    # veins from the mouth's corners back over the head
-    for sx in (1, -1):
-        H += VEIN([(35.4, -6.4), (35.4, -2.6), (37.4, -2.6), (37.4, 0.6)], 'x', sx * 6.9, sx)
+    H += VEIN([(35.0, -0.4), (35.0, 2.0), (36.4, 2.0), (36.4, 4.8)], 'x', 6.9, 1)                          # (veins back from the maw)
+    H += VEIN([(38.2, -0.4), (38.2, 0.8), (37.0, 0.8), (37.0, 4.6)], 'x', -6.9, -1)
     H += VEIN([(-1.6, 33.0), (-1.6, 35.4), (1.6, 35.4), (1.6, 38.0)], 'z', 7.6, 1)
-    # inside, all lit: the roof, the cheeks' walls, the throat - and a ring of black fangs round the throat's hole
-    H += [E((-4.6, MOUTH_Y, -7.4), (4.6, MOUTH_Y + 0.2, -1.8), 'ember'),
-          E((-4.9, 31.8, -7.2), (-4.75, MOUTH_Y, -1.9), 'ember'), E((4.75, 31.8, -7.2), (4.9, MOUTH_Y, -1.9), 'ember'),
-          E((-4.6, 31.4, -2.0), (4.6, MOUTH_Y + 0.1, -1.7), 'ember'),
-          E((-1.6, 32.6, -2.06), (1.6, 35.8, -1.95), 'void')]
-    ring = {f: [6, 0, 10, 16] for f in F6}
-    for k in range(8):
-        a = 2 * math.pi * k / 8 + math.pi / 8; x, y = 2.7 * math.cos(a), 34.2 + 2.5 * math.sin(a)
-        H.append(E((x - 0.4, y - 0.4, -3.9), (x + 0.4, y + 0.4, -2.0), 'fang', uv=ring))
-    # the fangs round the opening: hanging from the lip, uneven; jutting in from the cheeks
-    for x, ln in ((-3.6, 2.4), (-1.2, 1.6), (1.2, 2.2), (3.5, 1.7)):
-        H.append(E((x - 0.45, MOUTH_Y + 0.1 - ln, -7.9), (x + 0.45, MOUTH_Y + 0.1, -7.0), 'fang'))
-    side = {f: [0, 0, 16, 16] for f in F6}
-    for sx in (1, -1):
-        for y, ln in ((35.6, 1.5), (33.4, 1.2)):
-            x0, x1 = sorted((sx * 4.85, sx * (4.85 - ln)))
-            H.append(E((x0, y - 0.4, -7.7), (x1, y + 0.4, -6.9), 'fang', uv=side))
+    # the throat: a deep red well, its heat at the centre; a ring of black fangs round it, uneven
+    H += [E((-3.7, CY - 3.7, ZB - 0.1), (3.7, CY + 3.7, ZB), 'maw'), E((-2.4, CY - 2.2, ZB - 0.18), (2.2, CY + 2.4, ZB - 0.1), 'ember'),
+          E((-0.7, CY - 0.5, ZB - 0.26), (0.5, CY + 0.7, ZB - 0.18), 'hot')]
+    dark = {f: [0, 0, 16, 5] for f in F6}
+    for k, ln in enumerate((1.6, 1.0, 1.9, 1.2, 1.5, 0.8, 2.0, 1.1)):
+        an = 2 * math.pi * k / 8 + 0.3; x, y = 3.0 * math.cos(an), CY + 3.0 * math.sin(an)
+        H.append(E((x - 0.4, y - 0.4, ZB - 0.1 - ln), (x + 0.4, y + 0.4, ZB - 0.1), 'fang', uv=dark))
+    # pinprick eyes round the maw's base: a cluster on its right, two on its left, one low
+    for (x, y, z, sd) in ((6.0, 38.6, -0.9, 1), (6.0, 37.8, -0.2, 1), (6.9, 38.9, 0.4, 1), (-6.0, 35.0, -0.4, -1), (-6.9, 36.0, 0.9, -1)):
+        x0, x1 = sorted((x - 0.08 * sd, x + 0.12 * sd))
+        H.append(E((x0, y - 0.25, z - 0.25), (x1, y + 0.25, z + 0.25), 'hot'))
+    H.append(E((-5.85, 33.0, ZB - 0.12), (-5.35, 33.5, ZB + 0.02), 'hot'))
+    H.append(E((5.35, 40.0, ZB - 0.12), (5.85, 40.5, ZB + 0.02), 'hot'))
     return H
 
 
-def _jaw():
-    J = [E((-4.7, 31.0, -8.4), (4.7, MOUTH_Y - 0.1, -1.0), 'hide'), E((-4.0, 30.4, -7.6), (4.0, 31.2, -1.6), 'hide'),
-         E((-4.4, MOUTH_Y - 0.4, -7.2), (4.4, MOUTH_Y - 0.04, -1.2), 'ember'),                        # (the floor of the mouth, lit)
-         E((-4.4, 33.0, -8.9), (4.4, 35.4, -8.4), 'fold'), E((-2.0, 31.4, -9.2), (2.0, 33.2, -8.4), 'fold')]
-    lower = {f: [0, 16, 16, 0] for f in F6}                                                           # (point up: the texture flipped)
-    for x, ln in ((-2.6, 2.0), (0.0, 1.4), (2.5, 2.2)):
-        J.append(E((x - 0.45, MOUTH_Y - 0.1, -7.9), (x + 0.45, MOUTH_Y - 0.1 + ln, -7.0), 'fang', uv=lower))
-    for sx in (1, -1):
-        J += VEIN([(32.2, -7.8), (32.2, -4.6), (34.2, -4.6), (34.2, -1.6)], 'x', sx * 4.7, sx)
-    J += DRIP(-2.8, 30.8, -7.4, 3.4) + DRIP(1.4, 30.8, -7.8, 2.2, 0.6, 1.1) + DRIP(3.4, 31.2, -6.0, 4.4)
-    return J
+TIPX = {'maw_u': 'hook', 'maw_r': 2.4, 'jaw': 1.7, 'maw_l': 1.0}       # (each petal's point: the top one a hooked beak, the rest uneven)
+
+
+def _petal(name):
+    """one petal of the maw, built as the top one (a stepped plate sloping to the point, its lining lit, uneven fangs hanging off
+    its inside, a jagged spine and serrated corners outside) and turned into its place round the axis"""
+    k = PETAL[name]; rnd = random.Random(311 + 17 * k); B = []
+    for i in range(MN):
+        h = MR * (1 - i / MN); z0 = ZB - i * ML / MN; z1 = z0 - ML / MN; zc = (z0 + z1) / 2; tt = min(MT, h); inner = h - tt
+        B.append(((-h + 0.06, inner, z1), (h - 0.06, h, z0), 'hide'))
+        if inner > 0.4:
+            B.append(((-inner + 0.1, inner - 0.12, z1 + 0.02), (inner - 0.1, inner, z0 - 0.02), 'maw'))
+            for sx in (-1, 1):
+                if rnd.random() < 0.85:
+                    ln = min(rnd.uniform(0.8, 2.9), 2 * inner - 0.3)
+                    if ln > 0.5:
+                        x = sx * rnd.uniform(0.3, max(0.35, inner - 0.5))
+                        B.append(((x - 0.35, inner - 0.1 - ln, zc - 0.35), (x + 0.35, inner - 0.1, zc + 0.35), 'fang'))
+        if i in (0, 2, 4) or (i == 1 and k == 0):                                      # (the spine: a few bold jagged spikes, uneven)
+            sp = rnd.uniform(1.0, 2.2) * (1.0 - 0.15 * i); x = rnd.uniform(-0.8, 0.8) * h / MR
+            B.append(((x - 0.5, h - 0.1, zc - 0.7), (x + 0.5, h + sp, zc + 0.3), 'spine'))
+        for sx in (-1, 1):                                                         # (serrated corners)
+            if rnd.random() < (0.45 if i % 2 == 0 else 0.15):
+                ln = rnd.uniform(0.8, 1.8)
+                x0, x1 = (h - 0.3, h + ln) if sx > 0 else (-h - ln, -h + 0.3)
+                B.append(((x0, h - 0.7, zc - 0.45), (x1, h + 0.2, zc + 0.35), 'spine'))
+        if i == 0 and k in (0, 1):                                                 # (a pinprick eye or two on its root)
+            for x in ((-2.6, 1.4) if k == 0 else (0.8,)):
+                B.append(((x - 0.25, h - 0.05, zc - 0.25 + 0.4 * x / 3), (x + 0.25, h + 0.1, zc + 0.25 + 0.4 * x / 3), 'hot'))
+    zt = ZB - ML; tx = TIPX[name]
+    if tx == 'hook':                                                               # (the beak: a hooked point, its tip lit)
+        B += [((-0.75, -0.3, zt - 2.4), (0.75, 1.1, zt + 0.2), 'barb'), ((-0.55, -1.9, zt - 3.3), (0.55, 0.0, zt - 2.2), 'barb'),
+              ((-0.3, -2.6, zt - 3.15), (0.3, -1.8, zt - 2.55), 'glow')]
+    else:
+        off = (0.25, -0.2, 0.1)[k - 1]
+        B.append(((-0.5 + off, 0.0, zt - tx), (0.5 + off, 0.9, zt + 0.2), 'barb'))
+    out = []
+    for (lo, hi, mat) in B:
+        ax, ay = _qt(lo[0], lo[1], k); bx, by = _qt(hi[0], hi[1], k)
+        fr = (min(ax, bx), CY + min(ay, by), lo[2]); to = (max(ax, bx), CY + max(ay, by), hi[2])
+        uv = {f: [0, 16, 16, 0] for f in F6} if (mat == 'fang' and k == 2) else None      # (the jaw's fangs point up)
+        out.append(E(fr, to, mat, uv=uv))
+    if name == 'jaw':                                                              # (goo hanging off its underside)
+        for (x, i, ln) in ((-2.2, 0, 3.2), (1.4, 1, 2.2), (3.0, 0, 3.8), (-0.6, 3, 2.6)):
+            h = MR * (1 - i / MN); zc = ZB - (i + 0.5) * ML / MN
+            out += DRIP(x, CY - h + 0.1, zc, ln)
+    return out
+
+
+def MAWOPEN(a, ragged=1.0):
+    """the maw's petals splayed open by about a degrees each - unevenly, each a little twisted (0: shut in a point)"""
+    if not a: return {}
+    return {'maw_u': qs(('x', -a * 1.0), ('z', 4 * ragged)), 'jaw': qs(('x', a * 1.12), ('z', -6 * ragged)),
+            'maw_r': qs(('y', -a * 0.86), ('x', 5 * ragged)), 'maw_l': qs(('y', a * 0.95), ('x', -3 * ragged))}
 
 
 def _tentacle_seg(t, s):
@@ -607,7 +666,8 @@ def _build():
     """{part: [elements]} - the geometry"""
     if _RAW: return _RAW
     _rs.seed(11)
-    fns = {'puddle': _puddle, 'mound': _mound, 'seg1': _seg1, 'seg2': _seg2, 'seg3': _seg3, 'head': _head, 'jaw': _jaw}
+    fns = {'puddle': _puddle, 'mound': _mound, 'seg1': _seg1, 'seg2': _seg2, 'seg3': _seg3, 'head': _head}
+    fns.update({m: (lambda m=m: _petal(m)) for m in MAW})
     for p in PARTS:
         _PV[0] = PIVOT[p]
         _RAW[p] = fns[p]() if p in fns else _tentacle_seg(p[:2], p[2])
@@ -683,7 +743,8 @@ def T(lean=0.0, twist=0.0, side=0.0):
 
 
 def JAW(open_):
-    return qs(('x', open_))
+    """(the old single jaw - now the whole maw: MAWOPEN)"""
+    return MAWOPEN(open_)
 
 
 def _unit(v):
@@ -821,16 +882,16 @@ def _pose(name):
     elif name == 'rise_0':                                    # (the mound swelling up out of the puddle; the rest still under)
         p = coiled(dict(sunk, _o_mound=(0, -3.2, 0)), TENT, 1.1); p['_hide'] = tuple(x for x in TRUNK_HIDE if x != 'mound')
     elif name == 'rise_1':                                    # (the trunk half up out of the mound, bowed, its tentacles curled tight)
-        p = P(_o_seg1=(0, -15.0, 0), seg1=T(6, 0, 3), seg2=T(10, -6, -2), seg3=T(16, 4), head=T(34), jaw=JAW(4))
+        p = P(_o_seg1=(0, -15.0, 0), seg1=T(6, 0, 3), seg2=T(10, -6, -2), seg3=T(16, 4), head=T(34), **MAWOPEN(0))
         p = coiled(p, TENT, 1.15)
     elif name == 'rise_2':                                    # (fully up, rearing back, its mouth open, its tentacles flaring)
-        p = P(seg1=T(-3), seg2=T(-6), seg3=T(-5), head=T(-12), jaw=JAW(44))
+        p = P(seg1=T(-3), seg2=T(-6), seg3=T(-5), head=T(-12), **MAWOPEN(50))
         for t in TENT:
             o = OUT[t]; p = lay(p, t, curl(_unit((o[0] * 0.75, 0.75, o[2] * 0.75)), _unit((o[0], -0.9, o[2])), (38, 52)))
     elif name in ('idle_a', 'idle_b'):                        # (swaying, breathing; the tentacles drifting)
         b = name == 'idle_b'; sg = -1 if b else 1
         p = P(seg1=T(3, 0, 4 * sg), seg2=T(4, 5 * sg, -3 * sg), seg3=T(5 if not b else 3, -4 * sg, -3 * sg), head=T(12 if not b else 4, 6 * sg, 5 * sg),
-              jaw=JAW(8 if not b else 18))
+              **MAWOPEN(14 if not b else 0))
         bends = {'t1': (28, 42), 't2': (36, 30), 't3': (24, 50), 't4': (42, 34)}
         for i, t in enumerate(TENT):
             o = OUT[t]; up = 0.32 if (i % 2 == 0) != b else 0.12
@@ -838,42 +899,42 @@ def _pose(name):
             d0 = _rod(_unit((o[0], up, o[2])), UP, sw)
             p = lay(p, t, curl(d0, _unit((o[0], -1.0, o[2])), bends[t] if not b else bends[t][::-1]))
     elif name == 'shriek':                                    # (the head thrown back, the mouth wide, the tentacles spread high)
-        p = P(seg1=T(-5), seg2=T(-9), seg3=T(-12), head=T(-30), jaw=JAW(60))
+        p = P(seg1=T(-5), seg2=T(-9), seg3=T(-12), head=T(-30), **MAWOPEN(78))
         for t in TENT:
             o = OUT[t]; p = lay(p, t, curl(_unit((o[0] * 0.55, 0.85, o[2] * 0.55)), _unit((o[0], 0.0, o[2])), (24, 34)))
     elif name == 'grab_0':                                    # (t1 shot straight out ~6 blocks ahead at chest height; the others coiled)
-        p = P(seg1=T(6), seg2=T(8), seg3=T(8, 8), head=T(6), jaw=JAW(36))
+        p = P(seg1=T(6), seg2=T(8), seg3=T(8, 8), head=T(6), **MAWOPEN(46))
         p = coiled(p, ('t2', 't3', 't4'))
         R = _root(p, 't1'); tg = (1.0, 10.5, -50.5)
         p = reach(p, 't1', tg, (_add(R, _unit(_sub(tg, R)), 17.0), _add(R, _unit(_sub(tg, R)), 33.0)), inner=DOWN)
     elif name == 'grab_1':                                    # (t1 hauling back in, curled round as if dragging something to it)
-        p = P(seg1=T(2), seg2=T(-3), seg3=T(-6, 10), head=T(8), jaw=JAW(42))
+        p = P(seg1=T(2), seg2=T(-3), seg3=T(-6, 10), head=T(8), **MAWOPEN(52))
         p = coiled(p, ('t2', 't3', 't4'))
         p = reach(p, 't1', (1.6, 23.0, -16.0), ((4.6, 21.0, -20.0), (3.0, 12.0, -31.0)))     # (a loop at chest height, hauled to the mouth)
     elif name == 'stab_0':                                    # (the wind-up: leaning back, t2 and t3 raised high and cocked)
-        p = P(seg1=T(-4), seg2=T(-9), seg3=T(-10), head=T(-10), jaw=JAW(22))
+        p = P(seg1=T(-4), seg2=T(-9), seg3=T(-10), head=T(-10), **MAWOPEN(40))
         p = coiled(p, ('t1', 't4'))
         for t in ('t2', 't3'):
             o = OUT[t]; p = lay(p, t, curl(_unit((o[0] * 0.3, 1.0, 0.15)), (0.0, -0.2, 1.0), (52, 70)))
     elif name == 'stab_1':                                    # (the strike: lunging, t2 and t3 driven down 4 blocks ahead)
-        p = P(seg1=T(9), seg2=T(14), seg3=T(12), head=T(22), jaw=JAW(44))
+        p = P(seg1=T(9), seg2=T(14), seg3=T(12), head=T(22), **MAWOPEN(34))
         p = coiled(p, ('t1', 't4'))
         for t, x in (('t2', -4.5), ('t3', 4.5)):
             R = _root(p, t); tg = (x, 0.4, -32.0)
             p = reach(p, t, tg, (_add(R, (x * 0.4, 12.0, -10.0)), (x * 0.9, 16.0, -24.0)), inner=(0.0, 0.0, 1.0))
     elif name == 'recoil':                                    # (flinching from the light: twisted away, ducking, tentacles pulled in)
-        p = P(seg1=T(-6, 10, -6), seg2=T(-12, 18, -8), seg3=T(-8, 14, -6), head=T(16, 26, -10), jaw=JAW(30))
+        p = P(seg1=T(-6, 10, -6), seg2=T(-12, 18, -8), seg3=T(-8, 14, -6), head=T(16, 26, -10), **MAWOPEN(0))
         for t in TENT:                                        # (drawn up and in about itself, hooks turned away from the light)
             o = OUT[t]; p = lay(p, t, curl(_unit((o[0] * 0.55, 0.7, o[2] * 0.55 + 0.35)), _unit((-o[0], -0.3, -o[2] + 0.4)), (62, 58)))
     elif name == 'sink_0':                                    # (half sunk, bowed; its tentacles limp on the ground)
-        p = P(_o_mound=(0, -2.0, 0), _o_seg1=(0, -17.0, 0), seg1=T(6), seg2=T(12, 0, 6), seg3=T(12), head=T(32), jaw=JAW(8))
+        p = P(_o_mound=(0, -2.0, 0), _o_seg1=(0, -17.0, 0), seg1=T(6), seg2=T(12, 0, 6), seg3=T(12), head=T(32), **MAWOPEN(0))
         p = draped(p, TENT, 24.0, 8.0)
     elif name == 'death_0':                                   # (collapsing: buckling, lolling, its tentacles flopping down)
-        p = P(_o_seg1=(0, -3.0, 0), seg1=T(14, 0, 8), seg2=T(22, 10, 10), seg3=T(18, -10, 8), head=T(30, 15, 12), jaw=JAW(36))
+        p = P(_o_seg1=(0, -3.0, 0), seg1=T(14, 0, 8), seg2=T(22, 10, 10), seg3=T(18, -10, 8), head=T(30, 15, 12), **MAWOPEN(5))
         p = draped(p, ('t1', 't3', 't4'), 30.0, -6.0)
         p = lay(p, 't2', curl(_unit((-0.7, 0.4, -0.4)), (-0.3, -1.0, 0.0), (60, 50)))
     elif name == 'death_1':                                   # (a melted heap on the puddle)
-        p = P(_o_mound=(0, -3.6, 0), _o_seg1=(0, -4.5, 0), seg1=T(70, 0, 6), seg2=T(15, 20, 0), seg3=T(12, -10), head=T(-15, 10, -15), jaw=JAW(46))
+        p = P(_o_mound=(0, -3.6, 0), _o_seg1=(0, -4.5, 0), seg1=T(70, 0, 6), seg2=T(15, 20, 0), seg3=T(12, -10), head=T(-15, 10, -15), **MAWOPEN(10))
         p = draped(p, TENT, 28.0, 14.0)
     else:
         raise KeyError(name)
@@ -899,7 +960,7 @@ class _Lazy(dict):
 
 
 POSES = _Lazy()
-DRIPS = [('jaw', (-3.4, 26.4, -7.6)), ('jaw', (4.2, 25.8, -6.4)), ('seg1', (-5.0, 5.0, 2.6)), ('seg2', (-4.2, 13.6, -3.6)),
+DRIPS = [('jaw', (-2.2, 28.6, -2.6)), ('jaw', (3.2, 28.0, -2.6)), ('maw_u', (0.0, 33.6, -14.8)), ('seg1', (-5.0, 5.0, 2.6)), ('seg2', (-4.2, 13.6, -3.6)),
          ('head', (0.0, 28.0, 8.0))]
 
 
