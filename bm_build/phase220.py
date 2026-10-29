@@ -6,7 +6,7 @@ THE LIST    the wheel's page has a GALLERY button: every follower in the pack, n
 VIEW IN 3D  a page of eight at a time: their own figurines (phase134's, from their real rigs), life-ish size (about 1.4 blocks),
             in an arc in front of you, each on a slow turntable with its number and name over it. One you haven't met stands
             there as a dark silhouette under "???" - who's that? A page stays a minute (or until you open another).
-(Codes, in the wheel's block - its router checks the wheel's menu: 3352 the list, 3353+ a page in 3D, 3359 back to the wheel.)"""
+(Codes, in the wheel's block - its router checks the wheel's menu: 3352 the list, 3353-3358 a page in 3D (then 3422 on), 3359 back to the wheel.)"""
 from items import T
 from nbt import snbt, F, Int
 import phase28 as P28
@@ -15,6 +15,8 @@ import phase134 as P134
 
 PURPLE = '#b48cff'
 GAL, PAGE0, BACK = 3352, 3353, 3359
+PAGE6 = 3422                                  # (2.99: a seventh page on - 3353..3358 were full; the wheel's free codes from 3422)
+pg_code = lambda i: PAGE0 + i if i < 6 else PAGE6 + i - 6
 PER, RADIUS, ARC = 8, 4.6, 20               # (eight to a page, 4.6 blocks out, 20 degrees apart)
 TALL, WIDE = 1.4, 1.15                      # (a figure fits in this: tall, and wide or deep)
 MET_KEY = {'kw': 'killerwatt', 'don': 'donado'}          # (the met/ advancements' older names)
@@ -54,10 +56,10 @@ def generate(G):
     assert set(HINT) == set(P125.WHO), set(HINT) ^ set(P125.WHO)
     met = lambda a: f'entity @s[advancements={{{a}=true}}]'
     pages = [E[i:i + PER] for i in range(0, len(E), PER)]
-    assert PAGE0 + len(pages) - 1 < BACK, len(pages)
+    assert len(pages) <= 6 + 28, len(pages)
 
     # ================================================================== the list
-    btns = [P28.btn([T('◈ View in 3D: ', PURPLE), T(f'#{pg[0][0]:02d}-#{pg[-1][0]:02d}', 'white')], PAGE0 + i,
+    btns = [P28.btn([T('◈ View in 3D: ', PURPLE), T(f'#{pg[0][0]:02d}-#{pg[-1][0]:02d}', 'white')], pg_code(i),
                     tooltip=T(f'Followers #{pg[0][0]:02d} to #{pg[-1][0]:02d} as figurines in front of you - the ones you haven\'t met, as shadows', 'gray'))
             for i, pg in enumerate(pages)]
     btns.append(P28.btn(T('« Partner Wheel', 'gray'), BACK))
@@ -126,4 +128,4 @@ def generate(G):
     A = G.FUNCS['p179/w/act']
     A[1:1] = [f'execute if score #act bm.pay matches {GAL} run return run function bm:p220/open',
               f'execute if score #act bm.pay matches {BACK} run return run function bm:p179/w/open'] + \
-             [f'execute if score #act bm.pay matches {PAGE0 + i} run return run function bm:p220/view{i}' for i in range(len(pages))]
+             [f'execute if score #act bm.pay matches {pg_code(i)} run return run function bm:p220/view{i}' for i in range(len(pages))]

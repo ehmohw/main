@@ -1,4 +1,4 @@
-"""2.93: the Dreadborne and the Seraph's Raiment - both helms (front, three-quarter, behind), the wings layers, the plate and
+"""2.93: the Dreadborne and the Seraph's Raiment (2.99: the Seraph's own sheets are tools/preview/seraph.py) - both helms (front, three-quarter, behind), the wings layers, the plate and
 the sprites, from the art modules.   python3 tools/preview/dreadborne.py [out.png]"""
 import sys, os, json, tempfile
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); sys.path.insert(0, os.path.dirname(os.path.dirname(HERE)))
@@ -11,7 +11,7 @@ tmp = tempfile.mkdtemp()
 
 
 class R2:
-    POST, ICONS, LANG = [], {}, {}
+    POST, ICONS, LANG, TEXTURE_MODS, HATS = [], {}, {}, [], {}
     @staticmethod
     def p(*parts):
         f = os.path.join(tmp, *parts); os.makedirs(os.path.dirname(f), exist_ok=True); return f
@@ -22,6 +22,8 @@ class R2:
 
 DS.rp(R2)
 for f in R2.POST: f(R2)
+for m in R2.TEXTURE_MODS:                                 # (2.99: the Seraph's block textures come by TEXTURE_MODS)
+    for k, im in m.textures().items(): im.save(R2.p('assets', 'bm', 'textures', 'block', f'{k}.png'))
 tex, model = DA.helm_json()
 for k, im in tex.items(): im.save(R2.p('assets', 'bm', 'textures', 'block', f'{k}.png'))
 R2.wj('assets/bm/models/item/dread_helm.json', model)

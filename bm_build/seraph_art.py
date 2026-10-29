@@ -89,57 +89,6 @@ class Layer:
         x0, w = STRIP[box]; return self.px[x0 + x % w, 20 + y]
 
 
-def _plate(L, box, y0, y1, seed, lit=1.0):
-    """pearl plate over rows y0..y1 of a box's strip: each face lit by how it faces the light (front and its right side
-    brightest, the back in shade), lighter at the top, its corners (the box's edges) a step darker, a pearly shimmer"""
-    rnd = random.Random(seed)
-    shade = {'right': 0, 'front': 0, 'outer': 0, 'left': 1, 'inner': 1, 'back': 1}
-    ramp = [WHITE, P1, P2, P3, P4]
-    for face, (a, w) in FACE[box].items():
-        for x in range(w):
-            for y in range(y0, y1 + 1):
-                t = (y - y0) / max(1, y1 - y0)
-                k = shade[face] + (1 if t > 0.55 else 0) + (1 if t > 0.9 else 0)
-                if x == 0 and face in ('front', 'back'): k -= 1                     # (the lit edge of a face)
-                if x == w - 1: k += 1                                                # (its shaded edge)
-                if y == y0 and k > 0: k -= 1
-                c = ramp[max(0, min(4, k + (0 if lit >= 1 else 1)))]
-                q = rnd.random()
-                if q < 0.08: c = _mix(c, (238, 224, 246), 0.6)                       # (the shimmer: rose and ice in the pearl)
-                elif q < 0.14: c = _mix(c, (220, 238, 250), 0.6)
-                L.s(box, a + x, y, c)
-
-
-def _band(L, box, y, pat='hGgy', dark_back=True):
-    """a gold band right round a box (its pattern repeating), the back half a step darker"""
-    x0, w = STRIP[box]
-    for x in range(w):
-        c = PAL[pat[x % len(pat)]]
-        face = next(f for f, (a, n) in FACE[box].items() if a <= x < a + n)
-        if face in ('back', 'left', 'inner') and dark_back: c = _mix(c, G3, 0.35)
-        L.s(box, x, y, c)
-
-
-def _feathers(L, box, y0, rows=3, off=0, edge_gold=True, back_dark=True):
-    """a tier of feathers right round the box, 2 px wide, hanging down from row y0: lit top, shaded shaft side, a gold tip"""
-    x0, w = STRIP[box]
-    for x in range(w):
-        face = next(f for f, (a, n) in FACE[box].items() if a <= x < a + n)
-        k = 1 if face in ('back', 'left', 'inner') and back_dark else 0
-        left = (x + off) % 2 == 0
-        col = [([WHITE, P1] if left else [P1, P2])[k], ([P2, P3] if left else [P3, P4])[k]]
-        for r in range(rows - 1):
-            L.s(box, x, y0 + r, col[min(r, 1)])
-        tip = (G1 if left else G2) if edge_gold else (P3 if left else P4)
-        if back_dark and k: tip = _mix(tip, G3, 0.4)
-        L.s(box, x, y0 + rows - 1, tip)
-
-
-def _eye4(L, box, face, x, y):
-    """a small eye (4 x 3): gold lids, a sapphire iris"""
-    L.art(box, face, x, y, ['.gg.', 'eBNe', '.hh.'])
-
-
 # every face drawn by hand (palette letters: PAL). Strips wrap each box: right/outer, front, left/inner, back; rows from v 20.
 # Light falls from above and the viewer's left: the fronts' left columns lit, the sides and backs a step down, edges outlined.
 BODY_CHEST = {   # (the Wings' cuirass: rows 0..11 of the body)
@@ -464,6 +413,7 @@ def helm_model():
     for (x, y, z, n) in ((2.2, 6.4, 10.6, (-1, 0, 0)), (13.8, 6.8, 10.4, (1, 0, 0)), (2.2, 9.0, 5.8, (-1, 0, 0)), (13.8, 8.6, 6.0, (1, 0, 0)),
                          (5.4, 8.0, 13.25, (0, 0, 1)), (10.6, 8.0, 13.25, (0, 0, 1)), (8.0, 12.9, 13.0, (0, 0.5, 1))):
         H += _set_eye((x, y, z), 2.1, 1.2, rigkit._unit(n), pv)
+    H = rigkit.transform(H, lambda v: [8 + (v[0] - 8) * 1.1, 7.6 + (v[1] - 7.6) * 1.1, 8 + (v[2] - 8) * 1.1])   # (the shell clear of the hat layer)
     # WITH TWO THEY COVERED THEIR FACES: two wings folded corner to corner across the face in an X (the helm's right wing laid
     # over its left): each three long feathers lying side by side down its length, a gold leading edge along its upper side,
     # coverts and a sapphire at its root on the temple, the feathers' ends staggered and burning at the far cheek
@@ -524,57 +474,57 @@ def _sprite(rows):
     return im
 
 
-ICON_ROWS = {
+ICON_ROWS = {   # (on vanilla's chestplate / leggings / boots silhouettes, drawn over)
     'seraph_carapace': [            # the Wings: a pearl cuirass, the eye on its breast, a wing rising behind each shoulder
         'yW............Wy',
         'gWp..........pWg',
-        'GpW.ohhhhho.WpGg',
-        'gPpoGgWWWgGopPg.',
-        'hPpogWpggpgoPsh.',
-        '.Ps.oWgeBNegosS.',
-        '.sS.opWhhgPos.S.',
-        '.SR.opPggPsoS.R.',
-        '.Rr.osPhhssoRr..',
-        '..r.ohGgygGhorF.',
-        '..F.oWpWpWpWoF..',
-        '....oPsPsPsPo...',
-        '....ogGgGgGgo...',
+        'Wooooo....oooooW',
+        'pogygo....ogygop',
+        'PoWpPoh..hopPsoP',
+        'soWpPghyyhgpPsos',
+        'SopWPsgggPpPsoSS',
+        'FooWpPggggPsSooF',
+        'r..opgeBNegSo..r',
+        '...oPphgghPSo...',
+        '...ohGgbngGho...',
+        '...oWpWpWpPso...',
+        '...ogGgGgGhHo...',
+        '....ooPsPsoo....',
         '.....oooooo.....',
+        '................'],
+    'seraph_greaves': [             # the Greaves: belt and sapphire buckle, feathered tassets, an eye on each knee
+        '................',
+        '................',
+        '....oooooooo....',
+        '...ohGgbngGho...',
+        '...oWpWpWpPso...',
+        '...ogGgGgGhHo...',
+        '...oWpPoopPso...',
+        '...oWpo..oPso...',
+        '...opPo..opSo...',
+        '...oggo..oggo...',
+        '...oeBo..oBeo...',
+        '...ohho..ohho...',
+        '...oPso..oPSo...',
+        '...oooo..oooo...',
         '................',
         '................'],
-    'seraph_greaves': [             # the Greaves: belt and sapphire buckle, feathered tassets, cuisses, an eye on each knee
+    'seraph_treads': [              # the Treads: winglets at the ankles, feathers over the feet, sapphire anklets, gold toes
         '................',
-        '..ohGgygbngyGho.',
-        '..oWpWpWpWpWpPo.',
-        '..ogGgGgoGgGgGo.',
-        '..oWpPPo.oWpPso.',
-        '..oWpPso.oWpPso.',
-        '..ogWPso.oWPsgo.',
-        '..ohggho.ohggho.',
-        '..oeBNeo.oeBNeo.',
-        '..ohggho.ohggho.',
-        '..oWpPso.oWpPso.',
-        '..opPsSo.opPsSo.',
-        '..oPpsSo.oPpsSo.',
-        '..ohGGho.ohGGho.',
-        '..oooooo.oooooo.',
-        '................'],
-    'seraph_treads': [              # the Treads: feathers falling over the feet, winglets at the ankles, gold toes
+        '.y............y.',
+        '.gW..........Wg.',
+        '.hWgo......ogWh.',
+        '..hoWo....oWoh..',
+        '...oPo....oPo...',
+        '...oWpo..opWo...',
+        '...oPso..osPo...',
+        '...obno..onbo...',
+        '..oWpPo..oPpWo..',
+        '.oyWpPo..oPpWyo.',
+        '.oygPoo..ooPgyo.',
+        '.hhHH......HHhh.',
         '................',
         '................',
-        '.yW..........Wy.',
-        '.gWW.oo..oo.WWg.',
-        '..gWpGgo.ogGpWg.',
-        '...hWpPo.oWpPh..',
-        '....oWPs.oWPso..',
-        '....ogPs.oWPgo..',
-        '....oPsS.oPsSo..',
-        '...oWpPsoopWpPo.',
-        '..obnPpSoopPpbno',
-        '..oyyPsSoopPsyyo',
-        '..ogGGhhoohhGGgo',
-        '..ohHHHHooHHHHho',
-        '...oooooo.oooooo',
         '................'],
 }
 

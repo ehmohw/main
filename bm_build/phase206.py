@@ -17,7 +17,9 @@ Raiment, from a Golden Cross).
                      the Seraph's Gaze (two wings over its face, eyes, a burning halo), the Carapace the Seraph's Wings, the
                      Treads feathered over the feet.  SERAPHIC JUDGMENT (the whole holy set): sneak and strike - a pillar of holy
                      fire, 24 through every armour (and 10 more to the undead), 8 to every monster round, alight; you healed.
-                     45 s. (One holy piece and three dread ones is neither set.)"""
+                     45 s. (One holy piece and three dread ones is neither set.)
+  2.99 (v299): the Raiment redrawn (seraph_art.py), and the Seraph's Wings seen in 3D on whoever wears them - the great wings
+                     folded down the back or spread in flight, the lower wings over the feet (seraph_wings.py, bm:p206w/...)."""
 import math
 from items import item, T, ITEMS, attr
 import phase182 as P182
@@ -228,6 +230,10 @@ def generate(G):
                           'particle minecraft:flash{color:[1.0,0.95,0.8,1.0]} ~ ~1 ~ 0 0 0 0 1', 'particle minecraft:totem_of_undying ~ ~1 ~ 1.2 0.5 1.2 0.2 40',
                           'execute as @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body,distance=0.1..4,tag=!bm.dsv] run function bm:p206/judge_splash'])
     fn('p206/judge_splash', ['damage @s 8 bm:seraph_fire by ' + me, 'data merge entity @s {Fire:60s}'])
+    # (2.99) the Seraph's Wings in 3D: four item displays kept on the wearer - the great wings folded / spread, the lower wings
+    # over the feet (seraph_wings.py: bm:p206w/...)
+    import seraph_wings
+    seraph_wings.generate(G)
 
     fn('admin/dreadborne', [give(i) for i in PIECES] + [give('dread_heart'), give('golden_cross', 4)])
     G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/dreadborne', 'yellow'), T('  the Dreadborne set, a Dread Heart and Golden Crosses (for the Seraph)', 'gray')]))

@@ -130,7 +130,7 @@ def scene(root=NEW):
     return s
 
 
-def tile(view, text, sub=None, size=360, span=2.9, cy=1.05, **kw):
+def tile(view, text, sub=None, size=360, span=2.9, cy=1.12, **kw):
     s = scene(kw.pop('root', NEW)); floor(s)
     wearer(s, **kw)
     return label(dark(s.render(view, size=size, span=span, center=(0, cy, 0))), text, sub)
@@ -172,7 +172,7 @@ if 'helm' in what:
         s = scene(); s.display('bm:item/seraph_helm', pos=(0, 0, 0), ctx='fixed')
         T.append(label(dark(s.render(view, size=330, span=1.25, center=(0, 0.12, 0))), "Seraph's Gaze", sub))
     s = scene(); floor(s); wearer(s, helm=True, elytra=False)
-    T.append(label(dark(s.render((20, 8), size=330, span=0.9, center=(0, 1.62, 0))), 'worn', 'on the head'))
+    T.append(label(dark(s.render((20, 8), size=330, span=1.25, center=(0, 1.72, 0))), 'worn', 'on the head'))
     sheet(T, f'{OUT}/seraph_helm.png', cols=3, title="The Seraph's Gaze - with two they covered their faces")
 
 if 'wings' in what and W:
@@ -200,13 +200,14 @@ if 'before' in what and OLD:
         s = scene(root); s.display('bm:item/seraph_helm', pos=(0, 0, 0), ctx='fixed')
         T.append(label(dark(s.render((150, 12), size=360, span=1.25, center=(0, 0.12, 0))), txt, "the Seraph's Gaze"))
     s = scene(NEW); floor(s); wearer(s, kind='glide', pitch=90, root=NEW, wings3d='glide_a' if W else None)
-    T.append(label(dark(s.render((150, 40), size=360, span=4.4, center=(0, 0.3, 0))), 'AFTER', 'gliding'))
+    T.append(label(dark(s.render((150, 40), size=360, span=5.6, center=(0, 0.3, 0))), 'AFTER', 'gliding'))
     s = scene(OLDR); floor(s); wearer(s, kind='glide', pitch=90, root=OLDR)
     T.insert(len(T) - 1, label(dark(s.render((150, 40), size=360, span=4.4, center=(0, 0.3, 0))), 'BEFORE', 'gliding'))
     sheet(T, f'{OUT}/seraph_before_after.png', cols=2, title="The Seraph's Raiment - before and after")
 
 if 'icons' in what:
-    new = A.icons(); T = []
+    import vanilla
+    new = {k: vanilla.process(k, im) for k, im in A.icons().items()}; T = []      # (as the build finishes them)
     for k in ('seraph_carapace', 'seraph_greaves', 'seraph_treads'):
         if OLD and os.path.exists(f'{OLD}/{k}.png'): T.append(flat(Image.open(f'{OLD}/{k}.png').convert('RGBA'), 'before', k, k=10))
         T.append(flat(new[k], 'after', k, k=10))
