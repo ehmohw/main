@@ -485,7 +485,7 @@ def dreadnought(tr, inv=False):
         s = 0.8 * np.sin(2 * np.pi * f2 * t) + 0.55 * np.sin(2 * np.pi * f1 * t)
         s += 0.3 * np.sin(2 * np.pi * fa * t) * (0.5 + 0.5 * np.sin(2 * np.pi * lock(0.0375, n) * t))
         return s * (0.78 + 0.22 * np.sin(2 * np.pi * lock(0.05, n) * t))
-    bed(tr, drone, gain=0.2 if not inv else 0.17, wet=0.1)
+    bed(tr, drone, gain=0.15 if not inv else 0.13, wet=0.1)
     def hum(N, n):
         t = np.arange(N) / SR
         f = lock(mf(m('D2')), n)
@@ -496,11 +496,11 @@ def dreadnought(tr, inv=False):
         fb = lock(mf(m('D3')), n)
         s += 0.12 * (np.sin(2 * np.pi * fb * t) + np.sin(2 * np.pi * (fb + lock(0.3, n)) * t)) * np.sign(np.sin(2 * np.pi * fb * 3 * t)) * 0.5
         return s
-    bed(tr, hum, gain=0.085, wet=0.25, pan=-0.1)
+    bed(tr, hum, gain=0.03, wet=0.25, pan=-0.1)
     def air(N, n):
         t = np.arange(N) / SR
         return bp(noise(N), 2600, 7500) * (0.4 + 0.6 * (0.5 + 0.5 * np.sin(2 * np.pi * 0.07 * t)) ** 2)
-    bed(tr, air, gain=0.025 if not inv else 0.035, wet=0.6, pan=0.3, coherent=False)
+    bed(tr, air, gain=0.04 if not inv else 0.05, wet=0.6, pan=0.3, coherent=False)
 
     for bar in range(DN_BARS):
         sec = DN_SEC[bar]
@@ -515,11 +515,11 @@ def dreadnought(tr, inv=False):
         # the hive choir on the chord, the vowel opening as it holds; glass above it
         v = sorted(set(near(x, m('A3')) for x in tones))
         vow = {'intro': ('u', 'u'), 'A': ('u', 'o'), 'B': ('o', 'a'), 'outro': ('u', 'o')}[sec]
-        tr.add(choir(v, 4 * tr.beat + 1.4, 0.13 * lvl, vow[0], vow[1], gate=0.55 if inv else 0, rate=4 / tr.beat if inv else 0),
+        tr.add(choir(v, 4 * tr.beat + 1.4, 0.2 * lvl, vow[0], vow[1], gate=0.55 if inv else 0, rate=4 / tr.beat if inv else 0),
                tr.at(bar, 0) - 0.4, -0.25, 1, 0.55)
         if sec != 'intro' or bar >= 2:
             gl = sorted(set(near(x, m('F5')) for x in tones))
-            tr.add(glass(gl, 4 * tr.beat + 1.6, 0.045 * lvl), tr.at(bar, 0) - 0.5, 0.35, 1, 0.65)
+            tr.add(glass(gl, 4 * tr.beat + 1.6, 0.2 * lvl), tr.at(bar, 0) - 0.5, 0.35, 1, 0.65)
         # the hive chittering: bursts of tiny chirps running up and down the scale, somewhere in the dark
         if sec != 'intro' or bar >= 2 or inv:
             g = np.random.default_rng(700 + bar)
@@ -533,25 +533,25 @@ def dreadnought(tr, inv=False):
                     x = r + 36 + DN_OCT[s_ % 8] + 12 * (s_ // 8)
                     while x > m('D7'): x -= 12
                     while x < m('A5'): x += 12
-                    tr.add(chit(x, 0.06 * (0.7 + 0.3 * g.random())), tr.at(bar, 0) + (b0 + j / 8) * tr.beat, pan, 1, 0.55)
+                    tr.add(chit(x, 0.32 * (0.7 + 0.3 * g.random())), tr.at(bar, 0) + (b0 + j / 8) * tr.beat, pan, 1, 0.55)
         # the ship itself: bulkheads struck far off, a servo, the hydraulics
         g = np.random.default_rng(900 + bar)
         if bar % 2 == 1 or sec == 'intro':
-            tr.add(hullhit(g.uniform(70, 130), 0.3, 1.2, 0.6, 1800), tr.at(bar, 0) + g.uniform(0.5, 3.5) * tr.beat, g.uniform(-0.7, 0.7), 1, 0.85)
+            tr.add(hullhit(g.uniform(70, 130), 0.38, 1.2, 0.6, 1800), tr.at(bar, 0) + g.uniform(0.5, 3.5) * tr.beat, g.uniform(-0.7, 0.7), 1, 0.85)
         if bar % 4 == 3: tr.add(hullhit(58, 0.45, 1.6, 1.0, 1400), tr.at(bar, 3.5), -0.2, 1, 0.8)
-        if bar in (5, 13, 21): tr.add(servo(2.4, 0.1), tr.at(bar, 1.5), 0.6, 1, 0.7)
-        if bar in (7, 15, 23): tr.add(hiss(2.0, 0.06), tr.at(bar, 1), -0.6, 1, 0.7)
-        if bar in (2, 10, 18): tr.add(servo(3.0, 0.07, 120, 90), tr.at(bar, 0.5), -0.5, 1, 0.75)
+        if bar in (5, 13, 21): tr.add(servo(2.4, 0.5), tr.at(bar, 1.5), 0.6, 1, 0.7)
+        if bar in (7, 15, 23): tr.add(hiss(2.0, 0.45), tr.at(bar, 1), -0.6, 1, 0.7)
+        if bar in (2, 10, 18): tr.add(servo(3.0, 0.4, 120, 90), tr.at(bar, 0.5), -0.5, 1, 0.75)
 
     # ---- the tunes: THE CALL in the choir to begin; the hook (the hive's voice, the bells striking each note); in the middle
     # the bells take it a minor third down and the voice sings it an octave under them; the end, and the slide home into D
     dn_sing(tr, 0, DN_CALL, -0.3, 0.55, 0.6, vowels=('u', 'o'), ring=0.4)
     dn_sing(tr, 4, DN_HOOK, 0.1, 0.8, 0.45, vowels=('u', 'o'))
-    dn_bells(tr, 4, DN_HOOK, 0.3, 0.16, 0.5)
-    dn_bells(tr, 12, DN_HOOK, 0.25, 0.22, 0.5, k=-3, bright=1.2)
+    dn_bells(tr, 4, DN_HOOK, 0.3, 0.28, 0.5)
+    dn_bells(tr, 12, DN_HOOK, 0.25, 0.36, 0.5, k=-3, bright=1.2)
     dn_sing(tr, 12, DN_HOOK, -0.15, 0.6, 0.5, k=-15, vowels=('o', 'a'), ring=0.45)
     dn_sing(tr, 20, DN_HOOK_END, 0.1, 0.55, 0.55, vowels=('u', 'o'))
-    dn_bells(tr, 20, DN_HOOK_END, -0.3, 0.12, 0.6, k=-12)
+    dn_bells(tr, 20, DN_HOOK_END, -0.3, 0.22, 0.6, k=-12)
 
     if inv:
         # ---- BATTLE STATIONS: the same ship, woken - the pulse driven in sixteenths, the hull beaten, ticks, the alarm
