@@ -50,7 +50,7 @@ holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
 W = lambda x, y, z: (OX + x, OY + y, OZ + z)          # local -> world
 BUILT = {}
 # what a rebuild clears out of the box: only what the Undercrown itself made (never a follower or its parts)
-CLEAR = [f'type=minecraft:marker,tag=bm.d_{d}', 'tag=bm.kr', 'type=minecraft:husk,tag=bm.khost', 'tag=bm.usgt', 'tag=bm.ushow', 'tag=bm.urelic_d', 'tag=bm.urelic_i', 'tag=bm.ueyed', 'tag=bm.vbtext',
+CLEAR = [f'type=minecraft:marker,tag=bm.d_{d}', 'tag=bm.kr', 'type=minecraft:husk,tag=bm.khost', 'tag=bm.mr', 'type=minecraft:husk,tag=bm.mire,tag=!bm.mtame', 'tag=bm.usgt', 'tag=bm.ushow', 'tag=bm.urelic_d', 'tag=bm.urelic_i', 'tag=bm.ueyed', 'tag=bm.vbtext',
          'tag=bm.dgmob', 'tag=bm.udread', 'tag=bm.usov', 'tag=bm.dbecho', 'type=minecraft:item', 'type=minecraft:experience_orb', 'type=minecraft:arrow',
          'type=minecraft:spectral_arrow']
 RELIC_NAME = {'dawnshard': 'the Dawnshard', 'ulantern_wick': "the Lantern's Wick", 'unwriting': 'the Page of Unwriting', 'chainwhip': "the Sovereign's Chain",

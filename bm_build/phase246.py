@@ -1,6 +1,7 @@
 """2.99a: THE DREAD MIRE - a lesser manifestation of the Dread, loose in the world in hard mode (mire_art draws it).
 
-WHERE      any of the three dimensions, rarely, in the dark: now and then a hostile mob rising naturally (mobs/init) in hard mode
+WHERE      THE UNDERCROWN: its own, in moderation - two at most at a time, a puddle in one of its rooms while someone's inside.
+           And any of the three dimensions, rarely, in the dark: now and then a hostile mob rising naturally (mobs/init) in hard mode
            comes up as a Mire instead - where the light is low (4 or less), outside a Golden Cross's ground, never near another
            Mire, never in the vault or the Hollow Throne; ONE A NIGHT for each player (the nearest within 48 when it rises); three
            times as likely on a Dread Night or a Blood Moon. None rise once the Dread Sovereign has fallen (#dfell) - until the
@@ -138,7 +139,7 @@ def generate(G):
                       'execute if score #dfell bm.cfg matches 1 unless score @s bm.ms matches 7 run return run function bm:p246/melt',
                       f'execute if score @s bm.ms matches 0 run function bm:{PFX}/sec0',
                       f'execute if score @s bm.ms matches 2 run function bm:{PFX}/sec2'])
-    fn(f'{PFX}/sec0', ['execute if predicate bm:p246/bright run return run function bm:p246/melt',
+    fn(f'{PFX}/sec0', ['execute if predicate bm:p246/bright unless entity @s[tag=bm.muc] run return run function bm:p246/melt',
                        'execute if function bm:p181/in_cross run return run function bm:p246/flee',
                        f'execute if entity @a[distance=..{WAKE},{FOES}] run return run function bm:{PFX}/rise0',
                        f'execute facing entity @p[distance=..{CREEP},{FOES}] feet rotated ~ 0 positioned ^ ^ ^0.35 unless block ~ ~-1 ~ #minecraft:replaceable '
@@ -326,6 +327,24 @@ def generate(G):
                          at(17, f'execute positioned ^ ^ ^3.5 as @e[{MON},distance=..2.4] run damage @s {STAB_DMG + 4} minecraft:mob_attack by {ME}'),
                          at(17, 'execute positioned ^ ^ ^3.5 run particle minecraft:squid_ink ~ ~0.3 ~ 0.8 0.2 0.8 0.1 30'),
                          at(32, 'scoreboard players set @s bm.ms 2'), at(32, 'scoreboard players set @s bm.ma 0'), at(32, 'scoreboard players set @s bm.mt 0')])
+    # ================================================================== THE UNDERCROWN'S OWN (in moderation: two at most at a time)
+    # (now and then, while someone's inside and the Sovereign stands, a puddle rises in one of its rooms - at a room's fx marker,
+    #  let down to its floor, at least 20 blocks from everyone; the per-night count doesn't apply in there. A rebuild clears them.)
+    import phase237 as P237
+    UB = P237.BOX
+    second.append(f'execute if score #hard bm.cfg matches 1 unless score #dfell bm.cfg matches 1 in minecraft:the_nether '
+                  f'if entity @a[{UB},gamemode=!spectator] run function bm:{PFX}/uc/try')
+    fn(f'{PFX}/uc/try', ['execute store result score #r bm.rng run random value 1..90', 'execute unless score #r bm.rng matches 1 run return 0',
+                         'scoreboard players set #n bm.rng 0',
+                         f'execute in minecraft:the_nether as @e[type=minecraft:husk,tag=bm.mire,tag=!bm.mtame,{UB}] run scoreboard players add #n bm.rng 1',
+                         'execute if score #n bm.rng matches 2.. run return 0',
+                         f'execute in minecraft:the_nether as @e[type=minecraft:marker,tag=bm.dgfx,tag=bm.d_under,sort=random,limit=1] at @s '
+                         f'unless entity @a[distance=..20] unless entity @e[type=minecraft:husk,tag=bm.mire,distance=..40] run function bm:{PFX}/uc/down'])
+    fn(f'{PFX}/uc/down', ['scoreboard players set #dn bm.rng 16', f'function bm:{PFX}/uc/step'])
+    fn(f'{PFX}/uc/step', ['execute unless block ~ ~-1 ~ #minecraft:replaceable if block ~ ~ ~ #minecraft:replaceable run return run function bm:p246/uc/rise',
+                          'scoreboard players remove #dn bm.rng 1', f'execute if score #dn bm.rng matches 1.. positioned ~ ~-1 ~ run function bm:{PFX}/uc/step'])
+    fn(f'{PFX}/uc/rise', ['execute align xyz positioned ~0.5 ~ ~0.5 run function bm:p246/spawn',
+                          'execute align xyz positioned ~0.5 ~ ~0.5 as @e[type=minecraft:husk,tag=bm.mire,distance=..1] run tag @s add bm.muc'])
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:interaction,tag=bm.mtk]']
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.mr]', 'execute as @e[type=minecraft:husk,tag=bm.mire] at @s run tp @s ~ -400 ~']
     fn('admin/mire/spawn', [f'execute positioned ^ ^ ^6 run function bm:{PFX}/spawn'])
