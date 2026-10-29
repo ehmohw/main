@@ -85,8 +85,7 @@ def heart_icon():
 
 def icons():
     out = {'dread_heart': heart_icon()}                     # (the helms are their own 3D models, in the hand as on the head)
-    for k, iid in (('chest', 'carapace'), ('legs', 'greaves'), ('feet', 'treads')):
-        out[f'dread_{iid}'] = plate_icon(k)
+    out.update(DK.icons())                                  # (2.99: the Dread's sprites, drawn on vanilla's silhouettes - dread_art)
     out.update(SA.icons())                                  # (2.99: the Seraph's sprites, drawn for themselves - seraph_art)
     return out
 

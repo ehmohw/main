@@ -1,7 +1,9 @@
 """The Vorn Armada's item art (armada_art.py), previewed.   python3 tools/preview/armada_items.py [icons,models,armor]
 icons: every flat icon (vanilla.process'd, as the pack ships them) at 8x on one contact sheet, with each at 1x in a slot below;
 models: the 3D models from a 3/4 view, their gui look, the lance and axe beside a vanilla sword's length, the crown on a head;
-armor: the Starforged plate (bm:starforged) on a dummy, front and back.
+armor: the Starforged plate (bm:starforged) on a dummy, front and back;
+mothership: the Admiral's hull (bm:mothership3d) at the skiff's display (fixed, scale 4.5) beside the Vorn Skiff (ufo3d, from the
+shipped dist zip) - front, side, 3/4, below, a cutaway with the seated pilot - and its key's icon.
 Sheets go to $AM_OUT (default previews/v299_armada/items); the throwaway pack to draftkit's $BM_PREVIEW_DIR."""
 import sys, os, json
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); sys.path.insert(0, os.path.dirname(os.path.dirname(HERE)))
@@ -13,7 +15,8 @@ import vanilla
 OUT = os.environ.get('AM_OUT', os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(HERE))), 'previews', 'v299_armada', 'items'))
 os.makedirs(OUT, exist_ok=True)
 ROOT = os.path.join(K.OUT, 'rp_am')
-what = sys.argv[1].split(',') if len(sys.argv) > 1 else ['icons', 'models', 'armor']
+what = sys.argv[1].split(',') if len(sys.argv) > 1 else ['icons', 'models', 'armor', 'mothership']
+DIST = os.path.join(os.path.dirname(os.path.dirname(HERE)), 'dist', 'BlackMarket_RP.zip')     # (the shipped skiff, ufo3d, to set beside it)
 try:
     FNT = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 12)
     FNB = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 18)
@@ -105,6 +108,62 @@ def armor():
     tiles.append(K.label(t3, 'layers'))
     K.sheet(tiles, os.path.join(OUT, 'armada_starforged.png'), cols=3, title='bm:starforged - the worn plate')
     print(os.path.join(OUT, 'armada_starforged.png'))
+
+
+def _ms_pack():
+    import zipfile
+    build_pack()
+    tex, els = A.mothership()
+    disp = {'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1, 1, 1]}}
+    t = dict(tex); t['particle'] = 'bm:block/am_plate'
+    json.dump({'textures': t, 'elements': els, 'display': disp}, open(f'{ROOT}/assets/bm/models/item/mothership3d.json', 'w'))
+    cut = [e for e in els if (e['from'][0] + e['to'][0]) / 2 <= 8.3]          # (the hull's left half: a cutaway, the pilot in his seat)
+    json.dump({'textures': t, 'elements': cut, 'display': disp}, open(f'{ROOT}/assets/bm/models/item/mothership3d_cut.json', 'w'))
+    with zipfile.ZipFile(DIST) as z:
+        for n in z.namelist():
+            if n == 'assets/bm/models/item/ufo3d.json' or n.startswith('assets/bm/textures/block/skiff_'):
+                dst = os.path.join(ROOT, n); os.makedirs(os.path.dirname(dst), exist_ok=True)
+                open(dst, 'wb').write(z.read(n))
+
+
+SC, Y0 = 4.5, 2.4                                                              # (the skiff's scale; lifted clear of the grid)
+
+
+def _ship(s, mid='bm:item/mothership3d', x=0.0, pilot=True):
+    s.display(mid, pos=(x, Y0, 0), scale=SC, ctx='fixed')
+    if pilot: K.person(s, (x, Y0 + (A.MS_SEAT[1] / 16 - 0.5) * SC, 0), sit=True)
+
+
+def mothership():
+    _ms_pack()
+    tiles = []
+    def lineup(s):
+        _ship(s); _ship(s, 'bm:item/ufo3d', x=-9.0); K.person(s, (-4.6, 0, 3.0))
+    for view, txt in (((-35, 22), 'beside the Vorn Skiff, a player (3/4)'), ((0, 4), 'front'), ((90, 4), 'side'), ((25, -55), 'below')):
+        sz = 640
+        tiles.append(tile(lineup, view, size=sz, span=17.0, center=(-4.0, 2.4, 0), text=f'The Mothership - {txt}'))
+    def hero(s): _ship(s)
+    tiles.append(tile(hero, (-38, 26), size=640, span=10.5, center=(0, 2.6, 0), text='The Mothership (3/4, close)'))
+    tiles.append(tile(hero, (150, 30), size=640, span=10.5, center=(0, 2.6, 0), text='The Mothership (aft 3/4)'))
+    def cut(s): _ship(s, 'bm:item/mothership3d_cut')
+    tiles.append(tile(cut, (90, 6), size=640, span=10.5, center=(0, 2.6, 0), text='cutaway: the pilot in the seat (side)'))
+    tiles.append(tile(cut, (60, 20), size=640, span=10.5, center=(0, 2.6, 0), text='cutaway (3/4)'))
+    K.sheet(tiles, os.path.join(OUT, 'mothership_views.png'), cols=2, title='bm:mothership3d - the Admiral\'s Mothership (skiff display: fixed, x4.5)')
+    print(os.path.join(OUT, 'mothership_views.png'))
+    # its key, beside the Vorn Skiff's
+    ic = vanilla.process('mothership_key', A.mothership_key())
+    sk = None
+    import zipfile
+    with zipfile.ZipFile(DIST) as z:
+        import io
+        sk = Image.open(io.BytesIO(z.read('assets/bm/textures/item/skiff_key.png'))).convert('RGBA')
+    sh = Image.new('RGB', (2 * 168 + 20, 230), (198, 198, 198)); d = ImageDraw.Draw(sh)
+    for i, (im, n) in enumerate(((sk, 'skiff_key'), (ic, 'mothership_key'))):
+        big = im.resize((128, 128), Image.NEAREST); sh.paste(big, (10 + i * 178, 10), big)
+        d.rectangle((10 + i * 178, 150, 29 + i * 178, 169), fill=(139, 139, 139)); sh.paste(im, (12 + i * 178, 152), im)
+        two = im.resize((32, 32), Image.NEAREST); d.rectangle((36 + i * 178, 150, 71 + i * 178, 185), fill=(139, 139, 139)); sh.paste(two, (38 + i * 178, 152), two)
+        d.text((10 + i * 178, 200), n, fill=(10, 10, 10), font=FNT)
+    sh.save(os.path.join(OUT, 'mothership_key.png')); print(os.path.join(OUT, 'mothership_key.png'))
 
 
 for w in what: globals()[w]()
