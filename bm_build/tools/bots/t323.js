@@ -33,17 +33,19 @@ runT({ W: 'mireling', NAME: 'The Mireling', ab: 'ml', q: 'mj', pfx: 'p252', pref
     ok('...and only stirs - "something small in its puddle watches you go" (no Seed yet)', A.chats.some(c => /watches you go/.test(c)) && (await has('mire_seed')) === 0, A.chats.slice(-1).join(''));
     A.chats.length = 0;
     ok('the fourth: it falls', await slay());
-    const seed = `@e[type=minecraft:item,x=${X + 0.5},y=${Y + 1},z=${Z + 3.5},distance=..4,limit=1]`; await sleep(500);
+    const seed = `@e[type=minecraft:item,x=${X + 0.5},y=${Y + 1},z=${Z + 3.5},distance=..14,nbt={Item:{components:{"minecraft:custom_data":{bm:"mire_seed"}}}},limit=1]`;      // (where the Mire fell - the fight moves it)
+    await wait(3000, async () => (await cnt(seed)) === 1 || (await has('mire_seed')) === 1, 200);
     ok('...and leaves a Mireling\'s Seed in its puddle, for TestRat alone (Owner set, never despawns)',
        /Owner/.test(await run(`${O}data get entity ${seed}`)) || (await has('mire_seed')) === 1);
-    await at(X + 0.5, Y + 1, Z + 3.5, 0, 10);
+    const sp = ((await run(`${O}data get entity ${seed} Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/) || []).slice(1).map(Number);
+    if (sp.length === 3) await at(sp[0], Y + 1, sp[2], 0, 10);
     ok('...picked up by walking over it', await wait(4000, async () => (await has('mire_seed')) === 1));
     ok('...and the player is told (only you can pick it up)', A.chats.some(c => /Only you can pick it up/.test(c)), A.chats.slice(-1).join(''));
     A.chats.length = 0;
     await run('item replace entity TestRat hotbar.8 with minecraft:netherite_sword');
     ok('a fifth Mire: it falls', await slay());
     await sleep(800);
-    ok('...and leaves no second Seed (bm.mlseed): still the one', (await has('mire_seed')) === 1 && (await cnt(`@e[type=minecraft:item,x=${X + 0.5},y=${Y + 1},z=${Z + 3.5},distance=..5]`)) === 0);
+    ok('...and leaves no second Seed (bm.mlseed): still the one', (await has('mire_seed')) === 1 && (await cnt(`@e[type=minecraft:item,x=${X + 0.5},y=${Y + 1},z=${Z + 3.5},distance=..14,nbt={Item:{components:{"minecraft:custom_data":{bm:"mire_seed"}}}}]`)) === 0);      // (its Shadow Remnants drop as ever)
     await run(`${O}kill @e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..12]`); await run('clear TestRat minecraft:netherite_sword');
     await run(`scoreboard players set #dfell bm.cfg ${dfell}`);
     // (the Seed used: it comes)
@@ -64,7 +66,9 @@ runT({ W: 'mireling', NAME: 'The Mireling', ab: 'ml', q: 'mj', pfx: 'p252', pref
     ok('SHADOW VEIL - you hurt, a foe about: Resistance and Regeneration', await wait(6000, async () => /resistance/.test(await fx()) && /regeneration/.test(await fx())), await fx());
     await K.home(); await ctx.at(X + 0.5, Y + 1, Z - 1.5, 0, 10); await run('effect clear TestRat'); await K.cd('k', 0);
     ok('GLOWPOOL - out of a fight beside you: Night Vision and Water Breathing', await wait(6000, async () => /night_vision/.test(await fx()) && /water_breathing/.test(await fx())), await fx());
-    ok('SHADOW KIN - it\'s out near you: the Stalkers\' check sees it (probe)', /Test passed|count: 1/i.test(await run('execute as TestRat at @s if function bm:p252/near_q')));
+    const kin = await run('execute as TestRat at @s if function bm:p252/near_q run scoreboard players get TestRat bm.pid');
+    ok('SHADOW KIN - it\'s out near you: the Stalkers\' check sees it (probe)', /has \d+/.test(kin),
+       kin + ' / pets ' + (await run(`${O}execute as TestRat at @s as @e[type=minecraft:wolf,tag=bm.mlpet,distance=..16] run scoreboard players get @s bm.pid`)) + ' / rat ' + (await run('scoreboard players get TestRat bm.pid')));
     await K.calm(); await run('effect give TestRat minecraft:resistance 900 4 true');
     // ---- FULL-GROWN: refused below rank III, then grown, then little again (the menu, as the player)
     const GR = '@e[type=minecraft:item_display,tag=bm.mlu]';

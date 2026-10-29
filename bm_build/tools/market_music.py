@@ -864,7 +864,7 @@ def tune_at(tr, bar0, tune):
     out = []
     for nt in tune:
         b, bt = at_beat(bar0, nt[0])
-        out.append((tr.at(b, bt), m(nt[1]), nt[2] * BEAT))
+        out.append((tr.at(b, bt), m(nt[1]), nt[2] * tr.beat))
     return out
 
 
