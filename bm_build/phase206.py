@@ -19,7 +19,9 @@ Raiment, from a Golden Cross).
                      fire, 24 through every armour (and 10 more to the undead), 8 to every monster round, alight; you healed.
                      45 s. (One holy piece and three dread ones is neither set.)
   2.99 (v299): the Raiment redrawn (seraph_art.py), and the Seraph's Wings seen in 3D on whoever wears them - the great wings
-                     folded down the back or spread in flight, the lower wings over the feet (seraph_wings.py, bm:p206w/...)."""
+                     folded down the back or spread in flight, the lower wings over the feet (seraph_wings.py, bm:p206w/...);
+                     the Dreadborne redrawn as its dark mirror (dread_art.py), the Dread Carapace's own 3D wings - membrane on
+                     bone, folded like a bat's, a ragged tail of membrane and chains (dread_wings.py, the same runtime)."""
 import math
 from items import item, T, ITEMS, attr
 import phase182 as P182

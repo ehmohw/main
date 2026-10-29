@@ -1,27 +1,20 @@
 """2.93: the art of the DREADBORNE set (the Dread bosses' armour) and its holy twin, the SERAPH'S RAIMENT.
 
 DREADBORNE   the Visage is the Dread monsters' own 3D helm (dread_armor.py); the Carapace, Greaves and Treads wear their
-             cracked void-plate (bm:dread); the Carapace carries wings of black membrane veined in red, with eyes in them.
+             cracked void-plate (bm:dread). (2.99: all redrawn in dread_art.py - the plate, the Visage, the elytra layer, the
+             sprites - with the Carapace's 3D membrane wings and ragged tail in dread_wings.py; registered here and in dread_armor.)
 SERAPH       (2.99: redrawn in seraph_art.py - the worn layers, the elytra layer, the Seraph's Gaze, the sprites - with the 3D
              great and lower wings others see on a wearer of the Seraph's Wings in seraph_wings.py; this module registers them.)
 Sprites for all eight pieces. Helm model space as the Dread Visage's: a head filling 3..13, front north (-z)."""
-import random
 from PIL import Image, ImageDraw
 
-from phase57_art import hexc
 import dread_armor as DA
 import seraph_art as SA
 import seraph_wings as SW
 import dread_wings as DW
 import dread_art as DK
 
-VAN = '/home/claude/mc263/client/assets/minecraft/textures'
-WINGS_SRC = '/home/claude/bm_build/vendor/elytra_wings.png'
-PEARL, PEARL_D, PEARL_L = (236, 232, 248), (176, 168, 206), (255, 255, 255)
-GOLD, GOLD_D, GOLD_L = (232, 182, 48), (150, 100, 20), (255, 228, 120)
-FLAME, FLAME_Y = (255, 120, 24), (255, 214, 72)
-SAPH, IRIS = (40, 90, 220), (64, 150, 255)
-RED, RED_L, VOID, VOID_L = (208, 24, 46), (255, 90, 100), (22, 16, 26), (48, 34, 54)
+RED, VOID, VOID_L = (208, 24, 46), (22, 16, 26), (48, 34, 54)
 
 
 # ---------------------------------------------------------------------------------------------------- the sprites
@@ -44,7 +37,7 @@ def icons():
 
 def rp(R):
     def post(R2):
-        R2.wj('assets/bm/models/item/seraph_helm.json', SA.helm_json(DA.helm_json()[1]['display']))     # (2.99: seraph_art)
+        R2.wj('assets/bm/models/item/seraph_helm.json', SA.helm_json(DA.HELM_DISPLAY))     # (2.99: seraph_art)
         R2.wj('assets/bm/items/angel_dread_visage.json', {'model': {'type': 'minecraft:model', 'model': 'bm:item/seraph_helm'}})
         DK.wings_layer().save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'wings', 'dread_wings.png'))   # (2.99: cut back to a mantle - dread_art)
         SA.wings_layer().save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'wings', 'seraph_wings.png'))
