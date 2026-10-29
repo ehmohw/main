@@ -1325,7 +1325,7 @@ for _i, _off in enumerate((45, 135, 225, 315)):
     _px, _pz = round(AC[0] + AR['pylon_r'] * math.cos(_a)), round(AC[2] + AR['pylon_r'] * math.sin(_a))
     _ix, _iz = -math.cos(_a), -math.sin(_a)                    # toward the centre: the crystal's side
     _f = (round(_ix) if abs(_ix) >= abs(_iz) else 0, 0 if abs(_ix) >= abs(_iz) else round(_iz))
-    PYLONS.append((_i, _px, _pz, (_px + 2 * _f[0], AR['pylon_y'][1], _pz + 2 * _f[1])))
+    PYLONS.append((_i, _px, _pz, (_px + 2 * _f[0], AR['pylon_cy'], _pz + 2 * _f[1])))
 
 
 def arena_ceil(r):
@@ -1392,7 +1392,7 @@ def flag(k):
         for y in range(W, 66):
             s(bx, y, bz, 'polished_blackstone' if y % 5 else 'gold_block')
         s(bx, W + 6, bz, GL)
-    # the four shield pylons, 3x3, y55..61, each with its crystal cell on its inward face
+    # the four shield pylons, 3x3, y55..61, each with its crystal cell on its inward face at chest height (pylon_cy)
     for (i, px, pz, cell) in PYLONS:
         for dx in (-1, 0, 1):
             for dz in (-1, 0, 1):

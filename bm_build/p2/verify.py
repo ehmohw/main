@@ -415,7 +415,7 @@ def verify_armada(B, G, AM, starts, all_open, notes):
     if sorted(p_[0] for p_ in AM['pylons']) != [0, 1, 2, 3]: errs.append(f'{d}: pylons {sorted(p_[0] for p_ in AM["pylons"])}')
     for (i, x, y, z) in AM['pylons']:
         b = math.degrees(math.atan2(z - az_, x - ax_))
-        if y != A.ARENA['pylon_y'][1] or not G.free(x, y, z): errs.append(f'{d}: pylon {i} crystal {(x, y, z)} is not an air cell at y{A.ARENA["pylon_y"][1]}')
+        if y != A.ARENA['pylon_cy'] or not G.free(x, y, z): errs.append(f'{d}: pylon {i} crystal {(x, y, z)} is not an air cell at y{A.ARENA["pylon_cy"]}')
         if abs(math.hypot(x - ax_, z - az_) - (A.ARENA['pylon_r'] - 2)) > 1.6: errs.append(f'{d}: pylon {i} is not at radius {A.ARENA["pylon_r"]}')
         if abs((b - A.ARENA['window'] - 45 - 90 * i + 180) % 360 - 180) > 6: errs.append(f'{d}: pylon {i} bearing {b:.0f}')
         ox, oz = round((x - ax_) / max(1e-6, math.hypot(x - ax_, z - az_))), round((z - az_) / max(1e-6, math.hypot(x - ax_, z - az_)))

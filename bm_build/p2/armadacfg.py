@@ -38,7 +38,8 @@ ARENA = dict(c=_ac,
              helm=(round(_ac[0] + 22 * math.cos(_toward)), 55, round(_ac[2] + 22 * math.sin(_toward))),   # Vexis waits here (walk y)
              door=(round(_ac[0] - 29 * math.cos(_toward)), 55, round(_ac[2] - 29 * math.sin(_toward))),  # the way in, opposite
              pylon_r=17,                # four shield pylons, 3x3, 7 tall, at window+45, +135, +225, +315 deg
-             pylon_y=(55, 61))
+             pylon_y=(55, 61),
+             pylon_cy=56)              # each crystal at chest height on its pylon's inward face (a blow must reach it)
 
 # ---- the order of the trials: (n, kind) - one chain, ship by ship
 PUZZLES = [(1, 'levers'),    # THE DOCK        the gravity lifts (levers: up, down, up - the manifest)            -> G1, bridge 1 to the Brood-Carrier
@@ -230,7 +231,7 @@ class ABuild(DBuild):
         self.meta['armada']['helm'] = (x, y, z)
 
     def pylon(self, i, x, y, z):
-        """shield pylon i's crystal: an AIR cell on the pylon's arena-facing side, at ARENA['pylon_y'][1]"""
+        """shield pylon i's crystal: an AIR cell on the pylon's arena-facing side, at ARENA['pylon_cy']"""
         self.mb(x, y, z, ['bm.apylon', f'bm.ap{i}'])
         self.meta['armada']['pylons'].append((i, x, y, z))
 

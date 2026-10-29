@@ -101,6 +101,18 @@ A red searchlight sweeps the ground beneath it, and it hums the hive's anthem.
   - Two lower wings cover your legs.
 - **New icons** for the three Seraph pieces.
 
+**THE DREADBORNE SET, REDONE.** The Dread twin of the Seraph's Raiment:
+- **The plate:** new black-and-bone armour layers with red eyes and veins.
+- **The Dread Visage** keeps its original look (2.90b). It's worn by players and the Dread mobs alike.
+- **The Dread Wings** are now 3D membrane wings that everyone sees, like the Seraph's. They fold as a cloak, rise as you fall and spread as you glide, and the elytra itself is cut back to a mantle beneath them.
+- **New icons** for the set.
+
+**THE WINGS OF THE DAMNED, REDRAWN.** The Wings of the Damned and their purified holy twin get new feathers: tattered black-violet flight feathers burning out in violet-to-cyan soul fire, and the holy pair in pearl and lavender with a gold leading edge and light at the tips. Both have new icons too. They stay elytra-shaped, a step below the 3D wings of the Seraph, the Dread and the Sovereign.
+
+**FOLLOWER ITEMS, REDRAWN.** Thirty of the newer followers' summoning items now match the rest of the pack: outlined, shaded 16x16 icons. They cover Dennis through Mr. Capshun, the Kettle, Henry, Nia, the Gem of Creativity, the Gutter Gentry, the Doodles, the Lightbringer, the Pale Dryad, the three cartridges and the Sky Mobile.
+
+**THE VORN SKIFF, REFRESHED.** The base skiff is a little sleeker, with a cleaner hull and a new green-and-white default paint.
+
 **THE SOVEREIGN'S WINGS.** The Dread Sovereign's fall now also gives every fighter two new elytra. They have the Wings of the Damned's powers: unbreakable, flying into a wall never hurts you, sneak while gliding to drive on, and crouch then jump to be thrown skyward.
 - **The Wings of the Last Night:** the Sovereign's own wings, black and full of eyes.
 - **The Wings of the First Light:** Aurel's wings as they were before the dark, white fire and gold, with a holy trail.

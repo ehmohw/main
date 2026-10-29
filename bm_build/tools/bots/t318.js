@@ -115,7 +115,7 @@ const E = 'execute in minecraft:the_end run ';
       for (let i = 0; i < 24; i++) { await hit(`@e[type=minecraft:interaction,tag=bm.arhit,sort=nearest,limit=1]`); await sleep(350); if ((await cnt(`@e[type=minecraft:interaction,tag=bm.arhit,x=${core[0] + dx},y=${core[1] + 1},z=${core[2] + dz},distance=..1.5]`)) === 0) break; }
     }
     ok('...each struck 8 times: all four broken - the reactor offline, its trial solved', await wait(4000, async () => (await sc(DG.replace('limit=1', 'limit=1'), 'bm.pz')) >= 14 || (await cnt('@e[type=minecraft:interaction,tag=bm.arhit]')) === 0));
-    ok('...its spoils: a Star-Core and red Xenite', (await has('star_core')) >= 1 && (await has('xenite_red')) >= 1);
+    ok('...its spoils: a Star-Core and red Xenite', await wait(4000, async () => (await has('star_core')) >= 1 && (await has('xenite_red')) >= 1));
   }
 
   if (on('lock')) {
@@ -156,9 +156,7 @@ const E = 'execute in minecraft:the_end run ';
     await at(pyl[0], pyl[1] - 6 + 0.1 > c[1] ? pyl[1] - 6 : c[1], pyl[2] + 1.6, 180, 0);
     await run(`${E}tp TestRat ${pyl[0]} ${c[1]} ${pyl[2] - 2.2} 0 -40`); await sleep(1500);
     await run(`${E}scoreboard players set @e[type=minecraft:marker,tag=bm.apylon] bm.vxp 1`); await run(`${E}tag @e[type=minecraft:marker,tag=bm.apylon] remove bm.vxpc`);
-    const dbg0 = await run(`${E}execute as TestRat at @s as @e[type=minecraft:marker,tag=bm.apylon,limit=1,sort=nearest] run data get entity @s Tags`) + ' vxp ' + await run(`${E}execute as TestRat at @s run scoreboard players get @e[type=minecraft:marker,tag=bm.apylon,limit=1,sort=nearest] bm.vxp`);
     A.bars.length = 0; await hit('@e[type=minecraft:interaction,tag=bm.vxpyi,limit=1,sort=nearest]'); await sleep(600);
-    await sleep(1000); console.log('DBG', dbg0, '|', A.bars.join(' / '), '| pyl', pyl, 'c', c, 'me', await pos('@a[name=TestRat,limit=1]'), await run(`${E}execute as TestRat at @s run data get entity @e[type=minecraft:interaction,tag=bm.vxpyi,limit=1,sort=nearest]`));
     ok('a pylon struck while dark: it shrugs it off (told why)', A.bars.some(b => /GLOWS/.test(b)) && (await cnt('@e[type=minecraft:marker,tag=bm.apylon,tag=bm.vxpl]')) === 4, A.bars.slice(-1).join(''));
     await run(`${E}execute as @e[type=minecraft:marker,tag=bm.apylon] run scoreboard players set @s bm.vxp 4`); await sleep(1300);
     await hit('@e[type=minecraft:interaction,tag=bm.vxpyi,limit=1,sort=nearest]'); await sleep(700);
