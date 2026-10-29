@@ -29,7 +29,8 @@ THE FALL     (30 s, eyes held on it) THE UNLINKING: the hive-link burns out; the
              Whoever felled it, it won't rise for again - until they attack a Dreadnought (p241/rekindle).
 ABANDONED    nobody on the bridge for 30 s: it goes back to the helm and powers down; the pylons are rebuilt."""
 import math
-from items import T
+from items import T, item, TOTEM
+from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D as Dd
 import rigfol as RF
 import vexis_art as A
@@ -75,6 +76,16 @@ P152.THEMES.update({26: ('vexis1', 120), 27: ('vexis2', 120), 28: ('vexis3', 120
 _H = 'type=minecraft:husk,tag=bm.avx'
 P152.WHO_LATE += [(26, f'{_H},tag=bm.vxlive,scores={{bm.vxph=1}}'), (27, f'{_H},tag=bm.vxlive,scores={{bm.vxph=2}}'), (28, f'{_H},tag=bm.vxlive,scores={{bm.vxph=3}}'),
                   (30, f'{_H},tag=bm.vxturn,tag=bm.vxt1'), (31, f'{_H},tag=bm.vxturn,tag=bm.vxt2'), (29, f'{_H},tag=bm.vxintro'), (32, f'{_H},tag=bm.vxfall')]
+
+# ---- (2.99) THE MOTHERSHIP: the Admiral's own skiff, from its fall (the first time). The Vorn Skiff's machinery (phase35: it flies,
+# the laser, the bomb bay, the tractor beam, phase48) under the Admiral's hull (armada_art: bm:mothership3d), faster and tougher,
+# and its laser is the HIVE CANNON - three beams at once.
+item('mothership_key', TOTEM, 'The Mothership Key', COL,
+     ['The Admiral\'s own skiff. It still hums the hive\'s anthem.', ('Right-click: call the Mothership and climb in.', 'blue'),
+      ('Aboard: right-click fires the Hive Cannon (three beams);', 'blue'), ('look steeply down to drop a charged TNT bomb;', 'blue'),
+      ('look up + right-click: the tractor beam.', 'blue'), ('Faster and tougher than a Vorn Skiff.', 'blue'), ('Sneak to get out. Not in dungeons or markets.', 'dark_gray'),
+      ('From Admiral Vexis\'s fall.', 'dark_gray')], model='bm:mothership_key', stack=1, cat='alien', glint=True, bold=True, comps=hold('none'))
+HOLD['mothership_key'] = 'bm:p242/ms/use'
 
 # ---- the Starforged set (p2/armadaitems): hover-jets, a star-shield
 P15.SET_FX['starforged'] = (['effect give @s minecraft:slow_falling 2 0 true', 'execute unless entity @s[nbt={OnGround:1b}] run function bm:p242/sf/jet',
@@ -713,8 +724,8 @@ def generate(G):
                        tellraw('@s', P + [T(L.VX, COL, bold=True), T(' has fallen. ', 'gray'), T(L.FIGHT['fall2'], '#c8f0c0', italic=True)]),
                        'execute unless entity @s[tag=bm.vxfirst] run function bm:p242/first',
                        'execute if score @s bm.vxwin matches 2.. unless entity @s[tag=bm.xbwar] run function bm:p242/warframe'])
-    fn('p242/first', ['tag @s add bm.vxfirst', give('music_disc_vexis'), 'function bm:p243/enc/joined',
-                      tellraw('@s', [T('  In the quiet: ', 'gray'), T('its record', COL), T(' - and ', 'gray'), T(L.ITEMS['link'][0], COL, bold=True),
+    fn('p242/first', ['tag @s add bm.vxfirst', give('music_disc_vexis'), give('mothership_key'), 'function bm:p243/enc/joined',
+                      tellraw('@s', [T('  In the quiet: ', 'gray'), T('its record', COL), T(', ', 'gray'), T('the Mothership Key', COL, bold=True), T(' - and ', 'gray'), T(L.ITEMS['link'][0], COL, bold=True),
                                      T('. Something on the other end is listening for you.', 'gray', italic=True)])])
     # (felled a second time: Vexis remembers its warframe - the full-size form, as it stood against you)
     fn('p242/warframe', ['tag @s add bm.xbwar', 'advancement grant @s only bm:story/vexis_warframe',
@@ -770,6 +781,38 @@ def generate(G):
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.vxsh dummy']
     G.OBJECTIVES.append('bm.vxsh')
     fast.append('scoreboard players remove @a[scores={bm.vxsh=1..}] bm.vxsh 1')
+
+    # ================================================================== THE MOTHERSHIP (the Vorn Skiff's machinery, the Admiral's hull)
+    fn('p242/ms/use', ['execute if function bm:p35/skiff/riding if function bm:p242/ms/aboard unless entity @s[x_rotation=55..90] unless entity @s[x_rotation=-90..-50] run return run function bm:p242/ms/cannon',
+                       'tag @s add bm.skmom', 'function bm:p35/skiff/use', 'tag @s remove bm.skmom'])
+    fn('p242/ms/aboard', ['execute on vehicle if entity @s[tag=bm.skmom] run return 1', 'return 0'])
+    use = G.FUNCS['p35/skiff/use']
+    use.insert(next(i for i, l in enumerate(use) if l == 'function bm:p36/skin/apply') + 1, 'execute if entity @s[tag=bm.skmom] run function bm:p242/ms/make')
+    fn('p242/ms/make', ['scoreboard players operation #kp bm.pid = @s bm.pid',
+                        'execute as @e[type=minecraft:happy_ghast,tag=bm.skiff] if score @s bm.pid = #kp bm.pid run function bm:p242/ms/ghast',
+                        'execute as @e[type=minecraft:item_display,tag=bm.skdisp] if score @s bm.pid = #kp bm.pid run function bm:p242/ms/hull',
+                        'title @s times 6 40 12', title('@s', 'title', T('THE MOTHERSHIP', COL, bold=True)),
+                        title('@s', 'subtitle', T('the Admiral\'s own', '#c8f0c0', italic=True)),
+                        'playsound minecraft:entity.elder_guardian.curse player @a[distance=..48] ~ ~ ~ 1 0.6', 'playsound minecraft:block.beacon.activate player @a[distance=..48] ~ ~ ~ 1 0.5',
+                        title('@s', 'actionbar', T('Mothership online. Right-click: the Hive Cannon. Look down: TNT. Look up: tractor beam. Sneak: land.', COL))])
+    fn('p242/ms/ghast', ['tag @s add bm.skmom', 'attribute @s minecraft:flying_speed base set 0.3', 'attribute @s minecraft:max_health base set 160',
+                         'data modify entity @s Health set value 160f', f'data modify entity @s CustomName set value {snbt(T("The Mothership", COL, bold=True))}'])
+    fn('p242/ms/hull', ['tag @s add bm.skmom', 'data modify entity @s item.components."minecraft:item_model" set value "bm:mothership3d"'])
+    # (a paint kit used while it's out doesn't repaint the Admiral's hull)
+    G.FUNCS['p36/skin/apply'].append('execute as @e[type=minecraft:item_display,tag=bm.skdisp,tag=bm.skmom] if score @s bm.pid = #kp bm.pid run data modify entity @s item.components."minecraft:item_model" set value "bm:mothership3d"')
+    # THE HIVE CANNON: three beams at once (the skiff's own beam and zap)
+    fn('p242/ms/cannon', ['execute if score @s bm.skl matches 1.. run return 0', 'scoreboard players set @s bm.skl 10', 'tag @s add bm.shooter',
+                          'playsound minecraft:entity.guardian.attack player @a[distance=..48] ~ ~ ~ 1.5 1.2', 'playsound minecraft:entity.blaze.shoot player @a[distance=..48] ~ ~ ~ 1 0.5',
+                          'scoreboard players set #rr bm.rng 128', 'execute anchored eyes positioned ^ ^ ^1.5 run function bm:p35/skiff/beam',
+                          'scoreboard players set #rr bm.rng 128', 'execute anchored eyes positioned ^1.6 ^-0.6 ^1.5 run function bm:p35/skiff/beam',
+                          'scoreboard players set #rr bm.rng 128', 'execute anchored eyes positioned ^-1.6 ^-0.6 ^1.5 run function bm:p35/skiff/beam',
+                          'tag @s remove bm.shooter'])
+    # its presence: a red searchlight sweeping the ground under it, and the hive's hum
+    second.append('execute as @e[type=minecraft:happy_ghast,tag=bm.skmom] at @s run function bm:p242/ms/menace')
+    fn('p242/ms/menace', ['particle minecraft:dust{color:[1.0,0.15,0.1],scale:2.0} ~ ~-1.5 ~ 0.3 0.6 0.3 0 6 force @a[distance=..64]',
+                          'execute positioned over motion_blocking run particle minecraft:dust{color:[1.0,0.2,0.15],scale:2.5} ~ ~0.1 ~ 1.4 0 1.4 0 30 force @a[distance=..64]',
+                          'particle minecraft:end_rod ~ ~ ~ 2 0.4 2 0.01 4 force @a[distance=..64]',
+                          'playsound minecraft:block.conduit.ambient.short neutral @a[distance=..32] ~ ~ ~ 0.6 0.5'])
 
     # ================================================================== ADMIN
     fn('admin/armada/boss', ['execute unless entity @e[type=minecraft:marker,tag=bm.ahelm] run return run ' + tellraw('@s', P + [T('The bridge isn\'t loaded (or placed).', 'gray')]),

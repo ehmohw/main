@@ -79,6 +79,13 @@ Two more are classic secret rooms. Each room also gives a **Hive Sigil**, and si
   - **the Admiral's Crown:** Vorn near you are slowed.
 - **The Starforged set**, the new top tier of alien gear, above the Warplate. At **the Starforge** aboard the Dock, hold a Warplate piece and carry 2 Star-Cores and 8 red Xenite. The full set gives hover-jets (a slow fall, and sneak in mid-air for a burst) and a star-shield that soaks a heavy blow once a minute.
 
+**THE MOTHERSHIP.** The first time you fell Vexis, you also get **the Mothership Key**: the Admiral's own skiff, bigger, darker and far more menacing than a Vorn Skiff. It flies faster and is twice as tough. Aboard:
+- **Right-click:** the **Hive Cannon**, three beams at once.
+- **Look down and right-click:** the charged TNT bomb.
+- **Look up and right-click:** the tractor beam.
+
+A red searchlight sweeps the ground beneath it, and it hums the hive's anthem.
+
 **VEXIS, THE UNLINKED: a follower (hard mode).** The first time you fell it, **the Severed Link** is yours. It comes with the full follower checklist:
 - **Its powers:** Hive-Grip, Plasma Bolt, Gravity Well, Deflector and Scout Drone. The Vorn near it hesitate, slowed and weakened.
 - **Everything every follower has:** its menu, sitting, a wardrobe (six mantles), a rare aura (Starlit Orbit), a shiny, the Partner Wheel, a frame trick, a display-case figurine and Cecil's doll.
