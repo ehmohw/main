@@ -4,26 +4,32 @@
                   little alien lounge - a bubbling synth bass on a bossa line, a drum machine's clave and shaker, a slow
                   wobbling pad, FM-bell arpeggios, bloops, and a gliding THEREMIN with the tune. Playful, a bit mysterious.
                   A minor (dorian), 120 BPM, 36 bars = 72 s.
-  THE DREADNOUGHT "Hive Iron March" (vendor/ship_dreadnought.ogg) - the Vorn's red warship (phase32, bm:red_mothership): heavy
-                  and military - a galloping low-string ostinato, war drums and a marching snare, struck hull plates, a sub
-                  drone, horns and trombones with the theme, trumpets over the chorale. D minor, 96 BPM, 32 bars = 80 s.
+  THE DREADNOUGHT "The Deep Hive" (vendor/ship_dreadnought.ogg) - the Vorn's red warship (phase32, bm:red_mothership): vast,
+                  slow and alien, in the Armada's family (tools/armada_music.py: D with its flat second, THE CALL D-A-Eb, a
+                  formant hive choir with a ring in it, struck hull plates) but its own - a sub drone and an engine pulse, a
+                  machine hum breathing, a hive choir on chords moving by minor thirds over a D that never leaves, detuned
+                  glass, a chittering in the dark, bulkheads struck far off, servos; the hook (all of it octatonic - the
+                  half-whole scale - its held notes bending flat) in one wordless gliding voice, ring-modulated bells striking
+                  each note. D, 72 BPM, 24 bars = 80 s.
 
   Each has an INVASION-NIGHT variant on the same tune and length (vendor/ship_mothership_inv.ogg, ship_dreadnought_inv.ogg):
   "Red Alert" aboard the mothership (a two-tone alarm, a kick on every beat, sixteenth-note hats and arpeggios, a nervous gated
-  pad, laser zaps, a theremin with its nerves showing), "Battle Stations" aboard the Dreadnought (a klaxon, the snare doubled to
-  sixteenths, the ostinato driven in sixteenths, timpani, trumpet stabs).
+  pad, laser zaps, a theremin with its nerves showing), "Battle Stations" aboard the Dreadnought (the same ship woken: a synth
+  pulse driven in sixteenths, the hull beaten, metal ticks, the choir's breath pulsing, ring-modulated alarm stabs, the hive's
+  tritone alarm).
 
-All synthesised with tools/market_music.py's own instruments and its circular Track (notes and reverb running past the end wrap
-to the start, so each loops without a seam), mastered as the market's theme is: -15 LUFS integrated, sample peak under -1 dBFS
-after the Vorbis encode. Deterministic; run it to rebuild (needs numpy, scipy and ffmpeg - never needed to build the packs):
+All synthesised (the mothership with tools/market_music.py's instruments, the Dreadnought mostly with its own below) on
+market_music's circular Track (notes and reverb running past the end wrap to the start, so each loops without a seam; the
+Dreadnought's never-ending layers are tuned to whole cycles of the loop or cross-faded round it - bed(), LoopTrack), mastered
+as the market's theme is: -15 LUFS integrated, sample peak under -1 dBFS after the Vorbis encode. Deterministic; run it to rebuild (needs
+numpy, scipy and ffmpeg - never needed to build the packs):
     python3 tools/ship_music.py [mothership] [dreadnought] [inv] [preview DIR]     (no names: all four)"""
 import os, sys
 import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import market_music as mm
-from market_music import (SR, m, hz, tt, noise, lp, hp, bp, adsr, additive, formant, _pitch, Track, at_beat, play, glide,
-                          rhodes, synbass, kick909, clap, hat, siren, zap, blip, stab, glide_line, bowed, timp, boom, crash,
-                          tom, trumpet, ride)
+from market_music import (SR, m, hz, tt, noise, lp, hp, bp, adsr, additive, Track, at_beat, play, glide, rhodes, synbass,
+                          kick909, clap, hat, siren, zap, stab, tom, crash)
 
 KINDS = {'m': (0, 3, 7), 'M': (0, 4, 7), 'm7': (0, 3, 7, 10), 'M7': (0, 4, 7, 11), '7': (0, 4, 7, 10), '9': (0, 4, 7, 10, 14),
          'm9': (0, 3, 7, 10, 14), 'hd': (0, 3, 6, 10), '13': (0, 4, 10, 14, 21), '7#9': (0, 4, 10, 15)}
@@ -89,32 +95,6 @@ def riser(dur, amp=1.0):
     f = 200 * 8 ** (t / dur)
     s = np.sin(2 * np.pi * np.cumsum(f) / SR) * 0.6 + bp(noise(n), 1500, 7000) * 0.5
     return amp * s * (t / dur) ** 2 * adsr(n, 0.01, 0, 1, 0.05)
-
-
-def horn(x, dur, amp=1.0, bright=0.5, **_):
-    """horns and trombones: additive brass, a dark formant, a swell into long notes, the lip's blat on the attack"""
-    f = hz(x); n = int(dur * SR); t = np.arange(n) / SR
-    fr = _pitch(n, f, 0.25, 0, 0.1 if dur > 0.6 else 0, 0.3, 5.0)
-    s = additive(fr, lambda k, fk: k ** -0.8 * formant(fk, 650 + 700 * bright, 0.7, 1.5) / (1 + (fk / (1600 + 2600 * bright)) ** 4), n) / 5
-    swell = 1 + 0.25 * np.clip(t / max(dur, 0.3), 0, 1)
-    return amp * s * swell * (1 + 0.5 * np.exp(-t * 20)) * adsr(n, 0.04, 0.1, 0.85, 0.08)
-
-
-def snare(amp=1.0, tight=1.0):
-    t = tt(0.3); n = len(t)
-    s = bp(noise(n), 1500, 9000) * np.exp(-t * 22 * tight) + 0.6 * np.sin(2 * np.pi * 200 * t) * np.exp(-t * 35)
-    s += 0.5 * hp(noise(n), 4000) * np.exp(-t * 12 * tight)                                # (the wires)
-    return amp * s * 0.7
-
-
-def plate(amp=1.0, f=180.0):
-    """a struck hull plate: a few inharmonic partials ringing, the strike's clank"""
-    t = tt(1.4); n = len(t)
-    s = np.zeros(n)
-    for r, a, d in ((1, 1, 3), (2.32, .7, 4), (3.87, .5, 5), (5.21, .35, 7), (7.13, .25, 9)):
-        s += a * np.sin(2 * np.pi * f * r * t + mm.G.uniform(0, 6)) * np.exp(-t * d)
-    s += 0.6 * bp(noise(n), 1500, 6000) * np.exp(-t * 60)
-    return amp * s / 2.5 * adsr(n, 0.001, 0, 1, 0.2)
 
 
 def sub(x, dur, amp=1.0):
@@ -439,7 +419,8 @@ def rstab(notes, dur, amp=1.0, mod=1.414):
     s /= len(notes)
     e = np.exp(-t * 7)
     s = lp(s, 700) + (lp(s, 5000) - lp(s, 700)) * np.exp(-t * 14)
-    return amp * s * e * adsr(n, 0.002, 0, 1, 0.05)
+    s = np.tanh(2.5 * s / (np.abs(s).max() + 1e-9))                                     # (its spikes rounded off)
+    return amp * s * e * adsr(n, 0.004, 0, 1, 0.05)
 
 
 def mtick(amp=1.0):
@@ -563,18 +544,18 @@ def dreadnought(tr, inv=False):
             lvl = {'intro': 0.85, 'A': 1.0, 'B': 1.05, 'outro': 0.9}[sec]
             for i, o in enumerate(pat):
                 acc = 1.0 if i % 4 == 0 else 0.7
-                tr.add(synbass(r + o, 0.2 * tr.beat, 0.16 * acc * lvl, bright=0.3, cut=650 + 250 * (i % 4 == 0), res=0.6),
+                tr.add(synbass(r + o, 0.2 * tr.beat, 0.22 * acc * lvl, bright=0.3, cut=650 + 250 * (i % 4 == 0), res=0.6),
                        tr.at(bar, 0) + i * tr.beat / 4, -0.05, 1, 0.08)
             for b in (0, 1.5, 2, 3.5) if sec != 'intro' else (0, 2):
                 tr.add(hullhit(64 if b % 2 == 0 else 82, 0.42 * lvl, 0.5, 1.6, 2200), tr.at(bar, b), 0.05, 1, 0.35)
             for i in range(8 if sec != 'B' else 16):
                 st = 8 if sec != 'B' else 16
-                tr.add(mtick(0.12 * (1.3 if i % 2 else 0.8)), tr.at(bar, 0) + i * 4 / st * tr.beat, 0.4, 1, 0.3)
+                tr.add(mtick(0.5 * (1.3 if i % 2 else 0.8)), tr.at(bar, 0) + i * 4 / st * tr.beat, 0.4, 1, 0.3)
             if sec != 'intro' and bar % 2 == 1:
                 hi = sorted(set(near(x, m('E4')) for x in [r + v for v in DN_KINDS[kind]] + [r + 1]))
-                for b in (1.5, 3.5): tr.add(rstab(hi, 0.9, 0.2 * lvl), tr.at(bar, b), 0.25, 1, 0.4)
+                for b in (1.5, 3.5): tr.add(rstab(hi, 0.9, 0.85 * lvl), tr.at(bar, b), 0.25, 1, 0.4)
         for bar in (0, 12, 20):
-            tr.add(ralarm(8 * tr.beat, 0.12), tr.at(bar, 0), -0.35, 1, 0.5)
+            tr.add(ralarm(8 * tr.beat, 0.6), tr.at(bar, 0), -0.35, 1, 0.5)
 
 
 SHIPS = {'mothership': (mothership, MS_BPM, MS_BARS, 3001), 'dreadnought': (dreadnought, DN_BPM, DN_BARS, 3002)}

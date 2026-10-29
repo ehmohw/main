@@ -53,7 +53,7 @@ class Keeper(RP.Cfg):
     pron, they = 'it', 'it'
     FACE = dict(KA.FACE_MAP)
     ATTRS = dict(armor=6, attack_damage=4, movement_speed=0.36, follow_range=32, step_height=1.1)
-    SCALE, HIT = 1.0, (0.9, 2.4)
+    SCALE, HIT = 1.0, (0.9, 2.2)                # (3.0c: it stands 2.14 tall now - was 2.34)
     CYCLE = P235.cycle((240, [(0, 'idle_a'), (80, 'idle_b'), (160, 'idle_c'), (210, 'idle_a')]), (240, [(0, 'sit_a'), (120, 'sit_b')]),
                        (None, [(0, 'happy')]),
                        {8: (None, [(0, 'tug_up'), (6, 'tug'), (14, 'idle_a')]),
@@ -281,15 +281,15 @@ def _encounter(G, X):
     fn('p254/enc/seq', ['scoreboard players add @s bm.qbsq 1',
                         'execute as @e[type=minecraft:item_display,tag=bm.tkencp,distance=..5] run tag @s add bm.tksel'] +
        [f'execute if score @s bm.qbsq matches {t} run function bm:p254/pose/{p}' for t, p in beat.items()] +
-       ['execute if score @s bm.qbsq matches 2 run particle minecraft:end_rod ~ ~2 ~ 0.3 0.3 0.3 0.02 8',
+       ['execute if score @s bm.qbsq matches 2 run particle minecraft:end_rod ~ ~1.8 ~ 0.3 0.3 0.3 0.02 8',
         'execute if score @s bm.qbsq matches 40..84 run function bm:p254/enc/weaving',
         'execute if score @s bm.qbsq matches 84 run playsound minecraft:block.beacon.power_select neutral @a[distance=..24] ~ ~ ~ 0.8 1.6',
         'tag @e[tag=bm.tksel] remove bm.tksel',
         f'execute if score @s bm.qbsq matches {SEQ_END}.. run function bm:p254/enc/give'])
     fn('p254/enc/weaving', ['execute store result score #r bm.rng run random value 0..5'] +
-       [f'execute if score #r bm.rng matches {i} run particle minecraft:dust{{color:[{r},{g},{b}],scale:0.7}} ~ ~1.9 ~-0.6 0.35 0.25 0.1 0 3'
+       [f'execute if score #r bm.rng matches {i} run particle minecraft:dust{{color:[{r},{g},{b}],scale:0.7}} ~ ~1.7 ~-0.6 0.35 0.25 0.1 0 3'
         for i, (r, g, b) in enumerate([(1.0, 0.42, 0.6), (1.0, 0.62, 0.2), (1.0, 0.88, 0.25), (0.4, 0.85, 0.4), (0.3, 0.7, 1.0), (0.62, 0.45, 1.0)])] +
-       ['particle minecraft:end_rod ~ ~1.9 ~ 0.3 0.2 0.3 0.005 1',
+       ['particle minecraft:end_rod ~ ~1.7 ~ 0.3 0.2 0.3 0.005 1',      # (3.0c: at the web, now 0.2 lower)
         'execute if score @s bm.qbsq matches 40 run playsound minecraft:block.amethyst_block.chime neutral @a[distance=..24] ~ ~ ~ 1 0.8',
         'execute if score @s bm.qbsq matches 60 run playsound minecraft:block.amethyst_block.chime neutral @a[distance=..24] ~ ~ ~ 1 1.0',
         'execute if score @s bm.qbsq matches 76 run playsound minecraft:block.amethyst_block.chime neutral @a[distance=..24] ~ ~ ~ 1 1.3'])

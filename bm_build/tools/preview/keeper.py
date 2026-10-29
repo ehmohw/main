@@ -303,9 +303,9 @@ if 'lineup' in what:
     s = night_scene(); rigkit.render(s, A, I, scale=A.RIG_SCALE)
     t2.append(dark_label(darken(s.render((-30, 62), size=440, span=3.6, center=(0, 1.3, 0))), 'by night, from above', 'the two rings of motes'))
     s = K.multi_scene(ROOT); rigkit.render(s, A, I, scale=A.RIG_SCALE)
-    t2.append(K.label(s.render('front', size=440, span=1.1, center=(0, 2.0, 0)), 'the hood, close', 'a kind round face, rosy cheeks, a small smile'))
+    t2.append(K.label(s.render('front', size=440, span=1.1, center=(0, 1.8, 0)), 'the hood, close', 'smiling eyes of light, a glowing blush'))
     s = K.multi_scene(ROOT); rigkit.render(s, A, I, scale=A.RIG_SCALE)
-    t2.append(K.label(s.render((-25, 8), size=440, span=1.1, center=(0, 1.32, -0.1)), 'the loom at its heart', 'a spindle of light, rainbow warps'))
+    t2.append(K.label(s.render((-25, 8), size=440, span=1.1, center=(0, 1.18, -0.1)), 'the loom at its heart', 'a spindle of light, rainbow warps'))
     K.sheet(t2, OUT + '/keeper_details.png', cols=4, title='The Keeper of Bonds - details')
 if 'poses' in what:
     names = A.DRAFT
@@ -317,7 +317,7 @@ if 'faces' in what:
     tiles = []
     for f in (None,) + A.FACES:
         pose = {k: v for k, v in dict(I, _face=f, head=rigkit.I).items() if v is not None}
-        tiles.append(tile(pose, 'front', span=0.8, center=(0, 2.0, 0), size=240, label=f or 'calm (default)'))
+        tiles.append(tile(pose, 'front', span=0.8, center=(0, 1.8, 0), size=240, label=f or 'calm (default)'))
     K.sheet(tiles, OUT + '/keeper_faces.png', cols=8, title='The Keeper of Bonds - faces')
 if 'items' in what:
     icons = [(n, f()) for n, f in A.ICONS.items()]
@@ -439,7 +439,7 @@ if 'shimmer' in what:
     for f in (0, 4, 8, 12):
         FRAME[0] = f
         s = K.multi_scene(ROOT); rigkit.render(s, A, I, scale=A.RIG_SCALE)
-        tiles.append(K.label(s.render((-30, 10), size=420, span=1.7, center=(0, 1.75, 0)), f'frame {f} of {A.FRAMES}', f'{f * 5 / 20:.0f} s - the sheen flowing over the pearl'))
+        tiles.append(K.label(s.render((-30, 10), size=420, span=1.7, center=(0, 1.55, 0)), f'frame {f} of {A.FRAMES}', f'{f * 5 / 20:.0f} s - the sheen flowing over the pearl'))
     for f in (0, 4, 8, 12):
         FRAME[0] = f
         s = K.multi_scene(ROOT); rigkit.render(s, A, I, scale=A.RIG_SCALE)

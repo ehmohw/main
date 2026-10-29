@@ -34,7 +34,7 @@ clarinet, Rhodes comping, vibes, an accordion's flourishes).
   one on the next second (vanilla has no crossfade).
 - THE SHIPS (tools/ship_music.py): aboard an alien MOTHERSHIP (phase25, bm:mothership) "Tractor Beam Bossa" (72 s); aboard a
   VORN DREADNOUGHT (phase32, bm:red_mothership - the Overworld's own warship, not the Armada's Dreadnoughts in the End, which
-  have phase244's music) "Hive Iron March" (80 s); each with an Invasion Night variant ("Red Alert", "Battle Stations").
+  have phase244's music) "The Deep Hive" (80 s); each with an Invasion Night variant ("Red Alert", "Battle Stations").
   Aboard is phase148's box: 25 blocks round the ship's beam marker (bm.tbeam / bm.tbeam_red, on the lower deck), from 5 below
   it to 14 above. Anyone aboard hears it (no key needed); the same yielding, loop and stops as the market's. A switch of its
   own ("Ship music").

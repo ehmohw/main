@@ -2,24 +2,24 @@
 Earned by having all 49 others; a compass (bond_compass) shows the way to the Loom Sanctuary in the Overworld sky (keeper_sanctuary),
 where it waits by its great loom. It is not the Divine One and not a herald: no halo, no wings - a quiet, gentle keeper of threads.
 
-LOOK  A tall, calm figure (2.45 blocks to the hood's peak as it floats), robed in woven threads: cream and gold cloth, the
+LOOK  A calm, cosy figure (3.0c: 2.14 blocks to the hood's crown as it floats - shorter and a little broader than 3.0's 2.45), robed in woven threads: cream and gold cloth, the
       rainbow of the bonds woven through it. Every follower's own colour (phase125.WHO's) is in it, once:
       - the ROBE from the belt to the hem is a tapestry of 24 woven rows, two followers' colours to a row (the row's colour and
         a twill stitch every fourth cell), running round the colour wheel from gold at the belt, through green, blue, violet
         and rose, to amber at the gold hem; a fringe of loose threads hangs from the hem in all their colours;
       - the 49th colour (the bonds' first: Emma's pink) is the spindle at its heart.
       - Pearl cloth above (a soft vertical warp line), a gold belt and a mantle over the shoulders with a woven border of colour
-        blocks; long bell sleeves, the same border at the cuffs, their long drape trailing loose drifting threads (threadr / threadl).
+        blocks; long bell sleeves, the same border at the cuffs, their short drape trailing loose drifting threads (threadr / threadl).
         (3.0b) The cloth is MOTHER-OF-PEARL: kb_robe and kb_hood are animated strips (FRAMES frames, interpolated) - a pastel
         sheen (PEARL: rose, peach, cream, mint, sky, lilac) running diagonally over a warm pearl base and flowing along over
         the frames, a pale highlight band sweeping across once a cycle; every frame keeps each cell's luminance, so the
         wardrobe's luminance recolours (phase138 -> phase99._recolour / gild.metal) come out as clean cloth in the look's
         colours with the highlight passing over them (gen_rp copies the .mcmeta to their _cN copies). The gold trim (kb_gold,
         kb_rim, kb_brd) glints the same way, in rose and champagne golds; the wings are tuned to the same pastels.
-      - (3.0b, friendlier) A soft pearl hood, pushed back and opened wide (gold rim, rose lining), over a warm round face: a
-        fringe of starlight-lilac hair, peach skin, rosy cheeks, soft plum eyes with a shine, a small smile (kb_face; each
-        mood's features are kb_eyes / kb_eyes_<face>, a hair in front). The hood rounds to a low crown - no point.
-        Hands are warm skin now, not light.
+      - (3.0c, cheerful) A soft pearl hood, opened wide (gold rim, a deep dusky-rose lining), rounding to a low crown - no
+        point; inside it no face of flesh, only shadow (kb_face, unlit) with its EYES OF LIGHT smiling in it: crescents of
+        light, a soft pink blush glowing under them, a tiny smile of light (kb_eyes / kb_eyes_<face>, at full light). Every
+        mood a friendly one. Short, round sleeves; out of each cuff a soft mitten of light (a little thumb), not long fingers.
       - At its heart a small glowing LOOM (its own part): a gold frame strung with rainbow warp threads, a spindle of light at
         its centre (light 15).
       - Round it, slowly orbiting, the 49 BONDS: tiny glowing motes, each a follower's colour - two tilted rings on their own
@@ -37,7 +37,7 @@ MOTION  It hovers (_off y HOVER, a slow bob), the hem's fringe clear of the grou
       and fainting set it down kneeling on its robe spread on the floor (the 'pool', shown instead of the skirt).
 
 RIG (rigkit)  body (root: torso, belt, mantle, the robe's upper two tiers), skirt (the lower four tiers, hem and fringe; swings
-      on its own joint), head (a model per face; the hood is on it), armr/forer, arml/forel (long sleeves, bent at the elbow),
+      on its own joint), head (a model per face; the hood is on it), armr/forer, arml/forel (sleeves, bent at the elbow),
       threadr/threadl (the loose threads off each sleeve's drape), loom (on the chest), motes/motesb (the orbit, roots),
       pool (root; kneeling), web (the weave's spread of threads between its hands - only in the weave poses), and the six
       wings (wing_ur, wing_ul, wing_mr, wing_ml, wing_lr, wing_ll: on the body).
@@ -46,7 +46,7 @@ RIG (rigkit)  body (root: torso, belt, mantle, the robe's upper two tiers), skir
 POSE KEYS  _face, _pool (kneeling: the pool shows, the skirt hides), _web (the weave: the web shows), _hide, _off, _o_pool.
 
 FOR THE WIRING  (phase-to-be, like phase236)  A = RF2.art(keeper_art); SWAP = RF2.swapping(...) (= (): only the head's face
-      changes); RF2.setup(C, 'head'); FACE = FACE_MAP below; SCALE ~1.0 and HIT (0.9, 2.4) for the host; ENC_POSES from
+      changes); RF2.setup(C, 'head'); FACE = FACE_MAP below; SCALE ~1.0 and HIT (0.9, 2.2) for the host; ENC_POSES from
       'tend_a'/'tend_b'/'bow'; the abilities' poses: weave_up/weave/weave_hold/weave_end (charged: hands spreading threads),
       tug_up/tug (a thread cast at a foe), mend_a/mend (support), gift (kind), rise (getting up from a faint).
       P134.FIT[ITEM] = FIT; P141.DOLL_FROM['doll_keeper'] = (ITEM, DOLL); the wardrobe's recolour textures: LOOK_TEX."""
@@ -61,14 +61,17 @@ PREFIX = 'kb_'
 RIG_SCALE = 1.0
 HOVER = 1.6                                   # (design units off the ground while it floats)
 UP, FRONT = (0.0, 1.0, 0.0), (0.0, 0.0, -1.0)
-MOTE_Y = 20.5
-PIVOT = {'body': (0, 14.0, 0), 'skirt': (0, 9.2, 0), 'head': (0, 26.8, 0),
-         'armr': (5.3, 26.2, 0.2), 'forer': (5.3, 20.2, 0.2), 'arml': (-5.3, 26.2, 0.2), 'forel': (-5.3, 20.2, 0.2),
-         'threadr': (5.3, 11.6, 1.3), 'threadl': (-5.3, 11.6, 1.3),
-         'loom': (0, 20.0, -3.0), 'motes': (0, MOTE_Y, 0), 'motesb': (0, MOTE_Y, 0), 'pool': (0, 0.0, 0), 'web': (0, 20.5, -9.0),
+MOTE_Y = 17.3
+# (3.0c: cosier - the robe's tiers 1.6 tall, not 2; the torso 0.8 shorter; a little broader; shorter sleeves and mitten hands:
+#  2.4 lower at the belt, 3.2 lower from the shoulders up)
+ARM_X = 5.65
+PIVOT = {'body': (0, 11.6, 0), 'skirt': (0, 7.6, 0), 'head': (0, 23.6, 0),
+         'armr': (ARM_X, 23.0, 0.2), 'forer': (ARM_X, 18.2, 0.2), 'arml': (-ARM_X, 23.0, 0.2), 'forel': (-ARM_X, 18.2, 0.2),
+         'threadr': (ARM_X, 11.0, 1.3), 'threadl': (-ARM_X, 11.0, 1.3),
+         'loom': (0, 17.4, -3.0), 'motes': (0, MOTE_Y, 0), 'motesb': (0, MOTE_Y, 0), 'pool': (0, 0.0, 0), 'web': (0, 17.3, -9.0),
          # the six wings (3.0 owner's addition): three pairs on its back - upper, middle, lower
-         'wing_ur': (2.3, 24.0, 3.3), 'wing_ul': (-2.3, 24.0, 3.3), 'wing_mr': (1.7, 20.6, 2.75), 'wing_ml': (-1.7, 20.6, 2.75),
-         'wing_lr': (1.5, 17.4, 2.75), 'wing_ll': (-1.5, 17.4, 2.75)}
+         'wing_ur': (2.3, 20.8, 3.3), 'wing_ul': (-2.3, 20.8, 3.3), 'wing_mr': (1.7, 17.4, 2.75), 'wing_ml': (-1.7, 17.4, 2.75),
+         'wing_lr': (1.5, 14.2, 2.75), 'wing_ll': (-1.5, 14.2, 2.75)}       # (3.0c: all 3.2 lower, as the head and the motes)
 PARENT = {'body': None, 'skirt': 'body', 'head': 'body', 'armr': 'body', 'forer': 'armr', 'arml': 'body', 'forel': 'arml',
           'threadr': 'forer', 'threadl': 'forel', 'loom': 'body', 'motes': None, 'motesb': None, 'pool': None, 'web': 'body'}
 PARENT.update({w: 'body' for w in ('wing_ur', 'wing_ul', 'wing_mr', 'wing_ml', 'wing_lr', 'wing_ll')})
@@ -96,14 +99,12 @@ BONDS = [('emma', '#ff8ad8'), ('celi', '#9ad8ff'), ('zib', '#3ad8c8'), ('cecil',
 CREAM, CREAM_D, CREAM_L = '#f6ece4', '#e6d8d0', '#fcf6f0'     # (the pearl's base: its cloth, the warp line, the paler weft row)
 HOODC, HOODC_D = '#f0e6e2', '#e0d0cc'
 GOLD, GOLD_D, GOLD_L, GOLD_W = '#e8b648', '#c08a2c', '#ffd878', '#fff2c0'
-LINING, LINING_D = '#c08aa6', '#a9758f'                       # (dusky rose: the hood's inside, the robe's underside)
-GLOW_C, GLOW_E, GLOW_D = '#ffe2c4', '#ffd2b0', '#f6bc9a'       # (the sleeves' insides: warm peach)
-SKIN, SKIN_D, CHEEK = '#ffe6d4', '#f8d0bc', '#f9aab6'          # the face: warm peach, its shade under the fringe, rosy cheeks
-HAIR, HAIR_D = '#dcc8f8', '#b9a0e6'                           # starlight-lilac hair under the hood
-EYE, EYE_H, BROW = '#4a2c54', '#ffffff', '#b8a0d8'            # soft plum eyes, their shine, lilac brows
-MOUTH, TONGUE, TEAR = '#b04e6a', '#f58ca0', '#a8dcff'
-HAND, HAND_L = SKIN, '#fff0e4'
-L_CLOTH, L_BAND, L_FACE, L_EYES, L_CORE, L_THREAD, L_HAND = 7, 9, 9, 9, 15, 12, 8      # (modest: it glows softly by night, never a lamp)
+LINING, LINING_D = '#8a5a78', '#74486a'                       # (deep dusky rose: the hood's inside - shadowy but warm - and the robe's underside)
+GLOW_C, GLOW_E, GLOW_D = '#ffd88a', '#f4bc5e', '#e2a04a'       # (the sleeves' insides: warm with the light of the hands)
+EYE, EYE_H, EYE_R = '#fffcf0', '#ffffff', '#fff0c4'          # the eyes of light: core, shine, the softer light at their edge
+BLUSH, BLUSH_L, SMILE, TEAR = '#ff8ec4', '#ffb8dc', '#ffe6b8', '#bfe8ff'   # (3.0c) a glowing blush, a tiny smile of light, a tear
+HAND, HAND_L = '#ffeec6', '#fff8e4'                           # (the mittens of light)
+L_CLOTH, L_BAND, L_FACE, L_EYES, L_CORE, L_THREAD, L_HAND = 7, 9, 0, 15, 15, 12, 8     # (modest cloth; the hollow unlit, its lights full)
 L_WING = (9, 11, 13)                                          # (the wings' three lengths, root to tip)
 
 # ---- the iridescence (3.0b): the pearl cloth, its trim and the wings are ANIMATED strips (FRAMES frames, interpolated); in each
@@ -139,7 +140,7 @@ def _wheel(c):
 SPECTRUM = sorted(range(len(BONDS)), key=lambda i: _wheel(BONDS[i][1]))
 HEART = 0                                     # (Emma, the first bond: the spindle's colour)
 _ROWS = [i for i in SPECTRUM if i != HEART]   # the 48 others, two to a row of the robe
-ROBE_Y = [13.2, 11.2, 9.2, 7.2, 5.2, 3.2, 1.2]  # the robe's six tiers, belt to hem (9.2: the skirt's joint)
+ROBE_Y = [10.8, 9.2, 7.6, 6.0, 4.4, 2.8, 1.2]  # the robe's six tiers, belt to hem (7.6: the skirt's joint; 3.0c: 1.6 each, were 2)
 
 
 def HIDDEN(p, pose):
@@ -315,72 +316,70 @@ def swatch(i, inner=False):
 GOLD_I, CREAM_I, WHITE_I = 57, 58, 59
 
 
-# the face (3.0b: friendlier): a soft round face under the hood, its window FACE_W x FACE_H px (6.5 x 6 units) from the top
-# left of kb_face - starlight-lilac hair in a soft fringe, a side lock framing each cheek, warm peach skin, rosy cheeks; the
-# features (eyes, brows, mouth) are each face's overlay (kb_eyes / kb_eyes_<face>), drawn a pixel (a quarter unit) at a time
+# the face (3.0c: cloaked, and cheerful): no face of flesh - the hood's shadowed hollow (kb_face: deep plum shade, darkest at its
+# rim, unlit) with the eyes of light in it, smiling: each mood's overlay (kb_eyes / kb_eyes_<face>, at full light) holds the
+# eyes, a soft pink blush glowing under each, and a tiny glowing smile. Its window FACE_W x FACE_H px (6.5 x 6 units) from
+# the top left; the eyes 5 px wide (its right eye on our left, mirrored for the other), drawn a pixel (a quarter unit) at a time
 FACE_W, FACE_H = 26, 24
-FRINGE = [16, 12, 8, 6, 5, 6, 4, 6, 5, 6, 8, 12, 16]            # (the hair's depth in px, per 2-px column: a parted fringe, side locks)
-CHEEKS = ((3, 14, 3, 2), (20, 14, 3, 2))                         # (x, y, w, h)
+SHADE_C, SHADE_M, SHADE_R = '#3e2a4c', '#34223f', '#2a1a33'      # the hollow: its heart, its middle, its rim
 
 
 def _face():
-    im = Image.new('RGBA', (64, 64), hexc(SKIN)); d = ImageDraw.Draw(im)
-    for cx, dep in enumerate(FRINGE):
-        x0 = 2 * cx
-        d.rectangle((x0, 0, x0 + 1, dep - 1), fill=hexc(HAIR))
-        d.rectangle((x0, dep - 1, x0 + 1, dep - 1), fill=hexc(HAIR_D))        # (its lower edge, a shade deeper)
-        if dep < FACE_H: d.rectangle((x0, dep, x0 + 1, dep), fill=hexc(SKIN_D))   # (and the skin just under it, shaded)
-    for x, y, w, h in CHEEKS:
-        d.rectangle((x, y, x + w - 1, y + h - 1), fill=hexc(CHEEK))
-    for x0, y0, x1, y1 in ((0, 22, 1, 23), (24, 22, 25, 23), (0, 21, 0, 21), (25, 21, 25, 21), (2, 23, 2, 23), (23, 23, 23, 23)):
-        d.rectangle((x0, y0, x1, y1), fill=hexc(LINING))                # (the chin's corners rounded off: the hood's lining behind)
-    return im
+    def c(x, y):
+        d = max(abs(x - 6.25) / 6.6, abs(y - 5.5) / 6.1)              # (in 2-px cells: square rings, stepping darker to the rim)
+        return SHADE_C if d < 0.6 else SHADE_M if d < 0.86 else SHADE_R
+    return _cells(c)
 
 
-# each face's features, on its right eye (our left: x 6-9) - mirrored for the other - and the mouth, as (x, y, colour key);
-# 'shine' pixels are not mirrored (the light comes from the same side for both eyes)
-_LEFT = {
-    None: [(7, 9, 'E'), (8, 9, 'E'), (7, 10, 'E'), (8, 10, 'E'), (7, 11, 'E'), (8, 11, 'E')],                 # calm: soft round eyes
-    'happy': [(6, 11, 'E'), (7, 10, 'E'), (8, 10, 'E'), (9, 11, 'E')],                                         # closed, smiling arcs
-    'blink': [(6, 10, 'E'), (7, 11, 'E'), (8, 11, 'E'), (9, 10, 'E')],                                         # shut, content
-    'sleepy': [(6, 10, 'E'), (7, 10, 'E'), (8, 10, 'E'), (9, 10, 'E'), (7, 11, 'E'), (8, 11, 'E')],            # lids half down
-    'surprised': [(7, 8, 'E'), (8, 8, 'E'), (7, 9, 'E'), (8, 9, 'E'), (7, 10, 'E'), (8, 10, 'E'), (7, 11, 'E'), (8, 11, 'E'),
-                  (7, 6, 'B'), (8, 6, 'B')],                                                                   # wide, brows up
-    'sad': [(7, 10, 'E'), (8, 10, 'E'), (7, 11, 'E'), (8, 11, 'E'), (7, 12, 'E'), (8, 12, 'E'),
-            (6, 8, 'B'), (7, 8, 'B'), (8, 7, 'B'), (9, 7, 'B'), (6, 13, 'T'), (6, 14, 'T')],                   # worried brows, a tear
-    'focus': [(7, 10, 'E'), (8, 10, 'E'), (7, 11, 'E'), (8, 11, 'E'), (6, 7, 'B'), (7, 7, 'B'), (8, 8, 'B'), (9, 8, 'B')],
-    'hurt': [(6, 9, 'E'), (7, 9, 'E'), (8, 10, 'E'), (9, 10, 'E'), (6, 11, 'E'), (7, 11, 'E')],                # squeezed shut: > <
+EYE_X, EYE_Y = 5, 8                                                  # (its right eye's left column, top row)
+_EYES = {
+    None: ['.EEE.', 'EE.EE', 'E...E'],                                # cheerful: two crescents of light, smiling
+    'happy': ['..E..', '.EHE.', 'EE.EE', 'E...E'],                    # beaming: ^ ^
+    'blink': ['.....', 'E...E', '.EEE.'],                             # closed, content
+    'sleepy': ['.....', '.....', 'EEEEE', '.RRR.'],                   # low, drowsy arcs
+    'surprised': ['.EEE.', 'EHEEE', 'EEEEE', 'EEEEE', '.EEE.'],       # round
+    'sad': ['...EE', '.EE..', 'E....'],                               # drooping arcs (a tear of light below)
+    'focus': ['.....', 'REEER', '.EEE.'],                             # flattened - still kindly
+    'hurt': ['EE...', '..EE.', 'EE...'],                              # squeezed: > <
 }
-_SHINE = {None: 9, 'surprised': 8, 'sad': 10, 'focus': 10}         # (the row of each eye's shine, at its upper left)
+_BLUSH = [(3, 13, 'B'), (4, 13, 'L'), (5, 13, 'L'), (6, 13, 'B'), (4, 14, 'B'), (5, 14, 'B')]     # (under its right eye; mirrored)
 _SMILE = [(11, 16), (14, 16), (12, 17), (13, 17)]
 _MOUTH = {
-    None: [(x, y, 'M') for x, y in _SMILE],
-    'happy': [(10, 15, 'M'), (15, 15, 'M')] + [(x, 16, 'M') for x in range(11, 15)] + [(12, 17, 'P'), (13, 17, 'P')],   # an open smile
-    'blink': [(x, y, 'M') for x, y in _SMILE],
-    'sleepy': [(12, 17, 'M'), (13, 17, 'M')],
-    'surprised': [(12, 16, 'M'), (13, 16, 'M'), (12, 17, 'M'), (13, 17, 'M')],                                 # a little 'o'
-    'sad': [(11, 17, 'M'), (14, 17, 'M'), (12, 16, 'M'), (13, 16, 'M')],                                       # a small frown
-    'focus': [(x, y, 'M') for x, y in _SMILE],                                                                 # (determined - still kind)
-    'hurt': [(11, 17, 'M'), (12, 16, 'M'), (13, 17, 'M'), (14, 16, 'M')],                                      # a wobble
+    None: _SMILE,
+    'happy': [(10, 15), (15, 15), (11, 16), (12, 16), (13, 16), (14, 16)],
+    'blink': _SMILE,
+    'sleepy': [(12, 17), (13, 17)],
+    'surprised': [(12, 16), (13, 16), (12, 17), (13, 17)],            # a little 'o'
+    'sad': [(11, 17), (14, 17), (12, 16), (13, 16)],                  # a small wobble down
+    'focus': _SMILE,
+    'hurt': [(11, 17), (12, 16), (13, 17), (14, 16)],
 }
 
 
 def _eyes(kind=None):
-    """the face's features (transparent but for them; its element just in front of the face, as lit as the face)"""
+    """the face's lights (transparent but for them; its element just in front of the hollow, at full light): the eyes, the
+    blush and the smile - every mood a friendly one"""
     im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
-    pal = {'E': EYE, 'B': BROW, 'T': TEAR, 'M': MOUTH, 'P': TONGUE}
-    for x, y, k in _LEFT[kind]:
-        im.putpixel((x, y), hexc(pal[k])); im.putpixel((FACE_W - 1 - x, y), hexc(pal[k]))
-    if kind in _SHINE:
-        r = _SHINE[kind]
-        im.putpixel((7, r), hexc(EYE_H)); im.putpixel((FACE_W - 1 - 8, r), hexc(EYE_H))
-    for x, y, k in _MOUTH[kind]:
-        im.putpixel((x, y), hexc(pal[k]))
+    pal = {'E': EYE, 'H': EYE_H, 'R': EYE_R, 'B': BLUSH, 'L': BLUSH_L, 'S': SMILE, 'T': TEAR}
+    put = lambda x, y, k: im.putpixel((x, y), hexc(pal[k]))
+    for r, row in enumerate(_EYES[kind]):
+        for cx, ch in enumerate(row):
+            if ch == '.': continue
+            put(EYE_X + cx, EYE_Y + r, ch); put(FACE_W - 1 - EYE_X - cx, EYE_Y + r, ch)
+    for x, y, k in _BLUSH:
+        put(x, y, k); put(FACE_W - 1 - x, y, k)
+    if kind == 'sad':                                                # (a tear of light under each eye's outer corner)
+        for y in (EYE_Y + 3, EYE_Y + 4):
+            put(EYE_X, y, 'T'); put(FACE_W - 1 - EYE_X, y, 'T')
+    for x, y in _MOUTH[kind]:
+        put(x, y, 'S')
     return im
 
 
 def _hand():
-    return _cells(lambda x, y: HAND_L if y % 8 == 0 else HAND)
+    def c(x, y):
+        return HAND_L if 1 <= x % 4 <= 2 and 1 <= y % 4 <= 2 else HAND
+    return _cells(c)
 
 
 def _light():
@@ -465,7 +464,7 @@ def B(sx, x0, x1, y0, y1, z0, z1, tex, pv, **kw):
 def _robe_w(k):
     """tier k's half width and half depth: a slim robe, flaring to the hem"""
     t = k / 5
-    return 3.75 + 2.45 * t ** 1.1, 2.75 + 1.65 * t
+    return 4.1 + 2.45 * t ** 1.1, 2.9 + 1.65 * t              # (3.0c: a little broader)
 
 
 def _tier_el(k, pv):
@@ -474,6 +473,8 @@ def _tier_el(k, pv):
     e = bx((-w, y0, -dd), (w, y1, dd), f'kb_tier{k}', pv, faces=_faces_but('down') if k < 5 else None,
            ftex={'down': 'kb_lining'}, light=L_BAND, shift=(0.13 * k, 0.0))
     e['faces']['up']['uv'] = [0, 0, round(min(16, 2 * w), 3), 0.5]          # (its ledge: the tier's own top row, drawn out - no hard line)
+    for f in ('north', 'south', 'east', 'west'):                              # (3.0c: its four woven rows, two units of them, fitted to its 1.6)
+        if f in e['faces']: e['faces'][f]['uv'][3] = round(e['faces'][f]['uv'][1] + 2.0, 4)
     return e
 
 
@@ -543,13 +544,13 @@ def models():
     #      over its shoulders (a woven border at its edge), and the glowing hollow at its heart where the loom sits
     pv = PIVOT['body']
     body = [_tier_el(0, pv), _tier_el(1, pv),
-            bx((-3.55, 13.0, -2.6), (3.55, 17.6, 2.6), 'kb_robe', pv, faces=_faces_but('down'), light=L_CLOTH, shift=(0.1, 0.2)),        # the waist
-            bx((-3.95, 13.1, -2.92), (3.95, 14.5, 2.92), 'kb_rim', pv, faces=_faces_but('down'), ftex={'up': 'kb_gold'}, light=L_BAND),   # the belt
-            bx((-0.7, 12.4, -3.15), (0.7, 14.9, -2.92), 'kb_gold', pv, light=L_BAND),                                                        # its knot
-            bx((-4.05, 17.6, -2.85), (4.05, 24.6, 2.85), 'kb_robe', pv, faces=_faces_but('down', 'up'), light=L_CLOTH, shift=(0.4, 0.5)), # the chest
-            bx((-2.45, 16.8, -2.95), (2.45, 23.2, -2.87), 'kb_light', pv, faces=('north',), light=L_CORE),                                   # the heart's glow
-            bx((-4.9, 23.2, -3.6), (4.9, 24.6, 3.6), 'kb_brd', pv, faces=_faces_but('up'), light=L_BAND),                                    # the mantle's border
-            bx((-4.75, 24.6, -3.45), (4.75, 27.0, 3.45), 'kb_hood', pv, ftex={'down': 'kb_lining'}, light=L_CLOTH, shift=(0.2, 0.6))]       # the mantle
+            bx((-3.9, 10.6, -2.75), (3.9, 15.2, 2.75), 'kb_robe', pv, faces=_faces_but('down'), light=L_CLOTH, shift=(0.1, 0.2)),         # the waist
+            bx((-4.3, 10.7, -3.07), (4.3, 12.1, 3.07), 'kb_rim', pv, faces=_faces_but('down'), ftex={'up': 'kb_gold'}, light=L_BAND),     # the belt
+            bx((-0.7, 10.0, -3.3), (0.7, 12.5, -3.07), 'kb_gold', pv, light=L_BAND),                                                          # its knot
+            bx((-4.4, 15.2, -2.85), (4.4, 21.4, 2.85), 'kb_robe', pv, faces=_faces_but('down', 'up'), light=L_CLOTH, shift=(0.4, 0.5)),      # the chest
+            bx((-2.45, 14.4, -2.95), (2.45, 20.4, -2.87), 'kb_light', pv, faces=('north',), light=L_CORE),                                    # the heart's glow
+            bx((-5.25, 20.0, -3.75), (5.25, 21.4, 3.75), 'kb_brd', pv, faces=_faces_but('up'), light=L_BAND),                                # the mantle's border
+            bx((-5.1, 21.4, -3.6), (5.1, 23.8, 3.6), 'kb_hood', pv, ftex={'down': 'kb_lining'}, light=L_CLOTH, shift=(0.2, 0.6))]          # the mantle
     part('kb_body', body)
 
     # ---- the skirt: the lower four tiers of the tapestry, the gold hem, and a fringe of loose threads round it - every bond's colour
@@ -579,55 +580,59 @@ def models():
                      bx((-5.8, 1.8, -5.2), (5.8, 2.7, 4.8), 'kb_tier3', pv, faces=_faces_but('down'), ftex={'up': 'kb_robe'}, light=L_BAND, shift=(0.6, 0)),
                      bx((-8.35, 0.0, -7.55), (8.35, 0.35, 6.95), 'kb_gold', pv, faces=_faces_but('up', 'down'), light=L_BAND)])
 
-    # ---- the head (3.0b: friendlier): a round, kind face under a soft pearl hood pushed back from it - the face (hair, cheeks)
-    #      and its features (each mood's overlay, a hair in front), unshaded, as warm as they're painted; round it the hood, its
-    #      opening wide (6.5), gold at the rim, rose-lined inside, rounding over the top to a low soft crown, a short flap behind
-    pv = PIVOT['head']
+    # ---- the head (3.0c): the hood, cloaked again - its hollow in shadow, the eyes of light smiling in it, a glowing blush;
+    #      the opening wide (6.5), gold at the rim, lined inside, rounding over the top to a low soft crown (no point), a short
+    #      flap behind. (Its design y's as the 3.0b head's, 3.2 lower: HY.)
+    pv = PIVOT['head']; HY = -3.2
 
     def head(face=None):
         et = 'kb_eyes' if face is None else f'kb_eyes_{face}'
         lin = 'kb_lining'
-        F, O, W, TOP, BK = -3.9, 3.25, 4.3, 33.0, 4.3          # (the hood's front edge, the opening's half width, its outside, top, back)
-        h = [dict(bx((-O, 27.0, -3.55), (O, TOP, -1.5), 'kb_face', pv, faces=('north', 'down'), uv={'north': [0, 0, 6.5, 6.0], 'down': [0.5, 5.0, 6.0, 5.5]},
-                     light=L_FACE), shade=False),
-             dict(bx((-O, 27.0, -3.61), (O, TOP, -3.6), et, pv, faces=('north',), uv={'north': [0, 0, 6.5, 6.0]}, light=L_EYES), shade=False),
-             # the hood: its sides round the face, the back, the cap over it, rounding to a low crown
-             bx((O, 26.4, F), (W, TOP, BK), 'kb_hood', pv, faces=_faces_but('down'), ftex={'west': lin}, light=L_CLOTH, shift=(0.5, 0.2)),
-             bx((-W, 26.4, F), (-O, TOP, BK), 'kb_hood', pv, faces=_faces_but('down'), ftex={'east': lin}, light=L_CLOTH, shift=(0.7, 0.2)),
-             bx((-O, 26.4, -1.5), (O, TOP, BK), 'kb_hood', pv, faces=('south',), light=L_CLOTH, shift=(0.3, 0.2)),
-             bx((-4.05, TOP, F), (4.05, 34.5, BK), 'kb_hood', pv, ftex={'down': lin}, light=L_CLOTH, shift=(0.6, 0.1)),
-             bx((-3.3, 34.5, -3.1), (3.3, 35.3, 3.6), 'kb_hood', pv, faces=_faces_but('down'), light=L_CLOTH, shift=(0.1, 0.7)),
-             bx((-2.1, 35.3, -2.0), (2.1, 35.8, 2.6), 'kb_hood', pv, faces=_faces_but('down'), light=L_CLOTH, shift=(0.4, 0.4)),
+        F, O, W, BK = -3.9, 3.25, 4.3, 4.3                       # (the hood's front edge, the opening's half width, its outside, back)
+        y = lambda v: round(v + HY, 4)
+        TOP = y(33.0)
+        h = [# the hollow: shadow (unlit, unshaded) a hand's depth in, and the eyes' lights just in front of it
+             dict(bx((-O, y(27.0), -2.62), (O, TOP, -2.6), 'kb_face', pv, faces=('north',), uv={'north': [0, 0, 6.5, 6.0]}), shade=False),
+             dict(bx((-O, y(27.0), -2.68), (O, TOP, -2.66), et, pv, faces=('north',), uv={'north': [0, 0, 6.5, 6.0]}, light=L_EYES), shade=False),
+             # the hood: its sides round the hollow, the back, the cap over it, rounding to a low crown
+             bx((O, y(26.4), F), (W, TOP, BK), 'kb_hood', pv, faces=_faces_but('down'), ftex={'west': lin}, light=L_CLOTH, shift=(0.5, 0.2)),
+             bx((-W, y(26.4), F), (-O, TOP, BK), 'kb_hood', pv, faces=_faces_but('down'), ftex={'east': lin}, light=L_CLOTH, shift=(0.7, 0.2)),
+             bx((-O, y(26.4), -2.6), (O, TOP, BK), 'kb_hood', pv, faces=('south',), light=L_CLOTH, shift=(0.3, 0.2)),
+             bx((-4.05, TOP, F), (4.05, y(34.5), BK), 'kb_hood', pv, ftex={'down': lin}, light=L_CLOTH, shift=(0.6, 0.1)),
+             bx((-3.3, y(34.5), -3.1), (3.3, y(35.3), 3.6), 'kb_hood', pv, faces=_faces_but('down'), light=L_CLOTH, shift=(0.1, 0.7)),
+             bx((-2.1, y(35.3), -2.0), (2.1, y(35.8), 2.6), 'kb_hood', pv, faces=_faces_but('down'), light=L_CLOTH, shift=(0.4, 0.4)),
              # its gold rim round the opening, a little proud of the front edge
-             bx((O, 26.4, -4.1), (O + 0.6, 33.6, F), 'kb_gold', pv, faces=_faces_but('south'), light=L_BAND),
-             bx((-O - 0.6, 26.4, -4.1), (-O, 33.6, F), 'kb_gold', pv, faces=_faces_but('south'), light=L_BAND),
-             bx((-O, TOP, -4.1), (O, 33.6, F), 'kb_gold', pv, faces=('north', 'up', 'down'), light=L_BAND),
+             bx((O, y(26.4), -4.1), (O + 0.6, y(33.6), F), 'kb_gold', pv, faces=_faces_but('south'), light=L_BAND),
+             bx((-O - 0.6, y(26.4), -4.1), (-O, y(33.6), F), 'kb_gold', pv, faces=_faces_but('south'), light=L_BAND),
+             bx((-O, TOP, -4.1), (O, y(33.6), F), 'kb_gold', pv, faces=('north', 'up', 'down'), light=L_BAND),
              # a short soft flap down its back
-             bx((-1.7, 30.2, BK), (1.7, 33.6, 5.0), 'kb_hood', pv, faces=_faces_but('north'), light=L_CLOTH, shift=(0.4, 0.3))]
+             bx((-1.7, y(30.2), BK), (1.7, y(33.6), 5.0), 'kb_hood', pv, faces=_faces_but('north'), light=L_CLOTH, shift=(0.4, 0.3))]
         return h
     part('kb_head', head())
     for fc in FACES:
         part(f'kb_head_x{fc}', head(fc))
 
-    # ---- the arms: long sleeves - cream upper sleeves; a bell from the elbow to a woven cuff, a hand of light out of it, and
-    #      the sleeve's long drape hanging behind (the loose threads hang from its tip: threadr / threadl)
+    # ---- the arms (3.0c: shorter, rounder sleeves): pearl upper sleeves; a bell from the elbow to a woven cuff, a soft mitten
+    #      of light peeping out of it (a little thumb on its inner side), and the sleeve's short drape hanging behind (the loose
+    #      threads hang from its tip: threadr / threadl)
     for s, sx in (('r', 1), ('l', -1)):
         ap, fp, tp = PIVOT[f'arm{s}'], PIVOT[f'fore{s}'], PIVOT[f'thread{s}']
-        cx = 5.3
-        part(f'kb_arm{s}', [B(sx, cx - 1.25, cx + 1.25, 20.0, 26.2, -1.25, 1.65, 'kb_robe', ap, light=L_CLOTH, shift=(0.3 + 0.2 * sx, 0.4))])
-        fore = [B(sx, cx - 1.45, cx + 1.45, 17.2, 20.6, -1.45, 1.85, 'kb_robe', fp, faces=_faces_but('up'), light=L_CLOTH, shift=(0.6, 0.2)),
-                B(sx, cx - 1.9, cx + 1.9, 15.2, 17.2, -1.9, 2.3, 'kb_robe', fp, faces=_faces_but('up'), ftex={'down': 'kb_inner'}, light=L_CLOTH, shift=(0.2, 0.7)),
-                B(sx, cx - 2.0, cx + 2.0, 14.1, 15.2, -2.0, 2.4, 'kb_brd', fp, ftex={'down': 'kb_inner', 'up': 'kb_gold'}, light=L_BAND),      # the cuff
-                B(sx, cx - 1.6, cx + 1.6, 11.7, 14.1, 0.45, 2.15, 'kb_robe', fp, faces=_faces_but('up'), light=L_CLOTH, shift=(0.8, 0.4)),     # the drape
-                B(sx, cx - 1.7, cx + 1.7, 11.3, 11.9, 0.35, 2.25, 'kb_brd', fp, faces=_faces_but('up'), light=L_BAND, shift=(0.5, 0)),
-                # the hand of light: out of the cuff, fingers together
-                B(sx, cx - 0.75, cx + 0.75, 12.2, 14.4, -1.35, 0.15, 'kb_hand', fp, faces=_faces_but('up'), light=L_HAND),
-                B(sx, cx - 0.6, cx + 0.6, 11.6, 12.2, -1.25, -0.15, 'kb_hand', fp, faces=_faces_but('up'), light=L_HAND)]
+        cx = ARM_X
+        part(f'kb_arm{s}', [B(sx, cx - 1.35, cx + 1.35, 18.0, 23.0, -1.35, 1.75, 'kb_robe', ap, light=L_CLOTH, shift=(0.3 + 0.2 * sx, 0.4))])
+        fore = [B(sx, cx - 1.45, cx + 1.45, 15.8, 18.6, -1.45, 1.85, 'kb_robe', fp, faces=_faces_but('up'), light=L_CLOTH, shift=(0.6, 0.2)),
+                B(sx, cx - 1.9, cx + 1.9, 14.0, 15.8, -1.9, 2.3, 'kb_robe', fp, faces=_faces_but('up'), ftex={'down': 'kb_inner'}, light=L_CLOTH, shift=(0.2, 0.7)),
+                B(sx, cx - 2.0, cx + 2.0, 13.0, 14.0, -2.0, 2.4, 'kb_brd', fp, ftex={'down': 'kb_inner', 'up': 'kb_gold'}, light=L_BAND),  # the cuff
+                B(sx, cx - 1.7, cx + 1.7, 11.4, 13.0, 0.45, 2.3, 'kb_robe', fp, faces=_faces_but('up'), light=L_CLOTH, shift=(0.8, 0.4)),       # the drape
+                B(sx, cx - 1.8, cx + 1.8, 11.0, 11.6, 0.35, 2.4, 'kb_brd', fp, faces=_faces_but('up'), light=L_BAND, shift=(0.5, 0)),
+                # the mitten of light: round and soft, just out of the cuff; a little thumb; its rounded tip
+                B(sx, cx - 0.95, cx + 0.95, 11.7, 13.3, -1.55, 0.25, 'kb_hand', fp, faces=_faces_but('up'), light=L_HAND),
+                B(sx, cx - 1.3, cx - 0.95, 12.3, 13.0, -1.35, -0.55, 'kb_hand', fp, faces=_faces_but('east' if sx > 0 else 'west'), light=L_HAND),
+                B(sx, cx - 0.7, cx + 0.7, 11.4, 11.7, -1.3, 0.0, 'kb_hand', fp, faces=_faces_but('up'), light=L_HAND)]
         part(f'kb_fore{s}', fore)
         # the loose threads: five, from the drape's tip, drifting apart as they fall
         th = []
         X, Y, Z = tp
-        for j, (dx, dz, L, bend) in enumerate(((-1.1, -0.3, 4.4, 0.7), (-0.5, 0.4, 5.8, -0.6), (0.1, -0.2, 5.0, 0.9), (0.7, 0.5, 6.4, -0.8), (1.2, 0.0, 4.0, 0.5))):
+        for j, (dx, dz, L, bend) in enumerate(((-1.1, -0.3, 3.4, 0.7), (-0.5, 0.4, 4.4, -0.6), (0.1, -0.2, 3.8, 0.9), (0.7, 0.5, 4.8, -0.8), (1.2, 0.0, 3.0, 0.5))):
             i = SPECTRUM[(j * 10 + (0 if sx > 0 else 5)) % 49]
             x0, z0 = X + sx * dx, Z + dz
             pts = [(x0, Y + 0.1, z0), (x0 + sx * bend * 0.4, Y - L * 0.5, z0 + 0.3), (x0 + sx * bend, Y - L, z0 + 0.8)]
@@ -719,10 +724,10 @@ POSES = {
     'jump': P(_face='happy', _off=(0, HOVER + 4.0, 0), armr=limb(1, 20, 40), forer=limb(1, 20), arml=limb(-1, 20, 40), forel=limb(-1, 20),
               skirt=qs(('x', 6)), head=qs(('x', -8)), **drift(-10, -10, 10), **orbit(40)),
     # sitting: kneeling back on its robe spread on the floor, hands folded in its lap
-    'sit_a': P(_pool=True, _off=(0, -8.4, 0), body=qs(('x', 2)), armr=limb(1, 26, 10, -4), forer=limb(1, 56, 0, 22), arml=limb(-1, 26, 10, -4), forel=limb(-1, 56, 0, 22),
+    'sit_a': P(_pool=True, _off=(0, -6.8, 0), body=qs(('x', 2)), armr=limb(1, 26, 10, -4), forer=limb(1, 56, 0, 22), arml=limb(-1, 26, 10, -4), forel=limb(-1, 56, 0, 22),
                head=qs(('x', 8), ('z', 4)), **drift(-30, -30), **orbit(60)),
     # (the seated idle's other beat) looking up at the motes going round, a hand lifted to one, smiling
-    'sit_b': P(_pool=True, _face='happy', _off=(0, -8.4, 0), body=qs(('x', -4)), armr=limb(1, 60, 18, -10), forer=limb(1, 40, 0, -20),
+    'sit_b': P(_pool=True, _face='happy', _off=(0, -6.8, 0), body=qs(('x', -4)), armr=limb(1, 60, 18, -10), forer=limb(1, 40, 0, -20),
                arml=limb(-1, 26, 10, -4), forel=limb(-1, 56, 0, 22), head=qs(('x', -14), ('y', 5), ('z', -4)), **drift(-10, -30, 6), **orbit(180)),
     'happy': P(_face='happy', _off=(0, HOVER + 1.0, 0), armr=limb(1, 22, 40), forer=limb(1, 24, 0, -20), arml=limb(-1, 22, 40), forel=limb(-1, 24, 0, -20),
                head=qs(('z', 8), ('x', -6)), body=qs(('x', -3)), **drift(-6, -6, 12), **orbit(90)),
@@ -730,10 +735,10 @@ POSES = {
     'hurt': P(_face='hurt', _off=(0, HOVER - 0.4, 0.6), body=qs(('x', -12)), head=qs(('x', -12), ('z', 6)), skirt=qs(('x', 8)),
               armr=limb(1, 30, 30), forer=limb(1, 30), arml=limb(-1, 30, 30), forel=limb(-1, 30), **drift(-24, -24, 10), **orbit(-20)),
     # fainted: sunk to the floor on its robe, slumped forward, the hood bowed, the hands fallen in its lap
-    'tired': P(_pool=True, _face='blink', _off=(0, -9.2, 0), body=qs(('x', 22)), head=qs(('x', 22), ('z', -6)),
+    'tired': P(_pool=True, _face='blink', _off=(0, -7.6, 0), body=qs(('x', 22)), head=qs(('x', 22), ('z', -6)),
                armr=limb(1, 4, 16), forer=limb(1, 24), arml=limb(-1, 10, 16), forel=limb(-1, 28), **drift(-80, -80, 30), **orbit(10)),
     # getting up again: straightening on its knees, one hand pressed to the floor, the other to the loom
-    'rise': P(_pool=True, _face='sleepy', _off=(0, -6.2, 0), body=qs(('x', 10)), head=qs(('x', 4)),
+    'rise': P(_pool=True, _face='sleepy', _off=(0, -4.6, 0), body=qs(('x', 10)), head=qs(('x', 4)),
               armr=limb(1, 24, 16), forer=limb(1, 6), arml=limb(-1, 36, 10), forel=limb(-1, 70, 0, 15), **drift(-50, -20), **orbit(30)),
     # THE WEAVE (charged): its hands brought together before the loom, gathering the threads ...
     'weave_up': P(_face='focus', _off=(0, HOVER + 0.4, 0), body=qs(('x', 6)), head=qs(('x', 10)),
@@ -811,7 +816,7 @@ DRAFT = ['idle_a', 'idle_b', 'idle_c', 'walk_0', 'walk_1', 'run_0', 'run_2', 'ju
 
 # ---- the display case and the doll (measured from the built rig with tools/preview/keeper.py 'fit'; phase134.FIT's form:
 #      (lowest y, height, x0, x1, z0, z1) in blocks, idle_a at RIG_SCALE)
-FIT = (0.047, 2.344, -0.873, 0.867, -0.872, 0.872)     # (the width is the outer ring of motes; 3.0b: re-measured)
+FIT = (0.047, 2.144, -0.873, 0.867, -0.872, 0.872)     # (the width is the outer ring of motes; 3.0c: re-measured - 0.2 shorter)
 DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62, 'groups': {'bm:kb_skirt': 'legs'}}     # (no legs: the skirt is shortened as legs would be)
 
 
