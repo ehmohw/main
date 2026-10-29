@@ -212,6 +212,8 @@ import phase245 as R245      # 2.99a: the Statue Knights - stone sentinels that 
 import phase246 as R246      # 2.99a: the Dread Mire - a puddle of the Dread that rises; Shadow Musk
 import phase247 as R247      # 2.99a: holy bane - the Dread is weak against holy weapons
 import phase248 as R248      # 2.99a: the Backpack (the Fence) - a plain 27-slot bag that works in the dungeons
+import phase250 as R250      # 2.99a: [market music hook] the Black Market's own swing, for key-holders inside a market
+import phase249 as R249      # 2.99a: the Rex mounts - the Atomic and Mecha Rex (hidden, rideable) and the Partner Wheel's Mounts page
 import phase241 as R241      # 2.99: the Vorn Armada - the Vorn's hard-mode dungeon, a hive-fleet round a star in the End (its kinds of trial register on import)
 R233.add_pairs()             # 2.98: the Creative Forms
 R229.add_pairs()             # 2.97: the cats' pairs with everyone - after every follower is imported
@@ -1394,6 +1396,7 @@ def build(out_dir):
     if PHASE2: R150.generate(sys.modules[__name__])
     if PHASE2: R151.generate(sys.modules[__name__])
     R152.generate(sys.modules[__name__])
+    R250.settings(sys.modules[__name__])        # 2.99a: [market music hook] its switch in the settings dialog (before phase153 builds it)
     R153.generate(sys.modules[__name__])
     R154.generate(sys.modules[__name__])
     R155.generate(sys.modules[__name__])
@@ -1494,7 +1497,9 @@ def build(out_dir):
     if PHASE2: R245.generate(sys.modules[__name__])      # 2.99a: the Statue Knights (the Throne Gate's, the Command Lock's)
     if PHASE2: R246.generate(sys.modules[__name__])      # 2.99a: the Dread Mire (after phase181: it patches the Stalkers)
     if PHASE2: R247.generate(sys.modules[__name__])      # 2.99a: holy bane
+    R250.generate(sys.modules[__name__])                 # 2.99a: [market music hook] the market's music (after phase244/240/75: it yields to their music)
     print('2.99a: the Backpack - %d dungeon rebuilds fold open bags first' % len(R248.generate(sys.modules[__name__])))      # (after the boxes it reuses and the builds it guards)
+    if PHASE2: print('2.99a: the Rex mounts - %d parts a rex, the Mounts page on the wheel' % R249.generate(sys.modules[__name__]))      # (after the wheel, the Armada and Vexis it hooks; before phase184's escort row)
     print('2.85c: the Rat Race - %d jobs, %d prizes in the draw' % R183.generate(sys.modules[__name__]))
     print('2.85d: %d new fight rooms, the rats\' calls, the Forge/Garden coin' % R184.generate(sys.modules[__name__]))
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))

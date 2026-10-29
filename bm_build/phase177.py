@@ -150,6 +150,7 @@ for old, (new, fmt, nm, pn, col, trim, (ea, et, eh, ek, es), bonus, price) in SE
         for m in extra:                          # (one id per kind, so they stack with the base piece's own)
             m['id'] = f'bm:df_{m["type"].split(":")[-1]}_{p}'
         comps['minecraft:attribute_modifiers'] = mods + extra
+        comps.pop('!minecraft:trim', None)      # (the base piece's trim strip doesn't carry over to a trimmed set)
         if trim: comps['minecraft:trim'] = {'material': f'minecraft:{trim[0]}', 'pattern': f'minecraft:{trim[1]}'}
         if old == 'shadowstep': comps['minecraft:dyed_color'] = 0x0c0814
         perks = []

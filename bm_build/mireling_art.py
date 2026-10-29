@@ -215,10 +215,11 @@ def OCT(cx, cz, y0, y1, rx, rz, mat, k=0.72, inset=0.06):
 def VEIN(path, axis, at, out, w=0.5, d=0.16, mat='glow'):
     """a glowing vein laid on a face (as mire_art.VEIN): path of axis-aligned steps in the face's plane"""
     els = []
-    lo, hi = (at - 0.06, at + d) if out > 0 else (at - d, at + 0.06)
-    for (u0, v0), (u1, v1) in zip(path, path[1:]):
+    for i, ((u0, v0), (u1, v1)) in enumerate(zip(path, path[1:])):
         a0, a1 = sorted((u0, u1)); b0, b1 = sorted((v0, v1))
-        a0, a1, b0, b1 = a0 - w / 2, a1 + w / 2, b0 - w / 2, b1 + w / 2
+        ww = w - 0.06 * (i % 2)                                       # (each step a hair narrower and prouder than the last:
+        lo, hi = (at - 0.06 - 0.02 * (i % 2), at + d + 0.03 * (i % 2)) if out > 0 else (at - d - 0.03 * (i % 2), at + 0.06 + 0.02 * (i % 2))     #  no face shared at a corner)
+        a0, a1, b0, b1 = a0 - ww / 2, a1 + ww / 2, b0 - ww / 2, b1 + ww / 2
         if axis == 'x': fr, to = (lo, a0, b0), (hi, a1, b1)
         elif axis == 'z': fr, to = (a0, b0, lo), (a1, b1, hi)
         else: fr, to = (a0, lo, b0), (a1, hi, b1)
@@ -278,7 +279,7 @@ def _body():
     def run(x, z, dirs):
         pts = [(x, z)]
         for (dx, dz, n) in dirs: x += dx * n; z += dz * n; pts.append((x, z))
-        return pts
+        return [(u + 0.17, v + 0.17) for u, v in pts]                # (off the cells' edges: no face shared with the puddle's)
     paths = [run(5, 0, [(1, 0, 2), (0, -1, 1), (1, 0, 2)]), run(0, 5, [(0, 1, 2), (1, 0, 1), (0, 1, 2)]),
              run(-5, 0, [(-1, 0, 2), (0, 1, 2), (-1, 0, 1)]), run(0, -5, [(0, -1, 2), (-1, 0, 2), (0, -1, 1)]),
              run(4, 4, [(1, 0, 1), (0, 1, 2), (1, 0, 1)]), run(-4, -4, [(-1, 0, 2), (0, -1, 1)]), run(-4, 4, [(0, 1, 2), (-1, 0, 2)])]
@@ -292,7 +293,7 @@ def _body():
                 xa, xb = sorted((a[0], b[0])); za, zb = sorted((a[1], b[1]))
                 if xa == xb: xa, xb = xa - 0.35, xb + 0.35
                 if za == zb: za, zb = za - 0.35, zb + 0.35
-                top = PUDDLE_Y[L + 1]
+                top = PUDDLE_Y[L + 1] + 0.025 * (k % 2)
                 P.append(E((xa, top - 0.06, za), (xb, top + 0.08, zb), 'glow', faces=('north', 'south', 'east', 'west', 'up')))
     # the mound: a squat tiered heap, lobes oozing out, veins climbing it
     P += OCT(0, 0, 0.35, 2.2, 6.4, 6.1, 'hide')
@@ -304,8 +305,8 @@ def _body():
         for i, (r, y0, y1) in enumerate(((6.4, 0.35, 2.2), (5.3, 2.2, 4.4))):
             P += VEIN([(y0, off), (y1, off)], 'x', sg * r, sg) if axis == 'x' else VEIN([(off, y0), (off, y1)], 'z', sg * r, sg)
             if i == 0:
-                P += VEIN([(sg * 6.4, off), (sg * 5.3, off)], 'y', 2.2, 1) if axis == 'x' else VEIN([(off, sg * 6.4), (off, sg * 5.3)], 'y', 2.2, 1)
-    P += [E((-5.6, 1.4, -3.4), (-4.0, 2.2, -2.0), 'drip'), E((3.6, 3.2, 2.2), (4.8, 3.9, 3.4), 'drip')]
+                P += VEIN([(sg * 6.4, off), (sg * 5.3, off)], 'y', 2.2, 1, w=0.42) if axis == 'x' else VEIN([(off, sg * 6.4), (off, sg * 5.3)], 'y', 2.2, 1, w=0.42)
+    P += [E((-5.6, 1.4, -3.4), (-4.0, 2.27, -2.0), 'drip'), E((3.6, 3.2, 2.2), (4.8, 3.9, 3.4), 'drip')]
     return P
 
 
@@ -356,16 +357,20 @@ def _eye(face=None):
     sliver), fierce (narrowed to a band); wide: the pupil round and dilated"""
     z0, z1 = EYE_Z, EYE_Z - 1.2
     e = [E((-2.45, CY - 1.8, z0), (2.45, CY + 1.8, z1), 'irisr'), E((-1.8, CY - 2.45, z0 - 0.05), (1.8, CY + 2.45, z1 - 0.05), 'irisr'),
-         E((-1.8, CY - 1.2, z1), (1.8, CY + 1.2, z1 - 0.25), 'iris'), E((-1.2, CY - 1.8, z1 - 0.05), (1.2, CY + 1.8, z1 - 0.3), 'iris')]
+         E((-1.75, CY - 1.2, z1), (1.75, CY + 1.2, z1 - 0.25), 'iris'), E((-1.2, CY - 1.8, z1 - 0.05), (1.2, CY + 1.8, z1 - 0.3), 'iris')]
     zf = z1 - 0.3                                   # (the eye's front)
     if face == 'wide':
-        e += [E((-0.9, CY - 0.9, zf), (0.9, CY + 0.9, zf - 0.12), 'void'), E((-0.4, CY - 1.5, zf), (0.4, CY + 1.5, zf - 0.1), 'void'),
+        e += [E((-0.9, CY - 0.9, zf), (0.9, CY + 0.9, zf - 0.12), 'void'), E((-0.4, CY - 1.5, zf + 0.02), (0.4, CY + 1.5, zf - 0.1), 'void'),
               E((-1.5, CY + 0.65, zf - 0.05), (-0.8, CY + 1.35, zf - 0.17), 'hot'), E((0.7, CY - 1.2, zf - 0.05), (1.05, CY - 0.85, zf - 0.17), 'hot')]
     else:
         e += [E((-0.38, CY - 1.6, zf), (0.38, CY + 1.6, zf - 0.12), 'void'), E((-1.45, CY + 0.6, zf - 0.05), (-0.85, CY + 1.2, zf - 0.17), 'hot')]
     zl0, zl1 = z0 + 0.02, zf - 0.22                  # (a lid: wraps the eye, just proud of its front)
     lid = lambda y0, y1: E((-2.53, y0, zl0), (2.53, y1, zl1), 'lid')
-    seam = lambda x0, x1, y: E((x0, y - 0.18, zl1 + 0.02), (x1, y + 0.18, zl1 - 0.08), 'iris')      # (the eye glowing through the seam)
+    nseam = [0]
+
+    def seam(x0, x1, y):                             # (each piece a hair prouder than the last: no shared face where they meet)
+        nseam[0] += 1; dz = 0.03 * (nseam[0] % 2)
+        return E((x0, y - 0.18, zl1 + 0.02 + dz), (x1, y + 0.18, zl1 - 0.08 - dz), 'iris')      # (the eye glowing through the seam)
     if face == 'half':
         e += [lid(CY + 0.15, CY + 2.53), seam(-2.1, 2.1, CY + 0.15)]
     elif face == 'shut':
@@ -403,7 +408,7 @@ def _head(face=None):
     dark = {f: [0, 0, 16, 5] for f in F6}
     for k, ln in enumerate((0.8, 0.5, 0.9, 0.6, 0.75, 0.5)):
         an = 2 * math.pi * k / 6 + 0.5; x, y = 3.15 * math.cos(an), CY + 3.15 * math.sin(an)
-        H.append(E((x - 0.25, y - 0.25, zf - 0.08 - ln), (x + 0.25, y + 0.25, zf - 0.08), 'fang', uv=dark))
+        H.append(E((x - 0.25, y - 0.25, zf - 0.08 - ln), (x + 0.25, y + 0.25, zf - 0.04), 'fang', uv=dark))
     for (x, y) in ((5.3, 27.4), (6.0, 26.6), (-5.6, 21.9)):                                   # (pinprick eyes on the cheeks' fronts)
         H.append(E((x - 0.2, y - 0.2, HZ - 2.32), (x + 0.2, y + 0.2, HZ - 2.18), 'hot'))
     return H + _eye(face)
@@ -438,7 +443,7 @@ def _petal(name):
               ((-0.2, -1.5, zt - 1.8), (0.2, -1.05, zt - 1.45), 'glow')]
     else:
         off = (0.15, -0.12, 0.06)[k - 1]
-        B.append(((-0.32 + off, 0.0, zt - (1.3, 1.0, 0.7)[k - 1]), (0.32 + off, 0.6, zt + 0.12), 'barb'))
+        B.append(((-0.32 + off, 0.04, zt - (1.3, 1.0, 0.7)[k - 1]), (0.32 + off, 0.6, zt + 0.12), 'barb'))
     out = []
     for (lo, hi, mat) in B:
         ax, ay = _qt(lo[0], lo[1], k); bx, by = _qt(hi[0], hi[1], k)
@@ -774,7 +779,7 @@ DUR = {'happy_b': 6, 'getup': 10, 'lash_up': 4, 'lash': 2, 'grab_up': 5, 'grab':
 
 # ---------------------------------------------------------------------------------------------------- the doll, the case
 DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62, 'groups': {f'bm:{PREFIX}{m}': 'head' for m in MAW}}   # (its head: the head and the maw)
-FIT = None                                       # (set below, measured from the geometry)
+FIT = (0.0, 1.676, -0.682, 0.63, -0.45, 0.731)     # (phase134: idle_a at RIG_SCALE - fit() re-measures)
 
 
 # ---------------------------------------------------------------------------------------------------- the item

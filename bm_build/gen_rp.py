@@ -957,6 +957,8 @@ if __name__ == '__main__':
     phase226.rp(sys.modules[__name__])
     import phase248                           # (2.99a: the Backpack)
     phase248.rp(sys.modules[__name__])
+    import phase250                           # (2.99a: [market music hook] the market's theme, bm:music.market_theme)
+    phase250.rp(sys.modules[__name__])
     LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',
                  'death.attack.bm.quake': '%1$s was flattened by a shockwave', 'death.attack.bm.quake.player': '%1$s was flattened by %2$s'})
     if PHASE2:
@@ -968,6 +970,8 @@ if __name__ == '__main__':
         phase238.rp(sys.modules[__name__])
         import divine_art                         # (2.98c: the Divine One, at the Sovereign's fall)
         divine_art.rp(sys.modules[__name__])
+        import ophan_art                          # (2.99a: the Lightbringer's Ophanim form)
+        ophan_art.rp(sys.modules[__name__])
         import phase242                           # (2.99: Admiral Vexis's rig, at boss scale)
         phase242.rp(sys.modules[__name__])
         import phase240                           # (2.98a: the Undercrown's soundtrack)
@@ -978,6 +982,8 @@ if __name__ == '__main__':
         phase245.rp(sys.modules[__name__])
         import phase246                           # (2.99a: the Dread Mire - its rig, sounds, the remnant and the musk)
         phase246.rp(sys.modules[__name__])
+        import rex_art                            # (2.99a: the Rex mounts - their rigs, charged plates and the quest items' icons; phase249 runs them)
+        rex_art.rp(sys.modules[__name__])
     if PHASE2:
         import creative                       # (2.96a: the Creative Forms' outfits - their pass goes last, after every model of the twelve is written)
         creative.rp(sys.modules[__name__])

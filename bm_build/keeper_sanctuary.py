@@ -145,7 +145,6 @@ def build(markers=False):
     for k in range(ARCHES):
         a, b = tops[k][1], tops[(k + 1) % ARCHES][0]
         cells = _line4(a, b)[1:-1]
-        n = len(cells)
         for hy, col in ((G + 4, THREADS[k][0]), (G + 2, THREADS[k][1])):
             for x, z in cells:
                 S(x, hy, z, f'{col}_stained_glass_pane')

@@ -16,6 +16,12 @@ LOOK  A tall, calm figure (2.45 blocks to the hood's peak as it floats), robed i
       - Round it, slowly orbiting, the 49 BONDS: tiny glowing motes, each a follower's colour - two tilted rings on their own
         root parts (motes: 25 of them, motesb: 24), centred on the rig at chest height, so the runtime can spin them (a left
         rotation about y on those two displays; nothing hangs from them). Every pose already turns them a little.
+      - SIX WINGS of woven light (3.0, the owner's addition): three pairs on its back like a seraph's - the upper rising, a
+        short middle pair (inside the motes' inner ring), the lower falling - each a fan of feathers in three lengths, gold and
+        rose at the root, violet and blue, green and pale at the tip. Their textures (kb_wing0-2) are ANIMATED strips (16 frames,
+        interpolated: each tone shimmers round its part of the rainbow); rp must write their .png.mcmeta (mcmeta() / ANIMATED,
+        as mire_art's post pass does). Parts wing_ur/ul, wing_mr/ml, wing_lr/ll on the body; every pose sets them (WING_POSE):
+        a slow flap through the idles, folded round it sitting, spread in happy and the weave, drooped in the faint.
       Simplified, readable textures: 2-px square cells on 64-px textures (a half unit), no speckle.
 
 MOTION  It hovers (_off y HOVER, a slow bob), the hem's fringe clear of the ground; it glides rather than walks. Sitting, praying
@@ -24,7 +30,8 @@ MOTION  It hovers (_off y HOVER, a slow bob), the hem's fringe clear of the grou
 RIG (rigkit)  body (root: torso, belt, mantle, the robe's upper two tiers), skirt (the lower four tiers, hem and fringe; swings
       on its own joint), head (a model per face; the hood is on it), armr/forer, arml/forel (long sleeves, bent at the elbow),
       threadr/threadl (the loose threads off each sleeve's drape), loom (on the chest), motes/motesb (the orbit, roots),
-      pool (root; kneeling), web (the weave's spread of threads between its hands - only in the weave poses).
+      pool (root; kneeling), web (the weave's spread of threads between its hands - only in the weave poses), and the six
+      wings (wing_ur, wing_ul, wing_mr, wing_ml, wing_lr, wing_ll: on the body).
       Design units: the hem at y=0.6 at rest, facing -z, its right is +x. RIG_SCALE 1.0 (16 units a block).
 
 POSE KEYS  _face, _pool (kneeling: the pool shows, the skirt hides), _web (the weave: the web shows), _hide, _off, _o_pool.
@@ -49,9 +56,13 @@ MOTE_Y = 20.5
 PIVOT = {'body': (0, 14.0, 0), 'skirt': (0, 9.2, 0), 'head': (0, 26.8, 0),
          'armr': (5.3, 26.2, 0.2), 'forer': (5.3, 20.2, 0.2), 'arml': (-5.3, 26.2, 0.2), 'forel': (-5.3, 20.2, 0.2),
          'threadr': (5.3, 11.6, 1.3), 'threadl': (-5.3, 11.6, 1.3),
-         'loom': (0, 20.0, -3.0), 'motes': (0, MOTE_Y, 0), 'motesb': (0, MOTE_Y, 0), 'pool': (0, 0.0, 0), 'web': (0, 20.5, -9.0)}
+         'loom': (0, 20.0, -3.0), 'motes': (0, MOTE_Y, 0), 'motesb': (0, MOTE_Y, 0), 'pool': (0, 0.0, 0), 'web': (0, 20.5, -9.0),
+         # the six wings (3.0 owner's addition): three pairs on its back - upper, middle, lower
+         'wing_ur': (2.3, 24.0, 3.3), 'wing_ul': (-2.3, 24.0, 3.3), 'wing_mr': (1.7, 20.6, 2.75), 'wing_ml': (-1.7, 20.6, 2.75),
+         'wing_lr': (1.5, 17.4, 2.75), 'wing_ll': (-1.5, 17.4, 2.75)}
 PARENT = {'body': None, 'skirt': 'body', 'head': 'body', 'armr': 'body', 'forer': 'armr', 'arml': 'body', 'forel': 'arml',
           'threadr': 'forer', 'threadl': 'forel', 'loom': 'body', 'motes': None, 'motesb': None, 'pool': None, 'web': 'body'}
+PARENT.update({w: 'body' for w in ('wing_ur', 'wing_ul', 'wing_mr', 'wing_ml', 'wing_lr', 'wing_ll')})
 PARTS = tuple(PIVOT)
 PART_K = {}
 JOINTS = {}
@@ -266,6 +277,34 @@ def _light():
     return _cells(c)
 
 
+# ---- the wings' feathers: woven light, iridescent - three animated strips (16 frames of 64 px: bands of the bond colours
+#      flowing diagonally across them, a cell a frame), root to tip: gold and rose; rose, violet and blue; blue, green and pale
+WING_BANDS = {'kb_wing0': ['#ffd468', '#ffdc80', '#ffe8a8', '#ffc8a0'],
+              'kb_wing1': ['#e89ae0', '#c8a0ff', '#d8b8ff', '#a8acff'],
+              'kb_wing2': ['#88d0f8', '#90e4d0', '#d4f8ea', '#f0fbff']}
+WING_FRAMES = 16
+ANIMATED = {k: {'animation': {'frametime': 3, 'interpolate': True}} for k in WING_BANDS}     # {texture: its .png.mcmeta}
+
+
+def _wing_strip(cols):
+    """one feather texture: WING_FRAMES frames stacked, each one tone with a fine sheen; the tone runs round its colours over
+    the frames (interpolated: a slow shimmer), so each length of feather glimmers through its part of the rainbow"""
+    im = Image.new('RGBA', (64, 64 * WING_FRAMES))
+    for f in range(WING_FRAMES):
+        k = f / WING_FRAMES * len(cols); i = int(k)
+        c = _mix(cols[i % len(cols)], cols[(i + 1) % len(cols)], k - i)
+        hi = _mix(c, '#ffffff', 0.35)
+        fr = _cells(lambda x, y, c=c, hi=hi: hi if (x + y) % 8 == 0 else c)      # (a fine sheen every four units, the rest one tone)
+
+        im.paste(fr, (0, 64 * f))
+    return im
+
+
+def mcmeta():
+    """(for the rp post pass, as mire_art does it) {path: json} of the animated textures' .png.mcmeta"""
+    return {f'assets/bm/textures/block/{k}.png.mcmeta': v for k, v in ANIMATED.items()}
+
+
 def textures():
     T = {'kb_robe': _cloth(CREAM, CREAM_D, CREAM_L), 'kb_hood': _cloth(HOODC, HOODC_D), 'kb_gold': _gold(), 'kb_brd': _border(), 'kb_rim': _rim(),
          'kb_lining': _cells(lambda x, y: LINING_D if (x + y) % 6 == 0 else LINING), 'kb_bonds': _atlas(), 'kb_hand': _hand(), 'kb_light': _light(), 'kb_inner': _inner(),
@@ -274,6 +313,8 @@ def textures():
         T[f'kb_tier{k}'] = _tier(k)
     for k in FACES:
         T[f'kb_eyes_{k}'] = _eyes(k)
+    for k, cols in WING_BANDS.items():
+        T[k] = _wing_strip(cols)
     return T
 
 
@@ -342,6 +383,35 @@ def _motes(ring):
         y = MOTE_Y + tilt * math.sin(a + ph) + 0.8 * math.sin(3 * a)
         out.append(paint(bx((x - s / 2, y - s / 2, z - s / 2), (x + s / 2, y + s / 2, z + s / 2), 'kb_bonds', pv, light=15), i))
     return out
+
+
+# the six wings: (feathers as (elevation degrees above the horizontal, length)) - the upper pair rising, the middle pair short
+# (it stays inside the motes' inner ring, which its tips would cross), the lower pair falling; all swept back by WING_SWEEP
+WING_SWEEP = 24.0
+WING_BACK = {'u': 2.1, 'm': 0.3, 'l': 0.3}           # (how far behind its root each wing's plane stands: the upper clears the hood)
+WINGS = {'u': [(75, 10.0), (66, 12.5), (57, 14.5), (48, 15.5), (39, 15.0), (30, 13.5), (22, 11.0)],
+         'm': [(20, 5.6), (8, 6.6), (-4, 6.6), (-16, 5.8)],
+         'l': [(-26, 9.5), (-36, 11.0), (-46, 11.5), (-56, 11.0), (-66, 9.0)]}
+
+
+def _wing(sx, tier):
+    """one wing: a gold covert at its root on the back, then its feathers fanned in one plane (swept back), each in three
+    lengths of woven light - gold/rose at the root, violet/blue, green/pale at the tip - narrowing; neighbours a hair apart in
+    depth where they overlap"""
+    pv = PIVOT[f'wing_{tier}{"r" if sx > 0 else "l"}']
+    a = math.radians(WING_SWEEP)
+    n = (-sx * math.sin(a), 0.0, math.cos(a))                                  # (the wing's back, away from it)
+    def P(u, v, w=0.0):                                                        # (u outward in its plane, v up, w back)
+        return (pv[0] + sx * u * math.cos(a) + w * n[0], pv[1] + v, pv[2] + u * math.sin(a) + w * n[2])
+    bk = WING_BACK[tier]
+    els = [seg(P(-0.4, 0.0, -0.3), P(1.4, 0.0, bk + 0.1), 2.2, 1.0, 'kb_gold', pv, (0.0, 1.0, 0.0), ext=0.0, light=10)]     # (the root, out of its back)
+    for k, (e, L) in enumerate(WINGS[tier]):
+        c, s_ = math.cos(math.radians(e)), math.sin(math.radians(e))
+        lay = 0.36 * (k % 2) + 0.05 + bk
+        pts = [P(0.9 + c * L * f, s_ * L * f, lay) for f in (0.0, 0.36, 0.7, 1.0)]
+        for j, (tex, w, light) in enumerate((('kb_wing0', 2.6, 11), ('kb_wing1', 2.2, 13), ('kb_wing2', 1.8, 15))):
+            els.append(seg(pts[j], pts[j + 1], w, 0.34, tex, pv, n, ext=0.0 if j else 0.05, light=light, shift=(0.17 * k + 0.3 * j, 0.23 * k)))
+    return els
 
 
 def models():
@@ -473,13 +543,14 @@ def models():
 
     # ---- the bonds' orbit (two rings, roots: the runtime may spin them)
     part('kb_motes', _motes(0)); part('kb_motesb', _motes(1))
+    for tier in 'uml':
+        part(f'kb_wing_{tier}r', _wing(1, tier)); part(f'kb_wing_{tier}l', _wing(-1, tier))
 
     # ---- the web: the weave's spread of threads between its hands - rainbow wefts across gold warps, at full glow
     pv = PIVOT['web']; X, Y, Z = pv
     wb = []
     for j in range(7):                                                         # (the wefts: seven rows across, the wheel's colours)
         y = Y - 4.5 + 1.5 * j
-        sag = 0.0
         wb.append(paint(bx((X - 10.5, y - 0.18, Z - 0.1), (X + 10.5, y + 0.18, Z + 0.1), 'kb_bonds', pv, light=15), SPECTRUM[j * 7 + 2], True))
     for j in range(8):                                                         # (the warps: gold, between them)
         x = X - 9.1 + 2.6 * j
@@ -530,8 +601,8 @@ POSES = {
       for i in range(4)},
     # gliding fast: leaning into it, the arms drawn back, everything streaming behind
     **{f'run_{i}': P(_off=(0, HOVER + 2.0 + (0.4, 0.8, 0.4, 0.0)[i], 0), body=qs(('x', 16)), head=qs(('x', -12)), skirt=qs(('x', -22)),
-                     armr=limb(1, -26, 14), forer=limb(1, 14), arml=limb(-1, -26, 14), forel=limb(-1, 14),
-                     **drift(54 + (0, 6, 0, -6)[i], 54 - (0, 6, 0, -6)[i], 8), **orbit(15 * i))
+                     armr=limb(1, 2, 20), forer=limb(1, 16), arml=limb(-1, 2, 20), forel=limb(-1, 16),
+                     **drift(32 + (0, 6, 0, -6)[i], 32 - (0, 6, 0, -6)[i], 8), **orbit(15 * i))
       for i in range(4)},
     'jump': P(_face='happy', _off=(0, HOVER + 4.0, 0), armr=limb(1, 20, 40), forer=limb(1, 20), arml=limb(-1, 20, 40), forel=limb(-1, 20),
               skirt=qs(('x', 6)), head=qs(('x', -8)), **drift(-10, -10, 10), **orbit(40)),
@@ -540,7 +611,7 @@ POSES = {
                head=qs(('x', 8), ('z', 4)), **drift(-30, -30), **orbit(60)),
     # (the seated idle's other beat) looking up at the motes going round, a hand lifted to one, smiling
     'sit_b': P(_pool=True, _face='happy', _off=(0, -8.4, 0), body=qs(('x', -4)), armr=limb(1, 60, 18, -10), forer=limb(1, 40, 0, -20),
-               arml=limb(-1, 26, 10, -4), forel=limb(-1, 56, 0, 22), head=qs(('x', -16), ('y', 12), ('z', -6)), **drift(-10, -30, 6), **orbit(180)),
+               arml=limb(-1, 26, 10, -4), forel=limb(-1, 56, 0, 22), head=qs(('x', -14), ('y', 5), ('z', -4)), **drift(-10, -30, 6), **orbit(180)),
     'happy': P(_face='happy', _off=(0, HOVER + 1.0, 0), armr=limb(1, 22, 40), forer=limb(1, 24, 0, -20), arml=limb(-1, 22, 40), forel=limb(-1, 24, 0, -20),
                head=qs(('z', 8), ('x', -6)), body=qs(('x', -3)), **drift(-6, -6, 12), **orbit(90)),
     # struck: rocked back, the sleeves flung
@@ -591,10 +662,35 @@ POSES = {
 SWIM_FRAMES = 8
 for _i in range(SWIM_FRAMES):                                  # (gliding through the water: laid forward, a slow sweep of the sleeves)
     _p = 2 * math.pi * _i / SWIM_FRAMES
-    POSES[f'swim_{_i}'] = P(_off=(0, 6.0 + 0.4 * s(2 * _p), 0), body=qs(('x', 66)), head=qs(('x', -40)), skirt=qs(('x', -10)),
+    POSES[f'swim_{_i}'] = P(_off=(0, 6.0 + 0.4 * s(2 * _p), 0), body=qs(('x', 66)), head=qs(('x', -12)), skirt=qs(('x', -10)),
                             armr=limb(1, 110 + 24 * s(_p), 40 + 16 * math.cos(_p)), forer=limb(1, 16),
                             arml=limb(-1, 110 + 24 * s(_p), 40 + 16 * math.cos(_p)), forel=limb(-1, 16),
                             **drift(70 + 10 * s(_p), 70 - 10 * s(_p), 6), **orbit(10 * _i))
+def wings(raise_=0.0, spread=0.0, fold=0.0, droop=0.0, beat=0.0):
+    """the six wings' turns at their roots: raise_ lifts every wing up and out (negative lowers it), spread fans the three pairs
+    apart (the upper higher, the lower lower), fold sweeps them further back (negative: forward, round it), droop lets them fall
+    (the upper most), beat lifts the upper pair and lowers the lower (a flap's two beats)"""
+    out = {}
+    for t, (sp, dr, bt) in (('u', (0.3, 1.0, 1.0)), ('m', (0.0, 0.7, 0.4)), ('l', (-1.0, 0.4, -0.6))):
+        r = raise_ + spread * sp - droop * dr + beat * bt
+        for side, sx in (('r', 1), ('l', -1)):
+            out[f'wing_{t}{side}'] = qs(('y', fold * sx), ('z', -r * sx))
+    return out
+
+
+# each pose's wings: a slow gentle flap through the idles, swept back when it glides fast, folded softly round it sitting,
+# spread wide when it's happy and when it weaves, drooped when it faints
+WING_POSE = {'idle_a': dict(), 'idle_b': dict(beat=6, raise_=2), 'idle_c': dict(beat=-6, fold=6),
+             'walk_0': dict(beat=4), 'walk_1': dict(beat=10), 'walk_2': dict(beat=4), 'walk_3': dict(beat=-4),
+             'run_0': dict(fold=20, beat=4), 'run_1': dict(fold=20, beat=10), 'run_2': dict(fold=20, beat=2), 'run_3': dict(fold=20, beat=-2),
+             'jump': dict(spread=12, fold=-10, beat=6), 'sit_a': dict(fold=-14, spread=-22), 'sit_b': dict(fold=-10, spread=-24, beat=2),
+             'happy': dict(spread=14, fold=-16, beat=2), 'hurt': dict(fold=18, beat=10, spread=-8), 'tired': dict(droop=24, fold=10, spread=-12), 'rise': dict(droop=10, beat=8),
+             'weave_up': dict(fold=10, beat=-8), 'weave': dict(spread=16, fold=-8, beat=2), 'weave_hold': dict(spread=14, fold=-10, beat=0),
+             'weave_end': dict(beat=-6, fold=6), 'tug_up': dict(fold=10, beat=8), 'tug': dict(fold=-6, beat=-6), 'mend_a': dict(fold=-6),
+             'mend': dict(spread=8, fold=-10, beat=4), 'gift': dict(fold=-12, droop=6), 'tend_a': dict(beat=3), 'tend_b': dict(beat=-3),
+             'bow': dict(fold=-10, droop=6)}
+for _k, _v in POSES.items():
+    _v.update(wings(**WING_POSE.get(_k, dict(fold=30, spread=-8, beat=-10 + 4 * math.sin(int(_k[-1]) if _k[-1].isdigit() else 0)))))   # (swimming: laid back)
 for _k, _v in POSES.items():                                   # (kneeling: the pool stays on the floor however low it sinks)
     if _v.get('_pool'): _v['_o_pool'] = (0.0, -_v['_off'][1], 0.0)
 
@@ -603,7 +699,7 @@ DRAFT = ['idle_a', 'idle_b', 'idle_c', 'walk_0', 'walk_1', 'run_0', 'run_2', 'ju
 
 # ---- the display case and the doll (measured from the built rig with tools/preview/keeper.py 'fit'; phase134.FIT's form:
 #      (lowest y, height, x0, x1, z0, z1) in blocks, idle_a at RIG_SCALE)
-FIT = None
+FIT = (0.047, 2.344, -0.873, 0.873, -0.873, 0.873)     # (the width is the outer ring of motes)
 DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62, 'groups': {'bm:kb_skirt': 'legs'}}     # (no legs: the skirt is shortened as legs would be)
 
 

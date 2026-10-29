@@ -8,7 +8,8 @@ THE LIGHTBRINGER (The Herald's Feather) - HARD MODE ONLY   a herald of the Divin
   SMITE a foe within 12, every 3 s: a pillar of light (8; 14 to the undead). BLESS you, hurt in a fight, every 8 s: Regeneration II
   and Absorption, your followers healed too. WARD (charged, every minute): her wings close round you - you and your followers
   Resistance II and Absorption II; the monsters near pushed back (6, the undead set alight). PRAY out of a fight: a meal's worth and
-  Regeneration. SHE LOVES IT WHEN YOU WEAR HOLY THINGS: beside her, wearing something holy, she beams - Regeneration while you're
+  Regeneration. THE OPHANIM (2.99a; three or more monsters near, every 90 s): her true form, a wheel within a wheel, full of eyes -
+  light falls three times on every monster within 16. SHE LOVES IT WHEN YOU WEAR HOLY THINGS: beside her, wearing something holy, she beams - Regeneration while you're
   near, her smite +4, her blessing and her prayer stronger.
 THE PALE DRYAD (A Glowing Mushroom)   a little spirit of the Pale Garden, all blue and orange mushrooms; she GLOWS SOFTLY AT NIGHT.
   In a Pale Garden at night she may be there among the moss; offer her a mushroom and she comes along. SWIPE a foe within 2.4 (5).
@@ -20,7 +21,9 @@ Contract, and a pair with Bender, Mr. Capshun, Henry and Nia."""
 from items import item, T, TOTEM, ITEMS
 from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D
-import lightbringer_art as LA, pale_dryad_art as PA
+import math
+import lightbringer_art as LA, pale_dryad_art as PA, ophan_art as OA
+import rigfol as RF
 import rigpet as RP
 import rigface as RF2
 import phase141 as P141
@@ -29,6 +32,13 @@ import phase235 as P235
 import phase95 as FX
 
 HOLY = '#ffe08a'
+OPH_X, OPH_Y, OPH_K = 120, 3.9, 4          # (the Ophanim: 6 s; its centre 3.9 above her; a spin keyframe every 4 ticks)
+
+
+def _q(axis, deg):
+    h = math.radians(deg) / 2
+    v = {'x': (1, 0, 0), 'y': (0, 1, 0), 'z': (0, 0, 1)}[axis]
+    return [F(round(v[0] * math.sin(h), 5)), F(round(v[1] * math.sin(h), 5)), F(round(v[2] * math.sin(h), 5)), F(round(math.cos(h), 5))]
 ANGEL = '*[minecraft:custom_data~{bm_angel:1b}]'
 item_particle = P235.item_particle
 
@@ -46,7 +56,7 @@ class Lightbringer(RP.Cfg):
     CYCLE = P235.cycle((240, [(0, 'idle_a'), (80, 'idle_b'), (160, 'idle_c'), (210, 'idle_a')]), (240, [(0, 'sit_a'), (120, 'sit_b')]),
                        (None, [(0, 'happy'), (10, 'wings_spread_up'), (16, 'wings_spread'), (26, 'happy')]),
                        {8: (None, [(0, 'smite_up'), (6, 'smite'), (14, 'smite_end')]), 13: (None, [(0, 'bless_a'), (6, 'bless'), (20, 'idle_a')]),
-                        12: (None, [(0, 'ward_up'), (6, 'ward'), (24, 'wings_spread')]), 14: (None, [(0, 'pray'), (30, 'happy')])})
+                        12: (None, [(0, 'ward_up'), (6, 'ward'), (24, 'wings_spread')]), 15: (None, [(0, 'ward_up')]), 14: (None, [(0, 'pray'), (30, 'happy')])})
     DUR = dict(P235._DUR, smite_up=4, smite=2, smite_end=6, bless_a=4, bless=6, ward_up=4, ward=6, pray=10, wings_spread_up=4, wings_spread=6)
     QUIPS = ['"Light holds. It always holds."', '"The Divine One sees you. Walk on."', '"Be not afraid - I am only the herald."',
              '"The Dread cannot abide the dawn."', '"Rest a moment. I will keep watch."', '(she hums something very old and very kind)']
@@ -58,6 +68,7 @@ class Lightbringer(RP.Cfg):
     POWERS = [('Smite', 'a foe within 12, every 3 s: a pillar of light comes down on it - 8, and 14 to the undead'),
               ('Bless', 'you, hurt in a fight, every 8 s: Regeneration II and Absorption - and your followers healed too'),
               ('Ward', 'charged, every minute: her wings close round you - you and your followers Resistance II and Absorption II; the monsters near pushed back (6, the undead set alight)'),
+              ('Ophanim', 'three or more monsters near, every 90 s: she takes her true form - a wheel within a wheel, full of eyes - and light falls three times on every monster within 16 (14, and 20 to the undead)'),
               ('Pray', 'out of a fight beside you, every minute: a meal\'s worth, and Regeneration'),
               ('Holy Favour', 'she loves it when you wear holy things (anything a Golden Cross has made holy): beside her, you heal; her smite strikes harder (+4); her blessing and her prayer are stronger')]
     INTRO = [T('The Lightbringer', HOLY, bold=True), T(' - a herald of the Divine One, the light against the Dread. ', 'gray'),
@@ -214,7 +225,9 @@ def _light(G, X):
     K = dict(ranged=dict(st=8, x=18, at=12, cd=60, near=0.5, far=12, face='serious', go=['playsound minecraft:block.beacon.power_select neutral @a[distance=..16] ~ ~ ~ 0.5 1.8']),
              support=dict(st=13, x=22, at=14, cd=160, face='happy'),
              charged=dict(st=12, x=30, at=22, cd=1200, r=6, face='serious', go=['playsound minecraft:item.elytra.flying neutral @a[distance=..16] ~ ~ ~ 0.3 1.6']),
-             kind=dict(st=14, x=34, at=16, cd=1200, face='happy'))
+             kind=dict(st=14, x=34, at=16, cd=1200, face='happy'),
+             crowd=dict(st=15, x=OPH_X, at=[84, 54, 24], cd=1800, r=12, n=3, face='serious', during=(1, OPH_X - 1),
+                        go=['function bm:p236l/oph/up']))
     lines = P235.kit(G, X, K)
     holy = f'function bm:p236l/holy_q'
     tg = f'@e[{foe},distance=..12,sort=nearest,limit=1]'
@@ -244,6 +257,42 @@ def _light(G, X):
     fn('p236l/warded', ['function bm:p236l/hurt', 'execute if entity @s[type=#minecraft:undead] run data merge entity @s {Fire:80s}',
                         'execute facing entity @a[tag=bm.lhme,limit=1] feet positioned ^ ^0.2 ^-2.5 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run tp @s ~ ~ ~',
                         'particle minecraft:end_rod ~ ~1 ~ 0.2 0.4 0.2 0.05 6'])
+    # THE OPHANIM (2.99a): three or more foes near - she becomes what she truly is, a wheel within a wheel, full of eyes (ophan_art),
+    # and three times over every foe within 16 is struck from above (14; 20 to the undead); then she is herself again
+    for i in ('', '2', '3'):
+        fn(f'{pfx}/crowd{i}', X.hit(14) + [f'execute as @e[{foe},distance=..16] at @s run function bm:{pfx}/smitten',
+                                          'particle minecraft:flash{color:[1.0,0.95,0.7,1.0]} ~ ~4 ~ 0 0 0 0 1',
+                                          'playsound minecraft:block.beacon.power_select neutral @a[distance=..32] ~ ~ ~ 1 0.6',
+                                          'playsound minecraft:entity.lightning_bolt.thunder neutral @a[distance=..32] ~ ~ ~ 0.4 1.8'] + X.end)
+    osel = lambda p=None: '@e[type=minecraft:item_display,tag=bm.ophsel' + (f',tag=bm.oph_{p}]' if p else ']')
+    fn('p236l/oph/up', ['scoreboard players operation #me bm.pid = @s bm.pid',
+                        'execute as @e[type=minecraft:item_display,tag=bm.oph] if score @s bm.pid = #me bm.pid run kill @s'] +
+       [f'summon minecraft:item_display ~ ~{OPH_Y} ~ {RF.part_nbt(OA, p, ["bm.oph", f"bm.oph_{p}", "bm.ophnew"], OA.SCALE, scale0=True, extra=dict(view_range=F(4.0), brightness={"block": Int(15), "sky": Int(15)}, teleport_duration=Int(2)))}'
+        for p in OA.PARTS] +
+       ['scoreboard players operation @e[type=minecraft:item_display,tag=bm.ophnew] bm.pid = #me bm.pid', 'tag @e[type=minecraft:item_display,tag=bm.ophnew] remove bm.ophnew',
+        'particle minecraft:end_rod ~ ~2 ~ 1 1.5 1 0.2 80', 'particle minecraft:flash{color:[1.0,0.95,0.7,1.0]} ~ ~2 ~ 0 0 0 0 1',
+        'playsound minecraft:block.beacon.activate neutral @a[distance=..32] ~ ~ ~ 1 0.5', 'playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..32] ~ ~ ~ 1 0.5',
+        'execute on owner run ' + G.title('@s', 'actionbar', T('Be not afraid.', HOLY, bold=True))])
+    tl = [f'scoreboard players operation #me bm.pid = @s bm.pid',
+          'execute as @e[type=minecraft:item_display,tag=bm.oph] if score @s bm.pid = #me bm.pid run tag @s add bm.ophsel',
+          f'execute positioned ~ ~{OPH_Y} ~ run tp {osel()} ~ ~ ~',
+          f'execute if score @s {S("x")} matches {OPH_X - 9}..{OPH_X - 1} run function bm:p236l/oph/hide',
+          f'execute if score @s {S("x")} matches {OPH_X - 2} as {osel()} run data merge entity @s {{start_interpolation:0,interpolation_duration:10,transformation:{{scale:[{OA.SCALE}f,{OA.SCALE}f,{OA.SCALE}f]}}}}',
+          f'execute if score @s {S("x")} matches 10 as {osel()} run data merge entity @s {{start_interpolation:0,interpolation_duration:8,transformation:{{scale:[0f,0f,0f]}}}}',
+          f'execute if score @s {S("x")} matches 2 run function bm:p236l/oph/down',
+          f'execute if score @s {S("x")} matches 1..{OPH_X - 2} run particle minecraft:end_rod ~ ~{OPH_Y} ~ 2 2 2 0.01 2']
+    for n in range(OPH_X - 4, 8, -OPH_K):
+        tl.append(f'execute if score @s {S("x")} matches {n} run function bm:p236l/oph/k{n}')
+        t = OPH_X - n
+        fn(f'p236l/oph/k{n}', [f'execute as {osel(p)} run data merge entity @s {{start_interpolation:0,interpolation_duration:{OPH_K},transformation:{{left_rotation:{snbt(_q(OA.SPIN_AXIS[p], OA.SPIN_RATE[p] * t))}}}}}'
+                               for p in OA.PARTS])
+    tl.append(f'tag {osel()} remove bm.ophsel')
+    fn(f'{pfx}/crowd_tick', tl)
+    fn('p236l/oph/hide', [f'execute as {X.psel()} run data merge entity @s {{start_interpolation:0,interpolation_duration:3,transformation:{{scale:[0f,0f,0f]}}}}'])
+    fn('p236l/oph/stray', [f'execute unless entity @e[type=minecraft:wolf,tag=bm.lhpet,distance=..8] run kill @s'])
+    G.FUNCS['loop/second'].append('execute as @e[type=minecraft:item_display,tag=bm.oph] at @s run function bm:p236l/oph/stray')
+    fn('p236l/oph/down', [f'kill {osel()}', 'function bm:p236l/pose/wings_spread', 'particle minecraft:end_rod ~ ~1 ~ 0.4 0.8 0.4 0.1 30',
+                          'playsound minecraft:block.beacon.deactivate neutral @a[distance=..32] ~ ~ ~ 1 1.2'])
     # PRAY: out of a fight - a meal's worth and Regeneration (holy: a little health back too)
     fn(f'{pfx}/kind', ['execute on owner if entity @s[distance=..8] run function bm:p236l/pray_you'])
     fn('p236l/pray_you', ['effect give @s minecraft:saturation 1 2 true', 'effect give @s minecraft:regeneration 10 0 true',

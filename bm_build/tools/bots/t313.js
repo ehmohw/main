@@ -25,6 +25,7 @@ const N = 'execute in minecraft:the_nether run ';
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
+  await run('tag TestRat add bm.lkpass');      // (2.99a: phase251's pass - this test sets its stages by teleport; t322 plays the lockout itself)
   await run('gamemode survival TestRat'); await run('effect give TestRat minecraft:resistance infinite 4 true'); await run('effect give TestRat minecraft:fire_resistance infinite 0 true');
   await run('scoreboard players set #ufell bm.p2 0');
   if (+((await run('scoreboard players get #uver bm.p2')).match(/has (-?\d+)/) || [0, 0])[1] < 1) {

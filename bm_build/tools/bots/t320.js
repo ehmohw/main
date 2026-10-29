@@ -54,6 +54,7 @@ const HB = (n) => 54 + n;                                  // (a 9x3 container w
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
+  await run('tag TestRat add bm.lkpass');      // (2.99a: phase251's pass - this test sets its stages by teleport; t322 plays the lockout itself)
   await run('gamemode survival TestRat'); await run('clear TestRat'); await run('effect give TestRat minecraft:resistance infinite 4 true');
   await run('effect give TestRat minecraft:fire_resistance infinite 0 true');
   await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
@@ -67,7 +68,7 @@ const HB = (n) => 54 + n;                                  // (a 9x3 container w
     await run(`${O}execute positioned ${X + 0.5} ${Y + 1} ${Z - 4.5} rotated 0 0 run function bm:npc/fence`); await sleep(1200);
     const FEN = `@e[type=minecraft:wandering_trader,tag=bm.npc_fence,x=${X + 0.5},y=${Y + 1},z=${Z - 4.5},distance=..2,limit=1]`;
     let idx = -1;
-    for (let i = 0; i < 60 && idx < 0; i++) { const s = await nbt(O, FEN, `Offers.Recipes[${i}].sell.components."minecraft:custom_data".bm`); if (/Found no elements/i.test(s)) break; if (/"backpack"/.test(s)) idx = i; }
+    for (let i = 0; i < 60 && idx < 0; i++) { if (/Found no elements/i.test(await nbt(O, FEN, `Offers.Recipes[${i}].sell.count`))) break; const s = await nbt(O, FEN, `Offers.Recipes[${i}].sell.components."minecraft:custom_data".bm`); if (/"backpack"/.test(s)) idx = i; }
     ok('the Fence sells the Backpack', idx >= 0, `trade #${idx}`);
     const price = idx < 0 ? 0 : +(((await nbt(O, FEN, `Offers.Recipes[${idx}].buy.count`)).match(/(\d+)/) || [0, 0])[1]);
     const buyId = idx < 0 ? '' : (await nbt(O, FEN, `Offers.Recipes[${idx}].buy.components."minecraft:custom_data".bm`)).replace(/"/g, '');
@@ -164,13 +165,13 @@ const HB = (n) => 54 + n;                                  // (a 9x3 container w
     if ((await sc('#uver', 'bm.p2')) < 1) await run('function bm:admin/under/place');
     ok('the stage: the Undercrown placed', await wait(900000, async () => (await sc('#uver', 'bm.p2')) >= 1, 2000));
     await run(`${N}forceload add ${UO[0]} ${UO[2]} ${UO[0] + 223} ${UO[2] + 223}`); await sleep(4000);
-    const hub = await pos(N, '@e[type=minecraft:marker,tag=bm.dg,tag=bm.d_under,limit=1]');
+    const hub = await pos(N, `@e[type=minecraft:marker,tag=bm.pz1,x=${UO[0]},y=-64,z=${UO[2]},dx=223,dy=380,dz=223,limit=1]`);      // (the first trial room: floor all round)
     // (a spot on open floor: the bot's cell and the two ahead clear, the floor under the barrel solid, no dungeon marker by it)
     let S = null;
-    if (!hub) ok('the Undercrown\'s controller found', false);
+    if (!hub) ok('the Undercrown\'s first trial room found', false);
     for (let r = 3; r <= 14 && !S && hub; r++) {
       for (const [dx, dz] of [[r, 0], [-r, 0], [0, r], [0, -r], [r, r], [-r, -r], [r, -r], [-r, r]]) {
-        for (const dy of [0, 1, -1, 2]) {
+        for (const dy of [0, 1, -1, 2, -2, 3]) {
           const x = Math.floor(hub[0]) + dx, y = Math.floor(hub[1]) + dy, z = Math.floor(hub[2]) + dz;
           if (await passes(`${N}execute if block ${x} ${y} ${z} minecraft:air if block ${x} ${y + 1} ${z} minecraft:air unless block ${x} ${y - 1} ${z} #minecraft:replaceable ` +
             `if block ${x} ${y} ${z + 1} minecraft:air if block ${x} ${y + 1} ${z + 1} minecraft:air if block ${x} ${y} ${z + 2} #bm:p248_air ` +

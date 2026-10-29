@@ -45,6 +45,7 @@ const E = 'execute in minecraft:the_end run ';
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
+  await run('tag TestRat add bm.lkpass');      // (2.99a: phase251's pass - this test sets its stages by teleport; t322 plays the lockout itself)
   await run('gamemode survival TestRat'); await run('effect give TestRat minecraft:resistance infinite 3 true'); await run('effect give TestRat minecraft:fire_resistance infinite 0 true');
   await run('scoreboard players set #hard bm.cfg 1'); await run('clear TestRat');
   // (the stage: the Armada placed - the bot waits out in the End, away from it, while the template goes down)

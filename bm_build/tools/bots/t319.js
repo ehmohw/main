@@ -34,6 +34,7 @@ const FLOOR = 100;
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
+  await run('tag TestRat add bm.lkpass');      // (2.99a: phase251's pass - this test sets its stages by teleport; t322 plays the lockout itself)
   await run('gamemode survival TestRat'); await run('scoreboard players set #hard bm.cfg 1'); await run('clear TestRat');
   await run('effect give TestRat minecraft:resistance infinite 2 true'); await run('effect give TestRat minecraft:fire_resistance infinite 0 true');
   await run('effect give TestRat minecraft:regeneration infinite 1 true');
@@ -74,8 +75,8 @@ const FLOOR = 100;
 
   if (on('lock')) {
     await run(`${E}tp TestRat 1200 90 0`); await run(`${E}setblock 1200 88 0 minecraft:obsidian`);
-    if ((await sc('#aver', 'bm.p2')) !== 2) await run('function bm:admin/armada/place');
-    ok('the stage: the Armada placed (version 2: its Sentinels)', await wait(900000, async () => (await sc('#aver', 'bm.p2')) === 2, 2000));
+    if ((await sc('#aver', 'bm.p2')) < 3) await run('function bm:admin/armada/place');
+    ok('the stage: the Armada placed (version 3: its Sentinels and the hangar)', await wait(900000, async () => (await sc('#aver', 'bm.p2')) >= 3, 2000));
     await run(`${E}forceload add ${AO[0]} ${AO[2]} ${AO[0] + 239} ${AO[2] + 239}`); await sleep(5000);
     const DG = '@e[type=minecraft:marker,tag=bm.dg,tag=bm.d_armada,limit=1]';
     await run(`${E}scoreboard players set ${DG} bm.pz 16`);

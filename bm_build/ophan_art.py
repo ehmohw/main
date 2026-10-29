@@ -4,7 +4,7 @@ their work was as it were a wheel in the middle of a wheel ... and their rings w
 
 THE LOOK (the Seraph's holy style, seraph_art: square pixel eyes in gold lids, square tongues of fire, flat fields, no speckle)
   ring_a  the great outer wheel: a thick gold annulus (16 straight segments), its two flat faces set all round with EYES (16 a
-          face), eight more eyes round its rim, and between them eight tongues of white-gold fire licking out off the rim. A
+          face), 16 more eyes round its rim, and a crown of white-gold fire: a square tongue at every joint, long and short. A
           royal blue line runs round its inner edge, a royal purple line round the middle of its rim.
   ring_b  the wheel within it, at right angles: a narrower gold annulus (12 segments), 12 eyes a face and 12 round its rim. No
           fire (there's no room between it and ring_a when both spin).
@@ -21,11 +21,11 @@ it in place - all four displays stand at the same point, the construct's centre)
   ring_c  rests in the YZ plane (side-on): SPIN IT ABOUT Z
   core    a sphere-ish star: turn it slowly about Y (or not at all)
   The rings are NESTED so they never touch whatever their angles: each part fits in a ball, inside the hole of the next one out
-  (check(): ring_c's ball 10.2 < ring_b's hole 11.2; ring_b's 15.1 < ring_a's 15.6; the core's 7.0 < ring_c's 7.2 (design units)).
+  (check(): the core's ball 6.7 < ring_c's hole 7.3; ring_c's 10.0 < ring_b's 11.2; ring_b's 14.9 < ring_a's 15.7 (design units)).
   So the runtime may spin every part about ANY axis at any speed; the axes above are what reads best (three gyroscope rings).
   Recommended: ring_a +6 deg/tick about Y, ring_b -9 about X, ring_c +14 about Z, core +2 about Y; the whole construct may lean.
 
-SCALE   2.2: a design unit is 2.2/16 block. ring_a is 40 units across its gold (5.5 blocks), 46.6 to its flames' tips (6.4);
+SCALE   2.2: a design unit is 2.2/16 block. ring_a is 40 units across its gold (5.5 blocks), 47.3 to its flames' tips (6.5);
         ring_b 30 (4.1 blocks), ring_c 20 (2.75), the core's star 14 (1.9). Every element is inside the model box (-16..32).
 GLOW    light_emission 15 on every eye, every flame, the core (its star, rays, glow and halo) and ring_c's band of light. The gold
         of ring_a / ring_b is unlit (0): in the dark the eyes and the fire carry it. GLOW = the parts worth a brightness
@@ -85,7 +85,7 @@ def _T(rows):
 # a wheel's face: u across the band (u 0 the outer edge), v along it. Drawn as seen with the outer edge at the TOP:
 BAND = ['yyyyyyyy',        # the outer lip, lit
         'gggggggg',
-        'GGGGGGGG',
+        'gggggggg',
         'GGGGGGGG',
         'GGGGGGGG',
         'hhhhhhhh',
@@ -104,18 +104,20 @@ LIGHTBAND = ['gggggggg',   # ring_c: a band of light, gold-edged
              'WWWWWWWW',
              'yyyyyyyy',
              'gggggggg']
-EYE = ['yyyyyy',           # the eye as seen (the upper lid on top): the Seraph's, a royal-blue iris
-       'geBneh',
-       'genNeh',
-       'hhhhhH']
-FLAME = ['gggggg',         # a tongue of holy fire, root (top) to tips: gold into white-gold, two square tongues, cut out
-         'FFFFFF',
-         'FfFFfF',
-         'rffrff',
-         'rWfrWf',
-         'rWf.Wf',
-         '.Wf.W.',
-         '.W....']
+EYE = ['hyyyyyyyyh',       # the eye as seen (the upper lid on top): the Seraph's square eye, larger - white, a square royal-blue
+       'yeebBBneeh',       # iris lit at its top left round a dark pupil, gold lids (light above, dark below)
+       'yeeBkkneeh',
+       'yeeBkkNeeh',
+       'yeennNNeeh',
+       'hhhhhhhhhH']
+FLAME = ['gggggggg',       # a tongue of holy fire, root (top) to tips: gold into white-gold, three square tongues (the middle one
+         'FFFFFFFF',       # the tallest), cut out between them
+         'FfFFFFfF',
+         'rWfFFfWr',
+         'rWffffWr',
+         '.WfWWfW.',
+         '.W.WW.W.',
+         '...WW...']
 
 
 def textures():
@@ -128,7 +130,7 @@ def textures():
             'oph_light': _grid(['Wyy', 'WWy', 'WWW']),
             'oph_ray': _grid(['yWy']),
             'oph_halo': _grid(['yyyy', 'gggg', 'gggg', 'GGGG']),
-            'oph_aura': _grid(['ffff', 'fWWf', 'fWWf', 'ffff'], alpha=96)}
+            'oph_aura': _grid(['FFFF', 'FffF', 'FffF', 'FFFF'], alpha=110)}
 
 
 # ---------------------------------------------------------------------------------------------------- building (design units,
@@ -168,9 +170,10 @@ def _eye(c, n, t, along, across, d=0.34):
     return SEG(A, B, across, d, 'oph_eye', n, light=LIGHT, uv=EYE_UV)
 
 
-def ring(plane, n, r0, r1, depth, band, rim, rim_in, eyes=(1, 1), rim_eyes=0, flames=0, phase=0.0, eye_size=None, flame_len=3.2):
+def ring(plane, n, r0, r1, depth, band, rim, rim_in, eyes=(1, 1), rim_eyes=0, flames=0, phase=0.0, eye_size=None, rim_eye=None, flame_len=3.6):
     """a wheel in `plane` of n straight segments, from radius r0 to r1, `depth` thick: eyes on its two faces (every eyes[0]-th
-    segment, starting at eyes[1]-1), rim_eyes (every k-th segment round the rim), flames (every k-th, between the rim eyes)"""
+    segment, starting at eyes[1]-1), rim_eyes (every k-th segment round the rim), flames (a tongue at every joint between
+    segments, every k-th one long, the rest short)"""
     P, Q, N = PLANE[plane]
     w, rm = r1 - r0, (r0 + r1) / 2
     ext = (w / 2) * math.tan(math.pi / n) + 0.02                       # (closes the wedge at the outer edge)
@@ -199,12 +202,14 @@ def ring(plane, n, r0, r1, depth, band, rim, rim_in, eyes=(1, 1), rim_eyes=0, fl
                 out.append(_eye(c, nn, tt, ew, eh))
         rim_c = _add(mid, _mul(radial, w / 2))
         if rim_eyes and i % rim_eyes == 0:
-            out.append(_eye(rim_c, radial, _mul(t, 1), min(ew, 3.0), depth * 0.78))
-        if flames and i % flames == flames - 1:
-            tip = _add(rim_c, _mul(radial, flame_len))
-            base = _add(rim_c, _mul(radial, -0.3))
-            out.append(SEG(base, tip, 2.3, 0.2, 'oph_flame', N, light=LIGHT, shade=False, uv=FULL))          # (crossed slabs:
-            out.append(SEG(base, tip, depth * 0.9, 0.2, 'oph_flame', t, light=LIGHT, shade=False, uv=FULL))  #  a tongue from any side)
+            re = rim_eye or (min(ew, 3.2), depth * 0.8)
+            out.append(_eye(rim_c, radial, t, re[0], re[1]))
+        if flames:                                                     # a crown of fire: a tongue at every joint, long and short
+            rj = rigkit._unit(pt(a0, 1.0)); tj = rigkit._unit(pt(a0 + math.pi / 2, 1.0))
+            ln = flame_len if i % flames == 0 else flame_len * 0.62
+            base, tip = _mul(rj, r1 - 0.5), _mul(rj, r1 + ln)
+            out.append(SEG(base, tip, 3.0 if i % flames == 0 else 2.4, 0.2, 'oph_flame', N, light=LIGHT, shade=False, uv=FULL))   # (crossed
+            out.append(SEG(base, tip, depth * 1.05, 0.2, 'oph_flame', tj, light=LIGHT, shade=False, uv=FULL))                     #  slabs)
     return out
 
 
@@ -215,35 +220,35 @@ RC = dict(plane='yz', n=10, r0=7.7, r1=9.9, depth=1.7)
 
 
 def ring_a():
-    return ring(**RA, band='oph_band', rim='oph_rim', rim_in='oph_rim_in', rim_eyes=2, flames=2, eye_size=(3.6, 2.7))
+    return ring(**RA, band='oph_band', rim='oph_rim', rim_in='oph_rim_in', rim_eyes=1, flames=2, eye_size=(4.4, 3.2), rim_eye=(3.4, 2.2))
 
 
 def ring_b():
-    return ring(**RB, band='oph_band', rim='oph_rim', rim_in='oph_rim_in', rim_eyes=1, eye_size=(3.2, 2.3), phase=math.pi / 12)
+    return ring(**RB, band='oph_band', rim='oph_rim', rim_in='oph_rim_in', rim_eyes=1, eye_size=(3.9, 2.7), rim_eye=(3.1, 2.0), phase=math.pi / 12)
 
 
 def ring_c():
-    return ring(**RC, band='oph_lightband', rim='oph_lightband', rim_in='oph_lightband', eyes=(2, 1), eye_size=(2.6, 1.8))
+    return ring(**RC, band='oph_lightband', rim='oph_lightband', rim_in='oph_lightband', eyes=(2, 1), eye_size=(3.0, 2.0))
 
 
 def core():
     """the blazing heart: a star of light (two crossed cubes), a translucent glow round it, rays along the six axes and the
     eight diagonals, her gold halo tilted round it"""
     C = []
-    s = 3.6
-    C.append(el((-s / 2,) * 3, (s / 2,) * 3, 'oph_light', PV, rot=((35.264, 45.0, 0.0), (0, 0, 0)), uv=WHOLE, light=LIGHT))
-    s2 = 3.0
-    C.append(el((-s2 / 2,) * 3, (s2 / 2,) * 3, 'oph_light', PV, rot=((0.0, 45.0, 45.0), (0, 0, 0)), uv=WHOLE, light=LIGHT))
-    a = 6.0
-    C.append(el((-a / 2,) * 3, (a / 2,) * 3, 'oph_aura', PV, rot=((0.0, 45.0, 0.0), (0, 0, 0)), uv=WHOLE, light=LIGHT))
+    def cube(s, tex, rot):
+        e = el((-s / 2,) * 3, (s / 2,) * 3, tex, PV, rot=(rot, (0, 0, 0)), uv=WHOLE, light=LIGHT); e['shade'] = False; return e
+    C.append(cube(4.2, 'oph_light', (35.264, 45.0, 0.0)))
+    C.append(cube(3.6, 'oph_light', (0.0, 45.0, 45.0)))
+    C.append(cube(6.6, 'oph_aura', (0.0, 45.0, 0.0)))
+    C.append(cube(6.2, 'oph_aura', (45.0, 0.0, 45.0)))
     for d in ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)):     # the six long rays
         up = (0, 0, 1) if d[2] == 0 else (0, 1, 0)
-        C.append(SEG(_mul(d, 1.2), _mul(d, 6.7), 0.8, 0.8, 'oph_ray', up, light=LIGHT, shade=False, uv=WHOLE))
+        C.append(SEG(_mul(d, 1.2), _mul(d, 6.7), 1.0, 1.0, 'oph_ray', up, light=LIGHT, shade=False, uv=WHOLE))
     for sx in (1, -1):                                                                  # the eight short ones
         for sy in (1, -1):
             for sz in (1, -1):
                 d = rigkit._unit((sx, sy, sz))
-                C.append(SEG(_mul(d, 1.2), _mul(d, 4.9), 0.55, 0.55, 'oph_ray', (0, 1, 0) if sy == 0 else (1, 0, 0), light=LIGHT, shade=False, uv=WHOLE))
+                C.append(SEG(_mul(d, 1.2), _mul(d, 5.2), 0.7, 0.7, 'oph_ray', (0, 1, 0) if sy == 0 else (1, 0, 0), light=LIGHT, shade=False, uv=WHOLE))
     tilt = math.radians(22)                                                             # her halo, tilted round the star
     n, R = 14, 5.0
     up_t = (0.0, math.cos(tilt), math.sin(tilt))

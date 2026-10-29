@@ -117,7 +117,8 @@ def _sat(a, b):
 
 
 MEET = {frozenset(p) for p in [('body', 'head'), ('body', 'armr'), ('body', 'arml'), ('armr', 'forer'), ('arml', 'forel'), ('forer', 'threadr'),
-                               ('forel', 'threadl'), ('body', 'skirt'), ('body', 'loom'), ('body', 'pool'), ('skirt', 'pool')]}
+                               ('forel', 'threadl'), ('body', 'skirt'), ('body', 'loom'), ('body', 'pool'), ('skirt', 'pool')] +
+        [('body', f'wing_{t}{s}') for t in 'uml' for s in 'rl']}
 FREE = ('motes', 'motesb', 'web')            # (the orbit and the web pass through and round it: light, not cloth)
 
 
@@ -126,7 +127,8 @@ def clip_report(names, tol=0.2):
     for n in names:
         pose = A.POSES[n]; bx = boxes(pose); hits = {}
         for (pa, ca, ea), (pb, cb, eb) in itertools.combinations(bx, 2):
-            if pa == pb or frozenset((pa, pb)) in MEET or pa in FREE or pb in FREE: continue
+            if pa == pb or frozenset((pa, pb)) in MEET: continue
+            if (pa in FREE or pb in FREE) and not ({pa, pb} & {'motes', 'motesb'} and (pa.startswith('wing') or pb.startswith('wing'))): continue
             d = _sat(ca, cb) / U
             if d > tol:
                 k = tuple(sorted((pa, pb))); hits[k] = max(hits.get(k, 0), d)

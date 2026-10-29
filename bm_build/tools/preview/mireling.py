@@ -116,35 +116,36 @@ def tile(name, view=(32, 12), size=360, span=3.2, center=(0, 0.9, -0.2), player=
 # ---------------------------------------------------------------------------------------------------- lineup
 if 'lineup' in what:
     MROOT = mire_pack()
-    xs = {'idle_a': 0.0, 'walk_1': 1.6, 'sit_a': 3.0}
-    N, span = 2000, 13.0
+    xs = {'idle_a': 0.6, 'walk_1': 2.3, 'sit_a': 3.9}
+    N, span = 2000, 15.0
 
     def scene(night):
         s = night_scene(ROOT, MROOT) if night else K.multi_scene(ROOT, MROOT)
         for n, x in xs.items(): mireling(s, n, at=(x, 0, 0))
         rigkit.render(s, MA, MA.POSES['idle_a'], at=(-5.6, 0, 1.0), scale=MA.SCALE)
-        (steve_dark if night else steve)(s, (-1.5, 0, 0.3)) if night else steve(s, (-1.5, 0, 0.3))
+        steve(s, (-1.1, 0, 0.3))
         for i in range(-10, 6):
             for j in range(-4, 4):
                 s.solid((i, -0.25, j), (i + 1, 0.0, j + 1), FLOOR[(i + j) % 2])
         return s
-    im = scene(False).render((-12, 8), size=N, span=span, center=(-1.6, 2.6, 0))
-    d = ImageDraw.Draw(im); k = N / span
-    for n, x in xs.items():
-        d.text((int(N / 2 + (x + 1.6 - 0.4) * k * 0.98), int(N / 2 + 0.9 * k)), n, fill=(20, 20, 20), font=font(22))
-    d.text((int(N / 2 + (-1.5 + 1.6 - 0.5) * k * 0.98), int(N / 2 + 0.9 * k)), 'a player', fill=(40, 40, 40), font=font(20, False))
-    d.text((int(N / 2 + (-5.6 + 1.6 - 1.4) * k * 0.98), int(N / 2 + 0.9 * k)), 'the Dread Mire (idle_a)', fill=(40, 40, 40), font=font(20, False))
-    d.text((14, 12), f'The Mireling - idle (risen), walk (sunk, gliding) and sit, beside a player and the full-size Dread Mire.  RIG_SCALE {A.RIG_SCALE}: '
-                     f'{A.extent(A.POSES["idle_a"])[1] * U:.2f} blocks risen', fill=(10, 10, 10), font=font(22))
-    im = im.crop((0, 0, N, int(N / 2 + 1.25 * k)))
+    VIEW, CEN = (24, 8), (-2.0, 2.4, 0)
+    im = scene(False).render(VIEW, size=N, span=span, center=CEN)
+    k = N / span
+    im = im.crop((0, int(N / 2 - 3.6 * k), N, int(N / 2 + 2.9 * k)))
+    top = Image.new('RGB', (N, im.height + 70), 'white'); top.paste(im, (0, 70)); d = ImageDraw.Draw(top)
+    d.text((14, 8), 'The Mireling and the full-size Dread Mire.  Left to right: the Mire (idle_a), a player, the Mireling idle_a, walk_1, sit_a',
+           fill=(10, 10, 10), font=font(22))
+    d.text((14, 38), f'RIG_SCALE {A.RIG_SCALE}: {A.extent(A.POSES["idle_a"])[1] * U:.2f} blocks risen, {A.extent(A.POSES["walk_1"])[1] * U:.2f} gliding, '
+                     f'{A.extent(A.POSES["sit_a"])[1] * U:.2f} sitting; the Mire ~5.3', fill=(50, 50, 50), font=font(18, False))
+    im = top
     s = night_scene(ROOT, MROOT)
     for n, x in xs.items(): mireling(s, n, at=(x, 0, 0))
     rigkit.render(s, MA, MA.POSES['idle_a'], at=(-5.6, 0, 1.0), scale=MA.SCALE)
-    steve_dark(s, (-1.5, 0, 0.3))
+    steve_dark(s, (-1.1, 0, 0.3))
     for i in range(-10, 6):
         for j in range(-4, 4):
             s.solid((i, -0.25, j), (i + 1, 0.0, j + 1), FLOOR[(i + j) % 2])
-    imd = darken(s.render((-12, 8), size=N, span=span, center=(-1.6, 2.6, 0))).crop((0, 0, N, int(N / 2 + 1.25 * k)))
+    imd = darken(s.render(VIEW, size=N, span=span, center=CEN)).crop((0, int(N / 2 - 3.6 * k), N, int(N / 2 + 2.9 * k)))
     dark_label(imd, 'At night: the veins, the eye and the throat glow (light_emission); the puddle glimmers faintly')
     # close at night
     tiles = []
@@ -194,7 +195,7 @@ if 'looks' in what:
         for night in (False, True):
             s = night_scene(root) if night else K.multi_scene(root)
             mireling(s, 'idle_a'); floor(s, 2)
-            im = s.render((-28, 10), size=330, span=2.4, center=(0, 0.85, -0.1))
+            im = s.render((30, 10), size=330, span=2.4, center=(0, 0.85, -0.1))
             (tiles if not night else ctiles).append(dark_label(darken(im), name, 'at night') if night else K.label(im, name, 'idle_a'))
         R.Scene._tex_cache = {} if hasattr(R.Scene, '_tex_cache') else None
     p = os.path.join(OUT, 'mireling_looks.png')
@@ -243,14 +244,13 @@ if 'doll' in what:
         s = K.multi_scene(ROOT, K.REAL)
         for i, dn in enumerate(row):
             s.display(f'bm:item/{dn}', pos=(-1.4 + 0.42 * i, 0.5, 0), yaw=180)
-        tiles.append(K.label(s.render(view, size=820, span=3.4, center=(-0.1 + 0.42 * (len(row) - 8) / 2, 0.55, 0)), l, '   '.join(d[5:] for d in row)))
+        tiles.append(K.label(s.render(view, size=820, span=3.4, center=(-0.1 + 0.42 * (len(row) - 8) / 2, 0.55, 0)), l, '   '.join(d[5:] for d in (row[::-1] if l.startswith('front') else row)) + '   (left to right)'))
     close = []
     for v, l in (((155, 12), 'the Mireling doll, close'), ((110, 12), 'from its side'), ((-25, 12), 'from behind')):
         s = K.multi_scene(ROOT); s.display('bm:item/doll_mireling', pos=(0, 0.5, 0), yaw=180)
         close.append(K.label(s.render(v, size=410, span=1.25, center=(0, 0.62, 0)), l))
     sheet = Image.new('RGB', (820 + 410, max(820 * 2, 410 * 3) + 40), 'white')
-    ImageDraw.Draw(sheet).text((12, 8), "The Mireling - Cecil's doll (baked from its real model, the default chibi warp kh 1.55 kb 0.82 kl 0.62; "
-                                        "its head: the head and the maw), beside the others", fill=(20, 20, 20), font=font(18))
+    ImageDraw.Draw(sheet).text((12, 8), "The Mireling's doll - baked from its real model, the default chibi warp (kh 1.55, kb 0.82, kl 0.62); its head: head + maw", fill=(20, 20, 20), font=font(18))
     for i, t in enumerate(tiles): sheet.paste(t, (0, 40 + 820 * i))
     for i, t in enumerate(close): sheet.paste(t, (820, 40 + 410 * i))
     p = os.path.join(OUT, 'mireling_doll.png'); sheet.save(p); print(p, 'doll elements', len(els))

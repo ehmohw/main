@@ -518,7 +518,7 @@ def generate(G):
                           'playsound minecraft:entity.evoker.prepare_summon hostile @a[distance=..64] ~ ~ ~ 2 0.5',
                           'execute at @e[type=minecraft:marker,tag=bm.mspawn,tag=bm.d_under,distance=..48,sort=random,limit=3] run function bm:p238/a/knight'])
     # (2.99a) the Mires: two at most at a time, risen at once from the hall's spawn points (phase246's spawn and rise)
-    fn('p238/a/mires', [f'execute as {TGT} if items entity @s armor.* *[minecraft:custom_data~{bm_angel:1b}] run return run function bm:p238/a/mires_fail',
+    fn('p238/a/mires', [f'execute as {TGT} if items entity @s armor.* *[minecraft:custom_data~{{bm_angel:1b}}] at @s run return run function bm:p238/a/mires_fail',
                         'execute store result score #kn bm.rng if entity @e[type=minecraft:husk,tag=bm.svm]', 'execute if score #kn bm.rng matches 2.. run return 0',
                         'playsound minecraft:entity.warden.emerge hostile @a[distance=..64] ~ ~ ~ 2 0.6',
                         'execute at @e[type=minecraft:marker,tag=bm.mspawn,tag=bm.d_under,distance=..48,sort=random,limit=1] run function bm:p238/a/mire'])
