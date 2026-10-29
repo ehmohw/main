@@ -449,12 +449,84 @@ def launcher_icons():
             'singularity_launcher_charged': _launcher('crossbow_arrow', loaded=True)}
 
 
+# ---- the Mothership's key (the skiff key's big brother) and the Admiral's Command Module (the upgrade that makes it)
+def _grid(rows, pal):
+    P = Px()
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch in pal: P.p(x, y, pal[ch])
+    return P
+
+
+def mothership_key():
+    """the Vorn Skiff Key's shape grown menacing: its bow the Mothership - a dark saucer, an armoured dome with a green visor slit,
+    a froglight mast, red hive stripes, running lights under its rim, mandibles hooked down off each side - on a black shank, a
+    red seam in it, heavy teeth"""
+    rows = ['.......FF.......',
+            '.......mm.......',
+            '.....dDDDDd.....',
+            '....dDGGGGDd....',
+            '..hSSSSSSSSSSh..',
+            '.MSRSSRSSRSSRSM.',
+            'MM.kgkrkkrkgk.MM',
+            'M...kkkkkkkk...M',
+            'M.....kKKk.....M',
+            '.M.....KK.....M.',
+            '.......KRK......',
+            '.......KR.......',
+            '.......KRKK.....',
+            '.......KR.......',
+            '.......KRKK.....',
+            '.......KK.......']
+    pal = {'F': (210, 255, 190), 'm': GM[3], 'd': (20, 22, 27), 'D': (34, 37, 44), 'G': GN[3], 'h': GM[4], 'S': GM[2], 'R': RED,
+           'k': (46, 50, 58), 'g': GN[3], 'r': RED_L, 'M': GM[1], 'K': GM[1]}
+    P = _grid(rows, pal)
+    P.p(6, 3, GN[4]); P.p(4, 4, GM[4]); P.p(5, 2, GM[1])                         # (a glint on the visor, the dome lit on its left)
+    P.p(0, 8, RED); P.p(15, 8, RED)                                             # (the mandibles' red-hot tips)
+    P.outline()
+    return P.im
+
+
+def mothership_module():
+    """the Admiral's Command Module: a chunky gunmetal core, an armoured cap over it, a green visor slit across its face, red hive
+    stripes down its sides, a green core light, bolts at its corners; two cables trailing out of its foot, one plug sparking -
+    a part that bolts into a skiff, like the six skiff parts"""
+    rows = ['................',
+            '.....dDDDDDd....',
+            '....dDDDDDDDd...',
+            '..KhhhhhhhhhhK..',
+            '..KSGGGGGGGGSK..',
+            '..KSSSSSSSSSSK..',
+            '..KRSSSSSSSSRK..',
+            '..KRSSccccSSRK..',
+            '..KRSScggcSSRK..',
+            '..KRSScggcSSRK..',
+            '..KSSSccccSSSK..',
+            '..KKKKKKKKKKKK..',
+            '....w......v....',
+            '...w........v...',
+            '..w..........vv.',
+            '.ww.............']
+    pal = {'d': (20, 22, 27), 'D': (34, 37, 44), 'K': GM[0], 'h': GM[3], 'S': GM[2], 'G': GN[3], 'R': RED, 'c': (22, 24, 30),
+           'g': GN[2], 'w': (150, 24, 30), 'v': GM[1]}
+    P = _grid(rows, pal)
+    P.p(5, 4, GN[4]); P.p(7, 8, GN[4])                                          # (the visor's glint, the core's)
+    for x, y in ((3, 3), (12, 3), (3, 10), (12, 10)): P.p(x, y, GM[4])        # (bolts)
+    P.p(5, 2, GM[1]); P.p(6, 1, GM[1])                                          # (the cap lit on its left)
+    for x, y, c in ((4, 12, RED), (3, 13, RED), (2, 14, RED), (11, 12, GM[3]), (12, 13, GM[3]), (13, 14, GM[3]), (14, 14, GN[2])):
+        P.p(x, y, c)                                                            # (the cables: lit along their tops)
+    P.p(15, 13, GN[4]); P.p(15, 15, GN[3])                                     # (its plug, sparking)
+    P.outline()
+    return P.im
+
+
 def icons():
     out = {'hive_coords': hive_coords(), 'cipher_1': cipher(1), 'cipher_2': cipher(2), 'cipher_3': cipher(3), 'hive_sigil': hive_sigil(),
            'akey': akey(), 'akey_victor': akey_victor(), 'star_core': star_core(), 'squad_jetpack': squad_jetpack(),
            'hover_collar': hover_collar(), 'hive_override': hive_override(), 'stardust_kite': stardust_kite(), 'vexis_link': vexis_link()}
     for p in ('helmet', 'chestplate', 'leggings', 'boots'): out[f'starforged_{p}'] = starforged(p)
     out.update(launcher_icons())
+    out['mothership_key'] = mothership_key(); out['mothership_module'] = mothership_module()
     return out
 
 
