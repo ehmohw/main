@@ -1,7 +1,7 @@
 """2.99a: THE STATUE KNIGHTS - dark knights of stone that guard the final dungeons' puzzle rooms (knight_art draws them).
 
-WHERE      the Undercrown: two DREAD SENTINELS in each of four rooms - the Frozen Falls (trial 2), the Inverted Library (7), the
-           Kingdom's Song (12) and the Throne Gate (16). The Vorn Armada: two VORN SENTINELS posed at either end of the
+WHERE      the Undercrown: two DREAD SENTINELS flanking the Throne Gate (trial 16, its last puzzle before the Sovereign's
+           throne). The Vorn Armada: two VORN SENTINELS posed at either end of the
            Command Lock (17). The builders place a marker for each (DBuild.knight: bm.kstat, bm.kn<n>, bm.knk_<kind>, its
            yaw); within 48 blocks of a player it raises the statue - the knight's own rig in stone, in its sentinel pose.
 THE WAKING solve the room's puzzle and its statues come to life (p2/logic: a trial in its dungeon's CFG['guard'] calls
