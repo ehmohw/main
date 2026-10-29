@@ -83,7 +83,7 @@ TENT = ('t1', 't2')
 SEGS = ('a', 'b', 'c')
 LEN = {'a': 5.2, 'b': 4.6}
 APEX = (0.0, 4.8, -1.7)                          # (the hook's apex on the c segment, from its joint)
-ROOT = {'t1': (3.75, 16.0, -0.9), 't2': (-3.75, 16.2, -0.9)}
+ROOT = {'t1': (3.95, 14.4, -0.9), 't2': (-3.95, 14.6, -0.9)}
 OUT = {'t1': (0.86, 0.0, -0.51), 't2': (-0.86, 0.0, -0.51)}
 
 PIVOT = {'body': (0.0, 0.0, 0.0), 'seg1': (0.0, 4.0, 0.0), 'seg2': (0.0, 11.5, 0.3), 'head': (0.0, 18.5, 0.6)}
@@ -365,7 +365,7 @@ def _eye(face=None):
         e += [E((-0.38, CY - 1.6, zf), (0.38, CY + 1.6, zf - 0.12), 'void'), E((-1.45, CY + 0.6, zf - 0.05), (-0.85, CY + 1.2, zf - 0.17), 'hot')]
     zl0, zl1 = z0 + 0.02, zf - 0.22                  # (a lid: wraps the eye, just proud of its front)
     lid = lambda y0, y1: E((-2.53, y0, zl0), (2.53, y1, zl1), 'lid')
-    seam = lambda x0, x1, y: E((x0, y - 0.13, zl1 + 0.02), (x1, y + 0.13, zl1 - 0.06), 'glow')
+    seam = lambda x0, x1, y: E((x0, y - 0.18, zl1 + 0.02), (x1, y + 0.18, zl1 - 0.08), 'iris')      # (the eye glowing through the seam)
     if face == 'half':
         e += [lid(CY + 0.15, CY + 2.53), seam(-2.1, 2.1, CY + 0.15)]
     elif face == 'shut':
@@ -648,7 +648,7 @@ def wave(p, t, up, out, fwd=0.0, bends=(30, 30), swing=0.0, toward=None):
 def trail(p, t, spread=0.6, lift=0.15, ripple=0.0):
     """a tentacle trailing back over the puddle (walking): up out of it from the sunk socket, then flat behind, a ripple through it"""
     s = sx_of(t)
-    return lay(p, t, [_unit((s * spread, 0.8, 0.45)), _unit((s * (spread - 0.2) + ripple, lift, 1.0)), _unit((s * 0.15 - ripple, -0.05, 1.0))],
+    return lay(p, t, [_unit((s * 1.0, 0.55, 0.3)), _unit((s * (spread - 0.2) + ripple, lift, 1.0)), _unit((s * 0.15 - ripple, -0.05, 1.0))],
                inner=(0.0, -1.0, 0.0))
 
 
@@ -680,7 +680,8 @@ def _pose(name):
             p = trail(p, t, 0.85 if run else 0.7, 0.2, (0.18 if run else 0.25) * s(ph + (0 if t == 't1' else math.pi)))
     elif name == 'jump':
         p = P(_off=(0.0, 3.0, 0.0), _o_seg1=(0.0, -6.0, 0.0), seg1=T(4), seg2=T(-4), head=T(-14), **MAWOPEN(30), _face='wide')
-        p = wave(p, 't1', 0.85, 0.5, 0.0, (20, 20)); p = wave(p, 't2', 0.85, 0.5, 0.0, (20, 20))
+        up = lambda t: _unit((sx_of(t) * 0.3, 1.0, 0.0))
+        p = wave(p, 't1', 0.6, 0.85, 0.0, (20, 20), toward=up('t1')); p = wave(p, 't2', 0.6, 0.85, 0.0, (20, 20), toward=up('t2'))
     elif name.startswith('swim_'):                          # (a floating puddle bobbing, the eye up out of the water, paddling)
         k = int(name.split('_')[1]); ph = 2 * math.pi * k / 8
         p = dict(SINK(17.0 - 0.8 * s(ph)))
@@ -696,7 +697,7 @@ def _pose(name):
         if b: p['_face'] = 'half'
         for t in TENT:                                      # (curled on the puddle round it, like a cat's tail)
             sg = sx_of(t)
-            p = lay(p, t, [_unit((sg * 0.25, 1.0, -0.1)), _unit((sg * 0.7, 0.5, -0.5)), _unit((sg * 0.1, -0.45, -1.0))], inner=(0.0, -1.0, 0.0))
+            p = lay(p, t, [_unit((sg * 0.9, 0.5, -0.1)), _unit((sg * 0.6, 0.3, -0.7)), _unit((sg * 0.05, -0.4, -1.0))], inner=(0.0, -1.0, 0.0))
     elif name in ('happy', 'happy_b'):                      # (tentacles waving high, the maw fluttering)
         b = name == 'happy_b'
         p = P(seg1=T(-2, 0, 3 if b else -3), seg2=T(-3, 5 if b else -5, 2 if b else -2), head=T(-7, 8 if b else -8, 6 if b else -6),
@@ -706,21 +707,21 @@ def _pose(name):
         p = wave(p, 't2', 0.75, 0.75, 0.15, (14, 18) if b else (30, 34), swing=-8 if b else 12, toward=up('t2'))
     elif name == 'hurt':                                    # (flinching away, the maw clamped shut, the eye squeezed)
         p = P(seg1=T(-5, 10, -5), seg2=T(-9, 14, -6), head=T(12, 22, -10), _face='hurt')
-        p = wave(p, 't1', 0.6, 0.4, -0.2, (70, 60), toward=_unit((-1.0, -0.6, 0.0)))
-        p = wave(p, 't2', 0.6, 0.4, -0.2, (70, 60), toward=_unit((1.0, -0.6, 0.0)))
+        p = wave(p, 't1', 0.3, 0.9, -0.3, (40, 45), toward=_unit((-0.3, -0.4, 1.0)))
+        p = wave(p, 't2', 0.3, 0.9, -0.3, (40, 45), toward=_unit((0.3, -0.4, 1.0)))
     elif name == 'tired':                                   # (fainted: melted flat, the head on its side in the puddle)
-        p = dict(SINK(15.0)); p.update(seg2=T(76, 0, 18), head=T(8, 10, 62), **MAWOPEN(6), _face='shut')
+        p = dict(SINK(11.0)); p.update(seg2=T(70, 0, 18), head=T(8, 10, 62), **MAWOPEN(6), _face='shut')
         for t in TENT:
             sg = sx_of(t)
-            p = lay(p, t, [_unit((sg * 0.9, -0.15, -0.1)), _unit((sg * 0.8, -0.05, 0.6)), _unit((sg * 0.2, 0.0, 1.0))], inner=(0.0, -1.0, 0.0))
+            p = lay(p, t, [_unit((sg * 0.9, 0.3 if sg > 0 else -0.1, 0.35)), _unit((sg * 0.8, -0.25, 0.6)), _unit((sg * 0.2, -0.05, 1.0))], inner=(0.0, -1.0, 0.0))
     elif name == 'getup':                                   # (half up out of the puddle, bowed, propped on its tentacles)
         p = dict(_o_seg1=(0.0, -9.0, 0.0), seg1=T(12, 0, 6), seg2=T(18, 0, 4), head=T(18, 0, 8), **MAWOPEN(8), _face='half')
         for t in TENT:
-            R = at(p, 'seg2', PIVOT[t + 'a']); sg = sx_of(t); tg = (sg * 9.0, 0.6, -4.0)
-            p = reach(p, t, tg, (_add(R, (sg * 3.5, 1.5, -1.0)), (sg * 7.5, 3.0, -3.0)), inner=(0.0, -1.0, 0.0))
+            R = at(p, 'seg2', PIVOT[t + 'a']); sg = sx_of(t); tg = (sg * 11.5, 0.6, -3.0)
+            p = reach(p, t, tg, (_add(R, (sg * 4.5, 1.0, -0.5)), (sg * 9.5, 2.5, -2.0)), inner=(0.0, -1.0, 0.0))
     elif name == 'lash_up':                                 # (t1 cocked high and back, twisted round to throw it)
         p = P(seg1=T(-2, -6), seg2=T(-6, -10), head=T(-8, 4), **MAWOPEN(34), _face='fierce')
-        p = lay(p, 't1', curl(_unit((0.45, 0.85, 0.35)), _unit((-0.2, -0.3, 1.0)), (40, 50)))
+        p = lay(p, 't1', curl(_unit((0.8, 0.6, 0.3)), _unit((-0.2, -0.3, 1.0)), (40, 50)))
         p = wave(p, 't2', 0.3, 0.7, 0.4, (50, 50))
     elif name == 'lash':                                    # (whipped down and forward: the hook strikes ~1.1 blocks ahead)
         p = P(seg1=T(5, 6), seg2=T(10, 12), head=T(6, 4), **MAWOPEN(50), _face='fierce')
@@ -730,7 +731,7 @@ def _pose(name):
     elif name == 'grab_up':                                 # (both tentacles raised, the maw wide, the eye wide)
         p = P(seg1=T(-3), seg2=T(-6), head=T(-12), **MAWOPEN(56), _face='wide')
         for t in TENT:
-            p = lay(p, t, curl(_unit((sx_of(t) * 0.45, 0.85, -0.3)), _unit((0.0, 0.0, -1.0)), (40, 40)))
+            p = lay(p, t, curl(_unit((sx_of(t) * 0.75, 0.6, -0.3)), _unit((0.0, 0.3, -1.0)), (35, 35)))
     elif name == 'grab':                                    # (both shot out ~1.3 blocks ahead at chest height)
         p = P(seg1=T(6), seg2=T(9), head=T(4), **MAWOPEN(46), _face='fierce')
         for t in TENT:

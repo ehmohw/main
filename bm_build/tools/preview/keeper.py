@@ -324,18 +324,18 @@ if 'doll' in what:
     tex, els = DB.bake(ROOT, parts, ground=lo, **A.DOLL)
     os.makedirs(f'{ROOT}/assets/bm/models/item', exist_ok=True)
     json.dump({'textures': {k: v for k, v in tex.items()}, 'elements': els}, open(f'{ROOT}/assets/bm/models/item/doll_keeper.json', 'w'))
-    dolls = ['doll_emma', 'doll_lightbringer', 'doll_dryad', 'doll_vexis', 'doll_fishy', 'doll_bender', 'doll_henry']
+    dolls = ['doll_lightbringer', 'doll_dryad', 'doll_ava', 'doll_nia', 'doll_henry', 'doll_cecil']
     dolls = [d for d in dolls if os.path.exists(f'{K.REAL}/assets/bm/models/item/{d}.json')]
     tiles = []
     for view, l in (((-20, 10), 'front 3/4'), ((160, 10), 'back 3/4')):
         s = K.multi_scene(ROOT, K.REAL)
-        xs = [-1.4 + 0.42 * i for i in range(len(dolls) + 1)]
+        xs = [-1.5 + 0.5 * i for i in range(len(dolls) + 1)]
         row = dolls[:len(dolls) // 2] + ['doll_keeper'] + dolls[len(dolls) // 2:]
         for x, dname in zip(xs, row):
-            s.display(f'bm:item/{dname}', pos=(x, 0.5, 0), yaw=180)
-        tiles.append(K.label(s.render(view, size=820, span=3.4, center=(-0.1, 0.55, 0)), l, '   '.join(d[5:] for d in row)))
-    s = K.multi_scene(ROOT); s.display('bm:item/doll_keeper', pos=(0, 0.5, 0), yaw=180)
-    s2 = K.multi_scene(ROOT); s2.display('bm:item/doll_keeper', pos=(0, 0.5, 0), yaw=180)
+            s.display(f'bm:item/{dname}', pos=(x, 0.5, 0), yaw=0)
+        tiles.append(K.label(s.render(view, size=820, span=3.6, center=(0.0, 0.55, 0)), l, '   '.join(d[5:] for d in row)))
+    s = K.multi_scene(ROOT); s.display('bm:item/doll_keeper', pos=(0, 0.5, 0), yaw=0)
+    s2 = K.multi_scene(ROOT); s2.display('bm:item/doll_keeper', pos=(0, 0.5, 0), yaw=0)
     close = [K.label(s.render((-25, 12), size=410, span=1.25, center=(0, 0.62, 0)), 'the Keeper doll, close'),
              K.label(s2.render((150, 12), size=410, span=1.25, center=(0, 0.62, 0)), 'from behind')]
     sheet = Image.new('RGB', (820 + 410, 820 * 2 + 40), 'white')

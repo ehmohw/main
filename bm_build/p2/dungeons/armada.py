@@ -1547,6 +1547,28 @@ def flag(k):
     for (x, y, r) in ((44, 50, 3), (60, 50, 3), (52, 46, 3)):
         engine(k, 'z', -1, 134, x, y, r, 6)
     dress(k, sh, stripe=(52,), stripe_pal=('red_concrete', 'black_concrete'), light=GL)
+    # ---------------- 2.99a (phase249): THE HANGAR - off the antechamber's south wall, behind SECRET 3 (outside the bridge's fight box,
+    # z <= 213, and its audience's, z <= 220). The hidden button: on the antechamber's south-west pillar (x15 z213), its east face;
+    # the door in the south wall (18, 55, 217); a short passage (x17..19 z218..221, a button inside to open it again) to the
+    # hangar x8..28 z222..237 y55..64 - the dormant Mecha Rex sits in it facing the door (phase249: B.hangar)
+    k.room(sh, 8, W, 222, 28, W + 9, 237, wall=FLAG_WALL, floor=FLAG_FLOOR)
+    k.room(sh, 17, W, 218, 19, W + 2, 221, wall=FLAG_WALL, floor=FLAG_FLOOR)
+    B.sbutton(16, W + 1, 213, 'polished_blackstone_button[face=wall,facing=east,powered=false]', 3)
+    B.sdoor(18, W, 217, 3)
+    B.sbutton(19, W + 1, 220, 'polished_blackstone_button[face=wall,facing=west,powered=false]', 3)
+    for x in range(9, 28):                                                          # (its deck: a gold-edged pad, the rex's)
+        for z in range(223, 237):
+            if 12 <= x <= 24 and 223 <= z <= 236:
+                s(x, fy, z, 'gold_block' if x in (12, 24) or z in (223, 236) else 'polished_deepslate' if (x + z) % 2 else 'black_concrete')
+    for x in (10, 18, 26):
+        for z in (225, 230, 235): s(x, W + 10, z, GL)
+    for z in range(224, 237, 4):
+        for x in (7, 29): s(x, W + 4, z, 'shroomlight')
+    for (x, z) in ((10, 236), (26, 236), (10, 224), (26, 224)):
+        for y in range(W, W + 3): s(x, y, z, 'iron_block' if y < W + 2 else 'redstone_lamp[lit=false]')
+    k.sign(16, W + 2, 222, 'south', ['HANGAR 0', '', 'PROTOTYPE', 'DORMANT'], color='lime')
+    k.sign(20, W + 2, 222, 'south', ['NEEDS:', 'BLUEPRINTS I-III', 'A HIVE CORE', ''], color='gray')
+    B.hangar(18, W, 228, 180)
     return arr
 
 

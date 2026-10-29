@@ -105,9 +105,9 @@ NOTES = {'idle_a': 'risen, swaying, the eye peeking', 'idle_b': 'swaying the oth
          'grab_up': 'grab: raised, maw wide', 'grab': 'grab: shot out', 'grab_pull': 'grab: hauled to the maw'}
 
 
-def tile(name, view=(-32, 12), size=360, span=3.2, center=(0, 0.9, -0.2), player=True, sub=None):
+def tile(name, view=(32, 12), size=360, span=3.2, center=(0, 0.9, -0.2), player=True, sub=None, at=(1.45, 0, 0.2)):
     s = K.multi_scene(ROOT); mireling(s, name)
-    if player: steve(s, (-1.25, 0, 0.6))
+    if player: steve(s, at)
     floor(s)
     lo, hi = A.extent(A.POSES[name])
     return K.label(s.render(view, size=size, span=span, center=center), name, sub or f'{NOTES.get(name, "")}  ({max(0, hi) * U:.2f} tall)')
@@ -160,8 +160,8 @@ if 'lineup' in what:
 if 'poses' in what:
     tiles = []
     for n in A.DRAFT:
-        if n in ('lash', 'grab', 'grab_pull', 'lash_up'): tiles.append(tile(n, view=(70, 10), center=(0, 0.9, -0.5)))
-        elif n in ('walk_0', 'walk_1', 'run_0'): tiles.append(tile(n, view=(-55, 14)))
+        if n in ('lash', 'grab', 'grab_pull', 'lash_up'): tiles.append(tile(n, view=(-70, 10), center=(0, 0.9, 0.5), at=(0.0, 0, 1.75)))
+        elif n in ('walk_0', 'walk_1', 'run_0'): tiles.append(tile(n, view=(40, 18)))
         else: tiles.append(tile(n))
     # the eyes: every face, close (the maw open so it shows)
     base = dict(A.POSES['idle_a'], **A.MAWOPEN(46))
@@ -239,13 +239,13 @@ if 'doll' in what:
     dolls = [d for d in dolls if os.path.exists(f'{K.REAL}/assets/bm/models/item/{d}.json')]
     tiles = []
     row = dolls[:len(dolls) // 2] + ['doll_mireling'] + dolls[len(dolls) // 2:]
-    for view, l in (((-20, 10), 'front 3/4'), ((160, 10), 'back 3/4')):
+    for view, l in (((160, 10), 'front 3/4'), ((-20, 10), 'back 3/4')):
         s = K.multi_scene(ROOT, K.REAL)
         for i, dn in enumerate(row):
             s.display(f'bm:item/{dn}', pos=(-1.4 + 0.42 * i, 0.5, 0), yaw=180)
         tiles.append(K.label(s.render(view, size=820, span=3.4, center=(-0.1 + 0.42 * (len(row) - 8) / 2, 0.55, 0)), l, '   '.join(d[5:] for d in row)))
     close = []
-    for v, l in (((-25, 12), 'the Mireling doll, close'), ((-70, 12), 'from its side'), ((150, 12), 'from behind')):
+    for v, l in (((155, 12), 'the Mireling doll, close'), ((110, 12), 'from its side'), ((-25, 12), 'from behind')):
         s = K.multi_scene(ROOT); s.display('bm:item/doll_mireling', pos=(0, 0.5, 0), yaw=180)
         close.append(K.label(s.render(v, size=410, span=1.25, center=(0, 0.62, 0)), l))
     sheet = Image.new('RGB', (820 + 410, max(820 * 2, 410 * 3) + 40), 'white')
@@ -288,6 +288,8 @@ if 'clip' in what:
         hits = {}
         for (pa, ca), (pb, cb) in itertools.combinations(bx, 2):
             if pa == pb or frozenset((pa, pb)) in MEET: continue
+            if not (pa[0] == 't' or pb[0] == 't') or 'body' in (pa, pb): continue        # (the trunk sinking into its mound is meant)
+            if (ca.min(0) > cb.max(0)).any() or (cb.min(0) > ca.max(0)).any(): continue
             d = _sat(ca, cb)
             if d > 0.25:
                 k = tuple(sorted((pa, pb))); hits[k] = max(hits.get(k, 0), d)

@@ -79,7 +79,7 @@ LINING, LINING_D = '#8a6442', '#7a573a'
 GLOW_C, GLOW_E, GLOW_D = '#ffd88a', '#f4bc5e', '#e2a04a'       # the face's glow: centre, edge, rim
 EYE, EYE_H, EYE_R = '#fffcf0', '#ffffff', '#fff0c4'          # the eyes of light: core, shine, the softer light at their edge
 HAND, HAND_L = '#ffeec6', '#fff8e4'
-L_CLOTH, L_BAND, L_FACE, L_EYES, L_CORE, L_THREAD, L_HAND = 6, 9, 12, 15, 15, 12, 10
+L_CLOTH, L_BAND, L_FACE, L_EYES, L_CORE, L_THREAD, L_HAND = 8, 10, 12, 15, 15, 12, 10
 
 
 def _hsv(c):
@@ -220,8 +220,8 @@ def _glowface():
     def c(x, y):
         if (x, y) in corner: return (0, 0, 0, 0)                      # (its corners cut: a soft rounded glow in the dark hood)
         if x > 9 or y > 10: return GLOW_D
-        d = max(abs(x - 4.25) / 5.0, abs(y - 4.5) / 5.6)
-        return GLOW_C if d < 0.42 else GLOW_E if d < 0.78 else GLOW_D
+        d = max(abs(x - 4.5) / 5.0, abs(y - 5.0) / 5.6)
+        return GLOW_C if d < 0.7 else GLOW_E if d < 0.92 else GLOW_D
     return _cells(c)
 
 
@@ -404,8 +404,8 @@ def models():
                      uv={'north': [0, 0, 4.8, 5.2]}, light=L_FACE), shade=False),
              dict(bx((-2.4, 27.3, -2.74), (2.4, 32.5, -2.72), et, pv, faces=('north',), uv={'north': [0, 0, 4.8, 5.2]}, light=L_EYES), shade=False),
              # the hood: its lower body round the face (the opening 6 wide), the arch over it, then rounding to a soft peak
-             bx((3.0, 26.4, F), (4.6, 32.8, 4.5), 'kb_hood', pv, faces=_faces_but('down'), ftex={'west': lin}, light=L_CLOTH, shift=(0.5, 0.2)),
-             bx((-4.6, 26.4, F), (-3.0, 32.8, 4.5), 'kb_hood', pv, faces=_faces_but('down'), ftex={'east': lin}, light=L_CLOTH, shift=(0.7, 0.2)),
+             bx((3.0, 26.4, F), (4.4, 32.8, 4.5), 'kb_hood', pv, faces=_faces_but('down'), ftex={'west': lin}, light=L_CLOTH, shift=(0.5, 0.2)),
+             bx((-4.4, 26.4, F), (-3.0, 32.8, 4.5), 'kb_hood', pv, faces=_faces_but('down'), ftex={'east': lin}, light=L_CLOTH, shift=(0.7, 0.2)),
              bx((-3.0, 26.4, -2.5), (3.0, 32.8, 4.5), 'kb_hood', pv, faces=('north', 'south'), ftex={'north': lin}, light=L_CLOTH, shift=(0.3, 0.2)),
              bx((2.0, 32.8, F), (4.3, 33.8, 4.4), 'kb_hood', pv, faces=_faces_but('down'), ftex={'west': lin}, light=L_CLOTH, shift=(0.1, 0.5)),
              bx((-4.3, 32.8, F), (-2.0, 33.8, 4.4), 'kb_hood', pv, faces=_faces_but('down'), ftex={'east': lin}, light=L_CLOTH, shift=(0.9, 0.5)),
@@ -521,7 +521,7 @@ POSES = {
     'idle_b': P(_off=(0, HOVER + 0.5, 0), armr=limb(1, 34, 14, -10), forer=limb(1, 62, 0, -30), arml=limb(-1, 6, 8), forel=limb(-1, 24, 0, -6),
                 head=qs(('x', -10), ('y', 10)), body=qs(('x', -2)), **drift(-14, 8, 6), **orbit(120)),
     # a quiet moment: eyes closed, both hands drawn up to the loom at its heart, tending it
-    'idle_c': P(_face='blink', _off=(0, HOVER - 0.2, 0), armr=limb(1, 20, 2, 6), forer=limb(1, 74, 0, 34), arml=limb(-1, 20, 2, 6), forel=limb(-1, 74, 0, 34),
+    'idle_c': P(_face='blink', _off=(0, HOVER - 0.2, 0), armr=limb(1, 36, 10), forer=limb(1, 70, 0, 15), arml=limb(-1, 36, 10), forel=limb(-1, 70, 0, 15),
                 head=qs(('x', 14)), body=qs(('x', 3)), **drift(-20, -20, -4), **orbit(240)),
     # gliding: no steps - a slow bob, the skirt and the threads trailing
     **{f'walk_{i}': P(_off=(0, HOVER + 0.4 + 0.35 * s(math.pi * i / 2), 0), body=qs(('x', 4), ('z', 1.5 * s(math.pi * i / 2))), skirt=qs(('x', -8)),
@@ -536,11 +536,11 @@ POSES = {
     'jump': P(_face='happy', _off=(0, HOVER + 4.0, 0), armr=limb(1, 20, 40), forer=limb(1, 20), arml=limb(-1, 20, 40), forel=limb(-1, 20),
               skirt=qs(('x', 6)), head=qs(('x', -8)), **drift(-10, -10, 10), **orbit(40)),
     # sitting: kneeling back on its robe spread on the floor, hands folded in its lap
-    'sit_a': P(_pool=True, _off=(0, -8.4, 0), body=qs(('x', 2)), armr=limb(1, 26, 6, -4), forer=limb(1, 56, 0, 28), arml=limb(-1, 26, 6, -4), forel=limb(-1, 56, 0, 28),
+    'sit_a': P(_pool=True, _off=(0, -8.4, 0), body=qs(('x', 2)), armr=limb(1, 26, 10, -4), forer=limb(1, 56, 0, 22), arml=limb(-1, 26, 10, -4), forel=limb(-1, 56, 0, 22),
                head=qs(('x', 8), ('z', 4)), **drift(-30, -30), **orbit(60)),
     # (the seated idle's other beat) looking up at the motes going round, a hand lifted to one, smiling
     'sit_b': P(_pool=True, _face='happy', _off=(0, -8.4, 0), body=qs(('x', -4)), armr=limb(1, 60, 18, -10), forer=limb(1, 40, 0, -20),
-               arml=limb(-1, 26, 6, -4), forel=limb(-1, 56, 0, 28), head=qs(('x', -16), ('y', 12), ('z', -6)), **drift(-10, -30, 6), **orbit(180)),
+               arml=limb(-1, 26, 10, -4), forel=limb(-1, 56, 0, 22), head=qs(('x', -16), ('y', 12), ('z', -6)), **drift(-10, -30, 6), **orbit(180)),
     'happy': P(_face='happy', _off=(0, HOVER + 1.0, 0), armr=limb(1, 22, 40), forer=limb(1, 24, 0, -20), arml=limb(-1, 22, 40), forel=limb(-1, 24, 0, -20),
                head=qs(('z', 8), ('x', -6)), body=qs(('x', -3)), **drift(-6, -6, 12), **orbit(90)),
     # struck: rocked back, the sleeves flung
@@ -548,13 +548,13 @@ POSES = {
               armr=limb(1, 30, 30), forer=limb(1, 30), arml=limb(-1, 30, 30), forel=limb(-1, 30), **drift(-24, -24, 10), **orbit(-20)),
     # fainted: sunk to the floor on its robe, slumped forward, the hood bowed, the hands fallen in its lap
     'tired': P(_pool=True, _face='blink', _off=(0, -9.2, 0), body=qs(('x', 22)), head=qs(('x', 22), ('z', -6)),
-               armr=limb(1, 4, 6), forer=limb(1, 30, 0, 10), arml=limb(-1, 10, 4), forel=limb(-1, 34, 0, 16), **drift(0, 0), **orbit(10)),
+               armr=limb(1, 4, 16), forer=limb(1, 24), arml=limb(-1, 10, 16), forel=limb(-1, 28), **drift(-80, -80, 30), **orbit(10)),
     # getting up again: straightening on its knees, one hand pressed to the floor, the other to the loom
     'rise': P(_pool=True, _face='sleepy', _off=(0, -6.2, 0), body=qs(('x', 10)), head=qs(('x', 4)),
-              armr=limb(1, 24, 16), forer=limb(1, 6), arml=limb(-1, 20, 2, 6), forel=limb(-1, 74, 0, 34), **drift(-6, -20), **orbit(30)),
+              armr=limb(1, 24, 16), forer=limb(1, 6), arml=limb(-1, 36, 10), forel=limb(-1, 70, 0, 15), **drift(-50, -20), **orbit(30)),
     # THE WEAVE (charged): its hands brought together before the loom, gathering the threads ...
     'weave_up': P(_face='focus', _off=(0, HOVER + 0.4, 0), body=qs(('x', 6)), head=qs(('x', 10)),
-                  armr=limb(1, 44, 2, 6), forer=limb(1, 44, 0, 30), arml=limb(-1, 44, 2, 6), forel=limb(-1, 44, 0, 30), **drift(-30, -30, -6), **orbit(60)),
+                  armr=limb(1, 44, 10), forer=limb(1, 52, 0, 18), arml=limb(-1, 44, 10), forel=limb(-1, 52, 0, 18), **drift(-30, -30, -6), **orbit(60)),
     # ... then spread wide, and the threads stream out between them: the web of every bond hangs in the air before it
     'weave': P(_web=True, _face='happy', _off=(0, HOVER + 1.4, 0), body=qs(('x', -6)), head=qs(('x', -8)),
                armr=limb(1, 40, 68), forer=limb(1, 20, 0, -40), arml=limb(-1, 40, 68), forel=limb(-1, 20, 0, -40), skirt=qs(('x', 6)),
@@ -572,7 +572,7 @@ POSES = {
              armr=limb(1, 92, 6), forer=limb(1, 6), arml=limb(-1, -10, 18), forel=limb(-1, 24), **drift(-96, 20, 0), **orbit(70)),
     # MENDING (support): its hands cupped at its heart ... then opened toward you, a glowing thread offered
     'mend_a': P(_face='blink', _off=(0, HOVER, 0), head=qs(('x', 12)), body=qs(('x', 4)),
-                armr=limb(1, 22, 2, 6), forer=limb(1, 76, 0, 34), arml=limb(-1, 22, 2, 6), forel=limb(-1, 76, 0, 34), **drift(-20, -20, -4), **orbit(90)),
+                armr=limb(1, 36, 10), forer=limb(1, 70, 0, 15), arml=limb(-1, 36, 10), forel=limb(-1, 70, 0, 15), **drift(-20, -20, -4), **orbit(90)),
     'mend': P(_face='happy', _off=(0, HOVER + 0.6, -0.4), body=qs(('x', 8)), head=qs(('x', 4)),
               armr=limb(1, 66, 12, -6), forer=limb(1, 20, 0, -30), arml=limb(-1, 66, 12, -6), forel=limb(-1, 20, 0, -30), **drift(-70, -70, 6), **orbit(130)),
     # A GIFT (out of a fight): a deep, slow bow, both hands open low before it
@@ -586,7 +586,7 @@ POSES = {
                 armr=limb(1, 40, 10, -6), forer=limb(1, 44, 0, 20), arml=limb(-1, 52, 10, -6), forel=limb(-1, 30, 0, 10), **drift(-30, -40), **orbit(80)),
     # a greeting: a gentle bow, a hand at its heart
     'bow': P(_face='blink', _off=(0, HOVER, 0), body=qs(('x', 16)), head=qs(('x', 14)), skirt=qs(('x', -10)),
-             armr=limb(1, 22, 2, 6), forer=limb(1, 76, 0, 34), arml=limb(-1, 6, 10), forel=limb(-1, 20), **drift(-10, 10), **orbit(20)),
+             armr=limb(1, 36, 10), forer=limb(1, 70, 0, 15), arml=limb(-1, 6, 10), forel=limb(-1, 20), **drift(-10, 10), **orbit(20)),
 }
 SWIM_FRAMES = 8
 for _i in range(SWIM_FRAMES):                                  # (gliding through the water: laid forward, a slow sweep of the sleeves)
@@ -609,50 +609,46 @@ DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62, 'groups': {'bm:kb_skirt': 'legs'}}  
 
 # ---------------------------------------------------------------------------------------------------- icons
 def icon_bond_thread():
-    """the Thread of Bonds: a spool of golden thread, wound in bands of the bonds' colours, a loose gold thread curling off
-    it with a bead of light at its end - 16 x 16 in sprites280's kit, lit from the top left"""
+    """the Thread of Bonds: a spool of golden thread wound in bands of the bonds' colours - gold-capped flanges, a loose gold
+    thread curling off it to a bead of light - 16 x 16 in sprites280's kit, lit from the top left"""
     from sprites280 import S, GOLD as G
     from sprites299 import strings
-    WOOD_ = ['#5a3418', '#8a5428', '#b47a3e', '#d8a060', '#f2c88a']
     s = S()
-    # the spool's two flanges (gold-capped wood) and the barrel between them
-    s.g(['.WWWWWWWWW.', 'WwwwwwwwwwW', '.WWWWWWWWW.'], {'W': WOOD_[1], 'w': WOOD_[3]}, 2, 2)
-    s.g(['.WWWWWWWWW.', 'WwwwwwwwwwW', '.WWWWWWWWW.'], {'W': WOOD_[1], 'w': WOOD_[2]}, 2, 12)
-    for x in range(3, 12): s.px(x, 2, G[4] if x < 6 else G[3])
-    for x in range(3, 12): s.px(x, 12, G[3] if x < 6 else G[2])
-    bands = ['#ff7aa8', '#ffb040', '#ffe04a', '#6ad870', '#5ac8ff', '#8a8aff', '#c88aff']
-    for k, y in enumerate(range(5, 12)):                         # the thread wound round it: a band per row, lit at the left
-        base = bands[k]
-        for x in range(3, 12):
-            t = (x - 3) / 8
-            c = _mix(base, '#ffffff', 0.45) if t < 0.18 else base if t < 0.7 else _mix(base, '#3a2010', 0.35)
-            s.px(x, y, c)
-        if k % 2 == 0: s.px(7, y, _mix(base, '#ffffff', 0.25))
-    for y in (5, 8, 11):                                         # gold threads between the bands
-        for x in range(3, 12): s.px(x, y, G[4] if x < 5 else G[3] if x < 9 else G[2])
+    for y0, sh in ((1, 0), (13, -1)):                                   # the flanges: gold rims, the top one catching the light
+        s.g(['.GGGGGGGGGGG.', 'GgggggggggggG'] if y0 == 1 else ['GgggggggggggG', '.GGGGGGGGGGG.'],
+            {'G': G[2 + sh], 'g': G[4 + sh]}, 1, y0)
+    bands = [('#ff6a9a', '#ffb0c8', '#c03a6a'), ('#ff9a2a', '#ffc880', '#c0640a'), ('#ffe040', '#fff4a0', '#c0a010'),
+             ('#58d060', '#a8f0a0', '#2a8a30'), ('#40b8ff', '#a0e0ff', '#1a70c0'), ('#9a6aff', '#d0b8ff', '#5a2ac0'),
+             ('#ffd0e8', '#fff4fa', '#d090b0'), ('#e8b648', '#fff0b0', '#a07018'), ('#ff6a9a', '#ffb0c8', '#c03a6a'), ('#ffe040', '#fff4a0', '#c0a010')]
+    for k, y in enumerate(range(3, 13)):                               # the thread wound round it, a band to a row
+        mid, hi, lo = bands[k]
+        for x in range(2, 13):
+            s.px(x, y, hi if x <= 3 else lo if x >= 11 else mid)
+        if k % 2: s.px(7 + (k % 3), y, hi)                             # (a glint of the twist)
+    for x, y, c in ((13, 9, G[3]), (14, 8, G[4]), (14, 7, G[3]), (14, 6, G[4])): s.px(x, y, c)      # the loose end, off its side ...
     im = s.render()
-    # the loose end: a gold thread curling off the spool's right, a bead of light at its tip
-    return strings(im, [(13, 6, G[3]), (14, 5, G[4]), (14, 4, G[3]), (13, 3, G[4]), (13, 1, '#fffbe0'), (12, 1, G[4]), (13, 0, G[4]), (14, 1, G[4]), (13, 2, G[3])])
+    return strings(im, [(15, 5, '#fffbe0'), (15, 4, G[4])])                                        # ... to a bead of light
 
 
 def icon_bond_compass():
-    """the Compass of Bonds: a gold compass, its face pale, its needle a woven rainbow thread pointing up and right, a gold bead
-    at its pivot - 16 x 16"""
+    """the Compass of Bonds: a gold compass, its face pale cream, its needle a woven rainbow thread pointing up and right,
+    a gold bead at its pivot - 16 x 16"""
     from sprites280 import S, GOLD as G
     s = S()
-    s.ring(8.0, 8.5, 6.5, 6.5, 1.8, G, light=(-0.6, -0.8))
+    s.ring(8.0, 8.5, 7.0, 7.0, 1.9, G, light=(-0.6, -0.8))
     FACE_ = ['#d8ccaa', '#efe6cc', '#fffbee']
     for y in range(16):
         for x in range(16):
             d = math.hypot(x + 0.5 - 8.0, y + 0.5 - 8.5)
-            if d < 4.75: s.px(x, y, FACE_[2] if x + y < 13 else FACE_[1] if x + y < 18 else FACE_[0])
-    for x, y in ((8, 3), (8, 13), (3, 8), (12, 8)): s.px(x, y, G[1])       # the four marks
-    s.px(7, 0, G[3]); s.px(8, 0, G[4]); s.px(9, 0, G[3]); s.px(8, 1, G[2])  # the bow at its top
-    # the needle: a woven thread from the lower left to the upper right, in the bonds' colours, its tip bright
-    pts = [(5, 12, '#c88aff'), (6, 11, '#8a8aff'), (7, 10, '#5ac8ff'), (9, 8, '#6ad870'), (10, 7, '#ffe04a'), (11, 6, '#ffb040'), (12, 5, '#ff7aa8')]
-    for x, y, c in pts: s.px(x, y, c)
-    for x, y, c in ((5, 11, '#8a8aff'), (6, 10, '#5ac8ff'), (10, 6, '#ffb040'), (11, 5, '#ff7aa8'), (12, 4, '#ffd0e0')): s.px(x, y, c)
-    s.px(8, 9, G[4]); s.px(8, 8, G[3]); s.px(7, 9, G[2])                   # the pivot: a gold bead
+            if d < 5.15: s.px(x, y, FACE_[2] if x + y < 12 else FACE_[1] if x + y < 19 else FACE_[0])
+    for x, y in ((8, 4), (12, 8), (3, 8), (8, 12)): s.px(x, y, G[1])       # the four marks
+    s.g(['.G.', 'GgG'], {'G': G[2], 'g': G[4]}, 7, 0)                       # the bow at its top
+    # the needle: a woven thread two pixels wide, lower left to upper right, round the colour wheel; its tip bright
+    cols = ['#7a4ad8', '#3a8ae8', '#2ab0c8', '#3ab848', '#e8c020', '#f08a20', '#e8487a']
+    for k, (x, y) in enumerate(((4, 12), (5, 11), (6, 10), (8, 8), (9, 7), (10, 6), (11, 5))):
+        s.px(x, y, cols[k]); s.px(x + 1, y, cols[k]) if k < 6 else None
+    s.px(12, 4, '#ff9ab8'); s.px(12, 5, cols[6])
+    s.px(7, 9, G[4]); s.px(8, 9, G[3]); s.px(7, 8, G[3])                   # the pivot: a gold bead
     return s.render()
 
 

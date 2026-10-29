@@ -254,3 +254,10 @@ class ABuild(DBuild):
         """the Hive-Star's centre (markers for its corona, flares and burn)"""
         self.mb(*STAR['c'], ['bm.astar'])
         self.meta['armada']['star'] = STAR['c']
+
+    # ---- 2.99a (phase249): THE HANGAR - the dormant Mecha Rex, behind the Flagship's third secret door
+    def hangar(self, x, y, z, yaw):
+        """the dormant Mecha Rex's spot (feet level y, facing yaw): phase249 raises its rig there (no host, dim) and an
+        interaction at its chest - bring the three blueprints and the core and right-click it"""
+        self.m(x + 0.5, y, z + 0.5, ['bm.rxhang'], float(yaw))
+        self.meta['armada']['hangar'] = (x, y, z, yaw)
