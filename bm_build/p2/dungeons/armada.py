@@ -167,6 +167,7 @@ class K:
                 else:
                     self.fill(x, w - 2, z, x, w + wall_h + t + 3, z, wall if d <= r + 1.5 else self.outer, soft=True)
         self.rooms.setdefault(ship, []).append((int(cx - R), w - 2, int(cz - R), int(cx + R), top + t, int(cz + R)))
+        return self.rooms[ship][-1]
 
     def sign(self, x, y, z, facing, lines, color='lime', wall=True):
         st = f'warped_wall_sign[facing={facing},waterlogged=false]' if wall else f'warped_sign[rotation={facing},waterlogged=false]'
@@ -217,30 +218,29 @@ class K:
         self.paint(ship, mask, pal, skin, axis, panel)
         return mask
 
-    def paint(self, ship, mask, pal, skin=2, axis='x', panel=(5, 3, 5)):
-        """set a mask's outer `skin` layers (only unset cells), in panels of one block each"""
+    def paint(self, ship, mask, pal, skin=2, axis='x', panel=(6, 4, 6)):
+        """set a mask's outer `skin` layers (only unset cells) as plating: panels of the palette's first two blocks in a checker of
+        6x4x6, a seam ring of its third every 12 along the axis, a rare worn plate of its last"""
         nz = np.nonzero(mask)
         if not len(nz[0]): return
         lo = [max(0, int(a.min()) - 2) for a in nz]; hi = [int(a.max()) + 3 for a in nz]
         sub = mask[lo[0]:hi[0], lo[1]:hi[1], lo[2]:hi[2]]
         shell = np.zeros_like(mask)
         shell[lo[0]:hi[0], lo[1]:hi[1], lo[2]:hi[2]] = sub & ~ndimage.binary_erosion(sub, iterations=skin, border_value=0)
-        tot = sum(w for _, w in pal)
-        cum = []
-        acc = 0
-        for b, w in pal:
-            acc += w; cum.append((acc, b))
+        base, alt = pal[0][0], pal[1][0]
+        seam = pal[2][0] if len(pal) > 2 else alt
+        worn = pal[-1][0]
         pu, py, pv = panel
         B = self.B
         for (x, y, z) in zip(*np.nonzero(shell)):
             x, y, z = int(x), int(y), int(z)
             if (x, y, z) in B.b: continue
             u, v = (x, z) if axis == 'x' else (z, x)
-            h = ((u // pu) * 73856093 ^ (y // py) * 19349663 ^ (v // pv) * 83492791) & 0xffffff
-            r = (h / 0xffffff) * tot
-            for a, b in cum:
-                if r <= a: break
-            B.set(x, y, z, b)
+            h = ((x * 73856093) ^ (y * 19349663) ^ (z * 83492791)) & 0xffff
+            if u % 12 == 0: st = seam
+            elif h < 0xffff * 0.03: st = worn
+            else: st = alt if ((u // pu) + (y // py) + (v // pv)) % 2 else base
+            B.set(x, y, z, st)
         self.hm |= mask
         self.ship_mask[ship] = self.ship_mask.get(ship, np.zeros(A.SIZE, bool)) | mask
 
@@ -355,13 +355,13 @@ def hive_star(k):
         if not k.inb(x, y, z): continue
         g = n1[i, j, l]; b = band[i, j, l]; d = rs[i, j, l] - D[i, j, l]
         if d > 1.2:
-            st = 'magma_block' if g < 0.45 else 'shroomlight'
-        elif g > 0.8 and b > 0.2: st = 'pearlescent_froglight'
-        elif g > 0.66: st = 'shroomlight' if b > -0.3 else 'ochre_froglight'
-        elif g > 0.5: st = 'orange_concrete' if b > 0.35 else ('ochre_froglight' if b > -0.2 else 'orange_glazed_terracotta')
-        elif g > 0.36: st = 'magma_block' if b > 0 else 'red_glazed_terracotta'
-        elif g > 0.25: st = 'red_concrete' if b > -0.4 else 'magma_block'
-        else: st = 'red_glazed_terracotta' if b > 0 else 'red_concrete'
+            st = 'magma_block' if g < 0.4 else 'shroomlight'
+        elif g > 0.72 and b > 0.1: st = 'pearlescent_froglight'
+        elif g > 0.6: st = 'ochre_froglight' if b > -0.2 else 'shroomlight'
+        elif g > 0.46: st = 'shroomlight' if b > -0.5 else 'orange_glazed_terracotta'
+        elif g > 0.34: st = 'magma_block' if b > -0.3 else 'orange_concrete'
+        elif g > 0.24: st = 'red_glazed_terracotta' if b > 0 else 'magma_block'
+        else: st = 'red_concrete'
         B.set(x, y, z, st)
     # sunspots: dark cores (crying obsidian) with a penumbra of glowstone
     srng = random.Random(77)
@@ -501,7 +501,7 @@ def prongs(k, ship, axis, u_base, u_tip, vc, off, ylo, yhi, pal=HULL_DARK, light
     for sv in (-1, 1):
         v = vc + sv * off
         vt = v - sv
-        k.hull(ship, axis, [(u_base, v - 2, v + 2, ylo, yhi), (mid, v - 2, v + 2, ylo + 1, yhi - 1), (u_tip, vt, vt, ym, ym + 1)], pal, env=False, chamfer=2)
+        k.hull(ship + '+', axis, [(u_base, v - 2, v + 2, ylo, yhi), (mid, v - 2, v + 2, ylo + 1, yhi - 1), (u_tip, vt, vt, ym, ym + 1)], pal, env=False, chamfer=2)
         x, z = (u_tip + sg_u, vt) if axis == 'x' else (vt, u_tip + sg_u)
         if k.inb(x, ym, z) and (x, ym, z) not in k.B.b: k.s(x, ym, z, light)
 
@@ -566,10 +566,13 @@ def dock(k):
     k.room(sh, 133, W, 201, 143, W + 6, 211, wall=WALL, floor=FLOOR)              # the lift room
     k.air(129, W, 204, 132, W + 4, 208)
     # the hull: a long frigate, a raised bridge tower over the hall, the prow a docking spar
-    k.hull(sh, 'x', [(88, 200, 212, 44, 58), (96, 196, 216, 42, 60), (130, 196, 216, 42, 61), (146, 200, 212, 45, 57), (156, 203, 209, 47, 55)], HULL)
-    k.hull(sh, 'x', [(106, 202, 210, 58, 64), (122, 203, 209, 58, 64), (126, 205, 207, 58, 61)], HULL_DARK, env=False, chamfer=2)
+    k.hull(sh, 'x', [(88, 201, 211, 45, 57), (94, 197, 215, 42, 60), (128, 196, 216, 42, 61), (142, 199, 213, 44, 58), (152, 202, 210, 46, 55),
+                     (157, 204, 208, 48, 53)], HULL, chamfer=6)
+    k.hull(sh, 'x', [(100, 202, 210, 58, 63), (112, 203, 209, 58, 67), (124, 204, 208, 58, 64), (130, 205, 207, 58, 60)], HULL_DARK, env=False, chamfer=2)
     k.hull(sh, 'x', [(98, 204, 208, 38, 44), (138, 205, 207, 40, 44)], HULL_DARK, env=False, chamfer=1)                  # the keel
     mouth = k.tube('x', 144, 157, 206, W, HULL_DARK)                          # the prow collar: G1, bridge 1
+    prongs(k, sh, 'x', 146, 165, 206, 6, W - 4, W + 5)
+    ribs(k, sh, 'x', range(96, 141, 8))
     # -------- the arrival hall: green light strips in the floor, ceiling panels, the Fleet Map projector, windows on the star
     for x in range(104, 129):
         for z in (203, 209):
@@ -676,14 +679,16 @@ def brood(k):
     k.room(sh, 196, W, 176, 208, W + 10, 208, wall=BIO_WALL, floor=BIO_FLOOR)     # P3 the bio-bay
     k.room(sh, 178, W, 174, 192, W + 13, 186, wall=LAB_WALL, floor=LAB_FLOOR)     # P4 quarantine
     k.room(sh, 184, W, 212, 192, W + 3, 217, wall=BIO_WALL, floor=[('moss_block', 1)])  # the kennel (hidden)
-    k.round_room(sh, 192, 152, 15, W, W + 17, BIO_WALL, BIO_FLOOR, wall_h=9)      # P5 THE HATCHERY
+    hatch = k.round_room(sh, 192, 152, 15, W, W + 17, BIO_WALL, BIO_FLOOR, wall_h=9)      # P5 THE HATCHERY (its dome stands out of the hull)
     k.room(sh, 184, W, 166, 186, W + 3, 173, wall=BIO_WALL, floor=BIO_FLOOR)      # the corridor to the hatchery (G4)
-    k.hull(sh, 'z', [(224, 182, 202, 38, 54), (214, 176, 208, 36, 58), (170, 174, 210, 35, 62), (140, 178, 206, 37, 60), (130, 193, 203, 43, 52)],
-           HULL, chamfer=5)
+    k.hull(sh, 'z', [(224, 184, 200, 40, 54), (216, 176, 208, 36, 58), (176, 174, 210, 35, 62), (150, 175, 209, 36, 60), (138, 181, 203, 39, 57),
+                     (131, 192, 204, 43, 52)], HULL, chamfer=7, boxes=[b for b in k.rooms[sh] if b != hatch])
     k.hull(sh, 'z', [(206, 186, 198, 58, 62), (180, 188, 196, 58, 63)], HULL_DARK, env=False, chamfer=2)       # the spine
     k.hull(sh, 'z', [(212, 189, 195, 30, 36), (150, 190, 194, 31, 36)], HULL_DARK, env=False, chamfer=1)       # the keel
     arr = k.tube('x', 177, 171, 206, W, HULL_DARK)                                 # arrival (bridge 1)
     dep = k.tube('z', 138, 128, 198, W, HULL_DARK)                                 # the prow collar (G5, bridge 5)
+    prongs(k, sh, 'z', 136, 121, 198, 6, W - 4, W + 5)
+    ribs(k, sh, 'z', list(range(172, 222, 7)))
     # ---------------- P2 THE SPECIMEN LAB (simon): four tanks pulse; the pulse console; BOOKS['brood']
     for x in range(178, 193):
         s(x, W - 1, 199, 'lime_concrete' if x % 2 else 'white_concrete')
@@ -828,12 +833,14 @@ def forge(k):
     k.room(sh, 210, W, 84, 218, W + 7, 98, wall=FORGE_WALL, floor=FORGE_FLOOR)     # P8 the furnace hall
     k.room(sh, 222, W, 93, 226, W + 3, 99, wall=WALL, floor=FLOOR)                 # secret 1
     k.room(sh, 191, W, 55, 216, W + 12, 80, wall=FORGE_WALL, floor=FORGE_FLOOR)    # P9 THE FOUNDRY FLOOR
-    k.hull(sh, 'z', [(117, 195, 213, 42, 57), (111, 190, 216, 40, 60), (84, 189, 221, 40, 62), (58, 190, 217, 41, 64), (50, 199, 209, 45, 56)],
-           HULL, chamfer=5)
+    k.hull(sh, 'z', [(117, 195, 213, 42, 57), (110, 190, 216, 40, 60), (84, 189, 221, 40, 63), (62, 190, 217, 41, 64), (55, 196, 212, 43, 60),
+                     (50, 200, 208, 45, 55)], HULL, chamfer=6)
     k.hull(sh, 'z', [(110, 196, 210, 58, 63), (90, 194, 206, 58, 63)], HULL_DARK, env=False, chamfer=2)
     k.hull(sh, 'z', [(116, 201, 207, 34, 40), (60, 201, 207, 35, 40)], HULL_DARK, env=False, chamfer=1)
     arr = k.tube('z', 115, 119, 198, W, HULL_DARK)
     dep = k.tube('z', 54, 48, 204, W, HULL_DARK)
+    prongs(k, sh, 'z', 56, 40, 204, 6, W - 4, W + 5)
+    ribs(k, sh, 'z', list(range(60, 116, 7)))
     # ---------------- P6 THE CONDUIT ROOM (seq): five conduit pillars; the schematic over the door shows the order
     colours = [('orange_concrete', 'ORANGE'), ('lime_concrete', 'LIME'), ('cyan_concrete', 'CYAN'), ('yellow_concrete', 'YELLOW'), ('magenta_concrete', 'MAGENTA')]
     press = {0: 2, 1: 5, 2: 1, 3: 3, 4: 4}                                    # pillar (west to east) -> its place in the order
@@ -974,13 +981,15 @@ def nav(k):
     k.room(sh, 163, W, 12, 173, W + 4, 18, wall=WALL, floor=FLOOR)                            # the mainframe (hidden)
     k.room(sh, 134, 44, 24, 157, W + 11, 36, wall=NAV_WALL, floor=[('air', 1)])               # P11 THE ZERO-G CROSSING
     k.room(sh, 128, W, 4, 148, W + 10, 20, wall=NAV_WALL, floor=NAV_FLOOR)                     # P12 the squadron bay
-    k.round_room(sh, 110, 18, 15, W, W + 17, NAV_WALL, NAV_FLOOR, wall_h=5)                  # P13 THE OBSERVATORY
-    k.hull(sh, 'x', [(92, 19, 25, 50, 57), (98, 4, 34, 44, 62), (128, 1, 40, 42, 66), (152, 2, 41, 40, 66), (176, 17, 41, 44, 68), (180, 21, 39, 46, 64)],
-           HULL, chamfer=5)
+    obs = k.round_room(sh, 110, 18, 15, W, W + 17, NAV_WALL, NAV_FLOOR, wall_h=5)            # P13 THE OBSERVATORY (its dome stands out)
+    k.hull(sh, 'x', [(92, 18, 26, 49, 57), (97, 7, 30, 44, 59), (110, 1, 37, 42, 60), (128, 1, 40, 42, 66), (152, 2, 41, 40, 66), (176, 17, 41, 44, 68),
+                     (180, 21, 39, 46, 64)], HULL, chamfer=7, boxes=[b for b in k.rooms[sh] if b != obs])
     k.hull(sh, 'x', [(132, 18, 26, 66, 70), (170, 24, 36, 66, 72)], HULL_DARK, env=False, chamfer=2)
     k.hull(sh, 'x', [(120, 17, 23, 34, 41), (170, 27, 33, 36, 42)], HULL_DARK, env=False, chamfer=1)
     arr = k.tube('x', 177, 183, 30, W, HULL_DARK)
     dep = k.tube('x', 95, 90, 22, W, HULL_DARK)
+    prongs(k, sh, 'x', 94, 80, 22, 6, W - 4, W + 5)
+    ribs(k, sh, 'x', list(range(132, 176, 8)))
     # ---------------- P10 THE STAR-DOME (targets): its walls a night sky; five constellations, struck in the chart's order
     for x in range(160, 177):
         for z in range(22, 39):
@@ -1149,11 +1158,13 @@ def dread_a(k):
     k.room(sh, 50, W, 7, 62, W + 4, 11, wall=DREAD_WALL, floor=DREAD_FLOOR)        # the armoury
     k.room(sh, 70, W, 30, 78, W + 4, 35, wall=WALL, floor=[('cyan_terracotta', 1), ('polished_deepslate', 2)])   # Zib's lost squad
     k.air(67, W, 21, 69, W + 3, 23)
-    k.hull(sh, 'x', [(34, 23, 29, 44, 54), (44, 10, 40, 40, 62), (70, 12, 40, 40, 62), (77, 14, 38, 42, 58), (80, 17, 33, 44, 56)], WAR, chamfer=5)
+    k.hull(sh, 'x', [(28, 25, 27, 47, 49), (34, 21, 31, 44, 54), (42, 12, 38, 40, 60), (48, 10, 40, 40, 62), (70, 12, 40, 40, 62), (77, 14, 38, 42, 58),
+                     (80, 17, 33, 44, 56)], WAR, chamfer=6)
     k.hull(sh, 'x', [(48, 18, 32, 62, 66), (62, 20, 30, 62, 67)], HULL_DARK, env=False, chamfer=2)
     k.hull(sh, 'x', [(40, 22, 28, 32, 40), (80, 23, 27, 34, 42)], HULL_DARK, env=False, chamfer=1)
     arr = k.tube('x', 79, 82, 22, W, HULL_DARK, frame='shroomlight')
     dep = k.tube('z', 36, 44, 56, W, HULL_DARK, frame='shroomlight')
+    ribs(k, sh, 'x', list(range(40, 78, 6)), pal=WAR)
     # lobby
     for z in (17, 27):
         for x in range(70, 79):
@@ -1231,11 +1242,13 @@ def dread_b(k):
     k.room(sh, 40, W, 106, 44, W + 4, 114, wall=DREAD_WALL, floor=DREAD_FLOOR)     # the armoury
     k.room(sh, 3, W, 87, 7, W + 3, 93, wall=WALL, floor=FLOOR)                     # secret 2
     k.air(33, W, 75, 35, W + 3, 77)
-    k.hull(sh, 'z', [(58, 22, 34, 46, 58), (66, 10, 42, 44, 62), (110, 10, 40, 44, 64), (118, 18, 32, 46, 60), (121, 22, 28, 50, 57)], WAR, chamfer=5)
+    k.hull(sh, 'z', [(58, 22, 34, 46, 58), (66, 10, 42, 44, 62), (108, 10, 40, 44, 64), (116, 16, 34, 46, 61), (121, 21, 29, 49, 57)], WAR, chamfer=6)
     k.hull(sh, 'z', [(70, 20, 30, 64, 69), (94, 20, 30, 64, 70)], HULL_DARK, env=False, chamfer=2)
     k.hull(sh, 'z', [(70, 23, 27, 36, 44), (114, 23, 27, 37, 44)], HULL_DARK, env=False, chamfer=1)
     arr = k.tube('x', 39, 44, 70, W, HULL_DARK, frame='shroomlight')
     dep = k.tube('z', 119, 124, 25, W, HULL_DARK, frame='shroomlight')
+    prongs(k, sh, 'z', 118, 129, 25, 6, W - 4, W + 5, light='shroomlight')
+    ribs(k, sh, 'z', list(range(64, 112, 6)), pal=WAR)
     B.pad(42, W, 70)
     k.sign(31, W + 2, 64, 'south', ['DREADNOUGHT', 'XV-B', '', ''], color='red')
     for x in range(31, 38, 3): s(x, W + 7, 69, 'shroomlight')
@@ -1659,7 +1672,7 @@ def build():
     def bounds(m):
         xs, ys, zs = (np.nonzero(m.any(axis=ax))[0] for ax in ((1, 2), (0, 2), (0, 1)))
         return (int(xs[0]), int(ys[0]), int(zs[0]), int(xs[-1]), int(ys[-1]), int(zs[-1]))
-    B.meta['armada']['ships'] = {nm: bounds(m) for nm, m in k.ship_mask.items()}
+    B.meta['armada']['ships'] = {nm: bounds(m) for nm, m in k.ship_mask.items() if not nm.endswith('+')}     # (the hulls, not their prongs)
     zones(k)
     tidy(k)
     return B

@@ -14,7 +14,7 @@ gloves and boots; the warlord's red armour for the epaulets, the tabard and the 
 The hive's work on it in gunmetal (sprites280e's VORN ramp) and green light: the gorget, the node in its breast, the bracers, the
 ports in its skull and spine with cables between. The WARFRAME is Vorn tech in the same language: gunmetal plate in panels and
 rivets, warplate-red stripes (#d83030) in chevrons and bands, the warlord's red armour on its pauldrons, the troopers' black-and-
-green band for a belt, the Vorn's two froglight-tipped antennae on its head (and on its masts), dark ear-plates - and a Vorn at
+green band for a belt, the Vorn's two froglight-tipped antennae on its head (and on its masts) - and a Vorn at
 the helm in its cockpit. Donadian teal is the OTHER aliens' colour: it appears only as the patches the follower's mantle was
 mended with.
 
@@ -569,11 +569,10 @@ def _w_head(face=None):
     H.append(E((-3.1, bar[0], -6.62), (3.1, bar[1], -6.45), bar[2], light=bar[3]))
     if f == 'wide':                                           # (it flares past the slot)
         for sx in (1, -1): H.append(BX(sx, 3.1, 4.4, 43.9, 44.5, -6.7, -6.4, 'vx_glow_l', light=15))
-    for sx in (1, -1):                                        # (the Vorn's two antennae: dark stalks, froglight tips - and its ear-plates)
+    for sx in (1, -1):                                        # (the Vorn's two antennae: dark stalks, froglight tips)
         H += [E((sx * 2.2 - 0.32, 46.9, -1.0), (sx * 2.2 + 0.32, 51.6, -0.36), 'vx_skin_d'),
               E((sx * 2.2 - 0.62, 51.4, -1.3), (sx * 2.2 + 0.62, 52.6, -0.06), 'vx_frog' if f != 'closed' else 'vx_off', light=0 if f == 'closed' else 15),
-              BX(sx, 3.8, 4.8, 40.6, 46.2, -1.4, 1.6, 'vx_varmor', rot=('z', sx * 7, (sx * 3.8, 46.2, 0))),
-              BX(sx, 4.75, 4.85, 41.6, 42.2, -1.2, 1.4, 'vx_vstripe_r', rot=('z', sx * 7, (sx * 3.8, 46.2, 0)))]
+              ]
     return H
 
 
@@ -740,7 +739,7 @@ def _a_head0(form, face=None):
           E((-1.35, 26.55, -5.1), (1.35, 26.85, -4.98), nose, light=12, faces=('north',), uv={'north': [0, 0, 16, 16]})]   # (the smile)
     for sx in (1, -1):                                        # (the ears: long, dark, hanging past the jaw, a hive clip on each)
         r = ('z', sx * 6, (sx * 4.2, 31.6, 0))
-        H += [BX(sx, 4.15, 5.45, 23.6, 31.6, -1.4, 2.6, MZ, rot=r),
+        H += [BX(sx, 4.15, 5.3, 24.8, 31.6, -1.4, 2.6, MZ, rot=r),
               BX(sx, 5.4, 5.75, 26.2, 27.4, -0.2, 1.4, 'vx_implant_off' if form == 'unlinked' else 'vx_implant', rot=r)]
     # ---- the eyes (FACES)
     pal = {'starfire': 'star', 'unlinked': 'calm'}.get(form, 'hive')
@@ -1335,7 +1334,7 @@ def _wf(name):
               armr=limb(1, 16, 14), forer=limb(1, 40), arml=limb(-1, 118, 26), forel=limb(-1, 34))
     elif name == 'hurt':                                      # (a flinch: rocked back, the claw up to guard the cockpit, the visor flickering)
         p = P(_face='dim', chest=T(-12, 12), head=T(-14, -14), **mleg(1, 2, 12, 4), **mleg(-1, 22, 40, 4),
-              armr=limb(1, 24, 24), forer=limb(1, 36), arml=limb(-1, 60, -6, 30), forel=limb(-1, 86))
+              armr=limb(1, 24, 24), forer=limb(1, 36), arml=limb(-1, 64, 8, 16), forel=limb(-1, 64))
     else:
         raise KeyError(name)
     p['_form'] = 'warframe'
@@ -1439,7 +1438,7 @@ def _alien(name, form):
               ring1=qs(('z', 2), ('x', 6), ('y', 0 if not b else 20)), ring2=qs(('z', -4), ('x', -6), ('y', 0 if not b else -20)))
         lift = H * 0.5 + (0.4 if b else 0.0)
     elif name == 'happy':                                     # (pleased: the long hands opened, the head on one side, the eyes smiling)
-        p = P(_face='soft', chest=T(-6), head=T(-4, 0, -14), armr=limb(1, 34, 46), forer=limb(1, 36), arml=limb(-1, 34, 46), forel=limb(-1, 36),
+        p = P(_face='soft', chest=T(-6), head=T(-4, 0, -8), armr=limb(1, 34, 46), forer=limb(1, 36), arml=limb(-1, 34, 46), forel=limb(-1, 36),
               **dangle(-6, 8, 16, 8), **rings(120, (14, 30), (-34, -16)))
         lift = H + 1.0
     elif name == 'hurt':                                      # (a flinch: thrown back, an arm across its face, the rings jolted)
@@ -1508,7 +1507,7 @@ def _fol():
                     legl=limb(-1, 64, 52, 20), shinl=knee(128), footl=qa_x(-20), armr=limb(1, 34, -2, 20), forer=limb(1, 70, 0, 18), arml=limb(-1, 34, -2, 20),
                     forel=limb(-1, 70, 0, 18), ring1=qs(('x', 4), ('y', 45)))
     # glad (in its quiet way): the arms opening, the head on one side, the eyes smiling, the ring spun up
-    po['happy'] = F(lift=F_HOVER + 1.0, _face='soft', chest=T(-4), head=T(-6, 0, -14), armr=limb(1, 30, 44), forer=limb(1, 30), arml=limb(-1, 30, 44), forel=limb(-1, 30),
+    po['happy'] = F(lift=F_HOVER + 1.0, _face='soft', chest=T(-4), head=T(-6, 0, -8), armr=limb(1, 30, 44), forer=limb(1, 30), arml=limb(-1, 30, 44), forel=limb(-1, 30),
                     **dangle(-6, 8, 16, 8), **R1(120, (14, 30)))
     po['hurt'] = F(lift=F_HOVER - 0.6, _face='dim', chest=T(-14, 10), head=T(-16, -12), armr=limb(1, 30, 24), forer=limb(1, 40), arml=limb(-1, 20, 30), forel=limb(-1, 50),
                    **dangle(10, 6, 12, 4), **R1(20, (20, 40)))

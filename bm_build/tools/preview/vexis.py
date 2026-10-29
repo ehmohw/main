@@ -59,7 +59,7 @@ if 'forms' in what:
     N, span = 2000, 66.0; im = s.render((0, 4), size=N, span=span, center=(3.0, 7.0, 0))
     k = N / span; im = im.crop((0, int(N / 2 - 13 * k), N, int(N / 2 + 8.5 * k)))
     K.sheet([K.label(im, 'WARFRAME (phase 1) - HIVE-LINK (phase 2, hovering) - STARFIRE (phase 3) - UNLINKED (the follower)',
-                     'a player (1.8 blocks) beside each; the warframe ~12 blocks to its head (14 to its masts), the hive-link ~8.5 to its skull, starfire ~10, unlinked ~2.3')],
+                     'a player (1.8 blocks) beside each; the warframe ~12 blocks to its hull (13.5 to its masts), the hive-link ~8 to its skull (9.3 to the antennae), starfire ~9, unlinked ~2.3')],
             OUT + '/vx_forms.png', cols=1, title='Admiral Vexis - its three phases and the follower, to scale')
 
 if 'hero' in what:

@@ -17,8 +17,8 @@ import undercrown_3d as U3
 OUT = os.environ.get('AR3D_OUT', '/home/user/main/previews/v299_armada/ship')
 NCH = 6
 CH_COL = np.array([(1.0, 0.42, 0.14), (0.22, 0.72, 0.85), (0.62, 0.22, 1.0), (1.0, 0.94, 0.82), (1.0, 0.1, 0.08), (0.42, 1.0, 0.3)], np.float32)
-U3.LIGHTS.update({'verdant_froglight': (15, 5), 'ochre_froglight': (15, 0), 'pearlescent_froglight': (15, 3), 'shroomlight': (15, 0),
-                  'magma_block': (9, 4), 'glowstone': (15, 0), 'sea_lantern': (15, 1), 'end_rod': (14, 3), 'campfire': (15, 0),
+U3.LIGHTS.update({'verdant_froglight': (15, 3), 'ochre_froglight': (15, 0), 'pearlescent_froglight': (15, 3), 'shroomlight': (15, 0),
+                  'magma_block': (9, 4), 'glowstone': (15, 0), 'sea_lantern': (15, 3), 'end_rod': (14, 3), 'campfire': (15, 0),
                   'blast_furnace': (13, 0), 'waxed_copper_bulb': (15, 0), 'copper_bulb': (15, 0), 'redstone_lamp': (12, 0), 'lantern': (15, 0),
                   'crying_obsidian': (10, 2), 'lava': (15, 0), 'sculk_catalyst': (6, 1)})
 U3.SELF_LIT.update({'verdant_froglight': 1.3, 'shroomlight': 1.35, 'ochre_froglight': 1.35, 'pearlescent_froglight': 1.3, 'glowstone': 1.3,
@@ -33,7 +33,7 @@ U3.TOP.update({'verdant_froglight': 'verdant_froglight_top', 'grass_block': 'gra
 U3.SIDE.update({'verdant_froglight': 'verdant_froglight_side'})
 U3.CROSSES = U3.CROSSES + ('lightning_rod', 'end_rod', 'vines', 'cornflower', 'allium', 'blue_orchid', 'oxeye_daisy', 'short_grass', 'fern',
                            'lily_of_the_valley')
-STAR_COL = np.array((1.0, 0.52, 0.22), np.float32)
+STAR_COL = np.array((1.0, 0.66, 0.42), np.float32)
 
 
 class Scene(U3.Scene):
@@ -156,20 +156,20 @@ def P_(B, **kw):
 def s1(B, sc):
     """the whole fleet round its star, from high over the Dock's quarter"""
     cam = U3.Persp((330, 150, 345), (112, 40, 110), fov=50)
-    return sc.render(cam, W=1800, H=1100, P=P_(B, ambient=(0.12, 0.12, 0.15), fill=0.0, sun=2.2))
+    return sc.render(cam, W=1800, H=1100, P=P_(B, ambient=(0.13, 0.13, 0.16), fill=0.0, sun=1.4))
 
 
 @shot('2_fleet_low')
 def s2(B, sc):
     """low along the orbit: the Flagship's dome and the Dock black against the star"""
     cam = U3.Persp((-30, 62, 270), (150, 44, 100), fov=58)
-    return sc.render(cam, W=1800, H=1000, P=P_(B, ambient=(0.1, 0.1, 0.13), fill=0.0, sun=2.2))
+    return sc.render(cam, W=1800, H=1000, P=P_(B, ambient=(0.11, 0.11, 0.14), fill=0.0, sun=1.4))
 
 
 def ship_shot(eye, at, fov=55, **kw):
     def f(B, sc):
         cam = U3.Persp(eye, at, fov=fov)
-        return sc.render(cam, W=1600, H=1000, P=P_(B, ambient=kw.get('amb', (0.13, 0.13, 0.16)), fill=0.05, fill_r=80, sun=2.0))
+        return sc.render(cam, W=1600, H=1000, P=P_(B, ambient=kw.get('amb', (0.15, 0.15, 0.18)), fill=0.05, fill_r=80, sun=1.25))
     return f
 
 
@@ -186,14 +186,30 @@ SHOTS['9_flagship'] = ship_shot((-30, 96, 262), (50, 56, 182), 58)
 def s10(B, sc):
     """THE BRIDGE: from just inside the battle door, the great window and the Hive-Star in it, the helm before it"""
     cam = U3.Persp((31.5, 58.6, 197.5), (86, 61, 150), fov=88)
-    return sc.render(cam, W=1800, H=1050, P=P_(B, ambient=(0.1, 0.1, 0.12), gain=3.0, fill=0.2, fill_r=30, sun=1.4, exposure=1.4))
+    return sc.render(cam, W=1800, H=1050, P=P_(B, ambient=(0.1, 0.1, 0.12), gain=3.0, fill=0.2, fill_r=30, sun=1.0, exposure=1.4, glass=0.12))
 
 
 @shot('11_bridge_helm')
 def s11(B, sc):
     """from behind the helm's left, the window filled with the star"""
-    cam = U3.Persp((58.5, 57.6, 176.5), (110, 56, 128), fov=80)
-    return sc.render(cam, W=1800, H=1050, P=P_(B, ambient=(0.1, 0.1, 0.12), gain=3.0, fill=0.2, fill_r=30, sun=1.4, exposure=1.4))
+    cam = U3.Persp((66.5, 57.4, 168.5), (110, 58, 128), fov=78)
+    return sc.render(cam, W=1800, H=1050, P=P_(B, ambient=(0.1, 0.1, 0.12), gain=3.0, fill=0.2, fill_r=30, sun=1.0, exposure=1.4, glass=0.12))
+
+
+def inside(eye, at, fov=80, **kw):
+    def f(B, sc):
+        cam = U3.Persp(eye, at, fov=fov)
+        return sc.render(cam, W=1600, H=1000, P=P_(B, ambient=kw.get('amb', (0.08, 0.08, 0.1)), gain=3.0, fill=0.15, fill_r=24, sun=1.0,
+                                                   exposure=1.4, glass=0.15))
+    return f
+
+
+SHOTS['12_hatchery'] = inside((185.5, 49.6, 166.5), (194, 52, 146), 84)
+SHOTS['13_star_dome'] = inside((174.5, 53.6, 34.5), (166, 58, 26), 88)
+SHOTS['14_zero_g'] = inside((163.5, 54.6, 30.5), (140, 50, 30), 80)
+SHOTS['15_gauntlet'] = inside((8.5, 56.6, 155.5), (8.5, 56, 200), 75)
+SHOTS['16_foundry'] = inside((214.5, 51.6, 81.5), (203, 50, 66), 84)
+SHOTS['17_reactor'] = inside((69.5, 50.6, 22.5), (56, 53, 25), 80)
 
 
 def main():
