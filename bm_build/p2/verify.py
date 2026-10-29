@@ -399,7 +399,7 @@ def verify_armada(B, G, AM, starts, all_open, notes):
     sx, sy, sz = A.STAR['c']
     # (the star's centre is below the floor's horizon from the arena: its upper half rises in the window - look at that)
     for nm_, eye in (('centre', (ax_ + 0.5, ay_ + 2.6, az_ + 0.5)), ('helm', (A.ARENA['helm'][0] + 0.5, ay_ + 2.6, A.ARENA['helm'][2] + 0.5))):
-        tgt = (sx + 0.5, sy + A.STAR['r'] * 0.55, sz + 0.5)
+        tgt = (sx + 0.5, sy + A.STAR['r'] * 0.7, sz + 0.5)
         hit = None
         for i in range(1, 3000):
             f = i / 3000

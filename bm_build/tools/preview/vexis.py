@@ -1,8 +1,11 @@
-"""Admiral Vexis preview sheets (rigkit).   python3 tools/preview/vexis.py [forms,hero,turn,scale,poses,entrance,faces,follower,lineup,clip]
+"""Admiral Vexis preview sheets (rigkit).   python3 tools/preview/vexis.py [forms,hero,turn,scale,poses,entrance,faces,follower,lineup,
+companions,compare,clip]
 forms: the four forms to scale, side by side with a player; hero: each form from the front 3/4, a sheet; turn: a turnaround of
 each form; scale: the warframe and the hive-link beside a player and the Dread Sovereign (armored and true); poses: every boss
 pose, a sheet per form; entrance: the coming (dormant -> roar); faces: the visor and the eyes; follower: the unlinked follower's
-poses; lineup: the follower beside a player and Bender; clip: a report of parts cutting into each other, pose by pose.
+poses; lineup: the follower beside a player and Bender; companions: the three boss forms at companion size beside a player, the
+unlinked follower and Bender, and each one's sit_a / happy; compare: a Vorn trooper and the warlord (the shipped vorn3d models,
+from out_p2) beside Vexis - heads, figures, the warframe's pilot; clip: a report of parts cutting into each other, pose by pose.
 Sheets go to $VX_OUT (default previews/v299_armada/vexis); the throwaway packs to draftkit's $BM_PREVIEW_DIR."""
 import sys, os
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); sys.path.insert(0, os.path.dirname(os.path.dirname(HERE)))
@@ -11,7 +14,8 @@ import vexis_art as A
 TMP = K.OUT; os.makedirs(TMP, exist_ok=True)
 OUT = os.environ.get('VX_OUT', os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(HERE))), 'previews', 'v299_armada', 'vexis'))
 os.makedirs(OUT, exist_ok=True)
-what = sys.argv[1].split(',') if len(sys.argv) > 1 else ['forms', 'hero', 'turn', 'scale', 'poses', 'entrance', 'faces', 'follower', 'lineup', 'clip']
+what = sys.argv[1].split(',') if len(sys.argv) > 1 else ['forms', 'hero', 'turn', 'scale', 'poses', 'entrance', 'faces', 'follower', 'lineup', 'companions',
+                                                          'compare', 'clip']
 root = K.pack(A, TMP + '/rp_vx')
 FLOOR, FLOOR2 = '#23262e', '#30343e'                     # (the Hive-Throne's deck)
 
@@ -118,7 +122,7 @@ if 'faces' in what:
             pose = A.fit(dict(A.BOSS_POSES[f]['idle_a'] if f != 'unlinked' else A.POSES['idle_a'], chest=rigkit.I, head=rigkit.I, _off=(0, 0, 0)))
             if fc: pose['_face'] = fc
             s = K.multi_scene(root); rigkit.render(s, A, pose, scale=1.0)
-            tiles.append(K.label(s.render((-14, 4), size=240, span=1.0, center=(0, 1.88, -0.2)), f, fc or 'default'))
+            tiles.append(K.label(s.render((-14, 4), size=240, span=1.2, center=(0, 1.95, -0.2)), f, fc or 'default'))
     K.sheet(tiles, OUT + '/vx_faces.png', cols=6, title='Admiral Vexis - faces (the visor bar; the eyes: the hive, the star, the unlinked)')
 
 if 'follower' in what:
@@ -137,6 +141,61 @@ if 'lineup' in what:
     K.person(s, (-1.7, 0, 0.3))
     K.sheet([K.label(s.render(v, size=620, span=4.4, center=(0, 1.3, 0)), 'size', 'a player, Vexis (unlinked), Bender') for v in ((-12, 8), (-40, 14))],
             OUT + '/vx_follower_lineup.png', cols=2, title='Admiral Vexis (unlinked) - next to a player and Bender')
+
+if 'companions' in what:                                    # (every boss form as a follower, at its companion size)
+    import bender_art as BA
+    rb = K.pack(BA, TMP + '/rp_bd')
+    s = K.multi_scene(root, rb)
+    xs = {'warframe': -4.2, 'hivelink': -0.6, 'starfire': 2.8}
+    for f, x in xs.items():
+        rigkit.render(s, A, A.BOSS_POSES[f]['idle_a'], at=(x, 0, 0), scale=A.COMPANION_SCALE[f])
+    rigkit.render(s, A, A.POSES['idle_a'], at=(5.4, 0, 0), scale=A.RIG_SCALE)
+    rigkit.render(s, BA, BA.POSES['idle_a'], at=(7.4, 0, 0.2), scale=BA.RIG_SCALE, yaw=-20)
+    K.person(s, (-6.8, 0, 0.0))
+    for i in range(-9, 10):
+        for j in range(-3, 3): s.solid((i, -0.25, j), (i + 1, 0.0, j + 1), FLOOR if (i + j) % 2 else FLOOR2)
+    top = [K.label(s.render((-10, 6), size=1600, span=16.5, center=(0.6, 2.0, 0)).crop((0, 540, 1600, 1090)),
+                   'COMPANIONS: a player - the warframe (~3.5) - the hive-link (~3) - starfire (~3.2) - unlinked (~2.3) - Bender',
+                   'each boss form at COMPANION_SCALE, driven by its own BOSS_POSES (idle_a); the antennae and masts stand above those heights')]
+    tiles = []
+    for f in ('warframe', 'hivelink', 'starfire'):
+        for n in ('idle_a', 'sit_a', 'sit_b', 'happy', 'hurt'):
+            s2 = K.multi_scene(root); rigkit.render(s2, A, A.BOSS_POSES[f][n], scale=A.COMPANION_SCALE[f]); K.person(s2, (-1.6, 0, -0.6)); floor(s2, 3, 0.5)
+            tiles.append(K.label(s2.render((-30, 10), size=320, span=4.6, center=(0, 1.9, 0)), f'{f}: {n}', 'companion size'))
+    from PIL import Image
+    a = K.sheet(top, TMP + '/_c1.png', cols=1); b = K.sheet(tiles, TMP + '/_c2.png', cols=5)
+    A1, B1 = Image.open(a), Image.open(b); W = max(A1.width, B1.width)
+    sh = Image.new('RGB', (W, A1.height + B1.height + 40), 'white'); sh.paste(A1, (0, 40)); sh.paste(B1, (0, 40 + A1.height))
+    from PIL import ImageDraw, ImageFont
+    try: fnt = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 22)
+    except OSError: fnt = None
+    ImageDraw.Draw(sh).text((12, 8), 'Admiral Vexis - every boss form as a companion follower (sit_a / sit_b / happy / hurt)', fill=(20, 20, 20), font=fnt)
+    sh.save(OUT + '/vx_companions.png')
+
+if 'compare' in what:                                       # (is it a Vorn? beside the shipped troopers)
+    real = K.REAL_RP
+    def trooper(s, at, k=1.0, warlord=False, yaw=0.0):
+        s.display(f'bm:item/vorn3d{"_warlord" if warlord else ""}', pos=at, scale=k, yaw=yaw)
+    tiles = []
+    s = K.multi_scene(root, real)                           # (figures: a trooper, the warlord, Vexis unlinked, the hive-link as a companion)
+    trooper(s, (-2.6, 0, 0), 1.5); trooper(s, (-1.0, 0, 0), 1.5, True)
+    rigkit.render(s, A, A.POSES['idle_a'], at=(0.9, 0, 0), scale=A.RIG_SCALE)
+    rigkit.render(s, A, A.BOSS_POSES['hivelink']['idle_a'], at=(3.4, 0, 0), scale=A.COMPANION_SCALE['hivelink'])
+    for v, l in (('front', 'front'), ((-30, 10), '3/4')):
+        tiles.append(K.label(s.render(v, size=720, span=7.6, center=(0.4, 1.9, 0)), f'a Vorn trooper, the warlord, Vexis unlinked, Vexis hive-link ({l})',
+                             'the troopers: the shipped vorn3d / vorn3d_warlord models (x1.5)'))
+    s = K.multi_scene(root, real)                           # (heads, face to face, at one size)
+    trooper(s, (-3.7, 0, 0), 2.0)
+    for f, x in (('unlinked', -1.2), ('hivelink', 1.4), ('starfire', 4.1)):
+        p = A.fit(dict(A.POSES['idle_a'] if f == 'unlinked' else A.BOSS_POSES[f]['idle_a'], chest=rigkit.I, head=rigkit.I, _off=(0, 0, 0)))
+        rigkit.render(s, A, p, at=(x, -1.62, 0), scale=2.0)
+    tiles.append(K.label(s.render((-10, 4), size=720, span=9.4, center=(0.2, 2.4, 0)), 'heads: a trooper - Vexis unlinked - hive-link - starfire',
+                         'the square head, the dark muzzle and green nose, the square green eyes, the dark ears, the two froglight antennae'))
+    s = K.multi_scene(root, real)                           # (the warframe's cockpit: a Vorn at the helm)
+    rigkit.render(s, A, A.BOSS_POSES['warframe']['idle_a'], scale=A.BOSS_SCALE)
+    tiles.append(K.label(s.render((-16, 4), size=720, span=8.0, center=(0.8, 9.6, 0)), 'the warframe: its pilot, and its head',
+                         'a Vorn at the helm (black armour, the green stripe, the square head, the two antennae); the Vorn pair of antennae on its head'))
+    K.sheet(tiles, OUT + '/vx_vorn_compare.png', cols=2, title='Admiral Vexis beside the Vorn - the family resemblance')
 
 if 'clip' in what:
     import numpy as np

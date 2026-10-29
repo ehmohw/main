@@ -968,6 +968,8 @@ if __name__ == '__main__':
         phase242.rp(sys.modules[__name__])
         import phase240                           # (2.98a: the Undercrown's soundtrack)
         phase240.rp(sys.modules[__name__])
+        import phase244                           # (2.99: the Vorn Armada's soundtrack)
+        phase244.rp(sys.modules[__name__])
     if PHASE2:
         import creative                       # (2.96a: the Creative Forms' outfits - their pass goes last, after every model of the twelve is written)
         creative.rp(sys.modules[__name__])

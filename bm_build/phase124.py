@@ -29,7 +29,7 @@ DISCS = {   # key: (title, lore, length s, label palette dark->light, descriptio
     'dread2': ('The Dread - Lament', 'Torn from a Dread boss - its last stand.', 128, ('#10101e', '#5a3a7a', '#c8a8e8'), '#a888d0'),    # (2.94h)
     'pxapo': ('The 8-Bit Serpent King', 'Glitched out of an old cartridge - his battle, in sixteen colours.', 96, ('#0a2a12', '#3ad06a', '#b8ffc8'), '#3ad06a'),    # (2.94k: phase215 drops it)
     'sovereign': ('The Dread Sovereign', 'From the ashes of the Dread Sovereign - its three forms, its fall.', 184, ('#14040a', '#8a0a1e', '#ff5a64'), '#d0182e'),    # (2.98: phase238 drops it)
-    'vexis': ('Admiral Vexis', 'From the quiet after the Admiral\'s fall - the warframe, the hive-link, the star, the unlinking.', 180, ('#0a1a0c', '#2a8a3a', '#9aff8a'), '#7aff6a'),    # (2.99: phase242 drops it)
+    'vexis': ('Admiral Vexis', 'From the bridge of the Vorn Armada - the Warframe, the Hive-Link, Starfire, and the silence after.', 196, ('#06140a', '#2a8a3a', '#b6ff3c'), '#7aff6a'),    # (2.99: phase242 gives it)
     'aurel': ('Aurel', 'A pale record from the ashes - an elegy for the first light.', 120, ('#3a3220', '#c8b070', '#fff4d0'), '#fff4d0'),    # (2.98: the second fall)
 }
 MARKET_PRICE = 6

@@ -3,30 +3,41 @@ one of the first the hive "improved"; now the voice every ship and trooper answe
 inside its warframe, the red star filling the window behind it. Beaten, the hive-link is cut, and it follows you: an endgame
 follower (phase242 the fight, phase243 the follower; armada_lore the words).
 
-THE LOOK - Vorn tech, never the Dread: GUNMETAL plate (sprites280e's VORN ramp) in panels and rivets, RED HIVE STRIPES (the
-warplate red, #d83030) in chevrons and bands, and the hive's GREEN light (XEN) wherever something is alive or powered. Vexis
-itself is a bioengineered Vorn: grey-violet skin (#7a6e8c, creased #281e34), an elongated swept-back skull, huge dark almond
-eyes ringed in green light, three long fingers, a crown of antennae, hive-implants in its skull and spine with cables between,
-a ragged command mantle (Vorn red-black, a #ff463c stripe at the hem). Donadian teal is the OTHER aliens' colour: it appears
-only as the patch the follower's mantle was mended with.
+THE LOOK - A VORN, an elder and an admiral: the pack's own Vorn (phase32/phase45's troopers, phase25.donado_parts in Vorn colours)
+grown tall and regal, in their textures' style and colours (phase32.textures: vorn_skin (122,110,140), vorn_dark (40,34,52),
+vorn_eye (60,255,80) with its pale glint, vorn_armor (34,36,40) with the green stripe, the warlord's vorn_armor_red (40,22,24)
+with the (255,70,60) stripe) - each a flat colour, every texel nudged (_vorn). The troopers' SQUARE HEAD: the dark muzzle with
+its green nose and smile (an elder's beard under it), square glowing-green eyes with the dark pupil at their outer top, long dark
+ears hanging past the jaw, and THE VORN'S TWO ANTENNAE (dark stalks, froglight tips) standing tall out of an admiral's circlet
+with a crown of lesser ones; the troopers' black armour for a long tunic (the green stripe round the waist, the ragged hem), dark
+gloves and boots; the warlord's red armour for the epaulets, the tabard and the ragged command mantle (#ff463c stripe at the hem).
+The hive's work on it in gunmetal (sprites280e's VORN ramp) and green light: the gorget, the node in its breast, the bracers, the
+ports in its skull and spine with cables between. The WARFRAME is Vorn tech in the same language: gunmetal plate in panels and
+rivets, warplate-red stripes (#d83030) in chevrons and bands, the warlord's red armour on its pauldrons, the troopers' black-and-
+green band for a belt, the Vorn's two froglight-tipped antennae on its head (and on its masts), dark ear-plates - and a Vorn at
+the helm in its cockpit. Donadian teal is the OTHER aliens' colour: it appears only as the patches the follower's mantle was
+mended with.
 
 ITS FORMS (pose key _form; every part swaps model per form - model_name):
-  warframe  PHASE 1. A colossal battle-mech, ~12 blocks to its head (~14 to its masts) at BOSS_SCALE - a little under the
-            armored Sovereign: a top-heavy armoured hull, a glass cockpit
-            dome in the chest (Vexis's silhouette inside, lit green from behind), a low sensor head with one green visor bar,
-            a heavy plasma cannon for a right arm (green coils, a glowing bore), a three-claw manipulator for a left, missile
-            pods on its shoulders (_pods 'open': hatches up, warheads out), a reactor glowing in its abdomen, a backpack with
-            thrusters and comms masts, and DIGITIGRADE legs (thigh forward, shin back, a metatarsus and a big three-toed foot).
-            _power 0..3 lights it section by section for the entrance (0: dark; 1: the reactor; 2: the hull and cockpit;
-            3: the cannon and the backpack - the default).
-  hivelink  PHASE 2. Vexis, out of the torn warframe: ~8.5 blocks to the skull (~9.5 to the antennae), HOVERING (its toes HOVER design units off the deck), thin
-            and tall, legs atrophied in cybernetic braces, the mantle hanging by the world's down, TWO GRAVITY RINGS orbiting
-            it (ring1, ring2: green energy bands with gunmetal nodes - each pose turns them, so they orbit as it moves).
-  starfire  PHASE 3. The star's fire in it (1.15 x the hive-link: ~10 blocks to the skull): the skin cracked with red-orange star-fire, the eyes blazing
-            white-gold, the rings burning, a halo of solar flare behind the skull, the mantle's hem burning.
+  warframe  PHASE 1. A colossal battle-mech, ~12 blocks to its hull's top (~13.5 to its masts) at BOSS_SCALE - a little under
+            the armored Sovereign: a top-heavy armoured hull, a glass cockpit dome in the chest (a Vorn at the helm inside,
+            lit green from behind), a low sensor head with one green visor bar, a heavy plasma cannon for a right arm (green
+            coils, a glowing bore), a three-claw manipulator for a left, missile pods on its shoulders (_pods 'open': hatches
+            up, warheads out), a reactor glowing in its abdomen, a backpack with thrusters and comms masts, and DIGITIGRADE legs
+            (thigh forward, shin back, a metatarsus and a big three-toed foot). _power 0..3 lights it section by section for
+            the entrance (0: dark; 1: the reactor; 2: the hull and cockpit; 3: the cannon and the backpack - the default).
+  hivelink  PHASE 2. Vexis, out of the torn warframe: ~8 blocks to the skull (~9.3 to the antennae' tips), HOVERING (its toes
+            HOVER design units off the deck), tall, long-armed, legs atrophied in cybernetic braces, the mantle hanging by the
+            world's down, TWO GRAVITY RINGS orbiting it (ring1, ring2: green energy bands with gunmetal nodes - each pose
+            turns them, so they orbit as it moves).
+  starfire  PHASE 3. The star's fire in it (1.15 x the hive-link: ~9 blocks to the skull): the skin cracked with star-fire, the
+            eyes blazing white-gold, the rings burning, a halo of solar flare behind the skull, the mantle's hem burning.
   unlinked  THE FOLLOWER (~2.3 blocks at FOLLOWER_SCALE): the hive-link cut - the skull cables severed (frayed ends, bare
-            wire), the implants dark, the eyes a calm green, the mantle mended with a Donadian patch, ONE small gravity ring.
-The warframe's full-size follower form (like the Sovereign's Unbound) is BOSS_POSES['warframe'] at BOSS_SCALE.
+            wire), the implants dark, the eyes a calm green, the mantle mended with Donadian patches, ONE small gravity ring.
+EVERY BOSS FORM IS ALSO A FOLLOWER, at two sizes: COMPANION (COMPANION_SCALE[form], in place of BOSS_SCALE * FORM_SCALE) and FULL
+(BOSS_SCALE * FORM_SCALE). The follower drives it with BOSS_POSES[form] alone: FOLLOW_KEYS - idle_a, idle_b, walk_0..3, sit_a and
+sit_b (resting and its breath: the warframe down on one knee, idling, its visor lit; Vexis floating cross-legged, the rings
+slowed), happy and hurt.
 
 ONE RIG, TWO SKELETONS. Every form has the same PARTS, but the warframe and the alien have different joints (JOINTS): PIVOT is
 the warframe's (where every display stands at rest); an alien pose carries '_o_<part>' shifts (rigkit) that put each joint where
@@ -43,9 +54,12 @@ follower's), scan (the warframe's targeting fan), sparks (the link burning out);
 (fxh) - plasma_c, plasma (the cannon's sweep), well (a gravity well), sun (a star gathered in the palm), lance (the solar
 lance), flare (the star-flare's fan), deflect (the follower's deflector).
 
-SCALE (one rig, two sizes):
-  RIG_SCALE = FOLLOWER_SCALE (0.78: about 2.3 blocks to the antennae, 2.0 to the skull) - rigpet's, with POSES (form 'unlinked').
-  BOSS_SCALE (4.0) x FORM_SCALE[form] (warframe 1.0, hivelink 0.78, starfire 0.9) - the boss's, with BOSS_POSES[form][name]. scale_of(pose) gives the right one.
+SCALE (one rig, three sizes):
+  RIG_SCALE = FOLLOWER_SCALE (0.86: about 2.3 blocks to the antennae' tips, 1.9 to the skull) - rigpet's, with POSES (form
+  'unlinked').
+  BOSS_SCALE (4.0) x FORM_SCALE[form] (warframe 1.0, hivelink 0.85, starfire 0.98) - the boss's, with BOSS_POSES[form][name].
+  COMPANION_SCALE[form] (warframe 1.14, hivelink 1.31, starfire 1.4) - a boss form as a companion, with BOSS_POSES[form].
+  scale_of(pose) gives the boss's or the follower's; companion_scale(form) the companion's.
 
 THE RIG (rigkit): body (the root: the pelvis - the reactor; Vexis's hips and tabard), chest (the hull and cockpit; the torso),
 head (a model per form x face), arms (armr/arml: the pauldron and upper arm; forer: the cannon / a forearm and hand; forel:
@@ -60,10 +74,14 @@ import rigkit
 from rigkit import qs, el, seg, shrink, D, qrot
 
 PREFIX = 'vx_'
-FOLLOWER_SCALE = 0.78
+FOLLOWER_SCALE = 0.86
 RIG_SCALE = FOLLOWER_SCALE                     # (the follower's: POSES are the follower's)
 BOSS_SCALE = 4.0
-FORM_SCALE = {'warframe': 1.0, 'hivelink': 0.78, 'starfire': 0.9}     # (starfire: the hive-link's x 1.15)
+FORM_SCALE = {'warframe': 1.0, 'hivelink': 0.85, 'starfire': 0.98}    # (starfire: the hive-link's x 1.15)
+# a boss form as a COMPANION follower: the whole rig's scale (in place of BOSS_SCALE * FORM_SCALE[form]) for its own BOSS_POSES -
+# the warframe ~3.5 blocks to the top of its hull (~3.85 to its masts), the hive-link ~3 to its skull (~3.6 to the antennae'
+# tips), starfire ~3.2 (~4.1 to its halo); the FULL size is BOSS_SCALE * FORM_SCALE
+COMPANION_SCALE = {'warframe': 1.14, 'hivelink': 1.31, 'starfire': 1.4}
 FORMS = ('warframe', 'hivelink', 'starfire', 'unlinked')
 ALIEN = ('hivelink', 'starfire', 'unlinked')
 HOVER = 4.0                                    # (the boss's float: its toes this far off the deck, design units)
@@ -87,7 +105,7 @@ JA = {'body': (0, 13.0, 0), 'chest': (0, 14.5, 0), 'head': (0, 24.6, -0.4),
       'legr': (2.0, 12.2, 0.2), 'shinr': (2.3, 7.4, -0.6), 'footr': (2.3, 3.0, 0.4),
       'legl': (-2.0, 12.2, 0.2), 'shinl': (-2.3, 7.4, -0.6), 'footl': (-2.3, 3.0, 0.4),
       'podr': (3.0, 22.0, 1.5), 'podl': (-3.0, 22.0, 1.5), 'back': (0, 23.0, 2.2),
-      'ring1': (0, 16.0, 0), 'ring2': (0, 16.0, 0), 'fx': (0, 30.4, -4.4), 'fxh': (5.8, 3.2, -0.3)}
+      'ring1': (0, 16.0, 0), 'ring2': (0, 16.0, 0), 'fx': (0, 30.0, -3.6), 'fxh': (5.8, 3.2, -0.3)}
 JOINTS = {'warframe': PIVOT, 'hivelink': JA, 'starfire': JA, 'unlinked': JA}
 PODS = ('podr', 'podl')
 RINGS = ('ring1', 'ring2')
@@ -148,6 +166,11 @@ def model_name(p, pose, suffix=''):
         return f'{PREFIX}{p}_{"open" if pose.get("_pods") == "open" and form == "warframe" else "shut"}{suffix}'
     dark = '_off' if form == 'warframe' and pose.get('_power', 3) < POWER.get(p, 0) else ''
     return f'{PREFIX}{p}_{_tag(p, form)}{dark}{suffix}'
+
+
+def companion_scale(form):
+    """the whole rig's display scale for a boss form as a companion follower"""
+    return COMPANION_SCALE[form]
 
 
 def scale_of(pose):
@@ -270,20 +293,6 @@ def _disc(cols, size=32, ring=None, crack=False):
     return im.resize((64, 64), Image.NEAREST)
 
 
-def _skin(seed, base=SKIN, cracks=0):
-    """Vorn skin: grey-violet, mottled, fine creases; star-fire cracks glowing in it"""
-    rnd = random.Random(seed); im = _cells(base, seed, 0.05, dark=0.05, light=0.04, add=3); d = ImageDraw.Draw(im)
-    for _ in range(9):
-        x, y = rnd.randrange(0, 58, 2), rnd.randrange(0, 58, 2)
-        d.rectangle((x, y, x + rnd.choice((3, 5)), y + rnd.choice((1, 3))), fill=_c(SKIN_M if base == SKIN else base, 0.88))
-    for _ in range(7):
-        x, y = rnd.randrange(0, 60, 2), rnd.randrange(0, 62, 2)
-        d.rectangle((x, y, x + rnd.choice((3, 5, 7)), y), fill=_c((84, 72, 100) if base == SKIN else SKIN_D))
-    for _ in range(14): _sq(d, rnd.randrange(0, 64, 2), rnd.randrange(0, 64, 2), (142, 130, 160) if base == SKIN else _c(base, 1.2)[:3])
-    for _ in range(cracks): _crack(d, rnd, 64, rnd.randint(9, 16), FIRE_L, HOT, (40, 16, 22), branch=0.35)
-    return im
-
-
 def _implant(seed, lit=True):
     rnd = random.Random(seed); im = _hull(seed, VORN[2], VORN[3], VORN[0], VORN[4]); d = ImageDraw.Draw(im)
     for _ in range(10):
@@ -334,45 +343,49 @@ def _patch():
     return im
 
 
+def _vorn(base, var, seed, cz=2, size=64):
+    """the Vorn's own texture style (phase32.textures: vorn_skin, vorn_dark, vorn_armor): a flat colour, every texel nudged by
+    +-var - here in half-unit cells"""
+    rnd = random.Random(seed); im = Image.new('RGBA', (size, size)); d = ImageDraw.Draw(im)
+    for y in range(0, size, cz):
+        for x in range(0, size, cz):
+            n = rnd.randrange(-var, var + 1)
+            d.rectangle((x, y, x + cz - 1, y + cz - 1), fill=tuple(max(0, min(255, c + n)) for c in base) + (255,))
+    return im
+
+
+VSKIN, VDARK, VEYE, VARM, VARM_R = (122, 110, 140), (40, 34, 52), (60, 255, 80), (34, 36, 40), (40, 22, 24)
+VSTRIPE, VSTRIPE_R, FROG = (90, 255, 110), (255, 70, 60), (215, 238, 213)
+
+
+def _vstar_skin(seed, base=VSKIN, cracks=8):
+    """starfire: the Vorn skin, cracked with the star's fire"""
+    rnd = random.Random(seed); im = _vorn(base, 10, seed); d = ImageDraw.Draw(im)
+    for _ in range(cracks): _crack(d, rnd, 64, rnd.randint(9, 16), FIRE_L, HOT, (40, 16, 22), branch=0.35)
+    return im
+
+
+def _frog():
+    """the antennae's tips: the Vorn troopers' verdant froglight - pale mint, greener at the edge"""
+    im = _vorn((228, 246, 228), 8, 2141, 4); d = ImageDraw.Draw(im)
+    d.rectangle((0, 0, 63, 3), fill=_c((160, 211, 155))); d.rectangle((0, 60, 63, 63), fill=_c((160, 211, 155)))
+    d.rectangle((0, 0, 3, 63), fill=_c((189, 225, 183))); d.rectangle((60, 0, 63, 63), fill=_c((189, 225, 183)))
+    return im
+
+
 def _eye(kind=None, pal='hive'):
-    """Vexis's eye (whole uv; the north face of a thin plate on the face, the skin showing where it's clear): a huge dark almond
-    ringed in light. narrowed: the upper lid down; wide: bigger, a burning pupil; dim: the ring gone dark; closed: the lids'
-    seam; soft: the lower lid up (a smile in the eyes). pal: hive (green), star (blazing white-gold), calm (the follower)"""
-    N = 32; im = Image.new('RGBA', (N, N), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
-    ring, hi, dim = {'hive': (XEN[3], XEN[4], XEN[0]), 'star': (FIRE_L, HOT, FIRE_D), 'calm': (XEN[2], XEN[3], XEN[0])}[pal]
-    if kind == 'dim': ring = dim
-    if kind == 'wide': ring = hi
-    def span(x):
-        t = (x + 0.5 - N / 2) / (N / 2 - 0.5)
-        h = max(0.0, 1 - t * t) ** 0.55
-        top, bot = 16 - 14.5 * h + 2.5 * t, 16 + 9.5 * h + 2.0 * t      # (the outer corner (x high) a little lower: it's turned up on the face)
-        return h, top, bot
-    for x in range(N):
-        h, top, bot = span(x)
-        if h <= 0.04: continue
-        if kind == 'closed':
-            yc = 16 + 3.0 * h + 2.2 * ((x + 0.5 - 16) / 16)
-            d.rectangle((x, int(yc) - 1, x, int(yc)), fill=_c(SKIN_D)); continue
-        if kind == 'narrowed': top = max(top, 11.5 + 2.2 * ((x + 0.5 - 16) / 16))
-        if kind == 'soft': bot = min(bot, 17.5 - 2.5 * h)
-        for y in range(N):
-            if not (top <= y + 0.5 <= bot): continue
-            edge = min(y + 0.5 - top, bot - y - 0.5) < 1.6 or h < 0.3
-            if edge: col = ring
-            elif pal == 'star':
-                r = math.hypot(x + 0.5 - 16, (y + 0.5 - (top + bot) / 2) * 1.6) / 14
-                col = HOT if r < 0.35 else (GOLD if r < 0.7 else FIRE_L)
-                if kind == 'dim': col = (110, 40, 20) if r > 0.4 else FIRE
-            else:
-                k = (y + 0.5 - top) / max(1.0, bot - top)
-                col = tuple(int(8 + (24 - 8) * k * c) for c in (1.0, 0.8, 1.6))
-            d.point((x, y), fill=_c(col))
-    if kind not in ('closed',) and pal != 'star':
-        gl = (196, 206, 226) if pal == 'hive' else (150, 230, 170)
-        d.rectangle((9, 9 if kind != 'narrowed' else 13, 11, 10 if kind != 'narrowed' else 14), fill=_c(gl)); d.point((14, 12 if kind != 'narrowed' else 15), fill=_c(gl))
-        if kind == 'wide':
-            d.rectangle((15, 10, 17, 20), fill=_c(hi)); d.rectangle((16, 12, 16, 18), fill=_c((255, 255, 255)))
-    return im.resize((64, 64), Image.NEAREST)
+    """a Vorn eye (whole uv): the troopers' glowing square (phase32 vorn_eye: (60,255,80), +-18, a pale glint at its top-left),
+    a texel to a quarter of it. pal: hive (the Vorn green), star (blazing white-gold), calm (the follower: the same green,
+    softer); dim: gone dark"""
+    base, var, gl = {'hive': (VEYE, 18, (230, 255, 230)), 'star': ((255, 226, 140), 14, (255, 255, 240)), 'calm': ((88, 236, 108), 14, (226, 255, 226))}[pal]
+    if kind == 'dim': base, gl = ({'hive': (20, 96, 30), 'star': (150, 60, 24), 'calm': (24, 90, 34)}[pal], None)
+    im = _vorn(base, var, 2150 + len(pal), 8)
+    if pal == 'star' and kind != 'dim':
+        d = ImageDraw.Draw(im); d.rectangle((16, 16, 47, 47), fill=_c(HOT)); d.rectangle((24, 24, 39, 39), fill=_c((255, 255, 255)))
+    if gl:
+        d = ImageDraw.Draw(im)
+        for (x, y) in ((8, 8), (16, 8), (8, 16)): d.rectangle((x, y, x + 7, y + 7), fill=_c(gl))
+    return im
 
 
 def _missile():
@@ -403,9 +416,10 @@ def textures():
          'vx_reactor': _disc([XEN[1], XEN[2], XEN[3], XEN[4], (255, 255, 255)], ring=VORN[0]),
          'vx_reactor_off': _disc([(24, 30, 28), (34, 44, 38), (30, 40, 34)], ring=VORN[0]),
          'vx_missile': _missile(),
-         'vx_skin': _skin(2111), 'vx_skin_d': _skin(2112, (66, 54, 82)), 'vx_skin_s': _skin(2113, (104, 90, 120), cracks=8),
-         'vx_skin_sd': _skin(2114, (64, 46, 66), cracks=7),
-         'vx_eye_r': _eye(None, 'hive'),
+         'vx_skin': _vorn(VSKIN, 10, 2111), 'vx_skin_d': _vorn(VDARK, 5, 2112), 'vx_skin_s': _vstar_skin(2113, cracks=4),
+         'vx_skin_sd': _vstar_skin(2114, (52, 36, 54), 6),
+         'vx_varmor': _vorn(VARM, 6, 2142), 'vx_varmor_r': _vorn(VARM_R, 6, 2143), 'vx_vstripe': _vorn(VSTRIPE, 8, 2144, 4),
+         'vx_vstripe_r': _vorn(VSTRIPE_R, 8, 2145, 4), 'vx_frog': _frog(),
          'vx_implant': _implant(2115), 'vx_implant_off': _implant(2116, False),
          'vx_cable': _cable(2117), 'vx_cable_s': _cable(2118, FIRE_L, (70, 24, 14)), 'vx_cable_u': _cable(2119, (52, 60, 56)), 'vx_wire': _wire(),
          'vx_mantle': _mantle(2120), 'vx_mantle_r': _mantle_trim(2121), 'vx_mantle_s': _mantle(2122, 70), 'vx_patch': _patch(),
@@ -416,13 +430,12 @@ def textures():
          'vx_node_u': _disc([VORN[1], (40, 52, 46), (52, 66, 58)], ring=VORN[0], crack=True),
          'vx_void': _void(2129), 'vx_shield': _shield()}
     for pal in ('hive', 'star', 'calm'):
-        for k in (None,) + FACES:
-            T[f'vx_eye_{pal}{"_" + k if k else ""}'] = _eye(k, pal)
+        T[f'vx_eye_{pal}'] = _eye(None, pal); T[f'vx_eye_{pal}_dim'] = _eye('dim', pal)
     return T
 
 
 # ---------------------------------------------------------------------------------------------------- building helpers
-NOSHIFT = {'vx_reactor', 'vx_reactor_off', 'vx_node', 'vx_node_s', 'vx_node_u', 'vx_patch', 'vx_eye_r'}
+NOSHIFT = {'vx_reactor', 'vx_reactor_off', 'vx_node', 'vx_node_s', 'vx_node_u', 'vx_patch'}
 _rs = random.Random(5)
 _PV = [None]
 
@@ -489,7 +502,8 @@ def _w_body(lit=True):
     """the pelvis, hip housings, a red belt - and the reactor in the abdomen above it, caged"""
     B = [E((-6.0, 16.5, -4.2), (6.0, 22.0, 4.2), 'vx_hull_d'), E((-5.2, 15.4, -5.2), (5.2, 21.4, -4.2), 'vx_hull'),
          E((-2.4, 13.2, -5.0), (2.4, 15.6, -3.4), 'vx_hull'), E((-5.6, 16.0, 4.2), (5.6, 21.4, 5.2), 'vx_hull'),
-         E((-6.1, 21.0, -4.35), (6.1, 21.8, 4.35), 'vx_red'), E((-0.7, 15.6, -5.45), (0.7, 21.0, -5.2), 'vx_red')]
+         E((-6.1, 20.6, -4.35), (6.1, 22.0, 4.35), 'vx_varmor'), E((-6.15, 21.1, -4.4), (6.15, 21.5, 4.4), _lit('vx_vstripe', lit), light=_lt(lit, 10)),
+         E((-0.7, 15.6, -5.45), (0.7, 20.6, -5.2), 'vx_red')]
     for sx in (1, -1):
         B += [BX(sx, 5.6, 9.2, 16.4, 21.6, -2.8, 3.6, 'vx_hull'), BX(sx, 9.2, 9.9, 17.4, 20.6, -1.8, 2.6, 'vx_hull_l'),
               BX(sx, 4.6, 5.2, 22.6, 25.6, -2.2, 2.2, _lit('vx_glow', lit), light=_lt(lit))]
@@ -523,13 +537,17 @@ def _w_chest(lit=True):
     for sx in (1, -1):
         C += [BX(sx, 4.2, 5.2, 31.4, 38.8, -10.8, -9.8, 'vx_hull_d'), BX(sx, 4.4, 4.6, 31.6, 38.6, -9.8, -7.3, _lit('vx_glass', lit), faces=('east', 'west'))]
     C.append(E((-4.2, 31.6, -10.5), (4.2, 38.6, -10.3), _lit('vx_glass', lit), faces=('north',)))
+    # (the pilot: a Vorn - black armour with the green stripe, the square head, the dark muzzle, green eyes, dark ears, the two antennae)
     C += [E((-2.6, 31.6, -8.2), (2.6, 32.8, -7.45), 'vx_hull_d'),                                # (the seat)
-          E((-1.8, 31.6, -9.3), (1.8, 34.4, -8.0), 'vx_pilot'), E((-0.5, 34.2, -9.0), (0.5, 35.0, -8.3), 'vx_pilot'),
-          E((-1.1, 34.8, -9.6), (1.1, 37.0, -8.2), 'vx_pilot'), E((-0.9, 36.4, -8.8), (0.9, 38.0, -7.5), 'vx_pilot')]
+          E((-1.8, 31.6, -9.3), (1.8, 34.4, -8.0), 'vx_varmor'), E((-1.85, 32.8, -9.35), (1.85, 33.2, -7.95), _lit('vx_vstripe', lit), light=_lt(lit, 10)),
+          E((-1.4, 34.4, -9.8), (1.4, 36.8, -8.0), 'vx_skin'), E((-0.75, 34.5, -10.25), (0.75, 35.4, -9.75), 'vx_skin_d'),
+          E((-0.3, 35.2, -10.32), (0.3, 35.55, -10.22), 'vx_eye_hive' if lit else 'vx_eye_hive_dim', light=_lt(lit), uv={'north': [0, 0, 16, 16]})]
     for sx in (1, -1):
-        C += [BX(sx, 0.2, 0.95, 35.6, 36.2, -9.7, -9.55, _lit('vx_glow_l', lit), light=_lt(lit), rot=('z', sx * 16, (sx * 0.6, 35.9, -9.6))),
-              BX(sx, 1.8, 2.5, 32.2, 34.2, -9.6, -8.2, 'vx_pilot'), BX(sx, 1.6, 3.8, 31.6, 32.4, -10.2, -9.2, _lit('vx_glow', lit), light=_lt(lit, 12)),
-              *CH([(sx * 0.6, 37.6, -8.4), (sx * 1.2, 38.4, -8.0)], [0.3], 'vx_pilot')]
+        C += [BX(sx, 0.3, 1.0, 35.75, 36.45, -9.86, -9.78, 'vx_eye_hive' if lit else 'vx_eye_hive_dim', light=_lt(lit), uv={'north': [0, 0, 16, 16]}, faces=('north',)),
+              BX(sx, 1.35, 1.75, 34.2, 36.4, -9.5, -8.3, 'vx_skin_d'),
+              BX(sx, 0.48, 0.72, 36.8, 37.9, -9.0, -8.76, 'vx_skin_d'), BX(sx, 0.35, 0.85, 37.8, 38.3, -9.13, -8.63, 'vx_frog', light=_lt(lit)),
+              BX(sx, 1.8, 2.5, 32.2, 34.2, -9.6, -8.2, 'vx_varmor'), BX(sx, 1.85, 2.45, 31.6, 32.3, -9.9, -9.0, 'vx_skin_d'),
+              BX(sx, 1.6, 3.8, 31.6, 32.4, -10.2, -9.2, _lit('vx_glow', lit), light=_lt(lit, 12))]
     return C
 
 
@@ -551,9 +569,11 @@ def _w_head(face=None):
     H.append(E((-3.1, bar[0], -6.62), (3.1, bar[1], -6.45), bar[2], light=bar[3]))
     if f == 'wide':                                           # (it flares past the slot)
         for sx in (1, -1): H.append(BX(sx, 3.1, 4.4, 43.9, 44.5, -6.7, -6.4, 'vx_glow_l', light=15))
-    for sx, top in ((1, 50.4), (-1, 53.2)):                   # (antennae)
-        H += CH([(sx * 2.8, 46.8, 0.2), (sx * 3.3, 49.0, 1.4), (sx * 3.6, top, 2.6)], [0.55, 0.38], 'vx_hull_l')
-        H.append(E((sx * 3.6 - 0.35, top - 0.1, 2.25), (sx * 3.6 + 0.35, top + 0.6, 2.95), 'vx_glow_l' if f != 'closed' else 'vx_off', light=0 if f == 'closed' else 15))
+    for sx in (1, -1):                                        # (the Vorn's two antennae: dark stalks, froglight tips - and its ear-plates)
+        H += [E((sx * 2.2 - 0.32, 46.9, -1.0), (sx * 2.2 + 0.32, 51.6, -0.36), 'vx_skin_d'),
+              E((sx * 2.2 - 0.62, 51.4, -1.3), (sx * 2.2 + 0.62, 52.6, -0.06), 'vx_frog' if f != 'closed' else 'vx_off', light=0 if f == 'closed' else 15),
+              BX(sx, 3.8, 4.8, 40.6, 46.2, -1.4, 1.6, 'vx_varmor', rot=('z', sx * 7, (sx * 3.8, 46.2, 0))),
+              BX(sx, 4.75, 4.85, 41.6, 42.2, -1.2, 1.4, 'vx_vstripe_r', rot=('z', sx * 7, (sx * 3.8, 46.2, 0)))]
     return H
 
 
@@ -563,7 +583,7 @@ def _w_arm(sx):
          BX(sx, 10.8, 18.2, 37.6, 42.4, -5.2, 6.0, 'vx_hull'),
          BX(sx, 11.4, 18.6, 42.2, 43.2, -4.6, 5.4, 'vx_hull_l', rot=('z', -sx * 10, (sx * 11.4, 42.7, 0))),
          BX(sx, 12.0, 18.8, 35.6, 37.8, -4.6, 5.4, 'vx_hull', rot=('z', -sx * 8, (sx * 12.0, 37.8, 0))),
-         BX(sx, 18.2, 18.5, 38.4, 41.6, -4.0, 4.8, 'vx_red'),
+         BX(sx, 18.2, 18.55, 37.9, 42.1, -4.6, 5.4, 'vx_varmor_r'), BX(sx, 18.5, 18.7, 39.6, 40.5, -4.6, 5.4, 'vx_vstripe_r', light=8),
          BX(sx, 12.0, 16.4, 28.2, 35.6, -2.4, 3.2, 'vx_hull'), BX(sx, 12.6, 13.4, 28.6, 35.0, 3.2, 4.0, 'vx_hull_l'),
          BX(sx, 12.2, 16.8, 25.8, 28.6, -2.6, 3.4, 'vx_hull_d')]
     for z in (-3.0, 0.4, 3.8):                                # (vents on the pauldron's top)
@@ -669,9 +689,10 @@ def _w_back(lit=True):
               BX(sx, 6.4, 7.0, 39.4, 40.0, 10.6, 11.2, _lit('vx_glow', lit), light=_lt(lit, 12))]
     B += CH([(-4.6, 40.2, 9.0), (-5.4, 46.0, 11.0), (-6.0, 51.6, 12.4)], [0.9, 0.6], 'vx_hull_l')
     B += [E((-8.4, 45.6, 10.2), (-5.6, 48.6, 10.7), 'vx_hull_l', rot=('y', 30, (-7.0, 47.0, 10.4))),
-          E((-7.3, 46.8, 10.0), (-6.7, 47.4, 10.25), _lit('vx_glow_l', lit), light=_lt(lit), rot=('y', 30, (-7.0, 47.0, 10.4)))]
+          E((-7.3, 46.8, 10.0), (-6.7, 47.4, 10.25), _lit('vx_glow_l', lit), light=_lt(lit), rot=('y', 30, (-7.0, 47.0, 10.4))),
+          E((-6.7, 51.4, 11.7), (-5.3, 52.8, 13.1), 'vx_frog' if lit else 'vx_off', light=_lt(lit))]
     B += CH([(4.6, 40.2, 9.0), (5.2, 44.6, 10.6), (5.6, 47.6, 11.6)], [0.8, 0.55], 'vx_hull_l')
-    B += [E((5.25, 47.4, 11.25), (5.95, 48.2, 11.95), _lit('vx_glow_l', lit), light=_lt(lit)),
+    B += [E((4.9, 47.3, 10.9), (6.3, 48.7, 12.3), 'vx_frog' if lit else 'vx_off', light=_lt(lit)),
           E((-0.4, 40.6, 9.2), (0.4, 45.6, 10.0), 'vx_hull_d')]
     for y in (42.0, 43.6):
         B.append(E((-1.4, y, 9.3), (1.4, y + 0.4, 9.9), 'vx_hull_l'))
@@ -695,7 +716,7 @@ def _grow(els, k, shift=(0.0, 0.0, 0.0)):
 
 
 W_HEAD_K = 1.3                                 # (the warframe's head, grown about its neck and brought forward a unit)
-HEAD_K = 1.12                                  # (Vexis's head, built at the old size, grown about the neck: a big alien skull)
+HEAD_K = 1.0                                   # (Vexis's head: built at its own size)
 
 
 def _a_head(form, face=None):
@@ -703,81 +724,92 @@ def _a_head(form, face=None):
 
 
 def _a_head0(form, face=None):
-    """the elongated skull, narrow at the chin, swelling at the eyes, swept up and back; huge almond eyes; a slit mouth; the
-    crown of antennae splaying out of its crest; the hive's implants and the cables out of the back of the skull (cut, for the
-    follower); starfire: a halo of solar flare behind it"""
+    """a VORN's head, an elder's: the troopers' square skull (phase25.donado_parts, in Vorn colours) grown regal - the dark
+    muzzle with its green nose and smile and an elder's beard under it, the square green eyes with a dark pupil at their outer top,
+    long dark ears hanging past the jaw, the Vorn's two antennae (dark stalks, froglight tips) standing tall out of an admiral's
+    circlet with a crown of lesser ones; the hive's port and cables at the back of the skull (cut, for the follower); starfire:
+    a halo of solar flare behind it"""
     S, SD = _sk(form); H = []
-    H += [E((-0.9, 22.6, -0.8), (0.9, 26.0, 1.4), S),                                              # (the neck)
-          E((-1.0, 25.2, -3.1), (1.0, 26.3, -1.2), S),                                              # (the chin)
-          E((-1.7, 25.9, -3.4), (1.7, 27.6, 0.8), S), E((-2.4, 27.4, -3.5), (2.4, 29.0, 1.8), S),   # (the jaw, the cheeks)
-          E((-3.2, 28.8, -3.3), (3.2, 31.4, 2.8), S), E((-3.8, 31.2, -2.8), (3.8, 33.8, 4.4), S),   # (the eyes' level, the bulging brow)
-          E((-3.5, 33.6, -2.0), (3.5, 35.2, 5.8), S), E((-3.0, 35.0, -1.0), (3.0, 36.4, 6.6), S),   # (the dome, rounding off)
-          E((-2.1, 36.2, 0.4), (2.1, 37.2, 6.0), S),
-          E((-3.0, 32.0, 4.2), (3.0, 35.6, 7.8), S), E((-2.2, 32.8, 7.6), (2.2, 35.4, 9.2), S),   # (swept back)
-          E((-1.4, 33.4, 9.0), (1.4, 34.8, 10.0), S),
-          E((-3.85, 32.6, -2.6), (3.85, 33.0, 3.8), SD),                                            # (a crease along the dome)
-          E((-3.4, 31.2, -2.95), (3.4, 31.7, -2.75), SD),                                           # (the brow ridge)
-          E((-0.85, 26.55, -3.46), (0.85, 26.8, -3.36), SD)]                                        # (the mouth)
-    for sx in (1, -1):
-        H += [BX(sx, 0.5, 1.1, 23.0, 25.6, -0.6, 1.0, SD), BX(sx, 0.2, 0.5, 27.5, 27.8, -3.56, -3.46, SD),
-              BX(sx, 3.3, 3.6, 29.6, 33.0, -2.2, 3.4, S)]                                           # (the temples)
+    MZ = 'vx_skin_sd' if form == 'starfire' else 'vx_skin_d'
+    H += [E((-1.1, 22.6, -0.9), (1.1, 25.8, 1.5), S),                                              # (the neck)
+          E((-4.2, 25.4, -3.2), (4.2, 32.4, 3.2), S),                                               # (the skull)
+          E((-2.3, 25.6, -5.0), (2.3, 28.6, -3.15), MZ),                                            # (the muzzle)
+          E((-0.9, 24.6, -4.6), (0.9, 25.7, -3.4), MZ)]                                             # (an elder's beard)
+    nose = 'vx_eye_star' if form == 'starfire' else ('vx_eye_calm' if form == 'unlinked' else 'vx_eye_hive')
+    H += [E((-0.95, 27.9, -5.15), (0.95, 28.9, -4.95), nose, light=12, uv={'north': [0, 0, 16, 16]}),       # (the nose)
+          E((-1.35, 26.55, -5.1), (1.35, 26.85, -4.98), nose, light=12, faces=('north',), uv={'north': [0, 0, 16, 16]})]   # (the smile)
+    for sx in (1, -1):                                        # (the ears: long, dark, hanging past the jaw, a hive clip on each)
+        r = ('z', sx * 6, (sx * 4.2, 31.6, 0))
+        H += [BX(sx, 4.15, 5.45, 23.6, 31.6, -1.4, 2.6, MZ, rot=r),
+              BX(sx, 5.4, 5.75, 26.2, 27.4, -0.2, 1.4, 'vx_implant_off' if form == 'unlinked' else 'vx_implant', rot=r)]
+    # ---- the eyes (FACES)
     pal = {'starfire': 'star', 'unlinked': 'calm'}.get(form, 'hive')
-    big = face == 'wide'
-    for sx in (1, -1):                                        # (the eyes: plates on the face, turned up at the outer corner)
-        x0, x1, y0, y1 = (0.15, 3.25, 28.5, 31.6) if big else (0.3, 3.05, 28.8, 31.3)
-        H.append(BX(sx, x0, x1, y0, y1, -3.42, -3.25, f'vx_eye_{pal}{"_" + face if face else ""}', faces=('north',), uv={'north': [0, 0, 16, 16] if sx > 0 else [16, 0, 0, 16]},
-                    rot=('z', sx * 18, (sx * (x0 + x1) / 2, (y0 + y1) / 2, -3.3)), light=15 if face not in ('closed', 'dim') else 0))
-        if face == 'narrowed':
-            H.append(BX(sx, 0.1, 3.4, 31.0, 31.7, -3.6, -2.9, SD, rot=('z', -sx * 14, (sx * 0.1, 31.3, -3.2))))
-    # ---- the crown of antennae, splaying out of the crest (tips alight)
-    tipT = {'hivelink': 'vx_glow_l', 'starfire': 'vx_hot', 'unlinked': 'vx_glow'}[form]
-    for a, h in ((-110, 3.0), (-70, 4.2), (-30, 5.4), (30, 5.4), (70, 4.2), (110, 3.0), (180, 4.6)):
-        dx, dz = math.sin(math.radians(a)), -math.cos(math.radians(a))
-        b = (2.2 * dx, 36.6, 3.2 + 2.4 * dz)
-        m = (b[0] + dx * 1.0, b[1] + h * 0.55, b[2] + dz * 0.8 + 0.6); t = (b[0] + dx * 3.0, b[1] + h, b[2] + dz * 2.2 + 1.6)
-        H += CH([b, m, t], [0.55, 0.35], SD)
-        H.append(E((t[0] - 0.35, t[1] - 0.2, t[2] - 0.35), (t[0] + 0.35, t[1] + 0.5, t[2] + 0.35), tipT, light=15 if form != 'unlinked' else 9))
-    # ---- implants: plates on the skull's sides, a port at its back; the cables
-    imp = 'vx_implant_off' if form == 'unlinked' else 'vx_implant'
-    node = {'hivelink': 'vx_glow_l', 'starfire': 'vx_fire_l', 'unlinked': 'vx_off'}[form]
+    et = f'vx_eye_{pal}{"_dim" if face == "dim" else ""}'
+    lt = 0 if face in ('closed', 'dim') else 15
+    ez = -3.2
     for sx in (1, -1):
-        H += [BX(sx, 3.55, 3.95, 29.6, 33.0, -0.6, 3.6, imp), BX(sx, 3.95, 4.15, 30.8, 31.8, 0.6, 1.6, node, light=0 if form == 'unlinked' else 15)]
-    H.append(E((-1.4, 31.0, 7.5), (1.4, 33.4, 8.4), imp))
+        if face == 'closed':
+            H.append(BX(sx, 0.8, 2.8, 29.6, 30.0, ez - 0.12, ez + 0.05, 'vx_skin_d', faces=('north',)))
+            continue
+        if face == 'soft':                                    # (the eyes smiling: an arch of light)
+            H += [BX(sx, 0.75, 1.85, 29.7, 30.25, ez - 0.12, ez + 0.05, et, light=lt, faces=('north',), uv={'north': [0, 0, 16, 16]}, rot=('z', sx * 28, (sx * 1.8, 30.2, ez))),
+                  BX(sx, 1.75, 2.85, 29.7, 30.25, ez - 0.12, ez + 0.05, et, light=lt, faces=('north',), uv={'north': [0, 0, 16, 16]}, rot=('z', -sx * 28, (sx * 1.8, 30.2, ez)))]
+            continue
+        x0, x1, y0, y1 = {'wide': (0.55, 3.0, 28.7, 31.3), 'narrowed': (0.8, 2.8, 29.3, 30.4)}.get(face, (0.8, 2.8, 29.0, 31.0))
+        H.append(BX(sx, x0, x1, y0, y1, ez - 0.12, ez + 0.05, et, light=lt, faces=('north',), uv={'north': [0, 0, 16, 16]}))
+        if face != 'dim':                                     # (the dark pupil at the top of each eye, on its right side - as the troopers have it)
+            pw = 0.45 if face == 'wide' else 0.55
+            a0 = x1 - 0.25 - pw if sx > 0 else x0 + 0.25
+            H.append(BX(sx, a0, a0 + pw, y1 - 0.25 - pw, y1 - 0.25, ez - 0.16, ez - 0.1, 'vx_skin_d', faces=('north',)))
+        if face == 'narrowed':                                # (the brow drawn down hard toward the muzzle)
+            H.append(BX(sx, 0.4, 3.4, 30.3, 31.1, -3.5, -3.1, MZ, rot=('z', -sx * 14, (sx * 0.4, 30.7, -3.3))))
+    # ---- the admiral's circlet, a crown of lesser antennae - and the Vorn pair, tall
+    tip = {'hivelink': 15, 'starfire': 15, 'unlinked': 11}[form]
+    H += [E((-4.35, 31.6, -3.35), (4.35, 32.5, 3.35), 'vx_hull_l'), E((-0.6, 31.7, -3.5), (0.6, 32.4, -3.3), _gl(form), light=tip)]
+    for x, z, h in ((-3.3, -2.0, 2.0), (3.3, -2.0, 2.0), (-3.3, 2.2, 2.6), (3.3, 2.2, 2.6), (0.0, 2.6, 3.0)):
+        H += [E((x - 0.22, 32.4, z - 0.22), (x + 0.22, 32.4 + h, z + 0.22), MZ),
+              E((x - 0.4, 32.4 + h, z - 0.4), (x + 0.4, 33.2 + h, z + 0.4), 'vx_frog', light=tip)]
+    for sx in (1, -1):
+        H += [E((sx * 1.7 - 0.4, 32.4, -0.4), (sx * 1.7 + 0.4, 38.6, 0.4), MZ, rot=('z', -sx * 4, (sx * 1.7, 32.4, 0))),
+              E((sx * 2.13 - 0.75, 38.4, -0.75), (sx * 2.13 + 0.75, 39.9, 0.75), 'vx_frog', light=tip, rot=('z', -sx * 4, (sx * 1.7, 32.4, 0)))]
+    # ---- the hive's port at the back of the skull, its cables
+    imp = 'vx_implant_off' if form == 'unlinked' else 'vx_implant'
+    H.append(E((-1.4, 28.6, 3.15), (1.4, 31.0, 3.8), imp))
     if form != 'unlinked':
         cab = 'vx_cable_s' if form == 'starfire' else 'vx_cable'
         for sx in (1, -1):
-            H += CH([(sx * 0.8, 31.6, 8.2), (sx * 1.8, 29.2, 9.2), (sx * 2.4, 26.4, 7.6), (sx * 2.2, 24.4, 4.6)], [0.9, 0.8, 0.7], cab,
+            H += CH([(sx * 0.8, 29.4, 3.7), (sx * 1.6, 27.6, 4.6), (sx * 2.0, 25.6, 4.2), (sx * 1.8, 24.2, 3.0)], [0.8, 0.7, 0.6], cab,
                     light=12 if form == 'starfire' else 0)
     else:                                                     # (cut: a stub each, bare wire fraying out of it)
         for sx in (1, -1):
-            end = (sx * 1.5, 29.8, 9.4)
-            H += CH([(sx * 0.8, 31.6, 8.2), end], [0.9], 'vx_cable_u')
+            end = (sx * 1.4, 28.0, 4.8)
+            H += CH([(sx * 0.8, 29.4, 3.7), end], [0.8], 'vx_cable_u')
             for dx, dy, dz in ((0.5, -0.9, 0.5), (-0.3, -1.0, 0.6), (0.1, -0.6, 0.9)):
                 H.append(seg(end, (end[0] + sx * dx, end[1] + dy, end[2] + dz), 0.18, 0.18, 'vx_wire', _PV[0], FRONT, 0.05))
     # ---- starfire: the halo - a burning ring behind the skull, flares off it
     if form == 'starfire':
-        c = (0.0, 32.0, 10.6)
-        H += RING(c, 6.4, 20, 0.7, 0.6, 'vx_fire', plane='xy')
+        c = (0.0, 31.0, 5.6)
+        H += RING(c, 6.6, 20, 0.7, 0.6, 'vx_fire', plane='xy')
         rnd = random.Random(808)
         for i in range(14):
             a = 2 * math.pi * (i + 0.5) / 14; ln = rnd.uniform(1.6, 3.6) * (1.4 if i % 3 == 0 else 1.0)
-            A = (c[0] + 6.6 * math.cos(a), c[1] + 6.6 * math.sin(a), c[2]); B = (c[0] + (6.6 + ln) * math.cos(a), c[1] + (6.6 + ln) * math.sin(a), c[2] + 0.3)
+            A = (c[0] + 6.8 * math.cos(a), c[1] + 6.8 * math.sin(a), c[2]); B = (c[0] + (6.8 + ln) * math.cos(a), c[1] + (6.8 + ln) * math.sin(a), c[2] + 0.3)
             H.append(seg(A, B, 0.9, 0.5, 'vx_fire_l' if i % 2 else 'vx_fire', _PV[0], FRONT, 0.1, light=15))
-        H += RING(c, 4.8, 16, 0.4, 0.4, 'vx_hot', plane='xy', phase=0.5)
+        H += RING(c, 5.0, 16, 0.4, 0.4, 'vx_hot', plane='xy', phase=0.5)
     return H
 
 
 def _a_chest(form):
-    """a lean torso: a ribbed waist, a narrow ribcage, the clavicles; the hive-link's gorget round the neck; the hive's node in
-    its breast; implant ports down the spine with cables up into the gorget (cut stubs for the follower)"""
+    """the Vorn's black armour (phase32 vorn_armor), an admiral's long tunic of it: the troopers' green stripe round the waist, a
+    ragged hem; the hive-link's gorget round the neck; the hive's node in its breast; implant ports down the spine with cables up
+    into the gorget (cut stubs for the follower)"""
     S, SD = _sk(form); C = []
-    C += [E((-2.1, 14.2, -1.5), (2.1, 17.6, 1.6), S), E((-2.15, 15.2, -1.55), (2.15, 15.5, 1.65), SD), E((-2.15, 16.4, -1.55), (2.15, 16.7, 1.65), SD),
-          E((-3.8, 17.2, -2.4), (3.8, 22.0, 2.3), S), E((-4.0, 17.6, -2.2), (4.0, 19.4, 2.1), S),
-          E((-5.0, 21.0, -1.9), (5.0, 23.0, 2.0), S), E((-1.6, 22.8, -1.0), (1.6, 23.8, 1.4), S)]
+    A_, ST = 'vx_varmor', ('vx_fire_l' if form == 'starfire' else 'vx_vstripe')
+    C += [E((-2.3, 14.2, -1.6), (2.3, 17.6, 1.7), A_), E((-2.36, 15.4, -1.66), (2.36, 16.0, 1.76), ST, light=0 if form == 'unlinked' else 12),
+          E((-3.9, 17.2, -2.4), (3.9, 22.0, 2.3), A_), E((-4.1, 17.6, -2.2), (4.1, 19.4, 2.1), A_),
+          E((-5.0, 21.0, -1.9), (5.0, 23.0, 2.0), A_), E((-1.6, 22.8, -1.0), (1.6, 23.8, 1.4), S)]
     for sx in (1, -1):
-        for y in (18.0, 19.3, 20.6):
-            C.append(BX(sx, 1.0, 3.7, y, y + 0.3, -2.5, -2.36, SD, rot=('z', sx * 12, (sx * 1.0, y, -2.4))))
-        C.append(BX(sx, 3.8, 5.6, 21.2, 23.3, -1.5, 1.8, S))
+        C += [BX(sx, 3.8, 5.6, 21.2, 23.3, -1.5, 1.8, A_), BX(sx, 2.4, 4.0, 19.2, 21.6, -2.5, -2.35, 'vx_hull_l')]     # (the admiral's chest plates)
     imp = 'vx_implant_off' if form == 'unlinked' else 'vx_implant'
     node = {'hivelink': 'vx_node', 'starfire': 'vx_node_s', 'unlinked': 'vx_node_u'}[form]
     C += [E((-1.3, 19.0, -2.8), (1.3, 21.6, -2.4), node, light=0 if form == 'unlinked' else 15, uv={'north': [0, 0, 16, 16]}),
@@ -800,29 +832,32 @@ def _a_chest(form):
 
 
 def _a_body(form):
-    """the hips, a belt with the hive's sigil, a tabard of Vorn red armour front and back (the stripe at its foot)"""
+    """the hips in the tunic's black armour (its ragged hem, as the troopers' is), a belt with the hive's sigil, a tabard of the
+    warlord's red armour front and back (the red stripe at its foot)"""
     S, SD = _sk(form)
-    B = [E((-2.8, 11.2, -1.6), (2.8, 14.6, 1.8), S), E((-3.0, 12.6, -1.8), (3.0, 13.6, 2.0), 'vx_implant'),
+    B = [E((-2.8, 11.2, -1.6), (2.8, 14.6, 1.8), 'vx_varmor'), E((-3.0, 12.6, -1.8), (3.0, 13.6, 2.0), 'vx_implant'),
          E((-0.7, 12.7, -1.95), (0.7, 13.5, -1.8), _gl(form), light=0 if form == 'unlinked' else 15),
          E((-1.3, 7.6, -2.1), (1.3, 12.6, -1.7), 'vx_mantle'), E((-1.35, 8.2, -2.15), (1.35, 9.2, -2.05), 'vx_mantle_r'),
          E((-1.5, 8.0, 1.8), (1.5, 12.6, 2.2), 'vx_mantle'), E((-1.55, 8.6, 2.15), (1.55, 9.6, 2.25), 'vx_mantle_r')]
     for sx in (1, -1):
-        B.append(BX(sx, 2.0, 3.3, 11.4, 13.4, -1.2, 1.4, S))
+        B += [BX(sx, 2.0, 3.3, 11.4, 13.4, -1.2, 1.4, 'vx_varmor'),
+              BX(sx, 1.4, 2.6, 10.4, 11.4, -1.5, 1.7, 'vx_varmor'), BX(sx, 2.8, 3.4, 10.8, 11.4, -1.4, 1.6, 'vx_varmor')]    # (the ragged hem)
     if form == 'starfire':
         B += [E((-1.1, 7.2, -2.15), (1.1, 7.8, -1.8), 'vx_fire', light=15), E((-1.3, 7.6, 1.9), (1.3, 8.2, 2.2), 'vx_fire', light=15)]
     return B
 
 
 def _a_arm(sx, form):
-    """a long lean upper arm; the epaulet over the shoulder (gunmetal, the red edge, a fringe of cable); an implant band; the elbow"""
+    """a long upper arm sleeved in the black armour; the epaulet over the shoulder (the warlord's red armour, its red stripe, a
+    fringe of cable); an implant band; the elbow"""
     S, SD = _sk(form)
     r = ('z', -sx * 14, (sx * 2.8, 23.6, 0))
-    A = [BX(sx, 3.9, 6.5, 20.6, 23.6, -1.4, 1.8, S),
-         SEG((sx * 5.1, 21.4, 0.2), (sx * 5.5, 14.0, 0.2), 2.0, 2.1, S, up=FRONT),
+    A = [BX(sx, 3.9, 6.5, 20.6, 23.6, -1.4, 1.8, 'vx_varmor'),
+         SEG((sx * 5.1, 21.4, 0.2), (sx * 5.5, 14.0, 0.2), 2.0, 2.1, 'vx_varmor', up=FRONT),
          BX(sx, 4.2, 6.6, 18.0, 19.1, -1.0, 1.4, 'vx_implant_off' if form == 'unlinked' else 'vx_implant'),
-         BX(sx, 4.4, 6.6, 12.9, 14.7, -0.8, 1.2, S),
-         BX(sx, 2.8, 7.6, 23.1, 24.2, -2.2, 2.9, 'vx_hull', rot=r),
-         BX(sx, 2.8, 7.6, 23.1, 24.2, -2.45, -2.2, 'vx_red', rot=r),
+         BX(sx, 4.4, 6.6, 12.9, 14.7, -0.8, 1.2, 'vx_varmor'),
+         BX(sx, 2.8, 7.6, 23.1, 24.2, -2.2, 2.9, 'vx_varmor_r', rot=r),
+         BX(sx, 2.8, 7.6, 23.45, 23.85, -2.35, 3.05, 'vx_vstripe_r', rot=r, light=0 if form == 'unlinked' else 10),
          BX(sx, 3.6, 7.2, 24.2, 24.5, -1.2, 2.0, 'vx_hull_l', rot=r)]
     for z in (-1.6, 0.4, 2.4):                                # (the epaulet's fringe of cable)
         A += CH([(sx * 7.5, 22.6, z), (sx * 7.9, 20.4, z)], [0.4], 'vx_cable_u' if form == 'unlinked' else ('vx_cable_s' if form == 'starfire' else 'vx_cable'))
@@ -830,16 +865,18 @@ def _a_arm(sx, form):
 
 
 def _a_fore(sx, form):
-    """a lean forearm, a cybernetic bracer at the wrist (a light in it), the palm, three long fingers (two and a thumb)"""
+    """a long Vorn forearm, a cybernetic bracer at the wrist (a light in it), the dark glove the troopers wear - three long
+    gloved fingers (two and a thumb)"""
     S, SD = _sk(form); gl = _gl(form)
+    G = 'vx_skin_sd' if form == 'starfire' else 'vx_skin_d'
     F = [SEG((sx * 5.5, 13.4, 0.2), (sx * 5.8, 6.2, 0.0), 1.8, 1.9, S, up=FRONT),
          BX(sx, 4.6, 7.0, 6.2, 9.8, -1.1, 1.3, 'vx_implant_off' if form == 'unlinked' else 'vx_implant'),
          BX(sx, 5.2, 6.4, 6.8, 9.2, -1.22, -1.1, gl, light=0 if form == 'unlinked' else 15),
-         BX(sx, 4.8, 6.8, 4.0, 6.4, -1.0, 1.0, S)]
-    tip = 'vx_fire_l' if form == 'starfire' else SD
+         BX(sx, 4.7, 6.9, 3.9, 6.5, -1.1, 1.1, G)]
+    tip = 'vx_fire_l' if form == 'starfire' else G
     for (x, z, ln, cu) in ((5.2, -0.5, 5.0, 1.0), (6.4, -0.4, 4.6, 0.9), (4.7, 0.6, 3.6, 0.6)):
         b = (sx * x, 4.2, z)
-        F += CH([b, (b[0], 4.2 - ln * 0.55, z - 0.5 * cu), (b[0], 4.2 - ln, z - 0.1 * cu)], [0.65, 0.5], S, texs=[S, tip],
+        F += CH([b, (b[0], 4.2 - ln * 0.55, z - 0.5 * cu), (b[0], 4.2 - ln, z - 0.1 * cu)], [0.7, 0.55], G, texs=[G, tip],
                 lights=[0, 15 if form == 'starfire' else 0])
     return F
 
@@ -859,11 +896,11 @@ def _a_shin(sx, form):
 
 
 def _a_foot(sx, form):
-    """a small foot, pointed down (it never stands on them), three little claws"""
-    S, SD = _sk(form)
-    F = [SEG((sx * 2.3, 3.0, 0.4), (sx * 2.3, 0.9, -0.8), 1.0, 1.1, S, up=FRONT)]
+    """a small foot in the troopers' dark boot, pointed down (it never stands on them), three little claws"""
+    S, SD = _sk(form); G = 'vx_skin_sd' if form == 'starfire' else 'vx_skin_d'
+    F = [SEG((sx * 2.3, 3.2, 0.4), (sx * 2.3, 0.9, -0.8), 1.25, 1.35, G, up=FRONT)]
     for dx in (-0.35, 0.0, 0.35):
-        F += CH([(sx * 2.3 + dx, 1.0, -0.8), (sx * 2.3 + dx * 1.4, 0.0, -1.4)], [0.3], SD)
+        F += CH([(sx * 2.3 + dx, 1.0, -0.8), (sx * 2.3 + dx * 1.4, 0.0, -1.4)], [0.3], G)
     return F
 
 
@@ -1284,6 +1321,21 @@ def _wf(name):
     elif name == 'wake_3':                                    # (every system up: the arms spread, the pods open, the visor wide)
         p = P(_face='wide', _pods='open', chest=T(-8), head=T(-10), **mlegs(10, 18, 4), armr=limb(1, 30, 40), forer=limb(1, 50),
               arml=limb(-1, 30, 40), forel=limb(-1, 50))
+    # ---- as a follower (the companion and full-size warframe): resting, glad, hurt
+    elif name == 'sit_a':                                     # (resting: down on one knee, systems idling - the visor still lit, the cannon grounded)
+        p = P(_power=1, chest=T(12, -4), head=T(6, 8), **mleg(1, 50, 104, 4), **mleg(-1, 22, 40, 4),
+              armr=limb(1, 18, 10), forer=limb(1, 10), arml=limb(-1, 34, 14), forel=limb(-1, 56))
+        lowall = True
+    elif name == 'sit_b':                                     # (its idle breath: the hull settling, the head turning to you)
+        p = P(_power=1, _face='narrowed', chest=T(14, 2), head=T(8, -14, -3), **mleg(1, 52, 106, 4), **mleg(-1, 23, 42, 4),
+              armr=limb(1, 18, 10), forer=limb(1, 10), arml=limb(-1, 32, 16), forel=limb(-1, 62))
+        lowall = True
+    elif name == 'happy':                                     # (pleased: the claw raised in a wave, the head cocked, the pods popping open)
+        p = P(_face='wide', _pods='open', chest=T(-4, -6), head=T(-6, 10, 10), **mlegs(10, 18, 3),
+              armr=limb(1, 16, 14), forer=limb(1, 40), arml=limb(-1, 118, 26), forel=limb(-1, 34))
+    elif name == 'hurt':                                      # (a flinch: rocked back, the claw up to guard the cockpit, the visor flickering)
+        p = P(_face='dim', chest=T(-12, 12), head=T(-14, -14), **mleg(1, 2, 12, 4), **mleg(-1, 22, 40, 4),
+              armr=limb(1, 24, 24), forer=limb(1, 36), arml=limb(-1, 60, -6, 30), forel=limb(-1, 86))
     else:
         raise KeyError(name)
     p['_form'] = 'warframe'
@@ -1378,6 +1430,22 @@ def _alien(name, form):
         p = P(_face='dim', body=T(-6), chest=T(16), head=T(28), legr=limb(1, 84, 8), shinr=knee(140), footr=qa_x(-40), legl=limb(-1, 84, 8), shinl=knee(140), footl=qa_x(-40),
               armr=limb(1, 32, 4), forer=limb(1, 34), arml=limb(-1, 32, 4), forel=limb(-1, 34), ring1=qs(('x', 2)), ring2=qs(('x', -3)))
         lift = None
+    # ---- as a follower: meditating cross-legged in the air (and its breath), glad, hurt
+    elif name in ('sit_a', 'sit_b'):
+        b = name == 'sit_b'
+        p = P(_face='closed' if not star else 'narrowed', body=T(-2), chest=T(4 if not b else 1), head=T(12 if not b else 6, 0, 0 if not b else 4),
+              legr=limb(1, 64, 52, 20), shinr=knee(128), footr=qa_x(-20), legl=limb(-1, 64, 52, 20), shinl=knee(128), footl=qa_x(-20),
+              armr=limb(1, 30 if not b else 34, 4), forer=limb(1, 62, 0, 14), arml=limb(-1, 30 if not b else 34, 4), forel=limb(-1, 62, 0, 14),
+              ring1=qs(('z', 2), ('x', 6), ('y', 0 if not b else 20)), ring2=qs(('z', -4), ('x', -6), ('y', 0 if not b else -20)))
+        lift = H * 0.5 + (0.4 if b else 0.0)
+    elif name == 'happy':                                     # (pleased: the long hands opened, the head on one side, the eyes smiling)
+        p = P(_face='soft', chest=T(-6), head=T(-4, 0, -14), armr=limb(1, 34, 46), forer=limb(1, 36), arml=limb(-1, 34, 46), forel=limb(-1, 36),
+              **dangle(-6, 8, 16, 8), **rings(120, (14, 30), (-34, -16)))
+        lift = H + 1.0
+    elif name == 'hurt':                                      # (a flinch: thrown back, an arm across its face, the rings jolted)
+        p = P(_face='dim', chest=T(-16, 10), head=T(-14, -12), armr=limb(1, 70, 4, 30), forer=limb(1, 96, 0, 20), arml=limb(-1, 20, 34), forel=limb(-1, 40),
+              **dangle(14, 8, 12, 4), **rings(20, (22, 40), (-40, 10)))
+        lift = H - 0.6
     else:
         raise KeyError(name)
     p['_form'] = form
@@ -1394,10 +1462,12 @@ def _alien(name, form):
 
 BOSS_NAMES = {
     'warframe': ['idle_a', 'idle_b', 'walk_0', 'walk_1', 'walk_2', 'walk_3', 'dormant', 'wake_0', 'wake_1', 'rise', 'wake_2', 'wake_3', 'roar',
-                 'cannon_up', 'cannon', 'missiles', 'stomp_up', 'stomp', 'deploy', 'stagger'],
-    'hivelink': ['idle_a', 'idle_b', 'walk_0', 'walk_1', 'walk_2', 'walk_3', 'rise', 'roar', 'gravity', 'beam_up', 'beam', 'clone', 'summon', 'stagger'],
+                 'cannon_up', 'cannon', 'missiles', 'stomp_up', 'stomp', 'deploy', 'stagger', 'sit_a', 'sit_b', 'happy', 'hurt'],
+    'hivelink': ['idle_a', 'idle_b', 'walk_0', 'walk_1', 'walk_2', 'walk_3', 'rise', 'roar', 'gravity', 'beam_up', 'beam', 'clone', 'summon', 'stagger',
+                 'sit_a', 'sit_b', 'happy', 'hurt'],
     'starfire': ['idle_a', 'idle_b', 'walk_0', 'walk_1', 'walk_2', 'walk_3', 'roar', 'flare_up', 'flare', 'lance_up', 'lance', 'frenzy', 'stagger',
-                 'death_0', 'death_1', 'death_2']}
+                 'death_0', 'death_1', 'death_2', 'sit_a', 'sit_b', 'happy', 'hurt']}
+FOLLOW_KEYS = ('idle_a', 'idle_b', 'walk_0', 'walk_1', 'walk_2', 'walk_3', 'sit_a', 'sit_b', 'happy', 'hurt')   # (what the follower drives a boss form with)
 BOSS_POSES = {'warframe': {n: _wf(n) for n in BOSS_NAMES['warframe']},
               **{f: {n: p for n in BOSS_NAMES[f] if (p := _alien(n, f)) is not None} for f in ('hivelink', 'starfire')}}
 ENTRANCE = ['dormant', 'wake_0', 'wake_1', 'rise', 'wake_2', 'wake_3', 'roar']           # (the coming, keyframe by keyframe)

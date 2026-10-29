@@ -667,7 +667,7 @@ def generate(G):
     SMALL = A.FOLLOWER_SCALE * 1.6
     fn('p242/c/small', ['tag @s add bm.vxsmall'] + RF.pose(A, unl, SMALL, 60, sel, swap=SWAP))
     fn('p242/place/small', RF.place(A, SMALL / 16, sel))
-    seq = ([at(1, f'execute as {AUD} at @s run stopsound @s record'), at(1, 'function bm:p242/pose/starfire/' + pp('starfire', 'death_0', 'stagger')),
+    seq = ([at(1, 'function bm:p242/pose/starfire/' + pp('starfire', 'death_0', 'stagger')),
             at(1, snd('entity.elder_guardian.death', 3, 0.5)), at(1, snd('entity.blaze.death', 3, 0.4)), at(1, f'effect give {FIGHT} minecraft:darkness 3 0 true'),
             at(1, tellraw(AUD, [T(L.FIGHT['fall'], '#c8f0c0', italic=True)]))] +
            # (the hive screams through it, louder and broken - and the implants burn out, one after another)

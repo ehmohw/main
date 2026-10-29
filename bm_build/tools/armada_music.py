@@ -833,11 +833,11 @@ def t5():
     plan = [P_WAR, P_V, P_V, P_WAR, P_V, P_DOCK, P_V, P_WAR, P_V, P_WAR]
     for s, prog in enumerate(plan):
         if s == 5:                                                      # (the Flagship: a hush before the bridge - the red window)
-            L_hum(tr, s, 'D1', 0.18)
-            L_drone(tr, s, ['D2', 'A2', 'Eb3'], 0.14)
-            for b in range(0, SEC, 1): tr.add(ekick(0.35 + 0.03 * b, 9), at(tr, s * SEC + b), 0, 1, 0.1)
-            L_hive(tr, s, prog, 0.09, 'u', 'a', 12, 4, 1.5, top=True)
-            ther(tr, at(tr, s * SEC), [('D5', 6), ('A5', 2), ('Eb6', 8), ('D6', 6), ('C6', 2), ('A5', 8)], 0.19, 0.0, 0.6, port=0.15)
+            L_hum(tr, s, 'D1', 0.13)
+            L_drone(tr, s, ['D2', 'A2', 'Eb3'], 0.1)
+            for b in range(0, SEC, 1): tr.add(ekick(0.2 + 0.035 * b, 9), at(tr, s * SEC + b), 0, 1, 0.1)
+            L_hive(tr, s, prog, 0.06, 'u', 'a', 12, 4, 1.5, top=True)
+            ther(tr, at(tr, s * SEC), [('D5', 6), ('A5', 2), ('Eb6', 8), ('D6', 6), ('C6', 2), ('A5', 8)], 0.13, 0.0, 0.6, port=0.15)
             tr.add(apad(['D5', 'A5', 'Eb6', 'D7'], tr.barlen * SEC, 0.04, 3200, 4.0, 2.0, 3, 0.012, 0.2, 0.3), at(tr, s * SEC), 0, 1, 0.8)
             L_pings(tr, s, ('D6', 'Eb6'), 2, 0.06)
             continue

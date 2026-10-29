@@ -64,7 +64,7 @@ AC = AR['c']
 WIN = AR['window']
 
 # ---- palettes
-HULL = [('polished_deepslate', 5), ('deepslate_tiles', 3), ('gray_concrete', 2), ('black_concrete', 2), ('cracked_deepslate_tiles', 0.4)]
+HULL = [('polished_deepslate', 5), ('deepslate_tiles', 4), ('black_concrete', 2), ('gray_concrete', 0.7), ('cracked_deepslate_tiles', 0.5)]
 HULL_DARK = [('black_concrete', 4), ('polished_blackstone', 3), ('polished_deepslate', 2), ('deepslate_tiles', 1)]
 WAR = [('polished_blackstone', 3), ('black_concrete', 3), ('polished_deepslate', 3), ('deepslate_tiles', 2), ('red_terracotta', 0.6)]
 WALL = [('polished_deepslate', 4), ('deepslate_tiles', 2), ('gray_concrete', 1)]
@@ -105,7 +105,7 @@ class K:
         self.rooms = {}                                   # ship -> [outer boxes] (the hull's envelope)
         self.hm = np.zeros(A.SIZE, bool)                  # every hull's inside (an unset cell in here is a sealed void)
         self.ship_mask = {}
-        self.decor_cells = {}
+        self.outer = HULL
 
     def s(self, x, y, z, st, nbt=None):
         self.B.set(x, y, z, st, nbt)
@@ -141,7 +141,8 @@ class K:
         """an air box x1..x2, y1 (walk)..y2, z1..z2; floor at y1-1 (and one under it), ceiling, walls t thick - walls only where
         nothing is set yet, so a room never closes off what was cut before it. Recorded for the ship's hull."""
         ceil = ceil or wall
-        self.fill(x1 - t, y1 - 2, z1 - t, x2 + t, y2 + t, z2 + t, wall, soft=True)
+        self.fill(x1 - 1, y1 - 2, z1 - 1, x2 + 1, y2 + 1, z2 + 1, wall, soft=True)            # the inner face
+        self.fill(x1 - t, y1 - 2, z1 - t, x2 + t, y2 + t, z2 + t, self.outer, soft=True)     # the outer layer: the ship's own plating
         self.fill(x1, y1 - 1, z1, x2, y1 - 1, z2, floor)
         self.fill(x1, y2 + 1, z1, x2, y2 + 1, z2, ceil)
         self.air(x1, y1, z1, x2, y2, z2)
@@ -161,9 +162,10 @@ class K:
                     self.fill(x, w - 2, z, x, w - 2, z, wall, soft=True)
                     self.s(x, w - 1, z, self.pick(floor))
                     for y in range(w, ceil + 1): self.s(x, y, z, 'air')
-                    self.fill(x, ceil + 1, z, x, ceil + t, z, wall, soft=True)
+                    self.fill(x, ceil + 1, z, x, ceil + 1, z, wall, soft=True)
+                    self.fill(x, ceil + 2, z, x, ceil + t, z, self.outer, soft=True)
                 else:
-                    self.fill(x, w - 2, z, x, w + wall_h + t + 3, z, wall, soft=True)
+                    self.fill(x, w - 2, z, x, w + wall_h + t + 3, z, wall if d <= r + 1.5 else self.outer, soft=True)
         self.rooms.setdefault(ship, []).append((int(cx - R), w - 2, int(cz - R), int(cx + R), top + t, int(cz + R)))
 
     def sign(self, x, y, z, facing, lines, color='lime', wall=True):
@@ -490,6 +492,41 @@ def wing(k, axis, u1, u2, vroot, vtip, y, pal, light=GL):
                 k.s(x, y, z, light if i == n and (u % 3 == 0) else ('red_concrete' if i == n else k.pick(pal)))
 
 
+def prongs(k, ship, axis, u_base, u_tip, vc, off, ylo, yhi, pal=HULL_DARK, light=GL):
+    """the hive-ship's mandibles: two prongs flanking a docking collar, from u_base (in the hull) out to u_tip, curving in a little,
+    a light at each tip"""
+    sg_u = 1 if u_tip > u_base else -1
+    mid = u_base + (u_tip - u_base) * 2 // 3
+    ym = (ylo + yhi) // 2
+    for sv in (-1, 1):
+        v = vc + sv * off
+        vt = v - sv
+        k.hull(ship, axis, [(u_base, v - 2, v + 2, ylo, yhi), (mid, v - 2, v + 2, ylo + 1, yhi - 1), (u_tip, vt, vt, ym, ym + 1)], pal, env=False, chamfer=2)
+        x, z = (u_tip + sg_u, vt) if axis == 'x' else (vt, u_tip + sg_u)
+        if k.inb(x, ym, z) and (x, ym, z) not in k.B.b: k.s(x, ym, z, light)
+
+
+def ribs(k, ship, axis, us, pal=HULL_DARK):
+    """armour ribs: a ring one block proud of the hull round each slice u in `us` (never over glass, a collar or the void a bridge
+    needs - only cells nothing is in)"""
+    B = k.B
+    m = k.ship_mask[ship]
+    for u in us:
+        sl = m[u, :, :] if axis == 'x' else m[:, :, u].T                      # (y, v) planes... as (y, z) for x / (y, x) for z
+        if axis == 'x': sl = m[u]
+        else: sl = m[:, :, u].T
+        grown = ndimage.binary_dilation(sl, iterations=1) & ~sl
+        for (y, v) in zip(*np.nonzero(grown)) if axis == 'x' else ((yy, vv) for (yy, vv) in zip(*np.nonzero(grown))):
+            pass
+        ys, vs = np.nonzero(grown) if axis == 'x' else np.nonzero(grown)
+        for a1, a2 in zip(ys, vs):
+            if axis == 'x': x, y, z = u, int(a1), int(a2)
+            else: y, x, z = int(a1), int(a2), u
+            if not k.inb(x, y, z) or (x, y, z) in B.b: continue
+            if any('glass' in (B.b.get(q) or '') or (B.b.get(q) or '').endswith(':air') for q in ((x + 1, y, z), (x - 1, y, z), (x, y + 1, z), (x, y - 1, z), (x, y, z + 1), (x, y, z - 1))): continue
+            B.set(x, y, z, k.pick(pal))
+
+
 def dress(k, ship, stripe=None, stripe_pal=('red_concrete', 'red_terracotta'), light=GL, every=7):
     """the outside skin: war-red stripe band(s) (y values) on the hull's flanks, running lights over them and on its back"""
     B = k.B
@@ -502,9 +539,9 @@ def dress(k, ship, stripe=None, stripe_pal=('red_concrete', 'red_terracotta'), l
         if any(t in st for t in keep): continue
         if dy == 0 and stripe and y in stripe:
             B.set(x, y, z, stripe_pal[((x + z) // 3) % len(stripe_pal)])
-        elif dy == 0 and top and y == top and (x + z) % every == 0:
+        elif dy == 0 and top and y == top and (x + z) % (every + 4) == 0:
             B.set(x, y, z, light)
-        elif dy == 1 and (x * 5 + z * 3) % (every * 3) == 0:
+        elif dy == 1 and (x * 5 + z * 3) % 41 == 0:
             B.set(x, y, z, light)
     return cells
 
@@ -524,6 +561,7 @@ def lava_slot(k, cells, glass='orange_stained_glass'):
 # ===================================================================================================== THE DOCK
 def dock(k):
     B, s = k.B, k.s
+    k.outer = HULL
     W = 50
     sh = 'dock'
     k.room(sh, 104, W, 200, 128, W + 7, 212, wall=WALL, floor=FLOOR)              # the arrival hall
@@ -634,6 +672,7 @@ def dock(k):
 # ===================================================================================================== THE BROOD-CARRIER
 def brood(k):
     B, s = k.B, k.s
+    k.outer = HULL
     W = 46
     sh = 'brood'
     rng = random.Random(46)
@@ -784,6 +823,7 @@ def brood(k):
 # ===================================================================================================== THE STAR-FORGE
 def forge(k):
     B, s = k.B, k.s
+    k.outer = HULL
     W = 48
     sh = 'forge'
     rng = random.Random(48)
@@ -930,6 +970,7 @@ def constellation(k, n, mask, cx, cy, cz, ax, order, name, sign_dir):
 
 def nav(k):
     B, s = k.B, k.s
+    k.outer = HULL
     W = 52
     sh = 'nav'
     rng = random.Random(52)
@@ -1104,6 +1145,7 @@ def reactor(k, n, cx, w, cz, wsp, armoury_gate=None):
 
 def dread_a(k):
     B, s = k.B, k.s
+    k.outer = WAR
     W = 48
     sh = 'dread_a'
     k.room(sh, 70, W, 18, 78, W + 6, 26, wall=DREAD_WALL, floor=DREAD_FLOOR)       # the lobby
@@ -1184,6 +1226,7 @@ def turrets(k, spots, axis, sgn):
 
 def dread_b(k):
     B, s = k.B, k.s
+    k.outer = WAR
     W = 52
     sh = 'dread_b'
     k.room(sh, 30, W, 64, 38, W + 6, 74, wall=DREAD_WALL, floor=DREAD_FLOOR)       # the lobby
@@ -1273,6 +1316,7 @@ def arena_ceil(r):
 
 def flag(k):
     B, s = k.B, k.s
+    k.outer = HULL_DARK
     W = 55
     sh = 'flag'
     rng = random.Random(55)
@@ -1307,7 +1351,7 @@ def flag(k):
             if abs(a) > 55: continue
             for y in range(W, 80):
                 if B.b.get((x, y, z)) != 'minecraft:glass': continue
-                if abs(abs(a) - 55) < 1.2 or abs(a - 11 * round(a / 11)) < 0.9 or y in (W + 9, W + 18):
+                if abs(abs(a) - 55) < 1.2 or abs((a - 5.5) - 11 * round((a - 5.5) / 11)) < 0.9 or y in (W + 9, W + 18):
                     s(x, y, z, 'polished_blackstone' if y not in (W + 9, W + 18) else 'gold_block' if (x + z) % 3 == 0 else 'black_concrete')
     # the dome: ribs of gold and black, a ring of green command lights; the glass climbs into it on the star's side
     for x in range(cx - 33, cx + 34):
@@ -1351,52 +1395,54 @@ def flag(k):
             if d <= 3.2: s(x, fy, z, 'gold_block' if d > 2.4 else GL if d < 0.8 else 'chiseled_polished_blackstone')
     B.helm(hx, W, hz)
     B.voice('helm', hx - 6, W, hz + 5, r=8)
-    # the housing: x71..81 z160..170, y55..61, hollow, built against the window; the Hive Vault's door on its west face. Inside,
-    # a flat run on the floor (x72..78), then a stair down one a block east (x79..86) to walk 47 and the Hive Vault
-    for x in range(71, 82):
-        for z in range(160, 171):
-            for y in range(W, 62):
-                edge = x in (71, 81) or z in (160, 170) or y == 61
-                s(x, y, z, ('black_concrete' if (y + z) % 4 else 'gold_block') if edge else 'air')
-    for y in range(W, W + 5):
-        for z in (161, 169): s(70, y, z, 'gold_block' if y < W + 4 else GL)
-    for x in range(72, 87):
-        w = W if x <= 78 else W - (x - 78)
-        for z in range(164, 167):
-            if x > 78:
-                s(x, w - 1, z, 'polished_blackstone_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]')
-                s(x, w - 2, z, 'polished_blackstone')
-            for y in range(w, (60 if x <= 80 else w + 3) + 1): s(x, y, z, 'air')
-            if x > 80: s(x, w + 4, z, 'black_concrete')
-        if x > 78:
-            for z in (163, 167):
-                for y in range(w - 2, (W if x <= 80 else w + 5)): s(x, y, z, 'polished_blackstone')
-    k.room(sh, 87, 47, 158, 97, 51, 172, wall=FLAG_WALL, floor=FLAG_FLOOR)
-    B.hive_vault(71, W, 165, 'z', 1, 4, 'gilded_blackstone')
-    k.sign(70, W + 2, 162, 'west', ['THE HIVE VAULT', 'Six sigils of', 'forgotten rooms', 'open it.'], color='lime')
+    # THE HIVE VAULT's door: in the foot of the great window behind the helm, 14 degrees off the helm's sight of the star
+    # (x79, z165..167, y55..58); through the window's base, then a stair down one a block east under the saucer's deck
+    # (x82..89) to walk 47 and the vault (x90..100 z159..173)
+    for x in range(79, 90):
+        w = W if x <= 81 else W - (x - 81)
+        for z in range(164, 169):
+            edge = z in (164, 168)
+            for y in range(w - 2, (W + 4 if x <= 81 else w + 5)):
+                if x <= 81 and y >= W + 4: continue
+                if edge or y in (w - 2, w - 1) or (x > 81 and y == w + 4):
+                    st = 'polished_blackstone'
+                    if y == w - 1 and not edge and x > 81: st = 'polished_blackstone_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]'
+                    elif y == w - 1 and not edge: st = 'black_concrete'
+                    elif edge and x <= 81: st = 'gold_block' if y == W + 3 else 'black_concrete'
+                    s(x, y, z, st)
+                else:
+                    s(x, y, z, 'air')
+        if x <= 81:
+            for z in range(164, 169): s(x, W + 4, z, 'gold_block' if z in (164, 168) else 'black_concrete')
+    k.room(sh, 90, 47, 159, 100, 51, 173, wall=FLAG_WALL, floor=FLAG_FLOOR)
+    k.air(88, 47, 165, 89, 50, 167)
+    B.hive_vault(79, W, 166, 'z', 1, 4, 'gilded_blackstone')
+    for dz in (-2, 2): s(78, W, 166 + dz, 'gold_block'); s(78, W + 1, 166 + dz, GL)
+    k.sign(77, W, 166, 12, ['THE HIVE VAULT', 'Six sigils of', 'forgotten rooms', 'open it.'], color='lime', wall=False)
     # the Hive Vault: gold, green, the victor's vault, the hoard, a rift, the Admiral's last log
-    for x in range(87, 98):
-        for z in range(158, 173):
+    for x in range(90, 101):
+        for z in range(159, 174):
             if (x + z) % 4 == 0: s(x, 46, z, 'gold_block')
-    B.vault(96, 47, 165, 'west', 'akey_victor', 'bm:p2/armada/victor')
-    for (x, z) in ((89, 159), (93, 159), (89, 171), (93, 171)):
-        B.chest(x, 47, z, 'south' if z == 159 else 'north', loot='bm:p2/armada/hoard')
-    for (x, z) in ((88, 161), (91, 170), (95, 160)):
-        s(x, 47, z, 'gold_block'); s(x, 48, z, 'raw_gold_block') if x == 88 else None
-    s(94, 46, 169, 'crying_obsidian'); B.rift(94, 47, 169)
-    k.lectern('helm', 91, 47, 161, 'south')
-    for x in range(88, 97, 3):
-        for z in (161, 169): s(x, 52, z, GL)
-    s(91, 52, 165, 'gold_block')
+    B.vault(99, 47, 166, 'west', 'akey_victor', 'bm:p2/armada/victor')
+    for (x, z) in ((92, 160), (96, 160), (92, 172), (96, 172)):
+        B.chest(x, 47, z, 'south' if z == 160 else 'north', loot='bm:p2/armada/hoard')
+    for (x, z) in ((91, 162), (94, 171), (98, 161)):
+        s(x, 47, z, 'gold_block'); s(x, 48, z, 'raw_gold_block') if x == 91 else None
+    s(97, 46, 170, 'crying_obsidian'); B.rift(97, 47, 170)
+    k.lectern('helm', 94, 47, 162, 'south')
+    for x in range(91, 100, 3):
+        for z in (162, 170): s(x, 52, z, GL)
+    s(94, 52, 166, 'gold_block')
     # ---------------- the hull: a great saucer round the bridge, its keel, the prow (south); the command spine (west)
     sm = np.zeros(A.SIZE, bool)
-    for x in range(cx - 46, cx + 47):
-        for z in range(cz - 46, cz + 47):
+    for x in range(cx - 40, cx + 41):
+        for z in range(cz - 40, cz + 41):
             d = math.hypot(x - cx, z - cz)
-            if d > 46 or not (0 <= x < SX and 0 <= z < SZ): continue
-            f = d / 46.0
+            if d > 40 or not (0 <= x < SX and 0 <= z < SZ): continue
+            f = d / 40.0
             yb = round(53 - 13 * math.sqrt(max(0.0, 1 - f ** 2)))
-            yt = 57 if d <= 36 else round(57 - (d - 36) * 0.45)
+            yt = 57 if d <= 34 else round(57 - (d - 34) * 0.6)
+            if abs(angdiff(math.degrees(math.atan2(z - cz, x - cx)), WIN)) <= 60: yt = min(yt, 51)     # (nothing over the window's sill)
             for y in range(yb, yt + 1): sm[x, y, z] = True
     k.paint(sh, sm, FLAG_WALL, skin=2, axis='z', panel=(6, 3, 6))
     spine = [k.room(sh, 8, W, 140, 32, W + 7, 150, wall=FLAG_WALL, floor=FLAG_FLOOR),     # P17 THE COMMAND LOCK
@@ -1565,6 +1611,9 @@ def shift_new(k, before, region, dx):
         if hk in before['hidden']: continue
         h['door'] = mv(h['door'], 0)
         h['sigils'] = [mv(t, 1) for t in h['sigils']]
+    for key in ('dock', 'home', 'bench', 'helm', 'vault'):
+        if AM[key] is not None and AM[key] != before['one'][key]: AM[key] = mv(AM[key], 0)
+    if B.meta['entrance'] is not None and B.meta['entrance'] != before['entrance']: B.meta['entrance'] = mv(B.meta['entrance'], 0)
     for nm, m in k.ship_mask.items():
         if nm in before['ships']: continue
         k.hm &= ~m
@@ -1578,10 +1627,12 @@ def snap(k):
     s_ = {key: len(B.meta[key]) for key in ('gates', 'big', 'sdoors', 'xdoors', 'elements', 'markers', 'plates', 'chests', 'spawners', 'vaults')}
     s_.update({'a_' + key: len(B.meta['armada'][key]) for key in ('bridges', 'vbosses', 'socks', 'conduits', 'sentries', 'pads', 'relics', 'voices',
                                                                     'rifts', 'pylons', 'lecterns')})
-    s_.update(ents=len(B.ents), puzzles=set(B.meta['puzzles']), hidden=set(B.meta['armada']['hidden']), ships=set(k.ship_mask))
+    s_.update(ents=len(B.ents), puzzles=set(B.meta['puzzles']), hidden=set(B.meta['armada']['hidden']), ships=set(k.ship_mask),
+              one={key: B.meta['armada'][key] for key in ('dock', 'home', 'bench', 'helm', 'vault')}, entrance=B.meta['entrance'])
     return s_
 
 
+DOCK_DX = 4         # the Dock is laid out 4 west of where it sails, then moved (clear of the Flagship's saucer)
 NAV_DX = 8          # the Navigator is laid out 8 west of where it sails, then moved (so it sits within ~12 of armadacfg.SHIPS['nav'])
 
 
@@ -1589,7 +1640,10 @@ def build():
     B = A.ABuild(seed=29901)
     k = K(B)
     hive_star(k)
+    before = snap(k)
     d_mouth = dock(k)
+    shift_new(k, before, (76, 168, 185, 232), DOCK_DX)
+    d_mouth = (d_mouth[0] + DOCK_DX,) + d_mouth[1:]
     b_arr, b_dep = brood(k)
     f_arr, f_dep = forge(k)
     before = snap(k)
