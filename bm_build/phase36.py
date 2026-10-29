@@ -437,20 +437,44 @@ def rp(R):
               'verdant': (0, 0, 0, 'minecraft:block/verdant_froglight_side'), 'pearl': (0, 0, 0, 'minecraft:block/sea_lantern'),
               'graphite': (0, 0, 0, 'minecraft:block/redstone_lamp_on'), 'bronze': (0, 0, 0, 'minecraft:block/ochre_froglight_side'),
               'ember': (0, 0, 0, 'minecraft:block/shroomlight'), 'cobalt': (0, 0, 0, 'minecraft:block/sea_lantern')}
+    Y45 = lambda y: {'origin': [8, y, 8], 'axis': 'y', 'angle': 45}
     for col, (h, p, g, l) in paints.items():
-        h, p = f'bm:block/skiff_{col}_hull', f'bm:block/skiff_{col}_deck'           # 2.25: riveted hull plates in each paint (vanilla.py)
-        g = f'bm:block/skiff_{col}_dome'                                          # 2.28: clear canopy glass (vanilla.py)
+        pk = 'vorn' if col == 'green' else col                                    # 2.99: Vorn Green is green-and-white (vanilla.py: skiff_vorn_*;
+        h, p = f'bm:block/skiff_{pk}_hull', f'bm:block/skiff_{pk}_deck'             #  skiff_green_* stays the enemy saucers' ufo3d's)
+        g = f'bm:block/skiff_{pk}_dome'                                           # 2.28: clear canopy glass (vanilla.py)
         tex = {'h': h, 'p': p, 'g': g, 'l': l, 'd': 'bm:block/skiff_belly', 'w': 'minecraft:block/white_concrete',
                'y': 'minecraft:block/gold_block', 'o': 'minecraft:block/orange_concrete', 'r': 'minecraft:block/red_concrete'}
-        base = [c((3, 4, 3), (13, 6, 13), 'd'), c((0.5, 6, 3), (15.5, 7.5, 13), 'h'), c((3, 6.03, 0.5), (13, 7.47, 15.5), 'h'),
-                c((1.5, 6.06, 1.5), (14.5, 7.44, 14.5), 'p', {'origin': [8, 6.75, 8], 'axis': 'y', 'angle': 45}), c((3.5, 7.5, 3.5), (12.5, 9, 12.5), 'p'),
-                c((5.5, 9, 5.5), (10.5, 12, 10.5), 'g'), c((7, 3, 7), (9, 4, 9), 'l')]
-        for (x, z) in ((0.2, 7.5), (15.2, 7.5), (7.5, 0.2), (7.5, 15.2)): base.append(c((x, 6.4, z), (x + 0.6, 7.1, z + 0.6), 'l'))
-        decals = {'none': [], 'stripes': [c((6.6, 7.52, 0.6), (7.4, 9.05, 15.4), 'w'), c((8.6, 7.52, 0.6), (9.4, 9.05, 15.4), 'w')],
-                  'crest': [c((3.4, 7.55, 6.5), (3.6, 8.95, 9.5), 'y'), c((12.4, 7.55, 6.5), (12.6, 8.95, 9.5), 'y'), c((6.5, 7.55, 3.4), (9.5, 8.95, 3.6), 'y'),
-                            c((6.5, 7.55, 12.4), (9.5, 8.95, 12.6), 'y')],
-                  'flames': [c((0.4, 6.2, 5), (0.6, 7.3, 11), 'o'), c((15.4, 6.2, 5), (15.6, 7.3, 11), 'o'), c((5, 6.2, 0.4), (11, 7.3, 0.6), 'r'),
-                             c((5, 6.2, 15.4), (11, 7.3, 15.6), 'r'), c((0.35, 6.6, 6.5), (0.65, 7.45, 9.5), 'y'), c((15.35, 6.6, 6.5), (15.65, 7.45, 9.5), 'y')]}
+        if pk == 'vorn': tex['w'] = 'minecraft:block/lime_concrete'               # (white stripes would vanish on its white plates)
+        # 2.99: a cleaner saucer, the seat unchanged (the pilot's legs in the upper hull 3.5..12.5 / 7.5..9, the head in the dome
+        #  5.5..10.5 / 9..12) and the belly's foot still at y 3: a slim stepped belly round the engine glow; the disc, a trim lip round
+        #  its rim with eight running lights at its corners; a trim ring on the upper deck, a framed canopy with a cap; three
+        #  swept vanes aft (front: north)
+        base = [c((7, 3, 7), (9, 3.6, 9), 'l'), c((5.5, 3.6, 5.5), (10.5, 4.6, 10.5), 'd'), c((4, 4.6, 4), (12, 6, 12), 'd'),
+                c((4.6, 4.62, 4.6), (11.4, 5.98, 11.4), 'd', Y45(5.3)),
+                c((0.5, 6, 3), (15.5, 7.5, 13), 'h'), c((3, 6.03, 0.5), (13, 7.47, 15.5), 'h'), c((1.5, 6.06, 1.5), (14.5, 7.44, 14.5), 'h', Y45(6.75)),
+                c((0.25, 6.5, 3.2), (15.75, 6.95, 12.8), 'p'), c((3.2, 6.51, 0.25), (12.8, 6.94, 15.75), 'p'), c((1.3, 6.52, 1.3), (14.7, 6.93, 14.7), 'p', Y45(6.7)),
+                c((3.5, 7.5, 3.5), (12.5, 9, 12.5), 'h'), c((4.2, 9, 4.2), (11.8, 9.25, 11.8), 'p'),
+                c((5.5, 9, 5.5), (10.5, 12, 10.5), 'g'), c((6.4, 12, 6.4), (9.6, 12.5, 9.6), 'g'),
+                c((5.2, 9.25, 5.2), (10.8, 9.75, 5.5), 'p'), c((5.2, 9.25, 10.5), (10.8, 9.75, 10.8), 'p'),
+                c((5.2, 9.25, 5.5), (5.5, 9.75, 10.5), 'p'), c((10.5, 9.25, 5.5), (10.8, 9.75, 10.5), 'p'),
+                c((3.47, 8.1, 3.47), (12.53, 8.4, 12.53), 'p'),                                      # (a trim band round the upper hull)
+                c((7.8, 7.5, 12.4), (8.2, 10.2, 14.6), 'p', {'origin': [8, 7.5, 12.4], 'axis': 'x', 'angle': 22.5}),
+                c((4.15, 7.5, 11.4), (4.55, 8.7, 13.6), 'p', {'origin': [4.35, 7.5, 11.4], 'axis': 'y', 'angle': -22.5}),
+                c((11.45, 7.5, 11.4), (11.85, 8.7, 13.6), 'p', {'origin': [11.65, 7.5, 11.4], 'axis': 'y', 'angle': 22.5})]
+        for (x, z) in ((0.0, 3.0), (0.0, 12.4), (15.4, 3.0), (15.4, 12.4), (3.0, 0.0), (12.4, 0.0), (3.0, 15.4), (12.4, 15.4)):
+            base.append(c((x - 0.05, 6.4, z - 0.05), (x + 0.65, 7.05, z + 0.65), 'l'))                # (running lights, at the rim's corners)
+        def strip(x0, x1, t):                                                       # (a stripe laid flush: over the disc, up the upper hull,
+            out = []                                                                #  over the deck ring - fore and aft)
+            for za, zb, ya, yb in ((0.45, 3.5, 7.5, 7.56), (12.5, 15.55, 7.5, 7.56)):
+                out.append(c((x0, ya, za), (x1, yb, zb), t))
+            out += [c((x0, 7.5, 3.44), (x1, 9.0, 3.5), t), c((x0, 7.5, 12.5), (x1, 9.0, 12.56), t),
+                    c((x0, 9.25, 4.2), (x1, 9.29, 5.2), t), c((x0, 9.25, 10.8), (x1, 9.29, 11.8), t)]
+            return out
+        decals = {'none': [], 'stripes': strip(6.6, 7.4, 'w') + strip(8.6, 9.4, 'w'),
+                  'crest': [c((3.4, 7.65, 6.5), (3.5, 8.85, 9.5), 'y'), c((12.5, 7.65, 6.5), (12.6, 8.85, 9.5), 'y'), c((6.5, 7.65, 3.4), (9.5, 8.85, 3.5), 'y'),
+                            c((6.5, 7.65, 12.5), (9.5, 8.85, 12.6), 'y')],
+                  'flames': [c((0.1, 6.1, 5), (0.3, 7.4, 11), 'o'), c((15.7, 6.1, 5), (15.9, 7.4, 11), 'o'), c((5, 6.1, 0.1), (11, 7.4, 0.3), 'r'),
+                             c((5, 6.1, 15.7), (11, 7.4, 15.9), 'r'), c((0.05, 6.5, 6.5), (0.35, 7.45, 9.5), 'y'), c((15.65, 6.5, 6.5), (15.95, 7.45, 9.5), 'y')]}
         for d, extra in decals.items():
             R.HATS[f'skiff_{col}_{d}'] = (tex, base + extra)
     # the ghost (a sheet with two dark eyes), the banshee (a taller, tattered one), the mailbox, the Ghost Veil (cosmetic)
