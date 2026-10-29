@@ -207,6 +207,7 @@ import phase239 as R239      # 2.98: the Bound Sovereign - what's left of it, a 
 import phase240 as R240      # 2.98a: the Undercrown's soundtrack - six tiers down to the throne, its fights, the page-turn swell
 import phase242 as R242      # 2.99: Admiral Vexis - the Armada's boss, its coming, its three forms, its unlinking (its themes register on import)
 import phase243 as R243      # 2.99: Vexis, the Unlinked - what's left of it, a follower (hard mode)
+import phase252 as R252      # 3.00: [mireling hook] the Mireling - a young Dread Mire, the 50th follower (hard mode; registers after every follower before it)
 import phase244 as R244      # 2.99: the Vorn Armada's soundtrack - five tiers, its fights, the swell, the quiet after
 import phase245 as R245      # 2.99a: the Statue Knights - stone sentinels that wake when their room is solved
 import phase246 as R246      # 2.99a: the Dread Mire - a puddle of the Dread that rises; Shadow Musk
@@ -1374,6 +1375,7 @@ def build(out_dir):
     if PHASE2: R236.generate_early(sys.modules[__name__])
     if PHASE2: R239.generate_early(sys.modules[__name__])
     if PHASE2: R243.generate_early(sys.modules[__name__])
+    if PHASE2: R252.generate_early(sys.modules[__name__])      # [mireling hook]
     if PHASE2: R211.generate_early(sys.modules[__name__])
     if PHASE2: R213.generate_early(sys.modules[__name__])
     if PHASE2: R199.generate_early(sys.modules[__name__])
@@ -1442,6 +1444,7 @@ def build(out_dir):
     if PHASE2: R236.generate(sys.modules[__name__])      # 2.97: the Lightbringer and the Pale Dryad
     if PHASE2: R239.generate(sys.modules[__name__])      # 2.98: the Bound Sovereign
     if PHASE2: R243.generate(sys.modules[__name__])      # 2.99: Vexis, the Unlinked
+    if PHASE2: R252.generate(sys.modules[__name__])      # 3.00: [mireling hook] the Mireling
     if PHASE2: R215.generate(sys.modules[__name__])
     if PHASE2: R216.generate(sys.modules[__name__])
     if PHASE2: R199.generate(sys.modules[__name__])
@@ -1498,6 +1501,7 @@ def build(out_dir):
     if PHASE2: R244.generate(sys.modules[__name__])      # 2.99: the Armada's soundtrack (after the Admiral: it reads its tags)
     if PHASE2: R245.generate(sys.modules[__name__])      # 2.99a: the Statue Knights (the Throne Gate's, the Command Lock's)
     if PHASE2: R246.generate(sys.modules[__name__])      # 2.99a: the Dread Mire (after phase181: it patches the Stalkers)
+    if PHASE2: R252.late(sys.modules[__name__])          # 3.00: [mireling hook] a Mire's slayer credited, its seed; the Stalkers' nod (after phase246 and phase181)
     if PHASE2: R247.generate(sys.modules[__name__])      # 2.99a: holy bane
     R250.generate(sys.modules[__name__])                 # 2.99a: [market music hook] the market's music (after phase244/240/75: it yields to their music)
     print('2.99a: the Backpack - %d dungeon rebuilds fold open bags first' % len(R248.generate(sys.modules[__name__])))      # (after the boxes it reuses and the builds it guards)

@@ -80,6 +80,7 @@ WHO = {   # follower: (name, pronoun, colour, host type, host tag, try (as you),
     'dryad': ('The Pale Dryad', 'her', '#6aa8f0', 'wolf', 'bm.pypet', 'p236p/try_summon', 'p236p/home'),
     'sovereign': ('The Bound Sovereign', 'him', '#d0182e', 'wolf', 'bm.xvpet', 'p239/try_summon', 'p239/home'),
     'vexis': ('Vexis, the Unlinked', 'it', '#7aff6a', 'wolf', 'bm.xbpet', 'p243/try_summon', 'p243/home'),
+    'mireling': ('The Mireling', 'it', '#e0384a', 'wolf', 'bm.mlpet', 'p252/try_summon', 'p252/home'),
     'pxcecil': ('8-Bit Cecil', 'him', '#b070ff', 'wolf', 'bm.xcpet', 'p213c/try_summon', 'p213c/home'),
     'pxleo': ('8-Bit Leo', 'him', '#4ab0ff', 'wolf', 'bm.xlpet', 'p213l/try_summon', 'p213l/home'),
     'pxemma': ('8-Bit Emma', 'her', '#ff6ac8', 'wolf', 'bm.xmpet', 'p213e/try_summon', 'p213e/home'),
@@ -245,7 +246,7 @@ def generate(G):
     # ================================================================== MENUS: "Call for <name>" when they're not out
     home_re = re.compile(r'label:\[\{text:"Send (?:her|him|it|them) home",color:"gray",italic:false\}\]')
     for w, (nm, pron, col, host, tag, try_, home) in WHO.items():
-        assert (try_ in G.FUNCS and home in G.FUNCS) or w in ('apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'kettle', 'rufus', 'henry', 'nia', 'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad', 'sovereign', 'vexis', 'pxcecil', 'pxleo', 'pxemma', 'sky'), (w, try_, home)   # (2.78's six, 2.79's Fishy: built later)
+        assert (try_ in G.FUNCS and home in G.FUNCS) or w in ('apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'kettle', 'rufus', 'henry', 'nia', 'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad', 'sovereign', 'vexis', 'mireling', 'pxcecil', 'pxleo', 'pxemma', 'sky'), (w, try_, home)   # (2.78's six, 2.79's Fishy: built later)
         b = P99.BASE[w]
         dl = G.FUNCS[f'p99/dlg/{w}']
         assert home_re.search(dl[0]), w

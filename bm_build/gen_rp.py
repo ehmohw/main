@@ -895,6 +895,8 @@ if __name__ == '__main__':
     armada_art.rp(sys.modules[__name__])
     import phase243                           # (2.99: Vexis, the Unlinked)
     phase243.rp(sys.modules[__name__])
+    import phase252                           # (3.00: [mireling hook] the Mireling - its rig, faces, textures, the Seed's icon)
+    phase252.rp(sys.modules[__name__])
     import phase210, phase211, phase212       # (2.94: the effect sprites, the Sky Buddies, Dennis's searing throws)
     phase210.rp(sys.modules[__name__]); phase211.rp(sys.modules[__name__]); phase212.rp(sys.modules[__name__])
     import phase213, phase214, phase215       # (2.94: the 8-bit trio, the pixel costumes, the 8-Bit Serpent King)

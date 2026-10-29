@@ -319,3 +319,24 @@ def generate(G):
     fn(f'{PFX}/sec', ['execute as @a unless score @s bm.lkv matches 1 at @s run function bm:p251/first'] + sec)
     return tuple(counts)
 
+
+
+def sample(key, s):
+    """a standing cell first reached at stage s, 2+ inside one of its boxes (stage 0: an entry box) - world coordinates (t322)"""
+    Z_, M = zones(key), DG[key]['mod']
+    bs = Z_['entry'] if s == 0 else Z_['boxes'][s]
+    G_ = M.build().b
+    for q in sorted(Z_['cells'].get(s, [])):
+        if s == 0 and not bs: return (M.OX + q[0], M.OY + q[1], M.OZ + q[2])
+        if 'air' not in G_.get((q[0], q[1] + 2, q[2]), 'air'): continue
+        if any(b[0] + 2 <= q[0] <= b[3] - 2 and b[1] <= q[1] <= b[4] - 3 and b[2] + 2 <= q[2] <= b[5] - 2 for b in bs):
+            return (M.OX + q[0], M.OY + q[1], M.OZ + q[2])
+
+
+if __name__ == '__main__':
+    import sys
+    for key in sys.argv[1:] or list(DG):
+        e, rep = selftest(key)
+        print(f'{key}: {zones(key)["n"]} stages, {len(e)} errors')
+        for r in rep + e: print('   ', r)
+        print('    sample cells (world):', {s: sample(key, s) for s in (0, 2, 3, zones(key)['n'] - 1, zones(key)['n'])})

@@ -88,6 +88,7 @@ GIFT = {  # follower: (what it does, commands run each second at the doll)
     'dryad': ('Saturation', [f'effect give {P} minecraft:saturation 1 0 true']),
     'sovereign': ('Strength', [f'effect give {P} minecraft:strength 15 0 true']),
     'vexis': ('Slow Falling', [f'effect give {P} minecraft:slow_falling 15 0 true']),
+    'mireling': ('Water Breathing', [f'effect give {P} minecraft:water_breathing 15 0 true']),
     'nia': ('Regeneration', [f'effect give {P} minecraft:regeneration 15 0 true']),
     'pxcecil': ('Night Vision', [f'effect give {P} minecraft:night_vision 15 0 true']),
     'pxleo': ('Resistance', [f'effect give {P} minecraft:resistance 15 0 true']),
@@ -102,7 +103,7 @@ assert set(GIFT) == set(DOLL_OF), sorted(set(GIFT) ^ set(DOLL_OF))
 GD_SLOTS = ('emma', 'cecil', 'celi', 'zib', 'killerwatt', 'leo', 'demo', 'apo', 'tul', 'frog', 'donado', 'wil', 'fishy', 'dennis', 'pistachio',
             'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'capshun', 'kettle', 'rufus', 'henry',
             'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad', 'sovereign', 'nia',
-            'pxcecil', 'pxleo', 'pxemma', 'sky', 'pearl', 'vexis')
+            'pxcecil', 'pxleo', 'pxemma', 'sky', 'pearl', 'vexis', 'mireling')
 assert set(GD_SLOTS) <= set(GIFT), set(GD_SLOTS) - set(GIFT)
 GDOLLS = list(GD_SLOTS) + [k for k in GIFT if k not in GD_SLOTS]
 for _k in GDOLLS:
