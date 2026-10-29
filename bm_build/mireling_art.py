@@ -646,10 +646,10 @@ def wave(p, t, up, out, fwd=0.0, bends=(30, 30), swing=0.0, toward=None):
 
 
 def trail(p, t, spread=0.6, lift=0.15, ripple=0.0):
-    """a tentacle trailing back flat over the puddle (walking), a ripple through it"""
+    """a tentacle trailing back over the puddle (walking): up out of it from the sunk socket, then flat behind, a ripple through it"""
     s = sx_of(t)
-    d0 = _unit((s * spread, lift, 0.75))
-    return lay(p, t, [d0, _unit((s * (spread - 0.25) + ripple, 0.0, 1.0)), _unit((s * 0.1 - ripple, 0.05, 1.0))], inner=(0.0, -1.0, 0.0))
+    return lay(p, t, [_unit((s * spread, 0.8, 0.45)), _unit((s * (spread - 0.2) + ripple, lift, 1.0)), _unit((s * 0.15 - ripple, -0.05, 1.0))],
+               inner=(0.0, -1.0, 0.0))
 
 
 def P(**kw):
@@ -696,13 +696,14 @@ def _pose(name):
         if b: p['_face'] = 'half'
         for t in TENT:                                      # (curled on the puddle round it, like a cat's tail)
             sg = sx_of(t)
-            p = lay(p, t, [_unit((sg * 0.8, 0.35, -0.6)), _unit((sg * 0.3, -0.1, -1.0)), _unit((-sg * 0.7, -0.05, -0.7))], inner=(0.0, -1.0, 0.0))
+            p = lay(p, t, [_unit((sg * 0.25, 1.0, -0.1)), _unit((sg * 0.7, 0.5, -0.5)), _unit((sg * 0.1, -0.45, -1.0))], inner=(0.0, -1.0, 0.0))
     elif name in ('happy', 'happy_b'):                      # (tentacles waving high, the maw fluttering)
         b = name == 'happy_b'
-        p = P(seg1=T(-2, 0, 3 if b else -3), seg2=T(-3, 5 if b else -5, 2 if b else -2), head=T(-16, 8 if b else -8, 6 if b else -6),
+        p = P(seg1=T(-2, 0, 3 if b else -3), seg2=T(-3, 5 if b else -5, 2 if b else -2), head=T(-7, 8 if b else -8, 6 if b else -6),
               **MAWOPEN(48 if b else 30, 1.4), _face='happy')
-        p = wave(p, 't1', 0.95, 0.35, 0.1, (34, 38) if b else (20, 26), swing=10 if b else -6)
-        p = wave(p, 't2', 0.95, 0.35, 0.1, (20, 26) if b else (34, 38), swing=-6 if b else 10)
+        up = lambda t: _unit((-sx_of(t) * 0.35, 1.0, -0.25))
+        p = wave(p, 't1', 0.75, 0.75, 0.15, (30, 34) if b else (14, 18), swing=12 if b else -8, toward=up('t1'))
+        p = wave(p, 't2', 0.75, 0.75, 0.15, (14, 18) if b else (30, 34), swing=-8 if b else 12, toward=up('t2'))
     elif name == 'hurt':                                    # (flinching away, the maw clamped shut, the eye squeezed)
         p = P(seg1=T(-5, 10, -5), seg2=T(-9, 14, -6), head=T(12, 22, -10), _face='hurt')
         p = wave(p, 't1', 0.6, 0.4, -0.2, (70, 60), toward=_unit((-1.0, -0.6, 0.0)))

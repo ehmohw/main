@@ -183,7 +183,7 @@ def voxels(s, B, at):
     """a structures.Build into a Scene: full blocks as cubes (only the faces open to the air), the rest as their rough shapes"""
     from structures import parse_state
     cells = {p: parse_state(st) for p, st in B.b.items()}
-    THIN = ('pane', 'fence', 'chain', 'lantern', 'stairs', 'slab', 'petals', 'flowers', 'grass', 'daisy', 'cornflower', 'allium', 'valley', 'bush',
+    THIN = ('pane', 'fence', 'chain', 'lantern', 'stairs', 'slab', 'petals', 'flowers', 'short_grass', 'daisy', 'cornflower', 'allium', 'valley', 'bush',
             'pointed', 'loom')
     full = lambda p: p in cells and not any(k in cells[p][0] for k in THIN)
     ox, oy, oz = at
@@ -235,7 +235,7 @@ def voxels(s, B, at):
 
 def sanctuary_sheet(path):
     import keeper_sanctuary as KS
-    B = KS.build()
+    B = KS.build(); B.connect()
     at = (-KS.CX - 0.5, -(KS.TOP + 1), -KS.CZ - 0.5)              # (the dais's centre over the origin; the grass's top at y 0)
     def scene():
         s = K.multi_scene(ROOT)
@@ -249,7 +249,7 @@ def sanctuary_sheet(path):
     for v, sp, c, l, sub in (((-35, 24), 34, (0, -4, 0), 'from the south-west', 'a player on the landing circle; the Keeper by its loom'),
                             ((40, -12), 34, (0, -7, 0), 'from below', 'the hanging point, lanterns on chains'),
                             ((0, 55), 30, (0, 0, 0), 'from above', 'the arches, the threads, the dais'),
-                            ((160, 14), 14, (0, 2.5, -1.5), 'the dais and the great loom, close', 'from the north-east, behind the loom')):
+                            ((-28, 20), 11, (0, 1.6, -0.5), 'the dais and the great loom, close', 'the Keeper at its loom (tend_a)')):
         s = scene()
         im = s.render(v, size=700, span=sp, center=c)
         tiles.append(K.label(im, l, sub))

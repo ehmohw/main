@@ -3,7 +3,7 @@ sky, found with the Compass of Bonds once you have all 49 other followers.
 
 A grassy crown about 25 across: a ring of eight white-and-gold arches (quartz pillars, chiselled capitals, a gold keystone, a
 lantern hung under each), and between the arches the THREADS - two strands of coloured glass-pane thread strung from each arch
-to the next, sagging a little, going round the colour wheel. In the middle a raised dais (two steps of smooth quartz, gold at its
+to the next, going round the colour wheel. In the middle a raised dais (two steps of smooth quartz, gold at its
 heart) and on its north side the GREAT LOOM: birch uprights and beam, a half-woven tapestry of rainbow wool, its warp of fences
 above, a loom and a little bench beside it. Four flowering trees (cherry and flowering azalea), petals and wildflowers in the
 grass, a calcite path from the landing circle (south) to the dais. Under it, the rock tapers to a hanging point of dripstone;
@@ -26,7 +26,7 @@ R = 12.3                                    # the crown's radius
 SIZE = (SX, SY, SZ)
 BBOX = ((0, 0, 0), (SX - 1, SY - 1, SZ - 1))
 DAIS = (CX + 0.5, TOP + 3.0, CZ + 0.5)      # the top of the dais (its upper step stands at TOP + 2)
-SPAWN = (CX + 0.5, TOP + 3.0, CZ + 0.5, 0.0)   # the Keeper: on the dais before its loom, facing south (yaw 0) toward the landing
+SPAWN = (CX + 0.5, TOP + 3.0, CZ + 0.5, 180.0)  # the Keeper: on the dais before its loom, facing it (north, yaw 180); it turns to you
 ARRIVAL = (CX + 0.5, TOP + 1.0, CZ + 10.5)  # the landing circle, at the south edge, facing the dais
 ARCHES = 8
 # the threads' colours, round the wheel: two strands to each gap between arches
@@ -54,12 +54,18 @@ def _line4(a, b):
     return out
 
 
+def _rock(y):
+    """the rock under it, in calm strata: pale calcite, a band of dripstone every few blocks, tuff toward the point"""
+    if y % 5 == 0: return 'dripstone_block'
+    if y < 6 and y % 5 == 2: return 'tuff'
+    return 'calcite'
+
+
 def build(markers=False):
     B = Build(SX, SY, SZ)
     rnd = random.Random(5000)
     S = B.set
     pick = lambda pal: rnd.choices([p for p, _ in pal], [w for _, w in pal])[0]
-    ROCK = [('calcite', 4), ('stone', 3), ('tuff', 2), ('dripstone_block', 2), ('smooth_basalt', 1)]
     wob = [rnd.uniform(-0.6, 0.6) for _ in range(12)]
 
     def edge(x, z):
@@ -80,7 +86,7 @@ def build(markers=False):
             y0 = max(1, TOP - depth)
             for y in range(y0, TOP + 1):
                 k = TOP - y
-                S(x, y, z, 'grass_block[snowy=false]' if k == 0 else 'dirt' if k <= 2 else pick(ROCK))
+                S(x, y, z, 'grass_block[snowy=false]' if k == 0 else 'dirt' if k <= 2 else _rock(y))
             bottom[(x, z)] = y0
     # the hanging point: a dripstone spike under the middle
     yb = bottom[(CX, CZ)]
@@ -135,15 +141,14 @@ def build(markers=False):
         S(mid[0], G + 7, mid[1], 'smooth_quartz_slab[type=bottom,waterlogged=false]')
         S(mid[0], G + 5, mid[1], 'lantern[hanging=true,waterlogged=false]')
         tops.append(ends)
-    # ---------------- the threads: from each arch to the next, two strands, sagging a little in the middle
+    # ---------------- the threads: from each arch to the next, two strands
     for k in range(ARCHES):
         a, b = tops[k][1], tops[(k + 1) % ARCHES][0]
         cells = _line4(a, b)[1:-1]
         n = len(cells)
-        for s_, (hy, col) in enumerate(((G + 4, THREADS[k][0]), (G + 2, THREADS[k][1]))):
-            for j, (x, z) in enumerate(cells):
-                sag = 1 if 0.25 < (j + 0.5) / n < 0.75 else 0
-                S(x, hy - sag, z, f'{col}_stained_glass_pane')
+        for hy, col in ((G + 4, THREADS[k][0]), (G + 2, THREADS[k][1])):
+            for x, z in cells:
+                S(x, hy, z, f'{col}_stained_glass_pane')
 
     # ---------------- the dais: two steps of smooth quartz, stairs round the lower one, gold at its heart
     for x in range(CX - 4, CX + 5):
