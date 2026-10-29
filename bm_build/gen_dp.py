@@ -214,6 +214,8 @@ import phase247 as R247      # 2.99a: holy bane - the Dread is weak against holy
 import phase248 as R248      # 2.99a: the Backpack (the Fence) - a plain 27-slot bag that works in the dungeons
 import phase250 as R250      # 2.99a: [market music hook] the Black Market's own swing, for key-holders inside a market
 import phase249 as R249      # 2.99a: the Rex mounts - the Atomic and Mecha Rex (hidden, rideable) and the Partner Wheel's Mounts page
+import phase251 as R251      # 2.99a: [lockout hook] no way into the Undercrown or the Armada but their own, no trial skipped
+import phase253 as R253      # 3.0: the Loom Sanctuary - the Compass of Bonds (every follower met) and the sky island where the Keeper waits
 import phase241 as R241      # 2.99: the Vorn Armada - the Vorn's hard-mode dungeon, a hive-fleet round a star in the End (its kinds of trial register on import)
 R233.add_pairs()             # 2.98: the Creative Forms
 R229.add_pairs()             # 2.97: the cats' pairs with everyone - after every follower is imported
@@ -1500,6 +1502,8 @@ def build(out_dir):
     R250.generate(sys.modules[__name__])                 # 2.99a: [market music hook] the market's music (after phase244/240/75: it yields to their music)
     print('2.99a: the Backpack - %d dungeon rebuilds fold open bags first' % len(R248.generate(sys.modules[__name__])))      # (after the boxes it reuses and the builds it guards)
     if PHASE2: print('2.99a: the Rex mounts - %d parts a rex, the Mounts page on the wheel' % R249.generate(sys.modules[__name__]))      # (after the wheel, the Armada and Vexis it hooks; before phase184's escort row)
+    if PHASE2: print('2.99a: the lockout - %d / %d boxes a second at most (the Undercrown / the Armada)' % R251.generate(sys.modules[__name__]))      # [lockout hook] (after phase237/241/245: it hooks their out, builds, solves and knights)
+    if PHASE2: R253.generate(sys.modules[__name__])        # 3.0: the Loom Sanctuary (after every follower is registered: the compass counts them)
     print('2.85c: the Rat Race - %d jobs, %d prizes in the draw' % R183.generate(sys.modules[__name__]))
     print('2.85d: %d new fight rooms, the rats\' calls, the Forge/Garden coin' % R184.generate(sys.modules[__name__]))
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))

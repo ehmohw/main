@@ -314,7 +314,7 @@ def generate(G):
         fn(f'{PFX}/beam/{k}/go', ['scoreboard players set #rr bm.rxv 40', f'function bm:{PFX}/beam/{k}/step', 'tag @e[tag=bm.rxhit] remove bm.rxhit'])
         fn(f'{PFX}/beam/{k}/step', [f'particle minecraft:{dust} ~ ~ ~ 0.06 0.06 0.06 0 2 force @a[distance=..64]',
                                     'particle minecraft:end_rod ~ ~ ~ 0.04 0.04 0.04 0.005 1 force @a[distance=..64]'] + ex +
-           [f'execute if score #dmg bm.rxv matches 1 as @e[{HOSTILE},tag=!bm.rxhit,distance=..1.7] run function bm:{PFX}/beam/{k}/hit',
+           [f'execute if score #dmg bm.rxv matches 1 as @e[{HOSTILE},tag=!bm.rxhit,distance=..1.7] at @s run function bm:{PFX}/beam/{k}/hit',
             'execute unless block ~ ~ ~ #bm:grap_pass run return run particle minecraft:explosion ~ ~ ~ 0.2 0.2 0.2 0 1',
             'scoreboard players remove #rr bm.rxv 1', f'execute if score #rr bm.rxv matches 1.. positioned ^ ^ ^0.6 run function bm:{PFX}/beam/{k}/step'])
         hit = ['tag @s add bm.rxhit', 'execute if entity @a[tag=bm.rxrider] run damage @s 8 minecraft:player_attack by @a[tag=bm.rxrider,limit=1]',
@@ -331,7 +331,7 @@ def generate(G):
                     a = 2 * math.pi * j / n
                     ring.append(f'particle minecraft:block{{block_state:"minecraft:stone"}} ~{r * math.cos(a):.2f} ~0.2 ~{r * math.sin(a):.2f} 0.2 0.1 0.2 0.1 4')
             fn(f'{PFX}/stomp/wave', ring + ['particle minecraft:explosion ~ ~0.4 ~ 1.2 0.2 1.2 0 4',
-                                            f'execute as @e[{HOSTILE},distance=..5] run function bm:{PFX}/stomp/hit',
+                                            f'execute as @e[{HOSTILE},distance=..5] at @s run function bm:{PFX}/stomp/hit',
                                             snd('item.mace.smash_ground_heavy', 2, 0.5, 48), snd('entity.generic.explode', 1.2, 0.6, 48), snd('entity.warden.step', 2, 0.5, 48)])
             fn(f'{PFX}/stomp/hit', ['execute if entity @a[tag=bm.rxrider] run damage @s 12 minecraft:player_attack by @a[tag=bm.rxrider,limit=1]',
                                     'execute unless entity @a[tag=bm.rxrider] run damage @s 12 minecraft:generic',
