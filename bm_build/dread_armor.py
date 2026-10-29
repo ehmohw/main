@@ -30,65 +30,60 @@ def _px(n=16):
 
 
 def _chitin(seed):
-    """black chitin plates: dark seams, a lit edge on each plate, hairline red cracks"""
-    rnd = random.Random(seed); im = Image.new('RGBA', (32, 32), hexc(VOID)); d = ImageDraw.Draw(im)
-    for _ in range(90):
-        im.putpixel((rnd.randrange(32), rnd.randrange(32)), hexc(rnd.choice([VOID_LT, VOID_DK, '#1e1622'])))
-    for y in (7, 15, 23, 31):                                       # plate seams, a lit lip over each
-        d.line((0, y, 31, y), fill=hexc(VOID_DK)); d.line((0, y - 1, 31, y - 1), fill=hexc('#3a2a40'))
-    for x0 in (5, 19):
-        d.line((x0, 0, x0, 31), fill=hexc(VOID_DK))
-    for _ in range(4):                                              # cracks of red light
-        x, y = rnd.randrange(32), rnd.randrange(32)
-        for _s in range(7):
-            if 0 <= x < 32 and 0 <= y < 32: im.putpixel((x, y), hexc(RED))
-            x += rnd.choice((-1, 0, 1)); y += 1
+    """black chitin plates on the head's pixel grid (one texel a model unit, as the bone's): a lit lip over each seam, two
+    short cracks of red light (v299: simplified - no speckle, no wandering hairline veins)"""
+    im = Image.new('RGBA', (16, 16), hexc(VOID)); d = ImageDraw.Draw(im)
+    for y in (3, 7, 11, 15):                                        # plate seams, a lit lip over each
+        d.line((0, y, 15, y), fill=hexc(VOID_DK)); d.line((0, y - 1, 15, y - 1), fill=hexc(VOID_LT))
+    for x0 in (2, 9):
+        d.line((x0, 0, x0, 15), fill=hexc(VOID_DK))
+    for (x, y) in ((5, 4), (5, 5), (12, 8), (12, 9)):                 # cracks of red light (straight, two plates)
+        im.putpixel((x, y), hexc(RED))
     return im.resize((64, 64), Image.NEAREST)
 
 
 def _face():
-    """the Visage's front (whole-face uv): a ring of red eyes across the brow, a slit of a maw with teeth below"""
-    im = Image.new('RGBA', (32, 32), hexc(VOID)); d = ImageDraw.Draw(im); rnd = random.Random(7)
-    for _ in range(60):
-        im.putpixel((rnd.randrange(32), rnd.randrange(32)), hexc(rnd.choice([VOID_LT, VOID_DK])))
-    d.line((0, 0, 31, 0), fill=hexc('#3a2a40'))
-    for (cx, cy, r) in ((16, 9, 3), (9, 8, 2), (23, 8, 2), (4, 11, 1), (28, 11, 1), (12, 4, 1), (20, 4, 1)):
-        d.ellipse((cx - r - 1, cy - r - 1, cx + r + 1, cy + r + 1), fill=hexc(VOID_DK))       # the socket
-        d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=hexc(RED))                           # the eye
-        d.line((cx, cy - r + 1, cx, cy + r - 1), fill=hexc('#160204'))                         # a slit pupil
-        im.putpixel((cx - r + 1 if r > 1 else cx - 1, cy - r + 1 if r > 1 else cy - 1), hexc(RED_LT))   # its glint
-    d.polygon([(13, 17), (19, 17), (18, 30), (14, 30)], fill=hexc('#0a0204'))                # the maw
-    for y in range(18, 30, 2):                                                                 # its teeth
-        d.line((13, y, 15, y + 1), fill=hexc(BONE)); d.line((19, y, 17, y + 1), fill=hexc(BONE))
-    d.line((14, 30, 18, 30), fill=hexc(RED_DK))
-    for x in (6, 26):                                                                          # cheek ridges
-        d.line((x, 15, x + (3 if x < 16 else -3), 29), fill=hexc('#3a2a40'))
+    """the Visage's front (whole-face uv), drawn on a 16 grid: an arc of five square red eyes across the brow (the armour's
+    square, pixel-grid eyes), a bone-ribbed maw below. (v299: simplified for blocky MC - square eyes, not round; the two
+    specks above the brow and the speckle gone; the teeth straight ribs)"""
+    im = Image.new('RGBA', (16, 16), hexc(VOID)); d = ImageDraw.Draw(im)
+    d.line((0, 0, 15, 0), fill=hexc('#3a2a40'))                                               # the brow's lit lip
+    EYES = ((6, 3, 4), (3, 4, 2), (11, 4, 2), (1, 6, 2), (13, 6, 2))                          # (x, y, size): 4x4 in the middle, 2x2 out
+    for (x0, y0, n) in EYES:
+        d.rectangle((x0 - 1, y0 - 1, x0 + n, y0 + n), fill=hexc(VOID_DK))                     # the socket
+    for (x0, y0, n) in EYES:
+        d.rectangle((x0, y0, x0 + n - 1, y0 + n - 1), fill=hexc(RED))                         # the eye
+        im.putpixel((x0, y0), hexc(RED_LT))                                                   # its glint (light from the left)
+    d.line((6, 6, 9, 6), fill=hexc(RED_DK)); d.rectangle((7, 4, 8, 5), fill=hexc('#160204'))  # the great eye: shaded, a square pupil
+    d.rectangle((6, 9, 9, 15), fill=hexc('#0a0204'))                                          # the maw
+    for y in (9, 11, 13):                                                                     # its ribs of bone
+        d.line((6, y, 9, y), fill=hexc(BONE)); im.putpixel((9, y), hexc(BONE_DK))
+    d.line((6, 15, 9, 15), fill=hexc(RED_DK))                                                 # red light at its bottom
+    for x in (3, 12):                                                                         # cheek ridges
+        d.line((x, 10, x, 14), fill=hexc('#3a2a40'))
     return im.resize((64, 64), Image.NEAREST)
 
 
 def _bone(seed, tip=False):
-    rnd = random.Random(seed); base = BONE if not tip else '#5a4a40'
+    base = BONE if not tip else '#5a4a40'
     im = Image.new('RGBA', (16, 16), hexc(base)); d = ImageDraw.Draw(im)
-    for y in range(0, 16, 4):                                       # growth rings
+    for y in range(0, 16, 4):                                       # growth rings (v299: no speckle)
         d.line((0, y, 15, y), fill=hexc(BONE_DK if not tip else '#2a2020')); d.line((0, y + 1, 15, y + 1), fill=hexc(BONE_LT if not tip else '#7a6656'))
-    for _ in range(8):
-        im.putpixel((rnd.randrange(16), rnd.randrange(16)), hexc(BONE_DK if not tip else '#3a2c26'))
     return im.resize((32, 32), Image.NEAREST)
 
 
 def _eye():
-    im = Image.new('RGBA', (8, 8), hexc(VOID_DK)); d = ImageDraw.Draw(im)
-    d.rectangle((1, 1, 6, 6), fill=hexc(RED)); d.rectangle((3, 1, 4, 6), fill=hexc('#160204'))
-    im.putpixel((1, 1), hexc(RED_LT)); im.putpixel((2, 1), hexc(RED_LT))
+    """a side eye (whole uv on a ~1 pixel box): a red square in a black rim, a lit corner - as the armour's"""
+    im = Image.new('RGBA', (4, 4), hexc(VOID_DK))
+    for x, y in ((1, 1), (2, 1), (1, 2), (2, 2)): im.putpixel((x, y), hexc(RED))
+    im.putpixel((1, 1), hexc(RED_LT))
     return im.resize((32, 32), Image.NEAREST)
 
 
 def _flesh(seed):
-    rnd = random.Random(seed); im = Image.new('RGBA', (16, 16), hexc(FLESH)); d = ImageDraw.Draw(im)
-    for x in range(0, 16, 3):
+    im = Image.new('RGBA', (16, 16), hexc(FLESH)); d = ImageDraw.Draw(im)
+    for x in range(0, 16, 3):                                       # (v299: no speckle)
         d.line((x, 0, x, 15), fill=hexc(FLESH_DK))
-    for _ in range(14):
-        im.putpixel((rnd.randrange(16), rnd.randrange(16)), hexc(rnd.choice([FLESH_LT, RED_DK])))
     for y in range(2, 16, 5):                                       # suckers
         im.putpixel((8, y), hexc(FLESH_LT)); im.putpixel((9, y), hexc(FLESH_LT))
     return im.resize((32, 32), Image.NEAREST)
@@ -138,17 +133,16 @@ def helm_model():
     for x, h in ((4.6, 2.2), (6.4, 3.6), (8.0, 4.8), (9.6, 3.6), (11.4, 2.2)):
         E.append(_box((x - 0.5, 15.4, 8.2), (x + 0.5, 15.4 + h, 9.2), 'dread_bone'))
         E.append(_box((x - 0.3, 15.4 + h, 8.4), (x + 0.3, 16.2 + h, 9.0), 'dread_bone_tip'))
-    # more eyes, opening on its sides and crest
-    for (x, y, z) in ((2.1, 9.6, 6.0), (2.1, 7.0, 9.4), (13.0, 10.4, 7.6), (13.0, 7.4, 4.6), (6.0, 14.6, 4.2), (10.6, 14.6, 5.6)):
+    # more eyes, opening on its sides (v299: the crest's two specks gone)
+    for (x, y, z) in ((2.1, 9.6, 6.0), (2.1, 7.0, 9.4), (13.0, 10.4, 7.6), (13.0, 7.4, 4.6)):
         s = 0.7
         E.append(_box((x, y - s, z - s), (x + 0.9, y + s, z + s), 'dread_eye', uv_full=('north', 'south', 'east', 'west', 'up', 'down')))
-    # tendrils hanging down the back, each thinning to its tip
-    for x, sway in ((4.4, -0.6), (7.0, 0.4), (9.4, -0.3), (11.8, 0.6)):
-        y, z, w = 4.0, 13.4, 1.5
-        for k in range(4):
-            L = 2.6 - k * 0.3
-            E.append(_box((x - w / 2 + sway * k * 0.4, y - L, z), (x + w / 2 + sway * k * 0.4, y, z + w), 'dread_flesh'))
-            y -= L - 0.2; z += 0.3; w *= 0.8
+    # tendrils hanging down the back, each thinning to its tip (v299: three straight steps, not four swaying ones - as long)
+    for x in (4.4, 7.0, 9.4, 11.8):
+        y, z = 4.0, 13.4
+        for L, w in ((3.2, 1.5), (2.8, 1.2), (2.4, 0.9)):
+            E.append(_box((x - w / 2, y - L, z), (x + w / 2, y, z + w), 'dread_flesh'))
+            y -= L - 0.2; z += 0.3
     return E
 
 
@@ -159,7 +153,8 @@ HELM_DISPLAY = {'head': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale
 
 
 def helm_json():
-    """-> (block textures to write, the helm's model) - the 2.90b Visage, as shipped (v299 kept it: its redraw was too busy)"""
+    """-> (block textures to write, the helm's model) - the 2.90b Visage, as shipped (v299 kept it: its redraw was too busy),
+    then simplified for blocky MC: square eyes, the textures on the head's pixel grid without speckle, 45 elements (was 51)"""
     tex = helm_textures()
     els = helm_model()
     used = sorted({f['texture'][1:] for e in els for f in e['faces'].values()})

@@ -4,6 +4,7 @@
   wings    the 3D wings: rest (both sway keys), sneak, ride, fall (both beats), glide (both beats)
   before   the old look beside the new (the worn set, the helm, gliding)
   icons    the sprites, big, beside the old ones
+  restored / simplified   the 2.90b Visage; and the simplified one beside it (the old helm from $DREAD_HELM_OLD: block/*.png, dread_helm.json)
   both     the Seraph and the Dread side by side (at rest, falling, gliding)
 The scratch pack is built through the real rp hooks (dread_set_art.rp, dread_armor.rp), so it holds both sets. PNGs to
 $DREAD_OUT (default /home/user/main/previews/v299_seraph, dread_*.png); the old look from $DREAD_OLD."""
@@ -165,3 +166,20 @@ if 'restored' in what:                                    # (v299: the owner kep
     wearer(s, skin='minecraft:entity/zombie/zombie', elytra=False)
     T.append(SP.label(SP.dark(s.render((25, 8), size=330, span=2.6, center=(0, 1.2, 0))), 'a Dread zombie', 'the restored Visage, the new plate'))
     SP.sheet(T, f'{OUT}/dread_helm_restored.png', cols=3, title='The Dread Visage - restored (2.90b)')
+
+if 'simplified' in what:                                  # (v299: the Visage simplified for blocky MC - square eyes, less noise; BEFORE from $DREAD_HELM_OLD)
+    HOLD = os.environ.get('DREAD_HELM_OLD', '')            # (a dir: block/<texture>.png and dread_helm.json, the helm as it was)
+    OLDH = os.path.join(SP.TMP, 'rp_dread_helm_old')
+    if os.path.exists(OLDH): shutil.rmtree(OLDH)
+    shutil.copytree(NEW, OLDH)
+    for f in os.listdir(os.path.join(HOLD, 'block')): shutil.copy(os.path.join(HOLD, 'block', f), os.path.join(OLDH, 'assets', 'bm', 'textures', 'block', f))
+    shutil.copy(os.path.join(HOLD, 'dread_helm.json'), os.path.join(OLDH, 'assets', 'bm', 'models', 'item', 'dread_helm.json'))
+    T = []
+    for view, sub in (((180, 6), 'front'), ((145, 16), 'three-quarter'), ('front', 'behind')):
+        for root, txt in ((OLDH, 'BEFORE (2.90b, restored)'), (NEW, 'AFTER (simplified)')):
+            s = SP.scene(root); s.display('bm:item/dread_helm', pos=(0, 0, 0), ctx='fixed')
+            T.append(SP.label(SP.dark(s.render(view, size=330, span=1.6, center=(0, 0.25, 0))), txt, sub))
+    for view, sub in (('front', 'on a player, front'), ((35, 12), 'on a player, three-quarter')):
+        for root, txt in ((OLDH, 'BEFORE'), (NEW, 'AFTER')):
+            T.append(tile(view, txt, sub + ' (the new plate)', root=root, wings3d='rest_a', size=330, span=2.5, cy=1.6))
+    SP.sheet(T, f'{OUT}/dread_helm_simplified.png', cols=4, title='The Dread Visage - simplified for blocky MC (square eyes, less noise)')
