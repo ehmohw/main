@@ -891,6 +891,8 @@ if __name__ == '__main__':
     phase235.rp(sys.modules[__name__]); phase236.rp(sys.modules[__name__])
     import undercrown_art, phase239          # (2.98: the Bound Sovereign - its Eye's icon is the Undercrown's)
     undercrown_art.rp(sys.modules[__name__]); phase239.rp(sys.modules[__name__])
+    import armada_art                         # (2.99: the Vorn Armada's item art, the Admiral's pylons, the Starforged plate)
+    armada_art.rp(sys.modules[__name__])
     import phase243                           # (2.99: Vexis, the Unlinked)
     phase243.rp(sys.modules[__name__])
     import phase210, phase211, phase212       # (2.94: the effect sprites, the Sky Buddies, Dennis's searing throws)

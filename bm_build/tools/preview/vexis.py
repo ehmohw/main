@@ -33,7 +33,7 @@ def scene(pose, at=(0, 0, 0), yaw=0.0, person=None, fl=True, r=10.0):
 
 def tall(pose):
     """its height to frame it by (blocks)"""
-    return {'warframe': 54, 'hivelink': 44, 'starfire': 46}.get(pose['_form'], 40) * A.scale_of(pose) / 16
+    return {'warframe': 54, 'hivelink': 50, 'starfire': 52}.get(pose['_form'], 40) * A.scale_of(pose) / 16
 
 
 def boss_tile(pose, view=(-30, 10), size=380, label='', sub=None, person=(-3.4, 0, -2.6), span=None, cy=None):
@@ -45,25 +45,25 @@ FORM_T = {'warframe': 'THE WARFRAME (phase 1)', 'hivelink': 'THE HIVE-LINK (phas
 
 if 'forms' in what:
     s = K.multi_scene(root)
-    xs = {'warframe': -22.0, 'hivelink': -1.0, 'starfire': 18.0}
+    xs = {'warframe': -20.0, 'hivelink': -1.0, 'starfire': 15.0}
     for f, x in xs.items():
         p = A.BOSS_POSES[f]['idle_a']; rigkit.render(s, A, p, at=(x, 0, 0), scale=A.scale_of(p))
         K.person(s, (x - 4.5, 0, -4.0))
-    pf = A.POSES['idle_a']; rigkit.render(s, A, pf, at=(33.0, 0, -1.0), scale=A.scale_of(pf)); K.person(s, (34.6, 0, -1.0))
+    pf = A.POSES['idle_a']; rigkit.render(s, A, pf, at=(28.0, 0, -1.0), scale=A.scale_of(pf)); K.person(s, (29.4, 0, -1.0))
     for i in range(-36, 40, 2):
         for j in range(-6, 6, 2): s.solid((i, -0.25, j), (i + 2, 0.0, j + 2), FLOOR if (i // 2 + j // 2) % 2 else FLOOR2)
-    N, span = 2000, 76.0; im = s.render((0, 4), size=N, span=span, center=(4.0, 7.5, 0))
-    k = N / span; im = im.crop((0, int(N / 2 - 15 * k), N, int(N / 2 + 9.5 * k)))
+    N, span = 2000, 66.0; im = s.render((0, 4), size=N, span=span, center=(3.0, 7.0, 0))
+    k = N / span; im = im.crop((0, int(N / 2 - 13 * k), N, int(N / 2 + 8.5 * k)))
     K.sheet([K.label(im, 'WARFRAME (phase 1) - HIVE-LINK (phase 2, hovering) - STARFIRE (phase 3) - UNLINKED (the follower)',
-                     'a player (1.8 blocks) beside each; the warframe ~12 blocks to its masts, the hive-link ~8.5, starfire ~10, unlinked ~2.3')],
+                     'a player (1.8 blocks) beside each; the warframe ~12 blocks to its head (14 to its masts), the hive-link ~8.5 to its skull, starfire ~10, unlinked ~2.3')],
             OUT + '/vx_forms.png', cols=1, title='Admiral Vexis - its three phases and the follower, to scale')
 
 if 'hero' in what:
     tiles = []
     for f in ('warframe', 'hivelink', 'starfire'):
         p = A.BOSS_POSES[f]['idle_a']; tiles.append(boss_tile(p, (-28, 8), 640, FORM_T[f], 'front 3/4, a player for scale', person=(-3.8, 0, -3.4)))
-    s = scene(A.POSES['idle_a'], fl=True, r=3, person=(1.7, 0, 0.6))
-    tiles.append(K.label(s.render((-28, 8), size=640, span=3.6, center=(0, 1.35, 0)), FORM_T['unlinked'], 'front 3/4, a player for scale'))
+    s = scene(A.POSES['idle_a'], fl=True, r=3, person=(1.25, 0, 0.9))
+    tiles.append(K.label(s.render((-28, 8), size=640, span=3.4, center=(0.3, 1.2, 0)), FORM_T['unlinked'], 'front 3/4, a player for scale'))
     K.sheet(tiles, OUT + '/vx_hero.png', cols=4, title='Admiral Vexis - each form, front 3/4')
 
 if 'turn' in what:
@@ -73,24 +73,24 @@ if 'turn' in what:
                 OUT + f'/vx_turn_{f}.png', cols=5, title=f'Admiral Vexis - {f} - turnaround')
     p = A.POSES['idle_a']; tiles = []
     for v, l in (('front', 'front'), ((-35, 12), '3/4'), ('side', 'side'), ((145, 12), 'back 3/4'), ('back', 'back')):
-        s = scene(p, fl=False); tiles.append(K.label(s.render(v, size=420, span=3.4, center=(0, 1.35, 0)), l))
+        s = scene(p, fl=False); tiles.append(K.label(s.render(v, size=420, span=2.9, center=(0, 1.2, 0)), l))
     K.sheet(tiles, OUT + '/vx_turn_unlinked.png', cols=5, title='Admiral Vexis - unlinked (the follower) - turnaround')
 
 if 'scale' in what:
     import dread_sovereign_art as DS
     rds = K.pack(DS, TMP + '/rp_ds')
     s = K.multi_scene(root, rds)
-    for f, x in (('warframe', -14.0), ('hivelink', 5.0)):
+    for f, x in (('warframe', -14.0), ('hivelink', 3.0)):
         p = A.BOSS_POSES[f]['idle_a']; rigkit.render(s, A, p, at=(x, 0, 0), scale=A.scale_of(p))
     for f, x in (('armored', 22.0), ('true', 40.0)):
         p = DS.BOSS_POSES[f]['idle_a']; rigkit.render(s, DS, p, at=(x, 0, 0), scale=DS.scale_of(p))
-    for x in (-19.5, 0.5, 16.5, 33.5): K.person(s, (x, 0, -3.0))
+    for x in (-19.5, -0.5, 16.5, 33.5): K.person(s, (x, 0, -3.0))
     for i in range(-26, 52, 2):
         for j in range(-6, 6, 2): s.solid((i, -0.25, j), (i + 2, 0.0, j + 2), FLOOR if (i // 2 + j // 2) % 2 else FLOOR2)
     N, span = 2000, 80.0; im = s.render((0, 4), size=N, span=span, center=(13.0, 8.0, 0))
     k = N / span; im = im.crop((0, int(N / 2 - 16 * k), N, int(N / 2 + 9.5 * k)))
     K.sheet([K.label(im, 'VEXIS: WARFRAME - HIVE-LINK          THE DREAD SOVEREIGN: ARMORED - TRUE',
-                     'to scale, a player (1.8 blocks) beside each; the Sovereign is the hardest boss - Vexis stands a little under it')],
+                     'to scale, a player (1.8 blocks) beside each; the Sovereign is the hardest boss - Vexis stands a little under it in every phase')],
             OUT + '/vx_scale.png', cols=1, title='Admiral Vexis beside the Dread Sovereign')
 
 if 'poses' in what:
@@ -125,7 +125,7 @@ if 'follower' in what:
     tiles = []
     for n in A.DRAFT:
         s = scene(A.POSES[n], fl=True, r=2)
-        tiles.append(K.label(s.render((-30, 10), size=300, span=3.6, center=(0, 1.35, 0)), n))
+        tiles.append(K.label(s.render((-30, 10), size=300, span=3.0, center=(0, 1.15, 0)), n))
     K.sheet(tiles, OUT + '/vx_follower_poses.png', cols=6, title='Admiral Vexis - unlinked (the follower) - poses')
 
 if 'lineup' in what:

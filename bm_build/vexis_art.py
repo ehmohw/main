@@ -11,17 +11,18 @@ a ragged command mantle (Vorn red-black, a #ff463c stripe at the hem). Donadian 
 only as the patch the follower's mantle was mended with.
 
 ITS FORMS (pose key _form; every part swaps model per form - model_name):
-  warframe  PHASE 1. A colossal battle-mech, ~12 blocks to its masts at BOSS_SCALE: a top-heavy armoured hull, a glass cockpit
+  warframe  PHASE 1. A colossal battle-mech, ~12 blocks to its head (~14 to its masts) at BOSS_SCALE - a little under the
+            armored Sovereign: a top-heavy armoured hull, a glass cockpit
             dome in the chest (Vexis's silhouette inside, lit green from behind), a low sensor head with one green visor bar,
             a heavy plasma cannon for a right arm (green coils, a glowing bore), a three-claw manipulator for a left, missile
             pods on its shoulders (_pods 'open': hatches up, warheads out), a reactor glowing in its abdomen, a backpack with
             thrusters and comms masts, and DIGITIGRADE legs (thigh forward, shin back, a metatarsus and a big three-toed foot).
             _power 0..3 lights it section by section for the entrance (0: dark; 1: the reactor; 2: the hull and cockpit;
             3: the cannon and the backpack - the default).
-  hivelink  PHASE 2. Vexis, out of the torn warframe: ~8.5 blocks, HOVERING (its toes HOVER design units off the deck), thin
+  hivelink  PHASE 2. Vexis, out of the torn warframe: ~8.5 blocks to the skull (~9.5 to the antennae), HOVERING (its toes HOVER design units off the deck), thin
             and tall, legs atrophied in cybernetic braces, the mantle hanging by the world's down, TWO GRAVITY RINGS orbiting
             it (ring1, ring2: green energy bands with gunmetal nodes - each pose turns them, so they orbit as it moves).
-  starfire  PHASE 3. The star's fire in it (FORM_SCALE 1.15): the skin cracked with red-orange star-fire, the eyes blazing
+  starfire  PHASE 3. The star's fire in it (1.15 x the hive-link: ~10 blocks to the skull): the skin cracked with red-orange star-fire, the eyes blazing
             white-gold, the rings burning, a halo of solar flare behind the skull, the mantle's hem burning.
   unlinked  THE FOLLOWER (~2.3 blocks at FOLLOWER_SCALE): the hive-link cut - the skull cables severed (frayed ends, bare
             wire), the implants dark, the eyes a calm green, the mantle mended with a Donadian patch, ONE small gravity ring.
@@ -43,8 +44,8 @@ follower's), scan (the warframe's targeting fan), sparks (the link burning out);
 lance), flare (the star-flare's fan), deflect (the follower's deflector).
 
 SCALE (one rig, two sizes):
-  RIG_SCALE = FOLLOWER_SCALE (1.1: about 2.3 blocks to the antennae) - rigpet's, with POSES (form 'unlinked').
-  BOSS_SCALE (4.0) x FORM_SCALE[form] - the boss's, with BOSS_POSES[form][name]. scale_of(pose) gives the right one.
+  RIG_SCALE = FOLLOWER_SCALE (0.78: about 2.3 blocks to the antennae, 2.0 to the skull) - rigpet's, with POSES (form 'unlinked').
+  BOSS_SCALE (4.0) x FORM_SCALE[form] (warframe 1.0, hivelink 0.78, starfire 0.9) - the boss's, with BOSS_POSES[form][name]. scale_of(pose) gives the right one.
 
 THE RIG (rigkit): body (the root: the pelvis - the reactor; Vexis's hips and tabard), chest (the hull and cockpit; the torso),
 head (a model per form x face), arms (armr/arml: the pauldron and upper arm; forer: the cannon / a forearm and hand; forel:
@@ -59,10 +60,10 @@ import rigkit
 from rigkit import qs, el, seg, shrink, D, qrot
 
 PREFIX = 'vx_'
-FOLLOWER_SCALE = 1.1
+FOLLOWER_SCALE = 0.78
 RIG_SCALE = FOLLOWER_SCALE                     # (the follower's: POSES are the follower's)
 BOSS_SCALE = 4.0
-FORM_SCALE = {'warframe': 1.0, 'hivelink': 1.0, 'starfire': 1.15}
+FORM_SCALE = {'warframe': 1.0, 'hivelink': 0.78, 'starfire': 0.9}     # (starfire: the hive-link's x 1.15)
 FORMS = ('warframe', 'hivelink', 'starfire', 'unlinked')
 ALIEN = ('hivelink', 'starfire', 'unlinked')
 HOVER = 4.0                                    # (the boss's float: its toes this far off the deck, design units)
@@ -74,7 +75,7 @@ PIVOT = {'body': (0, 20.0, 0), 'chest': (0, 25.0, 0.5), 'head': (0, 42.0, -2.0),
          'armr': (13.5, 37.5, 0.5), 'forer': (14.5, 27.0, 0.5), 'arml': (-13.5, 37.5, 0.5), 'forel': (-14.5, 27.0, 0.5),
          'legr': (6.5, 19.0, 0.5), 'shinr': (7.0, 11.5, -4.0), 'footr': (7.0, 5.5, 3.5),
          'legl': (-6.5, 19.0, 0.5), 'shinl': (-7.0, 11.5, -4.0), 'footl': (-7.0, 5.5, 3.5),
-         'podr': (9.0, 41.5, 3.5), 'podl': (-9.0, 41.5, 3.5), 'back': (0, 34.0, 7.0),
+         'podr': (9.2, 43.3, 3.5), 'podl': (-9.2, 43.3, 3.5), 'back': (0, 34.0, 7.0),
          'ring1': (0, 22.0, 0), 'ring2': (0, 22.0, 0), 'fx': (0, 44.9, -9.2), 'fxh': (14.5, 5.4, 0.5)}
 PARENT = {'body': None, 'chest': 'body', 'head': 'chest', 'armr': 'chest', 'forer': 'armr', 'arml': 'chest', 'forel': 'arml',
           'legr': 'body', 'shinr': 'legr', 'footr': 'shinr', 'legl': 'body', 'shinl': 'legl', 'footl': 'shinl',
@@ -652,7 +653,8 @@ def _w_pod(sx, open_=False):
                 P += [BX(sx, x - 0.7, x + 0.7, y - 0.7, y + 0.7, -2.0, -0.6, 'vx_missile'),
                       BX(sx, x - 0.3, x + 0.3, y - 0.3, y + 0.3, -2.3, -2.0, 'vx_glow_l', light=15)]
     del hinge
-    return P
+    P = rigkit.transform(P, lambda v: [v[0] + sx * 0.2, v[1] + 1.8, v[2]])     # (raised clear of the pauldrons and the head)
+    return P + [BX(sx, 6.8, 10.6, 42.2, 44.6, 1.4, 6.4, 'vx_hull_d')]
 
 
 def _w_back(lit=True):
@@ -802,12 +804,12 @@ def _a_body(form):
     S, SD = _sk(form)
     B = [E((-2.8, 11.2, -1.6), (2.8, 14.6, 1.8), S), E((-3.0, 12.6, -1.8), (3.0, 13.6, 2.0), 'vx_implant'),
          E((-0.7, 12.7, -1.95), (0.7, 13.5, -1.8), _gl(form), light=0 if form == 'unlinked' else 15),
-         E((-1.3, 5.2, -2.1), (1.3, 12.6, -1.7), 'vx_mantle'), E((-1.35, 6.0, -2.15), (1.35, 7.2, -2.05), 'vx_mantle_r'),
-         E((-1.5, 5.6, 1.8), (1.5, 12.6, 2.2), 'vx_mantle'), E((-1.55, 6.4, 2.15), (1.55, 7.6, 2.25), 'vx_mantle_r')]
+         E((-1.3, 7.6, -2.1), (1.3, 12.6, -1.7), 'vx_mantle'), E((-1.35, 8.2, -2.15), (1.35, 9.2, -2.05), 'vx_mantle_r'),
+         E((-1.5, 8.0, 1.8), (1.5, 12.6, 2.2), 'vx_mantle'), E((-1.55, 8.6, 2.15), (1.55, 9.6, 2.25), 'vx_mantle_r')]
     for sx in (1, -1):
         B.append(BX(sx, 2.0, 3.3, 11.4, 13.4, -1.2, 1.4, S))
     if form == 'starfire':
-        B += [E((-1.1, 4.8, -2.15), (1.1, 5.4, -1.8), 'vx_fire', light=15), E((-1.3, 5.2, 1.9), (1.3, 5.8, 2.2), 'vx_fire', light=15)]
+        B += [E((-1.1, 7.2, -2.15), (1.1, 7.8, -1.8), 'vx_fire', light=15), E((-1.3, 7.6, 1.9), (1.3, 8.2, 2.2), 'vx_fire', light=15)]
     return B
 
 
@@ -888,9 +890,9 @@ def _a_back(form):
         bot = 3.6 + rnd.uniform(0, 3.0) + (1.4 if k in (0, n - 1) else 0)
         M += strip(xt, ang, bot, 2 * W0 / n + 0.05, 3.2, 3.6, k)
     for sx in (1, -1):                                        # (wrapping the flanks: strips turned to its sides)
-        for j, (z, bot) in enumerate(((2.8, 6.6), (1.9, 8.2))):
-            r = ('z', -sx * 9, (sx * 5.6, 23.4, z))
-            M += [BX(sx, 5.45, 5.75, bot, 23.4, z - 0.5, z + 0.5, MT, rot=r), BX(sx, 5.42, 5.78, bot + 2.0, bot + 3.2, z - 0.52, z + 0.52, 'vx_mantle_r', rot=r)]
+        for j, (z, bot) in enumerate(((3.0, 6.6), (2.4, 8.2))):
+            r = ('z', -sx * 9, (sx * 5.6, 21.4, z))
+            M += [BX(sx, 5.45, 5.75, bot, 21.4, z - 0.4, z + 0.4, MT, rot=r), BX(sx, 5.42, 5.78, bot + 2.0, bot + 3.2, z - 0.42, z + 0.42, 'vx_mantle_r', rot=r)]
             if form == 'starfire': M.append(BX(sx, 5.4, 5.8, bot - 0.4, bot + 0.5, z - 0.55, z + 0.55, 'vx_fire', light=15, rot=r))
     if form == 'unlinked':
         M += [E((0.9, 12.4, 3.62), (3.6, 15.2, 3.78), 'vx_patch', uv={'south': [0, 0, 16, 16], 'north': [0, 0, 16, 16]}),
@@ -917,8 +919,8 @@ def _a_ring(i, form):
         r, n = 12.4, 28
         R += RING((c[0], c[1] + 0.45, c[2]), r, n, 0.35, 0.4, 'vx_fire' if star else 'vx_ring2') + \
              RING((c[0], c[1] - 0.45, c[2]), r, n, 0.35, 0.4, 'vx_fire' if star else 'vx_ring2', phase=0.5)
-        for k in range(4):
-            a = 2 * math.pi * (k + 0.125) / 4
+        for k in range(3):
+            a = 2 * math.pi * (k + 0.25) / 3
             R.append(E((c[0] + r * math.cos(a) - 0.5, c[1] - 0.9, c[2] + r * math.sin(a) - 0.5), (c[0] + r * math.cos(a) + 0.5, c[1] + 0.9, c[2] + r * math.sin(a) + 0.5),
                        'vx_fire_l' if star else 'vx_hull', light=15 if star else 0))
     if star:                                                  # (flames licking up off it)
@@ -1155,6 +1157,7 @@ def qa_x(d):
 
 
 GROUND_PARTS = ('body', 'legr', 'legl', 'shinr', 'shinl', 'footr', 'footl')
+LEGS = GROUND_PARTS[1:]                        # (seated: the tabard and the mantle fold away into the deck)
 
 
 def ground(pose, parts=GROUND_PARTS, lift=0.0):
@@ -1217,7 +1220,7 @@ def dangle(swing=0.0, spread=5.0, bend=18.0, point=10.0, sway=0.0):
 
 def rings(spin=0.0, t1=(8.0, 22.0), t2=(-26.0, -10.0)):
     """the gravity rings: each tilted (z, x), spun about its own axis (they orbit as the poses go by)"""
-    return dict(ring1=qs(('z', t1[0]), ('x', t1[1]), ('y', spin)), ring2=qs(('z', t2[0]), ('x', t2[1]), ('y', -spin * 0.7)))
+    return dict(ring1=qs(('z', t1[0]), ('x', t1[1]), ('y', spin)), ring2=qs(('z', t2[0]), ('x', t2[1]), ('y', -spin)))
 
 
 def _wf(name):
@@ -1247,7 +1250,7 @@ def _wf(name):
               armr=limb(1, 70, 30, -10), forer=limb(1, 24), arml=limb(-1, 24, 26), forel=limb(-1, 30))
     elif name == 'cannon':                                    # (and the sweep: the plasma beam carved across the deck, right to left)
         p = P(_face=face_hot, _fx='plasma', chest=T(8, 24), head=T(4, -14), **mleg(1, 18, 28, 5), **mleg(-1, 4, 12, 5),
-              armr=limb(1, 62, 6, 26), forer=limb(1, 22), arml=limb(-1, -10, 30), forel=limb(-1, 30))
+              armr=limb(1, 62, 20, 14), forer=limb(1, 22), arml=limb(-1, -10, 30), forel=limb(-1, 30))
     elif name == 'missiles':                                  # (the pods open and tipped up, the claw marking targets, the visor scanning)
         p = P(_face='narrowed', _pods='open', _fx='scan', chest=T(-6), head=T(-4), **mlegs(12, 20, 5), podr=qa_x(-28), podl=qa_x(-28),
               armr=limb(1, 4, 20), forer=limb(1, 36), arml=limb(-1, 74, 12), forel=limb(-1, 12))
@@ -1261,15 +1264,15 @@ def _wf(name):
         p = P(_face=face_hot, _pods='open', chest=T(-10, -8), head=T(-8, 12), **mlegs(8, 14, 4), podr=qa_x(-12), podl=qa_x(-12),
               armr=limb(1, 6, 16), forer=limb(1, 24), arml=limb(-1, 136, 12), forel=limb(-1, 16))
     elif name == 'dormant':                                   # (powered down at the helm: folded on its legs, slumped, the arms on the deck)
-        p = P(_face='closed', _power=0, chest=T(28), head=T(26), **mlegs(70, 132, 4),
+        p = P(_face='closed', _power=0, chest=T(28), head=T(26), **mlegs(62, 118, 4),
               armr=limb(1, 22, 6), forer=limb(1, 18), arml=limb(-1, 26, 8), forel=limb(-1, 22))
         lowall = True
     elif name == 'wake_0':                                    # (the reactor lights; the visor glimmers; the head lifts)
-        p = P(_face='dim', _power=1, chest=T(26), head=T(14), **mlegs(70, 132, 4),
+        p = P(_face='dim', _power=1, chest=T(26), head=T(14), **mlegs(62, 118, 4),
               armr=limb(1, 22, 6), forer=limb(1, 18), arml=limb(-1, 26, 8), forel=limb(-1, 22))
         lowall = True
     elif name == 'wake_1':                                    # (the hull and the cockpit light; the claw pushes off the deck)
-        p = P(_face='dim', _power=2, chest=T(20, -6), head=T(4, 6), **mleg(1, 62, 116, 4), **mleg(-1, 56, 104, 4),
+        p = P(_face='dim', _power=2, chest=T(20, -6), head=T(4, 6), **mleg(1, 56, 106, 4), **mleg(-1, 50, 96, 4),
               armr=limb(1, 22, 8), forer=limb(1, 18), arml=limb(-1, 10, 20), forel=limb(-1, 0))
         lowall = True
     elif name == 'rise':                                      # (rising off its haunches)
@@ -1329,9 +1332,9 @@ def _alien(name, form):
         if star: return None
         p = P(_face='narrowed', _fx='beam', chest=T(12), head=T(10), armr=limb(1, -34, 40), forer=limb(1, 12), arml=limb(-1, -34, 40), forel=limb(-1, 12),
               **dangle(-14, 6, 22, 16), **rings(90, (4, 14), (-20, -6)))
-    elif name == 'clone':                                     # (splitting: the arms crossed over its breast, the eyes shut, the rings stood on edge)
+    elif name == 'clone':                                     # (splitting: the arms spread level, the head bowed, the eyes shut, the rings stood on edge)
         if star: return None
-        p = P(_face='closed', chest=T(10), head=T(18), armr=limb(1, 40, -4, 40), forer=limb(1, 96, 0, 30), arml=limb(-1, 40, -4, 40), forel=limb(-1, 96, 0, 30),
+        p = P(_face='closed', chest=T(4), head=T(20), armr=limb(1, 14, 78), forer=limb(1, 34, 0, -20), arml=limb(-1, 14, 78), forel=limb(-1, 34, 0, -20),
               **dangle(0, 3, 22, 14), ring1=qs(('z', 60), ('x', 80)), ring2=qs(('z', -60), ('x', 80)))
     elif name == 'summon':                                    # (the arms raised high: calling the swarm)
         if star: return None
@@ -1426,23 +1429,23 @@ def _fol():
                            arml=limb(-1, -30 - 6 * sw, 16), forel=limb(-1, 8), **dangle(-40, 6, 20, 30, 6 * sw), **R1(90 * k, (2, 34)))
     po['jump'] = F(lift=F_HOVER + 6.0, _face='wide', chest=T(-4), head=T(-10), armr=limb(1, 40, 30), forer=limb(1, 20), arml=limb(-1, 40, 30), forel=limb(-1, 20),
                    **dangle(20, 8, 50, 10), **R1(40, (0, 4)))
-    # seated on the deck, legs folded aside, its long hands in its lap; the ring settled round it
-    po['sit_a'] = F(grounded=True, _pool=True, body=T(-4), chest=T(8), head=T(10, -10, 6), legr=limb(1, 82, 18), shinr=knee(130), footr=qa_x(-30),
-                    legl=limb(-1, 80, 22), shinl=knee(128), footl=qa_x(-30), armr=limb(1, 26, -2, 20), forer=limb(1, 56, 0, 20), arml=limb(-1, 26, -2, 20),
-                    forel=limb(-1, 56, 0, 20), ring1=qs(('x', 2)))
-    # meditating, floating a little off the deck: legs crossed, hands together, eyes shut, the ring turning slowly
-    po['sit_b'] = F(lift=1.2, _face='closed', body=T(-2), chest=T(4), head=T(12), legr=limb(1, 76, 34), shinr=knee(136), footr=qa_x(-20),
-                    legl=limb(-1, 76, 34), shinl=knee(136), footl=qa_x(-20), armr=limb(1, 34, -4, 30), forer=limb(1, 74, 0, 34), arml=limb(-1, 34, -4, 30),
-                    forel=limb(-1, 74, 0, 34), ring1=qs(('x', 4), ('y', 45)))
+    # sat on the deck, its thin legs out before it, its long hands on its knees, looking about; the ring settled round it
+    po['sit_a'] = F(grounded=True, _pool=True, body=T(-10), chest=T(14), head=T(8, -12, 6), legr=limb(1, 84, 12), shinr=knee(16), footr=qa_x(-50),
+                    legl=limb(-1, 80, 14), shinl=knee(24), footl=qa_x(-50), armr=limb(1, 24, 16), forer=limb(1, 78), arml=limb(-1, 24, 16),
+                    forel=limb(-1, 78), ring1=qs(('x', 2)), gparts=LEGS + ('forer', 'forel'))
+    # meditating, floating a little off the deck: legs crossed under it, hands together, eyes shut, the ring turning slowly
+    po['sit_b'] = F(lift=1.2, _face='closed', body=T(-2), chest=T(4), head=T(12), legr=limb(1, 64, 52, 20), shinr=knee(128), footr=qa_x(-20),
+                    legl=limb(-1, 64, 52, 20), shinl=knee(128), footl=qa_x(-20), armr=limb(1, 34, -2, 20), forer=limb(1, 70, 0, 18), arml=limb(-1, 34, -2, 20),
+                    forel=limb(-1, 70, 0, 18), ring1=qs(('x', 4), ('y', 45)))
     # glad (in its quiet way): the arms opening, the head on one side, the eyes smiling, the ring spun up
     po['happy'] = F(lift=F_HOVER + 1.0, _face='soft', chest=T(-4), head=T(-6, 0, -14), armr=limb(1, 30, 44), forer=limb(1, 30), arml=limb(-1, 30, 44), forel=limb(-1, 30),
                     **dangle(-6, 8, 16, 8), **R1(120, (14, 30)))
     po['hurt'] = F(lift=F_HOVER - 0.6, _face='dim', chest=T(-14, 10), head=T(-16, -12), armr=limb(1, 30, 24), forer=limb(1, 40), arml=limb(-1, 20, 30), forel=limb(-1, 50),
                    **dangle(10, 6, 12, 4), **R1(20, (20, 40)))
-    # spent: sunk to the deck, legs folded, slumped forward, the ring lying round it
-    po['tired'] = F(grounded=True, _pool=True, _face='closed', body=T(-10), chest=T(24), head=T(30), legr=limb(1, 74, 22), shinr=knee(120), footr=qa_x(-30),
-                    legl=limb(-1, 70, 26), shinl=knee(124), footl=qa_x(-30), armr=limb(1, 10, 10), forer=limb(1, 10), arml=limb(-1, 10, 10), forel=limb(-1, 10),
-                    ring1=qs(('x', 6), ('z', 4)), gparts=GROUND_PARTS + ('forer', 'forel'))
+    # spent: sunk to the deck, legs out, slumped forward over them, the ring lying round it
+    po['tired'] = F(grounded=True, _pool=True, _face='closed', body=T(-16), chest=T(34), head=T(30), legr=limb(1, 82, 16), shinr=knee(8), footr=qa_x(-40),
+                    legl=limb(-1, 78, 20), shinl=knee(14), footl=qa_x(-40), armr=limb(1, 4, 8), forer=limb(1, 96, 0, 10), arml=limb(-1, 4, 8), forel=limb(-1, 96, 0, 10),
+                    ring1=qs(('x', 6), ('z', 4)), gparts=LEGS + ('forer', 'forel'))
     # a gravity swipe: the long hand drawn up and back - and swept down across, the ring flaring
     po['slash_up'] = F(_face='narrowed', chest=T(-4, -24), head=T(0, 18), armr=limb(1, 140, 34), forer=limb(1, 40), arml=limb(-1, 30, 20), forel=limb(-1, 40),
                        **dangle(-6, 5, 20, 12), **R1(30, (10, 26)))
@@ -1464,7 +1467,7 @@ def _fol():
                  legl=limb(-1, -6 + 10 * s_(ph), 6), shinl=knee(16), footl=qa_x(30), armr=limb(1, 100 + 50 * s_(ph), 30), forer=limb(1, 10),
                  arml=limb(-1, 100 + 50 * s_(ph), 30), forel=limb(-1, 10), **R1(45 * i, (0, 60)))
         po[f'swim_{i}'] = fit(p)
-        po[f'swim_{i}']['back'] = qa_x(-60)
+        po[f'swim_{i}']['back'] = qa_x(8 + 6 * s_(ph))           # (streaming back along it)
     return po
 
 
