@@ -1,4 +1,4 @@
-"""The Gem of Creativity follower's preview sheets (rigkit).  python3 tools/preview/gem.py [views,poses,swirl,lineup]
+"""The Gem of Creativity follower's preview sheets (rigkit).  python3 tools/preview/gem.py [views,poses,swirl,lineup,orbit]
 Writes preview/gem_follower_*.png (BM_PREVIEW_DIR for the scratch packs). The swirl is an animated strip in the game; a scratch
 pack holds one frame of it at a time (FRAME), so a sheet can show the colours turning."""
 import sys, os
@@ -52,3 +52,19 @@ if 'lineup' in what:
     K.person(s, (-1.1, 0, 0.3))
     K.sheet([K.label(s.render((-12, 8), size=640, span=3.6, center=(0.4, 1.1, 0)), 'size', 'a player, the Gem (hovering), Kettle, Mr. Capshun')],
             f'{DST}/gem_follower_lineup.png', cols=1, title='The Gem of Creativity - to scale')
+if 'orbit' in what:                                # (3.0a) the halo's glints circling it at rest: phase231 turns the ring by its right_rotation
+    from rigkit import qs                          # (here: the same turn about the vertical, posed on the ring)
+    ODIR = os.environ.get('BM_GEM_ORBIT_DIR', os.path.join(os.path.dirname(BM), 'previews', 'v300a_gem')); os.makedirs(ODIR, exist_ok=True)
+    N = 24
+    frames = []
+    for k in range(N):
+        deg = 360.0 * k / N
+        pz = dict(I, halo=qs(('y', deg)))
+        frames.append(tile(pz, (-30, 12), span=1.6, center=(0, 0.95, 0), size=300, label=f'{k * A.HALO_TURN // N} ticks', sub=f'halo turned {deg:.0f} deg',
+                           frame=(k * 4) % A.FRAMES))
+    K.sheet(frames[::2], f'{ODIR}/gem_idle_orbit.png', cols=6, title=f'The Gem at rest - its halo circling (a full turn in {A.HALO_TURN / 20:.0f} s; every 2nd step of {N})')
+    for k in (0, 3, 6, 9):
+        frames[k].save(f'{ODIR}/gem_idle_orbit_{k:02d}.png')
+    frames[0].save(f'{ODIR}/gem_idle_orbit.gif', save_all=True, append_images=frames[1:], duration=A.HALO_TURN * 50 // N, loop=0)
+    top = [tile(dict(I, halo=qs(('y', 360.0 * k / 8))), (-30, 60), span=1.8, center=(0, 0.95, 0), size=260, label=f'from above, {45 * k} deg') for k in range(4)]
+    K.sheet(top, f'{ODIR}/gem_idle_orbit_above.png', cols=4, title='From above: the ring clear of the gem all the way round')

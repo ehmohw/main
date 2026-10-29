@@ -7,6 +7,10 @@ happy to see you, you hurt...).
 
 HOW IT COMES: when Mr. Capshun, Kettle and Emma walk with you at once (the trio, THE CREATIVE SPARK), the Gem notices: it comes
 down to see what its first Buddy, its narrator and the princess are up to - and stays. (The Gem of Creativity: use it to call it.)
+  (3.0a) It comes as a short scene, 9.5 s: high in the sky it shines, then sinks slowly in a sparkling spiral, swirls twice round
+  you at shoulder height in rings of rainbow, rises over your head and DROPS - the Gem itself, an item only you can pick up,
+  falling into your hands (given directly if it hasn't reached you 30 s later). Your camera is your own the whole time.
+  Its halo of glints (the white squares) circles it without stopping (_spin).
 CONJURE (every 4 s, a foe within 14): one of its Buddies pops out of a sparkle at the monster - Grace's DIVE-PECK, Robo's ROCKET
   PUNCH, Zapper's ZAP, Dessa's FLASH-BURST, Bubbles' POP-SPLASH, Chase's TACKLE, Limer's BODY SLAM, Chico's SWING-WHACK, Spike's
   BUZZ-SAW DASH, Cheferoni's SLICE THROW - its own wind-up and strike (8, and each its own extra), and it pops away again.
@@ -360,17 +364,18 @@ def _spin(G):
 
 
 # ---------------------------------------------------------------------------------------------------- (3.0a) THE GEM COMES DOWN
-# A short scene (CIN_END ticks, 9 s), played round the player where they stand. The camera is never taken, and they can walk:
-# the scene follows them. DOWN (0-100): high in the sky (26 up, 4 out) the Gem shines, then sinks slowly in a wide, tightening
-# spiral, trailing sparkles, with a chime at every step down, each higher. SWIRL (101-160): twice round you at shoulder height,
-# 2 out, rings of rainbow rising round you. RISE (161-180): in over your head and up. Then it DROPS: the summoning item,
+# A short scene (CIN_END ticks, 9.5 s), played round the player where they stand. The camera is never taken, and they can walk:
+# the scene follows them. DOWN (0-120): high in the sky (26 up, 4 out) the Gem shines, then sinks slowly in a wide, tightening
+# spiral, trailing sparkles, with a chime at every step down, each higher. SWIRL (121-170): twice round you at shoulder height,
+# 2 out, rings of rainbow rising round you. RISE (171-190): in over your head and up. Then it DROPS: the summoning item,
 # as an item entity just over your head, falls into your hands. Only you can pick it up (its Owner), it can't burn, and if it
 # hasn't reached you within CIN_LATE ticks of the start (30 s after it drops), it is given to you directly. Nothing is given
 # before then: the drop is the reward.
 # (a marker, bm.cgcin, carries the clock (bm.cgct), the turn (bm.cgca, tenths of a degree) and the player's pid; the gem is three
 #  displays (bm.cgcz: the body, the face (:D), the halo), set every tick by a macro: rotated by the turn, up by the height,
 #  out by the radius. The player waits under bm.cgwait (bm.cgwt counts their ticks) until the Gem is in their inventory.)
-CIN_DOWN, CIN_SWIRL, CIN_END = 100, 160, 180
+CIN_DOWN, CIN_SWIRL, CIN_END = 120, 170, 190
+SWIRL_STEP = 720 * 10 // (CIN_SWIRL - CIN_DOWN)                # (tenths of a degree a tick: twice round in the swirl)
 CIN_LATE = CIN_END + 600
 RAINBOW = ['1.0,0.3,0.35', '1.0,0.65,0.2', '1.0,0.95,0.3', '0.4,1.0,0.5', '0.35,0.75,1.0', '0.75,0.45,1.0']
 
@@ -379,7 +384,7 @@ def _cinematic(G, X):
     fn, tellraw, title = G.fn, G.tellraw, G.title
     objs = ['bm.cgct', 'bm.cgca', 'bm.cgwt']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + \
-        [f'scoreboard players set #{n} bm.cgct {n}' for n in (6, 10, 20, 1000)]
+        [f'scoreboard players set #{n} bm.cgct {n}' for n in (6, 20)]
     G.OBJECTIVES += objs
     ME = '@a[tag=bm.cgcme,limit=1]'
     DISP = '@e[type=minecraft:item_display,tag=bm.cgcsel]'
@@ -435,25 +440,26 @@ def _cinematic(G, X):
                          'execute store result storage bm:tmp cgc.h double 0.001 run scoreboard players get #ch bm.cgct',
                          'execute store result storage bm:tmp cgc.r double 0.001 run scoreboard players get #cr bm.cgct',
                          'execute store result storage bm:tmp cgc.a float 0.1 run scoreboard players get @s bm.cgca'])
-    # DOWN: d = 100 - t; the height 1.6 + 24.4 (d/100)^2 (slowing as it nears), out 4 -> 2, the turn 4 -> 12 deg a tick
-    fn('p231/cin/p_down', [f'scoreboard players set #cd bm.cgct {CIN_DOWN}', 'scoreboard players operation #cd bm.cgct -= #ct bm.cgct',
-                           'scoreboard players operation #ch bm.cgct = #cd bm.cgct', 'scoreboard players operation #ch bm.cgct *= #cd bm.cgct',
-                           'scoreboard players set #ck bm.cgct 244', 'scoreboard players operation #ch bm.cgct *= #ck bm.cgct',
-                           'scoreboard players operation #ch bm.cgct /= #1000 bm.cgct', 'scoreboard players add #ch bm.cgct 1600',
-                           'scoreboard players operation #cr bm.cgct = #cd bm.cgct', 'scoreboard players operation #cr bm.cgct *= #20 bm.cgct', 'scoreboard players add #cr bm.cgct 2000',
-                           'scoreboard players operation #cst bm.cgct = #ct bm.cgct', 'scoreboard players set #ck bm.cgct 8', 'scoreboard players operation #cst bm.cgct *= #ck bm.cgct',
-                           'scoreboard players operation #cst bm.cgct /= #10 bm.cgct', 'scoreboard players add #cst bm.cgct 40'])
-    # SWIRL: twice round you (60 ticks, 12 deg a tick), shoulder high, 2 out
-    fn('p231/cin/p_swirl', ['scoreboard players set #ch bm.cgct 1600', 'scoreboard players set #cr bm.cgct 2000', 'scoreboard players set #cst bm.cgct 120'])
-    # RISE: u = t - 160: in over your head (2 -> 0 out) and up (1.6 -> 3.0), slowing its turn
-    fn('p231/cin/p_rise', ['scoreboard players operation #cu bm.cgct = #ct bm.cgct', f'scoreboard players remove #cu bm.cgct {CIN_SWIRL}',
-                           f'execute if score #cu bm.cgct matches {CIN_END - CIN_SWIRL}.. run scoreboard players set #cu bm.cgct {CIN_END - CIN_SWIRL}',
-                           'scoreboard players set #ck bm.cgct 100', 'scoreboard players operation #cr bm.cgct = #cu bm.cgct', 'scoreboard players operation #cr bm.cgct *= #ck bm.cgct',
-                           'scoreboard players set #ck bm.cgct 2000', 'scoreboard players operation #ck bm.cgct -= #cr bm.cgct', 'scoreboard players operation #cr bm.cgct = #ck bm.cgct',
-                           'scoreboard players set #ck bm.cgct 70', 'scoreboard players operation #ch bm.cgct = #cu bm.cgct', 'scoreboard players operation #ch bm.cgct *= #ck bm.cgct',
-                           'scoreboard players add #ch bm.cgct 1600',
-                           'scoreboard players operation #cst bm.cgct = #cu bm.cgct', 'scoreboard players set #ck bm.cgct 3', 'scoreboard players operation #cst bm.cgct *= #ck bm.cgct',
-                           'scoreboard players set #ck bm.cgct 120', 'scoreboard players operation #ck bm.cgct -= #cst bm.cgct', 'scoreboard players operation #cst bm.cgct = #ck bm.cgct'])
+    # DOWN: d = CIN_DOWN - t; the height 1.6 + 24.4 (d/D + (d/D)^2) / 2 (gentle from the start, slowing as it nears), 4 out -> 2,
+    # the turn 4 -> 14.4 deg a tick
+    D = CIN_DOWN
+    op = lambda a, o, b: f'scoreboard players operation #{a} bm.cgct {o} #{b} bm.cgct'
+    k = lambda v: f'scoreboard players set #ck bm.cgct {v}'
+    fn('p231/cin/p_down', [f'scoreboard players set #cd bm.cgct {D}', op('cd', '-=', 'ct'),
+                           op('ch', '=', 'cd'), k(12200), op('ch', '*=', 'ck'), k(D), op('ch', '/=', 'ck'),
+                           op('cq', '=', 'cd'), op('cq', '*=', 'cd'), k(12200), op('cq', '*=', 'ck'), k(D * D), op('cq', '/=', 'ck'),
+                           op('ch', '+=', 'cq'), 'scoreboard players add #ch bm.cgct 1600',
+                           op('cr', '=', 'cd'), k(2000), op('cr', '*=', 'ck'), k(D), op('cr', '/=', 'ck'), 'scoreboard players add #cr bm.cgct 2000',
+                           op('cst', '=', 'ct'), k(SWIRL_STEP - 40), op('cst', '*=', 'ck'), k(D), op('cst', '/=', 'ck'), 'scoreboard players add #cst bm.cgct 40'])
+    # SWIRL: twice round you, shoulder high, 2 out
+    fn('p231/cin/p_swirl', ['scoreboard players set #ch bm.cgct 1600', 'scoreboard players set #cr bm.cgct 2000', f'scoreboard players set #cst bm.cgct {SWIRL_STEP}'])
+    # RISE: u = t - CIN_SWIRL (1..20): in over your head (2 -> 0 out) and up (1.6 -> 3.0), slowing its turn
+    R_ = CIN_END - CIN_SWIRL
+    fn('p231/cin/p_rise', [op('cu', '=', 'ct'), f'scoreboard players remove #cu bm.cgct {CIN_SWIRL}',
+                           f'execute if score #cu bm.cgct matches {R_}.. run scoreboard players set #cu bm.cgct {R_}',
+                           op('cr', '=', 'cu'), k(2000 // R_), op('cr', '*=', 'ck'), k(2000), op('ck', '-=', 'cr'), op('cr', '=', 'ck'),
+                           op('ch', '=', 'cu'), k(1400 // R_), op('ch', '*=', 'ck'), 'scoreboard players add #ch bm.cgct 1600',
+                           op('cst', '=', 'cu'), k(4), op('cst', '*=', 'ck'), k(SWIRL_STEP), op('ck', '-=', 'cst'), op('cst', '=', 'ck')])
     # (as the marker, at the player) the gem where the path puts it, facing you; its trail there
     fn('p231/cin/put', ['$execute rotated $(a) 0 positioned ^ ^$(h) ^$(r) run function bm:p231/cin/at_gem'])
     trail = [f'execute if score #cf bm.cgct matches {i} run particle minecraft:dust{{color:[{c}],scale:1.4}} ~ ~ ~ 0.12 0.12 0.12 0 2' for i, c in enumerate(RAINBOW)]
