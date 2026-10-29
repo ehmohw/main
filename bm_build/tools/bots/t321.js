@@ -35,6 +35,8 @@ const HOST = '@e[type=minecraft:horse,tag=bm.rxh';
   const riding = async (tag) => /passed/i.test(await run(`execute as TestRat on vehicle if entity @s[tag=${tag}]`));
   const useItem = async (ms = 350) => { A.use(); await sleep(ms); A.release(); };
   const yard = async () => {
+    // (the yard's chunks held first: the bot may come in far off, and a fill in a chunk nobody has loaded fails - "not loaded")
+    await run(`${O}forceload add ${YX - 16} ${YZ - 16} ${YX + 16} ${YZ + 20}`); await sleep(2000);
     await run(`${O}fill ${YX - 16} ${YY} ${YZ - 16} ${YX + 16} ${YY + 12} ${YZ + 20} minecraft:air`);
     await run(`${O}fill ${YX - 16} ${YY - 1} ${YZ - 16} ${YX + 16} ${YY - 1} ${YZ + 20} minecraft:stone`);
     await run(`${O}kill @e[type=!minecraft:player,distance=..40,x=${YX},y=${YY},z=${YZ}]`);
@@ -90,6 +92,8 @@ const HOST = '@e[type=minecraft:horse,tag=bm.rxh';
 
   if (on('egg')) {
     await run('clear TestRat'); await run('tag TestRat remove bm.rxhatch'); await run('advancement revoke TestRat only bm:story/rex_atomic');
+    // (the pool's chunks held first, as the yard's: it used to pass only on a stray force-load left from an older run)
+    await run(`${N}forceload add ${YX - 6} ${YZ - 6} ${YX + 10} ${YZ + 6}`); await sleep(2000);
     await run(`${N}fill ${YX - 6} ${YY} ${YZ - 6} ${YX + 10} ${YY + 6} ${YZ + 6} minecraft:air`);
     await run(`${N}fill ${YX - 6} ${YY - 2} ${YZ - 6} ${YX + 10} ${YY - 1} ${YZ + 6} minecraft:obsidian`);
     await run(`${N}fill ${YX + 2} ${YY - 1} ${YZ - 2} ${YX + 6} ${YY - 1} ${YZ + 3} minecraft:lava`);

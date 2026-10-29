@@ -31,7 +31,9 @@ const CELL = { under: { 0: [2632, 84, -2417], 2: [2584, 84, -2441], 3: [2584, 84
   // (stays: 4 s where it was put, nothing said)
   const stays = async (p) => { A.bars.length = 0; await sleep(4000); return near([p[0] + 0.5, p[1], p[2] + 0.5]) && !A.bars.some(b => /Back you go|carried out/.test(b)); };
   // (sent back: away from p within 3 s, to where it stood, told)
-  const sentBack = async (p, home) => { A.bars.length = 0;
+  //  (the bars are cleared by the caller BEFORE the teleport: sent back within a tick, the bot never sees itself there, at() waits
+  //   its 4 s out, and the "will not be skipped" line came - and was wiped - in that wait)
+  const sentBack = async (p, home) => {
     return await wait(3500, async () => near([home[0] + 0.5, home[1], home[2] + 0.5])) && A.bars.some(b => /will not be skipped/.test(b)) && !near([p[0] + 0.5, p[1], p[2] + 0.5]); };
 
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
@@ -53,8 +55,8 @@ const CELL = { under: { 0: [2632, 84, -2417], 2: [2584, 84, -2441], 3: [2584, 84
     // (arrive, and let a dungeon left alone reset, before setting any stage; on the ground there, it's where you last stood)
     await at(D, C[0]); await sleep(3500);
     await stage(D, d, 2);
-    await at(D, C[3]);
-    ok(`trial 2 the last solved, standing past gate 3: sent back to where you last stood`, await sentBack(C[3], C[0]), where());
+    A.bars.length = 0; await at(D, C[3]);
+    ok(`trial 2 the last solved, standing past gate 3: sent back to where you last stood`, await sentBack(C[3], C[0]), where() + ' | ' + A.bars.slice(-2).join(' / ').slice(0, 160));
     await sleep(1500);
     await solve(D, d, 3); await sleep(1500);
     await at(D, C[3]);
@@ -62,7 +64,7 @@ const CELL = { under: { 0: [2632, 84, -2417], 2: [2584, 84, -2441], 3: [2584, 84
     await at(D, C[0]); await sleep(2500);
     await stage(D, d, guard - 1);
     await run(`${D}scoreboard players set @e[type=minecraft:marker,tag=bm.dg,tag=bm.d_${d},limit=1] bm.pz ${guard}`); await sleep(1500);   // (its puzzle solved, its knights awake)
-    await at(D, C[guard]);
+    A.bars.length = 0; await at(D, C[guard]);
     ok(`trial ${guard} solved but its knights still standing: past their door, sent back`, await sentBack(C[guard], C[0]), where());
     await sleep(1500);
     await run(`${D}execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.pz${guard},tag=bm.d_${d},limit=1] at @s run function bm:p2/${d}/pz${guard}_open`); await sleep(1500);   // (they fell: phase245 opens it)
