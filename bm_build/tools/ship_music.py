@@ -485,7 +485,7 @@ def dreadnought(tr, inv=False):
         s = 0.8 * np.sin(2 * np.pi * f2 * t) + 0.55 * np.sin(2 * np.pi * f1 * t)
         s += 0.3 * np.sin(2 * np.pi * fa * t) * (0.5 + 0.5 * np.sin(2 * np.pi * lock(0.0375, n) * t))
         return s * (0.78 + 0.22 * np.sin(2 * np.pi * lock(0.05, n) * t))
-    bed(tr, drone, gain=0.15 if not inv else 0.13, wet=0.1)
+    bed(tr, drone, gain=0.07 if not inv else 0.06, wet=0.05)
     def hum(N, n):
         t = np.arange(N) / SR
         f = lock(mf(m('D2')), n)
