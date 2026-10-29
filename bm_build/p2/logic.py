@@ -467,9 +467,12 @@ def generate(G, builds):
     second += ['execute as @e[type=minecraft:marker,tag=bm.zone_d] at @s run effect give @a[distance=..34,gamemode=survival,tag=!bm.adv] minecraft:mining_fatigue 3 2 true']
     fn('p2/util/pearl_zap', ['particle minecraft:reverse_portal ~ ~ ~ 0.2 0.2 0.2 0.05 25',
                              'playsound minecraft:entity.enderman.teleport neutral @a[distance=..16] ~ ~ ~ 0.6 0.6',
-                             'execute on owner run give @s minecraft:ender_pearl 1',
-                             'execute on owner run ' + title('@s', 'actionbar', T('The floor drinks your pearl. Walk the path.', 'light_purple')),
-                             'kill @s'])
+                             'tag @a remove bm.pzown', 'execute on owner run tag @s add bm.pzown',
+                             # (3.0: a pearl whose owner doesn't resolve - thrown that very tick - goes back to the nearest player)
+                             'execute unless entity @a[tag=bm.pzown] run tag @p[distance=..8,gamemode=!spectator] add bm.pzown',
+                             'give @a[tag=bm.pzown,limit=1] minecraft:ender_pearl 1',
+                             title('@a[tag=bm.pzown,limit=1]', 'actionbar', T('The floor drinks your pearl. Walk the path.', 'light_purple')),
+                             'tag @a remove bm.pzown', 'kill @s'])
     fn('p2/util/reloot', ['$data modify block ~ ~ ~ LootTable set value "$(loot)"'])
     # 2.13: every victor's vault wears a sign and a beam of light, so nobody walks past it with a Victor's Key in their pocket
     vbt = {'Tags': ['bm.vbtext', 'bm.p2'], 'billboard': 'center', 'see_through': B_(0), 'shadow': B_(1), 'background': Int(0x60000000),

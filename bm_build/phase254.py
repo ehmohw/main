@@ -64,7 +64,7 @@ class Keeper(RP.Cfg):
                tend_a=30, tend_b=30, bow=12, rise=10)
     QUIPS = ['(it hums, and the motes round it turn a little faster)', '"Every one of them is still with you. I can feel the threads."',
              '(it tucks a loose thread back into its sleeve, very carefully)', '"You walk so far. The tapestry keeps getting longer."',
-             '(its eyes of light crinkle - a smile, without a mouth)', '"Shall I tell you a secret? Emma\'s thread was the first."']
+             '(its kind eyes crinkle up, and it smiles at you)', '"Shall I tell you a secret? Emma\'s thread was the first."']
     HELLO = ('(the Keeper glides back to your side, the motes round it settling)', '(a thread of light draws itself out of the air - and the Keeper of Bonds is there, its loom aglow)',
              '(it bows, unravels into a hundred bright threads, and is gone)')
     SIT = ('"Shall we go on? There are always more threads."', '(it kneels on its robe, folds its wings, and weaves a little while it waits)')
@@ -94,7 +94,7 @@ class Keeper(RP.Cfg):
 RP.register(Keeper)
 RF2.setup(Keeper, 'head')
 
-_DOLL = 'A doll of the Keeper of Bonds - a big hooded head with two kind eyes of light, a little rainbow robe, and six tiny wings.'
+_DOLL = 'A doll of the Keeper of Bonds - a big hooded head with a round, smiling face, a little rainbow robe, and six tiny wings.'
 item('doll_keeper', TOTEM, 'Keeper of Bonds Doll', COL, [_DOLL, ('Right-click a block: set it down.', 'blue'), ('Right-click it: it twirls.', 'blue'),
                                                          ('Sneak + punch: pick it up.', 'gray')], model='bm:doll_keeper', stack=16, cat='fun', comps=hold('none'))
 HOLD['doll_keeper'] = 'bm:p141/doll_keeper/use'
@@ -130,14 +130,14 @@ def rp(R):
     RP.rp(Keeper, R, KA.icon_bond_thread())
     RF2.faces(Keeper, 'head', R)
 
-    def post(R2):                               # (the six wings' iridescent strips: their .png.mcmeta, as mire_art's post pass writes them)
+    def post(R2):                               # (the iridescent strips - wings, pearl cloth, gold trim: their .png.mcmeta, as mire_art's post pass writes them)
         for path, meta in KA.mcmeta().items():
             R2.wj(path, meta)
     R.POST.append(post)
 
 
 def textures():
-    return KA.textures()                        # (its own kb_* textures; the wings' are animated strips - rp's post writes their .mcmeta)
+    return KA.textures()                        # (its own kb_* textures; the wings, the pearl cloth and its trim are animated strips - rp's post writes their .mcmeta)
 
 
 def generate_early(G):

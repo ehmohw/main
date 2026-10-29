@@ -476,6 +476,8 @@ def rp(R):
             ns, path = ref.split(':', 1) if ':' in ref else ('minecraft', ref)
             src = R2.p('assets', 'bm', 'textures', *path.split('/')) + '.png' if ns == 'bm' else f'{VAN}/{path}.png'
             im = _recolor(Image.open(src).convert('RGBA'), GOLD_LO, GOLD_HI, 1.25)
+            if im.height > im.width and im.height % im.width == 0:   # (3.0b: an animated strip - its first frame, which the UVs mean)
+                im = im.crop((0, 0, im.width, im.width))
             if im.width != im.height:                              # (UVs are fractions of the sheet: stretched square, the same faces)
                 n = max(im.size); im = im.resize((n, n), Image.NEAREST)
             nm = 'gd_' + path.replace('/', '_')

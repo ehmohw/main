@@ -1,8 +1,11 @@
-"""The Keeper of Bonds' preview sheets (rigkit).  python3 tools/preview/keeper.py [lineup,poses,faces,items,doll,sanctuary,clip,fit]
+"""The Keeper of Bonds' preview sheets (rigkit).  python3 tools/preview/keeper.py [lineup,poses,faces,items,doll,sanctuary,clip,fit,looks,shimmer,zfight]
 Writes to $BM_PREVIEW_DIR (default: previews/v300_keeper). The dark tile: tools/render has no light, so each face is tinted after
 the scene is built - unlit faces dimmed to night, faces of elements with light_emission kept bright in proportion to their level
 (as tools/preview/pale_dryad.py does it). 'clip' prints, per pose, every pair of parts whose boxes cut into each other beyond
-the joints meant to meet, and how far its lowest point is off the floor. 'fit' measures phase134's FIT for the display case."""
+the joints meant to meet, and how far its lowest point is off the floor. 'fit' measures phase134's FIT for the display case.
+(3.0b) The animated strips (the pearl cloth, its trim, the wings) render at frame FRAME[0] (tools/render alone shows frame 0):
+'shimmer' shows the iridescence over a cycle; 'looks' the wardrobe's looks (as phase138 recolours them: the luminance ramp, or
+gild's metals) and the shiny, by day and by night; 'zfight' runs zfix's own test over every model of the scratch pack."""
 import sys, os, json, math, itertools
 HERE = os.path.dirname(os.path.abspath(__file__)); BM = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE); sys.path.insert(0, BM)
@@ -15,6 +18,26 @@ OUT = os.environ['BM_PREVIEW_DIR']; os.makedirs(OUT, exist_ok=True)
 SCRATCH = os.environ.get('BM_SCRATCH', '/tmp/bm_previews')
 what = sys.argv[1].split(',') if len(sys.argv) > 1 else ['lineup', 'poses', 'faces', 'items', 'doll', 'sanctuary', 'clip']
 ROOT = K.pack(A, f'{SCRATCH}/rp_kb')
+FRAME = [0]                                  # (the animation frame the strips render at)
+
+
+def _texture(self, tid):
+    """tools/render's Scene.texture, but an animated strip shows frame FRAME[0] (its frames interpolated, as the game does)"""
+    key = (tid, FRAME[0])
+    if tid.startswith('#'):
+        if tid not in self.tex: self.tex[tid] = np.array([[[int(tid[i:i + 2], 16) / 255 for i in (1, 3, 5)] + [1.0]]], np.float32)
+        return self.tex[tid]
+    if key not in self.tex:
+        im = Image.open(self._path(tid, 'textures', '.png')).convert('RGBA')
+        w, h = im.size
+        if h > w:
+            n = h // w; f = FRAME[0] % n
+            im = im.crop((0, f * w, w, f * w + w))
+        self.tex[key] = np.asarray(im).astype(np.float32) / 255.0
+    return self.tex[key]
+
+
+R.Scene.texture = _texture
 I = A.POSES['idle_a']
 NIGHT_BG, NIGHT_GRID = (16, 18, 34), (34, 38, 52)
 
@@ -50,8 +73,8 @@ def night_scene(*roots):
 
 def darken(im):
     a = np.asarray(im).astype(np.float32)
-    sky = (np.abs(a - np.array([199, 219, 242])).sum(axis=2) < 8)
-    grid = (np.abs(a - np.array([140, 158, 140])).sum(axis=2) < 10) | (np.abs(a - np.array([51, 127, 51])).sum(axis=2) < 10)
+    sky = (np.abs(a - np.array([199, 219, 242])).sum(axis=2) < 2)          # (3.0b: exact - the pearl cloth comes near the grid)
+    grid = (np.abs(a - np.array([140, 158, 140])).sum(axis=2) < 2) | (np.abs(a - np.array([51, 127, 51])).sum(axis=2) < 2)
     a[sky] = NIGHT_BG; a[grid] = NIGHT_GRID
     return Image.fromarray(a.astype(np.uint8))
 
@@ -280,7 +303,7 @@ if 'lineup' in what:
     s = night_scene(); rigkit.render(s, A, I, scale=A.RIG_SCALE)
     t2.append(dark_label(darken(s.render((-30, 62), size=440, span=3.6, center=(0, 1.3, 0))), 'by night, from above', 'the two rings of motes'))
     s = K.multi_scene(ROOT); rigkit.render(s, A, I, scale=A.RIG_SCALE)
-    t2.append(K.label(s.render('front', size=440, span=1.1, center=(0, 2.0, 0)), 'the hood, close', 'a soft glowing face, two calm eyes'))
+    t2.append(K.label(s.render('front', size=440, span=1.1, center=(0, 2.0, 0)), 'the hood, close', 'a kind round face, rosy cheeks, a small smile'))
     s = K.multi_scene(ROOT); rigkit.render(s, A, I, scale=A.RIG_SCALE)
     t2.append(K.label(s.render((-25, 8), size=440, span=1.1, center=(0, 1.32, -0.1)), 'the loom at its heart', 'a spindle of light, rainbow warps'))
     K.sheet(t2, OUT + '/keeper_details.png', cols=4, title='The Keeper of Bonds - details')
@@ -354,3 +377,105 @@ if 'clip' in what:
     open(f'{SCRATCH}/keeper_clip.txt', 'w').write(txt + '\n'); print(txt)
 if 'sanctuary' in what:
     sanctuary_sheet(OUT + '/sanctuary.png')
+def world_zfight(m, ztol=0.03, amin=0.05):
+    """z-fighting in the model's own space: pairs of faces facing the same way, in one plane (within ztol) and overlapping by
+    more than amin both ways - every element's rotation applied (zfix compares x/y/z-rotated elements in their local frames,
+    so it flags feathers of different turns that never meet, and misses ones that do)"""
+    N = {'north': (0, 0, -1), 'south': (0, 0, 1), 'east': (1, 0, 0), 'west': (-1, 0, 0), 'up': (0, 1, 0), 'down': (0, -1, 0)}
+    quads = []
+    for i, e in enumerate(m['elements']):
+        f, t = np.array(e['from'], float), np.array(e['to'], float)
+        r = e.get('rotation'); M, o = np.eye(3), np.zeros(3)
+        if r:
+            o = np.array(r['origin'], float)
+            M = {'x': R.rx, 'y': R.ry, 'z': R.rz}[r['axis']](math.radians(r['angle'])) if 'axis' in r else \
+                R.rz(math.radians(r.get('z', 0))) @ R.ry(math.radians(r.get('y', 0))) @ R.rx(math.radians(r.get('x', 0)))
+        for fn in e['faces']:
+            n = np.array(N[fn], float); ax = int(np.argmax(np.abs(n)))
+            c = [np.array(v) for v in itertools.product(*[(f[k], t[k]) if k != ax else ((t[k],) if n[ax] > 0 else (f[k],)) for k in range(3)])]
+            w = [M @ (p - o) + o for p in c]
+            quads.append((i, fn, M @ n, np.array(w)))
+    hits = []
+    for (ia, fa, na, wa), (ib, fb, nb, wb) in itertools.combinations(quads, 2):
+        if ia == ib or na @ nb < 0.9999 or abs(na @ (wa[0] - wb[0])) > ztol: continue
+        u = wa[1] - wa[0] if np.linalg.norm(wa[1] - wa[0]) > 1e-9 else wa[2] - wa[0]
+        u = u / np.linalg.norm(u); v = np.cross(na, u)
+        A2, B2 = np.c_[wa @ u, wa @ v], np.c_[wb @ u, wb @ v]
+        def hull(P):
+            P = sorted(map(tuple, P)); return P
+        ok = True
+        for poly in (A2, B2):
+            Q = np.array([poly[0], poly[1], poly[3], poly[2]])          # (corners in order round the quad)
+            for k in range(4):
+                ed = Q[(k + 1) % 4] - Q[k]; nn = np.array([-ed[1], ed[0]])
+                if np.linalg.norm(nn) < 1e-9: continue
+                nn = nn / np.linalg.norm(nn); pa, pb = A2 @ nn, B2 @ nn
+                if min(pa.max(), pb.max()) - max(pa.min(), pb.min()) <= amin: ok = False; break
+            if not ok: break
+        if ok: hits.append((ia, fa, ib, fb))
+    return hits
+
+
+if 'zfight' in what:
+    import zfix
+    nw = 0
+    for f in sorted(os.listdir(f'{ROOT}/assets/bm/models/item')):
+        if not f.startswith(A.PREFIX): continue
+        h = world_zfight(json.load(open(f'{ROOT}/assets/bm/models/item/{f}')))
+        if h: print('z-fighting (model space):', f, len(h), h[:4])
+        nw += len(h)
+    print('zfight: model-space pairs =', nw)
+    n = 0
+    for f in sorted(os.listdir(f'{ROOT}/assets/bm/models/item')):
+        if not f.startswith(A.PREFIX): continue
+        m = json.load(open(f'{ROOT}/assets/bm/models/item/{f}'))
+        k = zfix.fix_model(f'{ROOT}/assets', m)
+        if k: print('z-fighting:', f, k)
+        n += k
+    print('zfight: faces zfix would move =', n)
+if 'shimmer' in what:
+    # the iridescence over one cycle: four frames of the pearl cloth's sheen (and the wings', the gold's) - the same pose and view
+    tiles = []
+    for f in (0, 4, 8, 12):
+        FRAME[0] = f
+        s = K.multi_scene(ROOT); rigkit.render(s, A, I, scale=A.RIG_SCALE)
+        tiles.append(K.label(s.render((-30, 10), size=420, span=1.7, center=(0, 1.75, 0)), f'frame {f} of {A.FRAMES}', f'{f * 5 / 20:.0f} s - the sheen flowing over the pearl'))
+    for f in (0, 4, 8, 12):
+        FRAME[0] = f
+        s = K.multi_scene(ROOT); rigkit.render(s, A, I, scale=A.RIG_SCALE)
+        tiles.append(K.label(s.render((150, 10), size=420, span=2.6, center=(0, 1.6, 0)), f'frame {f}, from behind', 'the wings shimmering with it'))
+    FRAME[0] = 0
+    K.sheet(tiles, OUT + '/keeper_shimmer.png', cols=4, title='The Keeper of Bonds - the iridescence: animated strips (interpolated), four frames of one cycle')
+    # and the strips themselves, every fourth frame at 2x
+    names = list(A.ANIMATED)
+    T = A.textures()
+    sh = Image.new('RGB', (len(names) * 140 + 10, 4 * 140 + 50), (40, 40, 50)); d = ImageDraw.Draw(sh)
+    d.text((10, 8), 'the animated strips (frames 0, 4, 8, 12)', fill=(235, 235, 235), font=font(16))
+    for i, n in enumerate(names):
+        d.text((10 + i * 140, 30), n, fill=(220, 220, 220), font=font(11, False))
+        for j, f in enumerate((0, 4, 8, 12)):
+            sh.paste(T[n].crop((0, 64 * f, 64, 64 * f + 64)).resize((128, 128), Image.NEAREST), (10 + i * 140, 48 + j * 140))
+    sh.save(OUT + '/keeper_strips.png')
+if 'looks' in what:
+    # the wardrobe's looks, made exactly as phase138.textures makes them (LOOK_TEX through phase99._recolour, or gild's metal)
+    import phase99 as P99, gild
+    base = A.textures()
+    looks = [(0, 'its own pearl', None)] + [(k, n, pal) for k, (n, pal) in P99.NEW['keeper'][3].items()]
+    tiles, ntiles = [], []
+    for k, name, pal in looks:
+        root = ROOT
+        if pal is not None:
+            root = K.pack(A, f'{SCRATCH}/rp_kb_look')
+            if gild.is_gilded('keeper', k): ims = {n: gild.dress('keeper', k, base[n]) for n in A.LOOK_TEX}
+            else: ims = P99._recolour({n: base[n] for n in A.LOOK_TEX}, pal)
+            for n, im in ims.items():
+                assert im.size == base[n].size, (n, im.size)
+                im.save(f'{root}/assets/bm/textures/block/{n}.png')
+        for night in (False, True):
+            FRAME[0] = 6
+            s = night_scene(root) if night else K.multi_scene(root)
+            rigkit.render(s, A, I, scale=A.RIG_SCALE)
+            im = s.render((-30, 10), size=300, span=2.9, center=(0, 1.3, 0))
+            (ntiles if night else tiles).append(dark_label(darken(im), name, 'at night') if night else K.label(im, name, f'look {k}' if k else 'no look'))
+    FRAME[0] = 0
+    K.sheet(tiles + ntiles, OUT + '/keeper_looks.png', cols=len(tiles), title="The Keeper of Bonds - its wardrobe (phase138's recolours of the animated pearl: kb_robe, kb_hood), by day and by night")

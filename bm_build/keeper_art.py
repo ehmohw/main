@@ -8,9 +8,18 @@ LOOK  A tall, calm figure (2.45 blocks to the hood's peak as it floats), robed i
         a twill stitch every fourth cell), running round the colour wheel from gold at the belt, through green, blue, violet
         and rose, to amber at the gold hem; a fringe of loose threads hangs from the hem in all their colours;
       - the 49th colour (the bonds' first: Emma's pink) is the spindle at its heart.
-      - Cream cloth above (a soft vertical warp line), a gold belt and a mantle over the shoulders with a woven border of colour
+      - Pearl cloth above (a soft vertical warp line), a gold belt and a mantle over the shoulders with a woven border of colour
         blocks; long bell sleeves, the same border at the cuffs, their long drape trailing loose drifting threads (threadr / threadl).
-      - A deep hood (gold rim) over a soft glowing face: two calm eyes of light, no mouth.
+        (3.0b) The cloth is MOTHER-OF-PEARL: kb_robe and kb_hood are animated strips (FRAMES frames, interpolated) - a pastel
+        sheen (PEARL: rose, peach, cream, mint, sky, lilac) running diagonally over a warm pearl base and flowing along over
+        the frames, a pale highlight band sweeping across once a cycle; every frame keeps each cell's luminance, so the
+        wardrobe's luminance recolours (phase138 -> phase99._recolour / gild.metal) come out as clean cloth in the look's
+        colours with the highlight passing over them (gen_rp copies the .mcmeta to their _cN copies). The gold trim (kb_gold,
+        kb_rim, kb_brd) glints the same way, in rose and champagne golds; the wings are tuned to the same pastels.
+      - (3.0b, friendlier) A soft pearl hood, pushed back and opened wide (gold rim, rose lining), over a warm round face: a
+        fringe of starlight-lilac hair, peach skin, rosy cheeks, soft plum eyes with a shine, a small smile (kb_face; each
+        mood's features are kb_eyes / kb_eyes_<face>, a hair in front). The hood rounds to a low crown - no point.
+        Hands are warm skin now, not light.
       - At its heart a small glowing LOOM (its own part): a gold frame strung with rainbow warp threads, a spindle of light at
         its centre (light 15).
       - Round it, slowly orbiting, the 49 BONDS: tiny glowing motes, each a follower's colour - two tilted rings on their own
@@ -19,7 +28,7 @@ LOOK  A tall, calm figure (2.45 blocks to the hood's peak as it floats), robed i
       - SIX WINGS of woven light (3.0, the owner's addition): three pairs on its back like a seraph's - the upper rising, a
         short middle pair (inside the motes' inner ring), the lower falling - each a fan of feathers in three lengths, gold and
         rose at the root, violet and blue, green and pale at the tip. Their textures (kb_wing0-2) are ANIMATED strips (16 frames,
-        interpolated: each tone shimmers round its part of the rainbow); rp must write their .png.mcmeta (mcmeta() / ANIMATED,
+        interpolated: pastels flowing over each length of feather); rp must write their .png.mcmeta (mcmeta() / ANIMATED,
         as mire_art's post pass does). Parts wing_ur/ul, wing_mr/ml, wing_lr/ll on the body; every pose sets them (WING_POSE):
         a slow flap through the idles, folded round it sitting, spread in happy and the weave, drooped in the faint.
       Simplified, readable textures: 2-px square cells on 64-px textures (a half unit), no speckle.
@@ -84,13 +93,13 @@ BONDS = [('emma', '#ff8ad8'), ('celi', '#9ad8ff'), ('zib', '#3ad8c8'), ('cecil',
 
 # ---- the palette (3.0b: friendlier, and mother-of-pearl): pearl cloth with a pastel sheen running over it, gold trim, a soft
 #      dusky-rose lining, and a warm round face under the hood - peach skin, rosy cheeks, starlight-lilac hair
-CREAM, CREAM_D, CREAM_L = '#fbf3ea', '#ece0d6', '#fffbf6'     # (the pearl's base: its cloth, the warp line, the paler weft row)
-HOODC, HOODC_D = '#f5ece6', '#e6d8d2'
+CREAM, CREAM_D, CREAM_L = '#f6ece4', '#e6d8d0', '#fcf6f0'     # (the pearl's base: its cloth, the warp line, the paler weft row)
+HOODC, HOODC_D = '#f0e6e2', '#e0d0cc'
 GOLD, GOLD_D, GOLD_L, GOLD_W = '#e8b648', '#c08a2c', '#ffd878', '#fff2c0'
 LINING, LINING_D = '#c08aa6', '#a9758f'                       # (dusky rose: the hood's inside, the robe's underside)
 GLOW_C, GLOW_E, GLOW_D = '#ffe2c4', '#ffd2b0', '#f6bc9a'       # (the sleeves' insides: warm peach)
 SKIN, SKIN_D, CHEEK = '#ffe6d4', '#f8d0bc', '#f9aab6'          # the face: warm peach, its shade under the fringe, rosy cheeks
-HAIR, HAIR_D = '#ece0fc', '#cdb8ee'                           # starlight-lilac hair under the hood
+HAIR, HAIR_D = '#dcc8f8', '#b9a0e6'                           # starlight-lilac hair under the hood
 EYE, EYE_H, BROW = '#4a2c54', '#ffffff', '#b8a0d8'            # soft plum eyes, their shine, lilac brows
 MOUTH, TONGUE, TEAR = '#b04e6a', '#f58ca0', '#a8dcff'
 HAND, HAND_L = SKIN, '#fff0e4'
@@ -102,7 +111,7 @@ L_WING = (9, 11, 13)                                          # (the wings' thre
 #      slow mother-of-pearl shimmer. Every frame keeps each cell's luminance (the sheen changes hue, not brightness), so the
 #      wardrobe's luminance recolours (phase99._recolour / gild.metal) still come out as clean cloth in the look's colours -
 #      with only the soft highlight band (SWEEP) passing over them, the look's own shimmer.
-PEARL = ['#ffd2e8', '#ffe2c6', '#fff2c4', '#d2f4e2', '#cfe6ff', '#e2d2ff']    # rose, peach, cream, mint, sky, lilac
+PEARL = ['#ffbcdc', '#ffd0a8', '#fff0a8', '#b8f0d4', '#b4d8ff', '#d4bcff']    # rose, peach, cream, mint, sky, lilac
 FRAMES = 16
 
 
@@ -197,7 +206,7 @@ def _strip(frame):
     return im
 
 
-def _pearl(base, line, light=None, phase=0.0, scale=0.8):
+def _pearl(base, line, light=None, phase=0.0, scale=1.8):
     """mother-of-pearl cloth: the woven grid of before (a warp line every two units, a paler weft row every four) at the
     luminance of `base`/`line`/`light`, washed with a pastel sheen - hue running diagonally over it (scale: how much of the
     round fits across the texture), how much of it varying in soft waves the other way - and flowing along over the frames;
@@ -211,7 +220,7 @@ def _pearl(base, line, light=None, phase=0.0, scale=0.8):
         def c(x, y):
             L = Ll if x % 4 == 3 else Lh if light and y % 8 == 0 else Lb
             t = (x + y) / 62 * scale + tf + phase
-            amt = 0.62 + 0.24 * math.sin(2 * math.pi * ((x - y) / 40 + phase))
+            amt = 0.66 + 0.3 * math.sin(2 * math.pi * ((x - y) / 22 + phase))
             s = _sheen_at(t)
             col = tuple(bc[i] + (s[i] - bc[i]) * amt for i in range(3))
             d = ((x + y) / 62 - tf - phase * 0.5) % 1.0
@@ -310,7 +319,7 @@ GOLD_I, CREAM_I, WHITE_I = 57, 58, 59
 # left of kb_face - starlight-lilac hair in a soft fringe, a side lock framing each cheek, warm peach skin, rosy cheeks; the
 # features (eyes, brows, mouth) are each face's overlay (kb_eyes / kb_eyes_<face>), drawn a pixel (a quarter unit) at a time
 FACE_W, FACE_H = 26, 24
-FRINGE = [14, 10, 7, 6, 5, 6, 4, 6, 5, 6, 7, 10, 14]            # (the hair's depth in px, per 2-px column: a parted fringe, side locks)
+FRINGE = [16, 12, 8, 6, 5, 6, 4, 6, 5, 6, 8, 12, 16]            # (the hair's depth in px, per 2-px column: a parted fringe, side locks)
 CHEEKS = ((3, 14, 3, 2), (20, 14, 3, 2))                         # (x, y, w, h)
 
 
@@ -323,6 +332,8 @@ def _face():
         if dep < FACE_H: d.rectangle((x0, dep, x0 + 1, dep), fill=hexc(SKIN_D))   # (and the skin just under it, shaded)
     for x, y, w, h in CHEEKS:
         d.rectangle((x, y, x + w - 1, y + h - 1), fill=hexc(CHEEK))
+    for x0, y0, x1, y1 in ((0, 22, 1, 23), (24, 22, 25, 23), (0, 21, 0, 21), (25, 21, 25, 21), (2, 23, 2, 23), (23, 23, 23, 23)):
+        d.rectangle((x0, y0, x1, y1), fill=hexc(LINING))                # (the chin's corners rounded off: the hood's lining behind)
     return im
 
 
@@ -381,9 +392,9 @@ def _light():
 # ---- the wings' feathers: woven light, iridescent - three animated strips (FRAMES frames: the pearl's sheen, deeper - each
 #      length of feather a run of pastels flowing diagonally over it, a fine sheen every four units, the robe's highlight band
 #      sweeping across), root to tip: champagne, peach and rose; rose, lilac and periwinkle; sky, mint and pearl
-WING_BANDS = {'kb_wing0': ['#ffdc98', '#ffcab4', '#ffbcd8', '#ffe2b0'],
-              'kb_wing1': ['#f2b0e2', '#d4b8ff', '#b8caff', '#e4c0fa'],
-              'kb_wing2': ['#a8dcff', '#b0f0d8', '#e6fff4', '#d0e2ff']}
+WING_BANDS = {'kb_wing0': ['#ffd27a', '#ffb89a', '#ffa8cc', '#ffd896'],
+              'kb_wing1': ['#ee98d8', '#c4a0ff', '#a0b8ff', '#dca8f6'],
+              'kb_wing2': ['#8ccfff', '#94eac4', '#d8fff0', '#b8d4ff']}
 WING_FRAMES = FRAMES
 ANIMATED = {k: {'animation': {'frametime': 4, 'interpolate': True}} for k in WING_BANDS}     # {texture: its .png.mcmeta}
 CLOTH_ANIM = ('kb_robe', 'kb_hood', 'kb_gold', 'kb_rim', 'kb_brd')                          # (the pearl cloth and its gold trim)
@@ -413,7 +424,7 @@ def mcmeta():
 
 
 def textures():
-    T = {'kb_robe': _pearl(CREAM, CREAM_D, CREAM_L), 'kb_hood': _pearl(HOODC, HOODC_D, phase=0.37, scale=0.65), 'kb_gold': _gold(), 'kb_brd': _border(), 'kb_rim': _rim(),
+    T = {'kb_robe': _pearl(CREAM, CREAM_D, CREAM_L), 'kb_hood': _pearl(HOODC, HOODC_D, phase=0.37, scale=1.5), 'kb_gold': _gold(), 'kb_brd': _border(), 'kb_rim': _rim(),
          'kb_lining': _cells(lambda x, y: LINING_D if (x + y) % 6 == 0 else LINING), 'kb_bonds': _atlas(), 'kb_hand': _hand(), 'kb_light': _light(), 'kb_inner': _inner(),
          'kb_face': _face(), 'kb_eyes': _eyes()}
     for k in range(6):
@@ -514,10 +525,10 @@ def _wing(sx, tier):
     els = [seg(P(-0.4, 0.0, -0.3), P(1.4, 0.0, bk + 0.1), 2.2, 1.0, 'kb_gold', pv, (0.0, 1.0, 0.0), ext=0.0, light=10)]     # (the root, out of its back)
     for k, (e, L) in enumerate(WINGS[tier]):
         c, s_ = math.cos(math.radians(e)), math.sin(math.radians(e))
-        lay = 0.36 * (k % 2) + 0.05 + bk
+        lay = 0.36 * (k % 2) + 0.05 + bk + 0.04 * (k // 2)         # (3.0b: and every other one a hair further back - no two in one plane)
         pts = [P(0.9 + c * L * f, s_ * L * f, lay) for f in (0.0, 0.36, 0.7, 1.0)]
         for j, (tex, w, light) in enumerate((('kb_wing0', 2.6, L_WING[0]), ('kb_wing1', 2.2, L_WING[1]), ('kb_wing2', 1.8, L_WING[2]))):
-            els.append(seg(pts[j], pts[j + 1], w, 0.34, tex, pv, n, ext=0.0 if j else 0.05, light=light, shift=(0.17 * k + 0.3 * j, 0.23 * k)))
+            els.append(seg(pts[j], pts[j + 1], w, 0.34, tex, pv, n, ext=0.0, light=light, shift=(0.17 * k + 0.3 * j, 0.23 * k)))   # (3.0b: end to end - no overlap to z-fight)
     return els
 
 
@@ -628,8 +639,8 @@ def models():
     # ---- the loom at its heart: a little gold frame strung with rainbow warp threads, a beam at the top and the foot, and in
     #      the middle a spindle of light, wound with the first bond's thread
     pv = PIVOT['loom']; X, Y, Z = pv
-    lm = [bx((X - 2.6, Y - 2.9, Z - 0.7), (X - 2.0, Y + 2.9, Z + 0.15), 'kb_gold', pv, light=L_BAND),
-          bx((X + 2.0, Y - 2.9, Z - 0.7), (X + 2.6, Y + 2.9, Z + 0.15), 'kb_gold', pv, light=L_BAND),
+    lm = [bx((X - 2.6, Y - 2.9, Z - 0.7), (X - 2.0, Y + 2.9, Z + 0.1), 'kb_gold', pv, light=L_BAND),      # (3.0b: their backs 0.05 off the
+          bx((X + 2.0, Y - 2.9, Z - 0.7), (X + 2.6, Y + 2.9, Z + 0.1), 'kb_gold', pv, light=L_BAND),      #  beams': no z-fighting)
           bx((X - 2.9, Y + 2.3, Z - 0.8), (X + 2.9, Y + 2.95, Z + 0.15), 'kb_gold', pv, light=L_BAND),
           bx((X - 2.9, Y - 2.95, Z - 0.8), (X + 2.9, Y - 2.3, Z + 0.15), 'kb_gold', pv, light=L_BAND)]
     for j in range(6):                                                         # (the warp: six threads, six bonds)
@@ -800,7 +811,7 @@ DRAFT = ['idle_a', 'idle_b', 'idle_c', 'walk_0', 'walk_1', 'run_0', 'run_2', 'ju
 
 # ---- the display case and the doll (measured from the built rig with tools/preview/keeper.py 'fit'; phase134.FIT's form:
 #      (lowest y, height, x0, x1, z0, z1) in blocks, idle_a at RIG_SCALE)
-FIT = (0.047, 2.344, -0.873, 0.873, -0.873, 0.873)     # (the width is the outer ring of motes)
+FIT = (0.047, 2.344, -0.873, 0.867, -0.872, 0.872)     # (the width is the outer ring of motes; 3.0b: re-measured)
 DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62, 'groups': {'bm:kb_skirt': 'legs'}}     # (no legs: the skirt is shortened as legs would be)
 
 
