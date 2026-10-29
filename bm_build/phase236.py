@@ -302,6 +302,17 @@ def generate(G):
                                'execute if entity @e[type=minecraft:interaction,tag=bm.lhenc,distance=..64] run return 0',
                                'execute positioned ^ ^ ^4 run function bm:p236l/enc/place'])
         place('p236l')
+        # (2.99a: the Sovereign's Summons granted - p237/summons - the Divine One sends her: no holy thing needed, any light, anywhere)
+        fn('p236l/enc/herald', ['execute if entity @s[tag=bm.lhmet] run return 0', 'execute if entity @s[tag=bm.dfin] run return 0',
+                                f'execute if items entity @s container.* {X.holds("herald_feather")} run return 0',
+                                'execute if entity @e[type=minecraft:interaction,tag=bm.lhenc,distance=..64] run return 0',
+                                X.tellraw('@s', [T('The Summons is barely in your hand when the air above you brightens. ', '#fff4d0', italic=True),
+                                                 T('Something answers it - not from below. From above.', 'gray', italic=True)]),
+                                'execute positioned ^ ^ ^4 run function bm:p236l/enc/place'])
+        X.second.append('execute if score #hard bm.cfg matches 1 as @a[tag=bm.usum,tag=!bm.lhmet,tag=!bm.dfin,gamemode=!spectator] at @s '
+                        'unless entity @e[type=minecraft:interaction,tag=bm.lhenc,distance=..64] run function bm:p236l/enc/herald_again')
+        fn('p236l/enc/herald_again', ['execute store result score #r bm.rng run random value 1..15', 'execute unless score #r bm.rng matches 1 run return 0',
+                                      'execute positioned ^ ^ ^4 run function bm:p236l/enc/place'])
         fn('p236l/enc/step', ['function bm:p236l/enc/spawn', 'particle minecraft:end_rod ~ ~6 ~ 0.2 6 0.2 0 120', 'particle minecraft:flash{color:[1.0,0.92,0.6,1.0]} ~ ~1 ~ 0 0 0 0 1',
                               'playsound minecraft:block.beacon.activate neutral @a[distance=..32] ~ ~ ~ 1 1.2',
                               X.tellraw('@a[tag=!bm.lhmet,distance=..24]', [T('The sky opens a little, like a door. A pillar of light comes down - and in it, wings. ', '#fff4d0', italic=True),
@@ -310,9 +321,12 @@ def generate(G):
         fn('p236l/enc/talk', [f'execute if items entity @s container.* {X.holds("herald_feather")} run return run ' + lsay('"I am already with you, child of the light."'),
                               'execute if entity @s[tag=bm.dfin] run return run ' + lsay('"My work here is finished. Go in peace."'),
                               'execute unless score #hard bm.cfg matches 1 run return run ' + lsay('"Not yet. Not until the Dread rises."'),
+                              'execute if entity @s[tag=bm.usum] run return run function bm:p236l/enc/recruit',
                               'execute unless function bm:p236l/holy_q run return run ' + lsay('"Wear the light, and I will walk beside you."'),
                               'function bm:p236l/enc/recruit'])
         fn('p236l/enc/recruit', [f'execute as {X.here} at @s run particle minecraft:end_rod ~ ~1.5 ~ 0.5 0.8 0.5 0.05 40', 'playsound minecraft:block.amethyst_block.resonate player @s ~ ~ ~ 1 1.2',
+                                 'execute if entity @s[tag=bm.usum] run ' + X.tellraw('@s', [T('"The Divine One has heard the Summons too. What waits under the Nether will not be faced alone - '
+                                                                                                 'I am sent to see it unmade." ', '#fff4d0', italic=True)]),
                                  X.tellraw('@s', [T('"The Divine One sees the light you carry. The Dread is rising - you will not face it alone." ', '#fff4d0', italic=True),
                                                   T('She plucks a feather from her wing, its tip still glowing, and puts it in your hand.', 'gray', italic=True)]),
                                  'function bm:p236l/enc/joined'])

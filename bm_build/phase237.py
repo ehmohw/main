@@ -262,7 +262,7 @@ def generate(G):
     ox_, oy_, oz_ = W(*M['outer']) if M['outer'] else W(214, 72, 210)
     ITEMS['usummons']['comps']['minecraft:lodestone_tracker'] = {'target': {'dimension': NETHER, 'pos': __import__('nbt').IntArray([ox_, oy_, oz_])}, 'tracked': False}
     second.append('execute if score #hard bm.cfg matches 1 as @a[tag=!bm.usum,scores={bm.dbwin_snow=1..,bm.dbwin_witch=1..,bm.dbwin_shark=1..}] at @s run function bm:p237/summons')
-    fn('p237/summons', ['tag @s add bm.usum', give('usummons'), 'scoreboard players set #uwant bm.p2 1',
+    fn('p237/summons', ['tag @s add bm.usum', give('usummons'), 'scoreboard players set #uwant bm.p2 1', 'function bm:p236l/enc/herald',
                         'title @s times 10 80 30', title('@s', 'subtitle', T('Something under the Nether has noticed what you did.', 'gray', italic=True)),
                         title('@s', 'title', T(L.VOICE['gate'], VCOL, italic=True)),
                         'playsound minecraft:entity.warden.emerge hostile @s ~ ~ ~ 1 0.5', 'playsound minecraft:block.bell.resonate hostile @s ~ ~ ~ 1 0.4',
