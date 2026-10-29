@@ -666,8 +666,8 @@ def models():
     #      a gold band, falling behind; and round it, from behind, a SUNBURST: rays of gold light, long and short by turns, in an
     #      arch over the head and shoulders (none straight up: the ponytail; none below the shoulders: the cowl and the wings)
     RAYC, RAYZ = (0.0, 27.4), 4.0                                # (the sunburst's centre, its plane behind the head)
-    RAYS = [(90 + sx * (24 + 16 * k), (8.2, 6.6)[k % 2]) for sx in (1, -1) for k in range(5)]     # (degrees from +x, tip radius)
-    RAY_R0 = 4.2
+    RAYS = [(90 + sx * (24 + 16 * k), (6.6, 8.2)[k % 2]) for sx in (1, -1) for k in range(5)]     # (degrees from +x, tip radius)
+    RAY_R0, RAY_DISH = 4.2, 0.6
 
     def head_down(face=None):
         et = 'kb_eyes' if face is None else f'kb_eyes_{face}'
@@ -692,7 +692,7 @@ def models():
         # the sunburst: each ray a root of warm gold and a white-gold tip, end to end, in one plane behind the head
         for a, r1 in RAYS:
             c, s_ = math.cos(math.radians(a)), math.sin(math.radians(a))
-            P_ = lambda r: (RAYC[0] + c * r, RAYC[1] + s_ * r, RAYZ)
+            P_ = lambda r: (RAYC[0] + c * r, RAYC[1] + s_ * r, RAYZ - RAY_DISH * (r - RAY_R0))      # (a shallow dish: tips forward, clear of the wings)
             long_ = r1 > 7
             rm = RAY_R0 + (r1 - RAY_R0) * 0.45
             h.append(seg(P_(RAY_R0), P_(rm), 0.9 if long_ else 0.7, 0.3, 'kb_ray', pv, (0.0, 0.0, 1.0), light=L_RAY, shift=(0.1 * a % 1, 0.3)))

@@ -1002,9 +1002,9 @@ def _male(M, part):
         pv = PIVOT['armr' if sx > 0 else 'arml']; x0, y0, _ = pv
         e = (sx * 4.9, 18.6, 0)
         X = lambda a, b: (min(sx * a, sx * b), max(sx * a, sx * b))
-        p1, p2 = X(4.05, 5.95), X(4.15, 6.1)
+        p1, p2 = X(4.3, 5.95), X(4.2, 6.1)
         return [seg((x0, y0 + 0.15, 0), e, 2.1, 2.1, 'lb_robe', pv, FRONT, ext=0.0, shift=(0.3, 0.1)),
-                el((p1[0], 21.9, -1.4), (p1[1], 23.2, 1.4), 'lb_gold', pv, light=5, shift=(0.2, 0.4)),                  # the pauldron
+                el((p1[0], 21.9, -1.3), (p1[1], 23.05, 1.3), 'lb_gold', pv, light=5, shift=(0.2, 0.4)),                  # the pauldron
                 el((p2[0], 20.9, -1.3), (p2[1], 21.95, 1.3), 'lb_gold', pv, faces=_faces_but('up'), light=5, shift=(0.6, 0.1)),
                 el((X(5.95, 6.07)[0], 22.2, -0.4), (X(5.95, 6.07)[1], 23.0, 0.4), 'lb_sapph', pv, light=6)]
 

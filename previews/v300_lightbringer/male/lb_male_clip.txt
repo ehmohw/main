@@ -1,8 +1,8 @@
-idle_a             floor  +1.32  body/forel 0.19
+idle_a             floor  +1.32  clean
                    (hers:  floor  +1.35  clean)
 idle_b             floor  +1.72  clean
                    (hers:  floor  +1.75  clean)
-idle_c             floor  +1.02  body/forel 0.19
+idle_c             floor  +1.02  clean
                    (hers:  floor  +1.05  clean)
 walk_0             floor  +1.82  clean
                    (hers:  floor  +1.85  clean)
@@ -22,7 +22,7 @@ run_3              floor  +4.39  clean
                    (hers:  floor  +4.43  clean)
 jump               floor  +5.32  clean
                    (hers:  floor  +5.36  clean)
-smite_up           floor  +2.12  arml/head 0.51
+smite_up           floor  +2.12  arml/head 0.23
                    (hers:  floor  +2.15  clean)
 smite              floor  +1.52  clean
                    (hers:  floor  +1.55  clean)
@@ -34,29 +34,29 @@ bless              floor  +2.12  clean
                    (hers:  floor  +2.15  clean)
 ward_up            floor  +1.72  clean
                    (hers:  floor  +1.75  clean)
-ward               floor  +1.32  body/forel 0.20
+ward               floor  +1.32  clean
                    (hers:  floor  +1.35  clean)
-pray               floor  +1.00  body/forel 0.19
+pray               floor  +1.00  clean
                    (hers:  floor  +1.00  clean)
-wings_spread_up    floor  +0.72  body/forel 0.46
+wings_spread_up    floor  +0.72  clean
                    (hers:  floor  +0.75  clean)
-wings_spread       floor  +3.92  armr/head 0.20  hair/wingl 0.30  hair/wingr 0.30
+wings_spread       floor  +3.92  clean
                    (hers:  floor  +3.96  clean)
 sit_a              floor  +0.10  clean
                    (hers:  floor  +0.10  clean)
-sit_b              floor  +0.10  body/forel 0.29
+sit_b              floor  +0.10  clean
                    (hers:  floor  +0.10  clean)
 happy              floor  +2.32  clean
                    (hers:  floor  +2.35  clean)
 hurt               floor  +0.92  clean
                    (hers:  floor  +0.95  clean)
-tired              floor  +0.72  body/forel 0.22
+tired              floor  +0.72  clean
                    (hers:  floor  +0.64  clean)
 swim_0             floor  +8.33  clean
                    (hers:  floor  +7.72  clean)
-swim_2             floor  +8.33  arml/head 0.20  armr/head 0.20
+swim_2             floor  +8.33  clean
                    (hers:  floor  +7.72  clean)
-swim_4             floor  +8.33  arml/head 0.16  armr/head 0.16
+swim_4             floor  +8.33  clean
                    (hers:  floor  +7.72  clean)
-swim_6             floor  +8.33  arml/head 0.23  armr/head 0.23
+swim_6             floor  +8.33  clean
                    (hers:  floor  +7.72  clean)
