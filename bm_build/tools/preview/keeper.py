@@ -136,6 +136,126 @@ def fit():
     return (round(lo[1], 3), round(hi[1] - lo[1], 3), round(lo[0], 3), round(hi[0], 3), round(lo[2], 3), round(hi[2], 3))
 
 
+# ---------------------------------------------------------------------------------------------------- the sanctuary
+VTEX = os.path.join(R.VANILLA, 'minecraft', 'textures', 'block')
+TINT = {'grass_block': '#79b04a', 'short_grass': '#6ea844'}
+_CC = {}
+
+
+def block_colour(name, top=False):
+    """a block's colour: its vanilla texture's average (the top's, for top faces), tinted where the game tints it"""
+    key = (name, top)
+    if key in _CC: return _CC[key]
+    if name in TINT and (top or name != 'grass_block'):
+        _CC[key] = TINT[name]; return TINT[name]
+    base = name.replace('_stained_glass_pane', '_stained_glass').replace('quartz_pillar', 'quartz_pillar_top' if top else 'quartz_pillar')
+    base = {'smooth_quartz': 'quartz_block_bottom', 'smooth_quartz_slab': 'quartz_block_bottom', 'quartz_stairs': 'quartz_block_side',
+            'birch_slab': 'birch_planks', 'birch_stairs': 'birch_planks', 'birch_fence': 'birch_planks', 'iron_chain': 'iron_chain',
+            'grass_block': 'grass_block_side', 'stripped_birch_log': 'stripped_birch_log_top' if top else 'stripped_birch_log',
+            'cherry_log': 'cherry_log_top' if top else 'cherry_log', 'pointed_dripstone': 'pointed_dripstone_down_tip',
+            'loom': 'loom_top' if top else 'loom_front', 'chiseled_quartz_block': 'chiseled_quartz_block_top' if top else 'chiseled_quartz_block',
+            'wildflowers': 'wildflowers', 'pink_petals': 'pink_petals', 'firefly_bush': 'firefly_bush', 'smooth_basalt': 'smooth_basalt'}.get(base, base)
+    for cand in (base, base + '_top', base + '_side', base + '_front', base.rstrip('s')):
+        f = os.path.join(VTEX, cand + '.png')
+        if os.path.exists(f):
+            im = np.asarray(Image.open(f).convert('RGBA')).astype(float)[:16]
+            m = im[..., 3] > 30
+            c = im[m][:, :3].mean(0) if m.any() else np.array([200, 0, 200])
+            if name in ('wildflowers', 'pink_petals'): c = c * 0.6 + np.array([250, 170, 210]) * 0.4
+            _CC[key] = '#%02x%02x%02x' % tuple(int(v) for v in c); return _CC[key]
+    _CC[key] = '#c800c8'; return _CC[key]
+
+
+def _quad(s, pts, col):
+    s.faces.append((pts, [(0, 0), (1, 0), (1, 1), (0, 1)], col))
+
+
+def _box(s, lo, hi, col, top=None, skip=()):
+    (x0, y0, z0), (x1, y1, z1) = lo, hi
+    Q = {'down': [(x0, y0, z0), (x1, y0, z0), (x1, y0, z1), (x0, y0, z1)], 'up': [(x0, y1, z0), (x1, y1, z0), (x1, y1, z1), (x0, y1, z1)],
+         'north': [(x0, y0, z0), (x1, y0, z0), (x1, y1, z0), (x0, y1, z0)], 'south': [(x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1)],
+         'west': [(x0, y0, z0), (x0, y0, z1), (x0, y1, z1), (x0, y1, z0)], 'east': [(x1, y0, z0), (x1, y0, z1), (x1, y1, z1), (x1, y1, z0)]}
+    for f, q in Q.items():
+        if f not in skip: _quad(s, q, top if (f == 'up' and top) else col)
+
+
+def voxels(s, B, at):
+    """a structures.Build into a Scene: full blocks as cubes (only the faces open to the air), the rest as their rough shapes"""
+    from structures import parse_state
+    cells = {p: parse_state(st) for p, st in B.b.items()}
+    THIN = ('pane', 'fence', 'chain', 'lantern', 'stairs', 'slab', 'petals', 'flowers', 'grass', 'daisy', 'cornflower', 'allium', 'valley', 'bush',
+            'pointed', 'loom')
+    full = lambda p: p in cells and not any(k in cells[p][0] for k in THIN)
+    ox, oy, oz = at
+    for (x, y, z), (name, props) in cells.items():
+        n = name.split(':')[1]
+        if n == 'air': continue
+        wx, wy, wz = x + ox, y + oy, z + oz
+        col, topc = block_colour(n), block_colour(n, True)
+        if full((x, y, z)):
+            skip = [f for f, d in (('up', (0, 1, 0)), ('down', (0, -1, 0)), ('north', (0, 0, -1)), ('south', (0, 0, 1)), ('west', (-1, 0, 0)), ('east', (1, 0, 0)))
+                    if full((x + d[0], y + d[1], z + d[2]))]
+            _box(s, (wx, wy, wz), (wx + 1, wy + 1, wz + 1), col, topc, skip)
+        elif 'pane' in n or 'fence' in n:
+            w = 0.07 if 'pane' in n else 0.12
+            _box(s, (wx + 0.5 - w, wy, wz + 0.5 - w), (wx + 0.5 + w, wy + 1, wz + 0.5 + w), col)
+            for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                q = cells.get((x + dx, y, z + dz))
+                if q and q[0].split(':')[1] != 'air' and ('pane' in q[0] or 'fence' in q[0] or full((x + dx, y, z + dz)) or 'log' in q[0]):
+                    lo = (wx + 0.5 + min(0, dx * 0.5) - (w if dx == 0 else 0), wy + (0.0 if 'pane' in n else 0.4), wz + 0.5 + min(0, dz * 0.5) - (w if dz == 0 else 0))
+                    hi = (wx + 0.5 + max(0, dx * 0.5) + (w if dx == 0 else 0), wy + (1.0 if 'pane' in n else 0.8), wz + 0.5 + max(0, dz * 0.5) + (w if dz == 0 else 0))
+                    _box(s, lo, hi, col)
+        elif 'stairs' in n:
+            f = props.get('facing', 'north')
+            _box(s, (wx, wy, wz), (wx + 1, wy + 0.5, wz + 1), col, topc)
+            lo, hi = {'north': ((0, 0.5, 0), (1, 1, 0.5)), 'south': ((0, 0.5, 0.5), (1, 1, 1)), 'west': ((0, 0.5, 0), (0.5, 1, 1)), 'east': ((0.5, 0.5, 0), (1, 1, 1))}[f]
+            _box(s, (wx + lo[0], wy + lo[1], wz + lo[2]), (wx + hi[0], wy + hi[1], wz + hi[2]), col, topc)
+        elif 'slab' in n:
+            y0 = 0.5 if props.get('type') == 'top' else 0.0
+            _box(s, (wx, wy + y0, wz), (wx + 1, wy + y0 + 0.5, wz + 1), col, topc)
+        elif 'chain' in n:
+            _box(s, (wx + 0.44, wy, wz + 0.44), (wx + 0.56, wy + 1, wz + 0.56), '#4a4e58')
+        elif 'lantern' in n:
+            y0 = 0.3 if props.get('hanging') == 'true' else 0.0
+            _box(s, (wx + 0.31, wy + y0, wz + 0.31), (wx + 0.69, wy + y0 + 0.45, wz + 0.69), '#ffd27a', '#ffe9b0')
+            if y0: _box(s, (wx + 0.45, wy + 0.75, wz + 0.45), (wx + 0.55, wy + 1, wz + 0.55), '#4a4e58')
+        elif 'pointed' in n:
+            k = {'base': 0.4, 'middle': 0.3, 'frustum': 0.22, 'tip': 0.12}.get(props.get('thickness'), 0.3)
+            _box(s, (wx + 0.5 - k, wy, wz + 0.5 - k), (wx + 0.5 + k, wy + 1, wz + 0.5 + k), col)
+        elif 'petals' in n or 'wildflowers' in n:
+            _box(s, (wx + 0.1, wy, wz + 0.1), (wx + 0.9, wy + 0.08, wz + 0.9), col)
+        elif 'loom' in n:
+            _box(s, (wx, wy, wz), (wx + 1, wy + 1, wz + 1), col, topc)
+        else:                                                    # (flowers, grass: a small tuft)
+            h = 0.55 if 'grass' in n else 0.7
+            fc = {'oxeye_daisy': '#f4f0e0', 'cornflower': '#4a6ad8', 'allium': '#b06ad8', 'lily_of_the_valley': '#f8f8f0', 'firefly_bush': '#5a7a3a'}.get(n, col)
+            _box(s, (wx + 0.38, wy, wz + 0.38), (wx + 0.62, wy + h * 0.7, wz + 0.62), '#5a9a3a')
+            _box(s, (wx + 0.3, wy + h * 0.7, wz + 0.3), (wx + 0.7, wy + h, wz + 0.7), fc)
+
+
+def sanctuary_sheet(path):
+    import keeper_sanctuary as KS
+    B = KS.build()
+    at = (-KS.CX - 0.5, -(KS.TOP + 1), -KS.CZ - 0.5)              # (the dais's centre over the origin; the grass's top at y 0)
+    def scene():
+        s = K.multi_scene(ROOT)
+        voxels(s, B, at)
+        sx, sy, sz = KS.SPAWN[0] + at[0], KS.SPAWN[1] + at[1], KS.SPAWN[2] + at[2]
+        rigkit.render(s, A, A.POSES['tend_a'], at=(sx, sy, sz - 0.4), scale=A.RIG_SCALE, yaw=180)       # (the Keeper at its loom)
+        ax, ay, az = KS.ARRIVAL[0] + at[0], KS.ARRIVAL[1] + at[1], KS.ARRIVAL[2] + at[2]
+        K.person(s, (ax, ay, az))
+        return s
+    tiles = []
+    for v, sp, c, l, sub in (((-35, 24), 34, (0, -4, 0), 'from the south-west', 'a player on the landing circle; the Keeper by its loom'),
+                            ((40, -12), 34, (0, -7, 0), 'from below', 'the hanging point, lanterns on chains'),
+                            ((0, 55), 30, (0, 0, 0), 'from above', 'the arches, the threads, the dais'),
+                            ((160, 14), 14, (0, 2.5, -1.5), 'the dais and the great loom, close', 'from the north-east, behind the loom')):
+        s = scene()
+        im = s.render(v, size=700, span=sp, center=c)
+        tiles.append(K.label(im, l, sub))
+    K.sheet(tiles, path, cols=2, title='The Loom Sanctuary - a floating island high in the sky (keeper_sanctuary, %d x %d x %d)' % KS.SIZE)
+
+
 # ---------------------------------------------------------------------------------------------------- sheets
 if 'lineup' in what:
     tiles = []
@@ -223,6 +343,4 @@ if 'clip' in what:
     txt = '\n'.join(clip_report(names))
     open(f'{SCRATCH}/keeper_clip.txt', 'w').write(txt + '\n'); print(txt)
 if 'sanctuary' in what:
-    import keeper_sanctuary as KS
-    import sanctuary_view as SV
-    SV.sheet(KS, OUT + '/sanctuary.png')
+    sanctuary_sheet(OUT + '/sanctuary.png')
