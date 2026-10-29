@@ -9,7 +9,8 @@ THE PLATE         (chest, legs, feet) an armour layer of its own (asset bm:dread
                   bone ribs over the breast, an eye staring from the sternum, bony knee-caps,
                   clawed boots.
 
-2.99: both redrawn in dread_art.py (the dark mirror of the Seraph's Raiment); this module still writes them, as before.
+2.99: the plate redrawn in dread_art.py (the dark mirror of the Seraph's Raiment); the Visage stays this 2.90b one. This
+module still writes both, as before.
 Model space for the helmet: drawn for a head filling 3..13 on every axis (its head display scales it 1.28 to the 1.6..14.4
 the head really fills); the front is north (-z)."""
 import random
@@ -158,9 +159,11 @@ HELM_DISPLAY = {'head': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale
 
 
 def helm_json():
-    """-> (block textures to write, the helm's model). 2.99: the Visage redrawn - dread_art.py (helm_model above is the 2.90b one)"""
-    import dread_art
-    return dread_art.textures(), dread_art.helm_json(HELM_DISPLAY)
+    """-> (block textures to write, the helm's model) - the 2.90b Visage, as shipped (v299 kept it: its redraw was too busy)"""
+    tex = helm_textures()
+    els = helm_model()
+    used = sorted({f['texture'][1:] for e in els for f in e['faces'].values()})
+    return tex, {'textures': dict({t: f'bm:block/{t}' for t in used}, particle='bm:block/dread_chitin'), 'elements': els, 'display': HELM_DISPLAY}
 
 
 # ---------------------------------------------------------------------------------------------------- the plate (armour layers)

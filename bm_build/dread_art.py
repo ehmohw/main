@@ -12,7 +12,7 @@ THE WORN LAYERS (64 x 32, the pack's armour resolution)
   wings     bm:dread_wings   (the Carapace's elytra mesh) cut back like the Seraph's to a mantle over the shoulder blades - black
             membrane on a bone spar, red veins, two eyes, a torn edge: the 3D wings (seraph_wings / dread_wings) own the
             silhouette.
-THE DREAD VISAGE (3D, item model bm:dread_helm - the Dread monsters wear the same one): a bevelled hood of black chitin cracked
+THE DREAD VISAGE (NOT SHIPPED: the owner kept the 2.90b helm - dread_armor.helm_json; this redraw stays here, unused): a bevelled hood of black chitin cracked
   with red; an ARC OF SEVEN EYES across the brow (slit pupils, lit); a maw - a slit of red light behind bone teeth - and two
   bone mandibles curving down to fangs; two great horns sweeping out, back and up, ringed bone darkening to black tips; a
   crown of spines along the crest; tendrils of flesh down the back, embers at their ends; and, the Seraph's halo turned: a

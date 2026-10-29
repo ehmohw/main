@@ -175,10 +175,13 @@ STATES = {1: ('rest', 'rest_a', 6, False, (50, 'rest_a', 'rest_b')),
 
 
 def textures():
-    return {}                                             # (dread_art's dk_ textures are written with the Visage - dread_armor.rp)
+    """dread_art's dk_ textures (the membrane, the bone, the eyes, the chain - and the 2.99 Visage's, unused while the 2.90b one is worn)"""
+    return DK.textures()
 
 
 def rp(R):
+    import sys
+    R.TEXTURE_MODS.append(sys.modules[__name__])
     for name, (tex, els) in models().items():
         R.HATS[name] = (tex, els)
     R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + (PREFIX,)
