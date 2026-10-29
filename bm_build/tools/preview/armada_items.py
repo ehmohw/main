@@ -120,7 +120,7 @@ def _ms_pack():
     xt = {}                                                                     # (an x-ray copy: the hull's textures see-through)
     for k, v in tex.items():
         if v.startswith('bm:block/'):
-            im = Image.open(f'{ROOT}/assets/bm/textures/block/{k}.png').convert('RGBA'); im.putalpha(70)
+            im = Image.open(f'{ROOT}/assets/bm/textures/block/{k}.png').convert('RGBA'); im.putalpha(34)
             im.save(f'{ROOT}/assets/bm/textures/block/xr_{k}.png'); xt[k] = f'bm:block/xr_{k}'
         else: xt[k] = v
     xt['particle'] = 'bm:block/xr_am_plate'

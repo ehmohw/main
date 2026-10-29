@@ -24,6 +24,12 @@ FLAT ICONS (16 x 16, the pack's vanilla look - through R.ICONS, so vanilla.proce
   starforged_helmet / _chestplate / _leggings / _boots   the Warplate pieces (vanilla's netherite shapes) reforged: gunmetal
                  plate, gold-orange seams, star-orange cores glowing (the helm's eye slit, the breast's core, the belt's
                  buckle and knees, the thrusters' nozzles)
+  mothership_key the Mothership Key: the Vorn Skiff Key's shape grown menacing - its bow the Admiral's craft (a dark saucer, an
+                 armoured dome with a green visor slit, a froglight mast, red hive stripes, running lights, mandibles hooked down)
+                 on a dark shank with a red seam and heavy teeth
+  mothership_module   the Admiral's Command Module (the upgrade a Skiff Key takes): a chunky gunmetal core under an armoured
+                 cap, a green visor slit, red hive stripes, a green core light, bolts, two cables trailing, a plug sparking - in
+                 the family of the six skiff parts
   singularity_launcher (+ _pull0/_pull1/_pull2/_charged)   a crossbow (vanilla's sprites): its stock gunmetal, its limbs
                  violet, its string a green energy filament; loaded, a violet singularity - a small hungry star - on the bolt.
                  Drawn as vanilla's crossbow is (parent minecraft:item/crossbow) and chosen as vanilla's item definition
@@ -40,6 +46,13 @@ FLAT ICONS (16 x 16, the pack's vanilla look - through R.ICONS, so vanilla.proce
                  clamps holding it, two shards hanging by it
   vx_pylon_off   the same overloaded: the crystal dark and cracked, its tip broken off, the lights dead, smoke rising off it
                  (both item models only: an item_display shows them, context none)
+THE MOTHERSHIP (R.HATS, as phase32's ufo3d - display-entity scale through DISPLAY_3D_EXTRA):
+  mothership3d   the Admiral's own skiff hull, on the Vorn Skiff's display (fixed, x4.5; front north): a black-banded plated
+                 saucer twice the skiff's span, hive stripes and a ring of green and red running lights round its rim, armour
+                 ribs over the deck, an armoured dark cockpit with a green visor slit and a crown of swept-back spines, two
+                 great mandibles forward (teeth, red-hot tips), three Hive Cannon pods hung under the disc, a gravity ring and a
+                 green engine glow beneath, dorsal fins and red exhausts aft, antenna masts with froglight tips. The skiff's
+                 seat is kept (MS_SEAT): the pilot's legs in the upper hull, their head inside the cockpit.
 EQUIPMENT: bm:starforged (humanoid + humanoid_leggings): the netherite plate in gunmetal, its seams gold-orange, a star core
   glowing in the breast, the brow and the belt."""
 import math
@@ -955,6 +968,8 @@ def rp(R):
     import sys
     R.TEXTURE_MODS.append(sys.modules[__name__])
     R.ICONS.update(icons())
+    R.HATS['mothership3d'] = mothership()                                      # (as the Vorn Skiff's ufo3d: shown at display scale)
+    R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + ('mothership3d',)
     def post(R2):
         for name, els in models().items():
             R2.wj(f'assets/bm/models/item/{name}.json', model_json(name, els))
