@@ -37,6 +37,7 @@ const FLOOR = 100;
   await run('tag TestRat add bm.lkpass');      // (2.99a: phase251's pass - this test sets its stages by teleport; t322 plays the lockout itself)
   await run('gamemode survival TestRat'); await run('scoreboard players set #hard bm.cfg 1'); await run('clear TestRat');
   await run('effect give TestRat minecraft:resistance infinite 2 true'); await run('effect give TestRat minecraft:fire_resistance infinite 0 true');
+  await run('effect clear TestRat');      // (no Resistance left over from an earlier test - the maces must land)
   await run('effect give TestRat minecraft:regeneration infinite 1 true');
 
   // ---- the knights of one room: watched as statues, woken by the puzzle, fought, struck down
@@ -48,7 +49,7 @@ const FLOOR = 100;
        (await cnt(D, `@e[type=minecraft:item_display,tag=bm.kr,distance=..40,x=${near[0]},y=${near[1]},z=${near[2]}]`)) >= 26));
     A.titles.length = 0;
     await solve();
-    ok('...the puzzle solved: they wake ("The statues stir")', await wait(6000, async () => (await cnt(D, host)) === 2) && A.titles.some(t => /statues stir/i.test(t)), A.titles.slice(-2).join(' / '));
+    ok('...the puzzle solved: they wake ("The statues stir")', await wait(6000, async () => (await cnt(D, host)) === 2) && A.titles.some(t => /statues stir/i.test(t)), A.titles.slice(-2).join(' / ') + ` | hosts ${await cnt(D, host)} dg ${await run(`${D}execute as @e[type=minecraft:marker,tag=bm.dg,tag=bm.d_${d}] run scoreboard players get @s bm.pz`)} done ${await run(`${D}execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.pz${n},tag=bm.d_${d}] run scoreboard players get @s bm.done`)} items ${await cnt(D, '@e[type=minecraft:item,distance=..30,x=' + near[0] + ',y=' + near[1] + ',z=' + near[2] + ']')}`);
     ok('...and the door stays shut', await block(D, gate, gateBlock));
     await sleep(2500);
     ok('...stone no longer: awake, eyes lit (the live models)', /_live_/.test(await run(`${D}data get entity @e[type=minecraft:item_display,tag=bm.kr_head,distance=..40,x=${near[0]},y=${near[1]},z=${near[2]},sort=nearest,limit=1] item.components."minecraft:item_model"`)));

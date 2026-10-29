@@ -162,5 +162,6 @@ const HOST = '@e[type=minecraft:horse,tag=bm.rxh';
 
   await run('function bm:admin/rex/home'); await run('clear TestRat');
   const p = res.filter(Boolean).length; console.log(`\n${p}/${res.length} passed`);
+  await run('effect clear TestRat');      // (its Resistance and Fire Resistance off again - later tests must be hurt)
   A.end(); R.end(); process.exit(p === res.length ? 0 : 1);
 })();
