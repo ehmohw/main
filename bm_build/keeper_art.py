@@ -549,7 +549,7 @@ def models():
             bx((-0.7, 10.0, -3.3), (0.7, 12.5, -3.07), 'kb_gold', pv, light=L_BAND),                                                          # its knot
             bx((-4.4, 15.2, -2.85), (4.4, 21.4, 2.85), 'kb_robe', pv, faces=_faces_but('down', 'up'), light=L_CLOTH, shift=(0.4, 0.5)),      # the chest
             bx((-2.45, 14.4, -2.95), (2.45, 20.4, -2.87), 'kb_light', pv, faces=('north',), light=L_CORE),                                    # the heart's glow
-            bx((-5.25, 20.0, -3.6), (5.25, 21.4, 3.6), 'kb_brd', pv, faces=_faces_but('up'), light=L_BAND),                                # the mantle's border
+            bx((-5.25, 20.6, -3.6), (5.25, 21.4, 3.6), 'kb_brd', pv, faces=_faces_but('up'), light=L_BAND),                                # the mantle's border
             bx((-5.1, 21.4, -3.45), (5.1, 23.8, 3.45), 'kb_hood', pv, ftex={'down': 'kb_lining'}, light=L_CLOTH, shift=(0.2, 0.6))]          # the mantle
     part('kb_body', body)
 
@@ -619,7 +619,7 @@ def models():
         ap, fp, tp = PIVOT[f'arm{s}'], PIVOT[f'fore{s}'], PIVOT[f'thread{s}']
         cx = ARM_X
         part(f'kb_arm{s}', [B(sx, cx - 1.35, cx + 1.35, 17.6, 23.0, -1.35, 1.75, 'kb_robe', ap, light=L_CLOTH, shift=(0.3 + 0.2 * sx, 0.4))])
-        fore = [B(sx, cx - 1.45, cx + 1.45, 15.4, 18.2, -1.45, 1.85, 'kb_robe', fp, faces=_faces_but('up'), light=L_CLOTH, shift=(0.6, 0.2)),
+        fore = [B(sx, cx - 1.45, cx + 1.45, 15.4, 17.9, -1.45, 1.85, 'kb_robe', fp, faces=_faces_but('up'), light=L_CLOTH, shift=(0.6, 0.2)),
                 B(sx, cx - 1.9, cx + 1.9, 13.6, 15.4, -1.9, 2.3, 'kb_robe', fp, faces=_faces_but('up'), ftex={'down': 'kb_inner'}, light=L_CLOTH, shift=(0.2, 0.7)),
                 B(sx, cx - 2.0, cx + 2.0, 12.6, 13.6, -2.0, 2.4, 'kb_brd', fp, ftex={'down': 'kb_inner', 'up': 'kb_gold'}, light=L_BAND),  # the cuff
                 B(sx, cx - 1.7, cx + 1.7, 11.0, 12.6, 0.45, 2.3, 'kb_robe', fp, faces=_faces_but('up'), light=L_CLOTH, shift=(0.8, 0.4)),       # the drape
@@ -800,8 +800,8 @@ def wings(raise_=0.0, spread=0.0, fold=0.0, droop=0.0, beat=0.0):
 WING_POSE = {'idle_a': dict(), 'idle_b': dict(beat=6, raise_=2), 'idle_c': dict(beat=-6, fold=6),
              'walk_0': dict(beat=4), 'walk_1': dict(beat=10), 'walk_2': dict(beat=4), 'walk_3': dict(beat=-4),
              'run_0': dict(fold=20, beat=4), 'run_1': dict(fold=20, beat=10), 'run_2': dict(fold=20, beat=2), 'run_3': dict(fold=20, beat=-2),
-             'jump': dict(spread=12, fold=-10, beat=6), 'sit_a': dict(fold=-14, spread=-22), 'sit_b': dict(fold=-10, spread=-24, beat=2),
-             'happy': dict(spread=14, fold=-16, beat=2), 'hurt': dict(fold=18, beat=10, spread=-8), 'tired': dict(droop=24, fold=10, spread=-12), 'rise': dict(droop=10, beat=8),
+             'jump': dict(spread=12, fold=-10, beat=6), 'sit_a': dict(fold=-14, spread=-22), 'sit_b': dict(fold=-10, spread=-28, beat=2),
+             'happy': dict(spread=14, fold=-16, beat=2), 'hurt': dict(fold=18, beat=10, spread=-16), 'tired': dict(droop=24, fold=10, spread=-24), 'rise': dict(droop=10, beat=8),
              'weave_up': dict(fold=10, beat=-8), 'weave': dict(spread=16, fold=-8, beat=2), 'weave_hold': dict(spread=14, fold=-10, beat=0),
              'weave_end': dict(beat=-6, fold=6), 'tug_up': dict(fold=10, beat=8), 'tug': dict(fold=-6, beat=-6), 'mend_a': dict(fold=-6),
              'mend': dict(spread=8, fold=-10, beat=4), 'gift': dict(fold=-12, droop=6), 'tend_a': dict(beat=3), 'tend_b': dict(beat=-3),
