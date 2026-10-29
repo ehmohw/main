@@ -82,15 +82,28 @@ BONDS = [('emma', '#ff8ad8'), ('celi', '#9ad8ff'), ('zib', '#3ad8c8'), ('cecil',
          ('dryad', '#6aa8f0'), ('sovereign', '#d0182e'), ('vexis', '#7aff6a'), ('pxcecil', '#b070ff'), ('pxleo', '#4ab0ff'), ('pxemma', '#ff6ac8'),
          ('sky', '#ffd04a'), ('mireling', '#ff6a1a')]
 
-# ---- the palette: warm and luminous - cream and gold, a soft amber glow in the hood
-CREAM, CREAM_D, CREAM_L = '#f8eed8', '#eadcbc', '#fffaee'
-HOODC, HOODC_D = '#f2e3c0', '#e2cfa4'
+# ---- the palette (3.0b: friendlier, and mother-of-pearl): pearl cloth with a pastel sheen running over it, gold trim, a soft
+#      dusky-rose lining, and a warm round face under the hood - peach skin, rosy cheeks, starlight-lilac hair
+CREAM, CREAM_D, CREAM_L = '#fbf3ea', '#ece0d6', '#fffbf6'     # (the pearl's base: its cloth, the warp line, the paler weft row)
+HOODC, HOODC_D = '#f5ece6', '#e6d8d2'
 GOLD, GOLD_D, GOLD_L, GOLD_W = '#e8b648', '#c08a2c', '#ffd878', '#fff2c0'
-LINING, LINING_D = '#8a6442', '#7a573a'
-GLOW_C, GLOW_E, GLOW_D = '#ffd88a', '#f4bc5e', '#e2a04a'       # the face's glow: centre, edge, rim
-EYE, EYE_H, EYE_R = '#fffcf0', '#ffffff', '#fff0c4'          # the eyes of light: core, shine, the softer light at their edge
-HAND, HAND_L = '#ffeec6', '#fff8e4'
-L_CLOTH, L_BAND, L_FACE, L_EYES, L_CORE, L_THREAD, L_HAND = 8, 10, 12, 15, 15, 12, 10
+LINING, LINING_D = '#c08aa6', '#a9758f'                       # (dusky rose: the hood's inside, the robe's underside)
+GLOW_C, GLOW_E, GLOW_D = '#ffe2c4', '#ffd2b0', '#f6bc9a'       # (the sleeves' insides: warm peach)
+SKIN, SKIN_D, CHEEK = '#ffe6d4', '#f8d0bc', '#f9aab6'          # the face: warm peach, its shade under the fringe, rosy cheeks
+HAIR, HAIR_D = '#ece0fc', '#cdb8ee'                           # starlight-lilac hair under the hood
+EYE, EYE_H, BROW = '#4a2c54', '#ffffff', '#b8a0d8'            # soft plum eyes, their shine, lilac brows
+MOUTH, TONGUE, TEAR = '#b04e6a', '#f58ca0', '#a8dcff'
+HAND, HAND_L = SKIN, '#fff0e4'
+L_CLOTH, L_BAND, L_FACE, L_EYES, L_CORE, L_THREAD, L_HAND = 7, 9, 9, 9, 15, 12, 8      # (modest: it glows softly by night, never a lamp)
+L_WING = (9, 11, 13)                                          # (the wings' three lengths, root to tip)
+
+# ---- the iridescence (3.0b): the pearl cloth, its trim and the wings are ANIMATED strips (FRAMES frames, interpolated); in each
+#      frame a pastel sheen (PEARL's tones, round and round) runs diagonally over the cloth, and with time it flows along - a
+#      slow mother-of-pearl shimmer. Every frame keeps each cell's luminance (the sheen changes hue, not brightness), so the
+#      wardrobe's luminance recolours (phase99._recolour / gild.metal) still come out as clean cloth in the look's colours -
+#      with only the soft highlight band (SWEEP) passing over them, the look's own shimmer.
+PEARL = ['#ffd2e8', '#ffe2c6', '#fff2c4', '#d2f4e2', '#cfe6ff', '#e2d2ff']    # rose, peach, cream, mint, sky, lilac
+FRAMES = 16
 
 
 def _hsv(c):
@@ -149,22 +162,92 @@ def _inner():
     return _cells(lambda x, y: GLOW_E if (x // 2 + y // 2) % 2 else GLOW_D)
 
 
-def _cloth(base, line, light=None):
-    """cream cloth: a soft warp line every two units, a paler weft row every four - a quiet woven grid"""
-    def c(x, y):
-        if x % 4 == 3: return line
-        if light and y % 8 == 0: return light
-        return base
-    return _cells(c)
+def _lum(c):
+    return 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]
+
+
+def _at_lum(c, L):
+    """colour c (rgb) moved to luminance L, keeping its hue as far as it can (what clamps at 255 goes to the other channels)"""
+    c = [float(v) for v in c[:3]]
+    for _ in range(4):
+        d = L - _lum(c)
+        if abs(d) < 0.3: break
+        free = [i for i in range(3) if (c[i] < 255 if d > 0 else c[i] > 0)]
+        if not free: break
+        w = sum((0.299, 0.587, 0.114)[i] for i in free)
+        for i in free: c[i] = max(0.0, min(255.0, c[i] + d / w * (1 if len(free) < 3 else w)))
+    return tuple(int(round(v)) for v in c)
+
+
+def _sheen_at(t):
+    """the pearl's pastel at t (0..1, round the PEARL tones and back to the first), smoothly"""
+    n = len(PEARL); k = (t % 1.0) * n; i = int(k); f = k - i
+    f = f * f * (3 - 2 * f)
+    return hexc(_mix(PEARL[i % n], PEARL[(i + 1) % n], f))
+
+
+SWEEP = 0.07                                  # (the highlight band's width, as a share of the diagonal; it crosses once a cycle)
+
+
+def _strip(frame):
+    """FRAMES frames of 64 px (frame(f) -> a 64 px image), stacked: an animated strip (its .png.mcmeta: ANIMATED)"""
+    im = Image.new('RGBA', (64, 64 * FRAMES))
+    for f in range(FRAMES):
+        im.paste(frame(f), (0, 64 * f))
+    return im
+
+
+def _pearl(base, line, light=None, phase=0.0, scale=0.8):
+    """mother-of-pearl cloth: the woven grid of before (a warp line every two units, a paler weft row every four) at the
+    luminance of `base`/`line`/`light`, washed with a pastel sheen - hue running diagonally over it (scale: how much of the
+    round fits across the texture), how much of it varying in soft waves the other way - and flowing along over the frames;
+    a pale highlight band sweeps across once a cycle"""
+    Lb, Ll, Lh = _lum(hexc(base)), _lum(hexc(line)), _lum(hexc(light or base))
+    bc = hexc(base)
+
+    def frame(f):
+        tf = f / FRAMES
+
+        def c(x, y):
+            L = Ll if x % 4 == 3 else Lh if light and y % 8 == 0 else Lb
+            t = (x + y) / 62 * scale + tf + phase
+            amt = 0.62 + 0.24 * math.sin(2 * math.pi * ((x - y) / 40 + phase))
+            s = _sheen_at(t)
+            col = tuple(bc[i] + (s[i] - bc[i]) * amt for i in range(3))
+            d = ((x + y) / 62 - tf - phase * 0.5) % 1.0
+            if d < SWEEP:                                                     # (the highlight: paler, a touch brighter)
+                k = 1 - abs(d / SWEEP * 2 - 1)
+                col = tuple(v + (255 - v) * 0.45 * k for v in col); L = L + 7 * k
+            return _at_lum(col, L) + (255,)
+        return _cells(c)
+    return _strip(frame)
+
+
+GOLDS = ['#e8b648', '#f0b060', '#e8bc58', '#dcc060']          # (the gold's own sheen: yellow, rose, warm, a greenish champagne)
+
+
+def _gold_at(f, x, y, c):
+    """gold tone c in frame f, at cell x, y: tinted toward the gold sheen there (luminance kept), the glint band passing"""
+    t = (x + y) / 62 * 0.6 + f / FRAMES
+    n = len(GOLDS); k = (t % 1.0) * n; i = int(k)
+    g = hexc(_mix(GOLDS[i % n], GOLDS[(i + 1) % n], k - i))
+    cc = hexc(c)
+    col = tuple(cc[j] + (g[j] - hexc(GOLD)[j]) * 0.8 for j in range(3))
+    L = _lum(cc)
+    d = ((x + y) / 62 - f / FRAMES) % 1.0
+    if d < SWEEP:
+        L += 14 * (1 - abs(d / SWEEP * 2 - 1))
+    return _at_lum(col, L) + (255,)
 
 
 def _gold():
-    """gold thread: bright, a running diagonal glint, a darker twill"""
-    def c(x, y):
+    """gold thread: bright, a running diagonal glint, a darker twill - with a slow rose-and-champagne sheen and a glint band
+    running over it (animated)"""
+    def base(x, y):
         if (x + y) % 8 == 0: return GOLD_W
         if (x - y) % 8 == 4: return GOLD_D
         return GOLD if (x + 2 * y) % 5 else GOLD_L
-    return _cells(c)
+    return _strip(lambda f: _cells(lambda x, y: _gold_at(f, x, y, base(x, y))))
 
 
 def _tier(k):
@@ -184,21 +267,21 @@ def _border():
     round the wheel, a gold row - 1.5 units"""
     order = [BONDS[i][1] for i in SPECTRUM]
 
-    def c(x, y):
-        if y % 3 != 1: return GOLD if (x + y) % 6 else GOLD_L
-        if x % 3 == 2: return GOLD_D
+    def c(f, x, y):
+        if y % 3 != 1: return _gold_at(f, x, y, GOLD if (x + y) % 6 else GOLD_L)
+        if x % 3 == 2: return _gold_at(f, x, y, GOLD_D)
         return _soft(order[((x // 3) + 5 * (y // 3)) % len(order)], 0.08)
-    return _cells(c)
+    return _strip(lambda f: _cells(lambda x, y: c(f, x, y)))
 
 
 def _rim():
-    """the hood's rim and the belt: gold, a row of small colour squares down its middle"""
+    """the hood's rim and the belt: gold, a row of small colour squares down its middle (the gold shimmering, as _gold's)"""
     order = [BONDS[i][1] for i in SPECTRUM]
 
-    def c(x, y):
+    def c(f, x, y):
         if y % 3 == 1 and x % 2 == 0: return _soft(order[(x // 2 + 7 * (y // 3)) % len(order)], 0.05)
-        return GOLD if (x + y) % 7 else GOLD_L
-    return _cells(c)
+        return _gold_at(f, x, y, GOLD if (x + y) % 7 else GOLD_L)
+    return _strip(lambda f: _cells(lambda x, y: c(f, x, y)))
 
 
 def _atlas():
@@ -223,52 +306,70 @@ def swatch(i, inner=False):
 GOLD_I, CREAM_I, WHITE_I = 57, 58, 59
 
 
-def _glowface():
-    """the face (its uv window 4.8 x 5.2 units: 19 x 21 px from the top left): an amber glow, brightest round the eyes, stepping
-    down in square rings to its rim - no mouth, no nose"""
-    corner = {(0, 0), (9, 0), (0, 10), (9, 10)}
-
-    def c(x, y):
-        if (x, y) in corner: return (0, 0, 0, 0)                      # (its corners cut: a soft rounded glow in the dark hood)
-        if x > 9 or y > 10: return GLOW_D
-        d = max(abs(x - 4.5) / 5.0, abs(y - 5.0) / 5.6)
-        return GLOW_C if d < 0.7 else GLOW_E if d < 0.92 else GLOW_D
-    return _cells(c)
+# the face (3.0b: friendlier): a soft round face under the hood, its window FACE_W x FACE_H px (6.5 x 6 units) from the top
+# left of kb_face - starlight-lilac hair in a soft fringe, a side lock framing each cheek, warm peach skin, rosy cheeks; the
+# features (eyes, brows, mouth) are each face's overlay (kb_eyes / kb_eyes_<face>), drawn a pixel (a quarter unit) at a time
+FACE_W, FACE_H = 26, 24
+FRINGE = [14, 10, 7, 6, 5, 6, 4, 6, 5, 6, 7, 10, 14]            # (the hair's depth in px, per 2-px column: a parted fringe, side locks)
+CHEEKS = ((3, 14, 3, 2), (20, 14, 3, 2))                         # (x, y, w, h)
 
 
-# the eyes (5 px wide, from the eye's top row): 'E' its light, 'H' a shine, 'R' the softer light at its edge
-_EYES = {
-    None: ['.RRR.', 'EHEEE', '.RRR.'],                              # calm: a soft almond of light
-    'surprised': ['.RRR.', 'REEER', 'EHEEE', 'REEER', '.RRR.'],
-    'happy': ['.EEE.', 'E...E', '.....'],                             # smiling arcs of light
-    'blink': ['.....', 'R...R', '.EEE.'],                             # shut, content
-    'sleepy': ['.....', 'EEEEE', '.RRR.'],                            # lids half down
-    'sad': ['...RR', '.EEE.', 'RRR..'],                               # the outer ends drooping (a tear of light below)
-    'focus': ['RR...', '.EEEE', '..RR.'],                             # the inner ends lowered, narrowed
-    'hurt': ['E...E', '.E.E.', 'E...E'],                              # squeezed shut
+def _face():
+    im = Image.new('RGBA', (64, 64), hexc(SKIN)); d = ImageDraw.Draw(im)
+    for cx, dep in enumerate(FRINGE):
+        x0 = 2 * cx
+        d.rectangle((x0, 0, x0 + 1, dep - 1), fill=hexc(HAIR))
+        d.rectangle((x0, dep - 1, x0 + 1, dep - 1), fill=hexc(HAIR_D))        # (its lower edge, a shade deeper)
+        if dep < FACE_H: d.rectangle((x0, dep, x0 + 1, dep), fill=hexc(SKIN_D))   # (and the skin just under it, shaded)
+    for x, y, w, h in CHEEKS:
+        d.rectangle((x, y, x + w - 1, y + h - 1), fill=hexc(CHEEK))
+    return im
+
+
+# each face's features, on its right eye (our left: x 6-9) - mirrored for the other - and the mouth, as (x, y, colour key);
+# 'shine' pixels are not mirrored (the light comes from the same side for both eyes)
+_LEFT = {
+    None: [(7, 9, 'E'), (8, 9, 'E'), (7, 10, 'E'), (8, 10, 'E'), (7, 11, 'E'), (8, 11, 'E')],                 # calm: soft round eyes
+    'happy': [(6, 11, 'E'), (7, 10, 'E'), (8, 10, 'E'), (9, 11, 'E')],                                         # closed, smiling arcs
+    'blink': [(6, 10, 'E'), (7, 11, 'E'), (8, 11, 'E'), (9, 10, 'E')],                                         # shut, content
+    'sleepy': [(6, 10, 'E'), (7, 10, 'E'), (8, 10, 'E'), (9, 10, 'E'), (7, 11, 'E'), (8, 11, 'E')],            # lids half down
+    'surprised': [(7, 8, 'E'), (8, 8, 'E'), (7, 9, 'E'), (8, 9, 'E'), (7, 10, 'E'), (8, 10, 'E'), (7, 11, 'E'), (8, 11, 'E'),
+                  (7, 6, 'B'), (8, 6, 'B')],                                                                   # wide, brows up
+    'sad': [(7, 10, 'E'), (8, 10, 'E'), (7, 11, 'E'), (8, 11, 'E'), (7, 12, 'E'), (8, 12, 'E'),
+            (6, 8, 'B'), (7, 8, 'B'), (8, 7, 'B'), (9, 7, 'B'), (6, 13, 'T'), (6, 14, 'T')],                   # worried brows, a tear
+    'focus': [(7, 10, 'E'), (8, 10, 'E'), (7, 11, 'E'), (8, 11, 'E'), (6, 7, 'B'), (7, 7, 'B'), (8, 8, 'B'), (9, 8, 'B')],
+    'hurt': [(6, 9, 'E'), (7, 9, 'E'), (8, 10, 'E'), (9, 10, 'E'), (6, 11, 'E'), (7, 11, 'E')],                # squeezed shut: > <
 }
-EYE_ROW, EYE_COLS = 8, (2, 12)                                        # (its right eye on our left; the face is 19.2 px wide)
+_SHINE = {None: 9, 'surprised': 8, 'sad': 10, 'focus': 10}         # (the row of each eye's shine, at its upper left)
+_SMILE = [(11, 16), (14, 16), (12, 17), (13, 17)]
+_MOUTH = {
+    None: [(x, y, 'M') for x, y in _SMILE],
+    'happy': [(10, 15, 'M'), (15, 15, 'M')] + [(x, 16, 'M') for x in range(11, 15)] + [(12, 17, 'P'), (13, 17, 'P')],   # an open smile
+    'blink': [(x, y, 'M') for x, y in _SMILE],
+    'sleepy': [(12, 17, 'M'), (13, 17, 'M')],
+    'surprised': [(12, 16, 'M'), (13, 16, 'M'), (12, 17, 'M'), (13, 17, 'M')],                                 # a little 'o'
+    'sad': [(11, 17, 'M'), (14, 17, 'M'), (12, 16, 'M'), (13, 16, 'M')],                                       # a small frown
+    'focus': [(x, y, 'M') for x, y in _SMILE],                                                                 # (determined - still kind)
+    'hurt': [(11, 17, 'M'), (12, 16, 'M'), (13, 17, 'M'), (14, 16, 'M')],                                      # a wobble
+}
 
 
 def _eyes(kind=None):
-    """the eyes' overlay (transparent but for the eyes; its element at light 15): two calm eyes of light, wide apart - no mouth"""
-    im = Image.new('RGBA', (64, 64), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
-    pal = {'E': EYE, 'H': EYE_H, 'R': EYE_R}
-    for x0, flip in ((EYE_COLS[0], False), (EYE_COLS[1], True)):
-        for r, row in enumerate(_EYES[kind]):
-            row = row[::-1] if flip else row
-            for cx, ch in enumerate(row):
-                if ch != '.': d.point((x0 + cx, EYE_ROW + r), fill=hexc(pal[ch]))
-        if kind == 'sad':                                              # (a tear of light under the outer corner)
-            tx = x0 + (4 if flip else 0)
-            d.rectangle((tx, EYE_ROW + 3, tx, EYE_ROW + 4), fill=hexc(EYE))
+    """the face's features (transparent but for them; its element just in front of the face, as lit as the face)"""
+    im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
+    pal = {'E': EYE, 'B': BROW, 'T': TEAR, 'M': MOUTH, 'P': TONGUE}
+    for x, y, k in _LEFT[kind]:
+        im.putpixel((x, y), hexc(pal[k])); im.putpixel((FACE_W - 1 - x, y), hexc(pal[k]))
+    if kind in _SHINE:
+        r = _SHINE[kind]
+        im.putpixel((7, r), hexc(EYE_H)); im.putpixel((FACE_W - 1 - 8, r), hexc(EYE_H))
+    for x, y, k in _MOUTH[kind]:
+        im.putpixel((x, y), hexc(pal[k]))
     return im
 
 
 def _hand():
-    def c(x, y):
-        return HAND_L if 1 <= x % 4 <= 2 and 1 <= y % 4 <= 2 else HAND
-    return _cells(c)
+    return _cells(lambda x, y: HAND_L if y % 8 == 0 else HAND)
 
 
 def _light():
@@ -277,27 +378,33 @@ def _light():
     return _cells(c)
 
 
-# ---- the wings' feathers: woven light, iridescent - three animated strips (16 frames of 64 px: bands of the bond colours
-#      flowing diagonally across them, a cell a frame), root to tip: gold and rose; rose, violet and blue; blue, green and pale
-WING_BANDS = {'kb_wing0': ['#ffd468', '#ffdc80', '#ffe8a8', '#ffc8a0'],
-              'kb_wing1': ['#e89ae0', '#c8a0ff', '#d8b8ff', '#a8acff'],
-              'kb_wing2': ['#88d0f8', '#90e4d0', '#d4f8ea', '#f0fbff']}
-WING_FRAMES = 16
-ANIMATED = {k: {'animation': {'frametime': 3, 'interpolate': True}} for k in WING_BANDS}     # {texture: its .png.mcmeta}
+# ---- the wings' feathers: woven light, iridescent - three animated strips (FRAMES frames: the pearl's sheen, deeper - each
+#      length of feather a run of pastels flowing diagonally over it, a fine sheen every four units, the robe's highlight band
+#      sweeping across), root to tip: champagne, peach and rose; rose, lilac and periwinkle; sky, mint and pearl
+WING_BANDS = {'kb_wing0': ['#ffdc98', '#ffcab4', '#ffbcd8', '#ffe2b0'],
+              'kb_wing1': ['#f2b0e2', '#d4b8ff', '#b8caff', '#e4c0fa'],
+              'kb_wing2': ['#a8dcff', '#b0f0d8', '#e6fff4', '#d0e2ff']}
+WING_FRAMES = FRAMES
+ANIMATED = {k: {'animation': {'frametime': 4, 'interpolate': True}} for k in WING_BANDS}     # {texture: its .png.mcmeta}
+CLOTH_ANIM = ('kb_robe', 'kb_hood', 'kb_gold', 'kb_rim', 'kb_brd')                          # (the pearl cloth and its gold trim)
+ANIMATED.update({k: {'animation': {'frametime': 5, 'interpolate': True}} for k in CLOTH_ANIM})
 
 
 def _wing_strip(cols):
-    """one feather texture: WING_FRAMES frames stacked, each one tone with a fine sheen; the tone runs round its colours over
-    the frames (interpolated: a slow shimmer), so each length of feather glimmers through its part of the rainbow"""
-    im = Image.new('RGBA', (64, 64 * WING_FRAMES))
-    for f in range(WING_FRAMES):
-        k = f / WING_FRAMES * len(cols); i = int(k)
-        c = _mix(cols[i % len(cols)], cols[(i + 1) % len(cols)], k - i)
-        hi = _mix(c, '#ffffff', 0.35)
-        fr = _cells(lambda x, y, c=c, hi=hi: hi if (x + y) % 8 == 0 else c)      # (a fine sheen every four units, the rest one tone)
+    """one feather texture: FRAMES frames stacked - its colours running diagonally over it and flowing along with the frames
+    (interpolated: a slow shimmer), a fine sheen every four units, a pale highlight band crossing once a cycle"""
+    n = len(cols)
 
-        im.paste(fr, (0, 64 * f))
-    return im
+    def frame(f):
+        def c(x, y):
+            k = (((x + y) / 62 * 0.5 + f / FRAMES) % 1.0) * n; i = int(k)
+            col = hexc(_mix(cols[i % n], cols[(i + 1) % n], k - i))
+            if (x + y) % 8 == 0: col = hexc(_mix('#%02x%02x%02x' % col[:3], '#ffffff', 0.35))
+            d = ((x + y) / 62 - f / FRAMES) % 1.0
+            if d < SWEEP: col = hexc(_mix('#%02x%02x%02x' % col[:3], '#ffffff', 0.4 * (1 - abs(d / SWEEP * 2 - 1))))
+            return col[:3] + (255,)
+        return _cells(c)
+    return _strip(frame)
 
 
 def mcmeta():
@@ -306,9 +413,9 @@ def mcmeta():
 
 
 def textures():
-    T = {'kb_robe': _cloth(CREAM, CREAM_D, CREAM_L), 'kb_hood': _cloth(HOODC, HOODC_D), 'kb_gold': _gold(), 'kb_brd': _border(), 'kb_rim': _rim(),
+    T = {'kb_robe': _pearl(CREAM, CREAM_D, CREAM_L), 'kb_hood': _pearl(HOODC, HOODC_D, phase=0.37, scale=0.65), 'kb_gold': _gold(), 'kb_brd': _border(), 'kb_rim': _rim(),
          'kb_lining': _cells(lambda x, y: LINING_D if (x + y) % 6 == 0 else LINING), 'kb_bonds': _atlas(), 'kb_hand': _hand(), 'kb_light': _light(), 'kb_inner': _inner(),
-         'kb_face': _glowface(), 'kb_eyes': _eyes()}
+         'kb_face': _face(), 'kb_eyes': _eyes()}
     for k in range(6):
         T[f'kb_tier{k}'] = _tier(k)
     for k in FACES:
@@ -409,7 +516,7 @@ def _wing(sx, tier):
         c, s_ = math.cos(math.radians(e)), math.sin(math.radians(e))
         lay = 0.36 * (k % 2) + 0.05 + bk
         pts = [P(0.9 + c * L * f, s_ * L * f, lay) for f in (0.0, 0.36, 0.7, 1.0)]
-        for j, (tex, w, light) in enumerate((('kb_wing0', 2.6, 11), ('kb_wing1', 2.2, 13), ('kb_wing2', 1.8, 15))):
+        for j, (tex, w, light) in enumerate((('kb_wing0', 2.6, L_WING[0]), ('kb_wing1', 2.2, L_WING[1]), ('kb_wing2', 1.8, L_WING[2]))):
             els.append(seg(pts[j], pts[j + 1], w, 0.34, tex, pv, n, ext=0.0 if j else 0.05, light=light, shift=(0.17 * k + 0.3 * j, 0.23 * k)))
     return els
 
@@ -461,37 +568,31 @@ def models():
                      bx((-5.8, 1.8, -5.2), (5.8, 2.7, 4.8), 'kb_tier3', pv, faces=_faces_but('down'), ftex={'up': 'kb_robe'}, light=L_BAND, shift=(0.6, 0)),
                      bx((-8.35, 0.0, -7.55), (8.35, 0.35, 6.95), 'kb_gold', pv, faces=_faces_but('up', 'down'), light=L_BAND)])
 
-    # ---- the head: the glowing face, its eyes of light; the deep hood round it - gold at the rim, lined dark inside, a soft
-    #      peak falling back
+    # ---- the head (3.0b: friendlier): a round, kind face under a soft pearl hood pushed back from it - the face (hair, cheeks)
+    #      and its features (each mood's overlay, a hair in front), unshaded, as warm as they're painted; round it the hood, its
+    #      opening wide (6.5), gold at the rim, rose-lined inside, rounding over the top to a low soft crown, a short flap behind
     pv = PIVOT['head']
 
     def head(face=None):
         et = 'kb_eyes' if face is None else f'kb_eyes_{face}'
         lin = 'kb_lining'
-        F = -3.9                                                          # (the hood's front edge)
-        h = [# the recess: the hood's dark inside, and the face glowing in it (unshaded: as bright as it's painted)
-             dict(bx((-2.4, 27.3, -2.7), (2.4, 32.5, -2.5), lin, pv, faces=('north', 'east', 'west', 'up', 'down'), ftex={'north': 'kb_face'},
-                     uv={'north': [0, 0, 4.8, 5.2]}, light=L_FACE), shade=False),
-             dict(bx((-2.4, 27.3, -2.74), (2.4, 32.5, -2.72), et, pv, faces=('north',), uv={'north': [0, 0, 4.8, 5.2]}, light=L_EYES), shade=False),
-             # the hood: its lower body round the face (the opening 6 wide), the arch over it, then rounding to a soft peak
-             bx((3.0, 26.4, F), (4.4, 32.8, 4.5), 'kb_hood', pv, faces=_faces_but('down'), ftex={'west': lin}, light=L_CLOTH, shift=(0.5, 0.2)),
-             bx((-4.4, 26.4, F), (-3.0, 32.8, 4.5), 'kb_hood', pv, faces=_faces_but('down'), ftex={'east': lin}, light=L_CLOTH, shift=(0.7, 0.2)),
-             bx((-3.0, 26.4, -2.5), (3.0, 32.8, 4.5), 'kb_hood', pv, faces=('north', 'south'), ftex={'north': lin}, light=L_CLOTH, shift=(0.3, 0.2)),
-             bx((2.0, 32.8, F), (4.3, 33.8, 4.4), 'kb_hood', pv, faces=_faces_but('down'), ftex={'west': lin}, light=L_CLOTH, shift=(0.1, 0.5)),
-             bx((-4.3, 32.8, F), (-2.0, 33.8, 4.4), 'kb_hood', pv, faces=_faces_but('down'), ftex={'east': lin}, light=L_CLOTH, shift=(0.9, 0.5)),
-             bx((-2.0, 32.8, -2.5), (2.0, 33.8, 4.4), 'kb_hood', pv, faces=('north', 'south'), ftex={'north': lin}, light=L_CLOTH, shift=(0.3, 0.6)),
-             bx((-3.8, 33.8, -3.6), (3.8, 34.9, 4.0), 'kb_hood', pv, ftex={'down': lin}, light=L_CLOTH, shift=(0.6, 0.1)),
-             bx((-2.8, 34.9, -2.8), (2.8, 35.7, 3.4), 'kb_hood', pv, faces=_faces_but('down'), light=L_CLOTH, shift=(0.1, 0.7)),
-             bx((-1.6, 35.7, -1.6), (1.6, 36.3, 2.6), 'kb_hood', pv, faces=_faces_but('down'), light=L_CLOTH, shift=(0.4, 0.4)),
+        F, O, W, TOP, BK = -3.9, 3.25, 4.3, 33.0, 4.3          # (the hood's front edge, the opening's half width, its outside, top, back)
+        h = [dict(bx((-O, 27.0, -3.55), (O, TOP, -1.5), 'kb_face', pv, faces=('north', 'down'), uv={'north': [0, 0, 6.5, 6.0], 'down': [0.5, 5.0, 6.0, 5.5]},
+                     light=L_FACE), shade=False),
+             dict(bx((-O, 27.0, -3.61), (O, TOP, -3.6), et, pv, faces=('north',), uv={'north': [0, 0, 6.5, 6.0]}, light=L_EYES), shade=False),
+             # the hood: its sides round the face, the back, the cap over it, rounding to a low crown
+             bx((O, 26.4, F), (W, TOP, BK), 'kb_hood', pv, faces=_faces_but('down'), ftex={'west': lin}, light=L_CLOTH, shift=(0.5, 0.2)),
+             bx((-W, 26.4, F), (-O, TOP, BK), 'kb_hood', pv, faces=_faces_but('down'), ftex={'east': lin}, light=L_CLOTH, shift=(0.7, 0.2)),
+             bx((-O, 26.4, -1.5), (O, TOP, BK), 'kb_hood', pv, faces=('south',), light=L_CLOTH, shift=(0.3, 0.2)),
+             bx((-4.05, TOP, F), (4.05, 34.5, BK), 'kb_hood', pv, ftex={'down': lin}, light=L_CLOTH, shift=(0.6, 0.1)),
+             bx((-3.3, 34.5, -3.1), (3.3, 35.3, 3.6), 'kb_hood', pv, faces=_faces_but('down'), light=L_CLOTH, shift=(0.1, 0.7)),
+             bx((-2.1, 35.3, -2.0), (2.1, 35.8, 2.6), 'kb_hood', pv, faces=_faces_but('down'), light=L_CLOTH, shift=(0.4, 0.4)),
              # its gold rim round the opening, a little proud of the front edge
-             bx((3.0, 26.4, -4.1), (3.6, 33.8, F), 'kb_gold', pv, faces=_faces_but('south'), light=L_BAND),
-             bx((-3.6, 26.4, -4.1), (-3.0, 33.8, F), 'kb_gold', pv, faces=_faces_but('south'), light=L_BAND),
-             bx((2.0, 32.8, -4.1), (3.0, 33.8, F), 'kb_gold', pv, faces=('north', 'west', 'down'), light=L_BAND),
-             bx((-3.0, 32.8, -4.1), (-2.0, 33.8, F), 'kb_gold', pv, faces=('north', 'east', 'down'), light=L_BAND),
-             bx((-2.0, 33.8, -4.1), (2.0, 34.4, -3.55), 'kb_gold', pv, faces=_faces_but('south'), light=L_BAND),
-             # the hood's point, falling down its back
-             bx((-1.6, 31.0, 4.5), (1.6, 34.4, 5.4), 'kb_hood', pv, faces=_faces_but('north'), light=L_CLOTH, shift=(0.4, 0.3)),
-             bx((-0.8, 29.6, 5.4), (0.8, 32.2, 6.0), 'kb_hood', pv, faces=_faces_but('north'), light=L_CLOTH, shift=(0.8, 0.5))]
+             bx((O, 26.4, -4.1), (O + 0.6, 33.6, F), 'kb_gold', pv, faces=_faces_but('south'), light=L_BAND),
+             bx((-O - 0.6, 26.4, -4.1), (-O, 33.6, F), 'kb_gold', pv, faces=_faces_but('south'), light=L_BAND),
+             bx((-O, TOP, -4.1), (O, 33.6, F), 'kb_gold', pv, faces=('north', 'up', 'down'), light=L_BAND),
+             # a short soft flap down its back
+             bx((-1.7, 30.2, BK), (1.7, 33.6, 5.0), 'kb_hood', pv, faces=_faces_but('north'), light=L_CLOTH, shift=(0.4, 0.3))]
         return h
     part('kb_head', head())
     for fc in FACES:
