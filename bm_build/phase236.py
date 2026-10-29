@@ -450,7 +450,7 @@ def generate(G):
     fn('p236l/shine', ['scoreboard players operation #me bm.pid = @s bm.pid',
                        'execute unless predicate bm:p236/daylit as @e[type=minecraft:item_display,tag=bm.lhp,tag=!bm.lhglow,distance=..8] if score @s bm.pid = #me bm.pid run function bm:p236l/shine_on',
                        'execute if predicate bm:p236/daylit as @e[type=minecraft:item_display,tag=bm.lhglow,distance=..8] if score @s bm.pid = #me bm.pid run function bm:p236l/shine_off'])
-    fn('p236l/shine_on', ['tag @s add bm.lhglow', 'data merge entity @s {brightness:{block:15,sky:15}}'])
+    fn('p236l/shine_on', ['tag @s add bm.lhglow', 'data merge entity @s[type=minecraft:item_display] {brightness:{block:15,sky:15}}'])
     fn('p236l/shine_off', ['tag @s remove bm.lhglow', 'data remove entity @s brightness'])
     # ---- NIGHT GLOW (the Pale Dryad): blue and orange, soft, round her mushrooms by night
     G.FUNCS['loop/second'] += ['execute as @e[type=minecraft:wolf,tag=bm.pypet,tag=!bm.ffpet] at @s if predicate bm:p236/night run function bm:p236p/glow']

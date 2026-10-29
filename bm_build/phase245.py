@@ -424,7 +424,7 @@ def home(G, snd, at, crumble, lit):
                                        {'id': 'minecraft:fire_resistance', 'duration': Int(-1), 'amplifier': B(0), 'show_particles': B(0)}]}
             D = f'@e[type=minecraft:item_display,tag=bm.knsd_{k},distance=..0.6,sort=nearest,limit=1]'
             NH = '@e[type=minecraft:husk,tag=bm.knewh,distance=..1]'
-            fn(f'{H}/raise_{k}_{m}', ['scoreboard players set @s bm.kmiss 0', 'data merge entity @s {height:0.5f}',
+            fn(f'{H}/raise_{k}_{m}', ['scoreboard players set @s bm.kmiss 0', 'data merge entity @s[type=minecraft:interaction] {height:0.5f}',
                                       f'execute as {D} run data merge entity @s {{transformation:{{scale:[0f,0f,0f]}}}}',
                                       f'execute rotated as {D} rotated ~ 0 run function bm:{PFX}/rig/{k}',
                                       'scoreboard players operation @e[type=minecraft:item_display,tag=bm.knew,distance=..1] bm.kid = @s bm.kid',
@@ -448,7 +448,7 @@ def home(G, snd, at, crumble, lit):
                         'execute as @e[type=minecraft:item_display,tag=bm.kr] if score @s bm.kid = #me bm.kid run kill @s',
                         'execute as @e[type=minecraft:item_display,tag=bm.knsd,distance=..0.6,sort=nearest,limit=1] run data merge entity @s '
                         f'{{transformation:{{scale:[{T_SC}f,{T_SC}f,{T_SC}f]}}}}',
-                        'data merge entity @s {height:2.8f}', 'scoreboard players set @s bm.kgm 0', 'scoreboard players set @s bm.kmiss 0'] +
+                        'data merge entity @s[type=minecraft:interaction] {height:2.8f}', 'scoreboard players set @s bm.kgm 0', 'scoreboard players set @s bm.kmiss 0'] +
        [f'execute if entity @s[tag=bm.knst_{k}] run {crumble(k)}' for k in KN] +
        [snd('block.deepslate.place', 1.4, 0.5), snd('block.stone.break', 1.2, 0.6)])
     fn(f'{H}/stone', ['scoreboard players operation #me bm.kid = @s bm.kid',
