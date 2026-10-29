@@ -308,7 +308,7 @@ def generate(G):
            [at(100 + 70 * k, 'function bm:p242/c/shake') for k in range(len(sect))] +
            [at('120..360', 'function bm:p242/c/flood')] +
            [at(120, snd('block.end_portal.spawn', 1.5, 0.5)), at(120, title(AUD, 'actionbar', T('Behind it, the window floods with the light of the Hive-Star.', STAR, italic=True)))] +
-           [at(240, f'execute as @e[type=minecraft:item_display,tag=bm.vxr] run data merge entity @s {{brightness:{{block:15,sky:15}}}}'),
+           [at(240, f'execute as @e[type=minecraft:item_display,tag=bm.vxr] run data merge entity @s[type=minecraft:item_display] {{brightness:{{block:15,sky:15}}}}'),
             at(250, say(L.FIGHT['wake'][0])),
             at(300, snd('entity.iron_golem.step', 3, 0.3)), at(316, snd('entity.iron_golem.step', 3, 0.3)), at(300, 'function bm:p242/c/shake'), at(316, 'function bm:p242/c/shake'),
             at(320, snd('block.piston.extend', 3, 0.4)), at(320, snd('entity.blaze.shoot', 2, 0.4)),

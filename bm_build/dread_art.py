@@ -50,56 +50,56 @@ class DLayer(Layer):
 
 
 # every face by hand. Strips: right/outer, front, left/inner, back; rows from v 20. Light from above and the viewer's left.
-BODY = {         # (the Carapace's plate: rows 0..11 of the body)
-    'right': ['CccC', 'vlLv', 'lvdv', 'vvcb', 'vrdv', 'vvcb', 'ldrv', 'kvvc', 'iIiI', 'vlLk', 'lrvk', 'dk.d'],
+BODY = {
+    'right': ['CccC', 'vlLv', 'lvVv', 'vvcb', 'vkdv', 'vvcb', 'lVkv', 'kvvc', 'iIiI', 'vlLk', 'lVvk', 'dk.d'],
     'front': ['CcBccBcC',
               'vcRkkRcv',
               'LkcbbckV',
               'bccbBccb',
-              'vrdbBdrv',
+              'vkdbBdkv',
               'cbcbBcbc',
-              'vdrbBrdk',
+              'vVkbBkVk',
               'kcbbbbck',
               'iIiJJiIi',
               'vlLvlLlk',
-              'lvrvlrvk',
-              'd.rkd.rk'],
-    'left': ['CccC', 'vLlv', 'vdvk', 'bcvv', 'vdrk', 'bcvv', 'vrdk', 'cvvk', 'IiIi', 'lLvk', 'vrlk', 'd.dk'],
+              'lvvVlrvk',
+              'd.vkd.vk'],
+    'left': ['CccC', 'vLlv', 'vVvk', 'bcvv', 'vdkk', 'bcvv', 'vkVk', 'cvvk', 'IiIi', 'lLvk', 'vVlk', 'd.dk'],
     'back': ['CcbBBbcC',
              'cRcBBcRc',
              'kckccckk',
              'vlvbBvlv',
-             'lvrccrvk',
+             'lvVccVvk',
              'vlvbBvlk',
-             'vrdccdvk',
+             'vVkccdvk',
              'kvvbBvvk',
              'iIiJJiIi',
              'vlLvlLlk',
-             'lvrvlrvk',
-             'dkr.dk.d']}
+             'lvVvlrvk',
+             'dkv.dk.d']}
 BODY_TOP = ['BcBccBcB', 'cvvkkvvc', 'vlLvvlLv', 'CccCCccC']
-ARM = {          # (spined pauldrons with an eye; rows 6..7 bare; chained vambraces, clawed at the wrist)
-    'outer': ['BkBk', 'bcbc', 'cRkR', 'vlrv', 'lvdv', 'dkdk', '....', '....', 'iIiI', 'vlrv', 'lvdv', 'BcBc'],
-    'front': ['kBkB', 'cbcb', 'vlLv', 'lrvv', 'vdlv', 'kdkd', '....', '....', 'IiIi', 'vLlv', 'lvrv', 'cBcB'],
-    'inner': ['kckc', 'cvcv', 'vlvv', 'vdvk', 'lvvk', 'dkdk', '....', '....', 'iIiI', 'vlvk', 'vdvk', 'CcCc'],
-    'back': ['BkBk', 'bcbc', 'vlvv', 'vrlk', 'lvdk', 'kdkd', '....', '....', 'IiIi', 'vlvk', 'lvrk', 'cCcC']}
+ARM = {
+    'outer': ['BkBk', 'bcbc', 'cRkR', 'vlLv', 'lvdv', 'kdkd', '....', '....', 'iIiI', 'vlLv', 'lvdv', 'BcBc'],
+    'front': ['kBkB', 'cbcb', 'vlLv', 'lVvv', 'vdlv', 'kdkd', '....', '....', 'IiIi', 'vLlv', 'lvVv', 'cBcB'],
+    'inner': ['kckc', 'cvcv', 'vlvv', 'vVvk', 'lvvk', 'kdkk', '....', '....', 'iIiI', 'vlvk', 'vVvk', 'CcCc'],
+    'back': ['BkBk', 'bcbc', 'vlvv', 'vVlk', 'lvdk', 'kdkd', '....', '....', 'IiIi', 'vlvk', 'lvVk', 'cCcC']}
 ARM_TOP = ['BkBk', 'kBkB', 'BcBc', 'cCcC']
-FEET = {         # (the Treads: rows 6..11 of the legs - chained ankles, a heel spur, bone claws for toes)
-    'outer': ['iIiI', 'vlrv', 'lvdv', 'cbvv', 'lvvk', 'CcCk'],
-    'front': ['IiJi', 'vlLv', 'lrvv', 'vdrv', 'bcbc', 'BkBk'],
-    'inner': ['iIiI', 'vlvk', 'vdvk', 'lvvk', 'vvvk', 'CcCk'],
-    'back': ['IiIi', 'vlvk', 'lrvk', 'vbck', 'kBck', 'kCck']}
+FEET = {
+    'outer': ['iIiI', 'vlLv', 'lvdv', 'cbvv', 'lvvk', 'CcCk'],
+    'front': ['IiJi', 'vlLv', 'lVvv', 'vdVv', 'bcbc', 'BkBk'],
+    'inner': ['iIiI', 'vlvk', 'vVvk', 'lvvk', 'vvvk', 'CcCk'],
+    'back': ['IiIi', 'vlvk', 'lVvk', 'vbck', 'kBck', 'kCck']}
 SOLE = ['kCCk', 'CvvC', 'CvvC', 'kCCk']
-HIPS = {         # (the leggings' body rows 7..11: a chain belt, a bone clasp, tattered tassets)
-    'right': ['iIiI', 'vlLk', 'lrvk', 'dvlk', 'k.dk'],
-    'front': ['iIcBBcIi', 'vlLvlLlk', 'lvrvlrvk', 'dvlvdvlk', 'k.dkk.dk'],
-    'left': ['IiIi', 'lLvk', 'vrlk', 'vldk', 'kd.k'],
-    'back': ['iIiIiIiI', 'vlvlvlvk', 'lrvvlrvk', 'vdvlvdvk', 'kk.dk.dk']}
-THIGH = {        # (the cuisses: leg rows 0..8 - a bone spur outside, an eye in each bone knee-cap)
-    'outer': ['iIiI', 'vcLv', 'lcrv', 'vbdv', 'lcvv', 'vbrv', 'lcdv', 'vvvk', 'kCCk'],
-    'front': ['IiIi', 'vlLv', 'lrvv', 'cbbc', 'bRkb', 'cbbc', 'vlrv', 'lvdv', 'kvvk'],
-    'inner': ['iIiI', 'vlvk', 'vdvk', 'lvvk', 'vrvk', 'vdvk', 'lvvk', 'vvkk', 'kkkk'],
-    'back': ['IiIi', 'vlvk', 'lrvk', 'vdvk', 'lvvk', 'vrlk', 'vdvk', 'vvkk', 'kkkk']}
+HIPS = {
+    'right': ['iIiI', 'vlLk', 'lVvk', 'dvlk', 'k.dk'],
+    'front': ['iIcBBcIi', 'vlLvlLlk', 'lvVvlrvk', 'dvlvVvlk', 'k.dkk.dk'],
+    'left': ['IiIi', 'lLvk', 'vVlk', 'vldk', 'kd.k'],
+    'back': ['iIiIiIiI', 'vlvlvlvk', 'lVvvlVvk', 'vdvlvdvk', 'kk.dk.dk']}
+THIGH = {
+    'outer': ['iIiI', 'vcLv', 'lcVv', 'vbdv', 'lcvv', 'vbVv', 'lcdv', 'vvvk', 'kCCk'],
+    'front': ['IiIi', 'vlLv', 'lVvv', 'cbbc', 'bRkb', 'cbbc', 'vlVv', 'lvdv', 'kvvk'],
+    'inner': ['iIiI', 'vlvk', 'vVvk', 'lvvk', 'vdvk', 'vVvk', 'lvvk', 'vvkk', 'kkkk'],
+    'back': ['IiIi', 'vlvk', 'lVvk', 'vdvk', 'lvvk', 'vVlk', 'vdvk', 'vvkk', 'kkkk']}
 THIGH_TOP = ['iIIi', 'IvlI', 'IlvI', 'iIIi']
 
 
@@ -206,30 +206,32 @@ def _eye(seed=0, lid=VOID):
 
 
 def _membrane(seed):
-    """a membrane (whole uv, along v from the bone it hangs from to its torn end): black-violet skin, red veins branching
-    down it, darker at its sides, its end torn (cut out) - and a hole or two"""
+    """a membrane (along v from the bone it hangs from to its torn end - each strip shows its own window across): black-violet
+    skin, mottled, a few veins of dark red running down it with a thread of light in them, its end torn (cut out) and
+    smouldering, a hole or two"""
     rnd = random.Random(seed)
-    tear = [24 + int(5 * abs(math.sin(x * 0.7 + seed))) + rnd.randint(0, 3) for x in range(32)]
+    tear = [25 + int(4 * abs(math.sin(x * 0.9 + seed))) + rnd.randint(0, 2) for x in range(32)]
     def c(x, y, r):
         if y > tear[x]: return (0, 0, 0, 0)
-        b = VOID2 if r.random() > 0.35 else VOID
-        if x <= 1 or x >= 30: b = BLACK
+        q = r.random()
+        b = VOID2 if q > 0.4 else (VOID if q > 0.08 else VOID_L)
         if y < 2: b = BONE_D
-        if y > tear[x] - 2: b = _mix(b, RED_D, 0.6)                                     # (the torn edge smouldering)
+        if y > tear[x] - 2: b = _mix(b, RED_D, 0.7)
         return _c(b)
     im = _paint(c, seed); px = im.load()
-    for v0 in (8, 16, 23):                                                              # veins: down it, branching
+    for v0 in (6, 19, 28):                                                              # veins down it, a branch or two
         x, y = v0, 2
-        while y < 30 and 0 <= x < 32:
-            if px[x, y][3]: px[x, y] = _c(RED if rnd.random() > 0.2 else RED_L)
-            if rnd.random() < 0.18:
+        while y < 30:
+            x = max(0, min(31, x))
+            if px[x, y][3]: px[x, y] = _c(RED if (y % 7 == 3) else RED_D)
+            if rnd.random() < 0.08:
                 bx, by = x, y
-                for _ in range(rnd.randint(3, 6)):
+                for _ in range(rnd.randint(2, 4)):
                     bx += rnd.choice((-1, 1)); by += 1
                     if 0 <= bx < 32 and by < 32 and px[bx, by][3]: px[bx, by] = _c(RED_D)
-            x += rnd.choice((-1, 0, 0, 1)); y += 1
-    for _ in range(2):                                                                  # holes
-        hx, hy = rnd.randrange(6, 26), rnd.randrange(10, 20)
+            x += rnd.choice((-1, 0, 0, 0, 1)); y += 1
+    for _ in range(2):
+        hx, hy = rnd.randrange(4, 28), rnd.randrange(10, 20)
         for dx in (0, 1):
             for dy in (0, 1): px[hx + dx, hy + dy] = (0, 0, 0, 0)
     return im
@@ -268,7 +270,7 @@ def _iron(seed):
 
 
 def textures():
-    return {'dk_chitin': _chitin(4101), 'dk_chitin_d': _chitin(4102, 0.8, 3), 'dk_bone': _bone(4103), 'dk_bone_d': _bone(4104, True),
+    return {'dk_chitin': _chitin(4101, 1.0, 2), 'dk_chitin_d': _chitin(4102, 0.8, 1), 'dk_bone': _bone(4103), 'dk_bone_d': _bone(4104, True),
             'dk_horn': _horn(4105), 'dk_eye': _eye(4106), 'dk_membrane': _membrane(4107), 'dk_membrane_b': _membrane(4108),
             'dk_flesh': _flesh(4109), 'dk_ember': _ember(4110), 'dk_chain': _chain(4111), 'dk_iron': _iron(4112)}
 
@@ -323,8 +325,8 @@ def helm_model():
         H += EYE((x, y, z), 1.9, 1.1, n, pv)
     H = rigkit.transform(H, lambda v: [8 + (v[0] - 8) * 1.1, 7.6 + (v[1] - 7.6) * 1.1, 8 + (v[2] - 8) * 1.1])   # (clear of the hat layer)
     # THE ARC OF SEVEN EYES across the brow
-    for (x, y, w, h) in ((8.0, 9.4, 2.7, 1.6), (5.4, 9.0, 1.9, 1.15), (10.6, 9.0, 1.9, 1.15), (3.6, 7.9, 1.3, 0.85), (12.4, 7.9, 1.3, 0.85),
-                         (6.4, 11.2, 1.2, 0.75), (9.6, 11.2, 1.2, 0.75)):
+    for (x, y, w, h) in ((8.0, 9.3, 3.2, 1.9), (5.1, 8.9, 2.3, 1.35), (10.9, 8.9, 2.3, 1.35), (3.2, 7.6, 1.5, 1.0), (12.8, 7.6, 1.5, 1.0),
+                         (6.3, 11.3, 1.4, 0.85), (9.7, 11.3, 1.4, 0.85)):
         H += EYE((x, y, 2.05), w, h, FRONT, pv, d=0.35, light=13)
     # the maw: a slit of red light behind bone teeth
     H.append(E((7.0, 2.6, 2.0), (9.0, 7.2, 2.2), 'dk_ember', pv, light=12, shade=False))

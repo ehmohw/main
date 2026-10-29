@@ -26,6 +26,14 @@ def _P(sx, p):
     return (sx * p[0], p[1], p[2])
 
 
+def _win(w, k):
+    """a membrane strip's uv: the whole length (its torn end at the end), a window across as wide as the strip (two texels a
+    unit, as the rest of the pack's 3D art) - each strip its own, so the veins don't repeat strip by strip"""
+    wu = max(1.0, min(16.0, w))
+    u0 = round((k * 5.3 + w * 3.1) % (16.0 - wu + 1e-6), 3)
+    return {'up': [u0, 0, u0 + wu, 16], 'down': [u0, 16, u0 + wu, 0], 'east': [0, 0, 0.5, 16], 'west': [0, 0, 0.5, 16], 'north': [0, 0, 1, 0.5], 'south': [0, 0, 1, 0.5]}
+
+
 def _fan(W, A, B, n, sag, tex, pv, up, z0=0.0, dz=0.05, w_k=1.25, light=0):
     """membrane between two spars from a common joint W to their tips A and B: n strips fanned from W to points along A..B,
     the edge sagging toward W between the tips (a bat wing's scallop) - each strip a little proud of the last (no z-fight)"""
@@ -37,8 +45,9 @@ def _fan(W, A, B, n, sag, tex, pv, up, z0=0.0, dz=0.05, w_k=1.25, light=0):
         s = sag * math.sin(math.pi * t)
         P_ = tuple(P_[i] + (W[i] - P_[i]) * s for i in range(3))
         off = tuple(up[i] * (z0 + dz * k) for i in range(3))
-        out.append(SEG(tuple(W[i] + off[i] for i in range(3)), tuple(P_[i] + off[i] for i in range(3)), span / n * w_k, 0.22,
-                       'dk_membrane' if k % 2 == 0 else 'dk_membrane_b', pv, up, uv=FULL(), light=light))
+        w = span / n * w_k
+        out.append(SEG(tuple(W[i] + off[i] for i in range(3)), tuple(P_[i] + off[i] for i in range(3)), w, 0.22,
+                       'dk_membrane' if k % 2 == 0 else 'dk_membrane_b', pv, up, uv=_win(w, k), light=light))
     return out
 
 
@@ -100,7 +109,7 @@ def tail(sx):
     W = []
     for k, (x, z, L, lean) in enumerate(((0.5, 4.2, 10.8, 0.1), (2.4, 4.8, 9.6, 0.5), (4.2, 5.0, 8.0, 0.9))):
         A = P((x, 12.4, z)); B = P((x + lean, 12.4 - L, z + 0.9 + 0.3 * k))
-        W.append(SEG(A, B, 2.2 - 0.25 * k, 0.22, 'dk_membrane' if k % 2 == 0 else 'dk_membrane_b', pv, BACK, uv=FULL()))
+        W.append(SEG(A, B, 2.2 - 0.25 * k, 0.22, 'dk_membrane' if k % 2 == 0 else 'dk_membrane_b', pv, BACK, uv=_win(2.2 - 0.25 * k, k + 3)))
     for k, (y0, y1, x1) in enumerate(((11.6, 7.2, 4.4), (8.6, 4.6, 3.0))):                        # chains swagged between
         a, m, b = P((0.4, y0, 5.6 + 0.2 * k)), P(((0.4 + x1) / 2, y1, 6.2 + 0.2 * k)), P((x1, y0 - 1.2, 6.0 + 0.2 * k))
         W += [SEG(a, m, 0.7, 0.7, 'dk_chain', pv, BACK, uv=FULL()), SEG(m, b, 0.7, 0.7, 'dk_chain', pv, BACK, uv=FULL())]

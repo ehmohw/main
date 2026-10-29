@@ -363,7 +363,7 @@ def generate(G):
 
     # ---- the Vorn in its waves are Vorn: a trooper's body on every husk, a saucer on every phantom
     fn('p241/dress', ['tag @s add bm.adone', 'tag @s add bm.vorn', 'tag @s add bm.vstay', 'execute if entity @s[type=minecraft:husk] run function bm:p241/dress/trooper',
-                      'execute as @s[type=minecraft:phantom] run data merge entity @s {size:5}'])
+                      'data merge entity @s[type=minecraft:phantom] {size:5}'])
     fn('p241/dress/trooper', ['effect give @s minecraft:invisibility infinite 0 true', 'effect give @s minecraft:fire_resistance infinite 0 true',
                               'tag @s add bm.adressme', 'execute summon minecraft:item_display run function bm:p241/dress/body', 'tag @s remove bm.adressme'])
     import phase32 as P32
