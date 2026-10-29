@@ -30,13 +30,13 @@ of the 16 px textures. PARTS (25 displays per rex):
   podr, podl                mecha: the shoulder missile pods; atomic: craggy shoulder scutes (each kind has every part,
                             so nothing is hidden by kind - HIDDEN only honours a pose's '_hide')
 
-SCALE: RIG_SCALE = SCALE = 2.5 - a design unit is 2.5/16 block. At that size the idle rex stands ~7.4 blocks to the top of
-its head (~7.7 to the tip of the highest plate), ~11 blocks nose to tail tip, ~3 blocks across the shoulders. The runtime
+SCALE: RIG_SCALE = SCALE = 2.8 - a design unit is 2.8/16 block. At that size the idle rex stands ~7.5 blocks to the top of
+its head (~7.8 to the tip of the highest plate), ~12.5 blocks nose to tail tip, ~3.4 blocks across the shoulders. The runtime
 passes SCALE to all three, as phase245 does with the knights:
     RF.part_nbt(A, p, tags, SCALE, model=A.model_id(p, kind))
     RF.place(A, SCALE / 16, sel)
     RF.pose(A, A.posed(name, kind), SCALE, dur, sel)            (posed() adds the kind, so swap= finds the right models)
-(No PART_K: every part fits its model box at k 1.) A different SCALE scales the whole rex (2.0: ~6 blocks).
+(No PART_K: every part fits its model box at k 1.) A different SCALE scales the whole rex (2.2: ~6 blocks).
 
 SEAT = (0.0, y, z) blocks - from the rig's origin (between the feet, on the ground) to the saddle's seat surface at the
 rider's middle, in idle_a: +y up, +z toward the rex's FRONT (display frame, yaw 0 facing south; negative z is behind the
@@ -92,11 +92,11 @@ from rigkit import qs, el, seg, D, qrot, qmul
 
 PREFIX = 'rx_'
 KINDS = ('atomic', 'mecha')
-RIG_SCALE = 2.5                                 # (a design unit = 2.5/16 block: ~7.4 blocks to the head standing)
+RIG_SCALE = 2.8                                 # (a design unit = 2.8/16 block: ~7.5 blocks to the head standing)
 SCALE = RIG_SCALE                               # (what the runtime passes to RF.part_nbt / RF.place (SCALE / 16) / RF.pose)
 UP, FRONT, BACK = (0.0, 1.0, 0.0), (0.0, 0.0, -1.0), (0.0, 0.0, 1.0)
 
-TAILPTS = [(0.0, 17.0, 8.0), (0.0, 13.6, 19.5), (0.0, 10.0, 30.0), (0.0, 6.6, 40.0), (0.0, 3.8, 51.0)]   # (the tail's spine, joint to joint, the tip last)
+TAILPTS = [(0.0, 17.0, 8.0), (0.0, 13.6, 18.8), (0.0, 10.0, 28.6), (0.0, 6.6, 37.8), (0.0, 3.8, 47.6)]   # (the tail's spine, joint to joint, the tip last)
 PIVOT = {'body': (0.0, 17.0, 2.0), 'chest': (0.0, 24.0, 2.0), 'neck': (0.0, 36.0, 0.0), 'head': (0.0, 42.0, -3.0),
          'jaw': (0.0, 41.6, -2.0),
          'armr': (8.6, 33.0, -1.5), 'forer': (10.4, 27.6, -3.2), 'arml': (-8.6, 33.0, -1.5), 'forel': (-10.4, 27.6, -3.2),
@@ -298,7 +298,7 @@ BLUE = dict(deep=(22, 64, 200), mid=(52, 120, 245), lt=(110, 200, 255), core=(19
 def textures_of(kind):
     if kind == 'atomic':
         return {
-            'hide': _pebble((54, 54, 60), (48, 48, 53), (68, 68, 75), (84, 84, 92), (30, 30, 34)),
+            'hide': _pebble((54, 54, 60), (49, 49, 54), (63, 63, 70), (74, 74, 82), (38, 38, 43)),
             'crag': _crag((44, 44, 49), (52, 52, 58), (62, 62, 69), (24, 24, 28)),
             'belly': _bands((78, 78, 84), (96, 96, 103), (50, 50, 56)),
             'claw': _bands((150, 146, 136), (184, 180, 168), (100, 96, 90), split=False, h=4),
@@ -543,7 +543,7 @@ def _M(a, m):
 
 def _body():
     at = _atomic(); S, C, B = _M('hide', 'armor'), _M('crag', 'steel'), _M('belly', 'dark')
-    L = [E((-9.0, 13.0, -5.0), (9.0, 24.5, 8.0), S),
+    L = [E((-9.0, 13.0, -5.0), (9.0, 24.5, 8.0), _M('crag', 'armor')),
          E((-7.0, 14.0, -6.0), (7.0, 24.0, -5.0), _M('belly', 'steel')),
          E((-7.5, 13.5, 8.0), (7.5, 23.0, 10.0), C),
          E((-6.0, 12.2, -3.0), (6.0, 13.2, 6.0), _M('hide', 'dark'))]
@@ -562,7 +562,7 @@ def _body():
 
 def _chest():
     at = _atomic(); S, C = _M('hide', 'armor'), _M('crag', 'steel')
-    L = [E((-8.6, 23.0, -5.0), (8.6, 33.5, 7.5), S),
+    L = [E((-8.6, 23.0, -5.0), (8.6, 33.5, 7.5), _M('crag', 'armor')),
          E((-8.1, 33.0, -3.6), (8.1, 37.0, 7.0), C),
          E((-6.2, 36.5, -0.5), (6.2, 38.6, 7.2), C),
          E((-6.6, 23.5, -6.0), (6.6, 33.0, -5.0), _M('belly', 'steel'))]
@@ -625,11 +625,11 @@ def _head():
         L += [E((-0.6, 40.9, -13.9), (0.6, 42.0, -13.0), 'tooth')]
         L += ROW3((0.0, 44.0, 2.6), UP, BACK, ('small', 0.48), 1.6, side=False)
         return L
-    L = [E((-4.1, 42.0, -8.0), (4.1, 47.2, 1.0), 'armor'), E((-3.4, 41.9, -14.0), (3.4, 45.0, -7.8), 'armor'),
-         E((-3.0, 42.2, -14.8), (3.0, 44.6, -13.9), 'steel'),                      # (the nose cap)
+    L = [E((-4.1, 42.0, -8.0), (4.1, 47.2, 1.0), 'armor'), E((-3.4, 41.9, -14.0), (3.4, 43.8, -7.8), 'armor'),
+         E((-3.0, 42.2, -14.8), (3.0, 43.6, -13.9), 'steel'),                      # (the nose cap)
          E((-4.6, 45.0, -9.4), (4.6, 46.4, -6.6), 'steel'),                        # (the brow plate)
          E((-4.35, 43.6, -8.6), (4.35, 45.0, -7.4), 'dark'),                       # (the visor's slot)
-         E((-3.5, 45.0, -13.0), (3.5, 45.8, -9.2), 'steel'),                       # (the nose ridge)
+         E((-3.5, 43.7, -13.0), (3.5, 44.4, -8.6), 'steel'),                       # (the nose ridge)
          E((-3.9, 41.0, 1.0), (3.9, 46.4, 3.2), 'armor'),
          E((-1.0, 46.4, -6.0), (1.0, 48.6, 2.0), 'steel'),                         # (a crest)
          E((-0.4, 47.0, -4.0), (0.4, 47.6, 1.0), 'light'),
@@ -639,7 +639,7 @@ def _head():
         L += [BX(sx, 1.4, 4.3, 43.85, 44.75, -8.75, -7.3, 'visor'),                # (the visor's two blue eyes)
               BX(sx, 3.6, 4.5, 40.6, 43.6, -7.0, -0.8, 'steel'),                   # (the jaw's hydraulics)
               BX(sx, 4.1, 4.7, 41.6, 42.6, -5.6, -2.0, 'joint'),
-              BX(sx, 0.9, 1.7, 44.1, 44.6, -14.9, -14.75, 'light'),                # (nose lights)
+              BX(sx, 0.9, 1.7, 42.9, 43.4, -14.9, -14.75, 'light'),                # (nose lights)
               BX(sx, 3.8, 5.6, 45.6, 47.4, -1.4, 1.6, 'steel'),                    # (the antenna fins)
               BX(sx, 4.6, 5.2, 47.0, 49.2, -0.6, 1.4, 'fin')]
         for i, z in enumerate((-13.6, -11.9, -10.2, -8.5)):                        # (steel fangs)
@@ -693,7 +693,7 @@ def _thigh(sx):
     L = [BX(sx, 2.8, 12.0, 9.0, 20.0, -4.2, 7.0, S), BX(sx, 11.6, 12.8, 11.0, 18.0, -2.0, 5.0, C),
          BX(sx, 3.6, 11.2, 10.0, 18.5, -4.9, -4.0, C)]
     if not at:
-        L += [BX(sx, 12.7, 13.0, 12.5, 16.5, -1.0, 4.0, 'light'), BX(sx, 3.5, 11.3, 9.4, 10.2, -4.6, 6.6, 'joint')]
+        L += [BX(sx, 12.7, 13.0, 12.0, 17.0, 1.2, 1.8, 'light'), BX(sx, 3.5, 11.3, 9.4, 10.2, -4.6, 6.6, 'joint')]
     return L
 
 
@@ -1028,9 +1028,7 @@ def _pose(name):
                  thighr=limb(1, 9 + 22 * sw), shinr=knee(6 + 34 * max(0.0, -s_(ph + 0.6))),
                  thighl=limb(-1, 9 - 22 * sw), shinl=knee(6 + 34 * max(0.0, s_(ph + 0.6))),
                  tail1=TL(-4, -5 * sw), tail2=TL(-3, -6 * sw), tail3=TL(-2, -7 * sw), tail4=TL(2, -8 * sw))
-        p = _done(p)
-        o = p['_off']; p['_off'] = (o[0], o[1] - 0.6 * abs(math.cos(ph)), o[2])    # (the stomp: down on the planted foot)
-        return settle_tail(p)
+        return _done(p)
     if name.startswith('run_'):
         k = int(name[-1]); ph = math.pi * k / 2; sw = s_(ph)
         p = dict(body=T(18, 4 * sw, 2 * sw), chest=T(16, -3 * sw), neck=T(8), head=T(-38, 2 * sw), jaw=JAW(8),
@@ -1083,9 +1081,9 @@ def _pose(name):
                  tail1=TL(4, 26), tail2=TL(2, 28), tail3=TL(2, 30), tail4=TL(2, 30))
         return _done(p, floor=1.2)
     if name == 'sit':
-        p = dict(body=T(18), chest=T(-4), neck=T(20), head=T(-30), jaw=JAW(2),
-                 armr=limb(1, 22, 6), forer=limb(1, 6), arml=limb(-1, 22, 6), forel=limb(-1, 6),
-                 thighr=limb(1, 92, 10), shinr=knee(118), thighl=limb(-1, 92, 10), shinl=knee(118),
+        p = dict(body=T(30), chest=T(20), neck=T(4), head=T(-30), jaw=JAW(2),
+                 armr=limb(1, 30, 8), forer=limb(1, -10), arml=limb(-1, 30, 8), forel=limb(-1, -10),
+                 thighr=limb(1, 105, 10), shinr=knee(145), thighl=limb(-1, 105, 10), shinl=knee(145),
                  tail1=TL(-26), tail2=TL(-2), tail3=TL(2), tail4=TL(2))
         return _done(p, drag=0.8)
     if name == 'mecha_fist':
@@ -1155,8 +1153,8 @@ class _Seats(dict):
 
 
 SEATS = _Seats()
-SEAT = (0.0, 6.091, -0.205)                     # (= seat('idle_a'), checked by check(); blocks, +z its front)
-SEAT_SIT = (0.0, 3.9, 1.5)                      # (= seat('sit'), checked by check())
+SEAT = (0.0, 7.023, 0.352)                      # (= seat("idle_a"), checked by check(); blocks, +z its front)
+SEAT_SIT = (0.0, 4.873, 2.178)                  # (= seat("sit"), checked by check())
 
 
 def breath():
@@ -1326,7 +1324,7 @@ def icon_rex_egg():
     for x, y, c in ((7, 15, 2), (7, 14, 3), (8, 13, 3), (8, 12, 4), (9, 11, 3), (9, 10, 2), (10, 9, 2), (8, 11, 3), (7, 10, 2),
                     (6, 9, 1), (10, 12, 2), (11, 11, 1)):
         s.px(x, y, GLOWR[c])
-    for x, y, c in ((13, 1, 4), (12, 2, 3), (13, 2, 2), (14, 0, 3)): s.px(x, y, GLOWR[c])         # (the spark)
+    for x, y, c in ((9, 4, 2), (9, 5, 3), (8, 6, 2), (10, 7, 2), (6, 6, 1)): s.px(x, y, GLOWR[c])       # (veins near the top)
     return s.image()
 
 
@@ -1343,14 +1341,27 @@ def _ink(s, pts):
     for x, y in pts: s.px(x, y, INK)
 
 
+def _inkg(s, rows, x0, y0):
+    """line art from a grid: W white line, B the blue glow (a visor, the core)"""
+    for j, row in enumerate(rows):
+        for i, ch in enumerate(row):
+            if ch == 'W': s.px(x0 + i, y0 + j, INK)
+            elif ch == 'B': s.px(x0 + i, y0 + j, GLOWR[4])
+
+
 def icon_blueprint(n):
     s = _S()
     if n == 1:                                          # (the head: a profile, the visor, the jaw)
         _sheet(s, [(14, y) for y in range(1, 16) if y % 3 != 1] + [(15, y) for y in range(16)] + [(13, 3), (13, 9), (13, 14)])
-        _ink(s, [(3, 6), (4, 5), (5, 5), (6, 5), (7, 5), (8, 5), (9, 5), (10, 6), (11, 7), (11, 8), (3, 7), (3, 8), (4, 8),
-                 (5, 8), (6, 8), (7, 8), (3, 10), (4, 11), (5, 11), (6, 11), (7, 11), (8, 10), (9, 9), (10, 9)])
-        s.px(5, 6, GLOWR[4]); s.px(6, 6, GLOWR[4])
-        _ink(s, [(4, 13), (6, 13), (8, 13), (10, 13)])
+        _inkg(s, ['...WWWWWWW',
+                  '..W......W',
+                  'WW..BB...W',
+                  'W........W',
+                  'WWWWWWW..W',
+                  '.W.W.W...W',
+                  'WWWWWW...W',
+                  '.........W',
+                  '.WWWWWWWWW'], 2, 4)
     elif n == 2:                                        # (the body: the torso, the reactor's circle)
         _sheet(s, [(1, y) for y in range(16)] + [(2, y) for y in range(0, 16, 3)] + [(x, 15) for x in range(16) if x % 4 != 2])
         _ink(s, [(5, 3), (6, 3), (7, 3), (8, 3), (9, 3), (10, 3), (4, 4), (4, 5), (4, 6), (4, 7), (4, 8), (5, 9), (5, 10), (5, 11),
@@ -1359,10 +1370,16 @@ def icon_blueprint(n):
         s.px(7, 6, GLOWR[4]); s.px(8, 7, GLOWR[3])
     else:                                               # (the legs: a thigh, the knee, a clawed foot)
         _sheet(s, [(x, 1) for x in range(16)] + [(x, 2) for x in range(16) if x % 3 == 0] + [(14, y) for y in range(8, 16)] + [(15, y) for y in range(16)])
-        _ink(s, [(5, 4), (6, 4), (7, 4), (8, 4), (4, 5), (4, 6), (4, 7), (5, 8), (9, 5), (9, 6), (9, 7), (8, 8), (6, 9), (7, 9),
-                 (5, 10), (5, 11), (8, 10), (8, 11), (4, 12), (3, 13), (4, 13), (5, 13), (6, 13), (7, 13), (8, 13), (9, 13), (10, 13),
-                 (10, 12), (9, 12)])
-        _ink(s, [(11, 4), (12, 4), (11, 6), (12, 6)])
+        _inkg(s, ['.WWWWW.',
+                  'W.....W',
+                  'W..B..W',
+                  '.W...W.',
+                  '..W.W..',
+                  '..W..W.',
+                  '..W...W',
+                  '.WW....W',
+                  'W..W.W.W',
+                  'WWWWWWWW'], 3, 4)
     return s.image()
 
 
@@ -1406,7 +1423,7 @@ def check():
         for t in tex.values(): assert t.split('/', 1)[1] in names, (mid, t)
     for n in POSE_NAMES:
         lo = lowest(POSES[n], ('footr', 'footl', 'shinr', 'shinl'))
-        assert abs(lo) < 0.05 or n == 'stomp_0' and abs(lo) < 0.05, (n, lo)
+        assert abs(lo) < 0.05 or n.startswith('run_') and 0 <= lo < 2.0, (n, lo)
         assert lowest(POSES[n], TAIL) > -0.05, (n, 'tail below ground')
     s = seat('idle_a'); assert all(abs(a - b) < 0.02 for a, b in zip(s, SEAT)), ('SEAT is', s)
     s = seat('sit'); assert all(abs(a - b) < 0.05 for a, b in zip(s, SEAT_SIT)), ('SEAT_SIT is', s)

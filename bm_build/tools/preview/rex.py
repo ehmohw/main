@@ -186,7 +186,7 @@ if 'lineup' in what:
     p = os.path.join(OUT, 'rex_lineup.png'); out.save(p); print(p)
 
 # ---------------------------------------------------------------------------------------------------- poses
-VIEW = {'breath_1': (-62, 10), 'tailswipe': (-20, 40), 'mecha_fist': (-55, 10), 'stomp_0': (-50, 10), 'stomp_1': (-50, 10)}
+VIEW = {'breath_1': (-62, 10), 'tailswipe': (-20, 40), 'mecha_fist': (40, 10), 'stomp_0': (-50, 10), 'stomp_1': (-50, 10)}
 if 'poses' in what:
     for kind in A.KINDS:
         tiles = []

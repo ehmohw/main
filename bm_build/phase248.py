@@ -7,7 +7,7 @@ USE        right-click (or sneak + right-click: the same): it unfolds into a bar
            satchel, the Prime Cooler and the collectors do it (the item is held in storage while it's out, its contents moved
            into the barrel, and back into the item when it folds). It folds when you sneak, walk 6+ blocks off, after five
            minutes, or when you open another bag. Using a second backpack folds the first.
-DUNGEONS   the Phase 2 dungeons (the seven overworld ones, the Hollow Throne, the Undercrown, the Vorn Armada), where the
+DUNGEONS   the Phase 2 dungeons (those round a bm.zone_d marker, the Hollow Throne, the Undercrown, the Armada), where the
            satchel won't unfold: there it unfolds only into plain air (or cave air) over solid floor, never within 2 blocks
            of the dungeon's own fixtures (its markers: puzzle pieces, doors, gates, sigils, bridges, vaults, spawners), and
            folding back puts back exactly that air. Not on a heist (the coat check keeps your pack in the gutter) and not
@@ -38,7 +38,8 @@ item(ITEM, TOTEM, 'Backpack', COL,
       ('(27 slots) in front of you. Sneak or walk', 'blue'), ('away and it packs back up, all inside.', 'blue'),
       ('Works in the dungeons too - on open floor.', 'blue'), ('Carry as many as you like: each one', 'blue'),
       ('keeps its own load.', 'blue'), ('No bags inside bags.', 'gray')],
-     model=f'bm:{ITEM}', stack=1, cat='builder', comps=dict(hold('bundle'), **{'minecraft:container': []}), price=PRICE)
+     model=f'bm:{ITEM}', stack=1, cat='builder', comps=dict(hold('bundle'), **{'minecraft:container': []}))
+# (no list price: Old Barnaby doesn't buy it back - a pawn trade can't see what's inside, and would swallow a full one)
 DYNAMIC.add(ITEM)
 HOLD[ITEM] = 'bm:p248/use'
 

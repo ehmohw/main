@@ -964,6 +964,7 @@ def enter3():
 
 
 # ====================================================================== (2.98c) THE LAST LIGHT (boss_divine, 28 s, once)
+# (2.99a: superseded by tools/divine_music.py, which writes boss_divine.ogg now; kept, and built only when asked by name)
 # Under the Divine One's coming: silence and one harmonic (0-2 s); the beam through the dome - a bell (2 s); a choir in F
 # MAJOR swelling as He descends (3-8); REVEALED - the great organ, the full choir, the bells (8); while He looks down and
 # names it, a single violin sings Aurel's cell, in major - the light it was (10-15); a riser as His hand rises; THE SMITING (16
@@ -1268,7 +1269,7 @@ def seeded(k, build, *a):
 
 
 if __name__ == '__main__':
-    what = sys.argv[1:] or ['p1', 'p2', 'p3', 'turn', 'intro', 'enter2', 'enter3', 'divine', 'disc', 'aurel', 'check']
+    what = sys.argv[1:] or ['p1', 'p2', 'p3', 'turn', 'intro', 'enter2', 'enter3', 'disc', 'aurel', 'check']
     if 'p1' in what: save_loop(seeded(1, p1), 3.0, 0.23)
     if 'p2' in what: save_loop(seeded(2, p2), 2.2)
     if 'p3' in what: save_loop(seeded(3, p3), 2.6, 0.27)                # (the most intense: its fight hotter than the Dread's)
@@ -1276,7 +1277,8 @@ if __name__ == '__main__':
     if 'intro' in what: save_intro(seeded(5, intro))
     if 'enter2' in what: save_sting(seeded(8, enter2), 2.4, 0.31)
     if 'enter3' in what: save_sting(seeded(9, enter3), 2.4, 0.31)
-    if 'divine' in what: save_sting(seeded(10, divine), 3.2, 0.22)
+    if 'divine' in what:                                                # (2.99a: the old piece; boss_divine.ogg is tools/divine_music.py's now)
+        save_sting(seeded(10, divine), 3.2, 0.22)
     if 'disc' in what:
         d = seeded(6, disc); assert 170 <= d.seconds <= 200, d.seconds
         save_disc(d, 'sovereign', 2.6)

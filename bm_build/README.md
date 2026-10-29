@@ -21,6 +21,10 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.99a
+
+- **The Backpack** (the Fence, 5 Tokens): a plain 27-slot leather bag for clogged inventories. Right-click it and it unfolds into a barrel in front of you, as the Vacuum Satchel does. Sneak or walk away and it packs back up with everything inside. Each backpack keeps its own load, so carry as many as you like. It also works in the boss dungeons (the seven Phase 2 dungeons, the Hollow Throne, the Undercrown and the Vorn Armada), where it needs open floor clear of the dungeon's works and leaves the dungeon exactly as it found it. A dungeon rebuild or reset never eats what's inside. It doesn't work on a heist, where the coat check keeps it. Bags don't go inside bags.
+
 ## New in 2.99: THE VORN ARMADA - the Vorn's hard-mode dungeon, and Admiral Vexis
 
 **Finding it (hard mode only).** Sabotage a Dreadnought's reactor and its vault gives up **the Hive-Star Coordinates**. Go to the End, out past the dragon's island, and use them.
