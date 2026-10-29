@@ -238,7 +238,7 @@ def generate(G):
                           title('@s', 'actionbar', T('The Hive-Star scorches you - get away from it!', STAR, bold=True))])
 
     # ---- hidden sigils: their followers' names, lit while they stand there
-    fn('p241/sigil/lit', ['tag @s add bm.lit', 'particle minecraft:end_rod ~ ~1 ~ 0.1 0.8 0.1 0.01 10',
+    fn('p241/sigil/lit', ['scoreboard players add #hs bm.rng 1', 'execute if entity @s[tag=bm.lit] run return 0', 'tag @s add bm.lit', 'particle minecraft:end_rod ~ ~1 ~ 0.1 0.8 0.1 0.01 10',
                           'playsound minecraft:block.respawn_anchor.charge block @a[distance=..16] ~ ~ ~ 0.8 1.2'])
     for kk in sorted({w_[0] for h in M['hidden'].values() for w_ in h['sigils']}):
         nm, _pr, c = who(kk)[:3]
@@ -470,7 +470,7 @@ def generate(G):
         req = [w_[0] for w_ in h['sigils']]
         lines = ['scoreboard players set #hs bm.rng 0']
         for w_ in req:
-            lines.append(f'execute as @e[type=minecraft:marker,tag=bm.ahsg,tag=bm.ahs_{k},tag=bm.sw_{w_},distance=..40] at @s if entity {host(w_, 1.8)} run scoreboard players add #hs bm.rng 1')
+            lines.append(f'execute as @e[type=minecraft:marker,tag=bm.ahsg,tag=bm.ahs_{k},tag=bm.sw_{w_},distance=..40] at @s if entity {host(w_, 1.8)} run function bm:p241/sigil/lit')
         lines.append(f'execute if score #hs bm.rng matches {len(req)}.. run function bm:p241/hidden/open_{k}')
         fn(f'p241/hidden/try_{k}', lines)
         fn(f'p241/hidden/open_{k}', ['tag @s add bm.open', 'function bm:p241/door/open',

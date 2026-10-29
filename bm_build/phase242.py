@@ -98,7 +98,7 @@ def _cyc(f):
         c[8] = (None, [(0, pp(f, 'missiles'))])
         c[9] = (None, [(0, pp(f, 'stomp_up')), (14, pp(f, 'stomp'))])
         c[20] = (None, [(0, pp(f, 'dormant'))])
-        c[21] = (None, [(0, pp(f, 'dormant'))] + [(t, n) for t, n in ((100, 'wake_0'), (170, 'wake_1'), (240, 'wake_2'), (300, 'wake_3')) if n in P] + [(340, pp(f, 'roar'))])
+        c[21] = (None, [(0, pp(f, 'dormant'))] + [(t, n) for t, n in ((100, 'wake_0'), (170, 'wake_1'), (205, 'rise'), (240, 'wake_2'), (300, 'wake_3')) if n in P] + [(340, pp(f, 'roar'))])
     else:
         c[13] = (None, [(0, pp(f, 'gravity'))])
         c[14] = (None, [(0, pp(f, 'beam_up')), (20, pp(f, 'beam'))])
@@ -172,6 +172,7 @@ def generate(G):
     for f in FORM.values():
         fn(f'p242/place/{f}', RF.place(A, SCALE[f] / 16, sel))
         for name, pz in A.BOSS_POSES[f].items():
+            if name in ('sit_a', 'sit_b', 'happy', 'hurt'): continue        # (the follower's: phase243 poses them at its own sizes)
             fn(f'p242/pose/{f}/{name}', RF.pose(A, pz, SCALE[f], DUR.get(name, 6), sel, swap=SWAP))
         RF.cycles(fn, f'p242/{f}', CYC[f], 'bm.vxf', 'bm.vxs', lambda p, f=f: f'p242/pose/{f}/{p}')
     G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for f in FORM.values() for n in RF.periods(CYC[f])]
