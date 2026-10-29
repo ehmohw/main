@@ -17,12 +17,16 @@ THE SERAPH'S GAZE (3D, item model bm:item/seraph_helm - the item definition ange
   a pearl helm with a gold crest and circlet (a sapphire at the brow); WITH TWO THEY COVERED THEIR FACES: two wings from the
   temples, feather over feather, crossing over the whole face, their feathers full of eyes and burning at the tips; eyes
   open on its sides; a burning halo over it, set with eyes. Model space as the Dread Visage: a head filling 3..13, front north.
+  (v299, simplified for blocky MC after the Dread Visage: the same silhouette; every eye the plate's square pixel eye in its
+  own gold setting, one box each; the halo twelve straight pieces lit on top, without its inner ring of light; two coverts at
+  each wing's root, not three; flat fields with no speckle, filigree or barbs - 70 elements, was 109.)
 THE SPRITES  seraph_carapace / greaves / treads, drawn for themselves (not netherite recoloured).
 The 3D great and lower wings that others see on a wearer of the Seraph's Wings are seraph_wings.py (they use these textures).
-Every block texture here is 32 x 32 (1 px cells: two texels to a model unit, the Divine One's density)."""
+Every block texture here is 32 x 32, drawn on a coarse grid and blown up (_grid): the tiled ones (pearl, gold, sapphire) a
+texel to a model unit, the Dread Visage's; the whole-uv ones (eye, feathers, coverts, flame) a few big pixels across."""
 import math
 import random
-from PIL import Image, ImageDraw
+from PIL import Image
 
 import rigkit
 from rigkit import el
@@ -213,110 +217,81 @@ def _paint(fn, seed, size=32):
     return im
 
 
+def _grid(rows, size=32, k=1.0):
+    """a texture drawn by hand on a coarse pixel grid (PAL letters, '.' clear), blown up to size x size (NEAREST): the 3D
+    pieces' textures are drawn this way, so the Gaze reads on the head's own pixel grid (v299 simplified, as the Dread Visage)"""
+    im = Image.new('RGBA', (len(rows[0]), len(rows)), (0, 0, 0, 0)); px = im.load()
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch != '.': px[x, y] = _c(PAL[ch], k)
+    return im.resize((size, size), Image.NEAREST)
+
+
+# (v299 simplified for blocky MC, after the Dread Visage: the tiled textures on a 16 grid (a texel to a model unit - the
+# Visage's), the whole-uv ones on a few big pixels; flat fields in 3-4 steps lit from above and the left; no speckle, no
+# filigree, no barbs; every eye the plate's square pixel eye - white, a square sapphire iris, gold lids)
 def _pearl(seed, k=1.0):
-    """pearl plate: a fine grain of light and shade, rose and ice in it, a lit lip every 8 rows"""
-    def c(x, y, r):
-        b = P2 if r.random() > 0.3 else (P1 if r.random() > 0.4 else P3)
-        q = r.random()
-        if q < 0.07: b = _mix(b, (238, 222, 248), 0.7)
-        elif q < 0.13: b = _mix(b, (218, 236, 252), 0.7)
-        if y % 8 == 0: b = _mix(b, WHITE, 0.6)
-        if y % 8 == 7: b = _mix(b, P4, 0.5)
-        return _c(b, k)
-    return _paint(c, seed)
-
-
-SCROLL = ['..GGGG..', '.G....G.', 'G..GG..G', 'G.G..G.G', 'G.G...G.', '.G.GGG..', '..G.....', '...GG...']
+    """pearl plate: courses four texels deep, each lit along its top and shaded along its foot, a seam down every course"""
+    course = ['pppppppppppppppp', 'PPPPPsPPPPPPPsPP', 'PPPPPsPPPPPPPsPP', 'ssssssssssssssss']
+    return _grid(course * 4, k=k)
 
 
 def _gold(seed, bright=False):
-    """gold, worked in filigree: a scroll repeated in light lines on it (bright: lit from within - the halo, the edges)"""
-    base = [G1, G1, G0] if bright else [G2, G2, G1, _mix(G2, G3, 0.4)]
-    def c(x, y, r):
-        if SCROLL[y % 8][x % 8] == 'G': return _c(WHITE if bright and r.random() < 0.3 else (G0 if bright else G3))
-        return _c(r.choice(base))
-    return _paint(c, seed)
+    """gold in courses, lit along their tops (bright: lit from within - the halo, a step lighter all through)"""
+    course = ['yyyyyyyyyyyyyyyy', 'gggggggggggggggg', 'gggggggggggggggg', 'GGGGGGGGGGGGGGGG'] if bright else \
+             ['gggggggggggggggg', 'GGGGGGGGGGGGGGGG', 'GGGGGGGGGGGGGGGG', 'hhhhhhhhhhhhhhhh']
+    return _grid(course * 4)
 
 
 def _saph(seed):
-    def c(x, y, r):
-        if (x + y) % 8 == 0: return _c(S0)
-        if (x - y) % 8 == 0: return _c(S3)
-        return _c(r.choice((S1, S1, S2, _mix(S1, S0, 0.4))))
-    return _paint(c, seed)
+    """sapphire: four-texel facets, a glint at the top left of each, its foot dark"""
+    facet = ['bBBn', 'BBBn', 'BBnn', 'nnnN']
+    return _grid([r * 4 for r in facet] * 4)
+
+
+EYE_ROWS = ['yggggG',               # (the Gaze's eye, whole uv: the plate's pixel eye - a square sapphire iris lit at its top left, in
+            'geBneh',               # white, in gold lids; its setting drawn round it, so an eye on the helm is one box)
+            'genNeh',
+            'GhhhhH']
 
 
 def _eye(seed=0, lid=G2):
-    """an eye (whole uv): an almond of white in gold lids, a sapphire iris with a dark pupil, a glint"""
-    def c(x, y, r):
-        dx, dy = (x - 15.5) / 15.0, (y - 15.5) / 9.0
-        a = abs(dy) + dx * dx * 0.9                                   # (the almond)
-        if a > 1.15: return _c(_mix(lid, G3, 0.3) if r.random() < 0.3 else lid)
-        if a > 0.95: return _c(G4 if dy < 0 else G3)                  # (the lash line)
-        d = math.hypot(x - 15.5, y - 15.5)
-        if d < 3.2: return _c(PUPIL)
-        if d < 7.5: return _c(_mix(S0, S2, (d - 3.2) / 4.3)) if (x + y) % 5 else _c(S1)
-        if d < 8.3: return _c(S3)
-        return _c(EYE_W if dy > -0.5 else _mix(EYE_W, P3, 0.4))
-    im = _paint(c, seed); d = ImageDraw.Draw(im)
-    d.rectangle((11, 10, 13, 12), fill=_c(WHITE))                     # (the glint)
-    return im
+    return _grid([''.join(r[i] for r in EYE_ROWS) for i in range(len(EYE_ROWS[0]))])   # (stored transposed: EYEBOX lays the texture's u up the eye)
 
 
 def _feather(seed, dark=False, eye=False):
-    """a flight feather (whole uv, its length down v): a gold-white shaft, the vane in barbs slanting off it, lit on one side
-    and shaded on the other, its edges darker (so feathers side by side read apart); eye: an eye in the vane"""
-    lo, mid, hi = (P3, P2, P1) if dark else (P2, P1, WHITE)
-    def c(x, y, r):
-        if x in (15, 16): return _c(_mix(G1, WHITE, 0.45) if y > 2 else G2)
-        if x <= 1 or x >= 30: return _c(_mix(lo, P4, 0.6))
-        left = x < 15
-        u = (x if left else 31 - x)
-        if (y + (15 - u) // 2) % 5 == 0: return _c(_mix(lo, P4, 0.35))                 # (the barbs)
-        b = (hi if r.random() > 0.2 else mid) if left else (mid if r.random() > 0.25 else lo)
-        if y < 3: b = _mix(b, P4, 0.4)                                                   # (the root, tucked under)
-        return _c(b)
-    im = _paint(c, seed)
-    if eye:
-        e = _eye(seed + 1, lid=G1).resize((20, 12), Image.NEAREST)
-        im.alpha_composite(e, (6, 11))
-    return im
+    """a flight feather (whole uv, its length down v): the vane lit on the left of a pale gold shaft and shaded on its right,
+    its root tucked in shadow, a gold flush where it starts to burn (dark: a step down); eye: the plate's eye across it"""
+    rows = ['sPPhsS'] + ['WppgPs' if not dark else 'pPPgsS'] * 13 + ['gggygg', 'GGGgGh']
+    if dark: rows[0] = 'SssGSo'
+    if eye: rows[5:8] = ['yggggG', 'geBNeh', 'GhhhhH']
+    return _grid(rows)
 
 
 def _covert(seed, eye=False, full=False):
-    """coverts: rows of small rounded feathers (8 x 6 each, staggered), lit on top, gold at the tip; eye: some are eyes"""
-    def c(x, y, r):
-        row = y // 6; sx = (x + (row % 2) * 4) % 8; sy = y % 6
-        if full and (x <= 1 or x >= 30): return _c(P4)
-        if sy == 5: return _c(G2 if sx in (2, 3, 4, 5) else G3)
-        if sx in (0, 7): return _c(P3)
-        if sy == 0: return _c(WHITE)
-        return _c(P1 if sx < 4 else P2)
-    im = _paint(c, seed)
-    if eye:
-        e = _eye(seed + 3, lid=G1).resize((8, 5), Image.NEAREST)
-        for (ex, ey) in ((0, 0), (16, 12), (4, 24), (20, 0)):
-            im.alpha_composite(e, (ex, ey))
-    return im
+    """coverts: rounded feathers in rows, each lit at its top and tipped gold, overlapping down the length (eye: one row
+    of them the plate's eye)"""
+    rows = ['WWpP', 'ppPs', 'PPsS', 'gGGh'] * 2
+    if eye: rows[4:8] = ['ygGG', 'eBne', 'enNe', 'GhhH']
+    if full: rows = [('S' + r[1:3] + 'S') for r in rows]
+    return _grid(rows)
 
 
 def _flame(seed):
-    """a burning tip (whole uv, along v): gold at its root running to orange, tongues of white-gold fire at its end, gaps
-    between the tongues (cut out)"""
-    def c(x, y, r):
-        t = y / 31
-        tongue = 22 + 6 * abs(math.sin(x * 0.55 + seed)) + r.random() * 3
-        if y > tongue: return (0, 0, 0, 0)
-        if t < 0.3: b = _mix(G1, F1, t / 0.3)
-        else: b = _mix(F1, F2, min(1, (t - 0.3) / 0.4))
-        if y > tongue - 4: b = _mix(b, F0, 0.7)
-        if r.random() < 0.08: b = F0
-        return _c(b)
-    return _paint(c, seed)
+    """a burning tip (whole uv, along v): gold at its root running to orange, three square tongues of white-gold fire at
+    its end, cut out between them"""
+    return _grid(['gggggg',
+                  'FFFFFF',
+                  'FFFFFF',
+                  'rFFrFF',
+                  'rfFrfF',
+                  'rffrff',
+                  '.ff.ff',
+                  '.f..f.'])
 
 
 def _light(seed):
-    return _paint(lambda x, y, r: _c(r.choice((G0, G0, WHITE, G1, (255, 236, 160)))), seed)
+    return _grid(['yy', 'yW'])
 
 
 def textures():
@@ -376,8 +351,21 @@ def EYEBOX(c, w, h, normal, pv, d=0.3, light=9):
 
 # ---------------------------------------------------------------------------------------------------- the Seraph's Gaze (3D)
 def _set_eye(c, w, h, n, pv, light=10, rim=0.45):
-    """an eye in a gold setting, flush in a surface facing n"""
-    return [SEG(*_across(c, w + rim, n, -0.12), h + rim, 0.3, 'sr_gold', pv, n), EYEBOX(c, w, h, n, pv, d=0.36, light=light)]
+    """an eye in a gold setting, flush in a surface facing n (v299 simplified: one box - sr_eye draws its setting round it)"""
+    return [EYEBOX(c, w + rim, h + rim, n, pv, d=0.36, light=light)]
+
+
+TILED = {'sr_pearl', 'sr_pearl_d', 'sr_gold', 'sr_gold_l', 'sr_saph'}
+
+
+def _on_grid(els):
+    """the tiled textures laid from their corner on every face (no random shift): the courses line up from piece to piece, as
+    the Dread Visage's"""
+    for e in els:
+        for fc in e['faces'].values():
+            if fc['texture'][1:] in TILED:
+                u0, v0, u1, v1 = fc['uv']; fc['uv'] = [0, 0, round(u1 - u0, 4), round(v1 - v0, 4)]
+    return els
 
 
 def _across(c, w, n, dn=0.0):
@@ -430,29 +418,30 @@ def helm_model():
             H += FEATHER(A, B, 1.7, tex, pv, FRONT, burn=0.27)
         e0 = (R0[0] + nx * 2.25, R0[1] + ny * 2.25, zb + 0.05)                                 # the leading edge
         H.append(SEG(e0, (e0[0] + dx * Ln * 0.62, e0[1] + dy * Ln * 0.62, zb + 0.05), 0.75, 0.75, 'sr_gold', pv, FRONT, ext=0.2))
-        for j, (o, a0, a1, tex) in enumerate(((1.5, -0.3, 2.6, 'sr_covert'), (0.2, 0.2, 3.2, 'sr_feather_eye'), (-1.1, 0.0, 2.4, 'sr_covert'))):
+        for j, (o, a0, a1, tex) in enumerate(((1.5, -0.3, 2.6, 'sr_covert'), (0.2, 0.2, 3.2, 'sr_covert_eye'))):    # (v299: two, not three)
             z = zb - 0.5 - 0.1 * j                                                            # (coverts over the feathers' roots)
             H.append(SEG((R0[0] + nx * o + dx * a0, R0[1] + ny * o + dy * a0, z), (R0[0] + nx * o + dx * a1, R0[1] + ny * o + dy * a1, z),
                          1.6, 0.35, tex, pv, FRONT, uv=FULL()))
         H.append(GEM((R0[0] + nx * 2.1, R0[1] + ny * 2.1, zb - 0.35), 0.95, 'sr_saph', pv, light=11))
-    # the burning halo over it, tilted back: a ring of light, tongues of fire off it, four eyes set in it
-    c, R, n = (8.0, 17.2, 9.0), 5.2, 20
+    _on_grid(H)
+    # the burning halo over it, tilted back: a band of light in twelve straight pieces (lit on top, gold at its sides, shaded
+    # under), square tongues of fire up off it, four eyes set in it (v299 simplified: 12 pieces, not 20 and an inner ring of 20)
+    c, R, n = (8.0, 17.2, 9.0), 5.2, 12
     tilt = math.radians(16)
     def hp(a, r=R, dy=0.0):
         x, z = r * math.cos(a), r * math.sin(a)
         return (c[0] + x, c[1] + dy - z * math.sin(tilt), c[2] + z * math.cos(tilt))
     up_t = (0.0, math.cos(tilt), math.sin(tilt))
+    BAND = {'up': [0, 0, 1, 1], 'down': [0, 3, 1, 4], 'north': [0, 1, 1, 2], 'south': [0, 1, 1, 2], 'east': [0, 1, 1, 2], 'west': [0, 1, 1, 2]}
     for i in range(n):
-        a0, a1 = 2 * math.pi * i / n, 2 * math.pi * (i + 1) / n
-        H.append(SEG(hp(a0), hp(a1), 1.0, 0.55, 'sr_gold_l', pv, up_t, ext=0.14, light=15, shade=False))
-        H.append(SEG(hp(a0, R - 0.95), hp(a1, R - 0.95), 0.35, 0.45, 'sr_light', pv, up_t, ext=0.1, light=15, shade=False))
-        if i % 2 == 0:                                                                        # tongues of fire up off it
-            a = (a0 + a1) / 2; b = hp(a, dy=0.2)
-            H.append(SEG(b, (b[0], b[1] + (1.7 if i % 4 == 0 else 1.1), b[2] + 0.25), 0.55, 0.55, 'sr_flame', pv, FRONT, light=15, shade=False, uv=FULL()))
+        a0, a1 = 2 * math.pi * (i - 0.5) / n, 2 * math.pi * (i + 0.5) / n                     # (piece i centred on 2 pi i / n: the eyes sit on 0, 3, 6, 9)
+        H.append(SEG(hp(a0), hp(a1), 1.1, 0.6, 'sr_gold_l', pv, up_t, ext=0.16, light=15, shade=False, uv=BAND))
+    for k in range(8):                                                                        # tongues of fire up off it, between the eyes
+        b = hp(math.pi / 8 + k * math.pi / 4, dy=0.2)
+        H.append(SEG(b, (b[0], b[1] + (1.7 if k % 2 == 0 else 1.1), b[2] + 0.25), 0.6, 0.6, 'sr_flame', pv, FRONT, light=15, shade=False, uv=FULL()))
     for a in (math.pi * 1.5, math.pi * 0.5, 0.0, math.pi):
-        p = hp(a, dy=0.05); nn = rigkit._unit((math.cos(a) * 0.9, 0.15, math.sin(a) * 0.9))
-        if a == math.pi * 1.5: nn = (0.0, 0.1, -1.0)
-        H.append(EYEBOX(p, 1.6, 1.0, rigkit._unit(nn), pv, d=0.62, light=13))
+        nn = (math.cos(a), -math.sin(a) * math.sin(tilt), math.sin(a) * math.cos(tilt))      # (out from the ring, in its plane)
+        H.append(EYEBOX(hp(a, R + 0.3), 2.1, 1.4, rigkit._unit(nn), pv, d=0.5, light=13))
     return H
 
 

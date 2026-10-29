@@ -131,7 +131,7 @@ if 'items' in what:
         for v, l in (('front', 'front'), ((-32, 12), '3/4'), ('side', 'side')):
             s = K.multi_scene(ROOT)
             s.solid((-0.5, -1.0, -0.5), (0.5, 0.0, 0.5), '#5a5a62' if kind == 'dread' else '#8a8e96')          # (the block it was placed on)
-            s.display(f'bm:item/{A.STATUES[kind]}', pos=(0, 0.5, 0), yaw=0.0, ctx='fixed')        # (item_display 'fixed' at the air block's centre, yaw 0: facing south, the viewer)
+            s.display(f'bm:item/{A.STATUES[kind]}', pos=(0, 0.0, 0), yaw=0.0, ctx='fixed', translation=tuple(A.STATUE_DISPLAY['translation']), scale=A.STATUE_DISPLAY['scale'])   # (as phase245 places it: on the block's top face, STATUE_DISPLAY; yaw 0 faces south, the viewer)
             steve(s, (1.5, 0, 1.2), yaw=0)
             floor(s, kind, 3.0)
             im = s.render(v, size=380, span=4.2, center=(0.4, 1.3, 0))
@@ -166,36 +166,41 @@ if 'items' in what:
 # ---------------------------------------------------------------------------------------------------- in place
 if 'place' in what:
     def door_gothic(s):
+        """a gothic doorway in the Undercrown's dark brick: a pointed arch, red light over it, buttresses"""
         st, st2, dk = '#3a2a30', '#4a3640', '#120a0e'
-        for x in range(-4, 5):
+        arch = {(-1, 4), (0, 4), (1, 4), (0, 5)}                                 # (the pointed arch's opening above the door)
+        for x in range(-5, 6):
+            for y in range(0, 8):
+                if (-1 <= x <= 1 and y < 4) or (x, y) in arch: continue
+                s.solid((x - 0.5, y, -2.5), (x + 0.5, y + 1, -1.5), st if (x + y) % 2 else st2)
+        s.solid((-1.5, 0, -2.6), (1.5, 4, -2.3), dk); s.solid((-1.5, 4, -2.6), (1.5, 5, -2.3), dk); s.solid((-0.5, 5, -2.6), (0.5, 5.6, -2.3), dk)
+        for x in (-3.5, 3.5):
+            s.solid((x - 0.5, 0, -1.6), (x + 0.5, 7.0, -1.0), '#5a4048')
+            s.solid((x - 0.6, 7.0, -1.7), (x + 0.6, 7.6, -0.9), '#6a5058')
+        s.solid((-1.6, 6.2, -1.6), (1.6, 6.5, -1.4), '#c01830')
+    def door_scifi(s):
+        """a Vorn bulkhead door: hull plates, a split door with a green seam, a lit frame"""
+        hl, hd, gl = '#3a3f48', '#2a2e36', '#3ac84a'
+        for x in range(-5, 6):
             for y in range(0, 7):
                 if -1 <= x <= 1 and y < 4: continue
-                if x == 0 and y == 4: continue
-                s.solid((x - 0.5, y, 1.5), (x + 0.5, y + 1, 2.5), st if (x + y) % 2 else st2)
-        s.solid((-1.5, 0, 2.2), (1.5, 4, 2.5), dk); s.solid((-0.5, 4, 2.2), (0.5, 5, 2.5), dk)
-        for x in (-2.5, 2.5):
-            s.solid((x - 0.5, 0, 1.0), (x + 0.5, 6.0, 1.5), '#5a4048')
-        s.solid((-1.5, 4.6, 1.2), (1.5, 5.0, 1.5), '#a01828')
-    def door_scifi(s):
-        hl, hd, gl = '#3a3f48', '#2a2e36', '#3ac84a'
-        for x in range(-4, 5):
-            for y in range(0, 6):
-                if -1 <= x <= 1 and y < 4: continue
-                s.solid((x - 0.5, y, 1.5), (x + 0.5, y + 1, 2.5), hl if (x + y) % 2 else hd)
-        s.solid((-1.5, 0, 2.0), (1.5, 4, 2.5), '#1a1e24'); s.solid((-0.06, 0, 1.94), (0.06, 4, 2.0), gl)
-        s.solid((-1.6, 4.0, 1.4), (1.6, 4.2, 1.5), gl); s.solid((-1.6, 0, 1.4), (-1.5, 4.0, 1.5), gl); s.solid((1.5, 0, 1.4), (1.6, 4.0, 1.5), gl)
+                s.solid((x - 0.5, y, -2.5), (x + 0.5, y + 1, -1.5), hl if (x + y) % 2 else hd)
+        s.solid((-1.5, 0, -2.2), (1.5, 4, -2.0), '#1a1e24'); s.solid((-0.06, 0, -2.0), (0.06, 4, -1.94), gl)
+        s.solid((-1.6, 4.0, -1.5), (1.6, 4.2, -1.4), gl); s.solid((-1.6, 0, -1.5), (-1.5, 4.0, -1.4), gl); s.solid((1.5, 0, -1.5), (1.6, 4.0, -1.4), gl)
+        for x in (-3.5, 3.5):
+            s.solid((x - 0.6, 0, -1.5), (x + 0.6, 6.0, -1.1), '#4a505a'); s.solid((x - 0.1, 0.5, -1.12), (x + 0.1, 5.5, -1.05), gl)
     tiles = []
     for kind, door in (('dread', door_gothic), ('vorn', door_scifi)):
         for v in ((-22, 10), (0, 4)):
             s = K.multi_scene(ROOT); door(s)
-            knight(s, 'statue', kind, 'stone', at=(-2.6, 0, 0.6), yaw=0); knight(s, 'statue', kind, 'stone', at=(2.6, 0, 0.6), yaw=0)
-            steve(s, (0.3, 0, -2.6), yaw=180)
+            knight(s, 'statue', kind, 'stone', at=(-2.4, 0, -0.4), yaw=0); knight(s, 'statue', kind, 'stone', at=(2.4, 0, -0.4), yaw=0)
+            steve(s, (0.6, 0, 2.4), yaw=150)
             floor(s, kind, 6.0)
-            im = s.render(v, size=620, span=9.0, center=(0, 2.6, 0))
+            im = s.render(v, size=620, span=9.0, center=(0, 2.9, 0))
             tiles.append(label(im, f'{kind}: statues flanking the door', 'stone, until the puzzle is solved'))
         s = K.multi_scene(ROOT); door(s)
-        knight(s, 'statue', kind, 'stone', at=(-2.6, 0, 0.6)); knight(s, 'wake_1', kind, 'live', at=(2.6, 0, 0.0), yaw=-20)
-        steve(s, (0.3, 0, -2.6), yaw=180); floor(s, kind, 6.0)
+        knight(s, 'statue', kind, 'stone', at=(-2.4, 0, -0.4)); knight(s, 'wake_1', kind, 'live', at=(2.4, 0, 0.0), yaw=-25)
+        steve(s, (0.6, 0, 2.4), yaw=150); floor(s, kind, 6.0)
         tiles.append(label(s.render((-22, 10), size=620, span=9.0, center=(0, 2.6, 0)), f'{kind}: one wakes', 'wake_1 (live) beside the statue'))
     p = os.path.join(OUT, 'knights_in_place.png'); K.sheet(tiles, p, cols=3, title='The Statue Knights - in place (mock rooms)'); print(p)
 

@@ -84,7 +84,8 @@ for _k, (_sn, _c, _pcs, _pow) in SETS.items():
              [('Sold by Bit, in the Arcade (hard mode).', 'dark_gray')],
              model=f'bm:{_iid}', stack=1, cat='armor', tier=3, bold=True,
              comps={'minecraft:unbreakable': {}, 'minecraft:attribute_modifiers': mods,
-                    'minecraft:equippable': {'slot': _slot, 'asset_id': f'bm:arc_{_k}', 'equip_sound': 'minecraft:item.armor.equip_iron'},
+                    'minecraft:equippable': dict({'slot': _slot, 'equip_sound': 'minecraft:item.armor.equip_iron'},
+                                                 **({} if _iid in AA.HELM_3D.values() else {'asset_id': f'bm:arc_{_k}'})),   # (v299a: a 3D helm is its own model on the head)
                     'minecraft:tooltip_display': {'hidden_components': ['minecraft:unbreakable']}},
              custom_extra={'bm_arcset': _k})
 
@@ -247,11 +248,7 @@ def rp(R):
             tex, els, _sq = pxart.voxel(AA.icon(k), f'arc_prop_{k}', height=16.0 * h * 0.95, depth=4.0, back=AA.icon(k))
             R2.wj(f'assets/bm/models/item/arc_prop_{k}.json', {'textures': tex, 'elements': els})
             R2.wj(f'assets/bm/items/arc_prop_{k}.json', {'model': {'type': 'minecraft:model', 'model': f'bm:item/arc_prop_{k}'}})
-        for k in SETS:                                         # (the sets' armour layers)
-            hum, leg = AA.paint(k)
-            hum.save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'humanoid', f'arc_{k}.png'))
-            leg.save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'humanoid_leggings', f'arc_{k}.png'))
-            R2.wj(f'assets/bm/equipment/arc_{k}.json', {'layers': {'humanoid': [{'texture': f'bm:arc_{k}'}], 'humanoid_leggings': [{'texture': f'bm:arc_{k}'}]}})
+        AA.write_sets(R2)                                      # (the sets' armour layers; v299a: and the 3D helms)
     R.POST.append(post)
 
 

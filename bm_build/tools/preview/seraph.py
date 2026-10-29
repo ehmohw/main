@@ -5,6 +5,8 @@
            falling, riding - with the elytra mesh drawn too, to see that the 3D wings cover it
   before   the old look beside the new (the worn set, the helm)
   icons    the three sprites, big, beside the old ones
+  simplified  the Gaze simplified for blocky MC (after the Dread Visage) beside the Gaze as it was ($SERAPH_HELM_OLD: a dir of
+           block/<texture>.png and seraph_helm.json) and the simplified Visage: front, three-quarter, behind, and worn
 PNGs to $SERAPH_OUT (default /home/user/main/previews/v299_seraph). The old look's files are read from $SERAPH_OLD (a copy of
 the 2.93 textures and helm model)."""
 import sys, os, json, math, shutil
@@ -212,3 +214,23 @@ if 'icons' in what:
         if OLD and os.path.exists(f'{OLD}/{k}.png'): T.append(flat(Image.open(f'{OLD}/{k}.png').convert('RGBA'), 'before', k, k=10))
         T.append(flat(new[k], 'after', k, k=10))
     sheet(T, f'{OUT}/seraph_icons.png', cols=2 if OLD else 3, title="The Seraph's Raiment - sprites")
+
+if 'simplified' in what:                                  # (v299: the Gaze simplified for blocky MC - square eyes, flat fields - after the Dread Visage)
+    HOLD = os.environ.get('SERAPH_HELM_OLD', '')           # (a dir: block/<texture>.png and seraph_helm.json, the helm as it was)
+    _argv = sys.argv; sys.argv = ['dread.py', 'none']
+    import dread as DR                                    # (its pack holds both sets through the real rp hooks; its wearer dresses either)
+    sys.argv = _argv
+    OLDH = os.path.join(TMP, 'rp_seraph_helm_old')
+    if os.path.exists(OLDH): shutil.rmtree(OLDH)
+    shutil.copytree(DR.NEW, OLDH)
+    for f in os.listdir(os.path.join(HOLD, 'block')): shutil.copy(os.path.join(HOLD, 'block', f), os.path.join(OLDH, 'assets', 'bm', 'textures', 'block', f))
+    shutil.copy(os.path.join(HOLD, 'seraph_helm.json'), os.path.join(OLDH, 'assets', 'bm', 'models', 'item', 'seraph_helm.json'))
+    T = []
+    for view, sub in (((180, 6), 'front'), ((145, 16), 'three-quarter'), ('front', 'behind')):
+        for root, txt, m in ((OLDH, "BEFORE (2.99)", 'seraph_helm'), (DR.NEW, 'AFTER (simplified)', 'seraph_helm'), (DR.NEW, 'the Dread Visage (simplified)', 'dread_helm')):
+            s = scene(root); s.display(f'bm:item/{m}', pos=(0, 0, 0), ctx='fixed')
+            T.append(label(dark(s.render(view, size=330, span=1.45, center=(0, 0.24, 0))), txt, sub))
+    for view, sub in (('front', 'front'), ((35, 12), 'three-quarter')):
+        for root, txt, set_ in ((OLDH, "BEFORE - the Raiment", 'seraph'), (DR.NEW, "AFTER - the Raiment", 'seraph'), (DR.NEW, 'the Dreadborne', 'dread')):
+            T.append(DR.tile(view, txt, f'worn, {sub} (the whole set, 3D wings)', root=root, set_=set_, wings3d='rest_a', size=330, span=2.7, cy=1.55))
+    sheet(T, f'{OUT}/seraph_helm_simplified.png', cols=3, title="The Seraph's Gaze - simplified for blocky MC, as the Dread Visage")

@@ -40,7 +40,7 @@ OX, OY, OZ = U.ORIGIN
 SX, SY, SZ = U.SIZE
 NETHER = 'minecraft:the_nether'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
-UVER = 3                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out)
+UVER = 4                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out)
 COLLAPSE = 180                            # seconds between its fall and the rebuild
 EYE = (110, 130, 160)                     # the eyes' cycle (ticks): shut .. twitch (warning) .. open .. (round again)
 TOKENS = {'snow': 'tok_frost', 'witch': 'tok_hex', 'shark': 'tok_saw'}

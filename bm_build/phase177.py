@@ -133,7 +133,8 @@ for old, (new, fmt, nm, pn, col, trim, (ea, et, eh, ek, es), bonus, price) in SE
     for i, p in enumerate(PIECES):
         src = ITEMS[fmt.format(p=p)]
         s = ARMOR_SLOT[p]
-        comps = {k: v for k, v in src['comps'].items() if k not in ('minecraft:item_name', 'minecraft:lore', 'minecraft:custom_data')}
+        comps = {k: v for k, v in src['comps'].items() if k not in ('minecraft:item_name', 'minecraft:lore', 'minecraft:custom_data',
+                                                                    'minecraft:item_model', 'minecraft:equippable')}   # (v299a: never the Hero of Time's own look)
         en = dict(comps.get('minecraft:enchantments', {}))
         for k in list(en):
             if k == 'minecraft:protection': en[k] = max(en[k] + 1, 7)

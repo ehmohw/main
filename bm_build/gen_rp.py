@@ -901,6 +901,8 @@ if __name__ == '__main__':
     phase213.rp(sys.modules[__name__]); phase214.rp(sys.modules[__name__]); phase215.rp(sys.modules[__name__])
     import phase216                           # (2.94d: the Arcade)
     phase216.rp(sys.modules[__name__])
+    import hero_armor_art                     # (v299a: the Hero of Time set - Link's clothes, the 3D cap)
+    hero_armor_art.rp(sys.modules[__name__])
     import phase199                           # (2.91: the Underwater Kingdom)
     phase199.rp(sys.modules[__name__])
     import phase200                           # (2.91: the Nether and the End)
@@ -970,6 +972,8 @@ if __name__ == '__main__':
         phase240.rp(sys.modules[__name__])
         import phase244                           # (2.99: the Vorn Armada's soundtrack)
         phase244.rp(sys.modules[__name__])
+        import phase245                           # (2.99a: the Statue Knights - their rigs, statues, icons)
+        phase245.rp(sys.modules[__name__])
     if PHASE2:
         import creative                       # (2.96a: the Creative Forms' outfits - their pass goes last, after every model of the twelve is written)
         creative.rp(sys.modules[__name__])

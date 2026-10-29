@@ -36,7 +36,7 @@ OX, OY, OZ = A.ORIGIN
 SX, SY, SZ = A.SIZE
 END = 'minecraft:the_end'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
-AVER = 1                                  # bump to re-place the Armada in every world (a rebuild: everyone aboard is carried out)
+AVER = 2                                  # bump to re-place the Armada in every world (a rebuild: everyone aboard is carried out)
 COLLAPSE = 180                            # seconds between the Admiral's fall and the rebuild
 GUARD_HP = {'brood': 520, 'forge': 640, 'nav': 900}
 GUARD_SPAWN = {'brood': ('abductor', 'execute positioned ~ ~6 ~ run function bm:p32/boss/abductor'), 'forge': ('warlord', 'function bm:p32/boss/warlord'),

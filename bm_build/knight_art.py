@@ -41,15 +41,18 @@ POSES (POSES[name], one set for both kinds): statue, wake_0, wake_1, idle_a, idl
 spin_1, stagger, death_0, death_1 (see _pose for each). Every pose is grounded (its feet on y=0).
 
 THE TROPHY (statue items): knight_statue_dread, knight_statue_vorn. One item model each, bm:knight_statue_<kind>: an item
-definition that selects on the display context - in the inventory (gui, and on a shelf) the 16x16 icon (ICONS[name], drawn in
-sprites280's kit: an outline, five stone shades lit from the top left, finished by vanilla.process in gen_rp), everywhere
+definition that selects on the display context - in the inventory (gui, and on a shelf) the 16x16 icon (ICONS[name]: the pack's icon
+style - a dark outline, five stone shades lit from the top left, the mace in the light ones; finished by vanilla.process in
+gen_rp's ICONS loop, so ICONS holds them raw), everywhere
 else the 3D statue (models/item/knight_statue_<kind>.json): the stone knight in the statue pose on a square two-step plinth,
-baked into one model, all inside -16..32. PLACING IT: summon an item_display with item_display:'fixed', scale 1.0, no
-translation, at the CENTRE OF THE AIR BLOCK above the block clicked (x+0.5, y+1.5, z+0.5 of the clicked block) - the model's
-own 'fixed' display (STATUE_FIXED: translation [0, 15, 0]) stands the plinth's base on the block top and the statue ~2.86
-blocks tall, the plinth a 1-block square centred on the block. Its front is the model's north, which an item_display turns to
-face its own +z (south at yaw 0) - so Rotation:[player_yaw + 180f, 0f] faces it to the player who placed it (or snap it to
-the nearest 90). In a hand it is a small statue (thirdperson 0.18, firstperson 0.16, ground 0.2). (Note: an item frame also
+baked into one model, all inside -16..32. PLACING IT: an item_display, item_display:'fixed', item_model
+bm:knight_statue_<kind>, scale 1.0, its transformation STATUE_DISPLAY - summoned on the top face of the block clicked, at its
+middle (x+0.5, y+1, z+0.5), with translation [0, 0.5, 0]: the model's own 'fixed' display (STATUE_FIXED, translation
+[0, 15, 0]) puts the plinth's foot 0.5 below the entity, so the plinth stands on the block and the statue rises ~2.84 blocks
+(dread, to its horns) / ~2.93 (vorn, to its antennae), the plinth a 1-block square centred on the block. (Summoned at the
+centre of the air block above (y+1.5) instead: no translation.) Its front is the model's north, which an item_display turns
+to face its own facing (+z, south, at yaw 0) - so 'facing entity <player> feet run tp @s ~ ~ ~ ~ 0' (or Rotation:[player_yaw +
+180f, 0f]) faces it to the player who set it up. In a hand it is a small statue (thirdperson 0.18, firstperson 0.16, ground 0.2). (Note: an item frame also
 uses 'fixed', so a framed statue would show full size - don't let it be framed, or treat that as its frame trick.)
 
 gen_rp hook (in the PHASE2 block, beside phase242):   import knight_art; knight_art.rp(sys.modules[__name__])
@@ -64,7 +67,8 @@ from rigkit import qs, el, seg, shrink, D, qrot, qmul
 PREFIX = 'kn_'
 KINDS = ('dread', 'vorn')
 FINISHES = ('stone', 'live')
-RIG_SCALE = 1.0                                 # (the runtime's SCALE: ~3.0 blocks tall)
+RIG_SCALE = 1.0                                 # (a pose at display scale 1.0: ~3.0 blocks tall)
+SCALE = RIG_SCALE                               # (what the runtime passes to RF.part_nbt / RF.place (SCALE / 16) / RF.pose)
 STATUES = {k: f'knight_statue_{k}' for k in KINDS}
 UP, FRONT = (0.0, 1.0, 0.0), (0.0, 0.0, -1.0)
 
@@ -803,7 +807,7 @@ def _pose(name):
     elif name in ('idle_a', 'idle_b'):                        # (a battle stance: the mace two-handed at the ready, its head up before it at face height)
         b = name == 'idle_b'                                  # (b: the breath in - the chest up, the head lifted, the mace a touch higher)
         p = ground(P(chest=T(5 if b else 8, -8), head=T(-2 if b else 2, 8), **WIDE))
-        p = hold(p, (0.5, 23.8 if b else 23.0, -7.0), (0.16, 0.62 if b else 0.6, -0.77), 'c', left=5.0)
+        p = hold(p, (0.5, 23.8 if b else 23.0, -10.0), (0.15, 0.86 if b else 0.85, -0.5), 'c', left=5.0)
         p = hang(p, 4)
     elif name.startswith('walk_'):                            # (heavy, stomping: the mace carried over the right shoulder, the left arm swinging)
         k = int(name[-1]); ph = math.pi * k / 2; sw = s_(ph)
@@ -814,8 +818,8 @@ def _pose(name):
         p = hold(p, (6.4, 36.2, -7.6), (0.05, 0.42, 0.9), 'c', up=(1.0, 0.0, 0.0))
         p = hang(p, 6)
     elif name == 'swing_0':                                   # (the wind-up: the mace raised high overhead in both hands, leaning back)
-        p = ground(P(chest=T(-14, 6), head=T(-8), legr=limb(1, 22, 6), shinr=knee(22), legl=limb(-1, -16, 6), shinl=knee(10)))
-        p = hold(p, (1.5, 50.0, 1.0), (0.0, 0.15, 0.99), 'c', left=-4.4)
+        p = ground(P(chest=T(-14, 6), head=T(6), legr=limb(1, 22, 6), shinr=knee(22), legl=limb(-1, -16, 6), shinl=knee(10)))
+        p = hold(p, (1.5, 51.0, 2.0), (0.0, 0.15, 0.99), 'c', left=-4.4)
         p = hang(p, 8)
     elif name == 'swing_1':                                   # (the slam: the head driven down into the ground ~2 blocks before it, bent over the blow)
         p = ground(P(chest=T(36, -6), head=T(-14), legr=limb(1, 48, 6), shinr=knee(60), legl=limb(-1, -24, 6), shinl=knee(16)))
@@ -830,16 +834,16 @@ def _pose(name):
     elif name == 'stagger':                                   # (reeling back, the mace dipped, the left arm flung out)
         p = ground(P(chest=T(-16, 12, 6), head=T(-16, -12), legr=limb(1, -14, 6), shinr=knee(10), legl=limb(-1, 26, 8), shinl=knee(34),
                      arml=limb(-1, -16, 58), forel=limb(-1, 24)))
-        p = hold(p, (10.5, 21.5, -6.5), (0.62, -0.72, -0.3), 'c')
+        p = hold(p, (12.5, 19.5, -9.0), (0.45, -0.75, -0.48), 'c')
         p = hang(p, 10)
     elif name == 'death_0':                                   # (down on its right knee, the mace head on the floor, its right hand on the haft)
         p = ground(P(body=T(2), chest=T(14, -4), head=T(16, 6), legr=limb(1, 0, 4), shinr=knee(90), legl=limb(-1, 80, 4), shinl=knee(82),
                      arml=limb(-1, 34, 4, 18), forel=limb(-1, 46, 0, 0)))
-        p = hold(p, (3.0, 22.0, -12.0), (0.0, -0.94, -0.33), 'w', floor=0.0)
+        p = hold(p, (6.5, 22.0, -12.0), (0.0, -0.94, -0.33), 'w', floor=0.0)
         p = hang(p)
     elif name == 'death_1':                                   # (slumped further over the haft, head bowed - then it turns to stone)
         p = ground(P(body=T(6), chest=T(30, -4), head=T(20, 10, 8), legr=limb(1, 0, 4), shinr=knee(92), legl=limb(-1, 74, 4), shinl=knee(84)))
-        p = hold(p, (2.5, 18.0, -15.0), (0.0, -0.8, -0.6), 'w', left=-4.2, floor=0.0)
+        p = hold(p, (6.0, 18.0, -15.0), (0.0, -0.8, -0.6), 'w', left=-4.2, floor=0.0)
         p = hang(p)
     else:
         raise KeyError(name)
@@ -882,7 +886,11 @@ POSES = _Lazy()
 STATUE_K = 0.88                                                # (the knight in the trophy: 0.88 of its size, on the plinth)
 PLINTH = (16.0, 2.0, 13.6, 1.6)                                # (the base course's side and height, the top course's)
 BASE_Y = -15.0                                                 # (the plinth's foot, model units)
-STATUE_FIXED = {'rotation': [0, 0, 0], 'translation': [0, -BASE_Y, 0], 'scale': [1, 1, 1]}
+STATUE_FIXED = {'rotation': [0, 0, 0], 'translation': [0, -BASE_Y, 0], 'scale': [1, 1, 1]}    # (the model's own 'fixed' view: the base 0.5 below the entity)
+# the placed statue's item_display transformation, for an entity summoned on the TOP FACE of the block clicked, at its middle
+# (align xyz positioned ~0.5 ~1 ~0.5 - phase245's place): lifted half a block, so the plinth stands on that face. (Summoned at
+# the centre of the air block above instead (~0.5 ~1.5 ~0.5), use no translation.)
+STATUE_DISPLAY = {'translation': [0.0, 0.5, 0.0], 'scale': 1.0}
 
 
 def _m3(q):

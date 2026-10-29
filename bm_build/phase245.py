@@ -68,7 +68,7 @@ def generate(G):
     G.OBJECTIVES += objs
     GR = groups()
     snd = lambda s, v, p: f'playsound minecraft:{s} hostile @a[distance=..24] ~ ~ ~ {v} {p}'
-    at = lambda t, cmd: f'execute if score @s bm.kt matches {t} run {cmd}'
+    at = lambda t, cmd: f'execute if score @s bm.kt matches {t} {cmd[8:]}' if cmd.startswith('execute ') else f'execute if score @s bm.kt matches {t} run {cmd}'
 
     # ================================================================== the rig: poses, finishes, its place each tick
     for name, pz in A.POSES.items():
@@ -117,7 +117,7 @@ def generate(G):
                                    'scoreboard players set @e[type=minecraft:husk,tag=bm.knewh,distance=..1] bm.kt 0',
                                    'tag @e[type=minecraft:husk,tag=bm.knewh,distance=..1] remove bm.knewh'])
         # (the trial reset: its knights back on their plinths, stone - the marker raises them again)
-        fn(f'{PFX}/rest/{d}{n}', [f'execute as @e[type=minecraft:marker,tag=bm.kstat,tag=bm.kn{n},tag=bm.d_{d},distance=..60] run function bm:{PFX}/rest1'])
+        fn(f'{PFX}/rest/{d}{n}', [f'execute as @e[type=minecraft:marker,tag=bm.kstat,tag=bm.kn{n},tag=bm.d_{d},distance=..60] at @s run function bm:{PFX}/rest1'])
         # (the last of them fallen: the door opens, as the solve would have)
         fn(f'{PFX}/done/{d}{n}', [f'execute if entity @e[type=minecraft:marker,tag=bm.kstat,tag=bm.kn{n},tag=bm.d_{d},scores={{bm.kst=2..3}}] run return 0',
                                   f'execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.pz{n},tag=bm.d_{d}] at @s run function bm:p2/{d}/pz{n}_open'])
@@ -134,7 +134,7 @@ def generate(G):
                         'scoreboard players operation #s bm.rng += #h bm.rng', 'scoreboard players add #c bm.rng 1'])
     fn(f'{PFX}/rest1', ['scoreboard players operation #me bm.kid = @s bm.kid',
                         'execute as @e[type=minecraft:item_display,tag=bm.kr] if score @s bm.kid = #me bm.kid run kill @s',
-                        'execute as @e[type=minecraft:husk,tag=bm.khost] if score @s bm.kid = #me bm.kid run function bm:p245/gone',
+                        'execute as @e[type=minecraft:husk,tag=bm.khost] if score @s bm.kid = #me bm.kid at @s run function bm:p245/gone',
                         'scoreboard players set @s bm.kst 0'])
     fn(f'{PFX}/gone', ['tp @s ~ -400 ~', 'kill @s'])
 
@@ -222,7 +222,7 @@ def generate(G):
        [at(45, f'execute if entity @s[tag=bm.kh_{k}] run function bm:{PFX}/finish/{k}_stone') for k in KN] +
        [at(45, f'execute if entity @s[tag=bm.kh_{k}] run {crumble(k)}') for k in KN] +
        [at(45, snd('block.deepslate.place', 1.4, 0.5)), at(45, snd('block.stone.break', 1.2, 0.6))] +
-       [at(60, f'execute if entity @s[tag=bm.kh_{k}] as @a[distance=..32,gamemode=!spectator] run function bm:{PFX}/gift_{k}') for k in KN] +
+       [at(60, f'execute if entity @s[tag=bm.kh_{k}] as @a[distance=..32,gamemode=!spectator] at @s run function bm:{PFX}/gift_{k}') for k in KN] +
        [at(60, f'function bm:{PFX}/fell')])
     for k, c in KN.items():
         fn(f'{PFX}/gift_{k}', [give(f'knight_statue_{k}'), 'playsound minecraft:block.amethyst_block.resonate player @s ~ ~ ~ 1 0.7',
@@ -265,7 +265,7 @@ def generate(G):
         G.FUNCS['p71/deco/pick'][0:0] = [f'execute if entity @e[type=minecraft:interaction,tag=bm.gvdme,tag=bm.knst_{k}] at @e[type=minecraft:interaction,tag=bm.gvdme,limit=1] '
                                          f'run function bm:{PFX}/statue/take_{k}']
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.knsd]', 'kill @e[type=minecraft:interaction,tag=bm.knst]',
-                                       'kill @e[type=minecraft:item_display,tag=bm.kr]', 'execute as @e[type=minecraft:husk,tag=bm.khost] run function bm:p245/gone']
+                                       'kill @e[type=minecraft:item_display,tag=bm.kr]', 'execute as @e[type=minecraft:husk,tag=bm.khost] at @s run function bm:p245/gone']
     fn('admin/knights/statues', [give(f'knight_statue_{k}') for k in KN])
     fn('admin/knights/wake', [f'execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.pz{n},tag=bm.d_{d}] at @s if entity @a[distance=..60] run function bm:{PFX}/wake/{d}{n}'
                               for (d, n, k) in GR])
