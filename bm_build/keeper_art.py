@@ -10,13 +10,14 @@ LOOK  A calm, cosy figure (3.0c: 2.14 blocks to the hood's crown as it floats - 
       - the 49th colour (the bonds' first: Emma's pink) is the spindle at its heart.
       - Pearl cloth above (a soft vertical warp line), a gold belt and a mantle over the shoulders with a woven border of colour
         blocks; long bell sleeves, the same border at the cuffs, their short drape trailing loose drifting threads (threadr / threadl).
-        (3.0b) The cloth is MOTHER-OF-PEARL: kb_robe and kb_hood are animated strips (FRAMES frames, interpolated) - a pastel
+        (3.0b) The cloth is MOTHER-OF-PEARL: kb_robe (and kb_hood, in golds) are animated strips (FRAMES frames, interpolated) - a pastel
         sheen (PEARL: rose, peach, cream, mint, sky, lilac) running diagonally over a warm pearl base and flowing along over
         the frames, a pale highlight band sweeping across once a cycle; every frame keeps each cell's luminance, so the
         wardrobe's luminance recolours (phase138 -> phase99._recolour / gild.metal) come out as clean cloth in the look's
         colours with the highlight passing over them (gen_rp copies the .mcmeta to their _cN copies). The gold trim (kb_gold,
         kb_rim, kb_brd) glints the same way, in rose and champagne golds; the wings are tuned to the same pastels.
-      - (3.0c, cheerful) A soft pearl hood, opened wide (gold rim, a deep dusky-rose lining), rounding to a low crown - no
+      - (3.0c, cheerful) A soft hood in the original warm cream-yellow (with a gentle golden shimmer, HOOD_GOLDS, not the
+        pearl's pastels), opened wide (gold rim, a deep dusky-rose lining), rounding to a low crown - no
         point; inside it no face of flesh, only shadow (kb_face, unlit) with its EYES OF LIGHT smiling in it: crescents of
         light, a soft pink blush glowing under them, a tiny smile of light (kb_eyes / kb_eyes_<face>, at full light). Every
         mood a friendly one. Short, round sleeves; out of each cuff a soft mitten of light (a little thumb), not long fingers.
