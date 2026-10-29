@@ -1,6 +1,7 @@
 """2.99a: THE DREAD MIRE - a lesser manifestation of the Dread, loose in the world in hard mode (mire_art draws it).
 
-WHERE      THE UNDERCROWN: its own, in moderation - two at most at a time, a puddle in one of its rooms while someone's inside.
+WHERE      THE UNDERCROWN: its own, rarely - one at a time, in an unsolved trial's room while someone's inside, never during the
+           Sovereign's fight (it calls its own: phase238's 'mires', in its Broken and True forms).
            And any of the three dimensions, rarely, in the dark: now and then a hostile mob rising naturally (mobs/init) in hard mode
            comes up as a Mire instead - where the light is low (4 or less), outside a Golden Cross's ground, never near another
            Mire, never in the vault or the Hollow Throne; ONE A NIGHT for each player (the nearest within 48 when it rises); three
@@ -119,7 +120,7 @@ def generate(G):
                        'tp @s ~ -400 ~', 'kill @s', 'return 1'])
     fn(f'{PFX}/spawn', [f'summon minecraft:husk ~ ~ ~ {snbt(host)}',
                         'scoreboard players add #mid bm.mid 1',
-                        'execute as @e[type=minecraft:husk,tag=bm.mnewh,distance=..1] run function bm:p246/spawn1'])
+                        'execute as @e[type=minecraft:husk,tag=bm.mnewh,distance=..1] at @s run function bm:p246/spawn1'])
     fn(f'{PFX}/spawn1', ['scoreboard players operation @s bm.mid = #mid bm.mid', 'scoreboard players set @s bm.ms 0', 'scoreboard players set @s bm.mt 0',
                          'execute store result entity @s Rotation[0] float 1 run random value 0..359',
                          f'execute at @s rotated as @s rotated ~ 0 run function bm:{PFX}/rig',
@@ -186,7 +187,7 @@ def generate(G):
     fn(f'{PFX}/rise0', ['scoreboard players set @s bm.ms 1', 'scoreboard players set @s bm.mt 0', 'scoreboard players set @s bm.mq 0', face])
     fn(f'{PFX}/s/rise', [at(1, f'function bm:{PFX}/pose/rise_0'), at(1, snd('rise', 1.4)), at(1, 'particle minecraft:squid_ink ~ ~0.4 ~ 1.2 0.2 1.2 0.08 30'),
                          at(12, f'function bm:{PFX}/pose/rise_1'),
-                         at(24, f'function bm:{PFX}/pose/rise_2'), at(24, snd('shriek', 1.0, 0.7)),
+                         at(24, f'function bm:{PFX}/pose/shriek'), at(24, snd('shriek', 1.0, 0.7)), at(32, f'function bm:{PFX}/pose/rise_2'),
                          at(24, f'attribute @s minecraft:scale base set {RISEN_SC}'), at(24, 'execute unless entity @s[tag=bm.mtame] run data merge entity @s {Invulnerable:0b}'),
                          at(40, 'scoreboard players set @s bm.ms 2'), at(40, 'scoreboard players set @s bm.ma 30'), at(40, 'scoreboard players set @s bm.mt 0')])
     # ---- risen: swaying, facing its prey; every EVERY ticks a grab or a stab
@@ -305,7 +306,7 @@ def generate(G):
                         f'execute if score @s bm.ms matches 2 unless entity {mon(16)} run scoreboard players add @s bm.mq 1',
                         'execute if score @s bm.ms matches 2 if score @s bm.mq matches 6.. run function bm:p246/sink0',
                         'execute if score @s bm.ms matches 0 run particle minecraft:dust{color:[0.45,0.02,0.06],scale:1.3} ~ ~0.1 ~ 1.4 0.02 1.4 0 6'])
-    fn(f'{PFX}/t/shoo', ['data merge entity @s {ignited:0b,Fuse:30s}', f'execute facing entity @e[type=minecraft:husk,tag=bm.mtame,sort=nearest,limit=1] feet rotated ~ 0 '
+    fn(f'{PFX}/t/shoo', ['data merge entity @s[type=minecraft:creeper] {ignited:0b,Fuse:30s}', f'execute facing entity @e[type=minecraft:husk,tag=bm.mtame,sort=nearest,limit=1] feet rotated ~ 0 '
                          'positioned ^ ^ ^-1.5 if block ~ ~ ~ #minecraft:replaceable if block ~ ~1 ~ #minecraft:replaceable run tp @s ~ ~ ~',
                          'particle minecraft:smoke ~ ~1 ~ 0.3 0.4 0.3 0.02 6'])
     fn(f'{PFX}/t/rise0', ['scoreboard players set @s bm.ms 1', 'scoreboard players set @s bm.mt 0', 'scoreboard players set @s bm.mq 0', tface])
@@ -334,12 +335,16 @@ def generate(G):
     UB = P237.BOX
     second.append(f'execute if score #hard bm.cfg matches 1 unless score #dfell bm.cfg matches 1 in minecraft:the_nether '
                   f'if entity @a[{UB},gamemode=!spectator] run function bm:{PFX}/uc/try')
-    fn(f'{PFX}/uc/try', ['execute store result score #r bm.rng run random value 1..90', 'execute unless score #r bm.rng matches 1 run return 0',
-                         'scoreboard players set #n bm.rng 0',
-                         f'execute in minecraft:the_nether as @e[type=minecraft:husk,tag=bm.mire,tag=!bm.mtame,{UB}] run scoreboard players add #n bm.rng 1',
-                         'execute if score #n bm.rng matches 2.. run return 0',
+    # (2.99a, the owner: rarer, so a puzzle isn't swamped - one at a time, a chance in 300 a second; never in a room whose trial is
+    #  solved (the room's nearest trial controller, bm.done); never while anyone is in the Sovereign's hall - its own Mires come then)
+    import phase238 as P238
+    fn(f'{PFX}/uc/try', ['execute store result score #r bm.rng run random value 1..300', 'execute unless score #r bm.rng matches 1 run return 0',
+                         f'execute in minecraft:the_nether if entity {P238.FIGHT} run return 0',
+                         f'execute in minecraft:the_nether if entity @e[type=minecraft:husk,tag=bm.mire,tag=!bm.mtame,tag=!bm.svm,{UB}] run return 0',
                          f'execute in minecraft:the_nether as @e[type=minecraft:marker,tag=bm.dgfx,tag=bm.d_under,sort=random,limit=1] at @s '
-                         f'unless entity @a[distance=..20] unless entity @e[type=minecraft:husk,tag=bm.mire,distance=..40] run function bm:{PFX}/uc/down'])
+                         f'unless entity @a[distance=..20] if function bm:{PFX}/uc/open run function bm:{PFX}/uc/down'])
+    fn(f'{PFX}/uc/open', ['execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.d_under,distance=..40,sort=nearest,limit=1] if score @s bm.done matches 1 run return 0',
+                          'execute unless entity @e[type=minecraft:marker,tag=bm.pz,tag=bm.d_under,distance=..40] run return 0', 'return 1'])
     fn(f'{PFX}/uc/down', ['scoreboard players set #dn bm.rng 16', f'function bm:{PFX}/uc/step'])
     fn(f'{PFX}/uc/step', ['execute unless block ~ ~-1 ~ #minecraft:replaceable if block ~ ~ ~ #minecraft:replaceable run return run function bm:p246/uc/rise',
                           'scoreboard players remove #dn bm.rng 1', f'execute if score #dn bm.rng matches 1.. positioned ~ ~-1 ~ run function bm:{PFX}/uc/step'])

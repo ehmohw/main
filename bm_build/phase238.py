@@ -86,7 +86,8 @@ def _cyc(f):
     has = lambda *n: all(x in P for x in n)
     c = {0: (80, [(0, 'idle_a'), (40, 'idle_b')]), 1: (24, [(0, 'walk_0'), (6, 'walk_1'), (12, 'walk_2'), (18, 'walk_3')]),
          7: (None, [(0, 'slam_up'), (14, 'slam')]), 8: (None, [(0, 'sweep_up'), (14, 'sweep')]), 9: (None, [(0, 'stab')]),
-         11: (None, [(0, 'roar')]), 12: (None, [(0, 'summon')]), 15: (None, [(0, 'heart_pulse')])}
+         11: (None, [(0, 'roar')]), 12: (None, [(0, 'summon')]), 15: (None, [(0, 'heart_pulse')]),
+         16: (None, [(0, 'summon')])}            # (2.99a: calling its Mires)
     if has('wing_gust'): c[13] = (None, [(0, 'wing_gust')])
     if has('eye_beam_up', 'eye_beam'): c[14] = (None, [(0, 'eye_beam_up'), (30, 'eye_beam')])
     if has('stagger'): c[22] = (None, [(0, 'stagger')])
@@ -112,12 +113,14 @@ ATK = {'armored': [(12, 30, 500, '', {15: 'knights'}),
                    (8, 28, 100, CLOSE(11), {14: 'sweep'}),
                    (9, 22, 120, FAR(5, 20), {**{x: 'lunge' for x in range(18, 11, -1)}, 11: 'stab'})],
        'broken': [(12, 30, 600, '', {15: 'knights'}),
+                  (16, 30, 900, '', {15: 'mires'}),
                   (15, 60, 260, '', {50: 'pulse_warn', 30: 'pulse'}),
                   (11, 40, 220, '', {30: 'dread'}),
                   (13, 40, 220, CLOSE(24), {**{x: 'gust' for x in range(30, 9, -1)}}),
                   (8, 28, 90, CLOSE(12), {14: 'sweep'}),
                   (7, 30, 110, '', {20: 'bolts', 14: 'bolts', 8: 'bolts'})],
        'true': [(12, 30, 600, '', {15: 'knights'}),
+                (16, 30, 900, '', {15: 'mires'}),
                 (14, 75, 260, '', {45: 'beam_start', **{x: 'beam' for x in range(44, 4, -1)}}),
                 (11, 30, 300, '', {15: 'dark'}),
                 (15, 30, 160, '', {28: 'roots', 8: 'roots_snap'}),
@@ -376,7 +379,7 @@ def generate(G):
                     f'execute unless entity @s[tag=bm.svground] unless score @s bm.svz matches -99..-1 run effect give @s minecraft:resistance infinite {RESIST} true'])
     fn('p238/abandon', [say(L.FIGHT['abandon']), 'function bm:p238/clear', 'function bm:p237/floor', 'function bm:p238/c/door_open',
                         'bossbar set bm:usov visible false', 'kill @e[type=minecraft:item_display,tag=bm.svr]', 'tp @s ~ -400 ~', 'kill @s'])
-    fn('p238/clear', ['kill @e[tag=bm.svk]', 'kill @e[type=minecraft:husk,tag=bm.sveye]', 'kill @e[type=minecraft:marker,tag=bm.svfx]',
+    fn('p238/clear', ['execute as @e[type=minecraft:husk,tag=bm.svm] at @s run function bm:p246/melt', 'kill @e[tag=bm.svk]', 'kill @e[type=minecraft:husk,tag=bm.sveye]', 'kill @e[type=minecraft:marker,tag=bm.svfx]',
                       'execute as @e[type=minecraft:marker,tag=bm.uwell] at @s run function bm:p238/w/out', 'scoreboard players reset * bm.svi'])
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[tag=bm.usov]', 'kill @e[tag=bm.svr]', 'kill @e[tag=bm.svfx]', 'kill @e[tag=bm.sveye]', 'bossbar remove bm:usov']
 
@@ -514,6 +517,12 @@ def generate(G):
     fn('p238/a/knights', ['execute store result score #kn bm.rng if entity @e[tag=bm.svk]', 'execute if score #kn bm.rng matches 7.. run return 0',
                           'playsound minecraft:entity.evoker.prepare_summon hostile @a[distance=..64] ~ ~ ~ 2 0.5',
                           'execute at @e[type=minecraft:marker,tag=bm.mspawn,tag=bm.d_under,distance=..48,sort=random,limit=3] run function bm:p238/a/knight'])
+    # (2.99a) the Mires: two at most at a time, risen at once from the hall's spawn points (phase246's spawn and rise)
+    fn('p238/a/mires', ['execute store result score #kn bm.rng if entity @e[type=minecraft:husk,tag=bm.svm]', 'execute if score #kn bm.rng matches 2.. run return 0',
+                        'playsound minecraft:entity.warden.emerge hostile @a[distance=..64] ~ ~ ~ 2 0.6',
+                        'execute at @e[type=minecraft:marker,tag=bm.mspawn,tag=bm.d_under,distance=..48,sort=random,limit=1] run function bm:p238/a/mire'])
+    fn('p238/a/mire', ['function bm:p246/spawn', 'execute as @e[type=minecraft:husk,tag=bm.mire,distance=..1,limit=1] at @s run function bm:p238/a/mire_up'])
+    fn('p238/a/mire_up', ['tag @s add bm.svm', 'tag @s add bm.muc', 'function bm:p246/rise0'])
     fn('p238/a/knight', ['particle minecraft:large_smoke ~ ~1 ~ 0.4 0.8 0.4 0.03 20 force', 'particle minecraft:sculk_soul ~ ~1 ~ 0.4 0.8 0.4 0.03 10 force',
                          f'summon minecraft:wither_skeleton ~ ~ ~ {{Tags:["bm.seen","bm.dgmob","bm.svk","bm.udread","bm.udk_wither_skeleton"],PersistenceRequired:1b,'
                          f'CustomName:{snbt(T("Dread Knight", COL))},equipment:{{mainhand:{{id:"minecraft:netherite_sword",count:1}}}},drop_chances:{{mainhand:0.0f}}}}'])
