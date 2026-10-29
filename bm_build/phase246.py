@@ -71,6 +71,7 @@ def generate(G):
     G.OBJECTIVES += objs
     at = lambda t, cmd: f'execute if score @s bm.mt matches {t} {cmd[8:]}' if cmd.startswith('execute ') else f'execute if score @s bm.mt matches {t} run {cmd}'
     G.wjson('bm/predicate/p246/dark.json', {'condition': 'minecraft:location_check', 'predicate': {'light': {'light': {'max': 4}}}})
+    G.wjson('bm/predicate/p246/day.json', {'condition': 'minecraft:time_check', 'clock': 'minecraft:overworld', 'value': {'min': 0, 'max': 12999}, 'period': 24000})
     G.wjson('bm/predicate/p246/bright.json', {'condition': 'minecraft:location_check', 'predicate': {'light': {'light': {'min': 12}}}})
 
     # ================================================================== the rig
@@ -240,7 +241,7 @@ def generate(G):
 
     # ================================================================== THE BOUND MIRE: remnants kneaded into a Mire Heart; set down, it guards
     # (16 Shadow Remnants in hand, sneak + used: a Mire Heart. Sneak + use the Heart on a block: a Mire of your own takes root there -
-    #  stationary, it rises for any monster within 10 and fights it as a wild one fights you - never you, never anyone; it can't be
+    #  stationary; by day (in the Overworld) it stays a puddle; by night it rises for any monster within 10 and fights it as a wild one fights you - never you, never anyone; it can't be
     #  hurt; daylight, the cross and the Dread's fall leave it be. Creepers will not come within 10 of it: they're shoved back, fuses
     #  out. Sneak + punch its puddle to take it back up.)
     MON = 'type=#bm:hostile,tag=!bm.mire,tag=!bm.khost,tag=!bm.boss,tag=!bm.stalker'
@@ -284,6 +285,9 @@ def generate(G):
                                      f'run function bm:{PFX}/heart/take']
     tface = f'execute facing entity @e[{MON},distance=..16,sort=nearest,limit=1] feet run tp @s ~ ~ ~ ~ 0'
     fn(f'{PFX}/t/sec', [f'execute as @e[type=minecraft:creeper,distance=..10] at @s run function bm:{PFX}/t/shoo',
+                        # (by day, in the Overworld, it stays a puddle - and one up when the sun rises sinks back down)
+                        'execute if score @s bm.ms matches 2 if dimension minecraft:overworld if predicate bm:p246/day run return run function bm:p246/sink0',
+                        'execute if score @s bm.ms matches 0 if dimension minecraft:overworld if predicate bm:p246/day run return 0',
                         f'execute if score @s bm.ms matches 0 if entity {mon(WAKE)} run return run function bm:{PFX}/t/rise0',
                         f'execute if score @s bm.ms matches 2 if entity {mon(16)} run scoreboard players set @s bm.mq 0',
                         f'execute if score @s bm.ms matches 2 unless entity {mon(16)} run scoreboard players add @s bm.mq 1',
