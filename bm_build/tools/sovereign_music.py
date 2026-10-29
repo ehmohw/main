@@ -911,6 +911,97 @@ def turn():
     return tr
 
 
+
+# ====================================================================== (2.98c) EACH FORM'S ENTRANCE
+# THE BROKEN (boss_sovereign_enter2, 12 s): the Armored form on one knee, its plate splitting - a heartbeat under a low choir
+# swelling on F minor, struck iron for every crack (4 s); then THE TURN itself (chains, the six wings, the eyes, the bell, the
+# Dread's head, the roll), landing on the Broken form's loop.
+# THE TRUE (boss_sovereign_enter3, 15 s): the helm cracking - glass under the heartbeat, the choir climbing a semitone at a
+# time, the eye's tritone watching (5 s); THE HELM SHATTERS (5 s: the turn's blow, its wings); the great eye opens - a
+# shrieking cluster; then the floor cracking: a vast rumble and a riser to the True form's downbeat.
+def enter_build(tr, dur, seed, glassy=False):
+    """the build before a form breaks: a drone, a quickening heartbeat, a low choir swelling (the eye's tritone, for the True
+    form), a crack every so often (struck iron, or glass), a riser"""
+    a = lambda sig, t, *k: tr.add(sig, t, *k)
+    a(drone(['F1', 'C2', 'F2'], dur + 1.0, 0.32), 0.0, 0, 1, 0.5)
+    t, i = 0.25, 0
+    while t < dur - 0.2:
+        a(timp('F1', 0.55 + 0.05 * i, 3.0), t, 0, 1, 0.35); a(timp('F1', 0.35 + 0.03 * i, 3.4), t + 0.28, 0, 1, 0.35)
+        t += max(0.55, 1.0 - 0.07 * i); i += 1
+    a(chorus(['F3', 'Gb3', 'C4'] if glassy else ['F3', 'Ab3', 'C4'], dur + 0.5, 0.34, dur * 0.8, 'u'), 0.0, 0, 1, 0.6)
+    g = np.random.default_rng(seed)
+    for k in range(6):
+        t = 0.5 + k * (dur - 0.8) / 6
+        a(glass(m('F6') + int(g.integers(0, 7)), 1.2, 0.18) if glassy else clank(0.5, g.uniform(500, 900), 1.6, seed + k), t, g.uniform(-0.6, 0.6), 1, 0.5)
+        a(rattle(0.8, 0.25, 40, seed * 9 + k), t + 0.05, g.uniform(-0.6, 0.6), 1, 0.55)
+    if glassy:
+        a(gaze('C6', dur, 0.08), 0.0, 0.3, 1, 0.7)
+    a(rise(dur * 0.7, 0.28), dur * 0.3, 0, 1, 0.35)
+
+
+def enter2():
+    tr = Track('sovereign_enter2', 120, 6)                               # (12 s: 4 s of build, then the turn)
+    enter_build(tr, 4.0, 2381)
+    turn_compose(tr, 4.0)
+    return tr
+
+
+def enter3():
+    tr = Track('sovereign_enter3', 60, 15, beats=1)                      # (15 s: 5 s of build, the turn, the eye, the floor)
+    enter_build(tr, 5.0, 2391, True)
+    turn_compose(tr, 5.0)
+    a = lambda sig, t, *k: tr.add(sig, t, *k)
+    for k, x in enumerate(('C6', 'Db6', 'F#6', 'G6')):                    # (the great eye opens: a shrieking cluster)
+        a(violin(x, 3.0, 0.16, trem=16, voices=3, attack=0.6), 8.8 + 0.12 * k, (-0.4, 0.4)[k % 2], 1, 0.5)
+    a(gaze('F#6', 3.5, 0.14), 8.8, 0, 1, 0.6)
+    a(boom(0.8, 70, 22, 4.0), 11.0, 0, 1, 0.5)                          # (the floor, cracking)
+    a(rattle(2.5, 0.4, 50, 2399, True), 11.2, 0, 1, 0.5)
+    a(rise(3.6, 0.36), 11.3, 0, 1, 0.35)
+    for i in range(26):
+        a(snare(0.05 + 0.016 * i, 180), 12.4 + i * 0.1, 0.1, 1, 0.35)
+    return tr
+
+
+
+# ====================================================================== (2.98c) THE LAST LIGHT (boss_divine, 28 s, once)
+# Under the Divine One's coming: silence and one harmonic (0-2 s); the beam through the dome - a bell (2 s); a choir in F
+# MAJOR swelling as He descends (3-8); REVEALED - the great organ, the full choir, the bells (8); while He looks down and
+# names it, a single violin sings Aurel's cell, in major - the light it was (10-15); a riser as His hand rises; THE SMITING (16
+# s): everything, once, on F major; the Sovereign comes apart into light - glass and bells falling (16-21); rest (21-24, a
+# soft organ, the violin's last note a major third); He rises, and it fades (24-28).
+def divine():
+    tr = Track('divine', 60, 28, beats=1)
+    a = lambda sig, t, *k: tr.add(sig, t, *k)
+    a(violin('A6', 3.0, 0.08, vib=4.5, depth=0.003, attack=1.2, bright=0.4), 0.3, 0.2, 1, 0.8)
+    a(great_bell('F3', 8.0, 0.55, 1.0, 21), 2.0, 0, 1, 0.65)
+    a(soft_organ(['F3', 'A3', 'C4'], 7.0, 0.32, 2.5, 1.5), 2.2, 0, 1, 0.6)
+    a(chorus(['F3', 'C4', 'F4', 'A4'], 6.0, 0.3, 4.5, 'a'), 3.0, 0, 1, 0.65)
+    for k in range(8):                                                    # (light motes as He comes down)
+        a(glass(m('C6') + (0, 4, 7, 12, 16, 19, 24, 28)[k], 1.4, 0.07), 3.4 + 0.55 * k, (-0.6 + 0.17 * k), 1, 0.7)
+    a(great_organ(['F2', 'C3', 'F3', 'A3', 'C4', 'F4'], 8.0, 0.34, 0.4, 0.9), 8.0, 0, 1, 0.6)        # (revealed)
+    a(chorus(['F3', 'A3', 'C4', 'F4', 'A4', 'C5'], 8.0, 0.36, 0.5, 'a'), 8.0, 0, 1, 0.65)
+    a(great_bell('F3', 7.0, 0.6, 1.0, 22), 8.0, -0.2, 1, 0.65); a(great_bell('C4', 6.0, 0.45, 1.0, 23), 8.6, 0.25, 1, 0.65)
+    a(timp('F2', 0.5, 2.0), 8.0, 0, 1, 0.4)
+    t = 10.2
+    for x, d in mel('C5:.75 F5:.75 A5:1.5 G5:.5 F5:.75 E5:.75 F5:2'):     # (Aurel's cell, in major: the light it was)
+        a(violin(x, d * 0.95, 0.34, depth=0.007), t, 0.1, 1, 0.55); t += d
+    a(rise(3.0, 0.3), 13.0, 0, 1, 0.35)
+    for i in range(20):
+        a(timp('C2', 0.1 + 0.02 * i, 3.0), 14.0 + i * 0.1, 0, 1, 0.4)
+    # THE SMITING
+    a(boom(0.9, 120, 30, 3.5), 16.0, 0, 1, 0.4); a(crash(0.6, 4.0), 16.0, 0.2, 1, 0.55); a(thunder(0.6, 4.0), 16.0, -0.2, 1, 0.5)
+    a(great_organ(['F1', 'F2', 'C3', 'F3', 'A3', 'C4', 'F4', 'A4'], 5.0, 0.45, 0.02, 1.0), 16.0, 0, 1, 0.6)
+    a(chorus(['F3', 'A3', 'C4', 'F4', 'A4', 'C5', 'F5'], 5.0, 0.42, 0.05, 'a'), 16.0, 0, 1, 0.65)
+    a(great_bell('F2', 9.0, 0.7, 1.2, 24), 16.0, 0, 1, 0.65)
+    for k in range(16):                                                   # (it comes apart: light falling)
+        a(glass(m('F7') - (0, 3, 5, 7, 8, 10, 12, 15, 17, 19, 20, 22, 24, 27, 29, 31)[k], 1.6, 0.09), 16.6 + 0.28 * k, (-0.7, 0.7)[k % 2], 1, 0.7)
+    a(soft_organ(['F3', 'A3', 'C4', 'F4'], 6.0, 0.28, 1.5, 2.0), 21.0, 0, 1, 0.6)                 # (rest)
+    a(violin('A5', 4.0, 0.2, vib=4.8, depth=0.006, attack=0.8), 22.0, 0.1, 1, 0.6)
+    a(chorus(['F4', 'A4', 'C5', 'F5'], 4.5, 0.2, 2.5, 'a'), 23.5, 0, 1, 0.7)                        # (He rises)
+    a(violin('F6', 4.0, 0.06, vib=4.5, depth=0.003, attack=1.5, bright=0.4), 24.0, -0.2, 1, 0.8)
+    return tr
+
+
 # ====================================================================== THE ENTRANCE
 # 20 s under the boss's entrance - six bars of form 1's tempo (72 BPM, 10/3 s a bar), so it ends on form 1's own downbeat:
 # near-silence, a heartbeat and chains far off (bars 0-1); a choir building (from bar 1); the bells tolling (from bar 2); the
@@ -1177,12 +1268,15 @@ def seeded(k, build, *a):
 
 
 if __name__ == '__main__':
-    what = sys.argv[1:] or ['p1', 'p2', 'p3', 'turn', 'intro', 'disc', 'aurel', 'check']
+    what = sys.argv[1:] or ['p1', 'p2', 'p3', 'turn', 'intro', 'enter2', 'enter3', 'divine', 'disc', 'aurel', 'check']
     if 'p1' in what: save_loop(seeded(1, p1), 3.0, 0.23)
     if 'p2' in what: save_loop(seeded(2, p2), 2.2)
     if 'p3' in what: save_loop(seeded(3, p3), 2.6, 0.27)                # (the most intense: its fight hotter than the Dread's)
     if 'turn' in what: save_sting(seeded(4, turn), 2.4, 0.31)
     if 'intro' in what: save_intro(seeded(5, intro))
+    if 'enter2' in what: save_sting(seeded(8, enter2), 2.4, 0.31)
+    if 'enter3' in what: save_sting(seeded(9, enter3), 2.4, 0.31)
+    if 'divine' in what: save_sting(seeded(10, divine), 3.2, 0.22)
     if 'disc' in what:
         d = seeded(6, disc); assert 170 <= d.seconds <= 200, d.seconds
         save_disc(d, 'sovereign', 2.6)

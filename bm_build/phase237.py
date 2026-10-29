@@ -4,7 +4,7 @@ what's shared; undercrown_lore.py says everything it says). Its master's fight i
 FINDING IT   hard mode. Beat all three Dread bosses (bm.dbwin_snow/witch/shark) and a voice speaks - "You broke my three.
              Come, then." - and THE SOVEREIGN'S SUMMONS is yours: a compass that, in the Nether, points to the Undercrown (one
              per world, at undercfg.ORIGIN, cut into the rock; placed - and re-placed - by command). Outside, it is a cliff in an
-             ash cave with a seam of crying obsidian; stand at the seam carrying the three Dread Tokens and it opens.
+             ash cave with a seam of crying obsidian; stand at the seam carrying the three Dread Tokens and it opens. (2.98c: THE MAW - a court with the Sovereign's helm carved as its wall, the gate its mouth; roads cut out to it.)
 INSIDE       it is a Phase 2 dungeon (p2/logic runs its seventeen trials, gates, secret doors, waves and vaults; a 20-minute idle
              reset re-locks it) with kinds of its own (logic.EXTRA):
   SIGIL      a follower's emblem in the floor: lit while that follower (anyone's) stands on it. All of a trial's lit at once:
@@ -40,7 +40,7 @@ OX, OY, OZ = U.ORIGIN
 SX, SY, SZ = U.SIZE
 NETHER = 'minecraft:the_nether'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
-UVER = 2                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out)
+UVER = 3                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out)
 COLLAPSE = 180                            # seconds between its fall and the rebuild
 EYE = (110, 130, 160)                     # the eyes' cycle (ticks): shut .. twitch (warning) .. open .. (round again)
 TOKENS = {'snow': 'tok_frost', 'witch': 'tok_hex', 'shark': 'tok_saw'}
@@ -259,7 +259,7 @@ def generate(G):
         second.append(f'execute as @e[type=minecraft:marker,tag=bm.uv_{key}] at @s as @a[distance=..7,tag=!bm.uv_{key},gamemode=!spectator] at @s run function bm:p237/voice/{key}')
 
     # ================================================================== FINDING IT: the Summons, the Hidden Gate
-    ox_, oy_, oz_ = W(*M['outer']) if M['outer'] else W(205, 96, 205)
+    ox_, oy_, oz_ = W(*M['outer']) if M['outer'] else W(214, 72, 210)
     ITEMS['usummons']['comps']['minecraft:lodestone_tracker'] = {'target': {'dimension': NETHER, 'pos': __import__('nbt').IntArray([ox_, oy_, oz_])}, 'tracked': False}
     second.append('execute if score #hard bm.cfg matches 1 as @a[tag=!bm.usum,scores={bm.dbwin_snow=1..,bm.dbwin_witch=1..,bm.dbwin_shark=1..}] at @s run function bm:p237/summons')
     fn('p237/summons', ['tag @s add bm.usum', give('usummons'), 'scoreboard players set #uwant bm.p2 1',
@@ -280,11 +280,11 @@ def generate(G):
     fn('p237/gate/open', ['tag @s add bm.open', 'function bm:p237/door/open',
                           'playsound minecraft:block.respawn_anchor.deplete block @a[distance=..24] ~ ~ ~ 1 0.5', 'playsound minecraft:entity.warden.sonic_charge block @a[distance=..24] ~ ~ ~ 0.6 0.4',
                           'particle minecraft:dust{color:[0.82,0.1,0.18],scale:2} ~ ~2 ~ 1 1.5 1 0 60',
-                          title('@a[distance=..10]', 'actionbar', T('The seam weeps itself open.', COL, italic=True))])
+                          title('@a[distance=..10]', 'actionbar', T('The Maw opens. Its teeth draw back.', COL, italic=True))])
     fn('p237/gate/close', ['tag @s remove bm.open', 'function bm:p237/door/close'])
     fn('p237/gate/barred', ['scoreboard players set #gb bm.rng 0', 'execute as @a[distance=..5,tag=!bm.usum] run scoreboard players set #gb bm.rng 1',
-                            'execute if score #gb bm.rng matches 1 run return run ' + title('@a[distance=..5]', 'actionbar', T('A seam of crying obsidian in the cliff. It does not know you.', 'gray', italic=True)),
-                            title('@a[distance=..5]', 'actionbar', T('Three hollows in the rock, waiting. (Carry the three Dread Tokens.)', COL, italic=True))])
+                            'execute if score #gb bm.rng matches 1 run return run ' + title('@a[distance=..5]', 'actionbar', T('The Maw\'s teeth are shut. It does not know you.', 'gray', italic=True)),
+                            title('@a[distance=..5]', 'actionbar', T('Three altars before the Maw, cold. Its teeth stay shut. (Carry the three Dread Tokens.)', COL, italic=True))])
     # a door of marker data {ax, w, h, b}, opened (air) and shut (its block) - the gate, the hidden rooms, the Hoard
     DOORS = sorted({'minecraft:crying_obsidian'} | {'minecraft:' + h['door'][6] for h in M['hidden'].values()} | ({'minecraft:' + M['hoard'][6]} if M['hoard'] else set()))
     bk = lambda b: b.split(':')[1].split('[')[0]
@@ -307,6 +307,17 @@ def generate(G):
     # (one function, so the tag is never half-set: the optimizer moves a loop line that names the dungeon half a second later -
     #  2.98a: the add went, the remove stayed, and for half of every second nobody was inside)
     second.append(f'execute in {NETHER} run function bm:p237/inside')
+    # (2.98c) the Undercrown is no place to dig: survival players inside are in Adventure mode - and back in Survival when they
+    # leave it (or wherever they turn up next: died, logged out, carried out at its fall)
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.uaq dummy']
+    G.OBJECTIVES += ['bm.uaq']
+    second += ['execute as @a[tag=bm.uin,gamemode=survival] run function bm:p237/adv/in',
+               'scoreboard players set @a[tag=bm.uadv,tag=bm.uin] bm.uaq 3', 'scoreboard players remove @a[tag=bm.uadv,tag=!bm.uin] bm.uaq 1',
+               'execute as @a[tag=bm.uadv,tag=!bm.uin,scores={bm.uaq=..0}] run function bm:p237/adv/out']      # (3 s out of it: a gap between its rooms is not leaving)
+    fn('p237/adv/in', ['tag @s add bm.uadv', 'gamemode adventure @s',
+                       title('@s', 'actionbar', [T('The Undercrown', COL, bold=True), T(' - its stone will not break for you. (Adventure mode)', 'gray')])])
+    fn('p237/adv/out', ['tag @s remove bm.uadv', 'execute if entity @s[gamemode=adventure] run gamemode survival @s'])
+    G.FUNCS['admin/uninstall'][0:0] = ['execute as @a[tag=bm.uadv] run function bm:p237/adv/out']
     fn('p237/inside', ['tag @a[tag=bm.uin] remove bm.uin',
                        f'execute as @a[{BOX}] at @s if entity @e[type=minecraft:marker,tag=bm.zone_d,tag=bm.d_{d},distance=..34] run tag @s add bm.uin'])
 
@@ -328,9 +339,41 @@ def generate(G):
                           'scoreboard players set #ubuilt bm.p2 0',
                           f'execute in {NETHER} store success score #ubuilt bm.p2 run place template bm:p2_{d} {OX} {OY} {OZ}',
                           'execute unless score #ubuilt bm.p2 matches 1 run return 0'] + bio + [
+                          'function bm:p237/build/roads',
                           f'scoreboard players set #uver bm.p2 {UVER}', 'scoreboard players add #urun bm.p2 1', 'scoreboard players set #ufell bm.p2 0',
                           f'execute in {NETHER} run forceload remove {fl}'])
     second.append(f'execute if score #uwant bm.p2 matches 1 unless score #uver bm.p2 matches {UVER} unless score #ucol bm.p2 matches 1.. run function bm:p237/build/try')
+    # (2.98c) THE ROADS TO THE MAW: from each of its mouths (the court's east and south faces), a walled processional road cut 48
+    # blocks out into the Nether, paved, its walls holding back whatever lava is there, soul lanterns hung on chains above it
+    def road(x1, z1, x2, z2, along, y0=72, h=14):
+        X1, X2, Z1, Z2, Y = OX + x1, OX + x2, OZ + z1, OZ + z2, OY + y0
+        if along == 'x':
+            walls = [(X1, Z1 - 1, X2, Z1 - 1), (X1, Z2 + 1, X2, Z2 + 1)]
+            lamps = [(x, z) for x in range(X1 + 3, X2, 6) for z in (Z1 + 1, Z2 - 1)]
+            mid = [(X1, (Z1 + Z2) // 2, X2, (Z1 + Z2) // 2)]
+        else:
+            walls = [(X1 - 1, Z1, X1 - 1, Z2), (X2 + 1, Z1, X2 + 1, Z2)]
+            lamps = [(x, z) for z in range(Z1 + 3, Z2, 6) for x in (X1 + 1, X2 - 1)]
+            mid = [((X1 + X2) // 2, Z1, (X1 + X2) // 2, Z2)]
+        out = [f'fill {X1} {Y} {Z1} {X2} {Y + h} {Z2} minecraft:air', f'fill {X1} {Y - 1} {Z1} {X2} {Y - 1} {Z2} minecraft:polished_blackstone_bricks',
+               f'fill {X1} {Y - 2} {Z1} {X2} {Y - 2} {Z2} minecraft:blackstone replace #bm:grap_pass',
+               f'fill {X1} {Y + h + 1} {Z1} {X2} {Y + h + 1} {Z2} minecraft:blackstone replace minecraft:lava']
+        out += [f'fill {a} {Y - 1} {b} {c} {Y - 1} {d} minecraft:red_nether_bricks' for a, b, c, d in mid]
+        out += [f'fill {a} {Y - 1} {b} {c} {Y + h + 1} {d} minecraft:polished_blackstone_bricks' for a, b, c, d in walls]
+        for x, z in lamps:
+            out += [f'fill {x} {Y + h - 3} {z} {x} {Y + h} {z} minecraft:iron_chain', f'setblock {x} {Y + h - 4} {z} minecraft:soul_lantern[hanging=true]']
+        return out
+    fn('p237/build/roads', [f'execute in {NETHER} run {c}' for c in road(224, 189, 271, 199, 'x') + road(207, 224, 220, 271, 'z')])
+    # (it calls: a bell tolls from the Maw to anyone near it; the first time they come within sight, its name)
+    mx, my, mz = W(214, 80, 194)
+    second += [f'execute in {NETHER} if entity @a[x={mx},y={my},z={mz},distance=..160] run function bm:p237/maw/sec']
+    fn('p237/maw/sec', ['scoreboard players add #umaw bm.p2 1', 'execute unless score #umaw bm.p2 matches 12.. run return 0', 'scoreboard players set #umaw bm.p2 0',
+                        f'execute in {NETHER} as @a[x={mx},y={my},z={mz},distance=..160] at @s run playsound minecraft:block.bell.resonate ambient @s {mx} {my} {mz} 8 0.4',
+                        f'execute in {NETHER} as @a[x={mx},y={my},z={mz},distance=..160] at @s run playsound minecraft:block.bell.use ambient @s {mx} {my} {mz} 8 0.5'] +
+       [f'execute in {NETHER} as @a[x={mx},y={my},z={mz},distance=..64,tag=!bm.umawt] at @s run function bm:p237/maw/title'])
+    fn('p237/maw/title', ['tag @s add bm.umawt', 'title @s times 20 80 30', title('@s', 'title', T('THE UNDERCROWN', COL, bold=True)),
+                          title('@s', 'subtitle', T('the Maw of the Dread Sovereign', '#c8a0a0', italic=True)),
+                          'playsound minecraft:entity.warden.emerge hostile @s ~ ~ ~ 1 0.4'])
     G.FUNCS['load'][-1:-1] = ['execute if entity @a[tag=bm.usum] run scoreboard players set #uwant bm.p2 1']
     # out: carried to the approach cave, outside the seam
     fn('p237/out', [f'execute in {NETHER} run tp @s {ox_ + 0.5} {oy_} {oz_ + 0.5}', 'tag @s remove bm.uin',
@@ -483,6 +526,9 @@ def generate(G):
     fn('p237/ember', ['advancement revoke @s only bm:consume/dread_ember'] + give_back(G.item_arg('dread_ember')) +
        ['execute if score #dfell bm.cfg matches 1 run return run function bm:p237/ember_kindle', 'function bm:p237/ember_smother'])
     fn('p237/ember_kindle', ['scoreboard players set #dfell bm.cfg 0', 'execute unless score #dnt bm.cfg matches 1.. run scoreboard players set #dnt bm.cfg 40',
+                             'execute if entity @s[tag=bm.svdone] run ' + tellraw('@s', P + [T('In the Undercrown, something lifts its head. ', COL, bold=True),
+                                                                                         T('The Dread Sovereign will rise for you again.', 'gray')]),
+                             'tag @s remove bm.svdone',
                              'particle minecraft:flame ~ ~1.4 ~ 0.3 0.3 0.3 0.03 30', 'particle minecraft:sculk_soul ~ ~1.4 ~ 0.3 0.3 0.3 0.03 20',
                              'playsound minecraft:item.firecharge.use player @a[distance=..24] ~ ~ ~ 1 0.5', 'playsound minecraft:entity.warden.heartbeat ambient @a[distance=..24] ~ ~ ~ 1 0.5',
                              tellraw('@a', P + [T('Someone has kindled a Dread Ember. ', COL, bold=True), T('Somewhere, something remembers how to hunt: the Dread Nights will return.', 'gray')])])

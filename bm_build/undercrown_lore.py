@@ -47,6 +47,20 @@ VOICE = {
     'hoard': '"Mine. All of it was always mine."',
     'last_light': '"...Her? She sent another. Of course she did."',
 }
+# ---- (2.98c) THE LAST LIGHT: as it falls, the Divine One comes down into the Undercrown and ends it (phase238's finale)
+DIVINE_NAME = 'The Divine One'
+DIVINE = {
+    'pulled': 'Light pours through the dome - and the Sovereign is dragged into it.',
+    'title': 'THE DIVINE ONE',
+    'sub': 'who made the first light',
+    'sov1': '"...You. After all this time. You came down... for this?"',
+    'name': '"AUREL."',
+    'sov2': '"...that name. I had forgotten it was mine."',
+    'raise': 'His hand rises. The light gathers in it.',
+    'end': 'And the Dread Sovereign is unmade - the last of it, light.',
+    'rest': '"Rest now, my first light. It is over."',
+    'you': '"You have done well, little ones. The dark is quiet."',
+}
 # ---- the fight (phase238)
 FIGHT = {
     'wake': ('"Rise? I have been rising since your King fell."', 'The Dread Sovereign wakes.'),
@@ -133,7 +147,7 @@ ITEMS = {
     'shard_shark': ('Crown Shard of War', ['A splinter of a black crown, crusted with salt.', 'Set it in the Throne Gate.']),
     'black_seal': ('Black Seal', ['A wax seal, black as the Undercrown, stamped with a chain.', 'Six of them open the Sovereign\'s Hoard.',
                                  'They are spent when it opens.']),
-    'ember': ('The Dread Ember', ['All that is left of its hunger. It is still warm.', 'Kindle it (hold right-click): the Dread Nights return.',
+    'ember': ('The Dread Ember', ['All that is left of its hunger. It is still warm.', 'Kindle it (hold right-click): the Dread Nights return - and the Sovereign rises for you again.',
                                  'Kindle it again: they end.']),
     'edge': ('Sovereign\'s Edge', ['Its greatsword: void-glass, veined in red.', 'It is lighter than it looks. It wants to be swung.']),
     'crown': ('The Black Crown', ['It does not sit on your head so much as close around it.', 'The Dread know whose it was.']),

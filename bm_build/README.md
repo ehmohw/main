@@ -21,6 +21,37 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.98c: the Last Light - the Divine One, the Maw, and the Sovereign again
+
+**The Divine One.** When the Dread Sovereign's last strength is spent, the dark breaks.
+- A beam of light pierces the hall's dome and drags the Sovereign into it.
+- Then **He** comes down through the light: the god the Lightbringer and Aurel served, robed in white and gold, about 26 blocks tall, with four great wings and a triple halo.
+- He opens His wings and looks down on it. The Sovereign speaks once, and He calls it by the name it had forgotten: *"AUREL."*
+- He raises His hand and smites, and the Sovereign comes apart into light, the eye last.
+- *"Rest now, my first light."* Then He rises and fades.
+- It lasts 28 seconds, with its own music. **Every player's view is held on what matters** throughout: following Him down, the naming, the smiting, and His departure. Then come the spoils.
+
+**Each form has its own entrance.** When the Sovereign changes form, everyone's camera is held on it and it gets its own music.
+- **The Broken (12 s):** it drops to one knee and its plate splits and bursts. Its six wings unfurl and their eyes open one by one. It roars, and you are thrown back.
+- **The True (15 s):** its helm cracks and shatters, and the great eye opens. Then your camera is released, with time to reach the centre or an island before the floor falls.
+
+**Fight it again.** Once you've felled it, it no longer wakes for you; it tells you so when you cross its hall. **Kindle the Dread Ember** and the Nights return, and the Sovereign rises for you again.
+
+**Its Unbound form.** Fell it a second time and the Bound Sovereign remembers what it was. Its menu gains **Unbound / Bound**. Unbound, it walks beside you as vast as it stood against you, at full boss size, with its own idle, walk, kneel and attack poses.
+
+**THE MAW: the Undercrown's entrance, rebuilt** large, menacing and impossible to miss.
+- **The court:** the hidden seam is gone. In its place is a vast court whose west wall is the Sovereign's crowned helm carved into the cliff: a burning slit of eyes, horns, a crown of spikes, and chains across its brow. **The gate is its mouth**, between bone fangs.
+- **The approach:** a grand red stair climbs to it over a lava moat, lined with soul-fire braziers and watched by two colossal chained knights. The Dread Tokens go on three altars at the top.
+- **The roads:** paved, walled roads, hung with soul lanterns, are cut 48 blocks out into the Nether from both of the court's mouths.
+- **Finding it:** a bell tolls from the Maw to anyone within 160 blocks, and the first time you come near, its name is shown.
+- *(The Undercrown re-forms once to take its new entrance; anyone inside is carried out.)*
+
+**Adventure mode in the Undercrown.** Its stone will not break: survival players inside are put in Adventure mode, and return to Survival when they leave.
+
+**Fixed:**
+- **The Partner Wheel, audited end to end.** Every one of the 48 partners was put on the wheel, called, opened, sent home and taken off again by a test player, and all 243 checks pass. The mislabels came from the slot shift fixed in 2.98b.
+- **The Sovereign's Broken-form turn** played the True form's turn in its second half, floor collapse included.
+
 ## New in 2.98b: your partners, back where they belong
 
 **Fixed: worlds from an older version saw the wrong partners on their Partner Wheel.** The wheel saved each partner by its *number* in the list of followers, and new followers had been slotted into the middle of that list. Everyone after them was renumbered, so a world from 2.94 or 2.95 read its 8-Bit Leo, 8-Bit Emma and Sky Buddies as Rufus, Henry and Nia.

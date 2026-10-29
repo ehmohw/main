@@ -3,11 +3,18 @@ undercfg.ORIGIN; only what is set here is placed, so the Nether's own rock stays
 deepslate). p2/undercfg.py holds the arena, the trials' order, the sigils and the hidden rooms; phase237 runs it.
 
 Walk y in brackets. North is -z. The Hall of Chains' axis is (112, 145).
-  THE APPROACH (outside: B.outside, never sealed) - an ash cave x191..223 z190..223 (99), open to the template's east and south
-      edges by rough tunnels. Its west wall is a sheer basalt cliff (x191) with a seam of crying obsidian (z206..208, 5 high): THE
-      HIDDEN GATE. Three token hollows at chest height, each with one red candle: snow z197, shark z202, witch z212.
-  THE TUNNEL - from the seam (entrance marker, the 'gate' voice) 5 wide and 7 tall, ribbed, chained, west along z207 (99 -> 95),
-      north along x152 (-> 92), west along z166 to the Hall's rim. Red glass lavafalls glow at the end of each leg.
+  THE MAW (the approach; outside: B.outside, never sealed) - a vast cavern-court x192..221 z164..221, floor 72, its vault ~38 up,
+      open to the Nether through two great mouths in the template's faces: EAST (x223, z182..206, y72..106) and SOUTH (z223,
+      x198..221, y72..98; its west end, over the moat's shoulder, a sill - you walk in east of x206). Its west wall is THE FACADE
+      on the cliff (x191): the Dread Sovereign's crowned helm carved colossal (z178..210, the horns z169..219, y66..111) - black
+      plate cut deep into red rock along a red-hot fissure, one burning slit of eyes under a scowling brow, two swept horns, a
+      crown of black spikes against fire, cracks bleeding red, chains draped from the crown - and its fanged MOUTH is THE HIDDEN
+      GATE (crying obsidian, 5 wide, 7 tall, SEAM). A red tongue - THE GRAND STAIR (x200..213, 14 steps, soul fire on its
+      parapets) - runs from the landing on its jaw (86) over a lava moat (x192..205) down to the court floor; two colossal knights
+      in deepslate kneel chained on islands in the moat either side of it. On the landing, the three token hollows: brazier
+      altars for snow (196,·,188), witch (198,·,194) and shark (196,·,200). The Summons points at OUTER (214,72,210).
+  THE TUNNEL - from the gate (entrance marker, the 'gate' voice) 5 wide and 7 tall, ribbed, chained, west along z194 (86, rising
+      to 92), north along x152, west along z166 to the Hall's rim. Red glass lavafalls glow at the end of each leg.
   THE HALL OF CHAINS (hub, controller) - a shaft r27.5 from a lava pool (y14..16, under a tinted glass floor at y17) to a dome at
       y104; twelve ribbed piers (the two by the Throne Gate are statues instead), five giant chains of 5x7 links, iron chains
       with soul lanterns. Tinted glass floors span the shaft at every ward (y77, 51, 35). THE STAIR is a 3-wide, 5-tall corridor
@@ -463,66 +470,427 @@ def secret_chain(k):
     s(114, w + 3, 184, 'soul_lantern[hanging=true,waterlogged=false]')
 
 
-# ===================================================================================================== THE APPROACH, THE GATE
+# ===================================================================================================== THE MAW (the approach), THE GATE
 CAVE = [('blackstone', 4), ('basalt[axis=y]', 3), ('netherrack', 3), ('magma_block', 0.25), ('polished_basalt[axis=y]', 1)]
-SEAM = (191, 99, 207)
+PLATE = [('blackstone', 3), ('polished_blackstone', 2), ('obsidian', 2), ('polished_blackstone_bricks', 2)]     # void-black plate
+CLIFF = [('netherrack', 6), ('nether_wart_block', 1), ('crimson_nylium', 0.5), ('blackstone', 0.4)]           # the red rock it is cut from
+KNIGHT = [('polished_deepslate', 4), ('deepslate_tiles', 2), ('cobbled_deepslate', 1)]
+COURT_FLOOR = [('blackstone', 3), ('smooth_basalt', 2), ('basalt[axis=y]', 2), ('polished_blackstone', 1), ('magma_block', 0.2)]
+SEAM = (191, 86, 194)                  # THE GATE: bottom centre of the Sovereign's mouth in the facade (x191); the tunnel runs west from it
+GATE_W, GATE_H = 2, 7                  # half-width, height: 5 wide, 7 tall (the tunnel's own size)
+GZ = SEAM[2]                           # the face's axis (z)
+MAW_Y = 72                             # the court floor (walk)
+COURT = ((192, 221), (164, 221))       # the court's interior x, z (the facade, x191, is its west wall)
+MOAT = ((192, 205), (164, 219), 68)    # the lava moat at the facade's foot: x, z, the lava's y (its banks walled)
+LAND = ((192, 199), (185, 203))        # the landing before the gate (walk SEAM y): the face's jutting lower jaw
+STAIR = ((200, 213), (190, 198))       # THE GRAND STAIR, a red tongue down east from the landing over the moat to the floor
+# the court's two mouths, opening in the template's east and south faces: (axis of the face's plane, that plane, span, (y1, y2))
+MOUTHS = {'east': ('x', 223, (182, 206), (MAW_Y, 106)), 'south': ('z', 223, (198, 221), (MAW_Y, 98))}   # (the south one's west end, over the moat's
+#                                                                                                       shoulder, is a sill 3 high: walk in east of x206)
+OUTER = (214, MAW_Y, 210)              # the Summons points here (and the way out puts you here): the court floor, where the ways meet
+KNIGHTS = (175, 213)                   # the two chained knights' z (x ~200), kneeling on islands in the moat, facing east
+CAMPFIRE = 'soul_campfire[facing=east,lit=true,signal_fire=false,waterlogged=false]'
 
 
-def approach(k):
-    """the ash cave before the Hidden Gate: every cell of it (air and rough walls) is B.outside - the seal leaves it be"""
-    B, s, rnd = k.B, k.s, k.rnd
-    out = B.outside
+def parapet(ax, post=False):
+    """a low wall block in a run along axis ax"""
+    a = 'east=low,west=low,north=none,south=none' if ax == 'x' else 'east=none,west=none,north=low,south=low'
+    return f'polished_blackstone_brick_wall[{a},up={"true" if post else "false"},waterlogged=false]'
+
+
+def stair_walk(x):
+    return SEAM[1] - (x - LAND[0][1])
+
+
+def helm_w(y):
+    """the helm's half-width at row y: a domed crown, straight cheeks, the jaw tapering down into the moat"""
+    if y < 66 or y > 104: return -1
+    if y >= 102: return {102: 15, 103: 15, 104: 14}[y]
+    if y >= SEAM[1]: return 16
+    return max(9, round(16 - (SEAM[1] - y) * 0.5))
+
+
+def eye_rows(u):
+    """the burning slit's rows at u: one slit across the helm, tapered, rising outward (a scowl)"""
+    a = abs(u)
+    if a > 13: return None
+    yc, hh = 97.5 + a * 0.2, 0.7 + 1.3 * (1 - (a / 13.5) ** 2)
+    return math.ceil(yc - hh), math.floor(yc + hh)
+
+
+def maw_cave(k, rnd):
+    """the court: a vast cavern before the facade, 30 x 58, its vault ~38 over the floor (open to the Nether's rock over the crown)"""
+    B, s = k.B, k.s
+    (x1, x2), (z1, z2) = COURT
     sx_, sy_, sz_ = B.size
     air = set()
-    for x in range(192, 224):
-        for y in range(99, 110):
-            for z in range(188, 224):
-                v = ((x - 206) / 16) ** 2 + ((y - 99) / 9) ** 2 + ((z - 207) / 14) ** 2
-                if v <= 1 - rnd.random() * 0.18: air.add((x, y, z))
-    for x in range(192, 198):                              # the apron in front of the cliff
-        for z in range(194, 221):
-            for y in range(99, 105 + (z * 7 + x) % 3): air.add((x, y, z))
-    for x in range(212, 224):                              # a rough tunnel east, to the template's edge
-        for y in range(99, 106):
-            for z in range(202, 213):
-                if ((y - 102) / 3.6) ** 2 + ((z - 207) / 4.2) ** 2 <= 1 - rnd.random() * 0.2: air.add((x, y, z))
-    for z in range(214, 224):                              # and one south
-        for y in range(99, 106):
-            for x in range(200, 213):
-                if ((y - 102) / 3.6) ** 2 + ((x - 206) / 4.4) ** 2 <= 1 - rnd.random() * 0.2: air.add((x, y, z))
+    for x in range(x1, x2 + 1):
+        for z in range(z1, z2 + 1):
+            ez = MOUTHS['east'][2]
+            top = 111 if x <= 197 else (109 - (0 if ez[0] - 2 <= z <= ez[1] + 2 else max(0, x - 212)) - max(0, z1 + 5 - z)
+                                         - max(0, z - z2 + 5) - (rnd.random() < 0.4))
+            for y in range(MAW_Y if x > MOAT[0][1] else MOAT[2] + 1, top + 1): air.add((x, y, z))
     shell = set()
+    N6 = ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1))
     for (x, y, z) in air:
+        if all((x + dx, y + dy, z + dz) in air for dx, dy, dz in N6): continue
         for dx in (-2, -1, 0, 1, 2):
             for dy in (-2, -1, 0, 1, 2):
                 for dz in (-2, -1, 0, 1, 2):
                     q = (x + dx, y + dy, z + dz)
-                    if q not in air and 0 <= q[0] < sx_ and 0 <= q[1] < sy_ and 0 <= q[2] < sz_ and q[0] >= 191: shell.add(q)
-    for q in shell:
-        s(*q, k.pick(CAVE)); out.add(q)
-    for q in air:
-        s(*q, 'air'); out.add(q)
-    # floor: rough, with ash-grey basalt and a few magma cracks
+                    if q not in air and 0 <= q[1] < sy_ and 0 <= q[2] < sz_ and 191 <= q[0] < sx_: shell.add(q)
+    for q in shell: s(*q, k.pick(CAVE))
+    for q in air: s(*q, 'air')
+    # rough walls (east, north, south) and basalt teeth hanging from the vault
     for (x, y, z) in air:
-        if (x, y - 1, z) in shell:
-            s(x, y - 1, z, 'magma_block' if rnd.random() < 0.03 else 'smooth_basalt' if rnd.random() < 0.3 else k.pick(CAVE[:3]))
-    # the sheer cliff (x 191): basalt columns, with the seam and three token hollows
-    for z in range(190, 224):
-        for y in range(95, 111):
-            q = (191, y, z)
-            s(*q, 'polished_basalt[axis=y]' if (z + y // 4) % 3 else 'basalt[axis=y]'); out.add(q)
-    hol = {'snow': 197, 'shark': 202, 'witch': 212}
-    for kk, z in hol.items():
-        s(191, 100, z, CANDLE % 1); out.add((191, 100, z))
-        s(191, 101, z, 'polished_blackstone'); s(191, 99, z, 'chiseled_polished_blackstone')
-    for (x, y, z) in list(air):                            # a few basalt stalagmites and hanging ash
-        if rnd.random() < 0.004 and (x, y - 1, z) in shell and x > 199:
-            for dy in range(rnd.randint(2, 5)):
-                if (x, y + dy, z) in air: s(x, y + dy, z, 'basalt[axis=y]')
+        if x < 207 or y < MAW_Y + 5: continue
+        if ((x + 1, y, z) in shell or (x, y, z - 1) in shell or (x, y, z + 1) in shell) and rnd.random() < 0.3: s(x, y, z, k.pick(CAVE))
+    for _ in range(70):
+        x, z = rnd.randint(207, 220), rnd.randint(z1 + 1, z2 - 1)
+        top = max(y for y in range(MAW_Y, 112) if (x, y, z) in air)
+        for y in range(top, top - rnd.randint(2, 6), -1): s(x, y, z, 'basalt[axis=y]' if rnd.random() < 0.7 else 'blackstone')
+    # the floor
+    for x in range(MOAT[0][1] + 1, x2 + 1):
+        for z in range(z1, z2 + 1): s(x, MAW_Y - 1, z, k.pick(COURT_FLOOR))
+    # the processional ways, from each mouth to the stair's foot: black brick, edged in red
+    (sz1, sz2) = STAIR[1]
+    for x in range(STAIR[0][1] + 1, 224):
+        for z in range(sz1 - 1, sz2 + 2): s(x, MAW_Y - 1, z, 'red_nether_bricks' if z in (sz1 - 1, sz2 + 1) else 'polished_blackstone_bricks')
+    for z in range(sz2 + 2, 224):
+        for x in range(210, 218): s(x, MAW_Y - 1, z, 'red_nether_bricks' if x in (210, 217) else 'polished_blackstone_bricks')
+    return air
+
+
+def maw_moat(k, rnd):
+    """the lava moat along the facade's foot (the stair crosses it), walled on its banks"""
+    s = k.s
+    (x1, x2), (z1, z2), ly = MOAT
+    for x in range(x1, x2 + 1):
+        for z in range(z1, z2 + 1):
+            s(x, ly - 2, z, k.pick(CAVE[:3])); s(x, ly - 1, z, k.pick(CAVE[:3])); s(x, ly, z, 'lava')
+            for y in range(ly + 1, MAW_Y): s(x, y, z, 'air')
+    # its south end: a shoulder of rock (z220..221) three blocks over the floor
+    for x in range(x1, x2 + 1):
+        for z in range(z2 + 1, COURT[1][1] + 1):
+            for y in range(ly - 2, MAW_Y + 3): s(x, y, z, k.pick(CAVE[:3]))
+    for z in range(z1, z2 + 1):
+        if STAIR[1][0] - 1 <= z <= STAIR[1][1] + 1: continue
+        s(x2 + 1, MAW_Y, z, parapet('z', post=z % 6 == 0))
+
+
+def maw_face(k, rnd):
+    """THE FACADE: the Sovereign's crowned helm carved colossal in the cliff (x191) - void-black plate, a crown of black spikes, two
+    swept horns, one burning red slit of eyes, cracks bleeding red - and its open mouth, fanged in bone, is the gate"""
+    B, s = k.B, k.s
+    (cz1, cz2) = COURT[1]
+    front = {}
+    # the sheer cliff the face is cut from
+    for z in range(cz1 - 2, cz2 + 3):
+        for y in range(MOAT[2] - 2, 112):
+            s(191, y, z, k.pick(CLIFF))
+    for u in range(-16, 17):
+        a, er = abs(u), eye_rows(u)
+        for y in range(66, 105):
+            w = helm_w(y)
+            if a > w: continue
+            f, mat = 193, 'polished_blackstone'                                                  # the plate: smooth, black
+            if y < SEAM[1]: f, mat = (LAND[0][1], 'polished_blackstone_bricks') if a <= 9 else (194, 'polished_blackstone_bricks')   # the jaw: under the landing it juts out to carry it
+            elif 9 <= a <= 15 and y <= 96: f, mat = 194, 'polished_blackstone_bricks'              # cheek guards
+            if y >= SEAM[1] and ((7 <= a <= 8 and y <= 95) or (a <= 8 and 94 <= y <= 95)): f, mat = 194, 'polished_blackstone_bricks'   # the lips
+            if er and er[1] + 1 <= y <= er[1] + 2: f, mat = 195, 'polished_blackstone_bricks'    # the brow, scowling
+            if a <= 1 and y >= 102: f, mat = 195, 'chiseled_polished_blackstone'                   # the crest
+            if y >= 103: f, mat = 195, ('gilded_blackstone' if a % 4 == 0 or y == 104 else 'polished_blackstone_bricks')   # the crown's band
+            if a == w and f < 195 and (y >= SEAM[1] or a > 9): f, mat = 192, 'blackstone'          # bevelled edges
+            if a == 9 and SEAM[1] - 2 <= y <= 96: mat = 'chiseled_polished_blackstone' if y % 3 == 0 else 'polished_blackstone'
+            front[(u, y)] = f
+            for x in range(191, f): s(x, y, GZ + u, k.pick(PLATE))
+            s(f, y, GZ + u, mat)
+    # the landing on the jaw: a red tongue down its middle
+    (lx1, lx2), (lz1, lz2) = LAND
+    for x in range(lx1, lx2 + 1):
+        for z in range(lz1, lz2 + 1):
+            u = z - GZ
+            s(x, SEAM[1] - 1, z, 'red_nether_bricks' if abs(u) <= 4 else 'chiseled_polished_blackstone' if abs(u) == 9 else 'polished_blackstone_bricks')
+            for y in range(SEAM[1], SEAM[1] + 12):
+                if x > front.get((u, y), 0): s(x, y, z, 'air')
+    # the mouth: a recess glowing red behind white fangs, the gate (crying obsidian) at its back
+    for u in range(-6, 7):
+        for y in range(SEAM[1], 94):
+            a = abs(u)
+            for x in range(192, 195): s(x, y, GZ + u, 'air')
+            if a <= GATE_W and y < SEAM[1] + GATE_H: continue              # the gate itself (B.hidden_gate)
+            s(191, y, GZ + u, 'magma_block' if (a + y) % 5 else 'red_nether_bricks')
+            front[(u, y)] = 191
+    fang = lambda x, y, z, tip: s(x, y, z, 'calcite' if tip else 'bone_block[axis=y]')
+    upper = {6: 88, 4: 90, 3: 92, 2: 93, 0: 93}                         # upper teeth: |u| -> lowest row
+    lower = {6: 90, 4: 88, 3: 87}                                # lower teeth: |u| -> highest row
+    for u in range(-6, 7):
+        a = abs(u)
+        lo = upper.get(a, 94)
+        for y in range(lo, 94): fang(192, y, GZ + u, y == lo)
+        if a == 6:
+            for y in range(lo + 2, 94): fang(193, y, GZ + u, False)
+        if a in lower:
+            for y in range(SEAM[1], lower[a] + 1): fang(192, y, GZ + u, y == lower[a])
+    # the eyes: one burning slit, red glass over shroomlight, deep under the brow
+    for u in range(-13, 14):
+        lo, hi = eye_rows(u)
+        for y in range(lo, hi + 1):
+            s(193, y, GZ + u, 'air'); s(192, y, GZ + u, 'red_stained_glass'); s(191, y, GZ + u, 'shroomlight')
+            front[(u, y)] = 192
+    # the horns: swept out and up from the helm's temples, ribbed, black to the tip
+    for sg in (-1, 1):
+        for i in range(121):
+            t = i / 120
+            cu, cy, r = sg * (14.5 + 10.5 * t), 96.5 + 2.5 * t + 12 * t * t, 1.9 * (1 - t) + 0.5
+            fx = 192 + round(3.2 * (1 - t))
+            for du in range(-3, 4):
+                for dy in range(-3, 4):
+                    if du * du + dy * dy > r * r: continue
+                    u, y = round(cu + du), round(cy + dy)
+                    if y > 111 or abs(u) > 27 or front.get((u, y), 0) >= 195: continue
+                    mat = 'obsidian' if t > 0.85 else 'polished_blackstone' if int(t * 12) % 2 else 'blackstone'
+                    for x in range(191, fx + 1): s(x, y, GZ + u, mat)
+                    front[(u, y)] = max(front.get((u, y), 0), fx)
+    # the crown: black spikes rising from the band, red-hot at the tips, leaning out from the middle
+    for su, h in ((0, 7), (4, 5), (8, 6), (12, 4), (15, 3)):
+        for sg in ((1,) if su == 0 else (-1, 1)):
+            for j in range(h):
+                y, hw = 105 + j, (1 if j < h * 0.55 else 0)
+                cu = sg * su + (sg * j * 0.3 if su else 0)
+                d = 195 - (j * 3) // h
+                for du in range(-hw, hw + 1):
+                    u = round(cu) + du
+                    for x in range(192, d + 1): s(x, y, GZ + u, 'magma_block' if j == h - 1 else 'polished_blackstone' if du == 0 else 'blackstone')
+                    front[(u, y)] = d
+    # a fire behind the crown: its spikes stand black against it
+    for u in range(-18, 19):
+        for y in range(105, 112):
+            if front.get((u, y), 0) >= 192: continue
+            d = math.hypot(u / 19.0, (y - 103) / 9.0)
+            if d <= 1.0: s(191, y, GZ + u, 'shroomlight' if (u * 7 + y * 3) % 3 == 0 or d < 0.6 else 'magma_block')
+    # the helm is cut deep into the cliff: a red-hot fissure all round its outline
+    for u in range(-28, 29):
+        for y in range(MAW_Y, 112):
+            if front.get((u, y), 0) >= 192 or not 0 <= GZ + u < 224: continue
+            if any(front.get((u + du, y + dy), 0) >= 192 for du, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                s(191, y, GZ + u, 'shroomlight' if (u * 5 + y * 3) % 7 == 0 else 'magma_block')
+    # cracks bleeding red: from the slit's ends and the crown, down the plate
+    starts = [(-12, 99), (10, 98), (-5, 96), (13, 102), (-14, 91)]
+    for (u, y) in starts:
+        for _ in range(rnd.randint(8, 16)):
+            y -= 1
+            u += rnd.choice((-1, 0, 0, 1))
+            f = front.get((u, y))
+            if f is None or f <= 192 or (abs(u) <= 8 and SEAM[1] - 1 <= y <= 96): continue
+            s(f, y, GZ + u, 'magma_block' if rnd.random() < 0.8 else 'shroomlight')
+    return front
+
+
+def maw_altars(k):
+    """the three Dread Tokens' hollows: three brazier-altars on the landing (snow, witch, shark), soul fire at their corners"""
+    s, y = k.s, SEAM[1]
+    socks = {}
+    for kk, (x, z), core in (('snow', (196, GZ - 6), 'snow_block'), ('witch', (198, GZ), 'amethyst_block'), ('shark', (196, GZ + 6), 'dark_prismarine')):
+        for dx in (-1, 0, 1):
+            for dz in (-1, 0, 1):
+                s(x + dx, y, z + dz, 'chiseled_polished_blackstone' if dx == dz == 0 else 'polished_blackstone_bricks')
+                if dx and dz: s(x + dx, y + 1, z + dz, CAMPFIRE)
+        s(x, y + 1, z, core)
+        socks[kk] = (x, y + 2, z)
+    return socks
+
+
+def maw_stair(k, rnd):
+    """THE GRAND STAIR: a red tongue lolling from the mouth, down over the moat to the court floor, soul fire on its parapets"""
+    s = k.s
+    (x1, x2), (z1, z2) = STAIR
+    for x in range(x1, x2 + 1):
+        w = stair_walk(x)
+        over_moat = x <= MOAT[0][1]
+        for z in range(z1 - 1, z2 + 2):
+            edge = z in (z1 - 1, z2 + 1)
+            for y in range((w - 4) if over_moat else MOAT[2] + 1, w - 1):
+                s(x, y, z, 'polished_blackstone_bricks' if edge else 'red_nether_bricks' if rnd.random() < 0.8 else 'nether_bricks')
+            top = w > stair_walk(x + 1) and x < x2
+            if edge: s(x, w - 1, z, 'polished_blackstone_bricks')
+            elif top: s(x, w - 1, z, f'{"red_nether_brick" if z1 < z < z2 else "polished_blackstone_brick"}_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]')
+            else: s(x, w - 1, z, 'red_nether_bricks')
+            for y in range(w, w + 6):
+                if not edge or y > w: s(x, y, z, 'air')
+        for z in (z1 - 1, z2 + 1):
+            if (x - x1) % 3 == 1:
+                s(x, w, z, 'polished_blackstone_bricks'); s(x, w + 1, z, CAMPFIRE)
+            else: s(x, w, z, parapet('x'))
+    for z in range(z1, z2 + 1): s(LAND[0][1], SEAM[1] - 1, z, f'{"red_nether_brick" if z1 < z < z2 else "polished_blackstone_brick"}_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]')
+    # the landing's own parapets and fangs
+    (lx1, lx2), (lz1, lz2) = LAND
+    y = SEAM[1]
+    for x in range(195, lx2 + 1):
+        for z in (lz1, lz2): s(x, y, z, parapet('x', post=x == lx2))
+    for z in list(range(lz1, z1)) + list(range(z2 + 1, lz2 + 1)):
+        a = abs(z - GZ)
+        if a in (5, 7, 9):
+            h = {5: 2, 7: 3, 9: 2}[a]
+            for dy in range(h): s(lx2, y + dy, z, 'calcite' if dy == h - 1 else 'bone_block[axis=y]')
+        else: s(lx2, y, z, parapet('z'))
+
+
+def maw_knight(k, kz, sg):
+    """a colossal knight in deepslate, kneeling on an island in the moat at (199, kz) with its greatsword planted, facing the
+    court - chained by the neck to the facade and by the wrists to its island (sg mirrors it)"""
+    s = k.s
+    cx, y0 = 199, MAW_Y
+
+    def box(f1, f2, h1, h2, s1, s2, mat):
+        for f in range(f1, f2 + 1):
+            for h in range(h1, h2 + 1):
+                for ss in range(s1, s2 + 1): s(cx + f, y0 + h, kz + ss * sg, k.pick(mat))
+    for f in range(-4, 7):
+        for ss in range(-6, 7):
+            for y in range(MOAT[2] - 2, y0):
+                rim = f in (-4, 6) or abs(ss) == 6
+                s(cx + f, y, kz + ss, 'chiseled_polished_blackstone' if y == y0 - 1 and rim else 'polished_blackstone_bricks' if rim else k.pick(FLOOR))
+    A, P = KNIGHT, 'polished_blackstone'
+    box(-5, -1, 0, 1, 1, 3, A)                       # the kneeling leg: shin flat on the stone,
+    box(0, 1, 0, 2, 1, 3, A)                         # the knee,
+    box(-1, 0, 3, 7, 1, 3, A)                        # the thigh up to the hip
+    box(1, 5, 0, 0, -3, -1, A)                       # the planted foot,
+    box(1, 4, 1, 1, -3, -1, A)                       # its boot,
+    box(2, 3, 2, 5, -3, -1, A)                       # its shin,
+    box(3, 4, 6, 6, -3, -1, P)                       # the knee-cop,
+    box(-1, 3, 7, 8, -3, -1, A)                      # its thigh
+    box(-2, 1, 7, 9, -4, 4, A)                       # hips
+    box(2, 2, 6, 9, -3, 3, P)                        # tassets
+    box(-2, 1, 10, 11, -3, 3, A)                     # the waist
+    box(-2, 1, 12, 15, -4, 4, A)                     # the chest
+    box(2, 2, 12, 14, -3, 3, P)                      # the breastplate, its heart a red ember
+    s(cx + 2, y0 + 13, kz, 'magma_block')
+    box(-1, 1, 16, 16, -2, 2, P)                     # the gorget
+    box(-3, -3, 3, 15, -4, 4, 'black_concrete')      # the cloak, down its back (not wool: the moat would light it)
+    for ss in range(-4, 5): box(-4, -4, 0, k.rnd.randint(1, 3), ss, ss, 'black_concrete')
+    for side in (-1, 1):
+        lo, hi = (5, 7) if side > 0 else (-7, -5)
+        box(-3, 2, 14, 16, lo, hi, A)                                                       # pauldrons,
+        box(-1, 0, 17, 18, 6 * side, 6 * side, 'blackstone')                                # their spikes
+        box(-1, 1, 9, 13, 5 if side > 0 else -6, 6 if side > 0 else -5, A)                  # upper arms
+        for i in range(11):                                                                 # forearms, to the sword's grip
+            t = i / 10
+            f, ss, h = round(1 + 4 * t), round(side * (5 - 4 * t)), round(9 + 3 * t)
+            box(f, f, h, h + 1, ss, ss, A)
+        for h in range(0, 9): s(cx + 2, y0 + h, kz + side * 5 * sg, CHAIN_Y)                # manacle chains to the island
+    for h in range(0, 11): s(cx + 6, y0 + h, kz, 'polished_basalt[axis=y]')                 # the greatsword, point down
+    for ss in range(-3, 4): s(cx + 6, y0 + 11, kz + ss, P)
+    for ss in (-3, 3): s(cx + 6, y0 + 12, kz + ss, 'blackstone')
+    for h in (12, 13): s(cx + 6, y0 + h, kz, 'polished_blackstone_bricks')
+    s(cx + 6, y0 + 14, kz, 'gilded_blackstone')
+    box(5, 5, 12, 13, -1, 1, A)                                                            # the fists on the grip
+    box(0, 3, 17, 20, -2, 2, P)                                                            # the helm, bowed over the sword
+    for ss in (-1, 0, 1): s(cx + 3, y0 + 18, kz + ss, 'red_stained_glass'); s(cx + 2, y0 + 18, kz + ss, 'shroomlight')
+    for side in (-1, 1):                                                                   # its horns
+        s(cx + 1, y0 + 21, kz + 2 * side, 'blackstone'); s(cx + 1, y0 + 22, kz + 3 * side, 'blackstone'); s(cx, y0 + 23, kz + 3 * side, 'obsidian')
+    chain_line(k, (cx - 4, y0 + 15, kz), (192, y0 + 15, kz))                                 # the collar's chain, back to the cliff
+
+
+def giant_chain(k, p, q, sag, mat='polished_deepslate'):
+    """a chain of block links (5 long, 3 across, alternating planes) hung from p to q, sagging `sag` at its middle"""
+    B = k.B
+    n = max(2, round(math.dist(p, q) / 3.6))
+    pts = [tuple(p[j] + (q[j] - p[j]) * (i / n) - (sag * 4 * (i / n) * (1 - i / n) if j == 1 else 0) for j in range(3)) for i in range(n + 1)]
+    for i in range(n):
+        a, b = pts[i], pts[i + 1]
+        c = [(a[j] + b[j]) / 2 for j in range(3)]
+        t = [b[j] - a[j] for j in range(3)]
+        L = math.sqrt(sum(v * v for v in t)); t = [v / L for v in t]
+        ref = (1, 0, 0) if abs(t[0]) < 0.8 else (0, 1, 0)
+        n1 = [t[1] * ref[2] - t[2] * ref[1], t[2] * ref[0] - t[0] * ref[2], t[0] * ref[1] - t[1] * ref[0]]
+        l1 = math.sqrt(sum(v * v for v in n1)); n1 = [v / l1 for v in n1]
+        n2 = [t[1] * n1[2] - t[2] * n1[1], t[2] * n1[0] - t[0] * n1[2], t[0] * n1[1] - t[1] * n1[0]]
+        nv = n1 if i % 2 == 0 else n2
+        for al in [v * 0.25 for v in range(-9, 10)]:
+            for be in [v * 0.25 for v in range(-5, 6)]:
+                if abs(al) < 1.3 and abs(be) < 0.7: continue
+                cell = tuple(round(c[j] + t[j] * al + nv[j] * be) for j in range(3))
+                if B.b.get(cell, '').endswith(':air'): k.s(*cell, mat)
+
+
+def maw_chains(k, rnd, air):
+    """chains: draped from the crown across the brow, from the horns down to the knights, hanging from the vault"""
+    s = k.s
+    for sg in (-1, 1):
+        giant_chain(k, (197, 104, GZ + sg * 16), (197, 105, GZ + sg * 1), 5, 'polished_basalt[axis=y]')
+        kz = KNIGHTS[0] if sg < 0 else KNIGHTS[1]
+        giant_chain(k, (195, 104, GZ + sg * 21), (199, MAW_Y + 15, kz - sg * 1), 1.5)
+    for _ in range(60):
+        x, z = rnd.randint(207, 220), rnd.randint(COURT[1][0] + 2, COURT[1][1] - 2)
+        if 180 <= z <= 208 or (z > 208 and x < 214): continue          # (not across the facade's view from the mouths)
+        col = [y for y in range(MAW_Y + 4, 112) if (x, y, z) in air and k.is_air(x, y, z)]
+        if not col: continue
+        top = max(col)
+        if not k.is_air(x, top, z) or k.is_air(x, top + 1, z): continue
+        ln = rnd.randint(6, max(7, top - MAW_Y - 8))
+        if not all(k.is_air(x, y, z) for y in range(top - ln, top + 1)): continue
+        for y in range(top - ln + 1, top + 1): s(x, y, z, CHAIN_Y)
+        s(x, top - ln, z, SOUL if rnd.random() < 0.6 else 'shroomlight')
+
+
+def maw_mouths(k, rnd):
+    """the court's two mouths, cut through the template's east and south faces - wide, tall, fanged with basalt - and red eyes
+    watching from the cavern walls"""
+    s = k.s
+    for key, (ax, plane, (a1, a2), (y1, y2)) in MOUTHS.items():
+        ac, hw, R = (a1 + a2) / 2, (a2 - a1) / 2 + 0.5, (y2 - y1) * 0.3
+        for a in range(a1, a2 + 1):
+            top = round(y2 - R + R * math.sqrt(max(0.0, 1 - ((a - ac) / hw) ** 2)))
+            sill = ax == 'z' and a <= MOAT[0][1]                         # (over the moat's shoulder)
+            for d in range(0, 3):
+                x, z = (plane - d, a) if ax == 'x' else (a, plane - d)
+                if sill:
+                    for y in range(MOAT[2] - 2, y1 + 2): s(x, y, z, k.pick(CAVE[:3]))
+                    s(x, y1 + 2, z, 'polished_blackstone_bricks')
+                else:
+                    s(x, y1 - 1, z, 'polished_blackstone_bricks' if abs(a - ac) <= 4 else k.pick(COURT_FLOOR))
+                    for y in range(y1 - 3, y1 - 1): s(x, y, z, k.pick(CAVE))
+                for y in range(y1 + (3 if sill else 0), top + 1): s(x, y, z, 'air')
+                if d == 1 and (a - a1) % 3 == 1:                         # fangs round the arch
+                    ln = rnd.randint(2, 5) if abs(a - ac) > 2 else 2
+                    for y in range(top - ln + 1, top + 1): s(x, y, z, 'basalt[axis=y]' if y > top - ln + 1 else 'blackstone')
+            for d in range(0, 3):
+                for (aa, ln) in ((a1, 4), (a2, 4)):
+                    x, z = (plane - d, aa) if ax == 'x' else (aa, plane - d)
+                    if d == 1:
+                        for y in range(y1, y1 + ln): s(x, y, z, 'basalt[axis=y]')
+        # soul fire either side, just inside
+        for aa in (a1 - 1, a2 + 1):
+            x, z = (plane - 3, aa) if ax == 'x' else (aa, plane - 3)
+            if k.is_air(x, y1, z) and x > MOAT[0][1] + 1:
+                s(x, y1, z, 'polished_blackstone_bricks'); s(x, y1 + 1, z, CAMPFIRE)
+    # red eyes in the cavern's walls
+    for (x, y, z, dx, dz) in ((222, 88, 172, 1, 0), (222, 97, 178, 1, 0), (222, 84, 211, 1, 0), (222, 99, 216, 1, 0),
+                              (209, 92, 163, 0, -1), (216, 85, 163, 0, -1), (200, 99, 163, 0, -1), (213, 101, 222, 0, 1), (194, 99, 222, 0, 1)):
+        cells = [(x, y, z + 0), (x, y, z + 2)] if dx else [(x, y, z), (x + 2, y, z)]
+        for (cx, cy, cz) in cells:
+            if k.is_air(cx - dx, cy, cz - dz):
+                s(cx, cy, cz, 'red_stained_glass'); s(cx + dx, cy, cz + dz, 'shroomlight')
+
+
+def approach(k):
+    """THE MAW: the court before the Hidden Gate. Every cell set here (air, rock, the facade, the moat, the stair) is B.outside -
+    the seal leaves it be, and the walk inside never reaches it but through the gate"""
+    B = k.B
+    before = set(B.b)
+    rnd = random.Random(29802)
+    air = maw_cave(k, rnd)
+    maw_moat(k, rnd)
+    maw_face(k, rnd)
+    maw_stair(k, rnd)
+    socks = maw_altars(k)
+    for kz in KNIGHTS: maw_knight(k, kz, 1 if kz < GZ else -1)
+    maw_chains(k, rnd, air)
+    maw_mouths(k, rnd)
     sx, sy, sz = SEAM
-    B.hidden_gate(sx, sy, sz, 'z', 1, 5, {kk: (192, 99, z) for kk, z in hol.items()}, (197, 99, sz))
-    for z in range(sz - 2, sz + 3):                        # a crack that runs up the cliff over the seam
-        s(191, sy + 5 + abs(z - sz), z, 'crying_obsidian' if z == sz else 'obsidian')
-    s(191, sy + 9, sz, 'obsidian')
+    B.hidden_gate(sx, sy, sz, 'z', GATE_W, GATE_H, socks, OUTER)
+    B.outside |= set(B.b) - before
 
 
 def tube(k, path, w=5, h=7, wall=VOID, rib=4, ribmat='polished_blackstone'):
@@ -573,17 +941,17 @@ def tube(k, path, w=5, h=7, wall=VOID, rib=4, ribmat='polished_blackstone'):
 
 
 def tunnel(k):
-    """from the seam, a long descending tunnel west then north-west to the Hall's rim"""
+    """from the gate (the Sovereign's mouth), a long tunnel west - rising to the rim's level - then north and west to the Hall's rim"""
     B, s, rnd = k.B, k.s, k.rnd
     sx, sy, sz = SEAM
-    k.air(sx - 2, sy, sz - 1, sx - 1, sy + 4, sz + 1)
-    k.fill(sx - 2, sy - 1, sz - 1, sx - 1, sy - 1, sz + 1, 'polished_blackstone')
-    a = tube(k, [(sx - 3, sz, 99), (176, sz, 99), (164, sz, 95), (152, sz, 95)])
-    b = tube(k, [(152, sz, 95), (152, 196, 95), (152, 178, 92), (152, 166, 92)])
-    c = tube(k, [(152, 166, 92), (140, 166, 92)])
+    k.air(sx - 2, sy, sz - GATE_W, sx - 1, sy + GATE_H - 1, sz + GATE_W)
+    k.fill(sx - 2, sy - 1, sz - GATE_W, sx - 1, sy - 1, sz + GATE_W, 'polished_blackstone')
+    a = tube(k, [(sx - 3, sz, sy), (176, sz, sy), (164, sz, RIM_Y), (152, sz, RIM_Y)])
+    b = tube(k, [(152, sz, RIM_Y), (152, 166, RIM_Y)])
+    c = tube(k, [(152, 166, RIM_Y), (140, 166, RIM_Y)])
     # the far ends glow red: a lavafall of glass behind the wall where each leg turns
     for z in range(sz - 1, sz + 2):
-        for y in range(97, 104):
+        for y in range(RIM_Y + 2, RIM_Y + 9):
             s(148, y, z, 'red_stained_glass'); s(147, y, z, 'shroomlight' if y % 3 == 0 else 'magma_block')
     for x in range(151, 154):
         for y in range(94, 100):

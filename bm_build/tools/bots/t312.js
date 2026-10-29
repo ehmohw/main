@@ -142,7 +142,7 @@ const N = 'execute in minecraft:the_nether run ';
 
   // ---- THE DREAD SOVEREIGN: its coming, three forms, its fall
   if (on('boss')) {
-    await progress(17); await run('clear TestRat'); await run('tag TestRat remove bm.dfin'); await run('tag TestRat remove bm.svfirst');
+    await progress(17); await run('clear TestRat'); await run('tag TestRat remove bm.dfin'); await run('tag TestRat remove bm.svfirst'); await run('tag TestRat remove bm.svdone');
     await run('scoreboard players set #ufell bm.p2 0'); await run('scoreboard players set #dfell bm.cfg 0'); await run('scoreboard players set #ucol bm.p2 0');
     const th = await pos('@e[type=minecraft:marker,tag=bm.uthrone,limit=1]');
     ok('the Sovereign kneels on its throne, dormant', await wait(15000, async () => (await cnt('@e[type=minecraft:husk,tag=bm.usov,tag=bm.svdorm]')) === 1));
@@ -153,22 +153,22 @@ const N = 'execute in minecraft:the_nether run ';
     ok('...the battle door slams shut', await wait(3000, async () => !(await block(ar[0], ar[1], ar[2] + 35, 'minecraft:light'))) || true);
     await sleep(9000);
     ok('...it speaks as it rises', A.chats.some(c => /waited an age|forged for me|Rise\?/.test(c)), `${A.chats.length} chats: ` + A.chats.slice(-3).join(' | ').slice(0, 200));
-    ok('...the six chains burn, the Wellsprings kindle', (await cnt('@e[type=minecraft:item_display,tag=bm.svwg]')) === 6);
+    ok('...the six chains burn, the Wellsprings kindle', (await cnt('@e[type=minecraft:item_display,tag=bm.svwg]')) === 6, `${await cnt('@e[type=minecraft:item_display,tag=bm.svwg]')} wellsprings`);
     ok('the coming lasts 20 s: then it fights (phase I)', await wait(16000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svlive,scores={bm.svph=1}]')) === 1));
     // a Wellspring shattered with a blow
     const w1 = Object.values(A.ents).filter(e => e.type !== undefined);
     await run(`${N}data modify entity @e[type=minecraft:husk,tag=bm.usov,limit=1] Health set value 100f`);
-    ok('its first pool spent: it staggers - its plate cracks off, the wings unfurl (phase II)', await wait(12000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svlive,scores={bm.svph=2}]')) === 1));
+    ok('its first pool spent: it staggers - its plate cracks off, the wings unfurl (phase II)', await wait(18000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svlive,scores={bm.svph=2}]')) === 1));
     ok('...its six wing-eyes ride its wings', (await cnt('@e[type=minecraft:husk,tag=bm.sveye]')) === 6);
     await run(`${N}kill @e[type=minecraft:husk,tag=bm.sveye]`);
     ok('...all six put out: it crashes down, its heart open (no Resistance)', await wait(3000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svground]')) === 1));
     await run(`${N}data modify entity @e[type=minecraft:husk,tag=bm.usov,limit=1] Health set value 100f`);
-    ok('its second pool spent: the helm shatters (phase III)', await wait(15000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svlive,scores={bm.svph=3}]')) === 1));
+    ok('its second pool spent: the helm shatters (phase III)', await wait(22000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svlive,scores={bm.svph=3}]')) === 1));
     const fall = [ar[0], ar[1] - 1, ar[2] + 24];      // (south of the centre, between two islands)
     ok('...the outer floor has fallen into the lava', await block(fall[0], fall[1], fall[2], 'minecraft:air'));
     await run(`${N}data modify entity @e[type=minecraft:husk,tag=bm.usov,limit=1] Health set value 100f`);
     ok('its last pool spent: it falls', await wait(8000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svfall]')) === 1));
-    ok('...and is gone: the spoils (a Victor\'s Key, its Eye, the Ember, its record)', await wait(8000, async () => (await has('ukey_victor')) === 1 && (await has('sov_eye')) === 1 && (await has('dread_ember')) === 1));
+    ok('...and is gone: the spoils (a Victor\'s Key, its Eye, the Ember, its record)', await wait(40000, async () => (await has('ukey_victor')) === 1 && (await has('sov_eye')) === 1 && (await has('dread_ember')) === 1));
     ok('...the reckoning: bm.dfin', /bm\.dfin/.test(await tags()));
     ok('...the Dread Nights are over (#dfell)', (await sc('#dfell', 'bm.cfg')) === 1);
     ok('...the floor knits back over the lava', await block(fall[0], fall[1], fall[2], '#minecraft:replaceable') === false || true);

@@ -556,9 +556,52 @@ def s7(B):
 
 @shot('8_approach')
 def s8(B):
+    """THE MAW from just inside its east mouth: the court, the moat, the stair, the knights, the facade"""
     sc = Scene(B)
-    cam = Persp((216, 104, 213), (191, 101, 206), fov=76)
-    return sc.render(cam, P=dict(gain=3.5, ambient=(0.1, 0.07, 0.08), fill=0.3, fill_r=30))
+    cam = Persp((221.5, 74, 186.5), (192, 95, 194.5), fov=80)
+    return sc.render(cam, P=dict(gain=3.4, ambient=(0.12, 0.08, 0.09), fill=0.25, fill_r=40, fog_d=500))
+
+
+@shot('10_maw_outside')
+def s10(B):
+    """THE MAW from the Nether outside its east mouth (only the template is drawn: the Nether's own rock round it is left out)"""
+    sc = Scene(B)
+    cam = Persp((258, 79, 194.5), (200, 88, 194.5), fov=58)
+    return sc.render(cam, P=dict(gain=3.4, ambient=(0.12, 0.08, 0.09), fill=0.25, fill_r=40, fog_d=500))
+
+
+@shot('11_maw_face')
+def s11(B):
+    """the facade face-on (the court's east half cut away)"""
+    sx, sy, sz = B.size
+    X = np.arange(sx)[:, None, None] + np.zeros((1, sy, sz), int)
+    sc = Scene(B, remove=X >= 206)
+    cam = Ortho((195, 90, 194.5), (-1, 0, 0), 66)
+    return sc.render(cam, W=1200, H=1000, P=dict(gain=3.4, ambient=(0.16, 0.11, 0.12), fill=0.2, fill_r=40, fog_d=900))
+
+
+@shot('12_maw_south')
+def s12(B):
+    """THE MAW from the Nether outside its south mouth"""
+    sc = Scene(B)
+    cam = Persp((223, 78, 246), (194, 96, 195), fov=62)
+    return sc.render(cam, P=dict(gain=3.4, ambient=(0.12, 0.08, 0.09), fill=0.25, fill_r=40, fog_d=500))
+
+
+@shot('14_maw_knight')
+def s14(B):
+    """the north knight, from the court floor"""
+    sc = Scene(B)
+    cam = Persp((217.5, 76, 186.5), (200, 82, 175), fov=70)
+    return sc.render(cam, P=dict(gain=3.4, ambient=(0.12, 0.08, 0.09), fill=0.25, fill_r=40, fog_d=500))
+
+
+@shot('13_maw_gate')
+def s13(B):
+    """at the stair's foot, looking up the red stair into the mouth"""
+    sc = Scene(B)
+    cam = Persp((216.5, 74, 194.5), (192, 92, 194.5), fov=70)
+    return sc.render(cam, P=dict(gain=3.4, ambient=(0.12, 0.08, 0.09), fill=0.25, fill_r=40, fog_d=500))
 
 
 @shot('9_last_light')

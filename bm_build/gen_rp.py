@@ -958,6 +958,8 @@ if __name__ == '__main__':
         p2.regalia.rp(sys.modules[__name__])
         import phase238                           # (2.98: the Dread Sovereign's rig, at boss scale)
         phase238.rp(sys.modules[__name__])
+        import divine_art                         # (2.98c: the Divine One, at the Sovereign's fall)
+        divine_art.rp(sys.modules[__name__])
         import phase240                           # (2.98a: the Undercrown's soundtrack)
         phase240.rp(sys.modules[__name__])
     if PHASE2:

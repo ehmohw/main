@@ -50,16 +50,18 @@ PH_HP, PH_ADD, PH_MAX = 640, 160, 900        # each phase's pool: one fighter, e
 FLOOR = 100
 RESIST = 1
 INTRO = 400                                  # ticks: the coming (20 s)
-TURN = 160
+TURN = 160                                    # (2.98c: the old turn; each form now has its own entrance)
+ENT = {1: 240, 2: 300}                        # ticks: the entrance of the Broken form (12 s), of the True form (15 s)
 FORM = {1: 'armored', 2: 'broken', 3: 'true'}
 SCALE = {f: A.BOSS_SCALE * A.FORM_SCALE[f] for f in FORM.values()}
 SWAP = tuple(A.PARTS)
 sel = lambda p: f'@e[type=minecraft:item_display,tag=bm.svr_{p}]'
 # ---- the theme: its intro, its three phases, its turn (tools/sovereign_music.py)
-P152.THEMES.update({18: ('sovereign1', 120), 19: ('sovereign2', 120), 20: ('sovereign3', 120), 21: ('sovereign_turn', 8), 22: ('sovereign_intro', 20)})
+P152.THEMES.update({18: ('sovereign1', 120), 19: ('sovereign2', 120), 20: ('sovereign3', 120), 21: ('sovereign_turn', 8), 22: ('sovereign_intro', 20),
+                    23: ('sovereign_enter2', 13), 24: ('sovereign_enter3', 16), 25: ('divine', 30)})      # (2.98c: each form's own entrance)
 _H = 'type=minecraft:husk,tag=bm.usov'
 P152.WHO_LATE += [(18, f'{_H},tag=bm.svlive,scores={{bm.svph=1}}'), (19, f'{_H},tag=bm.svlive,scores={{bm.svph=2}}'),
-                  (20, f'{_H},tag=bm.svlive,scores={{bm.svph=3}}'), (21, f'{_H},tag=bm.svturn'), (22, f'{_H},tag=bm.svintro')]
+                  (20, f'{_H},tag=bm.svlive,scores={{bm.svph=3}}'), (23, f'{_H},tag=bm.svturn,tag=bm.svt1'), (24, f'{_H},tag=bm.svturn,tag=bm.svt2'), (22, f'{_H},tag=bm.svintro')]
 
 # ---- what it leaves (phase237's items hold the rest)
 item('sov_eye', TOTEM, L.ITEMS['eye'][0], COL, list(L.ITEMS['eye'][1]) + [('Hard mode. From the Dread Sovereign, the first time it falls.', 'dark_gray')],
@@ -227,7 +229,13 @@ def generate(G):
     for i, f in FORM.items():
         fn(f'p238/{f}/body', [f'function bm:p238/{f}/anim', f'execute rotated as @s rotated ~ 0 run function bm:p238/place/{f}'])
     fn('p238/asleep', ['execute rotated 0 0 run function bm:p238/place/armored',
-                       f'execute positioned {CX} {CY + 1} {CZ} if entity @a[distance=..24,gamemode=!spectator,gamemode=!creative] run function bm:p238/wake'])   # (someone crosses the hall)
+                       f'execute positioned {CX} {CY + 1} {CZ} if entity @a[distance=..24,gamemode=!spectator,gamemode=!creative,tag=!bm.svdone] run function bm:p238/wake',   # (someone crosses the hall)
+                       # (2.98c) one who has felled it: it does not stir for them - until they kindle its Ember
+                       f'execute positioned {CX} {CY + 1} {CZ} as @a[distance=..24,gamemode=!spectator,tag=bm.svdone] run function bm:p238/stirless'])
+    G.FUNCS['load'][-1:-1] = ['scoreboard players set #60 bm.rng 60']
+    fn('p238/stirless', ['execute store result score #g bm.rng run time query gametime', 'scoreboard players operation #g bm.rng %= #60 bm.rng',
+                         'execute unless score #g bm.rng matches 0..2 run return 0',
+                         title('@s', 'actionbar', [T('It does not stir for you. ', COL, italic=True), T('You felled it once; kindle its Dread Ember, and it will rise for you again.', 'gray')])])
     fn('p238/state', ['execute if score @s bm.svx matches 1.. run return run scoreboard players operation #st bm.rng = @s bm.sva',
                       'execute if entity @s[tag=bm.svmove] run return run scoreboard players set #st bm.rng 1', 'scoreboard players set #st bm.rng 0'])
 
@@ -390,26 +398,70 @@ def generate(G):
     # ================================================================== THE TURNS
     fn('p238/floor_hit', ['execute if score @s bm.svph matches 3 run return run function bm:p238/fall',
                           'tag @s remove bm.svlive', 'tag @s add bm.svturn', 'data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.svt 0',
-                          'scoreboard players set @s bm.sva 22', f'scoreboard players set @s bm.svx {TURN}', 'function bm:p238/clear',
+                          'scoreboard players set @s bm.sva 22', 'function bm:p238/clear',
+                          f'execute if score @s bm.svph matches 1 run scoreboard players set @s bm.svx {ENT[1] + 4}', f'execute if score @s bm.svph matches 2 run scoreboard players set @s bm.svx {ENT[2] + 4}',
+                          'execute if score @s bm.svph matches 1 run tag @s add bm.svt1', 'execute if score @s bm.svph matches 2 run tag @s add bm.svt2',
+                          'execute at @s run summon minecraft:marker ~ ~9.5 ~ {Tags:["bm.svlook"]}',
                           'bossbar set bm:usov color purple', f'execute as {AUD} at @s run function bm:p152/tick'])
-    turn1 = [at(1, say(L.FIGHT['turn1'])), at(1, snd('entity.iron_golem.death', 2, 0.4)), at(1, snd('block.anvil.destroy', 2, 0.5)),
-             at(20, f'particle minecraft:block{{block_state:"minecraft:blackstone"}} ~ ~6 ~ 3 4 3 0 200 force {AUD}'),
-             at(60, 'function bm:p238/a/knockback'), at(60, snd('entity.ender_dragon.growl', 3, 0.6)), at(60, 'function bm:p238/c/shake'),
-             at(70, f'particle minecraft:sculk_soul ~ ~8 ~ 8 4 8 0.05 200 force {AUD}'),
-             at(70, title(AUD, 'title', T(L.FIGHT['p2'], COL, bold=True))), at(70, title(AUD, 'subtitle', T('six wings - and every eye in them open', '#c8a0a0', italic=True))),
-             at(70, 'scoreboard players set @s bm.svph 2'), at(70, 'scoreboard players set @s bm.sva 11'), at(70, 'function bm:p238/pose/broken/roar'),
-             at(TURN - 1, 'function bm:p238/turned')]
-    turn2 = [at(1, say(L.FIGHT['turn2'])), at(1, snd('entity.wither.break_block', 2, 0.4)), at(1, snd('block.glass.break', 2, 0.4)),
-             at(10, f'particle minecraft:flash{{color:[1.0,0.1,0.15,1.0]}} ~ ~10 ~ 0 0 0 0 1 force {AUD}'),
-             at(10, 'scoreboard players set @s bm.svph 3'), at(10, 'scoreboard players set @s bm.sva 11'), at(10, 'function bm:p238/pose/true/roar'),
-             at(12, title(AUD, 'title', T(L.FIGHT['p3'], COL, bold=True))), at(12, title(AUD, 'subtitle', T('THE FLOOR IS GIVING WAY - GET TO THE CENTRE OR AN ISLAND', '#ff8a8a', bold=True))),
-             at('20..119', 'function bm:p238/a/crack'), at(30, snd('block.deepslate.break', 2, 0.4)), at(70, snd('block.deepslate.break', 2, 0.4)),
-             at(120, 'function bm:p238/a/collapse'), at(TURN - 1, 'function bm:p238/turned')]
+    # (2.98c) EACH FORM'S ENTRANCE - everyone's eyes held on it (the look marker rides its head), the hall dark, the change slow
+    look = '@e[type=minecraft:marker,tag=bm.svlook,limit=1]'
+    fn('p238/c/look', [f'execute as {FIGHT} at @s run tp @s ~ ~ ~ facing entity {look} feet', f'effect give {FIGHT} minecraft:slowness 2 255 true',
+                       f'effect give {FIGHT} minecraft:resistance 2 255 true', f'effect give {FIGHT} minecraft:jump_boost 2 200 true'])
+    rs2 = random.Random(2381)
+    crack = lambda k: [f'particle minecraft:block{{block_state:"minecraft:blackstone"}} ~{rs2.uniform(-2, 2):.1f} ~{rs2.uniform(3, 9):.1f} ~{rs2.uniform(-2, 2):.1f} 0.6 0.6 0.6 0 40 force {AUD}',
+                       f'particle minecraft:dust{{color:[1.0,0.15,0.2],scale:2.5}} ~{rs2.uniform(-2, 2):.1f} ~{rs2.uniform(3, 9):.1f} ~{rs2.uniform(-2, 2):.1f} 0.3 0.3 0.3 0 20 force {AUD}',
+                       snd('block.anvil.land', 1.2, 0.4 + 0.05 * k), snd('entity.iron_golem.damage', 1.5, 0.3 + 0.04 * k)]
+    for k in range(6):
+        fn(f'p238/c/crack{k}', crack(k))
+    eye_ping = lambda k: [f'particle minecraft:flash{{color:[1.0,0.1,0.15,1.0]}} ~{(-1) ** k * rs2.uniform(3, 7):.1f} ~{rs2.uniform(6, 11):.1f} ~{rs2.uniform(1, 3):.1f} 0 0 0 0 1 force {AUD}',
+                          snd('block.amethyst_block.chime', 2, 0.5 + 0.06 * k), snd('entity.warden.listening', 1, 0.6 + 0.05 * k)]
+    for k in range(18):
+        fn(f'p238/c/eye{k}', eye_ping(k))
+    beat = lambda t0, t1, step: [at(t, snd('entity.warden.heartbeat', 1.6, 0.5)) for t in range(t0, t1, step)]
+    turn1 = ([at(1, say(L.FIGHT['turn1'])), at(1, snd('entity.iron_golem.death', 2, 0.4)), at(1, snd('block.anvil.destroy', 2, 0.5)),
+              at(1, 'function bm:p238/pose/armored/stagger'), at(1, f'effect give {FIGHT} minecraft:darkness 7 0 true'),
+              at(1, title(AUD, 'actionbar', T('It falls to one knee. Its plate is splitting.', '#c8a0a0', italic=True)))] +
+             beat(10, 80, 14) + [at(10 + 12 * k, f'function bm:p238/c/crack{k}') for k in range(6)] +
+             [at(80, f'particle minecraft:explosion_emitter ~ ~6 ~ 2 3 2 0 3 force {AUD}'), at(80, snd('entity.generic.explode', 3, 0.5)), at(80, snd('block.glass.break', 3, 0.4)),
+              at(80, f'particle minecraft:block{{block_state:"minecraft:blackstone"}} ~ ~6 ~ 3 4 3 0 400 force {AUD}'), at(80, 'function bm:p238/c/shake'),
+              at(80, 'scoreboard players set @s bm.svph 2'), at(80, 'function bm:p238/pose/broken/stagger'),
+              at(96, 'function bm:p238/pose/broken/roar'), at(96, snd('entity.phantom.flap', 3, 0.3)), at(96, snd('entity.ender_dragon.flap', 3, 0.4)),
+              at(96, f'particle minecraft:sculk_soul ~ ~8 ~ 8 4 8 0.05 200 force {AUD}')] +
+             [at(110 + 3 * k, f'function bm:p238/c/eye{k}') for k in range(18)] +
+             [at(170, 'function bm:p238/a/knockback'), at(170, snd('entity.ender_dragon.growl', 3, 0.6)), at(170, snd('entity.warden.roar', 3, 0.5))] +
+             [at(t, 'function bm:p238/c/shake') for t in range(170, 190, 4)] +
+             [at(172, f'title {AUD} times 4 50 16'), at(172, title(AUD, 'title', T(L.FIGHT['p2'], COL, bold=True))),
+              at(172, title(AUD, 'subtitle', T('six wings - and every eye in them open', '#c8a0a0', italic=True))),
+              at('1..168', 'function bm:p238/c/look'), at('1..168', 'execute as @e[type=minecraft:marker,tag=bm.svlook] at @s positioned as @e[tag=bm.usov,limit=1] run tp @s ~ ~9.5 ~'),
+              at(ENT[1] - 1, 'function bm:p238/turned')])
+    turn2 = ([at(1, say(L.FIGHT['turn2'])), at(1, snd('entity.wither.break_block', 2, 0.4)), at(1, 'function bm:p238/pose/broken/stagger'),
+              at(1, f'effect give {FIGHT} minecraft:darkness 9 0 true'),
+              at(1, title(AUD, 'actionbar', T('Its helm is cracking. Something behind it is looking out.', '#c8a0a0', italic=True)))] +
+             beat(10, 100, 12) + [at(12 + 14 * k, f'function bm:p238/c/crack{k}') for k in range(6)] +
+             [at(t, snd('block.glass.hit', 2, 0.5 + 0.1 * j)) for j, t in enumerate(range(20, 100, 16))] +
+             [at(100, f'particle minecraft:flash{{color:[1.0,0.1,0.15,1.0]}} ~ ~10 ~ 0 0 0 0 1 force {AUD}'), at(100, snd('block.glass.break', 3, 0.3)),
+              at(100, snd('entity.warden.sonic_boom', 3, 0.5)), at(100, f'particle minecraft:explosion_emitter ~ ~10 ~ 1 1 1 0 2 force {AUD}'),
+              at(100, f'particle minecraft:block{{block_state:"minecraft:black_stained_glass"}} ~ ~10 ~ 2 2 2 0 300 force {AUD}'),
+              at(100, 'scoreboard players set @s bm.svph 3'), at(100, 'function bm:p238/pose/true/stagger' if 'stagger' in A.BOSS_POSES['true'] else 'function bm:p238/pose/true/roar'),
+              at(100, 'execute as @e[type=minecraft:marker,tag=bm.svlook] at @s run tp @s ~ ~2 ~'), at(100, 'function bm:p238/c/shake'),
+              at(120, 'function bm:p238/pose/true/eye_beam_up'), at(120, snd('entity.warden.sonic_charge', 3, 0.4))] +
+             [at(120 + 6 * k, f'particle minecraft:dust{{color:[1.0,0.05,0.1],scale:{1.5 + 0.25 * k:.2f}}} ~ ~11.5 ~ {0.2 + 0.1 * k:.1f} {0.2 + 0.1 * k:.1f} {0.2 + 0.1 * k:.1f} 0 30 force {AUD}') for k in range(10)] +
+             [at(176, 'function bm:p238/pose/true/roar'), at(176, snd('entity.ender_dragon.growl', 3, 0.4)), at(176, snd('entity.warden.roar', 3, 0.4)),
+              at(176, f'particle minecraft:flash{{color:[1.0,0.05,0.1,1.0]}} ~ ~11.5 ~ 0 0 0 0 1 force {AUD}')] +
+             [at(t, 'function bm:p238/c/shake') for t in range(176, 196, 4)] +
+             [at(178, f'title {AUD} times 4 50 16'), at(178, title(AUD, 'title', T(L.FIGHT['p3'], COL, bold=True))),
+              at(178, title(AUD, 'subtitle', T('the great eye opens', '#c8a0a0', italic=True))),
+              at(206, title(AUD, 'subtitle', T('THE FLOOR IS GIVING WAY - GET TO THE CENTRE OR AN ISLAND', '#ff8a8a', bold=True))), at(206, title(AUD, 'title', T(' ', COL))),
+              at('1..200', 'function bm:p238/c/look'),
+              at('2..99', 'execute as @e[type=minecraft:marker,tag=bm.svlook] at @s positioned as @e[tag=bm.usov,limit=1] run tp @s ~ ~9.5 ~'),
+              at('206..279', 'function bm:p238/a/crack'), at(220, snd('block.deepslate.break', 2, 0.4)), at(250, snd('block.deepslate.break', 2, 0.4)),
+              at(280, 'function bm:p238/a/collapse'), at(ENT[2] - 1, 'function bm:p238/turned')])
     fn('p238/turn_tick', ['scoreboard players add @s bm.svt 1',
-                          'execute if score @s bm.svph matches 1 run return run function bm:p238/turn1', 'execute if score @s bm.svph matches 2 run return run function bm:p238/turn2',
-                          'execute if score @s bm.svph matches 3 run function bm:p238/turn2'])
+                          # (by the entrance's own tag: each sets the next form part-way through - by the form, the rest of the
+                          #  Broken's entrance ran the True's, floor and all)
+                          'execute if entity @s[tag=bm.svt1] run return run function bm:p238/turn1', 'execute if entity @s[tag=bm.svt2] run function bm:p238/turn2'])
     fn('p238/turn1', turn1); fn('p238/turn2', turn2)
-    fn('p238/turned', ['tag @s remove bm.svturn', 'tag @s add bm.svlive', 'data modify entity @s Invulnerable set value 0b', 'scoreboard players set @s bm.sva 0',
+    fn('p238/turned', ['tag @s remove bm.svturn', 'tag @s remove bm.svt1', 'tag @s remove bm.svt2', 'kill @e[type=minecraft:marker,tag=bm.svlook]', 'tag @s add bm.svlive', 'data modify entity @s Invulnerable set value 0b', 'scoreboard players set @s bm.sva 0',
                        'scoreboard players set @s bm.svx 10', 'function bm:p238/fill', 'bossbar set bm:usov color red',
                        f'execute if score @s bm.svph matches 2 run bossbar set bm:usov name {snbt([T(L.SOV, COL, bold=True), T("  -  " + L.FIGHT["p2"], "#c8a0a0")])}',
                        f'execute if score @s bm.svph matches 3 run bossbar set bm:usov name {snbt([T(L.SOV, COL, bold=True), T("  -  " + L.FIGHT["p3"], "#c8a0a0")])}',
@@ -598,17 +650,92 @@ def generate(G):
                      'playsound minecraft:entity.ravager.stunned hostile @a[distance=..64] ~ ~ ~ 2 0.6',
                      title(AUD, 'actionbar', [T('The eye shuts - ', 'gold', bold=True), T('strike it now!', 'gray')])])
     second.append(f'execute as {ME} if score @s bm.svz matches -99..-1 run scoreboard players add @s bm.svz 1')
+    second.append('execute as @a[scores={bm.svwin=1..},tag=!bm.svmig] run tag @s add bm.svdone')        # (2.98c: who felled it in 2.98 has felled it)
+    second.append('tag @a[tag=!bm.svmig] add bm.svmig')
 
     # ================================================================== THE FALL
-    fn('p238/fall', ['tag @s remove bm.svlive', 'tag @s add bm.svfall', 'data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.sva 31',
-                     'scoreboard players set @s bm.svx 70', 'scoreboard players set @s bm.svt 0', 'function bm:p238/clear', 'bossbar set bm:usov value 0',
-                     say(L.FIGHT['fall']), 'playsound minecraft:entity.wither.death hostile @a[distance=..96] ~ ~ ~ 1 0.5', f'execute as {AUD} at @s run function bm:p152/tick'])
-    fn('p238/falling', ['scoreboard players add @s bm.svt 1',
-                        at('1..60', f'particle minecraft:sculk_soul ~ ~6 ~ 3 5 3 0.08 12 force {AUD}'), at('1..60', f'particle minecraft:large_smoke ~ ~6 ~ 3 5 3 0.05 8 force {AUD}'),
-                        at(20, 'playsound minecraft:entity.warden.death hostile @a[distance=..96] ~ ~ ~ 3 0.4'),
-                        at(40, f'particle minecraft:flash{{color:[1.0,0.95,0.8,1.0]}} ~ ~8 ~ 0 0 0 0 1 force {AUD}'),
-                        at(40, 'playsound minecraft:block.beacon.activate hostile @a[distance=..96] ~ ~ ~ 3 0.5'),
-                        at(66, 'function bm:p238/won')])
+    fn('p238/fall', ['tag @s remove bm.svlive', 'tag @s add bm.svfall', 'data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.sva 11',
+                     'scoreboard players set @s bm.svx 9999', 'scoreboard players set @s bm.svt 0', 'function bm:p238/clear', 'bossbar set bm:usov value 0',
+                     say(L.FIGHT['fall']), 'playsound minecraft:entity.wither.death hostile @a[distance=..96] ~ ~ ~ 1 0.5', f'execute as {AUD} at @s run function bm:p152/tick',
+                     'kill @e[type=minecraft:marker,tag=bm.svlook]', 'execute at @s run summon minecraft:marker ~ ~12 ~ {Tags:["bm.svlook"]}'])
+    # ================================================================== (2.98c) THE LAST LIGHT - the Divine One comes down and ends it
+    # 28 s, everyone's eyes held where the story is: the Sovereign dragged into a beam through the dome; HE comes down through
+    # it (divine_art: about 26 blocks to His hood), opens His wings, looks down on it, names it - Aurel - raises His hand, and
+    # smites; it comes apart into light, the eye last. "Rest now." He rises, and fades. Then the spoils (p238/won).
+    import divine_art as DV
+    DSC = DV.BOSS_SCALE
+    dsel = lambda p: f'@e[type=minecraft:item_display,tag=bm.dvn_{p}]'
+    NX, NZ = CX + 0.5, CZ - 5.5                  # (the Sovereign, dragged here)
+    DX, DZ = CX + 0.5, CZ + 13.5                 # (He comes down here, facing it - north)
+    DY0, DH = CY + 1 + 24, 22                     # (His root starts 24 up; His face is some 22 above His root)
+    drig = [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(DV, p, ["bm.dvn", f"bm.dvn_{p}"], DSC, model=DV.model_name(p, DV.BOSS_POSES["descend"]), extra=dict(view_range=F(12.0), brightness={"block": Int(15), "sky": Int(15)}, teleport_duration=Int(3)))}'
+            for p in DV.PARTS]
+    fn('p238/dv/place', RF.place(DV, DSC / 16, dsel))
+    DVDUR = {'descend': 10, 'reveal': 40, 'gaze': 40, 'raise': 30, 'smite': 6, 'rest': 50, 'ascend': 60}
+    for name, pz in DV.BOSS_POSES.items():
+        fn(f'p238/dv/pose/{name}', RF.pose(DV, pz, DSC, DVDUR.get(name, 20), dsel, swap=tuple(DV.PARTS)))
+    fn('p238/dv/raise', drig + ['execute rotated 180 0 run function bm:p238/dv/place'])
+    root = '@e[type=minecraft:marker,tag=bm.dvroot,limit=1]'
+    look = '@e[type=minecraft:marker,tag=bm.svlook,limit=1]'
+    divine = lambda txt: tellraw(AUD, [T(L.DIVINE_NAME + ': ', L.HOLY, bold=True), T(txt, '#fff8e0')])
+    lerp = lambda a, b, u: tuple(a[k] + (b[k] - a[k]) * u for k in range(3))
+    SOVH, DVH = (NX, CY + 13, NZ), (DX, CY + 1 + DH, DZ)
+
+    def pan(t0, t1, A_, B_, step=2):
+        return [at(t, f'tp {look} {x:.2f} {y:.2f} {z:.2f}') for t in range(t0, t1 + 1, step) for (x, y, z) in [lerp(A_, B_, (t - t0) / max(1, t1 - t0))]]
+    beam = [f'particle minecraft:end_rod {DX} {CY + 1 + y} {DZ} 0.6 0.4 0.6 0.02 6 force {AUD}' for y in range(2, 50, 3)]
+    fn('p238/dv/beam', beam + [f'particle minecraft:end_rod {NX} {CY + 1 + y} {NZ} 0.3 0.4 0.3 0.01 2 force {AUD}' for y in range(2, 50, 4)])
+    fn('p238/dv/glow', [f'particle minecraft:end_rod ~ ~ ~ 4 6 4 0.02 12 force {AUD}', f'particle minecraft:dust{{color:[1.0,0.95,0.75],scale:2.5}} ~ ~ ~ 4 6 4 0 10 force {AUD}'])
+    fn('p238/dv/unmake', [f'particle minecraft:end_rod {NX} {CY + 7} {NZ} 3 5 3 0.08 30 force {AUD}', f'particle minecraft:white_ash {NX} {CY + 7} {NZ} 3 5 3 0 60 force {AUD}',
+                          f'particle minecraft:dust{{color:[1.0,1.0,0.9],scale:3.0}} {NX} {CY + 7} {NZ} 3 5 3 0 20 force {AUD}'])
+    seq = ([at(1, f'execute as {AUD} at @s run stopsound @s record'), at(2, f'execute as {AUD} at @s run playsound bm:music.boss_divine record @s ~ ~ ~ 1000 1 1'),
+            at(1, f'effect give {FIGHT} minecraft:darkness 3 0 true')] +
+           # (the light takes it: dragged into the beam, turned to face where He will stand)
+           [at('20..69', f'execute unless entity @s[x={NX - 0.8},y={CY - 4},z={NZ - 0.8},dx=1.6,dy=30,dz=1.6] facing {NX} ~ {NZ} run tp @s ^ ^ ^0.45'),
+            at(20, title(AUD, 'actionbar', T(L.DIVINE['pulled'], L.HOLY, italic=True))), at(70, f'tp @s {NX} ~ {NZ} facing {DX} ~ {DZ}'),
+            at('1..69', f'execute as {look} positioned as @e[type=minecraft:husk,tag=bm.usov,limit=1] run tp @s ~ ~12 ~')] +
+           [at(40, f'particle minecraft:flash{{color:[1.0,0.97,0.85,1.0]}} {DX} {CY + 30} {DZ} 0 0 0 0 1 force {AUD}'), at(40, snd('block.beacon.activate', 3, 0.6)),
+            at(40, snd('block.bell.resonate', 3, 0.5)), at('40..470', 'function bm:p238/dv/beam')] +
+           # (HE comes down)
+           [at(58, f'summon minecraft:marker {DX} {DY0} {DZ} {{Tags:["bm.dvroot"]}}'), at(60, f'execute positioned {DX} {DY0} {DZ} run function bm:p238/dv/raise'), at(61, 'function bm:p238/dv/pose/descend'),
+            at(60, f'particle minecraft:flash{{color:[1.0,0.97,0.85,1.0]}} {DX} {DY0 + 10} {DZ} 0 0 0 0 1 force {AUD}'), at(60, snd('entity.player.levelup', 2, 0.5))] +
+           [at(t, f'tp {root} {DX} {DY0 - 24 * (t - 60) / 100:.2f} {DZ}') for t in range(60, 161, 2)] +
+           [at('60..548', f'execute as {root} at @s rotated 180 0 run function bm:p238/dv/place'), at('60..520', f'execute at {root} positioned ~ ~12 ~ run function bm:p238/dv/glow')] +
+           pan(70, 100, SOVH, (DX, DY0 - 7.2 + DH, DZ)) +
+           [at(t, f'tp {look} {DX} {DY0 - 24 * (t - 60) / 100 + DH:.2f} {DZ}') for t in range(102, 161, 2)] +
+           [at(160, 'function bm:p238/dv/pose/reveal'), at(160, f'particle minecraft:flash{{color:[1.0,0.97,0.85,1.0]}} {DX} {CY + 20} {DZ} 0 0 0 0 1 force {AUD}'),
+            at(160, snd('block.beacon.power_select', 3, 0.5)), at(160, snd('entity.ender_dragon.flap', 3, 0.5)),
+            at(162, f'title {AUD} times 10 80 20'), at(162, title(AUD, 'title', T(L.DIVINE['title'], L.HOLY, bold=True))),
+            at(162, title(AUD, 'subtitle', T(L.DIVINE['sub'], '#fff8e0', italic=True)))] +
+           # (He looks down on it; it speaks; He names it)
+           [at(200, 'function bm:p238/dv/pose/gaze'), at(200, 'scoreboard players set @s bm.sva 31'), at(204, say(L.DIVINE['sov1']))] +
+           pan(206, 222, DVH, SOVH) + pan(244, 252, SOVH, DVH) +
+           [at(250, divine(L.DIVINE['name'])), at(250, snd('block.bell.use', 3, 0.5)), at(270, say(L.DIVINE['sov2']))] +
+           # (His hand rises; the light gathers; THE SMITING)
+           [at(290, 'function bm:p238/dv/pose/raise'), at(290, title(AUD, 'actionbar', T(L.DIVINE['raise'], L.HOLY, italic=True))),
+            at(290, snd('block.beacon.ambient', 3, 0.5)), at(300, snd('entity.warden.sonic_charge', 2, 1.4))] +
+           pan(290, 300, DVH, (DX, DVH[1] + 6, DZ)) +
+           [at(320, 'function bm:p238/dv/pose/smite'), at(320, f'particle minecraft:flash{{color:[1.0,1.0,0.95,1.0]}} {NX} {CY + 8} {NZ} 0 0 0 0 1 force {AUD}'),
+            at(320, snd('item.trident.thunder', 3, 0.6)), at(320, snd('entity.generic.explode', 2, 0.5)), at(320, snd('block.beacon.deactivate', 3, 0.5)),
+            at(320, f'particle minecraft:explosion_emitter {NX} {CY + 6} {NZ} 2 3 2 0 4 force {AUD}'), at(320, 'function bm:p238/c/shake'), at(326, 'function bm:p238/c/shake')] +
+           pan(316, 324, (DX, DVH[1] + 6, DZ), (NX, CY + 7, NZ)) +
+           # (it comes apart into light; the eye last)
+           [at(330, 'execute as @e[type=minecraft:item_display,tag=bm.svr,tag=!bm.svr_head] run data merge entity @s {start_interpolation:0,interpolation_duration:70,transformation:{scale:[0f,0f,0f]}}'),
+            at(370, 'execute as @e[type=minecraft:item_display,tag=bm.svr_head] run data merge entity @s {start_interpolation:0,interpolation_duration:40,transformation:{scale:[0f,0f,0f]}}'),
+            at('330..410', 'function bm:p238/dv/unmake'), at(340, snd('entity.warden.death', 2, 0.6)), at(372, snd('block.amethyst_block.break', 3, 0.5)),
+            at(400, title(AUD, 'actionbar', T(L.DIVINE['end'], L.HOLY, italic=True))), at(412, 'function bm:p238/dv/pose/rest')] +
+           pan(414, 430, (NX, CY + 7, NZ), DVH) +
+           [at(430, divine(L.DIVINE['rest'])), at(460, divine(L.DIVINE['you']))] +
+           # (He rises, and fades)
+           [at(480, 'function bm:p238/dv/pose/ascend')] +
+           [at(t, f'tp {root} {DX} {CY + 1 + 26 * (t - 480) / 68:.2f} {DZ}') for t in range(482, 549, 2)] +
+           [at(t, f'tp {look} {DX} {CY + 1 + 26 * (t - 480) / 68 + DH:.2f} {DZ}') for t in range(482, 549, 2)] +
+           [at(520, 'execute as @e[type=minecraft:item_display,tag=bm.dvn] run data merge entity @s {start_interpolation:0,interpolation_duration:28,transformation:{scale:[0f,0f,0f]}}'),
+            at(520, f'particle minecraft:end_rod {DX} {CY + 30} {DZ} 4 8 4 0.05 200 force {AUD}'), at(548, f'particle minecraft:flash{{color:[1.0,0.97,0.85,1.0]}} {DX} {CY + 40} {DZ} 0 0 0 0 1 force {AUD}'),
+            at(549, 'kill @e[type=minecraft:item_display,tag=bm.dvn]'), at(549, f'kill {root}'), at(549, 'kill @e[type=minecraft:marker,tag=bm.svlook]'),
+            at('1..548', 'function bm:p238/c/look'), at(550, 'function bm:p238/won')])
+    fn('p238/falling', ['scoreboard players add @s bm.svt 1'] + seq)
+    G.FUNCS['admin/uninstall'][0:0] = ['kill @e[tag=bm.dvn]', 'kill @e[tag=bm.dvroot]']
     G.wjson('bm/advancement/story/sovereign.json', {'parent': 'bm:story/root', 'criteria': {'won': {'trigger': 'minecraft:impossible'}},
                                                     'display': {'icon': {'id': 'minecraft:paper', 'components': {'minecraft:item_model': 'bm:sov_eye'}},
                                                                 'title': T('The Last Light', 'yellow'), 'description': T('Fell the Dread Sovereign at the bottom of the Undercrown', 'gray'),
@@ -626,11 +753,20 @@ def generate(G):
                     f'particle minecraft:reverse_portal {CX} {CY + 1} {CZ} 24 0.5 24 0.1 400 force {AUD}',
                     title(AUD, 'actionbar', T('The floor knits itself back together over the lava.', '#c8a0a0', italic=True)), 'bossbar set bm:usov visible false',
                     'kill @e[type=minecraft:item_display,tag=bm.svr]', 'tp @s ~ -400 ~', 'kill @s'])
-    fn('p238/reward', ['tag @s add bm.dfin', 'advancement grant @s only bm:story/sovereign', 'scoreboard players add @s bm.svwin 1',
+    fn('p238/reward', ['tag @s add bm.dfin', 'tag @s add bm.svdone', 'advancement grant @s only bm:story/sovereign', 'scoreboard players add @s bm.svwin 1',
                        give('ukey_victor'), 'loot give @s loot bm:p238/spoils',
                        tellraw('@s', P + [T(L.SOV, COL, bold=True), T(' has fallen. ', 'gray'), T(L.FIGHT['fall2'], '#c8a0a0', italic=True)]),
                        'execute unless entity @s[tag=bm.svfirst] run function bm:p238/first',
-                       'execute if score @s bm.svwin matches 2 run function bm:p238/second'])
+                       'execute if score @s bm.svwin matches 2 run function bm:p238/second',
+                       'execute if score @s bm.svwin matches 2.. unless entity @s[tag=bm.xvunb] run function bm:p238/unbound'])
+    # (2.98c) felled a second time: the Bound Sovereign remembers what it was - its Unbound form, at the size it fought you
+    fn('p238/unbound', ['tag @s add bm.xvunb', 'advancement grant @s only bm:story/sovereign_unbound',
+                        tellraw('@s', [T('  ', 'gray'), T('The Bound Sovereign', COL, bold=True), T(' remembers what it was: ', 'gray'), T('its Unbound form', COL, bold=True),
+                                       T(' - as vast as it stood against you. (Its menu: Unbound / Bound.)', 'gray')])])
+    G.wjson('bm/advancement/story/sovereign_unbound.json', {'parent': 'bm:story/sovereign', 'criteria': {'won': {'trigger': 'minecraft:impossible'}},
+                                                           'display': {'icon': {'id': 'minecraft:paper', 'components': {'minecraft:item_model': 'bm:sov_eye'}},
+                                                                       'title': T('Unbound', 'dark_red'), 'description': T('Fell the Dread Sovereign a second time, its Ember kindled again', 'gray'),
+                                                                       'frame': 'challenge'}})
     fn('p238/first', ['tag @s add bm.svfirst', give('dread_ember'), give('music_disc_sovereign'),
                       'execute if score #hard bm.cfg matches 1 run function bm:p239/enc/joined',      # (its Eye - and what's left of it, bound to you)
                       tellraw('@s', [T('  In its ashes: ', 'gray'), T('the Dread Ember', COL, bold=True), T(' (the Nights, if ever you miss them), ', 'gray'),

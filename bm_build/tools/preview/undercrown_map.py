@@ -1,6 +1,7 @@
 """Preview of the Undercrown's built template (p2/dungeons/undercrown.py): a top-down map per level band, and sections.
 
     python3 tools/preview/undercrown_map.py [out_dir]
+    python3 tools/preview/undercrown_map.py out_dir maw      # only THE MAW (the gate court): its plan and two sections, close up
 
 Top-down: in each band the highest floor that has air over it is drawn in its block's colour (darker the lower it lies);
 solid-only columns are drawn as wall; unset cells (the Nether's own rock) are the background. Sections cut the whole
@@ -151,7 +152,7 @@ def legend(d, x, y):
         if x > 820: x, y = 10, y + 16
 
 
-LABELS = [((0,), 'THE APPROACH CAVE', 196, 222), ((0,), 'the Hidden Gate', 160, 196), ((0, 1), 'tunnel', 154, 186),
+LABELS = [((0,), 'THE MAW', 204, 214), ((0,), 'the Hidden Gate', 158, 188), ((0, 1), 'tunnel', 154, 186),
           ((0,), 'rim + caged balcony', 118, 172), ((0, 1, 2, 3, 4, 5), 'HALL OF CHAINS', 92, 146), ((0,), 'secret 1', 100, 190),
           ((1,), 'Frozen landing', 70, 158), ((1,), 'P2 FROZEN FALLS', 30, 146), ((1,), 'P3 ICE BRIDGE', 28, 108),
           ((1,), 'P4 THRALLS', 30, 74), ((1,), 'P5 ECHO: SNOWBEAST', 24, 22), ((1,), 'gallery back', 68, 60), ((1,), 'NINE LIVES', 76, 92),
@@ -214,8 +215,41 @@ def section(B, A, pal, axis, at_, title, path, thick=0):
     canvas.save(path)
 
 
-BANDS = [('approach + tunnel + rim', 88, 108), ('frozen ward', 74, 98), ('lantern maze + north turn', 60, 72), ('hexed ward', 48, 72),
+BANDS = [('the Maw\'s landing + tunnel + rim', 84, 108), ('frozen ward', 74, 98), ('lantern maze + north turn', 60, 72), ('hexed ward', 48, 72),
          ('drowned ward (decks)', 30, 48), ('drowned hold + echo, hub floor', 16, 30), ('throne, antechamber, eye stair', 11, 30)]
+
+
+def crop(path, box, k=3, flip=None):
+    """cut a region (template x1, z1, x2, z2 for a plan; x1, y1, x2, y2 for an E-W section) out of a saved picture, enlarged"""
+    im = Image.open(path)
+    x1, a1, x2, a2 = box
+    title = im.crop((0, 0, im.size[0], 30))
+    sub = im.crop((10 + x1 * S, 50 + a1 * S, 10 + (x2 + 1) * S, 50 + (a2 + 1) * S))
+    sub = sub.resize((sub.size[0] * k, sub.size[1] * k), Image.NEAREST)
+    out = Image.new('RGB', (max(sub.size[0], 600), sub.size[1] + 34), (10, 8, 12))
+    out.paste(title, (0, 0)); out.paste(sub, (0, 34))
+    d = ImageDraw.Draw(out)
+    for v in range(x1 - x1 % 8 + 8, x2 + 1, 8):
+        d.text(((v - x1) * S * k + 2, 36), str(v), font=F(12), fill=(255, 255, 255))
+    for v in range(a1 - a1 % 8 + 8, a2 + 1, 8):
+        d.text((2, 34 + (v - a1) * S * k + 2), str(flip - v if flip else v), font=F(12), fill=(255, 255, 255))
+    out.save(path)
+
+
+def maw(B, A, pal):
+    """THE MAW, the gate court (the approach): its plan, an E-W section on the gate's axis, a N-S one through the court"""
+    from p2.dungeons import undercrown as u
+    sz = u.SEAM[2]
+    p = os.path.join(OUT, 'maw_top.png')
+    topdown(B, A, pal, 66, 111, 'THE MAW - the gate court, plan (highest floor, y66..111), north up', p, band=-1)
+    crop(p, (150, 150, 223, 223))
+    p = os.path.join(OUT, 'maw_sec_ew.png')
+    section(B, A, pal, 'z', sz, f'THE MAW - E-W section on the gate axis z={sz} (west left)', p)
+    sy = A.shape[1]
+    crop(p, (150, 0, 223, sy - 1 - 60), flip=sy - 1)
+    p = os.path.join(OUT, 'maw_sec_ns.png')
+    section(B, A, pal, 'x', 210, 'THE MAW - N-S section at x=210 (north left)', p)
+    crop(p, (150, 0, 223, sy - 1 - 60), flip=sy - 1)
 
 
 def main():
@@ -225,6 +259,10 @@ def main():
     B = undercrown.build()
     print(f'built in {time.time() - t:.1f}s: {len(B.b)} cells, {len(B.meta["markers"])} markers')
     A, pal = grid(B)
+    if 'maw' in sys.argv[2:]:
+        maw(B, A, pal)
+        print('wrote', OUT)
+        return
     for i, (nm, y0, y1) in enumerate(BANDS):
         topdown(B, A, pal, y0, y1, f'THE UNDERCROWN - {nm} (y {y0}..{y1}), north up', os.path.join(OUT, f'top_{i}.png'), band=i)
     section(B, A, pal, 'x', 112, 'N-S section at x=112 (north left)', os.path.join(OUT, 'sec_ns_112.png'))
