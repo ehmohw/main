@@ -1,6 +1,6 @@
 // 2.99a: THE REX MOUNTS and THE MOUNTS PAGE (phase249) as a regular (non-op) player. rcon sets the stage (a flat yard, a test
 // husk, a lava pool in the Nether, the items in hand); the bot plays:
-//   rex      the Atomic Whistle used: the rex comes (25 parts, sat); right-clicked: on its back; forward: it walks, sprint: it
+//   rex      the Atomic Whistle used: the rex comes (23 parts, sat); right-clicked: on its back; forward: it walks, sprint: it
 //            runs; the whistle used looking ahead and down at a husk: breath_0 (the plates charge), the beam - the husk is hurt;
 //            sneak: off its back (it sits); sneak + use: home (host and rig gone)
 //   egg      a Rex Egg dropped (Q) into Nether lava: it floats and counts; its 60 s run out (rcon moves the count to the end):
@@ -8,7 +8,7 @@
 //   wheel    the whistle in the off hand, the Partner Wheel used: it goes on; the wheel's Mounts button: the Mounts page; "Call
 //            your Atomic Rex": it comes - and stays out with the whistle only on the wheel; "Send ... home"; "Take it back off"
 //   skiff    a Vorn Skiff Key onto the Mounts page the same way; "Call your Vorn Skiff": its ghast and hull appear, you aboard;
-//            the wheel used aboard fires its laser; off it, "Send your Vorn Skiff home": gone
+//            the wheel used aboard fires its laser; off it, left parked, it folds away and the page offers the call again
 //   node t321.js [rex|egg|wheel|skiff]
 const { bot, rcon, sleep } = require('./lib_resp');
 const ONLY = process.argv[2];
@@ -22,7 +22,7 @@ const HOST = '@e[type=minecraft:horse,tag=bm.rxh';
   const R = await rcon(); const run = c => R.run(c);
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); return !!p; };
   const wait = async (ms, fn, step = 250) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await sleep(step); } return false; };
-  const sc = async (who, o) => +((await run(`scoreboard players get ${who} ${o}`)).match(/has (-?\d+)/) || [0, -99])[1];
+  const sc = async (who, o, D = '') => +((await run(`${D}scoreboard players get ${who} ${o}`)).match(/has (-?\d+)/) || [0, -99])[1];
   const has = async (iid) => +(((await run(`clear TestRat *[minecraft:custom_data~{bm:"${iid}"}] 0`)).match(/Found (\d+)/) || [0, 0])[1]);
   const cnt = async (D, sel) => { const m = (await run(`${D}execute if entity ${sel}`)).match(/count: (\d+)/i); return m ? +m[1] : 0; };
   const pos = async (D, sel) => { const m = (await run(`${D}data get entity ${sel} Pos`)).match(/\[(-?[\d.]+)d?, (-?[\d.]+)d?, (-?[\d.]+)d?\]/); return m ? m.slice(1).map(Number) : null; };
@@ -54,7 +54,7 @@ const HOST = '@e[type=minecraft:horse,tag=bm.rxh';
     await yard(); await at(O, YX + 0.5, YY, YZ + 0.5, 0, 0);
     await run('loot replace entity TestRat hotbar.0 loot bm:items/atomic_whistle'); A.slot(0); await sleep(400);
     A.bars.length = 0; await useItem();
-    ok('the whistle used: the Atomic Rex comes (its host, 25 parts)', await wait(4000, async () => (await cnt(O, mine('atomic'))) === 1 && (await parts()) === 25),
+    ok('the whistle used: the Atomic Rex comes (its host, 23 parts)', await wait(4000, async () => (await cnt(O, mine('atomic'))) === 1 && (await parts()) === 23),
        `${await cnt(O, mine('atomic'))} host, ${await parts()} parts`);
     ok('...beside you, sat (nobody aboard: gait -1, stock-still)', (await sc(`${mine('atomic').slice(0, -1)},limit=1]`, 'bm.rxw')) === -1 &&
        (await num(O, `attribute ${mine('atomic').slice(0, -1)},limit=1] minecraft:movement_speed base get`)) === 0);
@@ -92,14 +92,14 @@ const HOST = '@e[type=minecraft:horse,tag=bm.rxh';
     await run('clear TestRat'); await run('tag TestRat remove bm.rxhatch'); await run('advancement revoke TestRat only bm:story/rex_atomic');
     await run(`${N}fill ${YX - 6} ${YY} ${YZ - 6} ${YX + 10} ${YY + 6} ${YZ + 6} minecraft:air`);
     await run(`${N}fill ${YX - 6} ${YY - 2} ${YZ - 6} ${YX + 10} ${YY - 1} ${YZ + 6} minecraft:obsidian`);
-    await run(`${N}fill ${YX + 1} ${YY - 1} ${YZ - 2} ${YX + 5} ${YY - 1} ${YZ + 3} minecraft:lava`);
+    await run(`${N}fill ${YX + 2} ${YY - 1} ${YZ - 2} ${YX + 6} ${YY - 1} ${YZ + 3} minecraft:lava`);
     await at(N, YX + 0.5, YY, YZ + 0.5, -90, 20); await run(`${N}kill @e[type=minecraft:item,distance=..16,x=${YX},y=${YY},z=${YZ}]`);
     await run('loot replace entity TestRat hotbar.0 loot bm:items/rex_egg'); A.slot(0); await sleep(400);
     A.drop(); await sleep(2500);
     const EGG = `@e[type=minecraft:item,distance=..12,x=${YX},y=${YY},z=${YZ}]`, EGG1 = EGG.slice(0, -1) + ',limit=1]';
-    ok('the egg dropped (Q) into Nether lava: it floats there, counting', await wait(5000, async () => (await sc(EGG1, 'bm.rxl')) >= 1) &&
+    ok('the egg dropped (Q) into Nether lava: it floats there, counting', await wait(5000, async () => (await sc(EGG1, 'bm.rxl', N)) >= 1) &&
        /passed/i.test(await run(`${N}execute at ${EGG1} if block ~ ~ ~ minecraft:lava`) + (await run(`${N}execute at ${EGG1} if block ~ ~-0.3 ~ minecraft:lava`))),
-       String(await sc(EGG1, 'bm.rxl')));
+       String(await sc(EGG1, 'bm.rxl', N)));
     await run(`${N}execute as ${EGG} if items entity @s contents *[minecraft:custom_data~{bm:"rex_egg"}] run scoreboard players set @s bm.rxl 58`);
     A.titles.length = 0;
     ok('...its time run out: it bursts - the whistle is yours', await wait(5000, async () => (await has('atomic_whistle')) === 1));
@@ -150,10 +150,12 @@ const HOST = '@e[type=minecraft:horse,tag=bm.rxh';
     A.slot(1); await sleep(200); A.use();
     ok('aboard, the wheel used: the skiff\'s laser fires (as its key would)', await wait(400, async () => (await sc('TestRat', 'bm.skl')) >= 1, 30));
     await sleep(300); A.release();
-    A._in = { shift: true }; await sleep(800); A._in = {}; A.unride(); A.stand(); await sleep(600);
-    ok('...off it, the page: "Send your Vorn Skiff home"', await mounts() && A.buttons().some(b => /Send your Vorn Skiff home/.test(b.label)));
-    await A.press(/Send your Vorn Skiff home/); await sleep(1000);
-    ok('...pressed: ghast and hull gone', (await cnt(O, SK)) === 0 && (await cnt(O, `@e[type=minecraft:item_display,tag=bm.skdisp,distance=..20,x=${YX},y=${YY},z=${YZ}]`)) === 0);
+    A._in = { shift: true }; await sleep(800); A._in = {}; A.unride(); A.stand(); await sleep(2000);
+    // (a parked skiff folds away by itself after a few seconds with nobody aboard - phase35's watch; the page then offers the call again)
+    ok('...off it, left parked: it folds away by itself, ghast and hull', await wait(8000, async () => (await cnt(O, SK)) === 0 &&
+       (await cnt(O, `@e[type=minecraft:item_display,tag=bm.skdisp,distance=..20,x=${YX},y=${YY},z=${YZ}]`)) === 0, 500));
+    await mounts(); await sleep(400);
+    ok('...and the page offers "Call your Vorn Skiff" again', A.buttons().some(b => /Call your Vorn Skiff/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
     await mounts(); await A.press(/Take it back off/); await sleep(800);
     ok('"Take it back off the wheel": the key is back', (await has('skiff_key')) === 1);
   }
