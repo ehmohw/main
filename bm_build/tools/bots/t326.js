@@ -57,6 +57,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await run('kill @e[type=minecraft:wolf,tag=bm.seen]'); await run('kill @e[type=minecraft:cat,tag=bm.seen]');        // (a full party: nobody comes)
   const hard0 = await score('bm.cfg', '#hard');                                                    // (put back as it was, at the end)
   await run('scoreboard players set TestRat bm.lhcd 0'); await run('scoreboard players set TestRat bm.coslh 0');
+  for (const k of ['snow', 'witch', 'shark']) await run(`scoreboard players reset TestRat bm.dbwin_${k}`);      // (the three Dread bosses not beaten: else hard mode hands the Summons back - p237/summons)
   for (const t of ['bm.lhmet', 'bm.dfin', 'bm.usum', 'bm.lhseen']) await run(`tag TestRat remove ${t}`);
   await run(`${O}time set noon`); await run('scoreboard players set #hard bm.cfg 1');
   await at(X + 0.5, Y + 1, Z + 0.5, 0, 10);
@@ -142,7 +143,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await sneakMenu(0); await A.click(/Send her home/); await sleep(1200);
 
   // ---------------------------------------------------------------- clean up
-  await clearEnc(); await run('kill @e[type=minecraft:wolf,tag=bm.lhpet]'); await run('clear TestRat');
+  await clearEnc(); await run('kill @e[type=minecraft:wolf,tag=bm.lhpet]'); await run('clear TestRat'); await run('effect clear TestRat');      // (its Resistance off again)
   await run('scoreboard players reset TestRat bm.lhform'); await run('scoreboard players set TestRat bm.lhcd 0'); await run(hard0 === null ? 'scoreboard players reset #hard bm.cfg' : `scoreboard players set #hard bm.cfg ${hard0}`);
   await run(`${O}forceload remove ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
   const n = res.filter(x => x).length; console.log(`${n}/${res.length} passed`);

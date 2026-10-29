@@ -8,6 +8,9 @@ DENNIS        DENNIS'S HORN (a horn off his helmet; use it to call him, sneak + 
               MOTHER LODE   his great blow (every 45 s) - the ground splits and gold pours up round him (14 to all near), and
                             you're clad in it a while (Absorption, Resistance).
               PASSIVE       FORTUNE V on every ore you mine while he's with you (phase162's loot tables).
+              RICH SEAM     (3.0x) honoured by Queen Ava to rank III (phase201: bm.hn_dennis, Vitality, Bulwark and Might all V):
+                            while he's with you (24 blocks), every block of plain ground you mine - stone, dirt, sand, gravel,
+                            logs - has a 1 in 10 chance of dropping twice (phase162's tables; bm.dwrs). Not ores (Fortune V).
 PISTACHIO     PISTACHIO'S LITTLE CLOCHE (a silver cloche the size of a thimble). Ghastly to fight beside:
               SPECTRAL SLAP up close - a cold glove across the face (4, and Weakness).
               THE NEXT COURSE at range - he lifts his cloche's lid and a spirit flies out at them (6, they glow); and you,
@@ -107,10 +110,16 @@ F_ = {
                idle=['idle_a', 'idle_b'], head='head'),
 }
 
+RICH_SEAM = ('Rich Seam', "Queen Ava's rank III: while he's with you, every block of plain ground you mine - stone, dirt, sand, gravel, logs - "
+             'a 1 in 10 chance of dropping twice (never ores: those have Fortune V)')
+RICH_SEAM_LOCKED = ('Rich Seam (locked)', "honour him to rank III at Queen Ava's Tide Font (Vitality, Bulwark and Might V): then, while he's with you, "
+                    'every block of plain ground you mine has a 1 in 10 chance of dropping twice')
+
 # ------------------------------------------------------------------------------------------------ items
 item('dw_horn', TOTEM, "Dennis's Horn", DW_C,
      ['A horn off his helmet - he has a spare,', 'he says. Blow it and he comes.', ('Use: call Dennis (again: call him over).', 'blue'),
       ('Sneak + use: his menu.', 'blue'), ('While he\'s with you: Fortune V on every ore.', 'blue'),
+      ('Honoured to rank III: Rich Seam (plain ground', 'blue'), ('you mine: a 1 in 10 chance of double).', 'blue'),
       ('If he faints: 5 minutes before he can return.', 'gray'), ('"Gold, lad. It\'s always gold."', 'dark_gray')],
      model='bm:dw_horn', stack=1, cat='magic', glint=True, comps=hold('none'))
 HOLD['dw_horn'] = 'bm:p163/dw/use'
@@ -257,6 +266,18 @@ def generate(G):
     second += ['scoreboard players set @a bm.dwft 0', 'scoreboard players set @a bm.pslt 0',
                'execute as @e[type=minecraft:wolf,tag=bm.dwpet,tag=!bm.ffpet] at @s on owner if entity @s[distance=..24] run scoreboard players set @s bm.dwft 1',
                'execute as @e[type=minecraft:wolf,tag=bm.pipet,tag=!bm.ffpet] at @s on owner if entity @s[distance=..24] run scoreboard players set @s bm.pslt 1']
+    # (3.0x) Dennis's RICH SEAM - honoured by Queen Ava to rank III: bm.dwrs 1 (phase162's natural-ground tables: a 1 in 10 chance
+    # of a block's drop twice); 2 under the test hook #dwrs_test bm.cfg 1 (every time)
+    second += ['scoreboard players set @a bm.dwrs 0',
+               'execute as @e[type=minecraft:wolf,tag=bm.dwpet,tag=!bm.ffpet] at @s on owner if entity @s[distance=..24] if function bm:p163/dw/rank3 run scoreboard players set @s bm.dwrs 1',
+               'execute if score #dwrs_test bm.cfg matches 1 run scoreboard players set @a[scores={bm.dwrs=1}] bm.dwrs 2']
+    # (rank III: the lowest of his Vitality, Bulwark and Might - bm.hn_dennis = v + 10 b + 100 m (+1000 blessed) - at V; phase252's way)
+    fn('p163/dw/rank3', ['execute unless score @s bm.hn_dennis matches 0.. run return 0',
+                         'scoreboard players operation #dwv bm.rng = @s bm.hn_dennis', 'scoreboard players operation #dwv bm.rng %= #10 bm.rng',
+                         'scoreboard players operation #dwb bm.rng = @s bm.hn_dennis', 'scoreboard players operation #dwb bm.rng /= #10 bm.rng', 'scoreboard players operation #dwb bm.rng %= #10 bm.rng',
+                         'scoreboard players operation #dwm bm.rng = @s bm.hn_dennis', 'scoreboard players operation #dwm bm.rng /= #100 bm.rng', 'scoreboard players operation #dwm bm.rng %= #10 bm.rng',
+                         'scoreboard players operation #dwv bm.rng < #dwb bm.rng', 'scoreboard players operation #dwv bm.rng < #dwm bm.rng',
+                         'execute if score #dwv bm.rng matches 5.. run return 1', 'return 0'])
     # (Pistachio's Phantom Escape: the owner at 3 hearts or less, once a minute)
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.pisv dummy']
     G.OBJECTIVES += ['bm.pisv']
@@ -511,15 +532,19 @@ def build(G, k, c, fn, title, tellraw, give, PREFIX, say, holds, foe, tick, fast
     powers = {'dw': [('Wrench Whack', 'up close: the wrench, overhead (7, and a shove)'), ('Gold Rush', 'at range: searing diamonds and ingots - iron, gold, copper, netherite - glowing hot (6-9, set alight)'),
                      ('Midas Slam', 'when they crowd him: a ring of gold (9 to all near, up they go)'),
                      ('The Mother Lode', 'his great blow, every 45 s: gold pours up (14 to all near) - and you, clad in it (Absorption, Resistance)'),
-                     ('Fortune V', 'while he\'s with you, on every ore you mine')],
+                     ('Fortune V', 'while he\'s with you, on every ore you mine'), RICH_SEAM],
               'pi': [('Spectral Slap', 'up close: a cold glove (4, and Weakness)'), ('The Next Course', 'at range: a spirit from his cloche (6, they glow) - and you, light of foot'),
                      ('The Wail', 'when they crowd him: a shriek from beyond (4 to all near, slowed and weakened)'),
                      ('The Last Course', 'his great one, every 45 s: every spirit at once (12 to all near) - and a Ghostly Ward on you'),
                      ('Phantom Escape', 'you at 3 hearts or less, once a minute: unseen and unharmed a moment'),
                      ('Looting V', 'while he\'s with you, on every mob you kill')]}[k]
-    pdlg = P28.multi([T(f"{NAME.upper()}'S WAYS", COL, bold=True)], [P28.body([T(n, COL, bold=True), T(f' - {d}.', 'gray')], 340) for n, d in powers],
-                     [P28.btn([T('« Back', 'gray')], MENU + 5, width=150)], columns=1, exit_label='Close')
-    fn(f'{pfx}/powers', [f'scoreboard players set @s bm.menu {MENU}', f'dialog show @s {snbt(pdlg)}'])
+    pdlg = lambda pw: P28.multi([T(f"{NAME.upper()}'S WAYS", COL, bold=True)], [P28.body([T(n, COL, bold=True), T(f' - {d}.', 'gray')], 340) for n, d in pw],
+                                [P28.btn([T('« Back', 'gray')], MENU + 5, width=150)], columns=1, exit_label='Close')
+    # (Dennis's Rich Seam: its line says how it's unlocked until Queen Ava has honoured him to rank III)
+    locked = [RICH_SEAM_LOCKED if p is RICH_SEAM else p for p in powers]
+    fn(f'{pfx}/powers', [f'scoreboard players set @s bm.menu {MENU}'] +
+       ([f'execute if function bm:p163/dw/rank3 run return run dialog show @s {snbt(pdlg(powers))}'] if locked != powers else []) +
+       [f'dialog show @s {snbt(pdlg(locked))}'])
     intro = {'dw': [T('Dennis', DW_C, bold=True), T(' - dwarf, miner, brawler. ', 'gray'), T('Fortune V on every ore while he walks with you; gold and a wrench for anything that bites.', 'white')],
              'pi': [T('Pistachio', PI_C, bold=True), T(' - ghost, butler of the Omega Palace. ', 'gray'), T('Looting V on every kill while he walks with you; spirits from his cloche for anything that bites.', 'white')]}[k]
     dlg = lambda out: P28.multi([T(ITEMS[c['item']]['name'], COL, bold=True)], [P28.body(intro, 300)],

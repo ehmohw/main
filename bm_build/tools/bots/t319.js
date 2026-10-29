@@ -84,8 +84,14 @@ const FLOOR = 100;
     ok('the stage: the Armada placed (version 5: its Sentinels and the hangar)', await wait(900000, async () => (await sc('#aver', 'bm.p2')) >= 5, 2000));
     await run(`${E}forceload add ${AO[0]} ${AO[2]} ${AO[0] + 239} ${AO[2] + 239}`); await sleep(5000);
     const DG = '@e[type=minecraft:marker,tag=bm.dg,tag=bm.d_armada,limit=1]';
+    // (the dungeon's markers loaded before the stage is set: a chunk's entities come a while after it - set too soon, bm.pz stayed
+    //  0, the Ciphers did nothing and the knights never woke)
+    ok('...its markers loaded (the dungeon, the Lock\'s puzzle)', await wait(90000, async () => (await cnt(E, DG)) === 1 &&
+       (await cnt(E, '@e[type=minecraft:marker,tag=bm.pz,tag=bm.pz17,tag=bm.d_armada]')) === 1, 1000));
     await run(`${E}scoreboard players set ${DG} bm.pz 16`);
     await run(`${E}execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.pz17,tag=bm.d_armada] at @s run function bm:p2/armada/pz17_reset`);
+    // (and its door shut again: a room's reset leaves its door as it was - only the dungeon's whole reset closes them - and the last run opened it)
+    await run(`${E}execute as @e[type=minecraft:marker,tag=bm.gate,tag=bm.g17,tag=bm.d_armada] at @s run function bm:p2/armada/gate_close`);
     const c = AW(20, 55, 144);
     await room(E, 'armada', 17, 'vorn', 'Vorn Sentinel', AW(8, 55, 152), 'minecraft:lime_stained_glass', async () => {
       for (const [x, ci] of [[14, 'cipher_1'], [20, 'cipher_2'], [26, 'cipher_3']]) {
@@ -103,8 +109,11 @@ const FLOOR = 100;
     ok('the stage: the Undercrown placed (version 6: its Sentinels)', await wait(900000, async () => (await sc('#uver', 'bm.p2')) === 6, 2000));
     const DG = '@e[type=minecraft:marker,tag=bm.dg,tag=bm.d_under,limit=1]';
     await run(`${N}forceload add ${UO[0] + 96} ${UO[2] + 104} ${UO[0] + 128} ${UO[2] + 136}`); await sleep(3000);
+    ok('...its markers loaded (the dungeon, the Gate\'s puzzle)', await wait(90000, async () => (await cnt(N, DG)) === 1 &&
+       (await cnt(N, '@e[type=minecraft:marker,tag=bm.pz,tag=bm.pz16,tag=bm.d_under]')) === 1, 1000));      // (as the Lock: else the reset missed, the door left open)
     await run(`${N}scoreboard players set ${DG} bm.pz 15`);
     await run(`${N}execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.pz16,tag=bm.d_under] at @s run function bm:p2/under/pz16_reset`);
+    await run(`${N}execute as @e[type=minecraft:marker,tag=bm.gate,tag=bm.g16,tag=bm.d_under] at @s run function bm:p2/under/gate_close`);      // (its door shut again, as the Lock's)
     const c = UW(112, 18, 126);
     await room(N, 'under', 16, 'dread', 'Dread Sentinel', UW(112, 18, 116), 'minecraft:crying_obsidian', async () => {
       for (const s of ['snow', 'witch', 'shark']) {
@@ -114,6 +123,8 @@ const FLOOR = 100;
       }
     }, [c[0] + 0.5, c[1], c[2] + 0.5]);
     await run(`${N}forceload remove ${UO[0] + 96} ${UO[2] + 104} ${UO[0] + 128} ${UO[2] + 136}`);
+    for (const b of ['snow', 'witch', 'shark']) await run(`scoreboard players reset TestRat bm.dbwin_${b}`);      // (the bosses' wins given: off again,
+    await run('tag TestRat remove bm.usum'); await run('clear TestRat *[minecraft:custom_data~{bm:"usummons"}]');   //  and the Summons they earned)
   }
 
   if (on('home')) {
@@ -220,6 +231,7 @@ const FLOOR = 100;
   }
 
   await run('tag TestRat remove bm.lkpass');      // (phase251's pass off again)
+  await run('effect clear TestRat');              // (the Regeneration and Fire Resistance given at the start, and any Resistance)
   const p = res.filter(Boolean).length; console.log(`\n${p}/${res.length} passed`);
   A.end(); R.end(); process.exit(p === res.length ? 0 : 1);
 })();

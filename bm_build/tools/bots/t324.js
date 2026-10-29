@@ -132,9 +132,13 @@ runT({ W: 'keeper', NAME: 'The Keeper of Bonds', ab: 'tk', q: 'qb', pfx: 'p254',
     { const n0 = []; for (const [, t] of OTH) n0.push(await cnt(osel(t)));
       ok('THE FOURTH THREAD - the Keeper out, nobody else', (await cnt(PET)) === 1 && n0.every(n => n === 0), n0.join(',')); }
     for (let i = 0; i < OTH.length; i++) { await run(`loot replace entity TestRat hotbar.${4 + i} loot bm:items/${OTH[i][0]}`); }
-    for (let i = 0; i < OTH.length; i++) { A.bars.length = 0; await use(4 + i); await wait(4000, async () => (await cnt(osel(OTH[i][1]))) === 1); await sleep(600); }
+    const said = [];
+    // (each call once the last use's hold is over: every held item shares one use-at-a-time guard, bm.gvhc - set to 2, down by
+    //  one a second - and a use inside it is dropped silently; called ~1 s apart, the second or third never came)
+    for (let i = 0; i < OTH.length; i++) { await wait(3000, async () => !((await ctx.score('bm.gvhc')) > 0)); A.bars.length = 0; A.chats.length = 0; await use(4 + i); await wait(4000, async () => (await cnt(osel(OTH[i][1]))) === 1); await sleep(600);
+      said.push([...A.bars, ...A.chats].slice(-1).join('').slice(0, 90)); }
     const outs = []; for (const [, t] of OTH) outs.push(await cnt(osel(t)));
-    ok('...three others called with their items: all three come (the Mireling, Kettle, Bender)', outs.every(n => n === 1), outs.join(','));
+    ok('...three others called with their items: all three come (the Mireling, Kettle, Bender)', outs.every(n => n === 1), outs.join(',') + ' | ' + said.join(' | '));
     await sleep(2500);
     const outs2 = []; for (const [, t] of OTH) outs2.push(await cnt(osel(t)));
     ok('...and stay: four followers out at once, the Keeper the fourth', (await cnt(PET)) === 1 && outs2.every(n => n === 1), `keeper ${await cnt(PET)} others ${outs2.join(',')}`);
@@ -147,7 +151,7 @@ runT({ W: 'keeper', NAME: 'The Keeper of Bonds', ab: 'tk', q: 'qb', pfx: 'p254',
        A.bars.some(b => /already have 3 followers/.test(b)), A.bars.slice(-1).join(''));
     await ctx.sneakMenu(0); await A.click(/Send .* home/); await sleep(1500);
     ok('...the Keeper sent home (three still out)', (await cnt(PET)) === 0);
-    A.bars.length = 0; await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
+    await wait(3000, async () => !((await ctx.score('bm.gvhc')) > 0)); A.bars.length = 0; await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
     ok('...and called again with the three out: it comes - never blocked by the limit', (await cnt(PET)) === 1 && !A.bars.some(b => /already have 3/.test(b)), A.bars.slice(-1).join(''));
     await homeAll();
     for (const [iid] of OTH) await run(`clear TestRat *[minecraft:custom_data~{bm:"${iid}"}]`);

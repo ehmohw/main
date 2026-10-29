@@ -22,8 +22,12 @@ FAVOUR        every trade fills its trader's favour meter (30). Full: DENNIS'S P
 50 TRADES     with either of them, all told, and he joins you: Dennis's Horn or Pistachio's Little Cloche (phase163).
 LOOT          FORTUNE V while Dennis walks with you (every ore you mine, as if your pickaxe had Fortune V), LOOTING V while
               Pistachio does (as if your weapon had Looting V) - the ore and mob loot tables read it from your scores
-              (bm.dwft, bm.pslt; phase163 sets them). A tool's own Fortune or Looting isn't added on top."""
-import copy, json, os
+              (bm.dwft, bm.pslt; phase163 sets them). A tool's own Fortune or Looting isn't added on top.
+RICH SEAM     (3.0x) Dennis honoured by Queen Ava to rank III, out and within 24 blocks: every block of plain natural ground
+              you mine (stone and its kin, cobblestone, terracotta, dirt and grass, sand, gravel, the Nether's and the End's
+              ground, logs and stems) has a 1 in 10 chance of its drop twice - its table's pool rolled again (bm.dwrs; a
+              whitelist of cheap terrain: no ores, no blocks with contents or copied data, nothing worth a place-and-break loop)."""
+import copy, json, os, re
 from items import item, T, TOTEM, ITEMS
 from useitem import hold, HOLD
 from nbt import snbt, B, F, Int
@@ -178,6 +182,74 @@ def fortune_table(t):
     return t
 
 
+# (3.0x) RICH SEAM - Dennis honoured by Queen Ava to rank III (phase201): while he's out and within 24 blocks, every block of
+# plain ground you mine (stone, dirt, sand, gravel, logs...) has a 1 in 10 chance of its drop twice. phase163 keeps bm.dwrs on you:
+# 1 while it's yours, 2 under the test hook (#dwrs_test bm.cfg 1: every time). The table's own pool is rolled once more, so the
+# second drop is the block's own: the silk-touch stone, the plain one's cobblestone, gravel's flint chance, the nylium's netherrack.
+# Only the loot context's `this` can carry the score - the player who broke it; an explosion's, a piston's, a mob's never does.
+# NATURAL GROUND ONLY (a whitelist): vanilla can't tell a placed block from a natural one, so anything worth placing and breaking
+# again (ore blocks, diamond blocks, amethyst, anything crafted) would be a mint - only cheap terrain is on the list, and only where
+# vanilla's table is one plain pool (no block entity, no copied components, no counts, no crops, no leaves). Ores never: Fortune V.
+RS_CHANCE = 0.1
+RS_STONE = ['stone', 'granite', 'diorite', 'andesite', 'tuff', 'deepslate', 'calcite', 'dripstone_block', 'smooth_basalt', 'cobblestone',
+            'cobbled_deepslate', 'mossy_cobblestone', 'netherrack', 'basalt', 'blackstone', 'end_stone', 'cinnabar', 'sulfur', 'magma_block',
+            'sandstone', 'red_sandstone', 'terracotta'] + [f'{c}_terracotta' for c in (
+            'white', 'orange', 'magenta', 'light_blue', 'yellow', 'lime', 'pink', 'gray', 'light_gray', 'cyan', 'purple', 'blue', 'brown', 'green', 'red', 'black')]
+RS_SOIL = ['dirt', 'coarse_dirt', 'rooted_dirt', 'grass_block', 'podzol', 'mycelium', 'mud', 'moss_block', 'pale_moss_block', 'crimson_nylium',
+           'warped_nylium', 'sand', 'red_sand', 'gravel', 'soul_sand', 'soul_soil', 'mangrove_roots', 'muddy_mangrove_roots', 'nether_wart_block',
+           'warped_wart_block']
+RS_WOOD = re.compile(r'(stripped_)?[a-z_]+_(log|wood)|(stripped_)?(crimson|warped)_(stem|hyphae)|mushroom_stem|(stripped_)?bamboo_block')
+RS_NEVER = re.compile(r'.*(_ore|ancient_debris|shulker|chest|barrel|furnace|smoker|hopper|spawner|vault|sign|shelf|bed|banner|skull|head)$')
+RS_SCORE = lambda lo: {'type': 'minecraft:entity_scores', 'entity': 'this', 'scores': {'bm.dwrs': {'min': lo}}}
+RS_COND = {'type': 'minecraft:any_of', 'terms': [RS_SCORE(2), {'type': 'minecraft:all_of', 'terms': [RS_SCORE(1), {'type': 'minecraft:random_chance', 'chance': RS_CHANCE}]}]}
+_RS_OK_COND = {'minecraft:survives_explosion', 'minecraft:table_bonus'}       # (dict conditions a plain drop may carry)
+_RS_OK_REF = {'minecraft:tool/can_silk_touch'}                               # (and the predicate references)
+
+
+def rs_wanted(name):
+    return not RS_NEVER.fullmatch(name) and (name in RS_STONE or name in RS_SOIL or bool(RS_WOOD.fullmatch(name)))
+
+
+def rs_simple(t):
+    """vanilla's table is one plain pool of one entry - an item or alternatives of items (silk touch or not), with nothing done to
+    the stack (no modifiers: no copied block entity, no counts, no bonus) and no conditions but silk touch, survives_explosion and
+    gravel's flint chance"""
+    def cond_ok(c):
+        if c is None: return True
+        if isinstance(c, str): return c in _RS_OK_REF
+        return isinstance(c, dict) and c.get('type') in _RS_OK_COND
+
+    def entry_ok(e):
+        if not isinstance(e, dict) or set(e) - {'type', 'name', 'condition', 'children'} or not cond_ok(e.get('condition')): return False
+        if e.get('type') == 'minecraft:item': return 'children' not in e and isinstance(e.get('name'), str)
+        if e.get('type') == 'minecraft:alternatives': return bool(e.get('children')) and all(entry_ok(c) for c in e['children'])
+        return False
+    if t.get('type') != 'minecraft:block' or set(t) - {'type', 'pools', 'random_sequence'} or len(t.get('pools', [])) != 1: return False
+    p = t['pools'][0]
+    return (not set(p) - {'rolls', 'entries', 'condition'} and p.get('rolls') == 1 and cond_ok(p.get('condition'))
+            and len(p['entries']) == 1 and entry_ok(p['entries'][0]))
+
+
+def rich_seam_table(t):
+    """vanilla's table with its pool once more, for whoever has bm.dwrs (1: a 1 in 10 chance, 2: always)"""
+    t = copy.deepcopy(t)
+    extra = copy.deepcopy(t['pools'][0])
+    own = extra.pop('condition', None)
+    extra['condition'] = copy.deepcopy(RS_COND) if own is None else {'type': 'minecraft:all_of', 'terms': [copy.deepcopy(RS_COND), own]}
+    t['pools'].append(extra)
+    return t
+
+
+def rich_seam_tables(vd):
+    """{block: its Rich Seam table} - every natural-ground block whose vanilla table is plain"""
+    out = {}
+    for f in sorted(os.listdir(os.path.join(vd, 'blocks'))):
+        if not f.endswith('.json') or not rs_wanted(f[:-5]): continue
+        t = json.load(open(os.path.join(vd, 'blocks', f)))
+        if rs_simple(t): out[f[:-5]] = rich_seam_table(t)
+    return out
+
+
 LOOTING_FREE = {'type': 'minecraft:inverted', 'term': {'type': 'minecraft:entity_properties', 'entity': 'attacker', 'predicate': {
     'equipment': {'mainhand': {'predicates': {'minecraft:enchantments': [{'enchantments': 'minecraft:looting'}]}}}}}}
 LOOT_BUFF = {'type': 'minecraft:all_of', 'terms': [{'type': 'minecraft:entity_scores', 'entity': 'attacker', 'scores': {'bm.pslt': {'min': 1}}}, LOOTING_FREE]}
@@ -243,7 +315,7 @@ def generate(G):
     holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
     tick, fast, second = [], [], []
     objs = (['bm.dwday', 'bm.psday', 'bm.dwt', 'bm.pst', 'bm.dwf', 'bm.psf', 'bm.dwr', 'bm.psr', 'bm.dwmb', 'bm.dwpk', 'bm.pssw', 'bm.dwpkd', 'bm.psswd',
-             'bm.dwcl', 'bm.dwn', 'bm.dwns', 'bm.dwnx', 'bm.p162', 'bm.dwft', 'bm.pslt'] +
+             'bm.dwcl', 'bm.dwn', 'bm.dwns', 'bm.dwnx', 'bm.p162', 'bm.dwft', 'bm.pslt', 'bm.dwrs'] +
             [f'bm.dwq{i}' for i in range(len(DW_LOTS))] + [f'bm.psq{i}' for i in range(len(PS_LOTS))])
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + \
         [f'scoreboard objectives add bm.um{k} minecraft.used:minecraft.{p}_pickaxe' for k, p in enumerate(PICKS)]
@@ -260,6 +332,12 @@ def generate(G):
         if 'minecraft:apply_bonus' not in json.dumps(t): continue
         wjson(f'minecraft/loot_table/blocks/{f}', fortune_table(t)); nore += 1
     assert nore >= 18, nore
+    # (3.0x) Rich Seam: the natural ground's tables (never an ore's: those are Fortune V's, above - nor any other override)
+    rs = rich_seam_tables(vd)
+    for b, t in rs.items():
+        assert not os.path.exists(G.path('data', 'minecraft', 'loot_table', 'blocks', f'{b}.json')), f'Rich Seam: blocks/{b} already overridden'
+        wjson(f'minecraft/loot_table/blocks/{b}.json', t)
+    assert len(rs) >= 100, len(rs)
     nmob = 0
     for f in sorted(os.listdir(os.path.join(vd, 'entities'))):
         if not f.endswith('.json'): continue

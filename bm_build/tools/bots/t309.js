@@ -13,9 +13,12 @@ runT({ W: 'lightbringer', NAME: 'The Lightbringer', ab: 'lh', q: 'lz', pfx: 'p23
   encounter: async (ctx) => {
     const { A, run, ok, wait, cnt, at, entOf, has, num, X, Y, Z, ENC, sleep, O } = ctx;
     await run('time set noon'); await run('scoreboard players set #hard bm.cfg 1');
-    // (a fresh player's stage, whatever ran before: no Summons - bm.usum, left by t316 / t322, has her recruit you unasked - not
-    //  reckoned, no feather, never met, not noticed yet, nothing holy on)
+    // (a fresh player's stage, whatever ran before: no Summons - bm.usum, left by t316 / t322, has her recruit you unasked; and
+    //  the three Dread bosses not beaten - bm.dbwin_*, left by t312 / t316 - or in hard mode the Summons comes again within a second
+    //  (p237/summons, from loop/second); not reckoned, no feather, never met, not noticed yet, nothing holy on)
+    for (const k of ['snow', 'witch', 'shark']) await run(`scoreboard players reset TestRat bm.dbwin_${k}`);
     for (const t of ['bm.usum', 'bm.dfin', 'bm.lhmet', 'bm.lhseen']) await run(`tag TestRat remove ${t}`);
+    await run('clear TestRat *[minecraft:custom_data~{bm:"usummons"}]');
     await run('clear TestRat *[minecraft:custom_data~{bm:"herald_feather"}]'); await run('item replace entity TestRat armor.head with minecraft:air');
     await at(X + 0.5, Y + 1, Z + 0.5, 0, 10); A.chats.length = 0;
     await run(`${O}execute as TestRat at @s rotated 0 0 positioned ^ ^ ^5 run function bm:p236l/enc/place`);

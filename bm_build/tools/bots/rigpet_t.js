@@ -226,7 +226,7 @@ module.exports = async function run(C) {
   ok('...the item used: "still recovering", nobody comes', (await cnt(PET)) === 0 && A.bars.some(b => /still recovering/.test(b)), A.bars.slice(-1).join(''));
 
   // ---------------------------------------------------------------- clean up
-  await run(`scoreboard players set TestRat bm.${ab}cd 0`); await run('clear TestRat');
+  await run(`scoreboard players set TestRat bm.${ab}cd 0`); await run('clear TestRat'); await run('effect clear TestRat');      // (the Resistance given at the start: not left for the next test)
   for (const t of [`bm.auown_${W}`, `bm.au_${W}`]) await run(`tag TestRat remove ${t}`);
   await run(`${O}kill @e[type=minecraft:wolf,tag=bm.${ab}pet]`); await run(`${O}kill @e[tag=bm.trpz]`);
   await run(`${O}forceload remove ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
