@@ -47,8 +47,8 @@ HOVER = 1.6                                   # (design units off the ground whi
 UP, FRONT = (0.0, 1.0, 0.0), (0.0, 0.0, -1.0)
 MOTE_Y = 20.5
 PIVOT = {'body': (0, 14.0, 0), 'skirt': (0, 9.2, 0), 'head': (0, 26.8, 0),
-         'armr': (5.1, 26.2, 0.2), 'forer': (5.1, 20.2, 0.2), 'arml': (-5.1, 26.2, 0.2), 'forel': (-5.1, 20.2, 0.2),
-         'threadr': (5.1, 11.6, 1.3), 'threadl': (-5.1, 11.6, 1.3),
+         'armr': (5.3, 26.2, 0.2), 'forer': (5.3, 20.2, 0.2), 'arml': (-5.3, 26.2, 0.2), 'forel': (-5.3, 20.2, 0.2),
+         'threadr': (5.3, 11.6, 1.3), 'threadl': (-5.3, 11.6, 1.3),
          'loom': (0, 20.0, -3.0), 'motes': (0, MOTE_Y, 0), 'motesb': (0, MOTE_Y, 0), 'pool': (0, 0.0, 0), 'web': (0, 20.5, -9.0)}
 PARENT = {'body': None, 'skirt': 'body', 'head': 'body', 'armr': 'body', 'forer': 'armr', 'arml': 'body', 'forel': 'arml',
           'threadr': 'forer', 'threadl': 'forel', 'loom': 'body', 'motes': None, 'motesb': None, 'pool': None, 'web': 'body'}
@@ -431,8 +431,8 @@ def models():
     #      the sleeve's long drape hanging behind (the loose threads hang from its tip: threadr / threadl)
     for s, sx in (('r', 1), ('l', -1)):
         ap, fp, tp = PIVOT[f'arm{s}'], PIVOT[f'fore{s}'], PIVOT[f'thread{s}']
-        cx = 5.1
-        part(f'kb_arm{s}', [B(sx, cx - 1.25, cx + 1.25, 20.0, 26.4, -1.25, 1.65, 'kb_robe', ap, light=L_CLOTH, shift=(0.3 + 0.2 * sx, 0.4))])
+        cx = 5.3
+        part(f'kb_arm{s}', [B(sx, cx - 1.25, cx + 1.25, 20.0, 26.2, -1.25, 1.65, 'kb_robe', ap, light=L_CLOTH, shift=(0.3 + 0.2 * sx, 0.4))])
         fore = [B(sx, cx - 1.45, cx + 1.45, 17.2, 20.6, -1.45, 1.85, 'kb_robe', fp, faces=_faces_but('up'), light=L_CLOTH, shift=(0.6, 0.2)),
                 B(sx, cx - 1.9, cx + 1.9, 15.2, 17.2, -1.9, 2.3, 'kb_robe', fp, faces=_faces_but('up'), ftex={'down': 'kb_inner'}, light=L_CLOTH, shift=(0.2, 0.7)),
                 B(sx, cx - 2.0, cx + 2.0, 14.1, 15.2, -2.0, 2.4, 'kb_brd', fp, ftex={'down': 'kb_inner', 'up': 'kb_gold'}, light=L_BAND),      # the cuff

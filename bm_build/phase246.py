@@ -340,6 +340,8 @@ def generate(G):
     import phase238 as P238
     fn(f'{PFX}/uc/try', ['execute store result score #r bm.rng run random value 1..300', 'execute unless score #r bm.rng matches 1 run return 0',
                          f'execute in minecraft:the_nether if entity {P238.FIGHT} run return 0',
+                         # (holy armour worn by anyone inside: no Mire dares rise in the Undercrown)
+                         f'execute in minecraft:the_nether as @a[{UB}] if items entity @s armor.* *[minecraft:custom_data~{bm_angel:1b}] run return 0',
                          f'execute in minecraft:the_nether if entity @e[type=minecraft:husk,tag=bm.mire,tag=!bm.mtame,tag=!bm.svm,{UB}] run return 0',
                          f'execute in minecraft:the_nether as @e[type=minecraft:marker,tag=bm.dgfx,tag=bm.d_under,sort=random,limit=1] at @s '
                          f'unless entity @a[distance=..20] if function bm:{PFX}/uc/open run function bm:{PFX}/uc/down'])

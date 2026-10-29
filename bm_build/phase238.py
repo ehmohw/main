@@ -518,9 +518,13 @@ def generate(G):
                           'playsound minecraft:entity.evoker.prepare_summon hostile @a[distance=..64] ~ ~ ~ 2 0.5',
                           'execute at @e[type=minecraft:marker,tag=bm.mspawn,tag=bm.d_under,distance=..48,sort=random,limit=3] run function bm:p238/a/knight'])
     # (2.99a) the Mires: two at most at a time, risen at once from the hall's spawn points (phase246's spawn and rise)
-    fn('p238/a/mires', ['execute store result score #kn bm.rng if entity @e[type=minecraft:husk,tag=bm.svm]', 'execute if score #kn bm.rng matches 2.. run return 0',
+    fn('p238/a/mires', [f'execute as {TGT} if items entity @s armor.* *[minecraft:custom_data~{bm_angel:1b}] run return run function bm:p238/a/mires_fail',
+                        'execute store result score #kn bm.rng if entity @e[type=minecraft:husk,tag=bm.svm]', 'execute if score #kn bm.rng matches 2.. run return 0',
                         'playsound minecraft:entity.warden.emerge hostile @a[distance=..64] ~ ~ ~ 2 0.6',
                         'execute at @e[type=minecraft:marker,tag=bm.mspawn,tag=bm.d_under,distance=..48,sort=random,limit=1] run function bm:p238/a/mire'])
+    fn('p238/a/mires_fail', ['particle minecraft:end_rod ~ ~1 ~ 0.6 1 0.6 0.08 30', 'playsound minecraft:block.beacon.deactivate hostile @a[distance=..48] ~ ~ ~ 1.5 0.6',
+                             'execute at @e[type=minecraft:marker,tag=bm.mspawn,tag=bm.d_under,distance=..48,sort=random,limit=2] run particle minecraft:squid_ink ~ ~0.3 ~ 0.8 0.1 0.8 0.05 20',
+                             title('@s', 'actionbar', T('The Mires try to rise - and shrink from your holy armour.', '#ffe08a', bold=True))])
     fn('p238/a/mire', ['function bm:p246/spawn', 'execute as @e[type=minecraft:husk,tag=bm.mire,distance=..1,limit=1] at @s run function bm:p238/a/mire_up'])
     fn('p238/a/mire_up', ['tag @s add bm.svm', 'tag @s add bm.muc', 'function bm:p246/rise0'])
     fn('p238/a/knight', ['particle minecraft:large_smoke ~ ~1 ~ 0.4 0.8 0.4 0.03 20 force', 'particle minecraft:sculk_soul ~ ~1 ~ 0.4 0.8 0.4 0.03 10 force',
