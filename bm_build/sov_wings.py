@@ -141,11 +141,12 @@ def _open_wing(m, sx, pv, L, D0, lift, rot, root, z0, step, claws, eyes):
     return W
 
 
-def great_open(m, sx):
-    """the upper wing over the middle one, both spread (as it glides: out along x, toward the feet -y, its back +z)"""
+def great_open(m, sx, raise_=0.0):
+    """the upper wing over the middle one, both spread (as it glides: out along x, toward the feet -y, its back +z); raise_:
+    both turned up in their plane (the inventory model's V)"""
     pv = PIVOT['w1r' if sx > 0 else 'w1l']
-    W = _open_wing(m, sx, pv, 36.0, 17.0, 7.0, 10.0, (0.0, 0.0), 4.8, 2.0, (FING[2], FING[4], FING[6]), (0.18, 0.4, 0.58, 0.76))
-    W += _open_wing(m, sx, pv, 30.0, 13.0, 4.0, -22.0, (0.6, -4.0), 4.2, 2.1, (FING[3], FING[6]), (0.35, 0.7))
+    W = _open_wing(m, sx, pv, 36.0, 17.0, 7.0, 10.0 + raise_, (0.0, 0.0), 4.8, 2.0, (FING[2], FING[4], FING[6]), (0.18, 0.4, 0.58, 0.76))
+    W += _open_wing(m, sx, pv, 30.0, 13.0, 4.0, -22.0 + raise_, (0.6, -4.0), 4.2, 2.1, (FING[3], FING[6]), (0.35, 0.7))
     return W
 
 
@@ -316,51 +317,35 @@ SPR = {'k': (8, 6, 10), 'v': (22, 16, 26), 'V': (40, 28, 46), 'l': (64, 46, 72),
        'b': (90, 70, 96), 'e': (236, 226, 216),
        'W': (255, 255, 255), 'p': (250, 246, 232), 'P': (232, 224, 206), 's': (198, 186, 160), 'g': (255, 222, 118), 'G': (234, 184, 58),
        'h': (170, 116, 28), 'f': (255, 245, 200), 'y': (255, 250, 232)}
-ICON = {      # (a pair of great wings spread in a V, the middle and lower ones beneath; the halo between them)
-    'sov_wings': ['.bk..........kb.',
-                  'kVlk..rRr...klVk',
-                  'kvVlkr.w.rklVvVk',
-                  '.kvVlkRrRklVvvk.',
-                  'kVvvVlkbklVvvVvk',
-                  'kvrvVvlbkvvVvrvk',
-                  '.kvvRvVbVvRvvvk.',
-                  'kVvvvvvkvvvvvVvk',
-                  'kvvrvVvkvVvrvvk.',
-                  '.kvVvvkk.kvvVvk.',
-                  '.kVvrk.kk.krvVk.',
-                  '..kvvk.kVk.kvk..',
-                  '..kVk.kvrvk.kVk.',
-                  '...kk.kVvVk..k..',
-                  '.......kkk......',
-                  '................'],
-    'sov_wings_holy': ['.gh..........hg.',
-                       'hPsh..gfg...hsPh',
-                       'hpPshg.y.ghsPppG',
-                       '.hpPshfgfhsPpph.',
-                       'hPppPsheh sPppPh',
-                       'hpgpPpsGhppPpgph',
-                       '.hppfpPGPpfpppG.',
-                       'hPpppppGppppPPph',
-                       'hppgpPpGpPpgpph.',
-                       '.hpPpphh.hppPph.',
-                       '.hPpgh.hh.hgpPh.',
-                       '..hpph.hPh.hph..',
-                       '..hPh.hpfph.hPh.',
-                       '...hh.hPpPh..h..',
-                       '.......hhh......',
-                       '................'],
-}
-ICON['sov_wings_holy'] = [r.replace(' ', 's') for r in ICON['sov_wings_holy']]
+ICON_ROWS = [  # (one silhouette for both: two great wings raised in a V on bones, eyes / gems in them, the halo between, the lower pair)
+    'b..............b',
+    'Vb....rRRr....bV',
+    'vVb..R....R..bVv',
+    'vrVb.R....R.bVrv',
+    'vvvVbkrRRrkbVvvv',
+    'kvRvVbkwwkbVvRvk',
+    '.vvvvVbkkbVvvvv.',
+    '.kvrvvVbbVvvrvk.',
+    '..kvvvvVVvvvvk..',
+    '..k.kvvkkvvk.k..',
+    '.....kvbbvk.....',
+    '....kvVkkVvk....',
+    '...kvrk..krvk...',
+    '...kk......kk...',
+    '................',
+    '................']
+NIGHT_PAL = {'b': (96, 74, 104), 'V': (46, 32, 54), 'v': (24, 16, 28), 'k': (8, 6, 10), 'r': (208, 24, 46), 'R': (255, 90, 100), 'w': (255, 196, 170)}
+LIGHT_PAL = {'b': (255, 222, 118), 'V': (255, 253, 246), 'v': (236, 230, 216), 'k': (170, 116, 28), 'r': (255, 245, 200), 'R': (255, 250, 232), 'w': (255, 255, 255)}
 
 
 def icons():
     out = {}
-    for k, rows in ICON.items():
+    for iid, pal in (('sov_wings', NIGHT_PAL), ('sov_wings_holy', LIGHT_PAL)):
         im = Image.new('RGBA', (16, 16), (0, 0, 0, 0)); px = im.load()
-        for y, row in enumerate(rows):
+        for y, row in enumerate(ICON_ROWS):
             for x, ch in enumerate(row):
-                if ch != '.': px[x, y] = SPR[ch] + (255,)
-        out[k] = im
+                if ch != '.': px[x, y] = pal[ch] + (255,)
+        out[iid] = im
     return out
 
 
@@ -368,9 +353,9 @@ def gui_model(kind):
     """the spread wings, both sides, small enough for the inventory and a frame: the open great wings (as they glide, seen from
     behind - their textured side) and the halo between them, scaled about the body into the model box"""
     m = Mat(kind); _rs.seed(7 if kind == 'night' else 8); SA._rs.seed(2999)
-    k, c = 0.2, (0.0, 23.0, 5.0)
+    k, c = 0.235, (0.0, 30.0, 5.0)
     out = []
-    for part, els in (('w1r', great_open(m, 1)), ('w1l', great_open(m, -1)), ('halo', halo(m))):
+    for part, els in (('w1r', great_open(m, 1, 30.0)), ('w1l', great_open(m, -1, 30.0)), ('halo', halo(m))):
         pv = PIVOT[part]
         out += rigkit.transform(els, lambda v, pv=pv: [8 + (v[i] - 8 + pv[i] - c[i]) * k for i in range(3)])
     return out
