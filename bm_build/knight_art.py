@@ -976,49 +976,36 @@ def item_def(kind):
 # ---------------------------------------------------------------------------------------------------- the icons (16 x 16, sprites280's look)
 ICON_RAMP = {'dread': ['#25232a', '#38353e', '#4e4a55', '#68646f', '#86828c'],
              'vorn': ['#6c6e6a', '#8a8c86', '#a8aaa3', '#c4c5be', '#dedfd8']}
-# a little stone knight on a plinth, drawn as lit blocks: each block a base shade (1-5, the ramp dark -> light), its top row and
-# left column a step lighter, its bottom row and right column a step darker (light from the top left); the eye-slit / visor
-# unlit; the plinth's rune the one colour (which dungeon it came from)
-def _blk(px, x0, y0, x1, y1, b, lit=True):
-    for y in range(y0, y1 + 1):
-        for x in range(x0, x1 + 1):
-            v = b
-            if lit and x1 > x0 and y1 > y0:
-                if y == y0 or x == x0: v += 1
-                elif y == y1 or x == x1: v -= 1
-            px[(x, y)] = max(1, min(5, v))
+# a little stone knight on a plinth, by hand: 1-5 the stone's shades (dark -> light, lit from the top left; 1 also parts the
+# pauldrons from the breast and the legs from the mace head), e the unlit eye-slit / visor, r the plinth's rune - its one colour
+_ICON_LOW = ['.55541433313332.',
+             '.54431433213221.',
+             '.33321354212221.',
+             '..4341544312221.',
+             '....43353221....',
+             '....34554321....',
+             '...3234332111...',
+             '..555555555554..',
+             '..43rrrrrr3332..',
+             '..222222222211..']
+ICON_ROWS = {
+    'dread': ['...4........2...',
+              '...4.554443.2...',
+              '....45444432....',
+              '.....5eeee2.....',
+              '.....434332.....',
+              '.....333322.....'] + _ICON_LOW,
+    'vorn': ['......4..3......',
+             '.....554443.....',
+             '.....544443.....',
+             '.....5eeee2.....',
+             '.....4eeee2.....',
+             '.....333322.....'] + _ICON_LOW}
 
 
 def _icon_px(kind):
-    px = {}
-    B = lambda *a, **k: _blk(px, *a, **k)
-    B(3, 13, 12, 13, 5, lit=False); B(2, 14, 13, 15, 2)                           # (the plinth: its lit top course, its foot)
-    for x in range(2, 14): px[(x, 14)] = 3 if x < 8 else 2
-    for x in range(5, 11): px[(x, 14)] = 'r'
-    B(5, 10, 6, 12, 3); B(9, 10, 10, 12, 2)                                         # (the legs)
-    B(5, 9, 10, 10, 3)                                                              # (the belt and tassets)
-    B(5, 5, 10, 9, 3)                                                               # (the breastplate)
-    B(2, 5, 4, 7, 4); B(11, 5, 13, 7, 2)                                            # (the pauldrons)
-    B(3, 8, 4, 9, 3, lit=False); B(11, 8, 12, 9, 2, lit=False)                      # (the arms)
-    px[(5, 8)] = 3; px[(10, 8)] = 2                                                 # (the forearms, in to the pommel)
-    for x in (5, 10): px[(x, 9)] = 1
-    px[(6, 8)] = 4; px[(7, 8)] = 5; px[(8, 8)] = 4; px[(9, 8)] = 3                  # (the gauntlets, on the pommel)
-    px[(7, 7)] = 4; px[(8, 7)] = 3                                                  # (the pommel)
-    for y in (9, 10): px[(7, 9 if y == 9 else 10)] = 4; px[(8, y)] = 2             # (the haft)
-    B(6, 11, 9, 12, 4); px[(5, 11)] = 3; px[(10, 11)] = 2; px[(5, 12)] = 2; px[(10, 12)] = 1     # (the mace head, flanged)
-    for x in (7, 8): px[(x, 12)] = 3
-    B(6, 1, 9, 4, 3)                                                                # (the helm)
-    px[(6, 1)] = 5; px[(7, 1)] = 4
-    if kind == 'dread':
-        for x in (6, 7, 8, 9): px[(x, 3)] = 'e'                                     # (the eye-slit)
-        px[(5, 2)] = 4; px[(4, 1)] = 4; px[(4, 0)] = 5                              # (the horns)
-        px[(10, 2)] = 3; px[(11, 1)] = 3; px[(11, 0)] = 2
-        px[(7, 4)] = 4                                                              # (the nasal)
-    else:
-        for x in (7, 8): px[(x, 3)] = 'e'; px[(x, 2)] = 'e'                         # (the square visor)
-        for x in (6, 9): px[(x, 0)] = 4                                             # (the antennae: froglight-tipped)
-        px[(6, 0)] = 5; px[(9, 0)] = 3
-    return px
+    rows = ICON_ROWS[kind]; assert len(rows) == 16 and all(len(r) == 16 for r in rows), kind
+    return {(x, y): (int(c) if c.isdigit() else c) for y, r in enumerate(rows) for x, c in enumerate(r) if c != '.'}
 
 
 ICON_RUNE = {'dread': '#7a1e28', 'vorn': '#2e8a40'}
