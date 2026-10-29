@@ -43,9 +43,15 @@ FOES = 'gamemode=!spectator,gamemode=!creative'
 sel = lambda p: f'@e[type=minecraft:item_display,tag=bm.msel,tag=bm.mr_{p}]'
 
 item('shadow_remnant', TOTEM, 'Shadow Remnant', COL,
-     ['What is left of a Dread Mire. It moves when', 'you are not looking.', ('4 in hand, used: knead them into Shadow Musk.', 'blue')],
+     ['What is left of a Dread Mire. It moves when', 'you are not looking.', ('4 in hand, used: knead them into Shadow Musk.', 'blue'),
+      ('16 in hand, sneak + used: a Mire Heart.', 'blue')],
      model='bm:shadow_remnant', stack=64, cat='magic', comps=hold('none'))
 HOLD['shadow_remnant'] = f'bm:{PFX}/knead'
+item('mire_heart', TOTEM, 'Mire Heart', COL,
+     ['Sixteen remnants, knotted together. It beats.', ('Sneak + use on a block: a Mire of your own', 'blue'), ('takes root there and guards it - it fights', 'blue'),
+      ('the monsters that come near. Creepers keep away.', 'blue'), ('Sneak + punch it: take it back up.', 'gray')],
+     model='bm:mire_heart', stack=4, cat='magic', comps=hold('none'))
+HOLD['mire_heart'] = f'bm:{PFX}/heart/use'
 item('shadow_musk', TOTEM, 'Shadow Musk', COL,
      ['Black, cold, and it smells of nothing at all.', ('Drink: for 5 minutes the Stalkers', 'blue'), ('of a Dread Night lose your scent.', 'blue')],
      model='bm:shadow_musk', stack=16, cat='magic',
@@ -116,7 +122,8 @@ def generate(G):
 
     # ================================================================== each second: the puddle's patience, the cross, the light, the fallen Dread
     second.append(f'execute as @e[type=minecraft:husk,tag=bm.mire] at @s run function bm:{PFX}/sec')
-    fn(f'{PFX}/sec', ['execute if score #dfell bm.cfg matches 1 unless score @s bm.ms matches 7 run return run function bm:p246/melt',
+    fn(f'{PFX}/sec', ['execute if entity @s[tag=bm.mtame] run return run function bm:p246/t/sec',
+                      'execute if score #dfell bm.cfg matches 1 unless score @s bm.ms matches 7 run return run function bm:p246/melt',
                       f'execute if score @s bm.ms matches 0 run function bm:{PFX}/sec0',
                       f'execute if score @s bm.ms matches 2 run function bm:{PFX}/sec2'])
     fn(f'{PFX}/sec0', ['execute if predicate bm:p246/bright run return run function bm:p246/melt',
@@ -145,9 +152,12 @@ def generate(G):
                        'execute if score @s bm.ms matches 2..5 store result score #h bm.rng run data get entity @s Health',
                        f'execute if score @s bm.ms matches 2..5 if score #h bm.rng matches ..{FLOOR} run function bm:{PFX}/die0',
                        f'execute if score @s bm.ms matches 1 run function bm:{PFX}/s/rise',
-                       f'execute if score @s bm.ms matches 2 run function bm:{PFX}/s/fight',
-                       f'execute if score @s bm.ms matches 3 run function bm:{PFX}/s/grab',
-                       f'execute if score @s bm.ms matches 4 run function bm:{PFX}/s/stab',
+                       f'execute if score @s bm.ms matches 2 unless entity @s[tag=bm.mtame] run function bm:{PFX}/s/fight',
+                       f'execute if score @s bm.ms matches 3 unless entity @s[tag=bm.mtame] run function bm:{PFX}/s/grab',
+                       f'execute if score @s bm.ms matches 4 unless entity @s[tag=bm.mtame] run function bm:{PFX}/s/stab',
+                       f'execute if score @s bm.ms matches 2 if entity @s[tag=bm.mtame] run function bm:{PFX}/t/fight',
+                       f'execute if score @s bm.ms matches 3 if entity @s[tag=bm.mtame] run function bm:{PFX}/t/grab',
+                       f'execute if score @s bm.ms matches 4 if entity @s[tag=bm.mtame] run function bm:{PFX}/t/stab',
                        f'execute if score @s bm.ms matches 5 run function bm:{PFX}/s/recoil',
                        f'execute if score @s bm.ms matches 6 run function bm:{PFX}/s/sink',
                        f'execute if score @s bm.ms matches 7 run function bm:{PFX}/s/die',
@@ -164,7 +174,7 @@ def generate(G):
     fn(f'{PFX}/s/rise', [at(1, f'function bm:{PFX}/pose/rise_0'), at(1, snd('rise', 1.4)), at(1, 'particle minecraft:squid_ink ~ ~0.4 ~ 1.2 0.2 1.2 0.08 30'),
                          at(12, f'function bm:{PFX}/pose/rise_1'),
                          at(24, f'function bm:{PFX}/pose/rise_2'), at(24, snd('shriek', 1.0, 0.7)),
-                         at(24, f'attribute @s minecraft:scale base set {RISEN_SC}'), at(24, 'data merge entity @s {Invulnerable:0b}'),
+                         at(24, f'attribute @s minecraft:scale base set {RISEN_SC}'), at(24, 'execute unless entity @s[tag=bm.mtame] run data merge entity @s {Invulnerable:0b}'),
                          at(40, 'scoreboard players set @s bm.ms 2'), at(40, 'scoreboard players set @s bm.ma 30'), at(40, 'scoreboard players set @s bm.mt 0')])
     # ---- risen: swaying, facing its prey; every EVERY ticks a grab or a stab
     fn(f'{PFX}/s/fight', ['scoreboard players add @s bm.ma 1',
@@ -228,6 +238,80 @@ def generate(G):
     k = next(i for i, l in enumerate(s2) if 'unless entity @a[tag=bm.stko] run return run function bm:p181/stk/gone' in l)
     s2.insert(k + 1, 'execute if entity @a[tag=bm.stko,scores={bm.musk=1..}] run return run function bm:p181/stk/lost')
 
+    # ================================================================== THE BOUND MIRE: remnants kneaded into a Mire Heart; set down, it guards
+    # (16 Shadow Remnants in hand, sneak + used: a Mire Heart. Sneak + use the Heart on a block: a Mire of your own takes root there -
+    #  stationary, it rises for any monster within 10 and fights it as a wild one fights you - never you, never anyone; it can't be
+    #  hurt; daylight, the cross and the Dread's fall leave it be. Creepers will not come within 10 of it: they're shoved back, fuses
+    #  out. Sneak + punch its puddle to take it back up.)
+    MON = 'type=#bm:hostile,tag=!bm.mire,tag=!bm.khost,tag=!bm.boss,tag=!bm.stalker'
+    mon = lambda r: f'@e[{MON},distance=..{r}]'
+    fn(f'{PFX}/knead_heart', ['execute store result score #n bm.rng run clear @s *[minecraft:custom_data~{bm:"shadow_remnant"}] 0',
+                              'execute if score #n bm.rng matches ..15 run return run ' + title('@s', 'actionbar', T('Sixteen Shadow Remnants, sneak + used, knead into a Mire Heart.', 'gray')),
+                              'clear @s *[minecraft:custom_data~{bm:"shadow_remnant"}] 16', give('mire_heart'),
+                              'playsound minecraft:entity.warden.heartbeat player @s ~ ~ ~ 1 0.7', 'particle minecraft:squid_ink ~ ~1 ~ 0.3 0.4 0.3 0.05 20',
+                              title('@s', 'actionbar', T('The remnants knot together - and begin to beat. A Mire Heart.', COL, bold=True))])
+    kn = G.FUNCS[f'{PFX}/knead']
+    kn.insert(0, f'execute if predicate bm:p20/sneaking run return run function bm:{PFX}/knead_heart')
+    fn(f'{PFX}/heart/use', ['execute unless predicate bm:p20/sneaking run return run ' + title('@s', 'actionbar', T('Sneak + use on the top of a block: plant the Mire Heart.', 'gray')),
+                            'execute if dimension bm:gutter run return run ' + title('@s', 'actionbar', T('Not in the vault.', 'gray')),
+                            'execute unless score @s bm.pid matches 1.. run function bm:p21/pid',
+                            'scoreboard players set #placed bm.rng 0', 'scoreboard players set #ray bm.rng 25', 'tag @s add bm.placer',
+                            f'execute anchored eyes positioned ^ ^ ^ run function bm:{PFX}/heart/ray', 'tag @s remove bm.placer',
+                            'execute if score #placed bm.rng matches 0 run return run ' + title('@s', 'actionbar', T('Look at the top of a block within 5 blocks.', 'gray')),
+                            'execute unless entity @s[gamemode=creative] if items entity @s weapon.mainhand *[minecraft:custom_data~{bm:"mire_heart"}] run return run item modify entity @s weapon.mainhand bm:p241/take_one',
+                            'execute unless entity @s[gamemode=creative] if items entity @s weapon.offhand *[minecraft:custom_data~{bm:"mire_heart"}] run item modify entity @s weapon.offhand bm:p241/take_one'])
+    fn(f'{PFX}/heart/ray', [f'execute unless block ~ ~ ~ #minecraft:replaceable run return run function bm:{PFX}/heart/hit',
+                            'scoreboard players remove #ray bm.rng 1', f'execute if score #ray bm.rng matches 1.. positioned ^ ^ ^0.2 run function bm:{PFX}/heart/ray'])
+    fn(f'{PFX}/heart/hit', ['execute align xyz positioned ~0.5 ~1 ~0.5 unless block ~ ~ ~ #minecraft:replaceable run return 0',
+                            'execute align xyz positioned ~0.5 ~1 ~0.5 if entity @e[type=minecraft:interaction,tag=bm.gvdeco,distance=..2] run return 0',
+                            f'execute align xyz positioned ~0.5 ~1 ~0.5 run function bm:{PFX}/heart/plant', 'scoreboard players set #placed bm.rng 1'])
+    fn(f'{PFX}/heart/plant', [f'function bm:{PFX}/spawn',
+                              'execute as @e[type=minecraft:husk,tag=bm.mire,distance=..1,limit=1,sort=nearest] run function bm:p246/heart/bind',
+                              'summon minecraft:interaction ~ ~ ~ ' + snbt({'Tags': ['bm.mtk', 'bm.gvdeco', 'bm.mtknew'], 'width': F(2.4), 'height': F(0.4), 'response': B(1)}),
+                              'scoreboard players operation @e[type=minecraft:interaction,tag=bm.mtknew,distance=..1] bm.pid = @a[tag=bm.placer,limit=1] bm.pid',
+                              'tag @e[type=minecraft:interaction,tag=bm.mtknew] remove bm.mtknew',
+                              snd('rise', 0.8, 1.4), 'particle minecraft:squid_ink ~ ~0.3 ~ 1.2 0.2 1.2 0.05 30',
+                              title('@a[tag=bm.placer]', 'actionbar', [T('Your Mire takes root. ', COL, bold=True), T('It will rise for any monster that comes near. (Sneak + punch it: take it back.)', 'gray')])])
+    fn(f'{PFX}/heart/bind', ['tag @s add bm.mtame', 'data merge entity @s {PersistenceRequired:1b,Invulnerable:1b}',
+                             'scoreboard players operation @s bm.pid = @a[tag=bm.placer,limit=1] bm.pid',
+                             'data modify entity @s CustomName set value ' + snbt(T('Bound Mire', COL))])
+    fn(f'{PFX}/heart/take', [give('mire_heart'),
+                             f'execute as @e[type=minecraft:husk,tag=bm.mtame,distance=..1.5,limit=1,sort=nearest] at @s run function bm:{PFX}/heart/gone',
+                             'kill @e[type=minecraft:interaction,tag=bm.gvdme,limit=1]'])
+    fn(f'{PFX}/heart/gone', ['scoreboard players operation #me bm.mid = @s bm.mid', 'execute as @e[type=minecraft:item_display,tag=bm.mr] if score @s bm.mid = #me bm.mid run kill @s',
+                             'particle minecraft:squid_ink ~ ~0.3 ~ 1 0.2 1 0.05 20', snd('death', 0.5, 1.6), 'tp @s ~ -400 ~', 'kill @s'])
+    G.FUNCS['p71/deco/pick'][0:0] = ['execute if entity @e[type=minecraft:interaction,tag=bm.gvdme,tag=bm.mtk] at @e[type=minecraft:interaction,tag=bm.gvdme,limit=1] '
+                                     f'run function bm:{PFX}/heart/take']
+    tface = f'execute facing entity @e[{MON},distance=..16,sort=nearest,limit=1] feet run tp @s ~ ~ ~ ~ 0'
+    fn(f'{PFX}/t/sec', [f'execute as @e[type=minecraft:creeper,distance=..10] at @s run function bm:{PFX}/t/shoo',
+                        f'execute if score @s bm.ms matches 0 if entity {mon(WAKE)} run return run function bm:{PFX}/t/rise0',
+                        f'execute if score @s bm.ms matches 2 if entity {mon(16)} run scoreboard players set @s bm.mq 0',
+                        f'execute if score @s bm.ms matches 2 unless entity {mon(16)} run scoreboard players add @s bm.mq 1',
+                        'execute if score @s bm.ms matches 2 if score @s bm.mq matches 6.. run function bm:p246/sink0',
+                        'execute if score @s bm.ms matches 0 run particle minecraft:dust{color:[0.45,0.02,0.06],scale:1.3} ~ ~0.1 ~ 1.4 0.02 1.4 0 6'])
+    fn(f'{PFX}/t/shoo', ['data merge entity @s {ignited:0b,Fuse:30s}', f'execute facing entity @e[type=minecraft:husk,tag=bm.mtame,sort=nearest,limit=1] feet rotated ~ 0 '
+                         'positioned ^ ^ ^-1.5 if block ~ ~ ~ #minecraft:replaceable if block ~ ~1 ~ #minecraft:replaceable run tp @s ~ ~ ~',
+                         'particle minecraft:smoke ~ ~1 ~ 0.3 0.4 0.3 0.02 6'])
+    fn(f'{PFX}/t/rise0', ['scoreboard players set @s bm.ms 1', 'scoreboard players set @s bm.mt 0', 'scoreboard players set @s bm.mq 0', tface])
+    fn(f'{PFX}/t/fight', ['scoreboard players add @s bm.ma 1',
+                          'scoreboard players operation #g bm.rng = @s bm.mt', 'scoreboard players operation #g bm.rng %= #40 bm.rng',
+                          f'execute if score #g bm.rng matches 0 run function bm:{PFX}/pose/idle_a', f'execute if score #g bm.rng matches 20 run function bm:{PFX}/pose/idle_b',
+                          f'execute if score #g bm.rng matches 0 run {tface}', f'execute if score #g bm.rng matches 20 run {tface}',
+                          f'execute if score @s bm.ma matches 30.. if entity {mon(4.5)} run return run function bm:{PFX}/t/stab0',
+                          f'execute if score @s bm.ma matches 30.. if entity @e[{MON},distance=3.5..8] run return run function bm:{PFX}/t/grab0'])
+    fn(f'{PFX}/t/grab0', ['scoreboard players set @s bm.ms 3', 'scoreboard players set @s bm.mt 0', tface, f'function bm:{PFX}/pose/grab_0', snd('lash', 1.2)])
+    fn(f'{PFX}/t/grab', [at(4, f'execute positioned ^ ^1.4 ^4 as @e[{MON},distance=..3.5,sort=nearest,limit=2] run tag @s add bm.mgrab'),
+                         at(10, f'function bm:{PFX}/pose/grab_1'),
+                         f'execute if score @s bm.mt matches 6..30 as @e[tag=bm.mgrab,type=!minecraft:player,distance=2.6..] at @s facing entity {ME} feet positioned ^ ^ ^0.3 run tp @s ~ ~ ~',
+                         at(30, f'execute as @e[tag=bm.mgrab,type=!minecraft:player] run damage @s {GRAB_DMG + 4} minecraft:mob_attack by {ME}'),
+                         at(30, snd('lash', 0.8, 0.6)), at(31, 'tag @e[tag=bm.mgrab,type=!minecraft:player] remove bm.mgrab'),
+                         at(40, 'scoreboard players set @s bm.ms 2'), at(40, 'scoreboard players set @s bm.ma 0'), at(40, 'scoreboard players set @s bm.mt 0')])
+    fn(f'{PFX}/t/stab0', ['scoreboard players set @s bm.ms 4', 'scoreboard players set @s bm.mt 0', tface, f'function bm:{PFX}/pose/stab_0'])
+    fn(f'{PFX}/t/stab', [at(14, f'function bm:{PFX}/pose/stab_1'), at(15, snd('lash', 1.2, 0.8)),
+                         at(17, f'execute positioned ^ ^ ^3.5 as @e[{MON},distance=..2.4] run damage @s {STAB_DMG + 4} minecraft:mob_attack by {ME}'),
+                         at(17, 'execute positioned ^ ^ ^3.5 run particle minecraft:squid_ink ~ ~0.3 ~ 0.8 0.2 0.8 0.1 30'),
+                         at(32, 'scoreboard players set @s bm.ms 2'), at(32, 'scoreboard players set @s bm.ma 0'), at(32, 'scoreboard players set @s bm.mt 0')])
+    G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:interaction,tag=bm.mtk]']
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.mr]', 'execute as @e[type=minecraft:husk,tag=bm.mire] at @s run tp @s ~ -400 ~']
     fn('admin/mire/spawn', [f'execute positioned ^ ^ ^6 run function bm:{PFX}/spawn'])
     fn('admin/mire/kit', [give('shadow_remnant', 4), give('shadow_musk')])
