@@ -9,6 +9,7 @@ THE PLATE         (chest, legs, feet) an armour layer of its own (asset bm:dread
                   bone ribs over the breast, an eye staring from the sternum, bony knee-caps,
                   clawed boots.
 
+2.99: both redrawn in dread_art.py (the dark mirror of the Seraph's Raiment); this module still writes them, as before.
 Model space for the helmet: drawn for a head filling 3..13 on every axis (its head display scales it 1.28 to the 1.6..14.4
 the head really fills); the front is north (-z)."""
 import random
@@ -150,15 +151,16 @@ def helm_model():
     return E
 
 
+HELM_DISPLAY = {'head': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1.28, 1.28, 1.28]},   # (the head fills 1.6..14.4 worn: drawn for 3..13)
+                'gui': {'rotation': [25, 200, 0], 'translation': [0, -3.5, 0], 'scale': [0.6, 0.6, 0.6]},
+                'ground': {'rotation': [0, 0, 0], 'translation': [0, -2, 0], 'scale': [0.4, 0.4, 0.4]},
+                'fixed': {'rotation': [0, 180, 0], 'translation': [0, -3, 0], 'scale': [0.6, 0.6, 0.6]}}
+
+
 def helm_json():
-    tex = helm_textures()
-    els = helm_model()
-    used = sorted({f['texture'][1:] for e in els for f in e['faces'].values()})
-    return tex, {'textures': dict({t: f'bm:block/{t}' for t in used}, particle='bm:block/dread_chitin'), 'elements': els,
-                 'display': {'head': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1.28, 1.28, 1.28]},   # (the head fills 1.6..14.4 worn: drawn for 3..13)
-                             'gui': {'rotation': [25, 200, 0], 'translation': [0, -3.5, 0], 'scale': [0.6, 0.6, 0.6]},
-                             'ground': {'rotation': [0, 0, 0], 'translation': [0, -2, 0], 'scale': [0.4, 0.4, 0.4]},
-                             'fixed': {'rotation': [0, 180, 0], 'translation': [0, -3, 0], 'scale': [0.6, 0.6, 0.6]}}}
+    """-> (block textures to write, the helm's model). 2.99: the Visage redrawn - dread_art.py (helm_model above is the 2.90b one)"""
+    import dread_art
+    return dread_art.textures(), dread_art.helm_json(HELM_DISPLAY)
 
 
 # ---------------------------------------------------------------------------------------------------- the plate (armour layers)
@@ -187,6 +189,12 @@ def _eye_at(px, im, cx, cy):
 
 
 def layer(van_png, kind, seed=90):
+    """2.99: the plate redrawn by hand - dread_art.py (layer_290b below is the 2.90b recolour)"""
+    import dread_art
+    return dread_art.humanoid() if kind == 'humanoid' else dread_art.leggings()
+
+
+def layer_290b(van_png, kind, seed=90):
     im = _recolor(Image.open(van_png).convert('RGBA')); px = im.load(); rnd = random.Random(seed)
     for _ in range(30 if kind == 'humanoid' else 18):                    # cracks of red light, branching as they go down
         x, y = rnd.randrange(im.width), rnd.randrange(im.height)

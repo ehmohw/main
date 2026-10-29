@@ -79,7 +79,7 @@ Two more are classic secret rooms. Each room also gives a **Hive Sigil**, and si
   - **the Admiral's Crown:** Vorn near you are slowed.
 - **The Starforged set**, the new top tier of alien gear, above the Warplate. At **the Starforge** aboard the Dock, hold a Warplate piece and carry 2 Star-Cores and 8 red Xenite. The full set gives hover-jets (a slow fall, and sneak in mid-air for a burst) and a star-shield that soaks a heavy blow once a minute.
 
-**THE MOTHERSHIP.** The first time you fell Vexis, you also get **the Mothership Key**: the Admiral's own skiff, bigger, darker and far more menacing than a Vorn Skiff. It flies faster and is twice as tough. Aboard:
+**THE MOTHERSHIP.** The first time you fell Vexis, you also get **the Admiral's Command Module**: an upgrade for your Vorn Skiff. Use it with a Vorn Skiff Key in your pack, so you still have to gather the six skiff parts and build the skiff first. Your key becomes **the Mothership Key**: the Admiral's own skiff, bigger, darker and far more menacing. It flies faster and is twice as tough. Aboard:
 - **Right-click:** the **Hive Cannon**, three beams at once.
 - **Look down and right-click:** the charged TNT bomb.
 - **Look up and right-click:** the tractor beam.

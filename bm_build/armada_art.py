@@ -525,7 +525,25 @@ def textures():
         'am_crack': _cells((8, 10, 10), 2218, 0.05),
         'am_smoke': _cells((96, 100, 106), 2219, 0.1, spots=[((130, 134, 140), 60), ((70, 74, 80), 60)]),
         'am_smoke_d': _cells((62, 66, 72), 2220, 0.1, spots=[((84, 88, 94), 50)]),
+        'am_plate': _plates(GM[1], 2221),                    # (the Mothership's hull: plates, seams, rivets)
+        'am_plate_l': _plates(GM[2], 2222),
+        'am_plate_d': _plates((26, 28, 34), 2223, seam=(10, 11, 14), rivet=(52, 56, 66)),
+        'am_black': _cells((16, 17, 21), 2224, 0.12, spots=[((28, 30, 36), 60), ((8, 8, 10), 60)]),
+        'am_vent': _stripes((30, 32, 38), (10, 10, 12), 2225, step=6),
     }
+
+
+def _plates(base, seed, size=64, seam=None, rivet=None):
+    """hull plating: a mottled plate, cut into staggered panels by dark seams, a rivet at each panel's corner"""
+    im = _cells(base, seed, 0.07, size); d = ImageDraw.Draw(im)
+    seam = seam or tuple(int(v * 0.55) for v in base); rivet = rivet or tuple(min(255, int(v * 1.5)) for v in base)
+    for y in range(0, size, 16):
+        d.rectangle((0, y, size - 1, y + 1), fill=_c(seam))
+        off = 0 if (y // 16) % 2 == 0 else 12
+        for x in range(off, size, 24):
+            d.rectangle((x, y, min(size - 1, x + 1), y + 15), fill=_c(seam))
+            if x + 4 < size: d.rectangle((x + 3, y + 4, x + 4, y + 5), fill=_c(rivet))
+    return im
 
 
 # ==================================================================================================== 3D models
@@ -684,10 +702,121 @@ def _pylon(lit):
     return E
 
 
+# ---- THE MOTHERSHIP (phase242): the Admiral's own skiff hull, on the Vorn Skiff's display (phase35: item_display 'fixed',
+#      scale 4.5, a model unit 0.28 of a block). The skiff's seat is kept: the pilot's hips at about (8, 8, 8), their legs in the
+#      upper hull (7.4..9.4), their body and head inside the cockpit dome (to 13.4). Front north (-z): the display's facing.
+MS_SEAT = (8.0, 8.0, 8.0)
+
+
+def YB(lo, hi, ang, tex, light=0, shift=True):
+    """a box turned `ang` degrees about the hull's axis (8, *, 8): whole quarter turns are made by moving the box itself, so the
+    element's own turn stays within +-45 (22.5 steps)"""
+    n = round(ang / 90.0); r = ang - 90.0 * n
+    (x0, y0, z0), (x1, y1, z1) = lo, hi
+    for _ in range(n % 4):                                                      # (a quarter turn: x, z -> z, -x about 8, 8)
+        x0, z0, x1, z1 = z0, 16 - x1, z1, 16 - x0
+    y = (y0 + y1) / 2
+    return B((x0, y0, z0), (x1, y1, z1), tex, light=light, rot=(('y', r, (8.0, y, 8.0)) if abs(r) > 1e-6 else None), shift=shift)
+
+
+def DISC(y0, y1, a, tex, light=0, k=8):
+    """a 2k-sided disc (apothem a) about the hull's axis: k slabs, each turned 180/k on"""
+    w = a * math.tan(math.radians(90.0 / k))
+    return [YB((8 - a, y0, 8 - w), (8 + a, y1, 8 + w), i * 180.0 / k, tex, light) for i in range(k)]
+
+
+def RING(y0, y1, r, t, tex, light=0, n=16, skip=(), texs=None):
+    """a ring of n tangent bars (radius r to their middles, t thick): texs - a texture per bar, in turn"""
+    ln = 2 * r * math.tan(math.pi / n) + 0.05
+    out = []
+    for i in range(n):
+        if i in skip: continue
+        tx = texs[i % len(texs)] if texs else tex
+        lt = light if not texs else (light if tx in ('am_green_l', 'am_red', 'am_green', 'am_star', 'am_xtal_c') else 0)
+        out.append(YB((8 - ln / 2, y0, 8 - r - t / 2), (8 + ln / 2, y1, 8 - r + t / 2), i * 360.0 / n, tx, lt))
+    return out
+
+
+def _mothership():
+    E = []
+    # -- the under-hull: the engine's glow, the gravity ring hung below the belly on struts
+    E += DISC(1.6, 2.4, 1.9, 'am_green_l', 15, k=4) + DISC(2.4, 3.2, 2.8, 'am_xtal_c', 15, k=4) + DISC(3.2, 3.8, 3.6, 'am_black', k=4)
+    E += RING(1.7, 2.7, 6.9, 1.3, 'am_plate_d', n=16) + RING(1.85, 2.55, 6.1, 0.4, 'am_green_l', 15, n=16)
+    E += RING(2.0, 2.4, 7.62, 0.2, 'am_red', 12, n=16, texs=['am_red', 'am_black'])
+    for i in range(4):
+        E.append(YB((7.5, 2.6, 0.9), (8.5, 5.0, 1.7), 45 + i * 90, 'am_gun_d'))
+    E += DISC(3.8, 5.2, 6.4, 'am_plate_d') + DISC(5.0, 5.8, 8.8, 'am_plate')
+    for i in range(8):                                                          # (vents round the belly, red light behind them)
+        E.append(YB((7.0, 4.0, 1.5), (9.0, 4.9, 1.75), 22.5 + i * 45, 'am_red', 10))
+    # -- the main disc: a plated saucer, a dark band round its rim, hive stripes and running lights on it
+    E += DISC(5.8, 7.2, 11.0, 'am_plate') + DISC(6.1, 6.9, 11.4, 'am_black')
+    E += RING(6.15, 6.85, 11.55, 0.3, 'am_red', 12, n=16, texs=['am_red', 'am_black', 'am_black', 'am_black'])
+    for i in range(16):                                                         # (running lights, green and red by turns)
+        tx = 'am_green_l' if i % 2 else 'am_red'
+        E.append(YB((7.65, 7.2, -3.8), (8.35, 7.75, -3.1), 11.25 + i * 22.5, tx, 15, shift=False))
+    E += DISC(7.2, 7.9, 9.6, 'am_plate_l')
+    for i in range(8):                                                          # (armour ribs out over the deck, red-striped)
+        E.append(YB((7.4, 7.9, -1.4), (8.6, 8.6, 2.2), i * 45, 'am_black'))
+        E.append(YB((7.75, 8.6, -1.0), (8.25, 8.75, 1.8), i * 45, 'am_red', 10))
+    # -- the upper hull and the armoured cockpit (the pilot's seat inside)
+    E += DISC(7.9, 9.4, 6.4, 'am_plate') + DISC(9.4, 9.9, 5.2, 'am_plate_d')
+    E += DISC(9.9, 12.2, 3.9, 'am_plate_d', k=4) + DISC(12.2, 13.5, 3.0, 'am_plate_d', k=4) + DISC(13.5, 14.2, 1.9, 'am_black', k=4)
+    E += [B((7.4, 14.2, 7.4), (8.6, 14.9, 8.6), 'am_gun_l')]
+    E += [B((5.6, 11.0, 3.85), (10.4, 11.7, 4.15), 'am_green_l', 15),           # (the visor slit)
+          B((5.0, 11.7, 3.75), (11.0, 12.5, 4.25), 'am_gun_l'),                 # (its brow)
+          B((5.8, 10.2, 3.9), (10.2, 11.0, 4.2), 'am_black')]
+    for sx in (1, -1):                                                          # (cheek plates sweeping back off the visor)
+        E += CH([(8 + sx * 3.0, 11.3, 4.6), (8 + sx * 4.4, 10.4, 7.0), (8 + sx * 4.8, 9.6, 10.0)], [0.6, 0.5], [1.4, 1.0], 'am_gun_l', up=(0.0, 1.0, 0.0))
+        E.append(B((8 + sx * 3.9 - 0.2, 10.6, 8.6), (8 + sx * 3.9 + 0.2, 12.0, 9.6), 'am_red', 10))
+    E += CH([(8.0, 13.6, 9.6), (8.0, 12.8, 12.0), (8.0, 10.0, 13.6)], [0.6, 0.6], [0.8, 0.8], 'am_red', 8)   # (a red stripe down its back)
+    # -- the mandibles: two great prongs forward off the rim, a lesser pair under them, their tips red-hot
+    for sx in (1, -1):
+        E += CH([(8 + sx * 4.6, 6.5, -1.6), (8 + sx * 6.6, 6.4, -5.8), (8 + sx * 5.8, 6.2, -9.6), (8 + sx * 3.6, 6.0, -12.2), (8 + sx * 2.0, 5.9, -13.2)],
+                [2.4, 1.9, 1.4, 0.8], [1.8, 1.5, 1.1, 0.7], 'am_plate_d', up=(0.0, 1.0, 0.0))
+        E += CH([(8 + sx * 6.6, 7.25, -5.8), (8 + sx * 5.8, 7.0, -9.6)], [0.5], [0.2], 'am_red', 10, up=(0.0, 1.0, 0.0))
+        E.append(GEM((8 + sx * 2.0, 5.9, -13.2), 0.8, 'am_red', 12, rot=(0.0, 45.0, 0.0)))
+        E += CH([(8 + sx * 3.4, 4.8, -1.4), (8 + sx * 4.4, 4.4, -5.6), (8 + sx * 2.8, 4.2, -8.4)], [1.4, 0.9], [1.0, 0.7], 'am_black', up=(0.0, 1.0, 0.0))
+        for k in range(3):                                                      # (teeth along each prong's inner edge)
+            z = -5.0 - k * 2.4; x = 8 + sx * (5.2 - k * 0.6)
+            E.append(B((x - 0.25, 5.3, z - 0.25), (x + 0.25, 6.2, z + 0.25), 'am_gun_l'))
+    # -- the Hive Cannon: three pods hung under the disc, their barrels forward, their muzzles lit
+    for (x, z) in ((8.0, -2.6), (1.0, 2.2), (15.0, 2.2)):
+        E += [B((x - 0.5, 4.2, z + 1.0), (x + 0.5, 5.9, z + 2.0), 'am_gun_d'),                    # (its pylon)
+              B((x - 1.3, 2.4, z - 0.4), (x + 1.3, 4.4, z + 4.0), 'am_plate_d'),                  # (the pod)
+              B((x - 1.35, 3.2, z - 0.2), (x + 1.35, 3.5, z + 3.6), 'am_red', 10),
+              B((x - 0.5, 2.9, z - 5.0), (x + 0.5, 3.9, z - 0.4), 'am_gun'),                       # (the barrel)
+              B((x - 0.75, 2.65, z - 5.6), (x + 0.75, 4.15, z - 4.8), 'am_black'),                 # (its muzzle)
+              B((x - 0.35, 3.05, z - 5.75), (x + 0.35, 3.75, z - 5.55), 'am_green_l', 15),
+              B((x - 0.75, 2.65, z - 2.6), (x + 0.75, 4.15, z - 2.0), 'am_gun_d')]
+    # -- the aft: two dorsal fins, three exhausts glowing red
+    for sx in (1, -1):
+        E += CH([(8 + sx * 2.6, 9.0, 12.4), (8 + sx * 3.4, 11.4, 15.6), (8 + sx * 3.8, 12.2, 18.2)], [0.5, 0.4], [2.6, 1.6], 'am_black', up=(0.0, 1.0, 0.0))
+        E += CH([(8 + sx * 2.6, 10.6, 13.0), (8 + sx * 3.5, 12.1, 16.4)], [0.55], [0.3], 'am_red', 8, up=(0.0, 1.0, 0.0))
+    for x in (5.4, 8.0, 10.6):
+        E += [B((x - 0.9, 5.9, 18.6), (x + 0.9, 7.1, 19.6), 'am_black'), B((x - 0.55, 6.15, 19.6), (x + 0.55, 6.85, 19.75), 'am_red', 15)]
+    # -- antenna masts, froglight tips
+    for (x, z, h, t) in ((8.0, 12.6, 19.5, 1.0), (3.0, 10.4, 15.4, 0.8), (13.0, 10.4, 15.4, 0.8), (2.6, 4.6, 12.6, 0.6), (13.4, 4.6, 12.6, 0.6)):
+        y0 = 9.4 if z > 11 else 7.9
+        E.append(B((x - 0.22, y0, z - 0.22), (x + 0.22, h, z + 0.22), 'am_gun_l'))
+        E.append(B((x - t / 2, h, z - t / 2), (x + t / 2, h + t, z + t / 2), 'frog', 15, shift=False))
+        for yy in (y0 + (h - y0) * 0.45, y0 + (h - y0) * 0.75):                 # (cross-spars)
+            E.append(B((x - 0.8, yy, z - 0.12), (x + 0.8, yy + 0.25, z + 0.12), 'am_gun_d'))
+    return E
+
+
+def mothership():
+    """(tex, elements) for R.HATS - its textures by name (the am_ block textures, a froglight)"""
+    E = _mothership()
+    used = sorted({f['texture'][1:] for e in E for f in e['faces'].values()})
+    tex = {u: ('minecraft:block/verdant_froglight_side' if u == 'frog' else f'bm:block/{u}') for u in used}
+    return tex, E
+
+
+
 def models():
     B.rnd.seed(23)
     M = {'starfire_lance': _lance(), 'hive_breaker': _axe(), 'admiral_crown': _crown(), 'vx_pylon': _pylon(True), 'vx_pylon_off': _pylon(False)}
-    for name, els in M.items():
+    for name, els in list(M.items()) + [('mothership3d', mothership()[1])]:
         for e in els:
             for v in e['from'] + e['to']: assert -16 <= v <= 32, (name, e)
             for f in e['faces'].values():

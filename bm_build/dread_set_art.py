@@ -12,6 +12,8 @@ from phase57_art import hexc
 import dread_armor as DA
 import seraph_art as SA
 import seraph_wings as SW
+import dread_wings as DW
+import dread_art as DK
 
 VAN = '/home/claude/mc263/client/assets/minecraft/textures'
 WINGS_SRC = '/home/claude/bm_build/vendor/elytra_wings.png'
@@ -123,7 +125,7 @@ def rp(R):
     def post(R2):
         R2.wj('assets/bm/models/item/seraph_helm.json', SA.helm_json(DA.helm_json()[1]['display']))     # (2.99: seraph_art)
         R2.wj('assets/bm/items/angel_dread_visage.json', {'model': {'type': 'minecraft:model', 'model': 'bm:item/seraph_helm'}})
-        wings(False).save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'wings', 'dread_wings.png'))
+        DK.wings_layer().save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'wings', 'dread_wings.png'))   # (2.99: cut back to a mantle - dread_art)
         SA.wings_layer().save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'wings', 'seraph_wings.png'))
         SA.humanoid().save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'humanoid', 'seraph.png'))
         SA.leggings().save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'humanoid_leggings', 'seraph.png'))
@@ -135,6 +137,7 @@ def rp(R):
     R.POST.append(post)
     R.TEXTURE_MODS.append(SA)                              # (2.99: the Seraph's block textures - the helm's, the 3D wings')
     SW.rp(R)                                               # (2.99: the 3D wings' models and quills)
+    DW.rp(R)                                               # (2.99: the Dread Carapace's 3D wings)
     R.ICONS.update(icons())
     R.LANG.update({'death.attack.bm.dread_rend': '%1$s was rent apart by the Dread', 'death.attack.bm.dread_rend.player': '%1$s was rent apart by %2$s\'s Dread',
                    'death.attack.bm.dread_proc': '%1$s fell to the Dread', 'death.attack.bm.dread_proc.player': '%1$s fell to %2$s\'s Dread',

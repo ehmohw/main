@@ -77,9 +77,15 @@ _H = 'type=minecraft:husk,tag=bm.avx'
 P152.WHO_LATE += [(26, f'{_H},tag=bm.vxlive,scores={{bm.vxph=1}}'), (27, f'{_H},tag=bm.vxlive,scores={{bm.vxph=2}}'), (28, f'{_H},tag=bm.vxlive,scores={{bm.vxph=3}}'),
                   (30, f'{_H},tag=bm.vxturn,tag=bm.vxt1'), (31, f'{_H},tag=bm.vxturn,tag=bm.vxt2'), (29, f'{_H},tag=bm.vxintro'), (32, f'{_H},tag=bm.vxfall')]
 
-# ---- (2.99) THE MOTHERSHIP: the Admiral's own skiff, from its fall (the first time). The Vorn Skiff's machinery (phase35: it flies,
-# the laser, the bomb bay, the tractor beam, phase48) under the Admiral's hull (armada_art: bm:mothership3d), faster and tougher,
-# and its laser is the HIVE CANNON - three beams at once.
+# ---- (2.99) THE MOTHERSHIP: the Admiral's own skiff. Its fall (the first time) gives THE ADMIRAL'S COMMAND MODULE - an UPGRADE:
+# used with a Vorn Skiff Key in your pack (the six parts still to be gathered, phase35), the key becomes the Mothership Key. The
+# Vorn Skiff's machinery (phase35: it flies, the laser, the bomb bay, the tractor beam, phase48) under the Admiral's hull
+# (armada_art: bm:mothership3d), faster and tougher, and its laser is the HIVE CANNON - three beams at once.
+item('mothership_module', TOTEM, "The Admiral's Command Module", COL,
+     ['The heart of the Admiral\'s own skiff, torn from the helm.', ('Right-click with a Vorn Skiff Key in your pack:', 'blue'),
+      ('your skiff becomes THE MOTHERSHIP.', 'blue'), ('(No skiff yet? Gather its six parts first.)', 'gray'), ('From Admiral Vexis\'s fall.', 'dark_gray')],
+     model='bm:mothership_module', stack=1, cat='alien', glint=True, bold=True, comps=hold('none'))
+HOLD['mothership_module'] = 'bm:p242/ms/upgrade'
 item('mothership_key', TOTEM, 'The Mothership Key', COL,
      ['The Admiral\'s own skiff. It still hums the hive\'s anthem.', ('Right-click: call the Mothership and climb in.', 'blue'),
       ('Aboard: right-click fires the Hive Cannon (three beams);', 'blue'), ('look steeply down to drop a charged TNT bomb;', 'blue'),
@@ -724,8 +730,8 @@ def generate(G):
                        tellraw('@s', P + [T(L.VX, COL, bold=True), T(' has fallen. ', 'gray'), T(L.FIGHT['fall2'], '#c8f0c0', italic=True)]),
                        'execute unless entity @s[tag=bm.vxfirst] run function bm:p242/first',
                        'execute if score @s bm.vxwin matches 2.. unless entity @s[tag=bm.xbwar] run function bm:p242/warframe'])
-    fn('p242/first', ['tag @s add bm.vxfirst', give('music_disc_vexis'), give('mothership_key'), 'function bm:p243/enc/joined',
-                      tellraw('@s', [T('  In the quiet: ', 'gray'), T('its record', COL), T(', ', 'gray'), T('the Mothership Key', COL, bold=True), T(' - and ', 'gray'), T(L.ITEMS['link'][0], COL, bold=True),
+    fn('p242/first', ['tag @s add bm.vxfirst', give('music_disc_vexis'), give('mothership_module'), 'function bm:p243/enc/joined',
+                      tellraw('@s', [T('  In the quiet: ', 'gray'), T('its record', COL), T(', ', 'gray'), T('the Admiral\'s Command Module', COL, bold=True), T(' (your skiff\'s upgrade)', 'gray'), T(' - and ', 'gray'), T(L.ITEMS['link'][0], COL, bold=True),
                                      T('. Something on the other end is listening for you.', 'gray', italic=True)])])
     # (felled a second time: Vexis remembers its warframe - the full-size form, as it stood against you)
     fn('p242/warframe', ['tag @s add bm.xbwar', 'advancement grant @s only bm:story/vexis_warframe',
@@ -785,6 +791,14 @@ def generate(G):
     # ================================================================== THE MOTHERSHIP (the Vorn Skiff's machinery, the Admiral's hull)
     fn('p242/ms/use', ['execute if function bm:p35/skiff/riding if function bm:p242/ms/aboard unless entity @s[x_rotation=55..90] unless entity @s[x_rotation=-90..-50] run return run function bm:p242/ms/cannon',
                        'tag @s add bm.skmom', 'function bm:p35/skiff/use', 'tag @s remove bm.skmom'])
+    hs = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
+    fn('p242/ms/upgrade', ['execute unless items entity @s container.* ' + hs('skiff_key') + ' unless items entity @s weapon.offhand ' + hs('skiff_key') + ' run return run ' +
+                           title('@s', 'actionbar', [T('It needs a Vorn Skiff to drive. ', COL), T('Gather the six skiff parts and assemble its key first.', 'gray')]),
+                           f'clear @s {hs("skiff_key")} 1', f'clear @s {hs("mothership_module")} 1', give('mothership_key'),
+                           'particle minecraft:electric_spark ~ ~1 ~ 0.5 0.8 0.5 0.3 60', 'particle minecraft:end_rod ~ ~1 ~ 0.5 0.8 0.5 0.05 30',
+                           'playsound minecraft:block.smithing_table.use player @a[distance=..16] ~ ~ ~ 1 0.6', 'playsound minecraft:block.beacon.power_select player @a[distance=..16] ~ ~ ~ 1 0.6',
+                           'title @s times 6 50 14', title('@s', 'title', T('THE MOTHERSHIP', COL, bold=True)),
+                           title('@s', 'subtitle', T('your skiff, rebuilt round the Admiral\'s command module', '#c8f0c0', italic=True))])
     fn('p242/ms/aboard', ['execute on vehicle if entity @s[tag=bm.skmom] run return 1', 'return 0'])
     use = G.FUNCS['p35/skiff/use']
     use.insert(next(i for i, l in enumerate(use) if l == 'function bm:p36/skin/apply') + 1, 'execute if entity @s[tag=bm.skmom] run function bm:p242/ms/make')

@@ -76,7 +76,7 @@ def _xf(pts, R, pivot, rest_pivot):
     return [tuple(R @ (np.array(p, float) - rest_pivot) + pivot) for p in pts]
 
 
-def player(kind='stand', layers=(), wings=None, skin=True):
+def player(kind='stand', layers=(), wings=None, skin=True, skin_tex=SKIN):
     """-> [(quad (design px), uvs (0..16), texture id)] for the body; layers: [(texture id, 'outer'|'inner', parts)], the armour
     layers as the game draws them; wings: an elytra 'wings' texture id (drawn behind, as WingsLayer: 2 px back)"""
     P, el = pose(kind)
@@ -90,8 +90,8 @@ def player(kind='stand', layers=(), wings=None, skin=True):
             out.append((_xf(q, R, pv, np.array(PARTS[p][3], float)), uvs, tex))
     if skin:
         for p in PARTS:
-            part(p, SKIN_UV[p], SKIN, 0.0, 64, 64)
-            part(p, HAT_UV[p], SKIN, 0.5 if p == 'head' else 0.25, 64, 64)
+            part(p, SKIN_UV[p], skin_tex, 0.0, 64, 64)
+            part(p, HAT_UV[p], skin_tex, 0.5 if p == 'head' else 0.25, 64, 64)
     for tex, which, parts in layers:
         g = 1.0 if which == 'outer' else 0.5
         for p in parts:

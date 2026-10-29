@@ -33,13 +33,14 @@ alive within 12 blocks is killed; a wearer whose displays are gone gets a new se
 GLOW (CLAUDE.md): nothing here glows - the displays never take Glowing (an invisible host's outline rule doesn't apply: the
 wearer is a visible player, and the wings are hidden whenever the wearer is invisible).
 
-GENERIC: SETS is a table of wing sets (the item worn, the art module with its parts / pivots / poses / models, the tags).
-Only the Seraph is filled in. The Dread Carapace would need its own art module (membrane wings - folded and open models,
-no feathers to keep straight, so one model per wing may do) and a SETS entry whose item is the carapace NOT made holy.
+GENERIC: sets() is the table of wing sets - each its worn conditions (on the chest slot), its art module (parts, pivots, poses,
+models: this module for the Seraph, dread_wings.py for the Dread Carapace - the carapace NOT made holy) and its states; each
+gets its own bm:p206w/<set>/... and its own display tags (bm.swd_<set>), so a set's sweep never touches another's.
 
 Design units: 1/16 block (the player model's pixels x 0.9375), feet at y=0, facing -z, the wearer's right +x."""
 import math
 import random
+import sys
 
 import rigkit
 from rigkit import qs, D, qrot
@@ -300,35 +301,50 @@ def model_of(p, pz):
     return f'{PREFIX}{p}'
 
 
-def xforms(pz):
-    """{display part: (left_rotation (display frame), translation (blocks, the display at the wearer's feet), scale)}"""
-    xf = rigkit.solve(PIVOT, PARENT, pz)
+def xforms(pz, art=None):
+    """{display part: (left_rotation (display frame), translation (blocks, the display at the wearer's feet), scale)} - for this
+    module's wings or another wing set's art module (the same names: PIVOT, PARENT, PARTS, model_of, model_k, S, U)"""
+    art = art or sys.modules[__name__]
+    xf = rigkit.solve(art.PIVOT, art.PARENT, pz)
     out = {}
-    for p in PARTS:
-        q, t = xf[p]; dp = D(PIVOT[p])
-        k = model_k(model_of(p, pz)) * S
-        out[p] = (q, tuple((dp[i] + t[i]) * U for i in range(3)), k)
+    for p in art.PARTS:
+        q, t = xf[p]; dp = D(art.PIVOT[p])
+        k = art.model_k(art.model_of(p, pz)) * art.S
+        out[p] = (q, tuple((dp[i] + t[i]) * art.U for i in range(3)), k)
     return out
 
 
-def render(scene, name, at=(0.0, 0.0, 0.0), yaw=0.0, pitch=0.0):
+def render(scene, name, at=(0.0, 0.0, 0.0), yaw=0.0, pitch=0.0, art=None):
     """a pose drawn into a tools.render Scene as the game shows it: each display at the wearer's feet (`at`), turned to the
     wearer's yaw (and, gliding, pitch), its transformation the pose's"""
-    pz = POSES[name]
-    for p, (q, t, k) in xforms(pz).items():
-        scene.display(f'bm:item/{model_of(p, pz)}', pos=at, yaw=yaw, pitch=pitch, translation=t, scale=k, left=tuple(q))
+    art = art or sys.modules[__name__]
+    pz = art.POSES[name]
+    for p, (q, t, k) in xforms(pz, art).items():
+        scene.display(f'bm:item/{art.model_of(p, pz)}', pos=at, yaw=yaw, pitch=pitch, translation=t, scale=k, left=tuple(q))
 
 
 # ---------------------------------------------------------------------------------------------------- the runtime (bm:p206w/<set>/...)
-HOLY_WINGS = '*[minecraft:custom_data~{bm:"dread_carapace",bm_angel:1b}]'
-# the wing sets: the chest item that wears them; this module is the Seraph's art (PARTS, PIVOT, POSES, model_of, xforms)
+CARAPACE = '*[minecraft:custom_data~{bm:"dread_carapace"}]'
+ANGEL = '*[minecraft:custom_data~{bm_angel:1b}]'
 # STATES: number -> (name, first pose, interpolation into it, open models?, cycle: (half period, pose a, pose b) or None)
-SERAPH_STATES = {1: ('rest', 'rest_a', 5, False, (40, 'rest_a', 'rest_b')),
-                2: ('sneak', 'sneak', 4, False, None),
-                3: ('glide', 'glide_a', 6, True, (15, 'glide_a', 'glide_b')),
-                4: ('fall', 'fall_a', 5, True, (6, 'fall_a', 'fall_b')),
-                5: ('ride', 'ride', 5, False, None)}
-SETS = {'seraph': dict(item=HOLY_WINGS, states=SERAPH_STATES, glide_state=3)}
+STATES = {1: ('rest', 'rest_a', 5, False, (40, 'rest_a', 'rest_b')),
+          2: ('sneak', 'sneak', 4, False, None),
+          3: ('glide', 'glide_a', 6, True, (15, 'glide_a', 'glide_b')),
+          4: ('fall', 'fall_a', 5, True, (6, 'fall_a', 'fall_b')),
+          5: ('ride', 'ride', 5, False, None)}
+
+
+def sets():
+    """THE WING SETS: {name: worn (the execute conditions on the wearer's chest slot), art (the module with the parts, pivots,
+    poses and models), states}. A player wears one chest piece, so one set at a time."""
+    import dread_wings
+    return {'seraph': dict(worn=[f'if items entity @s armor.chest {CARAPACE}', f'if items entity @s armor.chest {ANGEL}'],
+                           art=sys.modules[__name__], states=STATES),
+            'dread': dict(worn=[f'if items entity @s armor.chest {CARAPACE}', f'unless items entity @s armor.chest {ANGEL}'],
+                          art=dread_wings, states=dread_wings.STATES)}
+
+
+GLIDE_STATE = 3
 REACH = 12                                       # (blocks: how far a wearer's displays can be from them and still be theirs)
 
 
@@ -357,38 +373,43 @@ def generate(G):
                                                 'predicate': {'minecraft:movement': {'fall_distance': {'min': 3.5}}}})
     G.wjson('bm/predicate/p206w/swimming.json', {'condition': 'minecraft:entity_properties', 'entity': 'this',
                                                  'predicate': {'minecraft:flags': {'is_swimming': True}}})
-    # the displays left behind (the wearer logged out, died, changed dimension, went too far): gone - four times a second
-    G.FUNCS['loop/fast'][-1:-1] = ['execute as @e[type=minecraft:item_display,tag=bm.swd] at @s run function bm:p206w/orphan']
-    fn('p206w/orphan', ['scoreboard players operation #me bm.rng = @s bm.pid', 'scoreboard players set #f bm.rng 0',
-                        f'execute as @e[type=minecraft:player,tag=bm.sww,distance=..{REACH}] if score @s bm.pid = #me bm.rng if score @s bm.swn matches 1 '
-                        'run scoreboard players set #f bm.rng 1',
-                        'execute if score #f bm.rng matches 0 run kill @s'])
     # asleep in a bed (once a second: a player's sleeping_pos is only in its saved data)
     G.FUNCS['loop/second'].append('execute as @a[tag=bm.sww] run function bm:p206w/sleep')
     fn('p206w/sleep', ['tag @s remove bm.swsl', 'execute if data entity @s sleeping_pos run tag @s add bm.swsl'])
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.swd]']
-    for name, st in SETS.items():
-        _set(G, name, st)
+    S_ = sets()
+    for name, st in S_.items():
+        _set(G, name, st, [o for o in S_ if o != name])
 
 
-def _set(G, name, ST):
+def _set(G, name, ST, others):
     fn = G.fn; P = f'p206w/{name}'
     mine = lambda part=None: (f'@e[type=minecraft:item_display,tag=bm.swd_{name}' + (f',tag=bm.sw_{part}' if part else '') + f',distance=..{REACH}]')
     each = lambda part=None: f'execute as {mine(part)} if score @s bm.pid = #me bm.rng run '
-    wear, states = ST['item'], ST['states']
+    art, states = ST['art'], ST['states']
+    POSES_, first_part = art.POSES, art.PARTS[0]
+    # ---- worn: the set's conditions on the chest slot, as a function (1: worn)
+    fn(f'{P}/worn', [f'execute {" ".join(ST["worn"])} run return 1', 'return 0'])
     # ---- who wears them (found four times a second; the per-tick work is theirs alone)
-    G.FUNCS['loop/fast'][-1:-1] = [f'execute as @e[type=minecraft:player,tag=!bm.sww_{name}] if items entity @s armor.chest {wear} run function bm:{P}/on',
-                                   f'execute as @e[type=minecraft:player,tag=bm.sww_{name},scores={{bm.swn=1,bm.sws=1..}}] at @s run function bm:{P}/ensure']
+    G.FUNCS['loop/fast'][-1:-1] = [f'execute as @e[type=minecraft:player,tag=!bm.sww_{name}] if function bm:{P}/worn run function bm:{P}/on',
+                                   f'execute as @e[type=minecraft:player,tag=bm.sww_{name},scores={{bm.swn=1,bm.sws=1..}}] at @s run function bm:{P}/ensure',
+                                   # (the displays left behind - the wearer logged out, died, changed dimension, went too far: gone)
+                                   f'execute as @e[type=minecraft:item_display,tag=bm.swd_{name}] at @s run function bm:{P}/orphan']
+    fn(f'{P}/orphan', ['scoreboard players operation #me bm.rng = @s bm.pid', 'scoreboard players set #f bm.rng 0',
+                       f'execute as @e[type=minecraft:player,tag=bm.sww_{name},distance=..{REACH}] if score @s bm.pid = #me bm.rng if score @s bm.swn matches 1 '
+                       'run scoreboard players set #f bm.rng 1',
+                       'execute if score #f bm.rng matches 0 run kill @s'])
     fn(f'{P}/on', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', f'tag @s add bm.sww_{name}', 'tag @s add bm.sww',
                    'scoreboard players set @s bm.sws -1', 'scoreboard players set @s bm.swn 0', 'scoreboard players set @s bm.swo 0'])
-    fn(f'{P}/off', [f'function bm:{P}/kill', 'scoreboard players set @s bm.sws 0', f'tag @s remove bm.sww_{name}', 'tag @s remove bm.sww'])
+    fn(f'{P}/off', [f'function bm:{P}/kill', 'scoreboard players set @s bm.sws 0', f'tag @s remove bm.sww_{name}',
+                    ('execute ' + ' '.join(f'unless entity @s[tag=bm.sww_{o}]' for o in others) + ' run ' if others else '') + 'tag @s remove bm.sww'])
     fn(f'{P}/kill', ['scoreboard players operation #me bm.rng = @s bm.pid', each() + 'kill @s',
                      'scoreboard players set @s bm.swn 0', 'scoreboard players set @s bm.swo 0'])
     # ---- every tick, as each wearer, at them
     G.FUNCS['tick'].append(f'execute as @e[type=minecraft:player,tag=bm.sww_{name}] at @s run function bm:{P}/tick')
-    gl = ST['glide_state']
+    gl = GLIDE_STATE
     keys = [f'execute if score @s bm.sws matches {n} run function bm:{P}/k{n}' for n in states]
-    fn(f'{P}/tick', [f'execute unless items entity @s armor.chest {wear} run return run function bm:{P}/off',
+    fn(f'{P}/tick', [f'execute unless function bm:{P}/worn run return run function bm:{P}/off',
                      'scoreboard players operation #me bm.rng = @s bm.pid',
                      f'execute store result score #st bm.rng run function bm:{P}/pick',
                      f'execute unless score #st bm.rng = @s bm.sws run function bm:{P}/enter',
@@ -406,7 +427,7 @@ def _set(G, name, ST):
        [f'execute if score #st bm.rng matches {n} unless score @s bm.swn matches 1 run return run function bm:{P}/summon{n}' for n in states] +
        [f'execute if score #st bm.rng matches {n} run return run function bm:{P}/to{n}' for n in states])
     fn(f'{P}/ensure', ['scoreboard players operation #me bm.rng = @s bm.pid', 'scoreboard players set #n bm.rng 0',
-                       each('w1r') + 'scoreboard players add #n bm.rng 1',
+                       each(first_part) + 'scoreboard players add #n bm.rng 1',
                        f'execute if score #n bm.rng matches 0 run function bm:{P}/kill'] +
        [f'execute if score #n bm.rng matches 0 if score @s bm.sws matches {n} run function bm:{P}/summon{n}' for n in states])
 
@@ -415,19 +436,19 @@ def _set(G, name, ST):
         """the four displays to a pose (in dur ticks); swap: their models set to the pose's (folded / open) too"""
         f = f'{P}/pose/{pname}_{dur}{"_s" if swap else ""}'
         if f not in made:
-            made.add(f); pz = POSES[pname]
+            made.add(f); pz = POSES_[pname]
             lines = []
-            for part, (q, t, k) in xforms(pz).items():
-                extra = (',' + _item(model_of(part, pz))) if swap else ''
+            for part, (q, t, k) in xforms(pz, art).items():
+                extra = (',' + _item(art.model_of(part, pz))) if swap else ''
                 lines.append(each(part) + f'data merge entity @s {{start_interpolation:0,interpolation_duration:{dur},transformation:{{{_xf_nbt(q, t, k)}}}{extra}}}')
             fn(f, lines)
         return f'function bm:{f}'
     for n, (sname, first, dur_in, opened, cyc) in states.items():
-        pz = POSES[first]
+        pz = POSES_[first]
         # summoned straight into this state's first pose (a wearer with no displays: just put it on, or back from hidden)
         summon = []
-        for part, (q, t, k) in xforms(pz).items():
-            summon.append(f'summon minecraft:item_display ~ ~ ~ {{Tags:["bm.swd","bm.swd_{name}","bm.sw_{part}","bm.swnew"],{_item(model_of(part, pz))},'
+        for part, (q, t, k) in xforms(pz, art).items():
+            summon.append(f'summon minecraft:item_display ~ ~ ~ {{Tags:["bm.swd","bm.swd_{name}","bm.sw_{part}","bm.swnew"],{_item(art.model_of(part, pz))},'
                           f'item_display:"fixed",teleport_duration:3,interpolation_duration:0,transformation:{{{_xf_nbt(q, t, k)}}}}}')
         fn(f'{P}/summon{n}', summon + ['scoreboard players operation @e[type=minecraft:item_display,tag=bm.swnew,distance=..1] bm.pid = @s bm.pid',
                                        'tag @e[type=minecraft:item_display,tag=bm.swnew,distance=..1] remove bm.swnew',
@@ -435,7 +456,7 @@ def _set(G, name, ST):
                                        'scoreboard players set @s bm.swt 0'])
         # into this state from another: folded <-> open swaps the great wings' models by way of the furl
         if opened:
-            furl = 'furl_glide' if n == ST['glide_state'] else 'furl'
+            furl = 'furl_glide' if n == GLIDE_STATE else 'furl'
             fn(f'{P}/to{n}', [f'execute if score @s bm.swo matches 0 run return run function bm:{P}/open{n}', 'scoreboard players set @s bm.swt -1'])
             fn(f'{P}/open{n}', [pose_fn(furl, 0, swap=True), 'scoreboard players set @s bm.swo 1', 'scoreboard players set @s bm.swt -2'])
         else:
