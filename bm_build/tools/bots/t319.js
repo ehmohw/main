@@ -125,6 +125,7 @@ const FLOOR = 100;
     await run(`${O}kill @e[type=minecraft:interaction,tag=bm.knst,distance=..6,x=18400,y=100,z=16001]`);
   }
 
+  await run('tag TestRat remove bm.lkpass');      // (phase251's pass off again)
   const p = res.filter(Boolean).length; console.log(`\n${p}/${res.length} passed`);
   A.end(); R.end(); process.exit(p === res.length ? 0 : 1);
 })();

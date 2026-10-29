@@ -216,6 +216,7 @@ const HB = (n) => 54 + n;                                  // (a 9x3 container w
 
   await run(`${O}kill @e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..12]`);
   await run('clear TestRat');
+  await run('tag TestRat remove bm.lkpass');      // (phase251's pass off again)
   const p = res.filter(Boolean).length; console.log(`\n${p}/${res.length} passed`);
   A.end(); R.end(); process.exit(p === res.length ? 0 : 1);
 })();

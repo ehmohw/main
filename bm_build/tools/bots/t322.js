@@ -43,10 +43,10 @@ const CELL = { under: { 0: [1608, 84, -1393], 2: [1560, 84, -1417], 3: [1560, 84
   await run('effect give TestRat minecraft:saturation infinite 0 true');
 
   // ---- the stages each dungeon's checks run on: its progress, and a guarded trial's knights
-  const stage = async (D, d, upto, P) => {      // (as solving trial `upto` would leave it: progress, and the next trial re-armed)
+  const stage = async (D, d, upto) => {         // (as solving trial `upto` would leave it: progress, and the next trial re-armed)
     await run(`${D}scoreboard players set @e[type=minecraft:marker,tag=bm.dg,tag=bm.d_${d},limit=1] bm.pz ${upto}`);
     await run(`${D}execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.pz${upto + 1},tag=bm.d_${d}] at @s run function bm:p2/${d}/pz${upto + 1}_reset`);
-    await sleep(1500); void P;
+    await sleep(1500);
   };
   const solve = async (D, d, n) => run(`${D}execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.pz${n},tag=bm.d_${d},limit=1] at @s run function bm:p2/${d}/pz${n}_solve`);
   const play = async (D, d, C, guard) => {
@@ -114,7 +114,7 @@ const CELL = { under: { 0: [1608, 84, -1393], 2: [1560, 84, -1417], 3: [1560, 84
     await run('clear TestRat'); await run('tag TestRat remove bm.acoord'); await run('scoreboard players reset TestRat bm.lka'); await run('scoreboard players reset TestRat bm.aoy');
     A.chats.length = 0; A.bars.length = 0;
     await at(E, C[0]);
-    ok('teleported onto the Dock with no beam: beamed out (the End\'s island)', await wait(4000, async () => near([100.5, 50, 0.5], 3)), where());
+    ok('teleported onto the Dock with no beam: beamed out (the End\'s island)', await wait(4000, async () => A.pos && Math.abs(A.pos.x - 100.5) < 3 && Math.abs(A.pos.z - 0.5) < 3), where());
     ok('...and told why', A.bars.some(b => /does not know you/.test(b)) && A.chats.some(c => /no way in but its own/.test(c)), [...A.bars, ...A.chats].slice(-2).join(' | ').slice(0, 200));
     // (the Coordinates used in the End, past the island: the beam)
     await run(`${E}tp TestRat 1200 90 0`); await sleep(1500);

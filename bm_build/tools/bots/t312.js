@@ -198,6 +198,7 @@ const N = 'execute in minecraft:the_nether run ';
   }
 
   await run('scoreboard players set #dfell bm.cfg 0');
+  await run('tag TestRat remove bm.lkpass');      // (phase251's pass off again)
   console.log(`${res.filter(Boolean).length}/${res.length} passed`);
   R.end(); A.end?.(); process.exit(0);
 })().catch(e => { console.error(e); process.exit(1); });
