@@ -86,7 +86,7 @@ OUT = {t: tuple(v / math.hypot(*d) for v in d) for t, d in
        {'t1': (0.8, 0.0, -0.6), 't2': (-0.8, 0.0, -0.6), 't3': (0.8, 0.0, 0.6), 't4': (-0.8, 0.0, 0.6)}.items()}
 
 PIVOT = {'puddle': (0.0, 0.0, 0.0), 'mound': (0.0, 1.0, 0.0), 'seg1': (0.0, 8.0, 0.0), 'seg2': (0.0, 16.0, 0.3),
-         'seg3': (0.0, 24.0, 0.5), 'head': (0.0, 31.5, 1.0), 'jaw': (0.0, 35.2, -1.0)}
+         'seg3': (0.0, 24.0, 0.5), 'head': (0.0, 31.5, 1.0), 'jaw': (0.0, 37.0, -1.0)}
 PARENT = {'puddle': None, 'mound': 'puddle', 'seg1': 'mound', 'seg2': 'seg1', 'seg3': 'seg2', 'head': 'seg3', 'jaw': 'head'}
 for _t in TENT:
     _x, _y, _z = ROOT[_t]
@@ -138,21 +138,21 @@ def _grid(rows, pal=PAL):
 
 # the hide: wet black, a few glossy square highlights (a lit rim, a hot glint), recessed squares, oily red patches
 HIDE = ['2222222222222222',
-        '2344322222221122',
-        '2456432222211112',
-        '2443332222221122',
-        '2333322222222222',
-        '2222222oo2222222',
-        '222222oOo2222222',
-        '2222222o22223332',
-        '1122222222234432',
-        '1112222222235532',
-        '2112222222233332',
+        '2333222222222222',
+        '2345322222222222',
+        '2344322222222222',
+        '2333222222222222',
         '2222222222222222',
-        '22233322222o2222',
-        '2234432222oOo122',
-        '2234532222oo1112',
-        '2223332222222122']
+        '2222222222211222',
+        '2222222222211222',
+        '2222222222222222',
+        '22222oo222222222',
+        '2222oOO222222222',
+        '22222oo222222222',
+        '2222222222223322',
+        '2222222222223422',
+        '1122222222222222',
+        '1122222222222222']
 # the rings of a segment / the knuckles of a tentacle: two ridges, each a lit lip, a glossy line, the wet flank, a deep crease
 RIB = ['3333333333333333',
        '4445444444454444',
@@ -459,44 +459,43 @@ def _mound():
 
 
 def _segment(y0, y1, r, cz=0.0, lumps=(), veins=(), drips=()):
-    """a worm segment: a pinched neck (ringed) at its foot down into the one below, the swollen body, a narrower shoulder"""
-    S = []
-    S += OCT(0, cz, y0 - 1.8, y0 + 1.4, r - 1.0, r - 1.0, 'rib')
-    S += OCT(0, cz, y0 + 1.0, y1 - 1.0, r, r, 'hide')
-    S += OCT(0, cz, y1 - 1.2, y1 + 0.3, r - 0.8, r - 0.8, 'hide')
+    """a worm segment, a fat ring: a pinched neck (ringed) at its foot down into the one below, rounded under, the swollen belly
+    low, tapering to a narrow lip at its top. veins: (axis, side, u, jog) - a vein up the belly's face (x or z), u across it,
+    stepping aside by jog halfway; drips: (x, z, length) hanging off the belly's under-edge"""
+    h = y1 - y0; yb = y0 + 0.62 * h; S = []
+    S += OCT(0, cz, y0 - 1.6, y0 + 1.0, r - 1.7, r - 1.7, 'rib')
+    S += OCT(0, cz, y0 + 0.6, y0 + 1.6, r - 0.7, r - 0.7, 'hide')
+    S += OCT(0, cz, y0 + 1.4, yb, r, r, 'hide')
+    S += OCT(0, cz, yb - 0.2, y1 - 0.6, r - 0.8, r - 0.8, 'hide')
+    S += OCT(0, cz, y1 - 0.8, y1 + 0.4, r - 1.6, r - 1.6, 'hide')
     for (x, y, z, sx, sy, sz) in lumps:                              # (cysts swelling out of it)
         S.append(E((x - sx / 2, y - sy / 2, z - sz / 2), (x + sx / 2, y + sy / 2, z + sz / 2), 'hide'))
-    for v in veins: S += VEIN(*v)
-    for d in drips: S += DRIP(*d)
+    ya, ym, yc = y0 + 1.8, y0 + 0.36 * h, yb - 0.4
+    for (axis, sd, u, jog) in veins:
+        if axis == 'x': S += VEIN([(ya, cz + u), (ym, cz + u), (ym, cz + u + jog), (yc, cz + u + jog)], 'x', sd * r, sd)
+        else: S += VEIN([(u, ya), (u, ym), (u + jog, ym), (u + jog, yc)], 'z', cz + sd * r, sd)
+    for (x, z, ln) in drips: S += DRIP(x, y0 + 1.5, cz + z, ln)
     return S
 
 
 def _seg1():
-    r = 6.4; y0, y1 = 8.0, 16.6
-    return _segment(y0, y1, r, 0.0,
-                    lumps=[(6.6, 12.6, -1.0, 1.6, 3.0, 3.0), (-2.2, 11.0, -6.4, 3.4, 2.6, 1.4)],
-                    veins=[([(9.6, -1.4), (12.0, -1.4), (12.0, 1.0), (15.4, 1.0)], 'x', r, 1),
-                           ([(9.6, 2.0), (11.4, 2.0), (11.4, -0.6), (15.4, -0.6)], 'x', -r, -1),
-                           ([(1.6, 9.6), (1.6, 12.6), (3.0, 12.6), (3.0, 15.4)], 'z', -r, -1),
-                           ([(-2.4, 9.6), (-2.4, 13.4), (0.0, 13.4), (0.0, 15.4)], 'z', r, 1)],
-                    drips=[(4.8, 9.1, -4.4, 2.2), (-5.0, 9.1, 2.6, 3.0)])
+    r = 6.4
+    return _segment(8.0, 16.6, r, 0.0, lumps=[(6.5, 11.4, -1.0, 1.4, 2.6, 2.8), (-2.2, 10.8, -6.4, 3.2, 2.2, 1.2)],
+                    veins=[('x', 1, -1.4, 2.4), ('x', -1, 2.0, -2.6), ('z', -1, 1.6, 1.4), ('z', 1, -2.4, 2.2)],
+                    drips=[(r - 0.3, -2.4, 2.4), (-2.0, r - 0.3, 3.0)])
 
 
 def _seg2():
-    r = 5.8; y0, y1 = 16.0, 24.6; cz = 0.3
-    return _segment(y0, y1, r, cz,
-                    lumps=[(-6.0, 20.6, 1.8, 1.4, 2.6, 2.6), (2.4, 19.4, -5.8, 2.4, 2.0, 1.4)],
-                    veins=[([(17.6, 0.8), (20.4, 0.8), (20.4, -1.6), (23.4, -1.6)], 'x', r, 1),
-                           ([(17.6, -1.0), (21.6, -1.0), (21.6, 1.4), (23.4, 1.4)], 'x', -r, -1),
-                           ([(-1.2, 17.6), (-1.2, 21.0), (1.2, 21.0), (1.2, 23.4)], 'z', -r + cz, -1)],
-                    drips=[(-4.2, 17.1, -3.6, 2.6), (3.8, 17.1, 3.8, 1.8)])
+    r = 5.8
+    return _segment(16.0, 24.6, r, 0.3, lumps=[(-5.9, 19.4, 1.8, 1.2, 2.4, 2.4), (2.4, 18.8, -5.7, 2.2, 1.8, 1.2)],
+                    veins=[('x', 1, 0.8, -2.4), ('x', -1, -1.0, 2.4), ('z', -1, -1.2, 2.4)],
+                    drips=[(-(r - 0.3), -1.6, 2.6), (2.6, r - 0.3, 1.8)])
 
 
 def _seg3():
-    r = 5.6; y0, y1 = 24.0, 32.4; cz = 0.5
-    S = _segment(y0, y1, r, cz, lumps=[(0.0, 27.8, 6.2, 3.2, 2.4, 1.2)],
-                 veins=[([(-1.0, 25.6), (-1.0, 28.6), (1.4, 28.6), (1.4, 31.4)], 'z', -r + cz, -1)],
-                 drips=[(1.6, 25.1, -4.8, 2.0)])
+    r = 5.6
+    S = _segment(24.0, 32.4, r, 0.5, lumps=[(0.0, 27.0, 6.0, 3.0, 2.2, 1.2)], veins=[('z', -1, -1.0, 2.4)],
+                 drips=[(1.6, -(r - 0.3), 2.0)])
     for t in TENT:                                                  # (the sockets the tentacles grow from: swollen, ringed)
         x, y, z = ROOT[t]; o = OUT[t]
         a = (x - o[0] * 2.4, y, z - o[2] * 2.4); b = (x + o[0] * 0.6, y, z + o[2] * 0.6)
@@ -505,57 +504,67 @@ def _seg3():
     return S
 
 
+MOUTH_Y = 37.1                                                       # (the lips' seam)
+
+
 def _head():
     H = []
-    # the mass: a tall dome over the throat, the hood flaring down its back
-    H += [E((-6.2, 32.6, -1.6), (6.2, 41.0, 7.0), 'hide'), E((-5.2, 31.6, -2.0), (5.2, 42.0, 7.6), 'hide'),
+    # the mass: a swollen dome over the throat, bulging at its sides, the hood flaring down its back
+    H += [E((-6.0, 32.4, -1.8), (6.0, 40.6, 6.8), 'hide'), E((-5.0, 31.6, -2.2), (5.0, 41.6, 7.6), 'hide'),
+          E((-6.9, 33.8, -0.6), (6.9, 39.0, 5.0), 'hide'),
           E((-5.6, 28.4, 5.8), (5.6, 34.4, 8.6), 'rib'), E((-4.4, 27.2, 6.6), (4.4, 30.0, 9.0), 'rib'),       # (the hood)
           E((-6.6, 29.6, 3.2), (-5.4, 34.6, 7.2), 'rib'), E((5.4, 29.6, 3.2), (6.6, 34.6, 7.2), 'rib')]
-    # the upper lip, over the mouth: the brow, folded
-    H += [E((-5.8, 36.6, -8.2), (5.8, 41.0, -1.6), 'hide'), E((-4.8, 40.8, -7.4), (4.8, 41.8, -1.6), 'hide'),
-          E((-5.2, 39.4, -8.8), (5.2, 41.2, -8.2), 'fold')]
-    for z0, z1 in ((-6.8, -5.4), (-3.6, -2.2), (-0.4, 1.0), (2.8, 4.2), (5.4, 6.6)):                 # (folds across the crown)
-        w = 5.6 if z0 < 4 else 4.8
-        H.append(E((-w, 41.6, z0), (w, 42.8, z1), 'fold'))
-    H += [E((-0.9, 42.4, -7.0), (0.9, 43.6, 6.2), 'fold'), E((-3.6, 42.6, -1.6), (-2.2, 43.2, 4.4), 'fold'), E((2.2, 42.6, -4.4), (3.6, 43.2, 2.6), 'fold')]
+    # the upper lip over the mouth, its heavy brow; the cheeks down either side of the jaw (the ring's sides)
+    H += [E((-6.0, MOUTH_Y + 0.1, -8.4), (6.0, 41.0, -1.8), 'hide'), E((-5.0, 40.8, -7.6), (5.0, 41.8, -1.8), 'hide'),
+          E((-4.6, 39.0, -9.0), (4.6, 41.0, -8.4), 'fold'), E((-2.4, 40.6, -9.4), (2.4, 41.8, -8.8), 'fold')]
+    for sx in (1, -1):
+        x0, x1 = sorted((sx * 4.85, sx * 6.4))
+        b0, b1 = sorted((sx * 5.6, sx * 6.9))
+        H += [E((x0, 31.4, -8.0), (x1, MOUTH_Y + 0.2, -1.8), 'hide'), E((b0, 32.0, -7.4), (b1, 35.0, -3.0), 'hide')]
+    # the crown: brain-like folds, staggered
+    for (x0, x1, z0, z1, hh) in ((-4.8, -0.6, -6.6, -5.0, 1.2), (0.6, 4.6, -6.0, -4.4, 1.0), (-5.2, -1.4, -3.4, -1.8, 1.0),
+                                 (-0.2, 5.0, -2.8, -1.2, 1.3), (-4.6, 0.4, 0.2, 1.8, 1.2), (1.4, 5.2, 0.8, 2.4, 1.0),
+                                 (-4.0, 3.0, 3.4, 5.0, 1.1), (-3.0, 3.6, 5.8, 7.2, 0.9)):
+        H.append(E((x0, 41.4, z0), (x1, 41.6 + hh, z1), 'fold'))
+    H += [E((-0.8, 42.0, -6.0), (0.8, 43.2, 0.0), 'fold')]
     # pustules, swollen and glossy, a crack of light in each
-    H += [E((6.0, 36.8, 0.4), (7.4, 39.6, 3.6), 'hide'), E((7.35, 37.8, 1.6), (7.55, 38.5, 2.6), 'glow'),
-          E((-7.2, 38.4, -0.6), (-6.0, 40.4, 1.8), 'hide'), E((-7.35, 39.0, 0.2), (-7.15, 39.8, 0.9), 'glow'),
+    H += [E((6.6, 36.4, 0.6), (7.8, 39.0, 3.6), 'hide'), E((7.75, 37.4, 1.6), (7.95, 38.1, 2.6), 'glow'),
+          E((-7.6, 38.0, 1.4), (-6.6, 40.0, 3.8), 'hide'), E((-7.75, 38.6, 2.2), (-7.55, 39.4, 2.9), 'glow'),
           E((-3.0, 37.8, 7.4), (0.2, 40.2, 8.6), 'hide'), E((-1.8, 38.6, 8.55), (-0.8, 39.2, 8.75), 'glow')]
     # veins from the mouth's corners back over the head
-    for s in (1, -1):
-        H += VEIN([(36.8, -7.6), (36.8, -4.0), (38.6, -4.0), (38.6, -0.4), (40.2, -0.4), (40.2, 4.0)], 'x', s * 6.2, s)
-    H += VEIN([(-3.0, -1.6), (-3.0, 2.0), (-1.4, 2.0)], 'y', 41.8, 1) + VEIN([(2.6, 4.6), (2.6, 6.8)], 'y', 41.8, 1)
-    H += VEIN([(-1.6, 33.0), (-1.6, 36.0), (1.6, 36.0), (1.6, 39.0)], 'z', 7.6, 1)
-    # inside: the roof of the mouth and the throat (lit), a ring of black fangs round the throat's hole
-    H += [E((-5.0, 36.45, -7.4), (5.0, 36.62, -1.6), 'ember'),
-          E((-4.4, 31.9, -1.9), (4.4, 36.6, -1.55), 'ember'),
-          E((-1.5, 32.8, -1.95), (1.5, 35.8, -1.85), 'void')]
+    for sx in (1, -1):
+        H += VEIN([(35.4, -6.4), (35.4, -2.6), (37.4, -2.6), (37.4, 0.6)], 'x', sx * 6.9, sx)
+    H += VEIN([(-1.6, 33.0), (-1.6, 35.4), (1.6, 35.4), (1.6, 38.0)], 'z', 7.6, 1)
+    # inside, all lit: the roof, the cheeks' walls, the throat - and a ring of black fangs round the throat's hole
+    H += [E((-4.6, MOUTH_Y, -7.4), (4.6, MOUTH_Y + 0.2, -1.8), 'ember'),
+          E((-4.9, 31.8, -7.2), (-4.75, MOUTH_Y, -1.9), 'ember'), E((4.75, 31.8, -7.2), (4.9, MOUTH_Y, -1.9), 'ember'),
+          E((-4.6, 31.4, -2.0), (4.6, MOUTH_Y + 0.1, -1.7), 'ember'),
+          E((-1.6, 32.6, -2.06), (1.6, 35.8, -1.95), 'void')]
+    ring = {f: [6, 0, 10, 16] for f in F6}
     for k in range(8):
-        a = 2 * math.pi * k / 8; x, y = 2.6 * math.cos(a), 34.3 + 2.2 * math.sin(a)
-        H.append(E((x - 0.35, y - 0.35, -3.3), (x + 0.35, y + 0.35, -1.9), 'fang', uv={f: [6, 0, 10, 16] for f in F6}))
-    # the upper fangs, hanging from the lip; and down its sides (the ring's upper half)
-    for x in (-4.4, -2.2, 0.0, 2.2, 4.4):
-        H.append(E((x - 0.45, 34.6, -7.8), (x + 0.45, 36.6, -6.9), 'fang'))
-    for s in (1, -1):
-        for z in (-5.6, -3.4):
-            H.append(E((s * 5.3 - 0.4, 35.0, z - 0.4), (s * 5.3 + 0.4, 36.6, z + 0.4), 'fang'))
+        a = 2 * math.pi * k / 8 + math.pi / 8; x, y = 2.7 * math.cos(a), 34.2 + 2.5 * math.sin(a)
+        H.append(E((x - 0.4, y - 0.4, -3.9), (x + 0.4, y + 0.4, -2.0), 'fang', uv=ring))
+    # the fangs round the opening: hanging from the lip, uneven; jutting in from the cheeks
+    for x, ln in ((-3.6, 2.4), (-1.2, 1.6), (1.2, 2.2), (3.5, 1.7)):
+        H.append(E((x - 0.45, MOUTH_Y + 0.1 - ln, -7.9), (x + 0.45, MOUTH_Y + 0.1, -7.0), 'fang'))
+    side = {f: [0, 0, 16, 16] for f in F6}
+    for sx in (1, -1):
+        for y, ln in ((35.6, 1.5), (33.4, 1.2)):
+            x0, x1 = sorted((sx * 4.85, sx * (4.85 - ln)))
+            H.append(E((x0, y - 0.4, -7.7), (x1, y + 0.4, -6.9), 'fang', uv=side))
     return H
 
 
 def _jaw():
-    J = [E((-5.6, 31.2, -8.6), (5.6, 36.3, -1.0), 'hide'), E((-4.8, 30.6, -8.0), (4.8, 31.4, -1.6), 'hide'),
-         E((-5.0, 36.0, -7.4), (5.0, 36.36, -1.2), 'ember'),                                         # (the floor of the mouth, lit)
-         E((-5.0, 33.0, -9.1), (5.0, 35.0, -8.6), 'fold')]
+    J = [E((-4.7, 31.0, -8.4), (4.7, MOUTH_Y - 0.1, -1.0), 'hide'), E((-4.0, 30.4, -7.6), (4.0, 31.2, -1.6), 'hide'),
+         E((-4.4, MOUTH_Y - 0.4, -7.2), (4.4, MOUTH_Y - 0.04, -1.2), 'ember'),                        # (the floor of the mouth, lit)
+         E((-4.4, 33.0, -8.9), (4.4, 35.4, -8.4), 'fold'), E((-2.0, 31.4, -9.2), (2.0, 33.2, -8.4), 'fold')]
     lower = {f: [0, 16, 16, 0] for f in F6}                                                           # (point up: the texture flipped)
-    for x in (-3.3, -1.1, 1.1, 3.3):
-        J.append(E((x - 0.45, 36.3, -7.8), (x + 0.45, 38.0, -6.9), 'fang', uv=lower))
-    for s in (1, -1):
-        for z in (-4.6, -2.4):
-            J.append(E((s * 5.0 - 0.4, 36.3, z - 0.4), (s * 5.0 + 0.4, 37.6, z + 0.4), 'fang', uv=lower))
-    for s in (1, -1):
-        J += VEIN([(32.0, -8.0), (32.0, -5.2), (34.4, -5.2), (34.4, -2.0)], 'x', s * 5.6, s)
-    J += DRIP(-3.4, 31.0, -7.6, 3.4) + DRIP(1.6, 31.0, -8.0, 2.2, 0.6, 1.1) + DRIP(4.2, 31.4, -6.4, 4.4)
+    for x, ln in ((-2.6, 2.0), (0.0, 1.4), (2.5, 2.2)):
+        J.append(E((x - 0.45, MOUTH_Y - 0.1, -7.9), (x + 0.45, MOUTH_Y - 0.1 + ln, -7.0), 'fang', uv=lower))
+    for sx in (1, -1):
+        J += VEIN([(32.2, -7.8), (32.2, -4.6), (34.2, -4.6), (34.2, -1.6)], 'x', sx * 4.7, sx)
+    J += DRIP(-2.8, 30.8, -7.4, 3.4) + DRIP(1.4, 30.8, -7.8, 2.2, 0.6, 1.1) + DRIP(3.4, 31.2, -6.0, 4.4)
     return J
 
 
@@ -815,13 +824,13 @@ def _pose(name):
         p = P(_o_seg1=(0, -15.0, 0), seg1=T(6, 0, 3), seg2=T(10, -6, -2), seg3=T(16, 4), head=T(34), jaw=JAW(4))
         p = coiled(p, TENT, 1.15)
     elif name == 'rise_2':                                    # (fully up, rearing back, its mouth open, its tentacles flaring)
-        p = P(seg1=T(-3), seg2=T(-6), seg3=T(-5), head=T(-24), jaw=JAW(38))
+        p = P(seg1=T(-3), seg2=T(-6), seg3=T(-5), head=T(-12), jaw=JAW(44))
         for t in TENT:
             o = OUT[t]; p = lay(p, t, curl(_unit((o[0] * 0.75, 0.75, o[2] * 0.75)), _unit((o[0], -0.9, o[2])), (38, 52)))
     elif name in ('idle_a', 'idle_b'):                        # (swaying, breathing; the tentacles drifting)
         b = name == 'idle_b'; sg = -1 if b else 1
         p = P(seg1=T(3, 0, 4 * sg), seg2=T(4, 5 * sg, -3 * sg), seg3=T(5 if not b else 3, -4 * sg, -3 * sg), head=T(12 if not b else 4, 6 * sg, 5 * sg),
-              jaw=JAW(12 if not b else 24))
+              jaw=JAW(8 if not b else 18))
         bends = {'t1': (28, 42), 't2': (36, 30), 't3': (24, 50), 't4': (42, 34)}
         for i, t in enumerate(TENT):
             o = OUT[t]; up = 0.32 if (i % 2 == 0) != b else 0.12
@@ -829,18 +838,18 @@ def _pose(name):
             d0 = _rod(_unit((o[0], up, o[2])), UP, sw)
             p = lay(p, t, curl(d0, _unit((o[0], -1.0, o[2])), bends[t] if not b else bends[t][::-1]))
     elif name == 'shriek':                                    # (the head thrown back, the mouth wide, the tentacles spread high)
-        p = P(seg1=T(-5), seg2=T(-9), seg3=T(-12), head=T(-42), jaw=JAW(56))
+        p = P(seg1=T(-5), seg2=T(-9), seg3=T(-12), head=T(-30), jaw=JAW(60))
         for t in TENT:
             o = OUT[t]; p = lay(p, t, curl(_unit((o[0] * 0.55, 0.85, o[2] * 0.55)), _unit((o[0], 0.0, o[2])), (24, 34)))
     elif name == 'grab_0':                                    # (t1 shot straight out ~6 blocks ahead at chest height; the others coiled)
-        p = P(seg1=T(6), seg2=T(8), seg3=T(8, 8), head=T(10), jaw=JAW(30))
+        p = P(seg1=T(6), seg2=T(8), seg3=T(8, 8), head=T(6), jaw=JAW(36))
         p = coiled(p, ('t2', 't3', 't4'))
-        R = _root(p, 't1'); tg = (1.0, 10.5, -48.0)
+        R = _root(p, 't1'); tg = (1.0, 10.5, -50.5)
         p = reach(p, 't1', tg, (_add(R, _unit(_sub(tg, R)), 17.0), _add(R, _unit(_sub(tg, R)), 33.0)), inner=DOWN)
     elif name == 'grab_1':                                    # (t1 hauling back in, curled round as if dragging something to it)
         p = P(seg1=T(2), seg2=T(-3), seg3=T(-6, 10), head=T(8), jaw=JAW(42))
         p = coiled(p, ('t2', 't3', 't4'))
-        p = lay(p, 't1', curl(_unit((0.2, -0.38, -1.0)), (0.0, 1.0, 0.25), (95, 85)))
+        p = reach(p, 't1', (1.6, 23.0, -16.0), ((4.6, 21.0, -20.0), (3.0, 12.0, -31.0)))     # (a loop at chest height, hauled to the mouth)
     elif name == 'stab_0':                                    # (the wind-up: leaning back, t2 and t3 raised high and cocked)
         p = P(seg1=T(-4), seg2=T(-9), seg3=T(-10), head=T(-10), jaw=JAW(22))
         p = coiled(p, ('t1', 't4'))
@@ -854,7 +863,8 @@ def _pose(name):
             p = reach(p, t, tg, (_add(R, (x * 0.4, 12.0, -10.0)), (x * 0.9, 16.0, -24.0)), inner=(0.0, 0.0, 1.0))
     elif name == 'recoil':                                    # (flinching from the light: twisted away, ducking, tentacles pulled in)
         p = P(seg1=T(-6, 10, -6), seg2=T(-12, 18, -8), seg3=T(-8, 14, -6), head=T(16, 26, -10), jaw=JAW(30))
-        p = coiled(p, TENT, 1.25)
+        for t in TENT:                                        # (drawn up and in about itself, hooks turned away from the light)
+            o = OUT[t]; p = lay(p, t, curl(_unit((o[0] * 0.55, 0.7, o[2] * 0.55 + 0.35)), _unit((-o[0], -0.3, -o[2] + 0.4)), (62, 58)))
     elif name == 'sink_0':                                    # (half sunk, bowed; its tentacles limp on the ground)
         p = P(_o_mound=(0, -2.0, 0), _o_seg1=(0, -17.0, 0), seg1=T(6), seg2=T(12, 0, 6), seg3=T(12), head=T(32), jaw=JAW(8))
         p = draped(p, TENT, 24.0, 8.0)
@@ -863,7 +873,7 @@ def _pose(name):
         p = draped(p, ('t1', 't3', 't4'), 30.0, -6.0)
         p = lay(p, 't2', curl(_unit((-0.7, 0.4, -0.4)), (-0.3, -1.0, 0.0), (60, 50)))
     elif name == 'death_1':                                   # (a melted heap on the puddle)
-        p = P(_o_mound=(0, -3.6, 0), _o_seg1=(0, -11.0, 0), seg1=T(62, 0, 10), seg2=T(30, 30, 24), seg3=T(16, -24, 18), head=T(10, 10, -20), jaw=JAW(50))
+        p = P(_o_mound=(0, -3.6, 0), _o_seg1=(0, -4.5, 0), seg1=T(70, 0, 6), seg2=T(15, 20, 0), seg3=T(12, -10), head=T(-15, 10, -15), jaw=JAW(46))
         p = draped(p, TENT, 28.0, 14.0)
     else:
         raise KeyError(name)
@@ -911,19 +921,36 @@ def _outline(im):
     return im
 
 
+REMNANT = ['................',
+           '.....444........',
+           '..44.4w54...33..',
+           '.4554433343443..',
+           '.45w43333334433.',
+           '.44333322233332.',
+           '.433322rrr22332.',
+           '4333322aRca2232.',
+           '433322aRchca221.',
+           '43322aRccRa2221.',
+           '.3322aRRca22211.',
+           '.33222aaa222211.',
+           '..222222222111..',
+           '...22211111.4...',
+           '............4...',
+           '...........454..']
+REMNANT_PAL = {'1': '#140a0f', '2': '#22101a', '3': '#341824', '4': '#4e2436', '5': '#70344a', 'w': '#c890a4',
+               'r': '#4a0812', 'a': '#7a0c1e', 'R': '#b81a30', 'c': '#ec3a44', 'h': '#ffa090'}
+
+
 def remnant_raw():
-    """a Shadow Remnant: a quivering blob of black shadow-goo, three lumps trembling up off it, a red glint deep inside, a glossy
-    highlight top left, and a drip running off it"""
-    S = _icon_kit(); s = S()
-    s.disc(8.0, 10.2, 5.6, GOO, sq=0.78)                                   # (the body, slumped)
-    s.disc(5.2, 6.6, 2.6, GOO); s.disc(9.6, 5.4, 2.8, GOO); s.disc(12.2, 7.8, 2.0, GOO)     # (the lumps, quivering up)
-    s.g(['.ab.', 'abcb', 'bcdc', '.cc.'], {'a': REDS[0], 'b': REDS[1], 'c': REDS[2], 'd': REDS[4]}, 7, 9)      # (the glint inside)
-    s.px(8, 10, REDS[3])
-    s.g(['ff', 'f.'], {'f': '#c08098'}, 4, 5); s.px(8, 3, '#a86880'); s.px(9, 3, '#a86880')                     # (wet highlights)
-    s.px(4, 9, GOO[4]); s.px(4, 10, GOO[3])
-    for y in (13, 14): s.px(12, y, GOO[2])                                 # (the drip)
-    s.px(12, 15, GOO[3]); s.px(13, 15, GOO[2])
-    return _outline(s.image())
+    """a Shadow Remnant: a quivering blob of black shadow-goo - lumps trembling up off its top, a wet glint top left, a red glint
+    deep inside it, and a drip running off its underside"""
+    from sprites280 import hx
+    im = Image.new('RGBA', (16, 16), (0, 0, 0, 0)); px = im.load()
+    for y, row in enumerate(REMNANT):
+        assert len(row) == 16, (y, row)
+        for x, ch in enumerate(row):
+            if ch != '.': px[x, y] = hx(REMNANT_PAL[ch])
+    return _outline(im)
 
 
 def musk_raw():
@@ -945,17 +972,17 @@ def musk_raw():
     s.px(5, 3, WOOD[4])
     s.px(4, 9, GL[4]); s.px(4, 10, GL[3]); s.px(5, 8, GL[3])               # (a glint on the glass)
     im = _outline(s.image()); px = im.load()
-    SM = [(144, 120, 140), (110, 86, 108), (88, 66, 86), (70, 50, 70)]      # (the smoke: laid on after the outline - a thread, no outline)
-    for (x, y, c) in ((8, 2, 0), (9, 1, 1), (9, 0, 2), (10, 1, 2), (11, 0, 3), (7, 1, 1), (6, 0, 2)):
+    SM = [(196, 176, 192), (160, 136, 158), (128, 104, 128)]                 # (the smoke: laid on after the outline - a thread, no outline)
+    for (x, y, c) in ((6, 1, 0), (7, 0, 0), (8, 1, 1), (9, 0, 1), (10, 1, 2), (11, 0, 2), (5, 0, 1)):
         if px[x, y][3] == 0: px[x, y] = SM[c] + (255,)
     return im
 
 
-ICONS = {'shadow_remnant': None, 'shadow_musk': None}
-
-
 def icons():
     return {'shadow_remnant': remnant_raw(), 'shadow_musk': musk_raw()}
+
+
+ICONS = icons()                                                 # ({name: raw image} - gen_rp's ICONS loop finishes them)
 
 
 def icon(name):

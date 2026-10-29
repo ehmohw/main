@@ -71,11 +71,15 @@ def generate(G):
     for name, pz in A.POSES.items():
         fn(f'{PFX}/pose/{name}', RF.pose(A, pz, SCALE, DUR.get(name, 8), sel))
     fn(f'{PFX}/place', RF.place(A, SCALE / 16, sel))
+    # (once, at the spawn: every hidden part moved to its sunk place under the puddle, so a rise grows it up out of the ground)
+    fn(f'{PFX}/stash', RF.pose(A, A.POSES['dormant'], SCALE, 1, sel, hide=False) +
+       [f'execute as {sel(p)} run data merge entity @s {{transformation:{{scale:[0f,0f,0f]}}}}' for p in A.PARTS if p != 'puddle'])
     rig = []
     for p in A.PARTS:
         extra = dict(view_range=F(4.0))
         if p in GLOW: extra['brightness'] = {'block': Int(15), 'sky': Int(15)}
-        rig.append(f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, ["bm.mr", f"bm.mr_{p}", "bm.mnew"], SCALE, model=A.model_id(p), extra=extra)}')
+        # (every part but the puddle summoned at scale 0, so the rest pose never flashes up at the spawn)
+        rig.append(f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, ["bm.mr", f"bm.mr_{p}", "bm.mnew"], SCALE, model=A.model_id(p), extra=extra, scale0=p != "puddle")}')
     fn(f'{PFX}/rig', rig)
     fn(f'{PFX}/mine', ['scoreboard players operation #me bm.mid = @s bm.mid',
                        'execute as @e[type=minecraft:item_display,tag=bm.mr] if score @s bm.mid = #me bm.mid run tag @s add bm.msel'])
@@ -102,7 +106,7 @@ def generate(G):
                          f'execute at @s rotated as @s rotated ~ 0 run function bm:{PFX}/rig',
                          'scoreboard players operation @e[type=minecraft:item_display,tag=bm.mnew,distance=..1] bm.mid = @s bm.mid',
                          'tag @e[type=minecraft:item_display,tag=bm.mnew,distance=..1] remove bm.mnew',
-                         f'function bm:{PFX}/mine', f'execute at @s rotated as @s rotated ~ 0 run function bm:{PFX}/place', f'function bm:{PFX}/pose/dormant',
+                         f'function bm:{PFX}/mine', f'execute at @s rotated as @s rotated ~ 0 run function bm:{PFX}/place', f'function bm:{PFX}/stash', f'function bm:{PFX}/pose/dormant',
                          'tag @e[type=minecraft:item_display,tag=bm.msel] remove bm.msel', 'tag @s remove bm.mnewh'])
     skip = {'ghast', 'phantom', 'drowned', 'shulker', 'blaze', 'breeze', 'pillager', 'vindicator', 'piglin_brute'}
     for t in list(G.ARMORED) + list(G.UNARMORED):

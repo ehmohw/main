@@ -161,9 +161,9 @@ NOTES = {'dormant': 'the puddle alone', 'rise_0': 'the mound swelling', 'rise_1'
          'recoil': 'from the cross', 'sink_0': 'half sunk', 'death_0': 'collapsing', 'death_1': 'a melted heap'}
 
 
-def tile(name, view=(-32, 14), size=420, span=11.0, center=(0, 2.6, -0.6), text=None, sub=None, player=True):
+def tile(name, view=(-32, 14), size=420, span=11.0, center=(0, 2.6, 0.6), text=None, sub=None, player=True, at=(-3.6, 0, 3.2)):
     s = K.multi_scene(ROOT); mire(s, name)
-    if player: steve(s, (-3.6, 0, 3.2))
+    if player: steve(s, at)
     floor(s, 6, cols=FLOOR)
     lo, hi, zf = A.extent(A.POSES[name])
     return label(s.render(view, size=size, span=span, center=center), text or name,
@@ -173,11 +173,12 @@ def tile(name, view=(-32, 14), size=420, span=11.0, center=(0, 2.6, -0.6), text=
 if 'poses' in what:
     tiles = []
     for n in A.POSE_NAMES:
-        if n in ('grab_0', 'grab_1'): tiles.append(tile(n, view=(-62, 16), span=13.0, center=(0, 2.4, -2.6)))
-        elif n == 'stab_1': tiles.append(tile(n, view=(-55, 18), span=12.0, center=(0, 2.4, -1.6)))
+        if n == 'grab_0': tiles.append(tile(n, view=(72, 12), span=13.0, center=(0, 2.6, 2.4), at=(0.4, 0, 6.3)))
+        elif n == 'grab_1': tiles.append(tile(n, view=(72, 12), span=13.0, center=(0, 2.6, 2.4), at=(0.4, 0, 3.0)))
+        elif n in ('stab_0', 'stab_1'): tiles.append(tile(n, view=(72, 12), span=13.0, center=(0, 2.8, 1.8), at=(0.6, 0, 4.6)))
         else: tiles.append(tile(n))
     p = os.path.join(OUT, 'mire_poses.png')
-    K.sheet(tiles, p, cols=5, title='The Dread Mire - every pose (a player for scale; grab and stab seen from its side, its front to the left)'); print(p)
+    K.sheet(tiles, p, cols=5, title='The Dread Mire - every pose (a player for scale; grab and stab from its side, its front to the left, the player where the blow lands)'); print(p)
 
 # ---------------------------------------------------------------------------------------------------- turnaround
 if 'turn' in what:
@@ -195,7 +196,7 @@ if 'turn' in what:
 if 'night' in what:
     tiles = []
     for lit in (False, True):
-        for n, v, sp, c in (('dormant', (-25, 30), 8.0, (0, 0.3, 0)), ('rise_2', (-32, 12), 11.0, (0, 2.6, -0.6)), ('grab_0', (-62, 14), 13.0, (0, 2.4, -2.6))):
+        for n, v, sp, c in (('dormant', (-25, 30), 8.0, (0, 0.3, 0)), ('rise_2', (-32, 12), 11.0, (0, 2.6, -0.6)), ('grab_0', (72, 12), 13.0, (0, 2.6, 2.4))):
             s = dark_scene(lit); mire(s, n); floor(s, 7, cols=FLOOR)
             im = darken(s.render(v, size=420, span=sp, center=c))
             tiles.append(label(im, n, 'GLOW: brightness 15' if lit else 'unlit: light_emission only', col=(230, 220, 225), sub_col=(170, 160, 170)))

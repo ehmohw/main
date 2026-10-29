@@ -974,6 +974,8 @@ if __name__ == '__main__':
         phase244.rp(sys.modules[__name__])
         import phase245                           # (2.99a: the Statue Knights - their rigs, statues, icons)
         phase245.rp(sys.modules[__name__])
+        import phase246                           # (2.99a: the Dread Mire - its rig, sounds, the remnant and the musk)
+        phase246.rp(sys.modules[__name__])
     if PHASE2:
         import creative                       # (2.96a: the Creative Forms' outfits - their pass goes last, after every model of the twelve is written)
         creative.rp(sys.modules[__name__])
