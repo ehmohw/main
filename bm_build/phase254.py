@@ -159,7 +159,7 @@ def _q(deg):
 
 def _followers(cmd, r=16):
     """(as anyone, #me bm.pid set) the lines running cmd as each of the owner's OTHER followers out within r"""
-    return [f'execute as @e[type=minecraft:{t},tag=!bm.tkpet,tag=!bm.ffpet,distance=..{r}] if score @s bm.pid = #me bm.pid run {cmd}' for t in ('wolf', 'cat')]
+    return [f'execute as @e[type=minecraft:{t},tag=!bm.tkpet,tag=!bm.ffpet,distance=..{r}] if score @s bm.pid = #me bm.pid at @s run {cmd}' for t in ('wolf', 'cat')]
 
 
 def _abilities(G, X):
@@ -177,9 +177,9 @@ def _abilities(G, X):
     host = f'@e[type=minecraft:wolf,tag={me},limit=1]'
     fn(f'{pfx}/tugged', [f'function bm:{pfx}/hurt'] +
        [f'execute facing entity {host} feet positioned ^ ^1 ^{d} run {thread(*RAINBOW[d % len(RAINBOW)])}' for d in range(1, 9)] +
-       [f'execute at @s unless entity {host}[distance=..2.2] facing entity {host} feet if block ^ ^ ^0.8 #bm:grap_pass if block ^ ^1 ^0.8 #bm:grap_pass run tp @s ^ ^ ^0.8'
+       [f'execute at @s unless entity @e[type=minecraft:wolf,tag={me},distance=..2.2,limit=1] facing entity {host} feet if block ^ ^ ^0.8 #bm:grap_pass if block ^ ^1 ^0.8 #bm:grap_pass run tp @s ^ ^ ^0.8'
         for _ in range(3)] +
-       ['particle minecraft:end_rod ~ ~1 ~ 0.2 0.4 0.2 0.04 8', 'playsound minecraft:entity.leash_knot.place neutral @a[distance=..16] ~ ~ ~ 1 0.8'])
+       ['particle minecraft:end_rod ~ ~1 ~ 0.2 0.4 0.2 0.04 8', 'playsound minecraft:item.lead.tied neutral @a[distance=..16] ~ ~ ~ 1 0.8'])
     # THE WEAVE: a web over every foe within 8 - bound (held fast, weakened), 7; while the web holds, its threads shimmer; pulled tight: 6 more
     fn(f'{pfx}/charged', ['tag @e[tag=bm.tkw,distance=..24] remove bm.tkw'] + X.hit(7) +
        [f'execute as @e[{foe},distance=..8] at @s run function bm:{pfx}/bound', f'tag @s remove {me}',
@@ -192,7 +192,7 @@ def _abilities(G, X):
        ['particle minecraft:end_rod ~ ~1 ~ 0.4 0.5 0.4 0.005 1'])
     fn(f'{pfx}/charged2', X.hit(6) + [f'execute as @e[tag=bm.tkw,distance=..12] at @s run function bm:{pfx}/pulled'] + X.end)
     fn(f'{pfx}/pulled', [f'function bm:{pfx}/hurt', 'tag @s remove bm.tkw', 'particle minecraft:end_rod ~ ~1 ~ 0.3 0.5 0.3 0.12 14',
-                         'particle minecraft:crit ~ ~1 ~ 0.3 0.4 0.3 0.2 8', 'playsound minecraft:entity.leash_knot.break neutral @a[distance=..16] ~ ~ ~ 1 0.9'])
+                         'particle minecraft:crit ~ ~1 ~ 0.3 0.4 0.3 0.2 8', 'playsound minecraft:item.lead.break neutral @a[distance=..16] ~ ~ ~ 1 0.9'])
     # MEND: you and every follower of yours near - Instant Health and Regeneration II
     fn(f'{pfx}/support', ['execute on owner if entity @s[distance=..16] at @s run function bm:p254/mend_you'])
     fn('p254/mend_you', ['effect give @s minecraft:instant_health 1 0 true', 'effect give @s minecraft:regeneration 6 1 true',
@@ -325,7 +325,7 @@ def generate(G):
     fn('p254/bond', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #kn bm.rng 0'] +
        _followers('scoreboard players add #kn bm.rng 1') +
        ['execute if score #kn bm.rng matches 0 run return 0',
-        'execute on owner if entity @s[distance=..16] run function bm:p254/bond_you',
+        'execute on owner if entity @s[distance=..16] at @s run function bm:p254/bond_you',
         'execute if score #kn bm.rng matches 2.. run function bm:p254/bond_kin'])
     fn('p254/bond_kin', _followers('effect give @s minecraft:strength 3 0 true', 8))
     fn('p254/bond_you', ['effect give @s minecraft:luck 3 0 true',

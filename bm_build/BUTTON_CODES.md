@@ -2377,6 +2377,8 @@ In 1-9999, outside every route of `p28/act` and on no button.
   to `p119/act` only `if score @s bm.menu matches 7950`. From the Tailor (menu 7740) they did nothing, yet the legend showed
   them routed. They're now routed one by one for menu 7740, and the build fails on any button whose menu no route of its code
   lets through ("routed only for another menu").
+- 3.0: the Keeper of Bonds (phase254) took 5250-5259 for its menu (menu 5250; rigpet's 1, 2, 4, 5, 8, 9 - 3, 6, 7 free for later
+  buttons) and 5270-5289 for its wardrobe (menu 5270, phase99.BASE). 5240-5249 and 5260-5269 stay free, then 5290-5639.
 <!-- /notes -->
 
 ## Revision log

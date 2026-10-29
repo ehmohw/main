@@ -75,8 +75,8 @@ const CELL = { under: { 0: [1608, 84, -1393], 2: [1560, 84, -1417], 3: [1560, 84
   if (on('under')) {
     const C = CELL.under;
     await run(`${N}tp TestRat ${UO[0] - 40} 100 ${UO[2] - 40}`); await run(`${N}setblock ${UO[0] - 40} 98 ${UO[2] - 40} minecraft:obsidian`);
-    if ((await sc('#uver', 'bm.p2')) !== 4) await run('function bm:admin/under/place');
-    ok('the stage: the Undercrown placed', await wait(900000, async () => (await sc('#uver', 'bm.p2')) === 4, 2000));
+    if ((await sc('#uver', 'bm.p2')) !== 5) await run('function bm:admin/under/place');
+    ok('the stage: the Undercrown placed', await wait(900000, async () => (await sc('#uver', 'bm.p2')) === 5, 2000));
     await run(`${N}forceload add ${UO[0]} ${UO[2]} ${UO[0] + 223} ${UO[2] + 223}`); await sleep(4000);
     const outer = await pos(N, '@e[type=minecraft:marker,tag=bm.uouter,limit=1]');
     const gate = await pos(N, '@e[type=minecraft:marker,tag=bm.ugate,limit=1]');
@@ -108,8 +108,8 @@ const CELL = { under: { 0: [1608, 84, -1393], 2: [1560, 84, -1417], 3: [1560, 84
   if (on('armada')) {
     const C = CELL.armada;
     await run(`${E}tp TestRat 1200 90 0`); await run(`${E}setblock 1200 88 0 minecraft:obsidian`); await sleep(1000);
-    if ((await sc('#aver', 'bm.p2')) < 3) await run('function bm:admin/armada/place');
-    ok('the stage: the Armada placed', await wait(900000, async () => (await sc('#aver', 'bm.p2')) >= 3, 2000));
+    if ((await sc('#aver', 'bm.p2')) < 4) await run('function bm:admin/armada/place');
+    ok('the stage: the Armada placed', await wait(900000, async () => (await sc('#aver', 'bm.p2')) >= 4, 2000));
     await run(`${E}forceload add ${AO[0]} ${AO[2]} ${AO[0] + 239} ${AO[2] + 239}`); await sleep(4000);
     await run('clear TestRat'); await run('tag TestRat remove bm.acoord'); await run('scoreboard players reset TestRat bm.lka'); await run('scoreboard players reset TestRat bm.aoy');
     A.chats.length = 0; A.bars.length = 0;

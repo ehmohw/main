@@ -40,7 +40,7 @@ OX, OY, OZ = U.ORIGIN
 SX, SY, SZ = U.SIZE
 NETHER = 'minecraft:the_nether'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
-UVER = 4                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out)
+UVER = 5                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out)
 COLLAPSE = 180                            # seconds between its fall and the rebuild
 EYE = (110, 130, 160)                     # the eyes' cycle (ticks): shut .. twitch (warning) .. open .. (round again)
 TOKENS = {'snow': 'tok_frost', 'witch': 'tok_hex', 'shark': 'tok_saw'}
@@ -343,8 +343,10 @@ def generate(G):
                           f'execute in {NETHER} store success score #ubuilt bm.p2 run place template bm:p2_{d} {OX} {OY} {OZ}',
                           'execute unless score #ubuilt bm.p2 matches 1 run return 0'] + bio + [
                           'function bm:p237/build/roads',
-                          f'scoreboard players set #uver bm.p2 {UVER}', 'scoreboard players add #urun bm.p2 1', 'scoreboard players set #ufell bm.p2 0',
+                          f'scoreboard players set #uver bm.p2 {UVER}', 'scoreboard players add #urun bm.p2 1', f'execute in {NETHER} as @e[type=minecraft:marker,tag=bm.d_{d},{BOX}] run scoreboard players operation @s bm.drun = #urun bm.p2', 'scoreboard players set #ufell bm.p2 0',
                           *[f'execute in {NETHER} run forceload remove {q}' for q in fls]])
+    # (a rebuild's leftovers: a marker of an older copy whose chunk loaded after the clear - never two of anything)
+    second.append(f'execute if score #uver bm.p2 matches {UVER} in {NETHER} as @e[type=minecraft:marker,tag=bm.d_{d},{BOX}] unless score @s bm.drun = #urun bm.p2 run kill @s')
     second.append(f'execute if score #uwant bm.p2 matches 1 unless score #uver bm.p2 matches {UVER} unless score #ucol bm.p2 matches 1.. run function bm:p237/build/try')
     # (2.98c) THE ROADS TO THE MAW: from each of its mouths (the court's east and south faces), a walled processional road cut 48
     # blocks out into the Nether, paved, its walls holding back whatever lava is there, soul lanterns hung on chains above it

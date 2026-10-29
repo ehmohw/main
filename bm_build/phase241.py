@@ -36,7 +36,7 @@ OX, OY, OZ = A.ORIGIN
 SX, SY, SZ = A.SIZE
 END = 'minecraft:the_end'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
-AVER = 3                                  # bump to re-place the Armada in every world (a rebuild: everyone aboard is carried out)
+AVER = 4                                  # bump to re-place the Armada in every world (a rebuild: everyone aboard is carried out)
 COLLAPSE = 180                            # seconds between the Admiral's fall and the rebuild
 GUARD_HP = {'brood': 520, 'forge': 640, 'nav': 900}
 GUARD_SPAWN = {'brood': ('abductor', 'execute positioned ~ ~6 ~ run function bm:p32/boss/abductor'), 'forge': ('warlord', 'function bm:p32/boss/warlord'),
@@ -203,7 +203,7 @@ def generate(G):
 
     # ---- who is aboard (in the End, within the box): the music, Adventure mode, the void's tractor beam
     second[0:0] = ['tag @a[tag=bm.ain] remove bm.ain', f'execute in {END} run tag @a[{BOX}] add bm.ain']
-    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.aaq dummy']
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.aaq dummy', 'scoreboard objectives add bm.drun dummy']
     second += ['execute as @a[tag=bm.ain,gamemode=survival] run function bm:p241/adv/in',
                'scoreboard players set @a[tag=bm.aadv,tag=bm.ain] bm.aaq 3', 'scoreboard players remove @a[tag=bm.aadv,tag=!bm.ain] bm.aaq 1',
                'execute as @a[tag=bm.aadv,tag=!bm.ain,scores={bm.aaq=..0}] run function bm:p241/adv/out']
@@ -449,8 +449,10 @@ def generate(G):
                           f'execute in {END} store success score #abuilt bm.p2 run place template bm:p2_{d} {OX} {OY} {OZ}',
                           'execute unless score #abuilt bm.p2 matches 1 run return 0'] + bio + [
                           'function bm:p241/gauntlet/odd',
-                          f'scoreboard players set #aver bm.p2 {AVER}', 'scoreboard players add #arun bm.p2 1', 'scoreboard players set #afell bm.p2 0',
+                          f'scoreboard players set #aver bm.p2 {AVER}', 'scoreboard players add #arun bm.p2 1', f'execute in {END} as @e[type=minecraft:marker,tag=bm.d_{d},{BOX}] run scoreboard players operation @s bm.drun = #arun bm.p2', 'scoreboard players set #afell bm.p2 0',
                           *[f'execute in {END} run forceload remove {q}' for q in fls]])
+    # (a rebuild's leftovers: a marker of an older copy whose chunk loaded after the clear - never two of anything)
+    second.append(f'execute if score #aver bm.p2 matches {AVER} in {END} as @e[type=minecraft:marker,tag=bm.d_{d},{BOX}] unless score @s bm.drun = #arun bm.p2 run kill @s')
     second.append(f'execute if score #awant bm.p2 matches 1 unless score #aver bm.p2 matches {AVER} unless score #acol bm.p2 matches 1.. run function bm:p241/build/try')
     G.FUNCS['load'][-1:-1] = ['execute if entity @a[tag=bm.acoord] run scoreboard players set #awant bm.p2 1']
 
