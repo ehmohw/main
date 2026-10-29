@@ -14,7 +14,7 @@ const ONLY = process.argv[2];
 const on = (s) => !ONLY || ONLY === s;
 const O = 'execute in minecraft:overworld run ', N = 'execute in minecraft:the_nether run ';
 const X = 20800, Y = 100, Z = 16800;                       // (the field: the bot stands at X+.5 Y+1 Z+.5 facing south; the barrel is X Y+1 Z+2)
-const UO = [1536, 6, -1536];                               // (p2/undercfg.ORIGIN)
+const UO = [2560, 6, -2560];                               // (p2/undercfg.ORIGIN)
 const BP = '{components:{"minecraft:custom_data":{bm:"backpack"}}}';
 const HB = (n) => 54 + n;                                  // (a 9x3 container window: hotbar slot n)
 

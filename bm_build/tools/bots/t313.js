@@ -7,7 +7,7 @@
 // fall, Aurel; leaving the Undercrown stops it.
 //   node t313.js
 const { bot, rcon, sleep } = require('./lib_resp');
-const OX = 1536, OZ = -1536;
+const OX = 2560, OZ = -2560;
 const N = 'execute in minecraft:the_nether run ';
 
 (async () => {

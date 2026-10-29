@@ -80,7 +80,7 @@ BONDS = [('emma', '#ff8ad8'), ('celi', '#9ad8ff'), ('zib', '#3ad8c8'), ('cecil',
          ('henry', '#9a9ab8'), ('nia', '#e0a050'), ('gem', '#5ae0a0'), ('batty', '#8a8ad8'), ('eggbert', '#d8d4c0'), ('count', '#a8c8f0'),
          ('dragon', '#5ac048'), ('eraser', '#f08aa0'), ('cursor', '#cfe8ff'), ('inkblot', '#7a7aaa'), ('speech', '#ffd060'), ('lightbringer', '#ffe08a'),
          ('dryad', '#6aa8f0'), ('sovereign', '#d0182e'), ('vexis', '#7aff6a'), ('pxcecil', '#b070ff'), ('pxleo', '#4ab0ff'), ('pxemma', '#ff6ac8'),
-         ('sky', '#ffd04a')]
+         ('sky', '#ffd04a'), ('mireling', '#ff6a1a')]
 
 # ---- the palette: warm and luminous - cream and gold, a soft amber glow in the hood
 CREAM, CREAM_D, CREAM_L = '#f8eed8', '#eadcbc', '#fffaee'

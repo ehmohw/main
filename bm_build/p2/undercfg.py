@@ -18,7 +18,7 @@ import undercrown_lore as L
 
 d = 'under'
 SIZE = (224, 112, 224)
-ORIGIN = (1536, 6, -1536)               # world corner, in the Nether (y 6..117, between the bedrock floor and roof)
+ORIGIN = (2560, 6, -2560)               # world corner, in the Nether (y 6..117, between the bedrock floor and roof); 3.0: its centre ~3.6k from 0,0 (2.98-2.99a: 1536, -1536)
 COL = L.SOV_COL
 
 # ---- the arena (the fight, phase238, reads these; the builder builds exactly this)

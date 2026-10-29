@@ -40,7 +40,7 @@ OX, OY, OZ = U.ORIGIN
 SX, SY, SZ = U.SIZE
 NETHER = 'minecraft:the_nether'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
-UVER = 5                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out)
+UVER = 6                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out)
 COLLAPSE = 180                            # seconds between its fall and the rebuild
 EYE = (110, 130, 160)                     # the eyes' cycle (ticks): shut .. twitch (warning) .. open .. (round again)
 TOKENS = {'snow': 'tok_frost', 'witch': 'tok_hex', 'shark': 'tok_saw'}
@@ -332,7 +332,9 @@ def generate(G):
     for bx in range(0, SX, step):
         for bz in range(0, SZ, step):
             bio.append(f'execute in {NETHER} run fillbiome {OX + bx} {OY} {OZ + bz} {OX + min(SX, bx + step) - 1} {OY + SY - 1} {OZ + min(SZ, bz + step) - 1} bm:undercrown')
-    fn('p237/build/try', [*[f'execute in {NETHER} run forceload add {q}' for q in fls],
+    import p2.oldsite as OS                 # (3.0: moved out to 2.5k-5k - an old copy, where a world had one, comes down first)
+    OS.generate(G, 'p237', NETHER, (1536, 6, -1536), (SX, SY, SZ), 'minecraft:netherrack', CLEAR, 'p237/out', '#uver')
+    fn('p237/build/try', ['execute if function bm:p237/oldsite run return 0', *[f'execute in {NETHER} run forceload add {q}' for q in fls],
                           f'execute in {NETHER} store success score #uload bm.p2 if loaded {OX} {OY} {OZ} if loaded {OX + SX - 1} {OY} {OZ + SZ - 1} if loaded {OX} {OY} {OZ + SZ - 1} if loaded {OX + SX - 1} {OY} {OZ}',
                           'execute unless score #uload bm.p2 matches 1 run return run scoreboard players set #uwait bm.p2 0',
                           'scoreboard players add #uwait bm.p2 1', 'execute unless score #uwait bm.p2 matches 4.. run return 0',

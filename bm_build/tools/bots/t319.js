@@ -9,7 +9,7 @@
 const { bot, rcon, sleep } = require('./lib_resp');
 const ONLY = process.argv[2];
 const on = (s) => !ONLY || ONLY === s;
-const AO = [2560, 24, -4608], UO = [1536, 6, -1536];          // (p2/armadacfg.ORIGIN, p2/undercfg.ORIGIN)
+const AO = [2560, 24, -3328], UO = [2560, 6, -2560];          // (p2/armadacfg.ORIGIN, p2/undercfg.ORIGIN)
 const AW = (x, y, z) => [AO[0] + x, AO[1] + y, AO[2] + z], UW = (x, y, z) => [UO[0] + x, UO[1] + y, UO[2] + z];
 const E = 'execute in minecraft:the_end run ', N = 'execute in minecraft:the_nether run ';
 const FLOOR = 100;
@@ -75,8 +75,8 @@ const FLOOR = 100;
 
   if (on('lock')) {
     await run(`${E}tp TestRat 1200 90 0`); await run(`${E}setblock 1200 88 0 minecraft:obsidian`);
-    if ((await sc('#aver', 'bm.p2')) < 4) await run('function bm:admin/armada/place');
-    ok('the stage: the Armada placed (version 4: its Sentinels and the hangar)', await wait(900000, async () => (await sc('#aver', 'bm.p2')) >= 4, 2000));
+    if ((await sc('#aver', 'bm.p2')) < 5) await run('function bm:admin/armada/place');
+    ok('the stage: the Armada placed (version 5: its Sentinels and the hangar)', await wait(900000, async () => (await sc('#aver', 'bm.p2')) >= 5, 2000));
     await run(`${E}forceload add ${AO[0]} ${AO[2]} ${AO[0] + 239} ${AO[2] + 239}`); await sleep(5000);
     const DG = '@e[type=minecraft:marker,tag=bm.dg,tag=bm.d_armada,limit=1]';
     await run(`${E}scoreboard players set ${DG} bm.pz 16`);
@@ -94,8 +94,8 @@ const FLOOR = 100;
   if (on('gate')) {
     await run(`${N}tp TestRat ${UO[0] - 40} 100 ${UO[2] - 40}`); await run(`${N}setblock ${UO[0] - 40} 98 ${UO[2] - 40} minecraft:obsidian`);
     for (const b of ['snow', 'witch', 'shark']) await run(`scoreboard players set TestRat bm.dbwin_${b} 1`);
-    if ((await sc('#uver', 'bm.p2')) !== 5) await run('function bm:admin/under/place');
-    ok('the stage: the Undercrown placed (version 5: its Sentinels)', await wait(900000, async () => (await sc('#uver', 'bm.p2')) === 5, 2000));
+    if ((await sc('#uver', 'bm.p2')) !== 6) await run('function bm:admin/under/place');
+    ok('the stage: the Undercrown placed (version 6: its Sentinels)', await wait(900000, async () => (await sc('#uver', 'bm.p2')) === 6, 2000));
     const DG = '@e[type=minecraft:marker,tag=bm.dg,tag=bm.d_under,limit=1]';
     await run(`${N}forceload add ${UO[0] + 96} ${UO[2] + 104} ${UO[0] + 128} ${UO[2] + 136}`); await sleep(3000);
     await run(`${N}scoreboard players set ${DG} bm.pz 15`);

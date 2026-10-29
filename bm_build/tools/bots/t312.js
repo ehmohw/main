@@ -7,7 +7,7 @@
 const { bot, rcon, sleep } = require('./lib_resp');
 const ONLY = process.argv[2];
 const on = (s) => !ONLY || ONLY === s;
-const OX = 1536, OY = 6, OZ = -1536;                       // (p2/undercfg.ORIGIN)
+const OX = 2560, OY = 6, OZ = -2560;                       // (p2/undercfg.ORIGIN)
 const N = 'execute in minecraft:the_nether run ';
 
 (async () => {

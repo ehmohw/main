@@ -36,7 +36,7 @@ OX, OY, OZ = A.ORIGIN
 SX, SY, SZ = A.SIZE
 END = 'minecraft:the_end'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
-AVER = 4                                  # bump to re-place the Armada in every world (a rebuild: everyone aboard is carried out)
+AVER = 5                                  # bump to re-place the Armada in every world (a rebuild: everyone aboard is carried out)
 COLLAPSE = 180                            # seconds between the Admiral's fall and the rebuild
 GUARD_HP = {'brood': 520, 'forge': 640, 'nav': 900}
 GUARD_SPAWN = {'brood': ('abductor', 'execute positioned ~ ~6 ~ run function bm:p32/boss/abductor'), 'forge': ('warlord', 'function bm:p32/boss/warlord'),
@@ -439,7 +439,9 @@ def generate(G):
     for bx in range(0, SX, 60):
         for bz in range(0, SZ, 60):
             bio.append(f'execute in {END} run fillbiome {OX + bx} {OY} {OZ + bz} {OX + min(SX, bx + 60) - 1} {OY + SY - 1} {OZ + min(SZ, bz + 60) - 1} bm:armada')
-    fn('p241/build/try', [*[f'execute in {END} run forceload add {q}' for q in fls],
+    import p2.oldsite as OS                 # (3.0: moved out to 2.5k-5k - an old copy, where a world had one, comes down first)
+    OS.generate(G, 'p241', END, (2560, 24, -4608), (SX, SY, SZ), 'minecraft:air', CLEAR, 'p241/out', '#aver')
+    fn('p241/build/try', ['execute if function bm:p241/oldsite run return 0', *[f'execute in {END} run forceload add {q}' for q in fls],
                           f'execute in {END} store success score #aload bm.p2 if loaded {OX} {OY} {OZ} if loaded {OX + SX - 1} {OY} {OZ + SZ - 1} if loaded {OX} {OY} {OZ + SZ - 1} if loaded {OX + SX - 1} {OY} {OZ}',
                           'execute unless score #aload bm.p2 matches 1 run return run scoreboard players set #await bm.p2 0',
                           'scoreboard players add #await bm.p2 1', 'execute unless score #await bm.p2 matches 4.. run return 0',

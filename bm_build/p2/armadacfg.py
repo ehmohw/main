@@ -21,7 +21,7 @@ import armada_lore as L
 
 d = 'armada'
 SIZE = (240, 96, 240)
-ORIGIN = (2560, 24, -4608)              # world corner, in the End (y 24..119)
+ORIGIN = (2560, 24, -3328)              # world corner, in the End (y 24..119); 3.0: its centre ~4.2k from 0,0 (2.99-2.99a: 2560, -4608)
 COL, RED = L.VX_COL, L.RED
 STAR = dict(c=(120, 48, 120), r=22, burn=30)     # the Hive-Star: its sphere, and the radius within which it scorches
 ORBIT = 86

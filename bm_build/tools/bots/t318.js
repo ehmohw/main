@@ -18,7 +18,7 @@
 const { bot, rcon, sleep } = require('./lib_resp');
 const ONLY = process.argv[2];
 const on = (s) => !ONLY || ONLY === s;
-const OX = 2560, OY = 24, OZ = -4608;
+const OX = 2560, OY = 24, OZ = -3328;
 const W = (x, y, z) => [OX + x, OY + y, OZ + z];
 const E = 'execute in minecraft:the_end run ';
 
