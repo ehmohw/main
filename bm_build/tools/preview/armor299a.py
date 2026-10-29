@@ -253,14 +253,15 @@ if 'helms' in what:                                     # (working view: each 3D
     sheet(T, f'{OUT}/helms_work.png', cols=4, title='The 3D helms')
 
 if 'lineup' in what:
-    done = [k for k in SETS if os.environ.get('ARMOR_SKIP', '').find(k) < 0]
+    done = [k for k in SETS if k not in os.environ.get('ARMOR_SKIP', '').split(',')]
     T = []
-    for view, sub in (('front', 'front'), ((35, 12), 'three-quarter'), ('back', 'behind')):
-        s = scene(NEWR); floor(s, r=4.0)
-        n = len(done)
-        for i, k in enumerate(done): wearer(s, NEWR, k, at=((i - (n - 1) / 2) * 1.0, 0.0, 0.0))
-        T.append(label(dark(s.render(view, size=900, span=max(3.0, n * 1.05), center=(0, 1.0, 0))), 'The remodelled sets - ' + sub,
-                       '  '.join(TITLE[k] for k in done)))
+    n = len(done); gap = 1.45; span = n * gap + 0.4; size = 1300
+    for view, sub in (('front', 'front'), ((30, 12), 'three-quarter'), ('back', 'behind')):
+        s = scene(NEWR); floor(s, r=5.0)
+        for i, k in enumerate(done): wearer(s, NEWR, k, at=((i - (n - 1) / 2) * gap, 0.0, 0.0))
+        im = dark(s.render(view, size=size, span=span, center=(0, 1.05, 0)))
+        h = int(size * 2.9 / span); im = im.crop((0, (size - h) // 2, size, (size + h) // 2))
+        T.append(label(im, 'The remodelled sets - ' + sub, '   '.join(TITLE[k] for k in (done if view != 'back' else done[::-1]))))
     sheet(T, f'{OUT}/armor_lineup_after.png', cols=1, title='Armour remodel (v299a) - side by side')
 
 if 'layers' in what:

@@ -160,7 +160,7 @@ ICON_ROWS = {
         '.LHLLGG..GGGBng.',
         '.LHLGGVWWVGBnGg.',
         '.LLLGGGwwGBnGGg.',
-        '.CXC.LGGGBnGG.cC',
+        '.CXCLGGGGBnGgcC.',
         '.....LGGBnGGg...',
         '.....LGBnGGGg...',
         '.....LBnGGGGg...',

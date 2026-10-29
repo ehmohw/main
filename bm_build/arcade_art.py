@@ -101,8 +101,8 @@ def hunter():
         'UYYY' + 'UYYY' + 'YYYy' + 'YYYy',
         'YYYY' + 'YYYY' + 'YYYy' + 'YYYy',
         'yyyy' + 'yyyy' + 'yyyy' + 'yyyy',
-        'hhhO' + 'hHhO' + 'OOOo' + 'OOOo',
-        'OOOo' + 'hOOo' + 'OOOo' + 'oooo',
+        'hhhh' + 'hhhh' + 'hhhO' + 'hhhO',
+        'OOOO' + 'OOOO' + 'OOOo' + 'OOOo',
         'rrrr' + 'rrrr' + 'rrrr' + 'rrrr',
         'YYYy' + 'YYYy' + 'YYYy' + 'YYYy',
         'YYYy' + 'YYYy' + 'YYYy' + 'YYYy',
@@ -367,11 +367,11 @@ def vhunter():
     L.faces('body', **K.body_ring([
         # right  front       left   back
         'mmmm' + 'mmmnnmmm' + 'mmml' + 'mmmmmmml',
-        'lBBn' + 'lllnnBBn' + 'BBBn' + 'lBBBBBBn',
-        'lBBn' + 'lmlnnlBn' + 'BBBn' + 'lBBBBBBn',
-        'lBBn' + 'llllllBn' + 'BBBn' + 'lBBBBBBn',
-        'BBBn' + 'lllllBBn' + 'BBBn' + 'BBBBBBBn',
-        'BBBn' + 'BllllBBn' + 'BBBn' + 'BBBBBBBn',
+        'lBBn' + 'lBBnnBBn' + 'BBBn' + 'lBBBBBBn',
+        'lBBn' + 'lBBBBBBn' + 'BBBn' + 'lBBBBBBn',
+        'lBBn' + 'lBBBBBBn' + 'BBBn' + 'lBBBBBBn',
+        'BBBn' + 'lBBBBBBn' + 'BBBn' + 'BBBBBBBn',
+        'BBBn' + 'BBBBBBBn' + 'BBBn' + 'BBBBBBBn',
         'BBBn' + 'BBBBBBBn' + 'BBBn' + 'BBBBBBBn',
         'nnnn' + 'nnnnnnnn' + 'nnnn' + 'nnnnnnnn',
         'kkkk' + 'kkkXSkkk' + 'kkkk' + 'kkkkkkkk',
@@ -383,24 +383,23 @@ def vhunter():
     L.faces('arm', **K.ring([
         'mmmm' + 'mmmm' + 'mmml' + 'mmml',
         'lBBB' + 'lBBB' + 'BBBn' + 'BBBn',
-        'lBBB' + 'lBBB' + 'BBBn' + 'BBBn',
         'BBBn' + 'BBBn' + 'BBBn' + 'nnnn',
         'nnnn' + 'nnnn' + 'nnnn' + 'nnnn',
-        '....' * 4, '....' * 4,
-        'mmmm' + 'mmmm' + 'mmml' + 'mmml',
+        '....' * 4, '....' * 4, '....' * 4,
+        'llll' + 'llll' + 'lllB' + 'lllB',
         'lBBn' + 'lBBn' + 'BBBn' + 'BBBn',
         'lBBn' + 'lBBn' + 'BBBn' + 'BBBn',
-        'nnnn' + 'nnnn' + 'nnnn' + 'nnnn',
-        'bbbb' + 'bbbb' + 'bbbb' + 'bbbb']))
+        'BBBn' + 'BBBn' + 'BBBn' + 'BBBn',
+        'nnnn' + 'nnnn' + 'nnnn' + 'nnnn']))
     # heavy boots to the knee: the cuff folded over, a strap and buckle at the ankle
     L.faces('leg', top=['....'] * 4, bottom=['kkkk'] * 4)
     L.faces('leg', **K.ring(['....' * 4] * 4 + [
         'mmmm' + 'mmmm' + 'mmml' + 'mmml',
+        'llll' + 'llll' + 'lllB' + 'lllB',
         'nnnn' + 'nnnn' + 'nnnn' + 'nnnn',
         'lBBB' + 'lBBB' + 'BBBn' + 'BBBn',
         'lBBB' + 'lBBB' + 'BBBn' + 'BBBn',
         'bbbb' + 'bXSb' + 'bbbb' + 'bbbb',
-        'BBBB' + 'lBBB' + 'BBBn' + 'BBBn',
         'BBBn' + 'lBBn' + 'BBBn' + 'nnnn',
         'kkkk' + 'kkkk' + 'kkkk' + 'kkkk']))
     Lg = K.Layer(VH)
