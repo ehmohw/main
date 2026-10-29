@@ -665,9 +665,10 @@ def models():
     #      whose sides, top and back are her HAIR (pearl, combed back sleek and tight) - a high ponytail gathered at the crown in
     #      a gold band, falling behind; and round it, from behind, a SUNBURST: rays of gold light, long and short by turns, in an
     #      arch over the head and shoulders (none straight up: the ponytail; none below the shoulders: the cowl and the wings)
-    RAYC, RAYZ = (0.0, 27.4), 4.0                                # (the sunburst's centre, its plane behind the head)
-    RAYS = [(90 + sx * (24 + 16 * k), (6.6, 8.2)[k % 2]) for sx in (1, -1) for k in range(5)]     # (degrees from +x, tip radius)
-    RAY_R0, RAY_DISH = 4.2, 0.6
+    RAYC, RAYZ = (0.0, 27.4), 3.9                                # (the sunburst's centre, its plane behind the head)
+    RAYS = [(90 + sx * (24 + 16 * k), (7.1, 8.6)[k % 2]) for sx in (1, -1) for k in range(5)]     # (degrees from +x, tip radius)
+    RAY_R0, RAY_DISH = 4.9, 0.7                  # (the rays start at the corona's outer edge; past it they lean forward, a shallow dish)
+    RING = (4.3, 5.0, 0.42)                       # (the corona: inner and outer radius, thickness - thicker than a ray: no shared plane)
 
     def head_down(face=None):
         et = 'kb_eyes' if face is None else f'kb_eyes_{face}'
@@ -689,14 +690,22 @@ def models():
         tail = [(0.0, 31.6, 4.6), (0.0, 31.5, 5.9), (0.0, 29.4, 6.7), (0.0, 26.8, 6.9), (0.0, 24.6, 6.6)]
         for k, (wd, th) in enumerate(((1.6, 1.2), (1.45, 1.1), (1.25, 1.0), (0.95, 0.8))):
             h.append(seg(tail[k], tail[k + 1], th, wd, hr, pv, (1.0, 0.0, 0.0), ext=0.12, light=L_HAIR, shift=(0.3 * k, 0.2 * k)))
-        # the sunburst: each ray a root of warm gold and a white-gold tip, end to end, in one plane behind the head
+        # the sunburst: a corona of gold light round the back of the head (open at the top for the ponytail), and rays from it -
+        # each a root of warm gold and a white-gold tip, end to end
+        rr = (RING[0] + RING[1]) / 2
+        for a0, a1 in ((8, 76), (104, 172)):
+            n = 4
+            pts = [(RAYC[0] + rr * math.cos(math.radians(a0 + (a1 - a0) * k / n)), RAYC[1] + rr * math.sin(math.radians(a0 + (a1 - a0) * k / n)), RAYZ)
+                   for k in range(n + 1)]
+            for k in range(n):
+                h.append(seg(pts[k], pts[k + 1], RING[1] - RING[0], RING[2], 'kb_ray', pv, (0.0, 0.0, 1.0), ext=0.0, light=L_RAY, shift=(0.21 * k, 0.1)))
         for a, r1 in RAYS:
             c, s_ = math.cos(math.radians(a)), math.sin(math.radians(a))
-            P_ = lambda r: (RAYC[0] + c * r, RAYC[1] + s_ * r, RAYZ - RAY_DISH * (r - RAY_R0))      # (a shallow dish: tips forward, clear of the wings)
+            P_ = lambda r: (RAYC[0] + c * r, RAYC[1] + s_ * r, RAYZ - RAY_DISH * (r - RING[0]))      # (a shallow dish: tips forward, clear of the wings)
             long_ = r1 > 7
             rm = RAY_R0 + (r1 - RAY_R0) * 0.45
-            h.append(seg(P_(RAY_R0), P_(rm), 0.9 if long_ else 0.7, 0.3, 'kb_ray', pv, (0.0, 0.0, 1.0), light=L_RAY, shift=(0.1 * a % 1, 0.3)))
-            h.append(seg(P_(rm), P_(r1), 0.5 if long_ else 0.4, 0.3, 'kb_rayt', pv, (0.0, 0.0, 1.0), light=L_RAY_TIP, shift=(0.07 * a % 1, 0.6)))
+            h.append(seg(P_(RAY_R0 - 0.1), P_(rm), 1.3 if long_ else 1.05, 0.3, 'kb_ray', pv, (0.0, 0.0, 1.0), light=L_RAY, shift=(0.1 * a % 1, 0.3)))
+            h.append(seg(P_(rm), P_(r1), 0.75 if long_ else 0.6, 0.3, 'kb_rayt', pv, (0.0, 0.0, 1.0), light=L_RAY_TIP, shift=(0.07 * a % 1, 0.6)))
         return h
     part('kb_head' + HOOD_SFX, head_down())
     for fc in FACES:

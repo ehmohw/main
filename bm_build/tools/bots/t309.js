@@ -3,11 +3,13 @@
 // asks you to wear the light; once you've faced the Dread's master (bm.dfin) she won't come; wearing a holy helmet she gives you her
 // feather. SMITE (a foe 6 off: a pillar of light); BLESS (you hurt in a fight: Regeneration II, Absorption); WARD (Resistance II,
 // Absorption for you); PRAY (out of a fight); HOLY FAVOUR (wearing something holy beside her: Regeneration). Then the shared list.
+// (3.0: bm.lhform held at 0 - she - so the first meeting's coin toss doesn't touch this one; the Form button and his look: rigpet_t's form step)
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
 const HOLY = 'minecraft:golden_helmet[custom_data={bm_angel:1b}]';
 runT({ W: 'lightbringer', NAME: 'The Lightbringer', ab: 'lh', q: 'lz', pfx: 'p236l', prefix: 'lb_', item: 'herald_feather', parts: 16, figParts: 15, hp: 40, X: 17800, Z: 16000, pron: 'her',
   called: /glides back to your side/, home: /rises into the light/, sit: /kneels and folds her wings/, stand: /Shall we go on/,
   ways: ['Smite', 'Bless', 'Ward', 'Pray', 'Holy Favour'], plain: 'Pearl and gold', looks: ['Royal Vestments', 'Amethyst Vestments', 'Dawn Vestments'],
+  form: { button: /Form: Herald/, suffix: '_m', score: 'bm.lhform' },      // (3.0: she / he - the look on his twin too; the rest of the male form: t326)
   encounter: async (ctx) => {
     const { A, run, ok, wait, cnt, at, entOf, has, num, X, Y, Z, ENC, sleep, O } = ctx;
     await run('time set noon'); await run('scoreboard players set #hard bm.cfg 1');

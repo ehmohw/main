@@ -11,6 +11,11 @@ THE LIGHTBRINGER (The Herald's Feather) - HARD MODE ONLY   a herald of the Divin
   Regeneration. THE OPHANIM (2.99a; three or more monsters near, every 90 s): her true form, a wheel within a wheel, full of eyes -
   light falls three times on every monster within 16. SHE LOVES IT WHEN YOU WEAR HOLY THINGS: beside her, wearing something holy, she beams - Regeneration while you're
   near, her smite +4, her blessing and her prayer stronger.
+  (3.0) SHE OR HE: the herald may be a woman or a man - the same light. The first time you meet the Lightbringer (however: the sky,
+  the Summons' herald, an admin's meet, the feather got another way and first used) it's 50/50 which, and kept for you (bm.lhform:
+  0 she, 1 he); the menu's "Form: Herald (she)" / "(he)" switches it (code MENU+3, rigpet's FORM). His look: lightbringer_art's '_m'
+  twin of every part (the same rig, poses, faces, Ophanim). Whoever met her before this keeps her. Every line of hers that says
+  she / her has a twin for him (gender_split); her bonds and her feather's lore say "the herald" instead.
 THE PALE DRYAD (A Glowing Mushroom)   a little spirit of the Pale Garden, all blue and orange mushrooms; she GLOWS SOFTLY AT NIGHT.
   In a Pale Garden at night she may be there among the moss; offer her a mushroom and she comes along. SWIPE a foe within 2.4 (5).
   SPORES two or more foes within 4.5, every 12 s: drowsy spores (3, poisoned, slowed). ROOTS (charged, every minute): roots burst up
@@ -74,6 +79,12 @@ class Lightbringer(RP.Cfg):
     INTRO = [T('The Lightbringer', HOLY, bold=True), T(' - a herald of the Divine One, the light against the Dread. ', 'gray'),
              T('She loves it when you wear holy things.', 'white')]
     BUTTONS = ()
+    # (3.0: the owner - "a toggleable male variant", the first form met chosen at random: HE - lightbringer_art's '_m' twins of
+    #  every part; bm.lhform 1 on the owner. The button's words follow the form shown: "Form: Herald (she)" / "(he)" - gender_split)
+    FORM = ('bm.lhform', LA.MALE, 'Form: Herald (she)', None, '"As you would see me, so I am. The light wears many faces."',
+            '"As I was, then. It is the same light."', 'How the herald appears to you - a woman or a man: the same light either way. (Kept for you.)')
+    FORM_FX = ['particle minecraft:end_rod ~ ~1 ~ 0.4 0.8 0.4 0.05 24', 'particle minecraft:flash{color:[1.0,0.92,0.6,1.0]} ~ ~1 ~ 0 0 0 0 1',
+               'playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..16] ~ ~ ~ 1 1.4']
     BURST = ['particle minecraft:end_rod ~ ~1 ~ 0.3 0.6 0.3 0.05 20', 'particle minecraft:dust{color:[1.0,0.86,0.42],scale:1.2} ~ ~1.2 ~ 0.4 0.6 0.4 0 16']
     FADE_SOUND = 'playsound minecraft:block.beacon.deactivate neutral @a[distance=..20] ~ ~ ~ 0.8 1.4'
     SUMMON_EXTRA = ['playsound minecraft:block.beacon.activate neutral @a[distance=..24] ~ ~ ~ 0.6 1.6', 'playsound minecraft:block.amethyst_block.chime neutral @a[distance=..24] ~ ~ ~ 1 1.2']
@@ -133,8 +144,8 @@ for _C in PAIR:
 
 item('herald_feather', TOTEM, "The Herald's Feather", HOLY,
      ['A long white feather, its tip dipped in gold light.', 'It is warm. It is always warm.', ('Hard mode: a herald of the Divine One.', '#9a7aff'),
-      ('Use: call her (again: call her over).', 'blue'), ('Sneak + use: her menu.', 'blue'), ('She loves it when you wear holy things.', 'blue'),
-      ('If she faints: 2 minutes before she can return.', 'gray')],
+      ('Use: call the herald (again: call to your side).', 'blue'), ('Sneak + use: the herald\'s menu.', 'blue'), ('The herald loves it when you wear holy things.', 'blue'),
+      ('If the herald faints: 2 minutes before returning.', 'gray')],      # (3.0: said without she/he - the herald may be either)
      model='bm:herald_feather', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
 item('dryad_cap', TOTEM, 'A Glowing Mushroom', '#6aa8f0',
      ['A little blue mushroom with orange spots,', 'from the Pale Garden. It glows softly in the dark.',
@@ -159,12 +170,12 @@ P188.VNAME.update({'lightbringer': 'the Lightbringer', 'dryad': 'the Pale Dryad'
 P188.PAIRS.update({
     'lh_bender': ('lightbringer', 'bender', 'Blessed Boy', '#e0a860', 'The Lightbringer and Bender - the goodest boy, blessed',
                   _eff(('regeneration', 0), ('speed', 0)),
-                  [('bender', '(sits, very straight, in her light)'), ('lightbringer', '"Yes. You are a good boy. The best of them."')],
-                  [('bender', '(brings her a stick, solemnly)', 'lightbringer', '"I shall treasure it." (she throws it anyway)')]),
+                  [('bender', '(sits, very straight, in the herald\'s light)'), ('lightbringer', '"Yes. You are a good boy. The best of them."')],
+                  [('bender', '(brings the herald a stick, solemnly)', 'lightbringer', '"I shall treasure it." (and throws it anyway)')]),
     'lh_capshun': ('lightbringer', 'capshun', 'And There Was Light', '#f0f0f0', 'The Lightbringer and Mr. Capshun - the narrator meets a real angel',
                    _eff(('resistance', 0), ('haste', 0)),
                    [('capshun', '[Mr. Capshun narrates: "And there was light. Quite a lot of it, actually."]'), ('lightbringer', '"You tell it well, little one."')],
-                   [('capshun', '[Mr. Capshun narrates: "He tried to draw her halo. It came out a doughnut."]', 'lightbringer', '"I like doughnuts."')]),
+                   [('capshun', '[Mr. Capshun narrates: "He tried to draw the herald\'s halo. It came out a doughnut."]', 'lightbringer', '"I like doughnuts."')]),
     'py_bender': ('dryad', 'bender', 'Mushroom Hunt', '#e0a860', 'The Pale Dryad and Bender - he sniffs out the mushrooms, she makes them glow',
                   _eff(('luck', 0), ('speed', 0)),
                   [('bender', '(sniffs a mushroom on her shoulder, sneezes)'), ('dryad', '(giggles) "Bless you!"')],
@@ -288,7 +299,9 @@ def _light(G, X):
                                for p in OA.PARTS])
     tl.append(f'tag {osel()} remove bm.ophsel')
     fn(f'{pfx}/crowd_tick', tl)
-    fn('p236l/oph/hide', [f'execute as {X.psel()} run data merge entity @s {{start_interpolation:0,interpolation_duration:3,transformation:{{scale:[0f,0f,0f]}}}}'])
+    # (3.0: her own parts - the rig's 'sel' tag, bm.lhsel: X.psel isn't hers yet while her abilities are built, and it had shrunk the
+    #  last follower built before her - the Speech Bubble's bm.wbsel - so she never hid behind the wheel)
+    fn('p236l/oph/hide', [f'execute as @e[type=minecraft:item_display,tag=bm.{Lightbringer.ab}sel] run data merge entity @s {{start_interpolation:0,interpolation_duration:3,transformation:{{scale:[0f,0f,0f]}}}}'])
     fn('p236l/oph/stray', [f'execute unless entity @e[type=minecraft:wolf,tag=bm.lhpet,distance=..8] run kill @s'])
     G.FUNCS['loop/second'].append('execute as @e[type=minecraft:item_display,tag=bm.oph] at @s run function bm:p236l/oph/stray')
     fn('p236l/oph/down', [f'kill {osel()}', 'function bm:p236l/pose/wings_spread', 'particle minecraft:end_rod ~ ~1 ~ 0.4 0.8 0.4 0.1 30',
@@ -379,6 +392,15 @@ def generate(G):
                                  X.tellraw('@s', [T('"The Divine One sees the light you carry. The Dread is rising - you will not face it alone." ', '#fff4d0', italic=True),
                                                   T('She plucks a feather from her wing, its tip still glowing, and puts it in your hand.', 'gray', italic=True)]),
                                  'function bm:p236l/enc/joined'])
+        # (3.0) SHE OR HE: the first time she's met (any way: this encounter, the Summons' herald, an admin's meet - the herald
+        # stands there already in the form chosen - or the feather got some other way and first used) it's 50/50 which, kept on
+        # the player (bm.lhform: 0 she, 1 he; the menu's Form button switches it). Whoever had her before this keeps her.
+        fn('p236l/form_roll', ['execute if score @s bm.lhform matches 0..1 run return 0',
+                               'execute if entity @s[tag=bm.lhmet] run return run scoreboard players set @s bm.lhform 0',
+                               f'execute if items entity @s container.* {X.holds("herald_feather")} run return run scoreboard players set @s bm.lhform 0',
+                               'execute store result score @s bm.lhform run random value 0..1'])
+        fn('p236l/enc/look', ['function bm:p236l/form_roll', 'execute unless score @s bm.lhform matches 1 run return 0'] +
+           [f'execute as {X.psel(p)} run data modify entity @s item.components."minecraft:item_model" set value "bm:{LA.PREFIX}{p}{LA.MALE}"' for p in LA.PARTS])
     # ---- THE PALE DRYAD: a Pale Garden, at night - a mushroom wins her over
     def e_dryad(G, X):
         X.second.append('execute as @a[tag=!bm.pymet,gamemode=!spectator] at @s if dimension minecraft:overworld if predicate bm:p236/pale_night run function bm:p236p/enc/check')
@@ -401,6 +423,8 @@ def generate(G):
                                  'function bm:p236p/enc/joined'])
     RP.build(Lightbringer, G, _light, e_light)
     RP.build(Dryad, G, _dryad, e_dryad)
+    G.FUNCS['admin/lightbringer'].insert(0, 'function bm:p236l/form_roll')          # (3.0: handed the feather - or first calling her - she or he)
+    G.FUNCS['p236l/summon_here'].insert(0, 'function bm:p236l/form_roll')
     # ---- HOLY FAVOUR (the Lightbringer): wearing something holy beside her, you heal, and she beams
     G.FUNCS['loop/second'] += ['execute as @e[type=minecraft:wolf,tag=bm.lhpet,tag=!bm.ffpet] at @s run function bm:p236l/sec']
     fn('p236l/sec', ['scoreboard players set #hf bm.rng 0', 'execute on owner if entity @s[distance=..16] if function bm:p236l/holy_q run scoreboard players set #hf bm.rng 1',
@@ -420,3 +444,53 @@ def generate(G):
     G.FUNCS['loop/second'] += ['execute as @e[type=minecraft:wolf,tag=bm.pypet,tag=!bm.ffpet] at @s if predicate bm:p236/night run function bm:p236p/glow']
     fn('p236p/glow', ['particle minecraft:dust{color:[0.4,0.66,1.0],scale:0.6} ~ ~0.9 ~ 0.3 0.35 0.3 0 2', 'particle minecraft:dust{color:[1.0,0.6,0.25],scale:0.5} ~ ~0.7 ~ 0.3 0.3 0.3 0 1',
                       'particle minecraft:glow ~ ~0.8 ~ 0.25 0.3 0.25 0 1'])
+    # ---- (3.0) SHE OR HE: every line of the Lightbringer's own that says she / her gets a twin for him, picked by the form
+    print('3.0: the Lightbringer, he - %d lines given his words' % gender_split(G))
+
+
+# ====================================================================== (3.0) the Lightbringer's words, for him
+import re as _re
+FEM = _re.compile(r'\b(she|her|hers|herself)\b', _re.I)
+_TXT = _re.compile(r'text:"((?:[^"\\]|\\.)*)"')
+_OBJ = {'home', 'to', 'and', 'in', 'on', 'with', 'over', 'from', 'back', 'again', 'up', 'down', 'out', 'a', 'an', 'the', 'is', 'was', 'as',
+        'for', 'at', 'by', 'into', 'when', 'while', 'if', 'so', 'that', 'now', 'go', 'be', 'or', 'but', 'away', 'off', 'here', 'there', 'too'}
+
+
+def he(t):
+    """her words, said of him: she -> he, herself -> himself, hers -> his; her -> his before a noun ('her halo', 'her menu'), him
+    otherwise ('call her over', 'Send her home', 'from her.')"""
+    cap = lambda w, m: m.capitalize() if w[0].isupper() else m
+    t = _re.sub(r'\b([Hh]erself)\b', lambda m: cap(m.group(1), 'himself'), t)
+    t = _re.sub(r'\b([Hh]ers)\b', lambda m: cap(m.group(1), 'his'), t)
+    t = _re.sub(r'\b([Ss]he)\b', lambda m: cap(m.group(1), 'he'), t)
+
+    def her(m):
+        rest = m.string[m.end():]
+        nxt = _re.match(r"\s*([A-Za-z']*)", rest).group(1).lower()
+        return cap(m.group(1), 'him' if (not rest[:1].isspace() or not nxt or nxt in _OBJ) else 'his')
+    return _re.sub(r'\b([Hh]er)\b', her, t)
+
+
+def gender_split(G, names=None):
+    """each line of hers (the Lightbringer's functions: p236l/*, her wardrobe's 'wear it now', the admin's) whose words say she or her
+    becomes two: his words when the form is his (#lhm, set by p236l/mk just before, from whoever runs it - the player, or her host's
+    owner), hers otherwise. Run once, after she's built."""
+    G.fn('p236l/mk', ['scoreboard players set #lhm bm.rng 0',
+                      'execute if entity @s[type=minecraft:player] if score @s bm.lhform matches 1 run return run scoreboard players set #lhm bm.rng 1',
+                      'execute if entity @s[type=minecraft:player] run return 0',
+                      'execute on owner if score @s bm.lhform matches 1 run scoreboard players set #lhm bm.rng 1'])
+    names = names or sorted(n for n in G.FUNCS if n.startswith('p236l/')) + ['p99/lightbringer_now', 'admin/lightbringer', 'admin/lightbringer_meet', 'p103/fol/wait_lightbringer']
+    n = 0
+    for name in names:
+        out = []
+        for l in G.FUNCS[name]:
+            if not any(FEM.search(x) for x in _TXT.findall(l)):
+                out.append(l); continue
+            assert not l.startswith('$') and 'give ' not in l, (name, l)
+            m = _TXT.sub(lambda mm: 'text:"' + he(mm.group(1)) + '"', l)
+            assert not any(FEM.search(x) for x in _TXT.findall(m)), (name, m)
+            when = lambda c, x: f'execute {c} {x[len("execute "):]}' if x.startswith('execute ') else f'execute {c} run {x}'
+            out += ['function bm:p236l/mk', when('if score #lhm bm.rng matches 1', m), when('unless score #lhm bm.rng matches 1', l)]
+            n += 1
+        G.FUNCS[name] = out
+    return n

@@ -43,7 +43,12 @@ RIG (rigkit) body (the hips: bodice, sash, the robe's upper tiers), skirt (the r
 TRANSLUCENT textures (alpha < 255): lb_robe and lb_bodice (178), lb_skin (205: hands, neck, the head's sides), lb_hair (212; its tips, lb_hairtip, are solid
       and lit), lb_feather and lb_covert (186). Everything else is solid - the face plate (lb_face*) too, so she reads clearly. Faces covered by a neighbour are left off (the robe's tiers have no tops
       - a ring of gold or pearl steps out over each one instead; the hair has no faces turned in to the head), so nothing
-      inside shows through the glassy parts."""
+      inside shows through the glassy parts.
+
+(3.0) HE: the male form - every part's '_m' twin (MALE; rigpet's FORM puts them on), below the textures and models: same rig,
+      poses and faces; broad shoulders, a gold-collared surcoat, pauldrons and vambraces, a gold-edged purple tabard front and back
+      (the back on the 'hair' joints), a straight long tunic, armoured feet, short cropped hair, ears, a heavy brow and a square jaw.
+      Preview: tools/preview/lightbringer_male.py."""
 import math
 import random
 from PIL import Image, ImageDraw
