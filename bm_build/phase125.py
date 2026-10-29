@@ -257,7 +257,9 @@ def generate(G):
         m = G.FUNCS[f'p99/menu/{w}']
         m[len(m) - 1:len(m) - 1] = out + [
             f'data modify storage bm:ui wd.r_home set value {snbt(T(f"Call for {nm}", col, bold=True))}',
-            f'execute if score #out bm.rng matches 1 run data modify storage bm:ui wd.r_home set value {snbt(T(f"Send {pron} home", "gray"))}']
+            f'execute if score #out bm.rng matches 1 run data modify storage bm:ui wd.r_home set value {snbt(T(f"Send {pron} home", "gray"))}'] + ([      # (3.0: the Lightbringer's male form - 'Send him home')
+            f'execute if score #out bm.rng matches 1 if score @s bm.lhform matches 1 run data modify storage bm:ui wd.r_home set value {snbt(T("Send him home", "gray"))}']
+            if w == 'lightbringer' else [])
         a = G.FUNCS[f'p99/act/{w}']
         orig = P99.HOME[w]
         k = next(i for i, l in enumerate(a) if l == f'execute if score #act bm.pay matches {b} run return run function bm:{orig}')
