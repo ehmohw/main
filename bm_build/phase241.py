@@ -353,7 +353,7 @@ def generate(G):
     beam = []
     for i in range(1, mx_len + 1):
         beam += [f'particle minecraft:dust{{color:[1.0,0.15,0.1],scale:1.2}} ^ ^ ^{i} 0.02 0.25 0.02 0 2',
-                 f'execute positioned ^ ^ ^{i} as @a[distance=..0.95,gamemode=!spectator,gamemode=!creative] at @s run function bm:p241/gauntlet/zap']
+                 f'execute positioned ^ ^ ^{i} positioned ~ ~-1.2 ~ as @a[distance=..1.2,gamemode=!spectator,gamemode=!creative] at @s run function bm:p241/gauntlet/zap']
     fn('p241/gauntlet/beam', beam)
     fn('p241/gauntlet/zap', ['damage @s 5 minecraft:lightning_bolt', 'effect give @s minecraft:slowness 2 2', 'playsound minecraft:entity.guardian.attack player @s ~ ~ ~ 1 1.6',
                              title('@s', 'actionbar', T('A sentry laser burns you - move between the sweeps!', RED))])

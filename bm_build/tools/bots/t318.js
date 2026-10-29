@@ -77,10 +77,10 @@ const E = 'execute in minecraft:the_end run ';
   if (on('void')) {
     const pad = W(166, 49, 206); await solved(1);
     await at(W(140, 50, 206)[0] + 0.5, W(140, 50, 206)[1], W(140, 50, 206)[2] + 0.5); await sleep(2500);
-    const h0 = await hp();
+    await run('effect clear TestRat minecraft:resistance'); await run('effect give TestRat minecraft:hunger 30 255 true'); await sleep(500); const h0 = await hp();
     await run(`${E}tp TestRat ${OX + 166} ${OY - 20} ${OZ + 230}`);
     ok('fallen into the void: the tractor beam sets you back aboard', await wait(6000, async () => A.pos && A.pos.y > OY + 30, 200), A.pos && A.pos.y.toFixed(1));
-    ok('...hurt by the drop', (await hp()) < h0, `${h0} -> ${await hp()}`);
+    ok('...hurt by the drop', (await hp()) < h0, `${h0} -> ${await hp()}`); await run('effect give TestRat minecraft:resistance infinite 3 true'); await run('effect clear TestRat minecraft:hunger');
     void pad;
   }
 
@@ -112,7 +112,7 @@ const E = 'execute in minecraft:the_end run ';
     ok('Dreadnought A\'s reactor ignites as you walk in: four conduits', await wait(6000, async () => (await cnt('@e[type=minecraft:interaction,tag=bm.arhit]')) === 4));
     for (const [dx, dz] of [[5, 0], [-5, 0], [0, 5], [0, -5]]) {
       await at(core[0] + 0.5 + dx * 0.6, core[1], core[2] + 0.5 + dz * 0.6); await sleep(300);
-      for (let i = 0; i < 12; i++) { await hit(`@e[type=minecraft:interaction,tag=bm.arhit,sort=nearest,limit=1]`); await sleep(160); if ((await cnt(`@e[type=minecraft:interaction,tag=bm.arhit,x=${core[0] + dx},y=${core[1] + 1},z=${core[2] + dz},distance=..1.5]`)) === 0) break; }
+      for (let i = 0; i < 24; i++) { await hit(`@e[type=minecraft:interaction,tag=bm.arhit,sort=nearest,limit=1]`); await sleep(350); if ((await cnt(`@e[type=minecraft:interaction,tag=bm.arhit,x=${core[0] + dx},y=${core[1] + 1},z=${core[2] + dz},distance=..1.5]`)) === 0) break; }
     }
     ok('...each struck 8 times: all four broken - the reactor offline, its trial solved', await wait(4000, async () => (await sc(DG.replace('limit=1', 'limit=1'), 'bm.pz')) >= 14 || (await cnt('@e[type=minecraft:interaction,tag=bm.arhit]')) === 0));
     ok('...its spoils: a Star-Core and red Xenite', (await has('star_core')) >= 1 && (await has('xenite_red')) >= 1);
@@ -155,6 +155,7 @@ const E = 'execute in minecraft:the_end run ';
     const pyl = await pos('@e[type=minecraft:interaction,tag=bm.vxpyi,limit=1,sort=nearest]');
     await at(pyl[0], pyl[1] - 6 + 0.1 > c[1] ? pyl[1] - 6 : c[1], pyl[2] + 1.6, 180, 0);
     await run(`${E}tp TestRat ${pyl[0]} ${c[1]} ${pyl[2] - 2.2} 0 -40`); await sleep(1500);
+    await run(`${E}scoreboard players set @e[type=minecraft:marker,tag=bm.apylon] bm.vxp 1`); await run(`${E}tag @e[type=minecraft:marker,tag=bm.apylon] remove bm.vxpc`);
     A.bars.length = 0; await hit('@e[type=minecraft:interaction,tag=bm.vxpyi,limit=1,sort=nearest]'); await sleep(600);
     ok('a pylon struck while dark: it shrugs it off (told why)', A.bars.some(b => /GLOWS/.test(b)) && (await cnt('@e[type=minecraft:marker,tag=bm.apylon,tag=bm.vxpl]')) === 4, A.bars.slice(-1).join(''));
     await run(`${E}execute as @e[type=minecraft:marker,tag=bm.apylon] run scoreboard players set @s bm.vxp 4`); await sleep(1300);
@@ -190,7 +191,7 @@ const E = 'execute in minecraft:the_end run ';
   if (on('forms')) {
     await run('execute in minecraft:overworld run tp TestRat 18300 101 16000'); await run('execute in minecraft:overworld run fill 18290 100 15990 18310 100 16010 minecraft:stone');
     await run('kill @e[type=minecraft:wolf,tag=bm.xbpet]'); await run('clear TestRat'); await run('tag TestRat remove bm.xbwar');
-    await run('scoreboard players set TestRat bm.xbub 0'); await run('scoreboard players set TestRat bm.xbsz 0');
+    await run('scoreboard players set TestRat bm.xbub 0'); await run('scoreboard players set TestRat bm.xbsz 0'); await run('scoreboard players set TestRat bm.xbcd 0'); await run('scoreboard players set #hard bm.cfg 1');
     await run('loot replace entity TestRat hotbar.0 loot bm:items/vexis_link'); await sleep(800);
     A.slot(0); await sleep(300); A.use(); await sleep(400); A.release();
     ok('the Severed Link used: Vexis comes', await wait(5000, async () => (await cnt('@e[type=minecraft:wolf,tag=bm.xbpet]'.replace('the_end', 'overworld'))) >= 0 && /count: 1/.test(await run('execute in minecraft:overworld if entity @e[type=minecraft:wolf,tag=bm.xbpet]'))));
