@@ -2,7 +2,7 @@
 
 Written by `buttons.py` at the end of every build (`python3 gen_dp.py --phase2`); for any build: `python3 buttons.py <BlackMarket_DP dir> <version>`. Edit only the **Notes** - they are kept as written.
 
-**2053 codes** on 4006 buttons and chat links (2 more built at run time) · 425 routes in `p28/act` · **5454 codes free** in 1-9999 · problems: **0**
+**2053 codes** on 4025 buttons and chat links (2 more built at run time) · 425 routes in `p28/act` · **5454 codes free** in 1-9999 · problems: **0**
 
 ## Adding a button
 
