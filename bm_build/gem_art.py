@@ -9,7 +9,8 @@ Its face is a text emoticon, lit on its table facet (2.96a - it floated over it 
 (EMOTES), each a little pixel-font plate (FONT) standing just proud of the table, glowing white with a dark outline so it reads
 over every colour of the swirl. The plain head (cg_head) is :) ; cg_head_x<key> each of the others (phase231 picks them by mood).
 It floats - its poses only move, tilt and spin it. Parts: the GEM (body); its FACE on the table (hidden when it's dim); its HALO,
-a ring of tiny facet glints orbiting it (each pose turns the ring - the glints travel round as it glides).
+a ring of tiny facet glints orbiting it (3.0a: always turning,
+a full turn every HALO_TURN ticks - phase231 spins it; the poses leave it be).
 
 THE ANIMATED TEXTURES: cg_table, cg_crown and cg_pav are vertical strips of 32 64x64 frames. The resource pack writes each with
 textures() as usual (assets/bm/textures/block/<name>.png) and beside it the .png.mcmeta in ANIMATED - write_mcmeta(R2) does that,
@@ -327,5 +328,12 @@ POSES = {
 for _i in range(SWIM_FRAMES):                      # (bobbing on the water, rocking, the halo turning)
     _p = 2 * math.pi * _i / SWIM_FRAMES
     POSES[f'swim_{_i}'] = P(body=qs(('x', 8 + 5 * math.sin(_p)), ('z', 6 * math.cos(_p))), halo=spin(45 * _i), _off=(0, -3.0 + 1.2 * math.sin(_p), 0))
+
+# (3.0a) the halo is no longer posed. phase231 turns it round the gem all the time instead: a step of its right_rotation every
+#  few ticks, interpolated, so the glints (the white squares) circle it without stopping. A pose's own turn of the ring swung it
+#  back and forth (idle_a 0 deg, idle_b 22.5 deg...). The ring now stays level at rest and rides each pose's rise and sink (_off).
+HALO_TURN = 120                                    # (ticks for one full turn of the halo)
+for _p in POSES.values():
+    _p.pop('halo', None)
 
 DRAFT = ['idle_a', 'idle_b', 'walk_1', 'run_1', 'jump', 'sit_a', 'sit_b', 'sit_c', 'happy', 'conjure_up', 'conjure', 'hurt', 'tired', 'swim_2']

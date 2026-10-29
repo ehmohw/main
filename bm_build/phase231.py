@@ -290,14 +290,7 @@ def generate(G):
     fn('p100/creative_spark', ['effect give @s minecraft:haste 3 0 true', 'effect give @s minecraft:luck 3 0 true', 'effect give @s minecraft:speed 3 0 true'] +
        [f'execute as {mine(m)} if function bm:p100/is_mine run {REGEN}' for m in ('capshun', 'kettle', 'emma')] +
        ['execute unless entity @s[tag=bm.cgmet] at @s run function bm:p231/arrives', 'function bm:p100/banter_tick'])
-    fn('p231/arrives', ['tag @s add bm.cgmet', 'advancement grant @s only bm:story/gem_friend', X.give('creativity_gem'),
-                        'particle minecraft:end_rod ~ ~3 ~ 0.6 1 0.6 0.05 40', 'particle minecraft:totem_of_undying ~ ~2 ~ 0.6 0.6 0.6 0.3 30',
-                        'playsound minecraft:block.beacon.activate player @s ~ ~ ~ 1 1.6', 'playsound minecraft:block.amethyst_block.resonate player @s ~ ~ ~ 1 0.8',
-                        tellraw('@s', [T('A swirl of every colour comes down out of the sky: ', CG_LINE, italic=True), T('the Gem of Creativity', CG_C, bold=True),
-                                       T(' - come to see its first Buddy, its narrator and the princess. It hovers in front of you, sparkling. ', CG_LINE, italic=True),
-                                       T(':D', '#ffffff', bold=True)]),
-                        tellraw('@s', [T('Mr. Capshun: ', '#f0f0f0', bold=True), T('"[Mr. Capshun narrates: \'And the Gem chose them. Obviously. Look at them.\']"', '#d8e4ff')]),
-                        tellraw('@s', [T('Kettle: ', '#8ad8ff', bold=True), T('"It\'s the GEM! It made me! Hi, Gem! HI!"', '#e0f4ff')])])
+    _cinematic(G, X)
     wjson('bm/advancement/story/trio_creative_spark.json', {'parent': 'bm:story/root', 'criteria': {'done': {'trigger': 'minecraft:impossible'}},
                                                          'display': {'icon': {'id': 'minecraft:totem_of_undying', 'components': {'minecraft:item_model': 'bm:creativity_gem'}},
                                                                      'title': T('The Creative Spark', 'yellow'), 'description': T('Walk with Mr. Capshun, Kettle and Emma at once', 'gray'),
@@ -332,3 +325,193 @@ def generate(G):
     # (the line of text it wore before 2.96a: put out wherever one is left)
     G.FUNCS['loop/second'].append('kill @e[type=minecraft:text_display,tag=bm.cgemo]')
     G.FUNCS['admin/uninstall'].insert(0, 'kill @e[type=minecraft:text_display,tag=bm.cgemo]')
+
+    # ================================================================== (3.0a) THE HALO: always circling (gem_art.HALO_TURN)
+    _spin(G)
+
+
+SPIN_N = 24                                     # (the halo's spin: SPIN_N steps a turn, each its own interpolated ticks)
+SPIN_K = A.HALO_TURN // SPIN_N                  # (5 ticks a step: 15 deg)
+
+
+def _yq(deg):
+    h = math.radians(deg) / 2
+    return [F(0), F(round(math.sin(h), 5)), F(0), F(round(math.cos(h), 5))]
+
+
+def _spin(G):
+    """(3.0a) the white squares, the halo's glints, circle the gem without stopping. Every SPIN_K ticks, each halo display's
+    right_rotation steps a little further round the vertical, interpolated over those same ticks. The poses only ever set
+    its left_rotation, translation and scale, so the turn rides on top of every pose. This runs after the followers' own tick,
+    so a step taken in the same tick as a pose keeps its own pace. The halos: the Gem's rig (bm.cgp_halo) and the cinematic's
+    (bm.cgcz_halo)."""
+    fn = G.fn
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.cgsp dummy', f'scoreboard players set #k bm.cgsp {SPIN_K}']
+    G.OBJECTIVES.append('bm.cgsp')
+    G.FUNCS['tick'] += ['scoreboard players add #t bm.cgsp 1', f'execute if score #t bm.cgsp matches {SPIN_N * SPIN_K}.. run scoreboard players set #t bm.cgsp 0',
+                        'scoreboard players operation #m bm.cgsp = #t bm.cgsp', 'scoreboard players operation #m bm.cgsp %= #k bm.cgsp',
+                        'execute if score #m bm.cgsp matches 0 run function bm:p231/spin']
+    fn('p231/spin', ['scoreboard players operation #s bm.cgsp = #t bm.cgsp', 'scoreboard players operation #s bm.cgsp /= #k bm.cgsp'] +
+       [f'execute if score #s bm.cgsp matches {k} run return run function bm:p231/spin/{k}' for k in range(SPIN_N)])
+    for k in range(SPIN_N):
+        m = f'data merge entity @s {{start_interpolation:0,interpolation_duration:{SPIN_K},transformation:{{right_rotation:{snbt(_yq(360.0 * k / SPIN_N))}}}}}'
+        fn(f'p231/spin/{k}', [f'execute as @e[type=minecraft:item_display,tag=bm.cgp_halo,tag=!bm.cgfade] run {m}',
+                              f'execute as @e[type=minecraft:item_display,tag=bm.cgcz_halo] run {m}'])
+
+
+# ---------------------------------------------------------------------------------------------------- (3.0a) THE GEM COMES DOWN
+# A short scene (CIN_END ticks, 9 s), played round the player where they stand. The camera is never taken, and they can walk:
+# the scene follows them. DOWN (0-100): high in the sky (26 up, 4 out) the Gem shines, then sinks slowly in a wide, tightening
+# spiral, trailing sparkles, with a chime at every step down, each higher. SWIRL (101-160): twice round you at shoulder height,
+# 2 out, rings of rainbow rising round you. RISE (161-180): in over your head and up. Then it DROPS: the summoning item,
+# as an item entity just over your head, falls into your hands. Only you can pick it up (its Owner), it can't burn, and if it
+# hasn't reached you within CIN_LATE ticks of the start (30 s after it drops), it is given to you directly. Nothing is given
+# before then: the drop is the reward.
+# (a marker, bm.cgcin, carries the clock (bm.cgct), the turn (bm.cgca, tenths of a degree) and the player's pid; the gem is three
+#  displays (bm.cgcz: the body, the face (:D), the halo), set every tick by a macro: rotated by the turn, up by the height,
+#  out by the radius. The player waits under bm.cgwait (bm.cgwt counts their ticks) until the Gem is in their inventory.)
+CIN_DOWN, CIN_SWIRL, CIN_END = 100, 160, 180
+CIN_LATE = CIN_END + 600
+RAINBOW = ['1.0,0.3,0.35', '1.0,0.65,0.2', '1.0,0.95,0.3', '0.4,1.0,0.5', '0.35,0.75,1.0', '0.75,0.45,1.0']
+
+
+def _cinematic(G, X):
+    fn, tellraw, title = G.fn, G.tellraw, G.title
+    objs = ['bm.cgct', 'bm.cgca', 'bm.cgwt']
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + \
+        [f'scoreboard players set #{n} bm.cgct {n}' for n in (6, 10, 20, 1000)]
+    G.OBJECTIVES += objs
+    ME = '@a[tag=bm.cgcme,limit=1]'
+    DISP = '@e[type=minecraft:item_display,tag=bm.cgcsel]'
+    has_gem = [f'execute if items entity @s {sl} *[minecraft:custom_data~{{bm:"creativity_gem"}}] run return 1' for sl in ('container.*', 'weapon.offhand', 'player.cursor')]
+
+    def disp(p, model, extra=None):
+        n = {'Tags': ['bm.cgcz', 'bm.cgcznew', f'bm.cgcz_{p}'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': dict({'minecraft:item_model': model}, **(extra or {}))},
+             'item_display': 'fixed', 'teleport_duration': Int(2), 'interpolation_duration': Int(0), 'brightness': {'block': Int(15), 'sky': Int(15)}, 'view_range': F(4.0),
+             'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0)] * 3, 'scale': [F(0)] * 3}}
+        return f'summon minecraft:item_display ~ ~ ~ {snbt(n)}'
+    scale = lambda s, d: f'execute as {DISP} run data merge entity @s {{start_interpolation:0,interpolation_duration:{d},transformation:{{scale:[{s}f,{s}f,{s}f]}}}}'
+
+    # ---- it begins (as the player, once: p100/creative_spark, the first time the trio forms)
+    fn('p231/arrives', ['tag @s add bm.cgmet', 'tag @s add bm.cgwait', 'scoreboard players set @s bm.cgwt 0',
+                        'execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
+                        'function bm:p231/cin/end_mine',
+                        'summon minecraft:marker ~ ~ ~ {Tags:["bm.cgcin","bm.cgcznew"]}',
+                        'execute positioned ~ ~26 ~ run function bm:p231/cin/spawn',
+                        'execute as @e[tag=bm.cgcznew] run scoreboard players operation @s bm.pid = #me bm.pid',
+                        'scoreboard players set @e[type=minecraft:marker,tag=bm.cgcznew] bm.cgct 0',
+                        'execute store result score @e[type=minecraft:marker,tag=bm.cgcznew] bm.cgca run data get entity @s Rotation[0] 10',
+                        'tag @e[tag=bm.cgcznew] remove bm.cgcznew',
+                        'playsound minecraft:block.beacon.activate player @s ~ ~ ~ 1 1.6', 'playsound minecraft:block.amethyst_block.resonate player @s ~ ~ ~ 1 0.6',
+                        tellraw('@s', [T('High above you, something shines - and a swirl of every colour comes down out of the sky: ', CG_LINE, italic=True),
+                                       T('the Gem of Creativity', CG_C, bold=True), T(', come to see its first Buddy, its narrator and the princess.', CG_LINE, italic=True)]),
+                        title('@s', 'actionbar', T('(look up!)', CG_LINE))])
+    fn('p231/cin/spawn', [disp('body', 'bm:cg_body'), disp('head', 'bm:cg_head', {'minecraft:custom_model_data': {'strings': ['m_grin']}}), disp('halo', 'bm:cg_halo')])
+    # (as anyone, #me the pid: any scene of theirs still playing, ended; any drop of theirs, gone)
+    fn('p231/cin/end_mine', ['execute as @e[type=minecraft:marker,tag=bm.cgcin] if score @s bm.pid = #me bm.pid run kill @s',
+                             'execute as @e[type=minecraft:item_display,tag=bm.cgcz] if score @s bm.pid = #me bm.pid run kill @s',
+                             'execute as @e[type=minecraft:item,tag=bm.cgdrop] if score @s bm.pid = #me bm.pid run kill @s'])
+
+    # ---- the scene, each tick (as its marker): follows the player; the path; the cues
+    G.FUNCS['tick'] += ['execute as @e[type=minecraft:marker,tag=bm.cgcin] at @s run function bm:p231/cin/tick',
+                        'execute as @a[tag=bm.cgwait] at @s run function bm:p231/cin/wait']
+    fn('p231/cin/tick', ['scoreboard players add @s bm.cgct 1', 'scoreboard players operation #me bm.pid = @s bm.pid',
+                         'execute as @e[type=minecraft:item_display,tag=bm.cgcz] if score @s bm.pid = #me bm.pid run tag @s add bm.cgcsel',
+                         'execute as @a[tag=bm.cgwait] if score @s bm.pid = #me bm.pid run tag @s add bm.cgcme',
+                         f'execute unless entity {ME} run return run function bm:p231/cin/gone',
+                         f'tp @s {ME}',
+                         'function bm:p231/cin/path',
+                         'execute at @s run function bm:p231/cin/put with storage bm:tmp cgc',
+                         'execute at @s run function bm:p231/cin/cue',
+                         f'execute if score @s bm.cgct matches {CIN_END}.. at @s run function bm:p231/cin/drop',
+                         f'tag {DISP} remove bm.cgcsel', 'tag @a[tag=bm.cgcme] remove bm.cgcme'])
+    fn('p231/cin/gone', [f'kill {DISP}', 'kill @s'])
+    # the path: #h the height, #r the radius (thousandths of a block), the turn's step (tenths of a degree a tick)
+    fn('p231/cin/path', ['scoreboard players operation #ct bm.cgct = @s bm.cgct',
+                         f'execute if score #ct bm.cgct matches ..{CIN_DOWN} run function bm:p231/cin/p_down',
+                         f'execute if score #ct bm.cgct matches {CIN_DOWN + 1}..{CIN_SWIRL} run function bm:p231/cin/p_swirl',
+                         f'execute if score #ct bm.cgct matches {CIN_SWIRL + 1}.. run function bm:p231/cin/p_rise',
+                         'scoreboard players operation @s bm.cgca += #cst bm.cgct',
+                         'execute store result storage bm:tmp cgc.h double 0.001 run scoreboard players get #ch bm.cgct',
+                         'execute store result storage bm:tmp cgc.r double 0.001 run scoreboard players get #cr bm.cgct',
+                         'execute store result storage bm:tmp cgc.a float 0.1 run scoreboard players get @s bm.cgca'])
+    # DOWN: d = 100 - t; the height 1.6 + 24.4 (d/100)^2 (slowing as it nears), out 4 -> 2, the turn 4 -> 12 deg a tick
+    fn('p231/cin/p_down', [f'scoreboard players set #cd bm.cgct {CIN_DOWN}', 'scoreboard players operation #cd bm.cgct -= #ct bm.cgct',
+                           'scoreboard players operation #ch bm.cgct = #cd bm.cgct', 'scoreboard players operation #ch bm.cgct *= #cd bm.cgct',
+                           'scoreboard players set #ck bm.cgct 244', 'scoreboard players operation #ch bm.cgct *= #ck bm.cgct',
+                           'scoreboard players operation #ch bm.cgct /= #1000 bm.cgct', 'scoreboard players add #ch bm.cgct 1600',
+                           'scoreboard players operation #cr bm.cgct = #cd bm.cgct', 'scoreboard players operation #cr bm.cgct *= #20 bm.cgct', 'scoreboard players add #cr bm.cgct 2000',
+                           'scoreboard players operation #cst bm.cgct = #ct bm.cgct', 'scoreboard players set #ck bm.cgct 8', 'scoreboard players operation #cst bm.cgct *= #ck bm.cgct',
+                           'scoreboard players operation #cst bm.cgct /= #10 bm.cgct', 'scoreboard players add #cst bm.cgct 40'])
+    # SWIRL: twice round you (60 ticks, 12 deg a tick), shoulder high, 2 out
+    fn('p231/cin/p_swirl', ['scoreboard players set #ch bm.cgct 1600', 'scoreboard players set #cr bm.cgct 2000', 'scoreboard players set #cst bm.cgct 120'])
+    # RISE: u = t - 160: in over your head (2 -> 0 out) and up (1.6 -> 3.0), slowing its turn
+    fn('p231/cin/p_rise', ['scoreboard players operation #cu bm.cgct = #ct bm.cgct', f'scoreboard players remove #cu bm.cgct {CIN_SWIRL}',
+                           f'execute if score #cu bm.cgct matches {CIN_END - CIN_SWIRL}.. run scoreboard players set #cu bm.cgct {CIN_END - CIN_SWIRL}',
+                           'scoreboard players set #ck bm.cgct 100', 'scoreboard players operation #cr bm.cgct = #cu bm.cgct', 'scoreboard players operation #cr bm.cgct *= #ck bm.cgct',
+                           'scoreboard players set #ck bm.cgct 2000', 'scoreboard players operation #ck bm.cgct -= #cr bm.cgct', 'scoreboard players operation #cr bm.cgct = #ck bm.cgct',
+                           'scoreboard players set #ck bm.cgct 70', 'scoreboard players operation #ch bm.cgct = #cu bm.cgct', 'scoreboard players operation #ch bm.cgct *= #ck bm.cgct',
+                           'scoreboard players add #ch bm.cgct 1600',
+                           'scoreboard players operation #cst bm.cgct = #cu bm.cgct', 'scoreboard players set #ck bm.cgct 3', 'scoreboard players operation #cst bm.cgct *= #ck bm.cgct',
+                           'scoreboard players set #ck bm.cgct 120', 'scoreboard players operation #ck bm.cgct -= #cst bm.cgct', 'scoreboard players operation #cst bm.cgct = #ck bm.cgct'])
+    # (as the marker, at the player) the gem where the path puts it, facing you; its trail there
+    fn('p231/cin/put', ['$execute rotated $(a) 0 positioned ^ ^$(h) ^$(r) run function bm:p231/cin/at_gem'])
+    trail = [f'execute if score #cf bm.cgct matches {i} run particle minecraft:dust{{color:[{c}],scale:1.4}} ~ ~ ~ 0.12 0.12 0.12 0 2' for i, c in enumerate(RAINBOW)]
+    fn('p231/cin/at_gem', [f'execute facing entity {ME} eyes run tp {DISP} ~ ~ ~ ~ ~',
+                           'scoreboard players operation #cf bm.cgct = @s bm.cgct', 'scoreboard players operation #cf bm.cgct %= #6 bm.cgct'] + trail +
+       ['particle minecraft:end_rod ~ ~ ~ 0.1 0.1 0.1 0.01 1',
+        'scoreboard players operation #cf bm.cgct = @s bm.cgct', 'scoreboard players operation #cf bm.cgct %= #20 bm.cgct',
+        f'execute if score #cf bm.cgct matches 0 if score @s bm.cgct matches ..{CIN_SWIRL} run ' + (FXS.fx('cg_sparkle', 1.6, 0.0) if 'cg_sparkle' in FXS.names() else 'particle minecraft:wax_off ~ ~ ~ 0.3 0.3 0.3 1 8')])
+    # the cues: the gem growing in, chimes climbing as it comes down, rings round you as it swirls, the rise
+    cue = [f'execute if score @s bm.cgct matches 1 run {scale(1.4, 30)}',
+           f'execute if score @s bm.cgct matches {CIN_DOWN} run {scale(0.9, 20)}',
+           f'execute if score @s bm.cgct matches {CIN_SWIRL + 5} run {scale(0.5, 15)}']
+    for i, t in enumerate(range(20, CIN_DOWN + 1, 20)):
+        cue.append(f'execute if score @s bm.cgct matches {t} run playsound minecraft:block.amethyst_block.chime player {ME} ~ ~ ~ 1 {0.8 + 0.2 * i:.1f}')
+    for i, t in enumerate(range(CIN_DOWN + 1, CIN_SWIRL + 1, 10)):
+        cue += [f'execute if score @s bm.cgct matches {t} run function bm:p231/cin/ring_{i}',
+                f'execute if score @s bm.cgct matches {t} run playsound minecraft:block.note_block.chime player {ME} ~ ~ ~ 0.8 {1.0 + 0.15 * i:.2f}']
+        y = 0.2 + 0.35 * i
+        fn(f'p231/cin/ring_{i}', [f'execute rotated {a} 0 positioned ^ ^{y:.2f} ^1.6 run particle minecraft:dust{{color:[{RAINBOW[(k + i) % 6]}],scale:1.2}} ~ ~ ~ 0.05 0.05 0.05 0 2'
+                                  for k, a in enumerate(range(0, 360, 30))] + ['particle minecraft:end_rod ~ ~1 ~ 0.6 0.6 0.6 0.02 6'])
+    cue += [f'execute if score @s bm.cgct matches {CIN_DOWN + 1} run ' + tellraw(ME, [T('It swirls round you, sparkling, every colour there is. ', CG_LINE, italic=True), T(':D', '#ffffff', bold=True)]),
+            f'execute if score @s bm.cgct matches {CIN_DOWN + 1} run ' + (FXS.fx('cg_doodles', 1.6, 1.0) if 'cg_doodles' in FXS.names() else 'particle minecraft:end_rod ~ ~1 ~ 0.6 0.6 0.6 0.02 12'),
+            f'execute if score @s bm.cgct matches {CIN_DOWN + 20} run ' + tellraw(ME, [T('Mr. Capshun: ', '#f0f0f0', bold=True), T('"[Mr. Capshun narrates: \'And the Gem chose them. Obviously. Look at them.\']"', '#d8e4ff')]),
+            f'execute if score @s bm.cgct matches {CIN_DOWN + 45} run ' + tellraw(ME, [T('Kettle: ', '#8ad8ff', bold=True), T('"It\'s the GEM! It made me! Hi, Gem! HI!"', '#e0f4ff')]),
+            f'execute if score @s bm.cgct matches {CIN_SWIRL + 1} run playsound minecraft:block.beacon.power_select player {ME} ~ ~ ~ 1 1.6',
+            f'execute if score @s bm.cgct matches {CIN_SWIRL + 1}.. run particle minecraft:end_rod ~ ~2.2 ~ 0.3 0.4 0.3 0.02 2']
+    fn('p231/cin/cue', cue)
+    # the DROP (as the marker, at the player): the summoning item just over their head (or at their chest, under a low roof)
+    fn('p231/cin/drop', ['execute positioned ~ ~2.9 ~ if block ~ ~ ~ #bm:grap_pass run return run function bm:p231/cin/drop_here',
+                         'execute positioned ~ ~1.2 ~ run function bm:p231/cin/drop_here'])
+    fn('p231/cin/drop_here', ['summon minecraft:item ~ ~ ~ {Item:{id:"minecraft:stone",count:1},PickupDelay:12s,Invulnerable:1b,Motion:[0.0d,0.08d,0.0d],Tags:["bm.cgdrop","bm.cgdropnew"]}',
+                              f'item replace entity @e[type=minecraft:item,tag=bm.cgdropnew,limit=1] contents with {G.item_arg("creativity_gem")} 1',
+                              f'data modify entity @e[type=minecraft:item,tag=bm.cgdropnew,limit=1] Owner set from entity {ME} UUID',
+                              'scoreboard players operation @e[type=minecraft:item,tag=bm.cgdropnew] bm.pid = #me bm.pid',
+                              'tag @e[type=minecraft:item,tag=bm.cgdropnew] remove bm.cgdropnew',
+                              FXS.fx('cg_conjure', 1.4, 0.0) if 'cg_conjure' in FXS.names() else 'particle minecraft:flash{color:[1.0,1.0,1.0,1.0]} ~ ~ ~ 0 0 0 0 1',
+                              'particle minecraft:totem_of_undying ~ ~ ~ 0.4 0.4 0.4 0.3 30', 'particle minecraft:end_rod ~ ~ ~ 0.2 0.2 0.2 0.08 20',
+                              f'playsound minecraft:block.amethyst_block.resonate player {ME} ~ ~ ~ 1 1.4', f'playsound minecraft:entity.player.levelup player {ME} ~ ~ ~ 0.6 1.6',
+                              f'kill {DISP}', 'kill @s'])
+
+    # ---- the player, each tick while it's theirs to catch: caught (in their inventory, no drop or scene left), or late (given)
+    fn('p231/cin/wait', ['scoreboard players add @s bm.cgwt 1', 'scoreboard players operation #me bm.pid = @s bm.pid',
+                         f'execute if score @s bm.cgwt matches {CIN_LATE}.. run return run function bm:p231/cin/late',
+                         'execute as @e[type=minecraft:marker,tag=bm.cgcin] if score @s bm.pid = #me bm.pid run return 0',
+                         'execute as @e[type=minecraft:item,tag=bm.cgdrop] if score @s bm.pid = #me bm.pid run return 0',
+                         'execute if function bm:p231/cin/has run return run function bm:p231/cin/caught',
+                         'function bm:p231/cin/late'])
+    # ((3.0a: an "execute as ... run return 0" inside a function returns from it - the scene or the drop still out: wait))
+    fn('p231/cin/has', has_gem + ['return 0'])
+    fn('p231/cin/late', ['function bm:p231/cin/end_mine', X.give('creativity_gem'), 'function bm:p231/cin/caught'])
+    fn('p231/cin/caught', ['tag @s remove bm.cgwait', 'scoreboard players reset @s bm.cgwt', 'advancement grant @s only bm:story/gem_friend',
+                           'particle minecraft:end_rod ~ ~1.2 ~ 0.4 0.6 0.4 0.03 20', 'playsound minecraft:block.amethyst_block.chime player @s ~ ~ ~ 1 1.8',
+                           tellraw('@s', [T('The Gem drops into your hands, warm and humming. ', CG_LINE, italic=True), T(':)', '#ffffff', bold=True),
+                                          T('  (use it to call the Gem)', 'gray')])])
+    # (a drop or a scene whose player isn't waiting any more - given it late, or gone: put out)
+    G.FUNCS['loop/second'] += ['execute as @e[type=minecraft:item,tag=bm.cgdrop] run function bm:p231/cin/stale',
+                               'execute as @e[type=minecraft:item_display,tag=bm.cgcz] run function bm:p231/cin/stale']
+    fn('p231/cin/stale', ['scoreboard players operation #me bm.pid = @s bm.pid',
+                          'execute as @a[tag=bm.cgwait] if score @s bm.pid = #me bm.pid run return 0', 'kill @s'])
+    G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:marker,tag=bm.cgcin]', 'kill @e[type=minecraft:item_display,tag=bm.cgcz]',
+                                       'kill @e[type=minecraft:item,tag=bm.cgdrop]', 'tag @a remove bm.cgwait']
