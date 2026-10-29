@@ -73,11 +73,19 @@ class _Rec:
     def display(self, mid, pos, yaw, translation, scale, left): self.d.append((mid, pos, yaw, translation, scale, left))
 
 
+_MC = {}
+
+
+def _model(n):
+    if n not in _MC: _MC[n] = json.load(open(f'{ROOT}/assets/bm/models/item/{n}.json'))
+    return _MC[n]
+
+
 def boxes(pose):
     rec = _Rec(); rigkit.render(rec, A, pose, scale=A.RIG_SCALE)
     out = []
     for (mid, pos, yaw, tr, sc, left), p in zip(rec.d, [p for p in A.PARTS if not A.HIDDEN(p, pose)]):
-        m = json.load(open(f'{ROOT}/assets/bm/models/item/{mid.split("/")[-1]}.json'))
+        m = _model(mid.split('/')[-1])
         Q = R.quat(left); E = R.ry(math.radians(-yaw))
         for e in m['elements']:
             f, t = e['from'], e['to']
