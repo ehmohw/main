@@ -117,8 +117,14 @@ def _ms_pack():
     disp = {'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1, 1, 1]}}
     t = dict(tex); t['particle'] = 'bm:block/am_plate'
     json.dump({'textures': t, 'elements': els, 'display': disp}, open(f'{ROOT}/assets/bm/models/item/mothership3d.json', 'w'))
-    cut = [e for e in els if (e['from'][0] + e['to'][0]) / 2 <= 8.3]          # (the hull's left half: a cutaway, the pilot in his seat)
-    json.dump({'textures': t, 'elements': cut, 'display': disp}, open(f'{ROOT}/assets/bm/models/item/mothership3d_cut.json', 'w'))
+    xt = {}                                                                     # (an x-ray copy: the hull's textures see-through)
+    for k, v in tex.items():
+        if v.startswith('bm:block/'):
+            im = Image.open(f'{ROOT}/assets/bm/textures/block/{k}.png').convert('RGBA'); im.putalpha(70)
+            im.save(f'{ROOT}/assets/bm/textures/block/xr_{k}.png'); xt[k] = f'bm:block/xr_{k}'
+        else: xt[k] = v
+    xt['particle'] = 'bm:block/xr_am_plate'
+    json.dump({'textures': xt, 'elements': els, 'display': disp}, open(f'{ROOT}/assets/bm/models/item/mothership3d_cut.json', 'w'))
     with zipfile.ZipFile(DIST) as z:
         for n in z.namelist():
             if n == 'assets/bm/models/item/ufo3d.json' or n.startswith('assets/bm/textures/block/skiff_'):
@@ -146,8 +152,8 @@ def mothership():
     tiles.append(tile(hero, (-38, 26), size=640, span=10.5, center=(0, 2.6, 0), text='The Mothership (3/4, close)'))
     tiles.append(tile(hero, (150, 30), size=640, span=10.5, center=(0, 2.6, 0), text='The Mothership (aft 3/4)'))
     def cut(s): _ship(s, 'bm:item/mothership3d_cut')
-    tiles.append(tile(cut, (90, 6), size=640, span=10.5, center=(0, 2.6, 0), text='cutaway: the pilot in the seat (side)'))
-    tiles.append(tile(cut, (60, 20), size=640, span=10.5, center=(0, 2.6, 0), text='cutaway (3/4)'))
+    tiles.append(tile(cut, (90, 6), size=640, span=10.5, center=(0, 2.6, 0), text='x-ray: the pilot in the seat (side)'))
+    tiles.append(tile(cut, (60, 20), size=640, span=10.5, center=(0, 2.6, 0), text='x-ray (3/4)'))
     K.sheet(tiles, os.path.join(OUT, 'mothership_views.png'), cols=2, title='bm:mothership3d - the Admiral\'s Mothership (skiff display: fixed, x4.5)')
     print(os.path.join(OUT, 'mothership_views.png'))
     # its key, beside the Vorn Skiff's

@@ -216,14 +216,14 @@ def _membrane(seed):
         q = r.random()
         b = VOID2 if q > 0.4 else (VOID if q > 0.08 else VOID_L)
         if y < 2: b = BONE_D
-        if y > tear[x] - 2: b = _mix(b, RED_D, 0.7)
+        if y > tear[x] - 2: b = _mix(b, RED_D, 0.45)
         return _c(b)
     im = _paint(c, seed); px = im.load()
     for v0 in (6, 19, 28):                                                              # veins down it, a branch or two
         x, y = v0, 2
         while y < 30:
             x = max(0, min(31, x))
-            if px[x, y][3]: px[x, y] = _c(RED if (y % 7 == 3) else RED_D)
+            if px[x, y][3]: px[x, y] = _c(RED if (y % 11 == 5) else _mix(RED_D, VOID2, 0.25))
             if rnd.random() < 0.08:
                 bx, by = x, y
                 for _ in range(rnd.randint(2, 4)):

@@ -841,6 +841,11 @@ def _mothership():
         E += CH([(8 + sx * 3.0, 11.3, 4.6), (8 + sx * 4.4, 10.4, 7.0), (8 + sx * 4.8, 9.6, 10.0)], [0.6, 0.5], [1.4, 1.0], 'am_gun_l', up=(0.0, 1.0, 0.0))
         E.append(B((8 + sx * 3.9 - 0.2, 10.6, 8.6), (8 + sx * 3.9 + 0.2, 12.0, 9.6), 'am_red', 10))
     E += CH([(8.0, 13.6, 9.6), (8.0, 12.8, 12.0), (8.0, 10.0, 13.6)], [0.6, 0.6], [0.8, 0.8], 'am_red', 8)   # (a red stripe down its back)
+    for th in (55, 105, 150, 210, 255, 305):                                    # (a crown of spines round the cockpit, swept back)
+        dx, dz = math.sin(math.radians(th)), -math.cos(math.radians(th))
+        pts = [(8 + 4.2 * dx, 9.5, 8 + 4.2 * dz), (8 + 5.2 * dx, 11.6, 8 + 5.2 * dz + 0.8), (8 + 6.0 * dx, 13.4, 8 + 6.0 * dz + 2.0)]
+        E += CH(pts, [1.0, 0.6], [1.0, 0.6], 'am_black', up=(0.0, 0.0, 1.0))
+        E.append(C(pts[-1], (0.55, 0.55, 0.55), 'am_red', 12))
     # -- the mandibles: two great prongs forward off the rim, a lesser pair under them, their tips red-hot
     for sx in (1, -1):
         E += CH([(8 + sx * 4.6, 6.5, -1.6), (8 + sx * 6.6, 6.4, -5.8), (8 + sx * 5.8, 6.2, -9.6), (8 + sx * 3.6, 6.0, -12.2), (8 + sx * 2.0, 5.9, -13.2)],
