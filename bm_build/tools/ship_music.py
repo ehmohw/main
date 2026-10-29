@@ -485,7 +485,7 @@ def dreadnought(tr, inv=False):
         s = 0.8 * np.sin(2 * np.pi * f2 * t) + 0.55 * np.sin(2 * np.pi * f1 * t)
         s += 0.3 * np.sin(2 * np.pi * fa * t) * (0.5 + 0.5 * np.sin(2 * np.pi * lock(0.0375, n) * t))
         return s * (0.78 + 0.22 * np.sin(2 * np.pi * lock(0.05, n) * t))
-    bed(tr, drone, gain=0.07 if not inv else 0.06, wet=0.05)
+    bed(tr, drone, gain=0.11 if not inv else 0.09, wet=0.05)
     def hum(N, n):
         t = np.arange(N) / SR
         f = lock(mf(m('D2')), n)
@@ -496,7 +496,7 @@ def dreadnought(tr, inv=False):
         fb = lock(mf(m('D3')), n)
         s += 0.12 * (np.sin(2 * np.pi * fb * t) + np.sin(2 * np.pi * (fb + lock(0.3, n)) * t)) * np.sign(np.sin(2 * np.pi * fb * 3 * t)) * 0.5
         return s
-    bed(tr, hum, gain=0.03, wet=0.25, pan=-0.1)
+    bed(tr, hum, gain=0.045, wet=0.25, pan=-0.1)
     def air(N, n):
         t = np.arange(N) / SR
         return bp(noise(N), 2600, 7500) * (0.4 + 0.6 * (0.5 + 0.5 * np.sin(2 * np.pi * 0.07 * t)) ** 2)
@@ -546,11 +546,11 @@ def dreadnought(tr, inv=False):
     # ---- the tunes: THE CALL in the choir to begin; the hook (the hive's voice, the bells striking each note); in the middle
     # the bells take it a minor third down and the voice sings it an octave under them; the end, and the slide home into D
     dn_sing(tr, 0, DN_CALL, -0.3, 0.55, 0.6, vowels=('u', 'o'), ring=0.4)
-    dn_sing(tr, 4, DN_HOOK, 0.1, 0.8, 0.45, vowels=('u', 'o'))
+    dn_sing(tr, 4, DN_HOOK, 0.1, 0.65, 0.45, vowels=('u', 'o'))
     dn_bells(tr, 4, DN_HOOK, 0.3, 0.28, 0.5)
     dn_bells(tr, 12, DN_HOOK, 0.25, 0.36, 0.5, k=-3, bright=1.2)
-    dn_sing(tr, 12, DN_HOOK, -0.15, 0.6, 0.5, k=-15, vowels=('o', 'a'), ring=0.45)
-    dn_sing(tr, 20, DN_HOOK_END, 0.1, 0.55, 0.55, vowels=('u', 'o'))
+    dn_sing(tr, 12, DN_HOOK, -0.15, 0.5, 0.5, k=-15, vowels=('o', 'a'), ring=0.45)
+    dn_sing(tr, 20, DN_HOOK_END, 0.1, 0.48, 0.55, vowels=('u', 'o'))
     dn_bells(tr, 20, DN_HOOK_END, -0.3, 0.22, 0.6, k=-12)
 
     if inv:
