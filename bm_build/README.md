@@ -1,4 +1,4 @@
-# Black Market — v2.82 (Java 26.3)
+# Black Market — v3.0 (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -21,7 +21,23 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
-## New in 2.99a
+## New in 3.0: EVERY BOND - the fiftieth and fifty-first followers, and the send-off
+
+Thank you for playing. 3.0 rounds the Black Market off with its last two followers, a capstone for collecting them all, and a pass over the final dungeons.
+
+- **The Keeper of Bonds - the 51st and final follower.** Meet every other follower (all fifty) and the **Compass of Bonds** comes to you, its needle pointing up. High above the Overworld's clouds, the **Loom Sanctuary** is woven into the sky: a small island of white-and-gold arches strung with rainbow threads, a great loom on its dais. Stand right under it holding the compass and a thread of light draws you up; step off the edge and you drift gently down. The Keeper waits at the loom, a cloaked weaver with smiling eyes of light, a soft blush, a mother-of-pearl robe and six shimmering rainbow wings, with fifty little motes turning round it, one for every friend you've made. Speak to it for its send-off, and the last thread is yours.
+  - **Tug** (a thread yanks a foe in), **Mend** (you and every follower near you healed), **The Weave** (charged: every foe near bound in a web of threads), **Gift** (out of a fight, a small present) and **Bond**: each other follower you have out makes you stronger - Luck, then Regeneration, Resistance and Strength - and gives your followers near it a harder hit.
+- **The Mireling - the 50th follower.** A little Dread Mire, all puddle and tentacles and one orange-red eye. Hard mode: slay wild Dread Mires; the fourth leaves a Mireling's Seed in its puddle, for you alone. It lashes, snares, grabs and stabs, shields you when you're hurt, lends you night vision, and while it's near, the Stalkers sometimes pass you over. Honoured to **rank III by Queen Ava**, its menu's **Grown** button lets it stand as a full-grown Mire.
+- **Statue Knights.** The Undercrown's Throne Gate and the Armada's Command Lock are guarded by knights of stone that wake when the room's puzzle is solved, giant maces slamming and whirling. Fell both and the door opens - and their statues are yours to place at home.
+- **The Dread Mire.** A rare shadow beast of hard mode's dark places, in all three dimensions: a black puddle that rises into a mass of worms and tentacles that grab and stab. Never in bright light, held off by crosses, gone once the Dread Sovereign falls (unless Dread Nights are rekindled), and only one a night for each player. It drops **Shadow Remnants**: mix them into **Shadow Musk** to hide your scent from the Stalkers, or bind sixteen into a **Mire Heart** - a Bound Mire that guards your base, fights hostile mobs and keeps creepers away (a puddle by day). In the Undercrown they're rarer, never in solved rooms or the boss fight - but the Sovereign can call them.
+- **Holy against the Dread.** Holy weapons hit Dread mobs, their bosses and the Sovereign harder; holy armour turns aside one in four of the Dread's and the Stalkers' armour-piercing blows, stops Mires from rising round you in the Undercrown, and makes the Sovereign's Mire summons fail.
+- **The Lightbringer** descends to anyone granted the Sovereign's Summons, to help, and gains her true form: **the Ophanim**, a wheel within a wheel, full of eyes - with three or more monsters near, light falls three times on everything within 16.
+- **The Dread Ember** now always lets you fight the Sovereign again.
+- **The final dungeons, fair and far.** The Undercrown and the Vorn Armada now stand 2.5k-5k blocks out from 0,0 (an old copy comes down once, by itself), and there's no way in but their own - the Throne Gate with the Summons, the Armada's tractor beam - and no skipping a trial: pearls, elytra, riptide, mounts or teleports into a room before its gate is open send you back.
+- **Music.** The Black Market's "Members Only" now has a version for each special night - Lucky, Blood Moon, Invasion and Dread - and the Mothership ("Tractor Beam Bossa") and the Dreadnought ("The Deep Hive") have their own themes, each with an invasion-night version. Operators can switch market and ship music off separately in the server settings.
+- **Armour.** The Dread Visage and the Seraph's helm simplified to the pack's square-eyed style; the Hero of Time and the 8-bit sets remodelled to be more Minecraft-y and closer to their sources.
+
+## Also new since 2.99
 
 - **The Backpack** (the Fence, 5 Tokens): a plain 27-slot leather bag for clogged inventories. Right-click it and it unfolds into a barrel in front of you, as the Vacuum Satchel does. Sneak or walk away and it packs back up with everything inside. Each backpack keeps its own load, so carry as many as you like. It also works in the boss dungeons (the seven Phase 2 dungeons, the Hollow Throne, the Undercrown and the Vorn Armada), where it needs open floor clear of the dungeon's works and leaves the dungeon exactly as it found it. A dungeon rebuild or reset never eats what's inside. It doesn't work on a heist, where the coat check keeps it. Bags don't go inside bags.
 - **Two hidden mounts: the Atomic Rex and the Mecha Rex.** Grey kaiju with blue highlights, about 7.5 blocks tall, that you ride. They are not followers: each comes when you use its item, and you can put it on the Partner Wheel's new **Mounts** page.

@@ -97,7 +97,7 @@ BONDS = [('emma', '#ff8ad8'), ('celi', '#9ad8ff'), ('zib', '#3ad8c8'), ('cecil',
 # ---- the palette (3.0b: friendlier, and mother-of-pearl): pearl cloth with a pastel sheen running over it, gold trim, a soft
 #      dusky-rose lining, and a warm round face under the hood - peach skin, rosy cheeks, starlight-lilac hair
 CREAM, CREAM_D, CREAM_L = '#f6ece4', '#e6d8d0', '#fcf6f0'     # (the pearl's base: its cloth, the warp line, the paler weft row)
-HOODC, HOODC_D = '#f0e6e2', '#e0d0cc'
+HOODC, HOODC_D = '#f2e3c0', '#e2cfa4'                         # (3.0c: the original's warm cream-yellow hood and mantle)
 GOLD, GOLD_D, GOLD_L, GOLD_W = '#e8b648', '#c08a2c', '#ffd878', '#fff2c0'
 LINING, LINING_D = '#8a5a78', '#74486a'                       # (deep dusky rose: the hood's inside - shadowy but warm - and the robe's underside)
 GLOW_C, GLOW_E, GLOW_D = '#ffd88a', '#f4bc5e', '#e2a04a'       # (the sleeves' insides: warm with the light of the hands)
@@ -114,6 +114,7 @@ L_WING = (9, 11, 13)                                          # (the wings' thre
 #      with only the soft highlight band (SWEEP) passing over them, the look's own shimmer.
 PEARL = ['#ffbcdc', '#ffd0a8', '#fff0a8', '#b8f0d4', '#b4d8ff', '#d4bcff']    # rose, peach, cream, mint, sky, lilac
 FRAMES = 16
+HOOD_GOLDS = ['#f6d890', '#fbe8b4', '#f4d084', '#fff0c4', '#f0dca0']     # (3.0c: the hood's own sheen - a gentle golden shimmer, the original yellow kept)
 
 
 def _hsv(c):
@@ -189,11 +190,12 @@ def _at_lum(c, L):
     return tuple(int(round(v)) for v in c)
 
 
-def _sheen_at(t):
-    """the pearl's pastel at t (0..1, round the PEARL tones and back to the first), smoothly"""
-    n = len(PEARL); k = (t % 1.0) * n; i = int(k); f = k - i
+def _sheen_at(t, tints=None):
+    """the sheen at t (0..1, round PEARL's tones - or `tints` - and back to the first), smoothly"""
+    P_ = tints or PEARL
+    n = len(P_); k = (t % 1.0) * n; i = int(k); f = k - i
     f = f * f * (3 - 2 * f)
-    return hexc(_mix(PEARL[i % n], PEARL[(i + 1) % n], f))
+    return hexc(_mix(P_[i % n], P_[(i + 1) % n], f))
 
 
 SWEEP = 0.07                                  # (the highlight band's width, as a share of the diagonal; it crosses once a cycle)
@@ -207,7 +209,7 @@ def _strip(frame):
     return im
 
 
-def _pearl(base, line, light=None, phase=0.0, scale=1.8):
+def _pearl(base, line, light=None, phase=0.0, scale=1.8, tints=None, wash=(0.66, 0.3)):
     """mother-of-pearl cloth: the woven grid of before (a warp line every two units, a paler weft row every four) at the
     luminance of `base`/`line`/`light`, washed with a pastel sheen - hue running diagonally over it (scale: how much of the
     round fits across the texture), how much of it varying in soft waves the other way - and flowing along over the frames;
@@ -221,8 +223,8 @@ def _pearl(base, line, light=None, phase=0.0, scale=1.8):
         def c(x, y):
             L = Ll if x % 4 == 3 else Lh if light and y % 8 == 0 else Lb
             t = (x + y) / 62 * scale + tf + phase
-            amt = 0.66 + 0.3 * math.sin(2 * math.pi * ((x - y) / 22 + phase))
-            s = _sheen_at(t)
+            amt = wash[0] + wash[1] * math.sin(2 * math.pi * ((x - y) / 22 + phase))
+            s = _sheen_at(t, tints)
             col = tuple(bc[i] + (s[i] - bc[i]) * amt for i in range(3))
             d = ((x + y) / 62 - tf - phase * 0.5) % 1.0
             if d < SWEEP:                                                     # (the highlight: paler, a touch brighter)
@@ -331,16 +333,16 @@ def _face():
     return _cells(c)
 
 
-EYE_X, EYE_Y = 5, 8                                                  # (its right eye's left column, top row)
+EYE_X, EYE_Y = 3, 6                                                  # (its right eye's left column, top row; 3.0c: big eyes, 8 px)
 _EYES = {
-    None: ['.EEE.', 'EE.EE', 'E...E'],                                # cheerful: two crescents of light, smiling
-    'happy': ['..E..', '.EHE.', 'EE.EE', 'E...E'],                    # beaming: ^ ^
-    'blink': ['.....', 'E...E', '.EEE.'],                             # closed, content
-    'sleepy': ['.....', '.....', 'EEEEE', '.RRR.'],                   # low, drowsy arcs
-    'surprised': ['.EEE.', 'EHEEE', 'EEEEE', 'EEEEE', '.EEE.'],       # round
-    'sad': ['...EE', '.EE..', 'E....'],                               # drooping arcs (a tear of light below)
-    'focus': ['.....', 'REEER', '.EEE.'],                             # flattened - still kindly
-    'hurt': ['EE...', '..EE.', 'EE...'],                              # squeezed: > <
+    None: ['..EEEE..', '.EEEEEE.', 'EEE..EEE', 'EE....EE'],           # cheerful: two big crescents of light, smiling
+    'happy': ['...EE...', '..EEEE..', '.EEHHEE.', 'EEE..EEE', 'EE....EE'],     # beaming: ^ ^
+    'blink': ['........', 'EE....EE', '.EE..EE.', '..EEEE..'],         # closed, content
+    'sleepy': ['........', '........', 'EEEEEEEE', '.EEEEEE.', '..RRRR..'],    # low, drowsy arcs
+    'surprised': ['..EEEE..', '.EHHEEE.', 'EEHEEEEE', 'EEEEEEEE', '.EEEEEE.', '..EEEE..'],   # round
+    'sad': ['.....EEE', '...EEE..', '.EEE....', 'EE......'],           # drooping arcs (a tear of light below)
+    'focus': ['........', 'REEEEEER', '.EEEEEE.', '..RRRR..'],         # flattened - still kindly
+    'hurt': ['EEE.....', '..EEE...', '....EEE.', '..EEE...', 'EEE.....'],      # squeezed: > <
 }
 _BLUSH = [(3, 13, 'B'), (4, 13, 'L'), (5, 13, 'L'), (6, 13, 'B'), (4, 14, 'B'), (5, 14, 'B')]     # (under its right eye; mirrored)
 _SMILE = [(11, 16), (14, 16), (12, 17), (13, 17)]
@@ -369,7 +371,7 @@ def _eyes(kind=None):
     for x, y, k in _BLUSH:
         put(x, y, k); put(FACE_W - 1 - x, y, k)
     if kind == 'sad':                                                # (a tear of light under each eye's outer corner)
-        for y in (EYE_Y + 3, EYE_Y + 4):
+        for y in (EYE_Y + 4, EYE_Y + 5):
             put(EYE_X, y, 'T'); put(FACE_W - 1 - EYE_X, y, 'T')
     for x, y in _MOUTH[kind]:
         put(x, y, 'S')
@@ -423,7 +425,7 @@ def mcmeta():
 
 
 def textures():
-    T = {'kb_robe': _pearl(CREAM, CREAM_D, CREAM_L), 'kb_hood': _pearl(HOODC, HOODC_D, phase=0.37, scale=1.5), 'kb_gold': _gold(), 'kb_brd': _border(), 'kb_rim': _rim(),
+    T = {'kb_robe': _pearl(CREAM, CREAM_D, CREAM_L), 'kb_hood': _pearl(HOODC, HOODC_D, phase=0.37, scale=1.5, tints=HOOD_GOLDS, wash=(0.5, 0.25)), 'kb_gold': _gold(), 'kb_brd': _border(), 'kb_rim': _rim(),
          'kb_lining': _cells(lambda x, y: LINING_D if (x + y) % 6 == 0 else LINING), 'kb_bonds': _atlas(), 'kb_hand': _hand(), 'kb_light': _light(), 'kb_inner': _inner(),
          'kb_face': _face(), 'kb_eyes': _eyes()}
     for k in range(6):
