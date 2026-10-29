@@ -146,10 +146,11 @@ const N = 'execute in minecraft:the_nether run ';
     ok('...walking it: the Undercrown\'s name, as it comes in sight', await wait(14000, async () => A.titles.some(t => /THE UNDERCROWN/.test(t))), A.titles.slice(-2).join(' | '));
     ok('...and its bell tolling', A.sounds.slice(s0).some(x => /bell/.test(x.name)) || await wait(13000, async () => A.sounds.slice(s0).some(x => /bell/.test(x.name))));
     const gate = await pos('@e[type=minecraft:marker,tag=bm.ugate,limit=1]');
+    await run('tag TestRat remove bm.lkpass'); await run('scoreboard players reset TestRat bm.lku');      // (the pass opens the Maw from inside: off for this)
     A.bars.length = 0; await run('tag TestRat remove bm.usum');
     await at(gate[0] + 2.5, gate[1], gate[2] + 0.5); await sleep(2500);
     ok('...at its mouth without the tokens: its teeth shut', A.bars.some(b => /teeth (are|stay) shut/.test(b)), A.bars.slice(-1).join(''));
-    await run('tag TestRat add bm.usum');
+    await run('tag TestRat add bm.usum'); await run('tag TestRat add bm.lkpass');
     await at(hub[0], hub[1] + 1, hub[2]); await sleep(1500);
   }
 

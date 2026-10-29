@@ -427,6 +427,9 @@ def generate(G):
 
     # ================================================================== THE PLACING (once; and again after every fall)
     fl = f'{OX - 8} {OZ - 8} {OX + SX + 8} {OZ + SZ + 8}'
+    # (a forceload takes at most 256 chunks at once: the box and its margin in four quarters)
+    _mx, _mz = OX + SX // 2, OZ + SZ // 2
+    fls = [f'{a} {b} {c} {d}' for a, c in ((OX - 8, _mx), (_mx + 1, OX + SX + 8)) for b, d in ((OZ - 8, _mz), (_mz + 1, OZ + SZ + 8))]
     clr = []
     for bx in range(0, SX, 32):
         for by in range(0, SY, 32):
@@ -436,7 +439,7 @@ def generate(G):
     for bx in range(0, SX, 60):
         for bz in range(0, SZ, 60):
             bio.append(f'execute in {END} run fillbiome {OX + bx} {OY} {OZ + bz} {OX + min(SX, bx + 60) - 1} {OY + SY - 1} {OZ + min(SZ, bz + 60) - 1} bm:armada')
-    fn('p241/build/try', [f'execute in {END} run forceload add {fl}',
+    fn('p241/build/try', [*[f'execute in {END} run forceload add {q}' for q in fls],
                           f'execute in {END} store success score #aload bm.p2 if loaded {OX} {OY} {OZ} if loaded {OX + SX - 1} {OY} {OZ + SZ - 1} if loaded {OX} {OY} {OZ + SZ - 1} if loaded {OX + SX - 1} {OY} {OZ}',
                           'execute unless score #aload bm.p2 matches 1 run return run scoreboard players set #await bm.p2 0',
                           'scoreboard players add #await bm.p2 1', 'execute unless score #await bm.p2 matches 4.. run return 0',
@@ -447,7 +450,7 @@ def generate(G):
                           'execute unless score #abuilt bm.p2 matches 1 run return 0'] + bio + [
                           'function bm:p241/gauntlet/odd',
                           f'scoreboard players set #aver bm.p2 {AVER}', 'scoreboard players add #arun bm.p2 1', 'scoreboard players set #afell bm.p2 0',
-                          f'execute in {END} run forceload remove {fl}'])
+                          *[f'execute in {END} run forceload remove {q}' for q in fls]])
     second.append(f'execute if score #awant bm.p2 matches 1 unless score #aver bm.p2 matches {AVER} unless score #acol bm.p2 matches 1.. run function bm:p241/build/try')
     G.FUNCS['load'][-1:-1] = ['execute if entity @a[tag=bm.acoord] run scoreboard players set #awant bm.p2 1']
 

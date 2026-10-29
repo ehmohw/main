@@ -2,7 +2,8 @@
 send back anyone who got ahead of the trials.
 
 ADMISSION   the Undercrown: the Sovereign's Summons (bm.usum) and through the Maw while it stood open - a Summons-holder within 6
-            of the open gate is admitted. The Armada: beamed aboard by the Hive-Star Coordinates (p241/beam/tick, its last
+            of the open gate is admitted (and only the admitted open it from inside: p237/gate/tick's "coming out" rule
+            was bm.uin, which its own cave by the seam is in - the Maw opened there without the tokens). The Armada: beamed aboard by the Hive-Star Coordinates (p241/beam/tick, its last
             tick). Admission is a score, bm.lku / bm.lka = the dungeon's run (#urun / #arun) when it was given: a rebuild
             (the fall, a re-place) voids every one, online or not. Out of the box 5 s (bm.lkgu / bm.lkga; the uaq pattern): dropped; carried
             out (p237/out, p241/out): dropped. A player the update finds already inside who meets the criterion (Summons; the
@@ -17,7 +18,8 @@ ENTRY       anyone (survival/adventure) without it, inside: carried out by the d
 NO SKIPPING at build time p2/verify's own walk (Grid.bfs) runs once per stage k (gates 1..k open, the bridges they bring, every
             hidden/secret door and the Hoard/Vault open): each cell is labelled with the first stage that reaches it. Each
             stage's cells (with the drops off their ledges) are dilated (1 sideways, 1 down, 3 up: a player's hitbox and
-            jump) into an envelope; a voxel's label is the earliest envelope over it. The voxels of label s are covered by
+            jump) into an envelope, and on up through the open air to the ceiling (a wind charge, an elytra in its hall); a
+            voxel's label is the earliest envelope over it. The voxels of label s are covered by
             boxes that hold only labels >= s (and blocks nobody stands in): never a cell of an earlier stage, nor its margin.
             At run time a stage is reached when the controller's progress (bm.pz, cached: #lkpu / #lkpa) is >= s - and a
             guarded trial's (phase245) only once its knights fell (its pz<n>_open). Once a second, every box of a stage not
@@ -25,6 +27,7 @@ NO SKIPPING at build time p2/verify's own walk (Grid.bfs) runs once per stage k 
             every such box (bm.lkx/y/z: recorded each second after the check), or the entrance if there's none. Pearls,
             chorus fruit, elytra, riptide, mounts, recalls, tokens - however they got there. Thrown ender pearls in either
             dungeon are drunk by the floor (p2/util/pearl_zap: the pearl comes back).
+(Nothing runs until the dungeon is placed - #uver / #aver at its version: before that its box is the plain Nether, the void.)
 THE PASS    an operator's tag, bm.lkpass: admitted, never sent back (the older bot tests set their stages by teleport)."""
 import re
 from items import T
@@ -37,9 +40,9 @@ DIL = dict(side=1, down=1, up=3)            # a stage's envelope round its stand
 APPROACH_SIDE = 2                           # (the Undercrown's approach cave: its envelope, wider)
 ZONES = {}
 
-# per dungeon: its runtime module, dimension, verify's outside, the admission score, its run counter, the progress cache
-DG = {'under': dict(mod=P237, dim='minecraft:the_nether', outside='solid', adm='bm.lku', run='#urun', pz='#lkpu', st='#lkst_u', name='The Undercrown'),
-      'armada': dict(mod=P241, dim='minecraft:the_end', outside='void', adm='bm.lka', run='#arun', pz='#lkpa', st='#lkst_a', name='The Vorn Armada')}
+# per dungeon: its runtime module, dimension, verify's outside, the admission score, its run counter, its version, the progress cache
+DG = {'under': dict(mod=P237, dim='minecraft:the_nether', outside='solid', adm='bm.lku', run='#urun', ver='#uver', pz='#lkpu', st='#lkst_u', name='The Undercrown'),
+      'armada': dict(mod=P241, dim='minecraft:the_end', outside='void', adm='bm.lka', run='#arun', ver='#aver', pz='#lkpa', st='#lkst_a', name='The Vorn Armada')}
 
 
 # ================================================================== the stage zones (build time)
@@ -108,17 +111,22 @@ def zones(key):
         return o
     for k in range(N, -1, -1):
         L[envelope([p for p, v in occ.items() if v == k], DIL['side'])] = k
+    from p2.verify import passable
+    solid = np.zeros((SX, SY, SZ), dtype=bool)
+    ks = np.array([q for q, v in B.b.items() if not passable(v)], dtype=np.int32)
+    solid[ks[:, 0], ks[:, 1], ks[:, 2]] = True
+    setm = np.zeros((SX, SY, SZ), dtype=bool)
+    ks = np.array(list(B.b.keys()), dtype=np.int32)
+    setm[ks[:, 0], ks[:, 1], ks[:, 2]] = True
+    if key == 'under': L[envelope(B.outside, APPROACH_SIDE)] = -1
+    # (the open air over a stage's floor is that stage's, up to its ceiling: a wind charge, an elytra, a jump boost in its hall)
+    free = ~solid & (setm if c['outside'] == 'solid' else True)
+    env = (L >= 0) & (L <= N)                 # (what must be boxed: the envelopes - the air over them may be)
+    for y in range(1, SY):
+        L[:, y, :] = np.where(free[:, y, :], np.minimum(L[:, y, :], L[:, y - 1, :]), L[:, y, :])
     wild = L == 127
     if key == 'under':
-        from p2.verify import passable
-        L[envelope(B.outside, APPROACH_SIDE)] = -1
-        # (out in the Nether's own rock, or open there: nobody's - and never boxed. Its own rock, solid: anyone's)
-        solid = np.zeros((SX, SY, SZ), dtype=bool)
-        ks = np.array([q for q, v in B.b.items() if not passable(v)], dtype=np.int32)
-        solid[ks[:, 0], ks[:, 1], ks[:, 2]] = True
-        setm = np.zeros((SX, SY, SZ), dtype=bool)
-        ks = np.array(list(B.b.keys()), dtype=np.int32)
-        setm[ks[:, 0], ks[:, 1], ks[:, 2]] = True
+        # (out in the Nether's own rock, or open by it: nobody's - and never boxed. Its own rock, and its air deep inside: anyone's)
         near = ~setm
         for _ in range(2):
             n_ = near.copy()
@@ -127,11 +135,11 @@ def zones(key):
         wild = (L == 127) & setm & (solid | ~near)
         L[~setm & (L != -1)] = 126
     live = (L >= 0) & (L <= N)
-    boxes = {s: cover(L == s, ((L >= s) & live) | wild) for s in range(1, N + 1)}
-    entry = cover(live, live | wild) if key == 'under' else []
+    boxes = {s: cover((L == s) & env, ((L >= s) & live) | wild) for s in range(1, N + 1)}
+    entry = cover(live & env, live | wild) if key == 'under' else []
     cells = {}
     for q, k in stage.items(): cells.setdefault(k, []).append(q)
-    ZONES[key] = dict(n=N, cells=cells, boxes=boxes, entry=entry, L=L, size=(SX, SY, SZ), setm=setm if key == 'under' else None)
+    ZONES[key] = dict(n=N, cells=cells, boxes=boxes, entry=entry, L=L, env=env, size=(SX, SY, SZ), setm=setm if key == 'under' else None)
     return ZONES[key]
 
 
@@ -206,9 +214,9 @@ def selftest(key):
         bad = [q for q, k in earlier.items() if k < s and any(x0 - 1 <= q[0] <= x1 + 1 and y0 - 3 <= q[1] <= y1 + 1 and z0 - 1 <= q[2] <= z1 + 1
                                                               for (x0, y0, z0, x1, y1, z1) in bs)]
         if bad: errs.append(f'{key}: stage {s}: {len(bad)} earlier standing cells within a box or its margin, e.g. {bad[:3]}')
-        miss = int(((L == s) & ~cov).sum())
+        miss = int(((L == s) & Z_['env'] & ~cov).sum())
         if miss: errs.append(f'{key}: stage {s}: {miss} voxels uncovered')
-        rep.append(f'stage {s:2d}: {len(Z_["cells"].get(s, [])):5d} new cells, {int((L == s).sum()):6d} voxels, {len(bs):3d} boxes')
+        rep.append(f'stage {s:2d}: {len(Z_["cells"].get(s, [])):5d} new cells, {int((L == s).sum()):6d} voxels ({int(((L == s) & Z_["env"]).sum()):6d} by its floors, all boxed), {len(bs):3d} boxes')
     for (x0, y0, z0, x1, y1, z1) in Z_['entry']:
         sub = L[x0:x1 + 1, y0:y1 + 1, z0:z1 + 1]
         if (sub == -1).any() or (sub == 126).any() or not Z_['setm'][x0:x1 + 1, y0:y1 + 1, z0:z1 + 1].all():
@@ -216,7 +224,7 @@ def selftest(key):
     if Z_['entry']:
         cov = np.zeros(L.shape, dtype=bool)
         for (x0, y0, z0, x1, y1, z1) in Z_['entry']: cov[x0:x1 + 1, y0:y1 + 1, z0:z1 + 1] = True
-        miss = int((((L >= 0) & (L <= Z_['n'])) & ~cov).sum())
+        miss = int((((L >= 0) & (L <= Z_['n'])) & Z_['env'] & ~cov).sum())
         if miss: errs.append(f'{key}: {miss} inside voxels out of every entry box')
         rep.append(f'entry: {len(Z_["entry"])} boxes over {int(cov.sum())} voxels (the approach cave and the Nether round it left out)')
     return errs, rep
@@ -267,6 +275,10 @@ def generate(G):
         fn(f'{F}/rebuilt', [f'scoreboard players set {pz} bm.p2 0', f'scoreboard players set {st} bm.p2 0'] + [f'scoreboard players set #lkg{g}{key[0]} bm.p2 0' for g in guard])
         # ---- who gets in
         if key == 'under':        # through the open Maw, with the Summons
+            # (and the Maw opens from the inside only for those it admitted: bm.uin is anyone near a zone marker - its own cave too)
+            gt = G.FUNCS['p237/gate/tick']
+            k_ = next(j for j, l in enumerate(gt) if 'tag=bm.uin]' in l)
+            gt[k_] = gt[k_].replace('tag=bm.uin]', f'tag={tg}]')
             sec.append(f'execute in {dim} as @e[type=minecraft:marker,tag=bm.ugate,tag=bm.open,{M.BOX}] at @s as @a[distance=..6,tag=bm.usum,tag=!{tg},{who}] run function bm:{F}/admit')
             first.append(f'execute if entity @s[tag=bm.usum] if dimension {dim} if entity @s[{M.BOX}] run function bm:{F}/admit')
         else:                     # the tractor beam's last tick, on the Dock
@@ -277,7 +289,8 @@ def generate(G):
                       f'execute if dimension {dim} if entity @s[{M.BOX},tag=bm.acoord] run function bm:{F}/admit']
         G.FUNCS[f'admin/{key}/go'].append(f'function bm:{F}/admit')
         # ---- once a second, while anyone who plays is in its box
-        sec.append(f'execute in {dim} if entity @a[{M.BOX},{who}] run function bm:{F}/sec')
+        placed = f'if score {c["ver"]} bm.p2 matches {getattr(M, c["ver"][1:].upper())}'      # (before it's placed, its box is the plain Nether / the void)
+        sec.append(f'execute {placed} in {dim} if entity @a[{M.BOX},{who}] run function bm:{F}/sec')
         body = ['tag @a[tag=bm.lkhit] remove bm.lkhit']
         if key == 'under':        # (its inside: its own blocks - not the approach cave, not the Nether's rock round it)
             fn(f'{F}/entry', [f'execute as @a[{box(b)},tag=!{tg},tag=!bm.lkhit,{who}] run function bm:{F}/eject' for b in Z_['entry']])
@@ -302,9 +315,11 @@ def generate(G):
                           title('@s', 'actionbar', [T(nm, 'dark_red', bold=True), T(' does not know you. You are carried out.', 'gray', italic=True)]),
                           tellraw('@s', P + [T(nm + ': ', 'dark_red', bold=True), T('there is no way in but its own - ', 'gray'), T(how, 'white')])])
         ex, ey, ez = (M.OX + B.meta['entrance'][0], M.OY + B.meta['entrance'][1], M.OZ + B.meta['entrance'][2])
+        # (where they last stood - once: caught again before they stand anywhere new, it's the entrance)
         fn(f'{F}/back', ['tag @s add bm.lkhit', 'ride @s dismount', 'effect give @s minecraft:slow_falling 2 0 true',
-                         f'execute if score @s bm.lkd matches {i} if score @s bm.lky matches -64.. run function bm:{F}/to_last',
-                         f'execute unless score @s bm.lkd matches {i} run function bm:{F}/to_start', f'execute unless score @s bm.lky matches -64.. run function bm:{F}/to_start',
+                         f'execute store success score #lk bm.rng if score @s bm.lkd matches {i} if score @s bm.lky matches -64..',
+                         f'execute if score #lk bm.rng matches 1 run function bm:{F}/to_last', f'execute if score #lk bm.rng matches 0 run function bm:{F}/to_start',
+                         'scoreboard players reset @s bm.lky',
                          'execute at @s run particle minecraft:reverse_portal ~ ~1 ~ 0.3 0.8 0.3 0.05 20', 'execute at @s run playsound minecraft:block.respawn_anchor.deplete player @s ~ ~ ~ 0.6 1.4',
                          title('@s', 'actionbar', [T(nm, 'dark_red', bold=True), T(' will not be skipped: its trials come in their order. Back you go.', 'gray', italic=True)])])
         fn(f'{F}/to_last', ['execute store result storage bm:tmp lk.x int 1 run scoreboard players get @s bm.lkx', 'execute store result storage bm:tmp lk.y int 1 run scoreboard players get @s bm.lky',
@@ -313,7 +328,7 @@ def generate(G):
         fn(f'{F}/to_start', [f'execute in {dim} run tp @s {ex + 0.5} {ey} {ez + 0.5}'])
         # ---- thrown pearls: the floor drinks them (the pearl comes back)
         near = f' at @s if entity @e[type=minecraft:marker,tag=bm.zone_d,tag=bm.d_{d},distance=..40]' if key == 'under' else ''
-        fast.append(f'execute in {dim} as @e[type=minecraft:ender_pearl,{M.BOX}]{near} run function bm:p2/util/pearl_zap')
+        fast.append(f'execute {placed} in {dim} as @e[type=minecraft:ender_pearl,{M.BOX}]{near} run function bm:p2/util/pearl_zap')
     fn(f'{PFX}/first', first)
     second.append(f'function bm:{PFX}/sec')
     fn(f'{PFX}/sec', ['execute as @a unless score @s bm.lkv matches 1 at @s run function bm:p251/first'] + sec)

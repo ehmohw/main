@@ -324,12 +324,15 @@ def generate(G):
     # ================================================================== THE PLACING (once; and again after every fall)
     sx, sz = SX // 16 + 1, SZ // 16 + 1
     fl = f'{OX - 8} {OZ - 8} {OX + SX + 8} {OZ + SZ + 8}'
+    # (a forceload takes at most 256 chunks at once: the box and its margin in four quarters)
+    _mx, _mz = OX + SX // 2, OZ + SZ // 2
+    fls = [f'{a} {b} {c} {d}' for a, c in ((OX - 8, _mx), (_mx + 1, OX + SX + 8)) for b, d in ((OZ - 8, _mz), (_mz + 1, OZ + SZ + 8))]
     bio = []
     step = 56
     for bx in range(0, SX, step):
         for bz in range(0, SZ, step):
             bio.append(f'execute in {NETHER} run fillbiome {OX + bx} {OY} {OZ + bz} {OX + min(SX, bx + step) - 1} {OY + SY - 1} {OZ + min(SZ, bz + step) - 1} bm:undercrown')
-    fn('p237/build/try', [f'execute in {NETHER} run forceload add {fl}',
+    fn('p237/build/try', [*[f'execute in {NETHER} run forceload add {q}' for q in fls],
                           f'execute in {NETHER} store success score #uload bm.p2 if loaded {OX} {OY} {OZ} if loaded {OX + SX - 1} {OY} {OZ + SZ - 1} if loaded {OX} {OY} {OZ + SZ - 1} if loaded {OX + SX - 1} {OY} {OZ}',
                           'execute unless score #uload bm.p2 matches 1 run return run scoreboard players set #uwait bm.p2 0',
                           'scoreboard players add #uwait bm.p2 1', 'execute unless score #uwait bm.p2 matches 4.. run return 0',
@@ -341,7 +344,7 @@ def generate(G):
                           'execute unless score #ubuilt bm.p2 matches 1 run return 0'] + bio + [
                           'function bm:p237/build/roads',
                           f'scoreboard players set #uver bm.p2 {UVER}', 'scoreboard players add #urun bm.p2 1', 'scoreboard players set #ufell bm.p2 0',
-                          f'execute in {NETHER} run forceload remove {fl}'])
+                          *[f'execute in {NETHER} run forceload remove {q}' for q in fls]])
     second.append(f'execute if score #uwant bm.p2 matches 1 unless score #uver bm.p2 matches {UVER} unless score #ucol bm.p2 matches 1.. run function bm:p237/build/try')
     # (2.98c) THE ROADS TO THE MAW: from each of its mouths (the court's east and south faces), a walled processional road cut 48
     # blocks out into the Nether, paved, its walls holding back whatever lava is there, soul lanterns hung on chains above it
