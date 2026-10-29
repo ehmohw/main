@@ -382,7 +382,11 @@ def build(C, G, abilities, encounter):
                            f'execute if score @s {fsc} matches 1 run ' + csay(C.FORM[4]), f'execute if score @s {fsc} matches 0 run ' + csay(C.FORM[5]),
                            'scoreboard players operation #me bm.pid = @s bm.pid',
                            f'execute as @e[type=minecraft:wolf,tag={pet}] if score @s bm.pid = #me bm.pid at @s run function bm:{pfx}/form2',
-                           f'function bm:p99/menu/{W}' if C.FORM_WARDROBE else f'function bm:{pfx}/menu'])
+                           # (3.0e: the menu shown again knows the follower is out by {sel2} - act returns into here before it
+                           #  tags them, so tag them here: else the menu came back as "Call for ..." with them beside you)
+                           f'{sel_pet} run tag @s add {sel2}',
+                           f'function bm:p99/menu/{W}' if C.FORM_WARDROBE else f'function bm:{pfx}/menu',
+                           f'tag @e[tag={sel2}] remove {sel2}'])
         fn(f'{pfx}/form2', ['scoreboard players operation #me bm.pid = @s bm.pid',
                             f'execute as @e[type=minecraft:item_display,tag=bm.{ab}p_pet,tag=!{fade}] if score @s bm.pid = #me bm.pid run tag @s add {sel}',
                             f'function bm:{pfx}/dress', f'tag @e[tag={sel}] remove {sel}'] + C.FORM_FX)

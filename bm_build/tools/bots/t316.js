@@ -180,6 +180,7 @@ const N = 'execute in minecraft:the_nether run ';
 
   await run(`${N}forceload remove ${OX} ${OZ} ${OX + 223} ${OZ + 223}`);
   await run('tag TestRat remove bm.lkpass');      // (phase251's pass off again)
+  await run('tag TestRat remove bm.usum');        // (and the Summons this test gave - left on, the Lightbringer's herald comes unasked: t309)
   console.log(`${res.filter(x => x).length}/${res.length} passed`);
   A.end(); R.end(); process.exit(0);
 })();

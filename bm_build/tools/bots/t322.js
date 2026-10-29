@@ -132,6 +132,7 @@ const CELL = { under: { 0: [2632, 84, -2417], 2: [2584, 84, -2441], 3: [2584, 84
     await run(`${E}forceload remove ${AO[0]} ${AO[2]} ${AO[0] + 239} ${AO[2] + 239}`);
   }
 
+  await run('tag TestRat remove bm.usum');      // (the Summons this test gave: left on, it hands the Lightbringer's herald over unasked - t309)
   const p = res.filter(Boolean).length; console.log(`\n${p}/${res.length} passed`);
   A.end(); R.end(); process.exit(p === res.length ? 0 : 1);
 })();

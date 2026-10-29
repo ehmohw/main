@@ -118,6 +118,7 @@ const FLOOR = 100;
 
   if (on('home')) {
     const O = 'execute in minecraft:overworld run ';
+    await run(`${O}forceload add 18384 15984 18416 16016`); await sleep(2000);      // (the stage's chunks: the bot may log in far off, and a fill there is "not loaded")
     await run(`${O}fill 18390 100 15990 18410 104 16010 minecraft:air`); await run(`${O}fill 18390 99 15990 18410 99 16010 minecraft:stone`);
     await at(O, 18400.5, 100, 16000.5, 0, 60); await run('clear TestRat');
     await run('loot replace entity TestRat hotbar.0 loot bm:items/knight_statue_dread'); A.slot(0); await sleep(400);
@@ -134,6 +135,7 @@ const FLOOR = 100;
     const O = 'execute in minecraft:overworld run ';
     const X = 18400, Y = 100, Z = 16000;
     const near = `distance=..12,x=${X},y=${Y},z=${Z + 1}`;
+    await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`); await sleep(2000);      // (as above: else the fills fail and the statue falls to the ground)
     await run(`${O}fill ${X - 12} ${Y} ${Z - 12} ${X + 12} ${Y + 5} ${Z + 12} minecraft:air`); await run(`${O}fill ${X - 12} ${Y - 1} ${Z - 12} ${X + 12} ${Y - 1} ${Z + 12} minecraft:stone`);
     await run(`${O}kill @e[type=minecraft:zombie,tag=bm.t319z]`); await run('difficulty normal');
     const place = async (kind) => {
