@@ -94,6 +94,11 @@ Two more are classic secret rooms. Each room also gives a **Hive Sigil**, and si
   - Two lower wings cover your legs.
 - **New icons** for the three Seraph pieces.
 
+**THE SOVEREIGN'S WINGS.** The Dread Sovereign's fall now also gives every fighter two new elytra. They have the Wings of the Damned's powers: unbreakable, flying into a wall never hurts you, sneak while gliding to drive on, and crouch then jump to be thrown skyward.
+- **The Wings of the Last Night:** the Sovereign's own wings, black and full of eyes.
+- **The Wings of the First Light:** Aurel's wings as they were before the dark, white fire and gold, with a holy trail.
+- Both are shown in 3D on your back. If you felled the Sovereign before 2.99, you receive both the next time you log in.
+
 **Music:** the Armada has its own soundtrack: five exploration tiers that build ship by ship, its combat tracks, and Vexis's intro, three phases, two entrances and the unlinking. Its record drops the first time you fell it.
 
 ## New in 2.98c: the Last Light - the Divine One, the Maw, and the Sovereign again

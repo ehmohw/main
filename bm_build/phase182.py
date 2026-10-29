@@ -69,12 +69,14 @@ def holy_twins(G):
     import re
     F, fn = G.FUNCS, G.fn
     holy_wings = '*[minecraft:custom_data~{bm:"hollow_wings",bm_angel:1b}]'
+    fn('p182/wings_holy', [f'execute if items entity @s armor.chest {holy_wings} run return 1',
+                           'execute if items entity @s armor.chest *[minecraft:custom_data~{bm_dwings:1b,bm_angel:1b}] run return 1', 'return 0'])     # (2.99: the First Light's too)
     ROOTS = {'p2/rg/gesture': 'if function bm:p182/is_angel', 'p2/rg/mace_use': 'if function bm:p182/is_angel',
              'p2/rg/smash': 'if function bm:p182/is_angel', 'p2/rg/kill': 'if entity @s[tag=bm.angel]',
              'p2/ht/pick': f'if items entity @s weapon.mainhand {ANGEL}', 'p2/ht/shovel': f'if items entity @s weapon.mainhand {ANGEL}',
              'p2/ht/axe': f'if items entity @s weapon.mainhand {ANGEL}', 'p2/ht/hoe': f'if items entity @s weapon.mainhand {ANGEL}',
              'p2/ht/blade': f'if items entity @s weapon.mainhand {ANGEL}', 'p2/ht/arrow_fx': 'if entity @s[tag=bm.harrow]',
-             'p2/ht/wings': f'if items entity @s armor.chest {holy_wings}', 'p2/ht/burn': f'if items entity @s armor.chest {holy_wings}'}
+             'p2/ht/wings': 'if function bm:p182/wings_holy', 'p2/ht/burn': 'if function bm:p182/wings_holy'}
     ref = re.compile(r'function bm:(p2/(?:rg|ht)/[\w/]+)')
     memo = {}
     def lit(f, seen=()):                        # (does it, or anything it calls, show or do something to make holy)

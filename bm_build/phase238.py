@@ -26,7 +26,7 @@ THE FALL     it unravels (3 s). Everyone in the hall: bm.dfin (the reckoning - t
              (p237/collapse: three minutes, then it is rebuilt).
 ABANDONED    nobody in the hall for 30 s: it goes back to its throne, the floor is put back (p237/floor) and the Wellsprings with it."""
 import math
-from items import T, item, TOTEM
+from items import T, item, TOTEM, gear, attr
 from nbt import snbt, B, F, Int, D as Dd
 import rigfol as RF
 import rigkit as RK
@@ -66,6 +66,19 @@ P152.WHO_LATE += [(18, f'{_H},tag=bm.svlive,scores={{bm.svph=1}}'), (19, f'{_H},
 # ---- what it leaves (phase237's items hold the rest)
 item('sov_eye', TOTEM, L.ITEMS['eye'][0], COL, list(L.ITEMS['eye'][1]) + [('Hard mode. From the Dread Sovereign, the first time it falls.', 'dark_gray')],
      model='bm:sov_eye', glint=True, stack=1, cat='follower', bold=True)
+# (2.99) ITS WINGS - the Wings of the Damned's powers (p2/hollowtools: unbreakable, wall-proof, the sneak drive, the crouch-and-jump
+# launch), in the Sovereign's own: the Last Night's six black wings full of eyes, and the First Light's - Aurel's, as they were.
+# Both from its fall, every fighter (seraph_wings shows them in 3D on your back).
+_WL = ['+6 Armour. Unbreakable. Flying into a wall', 'never hurts you.', 'Hold sneak while gliding: the wings drive you on.',
+       'On the ground, crouch a moment, then jump:', 'they throw you skyward - jump again to glide.']
+for _iid, _nm, _col, _first, _x in (('sov_wings', 'Wings of the Last Night', COL, 'The Dread Sovereign\'s own six wings, every eye in them open.', {}),
+                                     ('sov_wings_holy', 'Wings of the First Light', L.HOLY, 'Aurel\'s wings, as they were before the dark: white fire and gold.',
+                                      {'bm_angel': B(1)})):
+    gear(_iid, 'elytra', _nm, _col, [_first] + [(l, 'blue') for l in _WL] + [('From the Dread Sovereign\'s fall.', 'dark_gray')],
+         {'bm:damned_wings': 1}, 3, attrs=[attr('armor', 6, 'chest', ident='minecraft:armor.chestplate'), attr('armor_toughness', 2, 'chest', ident='minecraft:armor.chestplate_toughness')],
+         extra={'minecraft:unbreakable': {}, 'minecraft:item_model': f'bm:{_iid}',
+                'minecraft:equippable': {'slot': 'chest', 'asset_id': f'bm:{_iid}', 'equip_sound': 'minecraft:item.armor.equip_elytra', 'damage_on_hurt': False}},
+         bold=True, custom_extra=dict({'bm_dwings': B(1)}, **_x))
 
 # ---- the states and their frames: (period or None, [(tick, pose)]) per form
 def _cyc(f):
@@ -757,6 +770,7 @@ def generate(G):
                        give('ukey_victor'), 'loot give @s loot bm:p238/spoils',
                        tellraw('@s', P + [T(L.SOV, COL, bold=True), T(' has fallen. ', 'gray'), T(L.FIGHT['fall2'], '#c8a0a0', italic=True)]),
                        'execute unless entity @s[tag=bm.svfirst] run function bm:p238/first',
+                       'execute unless entity @s[tag=bm.svwings] run function bm:p238/wings',
                        'execute if score @s bm.svwin matches 2 run function bm:p238/second',
                        'execute if score @s bm.svwin matches 2.. unless entity @s[tag=bm.xvunb] run function bm:p238/unbound'])
     # (2.98c) felled a second time: the Bound Sovereign remembers what it was - its Unbound form, at the size it fought you
@@ -771,6 +785,13 @@ def generate(G):
                       'execute if score #hard bm.cfg matches 1 run function bm:p239/enc/joined',      # (its Eye - and what's left of it, bound to you)
                       tellraw('@s', [T('  In its ashes: ', 'gray'), T('the Dread Ember', COL, bold=True), T(' (the Nights, if ever you miss them), ', 'gray'),
                                      T('its record', COL), T(' - and ', 'gray'), T('the Sovereign\'s Eye', COL, bold=True), T('. Something in it is listening.', 'gray', italic=True)])])
+    # (2.99) its wings, both: to every fighter the first time (and to whoever felled it before there were any)
+    fn('p238/wings', ['tag @s add bm.svwings', give('sov_wings'), give('sov_wings_holy'),
+                      tellraw('@s', [T('  And its wings - ', 'gray'), T('the Last Night', COL, bold=True), T(' and ', 'gray'), T('the First Light', L.HOLY, bold=True),
+                                     T(': the dark it became, and the light it was.', 'gray', italic=True)])])
+    second.append('execute as @a[scores={bm.svwin=1..},tag=!bm.svwings] run function bm:p238/wings')
+    # (they are the Wings of the Damned in every power: p2/ht/wings runs for them too; the First Light's trail is the holy one)
+    tick.append('execute as @a[gamemode=!spectator] if items entity @s armor.chest *[minecraft:custom_data~{bm_dwings:1b}] at @s run function bm:p2/ht/wings')
     fn('p238/second', [give('music_disc_aurel'), tellraw('@s', [T('  Something else in the ashes: a pale record. ', 'gray'), T('Aurel', L.HOLY, bold=True), T('.', 'gray')])])
 
     # ================================================================== ITS SPOILS AT WORK
