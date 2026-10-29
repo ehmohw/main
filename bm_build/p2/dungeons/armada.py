@@ -1,52 +1,61 @@
 """THE VORN ARMADA (2.99): the Vorn's hive-fleet, circling the Hive-Star in the End's void (240 x 96 x 240 at armadacfg.ORIGIN;
 an unset cell is the void). p2/armadacfg.py is the contract (the star, the ships' centres, the bridge arena, the trials' order,
-the hidden rooms); phase241 runs it, phase242 is the Admiral's fight on the bridge.
+the hidden rooms); phase241 runs it, phase242 is the Admiral's fight on the bridge. Verified by p2/verify.verify_armada
+(python3 tools/verify_dungeons.py armada); previews by tools/preview/armada_map.py and armada_3d.py.
 
-North is -z. Walk y in brackets. Every ship sails ANTICLOCKWISE round the star (seen from above, its prow forward on the orbit),
-so the chain of trials runs out of each ship's prow and into the next one's flank. Each ship is its rooms, carved first (walls
-two thick), then a hull wrapped round them (ABuild-agnostic: K.hull, a bevelled section swept along the ship's axis, the rooms'
-envelope always inside it), then its outside: engines with glowing exhausts, antenna masts, fins, war-red stripes, green
-running lights. Every ship's way on is a docking collar sealed by its last trial's gate (G1, G5, G9, G13, G14, G16) with a
-hard-light bridge beyond it (ABuild.bridge, the same n), a landing pad (ABuild.pad) inside each collar.
+North is -z. Walk y in brackets. Every ship sails anticlockwise round the star (seen from above), its prow forward on the
+orbit, so the chain of trials runs out of each ship's prow (or flank) and into the next one's. Each ship is its rooms, carved
+first (walls two thick: an inner face, an outer layer of the ship's own plating), then a hull swept round them (K.hull: a
+bevelled section between keyframes, the rooms' envelope always inside it; only its skin is set - between the rooms, a sealed
+void), then its outside: mandible prongs either side of its departure collar, armour ribs, engines with glowing exhausts,
+antenna masts, fins, war-red stripes, sparse green running lights. Every ship's way on is a docking collar sealed by its last
+trial's gate with a hard-light bridge beyond it (ABuild.bridge, the same n), a landing pad (ABuild.pad) inside every collar.
+The Dock is laid out 4 west and the Navigator 8 west of where they sail, then moved (shift_new; DOCK_DX, NAV_DX); the
+coordinates below are where they end up.
 
   THE HIVE-STAR      (120, 48, 120) r 22: a hollow burning shell - granulation, latitude bands, sunspots - with prominence loops
                      and spicules out to r 28 (burn radius 30). B.star(); the dungeon's controller sits at its heart.
-  THE DOCK  (50)     the arrival frigate, x 86..160, z 194..224, prow east. ARRIVAL HALL x104..128 z200..212: B.dock/the entrance
-                     facing the Fleet Map projector (bm.amap); the Starforge bench; the beam-out pad (B.home) in the stern alcove;
-                     the 'dock' lectern and voice. THE LIFT ROOM x133..143 z201..211 - P1 levers (the gravity lifts: up, down,
-                     up, down, up). G1 in the prow collar; BRIDGE 1 east along z205..207 to the Brood-Carrier.
-      THE HULL GARDEN (hidden: the Sky Buddies) - their sigil in the hall; a door in its south wall out to a ledge on the hull.
-  THE BROOD-CARRIER (46)  x 175..211, z 128..224, prow north. P2 simon: the specimen-tank lab x178..192 z190..208 (four tanks,
+  THE DOCK  (50)     x92..161 z196..216, prow east. ARRIVAL HALL x108..132 z200..212: B.dock/the entrance (111, 50, 206) facing
+                     the Fleet Map projector (bm.amap at 122, 52, 206); the Starforge bench (114, 51, 211); the beam-out pad
+                     (103, 50, 206) in the stern alcove; the 'dock' lectern and voice. THE LIFT ROOM x137..147 - P1 levers (the
+                     gravity lifts: up, down, up, down, up). G1 in the prow collar (150); BRIDGE 1 east, z205..207, x162..170.
+      THE HULL GARDEN (hidden: the Sky Buddies) - their sigil in the hall (121, 50, 210); a door in its south wall out to a
+                     ledge on the hull (x110..132 z219..223), open to the stars.
+  THE BROOD-CARRIER (46)  x174..211 z131..224, prow north. P2 simon: the specimen-tank lab x178..192 z190..208 (four tanks,
                      the pulse console; BOOKS['brood']) -> G2 -> P3 waves: the bio-bay x196..208 z176..208 -> G3 -> P4 lights: the
-                     quarantine grid x178..192 z174..186 (4x4 bulbs, the button plinth) -> G4 -> P5 vboss: THE HATCHERY, round, r15,
-                     17 tall, centre (192, 46, 152); a ward vault. G5 in the prow collar; BRIDGE 5 north along x197..199.
-      THE SPECIMEN KENNEL (hidden: Donado) - a floor vent in the lab's south wall.
-  THE STAR-FORGE (48) x 189..228, z 48..124, prow north. P6 seq: the conduit room x192..212 z102..114 (five conduit pillars, the
-                     wiring schematic on the north wall; BOOKS['forge']) -> G6 -> P7 waves: the slag bay x192..206 z84..98 -> G7 ->
-                     P8 xsock: the furnace hall x210..218 z84..98 (green, violet, cyan) -> G8 -> P9 vboss: THE FOUNDRY FLOOR
-                     x191..216 z55..80 (26 across, lava under glass); a ward vault. G9 in the prow collar; BRIDGE 9 north, then west.
-      SECRET 1 - a button behind a barrel in the furnace hall; the door in its east wall.
-  THE NAVIGATOR (52) x 86..186, z 0..44, prow west. P10 targets: the star-dome x160..176 z22..38 (five constellations on its walls;
-                     BOOKS['nav']) -> G10 -> P11 path: THE ZERO-G CROSSING x134..157 z24..36, plates over the open void (the
-                     ceiling's stars mark the safe tiles) -> G11 -> P12 waves: the squadron bay x128..148 z4..20 -> G12 -> P13
-                     vboss: THE OBSERVATORY, round, r15, under a glass dome, centre (110, 52, 18); a ward vault. G13 in the prow
-                     collar; BRIDGE 13 west.
+                     quarantine grid x178..192 z174..186 (4x4 bulbs in the west wall, the button plinth) -> G4 -> P5 vboss: THE
+                     HATCHERY, round, r15, 17 tall, its dome out of the hull, centre (192, 46, 152); a ward vault. G5 in the prow
+                     collar; BRIDGE 5 north, x197..199 z120..127.
+      THE SPECIMEN KENNEL (hidden: Donado) - a floor vent (copper grate) in the lab's south wall.
+  THE STAR-FORGE (48) x188..229 z50..117, prow north. P6 seq: the conduit room x192..212 z102..114 (five conduit pillars, the
+                     wiring schematic over the door, numbered; BOOKS['forge']) -> G6 -> P7 waves: the slag bay x192..206 z84..98
+                     -> G7 -> P8 xsock: the furnace hall x210..218 z84..98 (green, violet, cyan) -> G8 -> P9 vboss: THE FOUNDRY
+                     FLOOR x191..216 z55..80 (26 across, lava under glass); a ward vault. G9 in the prow collar; BRIDGE 9 north
+                     (x203..205 z29..47) then west (z29..31 x192..202).
+      SECRET 1 - a button behind barrels in the furnace hall's north-east corner (218, 48, 84); the door in its east wall.
+  THE NAVIGATOR (52) x100..188 z1..41, prow west. P10 targets: the star-dome x168..184 z22..38 (five constellations on its walls;
+                     BOOKS['nav']) -> G10 -> P11 path: THE ZERO-G CROSSING x142..165 z24..36, plates over the open void (the
+                     ceiling's stars mark the safe tiles) -> G11 -> P12 waves: the squadron bay x136..156 z4..20 -> G12 -> P13
+                     vboss: THE OBSERVATORY, round, r15, under a glass dome, centre (118, 52, 18); a ward vault. G13 in the prow
+                     collar; BRIDGE 13 west, z21..23 x83..97.
       THE MAINFRAME CORE (hidden: the Cursor) - a door in the star-dome's north wall.
-  DREADNOUGHT A (48) x 34..86, z 4..46, prow west. The lobby x70..78 z18..26 ('dread' voice) -> P14 reactor: the reactor hall
-                     x46..66 z15..35 (core (56, 52, 25), four conduits, four spawn points) -> G14: its armoury (north) and the
-                     south collar; BRIDGE 14 south, then west.
+  DREADNOUGHT A (48) x28..81 z4..40, prow west (a ram). The lobby x70..78 z18..26 ('dread' voice) -> P14 reactor: the reactor
+                     hall x46..66 z15..35 (core (56, 52, 25), four conduits, four spawn points) -> G14: its armoury (north) and
+                     the south collar; BRIDGE 14 south (x55..57 z45..71) then west (z69..71 x45..54).
       ZIB'S LOST SQUAD (hidden: Zib) - a Donadian-coded door (teal) in the lobby's south wall.
-  DREADNOUGHT B (52) x 0..46, z 58..126, prow south. The lobby x30..38 z64..74 -> P15 waves: the hangar x12..38 z78..98 -> G15 ->
+  DREADNOUGHT B (52) x0..47 z58..121, prow south. The lobby x30..38 z64..74 -> P15 waves: the hangar x12..38 z78..98 -> G15 ->
                      P16 reactor: the reactor hall x14..36 z102..118 (core (25, 56, 110)) -> G16: its armoury (east) and the
-                     prow collar; BRIDGE 16 south.
-      SECRET 2 - a button on a crate stack in the hangar; the door in its west wall.
-  THE FLAGSHIP (55)  the Hive-Throne, round its bridge, x 0..100, z 124..238. THE COMMAND LOCK x8..32 z140..150 - P17 xsock (the
+                     prow collar; BRIDGE 16 south, x24..26 z125..131.
+      SECRET 2 - a button on a crate stack in the hangar's north-west corner (15, 52, 79); the door in its west wall.
+  THE FLAGSHIP (55)  the Hive-Throne round its bridge, x2..91 z134..236. THE COMMAND LOCK x8..32 z140..150 - P17 xsock (the
                      three Ciphers), the 'flag' voice -> G17 (the sealed bulkhead) -> P18 THE GAUNTLET x6..10 z154..214, 61 long,
-                     sentries every 6 blocks alternating walls, the goal at its end -> G18 -> THE ANTECHAMBER x14..25 z192..216
-                     (the spoils vault, a rift) -> the battle door (27, 55, 199) -> THE BRIDGE exactly per armadacfg.ARENA: floor
-                     r30 (top y54), the wall to y66, the dome to y84; on the star's arc (window +-55 deg) the wall is one vast
-                     window; four shield pylons; the helm. Behind the helm, the console housing and THE HIVE VAULT's door; a stair
-                     down to the Hive Vault x81..92 z158..172 (47): the victor's vault, the hoard, a rift, BOOKS['helm']."""
+                     nine sentries every 6 blocks alternating walls, the goal at its end; the Command Lock's key vault at its head
+                     -> G18 -> THE ANTECHAMBER x14..25 z192..216 (the spoils vault, a rift) -> the battle door (27, 55, 199) ->
+                     THE BRIDGE exactly per armadacfg.ARENA: floor r30 (top y54), the wall to y66, the dome to y84; on the star's
+                     arc (window +-55 deg) the wall is one vast window from the floor to y79, climbing into the dome; four shield
+                     pylons; the helm (68, 55, 165). Behind the helm, in the window's foot 14 degrees off its sight of the star,
+                     THE HIVE VAULT's door (79, 55, 166); a stair down under the saucer's deck to the Hive Vault x90..100
+                     z159..173 (47): the victor's vault, the hoard, a rift, BOOKS['helm']."""
 import math
 import random
 import numpy as np
@@ -66,7 +75,8 @@ WIN = AR['window']
 # ---- palettes
 HULL = [('polished_deepslate', 5), ('deepslate_tiles', 4), ('black_concrete', 2), ('gray_concrete', 0.7), ('cracked_deepslate_tiles', 0.5)]
 HULL_DARK = [('black_concrete', 4), ('polished_blackstone', 3), ('polished_deepslate', 2), ('deepslate_tiles', 1)]
-WAR = [('polished_blackstone', 3), ('black_concrete', 3), ('polished_deepslate', 3), ('deepslate_tiles', 2), ('red_terracotta', 0.6)]
+WAR = [('polished_blackstone', 3), ('polished_deepslate', 3), ('black_concrete', 3), ('deepslate_tiles', 2), ('red_terracotta', 0.6)]
+FLAG_HULL = [('black_concrete', 3), ('black_concrete', 1), ('polished_blackstone', 2), ('polished_blackstone', 1)]      # (all but black)
 WALL = [('polished_deepslate', 4), ('deepslate_tiles', 2), ('gray_concrete', 1)]
 FLOOR = [('polished_blackstone', 3), ('black_concrete', 1), ('deepslate_tiles', 1)]
 BIO_WALL = [('polished_deepslate', 3), ('moss_block', 1), ('green_terracotta', 1), ('deepslate_tiles', 1)]
@@ -1025,8 +1035,8 @@ def nav(k):
     for x in range(163, 174, 2):
         for z in (12, 18):
             for y in range(W, W + 4):
-                s(x, y, z, rng.choice(('observer[facing=north,powered=false]', 'redstone_lamp[lit=true]', 'crafter[crafting=false,orientation=north_up,triggered=false]',
-                                       'green_stained_glass', 'redstone_lamp[lit=true]', 'dispenser[facing=north,triggered=false]')))
+                s(x, y, z, rng.choice(('observer[facing=north,powered=false]', 'verdant_froglight', 'crafter[crafting=false,orientation=north_up,triggered=false]',
+                                       'green_stained_glass', 'redstone_lamp[lit=false]', 'dispenser[facing=north,triggered=false]')))
     for x in range(163, 174):
         s(x, W - 1, 15, GL if x % 2 else 'black_concrete')
     s(165, W - 1, 15, 'gold_block'); B.relic('mainframe', 165, W, 15)
@@ -1325,7 +1335,7 @@ def arena_ceil(r):
 
 def flag(k):
     B, s = k.B, k.s
-    k.outer = HULL_DARK
+    k.outer = FLAG_HULL
     W = 55
     sh = 'flag'
     rng = random.Random(55)
@@ -1453,7 +1463,7 @@ def flag(k):
             yt = 57 if d <= 34 else round(57 - (d - 34) * 0.6)
             if abs(angdiff(math.degrees(math.atan2(z - cz, x - cx)), WIN)) <= 60: yt = min(yt, 51)     # (nothing over the window's sill)
             for y in range(yb, yt + 1): sm[x, y, z] = True
-    k.paint(sh, sm, FLAG_WALL, skin=2, axis='z', panel=(6, 3, 6))
+    k.paint(sh, sm, FLAG_HULL, skin=2, axis='z', panel=(6, 3, 6))
     spine = [k.room(sh, 8, W, 140, 32, W + 7, 150, wall=FLAG_WALL, floor=FLAG_FLOOR),     # P17 THE COMMAND LOCK
              k.room(sh, 6, W, 154, 10, W + 5, 214, wall=FLAG_WALL, floor=FLAG_FLOOR),     # P18 THE GAUNTLET
              k.room(sh, 14, W, 192, 25, W + 7, 216, wall=FLAG_WALL, floor=FLAG_FLOOR)]    # the antechamber
@@ -1464,8 +1474,8 @@ def flag(k):
         for x in range(25, 30):
             for y in range(W, W + 7): s(x, y, z, 'black_concrete' if y < W + 6 else 'gold_block')
     k.fill(25, W + 6, 197, 29, W + 6, 201, 'black_concrete')
-    k.hull(sh, 'z', [(134, 2, 16, 50, 64), (214, 2, 16, 50, 64), (220, 6, 14, 51, 62)], HULL_DARK, chamfer=4, boxes=spine)
-    k.hull(sh, 'z', [(212, 30, 74, 46, 58), (226, 40, 64, 48, 56), (236, 50, 54, 51, 54)], HULL_DARK, env=False, chamfer=4)      # the prow
+    k.hull(sh, 'z', [(134, 2, 16, 50, 64), (214, 2, 16, 50, 64), (220, 6, 14, 51, 62)], FLAG_HULL, chamfer=4, boxes=spine)
+    k.hull(sh, 'z', [(212, 30, 74, 46, 58), (226, 40, 64, 48, 56), (236, 50, 54, 51, 54)], FLAG_HULL, env=False, chamfer=4)      # the prow
     arr = k.tube('z', 139, 132, 25, W, HULL_DARK)
     # ---------------- P17 THE COMMAND LOCK: three Cipher slots before the sealed bulkhead
     for x in range(9, 32):

@@ -155,14 +155,14 @@ def P_(B, **kw):
 @shot('1_fleet')
 def s1(B, sc):
     """the whole fleet round its star, from high over the Dock's quarter"""
-    cam = U3.Persp((330, 150, 345), (112, 40, 110), fov=50)
+    cam = U3.Persp((262, 92, 300), (112, 46, 110), fov=62)
     return sc.render(cam, W=1800, H=1100, P=P_(B, ambient=(0.13, 0.13, 0.16), fill=0.0, sun=1.4))
 
 
-@shot('2_fleet_low')
+@shot('2_fleet_high')
 def s2(B, sc):
-    """low along the orbit: the Flagship's dome and the Dock black against the star"""
-    cam = U3.Persp((-30, 62, 270), (150, 44, 100), fov=58)
+    """from high over the Flagship's stern: the whole ring of ships round its star"""
+    cam = U3.Persp((-40, 170, 300), (122, 40, 112), fov=56)
     return sc.render(cam, W=1800, H=1000, P=P_(B, ambient=(0.11, 0.11, 0.14), fill=0.0, sun=1.4))
 
 

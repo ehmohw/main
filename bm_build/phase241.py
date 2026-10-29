@@ -329,8 +329,8 @@ def generate(G):
     fn('p241/rx/break', ['particle minecraft:explosion ~ ~1 ~ 0.4 0.4 0.4 0 3', 'playsound minecraft:entity.generic.explode hostile @a[distance=..32] ~ ~ ~ 1 1.2',
                          'kill @e[type=minecraft:item_display,tag=bm.arcond,distance=..0.5]', 'kill @s'])
     fn('p241/rx/reinforce', ['scoreboard players set @s bm.wt 0',
-                             f'execute as @e[type=minecraft:marker,tag=bm.pzt_wsp,tag=bm.d_{d},distance=..16,sort=random,limit=2] at @s run function bm:p32/spawn/trooper',
-                             'execute unless entity @e[type=minecraft:marker,tag=bm.pzt_wsp,tag=bm.d_' + d + ',distance=..16] positioned ~3 ~ ~3 run function bm:p32/spawn/trooper',
+                             f'execute as @e[type=minecraft:marker,tag=bm.pet_wsp,tag=bm.d_{d},distance=..16,sort=random,limit=2] at @s run function bm:p32/spawn/trooper',
+                             'execute unless entity @e[type=minecraft:marker,tag=bm.pet_wsp,tag=bm.d_' + d + ',distance=..16] positioned ~3 ~ ~3 run function bm:p32/spawn/trooper',
                              'tag @e[tag=bm.vtroop,tag=!bm.avorn,distance=..20] add bm.vstay',
                              title('@a[distance=..40]', 'actionbar', T('Vorn reinforcements beaming in!', RED, bold=True))])
     fn('p241/rx/spoils', [give('xenite_red', 6), give('star_core'), 'function bm:p241/key',
