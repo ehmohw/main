@@ -240,6 +240,8 @@ def generate(G):
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
     G.FUNCS['admin/uninstall'][0:0] = ['tag @a remove bm.lk_under', 'tag @a remove bm.lk_armada', 'tag @a remove bm.lkpass']
+    G.fn('admin/lockout/pass', ['tag @s add bm.lkpass', G.title('@s', 'actionbar', T('Lockout pass: you may go anywhere in the Undercrown and the Armada (admin/lockout/unpass to drop it).', 'yellow'))])
+    G.fn('admin/lockout/unpass', ['tag @s remove bm.lkpass'])
     sec, first, counts = [], ['scoreboard players set @s bm.lkv 1'], []
     for i, (key, c) in enumerate(DG.items(), 1):
         M, dim, adm, run, pz, st, nm = c['mod'], c['dim'], c['adm'], c['run'], c['pz'], c['st'], c['name']
@@ -293,16 +295,16 @@ def generate(G):
         sec.append(f'execute {placed} in {dim} if entity @a[{M.BOX},{who}] run function bm:{F}/sec')
         body = ['tag @a[tag=bm.lkhit] remove bm.lkhit']
         if key == 'under':        # (its inside: its own blocks - not the approach cave, not the Nether's rock round it)
-            fn(f'{F}/entry', [f'execute as @a[{box(b)},tag=!{tg},tag=!bm.lkhit,{who}] run function bm:{F}/eject' for b in Z_['entry']])
+            fn(f'{F}/entry', [f'execute as @a[{box(b)},tag=!{tg},tag=!bm.lkhit,{who}] at @s run function bm:{F}/eject' for b in Z_['entry']])
             body.append(f'execute if entity @a[{M.BOX},tag=!{tg},{who}] run function bm:{F}/entry')
         else:                     # (its inside: all of its box)
-            body.append(f'execute as @a[{M.BOX},tag=!{tg},{who}] run function bm:{F}/eject')
+            body.append(f'execute as @a[{M.BOX},tag=!{tg},{who}] at @s run function bm:{F}/eject')
         nb = len(Z_['entry'])
         for s in range(1, N + 1):
             bs = Z_['boxes'][s]
             if not bs: continue
             nb += len(bs)
-            fn(f'{F}/z{s}', [f'execute as @a[{box(b)},tag={tg},tag=!bm.lkhit,tag=!bm.lkpass,{who}] run function bm:{F}/back' for b in bs])
+            fn(f'{F}/z{s}', [f'execute as @a[{box(b)},tag={tg},tag=!bm.lkhit,tag=!bm.lkpass,{who}] at @s run function bm:{F}/back' for b in bs])
             body.append(f'execute if score {st} bm.p2 matches ..{s - 1} run function bm:{F}/z{s}')
         body.append(f'execute as @a[{M.BOX},tag={tg},tag=!bm.lkhit,gamemode=!spectator,nbt={{OnGround:1b}}] run function bm:{F}/mark')
         fn(f'{F}/sec', body)
@@ -328,7 +330,7 @@ def generate(G):
         fn(f'{F}/to_start', [f'execute in {dim} run tp @s {ex + 0.5} {ey} {ez + 0.5}'])
         # ---- thrown pearls: the floor drinks them (the pearl comes back)
         near = f' at @s if entity @e[type=minecraft:marker,tag=bm.zone_d,tag=bm.d_{d},distance=..40]' if key == 'under' else ''
-        fast.append(f'execute {placed} in {dim} as @e[type=minecraft:ender_pearl,{M.BOX}]{near} run function bm:p2/util/pearl_zap')
+        fast.append(f'execute {placed} in {dim} as @e[type=minecraft:ender_pearl,{M.BOX}]{near} at @s run function bm:p2/util/pearl_zap')
     fn(f'{PFX}/first', first)
     second.append(f'function bm:{PFX}/sec')
     fn(f'{PFX}/sec', ['execute as @a unless score @s bm.lkv matches 1 at @s run function bm:p251/first'] + sec)
@@ -355,3 +357,4 @@ if __name__ == '__main__':
         print(f'{key}: {zones(key)["n"]} stages, {len(e)} errors')
         for r in rep + e: print('   ', r)
         print('    sample cells (world):', {s: sample(key, s) for s in (0, 2, 3, zones(key)['n'] - 1, zones(key)['n'])})
+

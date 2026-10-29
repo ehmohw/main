@@ -305,7 +305,7 @@ def late(G):
                           'execute as @a[tag=bm.mlkr] run ' + tellraw('@s', [T('In the last of the puddle: ', 'gray'), T("a Mireling's Seed", COL, bold=True),
                                                                              T(' - and it is looking at you. ', 'gray'), T('(Only you can pick it up.)', 'dark_gray')]),
                           'advancement grant @a[tag=bm.mlkr] only bm:story/mireling_friend', 'tag @a remove bm.mlkr'])
-    fn('p252/mire/own', ['data merge entity @s {Age:-32768s,Invulnerable:1b,PickupDelay:10s}', 'data modify entity @s Owner set from entity @a[tag=bm.mlkr,limit=1] UUID'])
+    fn('p252/mire/own', ['data merge entity @s[type=minecraft:item] {Age:-32768s,Invulnerable:1b,PickupDelay:10s}', 'data modify entity @s Owner set from entity @a[tag=bm.mlkr,limit=1] UUID'])
     G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/mireling_reset', 'yellow'), T('  forget your slain Mires and the Seed (bm.mlk, bm.mlseed)', 'gray')]))
     fn('admin/mireling_reset', ['scoreboard players reset @s bm.mlk', 'tag @s remove bm.mlseed',
                                 G.title('@s', 'actionbar', T('Your slain Mires are forgotten - three more, and the next leaves its seed.', COL))])
