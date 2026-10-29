@@ -22,6 +22,25 @@ clarinet, Rhodes comping, vibes, an accordion's flourishes).
 - THE SWITCH: operators can turn it off for the server (admin/settings: "Market music"); each player's own Music volume
   slider is theirs. Leaving the market, logging in again, the switch going off or uninstalling stops it.
 
+3.00: THE NIGHTS AND THE SHIPS.
+- A VARIANT FOR EACH CUSTOM NIGHT (tools/market_music.py: the same tune, chart, form and 75 s, re-dressed): the Lucky Night's
+  (C major, open horn, glockenspiel, chimes, tambourine), the Blood Moon's (CmM7 and flat nines, a low string pedal, the
+  organ, war drums, the trumpet growling), an Invasion Night's (arpeggiated synth bass, a drum machine, a pulse lead, a
+  theremin, alarms) and a Dread Night's (flat and wavering, a music box, dissonant violins, a heartbeat, a clock).
+  The nights, as their own phases keep them (all bm.bm): #lnight (phase22), #inv (phase32, the Vorn), #active (phase15, the
+  Blood Moon), #dnight (phase181). The rolls keep them apart (no Lucky Night or invasion on a Blood Moon day, no invasion on a
+  Lucky Night, a Dread Night takes the night from either), but the admin commands can stack them: then DREAD > BLOOD MOON >
+  INVASION > LUCKY. A track (re)starting plays tonight's; a night beginning or ending mid-track stops it and starts the right
+  one on the next second (vanilla has no crossfade).
+- THE SHIPS (tools/ship_music.py): aboard an alien MOTHERSHIP (phase25, bm:mothership) "Tractor Beam Bossa" (72 s); aboard a
+  VORN DREADNOUGHT (phase32, bm:red_mothership - the Overworld's own warship, not the Armada's Dreadnoughts in the End, which
+  have phase244's music) "Hive Iron March" (80 s); each with an Invasion Night variant ("Red Alert", "Battle Stations").
+  Aboard is phase148's box: 25 blocks round the ship's beam marker (bm.tbeam / bm.tbeam_red, on the lower deck), from 5 below
+  it to 14 above. Anyone aboard hears it (no key needed); the same yielding, loop and stops as the market's. A switch of its
+  own ("Ship music").
+- bm.mkm is the track playing (TRACKS below: 1-5 the market's, 11-12 the mothership's, 21-22 the Dreadnought's; 0 none), so the
+  pack - and a test - can read what a player hears.
+
 Importing does nothing. settings(G) runs before phase153 (it adds its switch to the settings dialog); generate(G) runs
 after phase244 (it yields to the Armada's and the Undercrown's objectives, if they're there)."""
 PFX = 'p250'
@@ -29,6 +48,16 @@ SND = 'bm:music.market_theme'
 NAME = 'market_theme'
 LENGTH = 75                                 # (seconds - tools/market_music.py: 40 bars at 128 BPM)
 CFG = 'mktmus'
+SCFG = 'shpmus'                             # (3.00: the ships' switch)
+# id -> (sound, seconds). The market's: the theme, then tonight's (1 + the night code below); the ships': normal, invasion.
+TRACKS = {1: (NAME, LENGTH), 2: ('market_lucky', LENGTH), 3: ('market_invasion', LENGTH), 4: ('market_blood', LENGTH),
+          5: ('market_dread', LENGTH), 11: ('ship_mothership', 72), 12: ('ship_mothership_inv', 72),
+          21: ('ship_dreadnought', 80), 22: ('ship_dreadnought_inv', 80)}
+SNDS = {i: f'bm:music.{nm}' for i, (nm, _l) in TRACKS.items()}
+# the night code (#mkn bm.rng), set in this order so the later wins: dread > blood moon > invasion > lucky
+NIGHTS = [(1, '#lnight', 'lucky'), (2, '#inv', 'invasion'), (3, '#active', 'blood moon'), (4, '#dnight', 'dread')]
+SHIPS = [('bm.tbeam', 'bm.mshin', 11), ('bm.tbeam_red', 'bm.dnin', 21)]   # (beam marker, aboard tag, its first track)
+SHIP_BOX = ((-25, -5, -25), (50, 19, 50))   # (phase148's "aboard": the marker's corner offset, dx dy dz)
 # the cavern inside the vault door, in template blocks (market3.py: SX, SY, SZ = 76, 32, 98; the door's iron at z 82)
 BOX = ((1, 1, 1), (75, 32, 82))
 MKT = (38.5, 12, 46.5)                      # (the bm.mkt marker, template coordinates - mgeo.MKT)
@@ -68,60 +97,95 @@ def settings(G):
     import phase153
     if all(k != CFG for k, *_r in phase153.SETTINGS):
         phase153.SETTINGS.append((CFG, 'Market music', 'The Black Market\'s own swing, for key-holders inside a market.'))
-    G.FUNCS['load'][-1:-1] = [f'execute unless score #{CFG} bm.cfg matches -2147483648.. run scoreboard players set #{CFG} bm.cfg 1']
-    G.fn(f'admin/set/{CFG}_0', [f'scoreboard players set #{CFG} bm.cfg 0', f'execute as @a[scores={{bm.mkm=1..}}] run function bm:{PFX}/stop',
+    if all(k != SCFG for k, *_r in phase153.SETTINGS):
+        phase153.SETTINGS.append((SCFG, 'Ship music', 'The alien mothership\'s and the Vorn Dreadnought\'s own music, for anyone aboard.'))
+    for key in (CFG, SCFG):
+        G.FUNCS['load'][-1:-1] = [f'execute unless score #{key} bm.cfg matches -2147483648.. run scoreboard players set #{key} bm.cfg 1']
+    G.fn(f'admin/set/{CFG}_0', [f'scoreboard players set #{CFG} bm.cfg 0', f'execute as @a[scores={{bm.mkm=1..9}}] run function bm:{PFX}/stop',
                                 'function bm:admin/settings'])
-    G.fn(f'admin/set/{CFG}_1', [f'scoreboard players set #{CFG} bm.cfg 1', 'function bm:admin/settings'])
+    G.fn(f'admin/set/{SCFG}_0', [f'scoreboard players set #{SCFG} bm.cfg 0', f'execute as @a[scores={{bm.mkm=11..}}] run function bm:{PFX}/stop',
+                                 'function bm:admin/settings'])
+    for key in (CFG, SCFG):
+        G.fn(f'admin/set/{key}_1', [f'scoreboard players set #{key} bm.cfg 1', 'function bm:admin/settings'])
 
 
 def generate(G):
     fn = G.fn
-    objs = ['bm.mkm', 'bm.mks']                         # (playing; its clock in seconds)
+    objs = ['bm.mkm', 'bm.mks']                         # (the track playing - its TRACKS id, 0 none; its clock in seconds)
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
 
-    # ---- each second: who's inside a market (by its facing), who came in with a key, then the music
+    # ---- each second: who's inside a market (by its facing), who came in with a key; who's aboard a ship; tonight's night
     here = ['tag @a remove bm.mkhere']
     for yr, (ox, oy, oz), (dx, dy, dz) in boxes():
         here.append(f'execute as @e[type=minecraft:marker,tag=bm.mkt,y_rotation={yr}] at @s positioned ~{_n(ox)} ~{_n(oy)} ~{_n(oz)} '
                     f'run tag @a[dx={_n(dx)},dy={_n(dy)},dz={_n(dz)}] add bm.mkhere')
     here += ['tag @a[tag=bm.mkhere,tag=bm.haskey] add bm.mkin',                 # (in with a key: theirs until they leave)
              'tag @a[tag=bm.mkin,tag=!bm.mkhere] remove bm.mkin',
-             'tag @a[tag=bm.mkin,tag=bm.gvp] remove bm.mkin',                   # (never in a heist)
-             f'execute as @a[tag=bm.mkin] at @s run function bm:{PFX}/tick',
-             f'execute as @a[tag=!bm.mkin,scores={{bm.mkm=1..}}] run function bm:{PFX}/stop']
+             'tag @a[tag=bm.mkin,tag=bm.gvp] remove bm.mkin']                   # (never in a heist)
     fn(f'{PFX}/sec', here)
+    (cx, cy, cz), (bx, by, bz) = SHIP_BOX
+    ships = [f'tag @a remove {tag}' for _m, tag, _i in SHIPS]
+    for mk, tag, _i in SHIPS:
+        ships.append(f'execute as @e[type=minecraft:marker,tag={mk}] at @s positioned ~{cx} ~{cy} ~{cz} run tag @a[dx={bx},dy={by},dz={bz},tag=!bm.mkin] add {tag}')
+    night = ['scoreboard players set #mkn bm.rng 0'] + [f'execute if score {flag} bm.bm matches 1 run scoreboard players set #mkn bm.rng {k}'
+                                                         for k, flag, _w in NIGHTS]
+    night += ['scoreboard players operation #mkid bm.rng = #mkn bm.rng', 'scoreboard players add #mkid bm.rng 1']
+    for _m, tag, first in SHIPS:                                                # (a ship's track: its own, or its invasion night's)
+        night += [f'scoreboard players set #mk{first} bm.rng {first}', f'execute if score #inv bm.bm matches 1 run scoreboard players set #mk{first} bm.rng {first + 1}']
+    fn(f'{PFX}/night', night)
     G.FUNCS['loop/second'] += [f'execute if entity @e[type=minecraft:marker,tag=bm.mkt] run function bm:{PFX}/sec',
-                               f'execute unless entity @e[type=minecraft:marker,tag=bm.mkt] as @a[scores={{bm.mkm=1..}}] run function bm:{PFX}/stop',
-                               'execute unless entity @e[type=minecraft:marker,tag=bm.mkt] run tag @a remove bm.mkin']
+                               'execute unless entity @e[type=minecraft:marker,tag=bm.mkt] run tag @a remove bm.mkin'] + ships + [
+                               'tag @a remove bm.muz'] + [f'tag @a[tag={t}] add bm.muz' for t in ['bm.mkin'] + [tag for _m, tag, _i in SHIPS]] + [
+                               f'execute if entity @a[tag=bm.muz] run function bm:{PFX}/night',
+                               f'execute as @a[tag=bm.muz] at @s run function bm:{PFX}/tick',
+                               f'execute as @a[tag=!bm.muz,scores={{bm.mkm=1..}}] run function bm:{PFX}/stop']
 
-    # ---- may this player hear it now? 0 = keep still (another's music, or a silence), 1 = play
-    want = [f'execute unless score #{CFG} bm.cfg matches 1 run return 0',
-            'execute if score @s bm.bmt matches 1.. run return 0',
+    # ---- what may this player hear now? 0 = keep still (another's music, a silence, the switch off), else the track's id
+    want = ['execute if score @s bm.bmt matches 1.. run return 0',
             f'execute if entity @e[tag=bm.cdie,distance=..{BOSS_STILL}] run return 0',
             'execute if entity @s[tag=bm.gvp] run return 0',
             'execute if dimension bm:gutter run return 0']
     for obj, why in (('bm.xam', 'the Armada'), ('bm.ucm', 'the Undercrown'), ('bm.gvmt', 'a heist'), ('bm.ommu', 'the Omega Palace')):
         if obj in G.OBJECTIVES:
             want.append(f'execute if score @s {obj} matches 1.. run return 0')
-    want.append('return 1')
+    want += [f'execute if entity @s[tag=bm.mkin] unless score #{CFG} bm.cfg matches 1 run return 0',
+             'execute if entity @s[tag=bm.mkin] run return run scoreboard players get #mkid bm.rng',
+             f'execute unless score #{SCFG} bm.cfg matches 1 run return 0']
+    want += [f'execute if entity @s[tag={tag}] run return run scoreboard players get #mk{first} bm.rng' for _m, tag, first in SHIPS]
+    want.append('return 0')
     fn(f'{PFX}/want', want)
 
+    # ---- the track: started when it isn't the one this player should hear (from silence, or tonight changed), again at its end
+    lengths = {}
+    for i, (_nm, ln) in TRACKS.items(): lengths.setdefault(ln, []).append(i)
+    again = []
+    for ln, ids in sorted(lengths.items()):
+        for lo, hi in _runs(sorted(ids)):
+            again.append(f'execute if score @s bm.mkm matches {lo}..{hi} if score @s bm.mks matches {ln}.. run return run function bm:{PFX}/play')
     fn(f'{PFX}/tick', [f'execute store result score #mkw bm.rng run function bm:{PFX}/want',
                        f'execute if score #mkw bm.rng matches 0 if score @s bm.mkm matches 1.. run function bm:{PFX}/stop',
                        'execute if score #mkw bm.rng matches 0 run return 0',
-                       f'execute unless score @s bm.mkm matches 1.. run return run function bm:{PFX}/play',
-                       'scoreboard players add @s bm.mks 1',
-                       f'execute if score @s bm.mks matches {LENGTH}.. run return run function bm:{PFX}/play',
-                       f'function bm:{PFX}/hush_vanilla'])
-    fn(f'{PFX}/play', [f'stopsound @s music {SND}', f'function bm:{PFX}/hush_vanilla',
-                       f'playsound {SND} music @s ~ ~ ~ 1000 1 1',
-                       'scoreboard players set @s bm.mkm 1', 'scoreboard players set @s bm.mks 0'])
+                       f'execute unless score @s bm.mkm = #mkw bm.rng run return run function bm:{PFX}/play',
+                       'scoreboard players add @s bm.mks 1'] + again + [f'function bm:{PFX}/hush_vanilla'])
+    fn(f'{PFX}/play', [f'function bm:{PFX}/hush', f'function bm:{PFX}/hush_vanilla'] +
+       [f'execute if score #mkw bm.rng matches {i} run playsound {SNDS[i]} music @s ~ ~ ~ 1000 1 1' for i in TRACKS] +
+       ['scoreboard players operation @s bm.mkm = #mkw bm.rng', 'scoreboard players set @s bm.mks 0'])
+    fn(f'{PFX}/hush', [f'stopsound @s music {SNDS[i]}' for i in TRACKS])      # (every one of ours: a client that fell behind never stacks two)
     fn(f'{PFX}/hush_vanilla', [f'stopsound @s music minecraft:music.{v}' for v in VANILLA])
-    fn(f'{PFX}/stop', [f'stopsound @s music {SND}', 'scoreboard players set @s bm.mkm 0', 'scoreboard players set @s bm.mks 0'])
-    G.FUNCS['p104/login'] += ['scoreboard players set @s bm.mkm 0', 'scoreboard players set @s bm.mks 0', 'tag @s remove bm.mkin']
-    G.FUNCS['admin/uninstall'][0:0] = [f'stopsound @a music {SND}']
+    fn(f'{PFX}/stop', [f'function bm:{PFX}/hush', 'scoreboard players set @s bm.mkm 0', 'scoreboard players set @s bm.mks 0'])
+    G.FUNCS['p104/login'] += ['scoreboard players set @s bm.mkm 0', 'scoreboard players set @s bm.mks 0', 'tag @s remove bm.mkin', 'tag @s remove bm.muz'] + \
+                             [f'tag @s remove {tag}' for _m, tag, _i in SHIPS]
+    G.FUNCS['admin/uninstall'][0:0] = [f'stopsound @a music {SNDS[i]}' for i in TRACKS]
 
+
+def _runs(ids):
+    """consecutive ids as (lo, hi) ranges"""
+    out = []
+    for i in ids:
+        if out and out[-1][1] == i - 1: out[-1][1] = i
+        else: out.append([i, i])
+    return [tuple(r) for r in out]
 
 def rp(R):
     import os, shutil
@@ -131,7 +195,8 @@ def rp(R):
         sj = R2.p('assets', 'bm', 'sounds.json')
         snd = json.load(open(sj)) if os.path.exists(sj) else {}
         os.makedirs(R2.p('assets', 'bm', 'sounds', 'music'), exist_ok=True)
-        shutil.copy(os.path.join(here, 'vendor', f'{NAME}.ogg'), R2.p('assets', 'bm', 'sounds', 'music', f'{NAME}.ogg'))
-        snd[f'music.{NAME}'] = {'sounds': [{'name': f'bm:music/{NAME}', 'stream': True}]}
+        for nm, _ln in TRACKS.values():                 # (the theme, its four nights, the two ships and their invasion nights)
+            shutil.copy(os.path.join(here, 'vendor', f'{nm}.ogg'), R2.p('assets', 'bm', 'sounds', 'music', f'{nm}.ogg'))
+            snd[f'music.{nm}'] = {'sounds': [{'name': f'bm:music/{nm}', 'stream': True}]}
         R2.wj('assets/bm/sounds.json', snd)
     R.POST.append(post)

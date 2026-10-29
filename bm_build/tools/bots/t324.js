@@ -22,13 +22,15 @@ runT({ W: 'keeper', NAME: 'The Keeper of Bonds', ab: 'tk', q: 'qb', pfx: 'p254',
     const qsq = async () => score('bm.qbsq', ENC);
     // ---- the stage: the island in the sky, TestRat on its landing circle - no Compass, no thread
     await run(`${O}forceload add ${IX - 4} ${IZ - 4} ${IX + 30} ${IZ + 30}`);
+    await run('advancement revoke TestRat only bm:met/mireling');      // (one friend short of all: the test world's player has met everyone - the Compass would come by itself)
     await run('tag TestRat remove bm.kbcomp'); await run('tag TestRat remove bm.tkmet'); await run('clear TestRat');
     await run('scoreboard players set #kbwant bm.p2 1');
     ok('the Loom Sanctuary is woven into the sky (#kbver, its markers)', await wait(20000, async () => (await score('bm.p2', '#kbver')) >= 1 &&
        (await cnt(`@e[type=minecraft:marker,tag=bm.kb_spawn,tag=bm.kbm,${BOX}]`)) === 1, 500));
     await run(`${O}execute as @e[type=minecraft:interaction,tag=bm.tkenc,${BOX}] at @s run function bm:p254/enc/gone`);
     await at(AX, AY, AZ, 180, 0); await sleep(3000);
-    ok('on the island without the Compass: nobody at the loom', (await cnt(ENC)) === 0);
+    ok('on the island without the Compass: nobody at the loom', (await cnt(ENC)) === 0,
+       `enc ${await cnt(ENC)} kbcomp ${await cnt('@a[name=TestRat,tag=bm.kbcomp]')} compass ${await has('bond_compass')} allmet ${await run('execute as TestRat if function bm:p253/all_met run scoreboard players get TestRat bm.pid')}`);
     ok('...and TestRat is in Adventure mode there', (await cnt('@a[name=TestRat,gamemode=adventure]')) === 1);
     // ---- met anyway (rcon places it, as admin/keeper_meet does): turned gently away
     await run('execute as TestRat at @s run function bm:admin/keeper_meet');
@@ -37,11 +39,12 @@ runT({ W: 'keeper', NAME: 'The Keeper of Bonds', ab: 'tk', q: 'qb', pfx: 'p254',
     ok('no Compass: "Not yet, little one" - no thread given', A.chats.some(c => /Not yet, little one/.test(c)) && (await has('bond_thread')) === 0, A.chats.slice(-1).join('').slice(0, 160));
     await run(`${O}execute as ${ENC} at @s run function bm:p254/enc/gone`); await sleep(500);
     // ---- the Compass: the Keeper is at its loom
+    await run('advancement grant TestRat only bm:met/mireling'); await run('clear TestRat bond_compass');
     await run('execute as TestRat at @s run function bm:admin/keeper/compass'); await sleep(400);
     ok('the Compass of Bonds in the pack', (await has('bond_compass')) === 1);
     ok('...and the Keeper appears on the dais, before its loom', await wait(5000, async () => (await cnt(ENC)) === 1) &&
        Math.abs((await ctx.num(ENC, 'Pos[1]')) - DY) < 0.6 && Math.abs((await ctx.num(ENC, 'Pos[2]')) - DZ) < 0.6, `y ${await ctx.num(ENC, 'Pos[1]')}`);
-    ok('...its rig: 20 parts', (await cnt(PARTS)) === 20, `${await cnt(PARTS)}`);
+    ok('...its rig: 20 parts', (await cnt(PARTS)) === 20, `${await cnt(PARTS)} in box; anywhere ${await cnt('@e[type=minecraft:item_display,tag=bm.tkencp]')}; kb parts ${await cnt('@e[type=minecraft:item_display,tag=bm.tkp]')}`);
     // ---- up onto the dais; spoken to
     await at(DX, DY, DZ + 2, 180, 15);
     eb = null; await wait(5000, async () => (eb = await entOf(ENC)) != null, 250);

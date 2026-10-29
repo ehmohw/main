@@ -161,20 +161,20 @@ def mothership(tr, inv=False):
         line = ([(i / 2, r + (0 if i % 4 != 3 else (12 if i % 8 == 3 else 7)), 0.4) for i in range(8)] if inv else
                 [(0, r, 1.3), (1.5, fifth, 0.45), (2, fifth, 1.3), (3.5, r, 0.45)])
         for b, x, d in line:
-            tr.add(synbass(x, d * tr.beat, 0.3, bright=0.2, cut=900 + 300 * inv, res=0.5), tr.at(bar, b), -0.05, 1, 0.08)
+            tr.add(synbass(x, d * tr.beat, 0.24, bright=0.2, cut=900 + 300 * inv, res=0.5), tr.at(bar, b), -0.05, 1, 0.08)
         # the drum machine
         lvl = {'intro': 0.8, 'A1': 0.9, 'A2': 1.0, 'B': 0.9, 'A3': 1.05}[sec]
         kicks = range(4) if inv else ((0, 2) if sec != 'intro' else (0,))
         for b in kicks: tr.add(kick909(0.34 * lvl), tr.at(bar, b), 0, 1, 0.05)
         claves = (0, 1.5, 3) if bar % 2 == 0 else (1, 2)
-        for b in claves: tr.add(clave(0.11 * lvl), tr.at(bar, b), -0.4, 1, 0.3)
+        for b in claves: tr.add(clave(0.2 * lvl), tr.at(bar, b), -0.4, 1, 0.3)
         for i in range(16 if inv else 8):
-            tr.add(shaker(0.07 * lvl * (1.25 if i % 2 else 0.8)), tr.at(bar, 0) + i * tr.beat * (0.25 if inv else 0.5), 0.45, 1, 0.2)
+            tr.add(shaker(0.14 * lvl * (1.25 if i % 2 else 0.8)), tr.at(bar, 0) + i * tr.beat * (0.25 if inv else 0.5), 0.45, 1, 0.2)
         if inv:
             for b in (1, 3): tr.add(clap(0.3 * lvl), tr.at(bar, b), 0.1, 1, 0.3)
-            for i in range(16): tr.add(hat(0.07 * (1.3 if i % 2 else 0.8)), tr.at(bar, 0) + i * tr.beat / 4, 0.3, 1, 0.1)
+            for i in range(16): tr.add(hat(0.12 * (1.3 if i % 2 else 0.8)), tr.at(bar, 0) + i * tr.beat / 4, 0.3, 1, 0.1)
         elif sec != 'intro':
-            for b in (0.5, 1.5, 2.5, 3.5): tr.add(hat(0.08 * lvl), tr.at(bar, b), 0.3, 1, 0.12)
+            for b in (0.5, 1.5, 2.5, 3.5): tr.add(hat(0.14 * lvl), tr.at(bar, b), 0.3, 1, 0.12)
         if bar in (3, 11, 19, 27, 35):
             for j in range(4): tr.add(tom(('G3', 'E3', 'C3', 'A2')[j], 0.25), tr.at(bar, 3) + j * tr.beat / 4, -0.3 + 0.2 * j, 1, 0.3)
         if bar in (4, 20, 28): tr.add(crash(0.1), tr.at(bar, 0), -0.3, 1, 0.4)
@@ -252,18 +252,18 @@ def dreadnought(tr, inv=False):
             x = r + (12 if (inv and i % 8 == 6) else 0)
             acc = 1.0 if b % 1 == 0 else 0.75
             tr.add(bowed(x + 12, d * tr.beat, 0.2 * acc * lvl, 0.55, voices=2, attack=0.01), tr.at(bar, 0) + b * tr.beat, -0.25, 1, 0.25)
-        tr.add(sub(r, 4 * tr.beat + 0.2, 0.2), tr.at(bar, 0), 0, 1, 0.05)
+        tr.add(sub(r, 4 * tr.beat + 0.2, 0.14), tr.at(bar, 0), 0, 1, 0.05)
         # the war drums: a boom on one and three, the timpani, the hull plates on four; the marching snare
         for b in (0, 2): tr.add(boom(0.5 * lvl), tr.at(bar, b), 0, 1, 0.12)
         if bar % 2 == 0: tr.add(timp(r + 12 if r + 12 <= m('A2') else r, 1.6, 0.4 * lvl), tr.at(bar, 0), 0.1, 1, 0.3)
-        tr.add(plate(0.28 * lvl, 160 if bar % 2 else 190), tr.at(bar, 3), 0.45, 1, 0.45)
+        tr.add(plate(0.4 * lvl, 160 if bar % 2 else 190), tr.at(bar, 3), 0.45, 1, 0.45)
         if sec != 'intro' or bar >= 2:
             pat = ([i / 4 for i in range(16)] if inv else [0, 1, 1.75, 2, 2.5, 3, 3.25, 3.5])
             for b in pat:
-                a = 0.22 if b in (1, 3) else (0.13 if b % 1 == 0 else 0.09)
+                a = 0.4 if b in (1, 3) else (0.24 if b % 1 == 0 else 0.16)
                 tr.add(snare(a * lvl, 1.2), tr.at(bar, 0) + b * tr.beat, 0.15, 1, 0.3)
         if bar % 4 == 3:                                                                 # (a buzz roll into each four bars)
-            for j in range(12): tr.add(snare(0.06 + 0.012 * j, 1.6), tr.at(bar, 2) + j * tr.beat / 6, 0.15, 1, 0.3)
+            for j in range(12): tr.add(snare(0.1 + 0.022 * j, 1.6), tr.at(bar, 2) + j * tr.beat / 6, 0.15, 1, 0.3)
         if bar in (4, 12, 20, 28): tr.add(crash(0.14), tr.at(bar, 0), -0.3, 1, 0.4)
         # the brass's chords (low, held) from the theme on
         if sec != 'intro':

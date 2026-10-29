@@ -27,8 +27,23 @@ that land on bar 1.
 Loudness: matched to the area tracks (the Armada's and the Undercrown's tiers sit -18..-10 LUFS, median about -14.7):
 integrated -15 LUFS, sample peak <= -1 dBFS after the Vorbis encode (checked by decoding).
 
+THE NIGHTS (3.00): the same tune, chart, form and 75 s, re-dressed for each of the pack's custom nights (phase250 picks one):
+  lucky     vendor/market_lucky.ogg     C MAJOR (Eb Gb Ab Bb up a half step, a chromatic run kept chromatic; the chart re-voiced:
+                                        C6 Fmaj7 Am7 G7 Dm7, the bridge Fmaj7 Dm7 Em7 Am7), a lighter swing, the open horn,
+                                        glockenspiel doubling the hook, chimes, wind chimes, a tambourine and a triangle
+  blood     vendor/market_blood.ogg     CmM7 and the dominant's flat nine, a low string pedal (tremolo in the tag), the organ from
+                                        the bridge on, war drums (boom, tom, rimshots, timpani rolls), the trumpet growling, a
+                                        bass clarinet, the bridge on a cello's line, a bell tolling
+  invasion  vendor/market_invasion.ogg  an arpeggiating analog synth bass, a drum machine (909 kick, clap, hats), synth-brass
+                                        stabs comping, the hook on a pulse lead, a gliding theremin answering and taking the
+                                        bridge, two-tone alarms, laser zaps, the ship's computer chattering
+  dread     vendor/market_dread.ogg     35 cents flat and wavering (circular tape wow), a music box with the hook, a violin's
+                                        answers with a ghost a tritone off, the bridge on the violin (a semitone ghost),
+                                        a glassy cluster, a celesta, a heartbeat for the kick, a clock ticking
+
 Deterministic; run it to rebuild (needs numpy, scipy and ffmpeg - only to rebuild, never to build the packs):
-    python3 tools/market_music.py [preview DIR]      # writes vendor/market_theme.ogg (+ DIR/market_theme.mp3)"""
+    python3 tools/market_music.py [base] [lucky|blood|invasion|dread|nights] [preview DIR]
+        (no names: the theme alone, vendor/market_theme.ogg; "nights": all four variants; + DIR/<name>.mp3, two loops)"""
 import os, sys, wave, tempfile, subprocess, re
 import numpy as np
 from scipy.signal import butter, sosfilt, fftconvolve
