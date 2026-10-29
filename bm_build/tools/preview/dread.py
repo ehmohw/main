@@ -153,3 +153,15 @@ if 'icons' in what:
         if OLD and os.path.exists(f'{OLD}/{k}.png'): T.append(SP.flat(Image.open(f'{OLD}/{k}.png').convert('RGBA'), 'before', k, k=10))
         T.append(SP.flat(new[k], 'after', k, k=10))
     SP.sheet(T, f'{OUT}/dread_icons.png', cols=2 if OLD else 3, title='The Dreadborne - sprites')
+
+if 'restored' in what:                                    # (v299: the owner kept the 2.90b Visage - on a player in the new plate, on a Dread zombie)
+    T = []
+    for view, sub in (((180, 6), 'front'), ((145, 16), 'three-quarter'), ('front', 'behind')):
+        s = SP.scene(NEW); s.display('bm:item/dread_helm', pos=(0, 0, 0), ctx='fixed')
+        T.append(SP.label(SP.dark(s.render(view, size=330, span=1.6, center=(0, 0.25, 0))), 'Dread Visage (2.90b, restored)', sub))
+    for view in ('front', (35, 12)):
+        T.append(tile(view, 'on a player', 'the new plate, the restored Visage, the wings at rest', wings3d='rest_a', size=330, span=3.1, cy=1.3))
+    s = SP.scene(NEW); SP.floor(s)
+    wearer(s, skin='minecraft:entity/zombie/zombie', elytra=False)
+    T.append(SP.label(SP.dark(s.render((25, 8), size=330, span=2.6, center=(0, 1.2, 0))), 'a Dread zombie', 'the restored Visage, the new plate'))
+    SP.sheet(T, f'{OUT}/dread_helm_restored.png', cols=3, title='The Dread Visage - restored (2.90b)')

@@ -193,49 +193,61 @@ def _wing(paint_px):
     return out
 
 
+def _feathers(u, v, x, y, edge, lead, dark, mid, lit, tips, shaft, covert, hole=False):
+    """(2.99) a wing face in feathers, on vanilla's elytra shape: the leading edge, two rows of coverts along it, then flight
+    feathers slanting back to the trailing edge - each feather three rows deep: its lit top, its vane, its shadowed underside,
+    the shaft a lighter line - their ends `tips` (fire, light); hole: tatters torn out of the ends"""
+    k = x - 34
+    if edge == 'lead': return lead[(y // 2) % len(lead)]
+    if k <= 3 and v < 0.85:                                                    # coverts: small scales in staggered rows
+        r = (y + (k // 2) * 1) % 3
+        return covert[0] if r == 0 else covert[1] if r == 1 else covert[2]
+    s = y - (k - 4) // 2                                                       # flight feathers, slanting back
+    f, r = s // 3, s % 3
+    end = 1.0 - 0.05 * (f % 3)
+    if v > 0.8 * end or edge == 'tip':
+        if hole and (x * 5 + y * 3) % 7 == 0: return None
+        return tips[min(len(tips) - 1, int((v - 0.72) * 14) + (k % 2))] if v > 0.72 else tips[0]
+    if k == 5 + (f % 2): return shaft
+    return [lit, mid, dark][r]
+
+
 def damned_wings_tex():
-    mem = ['#120c16', '#1e1424', '#2c1e36', '#3c2a4a']
+    """(2.99) the Wings of the Damned: tattered black-violet feathers, soul fire along their ends"""
     def p(x, y, u, v, edge):
-        if x < 34: return hexc('#d8ccb0' if y % 3 else '#9a8e74')          # (the edges' thin strips: bone)
-        rib = (x - 34) - int(v * 9) == 0 or (x - 34) - int(v * 4) == 6
-        if edge == 'lead' or rib: return hexc('#e4d8bc' if (x + y) % 4 else '#a89c80')
-        if v > 0.78 or edge == 'tip':
-            if (x * 7 + y * 3) % 11 == 0: return None                       # torn
-            return hexc(['#5a1a9a', '#8a3ad8', '#c27dff', '#e8c8ff'][max(0, min(3, int((v - 0.7) * 12) + ((x + y) % 2)))])
-        k = int((1 - v) * 2.2 + ((x + y * 2) % 5 == 0)); 
-        c = mem[max(0, min(3, 3 - k))]
-        if (x * 5 + y * 11) % 23 == 0: c = '#7a2ec8'                        # a soul spark in the membrane
-        return hexc(c)
+        if x < 34: return hexc('#2c1e36' if y % 2 else '#1e1424')
+        return _feathers(u, v, x, y, edge, [hexc('#8a6ab0'), hexc('#c2a4e8')], hexc('#160e1c'), hexc('#2a1c34'), hexc('#46325a'),
+                         [hexc('#3c2a6a'), hexc('#5a3ab0'), hexc('#4ab8e8'), hexc('#8ae8ff'), hexc('#d8f8ff')], hexc('#6a4e8a'),
+                         [hexc('#5a4870'), hexc('#3c2a4a'), hexc('#241830')], hole=True)
     return _wing(p)
 
 
 def holy_wings_tex():
+    """(2.99) their holy twin: pearl feathers shaded in lavender, gold along the leading edge and the coverts' tips, a light
+    edge - gold running to white - along their ends"""
     def p(x, y, u, v, edge):
-        if x < 34: return hexc('#f8d040' if y % 3 else '#c89a20')
-        if edge == 'lead': return hexc('#f8d040' if y % 2 else '#fff2a0')
-        row = int(v * 7); fx = (x - 34 + (row % 2) * 2) % 4                   # feathers in rows, each row half a feather over
-        if edge == 'tip' or v > 0.88: return hexc('#f0c838' if fx else '#c89a20')
-        base = ['#fffdf6', '#f2eee6', '#e2dcd2', '#cfc6bc']
-        c = base[0 if fx == 0 else 1 if fx == 1 else 2 if fx == 2 else 3]
-        if (y - 2) % 3 == 2: c = '#d4ccc0'                                    # the line between rows
-        if (x + y) % 9 == 0: c = '#e8f0ff'                                    # a pearl glint
-        return hexc(c)
+        if x < 34: return hexc('#f8d040' if y % 2 else '#c89a20')
+        return _feathers(u, v, x, y, edge, [hexc('#f8d040'), hexc('#fff2a0')], hexc('#cfc6d8'), hexc('#ece8f2'), hexc('#ffffff'),
+                         [hexc('#e8c050'), hexc('#f8d868'), hexc('#fff0b0'), hexc('#fffbe0'), hexc('#ffffff')], hexc('#f0d890'),
+                         [hexc('#fffdf6'), hexc('#e2dcd2'), hexc('#d8b048')])
     return _wing(p)
 
 
 def hollow_wings():
-    """the icon, an elytra's own outline (two wings, folded) - in charred membrane and bone"""
-    return paint(['................', '..bbb......bbb..', '.bmmmb....bmmmb.', '.bmmmmb..bmmmmb.', '.bmmmmmbbmmmmmb.',
-                  '.bmmbmmmmmmbmmb.', '.bmmmbmmmmbmmmb.', '.bmmmmbmmbmmmmb.', '.bmmmmmbbmmmmmb.', '..bmmmmbbmmmmb..',
-                  '..bmmmmbbmmmmb..', '..bmmmSbbSmmmb..', '...bSmSbbSmSb...', '...SS.S..S.SS...', '....S......S....', '................'],
-                 dict(b='bone', m='membrane'), dict(S='#c27dff'))
+    """(2.99) the icon: an elytra's own outline (two wings, folded) in black-violet feathers, the leading edges pale, soul fire
+    at their ends"""
+    return paint(['................', '..LLL......LLL..', '.LmMmL....LmMmL.', '.LmdMmL..LmMdmL.', '.LmmdMmLLmMdmmL.',
+                  '.LmMmdMmmMdmMmL.', '.LmmMmdMMdmMmmL.', '.LmdmMmddmMmdmL.', '.LmmdmMmmMmdmmL.', '..LmmdmLLmdmmL..',
+                  '..LmMmdLLdmMmL..', '..LmmSdLLdSmmL..', '...LSmSLLSmSL...', '...SS.C..C.SS...', '....C......C....', '................'],
+                 dict(m='membrane'), dict(L='#8a6ab0', M='#5a4870', d='#160e1c', S='#4ab8e8', C='#d8f8ff'))
 
 
 def angel_hollow_wings():
-    return paint(['................', '..ggg......ggg..', '.gwwwg....gwwwg.', '.gwwwwg..gwwwwg.', '.gwwwwwggwwwwwg.',
-                  '.gwwwwwwwwwwwwg.', '.gwwFwwwwwwFwwg.', '.gwwwwFwwFwwwwg.', '.gwwwwwwwwwwwwg.', '..gwwwwggwwwwg..',
-                  '..gwFwwggwwFwg..', '..gwwwwggwwwwg..', '...gTwTggTwTg...', '...TT.T..T.TT...', '....T......T....', '................'],
-                 dict(g='gold', w='feather'), dict(F='#d8d0c4', T='#f0c838'))
+    """(2.99) the holy twin's icon: the same outline in pearl feathers, gold leading edges, a light edge at their ends"""
+    return paint(['................', '..ggg......ggg..', '.gwWwg....gwWwg.', '.gwFWwg..gwWFwg.', '.gwwFWwggwWFwwg.',
+                  '.gwWwFWwwWFwWwg.', '.gwwWwFWWFwWwwg.', '.gwFwWwFFwWwFwg.', '.gwwFwWwwWwFwwg.', '..gwwFwggwFwwg..',
+                  '..gwWwFggFwWwg..', '..gwwTFggFTwwg..', '...gTwTggTwTg...', '...TT.Y..Y.TT...', '....Y......Y....', '................'],
+                 dict(g='gold', w='feather'), dict(F='#cfc6d8', W='#ffffff', T='#f8d868', Y='#fffbe0'))
 
 
 RAMP['bone'] = ['#3a3428', '#8a7e64', '#b8ac90', '#ddd2b6', '#f4ecd8']

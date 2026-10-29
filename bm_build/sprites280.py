@@ -819,6 +819,10 @@ def every_override():
         allo.update(m.OVERRIDES)
     import sprites294                                     # (2.94y: redrawn again - these win)
     allo.update(sprites294.OVERRIDES)
+    import sprites299                                     # (2.99: the followers' summoning items since 2.80 - these win too)
+    dup = set(allo) & set(sprites299.OVERRIDES)
+    assert not dup, f'sprites299 draws {sorted(dup)} again'
+    allo.update(sprites299.OVERRIDES)
     return allo
 
 
