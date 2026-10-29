@@ -3,7 +3,7 @@
 // GRAVITY WELL (held, slowed), DEFLECTOR (you hurt in a fight: Resistance, Absorption), SCOUT DRONE (out of a fight: Night Vision) and THE
 // HIVE HESITATES (the Vorn near it slowed and weakened). Then the shared list.
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
-runT({ W: 'vexis', NAME: 'Vexis, the Unlinked', ab: 'xb', q: 'qx', pfx: 'p243', prefix: 'vx_', item: 'vexis_link', parts: 20, figParts: 18, hp: 50, X: 18300, Z: 16000, pron: 'it',
+runT({ W: 'vexis', NAME: 'Vexis, the Unlinked', ab: 'xb', q: 'qx', pfx: 'p243', prefix: 'vx_', item: 'vexis_link', parts: 20, figParts: 15, hp: 50, X: 18300, Z: 16000, pron: 'it',
   lookModel: 'vx_body_h',
   called: /drifts back to your side/, home: /folds it away into the dark/, sit: /cross-legged/, stand: /learning to rest/,
   ways: ['Hive-Grip', 'Plasma Bolt', 'Gravity Well', 'Deflector', 'Scout Drone', 'The Hive Hesitates'], plain: 'Hive red', looks: ['Hive Mantle', 'Donadian Mantle', 'Starfire Mantle'],
