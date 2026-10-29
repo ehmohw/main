@@ -234,7 +234,7 @@ def selftest(key):
 def generate(G):
     """-> (boxes checked a second at most: the Undercrown's, the Armada's)"""
     fn, title, tellraw = G.fn, G.title, G.tellraw
-    second, fast = G.FUNCS['loop/second'], G.FUNCS['loop/fast']
+    second = G.FUNCS['loop/second']
     P = G.PREFIX
     objs = ['bm.lku', 'bm.lka', 'bm.lkgu', 'bm.lkga', 'bm.lkv', 'bm.lkd', 'bm.lkx', 'bm.lky', 'bm.lkz']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
@@ -330,7 +330,7 @@ def generate(G):
         fn(f'{F}/to_start', [f'execute in {dim} run tp @s {ex + 0.5} {ey} {ez + 0.5}'])
         # ---- thrown pearls: the floor drinks them (the pearl comes back)
         near = f' at @s if entity @e[type=minecraft:marker,tag=bm.zone_d,tag=bm.d_{d},distance=..40]' if key == 'under' else ''
-        fast.append(f'execute {placed} in {dim} as @e[type=minecraft:ender_pearl,{M.BOX}]{near} at @s run function bm:p2/util/pearl_zap')
+        G.FUNCS['tick'].append(f'execute {placed} in {dim} as @e[type=minecraft:ender_pearl,{M.BOX}]{near} at @s run function bm:p2/util/pearl_zap')      # (every tick: a pearl lands in two or three)
     fn(f'{PFX}/first', first)
     second.append(f'function bm:{PFX}/sec')
     fn(f'{PFX}/sec', ['execute as @a unless score @s bm.lkv matches 1 at @s run function bm:p251/first'] + sec)
