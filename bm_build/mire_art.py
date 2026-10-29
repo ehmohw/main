@@ -2,9 +2,11 @@
 
 THE LOOK. From a distance a shimmering puddle of reddish-black shadow on the ground, 4 blocks across, its red veins glowing.
 When someone comes near it RISES: a worm-like black mass rearing ~5 blocks out of the puddle - a thick mound in the puddle,
-three pinched worm segments tapering up to a blind, eyeless head-mass (Gravemind-like: folds across its crown, a hood flaring
-down its back, swollen pustules) that splits open into a ring-mouth: an upper lip and a lower jaw, each set with a row of
-fangs, and deep in its throat a ring of black fangs round a red glow. FOUR TENTACLES grow from its upper trunk (the shoulder
+three pinched worm segments tapering up to a head-mass (Gravemind-like: folds across its crown, a hood flaring down its back,
+swollen pustules, pinprick red eyes scattered unevenly round the base of its maw). Its MAW is a jagged point: a stepped spearhead
+of four petals, spined and serrated, the top one a hooked beak. It splits open into four ragged flaps, each lined in a deep wet
+red and edged with uneven fangs - and deep in the throat, in a ring of black fangs, a single great ORANGE-RED EYE with a black
+slit pupil, hidden while the maw is shut. FOUR TENTACLES grow from its upper trunk (the shoulder
 segment, seg3), each three ringed segments with glowing red pores along the inner side, ending in a barbed hook. Black goo
 hangs in drips from its segments and its jaw. The palette is the Dread's (dread_sovereign_art: void, RED (208, 24, 46),
 RED_L (255, 90, 100), EMBER) - but wet: near-black with deep oily reds, glossy square highlights, no speckle.
@@ -13,11 +15,14 @@ THE RIG (rigkit): PARTS =
   puddle                        the root: the flat irregular puddle (three terraced layers, veins, spatters, bubbles)
   mound                         the thick base mound standing in the puddle (child of puddle)
   seg1, seg2, seg3              the trunk, three worm segments (seg3 is the shoulder the tentacles grow from)
-  head                          the head-mass with the upper lip, the throat and its fang ring, the hood (child of seg3)
-  jaw                           the lower jaw, hinged at the back of the mouth (child of head; it drops to open the mouth)
+  head                          the head-mass: crown folds, hood, pustules, pinprick eyes, the throat and its fang ring (child of seg3)
+  maw_u maw_r jaw maw_l         the maw's four petals (children of head), each hinged on its edge of the maw's base ring: the top
+                                (the hooked beak), its right, the bottom (still called jaw) and its left. MAWOPEN(a) splays them
+                                about a degrees, unevenly and a little twisted; MAWOPEN(0) (or no key) shuts them into the point
+  eye                           the eye in the throat (child of head), turned about its own centre: look(pose, yaw, pitch)
   t1a t1b t1c ... t4a t4b t4c   the four tentacles, base to tip (tNa child of seg3, tNb of tNa, tNc of tNb). t1 front-right,
                                 t2 front-left, t3 back-right, t4 back-left. Each about 50 design units (6.2 blocks) long.
-Nineteen displays. Design units: the ground at y=0, facing -z, its right is +x. A design unit is 1/16 block at display scale
+Twenty-three displays. Design units: the ground at y=0, facing -z, its right is +x. A design unit is 1/16 block at display scale
 1.0 and one texel of the 16 px textures.
 
 SCALE = RIG_SCALE = 2.0: the runtime passes SCALE to all three - a design unit is then 1/8 block and the sizes are the ones
@@ -38,6 +43,11 @@ the air. sink_0 leaves them sunk, so the dormant that follows hides them there.
   Long swings (stab_0 -> stab_1, grab_0 -> grab_1) are short (3-8 ticks) so the straight-line interpolation of each display
   barely cuts the arc; rigkit.mid(a, b) gives an in-between key if one looks wrong.
 
+THE EYE looking at the player: the part is 'eye', its local rotation qs(('y', -yaw), ('x', -pitch)) about its own centre (yaw +
+to its right, pitch + up; keep within about +-30). look(pose, yaw, pitch) returns the pose with it set - e.g. a few yaw buckets
+pre-built as eye-only poses, RF.pose(A, A.look(A.POSES[name], yaw, 0), SCALE, 4, sel, parts=('eye',)), picked by the player's
+bearing relative to the host's facing.
+
 POINTS for the runtime (design units, on the part named): TIP[t] = (part, point) - the apex of tentacle t's hook; MOUTH =
 ('head', point) - the throat; DRIPS = [(part, point)] - where goo hangs (falling_dust of black_concrete looks right).
 rigkit.point(A, A.POSES[name], part, point, scale=SCALE) -> blocks, relative to the host (yaw 0 = facing south, +z).
@@ -45,8 +55,9 @@ rigkit.point(A, A.POSES[name], part, point, scale=SCALE) -> blocks, relative to 
 NAMES: model_id(part) -> 'mr_<part>' (RF.part_nbt's model=); model_name(part, pose=None, suffix='') -> the same (rigfol /
 rigkit call it with a pose: one model per part, no per-pose swaps).
 
-GLOW. The veins (every vein, pore and the hook tips: material 'glow', a slow pulsing animated texture), the mouth (the throat,
-its roof and floor: 'ember') carry light_emission 15 - they are lit in the dark whatever the display's light. The puddle's
+GLOW. The veins (every vein, pore and the hook tips: material 'glow', a slow pulsing animated texture), the throat's ring
+('ember') carry light_emission 15 - they are lit in the dark whatever the display's light. So do the maw's lining ('maw', a deep red), the
+pinprick eyes ('hot') and the throat eye ('iris', 'irisr': ember orange). The puddle's
 surface glows faintly itself (light_emission 3 / 5 / 7, outer rim to centre; its texture is a slow oily shimmer, animated),
 "a puddle of glowing shadow". GLOW (the parts phase246 gives brightness {block:15, sky:15}) is EVERY PART: the hide is painted
 near-black, so drawn at full brightness it still reads as shadow, but its wet square highlights and its silhouette show in a
@@ -103,12 +114,13 @@ def _qt(dx, dy, k):
 
 for _m, _k in PETAL.items():
     _dx, _dy = _qt(0.0, MR, _k); PIVOT[_m] = (_dx, CY + _dy, ZB); PARENT[_m] = 'head'
+PIVOT['eye'] = (0.0, CY, ZB - 1.0); PARENT['eye'] = 'head'           # (the eye in the throat, turned about its own centre)
 for _t in TENT:
     _x, _y, _z = ROOT[_t]
     PIVOT[_t + 'a'] = (_x, _y, _z); PIVOT[_t + 'b'] = (_x, _y + LEN['a'], _z); PIVOT[_t + 'c'] = (_x, _y + LEN['a'] + LEN['b'], _z)
     PARENT[_t + 'a'] = 'seg3'; PARENT[_t + 'b'] = _t + 'a'; PARENT[_t + 'c'] = _t + 'b'
 PARTS = tuple(PIVOT)
-TRUNK = ('mound', 'seg1', 'seg2', 'seg3', 'head') + MAW
+TRUNK = ('mound', 'seg1', 'seg2', 'seg3', 'head') + MAW + ('eye',)
 TPARTS = tuple(t + s for t in TENT for s in SEGS)
 PART_K = {}                                     # (every part fits its model box at its own size)
 GLOW = PARTS                                    # (phase246: brightness 15 on these - see the docstring)
@@ -223,6 +235,12 @@ MAWT = ['aaaaaaaaaaaaaaaa',
         'aaOOaaaaOOaaabba',
         'aaOOaaaaaaaaabba',
         'aaaaaaaaaaaaaaaa']
+# the eye: a hot ember orange (not the veins' red), lighter and darker squares; its rim a deep orange-red
+EYEPAL = {'i': (255, 128, 24), 'I': (255, 178, 70), 'j': (226, 90, 18), 'r': (214, 50, 20), 'R': (240, 82, 26), 's': (160, 28, 16)}
+IRIS = ['iiiiiiiiiiiiiiii', 'iIIiiiiiiiiijjii', 'iIIiiiiiiiiijjii', 'iiiiiiijjiiiiiii', 'iiiiiiijjiiiiIIi', 'iijjiiiiiiiiiIIi',
+        'iijjiiiiiIIiiiii', 'iiiiiiiiiIIiiiii', 'iiiiIIiiiiiiijji', 'iiiiIIiiiiiiijji', 'iiiiiiiijjiiiiii', 'ijjiiiiijjiiiIIi',
+        'ijjiiiiiiiiiiIIi', 'iiiiiIIiiiiiiiii', 'iiiiiIIiiiijjiii', 'iiiiiiiiiiijjiii']
+IRISR = [r.replace('i', 'r').replace('I', 'R').replace('j', 's') for r in IRIS]
 ANIMATED = {}                                                       # {texture: its .png.mcmeta}
 
 
@@ -301,7 +319,7 @@ def textures():
     """{name: RGBA} for assets/bm/textures/block (the animated ones are strips; rp's post writes their .mcmeta)"""
     T = {'mr_hide': _grid(HIDE), 'mr_rib': _grid(RIB), 'mr_fold': _grid(FOLD), 'mr_ember': _grid(EMBER),
          'mr_fang': _fang(), 'mr_drip': _drip(), 'mr_barb': _barb(), 'mr_void': _grid(['0' * 16] * 16),
-         'mr_maw': _grid(MAWT), 'mr_spine': _grid(['aaaaaaaaaaaaaaaa', 'aaaaaaaaaaaaaaaa'] + ['OOOOOOOOOOOOOOOO'] * 2 + ['oooooooooooooooo'] * 3 + ['3333333333333333'] * 3 + ['2222222222222222'] * 5 + ['1111111111111111']), 'mr_hot': _grid(['f' * 16] * 2 + ['ffeeeeeeeeeeeeff'] + ['feeeeeeeeeeeeeef'] * 11 + ['ffeeeeeeeeeeeeff'] + ['f' * 16])}
+         'mr_maw': _grid(MAWT), 'mr_iris': _grid(IRIS, EYEPAL), 'mr_irisr': _grid(IRISR, EYEPAL), 'mr_spine': _grid(['aaaaaaaaaaaaaaaa', 'aaaaaaaaaaaaaaaa'] + ['OOOOOOOOOOOOOOOO'] * 2 + ['oooooooooooooooo'] * 3 + ['3333333333333333'] * 3 + ['2222222222222222'] * 5 + ['1111111111111111']), 'mr_hot': _grid(['f' * 16] * 2 + ['ffeeeeeeeeeeeeff'] + ['feeeeeeeeeeeeeef'] * 11 + ['ffeeeeeeeeeeeeff'] + ['f' * 16])}
     pulse = [1.0, 0.94, 0.82, 0.68, 0.58, 0.68, 0.82, 0.94]
     T['mr_glow'] = _strip([_vein_frame(k) for k in pulse])
     T['mr_pool'] = _strip([_pool_frame(i, 8) for i in range(8)])
@@ -310,8 +328,8 @@ def textures():
     return T
 
 
-MATS = ('hide', 'rib', 'fold', 'ember', 'fang', 'drip', 'barb', 'void', 'glow', 'pool', 'maw', 'hot', 'spine')
-LIGHT = {'glow': 15, 'ember': 15, 'maw': 15, 'hot': 15}                                   # (light_emission by material; the puddle's layers set their own)
+MATS = ('hide', 'rib', 'fold', 'ember', 'fang', 'drip', 'barb', 'void', 'glow', 'pool', 'maw', 'hot', 'spine', 'iris', 'irisr')
+LIGHT = {'glow': 15, 'ember': 15, 'maw': 15, 'hot': 15, 'iris': 15, 'irisr': 15}                                   # (light_emission by material; the puddle's layers set their own)
 FULL = {'fang', 'drip', 'barb', 'spine'}                                     # (the whole texture on every face)
 F6 = ('north', 'south', 'east', 'west', 'up', 'down')
 
@@ -557,7 +575,7 @@ def _head():
     H += VEIN([(-1.6, 33.0), (-1.6, 35.4), (1.6, 35.4), (1.6, 38.0)], 'z', 7.6, 1)
     # the throat: a deep red well, its heat at the centre; a ring of black fangs round it, uneven
     H += [E((-3.7, CY - 3.7, ZB - 0.1), (3.7, CY + 3.7, ZB), 'maw'), E((-2.4, CY - 2.2, ZB - 0.18), (2.2, CY + 2.4, ZB - 0.1), 'ember'),
-          E((-0.7, CY - 0.5, ZB - 0.26), (0.5, CY + 0.7, ZB - 0.18), 'hot')]
+          ]
     dark = {f: [0, 0, 16, 5] for f in F6}
     for k, ln in enumerate((1.6, 1.0, 1.9, 1.2, 1.5, 0.8, 2.0, 1.1)):
         an = 2 * math.pi * k / 8 + 0.3; x, y = 3.0 * math.cos(an), CY + 3.0 * math.sin(an)
@@ -569,6 +587,20 @@ def _head():
     H.append(E((-5.85, 33.0, ZB - 0.12), (-5.35, 33.5, ZB + 0.02), 'hot'))
     H.append(E((5.35, 40.0, ZB - 0.12), (5.85, 40.5, ZB + 0.02), 'hot'))
     return H
+
+
+def _eye():
+    """the eye deep in the throat: a rounded orange-red ball (rim and iris), a black slit pupil, a hot glint - inside the shut
+    beak's hollow, so it shows only as the petals open"""
+    return [E((-2.2, CY - 1.6, ZB - 1.7), (2.2, CY + 1.6, ZB - 0.3), 'irisr'), E((-1.6, CY - 2.2, ZB - 1.75), (1.6, CY + 2.2, ZB - 0.35), 'irisr'),
+            E((-1.6, CY - 1.1, ZB - 1.95), (1.6, CY + 1.1, ZB - 1.7), 'iris'), E((-1.1, CY - 1.6, ZB - 1.98), (1.1, CY + 1.6, ZB - 1.75), 'iris'),
+            E((-0.4, CY - 1.4, ZB - 2.1), (0.4, CY + 1.4, ZB - 1.9), 'void'),
+            E((-1.35, CY + 0.6, ZB - 2.06), (-0.85, CY + 1.1, ZB - 1.94), 'hot')]
+
+
+def look(pose, yaw=0.0, pitch=0.0):
+    """the pose with the eye turned: yaw + to its right, pitch + up (degrees, about +-30 at most - it is set deep in the throat)"""
+    return dict(pose, eye=qs(('y', -yaw), ('x', -pitch)))
 
 
 TIPX = {'maw_u': 'hook', 'maw_r': 2.4, 'jaw': 1.7, 'maw_l': 1.0}       # (each petal's point: the top one a hooked beak, the rest uneven)
@@ -667,7 +699,7 @@ def _build():
     if _RAW: return _RAW
     _rs.seed(11)
     fns = {'puddle': _puddle, 'mound': _mound, 'seg1': _seg1, 'seg2': _seg2, 'seg3': _seg3, 'head': _head}
-    fns.update({m: (lambda m=m: _petal(m)) for m in MAW})
+    fns.update({m: (lambda m=m: _petal(m)) for m in MAW}); fns['eye'] = _eye
     for p in PARTS:
         _PV[0] = PIVOT[p]
         _RAW[p] = fns[p]() if p in fns else _tentacle_seg(p[:2], p[2])
@@ -934,7 +966,7 @@ def _pose(name):
         p = draped(p, ('t1', 't3', 't4'), 30.0, -6.0)
         p = lay(p, 't2', curl(_unit((-0.7, 0.4, -0.4)), (-0.3, -1.0, 0.0), (60, 50)))
     elif name == 'death_1':                                   # (a melted heap on the puddle)
-        p = P(_o_mound=(0, -3.6, 0), _o_seg1=(0, -4.5, 0), seg1=T(70, 0, 6), seg2=T(15, 20, 0), seg3=T(12, -10), head=T(-15, 10, -15), **MAWOPEN(10))
+        p = P(_o_mound=(0, -3.6, 0), _o_seg1=(0, -4.5, 0), seg1=T(70, 0, 6), seg2=T(15, 20, 0), seg3=T(12, -10), head=T(-65, 10, -15), **MAWOPEN(10))
         p = draped(p, TENT, 28.0, 14.0)
     else:
         raise KeyError(name)
@@ -960,7 +992,7 @@ class _Lazy(dict):
 
 
 POSES = _Lazy()
-DRIPS = [('jaw', (-2.2, 28.6, -2.6)), ('jaw', (3.2, 28.0, -2.6)), ('maw_u', (0.0, 33.6, -14.8)), ('seg1', (-5.0, 5.0, 2.6)), ('seg2', (-4.2, 13.6, -3.6)),
+DRIPS = [('jaw', (-2.2, 28.6, -2.6)), ('jaw', (3.2, 28.0, -2.6)), ('maw_u', (0.0, 34.4, -18.8)), ('seg1', (-5.0, 5.0, 2.6)), ('seg2', (-4.2, 13.6, -3.6)),
          ('head', (0.0, 28.0, 8.0))]
 
 
