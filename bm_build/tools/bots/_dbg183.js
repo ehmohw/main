@@ -226,8 +226,12 @@ const CFG = {
     // (what the ranged blow leaves on them lasts 3-4 s: watched for together with the blow itself)
     const mark = who === 'dennis' ? async () => hasFx(FOE, 'slowness') : async () => (await hasFx(FOE, 'glowing')) && (await hasFx('TestRat', 'speed'));
     let marked = false;
+    await sleep(3000);
+    console.log('MANUAL', await run(`execute as ${PET} at @s run function bm:p163/dw/range_hit`));
+    for (let i=0;i<8;i++){ console.log('M', i, await run('execute as @e[type=minecraft:item_display,tag=bm.pj] run data get entity @s Pos'), await num(FOE,'Health'), await num(FOE,'Fire')); await sleep(40); }
+    console.log('pjme?', await run('execute as @e[tag=bm.pjme] run data get entity @s UUID'));
     const dbg = setInterval(async () => { try { console.log('DBG', Date.now()%100000, 'x', await score(`bm.${k}x`, PET), 'a', await score(`bm.${k}a`, PET), 's', await score(`bm.${k}s`, PET), 'rc', await score(`bm.${k}rc`, PET), 'mc', await score(`bm.${k}mc`, PET),
-      (await nbt(PET, 'Sitting')).slice(-6), 'pet', (await nbt(PET,'Pos')).slice(-40), 'foe', (await nbt(FOE,'Pos')).slice(-40), (await nbt(FOE,'Tags')).slice(-80), (await nbt(FOE,'active_effects')).slice(-120)); } catch(e){} }, 700);
+      (await nbt(PET, 'Sitting')).slice(-6), 'pet', (await nbt(PET,'Pos')).slice(-40), 'foe', (await nbt(FOE,'Pos')).slice(-40), 'H', await num(FOE,'Health'), 'F', await num(FOE,'Fire'), 'pj', await cnt('@e[type=minecraft:item_display,tag=bm.pj]'), (await nbt(FOE,'active_effects')).slice(-120)); } catch(e){} }, 250);
     const rng = await wait(8000, async () => { if (await mark()) marked = true; return (await score(`bm.${k}rc`, PET)) > 0 && marked; }, 150);
     clearInterval(dbg);
     ok(N + '...then his ranged blow', (await score(`bm.${k}rc`, PET)) > 0, `rc ${await score(`bm.${k}rc`, PET)}`);
