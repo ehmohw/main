@@ -288,7 +288,7 @@ def generate(G):
                                     f'bossbar set bm:{b} name {snbt(T(nm, col, bold=True))}', f'bossbar set bm:{b} max {hp}',
                                     'particle minecraft:end_rod ~ ~2 ~ 1 1.5 1 0.08 80'])
     G.wjson('bm/advancement/p241/guard.json', {'criteria': {'kill': {'trigger': 'minecraft:player_killed_entity', 'conditions': {'entity': [
-        {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'nbt': '{Tags:["bm.aguard"]}'}}]}}}, 'rewards': {'function': 'bm:p241/guard/killed'}})
+        {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.aguard"]}'}}]}}}, 'rewards': {'function': 'bm:p241/guard/killed'}})
     fn('p241/guard/killed', ['advancement revoke @s only bm:p241/guard',
                              f'execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.pzt_vboss,tag=bm.d_{d},distance=..96,sort=nearest,limit=1] at @s run function bm:p241/guard/won'])
     fn('p241/guard/won', [f'execute if entity @s[tag=bm.pz{n}] run function bm:p241/guard/fell_{k}' for n, k in A.VBOSS.items()])

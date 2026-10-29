@@ -587,7 +587,7 @@ def generate(G):
     fn('p242/a/clone_end', ['tag @e[tag=bm.vxcloned] remove bm.vxcloned', 'execute as @e[type=minecraft:husk,tag=bm.vxcl] at @s run particle minecraft:poof ~ ~4 ~ 1 3 1 0.05 40 force',
                             'kill @e[type=minecraft:item_display,tag=bm.vxc]', 'execute as @e[type=minecraft:husk,tag=bm.vxcl] run tp @s ~ -400 ~', 'kill @e[type=minecraft:husk,tag=bm.vxcl]'])
     G.wjson('bm/advancement/p242/clone.json', {'criteria': {'kill': {'trigger': 'minecraft:player_killed_entity', 'conditions': {'entity': [
-        {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'nbt': '{Tags:["bm.vxcl"]}'}}]}}}, 'rewards': {'function': 'bm:p242/cl/wrong'}})
+        {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.vxcl"]}'}}]}}}, 'rewards': {'function': 'bm:p242/cl/wrong'}})
     fn('p242/cl/wrong', ['advancement revoke @s only bm:p242/clone', f'damage @s 7 minecraft:magic by {ME}', 'effect give @s minecraft:slowness 2 1',
                          'particle minecraft:electric_spark ~ ~1 ~ 0.6 1 0.6 0.4 40', 'playsound minecraft:entity.illusioner.cast_spell player @s ~ ~ ~ 1 0.6',
                          title('@s', 'actionbar', T('A clone - it bursts in your face!', RED, bold=True))])
