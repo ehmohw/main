@@ -2,7 +2,8 @@
 
 WHERE      any of the three dimensions, rarely, in the dark: now and then a hostile mob rising naturally (mobs/init) in hard mode
            comes up as a Mire instead - where the light is low (4 or less), outside a Golden Cross's ground, never near another
-           Mire, never in the vault or the Hollow Throne. None rise once the Dread Sovereign has fallen (#dfell) - until the
+           Mire, never in the vault or the Hollow Throne; ONE A NIGHT for each player (the nearest within 48 when it rises); three
+           times as likely on a Dread Night or a Blood Moon. None rise once the Dread Sovereign has fallen (#dfell) - until the
            Dread Ember kindles the nights again; those still about melt away.
 DORMANT    a puddle of shimmering reddish-black shadow, 4 blocks across, faintly moving: it creeps towards anyone within 24
            blocks, bubbles and whispers. It can't be hurt like this. Daylight or a bright light on it and it seeps away.
@@ -66,7 +67,7 @@ def snd(name, v=1.0, p=None, who='@a[distance=..32]'):
 def generate(G):
     fn, title, give = G.fn, G.title, G.give
     tick, second = G.FUNCS['tick'], G.FUNCS['loop/second']
-    objs = ['bm.mid', 'bm.ms', 'bm.mt', 'bm.ma', 'bm.mc', 'bm.mq', 'bm.musk']
+    objs = ['bm.mid', 'bm.ms', 'bm.mt', 'bm.ma', 'bm.mc', 'bm.mq', 'bm.musk', 'bm.mday']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + ['scoreboard players set #4 bm.rng 4', 'scoreboard players set #20 bm.rng 20']
     G.OBJECTIVES += objs
     at = lambda t, cmd: f'execute if score @s bm.mt matches {t} {cmd[8:]}' if cmd.startswith('execute ') else f'execute if score @s bm.mt matches {t} run {cmd}'
@@ -99,12 +100,22 @@ def generate(G):
             'Health': F(HP + FLOOR),
             'active_effects': [{'id': 'minecraft:invisibility', 'duration': Int(-1), 'amplifier': B(0), 'show_particles': B(0)},
                                {'id': 'minecraft:fire_resistance', 'duration': Int(-1), 'amplifier': B(0), 'show_particles': B(0)}]}
-    fn(f'{PFX}/roll', ['execute store result score #r bm.rng run random value 1..' + str(ROLL), 'execute unless score #r bm.rng matches 1 run return 0',
+    # (one a night for each player: the nearest within 48 must not have had one rise for them tonight - the day's number, bm.mday;
+    #  three times the odds on a Dread Night or a Blood Moon)
+    fn(f'{PFX}/roll', ['execute store result score #r bm.rng run random value 1..' + str(ROLL),
+                       'scoreboard players set #rk bm.rng 1', 'execute if score #dnight bm.bm matches 1 run scoreboard players set #rk bm.rng 3',
+                       'execute if score #active bm.bm matches 1 run scoreboard players set #rk bm.rng 3',
+                       'execute if score #r bm.rng > #rk bm.rng run return 0',
+                       'execute store result score #day bm.rng run time query day',
+                       f'execute unless entity @p[distance=..48,{FOES}] run return 0',
+                       f'execute as @p[distance=..48,{FOES}] if score @s bm.mday = #day bm.rng run return 0',
                        'execute unless predicate bm:p246/dark run return 0',
                        f'execute if entity @e[type=minecraft:husk,tag=bm.mire,distance=..{APART}] run return 0',
                        'execute if function bm:p181/in_cross run return 0',
                        'execute unless block ~ ~-1 ~ #minecraft:replaceable if block ~ ~ ~ #minecraft:replaceable run function bm:p246/spawn',
-                       'execute unless entity @e[type=minecraft:husk,tag=bm.mire,distance=..1] run return 0', 'tp @s ~ -400 ~', 'kill @s', 'return 1'])
+                       'execute unless entity @e[type=minecraft:husk,tag=bm.mire,distance=..1] run return 0',
+                       f'execute as @p[distance=..48,{FOES}] run scoreboard players operation @s bm.mday = #day bm.rng',
+                       'tp @s ~ -400 ~', 'kill @s', 'return 1'])
     fn(f'{PFX}/spawn', [f'summon minecraft:husk ~ ~ ~ {snbt(host)}',
                         'scoreboard players add #mid bm.mid 1',
                         'execute as @e[type=minecraft:husk,tag=bm.mnewh,distance=..1] run function bm:p246/spawn1'])
