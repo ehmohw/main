@@ -507,23 +507,19 @@ def prongs(k, ship, axis, u_base, u_tip, vc, off, ylo, yhi, pal=HULL_DARK, light
 
 
 def ribs(k, ship, axis, us, pal=HULL_DARK):
-    """armour ribs: a ring one block proud of the hull round each slice u in `us` (never over glass, a collar or the void a bridge
-    needs - only cells nothing is in)"""
+    """armour ribs: a ring one block proud of the hull round each slice u in `us` (only in cells nothing is in, and never against
+    glass or air - a window, a collar's mouth)"""
     B = k.B
     m = k.ship_mask[ship]
     for u in us:
-        sl = m[u, :, :] if axis == 'x' else m[:, :, u].T                      # (y, v) planes... as (y, z) for x / (y, x) for z
-        if axis == 'x': sl = m[u]
-        else: sl = m[:, :, u].T
+        sl = m[u] if axis == 'x' else m[:, :, u].T                    # (y, v)
         grown = ndimage.binary_dilation(sl, iterations=1) & ~sl
-        for (y, v) in zip(*np.nonzero(grown)) if axis == 'x' else ((yy, vv) for (yy, vv) in zip(*np.nonzero(grown))):
-            pass
-        ys, vs = np.nonzero(grown) if axis == 'x' else np.nonzero(grown)
-        for a1, a2 in zip(ys, vs):
-            if axis == 'x': x, y, z = u, int(a1), int(a2)
-            else: y, x, z = int(a1), int(a2), u
+        for (y, v) in zip(*np.nonzero(grown)):
+            y, v = int(y), int(v)
+            x, z = (u, v) if axis == 'x' else (v, u)
             if not k.inb(x, y, z) or (x, y, z) in B.b: continue
-            if any('glass' in (B.b.get(q) or '') or (B.b.get(q) or '').endswith(':air') for q in ((x + 1, y, z), (x - 1, y, z), (x, y + 1, z), (x, y - 1, z), (x, y, z + 1), (x, y, z - 1))): continue
+            if any('glass' in (B.b.get(q) or '') or (B.b.get(q) or '').endswith(':air')
+                   for q in ((x + 1, y, z), (x - 1, y, z), (x, y + 1, z), (x, y - 1, z), (x, y, z + 1), (x, y, z - 1))): continue
             B.set(x, y, z, k.pick(pal))
 
 
