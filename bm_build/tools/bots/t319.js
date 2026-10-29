@@ -51,7 +51,7 @@ const FLOOR = 100;
     ok('...and the door stays shut', await block(D, gate, gateBlock));
     await sleep(2500);
     ok('...stone no longer: awake, eyes lit (the live models)', /_live_/.test(await run(`${D}data get entity @e[type=minecraft:item_display,tag=bm.kr_head,distance=..40,x=${near[0]},y=${near[1]},z=${near[2]},sort=nearest,limit=1] item.components."minecraft:item_model"`)));
-    ok('...the room\'s bar shows them', /1|player/i.test(await run(`bossbar get bm:kn_${d}${n} players`)), await run(`bossbar get bm:kn_${d}${n} players`));
+    ok('...the room\'s bar shows them', await wait(4000, async () => /has [1-9]/.test(await run(`bossbar get bm:kn_${d}${n} players`))), await run(`bossbar get bm:kn_${d}${n} players`));
     // (stand beside one: it slams or spins at you)
     const h0 = await hp(); const k = await pos(D, `${host.slice(0, -1)},limit=1]`);
     let hurt = false;

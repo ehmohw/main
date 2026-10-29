@@ -165,7 +165,7 @@ def generate(G):
                          at(12, f'function bm:{PFX}/pose/rise_1'),
                          at(24, f'function bm:{PFX}/pose/rise_2'), at(24, snd('shriek', 1.0, 0.7)),
                          at(24, f'attribute @s minecraft:scale base set {RISEN_SC}'), at(24, 'data merge entity @s {Invulnerable:0b}'),
-                         at(40, 'scoreboard players set @s bm.ms 2'), at(40, 'scoreboard players set @s bm.mt 0'), at(40, 'scoreboard players set @s bm.ma 30')])
+                         at(40, 'scoreboard players set @s bm.ms 2'), at(40, 'scoreboard players set @s bm.ma 30'), at(40, 'scoreboard players set @s bm.mt 0')])
     # ---- risen: swaying, facing its prey; every EVERY ticks a grab or a stab
     fn(f'{PFX}/s/fight', ['scoreboard players add @s bm.ma 1',
                           'scoreboard players operation #f bm.rng = @s bm.mt', 'scoreboard players operation #f bm.rng %= #20 bm.rng',
@@ -198,7 +198,7 @@ def generate(G):
     fn(f'{PFX}/sink0', ['scoreboard players set @s bm.ms 6', 'scoreboard players set @s bm.mt 0', f'function bm:{PFX}/pose/sink_0', snd('rise', 1.0, 1.3)])
     fn(f'{PFX}/s/sink', [at(12, f'function bm:{PFX}/pose/dormant'), at(12, f'attribute @s minecraft:scale base set {DORMANT_SC}'),
                          at(12, 'data merge entity @s {Invulnerable:1b}'),
-                         at(24, 'scoreboard players set @s bm.ms 0'), at(24, 'scoreboard players set @s bm.mt 0'), at(24, 'scoreboard players set @s bm.mq 0')])
+                         at(24, 'scoreboard players set @s bm.ms 0'), at(24, 'scoreboard players set @s bm.mq 0'), at(24, 'scoreboard players set @s bm.mt 0')])
     # ---- its death: collapsing, melted, gone - its remnants left behind
     fn(f'{PFX}/die0', ['scoreboard players set @s bm.ms 7', 'scoreboard players set @s bm.mt 0', 'data merge entity @s {Invulnerable:1b}',
                        'tag @a remove bm.mgrab', f'function bm:{PFX}/pose/death_0', snd('death', 1.6), snd('shriek', 1.0, 0.5)])

@@ -160,8 +160,8 @@ def generate(G):
        [at(12, snd('entity.iron_golem.repair', 1.2, 0.5)),
         at(22, f'function bm:{PFX}/pose/wake_1'), at(22, snd('item.mace.smash_air', 1.2, 0.6)),
         at(40, 'data merge entity @s {NoAI:0b}'), at(40, f'effect give @s minecraft:resistance infinite {RESIST} true'),
-        at(40, 'scoreboard players set @s bm.ka 0'), at(40, 'scoreboard players set @s bm.kc 0'), at(40, 'scoreboard players set @s bm.kt 0'),
-        at(40, 'scoreboard players set @s bm.ks 1')])
+        at(40, 'scoreboard players set @s bm.ka 0'), at(40, 'scoreboard players set @s bm.kc 0'), at(40, 'scoreboard players set @s bm.ks 1'),
+        at(40, 'scoreboard players set @s bm.kt 0')])        # (the timer's reset last: every line after it would read 0)
     # ---- the fight: stalk (walking) or square up (idle), and every EVERY ticks an attack - slam and spin by turns
     near = f'@a[distance=..3,{FOES}]'
     fn(f'{PFX}/s/fight', ['scoreboard players add @s bm.ka 1',
@@ -203,10 +203,10 @@ def generate(G):
                          f'execute if score @s bm.kt matches {SPIN0}..{SPIN1} if score #f bm.rng matches 5 run function bm:{PFX}/pose/spin_0',
                          'scoreboard players operation #g bm.rng = @s bm.kt', 'scoreboard players operation #g bm.rng %= #8 bm.rng'] +
        [f'execute if score @s bm.kt matches {SPIN0}..{SPIN1} if score #g bm.rng matches 0 if entity @s[tag=bm.kh_{k}] run function bm:{PFX}/whirl_{k}' for k in KN] +
-       [at(SPIN1 + 1, 'scoreboard players set @s bm.ks 4'), at(SPIN1 + 1, 'scoreboard players set @s bm.kt 0'),
-        at(SPIN1 + 1, f'function bm:{PFX}/pose/stagger'), at(SPIN1 + 1, 'effect clear @s minecraft:resistance'),
+       [at(SPIN1 + 1, f'function bm:{PFX}/pose/stagger'), at(SPIN1 + 1, 'effect clear @s minecraft:resistance'),
         at(SPIN1 + 1, snd('entity.iron_golem.damage', 1.2, 0.5)),
-        at(SPIN1 + 1, title(f'@a[distance=..16]', 'actionbar', T('It reels, dizzy - its guard is down. Strike now!', 'gold', bold=True)))])
+        at(SPIN1 + 1, title(f'@a[distance=..16]', 'actionbar', T('It reels, dizzy - its guard is down. Strike now!', 'gold', bold=True))),
+        at(SPIN1 + 1, 'scoreboard players set @s bm.ks 4'), at(SPIN1 + 1, 'scoreboard players set @s bm.kt 0')])
     for k, c in KN.items():
         fn(f'{PFX}/whirl_{k}', [f'execute as @a[distance=..3.8,{FOES}] run damage @s {c["spin"]} minecraft:mob_attack by {ME}',
                                 'particle minecraft:sweep_attack ~ ~1.2 ~ 1.6 0.2 1.6 0 6',
