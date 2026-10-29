@@ -16,9 +16,8 @@ LOOK  A calm, cosy figure (3.0c: 2.14 blocks to the hood's crown as it floats - 
         wardrobe's luminance recolours (phase138 -> phase99._recolour / gild.metal) come out as clean cloth in the look's
         colours with the highlight passing over them (gen_rp copies the .mcmeta to their _cN copies). The gold trim (kb_gold,
         kb_rim, kb_brd) glints the same way, in rose and champagne golds; the wings are tuned to the same pastels.
-      - (3.0c, cheerful) A soft hood in the original warm cream-yellow (with a gentle golden shimmer, HOOD_GOLDS, not the
-        pearl's pastels), opened wide (gold rim, a deep dusky-rose lining), rounding to a low crown - no
-        point; inside it no face of flesh, only shadow (kb_face, unlit) with its EYES OF LIGHT smiling in it: crescents of
+      - (3.0c, cheerful) A soft pearl hood, opened wide (gold rim, a deep dusky-rose lining), rounding to a low crown - no
+        point; inside it no face of flesh, only the original's warm amber glow (kb_face) with its EYES OF LIGHT smiling in it: crescents of
         light, a soft pink blush glowing under them, a tiny smile of light (kb_eyes / kb_eyes_<face>, at full light). Every
         mood a friendly one. Short, round sleeves; out of each cuff a soft mitten of light (a little thumb), not long fingers.
       - At its heart a small glowing LOOM (its own part): a gold frame strung with rainbow warp threads, a spindle of light at
@@ -98,14 +97,14 @@ BONDS = [('emma', '#ff8ad8'), ('celi', '#9ad8ff'), ('zib', '#3ad8c8'), ('cecil',
 # ---- the palette (3.0b: friendlier, and mother-of-pearl): pearl cloth with a pastel sheen running over it, gold trim, a soft
 #      dusky-rose lining, and a warm round face under the hood - peach skin, rosy cheeks, starlight-lilac hair
 CREAM, CREAM_D, CREAM_L = '#f6ece4', '#e6d8d0', '#fcf6f0'     # (the pearl's base: its cloth, the warp line, the paler weft row)
-HOODC, HOODC_D = '#f2e3c0', '#e2cfa4'                         # (3.0c: the original's warm cream-yellow hood and mantle)
+HOODC, HOODC_D = '#f0e6e2', '#e0d0cc'
 GOLD, GOLD_D, GOLD_L, GOLD_W = '#e8b648', '#c08a2c', '#ffd878', '#fff2c0'
 LINING, LINING_D = '#8a5a78', '#74486a'                       # (deep dusky rose: the hood's inside - shadowy but warm - and the robe's underside)
 GLOW_C, GLOW_E, GLOW_D = '#ffd88a', '#f4bc5e', '#e2a04a'       # (the sleeves' insides: warm with the light of the hands)
-EYE, EYE_H, EYE_R = '#fffcf0', '#ffffff', '#fff0c4'          # the eyes of light: core, shine, the softer light at their edge
-BLUSH, BLUSH_L, SMILE, TEAR = '#ff8ec4', '#ffb8dc', '#ffe6b8', '#bfe8ff'   # (3.0c) a glowing blush, a tiny smile of light, a tear
+EYE, EYE_H, EYE_R = '#5a3418', '#fff8e0', '#8a5428'          # (3.0c: on the amber glow) the eyes: warm dark brown, a bright shine, a softer edge
+BLUSH, BLUSH_L, SMILE, TEAR = '#ff8ec4', '#ffb8dc', '#7a4422', '#7fc8ff'   # (3.0c) a glowing blush, a tiny smile of light, a tear
 HAND, HAND_L = '#ffeec6', '#fff8e4'                           # (the mittens of light)
-L_CLOTH, L_BAND, L_FACE, L_EYES, L_CORE, L_THREAD, L_HAND = 7, 9, 0, 15, 15, 12, 8     # (modest cloth; the hollow unlit, its lights full)
+L_CLOTH, L_BAND, L_FACE, L_EYES, L_CORE, L_THREAD, L_HAND = 7, 9, 12, 15, 15, 12, 8     # (modest cloth; the face's amber glow, its eyes full)
 L_WING = (9, 11, 13)                                          # (the wings' three lengths, root to tip)
 
 # ---- the iridescence (3.0b): the pearl cloth, its trim and the wings are ANIMATED strips (FRAMES frames, interpolated); in each
@@ -115,7 +114,6 @@ L_WING = (9, 11, 13)                                          # (the wings' thre
 #      with only the soft highlight band (SWEEP) passing over them, the look's own shimmer.
 PEARL = ['#ffbcdc', '#ffd0a8', '#fff0a8', '#b8f0d4', '#b4d8ff', '#d4bcff']    # rose, peach, cream, mint, sky, lilac
 FRAMES = 16
-HOOD_GOLDS = ['#f6d890', '#fbe8b4', '#f4d084', '#fff0c4', '#f0dca0']     # (3.0c: the hood's own sheen - a gentle golden shimmer, the original yellow kept)
 
 
 def _hsv(c):
@@ -319,18 +317,17 @@ def swatch(i, inner=False):
 GOLD_I, CREAM_I, WHITE_I = 57, 58, 59
 
 
-# the face (3.0c: cloaked, and cheerful): no face of flesh - the hood's shadowed hollow (kb_face: deep plum shade, darkest at its
-# rim, unlit) with the eyes of light in it, smiling: each mood's overlay (kb_eyes / kb_eyes_<face>, at full light) holds the
+# the face (3.0c: cloaked, and cheerful): no face of flesh - the hood's hollow aglow (kb_face: the original's warm amber, stepping
+# down to its rim) with the eyes of light in it, smiling: each mood's overlay (kb_eyes / kb_eyes_<face>, at full light) holds the
 # eyes, a soft pink blush glowing under each, and a tiny glowing smile. Its window FACE_W x FACE_H px (6.5 x 6 units) from
 # the top left; the eyes 5 px wide (its right eye on our left, mirrored for the other), drawn a pixel (a quarter unit) at a time
 FACE_W, FACE_H = 26, 24
-SHADE_C, SHADE_M, SHADE_R = '#3e2a4c', '#34223f', '#2a1a33'      # the hollow: its heart, its middle, its rim
 
 
 def _face():
     def c(x, y):
         d = max(abs(x - 6.25) / 6.6, abs(y - 5.5) / 6.1)              # (in 2-px cells: square rings, stepping darker to the rim)
-        return SHADE_C if d < 0.6 else SHADE_M if d < 0.86 else SHADE_R
+        return GLOW_C if d < 0.6 else GLOW_E if d < 0.86 else GLOW_D      # (3.0c: the original's warm amber glow, not shadow)
     return _cells(c)
 
 
@@ -426,7 +423,7 @@ def mcmeta():
 
 
 def textures():
-    T = {'kb_robe': _pearl(CREAM, CREAM_D, CREAM_L), 'kb_hood': _pearl(HOODC, HOODC_D, phase=0.37, scale=1.5, tints=HOOD_GOLDS, wash=(0.5, 0.25)), 'kb_gold': _gold(), 'kb_brd': _border(), 'kb_rim': _rim(),
+    T = {'kb_robe': _pearl(CREAM, CREAM_D, CREAM_L), 'kb_hood': _pearl(HOODC, HOODC_D, phase=0.37, scale=1.5), 'kb_gold': _gold(), 'kb_brd': _border(), 'kb_rim': _rim(),
          'kb_lining': _cells(lambda x, y: LINING_D if (x + y) % 6 == 0 else LINING), 'kb_bonds': _atlas(), 'kb_hand': _hand(), 'kb_light': _light(), 'kb_inner': _inner(),
          'kb_face': _face(), 'kb_eyes': _eyes()}
     for k in range(6):
@@ -595,7 +592,7 @@ def models():
         y = lambda v: round(v + HY, 4)
         TOP = y(33.0)
         h = [# the hollow: shadow (unlit, unshaded) a hand's depth in, and the eyes' lights just in front of it
-             dict(bx((-O, y(27.0), -2.62), (O, TOP, -2.6), 'kb_face', pv, faces=('north',), uv={'north': [0, 0, 6.5, 6.0]}), shade=False),
+             dict(bx((-O, y(27.0), -2.62), (O, TOP, -2.6), 'kb_face', pv, faces=('north',), uv={'north': [0, 0, 6.5, 6.0]}, light=L_FACE), shade=False),
              dict(bx((-O, y(27.0), -2.68), (O, TOP, -2.66), et, pv, faces=('north',), uv={'north': [0, 0, 6.5, 6.0]}, light=L_EYES), shade=False),
              # the hood: its sides round the hollow, the back, the cap over it, rounding to a low crown
              bx((O, y(26.4), F), (W, TOP, BK), 'kb_hood', pv, faces=_faces_but('down'), ftex={'west': lin}, light=L_CLOTH, shift=(0.5, 0.2)),
