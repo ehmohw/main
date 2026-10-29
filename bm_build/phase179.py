@@ -304,6 +304,8 @@ def generate(G):
         iid = e[3] if e else ('wilfrey_locket' if w == 'wil' else None)
         assert iid in ITEMS, (w, iid)
         PW.append((w, nm, col, host, tag, try_, home, iid))
+    # (3.0) every follower's summoning item at once - from the wheel's own list, so a new follower is in it the day it's added
+    G.fn('admin/follower_items', [G.give(e[7]) for e in PW])
     objs += [f'bm.pw{i}' for i in range(len(PW))]
     load[-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
