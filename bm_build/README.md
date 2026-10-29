@@ -21,6 +21,72 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.99: THE VORN ARMADA - the Vorn's hard-mode dungeon, and Admiral Vexis
+
+**Finding it (hard mode only).** Sabotage a Dreadnought's reactor and its vault gives up **the Hive-Star Coordinates**. Go to the End, out past the dragon's island, and use them.
+- The signal goes out and a **tractor beam** answers: you are lifted into the dark for seven seconds, the title reads *THE VORN ARMADA*, and you are set down on the Dock.
+- The Dock's beam-out pad (and the rifts deeper in) take you back to where you signalled from.
+
+**The fleet.** Seven ships circle **the Hive-Star**, a blazing sphere far out in the End's void. Get too close and it scorches you.
+- **Hard-light bridges** join the ships, and each one switches on only when its ship's trials are solved.
+- Fall into the void and a tractor beam drops you back where you last stood, with a hard hit. Nothing is lost.
+- Inside, survival players are put in **Adventure mode**, and they return to Survival when they leave.
+
+**Eighteen trials, ship by ship:**
+- **The Dock:** the gravity-lift levers (the manifest gives the pattern).
+- **The Brood-Carrier:** the specimen tanks' sequence, a bio-wave, the quarantine grid (lights-out), and **the Brood-Warden**.
+- **The Star-Forge:** rerouting the conduits, forge drones, feeding green, violet and cyan Xenite into its furnaces, and **the Forgemaster**.
+- **The Navigator:** shooting the star-chart's constellations in order, the zero-G crossing (one wrong plate shocks you), saucer squadrons, and **the Star-Seer**.
+- **The twin Dreadnoughts:** sabotage each reactor under fire by smashing its four conduits while troopers beam in, plus a wave of Vorn Guardians.
+- **The Flagship:** **the Command Lock** (drop the three Command Ciphers on their slots), then **the Gauntlet**, a corridor swept by sentry lasers.
+- Each guardian (the Abductor, the Warlord and the Overseer, renamed and much tougher) falls with a **Command Cipher**, a Star-Core and an Armada Key.
+
+**Hidden rooms.** Four open only for the followers who'd know the way:
+- **Zib's Lost Squad**, with Zib's Squad Jetpack: in your off hand, sneak in mid-air for a burst upward.
+- **The Specimen Kennel**, which Donado sniffs out. It holds Specimen 117's Collar: your followers get Speed and Resistance.
+- **The Mainframe Core**, which the Cursor hacks open. It holds the Hive Override Chip: every Vorn near you freezes.
+- **The Hull Garden**, reached by the Sky Buddies. It holds the Stardust Kite: a slow fall and night vision.
+
+Two more are classic secret rooms. Each room also gives a **Hive Sigil**, and six Sigils open **the Hive Vault** behind the helm once the Admiral has fallen.
+
+**THE BOSS: ADMIRAL VEXIS, Voice of the Hive.** This is the second-hardest fight in the game, after the Dread Sovereign. Each phase has its own entrance, title and music, and every player's view is held on Vexis while it plays.
+- **The coming (20 s):** the bulkhead seals and the bridge goes dark. The 12-block warframe kneeling at the helm lights up section by section, while the great window behind it floods with the star's red light. It stands, its missile pods open, and it roars.
+- **I. THE WARFRAME:**
+  - Its attacks: a plasma-cannon sweep (get a pylon between you and the cannon), missiles (step out of the red circles), a stomp shockwave (jump it) and drop-pods of troopers.
+  - **Four shield pylons** turn away most of every blow. Each one glows in turn; **strike it while it glows** and it overloads. With all four down, the frame is exposed.
+- **The turn (14 s):** the cockpit cracks and blows. Vexis climbs out of the wreck and rises into the air on gravity, leaving the empty shell kneeling on the deck.
+- **II. THE HIVE-LINK:**
+  - **Gravity wells** drag you in, then implode.
+  - **The improvement beam** slows, weakens and burns you while Vexis can see you. Break its line of sight.
+  - **Clones:** four of it, all firing. Strike the real one; a clone you hit bursts in your face.
+  - It also calls hive drones.
+- **The turn (15 s):** it turns to the window, reaches for the star, and the star's fire pours into it.
+- **III. STARFIRE:**
+  - **Star-flares** sweep in from the window. Shelter behind a pylon or the wreck.
+  - **The solar lance:** a thin red aim line, then a burning beam.
+  - **Gravity flips** throw you up and drop you, and the improvement beam is still in play.
+  - At a quarter of its health it **frenzies**, then tires: strike it.
+- **The fall, THE UNLINKING (30 s):** the hive screams its name and the implants burn out one by one. Then silence. It sinks to its knees and shrinks to what it was: *"...one. I am only one."*
+
+**What its fall changes:**
+- **The invasion nights end.** None is rolled, and the Fleet Beacon gets no answer.
+- The Armada drifts for three minutes, then re-forms, beaming out anyone still aboard.
+- **Bringing them back:** attack a Dreadnought again. Kill a guardian over your world, start a reactor sabotage, or break one of the Armada's twin reactors. *"The hive remembers this world."* The invasions return, and Vexis will rise again for whoever did it. Once you've felled it, it won't wake for you until then.
+- **Spoils:** a Victor's Key, Star-Cores, red Xenite, and one of its weapons:
+  - **the Starfire Lance:** a charged swing fires a bolt of starfire.
+  - **the Hive-Breaker:** double damage to the Vorn.
+  - **the Singularity Launcher:** its bolt becomes a small star that drags monsters together and crushes them.
+  - **the Admiral's Crown:** Vorn near you are slowed.
+- **The Starforged set**, the new top tier of alien gear, above the Warplate. At **the Starforge** aboard the Dock, hold a Warplate piece and carry 2 Star-Cores and 8 red Xenite. The full set gives hover-jets (a slow fall, and sneak in mid-air for a burst) and a star-shield that soaks a heavy blow once a minute.
+
+**VEXIS, THE UNLINKED: a follower (hard mode).** The first time you fell it, **the Severed Link** is yours. It comes with the full follower checklist:
+- **Its powers:** Hive-Grip, Plasma Bolt, Gravity Well, Deflector and Scout Drone. The Vorn near it hesitate, slowed and weakened.
+- **Everything every follower has:** its menu, sitting, a wardrobe (six mantles), a rare aura (Starlit Orbit), a shiny, the Partner Wheel, a frame trick, a display-case figurine and Cecil's doll.
+- **Duos** with Bender, Mr. Capshun, Henry and Nia, and *Old Enemies* with Zib.
+- **Its Warframe:** fell Admiral Vexis a second time and its menu gains **Warframe / Unlinked**. It then walks beside you in its full-size warframe, as vast as it stood against you.
+
+**Music:** the Armada has its own soundtrack: five exploration tiers that build ship by ship, its combat tracks, and Vexis's intro, three phases, two entrances and the unlinking. Its record drops the first time you fell it.
+
 ## New in 2.98c: the Last Light - the Divine One, the Maw, and the Sovereign again
 
 **The Divine One.** When the Dread Sovereign's last strength is spent, the dark breaks.

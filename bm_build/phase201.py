@@ -88,6 +88,7 @@ TRIB = {
     'lightbringer': [('minecraft:gold_ingot', 32), ('minecraft:glowstone_dust', 32), ('minecraft:golden_apple', 4), ('minecraft:totem_of_undying', 1), ('heartstone', 4)],
     'dryad': [('minecraft:red_mushroom', 32), ('minecraft:brown_mushroom', 32), ('minecraft:pale_moss_block', 16), ('minecraft:glow_berries', 16), ('heartstone', 2)],
     'sovereign': [('minecraft:crying_obsidian', 32), ('minecraft:iron_chain', 32), ('minecraft:netherite_scrap', 4), ('minecraft:ghast_tear', 8), ('heartstone', 4)],
+    'vexis': [('minecraft:end_rod', 32), ('minecraft:chorus_fruit', 32), ('minecraft:netherite_scrap', 4), ('minecraft:shulker_shell', 8), ('xenite_red', 12)],
     'henry': [('minecraft:cod', 32), ('minecraft:salmon', 32), ('minecraft:string', 32), ('minecraft:feather', 16), ('heartstone', 2)],
     'nia': [('minecraft:salmon', 32), ('minecraft:tropical_fish', 16), ('minecraft:string', 32), ('minecraft:white_wool', 16), ('heartstone', 2)],
     'rufus': [('token', 8), ('minecraft:gold_ingot', 16), ('minecraft:arrow', 64), ('minecraft:crossbow', 2), ('heartstone', 2)],

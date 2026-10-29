@@ -205,6 +205,9 @@ import phase237 as R237      # 2.98: the Undercrown - the final dungeon, hidden 
 import phase238 as R238      # 2.98: the Dread Sovereign - the final boss, its coming, its three forms, its fall (its themes register on import)
 import phase239 as R239      # 2.98: the Bound Sovereign - what's left of it, a follower (hard mode)
 import phase240 as R240      # 2.98a: the Undercrown's soundtrack - six tiers down to the throne, its fights, the page-turn swell
+import phase242 as R242      # 2.99: Admiral Vexis - the Armada's boss, its coming, its three forms, its unlinking (its themes register on import)
+import phase243 as R243      # 2.99: Vexis, the Unlinked - what's left of it, a follower (hard mode)
+import phase241 as R241      # 2.99: the Vorn Armada - the Vorn's hard-mode dungeon, a hive-fleet round a star in the End (its kinds of trial register on import)
 R233.add_pairs()             # 2.98: the Creative Forms
 R229.add_pairs()             # 2.97: the cats' pairs with everyone - after every follower is imported
 import atk                   # 2.94u: the attack kit - impact and hit-stop on every follower blow
@@ -1360,6 +1363,7 @@ def build(out_dir):
     if PHASE2: R235.generate_early(sys.modules[__name__])
     if PHASE2: R236.generate_early(sys.modules[__name__])
     if PHASE2: R239.generate_early(sys.modules[__name__])
+    if PHASE2: R243.generate_early(sys.modules[__name__])
     if PHASE2: R211.generate_early(sys.modules[__name__])
     if PHASE2: R213.generate_early(sys.modules[__name__])
     if PHASE2: R199.generate_early(sys.modules[__name__])
@@ -1426,6 +1430,7 @@ def build(out_dir):
     if PHASE2: R235.generate(sys.modules[__name__])      # 2.97: the Doodles (after the Glitched Cartridge: the Cursor comes out of one)
     if PHASE2: R236.generate(sys.modules[__name__])      # 2.97: the Lightbringer and the Pale Dryad
     if PHASE2: R239.generate(sys.modules[__name__])      # 2.98: the Bound Sovereign
+    if PHASE2: R243.generate(sys.modules[__name__])      # 2.99: Vexis, the Unlinked
     if PHASE2: R215.generate(sys.modules[__name__])
     if PHASE2: R216.generate(sys.modules[__name__])
     if PHASE2: R199.generate(sys.modules[__name__])
@@ -1477,6 +1482,8 @@ def build(out_dir):
     if PHASE2: R237.generate(sys.modules[__name__])      # 2.98: the Undercrown (after the Dread Nights: it ends them)
     if PHASE2: R238.generate(sys.modules[__name__])      # 2.98: the Dread Sovereign
     if PHASE2: R240.generate(sys.modules[__name__])      # 2.98a: the Undercrown's soundtrack (after the Sovereign: it reads its tags)
+    if PHASE2: R241.generate(sys.modules[__name__])      # 2.99: the Vorn Armada (after the invasions and the reactors: it hooks them)
+    if PHASE2: R242.generate(sys.modules[__name__])      # 2.99: Admiral Vexis (after the Armada: it reads its bridge)
     print('2.85c: the Rat Race - %d jobs, %d prizes in the draw' % R183.generate(sys.modules[__name__]))
     print('2.85d: %d new fight rooms, the rats\' calls, the Forge/Garden coin' % R184.generate(sys.modules[__name__]))
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))

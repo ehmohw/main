@@ -891,6 +891,8 @@ if __name__ == '__main__':
     phase235.rp(sys.modules[__name__]); phase236.rp(sys.modules[__name__])
     import undercrown_art, phase239          # (2.98: the Bound Sovereign - its Eye's icon is the Undercrown's)
     undercrown_art.rp(sys.modules[__name__]); phase239.rp(sys.modules[__name__])
+    import phase243                           # (2.99: Vexis, the Unlinked)
+    phase243.rp(sys.modules[__name__])
     import phase210, phase211, phase212       # (2.94: the effect sprites, the Sky Buddies, Dennis's searing throws)
     phase210.rp(sys.modules[__name__]); phase211.rp(sys.modules[__name__]); phase212.rp(sys.modules[__name__])
     import phase213, phase214, phase215       # (2.94: the 8-bit trio, the pixel costumes, the 8-Bit Serpent King)
@@ -960,6 +962,8 @@ if __name__ == '__main__':
         phase238.rp(sys.modules[__name__])
         import divine_art                         # (2.98c: the Divine One, at the Sovereign's fall)
         divine_art.rp(sys.modules[__name__])
+        import phase242                           # (2.99: Admiral Vexis's rig, at boss scale)
+        phase242.rp(sys.modules[__name__])
         import phase240                           # (2.98a: the Undercrown's soundtrack)
         phase240.rp(sys.modules[__name__])
     if PHASE2:

@@ -72,6 +72,7 @@ ABIL = {
     'lightbringer': ('Judgment', 'a pillar of light: 22 to one monster; you and your followers, Regeneration II', None, 22, 'glowing 5 0', ['regeneration 8 1'], 'minecraft:end_rod', 'minecraft:entity.lightning_bolt.impact'),
     'dryad': ('Overgrowth', 'the ground bursts into roots: 16 to monsters round her, held fast', (16, 7), 0, 'slowness 4 4', [], 'minecraft:spore_blossom_air', 'minecraft:block.rooted_dirt.break'),
     'sovereign': ('Unmaking', 'its eye opens: a beam - 24 to one monster, withering; you, Strength', None, 24, 'wither 4 1', ['strength 8 0'], 'minecraft:sculk_soul', 'minecraft:entity.warden.sonic_boom'),
+    'vexis': ('Starfall', 'it reaches for a star: a lance of starfire - 24 to one monster, burning; you, Slow Falling and Speed', None, 24, 'slowness 4 2', ['slow_falling 8 0', 'speed 8 1'], 'minecraft:flame', 'minecraft:item.trident.thunder'),
     'henry': ('Black Cat Crossing', 'he crosses its path: 22 to one monster, and it\'s cursed (slowed, weakened); you, Luck II', None, 22, 'weakness 4 1', ['luck 20 1'], 'minecraft:squid_ink', 'minecraft:entity.cat.hiss'),
     'nia': ('Bell of the Brave', 'her bell rings out: 16 to monsters round her; you and your followers, Regeneration II', (16, 6), 0, 'glowing 3 0', ['regeneration 8 1'], 'minecraft:end_rod', 'minecraft:block.bell.use'),
     'rufus': ('Bounty Collected', 'a bounty collected: 22 to one monster, pinned; you, Luck II', None, 22, 'slowness 3 4', ['luck 20 1'], 'minecraft:crit', 'minecraft:item.crossbow.shoot'),

@@ -103,6 +103,8 @@ B = {
               ('Moss Nap', (('regeneration', 1),), '"She can nap in my moss! It\'s the softest moss."', '(Nia kneads the moss, and falls asleep in a ring of glowing mushrooms)')),
     'sovereign': (('Two Shadows', (('night_vision', 0), ('strength', 0)), '"...a small dark thing that does not fear me. Sit, then."', '(Henry sits on its sabaton. It does not move for an hour.)'),
                   ('Warm Iron', (('regeneration', 1),), '"She is... purring. At me. Why?"', '(Nia curls up in the crook of its gauntlet, and it holds very, very still)')),
+    'vexis': (('Two Hunters', (('night_vision', 0), ('speed', 0)), '"He hunts the small things, as I hunted worlds. His is the better hunt."', '(Henry bats at its gravity ring. The ring, very gently, bats back.)'),
+              ('Orbit', (('regeneration', 1),), '"She is orbiting me. I have never been orbited."', '(Nia curls up inside its gravity ring, and it floats her an inch off the ground, purring)')),
 }
 # (2.96c) Nia is the gentle one - a support follower: her side of every pair looks after you. Each keeps Regeneration, and
 # nothing of hers makes you hit harder (Strength becomes Resistance; Haste, Absorption)
