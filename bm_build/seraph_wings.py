@@ -309,7 +309,7 @@ def xforms(pz, art=None):
     out = {}
     for p in art.PARTS:
         q, t = xf[p]; dp = D(art.PIVOT[p])
-        k = art.model_k(art.model_of(p, pz)) * art.S
+        k = art.model_k(art.model_of(p, pz)) * art.S * pz.get('_k_' + p, 1.0)        # (a pose's '_k_<part>': that display swollen or shrunk)
         out[p] = (q, tuple((dp[i] + t[i]) * art.U for i in range(3)), k)
     return out
 
@@ -337,11 +337,14 @@ STATES = {1: ('rest', 'rest_a', 5, False, (40, 'rest_a', 'rest_b')),
 def sets():
     """THE WING SETS: {name: worn (the execute conditions on the wearer's chest slot), art (the module with the parts, pivots,
     poses and models), states}. A player wears one chest piece, so one set at a time."""
-    import dread_wings
+    import dread_wings, sov_wings
     return {'seraph': dict(worn=[f'if items entity @s armor.chest {CARAPACE}', f'if items entity @s armor.chest {ANGEL}'],
                            art=sys.modules[__name__], states=STATES),
             'dread': dict(worn=[f'if items entity @s armor.chest {CARAPACE}', f'unless items entity @s armor.chest {ANGEL}'],
-                          art=dread_wings, states=dread_wings.STATES)}
+                          art=dread_wings, states=dread_wings.STATES),
+            # (the Dread Sovereign's spoils, phase238: the Last Night and the First Light - sov_wings.py)
+            'sovn': dict(worn=['if items entity @s armor.chest *[minecraft:custom_data~{bm:"sov_wings"}]'], art=sov_wings.NIGHT, states=sov_wings.NIGHT.STATES),
+            'sovl': dict(worn=['if items entity @s armor.chest *[minecraft:custom_data~{bm:"sov_wings_holy"}]'], art=sov_wings.LIGHT, states=sov_wings.LIGHT.STATES)}
 
 
 GLIDE_STATE = 3
@@ -482,3 +485,6 @@ def rp(R):
     for name, (tex, els) in models().items():
         R.HATS[name] = (tex, els)
     R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + (PREFIX,)
+    if getattr(R, 'PHASE2', True):                          # (the Sovereign's wings: phase 2's, on its and the Divine One's textures)
+        import sov_wings
+        sov_wings.rp(R)

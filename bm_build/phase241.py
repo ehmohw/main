@@ -97,11 +97,12 @@ def _xsock(G, d_, n, c):
     off = []
     for key, iid in want.items():
         off.append(f'execute if entity @s[tag=bm.sk_{key}] as @e[type=minecraft:item,distance=..1.6] if items entity @s contents {holds(iid)} at @s run function bm:p2/{d}/pz{n}_take_{key}')
-        fn(f'p2/{d}/pz{n}_take_{key}', ['item modify entity @s contents {"function":"minecraft:set_count","count":-1,"add":true}',
+        fn(f'p2/{d}/pz{n}_take_{key}', ['item modify entity @s contents bm:p241/take_one',
                                         'execute if items entity @s contents minecraft:air run kill @s',
                                         f'execute as {el_sel(d, n, "sock", 3, f",tag=bm.sk_{key},sort=nearest,limit=1")} at @s run function bm:p241/sock/set_{iid}',
                                         f'execute as {c["ctrl"]} at @s run function bm:p2/{d}/pz{n}_tally'])
     fn(f'p2/{d}/pz{n}_offer', off)
+    G.wjson('bm/item_modifier/p241/take_one.json', {'function': 'minecraft:set_count', 'count': -1, 'add': True})
     what = 'Cipher' if n == 17 else 'Xenite'
     where = 'The Command Lock takes the Cipher: ' if n == 17 else 'The furnace takes the Xenite: '
     fn(f'p2/{d}/pz{n}_tally', [f'execute store result score #h bm.rng if entity {el_sel(d, n, "sock", R, ",tag=bm.got")}',
@@ -535,7 +536,7 @@ def generate(G):
     fn('p241/bench/spawn', ['tag @s add bm.aon', 'summon minecraft:interaction ~ ~-0.5 ~ {Tags:["bm.abench_i"],width:1.2f,height:1.4f,response:1b}',
                             'summon minecraft:text_display ~ ~0.9 ~ ' + snbt({'Tags': ['bm.amapd'], 'billboard': 'center', 'text': [T('THE STARFORGE\n', STAR, bold=True),
                                                                                                                                   T('hold a Warplate piece, carry 2 Star-Cores\nand 8 red Xenite - and right-click', 'gray')],
-                                                                         'background': Int(0x60000000 - (1 << 32)), 'brightness': {'block': Int(15), 'sky': Int(15)}})])
+                                                                         'background': Int(0x60000000), 'brightness': {'block': Int(15), 'sky': Int(15)}})])
     second.append('execute as @e[type=minecraft:marker,tag=bm.abench,tag=!bm.aon] at @s run function bm:p241/bench/spawn')
     fn('p241/bench/click', ['tag @s add bm.ahere', 'execute on target run function bm:p241/bench/use', 'tag @s remove bm.ahere', 'data remove entity @s interaction'])
     fast.append('execute as @e[type=minecraft:interaction,tag=bm.abench_i] if data entity @s interaction at @s run function bm:p241/bench/click')
