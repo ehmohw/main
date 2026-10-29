@@ -84,8 +84,8 @@ const HB = (n) => 54 + n;                                  // (a 9x3 container w
       A.close(w.windowId); await sleep(400);
     }
     ok(`...bought in his window: a backpack in the pack, the ${price} ${buyId}s gone`, (await has('backpack')) === 1 && (await has(buyId)) === 0);
-    ok('...an empty bag that holds one to a slot (stack size 1, its own empty container)',
-       /max_stack_size": 1|max_stack_size":1/.test(await nbt(O, 'TestRat', `Inventory[${BP}].components`)) && /^\[\]$/.test((await nbt(O, 'TestRat', `Inventory[${BP}].components."minecraft:container"`)).trim()),
+    ok('...an empty bag that holds one to a slot (a totem at heart: stack size 1; its own empty container)',
+       !/max_stack_size": ?([2-9]|\d\d)/.test(await nbt(O, 'TestRat', `Inventory[${BP}].components`)) && /totem_of_undying/.test(await nbt(O, 'TestRat', `Inventory[${BP}].id`)) && /^\[\]$/.test((await nbt(O, 'TestRat', `Inventory[${BP}].components."minecraft:container"`)).trim()),
        (await nbt(O, 'TestRat', `Inventory[${BP}].components."minecraft:container"`)).slice(0, 80));
     // (the one bought: into hotbar slot 0 for what follows)
     const slot = +(((await nbt(O, 'TestRat', `Inventory[${BP}].Slot`)).match(/(-?\d+)/) || [0, -1])[1]);
@@ -205,8 +205,12 @@ const HB = (n) => 54 + n;                                  // (a 9x3 container w
       ok('a dungeon block set over its barrel: it folds back with all it held (torches and cobblestone)',
          await wait(3000, async () => /backpack/.test(await nbt(O, 'TestRat', 'Inventory[{Slot:0b}]')) && /torch/.test(await load(0)) && /cobblestone/.test(await load(0))), (await load(0)).slice(0, 200));
       ok('...the dungeon\'s block left as it set it', await passes(`${N}execute if block ${DB[0]} ${DB[1]} ${DB[2]} minecraft:polished_blackstone_bricks`));
-      ok('...and nothing spilled or doubled on the ground', (await cnt(N, `@e[type=minecraft:item,x=${DB[0]},y=${DB[1]},z=${DB[2]},distance=..6]`)) === 0 &&
-         !/cobblestone/.test(await nbt(O, 'TestRat', 'Inventory[{id:"minecraft:cobblestone"}]')));
+      const spilt = async () => (await cnt(N, `@e[type=minecraft:item,x=${DB[0]},y=${DB[1]},z=${DB[2]},distance=..6,nbt={Item:{id:"minecraft:cobblestone"}}]`)) +
+        (await cnt(N, `@e[type=minecraft:item,x=${DB[0]},y=${DB[1]},z=${DB[2]},distance=..6,nbt={Item:{id:"minecraft:torch"}}]`)) +
+        (await cnt(N, `@e[type=minecraft:item,x=${DB[0]},y=${DB[1]},z=${DB[2]},distance=..6,nbt={Item:{id:"minecraft:totem_of_undying"}}]`));      // (the bag's own things - not a root the stage knocked loose)
+      ok('...and nothing spilled or doubled on the ground', (await spilt()) === 0 &&
+         /Found no elements/i.test(await nbt(O, 'TestRat', 'Inventory[{id:"minecraft:cobblestone"}]')),
+         'bag items ' + (await spilt()) + ' ground ' + (await cnt(N, `@e[type=minecraft:item,x=${DB[0]},y=${DB[1]},z=${DB[2]},distance=..6]`)) + ' / ' + (await run(`${N}execute as @e[type=minecraft:item,x=${DB[0]},y=${DB[1]},z=${DB[2]},distance=..6] run data get entity @s Item.id`)).slice(0, 160) + ' / inv ' + (await nbt(O, 'TestRat', 'Inventory[{id:"minecraft:cobblestone"}]')).slice(0, 80));
       await run(`${N}clone ${cp.join(' ')} ${cp[0] + 4} ${cp[1] + 3} ${cp[2] + 4} ${lo.join(' ')}`);       // (the stage put back, and the copy cleared)
       await run(`${N}fill ${cp.join(' ')} ${cp[0] + 4} ${cp[1] + 3} ${cp[2] + 4} minecraft:air`);
     }

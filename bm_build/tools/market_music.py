@@ -880,22 +880,22 @@ def v_lucky(tr):
     for bar in range(BARS):
         sec = SECTION[bar]
         if sec != 'vamp':
-            for b in (1, 3): tr.add(tamb(0.16), tr.at(bar, b), 0.5, 1, 0.25)
-            if sec in ('A3', 'tag'): tr.add(tamb(0.1), tr.at(bar, 3.5), 0.5, 1, 0.25)
+            for b in (1, 3): tr.add(tamb(0.28), tr.at(bar, b), 0.5, 1, 0.25)
+            if sec in ('A3', 'tag'): tr.add(tamb(0.18), tr.at(bar, 3.5), 0.5, 1, 0.25)
     for bar in (2, 10, 18, 26, 34): tr.add(triangle(0.22), tr.at(bar, 0), 0.6, 1, 0.4)
     H, HE, AN, BR, SH = (brighten(x) for x in (HOOK, HOOK_END, ANSWER, BRIDGE, SHOUT))
     play(tr, 2, H, trumpet, 0.15, 0.75, 0.32)
     play(tr, 2, H, glock, 0.5, 0.11, 0.45, k=12)
-    play(tr, 10, H, trumpet, 0.15, 0.62, 0.32, muted=False, scoop=0.3)
+    play(tr, 10, H, trumpet, 0.15, 0.7, 0.32, muted=False, scoop=0.3)
     play(tr, 10, AN, clarinet, -0.3, 0.55, 0.38)
     play(tr, 18, BR, clarinet, -0.15, 0.62, 0.36)
     for bar in range(18, 26):
         r, kind = chord_at(bar, 0)
         tr.add(chime(r + 36 + VOICE[kind][1] % 12, 3.0, 0.16), tr.at(bar, 0), 0.4, 1, 0.5)
-    play(tr, 26, HE, trumpet, 0.15, 0.68, 0.32, muted=False, scoop=0.3)
+    play(tr, 26, HE, trumpet, 0.15, 0.76, 0.32, muted=False, scoop=0.3)
     play(tr, 26, HE, clarinet, -0.25, 0.42, 0.32, k=-12, scoop=0.0)
     play(tr, 26, HE, glock, 0.5, 0.09, 0.45, k=12)
-    play(tr, 34, SH, trumpet, 0.18, 0.68, 0.3, muted=False, scoop=0.3)
+    play(tr, 34, SH, trumpet, 0.18, 0.76, 0.3, muted=False, scoop=0.3)
     play(tr, 34, SH, clarinet, -0.25, 0.4, 0.3, k=-12, scoop=0.0)
     p_stabs(tr)
     p_vibes(tr, glock, 0.9)
@@ -917,7 +917,7 @@ def v_blood(tr):
         if sec == 'tag' and bar == 36: roots = [m('G1')]
         for x in roots:
             for o in (0, 12, 19):
-                tr.add(bowed(x + o, 8 * BEAT + 0.4, 0.13 if o else 0.16, 0.3, trem=(8 if sec == 'tag' else 0), voices=3, attack=0.6), tr.at(bar, 0), -0.2 + 0.2 * (o > 0), 1, 0.4)
+                tr.add(bowed(x + o, 8 * BEAT + 0.4, 0.09 if o else 0.11, 0.3, trem=(8 if sec == 'tag' else 0), voices=3, attack=0.6), tr.at(bar, 0), -0.2 + 0.2 * (o > 0), 1, 0.4)
     for bar in range(BARS):                                                              # (the organ: the chords, whole bars, from the bridge)
         if SECTION[bar] not in ('B', 'A3', 'tag'): continue
         for b0, root, kind in CHART[bar]:
@@ -932,7 +932,7 @@ def v_blood(tr):
         lvl = {'vamp': 0.8, 'A1': 0.85, 'A2': 0.95, 'B': 0.85, 'A3': 1.05, 'tag': 1.15}[sec]
         for b in ((0,) if sec == 'vamp' else (0, 2)): tr.add(boom(0.42 * lvl), tr.at(bar, b), 0, 1, 0.1)
         if sec != 'vamp':
-            for b in (1, 3): tr.add(rimshot(0.17 * lvl), tr.at(bar, b), 0.1, 1, 0.3)
+            for b in (1, 3): tr.add(rimshot(0.3 * lvl), tr.at(bar, b), 0.1, 1, 0.3)
             tr.add(tom('A2', 0.3 * lvl), tr.at(bar, 3.5), -0.25, 1, 0.3)
             for b in (0, 1, 1.5, 2, 3, 3.5):
                 a = 0.12 if b % 1 else 0.15
@@ -945,8 +945,8 @@ def v_blood(tr):
             for i, b in enumerate((2, 2.333, 2.667, 3, 3.333, 3.667)): tr.add(tom(('D3', 'C3', 'A2', 'G2', 'E2', 'C2')[i], 0.3 + 0.04 * i), tr.at(bar, b), -0.3 + 0.12 * i, 1, 0.3)
     for bar in (0, 18, 26, 34): tr.add(chime('C3', 5.0, 0.3), tr.at(bar, 0), -0.4, 1, 0.55)
     # the lead: the hook growled; a bass clarinet answering; the bridge on the low strings (a cello's line) and the clarinet
-    play(tr, 2, HOOK, growl, 0.15, 0.7, 0.32)
-    play(tr, 10, HOOK, growl, 0.15, 0.7, 0.32)
+    play(tr, 2, HOOK, growl, 0.15, 0.8, 0.32)
+    play(tr, 10, HOOK, growl, 0.15, 0.8, 0.32)
     play(tr, 10, ANSWER, clarinet, -0.3, 0.6, 0.38, k=-12)
     play(tr, 18, BRIDGE, bowed, -0.2, 0.42, 0.36, k=-12, voices=1, vib=0.18, bright=0.6, attack=0.06)
     play(tr, 18, BRIDGE, clarinet, 0.2, 0.3, 0.36)
@@ -969,7 +969,7 @@ def v_invasion(tr):
             iv = KINDS[kind]
             x = r + [0, 12, iv[2], 12, 0, iv[3] if len(iv) > 3 else 10, iv[2], 12][i]
             if sec == 'vamp' and i % 2: continue
-            tr.add(synbass(x, BEAT * 0.42, 0.42 if i % 2 == 0 else 0.32, bright=0.5 if i % 4 == 0 else 0.3, cut=1500 + 500 * (sec in ('A3', 'tag'))),
+            tr.add(synbass(x, BEAT * 0.42, 0.24 if i % 2 == 0 else 0.18, bright=0.5 if i % 4 == 0 else 0.3, cut=1500 + 500 * (sec in ('A3', 'tag'))),
                    tr.at(bar, b), -0.05, 1, 0.06)
     def stabs_ch(vs, d, g): return stab(vs, d, g)
     p_rhodes(tr, inst=stabs_ch, gain=0.3, pan=-0.3, wet=0.3)
@@ -977,11 +977,11 @@ def v_invasion(tr):
     for bar in range(BARS):
         sec = SECTION[bar]
         lvl = {'vamp': 0.8, 'A1': 0.85, 'A2': 0.95, 'B': 0.85, 'A3': 1.05, 'tag': 1.1}[sec]
-        for b in ((0, 2) if sec == 'vamp' else range(4)): tr.add(kick909(0.5 * lvl), tr.at(bar, b), 0, 1, 0.05)
-        for b in (1, 3): tr.add(clap(0.22 * lvl), tr.at(bar, b), 0.1, 1, 0.3)
+        for b in ((0, 2) if sec == 'vamp' else range(4)): tr.add(kick909(0.4 * lvl), tr.at(bar, b), 0, 1, 0.05)
+        for b in (1, 3): tr.add(clap(0.35 * lvl), tr.at(bar, b), 0.1, 1, 0.3)
         for i in range(8):
             if sec == 'vamp' and i % 2 == 0: continue
-            tr.add(hat(0.09 * lvl * (1.3 if i % 2 else 0.8)), tr.at(bar, i / 2), 0.35, 1, 0.15)
+            tr.add(hat(0.16 * lvl * (1.3 if i % 2 else 0.8)), tr.at(bar, i / 2), 0.35, 1, 0.15)
         if bar % 2 and sec != 'vamp': tr.add(hat(0.08 * lvl, True), tr.at(bar, 3.5), 0.35, 1, 0.2)
         if sec in ('A3', 'tag'):
             for b in (0, 1, 1.5, 2, 3, 3.5): tr.add(ride(0.12 if b % 1 else 0.15), tr.at(bar, b), 0.4, 1, 0.22)
@@ -990,17 +990,17 @@ def v_invasion(tr):
         if bar in (2, 18, 26, 34): tr.add(crash(0.13), tr.at(bar, 0), -0.3, 1, 0.35)
     # the alarms: a two-tone buzzer into the hook, the bridge and the shout; laser zaps in the vamps
     for bar, beats in ((1, 2), (17, 2), (33, 2), (37, 2)):
-        tr.add(siren(beats * BEAT, 0.12), tr.at(bar, 4 - beats), 0.3, 1, 0.35)
+        tr.add(siren(beats * BEAT, 0.2), tr.at(bar, 4 - beats), 0.3, 1, 0.35)
     for bar in (0, 1, 38, 39):
         for b in (1.5, 3.5): tr.add(zap(0.08, f0=G.uniform(2500, 4000)), tr.at(bar, b), G.uniform(-.6, .6), 1, 0.4)
     # the lead: the hook on the pulse; the theremin answers and takes the bridge
-    play(tr, 2, HOOK, pulse, 0.15, 0.55, 0.3)
-    play(tr, 10, HOOK, pulse, 0.15, 0.55, 0.3)
+    play(tr, 2, HOOK, pulse, 0.15, 0.75, 0.3)
+    play(tr, 10, HOOK, pulse, 0.15, 0.75, 0.3)
     glide(tr, 10, ANSWER, -0.3, 0.5, 0.4, k=0, vib=0.3)
     glide(tr, 18, BRIDGE, -0.15, 0.62, 0.38, vib=0.35, wobble=0.08)
-    play(tr, 26, HOOK_END, pulse, 0.15, 0.55, 0.3)
+    play(tr, 26, HOOK_END, pulse, 0.15, 0.75, 0.3)
     play(tr, 26, HOOK_END, pulse, -0.2, 0.22, 0.32, k=12, duty=0.5)
-    play(tr, 34, SHOUT, pulse, 0.18, 0.55, 0.3)
+    play(tr, 34, SHOUT, pulse, 0.18, 0.75, 0.3)
     play(tr, 34, SHOUT, trumpet, -0.25, 0.4, 0.3, k=-12, muted=False, scoop=0.0)
     p_stabs(tr)
     for bar in range(18, 26):                                                            # (the bridge: the ship's computer, chattering)
@@ -1026,7 +1026,7 @@ def v_dread(tr):
             for b in (1, 3): tr.add(chick(0.18), tr.at(bar, b), 0.3, 1, 0.15)
             if sec in ('A3', 'tag'): tr.add(boom(0.25), tr.at(bar, 0), 0, 1, 0.1)
         if sec in ('vamp', 'B'):
-            for b in range(4): tr.add(tick(0.08 if b % 2 else 0.1, 1900 if b % 2 else 1500), tr.at(bar, b), 0.5 * (-1) ** b, 1, 0.3)
+            for b in range(4): tr.add(tick(0.16 if b % 2 else 0.2, 1900 if b % 2 else 1500), tr.at(bar, b), 0.5 * (-1) ** b, 1, 0.3)
     for bar in (18, 34): tr.add(rumble(4.0, 0.5), tr.at(bar, 0), 0, 1, 0.2)
     # the lead: the hook on a music box, an octave up; a violin's answers, and a second a tritone off; the bridge on the violin
     play(tr, 2, HOOK, musicbox, 0.2, 0.36, 0.45, k=12)
