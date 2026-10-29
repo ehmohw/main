@@ -1,4 +1,4 @@
-"""The Keeper of Bonds' preview sheets (rigkit).  python3 tools/preview/keeper.py [lineup,poses,faces,items,doll,sanctuary,clip,fit,looks,shimmer,zfight]
+"""The Keeper of Bonds' preview sheets (rigkit).  python3 tools/preview/keeper.py [lineup,poses,faces,items,doll,sanctuary,clip,fit,looks,shimmer,zfight,hooddown,hdclip]
 Writes to $BM_PREVIEW_DIR (default: previews/v300_keeper). The dark tile: tools/render has no light, so each face is tinted after
 the scene is built - unlit faces dimmed to night, faces of elements with light_emission kept bright in proportion to their level
 (as tools/preview/pale_dryad.py does it). 'clip' prints, per pose, every pair of parts whose boxes cut into each other beyond
@@ -17,6 +17,7 @@ from tools import render as R
 OUT = os.environ['BM_PREVIEW_DIR']; os.makedirs(OUT, exist_ok=True)
 SCRATCH = os.environ.get('BM_SCRATCH', '/tmp/bm_previews')
 what = sys.argv[1].split(',') if len(sys.argv) > 1 else ['lineup', 'poses', 'faces', 'items', 'doll', 'sanctuary', 'clip']
+HD_OUT = os.environ.get('BM_HD_DIR', os.path.join(os.environ['BM_PREVIEW_DIR'], 'hooddown'))    # (3.0d: 'hooddown', 'hdclip' - its costume)
 ROOT = K.pack(A, f'{SCRATCH}/rp_kb')
 FRAME = [0]                                  # (the animation frame the strips render at)
 
@@ -145,10 +146,10 @@ MEET = {frozenset(p) for p in [('body', 'head'), ('body', 'armr'), ('body', 'arm
 FREE = ('motes', 'motesb', 'web')            # (the orbit and the web pass through and round it: light, not cloth)
 
 
-def clip_report(names, tol=0.2):
+def clip_report(names, tol=0.2, hd=False):
     lines, U = [], A.RIG_SCALE / 16
     for n in names:
-        pose = A.POSES[n]; bx = boxes(pose); hits = {}
+        pose = dict(A.POSES[n], _h=True) if hd else A.POSES[n]; bx = boxes(pose); hits = {}
         for (pa, ca, ea), (pb, cb, eb) in itertools.combinations(bx, 2):
             if pa == pb or frozenset((pa, pb)) in MEET: continue
             if (pa in FREE or pb in FREE) and not ({pa, pb} & {'motes', 'motesb'} and (pa.startswith('wing') or pb.startswith('wing'))): continue
@@ -479,3 +480,68 @@ if 'looks' in what:
             (ntiles if night else tiles).append(dark_label(darken(im), name, 'at night') if night else K.label(im, name, f'look {k}' if k else 'no look'))
     FRAME[0] = 0
     K.sheet(tiles + ntiles, OUT + '/keeper_looks.png', cols=len(tiles), title="The Keeper of Bonds - its wardrobe (phase138's recolours of the animated pearl: kb_robe, kb_hood), by day and by night")
+
+# ---------------------------------------------------------------------------------------------------- (3.0d) Sunlit: the hood down
+HD = lambda pose: dict(pose, _h=True)
+if 'hdclip' in what:
+    names = [n for n in A.POSES if not n.startswith('swim_') or n in ('swim_0', 'swim_2', 'swim_4', 'swim_6')]
+    txt = '\n'.join(clip_report(names, hd=True))
+    open(f'{SCRATCH}/keeper_hd_clip.txt', 'w').write(txt + '\n'); print(txt)
+if 'hooddown' in what:
+    os.makedirs(HD_OUT, exist_ok=True)
+    H = HD(I)
+    tiles = []
+    for v, l in (('front', 'front'), ((-38, 10), 'three-quarter'), ('back', 'back'), ('side', 'side')):
+        s = K.multi_scene(ROOT); rigkit.render(s, A, H, scale=A.RIG_SCALE); K.person(s, (1.15, 0, 0.1))
+        tiles.append(K.label(s.render(v, size=440, span=3.3, center=(0.5, 1.3, 0)), l, 'Sunlit, beside a player (1.8)'))
+    K.sheet(tiles, HD_OUT + '/hd_lineup.png', cols=4, title='The Keeper of Bonds - Sunlit (its hood down): front, three-quarter, back, side')
+    t2 = []
+    for v, l, sub in (('front', 'the head, close', 'the same face - pearl hair, the sunburst behind'), ((-40, 8), 'three-quarter, close', 'combed back tight'),
+                      ((150, 10), 'from behind, close', 'the ponytail in its gold band; the cowl'), ('side', 'side, close', 'the high ponytail, the rays behind')):
+        s = K.multi_scene(ROOT); rigkit.render(s, A, H, scale=A.RIG_SCALE)
+        t2.append(K.label(s.render(v, size=440, span=1.35, center=(0, 1.72, 0.1)), l, sub))
+    K.sheet(t2, HD_OUT + '/hd_details.png', cols=4, title='The Keeper of Bonds - Sunlit, close')
+    tiles = []
+    for f in (None,) + A.FACES:
+        pose = {k: v for k, v in dict(H, _face=f, head=rigkit.I).items() if v is not None}
+        tiles.append(tile(pose, 'front', span=1.0, center=(0, 1.75, 0), size=240, label=f or 'calm (default)', sub='Sunlit'))
+    for f in (None,) + A.FACES:
+        pose = {k: v for k, v in dict(I, _face=f, head=rigkit.I).items() if v is not None}
+        tiles.append(tile(pose, 'front', span=0.8, center=(0, 1.8, 0), size=240, label=f or 'calm (default)', sub='hooded'))
+    K.sheet(tiles, HD_OUT + '/hd_faces.png', cols=8, title='The Keeper of Bonds - every face, Sunlit (top) and hooded (bottom) - one shine, the same side of both eyes')
+    tiles = []
+    for pz, v, l in ((I, (-30, 14), 'idle'), (A.POSES['idle_b'], (-30, 14), 'idle_b'), (A.POSES['weave'], (-20, 18), 'the weave'), (I, 'back', 'from behind')):
+        s = night_scene(); rigkit.render(s, A, HD(pz), scale=A.RIG_SCALE); K.person(s, (1.15, 0, 0.1))
+        tiles.append(dark_label(darken(s.render(v, size=440, span=3.3, center=(0.5, 1.4, 0))), f'Sunlit at night: {l}', 'the rays and the face aglow'))
+    K.sheet(tiles, HD_OUT + '/hd_night.png', cols=4, title='The Keeper of Bonds - Sunlit by night')
+    tiles = []
+    for v in ('front', (-38, 10), 'back'):
+        for pz, l in ((I, 'hooded (default)'), (H, 'Sunlit (hood down)')):
+            s = K.multi_scene(ROOT); rigkit.render(s, A, pz, scale=A.RIG_SCALE)
+            tiles.append(K.label(s.render(v, size=360, span=2.9, center=(0, 1.3, 0)), l, v if isinstance(v, str) else 'three-quarter'))
+    K.sheet(tiles, HD_OUT + '/hd_before_after.png', cols=6, title='The Keeper of Bonds - before / after: hooded and Sunlit')
+    names = A.DRAFT
+    K.sheet([tile(HD(A.POSES[n]), (-60, 20) if n.startswith('swim') else (150, 12) if n in ('happy', 'weave', 'sit_a', 'tug') else (-32, 10), label=n,
+                  sub='from behind' if n in ('happy', 'weave', 'sit_a', 'tug') else None) for n in names], HD_OUT + '/hd_poses.png', cols=7,
+            title='The Keeper of Bonds - Sunlit, every pose (some from behind: the rays and ponytail by the wings)')
+if 'hdlooks' in what:
+    os.makedirs(HD_OUT, exist_ok=True)
+    import phase99 as P99, gild
+    base = A.textures()
+    looks = [(0, 'its own pearl', None)] + [(k, n, pal) for k, (n, pal) in P99.NEW['keeper'][3].items()]
+    tiles, ntiles = [], []
+    for k, name, pal in looks:
+        root = ROOT
+        if pal is not None:
+            root = K.pack(A, f'{SCRATCH}/rp_kb_look')
+            if gild.is_gilded('keeper', k): ims = {n: gild.dress('keeper', k, base[n]) for n in A.LOOK_TEX}
+            else: ims = P99._recolour({n: base[n] for n in A.LOOK_TEX}, pal)
+            for n, im in ims.items(): im.save(f'{root}/assets/bm/textures/block/{n}.png')
+        for night in (False, True):
+            FRAME[0] = 6
+            s = night_scene(root) if night else K.multi_scene(root)
+            rigkit.render(s, A, HD(I), scale=A.RIG_SCALE)
+            im = s.render((-30, 10), size=300, span=2.9, center=(0, 1.35, 0))
+            (ntiles if night else tiles).append(dark_label(darken(im), name, 'at night') if night else K.label(im, name, f'look {k}' if k else 'no look'))
+    FRAME[0] = 0
+    K.sheet(tiles + ntiles, HD_OUT + '/hd_looks.png', cols=len(tiles), title="The Keeper of Bonds - Sunlit in every look (the hair recoloured with the cloth: phase138), by day and by night")

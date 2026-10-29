@@ -172,6 +172,9 @@ HOME = {'emma': 'p98/home/emma', 'celi': 'p98/home/celi', 'zib': 'p98/home/zib',
         'pearl': 'p138/home/pearl', 'wil': 'p138/home/wil', 'fishy': 'p145/home',
         'dennis': 'p163/dw/home', 'pistachio': 'p163/pi/home', 'omega': 'p170/home', 'ashur': 'p185/home', 'chef': 'p186/home', 'neighbor': 'p187/home', 'ava': 'p189/home', 'pearlq': 'p190/home', 'bloo': 'p191/home', 'stalker': 'p193/home', 'lantern': 'p194/home', 'bender': 'p195/home', 'bones': 'p196/home', 'capshun': 'p198/home', 'kettle': 'p227/home', 'rufus': 'p228/home', 'henry': 'p229/home', 'nia': 'p230/home', 'gem': 'p231/home', 'batty': 'p232b/home', 'eggbert': 'p232e/home', 'count': 'p232c/home', 'dragon': 'p235d/home', 'eraser': 'p235e/home', 'cursor': 'p235c/home', 'inkblot': 'p235i/home', 'speech': 'p235b/home', 'lightbringer': 'p236l/home', 'dryad': 'p236p/home', 'sovereign': 'p239/home', 'vexis': 'p243/home', 'mireling': 'p252/home', 'keeper': 'p254/home', 'pxcecil': 'p213c/home', 'pxleo': 'p213l/home', 'pxemma': 'p213e/home', 'sky': 'p211/home'}
 P28.MENU.update({f'wd_{w}': b for w, b in BASE.items()})
+# (3.0) more rows for a follower's wardrobe - a costume that changes their model (rigpet's FORM_WARDROBE: the Keeper of Bonds'
+# hood down): who -> [(code, key, label, colour, tooltip, [(condition as you, state, colour)] - the first unconditional, function)]
+ROWS = {}
 
 
 def _lum(p):
@@ -435,6 +438,12 @@ def generate(G):
                      f'execute if entity @s[tag=bm.emkw_u,tag=bm.emkw_o] run {st("kw", "on", "#7ae63a")}']
             btns.append(P28.btn([T('KillerWatt look', '#7ae63a', bold=True), T('  '), '@@RAW:r_kw@@'], TOP[who] - 2, width=150,
                                 tooltip=T('Emma, marked glassy green by a possession she threw off - his colours, his tendrils. A secret: how do you get it?', 'gray')))
+        for code, key, label, col_, tip, states, _f in ROWS.get(who, ()):
+            taken = used | ({TOP[who] - 1} if who in P214.KEYS else set()) | ({TOP[who] - 2} if who == 'emma' else set())
+            assert BASE[who] < code < TOP[who] and code not in taken, (who, code)
+            used.add(code)
+            page += [(f'execute if {c} run ' if c else '') + st(key, txt, c2) for c, txt, c2 in states]
+            btns.append(P28.btn([T(label, col_, bold=True), T('  '), f'@@RAW:r_{key}@@'], code, width=150, tooltip=T(tip, 'gray')))
         page.append(f'function bm:p99/dlg/{who} with storage bm:ui wd')
         fn(f'p99/menu/{who}', page)
         dlg = P28.multi([T(f"{nm}", col, bold=True), T('  ·  wardrobe', 'gray')],
@@ -452,6 +461,7 @@ def generate(G):
             lines.append(f'execute if score #act bm.pay matches {TOP[who] - 1} run return run function bm:p214/t/{who}')
         if who == 'emma':
             lines.append(f'execute if score #act bm.pay matches {TOP[who] - 2} run return run function bm:p217/kw/t')
+        lines += [f'execute if score #act bm.pay matches {code} run return run function bm:{f_}' for code, *_r, f_ in ROWS.get(who, ())]
         for _w, g, cur, un, ks, iid, off, apply in mine:
             if g != 'outfit':
                 fn(f'p99/pick/{g}0', [f'scoreboard players set @s {cur} 0'] + (['scoreboard players set @s bm.coso 0'] if g == 'dress' else []) +

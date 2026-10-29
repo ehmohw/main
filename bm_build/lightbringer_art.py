@@ -400,6 +400,7 @@ def textures():
     for k in FACES:
         T[f'lb_face_{k}'] = _face(k)
         if k in OPEN_EYES: T[f'lb_eyes_{k}'] = _eyes_glow(k)
+    T.update(textures_m())                                                   # (3.0: his face and eyes - the male form)
     return T
 
 
@@ -714,8 +715,317 @@ def models():
 
     part('lb_wingr', _wing(1)); part('lb_wingl', _wing(-1))
     for w in ('lb_wingr', 'lb_wingl'): JOINTS[w] = {0: ('body', 'hair'), 1: ('body', 'hair')}                 # (the root on her back)
+    _male(M, part)
     return M
 
+
+# ---------------------------------------------------------------------------------------------------- the male form (3.0)
+# (the owner: "a toggleable male variant") - HE: the same herald, the same rig, joints, poses and faces, so every animation,
+# ability and the Ophanim work unchanged; his twin of each part is the same name with MALE ('_m': rigpet's FORM suffix, which
+# the dress function puts on every part). The same holy design language - translucent pearl, gold, royal blue and purple, the
+# halo, the wings, the staff - but clearly a man: broad shoulders and chest under a gold-collared surcoat, gold pauldrons and
+# vambraces, a purple tabard (gold-edged, the sun on its breast) hanging front and back over a straight long tunic - no
+# dress's flare - a gold sword-belt, armoured feet; short cropped hair swept to the side, ears, a strong brow and jaw. His
+# cloth is the robe's and the bodice's own textures, so every wardrobe look (and the shiny) recolours him too.
+MALE = '_m'
+EYES_M = ((9, 14), (26, 14))                       # (each eye's top-centre: narrower, lower, under a heavier brow)
+EYE_W_M, EYE_H_M = 10, 8
+FACE_SKIN_M = ('#f6dcc8', '#fae6d6', '#ecccb6')   # (a touch warmer than hers)
+BROW_M = '#8a6424'                                 # (dark gold-brown, heavy)
+JAW_M = '#e2b89e'
+JAW_EDGE = '#d4a088'
+
+
+def _eye_m(im, glow, cx, y0, flip, kind):
+    """one eye of his: almond, narrower than hers, a single clean lid line (no lashes' flick), the same luminous gold iris"""
+    w, h = EYE_W_M, EYE_H_M + (2 if kind == 'surprised' else 0)
+    y0 = y0 - (1 if kind == 'surprised' else 0)
+    xs = range(cx - w // 2, cx + w // 2)
+    dxn = lambda x: (x + 0.5 - cx) / (w / 2)
+    o = 1 if flip else -1
+    if kind in ('happy', 'blink'):
+        for x in xs:
+            d = dxn(x)
+            y = y0 + 5 - round(2.0 * (1 - d * d)) if kind == 'happy' else y0 + 5
+            _put(im, x, y, LASH)
+            if kind == 'blink' and abs(d) < 0.8: _put(im, x, y + 1, '#c89a84')
+        return
+    if kind == 'hurt':                                                        # squeezed shut: > <
+        tip, far = (cx + 3, cx - 4) if not flip else (cx - 4, cx + 3)
+        for i in range(8):
+            t = i / 7
+            x = round(far + (tip - far) * t)
+            _put(im, x, round(y0 + 1 + 3 * t), LASH); _put(im, x, round(y0 + 7 - 3 * t), LASH)
+        return
+    L, A, slant = {None: (2, 1.4, 0), 'fierce': (3, 0.6, 2), 'sad': (2, 1.2, -2), 'surprised': (0, 0.4, 0)}[kind]
+    inner = lambda x: max(0.0, min(1.0, 0.5 - 0.5 * dxn(x) * (-o)))
+    lid = lambda x: y0 + L - round(A * (1 - dxn(x) ** 2)) + round(slant * inner(x) if slant > 0 else -slant * (1 - inner(x)))
+    vis = set()
+    for y in range(y0, y0 + h):
+        t = (y + 0.5 - y0) / h
+        half = (w / 2) * math.sqrt(max(0.0, 1 - (2 * t - 1) ** 2 * 0.9))
+        for x in xs:
+            if abs(x + 0.5 - cx) < half and y >= lid(x):
+                vis.add((x, y))
+    for x, y in vis:
+        _put(im, x, y, WHITE)
+    ir = 2.6 if kind == 'surprised' else 3.1
+    icy, ih = y0 + h * 0.55, h * 0.42
+    iris = {(x, y) for (x, y) in vis if ((x + 0.5 - cx) / ir) ** 2 + ((y + 0.5 - icy) / ih) ** 2 <= 1}
+    if iris:
+        top, bot = min(y for _, y in iris), max(y for _, y in iris)
+        for x, y in iris:
+            t = (y - top) / max(1, bot - top)
+            _put(im, x, y, IRIS_RAMP[min(len(IRIS_RAMP) - 1, int(t * len(IRIS_RAMP)))])
+        pr = 1.0 if kind == 'surprised' else 1.4
+        for x, y in iris:
+            if ((x + 0.5 - cx) / pr) ** 2 + ((y + 0.5 - icy) / (pr * 1.3)) ** 2 <= 1:
+                _put(im, x, y, PUPIL)
+        if (cx - 2, top) in iris: _put(im, cx - 2, top, '#ffffff')
+        if (cx - 2, top + 1) in iris: _put(im, cx - 2, top + 1, '#ffffff')
+        for x, y in iris:
+            glow.putpixel((x, y), im.getpixel((x, y)))
+    tops = {}
+    for x, y in vis:
+        tops[x] = min(y, tops.get(x, 99))
+    for x, ty in tops.items():
+        _put(im, x, ty - 1, LASH)
+    for x in range(cx - 3, cx + 3):                                           # a faint crease under it
+        _put(im, x, y0 + h, '#dcae98')
+
+
+def _brows_m(im, kind):
+    """heavy, straight, low brows: two pixels thick, a shade under them (the brow ridge)"""
+    for (cx, _), flip in zip(EYES_M, (False, True)):
+        for i, x in enumerate(range(cx - 5, cx + 5)):
+            t = i if not flip else 9 - i                                     # (0 at the outer end, 9 at the inner)
+            if kind == 'fierce': y = 10 + round(t / 3.2)                     # hard down toward the middle
+            elif kind == 'sad': y = 12 - round(t / 4)
+            elif kind == 'surprised': y = 9
+            elif kind == 'hurt': y = 11 + (1 if t > 6 else 0)
+            else: y = 11 - (1 if 2 <= t <= 7 else 0)                         # (a low, flat arch)
+            _put(im, x, y, BROW_M); _put(im, x, y + 1, BROW_M)
+            if t > 1: _put(im, x, y + 2, _mix(FACE_SKIN_M[0], JAW_M, 0.7))
+
+
+def _mouth_m(im, kind):
+    ink, lip, inner = '#a85a4c', '#d89484', '#6a2a28'
+    x, y = 13, 27
+    rows = {'happy': ('m........m', '.mmmmmmmm.'),
+            'fierce': ('.mmmmmmmm.', 'm........m'),
+            'sad': ('...mmmm...', '.mm....mm.'),
+            'surprised': ('...mmmm...', '..mrrrrm..', '...mmmm...'),
+            'hurt': ('.mmmmmmmm.', '.mwmwmwmm.', '.mmmmmmmm.'),
+            'blink': ('.mmmmmmmm.',),
+            None: ('.mmmmmmmm.', '...pppp...')}[kind]
+    for dy, row in enumerate(rows):
+        for dx, ch in enumerate(row):
+            if ch != '.': _put(im, x + dx, y + dy, {'m': ink, 'w': '#ffffff', 'p': lip, 'r': inner}[ch])
+
+
+def _face_m(kind=None, glow=None):
+    """his face (solid): warm porcelain, a short pale-gold fringe swept to his left, heavy straight brows, narrower glowing gold
+    eyes, a straight nose with its shadow, a firm mouth, the jaw and chin drawn in shade (no blush)"""
+    im = _shade(FACE_SKIN_M[0], FACE_SKIN_M[1:], 4201, 0.08)
+    for y in range(32):                                                      # the jaw: a square line in shade coming in to the chin
+        for x in range(36):
+            k = y - 19
+            if k <= 0: continue
+            e = min(k * 0.9, 8)                                              # (how far in the jaw has come at this row)
+            if x < e - 1 or x > 35 - e + 1: _put(im, x, y, JAW_M)
+            elif x < e or x > 35 - e: _put(im, x, y, JAW_EDGE)
+            elif x < e + 1.4 or x > 34 - e: _put(im, x, y, _mix(FACE_SKIN_M[0], JAW_M, 0.5))
+    for x in range(10, 26): _put(im, x, 31, _mix(FACE_SKIN_M[0], JAW_M, 0.7))   # (the chin's square underside)
+    for x in range(15, 21): _put(im, x, 30, _mix(FACE_SKIN_M[0], JAW_M, 0.35))
+    for cx in (5, 30):                                                       # (cheekbones)
+        for x in range(cx - 2, cx + 3): _put(im, x, 23, _mix(FACE_SKIN_M[0], JAW_M, 0.45))
+    hd, hm, hl = hexc(HAIR_D, 255), hexc(HAIR, 255), hexc(HAIR_L, 255)
+    for x in range(36):                                                      # the fringe: short, swept to his left (the sheet's right)
+        edge = 6 + (1 if (x // 3) % 2 else 0) - (1 if x > 26 else 0) + (2 if x < 3 or x > 33 else 0)
+        for y in range(edge):
+            j = (x + y + y // 2) % 4
+            c = (hm, hl, hm, hd)[j]
+            if y == edge - 1: c = hd
+            _put(im, x, y, c)
+    _brows_m(im, kind)
+    glow = glow if glow is not None else Image.new('RGBA', (64, 64), (0, 0, 0, 0))
+    for (cx, y0), flip in zip(EYES_M, (False, True)):
+        _eye_m(im, glow, cx, y0, flip, kind)
+    for y in range(19, 25): _put(im, 18, y, '#e4b49c')                     # the nose: a straight shade line, its tip
+    for x in (16, 17, 19): _put(im, x, 24, '#e0ae96')
+    _put(im, 17, 23, '#ecc0a8')
+    _mouth_m(im, kind)
+    return im
+
+
+def _eyes_glow_m(kind=None):
+    g = Image.new('RGBA', (64, 64), (0, 0, 0, 0)); _face_m(kind, g); return g
+
+
+def textures_m():
+    T = {'lb_face_m': _face_m(), 'lb_eyes_m': _eyes_glow_m()}
+    for k in FACES:
+        T[f'lb_face_m_{k}'] = _face_m(k)
+        if k in OPEN_EYES: T[f'lb_eyes_m_{k}'] = _eyes_glow_m(k)
+    return T
+
+
+def _tunic_w(i):
+    """tier i's half width, half depth: a straight long tunic (3.85 x 2.75 under the belt, 4.5 x 3.2 at the hem)"""
+    t = (i + 1) / (len(ROBE_Y) - 1)
+    return 3.85 + 0.65 * t, 2.75 + 0.45 * t
+
+
+TABARD = 1.5                                         # (the tabard's half width, front and back)
+
+
+def _tier_m(i, pv):
+    """one tier of his tunic: straight, pearl; the tabard down the front - purple, gold-edged; the hem in gold"""
+    y1, y0 = ROBE_Y[i], ROBE_Y[i + 1]
+    hw, hd = _tunic_w(i)
+    last = i == len(ROBE_Y) - 2
+    out = [el((-hw, y0, -hd), (hw, y1, hd), 'lb_robe', pv, faces=_faces_but('up'), shift=(0.17 * i, 0.31 * i))]
+    if i > 0:
+        pw, pd = _tunic_w(i - 1)
+        for (a, b) in (((-hw, y1 - 0.01, -hd), (hw, y1, -pd)), ((-hw, y1 - 0.01, pd), (hw, y1, hd)),
+                       ((-hw, y1 - 0.01, -pd), (-pw, y1, pd)), ((pw, y1 - 0.01, -pd), (hw, y1, pd))):
+            out.append(el(a, b, 'lb_robe', pv, faces=('up',), shift=(0.3, 0.6)))
+    tw = TABARD
+    out += [el((-tw, y0, -hd - 0.05), (tw, y1, -hd - 0.02), 'lb_stole', pv, faces=('north',), shift=(0.2 * i, 0.4)),
+            el((-tw - 0.4, y0, -hd - 0.07), (-tw, y1, -hd - 0.02), 'lb_gold', pv, faces=('north', 'west', 'east'), shift=(0.1 * i, 0.2), light=4),
+            el((tw, y0, -hd - 0.07), (tw + 0.4, y1, -hd - 0.02), 'lb_gold', pv, faces=('north', 'west', 'east'), shift=(0.3 * i, 0.5), light=4)]
+    if last:
+        out.append(el((-hw - 0.08, y0, -hd - 0.08), (hw + 0.08, y0 + 0.8, hd + 0.08), 'lb_hem', pv, faces=_faces_but('up'),
+                      uv={f: [0, 0, 16, 0.8] for f in ('north', 'south', 'east', 'west')}))
+        out.append(el((-hw - 0.08, y0 + 0.79, -hd - 0.08), (hw + 0.08, y0 + 0.8, hd + 0.08), 'lb_gold', pv, faces=('up',)))
+    return out
+
+
+def _sun(pv, y, z):
+    """the gold sun of the Divine One: a gold lozenge, a core of light"""
+    return [el((-0.95, y - 0.95, z - 0.06), (0.95, y + 0.95, z + 0.04), 'lb_gold', pv, rot=('z', 45, (0, y, z)), light=10),
+            el((-0.4, y - 0.4, z - 0.12), (0.4, y + 0.4, z - 0.06), 'lb_light', pv, faces=('north',), light=15)]
+
+
+def _male(M, part):
+    """his twin of every part (MALE): his own body, skirt, head (and its faces), tabard (the 'hair' joints), arms and feet;
+    the halo, the staff, the wings and the kneeling pool are hers, unchanged"""
+    for p in ('halo', 'staff', 'wingr', 'wingl', 'pool'):
+        M[f'lb_{p}{MALE}'] = M[f'lb_{p}']
+    for w in ('lb_wingr', 'lb_wingl'): JOINTS[w + MALE] = JOINTS[w]
+    # ---- the body: the tunic's upper tiers, the gold sword-belt, a broad chest (the surcoat - the bodice's own silk), broad
+    #      shoulders, the gold collar, a thicker neck; the tabard from the collar to the hem, the sun on its breast
+    pv = PIVOT['body']
+    body = []
+    for i in range(5):
+        body += _tier_m(i, pv)
+    CW, CD = 3.6, 2.3                                                          # (his chest's half width, half depth)
+    body += [el((-4.0, 13.1, -2.9), (4.0, 14.5, 2.9), 'lb_gold', pv, faces=_faces_but('down'), shift=(0.2, 0.2), light=4),    # the belt
+             el((-0.75, 13.15, -3.02), (0.75, 14.45, -2.9), 'lb_gold', pv, light=6),                                            # its buckle
+             el((-0.35, 13.45, -3.1), (0.35, 14.15, -3.02), 'lb_sapph', pv, faces=('north',)),
+             el((-CW, 14.5, -CD), (CW, 21.4, CD), 'lb_robe', pv, faces=('south', 'east', 'west'), shift=(0.3, 0.2)),          # the chest
+             el((-CW, 14.5, -CD), (CW, 21.4, -CD), 'lb_bodice', pv, faces=('north',), uv={'north': [0, 0, 7.9, 6.9]}),
+             el((-4.25, 21.4, -2.45), (4.25, 22.8, 2.45), 'lb_robe', pv, faces=_faces_but('down'), shift=(0.6, 0.1)),            # the shoulders
+             el((-4.27, 21.38, -2.47), (4.27, 21.62, 2.47), 'lb_gold', pv, faces=('north', 'south', 'east', 'west'), light=4),  # (their gold edge)
+             el((-2.3, 22.8, -2.1), (2.3, 23.4, 2.1), 'lb_gold', pv, faces=_faces_but('down'), light=4),                        # the collar
+             el((-1.5, 23.4, -1.45), (1.5, 24.6, 1.45), 'lb_skin', pv, faces=('north', 'south', 'east', 'west'))]               # the neck
+    tw = TABARD
+    body += [el((-tw, 14.5, -CD - 0.06), (tw, 22.82, -CD - 0.02), 'lb_stole', pv, faces=('north',), shift=(0.4, 0.1)),       # the tabard, its front
+             el((-tw - 0.4, 14.5, -CD - 0.08), (-tw, 22.82, -CD - 0.02), 'lb_gold', pv, faces=('north', 'west', 'east'), light=4),
+             el((tw, 14.5, -CD - 0.08), (tw + 0.4, 22.82, -CD - 0.02), 'lb_gold', pv, faces=('north', 'west', 'east'), light=4),
+             el((-tw - 0.4, 22.8, -2.47), (tw + 0.4, 22.84, -CD - 0.02), 'lb_stole', pv, faces=('up',))]
+    body += _sun(pv, 19.3, -CD - 0.1)
+    part('lb_body' + MALE, body)
+    skirt = []
+    for i in range(5, len(ROBE_Y) - 1):
+        skirt += _tier_m(i, PIVOT['skirt'])
+    part('lb_skirt' + MALE, skirt)
+
+    # ---- the head: the same head and face plate; short cropped hair - a close cap, the back only to the nape, short sides
+    #      over his ears, a swept fringe; no long locks
+    pv = PIVOT['head']
+
+    def head(face=None):
+        tex = 'lb_face_m' if face is None else f'lb_face_m_{face}'
+        hr = lambda fr, to, faces=None, sh=None, rot=None: el(fr, to, 'lb_hair', pv, faces=faces, shift=sh, rot=rot)
+        C1, C2 = ((-4.8, HT - 1.2, -4.3), (4.8, HT + 0.5, 4.5)), ((-4.1, HT + 0.5, -3.5), (4.1, HT + 1.05, 3.9))
+        B1 = ((-4.75, HB + 0.7, 3.4), (4.75, HT - 1.2, 4.5))
+        h = [el((-4.5, HB, -4.0), (4.5, HT - 1.2, 3.4), 'lb_skin', pv, faces=('east', 'west', 'down', 'south')),
+             dict(el((-4.5, HB, -4.0), (4.5, HT, -4.0), tex, pv, faces=('north',), uv={'north': [0, 0, 9, 8]}), shade=False),
+             hr(*C1, faces=('north', 'south', 'east', 'west', 'down'), sh=(0.2, 0.1)),
+             hr(*C2, faces=('north', 'south', 'east', 'west', 'up'), sh=(0.6, 0.4)),
+             hr(*B1, faces=('south', 'east', 'west', 'down'), sh=(0.5, 0.3)),
+             hr((4.5, HB + 3.4, -3.0), (4.95, HT - 1.2, 3.4), faces=('north', 'east', 'down'), sh=(0.1, 0.4)),          # the sides, short
+             hr((-4.95, HB + 3.4, -3.0), (-4.5, HT - 1.2, 3.4), faces=('north', 'west', 'down'), sh=(0.6, 0.2)),
+             hr((4.5, HB + 1.6, -3.0), (4.85, HB + 3.4, -1.9), faces=('north', 'east', 'south', 'down'), sh=(0.3, 0.3)),   # sideburns
+             hr((-4.85, HB + 1.6, -3.0), (-4.5, HB + 3.4, -1.9), faces=('north', 'west', 'south', 'down'), sh=(0.7, 0.3)),
+             el((4.5, HB + 1.9, -0.9), (4.95, HB + 3.6, 0.5), 'lb_skin', pv, faces=('north', 'south', 'east', 'down', 'up')),  # the ears
+             el((-4.95, HB + 1.9, -0.9), (-4.5, HB + 3.6, 0.5), 'lb_skin', pv, faces=('north', 'south', 'west', 'down', 'up')),
+             hr((-4.9, HT - 1.85, -4.6), (4.9, HT - 1.2, -4.0), faces=('north', 'east', 'west', 'down'), sh=(0.3, 0.6))]      # the fringe
+        h += _ring_up(C1, C2, 'lb_hair', pv)
+        for x, a in ((-3.9, 32), (-0.4, 28), (2.6, 24)):                          # its swept points (to his left: the sheet's right)
+            h.append(el((x - 0.5, HT - 2.25, -4.62), (x + 0.5, HT - 1.6, -4.04), 'lb_hair', pv, faces=('north', 'east', 'west', 'down'),
+                        rot=('z', -a, (x, HT - 1.9, -4.33)), shift=(0.1 * x, 0.3)))
+        if face in OPEN_EYES:                                     # his eyes, lit: each iris again, just in front, glowing
+            gt = 'lb_eyes_m' if face is None else f'lb_eyes_m_{face}'
+            for (cx, y0) in EYES_M:
+                u0, u1, v0, v1 = (cx - 6) / 4, (cx + 6) / 4, (y0 - 2) / 4, (y0 + EYE_H_M + 2) / 4
+                h.append(dict(el((4.5 - u1, HT - v1, -4.03), (4.5 - u0, HT - v0, -4.02), gt, pv, faces=('north',),
+                                 uv={'north': [u0, v0, u1, v1]}, light=15), shade=False))
+        return h
+    part('lb_head' + MALE, head())
+    for fc in FACES:
+        part(f'lb_head_x{fc}{MALE}', head(fc))
+
+    # ---- the tabard's back (on the 'hair' joints, so it streams back in flight and drapes over the robe when he kneels):
+    #      from under the collar between the wings' roots to the belt, the sun on it; then on down to the backs of his knees
+    pv = PIVOT['hair']
+    bz = 2.5
+    up = [el((-1.5, 14.6, bz), (1.5, 22.75, bz + 0.3), 'lb_stole', pv, faces=('south', 'up', 'down'), shift=(0.3, 0.2)),
+          el((-1.84, 14.6, bz), (-1.5, 22.75, bz + 0.34), 'lb_gold', pv, faces=('south', 'east', 'west', 'up', 'down'), light=4),
+          el((1.5, 14.6, bz), (1.84, 22.75, bz + 0.34), 'lb_gold', pv, faces=('south', 'east', 'west', 'up', 'down'), light=4)]
+    up += [el((-0.8, 18.6, bz + 0.3), (0.8, 20.2, bz + 0.4), 'lb_gold', pv, rot=('z', 45, (0, 19.4, bz + 0.35)), light=10),
+           el((-0.35, 19.05, bz + 0.4), (0.35, 19.75, bz + 0.46), 'lb_light', pv, faces=('south',), light=15)]
+    JOINTS['lb_hair' + MALE] = {0: ('body',), 1: ('body',), 2: ('body',)}
+    part('lb_hair' + MALE, up)
+    pv = PIVOT['hairlo']
+    A_, B_ = (0, 14.6, 3.12), (0, 3.6, 3.6)
+    lo = [seg(A_, B_, 3.1, 0.28, 'lb_stole', pv, FRONT, ext=0.0, shift=(0.5, 0.3))]
+    for sx in (-1, 1):
+        lo.append(seg((sx * 1.72, A_[1], A_[2]), (sx * 1.72, B_[1], B_[2]), 0.34, 0.32, 'lb_gold', pv, FRONT, ext=0.0, light=4))
+    lo.append(seg((0, B_[1] + 0.55, B_[2] - 0.02), (0, B_[1], B_[2]), 3.8, 0.34, 'lb_gold', pv, FRONT, ext=0.0, light=6))   # (its gold hem)
+    JOINTS['lb_hairlo' + MALE] = {0: ('hair',)}
+    part('lb_hairlo' + MALE, lo)
+
+    # ---- the arms: broad pearl sleeves under gold pauldrons (two plates, a sapphire stud); gold vambraces, a blue band at the wrist
+    def upper(sx):
+        pv = PIVOT['armr' if sx > 0 else 'arml']; x0, y0, _ = pv
+        e = (sx * 4.9, 18.6, 0)
+        X = lambda a, b: (min(sx * a, sx * b), max(sx * a, sx * b))
+        p1, p2 = X(4.05, 5.95), X(4.15, 6.1)
+        return [seg((x0, y0 + 0.15, 0), e, 2.1, 2.1, 'lb_robe', pv, FRONT, ext=0.0, shift=(0.3, 0.1)),
+                el((p1[0], 21.9, -1.4), (p1[1], 23.2, 1.4), 'lb_gold', pv, light=5, shift=(0.2, 0.4)),                  # the pauldron
+                el((p2[0], 20.9, -1.3), (p2[1], 21.95, 1.3), 'lb_gold', pv, faces=_faces_but('up'), light=5, shift=(0.6, 0.1)),
+                el((X(5.95, 6.07)[0], 22.2, -0.4), (X(5.95, 6.07)[1], 23.0, 0.4), 'lb_sapph', pv, light=6)]
+
+    def lower(sx):
+        pv = PIVOT['forer' if sx > 0 else 'forel']; ex, ey, _ = pv
+        wx, wy = sx * 5.1, 14.6
+        return [seg((ex, ey, 0), (wx, wy + 2.0, 0), 2.0, 2.0, 'lb_robe', pv, FRONT, ext=0.0, shift=(0.6, 0.4)),
+                seg((ex + sx * 0.12, wy + 2.6, 0), (wx, wy + 0.55, 0), 2.2, 2.2, 'lb_gold', pv, FRONT, ext=0.0, light=5),       # the vambrace
+                seg((wx, wy + 0.55, 0), (wx, wy + 0.05, 0), 2.3, 2.3, 'lb_blue', pv, FRONT, ext=0.0),                         # its blue band
+                el((wx - 0.85, wy - 2.35, -0.88), (wx + 0.85, wy + 0.05, 0.82), 'lb_skin', pv, faces=_faces_but('up')),       # the hand
+                el((wx - 0.7, wy - 2.8, -0.82), (wx + 0.7, wy - 2.35, -0.2), 'lb_skin', pv, faces=_faces_but('up'))]
+    part('lb_armr' + MALE, upper(1)); part('lb_arml' + MALE, upper(-1)); part('lb_forer' + MALE, lower(1)); part('lb_forel' + MALE, lower(-1))
+
+    # ---- the feet: armoured - gold sabatons over a pearl foot, a blue strap; from the ankle, toes pointing down as he floats
+    def foot(sx):
+        pv = PIVOT['legr' if sx > 0 else 'legl']; cx = pv[0]
+        return [el((cx - 0.9, 0.2, -2.5), (cx + 0.9, 1.1, 0.95), 'lb_robe', pv, faces=_faces_but('up')),
+                el((cx - 0.95, 0.15, -3.05), (cx + 0.95, 0.85, -0.9), 'lb_gold', pv, faces=_faces_but('up'), light=4),        # the toe plate
+                el((cx - 0.92, 0.0, -3.1), (cx + 0.92, 0.2, 1.0), 'lb_gold', pv, light=3),                                   # the sole
+                el((cx - 0.96, 0.55, -0.4), (cx + 0.96, 1.0, 1.02), 'lb_blue', pv, faces=_faces_but('down'))]                # a strap
+    part('lb_legr' + MALE, foot(1)); part('lb_legl' + MALE, foot(-1))
 
 # ---------------------------------------------------------------------------------------------------- poses
 # (rigkit: ('x', -a) swings a hanging limb forward by a; ('x', +a) on the body or head leans/nods it forward)

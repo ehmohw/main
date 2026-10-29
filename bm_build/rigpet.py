@@ -37,6 +37,8 @@ class Cfg:
     each pose sets: A.model_name(part, pose) - a sprite's frame, a part's face), and pron 'them' / they 'they' (a plural follower)"""
     EXPR = ('happy', 'surprised', 'hurt', 'sleepy', 'blink', 'squint', 'serious')
     FORM = None
+    FORM_PARTS = None            # (3.0: the parts whose model the form changes - None: every part; the rest keep theirs)
+    FORM_WARDROBE = None         # (3.0: (code, colour, tooltip) - the form is a row of the follower's wardrobe (phase99.ROWS), not a menu button)
     BUTTONS = ()
     HIT = (0.9, 1.9)
     SCALE = 0.9
@@ -58,6 +60,11 @@ def register(C):
     """the module-level registries (as phase187 does them at import)"""
     W, pet = C.W, f'bm.{C.ab}pet'
     HOLD[C.ITEM] = f'bm:{C.pfx}/use'
+    if C.FORM and C.FORM_WARDROBE:                                        # (3.0: the form as a row of its wardrobe - off / on)
+        import phase99 as P99
+        code, col, tip = C.FORM_WARDROBE
+        P99.ROWS.setdefault(W, []).append((code, 'form', C.FORM[2], col, tip, [(None, 'off', 'gray'), (f'score @s {C.FORM[0]} matches 1', 'on', P99.GOLD)],
+                                           f'{C.pfx}/form'))
     P46.COMPANIONS += f',tag=!{pet}'
     allies.ALLIES += [pet]
     if len(P89.BIT) < 30:
@@ -308,7 +315,7 @@ def build(C, G, abilities, encounter):
     if C.FORM:
         fsc, fsfx = C.FORM[0], C.FORM[1]
         form_lines = ['scoreboard players set #fm bm.rng 0', f'execute as @a if score @s bm.pid = #me bm.pid run scoreboard players operation #fm bm.rng = @s {fsc}']
-        for p in A.PARTS:
+        for p in (C.FORM_PARTS or A.PARTS):
             form_lines += [f'execute if score #fm bm.rng matches 0 as {psel(p)} run data modify entity @s item.components."minecraft:item_model" set value "bm:{A.PREFIX}{p}"',
                            f'execute if score #fm bm.rng matches 1 as {psel(p)} run data modify entity @s item.components."minecraft:item_model" set value "bm:{A.PREFIX}{p}{fsfx}"']
         if hasattr(A, 'HIDDEN'):                                                           # (a part one form hides - Pearl's cape)
@@ -340,7 +347,7 @@ def build(C, G, abilities, encounter):
     fn(f'{pfx}/powers', [f'scoreboard players set @s bm.menu {M}', f'dialog show @s {snbt(pdlg)}'])
     extra = [P28.btn(T(lbl, C.COL, bold=True), M + n, width=150, tooltip=T(tip, 'gray')) for n, lbl, tip, _f in C.BUTTONS]
     form_btn = []
-    if C.FORM:
+    if C.FORM and not C.FORM_WARDROBE:
         form_btn = [P28.btn(T(C.FORM[2], C.COL, bold=True), M + 3, width=150, tooltip=T(C.FORM[6], 'gray'))]
     dlg = lambda out: P28.multi([T(ITEMS[C.ITEM]['name'], C.COL, bold=True)], [P28.body(C.INTRO, 300)],
                                 ([P28.btn(T('Sit / follow', 'white', bold=True), M + 1, width=150), P28.btn(T(f'Send {C.pron} home', 'gray'), M + 9, width=150)] if out else
@@ -351,12 +358,13 @@ def build(C, G, abilities, encounter):
     fn(f'{pfx}/menu', [f'scoreboard players set @s bm.menu {M}',
                        f'execute if entity @e[type=minecraft:wolf,tag={sel2}] run return run dialog show @s {snbt(dlg(True))}',
                        f'dialog show @s {snbt(dlg(False))}'])
-    codes = [1, 2, 4, 5, 8, 9] + ([3] if C.FORM else []) + [n for n, *_r in C.BUTTONS]
+    menu_form = bool(C.FORM) and not C.FORM_WARDROBE                       # (a wardrobe form: its row is routed by phase99)
+    codes = [1, 2, 4, 5, 8, 9] + ([3] if menu_form else []) + [n for n, *_r in C.BUTTONS]
     G.FUNCS['p28/act'] += [f'execute if score #act bm.pay matches {M + n} run return run function bm:{pfx}/act' for n in codes]
     fn(f'{pfx}/act', [f'execute unless score @s bm.menu matches {M} run return run function bm:p28/stale',
                       f'execute if score #act bm.pay matches {M + 2} run return run function bm:p119/plain/{W}',
                       f'execute if score #act bm.pay matches {M + 4} run return run function bm:{pfx}/powers'] +
-       ([f'execute if score #act bm.pay matches {M + 3} run return run function bm:{pfx}/form'] if C.FORM else []) +
+       ([f'execute if score #act bm.pay matches {M + 3} run return run function bm:{pfx}/form'] if menu_form else []) +
        [f'execute if score #act bm.pay matches {M + n} run return run function bm:{f_}' for n, _l, _t, f_ in C.BUTTONS] +
        ['scoreboard players operation #me bm.pid = @s bm.pid', f'{sel_pet} run tag @s add {sel2}',
         f'execute if score #act bm.pay matches {M + 5} run function bm:{pfx}/menu',
@@ -374,7 +382,7 @@ def build(C, G, abilities, encounter):
                            f'execute if score @s {fsc} matches 1 run ' + csay(C.FORM[4]), f'execute if score @s {fsc} matches 0 run ' + csay(C.FORM[5]),
                            'scoreboard players operation #me bm.pid = @s bm.pid',
                            f'execute as @e[type=minecraft:wolf,tag={pet}] if score @s bm.pid = #me bm.pid at @s run function bm:{pfx}/form2',
-                           f'function bm:{pfx}/menu'])
+                           f'function bm:p99/menu/{W}' if C.FORM_WARDROBE else f'function bm:{pfx}/menu'])
         fn(f'{pfx}/form2', ['scoreboard players operation #me bm.pid = @s bm.pid',
                             f'execute as @e[type=minecraft:item_display,tag=bm.{ab}p_pet,tag=!{fade}] if score @s bm.pid = #me bm.pid run tag @s add {sel}',
                             f'function bm:{pfx}/dress', f'tag @e[tag={sel}] remove {sel}'] + C.FORM_FX)

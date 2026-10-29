@@ -54,6 +54,16 @@ class Keeper(RP.Cfg):
     FACE = dict(KA.FACE_MAP)
     ATTRS = dict(armor=6, attack_damage=4, movement_speed=0.36, follow_range=32, step_height=1.1)
     SCALE, HIT = 1.0, (0.9, 2.2)                # (3.0c: it stands 2.14 tall now - was 2.34)
+    # (3.0d) SUNLIT - its costume, a row of its wardrobe (free with it, as every follower's form is): the hood down. rigpet's FORM:
+    #        bm.qbhd on the owner picks the '_h' models of KA.HOOD_PARTS (the head - a model per face - and the body's cowl);
+    #        the wardrobe's looks ride on top (phase138's '_c<k>', the hair recoloured with the cloth); the figurine, the doll
+    #        and the frame keep the hood up
+    FORM = ('bm.qbhd', KA.HOOD_SFX, 'Sunlit', None, '(it lowers its hood - pearl hair, combed back tight, and a sunburst of light behind it)',
+            '(it draws its hood up again, and the sunlight folds away inside it)',
+            'Its hood down: hair of pearl in a high ponytail, a sunburst of light behind its head.')
+    FORM_PARTS = KA.HOOD_PARTS
+    FORM_WARDROBE = (5288, GOLD, 'Sunlit - its hood down: hair of pearl in a high, tight ponytail, and a sunburst of light behind its head. '
+                                 'Every look and every face still on it. On or off here.')
     CYCLE = P235.cycle((240, [(0, 'idle_a'), (80, 'idle_b'), (160, 'idle_c'), (210, 'idle_a')]), (240, [(0, 'sit_a'), (120, 'sit_b')]),
                        (None, [(0, 'happy')]),
                        {8: (None, [(0, 'tug_up'), (6, 'tug'), (14, 'idle_a')]),

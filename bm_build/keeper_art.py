@@ -80,7 +80,8 @@ PART_K = {}
 JOINTS = {}
 FACES = ('happy', 'blink', 'sleepy', 'surprised', 'sad', 'focus', 'hurt')
 FACE_MAP = {'happy': 'happy', 'surprised': 'surprised', 'hurt': 'hurt', 'sleepy': 'sleepy', 'blink': 'blink', 'squint': 'happy', 'serious': 'focus'}
-LOOK_TEX = ('kb_robe', 'kb_hood')             # (the cream cloth: what a wardrobe recolour would tint)
+LOOK_TEX = ('kb_robe', 'kb_hood', 'kb_hair')  # (the cream cloth - and the hood down's pearl hair: what a wardrobe recolour tints)
+HOOD_PARTS, HOOD_SFX = ('head', 'body'), '_h'  # (3.0d: the hood down - 'Sunlit': these parts' '_h' models; rigpet's FORM)
 ITEM, COMPASS = 'bond_thread', 'bond_compass'
 
 # ---- the 49 bonds: every other follower's colour, as phase125.WHO has them (its order: the motes' and the atlas's order)
@@ -106,6 +107,11 @@ BLUSH, BLUSH_L, SMILE, TEAR = '#ff8ec4', '#ffb8dc', '#7a4422', '#7fc8ff'   # (3.
 HAND, HAND_L = '#ffeec6', '#fff8e4'                           # (the mittens of light)
 L_CLOTH, L_BAND, L_FACE, L_EYES, L_CORE, L_THREAD, L_HAND = 7, 9, 12, 15, 15, 12, 8     # (modest cloth; the face's amber glow, its eyes full)
 L_WING = (9, 11, 13)                                          # (the wings' three lengths, root to tip)
+# (3.0d) THE HOOD DOWN ('Sunlit', a wardrobe costume - the '_h' models of HOOD_PARTS): pearl hair, a sunburst of gold light
+HAIR, HAIR_D, HAIR_L = '#f6ecf2', '#e6d8e2', '#fcf4f6'       # (the hair's pearl: inside the cloth's luminance range - see _hair)
+RAY = ['#ffc860', '#ffd878', '#ffe8a0', '#ffd070']           # (the rays: warm golds, root ...)
+RAY_TIP = ['#fff2c0', '#fffbe8', '#ffffff', '#fff4d0']       # (... to white-gold tips)
+L_HAIR, L_RAY, L_RAY_TIP = 8, 13, 15
 
 # ---- the iridescence (3.0b): the pearl cloth, its trim and the wings are ANIMATED strips (FRAMES frames, interpolated); in each
 #      frame a pastel sheen (PEARL's tones, round and round) runs diagonally over the cloth, and with time it flows along - a
@@ -152,7 +158,8 @@ def HIDDEN(p, pose):
 
 def model_name(p, pose, suffix=''):
     face = f'_x{pose["_face"]}' if p == 'head' and pose.get('_face') else ''
-    return f'{PREFIX}{p}{face}{suffix}'
+    form = HOOD_SFX if pose.get('_h') and p in HOOD_PARTS else ''    # (_h: the hood down - previews; in the game rigpet's FORM)
+    return f'{PREFIX}{p}{face}{form}{suffix}'
 
 
 # ---------------------------------------------------------------------------------------------------- textures
@@ -208,7 +215,7 @@ def _strip(frame):
     return im
 
 
-def _pearl(base, line, light=None, phase=0.0, scale=1.8, tints=None, wash=(0.66, 0.3)):
+def _pearl(base, line, light=None, phase=0.0, scale=1.8, tints=None, wash=(0.66, 0.3), lum_at=None):
     """mother-of-pearl cloth: the woven grid of before (a warp line every two units, a paler weft row every four) at the
     luminance of `base`/`line`/`light`, washed with a pastel sheen - hue running diagonally over it (scale: how much of the
     round fits across the texture), how much of it varying in soft waves the other way - and flowing along over the frames;
@@ -220,7 +227,7 @@ def _pearl(base, line, light=None, phase=0.0, scale=1.8, tints=None, wash=(0.66,
         tf = f / FRAMES
 
         def c(x, y):
-            L = Ll if x % 4 == 3 else Lh if light and y % 8 == 0 else Lb
+            L = lum_at(x, y) if lum_at else Ll if x % 4 == 3 else Lh if light and y % 8 == 0 else Lb
             t = (x + y) / 62 * scale + tf + phase
             amt = wash[0] + wash[1] * math.sin(2 * math.pi * ((x - y) / 22 + phase))
             s = _sheen_at(t, tints)
@@ -295,6 +302,32 @@ def _rim():
     return _strip(lambda f: _cells(lambda x, y: c(f, x, y)))
 
 
+def _hair():
+    """(the hood down) her hair: mother-of-pearl as the cloth is - the same pastel sheen flowing over it, but stronger, and in
+    fine combed strands, not a weave: a pale strand of sheen every third cell, a darker one every seventh. Its luminance stays
+    inside the cloth's (HAIR_D..HAIR_L within CREAM_D/HOODC_D..CREAM_L), so a look recolours it with the cloth and the cloth's
+    own recolour range is unchanged"""
+    Lb, Ls, Ld = _lum(hexc(HAIR)), _lum(hexc(HAIR_L)), _lum(hexc(HAIR_D))
+    return _pearl(HAIR, HAIR_D, phase=0.61, scale=2.4, wash=(0.86, 0.14),
+                  lum_at=lambda x, y: Ls if x % 3 == 1 else Ld if x % 7 == 0 else Lb)
+
+
+def _rays(tip=False):
+    """the sunburst behind her head (the hood down): warm gold rays (tip: white-gold, their ends) - a slow glint flowing out
+    along them, an animated strip like the gold trim's, but all light"""
+    cols = RAY_TIP if tip else RAY
+
+    def frame(f):
+        def c(x, y):
+            k = ((y / 62 * 0.7 - f / FRAMES) % 1.0) * len(cols); i = int(k)
+            col = _mix(cols[i % len(cols)], cols[(i + 1) % len(cols)], k - i)
+            d = (y / 62 - f / FRAMES) % 1.0
+            if d < SWEEP * 1.6: col = _mix(col, '#ffffff', 0.55 * (1 - abs(d / (SWEEP * 1.6) * 2 - 1)))
+            return col
+        return _cells(c)
+    return _strip(frame)
+
+
 def _atlas():
     """kb_bonds: 8 x 8 swatches (2 units each) - swatch i is bond i (WHO's order): its colour, a paler square at its heart;
     57-59 gold, cream, white light"""
@@ -363,9 +396,13 @@ def _eyes(kind=None):
     pal = {'E': EYE, 'H': EYE_H, 'R': EYE_R, 'B': BLUSH, 'L': BLUSH_L, 'S': SMILE, 'T': TEAR}
     put = lambda x, y, k: im.putpixel((x, y), hexc(pal[k]))
     for r, row in enumerate(_EYES[kind]):
+        n, x0 = len(row), FACE_W - EYE_X - len(row)                 # (its left eye: the right one mirrored - x0 its first column)
         for cx, ch in enumerate(row):
             if ch == '.': continue
-            put(EYE_X + cx, EYE_Y + r, ch); put(FACE_W - 1 - EYE_X - cx, EYE_Y + r, ch)
+            put(EYE_X + cx, EYE_Y + r, ch); put(FACE_W - 1 - EYE_X - cx, EYE_Y + r, 'E' if ch == 'H' else ch)
+        for cx, ch in enumerate(row):                               # (3.0c fix: the shine is NOT mirrored - one light, the same side
+            if ch == 'H' and row[n - 1 - cx] != '.':                #  of both eyes: at the right eye's own offset within the left)
+                put(x0 + cx, EYE_Y + r, 'H')
     for x, y, k in _BLUSH:
         put(x, y, k); put(FACE_W - 1 - x, y, k)
     if kind == 'sad':                                                # (a tear of light under each eye's outer corner)
@@ -396,7 +433,7 @@ WING_BANDS = {'kb_wing0': ['#ffd27a', '#ffb89a', '#ffa8cc', '#ffd896'],
               'kb_wing2': ['#8ccfff', '#94eac4', '#d8fff0', '#b8d4ff']}
 WING_FRAMES = FRAMES
 ANIMATED = {k: {'animation': {'frametime': 4, 'interpolate': True}} for k in WING_BANDS}     # {texture: its .png.mcmeta}
-CLOTH_ANIM = ('kb_robe', 'kb_hood', 'kb_gold', 'kb_rim', 'kb_brd')                          # (the pearl cloth and its gold trim)
+CLOTH_ANIM = ('kb_robe', 'kb_hood', 'kb_gold', 'kb_rim', 'kb_brd', 'kb_hair', 'kb_ray', 'kb_rayt')   # (the pearl cloth, its gold trim; the hair, the rays)
 ANIMATED.update({k: {'animation': {'frametime': 5, 'interpolate': True}} for k in CLOTH_ANIM})
 
 
@@ -425,7 +462,7 @@ def mcmeta():
 def textures():
     T = {'kb_robe': _pearl(CREAM, CREAM_D, CREAM_L), 'kb_hood': _pearl(HOODC, HOODC_D, phase=0.37, scale=1.5), 'kb_gold': _gold(), 'kb_brd': _border(), 'kb_rim': _rim(),
          'kb_lining': _cells(lambda x, y: LINING_D if (x + y) % 6 == 0 else LINING), 'kb_bonds': _atlas(), 'kb_hand': _hand(), 'kb_light': _light(), 'kb_inner': _inner(),
-         'kb_face': _face(), 'kb_eyes': _eyes()}
+         'kb_face': _face(), 'kb_eyes': _eyes(), 'kb_hair': _hair(), 'kb_ray': _rays(), 'kb_rayt': _rays(True)}
     for k in range(6):
         T[f'kb_tier{k}'] = _tier(k)
     for k in FACES:
@@ -552,6 +589,18 @@ def models():
             bx((-5.25, 20.6, -3.6), (5.25, 21.4, 3.6), 'kb_brd', pv, faces=_faces_but('up'), light=L_BAND),                                # the mantle's border
             bx((-5.1, 21.4, -3.45), (5.1, 23.8, 3.45), 'kb_hood', pv, ftex={'down': 'kb_lining'}, light=L_CLOTH, shift=(0.2, 0.6))]          # the mantle
     part('kb_body', body)
+    # (3.0d) the hood down ('Sunlit'): the hood lies bunched round its neck and shoulders - a soft pearl roll, lower at the front
+    #      (under the smile), higher at the sides and the back, its dusky lining turned out on top; the hood's gold rim along
+    #      the back of it, and its crown hanging a little way down the back, between the wings' roots
+    lin = {'up': 'kb_lining'}
+    cowl = [bx((-4.0, 23.4, -4.0), (4.0, 24.5, -2.7), 'kb_hood', pv, faces=_faces_but('down', 'south'), ftex=lin, light=L_CLOTH, shift=(0.15, 0.8)),     # the front
+            B(1, 3.95, 5.4, 23.4, 25.3, -3.8, 4.2, 'kb_hood', pv, faces=_faces_but('down'), ftex=lin, light=L_CLOTH, shift=(0.55, 0.3)),               # its sides
+            B(-1, 3.95, 5.4, 23.4, 25.3, -3.8, 4.2, 'kb_hood', pv, faces=_faces_but('down'), ftex=lin, light=L_CLOTH, shift=(0.75, 0.5)),
+            bx((-5.3, 23.4, 3.8), (5.3, 25.9, 5.2), 'kb_hood', pv, faces=_faces_but('down', 'north'), ftex=lin, light=L_CLOTH, shift=(0.35, 0.1)),    # the back
+            bx((-4.6, 25.9, 4.6), (4.6, 26.3, 5.3), 'kb_rim', pv, faces=_faces_but('down'), light=L_BAND),                                       # the rim
+            bx((-2.3, 22.0, 3.6), (2.3, 23.4, 4.6), 'kb_hood', pv, faces=_faces_but('north', 'up'), light=L_CLOTH, shift=(0.6, 0.6)),             # its crown
+            bx((-2.4, 21.7, 3.55), (2.4, 22.0, 4.65), 'kb_gold', pv, faces=_faces_but('north', 'up'), light=L_BAND)]
+    part('kb_body' + HOOD_SFX, body + cowl)
 
     # ---- the skirt: the lower four tiers of the tapestry, the gold hem, and a fringe of loose threads round it - every bond's colour
     pv = PIVOT['skirt']
@@ -611,6 +660,47 @@ def models():
     part('kb_head', head())
     for fc in FACES:
         part(f'kb_head_x{fc}', head(fc))
+
+    # ---- (3.0d) the hood down ('Sunlit'): her head revealed - the same glowing face and eyes of light, now the front of a head
+    #      whose sides, top and back are her HAIR (pearl, combed back sleek and tight) - a high ponytail gathered at the crown in
+    #      a gold band, falling behind; and round it, from behind, a SUNBURST: rays of gold light, long and short by turns, in an
+    #      arch over the head and shoulders (none straight up: the ponytail; none below the shoulders: the cowl and the wings)
+    RAYC, RAYZ = (0.0, 27.4), 4.0                                # (the sunburst's centre, its plane behind the head)
+    RAYS = [(90 + sx * (24 + 16 * k), (8.2, 6.6)[k % 2]) for sx in (1, -1) for k in range(5)]     # (degrees from +x, tip radius)
+    RAY_R0 = 4.2
+
+    def head_down(face=None):
+        et = 'kb_eyes' if face is None else f'kb_eyes_{face}'
+        hr = 'kb_hair'
+        h = [dict(bx((-3.25, 23.8, -2.62), (3.25, 29.8, -2.6), 'kb_face', pv, faces=('north',), uv={'north': [0, 0, 6.5, 6.0]}, light=L_FACE), shade=False),
+             dict(bx((-3.25, 23.8, -2.68), (3.25, 29.8, -2.66), et, pv, faces=('north',), uv={'north': [0, 0, 6.5, 6.0]}, light=L_EYES), shade=False),
+             # the glow behind it (its jaw, under the hair at the sides): the face's own amber rim
+             dict(bx((-3.2, 23.8, -2.6), (3.2, 29.8, 3.1), 'kb_face', pv, faces=('east', 'west', 'down'),
+                     uv={f: [0, 0, 0.5, 0.5] for f in ('east', 'west', 'down')}, light=L_FACE), shade=False),
+             # the hair: combed back over the top (a hairline just proud of the face), the sides from the temples, the back, a low crown
+             bx((-3.85, 29.8, -2.95), (3.85, 30.7, 3.7), hr, pv, light=L_HAIR, shift=(0.2, 0.1)),
+             B(1, 3.25, 3.85, 24.2, 29.8, -2.75, 3.1, hr, pv, faces=_faces_but('west', 'up'), light=L_HAIR, shift=(0.5, 0.3)),
+             B(-1, 3.25, 3.85, 24.2, 29.8, -2.75, 3.1, hr, pv, faces=_faces_but('east', 'up'), light=L_HAIR, shift=(0.7, 0.4)),
+             bx((-3.85, 24.0, 3.1), (3.85, 29.8, 3.7), hr, pv, faces=_faces_but('north', 'up'), light=L_HAIR, shift=(0.3, 0.6)),
+             bx((-2.9, 30.7, -1.9), (2.9, 31.3, 3.5), hr, pv, faces=_faces_but('down'), light=L_HAIR, shift=(0.6, 0.2)),
+             # the ponytail: gathered high at the back of the crown, a gold band round it, then a sleek tail arching back and falling
+             bx((-1.0, 30.7, 2.6), (1.0, 31.9, 4.4), hr, pv, faces=_faces_but('down'), light=L_HAIR, shift=(0.1, 0.5)),
+             bx((-0.92, 30.9, 4.4), (0.92, 32.3, 5.0), 'kb_gold', pv, light=L_BAND)]
+        tail = [(0.0, 31.6, 4.6), (0.0, 31.5, 5.9), (0.0, 29.4, 6.7), (0.0, 26.8, 6.9), (0.0, 24.6, 6.6)]
+        for k, (wd, th) in enumerate(((1.6, 1.2), (1.45, 1.1), (1.25, 1.0), (0.95, 0.8))):
+            h.append(seg(tail[k], tail[k + 1], th, wd, hr, pv, (1.0, 0.0, 0.0), ext=0.12, light=L_HAIR, shift=(0.3 * k, 0.2 * k)))
+        # the sunburst: each ray a root of warm gold and a white-gold tip, end to end, in one plane behind the head
+        for a, r1 in RAYS:
+            c, s_ = math.cos(math.radians(a)), math.sin(math.radians(a))
+            P_ = lambda r: (RAYC[0] + c * r, RAYC[1] + s_ * r, RAYZ)
+            long_ = r1 > 7
+            rm = RAY_R0 + (r1 - RAY_R0) * 0.45
+            h.append(seg(P_(RAY_R0), P_(rm), 0.9 if long_ else 0.7, 0.3, 'kb_ray', pv, (0.0, 0.0, 1.0), light=L_RAY, shift=(0.1 * a % 1, 0.3)))
+            h.append(seg(P_(rm), P_(r1), 0.5 if long_ else 0.4, 0.3, 'kb_rayt', pv, (0.0, 0.0, 1.0), light=L_RAY_TIP, shift=(0.07 * a % 1, 0.6)))
+        return h
+    part('kb_head' + HOOD_SFX, head_down())
+    for fc in FACES:
+        part(f'kb_head_x{fc}{HOOD_SFX}', head_down(fc))
 
     # ---- the arms (3.0c: shorter, rounder sleeves): pearl upper sleeves; a bell from the elbow to a woven cuff, a soft mitten
     #      of light peeping out of it (a little thumb on its inner side), and the sleeve's short drape hanging behind (the loose
