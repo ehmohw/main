@@ -320,7 +320,7 @@ for i, piece in enumerate(PIECES):
          ['Worn by a legend. Smells like grass.', (perk, 'blue'), ('Full set: Regeneration + triforce glow', 'dark_aqua')], e3, 3,
          attrs=armor_attrs('netherite', piece, extra3, bonus_tough=1, bonus_kb=0.05),
          upgrade_from=(f'kingpin_{piece}', 'trophy', 3), bold=True, custom_extra={'bm_set': 'hero'}, model=f'bm:hero_{piece}',
-         extra={'minecraft:trim': {'material': 'minecraft:gold', 'pattern': 'minecraft:wayfinder'},
+         extra={'!minecraft:trim': {},           # (v299a: the gold trim is gone - it fought the tunic; a re-sync strips it from old copies)
                 # (v299a: Link's own clothes - hero_armor_art.py; the cap a 3D model on the head, so no armour asset on it)
                 'minecraft:equippable': dict({'slot': s, 'equip_sound': 'minecraft:item.armor.equip_netherite'},
                                              **({} if piece == 'helmet' else {'asset_id': 'bm:hero'}))})

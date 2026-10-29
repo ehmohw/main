@@ -10,7 +10,7 @@ shades lit from the top left):
   LEGGINGS   the tunic's skirt to mid-thigh (green, a dark hem), pale leggings below.
   BOOTS      brown knee boots, the cuff folded over.
 Icons: the cap, the tunic, the leggings and the boots at 16 x 16, in the pack's icon style (outlined; vanilla.process lights
-them). The pieces keep their ids, enchantments, attributes, gold wayfinder trim and set power; only the look is new."""
+them). The pieces keep their ids, enchantments, attributes and set power (2.99a: the gold wayfinder trim is gone); only the look is new."""
 from PIL import Image
 
 import armor_kit as K

@@ -524,11 +524,12 @@ def generate(G):
     from useitem import give_back
     G.consume_adv('dread_ember', 'bm:p237/ember')
     fn('p237/ember', ['advancement revoke @s only bm:consume/dread_ember'] + give_back(G.item_arg('dread_ember')) +
-       ['execute if score #dfell bm.cfg matches 1 run return run function bm:p237/ember_kindle', 'function bm:p237/ember_smother'])
+       ['function bm:p237/ember_rematch',
+        'execute if score #dfell bm.cfg matches 1 run return run function bm:p237/ember_kindle', 'function bm:p237/ember_smother'])
+    # (2.99a: kindled or smothered, an Ember always lets you face the Sovereign again - as Apophiss will always have his rematch)
+    fn('p237/ember_rematch', ['execute unless entity @s[tag=bm.svdone] run return 0', 'tag @s remove bm.svdone',
+                              tellraw('@s', P + [T('In the Undercrown, something lifts its head. ', COL, bold=True), T('The Dread Sovereign will rise for you again.', 'gray')])])
     fn('p237/ember_kindle', ['scoreboard players set #dfell bm.cfg 0', 'execute unless score #dnt bm.cfg matches 1.. run scoreboard players set #dnt bm.cfg 40',
-                             'execute if entity @s[tag=bm.svdone] run ' + tellraw('@s', P + [T('In the Undercrown, something lifts its head. ', COL, bold=True),
-                                                                                         T('The Dread Sovereign will rise for you again.', 'gray')]),
-                             'tag @s remove bm.svdone',
                              'particle minecraft:flame ~ ~1.4 ~ 0.3 0.3 0.3 0.03 30', 'particle minecraft:sculk_soul ~ ~1.4 ~ 0.3 0.3 0.3 0.03 20',
                              'playsound minecraft:item.firecharge.use player @a[distance=..24] ~ ~ ~ 1 0.5', 'playsound minecraft:entity.warden.heartbeat ambient @a[distance=..24] ~ ~ ~ 1 0.5',
                              tellraw('@a', P + [T('Someone has kindled a Dread Ember. ', COL, bold=True), T('Somewhere, something remembers how to hunt: the Dread Nights will return.', 'gray')])])
