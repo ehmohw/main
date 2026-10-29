@@ -163,8 +163,9 @@ def mothership():
     with zipfile.ZipFile(DIST) as z:
         import io
         sk = Image.open(io.BytesIO(z.read('assets/bm/textures/item/skiff_key.png'))).convert('RGBA')
-    sh = Image.new('RGB', (2 * 168 + 20, 230), (198, 198, 198)); d = ImageDraw.Draw(sh)
-    for i, (im, n) in enumerate(((sk, 'skiff_key'), (ic, 'mothership_key'))):
+    mo = vanilla.process('mothership_module', A.mothership_module())
+    sh = Image.new('RGB', (3 * 178 + 10, 230), (198, 198, 198)); d = ImageDraw.Draw(sh)
+    for i, (im, n) in enumerate(((sk, 'skiff_key'), (ic, 'mothership_key'), (mo, 'mothership_module'))):
         big = im.resize((128, 128), Image.NEAREST); sh.paste(big, (10 + i * 178, 10), big)
         d.rectangle((10 + i * 178, 150, 29 + i * 178, 169), fill=(139, 139, 139)); sh.paste(im, (12 + i * 178, 152), im)
         two = im.resize((32, 32), Image.NEAREST); d.rectangle((36 + i * 178, 150, 71 + i * 178, 185), fill=(139, 139, 139)); sh.paste(two, (38 + i * 178, 152), two)

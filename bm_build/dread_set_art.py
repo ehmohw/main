@@ -25,54 +25,6 @@ RED, RED_L, VOID, VOID_L = (208, 24, 46), (255, 90, 100), (22, 16, 26), (48, 34,
 
 
 # ---------------------------------------------------------------------------------------------------- the sprites
-def _sprite(base, recolor, marks):
-    im = Image.open(f'{VAN}/item/{base}.png').convert('RGBA')
-    px = im.load()
-    for y in range(im.height):
-        for x in range(im.width):
-            r, g, b, a = px[x, y]
-            if a: px[x, y] = recolor((r + g + b) / 765) + (a,)
-    d = ImageDraw.Draw(im)
-    for xy, c in marks: d.point(xy, fill=c + (255,))
-    return im
-
-
-def _ramp(stops):
-    def f(t):
-        for (t0, c0), (t1, c1) in zip(stops, stops[1:]):
-            if t <= t1:
-                k = (t - t0) / max(1e-6, t1 - t0)
-                return tuple(round(c0[i] + (c1[i] - c0[i]) * k) for i in range(3))
-        return stops[-1][1]
-    return f
-
-
-DREAD_RAMP = _ramp([(0.0, (6, 4, 8)), (0.35, VOID), (0.6, VOID_L), (0.85, (110, 40, 60)), (1.0, RED_L)])
-HOLY_RAMP = _ramp([(0.0, (40, 30, 90)), (0.3, PEARL_D), (0.6, PEARL), (0.85, GOLD_L), (1.0, PEARL_L)])
-
-
-DA_BONE = (216, 204, 176, 255)
-
-
-def plate_icon(kind, holy=False):
-    base = {'chest': 'netherite_chestplate', 'legs': 'netherite_leggings', 'feet': 'netherite_boots'}[kind]
-    marks = []
-    if kind == 'chest':
-        marks = [((7, 4), IRIS if holy else RED_L), ((8, 4), IRIS if holy else RED_L), ((7, 6), GOLD if holy else DA_BONE[:3]), ((8, 6), GOLD if holy else DA_BONE[:3])]
-    elif kind == 'legs':
-        marks = [((5, 7), GOLD if holy else DA_BONE[:3]), ((10, 7), GOLD if holy else DA_BONE[:3]), ((5, 3), IRIS if holy else RED)]
-    else:
-        marks = [((3, 13), DA_BONE[:3]), ((12, 13), DA_BONE[:3])] if not holy else [((1, 9), PEARL_L), ((14, 9), PEARL_L), ((0, 8), PEARL), ((15, 8), PEARL)]
-    im = _sprite(base, HOLY_RAMP if holy else DREAD_RAMP, marks)
-    if kind == 'chest':                                     # (the Carapace and the Wings fly: a wing behind each shoulder)
-        d = ImageDraw.Draw(im)
-        c, e = ((PEARL_L, GOLD) if holy else ((70, 20, 34), RED))
-        for s in (-1, 1):
-            x0 = 1 if s < 0 else 14
-            d.line((x0, 1, x0, 7), fill=c + (255,)); d.point((x0, 8), fill=e + (255,)); d.point((x0 - s, 0), fill=c + (255,))
-    return im
-
-
 def heart_icon():
     """the Dread Heart: a black heart veined in red, an eye open in it"""
     im = Image.new('RGBA', (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
@@ -88,36 +40,6 @@ def icons():
     out.update(DK.icons())                                  # (2.99: the Dread's sprites, drawn on vanilla's silhouettes - dread_art)
     out.update(SA.icons())                                  # (2.99: the Seraph's sprites, drawn for themselves - seraph_art)
     return out
-
-
-# ---------------------------------------------------------------------------------------------------- the wings (an elytra layer)
-def _eye(px, w, h, cx, cy, iris):
-    for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, -1), (0, 1)):
-        x, y = cx + dx, cy + dy
-        if 0 <= x < w and 0 <= y < h and px[x, y][3]: px[x, y] = (250, 250, 250, 255)
-    if 0 <= cx < w and 0 <= cy < h: px[cx, cy] = iris + (255,)
-
-
-def wings(holy=False):
-    """the Dread Carapace's elytra layer: black membrane veined in red, eyes in it (the Seraph's is seraph_art.wings_layer)"""
-    assert not holy
-    im = Image.open(WINGS_SRC).convert('RGBA'); px = im.load(); w, h = im.size
-    rnd = random.Random(3)
-    for y in range(h):
-        for x in range(w):
-            r, g, b, a = px[x, y]
-            if a: px[x, y] = DREAD_RAMP((r + g + b) / 765 * 0.55) + (a,)
-    for _ in range(14):                                      # veins of red light, branching as they spread
-        x, y = rnd.randrange(w), rnd.randrange(h)
-        for _s in range(rnd.randint(4, 9)):
-            if 0 <= x < w and 0 <= y < h and px[x, y][3]: px[x, y] = (RED if rnd.random() < 0.75 else RED_L) + (255,)
-            x += rnd.choice((-1, 0, 1)); y += rnd.choice((0, 1, 1))
-    for _ in range(6):                                       # eyes in the wings
-        for _try in range(40):
-            x, y = rnd.randrange(2, w - 2), rnd.randrange(2, h - 2)
-            if all(px[x + dx, y + dy][3] for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
-                _eye(px, w, h, x, y, RED); break
-    return im
 
 
 def rp(R):
