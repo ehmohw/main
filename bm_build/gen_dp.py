@@ -211,6 +211,7 @@ import phase244 as R244      # 2.99: the Vorn Armada's soundtrack - five tiers, 
 import phase245 as R245      # 2.99a: the Statue Knights - stone sentinels that wake when their room is solved
 import phase246 as R246      # 2.99a: the Dread Mire - a puddle of the Dread that rises; Shadow Musk
 import phase247 as R247      # 2.99a: holy bane - the Dread is weak against holy weapons
+import phase248 as R248      # 2.99a: the Backpack (the Fence) - a plain 27-slot bag that works in the dungeons
 import phase241 as R241      # 2.99: the Vorn Armada - the Vorn's hard-mode dungeon, a hive-fleet round a star in the End (its kinds of trial register on import)
 R233.add_pairs()             # 2.98: the Creative Forms
 R229.add_pairs()             # 2.97: the cats' pairs with everyone - after every follower is imported
@@ -508,6 +509,7 @@ def all_offers():
     R179.extend_offers(O, offer)       # (2.84c: the Partner Wheel at Cecil's)
     R199.extend_offers(O, offer)       # (2.91: the Sealed Royal Chart at the Dockmaster's)
     R225.extend_offers(O, offer)       # (2.94x: the Smuggler's Waytoken at the Fence's)
+    R248.extend_offers(O, offer)       # (2.99a: the Backpack at the Fence's)
     R202.extend_offers(O, offer)       # (2.92: Leo's Trident and the Bloomheart leave Cecil for the Royal Steward)
     # 2.82: follower cosmetics are raid exclusives (the Tailor in the den) - no overworld trader sells one
     global COS_OFF_MARKET
@@ -1492,6 +1494,7 @@ def build(out_dir):
     if PHASE2: R245.generate(sys.modules[__name__])      # 2.99a: the Statue Knights (the Throne Gate's, the Command Lock's)
     if PHASE2: R246.generate(sys.modules[__name__])      # 2.99a: the Dread Mire (after phase181: it patches the Stalkers)
     if PHASE2: R247.generate(sys.modules[__name__])      # 2.99a: holy bane
+    print('2.99a: the Backpack - %d dungeon rebuilds fold open bags first' % len(R248.generate(sys.modules[__name__])))      # (after the boxes it reuses and the builds it guards)
     print('2.85c: the Rat Race - %d jobs, %d prizes in the draw' % R183.generate(sys.modules[__name__]))
     print('2.85d: %d new fight rooms, the rats\' calls, the Forge/Garden coin' % R184.generate(sys.modules[__name__]))
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))

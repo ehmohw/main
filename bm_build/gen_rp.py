@@ -955,6 +955,8 @@ if __name__ == '__main__':
     phase225.rp(sys.modules[__name__])
     import phase226                           # (2.95c: the Piercing Blow's death message)
     phase226.rp(sys.modules[__name__])
+    import phase248                           # (2.99a: the Backpack)
+    phase248.rp(sys.modules[__name__])
     LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',
                  'death.attack.bm.quake': '%1$s was flattened by a shockwave', 'death.attack.bm.quake.player': '%1$s was flattened by %2$s'})
     if PHASE2:
