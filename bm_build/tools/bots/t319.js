@@ -5,7 +5,11 @@
 //            stays shut, the room's bar shows), one strikes you; struck down: they turn to stone, their statues are yours, the door opens
 //   gate     the Undercrown's Throne Gate: the same with the Dread Sentinels and the three Crown Shards
 //   home     a Dread Sentinel's Statue: sneak + use on a block sets it up; sneak + punch takes it back
-//   node t319.js [lock|gate|home]
+//   guard    (3.0) a Dread Sentinel's Statue set up, right-clicked: its dialog; "Stand guard": it wakes (live), a zombie (rcon) near it
+//            is struck down, you are never hurt and your own blow does nothing; right-clicked again, "Rest": stone on its plinth.
+//            "Duel me": it wakes against you, its bar shows, its mace lands; brought to the edge (rcon) and struck: it falls, its
+//            plinth empties and its statue drops - picked up. A Vorn Sentinel's Statue the same way to "Stand guard" and "Rest".
+//   node t319.js [lock|gate|home|guard]
 const { bot, rcon, sleep } = require('./lib_resp');
 const ONLY = process.argv[2];
 const on = (s) => !ONLY || ONLY === s;
@@ -124,6 +128,93 @@ const FLOOR = 100;
     A.input({ shift: true }); await sleep(300); if (e) A.attack(e.entityId); await sleep(600); A.input({}); await sleep(600);
     ok('...sneak + punched: back in your pack', (await has('knight_statue_dread')) === 1 && (await cnt(O, '@e[type=minecraft:item_display,tag=bm.knsd_dread,distance=..4,x=18400,y=100,z=16001]')) === 0);
     await run(`${O}kill @e[type=minecraft:interaction,tag=bm.knst,distance=..6,x=18400,y=100,z=16001]`);
+  }
+
+  if (on('guard')) {
+    const O = 'execute in minecraft:overworld run ';
+    const X = 18400, Y = 100, Z = 16000;
+    const near = `distance=..12,x=${X},y=${Y},z=${Z + 1}`;
+    await run(`${O}fill ${X - 12} ${Y} ${Z - 12} ${X + 12} ${Y + 5} ${Z + 12} minecraft:air`); await run(`${O}fill ${X - 12} ${Y - 1} ${Z - 12} ${X + 12} ${Y - 1} ${Z + 12} minecraft:stone`);
+    await run(`${O}kill @e[type=minecraft:zombie,tag=bm.t319z]`); await run('difficulty normal');
+    const place = async (kind) => {
+      await at(O, X + 0.5, Y, Z + 0.5, 0, 60); await run('clear TestRat');
+      await run(`loot replace entity TestRat hotbar.0 loot bm:items/knight_statue_${kind}`); A.slot(0); await sleep(400);
+      A.input({ shift: true }); await sleep(200); A.use(); await sleep(400); A.release(); await sleep(300); A.input({}); await sleep(800);
+      return cnt(O, `@e[type=minecraft:interaction,tag=bm.knst_${kind},${near}]`);
+    };
+    const statue = (kind) => `@e[type=minecraft:interaction,tag=bm.knst_${kind},${near},limit=1]`;
+    const host = (kind) => `@e[type=minecraft:husk,tag=bm.kh_${kind},tag=bm.khome,${near.replace('..12', '..24')},limit=1]`;
+    const click = async (kind) => {      // (right-click its plinth, standing, as a player does - and wait for a screen)
+      const e = await entOf(O, statue(kind)); if (!e) return false;
+      const n0 = A.dialogN.length; A.interact(e.entityId, false);
+      return wait(3000, async () => A.dialogN.length > n0, 100);
+    };
+    const model = async () => await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.kr_head,${near},sort=nearest,limit=1] item.components."minecraft:item_model"`);
+    const shown = async (kind) => /scale: \[1\.0f/.test(await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.knsd_${kind},${near},limit=1] transformation`));
+
+    // ---- the Dread Sentinel: on guard
+    ok('a Dread Sentinel\'s Statue set up (sneak + use)', (await place('dread')) === 1);
+    await at(O, X + 0.5, Y, Z - 2.5, 0, 10);
+    ok('...right-clicked: its dialog ("Stand guard", "Duel me")', await click('dread') && A.buttons().some(b => /Stand guard/.test(b.label)) && A.buttons().some(b => /Duel me/.test(b.label)),
+       JSON.stringify(A.buttons().map(b => b.label)));
+    await A.press(/Stand guard/);
+    ok('..."Stand guard": it wakes (a guard: its host, the stone hidden)', await wait(4000, async () => (await cnt(O, host('dread'))) === 1) && !(await shown('dread')));
+    ok('...stone no longer: the live models', await wait(5000, async () => /_live_/.test(await model())), await model());
+    ok('...its plinth knows its owner (bm.pid) and that it is on guard (bm.kgm 1)', (await sc(statue('dread'), 'bm.kgm')) === 1 && (await sc(statue('dread'), 'bm.pid')) === (await sc('TestRat', 'bm.pid')));
+    await sleep(1500);
+    const h0 = await hp(); let lo = h0;
+    const g = await entOf(O, host('dread'));
+    if (g) { await at(O, X + 0.5, Y, Z - 0.2, 0, 10); A.attack(g.entityId); await sleep(600); A.attack(g.entityId); await sleep(600); }
+    const gh = async () => +(((await run(`${O}data get entity ${host('dread')} Health`)).match(/(-?[\d.]+)f?$/) || [0, NaN])[1]);
+    ok('...your own blows do it no harm (a guard)', (await gh()) >= 339.5, String(await gh()));
+    await at(O, X + 0.5, Y, Z - 3.5, 0, 10);
+    await run(`${O}summon minecraft:zombie ${X + 0.5} ${Y} ${Z + 6.5} {NoAI:1b,PersistenceRequired:1b,Tags:["bm.t319z","bm.seen"],active_effects:[{id:"minecraft:fire_resistance",duration:-1,amplifier:0b,show_particles:0b}]}`);
+    const dead = await wait(30000, async () => { lo = Math.min(lo, await hp()); return (await cnt(O, '@e[type=minecraft:zombie,tag=bm.t319z]')) === 0; }, 250);
+    ok('...a zombie near it: struck down by the guard', dead);
+    ok('...and you were never hurt', lo >= h0 - 0.5, `${h0} -> lowest ${lo}`);
+    ok('...back on its post after', await wait(10000, async () => { const p = await pos(O, host('dread')); return p && Math.hypot(p[0] - (X + 0.5), p[2] - (Z + 1.5)) < 1.2; }), String(await pos(O, host('dread'))));
+    await at(O, X + 0.5, Y, Z - 2.5, 0, 10);
+    ok('...right-clicked again: "Rest"', await click('dread') && A.buttons().some(b => /Rest/.test(b.label)), JSON.stringify(A.buttons().map(b => b.label)));
+    await A.press(/Rest/);
+    ok('..."Rest": a statue on its plinth again (no host, the stone shown, bm.kgm 0)', await wait(8000, async () => (await cnt(O, host('dread'))) === 0 && await shown('dread')) &&
+       (await sc(statue('dread'), 'bm.kgm')) === 0 && (await cnt(O, `@e[type=minecraft:item_display,tag=bm.kr,${near}]`)) === 0);
+
+    // ---- the Dread Sentinel: a duel
+    await run('effect clear TestRat'); await run('effect give TestRat minecraft:regeneration infinite 1 true');
+    ok('right-clicked: "Duel me"', await click('dread') && !!(await A.press(/Duel me/)));
+    ok('...it wakes to duel you (bm.kduel, bm.kgm 2)', await wait(4000, async () => (await cnt(O, `@e[type=minecraft:husk,tag=bm.kduel,${near}]`)) === 1) && (await sc(statue('dread'), 'bm.kgm')) === 2);
+    await sleep(2500);
+    ok('...its bar shows', await wait(4000, async () => /TestRat/.test(await run('bossbar get bm:kduel1 players'))), await run('bossbar get bm:kduel1 players'));
+    A.dialogN.length = 0;
+    ok('...right-clicked mid-duel: no dialog ("a duel is under way")', !(await click('dread')));
+    const d0 = await hp(); let hurt = false;
+    for (let i = 0; i < 40 && !hurt; i++) { const kp = await pos(O, host('dread')); if (kp) await run(`${O}tp TestRat ${kp[0] + 1.5} ${kp[1]} ${kp[2]}`); await sleep(500); hurt = (await hp()) < d0 - 0.5; }
+    ok('...its mace lands on you', hurt, `${d0} -> ${await hp()}`);
+    await run('effect give TestRat minecraft:resistance 60 3 true');
+    const kp = await pos(O, host('dread'));
+    await run(`${O}data modify entity ${host('dread')} Health set value ${FLOOR + 1}f`);
+    if (kp) await at(O, kp[0] + 1.5, kp[1], kp[2], 90, 0);
+    const e = await entOf(O, host('dread')); if (e) { A.attack(e.entityId); await sleep(300); A.attack(e.entityId); }
+    ok('...struck down: it falls (no host), its plinth empty (no statue, no interaction)', await wait(8000, async () => (await cnt(O, host('dread'))) === 0) &&
+       (await cnt(O, `@e[type=minecraft:interaction,tag=bm.knst_dread,${near.replace('..12', '..40')}]`)) === 0 && (await cnt(O, `@e[type=minecraft:item_display,tag=bm.knsd_dread,${near.replace('..12', '..40')}]`)) === 0);
+    const it = await pos(O, `@e[type=minecraft:item,${near.replace('..12', '..40')},nbt={Item:{components:{"minecraft:custom_data":{bm:"knight_statue_dread"}}}},limit=1]`);
+    ok('...and its statue drops', !!it, String(it));
+    if (it) await at(O, it[0], it[1], it[2]);
+    ok('...picked up: yours again', await wait(4000, async () => (await has('knight_statue_dread')) === 1));
+    await run('effect clear TestRat'); await run('effect give TestRat minecraft:regeneration infinite 1 true');
+
+    // ---- the Vorn Sentinel: on guard, and at rest
+    await run(`${O}kill @e[type=minecraft:item,${near.replace('..12', '..40')}]`);
+    ok('a Vorn Sentinel\'s Statue set up', (await place('vorn')) === 1);
+    await at(O, X + 0.5, Y, Z - 2.5, 0, 10);
+    ok('...right-clicked, "Stand guard": it wakes, live', await click('vorn') && !!(await A.press(/Stand guard/)) &&
+       await wait(6000, async () => (await cnt(O, host('vorn'))) === 1 && /_live_/.test(await model())));
+    await sleep(1000);
+    ok('..."Rest": stone again', await click('vorn') && !!(await A.press(/Rest/)) && await wait(8000, async () => (await cnt(O, host('vorn'))) === 0 && await shown('vorn')));
+    const v = await entOf(O, statue('vorn'));
+    A.input({ shift: true }); await sleep(300); if (v) A.attack(v.entityId); await sleep(600); A.input({}); await sleep(600);
+    ok('...sneak + punched: back in your pack', (await has('knight_statue_vorn')) === 1);
+    await run(`${O}kill @e[type=minecraft:interaction,tag=bm.knst,${near.replace('..12', '..40')}]`); await run(`${O}kill @e[type=minecraft:zombie,tag=bm.t319z]`);
   }
 
   await run('tag TestRat remove bm.lkpass');      // (phase251's pass off again)

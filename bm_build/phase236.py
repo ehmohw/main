@@ -75,6 +75,7 @@ class Lightbringer(RP.Cfg):
               ('Ward', 'charged, every minute: her wings close round you - you and your followers Resistance II and Absorption II; the monsters near pushed back (6, the undead set alight)'),
               ('Ophanim', 'three or more monsters near, every 90 s: she takes her true form - a wheel within a wheel, full of eyes - and light falls three times on every monster within 16 (14, and 20 to the undead)'),
               ('Pray', 'out of a fight beside you, every minute: a meal\'s worth, and Regeneration'),
+              ('Light in the Dark', 'by night, underground or beyond the Overworld the herald shines - every feather of light'),
               ('Holy Favour', 'she loves it when you wear holy things (anything a Golden Cross has made holy): beside her, you heal; her smite strikes harder (+4); her blessing and her prayer are stronger')]
     INTRO = [T('The Lightbringer', HOLY, bold=True), T(' - a herald of the Divine One, the light against the Dread. ', 'gray'),
              T('She loves it when you wear holy things.', 'white')]
@@ -440,6 +441,17 @@ def generate(G):
     fn('admin/unreckoned', ['tag @s remove bm.dfin', title('@s', 'actionbar', T('Unmarked: the final reckoning is still ahead of you.', HOLY))])
     G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/reckoned', 'yellow'), T(' / ', 'gray'), T('unreckoned', 'yellow'),
                                                 T('  mark the final reckoning faced (or not) - the Lightbringer comes only before it', 'gray')]))
+    # ---- (3.0) THE LIGHTBRINGER SHINES IN THE DARK: by night, out of the Overworld or under a roof she glows all over (every
+    #      part at full brightness, both forms); by day under the open sky she's lit by the world again
+    wjson('bm/predicate/p236/daylit.json', {'condition': 'minecraft:all_of', 'terms': [
+        {'condition': 'minecraft:inverted', 'term': {'condition': 'minecraft:time_check', 'clock': 'minecraft:overworld', 'value': {'min': 13000, 'max': 23000}, 'period': 24000}},
+        {'condition': 'minecraft:location_check', 'offsetY': 1.0, 'predicate': {'can_see_sky': True, 'dimension': 'minecraft:overworld'}}]})
+    G.FUNCS['loop/second'] += ['execute as @e[type=minecraft:wolf,tag=bm.lhpet,tag=!bm.ffpet] at @s run function bm:p236l/shine']
+    fn('p236l/shine', ['scoreboard players operation #me bm.pid = @s bm.pid',
+                       'execute unless predicate bm:p236/daylit as @e[type=minecraft:item_display,tag=bm.lhp,tag=!bm.lhglow,distance=..8] if score @s bm.pid = #me bm.pid run function bm:p236l/shine_on',
+                       'execute if predicate bm:p236/daylit as @e[type=minecraft:item_display,tag=bm.lhglow,distance=..8] if score @s bm.pid = #me bm.pid run function bm:p236l/shine_off'])
+    fn('p236l/shine_on', ['tag @s add bm.lhglow', 'data merge entity @s {brightness:{block:15,sky:15}}'])
+    fn('p236l/shine_off', ['tag @s remove bm.lhglow', 'data remove entity @s brightness'])
     # ---- NIGHT GLOW (the Pale Dryad): blue and orange, soft, round her mushrooms by night
     G.FUNCS['loop/second'] += ['execute as @e[type=minecraft:wolf,tag=bm.pypet,tag=!bm.ffpet] at @s if predicate bm:p236/night run function bm:p236p/glow']
     fn('p236p/glow', ['particle minecraft:dust{color:[0.4,0.66,1.0],scale:0.6} ~ ~0.9 ~ 0.3 0.35 0.3 0 2', 'particle minecraft:dust{color:[1.0,0.6,0.25],scale:0.5} ~ ~0.7 ~ 0.3 0.3 0.3 0 1',

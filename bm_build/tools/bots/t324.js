@@ -5,8 +5,9 @@
 // to it - the send-off counts the threads, it bows and weaves, a second word while it weaves is "a moment more", and the Bond
 // Thread is put in TestRat's hands, the Keeper along with it. Then: no second Keeper (bm.tkmet). Rcon carries TestRat and the
 // Keeper home together. Then TUG (yanked in), THE WEAVE (bound, held fast), MEND (TestRat and the Mireling, out beside it:
-// Regeneration II), BOND (one other follower near: Luck), GIFT (out of a fight: "a little gift"), the motes' spin; then the
-// shared list.
+// Regeneration II), BOND (one other follower near: Luck), GIFT (out of a fight: "a little gift"), the motes' spin; SUNLIT (3.0d:
+// its hood down - the wardrobe's costume row pressed, the head and body on their '_h' models, kept across a send-home, and back);
+// then the shared list.
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
 const IX = -2600, IY = 262, IZ = 2600;                              // (phase253: the template's corner)
 const AX = IX + 13.5, AY = IY + 20, AZ = IZ + 23.5;                 // (keeper_sanctuary.ARRIVAL: the landing circle)
@@ -96,4 +97,27 @@ runT({ W: 'keeper', NAME: 'The Keeper of Bonds', ab: 'tk', q: 'qb', pfx: 'p254',
     await run('execute as TestRat at @s run function bm:p252/home'); await sleep(500);
     await run('clear TestRat *[minecraft:custom_data~{bm:"mire_seed"}]'); await run('scoreboard players set TestRat bm.mlcd 0');
     await K.calm();
+    // ---- (3.0d) SUNLIT - its hood down: a costume row in its wardrobe (rigpet's FORM_WARDROBE, bm.qbhd on the owner), chosen as a
+    //      player would - sneak + use the Thread, Wardrobe, "Sunlit" - the head wears its hood-down twin (kb_head_h: the face and
+    //      eyes on a head of pearl hair, the sunburst) and the body its cowl (kb_body_h); kept across a send-home; and back
+    const HEAD = '@e[type=minecraft:item_display,tag=bm.tkp_pet,tag=!bm.tkfade,tag=bm.tkp_head,limit=1]';
+    const BODYP = '@e[type=minecraft:item_display,tag=bm.tkp_pet,tag=!bm.tkfade,tag=bm.tkp_body,limit=1]';
+    const mdl = async (sel) => (await nbt(sel, 'item.components."minecraft:item_model"')).replace(/"/g, '');
+    const row = () => A.buttons().find(b => /Sunlit/.test(b.label));
+    await run('scoreboard players set TestRat bm.qbhd 0');
+    await ctx.sneakMenu(0); const wd = await A.press(/Wardrobe/);
+    ok('SUNLIT - its wardrobe has the costume row: "Sunlit  off"', wd && row() && /off/.test(row().label), A.buttons().map(b => b.label).join(' | '));
+    A.bars.length = 0; await A.press(/Sunlit/); await sleep(1200);
+    ok('...chosen: bm.qbhd 1 - the head wears its hood-down twin (kb_head_h), the body its cowl (kb_body_h)', (await ctx.score('bm.qbhd')) === 1 &&
+       /^bm:kb_head_h(_c\d+)?$/.test(await mdl(HEAD)) && /^bm:kb_body_h(_c\d+)?$/.test(await mdl(BODYP)), `${await mdl(HEAD)} / ${await mdl(BODYP)}`);
+    ok('...it lowers its hood (its line), and the wardrobe row now reads "on"', A.bars.some(b => /lowers its hood/.test(b)) && row() && /\bon\b/.test(row().label),
+       `${A.bars.slice(-1).join('')} | ${row() && row().label}`);
+    ok('...its other parts keep their own models (an arm: kb_armr)', /^bm:kb_armr(_c\d+)?$/.test(await mdl('@e[type=minecraft:item_display,tag=bm.tkp_pet,tag=!bm.tkfade,tag=bm.tkp_armr,limit=1]')));
+    await ctx.sneakMenu(0); await A.click(/Send .* home/); await sleep(1500);
+    await ctx.use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
+    ok('...sent home and called again: still Sunlit (kb_head_h)', /^bm:kb_head_h(_c\d+)?$/.test(await mdl(HEAD)), await mdl(HEAD));
+    await ctx.sneakMenu(0); await A.press(/Wardrobe/); A.bars.length = 0; await A.press(/Sunlit/); await sleep(1200);
+    ok('...and back: bm.qbhd 0, the hood up again (kb_head, kb_body)', (await ctx.score('bm.qbhd')) === 0 &&
+       /^bm:kb_head(_c\d+)?$/.test(await mdl(HEAD)) && /^bm:kb_body(_c\d+)?$/.test(await mdl(BODYP)) && A.bars.some(b => /draws its hood up/.test(b)),
+       `${await mdl(HEAD)} / ${await mdl(BODYP)} | ${A.bars.slice(-1).join('')}`);
   } });

@@ -196,6 +196,18 @@ RECOL = {'apo': ('apophiss_art', ('apo_scale', 'apo_scale_dk', 'apo_fin', 'apo_b
 # (so the scales come out as before, and the dark claws stay darker than the scales)
 SIDE = {'apo_claw', 'apo_lid', 'om_claw', 'om_lid'}
 SIDE |= {'ml_glow', 'ml_hot', 'ml_barb'}           # (3.00: the Mireling's veins - mireling_art.LOOK_SIDE: a look's light colour IS its vein colour)
+# (3.0d) a texture recoloured on its own toward the look's light end - (mid, light, light mixed this far to white): the Keeper's
+# pearl hair (its hood down) - so in a dark look it's a pale pearly tint of it, not the robe's own colour (it would read as a hood)
+PALE = {'kb_hair': 0.6}
+
+
+def pale(im, name, pal):
+    from gen_rp import hexc
+    a, b = hexc(pal[1])[:3], hexc(pal[2])[:3]
+    w = '#%02x%02x%02x' % tuple(int(round(b[i] + (255 - b[i]) * PALE[name])) for i in range(3))
+    return P99._recolour({name: im}, (pal[1], pal[2], w))[name]
+
+
 FROG_SKIN = {1: ('light_blue_wool', 'blue_wool'), 2: ('orange_wool', 'red_wool'), 3: ('brown_wool', 'brown_terracotta'), 4: ('yellow_wool', 'yellow_terracotta')}
 import shiny as _SH
 FROG_SKIN[_SH.KEY['frog']] = _SH.FROG_SKIN                  # (2.94t: his shiny skin)
@@ -217,8 +229,9 @@ def textures():
             if gild.is_gilded(w, k):
                 ims = {n: gild.dress(w, k, base[n]) for n in keys}                                    # (2.79a: polished gold)
             else:
-                main = {n: base[n] for n in keys if n not in SIDE and not n.endswith('_g')}
+                main = {n: base[n] for n in keys if n not in SIDE and n not in PALE and not n.endswith('_g')}
                 ims = P99._recolour(main, pal)
+                ims.update({n: pale(base[n], n, pal) for n in keys if n in PALE})
                 ghost = {n: base[n] for n in keys if n.endswith('_g')}
                 if ghost: ims.update(P99._recolour(ghost, pal))
                 side = {n: base[n] for n in keys if n in SIDE}

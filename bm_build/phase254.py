@@ -16,6 +16,8 @@ THE MEETING  whenever someone with the Compass (bm.kbcomp) is on the island and 
   BOND         its passive: each of your OTHER followers out near you (16) is a thread pulled taut - one: Luck; two: and
                Regeneration; three: and Resistance; four or more: and Strength. From two on, your followers near it hit a
                little harder (Strength) too.
+SUNLIT (3.0d)  its costume, a row of its wardrobe (code 5288, free with it, as every follower's form is): its hood down - pearl
+             hair in a high ponytail, a sunburst behind its head (rigpet's FORM on the head and body: keeper_art's '_h' models).
 Its motes - the bonds - spin slowly round it (right_rotation about y, on the two ring displays; every pose's own small turn
 rides on top). Everything else is every follower's: sitting, a wardrobe (its cloth's colour, per look), a rare aura (rainbow
 threads), a shiny (a starlit weave), the Partner Wheel, a frame, a display case, Cecil's doll, the honours, a Raid Contract;

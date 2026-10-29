@@ -33,6 +33,17 @@ LOOK  A calm, cosy figure (3.0c: 2.14 blocks to the hood's crown as it floats - 
         a slow flap through the idles, folded round it sitting, spread in happy and the weave, drooped in the faint.
       Simplified, readable textures: 2-px square cells on 64-px textures (a half unit), no speckle.
 
+SUNLIT (3.0d, the owner's: a wardrobe costume - its hood down). The '_h' models of HOOD_PARTS (rigpet's FORM, FORM_PARTS;
+      phase254): kb_head_h (and kb_head_x<face>_h - every face) - the SAME glowing face and eyes of light, now the front of a
+      head whose sides, top and back are pearl HAIR (kb_hair: the cloth's mother-of-pearl, in combed strands, animated),
+      pulled back tight into a high ponytail in a gold band, falling behind; round it a SUNBURST (kb_ray / kb_rayt, light 13
+      and 15): a corona of gold behind the head, open at the top for the ponytail, and ten rays, long and short by turns, in
+      an arch over the head and shoulders, leaning forward as a shallow dish (clear of the upper wings in every pose, the
+      swim's laid-back wings too); kb_body_h - the body with the hood bunched round its neck as a soft pearl cowl (lining
+      turned out on top, the gold rim along the back, its crown hanging between the wings' roots). A look recolours the hair
+      on its own, a pale tint of the look (phase138.PALE). Previews: tools/preview/keeper.py hooddown, hdlooks, hdclip.
+      (3.0d fix) The eyes' shine is not mirrored: one light, the same side of both eyes.
+
 MOTION  It hovers (_off y HOVER, a slow bob), the hem's fringe clear of the ground; it glides rather than walks. Sitting, praying
       and fainting set it down kneeling on its robe spread on the floor (the 'pool', shown instead of the skirt).
 

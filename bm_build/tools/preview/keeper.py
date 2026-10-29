@@ -468,7 +468,10 @@ if 'looks' in what:
         if pal is not None:
             root = K.pack(A, f'{SCRATCH}/rp_kb_look')
             if gild.is_gilded('keeper', k): ims = {n: gild.dress('keeper', k, base[n]) for n in A.LOOK_TEX}
-            else: ims = P99._recolour({n: base[n] for n in A.LOOK_TEX}, pal)
+            else:
+                import phase138 as P138
+                ims = P99._recolour({n: base[n] for n in A.LOOK_TEX if n not in P138.PALE}, pal)
+                ims.update({n: P138.pale(base[n], n, pal) for n in A.LOOK_TEX if n in P138.PALE})
             for n, im in ims.items():
                 assert im.size == base[n].size, (n, im.size)
                 im.save(f'{root}/assets/bm/textures/block/{n}.png')
@@ -513,7 +516,10 @@ if 'hooddown' in what:
     for pz, v, l in ((I, (-30, 14), 'idle'), (A.POSES['idle_b'], (-30, 14), 'idle_b'), (A.POSES['weave'], (-20, 18), 'the weave'), (I, 'back', 'from behind')):
         s = night_scene(); rigkit.render(s, A, HD(pz), scale=A.RIG_SCALE); K.person(s, (1.15, 0, 0.1))
         tiles.append(dark_label(darken(s.render(v, size=440, span=3.3, center=(0.5, 1.4, 0))), f'Sunlit at night: {l}', 'the rays and the face aglow'))
-    K.sheet(tiles, HD_OUT + '/hd_night.png', cols=4, title='The Keeper of Bonds - Sunlit by night')
+    for v, l in (('front', 'the head, close'), ((-40, 8), 'three-quarter, close')):
+        s = night_scene(); rigkit.render(s, A, H, scale=A.RIG_SCALE)
+        tiles.append(dark_label(darken(s.render(v, size=440, span=1.5, center=(0, 1.75, 0.1))), f'Sunlit at night: {l}', 'the face, the eyes, the corona and rays'))
+    K.sheet(tiles, HD_OUT + '/hd_night.png', cols=3, title='The Keeper of Bonds - Sunlit by night')
     tiles = []
     for v in ('front', (-38, 10), 'back'):
         for pz, l in ((I, 'hooded (default)'), (H, 'Sunlit (hood down)')):
@@ -535,7 +541,10 @@ if 'hdlooks' in what:
         if pal is not None:
             root = K.pack(A, f'{SCRATCH}/rp_kb_look')
             if gild.is_gilded('keeper', k): ims = {n: gild.dress('keeper', k, base[n]) for n in A.LOOK_TEX}
-            else: ims = P99._recolour({n: base[n] for n in A.LOOK_TEX}, pal)
+            else:
+                import phase138 as P138                                  # (as phase138.textures: the hair on its own, paler)
+                ims = P99._recolour({n: base[n] for n in A.LOOK_TEX if n not in P138.PALE}, pal)
+                ims.update({n: P138.pale(base[n], n, pal) for n in A.LOOK_TEX if n in P138.PALE})
             for n, im in ims.items(): im.save(f'{root}/assets/bm/textures/block/{n}.png')
         for night in (False, True):
             FRAME[0] = 6
@@ -544,4 +553,4 @@ if 'hdlooks' in what:
             im = s.render((-30, 10), size=300, span=2.9, center=(0, 1.35, 0))
             (ntiles if night else tiles).append(dark_label(darken(im), name, 'at night') if night else K.label(im, name, f'look {k}' if k else 'no look'))
     FRAME[0] = 0
-    K.sheet(tiles + ntiles, HD_OUT + '/hd_looks.png', cols=len(tiles), title="The Keeper of Bonds - Sunlit in every look (the hair recoloured with the cloth: phase138), by day and by night")
+    K.sheet(tiles + ntiles, HD_OUT + '/hd_looks.png', cols=len(tiles), title="The Keeper of Bonds - Sunlit in every look (the hair a pale pearly tint of each look: phase138.PALE; the metals as gild dresses them), by day and by night")
