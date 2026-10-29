@@ -115,7 +115,7 @@ const E = 'execute in minecraft:the_end run ';
       for (let i = 0; i < 24; i++) { await hit(`@e[type=minecraft:interaction,tag=bm.arhit,sort=nearest,limit=1]`); await sleep(350); if ((await cnt(`@e[type=minecraft:interaction,tag=bm.arhit,x=${core[0] + dx},y=${core[1] + 1},z=${core[2] + dz},distance=..1.5]`)) === 0) break; }
     }
     ok('...each struck 8 times: all four broken - the reactor offline, its trial solved', await wait(4000, async () => (await sc(DG.replace('limit=1', 'limit=1'), 'bm.pz')) >= 14 || (await cnt('@e[type=minecraft:interaction,tag=bm.arhit]')) === 0));
-    ok('...its spoils: a Star-Core and red Xenite', await wait(4000, async () => (await has('star_core')) >= 1 && (await has('xenite_red')) >= 1));
+    ok('...its spoils: a Star-Core and red Xenite', await wait(4000, async () => (await has('star_core')) >= 1 && (await has('xenite_red')) >= 1), `pz ${await sc(DG, 'bm.pz')} titles ${A.titles.slice(-3).join(' / ')} bars ${A.bars.slice(-2).join(' / ')}`);
   }
 
   if (on('lock')) {

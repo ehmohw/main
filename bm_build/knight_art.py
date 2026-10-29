@@ -77,7 +77,7 @@ PARENT = {'body': None, 'chest': 'body', 'head': 'chest', 'armr': 'chest', 'fore
 PARTS = tuple(PIVOT)
 PART_K = {'mace': 1.3, 'cape': 1.4}             # (built at full size, kept inside the model box)
 GRIP = {1: (11.0, 15.4, -0.2), -1: (-11.0, 15.4, -0.2)}     # (where a haft passes through each fist - the mace's joint is the right one)
-MACE_TIP = 26.6                                 # (the mace head's far end, design units from the grip along the haft)
+MACE_TIP = 28.6                                 # (the mace head's far end, design units from the grip along the haft)
 
 
 # ---------------------------------------------------------------------------------------------------- names
@@ -268,10 +268,9 @@ def tex_name(mat, kind, finish):
 def _mat_tex(mat, kind, finish, seed):
     P = PAL[(kind, finish)][mat]; stone = finish == 'stone'
     if mat == 'plate':
-        return _plate(P, seed, dents=2 if kind == 'dread' else 0, cracks=(2 if kind == 'dread' else 0) if stone else (1 if kind == 'dread' else 0),
-                      chips=2 if stone else 0)
-    if mat == 'dark': return _plate(P, seed + 1, rivets=0, joint=False, cracks=1 if stone else 0)
-    if mat in ('trim', 'iron'): return _plate(P, seed + 2, rivets=1 if mat == 'trim' else 0, joint=False, dents=1 if kind == 'dread' else 0, cracks=1 if stone else 0)
+        return _plate(P, seed, rivets=1, dents=1 if kind == 'dread' else 0, cracks=(1 if kind == 'dread' else 0) if stone else 0, chips=1 if stone else 0)
+    if mat == 'dark': return _plate(P, seed + 1, rivets=0, joint=False)
+    if mat in ('trim', 'iron'): return _plate(P, seed + 2, rivets=1 if mat == 'trim' else 0, joint=False, cracks=1 if stone and kind == 'dread' else 0)
     if mat == 'bone': return _rings(P) if kind == 'dread' else _flat(P)
     if mat in ('tip', 'stalk', 'accent', 'slit', 'hem'): return _flat(P, top=mat in ('accent', 'hem', 'tip'), bottom=mat != 'slit')
     if mat == 'eye': return _eye(P)
@@ -415,15 +414,15 @@ def _shin(sx, kind):
 
 def _arm(sx, kind):
     A = [BX(sx, 9.4, 12.6, 26.4, 34.0, -1.9, 1.9, 'dark'), BX(sx, 9.2, 12.8, 27.2, 31.4, -2.2, 2.2, 'plate'),
-         BX(sx, 7.8, 15.4, 31.0, 37.4, -4.6, 4.6, 'plate'), BX(sx, 8.8, 14.4, 37.4, 38.4, -3.6, 3.6, 'trim'),
-         BX(sx, 9.0, 16.0, 29.4, 31.4, -4.2, 4.2, 'plate', rot=('z', -sx * 14, (9.0, 31.4, 0))),
-         BX(sx, 9.2, 16.2, 28.8, 29.5, -4.0, 4.0, 'trim', rot=('z', -sx * 14, (9.0, 31.4, 0))),
-         BX(sx, 7.75, 15.45, 33.9, 34.2, -4.65, 4.65, 'accent')]
+         BX(sx, 8.0, 15.0, 31.4, 37.2, -4.2, 4.2, 'plate'), BX(sx, 9.0, 14.0, 37.2, 38.2, -3.3, 3.3, 'trim'),
+         BX(sx, 9.0, 15.6, 29.6, 31.6, -3.9, 3.9, 'plate', rot=('z', -sx * 14, (9.0, 31.6, 0))),
+         BX(sx, 9.2, 15.8, 29.0, 29.7, -3.7, 3.7, 'trim', rot=('z', -sx * 14, (9.0, 31.6, 0))),
+         BX(sx, 7.95, 15.05, 33.9, 34.2, -4.25, 4.25, 'accent')]
     if kind == 'dread':
         for z in (-1.8, 1.8):
-            A += CH([(sx * 12.0, 38.0, z), (sx * 13.4, 40.0, z * 1.15), (sx * 14.4, 41.6, z * 1.3)], [1.4, 0.9], 'bone', mats=['bone', 'tip'])
+            A += CH([(sx * 11.8, 37.8, z), (sx * 13.2, 39.8, z * 1.15), (sx * 14.2, 41.4, z * 1.3)], [1.4, 0.9], 'bone', mats=['bone', 'tip'])
     else:
-        A.append(BX(sx, 15.4, 15.8, 32.4, 35.6, -2.4, 2.4, 'slit'))
+        A.append(BX(sx, 15.0, 15.3, 32.6, 35.4, -2.2, 2.2, 'slit'))
     return A
 
 
@@ -458,34 +457,34 @@ def _mace(kind):
           E((X - 0.9, Y - 0.9, Z - 6.0), (X + 0.9, Y + 0.9, Z + 6.0), 'grip'),                 # (the wrap, where the hands go)
           E((X - 1.4, Y - 1.4, Z + 6.8), (X + 1.4, Y + 1.4, Z + 8.4), 'trim'),                 # (the pommel)
           E((X - 0.7, Y - 0.7, Z + 8.4), (X + 0.7, Y + 0.7, Z + 9.2), 'accent'),
-          E((X - 1.5, Y - 1.5, Z - 16.4), (X + 1.5, Y + 1.5, Z - 15.0), 'trim')]               # (the collar under the head)
-    zc = Z - 19.6
+          E((X - 1.6, Y - 1.6, Z - 16.0), (X + 1.6, Y + 1.6, Z - 14.4), 'trim')]               # (the collar under the head)
+    zc = Z - 20.4
     if kind == 'dread':
-        M += [E((X - 2.6, Y - 2.6, Z - 23.6), (X + 2.6, Y + 2.6, Z - 15.6), 'dark'),
-              E((X - 2.7, Y - 2.7, Z - 20.0), (X + 2.7, Y + 2.7, Z - 19.3), 'accent'),         # (a band of red light round it)
-              E((X - 2.0, Y - 2.0, Z - 24.6), (X + 2.0, Y + 2.0, Z - 23.6), 'trim')]
+        M += [E((X - 3.0, Y - 3.0, Z - 25.2), (X + 3.0, Y + 3.0, Z - 15.6), 'dark'),
+              E((X - 3.1, Y - 3.1, Z - 20.8), (X + 3.1, Y + 3.1, Z - 20.1), 'accent'),         # (a band of red light round it)
+              E((X - 2.2, Y - 2.2, Z - 26.4), (X + 2.2, Y + 2.2, Z - 25.2), 'trim')]
         for sgn in (1, -1):                                                                     # (eight flanges, stepped)
             for ax in ('x', 'y'):
                 def fl(r0, r1, z0, z1, mat):
                     if ax == 'y': return E((X - 0.45, Y + sgn * r0 if sgn > 0 else Y - r1, z0), (X + 0.45, Y + r1 if sgn > 0 else Y - r0, z1), mat)
                     return E((X + r0 if sgn > 0 else X - r1, Y - 0.45, z0), (X + r1 if sgn > 0 else X - r0, Y + 0.45, z1), mat)
-                M += [fl(2.0, 4.2, Z - 23.0, Z - 16.2, 'iron'), fl(4.2, 5.2, Z - 22.0, Z - 17.4, 'trim')]
+                M += [fl(2.4, 5.0, Z - 24.6, Z - 16.0, 'iron'), fl(5.0, 6.2, Z - 23.4, Z - 17.4, 'trim')]
             for ang in (45, -45):
-                M += [E((X - 0.45, Y + sgn * 2.0 if sgn > 0 else Y - 4.2, Z - 23.0), (X + 0.45, Y + 4.2 if sgn > 0 else Y - 2.0, Z - 16.2), 'iron', rot=('z', ang, (X, Y, zc))),
-                      E((X - 0.45, Y + 4.2 if sgn > 0 else Y - 5.2, Z - 22.0), (X + 0.45, Y + 5.2 if sgn > 0 else Y - 4.2, Z - 17.4), 'trim', rot=('z', ang, (X, Y, zc)))]
-        M += CH([(X, Y, Z - 24.4), (X, Y, Z - 25.6), (X, Y, Z - MACE_TIP)], [1.8, 1.0], 'bone', up=UP, mats=['bone', 'tip'], ext=0.1)
+                M += [E((X - 0.45, Y + 2.4 if sgn > 0 else Y - 5.0, Z - 24.6), (X + 0.45, Y + 5.0 if sgn > 0 else Y - 2.4, Z - 16.0), 'iron', rot=('z', ang, (X, Y, zc))),
+                      E((X - 0.45, Y + 5.0 if sgn > 0 else Y - 6.2, Z - 23.4), (X + 0.45, Y + 6.2 if sgn > 0 else Y - 5.0, Z - 17.4), 'trim', rot=('z', ang, (X, Y, zc)))]
+        M += CH([(X, Y, Z - 26.2), (X, Y, Z - 27.4), (X, Y, Z - MACE_TIP)], [2.0, 1.1], 'bone', up=UP, mats=['bone', 'tip'], ext=0.1)
     else:
-        M += [E((X - 2.8, Y - 2.8, Z - 23.6), (X + 2.8, Y + 2.8, Z - 15.6), 'plate'),
-              E((X - 2.8, Y - 2.8, Z - 23.5), (X + 2.8, Y + 2.8, Z - 15.7), 'plate', rot=('z', 45, (X, Y, zc))),    # (octagonal)
-              E((X - 2.2, Y - 2.2, Z - 24.6), (X + 2.2, Y + 2.2, Z - 23.6), 'trim'),
-              E((X - 1.1, Y - 1.1, Z - MACE_TIP + 0.2), (X + 1.1, Y + 1.1, Z - 24.6), 'accent'),                    # (the emitter)
+        M += [E((X - 3.4, Y - 3.4, Z - 25.2), (X + 3.4, Y + 3.4, Z - 15.6), 'plate'),
+              E((X - 3.4, Y - 3.4, Z - 25.1), (X + 3.4, Y + 3.4, Z - 15.7), 'plate', rot=('z', 45, (X, Y, zc))),    # (octagonal)
+              E((X - 2.4, Y - 2.4, Z - 26.4), (X + 2.4, Y + 2.4, Z - 25.2), 'trim'),
+              E((X - 1.3, Y - 1.3, Z - MACE_TIP), (X + 1.3, Y + 1.3, Z - 26.4), 'accent'),                         # (the emitter)
               E((X - 0.85, Y + 0.75, Z - 15.0), (X + 0.85, Y + 0.95, Z - 6.0), 'accent')]                           # (a seam up the haft)
         for sgn in (1, -1):
-            M += [E((X - 0.5, Y + 2.6 if sgn > 0 else Y - 4.4, Z - 22.6), (X + 0.5, Y + 4.4 if sgn > 0 else Y - 2.6, Z - 16.6), 'accent'),   # (plasma ridges)
-                  E((X + 2.6 if sgn > 0 else X - 4.4, Y - 0.5, Z - 22.6), (X + 4.4 if sgn > 0 else X - 2.6, Y + 0.5, Z - 16.6), 'accent')]
+            M += [E((X - 0.55, Y + 3.2 if sgn > 0 else Y - 5.4, Z - 24.0), (X + 0.55, Y + 5.4 if sgn > 0 else Y - 3.2, Z - 16.8), 'accent'),   # (plasma ridges)
+                  E((X + 3.2 if sgn > 0 else X - 5.4, Y - 0.55, Z - 24.0), (X + 5.4 if sgn > 0 else X - 3.2, Y + 0.55, Z - 16.8), 'accent')]
             for ang in (45, -45):
-                M.append(E((X - 0.4, Y + 2.6 if sgn > 0 else Y - 3.9, Z - 22.0), (X + 0.4, Y + 3.9 if sgn > 0 else Y - 2.6, Z - 17.2), 'trim', rot=('z', ang, (X, Y, zc))))
-        M += [E((X - 2.9, Y - 2.9, Z - 16.5), (X + 2.9, Y + 2.9, Z - 15.9), 'accent'), E((X - 2.9, Y - 2.9, Z - 23.3), (X + 2.9, Y + 2.9, Z - 22.7), 'accent')]
+                M.append(E((X - 0.45, Y + 3.2 if sgn > 0 else Y - 4.8, Z - 23.4), (X + 0.45, Y + 4.8 if sgn > 0 else Y - 3.2, Z - 17.4), 'trim', rot=('z', ang, (X, Y, zc))))
+        M += [E((X - 3.5, Y - 3.5, Z - 16.6), (X + 3.5, Y + 3.5, Z - 16.0), 'accent'), E((X - 3.5, Y - 3.5, Z - 24.8), (X + 3.5, Y + 3.5, Z - 24.2), 'accent')]
     return M
 
 
@@ -689,30 +688,39 @@ def _conj(q):
 
 def _ik_arm(pose, sx, target, haft, guesses):
     """bend one arm (arm + fore: fwd, out, turn, elbow, wrist turn) so its fist's grip lands on target (world, design units) with
-    the haft across the fist (along its own length, as it rests in the right fist), the elbow kept out of the trunk"""
+    the haft across the fist (along its own length, as it rests in the right fist), the elbow kept out of the trunk. (The chain
+    is walked from the chest by hand - the rest of the pose doesn't move.)"""
     from scipy.optimize import minimize
     s = 'r' if sx > 0 else 'l'; a, f = f'arm{s}', f'fore{s}'
-    base = dict(pose)
-    def build(v):
-        p = dict(base); p[a] = limb(sx, v[0], v[1], v[2]); p[f] = limb(sx, v[3], 0.0, v[4]); return p
+    xf = rigkit.solve(PIVOT, PARENT, pose); Qc, tc = xf['chest']; pc = D(PIVOT['chest']); Wc = tuple(tc[i] + pc[i] for i in range(3))
+    qci = _conj(Qc)
+    pa, pf = D(PIVOT[a]), D(PIVOT[f])
+    Wa = tuple(Wc[i] + v for i, v in enumerate(qrot(Qc, tuple(pa[i] - pc[i] for i in range(3)))))
+    dfa = tuple(pf[i] - pa[i] for i in range(3)); dg = tuple(D(GRIP[sx])[i] - pf[i] for i in range(3))
+    dm = tuple(D((sx * 11.0, 20.0, 0.0))[i] - pf[i] for i in range(3))
+    T_ = D(target); Hd = D(haft)
+    def chain(v):
+        Qa = qmul(Qc, limb(sx, v[0], v[1], v[2])); Wf = tuple(Wa[i] + u for i, u in enumerate(qrot(Qa, dfa)))
+        Qf = qmul(Qa, limb(sx, v[3], 0.0, v[4])); return Qf, Wf
     def cost(v):
-        p = build(v); xf = rigkit.solve(PIVOT, PARENT, p)
-        g = at(p, f, GRIP[sx], xf); c = sum((g[i] - target[i]) ** 2 for i in range(3))
-        fa = axis(p, f, (0.0, 0.0, -1.0), xf); dd = sum(fa[i] * haft[i] for i in range(3))
+        Qf, Wf = chain(v)
+        g = tuple(Wf[i] + u for i, u in enumerate(qrot(Qf, dg))); c = sum((g[i] - T_[i]) ** 2 for i in range(3))
+        fa = qrot(Qf, (0.0, 0.0, 1.0)); dd = sum(fa[i] * Hd[i] for i in range(3))
         c += 6.0 * (1 - dd * dd)
         if v[3] < 0: c += 0.05 * v[3] ** 2                                                       # (elbows don't bend backward)
         if v[3] > 135: c += 0.05 * (v[3] - 135) ** 2
         c += 0.0004 * (v[2] ** 2 + v[4] ** 2)
-        for pt in (at(p, f, PIVOT[f], xf), at(p, f, (sx * 11.0, 20.0, 0.0), xf)):          # (the elbow, the forearm: out of the trunk)
-            lc = local(p, 'chest', pt, xf)
+        for pt in (Wf, tuple(Wf[i] + u for i, u in enumerate(qrot(Qf, dm)))):                  # (the elbow, the forearm: out of the trunk)
+            lc = D(tuple(pc[i] + u for i, u in enumerate(qrot(qci, tuple(pt[i] - Wc[i] for i in range(3))))))
             if abs(lc[0]) < 8.8 and -6.2 < lc[2] < 6.0 and 23.5 < lc[1] < 38.5:
                 c += 2.0 * min(8.8 - abs(lc[0]), lc[2] + 6.2) ** 2
         return c
+    starts = sorted(guesses, key=cost)[:4]
     best = None
-    for g0 in guesses:
-        r = minimize(cost, g0, method='Powell', options={'xtol': 1e-3, 'ftol': 1e-6, 'maxfev': 6000})
+    for g0 in starts:
+        r = minimize(cost, g0, method='Powell', options={'xtol': 1e-2, 'ftol': 1e-5, 'maxfev': 3000})
         if best is None or r.fun < best.fun: best = r
-    p = build(best.x)
+    p = dict(pose); v = best.x; p[a] = limb(sx, v[0], v[1], v[2]); p[f] = limb(sx, v[3], 0.0, v[4])
     g = at(p, f, GRIP[sx]); err = math.sqrt(sum((g[i] - target[i]) ** 2 for i in range(3)))
     return p, err
 
@@ -782,20 +790,20 @@ def _pose(name):
     """one pose (both kinds share them)"""
     if name == 'statue':                                      # (a proud sentinel: the mace head-down before it, both gauntlets on the pommel, head bowed)
         p = ground(P(chest=T(1), head=T(13), **STAND))
-        p = hold(p, (1.4, 26.0, -11.0), (0.0, -1.0, 0.0), 'w', left=-4.2, floor=0.0)
+        p = hold(p, (1.4, 26.0, -12.0), (0.0, -1.0, 0.0), 'w', left=-4.2, floor=0.0)
         p = hang(p)
     elif name == 'wake_0':                                    # (the head lifts, the hands tighten on the haft - the left slides down beside the right)
-        p = ground(P(chest=T(0), head=T(-3), **STAND))
-        p = hold(p, (1.4, 26.0, -11.0), (0.0, -1.0, -0.06), 'w', left=4.2, floor=0.4)
+        p = ground(P(chest=T(5), head=T(-3), **STAND))
+        p = hold(p, (1.4, 26.0, -9.5), (0.0, -1.0, -0.06), 'w', left=4.2, floor=0.4)
         p = hang(p)
     elif name == 'wake_1':                                    # (it hefts the mace up across its body, its right foot forward)
         p = ground(P(chest=T(4, 12), head=T(0, -12), legr=limb(1, 24, 4), shinr=knee(16), legl=limb(-1, -12, 4), shinl=knee(10)))
         p = hold(p, (5.0, 25.0, -9.5), (-0.62, 0.72, -0.3), 'c', left=10.0)
         p = hang(p)
-    elif name in ('idle_a', 'idle_b'):                        # (a battle stance: the mace two-handed at the ready, its head up by the right shoulder)
+    elif name in ('idle_a', 'idle_b'):                        # (a battle stance: the mace two-handed at the ready, its head up before it at face height)
         b = name == 'idle_b'                                  # (b: the breath in - the chest up, the head lifted, the mace a touch higher)
         p = ground(P(chest=T(5 if b else 8, -8), head=T(-2 if b else 2, 8), **WIDE))
-        p = hold(p, (4.0, 24.4 if b else 23.4, -10.0), (0.42, 0.82, -0.38), 'c', left=8.0)
+        p = hold(p, (0.5, 23.8 if b else 23.0, -7.0), (0.16, 0.62 if b else 0.6, -0.77), 'c', left=5.0)
         p = hang(p, 4)
     elif name.startswith('walk_'):                            # (heavy, stomping: the mace carried over the right shoulder, the left arm swinging)
         k = int(name[-1]); ph = math.pi * k / 2; sw = s_(ph)
@@ -803,26 +811,26 @@ def _pose(name):
                      legl=limb(-1, -22 * sw, 4), shinl=knee(8 + 34 * max(0, s_(ph + 0.6))),
                      arml=limb(-1, 6 + 20 * sw, 10), forel=limb(-1, 24 + 8 * sw)))
         p['_off'] = (p['_off'][0], p['_off'][1] + 0.6 * abs(math.cos(ph)), p['_off'][2])      # (the stomp: down on the planted foot)
-        p = hold(p, (6.6, 34.8, -7.6), (0.05, 0.45, 0.89), 'c', up=(1.0, 0.0, 0.0))
+        p = hold(p, (6.4, 36.2, -7.6), (0.05, 0.42, 0.9), 'c', up=(1.0, 0.0, 0.0))
         p = hang(p, 6)
     elif name == 'swing_0':                                   # (the wind-up: the mace raised high overhead in both hands, leaning back)
         p = ground(P(chest=T(-14, 6), head=T(-8), legr=limb(1, 22, 6), shinr=knee(22), legl=limb(-1, -16, 6), shinl=knee(10)))
-        p = hold(p, (2.0, 47.0, 1.5), (0.0, 0.5, 0.87), 'c', left=4.6)
+        p = hold(p, (1.5, 50.0, 1.0), (0.0, 0.15, 0.99), 'c', left=-4.4)
         p = hang(p, 8)
     elif name == 'swing_1':                                   # (the slam: the head driven down into the ground ~2 blocks before it, bent over the blow)
-        p = ground(P(chest=T(34, -6), head=T(-12), legr=limb(1, 44, 6), shinr=knee(52), legl=limb(-1, -22, 6), shinl=knee(14)))
-        p = hold(p, (1.2, 16.0, -14.0), (0.0, -0.42, -0.91), 'w', left=4.6, floor=0.0)
+        p = ground(P(chest=T(36, -6), head=T(-14), legr=limb(1, 48, 6), shinr=knee(60), legl=limb(-1, -24, 6), shinl=knee(16)))
+        p = hold(p, (3.0, 18.8, -11.0), (0.0, -0.6, -0.8), 'w', left=-4.2, floor=0.0)
         p = hang(p, 10)
     elif name in ('spin_0', 'spin_1'):                        # (the spin: the mace held out level at full stretch to its right; 1: swung on, twisted)
         b = name == 'spin_1'
         p = ground(P(chest=T(6, -24 if not b else -40, -4), head=T(2, 14 if not b else 26), legr=limb(1, -6, 10), shinr=knee(14),
                      legl=limb(-1, 14, 10), shinl=knee(16)))
-        p = hold(p, (8.0, 29.0, -12.0), (0.95, 0.04, -0.3) if not b else (0.93, 0.08, 0.36), 'c', up=(0.0, 1.0, 0.0), left=-4.0)
+        p = hold(p, (8.0, 29.0, -12.0) if not b else (8.0, 29.0, -10.5), (0.95, 0.04, -0.3) if not b else (0.93, 0.08, 0.36), 'c', up=(0.0, 1.0, 0.0), left=-4.0)
         p = hang(p, 14)
     elif name == 'stagger':                                   # (reeling back, the mace dipped, the left arm flung out)
         p = ground(P(chest=T(-16, 12, 6), head=T(-16, -12), legr=limb(1, -14, 6), shinr=knee(10), legl=limb(-1, 26, 8), shinl=knee(34),
-                     arml=limb(-1, 34, 44), forel=limb(-1, 30)))
-        p = hold(p, (9.0, 21.0, -8.0), (0.32, -0.78, -0.52), 'c')
+                     arml=limb(-1, -16, 58), forel=limb(-1, 24)))
+        p = hold(p, (10.5, 21.5, -6.5), (0.62, -0.72, -0.3), 'c')
         p = hang(p, 10)
     elif name == 'death_0':                                   # (down on its right knee, the mace head on the floor, its right hand on the haft)
         p = ground(P(body=T(2), chest=T(14, -4), head=T(16, 6), legr=limb(1, 0, 4), shinr=knee(90), legl=limb(-1, 80, 4), shinl=knee(82),
@@ -830,8 +838,8 @@ def _pose(name):
         p = hold(p, (3.0, 22.0, -12.0), (0.0, -0.94, -0.33), 'w', floor=0.0)
         p = hang(p)
     elif name == 'death_1':                                   # (slumped further over the haft, head bowed - then it turns to stone)
-        p = ground(P(body=T(6), chest=T(34, -4), head=T(30, 8, 6), legr=limb(1, 0, 4), shinr=knee(92), legl=limb(-1, 74, 4), shinl=knee(84)))
-        p = hold(p, (2.0, 18.0, -13.0), (0.0, -0.84, -0.54), 'w', left=-4.2, floor=0.0)
+        p = ground(P(body=T(6), chest=T(30, -4), head=T(20, 10, 8), legr=limb(1, 0, 4), shinr=knee(92), legl=limb(-1, 74, 4), shinl=knee(84)))
+        p = hold(p, (2.5, 18.0, -15.0), (0.0, -0.8, -0.6), 'w', left=-4.2, floor=0.0)
         p = hang(p)
     else:
         raise KeyError(name)
@@ -968,52 +976,61 @@ def item_def(kind):
 # ---------------------------------------------------------------------------------------------------- the icons (16 x 16, sprites280's look)
 ICON_RAMP = {'dread': ['#25232a', '#38353e', '#4e4a55', '#68646f', '#86828c'],
              'vorn': ['#6c6e6a', '#8a8c86', '#a8aaa3', '#c4c5be', '#dedfd8']}
+# a little stone knight on a plinth, drawn as lit blocks: each block a base shade (1-5, the ramp dark -> light), its top row and
+# left column a step lighter, its bottom row and right column a step darker (light from the top left); the eye-slit / visor
+# unlit; the plinth's rune the one colour (which dungeon it came from)
+def _blk(px, x0, y0, x1, y1, b, lit=True):
+    for y in range(y0, y1 + 1):
+        for x in range(x0, x1 + 1):
+            v = b
+            if lit and x1 > x0 and y1 > y0:
+                if y == y0 or x == x0: v += 1
+                elif y == y1 or x == x1: v -= 1
+            px[(x, y)] = max(1, min(5, v))
+
+
+def _icon_px(kind):
+    px = {}
+    B = lambda *a, **k: _blk(px, *a, **k)
+    B(3, 13, 12, 13, 5, lit=False); B(2, 14, 13, 15, 2)                           # (the plinth: its lit top course, its foot)
+    for x in range(2, 14): px[(x, 14)] = 3 if x < 8 else 2
+    for x in range(5, 11): px[(x, 14)] = 'r'
+    B(5, 10, 6, 12, 3); B(9, 10, 10, 12, 2)                                         # (the legs)
+    B(5, 9, 10, 10, 3)                                                              # (the belt and tassets)
+    B(5, 5, 10, 9, 3)                                                               # (the breastplate)
+    B(2, 5, 4, 7, 4); B(11, 5, 13, 7, 2)                                            # (the pauldrons)
+    B(3, 8, 4, 9, 3, lit=False); B(11, 8, 12, 9, 2, lit=False)                      # (the arms)
+    px[(5, 8)] = 3; px[(10, 8)] = 2                                                 # (the forearms, in to the pommel)
+    for x in (5, 10): px[(x, 9)] = 1
+    px[(6, 8)] = 4; px[(7, 8)] = 5; px[(8, 8)] = 4; px[(9, 8)] = 3                  # (the gauntlets, on the pommel)
+    px[(7, 7)] = 4; px[(8, 7)] = 3                                                  # (the pommel)
+    for y in (9, 10): px[(7, 9 if y == 9 else 10)] = 4; px[(8, y)] = 2             # (the haft)
+    B(6, 11, 9, 12, 4); px[(5, 11)] = 3; px[(10, 11)] = 2; px[(5, 12)] = 2; px[(10, 12)] = 1     # (the mace head, flanged)
+    for x in (7, 8): px[(x, 12)] = 3
+    B(6, 1, 9, 4, 3)                                                                # (the helm)
+    px[(6, 1)] = 5; px[(7, 1)] = 4
+    if kind == 'dread':
+        for x in (6, 7, 8, 9): px[(x, 3)] = 'e'                                     # (the eye-slit)
+        px[(5, 2)] = 4; px[(4, 1)] = 4; px[(4, 0)] = 5                              # (the horns)
+        px[(10, 2)] = 3; px[(11, 1)] = 3; px[(11, 0)] = 2
+        px[(7, 4)] = 4                                                              # (the nasal)
+    else:
+        for x in (7, 8): px[(x, 3)] = 'e'; px[(x, 2)] = 'e'                         # (the square visor)
+        for x in (6, 9): px[(x, 0)] = 4                                             # (the antennae: froglight-tipped)
+        px[(6, 0)] = 5; px[(9, 0)] = 3
+    return px
+
+
 ICON_RUNE = {'dread': '#7a1e28', 'vorn': '#2e8a40'}
-# a little stone knight on a plinth: 1-5 the stone's shades (dark -> light, lit from the top left), e: the unlit eye-slit/visor,
-# r: the plinth's rune (the only colour - which dungeon it came from)
-ICON_ROWS = {
-    'dread': ['................',
-              '..4..........2..',
-              '..43........32..',
-              '...4.5444.3.2...',
-              '....454443.2....',
-              '....4eeee2......',
-              '.4544544332323..',
-              '.454554433232.2.',
-              '.44.5434433.22..',
-              '.43.454333..21..',
-              '.33..4433...21..',
-              '.....4..32..2...',
-              '.....43.32..1...',
-              '..55555555555...',
-              '..43rrrr3332221.',
-              '..2222222221111.'],
-    'vorn': ['................',
-             '....5......4....',
-             '.....4....3.....',
-             '.....544443.....',
-             '....54444433....',
-             '....4eeeee32....',
-             '.4544544332323..',
-             '.454554433232.2.',
-             '.44.5434433.22..',
-             '.43.454333..21..',
-             '.33..4433...21..',
-             '.....4..32..2...',
-             '.....43.32..1...',
-             '..55555555555...',
-             '..43rrrr3332221.',
-             '..2222222221111.'],
-}
 
 
 def icon_raw(kind):
     """the icon before vanilla.process (gen_rp's ICONS loop finishes it): drawn, outlined"""
-    from sprites280 import S
-    s = S(); ramp = ICON_RAMP[kind]
-    pal = {str(i + 1): ramp[i] for i in range(5)}; pal['e'] = '#141216' if kind == 'dread' else '#3c403c'; pal['r'] = ICON_RUNE[kind]
-    s.g(ICON_ROWS[kind], pal)
-    im = s.image(); px = im.load()
+    ramp = ICON_RAMP[kind]
+    pal = {i + 1: ramp[i] for i in range(5)}; pal['e'] = '#141216' if kind == 'dread' else '#3c403c'; pal['r'] = ICON_RUNE[kind]
+    im = Image.new('RGBA', (16, 16), (0, 0, 0, 0)); px = im.load()
+    for (x, y), v in _icon_px(kind).items():
+        px[x, y] = _rgb(pal[v]) + (255,)
     add = [(x, y) for y in range(16) for x in range(16) if px[x, y][3] == 0 and
            any(0 <= x + dx < 16 and 0 <= y + dy < 16 and px[x + dx, y + dy][3] > 0 for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))]
     for x, y in add: px[x, y] = (18, 14, 14, 255)
