@@ -66,8 +66,8 @@ MOTE_Y = 17.3
 #  2.4 lower at the belt, 3.2 lower from the shoulders up)
 ARM_X = 5.65
 PIVOT = {'body': (0, 11.6, 0), 'skirt': (0, 7.6, 0), 'head': (0, 23.6, 0),
-         'armr': (ARM_X, 23.0, 0.2), 'forer': (ARM_X, 18.2, 0.2), 'arml': (-ARM_X, 23.0, 0.2), 'forel': (-ARM_X, 18.2, 0.2),
-         'threadr': (ARM_X, 11.0, 1.3), 'threadl': (-ARM_X, 11.0, 1.3),
+         'armr': (ARM_X, 23.0, 0.2), 'forer': (ARM_X, 17.8, 0.2), 'arml': (-ARM_X, 23.0, 0.2), 'forel': (-ARM_X, 17.8, 0.2),
+         'threadr': (ARM_X, 10.6, 1.3), 'threadl': (-ARM_X, 10.6, 1.3),
          'loom': (0, 17.4, -3.0), 'motes': (0, MOTE_Y, 0), 'motesb': (0, MOTE_Y, 0), 'pool': (0, 0.0, 0), 'web': (0, 17.3, -9.0),
          # the six wings (3.0 owner's addition): three pairs on its back - upper, middle, lower
          'wing_ur': (2.3, 20.8, 3.3), 'wing_ul': (-2.3, 20.8, 3.3), 'wing_mr': (1.7, 17.4, 2.75), 'wing_ml': (-1.7, 17.4, 2.75),
@@ -510,7 +510,7 @@ WING_SWEEP = 24.0
 WING_BACK = {'u': 2.1, 'm': 0.3, 'l': 0.3}           # (how far behind its root each wing's plane stands: the upper clears the hood)
 WINGS = {'u': [(75, 10.0), (66, 12.5), (57, 14.5), (48, 15.5), (39, 15.0), (30, 13.5), (22, 11.0)],
          'm': [(20, 5.6), (8, 6.6), (-4, 6.6), (-16, 5.8)],
-         'l': [(-26, 9.5), (-36, 11.0), (-46, 11.5), (-56, 11.0), (-66, 9.0)]}
+         'l': [(-26, 8.1), (-36, 9.4), (-46, 9.8), (-56, 9.4), (-66, 7.7)]}      # (3.0c: the lower pair 0.85 as long - the robe is shorter)
 
 
 def _wing(sx, tier):
@@ -549,8 +549,8 @@ def models():
             bx((-0.7, 10.0, -3.3), (0.7, 12.5, -3.07), 'kb_gold', pv, light=L_BAND),                                                          # its knot
             bx((-4.4, 15.2, -2.85), (4.4, 21.4, 2.85), 'kb_robe', pv, faces=_faces_but('down', 'up'), light=L_CLOTH, shift=(0.4, 0.5)),      # the chest
             bx((-2.45, 14.4, -2.95), (2.45, 20.4, -2.87), 'kb_light', pv, faces=('north',), light=L_CORE),                                    # the heart's glow
-            bx((-5.25, 20.0, -3.75), (5.25, 21.4, 3.75), 'kb_brd', pv, faces=_faces_but('up'), light=L_BAND),                                # the mantle's border
-            bx((-5.1, 21.4, -3.6), (5.1, 23.8, 3.6), 'kb_hood', pv, ftex={'down': 'kb_lining'}, light=L_CLOTH, shift=(0.2, 0.6))]          # the mantle
+            bx((-5.25, 20.0, -3.6), (5.25, 21.4, 3.6), 'kb_brd', pv, faces=_faces_but('up'), light=L_BAND),                                # the mantle's border
+            bx((-5.1, 21.4, -3.45), (5.1, 23.8, 3.45), 'kb_hood', pv, ftex={'down': 'kb_lining'}, light=L_CLOTH, shift=(0.2, 0.6))]          # the mantle
     part('kb_body', body)
 
     # ---- the skirt: the lower four tiers of the tapestry, the gold hem, and a fringe of loose threads round it - every bond's colour
@@ -618,16 +618,16 @@ def models():
     for s, sx in (('r', 1), ('l', -1)):
         ap, fp, tp = PIVOT[f'arm{s}'], PIVOT[f'fore{s}'], PIVOT[f'thread{s}']
         cx = ARM_X
-        part(f'kb_arm{s}', [B(sx, cx - 1.35, cx + 1.35, 18.0, 23.0, -1.35, 1.75, 'kb_robe', ap, light=L_CLOTH, shift=(0.3 + 0.2 * sx, 0.4))])
-        fore = [B(sx, cx - 1.45, cx + 1.45, 15.8, 18.6, -1.45, 1.85, 'kb_robe', fp, faces=_faces_but('up'), light=L_CLOTH, shift=(0.6, 0.2)),
-                B(sx, cx - 1.9, cx + 1.9, 14.0, 15.8, -1.9, 2.3, 'kb_robe', fp, faces=_faces_but('up'), ftex={'down': 'kb_inner'}, light=L_CLOTH, shift=(0.2, 0.7)),
-                B(sx, cx - 2.0, cx + 2.0, 13.0, 14.0, -2.0, 2.4, 'kb_brd', fp, ftex={'down': 'kb_inner', 'up': 'kb_gold'}, light=L_BAND),  # the cuff
-                B(sx, cx - 1.7, cx + 1.7, 11.4, 13.0, 0.45, 2.3, 'kb_robe', fp, faces=_faces_but('up'), light=L_CLOTH, shift=(0.8, 0.4)),       # the drape
-                B(sx, cx - 1.8, cx + 1.8, 11.0, 11.6, 0.35, 2.4, 'kb_brd', fp, faces=_faces_but('up'), light=L_BAND, shift=(0.5, 0)),
+        part(f'kb_arm{s}', [B(sx, cx - 1.35, cx + 1.35, 17.6, 23.0, -1.35, 1.75, 'kb_robe', ap, light=L_CLOTH, shift=(0.3 + 0.2 * sx, 0.4))])
+        fore = [B(sx, cx - 1.45, cx + 1.45, 15.4, 18.2, -1.45, 1.85, 'kb_robe', fp, faces=_faces_but('up'), light=L_CLOTH, shift=(0.6, 0.2)),
+                B(sx, cx - 1.9, cx + 1.9, 13.6, 15.4, -1.9, 2.3, 'kb_robe', fp, faces=_faces_but('up'), ftex={'down': 'kb_inner'}, light=L_CLOTH, shift=(0.2, 0.7)),
+                B(sx, cx - 2.0, cx + 2.0, 12.6, 13.6, -2.0, 2.4, 'kb_brd', fp, ftex={'down': 'kb_inner', 'up': 'kb_gold'}, light=L_BAND),  # the cuff
+                B(sx, cx - 1.7, cx + 1.7, 11.0, 12.6, 0.45, 2.3, 'kb_robe', fp, faces=_faces_but('up'), light=L_CLOTH, shift=(0.8, 0.4)),       # the drape
+                B(sx, cx - 1.8, cx + 1.8, 10.6, 11.2, 0.35, 2.4, 'kb_brd', fp, faces=_faces_but('up'), light=L_BAND, shift=(0.5, 0)),
                 # the mitten of light: round and soft, just out of the cuff; a little thumb; its rounded tip
-                B(sx, cx - 0.95, cx + 0.95, 11.7, 13.3, -1.55, 0.25, 'kb_hand', fp, faces=_faces_but('up'), light=L_HAND),
-                B(sx, cx - 1.3, cx - 0.95, 12.3, 13.0, -1.35, -0.55, 'kb_hand', fp, faces=_faces_but('east' if sx > 0 else 'west'), light=L_HAND),
-                B(sx, cx - 0.7, cx + 0.7, 11.4, 11.7, -1.3, 0.0, 'kb_hand', fp, faces=_faces_but('up'), light=L_HAND)]
+                B(sx, cx - 0.95, cx + 0.95, 11.3, 12.9, -1.55, 0.25, 'kb_hand', fp, faces=_faces_but('up'), light=L_HAND),
+                B(sx, cx - 1.3, cx - 0.95, 11.9, 12.6, -1.35, -0.55, 'kb_hand', fp, faces=_faces_but('east' if sx > 0 else 'west'), light=L_HAND),
+                B(sx, cx - 0.7, cx + 0.7, 11.0, 11.3, -1.3, 0.0, 'kb_hand', fp, faces=_faces_but('up'), light=L_HAND)]
         part(f'kb_fore{s}', fore)
         # the loose threads: five, from the drape's tip, drifting apart as they fall
         th = []
