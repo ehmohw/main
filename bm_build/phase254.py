@@ -14,8 +14,22 @@ THE MEETING  whenever someone with the Compass (bm.kbcomp) is on the island and 
                web is pulled tight, 6 more.
   GIFT         out of a fight beside you, every minute: a small gift - a little useful thing, or a kindness.
   BOND         its passive: each of your OTHER followers out near you (16) is a thread pulled taut - one: Luck; two: and
-               Regeneration; three: and Resistance; four or more: and Strength. From two on, your followers near it hit a
-               little harder (Strength) too.
+               Regeneration; three (the most there can be: see the Fourth Thread): and Resistance and Strength. From two on,
+               your followers near it hit a little harder (Strength) too.
+  THE FOURTH THREAD (3.0e)  it is never counted among your followers: phase58's limit of three (p58/count) leaves it out,
+               and its own call (try_summon, the meeting's "it joins you") never asks p58/full - so with it out, three others
+               can walk with you too, four in all; and it comes whatever else is out. Every other way of calling a follower
+               (the Partner Wheel, Keep up, a heist's comeback) goes through try_summon, so they agree. (The vault's own Raid
+               Crew size - one each in a party, two alone - is a different rule: there it counts as anyone does.)
+  LIFELINE (3.0e)  out and within 24 of you, once a Minecraft day (phase51's sunrise count, #day bm.bm): a blow that would
+               kill you, its thread catches - you live, at 1 health, with Regeneration II and a little Absorption, a burst of
+               rainbow threads and a word from it; then it rests until the next dawn (bm.qbld: the day it caught you). How:
+               the game's own death protection, which only a hand can hold - so while it's ready and your OFF HAND IS EMPTY,
+               an unseen thread (keeper_lifeline: death_protection, its model nothing but the totem flash - the Bond Thread
+               - no tooltip, Curse of Vanishing) rests there, given up the moment you put anything in that hand (and swept
+               from anywhere else it ends up). With the off hand full it can't rest there: then it catches you at the BRINK
+               instead - two hearts or less after a hit - which a single blow from higher can't be caught by. Like a totem,
+               nothing catches the void or /kill. Its menu shows "Lifeline: ready" or "resting until dawn".
 SUNLIT (3.0d)  its costume, a row of its wardrobe (code 5288, free with it, as every follower's form is): its hood down - pearl
              hair in a high ponytail, a sunburst behind its head (rigpet's FORM on the head and body: keeper_art's '_h' models).
 Its motes - the bonds - spin slowly round it (right_rotation about y, on the two ring displays; every pose's own small turn
@@ -25,7 +39,7 @@ pairs with Bender, Mr. Capshun, Henry and Nia."""
 import math
 from items import item, T, TOTEM, ITEMS
 from useitem import hold, HOLD
-from nbt import snbt, F
+from nbt import snbt, F, B, Int
 import keeper_art as KA
 import rigfol as RF
 import rigpet as RP
@@ -44,6 +58,8 @@ item('bond_thread', TOTEM, 'The Bond Thread', COL,
      ['A spool of golden thread, wound in every colour', 'of every friend you have walked beside.',
       ('Woven by the Keeper of Bonds, for you alone.', 'light_purple'),
       ('Use: call the Keeper (again: call it over).', 'blue'), ('Sneak + use: its menu.', 'blue'), ('A tug, a mending, and THE WEAVE.', 'blue'),
+      ('The Fourth Thread: it never counts among', 'blue'), ('your three followers - four can walk with you.', 'blue'),
+      ('Lifeline: once a day, near you, its thread', 'blue'), ('catches a blow that would kill you.', 'blue'),
       ('If it faints: 2 minutes before it can return.', 'gray')],
      model='bm:bond_thread', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
 
@@ -86,8 +102,12 @@ class Keeper(RP.Cfg):
               ('Mend', 'you, hurt in a fight, every 10 s: you and every follower of yours near - Instant Health and Regeneration II'),
               ('The Weave', 'charged, every minute: a web of threads over every foe within 8 - bound fast and weakened, 7, and 6 more as it pulls tight'),
               ('Gift', 'out of a fight beside you, every minute: a small gift - a little useful thing, or a kindness'),
-              ('Bond', 'each of your other followers out near you is a thread pulled taut: Luck, then Regeneration, Resistance and Strength as there are more - '
+              ('Bond', 'each of your other followers out near you is a thread pulled taut: Luck, then Regeneration, and with three Resistance and Strength - '
                        'and from two on, your followers near it hit a little harder'),
+              ('The Fourth Thread', 'it is never counted among your followers: with it out, three others can walk with you too - four in all'),
+              ('Lifeline', 'out and within 24 of you, once a day: a blow that would kill you, its thread catches instead - you live, with Regeneration and a '
+                           'little Absorption; then it rests until dawn. (It rests in an empty off hand, unseen; with that hand full it can only catch you at '
+                           'the brink - two hearts or less)'),
               ('The Motes', 'fifty bonds circle it, each a friend\'s colour - slowly, always')]
     INTRO = [T('The Keeper of Bonds', COL, bold=True), T(' - woven from the threads of every bond you have made. ', 'gray'),
              T('The more friends beside you, the stronger it holds.', LINE, italic=True)]
@@ -146,6 +166,12 @@ def rp(R):
         for path, meta in KA.mcmeta().items():
             R2.wj(path, meta)
     R.POST.append(post)
+
+    def post_ll(R2):                            # (3.0e) LIFELINE's unseen thread: nothing in the hand or the slot - the Bond Thread only in the totem flash (FIXED)
+        R2.wj('assets/bm/items/keeper_lifeline.json', {'model': {'type': 'minecraft:select', 'property': 'minecraft:display_context',
+                                                                 'cases': [{'when': 'fixed', 'model': {'type': 'minecraft:model', 'model': 'bm:item/bond_thread'}}],
+                                                                 'fallback': {'type': 'minecraft:empty'}}})
+    R.POST.append(post_ll)
 
 
 def textures():
@@ -343,9 +369,114 @@ def generate(G):
     fn('p254/bond_you', ['effect give @s minecraft:luck 3 0 true',
                          'execute if score #kn bm.rng matches 2.. run effect give @s minecraft:regeneration 3 0 true',
                          'execute if score #kn bm.rng matches 3.. run effect give @s minecraft:resistance 3 0 true',
-                         'execute if score #kn bm.rng matches 4.. run effect give @s minecraft:strength 3 0 true',
+                         'execute if score #kn bm.rng matches 3.. run effect give @s minecraft:strength 3 0 true',
                          'execute store result score #r bm.rng run random value 1..6',
                          'execute if score #r bm.rng matches 1 run particle minecraft:end_rod ~ ~1.2 ~ 0.3 0.5 0.3 0.01 2'])
+    _fourth_thread(G)
+    _lifeline(G)
     fn('admin/keeper_reset', ['tag @s remove bm.tkmet', 'clear @s *[minecraft:custom_data~{bm:"bond_thread"}]',
                               G.title('@s', 'actionbar', T('The Keeper has not met you yet: on the island with the Compass, it waits at its loom.', COL))])
     G.FUNCS['admin/help'].append(G.tellraw('@s', [T('/function bm:admin/keeper_reset', 'yellow'), T('  the Keeper forgets you (bm.tkmet, its thread taken back)', 'gray')]))
+
+
+# ---------------------------------------------------------------- (3.0e) THE FOURTH THREAD and LIFELINE
+GATE = 'execute if function bm:p58/full run return 0'
+COUNT_ME = 'execute as @e[type=minecraft:wolf,tag=bm.tkpet] on owner if entity @s[tag=bm.fcme] run scoreboard players add #fc bm.rng 1'
+LL_DAY = 'bm.qbld'                              # (the day - phase51's sunrise count, #day bm.bm - its thread last caught you)
+LL_R = 24                                       # (how near it must be)
+LL_BRINK = 4                                    # (the off hand full: caught at this much health or less - two hearts)
+
+
+def _fourth_thread(G):
+    """it never counts among your three: out of phase58's count, and its own calls never ask p58/full"""
+    cnt = G.FUNCS['p58/count']
+    assert COUNT_ME in cnt, 'rigpet no longer counts the Keeper the way the Fourth Thread expects'
+    cnt.remove(COUNT_ME)
+    ts = G.FUNCS['p254/try_summon']
+    assert GATE in ts, ts
+    ts.remove(GATE)
+    J = G.FUNCS['p254/enc/joined']
+    k = next(i for i, l in enumerate(J) if 'unless function bm:p58/full at @s run function bm:p254/summon' in l)
+    J[k] = J[k].replace('unless function bm:p58/full at @s run', 'at @s run')
+    for f, L in G.FUNCS.items():                # (nothing else of its own may still ask)
+        if f.startswith('p254/'):
+            assert not any('p58/full' in l for l in L), f
+
+
+def lifeline_item():
+    from items import ITEM_VERSION
+    comps = {'minecraft:custom_data': {'bmll': B(1), 'bmv': Int(ITEM_VERSION)}, 'minecraft:item_model': 'bm:keeper_lifeline',
+             'minecraft:item_name': T('Lifeline', COL), 'minecraft:max_stack_size': Int(1),
+             'minecraft:tooltip_display': {'hide_tooltip': True}, 'minecraft:enchantments': {'minecraft:vanishing_curse': Int(1)},
+             'minecraft:enchantment_glint_override': False,
+             'minecraft:death_protection': {'death_effects': [{'type': 'minecraft:apply_effects', 'effects': [
+                 {'id': 'minecraft:regeneration', 'amplifier': B(1), 'duration': Int(200)},
+                 {'id': 'minecraft:absorption', 'amplifier': B(0), 'duration': Int(600)}]}]}}
+    return 'minecraft:paper[' + ','.join(f'{k}={snbt(v)}' for k, v in comps.items()) + ']'
+
+
+LL_TOK = '*[minecraft:custom_data~{bmll:1b}]'
+
+
+def _lifeline(G):
+    """once a day, near you: a blow that would kill you caught - the game's own death protection, from an unseen thread
+    resting in an empty off hand; with that hand full, a catch at the brink instead"""
+    fn, tellraw, title = G.fn, G.tellraw, G.title
+    import phase28 as P28
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {LL_DAY} dummy']           # (bm.hp, the health objective: phase67's)
+    G.OBJECTIVES.append(LL_DAY)
+    second, tick = G.FUNCS['loop/second'], G.FUNCS['tick']
+    tok = lifeline_item()
+    # ---- who it covers (bm.tkll): its owner, within 24, not in creative or spectator, its thread not spent today
+    second[-1:-1] = ['tag @a[tag=bm.tkll] remove bm.tkll',
+                     'execute as @e[type=minecraft:wolf,tag=bm.tkpet,tag=!bm.ffpet] at @s run function bm:p254/life/near',
+                     # (anyone it doesn't cover: no thread in the off hand; strays anywhere else, and dropped, swept)
+                     f'execute as @a[tag=!bm.tkll] if items entity @s weapon.offhand {LL_TOK} run item replace entity @s weapon.offhand with minecraft:air',
+                     f'execute as @a[tag=!bm.tkll] if items entity @s container.* {LL_TOK} run clear @s {LL_TOK}',
+                     f'execute as @e[type=minecraft:item] if items entity @s contents {LL_TOK} run kill @s']
+    fn('p254/life/near', ['scoreboard players operation #me bm.pid = @s bm.pid',
+                          f'execute as @a[distance=..{LL_R},gamemode=!creative,gamemode=!spectator] if score @s bm.pid = #me bm.pid '
+                          f'unless score @s {LL_DAY} = #day bm.bm run tag @s add bm.tkll'])
+    # ---- every tick, for whoever it covers: strays cleared (put back from the cursor, swapped into the main hand), the thread in
+    #      an empty off hand; that hand full - the brink
+    tick.append('execute as @a[tag=bm.tkll] at @s run function bm:p254/life/hold')
+    fn('p254/life/hold', [f'execute if items entity @s container.* {LL_TOK} run clear @s {LL_TOK}',
+                          f'execute if items entity @s armor.* {LL_TOK} run clear @s {LL_TOK}',
+                          f'execute unless items entity @s weapon.offhand * run item replace entity @s weapon.offhand with {tok}',
+                          f'execute if items entity @s weapon.offhand {LL_TOK} run return 0',
+                          f'execute if score @s bm.hp matches 1..{LL_BRINK} unless items entity @s weapon.* *[minecraft:death_protection] run function bm:p254/life/brink'])
+    # ---- caught: the game's death protection spent the thread (used_totem, ours) - or the brink
+    G.wjson('bm/advancement/p254/lifeline.json', {'criteria': {'used': {'trigger': 'minecraft:used_totem', 'conditions': {
+        'item': {'items': 'minecraft:paper', 'predicates': {'minecraft:custom_data': '{bmll:1b}'}}}}}, 'rewards': {'function': 'bm:p254/life/caught'}})
+    fn('p254/life/caught', ['advancement revoke @s only bm:p254/lifeline', 'execute at @s run function bm:p254/life/saved'])
+    fn('p254/life/brink', ['effect give @s minecraft:instant_health 1 1 true', 'effect give @s minecraft:regeneration 10 1 true',
+                           'effect give @s minecraft:absorption 30 0 true', 'playsound minecraft:item.totem.use player @a[distance=..16] ~ ~ ~ 0.6 1.3',
+                           'execute at @s run function bm:p254/life/saved'])
+    rainbow = [(1.0, 0.42, 0.6), (1.0, 0.62, 0.2), (1.0, 0.88, 0.25), (0.4, 0.85, 0.4), (0.3, 0.7, 1.0), (0.62, 0.45, 1.0)]
+    fn('p254/life/saved', [f'scoreboard players operation @s {LL_DAY} = #day bm.bm', 'tag @s remove bm.tkll', f'clear @s {LL_TOK}'] +
+       [f'particle minecraft:dust{{color:[{r},{g},{b}],scale:1.2}} ~ ~1 ~ 0.7 0.9 0.7 0 14' for r, g, b in rainbow] +
+       ['particle minecraft:end_rod ~ ~1.2 ~ 0.5 0.8 0.5 0.12 30', 'particle minecraft:totem_of_undying ~ ~1 ~ 0.5 0.8 0.5 0.4 30',
+        'playsound minecraft:block.amethyst_block.resonate player @a[distance=..16] ~ ~ ~ 1 1.2',
+        'playsound minecraft:item.lead.tied player @a[distance=..16] ~ ~ ~ 1 0.7',
+        tellraw('@s', [T('The Keeper of Bonds: ', COL, bold=True), T('(a thread snaps taut round you, and holds) ', 'gray', italic=True),
+                       T('"Not yet. Your thread is not finished - I have you."', LINE)]),
+        tellraw('@s', [T('(Lifeline: it rests now, until dawn.)', 'dark_gray', italic=True)])])
+    # ---- its menu and its ways: "Lifeline: ready" / "resting until dawn"
+    fn('p254/life/state', ['scoreboard players set #llr bm.rng 1', f'execute if score @s {LL_DAY} = #day bm.bm run scoreboard players set #llr bm.rng 0'])
+    states = {1: [T('Lifeline: ', COL, bold=True), T('ready', '#9af09a', bold=True), T(' - its thread is with you today.', 'gray')],
+              0: [T('Lifeline: ', COL, bold=True), T('resting until dawn', '#c8b0d8', italic=True), T(' - it caught you once today.', 'gray')]}
+
+    def with_state(L, width):
+        out = ['function bm:p254/life/state']
+        for l in L:
+            if 'dialog show @s ' not in l:
+                out.append(l); continue
+            head, d = l.split('dialog show @s ', 1)
+            assert d.count('],actions:[') == 1, d[:80]
+            for v in (1, 0):
+                d2 = d.replace('],actions:[', ',' + snbt(P28.body(states[v], width)) + '],actions:[')
+                h = (head or 'execute run return run ').replace('execute ', f'execute if score #llr bm.rng matches {v} ', 1)
+                out.append(h + 'dialog show @s ' + d2)
+        return out
+    G.FUNCS['p254/menu'] = with_state(G.FUNCS['p254/menu'], 300)
+    G.FUNCS['p254/powers'] = with_state(G.FUNCS['p254/powers'], 340)

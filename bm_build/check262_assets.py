@@ -345,6 +345,8 @@ def walk_item_model(f, m):
             if set(e) != {'threshold', 'model'} or not isinstance(e['threshold'], (int, float)): E(f'{f}: range_dispatch entry keys {set(e)}')
             walk_item_model(f, e['model'])
         if 'fallback' in m: walk_item_model(f, m['fallback'])
+    elif t == 'minecraft:empty':                 # (3.0e: draws nothing - the Keeper's unseen Lifeline thread, anywhere but the totem flash)
+        if set(m) - {'type'}: E(f'{f}: empty keys {set(m)}')
     else: E(f'{f}: item model type {t}')
 
 

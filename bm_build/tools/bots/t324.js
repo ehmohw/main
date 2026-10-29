@@ -15,7 +15,7 @@ const DX = IX + 13.5, DY = IY + 22, DZ = IZ + 13.5;                 // (keeper_s
 const BOX = `x=${IX},y=${IY},z=${IZ},dx=26,dy=30,dz=26`;
 runT({ W: 'keeper', NAME: 'The Keeper of Bonds', ab: 'tk', q: 'qb', pfx: 'p254', prefix: 'kb_', item: 'bond_thread', parts: 20, figParts: 18, hp: 40, X: 19000, Z: 16000, pron: 'it',
   called: /glides back to your side/, home: /unravels into a hundred bright threads/, sit: /kneels on its robe/, stand: /Shall we go on/,
-  ways: ['Tug', 'Mend', 'The Weave', 'Gift', 'Bond', 'The Motes'], plain: 'Cream and gold', looks: ['Dawn Weave', 'Twilight Weave', 'Meadow Weave'],
+  ways: ['Tug', 'Mend', 'The Weave', 'Gift', 'Bond', 'The Fourth Thread', 'Lifeline', 'The Motes'], plain: 'Cream and gold', looks: ['Dawn Weave', 'Twilight Weave', 'Meadow Weave'],
   encounter: async (ctx) => {
     const { ok, run, has, A, sleep, wait, O, X, Y, Z, cnt, entOf, at, score, PET } = ctx;
     const ENC = `@e[type=minecraft:interaction,tag=bm.tkenc,${BOX},limit=1]`;
@@ -120,4 +120,73 @@ runT({ W: 'keeper', NAME: 'The Keeper of Bonds', ab: 'tk', q: 'qb', pfx: 'p254',
     ok('...and back: bm.qbhd 0, the hood up again (kb_head, kb_body)', (await ctx.score('bm.qbhd')) === 0 &&
        /^bm:kb_head(_c\d+)?$/.test(await mdl(HEAD)) && /^bm:kb_body(_c\d+)?$/.test(await mdl(BODYP)) && A.bars.some(b => /draws its hood up/.test(b)),
        `${await mdl(HEAD)} / ${await mdl(BODYP)} | ${A.bars.slice(-1).join('')}`);
+
+    // ---- (3.0e) THE FOURTH THREAD - it never counts among your three: with it out, three others called with their own items
+    //      (as a player would) all come and stay - four out; a fifth is refused ("3 followers"); and with the three out, the
+    //      Keeper sent home and called again still comes
+    const OTH = [['mire_seed', 'bm.mlpet', 'p252', 'bm.mlcd'], ['kettle_plane', 'bm.ktpet', 'p227', 'bm.ktcd'], ['bv_ball', 'bm.bvpet', 'p195', 'bm.bvcd']];
+    const osel = (t) => `@e[type=minecraft:wolf,tag=${t},tag=!bm.ffpet]`;
+    const homeAll = async () => { for (const [, t, p, cd] of OTH) { await run(`execute as TestRat at @s run function bm:${p}/home`); await run(`scoreboard players set TestRat ${cd} 0`); }
+      await run('execute as TestRat at @s run function bm:p229/home'); await run('scoreboard players set TestRat bm.hycd 0'); await sleep(800); };
+    await homeAll(); await K.calm(); await K.home(); await ctx.at(X + 0.5, Y + 1, Z - 1.5, 0, 10);
+    { const n0 = []; for (const [, t] of OTH) n0.push(await cnt(osel(t)));
+      ok('THE FOURTH THREAD - the Keeper out, nobody else', (await cnt(PET)) === 1 && n0.every(n => n === 0), n0.join(',')); }
+    for (let i = 0; i < OTH.length; i++) { await run(`loot replace entity TestRat hotbar.${4 + i} loot bm:items/${OTH[i][0]}`); }
+    for (let i = 0; i < OTH.length; i++) { A.bars.length = 0; await use(4 + i); await wait(4000, async () => (await cnt(osel(OTH[i][1]))) === 1); await sleep(600); }
+    const outs = []; for (const [, t] of OTH) outs.push(await cnt(osel(t)));
+    ok('...three others called with their items: all three come (the Mireling, Kettle, Bender)', outs.every(n => n === 1), outs.join(','));
+    await sleep(2500);
+    const outs2 = []; for (const [, t] of OTH) outs2.push(await cnt(osel(t)));
+    ok('...and stay: four followers out at once, the Keeper the fourth', (await cnt(PET)) === 1 && outs2.every(n => n === 1), `keeper ${await cnt(PET)} others ${outs2.join(',')}`);
+    for (const [, t] of OTH) await run(`${O}tp ${osel(t)} ${X + 0.5} ${Y + 1} ${Z + 0.5}`);
+    for (const o of ['gc', 'bc', 'sc', 'rc', 'mc', 'k', 'k2']) await run(`${O}scoreboard players set @e[type=minecraft:wolf,tag=bm.mlpet] bm.mj${o} 900`);
+    await run('effect clear TestRat'); await sleep(2500);
+    ok('...BOND with three others near: Luck, Regeneration, Resistance and Strength', await wait(4000, async () => { const f = await fx(); return /luck/.test(f) && /regeneration/.test(f) && /resistance/.test(f) && /strength/.test(f); }), await fx());
+    await run('loot replace entity TestRat hotbar.7 loot bm:items/henry_tag'); A.bars.length = 0; await use(7); await sleep(1500);
+    ok('...a fifth (Henry) refused: "You already have 3 followers with you" - the Keeper not among them', (await cnt('@e[type=minecraft:wolf,tag=bm.hypet,tag=!bm.ffpet]')) === 0 &&
+       A.bars.some(b => /already have 3 followers/.test(b)), A.bars.slice(-1).join(''));
+    await ctx.sneakMenu(0); await A.click(/Send .* home/); await sleep(1500);
+    ok('...the Keeper sent home (three still out)', (await cnt(PET)) === 0);
+    A.bars.length = 0; await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
+    ok('...and called again with the three out: it comes - never blocked by the limit', (await cnt(PET)) === 1 && !A.bars.some(b => /already have 3/.test(b)), A.bars.slice(-1).join(''));
+    await homeAll();
+    for (const [iid] of OTH) await run(`clear TestRat *[minecraft:custom_data~{bm:"${iid}"}]`);
+    await run('clear TestRat *[minecraft:custom_data~{bm:"henry_tag"}]');
+
+    // ---- (3.0e) LIFELINE - once a day, out and near: a blow that would kill you caught (rcon deals it: the stage); "resting until
+    //      dawn" on its menu; a second the same day kills; the respawn, then everything put back
+    const TOK = '*[minecraft:custom_data~{bmll:1b}]';
+    const offTok = async () => /Test passed/i.test(await run(`execute if items entity TestRat weapon.offhand ${TOK}`));
+    const body = () => JSON.stringify(ctx.dd(A.dialogN[A.dialogN.length - 1]).body || []);
+    await K.calm(); await run('scoreboard players reset TestRat bm.qbld');
+    await ctx.at(X + 0.5, Y + 1, Z - 1.5, 0, 10); await run(`${O}tp ${PET} ${X + 1.5} ${Y + 1} ${Z - 1.5}`);
+    await run('effect clear TestRat'); await run('effect give TestRat minecraft:instant_health 1 4 true'); await sleep(1500);
+    ok('LIFELINE - ready: its unseen thread rests in the empty off hand', await wait(3000, offTok));
+    await ctx.sneakMenu(0);
+    ok('...its menu: "Lifeline: ready"', /Lifeline: /.test(body()) && /ready/.test(body()), body().slice(0, 200));
+    await A.press(/Keeper of Bonds' ways/);
+    ok('...its ways: The Fourth Thread, Lifeline - and "ready"', /The Fourth Thread/.test(body()) && /Lifeline: /.test(body()) && /ready/.test(body()), body().slice(-200));
+    await sleep(400);
+    await run('scoreboard objectives add t324d deathCount'); await run('scoreboard players set TestRat t324d 0');   // (the pack's bm.deaths is reset as each death is handled)
+    const d0 = 0;
+    A.chats.length = 0; await run('effect clear TestRat'); await run('damage TestRat 100'); await sleep(1500);
+    ok('...a lethal blow (100) with the Keeper near: TestRat lives', (await ctx.score('t324d')) === d0 && (await num('@a[name=TestRat,limit=1]', 'Health')) > 0,
+       `deaths ${d0} -> ${await ctx.score('t324d')} health ${await num('@a[name=TestRat,limit=1]', 'Health')}`);
+    ok('..."Not yet. Your thread is not finished" - Regeneration and Absorption', A.chats.some(c => /Your thread is not finished/.test(c)) && /regeneration/.test(await fx()) && /absorption/.test(await fx()),
+       `${A.chats.slice(-2).join(' | ').slice(0, 160)} | ${await fx()}`);
+    ok('...the thread spent: none in the off hand, bm.qbld today', !(await offTok()) && (await ctx.score('bm.qbld')) >= 0);
+    await sleep(1200); await ctx.sneakMenu(0);
+    ok('...its menu now: "Lifeline: resting until dawn"', /resting until dawn/.test(body()), body().slice(0, 200));
+    await sleep(600);
+    await run('effect clear TestRat'); await run('damage TestRat 100'); await sleep(2500);
+    ok('...a second lethal blow the same day: TestRat dies (and respawns)', (await ctx.score('t324d')) > d0, `deaths ${d0} -> ${await ctx.score('t324d')}`);
+    await wait(6000, async () => (A.health || 0) > 0, 250); await sleep(1500);
+    // (put back: the stage - home, the kit in the hotbar, the Keeper called again as a player would, the day's Lifeline reset)
+    await run(`${O}kill @e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..12]`);
+    await run('clear TestRat'); await run('scoreboard players reset TestRat bm.qbld'); await run('scoreboard players set TestRat bm.tkcd 0');
+    await run('loot replace entity TestRat hotbar.0 loot bm:items/bond_thread');
+    for (const [i, k] of [[1, 'cos_keeper_1'], [2, 'cos_aura_keeper'], [3, 'fcontract_keeper']]) await run(`loot replace entity TestRat hotbar.${i} loot bm:items/${k}`);
+    await ctx.at(X + 0.5, Y + 1, Z + 0.5, 0, 0); await run('effect give TestRat minecraft:resistance 900 4 true');
+    await run('scoreboard objectives remove t324d');
+    await use(0); ok('...and the Keeper called back after', await wait(5000, async () => (await cnt(PET)) === 1)); await sleep(1200);
   } });
