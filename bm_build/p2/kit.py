@@ -83,6 +83,11 @@ class DBuild(Build):
         self.meta['markers'].append((x, y, z, tags))
         return self.ents[-1]
 
+    def knight(self, n, kind, x, y, z, yaw):
+        """2.99a: a Statue Knight (phase245) on the floor at (x, y, z) (feet), facing yaw - it guards trial n (CFG['guard'])"""
+        self.m(x + 0.5, y, z + 0.5, ['bm.kstat', f'bm.kn{n}', f'bm.knk_{kind}'], float(yaw))
+        self.meta.setdefault('knights', []).append((n, kind, x, y, z, yaw))
+
     def mb(self, x, y, z, tags, data=None):
         """Marker centred in block (x,y,z)."""
         return self.m(x + 0.5, y + 0.5, z + 0.5, tags, 0.0, data)

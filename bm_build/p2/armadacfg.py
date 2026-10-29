@@ -78,7 +78,7 @@ SIGILS_FOR_VAULT = 6                    # Hive Sigils that open the Hive Vault b
 
 CFG = dict(idx=8, title='The Vorn Armada', boss=L.VX, color=COL,
            gate='minecraft:lime_stained_glass', secret='minecraft:polished_deepslate', trap='minecraft:redstone_block',
-           radius=180, arena_r=ARENA['r'],
+           radius=180, arena_r=ARENA['r'], guard={17: 'vorn'},
            puzzles=PUZZLES, key=None, vkey='akey', bkey='akey_victor', next_map=None,
            fx=['particle minecraft:end_rod ~ ~4 ~ 20 6 20 0.01 6', 'particle minecraft:dust{color:[0.5,1.0,0.35],scale:1.0} ~ ~3 ~ 18 5 18 0 4',
                'particle minecraft:electric_spark ~ ~2 ~ 14 3 14 0.02 3'],

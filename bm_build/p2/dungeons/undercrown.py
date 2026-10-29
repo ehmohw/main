@@ -436,6 +436,9 @@ def floor_ring(k):
         for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
             s(x + dx, y - 1, 122 + dz, 'gilded_blackstone')
     B.pz(16, 'shards', 112, y + 3, 122)
+    # (2.99a: two Dread Sentinels, stone, either side of the gate - they wake when the last shard is set; phase245)
+    B.knight(16, 'dread', 104, y, 121, 0)
+    B.knight(16, 'dread', 120, y, 121, 0)
     k.sign(112, y, 125, 0, ['THE THRONE GATE', 'Lay the three', 'Crown Shards', 'on their stones.'], wall=False)
     B.voice('shards', 112, y, 124, r=7)
     # braziers of soul fire on the ring

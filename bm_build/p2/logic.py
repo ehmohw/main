@@ -146,8 +146,16 @@ def generate(G, builds):
         def solve(n):
             lines = ['scoreboard players set @s bm.done 1',
                      f'scoreboard players set {dg_sel(d)} bm.pz {n}',
-                     f'execute as @e[type=minecraft:marker,tag=bm.drain,tag=bm.g{n},tag=bm.d_{d},distance=..{r2}] at @s run fill ~-3 ~-2 ~-3 ~3 ~3 ~3 minecraft:air replace minecraft:water',
-                     f'execute as @e[type=minecraft:marker,tag=bm.gate,tag=bm.g{n},tag=bm.d_{d},distance=..{r2}] at @s run function bm:p2/{d}/gate_open']
+                     f'execute as @e[type=minecraft:marker,tag=bm.drain,tag=bm.g{n},tag=bm.d_{d},distance=..{r2}] at @s run fill ~-3 ~-2 ~-3 ~3 ~3 ~3 minecraft:air replace minecraft:water']
+            # (2.99a: a GUARDED trial - its Statue Knights wake on the solve and its door waits for their fall: phase245 runs pz<n>_open then)
+            if n in cfg.get('guard', {}):
+                fn(f'p2/{d}/pz{n}_open', opening(n))
+                fn(f'p2/{d}/pz{n}_solve', lines + [f'function bm:p245/wake/{d}{n}'])
+            else:
+                fn(f'p2/{d}/pz{n}_solve', lines + opening(n))
+
+        def opening(n):
+            lines = [f'execute as @e[type=minecraft:marker,tag=bm.gate,tag=bm.g{n},tag=bm.d_{d},distance=..{r2}] at @s run function bm:p2/{d}/gate_open']
             if n < NP:
                 lines.append(f'execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.pz{n + 1},tag=bm.d_{d},distance=..{r2}] at @s run function bm:p2/{d}/pz{n + 1}_reset')
                 lines.append(title(f'@a[distance=..{cfg["radius"]}]', 'actionbar', T(f'{fl["open"]}  (trial {n} of {NP})', 'gold')))
@@ -157,7 +165,7 @@ def generate(G, builds):
                           title(f'@a[distance=..{cfg["radius"]}]', 'title', T('The way is open', cfg['color'], bold=True))]
             lines += ['playsound minecraft:block.note_block.chime master @a[distance=..16] ~ ~ ~ 1 1.2',
                       'playsound minecraft:block.note_block.chime master @a[distance=..16] ~ ~ ~ 1 1.6']
-            fn(f'p2/{d}/pz{n}_solve', lines)
+            return lines
 
         def fail(n, extra_reset):
             fn(f'p2/{d}/pz{n}_fail', extra_reset + fl['fail'] + [
@@ -407,7 +415,7 @@ def generate(G, builds):
             else:
                 raise ValueError(kind)
             fn(f'p2/{d}/pz{n}', head + body)
-            fn(f'p2/{d}/pz{n}_reset', reset)
+            fn(f'p2/{d}/pz{n}_reset', reset + ([f'function bm:p245/rest/{d}{n}'] if n in cfg.get('guard', {}) else []))
             # 2.13: the Hollow's trials sleep while everyone in the Throne has already conquered it (#hsafe, below)
             safe = 'if score #hsafe bm.p2 matches 0 ' if d == 'hollow' else ''
             tick.append(f'execute {safe}as @e[type=minecraft:marker,tag=bm.pz,tag=bm.d_{d},tag=bm.pz{n}] at @s run function bm:p2/{d}/pz{n}')

@@ -44,7 +44,7 @@ GUARD_SPAWN = {'brood': ('abductor', 'execute positioned ~ ~6 ~ run function bm:
 holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
 W = lambda x, y, z: (OX + x, OY + y, OZ + z)          # local -> world
 BUILT = {}
-CLEAR = [f'type=minecraft:marker,tag=bm.d_{d}', 'tag=bm.asgt', 'tag=bm.ashow', 'tag=bm.arelic_d', 'tag=bm.arelic_i', 'tag=bm.arcond', 'tag=bm.arhit',
+CLEAR = [f'type=minecraft:marker,tag=bm.d_{d}', 'tag=bm.kr', 'type=minecraft:husk,tag=bm.khost', 'tag=bm.asgt', 'tag=bm.ashow', 'tag=bm.arelic_d', 'tag=bm.arelic_i', 'tag=bm.arcond', 'tag=bm.arhit',
          'tag=bm.abench_i', 'tag=bm.amapd', 'tag=bm.dgmob', 'tag=bm.avorn', 'tag=bm.aguard', 'tag=bm.avx', 'type=minecraft:item',
          'type=minecraft:experience_orb', 'type=minecraft:arrow', 'type=minecraft:spectral_arrow']
 RELIC_NAME = {'squad_jetpack': "Zib's Squad Jetpack", 'hover_collar': "Specimen 117's Collar", 'hive_override': 'the Hive Override Chip',

@@ -68,7 +68,7 @@ WELLS = 6
 
 CFG = dict(idx=7, title='The Undercrown', boss=L.SOV, color=COL,
            gate='minecraft:crying_obsidian', secret='minecraft:cracked_nether_bricks', trap='minecraft:soul_soil',
-           radius=170, arena_r=ARENA['r'],
+           radius=170, arena_r=ARENA['r'], guard={16: 'dread'},
            puzzles=PUZZLES, key=None, vkey='ukey', bkey='ukey_victor', next_map=None,
            fx=['particle minecraft:ash ~ ~4 ~ 20 6 20 0 12', 'particle minecraft:dust{color:[0.75,0.05,0.12],scale:1.2} ~ ~3 ~ 18 5 18 0 4',
                'particle minecraft:soul ~ ~1 ~ 16 2 16 0.01 1'],
