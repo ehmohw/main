@@ -161,7 +161,7 @@ def generate(G):
     G.OBJECTIVES += objs
     say = lambda line, who=AUD: tellraw(who, [T(L.VX + ': ', COL, bold=True), T(line, VCOL, italic=True)])
     snd = lambda s, v, p, who=AUD: f'execute as {who} at @s run playsound minecraft:{s} hostile @s ~ ~ ~ {v} {p}'
-    at = lambda t, cmd: f'execute if score @s bm.vxt matches {t} run {cmd}'
+    at = lambda t, cmd: f'execute if score @s bm.vxt matches {t} {cmd[8:]}' if cmd.startswith('execute ') else f'execute if score @s bm.vxt matches {t} run {cmd}'
     import phase241
     M = phase241.build().meta['armada']
     PYL = sorted(M['pylons'])
@@ -548,7 +548,7 @@ def generate(G):
     fn('p242/a/ibeam_start', [f'execute as {FIGHT} run tag @s add bm.vximp', 'playsound minecraft:entity.elder_guardian.curse hostile @a[distance=..64] ~ ~ ~ 2 1.2',
                               say(L.VOICE['dock'].replace('A SPECIMEN HAS BOARDED. HOW WONDERFUL. ', '')), title(AUD, 'actionbar', T('THE IMPROVEMENT BEAM - break its line of sight!', COL, bold=True))])
     fn('p242/a/ibeam', ['scoreboard players operation #ib bm.rng = @s bm.vxx', 'scoreboard players set #c5 bm.rng 5', 'scoreboard players operation #ib bm.rng %= #c5 bm.rng',
-                        'execute if score #ib bm.rng matches 0 as @a[tag=bm.vximp] run function bm:p242/ib/one', 'execute if score @s bm.vxx matches 10 run tag @a remove bm.vximp'])
+                        'execute if score #ib bm.rng matches 0 as @a[tag=bm.vximp] at @s run function bm:p242/ib/one', 'execute if score @s bm.vxx matches 10 run tag @a remove bm.vximp'])
     fn('p242/ib/one', ['scoreboard players set #cov bm.rng 0', f'execute at {MM} positioned ~ ~6 ~ facing entity @s eyes run function bm:p242/cov/start',
                        'execute if score #cov bm.rng matches 1 run return 0',
                        f'execute at {MM} positioned ~ ~6 ~ facing entity @s eyes run function bm:p242/ib/line',
@@ -577,11 +577,11 @@ def generate(G):
        [f'execute if score #sp bm.rng matches {s} positioned {CX + 0.5 + spots[j][0]:.2f} {CY + 1 + HOVER["hivelink"]} {CZ + 0.5 + spots[j][1]:.2f} run function bm:p242/cl/make{n}'
         for s in range(4) for n, j in enumerate([j for j in range(4) if j != s], start=1)] +
        ['function bm:p242/pose/hivelink/' + pp('hivelink', 'clone', 'idle_a'), 'tag @s add bm.vxcloned'])
-    tick.append(f'execute if entity {ME}[tag=bm.vxcloned] run function bm:p242/cl/tick')
+    tick.append('execute if entity @e[type=minecraft:husk,tag=bm.avx,tag=bm.vxcloned,limit=1] run function bm:p242/cl/tick')
     fn('p242/cl/tick', [f'execute as @e[type=minecraft:husk,tag=bm.vxcl{i}] at @s run function bm:p242/cl/tick{i}' for i in range(1, CLONES + 1)] +
        [f'execute unless entity @e[type=minecraft:husk,tag=bm.vxcl{i}] run kill @e[type=minecraft:item_display,tag=bm.vxc{i}]' for i in range(1, CLONES + 1)] +
        # (the real one is struck: the illusion breaks)
-       [f'execute as {ME} if entity @s[nbt={{HurtTime:10s}}] run function bm:p242/cl/broken'])
+       [f'execute as {ME} at @s if entity @s[nbt={{HurtTime:10s}}] run function bm:p242/cl/broken'])
     fn('p242/cl/broken', ['function bm:p242/a/clone_end', 'scoreboard players set @s bm.vxx 1', 'playsound minecraft:block.glass.break hostile @a[distance=..64] ~ ~ ~ 2 0.6',
                           title(AUD, 'actionbar', T('You struck the real one - the clones shatter!', '#9adf8a', bold=True))])
     fn('p242/a/clone_end', ['tag @e[tag=bm.vxcloned] remove bm.vxcloned', 'execute as @e[type=minecraft:husk,tag=bm.vxcl] at @s run particle minecraft:poof ~ ~4 ~ 1 3 1 0.05 40 force',
@@ -592,7 +592,7 @@ def generate(G):
                          'particle minecraft:electric_spark ~ ~1 ~ 0.6 1 0.6 0.4 40', 'playsound minecraft:entity.illusioner.cast_spell player @s ~ ~ ~ 1 0.6',
                          title('@s', 'actionbar', T('A clone - it bursts in your face!', RED, bold=True))])
     fn('p242/a/cbeam', ['execute as @a[tag=bm.vxtgt] run tag @s add bm.vximp', 'function bm:p242/a/ibeam_one_all', 'tag @a remove bm.vximp'])
-    fn('p242/a/ibeam_one_all', ['execute as @a[tag=bm.vximp] run function bm:p242/ib/one'] +
+    fn('p242/a/ibeam_one_all', ['execute as @a[tag=bm.vximp] at @s run function bm:p242/ib/one'] +
        [f'execute as @e[type=minecraft:husk,tag=bm.vxcl{i}] at @s positioned ~ ~6 ~ facing entity {TGT} eyes run function bm:p242/ib/line' for i in range(1, CLONES + 1)] +
        [f'execute as @e[type=minecraft:husk,tag=bm.vxcl{i}] at @s positioned ~ ~6 ~ facing entity {TGT} eyes positioned ^ ^ ^2 run function bm:p242/cl/beam' for i in range(1, CLONES + 1)])
     fn('p242/cl/beam', [f'execute as {TGT} at @s run damage @s 2 minecraft:magic by {ME}'])
@@ -627,7 +627,7 @@ def generate(G):
     tick.append('execute as @e[type=minecraft:marker,tag=bm.vxflip] at @s run function bm:p242/flip/tick')
     fn('p242/flip/tick', ['scoreboard players add @s bm.vxt 1'] +
        [f'particle minecraft:dust{{color:[0.7,0.4,1.0],scale:1.4}} ~{x} ~ ~{z} 0 0 0 0 1 force' for x, z in ring_pts(3.5, 16)] +
-       ['execute if score @s bm.vxt matches 30 as @a[distance=..3.5,gamemode=!spectator,gamemode=!creative] run function bm:p242/flip/up',
+       ['execute if score @s bm.vxt matches 30 as @a[distance=..3.5,gamemode=!spectator,gamemode=!creative] at @s run function bm:p242/flip/up',
         'execute if score @s bm.vxt matches 30 run particle minecraft:reverse_portal ~ ~1 ~ 2 1 2 0.5 100 force',
         'execute if score @s bm.vxt matches 31.. run kill @s'])
     fn('p242/flip/up', ['effect give @s minecraft:levitation 2 12', 'playsound minecraft:entity.shulker.shoot player @s ~ ~ ~ 1 0.6',
@@ -737,7 +737,7 @@ def generate(G):
                       'playsound minecraft:item.firecharge.use player @a[distance=..16] ~ ~ ~ 0.8 1.4'])
     fn('p242/lance_ray', ['particle minecraft:flame ~ ~ ~ 0.05 0.05 0.05 0.01 1', 'particle minecraft:dust{color:[1.0,0.7,0.3],scale:1.0} ~ ~ ~ 0 0 0 0 1',
                           'execute unless block ~ ~ ~ #bm:grap_pass run return 0',
-                          'execute as @e[type=#bm:hostile,distance=..1.4,limit=1] run return run function bm:p242/lance_hit',
+                          'execute as @e[type=#bm:hostile,distance=..1.4,limit=1] at @s run return run function bm:p242/lance_hit',
                           'scoreboard players remove #br bm.rng 1', 'execute if score #br bm.rng matches 1.. positioned ^ ^ ^0.6 run function bm:p242/lance_ray'])
     fn('p242/lance_hit', ['damage @s 10 minecraft:in_fire by @p', 'data modify entity @s Fire set value 80s', 'particle minecraft:lava ~ ~1 ~ 0.3 0.3 0.3 0 6'])
     tick.append('scoreboard players remove @a[scores={bm.vxsc=1..}] bm.vxsc 1')

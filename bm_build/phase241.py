@@ -281,7 +281,7 @@ def generate(G):
     for k, (b, spawn) in GUARD_SPAWN.items():
         nm, col, sub = L.GUARD[k]
         hp = GUARD_HP[k]
-        fn(f'p241/guard/rise_{k}', [spawn, f'execute as @e[tag=bm.vb_{b},tag=!bm.aguard,distance=..16,sort=nearest,limit=1] run function bm:p241/guard/init_{k}'])
+        fn(f'p241/guard/rise_{k}', [spawn, f'execute as @e[tag=bm.vb_{b},tag=!bm.aguard,distance=..16,sort=nearest,limit=1] at @s run function bm:p241/guard/init_{k}'])
         fn(f'p241/guard/init_{k}', ['tag @s add bm.aguard', f'tag @s add bm.ag_{k}', 'tag @s add bm.vstay', f'attribute @s minecraft:max_health base set {hp}',
                                     f'data modify entity @s Health set value {hp}.0f', f'data modify entity @s CustomName set value {snbt(T(nm, col, bold=True))}',
                                     'data modify entity @s DeathLootTable set value "bm:p241/guardian"',
@@ -363,7 +363,7 @@ def generate(G):
 
     # ---- the Vorn in its waves are Vorn: a trooper's body on every husk, a saucer on every phantom
     fn('p241/dress', ['tag @s add bm.adone', 'tag @s add bm.vorn', 'tag @s add bm.vstay', 'execute if entity @s[type=minecraft:husk] run function bm:p241/dress/trooper',
-                      'execute if entity @s[type=minecraft:phantom] run data merge entity @s {size:5}'])
+                      'execute as @s[type=minecraft:phantom] run data merge entity @s {size:5}'])
     fn('p241/dress/trooper', ['effect give @s minecraft:invisibility infinite 0 true', 'effect give @s minecraft:fire_resistance infinite 0 true',
                               'tag @s add bm.adressme', 'execute summon minecraft:item_display run function bm:p241/dress/body', 'tag @s remove bm.adressme'])
     import phase32 as P32
@@ -554,15 +554,17 @@ def generate(G):
                                      tellraw('@s', P + [T('The Starforge roars. ', STAR, bold=True), T(f'Your Warplate comes back {ITEMS[f"starforged_{p}"]["name"]}.', 'gray')])])
 
     # ================================================================== THE RELICS AT WORK
-    fast.append('execute as @a[gamemode=!spectator] if items entity @s weapon.offhand *[minecraft:custom_data~{bm:"squad_jetpack"}] run function bm:p241/relic/jet')
+    fast.append('execute as @a[gamemode=!spectator] if items entity @s weapon.offhand *[minecraft:custom_data~{bm:"squad_jetpack"}] at @s run function bm:p241/relic/jet')
     fn('p241/relic/jet', ['effect give @s minecraft:slow_falling 1 0 true', 'execute if score @s bm.ajet matches 1.. run scoreboard players remove @s bm.ajet 1',
                           'execute if score @s bm.ajet matches 1.. run return 0', 'execute if entity @s[nbt={OnGround:1b}] run return 0',
                           'execute unless predicate bm:p20/sneaking run return 0', 'scoreboard players set @s bm.ajet 25',
                           'effect give @s minecraft:levitation 1 6 true', 'particle minecraft:flame ~ ~ ~ 0.2 0.1 0.2 0.05 20', 'playsound minecraft:entity.firework_rocket.launch player @a[distance=..16] ~ ~ ~ 1 1.2'])
     second.append('execute as @a[gamemode=!spectator] if items entity @s container.* *[minecraft:custom_data~{bm:"hover_collar"}] at @s run function bm:p241/relic/collar')
-    fn('p241/relic/collar', ['scoreboard players operation #me bm.pid = @s bm.pid',
-                             'execute as @e[type=#bm:followers,distance=..16] if score @s bm.pid = #me bm.pid run effect give @s minecraft:speed 3 0 true',
-                             'execute as @e[type=#bm:followers,distance=..16] if score @s bm.pid = #me bm.pid run effect give @s minecraft:resistance 3 0 true'])
+    import phase125 as P125
+    hosts = sorted({v[3] for v in P125.WHO.values()})
+    fn('p241/relic/collar', ['scoreboard players operation #me bm.pid = @s bm.pid'] +
+       [f'execute as @e[type=minecraft:{h},distance=..16] if score @s bm.pid = #me bm.pid run function bm:p241/relic/collared' for h in hosts])
+    fn('p241/relic/collared', ['effect give @s minecraft:speed 3 0 true', 'effect give @s minecraft:resistance 3 0 true'])
     G.consume_adv('hive_override', 'bm:p241/relic/override')
     fn('p241/relic/override', ['advancement revoke @s only bm:consume/hive_override'] + give_back(G.item_arg('hive_override')) + [
                                'execute if score @s bm.aocd matches 1.. run return run ' + title('@s', 'actionbar', T('The chip is still rebooting.', 'gray')),

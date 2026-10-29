@@ -66,7 +66,7 @@ class Vexis(RP.Cfg):
              'particle minecraft:electric_spark ~ ~1 ~ 0.4 0.6 0.4 0.1 10']
     FADE_SOUND = 'playsound minecraft:block.beacon.deactivate neutral @a[distance=..20] ~ ~ ~ 1 1.4'
     SUMMON_EXTRA = ['playsound minecraft:block.beacon.power_select neutral @a[distance=..24] ~ ~ ~ 1 1.4', 'playsound minecraft:block.conduit.ambient.short neutral @a[distance=..24] ~ ~ ~ 1 0.8']
-    ENC_POSES = [(0, 'tired'), (40, 'idle_a')]
+    ENC_POSES = [(0, 'sit_b'), (40, 'idle_a')]
     ENC_PARTICLE = 'execute if score #f bm.rng matches 20 run particle minecraft:reverse_portal ~ ~1.5 ~ 0.3 0.3 0.3 0.02 8'
     ADV = ('Unlinked', 'Cut the hive-link of Admiral Vexis - and take what is left of it with you')
     ADMIN_HINT = 'Hard mode: fell Admiral Vexis at the helm of the Vorn Armada (in the End). The Severed Link is yours, the first time.'
