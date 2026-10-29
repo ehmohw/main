@@ -68,7 +68,7 @@ SOUNDS: tools/mire_sfx.py synthesises vendor/mire_<name>.ogg (mono, 1.2-3.6 s); 
 and registers bm:mire.<name> (with subtitles): bubble, rise, idle, lash, shriek, death. SOUNDS = {name: 'bm:mire.<name>'}
 (only those whose .ogg exists) - phase246 falls back to vanilla for any missing.
 
-ITEMS: ICONS = {'shadow_remnant', 'shadow_musk'} (raw 16x16, outlined; gen_rp's ICONS loop finishes them with vanilla.process).
+ITEMS: ICONS = {'shadow_remnant', 'shadow_musk', 'mire_heart'} (raw 16x16, outlined; gen_rp's ICONS loop finishes them with vanilla.process).
 
 gen_rp hook (PHASE2 block, after phase245):   import phase246; phase246.rp(sys.modules[__name__])
 (phase246.rp is mire_art.rp(R); call one of them, not both.)
@@ -1071,8 +1071,39 @@ def musk_raw():
     return im
 
 
+HEART = ['................',
+         '...444....444...',
+         '..45w43..45433..',
+         '.45543334433332.',
+         '.4543c3333c3332.',
+         '.43333cc3c33321.',
+         '.433c33oO3c321..',
+         '..333c33o33c21..',
+         '...3c3333c321...',
+         '....33c332211...',
+         '.....3c3221.....',
+         '......3221......',
+         '.......21.......',
+         '........4.......',
+         '........4.......',
+         '.......454......']
+HEART_PAL = dict(REMNANT_PAL, c='#d0283a', o='#ff7a1a', O='#ffd070')
+
+
+def heart_raw():
+    """the Mire Heart: sixteen Shadow Remnants knotted into a beating heart - lumpy black goo, two lobes glossy at the top left,
+    red veins running through it from a tiny orange-red eye-glint at its centre, a drip falling from its point"""
+    from sprites280 import hx
+    im = Image.new('RGBA', (16, 16), (0, 0, 0, 0)); px = im.load()
+    for y, row in enumerate(HEART):
+        assert len(row) == 16, (y, row)
+        for x, ch in enumerate(row):
+            if ch != '.': px[x, y] = hx(HEART_PAL[ch])
+    return _outline(im)
+
+
 def icons():
-    return {'shadow_remnant': remnant_raw(), 'shadow_musk': musk_raw()}
+    return {'shadow_remnant': remnant_raw(), 'shadow_musk': musk_raw(), 'mire_heart': heart_raw()}
 
 
 ICONS = icons()                                                 # ({name: raw image} - gen_rp's ICONS loop finishes them)

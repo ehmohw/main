@@ -206,8 +206,8 @@ if 'night' in what:
 
 # ---------------------------------------------------------------------------------------------------- the items
 if 'items' in what:
-    names = ('shadow_remnant', 'shadow_musk')
-    W = 900; strip = Image.new('RGB', (W, 300), (198, 198, 198)); d = ImageDraw.Draw(strip)
+    names = ('shadow_remnant', 'shadow_musk', 'mire_heart')
+    W = 1000; strip = Image.new('RGB', (W, 300), (198, 198, 198)); d = ImageDraw.Draw(strip)
     d.text((10, 6), 'The Dread Mire\'s items (vanilla.process\'d, as shipped): 8x, and 1x / 2x in a slot', fill=(20, 20, 20), font=FNB)
     x = 20
     for n in names:
@@ -216,7 +216,7 @@ if 'items' in what:
         d.rectangle((x + 150, 40, x + 150 + 17, 40 + 17), fill=(139, 139, 139)); strip.paste(ic, (x + 151, 41), ic)
         two = ic.resize((32, 32), Image.NEAREST); d.rectangle((x + 180, 40, x + 180 + 35, 40 + 35), fill=(139, 139, 139)); strip.paste(two, (x + 182, 42), two)
         d.text((x, 180), n, fill=(10, 10, 10), font=FNT)
-        x += 260
+        x += 300
     van = '/home/claude/mc263/client/assets/minecraft/textures/item/'
     row = [Image.open(os.path.join(ROOT, 'assets', 'bm', 'textures', 'item', n + '.png')).convert('RGBA') for n in names]
     for n in ('ink_sac', 'honey_bottle', 'potion', 'echo_shard', 'slime_ball'):
@@ -226,7 +226,7 @@ if 'items' in what:
     for i, ic in enumerate(row):
         big = ic.resize((32, 32), Image.NEAREST)
         d.rectangle((hx + i * 40, 216, hx + i * 40 + 35, 251), fill=(139, 139, 139)); strip.paste(big, (hx + i * 40 + 2, 218), big)
-    d.text((hx, 258), 'a hotbar (2x): the remnant, the musk - beside ink sac, honey bottle, potion, echo shard, slimeball', fill=(30, 30, 30), font=FNT)
+    d.text((hx, 258), 'a hotbar (2x): the remnant, the musk, the heart - beside ink sac, honey bottle, potion, echo shard, slimeball', fill=(30, 30, 30), font=FNT)
     p = os.path.join(OUT, 'mire_items.png'); strip.save(p); print(p)
 
 # ---------------------------------------------------------------------------------------------------- the maw, before / after
