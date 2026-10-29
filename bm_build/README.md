@@ -86,6 +86,14 @@ Two more are classic secret rooms. Each room also gives a **Hive Sigil**, and si
 - **All of its forms:** its menu's **Form** button cycles Unlinked, **the Warframe**, **the Hive-Link** and **Starfire**. All three boss forms are yours from the first fall, at a companion's size: the warframe stands about 3.5 blocks tall.
 - **Full size:** fell Admiral Vexis a second time and **Size: Companion / Full** makes any of the three forms as vast as it stood against you.
 
+**THE SERAPH'S RAIMENT, REDONE.** The holy twin of the Dreadborne set has new art throughout:
+- **The plate:** pearl, with gold filigree and sapphires, an eye in a sunburst on the breast, feathered pauldrons and tassets, and eyes on the shoulders and knees.
+- **The Seraph's Gaze:** a new 3D helm, with two eyed wings crossed over the face, burning tips and a burning halo set with eyes.
+- **Six real wings:** wearing the Seraph's Wings, you now carry 3D wings that everyone sees. The two over your face are the helm's.
+  - The two great wings fold down your back like a cloak with a burning hem and sway gently. They draw round you when you sneak, rise into a beating V as you fall, and spread wide, beating slowly, as you glide.
+  - Two lower wings cover your legs.
+- **New icons** for the three Seraph pieces.
+
 **Music:** the Armada has its own soundtrack: five exploration tiers that build ship by ship, its combat tracks, and Vexis's intro, three phases, two entrances and the unlinking. Its record drops the first time you fell it.
 
 ## New in 2.98c: the Last Light - the Divine One, the Maw, and the Sovereign again
