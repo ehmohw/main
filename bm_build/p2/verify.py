@@ -249,10 +249,218 @@ def verify_under(B, G, UM, starts, all_open, notes):
     return errs
 
 
+def verify_armada(B, G, AM, starts, all_open, notes):
+    """2.99: the Vorn Armada's own doors and parts, with every gate open and every bridge on: each hidden room is sealed while
+    its door is shut and opens onto its relic and a chest of its own, its sigils can be walked onto; each secret room's relic
+    is sealed until its door opens; the Hive Vault is sealed, its door can be walked up to, and behind it are the victor's
+    vault, the hoard and a rift; and the parts the runtime and the Admiral's fight lean on are where the contract says: the
+    bridges (void in the template, 3 wide, one deck, pads at their ends), the guardians' rooms (open and tall enough), the
+    sockets, the reactors' conduits and spawn points, the Gauntlet's sentries, the bridge arena (its floor, dome, window on the
+    star, pylons, helm, door), the Dock's arrival, beam-out and bench, every voice and every book.
+    Returns (errors, the cells reached with the Hive Vault open: its vaults are reached through it)."""
+    import p2.armadacfg as A
+    import armada_lore as L
+    errs, d = [], B.d
+    base = dict(G.override)
+    hid_chests = [c for c in B.meta['chests'] if c[3] and '/hidden' in c[3]]
+    # ---- the hidden rooms
+    if set(AM['hidden']) != set(A.HIDDEN): errs.append(f'{d}: hidden rooms {sorted(AM["hidden"])} != {sorted(A.HIDDEN)}')
+    for k, h in AM['hidden'].items():
+        cells = door_cells(*h['door'][:6])
+        whos = sorted(w for (w, *_r) in h['sigils'])
+        if k in A.HIDDEN and whos != sorted(A.HIDDEN[k][1]): errs.append(f'{d}: hidden room {k} opens for {whos}, not {A.HIDDEN[k][1]}')
+        rel = [r for r in AM['relics'] if r[0] == k]
+        if not rel: errs.append(f'{d}: hidden room {k} has no relic')
+        for (_, x, y, z) in rel:
+            if reach(all_open, x, y, z): errs.append(f'{d}: hidden room {k}: relic reachable with its door shut')
+        for (who, x, y, z) in h['sigils']:
+            if (x, y, z) not in all_open: errs.append(f'{d}: hidden room {k}: the {who} sigil at {(x, y, z)} cannot be walked onto')
+        for c in cells:
+            if B.b.get(c) != 'minecraft:' + h['door'][6]: errs.append(f'{d}: hidden room {k}: door cell {c} is {B.b.get(c)}')
+        G.override = dict(base)
+        for c in cells: G.override[c] = 'minecraft:air'
+        opened = G.bfs(starts)
+        G.override = dict(base)
+        for (_, x, y, z) in rel:
+            if not reach(opened, x, y, z): errs.append(f'{d}: hidden room {k}: relic unreachable with its door open')
+        mine = [c for c in hid_chests if reach(opened, *c[:3]) and not reach(all_open, *c[:3])]
+        if not mine: errs.append(f'{d}: hidden room {k}: no chest of its own behind the door')
+        notes.append(f'hidden room {k}: +{len(opened - all_open)} standable cells, {len(mine)} chest(s)')
+    # ---- the secret rooms' relics
+    for kk in range(1, A.SECRETS + 1):
+        rel = [r for r in AM['relics'] if r[0] == f'secret{kk}']
+        sd = [s_ for s_ in B.meta['sdoors'] if s_[3] == kk]
+        if not rel or not sd: errs.append(f'{d}: secret room {kk}: relic {bool(rel)} / door {bool(sd)}'); continue
+        x, y, z = sd[0][:3]
+        G.override = dict(base); G.override[(x, y, z)] = 'minecraft:air'; G.override[(x, y + 1, z)] = 'minecraft:air'
+        opened = G.bfs(starts)
+        G.override = dict(base)
+        for (_, rx, ry, rz) in rel:
+            if reach(all_open, rx, ry, rz): errs.append(f'{d}: secret room {kk}: relic reachable with its door shut')
+            if not reach(opened, rx, ry, rz): errs.append(f'{d}: secret room {kk}: relic unreachable with its door open')
+    # ---- the Hive Vault
+    vault_open = set()
+    if not AM['vault']: errs.append(f'{d}: no Hive Vault door')
+    else:
+        x, y, z, ax, w, h, blk = AM['vault']
+        cells = door_cells(x, y, z, ax, w, h)
+        if not any(abs(c[0] - q[0]) + abs(c[2] - q[2]) <= 1 and c[1] == q[1] for q in cells for c in all_open if c[1] == y):
+            errs.append(f'{d}: the Hive Vault door cannot be walked up to')
+        G.override = dict(base)
+        for c in cells: G.override[c] = 'minecraft:air'
+        vault_open = G.bfs(starts)
+        G.override = dict(base)
+        inside_v = [v for v in B.meta['vaults'] if v[3] == A.CFG['bkey']]
+        hoard = [c for c in B.meta['chests'] if c[3] and '/hoard' in c[3]]
+        rifts_in = [r for r in AM['rifts'] if reach(vault_open, *r) and not reach(all_open, *r)]
+        if not inside_v: errs.append(f'{d}: no victor\'s vault')
+        if not hoard: errs.append(f'{d}: no hoard chest')
+        for v in inside_v + hoard:
+            if reach(all_open, *v[:3]): errs.append(f'{d}: {v[:3]} behind the Hive Vault is reachable with its door shut')
+            if not reach(vault_open, *v[:3]): errs.append(f'{d}: {v[:3]} behind the Hive Vault is unreachable with its door open')
+        if not rifts_in: errs.append(f'{d}: no rift in the Hive Vault')
+        notes.append(f'the Hive Vault: +{len(vault_open - all_open)} standable cells, {len(hoard)} hoard chest(s)')
+    if not any(reach(all_open, *r) for r in AM['rifts']): errs.append(f'{d}: no rift reachable before the Hive Vault (the antechamber\'s)')
+    # ---- the bridges: void in the template, 3 wide, one deck, a pad near both ends, every n the contract names
+    have_n = {b[0] for b in AM['bridges']}
+    if have_n != {1, 5, 9, 13, 14, 16}: errs.append(f'{d}: bridges {sorted(have_n)}')
+    pads = AM['pads']
+    for n in sorted(have_n):
+        boxes = [b for b in AM['bridges'] if b[0] == n]
+        cells = set()
+        for (_, x1, y1, z1, x2, y2, z2, blk) in boxes:
+            if y1 != y2 or 2 not in (x2 - x1, z2 - z1) or min(x2 - x1, z2 - z1) > 2: errs.append(f'{d}: bridge {n} box {(x1, y1, z1, x2, y2, z2)} is not a 3-wide deck')
+            for x in range(x1, x2 + 1):
+                for z in range(z1, z2 + 1):
+                    cells.add((x, y1, z))
+                    st = B.b.get((x, y1, z))
+                    if st is not None and not st.endswith(':air'): errs.append(f'{d}: bridge {n} cell {(x, y1, z)} is {st} in the template')
+                    for dy in (1, 2):
+                        st = B.b.get((x, y1 + dy, z))
+                        if st is not None and not passable(st): errs.append(f'{d}: bridge {n}: no headroom at {(x, y1 + dy, z)} ({st})')
+        near = [p for p in pads if min(abs(p[0] - c[0]) + abs(p[2] - c[2]) + abs(p[1] - 1 - c[1]) for c in cells) <= 6]
+        if len(near) < 2: errs.append(f'{d}: bridge {n} has {len(near)} pads near its ends')
+    for p in pads:
+        if p not in all_open: errs.append(f'{d}: pad {p} cannot be stood on')
+    # ---- the guardians' rooms
+    for (n, x, y, z, k, r) in AM['vbosses']:
+        if A.VBOSS.get(n) != k: errs.append(f'{d}: guardian trial {n} is {k}, not {A.VBOSS.get(n)}')
+        hgt = 0
+        while hgt < 30 and G.free(x, y + hgt, z): hgt += 1
+        span = []
+        for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            i = 0
+            while i < 40 and G.free(x + dx * (i + 1), y + 1, z + dz * (i + 1)): i += 1
+            span.append(i)
+        across = min(span[0] + span[1], span[2] + span[3]) + 1
+        need = (14, 28) if k in ('brood', 'nav') else (9, 24)
+        if hgt < need[0] or across < need[1]: errs.append(f'{d}: guardian {k}\'s room is {hgt} tall, {across} across (needs {need})')
+        notes.append(f'guardian {k}: {hgt} tall, {across} across')
+    # ---- sockets, conduits, sentries
+    for n, keys in A.XSOCK.items():
+        got = sorted(s_[4] for s_ in AM['socks'] if s_[0] == n)
+        if got != sorted(keys): errs.append(f'{d}: trial {n} sockets {got} != {sorted(keys)}')
+    for (n, x, y, z, key) in AM['socks']:
+        if not G.free(x, y, z) or G.free(x, y - 1, z): errs.append(f'{d}: socket {key} at {(x, y, z)} is not an air cell on a plinth')
+    for n in A.REACTOR:
+        p = B.meta['puzzles'].get(n, {})
+        cx, cy, cz = p.get('ctrl', (0, 0, 0))
+        cs = [c for c in AM['conduits'] if c[0] == n]
+        if sorted(c[1] for c in cs) != list(range(A.CONDUITS)): errs.append(f'{d}: reactor {n} conduits {sorted(c[1] for c in cs)}')
+        for (_, i, x, y, z) in cs:
+            if not G.free(x, y, z): errs.append(f'{d}: reactor {n} conduit {i} at {(x, y, z)} is not air')
+            if math.dist((x, y, z), (cx, cy, cz)) > 7: errs.append(f'{d}: reactor {n} conduit {i} is {math.dist((x, y, z), (cx, cy, cz)):.1f} from its core')
+        sp = [e for e in p.get('elements', []) if e[0] == 'wsp']
+        if len(sp) < 4 or any(math.dist(e[1:4], (cx, cy, cz)) > 16 for e in sp): errs.append(f'{d}: reactor {n} needs 4 spawn points within 16')
+    if len(AM['sentries']) < 8: errs.append(f'{d}: only {len(AM["sentries"])} sentries')
+    from p2.kit import VEC
+    for (n, x, y, z, f, ln) in AM['sentries']:
+        fx, fz = VEC[f]
+        if not G.free(x, y, z): errs.append(f'{d}: sentry {(x, y, z)} is not an air cell')
+        if G.free(x - fx, y, z - fz): errs.append(f'{d}: sentry {(x, y, z)} has no emitter in the wall behind it')
+        if not all(G.free(x + fx * i, y, z + fz * i) for i in range(1, ln)): errs.append(f'{d}: sentry {(x, y, z)}: its beam is blocked')
+    # ---- the bridge arena (exactly the contract)
+    ax_, ay_, az_ = A.ARENA['c']
+    if B.meta['arena'] is None or (B.meta['arena'][0], B.meta['arena'][2]) != (ax_, az_): errs.append(f'{d}: arena marker {B.meta["arena"]} is not at {A.ARENA["c"]}')
+    badf = []
+    for x in range(ax_ - A.ARENA['r'], ax_ + A.ARENA['r'] + 1):
+        for z in range(az_ - A.ARENA['r'], az_ + A.ARENA['r'] + 1):
+            if math.hypot(x - ax_, z - az_) > A.ARENA['r'] - 0.5: continue
+            if G.free(x, ay_, z): badf.append((x, ay_, z))
+    if badf: errs.append(f'{d}: the arena floor has holes at {badf[:4]}')
+    if not (G.free(ax_, A.ARENA['dome'] - 1, az_) and not G.free(ax_, A.ARENA['dome'], az_)): errs.append(f'{d}: the arena dome does not top out at y{A.ARENA["dome"]}')
+    glass = tot = 0
+    for a in range(-50, 51, 5):
+        t = math.radians(A.ARENA['window'] + a)
+        for y in (60, 66, 72):
+            c = (round(ax_ + 31.5 * math.cos(t)), y, round(az_ + 31.5 * math.sin(t)))
+            tot += 1; glass += 'glass' in (B.b.get(c) or '')
+    if glass < tot * 0.6: errs.append(f'{d}: the great window is only {glass}/{tot} glass')
+    sx, sy, sz = A.STAR['c']
+    # (the star's centre is below the floor's horizon from the arena: its upper half rises in the window - look at that)
+    for nm_, eye in (('centre', (ax_ + 0.5, ay_ + 2.6, az_ + 0.5)), ('helm', (A.ARENA['helm'][0] + 0.5, ay_ + 2.6, A.ARENA['helm'][2] + 0.5))):
+        tgt = (sx + 0.5, sy + A.STAR['r'] * 0.55, sz + 0.5)
+        hit = None
+        for i in range(1, 3000):
+            f = i / 3000
+            c = tuple(math.floor(eye[j] + (tgt[j] - eye[j]) * f) for j in range(3))
+            st = B.b.get(c)
+            if st and not passable(st) and 'glass' not in st: hit = c; break
+        if not hit or math.dist(hit, A.STAR['c']) > A.STAR['r'] + 3: errs.append(f'{d}: from the arena {nm_} the star is hidden behind {hit} ({B.b.get(hit) if hit else None})')
+    if AM['helm'] != A.ARENA['helm']: errs.append(f'{d}: helm {AM["helm"]} != {A.ARENA["helm"]}')
+    elif AM['helm'] not in all_open: errs.append(f'{d}: the helm cannot be stood on')
+    dx_, dy_, dz_ = A.ARENA['door']
+    if (dx_, dy_, dz_) not in all_open or not B.meta['big'] or min(abs(b[0] - dx_) + abs(b[2] - dz_) for b in B.meta['big']) > 5:
+        errs.append(f'{d}: the way in {A.ARENA["door"]} is not a battle door\'s threshold')
+    if sorted(p_[0] for p_ in AM['pylons']) != [0, 1, 2, 3]: errs.append(f'{d}: pylons {sorted(p_[0] for p_ in AM["pylons"])}')
+    for (i, x, y, z) in AM['pylons']:
+        b = math.degrees(math.atan2(z - az_, x - ax_))
+        if y != A.ARENA['pylon_y'][1] or not G.free(x, y, z): errs.append(f'{d}: pylon {i} crystal {(x, y, z)} is not an air cell at y{A.ARENA["pylon_y"][1]}')
+        if abs(math.hypot(x - ax_, z - az_) - (A.ARENA['pylon_r'] - 2)) > 1.6: errs.append(f'{d}: pylon {i} is not at radius {A.ARENA["pylon_r"]}')
+        if abs((b - A.ARENA['window'] - 45 - 90 * i + 180) % 360 - 180) > 6: errs.append(f'{d}: pylon {i} bearing {b:.0f}')
+        ox, oz = round((x - ax_) / max(1e-6, math.hypot(x - ax_, z - az_))), round((z - az_) / max(1e-6, math.hypot(x - ax_, z - az_)))
+        if G.free(x + ox, y, z + oz): errs.append(f'{d}: pylon {i}: no pylon behind its crystal')
+        if not reach(all_open, x, y, z, 32.0): errs.append(f'{d}: pylon {i} cannot be seen from the floor')
+    # ---- the Dock, the voices, the books, the star
+    for key in ('dock', 'home', 'bench', 'star', 'helm', 'vault'):
+        if not AM[key]: errs.append(f'{d}: no {key}')
+    G.override = {}
+    first = G.bfs(starts)
+    G.override = dict(base)
+    if AM['dock'] and tuple(AM['dock'][:3]) not in first: errs.append(f'{d}: the arrival {AM["dock"]} cannot be stood on')
+    if AM['home'] and tuple(AM['home']) not in first: errs.append(f'{d}: the beam-out pad cannot be walked onto from the arrival')
+    if AM['bench'] and not reach(first, *AM['bench']): errs.append(f'{d}: the Starforge bench is out of reach of the arrival')
+    if not any('bm.amap' in m[3] for m in B.meta['markers']): errs.append(f'{d}: no Fleet Map (bm.amap)')
+    got_v = {v[0] for v in AM['voices']}
+    if got_v != set(L.VOICE): errs.append(f'{d}: voices {sorted(got_v)} != {sorted(L.VOICE)}')
+    for (key, x, y, z) in AM['voices']:
+        if not any(abs(c[0] - x) <= 3 and abs(c[2] - z) <= 3 and abs(c[1] - y) <= 2 for c in all_open): errs.append(f'{d}: voice {key} is nowhere a player goes')
+    got_b = {b[0] for b in AM['lecterns']}
+    if got_b != set(L.BOOKS): errs.append(f'{d}: lecterns {sorted(got_b)} != {sorted(L.BOOKS)}')
+    for (key, x, y, z) in AM['lecterns']:
+        if not (reach(all_open, x, y, z) or reach(vault_open, x, y, z)): errs.append(f'{d}: the {key} lectern cannot be reached')
+    if AM['star'] != A.STAR['c']: errs.append(f'{d}: star {AM["star"]}')
+    shell = sum(1 for a in range(0, 360, 30) for e in (-60, 0, 60)
+                if not G.free(round(sx + (A.STAR['r'] - 1) * math.cos(math.radians(a)) * math.cos(math.radians(e))),
+                              round(sy + (A.STAR['r'] - 1) * math.sin(math.radians(e))),
+                              round(sz + (A.STAR['r'] - 1) * math.sin(math.radians(a)) * math.cos(math.radians(e)))))
+    if shell < 30: errs.append(f'{d}: the star is not a sphere of r{A.STAR["r"]} ({shell}/36)')
+    burnt = [c for c in all_open if math.dist(c, A.STAR['c']) <= A.STAR['burn']]
+    if burnt: errs.append(f'{d}: a player can stand inside the star\'s burn at {burnt[:3]}')
+    # ---- every ship near its centre
+    for nm, (x1, y1, z1, x2, y2, z2) in AM.get('ships', {}).items():
+        c = ((x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2)
+        off = math.dist((c[0], c[2]), (A.SHIPS[nm][0], A.SHIPS[nm][2]))
+        notes.append(f'{nm}: x{x1}..{x2} y{y1}..{y2} z{z1}..{z2}, centre {off:.1f} from SHIPS')
+        if off > 14: errs.append(f'{d}: {nm} is centred {off:.1f} from {A.SHIPS[nm]}')
+    G.override = dict(base)
+    return errs, vault_open
+
+
 def verify(B, outside='solid', base_y=0, extra_starts=()):
     errs, notes = [], []
     d, cfg = B.d, D[B.d]
-    UM = B.meta.get('under')          # 2.98: the Undercrown (no altar: the fight starts in its arena; bridges, hidden rooms, the hoard)
+    UM = B.meta.get('under') or B.meta.get('armada')    # 2.98: the Undercrown (no altar: the fight starts in its arena; bridges, hidden rooms, the hoard) - 2.99: and the Armada
     gate_blk = cfg['gate']
     # ---------------- wiring
     for (x, y, z, axis, n) in B.meta['gates']:
@@ -397,7 +605,11 @@ def verify(B, outside='solid', base_y=0, extra_starts=()):
         for c in plane(g): G.override[c] = OPEN_LIGHT
     bridges(ngate)
     all_open = G.bfs(starts)
-    if UM:
+    vault_open = set()
+    if 'armada' in B.meta:
+        e_, vault_open = verify_armada(B, G, UM, starts, all_open, notes)
+        errs += e_
+    elif UM:
         errs += verify_under(B, G, UM, starts, all_open, notes)
     for (x, y, z, k) in B.meta['sdoors']:
         btn = [e for e in B.meta['elements'] if e[0] == 'sbtn' and e[4] == k]
@@ -411,7 +623,7 @@ def verify(B, outside='solid', base_y=0, extra_starts=()):
         else: notes.append(f'secret room {k}: +{gained} standable cells')
     # 2.14: every vault (spoils and victor's) can be walked up to once the gates are open (the Hollow's sits on the King's throne)
     for (x, y, z, key, loot, facing) in B.meta['vaults']:
-        if not reach(all_open, x, y, z, 4.0): errs.append(f'{d}: {key} vault at {(x, y, z)} cannot be reached')
+        if not reach(all_open, x, y, z, 4.0) and not (vault_open and reach(vault_open, x, y, z, 4.0)): errs.append(f'{d}: {key} vault at {(x, y, z)} cannot be reached')
     # chests in hidden rooms must not be reachable before their door opens
     for (x, y, z, loot) in B.meta['chests']:
         if loot and '/hidden' in loot and reach(all_open, x, y, z): errs.append(f'{d}: hidden chest at {(x, y, z)} reachable without its secret door')

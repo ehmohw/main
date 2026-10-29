@@ -238,17 +238,31 @@ def ther_line(notes, beat, amp=0.3, port=0.07, vib=6.3, depth=0.012, legato=0.97
     s = np.sin(2 * np.pi * ph) + 0.16 * np.sin(4 * np.pi * ph + 0.4) + 0.06 * np.sin(6 * np.pi * ph + 1.1)
     if bright: s += bright * np.tanh(3 * np.sin(2 * np.pi * ph)) * 0.25
     g = smooth(smooth(gate, 0.035), 0.02)
-    return amp * 0.32 * s * g
+    return amp * 0.45 * s * g
+
+
+def addc(tr, sig, t, pan=0.0, gain=1.0, wet=0.3):
+    """add a long sound to a track - or, in a window of a piece (a record's excerpt, sovereign_music.View), only the part of
+    it inside the window (cut with a short fade at its end), even if it starts a moment before it"""
+    win = getattr(tr, 'win', None)
+    if win is None:
+        return tr.add(sig, t, pan, gain, wet)
+    w0, w1 = tr.t0, tr.t0 + tr.span
+    if t >= w1 - 1e-6 or t + len(sig) / SR <= w0 or t < w0 - 1.5: return
+    k = int((w1 - t) * SR)
+    if k < len(sig):
+        sig = sig[:k].copy(); f = min(k, int(0.04 * SR)); sig[-f:] *= np.linspace(1, 0, f)
+    tr.tr.add(sig, t, pan, gain, wet)
 
 
 def ther(tr, t0, notes, amp=0.3, pan=0.0, wet=0.45, echo_=True, **k):
     """a theremin line into a track, with a dotted-eighth echo trailing it"""
     s = ther_line(notes, tr.beat, amp, **k)
-    tr.add(s, t0, pan, 1, wet)
+    addc(tr, s, t0, pan, 1, wet)
     if echo_:
         e = lp(s, 2600)
         for i in (1, 2):
-            tr.add(e, t0 + tr.beat * 0.75 * i, -pan + (0.5 if i % 2 else -0.5), 0.3 ** i, min(0.9, wet + 0.25))
+            addc(tr, e, t0 + tr.beat * 0.75 * i, -pan + (0.5 if i % 2 else -0.5), 0.3 ** i, min(0.9, wet + 0.25))
 
 
 VOW = {'a': (730, 1090, 2440), 'e': (530, 1840, 2480), 'i': (300, 2200, 2950), 'o': (570, 840, 2410), 'u': (330, 800, 2240)}
@@ -321,7 +335,7 @@ _PLATE = ((1.0, 1.0, 1.6), (1.594, 0.8, 2.0), (2.136, 0.7, 2.6), (2.296, 0.55, 2
 
 def hull(amp=1.0, f=96.0, ring=1.0, seed=0, thump=1.0):
     """the hull struck: a great steel plate's inharmonic modes ringing out over a thud - the fleet's bass drum and its bell"""
-    g = np.random.default_rng(seed)
+    g = np.random.default_rng(int(seed))
     t = T(0.6 + 1.8 * ring); n = len(t)
     s = np.zeros(n)
     for ratio, a, dec in _PLATE:
@@ -435,14 +449,14 @@ def bars_(tr, s):
 
 
 # ====================================================================== the layers (one section each)
-def L_drone(tr, s, notes, amp=0.2):
-    tr.add(drone([M(x) for x in notes], SEC * tr.barlen + 2.5, amp, 0.3), at(tr, s * SEC) - 0.5, 0, 1, 0.5)
+def L_drone(tr, s, notes, amp=0.2, nb=SEC):
+    addc(tr, drone([M(x) for x in notes], nb * tr.barlen + 2.5, amp, 0.3), at(tr, s * SEC) - 0.5, 0, 1, 0.5)
 
 
-def L_hum(tr, s, root='D1', amp=0.18, cut=180):
+def L_hum(tr, s, root='D1', amp=0.18, cut=180, nb=SEC):
     """the ship's hum: a low pulse-wave held through the section, its filter breathing"""
-    tr.add(apad([M(root), M(root) + 7], SEC * tr.barlen + 1.0, amp, cut, 1.5, 1.5, 2, 0.004, 0.09, 0.5, 2.0, 'pulse', 0.3),
-           at(tr, s * SEC) - 0.3, 0, 1, 0.3)
+    addc(tr, apad([M(root), M(root) + 7], nb * tr.barlen + 1.0, amp, cut, 1.5, 1.5, 2, 0.004, 0.09, 0.5, 2.0, 'pulse', 0.3),
+         at(tr, s * SEC) - 0.3, 0, 1, 0.3)
 
 
 def L_sub(tr, s, prog, amp=0.3, every=1):
@@ -497,7 +511,7 @@ def L_arp(tr, s, prog, amp=0.12, lo=m('D4'), shape='up', rate=0.5, cut0=700, cut
 
 
 def L_pad(tr, s, prog, amp=0.1, oct_=12, cut=1300, every=2, attack=0.8, wave='saw'):
-    for b in range(0, SEC, every):
+    for b in range(0, len(prog), every):
         if not _w(tr, s, b): continue
         c = ch(prog[b])
         tr.add(apad([x + oct_ for x in c[:4]], tr.barlen * every + 0.5, amp, cut, attack, 1.0, 3, 0.009, 0.11, 0.35, 1.2, wave),
@@ -505,7 +519,7 @@ def L_pad(tr, s, prog, amp=0.1, oct_=12, cut=1300, every=2, attack=0.8, wave='sa
 
 
 def L_hive(tr, s, prog, amp=0.12, vowel='u', to=None, oct_=12, every=2, attack=0.7, gate=0.0, top=False):
-    for b in range(0, SEC, every):
+    for b in range(0, len(prog), every):
         if not _w(tr, s, b): continue
         c = ch(prog[b])[:3]
         notes = [c[0] + oct_, c[2] + oct_, c[1] + oct_ + 12] + ([c[0] + oct_ + 24] if top else [])
@@ -559,10 +573,11 @@ def L_pings(tr, s, notes=('D6', 'A5'), every=2, amp=0.1, off=1):
         echo(tr, ping(x, amp), at(tr, s * SEC + b), (-0.5, 0.5)[(b // every) % 2], 1, 0.6, tr.beat * 1.5, 3, 0.45, 3500)
 
 
-def L_drums(tr, s, style, amp=1.0, fill=True, crash_=True):
+def L_drums(tr, s, style, amp=1.0, fill=True, crash_=True, nb=SEC):
     """pulse: the hull struck once a bar. half: half time - the kick, a plate-snare on three, metal hats. drive: kick-kick, the
     backbeat, sixteenth hats. war: the double kick. march: the mechanical march - pistons and plates"""
-    for b in range(SEC):
+    amp *= 0.7
+    for b in range(nb):
         if not _w(tr, s, b): continue
         bar = s * SEC + b; t = at(tr, bar); bt = tr.beat
         if style == 'pulse':
@@ -588,8 +603,8 @@ def L_drums(tr, s, style, amp=1.0, fill=True, crash_=True):
             for x in (1, 3): tr.add(esnare(0.5 * amp), t + x * bt, 0.05, 1, 0.32)
             tr.add(hull(0.45 * amp, 78, 1.1, bar), t, 0, 1, 0.4)
             tr.add(piston(0.3 * amp), t + 3.5 * bt, 0.4, 1, 0.3)
-            for i in range(8): tr.add(clank(0.08 * amp, 2400 + 300 * (i % 3), 0.2, bar * 8 + i), t + i * 0.5 * bt + 0.25 * bt, -0.4, 1, 0.25)
-        if fill and b == SEC - 1 and style in ('drive', 'war', 'march'):
+            for i in range(8): tr.add(clank(0.08 * amp, 2400 + 300 * (i % 3), 0.2, int(bar) * 8 + i), t + i * 0.5 * bt + 0.25 * bt, -0.4, 1, 0.25)
+        if fill and b == nb - 1 and style in ('drive', 'war', 'march'):
             for k, f in enumerate((180, 140, 110, 84, 64, 50)):
                 tr.add(tom(f, 0.34 * amp, 7, 0.25), t + (2.5 + k * 0.25) * bt, -0.5 + 0.2 * k, 1, 0.3)
         if crash_ and b == 0 and style in ('drive', 'war', 'march'):
@@ -604,9 +619,9 @@ def roll(tr, t_end, dur=1.5, amp=0.4, f=70.0):
         tr.add(tom(f * (1 + 0.6 * u), amp * u ** 1.6, 8, 0.3), t_end - dur + i * tr.beat / 4, (-0.25, 0.25)[i % 2], 1, 0.35)
 
 
-def brink(tr, s, amp=0.4):
-    """the last two bars of a section that hands on: a riser and a roll into the next downbeat"""
-    t = at(tr, s * SEC + SEC)
+def brink(tr, s, amp=0.4, end=None):
+    """the last two bars of a section that hands on: a riser and a roll into the next downbeat (or into bar `end`)"""
+    t = at(tr, s * SEC + SEC if end is None else end)
     tr.add(edge(riser(tr.barlen * 2, amp * 0.5)), t - tr.barlen * 2, 0, 1, 0.4)
     tr.add(suck(tr.barlen, amp * 0.5), t - tr.barlen, 0.2, 1, 0.3)
     roll(tr, t, tr.barlen, amp * 0.6)
@@ -667,8 +682,8 @@ def t1():
         if s in (4, 5, 6): L_arp(tr, s, prog, 0.05 + 0.01 * (s - 4), m('D4'), 'up', 0.5, 300, 900 + 200 * (s - 4), 2.4, 0.4)
         if s in (0, 4, 7): L_call(tr, s, (2,) if s != 4 else (2, 6), 0.07, 0, 'u', 0.45)
     # the theremin: V slow (half time), far off; then again, nearer, with the choir under it an octave down
-    ther(tr, at(tr, 2 * SEC), V2, 0.2, -0.1, 0.6, port=0.11, depth=0.014)
-    ther(tr, at(tr, 5 * SEC), tp(V2, 12), 0.18, 0.1, 0.55, port=0.09)
+    ther(tr, at(tr, 2 * SEC), V2, 0.14, -0.1, 0.6, port=0.11, depth=0.014)
+    ther(tr, at(tr, 5 * SEC), tp(V2, 12), 0.13, 0.1, 0.55, port=0.09)
     ply(tr, at(tr, 5 * SEC), V2, lambda x, d: hive([x], d + 0.3, 0.05, 'u', 'o', 0.4, 0.8, 4), -0.2, 1, 0.6)
     # the Dock waking: the first two bars of V as a far horn, answered
     for b in (1, 5):
@@ -699,12 +714,12 @@ def t2():
             L_call(tr, s, (0, 4), 0.09, 0, 'u', -0.4)
             for k in range(4): tr.add(whisper(3.0, 0.04, 30 + k), at(tr, s * SEC + 2 * k), (-0.7, 0.7)[k % 2], 1, 0.8)
     # the brood's melody: the theremin, sliding (a sick, slow lullaby for the tanks)
-    ther(tr, at(tr, 1 * SEC), B, 0.2, 0.1, 0.5, port=0.14, depth=0.016)
-    ther(tr, at(tr, 2 * SEC), V2, 0.17, -0.1, 0.5, port=0.1, k=12)
+    ther(tr, at(tr, 1 * SEC), B, 0.16, 0.1, 0.5, port=0.14, depth=0.016)
+    ther(tr, at(tr, 2 * SEC), V2, 0.14, -0.1, 0.5, port=0.1, k=12)
     ply(tr, at(tr, 2 * SEC + 2), tp(CALL, 0), lambda x, d: hive([x], d + 0.3, 0.06, 'a', None, 0.2, 0.7), 0.4, 1, 0.65)
     ply(tr, at(tr, 4 * SEC), B, lambda x, d: hive([x, M(x) - 12], d + 0.3, 0.1, 'u', 'a', 0.25, 0.8), 0, 1, 0.55)
     ply(tr, at(tr, 4 * SEC), tp(B, 12), lambda x, d: mono(x, d, 0.035, 'pulse', 1400, 800, 3, 1.0, 0.004, 0, 0.05, 0.3, 0.8, 0.2, duty=0.3), 0.35, 1, 0.6)
-    ther(tr, at(tr, 6 * SEC), B, 0.2, 0.1, 0.5, port=0.12, k=12)
+    ther(tr, at(tr, 6 * SEC), B, 0.15, 0.1, 0.5, port=0.12, k=12)
     ply(tr, at(tr, 6 * SEC), B, lambda x, d: hive([M(x) - 12], d + 0.3, 0.07, 'o', None, 0.3, 0.8), -0.2, 1, 0.55)
     ply(tr, at(tr, 7 * SEC), V2, lambda x, d: horn([x], d, 0.09, 1600, 500, 0.12), -0.15, 1, 0.5)
     for b in (1, 5, 9, 13):

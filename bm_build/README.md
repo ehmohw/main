@@ -83,7 +83,8 @@ Two more are classic secret rooms. Each room also gives a **Hive Sigil**, and si
 - **Its powers:** Hive-Grip, Plasma Bolt, Gravity Well, Deflector and Scout Drone. The Vorn near it hesitate, slowed and weakened.
 - **Everything every follower has:** its menu, sitting, a wardrobe (six mantles), a rare aura (Starlit Orbit), a shiny, the Partner Wheel, a frame trick, a display-case figurine and Cecil's doll.
 - **Duos** with Bender, Mr. Capshun, Henry and Nia, and *Old Enemies* with Zib.
-- **Its Warframe:** fell Admiral Vexis a second time and its menu gains **Warframe / Unlinked**. It then walks beside you in its full-size warframe, as vast as it stood against you.
+- **All of its forms:** its menu's **Form** button cycles Unlinked, **the Warframe**, **the Hive-Link** and **Starfire**. All three boss forms are yours from the first fall, at a companion's size: the warframe stands about 3.5 blocks tall.
+- **Full size:** fell Admiral Vexis a second time and **Size: Companion / Full** makes any of the three forms as vast as it stood against you.
 
 **Music:** the Armada has its own soundtrack: five exploration tiers that build ship by ship, its combat tracks, and Vexis's intro, three phases, two entrances and the unlinking. Its record drops the first time you fell it.
 

@@ -577,7 +577,7 @@ def dock(k):
         k.sign(x, W + 2, 211, 'north', [f'LIFT {i + 1}', '', 'UP / DOWN', ''], color='lime')
     k.sign(138, W + 4, 211, 'north', ['GRAVITY LIFTS', 'Set them as the', 'manifest says.', ''], color='yellow')
     B.pz(1, 'levers', 138, W + 3, 206)
-    B.pad(141, W, 206)
+    B.pad(154, W, 206)
     k.windows(134, 142, 201, 201, W + 2, W + 4, 0, -1, every=(2, 1))
     B.gate(146, W, 206, 'z', 1)
     B.fx(118, W + 4, 206); B.fx(138, W + 3, 206)
@@ -639,7 +639,7 @@ def brood(k):
     rng = random.Random(46)
     k.room(sh, 178, W, 190, 192, W + 7, 208, wall=LAB_WALL, floor=LAB_FLOOR)       # P2 the specimen lab
     k.room(sh, 196, W, 176, 208, W + 10, 208, wall=BIO_WALL, floor=BIO_FLOOR)     # P3 the bio-bay
-    k.room(sh, 178, W, 174, 192, W + 11, 186, wall=LAB_WALL, floor=LAB_FLOOR)     # P4 quarantine
+    k.room(sh, 178, W, 174, 192, W + 13, 186, wall=LAB_WALL, floor=LAB_FLOOR)     # P4 quarantine
     k.room(sh, 184, W, 212, 192, W + 3, 217, wall=BIO_WALL, floor=[('moss_block', 1)])  # the kennel (hidden)
     k.round_room(sh, 192, 152, 15, W, W + 17, BIO_WALL, BIO_FLOOR, wall_h=9)      # P5 THE HATCHERY
     k.room(sh, 184, W, 166, 186, W + 3, 173, wall=BIO_WALL, floor=BIO_FLOOR)      # the corridor to the hatchery (G4)
@@ -673,7 +673,7 @@ def brood(k):
     B.pz(2, 'simon', 185, W + 4, 198)
     SEQS.setdefault(A.d, {})[2] = 4
     B.voice('brood', 182, W, 206, r=6)
-    B.pad(180, W, 206)
+    B.pad(174, W, 206)
     for x in range(180, 192, 3):
         for z in (192, 198, 204):
             s(x, W + 8, z, 'sea_lantern')
@@ -711,11 +711,11 @@ def brood(k):
     # ---------------- P4 THE QUARANTINE GRID (lights-out): 4x4 bulbs in the west wall, the buttons on a plinth before them
     k.air(193, W, 179, 195, W + 3, 181)
     B.gate(194, W, 180, 'z', 3)
-    for z in range(176, 186):
-        for y in range(W + 7, W + 11): s(177, y, z, 'black_concrete' if (z + y) % 2 else 'yellow_concrete')
+    for z in range(174, 187):
+        for y in (W + 4, W + 13): s(177, y, z, 'black_concrete' if z % 2 else 'yellow_concrete')
     for i in range(16):
         r_, c = divmod(i, 4)
-        B.bulb(4, 177, W + 10 - 2 * r_, 177 + 2 * c, i)
+        B.bulb(4, 177, W + 12 - 2 * r_, 177 + 2 * c, i)
     for z in range(177, 183):
         for y in range(W, W + 4): s(179, y, z, 'polished_deepslate')
         s(179, W + 4, z, 'polished_deepslate_slab[type=bottom,waterlogged=false]')
@@ -725,13 +725,13 @@ def brood(k):
     k.sign(180, W + 3, 177, 'east', ['QUARANTINE', 'Light every cell', 'to seal the', 'grid.'], color='yellow')
     B.pz(4, 'lights', 184, W + 5, 180)
     for x in range(182, 192, 3):
-        for z in range(175, 186, 3): s(x, W + 12, z, 'sea_lantern')
+        for z in range(175, 186, 3): s(x, W + 14, z, 'sea_lantern')
     for z in (175, 185):
         for x in range(185, 192): s(x, W, z, 'iron_bars')
     # ---------------- P5 THE HATCHERY (vboss: the Brood-Warden): egg pods, a green glass skylight; a ward vault
     B.gate(185, W, 172, 'x', 4)
     cx, cz = 192, 152
-    for a in range(0, 360, 30):
+    for a in range(15, 360, 30):
         ex, ez = round(cx + 12.5 * math.cos(math.radians(a))), round(cz + 12.5 * math.sin(math.radians(a)))
         if abs(ex - 185) <= 2 and ez > 160: continue
         if abs(ex - 198) <= 2 and ez < 145: continue
@@ -767,7 +767,7 @@ def brood(k):
             for y in range(W + 3, W + 7):
                 k.window(wx, y, wz, -1, 0, glass='green_stained_glass')
     B.gate(198, W, 135, 'x', 5)
-    B.pad(198, W, 141)
+    B.pad(198, W, 131)
     B.fx(185, W + 4, 199); B.fx(202, W + 5, 192); B.fx(185, W + 5, 180)
     # ---------------- outside
     for (x, y, r) in ((184, 42, 3), (200, 42, 3), (186, 53, 3), (198, 53, 3)):
@@ -817,7 +817,7 @@ def forge(k):
     B.pz(6, 'seq', 203, W + 4, 109)
     SEQS.setdefault(A.d, {})[6] = 5
     B.voice('forge', 198, W, 111, r=6)
-    B.pad(198, W, 112)
+    B.pad(198, W, 117)
     for x in range(193, 212, 3):
         s(x, W - 1, 110, 'magma_block'); s(x, W + 8, 110, 'shroomlight')
     k.windows(212, 212, 104, 112, W + 2, W + 4, 1, 0, every=(2, 1))
@@ -885,7 +885,7 @@ def forge(k):
     B.fx(cx, W + 8, cz)
     k.windows(191, 191, 58, 78, W + 3, W + 7, -1, 0, glass='orange_stained_glass', every=(3, 2))
     B.gate(204, W, 51, 'x', 9)
-    B.pad(204, W, 57)
+    B.pad(204, W, 49)
     B.fx(203, W + 4, 108); B.fx(199, W + 5, 91); B.fx(214, W + 4, 91)
     # ---------------- outside: chimneys, engines
     for (x, z) in ((196, 66), (210, 66), (196, 76), (210, 76), (203, 94)):
@@ -964,7 +964,7 @@ def nav(k):
     s(170, W, 36, 'barrel[facing=up,open=false]', {'id': 'minecraft:barrel', 'Items': [{'Slot': Byte(0), 'id': 'minecraft:bow', 'count': Int(1)}]})
     B.pz(10, 'targets', 168, W + 5, 30)
     B.voice('nav', 172, W, 30, r=6)
-    B.pad(174, W, 30)
+    B.pad(181, W, 30)
     for (x, z) in ((164, 26), (172, 26), (164, 34), (172, 34)):
         s(x, W - 1, z, 'amethyst_block')
     s(168, W - 1, 30, 'pearlescent_froglight')
@@ -1059,7 +1059,7 @@ def nav(k):
     B.vault(cx, W, 5, 'south', 'akey', 'bm:p2/armada/ward')
     B.fx(cx, W + 8, cz)
     B.gate(93, W, 22, 'z', 13)
-    B.pad(98, W, 22)
+    B.pad(91, W, 22)
     B.fx(168, W + 6, 30); B.fx(146, W + 6, 30); B.fx(138, W + 5, 12)
     # ---------------- outside
     for (z, y, r) in ((23, 50, 3), (37, 50, 3), (30, 61, 2)):
@@ -1121,7 +1121,7 @@ def dread_a(k):
         for x in range(70, 79):
             s(x, W + 3, z, 'cyan_terracotta' if x % 3 == 0 else 'red_terracotta')
     B.voice('dread', 74, W, 22, r=6)
-    B.pad(76, W, 22)
+    B.pad(81, W, 22)
     for x in range(71, 78, 3): s(x, W + 7, 22, 'shroomlight')
     k.sign(77, W + 2, 18, 'south', ['DREADNOUGHT', 'XV-A', 'IT HAS NEVER', 'LOST.'], color='red')
     # ZIB'S LOST SQUAD: a Donadian-coded door (teal panels) in the lobby's south wall
@@ -1154,7 +1154,7 @@ def dread_a(k):
     for x in range(50, 63, 3): s(x, W + 4, 9, 'shroomlight')
     # the south collar (G14, bridge 14)
     B.gate(56, W, 40, 'x', 14)
-    B.pad(59, W, 33)
+    B.pad(56, W, 43)
     # outside: the war look - turrets, red slits
     for (z, y, r) in ((30, 46, 3), (30, 54, 3), (16, 52, 2)):
         engine(k, 'x', 1, 80, z, y, r, 5, core='shroomlight', rim='red_stained_glass', plume=('red_stained_glass', 'orange_stained_glass'))
@@ -1197,7 +1197,7 @@ def dread_b(k):
     k.hull(sh, 'z', [(70, 23, 27, 36, 44), (114, 23, 27, 37, 44)], HULL_DARK, env=False, chamfer=1)
     arr = k.tube('x', 39, 44, 70, W, HULL_DARK, frame='shroomlight')
     dep = k.tube('z', 119, 124, 25, W, HULL_DARK, frame='shroomlight')
-    B.pad(36, W, 70)
+    B.pad(42, W, 70)
     k.sign(31, W + 2, 64, 'south', ['DREADNOUGHT', 'XV-B', '', ''], color='red')
     for x in range(31, 38, 3): s(x, W + 7, 69, 'shroomlight')
     # P15 THE HANGAR (waves): parked saucers, crates
@@ -1240,7 +1240,7 @@ def dread_b(k):
     s(42, W + 4, 110, 'shroomlight')
     # the prow collar (G16, bridge 16)
     B.gate(25, W, 121, 'x', 16)
-    B.pad(28, W, 117)
+    B.pad(25, W, 123)
     k.windows(12, 12, 80, 96, W + 3, W + 6, -1, 0, glass='red_stained_glass', every=(2, 3))
     for (x, y, r) in ((20, 50, 3), (30, 50, 3), (25, 59, 3)):
         engine(k, 'z', -1, 58, x, y, r, 5, core='shroomlight', rim='red_stained_glass', plume=('red_stained_glass', 'orange_stained_glass'))
@@ -1295,7 +1295,7 @@ def flag(k):
             else:
                 top = arena_ceil(max(0, d - 2.5)) + 2
                 for y in range(fy - 2, top + 1):
-                    if win and W <= y <= 79: st = 'glass'
+                    if win and fy - 1 <= y <= 79: st = 'glass'
                     else: st = 'black_concrete' if (y + int(ang // 8)) % 5 else 'polished_blackstone'
                     s(x, y, z, st)
     # the window's mullions (every 11 degrees) and transoms
@@ -1351,45 +1351,43 @@ def flag(k):
             if d <= 3.2: s(x, fy, z, 'gold_block' if d > 2.4 else GL if d < 0.8 else 'chiseled_polished_blackstone')
     B.helm(hx, W, hz)
     B.voice('helm', hx - 6, W, hz + 5, r=8)
-    # the housing: x71..77 z160..170, y55..61, hollow; the vault door on its west face; a stair down inside it
-    for x in range(71, 78):
+    # the housing: x71..81 z160..170, y55..61, hollow, built against the window; the Hive Vault's door on its west face. Inside,
+    # a flat run on the floor (x72..78), then a stair down one a block east (x79..86) to walk 47 and the Hive Vault
+    for x in range(71, 82):
         for z in range(160, 171):
             for y in range(W, 62):
-                edge = x in (71, 77) or z in (160, 170) or y == 61
+                edge = x in (71, 81) or z in (160, 170) or y == 61
                 s(x, y, z, ('black_concrete' if (y + z) % 4 else 'gold_block') if edge else 'air')
-    for z in range(160, 171): s(70, W, z, 'polished_blackstone_slab[type=bottom,waterlogged=false]') if z not in range(163, 168) else None
-    for y in range(W + 1, W + 4):
-        for z in (161, 169): s(70, y, z, GL) if y == W + 2 else None
-    # the stair: from (72, 55) down one a block east to walk 47 at x80, then the Hive Vault
-    for i, x in enumerate(range(72, 81)):
-        w = W - i
+    for y in range(W, W + 5):
+        for z in (161, 169): s(70, y, z, 'gold_block' if y < W + 4 else GL)
+    for x in range(72, 87):
+        w = W if x <= 78 else W - (x - 78)
         for z in range(164, 167):
-            s(x, w - 1, z, 'polished_blackstone' if i == 0 else 'polished_blackstone_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]')
-            s(x, w - 2, z, 'polished_blackstone')
-            top = 60 if x <= 76 else w + 3
-            for y in range(w, top + 1): s(x, y, z, 'air')
-            if x > 76: s(x, w + 4, z, 'black_concrete')
-        for z in (163, 167):
-            for y in range(w - 2, (61 if x <= 76 else w + 5)):
-                if not (x <= 77 and y >= W) : s(x, y, z, 'polished_blackstone')
-    k.room(sh, 81, 47, 158, 92, 51, 172, wall=FLAG_WALL, floor=FLAG_FLOOR)
-    k.air(80, 47, 164, 80, 50, 166)
+            if x > 78:
+                s(x, w - 1, z, 'polished_blackstone_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]')
+                s(x, w - 2, z, 'polished_blackstone')
+            for y in range(w, (60 if x <= 80 else w + 3) + 1): s(x, y, z, 'air')
+            if x > 80: s(x, w + 4, z, 'black_concrete')
+        if x > 78:
+            for z in (163, 167):
+                for y in range(w - 2, (W if x <= 80 else w + 5)): s(x, y, z, 'polished_blackstone')
+    k.room(sh, 87, 47, 158, 97, 51, 172, wall=FLAG_WALL, floor=FLAG_FLOOR)
     B.hive_vault(71, W, 165, 'z', 1, 4, 'gilded_blackstone')
     k.sign(70, W + 2, 162, 'west', ['THE HIVE VAULT', 'Six sigils of', 'forgotten rooms', 'open it.'], color='lime')
     # the Hive Vault: gold, green, the victor's vault, the hoard, a rift, the Admiral's last log
-    for x in range(81, 93):
+    for x in range(87, 98):
         for z in range(158, 173):
             if (x + z) % 4 == 0: s(x, 46, z, 'gold_block')
-    B.vault(91, 47, 165, 'west', 'akey_victor', 'bm:p2/armada/victor')
-    for (x, z) in ((84, 159), (88, 159), (84, 171), (88, 171)):
+    B.vault(96, 47, 165, 'west', 'akey_victor', 'bm:p2/armada/victor')
+    for (x, z) in ((89, 159), (93, 159), (89, 171), (93, 171)):
         B.chest(x, 47, z, 'south' if z == 159 else 'north', loot='bm:p2/armada/hoard')
-    for (x, z) in ((83, 161), (86, 170), (90, 160)):
-        s(x, 47, z, 'gold_block'); s(x, 48, z, 'raw_gold_block') if x == 83 else None
-    s(89, 46, 168, 'crying_obsidian'); B.rift(89, 47, 168)
-    k.lectern('helm', 86, 47, 165, 'west')
-    for x in range(82, 92, 3):
+    for (x, z) in ((88, 161), (91, 170), (95, 160)):
+        s(x, 47, z, 'gold_block'); s(x, 48, z, 'raw_gold_block') if x == 88 else None
+    s(94, 46, 169, 'crying_obsidian'); B.rift(94, 47, 169)
+    k.lectern('helm', 91, 47, 161, 'south')
+    for x in range(88, 97, 3):
         for z in (161, 169): s(x, 52, z, GL)
-    s(86, 52, 165, 'gold_block')
+    s(91, 52, 165, 'gold_block')
     # ---------------- the hull: a great saucer round the bridge, its keel, the prow (south); the command spine (west)
     sm = np.zeros(A.SIZE, bool)
     for x in range(cx - 46, cx + 47):
@@ -1426,10 +1424,10 @@ def flag(k):
         k.sign(x, W + 2, 150, 'north', [nm, '', 'Drop it on', 'its slot.'], color='lime')
     B.pz(17, 'xsock', 20, W + 3, 146)
     B.voice('flag', 24, W, 142, r=6)
-    B.pad(25, W, 142)
+    B.pad(25, W, 134)
     for x in range(10, 32, 4): s(x, W + 8, 145, GL)
     k.windows(9, 31, 140, 140, W + 2, W + 5, 0, -1, every=(3, 1))
-    k.sign(31, W + 2, 141, 'west', ['THE COMMAND', 'LOCK', 'THREE CIPHERS,', 'THREE GUARDIANS.'], color='lime')
+    k.sign(32, W + 2, 141, 'west', ['THE COMMAND', 'LOCK', 'THREE CIPHERS,', 'THREE GUARDIANS.'], color='lime')
     # ---------------- G17 the bulkhead -> P18 THE GAUNTLET
     k.air(7, W, 151, 9, W + 3, 153)
     B.gate(8, W, 152, 'x', 17)
@@ -1535,6 +1533,58 @@ def tidy(k):
     if loose: raise ValueError(f'armada: lava (or water) loose at {loose[:6]}')
 
 
+def shift_new(k, before, region, dx):
+    """move everything a builder made inside `region` (x1, x2, z1, z2) by dx along x: its blocks, block entities, markers and
+    every record it appended to the meta since `before` (a snapshot from snap())"""
+    B = k.B
+    x1, x2, z1, z2 = region
+    moved = [(c, st) for c, st in B.b.items() if x1 <= c[0] <= x2 and z1 <= c[2] <= z2]
+    nb = {c: B.nbt.pop(c) for c, _ in moved if c in B.nbt}
+    for c, _ in moved: del B.b[c]
+    for (x, y, z), st in moved:
+        B.b[(x + dx, y, z)] = st
+        if (x, y, z) in nb: B.nbt[(x + dx, y, z)] = nb[(x, y, z)]
+    from nbt import Double
+    for e in B.ents[before['ents']:]:
+        e['pos'][0] = Double(float(e['pos'][0]) + dx); e['blockPos'][0] = Int(int(e['blockPos'][0]) + dx)
+    def mv(t, i):
+        t = list(t); t[i] = t[i] + dx; return tuple(t)
+    XI = {'gates': 0, 'big': 0, 'sdoors': 0, 'xdoors': 0, 'elements': 1, 'markers': 0, 'plates': 0, 'chests': 0, 'spawners': 0, 'vaults': 0}
+    for key, i in XI.items():
+        L_ = B.meta[key]
+        L_[before[key]:] = [mv(t, i) for t in L_[before[key]:]]
+    AXI = {'bridges': 1, 'vbosses': 1, 'socks': 1, 'conduits': 2, 'sentries': 1, 'pads': 0, 'relics': 1, 'voices': 1, 'rifts': 0, 'pylons': 1, 'lecterns': 1}
+    AM = B.meta['armada']
+    for key, i in AXI.items():
+        AM[key][before['a_' + key]:] = [mv(t, i) for t in AM[key][before['a_' + key]:]]
+    for n, p in B.meta['puzzles'].items():
+        if n in before['puzzles']: continue
+        p['ctrl'] = mv(p['ctrl'], 0)
+        p['elements'] = [mv(t, 1) for t in p['elements']]
+    for hk, h in AM['hidden'].items():
+        if hk in before['hidden']: continue
+        h['door'] = mv(h['door'], 0)
+        h['sigils'] = [mv(t, 1) for t in h['sigils']]
+    for nm, m in k.ship_mask.items():
+        if nm in before['ships']: continue
+        k.hm &= ~m
+        m2 = np.roll(m, dx, axis=0)
+        k.ship_mask[nm] = m2
+        k.hm |= m2
+
+
+def snap(k):
+    B = k.B
+    s_ = {key: len(B.meta[key]) for key in ('gates', 'big', 'sdoors', 'xdoors', 'elements', 'markers', 'plates', 'chests', 'spawners', 'vaults')}
+    s_.update({'a_' + key: len(B.meta['armada'][key]) for key in ('bridges', 'vbosses', 'socks', 'conduits', 'sentries', 'pads', 'relics', 'voices',
+                                                                    'rifts', 'pylons', 'lecterns')})
+    s_.update(ents=len(B.ents), puzzles=set(B.meta['puzzles']), hidden=set(B.meta['armada']['hidden']), ships=set(k.ship_mask))
+    return s_
+
+
+NAV_DX = 8          # the Navigator is laid out 8 west of where it sails, then moved (so it sits within ~12 of armadacfg.SHIPS['nav'])
+
+
 def build():
     B = A.ABuild(seed=29901)
     k = K(B)
@@ -1542,14 +1592,17 @@ def build():
     d_mouth = dock(k)
     b_arr, b_dep = brood(k)
     f_arr, f_dep = forge(k)
+    before = snap(k)
     n_arr, n_dep = nav(k)
+    shift_new(k, before, (80, 195, 0, 48), NAV_DX)
+    n_arr, n_dep = (n_arr[0] + NAV_DX,) + n_arr[1:], (n_dep[0] + NAV_DX,) + n_dep[1:]
     a_arr, a_dep = dread_a(k)
     bb_arr, bb_dep = dread_b(k)
     fl_arr = flag(k)
     # ---------------- THE HARD-LIGHT BRIDGES (deck y = walk - 1), in the order the trials switch them on
     span(k, 1, [(d_mouth[0] + 1, 205, b_arr[0] - 1, 207, 49, 45)])                                # the Dock -> the Brood-Carrier
     span(k, 5, [(197, b_dep[2] - 1, 199, f_arr[2] + 1, 45, 47)])                                 # the Brood-Carrier -> the Star-Forge
-    span(k, 9, [(203, f_dep[2] - 1, 205, 29, 47, 47), (202, 29, n_arr[0] + 1, 31, 47, 51)])     # the Star-Forge -> the Navigator
+    span(k, 9, [(203, f_dep[2] - 1, 205, n_arr[2] - 1, 47, 47), (202, n_arr[2] - 1, n_arr[0] + 1, n_arr[2] + 1, 47, 51)])   # the Star-Forge -> the Navigator
     span(k, 13, [(n_dep[0] - 1, 21, a_arr[0] + 1, 23, 51, 47)])                                  # the Navigator -> Dreadnought A
     span(k, 14, [(55, a_dep[2] + 1, 57, 71, 47, 51), (54, 69, bb_arr[0] + 1, 71, 51, 51)])       # Dreadnought A -> Dreadnought B
     span(k, 16, [(24, bb_dep[2] + 1, 26, fl_arr[2] - 1, 51, 54)])                                # Dreadnought B -> the Flagship

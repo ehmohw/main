@@ -7,6 +7,7 @@ safe route and can't be bypassed, the altar/arena open only after the last gate,
     python3 tools/verify_dungeons.py            # all seven (the Hollow Throne, a 152-block citadel in open void, takes a few minutes)
     python3 tools/verify_dungeons.py brood hex
     python3 tools/verify_dungeons.py under      # the Undercrown (2.98: built on its own, not in the list above by default)
+    python3 tools/verify_dungeons.py armada     # the Vorn Armada (2.99: likewise)
 """
 import os, sys, time
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -15,17 +16,21 @@ from p2.verify import verify
 
 # surface dungeons (and the Hollow's open void) are entered from open air; underground/sea ones only through their door
 OUTSIDE = {'frost': 'air', 'hex': 'air', 'keep': 'air', 'hollow': 'void', 'brood': 'solid', 'tide': 'solid', 'lucky': 'solid',
-           'under': 'solid'}      # 2.98: the Undercrown is not in p2.builds() - it is built on its own, cut into the Nether's rock
+           'under': 'solid',      # 2.98: the Undercrown is not in p2.builds() - it is built on its own, cut into the Nether's rock
+           'armada': 'void'}      # 2.99: the Vorn Armada, built on its own: seven ships round a star in the End's void
 
 if __name__ == '__main__':
     flags = [a for a in sys.argv[1:] if a.startswith('-')]
-    want = [a for a in sys.argv[1:] if not a.startswith('-')] or [d for d in OUTSIDE if d != 'under']
+    want = [a for a in sys.argv[1:] if not a.startswith('-')] or [d for d in OUTSIDE if d not in ('under', 'armada')]
     bad = 0
     for d in want:
         t = time.time()
         if d == 'under':
             from p2.dungeons import undercrown
             B = undercrown.build()
+        elif d == 'armada':
+            from p2.dungeons import armada
+            B = armada.build()
         else:
             B = p2.builds()[d]
         errs, notes = verify(B, outside=OUTSIDE[d])
