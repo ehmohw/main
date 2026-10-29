@@ -147,7 +147,7 @@ def _abilities(G, X):
     fn(f'{pfx}/bolted', [f'function bm:{pfx}/hurt', 'data modify entity @s Fire set value 60s', 'particle minecraft:electric_spark ~ ~1 ~ 0.3 0.4 0.3 0.1 12'])
     fn(f'{pfx}/charged', X.hit(12) + ['particle minecraft:reverse_portal ~ ~1 ~ 3 1 3 0.5 120', f'execute as @e[{foe},distance=..7] at @s run function bm:{pfx}/welled'] + X.end)
     fn(f'{pfx}/welled', [f'function bm:{pfx}/hurt', 'effect give @s minecraft:slowness 4 3',
-                         f'execute facing entity @e[tag=bm.{X.ab}me,limit=1] feet if block ^ ^ ^1.5 #bm:grap_pass if block ^ ^1 ^1.5 #bm:grap_pass run tp @s ^ ^ ^1.5',
+                         f'execute facing entity @e[tag=bm.xbme,limit=1] feet if block ^ ^ ^1.5 #bm:grap_pass if block ^ ^1 ^1.5 #bm:grap_pass run tp @s ^ ^ ^1.5',
                          'particle minecraft:portal ~ ~1 ~ 0.3 0.6 0.3 1 16'])
     fn(f'{pfx}/support', ['execute on owner if entity @s[distance=..16] at @s run function bm:p243/deflect_you'])
     fn('p243/deflect_you', ['effect give @s minecraft:resistance 8 1 true', 'effect give @s minecraft:absorption 20 1 true',
