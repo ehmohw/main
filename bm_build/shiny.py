@@ -47,6 +47,7 @@ LOOKS = {
     'sovereign': ("Shiny Aurel's Light", ('#3a2c10', '#f0d070', '#fffaf0'), 'yellow'),
     'vexis': ('Shiny Starlit', ('#1a2a4a', '#6ab0ff', '#e8f4ff'), 'light_blue'),
     'mireling': ('Shiny Bone Mire', ('#5a5246', '#cdc3ad', '#ffcc3a'), 'white'),
+    'keeper': ('Shiny Starweave', ('#100c34', '#5a4ac8', '#e4dcff'), 'purple'),
     'henry': ('Shiny Starlit Collar', ('#0a0a3a', '#6a6ae0', '#e0e0ff'), 'blue'),
     'nia': ('Shiny Rainbow Collar', ('#3a1a4a', '#e08ad8', '#fff0c0'), 'pink'),
     'rufus': ('Shiny Gold Bandana', ('#3a2806', '#e0b030', '#fff0a0'), 'yellow'),

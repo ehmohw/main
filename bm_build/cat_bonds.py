@@ -107,6 +107,8 @@ B = {
               ('Orbit', (('regeneration', 1),), '"She is orbiting me. I have never been orbited."', '(Nia curls up inside its gravity ring, and it floats her an inch off the ground, purring)')),
     'mireling': (('Puddle Prowl', (('night_vision', 0), ('speed', 0)), '(its eye peeks out of the puddle at him, very wide)', '(Henry pats the puddle. The puddle pats back. Henry is not sure about this.)'),
                  ('Warm Puddle', (('regeneration', 1),), '(it sinks low and still, so she can curl up on the warm mound of it)', '(Nia kneads it, and falls asleep on the Mireling, purring)')),
+    'keeper': (('Loose Thread', (('luck', 0), ('speed', 0)), '"Ah - you have found my loose thread. Yes, you may have it."', '(Henry bats the thread. The thread, very gently, bats back.)'),
+               ('Warm Lap', (('regeneration', 1),), '(it kneels, and spreads its robe for her like a blanket)', '(Nia curls up in the rainbow folds of it, purring, among the motes)')),
 }
 # (2.96c) Nia is the gentle one - a support follower: her side of every pair looks after you. Each keeps Regeneration, and
 # nothing of hers makes you hit harder (Strength becomes Resistance; Haste, Absorption)

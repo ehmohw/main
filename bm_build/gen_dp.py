@@ -217,6 +217,7 @@ import phase250 as R250      # 2.99a: [market music hook] the Black Market's own
 import phase249 as R249      # 2.99a: the Rex mounts - the Atomic and Mecha Rex (hidden, rideable) and the Partner Wheel's Mounts page
 import phase251 as R251      # 2.99a: [lockout hook] no way into the Undercrown or the Armada but their own, no trial skipped
 import phase253 as R253      # 3.0: the Loom Sanctuary - the Compass of Bonds (every follower met) and the sky island where the Keeper waits
+import phase254 as R254      # 3.0: [keeper hook] the Keeper of Bonds - the 51st follower, the last (registers after every follower before it)
 import phase241 as R241      # 2.99: the Vorn Armada - the Vorn's hard-mode dungeon, a hive-fleet round a star in the End (its kinds of trial register on import)
 R233.add_pairs()             # 2.98: the Creative Forms
 R229.add_pairs()             # 2.97: the cats' pairs with everyone - after every follower is imported
@@ -1376,6 +1377,7 @@ def build(out_dir):
     if PHASE2: R239.generate_early(sys.modules[__name__])
     if PHASE2: R243.generate_early(sys.modules[__name__])
     if PHASE2: R252.generate_early(sys.modules[__name__])      # [mireling hook]
+    if PHASE2: R254.generate_early(sys.modules[__name__])      # [keeper hook]
     if PHASE2: R211.generate_early(sys.modules[__name__])
     if PHASE2: R213.generate_early(sys.modules[__name__])
     if PHASE2: R199.generate_early(sys.modules[__name__])
@@ -1445,6 +1447,7 @@ def build(out_dir):
     if PHASE2: R239.generate(sys.modules[__name__])      # 2.98: the Bound Sovereign
     if PHASE2: R243.generate(sys.modules[__name__])      # 2.99: Vexis, the Unlinked
     if PHASE2: R252.generate(sys.modules[__name__])      # 3.00: [mireling hook] the Mireling
+    if PHASE2: R254.generate(sys.modules[__name__])      # 3.0: [keeper hook] the Keeper of Bonds (its meeting needs phase253's island: its box, its markers)
     if PHASE2: R215.generate(sys.modules[__name__])
     if PHASE2: R216.generate(sys.modules[__name__])
     if PHASE2: R199.generate(sys.modules[__name__])

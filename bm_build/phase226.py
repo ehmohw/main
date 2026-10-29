@@ -37,7 +37,7 @@ PT = {'cecil': ('bm.cpet', True), 'emma': ('bm.emp', True), 'celi': ('bm.cep', T
       'omega': ('bm.omp', True), 'ashur': ('bm.asp', True), 'chef': ('bm.kkp', True), 'neighbor': ('bm.nbp', True), 'ava': ('bm.avp', True),
       'pearlq': ('bm.pqp', True), 'bloo': ('bm.bop', True), 'stalker': ('bm.svp', True), 'lantern': ('bm.lnp', True), 'bender': ('bm.bvp', True),
       'bones': ('bm.bjp', True), 'capshun': ('bm.mzp', True), 'pxcecil': ('bm.xcp', True), 'pxleo': ('bm.xlp', True), 'pxemma': ('bm.xmp', True),
-      'sky': ('bm.ybp', True), 'kettle': ('bm.ktp', True), 'rufus': ('bm.rup', True), 'henry': ('bm.hyp', True), 'nia': ('bm.nip', True), 'gem': ('bm.cgp', True), 'batty': ('bm.ytp', True), 'eggbert': ('bm.ebp', True), 'count': ('bm.knp', True), 'dragon': ('bm.ddp', True), 'eraser': ('bm.ezp', True), 'cursor': ('bm.uxp', True), 'inkblot': ('bm.ibp', True), 'speech': ('bm.wbp', True), 'lightbringer': ('bm.lhp', True), 'dryad': ('bm.pyp', True), 'sovereign': ('bm.xvp', True), 'vexis': ('bm.xbp', True), 'mireling': ('bm.mlp', True)}
+      'sky': ('bm.ybp', True), 'kettle': ('bm.ktp', True), 'rufus': ('bm.rup', True), 'henry': ('bm.hyp', True), 'nia': ('bm.nip', True), 'gem': ('bm.cgp', True), 'batty': ('bm.ytp', True), 'eggbert': ('bm.ebp', True), 'count': ('bm.knp', True), 'dragon': ('bm.ddp', True), 'eraser': ('bm.ezp', True), 'cursor': ('bm.uxp', True), 'inkblot': ('bm.ibp', True), 'speech': ('bm.wbp', True), 'lightbringer': ('bm.lhp', True), 'dryad': ('bm.pyp', True), 'sovereign': ('bm.xvp', True), 'vexis': ('bm.xbp', True), 'mireling': ('bm.mlp', True), 'keeper': ('bm.tkp', True)}
 
 # (name, what it looks like, where they come back: behind / below / above, the vanish, the sign at the foe while they're gone,
 #  the return, the sound going, the sound coming)
@@ -184,6 +184,9 @@ FLAV = {
     'mireling': ('Puddle Step', 'sinks into its puddle - and rises beneath the monster, maw first', 'below',
                [P('minecraft:squid_ink', 30, 0.5, 0.2, 0.02)], ['minecraft:squid_ink ~ ~0.1 ~ 0.4 0 0.4 0.01 2'],
                [P('minecraft:squid_ink', 40, 0.4, 0.8, 0.08), P('minecraft:crit', 20)], 'minecraft:block.bubble_column.whirlpool_ambient', 'minecraft:entity.warden.attack_impact'),
+    'keeper': ('Thread Step', 'follows a thread of light - and is at the monster\'s back, already weaving', 'behind',
+               [P('minecraft:end_rod', 30)], ['minecraft:end_rod ^ ^1 ^-1.2 0.2 0.3 0.2 0 2'],
+               [P('minecraft:end_rod', 40, 0.4, 0.6, 0.2), P('minecraft:crit', 20)], 'minecraft:block.amethyst_block.chime', 'minecraft:block.amethyst_block.resonate'),
     'vexis': ('Gravity Fold', 'folds the space between - and is suddenly behind the monster, three fingers already closing', 'behind',
                [P('minecraft:reverse_portal', 30), P('minecraft:portal', 10)], ['minecraft:reverse_portal ^ ^1 ^-1.2 0.2 0.3 0.2 0 2'],
                [P('minecraft:reverse_portal', 40, 0.4, 0.6, 0.2), P('minecraft:crit', 20)], 'minecraft:block.end_portal.spawn', 'minecraft:entity.shulker.shoot'),

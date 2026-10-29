@@ -61,6 +61,7 @@ ANCHORS = {
     'sovereign': ('bm.xvp_head', 'ds_head_bound', 'bm.xvp_body', 'ds_body_a'),
     'vexis': ('bm.xbp_head', 'vx_head_unlinked', 'bm.xbp_body', 'vx_body_h'),
     'mireling': ('bm.mlp_head', 'ml_head', 'bm.mlp_body', 'ml_body'),
+    'keeper': ('bm.tkp_head', 'kb_head', 'bm.tkp_body', 'kb_body'),
     'pxcecil': ('bm.xcp_head', 'xc_hbone', 'bm.xcp_head', 'xc_bbone'),
     'pxleo': ('bm.xlp_head', 'xl_hbone', 'bm.xlp_head', 'xl_bbone'),
     'pxemma': ('bm.xmp_head', 'xm_hbone', 'bm.xmp_head', 'xm_bbone'),
@@ -108,6 +109,7 @@ STYLE = {
     'sovereign': (None, [], False, ['minecraft:sculk_soul ~ ~2 ~ 0.3 0.2 0.3 0.01 1', 'minecraft:dust{color:[0.82,0.1,0.18],scale:0.8} ~ ~1.4 ~ 0.3 0.5 0.3 0 2']),
     'vexis': (None, [], False, ['minecraft:reverse_portal ~ ~1.8 ~ 0.3 0.2 0.3 0.01 1', 'minecraft:dust{color:[0.48,1.0,0.42],scale:0.8} ~ ~1.4 ~ 0.3 0.5 0.3 0 2']),
     'mireling': (None, [], False, ['minecraft:squid_ink ~ ~0.4 ~ 0.4 0.1 0.4 0.005 1', 'minecraft:dust{color:[0.88,0.22,0.29],scale:0.8} ~ ~1 ~ 0.3 0.5 0.3 0 2']),
+    'keeper': (None, [], False, ['minecraft:end_rod ~ ~1.8 ~ 0.4 0.3 0.4 0.005 1', 'minecraft:dust{color:[1.0,0.84,0.94],scale:0.8} ~ ~1.4 ~ 0.4 0.6 0.4 0 2']),
     'count': ('crown_flat', [], False, ['minecraft:item_slime ~ ~0.8 ~ 0.3 0.3 0.3 0.01 1', 'minecraft:dust{color:[0.66,0.78,0.94],scale:0.8} ~ ~0.8 ~ 0.3 0.3 0.3 0 2']),
     'henry': ('crown_flat', [], False, ['minecraft:squid_ink ~ ~0.5 ~ 0.3 0.2 0.3 0.01 1', 'minecraft:dust{color:[0.75,0.75,0.9],scale:0.7} ~ ~0.5 ~ 0.3 0.2 0.3 0 2']),
     'nia': ('crown_flat', [], False, ['minecraft:end_rod ~ ~0.5 ~ 0.3 0.2 0.3 0.005 1', 'minecraft:dust{color:[0.9,0.65,0.3],scale:0.7} ~ ~0.5 ~ 0.3 0.2 0.3 0 2']),
@@ -122,7 +124,7 @@ STYLE = {
 COL = {'emma': '#ff8ad8', 'celi': '#9ad8ff', 'zib': '#3ad8c8', 'cecil': '#b48cff', 'kw': '#ffe040', 'leo': '#5ab8e0', 'demo': '#7ad06a',
        'apo': '#3ad06a', 'tul': '#7ad8ff', 'frog': '#6ac850', 'don': '#e8d29a', 'fishy': '#ffa040', 'dennis': '#e0a040', 'pistachio': '#7ae890',
        'omega': '#9fb4ff', 'ashur': '#ff7a2a', 'chef': '#ffd07a', 'neighbor': '#7ab8ff', 'ava': '#6ad8e8', 'pearlq': '#5ae0d8', 'bloo': '#5a9ae8',
-       'stalker': '#a8ac70', 'lantern': '#ff8a2a', 'bender': '#e0a860', 'bones': '#8ab0c8', 'capshun': '#f0f0f0', 'kettle': '#8ad8ff', 'rufus': '#c0392b', 'henry': '#9a9ab8', 'nia': '#e0a050', 'gem': '#5ae0a0', 'batty': '#8a8ad8', 'eggbert': '#d8d4c0', 'count': '#a8c8f0', 'dragon': '#5ac048', 'eraser': '#f08aa0', 'cursor': '#cfe8ff', 'inkblot': '#7a7aaa', 'speech': '#ffd060', 'lightbringer': '#ffe08a', 'dryad': '#6aa8f0', 'sovereign': '#d0182e', 'vexis': '#7aff6a', 'mireling': '#e0384a', 'sky': '#ffd04a', 'pxemma': '#ff6ac8', 'pxleo': '#4ab0ff', 'pxcecil': '#b070ff'}
+       'stalker': '#a8ac70', 'lantern': '#ff8a2a', 'bender': '#e0a860', 'bones': '#8ab0c8', 'capshun': '#f0f0f0', 'kettle': '#8ad8ff', 'rufus': '#c0392b', 'henry': '#9a9ab8', 'nia': '#e0a050', 'gem': '#5ae0a0', 'batty': '#8a8ad8', 'eggbert': '#d8d4c0', 'count': '#a8c8f0', 'dragon': '#5ac048', 'eraser': '#f08aa0', 'cursor': '#cfe8ff', 'inkblot': '#7a7aaa', 'speech': '#ffd060', 'lightbringer': '#ffe08a', 'dryad': '#6aa8f0', 'sovereign': '#d0182e', 'vexis': '#7aff6a', 'mireling': '#e0384a', 'keeper': '#ffd6f0', 'sky': '#ffd04a', 'pxemma': '#ff6ac8', 'pxleo': '#4ab0ff', 'pxcecil': '#b070ff'}
 # the 4 x 4 tiles of a follower's sheet
 G, GD, GL, P, PD, PL, ST, STL, BN, BND, RUBY, SAPH, PEARL, FL_O, FL_Y, LEAF = range(16)
 
