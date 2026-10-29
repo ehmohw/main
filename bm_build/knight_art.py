@@ -308,7 +308,7 @@ def BX(sx, x0, x1, y0, y1, z0, z1, mat, rot=None, **kw):
     a, b = sorted((sx * x0, sx * x1))
     if rot and isinstance(rot[0], str):
         ax, ang, o = rot
-        rot = (ax, ang if ax == 'x' else ang, (sx * o[0], o[1], o[2]))
+        rot = (ax, ang, (sx * o[0], o[1], o[2]))                    # (the angle as given: the caller mirrors it)
     return E((a, y0, z0), (b, y1, z1), mat, rot=rot, **kw)
 
 
@@ -485,8 +485,6 @@ def _mace(kind):
                   E((X + 2.6 if sgn > 0 else X - 4.4, Y - 0.5, Z - 22.6), (X + 4.4 if sgn > 0 else X - 2.6, Y + 0.5, Z - 16.6), 'accent')]
             for ang in (45, -45):
                 M.append(E((X - 0.4, Y + 2.6 if sgn > 0 else Y - 3.9, Z - 22.0), (X + 0.4, Y + 3.9 if sgn > 0 else Y - 2.6, Z - 17.2), 'trim', rot=('z', ang, (X, Y, zc))))
-            for z0 in (Z - 16.5, Z - 23.2):
-                pass
         M += [E((X - 2.9, Y - 2.9, Z - 16.5), (X + 2.9, Y + 2.9, Z - 15.9), 'accent'), E((X - 2.9, Y - 2.9, Z - 23.3), (X + 2.9, Y + 2.9, Z - 22.7), 'accent')]
     return M
 
@@ -1028,11 +1026,10 @@ def icon(kind):
     return vanilla.process(STATUES[kind], icon_raw(kind))
 
 
-ICONS = {}                                                     # (filled lazily: {'knight_statue_dread': image, ...} - the raw icons)
+ICONS = {STATUES[k]: icon_raw(k) for k in KINDS}             # ({'knight_statue_dread': image, ...} - raw: gen_rp's ICONS loop finishes them)
 
 
 def icons():
-    if not ICONS: ICONS.update({STATUES[k]: icon_raw(k) for k in KINDS})
     return dict(ICONS)
 
 
