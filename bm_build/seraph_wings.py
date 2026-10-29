@@ -13,8 +13,9 @@ THE STATES (bm.sws on the wearer; bm:p206w/<set>/pick each tick)
   0 hidden    invisible, spectating, sleeping, swimming - or not wearing it (the displays are killed; back when it ends)
   1 rest      the great wings FOLDED down the back (their arch over the shoulders, the hem burning at the calves), the lower
               wings round the legs to the feet; a slow idle sway (rest_a / rest_b, 40 ticks each way)
-  2 sneak     the body's lean (as the game crouches it), the great wings folded in close, the lower wings drawn up clear of
-              the crouched legs
+  2 sneak     the body's lean (as the game crouches it), the great wings drawn round the body like a mantle (the vanilla
+              elytra mesh flares wide in a crouch - out to 1 block each side - and a tighter fold would leave it showing; the
+              mantle closes over it), the lower wings drawn up clear of the crouched legs
   3 glide     the body along the flight (pitched with the look), the great wings OPEN, spread wide, beating slowly
               (glide_a / glide_b, 15 ticks each way), the lower wings trailing along the legs
   4 fall      upright, falling (fall distance over 3.5): the great wings open, raised in a V and beating fast (6 ticks each)

@@ -180,14 +180,14 @@ if 'wings' in what and W:
          tile('back', 'at rest (sway b)', 'the idle sway, 40 ticks each way', wings3d='rest_b'),
          tile((60, 10), 'at rest, side', None, wings3d='rest_a'),
          tile('front', 'at rest, front', None, wings3d='rest_a'),
-         tile('back', 'sneaking', 'leaning, folded close', kind='crouch', wings3d='sneak'),
+         tile('back', 'sneaking', 'leaning; drawn round like a mantle', kind='crouch', wings3d='sneak'),
          tile((70, 8), 'sneaking, side', None, kind='crouch', wings3d='sneak'),
          tile('back', 'riding', 'folded close, the lower wings clear', wings3d='ride'),
          tile((150, 10), 'falling (beat a)', 'spread wide and up', wings3d='fall_a', span=4.2, cy=1.3),
          tile((150, 10), 'falling (beat b)', None, wings3d='fall_b', span=4.2, cy=1.3),
-         tile((180, 55), 'gliding (beat a)', 'from behind and above', kind='glide', pitch=90, wings3d='glide_a', span=4.4, cy=0.3),
-         tile((180, 55), 'gliding (beat b)', None, kind='glide', pitch=90, wings3d='glide_b', span=4.4, cy=0.3),
-         tile((215, 30), 'gliding, three-quarter', 'from the front, above', kind='glide', pitch=90, wings3d='glide_a', span=4.4, cy=0.3)]
+         tile((180, 55), 'gliding (beat a)', 'from behind and above', kind='glide', pitch=90, wings3d='glide_a', span=5.8, cy=0.3),
+         tile((180, 55), 'gliding (beat b)', None, kind='glide', pitch=90, wings3d='glide_b', span=5.8, cy=0.3),
+         tile((215, 30), 'gliding, three-quarter', 'from the front, above', kind='glide', pitch=90, wings3d='glide_a', span=5.8, cy=0.3)]
     sheet(T, f'{OUT}/seraph_wings3d.png', cols=4, title="The Seraph's Wings - six wings: two cover the face, two the feet, two fly")
 
 if 'before' in what and OLD:
