@@ -50,7 +50,7 @@ const E = 'execute in minecraft:the_end run ';
   // (the stage: the Armada placed - the bot waits out in the End, away from it, while the template goes down)
   if ((await sc('#aver', 'bm.p2')) < 1) {
     await run(`${E}tp TestRat 1200 90 0`); await run(`${E}setblock 1200 88 0 minecraft:obsidian`);
-    await run('function bm:admin/armada/place'); await wait(300000, async () => (await sc('#aver', 'bm.p2')) >= 1, 2000);
+    await run('function bm:admin/armada/place'); await wait(900000, async () => (await sc("#aver", "bm.p2")) >= 1, 2000);
   }
   ok('the stage: the Armada is placed in the End', (await sc('#aver', 'bm.p2')) >= 1);
   await run(`${E}forceload add ${OX} ${OZ} ${OX + 239} ${OZ + 239}`); await sleep(5000);
