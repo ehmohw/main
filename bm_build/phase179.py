@@ -170,6 +170,14 @@ def extend_offers(O, offer):
     O['wizard'].append(offer(('medallion', 3), ('partner_wheel', 1)))
 
 
+
+# (2.98b) THE WHEEL'S SLOTS, frozen: a new partner goes on the END, never in the middle (see generate)
+SLOTS = ('emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio',
+         'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'kettle', 'rufus',
+         'henry', 'nia', 'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad',
+         'sovereign', 'pxcecil', 'pxleo', 'pxemma', 'sky')
+REPAIR = 1                                   # (bump to run the wheel's repair again for everyone)
+
 def generate(G):
     fn, wjson, title, tellraw, give = G.fn, G.wjson, G.title, G.tellraw, G.give
     import phase28 as P28
@@ -285,7 +293,13 @@ def generate(G):
     WHO = P125.WHO
     host_tag = lambda w: WHO[w][4].split(',')[0]
     PW = []                                  # (key, name, colour, host type, host selector tag, try, home, item)
-    for w, (nm, pron, col, host, tag, try_, home) in WHO.items():
+    # (2.98b) a partner's place on the wheel is saved by its NUMBER (bm.pw<i>, storage k<i>) - so the order is frozen: SLOTS, then
+    # anyone new, appended. A follower slotted into the middle renumbered everyone after it, and a world from an older version
+    # read its partners as someone else's (repair_wheel puts them back, by the item each slot holds).
+    order = list(SLOTS) + [w for w in WHO if w not in SLOTS]
+    assert set(SLOTS) <= set(WHO), set(SLOTS) - set(WHO)
+    for w in order:
+        nm, pron, col, host, tag, try_, home = WHO[w]
         e = FOLLOW.get(host_tag(w))
         iid = e[3] if e else ('wilfrey_locket' if w == 'wil' else None)
         assert iid in ITEMS, (w, iid)
@@ -353,6 +367,7 @@ def generate(G):
                            'execute at @s run particle minecraft:portal ~ ~0.8 ~ 0.3 0.5 0.3 0.4 20'])
     second.append('scoreboard players remove @a[scores={bm.pwrc=1..}] bm.pwrc 1')
     fn('p179/w/pid', ['execute store result storage bm:tmp pw.pid int 1 run scoreboard players get @s bm.pid'])
+    repair_wheel(G, PW, holds)
     empty = P28.notice([T('Partner Wheel', PURPLE, bold=True)],
                        [P28.body([T('No partners on your wheel yet.', 'white')], 300),
                         P28.body([T('Hold a partner\'s summoning item in your off hand and use the wheel: it goes on. ', 'gray'),
@@ -552,3 +567,47 @@ def rp(R):
         for nm in ('xenoplate', 'warplate'):
             R2.wj(f'assets/bm/equipment/{nm}.json', {'layers': {'humanoid': [{'texture': f'bm:{nm}'}], 'humanoid_leggings': [{'texture': f'bm:{nm}'}]}})
     R.POST.append(post)
+
+
+def repair_wheel(G, PW, holds):
+    """(2.98b) once for each player: every partner on their wheel back in its own slot, by the item that slot actually holds -
+    whatever version the world's wheel was saved by. Each slot's item comes out (into a list), the slot emptied; then each item
+    goes back into the slot of the partner whose item it is. A slot with no item kept (none ever, since 2.84c) is left be."""
+    fn = G.fn
+    N = len(PW)
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.pwfix dummy']
+    G.OBJECTIVES += ['bm.pwfix']
+    G.FUNCS['loop/second'].append(f'execute as @a at @s unless score @s bm.pwfix matches {REPAIR} run function bm:p179/fix/run')
+    fn('p179/fix/run', [f'scoreboard players set @s bm.pwfix {REPAIR}', 'execute unless score @s bm.pid matches 1.. run return 0',
+                        'function bm:p179/w/pid', 'data remove storage bm:tmp pwfix', 'data modify storage bm:tmp pwfix.items set value []',
+                        'scoreboard players set #pwmv bm.rng 0'] +
+       [f'execute if score @s bm.pw{i} matches 1 run function bm:p179/fix/take{i} with storage bm:tmp pw' for i in range(N)] +
+       ['function bm:p179/fix/place', 'function bm:p179/k/off_clear',
+        'execute if score #pwmv bm.rng matches 1.. run ' + G.tellraw('@s', [T('[', 'dark_gray'), T('Partner Wheel', '#b48cff', bold=True), T('] ', 'dark_gray'),
+                                                                          T('Your partners are back in their own places on the wheel.', 'gray')])])
+    for i in range(N):
+        fn(f'p179/fix/take{i}', [f'$execute unless data storage bm:pw p$(pid).k{i} run return 0',
+                                 f'data modify storage bm:tmp pwfix.items append value {{i:{i}}}',
+                                 f'$data modify storage bm:tmp pwfix.items[-1].it set from storage bm:pw p$(pid).k{i}',
+                                 f'$data remove storage bm:pw p$(pid).k{i}', f'scoreboard players set @s bm.pw{i} 0'])
+    fn('p179/fix/place', ['execute unless data storage bm:tmp pwfix.items[0] run return 0',
+                          'data modify storage bm:tmp pwfix.cur set from storage bm:tmp pwfix.items[0]', 'data remove storage bm:tmp pwfix.items[0]',
+                          'function bm:p179/fix/one', 'function bm:p179/fix/place'])
+    fn('p179/fix/one', ['data modify storage bm:tmp pwfix.id set value "?"',
+                        'data modify storage bm:tmp pwfix.id set from storage bm:tmp pwfix.cur.it.components."minecraft:custom_data".bm',
+                        'execute store result score #pwi bm.rng run data get storage bm:tmp pwfix.cur.i'] +
+       [f'execute if function bm:p179/fix/is{j} run return run function bm:p179/fix/put{j} with storage bm:tmp pw' for j in range(N)] +
+       ['function bm:p179/fix/drop'])
+    # (is the item's id this partner's? - copied, then overwritten with theirs: no change means the same)
+    for j, (*_r, iid) in enumerate(PW):
+        fn(f'p179/fix/is{j}', ['data modify storage bm:tmp pwfix.c set from storage bm:tmp pwfix.id',
+                               f'execute store success score #pwd bm.rng run data modify storage bm:tmp pwfix.c set value "{iid}"',
+                               'execute if score #pwd bm.rng matches 0 run return 1', 'return 0'])
+    for j in range(N):
+        fn(f'p179/fix/put{j}', [f'execute if score @s bm.pw{j} matches 1 run return run function bm:p179/fix/drop',
+                                f'$data modify storage bm:pw p$(pid).k{j} set from storage bm:tmp pwfix.cur.it', f'scoreboard players set @s bm.pw{j} 1',
+                                f'execute unless score #pwi bm.rng matches {j} run scoreboard players add #pwmv bm.rng 1'])
+    # (an item that is nobody's - or a second of someone's: handed back, at your feet)
+    fn('p179/fix/drop', ['summon minecraft:item ~ ~ ~ {Item:{id:"minecraft:stone",count:1},Tags:["bm.pwfixd"],PickupDelay:0s}',
+                         'data modify entity @e[type=minecraft:item,tag=bm.pwfixd,limit=1] Item set from storage bm:tmp pwfix.cur.it', 'scoreboard players add #pwmv bm.rng 1',
+                         'tag @e[type=minecraft:item,tag=bm.pwfixd] remove bm.pwfixd'])

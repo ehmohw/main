@@ -95,7 +95,15 @@ GIFT = {  # follower: (what it does, commands run each second at the doll)
     'pearl': ('Hero of the Village', [f'effect give {P} minecraft:hero_of_the_village 15 0 true']),
 }
 assert set(GIFT) == set(DOLL_OF), sorted(set(GIFT) ^ set(DOLL_OF))
-GDOLLS = list(GIFT)
+# (2.98b) a set-down golden doll is tagged by its NUMBER (bm.gd<i>) - so the order is frozen: GD_SLOTS, then anyone new, appended.
+# A follower slotted into the middle renumbered every doll after it: a world's placed dolls gave another's gift and dropped
+# another's doll (the repair re-tags each by the doll it shows).
+GD_SLOTS = ('emma', 'cecil', 'celi', 'zib', 'killerwatt', 'leo', 'demo', 'apo', 'tul', 'frog', 'donado', 'wil', 'fishy', 'dennis', 'pistachio',
+            'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'capshun', 'kettle', 'rufus', 'henry',
+            'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad', 'sovereign', 'nia',
+            'pxcecil', 'pxleo', 'pxemma', 'sky', 'pearl')
+assert set(GD_SLOTS) <= set(GIFT), set(GD_SLOTS) - set(GIFT)
+GDOLLS = list(GD_SLOTS) + [k for k in GIFT if k not in GD_SLOTS]
 for _k in GDOLLS:
     _nm = ITEMS[DOLL_OF[_k]]['name']
     item(f'gdoll_{_k}', TOTEM, f'Golden {_nm}', GOLD,
@@ -170,6 +178,20 @@ def generate(G):
         P177.placeable(G, 'p180', f'gdoll_{k}', f'bm.gd{i}', scale=0.9, sound='minecraft:block.amethyst_block')
         fn(f'p180/gift/{k}', GIFT[k][1] + ['particle minecraft:wax_on ~ ~0.9 ~ 0.25 0.3 0.25 0 2'])
         second.append(f'execute as @e[type=minecraft:marker,tag=bm.gd{i}m] at @s run function bm:p180/gift/{k}')
+    # (2.98b) every set-down golden doll, once: its tags from the doll it shows - whatever number it was set down under
+    NGD = len(GDOLLS)
+    second += [f'execute as @e[type=minecraft:item_display,tag=bm.gd{i}d,tag=!bm.gdok] at @s run function bm:p180/fixd' for i in range(NGD)]
+    fn('p180/fixd', ['tag @s add bm.gdok'] +
+       [l for n in range(NGD) for l in (f'tag @s remove bm.gd{n}d', f'tag @e[type=minecraft:interaction,distance=..0.6] remove bm.gd{n}',
+                                         f'tag @e[type=minecraft:marker,distance=..0.6] remove bm.gd{n}m')] +
+       ['data modify storage bm:tmp gdfix.id set value "?"', 'data modify storage bm:tmp gdfix.id set from entity @s item.components."minecraft:item_model"'] +
+       [f'execute if function bm:p180/fixd_is{j} run return run function bm:p180/fixd_{j}' for j, k in enumerate(GDOLLS)])
+    for j, k in enumerate(GDOLLS):
+        fn(f'p180/fixd_is{j}', ['data modify storage bm:tmp gdfix.c set from storage bm:tmp gdfix.id',
+                                f'execute store success score #gdd bm.rng run data modify storage bm:tmp gdfix.c set value "bm:gdoll_{k}"',
+                                'execute if score #gdd bm.rng matches 0 run return 1', 'return 0'])
+        fn(f'p180/fixd_{j}', [f'tag @s add bm.gd{j}d', f'tag @e[type=minecraft:interaction,distance=..0.6,sort=nearest,limit=1] add bm.gd{j}',
+                              f'tag @e[type=minecraft:marker,distance=..0.6,sort=nearest,limit=1] add bm.gd{j}m'])
     # the Ember Rat's list: a doll shows only to someone who has met its follower (the nearest at his counter); the rest are wrapped
     wrapped = snbt({'id': 'minecraft:paper', 'count': 1, 'components': {
         'minecraft:item_model': 'minecraft:barrier', 'minecraft:item_name': T('A golden doll still under wraps', 'gray', italic=True),

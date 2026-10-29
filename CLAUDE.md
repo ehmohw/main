@@ -55,6 +55,10 @@ Every follower ships with all of these, built alongside it (never "later"):
 10. **Duos with the everyone-partners:** Bender, Mr. Capshun, Henry and Nia each have a duo with every character, so a new
    follower gets a duo with all four.
 
+**Saved by number: append, never insert.** The Partner Wheel (`phase179.SLOTS`) and the golden dolls (`phase180.GD_SLOTS`) save a
+follower by its position, so a new follower goes on the END of those lists (anything not listed is appended for you). Inserting
+one mid-list renumbers everyone after it in every existing world (2.98b's repair, `REPAIR` in phase179, fixed one such shift).
+
 `tools/bots/t163.js` (Fishy) walks the whole list as a regular player; copy it for the next follower. Also add the new
 follower to the every-follower tests (t138 figurines, t146 frames, t156 dolls, the `KINDS` lists in t145 and t158).
 

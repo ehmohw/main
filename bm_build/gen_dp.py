@@ -204,6 +204,7 @@ import phase236 as R236      # 2.97: the Lightbringer (hard mode) and the Pale D
 import phase237 as R237      # 2.98: the Undercrown - the final dungeon, hidden in the Nether (its kinds of trial register on import)
 import phase238 as R238      # 2.98: the Dread Sovereign - the final boss, its coming, its three forms, its fall (its themes register on import)
 import phase239 as R239      # 2.98: the Bound Sovereign - what's left of it, a follower (hard mode)
+import phase240 as R240      # 2.98a: the Undercrown's soundtrack - six tiers down to the throne, its fights, the page-turn swell
 R233.add_pairs()             # 2.98: the Creative Forms
 R229.add_pairs()             # 2.97: the cats' pairs with everyone - after every follower is imported
 import atk                   # 2.94u: the attack kit - impact and hit-stop on every follower blow
@@ -240,7 +241,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v2.98'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v2.98b'                              # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1475,6 +1476,7 @@ def build(out_dir):
     R182.generate(sys.modules[__name__])        # 2.85b: angelic forging
     if PHASE2: R237.generate(sys.modules[__name__])      # 2.98: the Undercrown (after the Dread Nights: it ends them)
     if PHASE2: R238.generate(sys.modules[__name__])      # 2.98: the Dread Sovereign
+    if PHASE2: R240.generate(sys.modules[__name__])      # 2.98a: the Undercrown's soundtrack (after the Sovereign: it reads its tags)
     print('2.85c: the Rat Race - %d jobs, %d prizes in the draw' % R183.generate(sys.modules[__name__]))
     print('2.85d: %d new fight rooms, the rats\' calls, the Forge/Garden coin' % R184.generate(sys.modules[__name__]))
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))

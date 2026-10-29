@@ -304,8 +304,11 @@ def generate(G):
                                      f'execute if score #hk bm.rng matches 1 run particle minecraft:dust{{color:[{TOK_COL[k]}],scale:1.4}} ~ ~0.4 ~ 0.15 0.15 0.15 0 4',
                                      'execute if score #hk bm.rng matches 0 run particle minecraft:smoke ~ ~0.4 ~ 0.05 0.05 0.05 0 1'])
     # inside or out: anyone among its zone markers is "in" (the gate lets them out)
-    second += [f'tag @a[tag=bm.uin] remove bm.uin',
-               f'execute in {NETHER} as @a[{BOX}] at @s if entity @e[type=minecraft:marker,tag=bm.zone_d,tag=bm.d_{d},distance=..34] run tag @s add bm.uin']
+    # (one function, so the tag is never half-set: the optimizer moves a loop line that names the dungeon half a second later -
+    #  2.98a: the add went, the remove stayed, and for half of every second nobody was inside)
+    second.append(f'execute in {NETHER} run function bm:p237/inside')
+    fn('p237/inside', ['tag @a[tag=bm.uin] remove bm.uin',
+                       f'execute as @a[{BOX}] at @s if entity @e[type=minecraft:marker,tag=bm.zone_d,tag=bm.d_{d},distance=..34] run tag @s add bm.uin'])
 
     # ================================================================== THE PLACING (once; and again after every fall)
     sx, sz = SX // 16 + 1, SZ // 16 + 1

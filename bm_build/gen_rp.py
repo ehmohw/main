@@ -958,6 +958,8 @@ if __name__ == '__main__':
         p2.regalia.rp(sys.modules[__name__])
         import phase238                           # (2.98: the Dread Sovereign's rig, at boss scale)
         phase238.rp(sys.modules[__name__])
+        import phase240                           # (2.98a: the Undercrown's soundtrack)
+        phase240.rp(sys.modules[__name__])
     if PHASE2:
         import creative                       # (2.96a: the Creative Forms' outfits - their pass goes last, after every model of the twelve is written)
         creative.rp(sys.modules[__name__])

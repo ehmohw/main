@@ -21,6 +21,31 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 2.98b: your partners, back where they belong
+
+**Fixed: worlds from an older version saw the wrong partners on their Partner Wheel.** The wheel saved each partner by its *number* in the list of followers, and new followers had been slotted into the middle of that list. Everyone after them was renumbered, so a world from 2.94 or 2.95 read its 8-Bit Leo, 8-Bit Emma and Sky Buddies as Rufus, Henry and Nia.
+- **The repair:** the wheel always kept the actual summoning item you put on it. The first time each player logs in to 2.98b, every slot is checked against the item it holds and the partner goes back to its own place. You'll see *"Your partners are back in their own places on the wheel."* Nothing is lost: any item that belongs to nobody is dropped at your feet.
+- **Golden dolls** you'd set down had the same problem: a doll could give another's gift, or drop another's doll when punched. Each one is re-tagged by the doll it shows.
+- **For good:** the wheel's and the golden dolls' order is now frozen, and new followers only ever join at the end.
+
+## New in 2.98a: the Undercrown's soundtrack
+
+**The Undercrown has its own score now, scored for strings:** solo violin, a violin section, cellos and an **electric violin**. Everything is in F minor and built on the Dread Sovereign's own motif, so when the boss's music comes it is where the dungeon was heading. It grows darker and fuller the deeper you go.
+
+**Six tiers** follow the trials you've solved:
+- **I. The Descent** (the Hall of Chains and the Frozen Ward): a drone, far-off chains, a tolling bell and a heartbeat. The solo violin carries the Sovereign's motif, low and slow.
+- **II. The Hexed Dark:** a cello pulse, a hex melody, the monks' choir, and a theremin sliding in the dark.
+- **III. The Drowned Deep:** driving low strings, drums, organ and ship's bells. The electric violin enters from far off.
+- **IV. The Throne Gate:** full drums. The electric violin takes the lead, and the violin cries the Dread's theme three times, once for each Shard.
+- **V. A Thousand Eyes:** held breath. A ticking, the eye's tritone, whispers and the electric violin's wails, with one great swell.
+- **VI. The Last Door:** the final battle. Bells, the great organ, the full choir and double-kick drums, with the violins in octaves under the electric violin. Once, the light breaks through: the motif in F major on a single violin.
+
+**Fights** have their own tracks: **The Thralls** in the upper wards and **The Dread Knights** from the Drowned Ward down. The Echoes and the Sovereign keep their own music. After the Sovereign falls, **Aurel** plays once.
+
+**Smooth transitions:** every track shares one tempo and one grid. A new tier comes in on a phrase boundary under a 2-second swell (a reversed cymbal, a riser and a timpani roll), so it sounds like the same piece turning a page. A fight cuts in on the next bar with its own impact, and hands back through the swell. The Nether's own music is silenced inside the Undercrown.
+
+**Fixed:** the game's "inside the Undercrown" check was off for half of every second.
+
 ## New in 2.98: THE UNDERCROWN - the final dungeon, and the Dread Sovereign
 
 **Hard mode.** Beat all three Dread bosses (the Malevolent Snowbeast, the Watchful Witch and the Chomping Sawshark) and a voice speaks: *"You broke my three. Come, then."* You receive **the Sovereign's Summons**, a compass that, in the Nether, points to the Undercrown. Elsewhere it spins.

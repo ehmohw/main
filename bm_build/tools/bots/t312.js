@@ -86,7 +86,11 @@ const N = 'execute in minecraft:the_nether run ';
     ok('Henry and Nia called', await wait(6000, async () => (await cnt('@e[tag=bm.hypet]')) >= 1 && (await cnt('@e[tag=bm.nipet]')) >= 1));
     ok('...the door shut while only one is on a sigil', await (async () => { await run(`${N}tp @e[tag=bm.hypet] ${s1[0]} ${s1[1]} ${s1[2]}`); await sleep(2500);
       return !(await block(door[0], door[1], door[2], 'minecraft:air')); })());
-    await run(`${N}tp @e[tag=bm.nipet] ${s2[0]} ${s2[1]} ${s2[2]}`);
+    // (a door for two: each sat on its sigil with a right-click, as a player would - left standing, they walk back to you)
+    const sitOn = async (tag, sg) => { await at(sg[0] + 1, sg[1], sg[2] + 1); await run(`${N}tp @e[tag=${tag}] ${sg[0]} ${sg[1]} ${sg[2]}`); await sleep(700);
+      const w = Object.values(A.ents).filter(e => /wolf/.test(String(e.typeName || e.name || e.type)) && Math.abs(e.x - sg[0]) < 1.2 && Math.abs(e.z - sg[2]) < 1.2)[0];
+      if (w) A.interact(w.entityId); await sleep(900); };
+    await sitOn('bm.hypet', s1); await sitOn('bm.nipet', s2);
     ok('...both on their sigils: the cat-flap opens', await wait(5000, async () => await block(door[0], door[1], door[2], 'minecraft:air')));
     const rel = await pos('@e[type=minecraft:marker,tag=bm.urel_nine,limit=1]');
     await at(rel[0], rel[1], rel[2] - 2.5);

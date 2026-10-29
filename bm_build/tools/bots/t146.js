@@ -18,6 +18,7 @@ const res = [];
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
   await run('gamemode survival TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await run('clear TestRat');
   await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
+  await run('time set 1000'); await run('weather clear');   // (2.98a: by day, once - a night's Dread and Elite mobs took framed followers mid-test)
   await run(`${O}fill ${X - 14} ${Y} ${Z - 8} ${X + 14} ${Y} ${Z + 8} minecraft:stone`); await run(`${O}fill ${X - 14} ${Y + 1} ${Z - 8} ${X + 14} ${Y + 8} ${Z + 8} minecraft:air`);
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..24]`);
   await run(`${O}fill ${X - 14} ${Y + 1} ${Z + 5} ${X + 14} ${Y + 3} ${Z + 5} minecraft:stone`);
