@@ -105,8 +105,8 @@ const FLOOR = 100;
   if (on('gate')) {
     await run(`${N}tp TestRat ${UO[0] - 40} 100 ${UO[2] - 40}`); await run(`${N}setblock ${UO[0] - 40} 98 ${UO[2] - 40} minecraft:obsidian`);
     for (const b of ['snow', 'witch', 'shark']) await run(`scoreboard players set TestRat bm.dbwin_${b} 1`);
-    if ((await sc('#uver', 'bm.p2')) !== 6) await run('function bm:admin/under/place');
-    ok('the stage: the Undercrown placed (version 6: its Sentinels)', await wait(900000, async () => (await sc('#uver', 'bm.p2')) === 6, 2000));
+    if ((await sc('#uver', 'bm.p2')) !== 7) await run('function bm:admin/under/place');
+    ok('the stage: the Undercrown placed (version 7: its Sentinels)', await wait(900000, async () => (await sc('#uver', 'bm.p2')) === 7, 2000));
     const DG = '@e[type=minecraft:marker,tag=bm.dg,tag=bm.d_under,limit=1]';
     await run(`${N}forceload add ${UO[0] + 96} ${UO[2] + 104} ${UO[0] + 128} ${UO[2] + 136}`); await sleep(3000);
     ok('...its markers loaded (the dungeon, the Gate\'s puzzle)', await wait(90000, async () => (await cnt(N, DG)) === 1 &&
