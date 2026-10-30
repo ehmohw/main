@@ -202,6 +202,12 @@ PALE = {'kb_hair': 0.6}
 # (3.0a) a form's own cloth, recoloured as a set of its own (its luminance range its own - the Lightbringer's smoky Wraithfire
 # robe isn't stretched over her pearl one's): texture -> its set
 OWN_SETS = {'lb_robe_e': 'lb_e', 'lb_bodice_e': 'lb_e', 'lb_robe_w': 'lb_w', 'lb_bodice_w': 'lb_w'}
+# (the Doodle Creeper: the dragon's second costume - doodle_dragon_art.LOOK_CR, its '_cp' textures - a set of its own too; never
+# its white flash '_cpw')
+_DD_CR = tuple(f'{n}_cp' for n in ('dd_body', 'dd_body_b', 'dd_head_b', 'dd_leg', 'dd_face') +
+               tuple(f'dd_face_{k}' for k in ('happy', 'surprised', 'blink', 'fierce', 'sad', 'puff', 'roar', 'dizzy')))
+RECOL['dragon'] = (RECOL['dragon'][0], RECOL['dragon'][1] + _DD_CR)
+OWN_SETS.update({n: 'dd_cp' for n in _DD_CR})
 
 
 def pale(im, name, pal):

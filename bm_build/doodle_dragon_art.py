@@ -44,7 +44,16 @@ THE OG GREEN DRAGON - "Crayon Green", his costume: the first drawing, kept exact
 faces), as a twin set of models: OG_SFX ('_og') on every part of OG_PARTS (dd_body_og, dd_head_og, dd_head_x<face>_og, ...),
 its textures the old ones with a '_g' suffix (so phase138 recolours them as a set of their own, as Ava's ghost). rigpet's FORM
 puts it on: FORM_SPEC below is what phase235's Dragon needs. The effects (fire, slash, boom) are shared by both drawings.
-Previews: a pose with '_og' set shows the costume (model_name)."""
+Previews: a pose with '_og' set shows the costume (model_name).
+
+THE DOODLE CREEPER - his second costume (draft; not wired into the game yet): Kettle draws him as a plain Minecraft creeper in
+green crayon - a tall boxy body, a big boxy head with the creeper's face in black crayon (square eyes with a shine, the frown-
+mouth, pink cheeks; every FACES expression has its creeper version), four stubby block feet (each leg card a front foot and a
+back one beside it), scribbled lighter/darker green blotches. No arms, wings or tail: CR_GONE, hidden (HIDDEN). Models CR_SFX
+('_cr') on CR_PARTS, textures CR_TEX ('_cp'; LOOK_CR, recoloured by phase138 as a set of their own); '_crw'/'_cpw' his white
+flash. His effects (CR_SFX on fire/slash/boom): the spark breath (fire), the hiss (kindle), a hiccup of smoke (puff), the
+KABOOM (fire 'kaboom', round all of him), a POP (slash), stomp dust (boom). A pose with '_cr' shows him, '_crw' flashing;
+CR_POSES: his swell (swell_0, swell_1), kaboom, reform - and his own 'tired' (grounded on him: no arm or wing to lie on)."""
 import math
 import random
 import sys
@@ -87,20 +96,38 @@ def HIDDEN(p, pose):
         return not pose.get('_fire')
     if p in ('slash', 'boom'):
         return not pose.get('_' + p)
+    if p in CR_GONE and _cr(pose):                     # (the Doodle Creeper: no arms, no wings, no tail)
+        return True
     return False
 
 
+def _cr(pose):
+    return bool(pose.get('_cr') or pose.get('_crw'))
+
+
 def model_name(p, pose, suffix=''):
+    cr = CR_SFX if _cr(pose) else ''                                   # (_cr: the Doodle Creeper - his effects too: sparks, a hiss, a pop)
     if p == 'fire':
-        return f'{PREFIX}fire_{pose.get("_fire") or "fire"}{suffix}'
+        return f'{PREFIX}fire_{pose.get("_fire") or "fire"}{cr}{suffix}'
     face = f'_x{pose["_face"]}' if p == 'head' and pose.get('_face') else ''
-    form = OG_SFX if pose.get('_og') and p in OG_PARTS else ''        # (_og: the OG green costume - previews; in the game rigpet's FORM)
+    if cr and p in CR_PARTS:                                            # (_crw: his white flash, swelling up to go boom)
+        form = CR_SFX + ('w' if pose.get('_crw') else '')
+    elif cr and p in ('slash', 'boom'):
+        form = CR_SFX
+    else:
+        form = OG_SFX if pose.get('_og') and p in OG_PARTS else ''    # (_og: the OG green costume - previews; in the game rigpet's FORM)
     return f'{PREFIX}{p}{face}{form}{suffix}'
 
 
 # (3.0a) the OG green drawing: a costume (rigpet's FORM) - these parts' OG_SFX models; the effects are shared
 OG_SFX, OG_TEX = '_og', '_g'
 OG_PARTS = ('body', 'head', 'armr', 'arml', 'legr', 'legl', 'wingr', 'wingl', 'tail')
+# (3.0?) the Doodle Creeper: Kettle draws him as a plain Minecraft creeper - a second costume. CR_SFX on CR_PARTS (his body, his
+# boxy head and every face, his feet: each leg card a pair of stubby block feet, four in all) and on his effects; the parts a
+# creeper hasn't got (CR_GONE) are hidden. Textures: CR_TEX on their names ('_cp'; '_cpw': the white flash, never recoloured)
+CR_SFX, CR_TEX = '_cr', '_cp'
+CR_PARTS = ('body', 'head', 'legr', 'legl')
+CR_GONE = ('armr', 'arml', 'wingr', 'wingl', 'tail')
 
 
 # ---------------------------------------------------------------------------------------------------- crayons
@@ -893,6 +920,342 @@ def _p_fx_smoke():
     return pic
 
 
+# ==================================================================================================== THE DOODLE CREEPER
+# Kettle draws him as a creeper: a plain Minecraft creeper, the way a kid draws one in green crayon - a tall boxy body, a big
+# boxy head with the creeper's face in black crayon (square eyes, each with a shine; the frown-mouth), pink cheeks, and four
+# stubby block feet (each leg card a pair: the front foot and the back one peeking out beside it, a little higher). Scribbled
+# lighter and darker green blotches all over, as the real one's mottled skin. No arms, no wings, no tail (CR_GONE: hidden).
+CRG, CRG_L = '#58b844', '#22601d'                  # (creeper green; its outline)
+CRG_LT, CRG_DK, CRG_PALE = '#a8e48c', '#2e8a2a', '#d4ecc6'   # (the blotches: light, dark - and a few near-white)
+CRG_FOOT = '#4aa53a'                               # (the back feet: a shade further away)
+CK, CK_L = '#1e1b22', '#0c0b0e'                    # (his face: black crayon pressed hard)
+CMOUTH = '#4a1626'                                 # (inside his mouth, open)
+WHITE = '#ffffff'
+# the effects: gunpowder grey-green smoke, yellow-white sparks, black specks of powder
+PUFF_C, PUFF_L, PUFF_D = '#e2e9d8', '#7f8f72', '#c3cfb3'
+SPARK, SPARK_L = '#fff27a', '#e09a14'
+POWDER = '#3a3a3c'
+
+CR_BODY = (0.0, 11.0, 4.7, 7.0)                     # (centre, half-width, half-height: y 4.0 .. 18.0 - no lower than the pear he shares the poses with)
+CR_HEAD = (0.0, 22.9, 6.2, 6.1)                     # (y 16.8 .. 29.0: big, as a chibi's)
+CR_EYE = (2.85, 24.55, 1.45)                        # (x either side, y, half-size)
+CR_FEET = ((4.05, 2.3, 1.5, 2.3, 0.0), (1.8, 2.6, 1.28, 2.0, 1.0))   # (front foot, back foot: centre x, y, half w, half h, shade)
+
+
+def _mottle(pic, shape, seed, n=14, avoid=None, size=(0.55, 1.2)):
+    """a creeper's blotches: little squarish patches scribbled over him in lighter and darker green, kept inside his outline"""
+    if Pic.DRY: return
+    poly = grow(shape, -OW * 0.9); r = random.Random(seed)
+    def inside(pt):                                    # (even-odd ray test)
+        x, y = pt; c = False
+        for (x1, y1), (x2, y2) in zip(poly, poly[1:] + poly[:1]):
+            if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1): c = not c
+        return c
+    xs, ys = [p[0] for p in shape], [p[1] for p in shape]; k = 0; tries = 0
+    while k < n and tries < 600:
+        tries += 1
+        s_ = r.uniform(*size); cx, cy = r.uniform(min(xs), max(xs)), r.uniform(min(ys), max(ys))
+        q = sq(cx, cy, s_ * r.uniform(0.8, 1.25), s_ * r.uniform(0.8, 1.2), 3.5, 20)
+        if not all(inside(p) for p in q[::3]): continue
+        if avoid and any(a[0] <= cx <= a[2] and a[1] <= cy <= a[3] for a in avoid): continue
+        col = (CRG_LT, CRG_DK, CRG_LT, CRG_DK, CRG_PALE)[k % 5]
+        pic.scribble(wob(q, 0.08, seed + 7 * k), col, r.uniform(-60, 60), seed + 13 * k, sp=0.42, w=0.3)
+        k += 1
+
+
+def _cr_body(back=False):
+    pic = Pic(BOX['body'][0])
+    s = pic.blob(sq(*CR_BODY, 3.6, 64), CRG, CRG_L, 1011, ang=30, over=0.45)
+    _mottle(pic, s, 1020 + back, 12)
+    if not Pic.DRY: pic.crayon(s, CRG_L, OW, 1016)                  # (the outline gone over again, on top of the blotches)
+    return pic, [s]
+
+
+CR_FACE_ZONE = [(-4.6, 17.4, 4.6, 26.5)]           # (no blotch where his face is drawn - it stays easy to read)
+
+
+def _cr_picture_head(face=None, back=False):
+    pic = Pic(BOX['head'][0])
+    s = pic.blob(sq(*CR_HEAD, 4.2, 64), CRG, CRG_L, 1031, ang=36, over=0.45)
+    _mottle(pic, s, 1040 + back, 13 if back else 10, None if back else CR_FACE_ZONE)
+    if not Pic.DRY: pic.crayon(s, CRG_L, OW, 1036)
+    if not back:
+        _cr_face(pic, face)
+    return pic, [s]
+
+
+def _cmouth(sc=1.0, flip=False, cy=20.45):
+    """the creeper's mouth: the bar under his eyes, the wide middle, the two legs down at its corners"""
+    pts = [(-1.15, 22.75), (1.15, 22.75), (1.15, 21.7), (2.35, 21.7), (2.35, 17.95), (1.25, 17.95), (1.25, 19.0), (-1.25, 19.0),
+           (-1.25, 17.95), (-2.35, 17.95), (-2.35, 21.7), (-1.15, 21.7)]
+    return [(x * sc, cy + (y - cy) * sc * (-1 if flip else 1)) for x, y in pts]
+
+
+def _cr_face(pic, kind):
+    """his creeper face, on the head card (and so in the wardrobe's colours, as the OG's): black crayon - each expression
+    redraws it"""
+    ex, ey, eh = CR_EYE
+    def black(poly, seed, ow=0.3):
+        return pic.blob(poly, CK, CK_L, seed, ang=50, over=0.08, light=0.12, amp=0.035, ow=ow)
+    def eyes(hw=eh, hh=eh, dy=0.0, tilt=0.0, shine=True):
+        for i, s in enumerate((1, -1)):
+            q = sq(s * ex, ey + dy, hw, hh, 4.5, 36)
+            if tilt: q = [(x, y + (x - s * ex) * tilt * s) for x, y in q]
+            black(q, 1100 + i)
+            if shine:
+                pic.fill(sq(s * ex - hw * 0.42, ey + dy + hh * 0.36, 0.36, 0.36, 3.0, 16), WHITE, 1104 + i)
+    def cheeks(r=0.95, y=21.2, x=4.6):
+        for i, s in enumerate((1, -1)):
+            pic.dot((s * x, y), r, r * 0.72, CHEEK, 1110 + i)
+    def chevron(up=True, y=ey, w=0.62):                                 # (^ ^ - or, up=False, v v)
+        for i, s in enumerate((1, -1)):
+            x = s * ex; h = 0.75 if up else -0.6
+            pic.crayon([(x - 1.35, y - h), (x, y + h), (x + 1.35, y - h)], CK, w, 1120 + i, closed=False, passes=2, jit=0.025)
+    def brows(tilt, y=26.9):
+        for i, s in enumerate((1, -1)):
+            x = s * ex
+            pic.crayon([(x + s * 1.5, y + tilt * 0.5), (x - s * 1.3, y - tilt * 0.5)], CK, 0.5, 1130 + i, closed=False, passes=2, jit=0.02)
+    if kind is None:
+        eyes(); cheeks(); black(_cmouth(), 1140)
+    elif kind == 'happy':                                               # (eyes squeezed into ^ ^, the creeper's mouth turned up into a smile)
+        chevron(True, ey - 0.1); cheeks(1.15, 21.6)
+        m = black(_cmouth(0.95, flip=True, cy=20.2), 1141)
+        pic.dot((0.0, 18.95), 0.62, 0.42, TONGUE, 1142)
+    elif kind == 'surprised':                                           # (big white eyes, little black pupils, an 'o' of a mouth)
+        for i, s in enumerate((1, -1)):
+            pic.blob(sq(s * ex, ey + 0.15, 1.6, 1.7, 4.5, 36), WHITE, CK, 1150 + i, scrib=False, amp=0.03, ow=0.32)
+            black(sq(s * ex, ey + 0.05, 0.62, 0.68, 4.0, 24), 1152 + i, ow=0.2)
+            pic.fill(sq(s * ex - 0.22, ey + 0.32, 0.18, 0.18, 3.0, 12), WHITE, 1154 + i)
+        cheeks(0.8, 20.9)
+        black(sq(0.0, 19.9, 1.05, 1.3, 4.0, 32), 1156)
+    elif kind == 'blink':                                               # (eyes shut: two thick crayon lines, curving down)
+        for i, s in enumerate((1, -1)):
+            x = s * ex
+            pic.crayon(bez((x - 1.4, ey + 0.1), (x, ey - 0.85), (x + 1.4, ey + 0.1), 10) + [(x + 1.4, ey + 0.1)], CK, 0.55, 1160 + i,
+                       closed=False, passes=2, jit=0.02)
+        cheeks(); black(_cmouth(0.9), 1162)
+    elif kind == 'fierce':                                              # (narrowed eyes slanting in, brows down, the mouth wide - two little fangs)
+        eyes(1.45, 1.05, -0.25, 0.32, shine=True); brows(1.3)
+        m = _cmouth(1.1, cy=20.3); black(m, 1170)
+        for i, s in enumerate((1, -1)):
+            pic.fill([(s * 1.55, 21.55), (s * 2.25, 21.55), (s * 1.9, 20.55)], WHITE, 1172 + i, line=CK, ow=0.12)
+    elif kind == 'sad':                                                 # (eyes drooping at the outside, worried brows, a little frown - and a tear)
+        eyes(1.35, 1.2, -0.2, -0.26); brows(-1.0, 26.9); cheeks(0.8, 21.0)
+        black(_cmouth(0.82, cy=20.0), 1180)
+        pic.fill([(-4.6, 22.9), (-5.05, 21.9), (-4.6, 21.4), (-4.15, 21.9)], '#5ab4ff', 1181, line='#2a6fc0', ow=0.16)
+    elif kind == 'puff':                                                # (cheeks puffed right out, eyes squeezed > <, lips pressed tight - swelling)
+        for i, s in enumerate((1, -1)):
+            x = s * ex
+            pic.crayon([(x + s * 1.2, ey + 0.9), (x - s * 1.05, ey), (x + s * 1.2, ey - 0.9)], CK, 0.6, 1190 + i, closed=False, passes=2, jit=0.02)
+        cheeks(1.55, 20.8, 4.3)
+        black(sq(0.0, 20.0, 1.25, 0.55, 4.0, 28), 1192)
+    elif kind == 'roar':                                                # (the creeper mouth opened wide: dark inside, a tongue - the hiss comes out of here)
+        eyes(1.45, 1.15, 0.15, 0.18); brows(0.9, 27.1)
+        m = _cmouth(1.22, cy=20.15); black(m, 1200, ow=0.34)
+        if not Pic.DRY:
+            pic.fill([(x * 0.78, 20.15 + (y - 20.15) * 0.72) for x, y in _cmouth(1.22, cy=20.15)], CMOUTH, 1201)
+            pic.dot((0.0, 19.25), 1.1, 0.55, TONGUE, 1202)
+    elif kind == 'dizzy':                                               # (fainted: swirly eyes, a wobbly mouth, tongue out)
+        for i, s in enumerate((1, -1)):
+            c = (s * ex, ey); pts = [(c[0] + 0.09 * t * math.cos(t * s), c[1] + 0.09 * t * math.sin(t * s)) for t in (j * 0.35 for j in range(42))]
+            pic.crayon(pts, CK, 0.42, 1210 + i, closed=False, passes=1, jit=0.01)
+        cheeks(0.8, 20.9)
+        pic.crayon([(-2.4, 20.2), (-1.2, 19.5), (0.0, 20.2), (1.2, 19.5), (2.4, 20.2)], CK, 0.48, 1212, closed=False, passes=2, jit=0.03)
+        pic.fill(capsule((1.2, 19.4), (1.35, 18.3), 0.55), TONGUE, 1213, line=CK, ow=0.2)
+    return pic
+
+
+def _cr_leg():
+    """a pair of stubby block feet on each leg card: the front one, and the back one beside it (a little higher - further back);
+    a stub of leg up to the hip, hidden behind his body until a pose swings it out"""
+    pic = Pic(BOX['legr'][0]); out = []
+    out.append(pic.blob(sq(3.05, 4.9, 1.75, 1.9, 3.0, 40), CRG, CRG_L, 1301, ang=60, over=0.2, amp=0.06))
+    (fx, fy, fw, fh, _), (bx, by, bw, bh, _) = CR_FEET
+    b = pic.blob(sq(bx, by, bw, bh, 3.4, 40), CRG_FOOT, CRG_L, 1302, ang=70, over=0.0, amp=0.06, light=0.35)
+    _mottle(pic, b, 1303, 2, size=(0.4, 0.7))
+    f = pic.blob(sq(fx, fy, fw, fh, 3.4, 40), CRG, CRG_L, 1304, ang=20, over=0.0, amp=0.06)   # (no scribble past the sole: he stands on it)
+    _mottle(pic, f, 1305, 3, size=(0.4, 0.75))
+    if not Pic.DRY:
+        pic.crayon(f, CRG_L, OW, 1306)
+    return pic, out + [b, f]
+
+
+# the effects, creeper-style ------------------------------------------------------------------------------------
+STROKES = {                                         # (a kid's capitals, in a box 0.7 wide and 1 tall: crayon strokes)
+    'K': [[(0, 0), (0, 1)], [(0.7, 1), (0.05, 0.45), (0.7, 0)]],
+    'A': [[(0, 0), (0.35, 1), (0.7, 0)], [(0.14, 0.38), (0.56, 0.38)]],
+    'B': [[(0, 0), (0, 1), (0.42, 1), (0.6, 0.9), (0.6, 0.64), (0.42, 0.53), (0, 0.53)], [(0.42, 0.53), (0.7, 0.4), (0.7, 0.12), (0.5, 0), (0, 0)]],
+    'O': [[(0.35 + 0.36 * math.cos(t), 0.5 + 0.5 * math.sin(t)) for t in (2 * math.pi * i / 20 + 1.6 for i in range(21))]],
+    'M': [[(0, 0), (0, 1), (0.35, 0.45), (0.7, 1), (0.7, 0)]],
+    'P': [[(0, 0), (0, 1), (0.48, 1), (0.7, 0.86), (0.7, 0.62), (0.48, 0.5), (0, 0.5)]],
+    'S': [[(0.68, 0.86), (0.5, 1), (0.16, 1), (0.0, 0.83), (0.08, 0.6), (0.62, 0.42), (0.7, 0.18), (0.54, 0.0), (0.16, 0.0), (0.0, 0.14)]],
+    's': [[(0.5, 0.6), (0.36, 0.68), (0.12, 0.66), (0.04, 0.52), (0.14, 0.4), (0.46, 0.3), (0.52, 0.14), (0.38, 0.0), (0.1, 0.0), (0.0, 0.08)]],
+    'h': [[(0, 0), (0, 1)], [(0, 0.38), (0.15, 0.6), (0.38, 0.66), (0.52, 0.52), (0.52, 0)]],
+    '!': [[(0.2, 1), (0.2, 0.32)], [(0.2, 0.08), (0.21, 0.04)]],
+}
+
+
+def _letters(pic, text, at, h, seed, col=WHITE, line=CK, w=0.55, ang=0.0, adv=0.92, bounce=0.12):
+    """crayon writing: each letter gone over thick in the dark crayon, then in its colour on top - wobbly, bouncing on its line.
+    at: where the first letter starts - as the viewer reads it, on the left (the card's +x)"""
+    if Pic.DRY: return
+    r = random.Random(seed); a = math.radians(ang); c, s_ = math.cos(a), math.sin(a)
+    x = 0.0; strokes = []
+    for ch in text:
+        if ch == ' ': x += 0.5 * h; continue
+        dy, rot = r.uniform(-bounce, bounce) * h, math.radians(r.uniform(-9, 9))
+        cr, sr = math.cos(rot), math.sin(rot)
+        for st in STROKES[ch]:
+            pts = []
+            for u, v in st:
+                u, v = (u - 0.35) * h, (v - 0.5) * h
+                u, v = u * cr - v * sr + x + 0.35 * h, u * sr + v * cr + 0.5 * h + dy
+                pts.append((at[0] - (u * c - v * s_), at[1] + u * s_ + v * c))   # (the card's +x is the viewer's left: written leftward)
+            strokes.append(_resample(pts, 0.25, False) if len(pts) > 2 else pts)
+        x += adv * h * (0.62 if ch in 'sh!' else 0.8)
+    for i, st in enumerate(strokes):
+        pic.crayon(st, line, w + 0.34, seed + 3 * i, closed=False, passes=1, jit=0.02)
+    for i, st in enumerate(strokes):
+        pic.crayon(st, col, w, seed + 3 * i + 1, closed=False, passes=1, jit=0.02)
+
+
+def _spark(pic, c, r, seed, col=SPARK, line=SPARK_L):
+    """a little crayon spark: a four-pointed star"""
+    pts = []
+    for i in range(8):
+        a = math.pi / 4 * i + 0.3; rr = r if i % 2 == 0 else r * 0.38
+        pts.append((c[0] + rr * math.cos(a), c[1] + rr * math.sin(a)))
+    pic.blob(pts, col, line, seed, scrib=False, amp=0.02, ow=0.22)
+
+
+def _puffball(pic, c, r, seed, col=PUFF_C, line=PUFF_L, ow=0.32):
+    """a lumpy crayon puff of smoke"""
+    pic.blob(ell(c[0], c[1], r, r * 0.9, 28), col, line, seed, ang=30 + seed % 60, over=0.2, amp=0.1, ow=ow)
+    if not Pic.DRY:
+        pic.crayon(bez((c[0] - r * 0.45, c[1] + r * 0.05), (c[0] - r * 0.05, c[1] + r * 0.5), (c[0] + r * 0.35, c[1] + r * 0.1), 8) +
+                   [(c[0] + r * 0.35, c[1] + r * 0.1)], line, 0.2, seed + 1, closed=False, passes=1)
+
+
+def _powder(pic, pts, seed):
+    if Pic.DRY: return
+    r = random.Random(seed)
+    for i, (x, y) in enumerate(pts):
+        pic.dot((x, y), r.uniform(0.16, 0.28), r.uniform(0.14, 0.24), POWDER, seed + i)
+
+
+def _p_cr_cone(frame=lambda a, b: (-a, b)):
+    """THE SPARK BREATH (his crayon fire, creeper-style): a cone of gunpowder smoke out of his mouth, puffs growing as it goes,
+    sparks fizzing all through it, specks of powder - it pops a beat later"""
+    pic = Pic(FIRE_BOX); r = random.Random(1400)
+    for i, (a, rad) in enumerate(((3.0, 1.3), (6.6, 1.9), (10.6, 2.5), (15.0, 2.9), (19.6, 3.2), (23.6, 2.6))):
+        for j, off in enumerate((-0.55, 0.55) if i >= 2 else (0.0,)):
+            _puffball(pic, frame(a + j * 0.9, off * rad), rad * (0.9 if j else 1.0), 1402 + 10 * i + j, col=PUFF_C if (i + j) % 2 else PUFF_D)
+    for k in range(16):
+        a = r.uniform(2.0, 25.0); b = r.uniform(-1, 1) * (0.9 + a * 0.13)
+        _spark(pic, frame(a, b), r.uniform(0.55, 1.05) * (0.7 + a / 40), 1480 + k)
+    _powder(pic, [frame(r.uniform(2, 26), r.uniform(-1, 1) * (1 + r.uniform(0, 26) * 0.12)) for _ in range(22)], 1500)
+    return pic
+
+
+def _p_cr_burst():
+    """(the spark breath, from in front: a ring of smoke round his mouth, sparks flying out of it)"""
+    pic = Pic(BURST_BOX); r = random.Random(1520)
+    for i in range(7):
+        a = 2 * math.pi * i / 7 + 0.4
+        _puffball(pic, (3.3 * math.cos(a), 3.3 * math.sin(a)), 1.7, 1521 + 3 * i, col=PUFF_C if i % 2 else PUFF_D, ow=0.28)
+    _spark(pic, (0.0, 0.0), 2.2, 1550)
+    for k in range(6):
+        a = 2 * math.pi * k / 6; _spark(pic, (5.4 * math.cos(a), 5.4 * math.sin(a)), 0.9, 1551 + k)
+    return pic
+
+
+def _p_cr_hiss():
+    """THE HISS (his wind-up): 'hsss' scribbled up beside his head, sparks fizzing off the corners of his mouth"""
+    pic = Pic(PUFF_BOX)
+    for i, s in enumerate((1, -1)):
+        _spark(pic, (s * 3.6, 18.4), 0.85, 1600 + i); _spark(pic, (s * 4.4, 17.0), 0.55, 1602 + i)
+        for j in range(3):                                              # (little fizz lines)
+            pic.crayon([(s * (6.9 + 0.2 * j), 26.0 - 1.6 * j), (s * (8.6 + 0.4 * j), 26.4 - 1.5 * j)], CK, 0.26, 1604 + 3 * i + j, closed=False, passes=1)
+    _letters(pic, 'hsss', (-6.6, 28.6), 3.2, 1620, col='#c6f0b0', line=CRG_L, w=0.6, ang=10)
+    return pic
+
+
+def _p_cr_puff():
+    """(the hiccup: a little pop of grey-green smoke off either corner of his head - and a spark)"""
+    pic = Pic(PUFF_BOX)
+    for s in (1, -1):
+        for i, ((x, y), r) in enumerate((((7.3, 28.4), 0.85), ((8.7, 30.3), 1.2))):
+            _puffball(pic, (s * x, y), r, 1700 + i + (s > 0) * 10, col=PUFF_C if i % 2 else PUFF_D, ow=0.28)
+    _spark(pic, (-10.8, 28.4), 0.8, 1730)
+    return pic
+
+
+KABOOM_BOX = (-16.0, -5.0, 32.0)                    # (round his whole body, from his mouth (the fire part's joint))
+
+
+def _p_cr_kaboom():
+    """THE KABOOM: he swells, flashes white - and goes off. A big scribbled cloud of grey-green smoke round all of him, a jagged
+    yellow-white flash in the middle, sparks and powder flying, KABOOM! written across it in fat crayon. (No crater: a
+    drawing's explosion. He scribbles himself back together after.)"""
+    pic = Pic(KABOOM_BOX); c = (0.0, 12.0); r = random.Random(1800)
+    for i in range(11):                                                  # (the cloud: a ring of lumpy puffs)
+        a = 2 * math.pi * i / 11 + 0.2
+        _puffball(pic, (c[0] + 10.4 * math.cos(a), c[1] + 9.6 * math.sin(a)), 4.0 + 0.6 * math.sin(i * 1.9), 1801 + 5 * i,
+                  col=PUFF_C if i % 2 else PUFF_D, ow=0.42)
+    _puffball(pic, c, 9.6, 1870, col='#cbd5bd', line=PUFF_L, ow=0.4)
+    star = []
+    for i in range(22):                                                  # (the flash: a jagged star)
+        a = 2 * math.pi * i / 22; rr = (8.2 if i % 2 == 0 else 4.6) * (1 + 0.14 * math.sin(i * 2.3))
+        star.append((c[0] + rr * math.cos(a), c[1] + rr * math.sin(a) * 0.92))
+    pic.blob(star, SPARK, SPARK_L, 1880, ang=20, over=0.4, amp=0.15, light=0.25, ow=0.42)
+    pic.blob(ell(c[0], c[1], 3.6, 3.3, 28), '#fffbe0', '#f0c030', 1881, ang=-30, over=0.2, amp=0.1, light=0.1, ow=0.32)
+    for k in range(12):
+        a = 2 * math.pi * k / 12 + 0.15; rr = r.uniform(12.6, 14.4)
+        _spark(pic, (c[0] + rr * math.cos(a), c[1] + rr * math.sin(a) * 0.95), r.uniform(0.8, 1.3), 1890 + k)
+    _powder(pic, [(c[0] + r.uniform(-14, 14), c[1] + r.uniform(-13, 14)) for _ in range(26)], 1910)
+    _letters(pic, 'KABOOM!', (13.2, 9.4), 4.4, 1940, col=WHITE, line=CK, w=0.85, ang=6, adv=0.98)
+    return pic
+
+
+def _p_cr_pop():
+    """THE POP (his claw, creeper-style): a hiss and a little scribbled blast beside him - a white-yellow star in a puff, POP!"""
+    pic = Pic(SLASH_BOX); c = (10.2, 12.6)
+    for i in range(6):
+        a = 2 * math.pi * i / 6 + 0.5
+        _puffball(pic, (c[0] + 3.1 * math.cos(a), c[1] + 3.0 * math.sin(a)), 1.8, 2001 + 3 * i, col=PUFF_C if i % 2 else PUFF_D, ow=0.3)
+    star = []
+    for i in range(14):
+        a = 2 * math.pi * i / 14; rr = (3.6 if i % 2 == 0 else 1.9)
+        star.append((c[0] + rr * math.cos(a), c[1] + rr * math.sin(a)))
+    pic.blob(star, SPARK, SPARK_L, 2030, ang=20, over=0.25, amp=0.08, light=0.2, ow=0.34)
+    for k, (dx, dy) in enumerate(((6.2, 3.8), (6.6, -2.8), (-0.4, 6.0), (2.8, -5.6), (8.4, 0.6))):
+        _spark(pic, (c[0] + dx, c[1] + dy), 0.75, 2040 + k)
+    _letters(pic, 'POP!', (c[0] + 3.0, c[1] + 4.6), 2.6, 2050, col=WHITE, line=CK, w=0.5, ang=6)
+    return pic
+
+
+def _p_cr_boom():
+    """(the stomp, creeper-style: grey-green dust puffing out either side of his foot, sparks flying up)"""
+    F = (3.3, 0.0); pic = Pic(BOOM_BOX)
+    for i, (x, y, r) in enumerate(((-1.6, 1.4, 1.6), (-4.0, 1.0, 1.1), (-6.0, 0.8, 0.75), (8.4, 1.4, 1.6), (10.8, 1.0, 1.1), (12.8, 0.8, 0.75))):
+        _puffball(pic, (x, y), r, 2101 + 3 * i, col=PUFF_C if i % 2 else PUFF_D, ow=0.3)
+    for k, a in enumerate((30, 60, 90, 120, 150)):
+        rr = 6.0 + 1.2 * (k % 2); u = (math.cos(math.radians(a)), math.sin(math.radians(a)))
+        _spark(pic, (F[0] + u[0] * rr, F[1] + 0.8 + u[1] * rr), 0.95, 2130 + k)
+    _powder(pic, [(F[0] + x, y) for x, y in ((-3.0, 4.2), (4.6, 5.0), (-5.4, 2.8), (7.0, 3.0), (0.4, 7.6), (6.2, 7.0))], 2140)
+    return pic
+
+
+def _flash(im):
+    """the white flash (_cpw): his crayon picture gone most of the way to white, the lines still showing through"""
+    import numpy as np
+    a = np.asarray(im).astype(np.float32)
+    lum = a[..., :3].mean(axis=2, keepdims=True) / 255.0
+    k = 0.34 + 0.5 * np.clip((lum - 0.12) / 0.3, 0, 1)                 # (his black face and outlines whiten least: still him)
+    a[..., :3] = a[..., :3] + (255 - a[..., :3]) * k
+    return Image.fromarray(a.clip(0, 255).astype(np.uint8), 'RGBA')
+
+
 # each card's outer edge, as drawn (the outline, and the scribble that runs past it) - the floor finds his lowest point on them
 # (3.0a: the Ender drawing's - he stands on them; GEO_OG: the OG green drawing's, for its own check)
 GEO_OG = {}
@@ -901,6 +1264,9 @@ for _part, _fn in (('body', _e_body), ('head', _e_picture_head), ('armr', _e_arm
     GEO[_part] = _fn()[0].edges
 for _part, _fn in (('body', _p_body), ('head', _p_head), ('armr', _p_arm), ('legr', _p_leg), ('wingr', _p_wing), ('tail', _p_tail)):
     GEO_OG[_part] = _fn()[0].edges
+GEO_CR = {}                                         # (the Doodle Creeper's: his body, his head, his feet)
+for _part, _fn in (('body', _cr_body), ('head', _cr_picture_head), ('legr', _cr_leg)):
+    GEO_CR[_part] = _fn()[0].edges
 Pic.DRY = False
 
 
@@ -946,6 +1312,20 @@ def textures():
     G_['dd_wing'] = _p_wing()[0].done(43)[0]
     G_['dd_tail'] = _p_tail()[0].done(44)[0]
     T.update({k + OG_TEX: v for k, v in G_.items()})
+    # the Doodle Creeper (a costume): '_cp' on the names (phase138 recolours them as a set of their own) - and '_cpw', the same
+    # pictures in his white flash (swelling up to go off; never recoloured)
+    C_ = {}
+    pf, _ = _cr_body(False); pb, _ = _cr_body(True)
+    C_['dd_body'], keep = pf.done(1051)
+    C_['dd_body_b'] = pb.done(1052, alpha=keep)[0]
+    pb, _ = _cr_picture_head(back=True)
+    C_['dd_head_b'], keep = pb.done(1053)
+    C_['dd_face'] = _cr_picture_head(None)[0].done(1054, alpha=keep)[0]
+    for i, k in enumerate(FACES):
+        C_[f'dd_face_{k}'] = _cr_picture_head(k)[0].done(1055 + i, alpha=keep)[0]
+    C_['dd_leg'] = _cr_leg()[0].done(1070)[0]
+    T.update({k + CR_TEX: v for k, v in C_.items()})
+    T.update({k + CR_TEX + 'w': _flash(v) for k, v in C_.items()})
     # the effects - shared by both drawings
     T['dd_fire_s'] = _p_fire_side().done(45)[0]
     T['dd_fire_t'] = T['dd_fire_s'].rotate(90, expand=False)   # (the same flame for the flat card: its tip toward the image's top)
@@ -956,6 +1336,15 @@ def textures():
     T['dd_fx_smoke'] = _p_fx_smoke().done(52)[0]
     T['dd_slash'] = _p_slash().done(48)[0]
     T['dd_boom'] = _p_boom().done(49)[0]
+    # the Doodle Creeper's effects: the spark breath, the hiss, the hiccup puff, the KABOOM, the pop, the stomp's dust
+    T['dd_fire_s_cp'] = _p_cr_cone().done(1071)[0]
+    T['dd_fire_t_cp'] = T['dd_fire_s_cp'].rotate(90, expand=False)
+    T['dd_fire_f_cp'] = _p_cr_burst().done(1072)[0]
+    T['dd_kindle_cp'] = _p_cr_hiss().done(1073)[0]
+    T['dd_puff_cp'] = _p_cr_puff().done(1074)[0]
+    T['dd_kaboom_cp'] = _p_cr_kaboom().done(1075)[0]
+    T['dd_slash_cp'] = _p_cr_pop().done(1076)[0]
+    T['dd_boom_cp'] = _p_cr_boom().done(1077)[0]
     _TEX.update(T)
     return dict(T)
 
@@ -963,7 +1352,9 @@ def textures():
 # (3.0a) the wardrobe's recolours (phase138.RECOL's list): every drawn texture of his but the eyes (they keep their purple glow)
 # and the effects; the OG's '_g' set recoloured as a set of its own (phase138: a name ending '_g', as Ava's ghost)
 _LOOK = ('dd_body', 'dd_body_b', 'dd_head_b', 'dd_arm', 'dd_leg', 'dd_wing', 'dd_tail', 'dd_face') + tuple(f'dd_face_{k}' for k in FACES)
-LOOK_TEX = _LOOK + tuple(n + OG_TEX for n in _LOOK)
+_LOOK_CR = ('dd_body', 'dd_body_b', 'dd_head_b', 'dd_leg', 'dd_face') + tuple(f'dd_face_{k}' for k in FACES)
+LOOK_CR = tuple(n + CR_TEX for n in _LOOK_CR)      # (the Doodle Creeper's: phase138.OWN_SETS, a set of its own; never his flash)
+LOOK_TEX = _LOOK + tuple(n + OG_TEX for n in _LOOK) + LOOK_CR
 EYES_LIGHT = 15
 
 
@@ -1007,6 +1398,14 @@ def models():
             q = p[:-1] + 'l'
             part(f'dd_{q}{sfx}', card(box, z, tex + tx, tex + tx, PIVOT[q], mirror=True))
         part('dd_tail' + sfx, card(BOX['tail'][0], ZT, 'dd_tail' + tx, 'dd_tail' + tx, PIVOT['tail']))
+    for sfx, tx in ((CR_SFX, CR_TEX), (CR_SFX + 'w', CR_TEX + 'w')):   # the Doodle Creeper - and his white flash
+        part('dd_body' + sfx, card(BOX['body'][0], ZB, 'dd_body' + tx, 'dd_body_b' + tx, PIVOT['body']))
+        for fc in (None,) + FACES:
+            nm, face = (f'dd_head_x{fc}', f'dd_face_{fc}') if fc else ('dd_head', 'dd_face')
+            part(nm + sfx, card(BOX['head'][0], ZH, face + tx, 'dd_head_b' + tx, PIVOT['head']))
+        box, z = BOX['legr']
+        part('dd_legr' + sfx, card(box, z, 'dd_leg' + tx, 'dd_leg' + tx, PIVOT['legr']))
+        part('dd_legl' + sfx, card(box, z, 'dd_leg' + tx, 'dd_leg' + tx, PIVOT['legl'], mirror=True))
     # the breath: a flame card standing up along it (seen from the side), the same flame lying flat across it (from above), and a
     # burst of fire at his mouth (from in front)
     # (all of it built full size and shrunk into the model's box - shown at PART_K times the scale)
@@ -1020,6 +1419,13 @@ def models():
     part('dd_fire_fire', shrink(side + flat + burst, k))
     part('dd_fire_puff', shrink(card(PUFF_BOX, mz - 0.5, 'dd_puff', 'dd_puff', fp), k))
     part('dd_fire_kindle', shrink(card(PUFF_BOX, mz - 0.5, 'dd_kindle', 'dd_kindle', fp), k))
+    # the Doodle Creeper's: the spark breath (the same cross of cards and a burst), the hiss, the hiccup, and the KABOOM round all of him
+    side_c = [dict(e, faces={f: dict(v, texture='#dd_fire_s_cp') for f, v in e['faces'].items()}) for e in side]
+    flat_c = [dict(e, faces={f: dict(v, texture='#dd_fire_t_cp') for f, v in e['faces'].items()}) for e in flat]
+    part('dd_fire_fire' + CR_SFX, shrink(side_c + flat_c + card((mx + bx, my + by, bs), mz - 1.1, 'dd_fire_f_cp', 'dd_fire_f_cp', fp), k))
+    part('dd_fire_kindle' + CR_SFX, shrink(card(PUFF_BOX, mz - 0.5, 'dd_kindle_cp', 'dd_kindle_cp', fp), k))
+    part('dd_fire_puff' + CR_SFX, shrink(card(PUFF_BOX, mz - 0.5, 'dd_puff_cp', 'dd_puff_cp', fp), k))
+    part('dd_fire_kaboom' + CR_SFX, shrink(card(KABOOM_BOX, ZA - 1.4, 'dd_kaboom_cp', 'dd_kaboom_cp', fp), k))
     M['dd_fire'] = M['dd_fire_fire']
     # the breath's effect, for the datapack: a crayon flame and a scribble of smoke, each a little card to show (or to burst into)
     for k_ in ('fire', 'smoke'):
@@ -1027,6 +1433,8 @@ def models():
     A = PIVOT['slash']
     part('dd_slash', card(SLASH_BOX, ZA - 0.35, 'dd_slash', 'dd_slash', A))
     part('dd_boom', card(BOOM_BOX, ZA - 0.6, 'dd_boom', 'dd_boom', PIVOT['boom']))
+    part('dd_slash' + CR_SFX, card(SLASH_BOX, ZA - 0.35, 'dd_slash_cp', 'dd_slash_cp', A))
+    part('dd_boom' + CR_SFX, card(BOOM_BOX, ZA - 0.6, 'dd_boom_cp', 'dd_boom_cp', PIVOT['boom']))
     return M
 
 
@@ -1118,21 +1526,22 @@ for _i in range(SWIM_FRAMES):                              # (a doggy paddle, he
 
 
 # ---------------------------------------------------------------------------------------------------- the floor
-def _pts(p):
+def _pts(p, geo=GEO):
     """a card's outline points (design units, its own layer)"""
     src = MIRROR.get(p, p)
-    if src not in GEO: return []
+    if src not in geo: return []
     z = BOX[src][1]; sx = -1 if p in MIRROR else 1
-    return [(sx * x, y, z) for poly in GEO[src] for x, y in poly[::2]]
+    return [(sx * x, y, z) for poly in geo[src] for x, y in poly[::2]]
 
 
 _PTS = {p: _pts(p) for p in PARTS}
+_PTS_CR = {p: _pts(p, GEO_CR) for p in PARTS}      # (the Doodle Creeper: his own outlines - and nothing of the parts he hasn't got)
 
 
 def lowest(pose):
     """the lowest point of him in this pose (design units) - every card but the effects"""
     xf = solve(PIVOT, PARENT, pose); low = 1e9
-    for p, pts in _PTS.items():
+    for p, pts in (_PTS_CR if _cr(pose) else _PTS).items():
         if not pts or p in FX: continue
         q, t = xf[p]; pv = D(PIVOT[p]); W = tuple(t[i] + pv[i] for i in range(3))
         for x, y, z in pts:
@@ -1154,3 +1563,18 @@ for _k in list(POSES):
     POSES[_k] = _ground(POSES[_k], lift=(0.8 if _k in ('run_1', 'run_3') else 0.0))
 DRAFT = ['idle_a', 'idle_b', 'idle_c', 'walk_0', 'walk_1', 'walk_2', 'walk_3', 'run_1', 'run_3', 'jump', 'sit_a', 'sit_b', 'happy', 'hurt', 'tired',
          'breathe_up', 'breathe', 'swipe_up', 'swipe', 'flap_0', 'flap_1', 'stomp_up', 'stomp', 'swim_0', 'swim_2', 'swim_5']
+
+# (the Doodle Creeper) his own moves, on the same rig: the creeper's swell - a crouch, cheeks puffed (swell_0), then puffed up
+# and flashing white (swell_1, '_crw'; '_swell': the whole rig shown this much bigger - in the game the displays' scale, as
+# rigpet's grow) - KABOOM (the cloud round all of him: the fire part's 'kaboom') - and scribbling himself back together
+CR_POSES = {
+    'swell_0': P(_cr=True, _face='puff', body=qs(('x', -6)), head=qs(('x', -4)), legr=limb(1, 0, 10), legl=limb(-1, 0, 10)),
+    'swell_1': P(_crw=True, _swell=1.16, _face='puff', head=qs(('x', 4)), legr=limb(1, 0, 14), legl=limb(-1, 0, 14)),
+    'kaboom': P(_crw=True, _swell=1.2, _face='roar', _fire='kaboom', legr=limb(1, 0, 18), legl=limb(-1, 0, 18)),
+    'reform': P(_cr=True, _face='dizzy', _fire='puff', body=roll(-6), head=roll(10), legr=limb(1, 0, 8), legl=limb(-1, 0, -4)),
+}
+# (a shared pose he'd float in - he has no arm or wing to lie on: 'tired' - his own, grounded on him; the game picks it in this form)
+CR_POSES['tired'] = dict(POSES['tired'], _cr=True)
+for _k in CR_POSES:
+    CR_POSES[_k] = _ground(CR_POSES[_k])
+CR_DRAFT = ['idle_a', 'idle_b', 'idle_c', 'walk_0', 'walk_1', 'run_1', 'jump', 'sit_a', 'sit_b', 'happy', 'hurt', 'tired', 'flap_0', 'swim_0']

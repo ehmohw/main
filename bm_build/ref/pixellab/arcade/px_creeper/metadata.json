@@ -1,0 +1,57 @@
+{
+  "group_id": "ace4d5a0-39a5-4309-8308-9be5fd780ad7",
+  "states": [
+    {
+      "character": {
+        "id": "1045bf39-d8a4-4862-861a-25b8b3b2512f",
+        "name": "Idle",
+        "prompt": "a tiny cute Minecraft creeper: a tall rectangular green body made of mottled green and light-green pixel squares, a square head on top with the classic creeper face (two black square eyes and a black frowning mouth), four short stubby feet, no arms",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-10-30T09:38:44.604235+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "hop": {
+            "south": [
+              "Idle/animations/hop/south/frame_000.png",
+              "Idle/animations/hop/south/frame_001.png",
+              "Idle/animations/hop/south/frame_002.png",
+              "Idle/animations/hop/south/frame_003.png",
+              "Idle/animations/hop/south/frame_004.png",
+              "Idle/animations/hop/south/frame_005.png",
+              "Idle/animations/hop/south/frame_006.png"
+            ],
+            "north": [
+              "Idle/animations/hop/north/frame_000.png",
+              "Idle/animations/hop/north/frame_001.png",
+              "Idle/animations/hop/north/frame_002.png",
+              "Idle/animations/hop/north/frame_003.png",
+              "Idle/animations/hop/north/frame_004.png",
+              "Idle/animations/hop/north/frame_005.png",
+              "Idle/animations/hop/north/frame_006.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-30T09:47:33.385915"
+}

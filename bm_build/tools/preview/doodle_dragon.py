@@ -1,6 +1,9 @@
 """The Doodle Dragon preview sheets (rigkit) - and a check that no card cuts through another, and he stands on the floor.
-python3 tools/preview/doodle_dragon.py [views,poses,faces,lineup,fire,tex,check,player,og,ogcheck,flying,night,looks,doll,fit,zfight,icon]
+python3 tools/preview/doodle_dragon.py [views,poses,faces,lineup,fire,tex,check,player,og,ogcheck,flying,night,looks,doll,fit,zfight,icon,
+                                        creeper,crcheck]
 (3.0a) He's the Doodle Ender Dragon now; the OG green drawing is his costume ('Crayon Green': a pose with '_og' shows it).
+The Doodle Creeper (a second costume: a pose with '_cr' shows it, '_crw' his white flash; A.CR_POSES his own moves): 'creeper'
+draws his sheets, 'crcheck' runs the check over every pose (the shared ones and his own) in him.
 Sheets go to $BM_PREVIEW_DIR (default previews/v300a_ender_dragon); the scratch packs to $BM_SCRATCH. 'night': tools/render
 has no light, so each face is tinted after the scene is built - unlit faces dimmed to night, faces of elements with
 light_emission (his eyes) kept bright. 'looks': the wardrobe's recolours made as phase138 makes them. 'doll': baked as
@@ -19,6 +22,7 @@ what = sys.argv[1].split(',') if len(sys.argv) > 1 else ['views', 'poses', 'face
 root = K.pack(A, SCRATCH + '/rp_dd')
 I = A.POSES['idle_a']
 OG = lambda pose: dict(pose, _og=True)
+CR = lambda pose: dict(pose, _cr=True)
 NIGHT_BG, NIGHT_GRID = (16, 18, 34), (34, 38, 52)
 
 
@@ -77,7 +81,7 @@ def night_tile(pose, view, span, center, size, label, sub=None, person=None):
 
 
 def tile(pose, view=(-30, 12), span=2.4, center=(0, 0.85, 0), size=340, label='', sub=None, person=None):
-    s = K.multi_scene(root); rigkit.render(s, A, pose, scale=A.RIG_SCALE)
+    s = K.multi_scene(root); rigkit.render(s, A, pose, scale=A.RIG_SCALE * pose.get('_swell', 1.0))
     if person: K.person(s, person)
     return K.label(s.render(view, size=size, span=span, center=center), label, sub)
 
@@ -149,21 +153,26 @@ def check(name, pose):
     return clips, low
 
 
-def run_check(og=False):
-    bad = 0
-    for n in A.POSES:
-        clips, low = check(n, OG(A.POSES[n]) if og else A.POSES[n])
+def run_check(og=False, cr=False):
+    bad = 0; tag = 'OG ' if og else ('CR ' if cr else '')
+    poses = dict((n, CR(pz)) for n, pz in A.POSES.items()) if cr else A.POSES
+    if cr: poses.update(A.CR_POSES)
+    for n, pz in poses.items():
+        clips, low = check(n, OG(pz) if og else pz)
         exp = 0.8 if n in ('run_1', 'run_3') else 0.0                  # (a run's airborne frames: a little off the floor)
         flag = '' if (n in A.AIRBORNE or n.startswith('swim_') or abs(low - exp) < 0.35) else '  <- FLOOR'
+        if low < exp - 0.35 and not n.startswith('swim_'): flag = '  <- BELOW THE FLOOR'
         if clips or flag: bad += 1
-        print(f'{"OG " if og else ""}{n:12s} lowest {low:6.2f}{flag}  ' + ('  '.join(f'{k}:{v}' for k, v in clips.items()) if clips else 'clean'))
-    print(('OG green: ' if og else '') + 'poses with problems:', bad)
+        print(f'{tag}{n:12s} lowest {low:6.2f}{flag}  ' + ('  '.join(f'{k}:{v}' for k, v in clips.items()) if clips else 'clean'))
+    print(('OG green: ' if og else ('Doodle Creeper: ' if cr else '')) + 'poses with problems:', bad)
 
 
 if 'check' in what:
     run_check()
 if 'ogcheck' in what:
     run_check(og=True)
+if 'crcheck' in what:
+    run_check(cr=True)
 
 TITLE = 'The Doodle Ender Dragon'
 if 'views' in what:
@@ -333,3 +342,72 @@ if 'icon' in what:
     slot.paste(im.resize((32, 32), Image.NEAREST), (2, 2), im.resize((32, 32), Image.NEAREST)); sh.paste(slot, (x, 86))
     bg = Image.new('RGB', (90, 90), (40, 40, 50)); big = im.resize((64, 64), Image.NEAREST); bg.paste(big, (13, 13), big); sh.paste(bg, (x + 60, 60))
     sh.save(OUT + '/ender_icon.png')
+
+
+# ---------------------------------------------------------------------------------------------------- the Doodle Creeper
+def creeper_ref(s, at):
+    """a vanilla creeper's size (1.7 tall, 0.6 wide): head 0.5, body 0.75, four feet 0.375 tall"""
+    x, y, z = at
+    s.solid((x - 0.25, 1.2, z - 0.25), (x + 0.25, 1.7, z + 0.25), '#5cbf4a')
+    s.solid((x - 0.25, 0.375, z - 0.125), (x + 0.25, 1.2, z + 0.125), '#4fa83e')
+    for dx in (-0.125, 0.125):
+        for dz in (-0.25, 0.25):
+            s.solid((x + dx - 0.125, 0.0, z + dz - 0.125), (x + dx + 0.125, 0.375, z + dz + 0.125), '#3f8f32')
+    for ex in (-0.15, 0.1):                                              # (its face: two eyes, roughly)
+        s.solid((x + ex - 0.01, 1.45, z - 0.26), (x + ex + 0.06, 1.52, z - 0.25), '#101010')
+
+
+if 'creeper' in what:
+    CT = 'The Doodle Creeper'
+    tiles = []                                                           # 1. beside the Ender default and Crayon Green
+    for v, l in (('front', 'front'), ((-35, 14), 'three-quarter'), ('back', 'back')):
+        for pz, nm in ((I, 'Doodle Ender Dragon (default)'), (OG(I), 'Crayon Green (_og)'), (CR(I), 'Doodle Creeper (_cr)')):
+            tiles.append(tile(pz, v, span=2.6, center=(0, 0.95, 0), size=360, label=nm, sub=l))
+    K.sheet(tiles, OUT + '/creeper_vs_ender_og.png', cols=3, title=f'{CT} - beside the Doodle Ender Dragon and Crayon Green (front, 3/4, back)')
+    tiles = []                                                           # 2. every face
+    for f in (None,) + A.FACES:
+        pose = {k: v for k, v in dict(CR(I), _face=f).items() if v is not None}
+        s = K.multi_scene(root); rigkit.render(s, A, pose, scale=A.RIG_SCALE)
+        tiles.append(K.label(s.render('front', size=300, span=0.72, center=(0, 1.12, 0)), f or 'default', 'creeper face'))
+    K.sheet(tiles, OUT + '/creeper_faces.png', cols=5, title=f'{CT} - every face (the head card: drawn in black crayon, in the look\'s colours)')
+    tiles = []                                                           # 3. his attacks
+    ATT = [('breathe_up', CR(A.POSES['breathe_up']), (-30, 12), 'the hiss (wind-up, _fire kindle)'), ('breathe', CR(A.POSES['breathe']), (-40, 14), 'spark breath (_fire fire)'),
+           ('breathe', CR(A.POSES['breathe']), (-80, 8), 'spark breath, side'), ('swipe', CR(A.POSES['swipe']), 'front', 'the pop (Claw: _slash)'),
+           ('stomp', CR(A.POSES['stomp']), (-25, 10), 'stomp dust (_boom)'), ('idle_c', CR(A.POSES['idle_c']), (-30, 12), 'hiccup (_fire puff)'),
+           ('swell_0', A.CR_POSES['swell_0'], (-30, 12), 'swell: crouch, cheeks puffed'), ('swell_1', A.CR_POSES['swell_1'], (-30, 12), 'swell: puffed up, WHITE FLASH (_crw)'),
+           ('kaboom', A.CR_POSES['kaboom'], 'front', 'KABOOM (_fire kaboom)'), ('kaboom', A.CR_POSES['kaboom'], (-35, 12), 'KABOOM, 3/4'),
+           ('reform', A.CR_POSES['reform'], (-30, 12), 'scribbled back together')]
+    for n, pz, v, l in ATT:
+        sp = 4.0 if n in ('breathe', 'kaboom') else 2.8
+        cz = 0.6 if n == 'breathe' and v != 'front' else 0
+        tiles.append(tile(pz, v, span=sp, center=(0, 1.0, cz), size=380, label=n, sub=l))
+    K.sheet(tiles, OUT + '/creeper_attacks.png', cols=4, title=f'{CT} - his attacks: hiss, spark breath, pop, stomp, the swell and its white flash, KABOOM')
+    sw = []                                                              # 3b. the swell sequence, side by side, big
+    for n, pz in (('idle_a', CR(I)), ('swell_0', A.CR_POSES['swell_0']), ('swell_1', A.CR_POSES['swell_1']), ('kaboom', A.CR_POSES['kaboom']), ('reform', A.CR_POSES['reform'])):
+        sw.append(tile(pz, (-20, 10), span=3.6, center=(0, 1.1, 0), size=420, label=n))
+    K.sheet(sw, OUT + '/creeper_swell.png', cols=5, title=f'{CT} - the swell: idle, crouch, puff up and flash white, KABOOM, scribble back together')
+    tiles = [tile(CR(A.POSES[n]), label=n, sub=(A.POSES[n].get('_face') or ''), size=300) for n in A.CR_DRAFT]   # 4. the shared poses in him
+    K.sheet(tiles, OUT + '/creeper_poses.png', cols=7, title=f'{CT} - the shared rig\'s poses, as the creeper')
+    rk = K.pack(KA, SCRATCH + '/rp_kt')                                  # 5. the lineup
+    s = K.multi_scene(root, rk)
+    rigkit.render(s, A, OG(I), at=(-2.6, 0, 0.2), scale=A.RIG_SCALE)
+    rigkit.render(s, A, I, at=(-1.3, 0, 0.1), scale=A.RIG_SCALE)
+    rigkit.render(s, A, CR(I), at=(0.0, 0, 0), scale=A.RIG_SCALE)
+    creeper_ref(s, (1.05, 0, 0.1))
+    rigkit.render(s, KA, KA.POSES['idle_a'], at=(2.1, 0, 0.2), scale=KA.RIG_SCALE)
+    K.person(s, (3.2, 0, 0.3))
+    K.sheet([K.label(s.render((-12, 8), size=900, span=6.0, center=(0.3, 1.1, 0)), 'size',
+                     'Crayon Green, the Doodle Ender Dragon, the Doodle Creeper, a vanilla creeper (1.7 tall, solid boxes), Kettle, a player')],
+            OUT + '/creeper_lineup.png', cols=1, title=f'{CT} - lineup')
+    import phase99 as P99, gild                                          # 6. the wardrobe's looks (+ shiny), as phase138 makes them
+    base = A.textures(); tiles = []
+    for k, (name, pal) in [(0, ('his own', None))] + list(P99.NEW['dragon'][3].items()):
+        r = root
+        if pal is not None:
+            r = K.pack(A, f'{SCRATCH}/rp_dd_crlook')
+            if gild.is_gilded('dragon', k): ims = {n: gild.dress('dragon', k, base[n]) for n in A.LOOK_CR}
+            else: ims = P99._recolour({n: base[n] for n in A.LOOK_CR}, pal)
+            for n, im in ims.items(): im.save(f'{r}/assets/bm/textures/block/{n}.png')
+        s = K.multi_scene(r); rigkit.render(s, A, CR(I), scale=A.RIG_SCALE)
+        tiles.append(K.label(s.render((-30, 10), size=260, span=2.3, center=(0, 0.95, 0)), name, f'look {k}' + (' (shiny)' if k == 7 else '') if k else 'Doodle Creeper'))
+    K.sheet(tiles, OUT + '/creeper_looks.png', cols=8, title=f"{CT} - in every look (phase138: his '_cp' textures recoloured as a set of their own)")
