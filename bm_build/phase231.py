@@ -17,7 +17,17 @@ CONJURE (every 4 s, a foe within 14): one of its Buddies pops out of a sparkle a
 PRISM (a foe within 3, every 1.5 s): a flash of colour off its facets (5).
 INSPIRATION (out of a fight beside you, every minute): Haste and Luck for you - and a sparkle of creativity.
 MASTERPIECE (charged, every minute and a half; three or more foes within 10): three Buddies at once.
-THE CREATIVE FORMS: any Buddy - and five more besides - beside it takes on a creative form: a pair each (see CREATIVE)."""
+THE CREATIVE FORMS: any Buddy - and five more besides - beside it takes on a creative form: a pair each (see CREATIVE).
+(3.0a) ITS OWN FORMS - right-click it holding the ETHEREAL GEM (the stone it was cut from) or the WRAITHFIRE HEART: it KEEPS it (one at
+  a time - hand it the other and the first comes back to you), as Cecil, KillerWatt and Apophiss keep theirs, and takes on that form:
+  ETHEREAL    a taller, sharper cut, a crown of crystal points, DIAMOND WINGS (ruby, topaz, emerald, sapphire, amethyst), its halo
+              over its crown; its PRISM hits harder (7) and flashes every colour.
+  WRAITHFIRE  smoky dark glass veined with soul-blue, a crown and wings of wraith fire; its PRISM sets foes alight, and its
+              INSPIRATION keeps fire off you.
+  The two gems resonate as it takes one (beams of colour, a chord, its facets flash, its wings unfold). The form is yours (bm.cgel on
+  you: 10 / 11 - what it holds; bm.cgfo: shown or not) and comes back with it every time. Its menu: ITS FORM: ON / OFF, and TAKE IT
+  BACK - as does sneak + right-click empty-handed. Its faces are its emoticons still, every one. (_forms; the art: gem_art FORMS.)
+  The held-item dispatch on its click (who) is GIVE below; phase235 adds the Eraser's paper to the same spot (hand_to)."""
 import math
 from items import item, T, TOTEM, ITEMS
 from useitem import hold, HOLD
@@ -89,9 +99,14 @@ class C(RP.Cfg):
               ('Prism', 'a foe within 3, every 1.5 s: a flash off its facets (5)'),
               ('Inspiration', 'out of a fight beside you, every minute: Haste and Luck for you'),
               ('Masterpiece', 'charged, every 90 s: three or more foes within 10 - three Buddies at once'),
-              ('Creative Forms', 'any Buddy beside it (and Emma, Queen Ava, Democratus, KillerWatt, Queen Pearl) takes on a creative form')]
+              ('Creative Forms', 'any Buddy beside it (and Emma, Queen Ava, Democratus, KillerWatt, Queen Pearl) takes on a creative form'),
+              ('Ethereal & Wraithfire Forms', 'right-click it holding the Ethereal Gem - or a Wraithfire Heart: it keeps it, and takes that form. '
+               'Ethereal: diamond wings, and its Prism hits harder (7). Wraithfire: wings of soul fire - its Prism sets foes alight, its '
+               'Inspiration keeps fire off you. On or off, or take it back: here in its menu (or sneak + right-click it empty-handed)')]
     INTRO = [T('The Gem of Creativity', CG_C, bold=True), T(' - it made every Buddy there is. ', 'gray'), T('It can\'t talk; it shows you how it feels :)', 'white')]
-    BUTTONS = ()
+    # (3.0a: its forms - shown only while it holds the Ethereal Gem or a Wraithfire Heart; _forms words them for the one it holds)
+    BUTTONS = ((3, 'Its form: on / off', 'Wear the form - or be its own self.', 'p231/eth/toggle'),
+               (6, 'Take it back', 'It gives back what you gave it - and is its own self again.', 'p231/eth/take'))
     BURST = ['particle minecraft:end_rod ~ ~1 ~ 0.4 0.4 0.4 0.03 12', 'particle minecraft:dust{color:[0.4,1.0,0.7],scale:1.2} ~ ~1 ~ 0.4 0.4 0.4 0 10']
     FADE_SOUND = 'playsound minecraft:block.amethyst_block.chime neutral @a[distance=..20] ~ ~ ~ 1 1.4'
     SUMMON_EXTRA = ['playsound minecraft:block.amethyst_cluster.place neutral @a[distance=..24] ~ ~ ~ 1 1.2']
@@ -105,6 +120,7 @@ RP.register(C)
 item('creativity_gem', TOTEM, 'The Gem of Creativity', CG_C,
      ['An emerald-cut gem, and all the colours there are swirling inside it.', 'Every Buddy began here.',
       ('Use: call the Gem (again: call it over).', 'blue'), ('Sneak + use: its menu.', 'blue'), ('It conjures its Buddies to fight beside you.', 'blue'),
+      ('Hand it the Ethereal Gem or a Wraithfire Heart: a new form.', 'light_purple'),
       ('If it dims: 2 minutes before it can return.', 'gray'), ('(it says: :) )', 'dark_gray')],
      model='bm:creativity_gem', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
 item('doll_gem', TOTEM, 'Gem of Creativity Doll', CG_C, ['A little plush gem - it still swirls, somehow.', ('Right-click a block: set it down.', 'blue'),
@@ -116,6 +132,28 @@ P141.DOLLS.append(('doll_gem', 'The Gem of Creativity', CG_C, 'A little plush ge
 P141.DOLL_FROM['doll_gem'] = ('creativity_gem', {'kh': 1.3, 'kb': 0.9, 'kl': 0.8, 'groups': {'bm:cg_body': 'head'}, 'height': 7.0})   # (a gem: no legs to shorten, so it stood as tall as the set - a little smaller, like a plush)
 P134.FIT['creativity_gem'] = (0.0, 1.2, -0.4, 0.4, -0.4, 0.4)
 POSES = A.POSES
+
+# (3.0a) its forms' wings are a speck at rest: the figurine (and the doll baked from it) is its own form - the gem, its face, its halo
+_figs = P134.figures
+
+
+def _figures():
+    F2 = _figs()
+    n, parts = F2['creativity_gem']
+    F2['creativity_gem'] = (n, [e for e in parts if not any(f'bm:cg_{w}' == e[0] for w in A.WINGS)])
+    return F2
+
+
+P134.figures = _figures
+# (3.0a) the looks on the Ethereal Form: its swirl is the plain gem's (recoloured already); its shards and crystal points are recoloured
+# on the swirl's range (phase138 SIDE), so a Ruby look makes ruby wings. The Wraithfire Form keeps its own colours.
+import phase138 as P138
+P138.RECOL['gem'] = (P138.RECOL['gem'][0], tuple(P138.RECOL['gem'][1]) + tuple(k for k in A.LOOK_SIDE if k not in P138.RECOL['gem'][1]))
+P138.SIDE |= set(A.LOOK_SIDE)
+# (each gem says what it does for the Gem - at import, before any trade or loot table is built from it)
+for _iid, _line in (('ethereal_gem', 'The Gem of Creativity: its Ethereal Form.'), ('wraithfire_heart', 'The Gem of Creativity: its Wraithfire Form.')):
+    if _iid in ITEMS:
+        ITEMS[_iid]['comps']['minecraft:lore'].insert(-1, T(_line, CG_C))
 
 # ---- the trio that brings it: Mr. Capshun, Kettle and Emma - THE CREATIVE SPARK
 import phase100 as P100
@@ -148,6 +186,14 @@ def rp(R):
             R.HATS[name] = (tex, els)
     R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + tuple(f'gz_{n}_' for n in GB.RIGS)
     R.POST.append(lambda R2: A.write_mcmeta(R2))
+
+    def faces(R2):                                       # (3.0a: each form's head - every emoticon, as its own form's head picks them)
+        mdl = lambda n: {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
+        for sfx in A.FORMS:
+            R2.wj(f'assets/bm/items/cg_head{sfx}.json', {'model': {'type': 'minecraft:select', 'property': 'minecraft:custom_model_data', 'index': 0,
+                                                                      'cases': [{'when': e, 'model': mdl(f'cg_head_x{C.FACE[e]}{sfx}' if C.FACE[e] else f'cg_head{sfx}')}
+                                                                                for e in C.EXPR], 'fallback': mdl(f'cg_head{sfx}')}})
+    R.POST.insert(0, faces)                              # (before phase138 copies the item definitions for the looks)
 
 
 def textures():
@@ -332,6 +378,8 @@ def generate(G):
 
     # ================================================================== (3.0a) THE HALO: always circling (gem_art.HALO_TURN)
     _spin(G)
+    # ================================================================== (3.0a) ITS FORMS: the Ethereal Gem, the Wraithfire Heart
+    _forms(G, X)
 
 
 SPIN_N = 24                                     # (the halo's spin: SPIN_N steps a turn, each its own interpolated ticks)

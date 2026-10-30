@@ -77,7 +77,7 @@ class Lightbringer(RP.Cfg):
               ('Pray', 'out of a fight beside you, every minute: a meal\'s worth, and Regeneration'),
               ('Light in the Dark', 'by night, underground or beyond the Overworld the herald shines - every feather of light'),
               ('Holy Favour', 'she loves it when you wear holy things (anything a Golden Cross has made holy): beside her, you heal; her smite strikes harder (+4); her blessing and her prayer are stronger'),
-              ('Ethereal and Wraithfire', 'right-click her with an Ethereal Gem or a Wraithfire Heart: she keeps it, and takes its form - ETHEREAL (translucent starlight, a ring of stars for a halo; her smite +3) or WRAITHFIRE (cold soul fire, a halo of flame; what she smites burns, and beside her fire can\'t touch you). Element (her menu) switches between her own light and the forms she has; she gives the gem and the heart back there too')]
+              ('Ethereal and Wraithfire', 'right-click her with an Ethereal Gem or a Wraithfire Heart: she keeps it, and takes its form - ETHEREAL (translucent starlight, a ring of stars for a halo; her smite +3) or WRAITHFIRE (cold soul fire, a halo of flame; what she smites burns, and beside her, fire can\'t touch you). Element (her menu) switches between her own light and the forms she has; she gives the gem and the heart back there too')]
     INTRO = [T('The Lightbringer', HOLY, bold=True), T(' - a herald of the Divine One, the light against the Dread. ', 'gray'),
              T('She loves it when you wear holy things.', 'white')]
     # (3.0a: the elemental forms - Element (MENU+6) switches her own light / Ethereal / Wraithfire, the forms she holds the gem or the
@@ -492,6 +492,118 @@ def generate(G):
     print('3.0a: the Lightbringer\'s elemental forms - %d dress lines (Ethereal / Wraithfire, on her or on him)' % elements(G))
     # ---- (3.0) SHE OR HE: every line of the Lightbringer's own that says she / her gets a twin for him, picked by the form
     print('3.0: the Lightbringer, he - %d lines given his words' % gender_split(G))
+
+
+# ====================================================================== (3.0a) the Lightbringer's elemental forms
+# (the owner: "an ETHEREAL form and a WRAITHFIRE form - like Emma's and Cecil's"). As Cecil and Emma are given theirs: RIGHT-CLICK
+# HER (your own herald, out with you) holding an ETHEREAL GEM or a WRAITHFIRE HEART - one is taken from your hand (not in
+# creative), she KEEPS it (bm.lheg / bm.lhwh on you: 1) and takes its form at once (bm.lhel: 0 her own light, 1 Ethereal, 2
+# Wraithfire). She can hold both. Handed one she already holds: nothing is taken - she just takes that form. Her menu's ELEMENT
+# (MENU+6) steps her own light -> Ethereal -> Wraithfire -> her own light, past a form she has nothing for; GIVE BACK THE GEM &
+# HEART (MENU+7) hands back whatever she holds (never lost - as Emma's heart) and she's her own light again. (Not sneak +
+# right-click empty-handed, as Cecil's: on her that sits her down.)
+# THE LOOK: lightbringer_art's element twins - a second suffix after the gender's (_e / _w; lb_<part>[_m]<el>), put on by her
+# dress function after rigpet's FORM lines and before the wardrobe's '_c<k>' (which rides on whatever she wears): every pose,
+# face, the Ophanim (it only shrinks and restores the same parts), the night glow and every look work in all six combinations;
+# kept on you, so recalled, fainted, logged out - she comes back in it. (rigpet's FORM has one axis; the element is the second,
+# composed here - rigpet is unchanged.)
+# WHAT IT DOES: ETHEREAL - her smite (and the Ophanim's light) strikes 3 harder, a prismatic flash; WRAITHFIRE - what she smites
+# burns (soul fire), and beside her (16) fire can't touch you. Both: a soft trail of their light about her.
+EL = {1: ('ethereal_gem', 'Ethereal Gem', 'ETHEREAL FORM', '#e8d8ff', LA.ETHEREAL, 'bm.lheg'),
+      2: ('wraithfire_heart', 'Wraithfire Heart', 'WRAITHFIRE FORM', '#5ae0ff', LA.WRAITH, 'bm.lhwh')}
+EL_SAY = {0: '"As I was - the plain light of dawn."', 1: '"Starlight, all the way through. Do you see how it shines?"',
+          2: '"Cold fire, gentle as a candle. It burns only what is hollow."'}
+for _iid, _line in (('ethereal_gem', "The Lightbringer: the herald's Ethereal Form."), ('wraithfire_heart', "The Lightbringer: the herald's Wraithfire Form.")):
+    if _iid in ITEMS:                                # (at import, before any trade or loot table is built from it - as phase127 does)
+        ITEMS[_iid]['comps']['minecraft:lore'].insert(-1, T(_line, HOLY))
+
+
+def elements(G):
+    """(after RP.build) her elemental forms: the dress lines, the click, the menu's Element / Give back, what they do. -> dress lines"""
+    fn, title, tellraw = G.fn, G.title, G.tellraw
+    C = Lightbringer
+    objs = ['bm.lhel', 'bm.lheg', 'bm.lhwh']
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
+    G.OBJECTIVES += objs
+    csay = lambda txt: title('@s', 'actionbar', [T('The Lightbringer: ', HOLY, bold=True), T(txt, '#fff4d0')])
+    holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
+    psel = lambda p: f'@e[type=minecraft:item_display,tag=bm.{C.ab}sel,tag=bm.{C.ab}p_{p}]'
+    sel_pet = f'execute as @e[type=minecraft:wolf,tag=bm.{C.ab}pet] if score @s bm.pid = #me bm.pid'
+    # ---- the look: after rigpet's FORM lines (#fm: 0 she, 1 he), the element's twin of every part (#lel from her owner)
+    d = G.FUNCS[f'{C.pfx}/dress']
+    assert any(l.startswith('execute as @a if score @s bm.pid = #me bm.pid run scoreboard players operation #fm bm.rng') for l in d), d[:2]
+    k = d.index('scoreboard players set #wk bm.rng 0')
+    d[k:k] = ['scoreboard players set #lel bm.rng 0', 'execute as @a if score @s bm.pid = #me bm.pid run scoreboard players operation #lel bm.rng = @s bm.lhel'] + \
+             [f'execute if score #lel bm.rng matches {n} if score #fm bm.rng matches {fm} run function bm:p236l/el/dress_{n}{g}' for n in EL for fm, g in ((0, ''), (1, LA.MALE))]
+    n_lines = 0
+    for n, (_i, _nm, _f, _c, sfx, _o) in EL.items():
+        for g in ('', LA.MALE):
+            fn(f'p236l/el/dress_{n}{g}', [f'execute as {psel(p)} run data modify entity @s item.components."minecraft:item_model" set value "bm:{LA.PREFIX}{p}{g}{sfx}"' for p in LA.PARTS])
+            n_lines += len(LA.PARTS)
+    # ---- (as her owner) she takes the form: her word, her parts redressed - wherever she is
+    for n in (0, 1, 2):
+        fn(f'p236l/el/to{n}', [f'scoreboard players set @s bm.lhel {n}', csay(EL_SAY[n]), 'scoreboard players operation #me bm.pid = @s bm.pid',
+                               f'{sel_pet} at @s run function bm:p236l/el/redress'])
+    fn('p236l/el/redress', ['scoreboard players operation #me bm.pid = @s bm.pid',
+                            f'execute as @e[type=minecraft:item_display,tag=bm.{C.ab}p_pet,tag=!bm.{C.ab}fade] if score @s bm.pid = #me bm.pid run tag @s add bm.{C.ab}sel',
+                            f'function bm:{C.pfx}/dress', f'tag @e[tag=bm.{C.ab}sel] remove bm.{C.ab}sel', 'function bm:p236l/el/q',
+                            'execute if score #lhx bm.rng matches 0 run particle minecraft:end_rod ~ ~1 ~ 0.4 0.8 0.4 0.05 24',
+                            'execute if score #lhx bm.rng matches 1 run function bm:p236l/el/fx1', 'execute if score #lhx bm.rng matches 2 run function bm:p236l/el/fx2',
+                            'playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..16] ~ ~ ~ 1 1.4'])
+    fn('p236l/el/fx1', ['particle minecraft:end_rod ~ ~1.2 ~ 0.5 0.9 0.5 0.08 40', 'particle minecraft:dust{color:[0.92,0.85,1.0],scale:1.6} ~ ~1.2 ~ 0.5 0.9 0.5 0 30',
+                        'particle minecraft:flash{color:[1.0,0.95,1.0,1.0]} ~ ~1.2 ~ 0 0 0 0 1', 'playsound minecraft:block.beacon.power_select neutral @a[distance=..16] ~ ~ ~ 0.8 1.6'])
+    fn('p236l/el/fx2', ['particle minecraft:soul_fire_flame ~ ~1.2 ~ 0.4 0.8 0.4 0.06 50', 'particle minecraft:soul ~ ~1.4 ~ 0.3 0.6 0.3 0.03 12',
+                        'particle minecraft:flash{color:[0.43,0.94,1.0,1.0]} ~ ~1.2 ~ 0 0 0 0 1', 'playsound minecraft:particle.soul_escape neutral @a[distance=..16] ~ ~ ~ 2 1.2'])
+    # (as her host) #lhx: her owner's element
+    fn('p236l/el/q', ['scoreboard players set #lhx bm.rng 0', 'execute on owner run scoreboard players operation #lhx bm.rng = @s bm.lhel'])
+    # ---- RIGHT-CLICK HER holding the gem or the heart (her click box's who - as you, after "not yours"; before the sit)
+    who = G.FUNCS[f'{C.pfx}/who']
+    k = next(i for i, l in enumerate(who) if 'bm.pid = #me bm.pid run return run' in l)
+    who[k + 1:k + 1] = [f'execute if items entity @s weapon.mainhand {holds(it)} run return run function bm:p236l/el/give{n}' for n, (it, *_r) in EL.items()]
+    for n, (it, nm, form, col, _sfx, obj) in EL.items():
+        fn(f'p236l/el/give{n}', [f'execute if score @s {obj} matches 1 if score @s bm.lhel matches {n} run return run ' + csay('"I hold it already - and I wear it. Keep yours."'),
+                                 f'execute if score @s {obj} matches 1 run return run function bm:p236l/el/to{n}',
+                                 f'scoreboard players set @s {obj} 1',
+                                 f'execute unless entity @s[gamemode=creative] run item modify entity @s weapon.mainhand {{function:"minecraft:set_count",count:-1,add:true}}',
+                                 tellraw('@s', G.PREFIX + [T(f'The Lightbringer keeps the {nm}. ', col, bold=True), T(form, 'white', bold=True),
+                                                           T(" - she can take it whenever you like: Element in her menu (sneak + use the feather) switches her form; "
+                                                             'she gives it back there too.', 'gray')]),
+                                 f'function bm:p236l/el/to{n}'])
+    # ---- her menu: ELEMENT (her own light -> Ethereal -> Wraithfire, past a form she holds nothing for) and GIVE BACK
+    show = [f'{sel_pet} run tag @s add bm.{C.ab}sel2', f'function bm:{C.pfx}/menu', f'tag @e[tag=bm.{C.ab}sel2] remove bm.{C.ab}sel2']
+    fn('p236l/el/cycle', ['execute unless score @s bm.lhel matches 0..2 run scoreboard players set @s bm.lhel 0',
+                          'scoreboard players operation #me bm.pid = @s bm.pid',
+                          'execute unless score @s bm.lheg matches 1 unless score @s bm.lhwh matches 1 run return run function bm:p236l/el/none',
+                          'scoreboard players operation #n bm.rng = @s bm.lhel', 'scoreboard players add #n bm.rng 1',
+                          'execute if score #n bm.rng matches 1 unless score @s bm.lheg matches 1 run scoreboard players set #n bm.rng 2',
+                          'execute if score #n bm.rng matches 2 unless score @s bm.lhwh matches 1 run scoreboard players set #n bm.rng 3',
+                          'execute if score #n bm.rng matches 3.. run scoreboard players set #n bm.rng 0',
+                          'execute if score #n bm.rng matches 0 run function bm:p236l/el/to0', 'execute if score #n bm.rng matches 1 run function bm:p236l/el/to1',
+                          'execute if score #n bm.rng matches 2 run function bm:p236l/el/to2'] + show)
+    fn('p236l/el/none', [csay('"Bring me an Ethereal Gem, or a Wraithfire Heart - put it in my hand, and I will wear its light."')] + show)
+    fn('p236l/el/take', ['scoreboard players operation #me bm.pid = @s bm.pid',
+                         'execute unless score @s bm.lheg matches 1 unless score @s bm.lhwh matches 1 run return run function bm:p236l/el/none',
+                         'execute if score @s bm.lheg matches 1 run loot give @s loot bm:items/ethereal_gem',
+                         'execute if score @s bm.lhwh matches 1 run loot give @s loot bm:items/wraithfire_heart',
+                         'scoreboard players set @s bm.lheg 0', 'scoreboard players set @s bm.lhwh 0', 'scoreboard players set @s bm.lhel 0',
+                         'playsound minecraft:entity.item.pickup player @s ~ ~ ~ 0.8 0.9', f'{sel_pet} at @s run function bm:p236l/el/redress',
+                         csay('"Here - keep them safe. Their light was only lent to me."')] + show)
+    # ---- what the forms do: Ethereal - her smite (and the Ophanim's light) +3; Wraithfire - what she smites burns, and beside her
+    #      fire can't touch you
+    for name in [f'{C.pfx}/ranged', f'{C.pfx}/crowd', f'{C.pfx}/crowd2', f'{C.pfx}/crowd3']:
+        L = G.FUNCS[name]
+        k = next(i for i, l in enumerate(L) if l.startswith('scoreboard players set #pd bm.rng')) + 1
+        L[k:k] = ['function bm:p236l/el/q', 'execute if score #lhx bm.rng matches 1 run scoreboard players add #pd bm.rng 3']
+    G.FUNCS[f'{C.pfx}/smitten'] += ['execute if score #lhx bm.rng matches 1 run particle minecraft:end_rod ~ ~1.2 ~ 0.3 0.5 0.3 0.12 12',
+                                    'execute if score #lhx bm.rng matches 2 run function bm:p236l/el/sear']
+    fn('p236l/el/sear', ['data modify entity @s Fire set value 100s', 'particle minecraft:soul_fire_flame ~ ~0.8 ~ 0.3 0.5 0.3 0.03 16'])
+    G.FUNCS['p236l/sec'][0:0] = ['function bm:p236l/el/aura']
+    fn('p236l/el/aura', ['function bm:p236l/el/q', 'execute if score #lhx bm.rng matches 0 run return 0',
+                         'execute if score #lhx bm.rng matches 1 run particle minecraft:end_rod ~ ~1.3 ~ 0.35 0.6 0.35 0.01 2',
+                         'execute if score #lhx bm.rng matches 1 run particle minecraft:dust{color:[0.92,0.85,1.0],scale:0.7} ~ ~1.3 ~ 0.4 0.6 0.4 0 2',
+                         'execute if score #lhx bm.rng matches 2 run particle minecraft:soul_fire_flame ~ ~1.3 ~ 0.3 0.6 0.3 0.01 2',
+                         'execute if score #lhx bm.rng matches 2 on owner if entity @s[distance=..16] run effect give @s minecraft:fire_resistance 3 0 true'])
+    return n_lines
 
 
 # ====================================================================== (3.0) the Lightbringer's words, for him
