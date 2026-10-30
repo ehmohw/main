@@ -402,7 +402,7 @@ def late(G):
     for k, how in ((LOOK, 'feed your Mireling a Brood Ichor (hard mode: a Brood-Mire leaves them).'),
                    (SHINY_LOOK, 'own the Brood look and the Mireling\'s shiny both.')):
         L_ = G.FUNCS[f'p99/pick/mireling{k}']
-        i = next(n for n, l in enumerate(L_) if 'is locked - Goldtooth sells it' in l)
+        i = next(n for n, l in enumerate(L_) if 'is locked - ' in l and 'return run ' in l)        # (phase103 rewrote who sells it; neither sells these)
         L_[i] = L_[i][:L_[i].index('return run ') + len('return run ')] + title('@s', 'actionbar', T(f'{P99.NEW["mireling"][3][k][0]} is locked - {how}', '#8ad024'))
     G.FUNCS['p99/menu/mireling'].insert(0, f'function bm:{PFX}/ml/shiny')
 
