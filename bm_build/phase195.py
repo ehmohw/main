@@ -267,7 +267,7 @@ def generate(G):
     pet = 'bm.bvpet'
 
     # ---- the ground he'll dig, and the scents he follows
-    wjson('bm/tags/block/bv_dig.json', {'values': ['#minecraft:dirt', '#minecraft:sand', 'minecraft:gravel', 'minecraft:snow_block', 'minecraft:snow',
+    wjson('bm/tags/block/bv_dig.json', {'values': ['#minecraft:dirt', '#minecraft:grass_blocks', '#minecraft:sand', 'minecraft:gravel', 'minecraft:snow_block', 'minecraft:snow',
                                                    'minecraft:clay', 'minecraft:soul_sand', 'minecraft:soul_soil', 'minecraft:farmland', 'minecraft:dirt_path',
                                                    'minecraft:suspicious_sand', 'minecraft:suspicious_gravel']})
     wjson('bm/tags/worldgen/structure/bv_scent.json', {'values': ['minecraft:buried_treasure', 'bm:ruins_overworld', 'minecraft:trail_ruins']})

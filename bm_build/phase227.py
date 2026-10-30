@@ -292,7 +292,7 @@ def generate(G):
                              'scoreboard players set #lim bm.rng 1', 'scoreboard players operation #me bm.pid = @s bm.pid',
                              'execute as @e[type=minecraft:wolf,tag=bm.mzpet,distance=..16] if score @s bm.pid = #me bm.pid run scoreboard players set #lim bm.rng 3',
                              'execute if score #r bm.rng > #lim bm.rng run return 0',
-                             'execute unless block ~ ~-1 ~ #minecraft:dirt run return 0',
+                             'execute unless block ~ ~-1 ~ #minecraft:dirt unless block ~ ~-1 ~ #minecraft:grass_blocks run return 0',   # (3.0e: in 26.x grass isn't in #dirt - on grass, he never came)
                              'execute if entity @e[type=minecraft:interaction,tag=bm.ktenc,distance=..64] run return 0',
                              'execute positioned ^ ^ ^6 run function bm:p227/enc/place', 'execute unless entity @e[type=minecraft:interaction,tag=bm.ktenc,distance=..12] positioned ^ ^ ^4 run function bm:p227/enc/place',
                              'execute unless entity @e[type=minecraft:interaction,tag=bm.ktenc,distance=..12] positioned ^2 ^ ^5 run function bm:p227/enc/place', 'execute unless entity @e[type=minecraft:interaction,tag=bm.ktenc,distance=..12] positioned ^-2 ^ ^5 run function bm:p227/enc/place'])
