@@ -294,9 +294,15 @@ def generate(G):
                              'execute if score #r bm.rng > #lim bm.rng run return 0',
                              'execute unless block ~ ~-1 ~ #minecraft:dirt run return 0',
                              'execute if entity @e[type=minecraft:interaction,tag=bm.ktenc,distance=..64] run return 0',
-                             'execute positioned ^ ^ ^6 run function bm:p227/enc/place'])
-        fn('p227/enc/place', ['execute if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass if block ~ ~2 ~ #bm:grap_pass run return run function bm:p227/enc/step',
-                              'execute positioned ~ ~1 ~ if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass if block ~ ~2 ~ #bm:grap_pass run function bm:p227/enc/step'])
+                             'execute positioned ^ ^ ^6 run function bm:p227/enc/place', 'execute unless entity @e[type=minecraft:interaction,tag=bm.ktenc,distance=..12] positioned ^ ^ ^4 run function bm:p227/enc/place',
+                             'execute unless entity @e[type=minecraft:interaction,tag=bm.ktenc,distance=..12] positioned ^2 ^ ^5 run function bm:p227/enc/place', 'execute unless entity @e[type=minecraft:interaction,tag=bm.ktenc,distance=..12] positioned ^-2 ^ ^5 run function bm:p227/enc/place'])
+        # (3.0e: flowers - sunflowers above all, in a sunflower plain - count as open ground too: only grass did, so he hardly ever
+        #  found room; and if the spot ahead is taken, three more are tried)
+        G.wjson('bm/tags/block/p227/open.json', {'values': ['#bm:grap_pass', '#minecraft:small_flowers', 'minecraft:sunflower', 'minecraft:lilac',
+                                                             'minecraft:rose_bush', 'minecraft:peony', 'minecraft:pink_petals']})
+        fn('p227/enc/place', ['execute if entity @e[type=minecraft:interaction,tag=bm.ktenc,distance=..12] run return 0',
+                              'execute if block ~ ~ ~ #bm:p227/open if block ~ ~1 ~ #bm:p227/open if block ~ ~2 ~ #bm:p227/open run return run function bm:p227/enc/step',
+                              'execute positioned ~ ~1 ~ if block ~ ~ ~ #bm:p227/open if block ~ ~1 ~ #bm:p227/open if block ~ ~2 ~ #bm:p227/open run function bm:p227/enc/step'])
         fn('p227/enc/step', ['function bm:p227/enc/spawn', 'particle minecraft:happy_villager ~ ~1 ~ 0.6 0.8 0.6 0 12',
                              'playsound minecraft:entity.slime.jump neutral @a[distance=..24] ~ ~ ~ 1 1.6',
                              X.tellraw('@a[tag=!bm.ktmet,distance=..16]', [T('A stick figure comes skipping across the grass, bouncing a red ball off his head. ', KT_LINE, italic=True),

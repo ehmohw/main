@@ -77,6 +77,7 @@ class CFG:
     DMG, TOUGH = 'bm:bmire', 8
     CHASE, SPEED, LEASH, ROAM, LEASHED = 24, 0.22, 10, 32, ('bm.bxroam', 'bm.wm')
     SPIT, LIVE = {'reach': SPIT_REACH}, ('2..5', '8')
+    FIGHT_EXTRA = [f'execute if score #g bm.rng matches 10 run function bm:{PFX}/pose/idle_c']          # (between its sways, a writhe)
     snd = staticmethod(snd)
     # (the Overworld outside an invasion, and the Nether, are never its: one found there melts; a tame one is its owner's)
     SEC_EXTRA = [f'execute unless entity @s[tag=bm.bxtame] if dimension minecraft:the_nether run return run function bm:{PFX}/melt',
@@ -131,7 +132,8 @@ for _k in (LOOK, SHINY_LOOK):
     _P138.HANDMADE.add(('mireling', _k))             # (phase138 makes no recoloured copies of them: xmireling_art draws them)
     _SH.UNSOLD.add(f'cos_mireling_{_k}')         # (never sold - found: a Brood Ichor fed to it)
     item(f'cos_mireling_{_k}', TOTEM, f'The Mireling\'s Veins: {_ml[_k][0]}', '#8ad024', [f'{_ml[_k][0]} - for the Mireling alone.',
-         ('Found, never sold: feed your Mireling a Brood Ichor.', 'gray')], model='minecraft:purple_dye', stack=1, cat='cosmetic', glint=True)
+         ('Found, never sold: feed your Mireling a Brood Ichor.', 'gray')], model='minecraft:purple_dye', stack=1, cat='cosmetic', glint=True, comps=hold('none'))
+    HOLD[f'cos_mireling_{_k}'] = f'bm:p99/use/mireling{_k}'
 
 
 # ---------------------------------------------------------------------------------------------------- generate
@@ -323,11 +325,12 @@ def generate(G):
     fn(f'{P}/ichor/use', [f'execute if predicate bm:p20/sneaking run return run function bm:{P}/ichor/pod',
                           'execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
                           'scoreboard players set #q bm.rng 0', f'execute if score @s bm.wumireling matches 0.. run function bm:{P}/ml/has8',
-                          f'execute if score #q bm.rng matches 0 as @e[type=minecraft:wolf,tag=bm.mlpet,distance=..6] if score @s bm.pid = #me bm.pid run return run function bm:{P}/ml/feed0',
+                          'scoreboard players set #mlnear bm.rng 0',
+                          'execute as @e[type=minecraft:wolf,tag=bm.mlpet,distance=..6] if score @s bm.pid = #me bm.pid run scoreboard players set #mlnear bm.rng 1',
+                          f'execute if score #q bm.rng matches 0 if score #mlnear bm.rng matches 1 run return run function bm:{P}/ml/feed',
                           f'function bm:{P}/ichor/scent'])
     fn(f'{P}/ml/has8', ['scoreboard players operation #q bm.rng = @s bm.wumireling', f'scoreboard players set #bit bm.rng {2 ** LOOK}',
                         'scoreboard players operation #q bm.rng /= #bit bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng'])
-    fn(f'{P}/ml/feed0', [f'execute as @a[limit=1,sort=nearest,distance=..8] if score @s bm.pid = #me bm.pid run function bm:{P}/ml/feed', 'return 1'])
     fn(f'{P}/ml/feed', ['clear @s *[minecraft:custom_data~{bm:"brood_ichor"}] 1', f'function bm:p99/unlock/mireling{LOOK}', f'function bm:{P}/ml/shiny',
                         f'scoreboard players set @s {P99.COS["mireling"]} {LOOK}', 'function bm:p99/mireling_now',
                         'playsound minecraft:entity.generic.drink player @a[distance=..16] ~ ~ ~ 1 0.6', 'playsound minecraft:block.beacon.power_select player @a[distance=..16] ~ ~ ~ 0.6 1.8',
