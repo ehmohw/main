@@ -563,7 +563,7 @@ def _smoke(f, kind):
     v = np.clip(vein * k_v + vein2 * k_v * 0.55, 0, 1)[..., None]
     if kind == 'table':                         # (a ghost flame at its heart, rising)
         r = np.sqrt((X * 1.6) ** 2 + ((Y + 0.25) * 1.0) ** 2)
-        flame = np.clip(1.0 - r * (1.35 + 0.25 * np.sin(6 * Y - 2 * t)), 0, 1)[..., None] * 0.7
+        flame = np.clip(1.0 - r * (1.35 + 0.25 * np.sin(6 * Y - 2 * t)), 0, 1)[..., None] * 0.45
         v = np.clip(v + flame, 0, 1)
     c = c * (1 - v) + SOUL_RGB[None, None] * v
     c = np.where(v > 0.85, c * 0.4 + 255 * 0.6, c)
@@ -610,7 +610,7 @@ def form_textures():
     T['cg_wf_flame'] = strip
     T['cg_w_glint'] = _mote()
     for key, txt in EMOTES:
-        T[f'cg_emw_{key}'] = emote_texture(txt, ink=(226, 255, 255, 255), edge=(14, 116, 148, 255))
+        T[f'cg_emw_{key}'] = emote_texture(txt, ink=(240, 255, 255, 255), edge=(6, 34, 52, 255))
     return T
 
 

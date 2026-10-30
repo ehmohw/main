@@ -114,12 +114,12 @@ def lineup(view, text, sub=None, night=False, size=640, pose=I, frame=0):
     for x, sfx in ((-1.9, ''), (0.75, '_e'), (2.85, '_w')):
         gem(s, pose, sfx, at=(x, 0, 0))
     K.person(s, (-0.6, 0, 0.0))
-    return label(s.render(view, size=size, span=6.4, center=(0.45, 1.05, 0)), text, sub, night)
+    return label(s.render(view, size=size, span=7.0, center=(0.55, 1.1, 0)), text, sub, night)
 
 
 if 'both' in what:
     K.sheet([lineup('front', 'front', 'its own form - a player - Ethereal - Wraithfire'), lineup((-35, 12), 'three-quarter'), lineup('back', 'back (the wings at its back)'),
-             lineup((-90, 8), 'side')],
+             lineup((-62, 8), 'from its left, low')],
             OUT + '/gem_forms_both.png', cols=2, title='The Gem of Creativity - its own form, the Ethereal Form, the Wraithfire Form (beside a player)')
     for sfx in ('_e', '_w'):
         K.sheet([tile(I, sfx, v, text=t, size=380, frame=(i * 7) % A.FRAMES) for i, (v, t) in enumerate(
