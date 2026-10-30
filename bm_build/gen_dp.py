@@ -216,6 +216,7 @@ import phase248 as R248      # 2.99a: the Backpack (the Fence) - a plain 27-slot
 import phase250 as R250      # 2.99a: [market music hook] the Black Market's own swing, for key-holders inside a market
 import phase249 as R249      # 2.99a: the Rex mounts - the Atomic and Mecha Rex (hidden, rideable) and the Partner Wheel's Mounts page
 import phase251 as R251      # 2.99a: [lockout hook] no way into the Undercrown or the Armada but their own, no trial skipped
+import phase256 as R256      # 3.0b: the Pixel Creeper - a little 8-bit creeper from the Arcade that hops along beside you (not a follower)
 import phase255 as R255      # 3.0a: [no-spawn hook] nothing spawns in the Undercrown or the Armada but their own foes (and the Undercrown's Mires)
 import phase253 as R253      # 3.0: the Loom Sanctuary - the Compass of Bonds (every follower met) and the sky island where the Keeper waits
 import phase254 as R254      # 3.0: [keeper hook] the Keeper of Bonds - the 51st follower, the last (registers after every follower before it)
@@ -1451,6 +1452,7 @@ def build(out_dir):
     if PHASE2: R254.generate(sys.modules[__name__])      # 3.0: [keeper hook] the Keeper of Bonds (its meeting needs phase253's island: its box, its markers)
     if PHASE2: R215.generate(sys.modules[__name__])
     if PHASE2: R216.generate(sys.modules[__name__])
+    if PHASE2: R256.generate(sys.modules[__name__])      # 3.0b: the Pixel Creeper (its stock's in R216's, from import)
     if PHASE2: R199.generate(sys.modules[__name__])
     if PHASE2: R200.generate(sys.modules[__name__])
     if PHASE2: R201.generate(sys.modules[__name__])

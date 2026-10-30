@@ -905,6 +905,8 @@ if __name__ == '__main__':
     phase213.rp(sys.modules[__name__]); phase214.rp(sys.modules[__name__]); phase215.rp(sys.modules[__name__])
     import phase216                           # (2.94d: the Arcade)
     phase216.rp(sys.modules[__name__])
+    import phase256                           # (3.0b: the Pixel Creeper - its frames, the framed hopper, the icon)
+    phase256.rp(sys.modules[__name__])
     import hero_armor_art                     # (v299a: the Hero of Time set - Link's clothes, the 3D cap)
     hero_armor_art.rp(sys.modules[__name__])
     import phase199                           # (2.91: the Underwater Kingdom)
