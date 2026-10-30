@@ -59,14 +59,20 @@ def item_particle(model, at='~ ~0.6 ~', d='0.3 0.2 0.3', v=0.08, n=8):
 
 
 # ---------------------------------------------------------------------------------------------------- the followers
+class _CrArt(RF2._Faceless):
+    """(3.0b) the dragon's art, his Doodle Creeper's own poses beside the shared ones (DA.CR_POSES as 'cr_<name>': the swell, the
+    KABOOM, scribbling himself back together) - they keep their '_cr' (a creeper's parts hidden, his fire part's creeper models)"""
+    POSES = dict(DA.POSES, **{f'cr_{k}': v for k, v in DA.CR_POSES.items()})
+
+
 class Dragon(RP.Cfg):
     W, NAME, COL, LINE, pfx, ab, q = 'dragon', 'The Doodle Dragon', '#5ac048', '#d4f4c8', 'p235d', 'dd', 'dz'
-    A = RF2.art(DA)
+    A = _CrArt(DA)
     MENU, PET_HP, PET_CD, ITEM = 4600, 34, 120, 'doodle_drawing'
     pron, they = 'him', 'he'
-    EXPR = ('happy', 'surprised', 'hurt', 'sleepy', 'blink', 'squint', 'serious', 'roar', 'puff')
+    EXPR = ('happy', 'surprised', 'hurt', 'sleepy', 'blink', 'squint', 'serious', 'roar', 'puff', 'dizzy')    # (3.0b: dizzy - after his KABOOM)
     FACE = {'happy': 'happy', 'surprised': 'surprised', 'hurt': 'sad', 'sleepy': 'blink', 'blink': 'blink', 'squint': 'happy', 'serious': 'fierce',
-            'roar': 'roar', 'puff': 'puff'}
+            'roar': 'roar', 'puff': 'puff', 'dizzy': 'dizzy'}
     ATTRS = dict(armor=4, attack_damage=5, movement_speed=0.38, follow_range=32, step_height=1.1)
     SCALE, HIT = 0.8, (0.9, 1.4)
     SWAP = RF2.swapping(DA)
@@ -75,8 +81,11 @@ class Dragon(RP.Cfg):
                   (None, [(0, 'happy'), (8, 'flap_0'), (12, 'flap_1'), (16, 'flap_0'), (20, 'happy')]),
                   {7: (None, [(0, 'swipe_up'), (3, 'swipe')]), 8: (None, [(0, 'breathe_up'), (6, 'breathe'), (16, 'idle_a')]),
                    11: (None, [(0, 'stomp_up'), (5, 'stomp')]), 12: (None, [(0, 'breathe_up'), (8, 'breathe'), (26, 'happy')]),
-                   14: (None, [(0, 'idle_c'), (20, 'happy')])})
-    DUR = dict(_DUR, swipe_up=3, swipe=2, breathe_up=5, breathe=3, stomp_up=4, stomp=2, flap_0=3, flap_1=3)
+                   14: (None, [(0, 'idle_c'), (20, 'happy')]),
+                   # (3.0b) the Doodle Creeper's KABOOM: the swell (a crouch, then puffed up and flashing), the boom, scribbled back together
+                   24: (None, [(0, 'cr_swell_0'), (10, 'cr_swell_1'), (28, 'cr_kaboom'), (36, 'cr_reform')])})
+    DUR = dict(_DUR, swipe_up=3, swipe=2, breathe_up=5, breathe=3, stomp_up=4, stomp=2, flap_0=3, flap_1=3,
+               cr_swell_0=6, cr_swell_1=5, cr_kaboom=2, cr_reform=8)
     QUIPS = ['"RAWR! ...Did that sound scary? Kettle says it sounds scary."', '"Crayon fire is the BEST fire."', '(he hiccups a little puff of smoke)',
              '"I\'m a REAL dragon now. Real-ish."', '"Kettle drew my teeth extra pointy. On purpose."', '(he flaps his little wings very proudly)']
     HELLO = ('(the Doodle Dragon scrambles back to you, tail swinging)', '(a page flutters - and the Doodle Dragon climbs out of it) "RAWR! Hi!"',
@@ -280,6 +289,46 @@ for _C in DOODLES:
     RP.register(_C)
     RF2.setup(_C, FACE_PART[_C.W])
 
+# ---- (3.0b) THE DOODLE CREEPER: the dragon's second costume (doodle_dragon_art's CR_SFX '_cr' twins - a plain crayon creeper:
+# body, boxy head and its faces, four stubby feet; arms, wings and tail an empty model). Unlocked by handing him gunpowder once
+# (right-click him holding it: one is taken, and he scribbles himself into a creeper); after that a row of his wardrobe, next to
+# Crayon Green, turns it on and off - one or the other, never both (CR_SC on the owner: 1 on; Crayon Green's bm.ddog cleared, and
+# turning Crayon Green on clears it). rigpet's FORM has one axis, so this is the second, as phase236's elements: p235d/dress puts
+# the creeper's models on after the form's lines and before the wardrobe's '_c<k>' (which rides on top), and tags the host
+# CR_TAG while he wears it - his moves look for that. In this form his moves are the creeper's (CR_POWERS; his ways show them).
+CR_SC, CR_UNLOCK, CR_TAG, CR_CODE, CR_COL = 'bm.ddcr', 'bm.ddcru', 'bm.ddcrf', 4637, '#58b844'
+CR_POWERS = [('Pop', 'a foe within 2.4, every second: a hiss and a scribbled POP! - 6, and it\'s blown well back'),
+             ('Spark Breath', 'a foe 2.5-8 off, every 4 s: a cone of gunpowder sparks - a beat later every monster in it pops: 7 each, knocked back (no fire)'),
+             ('Fizz Stomp', 'two or more foes within 3.5, every 12 s: a fizzing stomp - 5, and slowed'),
+             ('KABOOM', 'charged, every minute: he hisses, swells up and flashes white - then goes off: 10 to every monster within 4, blown away '
+                        '(never a block broken, never you or a friend). Then he scribbles himself back together'),
+             ('A Little Spark', 'out of a fight beside you, every minute: Absorption and Regeneration for you - a little spark left over')]
+
+
+def _cr_row():
+    import phase99 as P99
+    P99.ROWS.setdefault('dragon', []).append(
+        (CR_CODE, 'cr', 'Doodle Creeper', CR_COL,
+         'The Doodle Creeper - Kettle\'s crayon creeper: hand him gunpowder once to unlock it. His moves go creeper too (pop, sparks, KABOOM). '
+         'On or off here (Crayon Green comes off).',
+         [(None, 'locked', 'dark_gray'), (f'entity @s[tag={CR_UNLOCK}]', 'off', 'gray'), (f'score @s {CR_SC} matches 1', 'on', P99.GOLD)], 'p235d/crf'))
+
+
+_cr_row()
+_dd_extra0 = Dragon.POSE_EXTRA
+
+
+def _dd_extra(name, psel):
+    """every pose of his: in the creeper's form (CR_TAG), his fire part wears the creeper's version of what the pose shows"""
+    pz = dict(Dragon.A.POSES[name], _cr=True)
+    out = []
+    if 'fire' in Dragon.SWAP and not DA.HIDDEN('fire', pz):
+        out.append(f'execute if entity @s[tag={CR_TAG}] as {psel("fire")} run data modify entity @s item.components."minecraft:item_model" set value "bm:{DA.model_name("fire", pz)}"')
+    return out + _dd_extra0(name, psel)
+
+
+Dragon.POSE_EXTRA = staticmethod(_dd_extra)
+
 _ITEMS = {'dragon': ("Kettle's Dragon Drawing", ['A page of crayon: a black Ender Dragon with glowing purple eyes and big bat wings.',
                                                  'Signed in the corner, in big wobbly letters: KETTLE.', 'Now and then it smells of smoke.']),
           'eraser': ("The Eraser's Lucky Crumb", ['A little pink crumb, rubbed off an eraser.', 'It feels sorry for something.']),
@@ -405,6 +454,14 @@ def rp(R):
     for _C in DOODLES:
         RP.rp(_C, R, _icon(_C.W))
         RF2.faces(_C, FACE_PART[_C.W], R)
+
+    def cr_heads(R2):                                  # (3.0b: the Doodle Creeper's head, and his flash's - a face per mood, as phase236's)
+        mdl = lambda n: {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
+        for sfx in (DA.CR_SFX, DA.CR_SFX + 'w'):
+            R2.wj(f'assets/bm/items/dd_head{sfx}.json', {'model': {'type': 'minecraft:select', 'property': 'minecraft:custom_model_data', 'index': 0,
+                                                                   'cases': [{'when': e, 'model': mdl(f'dd_head_x{Dragon.FACE[e]}{sfx}' if Dragon.FACE[e] else f'dd_head{sfx}')}
+                                                                             for e in Dragon.EXPR], 'fallback': mdl(f'dd_head{sfx}')}})
+    R.POST.insert(0, cr_heads)
     R.ICONS['er_crumb_i'] = _crumb()
 
 
@@ -520,7 +577,80 @@ def _dragon(G, X):
     fn(f'{pfx}/kind', ['execute on owner if entity @s[distance=..8] run function bm:p235d/warm_you'])
     fn('p235d/warm_you', ['effect give @s minecraft:fire_resistance 60 0 true', 'effect give @s minecraft:regeneration 10 0 true',
                           item_particle('dd_fx_fire', '~ ~1 ~', '0.4 0.4 0.4', 0.02, 6), 'playsound minecraft:block.fire.ambient player @s ~ ~ ~ 1 1.4'])
+    _creeper(G, X, tgt)
     return lines
+
+
+# ---------------------------------------------------------------------------------------------------- 3.0b: the Doodle Creeper's moves
+def _creeper(G, X, tgt):
+    """his moves in the creeper's form (the host tagged CR_TAG): each of his own looks for the tag first and goes the creeper's way.
+    Monsters only (X.foe), never a block broken: no real explosion - crayon puffs, sparks and a bang."""
+    fn, pfx, foe, face, S = G.fn, X.pfx, X.foe, X.face, X.S
+    me = f'@e[type=minecraft:wolf,tag={X.me},limit=1]'
+    cr = f'execute if entity @s[tag={CR_TAG}] run return run function bm:{pfx}/cr/'
+    smoke = lambda at='~ ~0.8 ~', d='0.3 0.3 0.3', n=6: [item_particle('dd_fx_smoke', at, d, 0.03, n),
+                                                          f'particle minecraft:dust{{color:[0.72,0.8,0.62],scale:1.4}} {at} {d} 0 {n}']
+    sparks = lambda at='~ ~0.8 ~', d='0.3 0.3 0.3', n=6: [f'particle minecraft:electric_spark {at} {d} 0.2 {n}',
+                                                           f'particle minecraft:dust{{color:[1.0,0.93,0.45],scale:0.8}} {at} {d} 0 {n}']
+    # knocked away from him (as the Speech Bubble's): as far as the ground lets it - d blocks, or less
+    for d in (3, 2):
+        fn(f'{pfx}/cr/knock{d}', [f'execute facing entity {me} feet positioned ^ ^0.3 ^-{k} if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run return run tp @s ~ ~ ~'
+                                  for k in ((3, 2, 1.2) if d == 3 else (2, 1.2))])
+    # POP (his Claw): a hiss, and a scribbled pop on the nearest monster - 6, blown well back
+    G.FUNCS[f'{pfx}/melee'].insert(0, cr + 'pop')
+    fn(f'{pfx}/cr/pop', X.hit(6) + [f'execute as @e[{foe},distance=..2.8,sort=nearest,limit=1] at @s run function bm:{pfx}/cr/popped',
+                                    'playsound minecraft:entity.creeper.hurt neutral @a[distance=..16] ~ ~ ~ 0.5 1.8'] + X.end)
+    fn(f'{pfx}/cr/popped', [f'function bm:{pfx}/hurt', f'function bm:{pfx}/cr/knock3', 'particle minecraft:explosion ~ ~0.9 ~ 0 0 0 0 1'] +
+       smoke('~ ~0.9 ~', '0.3 0.3 0.3', 6) + sparks('~ ~1 ~', '0.3 0.3 0.3', 6) +
+       ['playsound minecraft:entity.generic.explode neutral @a[distance=..16] ~ ~ ~ 0.35 1.9'])
+    # SPARK BREATH (his Crayon Fire): a cone of gunpowder sparks at the nearest monster - everything in it is marked, and pops a beat
+    # (10 ticks) later: 7 each, knocked back. No fire.
+    G.FUNCS[f'{pfx}/ranged'].insert(0, cr + 'spark')
+    G.FUNCS[f'{pfx}/ranged_tick'].insert(0, cr + 'spark_fx')
+    cone = lambda d: smoke(f'^ ^ ^{d}', f'{0.12 * d:.2f} {0.1 * d:.2f} {0.12 * d:.2f}', 1 + d // 2) + sparks(f'^ ^ ^{d}', f'{0.12 * d:.2f} {0.1 * d:.2f} {0.12 * d:.2f}', 1 + d // 2)
+    fn(f'{pfx}/cr/spark_fx', ['execute if entity ' + tgt + f' facing entity {tgt} eyes positioned ^ ^1.1 ^0.6 run function bm:{pfx}/cr/spark_cone',
+                              f'execute unless entity {tgt} rotated as @s rotated ~ 10 positioned ^ ^1.1 ^0.6 run function bm:{pfx}/cr/spark_cone'])
+    fn(f'{pfx}/cr/spark_cone', [l for d in (1, 2, 3, 4, 5, 6) for l in cone(d)] + ['playsound minecraft:block.fire.extinguish neutral @a[distance=..12] ~ ~ ~ 0.2 2'])
+    fn(f'{pfx}/cr/spark', ['tag @e[tag=bm.ddspk,distance=..24] remove bm.ddspk', f'execute if entity {tgt} facing entity {tgt} feet run function bm:{pfx}/cr/spark_tag',
+                           'playsound minecraft:entity.creeper.primed neutral @a[distance=..16] ~ ~ ~ 0.5 1.6'])
+    fn(f'{pfx}/cr/spark_tag', [f'execute positioned ^ ^ ^{k} as @e[{foe},tag=!bm.ddspk,distance=..{1.4 + 0.25 * k:.2f}] at @s run function bm:{pfx}/cr/marked' for k in range(1, 9, 2)])
+    fn(f'{pfx}/cr/marked', ['tag @s add bm.ddspk'] + sparks('~ ~1 ~', '0.25 0.4 0.25', 4))
+    fn(f'{pfx}/cr/spark_pop', X.hit(7) + [f'execute as @e[tag=bm.ddspk,distance=..16] at @s run function bm:{pfx}/cr/sparked'] + X.end)
+    fn(f'{pfx}/cr/sparked', ['tag @s remove bm.ddspk', f'function bm:{pfx}/hurt', f'function bm:{pfx}/cr/knock2', 'particle minecraft:explosion ~ ~0.9 ~ 0 0 0 0 1'] +
+       smoke('~ ~0.9 ~', '0.3 0.3 0.3', 4) + ['playsound minecraft:entity.generic.explode neutral @a[distance=..16] ~ ~ ~ 0.3 2'])
+    # FIZZ STOMP (his Stomp): the same stomp - 5, slowed - fizzing grey-green dust and sparks
+    G.FUNCS[f'{pfx}/crowd'].insert(0, cr + 'fizz')
+    fn(f'{pfx}/cr/fizz', X.hit(5) + [f'execute as @e[{foe},distance=..3.5] at @s run function bm:{pfx}/stomped'] + smoke('~ ~0.2 ~', '1.0 0.1 1.0', 12) +
+       sparks('~ ~0.3 ~', '1.0 0.2 1.0', 10) + ['playsound minecraft:entity.creeper.hurt neutral @a[distance=..16] ~ ~ ~ 0.5 1.2',
+                                                 'playsound minecraft:entity.generic.explode neutral @a[distance=..16] ~ ~ ~ 0.3 1.8'] + X.end)
+    # A LITTLE SPARK (his Warm): Absorption and Regeneration for you
+    G.FUNCS[f'{pfx}/kind'].insert(0, f'execute if entity @s[tag={CR_TAG}] run return run execute on owner if entity @s[distance=..8] run function bm:{pfx}/cr/spark_you')
+    fn(f'{pfx}/cr/spark_you', ['effect give @s minecraft:absorption 60 1 true', 'effect give @s minecraft:regeneration 10 0 true'] + sparks('~ ~1 ~', '0.4 0.5 0.4', 8) +
+       ['playsound minecraft:entity.creeper.primed player @s ~ ~ ~ 0.4 2', X.csay('"Ssss... here - a little spark left over for you!"')])
+    # KABOOM (his Big Blaze, charged): state 24 (Dragon.CYCLE) - he hisses and crouches, swells (the whole rig a sixth bigger: the
+    # cr_swell_1 / cr_kaboom poses, written in generate) and flickers white (his '_crw' models), goes off - 10 to every monster within
+    # 4, blown away - and scribbles himself back together, dizzy. x counts down from 48: flash at 38 32 26 21, back at 35 29 24
+    G.FUNCS[f'{pfx}/charged_go'].insert(0, cr + 'charged_go')
+    fn(f'{pfx}/cr/charged_go', X.go(24, 48, 'gc', 1200, face('puff', 28) + ['playsound minecraft:entity.creeper.primed neutral @a[distance=..24] ~ ~ ~ 1 1.1']))
+    on = f'execute if score @s {S("a")} matches 24 if entity @s[tag={CR_TAG}] if score @s {S("x")} matches'
+    G.FUNCS[f'{pfx}/act_tick'] += ([f'{on} {x} run function bm:{pfx}/cr/flash_on' for x in (38, 32, 26, 21)] +
+                                   [f'{on} {x} run function bm:{pfx}/cr/flash_off' for x in (35, 29, 24)] +
+                                   [f'{on} 20 run function bm:{pfx}/cr/kaboom', f'{on} 12 run function bm:{pfx}/cr/reform',
+                                    f'execute if score @s {S("a")} matches 8 if entity @s[tag={CR_TAG}] if score @s {S("x")} matches 2 run function bm:{pfx}/cr/spark_pop'])
+    wk = ['scoreboard players set #wk bm.rng 0', 'execute on owner run scoreboard players operation #wk bm.rng = @s bm.cosdd']
+    psel = lambda p: f'@e[type=minecraft:item_display,tag=bm.ddsel,tag=bm.ddp_{p}]'      # (his parts, tagged for his tick: rigpet's own comes later)
+    for nm, sfx in (('flash_on', DA.CR_SFX + 'w'), ('flash_off', DA.CR_SFX)):
+        fn(f'{pfx}/cr/{nm}', [f'execute as {psel(p)} run data modify entity @s item.components."minecraft:item_model" set value "bm:dd_{p}{sfx}"' for p in DA.CR_PARTS] + wk +
+           [f'execute if score #wk bm.rng matches 1.. as {psel(p)} run function bm:p138/sfx' for p in DA.CR_PARTS] +
+           (['playsound minecraft:entity.creeper.primed neutral @a[distance=..16] ~ ~ ~ 0.3 1.9'] if nm == 'flash_on' else []))
+    fn(f'{pfx}/cr/kaboom', X.hit(10) + face('roar', 8) + [f'execute as @e[{foe},distance=..4] at @s run function bm:{pfx}/cr/blown',
+                                                          'particle minecraft:explosion ~ ~1 ~ 1.2 0.6 1.2 0 6', 'particle minecraft:flash{color:[1.0,1.0,1.0,1.0]} ~ ~1 ~ 0 0 0 0 1'] +
+       smoke('~ ~1 ~', '1.4 0.9 1.4', 30) + sparks('~ ~1 ~', '1.6 1.0 1.6', 24) +
+       ['playsound minecraft:entity.generic.explode neutral @a[distance=..32] ~ ~ ~ 1 1.15', 'playsound minecraft:item.book.page_turn neutral @a[distance=..16] ~ ~ ~ 1 0.6'] + X.end)
+    fn(f'{pfx}/cr/blown', [f'function bm:{pfx}/hurt', f'function bm:{pfx}/cr/knock3'] + smoke('~ ~0.9 ~', '0.3 0.3 0.3', 3))
+    fn(f'{pfx}/cr/reform', [f'function bm:{pfx}/cr/flash_off'] + face('dizzy', 16) + smoke('~ ~0.8 ~', '0.4 0.5 0.4', 10) +
+       ['playsound minecraft:item.book.page_turn neutral @a[distance=..16] ~ ~ ~ 1 1.3',
+        'execute on owner if entity @s[distance=..20,tag=!bm.hush] run ' + X.csay('(he scribbles himself back together, a little dizzy) "...did I win?"')])
 
 
 def _eraser(G, X):
@@ -1124,6 +1254,7 @@ def generate(G):
     ENC = {'dragon': e_dragon, 'eraser': e_eraser, 'cursor': e_cursor, 'inkblot': e_ink, 'speech': e_speech}
     for _C in DOODLES:
         RP.build(_C, G, (lambda w: lambda G, X: _ABIL[w](G, X))(_C.W), ENC[_C.W])
+    _creeper_form(G)
     # (the Cursor: a cartridge used with the Gem beside you - before "use it beside one of your followers" looks for a costume)
     U = G.FUNCS['p214/use']
     k = next(i for i, l in enumerate(U) if 'run function bm:p214/on/' in l)
@@ -1138,3 +1269,98 @@ def generate(G):
                           'clear @s *[minecraft:custom_data~{bm:"glitch_cart"}] 1', 'execute positioned ^ ^ ^2 run function bm:p235c/enc/glitch',
                           tellraw('@s', [T('The cartridge glitches - and the Gem of Creativity\'s light catches the screen\'s own pointer as it slips out into the air: ', '#9affb0', italic=True),
                                          T('a little white hand-arrow, blinking at you.', 'white', italic=True)])])
+
+
+# ---------------------------------------------------------------------------------------------------- 3.0b: the Doodle Creeper, worn
+def _creeper_form(G):
+    """(after RP.build) the second form on the dragon's rig: CR_SC on his owner, the gunpowder that unlocks it, the wardrobe row that
+    turns it on and off (Crayon Green off with it), his dress, his ways - and his KABOOM's swollen poses"""
+    import phase28 as P28
+    fn, title, tellraw = G.fn, G.title, G.tellraw
+    C, pfx, ab = Dragon, Dragon.pfx, Dragon.ab
+    say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
+    csay = lambda txt: title('@s', 'actionbar', [T(f'{C.NAME}: ', C.COL, bold=True), T(txt, C.LINE)])
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {CR_SC} dummy']
+    G.OBJECTIVES.append(CR_SC)
+    pet, sel, sel2 = f'bm.{ab}pet', f'bm.{ab}sel', f'bm.{ab}sel2'
+    psel = lambda p: f'@e[type=minecraft:item_display,tag={sel},tag=bm.{ab}p_{p}]'
+    mine = f'@e[type=minecraft:wolf,tag={pet}]'
+    # ---- his dress: after the form's (Crayon Green's) lines, before the wardrobe's look - the creeper's models, the host tagged
+    D_ = G.FUNCS[f'{pfx}/dress']
+    k = D_.index('scoreboard players set #wk bm.rng 0')
+    D_[k:k] = ['scoreboard players set #ddcr bm.rng 0', f'execute as @a if score @s bm.pid = #me bm.pid run scoreboard players operation #ddcr bm.rng = @s {CR_SC}',
+               f'execute as {mine} if score @s bm.pid = #me bm.pid run tag @s remove {CR_TAG}',
+               f'execute if score #ddcr bm.rng matches 1 as {mine} if score @s bm.pid = #me bm.pid run tag @s add {CR_TAG}',
+               f'execute if score #ddcr bm.rng matches 1 run function bm:{pfx}/cr/dress', f'execute unless score #ddcr bm.rng matches 1 run function bm:{pfx}/cr/undress']
+    setm = lambda p, m: f'execute as {psel(p)} run data modify entity @s item.components."minecraft:item_model" set value "bm:{m}"'
+    fn(f'{pfx}/cr/dress', [setm(p, f'dd_{p}{DA.CR_SFX}') for p in DA.OG_PARTS] + [setm(p, f'dd_{p}{DA.CR_SFX}') for p in ('slash', 'boom')] +
+       [setm('fire', f'dd_fire_fire{DA.CR_SFX}')])
+    fn(f'{pfx}/cr/undress', [setm(p, f'dd_{p}') for p in ('slash', 'boom')] + [setm('fire', 'dd_fire_fire')])
+    # ---- one or the other: Crayon Green turned on takes the creeper off (rigpet's form toggle)
+    F_ = G.FUNCS[f'{pfx}/form']
+    k = next(i for i, l in enumerate(F_) if l == 'scoreboard players operation #me bm.pid = @s bm.pid')
+    F_.insert(k, f'execute if score @s bm.ddog matches 1 run scoreboard players set @s {CR_SC} 0')
+    # ---- THE UNLOCK: hand him gunpowder (right-click him holding it) - one is taken, and he scribbles himself into a creeper
+    W_ = G.FUNCS[f'{pfx}/who']
+    k = next(i for i, l in enumerate(W_) if 'bm.pid = #me bm.pid run return run' in l)          # (after "not yours")
+    W_.insert(k + 1, f'execute if items entity @s weapon.mainhand minecraft:gunpowder run return run function bm:{pfx}/cr/hand')
+    fn(f'{pfx}/cr/hand', [f'execute if entity @s[tag={CR_UNLOCK}] run return run ' +
+                          csay('(sniffs the gunpowder, hisses happily) "Ssss! I know that one!" (It\'s in his wardrobe: Doodle Creeper.)'),
+                          'item modify entity @s weapon.mainhand {function:"minecraft:set_count",count:-1,add:true}',
+                          f'tag @s add {CR_UNLOCK}', f'scoreboard players set @s {CR_SC} 1', 'scoreboard players set @s bm.ddog 0',
+                          f'execute as @e[type=minecraft:wolf,tag=bm.{ab}clk,limit=1] at @s run function bm:{pfx}/cr/born',
+                          tellraw('@s', [T('He sniffs the gunpowder - sneezes a puff of grey-green smoke - and scribbles himself over: green, square, ', '#b8f0a0', italic=True),
+                                         T('four stubby feet and a frowny little face. A CREEPER. ', '#58b844', bold=True, italic=True),
+                                         T('"Ssssss... hehe." ', C.LINE), T('(The Doodle Creeper: on or off in his wardrobe.)', 'gray')])])
+    fn(f'{pfx}/cr/born', [f'function bm:{pfx}/form2', f'function bm:{pfx}/cr/fx'] + FX_FACE('surprised', 30))
+    fn(f'{pfx}/cr/fx', [item_particle('dd_fx_smoke', '~ ~0.8 ~', '0.4 0.5 0.4', 0.04, 14), 'particle minecraft:dust{color:[0.35,0.72,0.27],scale:1.5} ~ ~0.8 ~ 0.4 0.5 0.4 0 16',
+                        'particle minecraft:electric_spark ~ ~1 ~ 0.4 0.5 0.4 0.3 12', 'playsound minecraft:entity.creeper.primed neutral @a[distance=..16] ~ ~ ~ 0.8 1.4',
+                        'playsound minecraft:item.book.page_turn neutral @a[distance=..16] ~ ~ ~ 1 1.2'])
+    # ---- the wardrobe's row (CR_CODE, phase99.ROWS): locked, off, on
+    fn(f'{pfx}/crf', [f'execute unless entity @s[tag={CR_UNLOCK}] run return run function bm:{pfx}/cr/locked',
+                      f'execute unless score @s {CR_SC} matches 0..1 run scoreboard players set @s {CR_SC} 0',
+                      f'execute store success score #f0 bm.rng if score @s {CR_SC} matches 1',
+                      f'execute if score #f0 bm.rng matches 1 run scoreboard players set @s {CR_SC} 0',
+                      f'execute if score #f0 bm.rng matches 0 run scoreboard players set @s {CR_SC} 1',
+                      f'execute if score @s {CR_SC} matches 1 run scoreboard players set @s bm.ddog 0',
+                      f'execute if score @s {CR_SC} matches 1 run ' + csay('(scribbles himself into a crayon creeper) "Sssss!"'),
+                      f'execute if score @s {CR_SC} matches 0 run ' + csay('(scribbles the creeper back out - the Ender Dragon again)'),
+                      'scoreboard players operation #me bm.pid = @s bm.pid',
+                      f'execute as {mine} if score @s bm.pid = #me bm.pid at @s run function bm:{pfx}/cr/now',
+                      f'execute as {mine} if score @s bm.pid = #me bm.pid run tag @s add {sel2}', f'function bm:p99/menu/{C.W}', f'tag @e[tag={sel2}] remove {sel2}'])
+    fn(f'{pfx}/cr/now', [f'function bm:{pfx}/form2', f'function bm:{pfx}/cr/fx'])
+    fn(f'{pfx}/cr/locked', [say('Locked - hand him some gunpowder (right-click him holding it) and see what he draws himself as.', CR_COL),
+                            'scoreboard players operation #me bm.pid = @s bm.pid',
+                            f'execute as {mine} if score @s bm.pid = #me bm.pid run tag @s add {sel2}', f'function bm:p99/menu/{C.W}', f'tag @e[tag={sel2}] remove {sel2}'])
+    # ---- his ways, while he's a creeper: the creeper's
+    M = C.MENU
+    pdlg = P28.multi([T("THE DOODLE CREEPER'S WAYS", CR_COL, bold=True)], [P28.body([T(n, CR_COL, bold=True), T(f' - {d}.', 'gray')], 340) for n, d in CR_POWERS],
+                     [P28.btn([T('« Back', 'gray')], M + 5, width=150)], columns=1, exit_label='Close')
+    G.FUNCS[f'{pfx}/powers'].insert(0, f'execute if score @s {CR_SC} matches 1 run return run function bm:{pfx}/cr/powers')
+    fn(f'{pfx}/cr/powers', [f'scoreboard players set @s bm.menu {M}', f'dialog show @s {snbt(pdlg)}'])
+    # ---- the swell: cr_swell_1 and cr_kaboom with the whole rig a sixth (a fifth) bigger, about his feet - each joint's rest place
+    #      and its turn's shift scaled together (rigfol.pose would scale each part about its own joint, pulling him apart)
+    import rigfol as RFL
+    S0 = DA.RIG_SCALE; U = S0 / 16
+    for name in ('swell_1', 'kaboom'):
+        pz = DA.CR_POSES[name]; kk = pz['_swell']; U2 = U * kk; dur = C.DUR[f'cr_{name}']
+        xf = _RK.solve(DA.PIVOT, DA.PARENT, pz); out = []
+        for p in DA.PARTS:
+            if DA.HIDDEN(p, pz):
+                out.append(f'execute as {psel(p)} run data merge entity @s {{start_interpolation:0,interpolation_duration:2,transformation:{{scale:[0f,0f,0f]}}}}')
+                continue
+            q, t = xf[p]; d = _RK.D(DA.PIVOT[p])
+            tr = [t[i] * U2 + d[i] * (U2 - U) for i in range(3)]
+            sc = round(S0 * kk * DA.PART_K.get(p, 1.0), 4)
+            out.append(f'execute as {psel(p)} run data merge entity @s {{start_interpolation:0,interpolation_duration:{dur},transformation:{{left_rotation:{snbt(RFL.qf(q))},'
+                       f'translation:[{tr[0]:.4f}f,{tr[1]:.4f}f,{tr[2]:.4f}f],scale:[{sc}f,{sc}f,{sc}f]}}}}')
+            if p in C.SWAP:
+                out.append(f'execute as {psel(p)} run data modify entity @s item.components."minecraft:item_model" set value "bm:{DA.model_name(p, pz)}"')
+        n = f'{pfx}/pose/cr_{name}'
+        assert n in G.FUNCS, n
+        G.FUNCS[n] = out + C.POSE_EXTRA(f'cr_{name}', psel)
+
+
+def FX_FACE(e, t):
+    import phase95 as FX
+    return FX.face_cmd(Dragon.W, e, t)

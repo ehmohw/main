@@ -247,6 +247,10 @@ def textures():
                     ims.update(P99._recolour({n: base[n] for n in keys if OWN_SETS.get(n) == g}, pal))
                 side = {n: base[n] for n in keys if n in SIDE}
                 if side: ims.update(P99._recolour(side, pal, rng=P99._lumrange(main)))
+            if k == _SH.KEY.get(w):                         # (3.0b: a set whose shiny is drawn, not recoloured - the Doodle Creeper, charged)
+                mod_ = importlib.import_module(mod)
+                for g, f in getattr(mod_, 'SHINY_SETS', {}).items():
+                    ims.update({n: f(base[n]) for n in keys if OWN_SETS.get(n) == g})
             for name, im in ims.items():
                 out[f'{name}_c{k}'] = im
     # (2.79a: the Golden Prince's skin - his wool, light and dark, in polished gold rather than yellow wool)

@@ -112,6 +112,8 @@ def model_name(p, pose, suffix=''):
     face = f'_x{pose["_face"]}' if p == 'head' and pose.get('_face') else ''
     if cr and p in CR_PARTS:                                            # (_crw: his white flash, swelling up to go boom)
         form = CR_SFX + ('w' if pose.get('_crw') else '')
+    elif cr and p in CR_GONE:                                           # (an empty model: what a creeper hasn't got)
+        form = CR_SFX
     elif cr and p in ('slash', 'boom'):
         form = CR_SFX
     else:
@@ -1246,6 +1248,27 @@ def _p_cr_boom():
     return pic
 
 
+def charged(im):
+    """(3.0b) THE SHINY DOODLE CREEPER - a charged creeper, as a kid draws one: his own green crayon under a crackle of light-blue
+    crayon swirls (the real one's electric shell), scribbled on in waves, his black face showing through"""
+    import numpy as np
+    a = np.asarray(im.convert('RGBA')).astype(np.float32); h, w = a.shape[:2]
+    y, x = np.mgrid[0:h, 0:w].astype(np.float32) / max(h, w)
+    ph = (x + y) * 26.0 + 2.2 * np.sin(y * 17.0) + 1.6 * np.sin(x * 11.0 + 1.3)
+    band = np.sin(ph)                                                   # (diagonal swirling stripes)
+    lum = a[..., :3].mean(axis=2) / 255.0
+    rng = np.random.default_rng(7)
+    core = (band > 0.55) & (rng.random((h, w)) > 0.12)                 # (a waxy stripe: paper flecks through it)
+    edge = (band > 0.3) & ~core
+    k = np.clip((lum - 0.14) / 0.2, 0, 1)[..., None]                   # (his face and outlines stay black under it)
+    blue, deep = np.array([150, 225, 255], np.float32), np.array([60, 140, 230], np.float32)
+    rgb = a[..., :3]
+    rgb = np.where(core[..., None], rgb + (blue - rgb) * 0.78 * k, rgb)
+    rgb = np.where(edge[..., None], rgb + (deep - rgb) * 0.45 * k, rgb)
+    a[..., :3] = rgb
+    return Image.fromarray(a.clip(0, 255).astype(np.uint8), 'RGBA')
+
+
 def _flash(im):
     """the white flash (_cpw): his crayon picture gone most of the way to white, the lines still showing through"""
     import numpy as np
@@ -1355,6 +1378,7 @@ _LOOK = ('dd_body', 'dd_body_b', 'dd_head_b', 'dd_arm', 'dd_leg', 'dd_wing', 'dd
 _LOOK_CR = ('dd_body', 'dd_body_b', 'dd_head_b', 'dd_leg', 'dd_face') + tuple(f'dd_face_{k}' for k in FACES)
 LOOK_CR = tuple(n + CR_TEX for n in _LOOK_CR)      # (the Doodle Creeper's: phase138.OWN_SETS, a set of its own; never his flash)
 LOOK_TEX = _LOOK + tuple(n + OG_TEX for n in _LOOK) + LOOK_CR
+SHINY_SETS = {'dd_cp': charged}                    # (3.0b, phase138: his shiny look, the creeper's set - a charged creeper, not a recolour)
 EYES_LIGHT = 15
 
 
@@ -1406,6 +1430,9 @@ def models():
         box, z = BOX['legr']
         part('dd_legr' + sfx, card(box, z, 'dd_leg' + tx, 'dd_leg' + tx, PIVOT['legr']))
         part('dd_legl' + sfx, card(box, z, 'dd_leg' + tx, 'dd_leg' + tx, PIVOT['legl'], mirror=True))
+    for p in CR_GONE:                                                 # (3.0b: the parts a creeper hasn't got - nothing at all; in the game the
+        M['dd_' + p + CR_SFX] = ({'dd_body_cp': 'bm:block/dd_body_cp'}, [])   #  form puts these on, so no pose's scale brings a wing back;
+                                                                        #  a texture named all the same: its particle)
     # the breath: a flame card standing up along it (seen from the side), the same flame lying flat across it (from above), and a
     # burst of fire at his mouth (from in front)
     # (all of it built full size and shrunk into the model's box - shown at PART_K times the scale)

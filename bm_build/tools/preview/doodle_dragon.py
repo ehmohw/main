@@ -405,9 +405,10 @@ if 'creeper' in what:
         r = root
         if pal is not None:
             r = K.pack(A, f'{SCRATCH}/rp_dd_crlook')
-            if gild.is_gilded('dragon', k): ims = {n: gild.dress('dragon', k, base[n]) for n in A.LOOK_CR}
+            if k == max(P99.NEW['dragon'][3]): ims = {n: A.charged(base[n]) for n in A.LOOK_CR}      # (the shiny: a charged creeper - A.SHINY_SETS)
+            elif gild.is_gilded('dragon', k): ims = {n: gild.dress('dragon', k, base[n]) for n in A.LOOK_CR}
             else: ims = P99._recolour({n: base[n] for n in A.LOOK_CR}, pal)
             for n, im in ims.items(): im.save(f'{r}/assets/bm/textures/block/{n}.png')
         s = K.multi_scene(r); rigkit.render(s, A, CR(I), scale=A.RIG_SCALE)
-        tiles.append(K.label(s.render((-30, 10), size=260, span=2.3, center=(0, 0.95, 0)), name, f'look {k}' + (' (shiny)' if k == 7 else '') if k else 'Doodle Creeper'))
+        tiles.append(K.label(s.render((-30, 10), size=260, span=2.3, center=(0, 0.95, 0)), name, f'look {k}' + (' (shiny: charged)' if k == 7 else '') if k else 'Doodle Creeper'))
     K.sheet(tiles, OUT + '/creeper_looks.png', cols=8, title=f"{CT} - in every look (phase138: his '_cp' textures recoloured as a set of their own)")

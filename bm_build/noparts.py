@@ -6,10 +6,11 @@ THE ITEM   right-click it (it's never used up - useitem's hold, as the Backpack)
            without the menu. The choice is a tag on the player, so it holds through death, relogs and new versions.
 THE TAGS   one per kind of gear (CATS): bm.np_charm, bm.np_armor, bm.np_weap. "Everything" sets all three.
            - charm: carried charms, trinkets and relics (in the pack or the off hand): the charm auras, the off-hand
-             trinkets, laurels, talismans, the Ethereal Gem's motes, the Gravitic Core and Squad Jetpack trails
+             trinkets, laurels, talismans, the Ethereal Gem's motes
            - armor: armour set effects and every worn piece's own particles: the set orbits, crowns, halos, hats, boots,
              the Regalia's tiers, wings and elytra trails (Wings of the Damned / Holy Wings, the Last Night / First Light,
-             the Dread Carapace, the Rat King's, the dragon's, the Golden Rat's), the movement gear's exhaust
+             the Dread Carapace, the Rat King's, the dragon's, the Golden Rat's) - never movement exhaust (EXHAUST: rocket and
+             spring / triple-jump boots, the Squad Jetpack, the Starforged jet, the Gravitic Core's trail): it always shows
            - weap: a held weapon's idle glow (the boss weapons' bm_res auras, Democratus's scythe, the Horseman's heads,
              Apophiss's mace, Leo's trident in water)
            Only the player's own gear goes quiet: followers, hits on monsters, bosses, dungeons, the world, and the particles
@@ -73,16 +74,21 @@ gear('armor', 'sets/wings_trail', 'p2/sets/conqueror', 'p2/fx/conqueror', 'p34/l
      'p20/dragon_trail', 'p29/rkwings', 'p2/ht/wings', 'p2/ht/wings_holy', 'p2/ht/trail', 'p2/ht/trail_holy',
      'p2/ht/launch', 'p2/ht/launch_holy', 'p2/ht/burn', 'p2/ht/burn_holy', 'p164/w/beat', 'p164/w/beating', 'p164/w/glide_fx',
      'p206/aura_dread', 'p206/aura_holy', 'p206/aura_glide', 'p206/aura_glide_holy',
-     # boots and the movement gear's exhaust
-     'p26/rocket/boost', 'p26/rocket/burn', 'p33/triple/big', 'p33/spring/jumped', 'p33/spring/tick', 'p39/wwalk/hover',
-     'p242/sf/jet')
+     # boots (3.0b, the owner's: movement exhaust always shows - EXHAUST below)
+     'p39/wwalk/hover')
 gear('charm',
      # the charms (phase17/38/43: one picked a beat, in the pack or the off hand) - p17/charm/pick and all it calls, added by apply()
      'p117/aura/notes', 'p117/aura/firefly', 'p117/aura/honey', 'p117/aura/trial', 'p117/aura/gale',
      'p60/eth/carry', 'p71/laurel', 'p105/crown1', 'p105/crown2', 'p105/crown3', 'p105/crown4', 'p105/crown5',
-     'p160/tal/blood', 'p160/tal/lucky', 'p160/tal/inv', 'p37/charm/night', 'p32/gcore/fly', 'p241/relic/jet')
+     'p160/tal/blood', 'p160/tal/lucky', 'p160/tal/inv', 'p37/charm/night')
 gear('weap', 'p42/aura', 'p42/aura_1', 'p42/aura_2', 'p42/aura_3', 'p42/aura_4', 'p131/mace/held', 'p59/leo/tide')
 TREES = {'p17/charm/pick': 'charm'}       # (a function and everything it calls as the same player)
+# (3.0b, the owner's call) MOVEMENT EXHAUST ALWAYS SHOWS - it shows you (and everyone round you) the gear is working, and where
+# you're going: rocket boots, spring and triple-jump boots, the Squad Jetpack, the Starforged jet, the Gravitic Core's flight
+# trail. Never registered above - apply() asserts none is, and leaves their inline root lines alone (EXHAUST_ITEMS).
+EXHAUST = ('p26/rocket/boost', 'p26/rocket/burn', 'p33/triple/big', 'p33/spring/jumped', 'p33/spring/tick', 'p241/relic/jet',
+           'p242/sf/jet', 'p32/gcore/fly')
+EXHAUST_ITEMS = ('rocket_boots', 'rocket_boots_2', 'spring_boots', 'triple_boots', 'gravitic_core')
 
 # root-loop lines that give off a worn / held / carried item's particles inline (phase16's bm_res, phase29's bm_fx cosmetics, ...)
 ROOTS = ('tick', 'loop/fast', 'loop/second', 'loop/second_b')
@@ -122,6 +128,7 @@ def apply(G):
     """the gate (late: after every phase has written its gear, before optimize / prune). Returns (functions, lines, root lines)."""
     F = G.FUNCS
     todo = dict(FNS)
+    assert not set(EXHAUST) & set(todo), f'noparts: movement exhaust must always show: {sorted(set(EXHAUST) & set(todo))}'
     for f in sorted(F):
         if f.startswith('sets/has/'):
             sid = f[len('sets/has/'):]
@@ -146,7 +153,7 @@ def apply(G):
         for i, l in enumerate(L):
             m = INLINE.match(l)
             kind = SLOT_KIND(m.group(2)) if m else next((v for s, v in ROOT_LINES.items() if l.startswith(s)), None)
-            if not kind: continue
+            if not kind or any(f'"{x}"' in l for x in EXHAUST_ITEMS): continue
             L[i] = l.replace('execute as @a[', f'execute as @a[tag=!{TAG[kind]},', 1); nr += 1
     return nf, nl, nr
 
