@@ -71,13 +71,14 @@ item('sov_eye', TOTEM, L.ITEMS['eye'][0], COL, list(L.ITEMS['eye'][1]) + [('Hard
      model='bm:sov_eye', glint=True, stack=1, cat='follower', bold=True)
 # (2.99) ITS WINGS - the Wings of the Damned's powers (p2/hollowtools: unbreakable, wall-proof, the sneak drive, the crouch-and-jump
 # launch), in the Sovereign's own: the Last Night's six black wings full of eyes, and the First Light's - Aurel's, as they were.
-# Both from its fall, every fighter (seraph_wings shows them in 3D on your back).
+# Both from its fall, every fighter (seraph_wings shows them in 3D on your back - 3.0c: when switched on, bm.w3d).
 _WL = ['+6 Armour. Unbreakable. Flying into a wall', 'never hurts you.', 'Hold sneak while gliding: the wings drive you on.',
        'On the ground, crouch a moment, then jump:', 'they throw you skyward - jump again to glide.']
 for _iid, _nm, _col, _first, _x in (('sov_wings', 'Wings of the Last Night', COL, 'The Dread Sovereign\'s own six wings, every eye in them open.', {}),
                                      ('sov_wings_holy', 'Wings of the First Light', L.HOLY, 'Aurel\'s wings, as they were before the dark: white fire and gold.',
                                       {'bm_angel': B(1)})):
-    gear(_iid, 'elytra', _nm, _col, [_first] + [(l, 'blue') for l in _WL] + [('From the Dread Sovereign\'s fall.', 'dark_gray')],
+    gear(_iid, 'elytra', _nm, _col, [_first] + [(l, 'blue') for l in _WL] + [('3D wings, for screenshots: /trigger bm.wings3d', 'dark_gray'),
+                                                                          ('From the Dread Sovereign\'s fall.', 'dark_gray')],
          {'bm:damned_wings': 1}, 3, attrs=[attr('armor', 6, 'chest', ident='minecraft:armor.chestplate'), attr('armor_toughness', 2, 'chest', ident='minecraft:armor.chestplate_toughness')],
          extra={'minecraft:unbreakable': {}, 'minecraft:item_model': f'bm:{_iid}',
                 'minecraft:equippable': {'slot': 'chest', 'asset_id': f'bm:{_iid}', 'equip_sound': 'minecraft:item.armor.equip_elytra', 'damage_on_hurt': False}},

@@ -19,7 +19,8 @@ and cleanup as the Seraph's and the Dread's):
 Their idle BREATHES: a slow 60-tick cycle - the wings ease out and settle, the halo turns and swells (a pose's '_k_<part>'
 scales a display - seraph_wings.xforms).
 Their icons: a 2D sprite in the hand and on the ground; in the inventory and item frames a small 3D model of the spread wings.
-Their elytra 'wings' layers cut back to a mantle (the Seraph's way) - the 3D wings own the silhouette.
+Their elytra 'wings' layers: 3.0c - the whole elytra painted (flat_wings) by default; the mantle (cut back, the Seraph's way)
+only under the 3D wings, for a player who switched them on.
 Design units: 1/16 block, feet at y 0, facing -z, the wearer's right +x (seraph_wings')."""
 import math
 import random
@@ -397,6 +398,10 @@ def rp(R):
                    'cases': [{'when': ['gui', 'fixed'], 'model': {'type': 'minecraft:model', 'model': f'bm:item/{iid}_3d'}}],
                    'fallback': {'type': 'minecraft:model', 'model': f'bm:item/{iid}_sprite'}}
             R2.wj(f'assets/bm/items/{iid}.json', {'model': sel})
-            wings_layer(kind).save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'wings', f'{iid}.png'))
+            # (3.0c - flat_wings: the whole elytra by default; this mantle under the 3D wings when they're switched on)
+            import flat_wings as FW
+            (FW.sov_night if kind == 'night' else FW.sov_light)().save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'wings', f'{iid}.png'))
+            wings_layer(kind).save(R2.p('assets', 'bm', 'textures', 'entity', 'equipment', 'wings', f'{iid}_mantle.png'))
             R2.wj(f'assets/bm/equipment/{iid}.json', {'layers': {'wings': [{'texture': f'bm:{iid}'}]}})
+            R2.wj(f'assets/bm/equipment/{iid}_mantle.json', {'layers': {'wings': [{'texture': f'bm:{iid}_mantle'}]}})
     R.POST.append(post)

@@ -4,6 +4,7 @@ THE ITEM   right-click it (it's never used up - useitem's hold, as the Backpack)
            switches, each showing its state - Charms, Armour, Weapons and Everything. A press flips it (a click, a line on
            the action bar) and the menu comes back showing the new state. Sneak + right-click flips Everything at once,
            without the menu. The choice is a tag on the player, so it holds through death, relogs and new versions.
+           (3.0c) A fifth row, "3D wings (for screenshots)": bm.w3d, OFF by default - see W3D below and seraph_wings.py.
 THE TAGS   one per kind of gear (CATS): bm.np_charm, bm.np_armor, bm.np_weap. "Everything" sets all three.
            - charm: carried charms, trinkets and relics (in the pack or the off hand): the charm auras, the off-hand
              trinkets, laurels, talismans, the Ethereal Gem's motes
@@ -38,7 +39,12 @@ CATS = (('charm', 'Charms', 'carried charms, trinkets, relics and their auras'),
         ('weap', 'Weapons', 'held weapons\' idle glow'))
 TAG = {k: f'bm.np_{k}' for k, _, _ in CATS}
 MENU = 6900                                   # (bm.menu while the toggler's menu is up)
-BTN = {'charm': 6901, 'armor': 6902, 'weap': 6903, 'all': 6904}
+BTN = {'charm': 6901, 'armor': 6902, 'weap': 6903, 'all': 6904, 'w3d': 6905}
+# (3.0c) THE 3D WINGS SWITCH - a row of its own (not a particle kind: "Everything" leaves it be). Worn wings are the flat elytra
+# layer by default; this puts the 3D wings (seraph_wings' runtime) back on the player, for screenshots. ON = the tag. Players
+# without the toggler: /trigger bm.wings3d (a trigger of its own, enabled for everyone - each use flips it).
+W3D = 'bm.w3d'
+W3D_TRIG = 'bm.wings3d'
 
 item(ITEM, TOTEM, 'Particle Toggler', COL,
      ['A brass switch the Fence swears by.', ('Right-click: switch off (or back on) the', 'blue'),
@@ -166,12 +172,14 @@ def generate(G):
     click = 'playsound minecraft:ui.button.click player @s ~ ~ ~ 0.6 1.4'
 
     fn('np/use', ['execute if predicate bm:p20/sneaking run return run function bm:np/flip_all', 'function bm:np/open'])
+    TAGS4 = [TAG[k] for k, _, _ in CATS] + [W3D]               # (bit 3: the 3D wings - ON when tagged)
     fn('np/open', [f'scoreboard players set @s bm.menu {MENU}'] +
-       [f'execute if entity @s[{",".join(("tag=" if (b >> i) & 1 else "tag=!") + TAG[k] for i, (k, _, _) in enumerate(CATS))}] '
-        f'run return run function bm:np/dlg/{b}' for b in range(8)])
+       [f'execute if entity @s[{",".join(("tag=" if (b >> i) & 1 else "tag=!") + TAG4 for i, TAG4 in enumerate(TAGS4))}] '
+        f'run return run function bm:np/dlg/{b}' for b in range(16)])
     state = lambda off: T('OFF', 'red', bold=True) if off else T('ON', 'green', bold=True)
-    for b in range(8):
+    for b in range(16):
         offs = [(b >> i) & 1 for i in range(3)]
+        w3 = (b >> 3) & 1
         btns = [P28.btn([T(f'{nm}: ', 'white'), state(offs[i])], BTN[k],
                         tooltip=T(f'Your {what}. Press to switch them {"back on" if offs[i] else "off"}.', 'gray'))
                 for i, (k, nm, what) in enumerate(CATS)]
@@ -179,6 +187,11 @@ def generate(G):
         btns.append(P28.btn([T('Everything: ', 'white'), allw], BTN['all'],
                             tooltip=T('Every particle your own gear gives off. Press to switch them all ' +
                                       ('back on.' if all(offs) else 'off.'), 'gray')))
+        btns.append(P28.btn([T('3D wings (for screenshots): ', 'white'), state(not w3)], BTN['w3d'],
+                            tooltip=[T('Worn wings in full 3D, on you. ', 'white'),
+                                     T('They look great standing still, but trail behind you when you move fast. ', 'gray'),
+                                     T('Off, your wings are the flat elytra layer - it never lags. ', 'gray'),
+                                     T('Press to switch them ' + ('off.' if w3 else 'on.'), 'gray')], width=304))
         d = P28.multi([T('PARTICLE TOGGLER', COL, bold=True), T('  ·  your gear\'s sparkle', 'gray')],
                       [P28.body([T('Switch off the particles your own gear gives off. ', 'gray'),
                                  T('Followers, fights and the world keep theirs.', 'dark_gray')], 300)],
@@ -190,7 +203,19 @@ def generate(G):
         G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {code} run return run function bm:np/act')
     fn('np/act', [f'execute unless score @s bm.menu matches {MENU} run return run function bm:p28/stale'] +
        [f'execute if score #act bm.pay matches {BTN[k]} run function bm:np/flip_{k}' for k, _, _ in CATS] +
-       [f'execute if score #act bm.pay matches {BTN["all"]} run function bm:np/flip_all', 'function bm:np/open'])
+       [f'execute if score #act bm.pay matches {BTN["all"]} run function bm:np/flip_all',
+        f'execute if score #act bm.pay matches {BTN["w3d"]} run function bm:np/flip_w3d', 'function bm:np/open'])
+    # ---- (3.0c) the 3D wings: the row above, or /trigger bm.wings3d for anyone (no toggler needed)
+    fn('np/flip_w3d', [f'execute if entity @s[tag={W3D}] run return run function bm:np/w3d_off',
+                       f'tag @s add {W3D}', click.replace('1.4', '1.8'),
+                       say([T('3D wings: ', COL, bold=True), T('ON', 'green'), T(' - for screenshots; they trail behind when you move fast', 'gray')])])
+    fn('np/w3d_off', [f'tag @s remove {W3D}', click,
+                      say([T('3D wings: ', COL, bold=True), T('OFF', 'red'), T(' - your wings are flat, and never lag', 'gray')])])
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {W3D_TRIG} trigger']
+    G.OBJECTIVES += [W3D_TRIG]
+    G.FUNCS['loop/fast'][-1:-1] = [f'execute as @a[scores={{{W3D_TRIG}=1..}}] at @s run function bm:np/w3d_trig',
+                                   f'scoreboard players enable @a {W3D_TRIG}']
+    fn('np/w3d_trig', [f'scoreboard players set @s {W3D_TRIG} 0', 'function bm:np/flip_w3d'])
     for k, nm, _ in CATS:
         fn(f'np/flip_{k}', [f'execute if entity @s[tag={TAG[k]}] run return run function bm:np/on_{k}',
                             f'tag @s add {TAG[k]}', click, say([T(f'{nm}: ', COL, bold=True), T('particles OFF', 'red')])])
@@ -200,7 +225,7 @@ def generate(G):
        [click, say([T('Everything: ', COL, bold=True), T('your gear\'s particles OFF', 'red')])])
     fn('np/on_all', [f'tag @s remove {t}' for t in TAG.values()] +
        [click.replace('1.4', '1.8'), say([T('Everything: ', COL, bold=True), T('your gear\'s particles ON', 'green')])])
-    G.FUNCS['admin/uninstall'][0:0] = [f'tag @a remove {t}' for t in TAG.values()]
+    G.FUNCS['admin/uninstall'][0:0] = [f'tag @a remove {t}' for t in TAG.values()] + [f'tag @a remove {W3D}']
 
 
 # ===================================================================== the icon

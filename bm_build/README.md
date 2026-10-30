@@ -21,6 +21,15 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0c: flat wings by default, 3D wings for screenshots
+
+- **Worn wings no longer lag behind you.** The four wings that showed full 3D models on your back - the **Seraph's Wings**, the **Dread Carapace**, the **Wings of the Last Night** and the **Wings of the First Light** - now show as the flat elytra layer by default. The flat layer is part of your player model, so it stays with you however fast you fly. Each one has a new full-size elytra texture drawn from its own art. The Seraph's has pearl feathers, a gold leading edge, holy fire at the ends, eyes and a sapphire. The Dread Carapace has black membrane on bone with red veins, eyes and a torn, smouldering hem. The Last Night has the Sovereign's void membrane with glowing red eyes and a burning edge. The First Light has white-gold feathers banded in gold, white fire at the ends and gems of light.
+- **3D wings, for screenshots.** The 3D models are still there, and they look great standing still, but a model kept on a player trails behind when you move fast (nothing can ride a player). Switch them on for a screenshot, off again to fly:
+  - with the **Particle Toggler**: its menu has a new row, **3D wings (for screenshots): ON / OFF**;
+  - without one: type **`/trigger bm.wings3d`** (each use flips it; the action bar says ON or OFF). The wings' tooltips say so too.
+  - It's a per-player setting, OFF by default, and it's kept through deaths, relogs and new versions. While it's on, the wings work exactly as before: folded at rest, a mantle when you sneak, spread when you glide, beating when you fall. 3D wings already out in an existing world go away the moment you load 3.0c.
+- **The wings as display pieces.** Hang the **Dread Carapace** or the **Seraph's Wings** in an item frame, or put them in a display case, and they show their 3D wings spread wide, as the Sovereign's wings already did. In your hand and inventory they keep their usual icons.
+
 ## New in 3.0b
 
 - **The Particle Toggler** (the Fence, 1 Token). Right-click it for a little menu: switch off the particles your own gear gives off - **Charms** (carried charms, trinkets, relics and their auras), **Armour** (set effects, crowns, halos, hats, boots, wings and elytra trails), **Weapons** (a held weapon's idle glow), or **Everything**. Sneak + right-click flips everything at once. It's never used up, and it remembers your choice through deaths and relogs. Only your own gear goes quiet: followers, fights, bosses and the world keep their sparkle, and so do the particles that tell you something (a proc firing, a ward up, a charge building). Movement exhaust always shows, whatever you switch off: rocket boots, spring and triple-jump boots, the Squad Jetpack, the Starforged jet and the Gravitic Core's trail.

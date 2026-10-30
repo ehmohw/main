@@ -37,6 +37,14 @@ GENERIC: sets() is the table of wing sets - each its worn conditions (on the che
 models: this module for the Seraph, dread_wings.py for the Dread Carapace - the carapace NOT made holy) and its states; each
 gets its own bm:p206w/<set>/... and its own display tags (bm.swd_<set>), so a set's sweep never touches another's.
 
+3.0c - OFF BY DEFAULT (the owner's call): a display can't ride a player, so teleported every tick it trails a fast-moving wearer.
+Worn wings are the flat elytra layer (flat_wings: the whole mesh painted - part of the player model, it never lags); the 3D
+wings run only for a player with W3D (`bm.w3d`: the Particle Toggler's "3D wings" row, or /trigger bm.wings3d - noparts.py),
+for screenshots, exactly as before. worn = has (the set's chest item) + W3D; a wearer without it goes `off` on its next tick
+(its displays killed - so old worlds' wings go at once), and the orphan sweep takes any left. While the 3D wings are out the
+chest item wears the set's 2.99 mantle layer (its equippable asset swapped to bm:<asset>_mantle, custom_data bm_w3dm:1b);
+`off` (still worn) and a sweep (loop/fast: a mantle worn without W3D) put the flat one back.
+
 Design units: 1/16 block (the player model's pixels x 0.9375), feet at y=0, facing -z, the wearer's right +x."""
 import math
 import random
@@ -348,6 +356,33 @@ def sets():
 
 
 GLIDE_STATE = 3
+W3D = 'bm.w3d'                                   # (3.0c: the player's switch - 3D wings on; noparts.py flips it)
+MANTLED = '*[minecraft:custom_data~{bm_w3dm:1b}]'
+
+
+def equippable(name):
+    """(3.0c) the set's chest item's equippable component, as its item gives it (the flat layer's asset)"""
+    from items import ITEMS
+    if name == 'seraph':
+        import phase182 as P182
+        eq = P182.UP_X['dread_carapace']['minecraft:equippable']
+    else:
+        eq = ITEMS[{'dread': 'dread_carapace', 'sovn': 'sov_wings', 'sovl': 'sov_wings_holy'}[name]]['comps']['minecraft:equippable']
+    import flat_wings
+    assert eq['asset_id'] == flat_wings.flat_asset(name), (name, eq)
+    return dict(eq)
+
+
+def _eq_mod(name, mantle):
+    """an item modifier (written as bm:p206w/<set>_mantle / _flat): the set's equippable with the mantle's asset (or the flat
+    one's back), and the flag"""
+    import flat_wings
+    eq = equippable(name)
+    eq['asset_id'] = flat_wings.mantle_asset(name) if mantle else flat_wings.flat_asset(name)
+    return [{'function': 'minecraft:set_components', 'components': {'minecraft:equippable': eq}},
+            {'function': 'minecraft:set_custom_data', 'tag': '{bm_w3dm:%s}' % ('1b' if mantle else '0b')}]
+
+
 REACH = 12                                       # (blocks: how far a wearer's displays can be from them and still be theirs)
 
 
@@ -383,6 +418,9 @@ def generate(G):
     S_ = sets()
     for name, st in S_.items():
         _set(G, name, st, [o for o in S_ if o != name])
+    # (3.0c) a mantle worn without the 3D wings (taken off while they were out, then worn with them off): the flat layer back
+    G.FUNCS['loop/fast'][-1:-1] = [f'execute as @e[type=minecraft:player,tag=!{W3D}] if items entity @s armor.chest {MANTLED} run function bm:p206w/flat']
+    fn('p206w/flat', [f'execute if function bm:p206w/{n}/has run return run function bm:p206w/{n}/asset_flat' for n in S_])
 
 
 def _set(G, name, ST, others):
@@ -392,7 +430,11 @@ def _set(G, name, ST, others):
     art, states = ST['art'], ST['states']
     POSES_, first_part = art.POSES, art.PARTS[0]
     # ---- worn: the set's conditions on the chest slot, as a function (1: worn)
-    fn(f'{P}/worn', [f'execute {" ".join(ST["worn"])} run return 1', 'return 0'])
+    fn(f'{P}/has', [f'execute {" ".join(ST["worn"])} run return 1', 'return 0'])
+    fn(f'{P}/worn', [f'execute unless entity @s[tag={W3D}] run return 0', f'execute {" ".join(ST["worn"])} run return 1', 'return 0'])
+    for k, mantle in (('mantle', True), ('flat', False)):
+        G.wjson(f'bm/item_modifier/p206w/{name}_{k}.json', _eq_mod(name, mantle))
+        fn(f'{P}/asset_{k}', [f'item modify entity @s armor.chest bm:p206w/{name}_{k}'])
     # ---- who wears them (found four times a second; the per-tick work is theirs alone)
     G.FUNCS['loop/fast'][-1:-1] = [f'execute as @e[type=minecraft:player,tag=!bm.sww_{name}] if function bm:{P}/worn run function bm:{P}/on',
                                    f'execute as @e[type=minecraft:player,tag=bm.sww_{name},scores={{bm.swn=1,bm.sws=1..}}] at @s run function bm:{P}/ensure',
@@ -403,8 +445,10 @@ def _set(G, name, ST, others):
                        'run scoreboard players set #f bm.rng 1',
                        'execute if score #f bm.rng matches 0 run kill @s'])
     fn(f'{P}/on', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', f'tag @s add bm.sww_{name}', 'tag @s add bm.sww',
+                   f'execute unless items entity @s armor.chest {MANTLED} run function bm:{P}/asset_mantle',
                    'scoreboard players set @s bm.sws -1', 'scoreboard players set @s bm.swn 0', 'scoreboard players set @s bm.swo 0'])
     fn(f'{P}/off', [f'function bm:{P}/kill', 'scoreboard players set @s bm.sws 0', f'tag @s remove bm.sww_{name}',
+                    f'execute if items entity @s armor.chest {MANTLED} if function bm:{P}/has run function bm:{P}/asset_flat',
                     ('execute ' + ' '.join(f'unless entity @s[tag=bm.sww_{o}]' for o in others) + ' run ' if others else '') + 'tag @s remove bm.sww'])
     fn(f'{P}/kill', ['scoreboard players operation #me bm.rng = @s bm.pid', each() + 'kill @s',
                      'scoreboard players set @s bm.swn 0', 'scoreboard players set @s bm.swo 0'])
@@ -478,12 +522,56 @@ def _set(G, name, ST, others):
         fn(f'{P}/k{n}', k)
 
 
+FRAME_W = 16.0                                   # (3.0c: the framed model's span, model units - about the Sovereign's wings')
+FRAME_DISPLAY = {'fixed': {'rotation': [0, 180, 0], 'translation': [0, 0, 0], 'scale': [1.0, 1.0, 1.0]}}
+
+
+def frame_parts(which):
+    """(3.0c) the spread wings for a frame or a display case: [(raw elements, pivot)] - the open great wings and the lower pair
+    (the Seraph's) or the tail (the Dread's)"""
+    if which == 'seraph':
+        R = _build()
+        return [(R[f'{PREFIX}{p}'][1], PIVOT[p[:3]]) for p in ('w1r_o', 'w1l_o', 'w2r', 'w2l')]
+    import dread_wings as DW
+    R = DW._build()
+    return [(R[f'{DW.PREFIX}{p}'][0], PIVOT[p[:3]]) for p in ('w1r_o', 'w1l_o', 'w2r', 'w2l')]
+
+
+def frame_model(which):
+    """(3.0c) the wings as one small model (a display piece: an item frame, a display case - 'fixed'), as the Sovereign's are
+    (sov_wings.gui_model): every part placed about its pivot, the whole centred in the model box and scaled to FRAME_W across"""
+    parts = frame_parts(which)
+    pts = [[v - 8 + pv[i] for i, v in enumerate(c)] for els, pv in parts for e in els for c in (e['from'], e['to'])]
+    lo = [min(p[i] for p in pts) for i in range(3)]; hi = [max(p[i] for p in pts) for i in range(3)]
+    c = [(lo[i] + hi[i]) / 2 for i in range(3)]
+    k = FRAME_W / max(hi[0] - lo[0], hi[1] - lo[1])
+    out = []
+    for els, pv in parts:
+        out += rigkit.transform(els, lambda v, pv=pv: [8 + (v[i] - 8 + pv[i] - c[i]) * k for i in range(3)])
+    for e in out:
+        for v in e['from'] + e['to']: assert -16 <= v <= 32, (which, e)
+        e['faces'] = {f: dict(fc, uv=[max(0.0, min(16.0, x)) for x in fc['uv']]) for f, fc in e['faces'].items()}
+    return out
+
+
 def rp(R):
     """gen_rp: the wings' models (3D, at display scale) and their own textures (dread_set_art registers seraph_art's)"""
     import sys
     R.TEXTURE_MODS.append(sys.modules[__name__])
     for name, (tex, els) in models().items():
         R.HATS[name] = (tex, els)
+    def post(R2):
+        # (3.0c) DISPLAY PIECES: the Dread Carapace and the Seraph's Wings show their spread 3D wings in an item frame and a
+        # display case (the 'fixed' context); in the hand and the inventory, their sprites as before
+        for which, iid, flat in (('dread', 'dread_carapace', 'dread_carapace'), ('seraph', 'angel_dread_carapace', 'seraph_carapace')):
+            els = frame_model(which)
+            used = sorted({fc['texture'][1:] for e in els for fc in e['faces'].values()})
+            R2.wj(f'assets/bm/models/item/{iid}_3d.json', {'textures': dict({t: f'bm:block/{t}' for t in used}, particle=f'bm:block/{used[0]}'),
+                                                          'elements': els, 'display': FRAME_DISPLAY})
+            R2.wj(f'assets/bm/items/{iid}.json', {'model': {'type': 'minecraft:select', 'property': 'minecraft:display_context',
+                                                            'cases': [{'when': ['fixed'], 'model': {'type': 'minecraft:model', 'model': f'bm:item/{iid}_3d'}}],
+                                                            'fallback': {'type': 'minecraft:model', 'model': f'bm:item/{flat}'}}})
+    R.POST.append(post)
     R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + (PREFIX,)
     if getattr(R, 'PHASE2', True):                          # (the Sovereign's wings: phase 2's, on its and the Divine One's textures)
         import sov_wings

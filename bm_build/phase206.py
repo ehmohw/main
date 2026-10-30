@@ -42,7 +42,7 @@ LORE = {
     'dread_visage': [('The Dread\'s own helm, horned and many-eyed.', 'gray'), ('Worn: night vision; Darkness and', 'blue'), ('Blindness can\'t take you.', 'blue'),
                      ('FROSTBITE: one blow in four freezes', 'aqua'), ('the thing you hit (6 more, slowed).', 'aqua')],
     'dread_carapace': [('Void-plate and black wings in one.', 'gray'), ('It glides. +4 health; at low health,', 'blue'), ('Resistance II (once a minute).', 'blue'),
-                       ('LEECH: one blow in four heals you 3.', 'aqua')],
+                       ('LEECH: one blow in four heals you 3.', 'aqua'), ('3D wings, for screenshots: /trigger bm.wings3d', 'dark_gray')],
     'dread_greaves': [('Cracked void-plate, bone at the knee.', 'gray'), ('Worn: Poison and Wither can\'t take you.', 'blue'),
                       ('HEX: one blow in four - 5 more through', 'aqua'), ('its armour, weakened and withering.', 'aqua')],
     'dread_treads': [('Clawed boots of the deep Dread.', 'gray'), ('Worn: no fall damage; Dolphin\'s Grace.', 'blue'),
