@@ -624,7 +624,7 @@ def wingpose(lift, sweep):
     return {'wing_r': r, 'wing_l': (r[0], -r[1], -r[2], r[3])}          # (mirrored across his middle)
 
 
-WING_POSE = {'idle_a': (0, 0), 'idle_b': (12, -6), 'jump': (24, -14), 'sit_a': (0, 44), 'sit_b': (2, 30), 'sit_c': (2, 30), 'happy': (20, -16),
+WING_POSE = {'idle_a': (0, 0), 'idle_b': (12, -6), 'jump': (24, -14), 'sit_a': (0, 44), 'sit_b': (2, 30), 'sit_c': (2, 30), 'happy': (14, -16),
              'conjure_up': (26, 8), 'conjure': (16, -24), 'hurt': (0, 36), 'tired': (0, 46)}
 WING_POSE.update({f'walk_{k}': (5 + 5 * math.sin(math.pi * k / 2), 18) for k in range(4)})
 WING_POSE.update({f'run_{k}': (-8 + 3 * math.sin(math.pi * k / 2), 38) for k in range(4)})
