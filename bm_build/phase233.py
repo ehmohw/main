@@ -34,7 +34,7 @@ FORMS = {
     'demo': ('Creative Form: Painted Reaper', '0.5,0.9,0.4', [f'effect give {_O} minecraft:strength 3 1 true', f'effect give {_O} minecraft:night_vision 15 0 true'],
              [('demo', '"...I am sparkling. The Reaper does not sparkle. ...Leave it on."'), ('gem', '(the Gem: :3)')]),
     'kw': ('Creative Form: Rainbow Current', '1.0,0.9,0.25', [f'effect give {_O} minecraft:speed 3 2 true', f'effect give {_O} minecraft:haste 3 0 true'],
-           [('kw', '"WHOA! My sparks are every colour! This is AWESOME!"'), ('gem', '(the Gem crackles happily: :D)')]),
+           [('kw', '"...Colour, running through my current. Bright. Fragile. I want all of it."'), ('gem', '(the Gem flickers, uneasy: o.o)')]),   # (3.0e: in character - the parasite, not a cheerful spark)
     'pearlq': ('Creative Form: Pearlescent', '0.9,0.95,1.0', [f'effect give {_O} minecraft:luck 3 1 true', f'effect give {_O} minecraft:absorption 3 0 true'],
                [('pearlq', '"Pearlescent! Oh, it suits me. It REALLY suits me."'), ('gem', '(the Gem: ^-^)')]),
 }
@@ -46,7 +46,8 @@ def add_pairs():
     for w, (nm, col, buff, intro) in FORMS.items():
         if w not in P100.WHO: continue
         P188.PAIRS[f'cf_{w}'] = ('gem', w, nm, '#5ae0a0', f'The Gem of Creativity and {P188.VNAME.get(w, w)} - a creative form', buff + [_SP, _RB(col)], intro,
-                                 [('gem', '(the Gem sparkles at them: :D)', w, '"Gem! Look at me go!"' if w in ('kettle', 'kw', 'emma') else '"...Thank you."')])
+                                 [('gem', '(the Gem sparkles at them: :D)', w, '"Gem! Look at me go!"' if w in ('kettle', 'emma') else
+                                  '"Keep shining, little stone. I\'ll take everything you give."' if w == 'kw' else '"...Thank you."')])
         P188.ICON[f'cf_{w}'] = 'bm:creativity_gem'
         P188.PAIRS[f'cf_{w}'][5].append(f'execute as {_O} at @s run function bm:p233/on/{w}')
     P188.PAIRS['cf_bender'] = ('gem', 'bender', 'Fetch the Rainbow', '#e0a860', 'The Gem of Creativity and Bender - he chases its sparkles, forever',
