@@ -13,11 +13,11 @@ const res = [];
 const WHO = process.argv[2] ? [process.argv[2]] : ['dennis', 'pistachio'];
 const CFG = {
   dennis: { k: 'dw', item: 'dw_horn', name: 'Dennis', parts: 9, cos: 'bm.cosdw', look: 'cos_dennis_2', lookName: 'Biker Red', lockedName: 'Road Brown', plainName: 'His old black leather',
-            aura: 'Gold Rush Glimmer', contract: 'fcontract_dennis', bit: 2048, doll: 'doll_dennis', hp: 48, armour: 8,
+            aura: 'Gold Rush Glimmer', contract: 'fcontract_dennis', bit: 2048, ar: 13, doll: 'doll_dennis', hp: 48, armour: 8,
             hello: /Dennis here/, sitDown: /These boots weren't made/, standUp: /let's be off/, home: /Back to the market/, ways: "Dennis's ways", waysTitle: "DENNIS'S WAYS",
             powers: ['Wrench Whack', 'Gold Rush', 'Midas Slam', 'The Mother Lode', 'Fortune V'], ult: /THE MOTHER LODE/, crowd: /MIDAS SLAM/, ultFx: 'absorption' },
   pistachio: { k: 'pi', item: 'pi_cloche', name: 'Pistachio', parts: 8, cos: 'bm.cospi', look: 'cos_pistachio_2', lookName: 'Claret Tails', lockedName: 'Midnight Tails', plainName: 'His charcoal tails',
-               aura: 'Ectoplasmic Mist', contract: 'fcontract_pistachio', bit: 4096, doll: 'doll_pistachio', hp: 34, armour: 4,
+               aura: 'Ectoplasmic Mist', contract: 'fcontract_pistachio', bit: 4096, ar: 14, doll: 'doll_pistachio', hp: 34, armour: 4,
                hello: /Pistachio, at your service/, sitDown: /I shall take a seat/, standUp: /Onward, sir/, home: /return to the Palace/, ways: "Pistachio's ways", waysTitle: "PISTACHIO'S WAYS",
                powers: ['Spectral Slap', 'The Next Course', 'The Wail', 'The Last Course', 'Phantom Escape', 'Looting V'], ult: /The Last Course/, crowd: /BOOOOO/, ultFx: 'regeneration' } };
 (async () => { const R = await rcon(); const run = c => R.run(c);
@@ -57,6 +57,12 @@ const CFG = {
     await run('gamemode survival TestRat'); await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await run('clear TestRat');
     await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
     await run(`${O}fill ${X - 10} ${Y} ${Z - 10} ${X + 10} ${Y} ${Z + 10} minecraft:stone`); await run(`${O}fill ${X - 10} ${Y + 1} ${Z - 10} ${X + 10} ${Y + 8} ${Z + 10} minecraft:air`);
+    await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..24]`);
+    // (3.0a: a faint at the end of the last run left "back after a faint" waiting (bm.arw<i>, phase173 - the AR order: Dennis 13,
+    //  Pistachio 14) if the bot logged out before loop/second saw his rest over; he then walked back in by himself the moment his
+    //  item was in your pocket, and "his hello" was a recall's. And the arena's entities load a moment after the forceload: a kill
+    //  sent at once misses a follower left standing there)
+    await run(`tag TestRat remove bm.arw${c.ar}`); await sleep(1500);
     await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..24]`);
     await run('kill @e[type=minecraft:wolf,tag=bm.dwpet]'); await run('kill @e[type=minecraft:wolf,tag=bm.pipet]');
     for (const o of [`bm.${k}cd`, c.cos, 'bm.pisv']) await run(`scoreboard players set TestRat ${o} 0`);
@@ -157,6 +163,7 @@ const CFG = {
     ok(N + 'punched out of the frame: he goes with it', await wait(3000, async () => (await cnt(FPET)) === 0 &&
        (await cnt(`@e[type=minecraft:item_display,tag=bm.${k}p_body,x=${X},y=${Y + 2},z=${Z + 4},distance=..10]`)) === 0));
     await run(`${O}kill @e[type=minecraft:item,x=${X},y=${Y + 2},z=${Z + 4},distance=..4]`); await run(`${O}kill ${frSel}`);
+    await run(`${O}fill ${X - 6} ${Y + 1} ${Z + 5} ${X + 6} ${Y + 3} ${Z + 5} minecraft:air`);   // (3.0a: the frame's wall down again - the fight's foe stood behind it, and Dennis's throws (2.94, real projectiles) broke on it)
     await run(`clear TestRat *[minecraft:custom_data~{bm:"${c.item}"}]`); await run(`loot replace entity TestRat hotbar.0 loot bm:items/${c.item}`);
 
     // ---------------------------------------------------------------- display case: his figurine
@@ -224,7 +231,11 @@ const CFG = {
     // (what the ranged blow leaves on them lasts 3-4 s: watched for together with the blow itself)
     const mark = who === 'dennis' ? async () => hasFx(FOE, 'slowness') : async () => (await hasFx(FOE, 'glowing')) && (await hasFx('TestRat', 'speed'));
     let marked = false;
-    const rng = await wait(8000, async () => { if (await mark()) marked = true; return (await score(`bm.${k}rc`, PET)) > 0 && marked; }, 150);
+    // (3.0a: he walks in on a foe - by the end of his great blow he can be in reach of it, where his melee comes first and his
+    //  ranged blow never does: the foe is kept 6 blocks off him (inside the arena) until the ranged blow lands)
+    const keepOff = async () => { const ax = await num(PET, 'Pos[0]'), az = await num(PET, 'Pos[2]'), fx = await num(FOE, 'Pos[0]'), fz = await num(FOE, 'Pos[2]');
+      if (Math.hypot(fx - ax, fz - az) < 4.5) await run(`${O}tp ${FOE} ${ax.toFixed(2)} ${Y + 1} ${(az + 6 <= Z + 9 ? az + 6 : az - 6).toFixed(2)}`); };
+    const rng = await wait(8000, async () => { if (await mark()) marked = true; if ((await score(`bm.${k}rc`, PET)) > 0 && marked) return true; if (!(await score(`bm.${k}rc`, PET) > 0)) await keepOff(); return false; }, 150);
     ok(N + '...then his ranged blow', (await score(`bm.${k}rc`, PET)) > 0, `rc ${await score(`bm.${k}rc`, PET)}`);
     ok(N + '...the foe hurt by them', (await num(FOE, 'Health')) < 400 - 10, `${await num(FOE, 'Health')}`);
     ok(N + (who === 'dennis' ? '...Gold Rush slows it' : '...the spirit makes it glow; you, light of foot (Speed)'), rng);
@@ -299,7 +310,8 @@ const CFG = {
     ok(N + '...used again: "still getting his breath back", no one comes', (await cnt(PET)) === 0 && A.bars.some(b => /getting his breath back/.test(b)), A.bars.slice(-1).join(''));
 
     // ---------------------------------------------------------------- clean up
-    await run(`scoreboard players set TestRat bm.${k}cd 0`); await run(`kill @e[type=minecraft:wolf,tag=bm.${k}pet]`);
+    await run(`scoreboard players set TestRat bm.${k}cd 0`); await run(`tag TestRat remove bm.arw${c.ar}`); await sleep(1200);
+    await run(`kill @e[type=minecraft:wolf,tag=bm.${k}pet]`);
     await run('clear TestRat'); await run('effect clear TestRat'); await run(`scoreboard players set TestRat ${c.cos} 0`);
   }
   console.log(`${res.filter(x => x).length}/${res.length} passed`);

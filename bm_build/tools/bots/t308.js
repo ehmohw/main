@@ -9,6 +9,7 @@ runT({ W: 'speech', NAME: 'The Speech Bubble', ab: 'wb', q: 'wq', pfx: 'p235b', 
     const K = kit(ctx, 'wq');
     const r = await K.meet(ctx, 'p235b/enc/place', /nothing to SAY/, 'minecraft:writable_book', /shouts every word/, 'caption_card');
     ctx.ok('Mr. Capshun\'s narration pops up (its rig and a click box)', r.placed);
+    K.showOks(ctx.ok, r, "The Speech Bubble's entrance", 'his narration, POP! and AND THEN!! (text props) in the show');
     ctx.ok('right-clicked empty-handed: nothing to say', r.asked, r.lastBar);
     ctx.ok('right-clicked holding a book and quill: its card given (the book kept)', r.got && /Found 1/.test(await ctx.run('clear TestRat minecraft:writable_book 0')), r.chat);
   },

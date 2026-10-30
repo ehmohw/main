@@ -173,7 +173,10 @@ const N = 'execute in minecraft:the_nether run ';
     ok('...the reckoning: bm.dfin', /bm\.dfin/.test(await tags()));
     ok('...the Dread Nights are over (#dfell)', (await sc('#dfell', 'bm.cfg')) === 1);
     ok('...the floor knits back over the lava', await block(fall[0], fall[1], fall[2], '#minecraft:replaceable') === false || true);
-    ok('...the Undercrown begins to come apart (three minutes)', (await sc('#ucol', 'bm.p2')) > 150);
+    // (3.0a: it holds until the spoils are claimed - t316 claim turns the key in the Victor's Vault; here, the claim waived)
+    ok('...the Undercrown holds for its victors\' claim (no countdown yet)', (await sc('#uhold', 'bm.p2')) === 1 && (await sc('#ucol', 'bm.p2')) === 0);
+    await run('scoreboard players set #uhto bm.p2 1');
+    ok('...then begins to come apart (three minutes)', await wait(4000, async () => (await sc('#ucol', 'bm.p2')) > 150));
   }
 
   // ---- THE DREAD EMBER: kindled, the Nights return; again, they end

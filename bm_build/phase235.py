@@ -645,6 +645,344 @@ def _speech(G, X):
 _ABIL = {'dragon': _dragon, 'eraser': _eraser, 'cursor': _cursor, 'inkblot': _inkblot, 'speech': _speech}
 
 
+
+# ---------------------------------------------------------------------------------------------------- 3.0a: THEIR ENTRANCES
+# Each doodle's encounter (walking with Kettle, the Gem or Mr. Capshun; the Glitched Cartridge; an admin's meet) now arrives as
+# a few seconds' little show - rigpet's Cfg.ENC_SHOW: the rig comes in at scale 0, the show (run each tick by its click box,
+# turned to face you) builds it out of particles, sounds, props and its own poses - squashed, stretched and lifted, every move
+# interpolated - and only then does it talk. Props are the box's (bm.<ab>shp): gone with it, or at the show's end.
+#   THE INK BLOT       a drop off Mr. Capshun's pen, in slow motion; SPLAT - a puddle; it wobbles, draws itself up, blinks
+#                      twice, and a little "?" pops over it.
+#   THE SPEECH BUBBLE  his narration, typed out in the air - "And then-"; it swells, POP! - the bubble; two bounces, and a grin:
+#                      "AND THEN!!"
+#   THE DOODLE DRAGON  a pencil draws a dragon in the air, line by line; crayon colours fill it, part by part; the wings unfold
+#                      (flap, flap) and a little roar, with a puff of crayon smoke.
+#   THE ERASER         a grey smudge hangs in the air - and is rubbed out: pink crumbs swirl up, the Eraser pops out of the
+#                      cloud, lands, dusts itself off, and hides (it's shy).
+#   THE CURSOR         a glitch: sparks, stray pixels, bit-crushed notes, the pointer flickering; a blinking text cursor (its
+#                      I-beam); *click* - it snaps into its arrow, double-clicks, and waves.
+import rigkit as _RK
+
+
+class _Show:
+    """one entrance: keyframes {tick: lines}, run as the click box, at it, rotated as it (it faces you), the rig's parts tagged"""
+    def __init__(self, C, X, face_part=None):
+        self.C, self.X, self.k = C, X, {}
+        self.A, self.SP = C.A, C.A.RIG_SCALE
+        self.U = self.SP / 16
+        self.face_part = face_part or FACE_PART.get(C.W, 'head')
+        self.kind = {}
+
+    def at(self, t, *lines):
+        self.k.setdefault(t, []).extend(lines)
+        return self
+
+    def snd(self, t, s, vol=1.0, pitch=1.0, r=24):
+        return self.at(t, f'playsound minecraft:{s} neutral @a[distance=..{r}] ~ ~ ~ {vol} {pitch}')
+
+    def pose(self, t, name, dur=4, kx=1.0, ky=1.0, lift=0.0, parts=None, model=True):
+        """a pose of the art's, squashed / stretched about the ground (kx across, ky up) and lifted (blocks)"""
+        A, U, X = self.A, self.U, self.X
+        pz = A.POSES[name]
+        xf = _RK.solve(A.PIVOT, A.PARENT, pz)
+        for p in (parts or A.PARTS):
+            if hasattr(A, 'HIDDEN') and A.HIDDEN(p, pz):
+                self.at(t, f'execute as {X.psel(p)} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:{min(dur, 2)},transformation:{{scale:[0f,0f,0f]}}}}')
+                continue
+            q, tr = xf[p]
+            py = A.PIVOT[p][1] * U
+            ty = (py + tr[1] * U) * ky - py + lift
+            sc = self.SP * getattr(A, 'PART_K', {}).get(p, 1.0)
+            self.at(t, f'execute as {X.psel(p)} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:{dur},transformation:{{'
+                       f'left_rotation:{snbt(RP.RF.qf(q))},translation:[{tr[0] * U * kx:.4f}f,{ty:.4f}f,{tr[2] * U * kx:.4f}f],'
+                       f'scale:[{sc * kx:.4f}f,{sc * ky:.4f}f,{sc * kx:.4f}f]}}}}')
+            if model and p in self.C.SWAP:
+                self.at(t, f'execute as {X.psel(p)} run data modify entity @s item.components."minecraft:item_model" set value "bm:{A.model_name(p, pz)}"')
+        return self
+
+    def hide(self, t, parts=None, dur=0):
+        for p in (parts or self.A.PARTS):
+            self.at(t, f'execute as {self.X.psel(p)} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:{dur},transformation:{{scale:[0f,0f,0f]}}}}')
+        return self
+
+    def face(self, t, e=None):
+        sel = self.X.psel(self.face_part)
+        if e is None:
+            return self.at(t, f'execute as {sel} run data remove entity @s item.components."minecraft:custom_model_data"')
+        assert e in self.C.EXPR and self.C.FACE.get(e), (self.C.W, e)
+        return self.at(t, f'execute as {sel} run data modify entity @s item.components."minecraft:custom_model_data" set value {{strings:["{e}"]}}')
+
+    # ---- props: a text or a sprite, summoned at scale 0 (so its first scale animates), the box's own
+    def tag(self, name):
+        return f'bm.{self.C.ab}s_{name}'
+
+    def sel(self, name):
+        return f'@e[type=minecraft:{self.kind[name]},tag={self.X.prop},tag={self.tag(name)},distance=..16]'
+
+    def me(self, name):
+        return f'@s[type=minecraft:{self.kind[name]}]'
+
+    def text(self, t, name, comp, pos='^ ^1.6 ^', extra=None):
+        n = {'Tags': [self.X.prop, self.tag(name)], 'text': comp, 'billboard': 'center', 'background': Int(0), 'shadow': B(1), 'line_width': Int(200),
+             'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0)] * 3, 'scale': [F(0)] * 3},
+             'interpolation_duration': Int(3), 'teleport_duration': Int(2), 'brightness': {'block': Int(15), 'sky': Int(15)}}
+        n.update(extra or {})
+        self.kind[name] = 'text_display'
+        return self.at(t, f'execute positioned {pos} run summon minecraft:text_display ~ ~ ~ {snbt(n)}')
+
+    def sprite(self, t, name, model, pos='^ ^1 ^', extra=None):
+        n = {'Tags': [self.X.prop, self.tag(name)], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': model}},
+             'item_display': 'fixed', 'billboard': 'center',
+             'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0)] * 3, 'scale': [F(0)] * 3},
+             'interpolation_duration': Int(3), 'teleport_duration': Int(2)}
+        n.update(extra or {})
+        self.kind[name] = 'item_display'
+        return self.at(t, f'execute positioned {pos} run summon minecraft:item_display ~ ~ ~ {snbt(n)}')
+
+    def size(self, t, name, s, dur=3, sy=None):
+        sy = s if sy is None else sy
+        return self.at(t, f'execute as {self.sel(name)} run data merge entity {self.me(name)} {{start_interpolation:0,interpolation_duration:{dur},transformation:{{scale:[{s:.3f}f,{sy:.3f}f,{s:.3f}f]}}}}')
+
+    def say(self, t, name, comp):
+        return self.at(t, f'execute as {self.sel(name)} run data merge entity {self.me(name)} {{text:{snbt(comp)}}}')
+
+    def move(self, t, name, pos, dur):
+        return self.at(t, f'execute as {self.sel(name)} run data merge entity {self.me(name)} {{teleport_duration:{dur}}}',
+                       f'execute positioned {pos} run tp {self.sel(name)} ~ ~ ~')
+
+    def drop(self, t, name):
+        return self.at(t, f'kill {self.sel(name)}')
+
+    def done(self, length, resume=0):
+        return length, self.k, resume
+
+
+def _dust(rgb, s=1.0):
+    return f'dust{{color:[{rgb[0]:.2f},{rgb[1]:.2f},{rgb[2]:.2f}],scale:{s}}}'
+
+
+def show_inkblot(G, X):
+    S = _Show(InkBlot, X)
+    cap = '@e[type=minecraft:wolf,tag=bm.mzpet,distance=..12,sort=nearest,limit=1]'
+    ink = _dust((0.1, 0.1, 0.16), 0.7)
+    # (1-12) Mr. Capshun's pen leaks: a drop (if he's near, off his pen; else out of the air) flicked up over the spot
+    S.at(1, f'execute at {cap} run particle minecraft:squid_ink ~ ~1.1 ~ 0.05 0.05 0.05 0.01 3')
+    S.at(1, f'execute at {cap} run playsound minecraft:block.pointed_dripstone.drip_water neutral @a[distance=..24] ~ ~1 ~ 1 0.6')
+    S.sprite(1, 'drop', 'bm:ib_body_drop', '^ ^2.3 ^', {'teleport_duration': Int(10), 'billboard': 'fixed'})
+    S.at(1, f'execute at {cap} run tp {S.sel("drop")} ~ ~1.1 ~')
+    S.size(2, 'drop', 0.32, 4)
+    S.move(3, 'drop', '^ ^2.0 ^', 10)
+    # (13-33) ...and falls, in slow motion, trailing ink
+    S.move(13, 'drop', '^ ^0.12 ^', 20)
+    for i, t in enumerate(range(14, 33, 2)):
+        S.at(t, f'particle {ink} ^ ^{2.0 - 1.88 * (t - 13) / 20:.2f} ^ 0.02 0.02 0.02 0 2')
+    S.size(26, 'drop', 0.26, 6, sy=0.4)
+    S.snd(14, 'block.pointed_dripstone.drip_water', 0.6, 0.5)
+    # (33) SPLAT: a puddle
+    S.drop(33, 'drop')
+    S.at(33, 'particle minecraft:squid_ink ~ ~0.15 ~ 0.4 0.02 0.4 0.06 24', f'particle {ink} ~ ~0.1 ~ 0.6 0.02 0.6 0 16')
+    S.snd(33, 'entity.slime.squish', 1.0, 0.6).snd(33, 'block.honey_block.fall', 0.8, 0.7)
+    S.pose(33, 'sit_b', 2, kx=0.6, ky=0.3).pose(35, 'sit_b', 3, kx=1.35, ky=0.45)
+    # (38-56) it wobbles
+    for j, t in enumerate(range(38, 58, 5)):
+        S.pose(t, 'sit_b', 5, kx=1.15 if j % 2 == 0 else 1.4, ky=0.85 if j % 2 == 0 else 0.4)
+        S.snd(t, 'entity.slime.squish_small', 0.6, 1.0 + 0.15 * j)
+    # (58-78) ...and draws itself up into a blot: up tall, settle, squash, stand
+    S.pose(58, 'idle_a', 1, kx=1.4, ky=0.15)
+    S.pose(59, 'idle_a', 9, kx=0.8, ky=1.3)
+    S.at(59, 'particle minecraft:squid_ink ~ ~0.3 ~ 0.25 0.3 0.25 0.02 10')
+    S.snd(59, 'entity.slime.jump', 0.8, 1.3)
+    S.pose(68, 'idle_a', 4, kx=1.15, ky=0.88).pose(72, 'idle_a', 4)
+    # (80-90) blinks twice
+    S.face(80, 'blink').face(83).face(87, 'blink').face(90)
+    # (93-115) a little "?" pops over it - and goes
+    S.text(93, 'q', T('?', '#c8c8dc', bold=True), '^ ^1.25 ^')
+    S.size(94, 'q', 2.6, 3).size(97, 'q', 1.9, 3).snd(94, 'entity.item.pickup', 0.6, 1.7).face(94, 'surprised')
+    S.pose(94, 'idle_a', 3, kx=0.95, ky=1.05).pose(97, 'idle_a', 3)
+    S.size(112, 'q', 0, 3).face(112)
+    return S.done(116, resume=31)
+
+
+def show_speech(G, X):
+    S = _Show(Speech, X)
+    gray = '#e0e0e0'
+    say = lambda s: T(s, gray, italic=True)
+    # (1-18) his narration, typed out in the air
+    S.text(1, 'nar', say('A'), '^ ^1.0 ^', {'background': Int(0x40000000)})
+    S.size(2, 'nar', 1.0, 3)
+    for t, s in ((4, 'An'), (6, 'And'), (9, 'And t'), (11, 'And th'), (13, 'And the'), (15, 'And then'), (18, 'And then-')):
+        S.say(t, 'nar', say(s)).snd(t, 'block.note_block.hat', 0.4, 1.6 + (t % 3) * 0.1)
+    # (24-34) it swells...
+    S.size(24, 'nar', 1.7, 10, sy=1.5).snd(24, 'entity.puffer_fish.blow_up', 0.8, 1.4)
+    S.at(28, 'particle minecraft:end_rod ~ ~1.1 ~ 0.3 0.15 0.3 0.01 4')
+    # (34) POP! - and it's the bubble (puffed up, settling with a bounce)
+    S.size(34, 'nar', 0, 2)
+    S.pose(34, 'puff_up', 3, kx=1.25, ky=1.25).pose(37, 'idle_a', 3, kx=0.9, ky=0.9).pose(40, 'idle_a', 3)
+    S.text(34, 'pop', T('POP!', '#ffd060', bold=True), '^ ^1.9 ^0.2')
+    S.size(35, 'pop', 3.2, 2).size(38, 'pop', 2.4, 3).size(46, 'pop', 0, 4)
+    S.at(34, 'particle minecraft:poof ~ ~1 ~ 0.4 0.4 0.4 0.05 14', 'particle minecraft:end_rod ~ ~1 ~ 0.5 0.5 0.5 0.08 12', 'particle minecraft:explosion ~ ~1.1 ~ 0 0 0 0 1')
+    S.snd(34, 'block.bubble_column.bubble_pop', 1.0, 0.8).snd(34, 'entity.chicken.egg', 1.0, 1.6)
+    S.drop(38, 'nar').face(36, 'surprised').face(44)
+    # (48-74) two bounces
+    for b, t in enumerate((48, 62)):
+        S.pose(t, 'idle_a', 2, kx=1.15, ky=0.82)
+        S.pose(t + 2, 'jump', 4, kx=0.9, ky=1.12, lift=0.55 - 0.2 * b)
+        S.pose(t + 6, 'jump', 3, kx=0.95, ky=1.05, lift=0.65 - 0.25 * b)
+        S.pose(t + 9, 'idle_a', 3, kx=1.18, ky=0.84).snd(t + 9, 'entity.slime.jump_small', 0.8, 1.5 + 0.2 * b)
+        S.pose(t + 12, 'idle_a', 2)
+        S.snd(t + 2, 'block.note_block.pling', 0.5, 1.4 + 0.3 * b)
+    # (76-100) a grin: "AND THEN!!"
+    S.face(76, 'happy').pose(76, 'happy', 3)
+    S.text(76, 'then', T('AND THEN!!', '#ffd060', bold=True), '^ ^1.95 ^0.2')
+    S.size(77, 'then', 1.9, 3).size(80, 'then', 1.5, 3).snd(77, 'block.note_block.bell', 0.8, 1.5).snd(77, 'entity.villager.celebrate', 0.5, 1.8)
+    S.at(77, 'particle minecraft:end_rod ~ ~1.8 ~ 0.6 0.2 0.6 0.04 10')
+    S.pose(90, 'idle_a', 4).size(96, 'then', 0, 4).face(96)
+    return S.done(102, resume=31)
+
+
+# the dragon's outline, as Kettle drew it (side on to you: ^x along, ^y up - blocks)
+_DRAGON_LINE = [(-0.95, 0.72), (-1.0, 0.58), (-0.88, 0.62), (-0.7, 0.45), (-0.45, 0.42),                    # a spade-tipped tail
+                (-0.32, 0.62), (-0.36, 0.78), (-0.22, 0.76), (-0.2, 0.92),                                # spikes down his back
+                (-0.55, 1.3), (-0.3, 1.18), (-0.22, 1.42), (-0.02, 1.2), (0.05, 1.5), (0.1, 1.0),         # a bat wing, three points
+                (0.2, 1.08), (0.24, 1.3), (0.22, 1.48), (0.34, 1.36), (0.6, 1.36), (0.72, 1.22),          # the neck, a horn, the snout
+                (0.56, 1.16), (0.68, 1.06), (0.42, 1.04), (0.34, 0.8),                                    # a toothy grin, the chest
+                (0.42, 0.62), (0.52, 0.66), (0.42, 0.52), (0.38, 0.0), (0.2, 0.0), (0.18, 0.32),          # a little arm, a front leg
+                (-0.06, 0.28), (-0.18, 0.0), (-0.38, 0.0), (-0.36, 0.36), (-0.45, 0.42)]                  # his belly, a back leg
+
+
+def _resample(pts, n):
+    import math
+    seg = [math.dist(a, b) for a, b in zip(pts, pts[1:])]
+    tot = sum(seg)
+    out, i, acc = [], 0, 0.0
+    for k in range(n):
+        d = tot * k / (n - 1)
+        while i < len(seg) - 1 and acc + seg[i] < d:
+            acc += seg[i]; i += 1
+        f = (d - acc) / seg[i] if seg[i] else 0
+        (x0, y0), (x1, y1) = pts[i], pts[i + 1]
+        out.append((x0 + (x1 - x0) * f, y0 + (y1 - y0) * f))
+    return out
+
+
+def show_dragon(G, X):
+    S = _Show(Dragon, X)
+    pts = _resample(_DRAGON_LINE, 56)
+    lead = _dust((0.22, 0.22, 0.26), 0.55)
+    dot = lambda x, y: f'particle {lead} ^{x:.2f} ^{y:.2f} ^ 0 0 0 0 1'
+    # (1-31) a pencil draws him in the air, a line at a time (the drawn line drawn over again, so it stays)
+    x0, y0 = pts[0]
+    S.sprite(1, 'pen', 'bm:mz_tool_pencil', f'^{x0:.2f} ^{y0 + 0.2:.2f} ^', {'teleport_duration': Int(1)})
+    S.size(2, 'pen', 0.5, 3)
+    for k in range(28):
+        t = 3 + k
+        a, b = pts[2 * k], pts[2 * k + 1]
+        S.at(t, dot(*a), dot(*b), f'execute positioned ^{b[0]:.2f} ^{b[1] + 0.2:.2f} ^ run tp {S.sel("pen")} ~ ~ ~')
+        if k % 4 == 0:
+            S.snd(t, 'ui.cartography_table.take_result', 0.5, 1.4 + 0.05 * (k % 8))
+        if k % 6 == 5:
+            S.at(t, *[dot(x, y) for x, y in pts[:2 * k + 2]])
+    S.size(31, 'pen', 0, 3).at(31, *[dot(x, y) for x, y in pts])
+    # (33-55) crayon colours fill him in, part by part (each scribbled in out of nothing)
+    green, purple = _dust((0.35, 0.75, 0.28), 1.3), _dust((0.6, 0.35, 0.82), 1.2)
+    S.at(36, *[dot(x, y) for x, y in pts[::2]])
+    order = [('body', 'legr', 'legl'), ('tail',), ('armr', 'arml'), ('head',)]
+    for j, parts in enumerate(order):
+        t = 33 + 5 * j
+        S.pose(t, 'idle_a', 5, parts=list(parts))
+        S.at(t, f'particle {green} ^ ^{0.4 + 0.25 * j:.2f} ^ 0.25 0.2 0.1 0 10', 'particle minecraft:poof ^ ^0.7 ^ 0.2 0.3 0.2 0.01 2')
+        S.snd(t, 'item.brush.brushing.generic', 0.7, 1.6 + 0.1 * j)
+    S.face(49, 'blink').face(52)
+    # (55-73) the wings unfold: out of nothing, then flap, flap
+    S.pose(55, 'flap_0', 4, parts=['wingr', 'wingl'])
+    S.at(55, f'particle {purple} ^ ^1.2 ^ 0.45 0.2 0.1 0 14').snd(55, 'item.book.page_turn', 0.9, 1.3)
+    for j, t in enumerate((60, 64, 68)):
+        S.pose(t, 'flap_1' if j % 2 == 0 else 'flap_0', 3).snd(t, 'entity.ender_dragon.flap', 0.35, 1.9)
+    # (73-100) a little roar (and a puff of crayon smoke) - then a happy grin
+    S.pose(73, 'stomp_up', 4, parts=['body', 'head', 'armr', 'arml', 'legr', 'legl', 'wingr', 'wingl', 'tail']).face(73, 'roar')
+    S.snd(74, 'entity.ender_dragon.growl', 0.35, 1.9)
+    S.at(75, item_particle('dd_fx_smoke', '^ ^1.35 ^0.35', '0.1 0.1 0.1', 0.03, 8), 'particle minecraft:small_flame ^ ^1.3 ^0.4 0.05 0.05 0.05 0.02 4')
+    S.pose(85, 'happy', 4).face(85, 'happy')
+    S.pose(95, 'idle_a', 5).face(95)
+    return S.done(101, resume=1)
+
+
+def show_eraser(G, X):
+    import math
+    S = _Show(Eraser, X)
+    grey = _dust((0.42, 0.42, 0.46), 1.6)
+    pink = _dust((1.0, 0.62, 0.7), 0.8)
+    # (1-20) a smudge hangs in the air, and something rubs at it
+    for t in range(1, 22, 3):
+        S.at(t, f'particle {grey} ^ ^0.7 ^ 0.3 0.2 0.05 0 6')
+    for t in (4, 9, 14, 19):
+        S.snd(t, 'item.brush.brushing.generic', 0.8, 1.2 + 0.04 * t)
+    # (10-38) ...and it's rubbed out: pink crumbs swirl up out of it
+    for t in range(10, 38):
+        a = t * 0.55
+        r = 0.6 - 0.4 * (t - 10) / 28
+        y = 0.25 + 0.6 * (t - 10) / 28
+        for k in (0, math.pi):
+            S.at(t, item_particle('er_crumb_i', f'^{r * math.cos(a + k):.2f} ^{y:.2f} ^{r * math.sin(a + k):.2f}', '0 0 0', 0, 1))
+        if t % 3 == 0:
+            S.at(t, f'particle {pink} ^{-r * math.sin(a):.2f} ^{y:.2f} ^{r * math.cos(a):.2f} 0 0 0 0 1')
+    # (38) out it pops - up, and down
+    S.pose(38, 'jump', 3, kx=1.15, ky=1.15, lift=0.45).face(38, 'surprised')
+    S.at(38, *_crumbs('~ ~0.6 ~', 16), 'particle minecraft:poof ~ ~0.6 ~ 0.25 0.25 0.25 0.03 10')
+    S.snd(38, 'entity.chicken.egg', 1.0, 1.1).snd(38, 'block.wool.break', 0.8, 1.4)
+    S.pose(42, 'idle_b', 4, kx=1.18, ky=0.82).snd(45, 'entity.slime.jump_small', 0.6, 1.6)
+    S.pose(46, 'idle_b', 3)
+    # (52-74) it dusts itself off - crumbs everywhere
+    for j, t in enumerate(range(52, 74, 3)):
+        S.pose(t, 'rub_0' if j % 2 == 0 else 'rub_1', 3)
+        S.at(t, item_particle('er_crumb_i', '~ ~0.35 ~', '0.3 0.1 0.3', 0.04, 3))
+        if j % 2 == 0:
+            S.snd(t, 'item.brush.brushing.generic', 0.6, 1.5)
+    S.face(52, 'serious')
+    # (76-90) done - a sheepish little smile... and it hides (it's shy)
+    S.pose(76, 'happy', 4).face(76, 'happy')
+    S.pose(86, 'hide', 5).face(86)
+    return S.done(92, resume=1)
+
+
+def show_cursor(G, X):
+    S = _Show(Cursor, X)
+    bits = [_dust(c, 0.9) for c in ((0.3, 1.0, 0.5), (1.0, 0.3, 0.9), (0.3, 0.8, 1.0), (1.0, 1.0, 1.0))]
+    # (1-20) a glitch: sparks, stray pixels, bit-crushed notes - and the pointer flickers in and out
+    for t in range(1, 21, 2):
+        S.at(t, f'particle {bits[t % 4]} ^{((t * 7) % 9 - 4) * 0.1:.2f} ^{1.0 + ((t * 5) % 7 - 3) * 0.1:.2f} ^ 0.15 0.15 0.05 0 4',
+             'particle minecraft:electric_spark ~ ~1.1 ~ 0.25 0.3 0.25 0.15 4')
+    for t, p in ((1, 0.5), (3, 1.8), (6, 0.7), (8, 2.0), (11, 0.6), (13, 1.5), (16, 0.53), (18, 1.9)):
+        S.snd(t, 'block.note_block.bit', 0.7, p)
+    for t, on in ((5, 1), (6, 0), (9, 1), (10, 0), (12, 1), (14, 0), (17, 1), (18, 0)):
+        if on:
+            S.pose(t, 'idle_b', 0, kx=1.0 + 0.1 * (t % 3), ky=0.9)
+        else:
+            S.hide(t)
+    S.at(5, 'particle minecraft:flash{color:[0.8,1.0,1.0,1.0]} ~ ~1.1 ~ 0 0 0 0 1')
+    # (22-46) a blinking text cursor - its I-beam - blink, blink, blink
+    for j, t in enumerate(range(22, 46, 6)):
+        S.pose(t, 'idle_c', 0)
+        S.hide(t + 3)
+        S.snd(t, 'block.note_block.hat', 0.3, 1.9)
+    S.face(22, 'blink')
+    # (48) *click* - it snaps into its arrow
+    S.pose(48, 'idle_a', 1, kx=1.25, ky=1.25).pose(50, 'idle_a', 3).face(48)
+    S.snd(48, 'ui.button.click', 1.0, 1.2).snd(48, 'block.note_block.bit', 0.6, 2.0)
+    S.at(48, 'particle minecraft:electric_spark ~ ~1.1 ~ 0.3 0.4 0.3 0.25 16', f'particle {bits[3]} ~ ~1.1 ~ 0.3 0.4 0.3 0 10')
+    # (56-64) a double-click
+    for t in (56, 60):
+        S.pose(t, 'click', 2).pose(t + 2, 'idle_a', 2).snd(t, 'ui.button.click', 0.8, 1.6)
+    # (66-82) a wave: hello, player
+    S.face(66, 'happy')
+    for j, t in enumerate(range(66, 82, 4)):
+        S.pose(t, 'wave_a' if j % 2 == 0 else 'wave_b', 4)
+    S.pose(82, 'idle_a', 4).face(84)
+    return S.done(88, resume=31)
+
+
+Dragon.ENC_SHOW, Eraser.ENC_SHOW, Cursor.ENC_SHOW, InkBlot.ENC_SHOW, Speech.ENC_SHOW = show_dragon, show_eraser, show_cursor, show_inkblot, show_speech
+
 # ---------------------------------------------------------------------------------------------------- generate: the followers, how you meet them
 def generate(G):
     fn, wjson, tellraw, title = G.fn, G.wjson, G.tellraw, G.title
@@ -664,7 +1002,7 @@ def generate(G):
                               f'execute positioned ^ ^ ^4 run function bm:{p}/enc/place'])
         fn(f'{p}/enc/place', [f'execute if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass unless block ~ ~-1 ~ #bm:grap_pass run return run function bm:{p}/enc/step',
                               f'execute positioned ~ ~1 ~ if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run function bm:{p}/enc/step'])
-        fn(f'{p}/enc/step', [f'function bm:{p}/enc/spawn'] + C.BURST + [X.tellraw(f'@a[tag=!bm.{ab}met,distance=..16]', line)])
+        fn(f'{p}/enc/step', [f'function bm:{p}/enc/spawn'] + ([] if C.ENC_SHOW else C.BURST) + [X.tellraw(f'@a[tag=!bm.{ab}met,distance=..16]', line)])   # (3.0a: its entrance is a show)
 
     def offer(C, X, items, have_line, no_line, joined_line, used=True):
         p = C.pfx
@@ -692,7 +1030,7 @@ def generate(G):
                T('Then it brushes off a pink crumb and gives it to you. A fresh start.', 'gray', italic=True)])
     # ---- THE CURSOR: a Glitched Cartridge with nobody beside you (phase214's "use it beside a follower") - the player's hand
     def e_cursor(G, X):
-        fn('p235c/enc/glitch', ['function bm:p235c/enc/spawn'] + Cursor.BURST + ['playsound minecraft:block.note_block.bit neutral @a[distance=..24] ~ ~ ~ 1 1.8'])
+        fn('p235c/enc/glitch', ['function bm:p235c/enc/spawn'])                    # (3.0a: the glitch is its entrance's - show_cursor)
         csay = lambda txt: title('@s', 'actionbar', [T('The Cursor: ', Cursor.COL, bold=True), T(txt, Cursor.LINE)])
         fn('p235c/enc/talk', [f'execute if items entity @s container.* {X.holds("cursor_mouse")} run return run ' + csay('"You\'ve already got me! I\'m your hand, remember?"'),
                               'function bm:p235c/enc/recruit'])

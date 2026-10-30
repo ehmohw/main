@@ -10,9 +10,15 @@ runT({ W: 'cursor', NAME: 'The Cursor', ab: 'ux', q: 'uq', pfx: 'p235c', prefix:
     await at(X + 0.5, Y + 1, Z + 0.5, 0, 10); A.chats.length = 0;
     await run('loot replace entity TestRat hotbar.4 loot bm:items/glitch_cart'); await sleep(2200);
     await use(4);
-    ok('a Glitched Cartridge used with nobody beside you: the pointer slips out (its rig and a click box)', await wait(5000, async () => (await cnt(ENC)) === 1) &&
+    const K = kit(ctx, 'uq');
+    const out = await wait(5000, async () => (await cnt(ENC)) === 1, 100); const pre = await K.early(ctx);
+    ok('a Glitched Cartridge used with nobody beside you: the pointer slips out (its rig and a click box)', out &&
        A.chats.some(c => /pointer slips out/.test(c)) && (await has('glitch_cart')) === 0, A.chats.slice(-1).join('').slice(0, 160));
     let eb = null; await wait(5000, async () => (eb = await entOf(ENC)) != null, 250); A.slot(8); await sleep(300);
+    // (3.0a) its entrance - a glitch, a blinking I-beam, *click* into its arrow: a click mid-show doesn't select you yet
+    const show = await K.entrance(ctx, eb, null, pre, async () => (await has('cursor_mouse')) === 1);
+    K.showOks(ok, { show }, 'The Cursor\'s entrance', null);
+    eb = await entOf(ENC); A.slot(8); await sleep(300);
     A.chats.length = 0; if (eb) A.interact(eb.entityId); await sleep(1500);
     ok('right-clicked: selected - its mouse given', (await has('cursor_mouse')) === 1 && A.chats.some(c => /Selected/.test(c)), A.chats.slice(-1).join('').slice(0, 160));
   },

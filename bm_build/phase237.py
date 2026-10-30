@@ -4,7 +4,7 @@ what's shared; undercrown_lore.py says everything it says). Its master's fight i
 FINDING IT   hard mode. Beat all three Dread bosses (bm.dbwin_snow/witch/shark) and a voice speaks - "You broke my three.
              Come, then." - and THE SOVEREIGN'S SUMMONS is yours: a compass that, in the Nether, points to the Undercrown (one
              per world, at undercfg.ORIGIN, cut into the rock; placed - and re-placed - by command). Outside, it is a cliff in an
-             ash cave with a seam of crying obsidian; stand at the seam carrying the three Dread Tokens and it opens. (2.98c: THE MAW - a court with the Sovereign's helm carved as its wall, the gate its mouth; roads cut out to it.)
+             ash cave with a seam of crying obsidian; stand at the seam carrying the three Dread Tokens and it opens. (2.98c: THE MAW - a court with the Sovereign's helm carved as its wall, the gate its mouth; roads cut out to it. 3.0a: before each mouth an open forecourt, the roads bored on until they break into open air - p2/underroad.)
 INSIDE       it is a Phase 2 dungeon (p2/logic runs its seventeen trials, gates, secret doors, waves and vaults; a 20-minute idle
              reset re-locks it) with kinds of its own (logic.EXTRA):
   SIGIL      a follower's emblem in the floor: lit while that follower (anyone's) stands on it. All of a trial's lit at once:
@@ -19,8 +19,9 @@ HIDDEN ROOMS (undercfg.HIDDEN) open while their followers stand on their sigils 
              BLACK SEAL (once a player each rebuild) and its relic (once a player, ever) - and a chest. Two classic secret doors.
              Six Black Seals open THE SOVEREIGN'S HOARD behind the throne, after the fall.
              The Lantern Crawl is pitch dark (Darkness and Blindness) - unless the Arachno-Lantern is with you.
-THE FALL     (phase238 calls p237/collapse) three minutes to loot - then everyone inside is carried out and the whole Undercrown
-             is REBUILT: every block, chest, trial, sigil, shard and seal as it was.
+THE FALL     (phase238 calls p237/collapse) (3.0a) it HOLDS until its victors have claimed their spoils (each turns their Victor's
+             Key in the Victor's Vault; GRACE for the rest once one has; HOLD_MAX at most) - then three minutes - then everyone
+             inside is carried out and the whole Undercrown is REBUILT: every block, chest, trial, sigil, shard and seal as it was.
 THE DREAD NIGHTS END when it falls (#dfell bm.cfg): none is rolled, none can be rung. THE DREAD EMBER (its spoils) kindles them
              again - and, kindled again, puts them out.
 RELICS       Dawnshard (held: the great eye's beam can't touch you - phase238), Page of Unwriting (monsters near lose you),
@@ -40,8 +41,10 @@ OX, OY, OZ = U.ORIGIN
 SX, SY, SZ = U.SIZE
 NETHER = 'minecraft:the_nether'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
-UVER = 6                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out)
-COLLAPSE = 180                            # seconds between its fall and the rebuild
+UVER = 7                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out; 7: 3.0a's forecourts and bored roads)
+COLLAPSE = 180                            # seconds between the claim of its spoils and the rebuild
+HOLD_MAX = 1800                           # (3.0a) the longest it holds for its victors' claim (30 min: no world stays stuck)
+GRACE = 180                               # (3.0a) once one victor has claimed, how long the rest have before it goes anyway
 EYE = (110, 130, 160)                     # the eyes' cycle (ticks): shut .. twitch (warning) .. open .. (round again)
 TOKENS = {'snow': 'tok_frost', 'witch': 'tok_hex', 'shark': 'tok_saw'}
 TOK_COL = {'snow': '0.6,0.85,1.0', 'witch': '0.48,1.0,0.35', 'shark': '1.0,0.82,0.1'}
@@ -327,12 +330,16 @@ def generate(G):
     # (a forceload takes at most 256 chunks at once: the box and its margin in four quarters)
     _mx, _mz = OX + SX // 2, OZ + SZ // 2
     fls = [f'{a} {b} {c} {d}' for a, c in ((OX - 8, _mx), (_mx + 1, OX + SX + 8)) for b, d in ((OZ - 8, _mz), (_mz + 1, OZ + SZ + 8))]
+    import p2.underroad as UR               # (3.0a: and the strips its forecourts and bored roads may reach - p2/underroad)
+    _strips, _far = UR.forceload()
+    fls += [f'{a} {b} {c} {d}' for a, b, c, d in _strips]
+    _farl = ''.join(f' if loaded {x} {OY + UR.Y} {z}' for x, z in _far)
     import phase255 as NS                   # (3.0a: 16-wide columns - a 56-wide fill was over the block limit, and failed - and a quart round)
     bio = NS.fills(NETHER, (OX, OY, OZ), (SX, SY, SZ), 'bm:undercrown', done=('#ubio', NS.BIOV))
     import p2.oldsite as OS                 # (3.0: moved out to 2.5k-5k - an old copy, where a world had one, comes down first)
     OS.generate(G, 'p237', NETHER, (1536, 6, -1536), (SX, SY, SZ), 'minecraft:netherrack', CLEAR, 'p237/out', '#uver')
     fn('p237/build/try', ['execute if function bm:p237/oldsite run return 0', *[f'execute in {NETHER} run forceload add {q}' for q in fls],
-                          f'execute in {NETHER} store success score #uload bm.p2 if loaded {OX} {OY} {OZ} if loaded {OX + SX - 1} {OY} {OZ + SZ - 1} if loaded {OX} {OY} {OZ + SZ - 1} if loaded {OX + SX - 1} {OY} {OZ}',
+                          f'execute in {NETHER} store success score #uload bm.p2 if loaded {OX} {OY} {OZ} if loaded {OX + SX - 1} {OY} {OZ + SZ - 1} if loaded {OX} {OY} {OZ + SZ - 1} if loaded {OX + SX - 1} {OY} {OZ}{_farl}',
                           'execute unless score #uload bm.p2 matches 1 run return run scoreboard players set #uwait bm.p2 0',
                           'scoreboard players add #uwait bm.p2 1', 'execute unless score #uwait bm.p2 matches 4.. run return 0',
                           f'execute in {NETHER} as @a[{BOX}] at @s run function bm:p237/out',
@@ -346,28 +353,12 @@ def generate(G):
                           *[f'execute in {NETHER} run forceload remove {q}' for q in fls]])
     # (a rebuild's leftovers: a marker of an older copy whose chunk loaded after the clear - never two of anything)
     second.append(f'execute if score #uver bm.p2 matches {UVER} in {NETHER} as @e[type=minecraft:marker,tag=bm.d_{d},{BOX}] unless score @s bm.drun = #urun bm.p2 run kill @s')
-    second.append(f'execute if score #uwant bm.p2 matches 1 unless score #uver bm.p2 matches {UVER} unless score #ucol bm.p2 matches 1.. run function bm:p237/build/try')
-    # (2.98c) THE ROADS TO THE MAW: from each of its mouths (the court's east and south faces), a walled processional road cut 48
-    # blocks out into the Nether, paved, its walls holding back whatever lava is there, soul lanterns hung on chains above it
-    def road(x1, z1, x2, z2, along, y0=72, h=14):
-        X1, X2, Z1, Z2, Y = OX + x1, OX + x2, OZ + z1, OZ + z2, OY + y0
-        if along == 'x':
-            walls = [(X1, Z1 - 1, X2, Z1 - 1), (X1, Z2 + 1, X2, Z2 + 1)]
-            lamps = [(x, z) for x in range(X1 + 3, X2, 6) for z in (Z1 + 1, Z2 - 1)]
-            mid = [(X1, (Z1 + Z2) // 2, X2, (Z1 + Z2) // 2)]
-        else:
-            walls = [(X1 - 1, Z1, X1 - 1, Z2), (X2 + 1, Z1, X2 + 1, Z2)]
-            lamps = [(x, z) for z in range(Z1 + 3, Z2, 6) for x in (X1 + 1, X2 - 1)]
-            mid = [((X1 + X2) // 2, Z1, (X1 + X2) // 2, Z2)]
-        out = [f'fill {X1} {Y} {Z1} {X2} {Y + h} {Z2} minecraft:air', f'fill {X1} {Y - 1} {Z1} {X2} {Y - 1} {Z2} minecraft:polished_blackstone_bricks',
-               f'fill {X1} {Y - 2} {Z1} {X2} {Y - 2} {Z2} minecraft:blackstone replace #bm:grap_pass',
-               f'fill {X1} {Y + h + 1} {Z1} {X2} {Y + h + 1} {Z2} minecraft:blackstone replace minecraft:lava']
-        out += [f'fill {a} {Y - 1} {b} {c} {Y - 1} {d} minecraft:red_nether_bricks' for a, b, c, d in mid]
-        out += [f'fill {a} {Y - 1} {b} {c} {Y + h + 1} {d} minecraft:polished_blackstone_bricks' for a, b, c, d in walls]
-        for x, z in lamps:
-            out += [f'fill {x} {Y + h - 3} {z} {x} {Y + h} {z} minecraft:iron_chain', f'setblock {x} {Y + h - 4} {z} minecraft:soul_lantern[hanging=true]']
-        return out
-    fn('p237/build/roads', [f'execute in {NETHER} run {c}' for c in road(224, 189, 271, 199, 'x') + road(207, 224, 220, 271, 'z')])
+    second.append(f'execute if score #uwant bm.p2 matches 1 unless score #uver bm.p2 matches {UVER} unless score #ucol bm.p2 matches 1.. unless score #uhold bm.p2 matches 1.. run function bm:p237/build/try')
+    # (2.98c) THE ROADS TO THE MAW - (3.0a) and the forecourts: in front of each of its mouths (the court's east and south faces) a
+    # great cavity cut out of whatever is there, its lava held back, paved and lit; and from each, the walled processional road
+    # bored on out until it breaks into open Nether air, a landing (and a climb) at its end. p2/underroad says it all.
+    fn('p237/build/roads', UR.generate(G))
+    UR.report(fn, tellraw, T, P)
     # (it calls: a bell tolls from the Maw to anyone near it; the first time they come within sight, its name)
     mx, my, mz = W(214, 80, 194)
     second += [f'execute in {NETHER} if entity @a[x={mx},y={my},z={mz},distance=..160] run function bm:p237/maw/sec']
@@ -385,11 +376,55 @@ def generate(G):
     fast.append('execute as @e[type=minecraft:marker,tag=bm.urift] at @s as @a[distance=..1.3,gamemode=!spectator] at @s run function bm:p237/out')
     fast.append('execute as @e[type=minecraft:marker,tag=bm.urift] at @s if entity @a[distance=..24] run particle minecraft:reverse_portal ~ ~1 ~ 0.3 0.8 0.3 0.02 6')
 
-    # ---- the fall: three minutes, then everyone out and the Undercrown re-formed (phase238 calls this)
-    fn('p237/collapse', ['scoreboard players set #ufell bm.p2 1', f'scoreboard players set #ucol bm.p2 {COLLAPSE}',
+    # ---- the fall (phase238 calls this). 3.0a: the Undercrown HOLDS until its victors have claimed their spoils - each one who
+    # felled it (bm.uclm = #urun, set in phase238's reward; #uowed counts them) has opened the Victor's Vault with their Victor's
+    # Key (the vault's own rewarded_players lists them), or has gone 20 s without a key to open it with - THEN its three minutes,
+    # then everyone out and the Undercrown re-formed. Once one has claimed, the rest have GRACE; it never holds past HOLD_MAX.
+    vv = next((v for v in Bu.meta['vaults'] if v[3] == 'ukey_victor'), None)
+    VX, VY, VZ = W(*vv[:3]) if vv else W(122, 13, 87)
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.uclm dummy', 'scoreboard objectives add bm.uclk dummy']
+    G.OBJECTIVES += ['bm.uclm', 'bm.uclk']
+    mine_ = lambda: 'if score @s bm.uclm = #urun bm.p2'
+    fn('p237/collapse', ['scoreboard players set #ufell bm.p2 1', 'scoreboard players set #ucol bm.p2 0', 'scoreboard players set #uhold bm.p2 1',
+                         f'scoreboard players set #uhto bm.p2 {HOLD_MAX}', 'scoreboard players set #uhgr bm.p2 -1', 'scoreboard players set #uclaims bm.p2 0',
+                         'scoreboard players set @a bm.uclk 0',
+                         f'execute in {NETHER} run ' + tellraw(f'@a[{BOX}]', [T('The Undercrown shudders - and holds. ', COL, bold=True),
+                                                                             T('Without its master it will not keep its shape for long - but it will hold until its victors have claimed their spoils.', 'gray')]),
+                         f'execute as @a {mine_()} run ' + tellraw('@s', [T('Claim your spoils: ', COL, bold=True),
+                                                                        T('your Victor\'s Key opens the Victor\'s Vault, in the antechamber before the hall. The Undercrown will hold until you do.', 'gray')]),
+                         'execute if score #uowed bm.p2 matches ..0 run function bm:p237/hold_end'])
+    fn('p237/hold_sec', ['scoreboard players remove #uhto bm.p2 1', 'execute if score #uhgr bm.p2 matches 1.. run scoreboard players remove #uhgr bm.p2 1',
+                         f'execute as @a {mine_()} at @s run function bm:p237/claim/check',
+                         'execute if score #uowed bm.p2 matches ..0 run return run function bm:p237/hold_end',
+                         'execute if score #uhgr bm.p2 matches 0 run return run function bm:p237/hold_end',
+                         'execute if score #uhto bm.p2 matches ..0 run return run function bm:p237/hold_end',
+                         'scoreboard players add #uhtk bm.p2 1', 'execute unless score #uhtk bm.p2 matches 2.. run return 0', 'scoreboard players set #uhtk bm.p2 0',
+                         f'execute in {NETHER} as @a[{BOX}] {mine_()} run ' + title('@s', 'actionbar', [T('Claim your spoils', COL, bold=True), T(' - the Victor\'s Vault, in the antechamber. The Undercrown holds until you do.', 'gray')]),
+                         f'execute in {NETHER} as @a[{BOX}] unless score @s bm.uclm = #urun bm.p2 if score #uhgr bm.p2 matches 1.. run ' +
+                         title('@s', 'actionbar', [T('The Undercrown holds ', COL), T('while the last of its victors claim their spoils: ', 'gray'), {'score': {'name': '#uhgr', 'objective': 'bm.p2'}, 'color': 'white'}, T(' s', 'gray')]),
+                         f'execute in {NETHER} as @a[{BOX}] unless score @s bm.uclm = #urun bm.p2 unless score #uhgr bm.p2 matches 1.. run ' +
+                         title('@s', 'actionbar', T('The Undercrown holds while its victors claim their spoils.', COL))])
+    second.append('execute if score #uhold bm.p2 matches 1 run function bm:p237/hold_sec')
+    # (claimed: the vault's own list of whom it has rewarded holds their UUID)
+    fn('p237/claim/check', ['execute if function bm:p237/claim/vault run return run function bm:p237/claim/got', 'function bm:p237/claim/keyless'])
+    fn('p237/claim/vault', ['data remove storage bm:p237 rw', f'execute in {NETHER} run data modify storage bm:p237 rw set from block {VX} {VY} {VZ} server_data.rewarded_players',
+                            'data modify storage bm:p237 me set from entity @s UUID', 'return run function bm:p237/claim/scan'])
+    fn('p237/claim/scan', ['execute unless data storage bm:p237 rw[0] run return 0', 'data modify storage bm:p237 cmp set from storage bm:p237 rw[0]',
+                           'execute store success score #df bm.rng run data modify storage bm:p237 cmp set from storage bm:p237 me',
+                           'execute if score #df bm.rng matches 0 run return 1', 'data remove storage bm:p237 rw[0]', 'return run function bm:p237/claim/scan'])
+    fn('p237/claim/got', ['scoreboard players set @s bm.uclm 0', 'scoreboard players remove #uowed bm.p2 1', 'scoreboard players add #uclaims bm.p2 1',
+                          f'execute unless score #uhgr bm.p2 matches 0.. run scoreboard players set #uhgr bm.p2 {GRACE}',
+                          tellraw('@s', [T('Your spoils are claimed. ', COL, bold=True), T('When every victor has claimed theirs, the Undercrown begins to come apart.', 'gray')]),
+                          'playsound minecraft:block.vault.reject_rewarded_player player @s ~ ~ ~ 0.6 0.6'])
+    fn('p237/claim/haskey', [f'execute if items entity @s container.* {holds("ukey_victor")} run return 1', f'execute if items entity @s weapon.offhand {holds("ukey_victor")} run return 1', 'return 0'])
+    fn('p237/claim/keyless', ['execute if function bm:p237/claim/haskey run return run scoreboard players set @s bm.uclk 0', 'scoreboard players add @s bm.uclk 1',
+                              'execute if score @s bm.uclk matches 20.. run function bm:p237/claim/forfeit'])
+    fn('p237/claim/forfeit', ['scoreboard players set @s bm.uclm 0', 'scoreboard players remove #uowed bm.p2 1',
+                              tellraw('@s', [T('No Victor\'s Key on you: ', COL), T('the Victor\'s Vault will not open for you, and the Undercrown will not wait.', 'gray')])])
+    fn('p237/hold_end', ['scoreboard players set #uhold bm.p2 0', f'scoreboard players set #ucol bm.p2 {COLLAPSE}', 'scoreboard players set #uowed bm.p2 0',
                          f'execute in {NETHER} run ' + tellraw(f'@a[{BOX}]', [T('The Undercrown shudders. ', COL, bold=True),
                                                                              T(f'Without its master it will not hold its shape: in {COLLAPSE // 60} minutes it re-forms - and anyone still inside is carried out.', 'gray')])])
-    fn('p237/collapse_sec', ['scoreboard players remove #ucol bm.p2 1',
+    fn('p237/collapse_sec', ['scoreboard players remove #ucol bm.p2 1', 'scoreboard players set #uhold bm.p2 0',
                              *[f'execute if score #ucol bm.p2 matches {s} in {NETHER} run ' + title(f'@a[{BOX}]', 'actionbar', T(f'The Undercrown re-forms in {s} seconds.', COL))
                                for s in (120, 60, 30, 10, 5, 4, 3, 2, 1)],
                              'execute if score #ucol bm.p2 matches ..0 run scoreboard players set #uver bm.p2 0'])
@@ -591,7 +626,7 @@ def generate(G):
         'carvers': [], 'downfall': 0.0, 'effects': {'water_color': '#3f76e4'}, 'features': [], 'has_precipitation': False, 'temperature': 2.0})
 
     # ================================================================== ADMIN
-    fn('admin/under/place', ['scoreboard players set #uwant bm.p2 1', 'scoreboard players set #uver bm.p2 0', 'scoreboard players set #ucol bm.p2 0',
+    fn('admin/under/place', ['scoreboard players set #uwant bm.p2 1', 'scoreboard players set #uver bm.p2 0', 'scoreboard players set #ucol bm.p2 0', 'scoreboard players set #uhold bm.p2 0',
                              tellraw('@s', P + [T('The Undercrown will be (re)placed in the Nether in a few seconds (everyone inside is carried out first).', 'gray')])])
     ex, ey, ez = W(*Bu.meta['entrance']) if Bu.meta['entrance'] else (ox_, oy_, oz_)
     fn('admin/under/go', [f'execute unless score #uver bm.p2 matches {UVER} run return run ' + tellraw('@s', P + [T('Not placed yet: /function bm:admin/under/place', 'gray')]),
@@ -601,5 +636,5 @@ def generate(G):
                                give(TOKENS['snow']), give(TOKENS['witch']), give(TOKENS['shark'])])
     fn('admin/under/fell', ['function bm:p237/nights_end'])
     fn('admin/under/unfell', ['scoreboard players set #dfell bm.cfg 0', tellraw('@s', P + [T('The Dread Nights can come again.', 'gray')])])
-    G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/under/', 'yellow'), T('place | go | outside | summons | fell | unfell', 'yellow'),
+    G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/under/', 'yellow'), T('place | go | outside | approach | summons | fell | unfell', 'yellow'),
                                                 T('  the Undercrown (final dungeon): (re)place it, go in, go to its gate, earn the Summons, end or bring back the Dread Nights', 'gray')]))

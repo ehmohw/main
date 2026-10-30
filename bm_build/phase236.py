@@ -138,6 +138,34 @@ class Dryad(RP.Cfg):
     MEET_HINT = 'A Pale Garden, at night. Bring a mushroom.'
 
 
+def show_dryad(G, X):
+    """(3.0a) her entrance (rigpet's ENC_SHOW, on phase235's kit): blue and orange mushroom-light flickers up through the pale moss,
+    spores drift; she rises out of it, sitting, still asleep - blinks, blinks, wakes up properly, hops up, and beams at you"""
+    S = P235._Show(Dryad, X, 'head')
+    blue, orange = P235._dust((0.4, 0.66, 1.0), 0.9), P235._dust((1.0, 0.6, 0.25), 0.9)
+    import math
+    for t in range(1, 22, 2):
+        a = t * 0.9
+        S.at(t, f'particle {blue if t % 4 == 1 else orange} ^{0.55 * math.cos(a):.2f} ^0.1 ^{0.55 * math.sin(a):.2f} 0.02 0.05 0.02 0 3',
+             'particle minecraft:spore_blossom_air ~ ~0.4 ~ 0.5 0.2 0.5 0 3')
+    S.snd(1, 'block.moss.place', 0.8, 1.2).snd(8, 'block.creaking_heart.idle', 0.5, 1.6).snd(16, 'block.amethyst_block.chime', 0.5, 1.4)
+    # (20-36) up out of the moss, sitting - still asleep
+    S.pose(20, 'sit_a', 1, kx=0.7, ky=0.05).face(20, 'sleepy')
+    S.pose(21, 'sit_a', 14, kx=1.0, ky=1.0)
+    S.at(21, 'particle minecraft:spore_blossom_air ~ ~0.5 ~ 0.3 0.4 0.3 0 12', f'particle {blue} ~ ~0.5 ~ 0.3 0.3 0.3 0 8').snd(21, 'block.moss.break', 0.8, 1.4)
+    # (40-56) blink, blink - awake
+    S.face(40, 'blink').face(43, 'sleepy').face(48, 'blink').face(51, 'surprised')
+    # (56-80) she hops up, and beams at you
+    S.pose(56, 'jump', 4, lift=0.25).snd(56, 'block.azalea_leaves.step', 0.8, 1.5)
+    S.pose(60, 'idle_a', 3, kx=1.1, ky=0.9).pose(63, 'happy', 4).face(63, 'happy')
+    S.at(63, f'particle {orange} ~ ~1 ~ 0.3 0.3 0.3 0 8', 'particle minecraft:spore_blossom_air ~ ~1 ~ 0.4 0.4 0.4 0 10').snd(63, 'block.amethyst_block.chime', 0.7, 1.8)
+    S.face(84)
+    return S.done(86, resume=61)
+
+
+Dryad.ENC_SHOW = show_dryad
+
+
 PAIR = (Lightbringer, Dryad)
 for _C in PAIR:
     RP.register(_C)

@@ -10,6 +10,7 @@ runT({ W: 'dragon', NAME: 'The Doodle Dragon', ab: 'dd', q: 'dz', pfx: 'p235d', 
     const K = kit(ctx, 'dz');
     const r = await K.meet(ctx, 'p235d/enc/place', /crayons/, 'minecraft:green_dye', /sniffs the dye/, 'doodle_drawing');
     ctx.ok('Kettle\'s drawing climbs off the page (his rig and a click box)', r.placed && ctx.A.chats.length >= 0);
+    K.showOks(ctx.ok, r, "The Doodle Dragon's entrance", 'a pencil (a prop) drawing him in the air');
     ctx.ok('right-clicked empty-handed: he wants crayons', r.asked, r.lastBar);
     ctx.ok('right-clicked holding a dye: his drawing given - he\'s yours', r.got && !/Found [1-9]/.test(await ctx.run('clear TestRat minecraft:green_dye 0')), r.chat);
   },

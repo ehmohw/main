@@ -23,7 +23,10 @@ THE FIGHT    three pools of health (each phase its own - no burst skips one), PH
 THE FALL     it unravels (3 s). Everyone in the hall: bm.dfin (the reckoning - the Lightbringer is no longer to be found), its
              spoils, a Victor's Key, the first time the Dread Ember, the Sovereign's Eye (the follower, phase239) and its record
              (the second time Aurel's elegy). The Dread Nights end (p237/nights_end), and the Undercrown begins to come apart
-             (p237/collapse: three minutes, then it is rebuilt).
+             (p237/collapse: 3.0a: once its victors have claimed their spoils in the Victor's Vault, three minutes, then it is rebuilt).
+THE CAMERA   (3.0a) one hold for every cinematic (p238/cam/*): turned to a look marker each tick, held (the Slowness is the
+             zoom), glided back from what is shown if too near it; a 3-tick lease gives control back the moment it stops (over,
+             dead, gone, relogged) - never a gamemode change, never a spectated camera entity.
 ABANDONED    nobody in the hall for 30 s: it goes back to its throne, the floor is put back (p237/floor) and the Wellsprings with it."""
 import math
 from items import T, item, TOTEM, gear, attr
@@ -183,7 +186,7 @@ def generate(G):
     fn, title, tellraw, give, wjson = G.fn, G.title, G.tellraw, G.give, G.wjson
     tick, fast, second = G.FUNCS['tick'], G.FUNCS['loop/fast'], G.FUNCS['loop/second']
     P = G.PREFIX
-    objs = ['bm.svph', 'bm.sva', 'bm.svx', 'bm.svf', 'bm.svs', 'bm.svt', 'bm.svg', 'bm.svw', 'bm.svi', 'bm.svz', 'bm.svwin', 'bm.svhp', 'bm.svhc'] + \
+    objs = ['bm.svph', 'bm.sva', 'bm.svx', 'bm.svf', 'bm.svs', 'bm.svt', 'bm.svg', 'bm.svw', 'bm.svi', 'bm.svz', 'bm.svwin', 'bm.svhp', 'bm.svhc', 'bm.svcm'] + \
            [f'bm.svk{s}' for s in STATES]
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + [
         f'bossbar add bm:usov {snbt(T(L.SOV, COL, bold=True))}', 'bossbar set bm:usov color red', 'bossbar set bm:usov style notched_10']
@@ -302,8 +305,32 @@ def generate(G):
         dx, dy = a * rs.choice((-1, 1)), a * 0.6 * rs.choice((-1, 1))
         shk.append((dx, dy))
     fn('p238/c/shake', [f'execute as {FIGHT} at @s run rotate @s ~{dx:.2f} ~{dy:.2f}' for dx, dy in shk[:2]])
-    fn('p238/c/hold', [f'execute as {FIGHT} at @s run tp @s ~ ~ ~ facing {hx} {hy} {hz}', f'effect give {FIGHT} minecraft:slowness 2 255 true',
-                       f'effect give {FIGHT} minecraft:resistance 2 255 true', f'effect give {FIGHT} minecraft:jump_boost 2 200 true'])
+    # ---- (3.0a) THE CAMERA, one hold for every cinematic (the coming, each form's entrance, the Last Light): each tick, each
+    # fighter is turned to the look marker (bm.svlook), held still (the slowness is also the forced zoom), unhurt; anyone too
+    # close to what is being shown (a keep-out marker: bm.svko 14, bm.svkos 9) glides back from it over the floor (never off
+    # it) - so every entrance is framed as the first is, from across the hall, not from under its chin. A held player is
+    # tagged bm.svcam with a 3-tick lease (bm.svcm); the lease runs out the moment the holding stops - the cinematic over,
+    # its fighter dead, gone from the hall, logged out and back - and cam/release gives them their body back at once (the
+    # lock's own slowness / jump / resistance cleared, nothing else). No gamemode is ever changed, no camera entity spectated.
+    fn('p238/cam/all', [f'execute as {FIGHT} at @s run function bm:p238/cam/hold'])
+    fn('p238/cam/hold', ['tag @s add bm.svcam', 'scoreboard players set @s bm.svcm 3',
+                         'execute if entity @e[type=minecraft:marker,tag=bm.svko,distance=..14] facing entity @e[type=minecraft:marker,tag=bm.svko,sort=nearest,limit=1] feet rotated ~ 0 run function bm:p238/cam/back',
+                         'execute if entity @e[type=minecraft:marker,tag=bm.svkos,distance=..9] facing entity @e[type=minecraft:marker,tag=bm.svkos,sort=nearest,limit=1] feet rotated ~ 0 run function bm:p238/cam/back',
+                         'execute at @s if entity @e[type=minecraft:marker,tag=bm.svlook] run tp @s ~ ~ ~ facing entity @e[type=minecraft:marker,tag=bm.svlook,limit=1] feet',
+                         'effect give @s minecraft:slowness 2 255 true', 'effect give @s minecraft:resistance 2 255 true', 'effect give @s minecraft:jump_boost 2 200 true'])
+    fn('p238/cam/back', ['execute if block ^ ^ ^-0.7 #bm:grap_pass if block ^ ^1 ^-0.7 #bm:grap_pass unless block ^ ^-0.6 ^-0.7 #bm:grap_pass run tp @s ^ ^ ^-0.7'])
+    fn('p238/cam/release', ['tag @s remove bm.svcam', 'scoreboard players reset @s bm.svcm',
+                            'execute if predicate bm:p238/cam_slow run effect clear @s minecraft:slowness',
+                            'execute if predicate bm:p238/cam_jump run effect clear @s minecraft:jump_boost',
+                            'execute if predicate bm:p238/cam_res run effect clear @s minecraft:resistance'])
+    for nm_, eff, amp in (('slow', 'slowness', 200), ('jump', 'jump_boost', 128), ('res', 'resistance', 200)):
+        wjson(f'bm/predicate/p238/cam_{nm_}.json', {'condition': 'minecraft:entity_properties', 'entity': 'this',
+                                                    'predicate': {'effects': {f'minecraft:{eff}': {'amplifier': {'min': amp}}}}})
+    fn('p238/cam/lease', ['scoreboard players remove @s bm.svcm 1', 'execute unless score @s bm.svcm matches 1.. run function bm:p238/cam/release'])
+    tick.append('execute as @a[tag=bm.svcam] at @s run function bm:p238/cam/lease')
+    G.FUNCS['admin/uninstall'][0:0] = ['execute as @a[tag=bm.svcam] at @s run function bm:p238/cam/release']
+    CAMM = 'kill @e[type=minecraft:marker,tag=bm.svcamm]'
+    fn('p238/c/hold', ['function bm:p238/cam/all'])
     heart = (1, 30, 56, 80, 102, 122, 140, 156, 170, 182, 194, 204, 214, 222, 230, 238, 246, 252, 258, 264, 270, 276, 282, 288, 294, 300)
     shock = lambda r_: [f'particle minecraft:dust{{color:[0.85,0.1,0.16],scale:3.0}} {tx + 0.5 + x:.2f} {ty + 0.3} {tz + 0.5 + z:.2f} 0.2 0.05 0.2 0 2 force {AUD}'
                         for x, z in ring_pts(r_, int(6 * r_))]
@@ -348,6 +375,7 @@ def generate(G):
     fn('p238/c/door', ['execute as @e[type=minecraft:marker,tag=bm.adoor,tag=bm.d_under] at @s run function bm:p2/under/adoor_close'])
     fn('p238/c/door_open', ['execute as @e[type=minecraft:marker,tag=bm.adoor,tag=bm.d_under] at @s run function bm:p2/under/adoor_open'])
     fn('p238/wake', ['tag @s remove bm.svdorm', 'tag @s add bm.svintro', 'scoreboard players set @s bm.svt 0', 'scoreboard players set @s bm.sva 21',
+                     CAMM, f'summon minecraft:marker {hx} {hy} {hz} {{Tags:["bm.svlook","bm.svcamm"]}}', f'summon minecraft:marker {tx + 0.5} {ty} {tz + 0.5} {{Tags:["bm.svko","bm.svcamm"]}}',
                      f'scoreboard players set @s bm.svx {INTRO + 4}',
                      # (each phase's pool, for as many as are in the hall)
                      f'execute store result score #n bm.rng if entity {FIGHT}', 'scoreboard players remove #n bm.rng 1',
@@ -355,7 +383,7 @@ def generate(G):
                      f'scoreboard players add #n bm.rng {PH_HP}', f'execute if score #n bm.rng matches {PH_MAX}.. run scoreboard players set #n bm.rng {PH_MAX}',
                      'scoreboard players operation @s bm.svhp = #n bm.rng',
                      f'execute as {AUD} at @s run function bm:p152/tick'])
-    fn('p238/begin', ['tag @s remove bm.svintro', 'tag @s add bm.svlive', 'data modify entity @s Invulnerable set value 0b', 'scoreboard players set @s bm.sva 0',
+    fn('p238/begin', ['tag @s remove bm.svintro', 'tag @s add bm.svlive', CAMM, 'data modify entity @s Invulnerable set value 0b', 'scoreboard players set @s bm.sva 0',
                       'scoreboard players set @s bm.svx 20', 'function bm:p238/fill', 'bossbar set bm:usov visible true',
                       f'bossbar set bm:usov name {snbt([T(L.SOV, COL, bold=True), T("  -  " + L.FIGHT["p1"], "#c8a0a0")])}', 'bossbar set bm:usov color red',
                       'scoreboard players set @s bm.svk12 300', 'scoreboard players set @s bm.svk11 80', f'execute as {AUD} at @s run function bm:p152/tick'])
@@ -380,7 +408,9 @@ def generate(G):
     fn('p238/abandon', [say(L.FIGHT['abandon']), 'function bm:p238/clear', 'function bm:p237/floor', 'function bm:p238/c/door_open',
                         'bossbar set bm:usov visible false', 'kill @e[type=minecraft:item_display,tag=bm.svr]', 'tp @s ~ -400 ~', 'kill @s'])
     fn('p238/clear', ['execute as @e[type=minecraft:husk,tag=bm.svm] at @s run function bm:p246/melt', 'kill @e[tag=bm.svk]', 'kill @e[type=minecraft:husk,tag=bm.sveye]', 'kill @e[type=minecraft:marker,tag=bm.svfx]',
-                      'execute as @e[type=minecraft:marker,tag=bm.uwell] at @s run function bm:p238/w/out', 'scoreboard players reset * bm.svi'])
+                      'execute as @e[type=minecraft:marker,tag=bm.uwell] at @s run function bm:p238/w/out', 'scoreboard players reset * bm.svi',
+                      # (3.0a: nothing of one phase drags anyone through the next one's entrance - the chain, the whirlpool - and no old camera marker)
+                      'scoreboard players set #chn bm.rng 0', 'tag @a[tag=bm.svchained] remove bm.svchained', 'scoreboard players set #whl bm.rng 0', CAMM])
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[tag=bm.usov]', 'kill @e[tag=bm.svr]', 'kill @e[tag=bm.svfx]', 'kill @e[tag=bm.sveye]', 'bossbar remove bm:usov']
 
     # ================================================================== THE WELLSPRINGS (phase I)
@@ -417,12 +447,13 @@ def generate(G):
                           'scoreboard players set @s bm.sva 22', 'function bm:p238/clear',
                           f'execute if score @s bm.svph matches 1 run scoreboard players set @s bm.svx {ENT[1] + 4}', f'execute if score @s bm.svph matches 2 run scoreboard players set @s bm.svx {ENT[2] + 4}',
                           'execute if score @s bm.svph matches 1 run tag @s add bm.svt1', 'execute if score @s bm.svph matches 2 run tag @s add bm.svt2',
-                          'execute at @s run summon minecraft:marker ~ ~9.5 ~ {Tags:["bm.svlook"]}',
+                          # (3.0a: crashed down when its turn came? up again now - and the scheduled rise can't make the wing-eyes mid-entrance)
+                          'tag @s remove bm.svground', 'schedule clear bm:p238/unground',
+                          'execute at @s run summon minecraft:marker ~ ~9.5 ~ {Tags:["bm.svlook","bm.svcamm"]}', 'execute at @s run summon minecraft:marker ~ ~ ~ {Tags:["bm.svko","bm.svcamm"]}',
                           'bossbar set bm:usov color purple', f'execute as {AUD} at @s run function bm:p152/tick'])
     # (2.98c) EACH FORM'S ENTRANCE - everyone's eyes held on it (the look marker rides its head), the hall dark, the change slow
     look = '@e[type=minecraft:marker,tag=bm.svlook,limit=1]'
-    fn('p238/c/look', [f'execute as {FIGHT} at @s run tp @s ~ ~ ~ facing entity {look} feet', f'effect give {FIGHT} minecraft:slowness 2 255 true',
-                       f'effect give {FIGHT} minecraft:resistance 2 255 true', f'effect give {FIGHT} minecraft:jump_boost 2 200 true'])
+    fn('p238/c/look', ['function bm:p238/cam/all'])
     rs2 = random.Random(2381)
     crack = lambda k: [f'particle minecraft:block{{block_state:"minecraft:blackstone"}} ~{rs2.uniform(-2, 2):.1f} ~{rs2.uniform(3, 9):.1f} ~{rs2.uniform(-2, 2):.1f} 0.6 0.6 0.6 0 40 force {AUD}',
                        f'particle minecraft:dust{{color:[1.0,0.15,0.2],scale:2.5}} ~{rs2.uniform(-2, 2):.1f} ~{rs2.uniform(3, 9):.1f} ~{rs2.uniform(-2, 2):.1f} 0.3 0.3 0.3 0 20 force {AUD}',
@@ -448,7 +479,7 @@ def generate(G):
              [at(t, 'function bm:p238/c/shake') for t in range(170, 190, 4)] +
              [at(172, f'title {AUD} times 4 50 16'), at(172, title(AUD, 'title', T(L.FIGHT['p2'], COL, bold=True))),
               at(172, title(AUD, 'subtitle', T('six wings - and every eye in them open', '#c8a0a0', italic=True))),
-              at('1..168', 'function bm:p238/c/look'), at('1..168', 'execute as @e[type=minecraft:marker,tag=bm.svlook] at @s positioned as @e[tag=bm.usov,limit=1] run tp @s ~ ~9.5 ~'),
+              at('1..168', f'execute as @e[type=minecraft:marker,tag=bm.svlook] at @s positioned as {ME} run tp @s ~ ~9.5 ~'), at('1..168', 'function bm:p238/c/look'),
               at(ENT[1] - 1, 'function bm:p238/turned')])
     turn2 = ([at(1, say(L.FIGHT['turn2'])), at(1, snd('entity.wither.break_block', 2, 0.4)), at(1, 'function bm:p238/pose/broken/stagger'),
               at(1, f'effect give {FIGHT} minecraft:darkness 9 0 true'),
@@ -468,8 +499,8 @@ def generate(G):
              [at(178, f'title {AUD} times 4 50 16'), at(178, title(AUD, 'title', T(L.FIGHT['p3'], COL, bold=True))),
               at(178, title(AUD, 'subtitle', T('the great eye opens', '#c8a0a0', italic=True))),
               at(206, title(AUD, 'subtitle', T('THE FLOOR IS GIVING WAY - GET TO THE CENTRE OR AN ISLAND', '#ff8a8a', bold=True))), at(206, title(AUD, 'title', T(' ', COL))),
+              at('2..99', f'execute as @e[type=minecraft:marker,tag=bm.svlook] at @s positioned as {ME} run tp @s ~ ~9.5 ~'),
               at('1..200', 'function bm:p238/c/look'),
-              at('2..99', 'execute as @e[type=minecraft:marker,tag=bm.svlook] at @s positioned as @e[tag=bm.usov,limit=1] run tp @s ~ ~9.5 ~'),
               at('206..279', 'function bm:p238/a/crack'), at(220, snd('block.deepslate.break', 2, 0.4)), at(250, snd('block.deepslate.break', 2, 0.4)),
               at(280, 'function bm:p238/a/collapse'), at(ENT[2] - 1, 'function bm:p238/turned')])
     fn('p238/turn_tick', ['scoreboard players add @s bm.svt 1',
@@ -477,7 +508,7 @@ def generate(G):
                           #  Broken's entrance ran the True's, floor and all)
                           'execute if entity @s[tag=bm.svt1] run return run function bm:p238/turn1', 'execute if entity @s[tag=bm.svt2] run function bm:p238/turn2'])
     fn('p238/turn1', turn1); fn('p238/turn2', turn2)
-    fn('p238/turned', ['tag @s remove bm.svturn', 'tag @s remove bm.svt1', 'tag @s remove bm.svt2', 'kill @e[type=minecraft:marker,tag=bm.svlook]', 'tag @s add bm.svlive', 'data modify entity @s Invulnerable set value 0b', 'scoreboard players set @s bm.sva 0',
+    fn('p238/turned', ['tag @s remove bm.svturn', 'tag @s remove bm.svt1', 'tag @s remove bm.svt2', CAMM, 'tag @s add bm.svlive', 'data modify entity @s Invulnerable set value 0b', 'scoreboard players set @s bm.sva 0',
                        'scoreboard players set @s bm.svx 10', 'function bm:p238/fill', 'bossbar set bm:usov color red',
                        f'execute if score @s bm.svph matches 2 run bossbar set bm:usov name {snbt([T(L.SOV, COL, bold=True), T("  -  " + L.FIGHT["p2"], "#c8a0a0")])}',
                        f'execute if score @s bm.svph matches 3 run bossbar set bm:usov name {snbt([T(L.SOV, COL, bold=True), T("  -  " + L.FIGHT["p3"], "#c8a0a0")])}',
@@ -657,7 +688,7 @@ def generate(G):
                        'playsound minecraft:entity.ender_dragon.hurt hostile @a[distance=..64] ~ ~ ~ 3 0.5', 'playsound minecraft:entity.generic.explode hostile @a[distance=..64] ~ ~ ~ 2 0.5',
                        'function bm:p238/c/shake', title(AUD, 'actionbar', T(L.FIGHT['grounded'], 'gold', bold=True)), 'schedule function bm:p238/unground 160t'])
     fn('p238/unground', [f'execute as {ME} at @s run function bm:p238/unground_me'])
-    fn('p238/unground_me', ['tag @s remove bm.svground', f'effect give @s minecraft:resistance infinite {RESIST} true', 'execute if score @s bm.svph matches 2 run function bm:p238/eyes/make'])
+    fn('p238/unground_me', ['tag @s remove bm.svground', f'effect give @s minecraft:resistance infinite {RESIST} true', 'execute if score @s bm.svph matches 2 if entity @s[tag=bm.svlive] run function bm:p238/eyes/make'])
     # ---- phase III's frenzy (a quarter of its last pool left) and its tiring
     fn('p238/frenzy_chk', ['execute unless score @s bm.svph matches 3 run return 0', 'execute if entity @s[tag=bm.svfrz] run return 0', 'execute if score @s bm.svz matches -99..-1 run return 0',
                            'execute if score @s bm.svz matches 1.. run return 0',
@@ -683,7 +714,9 @@ def generate(G):
     fn('p238/fall', ['tag @s remove bm.svlive', 'tag @s add bm.svfall', 'data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.sva 11',
                      'scoreboard players set @s bm.svx 9999', 'scoreboard players set @s bm.svt 0', 'function bm:p238/clear', 'bossbar set bm:usov value 0',
                      say(L.FIGHT['fall']), 'playsound minecraft:entity.wither.death hostile @a[distance=..96] ~ ~ ~ 1 0.5', f'execute as {AUD} at @s run function bm:p152/tick',
-                     'kill @e[type=minecraft:marker,tag=bm.svlook]', 'execute at @s run summon minecraft:marker ~ ~12 ~ {Tags:["bm.svlook"]}'])
+                     'execute at @s run summon minecraft:marker ~ ~12 ~ {Tags:["bm.svlook","bm.svcamm"]}',
+                     # (3.0a: nobody stands where it is dragged to, or under where He comes down)
+                     f'summon minecraft:marker {CX + 0.5} {CY + 1} {CZ - 5.5} {{Tags:["bm.svkos","bm.svcamm"]}}', f'summon minecraft:marker {CX + 0.5} {CY + 1} {CZ + 13.5} {{Tags:["bm.svkos","bm.svcamm"]}}'])
     # ================================================================== (2.98c) THE LAST LIGHT - the Divine One comes down and ends it
     # 28 s, everyone's eyes held where the story is: the Sovereign dragged into a beam through the dome; HE comes down through
     # it (divine_art: about 26 blocks to His hood), opens His wings, looks down on it, names it - Aurel - raises His hand, and
@@ -707,8 +740,10 @@ def generate(G):
     lerp = lambda a, b, u: tuple(a[k] + (b[k] - a[k]) * u for k in range(3))
     SOVH, DVH = (NX, CY + 13, NZ), (DX, CY + 1 + DH, DZ)
 
-    def pan(t0, t1, A_, B_, step=2):
-        return [at(t, f'tp {look} {x:.2f} {y:.2f} {z:.2f}') for t in range(t0, t1 + 1, step) for (x, y, z) in [lerp(A_, B_, (t - t0) / max(1, t1 - t0))]]
+    ease = lambda u: u * u * (3 - 2 * u)
+    # (3.0a: every camera move a tick at a time, eased in and out - at two ticks a step, the eye moved at 10 fps and jerked)
+    def pan(t0, t1, A_, B_, step=1):
+        return [at(t, f'tp {look} {x:.2f} {y:.2f} {z:.2f}') for t in range(t0, t1 + 1, step) for (x, y, z) in [lerp(A_, B_, ease((t - t0) / max(1, t1 - t0)))]]
     beam = [f'particle minecraft:end_rod {DX} {CY + 1 + y} {DZ} 0.6 0.4 0.6 0.02 6 force {AUD}' for y in range(2, 50, 3)]
     fn('p238/dv/beam', beam + [f'particle minecraft:end_rod {NX} {CY + 1 + y} {NZ} 0.3 0.4 0.3 0.01 2 force {AUD}' for y in range(2, 50, 4)])
     fn('p238/dv/glow', [f'particle minecraft:end_rod ~ ~ ~ 4 6 4 0.02 12 force {AUD}', f'particle minecraft:dust{{color:[1.0,0.95,0.75],scale:2.5}} ~ ~ ~ 4 6 4 0 10 force {AUD}'])
@@ -725,10 +760,10 @@ def generate(G):
            # (HE comes down)
            [at(58, f'summon minecraft:marker {DX} {DY0} {DZ} {{Tags:["bm.dvroot"]}}'), at(60, f'execute positioned {DX} {DY0} {DZ} run function bm:p238/dv/raise'), at(61, 'function bm:p238/dv/pose/descend'),
             at(60, f'particle minecraft:flash{{color:[1.0,0.97,0.85,1.0]}} {DX} {DY0 + 10} {DZ} 0 0 0 0 1 force {AUD}'), at(60, snd('entity.player.levelup', 2, 0.5))] +
-           [at(t, f'tp {root} {DX} {DY0 - 24 * (t - 60) / 100:.2f} {DZ}') for t in range(60, 161, 2)] +
+           [at(t, f'tp {root} {DX} {DY0 - 24 * ease((t - 60) / 100):.2f} {DZ}') for t in range(60, 161)] +
            [at('60..548', f'execute as {root} at @s rotated 180 0 run function bm:p238/dv/place'), at('60..520', f'execute at {root} positioned ~ ~12 ~ run function bm:p238/dv/glow')] +
-           pan(70, 100, SOVH, (DX, DY0 - 7.2 + DH, DZ)) +
-           [at(t, f'tp {look} {DX} {DY0 - 24 * (t - 60) / 100 + DH:.2f} {DZ}') for t in range(102, 161, 2)] +
+           pan(70, 101, SOVH, (DX, DY0 - 24 * ease(41 / 100) + DH, DZ)) +
+           [at(t, f'tp {look} {DX} {DY0 - 24 * ease((t - 60) / 100) + DH:.2f} {DZ}') for t in range(102, 161)] +
            [at(160, 'function bm:p238/dv/pose/reveal'), at(160, f'particle minecraft:flash{{color:[1.0,0.97,0.85,1.0]}} {DX} {CY + 20} {DZ} 0 0 0 0 1 force {AUD}'),
             at(160, snd('block.beacon.power_select', 3, 0.5)), at(160, snd('entity.ender_dragon.flap', 3, 0.5)),
             at(162, f'title {AUD} times 10 80 20'), at(162, title(AUD, 'title', T(L.DIVINE['title'], L.HOLY, bold=True))),
@@ -754,11 +789,11 @@ def generate(G):
            [at(430, divine(L.DIVINE['rest'])), at(460, divine(L.DIVINE['you']))] +
            # (He rises, and fades)
            [at(480, 'function bm:p238/dv/pose/ascend')] +
-           [at(t, f'tp {root} {DX} {CY + 1 + 26 * (t - 480) / 68:.2f} {DZ}') for t in range(482, 549, 2)] +
-           [at(t, f'tp {look} {DX} {CY + 1 + 26 * (t - 480) / 68 + DH:.2f} {DZ}') for t in range(482, 549, 2)] +
+           [at(t, f'tp {root} {DX} {CY + 1 + 26 * ease((t - 480) / 68):.2f} {DZ}') for t in range(481, 549)] +
+           [at(t, f'tp {look} {DX} {CY + 1 + 26 * ease((t - 480) / 68) + DH:.2f} {DZ}') for t in range(481, 549)] +
            [at(520, 'execute as @e[type=minecraft:item_display,tag=bm.dvn] run data merge entity @s {start_interpolation:0,interpolation_duration:28,transformation:{scale:[0f,0f,0f]}}'),
             at(520, f'particle minecraft:end_rod {DX} {CY + 30} {DZ} 4 8 4 0.05 200 force {AUD}'), at(548, f'particle minecraft:flash{{color:[1.0,0.97,0.85,1.0]}} {DX} {CY + 40} {DZ} 0 0 0 0 1 force {AUD}'),
-            at(549, 'kill @e[type=minecraft:item_display,tag=bm.dvn]'), at(549, f'kill {root}'), at(549, 'kill @e[type=minecraft:marker,tag=bm.svlook]'),
+            at(549, 'kill @e[type=minecraft:item_display,tag=bm.dvn]'), at(549, f'kill {root}'), at(549, CAMM),
             at('1..548', 'function bm:p238/c/look'), at(550, 'function bm:p238/won')])
     fn('p238/falling', ['scoreboard players add @s bm.svt 1'] + seq)
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[tag=bm.dvn]', 'kill @e[tag=bm.dvroot]']
@@ -773,7 +808,7 @@ def generate(G):
         {'rolls': 1, 'entries': [lt(i) for i in ('sov_edge', 'black_crown', 'sov_heart')]},
         {'rolls': 1, 'entries': [lt('dread_essence', uni(4, 8))]}]})
     fn('p238/won', [tellraw('@a', [T('☠ ', COL), {'selector': FIGHT}, T(' felled ', 'gray'), T(L.SOV, COL, bold=True), T(' at the bottom of the Undercrown.', 'gray')]),
-                    f'execute as {FIGHT} at @s run function bm:p238/reward',
+                    'scoreboard players set #uowed bm.p2 0', f'execute as {FIGHT} at @s run function bm:p238/reward', CAMM,
                     'particle minecraft:explosion_emitter ~ ~6 ~ 2 3 2 0 4 force', 'function bm:p238/c/door_open',
                     'function bm:p237/nights_end', 'function bm:p237/collapse', 'function bm:p237/floor',
                     f'particle minecraft:reverse_portal {CX} {CY + 1} {CZ} 24 0.5 24 0.1 400 force {AUD}',
@@ -781,6 +816,8 @@ def generate(G):
                     'kill @e[type=minecraft:item_display,tag=bm.svr]', 'tp @s ~ -400 ~', 'kill @s'])
     fn('p238/reward', ['tag @s add bm.dfin', 'tag @s add bm.svdone', 'advancement grant @s only bm:story/sovereign', 'scoreboard players add @s bm.svwin 1',
                        give('ukey_victor'), 'loot give @s loot bm:p238/spoils',
+                       # (3.0a: the Undercrown holds until this key has opened the Victor's Vault - phase237's claim)
+                       'scoreboard players operation @s bm.uclm = #urun bm.p2', 'scoreboard players set @s bm.uclk 0', 'scoreboard players add #uowed bm.p2 1',
                        tellraw('@s', P + [T(L.SOV, COL, bold=True), T(' has fallen. ', 'gray'), T(L.FIGHT['fall2'], '#c8a0a0', italic=True)]),
                        'execute unless entity @s[tag=bm.svfirst] run function bm:p238/first',
                        'execute unless entity @s[tag=bm.svwings] run function bm:p238/wings',

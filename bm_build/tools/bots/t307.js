@@ -10,6 +10,7 @@ runT({ W: 'inkblot', NAME: 'The Ink Blot', ab: 'ib', q: 'iq', pfx: 'p235i', pref
     const K = kit(ctx, 'iq');
     const r = await K.meet(ctx, 'p235i/enc/place', /makes a "\?"/, 'minecraft:ink_sac', /drinks up the ink/, 'ink_pot');
     ctx.ok('a blot off Mr. Capshun\'s page (its rig and a click box)', r.placed);
+    K.showOks(ctx.ok, r, "The Ink Blot's entrance", 'a drop of ink and a "?" (props) in the show');
     ctx.ok('right-clicked empty-handed: a "?"', r.asked, r.lastBar);
     ctx.ok('right-clicked holding an ink sac: its ink pot given', r.got, r.chat);
   },

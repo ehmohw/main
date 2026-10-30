@@ -10,6 +10,7 @@ runT({ W: 'eraser', NAME: 'The Eraser', ab: 'ez', q: 'ea', pfx: 'p235e', prefix:
     const K = kit(ctx, 'ea');
     const r = await K.meet(ctx, 'p235e/enc/place', /only erase it/, 'minecraft:paper', /doesn't erase a thing/, 'eraser_crumb');
     ctx.ok('the Gem\'s eraser, found hiding (its rig and a click box)', r.placed);
+    K.showOks(ctx.ok, r, "The Eraser's entrance", null);
     ctx.ok('right-clicked empty-handed: it can only erase', r.asked, r.lastBar);
     ctx.ok('right-clicked holding paper: a fresh start - its crumb given', r.got, r.chat);
   },

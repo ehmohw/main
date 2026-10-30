@@ -12,6 +12,7 @@ runT({ W: 'dryad', NAME: 'The Pale Dryad', ab: 'py', q: 'qd', pfx: 'p236p', pref
     await ctx.run('time set midnight');
     const r = await K.meet(ctx, 'p236p/enc/place', /like mushrooms/, 'minecraft:red_mushroom', /starts to glow/, 'dryad_cap');
     ctx.ok('in the pale moss at night, a little mushroom-capped girl sits up (her rig and a click box)', r.placed);
+    K.showOks(ctx.ok, r, "The Pale Dryad's entrance", null);
     ctx.ok('right-clicked empty-handed: she\'d like a mushroom', r.asked, r.lastBar);
     ctx.ok('right-clicked holding a mushroom: her glowing mushroom given', r.got && !/Found [1-9]/.test(await ctx.run('clear TestRat minecraft:red_mushroom 0')), r.chat);
   },

@@ -46,6 +46,7 @@ class Cfg:
     FORM_FX = []
     SUMMON_EXTRA = []
     ENC_PARTICLE = 'return 0'
+    ENC_SHOW = None              # (3.0a: None, or f(G, X) -> (length, {tick: lines}, resume) - the encounter's entrance, build's enc/show)
     BILLBOARD = None
     SWAP = ()
     SWAP_START = False
@@ -169,6 +170,9 @@ def build(C, G, abilities, encounter):
     objs = [S(s) for s in ('s', 'fr', 'x', 'a', 'mc', 'rc', 'bc', 'gc', 'sc', 'sl', 'z', 'qp', 'hc', 'l', 'fg', 'ef', 'el', 'k', 'k2')] + [f'bm.{ab}cd']
     if C.FORM:
         objs.append(C.FORM[0])
+    show = getattr(C, 'ENC_SHOW', None)                    # (3.0a: the encounter's entrance - Cfg.ENC_SHOW, below)
+    if show:
+        objs.append(S('sh'))
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
     pet, me, sel, sel2, new, fade, own = (f'bm.{ab}{s}' for s in ('pet', 'me', 'sel', 'sel2', 'new', 'fade', 'own'))
@@ -458,18 +462,28 @@ def build(C, G, abilities, encounter):
     X.disp, X.psel = disp, psel
     enc = f'bm.{ab}enc'
     enc_hit = snbt({'Tags': [enc, f'bm.{ab}enew'], 'width': F(C.HIT[0]), 'height': F(C.HIT[1]), 'response': B(1)})
+    # (3.0a) THE ENTRANCE (Cfg.ENC_SHOW(G, X) -> (length, {tick: lines}, resume)): the rig comes in at scale 0 and a few seconds'
+    # show builds it (enc/show, from enc/tick: each tick's lines run as the click box, at it, turned to face you as it was placed,
+    # the rig's parts tagged {sel}). Meanwhile the box won't talk (a click is dropped); at the end the rig faces you, the idle
+    # cycle picks up at `resume`, and whatever props the show summoned (tag bm.<ab>shp) go. Walk off mid-show: enc/gone takes
+    # them with the rest, and a prop left without its box is swept within the second.
+    shw, prop = S('sh'), f'bm.{ab}shp'
+    X.prop = prop
     fn(f'{pfx}/enc/spawn', [f'summon minecraft:interaction ~ ~ ~ {enc_hit}'] + disp([f'bm.{ab}encp', f'bm.{ab}enew']) +
        [f'execute as @e[type=minecraft:item_display,tag=bm.{ab}enew,distance=..1] run tag @s add {sel}',
-        f'execute facing entity @p feet rotated ~ 0 run function bm:{pfx}/place', f'function bm:{pfx}/enc/look', f'function bm:{pfx}/grow', f'tag @e[tag={sel}] remove {sel}',
-        f'scoreboard players set @e[type=minecraft:interaction,tag=bm.{ab}enew,distance=..1] {S("el")} 0',
-        f'tag @e[tag=bm.{ab}enew,distance=..1] remove bm.{ab}enew'])
+        f'execute facing entity @p feet rotated ~ 0 run function bm:{pfx}/place', f'function bm:{pfx}/enc/look'] + ([] if show else [f'function bm:{pfx}/grow']) +
+       [f'tag @e[tag={sel}] remove {sel}',
+        f'scoreboard players set @e[type=minecraft:interaction,tag=bm.{ab}enew,distance=..1] {S("el")} 0'] +
+       ([f'execute facing entity @p feet rotated ~ 0 run tp @e[type=minecraft:interaction,tag=bm.{ab}enew,distance=..1,limit=1] ~ ~ ~ ~ 0',
+         f'scoreboard players set @e[type=minecraft:interaction,tag=bm.{ab}enew,distance=..1] {shw} 1'] if show else []) +
+       [f'tag @e[tag=bm.{ab}enew,distance=..1] remove bm.{ab}enew'])
     enc_look = []
     if C.FORM and C.ENC_FORM:                                                              # (Ava's ghost rises as a ghost)
         enc_look = [f'execute as {psel(p)} run data modify entity @s item.components."minecraft:item_model" set value "bm:{A.PREFIX}{p}{C.FORM[1]}"' for p in A.PARTS]
     fn(f'{pfx}/enc/look', enc_look + ['return 0'])
     tick.append(f'execute as @e[type=minecraft:interaction,tag={enc}] at @s run function bm:{pfx}/enc/tick')
     ep = C.ENC_POSES
-    fn(f'{pfx}/enc/tick', [f'scoreboard players add @s {S("ef")} 1', f'scoreboard players operation #f bm.rng = @s {S("ef")}', 'scoreboard players operation #f bm.rng %= #80 bm.rng',
+    fn(f'{pfx}/enc/tick', ([f'execute if score @s {shw} matches 1.. run return run function bm:{pfx}/enc/show'] if show else []) + [f'scoreboard players add @s {S("ef")} 1', f'scoreboard players operation #f bm.rng = @s {S("ef")}', 'scoreboard players operation #f bm.rng %= #80 bm.rng',
                            f'execute as @e[type=minecraft:item_display,tag=bm.{ab}encp,distance=..5] run tag @s add {sel}'] +
        [f'execute if score #f bm.rng matches {t} run function bm:{pfx}/pose/{p}' for t, p in ep] +
        [f'execute if score #f bm.rng matches 0 if entity @a[distance=..8,gamemode=!spectator] facing entity @p[distance=..8,gamemode=!spectator] feet rotated ~ 0 run function bm:{pfx}/place',
@@ -479,10 +493,27 @@ def build(C, G, abilities, encounter):
     fn(f'{pfx}/enc/sec', [f'scoreboard players add @s {S("el")} 1', f'execute unless entity @a[distance=..48] run return run function bm:{pfx}/enc/gone',
                           f'execute if score @s {S("el")} matches 600.. run return run function bm:{pfx}/enc/gone'])
     # (2.88: every part, wherever its joint is - the tall ones' heads stood more than 2 blocks up, and were left behind)
-    fn(f'{pfx}/enc/gone', [f'kill @e[type=minecraft:item_display,tag=bm.{ab}encp,distance=..8]', 'particle minecraft:poof ~ ~1 ~ 0.4 0.8 0.4 0.03 20', 'kill @s'])
+    fn(f'{pfx}/enc/gone', [f'kill @e[type=minecraft:item_display,tag=bm.{ab}encp,distance=..8]'] + ([f'kill @e[tag={prop},distance=..16]'] if show else []) +
+       ['particle minecraft:poof ~ ~1 ~ 0.4 0.8 0.4 0.03 20', 'kill @s'])
+    if show:
+        length, keys, resume = show(G, X)
+        assert all(1 <= t <= length for t in keys), (W, sorted(keys))
+        fn(f'{pfx}/enc/show', [f'scoreboard players add @s {shw} 1', f'scoreboard players operation #f bm.rng = @s {shw}',
+                               f'execute as @e[type=minecraft:item_display,tag=bm.{ab}encp,distance=..6] run tag @s add {sel}'] +
+           [f'execute if score #f bm.rng matches {t + 1} rotated as @s run function bm:{pfx}/enc/show/{t}' for t in sorted(keys)] +
+           [f'execute if score #f bm.rng matches {length + 1}.. rotated as @s run function bm:{pfx}/enc/show_end', f'tag @e[tag={sel}] remove {sel}'])
+        for t, lines in keys.items():
+            fn(f'{pfx}/enc/show/{t}', lines)
+        fn(f'{pfx}/enc/show_end', [f'scoreboard players set @s {shw} 0', f'scoreboard players set @s {S("ef")} {resume - 1}', f'kill @e[tag={prop},distance=..16]',
+                                   f'execute as @e[type=minecraft:item_display,tag={sel}] run data merge entity @s[type=minecraft:item_display] {{teleport_duration:2}}',
+                                   f'execute as @e[type=minecraft:item_display,tag={sel}] run data remove entity @s item.components."minecraft:custom_model_data"',
+                                   f'execute if entity @a[distance=..16,gamemode=!spectator] facing entity @p[distance=..16,gamemode=!spectator] feet rotated ~ 0 run tp @s ~ ~ ~ ~ 0',
+                                   f'execute rotated as @s rotated ~ 0 run function bm:{pfx}/place', 'data remove entity @s interaction', 'data remove entity @s attack'])
+        second.append(f'execute as @e[tag={prop}] at @s unless entity @e[type=minecraft:interaction,tag={enc},distance=..16] run kill @s')
+        G.FUNCS['admin/uninstall'][0:0] = [f'kill @e[tag={prop}]']
     fast += [f'execute as @e[type=minecraft:interaction,tag={enc}] if data entity @s interaction at @s run function bm:{pfx}/enc/click',
              f'execute as @e[type=minecraft:interaction,tag={enc}] if data entity @s attack at @s run data remove entity @s attack']
-    fn(f'{pfx}/enc/click', [f'tag @s add bm.{ab}here', f'execute on target run function bm:{pfx}/enc/talk', f'tag @s remove bm.{ab}here', 'data remove entity @s interaction'])
+    fn(f'{pfx}/enc/click', ([f'execute if score @s {shw} matches 1.. run return run data remove entity @s interaction'] if show else []) + [f'tag @s add bm.{ab}here', f'execute on target run function bm:{pfx}/enc/talk', f'tag @s remove bm.{ab}here', 'data remove entity @s interaction'])
     X.here = f'@e[type=minecraft:interaction,tag=bm.{ab}here,limit=1]'
     # (the recruit's shared tail: met, the item, the advancement, he/she comes along)
     fn(f'{pfx}/enc/joined', [f'tag @s add bm.{ab}met', give(C.ITEM), f'advancement grant @s only bm:story/{W}_friend',
