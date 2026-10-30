@@ -406,6 +406,7 @@ def textures():
         T[f'lb_face_{k}'] = _face(k)
         if k in OPEN_EYES: T[f'lb_eyes_{k}'] = _eyes_glow(k)
     T.update(textures_m())                                                   # (3.0: his face and eyes - the male form)
+    T.update(el_textures(T))                                                 # (3.0a: every texture's twin in the Ethereal and Wraithfire forms)
     return T
 
 
@@ -721,6 +722,7 @@ def models():
     part('lb_wingr', _wing(1)); part('lb_wingl', _wing(-1))
     for w in ('lb_wingr', 'lb_wingl'): JOINTS[w] = {0: ('body', 'hair'), 1: ('body', 'hair')}                 # (the root on her back)
     _male(M, part)
+    el_models(M, part)                                                       # (3.0a: every model's Ethereal and Wraithfire twin)
     return M
 
 
@@ -1031,6 +1033,311 @@ def _male(M, part):
                 el((cx - 0.92, 0.0, -3.1), (cx + 0.92, 0.2, 1.0), 'lb_gold', pv, light=3),                                   # the sole
                 el((cx - 0.96, 0.55, -0.4), (cx + 0.96, 1.0, 1.02), 'lb_blue', pv, faces=_faces_but('down'))]                # a strap
     part('lb_legr' + MALE, foot(1)); part('lb_legl' + MALE, foot(-1))
+
+# ---------------------------------------------------------------------------------------------------- the elemental forms (3.0a)
+# (the owner: "an ETHEREAL form and a WRAITHFIRE form, like Emma's and Cecil's") - an element is a second suffix, after the
+# gender's: every model (hers and his - lb_<part>, lb_<part>_m, every head face) has an ETHEREAL twin ('_e') and a WRAITHFIRE twin
+# ('_w'): lb_body_e, lb_body_m_e, lb_head_xhappy_m_w ... The same rig, joints, elements, poses and faces - only the textures are
+# the element's (each texture's twin: <name>_e / <name>_w), more of it glows (light_emission), and the halo is remade: so every
+# animation, the Ophanim (which only shrinks and restores the same parts), the night glow and the wardrobe's '_c<k>' (riding
+# on whatever model a part wears) work in all six combinations. The element's cloth (lb_robe_e / lb_bodice_e, _w) is recoloured
+# by the wardrobe as a set of its own (phase138.OWN_SETS), so a look recolours her robe in every form.
+#   ETHEREAL   translucent pearl-white and prismatic, starlight inside (white specks through the silk), the gold turned to pale
+#              light, the royal accents to an opal shimmer; the halo a ring of stars (twinkling); wings of light.
+#   WRAITHFIRE spectral cyan / teal-white flame (cec_eye_wraith's 110,240,255 and the Wraithfire Heart's ramp): smoky dark robes
+#              lit by cyan streaks and embers, the gold turned to soul-metal, flame-wisp wing tips (flickering), a flame halo
+#              (flickering tongues on a ring of cold fire), white-cyan hair, spectral pale skin, cyan eyes. Holy, never grim.
+import colorsys
+import copy
+ETHEREAL, WRAITH = '_e', '_w'
+ELEMENTS = (ETHEREAL, WRAITH)
+EL_FRAMES = 8
+ANIMATED = {}                                       # {texture: its .png.mcmeta} (phase236.rp writes them)
+_CLS = {'lb_robe': 'cloth', 'lb_bodice': 'cloth', 'lb_gold': 'gold', 'lb_hem': 'hem', 'lb_halo': 'gold', 'lb_light': 'core',
+        'lb_tip': 'tip', 'lb_hairtip': 'hairtip', 'lb_tip_blue': 'tipb', 'lb_stole': 'accent', 'lb_stole_v': 'accentv', 'lb_blue': 'accent2',
+        'lb_sapph': 'gem', 'lb_ameth': 'gem2', 'lb_skin': 'skin', 'lb_hair': 'hair', 'lb_feather': 'feather', 'lb_covert': 'covert'}
+# (how brightly each kind of texture glows in the form - an element's light_emission is the larger of its own and this)
+EL_LIGHT = {ETHEREAL: {'cloth': 4, 'skin': 3, 'hair': 6, 'feather': 11, 'covert': 9, 'gold': 12, 'hem': 12, 'core': 15, 'tip': 15, 'hairtip': 15,
+                       'tipb': 15, 'accent': 7, 'accentv': 7, 'accent2': 7, 'gem': 11, 'gem2': 11},
+            WRAITH: {'cloth': 2, 'skin': 3, 'hair': 8, 'feather': 12, 'covert': 10, 'gold': 13, 'hem': 15, 'core': 15, 'tip': 15, 'hairtip': 15,
+                     'tipb': 15, 'accent': 9, 'accentv': 9, 'accent2': 9, 'gem': 12, 'gem2': 12}}
+WRAITH_CYAN = '#6ef0ff'                             # (cec_eye_wraith: 110, 240, 255)
+# (each form's face: the same eyes, mouth and brows, the colours its own - phase57-style globals swapped in while it's drawn)
+FACE_EL = {ETHEREAL: dict(FACE_SKIN=('#f8f3ff', '#fffaff', '#efe8fb'), HAIR='#e4e6fa', HAIR_D='#aeb2d6', HAIR_L='#ffffff',
+                          IRIS_RAMP=['#5a6ad0', '#7a8ef0', '#9cb4ff', '#c0d6ff', '#e2eeff', '#ffffff'], PUPIL='#22265e', PUPIL_L='#3e4a96',
+                          FACE_SKIN_M=('#f2edfb', '#f8f4ff', '#e6e0f4'), JAW_M='#d6cce8', JAW_EDGE='#c6bcdc', BROW_M='#8e92bc'),
+           WRAITH: dict(FACE_SKIN=('#e4f5f9', '#effbfd', '#d6eef4'), HAIR='#a6eefc', HAIR_D='#4aa8c0', HAIR_L='#f0ffff',
+                        IRIS_RAMP=['#0a7a96', '#12a0bc', '#2ac8e0', '#5ae8ff', '#9af6ff', '#e0ffff'], PUPIL='#06303e', PUPIL_L='#0a4a5a', LASH='#1c3448',
+                        FACE_SKIN_M=('#ddf0f6', '#e9f8fb', '#d0e6ee'), JAW_M='#b2d2dc', JAW_EDGE='#9ec2ce', BROW_M='#2e7e96')}
+# (the few colours her faces paint by hand - nose, creases, blush - taken into each form's palette)
+FACE_SWAP = {ETHEREAL: {'#ecb8a2': '#dcc8e8', '#dca896': '#cdbce0', '#e4b49c': '#d6c4e6', '#e0ae96': '#d2c0e2', '#ecc0a8': '#e2d2ee', '#dcae98': '#cdbce0',
+                        '#c89a84': '#b8aad0', '#f8bcb4': '#f6c4dc'},
+             WRAITH: {'#ecb8a2': '#a8ccd8', '#dca896': '#9cc4d0', '#e4b49c': '#a8ccd8', '#e0ae96': '#a4c8d4', '#ecc0a8': '#b8d8e2', '#dcae98': '#9cc4d0',
+                      '#c89a84': '#90b8c4', '#f8bcb4': '#e4c6e8'}}
+
+
+def _lum(p):
+    return (0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]) / 255
+
+
+def _ramp(stops, t):
+    t = max(0.0, min(1.0, t)) * (len(stops) - 1); i = min(int(t), len(stops) - 2)
+    return _mix(stops[i], stops[i + 1], t - i)
+
+
+def _prism(cx, cy, k=0.0, l=0.84, s=0.7):
+    """a pastel of the rainbow, its hue running diagonally over the texture (by cell)"""
+    r, g, b = colorsys.hls_to_rgb(((cx + cy) / 48 + k) % 1.0, l, s)
+    return '#%02x%02x%02x' % (int(r * 255), int(g * 255), int(b * 255))
+
+
+def _h(cx, cy, seed):
+    """a stable 0..1 per cell"""
+    v = (cx * 73856093) ^ (cy * 19349663) ^ (seed * 83492791)
+    return ((v * 2654435761) & 0xffffffff) / 0xffffffff
+
+
+def _remap(im, f, alpha=None):
+    """every texel through f(cx, cy, t, (r, g, b, a)) -> colour (t: its luminance across the texture's range, 0..1)"""
+    px = im.load(); vals = [_lum(px[x, y]) for y in range(im.height) for x in range(im.width) if px[x, y][3]]
+    lo, hi = (min(vals), max(vals)) if vals else (0, 1)
+    out = Image.new('RGBA', im.size); po = out.load()
+    for y in range(im.height):
+        for x in range(im.width):
+            p = px[x, y]
+            if not p[3]: continue
+            t = (_lum(p) - lo) / max(1e-6, hi - lo)
+            c = f(x // 2, y // 2, t, p)
+            a = c[3] if isinstance(c, tuple) and len(c) == 4 else (alpha if alpha is not None else p[3])
+            po[x, y] = hexc(c if isinstance(c, str) else c[0], a)
+    return out
+
+
+def _bluish(p): return p[2] > p[0] + 40
+def _goldish(p): return p[0] > 180 and p[1] > 130 and p[2] < 140
+
+
+def _el_texture(name, im, sfx):
+    """the element's twin of one of her (cloth, gold, hair ...) textures"""
+    k = _CLS[name]
+    if sfx == ETHEREAL:
+        pale = lambda cx, cy, t, lo='#d8d2f2', mid='#f2f0ff', w=0.16: _mix(_ramp([lo, mid, '#ffffff'], t), _prism(cx, cy, 0.0, 0.88, 0.8), w)
+        if k == 'cloth':                                           # translucent pearl-white, prismatic, starlight inside
+            def c(cx, cy, t, p):
+                h = _h(cx, cy, 11 if name == 'lb_robe' else 12)
+                if h < 0.022: return ('#ffffff', 240)
+                if h < 0.034: return (_prism(cx, cy, 0.3, 0.92, 0.9), 220)
+                return pale(cx, cy, t, '#e4e0f8', '#f6f4ff', 0.2)
+            return _remap(im, c, 150)
+        if k in ('gold', 'hem'):                                   # the gold, turned to pale light (the hem's blue line: a prismatic one)
+            return _remap(im, lambda cx, cy, t, p: _prism(cx, cy, 0.1, 0.78, 0.7) if _bluish(p) else pale(cx, cy, t, '#ece4fa', '#fff9ea', 0.1))
+        if k in ('core', 'tip', 'hairtip'):
+            return _remap(im, lambda cx, cy, t, p: pale(cx, cy, t, '#fff6e2', '#fffcf2', 0.1))
+        if k == 'tipb':
+            return None                                            # (animated: el_textures)
+        if k == 'accentv':
+            return _remap(im, lambda cx, cy, t, p: pale(cx, cy, t, '#e6e2fa', '#ffffff', 0.1) if _goldish(p) else _prism(cx, cy, 0.62, 0.78 + 0.1 * t, 0.5))
+        if k in ('accent', 'accent2'):                             # the royal purple and blue, now an opal shimmer
+            return _remap(im, lambda cx, cy, t, p: _prism(cx, cy, 0.62 if k == 'accent' else 0.45, 0.76 + 0.12 * t, 0.5))
+        if k in ('gem', 'gem2'):
+            return _remap(im, lambda cx, cy, t, p: _prism(cx, cy, 0.2 if k == 'gem' else 0.7, 0.74 + 0.2 * t, 0.7))
+        if k == 'skin':
+            return _remap(im, lambda cx, cy, t, p: _ramp(['#ece6fa', '#f8f5ff', '#ffffff'], t), 190)
+        if k == 'hair':
+            return _remap(im, lambda cx, cy, t, p: _mix(_ramp(['#cdd0ec', '#eeeffd', '#ffffff'], t), _prism(cx, cy, 0.5, 0.88, 0.8), 0.1), 196)
+        if k in ('feather', 'covert'):                             # wings of light
+            return _remap(im, lambda cx, cy, t, p: pale(cx, cy, t, '#eceaff', '#fbfaff', 0.18), 156 if k == 'feather' else 168)
+    else:
+        if k == 'cloth':                                           # smoky dark robes, lit by cyan streaks and embers
+            def c(cx, cy, t, p):
+                h = _h(cx, cy, 21 if name == 'lb_robe' else 22)
+                if h < 0.007: return WRAITH_CYAN
+                if h < 0.02: return '#2a9ab0'
+                if t > 0.88 and h < 0.16: return '#1f8098'
+                w = math.sin(cx * 0.5 + 2.2 * math.sin(cy * 0.31) + cy * 0.17)
+                base = _ramp(['#070c12', '#122129', '#1e3743'], t)
+                return _mix(base, '#2e5868', 0.45) if w > 0.8 else base
+            return _remap(im, c, 226)
+        if k == 'gold':                                            # soul-metal: the gold burning cold
+            return _remap(im, lambda cx, cy, t, p: _ramp(['#1c88a6', '#58e4fa', '#dcfeff'], t))
+        if k == 'hem':                                             # a band of cold fire
+            return _remap(im, lambda cx, cy, t, p: '#0e5a6e' if _bluish(p) else _ramp(['#38d4ee', '#a8f8ff', '#f0ffff'], t))
+        if k == 'core':
+            return _remap(im, lambda cx, cy, t, p: _ramp(['#8af4ff', '#e6ffff', '#ffffff'], t))
+        if k == 'hairtip':
+            return _remap(im, lambda cx, cy, t, p: _ramp([WRAITH_CYAN, '#c8fcff', '#ffffff'], t))
+        if k in ('tip', 'tipb'):
+            return None                                            # (animated flame: el_textures)
+        if k == 'accentv':
+            return _remap(im, lambda cx, cy, t, p: WRAITH_CYAN if _goldish(p) else _ramp(['#04161e', '#0c4656', '#2ab4cc'], t))
+        if k == 'accent':
+            return _remap(im, lambda cx, cy, t, p: _ramp(['#04161e', '#0c4656', '#2ab4cc'], t))
+        if k == 'accent2':
+            return _remap(im, lambda cx, cy, t, p: _ramp(['#06303c', '#0e6a7e', '#46dcf4'], t))
+        if k == 'gem':
+            return _remap(im, lambda cx, cy, t, p: _ramp(['#0a4a5a', '#2ac8e0', '#bafaff'], t))
+        if k == 'gem2':
+            return _remap(im, lambda cx, cy, t, p: _ramp(['#082a4a', '#2a8ac8', '#a8e8ff'], t))
+        if k == 'skin':
+            return _remap(im, lambda cx, cy, t, p: _ramp(['#a6cedb', '#d8eef4', '#f2fcff'], t), 196)
+        if k == 'hair':
+            return _remap(im, lambda cx, cy, t, p: _ramp(['#3aa8c4', '#9aeefc', '#f0ffff'], t), 214)
+        if k in ('feather', 'covert'):                             # flame-wisp feathers: teal running to white-cyan, flame streaks up them
+            def c(cx, cy, t, p):
+                s = 0.2 if (cx + cy // 3) % 5 == 0 else 0.0
+                return _ramp(['#2a8ea8', '#74e2f4', '#eafdff'] if k == 'feather' else ['#1e7088', '#5ccce4', '#d0f8ff'], 0.25 + 0.75 * t + s)
+            return _remap(im, c, 178 if k == 'feather' else 188)
+    raise KeyError(name)
+
+
+def _strip(frame, n=EL_FRAMES):
+    im = Image.new('RGBA', (64, 64 * n))
+    for f in range(n):
+        im.paste(frame(f), (0, 64 * f))
+    return im
+
+
+def _flame_strip(stops, seed, rise=True):
+    """cold fire, flickering: tongues of light rising up the texture (bright at their roots, at the bottom), shifting every
+    frame - an animated strip (EL_FRAMES frames)"""
+    def frame(f):
+        def c(x, y, r):
+            yy = (y / 31) if rise else 0.5
+            n = 0.5 + 0.5 * math.sin(x * 0.9 + f * 1.7 + 1.3 * math.sin(y * 0.6 - f * 0.9)) * math.cos(x * 0.37 - f * 0.6)
+            v = 0.35 * yy + 0.65 * n * (0.7 + 0.3 * _h(x, y + f * 5, seed))
+            return _ramp(stops, v)
+        return _cells(c, seed + f)
+    return _strip(frame)
+
+
+def _prism_strip(seed, l=0.8, s=0.85):
+    """prismatic light flowing over it (interpolated frames), a white glint every few cells"""
+    def frame(f):
+        def c(x, y, r):
+            if (x + 2 * y) % 7 == 0: return '#ffffff'
+            return _prism(x, y, f / EL_FRAMES, l, s)
+        return _cells(c, seed)
+    return _strip(frame)
+
+
+def _star_strip(seed):
+    """starlight: white, twinkling - each cell brightening and dimming on its own beat (interpolated)"""
+    def frame(f):
+        def c(x, y, r):
+            ph = _h(x, y, seed)
+            k = 0.5 + 0.5 * math.cos(2 * math.pi * (f / EL_FRAMES + ph))
+            return _mix('#cfd6ff', '#ffffff', k) if _h(x, y, seed + 1) > 0.15 else _mix('#fff6d8', '#ffffff', k)
+        return _cells(c, seed)
+    return _strip(frame)
+
+
+def _swapc(im, table):
+    px = im.load(); T_ = {hexc(a)[:3]: hexc(b)[:3] for a, b in table.items()}
+    for y in range(im.height):
+        for x in range(im.width):
+            p = px[x, y]
+            if p[:3] in T_: px[x, y] = T_[p[:3]] + (p[3],)
+    return im
+
+
+def _el_face(name, sfx):
+    """her (or his) face or its glowing eyes, drawn again in the form's colours"""
+    g = globals(); old = {k: g[k] for k in FACE_EL[sfx]}
+    g.update(FACE_EL[sfx])
+    try:
+        male = name.startswith(('lb_face_m', 'lb_eyes_m'))
+        rest = name.split('_m', 1)[1] if male else name[len('lb_face'):] if name.startswith('lb_face') else name[len('lb_eyes'):]
+        kind = rest.lstrip('_') or None
+        if name.startswith('lb_face'):
+            im = _face_m(kind) if male else _face(kind)
+        else:
+            im = _eyes_glow_m(kind) if male else _eyes_glow(kind)
+    finally:
+        g.update(old)
+    return _swapc(im, FACE_SWAP[sfx])
+
+
+def el_textures(base):
+    """every one of her textures' twins in each form (<name>_e, <name>_w), and the forms' own: the stars, the cold fire"""
+    T = {}
+    for sfx in ELEMENTS:
+        for name, im in base.items():
+            if name.startswith(('lb_face', 'lb_eyes')):
+                T[name + sfx] = _el_face(name, sfx)
+            elif name in _CLS:
+                tw = _el_texture(name, im, sfx)
+                if tw is not None: T[name + sfx] = tw
+    T['lb_tip_blue_e'] = _prism_strip(5101)                                    # (the primaries' ends: prismatic light, flowing)
+    T['lb_star_e'] = _star_strip(5102)                                         # (the halo's stars, twinkling)
+    T['lb_tip_w'] = _flame_strip(['#1aa8c8', '#5ae8ff', '#c8fcff', '#ffffff'], 5201)       # (the feathers' tips: cold flame, flickering)
+    T['lb_tip_blue_w'] = _flame_strip(['#0a5a74', '#1aa8c8', WRAITH_CYAN, '#e0ffff'], 5202)
+    T['lb_halo_w'] = _flame_strip(['#2ab8d8', WRAITH_CYAN, '#d8ffff', '#ffffff'], 5203, rise=False)   # (the halo's ring of cold fire)
+    T['lb_flame_w'] = _flame_strip(['#3ad0ec', '#8af4ff', '#e8ffff', '#ffffff'], 5204)          # (its tongues)
+    return T
+
+
+ANIMATED.update({k: {'animation': {'frametime': 4, 'interpolate': True}} for k in ('lb_tip_blue_e', 'lb_star_e')})
+ANIMATED.update({k: {'animation': {'frametime': 2}} for k in ('lb_tip_w', 'lb_tip_blue_w', 'lb_halo_w', 'lb_flame_w')})
+
+
+def mcmeta():
+    """{path: json} of the forms' animated textures' .png.mcmeta (phase236.rp's post pass writes them)"""
+    return {f'assets/bm/textures/block/{k}.png.mcmeta': v for k, v in ANIMATED.items()}
+
+
+HALO_TILT = -12
+
+
+def _halo_el(sfx):
+    """the halo, remade: ETHEREAL a ring of stars (eight, big and small by turns, each a little three-armed jack of light) on a
+    fine thread of light; WRAITHFIRE a ring of cold fire with flickering tongues licking up from it"""
+    pv = PIVOT['halo']; X, Y, Z = pv; ti = math.radians(HALO_TILT)
+    at = lambda a, r=3.6: (X + r * math.cos(a), Y - r * math.sin(a) * math.sin(ti), Z + r * math.sin(a) * math.cos(ti))
+    if sfx == ETHEREAL:
+        els = _ring(pv, 3.6, 16, 0.24, 0.16, 'lb_halo_e', pv, 'xz', tilt=HALO_TILT, light=15)
+        for k in range(8):
+            cx, cy, cz = at(2 * math.pi * k / 8 + math.pi / 8)
+            L, w = (2.2, 0.44) if k % 2 == 0 else (1.5, 0.36)
+            a, b, c = w * 0.5, w * 0.32, w * 0.18                         # (the arms' half-thicknesses: no two faces in one plane)
+            els += [el((cx - L / 2, cy - a, cz - a), (cx + L / 2, cy + a, cz + a), 'lb_star_e', pv, light=15, shift=(0.1 * k, 0.3)),
+                    el((cx - b, cy - L / 2, cz - b), (cx + b, cy + L / 2, cz + b), 'lb_star_e', pv, light=15, shift=(0.3 * k, 0.5)),
+                    el((cx - c, cy - c, cz - L * 0.4), (cx + c, cy + c, cz + L * 0.4), 'lb_star_e', pv, light=15, shift=(0.5, 0.2 * k)),
+                    el((cx - w * 0.8, cy - w * 0.8, cz - w * 0.8), (cx + w * 0.8, cy + w * 0.8, cz + w * 0.8), 'lb_star_e', pv, light=15,
+                       rot=('y', 45, (cx, cy, cz)), shift=(0.7, 0.7))]
+        return els
+    els = _ring(pv, 3.6, 14, 0.7, 0.42, 'lb_halo_w', pv, 'xz', tilt=HALO_TILT, light=15)
+    up = (0.0, math.cos(ti), math.sin(ti))
+    for k in range(9):
+        a = 2 * math.pi * k / 9 + 0.2
+        c = at(a); hgt = (1.3, 0.95, 1.5, 1.05, 1.4, 0.9, 1.45, 1.15, 1.0)[k]
+        lean = (0.3, -0.25, 0.35, -0.2, 0.25, -0.3, 0.2, -0.35, 0.25)[k]             # (each tongue leaning its own way: a flicker)
+        tang = (-math.sin(a), 0.0, math.cos(a))
+        pts = [c] + [tuple(c[i] + up[i] * hgt * f + tang[i] * lean * f * f for i in range(3)) for f in (0.4, 0.75, 1.0)]
+        for j, wd in enumerate((0.66, 0.44, 0.22)):                                   # (a teardrop of cold fire: wide at the ring, to a point)
+            els.append(seg(pts[j], pts[j + 1], wd, wd, 'lb_flame_w', pv, FRONT, ext=0.04, light=15, shift=(0.13 * k + 0.3 * j, 0.29 * k)))
+    return els
+
+
+def el_models(M, part):
+    """every model's twin in each form: <name>_e, <name>_w (her models and his, every face) - its textures the form's, its light
+    the form's; the halo remade"""
+    for name in list(M):
+        _tex, els = M[name]
+        for sfx in ELEMENTS:
+            if name in ('lb_halo', 'lb_halo' + MALE):
+                part(name + sfx, _halo_el(sfx)); continue
+            out = []
+            for e in els:
+                e2 = copy.deepcopy(e); lv = 0
+                for f in e2['faces'].values():
+                    t = f['texture'][1:]
+                    f['texture'] = '#' + t + sfx
+                    lv = max(lv, EL_LIGHT[sfx].get(_CLS.get(t), 0))
+                if lv > e2.get('light_emission', 0): e2['light_emission'] = lv
+                out.append(e2)
+            part(name + sfx, out)
+            if name in JOINTS: JOINTS[name + sfx] = JOINTS[name]
+
 
 # ---------------------------------------------------------------------------------------------------- poses
 # (rigkit: ('x', -a) swings a hanging limb forward by a; ('x', +a) on the body or head leans/nods it forward)

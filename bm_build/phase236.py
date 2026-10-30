@@ -76,10 +76,14 @@ class Lightbringer(RP.Cfg):
               ('Ophanim', 'three or more monsters near, every 90 s: she takes her true form - a wheel within a wheel, full of eyes - and light falls three times on every monster within 16 (14, and 20 to the undead)'),
               ('Pray', 'out of a fight beside you, every minute: a meal\'s worth, and Regeneration'),
               ('Light in the Dark', 'by night, underground or beyond the Overworld the herald shines - every feather of light'),
-              ('Holy Favour', 'she loves it when you wear holy things (anything a Golden Cross has made holy): beside her, you heal; her smite strikes harder (+4); her blessing and her prayer are stronger')]
+              ('Holy Favour', 'she loves it when you wear holy things (anything a Golden Cross has made holy): beside her, you heal; her smite strikes harder (+4); her blessing and her prayer are stronger'),
+              ('Ethereal and Wraithfire', 'right-click her with an Ethereal Gem or a Wraithfire Heart: she keeps it, and takes its form - ETHEREAL (translucent starlight, a ring of stars for a halo; her smite +3) or WRAITHFIRE (cold soul fire, a halo of flame; what she smites burns, and beside her fire can\'t touch you). Element (her menu) switches between her own light and the forms she has; she gives the gem and the heart back there too')]
     INTRO = [T('The Lightbringer', HOLY, bold=True), T(' - a herald of the Divine One, the light against the Dread. ', 'gray'),
              T('She loves it when you wear holy things.', 'white')]
-    BUTTONS = ()
+    # (3.0a: the elemental forms - Element (MENU+6) switches her own light / Ethereal / Wraithfire, the forms she holds the gem or the
+    #  heart for; MENU+7 gives them back. phase236.elements)
+    BUTTONS = ((6, 'Element: Ethereal / Wraithfire', 'Her elemental form: her own light, Ethereal (an Ethereal Gem) or Wraithfire (a Wraithfire Heart) - right-click her with one to give it to her.', 'p236l/el/cycle'),
+               (7, 'Give back the gem & heart', 'She gives you back the Ethereal Gem and the Wraithfire Heart she holds - and is her own light again.', 'p236l/el/take'))
     # (3.0: the owner - "a toggleable male variant", the first form met chosen at random: HE - lightbringer_art's '_m' twins of
     #  every part; bm.lhform 1 on the owner. The button's words follow the form shown: "Form: Herald (she)" / "(he)" - gender_split)
     FORM = ('bm.lhform', LA.MALE, 'Form: Herald (she)', None, '"As you would see me, so I am. The light wears many faces."',
@@ -174,6 +178,7 @@ for _C in PAIR:
 item('herald_feather', TOTEM, "The Herald's Feather", HOLY,
      ['A long white feather, its tip dipped in gold light.', 'It is warm. It is always warm.', ('Hard mode: a herald of the Divine One.', '#9a7aff'),
       ('Use: call the herald (again: call to your side).', 'blue'), ('Sneak + use: the herald\'s menu.', 'blue'), ('The herald loves it when you wear holy things.', 'blue'),
+      ('An Ethereal Gem or a Wraithfire Heart: an elemental form.', 'blue'),
       ('If the herald faints: 2 minutes before returning.', 'gray')],      # (3.0: said without she/he - the herald may be either)
      model='bm:herald_feather', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
 item('dryad_cap', TOTEM, 'A Glowing Mushroom', '#6aa8f0',
@@ -484,6 +489,7 @@ def generate(G):
     G.FUNCS['loop/second'] += ['execute as @e[type=minecraft:wolf,tag=bm.pypet,tag=!bm.ffpet] at @s if predicate bm:p236/night run function bm:p236p/glow']
     fn('p236p/glow', ['particle minecraft:dust{color:[0.4,0.66,1.0],scale:0.6} ~ ~0.9 ~ 0.3 0.35 0.3 0 2', 'particle minecraft:dust{color:[1.0,0.6,0.25],scale:0.5} ~ ~0.7 ~ 0.3 0.3 0.3 0 1',
                       'particle minecraft:glow ~ ~0.8 ~ 0.25 0.3 0.25 0 1'])
+    print('3.0a: the Lightbringer\'s elemental forms - %d dress lines (Ethereal / Wraithfire, on her or on him)' % elements(G))
     # ---- (3.0) SHE OR HE: every line of the Lightbringer's own that says she / her gets a twin for him, picked by the form
     print('3.0: the Lightbringer, he - %d lines given his words' % gender_split(G))
 
