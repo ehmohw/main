@@ -16,10 +16,15 @@ THE SWEEP    once a second, while anyone is in a placed dungeon's box: a monster
 FIRST SIGHT  mobs/init (every monster the pack rolls: elite / champion / lucky, Blood Moon, invasions, Dread variants, the Mire's
              own roll) starts by taking a bare monster (no tags, no name: a natural spawn) first seen in a placed box - before any of
              those can turn it into something else or call minions.
+NO MIRES IN THE ARMADA (3.0e - they are the Dread's, not the Vorn's): no Dread Mire rises in the Armada or within MIRE_M of it
+             (bm:p255/near_armada) - not by its natural roll, not planted from a Mire Heart (refused, the Heart kept), not by any
+             caller of p246/spawn (it refuses there itself); one that gets in anyway (wild or tame) melts away (the sweep, while
+             anyone is within MIRE_M). The Undercrown keeps its own; the Mireling (a wolf host, no Mire tags) is untouched.
 THE OTHERS   the Mire's natural roll never rises in the Armada; the Stalkers (p181/stk/at), the Vorn invasions' saucers, slimes and
              phantoms (and their troopers, in the Undercrown - the Armada's own reinforcements and Vexis's pods are troopers too),
              and the Arachno-Lantern (p82/summon) never come up inside either box (bm:p255/in_box, a location predicate)."""
 import allies
+from items import T
 import phase237 as P237
 import phase241 as P241
 
@@ -27,6 +32,7 @@ PFX = 'p255'
 BIOV = 1                                    # bump to re-fill both boxes' biome in every world (bio/*)
 PAD = 4                                     # (one quart round the box: the biome blur samples the neighbouring quarts)
 TILE = 16                                   # (a 16 x 16 column: 13 x 121 x 13 blocks after the snap - well under 32768)
+MIRE_M = 48                                 # (3.0e: no Dread Mire within this of the Armada's box, any side)
 LIMIT = 32768                               # (vanilla max_block_modifications; the pack never raises it)
 
 # monsters a box can get by nature (the biome lists, a fortress's, the Nether's and the End's) or by wandering in
@@ -117,6 +123,9 @@ def generate(G):
             'z': {'min': float(M.OZ), 'max': float(M.OZ + M.SZ)}}}}
         wjson(f'bm/predicate/{PFX}/in_{key}.json', loc[key])
     wjson(f'bm/predicate/{PFX}/in_box.json', {'condition': 'minecraft:any_of', 'terms': list(loc.values())})
+    MA = DG['armada']['mod']
+    wjson(f'bm/predicate/{PFX}/near_armada.json', {'condition': 'minecraft:location_check', 'predicate': {'dimension': DG['armada']['dim'], 'position': {
+        a: {'min': float(o - MIRE_M), 'max': float(o + n + MIRE_M)} for a, o, n in (('x', MA.OX, MA.SX), ('y', MA.OY, MA.SY), ('z', MA.OZ, MA.SZ))}}})
     G.FUNCS['load'][-1:-1] = ['scoreboard players set #ubgu bm.p2 0', 'scoreboard players set #abgu bm.p2 0', 'scoreboard players set #ubw bm.p2 0',
                               'scoreboard players set #abw bm.p2 0']
 
@@ -149,8 +158,13 @@ def generate(G):
         sweep.append(f'execute if score {c["ver"]} bm.p2 matches {c["VER"]} in {c["dim"]} if entity @a[{M.BOX}] run function bm:{PFX}/{key}')
         body = [f'execute as {selector(key)} at @s run function bm:{PFX}/cull']
         if key == 'armada':        # (3.0a: the Mire melts FIRST - its rig with it; culled as a bare husk, its rig was left standing)
-            body.insert(0, f'execute as @e[type=minecraft:husk,tag=bm.mire,tag=!bm.mtame,{M.BOX}] at @s run function bm:p246/melt')
+            body.insert(0, f'execute as @e[type=minecraft:husk,tag=bm.mire,{M.BOX}] at @s run function bm:p246/melt')
         fn(f'{PFX}/{key}', body)
+    # (3.0e: no Mire near the Armada either - wild or tame, whoever's - melted while anyone is near enough to see it)
+    MA = DG['armada']['mod']
+    near = (f'x={MA.OX - MIRE_M},y={MA.OY - MIRE_M},z={MA.OZ - MIRE_M},dx={MA.SX + 2 * MIRE_M - 1},dy={MA.SY + 2 * MIRE_M - 1},'
+            f'dz={MA.SZ + 2 * MIRE_M - 1}')
+    sweep.append(f'execute in {DG["armada"]["dim"]} if entity @a[{near}] as @e[type=minecraft:husk,tag=bm.mire,{near}] at @s run function bm:p246/melt')
     second[0:0] = sweep                     # (ahead of the mob rolls: a natural spawn is gone before it's rolled)
     fn(f'{PFX}/cull', ['execute if data entity @s {PersistenceRequired:1b} run return 0',
                        'execute on owner run return 0', 'execute on leasher run return 0',
@@ -174,10 +188,14 @@ def generate(G):
 
     # ---- the pack's other risers: never inside a box (the Undercrown's own Mires come from p246/uc/*, never the roll)
     patched = 0
-    keep_out = {'p246/roll': 'in_armada', 'p181/stk/at': 'in_box', 'p82/summon': 'in_box', 'p32/spawn/saucer': 'in_box',
+    keep_out = {'p246/roll': 'near_armada', 'p246/spawn': 'near_armada', 'p181/stk/at': 'in_box', 'p82/summon': 'in_box', 'p32/spawn/saucer': 'in_box',
                 'p32/spawn/bigslime': 'in_box', 'p32/spawn/bphantom': 'in_box', 'p32/spawn/trooper': 'in_under'}
     for f_, p in keep_out.items():
         L = G.FUNCS[f_]
         L.insert(0, f'execute if predicate bm:{PFX}/{p} run return 0')
         patched += 1
+    # (3.0e: a Mire Heart is not planted near the Armada - refused before anything is spent; the Mireling's own seed is a wolf)
+    hu = G.FUNCS['p246/heart/use']
+    hu.insert(1, f'execute if predicate bm:{PFX}/near_armada run return run ' +
+              G.title('@s', 'actionbar', T('Not here - the hive-fleet wants nothing of the Dread aboard.', 'gray')))
     return patched, n_init

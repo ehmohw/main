@@ -21,6 +21,13 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0e: the Vorn Armada in the sky, and no Mires aboard
+
+- **The Vorn Armada now floats high in the End's sky.** The whole fleet sits at **y 150 to 245** (its hulls from about y 173 up), far above every outer island, so **no islands are cut away** to make room for it any more. The Hive-Star Coordinates' tractor beam, the Dock, the beam-out pad and rifts, the star's burn, the trials, the Statue Knights, the Mecha Rex's hangar, the music and Admiral Vexis's fight all moved up with it.
+- **Falling off the fleet** is caught a couple of blocks below its underside, long before you'd reach the islands far below, and the tractor beam sets you back where you last stood (hurt, as before).
+- **Existing worlds' fleet moves up on its own.** The next time the Armada is wanted, its old copy (from 3.0-3.0d, low among the islands, or 2.99's, further out) comes down first, once. Anyone aboard is carried out to where they signalled from, and its blocks go back to the void's air. Then the new one is placed in the sky. Islands the old build cut away stay cut.
+- **No Dread Mires in the Armada.** They're the Dread's, not the Vorn's. None rises aboard or within 48 blocks of the fleet, and a Mire Heart can't be planted there. If one gets in anyway, it melts away. The Undercrown keeps its Mires, and the Mireling is unchanged.
+
 ## New in 3.0d: three dramatic deaths, the Ophanim for good, companion sizes
 
 - **The Dread Sovereign burns up in holy fire.** Inside the Last Light, after the Divine One smites it, His light sets it ablaze. White-gold flames climb it from its feet. Each part glows white-hot, then chars black, then crumbles away into rising ash: shins, legs, sword, arms, its three pairs of wings, body and chest. The helm and its great eye go last. A final white flash and a ring of light follow, and nothing is left but ash and feathers of light drifting down while He speaks. It's timed to the old unmaking's beats, and the music, the camera and the spoils are unchanged.

@@ -6,7 +6,8 @@ run it (p2/logic, called for it alone by phase241), but it is NOT in p2.config.D
 it in D/FLAVOR/WAVES for the moment someone needs it (the logic generator, the builder's DBuild, the verifier).
 
 Placed once per world by command, in THE END, far out in the void: LOCAL (0..239, 0..95, 0..239) is WORLD ORIGIN + local, in
-minecraft:the_end. The volume is cleared of outer islands before it is placed; an unset cell is a structure void (the void).
+minecraft:the_end. 3.0e: HIGH IN THE END'S SKY (y 150..245; its hulls 173..243) - well above every outer island (they top out
+below ~110; an End City's spire, rarely, ~155), so nothing is cut away; an unset cell is a structure void (the void).
 
 THE FLEET. The Hive-Star burns at the centre (STAR); seven ships circle it on the orbit (SHIPS: each ship's rough centre - the
 builder keeps each within ~12 of it). Ships are joined by HARD-LIGHT BRIDGES that switch on as trials are solved (ABuild.bridge).
@@ -21,7 +22,12 @@ import armada_lore as L
 
 d = 'armada'
 SIZE = (240, 96, 240)
-ORIGIN = (2560, 24, -3328)              # world corner, in the End (y 24..119); 3.0: its centre ~4.2k from 0,0 (2.99-2.99a: 2560, -4608)
+ORIGIN = (2560, 150, -3328)             # world corner, in the End (y 150..245 - the End is 0..255); its centre ~4.2k from 0,0
+# where older versions placed it (phase241 takes a world's old copy down once, each with its own flag - p2/oldsite):
+OLD_SITES = {'s299': (2560, 24, -4608),  # 2.99-2.99a
+             's30': (2560, 24, -3328)}   # 3.0-3.0d (the same x/z, low in the islands: y 24..119)
+CATCH_LOW = 120                         # the void's tractor beam catches a fall from the fleet's underside - 2 down to here
+                                        # (above the 3.0 site's top, 119, and every island: never a player standing on one)
 COL, RED = L.VX_COL, L.RED
 STAR = dict(c=(120, 48, 120), r=22, burn=30)     # the Hive-Star: its sphere, and the radius within which it scorches
 ORBIT = 86

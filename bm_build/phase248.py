@@ -195,7 +195,9 @@ def generate(G):
                      'execute if block ~ ~ ~ minecraft:barrel run setblock ~ ~ ~ minecraft:air'])
     guarded = []
     import phase237 as P237, phase241 as P241
-    for name, dim, box in (('p237/build/try', 'minecraft:the_nether', P237.BOX), ('p241/build/try', 'minecraft:the_end', P241.BOX)):
+    import p2.oldsite as OS                 # (3.0e: and an old site's teardown - p237/oldsite, p241/oldsite/s30 and s299)
+    for name, dim, box in (('p237/build/try', 'minecraft:the_nether', P237.BOX), ('p241/build/try', 'minecraft:the_end', P241.BOX),
+                           *[(nm, dm, bx) for nm, (dm, bx) in OS.SITES.items()]):
         L = F.get(name)
         if L is None: continue
         k = next(i for i, l in enumerate(L) if l.startswith(f'execute in {dim} run kill @e['))

@@ -6,9 +6,10 @@ FINDING IT  Hard mode: sabotage a Dreadnought's reactor (phase52) and among its 
             End (past the main island) use them: the signal goes out, a tractor beam answers - you are lifted into the dark for
             seven seconds, the fleet blooms round its star, THE VORN ARMADA - and set down on the Dock. The Dock's beam-out pad
             (and the rifts) take you back to where you signalled from.
-THE FLEET   placed once per world in the End's void at armadacfg.ORIGIN (the volume cleared of outer islands first). Seven ships
-            round the Hive-Star, joined by HARD-LIGHT BRIDGES that switch on as their trials are solved. Fall into the void and
-            the fleet's tractor beam sets you back where you last stood (a hard hit). Too near the star, it scorches you.
+THE FLEET   placed once per world high in the End's sky at armadacfg.ORIGIN (3.0e: y 150..245, above every island - nothing is
+            cut away). Seven ships round the Hive-Star, joined by HARD-LIGHT BRIDGES that switch on as their trials are solved.
+            Fall into the void and, a couple of blocks below the fleet's underside, its tractor beam sets you back where you last
+            stood (a hard hit). Too near the star, it scorches you. (A world's older copy - 2.99's or 3.0's - comes down first.)
             Inside, Adventure mode. It is a Phase 2 dungeon: p2/logic runs its eighteen trials, gates, waves, secret doors,
             vaults and the 20-minute idle reset - with four kinds of trial of its own (logic.EXTRA): a GUARDIAN rises (vboss:
             the Abductor, the Warlord and the Overseer, renamed and bigger - each falls with a Command Cipher), SOCKETS
@@ -36,7 +37,7 @@ OX, OY, OZ = A.ORIGIN
 SX, SY, SZ = A.SIZE
 END = 'minecraft:the_end'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
-AVER = 5                                  # bump to re-place the Armada in every world (a rebuild: everyone aboard is carried out)
+AVER = 6                                  # (3.0e: the fleet up in the sky) bump to re-place the Armada in every world (a rebuild: everyone aboard is carried out)
 COLLAPSE = 180                            # seconds between the Admiral's fall and the rebuild
 GUARD_HP = {'brood': 520, 'forge': 640, 'nav': 900}
 GUARD_SPAWN = {'brood': ('abductor', 'execute positioned ~ ~6 ~ run function bm:p32/boss/abductor'), 'forge': ('warlord', 'function bm:p32/boss/warlord'),
@@ -217,7 +218,11 @@ def generate(G):
                           'execute store result score @s bm.asz run data get entity @s Pos[2]'])
     dk = M['dock']
     dwx, dwy, dwz = W(dk[0], dk[1], dk[2]) if dk else W(*A.SHIPS['dock'])
-    fast.append(f'execute in {END} as @a[x={OX - 16},y={OY - 80},z={OZ - 16},dx={SX + 32},dy=80,dz={SZ + 32},gamemode=!spectator,gamemode=!creative] at @s run function bm:p241/void/catch')
+    # (3.0e: every tick - a fall runs ~4 blocks a tick - from 2 below the fleet's underside down to A.CATCH_LOW: caught within
+    #  ~6 of it, long before the islands far below; never at a height anyone stands on, nor in the 3.0 site's old box)
+    under = OY + min(y for (x, y, z), st in Ab.b.items() if 'air' not in st)
+    assert A.CATCH_LOW > max(o[1] for o in A.OLD_SITES.values()) + SY - 1 and under - 2 - A.CATCH_LOW >= 12, (under, A.CATCH_LOW)
+    tick.append(f'execute in {END} as @a[x={OX - 16},y={A.CATCH_LOW},z={OZ - 16},dx={SX + 32},dy={under - 3 - A.CATCH_LOW},dz={SZ + 32},gamemode=!spectator,gamemode=!creative] at @s run function bm:p241/void/catch')
     fn('p241/void/catch', ['execute unless score @s bm.asy matches -64.. run return run function bm:p241/void/dock',
                            'execute store result storage bm:tmp av.x int 1 run scoreboard players get @s bm.asx', 'execute store result storage bm:tmp av.y int 1 run scoreboard players get @s bm.asy',
                            'execute store result storage bm:tmp av.z int 1 run scoreboard players get @s bm.asz', 'function bm:p241/void/to with storage bm:tmp av',
@@ -430,15 +435,24 @@ def generate(G):
     # (a forceload takes at most 256 chunks at once: the box and its margin in four quarters)
     _mx, _mz = OX + SX // 2, OZ + SZ // 2
     fls = [f'{a} {b} {c} {d}' for a, c in ((OX - 8, _mx), (_mx + 1, OX + SX + 8)) for b, d in ((OZ - 8, _mz), (_mz + 1, OZ + SZ + 8))]
+    # (3.0e: no islands up here to cut away - the fill only clears a previous copy at THIS site (#asite = its y, set when placed:
+    #  bridges lit, doors open), before a rebuild; a world's first build here places straight into the empty sky)
     clr = []
     for bx in range(0, SX, 32):
         for by in range(0, SY, 32):
             for bz in range(0, SZ, 32):
-                clr.append(f'execute in {END} run fill {OX + bx} {OY + by} {OZ + bz} {OX + min(SX, bx + 32) - 1} {OY + min(SY, by + 32) - 1} {OZ + min(SZ, bz + 32) - 1} minecraft:air')
+                clr.append(f'execute if score #asite bm.p2 matches {OY} in {END} run fill {OX + bx} {OY + by} {OZ + bz} {OX + min(SX, bx + 32) - 1} {OY + min(SY, by + 32) - 1} {OZ + min(SZ, bz + 32) - 1} minecraft:air')
     import phase255 as NS                   # (3.0a: 16-wide columns - a 60-wide fill was over the block limit, and failed - and a quart round)
     bio = NS.fills(END, (OX, OY, OZ), (SX, SY, SZ), 'bm:armada', done=('#abio', NS.BIOV))
-    import p2.oldsite as OS                 # (3.0: moved out to 2.5k-5k - an old copy, where a world had one, comes down first)
-    OS.generate(G, 'p241', END, (2560, 24, -4608), (SX, SY, SZ), 'minecraft:air', CLEAR, 'p241/out', '#aver')
+    import p2.oldsite as OS                 # (an old copy, where a world had one, comes down first - each site once, its own flag)
+    # 3.0-3.0d (y 24..119 under the new box, same x/z): built there if 3.0's step for 2.99's site ever ran (#p241_old - only 3.0+
+    # builds run it) or it stands at 3.0's version (5); checked BEFORE 2.99's, whose step sets #p241_old. Its biome put back.
+    old30 = OS.generate(G, 'p241', END, A.OLD_SITES['s30'], (SX, SY, SZ), 'minecraft:air', CLEAR, 'p241/out', '#aver', name='p241/oldsite/s30',
+                        flag='#p241_o30', built=['score #p241_old bm.p2 matches 1', 'score #aver bm.p2 matches 5'], keep=(A.ORIGIN, A.SIZE),
+                        biome='minecraft:small_end_islands')
+    OS.generate(G, 'p241', END, A.OLD_SITES['s299'], (SX, SY, SZ), 'minecraft:air', CLEAR, 'p241/out', '#aver', name='p241/oldsite/s299',
+                flag='#p241_old', keep=(A.ORIGIN, A.SIZE))
+    fn('p241/oldsite', ['execute if function bm:p241/oldsite/s30 run return 1', 'execute if function bm:p241/oldsite/s299 run return 1', 'return 0'])
     fn('p241/build/try', ['execute if function bm:p241/oldsite run return 0', *[f'execute in {END} run forceload add {q}' for q in fls],
                           f'execute in {END} store success score #aload bm.p2 if loaded {OX} {OY} {OZ} if loaded {OX + SX - 1} {OY} {OZ + SZ - 1} if loaded {OX} {OY} {OZ + SZ - 1} if loaded {OX + SX - 1} {OY} {OZ}',
                           'execute unless score #aload bm.p2 matches 1 run return run scoreboard players set #await bm.p2 0',
@@ -449,10 +463,11 @@ def generate(G):
                           f'execute in {END} store success score #abuilt bm.p2 run place template bm:p2_{d} {OX} {OY} {OZ}',
                           'execute unless score #abuilt bm.p2 matches 1 run return 0'] + bio + [
                           'function bm:p241/gauntlet/odd',
-                          f'scoreboard players set #aver bm.p2 {AVER}', 'scoreboard players add #arun bm.p2 1', f'execute in {END} as @e[type=minecraft:marker,tag=bm.d_{d},{BOX}] run scoreboard players operation @s bm.drun = #arun bm.p2', 'scoreboard players set #afell bm.p2 0',
+                          f'scoreboard players set #aver bm.p2 {AVER}', f'scoreboard players set #asite bm.p2 {OY}', 'scoreboard players add #arun bm.p2 1', f'execute in {END} as @e[type=minecraft:marker,tag=bm.d_{d},{BOX}] run scoreboard players operation @s bm.drun = #arun bm.p2', 'scoreboard players set #afell bm.p2 0',
                           *[f'execute in {END} run forceload remove {q}' for q in fls]])
     # (a rebuild's leftovers: a marker of an older copy whose chunk loaded after the clear - never two of anything)
     second.append(f'execute if score #aver bm.p2 matches {AVER} in {END} as @e[type=minecraft:marker,tag=bm.d_{d},{BOX}] unless score @s bm.drun = #arun bm.p2 run kill @s')
+    second.append(f'execute if score #aver bm.p2 matches {AVER} in {END} run kill @e[type=minecraft:marker,tag=bm.d_{d},{old30}]')     # (and the 3.0 site's, late)
     second.append(f'execute if score #awant bm.p2 matches 1 unless score #aver bm.p2 matches {AVER} unless score #acol bm.p2 matches 1.. run function bm:p241/build/try')
     G.FUNCS['load'][-1:-1] = ['execute if entity @a[tag=bm.acoord] run scoreboard players set #awant bm.p2 1']
 
