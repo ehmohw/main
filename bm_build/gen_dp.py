@@ -650,7 +650,7 @@ def gen_mobs():
             lines.append('attribute @s minecraft:scale base set 1.15')
             mhp = hp * 2
         lines += [f'attribute @s minecraft:max_health base set {mhp}', f'data modify entity @s Health set value {mhp}.0f',
-                  'attribute @s minecraft:follow_range base set 40']
+                  'attribute @s minecraft:follow_range modifier add bm:tier 0.25 add_multiplied_base']   # (3.0e: a little further than its plain kind - was 40 for all)
         fn(f'mobs/elite/{t}', lines)
         # ---- champion
         lines = [f'data merge entity @s {snbt(dict(NO_DROPS, DeathLootTable=f"bm:entities/champion/{t}", CustomName=mob_name("Champion ", "red", t, True)))}',
@@ -671,7 +671,7 @@ def gen_mobs():
         lines += [f'attribute @s minecraft:max_health base set {mhp}', f'data modify entity @s Health set value {mhp}.0f',
                   'attribute @s minecraft:movement_speed modifier add bm:champion 0.15 add_multiplied_base',
                   'attribute @s minecraft:knockback_resistance base set 0.6',
-                  'attribute @s minecraft:follow_range base set 48',
+                  'attribute @s minecraft:follow_range modifier add bm:tier 0.4 add_multiplied_base',   # (3.0e: was 48 for all)
                   f'execute positioned ~1 ~ ~ run summon minecraft:{t} ~ ~ ~ {{Tags:["bm.seen","bm.minion"]}}',
                   f'execute positioned ~-1 ~ ~1 run summon minecraft:{t} ~ ~ ~ {{Tags:["bm.seen","bm.minion"]}}',
                   'execute as @a[distance=..24] unless score @s bm.csnd matches 1 run playsound minecraft:entity.wither.ambient hostile @s ~ ~ ~ 0.4 1.6',

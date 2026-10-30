@@ -368,7 +368,7 @@ def generate(G):
         if t == 'creeper':
             lines.append('data merge entity @s {powered:1b,ExplosionRadius:3b}')
         lines += [f'attribute @s minecraft:max_health base set {mhp}', f'data modify entity @s Health set value {mhp}.0f',
-                  'attribute @s minecraft:follow_range base set 96', 'attribute @s minecraft:knockback_resistance base set 0.8',
+                  'attribute @s minecraft:follow_range modifier add bm:tier 0.4 add_multiplied_base', 'attribute @s minecraft:knockback_resistance base set 0.8',   # (3.0e: follow range +40% of its kind's, was 96)
                   'attribute @s minecraft:scale base set 1.2',
                   'attribute @s minecraft:movement_speed modifier add bm:blood 0.2 add_multiplied_base',
                   'particle minecraft:dust{color:[0.6,0.0,0.0],scale:2.0} ~ ~1 ~ 0.5 1 0.5 0 20']
