@@ -17,7 +17,7 @@ const on = (s) => !ONLY || ONLY === s;
 const OUT = process.env.BM_OUT || path.join(__dirname, '..', '..', 'out_p2');
 const DATA = path.join(OUT, 'BlackMarket_DP', 'data', 'bm');
 const UO = [2560, 6, -2560], US = [224, 112, 224];           // (p2/undercfg.ORIGIN / SIZE)
-const AO = [2560, 24, -3328], AS = [240, 96, 240];           // (p2/armadacfg.ORIGIN / SIZE)
+const { AO, AS } = require('./armada_cfg');                  // (p2/armadacfg.ORIGIN / SIZE - 3.0e: high in the End's sky)
 const N = 'execute in minecraft:the_nether run ', E = 'execute in minecraft:the_end run ';
 const SRC = path.join(__dirname, '..', '..');
 const UVER = +fs.readFileSync(path.join(SRC, 'phase237.py'), 'utf8').match(/^UVER = (\d+)/m)[1], AVER = +fs.readFileSync(path.join(SRC, 'phase241.py'), 'utf8').match(/^AVER = (\d+)/m)[1];   // (the versions the build places: read, not hard-coded - 3.0a's UVER 7)
@@ -41,7 +41,7 @@ const box = (o, s) => `x=${o[0]},y=${o[1]},z=${o[2]},dx=${s[0] - 1},dy=${s[1] - 
       ok(`bm:${b}: no patrols, no raids`, a['minecraft:gameplay/can_pillager_patrol_spawn'] === false && a['minecraft:gameplay/can_start_raid'] === false);
     }
     const roll = fs.readFileSync(path.join(DATA, 'function', 'p246', 'roll.mcfunction'), 'utf8').split('\n')[0];
-    ok('the wild Mire\'s roll: never in the Armada (its first line)', roll === 'execute if predicate bm:p255/in_armada run return 0', roll);
+    ok('the wild Mire\'s roll: never in or near the Armada (its first line)', roll === 'execute if predicate bm:p255/near_armada run return 0', roll);
     for (const t of ['zombie', 'enderman', 'piglin']) {
       const L = fs.readFileSync(path.join(DATA, 'function', 'mobs', 'init', t + '.mcfunction'), 'utf8').split('\n');
       ok(`mobs/init/${t}: a bare monster first seen in a placed box is taken before anything rolls it`, /p255\/in_under/.test(L[0]) && /p255\/in_armada/.test(L[1]) && /p255\/gone/.test(L[0]));

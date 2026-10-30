@@ -12,7 +12,7 @@
 const { bot, rcon, sleep } = require('./lib_resp');
 const ONLY = process.argv[2];
 const on = (s) => !ONLY || ONLY === s;
-const UO = [2560, 6, -2560], AO = [2560, 24, -3328];          // (p2/undercfg.ORIGIN, p2/armadacfg.ORIGIN)
+const UO = [2560, 6, -2560], AO = require('./armada_cfg').AO;          // (p2/undercfg.ORIGIN, p2/armadacfg.ORIGIN)
 const N = 'execute in minecraft:the_nether run ', E = 'execute in minecraft:the_end run ';
 const CELL = { under: { 0: [2632, 84, -2417], 2: [2584, 84, -2441], 3: [2584, 84, -2464], 16: [2669, 19, -2470] },
                armada: { 0: [2661, 74, -3124], 2: [2755, 70, -3149], 3: [2738, 70, -3154], 17: [2566, 79, -3171] } };
@@ -110,8 +110,9 @@ const CELL = { under: { 0: [2632, 84, -2417], 2: [2584, 84, -2441], 3: [2584, 84
   if (on('armada')) {
     const C = CELL.armada;
     await run(`${E}tp TestRat 1200 90 0`); await run(`${E}setblock 1200 88 0 minecraft:obsidian`); await sleep(1000);
-    if ((await sc('#aver', 'bm.p2')) < 5) await run('function bm:admin/armada/place');
-    ok('the stage: the Armada placed', await wait(900000, async () => (await sc('#aver', 'bm.p2')) >= 5, 2000));
+    const AVER = +require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'phase241.py'), 'utf8').match(/^AVER = (\d+)/m)[1];   // (the version the build places)
+    if ((await sc('#aver', 'bm.p2')) !== AVER) await run('function bm:admin/armada/place');
+    ok('the stage: the Armada placed', await wait(900000, async () => (await sc('#aver', 'bm.p2')) === AVER, 2000));
     await run(`${E}forceload add ${AO[0]} ${AO[2]} ${AO[0] + 239} ${AO[2] + 239}`); await sleep(4000);
     await run('clear TestRat'); await run('tag TestRat remove bm.acoord'); await run('scoreboard players reset TestRat bm.lka'); await run('scoreboard players reset TestRat bm.aoy');
     A.chats.length = 0; A.bars.length = 0;

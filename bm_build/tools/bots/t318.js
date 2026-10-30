@@ -18,7 +18,8 @@
 const { bot, rcon, sleep } = require('./lib_resp');
 const ONLY = process.argv[2];
 const on = (s) => !ONLY || ONLY === s;
-const OX = 2560, OY = 24, OZ = -3328;
+const [OX, OY, OZ] = require('./armada_cfg').AO;           // (p2/armadacfg.ORIGIN - 3.0e: high in the End's sky)
+const AVER = +require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'phase241.py'), 'utf8').match(/^AVER = (\d+)/m)[1];   // (the version the build places)
 const W = (x, y, z) => [OX + x, OY + y, OZ + z];
 const E = 'execute in minecraft:the_end run ';
 
@@ -49,11 +50,11 @@ const E = 'execute in minecraft:the_end run ';
   await run('gamemode survival TestRat'); await run('effect give TestRat minecraft:resistance infinite 3 true'); await run('effect give TestRat minecraft:fire_resistance infinite 0 true');
   await run('scoreboard players set #hard bm.cfg 1'); await run('clear TestRat');
   // (the stage: the Armada placed - the bot waits out in the End, away from it, while the template goes down)
-  if ((await sc('#aver', 'bm.p2')) < 1) {
+  if ((await sc('#aver', 'bm.p2')) !== AVER) {
     await run(`${E}tp TestRat 1200 90 0`); await run(`${E}setblock 1200 88 0 minecraft:obsidian`);
-    await run('function bm:admin/armada/place'); await wait(900000, async () => (await sc("#aver", "bm.p2")) >= 1, 2000);
+    await run('function bm:admin/armada/place'); await wait(900000, async () => (await sc("#aver", "bm.p2")) === AVER, 2000);
   }
-  ok('the stage: the Armada is placed in the End', (await sc('#aver', 'bm.p2')) >= 1);
+  ok('the stage: the Armada is placed in the End', (await sc('#aver', 'bm.p2')) === AVER);
   await run(`${E}forceload add ${OX} ${OZ} ${OX + 239} ${OZ + 239}`); await sleep(5000);
   const solved = async (n) => run(`${E}scoreboard players set ${DG} bm.pz ${n}`);
 
