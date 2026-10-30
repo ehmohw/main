@@ -57,7 +57,7 @@ const box = (o, s) => `x=${o[0]},y=${o[1]},z=${o[2]},dx=${s[0] - 1},dy=${s[1] - 
   await run('effect give TestRat minecraft:saturation infinite 0 true');
   const day = +(((await run('time query daytime')).match(/(\d+)/) || [0, 1000])[1]);
   await run('time set midnight');
-  const dfell = await sc('#dfell', 'bm.cfg');
+  const dfell = await sc('#dfell', 'bm.cfg'), hard = await sc('#hard', 'bm.cfg'), active = await sc('#active', 'bm.bm');
   await run('scoreboard players set #dfell bm.cfg 0');          // (the Dread unfallen: a fallen Dread melts every Mire)
 
   // ---- one dungeon: TestRat at its entrance; the natural spawns gone, the dungeon's own and the pet kept
@@ -114,11 +114,54 @@ const box = (o, s) => `x=${o[0]},y=${o[1]},z=${o[2]},dx=${s[0] - 1},dy=${s[1] - 
 
   if (on('armada')) {
     const { at, X, B } = await play('armada', 'minecraft:the_end', AO, AS, '#aver', AVER, '#abio', 'bm:armada', '"bm.avorn","bm.avk_zombie"');
-    // (a Dread Mire in the Armada - spawned straight in, as the roll would: it melts away, rig and all)
-    await run(`${at}function bm:p246/spawn`);
-    ok('armada: a Dread Mire spawned aboard melts away within ~2 s', await wait(3000, async () => (await count('minecraft:the_end', `@e[type=minecraft:husk,tag=bm.mire,tag=!bm.mtame,${B}]`)) === 0, 200));
-    const parts = +(((await run(`execute in minecraft:the_end at TestRat if entity @e[type=minecraft:item_display,tag=bm.mr,distance=..8]`)).match(/count: (\d+)/i) || [0, 0])[1]);
+    // 3.0e: NO DREAD MIRES IN THE ARMADA - they're the Dread's, not the Vorn's
+    const END = 'minecraft:the_end', NEAR = 48;
+    const NB = `x=${AO[0] - NEAR},y=${AO[1] - NEAR},z=${AO[2] - NEAR},dx=${AS[0] + 2 * NEAR - 1},dy=${AS[1] + 2 * NEAR - 1},dz=${AS[2] + 2 * NEAR - 1}`;
+    const mires = async (sel = NB) => count(END, `@e[type=minecraft:husk,tag=bm.mire,${sel}]`);
+    await run('scoreboard players set #hard bm.cfg 1'); await run('scoreboard players set #active bm.bm 1');      // (hard mode; a Blood Moon's 3x odds)
+    // (forced rolls aboard: the wild Mire's natural roll, run again and again as a monster rising at TestRat's feet)
+    await run(`${at}summon minecraft:zombie ~ ~ ~ {NoAI:1b,Silent:1b,Tags:["bm.seen","bm.dgmob","bm.avorn","bm.t329r"]}`);
+    let rolled = 0;
+    for (let i = 0; i < 900; i++) {
+      await run('scoreboard players reset TestRat bm.mday');
+      await run(`execute in ${END} as @e[type=minecraft:zombie,tag=bm.t329r,limit=1] at @s run function bm:p246/roll`); rolled++;
+      if (i % 150 === 149 && (await mires()) > 0) break;
+    }
+    ok(`armada: ${rolled} forced Mire rolls with TestRat aboard (hard mode, a Blood Moon's odds) - no Mire anywhere in or within ${NEAR} of the fleet`, (await mires()) === 0, String(await mires()));
+    // (straight in, as any caller of p246/spawn would: refused there itself)
+    await run(`${at}function bm:p246/spawn`); await sleep(300);
+    ok('armada: p246/spawn aboard - refused, no Mire', (await mires()) === 0);
+    // (a Mire Heart, sneak + used on the deck: refused, kept)
+    await run('loot replace entity TestRat hotbar.0 loot bm:items/mire_heart'); A.slot(0); await sleep(300); A.bars.length = 0;
+    await run(`execute in ${END} as TestRat at @s run tp @s ~ ~ ~ ~ 70`); await sleep(600);
+    A.input({ shift: true }); await sleep(300); A.use(); await sleep(900); A.release(); A.input({}); await sleep(600);
+    const heart = +(((await run('clear TestRat *[minecraft:custom_data~{bm:"mire_heart"}] 0')).match(/Found (\d+)/) || [0, 0])[1]);
+    ok('armada: a Mire Heart planted aboard - refused, the Heart kept, no Mire', heart === 1 && (await mires()) === 0 && A.bars.some(b => /hive-fleet/.test(b)), `heart ${heart}, bars ${A.bars.slice(-2).join(' | ')}`);
+    await run('clear TestRat *[minecraft:custom_data~{bm:"mire_heart"}]');
+    // (one that gets in anyway: risen out in the void and teleported aboard - it melts, rig and all)
+    const far = [AO[0] + AS[0] + 400, 100, AO[2]];
+    await run(`${E}forceload add ${far[0]} ${far[2]}`); await run(`${E}setblock ${far[0]} ${far[1] - 1} ${far[2]} minecraft:obsidian`); await sleep(1500);
+    await run(`execute in ${END} positioned ${far[0]}.5 ${far[1]} ${far[2]}.5 run function bm:p246/spawn`);
+    const out1 = await count(END, `@e[type=minecraft:husk,tag=bm.mire,x=${far[0]},y=${far[1]},z=${far[2]},distance=..2]`);
+    await run(`execute in ${END} as @e[type=minecraft:husk,tag=bm.mire,x=${far[0]},y=${far[1]},z=${far[2]},distance=..2] at TestRat run tp @s ~ ~ ~`);
+    ok('armada: a Dread Mire teleported aboard melts away within ~2 s', out1 === 1 && await wait(3000, async () => (await mires(B)) === 0, 200), `spawned ${out1}`);
+    const parts = +(((await run(`execute in ${END} if entity @e[type=minecraft:item_display,tag=bm.mr]`)).match(/count: (\d+)/i) || [0, 0])[1]);
     ok('armada: ...none of its parts left behind', parts === 0, String(parts));
+    await run(`execute in ${END} as @e[type=minecraft:zombie,tag=bm.t329r] at @s run tp @s ~ -400 ~`); await run(`${E}kill @e[tag=bm.t329r]`);
+    // (the positive control: the same forced rolls in the outer End, far from the fleet - a Mire can still rise there)
+    await run(`${E}tp TestRat ${far[0] + 6}.5 ${far[1]} ${far[2]}.5`); await run(`${E}fill ${far[0] - 2} ${far[1] - 1} ${far[2] - 2} ${far[0] + 8} ${far[1] - 1} ${far[2] + 2} minecraft:obsidian`); await sleep(1500);
+    await run(`${E}summon minecraft:zombie ${far[0]}.5 ${far[1]} ${far[2]}.5 {NoAI:1b,Silent:1b,Tags:["bm.seen","bm.t329r"]}`);
+    const FB = `x=${far[0] - 3},y=${far[1] - 2},z=${far[2] - 3},dx=6,dy=5,dz=6`;
+    let n = 0;
+    for (; n < 3000 && (await count(END, `@e[type=minecraft:husk,tag=bm.mire,${FB}]`)) === 0; n++) {
+      await run('scoreboard players reset TestRat bm.mday');
+      await run(`execute in ${END} as @e[type=minecraft:zombie,tag=bm.t329r,limit=1] at @s run function bm:p246/roll`);
+    }
+    ok('armada: ...the same rolls in the outer End, far from it: a Mire still rises there', (await count(END, `@e[type=minecraft:husk,tag=bm.mire,${FB}]`)) === 1, `after ${n} rolls`);
+    await run(`execute in ${END} as @e[type=minecraft:husk,tag=bm.mire,${FB}] at @s run function bm:p246/melt`);
+    await run(`execute in ${END} as @e[type=minecraft:zombie,tag=bm.t329r] at @s run tp @s ~ -400 ~`); await run(`${E}kill @e[tag=bm.t329r]`);
+    await run(`${E}fill ${far[0] - 2} ${far[1] - 1} ${far[2] - 2} ${far[0] + 8} ${far[1] - 1} ${far[2] + 2} minecraft:air`);
+    await run('scoreboard players reset TestRat bm.mday'); await run(`scoreboard players set #active bm.bm ${active === -99 ? 0 : active}`); await run(`scoreboard players set #hard bm.cfg ${hard === -99 ? 0 : hard}`);
     await run(`${E}tp TestRat 1200 90 0`); await run(`${E}setblock 1200 88 0 minecraft:obsidian`); await sleep(1000);
   }
 
