@@ -327,11 +327,8 @@ def generate(G):
     # (a forceload takes at most 256 chunks at once: the box and its margin in four quarters)
     _mx, _mz = OX + SX // 2, OZ + SZ // 2
     fls = [f'{a} {b} {c} {d}' for a, c in ((OX - 8, _mx), (_mx + 1, OX + SX + 8)) for b, d in ((OZ - 8, _mz), (_mz + 1, OZ + SZ + 8))]
-    bio = []
-    step = 56
-    for bx in range(0, SX, step):
-        for bz in range(0, SZ, step):
-            bio.append(f'execute in {NETHER} run fillbiome {OX + bx} {OY} {OZ + bz} {OX + min(SX, bx + step) - 1} {OY + SY - 1} {OZ + min(SZ, bz + step) - 1} bm:undercrown')
+    import phase255 as NS                   # (3.0a: 16-wide columns - a 56-wide fill was over the block limit, and failed - and a quart round)
+    bio = NS.fills(NETHER, (OX, OY, OZ), (SX, SY, SZ), 'bm:undercrown', done=('#ubio', NS.BIOV))
     import p2.oldsite as OS                 # (3.0: moved out to 2.5k-5k - an old copy, where a world had one, comes down first)
     OS.generate(G, 'p237', NETHER, (1536, 6, -1536), (SX, SY, SZ), 'minecraft:netherrack', CLEAR, 'p237/out', '#uver')
     fn('p237/build/try', ['execute if function bm:p237/oldsite run return 0', *[f'execute in {NETHER} run forceload add {q}' for q in fls],
@@ -587,7 +584,7 @@ def generate(G):
         'attributes': {'minecraft:audio/ambient_sounds': {'loop': 'minecraft:ambient.basalt_deltas.loop',
                                                           'mood': {'block_search_extent': 8, 'offset': 2.0, 'sound': 'minecraft:ambient.soul_sand_valley.mood', 'tick_delay': 3000}},
                        'minecraft:audio/background_music': {'default': {'max_delay': 24000, 'min_delay': 12000, 'sound': 'minecraft:music.nether.soul_sand_valley'}},
-                       'minecraft:gameplay/natural_mob_spawns': {'argument': {'spawn_costs': {}, 'spawns_by_category': {}}, 'modifier': 'override'},
+                       **NS.NO_SPAWNS,          # (3.0a: nothing spawns - no mobs, no patrols, no raids - phase255)
                        'minecraft:visual/ambient_particles': {'argument': [{'particle': {'type': 'minecraft:ash'}, 'probability': 0.02},
                                                                            {'particle': {'type': 'minecraft:crimson_spore'}, 'probability': 0.004}], 'modifier': 'override'},
                        'minecraft:visual/fog_color': '#2a0408'},

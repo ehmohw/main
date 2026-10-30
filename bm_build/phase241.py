@@ -435,10 +435,8 @@ def generate(G):
         for by in range(0, SY, 32):
             for bz in range(0, SZ, 32):
                 clr.append(f'execute in {END} run fill {OX + bx} {OY + by} {OZ + bz} {OX + min(SX, bx + 32) - 1} {OY + min(SY, by + 32) - 1} {OZ + min(SZ, bz + 32) - 1} minecraft:air')
-    bio = []
-    for bx in range(0, SX, 60):
-        for bz in range(0, SZ, 60):
-            bio.append(f'execute in {END} run fillbiome {OX + bx} {OY} {OZ + bz} {OX + min(SX, bx + 60) - 1} {OY + SY - 1} {OZ + min(SZ, bz + 60) - 1} bm:armada')
+    import phase255 as NS                   # (3.0a: 16-wide columns - a 60-wide fill was over the block limit, and failed - and a quart round)
+    bio = NS.fills(END, (OX, OY, OZ), (SX, SY, SZ), 'bm:armada', done=('#abio', NS.BIOV))
     import p2.oldsite as OS                 # (3.0: moved out to 2.5k-5k - an old copy, where a world had one, comes down first)
     OS.generate(G, 'p241', END, (2560, 24, -4608), (SX, SY, SZ), 'minecraft:air', CLEAR, 'p241/out', '#aver')
     fn('p241/build/try', ['execute if function bm:p241/oldsite run return 0', *[f'execute in {END} run forceload add {q}' for q in fls],
@@ -606,7 +604,7 @@ def generate(G):
         'attributes': {'minecraft:audio/ambient_sounds': {'mood': {'block_search_extent': 8, 'offset': 2.0, 'sound': 'minecraft:ambient.basalt_deltas.mood', 'tick_delay': 4000}},
                        'minecraft:audio/background_music': {'default': {'sound': {'sound_id': 'bm:music.gv_silence'}, 'min_delay': 12000, 'max_delay': 24000,
                                                                         'replace_current_music': True}},
-                       'minecraft:gameplay/natural_mob_spawns': {'argument': {'spawn_costs': {}, 'spawns_by_category': {}}, 'modifier': 'override'},
+                       **NS.NO_SPAWNS,          # (3.0a: nothing spawns - no mobs, no patrols, no raids - phase255)
                        'minecraft:visual/ambient_particles': {'argument': [{'particle': {'type': 'minecraft:end_rod'}, 'probability': 0.0015}], 'modifier': 'override'},
                        'minecraft:visual/fog_color': '#0a1a0c'},
         'carvers': [], 'downfall': 0.0, 'effects': {'water_color': '#3f76e4'}, 'features': [], 'has_precipitation': False, 'temperature': 0.5})
