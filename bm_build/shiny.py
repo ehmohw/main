@@ -37,7 +37,7 @@ LOOKS = {
     'batty': ('Shiny Golden Wings', ('#3a2806', '#d0a030', '#ffe8a0'), 'yellow'),
     'eggbert': ('Shiny Starlight Ooze', ('#0a0a3a', '#4a6ae0', '#c0d8ff'), 'blue'),
     'count': ('Shiny Silver Topper', ('#2a2a30', '#a8a8b4', '#f4f4ff'), 'light_gray'),
-    'dragon': ('Shiny End Stone', ('#4a4232', '#d6cf98', '#fffbe4'), 'yellow'),      # (3.0a: the Doodle Ender Dragon - pale as End stone, eyes still purple)
+    'dragon': ('Shiny End Stone', ('#6a6040', '#ece6b0', '#fffef4'), 'yellow'),      # (3.0a: the Doodle Ender Dragon - pale as End stone, eyes still purple)
     'eraser': ('Shiny Glitter Eraser', ('#1a1a3a', '#9a8ad8', '#f0e8ff'), 'purple'),
     'cursor': ('Shiny Golden Pointer', ('#3a2806', '#e0b03a', '#fff4b0'), 'yellow'),
     'inkblot': ('Shiny Galaxy Ink', ('#0a0420', '#4a2ab0', '#c0b0ff'), 'purple'),
