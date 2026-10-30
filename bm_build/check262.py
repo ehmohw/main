@@ -28,7 +28,7 @@ MY_ADV = {f[len(ROOT_DP) + len('/bm/advancement/'):-5] for f in glob.glob(ROOT_D
 MY_PREDS = {f[len(ROOT_DP) + len('/bm/predicate/'):-5] for f in glob.glob(ROOT_DP + '/bm/predicate/**/*.json', recursive=True)}
 MY_ENCH = {f[len(ROOT_DP) + len('/bm/enchantment/'):-5] for f in glob.glob(ROOT_DP + '/bm/enchantment/*.json')}
 MY_TEMPLATES = {os.path.basename(f)[:-4] for f in glob.glob(ROOT_DP + '/bm/structure/*.nbt')}
-MY_BLOCK_TAGS = {f[len(ROOT_DP) + len('/bm/tags/block/'):-5] for f in glob.glob(ROOT_DP + '/bm/tags/block/*.json')}
+MY_BLOCK_TAGS = {f[len(ROOT_DP) + len('/bm/tags/block/'):-5] for f in glob.glob(ROOT_DP + '/bm/tags/block/**/*.json', recursive=True)}   # (3.0e: nested ones too - bm:p227/open)
 MY_ENTITY_TAGS = {f[len(ROOT_DP) + len('/bm/tags/entity_type/'):-5] for f in glob.glob(ROOT_DP + '/bm/tags/entity_type/*.json')}
 MY_DIALOGS = {f[len(ROOT_DP) + len('/bm/dialog/'):-5] for f in glob.glob(ROOT_DP + '/bm/dialog/**/*.json', recursive=True)}   # 1.18
 _SJ = os.path.join(os.path.dirname(ROOT_DP), '..', 'BlackMarket_RP', 'assets', 'bm', 'sounds.json')
