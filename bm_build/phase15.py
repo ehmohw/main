@@ -171,6 +171,8 @@ item('golden_wings', 'minecraft:elytra', 'Wings of the Golden Rat', '#ffd700',
      cat='gear', price=('trophy', 4))
 
 # ===================================================================== SET EFFECTS (particles + bonuses)
+# (3.0b: a player's own gear particles answer to the Particle Toggler - sets/<id> and fx/<id> are gated by noparts.apply; new
+#  gear: register its particle function with noparts.gear(kind, name), or see noparts' docstring)
 # set id -> (bonus commands, orbit particle, extra particle line)
 SET_FX = {
     'smuggler': (['effect give @s minecraft:luck 11 0 true'], 'minecraft:wax_off', 'particle minecraft:electric_spark ~ ~0.2 ~ 0.3 0 0.3 0 1'),

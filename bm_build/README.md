@@ -21,6 +21,10 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0b
+
+- **The Particle Toggler** (the Fence, 1 Token). Right-click it for a little menu: switch off the particles your own gear gives off - **Charms** (carried charms, trinkets, relics and their auras), **Armour** (set effects, crowns, halos, hats, boots, wings and elytra trails), **Weapons** (a held weapon's idle glow), or **Everything**. Sneak + right-click flips everything at once. It's never used up, and it remembers your choice through deaths and relogs. Only your own gear goes quiet: followers, fights, bosses and the world keep their sparkle, and so do the particles that tell you something (a proc firing, a ward up, a charge building).
+
 ## New in 3.0a: the Gem's forms, and the doodles come to life
 
 - **The Gem of Creativity, in flight.** The glints in its halo now circle it without stopping. And when the Creative Spark calls it down, it makes an entrance: high above you, a slow spiral down, twice round you at shoulder height, then up over your head. Its drop falls for you alone, right where you stand (miss it, and it's given to you).

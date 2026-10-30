@@ -963,6 +963,8 @@ if __name__ == '__main__':
     phase226.rp(sys.modules[__name__])
     import phase248                           # (2.99a: the Backpack)
     phase248.rp(sys.modules[__name__])
+    import noparts                            # (3.0b: the Particle Toggler)
+    noparts.rp(sys.modules[__name__])
     import phase250                           # (2.99a: [market music hook] the market's theme, bm:music.market_theme)
     phase250.rp(sys.modules[__name__])
     LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',

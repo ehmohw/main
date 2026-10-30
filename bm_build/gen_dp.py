@@ -213,6 +213,7 @@ import phase245 as R245      # 2.99a: the Statue Knights - stone sentinels that 
 import phase246 as R246      # 2.99a: the Dread Mire - a puddle of the Dread that rises; Shadow Musk
 import phase247 as R247      # 2.99a: holy bane - the Dread is weak against holy weapons
 import phase248 as R248      # 2.99a: the Backpack (the Fence) - a plain 27-slot bag that works in the dungeons
+import noparts as NOP         # 3.0b: the Particle Toggler (the Fence) - your own gear's particles off, by kind (noparts.py)
 import phase250 as R250      # 2.99a: [market music hook] the Black Market's own swing, for key-holders inside a market
 import phase249 as R249      # 2.99a: the Rex mounts - the Atomic and Mecha Rex (hidden, rideable) and the Partner Wheel's Mounts page
 import phase251 as R251      # 2.99a: [lockout hook] no way into the Undercrown or the Armada but their own, no trial skipped
@@ -518,6 +519,7 @@ def all_offers():
     R199.extend_offers(O, offer)       # (2.91: the Sealed Royal Chart at the Dockmaster's)
     R225.extend_offers(O, offer)       # (2.94x: the Smuggler's Waytoken at the Fence's)
     R248.extend_offers(O, offer)       # (2.99a: the Backpack at the Fence's)
+    NOP.extend_offers(O, offer)        # (3.0b: the Particle Toggler at the Fence's)
     R202.extend_offers(O, offer)       # (2.92: Leo's Trident and the Bloomheart leave Cecil for the Royal Steward)
     # 2.82: follower cosmetics are raid exclusives (the Tailor in the den) - no overworld trader sells one
     global COS_OFF_MARKET
@@ -1511,6 +1513,7 @@ def build(out_dir):
     if PHASE2: R247.generate(sys.modules[__name__])      # 2.99a: holy bane
     R250.generate(sys.modules[__name__])                 # 2.99a: [market music hook] the market's music (after phase244/240/75: it yields to their music)
     print('2.99a: the Backpack - %d dungeon rebuilds fold open bags first' % len(R248.generate(sys.modules[__name__])))      # (after the boxes it reuses and the builds it guards)
+    NOP.generate(sys.modules[__name__])                 # 3.0b: the Particle Toggler's menu
     if PHASE2: print('2.99a: the Rex mounts - %d parts a rex, the Mounts page on the wheel' % R249.generate(sys.modules[__name__]))      # (after the wheel, the Armada and Vexis it hooks; before phase184's escort row)
     if PHASE2: print('2.99a: the lockout - %d / %d boxes a second at most (the Undercrown / the Armada)' % R251.generate(sys.modules[__name__]))      # [lockout hook] (after phase237/241/245: it hooks their out, builds, solves and knights)
     if PHASE2: print('3.0a: no spawns in the deep - %d risers kept out of the boxes, %d mob rolls take a natural spawn there first' % R255.generate(sys.modules[__name__]))      # [no-spawn hook] (after phase237/241/246/181/32/82 and every mobs/init patch)
@@ -1530,6 +1533,7 @@ def build(out_dir):
     if PHASE2:
         import creative
         print('creative: %d lines set only the strings of a display\'s custom_model_data (the outfit flag beside them stays)' % creative.keep_flags(sys.modules[__name__]))      # 2.96a
+    print('3.0b: the Particle Toggler - %d gear functions (%d particle lines) and %d loop lines answer to it' % NOP.apply(sys.modules[__name__]))      # (late: every phase's gear written; before noglow / optimize / prune)
     print('noglow:', noglow.apply(sys.modules[__name__]), 'glow lines kept off invisible hosts')      # 2.80e
     print('omega tithe: %d custom-mob loot tables, %d currency pools tripled' % R172.finalize(sys.modules[__name__]))
     print('2.82t: %d loot tables, %d pools of map pieces / Skiff parts give one you lack' % R173.finalize(sys.modules[__name__]))
