@@ -13,28 +13,28 @@ runT({ W: 'gem', NAME: 'The Gem of Creativity', ab: 'cg', q: 'cq', pfx: 'p231', 
   called: /floats down to you/, home: /twinkles goodbye/, sit: /settles low and dims/, stand: /lifts and brightens/,
   ways: ['Conjure', 'Prism', 'Inspiration', 'Masterpiece', 'Creative Forms'],
   plain: 'Its own colours', looks: ['Ruby Facets', 'Sapphire Facets', 'Amethyst Facets'], lookPart: 'body',
-  encounter: async ({ A, run, ok, wait, O, cnt, has, X, Y, Z, sleep, use }) => {
+  encounter: async ({ A, run, ok, wait, O, cnt, has, nbt, X, Y, Z, sleep, use }) => {
+    await run('scoreboard players set TestRat bm.cgel 0'); await run('scoreboard players set TestRat bm.cgfo 0');   // (whatever an earlier run left it holding)
     for (const t of ['bm.mzmet', 'bm.ktmet', 'bm.emmet']) await run(`tag TestRat add ${t}`);
     for (const o of ['bm.mzcd', 'bm.ktcd', 'bm.emcd']) await run(`scoreboard players set TestRat ${o} 0`);
     await run('advancement revoke TestRat only bm:story/trio_creative_spark');
     const items = ['capshun_pencil', 'kettle_plane', 'emma_ribbon'];
     for (const [i, iid] of items.entries()) await run(`loot replace entity TestRat hotbar.${i + 5} loot bm:items/${iid}`);
     A.chats.length = 0;
-    for (let i = 0; i < 3; i++) { await use(i + 5); await sleep(2200); }
-    const here = [await cnt('@e[type=minecraft:wolf,tag=bm.mzpet]'), await cnt('@e[type=minecraft:wolf,tag=bm.ktpet]'), await cnt('@e[type=minecraft:cat,tag=bm.emmapet]')];
-    ok('Mr. Capshun, Kettle and Emma called with their own items', here.every(n => n >= 1), here.join(','));
     // (3.0a) THE SCENE: high in the sky, a slow spiral down, twice round you at shoulder height, up over your head - and the Gem DROPS
     const pos = async (sel) => { const m = (await nbt(sel, 'Pos')).match(/\[(-?[\d.]+)d?, (-?[\d.]+)d?, (-?[\d.]+)d?\]/); return m ? m.slice(1).map(Number) : null; };
-    const GEM = '@e[type=minecraft:item_display,tag=bm.cgcz_body,limit=1]', DROP = '@e[type=minecraft:item,tag=bm.cgdrop,limit=1]', ME = '@a[name=TestRat,limit=1]';
-    ok('...together, the Creative Spark: the Gem shines high in the sky, its scene begins', await wait(6000, async () => (await cnt('@e[type=minecraft:marker,tag=bm.cgcin]')) === 1) &&
-       A.chats.some(c => /A swirl of every colour comes down out of the sky/.test(c)), A.chats.slice(-3).join(' | ').slice(0, 200));
-    ok('...nothing given yet - the drop is the reward', (await has('creativity_gem')) === 0 && (await cnt(`${ME}[tag=bm.cgwait]`)) === 1);
+    const GEM = '@e[type=minecraft:item_display,tag=bm.cgcz_body,limit=1]', DROP = '@e[type=minecraft:item,tag=bm.cgdrop,limit=1]', ME = '@a[name=TestRat,limit=1]', WAITING = '@a[name=TestRat,tag=bm.cgwait]';
     const track = [];                                   // (dy above the player, out from them, angle round them)
-    for (let i = 0; i < 60 && (await cnt(GEM)) === 1; i++) {
-      const g = await pos(GEM), p = await pos(ME); if (!g || !p) break;
-      track.push({ dy: g[1] - p[1], out: Math.hypot(g[0] - p[0], g[2] - p[2]), ang: Math.atan2(g[2] - p[2], g[0] - p[0]) * 180 / Math.PI });
-      await sleep(180);
-    }
+    const sample = async () => { const g = await pos(GEM), p = await pos(ME); if (!g || !p) return false;
+      track.push({ dy: g[1] - p[1], out: Math.hypot(g[0] - p[0], g[2] - p[2]), ang: Math.atan2(g[2] - p[2], g[0] - p[0]) * 180 / Math.PI }); return true; };
+    for (let i = 0; i < 3; i++) { await use(i + 5); if (i < 2) await sleep(2200); }
+    const begun = await wait(6000, async () => (await cnt('@e[type=minecraft:marker,tag=bm.cgcin]')) === 1, 50); await sample();   // (its first spot, at once: it is coming down already)
+    const here = [await cnt('@e[type=minecraft:wolf,tag=bm.mzpet]'), await cnt('@e[type=minecraft:wolf,tag=bm.ktpet]'), await cnt('@e[type=minecraft:cat,tag=bm.emmapet]')];
+    ok('Mr. Capshun, Kettle and Emma called with their own items', here.every(n => n >= 1), here.join(','));
+    ok('...together, the Creative Spark: the Gem shines high in the sky, its scene begins', begun &&
+       A.chats.some(c => /a swirl of every colour comes down out of the sky/i.test(c)), A.chats.slice(-3).join(' | ').slice(0, 200));
+    ok('...nothing given yet - the drop is the reward', (await has('creativity_gem')) === 0 && (await cnt(WAITING)) === 1, `gems ${await has('creativity_gem')} waiting ${await cnt(WAITING)}`);
+    for (let i = 0; i < 60 && (await cnt(GEM)) === 1; i++) { if (!(await sample())) break; await sleep(180); }
     const sky = track.slice(0, 3).map(t => t.dy), low = track.filter(t => t.dy < 2.0 && t.dy > 1.2 && Math.abs(t.out - 2) < 0.35);
     ok('...it starts high above (15+ up) and comes slowly down', track.length >= 20 && Math.max(...sky) > 15 && track.findIndex(t => t.dy < 2.0) > 8 &&
        track.slice(0, track.findIndex(t => t.dy < 2.0)).every((t, i, a) => i === 0 || t.dy <= a[i - 1].dy + 0.05),
@@ -50,15 +50,15 @@ runT({ W: 'gem', NAME: 'The Gem of Creativity', ab: 'cg', q: 'cq', pfx: 'p231', 
     const me = await pos(ME), myU = await nbt(ME, 'UUID');
     ok('...and DROPS as an item just over you - its owner you', !dropAt || (Math.hypot(dropAt[0] - me[0], dropAt[2] - me[2]) < 1.5 && dropAt[1] - me[1] > 0.8 && owner === myU),
        dropAt ? `dy ${(dropAt[1] - me[1]).toFixed(2)} owner ${owner === myU}` : 'caught at once');
-    ok('...picked up where you stand: the Gem is yours (the scene gone, nothing left behind)', await wait(5000, async () => (await has('creativity_gem')) === 1 && (await cnt(DROP)) === 0) &&
-       (await cnt('@e[type=minecraft:marker,tag=bm.cgcin]')) === 0 && (await cnt('@e[type=minecraft:item_display,tag=bm.cgcz]')) === 0 && (await cnt(`${ME}[tag=bm.cgwait]`)) === 0 &&
-       A.chats.some(c => /drops into your hands/.test(c)), A.chats.slice(-2).join(' | ').slice(0, 160));
+    ok('...picked up where you stand: the Gem is yours (the scene gone, nothing left behind)', await wait(5000, async () => (await has('creativity_gem')) === 1 && (await cnt(DROP)) === 0 && (await cnt(WAITING)) === 0 && A.chats.some(c => /drops into your hands/.test(c))) &&   // (picked up in one tick, caught the next: wait for both)
+       (await cnt('@e[type=minecraft:marker,tag=bm.cgcin]')) === 0 && (await cnt('@e[type=minecraft:item_display,tag=bm.cgcz]')) === 0 && (await cnt(WAITING)) === 0 &&
+       A.chats.some(c => /drops into your hands/.test(c)), `gems ${await has('creativity_gem')} drop ${JSON.stringify(await pos(DROP))} me ${JSON.stringify(await pos(ME))} waiting ${await cnt(WAITING)} | ` + A.chats.slice(-2).join(' | ').slice(0, 160));
     // (it can't be lost: a drop not caught in 30 s is given to you directly - the wait run on to its end)
     await run('clear TestRat *[minecraft:custom_data~{bm:"creativity_gem"}]'); await run('tag TestRat remove bm.cgmet');
     await run(`${O}execute as TestRat at @s run function bm:p231/arrives`); await sleep(300); await run('scoreboard players set TestRat bm.cgwt 770');
     ok('...not caught in time: given directly, the scene put out', await wait(3000, async () => (await has('creativity_gem')) === 1) &&
        (await cnt('@e[type=minecraft:marker,tag=bm.cgcin]')) === 0 && (await cnt('@e[type=minecraft:item_display,tag=bm.cgcz]')) === 0 && (await cnt(DROP)) === 0 &&
-       (await cnt(`${ME}[tag=bm.cgwait]`)) === 0);
+       (await cnt(WAITING)) === 0);
     for (const w of ['capshun', 'kettle', 'emma']) await run(`${O}execute as TestRat at @s run function bm:p98/home/${w}`);
     for (let i = 5; i < 8; i++) await run(`item replace entity TestRat hotbar.${i} with minecraft:air`);
     await run(`${O}tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(500);
@@ -110,7 +110,7 @@ runT({ W: 'gem', NAME: 'The Gem of Creativity', ab: 'cg', q: 'cq', pfx: 'p231', 
       await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z + 2.3}`); await at(X + 0.5, Y + 1, Z + 0.5, 0, 25); await sleep(400);
       const hb = await entOf(HIT); A.slot(slot); await sleep(300);
       if (sneak) { A.input({ shift: true }); await sleep(250); }
-      if (hb) A.interact(hb.entityId); await sleep(700);
+      if (hb) A.interact(hb.entityId, sneak); await sleep(700);
       if (sneak) { A.input({}); await sleep(200); }
       return !!hb; };
     await run('scoreboard players set TestRat bm.cgel 0'); await run('scoreboard players set TestRat bm.cgfo 0');

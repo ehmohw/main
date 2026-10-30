@@ -325,7 +325,7 @@ def generate(G):
                             'execute if predicate bm:p238/cam_res run effect clear @s minecraft:resistance'])
     for nm_, eff, amp in (('slow', 'slowness', 200), ('jump', 'jump_boost', 128), ('res', 'resistance', 200)):
         wjson(f'bm/predicate/p238/cam_{nm_}.json', {'condition': 'minecraft:entity_properties', 'entity': 'this',
-                                                    'predicate': {'effects': {f'minecraft:{eff}': {'amplifier': {'min': amp}}}}})
+                                                    'predicate': {'minecraft:effects': {f'minecraft:{eff}': {'amplifier': {'min': amp}}}}})
     fn('p238/cam/lease', ['scoreboard players remove @s bm.svcm 1', 'execute unless score @s bm.svcm matches 1.. run function bm:p238/cam/release'])
     tick.append('execute as @a[tag=bm.svcam] at @s run function bm:p238/cam/lease')
     G.FUNCS['admin/uninstall'][0:0] = ['execute as @a[tag=bm.svcam] at @s run function bm:p238/cam/release']

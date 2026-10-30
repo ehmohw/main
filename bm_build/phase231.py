@@ -692,7 +692,7 @@ def _forms(G, X):
             L.append(at(t, f'execute on owner at @s anchored eyes positioned ^0.3 ^-0.35 ^0.5 facing entity @e[type=minecraft:wolf,tag=bm.cgrsme,limit=1] eyes run function bm:p231/eth/beam_{n}'))
             L.append(at(t, 'scoreboard players set #bs bm.rng 0'))
         for t in (5, 10, 15):                        # (its facets flash)
-            L += [at(t, f'execute as {parts} {mine} run data merge entity @s {{brightness:{{block:15,sky:15}}}}'),
+            L += [at(t, f'execute as {parts} {mine} run data merge entity @s[type=minecraft:item_display] {{brightness:{{block:15,sky:15}}}}'),
                   at(t, f'particle minecraft:flash{{color:[{"1.0,1.0,1.0" if e else "0.45,0.9,1.0"},1.0]}} ~ ~1 ~ 0 0 0 0 1'),
                   at(t + 2, f'execute as {parts} {mine} run data remove entity @s brightness')]
         L += [at(14, f'playsound minecraft:block.beacon.power_select neutral @a[distance=..20] ~ ~ ~ 1 {1.4 if e else 0.8}')]

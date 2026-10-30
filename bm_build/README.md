@@ -1,4 +1,4 @@
-# Black Market — v3.0 (Java 26.3)
+# Black Market — v3.0a (Java 26.3)
 
 The Black Market now ships as **one complete pack, boss dungeons included** (the old "Phase 2 TEST" build is the main version). This README covers the market and the world; `README_PHASE2.md` covers the seven boss dungeons and the Hollow King's gear.
 
@@ -20,6 +20,27 @@ A data pack + resource pack. No mods required, and it works alongside Fabric.
 New structures only generate in **chunks that haven't been explored yet**. Fly out to fresh land, or use the admin commands below to place one for testing.
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
+
+## New in 3.0a: the Gem's forms, and the doodles come to life
+
+- **The Gem of Creativity, in flight.** The glints in its halo now circle it without stopping. And when the Creative Spark calls it down, it makes an entrance: high above you, a slow spiral down, twice round you at shoulder height, then up over your head. Its drop falls for you alone, right where you stand (miss it, and it's given to you).
+- **The Gem's Ethereal and Wraithfire forms.** Right-click the Gem holding the Ethereal Gem: it keeps it and takes its **Ethereal Form** - diamond wings, a crystal crown, and a Prism that hits harder (7). Hand it a **Wraithfire Heart** instead for wings of soul fire: its Prism sets foes alight, and its Inspiration keeps fire off you. Its menu turns the form on or off and gives back what it holds (or sneak + right-click it empty-handed). The form stays across a send-home, and its wardrobe looks colour the Ethereal wings too.
+- **The doodles, brought to life by the Gem.** Each doodle is now made real by the Gem of Creativity, with an entrance show of its own. With the Gem out:
+  - **The Doodle Dragon:** with Kettle out too, hand Kettle a dye. A pencil draws him in the air, the Gem's beam strikes, crayon fills him in, out come his wings - and a roar.
+  - **The Eraser:** hand the Gem paper, a fresh start. A smudge in the air, the Gem's beam, a swirl of crumbs - and out pops its old mistake, dusting itself off.
+  - **The Cursor:** use a Glitched Cartridge with the Gem beside you. A glitch, a blinking I-beam, then *click*: an arrow. (With nobody beside you the cartridge only buzzes.)
+  - **The Ink Blot:** with Mr. Capshun out too, hand him an ink sac. A drop falls off his pen in slow motion and splats; in the Gem's beam the puddle draws itself up, blinks, and wonders "?".
+  - **The Speech Bubble:** with Mr. Capshun out too, hand him a book and quill. "LOOK AT THAT!!" types itself over his head and drifts over, swells in the Gem's beam, goes POP!, bounces twice - "AND THEN!!"
+  - Without the Gem, Kettle and Mr. Capshun only give you a hint, and keep what you offered. Nothing answers a click while a show plays; when it's over, right-click the doodle and it comes along.
+  - **The Pale Dryad** has an entrance now too: mushroom-light glows up through the pale moss, she rises still asleep, blinks awake and hops up.
+- **The Doodle Ender Dragon.** Kettle drew his dragon again - this time as Minecraft's own Ender Dragon, the way a kid draws the final boss: black crayon pressed hard, a boxy Ender head with grey horns and spines, big glowing purple eyes with ender particles doodled round them, and great bat wings. His eyes glow at night and stay purple in every wardrobe look.
+  - **Crayon Green** (a new row of his wardrobe): Kettle's very first drawing, the green crayon dragon with purple wings, kept exactly as it was - every look and face still on him.
+- **The Lightbringer's Ethereal and Wraithfire forms.** Right-click the herald holding an Ethereal Gem or a Wraithfire Heart: she (or he) keeps it and takes that form. Ethereal: her smite hits harder (+3). Wraithfire: what she smites burns, and beside her fire can't touch you. Her menu's **Element** button steps through the forms she holds, and **Give back the gem & heart** returns them. Every form works as she or he, the Ophanim included - six looks in all.
+- **The Undercrown, easier to reach and fairer to finish.**
+  - **An open-air approach.** Before each of the Maw's mouths there's now an open forecourt, and the roads are bored on until they break into open air, so the way in is open whatever the terrain - even if the court opens on a cave. The Summons points at the court. *(The Undercrown re-forms once to take them; anyone inside is carried out.)*
+  - **The reset waits for the vault.** After the Sovereign falls the Undercrown holds - no countdown - until the Victor's Key is turned in the Victor's Vault, and only then do the three minutes start. A victor with no key isn't waited for, and it never holds for ever.
+  - **A smoother fight camera.** Every cutscene - the coming, each form's entrance, the Last Light - holds your view the same way, framed from across the hall: anyone too close to what's being shown glides back over the floor. You get control back the moment it ends, even if you die, walk out or log out partway through. Nobody's game mode is changed.
+- **No stray spawns in the final dungeons.** Nothing rises in the Undercrown or the Vorn Armada but their own: no natural spawns, patrols or raids, and anything that wanders in is gone within moments. Their rooms' monsters stay, and so do your pets and the Undercrown's own Dread Mires.
 
 ## New in 3.0: EVERY BOND - the fiftieth and fifty-first followers, and the send-off
 
@@ -264,12 +285,12 @@ A red searchlight sweeps the ground beneath it, and it hums the hive's anthem.
 
 Each one comes with the full follower list: a menu and its ways, sitting, a wardrobe (three colours, then gilded, diamond and netherite), a rare aura, a shiny form, the Partner Wheel, a frame trick, a display-case figure, Cecil's doll, the Champion blow and Piercing Blow, a Raid Contract, and a pair with Bender, Mr. Capshun, Henry and Nia.
 
-**The Doodles** - the Gem of Creativity's makings, out of Kettle's and Mr. Capshun's drawn world. Normal mode.
-- **The Doodle Dragon** (Kettle's Dragon Drawing): Kettle drew him in crayon. (3.0a: with Kettle and the Gem of Creativity out, hand Kettle a dye - the Gem brings his drawing to life.) He claws, stomps and breathes **crayon fire** - a scribbled red, orange and yellow flame that sets monsters alight - and once a minute lets out a Big Blaze. Out of a fight he keeps you warm (Fire Resistance).
-- **The Eraser** (The Eraser's Lucky Crumb): the Gem's mistake - it can unmake, and it's very sorry about it. A pink eraser in the classic blue-and-white paper sleeve. (3.0a: hand the Gem of Creativity paper, a fresh start - and its old mistake rubs itself out of the air.) It rubs monsters out, bounces on them, and once a minute UNMAKES one; every blow **leaves pink crumbs on the ground** for a few seconds. Out of a fight it rubs out your troubles (poison, wither, slowness and the rest). Mr. Capshun is terrified of it.
-- **The Cursor** (The Cursor's Mouse): "the player's hand". (3.0a: use a Glitched Cartridge with the Gem of Creativity beside you - the Gem brings the screen's pointer to life.) It clicks, SELECTS a monster (it glows and weakens), DRAGS them in, and turns into an hourglass - LOADING... - freezing everything near, then hitting them all. Out of a fight: Undo.
-- **The Ink Blot** (A Little Ink Pot): a glossy drop of blue-black fountain-pen ink spilled from Mr. Capshun's pen - his pen's gold nib still stuck in its head, standing in its own splat - and a shapeshifter - a fist to punch, a pen nib to spike, a splash of ink in their eyes, a shield round you. (3.0a: with Mr. Capshun and the Gem of Creativity out, hand Mr. Capshun an ink sac - the Gem brings the drop to life.)
-- **The Speech Bubble** (A Blank Caption Card): Mr. Capshun's narration, come to life. It fights in comic sound effects - BAM!, POW!, and when it puffs itself up, KRAK! and ZAP! - raises the alarm ("!") when monsters close in, and thinks ("...") to inspire you. (3.0a: with Mr. Capshun and the Gem of Creativity out, hand Mr. Capshun a book and quill - "LOOK AT THAT!!" - and the Gem brings his narration to life.)
+**The Doodles** - the Gem of Creativity's makings, out of Kettle's and Mr. Capshun's drawn world. Normal mode. *(Since 3.0a the Gem brings each one to life with an entrance of its own: see "New in 3.0a" for how to meet them.)*
+- **The Doodle Dragon** (Kettle's Dragon Drawing): Kettle drew him in crayon. He claws, stomps and breathes **crayon fire** - a scribbled red, orange and yellow flame that sets monsters alight - and once a minute lets out a Big Blaze. Out of a fight he keeps you warm (Fire Resistance).
+- **The Eraser** (The Eraser's Lucky Crumb): the Gem's mistake - it can unmake, and it's very sorry about it. A pink eraser in the classic blue-and-white paper sleeve. It rubs monsters out, bounces on them, and once a minute UNMAKES one; every blow **leaves pink crumbs on the ground** for a few seconds. Out of a fight it rubs out your troubles (poison, wither, slowness and the rest). Mr. Capshun is terrified of it.
+- **The Cursor** (The Cursor's Mouse): "the player's hand". It clicks, SELECTS a monster (it glows and weakens), DRAGS them in, and turns into an hourglass - LOADING... - freezing everything near, then hitting them all. Out of a fight: Undo.
+- **The Ink Blot** (A Little Ink Pot): a glossy drop of blue-black fountain-pen ink spilled from Mr. Capshun's pen - his pen's gold nib still stuck in its head, standing in its own splat - and a shapeshifter - a fist to punch, a pen nib to spike, a splash of ink in their eyes, a shield round you.
+- **The Speech Bubble** (A Blank Caption Card): Mr. Capshun's narration, come to life. It fights in comic sound effects - BAM!, POW!, and when it puffs itself up, KRAK! and ZAP! - raises the alarm ("!") when monsters close in, and thinks ("...") to inspire you.
 
 **The Lightbringer** (The Herald's Feather) - **hard mode only**, and only before you face what stands behind the Dread. A herald of the Divine One: translucent, in white and gold with royal blue and purple, a halo and a staff of light. By day, in the open, wearing something holy (anything a Golden Cross has made holy), she may come down to you. She smites monsters with pillars of light (the undead hardest), blesses you when you're hurt, wards you and your followers with her wings, and prays over you out of a fight. **She loves it when you wear holy things**: beside her you heal, and her smite, blessing and prayer grow stronger.
 

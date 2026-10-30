@@ -51,6 +51,11 @@ module.exports = async function run(C) {
   await run(`kill @e[type=minecraft:wolf,tag=bm.${ab}pet]`); await run(`kill @e[type=minecraft:interaction,tag=bm.${ab}enc]`); await run(`kill @e[type=minecraft:item_display,tag=bm.${ab}encp]`);
   await run('kill @e[type=minecraft:wolf,tag=bm.seen]'); await run('kill @e[type=minecraft:cat,tag=bm.seen]'); await sleep(1500);
   for (const o of [`bm.${ab}cd`, `bm.cos${ab}`, `bm.wu${W}`]) await run(`scoreboard players set TestRat ${o} 0`);
+  // (the shiny roll - one call in 100 (phase221) - would put the follower in its shiny twin mid-test: its shiny look counted as
+  //  found already, so it never rolls; nothing else of the wardrobe unlocked)
+  const ROLL = `${DP}/p221/roll/${W}.mcfunction`;
+  if (fs.existsSync(ROLL)) { const t = fs.readFileSync(ROLL, 'utf8'); const u = t.match(/operation #q bm\.rng = @s (\S+)/), b = t.match(/set #bit bm\.rng (\d+)/);
+    if (u && b) await run(`scoreboard players set TestRat ${u[1]} ${b[1]}`); }
   if (C.form) await run(`scoreboard players set TestRat ${C.form.score} 0`);
   for (const t of [`bm.auown_${W}`, `bm.au_${W}`, `bm.${ab}met`]) await run(`tag TestRat remove ${t}`);
   await run(`advancement revoke TestRat only bm:met/${W}`); await run(`advancement revoke TestRat only bm:story/${W}_friend`);

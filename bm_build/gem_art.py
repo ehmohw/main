@@ -213,6 +213,7 @@ def plate(P0, P1, P2, P3, tex, t=0.12, out=None, spot=None):
     sc = spot if spot is not None else c
     ux, uy = sc[0] * 1.15 + 8, 8 - sc[1] * 1.15
     s = 0.5
+    ux, uy = min(max(ux, s / 2), 16 - s / 2), min(max(uy, s / 2), 16 - s / 2)   # (3.0a: the forms' taller cut reaches past the swirl's top: its spot stays on it)
     uv = [round(max(0, ux - s / 2), 3), round(max(0, uy - s / 2), 3), round(min(16, ux + s / 2), 3), round(min(16, uy + s / 2), 3)]
     face = {'uv': uv, 'texture': f'#{tex}'}
     return {'from': [round(x, 4) for x in lo], 'to': [round(x, 4) for x in hi],

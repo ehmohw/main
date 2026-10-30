@@ -62,6 +62,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await run('kill @e[type=minecraft:wolf,tag=bm.seen]'); await run('kill @e[type=minecraft:cat,tag=bm.seen]');        // (a full party: nobody comes)
   const hard0 = await score('bm.cfg', '#hard');                                                    // (put back as it was, at the end)
   await run('scoreboard players set TestRat bm.lhcd 0'); await run('scoreboard players set TestRat bm.coslh 0');
+  await run('scoreboard players set TestRat bm.wulightbringer 128');   // (his shiny look already found: no 1-in-100 shiny roll on the many calls below - it would put every part in its _c7 twin)
   for (const k of ['snow', 'witch', 'shark']) await run(`scoreboard players reset TestRat bm.dbwin_${k}`);      // (the three Dread bosses not beaten: else hard mode hands the Summons back - p237/summons)
   for (const t of ['bm.lhmet', 'bm.dfin', 'bm.usum', 'bm.lhseen']) await run(`tag TestRat remove ${t}`);
   await run(`${O}time set noon`); await run('scoreboard players set #hard bm.cfg 1');
@@ -178,7 +179,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   ok('...her menu now: "Send her home", "Form: Herald (she)"', pr && pr.next && A.buttons().some(b => b.label === 'Send her home') && A.buttons().some(b => b.label === 'Form: Herald (she)'));
   pr = await A.press(/Form: Herald/); await sleep(1200);
   ok('Form again: he - lb_<part>_m_w; the head wears his Wraithfire face (lb_head_m_w: its moods pick lb_head_x<face>_m_w)', await wait(3000, async () => (await formIs('_m_w')) === true) && (await model(part('head'))) === 'bm:lb_head_m_w');
-  pr = await A.press(/Sit \/ follow/); await sleep(1000);                                                  // (up: the Ophanim needs him free)
+  if (/1b/.test(await nbt(PET, 'Sitting'))) { pr = await A.press(/Sit \/ follow/); await sleep(1000); }   // (up: the Ophanim needs him free - the empty-handed click above already stood him up)
   ok('...and his ways tell of it ("Ethereal and Wraithfire": "right-click him with an Ethereal Gem")', await sneakMenu(0) && (await A.press(/The Lightbringer's ways/)) && /right-click him with an Ethereal Gem/.test(body()), body().slice(0, 200));
   await A.press(/« Back/); await sleep(500);
   // THE OPHANIM in Wraithfire: three monsters 8-10 off (still, unharmable - only staged); the wheel opens, his parts shrink away, then come back in the same models
@@ -187,7 +188,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await run(`${O}scoreboard players set ${PET} bm.lzrc 400`);                                            // (no smite first: the wheel's turn)
   for (const [dx, dz] of [[8, 3], [-8, 3], [0, 9]]) await run(`${O}summon minecraft:husk ${X + 0.5 + dx} ${Y + 1} ${Z + 0.5 + dz} {NoAI:1b,Invulnerable:1b,PersistenceRequired:1b,Silent:1b,Tags:["lhtest"]}`);
   const hid = await wait(9000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.oph]')) > 0 && /^\[0\.0f?,/.test((await nbt(part('body'), 'transformation.scale')).replace(/\s/g, '')), 250);
-  ok('three monsters near, he in Wraithfire: the Ophanim - the wheel above, his parts shrunk away', hid, await nbt(part('body'), 'transformation.scale'));
+  ok('three monsters near, he in Wraithfire: the Ophanim - the wheel above, his parts shrunk away', hid, `${await nbt(part('body'), 'transformation.scale')} sitting ${await nbt(PET, 'Sitting')} lzx ${await score('bm.lzx', PET)} lzk2 ${await score('bm.lzk2', PET)} husks ${await cnt('@e[type=minecraft:husk,tag=lhtest]')} tags ${await nbt(PET, 'Tags')}`);
   ok('...his parts keep their Wraithfire models while hidden', (await formIs('_m_w')) === true);
   const back = await wait(12000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.oph]')) === 0 && !/^\[0\.0f?,/.test((await nbt(part('body'), 'transformation.scale')).replace(/\s/g, '')), 300);
   ok('...the wheel gone, he is himself again - every part restored, still lb_<part>_m_w', back && (await formIs('_m_w')) === true, `${await nbt(part('body'), 'transformation.scale')} ${String(await formIs('_m_w')).slice(0, 120)}`);

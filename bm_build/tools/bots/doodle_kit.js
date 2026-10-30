@@ -20,10 +20,15 @@ module.exports = (ctx, q) => {
     await run(`${O}execute as TestRat at @s rotated 0 0 positioned ^ ^ ^5 run function bm:${place}`);
     const placed = await wait(5000, async () => (await cnt(ENC)) === 1, 100);
     const pre = await early(ctx);
+    // (the show is under way while the bot walks up to it: its moves are watched from the start - a short show (the Dryad's, 4 s)
+    //  is mostly over by the time the bot stands beside it)
+    const looks0 = new Set(); let sampling = pre.s0 >= 1;
+    const sampler = (async () => { while (sampling) { looks0.add(await nbt(BODY(), 'transformation')); await sleep(150); } })();
     const ex = await num(ENC, 'Pos[0]'), ez = await num(ENC, 'Pos[2]');
     await at(ex + 0.5, Y + 1, ez - 2.5, 0, 10);
     let eb = null; await wait(5000, async () => (eb = await entOf(ENC)) != null, 250); A.slot(hand); await sleep(250);
     const show = await entrance(ctx, eb, asks, pre);
+    sampling = false; await sampler; if (show.had) show.moved = new Set([...looks0, ...(show.looksSeen || [])]).size;
     if (show.had) { eb = await entOf(ENC); A.slot(hand); await sleep(250); }
     A.bars.length = 0; if (eb && asks) { A.interact(eb.entityId); await sleep(900); }
     const asked = !asks || A.bars.some(b => asks.test(b));
@@ -55,13 +60,13 @@ module.exports = (ctx, q) => {
     await sleep(400);
     const whole = (await num(BODY(), 'transformation.scale[1]')) > 0.3;
     const cleared = (await cnt(PROPS)) === 0;
-    return { had: true, started: s0 >= 1, scale0, quiet, over, secs, peak, props, moved: looks.size, whole, cleared };
+    return { had: true, started: s0 >= 1, scale0, quiet, over, secs, peak, props, moved: looks.size, looksSeen: [...looks], whole, cleared };
   };
   // the entrance's own checks, worded for a test's ok() list (r: what meet() returned)
   const showOks = (ok, r, name, props) => {
     const s = r.show || {};
     if (props) ok(`${name}: ...${props}`, s.had && s.props >= 1, `props seen ${s.props}`);
-    ok(`${name}: its entrance starts as soon as it's placed (the rig at scale 0, building itself)`, s.had && s.started && s.scale0 < 0.05, JSON.stringify(s));
+    ok(`${name}: its entrance starts as soon as it's placed (the rig at scale 0, building itself)`, s.had && s.started && s.scale0 < 0.05, JSON.stringify({ ...s, looksSeen: undefined }));
     ok(`${name}: ...right-clicked mid-show, it doesn't talk yet`, s.had && s.quiet);
     ok(`${name}: ...the show moves (the rig's transformation changing as it goes)`, s.had && s.moved >= 3, `${s.moved} looks seen`);
     ok(`${name}: ...and ends within 10 s - the rig whole, the show's props gone`, s.had && s.over && s.whole && s.cleared, `${(s.secs || 0).toFixed(1)} s, props seen ${s.props}`);
@@ -75,9 +80,14 @@ module.exports = (ctx, q) => {
   const summonAs = async (pfx, dx) => run(`${O}execute as TestRat at @s rotated 0 0 positioned ~${dx} ~ ~3 run function bm:${pfx}/summon_here`);
   const sendHome = async (pfx, tag, ab) => { await run(`tag @e[type=minecraft:wolf,tag=${tag}] add bm.${ab}sel2`); await run(`${O}execute as TestRat at @s run function bm:${pfx}/dismiss`);
     await run(`tag @e[type=minecraft:wolf,tag=bm.${ab}sel2] remove bm.${ab}sel2`); };
+  // (a follower called without its item in your pockets is put away after 3 s (p73/fol): the hosts' own items go in TestRat's
+  //  inventory for the meeting, and come out again after)
+  const HOST_ITEM = { p227: 'kettle_plane', p198: 'capshun_pencil', p231: 'creativity_gem' };
   const born = async (o, hand = 8) => {
     const { A, at, entOf, sleep, has, ENC } = ctx; const r = {};
     await at(X + 0.5, Y + 1, Z + 0.5, 0, 10); A.chats.length = 0;
+    const pocket = [...new Set([o.host, ...(o.gem ? [GEM.pfx] : [])])].map(h => HOST_ITEM[h]).filter(Boolean);
+    for (const [i, iid] of pocket.entries()) await run(`loot replace entity TestRat inventory.${20 + i} loot bm:items/${iid}`);
     await run(`kill @e[type=minecraft:wolf,tag=${o.hostTag}]`); await run(`kill @e[type=minecraft:wolf,tag=${GEM.tag}]`); await sleep(1500);
     await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid');
     await summonAs(o.host, 1.5); await sleep(1500);
@@ -104,6 +114,7 @@ module.exports = (ctx, q) => {
     A.chats.length = 0; eb = await entOf(ENC); if (eb) A.interact(eb.entityId); await sleep(1500);
     r.got = (await has(o.itemId)) === 1 && A.chats.some(c => o.joined.test(c)); r.chat = A.chats.slice(-2).join(' | ').slice(0, 200);
     await sendHome(o.host, o.hostTag, o.hostAb); if (o.gem && o.host !== GEM.pfx) await sendHome(GEM.pfx, GEM.tag, GEM.ab); await sleep(800);
+    for (const iid of pocket) await run(`clear TestRat *[minecraft:custom_data~{bm:"${iid}"}]`);
     return r;
   };
   // ...its checks, worded for the test's ok() list
