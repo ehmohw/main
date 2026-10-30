@@ -431,23 +431,25 @@ def gentry_count():
 
 
 def doodle_drawing():
-    """Kettle's Dragon Drawing: a page of crayon on the slant - a green dragon, purple wings, a big toothy grin, an orange
-    flame, signed with a scrawl"""
+    """Kettle's Dragon Drawing: a page of crayon on the slant - (3.0a) the Doodle Ender Dragon: a black crayon dragon with grey
+    horns and bat wings, glowing purple eyes, a purple ender speck or two, signed with a scrawl"""
     s = S()
     for y in range(1, 15):
         for x in range(1, 15):
             s.px(x, y, PAPER[4] if x == 1 or y == 1 else PAPER[2] if x == 14 or y == 14 else PAPER[3])
     s.px(14, 1, None); s.px(13, 1, PAPER[1]); s.px(14, 2, PAPER[1]); s.px(13, 2, PAPER[2])     # a dog-ear
-    G, g, P, O = CRAYON[2], CRAYON[1], '#9a4ad8', '#ff8a1a'
-    s.g(['....PP......',
-         '...PPPP.GGG.',
-         '..PP.PGGGkG.',
-         '.....GGGGGGO',
-         '..GGGGGGwwwO',
-         '.GGGgGGG....',
-         'G..GGGGG....',
-         'G..G..G.....'], {'G': G, 'g': g, 'P': P, 'k': '#1a1a1a', 'w': '#ffffff', 'O': O}, 2, 3)
-    s.px(14, 6, '#ffd040')
+    K, k, Gy, E, e = '#1c1822', '#3a3544', '#a8a4b4', '#c040ff', '#ffb0ff'
+    s.g(['.g.......g..',
+         'gW.KKK...Wg.',
+         'WWWKKKK.WWW.',
+         'WWKKEKEKWWW.',
+         'W.KKKKKK..W.',
+         '...KkkK.....',
+         '..KKkkKK.K..',
+         '...K..K.KK..'], {'K': K, 'k': k, 'g': Gy, 'W': '#4a4556', 'E': E}, 2, 3)
+    s.px(6, 4, Gy); s.px(9, 4, Gy)                                                     # his horns
+    s.px(7, 6, e); s.px(9, 6, e)                                                       # the glow in his eyes
+    s.px(4, 2, E); s.px(12, 3, E)                                                      # ender specks
     for x in (9, 10, 11, 12): s.px(x, 12 + (x % 2), '#3a6ae0')                        # KETTLE, scrawled
     return s.render()
 

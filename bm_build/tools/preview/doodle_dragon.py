@@ -171,7 +171,7 @@ if 'views' in what:
             OUT + '/ender_turnaround.png', cols=5, title=f'{TITLE} - turnaround')
 if 'player' in what:
     tiles = [tile(I, v, span=3.3, center=(0.45, 1.05, 0), size=440, label=l, sub='beside a player (1.8 tall)', person=(1.3, 0, 0.1))
-             for v, l in (('front', 'front'), ((-35, 14), 'three-quarter'), ('back', 'back'), ((90, 4), 'side'))]
+             for v, l in (('front', 'front'), ((-35, 14), 'three-quarter'), ('back', 'back'), ((-78, 6), 'side (a paper puppet: all but flat)'))]
     K.sheet(tiles, OUT + '/ender_beside_player.png', cols=4, title=f'{TITLE} - front, three-quarter, back and side, beside a player')
 if 'poses' in what:
     K.sheet([tile(A.POSES[n], label=n, sub=(A.POSES[n].get('_face') or '')) for n in A.DRAFT], OUT + '/ender_poses.png', cols=6,
@@ -251,7 +251,7 @@ if 'doll' in what:
     lo = fit()[0]
     tex, els = DB.bake(root, parts, ground=lo, kh=1.55, kb=0.82, kl=0.62)
     json.dump({'textures': dict(tex), 'elements': els}, open(f'{root}/assets/bm/models/item/doll_dragon_ender.json', 'w'))
-    others = ['doll_eraser', 'doll_cursor', 'doll_inkblot', 'doll_speech', 'doll_kettle', 'doll_capshun', 'doll_dragon']
+    others = ['doll_eraser', 'doll_cursor', 'doll_inkblot', 'doll_speech', 'doll_kettle', 'doll_capshun']   # (not the shipped doll_dragon: it would wear these new textures)
     others = [d for d in others if os.path.exists(f'{K.REAL}/assets/bm/models/item/{d}.json')]
     tiles = []
     row = others[:3] + ['doll_dragon_ender'] + others[3:]
@@ -267,8 +267,8 @@ if 'doll' in what:
         s = K.multi_scene(root); s.display('bm:item/doll_dragon_ender', pos=(0, 0.5, 0), yaw=0)
         close.append(K.label(s.render(v, size=450, span=1.25, center=(0, 0.62, 0)), l))
     sheet = Image.new('RGB', (900 + 450, max(900 * 2, 450 * 3) + 40), 'white')
-    ImageDraw.Draw(sheet).text((12, 8), "The Doodle Ender Dragon - Cecil's doll (baked from his real model, the default chibi warp kh 1.55 kb 0.82 kl 0.62), beside the doodles' dolls",
-                               fill=(20, 20, 20), font=font(18))
+    ImageDraw.Draw(sheet).text((12, 8), "The Doodle Ender Dragon - Cecil's doll (baked from his real model; chibi warp kh 1.55 kb 0.82 kl 0.62), beside the doodles' dolls",
+                               fill=(20, 20, 20), font=font(16))
     for i, t in enumerate(tiles): sheet.paste(t, (0, 40 + 900 * i))
     for i, t in enumerate(close): sheet.paste(t, (900, 40 + 450 * i))
     sheet.save(OUT + '/ender_doll.png')
@@ -324,7 +324,7 @@ if 'coords' in what:                                                     # (ever
 if 'icon' in what:
     import sprites299 as SP
     im = SP.doodle_drawing()
-    sh = Image.new('RGB', (620, 220), 'white'); d = ImageDraw.Draw(sh)
+    sh = Image.new('RGB', (760, 220), 'white'); d = ImageDraw.Draw(sh)
     d.text((10, 8), "Kettle's Dragon Drawing (doodle_drawing) - the summoning item, redrawn: the Doodle Ender Dragon", fill=(20, 20, 20), font=font(14))
     x = 20
     for k in (1, 2, 8):
