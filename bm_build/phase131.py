@@ -54,6 +54,7 @@ BOSS_HP, PET_HP, PET_CD = 1024, 70, 300          # (2.80: 1024, the game's ceili
 SB, SP = ART.BOSS_SCALE, ART.PET_SCALE
 UB, UP = SB / 16, SP / 16
 MENU = 8600                        # his menu (bm.menu) and its buttons 8601..8609
+CSZ = 0.2                          # (3.0d: his companion size - of his full size)
 HOLLOW_VER_KEY = 'p2.data.HOLLOW_VER'
 # the den: placed once in bm:hollow_throne, under the floating rock (the citadel's box starts at y40)
 LAIR = (1046, 2, 1046)
@@ -1721,7 +1722,13 @@ def generate(G):
                       'execute if score #vx bm.rng matches 500.. run return run scoreboard players set #st bm.rng 1',
                       'scoreboard players set #st bm.rng 0'])
     tick.append('execute as @e[type=minecraft:wolf,tag=bm.appet] at @s run function bm:p131/tick')
-    fn('p131/tick', ['scoreboard players operation #me bm.pid = @s bm.pid',
+    # (3.0d) COMPANION SIZE (compsize): his rig at CSZ of its size (~1.8 blocks tall, ~4 long), his host's hitbox to match; the
+    #  owner's bm.apcs, kept; riding him then is refused. The size-bearing functions are twinned at the end of the build (compsize.LATE).
+    import compsize as CS
+    CS.build(G, 'p131', 'bm.apcs', 'bm.apcz', 'bm.aps', SP, round(max(0.8, SP * CSZ), 3),
+             apsay('...Fine. Smaller. Do NOT tell anyone about this.'), apsay('Ahh. Room to breathe. A king should be seen.'))
+    CS.LATE.append(('p131', CSZ, 'bm.apcz', ()))
+    fn('p131/tick', ['scoreboard players operation #me bm.pid = @s bm.pid'] + CS.sync('p131', 'bm.apcs', 'bm.apcz', 'bm.aps', SP, SP * CSZ) + [
                      'execute as @e[type=minecraft:item_display,tag=bm.app_pet,tag=!bm.apfade] if score @s bm.pid = #me bm.pid run tag @s add bm.apsel',
                      f'execute unless entity {psel("mace")} run function bm:p131/rerig',
                      'scoreboard players set #rid bm.rng 0', 'scoreboard players set #fw bm.rng 0',
@@ -1885,13 +1892,15 @@ def generate(G):
                                            T("Serpent's Fangs", GRN, bold=True), T('.', 'gray')], 300)],
                                 ([P28.btn(T('Sit / follow', 'white', bold=True), MENU + 1, width=150), P28.btn(T('Ride him', GRN, bold=True), MENU + 2, width=150),
                                   P28.btn(T('Take off the saddle', 'gray'), MENU + 3, width=150), P28.btn(T('Send him home', 'gray'), MENU + 9, width=150)] if out else
-                                 [P28.btn(T('Call for Apophiss', GRN, bold=True), MENU + 8, width=150)]) + [P28.btn(T('Wardrobe', GRN, bold=True), MENU + 4, width=150, tooltip=T('His looks - and his aura, if you have it.', 'gray'))], columns=2, exit_label='Close')
+                                 [P28.btn(T('Call for Apophiss', GRN, bold=True), MENU + 8, width=150)]) + [P28.btn(T('Wardrobe', GRN, bold=True), MENU + 4, width=150, tooltip=T('His looks - and his aura, if you have it.', 'gray')),
+                                 P28.btn(T('Companion size: on / off', GRN, bold=True), MENU + 5, width=150, tooltip=T('(3.0d) The Serpent King at companion size - about two blocks tall, every coil in proportion. His bite is the same.', 'gray'))], columns=2, exit_label='Close')
     fn('p131/menu', [f'scoreboard players set @s bm.menu {MENU}', 'scoreboard players set #out bm.rng 0',
                      'execute if entity @e[type=minecraft:wolf,tag=bm.apsel2] run scoreboard players set #out bm.rng 1',
                      f'execute if score #out bm.rng matches 1 run return run dialog show @s {snbt(dlg(True))}', f'dialog show @s {snbt(dlg(False))}'])
-    G.FUNCS['p28/act'] += [f'execute if score #act bm.pay matches {MENU + n} run return run function bm:p131/act' for n in (1, 2, 3, 4, 8, 9)]
+    G.FUNCS['p28/act'] += [f'execute if score #act bm.pay matches {MENU + n} run return run function bm:p131/act' for n in (1, 2, 3, 4, 5, 8, 9)]
     fn('p131/act', [f'execute unless score @s bm.menu matches {MENU} run return run function bm:p28/stale',
                     f'execute if score #act bm.pay matches {MENU + 4} run return run function bm:p119/plain/apo',     # (2.78: his wardrobe)
+                    f'execute if score #act bm.pay matches {MENU + 5} run return run function bm:p131/csz/toggle',    # (3.0d: companion size)
                     'scoreboard players operation #me bm.pid = @s bm.pid', f'{sel_pet} run tag @s add bm.apsel2',
                     f'execute if score #act bm.pay matches {MENU + 8} unless entity @e[type=minecraft:wolf,tag=bm.apsel2] run function bm:p131/try_summon',
                     f'execute if score #act bm.pay matches {MENU + 8} if entity @e[type=minecraft:wolf,tag=bm.apsel2] run function bm:p131/recall',
@@ -1907,7 +1916,7 @@ def generate(G):
                     'execute if score #s0 bm.rng matches 0 run ' + apsay('Fine. I shall coil here and judge everything that passes.'),
                     'execute if score #s0 bm.rng matches 0 as @e[type=minecraft:wolf,tag=bm.apsel2] run function bm:p131/sat'])
     fn('p131/sat', face('smug', 40))
-    fn('p131/ride_ask', ['execute unless score @s bm.apsd matches 1 run return run ' + say('He needs a saddle first: right-click him holding one.', GRN_LT),
+    fn('p131/ride_ask', ['execute if score @s bm.apcs matches 1 run return run ' + apsay('Ride me? At this size? Make me big again first.'),'execute unless score @s bm.apsd matches 1 run return run ' + say('He needs a saddle first: right-click him holding one.', GRN_LT),
                          'tp @e[type=minecraft:wolf,tag=bm.apsel2,limit=1] @s', 'function bm:p131/mount'])
     fn('p131/unsaddle', ['execute unless score @s bm.apsd matches 1 run return run ' + say("He isn't wearing a saddle.", GRN_LT),
                          'scoreboard players set @s bm.apsd 0', 'give @s minecraft:saddle', 'scoreboard players set #sad bm.rng 0',
@@ -1958,7 +1967,7 @@ def generate(G):
                           tellraw('@s', PREFIX + [T('Apophiss is saddled. ', GRN, bold=True), T('Use the Oath beside him to climb on (sneak to get off). He keeps the saddle until you take it off in his menu.', 'gray')])])
     G.FUNCS['admin/uninstall'].insert(0, 'kill @e[type=minecraft:interaction,tag=bm.aphit]')
     # ---- riding: his rider's facing is his; walk to slither (fast), jump to lunge forward; the Oath: Serpent's Fangs ahead
-    fn('p131/mount', ['ride @s mount @e[type=minecraft:wolf,tag=bm.apsel2,limit=1]', 'playsound minecraft:entity.horse.saddle neutral @a[distance=..16] ~ ~ ~ 0.6 0.6',
+    fn('p131/mount', ['execute if score @s bm.apcs matches 1 run return run ' + apsay('Ride me? At this size? Make me big again first.'),'ride @s mount @e[type=minecraft:wolf,tag=bm.apsel2,limit=1]', 'playsound minecraft:entity.horse.saddle neutral @a[distance=..16] ~ ~ ~ 0.6 0.6',
                       title('@s', 'actionbar', [T('On his back. ', GRN, bold=True), T('Walk to slither; jump to lunge. The Oath: SERPENT\'S FANGS. ', 'gray'),
                                                 T('Sneak to get off.', 'dark_gray')])])
     fn('p131/ride', ['tag @s add bm.aprd', 'data modify entity @s Sitting set value 1b',

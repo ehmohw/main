@@ -88,7 +88,10 @@ class Lightbringer(RP.Cfg):
     # (3.0a: the elemental forms - Element (MENU+6) switches her own light / Ethereal / Wraithfire, the forms she holds the gem or the
     #  heart for; MENU+7 gives them back. phase236.elements)
     BUTTONS = ((6, 'Element: Ethereal / Wraithfire', 'Her elemental form: her own light, Ethereal (an Ethereal Gem) or Wraithfire (a Wraithfire Heart) - right-click her with one to hand it to her.', 'p236l/el/cycle'),
-               (7, 'Give back the gem & heart', 'She gives you back the Ethereal Gem and the Wraithfire Heart she holds - and is her own light again.', 'p236l/el/take'))
+               (7, 'Give back the gem & heart', 'She gives you back the Ethereal Gem and the Wraithfire Heart she holds - and is her own light again.', 'p236l/el/take'),
+               # (3.0d: the owner - "Honor 3 adds a toggle to permanently enable Ophanim form"; and a companion size for it. ophanim_form, below)
+               (10, 'Ophanim form: on / off', 'Honoured by Queen Ava to rank III: the herald stands beside you as the Ophanim - a wheel within a wheel, full of eyes - for good, until you turn it off.', 'p236l/ophf/toggle'),
+               (11, 'Companion size: on / off', 'The Ophanim at companion size - a small wheel of light hovering where the herald walks (its powers unchanged).', 'p236l/ophf/size'))
     # (3.0: the owner - "a toggleable male variant", the first form met chosen at random: HE - lightbringer_art's '_m' twins of
     #  every part; bm.lhform 1 on the owner. The button's words follow the form shown: "Form: Herald (she)" / "(he)" - gender_split)
     FORM = ('bm.lhform', LA.MALE, 'Form: Herald (she)', None, '"As you would see me, so I am. The light wears many faces."',
@@ -508,6 +511,7 @@ def generate(G):
     fn('p236p/glow', ['particle minecraft:dust{color:[0.4,0.66,1.0],scale:0.6} ~ ~0.9 ~ 0.3 0.35 0.3 0 2', 'particle minecraft:dust{color:[1.0,0.6,0.25],scale:0.5} ~ ~0.7 ~ 0.3 0.3 0.3 0 1',
                       'particle minecraft:glow ~ ~0.8 ~ 0.25 0.3 0.25 0 1'])
     print('3.0a: the Lightbringer\'s elemental forms - %d dress lines (Ethereal / Wraithfire, on her or on him)' % elements(G))
+    ophanim_form(G)
     # ---- (3.0) SHE OR HE: every line of the Lightbringer's own that says she / her gets a twin for him, picked by the form
     print('3.0: the Lightbringer, he - %d lines given his words' % gender_split(G))
 
@@ -670,3 +674,142 @@ def gender_split(G, names=None):
             n += 1
         G.FUNCS[name] = out
     return n
+
+# ====================================================================== (3.0d) THE OPHANIM, FOR GOOD
+# (the owner: "Honor 3 adds a toggle to their menu to permanently enable Ophanim form" - and, corrected: not companion size, not
+# hovering above her - SHE IS REPLACED by the Ophanim at its full size, OA.SCALE as in her charged move.) Her menu's OPHANIM FORM
+# (MENU+10) - once Queen Ava has honoured her to rank III (bm.hn_lightbringer: the lowest of Vitality, Bulwark and Might at V) -
+# switches it on and off, kept on you (bm.lhoph 1; recalled, fainted, logged out: she comes back as it). While it's on:
+#   her rig stays, unseen (view_range 0 - so turning it off brings her back at once), and the wheel stands where she is: its centre
+#   OPHF_Y up, so its lowest flames just clear the ground (ring_a's reach, 3.18 blocks at 2.2); its four rings turn on their own
+#   axes for ever (a keyframe every 4 ticks from a 90-step table - storage bm:p236 ophk - each step under 60 deg, so every turn
+#   interpolates the short way), it bobs gently (+-0.12, 9 s), and follows her (teleport_duration 3). It ignores her gender (the
+#   art has one Ophanim) and her element (ophan_art has no Ethereal / Wraithfire twins: the plain wheel, always lit - it is light).
+#   Sitting: it sinks a little and turns at half speed. Her SMITE comes from its centre (a ray of light to the foe); her charged
+#   OPHANIM doesn't grow it - it FLARES: twice the spin, a burst of light, and the light falls three times as ever.
+#   COMPANION SIZE (MENU+11; 3.0d's companion sizes, bm.lhcs 1): the wheel at OPHF_K of its size, hovering at OPHF_YS - small, over
+#   where she walks; everything else the same.
+# Off, sent home, fainted: the wheel goes (its own sweep, each second: no wheel without its host in this form).
+OPHF_Y, OPHF_YS, OPHF_K, OPHF_N = 3.35, 1.9, 0.32, 90
+
+
+def ophanim_form(G):
+    fn, title = G.fn, G.title
+    C = Lightbringer
+    S = lambda s: f'bm.{C.q}{s}'
+    objs = ['bm.lhoph', 'bm.lhcs', 'bm.lhoi', 'bm.lhot']
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + ['scoreboard players set #8 bm.rng 8', 'scoreboard players set #10 bm.rng 10', 'scoreboard players set #100 bm.rng 100',
+                                                                                      f'scoreboard players set #{OPHF_N} bm.rng {OPHF_N}']
+    G.OBJECTIVES += objs
+    csay = lambda txt: title('@s', 'actionbar', [T('The Lightbringer: ', HOLY, bold=True), T(txt, '#fff4d0')])
+    fsel = lambda p=None: '@e[type=minecraft:item_display,tag=bm.ophfs' + (f',tag=bm.ophf_{p}]' if p else ']')
+    big, small = OA.SCALE, round(OA.SCALE * OPHF_K, 4)
+    # (the table: every 4 ticks, each ring's turn - 90 steps, 360 ticks, every rate a whole number of turns - and the bob)
+    rows = []
+    for i in range(OPHF_N):
+        t = 4 * i
+        q = {p: _q(OA.SPIN_AXIS[p], OA.SPIN_RATE[p] * t) for p in OA.PARTS}
+        rows.append('{' + ','.join(f'{p}:[{",".join(f"{float(v):.5f}f" for v in q[p])}]' for p in OA.PARTS) + f',b:{0.12 * math.sin(2 * math.pi * i / 45):.3f}d}}')
+    G.FUNCS['load'][-1:-1] = ['data modify storage bm:p236 ophk set value [' + ','.join(rows) + ']']
+    # ---- the toggles (as the player)
+    fn('p236l/ophf/rank3', ['execute unless score @s bm.hn_lightbringer matches 0.. run return 0',
+                            'scoreboard players operation #lv bm.rng = @s bm.hn_lightbringer', 'scoreboard players operation #lv bm.rng %= #10 bm.rng',
+                            'scoreboard players operation #lb bm.rng = @s bm.hn_lightbringer', 'scoreboard players operation #lb bm.rng /= #10 bm.rng', 'scoreboard players operation #lb bm.rng %= #10 bm.rng',
+                            'scoreboard players operation #lm bm.rng = @s bm.hn_lightbringer', 'scoreboard players operation #lm bm.rng /= #100 bm.rng', 'scoreboard players operation #lm bm.rng %= #10 bm.rng',
+                            'scoreboard players operation #lv bm.rng < #lb bm.rng', 'scoreboard players operation #lv bm.rng < #lm bm.rng',
+                            'execute if score #lv bm.rng matches 5.. run return 1', 'return 0'])
+    fn('p236l/ophf/toggle', ['execute unless function bm:p236l/ophf/rank3 run return run ' + title('@s', 'actionbar', [T('"Not yet. My true form is not for every day." ', '#fff4d0', italic=True),
+                                                                                                              T('(Honoured by Queen Ava to rank III, the herald may keep the Ophanim\'s form.)', 'gray')]),
+                             'execute if score @s bm.lhoph matches 1 run return run function bm:p236l/ophf/toggle_off',
+                             'scoreboard players set @s bm.lhoph 1', csay('"Be not afraid. This is what I am."'),
+                             'playsound minecraft:block.beacon.activate player @s ~ ~ ~ 1 0.6'])
+    fn('p236l/ophf/toggle_off', ['scoreboard players set @s bm.lhoph 0', csay('"As you knew me, then. The light wears a gentler face."'),
+                                 'playsound minecraft:block.beacon.deactivate player @s ~ ~ ~ 1 1.2'])
+    fn('p236l/ophf/size', ['execute if score @s bm.lhcs matches 1 run return run function bm:p236l/ophf/size_off', 'scoreboard players set @s bm.lhcs 1',
+                           csay('"Smaller, then - a little wheel of light at your side."'),
+                           'execute unless score @s bm.lhoph matches 1 run ' + title('@s', 'actionbar', [T('Companion size: on ', HOLY, bold=True), T('(for the Ophanim form)', 'gray')])])
+    fn('p236l/ophf/size_off', ['scoreboard players set @s bm.lhcs 0', csay('"In all my glory, then."')])
+    # ---- each tick, as her host (rigpet's tick: her parts tagged bm.lhsel; before they're untagged)
+    k = len(G.FUNCS['p236l/tick']) - 2
+    G.FUNCS['p236l/tick'][k:k] = ['scoreboard players set #lo bm.rng 0', 'execute on owner run scoreboard players operation #lo bm.rng = @s bm.lhoph',
+                                  'execute if score #lo bm.rng matches 1 run function bm:p236l/ophf/on',
+                                  'execute unless score #lo bm.rng matches 1 if entity @s[tag=bm.lhoph] run function bm:p236l/ophf/off']
+    fn('p236l/ophf/on', ['tag @s add bm.lhoph',
+                         'execute as @e[type=minecraft:item_display,tag=bm.ophf] if score @s bm.pid = #me bm.pid run tag @s add bm.ophfs',
+                         'execute unless entity @e[type=minecraft:item_display,tag=bm.ophfs] run function bm:p236l/ophf/raise',
+                         'execute as @e[type=minecraft:item_display,tag=bm.lhsel] run data modify entity @s view_range set value 0f',
+                         'scoreboard players add @s bm.lhot 1',
+                         # (its size: companion or full - the owner's bm.lhcs, carried on the host as bm.lhcz; changed: the wheel eases to it)
+                         'scoreboard players set #lc bm.rng 0', 'execute on owner run scoreboard players operation #lc bm.rng = @s bm.lhcs',
+                         'execute if score #lc bm.rng matches 1 unless entity @s[tag=bm.lhcz] run function bm:p236l/ophf/small',
+                         'execute unless score #lc bm.rng matches 1 if entity @s[tag=bm.lhcz] run function bm:p236l/ophf/full',
+                         f'execute if score @s bm.lhot matches 2 unless entity @s[tag=bm.lhcz] as {fsel()} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:10,transformation:{{scale:[{big}f,{big}f,{big}f]}}}}',
+                         f'execute if score @s bm.lhot matches 2 if entity @s[tag=bm.lhcz] as {fsel()} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:10,transformation:{{scale:[{small}f,{small}f,{small}f]}}}}',
+                         # (its turning: a step every 4 ticks - 8 sitting; two steps a time while it flares (her charged move))
+                         'scoreboard players set #lk bm.rng 4', f'execute if score @s {S("s")} matches 4 run scoreboard players set #lk bm.rng 8',
+                         f'execute if score @s {S("s")} matches 6 run scoreboard players set #lk bm.rng 8',
+                         'scoreboard players operation #lt bm.rng = @s bm.lhot', 'scoreboard players operation #lt bm.rng %= #lk bm.rng',
+                         'execute if score #lt bm.rng matches 0 run function bm:p236l/ophf/step',
+                         'function bm:p236l/ophf/at',
+                         f'execute if score @s {S("x")} matches 1.. if score @s {S("a")} matches 15 run function bm:p236l/ophf/flaring',
+                         f'tag {fsel()} remove bm.ophfs'])
+    fn('p236l/ophf/raise', [f'summon minecraft:item_display ~ ~{OPHF_Y} ~ {RF.part_nbt(OA, p, ["bm.ophf", f"bm.ophf_{p}", "bm.ophfn"], OA.SCALE, scale0=True, extra=dict(view_range=F(4.0), brightness={"block": Int(15), "sky": Int(15)}, teleport_duration=Int(3)))}'
+                            for p in OA.PARTS] +
+       ['execute as @e[type=minecraft:item_display,tag=bm.ophfn] run scoreboard players operation @s bm.pid = #me bm.pid',
+        'tag @e[type=minecraft:item_display,tag=bm.ophfn] add bm.ophfs', 'tag @e[type=minecraft:item_display,tag=bm.ophfn] remove bm.ophfn',
+        'scoreboard players set @s bm.lhot 0', 'tag @s remove bm.lhcz',
+        'particle minecraft:end_rod ~ ~2 ~ 1 1.5 1 0.15 60', 'particle minecraft:flash{color:[1.0,0.95,0.7,1.0]} ~ ~2 ~ 0 0 0 0 1',
+        'playsound minecraft:block.beacon.activate neutral @a[distance=..32] ~ ~ ~ 1 0.5', 'playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..32] ~ ~ ~ 1 0.5'])
+    fn('p236l/ophf/small', ['tag @s add bm.lhcz', f'execute as {fsel()} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[{small}f,{small}f,{small}f]}},view_range:2.0f}}',
+                            'particle minecraft:end_rod ~ ~1.8 ~ 0.5 0.5 0.5 0.05 20', 'playsound minecraft:block.amethyst_block.chime neutral @a[distance=..16] ~ ~ ~ 1 1.6'])
+    fn('p236l/ophf/full', ['tag @s remove bm.lhcz', f'execute as {fsel()} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[{big}f,{big}f,{big}f]}},view_range:4.0f}}',
+                           'particle minecraft:end_rod ~ ~3 ~ 1.5 1.5 1.5 0.08 40', 'playsound minecraft:block.beacon.power_select neutral @a[distance=..24] ~ ~ ~ 1 0.8'])
+    # (a step: the index on, the four rings to its turn)
+    fn('p236l/ophf/step', ['scoreboard players add @s bm.lhoi 1',
+                           f'execute if score @s {S("x")} matches 1.. if score @s {S("a")} matches 15 run scoreboard players add @s bm.lhoi 1',
+                           f'scoreboard players operation @s bm.lhoi %= #{OPHF_N} bm.rng',
+                           'execute store result storage bm:p236 oi.i int 1 run scoreboard players get @s bm.lhoi',
+                           'function bm:p236l/ophf/pick with storage bm:p236 oi',
+                           'execute store result storage bm:p236 ok.d int 1 run scoreboard players get #lk bm.rng',
+                           'function bm:p236l/ophf/turn with storage bm:p236 ok'])
+    fn('p236l/ophf/pick', ['$data modify storage bm:p236 ok set from storage bm:p236 ophk[$(i)]'])
+    fn('p236l/ophf/turn', [f'$execute as {fsel(p)} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:$(d),transformation:{{left_rotation:$({p})}}}}' for p in OA.PARTS])
+    # (where it stands: its centre over her - full size so its lowest flames clear the ground, companion size hovering - a little
+    #  lower sitting; and its bob)
+    fn('p236l/ophf/at', ['scoreboard players set #ly bm.rng ' + str(int(OPHF_Y * 1000)), f'execute if entity @s[tag=bm.lhcz] run scoreboard players set #ly bm.rng {int(OPHF_YS * 1000)}',
+                         f'execute if score @s {S("s")} matches 4 run scoreboard players remove #ly bm.rng 500', f'execute if score @s {S("s")} matches 6 run scoreboard players remove #ly bm.rng 500',
+                         'execute store result score #lb bm.rng run data get storage bm:p236 ok.b 1000', 'scoreboard players operation #ly bm.rng += #lb bm.rng',
+                         'execute store result storage bm:p236 oy.y double 0.001 run scoreboard players get #ly bm.rng',
+                         'function bm:p236l/ophf/tp with storage bm:p236 oy'])
+    fn('p236l/ophf/tp', [f'$execute rotated as @s rotated ~ 0 positioned ~ ~$(y) ~ run tp {fsel()} ~ ~ ~ ~ 0'])
+    # (her charged move, in this form: it flares - twice the spin (step), light pouring off it)
+    fn('p236l/ophf/flaring', ['scoreboard players operation #lt bm.rng = @s bm.lhot', 'scoreboard players operation #lt bm.rng %= #4 bm.rng',
+                              'execute if score #lt bm.rng matches 0 if entity @s[tag=bm.lhcz] run particle minecraft:end_rod ~ ~1.9 ~ 0.6 0.6 0.6 0.08 8',
+                              f'execute if score #lt bm.rng matches 0 unless entity @s[tag=bm.lhcz] run particle minecraft:end_rod ~ ~{OPHF_Y} ~ 2 2 2 0.1 16',
+                              f'execute if score #lt bm.rng matches 2 unless entity @s[tag=bm.lhcz] run particle minecraft:dust{{color:[1.0,0.9,0.55],scale:2.0}} ~ ~{OPHF_Y} ~ 2.4 2.4 2.4 0 10'])
+    fn('p236l/ophf/flare0', ['particle minecraft:flash{color:[1.0,0.97,0.8,1.0]} ~ ~3 ~ 0 0 0 0 1', 'particle minecraft:end_rod ~ ~3 ~ 1.5 1.5 1.5 0.3 120',
+                             'playsound minecraft:block.beacon.power_select neutral @a[distance=..32] ~ ~ ~ 1.2 0.6', 'playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..32] ~ ~ ~ 1 0.5',
+                             'execute on owner run ' + G.title('@s', 'actionbar', T('Be not afraid.', HOLY, bold=True))])
+    G.FUNCS['p236l/oph/up'].insert(0, 'execute if entity @s[tag=bm.lhoph] run return run function bm:p236l/ophf/flare0')
+    G.FUNCS['p236l/oph/hide'].insert(0, 'execute if entity @s[tag=bm.lhoph] run return 0')
+    # (her smite, from the wheel's centre: a ray of light to the foe)
+    foe = 'type=#bm:hostile,tag=!bm.npc,tag=!bm.wil_body'
+    G.FUNCS[f'{C.pfx}/ranged'].insert(0, 'execute if entity @s[tag=bm.lhoph] run function bm:p236l/ophf/ray0')
+    fn('p236l/ophf/ray0', ['scoreboard players set #ry bm.rng 32',
+                           f'execute unless entity @s[tag=bm.lhcz] positioned ~ ~{OPHF_Y} ~ facing entity @e[{foe},distance=..14,sort=nearest,limit=1] eyes run function bm:p236l/ophf/ray',
+                           f'execute if entity @s[tag=bm.lhcz] positioned ~ ~{OPHF_YS} ~ facing entity @e[{foe},distance=..14,sort=nearest,limit=1] eyes run function bm:p236l/ophf/ray',
+                           'playsound minecraft:block.beacon.power_select neutral @a[distance=..16] ~ ~ ~ 0.4 2.0'])
+    fn('p236l/ophf/ray', ['particle minecraft:end_rod ~ ~ ~ 0.02 0.02 0.02 0 1 force', 'particle minecraft:dust{color:[1.0,0.92,0.6],scale:1.2} ~ ~ ~ 0 0 0 0 1 force',
+                          f'execute if entity @e[{foe},distance=..1.2] run return 0',
+                          'scoreboard players remove #ry bm.rng 1', 'execute if score #ry bm.rng matches 1.. positioned ^ ^ ^0.5 run function bm:p236l/ophf/ray'])
+    # ---- off (or her owner's choice gone): the wheel goes, she's seen again
+    fn('p236l/ophf/off', ['tag @s remove bm.lhoph', 'tag @s remove bm.lhcz',
+                          'execute as @e[type=minecraft:item_display,tag=bm.ophf] if score @s bm.pid = #me bm.pid run kill @s',
+                          'execute as @e[type=minecraft:item_display,tag=bm.lhsel] run data modify entity @s view_range set value 1.6f',
+                          'particle minecraft:end_rod ~ ~1.5 ~ 0.6 1 0.6 0.1 40', 'particle minecraft:flash{color:[1.0,0.95,0.7,1.0]} ~ ~1.5 ~ 0 0 0 0 1',
+                          'playsound minecraft:block.beacon.deactivate neutral @a[distance=..24] ~ ~ ~ 0.8 1.2'])
+    # (no wheel without its host in this form - sent home, fainted, unloaded far off)
+    G.FUNCS['loop/second'].append('execute as @e[type=minecraft:item_display,tag=bm.ophf] unless function bm:p236l/ophf/has run kill @s')
+    fn('p236l/ophf/has', ['scoreboard players operation #me2 bm.pid = @s bm.pid',
+                          'execute as @e[type=minecraft:wolf,tag=bm.lhpet,tag=bm.lhoph] if score @s bm.pid = #me2 bm.pid run return 1', 'return 0'])
+    G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.ophf]']

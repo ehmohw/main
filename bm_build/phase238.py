@@ -762,7 +762,7 @@ def generate(G):
     BURN = [(('shinr', 'shinl'), 322, 338, 346), (('legr', 'legl'), 326, 342, 350), (('weapon',), 328, 344, 350), (('forer', 'forel'), 330, 348, 356),
             (('w3r', 'w3l'), 332, 350, 358), (('armr', 'arml'), 334, 354, 362), (('w2r', 'w2l'), 336, 356, 364), (('body',), 338, 360, 368),
             (('w1r', 'w1l'), 340, 362, 370), (('chest',), 344, 366, 376), (('head', 'fx'), 348, 380, 392)]
-    BRS = {'shin': 1.6, 'leg': 1.9, 'weapon': 1.8, 'fore': 1.6, 'arm': 1.8, 'w': 2.2, 'body': 2.6, 'chest': 2.8, 'head': 2.4, 'fx': 1.2}
+    BRS = {'shin': 2.0, 'leg': 2.4, 'weapon': 2.0, 'fore': 2.0, 'arm': 2.4, 'w': 2.8, 'body': 3.2, 'chest': 3.4, 'head': 2.8, 'fx': 1.4}
     bsz = lambda p: next(v for k, v in BRS.items() if p.startswith(k))
     psel = lambda p: f'@e[type=minecraft:item_display,tag=bm.svr_{p}]'
     burn = []
@@ -770,16 +770,17 @@ def generate(G):
         for p in parts:
             if p not in CEN: continue
             c = CEN[p]; z = bsz(p)
-            burn += [at(t_on, f'execute as {psel(p)} run data merge entity @s {{brightness:{{block:15,sky:15}}}}'),
+            burn += [at(t_on, f'execute as {psel(p)} run data merge entity @s[type=minecraft:item_display] {{brightness:{{block:15,sky:15}}}}'),
                      at(t_on, DFX.at_part(c, DFX.spr('hflame', z * 1.3, z * 0.4))), at(t_on, DFX.at_part(c, DFX.spr('hflame', z, z * 0.5))),
                      at(t_on, DFX.at_part(c, f'particle minecraft:flash{{color:[1.0,0.95,0.7,1.0]}} ~ ~ ~ 0 0 0 0 1 force {AUD}'))]
-            burn += [at(t, DFX.at_part(c, DFX.spr('hflame', z, z * 0.5))) for t in range(t_on + 4, t_fall + 4, 4)]
+            burn += [at(t, DFX.at_part(c, DFX.spr('hflame', z * (1.0 if (t // 4) % 2 else 0.8), z * 0.5))) for t in range(t_on + 4, t_fall + 4, 4)]
+            if z >= 2.8: burn += [at(t, DFX.at_part(c, DFX.spr('hflame', z * 0.9, z * 0.6))) for t in range(t_on + 6, t_fall + 2, 4)]
             burn += [at(t, DFX.at_part(c, DFX.spr('ember', z * 0.8, z * 0.4))) for t in range(t_on + 6, t_fall, 8)]
-            burn += [at(t_char, f'execute as {psel(p)} run data merge entity @s {{brightness:{{block:1,sky:1}}}}'),
+            burn += [at(t_char, f'execute as {psel(p)} run data merge entity @s[type=minecraft:item_display] {{brightness:{{block:1,sky:1}}}}'),
                      at(t_char, DFX.at_part(c, f'particle minecraft:large_smoke ~ ~ ~ 0.6 0.6 0.6 0.04 10 force {AUD}'))]
             q, t = XF[p]; k = getattr(A, 'PART_K', {}).get(p, 1.0)
             tr = f'[{t[0] * UT:.3f}f,{t[1] * UT - 1.6:.3f}f,{t[2] * UT:.3f}f]'
-            burn += [at(t_fall, f'execute as {psel(p)} run data merge entity @s {{start_interpolation:0,interpolation_duration:14,transformation:{{translation:{tr},scale:[0f,0f,0f]}}}}'),
+            burn += [at(t_fall, f'execute as {psel(p)} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:14,transformation:{{translation:{tr},scale:[0f,0f,0f]}}}}'),
                      at(t_fall, DFX.at_part(c, DFX.spr('ash', z * 0.9, z * 0.6))), at(t_fall, DFX.at_part(c, DFX.spr('ash', z * 0.7, z * 0.6))),
                      at(t_fall, DFX.at_part(c, DFX.spr('ash', z * 0.8, z * 0.6))),
                      at(t_fall, DFX.at_part(c, f'particle minecraft:white_ash ~ ~ ~ 0.8 0.8 0.8 0.02 40 force {AUD}')),

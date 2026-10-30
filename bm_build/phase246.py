@@ -34,6 +34,7 @@ WAKE, LEAVE, CREEP = 10, 20, 24     # (rises for anyone within WAKE; sinks with 
 GRAB_DMG, STAB_DMG = 6, 10
 EVERY = 50
 MUSK = 300                          # (seconds the musk masks you)
+DIE_END = 130                       # (3.0d: its melt, start to gone: 6.5 s)
 RISEN_SC, DORMANT_SC = 2.4, 1.0     # (the host husk's scale: a 4.7-block hitbox risen; small, invulnerable, dormant)
 DUR = {'dormant': 10, 'rise_0': 10, 'rise_1': 12, 'rise_2': 12, 'idle_a': 20, 'idle_b': 20, 'shriek': 6, 'grab_0': 3, 'grab_1': 8,
        'stab_0': 10, 'stab_1': 3, 'recoil': 5, 'sink_0': 10, 'death_0': 12, 'death_1': 20}
@@ -224,12 +225,53 @@ def generate(G):
                          at(12, 'data merge entity @s {Invulnerable:1b}'),
                          at(24, 'scoreboard players set @s bm.ms 0'), at(24, 'scoreboard players set @s bm.mq 0'), at(24, 'scoreboard players set @s bm.mt 0')])
     # ---- its death: collapsing, melted, gone - its remnants left behind
-    fn(f'{PFX}/die0', ['scoreboard players set @s bm.ms 7', 'scoreboard players set @s bm.mt 0', 'data merge entity @s {Invulnerable:1b}',
+    fn(f'{PFX}/die0', ['scoreboard players set @s bm.ms 7', 'scoreboard players set @s bm.mt 0', 'data merge entity @s {Invulnerable:1b}', 'tag @s add bm.mmelt',
                        'tag @a remove bm.mgrab', f'function bm:{PFX}/pose/death_0', snd('death', 1.6), snd('shriek', 1.0, 0.5)])
-    fn(f'{PFX}/s/die', [at(15, f'function bm:{PFX}/pose/death_1'), at(15, 'particle minecraft:squid_ink ~ ~1 ~ 1.4 0.6 1.4 0.1 60'),
-                        at(50, 'particle minecraft:smoke ~ ~0.5 ~ 1.5 0.3 1.5 0.02 60'),
-                        at(50, 'loot spawn ~ ~0.5 ~ loot bm:p246/remnants'), at(50, 'summon minecraft:experience_orb ~ ~0.5 ~ {Value:30}'),
-                        at(50, 'execute as @e[type=minecraft:item_display,tag=bm.msel] run kill @s'), at(50, 'tp @s ~ -400 ~'), at(50, 'kill @s')])
+    # (3.0d: IT MELTS - the risen mass sags and squashes, its tentacles droop and sink; it slumps into a bubbling pile of goop
+    #  (dfx_goop, phase257) that bubbles a few seconds, then shrinks into the ground and is gone; the remnants are left where it was.
+    #  Invulnerable all the while (ms 7: no grab, no stab); every part and the goop are bm.mr of its bm.mid, so p246/melt - the
+    #  sweeps, the cross, the light, the Dread's fall - takes them all at once, whenever it comes)
+    import phase257 as DFX
+    import rigkit as RK
+    U = SCALE / 16
+    XF = RK.solve(A.PIVOT, A.PARENT, A.POSES['death_1'])
+    def squash(p, dy, kx, ky, dur):
+        q, t = XF[p]; sc = SCALE * getattr(A, 'PART_K', {}).get(p, 1.0)
+        return (f'execute as {sel(p)} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:{dur},transformation:{{translation:'
+                f'[{t[0] * U:.3f}f,{t[1] * U + dy:.3f}f,{t[2] * U:.3f}f],scale:[{sc * kx:.3f}f,{sc * ky:.3f}f,{sc * kx:.3f}f]}}}}')
+    TENTS = tuple(p for p in A.PARTS if p[0] == 't' and p[1].isdigit())
+    BODY = tuple(p for p in A.PARTS if p != 'puddle' and p not in TENTS)
+    goop = {'Tags': ['bm.mr', 'bm.mgoop', 'bm.mgnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:dfx_goop'}},
+            'item_display': 'fixed', 'brightness': {'block': Int(11), 'sky': Int(11)}, 'view_range': F(3.0), 'teleport_duration': Int(1),
+            'transformation': {'left_rotation': RF.IDENT, 'right_rotation': RF.IDENT, 'translation': [F(0), F(0.02), F(0)], 'scale': [F(0)] * 3}}
+    gsel = '@e[type=minecraft:item_display,tag=bm.mgoop,tag=bm.msel]'
+    fn(f'{PFX}/goop', ['summon minecraft:item_display ~ ~ ~ ' + snbt(goop), 'scoreboard players operation @e[type=minecraft:item_display,tag=bm.mgnew,distance=..1] bm.mid = @s bm.mid',
+                       'execute as @e[type=minecraft:item_display,tag=bm.mgnew,distance=..1] store result entity @s Rotation[0] float 1 run random value 0..359',
+                       'tag @e[type=minecraft:item_display,tag=bm.mgnew,distance=..1] remove bm.mgnew'])
+    die = [at(15, f'function bm:{PFX}/pose/death_1'), at(15, 'particle minecraft:squid_ink ~ ~1 ~ 1.4 0.6 1.4 0.1 60'),
+           # (it sags: the trunk lowers and squashes, the tentacles droop)
+           *[at(34, squash(p, -0.4, 1.15, 0.7, 20)) for p in BODY], *[at(34, squash(p, -0.3, 1.05, 0.6, 20)) for p in TENTS],
+           at(34, snd('death', 0.9, 0.7)), at(34, 'playsound minecraft:block.honey_block.slide hostile @a[distance=..24] ~ ~ ~ 1.5 0.5'),
+           # (it slumps flat into its puddle; the goop wells up round it)
+           at(40, f'function bm:{PFX}/goop'),
+           at(42, f'execute as {gsel} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:30,transformation:{{scale:[2.2f,2.2f,2.2f]}}}}'),
+           *[at(56, squash(p, -1.0, 1.35, 0.3, 18)) for p in BODY], *[at(56, squash(p, -0.6, 1.1, 0.25, 18)) for p in TENTS],
+           at(56, 'playsound minecraft:block.mud.break hostile @a[distance=..24] ~ ~ ~ 1.5 0.5'), at(56, 'playsound minecraft:block.honey_block.slide hostile @a[distance=..24] ~ ~ ~ 1.5 0.4'),
+           *[at(74, f'execute as {sel(p)} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[0f,0f,0f]}}}}') for p in BODY + TENTS],
+           at('20..74', 'particle minecraft:falling_dust{block_state:"minecraft:black_concrete"} ~ ~1.6 ~ 0.9 0.8 0.9 0 2'),
+           # (the goop bubbles)
+           *[at(t, 'execute positioned ~ ~0.55 ~ run ' + DFX.spr('bubble', 1.0, 1.5)) for t in range(46, 104, 3)],
+           *[at(t, 'execute positioned ~ ~0.7 ~ run ' + DFX.spr('bubble', 1.4, 0.7)) for t in range(50, 100, 7)],
+           *[at(t, 'playsound minecraft:block.bubble_column.upwards_ambient hostile @a[distance=..24] ~ ~ ~ 0.8 0.6') for t in range(48, 104, 12)],
+           at('44..104', 'particle minecraft:dust{color:[0.45,0.02,0.06],scale:1.1} ~ ~0.5 ~ 1.2 0.1 1.2 0 1'),
+           # (it shrinks into the ground and is gone)
+           at(102, f'execute as {gsel} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:26,transformation:{{translation:[0f,-0.25f,0f],scale:[0f,0f,0f]}}}}'),
+           at(102, f'execute as {sel("puddle")} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:26,transformation:{{scale:[0f,0f,0f]}}}}'),
+           at(102, snd('death', 0.6, 1.3)), at(102, 'particle minecraft:smoke ~ ~0.3 ~ 1.4 0.1 1.4 0.01 30'),
+           at(DIE_END - 2, 'particle minecraft:smoke ~ ~0.3 ~ 0.8 0.1 0.8 0.02 20'),
+           at(DIE_END - 2, 'loot spawn ~ ~0.5 ~ loot bm:p246/remnants'), at(DIE_END - 2, 'summon minecraft:experience_orb ~ ~0.5 ~ {Value:30}'),
+           at(DIE_END, 'execute as @e[type=minecraft:item_display,tag=bm.msel] run kill @s'), at(DIE_END, 'tp @s ~ -400 ~'), at(DIE_END, 'kill @s')]
+    fn(f'{PFX}/s/die', die)
     G.wjson('bm/loot_table/p246/remnants.json', {'pools': [{'rolls': 1, 'entries': [G.loot_entry('shadow_remnant', G.uni(1, 3))]}]})
 
     # ================================================================== the remnants kneaded; the musk drunk; the Stalkers lose your scent

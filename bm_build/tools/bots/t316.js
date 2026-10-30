@@ -9,7 +9,8 @@
 //   maw      the Maw: the road cut to its east mouth (paved, open), its bell heard and its name shown as you come near; its
 //            teeth barred to one without the tokens
 //   finale   its fall: the Divine One comes down (His rig, 18 parts), every eye held on the story, His music, He names it
-//            ("AUREL"), it comes apart into light; He rises and is gone; then the spoils
+//            ("AUREL"), it burns up in holy fire (3.0d: white-hot, flames climbing it, charred, crumbling to ash, the eye last,
+//            feathers of light); He rises and is gone; then the spoils, nothing of it left behind
 //   approach (3.0a) the way to the Maw is open whatever the Nether there: a road (or its forecourt) broke into open air; from each
 //            road's end to its mouth every block open, a floor under it; walked as a player from the end, through the forecourt,
 //            in through the mouth to the court; the Summons points at the court
@@ -182,11 +183,34 @@ const N = 'execute in minecraft:the_nether run ';
     const rot = (await run('data get entity TestRat Rotation')).match(/\[(-?[\d.]+)f, (-?[\d.]+)f\]/);
     ok('...every eye held on Him: looking up', rot && +rot[2] < -10, rot ? rot.slice(1).join(', ') : '');
     ok('He names it: "AUREL."', await wait(6000, async () => A.chats.some(c => /AUREL/.test(c))), A.chats.slice(-2).join(' | ').slice(0, 160));
-    ok('...He smites; it comes apart into light (its parts unmade)', await wait(9000, async () => /\[0\.0f, 0\.0f, 0\.0f\]/.test(await run(`${N}data get entity @e[type=minecraft:item_display,tag=bm.svr_chest,limit=1] transformation.scale`))));
+    // (3.0d) it BURNS UP IN HOLY FIRE: sampled by its own clock (bm.svt) - ablaze from the feet (white-hot, flame sprites), charred,
+    //  crumbled to nothing part by part, the helm last; then ash and feathers of light, and nothing left behind
+    const svt = async () => await sc(SOV, 'bm.svt');
+    const bri = async (p) => +(((await run(`${N}data get entity @e[type=minecraft:item_display,tag=bm.svr_${p},limit=1] brightness.block`)).match(/: (\d+)$/)) || [0, -1])[1];
+    const seen = { hot: false, flame: false, char: false, ash: false, headLast: false, feather: false };
+    const t1 = Date.now();
+    while (Date.now() - t1 < 12000) {
+      const t = await svt(); if (t < 0) break;
+      if (t >= 324 && t < 338 && (await bri('shinr')) === 15) seen.hot = true;
+      if (t >= 324 && t < 392 && (await cnt('@e[type=minecraft:item_display,tag=bm.dfx_hflame]')) > 0) seen.flame = true;
+      if (t >= 340 && t < 360 && (await bri('shinr')) === 1) seen.char = true;
+      if (t >= 350 && (await cnt('@e[type=minecraft:item_display,tag=bm.dfx_ash]')) > 0) seen.ash = true;
+      if (t >= 378 && t < 390 && /\[0\.0f, 0\.0f, 0\.0f\]/.test(await run(`${N}data get entity @e[type=minecraft:item_display,tag=bm.svr_chest,limit=1] transformation.scale`)) &&
+          !/\[0\.0f, 0\.0f, 0\.0f\]/.test(await run(`${N}data get entity @e[type=minecraft:item_display,tag=bm.svr_head,limit=1] transformation.scale`))) seen.headLast = true;
+      if (t >= 400 && (await cnt('@e[type=minecraft:item_display,tag=bm.dfx_feather]')) > 0) { seen.feather = true; break; }
+      await sleep(80);
+    }
+    ok('...He smites: its feet blaze white-hot (brightness 15)', seen.hot);
+    ok('...holy fire climbs it (flame sprites on its parts)', seen.flame);
+    ok('...each part charred black before it crumbles (brightness 1)', seen.char);
+    ok('...it crumbles part by part into ash (ash sprites), its chest gone while the helm still burns - the eye last', seen.ash && seen.headLast, JSON.stringify(seen));
+    ok('...it comes apart (its parts unmade)', /\[0\.0f, 0\.0f, 0\.0f\]/.test(await run(`${N}data get entity @e[type=minecraft:item_display,tag=bm.svr_head,limit=1] transformation.scale`)));
+    ok('...a last flash: nothing left but ash and feathers of light drifting', seen.feather);
     ok('..."Rest now."', await wait(8000, async () => A.chats.some(c => /Rest now/.test(c))));
     ok('He rises and is gone; then the spoils', await wait(14000, async () => (await has('ukey_victor')) === 1) && (await cnt('@e[type=minecraft:item_display,tag=bm.dvn]')) === 0,
        `${((Date.now() - t0) / 1000).toFixed(1)} s`);
     ok('...and their eyes are their own again (no look marker)', (await cnt('@e[type=minecraft:marker,tag=bm.svlook]')) === 0);
+    ok('...and nothing of it left behind: no part, no sprite (bm.svr, bm.dfx)', await wait(4000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.svr]')) === 0 && (await cnt('@e[type=minecraft:item_display,tag=bm.dfx]')) === 0, 250));
   }
 
   // ---- (3.0a) camera helpers: the lock (its tag, its own effects), and the gamemode

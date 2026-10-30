@@ -685,6 +685,44 @@ def generate(G):
     SMALL = A.FOLLOWER_SCALE * 1.6
     fn('p242/c/small', ['tag @s add bm.vxsmall'] + RF.pose(A, unl, SMALL, 60, sel, swap=SWAP))
     fn('p242/place/small', RF.place(A, SMALL / 16, sel))
+    # ---- (3.0d) RADIANT STAR DUST: after its last words (t480), light cracks out of it from within, it trembles - and part by
+    #  part it comes apart into star dust spiralling out and up; a nova; a ring of dust; the dust drifts, twinkling out (t600: won)
+    import phase257 as DFX
+    CEN = DFX.part_centres(A, unl, SMALL)
+    vsel = lambda p: f'@e[type=minecraft:item_display,tag=bm.vxr_{p}]'
+    SEAMS = [(488, ('chest', 'head')), (496, ('armr', 'arml', 'body')), (504, ('legr', 'legl', 'forer', 'forel')), (512, ('back', 'podr', 'podl', 'shinr', 'shinl'))]
+    ORDER = ['footr', 'footl', 'fxh', 'shinr', 'shinl', 'forer', 'forel', 'podr', 'podl', 'legr', 'legl', 'armr', 'arml', 'ring1', 'ring2', 'back', 'body', 'fx', 'chest', 'head']
+    stardust = [at(486, f'execute as @e[type=minecraft:item_display,tag=bm.vxr] run data merge entity @s[type=minecraft:item_display] {{brightness:{{block:15,sky:15}}}}'),
+                at(486, tellraw(AUD, [T(L.UNLINK['crack'], '#e8f4ff', italic=True)])), at(486, snd('block.beacon.power_select', 2, 1.4)),
+                at(486, snd('block.amethyst_block.resonate', 2.5, 0.6))]
+    for t0, parts in SEAMS:
+        for p in parts:
+            if p in CEN: stardust += [at(t0, DFX.at_part(CEN[p], DFX.spr('seam', 0.9, 0.15))), at(t0 + 8, DFX.at_part(CEN[p], DFX.spr('seam', 0.7, 0.25)))]
+        stardust.append(at(t0, snd('block.amethyst_cluster.hit', 2, 0.8 + (t0 - 488) / 40)))
+    stardust += [at(t, f'execute at @s run tp @s ~{0.07 if t % 2 else -0.07} ~ ~{-0.05 if t % 4 < 2 else 0.05}') for t in range(492, 532)]
+    stardust += [at(t, f'particle minecraft:end_rod ~ ~1.6 ~ 0.5 0.8 0.5 0.02 {2 + (t - 488) // 10} force {AUD}') for t in range(488, 532, 2)]
+    stardust += [at(t, snd('block.amethyst_block.chime', 2, 0.7 + 0.06 * k)) for k, t in enumerate(range(492, 532, 5))]
+    stardust += [at(526, snd('block.beacon.ambient', 3, 2.0)), at(528, snd('entity.warden.sonic_charge', 1.5, 1.8))]
+    t = 532
+    for p in ORDER:
+        if p not in CEN: continue
+        c = CEN[p]
+        stardust += [at(t, f'execute as {vsel(p)} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:5,transformation:{{scale:[0f,0f,0f]}}}}'),
+                     at(t, DFX.at_part(c, DFX.spr('star', 0.9, 0.2))), at(t, DFX.at_part(c, DFX.spr('star', 0.7, 0.3))), at(t, DFX.at_part(c, DFX.spr('dust', 0.9, 0.3))),
+                     at(t, DFX.at_part(c, f'particle minecraft:firework ~ ~ ~ 0.2 0.2 0.2 0.06 4 force {AUD}')),
+                     at(t, snd('block.amethyst_block.break', 1.4, 1.0 + 0.04 * (t - 532)))]
+        t += 1
+    stardust += [at(552, f'kill @e[type=minecraft:item_display,tag=bm.vxr]'),
+                 at(552, f'particle minecraft:flash{{color:[0.85,0.92,1.0,1.0]}} ~ ~1.6 ~ 0 0 0 0 1 force {AUD}'),
+                 at(552, f'particle minecraft:end_rod ~ ~1.6 ~ 0.3 0.3 0.3 0.35 80 force {AUD}'),
+                 at(552, f'particle minecraft:firework ~ ~1.6 ~ 0.4 0.4 0.4 0.3 60 force {AUD}'),
+                 at(552, 'execute positioned ~ ~1.2 ~ run ' + DFX.ring('nova', 1.0, 18)), at(554, 'execute positioned ~ ~0.4 ~ run ' + DFX.ring('nova', 0.7, 12)),
+                 at(552, snd('entity.firework_rocket.twinkle_far', 3, 0.8)), at(552, snd('entity.firework_rocket.large_blast_far', 3, 0.6)),
+                 at(552, snd('block.beacon.deactivate', 2.5, 1.2)), at(552, snd('entity.player.levelup', 1.2, 0.5)),
+                 at(553, tellraw(AUD, [T(L.UNLINK['dust'], '#e8f4ff', italic=True)]))]
+    stardust += [at(t, 'execute positioned ~ ~1.4 ~ run ' + DFX.spr('dust', 1.1, 2.6)) for t in range(556, 596, 3)]
+    stardust += [at(t, 'execute positioned ~ ~2.2 ~ run ' + DFX.spr('star', 0.8, 2.2)) for t in range(558, 592, 5)]
+    stardust += [at(t, snd('block.amethyst_block.chime', 1.5, 1.2 + 0.1 * (k % 3))) for k, t in enumerate(range(560, 598, 9))]
     seq = ([at(1, 'function bm:p242/pose/starfire/' + pp('starfire', 'death_0', 'stagger')),
             at(1, snd('entity.elder_guardian.death', 3, 0.5)), at(1, snd('entity.blaze.death', 3, 0.4)), at(1, f'effect give {FIGHT} minecraft:darkness 3 0 true'),
             at(1, tellraw(AUD, [T(L.FIGHT['fall'], '#c8f0c0', italic=True)]))] +
@@ -706,8 +744,8 @@ def generate(G):
             at('340..400', 'particle minecraft:end_rod ~ ~2 ~ 1 1.5 1 0.02 4 force'), at(350, 'tp @s ~ ~-1 ~'),
             at(350, 'execute as @e[type=minecraft:marker,tag=bm.vxlook] at @s run tp @s ~ ~-3.5 ~'),
             at(410, vx(L.UNLINK['name'])), at(480, vx(L.UNLINK['you'])), at(480, snd('block.note_block.chime', 1, 0.8)),
-            at(540, f'title {AUD} times 10 60 20'), at(540, title(AUD, 'title', T('THE HIVE-LINK IS CUT', COL, bold=True))),
-            at(540, title(AUD, 'subtitle', T('the invasion nights are over', '#c8f0c0', italic=True))),
+            at(558, f'title {AUD} times 10 50 20'), at(558, title(AUD, 'title', T('THE HIVE-LINK IS CUT', COL, bold=True))),
+            at(558, title(AUD, 'subtitle', T('the invasion nights are over', '#c8f0c0', italic=True)))] + stardust + [
             at(f'1..{UNLINK - 2}', 'function bm:p242/c/look'), at(UNLINK, 'function bm:p242/won')])
     fn('p242/falling', ['scoreboard players add @s bm.vxt 1'] + seq)
     G.wjson('bm/advancement/story/vexis.json', {'parent': 'bm:story/root', 'criteria': {'won': {'trigger': 'minecraft:impossible'}},

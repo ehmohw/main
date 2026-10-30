@@ -36,6 +36,7 @@ import allies
 OM_C, OM_LINE, SOUL = P169.OM_C, P169.OM_LINE, P169.SOUL
 NAME, W, K = 'Omega', 'omega', 'om'
 MENU = 2280                          # his menu (bm.menu) and its buttons 2281..2289
+CSZ = 0.2                            # (3.0d: his companion size - of his full size)
 PET_HP, PET_CD, MAX_SOULS = 80, 300, 12
 SP = OA.PET_SCALE
 UP = SP / 16
@@ -204,7 +205,14 @@ def generate(G):
                         'scoreboard players set #st bm.rng 0'])
     tick.append(f'execute as @e[type=minecraft:wolf,tag={pet}] at @s run function bm:{pfx}/tick')
     idle_fight = f'unless score @s {S("x")} matches 1.. unless data entity @s {{Sitting:1b}}'
-    fn(f'{pfx}/tick', ['scoreboard players operation #me bm.pid = @s bm.pid',
+    # (3.0d) COMPANION SIZE (compsize): his rig at CSZ of its size (~1.9 blocks tall), his host's hitbox to match; the owner's
+    #  bm.omcs, kept. The size-bearing functions are twinned at the end of the build (compsize.LATE).
+    import compsize as CS
+    osay = lambda txt: title('@s', 'actionbar', [T('King Omega: ', OM_C, bold=True), T(txt, '#d8e0ff')])
+    CS.build(G, pfx, 'bm.omcs', 'bm.omcz', S('s'), SP, round(max(0.8, SP * CSZ), 3),
+             osay('"Diminished? I am a KING. ...Very well. A small king."'), osay('"Ah. Majesty restored."'))
+    CS.LATE.append((pfx, CSZ, 'bm.omcz', ()))
+    fn(f'{pfx}/tick', ['scoreboard players operation #me bm.pid = @s bm.pid'] + CS.sync(pfx, 'bm.omcs', 'bm.omcz', S('s'), SP, SP * CSZ) + [
                        f'execute as @e[type=minecraft:item_display,tag=bm.omp_pet,tag=!{fade}] if score @s bm.pid = #me bm.pid run tag @s add {sel}',
                        f'execute unless entity {psel("head")} run function bm:{pfx}/rerig',
                        f'execute if score @s {S("x")} matches 1.. run function bm:{pfx}/act_tick'] +
@@ -434,15 +442,17 @@ def generate(G):
                                 ([P28.btn(T('Sit / follow', 'white', bold=True), MENU + 1, width=150), P28.btn(T('Send him home', 'gray'), MENU + 9, width=150)] if out else
                                  [P28.btn(T(f'Call for {NAME}', OM_C, bold=True), MENU + 8, width=150)]) +
                                 [P28.btn(T("King Omega's ways", OM_C, bold=True), MENU + 4, width=150, tooltip=T('How he fights - and what his souls buy.', 'gray')),
-                                 P28.btn(T('Wardrobe', OM_C, bold=True), MENU + 2, width=150, tooltip=T('His looks - and his aura, if you have it.', 'gray'))],
+                                 P28.btn(T('Wardrobe', OM_C, bold=True), MENU + 2, width=150, tooltip=T('His looks - and his aura, if you have it.', 'gray')),
+                                 P28.btn(T('Companion size: on / off', OM_C, bold=True), MENU + 3, width=150, tooltip=T('(3.0d) The King of the Dead at companion size - about two blocks tall, every coil in proportion. His souls and his blows are the same.', 'gray'))],
                                 columns=2, exit_label='Close')
     fn(f'{pfx}/menu', [f'scoreboard players set @s bm.menu {MENU}',
                        f'execute if entity @e[type=minecraft:wolf,tag={sel2}] store result storage bm:tmp p170m.souls int 1 run scoreboard players get @e[type=minecraft:wolf,tag={sel2},limit=1] {S("so")}',
                        f'execute if entity @e[type=minecraft:wolf,tag={sel2}] run return run function bm:{pfx}/menu_out with storage bm:tmp p170m',
                        f'dialog show @s {snbt(dlg(False))}'])
     fn(f'{pfx}/menu_out', [f'$dialog show @s {snbt(dlg(True))}'])
-    G.FUNCS['p28/act'] += [f'execute if score #act bm.pay matches {MENU + n} run return run function bm:{pfx}/act' for n in (1, 2, 4, 5, 8, 9)]
+    G.FUNCS['p28/act'] += [f'execute if score #act bm.pay matches {MENU + n} run return run function bm:{pfx}/act' for n in (1, 2, 3, 4, 5, 8, 9)]
     fn(f'{pfx}/act', [f'execute unless score @s bm.menu matches {MENU} run return run function bm:p28/stale',
+                      f'execute if score #act bm.pay matches {MENU + 3} run return run function bm:{pfx}/csz/toggle',      # (3.0d: companion size)
                       f'execute if score #act bm.pay matches {MENU + 2} run return run function bm:p119/plain/{W}',
                       f'execute if score #act bm.pay matches {MENU + 4} run return run function bm:{pfx}/powers',
                       'scoreboard players operation #me bm.pid = @s bm.pid', f'{sel_pet} run tag @s add {sel2}',

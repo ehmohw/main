@@ -48,6 +48,8 @@ UNLINK = {
     'one': '"...one. I am only one."',
     'name': '"Vexis. That was my name. Before."',
     'you': '"You cut the strings. I do not know what I am without them. Show me?"',
+    'crack': 'Light breaks through every seam of it...',
+    'dust': '...and Vexis comes apart into star dust.',
 }
 
 # ---- the Cipher guardians' names (phase241's 'vboss' trials: an existing Vorn boss, renamed and stronger)

@@ -221,6 +221,7 @@ import phase256 as R256      # 3.0b: the Pixel Creeper - a little 8-bit creeper 
 import phase255 as R255      # 3.0a: [no-spawn hook] nothing spawns in the Undercrown or the Armada but their own foes (and the Undercrown's Mires)
 import phase253 as R253      # 3.0: the Loom Sanctuary - the Compass of Bonds (every follower met) and the sky island where the Keeper waits
 import phase254 as R254      # 3.0: [keeper hook] the Keeper of Bonds - the 51st follower, the last (registers after every follower before it)
+import phase257 as R257      # 3.0d: the death sprites - holy fire, ash, star dust, goop bubbles (the three dramatic deaths)
 import phase241 as R241      # 2.99: the Vorn Armada - the Vorn's hard-mode dungeon, a hive-fleet round a star in the End (its kinds of trial register on import)
 R233.add_pairs()             # 2.98: the Creative Forms
 R229.add_pairs()             # 2.97: the cats' pairs with everyone - after every follower is imported
@@ -258,7 +259,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v3.0c'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v3.0d'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1510,6 +1511,7 @@ def build(out_dir):
     if PHASE2: R245.generate(sys.modules[__name__])      # 2.99a: the Statue Knights (the Throne Gate's, the Command Lock's)
     if PHASE2: R246.generate(sys.modules[__name__])      # 2.99a: the Dread Mire (after phase181: it patches the Stalkers)
     if PHASE2: R252.late(sys.modules[__name__])          # 3.00: [mireling hook] a Mire's slayer credited, its seed; the Stalkers' nod (after phase246 and phase181)
+    if PHASE2: R257.generate(sys.modules[__name__])      # 3.0d: the death sprites (after the Sovereign, Vexis and the Mire: it makes the spawners they asked for)
     if PHASE2: R247.generate(sys.modules[__name__])      # 2.99a: holy bane
     R250.generate(sys.modules[__name__])                 # 2.99a: [market music hook] the market's music (after phase244/240/75: it yields to their music)
     print('2.99a: the Backpack - %d dungeon rebuilds fold open bags first' % len(R248.generate(sys.modules[__name__])))      # (after the boxes it reuses and the builds it guards)
@@ -1522,6 +1524,7 @@ def build(out_dir):
     print('2.85d: %d new fight rooms, the rats\' calls, the Forge/Garden coin' % R184.generate(sys.modules[__name__]))
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))
     print('2.88: the chatter switch in %d follower menus and on the wheel' % R123.finalize_chat(sys.modules[__name__]))
+    if PHASE2: print('3.0d: companion size - %d rig functions twinned (Apophiss, Omega)' % __import__('compsize').finalize(sys.modules[__name__]))
     R28.finalize(sys.modules[__name__])
     print('market rebuild: %d entity tags cleared, %d per-market lines wait for the new town' % R168.finalize(sys.modules[__name__]))
     useitem.generate(sys.modules[__name__])

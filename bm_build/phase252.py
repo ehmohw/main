@@ -287,7 +287,8 @@ def late(G):
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
     G.FUNCS['p246/die0'].insert(0, 'execute unless entity @s[tag=bm.mtame] unless entity @s[tag=bm.svm] run function bm:p252/mire/slain')
-    G.FUNCS['p246/s/die'].insert(0, 'execute if entity @s[tag=bm.mlsd] if score @s bm.mt matches 50 run function bm:p252/mire/seed')
+    import phase246 as P246
+    G.FUNCS['p246/s/die'].insert(0, f'execute if entity @s[tag=bm.mlsd] if score @s bm.mt matches {P246.DIE_END - 2} run function bm:p252/mire/seed')
     fn('p252/mire/slain', ['tag @a remove bm.mlkr', 'execute on attacker if entity @s[type=minecraft:player] run tag @s add bm.mlkr',
                            'execute unless entity @a[tag=bm.mlkr] run tag @p[distance=..24,gamemode=!spectator,gamemode=!creative] add bm.mlkr',
                            'execute as @a[tag=bm.mlkr,limit=1] run function bm:p252/mire/credit', 'tag @a remove bm.mlkr'])

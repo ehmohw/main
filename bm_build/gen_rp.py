@@ -990,6 +990,8 @@ if __name__ == '__main__':
         phase245.rp(sys.modules[__name__])
         import phase246                           # (2.99a: the Dread Mire - its rig, sounds, the remnant and the musk)
         phase246.rp(sys.modules[__name__])
+        import phase257                           # (3.0d: the death sprites and the Mire's goop)
+        phase257.rp(sys.modules[__name__])
         import rex_art                            # (2.99a: the Rex mounts - their rigs, charged plates and the quest items' icons; phase249 runs them)
         rex_art.rp(sys.modules[__name__])
     if PHASE2:

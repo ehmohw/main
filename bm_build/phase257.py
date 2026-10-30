@@ -47,13 +47,23 @@ def _code(size, jit):
     return f'{int(round(size * 100))}_{int(round(jit * 100))}'
 
 
+SIZES = (0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6)
+
+
+def _snap(size, jit):
+    """(a few sizes and scatters only: each pair is a spawner of its own, and every sprite's step tells them apart)"""
+    return min(SIZES, key=lambda v: abs(math.log(v / max(size, 0.01)))), round(jit * 2) / 2
+
+
 def spr(kind, size=1.0, jit=0.0):
     assert kind in KINDS, kind
+    size, jit = _snap(size, jit)
     c = _code(size, jit); _USED[(kind, c)] = (size, jit)
     return f'function bm:{PFX}/s/{kind}_{c}'
 
 
 def ring(kind, size=1.0, n=16):
+    size = _snap(size, 0)[0]
     c = _code(size, 0.0); _USED[(kind, c)] = (size, 0.0); _USED[('ring', f'{kind}_{c}_{n}')] = (kind, n)
     return f'function bm:{PFX}/r/{kind}_{c}_{n}'
 
@@ -318,7 +328,7 @@ def _make(G, kind, c, size, jit, rs):
     init = ['tag @s remove bm.dfxn', 'scoreboard players set @s bm.dfl 0', 'execute store result score #v bm.rng run random value 0..%d' % (len(lives) - 1)]
     if ryaw: init.append('execute store result entity @s Rotation[0] float 1 run random value 0..359')
     else: init.append('execute store result entity @s Rotation[0] float 1 run scoreboard players get #ryaw bm.rng')
-    step = ['scoreboard players add @s bm.dfl 1']
+    step = []
     for v, L in enumerate(lives):
         d = max(1, (L - 2) // hops) if hops else 0
         init.append(f'execute if score #v bm.rng matches {v} run function bm:{PFX}/v/{kind}_{c}_{v}')
@@ -326,13 +336,13 @@ def _make(G, kind, c, size, jit, rs):
         ang = rs.choice((-1, 1)) * rs.uniform(150, 175)
         rot = f',right_rotation:{snbt(_q((0, 0, 1), ang))}' if spin else ''
         sc = round(s1 * size, 3)
-        fn(f'{PFX}/g/{kind}_{c}_{v}', [f'data merge entity @s {{start_interpolation:0,interpolation_duration:{L - 2},transformation:{{scale:[{sc}f,{sc}f,{sc}f]{rot}}}}}'])
+        fn(f'{PFX}/g/{kind}_{c}_{v}', [f'data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:{L - 2},transformation:{{scale:[{sc}f,{sc}f,{sc}f]{rot}}}}}'])
         step.append(f'execute if score @s bm.dfl matches 2 if entity @s[tag=bm.dfv{v}] run function bm:{PFX}/g/{kind}_{c}_{v}')
         if hops:
             k = VARK[v % len(VARK)] * size
-            fn(f'{PFX}/h/{kind}_{c}_{v}', [f'data merge entity @s {{teleport_duration:{min(d, 59)}}}',
+            fn(f'{PFX}/h/{kind}_{c}_{v}', [f'data merge entity @s[type=minecraft:item_display] {{teleport_duration:{min(d, 59)}}}',
                                            f'execute at @s rotated as @s run tp @s ^ ^{up * k / hops:.3f} ^{fw * k / hops:.3f} ~{turn} ~',
-                                           f'scoreboard players add @s bm.dfh {d}'])
+                                           f'scoreboard players add @s bm.dfh {d}', f'execute if score @s bm.dfh matches {2 + hops * d}.. run scoreboard players set @s bm.dfh 9999'])
             step.append(f'execute if score @s bm.dfl = @s bm.dfh if entity @s[tag=bm.dfv{v}] run function bm:{PFX}/h/{kind}_{c}_{v}')
     if jit > 0:
         init.append('execute store result score #j bm.rng run random value 0..7')
@@ -352,8 +362,9 @@ def generate(G):
     rs = random.Random(257)
     pop_cmd = spr('pop', 0.6)
     show = [f'execute positioned ^{(i % 5) * 2 - 4} ^1.2 ^{5 + (i // 5) * 3} run {spr(k, 1.0, 0.3)}' for i, k in enumerate(k for k in KINDS if k != 'pop')]
-    step = ['execute if score @s bm.dfl matches 300.. run return run kill @s',
-            'execute if score @s bm.dfl >= @s bm.dfm run return run function bm:p257/end']
+    step = ['scoreboard players add @s bm.dfl 1', 'execute if score @s bm.dfl matches 300.. run return run kill @s',
+            'execute if score @s bm.dfl >= @s bm.dfm run return run function bm:p257/end',
+            'execute unless score @s bm.dfl matches 2 unless score @s bm.dfl = @s bm.dfh run return 0']
     for (kind, c), val in sorted(_USED.items()):
         if kind == 'ring': continue
         step.append(_make(G, kind, c, val[0], val[1], rs))
@@ -370,7 +381,7 @@ def generate(G):
     fn(f'{PFX}/end', ['execute if entity @s[tag=bm.dfx_bubble] at @s run ' + pop_cmd,
                       'execute if entity @s[tag=bm.dfx_bubble] at @s run playsound minecraft:block.bubble_column.bubble_pop hostile @a[distance=..24] ~ ~ ~ 0.8 0.7',
                       'kill @s'])
-    G.FUNCS['tick'].append(f'execute as @e[type=minecraft:item_display,tag=bm.dfx] run function bm:{PFX}/step')
+    G.FUNCS['tick'].append(f'execute as @e[type=minecraft:item_display,tag=bm.dfx] at @s run function bm:{PFX}/step')
     G.FUNCS['admin/uninstall'].insert(0, 'kill @e[type=minecraft:item_display,tag=bm.dfx]')
     fn('admin/dfx', show * 3)
     G.FUNCS['admin/help'].append(G.tellraw('@s', [{'text': '/function bm:admin/dfx', 'color': 'yellow'}, {'text': '  the death sprites (3.0d), a few of each, in front of you', 'color': 'gray'}]))

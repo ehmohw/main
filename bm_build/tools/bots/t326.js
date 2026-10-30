@@ -13,6 +13,9 @@
 //     Wraithfire Heart - lb_<part>_m_w; Element steps his own light -> Ethereal -> Wraithfire; Form under it: she in Wraithfire (lb_<part>_w)
 //     and he again; his ways tell of it; THE OPHANIM in Wraithfire (three still monsters staged): his parts shrink away in their _m_w
 //     models and come back in them, what it struck burns; kept across send home / call and a log-out; Give back - both in your pack.
+//   (3.0d) THE OPHANIM, FOR GOOD: the menu's Ophanim form locked below Queen Ava's rank III; at III (staged) pressed - the wheel's four
+//     parts at full size where she stands (centred ~3.35 up), her rig unseen, its rings turning, a gentle bob, following her; her
+//     charged Ophanim flares it (no second wheel); Companion size: small, hovering (and back); sent home - gone, called - back; off.
 const { bot, rcon, sleep } = require('./lib_resp');
 
 (async () => {
@@ -218,6 +221,64 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
   ok('met her before the male form existed (bm.lhmet, no form yet): called, she comes - and stays she (bm.lhform 0)', (await formOf()) === 'f' && (await score('bm.lhform')) === 0, await formOf());
   await sneakMenu(0); await A.click(/Send her home/); await sleep(1200);
+
+  // ---------------------------------------------------------------- (3.0d) THE OPHANIM, FOR GOOD - and its companion size
+  {
+    const hn0 = await score('bm.hn_lightbringer');
+    const W = (p) => `@e[type=minecraft:item_display,tag=bm.ophf_${p},limit=1]`;
+    const vec = (t) => (t.match(/-?[\d.]+(?:E-?\d+)?/g) || []).map(Number);
+    const pos = async (sel) => vec(await nbt(sel, 'Pos'));
+    await run('scoreboard players set TestRat bm.lhoph 0'); await run('scoreboard players set TestRat bm.lhcs 0'); await run('scoreboard players set TestRat bm.hn_lightbringer 1444');
+    await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
+    ok('(3.0d) her menu: an "Ophanim form" row and a "Companion size" row', await sneakMenu(0) && A.buttons().some(b => /Ophanim form/.test(b.label)) && A.buttons().some(b => /Companion size/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
+    A.bars.length = 0; await A.press(/Ophanim form/); await sleep(1200);
+    ok('...below Queen Ava\'s rank III: locked - "Honoured by Queen Ava to rank III" (no wheel)', A.bars.some(b => /rank III/.test(b)) && (await cnt('@e[type=minecraft:item_display,tag=bm.ophf]')) === 0 && (await score('bm.lhoph')) === 0, A.bars.slice(-1).join(''));
+    await run('scoreboard players set TestRat bm.hn_lightbringer 1555');                 // (rank III: Vitality, Bulwark and Might at V - staged)
+    await sneakMenu(0); A.bars.length = 0; await A.press(/Ophanim form/); await sleep(1500);
+    ok('rank III, pressed: she IS the Ophanim - its four parts out (bm.ophf), kept on you (bm.lhoph 1)', await wait(3000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.ophf]')) === 4) && (await score('bm.lhoph')) === 1);
+    ok('...her own rig unseen (view_range 0)', /^0\.0f?$/.test((await nbt(part('body'), 'view_range')).trim()), await nbt(part('body'), 'view_range'));
+    const sc0 = vec(await nbt(W('ring_a'), 'transformation.scale'));
+    ok('...at its full size (2.2), not a companion\'s', Math.abs(sc0[0] - 2.2) < 0.01, JSON.stringify(sc0));
+    const pp = await pos(PET), wp = await pos(W('ring_a'));
+    ok('...standing where she is: centred on her, its centre ~3.35 up (its lowest flames just clear of the ground)', Math.hypot(wp[0] - pp[0], wp[2] - pp[2]) < 0.7 && wp[1] - pp[1] > 3.0 && wp[1] - pp[1] < 3.7, `${wp.map(v => v.toFixed(2))} vs ${pp.map(v => v.toFixed(2))}`);
+    const r1 = await nbt(W('ring_a'), 'transformation.left_rotation'); const c1 = await nbt(W('ring_c'), 'transformation.left_rotation'); await sleep(1300);
+    const r2 = await nbt(W('ring_a'), 'transformation.left_rotation'); const c2 = await nbt(W('ring_c'), 'transformation.left_rotation');
+    ok('...its rings turning, each on its own (left_rotation changing)', r1 !== r2 && c1 !== c2, `${r1} -> ${r2}`);
+    const y1 = (await pos(W('core')))[1]; await sleep(2500); const y2 = (await pos(W('core')))[1];
+    ok('...bobbing gently (its height moves, within a few tenths)', Math.abs(y2 - y1) > 0.005 && Math.abs(y2 - y1) < 0.3, `${y1} -> ${y2}`);
+    await run(`${O}tp ${PET} ${X + 4.5} ${Y + 1} ${Z + 3.5}`); await sleep(1200);
+    const pp2 = await pos(PET), wp2 = await pos(W('ring_a'));
+    ok('...and it follows her (moved with her host)', Math.hypot(wp2[0] - pp2[0], wp2[2] - pp2[2]) < 0.7, `${wp2.map(v => v.toFixed(2))} vs ${pp2.map(v => v.toFixed(2))}`);
+    // its charged move, in this form: no second wheel - it flares, at its own size
+    for (const pe of ['bm.lzk2', 'bm.lzgc', 'bm.lzrc', 'bm.lzsc', 'bm.lzmc', 'bm.lzk', 'bm.lzx']) await run(`${O}scoreboard players set ${PET} ${pe} 0`);
+    await run(`${O}scoreboard players set ${PET} bm.lzrc 400`);
+    const px = pp2[0], pz = pp2[2];
+    for (const [dx, dz] of [[8, 3], [-8, 3], [0, 9]]) await run(`${O}summon minecraft:husk ${px + dx} ${Y + 1} ${pz + dz} {NoAI:1b,Invulnerable:1b,PersistenceRequired:1b,Silent:1b,Tags:["lhtest"]}`);
+    const fl = await wait(9000, async () => (await score('bm.lza', PET)) === 15 && (await score('bm.lzx', PET)) > 0, 200);
+    ok('...her Ophanim (three monsters near) in this form: it flares - no second wheel, its size unchanged',
+       fl && (await cnt('@e[type=minecraft:item_display,tag=bm.oph]')) === 0 && (await cnt('@e[type=minecraft:item_display,tag=bm.ophf]')) === 4 && Math.abs(vec(await nbt(W('ring_a'), 'transformation.scale'))[0] - 2.2) < 0.01,
+       `fl ${fl} oph ${await cnt('@e[type=minecraft:item_display,tag=bm.oph]')}`);
+    await wait(9000, async () => (await score('bm.lzx', PET)) === 0, 300);
+    await run(`${O}kill @e[type=minecraft:husk,tag=lhtest]`);
+    // companion size
+    await sneakMenu(0); await A.press(/Companion size/); await sleep(1500);
+    const sc1 = vec(await nbt(W('ring_a'), 'transformation.scale')); const pp3 = await pos(PET), wp3 = await pos(W('ring_a'));
+    ok('Companion size pressed: the wheel small (scale ~0.70), hovering just above her place (~1.9)', (await score('bm.lhcs')) === 1 && Math.abs(sc1[0] - 0.704) < 0.01 && wp3[1] - pp3[1] > 1.5 && wp3[1] - pp3[1] < 2.2,
+       `${JSON.stringify(sc1)} dy ${(wp3[1] - pp3[1]).toFixed(2)}`);
+    await sneakMenu(0); await A.press(/Companion size/); await sleep(1500);
+    ok('...pressed again: full size', (await score('bm.lhcs')) === 0 && Math.abs(vec(await nbt(W('ring_a'), 'transformation.scale'))[0] - 2.2) < 0.01);
+    // kept: sent home - the wheel goes with her; called - it's back
+    await sneakMenu(0); await A.click(/Send (him|her) home/); await sleep(1600);
+    ok('sent home: the wheel goes with her (no stray part)', (await cnt('@e[type=minecraft:item_display,tag=bm.ophf]')) === 0);
+    await use(0); await wait(4000, async () => (await cnt(PET)) === 1);
+    ok('...called again: the Ophanim again (kept)', await wait(4000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.ophf]')) === 4, 200) && /^0\.0f?$/.test((await nbt(part('body'), 'view_range')).trim()));
+    await sneakMenu(0); A.bars.length = 0; await A.press(/Ophanim form/); await sleep(1500);
+    ok('Ophanim form pressed again: off - the wheel gone, the herald seen again (view_range 1.6)', (await score('bm.lhoph')) === 0 && (await cnt('@e[type=minecraft:item_display,tag=bm.ophf]')) === 0 &&
+       /^1\.6f?$/.test((await nbt(part('body'), 'view_range')).trim()), await nbt(part('body'), 'view_range'));
+    await sneakMenu(0); await A.click(/Send (him|her) home/); await sleep(1200);
+    await run(hn0 === null ? 'scoreboard players reset TestRat bm.hn_lightbringer' : `scoreboard players set TestRat bm.hn_lightbringer ${hn0}`);
+    await run('scoreboard players reset TestRat bm.lhoph'); await run('scoreboard players reset TestRat bm.lhcs');
+  }
 
   // ---------------------------------------------------------------- clean up
   await clearEnc(); await run('kill @e[type=minecraft:wolf,tag=bm.lhpet]'); await run('clear TestRat'); await run('effect clear TestRat');      // (its Resistance off again)

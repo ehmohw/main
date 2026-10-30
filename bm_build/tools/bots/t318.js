@@ -173,9 +173,31 @@ const E = 'execute in minecraft:the_end run ';
     await run('clear TestRat'); await run('tag TestRat remove bm.vxfirst'); await run('scoreboard players set TestRat bm.vxwin 0');
     await run(`${E}execute as ${VX} run data modify entity @s Health set value 100f`);
     ok('its last pool spent: THE UNLINKING', await wait(4000, async () => (await cnt(`${VX.slice(0, -1)},tag=bm.vxfall]`)) === 1));
+    // (3.0d) it BURSTS INTO RADIANT STAR DUST after its last words - sampled by its own clock (bm.vxt)
+    const seen = { lit: false, seam: false, crack: false, star: false, nova: false, gone: false, dust: false };
+    const t1 = Date.now();
+    while (Date.now() - t1 < 34000) {
+      const t = await sc(VX, 'bm.vxt'); if (t < 0 || t === -99) break;
+      if (t >= 488 && t < 530) {
+        if (/: 15$/.test(await run(`${E}data get entity @e[type=minecraft:item_display,tag=bm.vxr_chest,limit=1] brightness.block`))) seen.lit = true;
+        if ((await cnt('@e[type=minecraft:item_display,tag=bm.dfx_seam]')) > 0) seen.seam = true;
+        if (A.chats.some(c => /breaks through every seam/.test(c))) seen.crack = true;
+      }
+      if (t >= 534 && t < 556 && (await cnt('@e[type=minecraft:item_display,tag=bm.dfx_star]')) > 0) seen.star = true;
+      if (t >= 553 && t < 575) { if ((await cnt('@e[type=minecraft:item_display,tag=bm.dfx_nova]')) > 0) seen.nova = true;
+        if ((await cnt('@e[type=minecraft:item_display,tag=bm.vxr]')) === 0) seen.gone = true; }
+      if (t >= 560 && (await cnt('@e[type=minecraft:item_display,tag=bm.dfx_dust]')) > 0) { seen.dust = true; break; }
+      await sleep(t < 470 ? 500 : 80);
+    }
+    ok('...after its last words, light breaks out of it: lit from within (brightness 15), told so', seen.lit && seen.crack, JSON.stringify(seen));
+    ok('...glowing seams cracking over it (seam sprites)', seen.seam);
+    ok('...part by part it bursts into star dust (star sprites spiralling out)', seen.star);
+    ok('...a nova: a ring of star dust flung out; nothing of its rig left', seen.nova && seen.gone);
+    ok('...the dust drifting, twinkling out', seen.dust);
     ok('...30 s later: the Severed Link, its record, a Victor\'s Key', await wait(36000, async () => (await has('vexis_link')) === 1, 1000) && (await has('music_disc_vexis')) === 1 && (await has('akey_victor')) >= 1);
     ok('...the invasion nights are over (#vfell)', (await sc('#vfell', 'bm.cfg')) === 1);
     ok('...and the Armada drifts: it regroups in three minutes', (await sc('#acol', 'bm.p2')) > 100);
+    ok('...and nothing of Vexis left behind: no part, no sprite (bm.vxr, bm.dfx)', await wait(4000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.vxr]')) === 0 && (await cnt('@e[type=minecraft:item_display,tag=bm.dfx]')) === 0, 250));
   }
 
   if (on('nights')) {
