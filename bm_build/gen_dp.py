@@ -596,6 +596,7 @@ ARMORED = {  # type: (base hp, weapon kind)
     'pillager': (24, 'crossbow'), 'vindicator': (24, 'axe'),
     'zombie_villager': (20, 'sword'), 'zombified_piglin': (20, 'sword'), 'piglin': (16, 'sword'), 'piglin_brute': (50, 'axe'),
 }
+FAR_SIGHTED = {'enderman', 'blaze', 'ghast', 'phantom'}     # (3.0e: their own follow range is already long: a tier adds none)
 UNARMORED = {'spider': 16, 'cave_spider': 12, 'creeper': 20, 'enderman': 40, 'witch': 26, 'blaze': 20,
              'hoglin': 40, 'ghast': 10, 'shulker': 30, 'phantom': 20, 'breeze': 30}
 ANIMALS = {'pig': 'prime_pork', 'cow': 'prime_beef', 'mooshroom': 'prime_beef', 'sheep': 'prime_mutton',
@@ -650,7 +651,7 @@ def gen_mobs():
             lines.append('attribute @s minecraft:scale base set 1.15')
             mhp = hp * 2
         lines += [f'attribute @s minecraft:max_health base set {mhp}', f'data modify entity @s Health set value {mhp}.0f',
-                  'attribute @s minecraft:follow_range modifier add bm:tier 0.25 add_multiplied_base']   # (3.0e: a little further than its plain kind - was 40 for all)
+                  *(['attribute @s minecraft:follow_range modifier add bm:tier 0.25 add_multiplied_base'] if t not in FAR_SIGHTED else [])]   # (3.0e: a little further than its plain kind - was 40 for all)
         fn(f'mobs/elite/{t}', lines)
         # ---- champion
         lines = [f'data merge entity @s {snbt(dict(NO_DROPS, DeathLootTable=f"bm:entities/champion/{t}", CustomName=mob_name("Champion ", "red", t, True)))}',
@@ -671,7 +672,7 @@ def gen_mobs():
         lines += [f'attribute @s minecraft:max_health base set {mhp}', f'data modify entity @s Health set value {mhp}.0f',
                   'attribute @s minecraft:movement_speed modifier add bm:champion 0.15 add_multiplied_base',
                   'attribute @s minecraft:knockback_resistance base set 0.6',
-                  'attribute @s minecraft:follow_range modifier add bm:tier 0.4 add_multiplied_base',   # (3.0e: was 48 for all)
+                  *(['attribute @s minecraft:follow_range modifier add bm:tier 0.4 add_multiplied_base'] if t not in FAR_SIGHTED else []),   # (3.0e: was 48 for all)
                   f'execute positioned ~1 ~ ~ run summon minecraft:{t} ~ ~ ~ {{Tags:["bm.seen","bm.minion"]}}',
                   f'execute positioned ~-1 ~ ~1 run summon minecraft:{t} ~ ~ ~ {{Tags:["bm.seen","bm.minion"]}}',
                   'execute as @a[distance=..24] unless score @s bm.csnd matches 1 run playsound minecraft:entity.wither.ambient hostile @s ~ ~ ~ 0.4 1.6',

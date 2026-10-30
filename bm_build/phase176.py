@@ -108,7 +108,7 @@ def generate(G):
                 lines.append('data merge entity @s {ExplosionRadius:5b,Fuse:20s}')
             lines += [f'attribute @s minecraft:max_health base set {mhp}', f'data modify entity @s Health set value {mhp}.0f',
                       'attribute @s minecraft:scale base set 1.25', 'attribute @s minecraft:knockback_resistance base set 0.8',
-                      'attribute @s minecraft:follow_range modifier add bm:tier 0.5 add_multiplied_base', 'execute store result score @s bm.drcd run random value 40..120']   # (3.0e: follow range +50% of its kind's, was 48)
+                      *(['attribute @s minecraft:follow_range modifier add bm:tier 0.5 add_multiplied_base'] if t not in G.FAR_SIGHTED else []), 'execute store result score @s bm.drcd run random value 40..120']   # (3.0e: follow range +50% of its kind's, was 48)
             fn(f'p176/mk/{t}', lines)
             wjson(f'bm/loot_table/entities/dread/{t}.json', {'type': 'minecraft:entity', 'pools': [
                 {'rolls': 1, 'entries': [{'type': 'minecraft:loot_table', 'value': f'bm:entities/champion/{t}'}]},
