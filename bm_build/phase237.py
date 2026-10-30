@@ -301,6 +301,9 @@ def generate(G):
     second.append(f'execute in {NETHER} as @e[type=minecraft:marker,tag=bm.uhs,{BOX}] unless data entity @s data.hh store result entity @s data.hh int 1 run data get entity @s data.h 0.999')
     second.append(f'execute in {NETHER} as @e[type=minecraft:marker,tag=bm.uhoard,{BOX}] unless data entity @s data.hh store result entity @s data.hh int 1 run data get entity @s data.h 0.999')
     second.append('execute as @e[type=minecraft:marker,tag=bm.ugate] at @s if entity @a[distance=..16] run function bm:p237/gate/tick')
+    # (3.0a: left open with nobody near - its last visitor teleported off, out of the 16 its tick runs in - it shuts too; else the next
+    #  one to come, tokens or none, finds its teeth drawn back)
+    second.append('execute as @e[type=minecraft:marker,tag=bm.ugate,tag=bm.open] at @s unless entity @a[distance=..16] run function bm:p237/gate/close')
     for k, tok in TOKENS.items():
         fast.append(f'execute as @e[type=minecraft:marker,tag=bm.ugs_{k}] at @s if entity @a[distance=..6,gamemode=!spectator] run function bm:p237/gate/hollow_{k}')
         fn(f'p237/gate/hollow_{k}', ['scoreboard players set #hk bm.rng 0', f'execute as @a[distance=..6] {has(tok)} run scoreboard players set #hk bm.rng 1',

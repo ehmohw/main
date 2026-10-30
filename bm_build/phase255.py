@@ -148,8 +148,8 @@ def generate(G):
         M = c['mod']
         sweep.append(f'execute if score {c["ver"]} bm.p2 matches {c["VER"]} in {c["dim"]} if entity @a[{M.BOX}] run function bm:{PFX}/{key}')
         body = [f'execute as {selector(key)} at @s run function bm:{PFX}/cull']
-        if key == 'armada':
-            body.append(f'execute as @e[type=minecraft:husk,tag=bm.mire,tag=!bm.mtame,{M.BOX}] at @s run function bm:p246/melt')
+        if key == 'armada':        # (3.0a: the Mire melts FIRST - its rig with it; culled as a bare husk, its rig was left standing)
+            body.insert(0, f'execute as @e[type=minecraft:husk,tag=bm.mire,tag=!bm.mtame,{M.BOX}] at @s run function bm:p246/melt')
         fn(f'{PFX}/{key}', body)
     second[0:0] = sweep                     # (ahead of the mob rolls: a natural spawn is gone before it's rolled)
     fn(f'{PFX}/cull', ['execute if data entity @s {PersistenceRequired:1b} run return 0',

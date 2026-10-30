@@ -156,10 +156,11 @@ const N = 'execute in minecraft:the_nether run ';
     ok('...walking it: the Undercrown\'s name, as it comes in sight', await wait(14000, async () => A.titles.some(t => /THE UNDERCROWN/.test(t))), A.titles.slice(-2).join(' | '));
     ok('...and its bell tolling', A.sounds.slice(s0).some(x => /bell/.test(x.name)) || await wait(13000, async () => A.sounds.slice(s0).some(x => /bell/.test(x.name))));
     const gate = await pos('@e[type=minecraft:marker,tag=bm.ugate,limit=1]');
-    await run('tag TestRat remove bm.lkpass'); await run('scoreboard players reset TestRat bm.lku');      // (the pass opens the Maw from inside: off for this)
+    await run('tag TestRat remove bm.lkpass'); await run('scoreboard players reset TestRat bm.lku'); await run('tag TestRat remove bm.lk_under');      // (the pass opens the Maw from inside: off for this - and its tag now, not at the next second's refresh, which the gate's own tick can beat)
     A.bars.length = 0; await run('tag TestRat remove bm.usum');
+    const g0 = await run(`${N}data get entity @e[type=minecraft:marker,tag=bm.ugate,limit=1] Tags`);
     await at(gate[0] + 2.5, gate[1], gate[2] + 0.5); await sleep(2500);
-    ok('...at its mouth without the tokens: its teeth shut', A.bars.some(b => /teeth (are|stay) shut/.test(b)), A.bars.slice(-1).join(''));
+    ok('...at its mouth without the tokens: its teeth shut', A.bars.some(b => /teeth (are|stay) shut/.test(b)), A.bars.slice(-1).join('') + ` | before: ${g0.slice(-70)} | uin ${/bm\.uin\b/.test(await run('tag TestRat list'))} | others ${await run('list')}`);
     await run('tag TestRat add bm.usum'); await run('tag TestRat add bm.lkpass');
     await at(hub[0], hub[1] + 1, hub[2]); await sleep(1500);
   }
@@ -190,7 +191,7 @@ const N = 'execute in minecraft:the_nether run ';
 
   // ---- (3.0a) camera helpers: the lock (its tag, its own effects), and the gamemode
   const held = async (who = 'TestRat') => /bm\.svcam/.test(await run(`tag ${who} list`));
-  const locked = async (who = 'TestRat') => /passed/.test(await run(`execute if entity ${who}[predicate=bm:p238/cam_slow]`)) || /passed/.test(await run(`execute if entity ${who}[predicate=bm:p238/cam_jump]`));
+  const locked = async (who = 'TestRat') => /passed/.test(await run(`execute if entity @a[name=${who},predicate=bm:p238/cam_slow]`)) || /passed/.test(await run(`execute if entity @a[name=${who},predicate=bm:p238/cam_jump]`));
   const free = async (who = 'TestRat') => !(await held(who)) && !(await locked(who));
   const gm = async (who = 'TestRat') => +(((await run(`data get entity ${who} playerGameType`)).match(/: (\d+)$/) || [0, -1])[1]);
   const dist = (a, b) => a && b ? Math.hypot(a[0] - b[0], a[2] - b[2]) : -1;
@@ -247,7 +248,9 @@ const N = 'execute in minecraft:the_nether run ';
       await run(`${N}execute as ${SOV} at @s run function bm:p238/won`); await sleep(1500);      // (the stage: its fall - its spoils to those in the hall)
       return ar;
     };
+    await run(`${N}forceload add ${V[0]} ${V[2]}`); await sleep(1500);     // (its chunk held for the test: the reset below must reach the vault - unloaded, it fails, and a key that opened it in an earlier run is refused)
     await run(`${N}data modify block ${V.join(' ')} server_data.rewarded_players set value []`);
+    await run(`${N}data modify block ${V.join(' ')} server_data.state_updating_resumes_at set value 0L`);   // (a world whose clock went back - a crash before its save - leaves a vault paused till then)
     await fallen();
     ok('the Sovereign fallen (staged): the victor holds a Victor\'s Key', (await has('ukey_victor')) === 1);
     ok('...the Undercrown HOLDS: no countdown', (await sc('#uhold', 'bm.p2')) === 1 && (await sc('#ucol', 'bm.p2')) === 0, `hold ${await sc('#uhold', 'bm.p2')}, countdown ${await sc('#ucol', 'bm.p2')}`);
@@ -258,7 +261,10 @@ const N = 'execute in minecraft:the_nether run ';
     if (!/passed/.test(await run('execute if items entity TestRat hotbar.0 *[minecraft:custom_data~{bm:"ukey_victor"}]'))) { await run('clear TestRat *[minecraft:custom_data~{bm:"ukey_victor"}]'); await run('loot replace entity TestRat hotbar.0 loot bm:items/ukey_victor'); }
     await at(V[0] + 0.5, V[1], V[2] - 1.5); await sleep(2500);       // (before it: it faces north)
     A.chats.length = 0; A.slot(0); await sleep(300); A.useOn(V[0], V[1], V[2], 2); await sleep(500);
-    ok('the Victor\'s Key turned in the Victor\'s Vault (used on it): spent', await wait(5000, async () => (await has('ukey_victor')) === 0));
+    const spent = await wait(5000, async () => (await has('ukey_victor')) === 0);
+    const dbg = spent ? "" : [(await run(`${N}data get block ${V.join(" ")} server_data`)).slice(-120), await run(`${N}execute if block ${V.join(' ')} minecraft:vault[vault_state=active]`), await run(`${N}execute if block ${V.join(' ')} minecraft:vault[ominous=true]`),
+      await run('time query gametime'), JSON.stringify(A.pos), await run('data get entity TestRat SelectedItem'), await run(`${N}data get entity TestRat Pos`)].join(' / ').slice(0, 900);
+    ok('the Victor\'s Key turned in the Victor\'s Vault (used on it): spent', spent, dbg);
     ok('...the vault knows them: "Your spoils are claimed"', await wait(4000, async () => A.chats.some(c => /spoils are claimed/.test(c))), A.chats.slice(-2).join(' | ').slice(0, 200));
     ok('...and only now the countdown: three minutes', await wait(3000, async () => (await sc('#ucol', 'bm.p2')) > 170 && (await sc('#uhold', 'bm.p2')) === 0), `countdown ${await sc('#ucol', 'bm.p2')}`);
     ok('...told it re-forms in 3 minutes', A.chats.some(c => /re-forms/.test(c)));
@@ -299,7 +305,7 @@ const N = 'execute in minecraft:the_nether run ';
     await run(`${N}data modify entity ${SOV} Health set value 100f`);
     ok('the Broken form\'s entrance: held', await wait(5000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svturn]')) === 1) && await wait(1500, held, 100));
     await sleep(2500);
-    ok('...one right under it has glided back to see it whole (12+)', dist(await me(), await pos(SOV)) >= 12, `${dist(await me(), await pos(SOV)).toFixed(1)} from it`);
+    ok('...one right under it has glided back to see it whole (12+)', dist(await me(), await pos(SOV)) >= 12, `${dist(await me(), await pos(SOV)).toFixed(1)} from it - sov ${JSON.stringify(sv)} -> ${JSON.stringify(await pos(SOV))} me ${JSON.stringify(await me())} ko ${JSON.stringify(await pos('@e[type=minecraft:marker,tag=bm.svko,limit=1]'))} below ${await run(`${N}execute at TestRat if block ~ ~-0.6 ~ #bm:grap_pass`)}`);
     ok('...its look marker and its keep-out (one each)', (await cnt('@e[type=minecraft:marker,tag=bm.svlook]')) === 1 && (await cnt('@e[type=minecraft:marker,tag=bm.svko]')) === 1);
     await run('kill TestRat');
     ok('...killed mid-entrance: respawned with their body their own', await wait(6000, async () => A.health > 0 && await free(), 200));

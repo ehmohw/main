@@ -17,11 +17,11 @@ const res = [];
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
   await run('gamemode survival TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await run('clear TestRat');
-  await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
+  await run(`${O}forceload add ${X - 20} ${Z - 16} ${X + 20} ${Z + 16}`);
   await run('time set 1000'); await run('weather clear');   // (2.98a: by day, once - a night's Dread and Elite mobs took framed followers mid-test)
-  await run(`${O}fill ${X - 14} ${Y} ${Z - 8} ${X + 14} ${Y} ${Z + 8} minecraft:stone`); await run(`${O}fill ${X - 14} ${Y + 1} ${Z - 8} ${X + 14} ${Y + 8} ${Z + 8} minecraft:air`);
+  await run(`${O}fill ${X - 18} ${Y} ${Z - 8} ${X + 18} ${Y} ${Z + 8} minecraft:stone`); await run(`${O}fill ${X - 18} ${Y + 1} ${Z - 8} ${X + 18} ${Y + 8} ${Z + 8} minecraft:air`);
   await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..24]`);
-  await run(`${O}fill ${X - 14} ${Y + 1} ${Z + 5} ${X + 14} ${Y + 3} ${Z + 5} minecraft:stone`);
+  await run(`${O}fill ${X - 18} ${Y + 1} ${Z + 5} ${X + 18} ${Y + 3} ${Z + 5} minecraft:stone`);   // (3.0a: the wall to 18 each way - the Sovereign's (15) and Vexis's (16) frames hung past its old end at 14, on nothing, and fell)
   await run(`${O}tp TestRat ${X + 0.5} ${Y + 1} ${Z + 2.5} 0 -10`);
   await wait(2000, async () => A.pos && Math.abs(A.pos.z - (Z + 2.5)) < 0.05, 100); await sleep(400);
 
@@ -56,7 +56,7 @@ const res = [];
     ok(`...and ${name} goes with it`, await wait(3000, async () => (await cnt(pet)) === 0));
     if (name === 'Wilfrey') ok('...his bones too', await wait(3000, async () => (await cnt(`@e[type=minecraft:wither_skeleton,tag=bm.wil_body,x=${X + dx},y=${Y + 2},z=${Z + 4},distance=..12]`)) === 0));
     await run(`${O}kill @e[type=minecraft:item,x=${X + dx},y=${Y + 2},z=${Z + 4},distance=..4]`);
-    await run(`${O}kill @e[type=minecraft:item_frame,tag=bm.t146f,x=${X + dx},y=${Y + 2},z=${Z + 4},distance=..1]`);   // (2.98: its spot free for the next)
+    await run(`${O}kill @e[type=minecraft:item_frame,tag=bm.t146f,x=${X + dx},y=${Y + 2},z=${Z + 4},distance=..2]`);   // (2.98: its spot free for the next - 3.0a: ..2, the frame hangs on the block's face, over 1 from where it was summoned: ..1 missed it, and a follower sharing the spot later got two frames there)
   }
   await run(`${O}kill @e[type=minecraft:item_frame,tag=bm.t146f]`);
   await run(`${O}forceload remove ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);

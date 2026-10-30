@@ -66,6 +66,7 @@ const CFG = {
     await run(`${O}kill @e[type=!minecraft:player,x=${X},y=${Y},z=${Z},distance=..24]`);
     await run('kill @e[type=minecraft:wolf,tag=bm.dwpet]'); await run('kill @e[type=minecraft:wolf,tag=bm.pipet]');
     for (const o of [`bm.${k}cd`, c.cos, 'bm.pisv']) await run(`scoreboard players set TestRat ${o} 0`);
+    await run(`scoreboard players set TestRat bm.wu${who} 128`);   // (3.0a: his shiny look counted as found - no 1-in-100 shiny roll on a call mid-test (phase221), which put him in _c7)
     for (const t of [`bm.auown_${who}`, `bm.au_${who}`]) await run(`tag TestRat remove ${t}`);
     await run(`tag TestRat add bm.${k}met`); await run(`advancement revoke TestRat only bm:met/${who}`);
     const fc = await score('bm.fcon'); if (fc > 0 && Math.floor(fc / c.bit) % 2 === 1) await run(`scoreboard players set TestRat bm.fcon ${fc - c.bit}`);

@@ -318,7 +318,9 @@ def generate(G):
                          'execute if entity @e[type=minecraft:marker,tag=bm.svkos,distance=..9] facing entity @e[type=minecraft:marker,tag=bm.svkos,sort=nearest,limit=1] feet rotated ~ 0 run function bm:p238/cam/back',
                          'execute at @s if entity @e[type=minecraft:marker,tag=bm.svlook] run tp @s ~ ~ ~ facing entity @e[type=minecraft:marker,tag=bm.svlook,limit=1] feet',
                          'effect give @s minecraft:slowness 2 255 true', 'effect give @s minecraft:resistance 2 255 true', 'effect give @s minecraft:jump_boost 2 200 true'])
-    fn('p238/cam/back', ['execute if block ^ ^ ^-0.7 #bm:grap_pass if block ^ ^1 ^-0.7 #bm:grap_pass unless block ^ ^-0.6 ^-0.7 #bm:grap_pass run tp @s ^ ^ ^-0.7'])
+    # (a carpet - the throne's red runner - is walked over, not into: bm:cam_pass is grap_pass and the carpets, at the feet)
+    wjson('bm/tags/block/cam_pass.json', {'values': ['#bm:grap_pass', '#minecraft:wool_carpets', 'minecraft:moss_carpet', 'minecraft:pale_moss_carpet']})
+    fn('p238/cam/back', ['execute if block ^ ^ ^-0.7 #bm:cam_pass if block ^ ^1 ^-0.7 #bm:grap_pass unless block ^ ^-0.6 ^-0.7 #bm:grap_pass run tp @s ^ ^ ^-0.7'])
     fn('p238/cam/release', ['tag @s remove bm.svcam', 'scoreboard players reset @s bm.svcm',
                             'execute if predicate bm:p238/cam_slow run effect clear @s minecraft:slowness',
                             'execute if predicate bm:p238/cam_jump run effect clear @s minecraft:jump_boost',

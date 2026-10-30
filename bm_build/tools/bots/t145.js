@@ -28,7 +28,8 @@ const res = [];
   await run(`${O}tp TestRat ${HX + 0.5} ${HY} ${HZ + 0.5} 0 0`); await run('gamemode survival TestRat'); await run('clear TestRat'); await run('effect clear TestRat');
   for (const t of ['bm.gvp', 'bm.gvask', 'bm.gvnext', 'bm.gvoffer', 'bm.gvwaitd', 'bm.lgch', 'bm.lkch']) await run(`tag TestRat remove ${t}`);
   for (const k of KINDS) await run(`advancement revoke TestRat only bm:met/${k}`);
-  await run('scoreboard players set TestRat bm.fcon 0'); await run('scoreboard players set TestRat bm.crew 0'); await run('scoreboard players set TestRat bm.gvhr 0'); await run('scoreboard players set TestRat bm.gbc 3000');
+  await run('scoreboard players set TestRat bm.fcon 0'); await run('scoreboard players set TestRat bm.fcon2 0');   // (2.96: past thirty, bm.fcon2 - signed by the newer followers' own tests)
+  await run('scoreboard players set TestRat bm.crew 0'); await run('scoreboard players set TestRat bm.gvhr 0'); await run('scoreboard players set TestRat bm.gbc 3000');
   await run('loot give TestRat loot bm:items/fixers_ledger');
   await sleep(1500); A.stand(); await sleep(500);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(600);
@@ -52,7 +53,7 @@ const res = [];
   console.log('   [book] ' + labels().join(' | '));
   ok('Click the Recruiter: his book opens', /THE RECRUITER/.test(shown()));
   ok('...no follower\'s contract on it (not even Cecil\'s) - met no one yet', !labels().some(l => /Cecil|Emma|Celi|Zib|KillerWatt|Leo|Democratus|Skiff|Apophiss|Tullius|Frog|Donado/.test(l)), labels().join(' | '));
-  ok('...it says so ("No names on his books yet"), and counts "0 of N" (the full roster, 2.87: Ava, Pearl, Bloo)', /No names on his books yet/.test(shown()) && /"0"/.test(shown()) && /of [1-4]\d/.test(shown()));
+  ok('...it says so ("No names on his books yet"), and counts "0 of N" (the full roster, 2.87: Ava, Pearl, Bloo)', /No names on his books yet/.test(shown()) && /"0"/.test(shown()) && /of [1-9]\d/.test(shown()));
   ok('...the hirelings\' and the vault gems\' pages are there', labels().some(l => /Hirelings/.test(l)) && labels().some(l => /Vault gems/.test(l)));
 
   // ---- 2. a contract for someone you haven't met won't sign - and keeps

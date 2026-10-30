@@ -74,6 +74,20 @@ it: `chunks.js`, which both rcon helpers (`lib.js`, `lib_resp.js`) send every co
 - The bot doesn't fall by itself. After a drop, simulate the fall a tick at a time (`fall()` in `t133.js`), or the
   bot hangs in the air and an "unhurt" check proves nothing.
 - `execute if entity` answers "Test passed. Count: N" (capital C).
+  (3.0a: t329's `/count: /` missed it - every "gone" check passed on 0 - match it with `/count: (\d+)/i`.)
+- A player's name can't take a selector's brackets: `TestRat[predicate=...]` or `@a[name=TestRat,limit=1][tag=...]` is a parse
+  error, which reads as "not found" and passes any check for none (t316's lock check, t296's waiting check). Write
+  `@a[name=TestRat,predicate=...]`.
+- The shiny roll (phase221, one call in 100) can land mid-test and put a follower in its `_c7` twin. `rigpet_t` counts the
+  follower's shiny look as found already (its `bm.wu<who>` bit), so it never rolls; a test of its own that calls a follower
+  many times (t326) does the same.
+- Sneaking for a right-click on an entity: send it with the packet, `A.interact(id, true)`. The server takes the shift state
+  from the interact packet itself, so `A.input({shift: true})` then `A.interact(id)` arrives unsneaked.
+- A follower called by rcon (`summon_here`) is put away 3 s later if its item isn't in TestRat's pockets (p73/fol); doodle_kit
+  puts the hosts' items in the inventory for the meeting.
+- A world whose clock went back (the container restarted before the world saved) leaves a vault paused until its
+  `state_updating_resumes_at`; t316 claim clears it with the rewarded players. Reset a block's data only while its chunk is
+  loaded: in an unloaded chunk `data modify block` just fails.
 - `execute as <player> ...` sends its feedback to that player, not to rcon.
 - A dying mob keeps its rider for its 20-tick death animation, and `@e` can't select it.
 - Zombies burn in daylight. Use husks when fire matters.
