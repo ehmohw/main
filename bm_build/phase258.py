@@ -38,7 +38,7 @@ import phase246 as P246
 PFX = 'p258'
 NAME, COL = A.NAME, '#b46aff'
 GREEN = L.HIVE
-HP, FLOOR = 180, 100
+HP, FLOOR = 460, 100                # (a little tougher than the Dread Mire's 400)
 ROLL = 250                          # (1 in this many natural spawns in the outer End comes up a Brood-Mire)
 APART = 96
 OUTER = 1000                        # (the outer End: this far from 0, 0)
@@ -63,9 +63,9 @@ def snd(name, v=1.0, p=None, who='@a[distance=..32]'):
 
 class CFG:
     """the Brood-Mire to mirekit"""
-    P, NAME, COL, HP, FLOOR, ARMOR = PFX, NAME, COL, HP, FLOOR, 6
+    P, NAME, COL, HP, FLOOR, ARMOR = PFX, NAME, COL, HP, FLOOR, 12
     A, SCALE = A, A.SCALE
-    WAKE, LEAVE, CREEP, GRAB_DMG, STAB_DMG, EVERY, DIE_END, RISEN_SC, DORMANT_SC = 10, 20, 24, 6, 10, 50, 130, 2.4, 1.0
+    WAKE, LEAVE, CREEP, GRAB_DMG, STAB_DMG, EVERY, DIE_END, RISEN_SC, DORMANT_SC = 10, 20, 24, 10, 10, 50, 130, 2.4, 1.0
     DUR = dict(P246.DUR, **A.DUR)
     HOST, R, NEWP, NEWH, GRAB, GOOPT, GNEW, MELT, TAME = 'bm.bmire', 'bm.bxr', 'bm.bxnew', 'bm.bxnewh', 'bm.bxgrab', 'bm.bxgoop', 'bm.bxgnew', 'bm.bxmelt', 'bm.bxtame'
     FELL, CROSS, LIGHT_EXEMPT = '#vfell bm.cfg', f'bm:{PFX}/in_jam', None
@@ -74,6 +74,8 @@ class CFG:
     DUST, DRIP_DUST, STAB_DUST = '0.45,0.16,0.62', '0.55,0.9,0.18', '0.7,1.0,0.25'
     INK, SMOKE, RECOIL_FX, DRIP_BLOCK = 'minecraft:item_slime', 'minecraft:witch', 'minecraft:electric_spark', 'minecraft:purple_concrete'
     GOOP, BUBBLE, LOOT = 'bm:dfx_bgoop', 'bbubble', f'bm:{PFX}/ichor'
+    DMG, TOUGH = 'bm:bmire', 8
+    CHASE, SPEED, LEASH, ROAM, LEASHED = 24, 0.22, 10, 32, ('bm.bxroam', 'bm.wm')
     SPIT, LIVE = {'reach': SPIT_REACH}, ('2..5', '8')
     snd = staticmethod(snd)
     # (the Overworld outside an invasion, and the Nether, are never its: one found there melts; a tame one is its owner's)
@@ -153,6 +155,7 @@ def generate(G):
     fn(f'{P}/in_jam', [f'execute if entity @a[tag=bm.jam,distance=..{JAM_R}] run return 1', 'return 0'])
 
     MK.runtime(G, CFG)
+    MK.damage_type(G, CFG)
     MK.watch(G, CFG)
     MK.fight(G, CFG)
     MK.death(G, CFG)
@@ -230,7 +233,7 @@ def generate(G):
                        'particle minecraft:dust{color:[0.55,1.0,0.3],scale:2.0} ~ ~ ~ 1.2 6 1.2 0 14 force @a[distance=..64]',
                        'particle minecraft:end_rod ~ ~ ~ 1 5 1 0.02 3 force @a[distance=..64]',
                        'execute if score @s bm.mt = @s bm.mc run function bm:p258/splat'])
-    fn(f'{P}/splat', ['scoreboard players set @s bm.ms 1', 'scoreboard players set @s bm.mt 11', f'function bm:{P}/pose/rise_0',
+    fn(f'{P}/splat', ['scoreboard players set @s bm.ms 1', 'scoreboard players set @s bm.mt 11', f'function bm:{P}/home', f'function bm:{P}/pose/rise_0',
                       snd('rise', 1.6, 0.9), 'playsound minecraft:entity.slime.squish_small hostile @a[distance=..32] ~ ~ ~ 2 0.5',
                       'playsound minecraft:block.beacon.deactivate hostile @a[distance=..48] ~ ~ ~ 1 1.4',
                       'particle minecraft:item_slime ~ ~0.4 ~ 2 0.2 2 0.2 60', f'particle minecraft:dust{{color:[{CFG.DUST}],scale:2.0}} ~ ~0.4 ~ 2 0.3 2 0 40',
@@ -409,4 +412,5 @@ def late(G):
 
 def rp(R):
     A.rp(R)
+    R.LANG.update({'death.attack.bm.bmire': '%1$s was torn apart by a Brood-Mire', 'death.attack.bm.bmire.player': '%1$s was torn apart by a Brood-Mire while fleeing %2$s'})
     XL.rp(R)

@@ -56,7 +56,8 @@ def runtime(G, C):
     host = {'Tags': [C.HOST, 'bm.seen', C.NEWH], 'NoAI': B(1), 'Silent': B(1), 'PersistenceRequired': B(0), 'Invulnerable': B(1),
             'CustomName': T(C.NAME, C.COL), 'DeathLootTable': 'minecraft:empty', 'CanPickUpLoot': B(0),
             'attributes': [{'id': 'minecraft:max_health', 'base': Dd(C.HP + C.FLOOR)}, {'id': 'minecraft:scale', 'base': Dd(C.DORMANT_SC)},
-                           {'id': 'minecraft:knockback_resistance', 'base': Dd(1.0)}, {'id': 'minecraft:armor', 'base': Dd(C.ARMOR)}],
+                           {'id': 'minecraft:knockback_resistance', 'base': Dd(1.0)}, {'id': 'minecraft:armor', 'base': Dd(C.ARMOR)}] +
+                          ([{'id': 'minecraft:armor_toughness', 'base': Dd(C.TOUGH)}] if getattr(C, 'TOUGH', 0) else []),
             'Health': F(C.HP + C.FLOOR),
             'active_effects': [{'id': 'minecraft:invisibility', 'duration': Int(-1), 'amplifier': B(0), 'show_particles': B(0)},
                                {'id': 'minecraft:fire_resistance', 'duration': Int(-1), 'amplifier': B(0), 'show_particles': B(0)}]}
@@ -64,7 +65,11 @@ def runtime(G, C):
     fn(f'{P}/spawn', [f'summon minecraft:husk ~ ~ ~ {snbt(host)}',
                       'scoreboard players add #mid bm.mid 1',
                       f'execute as @e[type=minecraft:husk,tag={C.NEWH},distance=..1] at @s run function bm:{P}/spawn1'])
-    fn(f'{P}/spawn1', ['scoreboard players operation @s bm.mid = #mid bm.mid', 'scoreboard players set @s bm.ms 0', 'scoreboard players set @s bm.mt 0',
+    # (3.0e: made in mid-air - an admin's summon, a flier's - it settles first: down through air, up to 24 blocks, to the ground)
+    fn(f'{P}/settle', ['scoreboard players set #st bm.rng 24', f'function bm:{P}/settle1'])
+    fn(f'{P}/settle1', ['execute unless block ~ ~-1 ~ #minecraft:air run return 0', 'scoreboard players remove #st bm.rng 1', 'tp @s ~ ~-1 ~',
+                        f'execute if score #st bm.rng matches 1.. at @s run function bm:{P}/settle1'])
+    fn(f'{P}/spawn1', [f'execute at @s run function bm:{P}/settle', 'scoreboard players operation @s bm.mid = #mid bm.mid', 'scoreboard players set @s bm.ms 0', 'scoreboard players set @s bm.mt 0',
                        'execute store result entity @s Rotation[0] float 1 run random value 0..359',
                        f'execute at @s rotated as @s rotated ~ 0 run function bm:{P}/rig',
                        f'scoreboard players operation @e[type=minecraft:item_display,tag={C.NEWP},distance=..1] bm.mid = @s bm.mid',
@@ -147,7 +152,26 @@ def fight(G, C):
     face = f'execute facing entity @p[distance=..16,{FOES}] feet run tp @s ~ ~ ~ ~ 0'
     C.face = face
     # ---- rising
-    fn(f'{P}/rise0', ['scoreboard players set @s bm.ms 1', 'scoreboard players set @s bm.mt 0', 'scoreboard players set @s bm.mq 0', face])
+    fn(f'{P}/rise0', ['scoreboard players set @s bm.ms 1', 'scoreboard players set @s bm.mt 0', 'scoreboard players set @s bm.mq 0', face, f'function bm:{P}/home'])
+    # (3.0e: where it rose - an empty display, one of its parts (its tag, its bm.mid: every sweep that takes its parts takes it), that
+    #  the chase is held to: a Mire of a room (the Undercrown's, the Sovereign's, the Armada's) stays within LEASH of it, any other within ROAM)
+    home = {'Tags': [C.R, f'{C.R}_home', C.NEWP], 'view_range': F(0.0)}
+    fn(f'{P}/home', ['scoreboard players operation #me bm.mid = @s bm.mid',
+                     f'execute as @e[type=minecraft:item_display,tag={C.R}_home] if score @s bm.mid = #me bm.mid run kill @s',
+                     'summon minecraft:item_display ~ ~ ~ ' + snbt(home),
+                     f'scoreboard players operation @e[type=minecraft:item_display,tag={C.NEWP},distance=..1] bm.mid = @s bm.mid',
+                     f'tag @e[type=minecraft:item_display,tag={C.NEWP},distance=..1] remove {C.NEWP}',
+                     f'execute if score @s bm.ms matches 2.. run tag @e[type=minecraft:item_display,tag={C.R}_home,distance=..1] add bm.msel'])
+    # ---- (3.0e) THE CHASE: risen and not striking, it goes after the nearest within CHASE - SPEED a tick, along the ground (a step up,
+    #  a step down; never into a wall or a drop), turned to its prey; never further than its leash from where it rose
+    fn(f'{P}/chase', [f'execute unless entity @p[distance=4..{C.CHASE},{FOES}] run return 0',
+                      f'execute facing entity @p[distance=..{C.CHASE},{FOES}] feet rotated ~ 0 positioned ^ ^ ^{C.SPEED} run function bm:{P}/step'])
+    home_sel = lambda r: f'@e[type=minecraft:item_display,tag=bm.msel,tag={C.R}_home,distance=..{r}]'
+    fn(f'{P}/step', [f'execute if entity @s[tag={t}] unless entity {home_sel(C.LEASH)} run return 0' for t in C.LEASHED] +
+       [f'execute unless entity {home_sel(C.ROAM)} run return 0',
+        'execute if block ~ ~ ~ #minecraft:replaceable if block ~ ~1 ~ #minecraft:replaceable unless block ~ ~-1 ~ #minecraft:replaceable run return run tp @s ~ ~ ~ ~ ~',
+        'execute unless block ~ ~ ~ #minecraft:replaceable if block ~ ~1 ~ #minecraft:replaceable if block ~ ~2 ~ #minecraft:replaceable run return run tp @s ~ ~1 ~ ~ ~',
+        'execute if block ~ ~-1 ~ #minecraft:replaceable unless block ~ ~-2 ~ #minecraft:replaceable if block ~ ~ ~ #minecraft:replaceable run return run tp @s ~ ~-1 ~ ~ ~'])
     fn(f'{P}/s/rise', [at(1, f'function bm:{P}/pose/rise_0'), at(1, snd('rise', 1.4)), at(1, f'particle {C.INK} ~ ~0.4 ~ 1.2 0.2 1.2 0.08 30'),
                        at(12, f'function bm:{P}/pose/rise_1'),
                        at(24, f'function bm:{P}/pose/shriek'), at(24, snd('shriek', 1.0, 0.7)), at(32, f'function bm:{P}/pose/rise_2'),
@@ -164,7 +188,7 @@ def fight(G, C):
                         f'execute if score @s bm.ma matches {C.EVERY}.. if entity @a[distance=..4.5,{FOES}] run return run function bm:{P}/stab0',
                         f'execute if score @s bm.ma matches {C.EVERY}.. if entity @a[distance=3.5..8,{FOES}] run return run function bm:{P}/grab0'] +
        ([f'execute if score @s bm.ma matches {C.EVERY}.. if entity @a[distance=8..{spit["reach"]},{FOES}] run return run function bm:{P}/spit0'] if spit else []) +
-       list(getattr(C, 'FIGHT_EXTRA', [])))
+       list(getattr(C, 'FIGHT_EXTRA', [])) + [f'function bm:{P}/chase'])
     fn(f'{P}/grab0', ['scoreboard players set @s bm.ms 3', 'scoreboard players set @s bm.mt 0', face, f'function bm:{P}/pose/grab_0', snd('lash', 1.4)])
     fn(f'{P}/s/grab', [at(4, f'execute positioned ^ ^1.4 ^4 as @p[distance=..3.5,{FOES}] run tag @s add {C.GRAB}'),
                        at(4, f'execute positioned ^ ^1.4 ^4 run particle {C.INK} ~ ~ ~ 0.6 0.4 0.6 0.1 20'),
@@ -173,12 +197,12 @@ def fight(G, C):
                        at(10, f'function bm:{P}/pose/grab_1'),
                        f'execute if score @s bm.mt matches 6..30 as @a[tag={C.GRAB},distance=2.6..] at @s facing entity {ME} feet positioned ^ ^ ^0.3 run tp @s ~ ~ ~',
                        f'execute if score @s bm.mt matches 6..30 as @a[tag={C.GRAB}] at @s run particle minecraft:falling_dust{{block_state:"{C.DRIP_BLOCK}"}} ~ ~1 ~ 0.3 0.5 0.3 0 2',
-                       at(30, f'execute as @a[tag={C.GRAB}] run damage @s {C.GRAB_DMG} minecraft:mob_attack by {ME}'),
+                       at(30, f'execute as @a[tag={C.GRAB}] run damage @s {C.GRAB_DMG} {C.DMG} by {ME}'),
                        at(30, snd('lash', 1.0, 0.6)), at(31, f'tag @a remove {C.GRAB}'),
                        at(40, 'scoreboard players set @s bm.ms 2'), at(40, 'scoreboard players set @s bm.ma 0'), at(40, 'scoreboard players set @s bm.mt 0')])
     fn(f'{P}/stab0', ['scoreboard players set @s bm.ms 4', 'scoreboard players set @s bm.mt 0', face, f'function bm:{P}/pose/stab_0', snd('idle', 1.4, 0.6)])
     fn(f'{P}/s/stab', [at(14, f'function bm:{P}/pose/stab_1'), at(15, snd('lash', 1.6, 0.8)),
-                       at(17, f'execute positioned ^ ^ ^3.5 as @a[distance=..2.4,{FOES}] run damage @s {C.STAB_DMG} minecraft:mob_attack by {ME}'),
+                       at(17, f'execute positioned ^ ^ ^3.5 as @a[distance=..2.4,{FOES}] run damage @s {C.STAB_DMG} {C.DMG} by {ME}'),
                        at(17, f'execute positioned ^ ^ ^3.5 run particle {C.INK} ~ ~0.3 ~ 0.8 0.2 0.8 0.1 30'),
                        at(17, f'execute positioned ^ ^ ^3.5 run particle minecraft:dust{{color:[{C.STAB_DUST}],scale:1.6}} ~ ~0.3 ~ 1 0.1 1 0 20'),
                        at(32, 'scoreboard players set @s bm.ms 2'), at(32, 'scoreboard players set @s bm.ma 0'), at(32, 'scoreboard players set @s bm.mt 0')])
@@ -318,3 +342,14 @@ def bound(G, C, K):
                        at(17, f'execute positioned ^ ^ ^3.5 as @e[{MON},distance=..2.4] run damage @s {C.STAB_DMG + 4} minecraft:mob_attack by {ME}'),
                        at(17, f'execute positioned ^ ^ ^3.5 run particle {C.INK} ~ ~0.3 ~ 0.8 0.2 0.8 0.1 30'),
                        at(32, 'scoreboard players set @s bm.ms 2'), at(32, 'scoreboard players set @s bm.ma 0'), at(32, 'scoreboard players set @s bm.mt 0')])
+
+
+def damage_type(G, C):
+    """(3.0e) its blows' damage type, C.DMG: past armour (#minecraft:bypasses_armor - armour points and toughness ignored; protection
+    enchantments, Resistance and a shield still count). The tag file is read-modified - other phases add to it too (phase181's Stalker)"""
+    import json, os
+    ns, nm = C.DMG.split(':')
+    G.wjson(f'{ns}/damage_type/{nm}.json', {'exhaustion': 0.1, 'message_id': f'{ns}.{nm}', 'scaling': 'never', 'effects': 'hurt'})
+    f_ = G.path('data', 'minecraft', 'tags', 'damage_type', 'bypasses_armor.json')
+    vals = json.load(open(f_))['values'] if os.path.exists(f_) else []
+    G.wjson('minecraft/tags/damage_type/bypasses_armor.json', {'replace': False, 'values': [v for v in vals if v != C.DMG] + [C.DMG]})

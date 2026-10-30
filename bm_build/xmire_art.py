@@ -379,7 +379,7 @@ def _puddle():
     for k in range(10):                                             # (slime flung out round the rim)
         th = 2 * math.pi * k / 10 + rnd.uniform(-0.2, 0.2); r = MA._r(th, 0) + rnd.uniform(1.4, 3.0); s = rnd.choice((1.0, 1.5, 2.0))
         x, z = round(r * math.cos(th) * 2) / 2, round(r * math.sin(th) * 2) / 2
-        P.append(E((x - s / 2, 0.0, z - s / 2), (x + s / 2, 0.18, z + s / 2), 'pool', faces=('north', 'south', 'east', 'west', 'up'), light=3))
+        P.append(E((x - s / 2, MA.LIFT, z - s / 2), (x + s / 2, MA.LIFT + 0.18, z + s / 2), 'pool', faces=('north', 'south', 'east', 'west', 'up'), light=3))
     for (x, z, s) in ((-6.5, 3.5, 1.6), (8.5, 4.5, 1.4), (-3.0, -9.0, 1.0), (2.0, 9.5, 1.0), (-11, 6, 1.2)):     # (green blisters)
         y = Y[MA._layer_at(x, z, masks) + 1]
         P.append(E((x - s / 2, y - 0.1, z - s / 2), (x + s / 2, y + s * 0.5, z + s / 2), 'cyst', faces=('north', 'south', 'east', 'west', 'up')))
@@ -387,7 +387,7 @@ def _puddle():
         y = Y[MA._layer_at(x, z, masks) + 1]                         # (eyes open on its surface, blinking up)
         P += EYE((x, y, z), s, 'y+', proud=0.3)
     for (x, z, th, ln) in ((12, 2, 0.2, 5), (-13, -1, 3.0, 6), (3, 13, 1.6, 4), (-6, -12, 4.3, 5), (10, -9, 5.6, 4)):     # (little tendrils)
-        a = (x, 0.35, z); b = (x + ln * math.cos(th), 0.3, z + ln * math.sin(th)); c = (b[0] + 1.6 * math.cos(th + 0.9), 0.3, b[2] + 1.6 * math.sin(th + 0.9))
+        a = (x, 0.64, z); b = (x + ln * math.cos(th), 0.48, z + ln * math.sin(th)); c = (b[0] + 1.6 * math.cos(th + 0.9), 0.48, b[2] + 1.6 * math.sin(th + 0.9))
         P += [SEG(a, b, 0.9, 'spine', up=UP), SEG(b, c, 0.6, 'spine', up=UP)]
     def run(x, z, dirs):
         pts = [(x, z)]

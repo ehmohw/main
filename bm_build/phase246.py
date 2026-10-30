@@ -28,12 +28,12 @@ import mire_art as A
 
 PFX = 'p246'
 NAME, COL = 'Dread Mire', '#b0182a'
-HP, FLOOR = 150, 100
+HP, FLOOR = 400, 100                # (3.0e: 150 -> 400, armour 12, toughness 8 - the owner: it died too easily)
 SCALE = getattr(A, 'SCALE', 1.0)
 ROLL = 300                          # (1 in this many natural hostile spawns in hard mode comes up a Mire)
 APART = 96                          # (never within this of another)
 WAKE, LEAVE, CREEP = 10, 20, 24     # (rises for anyone within WAKE; sinks with nobody within LEAVE for 10 s; creeps towards within CREEP)
-GRAB_DMG, STAB_DMG = 6, 10
+GRAB_DMG, STAB_DMG = 10, 10                  # (3.0e: past armour - bm:mire bypasses_armor; enchantments and Resistance still count)
 EVERY = 50
 MUSK = 300                          # (seconds the musk masks you)
 DIE_END = 130                       # (3.0d: its melt, start to gone: 6.5 s)
@@ -71,7 +71,7 @@ def snd(name, v=1.0, p=None, who='@a[distance=..32]'):
 
 class CFG:
     """(3.0e) the Dread Mire to the Mires' shared runtime (mirekit) - its rig, tags, numbers, colours and voice"""
-    P, A, NAME, COL, HP, FLOOR, SCALE, ARMOR = PFX, A, NAME, COL, HP, FLOOR, SCALE, 6
+    P, A, NAME, COL, HP, FLOOR, SCALE, ARMOR = PFX, A, NAME, COL, HP, FLOOR, SCALE, 12
     WAKE, LEAVE, CREEP, GRAB_DMG, STAB_DMG, EVERY, DIE_END, RISEN_SC, DORMANT_SC, DUR = WAKE, LEAVE, CREEP, GRAB_DMG, STAB_DMG, EVERY, DIE_END, RISEN_SC, DORMANT_SC, DUR
     HOST, R, NEWP, NEWH, GRAB, GOOPT, GNEW, MELT, TAME = 'bm.mire', 'bm.mr', 'bm.mnew', 'bm.mnewh', 'bm.mgrab', 'bm.mgoop', 'bm.mgnew', 'bm.mmelt', 'bm.mtame'
     FELL, CROSS, LIGHT_EXEMPT = '#dfell bm.cfg', 'bm:p181/in_cross', 'bm.muc'
@@ -80,6 +80,8 @@ class CFG:
     DUST, DRIP_DUST, STAB_DUST = '0.45,0.02,0.06', '0.5,0.02,0.06', '0.6,0.02,0.08'
     INK, SMOKE, RECOIL_FX, DRIP_BLOCK = 'minecraft:squid_ink', 'minecraft:smoke', 'minecraft:end_rod', 'minecraft:black_concrete'
     GOOP, BUBBLE, LOOT = 'bm:dfx_goop', 'bubble', 'bm:p246/remnants'
+    DMG, TOUGH = 'bm:mire', 8
+    CHASE, SPEED, LEASH, ROAM, LEASHED = 24, 0.22, 10, 32, ('bm.muc',)
     SPIT, LIVE = None, ('2..5',)
     snd = staticmethod(snd)
 
@@ -104,6 +106,7 @@ def generate(G):
     # ================================================================== the rig, the rise, the fight, the melt: the Mires' shared runtime (mirekit)
     import mirekit as MK
     MK.runtime(G, CFG)
+    MK.damage_type(G, CFG)
     # (one a night for each player: the nearest within 48 must not have had one rise for them tonight - the day's number, bm.mday;
     #  three times the odds on a Dread Night or a Blood Moon)
     fn(f'{PFX}/roll', ['execute store result score #r bm.rng run random value 1..' + str(ROLL),
@@ -196,3 +199,4 @@ def generate(G):
 
 def rp(R):
     A.rp(R)
+    R.LANG.update({'death.attack.bm.mire': '%1$s was crushed by a Dread Mire', 'death.attack.bm.mire.player': '%1$s was crushed by a Dread Mire while fleeing %2$s'})

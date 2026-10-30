@@ -395,7 +395,8 @@ def _r(th, layer):
 
 
 CELL = 2.0
-PUDDLE_Y = (0.0, 0.25, 0.5, 0.75)                                  # (each layer's floor and roof)
+LIFT = 0.16                                                        # (3.0e: 0.02 of a block - the puddle floats a hair over the block top, never on it)
+PUDDLE_Y = (LIFT, LIFT + 0.25, LIFT + 0.5, LIFT + 0.75)           # (each layer's floor and roof)
 PUDDLE_LIGHT = (3, 5, 7)
 
 
@@ -443,7 +444,7 @@ def _puddle():
         th = 2 * math.pi * k / 9 + rnd.uniform(-0.2, 0.2); r = _r(th, 0) + rnd.uniform(1.4, 3.0); s = rnd.choice((1.0, 1.5, 2.0))
         x, z = r * math.cos(th), r * math.sin(th)
         x, z = round(x * 2) / 2, round(z * 2) / 2
-        P.append(E((x - s / 2, 0.0, z - s / 2), (x + s / 2, 0.18, z + s / 2), 'pool', faces=('north', 'south', 'east', 'west', 'up'), light=3))
+        P.append(E((x - s / 2, LIFT, z - s / 2), (x + s / 2, LIFT + 0.18, z + s / 2), 'pool', faces=('north', 'south', 'east', 'west', 'up'), light=3))
     # bubbles and blisters (glossy, swelling on the surface)
     for (x, z, s) in ((-6.5, 3.5, 1.6), (4.5, -6.0, 1.2), (8.5, 4.5, 1.4), (-3.0, -9.0, 1.0), (-10.0, -2.5, 1.2), (2.0, 9.5, 1.0)):
         y = PUDDLE_Y[_layer_at(x, z, masks) + 1]
