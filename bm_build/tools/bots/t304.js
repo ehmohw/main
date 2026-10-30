@@ -2,17 +2,20 @@
 // off the page (rcon places him, as walking with Kettle would); asked empty-handed he wants crayons; given a dye he's yours (Kettle's
 // Dragon Drawing). CLAW; CRAYON FIRE (a foe 6 off: hurt and set alight); STOMP (two foes near: slowed); BIG BLAZE (hurt, alight);
 // WARM (out of a fight: Fire Resistance for you). Then the shared list.
+// 3.0a: HOW HE'S MET - with Kettle and the Gem of Creativity out (rcon summons them, TestRat's own), a dye handed to Kettle (a right-
+// click holding it; without the Gem only a hint, the dye kept): the Gem brings the drawing to life - his entrance, quiet till it's over - and
+// right-clicked, he comes along.
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
 runT({ W: 'dragon', NAME: 'The Doodle Dragon', ab: 'dd', q: 'dz', pfx: 'p235d', prefix: 'dd_', item: 'doodle_drawing', parts: 12, figParts: 9, hp: 34, X: 17300, Z: 16000, pron: 'him',
   called: /scrambles back to you/, home: /folds himself back into a drawing/, sit: /curls up like a cat/, stand: /Adventure/,
   ways: ['Claw', 'Crayon Fire', 'Stomp', 'Big Blaze', 'Warm'], plain: "Kettle's own green", looks: ['Fire-Red Scales', 'Ocean-Blue Scales', 'Sunset-Purple Scales'],
   encounter: async (ctx) => {
+    // (3.0a) THE GEM BRINGS IT TO LIFE - handed something as a regular player; its entrance; right-clicked: it comes along
     const K = kit(ctx, 'dz');
-    const r = await K.meet(ctx, 'p235d/enc/place', /crayons/, 'minecraft:green_dye', /sniffs the dye/, 'doodle_drawing');
-    ctx.ok('Kettle\'s drawing climbs off the page (his rig and a click box)', r.placed && ctx.A.chats.length >= 0);
-    K.showOks(ctx.ok, r, "The Doodle Dragon's entrance", 'a pencil (a prop) drawing him in the air');
-    ctx.ok('right-clicked empty-handed: he wants crayons', r.asked, r.lastBar);
-    ctx.ok('right-clicked holding a dye: his drawing given - he\'s yours', r.got && !/Found [1-9]/.test(await ctx.run('clear TestRat minecraft:green_dye 0')), r.chat);
+    const o = { name: 'The Doodle Dragon', host: 'p227', hostAb: 'kt', hostTag: 'bm.ktpet', hostName: 'Kettle', gem: true, item: 'minecraft:green_dye',
+      noGemRe: /if only something could bring it to life/, bornRe: /scribbles in the air/, joined: /hands you his drawing/, itemId: 'doodle_drawing',
+      props: 'a pencil (a prop) drawing him in the air' };
+    const r = await K.born(o); K.bornOks(ctx.ok, r, o);
   },
   abilities: async (ctx) => {
     const { ok, nbt, O, run } = ctx; const K = kit(ctx, 'dz');

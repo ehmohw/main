@@ -2,17 +2,18 @@
 // places it); asked empty-handed it can only erase; given paper (a fresh start) it's yours (The Eraser's Lucky Crumb). RUB OUT -
 // and PINK CRUMBS LEFT BEHIND on the ground; BOUNCE (two foes near: slowed); UNMAKE (hurt, weakened); TIDY UP (your poison
 // rubbed out). Then the shared list.
+// 3.0a: HOW IT'S MET - paper handed to the Gem of Creativity (rcon summons it, TestRat's own; a right-click holding it): its old mistake
+// rubs itself out of the air - its entrance, quiet till it's over - and right-clicked, it comes along.
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
 runT({ W: 'eraser', NAME: 'The Eraser', ab: 'ez', q: 'ea', pfx: 'p235e', prefix: 'er_', item: 'eraser_crumb', parts: 9, figParts: 7, hp: 30, X: 17400, Z: 16000, pron: 'it',
   seatPart: 'body', called: /hurries back to you/, home: /rubs itself out of sight/, sit: /so as not to erase anything/, stand: /I'm ready/,
   ways: ['Rub Out', 'Bounce', 'Unmake', 'Tidy Up'], plain: 'Classic pink', looks: ['Blue Rubber', 'Mint Rubber', 'Lemon Rubber'],
   encounter: async (ctx) => {
+    // (3.0a) THE GEM BRINGS IT TO LIFE - handed something as a regular player; its entrance; right-clicked: it comes along
     const K = kit(ctx, 'ea');
-    const r = await K.meet(ctx, 'p235e/enc/place', /only erase it/, 'minecraft:paper', /doesn't erase a thing/, 'eraser_crumb');
-    ctx.ok('the Gem\'s eraser, found hiding (its rig and a click box)', r.placed);
-    K.showOks(ctx.ok, r, "The Eraser's entrance", null);
-    ctx.ok('right-clicked empty-handed: it can only erase', r.asked, r.lastBar);
-    ctx.ok('right-clicked holding paper: a fresh start - its crumb given', r.got, r.chat);
+    const o = { name: 'The Eraser', host: 'p231', hostAb: 'cg', hostTag: 'bm.cgpet', hostName: 'the Gem of Creativity', gem: false, item: 'minecraft:paper',
+      bornRe: /rubs itself out of the air/, joined: /doesn't erase a thing/, itemId: 'eraser_crumb' };
+    const r = await K.born(o); K.bornOks(ctx.ok, r, o);
   },
   abilities: async (ctx) => {
     const { ok, run, cnt, O, X, Y, Z } = ctx; const K = kit(ctx, 'ea');

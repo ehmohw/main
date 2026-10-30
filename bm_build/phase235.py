@@ -2,27 +2,27 @@
 art: doodle_dragon_art, eraser_art, cursor_art, ink_blot_art, speech_bubble_art; the machinery is rigpet's, and rigface's for
 the ones whose shape is a model). Normal mode, every one.
 
-THE DOODLE DRAGON (Kettle's Dragon Drawing)   Kettle drew him in crayon, and the Gem made him real. Walk with Kettle and, now and then,
-  his dragon climbs off the page - offer him a dye (crayons!) and he's yours. CLAW a foe within 2.4 (6). CRAYON FIRE a foe 2.5-8 off,
+THE DOODLE DRAGON (Kettle's Dragon Drawing)   Kettle drew him in crayon, and the Gem made him real. (3.0a) With Kettle and the Gem out,
+  hand Kettle a dye (crayons!): he scribbles a dragon in the air and the Gem brings it to life - he's yours. CLAW a foe within 2.4 (6). CRAYON FIRE a foe 2.5-8 off,
   every 4 s: a scribbled flame - 7 to each monster in it, set alight. STOMP two or more foes within 3.5, every 12 s (5, slowed).
   BIG BLAZE (charged, every minute): a long breath of crayon fire, twice through everything in front of him (8 each, alight). WARM
   out of a fight: Fire Resistance and Regeneration for you.
 THE ERASER (The Eraser's Lucky Crumb)   the Gem's mistake: it can UNMAKE - and it knows it, and it's very sorry. Mr. Capshun is
-  terrified of it. Walk with the Gem and you may find it hiding; offer it paper (a fresh start) and it comes along. RUB OUT a foe
+  terrified of it. (3.0a) Hand the Gem paper (a fresh start) and its old mistake rubs itself out of the air - and comes along. RUB OUT a foe
   within 2.4 (6). BOUNCE two or more foes within 3.2, every 12 s: a hop and a belly-flop (7, slowed). UNMAKE (charged, every
   minute): it scrubs one monster nearly out of existence (8, then 12). TIDY UP out of a fight: your troubles rubbed out (poison,
   wither, slowness, weakness, fatigue, nausea, blindness, darkness, hunger) and Regeneration. Every blow LEAVES PINK CRUMBS behind:
   they lie on the ground a few seconds.
-THE CURSOR (The Cursor's Mouse)   "the player's hand", out of the Glitched Cartridge: use a cartridge with nobody beside you and it
-  slips out of the screen. CLICK a foe within 2.4 (6). SELECT a foe 3-10 off, every 4 s: it glows, weakened (3). DRAG two or more foes
+THE CURSOR (The Cursor's Mouse)   "the player's hand", out of the Glitched Cartridge: (3.0a) use a cartridge with the Gem beside you and the
+  Gem brings the screen's pointer to life. CLICK a foe within 2.4 (6). SELECT a foe 3-10 off, every 4 s: it glows, weakened (3). DRAG two or more foes
   within 5, every 12 s: pulled in to it, slowed (4). LOADING... (charged, every minute): an hourglass - everything round it frozen,
   then 10 each. UNDO out of a fight: a little health back, and Regeneration.
-THE INK BLOT (A Little Ink Pot)   spilled from Mr. Capshun's pen - a shapeshifter. Walk with Mr. Capshun and a blot may drip off his
-  page; offer it an ink sac. PUNCH as a fist (7). QUILL SPIKE a foe 2.5-7 off, every 4 s (8). SPLASH two or more foes within 4, every
+THE INK BLOT (A Little Ink Pot)   spilled from Mr. Capshun's pen - a shapeshifter. (3.0a) With Mr. Capshun and the Gem out, hand him an ink
+  sac: a drop falls from his pen and the Gem brings it to life. PUNCH as a fist (7). QUILL SPIKE a foe 2.5-7 off, every 4 s (8). SPLASH two or more foes within 4, every
   10 s: ink in the eyes (4, blinded, slowed). INK SHIELD (charged, every minute): you and your followers Resistance II and Absorption;
   the monsters at your feet pushed off. WONDER out of a fight: Luck and Haste.
-THE SPEECH BUBBLE (A Blank Caption Card)   Mr. Capshun's narration, come to life. Walk with Mr. Capshun and one may pop up beside
-  him; offer it a book and quill. SHOUT a foe within 2.4: BAM! or POW! (6, knocked back). ALARM two or more foes within 10, every 15
+THE SPEECH BUBBLE (A Blank Caption Card)   Mr. Capshun's narration, come to life. (3.0a) With Mr. Capshun and the Gem out, hand him a
+  book and quill: "LOOK AT THAT!!" - and the Gem brings his narration to life. SHOUT a foe within 2.4: BAM! or POW! (6, knocked back). ALARM two or more foes within 10, every 15
   s: "!" - they glow, and you get Speed. KRAK! ZAP! (charged, every minute): it puffs itself up and blasts everything round it (8,
   then 6, knocked back). THINK out of a fight: "..." - Haste II and Luck for you (inspiration).
 Every one of them: sitting, a wardrobe of three colours and the gilded / diamond / netherite looks, a rare aura, a shiny, the
@@ -98,8 +98,8 @@ class Dragon(RP.Cfg):
     ENC_POSES = [(0, 'idle_a'), (30, 'idle_c'), (60, 'happy')]
     ENC_PARTICLE = 'execute if score #f bm.rng matches 30 run ' + item_particle('dd_fx_smoke', '~ ~1.4 ~', '0.1 0.1 0.1', 0.01, 2)
     ADV = ('Here Be Dragons', 'Befriend the Doodle Dragon, Kettle\'s drawing')
-    ADMIN_HINT = 'Walk with Kettle - now and then his dragon climbs off the page. Offer it a dye.'
-    MEET_HINT = 'Walk with Kettle. Bring a dye (crayons!).'
+    ADMIN_HINT = 'With Kettle and the Gem of Creativity out, hand Kettle a dye (right-click him holding it): the Gem brings his drawing to life.'
+    MEET_HINT = 'Watch it come to life - then right-click it.'
 
 
 class Eraser(RP.Cfg):
@@ -138,8 +138,8 @@ class Eraser(RP.Cfg):
     ENC_POSES = [(0, 'hide'), (40, 'idle_b'), (60, 'hide')]
     ENC_PARTICLE = 'execute if score #f bm.rng matches 20 run ' + item_particle('er_crumb_i', '~ ~0.2 ~', '0.2 0 0.2', 0.02, 2)
     ADV = ('A Clean Slate', 'Offer the Eraser a fresh start')
-    ADMIN_HINT = 'Walk with the Gem of Creativity - its Eraser hides nearby, ashamed. Offer it paper.'
-    MEET_HINT = 'Walk with the Gem of Creativity. Bring paper - a fresh start.'
+    ADMIN_HINT = 'Hand the Gem of Creativity paper (right-click it holding some): a fresh start - and its old mistake rubs itself out of the air.'
+    MEET_HINT = 'Watch it rub itself out of the air - then right-click it.'
 
 
 class Cursor(RP.Cfg):
@@ -181,8 +181,8 @@ class Cursor(RP.Cfg):
     ENC_POSES = [(0, 'idle_b'), (30, 'idle_a'), (60, 'idle_c')]
     ENC_PARTICLE = 'execute if score #f bm.rng matches 20 run particle minecraft:electric_spark ~ ~1 ~ 0.3 0.4 0.3 0.1 3'
     ADV = ('Player One', 'Take the hand that came out of the cartridge')
-    ADMIN_HINT = 'Use a Glitched Cartridge with nobody beside you: the Cursor slips out of the screen.'
-    MEET_HINT = 'A Glitched Cartridge, used with no one beside you.'
+    ADMIN_HINT = 'Use a Glitched Cartridge with the Gem of Creativity beside you: the Gem brings the screen\'s pointer to life.'
+    MEET_HINT = 'Watch it glitch into being - then right-click it.'
 
 
 class InkBlot(RP.Cfg):
@@ -222,8 +222,8 @@ class InkBlot(RP.Cfg):
     ENC_POSES = [(0, 'sit_b'), (30, 'idle_a'), (60, 'wonder')]
     ENC_PARTICLE = 'execute if score #f bm.rng matches 20 run particle minecraft:squid_ink ~ ~0.2 ~ 0.2 0 0.2 0.005 2'
     ADV = ('Blot on the Landscape', 'Take in the ink blot that fell off Mr. Capshun\'s page')
-    ADMIN_HINT = 'Walk with Mr. Capshun - now and then his pen leaks. Offer the blot an ink sac.'
-    MEET_HINT = 'Walk with Mr. Capshun. Bring an ink sac.'
+    ADMIN_HINT = 'With Mr. Capshun and the Gem of Creativity out, hand Mr. Capshun an ink sac (right-click him holding it): the Gem brings the drop to life.'
+    MEET_HINT = 'Watch it come to life - then right-click it.'
 
 
 class Speech(RP.Cfg):
@@ -264,8 +264,8 @@ class Speech(RP.Cfg):
     ENC_POSES = [(0, 'idle_c'), (30, 'idle_a'), (60, 'awkward')]
     ENC_PARTICLE = 'execute if score #f bm.rng matches 20 run particle minecraft:end_rod ~ ~1.2 ~ 0.2 0.2 0.2 0.01 2'
     ADV = ('Speech! Speech!', 'Give Mr. Capshun\'s narration something to say')
-    ADMIN_HINT = 'Walk with Mr. Capshun - now and then his narration pops up beside him. Offer it a book and quill.'
-    MEET_HINT = 'Walk with Mr. Capshun. Bring a book and quill.'
+    ADMIN_HINT = 'With Mr. Capshun and the Gem of Creativity out, hand Mr. Capshun a book and quill (right-click him holding it): the Gem brings his narration to life.'
+    MEET_HINT = 'Watch it come to life - then right-click it.'
 
 
 DOODLES = (Dragon, Eraser, Cursor, InkBlot, Speech)
@@ -662,6 +662,7 @@ _ABIL = {'dragon': _dragon, 'eraser': _eraser, 'cursor': _cursor, 'inkblot': _in
 #   THE CURSOR         a glitch: sparks, stray pixels, bit-crushed notes, the pointer flickering; a blinking text cursor (its
 #                      I-beam); *click* - it snaps into its arrow, double-clicks, and waves.
 import rigkit as _RK
+import phase210 as FXS
 
 
 class _Show:
@@ -683,9 +684,9 @@ class _Show:
     def pose(self, t, name, dur=4, kx=1.0, ky=1.0, lift=0.0, parts=None, model=True):
         """a pose of the art's, squashed / stretched about the ground (kx across, ky up) and lifted (blocks)"""
         A, U, X = self.A, self.U, self.X
-        pz = A.POSES[name]
+        pz = A.POSES.get(name) or A.POSES['idle_a']                  # (an art redrawn without that pose: its idle; parts by name, only those it has)
         xf = _RK.solve(A.PIVOT, A.PARENT, pz)
-        for p in (parts or A.PARTS):
+        for p in [q for q in (parts or A.PARTS) if q in A.PARTS]:
             if hasattr(A, 'HIDDEN') and A.HIDDEN(p, pz):
                 self.at(t, f'execute as {X.psel(p)} run data merge entity @s[type=minecraft:item_display] {{start_interpolation:0,interpolation_duration:{min(dur, 2)},transformation:{{scale:[0f,0f,0f]}}}}')
                 continue
@@ -753,6 +754,24 @@ class _Show:
     def drop(self, t, name):
         return self.at(t, f'kill {self.sel(name)}')
 
+    def shift(self, after, by):
+        """make room: every keyframe from `after` on, `by` ticks later"""
+        self.k = {(t + by if t >= after else t): ls for t, ls in self.k.items()}
+        return self
+
+    def gem(self, t, dy=0.8, fx='cg_conjure'):
+        """the Gem of Creativity (yours, if it's near) GRANTS LIFE: it flares (a sparkle, \\o/ on its face), a beam of its green light
+        from it to here - and a burst of its own sprite where it lands"""
+        g = '@e[type=minecraft:wolf,tag=bm.cgpet,distance=..20,sort=nearest,limit=1]'
+        self.at(t, f'execute at {g} run particle minecraft:end_rod ~ ~1.2 ~ 0.25 0.25 0.25 0.06 14',
+                f'execute at {g} run playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..24] ~ ~ ~ 1 1.4',
+                f'execute as {g} run scoreboard players set @s bm.cgemt 4',
+                'scoreboard players set #bs bm.rng 0', f'execute positioned ~ ~{dy} ~ facing entity {g} eyes run function bm:p235/gem_beam')
+        self.at(t + 2, f'execute if entity {g} run {FXS.fx(fx, 1.3, dy)}' if fx in FXS.names() else f'particle minecraft:end_rod ~ ~{dy} ~ 0.3 0.3 0.3 0.05 16',
+                f'execute if entity {g} run particle minecraft:end_rod ~ ~{dy} ~ 0.3 0.3 0.3 0.04 12',
+                f'execute if entity {g} run playsound minecraft:block.amethyst_block.chime neutral @a[distance=..24] ~ ~ ~ 1 1.2')
+        return self
+
     def done(self, length, resume=0):
         return length, self.k, resume
 
@@ -765,7 +784,7 @@ def show_inkblot(G, X):
     S = _Show(InkBlot, X)
     cap = '@e[type=minecraft:wolf,tag=bm.mzpet,distance=..12,sort=nearest,limit=1]'
     ink = _dust((0.1, 0.1, 0.16), 0.7)
-    # (1-12) Mr. Capshun's pen leaks: a drop (if he's near, off his pen; else out of the air) flicked up over the spot
+    # (1-12) Mr. Capshun dips his pen in the ink you gave him: a drop (if he's near, off his pen; else out of the air) flicked up over the spot
     S.at(1, f'execute at {cap} run particle minecraft:squid_ink ~ ~1.1 ~ 0.05 0.05 0.05 0.01 3')
     S.at(1, f'execute at {cap} run playsound minecraft:block.pointed_dripstone.drip_water neutral @a[distance=..24] ~ ~1 ~ 1 0.6')
     S.sprite(1, 'drop', 'bm:ib_body_drop', '^ ^2.3 ^', {'teleport_duration': Int(10), 'billboard': 'fixed'})
@@ -800,18 +819,26 @@ def show_inkblot(G, X):
     S.size(94, 'q', 2.6, 3).size(97, 'q', 1.9, 3).snd(94, 'entity.item.pickup', 0.6, 1.7).face(94, 'surprised')
     S.pose(94, 'idle_a', 3, kx=0.95, ky=1.05).pose(97, 'idle_a', 3)
     S.size(112, 'q', 0, 3).face(112)
-    return S.done(116, resume=31)
+    # (36-44, after the splat: it lies there, just ink - till the Gem GRANTS LIFE to it; then it wobbles)
+    S.shift(36, 9).gem(37, 0.2, 'cg_sparkle')
+    S.at(33, f'{FXS.fx("capshun_splash", 0.9, 0.2)}' if 'capshun_splash' in FXS.names() else 'particle minecraft:squid_ink ~ ~0.2 ~ 0.3 0 0.3 0.04 8')
+    return S.done(125, resume=31)
 
 
 def show_speech(G, X):
     S = _Show(Speech, X)
     gray = '#e0e0e0'
-    say = lambda s: T(s, gray, italic=True)
-    # (1-18) his narration, typed out in the air
-    S.text(1, 'nar', say('A'), '^ ^1.0 ^', {'background': Int(0x40000000)})
+    say = lambda s: T(s, gray, italic=True, bold=True)
+    cap = '@e[type=minecraft:wolf,tag=bm.mzpet,distance=..12,sort=nearest,limit=1]'
+    # (1-22) Mr. Capshun yells - his narration typed out in the air over his head (or out of thin air), drifting over to the spot
+    S.text(1, 'nar', say('L'), '^ ^1.0 ^', {'background': Int(0x40000000), 'teleport_duration': Int(12)})
+    S.at(1, f'execute at {cap} run tp {S.sel("nar")} ~ ~2.1 ~')
     S.size(2, 'nar', 1.0, 3)
-    for t, s in ((4, 'An'), (6, 'And'), (9, 'And t'), (11, 'And th'), (13, 'And the'), (15, 'And then'), (18, 'And then-')):
+    for t, s in ((3, 'LO'), (5, 'LOOK'), (7, 'LOOK A'), (9, 'LOOK AT'), (11, 'LOOK AT TH'), (13, 'LOOK AT THAT'), (15, 'LOOK AT THAT!'), (17, 'LOOK AT THAT!!')):
         S.say(t, 'nar', say(s)).snd(t, 'block.note_block.hat', 0.4, 1.6 + (t % 3) * 0.1)
+    S.move(10, 'nar', '^ ^1.1 ^', 12)
+    # (22) the Gem GRANTS LIFE to the thought
+    S.gem(22, 1.1, 'cg_sparkle')
     # (24-34) it swells...
     S.size(24, 'nar', 1.7, 10, sy=1.5).snd(24, 'entity.puffer_fish.blow_up', 0.8, 1.4)
     S.at(28, 'particle minecraft:end_rod ~ ~1.1 ~ 0.3 0.15 0.3 0.01 4')
@@ -904,7 +931,9 @@ def show_dragon(G, X):
     S.at(75, item_particle('dd_fx_smoke', '^ ^1.35 ^0.35', '0.1 0.1 0.1', 0.03, 8), 'particle minecraft:small_flame ^ ^1.3 ^0.4 0.05 0.05 0.05 0.02 4')
     S.pose(85, 'happy', 4).face(85, 'happy')
     S.pose(95, 'idle_a', 5).face(95)
-    return S.done(101, resume=1)
+    # (33-38: the drawing done, the Gem GRANTS LIFE to it - then the crayon fills in)
+    S.shift(33, 6).gem(33, 0.8)
+    return S.done(107, resume=1)
 
 
 def show_eraser(G, X):
@@ -942,6 +971,8 @@ def show_eraser(G, X):
     # (76-90) done - a sheepish little smile... and it hides (it's shy)
     S.pose(76, 'happy', 4).face(76, 'happy')
     S.pose(86, 'hide', 5).face(86)
+    # (the Gem tries a fresh start on your paper - and its old mistake rubs out of the air: its light into the smudge, twice)
+    S.gem(2, 0.7, 'cg_sparkle').gem(30, 0.6)
     return S.done(92, resume=1)
 
 
@@ -978,6 +1009,8 @@ def show_cursor(G, X):
     for j, t in enumerate(range(66, 82, 4)):
         S.pose(t, 'wave_a' if j % 2 == 0 else 'wave_b', 4)
     S.pose(82, 'idle_a', 4).face(84)
+    # (the Gem's light into the static: it brings the pointer to life)
+    S.gem(2, 1.1, 'cg_sparkle').gem(44, 1.1)
     return S.done(88, resume=31)
 
 
@@ -989,79 +1022,110 @@ def generate(G):
     fn('p235/owner_hurt', ['execute on owner if entity @s[distance=..12] run return run function bm:p235/hurt_q', 'return 0'])
     fn('p235/hurt_q', ['execute store result score #h bm.rng run data get entity @s Health 10', 'execute store result score #mx bm.rng run attribute @s minecraft:max_health get 10',
                        'execute if score #h bm.rng < #mx bm.rng run return 1', 'return 0'])
-    mine = lambda tag: (f'scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #hy bm.rng 0',
-                        f'execute as @e[type=minecraft:wolf,tag={tag},distance=..16] if score @s bm.pid = #me bm.pid run scoreboard players set #hy bm.rng 1',
-                        'execute if score #hy bm.rng matches 0 run return 0')
+    # (3.0a) THE GEM BRINGS IT TO LIFE - every doodle now comes the same way: never at random, always given something.
+    #   the Ink Blot       hand Mr. Capshun an ink sac (or a glow ink sac) - with the Gem out
+    #   the Speech Bubble  hand Mr. Capshun a book and quill - with the Gem out
+    #   the Doodle Dragon  hand Kettle a dye (crayons!) - with the Gem out
+    #   the Eraser         hand the Gem paper (a fresh start - its old mistake rubs out of the air)
+    #   the Cursor         use a Glitched Cartridge with the Gem beside you
+    # "Hand": right-click your follower holding it (its click box's who - the item path comes before sit / stand, which is
+    # all a plain right-click does; menus are the summon item's). The item goes when the show starts; once it's over, the doodle
+    # waits to be right-clicked (any hand) - and comes along: its item, the advancement and met as before.
+    GEMQ = 'execute as @e[type=minecraft:wolf,tag=bm.cgpet,distance=..16] if score @s bm.pid = #me bm.pid run scoreboard players set #hy bm.rng 1'
+    fn('p235/gem_beam', ['particle minecraft:dust{color:[0.35,0.88,0.63],scale:0.9} ~ ~ ~ 0.02 0.02 0.02 0 2', 'particle minecraft:end_rod ~ ~ ~ 0 0 0 0 1',
+                         'scoreboard players add #bs bm.rng 1', 'execute if score #bs bm.rng matches 70.. run return 0',
+                         'execute if entity @e[type=minecraft:wolf,tag=bm.cgpet,distance=..1.1] run return 0',
+                         'execute positioned ^ ^ ^0.3 run function bm:p235/gem_beam'])
 
-    def walker(C, X, tag, chance, line, extra=()):
-        """an encounter that turns up beside you while you walk with someone (tag: their host), now and then"""
+    def placer(C):
+        """enc/place: where it can stand (here, or a block up) - enc/spawn: the rig and its show"""
+        p = C.pfx
+        fn(f'{p}/enc/place', [f'execute if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass unless block ~ ~-1 ~ #bm:grap_pass run return run function bm:{p}/enc/spawn',
+                              f'execute positioned ~ ~1 ~ if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run function bm:{p}/enc/spawn'])
+
+    def hand_to(C, X, host_pfx, host_ab, host_name, items, gem, line, no_gem):
+        """right-click `host` (your follower) holding one of `items`, not yet met: (with your Gem near, if `gem`) it's born beside them"""
         p, ab = C.pfx, C.ab
-        X.second.append(f'execute as @a[tag=!bm.{ab}met,gamemode=!spectator] at @s if dimension minecraft:overworld run function bm:{p}/enc/check')
-        fn(f'{p}/enc/check', [*mine(tag), *extra, f'execute store result score #r bm.rng run random value 1..{chance}', 'execute unless score #r bm.rng matches 1 run return 0',
-                              f'execute if entity @e[type=minecraft:interaction,tag=bm.{ab}enc,distance=..64] run return 0',
-                              f'execute positioned ^ ^ ^4 run function bm:{p}/enc/place'])
-        fn(f'{p}/enc/place', [f'execute if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass unless block ~ ~-1 ~ #bm:grap_pass run return run function bm:{p}/enc/step',
-                              f'execute positioned ~ ~1 ~ if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run function bm:{p}/enc/step'])
-        fn(f'{p}/enc/step', [f'function bm:{p}/enc/spawn'] + ([] if C.ENC_SHOW else C.BURST) + [X.tellraw(f'@a[tag=!bm.{ab}met,distance=..16]', line)])   # (3.0a: its entrance is a show)
+        say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
+        who = G.FUNCS[f'{host_pfx}/who']
+        k = next(i for i, l in enumerate(who) if 'bm.pid = #me bm.pid run return run' in l)        # (after "not yours")
+        who[k + 1:k + 1] = [f'execute unless entity @s[tag=bm.{ab}met] if items entity @s weapon.mainhand {i} run return run function bm:{p}/enc/hand' for i in items]
+        fn(f'{p}/enc/hand', (['scoreboard players set #hy bm.rng 0', GEMQ, 'execute if score #hy bm.rng matches 0 run return run ' + say(no_gem, C.LINE)] if gem else []) +
+           [f'execute if entity @e[type=minecraft:interaction,tag=bm.{ab}enc,distance=..64] run return run ' + say(f'{C.NAME} is already here, nearby - go and see.', C.LINE),
+            f'execute at @e[type=minecraft:wolf,tag=bm.{host_ab}clk,limit=1] facing entity @s feet rotated ~ 0 positioned ^ ^ ^1.6 run function bm:{p}/enc/place',
+            f'execute unless entity @e[type=minecraft:interaction,tag=bm.{ab}enc,distance=..8] run return run ' + say(f'There\'s no room beside {host_name} here.'),
+            'item modify entity @s weapon.mainhand {function:"minecraft:set_count",count:-1,add:true}',
+            X.tellraw('@a[distance=..16]', line)])
 
-    def offer(C, X, items, have_line, no_line, joined_line, used=True):
+    def given(C, X, have_line, joined_line):
+        """talk, once it's here: it comes along (what it wanted was given already)"""
         p = C.pfx
         csay = lambda txt: title('@s', 'actionbar', [T(f'{C.NAME}: ', C.COL, bold=True), T(txt, C.LINE)])
-        fn(f'{p}/enc/talk', [f'execute if items entity @s container.* {X.holds(C.ITEM)} run return run ' + csay(have_line)] +
-           [f'execute if items entity @s weapon.mainhand {i} run return run function bm:{p}/enc/recruit' for i in items] + [csay(no_line)])
-        fn(f'{p}/enc/recruit', (['item modify entity @s weapon.mainhand {function:"minecraft:set_count",count:-1,add:true}'] if used else []) +
-           [f'execute as {X.here} at @s run particle minecraft:heart ~ ~1 ~ 0.3 0.3 0.3 0 4', 'playsound minecraft:entity.player.levelup player @s ~ ~ ~ 0.6 1.6',
-            X.tellraw('@s', joined_line), f'function bm:{p}/enc/joined'])
+        fn(f'{p}/enc/talk', [f'execute if items entity @s container.* {X.holds(C.ITEM)} run return run ' + csay(have_line), f'function bm:{p}/enc/recruit'])
+        fn(f'{p}/enc/recruit', [f'execute as {X.here} at @s run particle minecraft:heart ~ ~1 ~ 0.3 0.3 0.3 0 4', 'playsound minecraft:entity.player.levelup player @s ~ ~ ~ 0.6 1.6',
+                                X.tellraw('@s', joined_line), f'function bm:{p}/enc/joined'])
 
-    # ---- THE DOODLE DRAGON: walk with Kettle; his drawing climbs off the page. A dye wins it over
+    gemT = T('the Gem of Creativity flares - and grants it life.', GEM, italic=True)
+
+    # ---- THE DOODLE DRAGON: hand Kettle a dye, the Gem out - his drawing comes to life
     def e_dragon(G, X):
-        walker(Dragon, X, 'bm.ktpet', 200, [T('Kettle stops dead. "My DRAGON! He\'s REAL!" ', '#8ad8ff', italic=True),
-                                            T('A crayon dragon climbs off a page in his hand, sneezes a puff of smoke, and grins at you.', 'gray', italic=True)])
-        dyes = [f'minecraft:{c}_dye' for c in ('white', 'orange', 'magenta', 'light_blue', 'yellow', 'lime', 'pink', 'gray', 'light_gray', 'cyan', 'purple', 'blue', 'brown', 'green', 'red', 'black')]
-        offer(Dragon, X, dyes, '"You already have my drawing! I live in it. Sometimes."', '"Do you have crayons? Any colour! Green\'s my favourite. Obviously."',
-              [T('He sniffs the dye, sneezes rainbow smoke, and scribbles himself a brand new spot on his tail. ', '#d4f4c8', italic=True),
-               T('Then he hands you his drawing: KETTLE, it says in the corner. He\'s coming with you.', 'gray', italic=True)])
-    # ---- THE ERASER: walk with the Gem; its mistake hides nearby, ashamed. Paper - a fresh start
+        placer(Dragon)
+        hand_to(Dragon, X, 'p227', 'kt', 'Kettle', [f'minecraft:{c}_dye' for c in ('white', 'orange', 'magenta', 'light_blue', 'yellow', 'lime', 'pink', 'gray', 'light_gray', 'cyan',
+                                                                                  'purple', 'blue', 'brown', 'green', 'red', 'black')], True,
+                [T('Kettle grabs the crayon and scribbles in the air - a dragon, with wings, and teeth, LOTS of teeth - "RAWR!" - and ', '#8ad8ff', italic=True), gemT],
+                '(Kettle scribbles a dragon on a scrap of paper. "If only he was REAL..." - if only something could bring it to life.)')
+        given(Dragon, X, '"You already have my drawing! I live in it. Sometimes."',
+              [T('He sneezes a puff of rainbow smoke, scribbles himself a brand new spot on his tail, ', '#d4f4c8', italic=True),
+               T('and hands you his drawing: KETTLE, it says in the corner. He\'s coming with you.', 'gray', italic=True)])
+
+    # ---- THE ERASER: hand the Gem paper - a fresh start; its old mistake rubs itself out of the air
     def e_eraser(G, X):
-        walker(Eraser, X, 'bm.cgpet', 220, [T('The Gem flickers: :c - and from behind a stone, something pink peeks out. ', GEM, italic=True),
-                                            T('A little eraser, worn at one corner, looking very, very sorry.', 'gray', italic=True)])
-        offer(Eraser, X, ['minecraft:paper'], '"You already have my crumb! Th-that means you\'re stuck with me."', '"I c-could only erase it. Do you have something... I could keep clean?"',
-              [T('It takes the sheet very carefully, and doesn\'t erase a thing. It looks up at you, astonished at itself. ', '#fcdce4', italic=True),
+        placer(Eraser)
+        hand_to(Eraser, X, 'p231', 'cg', 'the Gem', ['minecraft:paper'], False,
+                [T('The Gem lights up the blank page for a fresh start - and something it once made by mistake rubs itself out of the air beside it: ', GEM, italic=True),
+                 T('a little eraser, worn at one corner, looking very, very sorry.', 'gray', italic=True)], '')
+        given(Eraser, X, '"You already have my crumb! Th-that means you\'re stuck with me."',
+              [T('It looks at the clean page in the Gem\'s light, and doesn\'t erase a thing. It looks up at you, astonished at itself. ', '#fcdce4', italic=True),
                T('Then it brushes off a pink crumb and gives it to you. A fresh start.', 'gray', italic=True)])
-    # ---- THE CURSOR: a Glitched Cartridge with nobody beside you (phase214's "use it beside a follower") - the player's hand
+
+    # ---- THE CURSOR: a Glitched Cartridge used with the Gem beside you - the Gem animates the screen's own pointer
     def e_cursor(G, X):
-        fn('p235c/enc/glitch', ['function bm:p235c/enc/spawn'])                    # (3.0a: the glitch is its entrance's - show_cursor)
-        csay = lambda txt: title('@s', 'actionbar', [T('The Cursor: ', Cursor.COL, bold=True), T(txt, Cursor.LINE)])
-        fn('p235c/enc/talk', [f'execute if items entity @s container.* {X.holds("cursor_mouse")} run return run ' + csay('"You\'ve already got me! I\'m your hand, remember?"'),
-                              'function bm:p235c/enc/recruit'])
-        fn('p235c/enc/recruit', [f'execute as {X.here} at @s run particle minecraft:electric_spark ~ ~1 ~ 0.3 0.4 0.3 0.2 16',
-                                 'playsound minecraft:ui.button.click player @s ~ ~ ~ 1 1.2',
-                                 X.tellraw('@s', [T('It clicks on you. ', '#d8f0ff', italic=True), T('Selected. ', '#f4f4f4', bold=True, italic=True),
-                                                  T('Then it hands you an old mouse with a cut cable - and wherever your hand goes, it follows.', 'gray', italic=True)]),
-                                 'function bm:p235c/enc/joined'])
-    # ---- THE INK BLOT, THE SPEECH BUBBLE: walk with Mr. Capshun
+        fn('p235c/enc/glitch', ['function bm:p235c/enc/spawn'])                    # (the glitch is its entrance's - show_cursor)
+        given(Cursor, X, '"You\'ve already got me! I\'m your hand, remember?"',
+              [T('It clicks on you. ', '#d8f0ff', italic=True), T('Selected. ', '#f4f4f4', bold=True, italic=True),
+               T('Then it hands you an old mouse with a cut cable - and wherever your hand goes, it follows.', 'gray', italic=True)])
+        placer(Cursor)
+
+    # ---- THE INK BLOT, THE SPEECH BUBBLE: hand Mr. Capshun ink, or a book and quill, the Gem out
     def e_ink(G, X):
-        walker(InkBlot, X, 'bm.mzpet', 200, [T('Mr. Capshun\'s pen leaks. A drop falls - splat - and the blot it makes blinks up at you. ', '#c8c8dc', italic=True),
-                                             T('[Mr. Capshun narrates: "That was not in the script."]', 'gray', italic=True)])
-        offer(InkBlot, X, ['minecraft:ink_sac', 'minecraft:glow_ink_sac'], '(it points at the ink pot in your pocket, as a little arrow)', '(it makes a "?" at your empty hand)',
-              [T('It drinks up the ink, grows a size, and shapes itself into a little thumbs-up. ', '#c8c8dc', italic=True),
+        placer(InkBlot)
+        hand_to(InkBlot, X, 'p198', 'mz', 'Mr. Capshun', ['minecraft:ink_sac', 'minecraft:glow_ink_sac'], True,
+                [T('Mr. Capshun dips his pen in the ink. A drop falls - splat - and ', '#c8c8dc', italic=True), gemT,
+                 T(' [Mr. Capshun narrates: "That was not in the script."]', 'gray', italic=True)],
+                '(Mr. Capshun dips his pen; a drop of ink falls, and just lies there. If only something could bring it to life...)')
+        given(InkBlot, X, '(it points at the ink pot in your pocket, as a little arrow)',
+              [T('It shapes itself into a little thumbs-up at you. ', '#c8c8dc', italic=True),
                T('Then it pours itself into a pot and offers it to you. It\'s coming along.', 'gray', italic=True)])
 
     def e_speech(G, X):
-        walker(Speech, X, 'bm.mzpet', 200, [T('[Mr. Capshun narrates: "And then-"] ', '#e0e0e0', italic=True),
-                                            T('...and his narration pops out of the air beside him, a speech bubble with a face, and grins at you: "AND THEN!!"', 'gray', italic=True)])
-        offer(Speech, X, ['minecraft:writable_book'], '"You\'ve already got my card! I\'m with you, pal!"', '"I\'ve got nothing to SAY! Got a book and quill?"',
-              [T('It flips through the empty pages and shouts every word it can think of into them. ', '#ffe0a0', italic=True),
-               T('Then it hands you a blank caption card: "Call me when it gets EXCITING."', 'gray', italic=True)], used=False)
+        placer(Speech)
+        hand_to(Speech, X, 'p198', 'mz', 'Mr. Capshun', ['minecraft:writable_book'], True,
+                [T('[Mr. Capshun narrates: "LOOK AT THAT!! Did you SEE that?!"] ', '#e0e0e0', italic=True),
+                 T('His narration jumps right off the page - and ', 'gray', italic=True), gemT],
+                '[Mr. Capshun narrates: "What a story this book could tell!"] (If only something could bring his words to life...)')
+        given(Speech, X, '"You\'ve already got my card! I\'m with you, pal!"',
+              [T('It flips through the book he wrote it into and shouts every word on the page. ', '#ffe0a0', italic=True),
+               T('Then it hands you a blank caption card: "Call me when it gets EXCITING."', 'gray', italic=True)])
     ENC = {'dragon': e_dragon, 'eraser': e_eraser, 'cursor': e_cursor, 'inkblot': e_ink, 'speech': e_speech}
     for _C in DOODLES:
         RP.build(_C, G, (lambda w: lambda G, X: _ABIL[w](G, X))(_C.W), ENC[_C.W])
-    # (the Cursor: a cartridge used with nobody beside you - instead of "use it beside one of your followers")
+    # (the Cursor: a cartridge used with the Gem beside you - before "use it beside one of your followers" looks for a costume)
     U = G.FUNCS['p214/use']
-    k = next(i for i, l in enumerate(U) if 'Use it beside one of your followers' in l)
-    U.insert(k, 'execute if score #done bm.rng matches 0 unless entity @s[tag=bm.uxmet] run function bm:p235c/enc/cart')
+    k = next(i for i, l in enumerate(U) if 'run function bm:p214/on/' in l)
+    U.insert(k, 'execute if score #done bm.rng matches 0 unless entity @s[tag=bm.uxmet] if function bm:p235c/enc/gem_near run function bm:p235c/enc/cart')
+    fn('p235c/enc/gem_near', ['execute as @e[type=minecraft:wolf,tag=bm.cgpet,distance=..8] if score @s bm.pid = #me bm.pid run return 1', 'return 0'])
     fn('p235c/enc/cart', ['scoreboard players set #done bm.rng 1',
                           'execute if entity @e[type=minecraft:interaction,tag=bm.uxenc,distance=..32] run return run ' + title('@s', 'actionbar', T('The cartridge flickers - the Cursor is already out, nearby.', '#9affb0')),
                           'clear @s *[minecraft:custom_data~{bm:"glitch_cart"}] 1', 'execute positioned ^ ^ ^2 run function bm:p235c/enc/glitch',
-                          tellraw('@s', [T('The cartridge glitches - nobody there to glitch - and the screen\'s own pointer slips out of it into the air: ', '#9affb0', italic=True),
+                          tellraw('@s', [T('The cartridge glitches - and the Gem of Creativity\'s light catches the screen\'s own pointer as it slips out into the air: ', '#9affb0', italic=True),
                                          T('a little white hand-arrow, blinking at you.', 'white', italic=True)])])

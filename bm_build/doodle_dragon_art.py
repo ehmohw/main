@@ -27,7 +27,24 @@ fire round his mouth (seen from in front). _fire='kindle' (breathe_up, the wind-
 little flames licking out of his mouth. _fire='puff' (idle_c): just the smoke, a hiccup. The part is built full size and shrunk
 into its model box (PART_K 2). For the datapack's own breath effect later: dd_fx_fire (a small crayon flame, standing up) and
 dd_fx_smoke (a scribble of crayon smoke) - textures, each also a little flat card model of its own.
-Design units: feet at y=0, facing -z, his right is +x."""
+Design units: feet at y=0, facing -z, his right is +x.
+
+3.0a: THE DOODLE ENDER DRAGON (the owner's: "recreate the doodle dragon as the doodle ender dragon so it fits the Minecraft
+theme"). Kettle drew him again - this time Minecraft's own Ender Dragon, the way a kid draws the final boss: the same chubby
+paper puppet, but in black crayon pressed hard (charcoal scribble, paper flecks showing through, a near-black wobbly outline),
+a flat boxy Ender head with its snout in front (two raised nostril bumps on top, a fang either side of a grin), two bony grey
+horns and a ridge of grey spines on top of it, glowing PURPLE eyes (Minecraft's magenta slits, made big and cute) with a few
+purple "ender particles" doodled round his head, a short ribbed neck, a grey-plated belly, grey spines down his back and along
+a long ribbed tail, and big bat wings: a near-black membrane, greyer inside, on light-grey bone fingers with a hooked claw at
+each wrist. (His long neck reaches back, away from you - on a front-on puppet it reads as the ribbed collar under his chin and
+the spines running up his back.) The eyes and the particles are a card of their own in front of the face (dd_eyes_*,
+light_emission 15): they glow at night and keep their purple in every wardrobe look (phase138 recolours the rest).
+
+THE OG GREEN DRAGON - "Crayon Green", his costume: the first drawing, kept exactly as it was (the same rig, pivots, poses and
+faces), as a twin set of models: OG_SFX ('_og') on every part of OG_PARTS (dd_body_og, dd_head_og, dd_head_x<face>_og, ...),
+its textures the old ones with a '_g' suffix (so phase138 recolours them as a set of their own, as Ava's ghost). rigpet's FORM
+puts it on: FORM_SPEC below is what phase235's Dragon needs. The effects (fire, slash, boom) are shared by both drawings.
+Previews: a pose with '_og' set shows the costume (model_name)."""
 import math
 import random
 import sys
@@ -77,7 +94,13 @@ def model_name(p, pose, suffix=''):
     if p == 'fire':
         return f'{PREFIX}fire_{pose.get("_fire") or "fire"}{suffix}'
     face = f'_x{pose["_face"]}' if p == 'head' and pose.get('_face') else ''
-    return f'{PREFIX}{p}{face}{suffix}'
+    form = OG_SFX if pose.get('_og') and p in OG_PARTS else ''        # (_og: the OG green costume - previews; in the game rigpet's FORM)
+    return f'{PREFIX}{p}{face}{form}{suffix}'
+
+
+# (3.0a) the OG green drawing: a costume (rigpet's FORM) - these parts' OG_SFX models; the effects are shared
+OG_SFX, OG_TEX = '_og', '_g'
+OG_PARTS = ('body', 'head', 'armr', 'arml', 'legr', 'legl', 'wingr', 'wingl', 'tail')
 
 
 # ---------------------------------------------------------------------------------------------------- crayons
@@ -512,6 +535,251 @@ def _p_tail():
     return pic, out
 
 
+# ==================================================================================================== (3.0a) THE DOODLE ENDER DRAGON
+# black crayon pressed hard, grey bone, magenta-purple eyes - the same cards, boxes and pivots as the OG drawing
+INK = '#16121b'                                    # (his outline: near-black, a hint of violet)
+COAL = '#2c2833'                                   # (the black crayon he's scribbled in)
+PLATE, PLATE_L = '#5a5566', '#9a95a8'              # (his belly plates, the ribs of his neck and tail)
+SPINE, SPINE_L = '#a8a3b6', '#4e4a5a'              # (grey spines: his back, his tail, the ridge on his head)
+BONE, BONE_L = '#d6d2de', '#5e5a6c'                # (horns, wing bones, claws)
+MEMB, MEMB_IN = '#34303d', '#6f6a80'               # (the wing membrane: near-black, greyer inside)
+EYE, EYE_M, EYE_C, EYE_L = '#b62ff0', '#e27cff', '#ffe4ff', '#5c138a'   # (Minecraft's ender magenta: rim, glow, heart; its line)
+EMOUTH, ETONGUE = '#2a0c30', '#c45ad8'
+TOOTH = '#f4f1f8'
+GRIN = '#bcb6ca'                                   # (his grin: a line of pale grey crayon across the black)
+DARK = 0.16                                        # (black crayon: hardly any paper under the scribble)
+
+
+def sq(cx, cy, a, b, e=3.0, n=60):
+    """a rounded box (a superellipse): Minecraft-ish, as a kid draws a block"""
+    out = []
+    for i in range(n):
+        t = 2 * math.pi * i / n; c, s = math.cos(t), math.sin(t)
+        out.append((cx + a * math.copysign(abs(c) ** (2 / e), c), cy + b * math.copysign(abs(s) ** (2 / e), s)))
+    return out
+
+
+def _e_head():
+    skull, snout = sq(0.0, 24.5, 5.7, 3.55, 3.2), sq(0.0, 19.75, 3.95, 2.45, 3.0)
+    neck = [(-2.5, 16.25), (2.5, 16.25), (2.1, 18.6), (-2.1, 18.6)]
+    horns = [tri((s * 3.7, 27.4), 90 - s * 24, 1.9, 3.4, lean=-s * 0.55) for s in (1, -1)]
+    spikes = [tri((x, 27.6), 90 - x * 9, 1.45, h) for x, h in ((-1.35, 1.35), (0.0, 1.75), (1.35, 1.35))]
+    nostrils = [sq(s * 2.25, 21.55, 0.8, 0.5, 2.6, 28) for s in (1, -1)]
+    return skull, snout, neck, horns, spikes, nostrils
+
+
+ESPOTS = [(6.75, 28.0, 0.55, 12), (7.5, 25.7, 0.38, -8), (-7.05, 29.15, 0.5, 20), (-7.45, 26.4, 0.36, 4), (5.5, 30.7, 0.32, 30)]
+
+
+def _e_picture_head(face=None, back=False):
+    """the head card (front: the face drawn on; back: his head from behind) - and the eyes, a card of their own"""
+    pic = Pic(BOX['head'][0])
+    skull, snout, neck, horns, spikes, nostrils = _e_head()
+    out = [pic.blob(neck, COAL, INK, 210, ang=10, over=0.2, amp=0.06, ow=0.4, light=DARK)]
+    if not back:
+        for i, y in enumerate((16.9, 17.75)):
+            pic.crayon([(-2.2 + 0.1 * i, y), (2.2 - 0.1 * i, y)], PLATE_L, 0.26, 212 + i, closed=False, passes=1)
+    for i, sp in enumerate(spikes):
+        out.append(pic.blob(sp, SPINE, SPINE_L, 214 + i, ang=60, over=0.15, amp=0.06, ow=0.32))
+    for i, h in enumerate(horns):
+        out.append(pic.blob(h, BONE, BONE_L, 218 + i, ang=-30, over=0.15, amp=0.05, ow=0.34))
+    out.append(pic.blob(skull, COAL, INK, 220, ang=36, over=0.4, amp=0.12, light=DARK))
+    out.append(pic.blob(snout, COAL, INK, 221, ang=-28, over=0.25, amp=0.08, light=DARK))
+    if not back:
+        for i, n in enumerate(nostrils):
+            pic.blob(n, PLATE, INK, 222 + i, ang=20, over=0.0, amp=0.03, ow=0.26)
+            pic.dot(((1, -1)[i] * 2.25, 21.45), 0.24, 0.17, INK, 224 + i)
+        _e_face(pic, face)
+    return pic, out
+
+
+def _eye(eyes, cx, cy, hw, hh, seed, tilt=0.0):
+    """a glowing ender eye: a magenta box, a pinker glow inside, a white-hot heart and a shine"""
+    box = sq(cx, cy, hw, hh, 3.2, 36)
+    if tilt:
+        box = [(x, y + (x - cx) * tilt) for x, y in box]
+    eyes.fill(box, EYE, seed, line=EYE_L, ow=0.24)
+    eyes.fill([(cx + (x - cx) * 0.62, cy + (y - cy) * 0.55) for x, y in box], EYE_M, seed + 1)
+    eyes.fill([(cx + (x - cx) * 0.3, cy + (y - cy) * 0.28) for x, y in box], EYE_C, seed + 2)
+    eyes.dot((cx - hw * 0.45, cy + hh * 0.35), 0.24, 0.24, '#ffffff', seed + 3)
+
+
+def _e_eyes(kind=None):
+    """the eye card: his eyes in this expression - and the ender particles round his head (every face)"""
+    eyes = Pic(BOX['head'][0]); ex, ey = 2.95, 24.55
+    for i, (x, y, r, a) in enumerate(ESPOTS):                    # (little purple squares drifting off him, as the real one sheds)
+        c, s_ = math.cos(math.radians(a)), math.sin(math.radians(a))
+        q = [(x + r * (u * c - v * s_), y + r * (u * s_ + v * c)) for u, v in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+        eyes.fill(q, EYE if i % 2 else EYE_M, 260 + i, line=EYE_L, ow=0.14)
+    def arc(y, h, up=True, w=0.5):
+        for i, s in enumerate((1, -1)):
+            x = s * ex
+            pts = bez((x - 1.3, y), (x, y + (h if up else -h) * 2), (x + 1.3, y), 10) + [(x + 1.3, y)]
+            eyes.crayon(pts, EYE_L, w + 0.2, 270 + i, closed=False, passes=1, jit=0.02)
+            eyes.crayon(pts, EYE, w, 272 + i, closed=False, passes=1, jit=0.02)
+    if kind in (None, 'roar'):
+        for i, s in enumerate((1, -1)): _eye(eyes, s * ex, ey + (0.15 if kind == 'roar' else 0.0), 1.45, 0.95, 280 + 4 * i)
+    elif kind == 'happy':
+        arc(24.3, 0.75)
+    elif kind == 'blink':
+        arc(24.6, 0.4, up=False)
+    elif kind == 'surprised':
+        for i, s in enumerate((1, -1)):
+            eyes.dot((s * ex, ey + 0.1), 1.45, 1.55, EYE, 290 + i, line=EYE_L, ow=0.24)
+            eyes.dot((s * ex, ey + 0.1), 0.95, 1.0, EYE_M, 292 + i)
+            eyes.dot((s * ex, ey + 0.1), 0.45, 0.48, EYE_C, 294 + i)
+    elif kind == 'fierce':                                           # (narrowed: slanting down to the middle)
+        for i, s in enumerate((1, -1)): _eye(eyes, s * ex, ey - 0.2, 1.35, 0.62, 300 + 4 * i, tilt=s * 0.3)
+    elif kind == 'sad':                                              # (drooping: down at the outside)
+        for i, s in enumerate((1, -1)): _eye(eyes, s * ex, ey - 0.25, 1.3, 0.78, 310 + 4 * i, tilt=-s * 0.22)
+    elif kind == 'puff':                                             # (squeezed shut: > <)
+        for i, s in enumerate((1, -1)):
+            x = s * ex; pts = [(x + s * 1.1, ey + 0.85), (x - s * 0.95, ey), (x + s * 1.1, ey - 0.85)]
+            eyes.crayon(pts, EYE_L, 0.62, 320 + i, closed=False, passes=1, jit=0.02)
+            eyes.crayon(pts, EYE, 0.42, 322 + i, closed=False, passes=1, jit=0.02)
+    elif kind == 'dizzy':
+        for i, s in enumerate((1, -1)):
+            c = (s * ex, ey); pts = [(c[0] + 0.085 * t * math.cos(t * s), c[1] + 0.07 * t * math.sin(t * s)) for t in (j * 0.35 for j in range(40))]
+            eyes.crayon(pts, EYE, 0.36, 330 + i, closed=False, passes=1, jit=0.01)
+    return eyes
+
+
+def _e_face(pic, kind):
+    """what of his face is on the head card itself (and so takes the wardrobe's colour): mouth, fangs, brows, a tear"""
+    K = INK
+    def fangs(y=19.0, x=1.75, h=0.95):
+        for i, s in enumerate((1, -1)):
+            pic.fill([(s * x - 0.42, y + 0.05), (s * x + 0.42, y + 0.05), (s * x + 0.05 * s, y - h)], TOOTH, 400 + i, line=K, ow=0.13)
+    def grin(y=19.05, w=2.9, d=0.62):
+        pic.crayon(bez((-w, y + 0.35), (0.0, y - d * 2), (w, y + 0.35), 14) + [(w, y + 0.35)], GRIN, 0.4, 404, closed=False, passes=1, jit=0.03)
+    def brows(tilt, y=26.35):
+        for i, s in enumerate((1, -1)):
+            x = s * 2.95
+            pic.crayon([(x + s * 1.45, y + tilt * 0.5), (x - s * 1.25, y - tilt * 0.5)], PLATE_L, 0.42, 406 + i, closed=False, passes=1, jit=0.02)
+    def open_mouth(cy=18.95, rx=2.75, ry=1.4, tongue=True, teeth=True):
+        m = sq(0.0, cy, rx, ry, 2.4, 36)
+        pic.fill(m, EMOUTH, 410, line=K, ow=0.3)
+        if tongue: pic.dot((0.35, cy - ry * 0.45), rx * 0.42, ry * 0.4, ETONGUE, 411)
+        if teeth:
+            for i, x in enumerate((-1.7, 1.7)):
+                pic.fill([(x - 0.4, cy + ry - 0.1), (x + 0.4, cy + ry - 0.1), (x, cy + ry - 0.95)], TOOTH, 412 + i, line=K, ow=0.12)
+            for i, x in enumerate((-0.9, 0.9)):
+                pic.fill([(x - 0.35, cy - ry + 0.12), (x + 0.35, cy - ry + 0.12), (x, cy - ry + 0.82)], TOOTH, 414 + i, line=K, ow=0.12)
+    if kind is None:
+        grin(); fangs()
+    elif kind == 'happy':
+        open_mouth(18.9, 2.6, 1.15, teeth=False); fangs(19.95, 1.7, 0.75)
+    elif kind == 'blink':
+        grin(19.1, 2.6, 0.35); fangs(19.0, 1.6, 0.8)
+    elif kind == 'surprised':
+        pic.dot((0.0, 18.85), 1.05, 1.1, EMOUTH, 420, line=K, ow=0.28)
+    elif kind == 'fierce':
+        brows(1.35)
+        bx, top, bot = 2.9, 19.85, 18.15                                  # (a snarl: teeth clenched)
+        pic.fill([(-bx, top), (bx, top), (bx * 0.9, bot), (-bx * 0.9, bot)], TOOTH, 422, line=K, ow=0.3)
+        pic.crayon([(-bx * 0.95, (top + bot) / 2), (bx * 0.95, (top + bot) / 2)], K, 0.2, 423, closed=False, passes=1, jit=0.02)
+        for i in range(4):
+            x = -bx + 2 * bx * (i + 1) / 5
+            pic.crayon([(x, top - 0.1), (x, bot + 0.1)], K, 0.15, 424 + i, closed=False, passes=1, jit=0.01)
+    elif kind == 'sad':
+        brows(-1.0)
+        pic.crayon(bez((-2.2, 18.4), (0.0, 20.0), (2.2, 18.4), 12) + [(2.2, 18.4)], GRIN, 0.38, 430, closed=False, passes=1, jit=0.04)
+        pic.fill([(-4.3, 23.1), (-4.75, 22.1), (-4.3, 21.6), (-3.85, 22.1)], '#5ab4ff', 431, line='#2a6fc0', ow=0.16)
+    elif kind == 'puff':                                                  # (cheeks full of smoke: his snout bulging, lips pressed)
+        for i, s in enumerate((1, -1)):
+            pic.crayon(bez((s * 3.4, 21.0), (s * 4.9, 19.6), (s * 3.4, 18.0), 10) + [(s * 3.4, 18.0)], PLATE_L, 0.3, 434 + i, closed=False, passes=1)
+        pic.dot((0.0, 18.95), 0.8, 0.5, EMOUTH, 436, line=PLATE_L, ow=0.24)
+    elif kind == 'roar':
+        brows(1.0); open_mouth(18.85, 3.0, 1.55)
+    elif kind == 'dizzy':
+        pic.crayon(bez((-2.5, 19.3), (0.0, 18.2), (2.5, 19.3), 12) + [(2.5, 19.3)], GRIN, 0.38, 440, closed=False, passes=1, jit=0.03)
+        pic.fill(capsule((0.9, 18.8), (1.05, 17.6), 0.55), ETONGUE, 441, line=K, ow=0.2)
+    return pic
+
+
+def _e_body(back=False):
+    pic = Pic(BOX['body'][0])
+    s = pic.blob(_g_body(), COAL, INK, 11, ang=32, light=DARK)      # (the OG's seeds: the same silhouette, to the pixel)
+    if not back:                                                      # (the plates of his belly: grey, ribbed)
+        pic.blob(ell(0.0, 10.2, 3.7, 5.3, 48), PLATE, INK, 212, ang=-24, over=0.3, light=0.25, ow=0.36)
+        for i, y in enumerate((6.6, 8.6, 10.6, 12.6, 14.4)):
+            hw = 3.7 * math.sqrt(max(0.0, 1 - ((y - 10.2) / 5.3) ** 2)) - 0.5
+            pic.crayon(bez((-hw, y + 0.2), (0.0, y - 0.4), (hw, y + 0.2), 12) + [(hw, y + 0.2)], PLATE_L, 0.28, 240 + i, closed=False, passes=1)
+    else:                                                             # (grey spines down his back, up into his neck)
+        for i, (y, h) in enumerate(((6.6, 1.5), (8.8, 1.8), (11.1, 2.0), (13.5, 2.0), (15.8, 1.8))):
+            pic.blob(tri((0.0, y - 0.6), 90, 1.8, h), SPINE, SPINE_L, 260 + i, ang=50, over=0.15, ow=0.3, amp=0.06)
+    return pic, [s]
+
+
+def _e_arm():
+    pic = Pic(BOX['armr'][0])
+    body, claws = _g_arm()
+    out = [pic.blob(c, BONE, BONE_L, 70 + i, scrib=False, amp=0.04, ow=0.26) for i, c in enumerate(claws)]
+    out.append(pic.blob(body, COAL, INK, 74, ang=-50, over=0.35, amp=0.1, light=DARK))
+    return pic, out
+
+
+def _e_leg():
+    pic = Pic(BOX['legr'][0])
+    leg, foot = _g_leg()
+    out = [pic.blob(leg, COAL, INK, 80, ang=70, over=0.35, amp=0.1, light=DARK)]
+    out.append(pic.blob(foot, COAL, INK, 81, ang=20, over=0.0, amp=0.07, light=DARK))
+    for i, x in enumerate((2.1, 3.3, 4.5)):
+        pic.dot((x, 0.75 if i != 1 else 0.68), 0.46, 0.4, BONE, 282 + i, line=BONE_L, ow=0.16)
+    return pic, out
+
+
+WING_E = dict(R1=(4.4, 17.0), W=(10.4, 22.2), T=(17.6, 23.4), F=[(18.3, 16.0), (15.4, 11.9), (11.0, 10.5)], R2=(4.7, 12.0))
+
+
+def _e_g_wing():
+    """his wing: the arm bone up and out to the wrist and on to a hooked tip; three fingers fanning down from the wrist; the
+    membrane between them scalloped in toward his shoulder"""
+    R1, W, T, F, R2 = WING_E['R1'], WING_E['W'], WING_E['T'], WING_E['F'], WING_E['R2']
+    pts = bez(R1, (6.4, 21.4), W) + bez(W, (14.0, 24.4), T)
+    ends = [T] + F
+    for a, b in zip(ends, ends[1:]):
+        m = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+        pts += bez(a, (m[0] + (W[0] - m[0]) * 0.28, m[1] + (W[1] - m[1]) * 0.28), b)
+    pts += bez(F[-1], (7.6, 12.6), R2)
+    return pts
+
+
+def _e_wing():
+    pic = Pic(BOX['wingr'][0])
+    R1, W, T, F = WING_E['R1'], WING_E['W'], WING_E['T'], WING_E['F']
+    shape = pic.blob(_e_g_wing(), MEMB, INK, 290, ang=58, over=0.35, amp=0.12, light=DARK)
+    if not Pic.DRY:                                                    # (greyer inside: the membrane catching the light)
+        pic.scribble(grow(shape, -1.1), MEMB_IN, -40, 291, sp=0.9, w=0.22)
+    bones = [spline([R1, (7.2, 20.4), W], 6), spline([W, (14.0, 23.6), T], 6)] + [spline([W, ((W[0] + f[0]) / 2 + 0.3, (W[1] + f[1]) / 2 + 0.2), f], 6) for f in F]
+    out = [shape]
+    for i, c in enumerate(bones):
+        w0 = 1.05 if i < 2 else 0.78
+        out.append(pic.blob(tube(c, w0, w0 * 0.55), BONE, BONE_L, 292 + i, scrib=False, amp=0.03, ow=0.24))
+    out.append(pic.blob(tri((W[0] + 0.2, W[1] + 0.3), 104, 1.1, 1.7), BONE, BONE_L, 299, scrib=False, amp=0.03, ow=0.24))   # (the hook at his wrist)
+    return pic, out
+
+
+TAIL_E = [(-4.4, 9.2), (-6.8, 8.6), (-9.1, 7.75), (-11.6, 7.0), (-13.8, 7.1), (-15.3, 8.3), (-15.7, 10.0), (-15.0, 11.3), (-14.0, 11.4)]
+
+
+def _e_tail():
+    pic = Pic(BOX['tail'][0])
+    c = spline(TAIL_E, 8); n = len(c)
+    body = tube(c, 3.7, 0.95)
+    nm = _normals(c, False); out = []
+    wid = lambda i: (3.7 + (0.95 - 3.7) * i / (n - 1)) / 2
+    for k, (t, h) in enumerate(((0.15, 1.55), (0.27, 1.6), (0.39, 1.45), (0.5, 1.25), (0.61, 1.0))):
+        i = int(t * n); p, m = c[i], nm[i]
+        out.append(pic.blob(tri((p[0] + m[0] * (wid(i) - 0.25), p[1] + m[1] * (wid(i) - 0.25)), math.degrees(math.atan2(m[1], m[0])), 1.4, h, lean=-0.25),
+                            SPINE, SPINE_L, 300 + k, ang=60, over=0.15, amp=0.05, ow=0.3))
+    out.append(pic.blob(body, COAL, INK, 310, ang=-35, over=0.35, amp=0.1, light=DARK))
+    for k, t in enumerate((0.12, 0.23, 0.34, 0.45, 0.56, 0.67, 0.78)):  # (ribbed: bands across it, as the real one's segments)
+        i = int(t * n); p, m = c[i], nm[i]; w = wid(i) - 0.3
+        if not Pic.DRY:
+            pic.crayon([(p[0] + m[0] * w, p[1] + m[1] * w), (p[0] - m[0] * w, p[1] - m[1] * w)], PLATE_L, 0.22, 320 + k, closed=False, passes=1)
+    return pic, out
+
 
 
 # the effects ----------------------------------------------------------------------------------------------------
@@ -626,9 +894,13 @@ def _p_fx_smoke():
 
 
 # each card's outer edge, as drawn (the outline, and the scribble that runs past it) - the floor finds his lowest point on them
+# (3.0a: the Ender drawing's - he stands on them; GEO_OG: the OG green drawing's, for its own check)
+GEO_OG = {}
 Pic.DRY = True
-for _part, _fn in (('body', _p_body), ('head', _p_head), ('armr', _p_arm), ('legr', _p_leg), ('wingr', _p_wing), ('tail', _p_tail)):
+for _part, _fn in (('body', _e_body), ('head', _e_picture_head), ('armr', _e_arm), ('legr', _e_leg), ('wingr', _e_wing), ('tail', _e_tail)):
     GEO[_part] = _fn()[0].edges
+for _part, _fn in (('body', _p_body), ('head', _p_head), ('armr', _p_arm), ('legr', _p_leg), ('wingr', _p_wing), ('tail', _p_tail)):
+    GEO_OG[_part] = _fn()[0].edges
 Pic.DRY = False
 
 
@@ -645,16 +917,36 @@ def textures():
         f, keep = pf.done(zlib.crc32(name.encode()) & 0xffff); b, _k = pb.done((zlib.crc32(name.encode()) + 1) & 0xffff, alpha=keep)
         T[name], T[name + '_b'] = f, b
         return keep
-    two('dd_body', lambda back: _p_body(back))
-    pb, _ = _p_head(back=True)
-    T['dd_head_b'], keep = pb.done(31)
-    T['dd_face'] = _p_head(None)[0].done(32, alpha=keep)[0]
+    # (3.0a) the Doodle Ender Dragon - the default drawing, under the names the OG had (the wardrobe's recolours, phase138)
+    two('dd_body', lambda back: _e_body(back))
+    pb, _ = _e_picture_head(back=True)
+    T['dd_head_b'], keep = pb.done(231)
+    T['dd_face'] = _e_picture_head(None)[0].done(232, alpha=keep)[0]
     for i, k in enumerate(FACES):
-        T[f'dd_face_{k}'] = _p_head(k)[0].done(33 + i, alpha=keep)[0]
-    T['dd_arm'] = _p_arm()[0].done(41)[0]
-    T['dd_leg'] = _p_leg()[0].done(42)[0]
-    T['dd_wing'] = _p_wing()[0].done(43)[0]
-    T['dd_tail'] = _p_tail()[0].done(44)[0]
+        T[f'dd_face_{k}'] = _e_picture_head(k)[0].done(233 + i, alpha=keep)[0]
+    T['dd_eyes'] = _e_eyes(None).done(250)[0]                  # (the glowing eyes and the ender particles: never recoloured)
+    for i, k in enumerate(FACES):
+        T[f'dd_eyes_{k}'] = _e_eyes(k).done(251 + i)[0]
+    T['dd_arm'] = _e_arm()[0].done(241)[0]
+    T['dd_leg'] = _e_leg()[0].done(242)[0]
+    T['dd_wing'] = _e_wing()[0].done(243)[0]
+    T['dd_tail'] = _e_tail()[0].done(244)[0]
+    # the OG green drawing ('Crayon Green', a costume): the very same pictures as before, '_g' on their names
+    G_ = {}
+    pf, _ = _p_body(False); pb, _ = _p_body(True)
+    G_['dd_body'], keep = pf.done(zlib.crc32(b'dd_body') & 0xffff)
+    G_['dd_body_b'] = pb.done((zlib.crc32(b'dd_body') + 1) & 0xffff, alpha=keep)[0]
+    pb, _ = _p_head(back=True)
+    G_['dd_head_b'], keep = pb.done(31)
+    G_['dd_face'] = _p_head(None)[0].done(32, alpha=keep)[0]
+    for i, k in enumerate(FACES):
+        G_[f'dd_face_{k}'] = _p_head(k)[0].done(33 + i, alpha=keep)[0]
+    G_['dd_arm'] = _p_arm()[0].done(41)[0]
+    G_['dd_leg'] = _p_leg()[0].done(42)[0]
+    G_['dd_wing'] = _p_wing()[0].done(43)[0]
+    G_['dd_tail'] = _p_tail()[0].done(44)[0]
+    T.update({k + OG_TEX: v for k, v in G_.items()})
+    # the effects - shared by both drawings
     T['dd_fire_s'] = _p_fire_side().done(45)[0]
     T['dd_fire_t'] = T['dd_fire_s'].rotate(90, expand=False)   # (the same flame for the flat card: its tip toward the image's top)
     T['dd_fire_f'] = _p_fire_burst().done(46)[0]
@@ -668,6 +960,13 @@ def textures():
     return dict(T)
 
 
+# (3.0a) the wardrobe's recolours (phase138.RECOL's list): every drawn texture of his but the eyes (they keep their purple glow)
+# and the effects; the OG's '_g' set recoloured as a set of its own (phase138: a name ending '_g', as Ava's ghost)
+_LOOK = ('dd_body', 'dd_body_b', 'dd_head_b', 'dd_arm', 'dd_leg', 'dd_wing', 'dd_tail', 'dd_face') + tuple(f'dd_face_{k}' for k in FACES)
+LOOK_TEX = _LOOK + tuple(n + OG_TEX for n in _LOOK)
+EYES_LIGHT = 15
+
+
 # ---------------------------------------------------------------------------------------------------- models
 def card(box, z, front, back, pv, mirror=False):
     """a picture on a card in the page (an xy plane at z): its front face and its back face, the back the same shape seen from behind"""
@@ -678,22 +977,36 @@ def card(box, z, front, back, pv, mirror=False):
             el((x0, y0, z + DZ), (x0 + s, y0 + s, z + DZ), back, pv, faces=('south',), uv={'south': ub})]
 
 
+EYE_DZ = 0.12                                      # (the eye card: this far in front of the face - well clear of z-fighting)
+
+
+def eyecard(box, z, tex, pv):
+    """the eyes, aglow: toward whoever he faces - and its back too, so the ender particles drifting off him show from behind
+    (his eyes there are behind his head)"""
+    x0, y0, s = box
+    return el((x0, y0, z), (x0 + s, y0 + s, z), tex, pv, faces=('north', 'south'), uv={'north': [0, 0, 16, 16], 'south': [16, 0, 0, 16]}, light=EYES_LIGHT)
+
+
 def models():
     M = {}
 
     def part(name, els):
         used = sorted({e['faces'][f]['texture'][1:] for e in els for f in e['faces']})
         M[name] = ({t: f'bm:block/{t}' for t in used}, els)
-    part('dd_body', card(BOX['body'][0], ZB, 'dd_body', 'dd_body_b', PIVOT['body']))
-    part('dd_head', card(BOX['head'][0], ZH, 'dd_face', 'dd_head_b', PIVOT['head']))
-    for fc in FACES:
-        part(f'dd_head_x{fc}', card(BOX['head'][0], ZH, f'dd_face_{fc}', 'dd_head_b', PIVOT['head']))
-    for p, tex in (('armr', 'dd_arm'), ('legr', 'dd_leg'), ('wingr', 'dd_wing')):
-        box, z = BOX[p]
-        part(f'dd_{p}', card(box, z, tex, tex, PIVOT[p]))
-        q = p[:-1] + 'l'
-        part(f'dd_{q}', card(box, z, tex, tex, PIVOT[q], mirror=True))
-    part('dd_tail', card(BOX['tail'][0], ZT, 'dd_tail', 'dd_tail', PIVOT['tail']))
+    for sfx, tx in (('', ''), (OG_SFX, OG_TEX)):              # (3.0a: the Ender drawing; the OG green one, its costume)
+        part('dd_body' + sfx, card(BOX['body'][0], ZB, 'dd_body' + tx, 'dd_body_b' + tx, PIVOT['body']))
+        for fc in (None,) + FACES:
+            nm, face = (f'dd_head_x{fc}', f'dd_face_{fc}') if fc else ('dd_head', 'dd_face')
+            els = card(BOX['head'][0], ZH, face + tx, 'dd_head_b' + tx, PIVOT['head'])
+            if not sfx:                                       # (his eyes: a glowing card just in front of his face)
+                els.append(eyecard(BOX['head'][0], ZH - DZ - EYE_DZ, 'dd_eyes' + (f'_{fc}' if fc else ''), PIVOT['head']))
+            part(nm + sfx, els)
+        for p, tex in (('armr', 'dd_arm'), ('legr', 'dd_leg'), ('wingr', 'dd_wing')):
+            box, z = BOX[p]
+            part(f'dd_{p}{sfx}', card(box, z, tex + tx, tex + tx, PIVOT[p]))
+            q = p[:-1] + 'l'
+            part(f'dd_{q}{sfx}', card(box, z, tex + tx, tex + tx, PIVOT[q], mirror=True))
+        part('dd_tail' + sfx, card(BOX['tail'][0], ZT, 'dd_tail' + tx, 'dd_tail' + tx, PIVOT['tail']))
     # the breath: a flame card standing up along it (seen from the side), the same flame lying flat across it (from above), and a
     # burst of fire at his mouth (from in front)
     # (all of it built full size and shrunk into the model's box - shown at PART_K times the scale)
@@ -772,8 +1085,9 @@ POSES = {
     'hurt': P(_face='sad', body=qs(('x', -8), ('z', 6)), head=qs(('x', -8), ('z', -8)), armr=limb(1, 0, -10), arml=limb(-1, 0, -10),
               legr=limb(1, 0, 4), legl=limb(-1, 0, -4), **wings(-20), **tail(-30)),
     # worn out: flopped over on his side, out cold, swirly-eyed
+    # (3.0a: the wing under him folded up along his back and his tail curled up off the floor - he lies on his arm, in both drawings)
     'tired': P(_face='dizzy', body=roll(88), head=roll(10), armr=limb(1, 0, 20), arml=limb(-1, 0, 50), legr=limb(1, 0, 10), legl=limb(-1, 0, 26),
-               **wings(-20), **tail(30)),
+               wingr=limb(1, 0, -20), wingl=limb(-1, 0, 80), **tail(70)),
     # CRAYON FIRE: a big breath in (cheeks full of smoke, head back) - then a scribble of flame
     'breathe_up': P(_face='puff', _fire='kindle', body=qs(('x', -12)), head=roll(-5), armr=limb(1, 0, 34), arml=limb(-1, 0, 34),
                     **wings(30), **tail(10)),

@@ -1,18 +1,21 @@
 // 2.97: THE INK BLOT (phase235) as a regular (non-op) player - the owner's checklist (rigpet_t): a drop off Mr. Capshun's page
 // (rcon places it); empty-handed it makes a "?"; given an ink sac it's yours (A Little Ink Pot). PUNCH (a fist); QUILL SPIKE (a foe
 // 5 off); SPLASH (two foes: blinded, slowed); INK SHIELD (Resistance II and Absorption for you); WONDER (Luck and Haste).
+// 3.0a: HOW IT'S MET - with Mr. Capshun and the Gem of Creativity out (rcon summons them, TestRat's own), an ink sac handed to Mr.
+// Capshun (without the Gem only a hint, the ink kept): a drop off his pen, given life by the Gem - its entrance, quiet till it's over - and
+// right-clicked, it comes along.
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
 runT({ W: 'inkblot', NAME: 'The Ink Blot', ab: 'ib', q: 'iq', pfx: 'p235i', prefix: 'ib_', item: 'ink_pot', parts: 7, figParts: 2, hp: 30, X: 17600, Z: 16000, pron: 'it',
   lookModel: 'ib_body_(?:blot|drop)',   // (a regex: caught mid-hop it's a drop, not a blot)
   called: /slides back to you/, home: /soaks into the ground/, sit: /melts into a puddle/, stand: /gathers itself back up/,
   ways: ['Punch', 'Quill Spike', 'Splash', 'Ink Shield', 'Wonder'], plain: 'Black ink', looks: ['Royal Blue Ink', 'Crimson Ink', 'Emerald Ink'],
   encounter: async (ctx) => {
+    // (3.0a) THE GEM BRINGS IT TO LIFE - handed something as a regular player; its entrance; right-clicked: it comes along
     const K = kit(ctx, 'iq');
-    const r = await K.meet(ctx, 'p235i/enc/place', /makes a "\?"/, 'minecraft:ink_sac', /drinks up the ink/, 'ink_pot');
-    ctx.ok('a blot off Mr. Capshun\'s page (its rig and a click box)', r.placed);
-    K.showOks(ctx.ok, r, "The Ink Blot's entrance", 'a drop of ink and a "?" (props) in the show');
-    ctx.ok('right-clicked empty-handed: a "?"', r.asked, r.lastBar);
-    ctx.ok('right-clicked holding an ink sac: its ink pot given', r.got, r.chat);
+    const o = { name: 'The Ink Blot', host: 'p198', hostAb: 'mz', hostTag: 'bm.mzpet', hostName: 'Mr. Capshun', gem: true, item: 'minecraft:ink_sac',
+      noGemRe: /If only something could bring it to life/, bornRe: /dips his pen in the ink/, joined: /pours itself into a pot/, itemId: 'ink_pot',
+      props: 'a drop of ink and a "?" (props) in the show' };
+    const r = await K.born(o); K.bornOks(ctx.ok, r, o);
   },
   abilities: async (ctx) => {
     const { ok, run, X, Y, Z } = ctx; const K = kit(ctx, 'iq');

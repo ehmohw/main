@@ -66,5 +66,53 @@ module.exports = (ctx, q) => {
     ok(`${name}: ...the show moves (the rig's transformation changing as it goes)`, s.had && s.moved >= 3, `${s.moved} looks seen`);
     ok(`${name}: ...and ends within 10 s - the rig whole, the show's props gone`, s.had && s.over && s.whole && s.cleared, `${(s.secs || 0).toFixed(1)} s, props seen ${s.props}`);
   };
-  return { cd, calm, fxOf, hp, home, move, meet, early, entrance, showOks };
+  // (3.0a) THE GEM BRINGS IT TO LIFE: the doodle born by handing a follower something - right-clicking its click box holding it.
+  // The stage by rcon: the host (and the Gem, if it's wanted) summoned as TestRat's own, sitting a few blocks off. With `gem`, first
+  // without the Gem: the hint, the item kept. Then handed: the item gone, the encounter there with its show - quiet till it ends -
+  // and right-clicked empty-handed: it comes along (its item, the line). Then the hosts are sent home (the follower cap is 3).
+  // o: { host: 'p198', hostAb: 'mz', hostTag: 'bm.mzpet', gem: true, item: 'minecraft:ink_sac', bornRe, noGemRe, joined, itemId }
+  const GEM = { pfx: 'p231', ab: 'cg', tag: 'bm.cgpet' };
+  const summonAs = async (pfx, dx) => run(`${O}execute as TestRat at @s rotated 0 0 positioned ~${dx} ~ ~3 run function bm:${pfx}/summon_here`);
+  const sendHome = async (pfx, tag, ab) => { await run(`tag @e[type=minecraft:wolf,tag=${tag}] add bm.${ab}sel2`); await run(`${O}execute as TestRat at @s run function bm:${pfx}/dismiss`);
+    await run(`tag @e[type=minecraft:wolf,tag=bm.${ab}sel2] remove bm.${ab}sel2`); };
+  const born = async (o, hand = 8) => {
+    const { A, at, entOf, sleep, has, ENC } = ctx; const r = {};
+    await at(X + 0.5, Y + 1, Z + 0.5, 0, 10); A.chats.length = 0;
+    await run(`kill @e[type=minecraft:wolf,tag=${o.hostTag}]`); await run(`kill @e[type=minecraft:wolf,tag=${GEM.tag}]`); await sleep(1500);
+    await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid');
+    await summonAs(o.host, 1.5); await sleep(1500);
+    await run(`data modify entity @e[type=minecraft:wolf,tag=${o.hostTag},limit=1] Sitting set value 1b`);
+    const HIT = `@e[type=minecraft:interaction,tag=bm.${o.hostAb}hit,limit=1]`;
+    const give = async () => { await run(`item replace entity TestRat hotbar.${hand} with ${o.item}`); A.slot(hand); await sleep(500);
+      const hb = await entOf(HIT); A.bars.length = 0; A.chats.length = 0; if (hb) A.interact(hb.entityId); await sleep(900); return !!hb; };
+    const held = async () => +(((await run(`clear TestRat ${o.item} 0`)).match(/Found (\d+)/) || [0, 0])[1]);
+    if (o.gem) {
+      r.reached0 = await give();
+      r.noGem = A.bars.some(b => o.noGemRe.test(b)) && (await held()) === 1 && (await cnt(ENC)) === 0;
+      r.noGemBar = A.bars.slice(-1).join('');
+      await summonAs(GEM.pfx, -1.5); await sleep(1500);
+      await run(`data modify entity @e[type=minecraft:wolf,tag=${GEM.tag},limit=1] Sitting set value 1b`);
+    }
+    r.reached = await give();
+    r.placed = await wait(3000, async () => (await cnt(ENC)) === 1, 100);
+    const pre = await early(ctx);
+    r.spent = (await held()) === 0;
+    r.bornLine = A.chats.some(c => o.bornRe.test(c)); r.chat0 = A.chats.slice(-1).join('').slice(0, 200);
+    let eb = null; await wait(5000, async () => (eb = await entOf(ENC)) != null, 250);
+    await run(`item replace entity TestRat hotbar.${hand} with minecraft:air`); A.slot(hand); await sleep(250);
+    r.show = await entrance(ctx, eb, null, pre, async () => (await has(o.itemId)) === 1);
+    A.chats.length = 0; eb = await entOf(ENC); if (eb) A.interact(eb.entityId); await sleep(1500);
+    r.got = (await has(o.itemId)) === 1 && A.chats.some(c => o.joined.test(c)); r.chat = A.chats.slice(-2).join(' | ').slice(0, 200);
+    await sendHome(o.host, o.hostTag, o.hostAb); if (o.gem && o.host !== GEM.pfx) await sendHome(GEM.pfx, GEM.tag, GEM.ab); await sleep(800);
+    return r;
+  };
+  // ...its checks, worded for the test's ok() list
+  const bornOks = (ok, r, o) => {
+    if (o.gem) ok(`${o.name}: handed to ${o.hostName} without the Gem out - only a hint ("if only..."), the item kept, nothing born`, r.noGem, r.noGemBar);
+    ok(`${o.name}: handed to ${o.hostName}${o.gem ? ' with the Gem out' : ''} (a right-click holding it): the item spent, the Gem brings it to life (the encounter, its line)`,
+       r.reached && r.placed && r.spent && r.bornLine, r.chat0);
+    showOks(ok, r, `${o.name}'s entrance`, o.props);
+    ok(`${o.name}: right-clicked once the show is over - it comes along (its item, its line)`, r.got, r.chat);
+  };
+  return { cd, calm, fxOf, hp, home, move, meet, early, entrance, showOks, born, bornOks, sendHome, summonAs, GEM };
 };
