@@ -10,7 +10,8 @@
 //   arrive   the Hive-Star Coordinates used out past the main island: lifted, then set down ON THE DOCK at its new height
 //   fall     stepped off a deck into the open sky and falling (the bot's own moves, ~4 blocks a tick): caught before
 //            y < the fleet's underside - 10, set back where you last stood, hurt
-//   node t334.js [move|clear|arrive|fall]
+//   hangar   the Mecha Rex's hangar marker aboard at its new height; walked up to, its dormant rig raised there
+//   node t334.js [move|clear|arrive|fall|hangar]
 const fs = require('fs'), path = require('path');
 const nbt = require('prismarine-nbt');
 const { bot, rcon, sleep } = require('./lib_resp');
@@ -46,8 +47,8 @@ const box = (o, s) => `x=${o[0]},y=${o[1]},z=${o[2]},dx=${s[0] - 1},dy=${s[1] - 
   console.log(`(the fleet: ${solid.length} blocks, its underside y ${under}, the volume y ${AO[1]}..${AO[1] + AS[1] - 1}; the catch from ${under - 2} down to ${CATCH_LOW})`);
 
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
-  A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
-  ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
+  A.chats.length = 0; A.cmd('gamemode creative');
+  ok('TestRat is a regular player', await wait(4000, async () => /unknown|incomplete/i.test(A.chats.join(' ')), 100), A.chats.join(' | ').slice(0, 200));
   await run('tag TestRat add bm.lkpass');      // (phase251's pass - this test sets its stages by teleport; t322 plays the lockout itself)
   await run('gamemode survival TestRat'); await run('clear TestRat');
   await run('effect give TestRat minecraft:resistance infinite 3 true'); await run('effect give TestRat minecraft:fire_resistance infinite 0 true');
@@ -67,7 +68,7 @@ const box = (o, s) => `x=${o[0]},y=${o[1]},z=${o[2]},dx=${s[0] - 1},dy=${s[1] - 
     await run('scoreboard players set #aver bm.p2 5'); await run('scoreboard players set #p241_old bm.p2 1'); await run('scoreboard players set #acol bm.p2 0');
     for (const f of ['#p241_o30', '#p241_o30w', '#asite', '#await']) await run(`scoreboard players reset ${f} bm.p2`);
     const pl = await run(`${E}place template bm:p2_armada ${O.join(' ')}`);
-    ok('the stage: a 3.0 copy placed at the 3.0 site (2560 24 -3328)', /placed/i.test(pl) && (await cnt(`@e[type=minecraft:marker,tag=bm.d_armada,${OB}]`)) > 50, pl);
+    ok('the stage: a 3.0 copy placed at the 3.0 site (2560 24 -3328)', /placed|loaded template/i.test(pl) && (await cnt(`@e[type=minecraft:marker,tag=bm.d_armada,${OB}]`)) > 50, pl);
     const odock = [O[0] + 111, O[1] + 50, O[2] + 206];
     await run(`${E}tp TestRat ${odock[0]}.5 ${odock[1]} ${odock[2]}.5`); await sleep(2500);
     await run('scoreboard players set TestRat bm.aox 1200'); await run('scoreboard players set TestRat bm.aoy 89'); await run('scoreboard players set TestRat bm.aoz 0');
@@ -139,10 +140,11 @@ const box = (o, s) => `x=${o[0]},y=${o[1]},z=${o[2]},dx=${s[0] - 1},dy=${s[1] - 
     for (let r = 1; r < 80 && !col; r++) for (let dx = -r; dx <= r && !col; dx++) for (const dz of [-r, r]) if (!col && free(140 + dx, 206 + dz)) col = [140 + dx, 206 + dz];
     const deck = W(140, 50, 206);
     await run(`${E}tp TestRat ${deck[0]}.5 ${deck[1]} ${deck[2]}.5`); await sleep(3000);      // (stood on the deck: where he last stood)
+    const stood = { x: A.pos.x, y: A.pos.y, z: A.pos.z };     // ("-3122" + ".5" is the block -3123's centre: where he really stands)
     const mark = [await sc('TestRat', 'bm.asx'), await sc('TestRat', 'bm.asy'), await sc('TestRat', 'bm.asz')];
-    ok('stood on a deck: the fleet marks where he last stood', mark[1] === deck[1] && mark[0] === deck[0], mark.join(' '));
+    ok('stood on a deck: the fleet marks where he last stood', mark[0] === Math.floor(stood.x) && mark[1] === Math.floor(stood.y) && mark[2] === Math.floor(stood.z), mark.join(' '));
     await run('effect clear TestRat minecraft:resistance'); await run('effect give TestRat minecraft:instant_health 1 4 true'); await sleep(600); const h0 = await hp();
-    const sky = W(col[0], 50, col[1]);
+    const sky = W(col[0], AS[1] - 6, col[1]);          // (from near the volume's top: ~70 blocks of fall, near full speed)
     A.unstand(); A.ground(false); await sleep(100);      // (off the ground before the step: never marked standing in the sky)
     const tp0 = A.pos.teleportId;
     await run(`${E}tp TestRat ${sky[0]}.5 ${sky[1]} ${sky[2]}.5`);
@@ -158,10 +160,23 @@ const box = (o, s) => `x=${o[0]},y=${o[1]},z=${o[2]},dx=${s[0] - 1},dy=${s[1] - 
     const caught = A.pos.teleportId !== tp1;
     A.stand(); await sleep(1500);
     ok(`fallen off into the sky (from y ${sky[1]}, open sky to y ${under - 1}): caught at y ${minY.toFixed(1)} - before y < ${under - 10} (the underside - 10)`, caught && minY >= under - 10, `caught ${caught}, lowest ${minY.toFixed(1)}, speed ${(-vy).toFixed(2)} a tick`);
-    ok('...set back where he last stood', A.pos && Math.abs(A.pos.x - deck[0] - 0.5) < 1.5 && Math.abs(A.pos.z - deck[2] - 0.5) < 1.5 && Math.abs(A.pos.y - deck[1]) < 1.5,
+    ok('...set back where he last stood (the very block)', A.pos && Math.abs(A.pos.x - stood.x) < 0.3 && Math.abs(A.pos.z - stood.z) < 0.3 && Math.abs(A.pos.y - stood.y) < 0.3,
        A.pos && `${A.pos.x.toFixed(1)} ${A.pos.y.toFixed(1)} ${A.pos.z.toFixed(1)}`);
     ok('...hurt by the drop', (await hp()) < h0, `${h0} -> ${await hp()}`);
     await run('effect give TestRat minecraft:resistance infinite 3 true');
+  }
+
+  if (on('hangar')) {
+    if ((await sc('#aver', 'bm.p2')) !== AVER) { await run('function bm:admin/armada/place'); await wait(900000, async () => (await sc('#aver', 'bm.p2')) === AVER, 2000); }
+    await loadBox(AO, AS);
+    const hm = st.entities.find(e => (e.nbt.Tags || []).includes('bm.rxhang'));
+    const hp_ = [Math.floor(AO[0] + hm.pos[0]), Math.floor(AO[1] + hm.pos[1]), Math.floor(AO[2] + hm.pos[2])];
+    const HS = `@e[type=minecraft:marker,tag=bm.rxhang,x=${hp_[0]},y=${hp_[1]},z=${hp_[2]},distance=..2]`;
+    ok(`the Mecha Rex's hangar marker aboard the Flagship, at its new height (${hp_.join(' ')})`, (await cnt(HS)) === 1);
+    await run(`${E}tp TestRat ${hp_[0]}.5 ${hp_[1]} ${hp_[2] + 6}.5`); await sleep(1000);
+    await run(`${E}tp TestRat ${hp_[0]}.5 ${hp_[1]} ${hp_[2]}.5`);
+    ok('...walked up to: its dormant rig raised there', await wait(6000, async () => (await cnt(`@e[type=minecraft:item_display,tag=bm.rxdm,x=${hp_[0]},y=${hp_[1]},z=${hp_[2]},distance=..12]`)) > 10, 300),
+       String(await cnt(`@e[type=minecraft:item_display,tag=bm.rxdm,x=${hp_[0]},y=${hp_[1]},z=${hp_[2]},distance=..12]`)));
   }
 
   await outside();

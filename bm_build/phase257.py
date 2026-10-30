@@ -13,6 +13,7 @@ interpolation and gone when its lifetime score runs out:
   seam     a crack of light (animated pulse), where it was spawned - it widens
   bubble   a black glossy bubble swelling on the goop, then POP (a splash ring and a sound)
   pop      the splash
+  bbubble, bpop  (3.0e) the Brood-Mire's: a purple bubble lit green, its splash; dfx_bgoop its goop (xmire_art draws them)
 
   spr(kind, size=1.0, jit=0.0) -> the command that spawns one here (size scales it and its travel; jit scatters where it starts)
   ring(kind, size, n)          -> n of them flung out in a ring, round here
@@ -25,6 +26,7 @@ import math
 import random
 from PIL import Image, ImageDraw
 from nbt import snbt, F, Int, B
+import xmire_art as XA
 
 PFX = 'p257'
 #            billboard, brightness, start scale, end scale, lives, hops, hop (forward, up), yaw turn a hop, spin, random yaw
@@ -37,7 +39,9 @@ KINDS = {'hflame': ('vertical', 15, 1.0, 0.22, (11, 13, 15, 12), 1, (0.10, 1.25)
          'nova': ('center', 15, 0.62, 0.08, (22,), 1, (6.0, 0.3), 0, True, False),
          'seam': ('center', 15, 0.45, 0.85, (44,), 0, (0, 0), 0, False, True),
          'bubble': ('center', 11, 0.04, 0.55, (10, 14, 16, 12), 1, (0.0, 0.14), 0, False, True),
-         'pop': ('center', 11, 0.40, 0.95, (5,), 0, (0, 0), 0, False, True)}
+         'pop': ('center', 11, 0.40, 0.95, (5,), 0, (0, 0), 0, False, True),
+         'bbubble': ('center', 12, 0.04, 0.55, (10, 14, 16, 12), 1, (0.0, 0.14), 0, False, True),      # (3.0e: the Brood-Mire's - purple, green-lit)
+         'bpop': ('center', 12, 0.40, 0.95, (5,), 0, (0, 0), 0, False, True)}
 VARK = (1.0, 0.85, 1.2, 0.95)                    # (each life's travel, a little more or less)
 _USED = {}                                        # (kind, size code) -> (size, jit): the spawners asked for, generated at the end
 OBJS = ['bm.dfl', 'bm.dfm', 'bm.dfd', 'bm.dfh']
@@ -265,14 +269,17 @@ def _strip(frames):
 
 
 ANIM = {'dfx_hflame': {'animation': {'frametime': 2, 'interpolate': True}}, 'dfx_star': {'animation': {'frametime': 3, 'interpolate': True}},
-        'dfx_seam': {'animation': {'frametime': 3, 'interpolate': True}}, 'dfx_goop': {'animation': {'frametime': 4, 'interpolate': True}}}
+        'dfx_seam': {'animation': {'frametime': 3, 'interpolate': True}}, 'dfx_goop': {'animation': {'frametime': 4, 'interpolate': True}},
+        'dfx_bgoop': {'animation': {'frametime': 4, 'interpolate': True}}}
 
 
 def textures():
     return {'dfx_hflame': _strip([_flame(i) for i in range(8)]), 'dfx_ember': _ember(), 'dfx_ash': _ash(), 'dfx_feather': _feather(),
             'dfx_star': _strip([_star(i) for i in range(4)]), 'dfx_dust': _dust(), 'dfx_nova': _nova(),
             'dfx_seam': _strip([_seam(i) for i in range(4)]), 'dfx_bubble': _bubble(), 'dfx_pop': _pop(),
-            'dfx_goop': _strip([_goop(i) for i in range(8)])}
+            'dfx_goop': _strip([_goop(i) for i in range(8)]),
+            # (3.0e: the Brood-Mire's goop, bubbles and pops - xmire_art draws them, purple slime and green-lit bubbles)
+            'dfx_bgoop': _strip([XA._goop(i) for i in range(8)]), 'dfx_bbubble': XA._bubble(), 'dfx_bpop': XA._pop()}
 
 
 def _quad(tex, light):
@@ -281,7 +288,7 @@ def _quad(tex, light):
                                         'faces': {'north': f, 'south': {'uv': [16, 0, 0, 16], 'texture': '#f'}}}])
 
 
-def _goop_model():
+def _goop_model(tex='dfx_goop'):
     """a pile of goop: terraced blobs, the model's centre on its foot (8, 8, 8 sits on the ground); 28 x 7 units"""
     def cube(a, b, uvk=1.0):
         fc = {d: {'uv': [0, 0, 16 * uvk, 16 * uvk] if d in ('up', 'down') else [0, 0, 16, 4], 'texture': '#g'} for d in ('north', 'south', 'east', 'west', 'up', 'down')}
@@ -289,16 +296,17 @@ def _goop_model():
     els = [cube((-6, 8, -5), (22, 9.4, 21)), cube((-3, 9.4, -2), (19, 11.2, 18)), cube((1, 11.2, 2), (15, 13.2, 14)),
            cube((4, 13.2, 5), (11, 14.6, 11)), cube((-8, 8, 4), (-6, 8.8, 12)), cube((22, 8, 2), (24, 8.7, 9)),
            cube((5, 8, -7), (12, 8.8, -5)), cube((8, 8, 21), (15, 8.6, 23))]
-    return ({'g': 'bm:block/dfx_goop'}, els)
+    return ({'g': f'bm:block/{tex}'}, els)
 
 
 def rp(R):
     import sys
     R.TEXTURE_MODS.append(sys.modules[__name__])
-    light = {'ash': 0, 'bubble': 0, 'pop': 0}
+    light = {'ash': 0, 'bubble': 0, 'pop': 0, 'bbubble': 0, 'bpop': 0}
     for k in KINDS:
         R.HATS[f'dfx_{k}'] = _quad(f'dfx_{k}', light.get(k, 15))
     R.HATS['dfx_goop'] = _goop_model()
+    R.HATS['dfx_bgoop'] = _goop_model('dfx_bgoop')
     R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + ('dfx_',)
 
     def post(R2):
@@ -360,8 +368,8 @@ def generate(G):
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in OBJS] + ['scoreboard players set #ryaw bm.rng 0']
     G.OBJECTIVES += OBJS
     rs = random.Random(257)
-    pop_cmd = spr('pop', 0.6)
-    show = [f'execute positioned ^{(i % 5) * 2 - 4} ^1.2 ^{5 + (i // 5) * 3} run {spr(k, 1.0, 0.3)}' for i, k in enumerate(k for k in KINDS if k != 'pop')]
+    pop_cmd, bpop_cmd = spr('pop', 0.6), spr('bpop', 0.6)
+    show = [f'execute positioned ^{(i % 5) * 2 - 4} ^1.2 ^{5 + (i // 5) * 3} run {spr(k, 1.0, 0.3)}' for i, k in enumerate(k for k in KINDS if k not in ('pop', 'bpop'))]
     step = ['scoreboard players add @s bm.dfl 1', 'execute if score @s bm.dfl matches 300.. run return run kill @s',
             'execute if score @s bm.dfl >= @s bm.dfm run return run function bm:p257/end',
             'execute unless score @s bm.dfl matches 2 unless score @s bm.dfl = @s bm.dfh run return 0']
@@ -380,6 +388,8 @@ def generate(G):
         fn(f'{PFX}/r/{key}', body)
     fn(f'{PFX}/end', ['execute if entity @s[tag=bm.dfx_bubble] at @s run ' + pop_cmd,
                       'execute if entity @s[tag=bm.dfx_bubble] at @s run playsound minecraft:block.bubble_column.bubble_pop hostile @a[distance=..24] ~ ~ ~ 0.8 0.7',
+                      'execute if entity @s[tag=bm.dfx_bbubble] at @s run ' + bpop_cmd,
+                      'execute if entity @s[tag=bm.dfx_bbubble] at @s run playsound minecraft:block.bubble_column.bubble_pop hostile @a[distance=..24] ~ ~ ~ 0.8 1.1',
                       'kill @s'])
     G.FUNCS['tick'].append(f'execute as @e[type=minecraft:item_display,tag=bm.dfx] at @s run function bm:{PFX}/step')
     G.FUNCS['admin/uninstall'].insert(0, 'kill @e[type=minecraft:item_display,tag=bm.dfx]')

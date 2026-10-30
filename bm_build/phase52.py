@@ -20,6 +20,7 @@ from useitem import hold, HOLD
 from nbt import snbt, B, F, D, Int
 
 GOLD, GREEN, RED = '#ffd23f', '#7dff6a', '#ff4a4a'
+JAM_END = 600                                          # (3.0e: seconds a jammer hums in the End, outside an invasion)
 SYM = [('♣', 'green'), ('♦', 'aqua'), ('♥', 'red'), ('★', 'yellow'), ('♛', 'gold'), ('7', 'dark_red')]
 W_REG = [30, 25, 20, 13, 8, 4]                        # ~87% back over time
 W_JP = [30, 25, 15, 7, 5, 18]                         # three 7s: about 1 pull in 170
@@ -37,7 +38,7 @@ item('pot_of_gold', TOTEM, 'Pot of Gold', GOLD, ['Dropped by a Leprechaun Rat.',
      model='bm:pot_of_gold', stack=16, cat='lucky', comps={'minecraft:consumable': consumable(0.8, 'none', 'minecraft:block.chain.break', False)})
 item('donadian_medal', TOTEM, 'Donadian Medal', '#3ad8c8', ['For defending a Donadian mothership', 'from the Vorn.', ('A keepsake. Zorp insists you wear it.', 'gray')],
      model='bm:donadian_medal', stack=1, cat='cosmetic', glint=True)
-item('signal_jammer', TOTEM, 'Signal Jammer', '#7a8a9c', ['Switch it on during an Invasion Night.', ('Until dawn, no Vorn trooper, saucer or', 'blue'),
+item('signal_jammer', TOTEM, 'Signal Jammer', '#7a8a9c', ['Switch it on during an Invasion Night', '(or in the End: 10 minutes).', ('Until dawn, no Vorn trooper, saucer or', 'blue'),
                                                          ('beast drops in within 48 blocks of you.', 'blue'), ('Sold only on Invasion Nights.', 'gray')],
      model='bm:signal_jammer', stack=8, cat='alien', comps={'minecraft:consumable': consumable(1.0, 'none', 'minecraft:block.beacon.power_select', False)})
 item('flak_rocket', TOTEM, 'Flak Rocket', '#ff8a3a', ['Right-click: fire at the nearest Vorn', 'Scout Saucer within 48 blocks (14 damage).', ('Sold only on Invasion Nights.', 'gray')],
@@ -360,15 +361,21 @@ def generate(G):
     # ================================================================ 7) invasion goods
     G.consume_adv('signal_jammer', 'bm:p52/jam')
     fn('p52/jam', ['advancement revoke @s only bm:consume/signal_jammer',
-                   'execute unless score #inv bm.bm matches 1 run return run function bm:p52/jam_refund',
+                   'execute unless score #inv bm.bm matches 1 unless dimension minecraft:the_end run return run function bm:p52/jam_refund',
+                   # (3.0e: in the End, outside an invasion, it hums for 10 minutes - the Brood-Mires, phase258, shy from it)
+                   f'execute unless score #inv bm.bm matches 1 run scoreboard players set @s bm.jamt {JAM_END}',
                    'tag @s add bm.jam', 'advancement grant @s only bm:story/jammer', 'particle minecraft:electric_spark ~ ~1.5 ~ 0.4 0.4 0.4 0.2 30',
+                   'execute if score @s bm.jamt matches 1.. run return run ' + say('Jammer on - for 10 minutes. No Brood-Mire will rise near you.', '#7a8a9c'),
                    say('Jammer on. No Vorn will drop in near you until dawn.', '#7a8a9c')])
     fn('p52/jam_refund', [give('signal_jammer'), say('There is nothing to jam tonight. (Refunded)')])
     G.FUNCS['p32/inv/surge'].insert(0, 'execute if entity @a[tag=bm.jam,distance=..48] run return 0')
     for name in [n for n in G.FUNCS if n.startswith('p32/bio/roll_')]:            # (natural spawns turned into Vorn beasts, too)
         G.FUNCS[name].insert(0, 'execute if entity @a[tag=bm.jam,distance=..48] run return 0')
-    G.FUNCS['p32/inv/end'].append('tag @a remove bm.jam')
-    second.append('execute unless score #inv bm.bm matches 1 run tag @a[tag=bm.jam] remove bm.jam')
+    G.FUNCS['p32/inv/end'].append('execute as @a[tag=bm.jam] unless score @s bm.jamt matches 1.. run tag @s remove bm.jam')
+    second.append('execute unless score #inv bm.bm matches 1 as @a[tag=bm.jam] unless score @s bm.jamt matches 1.. run tag @s remove bm.jam')
+    second.append('execute as @a[scores={bm.jamt=1..}] run scoreboard players remove @s bm.jamt 1')
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.jamt dummy']
+    G.OBJECTIVES += ['bm.jamt']
     second.append('execute as @a[tag=bm.jam] at @s run particle minecraft:electric_spark ~ ~2.2 ~ 0.2 0.1 0.2 0.02 1')
     fn('p52/flak/use', ['execute unless entity @e[tag=bm.vsauc,distance=..48] run return run ' + say('No Vorn saucer in range.'),
                         'execute unless entity @s[gamemode=creative] run item modify entity @s weapon.mainhand {function:"minecraft:set_count",count:-1,add:true}',

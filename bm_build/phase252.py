@@ -202,6 +202,9 @@ def generate(G):
 # poses follow the host's state (walking, resting, its lash, THE GRAB with the wild Mire's own grab, its happy shriek). It is
 # the host wolf's - no husk, none of the wild Mire's tags (bm.mire / bm.mr): phase246's caps, the cross, the light, the kill
 # credit and the Undercrown's clears never see it, and it never sinks by day.
+# (3.0e) IN ITS BROOD COSTUME (the wardrobe's look 8, phase258; its shiny, 9) it grows into the BROOD-MIRE instead: xmire_art's rig
+# (the same rig, three eyestalks more - so the place and the poses are xmire_art's for both), in its colours or the shiny's; the
+# kind raised is the host's bm.mlgk (0 Dread, 1 Brood, 2 Shiny Brood), and a change of look while grown swaps the giant at once.
 GROWN_SC = 1.5
 GROWN_CYC = {0: (240, [(0, 'idle_a'), (120, 'idle_b')]), 1: (24, [(0, 'rise_2'), (12, 'idle_b')]), 2: (None, [(0, 'rise_1')]),
              3: (None, [(0, 'stab_0'), (4, 'stab_1')]), 4: (None, [(0, 'grab_0'), (6, 'grab_1'), (24, 'idle_a')]),
@@ -212,29 +215,40 @@ GROWN_OF = [(2, '4'), (5, '6'), (2, '14'), (2, '16..17'), (1, '1..3'), (1, '10')
 def _grown(G):
     import rigfol as RFol
     import mire_art as WA
+    import xmire_art as XA
+    import phase258 as P258
     import phase246 as P246
     from nbt import F, Int
     fn, title = G.fn, G.title
     usel = lambda p: f'@e[type=minecraft:item_display,tag=bm.mlusel,tag=bm.mlu_{p}]'
     snd = lambda k, v=1.0, p=None: P246.snd(k, v, p, '@a[distance=..24]')          # (the wild Mire's own voice: bm:mire.*, else its vanilla stand-in)
     say = lambda line: title('@s', 'actionbar', [T('The Mireling: ', COL, bold=True), T(line, LINE)])
-    objs = ['bm.mlub', 'bm.mluf', 'bm.mlus']
+    objs = ['bm.mlub', 'bm.mluf', 'bm.mlus', 'bm.mlgk']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + [f'scoreboard players set #{n} bm.rng {n}' for n in (10, 100)]
     G.OBJECTIVES += objs
     G.wjson('bm/predicate/p252/quarter.json', {'condition': 'minecraft:random_chance', 'chance': 0.25})
     lit = lambda p: {'brightness': {'block': Int(15), 'sky': Int(15)}} if p in getattr(WA, 'GLOW', ()) else {}
     rig = [f'summon minecraft:item_display ~ ~ ~ {RFol.part_nbt(WA, p, ["bm.mlu", f"bm.mlu_{p}", "bm.mlunew"], GROWN_SC, model=WA.model_id(p), extra=dict(view_range=F(4.0), **lit(p)))}'
            for p in WA.PARTS]
-    fn('p252g/place', RFol.place(WA, GROWN_SC / 16, usel))
+    # (3.0e: the Brood-Mire's rig - in its own colours, and the shiny's: its models with the shiny suffix, xmireling_art)
+    import xmireling_art as XL
+    rig_b = {gk: [f'summon minecraft:item_display ~ ~ ~ {RFol.part_nbt(XA, p, ["bm.mlu", f"bm.mlu_{p}", "bm.mlunew"], GROWN_SC, model=XA.model_id(p) + sfx, extra=dict(view_range=F(4.0), **lit(p)))}'
+                  for p in XA.PARTS] for gk, sfx in ((1, ''), (2, XL.GROWN_SHINY))}
+    # (one place and one set of poses for both: the Brood-Mire's rig is the Dread Mire's and three eyestalks - its poses are the same
+    #  turns for the parts they share; the Dread giant has no eyestalks, and those lines find nothing)
+    fn('p252g/place', RFol.place(XA, GROWN_SC / 16, usel))
     for name in {pz for _per, frames in GROWN_CYC.values() for _t, pz in frames}:
-        fn(f'p252g/pose/{name}', RFol.pose(WA, WA.POSES[name], GROWN_SC, P246.DUR.get(name, 6), usel))
+        fn(f'p252g/pose/{name}', RFol.pose(XA, XA.POSES[name], GROWN_SC, P246.DUR.get(name, 6), usel))
     RFol.cycles(fn, 'p252g', GROWN_CYC, 'bm.mluf', 'bm.mlus', lambda p: f'p252g/pose/{p}')
     G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in RFol.periods(GROWN_CYC)]
     # (as the host, each tick: its owner's choice - Grown only while the owner holds rank III, bm.mlub 1)
     G.FUNCS['p252/tick'][-2:-2] = ['scoreboard players set #ub bm.rng 0', 'execute on owner run scoreboard players operation #ub bm.rng = @s bm.mlub',
                                    'execute if score #ub bm.rng matches 1 run function bm:p252g/on',
                                    'execute unless score #ub bm.rng matches 1 if entity @e[type=minecraft:item_display,tag=bm.mlu,distance=..12] run function bm:p252g/off']
-    fn('p252g/on', ['execute as @e[type=minecraft:item_display,tag=bm.mlu] if score @s bm.pid = #me bm.pid run tag @s add bm.mlusel',
+    fn('p252g/on', ['scoreboard players set #gk bm.rng 0', f'execute on owner if score @s bm.cosml matches {P258.LOOK} run scoreboard players set #gk bm.rng 1',
+                    f'execute on owner if score @s bm.cosml matches {P258.SHINY_LOOK} run scoreboard players set #gk bm.rng 2',
+                    'execute unless score @s bm.mlgk = #gk bm.rng run function bm:p252g/swap',
+                    'execute as @e[type=minecraft:item_display,tag=bm.mlu] if score @s bm.pid = #me bm.pid run tag @s add bm.mlusel',
                     'execute unless entity @e[type=minecraft:item_display,tag=bm.mlusel] run function bm:p252g/raise',
                     'execute as @e[type=minecraft:item_display,tag=bm.mlsel] run data modify entity @s view_range set value 0f',
                     'scoreboard players set #us bm.rng 0'] +
@@ -246,13 +260,24 @@ def _grown(G):
         'execute if score @s bm.mja matches 7 if score @s bm.mjx matches 5 run ' + snd('lash', 0.8, 1.2),
         'execute if score @s bm.mja matches 12 if score @s bm.mjx matches 26 run ' + snd('lash', 1.0, 0.9),
         'execute if score @s bm.mja matches 12 if score @s bm.mjx matches 8 run ' + snd('lash', 1.2, 0.7),
-        'execute if predicate bm:p252/quarter run function bm:p252g/drip',
+        'execute if score @s bm.mlgk matches 0 if predicate bm:p252/quarter run function bm:p252g/drip',
+        'execute if score @s bm.mlgk matches 1.. if predicate bm:p252/quarter run function bm:p252g/drip_b',
         'tag @e[tag=bm.mlusel] remove bm.mlusel'])
     # (its black goo dripping, as the wild Mire's - at three quarters of its height)
     fn('p252g/drip', ['particle minecraft:falling_dust{block_state:"minecraft:black_concrete"} ~ ~2.4 ~ 0.5 0.9 0.5 0 2',
                       'particle minecraft:dust{color:[0.5,0.02,0.06],scale:1.0} ~ ~0.15 ~ 1.0 0.04 1.0 0 2',
                       'execute store result score #r bm.rng run random value 1..60', 'execute if score #r bm.rng matches 1 run ' + snd('idle', 0.6, 1.2)])
-    fn('p252g/raise', rig + ['execute as @e[type=minecraft:item_display,tag=bm.mlunew] run scoreboard players operation @s bm.pid = #me bm.pid',
+    fn('p252g/drip_b', ['particle minecraft:falling_dust{block_state:"minecraft:purple_concrete"} ~ ~2.4 ~ 0.5 0.9 0.5 0 2',
+                        'particle minecraft:dust{color:[0.55,0.9,0.18],scale:1.0} ~ ~0.15 ~ 1.0 0.04 1.0 0 2',
+                        'execute store result score #r bm.rng run random value 1..60', 'execute if score #r bm.rng matches 1 run ' + P258.snd('idle', 0.6, 1.2, '@a[distance=..24]')])
+    # (a look changed while grown: the giant out, the other kind up on this tick's raise)
+    fn('p252g/swap', ['execute as @e[type=minecraft:item_display,tag=bm.mlu] if score @s bm.pid = #me bm.pid run kill @s', 'scoreboard players operation @s bm.mlgk = #gk bm.rng'])
+    fn('p252g/rig', ['execute if score #gk bm.rng matches 0 run function bm:p252g/rig_d', 'execute if score #gk bm.rng matches 1 run function bm:p252g/rig_b',
+                     'execute if score #gk bm.rng matches 2 run function bm:p252g/rig_s'])
+    fn('p252g/rig_d', rig)
+    fn('p252g/rig_b', rig_b[1])
+    fn('p252g/rig_s', rig_b[2])
+    fn('p252g/raise', ['function bm:p252g/rig', 'execute as @e[type=minecraft:item_display,tag=bm.mlunew] run scoreboard players operation @s bm.pid = #me bm.pid',
                              'tag @e[type=minecraft:item_display,tag=bm.mlunew] add bm.mlusel', 'tag @e[type=minecraft:item_display,tag=bm.mlunew] remove bm.mlunew',
                              'scoreboard players set @s bm.mlus -1',
                              'particle minecraft:squid_ink ~ ~0.5 ~ 1.4 0.3 1.4 0.08 50', 'particle minecraft:dust{color:[0.5,0.02,0.06],scale:1.4} ~ ~0.2 ~ 1.4 0.05 1.4 0 30',

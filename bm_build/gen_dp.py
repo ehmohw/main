@@ -222,6 +222,7 @@ import phase255 as R255      # 3.0a: [no-spawn hook] nothing spawns in the Under
 import phase253 as R253      # 3.0: the Loom Sanctuary - the Compass of Bonds (every follower met) and the sky island where the Keeper waits
 import phase254 as R254      # 3.0: [keeper hook] the Keeper of Bonds - the 51st follower, the last (registers after every follower before it)
 import phase257 as R257      # 3.0d: the death sprites - holy fire, ash, star dust, goop bubbles (the three dramatic deaths)
+import phase258 as R258      # 3.0e: the Brood-Mire - the Vorn's alien Mire (outer End, the Armada, invasion nights); Brood Ichor; the Brood Mireling
 import phase241 as R241      # 2.99: the Vorn Armada - the Vorn's hard-mode dungeon, a hive-fleet round a star in the End (its kinds of trial register on import)
 R233.add_pairs()             # 2.98: the Creative Forms
 R229.add_pairs()             # 2.97: the cats' pairs with everyone - after every follower is imported
@@ -1511,6 +1512,8 @@ def build(out_dir):
     if PHASE2: R245.generate(sys.modules[__name__])      # 2.99a: the Statue Knights (the Throne Gate's, the Command Lock's)
     if PHASE2: R246.generate(sys.modules[__name__])      # 2.99a: the Dread Mire (after phase181: it patches the Stalkers)
     if PHASE2: R252.late(sys.modules[__name__])          # 3.00: [mireling hook] a Mire's slayer credited, its seed; the Stalkers' nod (after phase246 and phase181)
+    if PHASE2: print('3.0e: the Brood-Mire - its natural roll on %d mob kinds' % R258.generate(sys.modules[__name__]))      # (after phase241's waves, phase32's surge, phase52's jammer; before phase257: it asks for sprites)
+    if PHASE2: R258.late(sys.modules[__name__])          # 3.0e: the Mireling's honour takes Brood Ichor; its Brood looks (after phase201, phase99 and phase252)
     if PHASE2: R257.generate(sys.modules[__name__])      # 3.0d: the death sprites (after the Sovereign, Vexis and the Mire: it makes the spawners they asked for)
     if PHASE2: R247.generate(sys.modules[__name__])      # 2.99a: holy bane
     R250.generate(sys.modules[__name__])                 # 2.99a: [market music hook] the market's music (after phase244/240/75: it yields to their music)

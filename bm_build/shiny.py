@@ -92,5 +92,9 @@ def item_of(w):
     return {'emma': 'cos_dress_{}', 'celi': 'cos_celi_{}', 'zib': 'cos_zib_{}'}.get(w, 'cos_' + w + '_{}').format(KEY[w])
 
 
+UNSOLD = set()                   # (3.0e: looks found another way, never sold either - the Brood Mireling's, phase258)
+
+
 def is_shiny(iid):
-    return any(item_of(w) == iid for w in KEY)
+    """a look never sold: a shiny one (found, phase221) - or one in UNSOLD"""
+    return iid in UNSOLD or any(item_of(w) == iid for w in KEY)

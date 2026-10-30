@@ -326,7 +326,7 @@ def generate(G):
                          title('@s', 'actionbar', [T(nm, 'dark_red', bold=True), T(' will not be skipped: its trials come in their order. Back you go.', 'gray', italic=True)])])
         fn(f'{F}/to_last', ['execute store result storage bm:tmp lk.x int 1 run scoreboard players get @s bm.lkx', 'execute store result storage bm:tmp lk.y int 1 run scoreboard players get @s bm.lky',
                             'execute store result storage bm:tmp lk.z int 1 run scoreboard players get @s bm.lkz', f'function bm:{F}/to with storage bm:tmp lk'])
-        fn(f'{F}/to', [f'$execute in {dim} run tp @s $(x).5 $(y) $(z).5'])
+        fn(f'{F}/to', [f'$execute in {dim} run tp @s $(x) $(y) $(z)'])     # (3.0e: whole x/z are the block's centre; "$(z).5" was a block off for a negative z - both boxes are)
         fn(f'{F}/to_start', [f'execute in {dim} run tp @s {ex + 0.5} {ey} {ez + 0.5}'])
         # ---- thrown pearls: the floor drinks them (the pearl comes back)
         near = f' at @s if entity @e[type=minecraft:marker,tag=bm.zone_d,tag=bm.d_{d},distance=..40]' if key == 'under' else ''

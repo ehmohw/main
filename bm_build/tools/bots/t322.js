@@ -15,7 +15,8 @@ const on = (s) => !ONLY || ONLY === s;
 const UO = [2560, 6, -2560], AO = require('./armada_cfg').AO;          // (p2/undercfg.ORIGIN, p2/armadacfg.ORIGIN)
 const N = 'execute in minecraft:the_nether run ', E = 'execute in minecraft:the_end run ';
 const CELL = { under: { 0: [2632, 84, -2417], 2: [2584, 84, -2441], 3: [2584, 84, -2464], 16: [2669, 19, -2470] },
-               armada: { 0: [2661, 74, -3124], 2: [2755, 70, -3149], 3: [2738, 70, -3154], 17: [2566, 79, -3171] } };
+               armada: Object.fromEntries(Object.entries({ 0: [101, 50, 204], 2: [195, 46, 179], 3: [178, 46, 174], 17: [6, 55, 157] })     // (local - 3.0e: placed from armadacfg.ORIGIN)
+                 .map(([k, [x, y, z]]) => [k, [AO[0] + x, AO[1] + y, AO[2] + z]])) };
 
 (async () => {
   const res = [];

@@ -149,7 +149,10 @@ const box = (o, s) => `x=${o[0]},y=${o[1]},z=${o[2]},dx=${s[0] - 1},dy=${s[1] - 
     ok('armada: ...none of its parts left behind', parts === 0, String(parts));
     await run(`execute in ${END} as @e[type=minecraft:zombie,tag=bm.t329r] at @s run tp @s ~ -400 ~`); await run(`${E}kill @e[tag=bm.t329r]`);
     // (the positive control: the same forced rolls in the outer End, far from the fleet - a Mire can still rise there)
-    await run(`${E}tp TestRat ${far[0] + 6}.5 ${far[1]} ${far[2]}.5`); await run(`${E}fill ${far[0] - 2} ${far[1] - 1} ${far[2] - 2} ${far[0] + 8} ${far[1] - 1} ${far[2] + 2} minecraft:obsidian`); await sleep(1500);
+    // (a closed obsidian room: the End's open sky is too bright for a Mire - p246/dark wants light 4 or less)
+    const ROOM = `${far[0] - 3} ${far[1] - 1} ${far[2] - 3} ${far[0] + 9} ${far[1] + 3} ${far[2] + 3}`;
+    await run(`${E}fill ${ROOM} minecraft:obsidian hollow`);
+    await run(`${E}tp TestRat ${far[0] + 6}.5 ${far[1]} ${far[2]}.5`); await sleep(2500);
     await run(`${E}summon minecraft:zombie ${far[0]}.5 ${far[1]} ${far[2]}.5 {NoAI:1b,Silent:1b,Tags:["bm.seen","bm.t329r"]}`);
     const FB = `x=${far[0] - 3},y=${far[1] - 2},z=${far[2] - 3},dx=6,dy=5,dz=6`;
     let n = 0;
@@ -160,7 +163,7 @@ const box = (o, s) => `x=${o[0]},y=${o[1]},z=${o[2]},dx=${s[0] - 1},dy=${s[1] - 
     ok('armada: ...the same rolls in the outer End, far from it: a Mire still rises there', (await count(END, `@e[type=minecraft:husk,tag=bm.mire,${FB}]`)) === 1, `after ${n} rolls`);
     await run(`execute in ${END} as @e[type=minecraft:husk,tag=bm.mire,${FB}] at @s run function bm:p246/melt`);
     await run(`execute in ${END} as @e[type=minecraft:zombie,tag=bm.t329r] at @s run tp @s ~ -400 ~`); await run(`${E}kill @e[tag=bm.t329r]`);
-    await run(`${E}fill ${far[0] - 2} ${far[1] - 1} ${far[2] - 2} ${far[0] + 8} ${far[1] - 1} ${far[2] + 2} minecraft:air`);
+    await run(`${E}tp TestRat 1200.5 89 0.5`); await sleep(500); await run(`${E}fill ${ROOM} minecraft:air`);
     await run('scoreboard players reset TestRat bm.mday'); await run(`scoreboard players set #active bm.bm ${active === -99 ? 0 : active}`); await run(`scoreboard players set #hard bm.cfg ${hard === -99 ? 0 : hard}`);
     await run(`${E}tp TestRat 1200 90 0`); await run(`${E}setblock 1200 88 0 minecraft:obsidian`); await sleep(1000);
   }

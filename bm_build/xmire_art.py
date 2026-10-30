@@ -1,4 +1,4 @@
-"""3.0e (STAGE 1 DRAFT - art only, not wired): THE BROOD-MIRE (art) - the Vorn's alien cousin of the Dread Mire. The hive took a Dread
+"""3.0e: THE BROOD-MIRE (art; phase258 runs it, on mirekit) - the Vorn's alien cousin of the Dread Mire. The hive took a Dread
 Mire aboard the Brood-Carrier and "improved" it ("EVERYTHING HERE WAS SOMETHING ELSE, ONCE."): a grotesque tentacle monster in deep
 purples and sickly alien greens, bioluminescent green veins, and EYES - clusters of yellow slit-pupilled eyes of every size all
 over it, blinking out of step.
@@ -19,7 +19,9 @@ of its own: idle_c (a writhe), beam (balled up in a tractor beam: its arrival), 
 aimed - then the spit).
 SCALE 2.0 (a design unit is 1/8 block), as the Dread Mire. GLOW: every part (as mire_art). Its textures are its own (bx_*), and the
 eyes are animated: eye1 / eye2 / eye3 each blink (and glance aside) on their own timing, so the eyes never all blink together.
-The melt's goop and bubbles are recoloured (bx_goop, bx_bubble, bx_pop: phase257's, purple-green)."""
+The melt's goop and bubbles are recoloured (phase257's dfx_bgoop / bbubble / bpop, drawn here: _goop, _bubble, _pop; bx_goop,
+bx_bubble and bx_pop are the previews' own). Its item icons: brood_ichor, hive_scent, brood_pod (icons()). rp(R): gen_rp, through
+phase258.rp."""
 import math
 import random
 from PIL import Image
@@ -704,3 +706,121 @@ DUR = {'beam': 10, 'idle_c': 20, 'spit_0': 10, 'spit_1': 4}
 def extent(pose, parts=None):
     """(lowest y, highest y, nearest z) - measured as mire_art measures (the shared parts; the stalks add ~1.5 blocks over the head)"""
     return MA.extent(pose, parts)
+
+
+# ---------------------------------------------------------------------------------------------------- the items (phase258)
+ICHOR = ['................',
+         '......444.......',
+         '....44w5443.....',
+         '...4w54333433...',
+         '..45433g3333..3.',
+         '..4333gG3yy33.3.',
+         '.433333gyKKy332.',
+         '.43g33333yy3322.',
+         '.433G3333g33322.',
+         '..33gg333gG3221.',
+         '..3333333g33221.',
+         '...222223322211.',
+         '....222222111...',
+         '......1111......',
+         '.......G........',
+         '......GgG.......']
+ICHOR_PAL = {'1': '#140620', '2': '#2e1046', '3': '#4c1c70', '4': '#6e2e98', '5': '#9a58c4', 'w': '#dcb0f0',
+             'g': '#8ad024', 'G': '#c8ff50', 'y': '#fac41e', 'K': '#140a04'}
+POD = ['................',
+       '.......44.......',
+       '......4w54......',
+       '.....45543......',
+       '....4533g33.....',
+       '....43yyyy3.....',
+       '...43yyKKyy3....',
+       '...43gyyyyg3....',
+       '...433g3G332....',
+       '...3333g3332....',
+       '....33G33322....',
+       '....3g333322....',
+       '.....333221.....',
+       '......2221......',
+       '.......g........',
+       '......gGg.......']
+
+
+def _paint(rows, pal):
+    from sprites280 import hx
+    im = Image.new('RGBA', (16, 16), (0, 0, 0, 0)); px = im.load()
+    for y, row in enumerate(rows):
+        assert len(row) == 16, (y, row)
+        for x, ch in enumerate(row):
+            if ch != '.': px[x, y] = hx(pal[ch])
+    return MA._outline(im)
+
+
+def ichor_raw():
+    """Brood Ichor: a quivering glob of purple slime, green veins glowing through it, a yellow eye peering out of it, a green drop
+    falling from it"""
+    return _paint(ICHOR, ICHOR_PAL)
+
+
+def pod_raw():
+    """a Brood Pod: sixteen ichors grown into a purple pod, green veins pulsing up it, a yellow slit-eye open in its middle"""
+    return _paint(POD, ICHOR_PAL)
+
+
+def scent_raw():
+    """Hive Scent: a round-bellied vial of glowing green ichor with purple swirls, a purple cork, a thread of green vapour"""
+    S = MA._icon_kit(); s = S()
+    GL = ['#2c3a46', '#4a6274', '#7a98aa', '#bcd8e4', '#eefaff']
+    CORK = ['#2e1046', '#4c1c70', '#6e2e98', '#9a58c4', '#dcb0f0']
+    s.disc(7.5, 11.0, 4.6, GL)
+    for y in range(16):
+        for x in range(16):
+            if (x, y) in s.p and math.hypot(x + 0.5 - 7.5, y + 0.5 - 11.0) < 3.7:
+                d = math.hypot(x + 0.5 - 8.0, y + 0.5 - 12.0)
+                s.px(x, y, '#c8ff50' if d < 1.3 else '#8ad024' if d < 2.6 else '#4e8a14' if y > 8 else '#6e2e98')
+    s.px(6, 12, '#9a58c4'); s.px(9, 11, '#9a58c4')
+    for x in (5, 6, 7, 8, 9): s.px(x, 8, '#9a58c4' if x < 7 else '#6e2e98')
+    for y in (5, 6, 7): s.px(6, y, GL[2]); s.px(7, y, GL[1]); s.px(8, y, GL[1])
+    s.g(['abbc', 'abbc'], {'a': CORK[3], 'b': CORK[2], 'c': CORK[1]}, 5, 3)
+    s.px(5, 3, CORK[4])
+    s.px(4, 9, GL[4]); s.px(4, 10, GL[3]); s.px(5, 8, GL[3])
+    im = MA._outline(s.image()); px = im.load()
+    for (x, y, c) in ((6, 1, (200, 255, 120)), (7, 0, (170, 236, 90)), (8, 1, (140, 210, 60)), (9, 0, (120, 190, 50)), (10, 1, (100, 170, 40))):
+        if px[x, y][3] == 0: px[x, y] = c + (255,)
+    return im
+
+
+def icons():
+    return {'brood_ichor': ichor_raw(), 'hive_scent': scent_raw(), 'brood_pod': pod_raw()}
+
+
+def icon(name):
+    import vanilla
+    return vanilla.process(name, icons()[name])
+
+
+# ---------------------------------------------------------------------------------------------------- gen_rp
+FX_ONLY = ('bx_goop', 'bx_bubble', 'bx_pop')                     # (previews only: the shipped goop and sprites are phase257's dfx_b*)
+
+
+def rp(R):
+    """gen_rp: the bx_ textures (TEXTURE_MODS; the eyes, veins and pool animated - their .mcmeta in a post pass), every part as a 3D
+    model at display scale (HATS, DISPLAY_3D_EXTRA 'bx_'), the three item icons"""
+    import sys
+    mod = sys.modules[__name__]
+
+    class _Tex:
+        @staticmethod
+        def textures():
+            return {k: v for k, v in mod.textures().items() if k not in FX_ONLY}
+    R.TEXTURE_MODS.append(_Tex)
+    for name, (tex, els) in models().items():
+        if name in FX_ONLY: continue
+        R.HATS[name] = (tex, els)
+    R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + (PREFIX,)
+    R.ICONS.update(icons())
+
+    def post(R2):
+        textures()
+        for k, meta in ANIMATED.items():
+            if k not in FX_ONLY: R2.wj(f'assets/bm/textures/block/{k}.png.mcmeta', meta)
+    R.POST.append(post)

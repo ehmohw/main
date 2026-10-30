@@ -921,6 +921,8 @@ if __name__ == '__main__':
     dread_set_art.rp(sys.modules[__name__])
     import phase95                            # (after every head model: the faces)
     phase95.rp(sys.modules[__name__])
+    if PHASE2:
+        import phase258                       # (3.0e: before the looks are copied - the Mireling's wardrobe gains looks 8 and 9, its Brood costume)
     import phase138                           # (2.78: the recoloured looks - after the faces, so their item definitions are copied too)
     phase138.rp(sys.modules[__name__])
     import phase141                           # (2.78: every follower's doll - their figurine, one model)
@@ -992,6 +994,8 @@ if __name__ == '__main__':
         phase246.rp(sys.modules[__name__])
         import phase257                           # (3.0d: the death sprites and the Mire's goop)
         phase257.rp(sys.modules[__name__])
+        import phase258                           # (3.0e: the Brood-Mire - its rig, its icons; the Brood Mireling's models, after phase138's copies)
+        phase258.rp(sys.modules[__name__])
         import rex_art                            # (2.99a: the Rex mounts - their rigs, charged plates and the quest items' icons; phase249 runs them)
         rex_art.rp(sys.modules[__name__])
     if PHASE2:

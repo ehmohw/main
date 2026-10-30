@@ -195,6 +195,7 @@ RECOL = {'apo': ('apophiss_art', ('apo_scale', 'apo_scale_dk', 'apo_fin', 'apo_b
 # (2.82c) his fingers and eyelids took no outfit's colour: they go through the palette too, on the main set's brightness range
 # (so the scales come out as before, and the dark claws stay darker than the scales)
 SIDE = {'apo_claw', 'apo_lid', 'om_claw', 'om_lid'}
+HANDMADE = set()                                  # (3.0e: (follower, look) drawn by hand, every model its own - the Brood Mireling's 8 and 9, phase258)
 SIDE |= {'ml_glow', 'ml_hot', 'ml_barb'}           # (3.00: the Mireling's veins - mireling_art.LOOK_SIDE: a look's light colour IS its vein colour)
 # (3.0d) a texture recoloured on its own toward the look's light end - (mid, light, light mixed this far to white): the Keeper's
 # pearl hair (its hood down) - so in a dark look it's a pale pearly tint of it, not the robe's own colour (it would read as a hood)
@@ -235,6 +236,7 @@ def textures():
     for w, (mod, keys) in RECOL.items():
         base = importlib.import_module(mod).textures()
         for k, (_n, pal) in P99.NEW[w][3].items():
+            if (w, k) in HANDMADE: continue
             if gild.is_gilded(w, k):
                 ims = {n: gild.dress(w, k, base[n]) for n in keys}                                    # (2.79a: polished gold)
             else:
@@ -293,6 +295,7 @@ def rp(R):
             mine = [n for n in names if ITEMS_OF[w](n)]
             assert mine, w
             for k in P99.NEW[w][3]:
+                if (w, k) in HANDMADE: continue          # (3.0e: a look whose models are drawn, not recoloured - its module writes them)
                 tm, done = texmap(w, k), {}
 
                 def model(mn):                       # a model with any of the textures: its copy, recoloured

@@ -1,4 +1,4 @@
-"""3.0e (STAGE 1 DRAFT - art only, not wired): THE BROOD MIRELING - the Mireling's alien costume, a little Brood-Mire (xmire_art).
+"""3.0e: THE BROOD MIRELING - the Mireling's alien costume, a little Brood-Mire (xmire_art).
 Purely cosmetic: the same Mireling (mireling_art's rig, every part, pose and face), its skin purple, its veins green, its eye
 yellow and slit-pupilled - and more eyes: a pair on its brow, one on each cheek, a little one on its crown, one at its back,
 two little eyestalks on its crown, eyes on its rings and its puddle, an eye on each tentacle's hook. Like the Brood-Mire's,
@@ -7,7 +7,7 @@ every extra eye blinks on its own timing (eye1 / eye2 / eye3, animated).
 HOW IT'S WORN. A wardrobe look like the Mireling's others (phase99 / phase138: a look is a "_c<k>" suffix on whatever model a
 part wears, so poses and faces keep working) - but its _c<k> models are not recoloured copies: they are built here, every
 Mireling model (each part, each face of the head) with its textures swapped for the alien ones (mlx_*) and its extra eyes added.
-LOOK = its key in WARDROBE: 7, the first free one (1-6 the looks, the shiny is phase99's own); its shiny twin 8.
+LOOK = its key in the wardrobe: 8 (1-6 its looks, 7 its shiny - a world keeps looks by number); the shiny Brood look 9.
 models(suffix) -> {ml_<model>_c<k>: (textures, els)}.
 FULL-GROWN in the costume: the Brood-Mire's own rig (xmire_art), as phase252._grown raises mire_art's (same parts, same poses).
 SHINY: SHINY_PAL - the costume in a shiny palette of its own (pale pearl skin, magenta veins, gold eyes): models(..., shiny=True)."""
@@ -21,7 +21,7 @@ import mire_art as MA
 import xmire_art as XA
 
 PREFIX = 'mlx_'
-LOOK = 7
+LOOK = 8                                         # (the Mireling's wardrobe: 1-6 its looks, 7 its shiny - phase99 / shiny.py)
 SUFFIX = f'_c{LOOK}'
 SHINY_SUFFIX = f'_c{LOOK + 1}'
 NAME, SHINY_NAME = 'Brood Mireling', 'Shiny Pearl Brood'
@@ -46,8 +46,14 @@ def brood_textures():
          'mlx_maw': XA._grid(MA.MAWT, dict(XA.PAL, a=XA.G2, b=XA.G3, O=XA.V3)), 'mlx_ember': XA._grid(MA.EMBER, dict(XA.PAL, c=XA.G3, d=XA.G4, e=XA.G5)),
          'mlx_iris': XA._grid(MA.IRIS, Y), 'mlx_irisr': XA._grid(MA.IRISR, Y), 'mlx_void': XA._grid(['0' * 16] * 16, {'0': XA.KP}),
          'mlx_belly': XA._belly(), 'mlx_cyst': XA._cyst()}
-    for k in XA.EYE_SEQ: T['mlx_' + k] = XA._eye_frame('open', 0)
+    frames = [XA._eye_frame(st, lk) for st, lk in XA.EYE_FRAMES]
+    for k in XA.EYE_SEQ: T['mlx_' + k] = XA._strip(frames)                 # (they blink, out of step - xmire_art's timings)
     return T
+
+
+def anim(pre):
+    """{texture: .mcmeta} - the costume's blinking eyes"""
+    return {pre + k: {'animation': {'frames': [{'index': i, 'time': t} for i, t in seq]}} for k, seq in XA.EYE_SEQ.items()}
 
 
 # the shiny: each brood colour -> its shiny twin (by nearest brood colour)
@@ -143,6 +149,57 @@ def models(shiny=False, suffix=None):
             for v in e['from'] + e['to']: assert -16 <= v <= 32, (mid, e['from'], e['to'])
         out[mid + suffix] = (t, all_)
     return out
+
+
+# ---------------------------------------------------------------------------------------------------- FULL-GROWN, shiny (phase252)
+GROWN_SHINY = '_sh'                    # (the Brood-Mire's models in the shiny's colours: bx_<part>_sh, its textures bxs_*)
+
+
+def grown_shiny_textures():
+    XA.textures()
+    return {k.replace('bx_', 'bxs_', 1): shiny_of(v) for k, v in XA.textures().items() if k not in XA.FX_ONLY}
+
+
+def grown_shiny_models():
+    out = {}
+    for mid, (tex, els) in XA.models().items():
+        if mid in XA.FX_ONLY: continue
+        out[mid + GROWN_SHINY] = ({k: v.replace('bm:block/bx_', 'bm:block/bxs_') for k, v in tex.items()}, els)
+    return out
+
+
+def rp(R):
+    """gen_rp (phase258.rp, after phase138's): the costume's textures (mlx_ / mls_), the grown shiny's (bxs_), and in a post pass -
+    after phase138's, which made recoloured copies of every Mireling model for looks 8 and 9 - this costume's own models over them
+    (ml_<model>_c8 / _c9: its geometry, its textures), with their item definitions, and bx_<part>_sh"""
+    import json, os
+
+    class _Tex:
+        @staticmethod
+        def textures():
+            return dict(textures(), **textures(shiny=True), **grown_shiny_textures())
+    R.TEXTURE_MODS.append(_Tex)
+
+    def post(R2):
+        mdir = R2.p('assets', 'bm', 'models', 'item')
+        n = 0
+        for mid, (tex, els), base in ([(m, v, m[:-len(SUFFIX)]) for m, v in models().items()] +
+                                      [(m, v, m[:-len(SHINY_SUFFIX)]) for m, v in models(shiny=True).items()] +
+                                      [(m, v, m[:-len(GROWN_SHINY)]) for m, v in grown_shiny_models().items()]):
+            src = os.path.join(mdir, base + '.json')
+            disp = json.load(open(src)).get('display') if os.path.exists(src) else None
+            t = dict(tex); t['particle'] = next(iter(tex.values()))
+            R2.wj(f'assets/bm/models/item/{mid}.json', {'textures': t, 'elements': els,
+                                                        'display': disp or {'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1, 1, 1]}}})
+            R2.wj(f'assets/bm/items/{mid}.json', {'model': {'type': 'minecraft:model', 'model': f'bm:item/{mid}'}})
+            n += 1
+        assert n > 60, n
+        metas = dict(anim('mlx_'), **anim('mls_'))
+        XA.textures()
+        metas.update({k.replace('bx_', 'bxs_', 1): v for k, v in XA.ANIMATED.items() if k not in XA.FX_ONLY})
+        for k, meta in metas.items():
+            R2.wj(f'assets/bm/textures/block/{k}.png.mcmeta', meta)
+    R.POST.append(post)
 
 
 def model_name(p, pose=None, suffix=SUFFIX):

@@ -227,7 +227,7 @@ def generate(G):
                            'execute store result storage bm:tmp av.x int 1 run scoreboard players get @s bm.asx', 'execute store result storage bm:tmp av.y int 1 run scoreboard players get @s bm.asy',
                            'execute store result storage bm:tmp av.z int 1 run scoreboard players get @s bm.asz', 'function bm:p241/void/to with storage bm:tmp av',
                            'function bm:p241/void/hit'])
-    fn('p241/void/to', ['$execute in minecraft:the_end run tp @s $(x).5 $(y) $(z).5'])
+    fn('p241/void/to', ['$execute in minecraft:the_end run tp @s $(x) $(y) $(z)'])     # (3.0e: whole x/z are the block's centre; "$(z).5" put a negative z a block off)
     fn('p241/void/dock', [f'execute in {END} run tp @s {dwx + 0.5} {dwy} {dwz + 0.5}', 'function bm:p241/void/hit'])
     fn('p241/void/hit', ['damage @s 6 minecraft:fall', 'effect give @s minecraft:slow_falling 3 0 true', 'effect give @s minecraft:resistance 2 2 true',
                          'particle minecraft:end_rod ~ ~1 ~ 0.4 1.2 0.4 0.05 40', 'playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 1 1.4',
