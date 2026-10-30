@@ -27,4 +27,23 @@ runT({ W: 'dragon', NAME: 'The Doodle Dragon', ab: 'dd', q: 'dz', pfx: 'p235d', 
     await K.cd('k', 0);
     ok('WARM - out of a fight beside you: Fire Resistance for you', await ctx.wait(6000, async () => /fire_resistance/.test(await ctx.fx())));
     await K.calm();
+    // ---- (3.0a) CRAYON GREEN - the Doodle ENDER Dragon's OG look, a costume row in his wardrobe (rigpet's FORM_WARDROBE, bm.ddog on the
+    //      owner), chosen as a player would - sneak + use the drawing, Wardrobe, "Crayon Green": his parts wear their _og twins; and back
+    const { A, sleep, cnt, score } = ctx;
+    const part = (p) => `@e[type=minecraft:item_display,tag=bm.ddp_pet,tag=!bm.ddfade,tag=bm.ddp_${p},limit=1]`;
+    const mdl = async (p) => (await nbt(part(p), 'item.components."minecraft:item_model"')).replace(/"/g, '');
+    const row = () => A.buttons().find(b => /Crayon Green/.test(b.label));
+    await run('scoreboard players set TestRat bm.ddog 0');
+    await ctx.sneakMenu(0); const wd = await A.press(/Wardrobe/);
+    ok('CRAYON GREEN - his wardrobe has the costume row: "Crayon Green  off"', wd && row() && /off/.test(row().label), A.buttons().map(b => b.label).join(' | '));
+    A.bars.length = 0; await A.press(/Crayon Green/); await sleep(1200);
+    ok('...chosen: bm.ddog 1 - his body, head and wings wear their _og twins (dd_body_og, dd_wingr_og)', (await score('bm.ddog')) === 1 &&
+       /^bm:dd_body_og(_c\d+)?$/.test(await mdl('body')) && /^bm:dd_wingr_og(_c\d+)?$/.test(await mdl('wingr')) && /_og(_c\d+)?$/.test(await mdl('head')),
+       `${await mdl('body')} / ${await mdl('head')} / ${await mdl('wingr')}`);
+    ok('...he scribbles himself over in green (his line)', A.bars.some(b => /scribbles himself over in green/.test(b)), A.bars.slice(-1).join(''));
+    await ctx.sneakMenu(0); await A.press(/Wardrobe/); A.bars.length = 0; await A.press(/Crayon Green/); await sleep(1200);
+    ok('...and back: bm.ddog 0, black crayon again (dd_body, dd_wingr)', (await score('bm.ddog')) === 0 &&
+       /^bm:dd_body(_c\d+)?$/.test(await mdl('body')) && /^bm:dd_wingr(_c\d+)?$/.test(await mdl('wingr')) && A.bars.some(b => /back to black crayon/.test(b)),
+       `${await mdl('body')} / ${await mdl('wingr')} | ${A.bars.slice(-1).join('')}`);
+    await ctx.wait(1000, async () => (await cnt(ctx.PET)) === 1);
   } });

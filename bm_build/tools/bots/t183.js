@@ -244,7 +244,11 @@ const CFG = {
     await run(`${O}tp ${FOE} ${qx} ${Y + 1} ${qz + 1.6}`);
     const crowd = await wait(6000, async () => (await score(`bm.${k}cc`, PET)) > 0, 150);
     ok(N + 'the foe up close: his crowd blow', crowd && await wait(2000, async () => A.bars.some(b => c.crowd.test(b))), A.bars.slice(-1).join(''));
-    const melee = await wait(6000, async () => (await score(`bm.${k}mc`, PET)) > 0, 150);
+    // (3.0a: after his crowd blow he can wander back to you, out of reach of it - then his ranged blow comes, not his melee: the
+    //  foe is kept at his side until the melee lands)
+    const keepNear = async () => { const ax = await num(PET, 'Pos[0]'), az = await num(PET, 'Pos[2]'), fx = await num(FOE, 'Pos[0]'), fz = await num(FOE, 'Pos[2]');
+      if (Math.hypot(fx - ax, fz - az) > 2.2) await run(`${O}tp ${FOE} ${ax.toFixed(2)} ${Y + 1} ${(az + 1.6).toFixed(2)}`); };
+    const melee = await wait(6000, async () => { if ((await score(`bm.${k}mc`, PET)) > 0) return true; await keepNear(); return false; }, 150);
     ok(N + '...and his melee', melee, `mc ${await score(`bm.${k}mc`, PET)}`);
     await run(`${O}kill @e[tag=bm.t183z]`);
     if (who === 'pistachio') {

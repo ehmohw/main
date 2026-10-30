@@ -14,8 +14,8 @@ runT({ W: 'cursor', NAME: 'The Cursor', ab: 'ux', q: 'uq', pfx: 'p235c', prefix:
     await run(`kill @e[type=minecraft:wolf,tag=${K.GEM.tag}]`); await sleep(1000);
     await run('loot replace entity TestRat hotbar.4 loot bm:items/glitch_cart'); await sleep(2200);
     A.bars.length = 0; await use(4); await sleep(600);
-    ok('a Glitched Cartridge used with nobody beside you: it only buzzes (kept), no pointer', (await cnt(ENC)) === 0 && (await has('glitch_cart')) === 1 &&
-       A.bars.some(b => /buzzes/.test(b)), A.bars.slice(-1).join(''));
+    ok('a Glitched Cartridge used without the Gem: it only buzzes - a pointer flickers on its screen, "if only..." (kept), no pointer out', (await cnt(ENC)) === 0 &&
+       (await has('glitch_cart')) === 1 && A.bars.some(b => /buzzes.*If only something could bring it to life/.test(b)), A.bars.slice(-1).join(''));
     await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid');
     await K.summonAs(K.GEM.pfx, -1.5); await sleep(1500);
     await run(`data modify entity @e[type=minecraft:wolf,tag=${K.GEM.tag},limit=1] Sitting set value 1b`);

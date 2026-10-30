@@ -27,8 +27,10 @@ from rigkit import qs
 
 PREFIX = 'cg_'
 RIG_SCALE = 0.8                                    # (14 units tall -> 0.7 blocks)
-PIVOT = {'body': (0, 19.0, 0), 'head': (0, 19.0, 0), 'halo': (0, 19.0, 0)}
-PARENT = {'body': None, 'head': 'body', 'halo': None}
+PIVOT = {'body': (0, 19.0, 0), 'head': (0, 19.0, 0), 'halo': (0, 19.0, 0),
+         'wing_r': (1.7, 22.8, 3.3), 'wing_l': (-1.7, 22.8, 3.3)}      # (3.0a: its forms' wings, at its back - a speck in its own form)
+PARENT = {'body': None, 'head': 'body', 'halo': None, 'wing_r': 'body', 'wing_l': 'body'}
+WINGS = ('wing_r', 'wing_l')
 PARTS = tuple(PIVOT)
 PART_K = {}
 FACES = ()
@@ -41,6 +43,8 @@ TK = 0.5                                  # the table, as a share of the girdle
 ZG, ZT, ZC = -0.35, -1.9, 3.3             # the girdle's half thickness, the table's height (front), the culet's depth (back)
 O = np.array([8.0, 8.0, 8.0])             # (model units: the heart sits at the part's joint)
 ANIMATED = {f'cg_{k}': {'animation': {'frametime': 3, 'interpolate': True}} for k in ('table', 'crown', 'pav')}
+ANIMATED.update({f'cg_w_{k}': {'animation': {'frametime': 3, 'interpolate': True}} for k in ('table', 'crown', 'pav')})   # (3.0a: the Wraithfire Form's smoke)
+ANIMATED['cg_wf_flame'] = {'animation': {'frametime': 2, 'interpolate': True}}                                         # (...and its flames, flickering)
 
 
 def write_mcmeta(R2):
@@ -58,13 +62,15 @@ def model_name(p, pose, suffix=''):
 
 
 # ---------------------------------------------------------------------------------------------------- textures
-def octagon(s=1.0):
-    w, h, c = W * s, H * s, C * s
+def octagon(s=1.0, dims=None):
+    W_, H_, C_ = dims or (W, H, C)
+    w, h, c = W_ * s, H_ * s, C_ * s
     return [(-w, -(h - c * 1.2)), (-w, h - c * 1.2), (-(w - c), h), (w - c, h), (w, h - c * 1.2), (w, -(h - c * 1.2)), (w - c, -h), (-(w - c), -h)]
 
 
-def inside(x, y, s=1.0, pad=0.0):
-    w, h, c = W * s - pad, H * s - pad, C * s
+def inside(x, y, s=1.0, pad=0.0, dims=None):
+    W_, H_, C_ = dims or (W, H, C)
+    w, h, c = W_ * s - pad, H_ * s - pad, C_ * s
     if abs(x) > w or abs(y) > h: return False
     return (abs(x) - (w - c)) / c + (abs(y) - (h - c * 1.2)) / (c * 1.2) <= 1.0
 
@@ -132,6 +138,7 @@ def textures():
     T['cg_core'] = _core()
     for key, txt in EMOTES:
         T[f'cg_emo_{key}'] = emote_texture(txt)
+    T.update(form_textures())
     return T
 
 
@@ -153,8 +160,9 @@ FONT = {':': ['.', '#', '.', '#', '.'], ';': ['.', '#', '.', '#', '#'], ')': ['#
 EMO_PX = 0.55                             # (units per texture pixel: 16 px -> an 8.8-unit plate - a face across the gem, readable from a few blocks off)
 
 
-def emote_texture(txt):
-    """32 x 32: the emoticon in white (each font pixel 2 x 2), a thin dark outline round every mark, the rest clear"""
+def emote_texture(txt, ink=(255, 255, 255, 255), edge=(34, 14, 52, 255)):
+    """32 x 32: the emoticon in white (each font pixel 2 x 2), a thin dark outline round every mark, the rest clear
+    (3.0a: ink / edge - the Wraithfire Form's are ghost-white on a soul-blue rim)"""
     cols = []
     for i, ch in enumerate(txt):
         g = FONT[ch]
@@ -168,18 +176,18 @@ def emote_texture(txt):
         for dx in (-1, 0, 1):
             for dy in (-1, 0, 1):
                 if 0 <= x + dx < S and 0 <= y + dy < S and (x + dx, y + dy) not in lit:
-                    px[x + dx, y + dy] = (34, 14, 52, 255)
+                    px[x + dx, y + dy] = edge
     for (x, y) in lit:
-        px[x, y] = (255, 255, 255, 255)
+        px[x, y] = ink
     return im
 
 
-def face_elements(key):
-    """the emoticon on its plate, just proud of the table, lit"""
-    z = 8 + ZT - 0.3
+def face_elements(key, zt=ZT, tex='cg_emo_'):
+    """the emoticon on its plate, just proud of the table, lit (zt: the table's height - a form's cut; tex: its emoticons' set)"""
+    z = 8 + zt - 0.3
     h = 8 * EMO_PX
     return [{'from': [8 - h, 8 - h, z - 0.02], 'to': [8 + h, 8 + h, z + 0.02], 'light_emission': 15,
-             'faces': {'north': {'uv': [0, 0, 16, 16], 'texture': f'#cg_emo_{key}'}}}]
+             'faces': {'north': {'uv': [0, 0, 16, 16], 'texture': f'#{tex}{key}'}}}]
 
 
 # ---------------------------------------------------------------------------------------------------- models
@@ -220,25 +228,35 @@ def facet(P0, P1, P2, P3, tex, out, k=3, t=0.12):
     return [plate(L(P0, P3, j / k), L(P1, P2, j / k), L(P1, P2, (j + 1) / k), L(P0, P3, (j + 1) / k), tex, t=t, out=out, spot=spot) for j in range(k)]
 
 
-def gem_elements():
+def gem_elements(cut=None, tex=('cg_crown', 'cg_pav', 'cg_table'), rim=None, glow=0):
+    """the stone. cut: (W, H, C, ZT, ZC) - the base gem's when None (3.0a: the forms' sharper, taller cuts: FORM_CUT);
+    tex: its crown, pavilion and table textures; rim: (texture, light) for the girdle (else the crown's, unlit); glow: the
+    table's light_emission (the forms' inner light)"""
+    W_, H_, C_, ZT_, ZC_ = cut or (W, H, C, ZT, ZC)
+    dims = (W_, H_, C_)
+    tc, tp, tt = tex
     els = []
-    g = octagon(); tb = octagon(TK); cu = octagon(0.14)
+    g = octagon(dims=dims); tb = octagon(TK, dims); cu = octagon(0.14, dims)
     for i in range(8):
         j = (i + 1) % 8
         mid = np.array([(g[i][0] + g[j][0]) / 2, (g[i][1] + g[j][1]) / 2, 0.0])
-        els += facet((*g[i], ZG), (*g[j], ZG), (*tb[j], ZT), (*tb[i], ZT), 'cg_crown', out=mid + [0, 0, -3])       # the crown
-        els += facet((*g[i], -ZG), (*g[j], -ZG), (*cu[j], ZC), (*cu[i], ZC), 'cg_pav', out=mid + [0, 0, 3])         # the pavilion
-        els.append(plate((*g[i], -ZG), (*g[j], -ZG), (*g[j], ZG), (*g[i], ZG), 'cg_crown', t=0.1, out=mid))       # the girdle
+        els += facet((*g[i], ZG), (*g[j], ZG), (*tb[j], ZT_), (*tb[i], ZT_), tc, out=mid + [0, 0, -3])       # the crown
+        els += facet((*g[i], -ZG), (*g[j], -ZG), (*cu[j], ZC_), (*cu[i], ZC_), tp, out=mid + [0, 0, 3])      # the pavilion
+        gp = plate((*g[i], -ZG), (*g[j], -ZG), (*g[j], ZG), (*g[i], ZG), rim[0] if rim else tc, t=0.1, out=mid)   # the girdle
+        if rim and rim[1]: gp['light_emission'] = rim[1]
+        els.append(gp)
     step = 0.5                                     # the table: flat, face-on, sliced in rows to the octagon
-    y = -H * TK
-    while y < H * TK - 1e-6:
+    y = -H_ * TK
+    while y < H_ * TK - 1e-6:
         ym = y + step / 2
-        xs = [x / 8 for x in range(-80, 81) if inside(x / 8, ym, TK)]
+        xs = [x / 8 for x in range(-80, 81) if inside(x / 8, ym, TK, dims=dims)]
         if xs:
             x1, x2 = min(xs), max(xs)
-            lo, hi = [8 + x1, 8 + y, 8 + ZT - 0.05], [8 + x2, 8 + y + step, 8 + ZT + 0.15]
-            uv = [8 + x1, 8 - (y + step), 8 + x2, 8 - y]
-            els.append({'from': lo, 'to': hi, 'faces': {'south': {'uv': uv, 'texture': '#cg_table'}, 'north': {'uv': uv, 'texture': '#cg_table'}}})
+            lo, hi = [8 + x1, 8 + y, 8 + ZT_ - 0.05], [8 + x2, 8 + y + step, 8 + ZT_ + 0.15]
+            uv = [round(8 + x1, 3), round(8 - (y + step), 3), round(8 + x2, 3), round(8 - y, 3)]
+            e = {'from': lo, 'to': hi, 'faces': {'south': {'uv': uv, 'texture': f'#{tt}'}, 'north': {'uv': uv, 'texture': f'#{tt}'}}}
+            if glow: e['light_emission'] = glow
+            els.append(e)
         y += step
     return els
 
@@ -259,17 +277,18 @@ def core_elements():
 HALO_R, HALO_N = 9.0, 8
 
 
-def halo_elements():
-    """a ring of tiny facet glints round the gem's middle, each a little diamond (a cube stood on its point), at two heights"""
+def halo_elements(r=HALO_R, n=HALO_N, tex=('cg_glint',), dy=0.0, k=1.0, light=12):
+    """a ring of tiny facet glints round the gem's middle, each a little diamond (a cube stood on its point), at two heights
+    (3.0a, the forms: wider round their wings, each glint its own texture in turn, k their size, dy the ring's rise)"""
     els = []
-    for i in range(HALO_N):
-        a = 2 * math.pi * i / HALO_N
-        cx, cz = 8 + HALO_R * math.cos(a), 8 + HALO_R * math.sin(a)
-        cy = 8 + (1.4 if i % 2 else -1.4)
-        s = 0.55 if i % 2 else 0.75
-        els.append({'from': [cx - s, cy - s, cz - s], 'to': [cx + s, cy + s, cz + s], 'light_emission': 12,
-                    'rotation': {'origin': [cx, cy, cz], 'x': 45.0, 'y': round(math.degrees(-a), 3), 'z': 35.0},
-                    'faces': {d: {'uv': [0, 0, 16, 16], 'texture': '#cg_glint'} for d in ('north', 'south', 'east', 'west', 'up', 'down')}})
+    for i in range(n):
+        a = 2 * math.pi * i / n
+        cx, cz = 8 + r * math.cos(a), 8 + r * math.sin(a)
+        cy = 8 + dy + (1.4 if i % 2 else -1.4)
+        s = (0.55 if i % 2 else 0.75) * k
+        els.append({'from': [round(cx - s, 4), round(cy - s, 4), round(cz - s, 4)], 'to': [round(cx + s, 4), round(cy + s, 4), round(cz + s, 4)], 'light_emission': light,
+                    'rotation': {'origin': [round(cx, 4), round(cy, 4), round(cz, 4)], 'x': 45.0, 'y': round(math.degrees(-a), 3), 'z': 35.0},
+                    'faces': {d: {'uv': [0, 0, 16, 16], 'texture': f'#{tex[i % len(tex)]}'} for d in ('north', 'south', 'east', 'west', 'up', 'down')}})
     return els
 
 
@@ -284,6 +303,10 @@ def models():
     for key, _t in EMOTES[1:]:
         part(f'cg_head_x{key}', face_elements(key))
     part('cg_halo', halo_elements())
+    for p_ in WINGS:                                   # (3.0a: the wings - nothing to see in its own form, a speck at the joint)
+        part(f'cg_{p_}', [{'from': [7.99, 7.99, 7.99], 'to': [8.01, 8.01, 8.01], 'faces': {'north': {'uv': [0, 0, 1, 1], 'texture': '#cg_glint'}}}])
+    for name, els in form_models().items():
+        part(name, els)
     return M
 
 
@@ -337,3 +360,246 @@ for _p in POSES.values():
     _p.pop('halo', None)
 
 DRAFT = ['idle_a', 'idle_b', 'walk_1', 'run_1', 'jump', 'sit_a', 'sit_b', 'sit_c', 'happy', 'conjure_up', 'conjure', 'hurt', 'tired', 'swim_2']
+
+
+# ==================================================================================================== (3.0a) ITS TWO FORMS
+# Handed the ETHEREAL GEM (the nine made whole - the stone it was cut from), or the WRAITHFIRE HEART (that stone's light quenching a
+# Scorching Heart), the Gem takes on a form (phase231: '_e' / '_w', every part's twin). Both are the same sharper, taller cut (FORM_CUT:
+# a longer octagon, a higher crown, a deeper pavilion, its point where the plain gem's is - DY lifts its heart), a crown of points on
+# top and WINGS at its back (wing_r / wing_l: a speck in its own form). Its face is its emoticons still - every one, on the new table.
+#   ETHEREAL '_e'   the swirl of every colour (the plain gem's own textures: a look recolours it as it does the plain gem), its table lit
+#                   from within, a girdle of pale prismatic light, a crown of five crystal points, and DIAMOND WINGS - five faceted
+#                   shards a side, ruby, topaz, emerald, sapphire, amethyst (cg_ew_*: a look's palette, through phase138's SIDE), lit
+#                   modestly; its halo twelve glints in those colours.
+#   WRAITHFIRE '_w' smoky dark glass with soul-blue veins drifting in it (animated), a girdle and a crown of cyan wraith fire
+#                   (animated flicker), FLAME-WISP wings, its halo soul-fire motes; its emoticons ghost-white on a soul-blue rim.
+#                   (Its own colours: a form outranks a look, as Apophiss's do.)
+# The halo of a form circles WIDE (HALO_RF), clear of its wing tips in every pose (tools/preview/gem_forms.py clip checks it).
+import rigkit as _RK
+
+FORMS = ('_e', '_w')
+FORM_CUT = (5.4, 9.0, 2.9, -2.5, 4.3)            # (W, H, C, ZT, ZC)
+DY = FORM_CUT[1] - H                             # (2.0: its heart lifted, so its point hovers where the plain gem's does)
+HALO_RF = 18.5
+GEMS5 = (('ruby', (214, 30, 66)), ('topaz', (255, 172, 34)), ('emerald', (34, 206, 108)), ('sapphire', (40, 98, 232)), ('amethyst', (164, 70, 232)))
+LOOK_SIDE = tuple(f'cg_ew_{k}' for k, _c in GEMS5) + ('cg_e_spike',)       # (phase231 hands these to phase138: recoloured on the swirl's range)
+# the wing's shards (from its joint, his right; elevation over the horizontal, length): swept back, fanned like a bird's
+SHARDS = ((66, 11.5, 2.2), (42, 13.5, 2.5), (19, 12.5, 2.4), (-2, 10.0, 2.1), (-22, 7.2, 1.8))
+WISPS = ((58, 12.5, 2.2), (28, 14.0, 2.4), (2, 10.5, 2.0), (-20, 7.0, 1.6))
+SWEEP_Z = 0.42                                   # (back, for each unit out)
+# the crown's points (x, drop below the top, lean (deg, outward), length)
+POINTS = ((0.0, 0.0, 0.0, 6.0), (1.7, 0.15, 13.0, 4.4), (-1.7, 0.15, -13.0, 4.4), (3.5, 1.5, 33.0, 3.3), (-3.5, 1.5, -33.0, 3.3))
+FULL = {d: [0, 0, 16, 16] for d in ('north', 'south', 'east', 'west', 'up', 'down')}
+
+
+def _u(v):
+    n = math.sqrt(sum(c * c for c in v)); return tuple(c / n for c in v)
+
+
+def _box(A, B, w, tex, light=0, diamond=True, ext=0.12):
+    """a w-by-w box from A to B (part-relative design units: model = 8 + them), turned on its long axis to a diamond's cross-section"""
+    d = tuple(B[i] - A[i] for i in range(3))
+    x, y, z = _RK.frame(d, (0.0, 1.0, 0.0))
+    if diamond:
+        up = _u(tuple(x[i] + y[i] for i in range(3)))
+        x, y, z = _RK.frame(d, up)
+    L = math.sqrt(sum(c * c for c in d)) / 2 + ext
+    m = tuple((A[i] + B[i]) / 2 for i in range(3))
+    ang = _RK.euler([[x[0], y[0], z[0]], [x[1], y[1], z[1]], [x[2], y[2], z[2]]])
+    fr, to = (m[0] - w / 2, m[1] - w / 2, m[2] - L), (m[0] + w / 2, m[1] + w / 2, m[2] + L)
+    return _RK.el(fr, to, tex, (0.0, 0.0, 0.0), None if max(abs(v) for v in ang) < 1e-3 else (ang, m), uv=FULL, light=light)
+
+
+def crystal(A, B, w, tex, light=0, tip_light=None):
+    """a tapered crystal from A to its point at B: four boxes narrowing to a sharp tip"""
+    P = lambda t: tuple(A[i] + (B[i] - A[i]) * t for i in range(3))
+    steps = ((0.0, 0.42, 1.0), (0.38, 0.72, 0.74), (0.68, 0.9, 0.46), (0.86, 1.0, 0.2))
+    return [_box(P(a), P(b), w * k, tex, light if b < 1.0 else (tip_light or light)) for a, b, k in steps]
+
+
+def wisp(A, out, L, w, tex, light):
+    """a tongue of wraith fire from A: out along `out`, curling up and back as it thins"""
+    pts = []
+    for i in range(6):
+        t = i / 5
+        pts.append(tuple(A[k] + out[k] * L * t for k in range(3)))
+        pts[-1] = (pts[-1][0], pts[-1][1] + 3.2 * t * t, pts[-1][2] + 1.6 * t * t)
+    ws = [w * (1 - 0.82 * i / 5) for i in range(5)]
+    return [_box(pts[i], pts[i + 1], ws[i], tex, light, ext=0.2) for i in range(5)]
+
+
+def _dir(elev, side):
+    e = math.radians(elev)
+    return _u((side * math.cos(e), math.sin(e), SWEEP_Z))
+
+
+def wing_elements(form, side=1):
+    """a wing (side 1: his right, +x; -1: his left), from its joint: diamond shards ('_e') or flame wisps ('_w')"""
+    els = []
+    if form == '_e':
+        for (elev, L, w), (k, _c) in zip(SHARDS, GEMS5):
+            d = _dir(elev, side)
+            A0 = tuple(d[i] * 0.6 for i in range(3))
+            els += crystal(A0, tuple(d[i] * L for i in range(3)), w, f'cg_ew_{k}', light=7, tip_light=11)
+        els.append(_box((side * -0.2, -0.9, 0.0), (side * 0.9, 0.9, 0.5), 2.0, 'cg_e_spike', 9))     # (the knot it grows from)
+    else:
+        for elev, L, w in WISPS:
+            els += wisp((0.0, 0.0, 0.0), _dir(elev, side), L, w, 'cg_wf_flame', 13)
+        els.append(_box((side * -0.2, -0.9, 0.0), (side * 0.9, 0.9, 0.5), 1.9, 'cg_wf_flame', 14))
+    return els
+
+
+def crown_elements(form):
+    """the points on its top: crystal ('_e') or wraith fire ('_w') - body-relative (its heart at DY)"""
+    Wf, Hf, Cf = FORM_CUT[:3]
+    els = []
+    for x, drop, lean, L in POINTS:
+        y0 = DY + (Hf if abs(x) <= Wf - Cf else Hf - Cf * 1.2 * (abs(x) - (Wf - Cf)) / Cf) - drop - 0.6
+        a = math.radians(lean)
+        A0, B0 = (x, y0, 0.0), (x + math.sin(a) * L, y0 + math.cos(a) * L, 0.0)
+        if form == '_e':
+            els += crystal(A0, B0, 1.5 if x == 0 else 1.2, 'cg_e_spike', light=9, tip_light=12)
+        else:
+            mid = ((A0[0] + B0[0]) / 2 + 0.35 * (1 if x >= 0 else -1), (A0[1] + B0[1]) / 2, 0.0)
+            els += [_box(A0, mid, 1.5 if x == 0 else 1.2, 'cg_wf_flame', 15, ext=0.2), _box(mid, B0, 0.8 if x == 0 else 0.6, 'cg_wf_flame', 15, ext=0.2)]
+    return els
+
+
+def _lift(els):
+    return _RK.transform(els, lambda v: [v[0], v[1] + DY, v[2]])
+
+
+def form_models():
+    M = {}
+    cut = FORM_CUT
+    for f in FORMS:
+        e = f == '_e'
+        body = gem_elements(cut, tex=('cg_crown', 'cg_pav', 'cg_table') if e else ('cg_w_crown', 'cg_w_pav', 'cg_w_table'),
+                            rim=('cg_e_spike', 9) if e else ('cg_wf_flame', 12), glow=6 if e else 8)
+        M[f'cg_body{f}'] = _lift(body) + [dict(el) for el in _RK.transform(crown_elements(f), lambda v: v)]
+        ft = 'cg_emo_' if e else 'cg_emw_'
+        M[f'cg_head{f}'] = _lift(face_elements('smile', cut[3], ft))
+        for key, _t in EMOTES[1:]:
+            M[f'cg_head_x{key}{f}'] = _lift(face_elements(key, cut[3], ft))
+        M[f'cg_halo{f}'] = halo_elements(HALO_RF, 12 if e else 10, tuple(f'cg_ew_{k}' for k, _c in GEMS5) + ('cg_e_spike',) if e else ('cg_w_glint',),
+                                         dy=DY, k=1.1, light=13 if e else 15)
+        M[f'cg_wing_r{f}'] = wing_elements(f, 1)
+        M[f'cg_wing_l{f}'] = wing_elements(f, -1)
+    return M
+
+
+# ---------------------------------------------------------------------------------------------------- the forms' textures
+def _shard(rgb):
+    """a gem shard's facet: lit down one side, a white streak of light, a glint or two"""
+    im = Image.new('RGBA', (16, 16)); px = im.load()
+    for y in range(16):
+        for x in range(16):
+            d = abs(x - 7.5) / 8
+            v = 1.08 - 0.5 * d + (0.14 if x < 8 else -0.06) + 0.06 * math.sin(y * 0.9)
+            c = [min(255, int(rgb[i] * v)) for i in range(3)]
+            if x in (5, 6): c = [int(c[i] * 0.45 + 255 * 0.55) for i in range(3)]
+            if x in (0, 15) or y in (0, 15): c = [int(v_ * 0.62) for v_ in c]
+            px[x, y] = (*c, 255)
+    for x, y in ((5, 3), (10, 11), (9, 4)):
+        px[x, y] = (255, 255, 255, 255)
+    return im
+
+
+def _spike():
+    """pale prismatic crystal: white light, every colour faint along its facets"""
+    im = Image.new('RGBA', (16, 16)); px = im.load()
+    for y in range(16):
+        for x in range(16):
+            h = ((x + y) / 22.0) % 1.0
+            r, g, b = colorsys.hsv_to_rgb(h, 0.26 - 0.12 * (1 - abs(x - 7.5) / 8), 1.0)
+            k = 0.9 + 0.1 * (1 - abs(x - 7.5) / 8)
+            px[x, y] = (int(r * 255 * k), int(g * 255 * k), int(b * 255 * k), 255)
+    for x, y in ((4, 4), (11, 9), (6, 12)):
+        px[x, y] = (255, 255, 255, 255)
+    return im
+
+
+SOUL_RGB = np.array([110, 240, 255], float)      # (the pack's wraithfire: Cecil's cec_eye_wraith)
+
+
+def _smoke(f, kind):
+    """one frame of the Wraithfire Form's facets: dark smoky glass, soul-blue veins drifting up through it (loops in FRAMES)"""
+    t = 2 * math.pi * f / FRAMES
+    ys, xs = np.mgrid[0:N, 0:N].astype(float)
+    X = (xs + 0.5) / N * 2 - 1; Y = 1 - (ys + 0.5) / N * 2
+    smoke = 0.5 + 0.25 * np.sin(3.1 * X + 2.2 * np.sin(2.0 * Y - t)) + 0.25 * np.sin(2.6 * Y + 1.4 * X - 2 * t)
+    vein = np.exp(-(np.sin(3.6 * X + 2.4 * np.sin(1.8 * Y - t) + 2.2 * Y - t) ** 2) / 0.035)
+    vein2 = np.exp(-(np.sin(5.1 * Y - 1.7 * X + 1.3 * np.sin(2.6 * X + t) + 2 * t) ** 2) / 0.02)
+    dark = np.array([12, 22, 32], float); mid = np.array([28, 58, 76], float)
+    c = dark[None, None] + (mid - dark)[None, None] * smoke[..., None]
+    k_v = {'table': 0.95, 'crown': 0.7, 'pav': 0.5}[kind]
+    v = np.clip(vein * k_v + vein2 * k_v * 0.55, 0, 1)[..., None]
+    if kind == 'table':                         # (a ghost flame at its heart, rising)
+        r = np.sqrt((X * 1.6) ** 2 + ((Y + 0.25) * 1.0) ** 2)
+        flame = np.clip(1.0 - r * (1.35 + 0.25 * np.sin(6 * Y - 2 * t)), 0, 1)[..., None] * 0.7
+        v = np.clip(v + flame, 0, 1)
+    c = c * (1 - v) + SOUL_RGB[None, None] * v
+    c = np.where(v > 0.85, c * 0.4 + 255 * 0.6, c)
+    a = np.full((N, N, 1), 255.0)
+    return Image.fromarray(np.concatenate([np.clip(c, 0, 255), a], axis=2).astype(np.uint8), 'RGBA')
+
+
+def _flame(f):
+    """a frame of wraith fire: white-cyan at its root, teal toward its tips, tongues flickering up (loops in FRAMES)"""
+    t = 2 * math.pi * f / FRAMES
+    ys, xs = np.mgrid[0:N, 0:N].astype(float)
+    X = (xs + 0.5) / N * 2 - 1; Y01 = 1 - (ys + 0.5) / N
+    I = (1.05 - Y01) * (0.78 + 0.22 * np.sin(5 * X + 2 * t)) + 0.22 * np.sin(9 * Y01 - 3 * t + 2.5 * X) * (1 - np.abs(X) * 0.6)
+    I = I - 0.3 * np.abs(X) ** 2
+    stops = [(0.78, (236, 255, 255)), (0.55, (140, 246, 255)), (0.34, (46, 196, 232)), (-9, (18, 104, 140))]
+    out = np.zeros((N, N, 3))
+    done = np.zeros((N, N), bool)
+    for lv, col in stops:
+        m = (I > lv) & ~done
+        out[m] = col; done |= m
+    a = np.full((N, N, 1), 255.0)
+    return Image.fromarray(np.concatenate([out, a], axis=2).astype(np.uint8), 'RGBA')
+
+
+def _mote():
+    im = Image.new('RGBA', (16, 16)); d = ImageDraw.Draw(im)
+    d.rectangle((0, 0, 15, 15), fill=(30, 150, 200, 255)); d.rectangle((3, 3, 12, 12), fill=(110, 240, 255, 255)); d.rectangle((6, 6, 9, 9), fill=(232, 255, 255, 255))
+    return im
+
+
+def form_textures():
+    T = {}
+    for k, rgb in GEMS5:
+        T[f'cg_ew_{k}'] = _shard(rgb)
+    T['cg_e_spike'] = _spike()
+    for kind in ('table', 'crown', 'pav'):
+        strip = Image.new('RGBA', (N, N * FRAMES))
+        for f in range(FRAMES):
+            strip.paste(_smoke(f, kind), (0, f * N))
+        T[f'cg_w_{kind}'] = strip
+    strip = Image.new('RGBA', (N, N * FRAMES))
+    for f in range(FRAMES):
+        strip.paste(_flame(f), (0, f * N))
+    T['cg_wf_flame'] = strip
+    T['cg_w_glint'] = _mote()
+    for key, txt in EMOTES:
+        T[f'cg_emw_{key}'] = emote_texture(txt, ink=(226, 255, 255, 255), edge=(14, 116, 148, 255))
+    return T
+
+
+# ---------------------------------------------------------------------------------------------------- the wings' poses
+# (lift: up from rest about the gem's front-back line; sweep: back from rest about the vertical. Parented to the gem, they tilt and
+#  turn with it. They never droop below rest - a lowered wing would cross the halo's ring - so a tired or seated Gem folds them
+#  BACK instead. idle_a / idle_b are a slow beat of them, a second each.)
+def wingpose(lift, sweep):
+    r = qs(('y', -sweep), ('z', lift))
+    return {'wing_r': r, 'wing_l': (r[0], -r[1], -r[2], r[3])}          # (mirrored across his middle)
+
+
+WING_POSE = {'idle_a': (0, 0), 'idle_b': (12, -6), 'jump': (24, -14), 'sit_a': (0, 44), 'sit_b': (2, 30), 'sit_c': (2, 30), 'happy': (20, -16),
+             'conjure_up': (26, 8), 'conjure': (16, -24), 'hurt': (0, 36), 'tired': (0, 46)}
+WING_POSE.update({f'walk_{k}': (5 + 5 * math.sin(math.pi * k / 2), 18) for k in range(4)})
+WING_POSE.update({f'run_{k}': (4 + 8 * math.sin(math.pi * k / 2), 34) for k in range(4)})
+WING_POSE.update({f'swim_{k}': (6 + 6 * math.sin(2 * math.pi * k / SWIM_FRAMES), 24) for k in range(SWIM_FRAMES)})
+for _n, _p in POSES.items():
+    _p.update(wingpose(*WING_POSE.get(_n, (0, 0))))

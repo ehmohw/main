@@ -84,12 +84,18 @@ class Dragon(RP.Cfg):
     SIT = ('"Up! Up! Adventure!"', '(he curls up like a cat, tail over his nose)')
     FAINT = '"...the crayon... ran out..."'
     NOT_YOURS = '"You\'re not Kettle! ...You\'re not my friend\'s friend either."'
+    # (3.0a) the Doodle ENDER Dragon now (doodle_dragon_art) - and his OG look a costume, a row of his wardrobe: Kettle's very first
+    #        drawing, green crayon with purple wings (bm.ddog on the owner picks the '_og' twin of DA.OG_PARTS; looks and faces ride on top)
+    FORM = ('bm.ddog', DA.OG_SFX, 'Crayon Green', None, '(he scribbles himself over in green - Kettle\'s very first drawing of him)',
+            '(he goes back to black crayon - the Ender Dragon again)', 'Kettle\'s first drawing: a green crayon dragon with purple wings.')
+    FORM_PARTS = DA.OG_PARTS
+    FORM_WARDROBE = (4638, '#5ac048', 'Crayon Green - the OG drawing: Kettle\'s first, a green crayon dragon with purple wings. Every look and face still on him. On or off here.')
     POWERS = [('Claw', 'a foe within 2.4, every second: 6'),
               ('Crayon Fire', 'a foe 2.5-8 off, every 4 s: a big scribbled flame - 7 to every monster in it, and it sets them alight'),
               ('Stomp', 'two or more foes within 3.5, every 12 s: a sumo stomp - 5, and slowed'),
               ('Big Blaze', 'charged, every minute: a long breath of crayon fire, twice through everything in front of him (8 each, alight)'),
               ('Warm', 'out of a fight beside you, every minute: Fire Resistance and Regeneration for you')]
-    INTRO = [T('The Doodle Dragon', '#5ac048', bold=True), T(' - Kettle drew him in crayon, and the Gem made him real. ', 'gray'),
+    INTRO = [T('The Doodle Ender Dragon', '#5ac048', bold=True), T(' - Kettle drew him in black crayon, and the Gem made him real. ', 'gray'),
              T('He breathes crayon fire. He is VERY proud of it.', 'white')]
     BUTTONS = ()
     BURST = [item_particle('dd_fx_smoke', '~ ~0.8 ~', '0.3 0.4 0.3', 0.02, 10), 'particle minecraft:poof ~ ~0.6 ~ 0.3 0.3 0.3 0.02 6']
@@ -274,13 +280,13 @@ for _C in DOODLES:
     RP.register(_C)
     RF2.setup(_C, FACE_PART[_C.W])
 
-_ITEMS = {'dragon': ("Kettle's Dragon Drawing", ['A page of crayon: a green dragon with purple wings and a big toothy grin.',
+_ITEMS = {'dragon': ("Kettle's Dragon Drawing", ['A page of crayon: a black Ender Dragon with glowing purple eyes and big bat wings.',
                                                  'Signed in the corner, in big wobbly letters: KETTLE.', 'Now and then it smells of smoke.']),
           'eraser': ("The Eraser's Lucky Crumb", ['A little pink crumb, rubbed off an eraser.', 'It feels sorry for something.']),
           'cursor': ("The Cursor's Mouse", ['An old computer mouse, its cable cut. When you hold it,', 'something white and pointy follows your hand.']),
           'inkblot': ('A Little Ink Pot', ['A pot of Mr. Capshun\'s ink. It\'s never quite still.', 'Sometimes it makes a little "?" on its own.']),
           'speech': ('A Blank Caption Card', ['A white card with a pointy tail, waiting for words.', 'Hold it up and it says "!"'])}
-_DOLL = {'dragon': 'A doll of the Doodle Dragon - crayon green, wings and all.', 'eraser': 'A doll of the Eraser - pink, worried, very soft.',
+_DOLL = {'dragon': 'A doll of the Doodle Ender Dragon - black crayon, purple eyes, wings and all.', 'eraser': 'A doll of the Eraser - pink, worried, very soft.',
          'cursor': 'A doll of the Cursor - a little white pointer with a smile.', 'inkblot': 'A doll of the Ink Blot - a soft black blot with big eyes.',
          'speech': 'A doll of the Speech Bubble - it says "BAM!" when you squeeze it.'}
 # (each figure's extent, measured: phase134.measure)
@@ -1094,7 +1100,6 @@ def generate(G):
         given(Cursor, X, '"You\'ve already got me! I\'m your hand, remember?"',
               [T('It clicks on you. ', '#d8f0ff', italic=True), T('Selected. ', '#f4f4f4', bold=True, italic=True),
                T('Then it hands you an old mouse with a cut cable - and wherever your hand goes, it follows.', 'gray', italic=True)])
-        placer(Cursor)
 
     # ---- THE INK BLOT, THE SPEECH BUBBLE: hand Mr. Capshun ink, or a book and quill, the Gem out
     def e_ink(G, X):
@@ -1123,6 +1128,10 @@ def generate(G):
     U = G.FUNCS['p214/use']
     k = next(i for i, l in enumerate(U) if 'run function bm:p214/on/' in l)
     U.insert(k, 'execute if score #done bm.rng matches 0 unless entity @s[tag=bm.uxmet] if function bm:p235c/enc/gem_near run function bm:p235c/enc/cart')
+    k = next(i for i, l in enumerate(U) if 'Use it beside one of your followers' in l)       # (not met, no Gem: the hint, before the plain buzz)
+    U.insert(k, 'execute if score #done bm.rng matches 0 unless entity @s[tag=bm.uxmet] run function bm:p235c/enc/hint')
+    fn('p235c/enc/hint', ['scoreboard players set #done bm.rng 1', 'playsound minecraft:block.note_block.bit player @s ~ ~ ~ 1 0.5',
+                          title('@s', 'actionbar', T('The cartridge buzzes - a little white pointer flickers on its screen. If only something could bring it to life...', '#9affb0'))])
     fn('p235c/enc/gem_near', ['execute as @e[type=minecraft:wolf,tag=bm.cgpet,distance=..8] if score @s bm.pid = #me bm.pid run return 1', 'return 0'])
     fn('p235c/enc/cart', ['scoreboard players set #done bm.rng 1',
                           'execute if entity @e[type=minecraft:interaction,tag=bm.uxenc,distance=..32] run return run ' + title('@s', 'actionbar', T('The cartridge flickers - the Cursor is already out, nearby.', '#9affb0')),
