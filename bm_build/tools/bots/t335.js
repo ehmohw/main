@@ -21,7 +21,10 @@
 //   costume   the Mireling called; a Brood Ichor used beside it: it drinks, its looks 8 (and, its shiny owned, 9) unlocked and worn
 //             (ml_body_c8); the wardrobe's two Brood buttons; FULL-GROWN in the costume: the Brood-Mire's 26 parts (bx_*), the
 //             shiny's (bx_*_sh), the plain look: the Dread Mire's 23 (mr_*); the honour takes Brood Ichor (its function)
-//   node t335.js [rules|end|fight|items|invasion|armada|costume]
+//   mires     (both kinds, the owner's 3.0e notes) made in mid-air it settles on the ground; its puddle 0.02 over the block top;
+//             risen, it chases a player 12 off; its blow does 10 to a player in full diamond (past armour); a Sharpness V
+//             netherite sword needs 15+ full blows (the count printed); it still melts and drops; an Undercrown Mire let down: on the floor
+//   node t335.js [rules|end|fight|items|invasion|armada|costume|mires]
 const { bot, rcon, sleep } = require('./lib_resp');
 const fs = require('fs');
 const ONLY = process.argv[2];
@@ -298,6 +301,59 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
     const pay = fs.readdirSync(`${DP}/p201/pay`).filter(f => /^mireling\d\.mcfunction$/.test(f)).map(f => fs.readFileSync(`${DP}/p201/pay/${f}`, 'utf8')).join('\n');
     ok('Queen Ava\'s honour for the Mireling takes 8 Brood Ichor in place of 8 Shadow Remnants (its rank\'s function)', /brood_ichor/.test(pay) && /shadow_remnant/.test(pay));
     await run('scoreboard players set TestRat bm.hn_mireling 0'); await run('scoreboard players set TestRat bm.cosml 0'); await run('kill @e[type=minecraft:wolf,tag=bm.mlpet]');
+  }
+
+  // ---------------------------------------------------------------- both Mires (3.0e, the owner's notes - the shared runtime, mirekit)
+  if (on('mires')) {
+    await stage(O, OX, OZ); await run(`${O}time set 18000`);         // (night: daylight melts a Dread Mire)
+    for (const [kind, D, X, Z, P, HOST, R, HP] of [['Dread Mire', O, OX, OZ, 'p246', 'bm.mire', 'bm.mr', 400], ['Brood-Mire', E, EX, EZ, 'p258', 'bm.bmire', 'bm.bxr', 460]]) {
+      await clean(D, X, Z); await run(`${D}kill @e[type=minecraft:husk,tag=${HOST},x=${X},y=${Y},z=${Z},distance=..40]`);
+      await run('clear TestRat'); await run('effect clear TestRat'); await run('effect give TestRat minecraft:instant_health 1 4 true');
+      await at(D, X + 0.5, Y + 1, Z - 14.5, 0, 0);
+      const M = `@e[type=minecraft:husk,tag=${HOST},x=${X + 0.5},y=${Y + 1},z=${Z + 0.5},distance=..30,limit=1]`;
+      // GROUND: made 5 blocks up in the air, it settles on the block top; its puddle's lowest face floats 0.02 over it (the model)
+      await run(`${D}execute positioned ${X + 0.5} ${Y + 6} ${Z + 0.5} rotated 180 0 run function bm:${P}/spawn`); await sleep(600);
+      const hy = +((await nbt(M, 'Pos', D)).match(/-?[\d.]+/g) || [0, 0, 0])[1];
+      ok(`${kind}: made in mid-air, it settles onto the ground (its feet on the block top, within 0.01)`, Math.abs(hy - (Y + 1)) < 0.01, `${hy}`);
+      const pud = JSON.parse(fs.readFileSync(`/home/user/main/bm_build/out_p2/BlackMarket_RP/assets/bm/models/item/${P === 'p246' ? 'mr' : 'bx'}_puddle.json`, 'utf8'));
+      const lo = Math.min(...pud.elements.map(e => Math.min(e.from[1], e.to[1])));
+      ok(`${kind}: its puddle sits just over the ground, never on or in it (lowest face 0.01..0.03 above the block top)`, (lo - 8) * 2 / 16 >= 0.009 && (lo - 8) * 2 / 16 <= 0.031, `${((lo - 8) * 2 / 16).toFixed(3)}`);
+      // CHASE: risen, the player 12 off - it comes
+      await run(`${D}execute as ${M} at @s run function bm:${P}/rise0`); await wait(5000, async () => (await sc(M, 'bm.ms', D)) === 2, 200);
+      const d0 = Math.abs(+((await nbt(M, 'Pos', D)).match(/-?[\d.]+/g))[2] - (Z - 11.5));
+      await at(D, X + 0.5, Y + 1, Z - 11.5, 0, 0); await sleep(3500);
+      const d1 = Math.abs(+((await nbt(M, 'Pos', D)).match(/-?[\d.]+/g))[2] - (Z - 11.5));
+      ok(`${kind}: risen, a player 12 off is chased (it closes in)`, d1 < d0 - 2, `${d0.toFixed(1)} -> ${d1.toFixed(1)}`);
+      // ITS BLOW: past armour - 10 on a player in full diamond (no Resistance)
+      for (const [s_, it] of [['head', 'diamond_helmet'], ['chest', 'diamond_chestplate'], ['legs', 'diamond_leggings'], ['feet', 'diamond_boots']]) await run(`item replace entity TestRat armor.${s_} with minecraft:${it}`);
+      await run('effect clear TestRat'); await run('effect give TestRat minecraft:instant_health 1 4 true'); await sleep(600);
+      const hp = async () => +((await nbt('@a[name=TestRat,limit=1]', 'Health', '')).match(/([\d.]+)/) || [0, 0])[1];
+      const mp = (await nbt(M, 'Pos', D)).match(/-?[\d.]+/g).map(Number);
+      await at(D, mp[0], Y + 1, mp[2] - 3, 0, 0); const h0 = await hp(); let h1 = h0;
+      await wait(9000, async () => { h1 = await hp(); return h1 < h0 - 0.5; }, 50);
+      ok(`${kind}: its blow on a player in full diamond armour does 10 (5 hearts, past the armour)`, Math.abs((h0 - h1) - 10) < 0.6, `${h0} -> ${h1}`);
+      await run('effect give TestRat minecraft:resistance 900 4 true'); await run('effect give TestRat minecraft:instant_health 1 4 true');
+      // TOUGHER: a stock player with a Sharpness V netherite sword - how many full blows
+      await run('item replace entity TestRat hotbar.8 with minecraft:netherite_sword[enchantments={sharpness:5}]'); A.slot(8);
+      await run(`${D}data merge entity ${M} {Health:${HP + 100}f}`);
+      let n = 0;
+      for (; n < 120 && (await sc(M, 'bm.ms', D)) !== 7; n++) {
+        const q = (await nbt(M, 'Pos', D)).match(/-?[\d.]+/g).map(Number);
+        await run(`${D}tp TestRat ${q[0]} ${Y + 1} ${q[2] - 2.6} 0 15`); await sleep(120);
+        const e = await entOf(M, D); if (e) A.attack(e.entityId); await sleep(560);
+      }
+      ok(`${kind}: tougher (${HP} health, armour 12, toughness 8) - a Sharpness V netherite sword takes at least 15 full blows`, n >= 15 && n < 120, `${n} blows`);
+      await wait(9000, async () => (await cnt(M, D)) === 0, 300);
+      ok(`${kind}: ...and it still melts away at the end, its drops where it was`, (await cnt(M, D)) === 0 &&
+         (await cnt(`@e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..30,nbt={Item:{components:{"minecraft:custom_data":{bm:"${P === 'p246' ? 'shadow_remnant' : 'brood_ichor'}"}}}}]`, D)) >= 1);
+      await run('clear TestRat');
+    }
+    // (the Undercrown's own: let down from its room's fx marker to the floor - here, from 6 up)
+    await clean(O, OX, OZ);
+    await run(`${O}execute positioned ${OX + 0.5} ${Y + 7} ${OZ + 0.5} run function bm:p246/uc/down`); await sleep(600);
+    const U = `@e[type=minecraft:husk,tag=bm.mire,tag=bm.muc,x=${OX + 0.5},y=${Y + 1},z=${OZ + 0.5},distance=..8,limit=1]`;
+    ok('an Undercrown Mire let down from its fx marker: on the floor (within 0.01)', Math.abs(+((await nbt(U, 'Pos', O)).match(/-?[\d.]+/g) || [0, 0, 0])[1] - (Y + 1)) < 0.01);
+    await run(`${O}execute as @e[type=minecraft:husk,tag=bm.mire,x=${OX},y=${Y},z=${OZ},distance=..30] at @s run function bm:p246/melt`);
   }
 
   await clean(E, EX, EZ); await clean(O, OX, OZ);

@@ -10,9 +10,9 @@ WHERE      THE UNDERCROWN: its own, rarely - one at a time, in an unsolved trial
 DORMANT    a puddle of shimmering reddish-black shadow, 4 blocks across, faintly moving: it creeps towards anyone within 24
            blocks, bubbles and whispers. It can't be hurt like this. Daylight or a bright light on it and it seeps away.
 RISEN      anyone (not in creative or spectator) within 10 blocks and it rises: a worm-like black mass ~5 blocks tall, a blind
-           ring-mouth glowing red inside, four tentacles, dripping black goo. It is rooted where it rose. Every ~2.5 s:
-  GRAB     at 3.5..8 blocks: a tentacle darts out and drags you in (Slowness, pulled towards it) and squeezes (6).
-  STAB     within 4.5 blocks: two tentacles cocked back and driven down 4 blocks ahead (10 there).
+           ring-mouth glowing red inside, four tentacles, dripping black goo. (3.0e) It CHASES the nearest within 24 (0.22 a tick, steps up and down; a room's Mire held within 10 of where it rose). Every ~2.5 s:
+  GRAB     at 3.5..8 blocks: a tentacle darts out and drags you in (Slowness, pulled towards it) and squeezes (10, past armour: bm:mire).
+  STAB     within 4.5 blocks: two tentacles cocked back and driven down 4 blocks ahead (10 there, past armour). (3.0e: 400 health, armour 12, toughness 8.)
   THE CROSS  a Golden Cross within 15 blocks (phase181's) and it shrieks, recoils and sinks - and the puddle slips away from
            the cross; it will not rise in the cross's ground. Nobody near for 10 s: it sinks back down to wait.
 ITS DEATH  it collapses into the puddle and dissolves, leaving 1-3 SHADOW REMNANTS.

@@ -8,7 +8,7 @@ ON A BLOOD MOON, very rarely, a monster's spawn under the open sky becomes the A
   EMBER RAIN: it throws its head back, its fires roar up, and burning embers fall where you stand - move.
   At half health it SHRIEKS: ember spiderlings pour out from under it, and from then on THE GLARE - a beam of fire from its
   carved eyes that follows you.
-  It flees the dawn (when the Blood Moon ends) and leaves if nobody's within 96 blocks for a minute.
+  It flees the dawn (when the Blood Moon ends) and leaves if nobody's within 160 blocks for two minutes (3.0e; it was 96 and one).
 THE REWARD (everyone within 64 when it falls): the SCORCHING HEART - certain the first time, a chance after - and Blood
   Crystals, Medallions, a Trophy and Tokens.
 ITS HITBOX FITS IT: the giant under it takes your arrows; the pumpkin and each of its eight legs take your blows.
@@ -128,8 +128,9 @@ def generate(G):
                    'execute rotated as @s rotated ~ 0 positioned ^-3.4 ^8.4 ^3.0 run particle minecraft:lava ~ ~ ~ 0.2 0.1 0.2 0 1',
                    'execute rotated as @s rotated ~ 0 positioned ^ ^7.2 ^3.1 run particle minecraft:small_flame ~ ~ ~ 1.6 0.2 0.1 0.01 6',
                    f'execute as @a[distance=..5,{near}] run data modify entity @s Fire set value 60s',
-                   'execute if entity @a[distance=..96] run scoreboard players set @s bm.sallone 0', 'scoreboard players add @s bm.sallone 1',
-                   'execute if score @s bm.sallone matches 60.. run function bm:p82/leave'])
+                   # (3.0e: it rises up to 128 off - with 96 / a minute it could gutter out while you were still on your way to it)
+                   'execute if entity @a[distance=..160] run scoreboard players set @s bm.sallone 0', 'scoreboard players add @s bm.sallone 1',
+                   'execute if score @s bm.sallone matches 120.. run function bm:p82/leave'])
     # walking: it turns on the nearest of you and strides (a 2-second gait cycle, 3 blocks a second); close in, it stands
     fn('p82/move', ['scoreboard players set #st bm.rng 0', 'execute if entity @a[tag=bm.saltgt,distance=7..] run scoreboard players set #st bm.rng 1',
                     'execute unless score @s bm.sals = #st bm.rng run scoreboard players set @s bm.salf 0', 'scoreboard players operation @s bm.sals = #st bm.rng',

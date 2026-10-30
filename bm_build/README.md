@@ -31,6 +31,11 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
   - **Where:** the **outer End** (now and then a monster rising far from the main island comes up as one instead - one a day for each player); the **Vorn Armada** (the Bio-Wave's last wave brings one down a tractor beam, and rarely one lies in wait in a quiet hall - never a guardian's, a vault or a relic room); and **Invasion Nights** (a saucer lowers one down its beam - one a night for each player; at dawn they melt away). Never in the Nether or the Undercrown, and never in the Overworld outside an invasion.
   - **Its attacks:** the Dread Mire's grab and stab, plus an **acid spit** at range (it poisons you and leaves a slowing pool). Worn to half, three **Broodlings** burst out of it. It **melts into a bubbling purple-green goop** when it dies.
   - **What repels it:** a **Signal Jammer** switched on within 12 blocks. It shrieks, sinks and slips away, and none rises near it. Jammers now also work **in the End** (for 10 minutes). **Holding the Severed Link**, it won't rise for you.
+- **The Dread Mire is a real threat now** (and the Brood-Mire with it):
+  - **Tougher:** 400 health (was 150), armour 12, toughness 8. The Brood-Mire has 460.
+  - **Hits harder:** its grab and its stab each do **10 (5 hearts), straight through armour**. Protection enchantments and Resistance still help.
+  - **It chases you:** risen, it slides after the nearest player within 24 blocks, a little faster than you walk, climbing 1-block steps. It strikes when you're in reach. The Undercrown's Mires (and the Armada's) stay near where they rose.
+  - **It sits on the ground:** one made in mid-air settles onto the ground below, and its puddle floats a hair above the block top.
 - **Brood Ichor** (its drop, with green or violet Xenite). It does what Shadow Remnants do, in the hive's way:
   - **4 used: Hive Scent.** Drink it, and for 5 minutes the Vorn's guns pass you over, nothing drops near you, and no Brood-Mire rises for you or fights you.
   - **16, sneak + used: a Brood Pod.** Plant it (sneak + use on a block) and a **Bound Brood-Mire** guards the spot. It fights the monsters that come near, spits at the ones out of reach, and keeps creepers away. Sneak + punch it to take it back.
