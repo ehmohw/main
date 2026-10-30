@@ -1,5 +1,5 @@
 // 2.94r: THE FOLLOWER GALLERY (phase220), as a regular (non-op) player - off the Partner Wheel's page (the buttons as sent):
-//   the wheel's page has a Gallery button; pressed: the list - "Met: N of 32", a met follower by name (#01 Emma), one not met
+//   the wheel's page has a Gallery button; pressed: the list - "Met: N of <the roster>", a met follower by name (#01 Emma), one not met
 //     as "???" (its name nowhere on the page), with a hint on hover;
 //   meeting one (holding their item) adds them: the count one up, their name now shown;
 //   View in 3D, #01-#08: eight figures (their parts, and eight labels) in an arc in front of you; Emma's (met) lit, an unmet
@@ -22,9 +22,9 @@ const res = [];
   await run(`${O}fill ${X - 10} ${Y} ${Z - 10} ${X + 10} ${Y} ${Z + 10} minecraft:sandstone`); await run(`${O}fill ${X - 10} ${Y + 1} ${Z - 10} ${X + 10} ${Y + 8} ${Z + 10} minecraft:air`);
   await run('kill @e[tag=bm.galx]');
   // (the stage: met Emma and Cecil only - the rest not)
-  await run('advancement revoke TestRat from bm:met/emma'); for (const k of ['emma', 'celi', 'zib', 'cecil', 'killerwatt', 'leo', 'demo', 'apo', 'tul', 'frog', 'donado', 'pearl',
-    'wil', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'pxcecil',
-    'pxleo', 'pxemma', 'sky']) await run(`advancement revoke TestRat only bm:met/${k}`);
+  // (3.0d: every met/ advancement in the built pack, so newer followers met by earlier tests don't count)
+  const MET = require('fs').readdirSync(require('path').join(__dirname, '../../out_p2/BlackMarket_DP/data/bm/advancement/met')).filter(f => f.endsWith('.json')).map(f => f.slice(0, -5));
+  for (const k of MET) await run(`advancement revoke TestRat only bm:met/${k}`);
   await run(`${O}tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(1000); A.stand();
   await run('loot replace entity TestRat hotbar.1 loot bm:items/emma_ribbon'); await run('loot replace entity TestRat hotbar.2 loot bm:items/cecil_gem'); await sleep(1500);
   await run('clear TestRat'); await run('scoreboard players set TestRat bm.pw0 1');            // (Emma on the wheel: its page has partners)
@@ -38,7 +38,7 @@ const res = [];
   ok('the wheel\'s page has a Gallery button', A.buttons().some(b => /Gallery/.test(JSON.stringify(b))));
   await A.press(/Gallery/); await sleep(600);
   const g1 = page();
-  ok('pressed: the Follower Gallery - "Met: 2 of 32"', /Follower Gallery/.test(g1) && /Met: 2 of 32/.test(g1), g1.slice(0, 300));
+  ok('pressed: the Follower Gallery - "Met: 2 of N"', /Follower Gallery/.test(g1) && /Met: 2 of \d+/.test(g1), g1.slice(0, 300));
   ok('...#01 Emma and #04 Cecil by name (met)', /#01 Emma/.test(g1) && /#04 Cecil/.test(g1));
   ok('...#06 not met: "???" (not "#06 Leo"), his hint there to hover', /#06 \?\?\?/.test(g1) && !/#06 Leo/.test(g1) && /little stone fort/.test(hints()));
   // ---- meeting one: Leo's crest held
@@ -46,7 +46,7 @@ const res = [];
   A.cmd('trigger bm.act set 2'); await sleep(400);
   n0 = A.dialogN.length; await use(0); await wait(3000, async () => A.dialogN.length > n0); await A.press(/Gallery/); await sleep(600);
   const g2 = page();
-  ok('Leo\'s crest held (met): "Met: 3 of 32", #06 Leo by name', /Met: 3 of 32/.test(g2) && /#06 Leo/.test(g2), g2.slice(0, 200));
+  ok('Leo\'s crest held (met): "Met: 3 of N", #06 Leo by name', /Met: 3 of \d+/.test(g2) && /#06 Leo/.test(g2), g2.slice(0, 200));
 
   // ---- View in 3D, #01-#08
   await A.press(/#01-#08/); await sleep(1500);
