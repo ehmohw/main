@@ -57,6 +57,7 @@ DIVINE = {
     'name': '"AUREL."',
     'sov2': '"...that name. I had forgotten it was mine."',
     'raise': 'His hand rises. The light gathers in it.',
+    'burn': 'His light takes it - and it burns, white and gold, from the ground up.',
     'end': 'And the Dread Sovereign is unmade - the last of it, light.',
     'rest': '"Rest now, my first light. It is over."',
     'you': '"You have done well, little ones. The dark is quiet."',

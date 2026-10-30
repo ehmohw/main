@@ -752,6 +752,53 @@ def generate(G):
     fn('p238/dv/glow', [f'particle minecraft:end_rod ~ ~ ~ 4 6 4 0.02 12 force {AUD}', f'particle minecraft:dust{{color:[1.0,0.95,0.75],scale:2.5}} ~ ~ ~ 4 6 4 0 10 force {AUD}'])
     fn('p238/dv/unmake', [f'particle minecraft:end_rod {NX} {CY + 7} {NZ} 3 5 3 0.08 30 force {AUD}', f'particle minecraft:white_ash {NX} {CY + 7} {NZ} 3 5 3 0 60 force {AUD}',
                           f'particle minecraft:dust{{color:[1.0,1.0,0.9],scale:3.0}} {NX} {CY + 7} {NZ} 3 5 3 0 20 force {AUD}'])
+    # ---- (3.0d) THE BURNING: timed to the smiting (t320) and the old unmaking's window (t330-410, its music's swell and fall)
+    import phase257 as DFX
+    import rigkit as RK
+    DPZ = A.BOSS_POSES['true']['death_2']                            # (its pose from t240 on: the fall's frames, state 31)
+    SCT = SCALE['true']; UT = SCT / 16
+    CEN = DFX.part_centres(A, DPZ, SCT)
+    XF = RK.solve(A.PIVOT, A.PARENT, DPZ)
+    BURN = [(('shinr', 'shinl'), 322, 338, 346), (('legr', 'legl'), 326, 342, 350), (('weapon',), 328, 344, 350), (('forer', 'forel'), 330, 348, 356),
+            (('w3r', 'w3l'), 332, 350, 358), (('armr', 'arml'), 334, 354, 362), (('w2r', 'w2l'), 336, 356, 364), (('body',), 338, 360, 368),
+            (('w1r', 'w1l'), 340, 362, 370), (('chest',), 344, 366, 376), (('head', 'fx'), 348, 380, 392)]
+    BRS = {'shin': 1.6, 'leg': 1.9, 'weapon': 1.8, 'fore': 1.6, 'arm': 1.8, 'w': 2.2, 'body': 2.6, 'chest': 2.8, 'head': 2.4, 'fx': 1.2}
+    bsz = lambda p: next(v for k, v in BRS.items() if p.startswith(k))
+    psel = lambda p: f'@e[type=minecraft:item_display,tag=bm.svr_{p}]'
+    burn = []
+    for parts, t_on, t_char, t_fall in BURN:
+        for p in parts:
+            if p not in CEN: continue
+            c = CEN[p]; z = bsz(p)
+            burn += [at(t_on, f'execute as {psel(p)} run data merge entity @s {{brightness:{{block:15,sky:15}}}}'),
+                     at(t_on, DFX.at_part(c, DFX.spr('hflame', z * 1.3, z * 0.4))), at(t_on, DFX.at_part(c, DFX.spr('hflame', z, z * 0.5))),
+                     at(t_on, DFX.at_part(c, f'particle minecraft:flash{{color:[1.0,0.95,0.7,1.0]}} ~ ~ ~ 0 0 0 0 1 force {AUD}'))]
+            burn += [at(t, DFX.at_part(c, DFX.spr('hflame', z, z * 0.5))) for t in range(t_on + 4, t_fall + 4, 4)]
+            burn += [at(t, DFX.at_part(c, DFX.spr('ember', z * 0.8, z * 0.4))) for t in range(t_on + 6, t_fall, 8)]
+            burn += [at(t_char, f'execute as {psel(p)} run data merge entity @s {{brightness:{{block:1,sky:1}}}}'),
+                     at(t_char, DFX.at_part(c, f'particle minecraft:large_smoke ~ ~ ~ 0.6 0.6 0.6 0.04 10 force {AUD}'))]
+            q, t = XF[p]; k = getattr(A, 'PART_K', {}).get(p, 1.0)
+            tr = f'[{t[0] * UT:.3f}f,{t[1] * UT - 1.6:.3f}f,{t[2] * UT:.3f}f]'
+            burn += [at(t_fall, f'execute as {psel(p)} run data merge entity @s {{start_interpolation:0,interpolation_duration:14,transformation:{{translation:{tr},scale:[0f,0f,0f]}}}}'),
+                     at(t_fall, DFX.at_part(c, DFX.spr('ash', z * 0.9, z * 0.6))), at(t_fall, DFX.at_part(c, DFX.spr('ash', z * 0.7, z * 0.6))),
+                     at(t_fall, DFX.at_part(c, DFX.spr('ash', z * 0.8, z * 0.6))),
+                     at(t_fall, DFX.at_part(c, f'particle minecraft:white_ash ~ ~ ~ 0.8 0.8 0.8 0.02 40 force {AUD}')),
+                     at(t_fall, DFX.at_part(c, f'particle minecraft:end_rod ~ ~ ~ 0.4 0.4 0.4 0.08 6 force {AUD}'))]
+        burn += [at(t_on, snd('item.firecharge.use', 2.5, 0.6)), at(t_on, snd('block.fire.ambient', 3, 0.7)),
+                 at(t_char, snd('block.fire.extinguish', 1.2, 0.5)), at(t_fall, snd('block.basalt.break', 2.5, 0.5)), at(t_fall, snd('entity.blaze.death', 0.8, 0.5))]
+    burn += [at(322, snd('entity.blaze.shoot', 3, 0.5)), at(322, snd('block.beacon.power_select', 3, 1.2)),
+             at(322, title(AUD, 'actionbar', T(L.DIVINE.get('burn', 'His light takes it - and it burns, white and gold.'), L.HOLY, italic=True))),
+             at('324..390', f'particle minecraft:dust{{color:[1.0,0.9,0.55],scale:2.2}} {NX} {CY + 6} {NZ} 2.5 4 2.5 0 6 force {AUD}'),
+             at('324..390', f'particle minecraft:flame {NX} {CY + 3} {NZ} 2 3 2 0.02 3 force {AUD}'),
+             at(381, snd('entity.warden.sonic_charge', 2.5, 1.6)),
+             # (the eye, last: a last white flash, and nothing left)
+             at(394, f'particle minecraft:flash{{color:[1.0,1.0,0.92,1.0]}} {NX} {CY + 12} {NZ} 0 0 0 0 1 force {AUD}'),
+             at(394, f'particle minecraft:end_rod {NX} {CY + 10} {NZ} 1.5 2 1.5 0.25 80 force {AUD}'),
+             at(394, f'execute positioned {NX} {CY + 11} {NZ} run ' + DFX.ring('nova', 1.6, 16)),
+             at(394, snd('block.bell.resonate', 3, 0.7)), at(394, snd('block.beacon.deactivate', 3, 0.7)), at(394, snd('entity.generic.explode', 1.5, 0.7))]
+    burn += [at(t, f'execute positioned {NX} {CY + 9} {NZ} run ' + DFX.spr('feather', 1.6, 3.5)) for t in range(396, 470, 3)]
+    burn += [at(t, f'execute positioned {NX} {CY + 3} {NZ} run ' + DFX.spr('ash', 1.4, 3.0)) for t in range(396, 460, 5)]
+    burn += [at(t, snd('block.amethyst_block.chime', 1.5, 0.9 + 0.1 * (k % 4))) for k, t in enumerate(range(400, 470, 14))]
     seq = ([at(1, f'execute as {AUD} at @s run stopsound @s record'), at(2, f'execute as {AUD} at @s run playsound bm:music.boss_divine record @s ~ ~ ~ 1000 1 1'),
             at(1, f'effect give {FIGHT} minecraft:darkness 3 0 true')] +
            # (the light takes it: dragged into the beam, turned to face where He will stand)
@@ -784,9 +831,10 @@ def generate(G):
             at(320, f'particle minecraft:explosion_emitter {NX} {CY + 6} {NZ} 2 3 2 0 4 force {AUD}'), at(320, 'function bm:p238/c/shake'), at(326, 'function bm:p238/c/shake')] +
            pan(316, 324, (DX, DVH[1] + 6, DZ), (NX, CY + 7, NZ)) +
            # (it comes apart into light; the eye last)
-           [at(330, 'execute as @e[type=minecraft:item_display,tag=bm.svr,tag=!bm.svr_head] run data merge entity @s {start_interpolation:0,interpolation_duration:70,transformation:{scale:[0f,0f,0f]}}'),
-            at(370, 'execute as @e[type=minecraft:item_display,tag=bm.svr_head] run data merge entity @s {start_interpolation:0,interpolation_duration:40,transformation:{scale:[0f,0f,0f]}}'),
-            at('330..410', 'function bm:p238/dv/unmake'), at(340, snd('entity.warden.death', 2, 0.6)), at(372, snd('block.amethyst_block.break', 3, 0.5)),
+           # (3.0d: IT BURNS UP IN HOLY FIRE - p238/burn: white-gold flames climb it from its feet, each part white-hot, then charred
+           #  black, then crumbling away into ash; the eye last; a last flash, and only ash and feathers of light drifting)
+           burn +
+           [at('330..410', 'function bm:p238/dv/unmake'), at(340, snd('entity.warden.death', 2, 0.6)), at(372, snd('block.amethyst_block.break', 3, 0.5)),
             at(400, title(AUD, 'actionbar', T(L.DIVINE['end'], L.HOLY, italic=True))), at(412, 'function bm:p238/dv/pose/rest')] +
            pan(414, 430, (NX, CY + 7, NZ), DVH) +
            [at(430, divine(L.DIVINE['rest'])), at(460, divine(L.DIVINE['you']))] +
