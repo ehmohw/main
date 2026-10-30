@@ -330,7 +330,7 @@ def glide(k, lean):
 
 POSES = {
     'idle_a': P(body=qs(('y', -12)), halo=spin(0)),
-    'idle_b': P(body=qs(('y', 12), ('z', 3)), halo=spin(22.5), _off=(0, 0.9, 0)),
+    'idle_b': P(body=qs(('y', 12), ('z', 3)), halo=spin(22.5), _off=(0, 2.4, 0)),       # (3.0d: the idle bob's top - ~0.12 blocks up)
     **{f'walk_{k}': glide(k, 14) for k in range(4)},
     **{f'run_{k}': glide(k, 26) for k in range(4)},
     'jump': P(body=qs(('y', 30), ('x', -8)), halo=spin(45), _off=(0, 4.0, 0)),

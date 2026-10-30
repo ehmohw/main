@@ -78,7 +78,7 @@ class C(RP.Cfg):
     ATTRS = dict(armor=4, attack_damage=4, movement_speed=0.38, follow_range=32, step_height=1.1)
     SCALE = 0.7
     HIT = (0.6, 1.2)
-    CYCLE = {0: (240, [(0, 'idle_a'), (60, 'idle_b'), (120, 'idle_a'), (180, 'idle_b')]),
+    CYCLE = {0: (240, [(0, 'idle_a'), (40, 'idle_b'), (80, 'idle_a'), (120, 'idle_b'), (160, 'idle_a'), (200, 'idle_b')]),   # (3.0d: a slow, never-resting bob)
              1: (16, [(0, 'walk_0'), (4, 'walk_1'), (8, 'walk_2'), (12, 'walk_3')]),
              2: (12, [(0, 'run_0'), (3, 'run_1'), (6, 'run_2'), (9, 'run_3')]), 3: (None, [(0, 'jump')]),
              4: (480, [(0, 'sit_a'), (120, 'sit_b'), (160, 'sit_c'), (200, 'sit_b'), (240, 'sit_c'), (280, 'sit_a')]),
@@ -88,7 +88,7 @@ class C(RP.Cfg):
              12: (None, [(0, 'conjure_up'), (8, 'conjure'), (14, 'conjure_up'), (20, 'conjure'), (30, 'happy')]),
              14: (None, [(0, 'happy'), (16, 'idle_b')]),
              10: (16, [(2 * i, f'swim_{i}') for i in range(A.SWIM_FRAMES)])}
-    DUR = {'idle_a': 20, 'idle_b': 20, 'walk_0': 4, 'walk_1': 4, 'walk_2': 4, 'walk_3': 4, 'run_0': 3, 'run_1': 3, 'run_2': 3, 'run_3': 3,
+    DUR = {'idle_a': 40, 'idle_b': 40, 'walk_0': 4, 'walk_1': 4, 'walk_2': 4, 'walk_3': 4, 'run_0': 3, 'run_1': 3, 'run_2': 3, 'run_3': 3,
            'jump': 4, 'sit_a': 30, 'sit_b': 40, 'sit_c': 40, 'happy': 10, 'conjure_up': 5, 'conjure': 3, 'hurt': 3, 'tired': 20}
     QUIPS = ['(the Gem twinkles: :D)', '(the Gem spins with delight: ^-^)', '(the Gem glows: c:)', '(the Gem sparkles: :3)', '(the Gem hums happily: o3o)']
     HELLO = ('(the Gem floats down to you, sparkling: :D)', '(a swirl of colour, and the Gem is there: ^-^)', '(the Gem twinkles goodbye and drifts off: c:)')
