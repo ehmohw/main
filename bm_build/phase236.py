@@ -16,6 +16,11 @@ THE LIGHTBRINGER (The Herald's Feather) - HARD MODE ONLY   a herald of the Divin
   0 she, 1 he); the menu's "Form: Herald (she)" / "(he)" switches it (code MENU+3, rigpet's FORM). His look: lightbringer_art's '_m'
   twin of every part (the same rig, poses, faces, Ophanim). Whoever met her before this keeps her. Every line of hers that says
   she / her has a twin for him (gender_split); her bonds and her feather's lore say "the herald" instead.
+  (3.0a) ETHEREAL AND WRAITHFIRE: right-click her (yours, out) holding an Ethereal Gem or a Wraithfire Heart - one is taken from the
+  hand (not in creative), she keeps it (bm.lheg / bm.lhwh) and takes its form (bm.lhel: 0 her own light, 1 Ethereal, 2 Wraithfire);
+  the menu's "Element" (MENU+6) steps through the forms she holds, "Give back the gem & heart" (MENU+7) returns them. The look is a
+  second suffix after the gender's (lightbringer_art's '_e' / '_w' twins: lb_<part>[_m]<el>) - she or he, in any element; Ethereal:
+  her smite +3; Wraithfire: what she smites burns, and beside her, fire can't touch you (elements, below).
 THE PALE DRYAD (A Glowing Mushroom)   a little spirit of the Pale Garden, all blue and orange mushrooms; she GLOWS SOFTLY AT NIGHT.
   In a Pale Garden at night she may be there among the moss; offer her a mushroom and she comes along. SWIPE a foe within 2.4 (5).
   SPORES two or more foes within 4.5, every 12 s: drowsy spores (3, poisoned, slowed). ROOTS (charged, every minute): roots burst up
@@ -82,7 +87,7 @@ class Lightbringer(RP.Cfg):
              T('She loves it when you wear holy things.', 'white')]
     # (3.0a: the elemental forms - Element (MENU+6) switches her own light / Ethereal / Wraithfire, the forms she holds the gem or the
     #  heart for; MENU+7 gives them back. phase236.elements)
-    BUTTONS = ((6, 'Element: Ethereal / Wraithfire', 'Her elemental form: her own light, Ethereal (an Ethereal Gem) or Wraithfire (a Wraithfire Heart) - right-click her with one to give it to her.', 'p236l/el/cycle'),
+    BUTTONS = ((6, 'Element: Ethereal / Wraithfire', 'Her elemental form: her own light, Ethereal (an Ethereal Gem) or Wraithfire (a Wraithfire Heart) - right-click her with one to hand it to her.', 'p236l/el/cycle'),
                (7, 'Give back the gem & heart', 'She gives you back the Ethereal Gem and the Wraithfire Heart she holds - and is her own light again.', 'p236l/el/take'))
     # (3.0: the owner - "a toggleable male variant", the first form met chosen at random: HE - lightbringer_art's '_m' twins of
     #  every part; bm.lhform 1 on the owner. The button's words follow the form shown: "Form: Herald (she)" / "(he)" - gender_split)
@@ -251,6 +256,19 @@ def rp(R):
     for _C in PAIR:
         RP.rp(_C, R, _icon(_C.W))
         RF2.faces(_C, 'head', R)
+
+    def post(R2):
+        """(3.0a) the Lightbringer's element heads (hers and his) pick the mood's face, as rigpet's do for her and him; the forms'
+        animated textures (the stars, the cold fire) get their .png.mcmeta. (Before phase138's pass: it copies these for the looks.)"""
+        C = Lightbringer
+        mdl = lambda n: {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
+        for sfx in (LA.ETHEREAL, LA.MALE + LA.ETHEREAL, LA.WRAITH, LA.MALE + LA.WRAITH):
+            R2.wj(f'assets/bm/items/{LA.PREFIX}head{sfx}.json', {'model': {'type': 'minecraft:select', 'property': 'minecraft:custom_model_data', 'index': 0,
+                                                                         'cases': [{'when': e, 'model': mdl(f'{LA.PREFIX}head_x{C.FACE[e]}{sfx}' if C.FACE[e] else f'{LA.PREFIX}head{sfx}')}
+                                                                                   for e in C.EXPR], 'fallback': mdl(f'{LA.PREFIX}head{sfx}')}})
+        for path, meta in LA.mcmeta().items():
+            R2.wj(path, meta)
+    R.POST.append(post)
 
 
 def textures():

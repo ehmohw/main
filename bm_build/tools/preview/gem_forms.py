@@ -103,7 +103,7 @@ def label(im, text, sub=None, night=False):
     return dark_label(darken(im), text, sub) if night else K.label(im, text, sub)
 
 
-def tile(pose, sfx, view=(-30, 12), span=2.3, center=(0, 1.05, 0), size=330, text='', sub=None, night=False, face=None, look=None, frame=0, halo_deg=0.0, extra=()):
+def tile(pose, sfx, view=(-30, 12), span=2.3, center=(0, 1.15, 0), size=330, text='', sub=None, night=False, face=None, look=None, frame=0, halo_deg=0.0, extra=()):
     s = scene(night, frame, extra); gem(s, pose, sfx, face=face, look=look, halo_deg=halo_deg)
     return label(s.render(view, size=size, span=span, center=center), text, sub, night)
 
@@ -211,6 +211,7 @@ def boxes(pose, sfx, halo_deg=0.0):
 
 
 def _sat(a, b):
+    if (a.max(0) < b.min(0)).any() or (b.max(0) < a.min(0)).any(): return 0.0
     def axes(c): return [c[4] - c[0], c[2] - c[0], c[1] - c[0]]
     ax = [v for v in axes(a) + axes(b) if np.linalg.norm(v) > 1e-6]
     for u, v in itertools.product(axes(a), axes(b)):
@@ -227,6 +228,11 @@ def _sat(a, b):
 
 if 'clip' in what:
     U = A.RIG_SCALE / 16
+    # (a wing's elements that meet the gem on purpose: each blade's first slab and spine, the arm's first box, the knot)
+    ROOTS_OF = {}
+    for sfx in ('_e', '_w'):
+        els = A.wing_elements(sfx, 1); nb = len(A.FEATHERS) * 7
+        ROOTS_OF[sfx] = {i for i in range(nb) if i % 7 in (0, 1)} | {nb, len(els) - 1}
     lines = []
     names = [n for n in A.POSES if not n.startswith('swim_') or n in ('swim_0', 'swim_2', 'swim_4', 'swim_6')]
     worst = 0.0
@@ -245,8 +251,7 @@ if 'clip' in what:
                 # the wings against the gem: past their roots (a shard's first box and the knot meet it on purpose)
                 body = [b for b in bx if b[0] == 'body']
                 for (pa, ca, ia) in [b for b in bx if b[0] in ('wing_r', 'wing_l')]:
-                    nb = len([1 for b in bx if b[0] == pa])
-                    if ia % 4 == 0 or ia == nb - 1: continue
+                    if ia in ROOTS_OF[sfx]: continue
                     for (pb, cb, ib) in body:
                         d = _sat(ca, cb) / U
                         if d > 0.25: hits[f'{pa}/body'] = max(hits.get(f'{pa}/body', 0), d)

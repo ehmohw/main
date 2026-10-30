@@ -48,7 +48,11 @@ TRANSLUCENT textures (alpha < 255): lb_robe and lb_bodice (178), lb_skin (205: h
 (3.0) HE: the male form - every part's '_m' twin (MALE; rigpet's FORM puts them on), below the textures and models: same rig,
       poses and faces; broad shoulders, a gold-collared surcoat, pauldrons and vambraces, a gold-edged purple tabard front and back
       (the back on the 'hair' joints), a straight long tunic, armoured feet, short cropped hair, ears, a heavy brow and a square jaw.
-      Preview: tools/preview/lightbringer_male.py."""
+      Preview: tools/preview/lightbringer_male.py.
+
+(3.0a) THE ELEMENTAL FORMS: every model's ETHEREAL ('_e') and WRAITHFIRE ('_w') twin, after the gender's suffix (lb_body_e,
+      lb_body_m_w, lb_head_xhappy_m_e ...): the same boxes, the element's textures (each texture's <name>_e / <name>_w), more glow,
+      the halo remade (a ring of stars; a ring of cold fire). See el_models / el_textures. Preview: tools/preview/lightbringer_forms.py."""
 import math
 import random
 from PIL import Image, ImageDraw

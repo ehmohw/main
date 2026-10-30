@@ -569,3 +569,178 @@ def _cinematic(G, X):
                           'execute as @a[tag=bm.cgwait] if score @s bm.pid = #me bm.pid run return 0', 'kill @s'])
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:marker,tag=bm.cgcin]', 'kill @e[type=minecraft:item_display,tag=bm.cgcz]',
                                        'kill @e[type=minecraft:item,tag=bm.cgdrop]', 'tag @a remove bm.cgwait']
+
+
+# ---------------------------------------------------------------------------------------------------- (3.0a) ITS FORMS
+# Right-click the Gem holding one of GIVE (who, after "not yours"): it keeps it (one at a time: the other comes back to you) and takes on
+# that form, in a short resonance (eth/rs, as the Gem, RS_END ticks): a chord, beams of colour from you to it, its facets flashing, then
+# the change - its parts' models to the form's ('_e' / '_w', dress), its wings unfolding - and a cheer on its face. The form is yours:
+# bm.cgel on you (10 the Ethereal Gem, 11 the Wraithfire Heart - what it holds), bm.cgfo (1: worn). dress puts it on every time it comes.
+# Its menu, while it holds one: ITS FORM: ON / OFF (4403, eth/toggle) and TAKE IT BACK (4406, eth/take - and sneak + right-click it
+# empty-handed). Nothing is lost: what it holds is given back on the take.
+GIVE = {10: ('ethereal_gem', 'Ethereal', '#e8d8ff', '_e'), 11: ('wraithfire_heart', 'Wraithfire', '#5ae0ff', '_w')}
+RS_END = 44
+
+
+def _forms(G, X):
+    import phase28 as P28
+    fn, tellraw, title = G.fn, G.tellraw, G.title
+    say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
+    csay = X.csay
+    holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
+    objs = ['bm.cgel', 'bm.cgfo', 'bm.cgrs']
+    G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
+    G.OBJECTIVES += objs
+    pet, sel = 'bm.cgpet', 'bm.cgsel'
+    mine = 'if score @s bm.pid = #me bm.pid'
+    psel = lambda p: f'@e[type=minecraft:item_display,tag={sel},tag=bm.cgp_{p}]'
+    gem_of_me = f'execute as @e[type=minecraft:wolf,tag={pet}] {mine} at @s run'
+
+    # ---- the form it wears (#cgf: 0 its own, 10 / 11) - as its owner (@s) or as anyone with #me set
+    fn('p231/eth/f', ['scoreboard players set #cgf bm.rng 0',
+                      f'execute as @a {mine} if score @s bm.cgfo matches 1 run scoreboard players operation #cgf bm.rng = @s bm.cgel'])
+    dress = G.FUNCS['p231/dress']
+    assert dress[0] == 'scoreboard players set #wk bm.rng 0', dress[0]          # (no rigpet FORM: the wardrobe's look is all it did)
+    lines = ['function bm:p231/eth/f']
+    for p in A.PARTS:
+        lines.append(f'execute if score #cgf bm.rng matches 0 as {psel(p)} run data modify entity @s item.components."minecraft:item_model" set value "bm:cg_{p}"')
+        for n, (_i, _nm, _c, sfx) in GIVE.items():
+            lines.append(f'execute if score #cgf bm.rng matches {n} as {psel(p)} run data modify entity @s item.components."minecraft:item_model" set value "bm:cg_{p}{sfx}"')
+    dress[0:0] = lines
+    # (as the Gem, at it) dressed again, now
+    fn('p231/eth/redress', ['scoreboard players operation #me bm.pid = @s bm.pid',
+                            f'execute as @e[type=minecraft:item_display,tag=bm.cgp_pet,tag=!bm.cgfade] {mine} run tag @s add {sel}',
+                            'function bm:p231/dress', f'tag @e[tag={sel}] remove {sel}'])
+
+    # ---- the click (who, as you, at you; the Gem tagged bm.cgclk): the held-item dispatch, after "not yours"
+    who = G.FUNCS['p231/who']
+    k = next(i for i, l in enumerate(who) if 'bm.pid = #me bm.pid run return run' in l)
+    who[k + 1:k + 1] = [f'execute if items entity @s weapon.mainhand {holds(it)} run return run function bm:p231/eth/give_{n}' for n, (it, *_r) in GIVE.items()] + \
+                       ['execute if predicate bm:p20/sneaking unless items entity @s weapon.mainhand * if score @s bm.cgel matches 10.. run return run function bm:p231/eth/take']
+    give_back = [f'execute if score @s bm.cgel matches {n} run loot give @s loot bm:items/{it}' for n, (it, *_r) in GIVE.items()]
+    WORDS = {10: [T('The Gem rings like a struck bell. ', '#e8d8ff', italic=True), T('It knows this light - it was cut from it, long ago. ', CG_LINE, italic=True),
+                  T('Every colour there is pours through it, and it opens a pair of diamond wings. ', '#e8d8ff', italic=True), T('*o*', '#ffffff', bold=True)],
+             11: [T('The Gem drinks the heart\'s cold blue fire. ', '#5ae0ff', italic=True), T('Its colours go dark as smoke, veined with soul-light, ', CG_LINE, italic=True),
+                  T('and wings of wraith fire unfold behind it. ', '#5ae0ff', italic=True), T('\\o/', '#ffffff', bold=True)]}
+    for n, (it, nm, col, sfx) in GIVE.items():
+        fn(f'p231/eth/give_{n}', [f'execute if score @s bm.cgel matches {n} run return run ' + csay('(the Gem already holds one, and hums at this one too: <3)'),
+                                  *[l for l in give_back if f'matches {n} ' not in l],
+                                  'item modify entity @s weapon.mainhand bm:p2/consume_one',
+                                  f'scoreboard players set @s bm.cgel {n}', 'scoreboard players set @s bm.cgfo 1',
+                                  'scoreboard players set @e[type=minecraft:wolf,tag=bm.cgclk] bm.cgrs 1',
+                                  tellraw('@s', WORDS[n]),
+                                  tellraw('@s', [T(f'The Gem keeps the {ITEMS[it]["name"]}: its ', 'gray'), T(f'{nm.upper()} FORM', col, bold=True),
+                                                 T('. (Its menu: the form on or off, or take it back - or sneak + right-click it empty-handed.)', 'dark_gray')]),
+                                  'return 1'])
+    fn('p231/eth/take', ['execute unless score @s bm.cgel matches 10.. run return run ' + say('The Gem holds nothing of yours.', CG_LINE)] + give_back +
+       ['scoreboard players set @s bm.cgel 0', 'scoreboard players set @s bm.cgfo 0', 'scoreboard players operation #me bm.pid = @s bm.pid',
+        f'{gem_of_me} function bm:p231/eth/redress', f'{gem_of_me} particle minecraft:end_rod ~ ~1 ~ 0.4 0.5 0.4 0.03 16',
+        f'{gem_of_me} playsound minecraft:block.amethyst_block.chime neutral @a[distance=..16] ~ ~ ~ 1 0.9',
+        csay('(the Gem gives it back - and it\'s its own self again: c:)')])
+    fn('p231/eth/toggle', ['execute unless score @s bm.cgel matches 10.. run return run ' + say('The Gem has no other form to wear - hand it the Ethereal Gem, or a Wraithfire Heart.', CG_LINE),
+                           'execute store success score #f0 bm.rng if score @s bm.cgfo matches 1',
+                           'execute if score #f0 bm.rng matches 1 run scoreboard players set @s bm.cgfo 0', 'execute if score #f0 bm.rng matches 0 run scoreboard players set @s bm.cgfo 1',
+                           'execute if score @s bm.cgfo matches 0 run ' + csay('(the Gem settles back into its own colours: c:)'),
+                           'execute if score @s bm.cgfo matches 1 if score @s bm.cgel matches 10 run ' + csay('(the Gem flares with every colour, its diamond wings open: *o*)'),
+                           'execute if score @s bm.cgfo matches 1 if score @s bm.cgel matches 11 run ' + csay('(the Gem burns cold and blue, its wings of fire open: \\o/)'),
+                           'scoreboard players operation #me bm.pid = @s bm.pid',
+                           f'{gem_of_me} function bm:p231/eth/redress', f'{gem_of_me} function bm:p231/eth/puff',
+                           # (the menu again, knowing the Gem is out: act returns into here before it tags it)
+                           f'{X.sel_pet} run tag @s add {X.sel2}', 'function bm:p231/menu', f'tag @e[tag={X.sel2}] remove {X.sel2}'])
+    fn('p231/eth/puff', ['function bm:p231/eth/f',
+                         'execute if score #cgf bm.rng matches 0 run particle minecraft:end_rod ~ ~1 ~ 0.4 0.5 0.4 0.03 14',
+                         'execute if score #cgf bm.rng matches 10 run particle minecraft:end_rod ~ ~1.2 ~ 0.7 0.6 0.7 0.05 30',
+                         'execute if score #cgf bm.rng matches 10 run particle minecraft:dust{color:[1.0,0.4,0.6],scale:1.2} ~ ~1.2 ~ 0.7 0.6 0.7 0 12',
+                         'execute if score #cgf bm.rng matches 10 run particle minecraft:dust{color:[0.4,0.7,1.0],scale:1.2} ~ ~1.2 ~ 0.7 0.6 0.7 0 12',
+                         'execute if score #cgf bm.rng matches 10 run playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..16] ~ ~ ~ 1 1.4',
+                         'execute if score #cgf bm.rng matches 11 run particle minecraft:soul_fire_flame ~ ~1.2 ~ 0.6 0.6 0.6 0.04 30',
+                         'execute if score #cgf bm.rng matches 11 run playsound minecraft:particle.soul_escape neutral @a[distance=..16] ~ ~ ~ 2 1.0'])
+
+    # ---- the menu: the two buttons only while it holds one - worded for the one it holds
+    menu = G.FUNCS['p231/menu']
+    assert len(menu) == 3 and menu[1].startswith('execute if entity @e[type=minecraft:wolf,tag=bm.cgsel2] run return run dialog show @s ') and menu[2].startswith('dialog show @s '), menu
+    btn = {n: snbt(P28.btn(T(lbl, C.COL, bold=True), C.MENU + n, width=150, tooltip=T(tip, 'gray'))) for n, lbl, tip, _f in C.BUTTONS}
+    assert all(b in menu[1] and b in menu[2] for b in btn.values())
+    plain = lambda l: l.replace(',' + btn[3], '').replace(',' + btn[6], '')
+    worded = lambda l, n: l.replace('Its form: on / off', f'{GIVE[n][1]} Form: on / off').replace('Take it back', f'Take back the {ITEMS[GIVE[n][0]]["name"]}')
+    out_, in_ = menu[1], menu[2]
+    G.FUNCS['p231/menu'] = [menu[0]] + [f'execute if score @s bm.cgel matches {n} run return run function bm:p231/eth/menu_{n}' for n in GIVE] + [plain(out_), plain(in_)]
+    for n in GIVE:
+        fn(f'p231/eth/menu_{n}', [worded(out_, n), worded(in_, n)])
+    for l in G.FUNCS['p231/menu'][1:]:
+        assert btn[3] not in l or 'eth/menu_' in l
+
+    # ---- the resonance (as the Gem, at it; bm.cgrs its clock, from 1): the chord, the beams, the flashes, the change, the wings
+    G.FUNCS['tick'].append(f'execute as @e[type=minecraft:wolf,tag={pet},scores={{bm.cgrs=1..}}] at @s run function bm:p231/eth/rs')
+    fn('p231/eth/rs', ['scoreboard players add @s bm.cgrs 1', 'scoreboard players operation #me bm.pid = @s bm.pid',
+                       'scoreboard players set #cge bm.rng 0', 'execute on owner run scoreboard players operation #cge bm.rng = @s bm.cgel',
+                       'tag @s add bm.cgrsme', 'scoreboard players operation #rs bm.rng = @s bm.cgrs'] +
+       [f'execute if score #cge bm.rng matches {n} run function bm:p231/eth/rs_{n}' for n in GIVE] +
+       ['tag @s remove bm.cgrsme', f'execute if score @s bm.cgrs matches {RS_END}.. run scoreboard players set @s bm.cgrs 0'])
+    parts = f'@e[type=minecraft:item_display,tag=bm.cgp_pet,tag=!bm.cgfade,distance=..4]'
+    at = lambda t, cmd: f'execute if score #rs bm.rng matches {t} run {cmd}'
+    RAIN = ['1.0,0.25,0.35', '1.0,0.7,0.15', '0.2,0.95,0.45', '0.25,0.5,1.0', '0.7,0.35,1.0']
+    for n, (it, nm, col, sfx) in GIVE.items():
+        e = n == 10
+        notes = (('minecraft:block.note_block.chime', 1.0), ('minecraft:block.note_block.chime', 1.26), ('minecraft:block.note_block.chime', 1.5),
+                 ('minecraft:block.amethyst_block.resonate', 0.75)) if e else \
+                (('minecraft:block.note_block.chime', 0.75), ('minecraft:block.note_block.chime', 0.89), ('minecraft:block.note_block.chime', 1.12),
+                 ('minecraft:particle.soul_escape', 0.6))
+        L = [at(2, f'playsound {s} neutral @a[distance=..20] ~ ~ ~ 1 {p}') for s, p in notes]
+        L += [at(2, 'function bm:p231/emo/x/stars' if e else 'function bm:p231/emo/x/oh')]
+        for t in (2, 7, 12):                         # (beams of colour from you to it, pulsing)
+            L.append(at(t, f'execute on owner at @s anchored eyes positioned ^0.3 ^-0.35 ^0.5 facing entity @e[type=minecraft:wolf,tag=bm.cgrsme,limit=1] eyes run function bm:p231/eth/beam_{n}'))
+            L.append(at(t, 'scoreboard players set #bs bm.rng 0'))
+        for t in (5, 10, 15):                        # (its facets flash)
+            L += [at(t, f'execute as {parts} {mine} run data merge entity @s {{brightness:{{block:15,sky:15}}}}'),
+                  at(t, f'particle minecraft:flash{{color:[{"1.0,1.0,1.0" if e else "0.45,0.9,1.0"},1.0]}} ~ ~1 ~ 0 0 0 0 1'),
+                  at(t + 2, f'execute as {parts} {mine} run data remove entity @s brightness')]
+        L += [at(14, f'playsound minecraft:block.beacon.power_select neutral @a[distance=..20] ~ ~ ~ 1 {1.4 if e else 0.8}')]
+        # the change: its models, the wings out of nothing - unfolding - and a burst
+        L += [at(18, 'function bm:p231/eth/redress'), at(18, f'execute as {parts} {mine} run data remove entity @s brightness'),
+              at(18, f'execute as {parts} {mine} if entity @s[tag=bm.cgp_wing_r] run data merge entity @s {{start_interpolation:-1,interpolation_duration:0,transformation:{{scale:[0f,0f,0f]}}}}'),
+              at(18, f'execute as {parts} {mine} if entity @s[tag=bm.cgp_wing_l] run data merge entity @s {{start_interpolation:-1,interpolation_duration:0,transformation:{{scale:[0f,0f,0f]}}}}'),
+              at(19, 'function bm:p231/eth/pose_conjure'),
+              at(19, f'execute as {parts} {mine} if entity @s[tag=bm.cgp_wing_r] run data merge entity @s {{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[{A.RIG_SCALE}f,{A.RIG_SCALE}f,{A.RIG_SCALE}f]}}}}'),
+              at(19, f'execute as {parts} {mine} if entity @s[tag=bm.cgp_wing_l] run data merge entity @s {{start_interpolation:0,interpolation_duration:12,transformation:{{scale:[{A.RIG_SCALE}f,{A.RIG_SCALE}f,{A.RIG_SCALE}f]}}}}'),
+              at(19, 'function bm:p231/emo/x/cheer'),
+              at(19, 'function bm:p231/eth/puff'),
+              at(19, 'particle minecraft:totem_of_undying ~ ~1.2 ~ 0.5 0.6 0.5 0.4 40' if e else 'particle minecraft:soul ~ ~1.2 ~ 0.5 0.6 0.5 0.05 24'),
+              at(19, f'playsound {"minecraft:block.amethyst_cluster.break" if e else "minecraft:block.respawn_anchor.charge"} neutral @a[distance=..20] ~ ~ ~ 1 {1.2 if e else 1.0}'),
+              at(19, f'execute on owner run ' + title('@s', 'actionbar', [T('The Gem of Creativity - ', CG_C), T(f'{nm.upper()} FORM', col, bold=True)])),
+              at(34, 'function bm:p231/emo/x/heart' if e else 'function bm:p231/emo/x/grin'),
+              at(34, 'function bm:p231/eth/pose_idle_a')]
+        fn(f'p231/eth/rs_{n}', L)
+        # the beam: a step at a time toward the Gem (40 at most), a colour each
+        dot = [f'execute if score #bc bm.rng matches {i} run particle minecraft:dust{{color:[{c}],scale:0.9}} ~ ~ ~ 0.03 0.03 0.03 0 2' for i, c in enumerate(RAIN)] if e else \
+              ['particle minecraft:soul_fire_flame ~ ~ ~ 0.02 0.02 0.02 0.005 1', 'particle minecraft:dust{color:[0.43,0.94,1.0],scale:0.8} ~ ~ ~ 0.03 0.03 0.03 0 1']
+        fn(f'p231/eth/beam_{n}', ['scoreboard players add #bs bm.rng 1', 'scoreboard players operation #bc bm.rng = #bs bm.rng', 'scoreboard players operation #bc bm.rng %= #5 bm.rng'] + dot +
+           ['particle minecraft:end_rod ~ ~ ~ 0 0 0 0 1' if e else 'particle minecraft:soul ~ ~ ~ 0 0 0 0.01 0',
+            'execute if score #bs bm.rng matches 40.. run return 0',
+            'execute if entity @e[type=minecraft:wolf,tag=bm.cgrsme,distance=..0.9] run return 0',
+            f'execute positioned ^ ^ ^0.3 run function bm:p231/eth/beam_{n}'])
+    G.FUNCS['load'][-1:-1] = ['scoreboard players set #5 bm.rng 5']
+    # (as the Gem, #me its pid) a pose of its own, now: the pose functions move the parts tagged {sel}, as its own tick does
+    for pz in ('conjure', 'idle_a'):
+        fn(f'p231/eth/pose_{pz}', [f'execute as @e[type=minecraft:item_display,tag=bm.cgp_pet,tag=!bm.cgfade] {mine} run tag @s add {sel}',
+                                   f'function bm:p231/pose/{pz}', f'tag @e[tag={sel}] remove {sel}'])
+
+    # ---- its powers in a form: PRISM (Ethereal: 7, every colour; Wraithfire: it sets them alight); INSPIRATION (Wraithfire: Fire Resistance)
+    pr = G.FUNCS['p231/prism']
+    i = pr.index('scoreboard players set #pd bm.rng 5')
+    pr[i + 1:i + 1] = ['scoreboard players operation #me bm.pid = @s bm.pid', 'function bm:p231/eth/f', 'execute if score #cgf bm.rng matches 10 run scoreboard players set #pd bm.rng 7']
+    G.FUNCS['p231/prismed'] += ['execute if score #cgf bm.rng matches 10 run particle minecraft:end_rod ~ ~1 ~ 0.3 0.4 0.3 0.06 8',
+                                'execute if score #cgf bm.rng matches 10 run particle minecraft:dust{color:[1.0,0.85,0.2],scale:1.0} ~ ~1 ~ 0.3 0.4 0.3 0 6',
+                                'execute if score #cgf bm.rng matches 10 run particle minecraft:dust{color:[0.7,0.35,1.0],scale:1.0} ~ ~1 ~ 0.3 0.4 0.3 0 6',
+                                'execute if score #cgf bm.rng matches 11 run data modify entity @s Fire set value 100s',
+                                'execute if score #cgf bm.rng matches 11 run particle minecraft:soul_fire_flame ~ ~1 ~ 0.3 0.5 0.3 0.03 14']
+    G.FUNCS['p231/insp_you'] += ['execute if score @s bm.cgfo matches 1 if score @s bm.cgel matches 11 run effect give @s minecraft:fire_resistance 60 0 true']
+    # ---- a modest shimmer about it while it wears one (each second, with its feelings)
+    G.FUNCS['p231/emo/sec'].insert(0, 'function bm:p231/eth/aura')
+    fn('p231/eth/aura', ['scoreboard players operation #me bm.pid = @s bm.pid', 'function bm:p231/eth/f',
+                         'execute if score #cgf bm.rng matches 10 run particle minecraft:end_rod ~ ~1.3 ~ 0.5 0.4 0.5 0.01 2',
+                         'execute if score #cgf bm.rng matches 10 run particle minecraft:dust{color:[1.0,0.4,0.6],scale:0.8} ~ ~1.3 ~ 0.6 0.4 0.6 0 2',
+                         'execute if score #cgf bm.rng matches 10 run particle minecraft:dust{color:[0.35,0.7,1.0],scale:0.8} ~ ~1.3 ~ 0.6 0.4 0.6 0 2',
+                         'execute if score #cgf bm.rng matches 11 run particle minecraft:soul_fire_flame ~ ~1.3 ~ 0.4 0.4 0.4 0.01 3'])
+    G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/gem_forms', 'yellow'), T('  the Ethereal Gem and a Wraithfire Heart, to hand the Gem', 'gray')]))
+    fn('admin/gem_forms', [G.give('ethereal_gem'), G.give('wraithfire_heart')])

@@ -4,8 +4,12 @@
 // Its ways: CONJURE (a foe within 14: one of its 3D Buddies pops out of a sparkle at it, its own attack), PRISM (a foe close: a flash
 // off its facets), INSPIRATION (out of a fight: Haste and Luck for you), MASTERPIECE (three foes: three Buddies at once). It feels in
 // text - an emoticon on its face (2.96a: lit on its table facet - :) c: :o :3 o3o ^-^ ;( o.O ...): >:( in a fight. Then the shared list.
+// (3.0a) ITS FORMS: right-clicked holding the Ethereal Gem - it keeps it (the item gone from you), the resonance, its parts to their '_e' twins
+// (wings shown), every face on the new table, its Prism at 7; the menu's Ethereal Form: on / off both ways; sent home and called - still
+// Ethereal; handed a Wraithfire Heart - the Ethereal Gem comes back, '_w'; sneak + right-click empty-handed - the heart back, its own self.
+// (Its rig: five parts now - the gem, its face, its halo and two wings, a speck in its own form; the figurine stays three.)
 const runT = require('./rigpet_t');
-runT({ W: 'gem', NAME: 'The Gem of Creativity', ab: 'cg', q: 'cq', pfx: 'p231', prefix: 'cg_', item: 'creativity_gem', parts: 3, figParts: 3, hp: 40, X: 17400, Z: 17600, pron: 'it',
+runT({ W: 'gem', NAME: 'The Gem of Creativity', ab: 'cg', q: 'cq', pfx: 'p231', prefix: 'cg_', item: 'creativity_gem', parts: 5, figParts: 3, hp: 40, X: 17400, Z: 17600, pron: 'it',
   called: /floats down to you/, home: /twinkles goodbye/, sit: /settles low and dims/, stand: /lifts and brightens/,
   ways: ['Conjure', 'Prism', 'Inspiration', 'Masterpiece', 'Creative Forms'],
   plain: 'Its own colours', looks: ['Ruby Facets', 'Sapphire Facets', 'Amethyst Facets'], lookPart: 'body',
@@ -61,7 +65,7 @@ runT({ W: 'gem', NAME: 'The Gem of Creativity', ab: 'cg', q: 'cq', pfx: 'p231', 
     await run('clear TestRat *[minecraft:custom_data~{bm:"creativity_gem"}]'); await run('loot replace entity TestRat hotbar.7 loot bm:items/creativity_gem');
     await use(7); await sleep(1500);
   },
-  abilities: async ({ A, run, ok, wait, O, cnt, nbt, num, fx, PET, zom, X, Y, Z, sleep, at }) => {
+  abilities: async ({ A, run, ok, wait, O, cnt, nbt, num, fx, PET, zom, X, Y, Z, sleep, at, has, score, entOf, sneakMenu, use }) => {
     const cd = async (o, v) => run(`scoreboard players set ${PET} bm.cq${o} ${v}`);
     const calm = async () => { for (const o of ['gc', 'rc', 'mc', 'k']) await cd(o, 900); };
     const hp = async (t) => num(`@e[tag=${t},limit=1]`, 'Health');
@@ -96,4 +100,50 @@ runT({ W: 'gem', NAME: 'The Gem of Creativity', ab: 'cg', q: 'cq', pfx: 'p231', 
     await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await cd('k', 0);
     ok('INSPIRATION - out of a fight beside you: Haste and Luck', await wait(7000, async () => /haste/.test(await fx()) && /luck/.test(await fx())));
     await run('effect clear TestRat'); await run('effect give TestRat minecraft:resistance 900 4 true'); await calm();
+
+    // ---------------------------------------------------------------- (3.0a) ITS FORMS: the Ethereal Gem, the Wraithfire Heart
+    const HIT = '@e[type=minecraft:interaction,tag=bm.cghit,limit=1]';
+    const PART = (p) => `@e[type=minecraft:item_display,tag=bm.cgp_pet,tag=bm.cgp_${p},tag=!bm.cgfade,limit=1]`;
+    const mdl = async (p) => (await nbt(PART(p), 'item.components."minecraft:item_model"')).replace(/"/g, '');
+    const all = async (sfx) => { const m = []; for (const p of ['body', 'head', 'halo', 'wing_r', 'wing_l']) m.push(await mdl(p)); return { ok: m.every((x, i) => x === `bm:cg_${['body', 'head', 'halo', 'wing_r', 'wing_l'][i]}${sfx}`), m: m.join(' ') }; };
+    const click = async (slot, sneak = false) => {
+      await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z + 2.3}`); await at(X + 0.5, Y + 1, Z + 0.5, 0, 25); await sleep(400);
+      const hb = await entOf(HIT); A.slot(slot); await sleep(300);
+      if (sneak) { A.input({ shift: true }); await sleep(250); }
+      if (hb) A.interact(hb.entityId); await sleep(700);
+      if (sneak) { A.input({}); await sleep(200); }
+      return !!hb; };
+    await run('scoreboard players set TestRat bm.cgel 0'); await run('scoreboard players set TestRat bm.cgfo 0');
+    for (const i of ['ethereal_gem', 'wraithfire_heart']) await run(`clear TestRat *[minecraft:custom_data~{bm:"${i}"}]`);
+    ok('ITS FORMS - in its own form: its own models, the wings a speck', (await all('')).ok, (await all('')).m);
+    await run('loot replace entity TestRat hotbar.5 loot bm:items/ethereal_gem'); A.chats.length = 0; A.bars.length = 0;
+    ok('...right-clicked holding the Ethereal Gem: it keeps it (yours no more; bm.cgel 10, worn)',
+       await click(5) && (await score('bm.cgel')) === 10 && (await score('bm.cgfo')) === 1 && (await has('ethereal_gem')) === 0 && A.chats.some(c => /knows this light/.test(c)),
+       `cgel ${await score('bm.cgel')} gems ${await has('ethereal_gem')}`);
+    ok('...the two resonate - then its parts are the Ethereal twins (the wings too)', await wait(4000, async () => (await all('_e')).ok), (await all('_e')).m);
+    ok('...the wings unfold (shown, full size)', await wait(2500, async () => (await num(PART('wing_r'), 'transformation.scale[0]')) > 0.7 && (await num(PART('wing_l'), 'transformation.scale[0]')) > 0.7),
+       String(await num(PART('wing_r'), 'transformation.scale[0]')));
+    ok('...ETHEREAL FORM said, and a cheer on its face (\\o/ - its emoticons work in the form)', A.bars.some(b => /ETHEREAL FORM/.test(b)) &&
+       await wait(3000, async () => /m_(cheer|stars|heart)/.test(await nbt(PART('head'), 'item.components."minecraft:custom_model_data".strings[0]'))), A.bars.slice(-1).join(''));
+    await calm(); await zom(1.6, 2, 'bm.trpe'); await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z + 2.3}`); await run(`${O}tp @e[tag=bm.trpe] ${X + 1.9} ${Y + 1} ${Z + 2.3}`); await cd('mc', 0);
+    ok('...its PRISM in the form hits harder (7, not 5)', await wait(5000, async () => (await hp('bm.trpe')) < 300) && (await hp('bm.trpe')) <= 294, String(await hp('bm.trpe')));
+    await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await sleep(1500);
+    ok('the menu, while it holds one: Ethereal Form: on / off, Take back the Ethereal Gem', await sneakMenu(0) &&
+       A.buttons().some(b => /Ethereal Form: on \/ off/.test(b.label)) && A.buttons().some(b => /Take back the Ethereal Gem/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
+    await A.press(/Ethereal Form: on \/ off/); await sleep(1200);
+    ok('...Ethereal Form: off - its own models again (the gem kept)', (await score('bm.cgfo')) === 0 && (await score('bm.cgel')) === 10 && (await all('')).ok, (await all('')).m);
+    await sneakMenu(0); await A.press(/Ethereal Form: on \/ off/); await sleep(1200);
+    ok('...and on - the Ethereal twins', (await score('bm.cgfo')) === 1 && (await all('_e')).ok, (await all('_e')).m);
+    await sneakMenu(0); await A.click(/Send .* home/); await sleep(1200); await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
+    ok('...sent home and called again: still Ethereal', (await cnt(PET)) === 1 && (await all('_e')).ok, (await all('_e')).m);
+    await run('loot replace entity TestRat hotbar.5 loot bm:items/wraithfire_heart'); A.chats.length = 0;
+    ok('handed a Wraithfire Heart: it keeps that one, and gives the Ethereal Gem back (one at a time)',
+       await click(5) && (await score('bm.cgel')) === 11 && (await has('wraithfire_heart')) === 0 && (await has('ethereal_gem')) === 1, `cgel ${await score('bm.cgel')}`);
+    ok('...the Wraithfire twins - smoke and soul fire, wings of flame', await wait(4000, async () => (await all('_w')).ok), (await all('_w')).m);
+    await sleep(1500); await run('clear TestRat *[minecraft:custom_data~{bm:"ethereal_gem"}]');
+    ok('sneak + right-click it empty-handed: the heart back, its own self again',
+       await click(8, true) && (await score('bm.cgel')) === 0 && (await has('wraithfire_heart')) === 1 && await wait(2000, async () => (await all('')).ok), (await all('')).m);
+    await sneakMenu(0);
+    ok('...and its menu has no form buttons now', !A.buttons().some(b => /Form: on|Take back the/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
+    await run('clear TestRat *[minecraft:custom_data~{bm:"wraithfire_heart"}]'); await sleep(800);
   } });

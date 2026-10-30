@@ -16,7 +16,9 @@ os.environ.setdefault('BM_PREVIEW_DIR', os.path.join(os.path.dirname(BM), 'previ
 import numpy as np
 from PIL import Image
 import draftkit as K, lightbringer_art as A, rigkit
-import lightbringer_male as LM                       # (its culled render, night scene and labels)
+_argv, sys.argv = sys.argv, [sys.argv[0], 'none']
+import lightbringer_male as LM                       # (its culled render, night scene and labels - none of its sheets)
+sys.argv = _argv
 OUT = os.environ['BM_PREVIEW_DIR']; os.makedirs(OUT, exist_ok=True)
 SCRATCH = os.environ.get('BM_SCRATCH', '/tmp/bm_previews'); os.makedirs(SCRATCH, exist_ok=True)
 what = sys.argv[1].split(',') if len(sys.argv) > 1 else ['forms', 'faces', 'night', 'oph', 'looks', 'poses', 'check']

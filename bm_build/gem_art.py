@@ -381,7 +381,7 @@ import rigkit as _RK
 FORMS = ('_e', '_w')
 FORM_CUT = (5.4, 9.0, 2.9, -2.5, 4.3)            # (W, H, C, ZT, ZC)
 DY = FORM_CUT[1] - H                             # (2.0: its heart lifted, so its point hovers where the plain gem's does)
-HALO_RF, HALO_UP = 7.0, 20.0                     # (a form's halo: over its crown, clear of every point and wing in every pose)
+HALO_RF, HALO_UP = 7.0, 21.0                     # (a form's halo: over its crown, clear of every point and wing in every pose)
 GEMS5 = (('ruby', (214, 30, 66)), ('topaz', (255, 172, 34)), ('emerald', (34, 206, 108)), ('sapphire', (40, 98, 232)), ('amethyst', (164, 70, 232)))
 LOOK_SIDE = tuple(f'cg_ew_{k}' for k, _c in GEMS5) + ('cg_e_spike',)       # (phase231 hands these to phase138: recoloured on the swirl's range)
 # THE WING (his right; in its own plane - u out from the joint, v up - swept back SWEEP_Z for each unit out): a crystal ARM, the leading
@@ -616,17 +616,18 @@ def form_textures():
 
 # ---------------------------------------------------------------------------------------------------- the wings' poses
 # (lift: up from rest about the gem's front-back line; sweep: back from rest about the vertical. Parented to the gem, they tilt and
-#  turn with it. They never droop below rest - a lowered wing would cross the halo's ring - so a tired or seated Gem folds them
-#  BACK instead. idle_a / idle_b are a slow beat of them, a second each.)
+#  turn with it. A tired or seated Gem folds them BACK; running (the gem leaning into it lifts what's at its back) they lie
+#  lowered and swept, clear of the halo over its crown. idle_a / idle_b are a slow beat of them,
+#  a second each.)
 def wingpose(lift, sweep):
-    r = qs(('y', -sweep), ('z', lift))
+    r = qs(('y', -sweep), ('z', -lift))
     return {'wing_r': r, 'wing_l': (r[0], -r[1], -r[2], r[3])}          # (mirrored across his middle)
 
 
 WING_POSE = {'idle_a': (0, 0), 'idle_b': (12, -6), 'jump': (24, -14), 'sit_a': (0, 44), 'sit_b': (2, 30), 'sit_c': (2, 30), 'happy': (20, -16),
              'conjure_up': (26, 8), 'conjure': (16, -24), 'hurt': (0, 36), 'tired': (0, 46)}
 WING_POSE.update({f'walk_{k}': (5 + 5 * math.sin(math.pi * k / 2), 18) for k in range(4)})
-WING_POSE.update({f'run_{k}': (4 + 8 * math.sin(math.pi * k / 2), 34) for k in range(4)})
+WING_POSE.update({f'run_{k}': (-8 + 3 * math.sin(math.pi * k / 2), 38) for k in range(4)})
 WING_POSE.update({f'swim_{k}': (6 + 6 * math.sin(2 * math.pi * k / SWIM_FRAMES), 24) for k in range(SWIM_FRAMES)})
 for _n, _p in POSES.items():
     _p.update(wingpose(*WING_POSE.get(_n, (0, 0))))
