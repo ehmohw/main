@@ -329,7 +329,7 @@ def generate(G):
                           'execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
                           'scoreboard players set #q bm.rng 0', f'execute if score @s bm.wumireling matches 0.. run function bm:{P}/ml/has8',
                           'scoreboard players set #mlnear bm.rng 0',
-                          'execute as @e[type=minecraft:wolf,tag=bm.mlpet,distance=..6] if score @s bm.pid = #me bm.pid run scoreboard players set #mlnear bm.rng 1',
+                          'execute as @e[type=minecraft:wolf,tag=bm.mlpet,distance=..8] if score @s bm.pid = #me bm.pid run scoreboard players set #mlnear bm.rng 1',
                           f'execute if score #q bm.rng matches 0 if score #mlnear bm.rng matches 1 run return run function bm:{P}/ml/feed',
                           f'function bm:{P}/ichor/scent'])
     fn(f'{P}/ml/has8', ['scoreboard players operation #q bm.rng = @s bm.wumireling', f'scoreboard players set #bit bm.rng {2 ** LOOK}',

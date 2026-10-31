@@ -292,6 +292,8 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
     const model = async (sel = BODY) => (await nbt(sel, 'item.components."minecraft:item_model"', O)).replace(/"/g, '');
     ok('...in its own look (ml_body)', /bm:ml_body$/.test(await model()), await model());
     await run('item replace entity TestRat hotbar.1 with minecraft:air'); await run('loot replace entity TestRat hotbar.1 loot bm:items/brood_ichor');
+    const wp = ((await nbt(PET, 'Pos', O)).match(/-?[\d.]+/g) || [OX + 0.5, Y + 1, OZ + 0.5]).map(Number);
+    await at(O, wp[0], Y + 1, wp[2] - 2, 0, 20);                    // (beside it)
     A.chats.length = 0; await use(1); await sleep(800);
     ok('a Brood Ichor used beside it: it drinks it ("one long slurp")', A.chats.some(c => /drinks the ichor/.test(c)) && (await has('brood_ichor')) === 0, A.chats.slice(-2).join(' / '));
     const un = await sc('TestRat', 'bm.wumireling', '');
