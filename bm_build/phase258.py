@@ -247,7 +247,7 @@ def generate(G):
                      'execute store result score #r bm.rng run random value 1..' + str(ROLL), 'execute unless score #r bm.rng matches 1 run return 0',
                      f'execute positioned 0 ~ 0 if entity @s[distance=..{OUTER}] run return 0',
                      'execute if predicate bm:p255/near_armada run return 0',
-                     'execute store result score #day bm.rng run time query day',
+                     'scoreboard players operation #day bm.rng = #day bm.bm',
                      f'execute unless entity @p[distance=..48,{FOES}] run return 0',
                      f'execute as @p[distance=..48,{FOES}] if score @s bm.bxday = #day bm.rng run return 0',
                      f'execute if entity @e[type=minecraft:husk,tag=bm.bmire,distance=..{APART}] run return 0',
@@ -270,7 +270,7 @@ def generate(G):
     surge.insert(k + 1, f'execute if score #k bm.rng matches 1..{INV_PCT} if score #hard bm.cfg matches 1 unless score #vfell bm.cfg matches 1 '
                         f'if function bm:{P}/inv/try run return run kill @e[type=minecraft:marker,tag=bm.vsp]')
     surge.insert(0, 'execute if entity @s[tag=bm.hsc] run return 0')
-    fn(f'{P}/inv/try', ['execute store result score #day bm.rng run time query day', 'execute if score @s bm.bxday = #day bm.rng run return 0',
+    fn(f'{P}/inv/try', ['scoreboard players operation #day bm.rng = #day bm.bm', 'execute if score @s bm.bxday = #day bm.rng run return 0',
                         'execute store result score #n bm.rng if entity @e[type=minecraft:husk,tag=bm.bmire,tag=!bm.bxtame]', 'execute if score #n bm.rng matches 2.. run return 0',
                         'scoreboard players set #bxok bm.rng 0',
                         f'execute as @e[type=minecraft:marker,tag=bm.vsp,distance=..1,limit=1] rotated as @s positioned ^ ^ ^20 positioned over motion_blocking_no_leaves '
@@ -306,8 +306,11 @@ def generate(G):
                         f'unless entity @a[distance=..20] if function bm:{P}/arm/open run function bm:{P}/arm/lurk'])
     fn(f'{P}/arm/open', ['execute if entity @e[type=minecraft:marker,tag=bm.vaultm,distance=..14] run return 0', 'execute if entity @e[tag=bm.arelic_d,distance=..14] run return 0',
                          'execute unless entity @e[type=minecraft:marker,tag=bm.pz,tag=bm.d_armada,distance=..40] run return 0'] +
-       [f'execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.d_armada,distance=..40,sort=nearest,limit=1] if entity @s[tag=bm.pz{n}] run return 1' for n in ROAM_TRIALS] +
-       ['return 0'])
+       ['tag @e[type=minecraft:marker,tag=bm.bxnear] remove bm.bxnear',
+        'tag @e[type=minecraft:marker,tag=bm.pz,tag=bm.d_armada,distance=..40,sort=nearest,limit=1] add bm.bxnear',
+        'scoreboard players set #bxo bm.rng 0'] +
+       [f'execute if entity @e[type=minecraft:marker,tag=bm.bxnear,tag=bm.pz{n}] run scoreboard players set #bxo bm.rng 1' for n in ROAM_TRIALS] +
+       ['tag @e[type=minecraft:marker,tag=bm.bxnear] remove bm.bxnear', 'execute if score #bxo bm.rng matches 1 run return 1', 'return 0'])
     fn(f'{P}/arm/lurk', ['scoreboard players set #dn bm.rng 16', f'function bm:{P}/arm/lstep'])
     fn(f'{P}/arm/lstep', [f'execute unless block ~ ~-1 ~ #minecraft:replaceable if block ~ ~ ~ #minecraft:replaceable run return run function bm:{P}/arm/lay',
                           'scoreboard players remove #dn bm.rng 1', f'execute if score #dn bm.rng matches 1.. positioned ~ ~-1 ~ run function bm:{P}/arm/lstep'])

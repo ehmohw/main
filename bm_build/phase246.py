@@ -113,7 +113,8 @@ def generate(G):
                        'scoreboard players set #rk bm.rng 1', 'execute if score #dnight bm.bm matches 1 run scoreboard players set #rk bm.rng 3',
                        'execute if score #active bm.bm matches 1 run scoreboard players set #rk bm.rng 3',
                        'execute if score #r bm.rng > #rk bm.rng run return 0',
-                       'execute store result score #day bm.rng run time query day',
+                       'scoreboard players operation #day bm.rng = #day bm.bm',          # (3.0e: the pack's day count - 26.3's "time query day" is the time of day)
+                       
                        f'execute unless entity @p[distance=..48,{FOES}] run return 0',
                        f'execute as @p[distance=..48,{FOES}] if score @s bm.mday = #day bm.rng run return 0',
                        'execute unless predicate bm:p246/dark run return 0',

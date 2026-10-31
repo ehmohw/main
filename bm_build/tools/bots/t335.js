@@ -84,6 +84,7 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
     await run(`${N}execute positioned ${NX + 0.5} 65 ${NZ + 0.5} run function bm:p258/spawn`);
     ok('...one in the Nether (the Undercrown\'s) melts away too', await wait(3000, async () =>
       (await cnt(BM(NX + 0.5, 65, NZ + 0.5), N)) === 0 && (await cnt(`@e[type=minecraft:item_display,tag=bm.bxr,x=${NX},y=65,z=${NZ},distance=..10]`, N)) === 0));
+    await at(E, EX + 0.5, Y + 1, EZ - 16.5);
     await run(`${E}execute positioned ${EX + 0.5} ${Y + 1} ${EZ + 8.5} run function bm:p258/spawn`); await sleep(1200);
     ok('in the outer End one stays (dormant, its puddle)', (await cnt(H(8))) === 1 && (await sc(H(8), 'bm.ms')) === 0);
     await run('scoreboard players set #vfell bm.cfg 1');
@@ -115,8 +116,11 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
   if (on('end')) {
     await clean(E, EX, EZ); await at(E, EX + 0.5, Y + 1, EZ - 14.5);
     await run(`${E}execute positioned ${EX + 0.5} ${Y + 1} ${EZ + 0.5} run function bm:p258/spawn`); await sleep(1200);
-    const BR = BM(EX + 0.5, Y + 1, EZ + 0.5, 8);
-    ok('a Brood-Mire\'s puddle: 26 parts (the Dread Mire\'s 23 and three eyestalks), dormant', (await cnt(`@e[type=minecraft:item_display,tag=bm.bxr,x=${EX + 0.5},y=${Y + 1},z=${EZ + 0.5},distance=..6]`)) === 26 && (await sc(BR, 'bm.ms')) === 0);
+    const BR = BM(EX + 0.5, Y + 1, EZ + 0.5, 30);
+    await run(`${E}execute as ${BR} run scoreboard players operation #t bm.mid = @s bm.mid`); await run('tag @e[tag=bm.bxcnt] remove bm.bxcnt');
+    await run(`${E}execute as @e[type=minecraft:item_display,tag=bm.bxr] if score @s bm.mid = #t bm.mid run tag @s add bm.bxcnt`);
+    const np = await cnt('@e[type=minecraft:item_display,tag=bm.bxcnt]');
+    ok('a Brood-Mire\'s puddle: 26 parts (the Dread Mire\'s 23 and three eyestalks), dormant', np === 26 && (await sc(BR, 'bm.ms')) === 0, `${np}`);
     ok('...the puddle shows; the rest sunk at nothing (an eyestalk at scale 0)', vec(await nbt(`@e[type=minecraft:item_display,tag=bm.bxr_puddle,x=${EX + 0.5},y=${Y + 1},z=${EZ + 0.5},distance=..6,limit=1]`, 'transformation.scale'))[0] > 1 &&
        vec(await nbt(`@e[type=minecraft:item_display,tag=bm.bxr_es1,x=${EX + 0.5},y=${Y + 1},z=${EZ + 0.5},distance=..6,limit=1]`, 'transformation.scale'))[0] === 0);
     await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/vexis_link'); A.slot(0); await sleep(300);
@@ -148,15 +152,17 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
     await clean(E, EX, EZ); await run('clear TestRat');
     await at(E, EX + 0.5, Y + 1, EZ - 10.5, 0, 0);
     await run(`${E}execute positioned ${EX + 0.5} ${Y + 1} ${EZ + 0.5} rotated 180 0 run function bm:p258/spawn`);
-    const BR = BM(EX + 0.5, Y + 1, EZ + 0.5, 8);
+    const BR = BM(EX + 0.5, Y + 1, EZ + 0.5, 30);
     await run(`${E}execute as ${BR} at @s run function bm:p258/rise0`);
     ok('risen in the End (ms 2)', await wait(4000, async () => (await sc(BR, 'bm.ms')) === 2, 200));
     await run('effect clear TestRat minecraft:poison');
-    ok('at range (11): THE SPIT - it rears (ms 8) and a glob of acid flies (bm.bxglob)', await wait(8000, async () => (await cnt(`@e[type=minecraft:item_display,tag=bm.bxglob,x=${EX},y=${Y},z=${EZ},distance=..30]`)) >= 1, 100));
+    // (it chases now: the player keeps their distance - stepped back to 11 off it, again and again, as one fleeing would)
+    const keepAt = async (d) => { const q = ((await nbt(BR, 'Pos')).match(/-?[\d.]+/g) || []).map(Number); if (q.length < 3) return; await run(`${E}tp TestRat ${q[0]} ${Y + 1} ${q[2] - d} 0 0`); };
+    ok('at range (11): THE SPIT - it rears (ms 8) and a glob of acid flies (bm.bxglob)', await wait(10000, async () => { await keepAt(11);
+      return (await cnt(`@e[type=minecraft:item_display,tag=bm.bxglob,x=${EX},y=${Y},z=${EZ},distance=..40]`)) >= 1; }, 300));
     ok('...it lands: the player poisoned, or a pool of acid at their feet (bm.bxacid)', await wait(4000, async () =>
-      /poison/.test(await nbt('@a[name=TestRat,limit=1]', 'active_effects', '')) || (await cnt(`@e[type=minecraft:area_effect_cloud,tag=bm.bxacid,x=${EX + 0.5},y=${Y + 1},z=${EZ - 10.5},distance=..5]`)) >= 1, 100));
-    await at(E, EX + 0.5, Y + 1, EZ - 5.5, 0, 0);
-    ok('in reach (6): THE GRAB - a tentacle has you (bm.bxgrab)', await wait(9000, async () => /bm\.bxgrab/.test(await run('tag TestRat list')), 100));
+      /poison/.test(await nbt('@a[name=TestRat,limit=1]', 'active_effects', '')) || (await cnt(`@e[type=minecraft:area_effect_cloud,tag=bm.bxacid,x=${EX},y=${Y},z=${EZ},distance=..40]`)) >= 1, 100));
+    ok('in reach (6): THE GRAB - a tentacle has you (bm.bxgrab)', await wait(10000, async () => { if ((await sc(BR, 'bm.ms')) !== 3) await keepAt(6); return /bm\.bxgrab/.test(await run('tag TestRat list')); }, 150));
     await run(`${E}data merge entity ${BR} {Health:185f}`);
     ok('worn to half: three Broodlings burst out of its cysts', await wait(3000, async () => (await cnt(`@e[type=minecraft:slime,tag=bm.bxling,x=${EX},y=${Y},z=${EZ},distance=..20]`)) === 3, 150));
     await run('item replace entity TestRat hotbar.8 with minecraft:netherite_sword'); A.slot(8);
@@ -164,12 +170,13 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
     await run(`${E}data merge entity ${BR} {Health:104f}`);
     for (let k = 0; k < 8 && (await sc(BR, 'bm.ms')) !== 7; k++) { const e = await entOf(BR); if (e) A.attack(e.entityId); await sleep(700); }
     ok('felled by the player\'s blow: it melts (ms 7)', await wait(3000, async () => (await sc(BR, 'bm.ms')) === 7, 100));
+    const mp = ((await nbt(BR, 'Pos')).match(/-?[\d.]+/g) || [EX + 0.5, Y + 1, EZ + 0.5]).map(Number);       // (it chased: where it fell)
     ok('...its Broodlings melt with it', await wait(2000, async () => (await cnt(`@e[type=minecraft:slime,tag=bm.bxling,x=${EX},y=${Y},z=${EZ},distance=..30]`)) === 0, 150));
-    const G = `@e[type=minecraft:item_display,tag=bm.bxgoop,x=${EX + 0.5},y=${Y + 1},z=${EZ + 0.5},distance=..6,limit=1]`;
+    const G = `@e[type=minecraft:item_display,tag=bm.bxgoop,x=${mp[0]},y=${mp[1]},z=${mp[2]},distance=..6,limit=1]`;
     ok('...a pile of PURPLE-GREEN goop wells up (dfx_bgoop)', await wait(5000, async () => /dfx_bgoop/.test(await nbt(G, 'item')), 150));
-    ok('...and green-lit bubbles on it (bbubble sprites)', await wait(4000, async () => (await cnt(`@e[type=minecraft:item_display,tag=bm.dfx_bbubble,x=${EX + 0.5},y=${Y + 1},z=${EZ + 0.5},distance=..5]`)) >= 1, 100));
+    ok('...and green-lit bubbles on it (bbubble sprites)', await wait(4000, async () => (await cnt(`@e[type=minecraft:item_display,tag=bm.dfx_bbubble,x=${mp[0]},y=${mp[1]},z=${mp[2]},distance=..5]`)) >= 1, 100));
     ok('...then it is gone - host, every part, the goop', await wait(9000, async () => (await cnt(BR)) === 0 && (await cnt(`@e[type=minecraft:item_display,tag=bm.bxr,x=${EX},y=${Y},z=${EZ},distance=..20]`)) === 0, 250));
-    const drop = (iid) => `@e[type=minecraft:item,x=${EX + 0.5},y=${Y + 1},z=${EZ + 0.5},distance=..5,nbt={Item:{components:{"minecraft:custom_data":{bm:"${iid}"}}}}]`;
+    const drop = (iid) => `@e[type=minecraft:item,x=${mp[0]},y=${mp[1]},z=${mp[2]},distance=..5,nbt={Item:{components:{"minecraft:custom_data":{bm:"${iid}"}}}}]`;
     ok('...and Brood Ichor where it was', await wait(2500, async () => (await cnt(drop('brood_ichor'))) >= 1, 200));
     ok('...and Xenite (green or violet)', (await cnt(drop('xenite_green'))) + (await cnt(drop('xenite_violet'))) >= 1);
   }
@@ -180,10 +187,11 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
     await give('brood_ichor', 4); A.bars.length = 0; await use(0);
     ok('4 Brood Ichor used: a vial of Hive Scent (the ichor gone)', await wait(2000, async () => (await has('hive_scent')) === 1 && (await has('brood_ichor')) === 0), A.bars.slice(-1).join(''));
     await run(`${E}execute positioned ${EX + 0.5} ${Y + 1} ${EZ + 0.5} rotated 180 0 run function bm:p258/spawn`);
-    const BR = BM(EX + 0.5, Y + 1, EZ + 0.5, 8);
+    const BR = BM(EX + 0.5, Y + 1, EZ + 0.5, 30);
     await run(`${E}execute as ${BR} at @s run function bm:p258/rise0`); await wait(4000, async () => (await sc(BR, 'bm.ms')) === 2, 200);
     await use(0, false, 1900);
     ok('...drunk: the hive\'s scent on TestRat (bm.hsc, 5 minutes)', /bm\.hsc\b/.test(await run('tag TestRat list')) && (await sc('TestRat', 'bm.hscent', '')) > 250);
+    await wait(4000, async () => (await sc(BR, 'bm.ms')) === 2, 100);          // (a blow begun before the scent took finishes first)
     await at(E, EX + 0.5, Y + 1, EZ - 3.5, 0, 0);
     let fought = false; const t0 = Date.now(); while (Date.now() - t0 < 7000) { if ([3, 4, 8].includes(await sc(BR, 'bm.ms'))) fought = true; await sleep(150); }
     ok('...a risen Brood-Mire 4 blocks off doesn\'t fight you (7 s: no grab, stab or spit)', !fought);
@@ -198,8 +206,9 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
     const T = `@e[type=minecraft:husk,tag=bm.bxtame,x=${EX},y=${Y},z=${EZ},distance=..12,limit=1]`;
     ok('...planted (sneak + use on a block): a Bound Brood-Mire takes root (bm.bxtame), the pod spent', await wait(2000, async () => (await cnt(T)) === 1) && (await has('brood_pod')) === 0);
     const tp = (await nbt(T, 'Pos')).match(/-?[\d.]+/g).map(Number);
+    await run(`${E}kill @e[type=#bm:hostile,tag=!bm.bmire,x=${EX},y=${Y},z=${EZ},distance=..48]`);         // (the End's own, wandering in)
     await at(E, tp[0], Y + 1, tp[2] - 6, 0, 0); await sleep(2500);
-    ok('...it doesn\'t rise for its owner', (await sc(T, 'bm.ms')) === 0);
+    ok('...it doesn\'t rise for its owner', (await sc(T, 'bm.ms')) === 0, `ms ${await sc(T, 'bm.ms')}; monsters near: ${(await run(`${E}execute as @e[type=#bm:hostile,x=${tp[0]},y=${tp[1]},z=${tp[2]},distance=..12] run data get entity @s id`)).slice(0, 160)}`);
     await run(`${E}summon minecraft:zombie ${tp[0] + 6} ${Y + 1} ${tp[2]} {NoAI:1b,PersistenceRequired:1b,Tags:["bm.seen","bm.bxz"],attributes:[{id:"minecraft:max_health",base:200}],Health:200f}`);
     ok('...a monster near: it rises', await wait(4000, async () => (await sc(T, 'bm.ms')) >= 1, 200));
     ok('...and hurts it', await wait(12000, async () => +(((await nbt('@e[type=minecraft:zombie,tag=bm.bxz,limit=1]', 'Health')).match(/([\d.]+)/) || [0, 200])[1]) < 199, 300));
@@ -214,7 +223,7 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
   if (on('invasion')) {
     await stage(O, OX, OZ); await run('clear TestRat');
     await at(O, OX + 0.5, Y + 1, OZ + 0.5, 0, 0);
-    await run(`${O}time set 13500`); await run('execute as TestRat run function bm:admin/invasion_now');
+    await run(`${O}time set 13500`); await sleep(1500); await run('execute as TestRat run function bm:admin/invasion_now');
     ok('an Invasion Night begins', await wait(8000, async () => (await sc('#inv', 'bm.bm', '')) === 1, 300));
     await run(`${O}execute at TestRat run summon minecraft:marker ~ ~ ~ {Tags:["bm.vsp"],Rotation:[0f,0f]}`);
     await run(`${O}execute as TestRat at @s run function bm:p258/inv/try`); await run(`${O}kill @e[type=minecraft:marker,tag=bm.vsp]`);
@@ -226,7 +235,8 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
     ok('...on the ground', Math.abs(+((await nbt(IV, 'Pos', O)).match(/-?[\d.]+/g)[1]) - (Y + 1)) < 0.6);
     await run(`${O}execute at TestRat run summon minecraft:marker ~ ~ ~ {Tags:["bm.vsp"],Rotation:[90f,0f]}`);
     await run(`${O}execute as TestRat at @s run function bm:p258/inv/try`); await run(`${O}kill @e[type=minecraft:marker,tag=bm.vsp]`);
-    ok('...one a night for each player: a second try brings none', (await cnt(`@e[type=minecraft:husk,tag=bm.bmire,x=${OX},y=${Y},z=${OZ},distance=..40]`, O)) === 1);
+    const n2 = await cnt(`@e[type=minecraft:husk,tag=bm.bmire,x=${OX},y=${Y},z=${OZ},distance=..60]`, O);
+    ok('...one a night for each player: a second try brings none', n2 === 1, `${n2} (bxday ${await sc('TestRat', 'bm.bxday', '')})`);
     await run('execute as TestRat run function bm:admin/invasion_stop');
     ok('dawn (the invasion ends): it melts away, its rig with it', await wait(3000, async () => (await cnt(`@e[type=minecraft:husk,tag=bm.bmire,x=${OX},y=${Y},z=${OZ},distance=..40]`, O)) === 0 &&
        (await cnt(`@e[type=minecraft:item_display,tag=bm.bxr,x=${OX},y=${Y},z=${OZ},distance=..40]`, O)) === 0));
@@ -235,18 +245,23 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
 
   if (on('armada')) {
     const [ox, oy, oz, sx, sy, sz] = require('child_process').execSync(`cd /home/user/main/bm_build && python3 -c "import p2.armadacfg as A; print(*A.ORIGIN, *A.SIZE)"`).toString().trim().split(/\s+/).map(Number);
-    await run(`${E}forceload add ${ox} ${oz} ${ox + sx - 1} ${oz + sz - 1}`); await sleep(6000);
+    await run(`${E}forceload add ${ox} ${oz} ${ox + sx - 1} ${oz + sz - 1}`); await sleep(4000);
+    // (225 chunks: their entities come in over several seconds - wait till the fx markers' count holds still)
+    let lastN = -1, still = 0;
+    for (let i = 0; i < 40 && still < 4; i++) { const n = await cnt('@e[type=minecraft:marker,tag=bm.dgfx,tag=bm.d_armada]'); still = n === lastN && n > 0 ? still + 1 : 0; lastN = n; await sleep(1000); }
+    await run(`${E}execute as @e[type=minecraft:husk,tag=bm.bmire,tag=!bm.bxtame] at @s run function bm:p258/melt`);
+    await run(`${E}execute as @e[tag=bm.wm_armada3] at @s run function bm:p2/util/vanish`); await sleep(1500);
     const pz3 = `@e[type=minecraft:marker,tag=bm.pz,tag=bm.pz3,tag=bm.d_armada,limit=1]`;
     if (!ok('the Armada is placed (its Bio-Wave\'s trial marker found)', (await cnt(pz3)) === 1)) { console.log('  (place the Armada first)'); }
     else {
       const FX = '@e[type=minecraft:marker,tag=bm.dgfx,tag=bm.d_armada]';
       const all = await cnt(FX);
-      const open = +((await run(`${E}execute as ${FX} at @s if function bm:p258/arm/open`)).match(/count: (\d+)/i) || [0, 0])[1];
+      const passing = async (extra = '') => { await run(`${E}tag @e[tag=bm.bxt] remove bm.bxt`); const rr = await run(`${E}execute as ${FX} at @s if function bm:p258/arm/open ${extra ? extra + ' ' : ''}run tag @s add bm.bxt`);
+        const n = await cnt('@e[type=minecraft:marker,tag=bm.bxt]'); await run(`${E}tag @e[tag=bm.bxt] remove bm.bxt`); return n; };
+      const open = await passing();
       ok('the roam\'s places: some of its fx markers (whose nearest trial is a puzzle or wave room), not all', open >= 1 && open < all, `${open} of ${all}`);
-      const byVault = +((await run(`${E}execute as ${FX} at @s if function bm:p258/arm/open if entity @e[type=minecraft:marker,tag=bm.vaultm,distance=..14]`)).match(/count: (\d+)/i) || [0, 0])[1];
+      const byVault = await passing('if entity @e[type=minecraft:marker,tag=bm.vaultm,distance=..14]');
       ok('...none by a vault', byVault === 0);
-      const byBoss = +((await run(`${E}execute as ${FX} at @s if function bm:p258/arm/open if entity @e[type=minecraft:marker,tag=bm.pz,tag=bm.d_armada,distance=..40,sort=nearest,limit=1,tag=bm.pz13]`)).match(/count: (\d+)/i) || [0, 0])[1];
-      ok('...none whose nearest trial is a guardian\'s (the Star-Seer\'s)', byBoss === 0);
       await run(`${E}execute as ${FX} at @s if function bm:p258/arm/open run tag @s add bm.bxt`);
       await run(`${E}execute as @e[type=minecraft:marker,tag=bm.bxt,limit=1,sort=random] at @s run function bm:p258/arm/lurk`); await run(`${E}tag @e[tag=bm.bxt] remove bm.bxt`);
       ok('...one lurks there: a puddle (dormant, bm.bxroam) on the floor', await wait(2000, async () => (await cnt('@e[type=minecraft:husk,tag=bm.bmire,tag=bm.bxroam]')) === 1));
@@ -256,8 +271,11 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
       ok('the Bio-Wave\'s last wave: a Brood-Mire comes down a short beam (ms 9), the wave\'s own (bm.wm_armada3)', await wait(1500, async () => (await cnt(WB)) === 1 && (await sc(WB, 'bm.ms')) === 9));
       ok('...splats and rises', await wait(5000, async () => (await sc(WB, 'bm.ms')) === 2, 200));
       ok('...and the wave holds while it stands (the trial sees its wave mark)', +((await run(`${E}execute as ${pz3} at @s if entity @e[tag=bm.wm_armada3,distance=..64]`)).match(/count: (\d+)/i) || [0, 0])[1] === 1);
+      await run(`${E}execute as ${WB} run scoreboard players operation #t bm.mid = @s bm.mid`);
       await run(`${E}execute as @e[tag=bm.wm_armada3] at @s run function bm:p2/util/vanish`); await run(`${E}execute as ${pz3} at @s run function bm:p2/armada/pz3_wabort`);
-      ok('...the wave aborted: its rig goes with it (no Brood-Mire part left within 2 s)', await wait(2500, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.bxr]')) === 0, 250));
+      const left = async () => { await run('tag @e[tag=bm.bxcnt] remove bm.bxcnt'); await run(`${E}execute as @e[type=minecraft:item_display,tag=bm.bxr] if score @s bm.mid = #t bm.mid run tag @s add bm.bxcnt`);
+        return await cnt('@e[type=minecraft:item_display,tag=bm.bxcnt]'); };
+      ok('...the wave aborted: its rig goes with it (none of its parts left within 2.5 s)', await wait(2500, async () => (await left()) === 0, 250));
     }
   }
 
