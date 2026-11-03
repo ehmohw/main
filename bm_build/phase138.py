@@ -235,12 +235,13 @@ def textures():
     import gild
     for w, (mod, keys) in RECOL.items():
         base = importlib.import_module(mod).textures()
+        only = set(getattr(importlib.import_module(mod), 'LOOK_SHINY_ONLY', ()))     # (3.0h: worn by the shiny look alone - every other look leaves them be)
         for k, (_n, pal) in P99.NEW[w][3].items():
             if (w, k) in HANDMADE: continue
             if gild.is_gilded(w, k):
                 ims = {n: gild.dress(w, k, base[n]) for n in keys}                                    # (2.79a: polished gold)
             else:
-                main = {n: base[n] for n in keys if n not in SIDE and n not in PALE and not n.endswith('_g') and n not in OWN_SETS}
+                main = {n: base[n] for n in keys if n not in SIDE and n not in PALE and not n.endswith('_g') and n not in OWN_SETS and n not in only}
                 ims = P99._recolour(main, pal)
                 ims.update({n: pale(base[n], n, pal) for n in keys if n in PALE})
                 ghost = {n: base[n] for n in keys if n.endswith('_g')}
@@ -249,6 +250,7 @@ def textures():
                     ims.update(P99._recolour({n: base[n] for n in keys if OWN_SETS.get(n) == g}, pal))
                 side = {n: base[n] for n in keys if n in SIDE}
                 if side: ims.update(P99._recolour(side, pal, rng=P99._lumrange(main)))
+                ims.update({n: base[n] for n in keys if n in only})
             if k == _SH.KEY.get(w):                         # (3.0b: a set whose shiny is drawn, not recoloured - the Doodle Creeper, charged)
                 mod_ = importlib.import_module(mod)
                 for g, f in getattr(mod_, 'SHINY_SETS', {}).items():

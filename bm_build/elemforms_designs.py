@@ -100,13 +100,24 @@ def prism(ramp=('#6a5aa8', '#c8b8ff', '#ffffff'), k=0.55):
 # ==================================================================================================== BENDER - the dog
 def _bender_e_body(B):
     out = []
-    for sd, x in ((1, B.hi[0] - 0.3), (-1, B.lo[0] + 0.3)):          # (little seraph wings at his shoulders)
-        out += wing((x, B.hi[1] - 1.0, 4.2), sd, 0.5, ('x_cwhite', 'x_cice', 'x_clilac', 'x_crose', 'x_caqua'), 'x_cwhite', 10, 13)
+    for sd, x in ((1, B.hi[0] - 0.4), (-1, B.lo[0] + 0.4)):        # (crystal wings, set high on his shoulders, swept up and back)
+        out += wing((x, B.hi[1] - 0.6, 2.8), sd, 0.72, ('x_cwhite', 'x_cice', 'x_clilac', 'x_cice', 'x_cwhite'), 'x_cwhite', 11, 14, sweep=0.75)
+    # crystal barding: a breastplate on his chest, a cut diamond at its heart, a crystal saddle-plate along his back
+    out.append(box((B.lo[0] + 0.5, B.lo[1] + 1.6, B.lo[2] - 0.5), (B.hi[0] - 0.5, B.hi[1] - 1.2, B.lo[2] + 0.1), 'x_cice', 11))
+    out += crystal((8.0, B.lo[1] + 4.0, B.lo[2] - 0.4), (8.0, B.lo[1] + 4.0, B.lo[2] - 2.0), 2.2, 'x_clilac', 13, 15)
+    out.append(box((B.lo[0] + 0.8, B.hi[1] - 0.1, 5.0), (B.hi[0] - 0.8, B.hi[1] + 0.6, 12.5), 'x_cice', 11))
+    for z in (6.2, 8.8, 11.3):
+        out += crystal((8.0, B.hi[1] + 0.4, z), (8.0, B.hi[1] + 2.6, z + 0.8), 1.4, 'x_cwhite', 12, 14)
     return out
 
 
 def _bender_e_head(B):
-    out = ring((8.0, B.hi[1] + 3.0, 6.8), 2.8, 12, 0.6, 'x_gold', 14)
+    c = (8.0, B.hi[1] + 3.4, 6.8)
+    out = ring(c, 3.2, 14, 0.75, 'x_gold', 15)
+    for i in range(8):                                              # (a radiant halo: eight little crystal rays round it)
+        a = math.radians(i * 45)
+        p = (c[0] + 3.2 * math.cos(a), c[1], c[2] + 3.2 * math.sin(a))
+        out += crystal(p, (c[0] + 4.9 * math.cos(a), c[1] + 0.6, c[2] + 4.9 * math.sin(a)), 0.8, 'x_cgold', 14, 15)
     tips = B.of('bd_tip')
     if tips:
         for lo, hi in tips[3]:
@@ -118,19 +129,25 @@ def _bender_e_head(B):
 def _bender_e_tail(B):
     t = B.highest()
     return (crystal((t[0], t[1] - 0.8, t[2] - 0.3), (t[0], t[1] + 4.2, t[2] + 3.0), 1.6, 'x_clilac', 11, 14) +
-            crystal((t[0], t[1] - 0.8, t[2] - 0.3), (t[0] + 2.0, t[1] + 3.2, t[2] + 3.4), 1.3, 'x_caqua', 11, 14) +
-            crystal((t[0], t[1] - 0.8, t[2] - 0.3), (t[0] - 2.0, t[1] + 3.2, t[2] + 3.4), 1.3, 'x_crose', 11, 14))
+            crystal((t[0], t[1] - 0.8, t[2] - 0.3), (t[0] + 2.0, t[1] + 3.2, t[2] + 3.4), 1.3, 'x_cice', 11, 14) +
+            crystal((t[0], t[1] - 0.8, t[2] - 0.3), (t[0] - 2.0, t[1] + 3.2, t[2] + 3.4), 1.3, 'x_cwhite', 11, 14))
 
 
 def _bender_e_leg(B):
-    (x0, x1), (z0, z1) = (B.lo[0], B.hi[0]), (B.lo[2], B.hi[2])
-    return [box((x0 - 0.25, 1.7, z0 - 0.25), (x1 + 0.25, 2.5, z1 + 0.25), 'x_gold', 13)]
+    (x0, x1), (z0, z1) = (B.lo[0], B.hi[0]), (B.lo[2], B.hi[2])     # (crystal greaves, a gold band at the paw)
+    return [box((x0 - 0.3, 3.4, z0 - 0.3), (x1 + 0.3, 6.6, z1 + 0.3), 'x_cice', 11), box((x0 - 0.35, 1.6, z0 - 0.35), (x1 + 0.35, 2.4, z1 + 0.35), 'x_gold', 13)]
 
 
 def _bender_w_body(B):
     out = []
-    for z, h in zip((0.8, 3.4, 6.0, 8.6, 11.2), (5.2, 6.0, 5.4, 4.4, 3.4)):
-        out += tongue((8.0, B.hi[1] - 0.6, z), h, 2.6, (0.0, 0.0, 0.55))
+    for z, h, w in zip((-0.4, 1.8, 4.2, 6.8, 9.4, 12.0), (8.5, 9.5, 8.6, 7.2, 6.0, 4.6), (3.6, 3.8, 3.6, 3.2, 2.8, 2.4)):
+        out += tongue((8.0, B.hi[1] - 0.8, z), h, w, (0.0, 0.0, 0.6))                    # (a great soul-fire mane, neck to rump)
+    # a spiked soul-iron harness: a strap round his chest and one round his middle, a strap along his back, spikes lit cyan
+    for z0 in (2.6, 9.6):
+        out.append(box((B.lo[0] - 0.35, B.lo[1] - 0.35, z0), (B.hi[0] + 0.35, B.hi[1] + 0.35, z0 + 1.4), 'x_iron', 10))
+        for sd, x in ((1, B.hi[0] + 0.35), (-1, B.lo[0] - 0.35)):
+            out += crystal((x, B.c[1] + 1.0, z0 + 0.7), (x + 2.2 * sd, B.c[1] + 1.6, z0 + 0.7), 1.0, 'x_scrys', 13, 15)
+    out.append(box((7.2, B.hi[1] + 0.0, 2.6), (8.8, B.hi[1] + 0.45, 11.0), 'x_iron', 10))
     return out
 
 
@@ -140,18 +157,20 @@ def _bender_w_head(B):
     if tips:
         for lo, hi in tips[3]:
             x = (lo[0] + hi[0]) / 2
-            out += tongue((x, hi[1] - 1.4, 6.75), 4.2, 1.6, (0.25 if x > 8 else -0.25, 0.0, 0.45))
+            out += tongue((x, hi[1] - 1.8, 6.75), 5.6, 2.2, (0.3 if x > 8 else -0.3, 0.0, 0.5))
     return out
 
 
 def _bender_w_tail(B):
     t = B.highest()
-    return tongue((t[0], t[1] - 1.2, t[2] - 0.2), 7.5, 3.0, (0.0, 0.0, 0.5))
+    return (tongue((t[0], t[1] - 1.6, t[2] - 0.2), 11.0, 4.4, (0.0, 0.0, 0.55)) +
+            tongue((t[0] + 1.2, t[1] - 1.8, t[2]), 7.0, 2.6, (0.25, 0.0, 0.7)) + tongue((t[0] - 1.2, t[1] - 1.8, t[2]), 7.0, 2.6, (-0.25, 0.0, 0.7)))
 
 
 def _bender_w_leg(B):
-    c = ((B.lo[0] + B.hi[0]) / 2, 0.4, B.hi[2] - 0.6)
-    return tongue(c, 3.2, 2.0, (0.0, 0.0, 0.9))
+    cx, cz = (B.lo[0] + B.hi[0]) / 2, (B.lo[2] + B.hi[2]) / 2
+    return (tongue((cx, 0.3, B.hi[2] - 0.4), 4.6, 2.6, (0.0, 0.0, 0.8)) + tongue((cx, 0.3, B.lo[2] + 0.4), 3.4, 2.0, (0.0, 0.0, -0.4)) +
+            tongue((B.hi[0] - 0.3, 0.3, cz), 3.0, 1.6, (0.4, 0.0, 0.2)) + tongue((B.lo[0] + 0.3, 0.3, cz), 3.0, 1.6, (-0.4, 0.0, 0.2)))
 
 
 BENDER = dict(pre='bd_', **{
@@ -712,7 +731,7 @@ def _plus(fn, extra):
 
 for _f, _g in ((E, True), (W, False)):
     BENDER[_f]['parts']['body'] = _plus(BENDER[_f]['parts']['body'], _collar(_g))
-    BENDER[_f].update(outfit=(), eyes={'bd_face': dict(sel='dark', thr=0.28, box=(0.0, 0.0, 0.5, 0.45))})
+    BENDER[_f].update(outfit=(), eyes={'bd_face': dict(sel='dark', thr=0.3, box=(0.0, 0.0, 0.5, 0.45), L=6)})
     CAPSHUN[_f].update(outfit=('mz_t_', 'mz_sk_'), eyes={'mz_face': dict(sel='fill', fill=((0.37, 0.36), (0.63, 0.36)))})
     SOVEREIGN[_f].update(outfit=('ds_plate', 'ds_edge', 'ds_dark', 'ds_iron', 'ds_chain', 'ds_red', 'ds_horn', 'ds_glass', 'ds_grip', 'ds_heart', 'ds_visor')
                          if _g else ('ds_red', 'ds_chain', 'ds_glass', 'ds_heart'),

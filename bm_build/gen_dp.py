@@ -221,8 +221,8 @@ import phase256 as R256      # 3.0b: the Pixel Creeper - a little 8-bit creeper 
 import phase255 as R255      # 3.0a: [no-spawn hook] nothing spawns in the Undercrown or the Armada but their own foes (and the Undercrown's Mires)
 import phase253 as R253      # 3.0: the Loom Sanctuary - the Compass of Bonds (every follower met) and the sky island where the Keeper waits
 import phase254 as R254      # 3.0: [keeper hook] the Keeper of Bonds - the 51st follower, the last (registers after every follower before it)
-EFM = None  # import elemforms as EFM        # (held back from 3.0g: the forms are being redone as proper new looks)  3.0g: Ethereal and Wraithfire forms for ten more followers (the wardrobe rows, the gem's lore, the ways: at import)
-# EFM.setup()
+import elemforms as EFM      # 3.0h (redone: elemforms_art / elemforms_designs - new shapes per character); 3.0g: Ethereal and Wraithfire forms for ten more followers (the wardrobe rows, the gem's lore, the ways: at import)
+EFM.setup()
 import phase257 as R257      # 3.0d: the death sprites - holy fire, ash, star dust, goop bubbles (the three dramatic deaths)
 import phase258 as R258      # 3.0e: the Brood-Mire - the Vorn's alien Mire (outer End, the Armada, invasion nights); Brood Ichor; the Brood Mireling
 import phase241 as R241      # 2.99: the Vorn Armada - the Vorn's hard-mode dungeon, a hive-fleet round a star in the End (its kinds of trial register on import)
@@ -263,7 +263,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v3.0g'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v3.0h'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1504,7 +1504,7 @@ def build(out_dir):
     if PHASE2: R224.generate(sys.modules[__name__])      # 2.94u: ...and the rest
     R225.generate(sys.modules[__name__])                 # 2.94x: the Smuggler's Waytoken
     if PHASE2: R226.generate(sys.modules[__name__])      # 2.95c: the Piercing Blow
-    if False: print('3.0g: Ethereal and Wraithfire forms - %d blow lines answer to them' % EFM.generate(sys.modules[__name__]))      # (every follower's blows written; before the attack kit and Might)
+    print('3.0g: Ethereal and Wraithfire forms - %d blow lines answer to them' % EFM.generate(sys.modules[__name__]))      # (every follower's blows written; before the attack kit and Might)
     if PHASE2: print('bite impacts: %d followers' % atk.biters(sys.modules[__name__]))
     if PHASE2: print('alternate swings: %d followers' % atk.alternates(sys.modules[__name__]))
     if PHASE2: print('attack kit: %d follower blows with an impact, %d animations with a hit-stop' % atk.finalize(sys.modules[__name__]))

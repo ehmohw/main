@@ -39,13 +39,13 @@ TEX = {'k': 'pm_black', 'w': 'pm_white', 'o': 'pm_orange', 'y': 'pm_yellow', 'b'
        'e': 'pm_eye', 't': 'pm_teeth', 'c': 'pm_case', 'r': 'gm_earth', 'H': 'pm_hat'}
 SEASON_TEX = lambda sk: dict(TEX, k=f'pm_{sk}_body', w=f'pm_{sk}_belly', b=f'pm_{sk}_band', y=f'pm_{sk}_feet', h=f'pm_{sk}_hat',
                              v=f'pm_{sk}_tie', q=f'pm_{sk}_trim', l=f'pm_{sk}_leaf')
-FORM_TEX = {'_e': dict(TEX, k='pmx_e_suit', w='pmx_e_opal', b='pmx_e_band', d='pmx_e_tie', g='pmx_e_gold', r='gm_eth', c='pmx_e_case',
+FORM_TEX = {'_e': dict(TEX, e='pm_eye', k='pmx_e_suit', w='pmx_e_opal', b='pmx_e_band', d='pmx_e_tie', g='pmx_e_gold', r='gm_eth', c='pmx_e_case',
                        H='pmx_e_hat', y='pmx_e_gold', q='pmx_e_crys', Q='gm_eth_lt', m='pmx_e_glass'),
             '_w': dict(TEX, b='pmx_w_band', d='pmx_w_tie', g='pmx_w_chain', r='pmx_w_gem', c='pmx_w_case',
-                       H='pmx_w_hat', e='pmx_w_eye', f='pmx_w_flame', F='pmx_w_flame_tip', p='pmx_w_scroll', W='pmx_w_shirt')}
+                       H='pmx_w_hat', e='pm_eye', f='pmx_w_flame', F='pmx_w_flame_tip', p='pmx_w_scroll', W='pmx_w_shirt')}
 # (3.0g, the owner's rule: his own feathers, belly, beak and feet stay his - only his hat, tie, collar, case and contract change, and his eyes)
 # (the boxes that glow: their texture keys, a light level)
-LIGHT = {'_e': {'q': 12, 'Q': 14, 'r': 13, 'd': 10}, '_w': {'f': 15, 'F': 15, 'e': 13, 'b': 13, 'd': 12, 'r': 14}}
+LIGHT = {'_e': {'q': 12, 'Q': 14, 'r': 13, 'd': 10}, '_w': {'f': 15, 'F': 15, 'b': 13, 'd': 12, 'r': 14}}
 
 
 # ---------------------------------------------------------------------------------------------------- the penguin, in parts
@@ -66,8 +66,9 @@ def penguin(H='H', tie=True, crown=31.5, brim=0):
     P['head'] += [_c((3.5, 17, 4.5), (12.5, 19, 11.5), 'k'), _c((4.5, 19, 5), (11.5, 24, 11), 'k'),
                   _c((6.3, 18.6, 2.4), (9.7, 20.4, 5.1), 'o'), _c((6.6, 17.9, 2.8), (9.4, 18.6, 5.0), 't'), _c((6.8, 17.2, 3.2), (9.2, 17.9, 5.0), 'o'),
                   _c((4.7, 20.3, 4.75), (7.2, 23.6, 5.05), 'e'), _c((8.8, 20.3, 4.75), (11.3, 23.6, 5.05), 'e'),
-                  _c((5.1, 22.3, 4.7), (6.1, 23.2, 4.76), 't'), _c((9.2, 22.3, 4.7), (10.2, 23.2, 4.76), 't'),
-                  _c((6.3, 20.7, 4.7), (6.7, 21.1, 4.76), 't'), _c((10.4, 20.7, 4.7), (10.8, 21.1, 4.76), 't')]
+                  ]
+    # (3.0g: his eyes painted whole - a white, an iris, a pupil, a catchlight, the lid over them: the owner found the old ones
+    #  "soulless")
     P['hat'] += [_c((2.5 - brim, 24, 3 - brim), (13.5 + brim, 24.8, 13 + brim), H), _c((4.5, 24.8, 5), (11.5, crown, 11), H),
                  _c((4.4, 24.8, 4.9), (11.6, 26.2, 11.1), 'b')]
     P['armr'] += [_c((12.8, 6, 6.2), (14.4, 14, 8.8), 'k', ('z', 22.5, (13.6, 14, 7.5)))]
@@ -223,8 +224,29 @@ def _px(base, var, seed, fn=None):
 def _lerp(a, b, t): return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
 
 
+def eye(iris, iris_lt, lid=(18, 18, 24)):
+    """(3.0g) an eye with life in it: a white, a round iris (darker at the top, lighter below), a black pupil, a bright catchlight
+    and a small second one, the lid's dark edge across the top"""
+    def f(x, y):
+        cx, cy = 7.5, 9.0
+        if y <= 2 or (y == 3 and x not in range(3, 13)): return lid
+        d = math.hypot(x - cx, (y - cy) * 0.95)
+        if d <= 1.9: c = (10, 10, 14)
+        elif d <= 5.0: c = _lerp(iris, iris_lt, max(0.0, min(1.0, (y - 5) / 8)))
+        elif d <= 5.7: c = _lerp(iris, (10, 10, 14), 0.55)
+        else: c = (240, 242, 246) if y > 4 else (200, 204, 212)
+        if (x, y) in ((5, 6), (6, 6), (5, 7), (6, 7)): c = (255, 255, 255)
+        if (x, y) == (10, 11): c = (255, 255, 255)
+        return c
+    im = Image.new('RGBA', (16, 16))
+    for y in range(16):
+        for x in range(16):
+            im.putpixel((x, y), f(x, y) + (255,))
+    return im
+
+
 def textures():
-    T = {}
+    T = {}      # (3.0h: the owner kept his own black eyes, pm_eye, in every look and form)
     # ETHEREAL: starry violet velvet, its stars and facets; an opal front; platinum-gold; crystal
     def suit(x, y):
         c = _lerp((44, 20, 92), (86, 40, 150), (math.sin(x * 0.9 + y * 0.4) + 1) / 2)
@@ -252,7 +274,6 @@ def textures():
     T['pmx_w_hat'] = _px(None, 2, 318, lambda x, y: _lerp((28, 30, 38), (14, 15, 20), y / 15))
     T['pmx_w_feet'] = _px((52, 56, 66), 2, 319)
     T['pmx_w_beak'] = _px((122, 128, 140), 3, 323)
-    T['pmx_w_eye'] = _px(None, 2, 320, lambda x, y: (236, 255, 255) if 5 <= x <= 10 and 5 <= y <= 10 else (70, 226, 255))
     T['pmx_w_flame'] = _px(None, 3, 321, lambda x, y: _lerp((16, 140, 204), (110, 236, 255), (15 - y) / 15))
     T['pmx_w_flame_tip'] = _px(None, 2, 324, lambda x, y: _lerp((120, 240, 255), (235, 255, 255), (15 - y) / 15))
     T['pmx_w_scroll'] = _px(None, 2, 322, lambda x, y: (200, 190, 160) if x in (0, 15) else (236, 228, 204))

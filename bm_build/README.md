@@ -21,6 +21,39 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0h: proper forms, clean terrain, clearer places
+
+- **Royal Pearls for Trophies at the Royal Steward:** the Underwater Kingdom's Steward trades 4 Royal Pearls for a Black Market Trophy (the Fence no longer does).
+- **The Undercrown's waves:** 12, 13 and 15 foes, 5, 6 and 7 of them Dread.
+- **Signs at the Dread altars.** Every Dread altar now has a floating sign over it with the altar's name and ruin, the three followers it wakes for, and what to do: bring them and right-click the altar to summon its boss (hard mode only). Ruins built before 3.0h get the sign the next time someone comes by.
+- **Signs in the Underwater Kingdom's throne room.** Two floating signs mark the side spots either side of the Tide Font: **The Royal Treasury** (right-click the Steward's barrels once a day for Royal Pearls and a gift) and **The Request Stand** (right-click the lectern for today's royal request, and bring it for Royal Pearls and favour). Kingdoms built before 3.0h get them too.
+- **Dread ruins sit properly in the land.** Each ruin used to be built one block too low, so the ground closed over its floor, and hills could stand right through the court. Now its floor sits at ground level. The court is cleared of land and trees above it, the ground around it is sloped back and banked further, and nothing is left hanging over a drop. The Drowned Gate only ever cuts rock and weed to water, so it never leaves water standing above the sea.
+- **Sword shrines sit flush.** The shrine was also built one block low, which left its floor under the grass with a trench one block deep around it. It now sits level with the ground, with any hillside or tree over it cleared and its edges banked. (`/function bm:admin/shrine` still builds one where you stand.)
+- Already-built ruins and shrines keep their old ground. Only newly found ones get the fix.
+- **Every surface structure now sits flush with the land.** The same one-block-low fault turned up across the pack. These are now level with the ground around them, and the trench that ran around each one is gone:
+  - Seawatch Forts on the beach
+  - the Omega Palace
+  - the Ghost Ship, which now rides at its proper waterline
+  - the Void Rat's Outpost and the Voidwalker's Observatory, which no longer sit sunk into their End islands
+  - the Sunken Throne, which now stands on the sea floor rather than a block into it
+  - the graveyards, the Frostbound Spire, the Hexbound Cathedral and Wilfrey's Keep
+- **The Omega Palace settles into the dark wood.** The hills around it are cut back from its walls, nearby trees are cleared, and the ground is banked up to its edge.
+- Structures already generated keep their old ground; only newly found ones get the fix.
+- **Ethereal and Wraithfire forms for ten more followers**: Bender, Mr. Capshun, the Bound Sovereign, the Keeper of Bonds, the Arachno-Lantern, Leo, Celi, Democratus, and two joke forms (the Eraser's and Donado's). Hand one of them an **Ethereal Gem** or a **Wraithfire Heart** and it keeps it and takes that form. Switch the form on or off, or ask for the gem or heart back, from two new rows in its wardrobe. Every form is a proper new look, not a recolour. As with Emma's form, only the outfit, armour, weapon and accessories change colour, the eyes glow (violet in Ethereal, cyan in Wraithfire), and skin, fur and hair stay their own. The new parts move with them in every pose:
+  - **Bender**: Ethereal gives crystal wings at his shoulders, a radiant halo, crystal ear tips, a crystal breastplate, saddle and greaves, a gold collar and a crystal tail plume. Wraithfire gives a great soul-fire mane, a blazing tail, flaming ears and paws, and a spiked soul-iron harness and collar.
+  - **Mr. Capshun**: Ethereal gives a halo, angel wings drawn in lines of gold and a crystal quill. Wraithfire gives soul-fire hair, a scribbled-sun ring behind his head, a flaming pencil and flames at his feet.
+  - **The Bound Sovereign**: Ethereal gives pearl-silver plate with gold-lit cracks, a crystal sunburst halo, crystal shoulder spires and ice-crystal horns. Wraithfire gives cyan cracks and chains, a tall crown of soul fire and fire pouring off its shoulders.
+  - **The Keeper of Bonds**: Ethereal gives stained-glass wings, a crystal tiara, a gold halo set with crystal spindles and prisms floating round it. Wraithfire gives smoke wings, a wreath of soul fire behind its head and flames licking up its hem.
+  - **The Arachno-Lantern**: Ethereal gives a crown of crystals where its stem was, crystal claw tips and floating crystal seeds. Wraithfire gives soul fire streaming off its top like a comet and flames at its knees; its eyes and inner flame glow in the form's colour.
+  - **Leo**: Ethereal gives a crystal fin crest, crystal shell pauldrons and a crystal trident. Wraithfire gives a soul-fire crest, flaming pauldrons and a trident with tines of soul fire.
+  - **Celi**: Ethereal gives an ice crown with a little moon over it, ice-crystal wings and a moon-glaive spear. Wraithfire gives soul-fire hair, orbiting soul-crystal shards and a flaming spear.
+  - **Democratus**: Ethereal gives a great crystal scythe blade, a storm halo and crystal shoulder spikes. Wraithfire gives a scythe blade of soul fire, a flaming cape hem and shoulder wisps.
+  - **The Eraser (joke)**: Ethereal gives a halo of glittering crumbs, big feathered wings and its name in gold. Wraithfire draws a dashed "selected for erasure" outline round it, with soul fire on top and at its heels.
+  - **Donado (joke)**: Ethereal puts a little UFO halo over his head and gives him a holographic shirt. Wraithfire gives soul-fire speed lines, flaming ears, tail and paws, and a hot-rod flame shirt.
+- **Pearlman's eyes** now have life in his own look and both forms: a white, a round iris (violet in Ethereal, cyan in Wraithfire), a pupil, a catchlight and a lid.
+- **Pearlman's Wraithfire "Soul Broker" form**, redone clean. His own feathers, belly, beak and feet stay. He gets a tall black hat with a lit band and one tall soul flame, a crisp white collar, a long soul-fire necktie pinned with his soul gem, a sealed contract, and a black case with a lit clasp.
+- **The Gem of Creativity's shiny is now "Shiny Harlequin"**: every facet a harlequin of black obsidian (starlit) and pearl white, leaded in polished gold. Its wing shards are black and pearl in turn, edged and tipped in gold, and its crown points are gold. For the first time the shiny reaches its **Wraithfire Form** too (the smoky glass in black and pearl); every other look still leaves the Wraithfire Form its own colours.
+
 ## New in 3.0g: the big fix round
 
 - The Undercrown stands in its own lava lake, carved once: about 40 s, and it clears everything near it. Its forecourts stand on plinths, its roads cross on causeways, and other places' blocks in it are cleaned out. No outpost builds near it. `admin/under/lake` carves it again; `admin/under/nolake` skips it.

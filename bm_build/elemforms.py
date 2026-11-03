@@ -596,9 +596,15 @@ WAYS_X = {'eraser': '. ETHEREAL also rubs weak monsters (12 health or less) righ
           'don': '. ETHEREAL Donado beams the nearest monster up in a tractor beam every 5 s; WRAITHFIRE, he does soul-fire zoomies round you every 8 s'}
 
 
+_SET = False
+
+
 def setup():
     """(at import, from gen_dp - before any generate) the wardrobe rows (phase99.ROWS), the gem's and the heart's lore, the rigpet
-    followers' ways"""
+    followers' ways (once: gen_dp runs its top twice - as __main__ and when a phase imports it)"""
+    global _SET
+    if _SET: return
+    _SET = True
     import phase99 as P99
     for k in FOL:
         c, o = CODES[k], obj(k)

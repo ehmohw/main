@@ -865,3 +865,5 @@ SHINY_OPTIONS['harlequin'] = ('Shiny Harlequin', (
     {n: (lambda im: harlequin(im, True)) for n in ('cg_w_table', 'cg_w_crown', 'cg_w_pav')}))
 SHINY_PICK = 'harlequin'
 SHINY_TEX, SHINY_W = SHINY_OPTIONS[SHINY_PICK][1]
+SHINY_TEX = dict(SHINY_TEX, **SHINY_W)                  # (phase138 paints the Wraithfire set on the shiny look too)
+LOOK_SHINY_ONLY = tuple(SHINY_W)                        # (...and only on it: phase138)

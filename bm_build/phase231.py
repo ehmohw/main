@@ -150,6 +150,9 @@ P134.figures = _figures
 import phase138 as P138
 P138.RECOL['gem'] = (P138.RECOL['gem'][0], tuple(P138.RECOL['gem'][1]) + tuple(k for k in A.LOOK_SIDE if k not in P138.RECOL['gem'][1]))
 P138.SIDE |= set(A.LOOK_SIDE)
+# (3.0h) ...but its SHINY look reaches the Wraithfire Form too: its smoky glass in Shiny Harlequin's black and pearl (gem_art.SHINY_W) -
+# every other look leaves it its own colours (phase138: LOOK_SHINY_ONLY, worn as they are)
+P138.RECOL['gem'] = (P138.RECOL['gem'][0], tuple(P138.RECOL['gem'][1]) + tuple(k for k in A.LOOK_SHINY_ONLY if k not in P138.RECOL['gem'][1]))
 # (each gem says what it does for the Gem - at import, before any trade or loot table is built from it)
 for _iid, _line in (('ethereal_gem', 'The Gem of Creativity: its Ethereal Form.'), ('wraithfire_heart', 'The Gem of Creativity: its Wraithfire Form.')):
     if _iid in ITEMS:
