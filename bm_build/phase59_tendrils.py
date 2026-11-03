@@ -5,6 +5,7 @@ wing's SOUTH face - the one that faces away from your back (the model renders no
 On that face column 0 is the wing's pivot (your shoulder-blade, the outer edge) and the top row is where it hangs from;
 the spine runs from about column 5 at the top (20 at 4x) to column 10 at the bottom. The right wing is the same face, mirrored.
 """
+import math
 from PIL import Image, ImageDraw
 
 S = 4                               # texture scale (64x32 -> 256x128)
@@ -70,6 +71,48 @@ def skin(name):
     d.rectangle([17, 3, 23, 8], fill=TEAL)
     d.rectangle([19, 4, 21, 7], fill=CORE if not hot else (255, 255, 255, 255))
     im.paste(face, FACE)
+    return unshare(im)
+
+
+# 3.0g: NO Z-FIGHTING. Both wings wear this one face (the right one mirrored) and their faces lie in one plane: from the spine
+# out past it they overlap - your back, the plate and the bolts' roots flickered between the two. Each wing now keeps only its own
+# side of the spine where the other covers it (the vanilla elytra: wings 10x20x2 inflated by 1, pivots at x=+-5, tilted 15 degrees).
+_TILT = 0.2617994
+
+
+def _world(c, r):
+    """face texel (column c from the pivot, row r from the top; may be fractional) -> (x, y) on the left wing's plane"""
+    rx, ry = 1 - 1.2 * c, -1 + 1.1 * r                       # (the inflated box: 12 x 22 over 10 x 20 texels)
+    co, si = math.cos(-_TILT), math.sin(-_TILT)
+    return 5 + co * rx - si * ry, si * rx + co * ry
+
+
+def _face(x, y):
+    """the inverse: a point on the plane -> the left wing's face texel (c, r)"""
+    co, si = math.cos(-_TILT), math.sin(-_TILT)
+    dx = x - 5
+    rx, ry = co * dx + si * y, -si * dx + co * y
+    return (1 - rx) / 1.2, (ry + 1) / 1.1
+
+
+def partner(c, r):
+    """the texel of the other wing's face lying on this one, when this one is on the far side of the spine (else None)"""
+    x, y = _world(c, r)
+    if x >= 0: return None
+    mc, mr = _face(-x, y)
+    return (mc, mr) if 0 <= mc < 10 and 0 <= mr < 20 else None
+
+
+def unshare(im):
+    """where both wings paint the same spot, the wing on its own side of the spine keeps it (where only one does, it stays)"""
+    px = im.load()
+    for fy in range(H):
+        for fx in range(W):
+            if not px[FACE[0] + fx, FACE[1] + fy][3]: continue
+            for ox, oy in ((0.5, 0.5), (0.02, 0.02), (0.98, 0.02), (0.02, 0.98), (0.98, 0.98)):      # (the whole texel: its partner can straddle two)
+                q = partner((fx + ox) / S, (fy + oy) / S)
+                if q and px[FACE[0] + min(W - 1, int(q[0] * S)), FACE[1] + min(H - 1, int(q[1] * S))][3]:
+                    px[FACE[0] + fx, FACE[1] + fy] = (0, 0, 0, 0); break
     return im
 
 

@@ -37,6 +37,7 @@ import dread_sovereign_art as A
 import p2.undercfg as U
 import undercrown_lore as L
 import phase152 as P152
+import hitcap as HC
 
 COL, VCOL = L.SOV_COL, L.VOICE_COL
 OX, OY, OZ = U.ORIGIN
@@ -52,6 +53,8 @@ HOST_SCALE = 5.6                             # (a husk 1.95 tall: ~11 blocks - i
 PH_HP, PH_ADD, PH_MAX = 640, 160, 900        # each phase's pool: one fighter, each other one, the most
 FLOOR = 100
 RESIST = 1
+CAP, CAP_ADD, CAP_MAX = 25, 8, 50           # (3.0g) the hit cap (hitcap.py): what half a second of blows can take off it - one fighter, each other one, the most
+WARD_HITS, WARD_R = 4, 17                     # (3.0g) THE DREAD WARD: blows each of its four anchors takes; how far out they stand
 INTRO = 400                                  # ticks: the coming (20 s)
 TURN = 160                                    # (2.98c: the old turn; each form now has its own entrance)
 ENT = {1: 240, 2: 300}                        # ticks: the entrance of the Broken form (12 s), of the True form (15 s)
@@ -187,7 +190,7 @@ def generate(G):
     fn, title, tellraw, give, wjson = G.fn, G.title, G.tellraw, G.give, G.wjson
     tick, fast, second = G.FUNCS['tick'], G.FUNCS['loop/fast'], G.FUNCS['loop/second']
     P = G.PREFIX
-    objs = ['bm.svph', 'bm.sva', 'bm.svx', 'bm.svf', 'bm.svs', 'bm.svt', 'bm.svg', 'bm.svw', 'bm.svi', 'bm.svz', 'bm.svwin', 'bm.svhp', 'bm.svhc', 'bm.svcm'] + \
+    objs = ['bm.svph', 'bm.sva', 'bm.svx', 'bm.svf', 'bm.svs', 'bm.svt', 'bm.svg', 'bm.svw', 'bm.svi', 'bm.svz', 'bm.svwin', 'bm.svhp', 'bm.svhc', 'bm.svcm', 'bm.svan'] + \
            [f'bm.svk{s}' for s in STATES]
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + [
         f'bossbar add bm:usov {snbt(T(L.SOV, COL, bold=True))}', 'bossbar set bm:usov color red', 'bossbar set bm:usov style notched_10']
@@ -314,7 +317,7 @@ def generate(G):
     # its fighter dead, gone from the hall, logged out and back - and cam/release gives them their body back at once (the
     # lock's own slowness / jump / resistance cleared, nothing else). No gamemode is ever changed, no camera entity spectated.
     fn('p238/cam/all', [f'execute as {FIGHT} at @s run function bm:p238/cam/hold'])
-    fn('p238/cam/hold', ['tag @s add bm.svcam', 'scoreboard players set @s bm.svcm 3',
+    fn('p238/cam/hold', ['tag @s add bm.svcam', 'scoreboard players set @s bm.svcm 3', 'function bm:p176/nodark',      # (3.0g: no Darkness, no Blindness while held)
                          'execute if entity @e[type=minecraft:marker,tag=bm.svko,distance=..14] facing entity @e[type=minecraft:marker,tag=bm.svko,sort=nearest,limit=1] feet rotated ~ 0 run function bm:p238/cam/back',
                          'execute if entity @e[type=minecraft:marker,tag=bm.svkos,distance=..9] facing entity @e[type=minecraft:marker,tag=bm.svkos,sort=nearest,limit=1] feet rotated ~ 0 run function bm:p238/cam/back',
                          'execute at @s if entity @e[type=minecraft:marker,tag=bm.svlook] run tp @s ~ ~ ~ facing entity @e[type=minecraft:marker,tag=bm.svlook,limit=1] feet',
@@ -339,7 +342,7 @@ def generate(G):
                         for x, z in ring_pts(r_, int(6 * r_))]
     for r_ in (4, 10, 18, 28):
         fn(f'p238/c/wave{r_}', shock(r_))
-    seq = ([at(1, 'function bm:p238/c/door'), at(1, f'effect give {FIGHT} minecraft:darkness 20 0 true'), at(1, snd('block.beacon.deactivate', 2, 0.4)),
+    seq = ([at(1, 'function bm:p238/c/door'), at(1, snd('block.beacon.deactivate', 2, 0.4)),
             at(1, snd('block.iron_door.close', 2, 0.4)), at(1, title(AUD, 'actionbar', T('The Undercrown holds its breath.', 'gray', italic=True)))] +
            [at(t, snd('entity.warden.heartbeat', 0.8 + j * 0.05, 0.5 + j * 0.02)) for j, t in enumerate(heart)] +
            [at(t, f'particle minecraft:falling_dust{{block_state:"minecraft:blackstone"}} {CX} {CY + 40} {CZ} 20 2 20 0 40 force {AUD}') for t in range(20, 140, 10)] +
@@ -386,7 +389,12 @@ def generate(G):
                      f'scoreboard players add #n bm.rng {PH_HP}', f'execute if score #n bm.rng matches {PH_MAX}.. run scoreboard players set #n bm.rng {PH_MAX}',
                      'scoreboard players operation @s bm.svhp = #n bm.rng',
                      f'execute as {AUD} at @s run function bm:p152/tick'])
-    fn('p238/begin', ['tag @s remove bm.svintro', 'tag @s add bm.svlive', CAMM, 'data modify entity @s Invulnerable set value 0b', 'scoreboard players set @s bm.sva 0',
+    HC.install(G)
+    fn('p238/cap', ['tag @s add bm.hcap', f'execute store result score #n bm.rng if entity {FIGHT}', 'scoreboard players remove #n bm.rng 1',
+                    f'scoreboard players set #k bm.rng {CAP_ADD * 10}', 'scoreboard players operation #n bm.rng *= #k bm.rng',
+                    f'scoreboard players set @s bm.hcc {CAP * 10}', 'scoreboard players operation @s bm.hcc += #n bm.rng',
+                    f'execute if score @s bm.hcc matches {CAP_MAX * 10}.. run scoreboard players set @s bm.hcc {CAP_MAX * 10}', 'function bm:hitcap/sync'])
+    fn('p238/begin', ['tag @s remove bm.svintro', 'tag @s add bm.svlive', CAMM, 'data modify entity @s Invulnerable set value 0b', 'scoreboard players set @s bm.sva 0', 'function bm:p238/cap',
                       'scoreboard players set @s bm.svx 20', 'function bm:p238/fill', 'bossbar set bm:usov visible true',
                       f'bossbar set bm:usov name {snbt([T(L.SOV, COL, bold=True), T("  -  " + L.FIGHT["p1"], "#c8a0a0")])}', 'bossbar set bm:usov color red',
                       'scoreboard players set @s bm.svk12 300', 'scoreboard players set @s bm.svk11 80', f'execute as {AUD} at @s run function bm:p152/tick'])
@@ -469,7 +477,7 @@ def generate(G):
         fn(f'p238/c/eye{k}', eye_ping(k))
     beat = lambda t0, t1, step: [at(t, snd('entity.warden.heartbeat', 1.6, 0.5)) for t in range(t0, t1, step)]
     turn1 = ([at(1, say(L.FIGHT['turn1'])), at(1, snd('entity.iron_golem.death', 2, 0.4)), at(1, snd('block.anvil.destroy', 2, 0.5)),
-              at(1, 'function bm:p238/pose/armored/stagger'), at(1, f'effect give {FIGHT} minecraft:darkness 7 0 true'),
+              at(1, 'function bm:p238/pose/armored/stagger'),
               at(1, title(AUD, 'actionbar', T('It falls to one knee. Its plate is splitting.', '#c8a0a0', italic=True)))] +
              beat(10, 80, 14) + [at(10 + 12 * k, f'function bm:p238/c/crack{k}') for k in range(6)] +
              [at(80, f'particle minecraft:explosion_emitter ~ ~6 ~ 2 3 2 0 3 force {AUD}'), at(80, snd('entity.generic.explode', 3, 0.5)), at(80, snd('block.glass.break', 3, 0.4)),
@@ -485,7 +493,6 @@ def generate(G):
               at('1..168', f'execute as @e[type=minecraft:marker,tag=bm.svlook] at @s positioned as {ME} run tp @s ~ ~9.5 ~'), at('1..168', 'function bm:p238/c/look'),
               at(ENT[1] - 1, 'function bm:p238/turned')])
     turn2 = ([at(1, say(L.FIGHT['turn2'])), at(1, snd('entity.wither.break_block', 2, 0.4)), at(1, 'function bm:p238/pose/broken/stagger'),
-              at(1, f'effect give {FIGHT} minecraft:darkness 9 0 true'),
               at(1, title(AUD, 'actionbar', T('Its helm is cracking. Something behind it is looking out.', '#c8a0a0', italic=True)))] +
              beat(10, 100, 12) + [at(12 + 14 * k, f'function bm:p238/c/crack{k}') for k in range(6)] +
              [at(t, snd('block.glass.hit', 2, 0.5 + 0.1 * j)) for j, t in enumerate(range(20, 100, 16))] +
@@ -575,13 +582,13 @@ def generate(G):
         r_ = k * 0.55
         fn(f'p238/ring/r{k}', [f'particle minecraft:dust{{color:[0.85,0.12,0.18],scale:2.4}} ~{x} ~ ~{z} 0.1 0.05 0.1 0 1 force' for x, z in ring_pts(r_, max(8, int(4 * r_)))] +
            [f'execute as @a[distance={max(0, r_ - 0.8):.2f}..{r_ + 0.8:.2f},gamemode=!spectator,gamemode=!creative] if predicate bm:p238/ground at @s run function bm:p238/a/ring_hit'])
-    fn('p238/a/ring_hit', [f'damage @s 10 minecraft:mob_attack by {M}', 'effect give @s minecraft:slowness 2 2', 'tp @s ~ ~0.4 ~'])
+    fn('p238/a/ring_hit', [f'damage @s 9 bm:dread by {M}', 'effect give @s minecraft:slowness 2 2', 'tp @s ~ ~0.4 ~'])
     # -- the sweep: a wide arc in front (a pillar between you and it is the only cover)
     fn('p238/a/sweep', ['playsound minecraft:entity.player.attack.sweep hostile @a[distance=..40] ~ ~ ~ 2 0.4', 'playsound minecraft:entity.wither.shoot hostile @a[distance=..40] ~ ~ ~ 1 0.5',
                         'execute rotated ~ 0 positioned ^ ^1.5 ^6 run particle minecraft:sweep_attack ~ ~ ~ 5 0.5 3 0 30 force',
                         f'execute rotated ~ 0 positioned ^ ^ ^6 as @a[distance=..7.5,gamemode=!spectator,gamemode=!creative] at @s run function bm:p238/a/sweep_one'])
     fn('p238/a/sweep_one', ['scoreboard players set #cov bm.rng 0', f'execute at {M} positioned ~ ~3 ~ facing entity @s eyes run function bm:p238/cov/start',
-                            f'execute if score #cov bm.rng matches 0 run damage @s 14 minecraft:mob_attack by {M}'])
+                            f'execute if score #cov bm.rng matches 0 run damage @s 12 bm:dread by {M}'])
     # (cover: a ray from it to you - anything solid on the way and you're safe)
     fn('p238/cov/start', ['scoreboard players set #cr bm.rng 48', 'function bm:p238/cov/ray'])
     fn('p238/cov/ray', ['execute unless block ~ ~ ~ #bm:grap_pass run return run scoreboard players set #cov bm.rng 1',
@@ -591,7 +598,7 @@ def generate(G):
     fn('p238/a/lunge', ['execute rotated ~ 0 if block ^ ^1 ^2 #bm:grap_pass if block ^ ^2 ^2 #bm:grap_pass run tp @s ^ ^ ^0.8',
                         'particle minecraft:large_smoke ~ ~1 ~ 0.6 0.4 0.6 0.01 4 force'])
     fn('p238/a/stab', ['playsound minecraft:item.trident.throw hostile @a[distance=..40] ~ ~ ~ 2 0.4', 'execute rotated ~ 0 positioned ^ ^2 ^5 run particle minecraft:crit ~ ~ ~ 1 1 3 0.3 40 force',
-                       f'execute rotated ~ 0 positioned ^ ^ ^4 as @a[distance=..4,gamemode=!spectator,gamemode=!creative] run damage @s 16 minecraft:mob_attack by {M}'])
+                       f'execute rotated ~ 0 positioned ^ ^ ^4 as @a[distance=..4,gamemode=!spectator,gamemode=!creative] run damage @s 13 bm:dread by {M}'])
     # -- the chain: someone far is dragged in
     fn('p238/a/chain', [f'execute as {FIGHT[:-1]},distance=9..34,sort=random,limit=1] run tag @s add bm.svchained',
                         'playsound minecraft:block.chain.break hostile @a[distance=..48] ~ ~ ~ 2 0.5', 'scoreboard players set #chn bm.rng 16'])
@@ -599,7 +606,7 @@ def generate(G):
     fn('p238/a/chain_tick', ['scoreboard players remove #chn bm.rng 1',
                              f'execute as @a[tag=bm.svchained] at @s if entity @e[type=minecraft:husk,tag=bm.usov,distance=6..,limit=1] facing entity {M} feet rotated ~ 0 if block ^ ^ ^0.8 #bm:grap_pass if block ^ ^1 ^0.8 #bm:grap_pass run tp @s ^ ^ ^0.8',
                              f'execute as @a[tag=bm.svchained] at @s facing entity {M} feet run particle minecraft:block{{block_state:"minecraft:iron_chain"}} ^ ^1 ^1 0.1 0.1 0.1 0 4 force',
-                             f'execute if score #chn bm.rng matches 0 as @a[tag=bm.svchained] run damage @s 6 minecraft:mob_attack by {M}',
+                             f'execute if score #chn bm.rng matches 0 as @a[tag=bm.svchained] run damage @s 6 bm:dread by {M}',
                              'execute if score #chn bm.rng matches 0 run tag @a remove bm.svchained'])
     # -- the knockback roar (the first turn)
     fn('p238/a/knockback', [f'execute as {FIGHT[:-1]},distance=..24] run damage @s 4 minecraft:mob_attack by {M}'])
@@ -633,12 +640,12 @@ def generate(G):
        [f'execute if score @s bm.svt matches ..27 run particle minecraft:dust{{color:[0.48,1.0,0.35],scale:1.4}} ~{x} ~ ~{z} 0 0 0 0 1 force' for x, z in ring_pts(2.4, 10)] +
        ['execute if score @s bm.svt matches 28.. run function bm:p238/a/curse_burst'])
     fn('p238/a/curse_burst', ['particle minecraft:witch ~ ~0.6 ~ 1.4 0.6 1.4 0.2 60 force', 'playsound minecraft:entity.evoker_fangs.attack hostile @a[distance=..24] ~ ~ ~ 1 0.6',
-                              f'execute as @a[distance=..2.5,gamemode=!spectator,gamemode=!creative] run damage @s 12 minecraft:magic by {M}', 'kill @s'])
+                              f'execute as @a[distance=..2.5,gamemode=!spectator,gamemode=!creative] run damage @s 10 bm:dread by {M}', 'kill @s'])
     fn('p238/a/whirl', [say(L.FIGHT['echo_shark']), 'scoreboard players set #whl bm.rng 60', 'playsound minecraft:entity.guardian.attack hostile @a[distance=..48] ~ ~ ~ 2 0.5'])
     tick.append(f'execute if score #whl bm.rng matches 1.. as {ME} at @s run function bm:p238/a/whirl_tick')
     fn('p238/a/whirl_tick', ['scoreboard players remove #whl bm.rng 1', 'particle minecraft:soul ~ ~0.5 ~ 6 0.2 6 0.05 20 force',
                              f'execute as {FIGHT[:-1]},distance=4..20] at @s facing entity {M} feet rotated ~ 0 if block ^0.2 ^ ^0.22 #bm:grap_pass if block ^0.2 ^1 ^0.22 #bm:grap_pass run tp @s ^0.2 ^ ^0.22',
-                             f'execute if score #whl bm.rng matches 0 as {FIGHT[:-1]},distance=..5] run damage @s 12 minecraft:mob_attack by {M}'])
+                             f'execute if score #whl bm.rng matches 0 as {FIGHT[:-1]},distance=..5] run damage @s 10 bm:dread by {M}'])
     # -- the wing-eye bolts (homing)
     fn('p238/a/bolts', ['playsound minecraft:entity.blaze.shoot hostile @a[distance=..48] ~ ~ ~ 2 0.5'] +
        [f'execute rotated ~ 0 positioned ^{x} ^{y} ^-1 run summon minecraft:marker ~ ~ ~ {{Tags:["bm.svfx","bm.svbolt"]}}' for x, y in ((5, 9), (-5, 9), (7, 6), (-7, 6))])
@@ -662,7 +669,7 @@ def generate(G):
                          'execute as @a[distance=..1.5,gamemode=!spectator,gamemode=!creative] at @s run function bm:p238/beam/hit',
                          'scoreboard players remove #br bm.rng 1', 'execute if score #br bm.rng matches 1.. positioned ^ ^ ^0.8 run function bm:p238/beam/ray'])
     fn('p238/beam/hit', ['execute if items entity @s weapon.* *[minecraft:custom_data~{bm:"dawnshard"}] run return run function bm:p238/beam/shield',
-                         f'damage @s 9 minecraft:magic by {M}', 'data modify entity @s Fire set value 60s'])
+                         f'damage @s 8 bm:dread by {M}', 'data modify entity @s Fire set value 60s'])
     fn('p238/beam/shield', ['particle minecraft:end_rod ~ ~1.2 ~ 0.6 0.6 0.6 0.05 12 force', 'playsound minecraft:block.beacon.power_select player @a[distance=..16] ~ ~ ~ 0.8 1.6',
                             title('@s', 'actionbar', T('The Dawnshard turns the beam. Light holds.', L.HOLY, bold=True))])
     fn('p238/a/roots', [f'execute as {FIGHT} at @s run summon minecraft:marker ~ ~0.1 ~ {{Tags:["bm.svfx","bm.svroot"]}}', 'playsound minecraft:block.sculk_vein.place hostile @a[distance=..48] ~ ~ ~ 2 0.4',
@@ -709,6 +716,58 @@ def generate(G):
                      f'execute as {sel("head")} run data modify entity @s item.components."minecraft:item_model" set value "bm:{A.model_name("head", dict(A.BOSS_POSES["true"]["idle_a"], _face="blink"))}"',
                      'playsound minecraft:entity.ravager.stunned hostile @a[distance=..64] ~ ~ ~ 2 0.6',
                      title(AUD, 'actionbar', [T('The eye shuts - ', 'gold', bold=True), T('strike it now!', 'gray')])])
+    # ---- (3.0g, the owner: "the Dread Sovereign has no invulnerability phase like the dread bosses") THE DREAD WARD: at half of
+    # its Armored pool, and again at half of its Broken one, it calls a ward over itself - nothing can hurt it - and four DREAD
+    # ANCHORS rise out of the floor around the hall (WARD_R out); its Dread Knights step out with them, and it keeps fighting.
+    # Each anchor shatters after WARD_HITS blows (or arrows). All four broken: the ward falls, it reels (its stagger) and for 8 s
+    # it has no Resistance.
+    G.FUNCS['p238/tick'].insert(7, 'execute if entity @s[tag=bm.svlive,tag=!bm.svshd] if score @s bm.svph matches 1..2 run function bm:p238/ward/chk')
+    fn('p238/ward/chk', ['execute if score @s bm.svph matches 1 if entity @s[tag=bm.svsh1] run return 0',
+                         'execute if score @s bm.svph matches 2 if entity @s[tag=bm.svsh2] run return 0',
+                         'scoreboard players operation #q bm.rng = @s bm.svhp', 'scoreboard players set #2 bm.rng 2', 'scoreboard players operation #q bm.rng /= #2 bm.rng',
+                         f'scoreboard players add #q bm.rng {FLOOR}', 'execute if score #hp bm.rng <= #q bm.rng run function bm:p238/ward/up'])
+    anc = {'Tags': ['bm.svanc', 'bm.svancd'], 'item': {'id': 'minecraft:respawn_anchor', 'count': Int(1)}, 'brightness': {'block': Int(15), 'sky': Int(15)},
+           'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0), F(0.9), F(0)], 'scale': [F(1.6)] * 3}}
+    ANC = [(round(CX + 0.5 + WARD_R * math.cos(math.radians(a_)), 1), CY + 1, round(CZ + 0.5 + WARD_R * math.sin(math.radians(a_)), 1)) for a_ in (45, 135, 225, 315)]
+    fn('p238/ward/up', ['tag @s add bm.svshd', 'execute if score @s bm.svph matches 1 run tag @s add bm.svsh1', 'execute if score @s bm.svph matches 2 run tag @s add bm.svsh2',
+                        'data modify entity @s Invulnerable set value 1b', 'kill @e[tag=bm.svanc]'] +
+       [f'execute positioned {x} {y} {z} run function bm:p238/ward/anchor' for x, y, z in ANC] +
+       ['function bm:p238/a/knights', 'bossbar set bm:usov color blue', say('"Kneel. You cannot touch me here."'),
+        'playsound minecraft:block.respawn_anchor.set_spawn hostile @a[distance=..64] ~ ~ ~ 3 0.5', 'playsound minecraft:entity.warden.roar hostile @a[distance=..64] ~ ~ ~ 2 0.7',
+        f'particle minecraft:dust{{color:[0.3,0.4,1.0],scale:3.0}} ~ ~6 ~ 3 5 3 0 200 force {AUD}',
+        f'title {AUD} times 5 50 15', title(AUD, 'title', T(' ', COL)),
+        title(AUD, 'subtitle', T('ITS WARD IS UP - BREAK THE FOUR DREAD ANCHORS', '#8aa0ff', bold=True))])
+    fn('p238/ward/anchor', [f'summon minecraft:item_display ~ ~ ~ {snbt(anc)}',
+                            'summon minecraft:interaction ~ ~ ~ {Tags:["bm.svanc","bm.svanci","bm.svnewa"],width:1.8f,height:2.4f,response:1b}',
+                            f'scoreboard players set @e[type=minecraft:interaction,tag=bm.svnewa,distance=..1] bm.svan {WARD_HITS}',
+                            'tag @e[tag=bm.svnewa] remove bm.svnewa',
+                            'particle minecraft:reverse_portal ~ ~1 ~ 0.6 1 0.6 0.1 60 force', 'particle minecraft:explosion ~ ~0.5 ~ 0.4 0.2 0.4 0 2 force'])
+    # (a blow, or an arrow: one dent; the last shatters it)
+    tick.append('execute as @e[type=minecraft:interaction,tag=bm.svanci] if data entity @s attack at @s run function bm:p238/ward/struck')
+    tick.append('execute as @e[type=minecraft:interaction,tag=bm.svanci] at @s positioned ~ ~1 ~ if entity @e[type=#minecraft:arrows,distance=..1.8] run function bm:p238/ward/shot')
+    fn('p238/ward/struck', ['data remove entity @s attack', 'function bm:p238/ward/dent'])
+    fn('p238/ward/shot', ['kill @e[type=#minecraft:arrows,distance=..2.6]', 'function bm:p238/ward/dent'])
+    fn('p238/ward/dent', ['scoreboard players remove @s bm.svan 1', 'particle minecraft:block{block_state:"minecraft:crying_obsidian"} ~ ~1 ~ 0.5 0.6 0.5 0 30 force',
+                          'playsound minecraft:block.respawn_anchor.charge hostile @a[distance=..32] ~ ~ ~ 1.5 0.6', 'playsound minecraft:block.anvil.land hostile @a[distance=..32] ~ ~ ~ 0.5 1.4',
+                          'execute if score @s bm.svan matches ..0 run function bm:p238/ward/crack'])
+    fn('p238/ward/crack', ['tag @s remove bm.svanci', 'kill @e[type=minecraft:item_display,tag=bm.svancd,distance=..1]',
+                           'particle minecraft:explosion ~ ~1 ~ 0.4 0.4 0.4 0 3 force', 'particle minecraft:sculk_soul ~ ~1 ~ 0.6 0.8 0.6 0.05 30 force',
+                           'playsound minecraft:block.respawn_anchor.deplete hostile @a[distance=..48] ~ ~ ~ 2 0.5', 'playsound minecraft:block.glass.break hostile @a[distance=..48] ~ ~ ~ 2 0.5',
+                           'execute store result score #n bm.rng if entity @e[type=minecraft:interaction,tag=bm.svanci]',
+                           title(AUD, 'actionbar', [T('A Dread Anchor shatters - ', '#8aa0ff', bold=True), {'score': {'name': '#n', 'objective': 'bm.rng'}, 'color': 'white'}, T(' left', 'gray')]),
+                           f'execute if score #n bm.rng matches 0 as {ME} at @s run function bm:p238/ward/down', 'kill @s'])
+    fn('p238/ward/down', ['tag @s remove bm.svshd', 'kill @e[tag=bm.svanc]', 'data modify entity @s Invulnerable set value 0b', 'effect clear @s minecraft:resistance',
+                          'scoreboard players set @s bm.svz -8', 'scoreboard players set @s bm.sva 22', 'scoreboard players set @s bm.svx 60', 'bossbar set bm:usov color red',
+                          'playsound minecraft:entity.ravager.stunned hostile @a[distance=..64] ~ ~ ~ 2 0.5', 'playsound minecraft:block.beacon.deactivate hostile @a[distance=..64] ~ ~ ~ 2 0.6',
+                          f'particle minecraft:dust{{color:[0.3,0.4,1.0],scale:3.0}} ~ ~6 ~ 4 5 4 0 300 force {AUD}', 'function bm:p238/c/shake',
+                          title(AUD, 'actionbar', [T('The ward breaks - it reels! ', 'gold', bold=True), T('Strike it now.', 'gray')])])
+    # (while it's up: chains of light from each anchor to it)
+    second.append(f'execute as {ME} if entity @s[tag=bm.svshd] at @s run function bm:p238/ward/sec')
+    fn('p238/ward/sec', [f'execute as @e[type=minecraft:interaction,tag=bm.svanci] at @s facing entity {ME} eyes run function bm:p238/ward/beam',
+                         'particle minecraft:dust{color:[0.3,0.4,1.0],scale:2.0} ~ ~5 ~ 2.5 4 2.5 0 40 force'])
+    fn('p238/ward/beam', [f'particle minecraft:dust{{color:[0.35,0.45,1.0],scale:1.6}} ^ ^1.5 ^{d} 0.05 0.05 0.05 0 1 force' for d in range(2, 22, 2)])
+    G.FUNCS['p238/clear'].append('kill @e[tag=bm.svanc]')
+    G.FUNCS['admin/uninstall'][0:0] = ['kill @e[tag=bm.svanc]']
     second.append(f'execute as {ME} if score @s bm.svz matches -99..-1 run scoreboard players add @s bm.svz 1')
     second.append('execute as @a[scores={bm.svwin=1..},tag=!bm.svmig] run tag @s add bm.svdone')        # (2.98c: who felled it in 2.98 has felled it)
     second.append('tag @a[tag=!bm.svmig] add bm.svmig')
@@ -800,8 +859,7 @@ def generate(G):
     burn += [at(t, f'execute positioned {NX} {CY + 9} {NZ} run ' + DFX.spr('feather', 1.6, 3.5)) for t in range(396, 470, 3)]
     burn += [at(t, f'execute positioned {NX} {CY + 3} {NZ} run ' + DFX.spr('ash', 1.4, 3.0)) for t in range(396, 460, 5)]
     burn += [at(t, snd('block.amethyst_block.chime', 1.5, 0.9 + 0.1 * (k % 4))) for k, t in enumerate(range(400, 470, 14))]
-    seq = ([at(1, f'execute as {AUD} at @s run stopsound @s record'), at(2, f'execute as {AUD} at @s run playsound bm:music.boss_divine record @s ~ ~ ~ 1000 1 1'),
-            at(1, f'effect give {FIGHT} minecraft:darkness 3 0 true')] +
+    seq = ([at(1, f'execute as {AUD} at @s run stopsound @s record'), at(2, f'execute as {AUD} at @s run playsound bm:music.boss_divine record @s ~ ~ ~ 1000 1 1')] +
            # (the light takes it: dragged into the beam, turned to face where He will stand)
            [at('20..69', f'execute unless entity @s[x={NX - 0.8},y={CY - 4},z={NZ - 0.8},dx=1.6,dy=30,dz=1.6] facing {NX} ~ {NZ} run tp @s ^ ^ ^0.45'),
             at(20, title(AUD, 'actionbar', T(L.DIVINE['pulled'], L.HOLY, italic=True))), at(70, f'tp @s {NX} ~ {NZ} facing {DX} ~ {DZ}'),

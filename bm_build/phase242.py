@@ -280,7 +280,8 @@ def generate(G):
     # ================================================================== THE COMING (20 s)
     hx, hy, hz = HX + 0.5, HY + 7.5, HZ + 0.5                 # (its cockpit, standing)
     look = '@e[type=minecraft:marker,tag=bm.vxlook,limit=1]'
-    fn('p242/c/look', [f'execute as {FIGHT} at @s run tp @s ~ ~ ~ facing entity {look} feet', f'effect give {FIGHT} minecraft:slowness 2 255 true',
+    # (3.0g: whoever is held watches it in the light - Darkness and Blindness cleared, and none laid on them till it lets go: p176/nodark)
+    fn('p242/c/look', [f'execute as {FIGHT} at @s run tp @s ~ ~ ~ facing entity {look} feet', f'execute as {FIGHT} run function bm:p176/nodark', f'effect give {FIGHT} minecraft:slowness 2 255 true',
                        f'effect give {FIGHT} minecraft:resistance 2 255 true', f'effect give {FIGHT} minecraft:jump_boost 2 200 true'])
     import random
     rs = random.Random(242)
@@ -298,7 +299,7 @@ def generate(G):
               for k in range(15)]
     fn('p242/c/flood', stream + [f'particle minecraft:flame {WX:.1f} {CY + 14} {WZ:.1f} 6 10 6 0.05 30 force {AUD}'])
     hum = (1, 30, 56, 80, 102, 122, 140, 156, 170, 184, 196, 208, 218, 228, 238, 246, 254, 262, 270, 278, 286, 294, 302, 310)
-    seq = ([at(1, 'function bm:p242/c/door'), at(1, f'effect give {FIGHT} minecraft:darkness 18 0 true'), at(1, snd('block.beacon.deactivate', 2, 0.4)),
+    seq = ([at(1, 'function bm:p242/c/door'), at(1, snd('block.beacon.deactivate', 2, 0.4)),
             at(1, snd('block.iron_door.close', 2, 0.4)), at(1, snd('block.piston.contract', 2, 0.4)),
             at(1, title(AUD, 'actionbar', T('The bulkhead seals behind you. The bridge goes dark.', 'gray', italic=True)))] +
            [at(t, snd('block.conduit.ambient.short', 1.6, 0.5 + j * 0.03)) for j, t in enumerate(hum)] +
@@ -429,7 +430,7 @@ def generate(G):
     fn('p242/wreck_place', RF.place(A, SCALE['warframe'] / 16, wsel))
     tick.append('execute as @e[type=minecraft:marker,tag=bm.vxwreck] at @s if predicate bm:p238/third run particle minecraft:smoke ~ ~6 ~ 1 2 1 0.02 2 force')
     turn1 = ([at(1, say(L.FIGHT['turn1'])), at(1, snd('entity.iron_golem.death', 2, 0.4)), at(1, snd('block.anvil.destroy', 2, 0.5)),
-              at(1, 'function bm:p242/pose/warframe/' + pp('warframe', 'stagger', 'roar')), at(1, f'effect give {FIGHT} minecraft:darkness 6 0 true'),
+              at(1, 'function bm:p242/pose/warframe/' + pp('warframe', 'stagger', 'roar')),
               at(1, title(AUD, 'actionbar', T('The warframe staggers. Its cockpit is cracking.', '#9adf8a', italic=True)))] +
              beat(10, 120, 14) + [at(10 + 16 * k, f'function bm:p242/c/spark{k}') for k in range(6)] +
              [at(t, snd('block.glass.hit', 2, 0.5 + 0.1 * j)) for j, t in enumerate(range(30, 110, 16))] +
@@ -724,7 +725,7 @@ def generate(G):
     stardust += [at(t, 'execute positioned ~ ~2.2 ~ run ' + DFX.spr('star', 0.8, 2.2)) for t in range(558, 592, 5)]
     stardust += [at(t, snd('block.amethyst_block.chime', 1.5, 1.2 + 0.1 * (k % 3))) for k, t in enumerate(range(560, 598, 9))]
     seq = ([at(1, 'function bm:p242/pose/starfire/' + pp('starfire', 'death_0', 'stagger')),
-            at(1, snd('entity.elder_guardian.death', 3, 0.5)), at(1, snd('entity.blaze.death', 3, 0.4)), at(1, f'effect give {FIGHT} minecraft:darkness 3 0 true'),
+            at(1, snd('entity.elder_guardian.death', 3, 0.5)), at(1, snd('entity.blaze.death', 3, 0.4)),
             at(1, tellraw(AUD, [T(L.FIGHT['fall'], '#c8f0c0', italic=True)]))] +
            # (the hive screams through it, louder and broken - and the implants burn out, one after another)
            [at(t, hive(w)) for t, w in ((20, 'VEXIS.'), (44, 'VEXIS. RESPOND.'), (70, 'VEXIS VEXIS VEXIS VEX'))] +

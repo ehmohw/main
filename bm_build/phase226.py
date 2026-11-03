@@ -335,7 +335,8 @@ def generate(G):
         fn(f'p226/sec/{w}', ['execute if score @s bm.prcd matches 1.. run return run scoreboard players remove @s bm.prcd 1',
                              'execute if score @s bm.prt matches 1.. run return 0',
                              'execute if data entity @s {Sitting:1b} run return 0',
-                             'execute on passengers if entity @s[type=minecraft:player] run return 0',
+                             'execute on passengers if entity @s[type=minecraft:player] run return 0'] +
+                            (['execute unless score @s bm.eme matches 1.. run return 0'] if w == 'emma' else []) + [     # (3.0g: Emma's Axe Roll, only in her Ethereal Form)
                              f'execute unless entity {FOE} run return 0',
                              'scoreboard players operation #me bm.pid = @s bm.pid',
                              'scoreboard players set #o bm.rng 0', 'execute as @a[distance=..32] if score @s bm.pid = #me bm.pid run scoreboard players set #o bm.rng 1',

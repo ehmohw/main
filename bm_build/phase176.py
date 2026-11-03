@@ -130,9 +130,20 @@ def generate(G):
     second += ['execute as @e[tag=bm.dread] at @s run function bm:p176/dread/aura']
     fn('p176/dread/aura', ['particle minecraft:soul ~ ~1 ~ 0.35 0.6 0.35 0.01 2',
                            f'particle minecraft:dust{{color:[0.35,0.0,0.06],scale:1.4}} ~ ~0.8 ~ 0.4 0.6 0.4 0 4',
-                           'effect give @a[distance=..7,gamemode=!creative,gamemode=!spectator] minecraft:darkness 3 0 true',
+                           'effect give @a[distance=..7,gamemode=!creative,gamemode=!spectator,tag=!bm.nodark] minecraft:darkness 3 0 true',
                            'execute store result score #ha bm.rng run random value 1..6',
                            'execute if score #ha bm.rng matches 1 run playsound minecraft:entity.warden.heartbeat hostile @a[distance=..20] ~ ~ ~ 1.2 0.6'])
+
+    # (3.0g, the owner: "the darkness effect from the dread mobs ruins the cutscenes during the fight") A CUTSCENE'S WATCHER: a
+    # boss's camera hold (phase238's cam/hold, phase242's c/look) runs p176/nodark on each held player every tick - their Darkness
+    # and Blindness cleared, and tagged bm.nodark on a 3-tick lease, which keeps any Dread's aura and Mark from darkening them
+    # again until the hold lets go
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.ndk dummy']
+    G.OBJECTIVES += ['bm.ndk']
+    fn('p176/nodark', ['tag @s add bm.nodark', 'scoreboard players set @s bm.ndk 3', 'effect clear @s minecraft:darkness', 'effect clear @s minecraft:blindness'])
+    fn('p176/nodark_lease', ['scoreboard players remove @s bm.ndk 1', 'execute unless score @s bm.ndk matches 1.. run tag @s remove bm.nodark'])
+    G.FUNCS['tick'].append('execute as @a[tag=bm.nodark] run function bm:p176/nodark_lease')
+    G.FUNCS['admin/uninstall'][0:0] = ['tag @a remove bm.nodark']
 
     # ================================================================== the Pulse and the Mark (both dodgeable, both through armour)
     fast += ['execute as @e[tag=bm.dread] at @s if entity @a[distance=..14,gamemode=!creative,gamemode=!spectator] run function bm:p176/dread/think',
@@ -169,7 +180,7 @@ def generate(G):
     fn('p176/dread/mark_go', ['particle minecraft:soul_fire_flame ~ ~0.5 ~ 0.8 1.2 0.8 0.05 40', 'particle minecraft:explosion ~ ~0.5 ~ 0.3 0.2 0.3 0 2',
                               'playsound minecraft:entity.warden.attack_impact hostile @a[distance=..20] ~ ~ ~ 1.2 0.6',
                               'execute as @a[distance=..1.8,gamemode=!creative,gamemode=!spectator] at @s run function bm:p176/dread/hit_mark', 'kill @s'])
-    fn('p176/dread/hit_mark', ['damage @s 9 bm:dread', 'effect give @s minecraft:darkness 4 0 true', 'particle minecraft:damage_indicator ~ ~1 ~ 0.3 0.4 0.3 0.2 6'])
+    fn('p176/dread/hit_mark', ['damage @s 9 bm:dread', 'execute unless entity @s[tag=bm.nodark] run effect give @s minecraft:darkness 4 0 true', 'particle minecraft:damage_indicator ~ ~1 ~ 0.3 0.4 0.3 0.2 6'])
     # (no Dread nearby any more - its last ring fades without a sound)
     second.append('execute as @e[type=minecraft:marker,tag=bm.drm] at @s unless entity @e[tag=bm.dread,distance=..40] run kill @s')
     import json, os

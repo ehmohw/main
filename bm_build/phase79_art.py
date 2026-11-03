@@ -144,7 +144,10 @@ def _blade(path, w0, w1, pv, z0, sx=1):
     for i in range(n):
         w = w0 + (w1 - w0) * i / max(1, n - 1)
         p0, p1 = (path[i][0] * sx, path[i][1]), (path[i + 1][0] * sx, path[i + 1][1])
-        out.append(_seg(p0, p1, w, 1.0, 'kw_gold', pv, z0))
+        # (3.0g: the pieces overlap at every kink, and the two sides' first pieces at his spine - one flat slab, so their faces
+        #  flickered. Every other piece, and the left side's first, stands a quarter-pixel proud of its neighbours front and back.)
+        e = 0.25 * ((i + (sx < 0)) % 2)
+        out.append(_seg(p0, p1, w, 1.0 + 2 * e, 'kw_gold', pv, z0 - e))
     return out
 
 
@@ -252,8 +255,8 @@ def models():
     for sx in (1, -1):
         tend += _blade(upper, 3.4, 0.8, pv, z0, sx) + _blade(upper_fork, 1.8, 0.6, pv, z0 + 0.1, sx)
         tendl += _blade(lower, 3.4, 0.8, pvl, zl, sx) + _blade(lower_fork, 1.6, 0.6, pvl, zl + 0.1, sx)
-    tend += [_el((-1.8, 25.2, 2.6), (1.8, 28.6, z0 + 1.1), 'kw_gold', pv)]                                   # where they root, off his spine
-    tendl += [_el((-1.6, 20.8, 2.8), (1.6, 23.8, zl + 1.1), 'kw_gold', pvl)]
+    tend += [_el((-1.8, 25.2, 2.6), (1.8, 28.6, z0 + 1.5), 'kw_gold', pv)]                                   # where they root, off his spine
+    tendl += [_el((-1.6, 20.8, 2.8), (1.6, 23.8, zl + 1.5), 'kw_gold', pvl)]
     part('kw_tend', _shrink(tend, TEND_K)); part('kw_tendl', _shrink(tendl, TEND_K))
     M.update(variant_models(M))
     return M

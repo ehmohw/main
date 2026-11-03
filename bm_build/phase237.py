@@ -223,7 +223,7 @@ def generate(G):
         nm, col, _ = L.ECHO[k]
         fn(f'p237/echo/rise_{k}', [f'function bm:p197/{k}/rise', f'execute as @e[tag=bm.db_{k},tag=!bm.dbecho,distance=..12,sort=nearest,limit=1] at @s run function bm:p237/echo/init_{k}'])
         fn(f'p237/echo/init_{k}', ['tag @s add bm.dbecho', f'attribute @s minecraft:max_health base set {ECHO_HP + P197.FLOOR}',
-                                   f'data modify entity @s Health set value {ECHO_HP + P197.FLOOR}.0f', f'data modify entity @s CustomName set value {snbt(T(nm, col))}',
+                                   f'data modify entity @s Health set value {ECHO_HP + P197.FLOOR}.0f', 'function bm:hitcap/sync', f'data modify entity @s CustomName set value {snbt(T(nm, col))}',
                                    f'bossbar set bm:db_{k} name {snbt(T(nm, col))}', f'bossbar set bm:db_{k} max {ECHO_HP}',
                                    'particle minecraft:sculk_soul ~ ~2 ~ 1 1.5 1 0.05 60'])
         G.FUNCS[f'p197/{k}/rise'] += [f'bossbar set bm:db_{k} name {snbt(T(b["NAME"], b["COL"]))}', f'bossbar set bm:db_{k} max {b["hp"]}']

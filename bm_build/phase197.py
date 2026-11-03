@@ -32,6 +32,7 @@ from items import item, T, TOTEM, ITEMS, consumable
 from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D
 import rigfol as RF
+import hitcap as HC
 import phase152 as P152
 # (2.94g) THE DREAD - their battle theme (tools/dread_music.py: violin, organ and choir, a fight for your life), while any of the
 # three is near and not yet falling; and its record (phase124's 'dread'), from each one's spoils: the first win always, then one in five
@@ -59,6 +60,11 @@ TOUGH, RESIST = 10, 1
 FRENZY, TIRED = 16, 7
 COOL = 24000
 FLOOR = 200          # (each host's health above its "real" pool: at this, it falls - no lucky blow kills it outright)
+# (3.0g, the owner: "far too easy" for one in the final boss's gear - its sword shreds them, and nothing they do gets past the
+# armour) THE HIT CAP: no blow (or burst of blows) takes more than CAP off it in half a second (hitcap.py); and their heavy blows -
+# the Snowbeast's nova and glare and its ice shards, the Witch's hex bolts and curse rings, every bite, rake, ram and spin of the
+# Sawshark - are DREAD (bm:dread: past armour, its enchantments and a shield; Resistance still counts), a little lighter for it
+CAP = 25
 
 BOSSES = {
     'snow': dict(NAME='The Malevolent Snowbeast', COL='#9ad8ff', A=snowbeast_art, host='husk', hp=820, scale=2.6, armor=14, move='ground', speed=0.17,
@@ -405,7 +411,8 @@ def build_boss(G, k, b, tick, second, fast):
                             f'scoreboard players operation @e[tag=bm.dbnew,distance=..2] bm.dbid = #dbid bm.rng',
                             f'execute as @e[tag=bm.db_{k},tag=bm.dbnew,distance=..2] at @s run function bm:{pfx}/init',
                             'tag @e[tag=bm.dbnew,distance=..2] remove bm.dbnew'])
-    fn(f'{pfx}/init', ['scoreboard players set @s bm.dbs -1', 'scoreboard players set @s bm.dbf 0', 'scoreboard players set @s bm.dba 30',
+    HC.install(G)
+    fn(f'{pfx}/init', HC.arm(CAP) + ['scoreboard players set @s bm.dbs -1', 'scoreboard players set @s bm.dbf 0', 'scoreboard players set @s bm.dba 30',
                        'scoreboard players set @s bm.dbx 60', 'scoreboard players set @s bm.dbph 0', 'scoreboard players set @s bm.dbgone 0',
                        'scoreboard players set @s bm.dbk7 40', 'scoreboard players set @s bm.dbk8 80', 'scoreboard players set @s bm.dbk9 120',
                        'scoreboard players set @s bm.dbk11 160', 'scoreboard players set @s bm.dbk12 200',
@@ -605,14 +612,14 @@ def _snow(me, tgt):
         'nova': ['particle minecraft:snowflake ~ ~0.4 ~ 3.5 0.3 3.5 0.1 200', 'particle minecraft:explosion ~ ~0.5 ~ 2.5 0.2 2.5 0 6',
                  'playsound minecraft:block.glass.break hostile @a[distance=..32] ~ ~ ~ 1.4 0.6', 'playsound minecraft:entity.generic.explode hostile @a[distance=..32] ~ ~ ~ 0.8 0.8',
                  'execute as @a[distance=..7,gamemode=!spectator] run function bm:p197/snow/frozen'],
-        'frozen': [f'damage @s 10 minecraft:freeze by {me}', 'effect give @s minecraft:slowness 3 3', 'data modify entity @s TicksFrozen set value 260'],
+        'frozen': [f'damage @s 9 bm:dread by {me}', 'effect give @s minecraft:slowness 3 3', 'data modify entity @s TicksFrozen set value 260'],
         'glare': ['playsound minecraft:block.beacon.activate hostile @a[distance=..32] ~ ~ ~ 1.4 1.8', 'scoreboard players set #gb bm.rng 0',
                   f'execute rotated as @s positioned ^ ^{50 * snowbeast_art.RIG_SCALE / 16:.1f} ^0.6 facing entity {tgt} eyes run function bm:p197/snow/beam'],
         'beam': ['particle minecraft:dust{color:[0.6,0.9,1.0],scale:2.0} ~ ~ ~ 0.1 0.1 0.1 0 3', 'particle minecraft:snowflake ~ ~ ~ 0.1 0.1 0.1 0.01 2',
                  'execute as @a[distance=..1.5,tag=!bm.dbhitb] run function bm:p197/snow/beamed', 'scoreboard players add #gb bm.rng 1',
                  'execute unless block ~ ~ ~ #bm:grap_pass run return run tag @a remove bm.dbhitb',
                  'execute if score #gb bm.rng matches 24.. run return run tag @a remove bm.dbhitb', 'execute positioned ^ ^ ^1 run function bm:p197/snow/beam'],
-        'beamed': ['tag @s add bm.dbhitb', 'damage @s 9 minecraft:freeze by @e[tag=bm.dbme,limit=1]', 'effect give @s minecraft:slowness 4 2', 'data modify entity @s TicksFrozen set value 200'],
+        'beamed': ['tag @s add bm.dbhitb', 'damage @s 8 bm:dread by @e[tag=bm.dbme,limit=1]', 'effect give @s minecraft:slowness 4 2', 'data modify entity @s TicksFrozen set value 200'],
         'blizzard': ['particle minecraft:snowflake ~ ~4 ~ 12 4 12 0.05 300', 'playsound minecraft:item.elytra.flying hostile @a[distance=..32] ~ ~ ~ 0.4 0.4',
                      'execute as @a[distance=..20,gamemode=!spectator] run function bm:p197/snow/chilled'],
         'chilled': [f'damage @s 3 minecraft:freeze by {me}', 'effect give @s minecraft:slowness 3 0', 'data modify entity @s TicksFrozen set value 160'],
@@ -651,20 +658,20 @@ def _shark(me, tgt):
     return {
         'chomp': ['execute rotated as @s rotated ~ 0 positioned ^ ^1 ^4 as @a[distance=..3.5,gamemode=!spectator] at @s run function bm:p197/shark/bitten',
                   'playsound minecraft:entity.evoker_fangs.attack hostile @a[distance=..32] ~ ~ ~ 1.4 0.5', 'playsound minecraft:entity.player.attack.crit hostile @a[distance=..32] ~ ~ ~ 1 0.6'],
-        'bitten': [f'damage @s 14 minecraft:mob_attack by {me}', 'effect give @s minecraft:wither 3 0', 'particle minecraft:damage_indicator ~ ~1 ~ 0.3 0.3 0.3 0.1 8'],
-        'rake': ['execute rotated as @s rotated ~ 0 positioned ^ ^1 ^5 as @a[distance=..4.5,gamemode=!spectator] run damage @s 9 minecraft:mob_attack by @e[tag=bm.dbme,limit=1]',
+        'bitten': [f'damage @s 12 bm:dread by {me}', 'effect give @s minecraft:wither 3 0', 'particle minecraft:damage_indicator ~ ~1 ~ 0.3 0.3 0.3 0.1 8'],
+        'rake': ['execute rotated as @s rotated ~ 0 positioned ^ ^1 ^5 as @a[distance=..4.5,gamemode=!spectator] run damage @s 8 bm:dread by @e[tag=bm.dbme,limit=1]',
                  'execute rotated as @s rotated ~ 0 positioned ^ ^1 ^5 run particle minecraft:sweep_attack ~ ~ ~ 2 0.5 2 0 4',
                  'playsound minecraft:entity.player.attack.sweep hostile @a[distance=..32] ~ ~ ~ 1.4 0.5'],
         'dash': [f'execute facing entity {tgt} eyes positioned ^ ^ ^1.4 if block ~ ~ ~ minecraft:water run tp @s ^ ^ ^1.4',
                  'particle minecraft:bubble ~ ~1 ~ 1 0.6 1 0.1 20',
                  'execute as @a[distance=..3,gamemode=!spectator,tag=!bm.dbhitb] at @s run function bm:p197/shark/rammed',
                  'execute if score @s bm.dbx matches 6 run tag @a remove bm.dbhitb'],
-        'rammed': ['tag @s add bm.dbhitb', 'damage @s 16 minecraft:mob_attack by @e[tag=bm.dbme,limit=1]', 'effect give @s minecraft:slowness 2 1',
+        'rammed': ['tag @s add bm.dbhitb', 'damage @s 12 bm:dread by @e[tag=bm.dbme,limit=1]', 'effect give @s minecraft:slowness 2 1',
                    'playsound minecraft:entity.player.attack.knockback hostile @a[distance=..24] ~ ~ ~ 1.2 0.6'],
         'pull': ['particle minecraft:bubble_column_up ~ ~1 ~ 6 2 6 0.1 60', 'playsound minecraft:block.bubble_column.whirlpool_inside hostile @a[distance=..32] ~ ~ ~ 1 0.6',
                  'execute as @a[distance=2..14,gamemode=!spectator] at @s facing entity @e[tag=bm.dbme,limit=1] feet if block ^ ^ ^0.7 #bm:swim_pass run tp @s ^ ^ ^0.7',
                  'effect give @a[distance=..14] minecraft:mining_fatigue 3 1'],
-        'spin': ['execute as @a[distance=..5,gamemode=!spectator] run damage @s 8 minecraft:mob_attack by @e[tag=bm.dbme,limit=1]',
+        'spin': ['execute as @a[distance=..5,gamemode=!spectator] run damage @s 7 bm:dread by @e[tag=bm.dbme,limit=1]',
                  'particle minecraft:bubble_pop ~ ~1 ~ 3 1 3 0.2 80'],
         'guards': ['execute positioned ^4 ^1 ^ run summon minecraft:guardian ~ ~ ~ {Tags:["bm.dbminion","bm.seen"],PersistenceRequired:1b}',
                    'execute positioned ^-4 ^1 ^ run summon minecraft:guardian ~ ~ ~ {Tags:["bm.dbminion","bm.seen"],PersistenceRequired:1b}',
@@ -705,9 +712,9 @@ def _shots(G, tick):
     fn('p197/shot/hit', ['execute if entity @s[tag=bm.dbshot_ice] as @a[distance=..2.2,gamemode=!spectator,limit=1,sort=nearest] at @s run function bm:p197/shot/hurt_ice',
                          'execute if entity @s[tag=bm.dbshot_hex] as @a[distance=..2.2,gamemode=!spectator,limit=1,sort=nearest] at @s run function bm:p197/shot/hurt_hex',
                          'function bm:p197/shot/pop'])
-    fn('p197/shot/hurt_ice', ['damage @s 6 minecraft:freeze by @e[tag=bm.db_snow,limit=1,sort=nearest]', 'effect give @s minecraft:slowness 3 1',
+    fn('p197/shot/hurt_ice', ['damage @s 5 bm:dread by @e[tag=bm.db_snow,limit=1,sort=nearest]', 'effect give @s minecraft:slowness 3 1',
                               'data modify entity @s TicksFrozen set value 180'])
-    fn('p197/shot/hurt_hex', ['damage @s 7 minecraft:magic by @e[tag=bm.db_witch,limit=1,sort=nearest]', 'effect give @s minecraft:wither 4 0'])
+    fn('p197/shot/hurt_hex', ['damage @s 6 bm:dread by @e[tag=bm.db_witch,limit=1,sort=nearest]', 'effect give @s minecraft:wither 4 0'])
     fn('p197/shot/pop', ['execute if entity @s[tag=bm.dbshot_ice] run particle minecraft:item{item:"minecraft:ice"} ~ ~ ~ 0.2 0.2 0.2 0.1 10',
                          'execute if entity @s[tag=bm.dbshot_ice] run playsound minecraft:block.glass.break hostile @a[distance=..16] ~ ~ ~ 0.6 1.8',
                          'execute if entity @s[tag=bm.dbshot_hex] run particle minecraft:witch ~ ~ ~ 0.3 0.3 0.3 0.1 14',
@@ -720,7 +727,7 @@ def _shots(G, tick):
        ['execute if score @s bm.dbt matches 30.. run function bm:p197/curse/burst'])
     fn('p197/curse/burst', ['particle minecraft:witch ~ ~0.6 ~ 1.4 0.6 1.4 0.2 60', 'particle minecraft:explosion ~ ~0.5 ~ 0.6 0.2 0.6 0 2',
                             'playsound minecraft:entity.evoker_fangs.attack hostile @a[distance=..24] ~ ~ ~ 1 0.6',
-                            'execute as @a[distance=..2.5,gamemode=!spectator] run damage @s 12 minecraft:magic by @e[tag=bm.db_witch,limit=1,sort=nearest]',
+                            'execute as @a[distance=..2.5,gamemode=!spectator] run damage @s 10 bm:dread by @e[tag=bm.db_witch,limit=1,sort=nearest]',
                             'kill @s'])
 
 
