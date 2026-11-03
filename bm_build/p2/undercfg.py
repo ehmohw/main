@@ -86,8 +86,9 @@ FLAVOR = dict(open='The crying obsidian weeps itself away...', osnd='minecraft:b
 
 
 def _w(ent, name, main=None, head=None):
-    """a wave foe: a Dread one (phase237 dresses anything tagged bm.udread as its kind's Dread - p176/mk/<type>)"""
-    n = {'CustomName': T(name, COL), 'Tags': ['bm.udread', f'bm.udk_{ent}']}
+    """a wave foe (3.0g: the wave makes WAVE_MIX's share of them Dread - tagged bm.udread, which phase237 dresses as its kind's
+    Dread, p176/mk/<type> - and the rest armoured, in diamond or netherite: p237/wkit)"""
+    n = {'CustomName': T(name, COL), 'Tags': [f'bm.udk_{ent}']}        # (3.0g: Dread or armoured is the wave's choice - WAVE_MIX)
     eq, dc = {}, {}
     for slot, it in (('mainhand', main), ('head', head)):
         if it: eq[slot] = {'id': f'minecraft:{it}', 'count': Int(1)}; dc[slot] = F(0)
@@ -103,6 +104,12 @@ WAVES = {4: ('The Frostbound Thralls', [[_w('stray', 'Frostbound Thrall', 'bow')
                                     [_w('husk', 'Dried Drowned', 'trident'), _w('wither_skeleton', 'Drowned Captain', 'stone_sword'), _w('husk', 'Dried Drowned', 'trident')]])}
 
 
+# (3.0g, the owner: "The amount of dread mobs for each wave in the combat rooms is a bit insane... not every mob has to have full dread
+# armor. You can do diamond and netherite armored mobs while 5-6 dread mobs per wave") - each wave's (Dread, armoured): it was
+# 12, 12 and 18, every one Dread
+WAVE_MIX = [(5, 3), (5, 4), (6, 4)]
+
+
 def register():
     """D/FLAVOR/WAVES learn the Undercrown (idempotent)"""
     from p2.config import D
@@ -111,6 +118,7 @@ def register():
     logic.FLAVOR[d] = FLAVOR
     data.WAVES[d] = WAVES
     data.WAVE_PER[d] = (2, 3)
+    data.WAVE_MIX[d] = dict(mix=WAVE_MIX, tag='bm.udread', kit='p237/wkit')
 
 
 class UBuild(DBuild):

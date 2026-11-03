@@ -36,6 +36,10 @@ _KNIGHT2 = ('wither_skeleton', _eq('netherite_sword', 'netherite_helmet', extra=
 _SAILOR = lambda main, head=None, chest=None: ('zombie', _eq(main, head, chest, extra={'CustomName': T('Tidebound Sailor', '#3fb8a8')}))
 _BOWMAN = ('bogged', _eq('bow', extra={'CustomName': T('Barnacle Bowman', '#3fb8a8')}))
 WAVE_PER = {'hex': (1, 3), 'keep': (2, 3), 'hollow': (2, 3)}        # mobs per spawn point on ordinary waves / on the last wave (everyone else: 1 / 2)
+# (3.0g) a dungeon's waves by count instead: WAVE_MIX[d] = dict(mix=[(elite, plain) per wave], tag=..., kit=...) - each wave rises
+# elite + plain mobs over its spawn points (one at each, the rest at random ones); `elite` of them, at random, get `tag`, the rest
+# run the function `kit` (as the mob). The Undercrown's: 5-6 Dread, the rest in diamond or netherite (p2/undercfg).
+WAVE_MIX = {}
 # combat trials: WAVES[d][n] = (title, [wave1 roster, wave2 roster, ...]); each spawn point picks one mob per wave
 # from the roster (two on the last wave)
 WAVES = {
