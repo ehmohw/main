@@ -363,45 +363,89 @@ def generate(G, builds):
                 # combat trial (2.2): walking in starts the assault; clear every wave to open the gate. Spawn points are 'wsp'
                 # elements; a pre-2.2 copy of the dungeon (an old keypad/lever room on this index) has none, so the wave rises
                 # around a random player in the room instead.
-                from p2.data import WAVES
+                from p2.data import WAVES, WAVE_MIX
                 wname, waves = WAVES[d][n]
                 NW = len(waves)
                 wm = f'bm.wm_{d}{n}'
+                mix = WAVE_MIX.get(d)
+                nsp = sum(1 for e in els if e[0] == 'wsp')
+                # (3.0g) WAVE-CLEAR, BY THE ROOM: each tick the wave's mobs are counted by their tag in the room's own box (its trial's
+                # reach out from the controller, 4 under the floor to 14 over it) - never by kills, so one killed by another mob, fallen
+                # into lava, despawned or carried off counts as gone the moment it's out of the room. No wave mob in the box for 3 s
+                # (60 ticks): the wave is done, and any stray of it left outside is fetched back into the room for the next. A wave
+                # 90 s old with one or two left: they glow (so they can be found); 150 s old: they're taken (stuck in a wall, lost) and
+                # it's done. And the room only gives up on you after 5 s with nobody near (a step out of the door was a reset before).
+                bx = R + 3
+                inroom = f'positioned ~-{bx} ~-4 ~-{bx} if entity @e[tag={wm},dx={2 * bx},dy=18,dz={2 * bx}]'
                 body = ['execute if score #act bm.rng matches 0 run return 0',
                         f'execute unless score @s bm.wv matches 1.. if entity @a[distance=..{R},gamemode=!spectator] run function bm:p2/{d}/pz{n}_wstart',
                         'execute unless score @s bm.wv matches 1.. run return 0',
-                        f'execute unless entity @a[distance=..{R + 10},gamemode=!spectator] run return run function bm:p2/{d}/pz{n}_wabort',
-                        f'execute if entity @e[tag={wm},distance=..{R + 24}] run return run scoreboard players set @s bm.wt 0',
+                        f'execute if entity @a[distance=..{R + 12},gamemode=!spectator] run scoreboard players set @s bm.wab 0',
+                        f'execute unless entity @a[distance=..{R + 12},gamemode=!spectator] run scoreboard players add @s bm.wab 1',
+                        f'execute if score @s bm.wab matches 100.. run return run function bm:p2/{d}/pz{n}_wabort',
+                        'scoreboard players add @s bm.wage 1',
+                        f'execute if score @s bm.wage matches 1800.. run function bm:p2/{d}/pz{n}_wlate',
+                        f'execute {inroom} run return run scoreboard players set @s bm.wt 0',
                         'scoreboard players add @s bm.wt 1',
                         'execute if score @s bm.wt matches 1 run ' + title(f'@a[distance=..{R + 10}]', 'actionbar', T('Wave cleared...', 'gray', italic=True)),
-                        f'execute if score @s bm.wt matches 50.. run function bm:p2/{d}/pz{n}_wnext']
-                fn(f'p2/{d}/pz{n}_wstart', ['scoreboard players set @s bm.wv 0', f'title @a[distance=..{R + 10}] times 5 40 10',
+                        f'execute if score @s bm.wt matches 60.. run function bm:p2/{d}/pz{n}_wnext']
+                # (a long wave's last few: lit up at 90 s, taken at 150 s)
+                fn(f'p2/{d}/pz{n}_wlate', [f'execute store result score #wl bm.rng {inroom}',
+                                           'execute if score #wl bm.rng matches 3.. run return 0',
+                                           f'execute if score @s bm.wage matches 1800 positioned ~-{bx} ~-4 ~-{bx} run effect give @e[tag={wm},dx={2 * bx},dy=18,dz={2 * bx}] minecraft:glowing 60 0 true',
+                                           'execute if score @s bm.wage matches 1800 run ' + title(f'@a[distance=..{R + 10}]', 'actionbar', T('The last of the wave are lit up - find them!', 'gold')),
+                                           f'execute if score @s bm.wage matches 3000.. as @e[tag={wm}] at @s run function bm:p2/util/vanish'])
+                fn(f'p2/{d}/pz{n}_wstart', ['scoreboard players set @s bm.wv 0', 'scoreboard players set @s bm.wab 0', f'title @a[distance=..{R + 10}] times 5 40 10',
                                             title(f'@a[distance=..{R + 10}]', 'subtitle', T(f'Survive {NW} waves to open the way', 'gray', italic=True)),
                                             title(f'@a[distance=..{R + 10}]', 'title', T(wname, cfg['color'], bold=True)),
                                             f'playsound minecraft:event.raid.horn hostile @a[distance=..{R + 10}] ~ ~ ~ 2 0.7',
                                             f'function bm:p2/{d}/pz{n}_wnext'])
-                nxt = ['scoreboard players add @s bm.wv 1', 'scoreboard players set @s bm.wt 0',
-                       f'execute if score @s bm.wv matches {NW + 1}.. run return run function bm:p2/{d}/pz{n}_wwin']
+                # (strays of the last wave - outside the room, never counted - are fetched back in to a spawn point)
+                nxt = ['scoreboard players add @s bm.wv 1', 'scoreboard players set @s bm.wt 0', 'scoreboard players set @s bm.wage 0',
+                       f'execute if score @s bm.wv matches {NW + 1}.. run return run function bm:p2/{d}/pz{n}_wwin',
+                       f'execute as @e[tag={wm},distance=..{R + 48}] run function bm:p2/{d}/pz{n}_wfetch']
+                fn(f'p2/{d}/pz{n}_wfetch', [f'execute at {ctrl_sel(d, n, R + 48)} positioned ~-{bx} ~-4 ~-{bx} if entity @s[dx={2 * bx},dy=18,dz={2 * bx}] run return 0',
+                                            f'tp @s {el_sel(d, n, "wsp", R + 48, ",sort=random,limit=1")}',
+                                            'execute at @s run particle minecraft:large_smoke ~ ~1 ~ 0.4 0.6 0.4 0.03 12'])
                 from p2.data import WAVE_PER
                 lo, hi = WAVE_PER.get(d, (1, 2))
                 for k, wave in enumerate(waves, 1):
                     per = hi if k == NW else lo
                     nxt.append(f'execute if score @s bm.wv matches {k} run function bm:p2/{d}/pz{n}_w{k}')
-                    fn(f'p2/{d}/pz{n}_w{k}', [title(f'@a[distance=..{R + 10}]', 'actionbar', T(f'Wave {k} of {NW}', 'red', bold=True)),
-                                              f'playsound minecraft:entity.wither.ambient hostile @a[distance=..{R + 10}] ~ ~ ~ 0.6 {0.6 + 0.1 * k:.1f}',
-                                              f'execute as {el_sel(d, n, "wsp", R)} at @s run function bm:p2/{d}/pz{n}_sp{k}',
-                                              f'execute unless entity {el_sel(d, n, "wsp", R)} at @a[distance=..{R},gamemode=!spectator,sort=random,limit=2] run function bm:p2/{d}/pz{n}_sp{k}'])
+                    head_w = [title(f'@a[distance=..{R + 10}]', 'actionbar', T(f'Wave {k} of {NW}', 'red', bold=True)),
+                              f'playsound minecraft:entity.wither.ambient hostile @a[distance=..{R + 10}] ~ ~ ~ 0.6 {0.6 + 0.1 * k:.1f}']
+                    if mix:
+                        # (by count: one at each spawn point - as many as the wave holds - then the rest at random ones; `elite` of
+                        #  them, at random, the dungeon's elite tag, the rest its armoury)
+                        el, pl = mix['mix'][min(k, len(mix['mix'])) - 1]
+                        tot = el + pl
+                        first, more = min(tot, nsp), max(0, tot - nsp)
+                        spawn = [f'execute as {el_sel(d, n, "wsp", R, f",sort=random,limit={first}")} at @s run function bm:p2/{d}/pz{n}_sp{k}'] if first else []
+                        spawn += [f'execute as {el_sel(d, n, "wsp", R, f",sort=random,limit={more}")} at @s run function bm:p2/{d}/pz{n}_one{k}'] if more else []
+                        spawn += [f'execute unless entity {el_sel(d, n, "wsp", R)} at @a[distance=..{R},gamemode=!spectator,sort=random,limit=1] run function bm:p2/{d}/pz{n}_sp{k}'] + \
+                                 [f'execute unless entity {el_sel(d, n, "wsp", R)} at @a[distance=..{R},gamemode=!spectator,sort=random,limit=1] run function bm:p2/{d}/pz{n}_one{k}'] * (tot - 1)
+                        spawn += [f'tag @e[tag={wm},tag=bm.wnew,sort=random,limit={el}] add {mix["tag"]}',
+                                  f'execute as @e[tag={wm},tag=bm.wnew] unless entity @s[tag={mix["tag"]}] run function bm:{mix["kit"]}',
+                                  f'tag @e[tag={wm},tag=bm.wnew] remove bm.wnew']
+                        per_sp = 1
+                    else:
+                        spawn = [f'execute as {el_sel(d, n, "wsp", R)} at @s run function bm:p2/{d}/pz{n}_sp{k}',
+                                 f'execute unless entity {el_sel(d, n, "wsp", R)} at @a[distance=..{R},gamemode=!spectator,sort=random,limit=2] run function bm:p2/{d}/pz{n}_sp{k}']
+                        per_sp = per
+                    fn(f'p2/{d}/pz{n}_w{k}', head_w + spawn)
                     fn(f'p2/{d}/pz{n}_sp{k}', ['particle minecraft:large_smoke ~ ~1 ~ 0.4 0.6 0.4 0.03 20', 'particle minecraft:soul_fire_flame ~ ~0.2 ~ 0.4 0.1 0.4 0.02 10',
                                                'playsound minecraft:entity.evoker.prepare_summon hostile @a[distance=..20] ~ ~ ~ 0.7 0.8'] +
-                                              [f'function bm:p2/{d}/pz{n}_one{k}'] * per)
+                                              [f'function bm:p2/{d}/pz{n}_one{k}'] * per_sp)
                     one = [f'execute store result score #wr bm.rng run random value 1..{len(wave)}']
                     for i, (ent, nbt) in enumerate(wave, 1):
-                        nb = dict(nbt); nb['Tags'] = list(nbt.get('Tags', [])) + ['bm.dgmob', 'bm.wm', wm]; nb['PersistenceRequired'] = Byte(1)   # (2.98: a roster's own tags kept)
+                        nb = dict(nbt); nb['Tags'] = list(nbt.get('Tags', [])) + ['bm.dgmob', 'bm.wm', wm] + (['bm.wnew'] if mix else []); nb['PersistenceRequired'] = Byte(1)   # (2.98: a roster's own tags kept)
                         one.append(f'execute if score #wr bm.rng matches {i} run summon minecraft:{ent} ~ ~ ~ {snbt(nb)}')
                     fn(f'p2/{d}/pz{n}_one{k}', one)
                 fn(f'p2/{d}/pz{n}_wnext', nxt)
-                fn(f'p2/{d}/pz{n}_wwin', ['scoreboard players set @s bm.wv 0', f'function bm:p2/{d}/pz{n}_solve'])
-                vanish = [f'execute as @e[tag={wm}] at @s run function bm:p2/util/vanish', 'scoreboard players set @s bm.wv 0', 'scoreboard players set @s bm.wt 0']
+                fn(f'p2/{d}/pz{n}_wwin', ['scoreboard players set @s bm.wv 0', f'execute as @e[tag={wm},distance=..{R + 48}] at @s run function bm:p2/util/vanish',
+                                          f'function bm:p2/{d}/pz{n}_solve'])
+                vanish = [f'execute as @e[tag={wm}] at @s run function bm:p2/util/vanish', 'scoreboard players set @s bm.wv 0', 'scoreboard players set @s bm.wt 0',
+                          'scoreboard players set @s bm.wage 0', 'scoreboard players set @s bm.wab 0']
                 fn(f'p2/{d}/pz{n}_wabort', vanish)
                 reset = ['scoreboard players set @s bm.done 0'] + vanish
             elif kind == 'reach':
