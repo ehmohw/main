@@ -97,7 +97,9 @@ WORLDGEN = {  # d: (biomes, step, start_height, heightmap, adaptation, spacing, 
     # (2.92: off the peaks and slopes - a 52-high spire on a mountainside hung off cliffs or stood in a crag)
     'frost': (['minecraft:snowy_plains', 'minecraft:ice_spikes', 'minecraft:snowy_taiga', 'minecraft:grove'], 'surface_structures', {'absolute': -6}, 'WORLD_SURFACE_WG', 'beard_thin', 40, 14, 27182818, 'minecraft:target_x'),
     'tide': (['minecraft:deep_ocean', 'minecraft:deep_cold_ocean', 'minecraft:deep_lukewarm_ocean', 'minecraft:deep_frozen_ocean'],
-             'surface_structures', {'absolute': -3}, 'OCEAN_FLOOR_WG', 'none', 36, 12, 14142135, 'minecraft:monument'),
+             # (3.0h: -2, was -3 - a start's layer -start_height sits IN the sea floor's top block, and the temple's own sea floor
+             #  is its y2: at -3 it stood a block sunk, its seagrass and coral round the edge set into the real floor)
+             'surface_structures', {'absolute': -2}, 'OCEAN_FLOOR_WG', 'none', 36, 12, 14142135, 'minecraft:monument'),
     'hex': (['minecraft:swamp', 'minecraft:mangrove_swamp'], 'surface_structures', {'absolute': -5}, 'WORLD_SURFACE_WG', 'beard_thin', 40, 14, 17320508, 'minecraft:swamp_hut'),
     'keep': (['minecraft:pale_garden', 'minecraft:dark_forest'], 'surface_structures', {'absolute': -6}, 'WORLD_SURFACE_WG', 'beard_thin', 44, 16, 22360679, 'minecraft:mansion'),
     # 2.13: deep underground and very rare (a runtime shaft climbs from its front door to the surface)

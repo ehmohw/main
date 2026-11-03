@@ -255,6 +255,7 @@ def generate(G):
 
 
 # ------------------------------------------------------------------------------------------------ the palace in the world
+PAL_SETTLE = 10                                                                # (3.0h: phase203's rings round it)
 OX, OY, OZ = -32, -(PAL.FY + 1), -39                                       # (the template's corner, from the seed's block)
 rel = lambda p: (p[0] - PAL.CENTER[0], p[1] - PAL.CENTER[1], p[2] - PAL.CENTER[2])   # (template point -> from the palace's marker)
 BOX = (f'~{-PAL.CENTER[0]:.1f} ~{-PAL.CENTER[1]:.1f} ~{-PAL.CENTER[2]:.1f}', f'dx={PAL.SX - 1},dy={PAL.SY - 1},dz={PAL.SZ - 1}')
@@ -281,8 +282,12 @@ def _palace(C):
     assert not errs, errs[:10]
     B.export(G.path('data', 'bm', 'structure', 'p169_palace.nbt'))
     x0, z0, x1, z1 = OX, OZ, OX + PAL.SX - 1, OZ + PAL.SZ - 1
-    corners = ' '.join(f'if loaded ~{x} ~ ~{z}' for x in (x0, x1) for z in (z0, z1))
-    second.append(f'execute as @e[type=minecraft:marker,tag=bm.omseed] at @s if entity @a[distance=..112] {corners} run function bm:p169/pal/build')
+    # (3.0h) the seed stands IN the ground's top block (a jigsaw start's bottom layer is set into it), and the template was laid
+    # for a seed on it: built a block up, its floor where the turf was (it had stood a block sunk). Loaded out to phase203's
+    # settling round it (PAL_SETTLE) first
+    R = PAL_SETTLE + 1
+    corners = ' '.join(f'if loaded ~{x} ~ ~{z}' for x in (x0 - R, x1 + R) for z in (z0 - R, z1 + R))
+    second.append(f'execute as @e[type=minecraft:marker,tag=bm.omseed] at @s if entity @a[distance=..112] {corners} positioned ~ ~1 ~ run function bm:p169/pal/build')
     # (on land: a seed that came down in a lake is dropped; the ground under the box is made good, ten deep, where it fell away)
     skirt = [f'fill ~{x} ~{OY - 10} ~{z0} ~{min(x + 11, x1)} ~{OY - 1} ~{z1} minecraft:stone replace #bm:grap_pass' for x in range(x0, x1 + 1, 12)]
     fn('p169/pal/build', ['kill @s', 'execute if block ~ ~-1 ~ minecraft:water run return 0', 'execute if block ~ ~-1 ~ minecraft:lava run return 0',

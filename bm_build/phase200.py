@@ -221,7 +221,9 @@ def generate(G):
         else:
             # (in the End: on the island it landed on; over the void, adrift at y 64 - the template brings its own rock)
             fn(f'p200/{k}/seed', [f'execute if entity @s[y=-64,dy=103] positioned ~ 64 ~ run function bm:p200/{k}/place',
-                                  f'execute unless entity @s[y=-64,dy=103] run function bm:p200/{k}/place', 'kill @s'])
+                                  # (3.0h: on an island the seed is IN the end stone's top block - a jigsaw start's bottom layer is set
+                                  #  into the ground - and the template was laid for one on it: a block up, not sunk into the island)
+                                  f'execute unless entity @s[y=-64,dy=103] positioned ~ ~1 ~ run function bm:p200/{k}/place', 'kill @s'])
         nm = {'ember_outpost': "The Ember Rat's Outpost", 'colossus_forge': "The Colossus's Forge", 'void_outpost': "The Void Rat's Outpost",
               'observatory': "The Voidwalker's Observatory"}[k]
         fn(f'admin/{k}', [f'function bm:p200/{k}/place', tellraw('@s', P + [T(f'{nm} is built here.', HC if dim == 'nether' else VC)])])

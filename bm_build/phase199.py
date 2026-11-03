@@ -283,8 +283,8 @@ def generate(G):
     # (admin: a kingdom here, now - stand on the sea floor)
     fn('admin/kingdom', ['execute align xyz positioned ~0.5 ~ ~0.5 run function bm:p199/k/build_here',
                          tellraw('@s', P + [T('The Underwater Kingdom rises here (its gate faces north; the Tide Door is 34 blocks north).', KC)])])
-    fn('p199/k/build_here', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.kseed","bm.kadm"]}',
-                             'execute as @e[type=minecraft:marker,tag=bm.kadm,distance=..0.5,limit=1] at @s run function bm:p199/k/build',
+    fn('p199/k/build_here', ['summon minecraft:marker ~ ~-1 ~ {Tags:["bm.kseed","bm.kadm"]}',     # (3.0h: in the sea floor's top block, as worldgen sets a seed)
+                             'execute as @e[type=minecraft:marker,tag=bm.kadm,distance=..1.5,limit=1] at @s run function bm:p199/k/build',
                              'kill @e[type=minecraft:marker,tag=bm.kadm]'])
     G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/kingdom', 'yellow'), T('  build an Underwater Kingdom here (on the sea floor)', 'gray')]))
 

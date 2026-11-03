@@ -4,7 +4,9 @@ floating corners, no square plinths of stone under it.
   Jigsaw templates (the graveyard, the Frostbound Spire, the Hexbound Cathedral, Wilfrey's Keep, the Sunken Throne) carry a
   marker at each corner; once someone comes near, the low corner settles the footprint, whichever way the piece was turned.
   Runtime builders (sword shrines, Seawatch Forts, the Dread ruins, the Underwater Kingdom, the Nether outposts) settle as
-  they build. The Omega Palace already builds its own skirt; the crash sites are craters on purpose; the End's places float
+  they build (3.0h: and the Omega Palace, round its own skirt).
+  (3.0h) Every one of them is laid knowing a worldgen seed - a jigsaw start's bottom layer - stands IN the ground's top block.
+  The rest: the crash sites are craters on purpose; the End's places float
   on their own rock; the Frog's hut stands on stilts in the water."""
 import settle
 
@@ -25,9 +27,14 @@ def _inside_tag(G, name, Bd, floor):
     return f'#bm:settle_in_{name}'
 
 
+# (3.0h) the yard's ground (its paths and podzol, template y1) sits IN the turf's top block, as a jigsaw start's bottom layer
+# does: the first layer above the ground is y2 (settled from y1, its first ring had cut a trench round the yard)
+GY = 2
+
+
 def mark_graveyard(top):
     """(gen_tags_worldgen, as it exports the yard)"""
-    settle.mark(top, 'graveyard', 0, 0, top.size[0] - 1, top.size[2] - 1, 1)
+    settle.mark(top, 'graveyard', 0, 0, top.size[0] - 1, top.size[2] - 1, GY)
 
 
 def generate(G):
@@ -41,7 +48,10 @@ def generate(G):
     B = p2.builds()
     for d, kw in P2.items():
         Bd = B[d]
-        floor = -WORLDGEN[d][2]['absolute']
+        # (3.0h) the template's layer -start_height sits IN the ground's top block (a jigsaw start's bottom layer is set into the
+        # ground: getGroundLevelDelta 1) - its floor plate, flush with the turf - so the first layer ABOVE the ground is the next:
+        # settled from there. (At -start_height, the first ring cut the turf round it: a trench a block deep round every one)
+        floor = -WORLDGEN[d][2]['absolute'] + 1
         SX, SY, SZ = Bd.size
         if kw.get('clear') != 'water': kw = dict(kw, inside=_inside_tag(G, f'p2_{d}', Bd, floor))
         if kw.get('under'): kw = dict(kw, base=floor)
@@ -53,7 +63,7 @@ def generate(G):
     import structures as S
     sx, _, sz = S.graveyard_pieces(S.build_graveyard())[0].size
     settle.make(G, 'graveyard', sx, sz, turn=True, cut=10, fill=6)
-    settle.corners(G, None, 'graveyard', 0, 0, sx - 1, sz - 1, 1, second)
+    settle.corners(G, None, 'graveyard', 0, 0, sx - 1, sz - 1, GY, second)
 
     # ---------------------------------------------------------------- runtime builders
     # sword shrines: 7 x 7 round the seed, on the ground it found
@@ -95,6 +105,13 @@ def generate(G):
     settle.make(G, 'kingdom', K.SX, K.SZ, cut=10, fill=8, under=True, water=True, deep=12, high=KHIGH, clear='water')
     f = G.FUNCS['p199/k/build']
     f[1:1] = settle.run('kingdom', -35, 1, -35)
+
+    # (3.0h) the Omega Palace: its own skirt of stone under it, and now the land round it settled too - the dark wood's hills cut
+    # back from its walls, its trees off them, the ground banked to its edge (the floor: the seed's block + 1, where it builds)
+    import palace as PAL
+    import phase169 as P169
+    settle.make(G, 'palace', PAL.SX, PAL.SZ, cut=P169.PAL_SETTLE, fill=8, deep=12)
+    G.FUNCS['p169/pal/build'][-1:-1] = settle.run('palace', P169.OX, 0, P169.OZ)
 
     # the Nether's outposts: on the ledge the scan found (low cuts: the Nether has a ceiling, and lava behind its walls)
     import hellend as H

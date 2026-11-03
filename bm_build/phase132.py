@@ -340,7 +340,9 @@ def generate(G):
     Bs.marker(0.5, 0.0, 0.5, ['bm.tuseed'], 0)
     Bs.export(G.path('data', 'bm', 'structure', 'tul_ship_seed.nbt'))
     ship().export(G.path('data', 'bm', 'structure', 'p132_ship.nbt'))
-    second.append('execute as @e[type=minecraft:marker,tag=bm.tuseed] at @s if entity @a[distance=..112] if loaded ~-18 ~ ~-8 if loaded ~18 ~ ~8 run function bm:p132/ship/build')
+    # (3.0h: the seed is IN the sea's top water block - a jigsaw start's bottom layer is set into the surface - and the ship's
+    #  waterline row (WL) belongs on the first air over it: a block up, or it rode a block deep)
+    second.append('execute as @e[type=minecraft:marker,tag=bm.tuseed] at @s if entity @a[distance=..112] if loaded ~-18 ~ ~-8 if loaded ~18 ~ ~8 positioned ~ ~1 ~ run function bm:p132/ship/build')
     # (on the open sea only: water under the seed, or sea ice; a seed that came down on an island is dropped)
     fn('p132/ship/build', ['kill @s',
                            'execute unless block ~ ~-1 ~ minecraft:water unless block ~ ~-1 ~ #minecraft:ice run return 0',

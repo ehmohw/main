@@ -470,7 +470,8 @@ def generate(G):
     Bd = Build(1, 1, 1)
     Bd.marker(0.5, 0.0, 0.5, ['bm.lefort_seed'], 0)
     Bd.export(G.path('data', 'bm', 'structure', 'leo_fort.nbt'))
-    second.append('execute as @e[type=minecraft:marker,tag=bm.lefort_seed] at @s if entity @a[distance=..96] if loaded ~-7 ~ ~-7 if loaded ~7 ~ ~7 '
+    second.append('execute as @e[type=minecraft:marker,tag=bm.lefort_seed] at @s if entity @a[distance=..96] if loaded ~-12 ~ ~-12 if loaded ~12 ~ ~12 '
+                  'if loaded ~-12 ~ ~12 if loaded ~12 ~ ~-12 '
                   'run function bm:p96/fort/build')
     wjson('bm/tags/block/p96_fill.json', {'values': ['#minecraft:replaceable', 'minecraft:sand', 'minecraft:red_sand', 'minecraft:gravel', 'minecraft:kelp', 'minecraft:kelp_plant',
                                                      'minecraft:seagrass', 'minecraft:tall_seagrass', 'minecraft:snow_block', 'minecraft:ice', 'minecraft:sandstone', 'minecraft:clay']})
@@ -490,7 +491,9 @@ def generate(G):
     fn('p96/fort/build', ['kill @s',
                           'execute if block ~ ~-3 ~ minecraft:water if block ~ ~-1 ~ minecraft:water run return 0',                  # (out in deep water: no fort)
                           'execute if block ~ ~ ~ minecraft:water positioned ~ ~1 ~ run return run function bm:p96/fort/build2',     # (in the shallows: up on a plinth)
-                          'function bm:p96/fort/build2'])
+                          # (3.0h: on land the seed is IN the sand's top block - a jigsaw start's bottom layer is set into the
+                          #  ground - so the fort had stood a block sunk, its floor under the beach: a block up, flush)
+                          'execute positioned ~ ~1 ~ run function bm:p96/fort/build2'])
     W = lambda a, b, blk: f'fill ~{a[0]} ~{a[1]} ~{a[2]} ~{b[0]} ~{b[1]} ~{b[2]} minecraft:{blk}'
     fn('p96/fort/build2', [
         'fill ~-7 ~ ~-7 ~7 ~8 ~7 minecraft:air replace #bm:p96_clear', 'fill ~-5 ~ ~-5 ~5 ~6 ~5 minecraft:air replace minecraft:water',
