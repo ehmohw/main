@@ -253,6 +253,7 @@ def textures():
                 mod_ = importlib.import_module(mod)
                 for g, f in getattr(mod_, 'SHINY_SETS', {}).items():
                     ims.update({n: f(base[n]) for n in keys if OWN_SETS.get(n) == g})
+                ims.update({n: f(base[n]) for n, f in getattr(mod_, 'SHINY_TEX', {}).items() if n in keys})   # (3.0g: a texture drawn, not recoloured - the Gem's opal)
             for name, im in ims.items():
                 out[f'{name}_c{k}'] = im
     # (2.79a: the Golden Prince's skin - his wool, light and dark, in polished gold rather than yellow wool)

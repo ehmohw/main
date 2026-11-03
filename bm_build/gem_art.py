@@ -656,3 +656,104 @@ WING_POSE.update({f'run_{k}': (-8 + 3 * math.sin(math.pi * k / 2), 38) for k in 
 WING_POSE.update({f'swim_{k}': (6 + 6 * math.sin(2 * math.pi * k / SWIM_FRAMES), 24) for k in range(SWIM_FRAMES)})
 for _n, _p in POSES.items():
     _p.update(wingpose(*WING_POSE.get(_n, (0, 0))))
+
+
+# ==================================================================================================== (3.0g) ITS SHINY, REDONE: NEGATIVE
+# (the chosen look: NEGATIVE - its swirl's every band turned to its opposite hue, neon on a starlit night where its pale heart was;
+#  its wing shards deep gems of their opposite hues with neon edges. opal() below is kept for its Wraithfire Form's black opal.)
+# The owner: redo the Gem's shiny colours (it was 'Shiny Prismatic', a dark-violet -> magenta -> pale-gold duotone: the gem's every
+# colour lost). Now an OPAL: every colour still swirls in it, but as an opal's - a milky pearl body, the swirl's hues gone soft and
+# pastel through it, and the play of colour: thin bright flashes of each band's opposite hue sliding across it (so a red band flashes
+# green, a blue one gold). Its wing shards opal too, each its own gem's hue gone pearly with a white sheen. Its Wraithfire Form, a
+# BLACK OPAL: the smoky glass gone black, the same flashes of fire in it, vivid.
+# phase138 applies SHINY_TEX on the shiny look (each texture's painter, in place of the recolour); the Wraithfire set is SHINY_W
+# (stage 2: the Wraithfire Form taking the shiny look's '_c<k>' twins of cg_w_* - phase231 - as the Ethereal one takes looks).
+def _hls_img(im):
+    a = np.asarray(im.convert('RGBA')).astype(float) / 255
+    rgb = a[..., :3]
+    mx, mn = rgb.max(-1), rgb.min(-1)
+    L = (mx + mn) / 2
+    d = mx - mn
+    S = np.where(d < 1e-6, 0, d / np.maximum(1e-6, 1 - np.abs(2 * L - 1)))
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    h = np.where(mx == r, ((g - b) / np.maximum(d, 1e-6)) % 6, np.where(mx == g, (b - r) / np.maximum(d, 1e-6) + 2, (r - g) / np.maximum(d, 1e-6) + 4)) / 6
+    return a, h % 1.0, L, np.clip(S, 0, 1)
+
+
+def _rgb_of(h, l, s):
+    q = np.where(l < 0.5, l * (1 + s), l + s - l * s); p = 2 * l - q
+    def ch(t):
+        t = t % 1.0
+        return np.where(t < 1 / 6, p + (q - p) * 6 * t, np.where(t < 0.5, q, np.where(t < 2 / 3, p + (q - p) * (2 / 3 - t) * 6, p)))
+    return np.stack([ch(h + 1 / 3), ch(h), ch(h - 1 / 3)], -1)
+
+
+def opal(im, black=False):
+    """the swirl as an opal (black: a black opal): its hues kept, softened into a pearl (or a black) body, its bands flashing their
+    opposite colour in thin bright streaks"""
+    a, h, L, S = _hls_img(im)
+    Hh, Ww = L.shape
+    yy, xx = np.mgrid[0:Hh, 0:Ww]
+    fy = yy % Ww                                                     # (each frame of a strip on its own)
+    if black:
+        body = _rgb_of(h + 0.08 * np.sin(xx / Ww * 6.3), 0.07 + 0.12 * L, 0.6)
+    else:
+        body = _rgb_of(h, 0.88 + 0.08 * L, 0.55)
+    # the play of colour: broad patches of vivid fire drifting along the swirl's bands (the hue each patch flashes walks round the
+    # wheel across the stone, so one stone shows every colour)
+    w = np.sin((h * 5.0 + (xx * 0.8 + fy * 0.5) / Ww * 2.0) * 2 * np.pi) * 0.6 + np.sin(((xx - fy * 0.7) / Ww * 3.1 + h * 3.0) * 2 * np.pi) * 0.4
+    flash = np.clip((w - (0.15 if black else 0.3)) / 0.35, 0, 1)
+    fh = h + 0.5 + (xx + fy) / Ww * 0.35
+    fc = _rgb_of(fh, 0.55 if black else 0.6, 1.0)
+    out = body * (1 - flash[..., None] * (0.95 if black else 0.8)) + fc * flash[..., None] * (0.95 if black else 0.8)
+    if not black:
+        glint = np.clip((np.sin(((xx - fy) / Ww * 3.0 + h * 2.0) * 2 * np.pi) - 0.9) / 0.1, 0, 1)   # (pearly white lights)
+        out = out * (1 - glint[..., None] * 0.8) + glint[..., None] * 0.8
+    o = np.concatenate([np.clip(out, 0, 1), a[..., 3:]], -1)
+    return Image.fromarray((o * 255 + 0.5).astype('uint8'), 'RGBA')
+
+
+def opal_shard(im):
+    """a wing shard as an opal one: pearl white, a band of every colour sliding down it (its own gem's hue at its heart), its spine
+    white"""
+    a, h, L, S = _hls_img(im)
+    Hh, Ww = L.shape
+    yy, xx = np.mgrid[0:Hh, 0:Ww]
+    body = _rgb_of(h, 0.9, 0.5)
+    fh = h + (yy / Hh - 0.5) * 0.9
+    band = np.clip(1 - np.abs(((xx + yy * 0.5) / Ww) % 1.0 - 0.55) * 3.2, 0, 1)
+    out = body * (1 - band[..., None] * 0.85) + _rgb_of(fh, 0.58, 1.0) * band[..., None] * 0.85
+    out = np.where(((xx == 5) | (xx == 6))[..., None], 1.0, out)
+    o = np.concatenate([np.clip(out, 0, 1), a[..., 3:]], -1)
+    return Image.fromarray((o * 255 + 0.5).astype('uint8'), 'RGBA')
+
+
+def negative(im):
+    """the swirl as its own negative: every band its opposite hue, neon-bright, its pale heart gone to a deep night - starlit"""
+    a, h, L, S = _hls_img(im)
+    Hh, Ww = L.shape
+    yy, xx = np.mgrid[0:Hh, 0:Ww]
+    fy = yy % Ww
+    L2 = np.clip(0.66 - 0.56 * L, 0.06, 0.62)
+    out = _rgb_of(h + 0.5, L2, np.clip(0.35 + S, 0, 1))
+    v = ((xx * 73856093) ^ (fy * 19349663)) % 997 / 997.0
+    star = (v < 0.012) & (L > 0.55)
+    out = np.where(star[..., None], 1.0, out)
+    o = np.concatenate([np.clip(out, 0, 1), a[..., 3:]], -1)
+    return Image.fromarray((o * 255 + 0.5).astype('uint8'), 'RGBA')
+
+
+def negative_shard(im):
+    """a wing shard in negative: a deep gem of its opposite hue, its edges neon, its spine white"""
+    a, h, L, S = _hls_img(im)
+    Hh, Ww = L.shape
+    yy, xx = np.mgrid[0:Hh, 0:Ww]
+    d = np.abs(xx - (Ww - 1) / 2) / (Ww / 2)
+    out = _rgb_of(h + 0.5, 0.16 + 0.42 * d, 1.0)
+    out = np.where(((xx == 5) | (xx == 6))[..., None], _rgb_of(h + 0.5, 0.85, 1.0), out)
+    o = np.concatenate([np.clip(out, 0, 1), a[..., 3:]], -1)
+    return Image.fromarray((o * 255 + 0.5).astype('uint8'), 'RGBA')
+
+
+SHINY_TEX = {'cg_table': negative, 'cg_crown': negative, 'cg_pav': negative, **{f'cg_ew_{k}': negative_shard for k, _c in GEMS5}, 'cg_e_spike': negative}
+SHINY_W = {'cg_w_table': lambda im: opal(im, True), 'cg_w_crown': lambda im: opal(im, True), 'cg_w_pav': lambda im: opal(im, True)}

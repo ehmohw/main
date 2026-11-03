@@ -42,9 +42,9 @@ SEASON_TEX = lambda sk: dict(TEX, k=f'pm_{sk}_body', w=f'pm_{sk}_belly', b=f'pm_
 FORM_TEX = {'_e': dict(TEX, k='pmx_e_suit', w='pmx_e_opal', b='pmx_e_band', d='pmx_e_tie', g='pmx_e_gold', r='gm_eth', c='pmx_e_case',
                        H='pmx_e_hat', y='pmx_e_gold', q='pmx_e_crys', Q='gm_eth_lt', m='pmx_e_glass'),
             '_w': dict(TEX, k='pmx_w_suit', w='pmx_w_shirt', b='pmx_w_band', d='pmx_w_tie', g='pmx_w_chain', r='pmx_w_gem', c='pmx_w_case',
-                       H='pmx_w_hat', y='pmx_w_feet', e='pmx_w_eye', f='pmx_w_flame', p='pmx_w_scroll')}
+                       H='pmx_w_hat', y='pmx_w_feet', e='pmx_w_eye', f='pmx_w_flame', F='pmx_w_flame_tip', p='pmx_w_scroll', o='pmx_w_beak')}
 # (the boxes that glow: their texture keys, a light level)
-LIGHT = {'_e': {'q': 12, 'Q': 14, 'r': 13, 'd': 10}, '_w': {'f': 15, 'e': 13, 'b': 12, 'd': 11, 'r': 13}}
+LIGHT = {'_e': {'q': 12, 'Q': 14, 'r': 13, 'd': 10}, '_w': {'f': 15, 'F': 15, 'e': 13, 'b': 13, 'd': 12, 'r': 14}}
 
 
 # ---------------------------------------------------------------------------------------------------- the penguin, in parts
@@ -133,14 +133,21 @@ def _form_extras(f):
                    'arml': [_c((1.8, 6.4, 6.4), (3.0, 7.6, 8.6), 'q'),
                             _c((-3.4, 5.6, 5.6), (-2.2, 7.2, 6.8), 'Q', ('y', 45, (-2.8, 6.4, 6.2))), _c((0.0, 5.6, 8.4), (1.2, 7.0, 9.6), 'q', ('y', 45, (0.6, 6.3, 9.0))),
                             _c((-3.8, 1.6, 6.6), (-3.55, 4.4, 8.4), 'Q'), _c((1.35, 1.6, 6.6), (1.6, 4.4, 8.4), 'Q')]}
-    X = [  # the soul fire licking off his hat, three tongues of it
-        _c((6.6, 31.4, 6.6), (9.4, 34.2, 9.4), 'f', ('y', 45, (8, 32.8, 8))), _c((7.4, 34.0, 7.4), (8.6, 36.0, 8.6), 'f'),
-        _c((5.2, 31.4, 7.2), (6.6, 33.2, 8.8), 'f', ('z', 22.5, (5.9, 31.4, 8))), _c((9.4, 31.4, 7.2), (10.8, 33.2, 8.8), 'f', ('z', -22.5, (10.1, 31.4, 8))),
-        # a pocket square of soul fire, a watch chain of pale silver
-        _c((10.0, 11.6, 3.2), (11.6, 13.0, 3.45), 'f'), _c((4.6, 9.6, 3.35), (10.2, 9.9, 3.5), 'g', ('z', -12, (7.4, 9.75, 3.4))),
+    # (3.0g redo - the owner: "looked messy". A few bold shapes in black, white and one cyan: a matte black suit and tall hat,
+    # a crisp white front, ONE long soul-fire necktie pinned with his soul gem, ONE tall flame rising off the hat over a lit band,
+    # a sealed contract in one flipper and a plain black case with a lit clasp in the other.)
+    X = [  # the flame on his hat: one tall tongue over two short licks leaning out - wide at the crown, drawn to a point
+        _c((5.9, 31.4, 5.9), (10.1, 33.8, 10.1), 'f', ('y', 45, (8, 32.6, 8))), _c((6.5, 33.6, 6.5), (9.5, 36.2, 9.5), 'f', ('y', 45, (8, 34.9, 8))),
+        _c((7.1, 36.0, 7.1), (8.9, 38.6, 8.9), 'F', ('y', 45, (8, 37.3, 8))), _c((7.6, 38.4, 7.6), (8.4, 40.2, 8.4), 'F', ('y', 45, (8, 39.3, 8))),
+        _c((4.4, 31.2, 7.0), (6.4, 35.0, 9.0), 'f', ('z', 22.5, (5.4, 31.4, 8))), _c((9.6, 31.2, 7.0), (11.6, 35.0, 9.0), 'f', ('z', -22.5, (10.6, 31.4, 8))),
+        # the necktie: a knot under his chin and a long blade down his front to the soul gem, which pins it
+        _c((7.1, 14.5, 3.5), (8.9, 16.2, 4.3), 'd'), _c((7.3, 9.4, 2.75), (8.7, 14.8, 3.15), 'd'),
+        _c((7.2, 8.7, 2.75), (8.8, 10.3, 3.15), 'd', ('z', 45, (8, 9.5, 2.95))),
+        # a white collar's two points either side of the knot
+        _c((5.6, 15.0, 3.7), (7.1, 16.4, 4.4), 'w', ('z', -30, (7.1, 16.4, 4))), _c((8.9, 15.0, 3.7), (10.4, 16.4, 4.4), 'w', ('z', 30, (8.9, 16.4, 4))),
     ]
-    return X, {'armr': [_c((12.6, 4.6, 5.8), (14.6, 6.4, 10.4), 'p'), _c((12.4, 4.4, 9.8), (14.8, 6.6, 10.6), 'p')],     # (the contract, rolled)
-               'arml': [_c((-3.8, 3.2, 5.1), (1.6, 3.6, 9.9), 'f')]}                                                     # (a seam of soul fire round the case)
+    return X, {'armr': [_c((12.7, 4.4, 5.9), (14.5, 6.2, 10.3), 'p'), _c((13.1, 4.0, 7.6), (14.1, 6.6, 8.6), 'b')],      # (the contract, its seal)
+               'arml': [_c((-0.4, 2.2, 5.0), (0.9, 3.8, 5.25), 'b')]}                                                   # (the case's clasp, lit)
 
 
 def _part_els(p, boxes, tex_keys, light):
@@ -185,7 +192,7 @@ def models():
         for p in PARTS:
             put(f'{PREFIX}{p}_{sk}', p, P[p], SEASON_TEX(sk))
     for f in FORMS:
-        P = penguin(tie=True)
+        P = penguin(tie=f != '_w')
         X, per = _form_extras(f)
         for b in X:
             P[_where(b[0], b[1])].append(b)
@@ -233,19 +240,21 @@ def textures():
     T['pmx_e_case'] = _px(None, 4, 307, lambda x, y: (230, 200, 90) if x in (0, 15) or y in (0, 15) else _lerp((40, 16, 70), (90, 40, 140), y / 15))
     T['pmx_e_crys'] = _px(None, 3, 308, lambda x, y: (255, 255, 255) if (x, y) in ((3, 3), (4, 3), (11, 9)) else _lerp((150, 90, 255), (220, 200, 255), ((x + y) % 8) / 8))
     T['pmx_e_glass'] = _px((200, 240, 255), 3, 309)
-    # WRAITHFIRE: charcoal pinstripe, a ghost-pale front, soul fire
-    T['pmx_w_suit'] = _px(None, 3, 311, lambda x, y: (70, 200, 220) if x % 4 == 1 else (26, 28, 36))
-    T['pmx_w_shirt'] = _px((206, 232, 238), 4, 312)
-    T['pmx_w_band'] = _px(None, 6, 313, lambda x, y: _lerp((40, 190, 230), (200, 255, 255), (math.sin(x * 0.8) + 1) / 2))
-    T['pmx_w_tie'] = _px(None, 5, 314, lambda x, y: _lerp((20, 120, 160), (110, 240, 255), y / 15))
-    T['pmx_w_chain'] = _px((190, 210, 220), 8, 315)
-    T['pmx_w_gem'] = _px(None, 4, 316, lambda x, y: (232, 255, 255) if (x - y) % 6 == 0 else _lerp((14, 70, 110), (90, 230, 255), ((x + y) % 10) / 10))
-    T['pmx_w_case'] = _px(None, 3, 317, lambda x, y: (110, 240, 255) if (y == 7 or y == 8) and 6 <= x <= 9 else (18, 18, 24))
-    T['pmx_w_hat'] = _px((16, 18, 24), 3, 318)
-    T['pmx_w_feet'] = _px((60, 66, 80), 5, 319)
-    T['pmx_w_eye'] = _px(None, 4, 320, lambda x, y: (230, 255, 255) if 4 <= x <= 11 and 4 <= y <= 11 else (60, 220, 255))
-    T['pmx_w_flame'] = _px(None, 6, 321, lambda x, y: [(236, 255, 255), (140, 246, 255), (46, 196, 232), (18, 104, 140)][min(3, (15 - y) // 4)])
-    T['pmx_w_scroll'] = _px(None, 4, 322, lambda x, y: (110, 240, 255) if y % 5 == 2 and 3 <= x <= 12 else (226, 214, 180))
+    # WRAITHFIRE (3.0g redo): matte black, crisp white, one cyan - no pinstripes, no busy speckle
+    T['pmx_w_suit'] = _px(None, 2, 311, lambda x, y: _lerp((30, 32, 40), (18, 19, 25), y / 15))
+    T['pmx_w_shirt'] = _px(None, 2, 312, lambda x, y: _lerp((246, 250, 252), (212, 226, 234), y / 15))
+    T['pmx_w_band'] = _px(None, 2, 313, lambda x, y: (190, 252, 255) if y in (7, 8) else (60, 214, 240))
+    T['pmx_w_tie'] = _px(None, 2, 314, lambda x, y: (150, 246, 255) if x in (7, 8) else _lerp((40, 190, 228), (24, 130, 176), y / 15))
+    T['pmx_w_chain'] = _px((44, 48, 58), 2, 315)
+    T['pmx_w_gem'] = _px(None, 2, 316, lambda x, y: (230, 255, 255) if abs(x - 7.5) + abs(y - 7.5) < 3 else (30, 200, 240))
+    T['pmx_w_case'] = _px(None, 2, 317, lambda x, y: (40, 42, 52) if x in (0, 15) or y in (0, 15) else (20, 21, 27))
+    T['pmx_w_hat'] = _px(None, 2, 318, lambda x, y: _lerp((28, 30, 38), (14, 15, 20), y / 15))
+    T['pmx_w_feet'] = _px((52, 56, 66), 2, 319)
+    T['pmx_w_beak'] = _px((122, 128, 140), 3, 323)
+    T['pmx_w_eye'] = _px(None, 2, 320, lambda x, y: (236, 255, 255) if 5 <= x <= 10 and 5 <= y <= 10 else (70, 226, 255))
+    T['pmx_w_flame'] = _px(None, 3, 321, lambda x, y: _lerp((16, 140, 204), (110, 236, 255), (15 - y) / 15))
+    T['pmx_w_flame_tip'] = _px(None, 2, 324, lambda x, y: _lerp((120, 240, 255), (235, 255, 255), (15 - y) / 15))
+    T['pmx_w_scroll'] = _px(None, 2, 322, lambda x, y: (200, 190, 160) if x in (0, 15) else (236, 228, 204))
     return T
 
 

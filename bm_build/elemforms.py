@@ -39,6 +39,8 @@ import os
 import re
 import colorsys
 
+import rigkit as _RK
+
 from items import T, ITEMS
 
 ETH, WR = 'e', 'w'
@@ -255,9 +257,23 @@ LIGHT = {ETH: {'base': 9, 'accent': 13, 'glow': 15}, WR: {'base': 4, 'accent': 1
 
 
 def tex_twin(k, im, tex, el):
-    kind, face = kind_of(k, tex)
-    seed = sum(map(ord, tex.split('/')[-1])) % 97
-    return ethereal(im, kind, seed, holes=face == 'holes') if el == ETH else wraith(im, kind, seed, bool(face))
+    """(3.0g redo) one of a follower's own textures in a form: its design's painter, or a clean recolour to its design's palette
+    (elemforms_art / elemforms_designs). The first pass's procedural lattice (ethereal / wraith above) is no longer used."""
+    import elemforms_art as EA
+    kind, _face = kind_of(k, tex)
+    P = EA.palette(k, el, tex.split('/')[-1], kind)
+    if callable(P): return P(im)
+    P = {a: b for a, b in P.items() if a != 'L'}
+    return EA.recolour(im, **P)
+
+
+def light_twin(k, tex, el):
+    """the light an element takes from one of its textures in a form"""
+    import elemforms_art as EA
+    kind, _face = kind_of(k, tex)
+    P = EA.palette(k, el, tex.split('/')[-1], kind)
+    if isinstance(P, dict) and 'L' in P: return P['L']
+    return EA.light_of(k, el, kind)
 
 
 # ---------------------------------------------------------------------------------------------------- the twins (rp)
@@ -312,6 +328,18 @@ def spikes(els, n, el, tex):
     return out
 
 
+def room(els):
+    """how much smaller a twin must be built to keep every element inside the model box (-16..32 about its middle, 8)"""
+    import elemforms_art as EA
+    k = 1.0
+    for e in els:
+        for p in EA._corners(e):
+            for v in p:
+                if v > 32: k = max(k, (v - 8) / 23.9)
+                if v < -16: k = max(k, (8 - v) / 23.9)
+    return math.ceil(k * 8) / 8 if k > 1 else 1.0
+
+
 class Twins:
     """makes the twins of one follower's models in a pack: src (read) and dst (write) roots - the same in the build, a scratch pack
     for a preview"""
@@ -343,6 +371,14 @@ class Twins:
                 f = self._wpng(f'block/{SUB}/accent_{el}', flame_strip())
                 json.dump({'animation': {'frametime': 2}}, open(f + '.mcmeta', 'w'))
             self.tdone[tid] = tid
+        return tid
+
+    def own_tex(self, k, el, name, painter):
+        """a texture the design paints for its new parts (shared ones once: x_*; a design's own per follower)"""
+        rel = f'block/{SUB}/{name}' if name.startswith('x_') else f'block/{SUB}/{k}_{name}_{el}'
+        tid = 'bm:' + rel
+        if tid not in self.tdone:
+            self._wpng(rel, painter()); self.tdone[tid] = tid
         return tid
 
     def tex(self, k, tid, el):
@@ -390,18 +426,25 @@ class Twins:
         out = dict(mm); out['textures'] = tex
         els = mm.get('elements')
         if els is not None:
-            kinds = {a: kind_of(k, v)[0] for a, v in mm.get('textures', {}).items() if not v.startswith('#')}
+            import elemforms_art as EA
+            src_tex = {a: v for a, v in mm.get('textures', {}).items() if not v.startswith('#')}
             new = []
             for e in els:
                 e2 = dict(e)
-                ks = [kinds.get(f.get('texture', '#')[1:], 'base') for f in e.get('faces', {}).values()]
-                lv = max([LIGHT[el][x] for x in ks] or [LIGHT[el]['base']])
-                e2['light_emission'] = max(e.get('light_emission', 0), lv)
+                ls = [light_twin(k, src_tex.get(f.get('texture', '#')[1:], ''), el) for f in e.get('faces', {}).values()]
+                e2['light_emission'] = max([e.get('light_emission', 0)] + ls)
                 new.append(e2)
-            names, n = FOL[k]['spikes']
-            if n and any(m == p or m.startswith(p + '_') for p in names):
-                new += spikes(els, n, el, tex)
-                tex['elf_x'] = self.accent_tex(el)
+            new, used = EA.build(k, el, m, new, src_tex)          # (the design's: its own pieces dropped, its new parts built on)
+            own = EA.own_tex(k, el)
+            for u in used:
+                tex[u] = self.own_tex(k, el, u, own[u])
+            if not new:                                            # (a bone the design leaves bare: one speck, out of sight)
+                new = [{'from': [8, 8, 8], 'to': [8.01, 8.01, 8.01], 'faces': {'north': {'uv': [0, 0, 1, 1], 'texture': '#' + next(iter(tex))}}}]
+            k_ = room(new)
+            if k_ > 1:                                             # (the new parts reach out of the model box: the whole twin built smaller
+                new = _RK.shrink(new, k_)                          #  and shown bigger - a display scales about the model's middle)
+                d0 = (out.get('display') or {}).get('fixed') or {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1, 1, 1]}
+                out['display'] = dict(out.get('display') or {}, fixed=dict(d0, scale=[round(v * k_, 4) for v in d0.get('scale', [1, 1, 1])]))
             out['elements'] = new
         rel = f'{SUB}/{m}_{el}'
         f = os.path.join(self.dst, 'assets', 'bm', 'models', 'item', rel + '.json')
