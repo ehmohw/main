@@ -614,8 +614,8 @@ def _er_w_body(B):
 
 
 def _er_w_leg(B):
-    c = ((B.lo[0] + B.hi[0]) / 2, B.hi[1] - 0.2, (B.lo[2] + B.hi[2]) / 2)
-    return tongue(c, 4.0, 2.6, (0.0, 0.0, 0.35), tex='x_soul', tip='x_flame_hot', down=True)
+    f = B.lowest()                                                  # (soul fire trailing off its heels)
+    return flick((f[0], f[1] + 0.5, B.hi[2] - 0.2), (0.0, 0.25, 1.0), 3.0, 1.5, curl=(0.0, 0.5, 0.0))
 
 
 ERASER = dict(pre='er_', **{
@@ -624,12 +624,9 @@ ERASER = dict(pre='er_', **{
                  'er_face': dict(ramp=['#d87aa8', '#f4b8d4', '#ffe8f4', '#ffffff'], ink='#3a1040', sheen=0.3)},
             paint={'e_crumb': lambda: crystal_t('#fff4c8', '#f08ab8'), 'e_pinkf': lambda: crystal_t('#fff0f8', '#f090c0')},
             parts={'body': _er_e_body}),
-    W: dict(tex={'er_face': ghost(keep_dark=True), 'er_sleeve_front': ghost(keep_light=True), 'er_sleeve': ghost(),
-                 'er_slab': ghost(), 'er_rub': ghost(), 'er_back': ghost(), 'er_under': ghost(), 'er_worn': ghost(), 'er_limb': ghost(),
-                 'er_sole': ghost(), 'er_crumb': dict(ramp=['#3ad0ea', '#ffffff'], L=15)},
-            light=dict(base=12),
-            parts={'body': _er_w_body, 'legl': _er_w_leg, 'legr': _er_w_leg},
-            keep_only={'legl': 1, 'legr': 1}),
+    W: dict(tex={'er_sleeve_front': dict(ramp=['#05090d', '#0e1c26', '#3ad0ea', '#c8fcff'], L=13), 'er_sleeve': dict(ramp=['#05090d', '#0e1c26', '#1e6e88'], L=6),
+                 'er_crumb': dict(ramp=['#3ad0ea', '#ffffff'], L=15)},
+            parts={'body': _er_w_body, 'legl': _er_w_leg, 'legr': _er_w_leg}),
 })
 
 
@@ -689,6 +686,49 @@ DONADO = dict(pre='dnr_', **{
                  'don_muzzle': dict(ramp=['#3a362e', '#6a6050']), 'don_patch': dict(ramp=['#1a1812', '#2a2620'])},
             parts={'head': _don_w_head, 'torso': _don_w_torso, 'tail': _don_w_tail, 'legl': _don_w_leg, 'legr': _don_w_leg}),
 })
+
+
+# ---------------------------------------------------------------------------------------------------- (3.0g) what changes: the owner's rule
+# Only the OUTFIT (clothes, armour, weapon, accessories) takes the form's colours; the EYES glow (Ethereal violet, as Emma's;
+# Wraithfire cyan); skin, fur, hair, face and the rest of their natural colours stay exactly as they are. The new parts come on top.
+def _collar(gold):
+    def f(B):
+        x0, x1, y0, y1 = B.lo[0] - 0.35, B.hi[0] + 0.35, B.hi[1] - 3.4, B.hi[1] + 0.35
+        out = [box((x0, y0, -0.6), (x1, y1, 1.6), 'x_gold' if gold else 'x_iron', 12 if gold else 10)]
+        if gold:
+            out += crystal((8.0, y0 + 0.2, -0.9), (8.0, y0 - 2.6, -0.9), 1.6, 'x_clilac', 13, 15)              # (a crystal tag)
+        else:
+            for x in (x0 + 0.8, 8.0, x1 - 0.8):                                                                    # (spikes, lit)
+                out += crystal((x, y1 - 1.0, -0.6), (x, y1 - 1.0, -2.8), 0.9, 'x_scrys', 13, 15)
+            for y in (y1 + 0.1,):
+                out += crystal((x0, y - 1.4, 0.4), (x0 - 2.0, y - 1.0, 0.4), 0.9, 'x_scrys', 13, 15) + crystal((x1, y - 1.4, 0.4), (x1 + 2.0, y - 1.0, 0.4), 0.9, 'x_scrys', 13, 15)
+        return out
+    return f
+
+
+def _plus(fn, extra):
+    return lambda B: fn(B) + extra(B)
+
+
+for _f, _g in ((E, True), (W, False)):
+    BENDER[_f]['parts']['body'] = _plus(BENDER[_f]['parts']['body'], _collar(_g))
+    BENDER[_f].update(outfit=(), eyes={'bd_face': dict(sel='dark', thr=0.28, box=(0.0, 0.0, 0.5, 0.45))})
+    CAPSHUN[_f].update(outfit=('mz_t_', 'mz_sk_'), eyes={'mz_face': dict(sel='fill', fill=((0.37, 0.36), (0.63, 0.36)))})
+    SOVEREIGN[_f].update(outfit=('ds_plate', 'ds_edge', 'ds_dark', 'ds_iron', 'ds_chain', 'ds_red', 'ds_horn', 'ds_glass', 'ds_grip', 'ds_heart', 'ds_visor')
+                         if _g else ('ds_red', 'ds_chain', 'ds_glass', 'ds_heart'),
+                         eyes={'ds_eye': dict(sel='hue', hue=(0.92, 0.08), L=14), 'ds_beye': dict(sel='hue', hue=(0.92, 0.12), L=14)})
+    KEEPER[_f].update(outfit=('kb_robe', 'kb_hood', 'kb_lining', 'kb_brd', 'kb_gold', 'kb_rim', 'kb_tier', 'kb_wing', 'kb_bonds', 'kb_inner', 'kb_light', 'kb_ray'),
+                      eyes={'kb_eyes': dict(sel='hue', hue=(0.15, 0.6), L=12)})
+    LANTERN[_f].update(outfit=('ln_flame',), eyes={'ln_face': dict(sel='hue', hue=(0.9, 0.04), L=0)})
+    LEO[_f].update(outfit=('le_steel', 'le_mail', 'le_tunic', 'le_cape', 'le_rim', 'le_belt', 'le_skirt', 'le_emblem', 'le_hose', 'le_gold', 'le_gem', 'le_tri', 'le_grip'),
+                   eyes={'le_face': dict(sel='hue', hue=(0.2, 0.45))})
+    CELI[_f].update(outfit=('ce_tunic', 'ce_skirt', 'ce_fur', 'ce_stripe', 'ce_belt', 'ce_moon', 'ce_star', 'ce_band', 'ce_mitt', 'ce_boot', 'ce_shoe', 'ce_shorts', 'ce_steel', 'ce_ice'),
+                    eyes={'ce_face': dict(sel='hue', hue=(0.08, 0.2))})
+    DEMO[_f].update(outfit=('dm_hood', 'dm_cape', 'dm_plate', 'dm_rim', 'dm_shirt', 'dm_glove', 'dm_belt', 'dm_buckle', 'dm_gold', 'dm_gem', 'dm_chest',
+                            'dm_pants', 'dm_boot', 'dm_cuff', 'dm_shaft', 'dm_crystal', 'dm_blade', 'dm_emblem'),
+                    eyes={'dm_face': dict(sel='hue', hue=(0.68, 0.85), box=(0.0, 0.1, 1.0, 0.45)), 'dm_glow': dict(sel='all', L=13)})
+    ERASER[_f].update(outfit=('er_sleeve', 'er_crumb'), eyes={'er_face': dict(sel='dark', thr=0.3)})
+    DONADO[_f].update(outfit=('don_shirt',), eyes={'don_dark': dict(sel='all', L=12)})
 
 
 DESIGNS = {'bender': BENDER, 'capshun': CAPSHUN, 'sovereign': SOVEREIGN, 'keeper': KEEPER, 'lantern': LANTERN, 'leo': LEO, 'celi': CELI,

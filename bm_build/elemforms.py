@@ -262,6 +262,7 @@ def tex_twin(k, im, tex, el):
     import elemforms_art as EA
     kind, _face = kind_of(k, tex)
     P = EA.palette(k, el, tex.split('/')[-1], kind)
+    if P is None: return None                                   # (not its outfit, nor its eyes: kept exactly as it is)
     if callable(P): return P(im)
     P = {a: b for a, b in P.items() if a != 'L'}
     return EA.recolour(im, **P)
@@ -272,7 +273,11 @@ def light_twin(k, tex, el):
     import elemforms_art as EA
     kind, _face = kind_of(k, tex)
     P = EA.palette(k, el, tex.split('/')[-1], kind)
+    if P is None: return 0
     if isinstance(P, dict) and 'L' in P: return P['L']
+    if callable(P):
+        n = tex.split('/')[-1]
+        return next((sp.get('L', 0) for st, sp in EA.DESIGNS[k][el].get('eyes', {}).items() if n.startswith(st)), 0)
     return EA.light_of(k, el, kind)
 
 
@@ -392,6 +397,8 @@ class Twins:
         flat = (path.split('/', 1)[1] if path.startswith('block/') and ns == 'bm' else f'{ns}_{path.replace("/", "_")}')
         im = Image.open(p)
         out = tex_twin(k, im, tid, el)
+        if out is None:
+            self.tdone[key] = tid; return tid
         f = self._wpng(f'block/{SUB}/{flat}_{el}', out)
         if os.path.exists(p + '.mcmeta'):
             meta = json.load(open(p + '.mcmeta'))

@@ -41,8 +41,9 @@ SEASON_TEX = lambda sk: dict(TEX, k=f'pm_{sk}_body', w=f'pm_{sk}_belly', b=f'pm_
                              v=f'pm_{sk}_tie', q=f'pm_{sk}_trim', l=f'pm_{sk}_leaf')
 FORM_TEX = {'_e': dict(TEX, k='pmx_e_suit', w='pmx_e_opal', b='pmx_e_band', d='pmx_e_tie', g='pmx_e_gold', r='gm_eth', c='pmx_e_case',
                        H='pmx_e_hat', y='pmx_e_gold', q='pmx_e_crys', Q='gm_eth_lt', m='pmx_e_glass'),
-            '_w': dict(TEX, k='pmx_w_suit', w='pmx_w_shirt', b='pmx_w_band', d='pmx_w_tie', g='pmx_w_chain', r='pmx_w_gem', c='pmx_w_case',
-                       H='pmx_w_hat', y='pmx_w_feet', e='pmx_w_eye', f='pmx_w_flame', F='pmx_w_flame_tip', p='pmx_w_scroll', o='pmx_w_beak')}
+            '_w': dict(TEX, b='pmx_w_band', d='pmx_w_tie', g='pmx_w_chain', r='pmx_w_gem', c='pmx_w_case',
+                       H='pmx_w_hat', e='pmx_w_eye', f='pmx_w_flame', F='pmx_w_flame_tip', p='pmx_w_scroll', W='pmx_w_shirt')}
+# (3.0g, the owner's rule: his own feathers, belly, beak and feet stay his - only his hat, tie, collar, case and contract change, and his eyes)
 # (the boxes that glow: their texture keys, a light level)
 LIGHT = {'_e': {'q': 12, 'Q': 14, 'r': 13, 'd': 10}, '_w': {'f': 15, 'F': 15, 'e': 13, 'b': 13, 'd': 12, 'r': 14}}
 
@@ -144,7 +145,7 @@ def _form_extras(f):
         _c((7.1, 14.5, 3.5), (8.9, 16.2, 4.3), 'd'), _c((7.3, 9.4, 2.75), (8.7, 14.8, 3.15), 'd'),
         _c((7.2, 8.7, 2.75), (8.8, 10.3, 3.15), 'd', ('z', 45, (8, 9.5, 2.95))),
         # a white collar's two points either side of the knot
-        _c((5.6, 15.0, 3.7), (7.1, 16.4, 4.4), 'w', ('z', -30, (7.1, 16.4, 4))), _c((8.9, 15.0, 3.7), (10.4, 16.4, 4.4), 'w', ('z', 30, (8.9, 16.4, 4))),
+        _c((5.6, 15.0, 3.7), (7.1, 16.4, 4.4), 'W', ('z', -30, (7.1, 16.4, 4))), _c((8.9, 15.0, 3.7), (10.4, 16.4, 4.4), 'W', ('z', 30, (8.9, 16.4, 4))),
     ]
     return X, {'armr': [_c((12.7, 4.4, 5.9), (14.5, 6.2, 10.3), 'p'), _c((13.1, 4.0, 7.6), (14.1, 6.6, 8.6), 'b')],      # (the contract, its seal)
                'arml': [_c((-0.4, 2.2, 5.0), (0.9, 3.8, 5.25), 'b')]}                                                   # (the case's clasp, lit)

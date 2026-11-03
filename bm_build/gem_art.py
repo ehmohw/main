@@ -757,3 +757,50 @@ def negative_shard(im):
 
 SHINY_TEX = {'cg_table': negative, 'cg_crown': negative, 'cg_pav': negative, **{f'cg_ew_{k}': negative_shard for k, _c in GEMS5}, 'cg_e_spike': negative}
 SHINY_W = {'cg_w_table': lambda im: opal(im, True), 'cg_w_crown': lambda im: opal(im, True), 'cg_w_pav': lambda im: opal(im, True)}
+
+
+# ---------------------------------------------------------------------------------------------------- (3.0g, take 2) NO RAINBOW AT ALL
+# The owner: the negative rainbow "is way too similar" - it still reads as the rainbow gem. So the shiny drops the rainbow: one
+# precious scheme, the swirl's light and shade kept (so it still turns, its doodles still drift) but in a single material. Three
+# options for the owner to pick (SHINY_PICK): GILDED (polished gold, white-diamond shards), PEARL (pearl white, pale gold), OBSIDIAN
+# (black glass, silver and starlight). Each has its Wraithfire set too (SHINY_W: the smoky glass in that material's dark).
+def mono(im, ramp, glint='#ffffff', stars=0.0):
+    a = np.asarray(im.convert('RGBA')).astype(float) / 255
+    L = 0.299 * a[..., 0] + 0.587 * a[..., 1] + 0.114 * a[..., 2]
+    vis = a[..., 3] > 0
+    lo, hi = (np.percentile(L[vis], 2), np.percentile(L[vis], 98)) if vis.any() else (0, 1)
+    t = np.clip((L - lo) / max(0.05, hi - lo), 0, 1)
+    S = np.array([[int(c[i:i + 2], 16) / 255 for i in (1, 3, 5)] for c in ramp])
+    x = t * (len(S) - 1); i = np.minimum(x.astype(int), len(S) - 2); f = (x - i)[..., None]
+    out = S[i] * (1 - f) + S[i + 1] * f
+    Hh, Ww = L.shape
+    yy, xx = np.mgrid[0:Hh, 0:Ww]
+    fy = yy % Ww
+    g = np.array([int(glint[i:i + 2], 16) / 255 for i in (1, 3, 5)])
+    band = np.clip(1 - np.abs(((xx + fy) / Ww) % 1.0 - 0.3) * 9, 0, 1) * 0.55             # (a facet's flash of light)
+    out = out * (1 - band[..., None]) + g * band[..., None]
+    if stars:
+        v = ((xx * 73856093) ^ (fy * 19349663)) % 997 / 997.0
+        out = np.where((v < stars)[..., None], g, out)
+    o = np.concatenate([np.clip(out, 0, 1), a[..., 3:]], -1)
+    return Image.fromarray((o * 255 + 0.5).astype('uint8'), 'RGBA')
+
+
+def _opt(body, shard, spike, wr, glint='#ffffff', stars=0.0, wglint='#ffffff'):
+    t = {n: (lambda im, b=body: mono(im, b, glint, stars)) for n in ('cg_table', 'cg_crown', 'cg_pav')}
+    t.update({f'cg_ew_{k}': (lambda im, s=shard: mono(im, s, glint)) for k, _c in GEMS5})
+    t['cg_e_spike'] = lambda im: mono(im, spike, glint)
+    w = {n: (lambda im: mono(im, wr, wglint, stars * 0.5)) for n in ('cg_w_table', 'cg_w_crown', 'cg_w_pav')}
+    return t, w
+
+
+SHINY_OPTIONS = {
+    'gilded': ('Shiny Gilded', _opt(['#5a3a08', '#b07a1a', '#e8b840', '#fff0a8'], ['#a8b8d0', '#e4ecf8', '#ffffff'], ['#c89a30', '#fff0b0', '#ffffff'],
+                                    ['#140c02', '#3a2808', '#8a6418', '#e8b840'], glint='#fffbe8', wglint='#ffe080')),
+    'pearl': ('Shiny Pearl', _opt(['#a898b0', '#e4dce8', '#fbf6f8', '#ffffff'], ['#c8a050', '#f0d890', '#fff8e0'], ['#e8d8e8', '#ffffff'],
+                                  ['#1c1a22', '#4a4652', '#a8a0b0', '#f0ecf4'], glint='#fff4d0', wglint='#f8f4ff')),
+    'obsidian': ('Shiny Obsidian', _opt(['#05050a', '#16161e', '#3a3a48', '#8a8aa0'], ['#5a6070', '#c8d0dc', '#ffffff'], ['#8a90a0', '#e8ecf4', '#ffffff'],
+                                        ['#020204', '#0a0a10', '#26263a', '#7a7aa0'], glint='#e8eeff', stars=0.012, wglint='#c8d0ff')),
+}
+SHINY_PICK = 'gilded'                     # (the owner picks; shiny.LOOKS['gem'] takes its name)
+SHINY_TEX, SHINY_W = SHINY_OPTIONS[SHINY_PICK][1]

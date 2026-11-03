@@ -469,8 +469,16 @@ def bone_of(k, model):
 
 
 def palette(k, el, tex_name, kind):
-    """the recolour settings for one of a follower's own textures in a form"""
+    """the recolour settings for one of a follower's own textures in a form - or None: it stays exactly as it is.
+    (3.0g, the owner's rule - as Emma's Ethereal Form: her outfit changes, her eyes go violet, she gets wings, her skin doesn't.)
+    Only a form's OUTFIT (its stems: clothes, armour, weapon, accessories) is recoloured; its EYES are painted (eye_paint); skin,
+    fur, hair, face and every other natural colour is kept."""
     D = DESIGNS[k][el]
+    for stem, spec in D.get('eyes', {}).items():
+        if tex_name.startswith(stem):
+            return lambda im, spec=spec: eye_paint(im, el, **spec)
+    if not any(tex_name.startswith(s) for s in D.get('outfit', ())):
+        return None
     base = dict(PAL[el][kind])
     base.update(D.get('pal', {}).get(kind, {}))
     for stem, over in D.get('tex', {}).items():
@@ -478,6 +486,51 @@ def palette(k, el, tex_name, kind):
             if callable(over): return over
             b = dict(base); b.update(over); return b
     return base
+
+
+EYE = {ETH: ['#3a0e7a', '#8a3ef0', '#d8b0ff', '#fbf2ff'], WR: ['#063a52', '#16a8d0', '#8af4ff', '#f0ffff']}
+
+
+def eye_paint(im, el, sel='dark', thr=0.3, hue=None, box=None, fill=None, L=0):
+    """a face with its eyes alone changed: Ethereal glowing violet (Emma's), Wraithfire glowing cyan - every other texel as it was.
+    sel: 'dark' (texels darker than thr of the texture's range: pupils), 'hue' ((h0, h1) - an iris's colour), 'all' (an eyes-only
+    texture), 'fill' (flood-filled from points (u, v) - a drawn eye's white); box: (u0, v0, u1, v1), only inside it"""
+    a = np.asarray(im.convert('RGBA')).astype(float) / 255
+    rgb, al = a[..., :3], a[..., 3]
+    Lm = _lum(rgb)
+    H, W = Lm.shape
+    vis = al > 0
+    if sel == 'fill':
+        from PIL import ImageDraw
+        tmp = im.convert('RGB').copy()
+        for (u, v) in fill:
+            ImageDraw.floodfill(tmp, (int(u * W), int(v * H)), (255, 0, 255), thresh=60)
+        t2 = np.asarray(tmp).astype(int)
+        m = (t2[..., 0] == 255) & (t2[..., 1] == 0) & (t2[..., 2] == 255)
+    elif sel == 'all':
+        m = vis.copy()
+    elif sel == 'hue':
+        mx, mn = rgb.max(-1), rgb.min(-1)
+        d = mx - mn
+        r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+        h = np.where(mx == r, ((g - b) / np.maximum(d, 1e-6)) % 6, np.where(mx == g, (b - r) / np.maximum(d, 1e-6) + 2, (r - g) / np.maximum(d, 1e-6) + 4)) / 6
+        h0, h1 = hue
+        inh = ((h >= h0) & (h <= h1)) if h0 <= h1 else ((h >= h0) | (h <= h1))
+        m = vis & inh & (d > 0.08)
+    else:
+        lo, hi = (np.percentile(Lm[vis], 2), np.percentile(Lm[vis], 98)) if vis.any() else (0, 1)
+        m = vis & (Lm < lo + thr * (hi - lo))
+    if box:
+        yy, xx = np.mgrid[0:H, 0:W]
+        u0, v0, u1, v1 = box
+        m &= (xx >= u0 * W) & (xx < u1 * W) & (yy >= v0 * H) & (yy < v1 * H)
+    if m.any():
+        lo_, hi_ = Lm[m].min(), Lm[m].max()
+        t = (Lm - lo_) / max(0.05, hi_ - lo_)
+        t = 0.25 + 0.75 * t if sel != 'fill' else np.full(Lm.shape, 0.72)
+        rgb = np.where(m[..., None], _ramp(EYE[el], t), rgb)
+    o = np.concatenate([np.clip(rgb, 0, 1), al[..., None]], -1)
+    return Image.fromarray((o * 255 + 0.5).astype('uint8'), 'RGBA')
 
 
 def light_of(k, el, kind):
