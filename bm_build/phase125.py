@@ -385,7 +385,8 @@ def generate(G):
                           'scoreboard players set @s bm.sals -1', body_model('sal_body')])
     # (while it sleeps: no bar, no burning aura; it leaves at dawn - or once nobody's come within 96 blocks for two minutes)
     G.FUNCS['p82/sec'].insert(0, 'execute if entity @s[tag=bm.saldorm] run return run function bm:p125/sal/dorm_sec')
-    fn('p125/sal/dorm_sec', ['execute if entity @a[distance=..96] run scoreboard players set @s bm.sallone 0', 'scoreboard players add @s bm.sallone 1',
+    fn('p125/sal/dorm_sec', ['execute if entity @a[distance=..96] run scoreboard players set @s bm.sallone 0',
+                             'execute if entity @s[tag=bm.called] run scoreboard players add @s bm.sallone 1',      # (3.0g: a natural one waits out its Blood Moon)
                              'execute if score @s bm.sallone matches 120.. run function bm:p82/leave'])
     # every step it takes shakes the ground
     mv = G.FUNCS['p82/move']

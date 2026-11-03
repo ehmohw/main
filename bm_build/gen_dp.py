@@ -221,6 +221,8 @@ import phase256 as R256      # 3.0b: the Pixel Creeper - a little 8-bit creeper 
 import phase255 as R255      # 3.0a: [no-spawn hook] nothing spawns in the Undercrown or the Armada but their own foes (and the Undercrown's Mires)
 import phase253 as R253      # 3.0: the Loom Sanctuary - the Compass of Bonds (every follower met) and the sky island where the Keeper waits
 import phase254 as R254      # 3.0: [keeper hook] the Keeper of Bonds - the 51st follower, the last (registers after every follower before it)
+import elemforms as EFM        # 3.0g: Ethereal and Wraithfire forms for ten more followers (the wardrobe rows, the gem's lore, the ways: at import)
+EFM.setup()
 import phase257 as R257      # 3.0d: the death sprites - holy fire, ash, star dust, goop bubbles (the three dramatic deaths)
 import phase258 as R258      # 3.0e: the Brood-Mire - the Vorn's alien Mire (outer End, the Armada, invasion nights); Brood Ichor; the Brood Mireling
 import phase241 as R241      # 2.99: the Vorn Armada - the Vorn's hard-mode dungeon, a hive-fleet round a star in the End (its kinds of trial register on import)
@@ -235,6 +237,7 @@ import phase172 as R172      # 2.82b: King Omega's tithe - triple currency from 
 import phase173 as R173      # 2.82t: the urgent fixes - Ledger, Dark Auction, Hollow, Wilfrey, followers, satchel, cooler, Apophiss, map pieces
 import phase174 as R174      # 2.83: the less urgent list, part one - Sunken Throne crew, full bags, Trophy Stand, solid cases, Emma/Leo, exchange
 import phase175 as R175      # 2.83b: what the den's shopkeepers sell passes the coat check (and the Locker Hall's way back)
+import heist3g as R3GH         # 3.0g: the heists mended and widened - no bags, the Mirror Mage, checkpoints, the guardian kept in its hall, no soul vials, barrels, the Rat King, four halls, hard-mode guardians, forms through the door
 import phase176 as R176      # 2.84a: hard mode - the waking, the night's monsters, Dread mobs
 import phase179 as R179      # 2.84c: the armour rebalance (before phase177 copies the sets), alien gear, the Partner Wheel
 import phase180 as R180      # 2.84d: the Omni Token, golden dolls, the Eldritch Panoply; hard mode for King-beaters only
@@ -1093,7 +1096,10 @@ def gen_loops(second_mob_lines):
         'execute as @e[tag=bm.tiered,tag=!bm.hhm,tag=!bm.salboss,tag=!bm.monstrosity,tag=!bm.herald] at @s unless dimension bm:gutter unless entity @a[distance=..100] run function bm:despawn_far',     # (2.64: never the heist's own - a knocked-out crew left the vault boss to vanish, an instant win)
         # (2.82c) the Blood Moon's bosses come from a monster's spawn, anywhere up to 128 blocks off: at 100 the sweep took them the
         #  second they rose (the Arachno-Lantern "died" on the spot; a natural Monstrosity was never seen). They go at 160.
-        'execute as @e[tag=bm.tiered,tag=!bm.hhm] if entity @s[tag=bm.salboss] at @s unless entity @a[distance=..160] run function bm:despawn_far',
+        # (3.0g, the owner: "it still immediately died when it naturally spawned") the Arachno-Lantern stays till the Blood Moon ends
+        #  (phase82) - or nobody is online; only one grown from a gourd (bm.called) still goes when it's left 160 off
+        'execute as @e[tag=bm.tiered,tag=!bm.hhm,tag=bm.salboss,tag=bm.called] at @s unless entity @a[distance=..160] run function bm:despawn_far',
+        'execute unless entity @a as @e[tag=bm.tiered,tag=!bm.hhm,tag=bm.salboss] at @s run function bm:despawn_far',
         'execute as @e[tag=bm.tiered,tag=!bm.hhm] if entity @s[tag=bm.monstrosity] at @s unless entity @a[distance=..160] run function bm:despawn_far',
         'execute as @e[tag=bm.tiered,tag=!bm.hhm] if entity @s[tag=bm.herald] at @s unless entity @a[distance=..160] run function bm:despawn_far',
         'execute as @e[tag=bm.lucky] at @s run particle minecraft:wax_on ~ ~1 ~ 0.3 0.5 0.3 0 3',
@@ -1498,6 +1504,7 @@ def build(out_dir):
     if PHASE2: R224.generate(sys.modules[__name__])      # 2.94u: ...and the rest
     R225.generate(sys.modules[__name__])                 # 2.94x: the Smuggler's Waytoken
     if PHASE2: R226.generate(sys.modules[__name__])      # 2.95c: the Piercing Blow
+    if PHASE2: print('3.0g: Ethereal and Wraithfire forms - %d blow lines answer to them' % EFM.generate(sys.modules[__name__]))      # (every follower's blows written; before the attack kit and Might)
     if PHASE2: print('bite impacts: %d followers' % atk.biters(sys.modules[__name__]))
     if PHASE2: print('alternate swings: %d followers' % atk.alternates(sys.modules[__name__]))
     if PHASE2: print('attack kit: %d follower blows with an impact, %d animations with a hit-stop' % atk.finalize(sys.modules[__name__]))
@@ -1527,8 +1534,10 @@ def build(out_dir):
     print('2.85c: the Rat Race - %d jobs, %d prizes in the draw' % R183.generate(sys.modules[__name__]))
     print('2.85d: %d new fight rooms, the rats\' calls, the Forge/Garden coin' % R184.generate(sys.modules[__name__]))
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))
+    if PHASE2: print('3.0g: the heists mended and widened - %d hooks' % R3GH.generate(sys.modules[__name__]))      # (after phase175/184 and every room, guardian, bag and follower it hooks)
     print('2.88: the chatter switch in %d follower menus and on the wheel' % R123.finalize_chat(sys.modules[__name__]))
     if PHASE2: print('3.0d: companion size - %d rig functions twinned (Apophiss, Omega)' % __import__('compsize').finalize(sys.modules[__name__]))
+    print('3.0g: protected ground - %d ways-in words rate-limited, %d places\' tags guarded' % __import__('guard').generate(sys.modules[__name__]))      # (after every place's way in is written)
     R28.finalize(sys.modules[__name__])
     print('market rebuild: %d entity tags cleared, %d per-market lines wait for the new town' % R168.finalize(sys.modules[__name__]))
     useitem.generate(sys.modules[__name__])

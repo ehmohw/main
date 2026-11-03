@@ -61,6 +61,10 @@ def runtime(G, C):
             'Health': F(C.HP + C.FLOOR),
             'active_effects': [{'id': 'minecraft:invisibility', 'duration': Int(-1), 'amplifier': B(0), 'show_particles': B(0)},
                                {'id': 'minecraft:fire_resistance', 'duration': Int(-1), 'amplifier': B(0), 'show_particles': B(0)}]}
+    cap = getattr(C, 'HITCAP', 0)              # (3.0g: a hit cap - hitcap.py - for a kind that has one: no blow takes more than this off it)
+    if cap:
+        import hitcap as HC
+        HC.install(G)
     C.host = host
     fn(f'{P}/spawn', [f'summon minecraft:husk ~ ~ ~ {snbt(host)}',
                       'scoreboard players add #mid bm.mid 1',
@@ -69,7 +73,7 @@ def runtime(G, C):
     fn(f'{P}/settle', ['scoreboard players set #st bm.rng 24', f'function bm:{P}/settle1'])
     fn(f'{P}/settle1', ['execute unless block ~ ~-1 ~ #minecraft:air run return 0', 'scoreboard players remove #st bm.rng 1', 'tp @s ~ ~-1 ~',
                         f'execute if score #st bm.rng matches 1.. at @s run function bm:{P}/settle1'])
-    fn(f'{P}/spawn1', [f'execute at @s run function bm:{P}/settle', 'scoreboard players operation @s bm.mid = #mid bm.mid', 'scoreboard players set @s bm.ms 0', 'scoreboard players set @s bm.mt 0',
+    fn(f'{P}/spawn1', ([] if not cap else __import__('hitcap').arm(cap)) + [f'execute at @s run function bm:{P}/settle', 'scoreboard players operation @s bm.mid = #mid bm.mid', 'scoreboard players set @s bm.ms 0', 'scoreboard players set @s bm.mt 0',
                        'execute store result entity @s Rotation[0] float 1 run random value 0..359',
                        f'execute at @s rotated as @s rotated ~ 0 run function bm:{P}/rig',
                        f'scoreboard players operation @e[type=minecraft:item_display,tag={C.NEWP},distance=..1] bm.mid = @s bm.mid',

@@ -53,7 +53,13 @@ def setup(G):
     G.wjson('bm/tags/block/settle_hole.json', {'values': HOLE})
     G.wjson('bm/tags/block/settle_hole_w.json', {'values': HOLE + ['minecraft:water', 'minecraft:seagrass', 'minecraft:tall_seagrass', 'minecraft:kelp',
                                                                    'minecraft:kelp_plant', 'minecraft:bubble_column']})
-    pick = ['data modify storage bm:settle top set value "minecraft:grass_block"', 'data modify storage bm:settle sub set value "minecraft:dirt"']
+    pick = ['data modify storage bm:settle top set value "minecraft:grass_block"', 'data modify storage bm:settle sub set value "minecraft:dirt"',
+            # (3.0g) the dimension's own ground first, whatever the biome: a pack biome (the Undercrown's, filled over its box) is in
+            # no vanilla tag, and the Nether's outposts settled there on grass and banked dirt into the halls below
+            'execute if dimension minecraft:the_nether run data modify storage bm:settle top set value "minecraft:netherrack"',
+            'execute if dimension minecraft:the_nether run data modify storage bm:settle sub set value "minecraft:netherrack"',
+            'execute if dimension minecraft:the_end run data modify storage bm:settle top set value "minecraft:end_stone"',
+            'execute if dimension minecraft:the_end run data modify storage bm:settle sub set value "minecraft:end_stone"']
     for b, top, sub in reversed(SOILS):          # (the first match wins, so it's written last)
         pick.append(f'execute if biome ~ ~ ~ {b} run data modify storage bm:settle top set value "minecraft:{top}"')
         pick.append(f'execute if biome ~ ~ ~ {b} run data modify storage bm:settle sub set value "minecraft:{sub}"')

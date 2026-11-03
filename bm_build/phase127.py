@@ -37,7 +37,7 @@ PINK = '#ff7ad0'
 WF_C = P69.ETH_I + 1                 # 11: Cecil's wraithfire "element" (10 is the Ethereal Gem)
 WF_K = len(KA.EL_KEYS) + 2           # 11: KillerWatt's
 HEART = '*[minecraft:custom_data~{bm:"wraithfire_heart"}]'
-FOE = 'type=#bm:hostile,tag=!bm.npc'
+FOE = 'type=#bm:hostile,tag=!bm.npc,tag=!bm.khome'        # (3.0g: never a Statue Knight woken at home - a guard, or one duelling its owner)
 
 item('wraithfire_heart', TOTEM, 'Wraithfire Heart', SOUL,
      ['The Scorching Heart, quenched in an Ethereal', 'Gem\'s light. It burns blue - and cold.',

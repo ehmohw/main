@@ -70,7 +70,7 @@ def generate(G):
     from phase46 import COMPANIONS
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     tick, second, fast = [], [], []
-    objs = ['bm.gmcd', 'bm.pmt', 'bm.gft', 'bm.esht', 'bm.etcd', 'bm.etdl', 'bm.etvp']
+    objs = ['bm.gmcd', 'bm.pmt', 'bm.gft', 'bm.esht', 'bm.etcd', 'bm.etdl', 'bm.etvp', 'bm.pmcy']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + [
         f'execute unless score #pmcd bm.bm matches -2147483648.. run scoreboard players set #pmcd bm.bm {DAY}',
         f'execute unless score #pmch bm.bm matches -2147483648.. run scoreboard players set #pmch bm.bm {CHANCE0}',
@@ -78,7 +78,7 @@ def generate(G):
         'scoreboard players set #-1 bm.rng -1', 'scoreboard players set #5 bm.rng 5', 'scoreboard players set #12 bm.rng 12', 'scoreboard players set #9 bm.rng 9']
     G.OBJECTIVES += objs
     holds = '*[minecraft:custom_data~{bm:"%s"}]'
-    mob = 'type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,' + COMPANIONS
+    mob = 'type=!#bm:p44_nonmob,type=!minecraft:player,tag=!bm.npc,tag=!bm.khome,' + COMPANIONS        # (3.0g: a home Statue Knight takes no element)
     tick.append('scoreboard players remove @a[scores={bm.gmcd=1..}] bm.gmcd 1')
     tick.append('scoreboard players remove @a[scores={bm.etcd=1..}] bm.etcd 1')
     dust = lambda rgb, s=0.9: f'minecraft:dust{{color:[{rgb[0]},{rgb[1]},{rgb[2]}],scale:{s}}}'
@@ -313,7 +313,7 @@ def generate(G):
         'earth': [f'damage @s 8 minecraft:magic by {me}', 'effect give @s minecraft:slowness 3 3', 'particle minecraft:block{block_state:"minecraft:dirt"} ~ ~0.5 ~ 0.4 0.3 0.4 0 30',
                   'playsound minecraft:block.rooted_dirt.break player @a[distance=..16] ~ ~ ~ 1 0.6'],
         'electric': [f'damage @s 6 minecraft:lightning_bolt by {me}', 'particle minecraft:electric_spark ~ ~1 ~ 0.4 0.6 0.4 0.4 30',
-                     f'execute as @e[type=#bm:hostile,tag=!bm.npc,distance=0.5..5,sort=nearest,limit=2] run damage @s 4 minecraft:lightning_bolt by {me}',
+                     f'execute as @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.khome,distance=0.5..5,sort=nearest,limit=2] run damage @s 4 minecraft:lightning_bolt by {me}',
                      'playsound minecraft:entity.lightning_bolt.impact player @a[distance=..16] ~ ~ ~ 0.6 1.6'],
         'rock': [f'damage @s 10 minecraft:magic by {me}', 'particle minecraft:block{block_state:"minecraft:stone"} ~ ~1 ~ 0.4 0.4 0.4 0 30',
                  'playsound minecraft:block.stone.break player @a[distance=..16] ~ ~ ~ 1 0.5'],
@@ -342,8 +342,13 @@ def generate(G):
     pmd['brightness'] = {'block': Int(12), 'sky': Int(13)}
     fn('p60/pm/spawn', [f'summon minecraft:villager ~ ~ ~ {snbt(pm)}', f'summon minecraft:item_display ~ ~ ~ {snbt(pmd)}',
                         f'scoreboard players set @e[type=minecraft:villager,tag=bm.pnew,distance=..1] bm.pmt {STAY_SECONDS}',
-                        # three of the nine, a different three each visit
-                        'execute store result score #s bm.rng run random value 0..8', 'execute store result score #k bm.rng run random value 1..4',
+                        # three of the nine, a different three each visit - (3.0g) and the first is always one the player he came to
+                        # doesn't have yet: the next of their missing gems in a set cycle (p60/pm/cycle); all nine already theirs, any
+                        'scoreboard players set #s bm.rng -1',
+                        'execute unless entity @a[tag=bm.pmvis] if entity @s[type=minecraft:player] run tag @s add bm.pmvis',
+                        'execute unless entity @a[tag=bm.pmvis] run tag @p[gamemode=!spectator] add bm.pmvis',
+                        'execute as @a[tag=bm.pmvis,limit=1] run function bm:p60/pm/cycle', 'tag @a remove bm.pmvis',
+                        'execute if score #s bm.rng matches -1 store result score #s bm.rng run random value 0..8', 'execute store result score #k bm.rng run random value 1..4',
                         'scoreboard players operation #i bm.rng = #s bm.rng', 'function bm:p60/pm/stock1',
                         'scoreboard players operation #i bm.rng += #k bm.rng', 'function bm:p60/pm/stock1',
                         'scoreboard players operation #i bm.rng += #k bm.rng', 'function bm:p60/pm/stock1',
@@ -368,12 +373,24 @@ def generate(G):
                       f'execute if score #placed bm.rng matches 1 run return run scoreboard players set #pmch bm.bm {CHANCE0}',
                       f'scoreboard players add #pmch bm.bm {CHANCE_STEP}',
                       f'execute if score #pmch bm.bm matches {CHANCE_MAX + 1}.. run scoreboard players set #pmch bm.bm {CHANCE_MAX}'])
-    fn('p60/pm/arrive', ['execute if entity @e[type=minecraft:villager,tag=bm.pearl] run return 0',
+    # (3.0g) THE CYCLE: each player's own place in the nine (bm.pmcy); from it, the first gem they haven't bought from him out in
+    # the world (phase128's bm.pmg_<gem>) is the one he's sure to bring - and next time the cycle starts after it, so a gem they
+    # passed over comes round again only once the others they lack have had their turn
+    cyc = ['execute unless score @s bm.pmcy matches 0..8 run scoreboard players set @s bm.pmcy 0']
+    for o in range(len(KEYS)):
+        cyc += ['scoreboard players operation #c bm.rng = @s bm.pmcy', f'scoreboard players add #c bm.rng {o}', 'scoreboard players operation #c bm.rng %= #9 bm.rng',
+                'execute if score #s bm.rng matches -1 run function bm:p60/pm/cycle_try']
+    cyc += ['execute if score #s bm.rng matches -1 run return 0', 'scoreboard players operation @s bm.pmcy = #s bm.rng', 'scoreboard players add @s bm.pmcy 1',
+            'scoreboard players operation @s bm.pmcy %= #9 bm.rng']
+    fn('p60/pm/cycle', cyc)
+    fn('p60/pm/cycle_try', [f'execute if score #c bm.rng matches {i} unless entity @s[tag=bm.pmg_{k}] run return run scoreboard players set #s bm.rng {i}'
+                            for i, k in enumerate(KEYS)])
+    fn('p60/pm/arrive', ['execute if entity @e[type=minecraft:villager,tag=bm.pearl] run return 0', 'tag @s add bm.pmvis',
                          'summon minecraft:marker ~ ~ ~ {Tags:["bm.psp"]}',
                          'execute as @e[type=minecraft:marker,tag=bm.psp,distance=..1,limit=1] store result entity @s Rotation[0] float 1 run random value 0..359',
                          'scoreboard players set #placed bm.rng 0',
                          'execute as @e[type=minecraft:marker,tag=bm.psp,distance=..1,limit=1] rotated as @s positioned ^ ^ ^6 positioned over motion_blocking_no_leaves run function bm:p60/pm/land',
-                         'kill @e[type=minecraft:marker,tag=bm.psp]'])
+                         'kill @e[type=minecraft:marker,tag=bm.psp]', 'tag @s remove bm.pmvis'])
     fn('p60/pm/land', ['execute unless block ~ ~ ~ #minecraft:replaceable run return 0', 'execute if block ~ ~ ~ minecraft:water run return 0',
                        'execute if block ~ ~-1 ~ #minecraft:replaceable run return 0', 'execute if block ~ ~-1 ~ minecraft:water run return 0',
                        'execute align xz positioned ~0.5 ~ ~0.5 run function bm:p60/pm/spawn', 'scoreboard players set #placed bm.rng 1'])

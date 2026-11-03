@@ -83,8 +83,10 @@ def generate(G):
     # 2.80: a page per currency. The account page lists every currency with its balance (one button each); a currency's
     # page shows its icon, what's in the account and what's on you, and the four actions - and an action brings you back
     # to that page. (The four action codes per currency are the 2.76 ones, unchanged.)
-    bank_code = lambda i, k: 4010 + 4 * i + k
+    bank_code = lambda i, k: 4010 + 4 * i + k if i < 12 else 4000 + 4 * (i - 12) + k      # (3.0g: the 13th on - 4058 on were pages)
     page_code = lambda i: 4060 + i if i < 11 else 4090 + i - 11       # (2.84a: the 12th currency on - 4071 was taken)
+    _codes = [bank_code(i, k) for i in range(len(BANK)) for k in range(4)] + [page_code(i) for i in range(len(BANK))]
+    assert len(set(_codes)) == len(_codes) and len(BANK) <= 14, 'the Rat Bank has outgrown its codes (4000-4009 and 4091-4099 are what is left)'
     DEP_ALL, BACK, SAVE = 4071, 4072, 4073
     assert bank_code(len(BANK) - 1, 3) < page_code(0) and page_code(min(len(BANK), 11) - 1) < DEP_ALL and page_code(len(BANK) - 1) <= 4099, \
         'the Rat Bank has outgrown its codes'

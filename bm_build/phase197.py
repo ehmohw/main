@@ -20,6 +20,8 @@ Hard mode only. The altar (right-click it) says who's missing; (2.94j) stand by 
   again. They're tougher, too: health to the cap, armour toughness, Resistance II. And a boss beaten, its altar RESTS a full day
   (20 minutes) before it will wake that boss again. Beat one and everyone near gets its TOKEN, Dread Tokens and spoils.
 
+(3.0g) THE HIT CAP (hitcap.py: CAP a half-second at most) and DREAD BLOWS (bm:dread - past armour and its enchantments) on their
+  heavy attacks: in the final boss's gear they had been far too easy.
 THE TOKENS: carried (anywhere on you), a strong blessing; set down on a block (sneak + use), a ward around it for everyone
   (sneak + punch to take it back); or Vesper scraps one for 12 Dread Tokens.
   Frostbitten Token  carried: Resistance, and cold can't slow or freeze you. Set down: monsters within 16 slowed and weakened; Resistance for all.

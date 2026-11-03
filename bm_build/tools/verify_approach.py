@@ -101,11 +101,14 @@ def T_deep(x, y, z):
 
 
 TERRAINS = {'pockets': (T_pockets, [(306, 82, 194), (213, 82, 306)]), 'lake': (T_lake, [(356, 84, 194), (213, 84, 356)]),
-            'open': (T_open, [(300, 26, 300)]), 'noise': (T_noise, None), 'falls': (T_falls, [(260, 74, 230)]),
+            'open': (T_open, [(300, 26, 300)]), 'noise': (T_noise, None), 'falls': (T_falls, None),      # (3.0g: the falls' cave is the lava lake's now - nothing to start from)
+            
             'deep': (T_deep, [(300, 60, 194), (213, 60, 300)]), 'solid': (T_solid, None)}
 
 
 # ------------------------------------------------------------------ the world and the interpreter
+_LK = {}
+
 class World:
     def __init__(self, tmpl, terrain):
         self.t, self.ter, self.set_, self.carved, self.markers, self.score = tmpl, terrain, {}, set(), [], {}
@@ -115,6 +118,12 @@ class World:
         x, y, z = p
         if y < 0 or y > TOP: return 'minecraft:bedrock'
         if 0 <= x < SX and 0 <= y < SY and 0 <= z < SZ and p in self.t: return self.t[p]
+        if R.LAKE:                  # (3.0g: phase237 carves the lava lake round the box first - p237/lake)
+            k = (x, z)
+            if k not in _LK: _LK[k] = R.in_lake(x, z)
+            if _LK[k]:
+                if R.LAKE_SEA < y <= R.lake_air_top(x): return 'minecraft:air'
+                if R.LAKE_BED <= y <= R.LAKE_SEA: return 'minecraft:lava'
         return self.ter(x, y, z)
 
     def put(self, p, st):
@@ -304,7 +313,7 @@ def run(name, tmpl):
         if gate not in back and (gate[0], gate[1], gate[2]) not in back:
             errs.append(f'from open air at {s_} the walk does not reach the Hidden Gate')
         else: notes.append(f'from open air at {s_}: the gate is reached')
-    if name in ('pockets', 'lake', 'falls') and not starts: errs.append('no open-air start found in the terrain')
+    if name in ('pockets', 'lake') and not starts: errs.append('no open-air start found in the terrain')
     # lava touching what was cut
     leak = []
     for p in Wd.carved:

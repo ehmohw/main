@@ -20,6 +20,11 @@ THE FIGHT    three pools of health (each phase its own - no burst skips one), PH
              off them), the DARKNESS (and knights), SLAM and SWEEP. Every 40 s another island cracks and falls (four at most).
              At a quarter of its last pool it FRENZIES (12 s it can't be hurt, sigils burst under everyone) - then it TIRES, the
              eye shut: strike it.
+(3.0g)       THE DREAD WARD: at half of its Armored pool and again at half of its Broken one it wards itself (it can't be hurt) and
+             four DREAD ANCHORS rise round the hall, its knights with them: break all four (WARD_HITS blows or arrows each) and it reels,
+             no Resistance for 8 s. Its heavy blows (slam, sweep, stab, chain, whirlpool, curse circles, the eye beam) are DREAD -
+             past armour and its enchantments - and THE HIT CAP (hitcap.py): half a second of blows takes CAP off it at most (more
+             with more fighters). Its cinematics lay no Darkness, and hold off the Dread's (p176/nodark).
 THE FALL     it unravels (3 s). Everyone in the hall: bm.dfin (the reckoning - the Lightbringer is no longer to be found), its
              spoils, a Victor's Key, the first time the Dread Ember, the Sovereign's Eye (the follower, phase239) and its record
              (the second time Aurel's elegy). The Dread Nights end (p237/nights_end), and the Undercrown begins to come apart
@@ -390,7 +395,7 @@ def generate(G):
                      'scoreboard players operation @s bm.svhp = #n bm.rng',
                      f'execute as {AUD} at @s run function bm:p152/tick'])
     HC.install(G)
-    fn('p238/cap', ['tag @s add bm.hcap', f'execute store result score #n bm.rng if entity {FIGHT}', 'scoreboard players remove #n bm.rng 1',
+    fn('p238/cap', ['tag @s add bm.hcap', f'execute store result score #n bm.rng if entity {FIGHT}', 'scoreboard players remove #n bm.rng 1', 'execute if score #n bm.rng matches ..-1 run scoreboard players set #n bm.rng 0',
                     f'scoreboard players set #k bm.rng {CAP_ADD * 10}', 'scoreboard players operation #n bm.rng *= #k bm.rng',
                     f'scoreboard players set @s bm.hcc {CAP * 10}', 'scoreboard players operation @s bm.hcc += #n bm.rng',
                     f'execute if score @s bm.hcc matches {CAP_MAX * 10}.. run scoreboard players set @s bm.hcc {CAP_MAX * 10}', 'function bm:hitcap/sync'])

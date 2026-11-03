@@ -998,9 +998,13 @@ if __name__ == '__main__':
         phase258.rp(sys.modules[__name__])
         import rex_art                            # (2.99a: the Rex mounts - their rigs, charged plates and the quest items' icons; phase249 runs them)
         rex_art.rp(sys.modules[__name__])
+        import ratking_art                        # (3.0g: the Rat King's rig - heist3g runs it)
+        ratking_art.rp(sys.modules[__name__])
     if PHASE2:
         import creative                       # (2.96a: the Creative Forms' outfits - their pass goes last, after every model of the twelve is written)
         creative.rp(sys.modules[__name__])
+        import elemforms                      # (3.0g: the ten's Ethereal / Wraithfire twins - after creative: its outfit models get twins too)
+        elemforms.rp(sys.modules[__name__])
     _done = '/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP.done'    # 2.94b: see gen_dp
     if os.path.exists(_done): os.remove(_done)
     s = build('/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP')

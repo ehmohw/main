@@ -33,14 +33,14 @@ def extend_offers(O, offer):
 def generate(G):
     fn, wjson, title, tellraw, give, PREFIX = G.fn, G.wjson, G.title, G.tellraw, G.give, G.PREFIX
     tick, fast, second = [], [], []
-    objs = ['bm.kxek']
+    objs = ['bm.kxek', 'bm.kxeg']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
     me = '@e[type=minecraft:husk,tag=bm.kxme,limit=1]'
 
     # ================================================================== ETHEREAL KILLERWATT
     second.append('execute as @e[type=minecraft:husk,tag=bm.kxboss,tag=!bm.kxeth] at @s if entity @e[type=minecraft:item_display,tag=bm.eshr,distance=..30] run function bm:p83/ascend')
-    fn('p83/ascend', ['tag @s add bm.kxeth', 'scoreboard players set @s bm.kxel 10',
+    fn('p83/ascend', ['tag @s add bm.kxeth', 'scoreboard players set @s bm.kxel 10', 'scoreboard players operation #kxeid bm.kxid = @s bm.kxid',
                       'attribute @s minecraft:max_health modifier add bm:kx_eth 0.8 add_multiplied_base', 'attribute @s minecraft:armor modifier add bm:kx_eth 6 add_value',
                       'attribute @s minecraft:movement_speed modifier add bm:kx_eth 0.15 add_multiplied_base',
                       'execute store result entity @s Health float 1 run attribute @s minecraft:max_health get',
@@ -104,16 +104,23 @@ def generate(G):
                          'effect give @a[tag=bm.kxlt_tgt,distance=..1.4] minecraft:levitation 1 3', 'effect give @a[tag=bm.kxlt_tgt,distance=..1.4] minecraft:wither 3 1',
                          'particle minecraft:flash{color:[0.8,0.6,1.0,1.0]} ~ ~ ~ 0 0 0 0 1', 'playsound minecraft:entity.evoker.prepare_attack hostile @a[distance=..24] ~ ~ ~ 1 1.4',
                          'kill @s'])
+    # (3.0g) brought down by anything but a player, his crumpling body pays: ethereal if its parts wear the form - or if his id is the
+    # one that ascended (the parts' bm.kxel is the only other witness)
+    po = G.FUNCS['p79/payout']
+    k_ = po.index('execute if entity @s[scores={bm.kxel=10}] run return run function bm:p79/payout_eth')
+    po.insert(k_, 'execute if score @s bm.kxid = #kxeid bm.kxid run return run function bm:p79/payout_eth')
     # beating his ethereal form: the Ethereal Tendrils
     wjson('bm/advancement/p83/killed_eth.json', {'criteria': {'k': {'trigger': 'minecraft:player_killed_entity', 'conditions': {'entity': [
         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.kxeth"]}'}}]}}}, 'rewards': {'function': 'bm:p83/killed_eth'}})
     fn('p83/killed_eth', ['advancement revoke @s only bm:p83/killed_eth', 'scoreboard players set #eth bm.kxek 1', 'function bm:p79/killed',
                           'execute at @s as @a[distance=..64] at @s run function bm:p83/eth_reward', 'scoreboard players set #eth bm.kxek 0'])
+    # (3.0g: the first pair is certain - kept by its own flag, bm.kxeg, so no earlier win that paid nothing can use it up)
     fn('p83/eth_reward', ['scoreboard players add @s bm.kxek 1', 'execute store result score #r bm.rng run random value 1..100',
-                          'execute if score @s bm.kxek matches 1 run ' + give('ethereal_tendrils'),
-                          'execute if score @s bm.kxek matches 2.. if score #r bm.rng matches 1..40 run ' + give('ethereal_tendrils'),
-                          'execute if score @s bm.kxek matches 1 run ' + tellraw('@s', PREFIX + [T('The Ethereal Tendrils', ETH, bold=True),
-                                                                                                 T(' are yours - harder blows, longer flings, and the air holds you a moment.', 'gray')]),
+                          'execute unless score @s bm.kxeg matches 1.. run scoreboard players set #r bm.rng 0',
+                          'execute if score #r bm.rng matches 0 run ' + tellraw('@s', PREFIX + [T('The Ethereal Tendrils', ETH, bold=True),
+                                                                                               T(' are yours - harder blows, longer flings, and the air holds you a moment.', 'gray')]),
+                          'execute if score #r bm.rng matches 0..40 run ' + give('ethereal_tendrils'),
+                          'scoreboard players set @s bm.kxeg 1',
                           'loot give @s loot bm:p79/hoard'])
 
     # ================================================================== THE ETHEREAL TENDRILS (they count as his Tendrils everywhere)

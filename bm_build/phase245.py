@@ -13,10 +13,14 @@ THE FIGHT  an invisible husk carries the rig (bm.khost, bm.kg_<d><n>); its healt
            there, a lighter shockwave round it.
   SPIN     the mace held out at arm's length and swung round and round as it drifts after you - every 0.4 s it strikes
            anyone within reach. Then it REELS, dizzy: its guard is down (no Resistance) - strike now.
-THE FALL   down on one knee, slumped over its haft, and it turns back to stone where it knelt. Everyone near is granted ITS
+(3.0g)     tougher (420 / 340, armour 16, toughness 10), its slam DREAD (past armour), THE HIT CAP (hitcap.py: CAP a half-second).
+THE FALL   down on one knee, slumped over its haft, and it turns back to stone where it knelt (3.0g: and crumbles away). Everyone near is granted ITS
            STATUE (knight_statue_<kind>): sneak + use on a block to set it up in your base; sneak + punch it to take it back.
-           The fallen stone stays until the trial resets (its pz<n>_reset - the dungeon's idle reset, a rebuild): then the
-           knight stands on its plinth again, a statue, waiting.
+           Its plinth stays empty until the trial resets (its pz<n>_reset - the dungeon's idle reset, a rebuild): then the
+           knight stands on its plinth again, a statue, waiting. (3.0g: the fallen stone crumbles away a few seconds after.)
+           (3.0g) A guard at home carries a click box: its owner right-clicks the KNIGHT for its dialog (Rest), sneak + right-click
+           (or sneak + punch) it: the statue back in the pack. Friendly knights (bm.khome) take nothing from a Hearthfire, a Wraithfire
+           Heart or an Ethereal blow.
 AT HOME    (3.0, the owner) its statue set up in your base, right-clicked (not sneaking) by its OWNER - the placer (the plinth's
            bm.pid; a statue set up before 3.0 has none: the first to right-click it becomes its owner) - opens its dialog:
   STAND GUARD  it wakes (the dungeon's waking) as a guard: it keeps its post (NoAI; it steps after its foe, never more than
@@ -42,16 +46,20 @@ from useitem import hold, HOLD
 from nbt import snbt, B, F, Int, D as Dd
 import rigfol as RF
 import knight_art as A
+import hitcap as HC
 
 PFX = 'p245'
 FLOOR = 100                          # (the host's health over this is the knight's)
 HOSTSC = 1.5                         # (a husk 1.95 tall: ~2.9 blocks, the rig's height)
 SCALE = getattr(A, 'SCALE', 1.0)
 RESIST = 0                           # (Resistance I while its guard is up)
-KN = {'dread': dict(name='Dread Sentinel', col='#c8323c', hp=240, slam=14, wave=6, spin=7, dust='0.85,0.08,0.12',
+# (3.0g, the owner: "the mini boss knights... died very quickly") HP 240/200 -> 420/340, armour 10 -> 16 with toughness 10, the
+# slam DREAD (bm:dread: past armour and its enchantments - `heavy`, against players), and the hit cap (hitcap.py: CAP a half-second)
+ARMOR, TOUGH, CAP = 16, 10, 20
+KN = {'dread': dict(name='Dread Sentinel', col='#c8323c', hp=420, slam=14, heavy=12, wave=6, spin=7, dust='0.85,0.08,0.12',
                     stone='minecraft:polished_blackstone', item="Dread Sentinel's Statue",
                     lore='A knight of the Undercrown, turned back to stone.'),
-      'vorn': dict(name='Vorn Sentinel', col='#7aff6a', hp=200, slam=12, wave=5, spin=6, dust='0.4,1.0,0.35',
+      'vorn': dict(name='Vorn Sentinel', col='#7aff6a', hp=340, slam=12, heavy=10, wave=5, spin=6, dust='0.4,1.0,0.35',
                    stone='minecraft:smooth_stone', item="Vorn Sentinel's Statue",
                    lore='A sentinel of the Armada, its hive-light gone out.')}
 DUR = {'statue': 0, 'wake_0': 10, 'wake_1': 10, 'idle_a': 10, 'idle_b': 10, 'walk_0': 5, 'walk_1': 5, 'walk_2': 5, 'walk_3': 5,
@@ -89,6 +97,7 @@ def generate(G):
          'scoreboard players set #20 bm.rng 20', 'scoreboard players set #40 bm.rng 40']
     G.OBJECTIVES += objs
     GR = groups()
+    HC.install(G)
     snd = lambda s, v, p: f'playsound minecraft:{s} hostile @a[distance=..24] ~ ~ ~ {v} {p}'
     at = lambda t, cmd: f'execute if score @s bm.kt matches {t} {cmd[8:]}' if cmd.startswith('execute ') else f'execute if score @s bm.kt matches {t} run {cmd}'
 
@@ -118,10 +127,11 @@ def generate(G):
     # ================================================================== the waking: its room solved
     for (d, n, k) in GR:
         c = KN[k]
-        host = {'Tags': ['bm.khost', f'bm.kh_{k}', f'bm.kg_{d}{n}', 'bm.seen', 'bm.knewh'], 'NoAI': B(1), 'Silent': B(1), 'PersistenceRequired': B(1),
+        host = {'Tags': ['bm.khost', f'bm.kh_{k}', f'bm.kg_{d}{n}', 'bm.seen', 'bm.knewh', 'bm.hcap'], 'NoAI': B(1), 'Silent': B(1), 'PersistenceRequired': B(1),
                 'CustomName': T(c['name'], c['col']), 'DeathLootTable': 'minecraft:empty', 'CanPickUpLoot': B(0),
                 'attributes': [{'id': 'minecraft:max_health', 'base': Dd(c['hp'] + FLOOR)}, {'id': 'minecraft:scale', 'base': Dd(HOSTSC)},
-                               {'id': 'minecraft:armor', 'base': Dd(10)}, {'id': 'minecraft:knockback_resistance', 'base': Dd(1.0)},
+                               {'id': 'minecraft:armor', 'base': Dd(ARMOR)}, {'id': 'minecraft:armor_toughness', 'base': Dd(TOUGH)},
+                               {'id': 'minecraft:knockback_resistance', 'base': Dd(1.0)},
                                {'id': 'minecraft:attack_damage', 'base': Dd(0)}, {'id': 'minecraft:movement_speed', 'base': Dd(0.2)},
                                {'id': 'minecraft:follow_range', 'base': Dd(40)}],
                 'Health': F(c['hp'] + FLOOR),
@@ -137,6 +147,7 @@ def generate(G):
                                    'scoreboard players operation @e[type=minecraft:husk,tag=bm.knewh,distance=..1] bm.kid = @s bm.kid',
                                    'scoreboard players set @e[type=minecraft:husk,tag=bm.knewh,distance=..1] bm.ks 0',
                                    'scoreboard players set @e[type=minecraft:husk,tag=bm.knewh,distance=..1] bm.kt 0',
+                                   f'scoreboard players set @e[type=minecraft:husk,tag=bm.knewh,distance=..1] bm.hcc {CAP * 10}',
                                    'tag @e[type=minecraft:husk,tag=bm.knewh,distance=..1] remove bm.knewh'])
         # (the trial reset: its knights back on their plinths, stone - the marker raises them again)
         fn(f'{PFX}/rest/{d}{n}', [f'execute as @e[type=minecraft:marker,tag=bm.kstat,tag=bm.kn{n},tag=bm.d_{d},distance=..60] at @s run function bm:{PFX}/rest1'])
@@ -208,7 +219,7 @@ def generate(G):
        [at(BACK - 8, f'function bm:{PFX}/pose/idle_a'),
         at(BACK, 'data merge entity @s {NoAI:0b}'), at(BACK, 'scoreboard players set @s bm.ka 0'), at(BACK, 'scoreboard players set @s bm.ks 1')])
     for k, c in KN.items():
-        fn(f'{PFX}/slam_{k}', [f'execute positioned ^ ^ ^2 as @a[distance=..2.6,{FOES}] run damage @s {c["slam"]} minecraft:mob_attack by {ME}',
+        fn(f'{PFX}/slam_{k}', [f'execute positioned ^ ^ ^2 as @a[distance=..2.6,{FOES}] run damage @s {c["heavy"]} bm:dread by {ME}',
                                f'execute positioned ^ ^ ^2 as @a[distance=2.6..5,{FOES}] run damage @s {c["wave"]} minecraft:mob_attack by {ME}',
                                f'execute positioned ^ ^ ^2 run particle minecraft:explosion ~ ~0.2 ~ 0.6 0.1 0.6 0 3',
                                f'execute positioned ^ ^ ^2 run particle minecraft:block{{block_state:"{c["stone"]}"}} ~ ~0.2 ~ 1.4 0.1 1.4 0.2 80',
@@ -252,7 +263,37 @@ def generate(G):
                                title('@s', 'actionbar', [T('The ' + c['name'] + ' falls - ', c['col'], bold=True), T('its statue is yours.', 'gray')])])
     fn(f'{PFX}/fell', ['execute as @e[type=minecraft:marker,tag=bm.kstat] if score @s bm.kid = #me bm.kid run scoreboard players set @s bm.kst 4'] +
        [f'execute if entity @s[tag=bm.kg_{d}{n}] run function bm:{PFX}/done/{d}{n}' for (d, n, k) in GR] +
-       [f'function bm:{PFX}/gone'])
+       [f'function bm:{PFX}/crumble', f'function bm:{PFX}/gone'])
+    # (3.0g, the owner: "it seems their model can be left behind on death") ITS STONE CRUMBLES: a fallen knight's rig (the parts
+    # tagged bm.ksel) holds a second, shrinks away over the next, and is gone - in every way a knight goes, not only its fall:
+    # a host lost in the dungeon (killed outright, the void, /kill) is noticed by its marker (3 s without it: the same crumble, and
+    # its room counts it fallen); and any part, click box or rig whose knight is nowhere (no host, no statue marker of its kid
+    # for 3 s) is swept
+    fn(f'{PFX}/crumble', [f'execute as @e[type=minecraft:item_display,tag=bm.ksel] run function bm:{PFX}/crum0',
+                          'particle minecraft:block{block_state:"minecraft:polished_blackstone"} ~ ~1.5 ~ 0.6 1.2 0.6 0 40'])
+    fn(f'{PFX}/crum0', ['tag @s add bm.kcrum', 'tag @s remove bm.kr', 'scoreboard players set @s bm.kt 40',
+                        'data merge entity @s {start_interpolation:20,interpolation_duration:20,transformation:{scale:[0f,0f,0f]}}'])
+    tick.append(f'execute as @e[type=minecraft:item_display,tag=bm.kcrum] at @s run function bm:{PFX}/crum')
+    fn(f'{PFX}/crum', ['scoreboard players remove @s bm.kt 1',
+                       f'execute if score @s bm.kt matches 20 if entity @s[tag=bm.kr_{A.PARTS[0]}] run particle minecraft:block{{block_state:"minecraft:stone"}} ~ ~1.5 ~ 0.6 1.2 0.6 0 60',
+                       f'execute if score @s bm.kt matches 20 if entity @s[tag=bm.kr_{A.PARTS[0]}] run {snd("block.stone.break", 1.2, 0.5)}',
+                       'execute if score @s bm.kt matches ..0 run kill @s'])
+    second.append(f'execute as @e[type=minecraft:marker,tag=bm.kstat,scores={{bm.kst=2..3}}] at @s run function bm:{PFX}/lost_chk')
+    fn(f'{PFX}/lost_chk', ['scoreboard players operation #me bm.kid = @s bm.kid', 'scoreboard players set #f bm.rng 0',
+                           'execute as @e[type=minecraft:husk,tag=bm.khost,distance=..96] if score @s bm.kid = #me bm.kid run scoreboard players set #f bm.rng 1',
+                           'execute if score #f bm.rng matches 1 run return run scoreboard players set @s bm.kmiss 0',
+                           'scoreboard players add @s bm.kmiss 1', f'execute if score @s bm.kmiss matches 3.. run function bm:{PFX}/lost'])
+    fn(f'{PFX}/lost', ['scoreboard players set @s bm.kst 4', 'scoreboard players set @s bm.kmiss 0',
+                       'execute as @e[type=minecraft:item_display,tag=bm.kr] if score @s bm.kid = #me bm.kid run tag @s add bm.ksel',
+                       f'execute as @e[type=minecraft:item_display,tag=bm.ksel,limit=1] at @s run function bm:{PFX}/crumble', 'tag @e[tag=bm.ksel] remove bm.ksel'] +
+       [f'execute if entity @s[tag=bm.kn{n},tag=bm.d_{d}] run function bm:{PFX}/done/{d}{n}' for (d, n, k) in GR])
+    second.append(f'execute as @e[type=minecraft:item_display,tag=bm.kr] at @s run function bm:{PFX}/orph')
+    second.append(f'execute as @e[type=minecraft:interaction,tag=bm.kcb] at @s run function bm:{PFX}/orph')
+    fn(f'{PFX}/orph', ['scoreboard players operation #me bm.kid = @s bm.kid', 'scoreboard players set #f bm.rng 0',
+                       'execute as @e[type=minecraft:husk,tag=bm.khost,distance=..96] if score @s bm.kid = #me bm.kid run scoreboard players set #f bm.rng 1',
+                       'execute if score #f bm.rng matches 0 if entity @s[type=minecraft:item_display] as @e[type=minecraft:marker,tag=bm.kstat,distance=..96] if score @s bm.kid = #me bm.kid run scoreboard players set #f bm.rng 1',
+                       'execute if score #f bm.rng matches 1 run return run scoreboard players set @s bm.kmiss 0',
+                       'scoreboard players add @s bm.kmiss 1', 'execute if score @s bm.kmiss matches 3.. run kill @s'])
 
     # ================================================================== the statue at home: set up on a block, taken back with sneak + punch
     ident = [F(0), F(0), F(0), F(1)]
@@ -414,10 +455,11 @@ def home(G, snd, at, crumble, lit):
     # ------------------------------------------------------------------ waking at home: the statue hidden, the rig stood in its place, a host for it
     for k, c in KN.items():
         for m, mt in (('g', ['bm.kguard', 'bm.npc']), ('d', ['bm.kduel'])):
-            host = {'Tags': ['bm.khost', f'bm.kh_{k}', 'bm.khome'] + mt + ['bm.seen', 'bm.knewh'], 'NoAI': B(1), 'Silent': B(1), 'PersistenceRequired': B(1),
-                    'CustomName': T(c['name'], c['col']), 'DeathLootTable': 'minecraft:empty', 'CanPickUpLoot': B(0),
+            host = {'Tags': ['bm.khost', f'bm.kh_{k}', 'bm.khome'] + mt + ['bm.seen', 'bm.knewh'] + (['bm.hcap'] if m == 'd' else []), 'NoAI': B(1), 'Silent': B(1),
+                    'PersistenceRequired': B(1), 'CustomName': T(c['name'], c['col']), 'DeathLootTable': 'minecraft:empty', 'CanPickUpLoot': B(0),
                     'attributes': [{'id': 'minecraft:max_health', 'base': Dd(c['hp'] + FLOOR)}, {'id': 'minecraft:scale', 'base': Dd(HOSTSC)},
-                                   {'id': 'minecraft:armor', 'base': Dd(10)}, {'id': 'minecraft:knockback_resistance', 'base': Dd(1.0)},
+                                   {'id': 'minecraft:armor', 'base': Dd(ARMOR)}, {'id': 'minecraft:armor_toughness', 'base': Dd(TOUGH)},
+                                   {'id': 'minecraft:knockback_resistance', 'base': Dd(1.0)},
                                    {'id': 'minecraft:attack_damage', 'base': Dd(0)}],
                     'Health': F(c['hp'] + FLOOR),
                     'active_effects': [{'id': 'minecraft:invisibility', 'duration': Int(-1), 'amplifier': B(0), 'show_particles': B(0)},
@@ -436,13 +478,42 @@ def home(G, snd, at, crumble, lit):
                                       f'scoreboard players operation {NH} bm.kid = @s bm.kid',
                                       f'scoreboard players operation {NH} bm.pid = @a[tag=bm.kclk,limit=1] bm.pid',
                                       f'scoreboard players set {NH} bm.ks 0', f'scoreboard players set {NH} bm.kt 0', f'scoreboard players set {NH} bm.kbs 0',
-                                      f'scoreboard players set {NH} bm.kmiss 0', f'scoreboard players set {NH} bm.kgh {(c["hp"] + FLOOR) * 10}'])
+                                      f'scoreboard players set {NH} bm.kmiss 0', f'scoreboard players set {NH} bm.kgh {(c["hp"] + FLOOR) * 10}',
+                                      f'scoreboard players set {NH} bm.hcc {CAP * 10}'])
     # (the knight gone - taken back up, stood down, lost: its rig with it; as the statue's interaction)
     fn(f'{H}/unwake', ['scoreboard players operation #me bm.kid = @s bm.kid',
                        'execute as @e[type=minecraft:item_display,tag=bm.kr] if score @s bm.kid = #me bm.kid run kill @s',
                        'execute as @e[type=minecraft:husk,tag=bm.khome] if score @s bm.kid = #me bm.kid at @s run function bm:p245/h/gone',
                        'scoreboard players set @s bm.kgm 0'])
-    fn(f'{H}/gone', ['scoreboard players set @s bm.ks 99', f'function bm:{PFX}/gone'])
+    fn(f'{H}/gone', ['scoreboard players set @s bm.ks 99', 'scoreboard players operation #me bm.kid = @s bm.kid',
+                     'execute as @e[type=minecraft:interaction,tag=bm.kcb] if score @s bm.kid = #me bm.kid run kill @s', f'function bm:{PFX}/gone'])
+    # (3.0g, the owner: "You cannot deactivate them or turn them back into statues") A GUARD'S CLICK BOX: its plinth sinks to a sliver
+    # under its feet while it's awake, so the knight itself carries an interaction box (bm.kcb, its kid; kept on it each tick).
+    # Its owner right-clicks the knight: its dialog ("Rest" - back to stone on its plinth); sneak + right-click, or sneak + punch:
+    # the statue back into the pack (plinth and all), at once.
+    fn(f'{H}/g/box', ['scoreboard players set #cb bm.rng 0',
+                      f'execute as @e[type=minecraft:interaction,tag=bm.kcb,distance=..8] if score @s bm.kid = #me bm.kid run function bm:{H}/g/box1',
+                      f'execute if score #cb bm.rng matches 0 run function bm:{H}/g/box_new'])
+    fn(f'{H}/g/box1', ['tp @s ~ ~ ~', 'scoreboard players set #cb bm.rng 1'])
+    fn(f'{H}/g/box_new', ['summon minecraft:interaction ~ ~ ~ {Tags:["bm.kcb","bm.kcbnew"],width:1.5f,height:3.0f,response:1b}',
+                          'scoreboard players operation @e[type=minecraft:interaction,tag=bm.kcbnew,distance=..1] bm.kid = #me bm.kid',
+                          'tag @e[type=minecraft:interaction,tag=bm.kcbnew] remove bm.kcbnew'])
+    fast.append(f'execute as @e[type=minecraft:interaction,tag=bm.kcb] if data entity @s interaction at @s run function bm:{H}/cb/use')
+    fast.append(f'execute as @e[type=minecraft:interaction,tag=bm.kcb] if data entity @s attack at @s run function bm:{H}/cb/hit')
+    pick = ['scoreboard players operation #me bm.kid = @s bm.kid',
+            'execute as @e[type=minecraft:interaction,tag=bm.knst,distance=..48] if score @s bm.kid = #me bm.kid run tag @s add bm.kpick']
+    fn(f'{H}/cb/use', ['execute on target run tag @s add bm.kcbp', 'data remove entity @s interaction'] + pick +
+       [f'execute as @a[tag=bm.kcbp,limit=1] at @s if predicate bm:p20/sneaking run function bm:{H}/cb/take',
+        f'execute as @a[tag=bm.kcbp,limit=1] at @s unless predicate bm:p20/sneaking run function bm:{H}/open',
+        'tag @e[type=minecraft:interaction,tag=bm.kpick] remove bm.kpick', 'tag @a[tag=bm.kcbp] remove bm.kcbp'])
+    fn(f'{H}/cb/hit', ['execute on attacker if predicate bm:p20/sneaking run tag @s add bm.kcbp', 'data remove entity @s attack'] + pick +
+       [f'execute as @a[tag=bm.kcbp,limit=1] at @s run function bm:{H}/cb/take',
+        'tag @e[type=minecraft:interaction,tag=bm.kpick] remove bm.kpick', 'tag @a[tag=bm.kcbp] remove bm.kcbp'])
+    fn(f'{H}/cb/take', [f'execute unless entity {SQ} run return 0',
+                        'execute unless score @s bm.pid matches 1.. run function bm:p21/pid',
+                        f'execute unless score @s bm.pid = {SQ} bm.pid run return run ' + say('@s', T('This knight answers only to the one who set it up.', 'gray')),
+                        f'tag {SQ} add bm.gvdme', f'execute at {SQ} run function bm:p71/deco/pick', 'tag @e[tag=bm.gvdme] remove bm.gvdme',
+                        say('@s', [T('It turns to stone - ', 'gray'), T('its statue is back in your pack.', 'white')])])
     # (stone again on its plinth: as the statue's interaction)
     fn(f'{H}/restore', ['scoreboard players operation #me bm.kid = @s bm.kid',
                         'execute as @e[type=minecraft:item_display,tag=bm.kr] if score @s bm.kid = #me bm.kid run kill @s',
@@ -472,6 +543,7 @@ def home(G, snd, at, crumble, lit):
     fn(f'{H}/tick', ['execute as @e[type=minecraft:interaction,tag=bm.knst,distance=..48] if score @s bm.kid = #me bm.kid run tag @s add bm.kpost',
                      f'execute if entity @s[tag=bm.kduel] run function bm:{H}/d/pre',
                      f'execute if entity @s[tag=bm.kguard] run function bm:{H}/g/pre',
+                     f'execute if entity @s[tag=bm.kguard] run function bm:{H}/g/box',
                      'execute if score @s bm.ks matches 1..4 store result score #h bm.rng run data get entity @s Health',
                      f'execute if score @s bm.ks matches 1..4 if score #h bm.rng matches ..{FLOOR} run function bm:{PFX}/fall0',
                      f'execute if score @s bm.ks matches 1..4 if entity @s[tag=bm.kduel] unless entity {TG} run function bm:{H}/d/won',
@@ -581,7 +653,7 @@ def home(G, snd, at, crumble, lit):
                          at(REEL, f'effect give @s minecraft:resistance infinite {RESIST} true'), at(REEL, f'function bm:{PFX}/pose/idle_a'),
                          at(REEL, 'scoreboard players set @s bm.ka 0'), at(REEL, 'scoreboard players set @s bm.ks 1')])
         for k, c in KN.items():
-            fn(f'{P}/slam_{k}', [f'execute positioned ^ ^ ^2 as {foes("distance=..2.6")} run damage @s {c["slam"]} minecraft:mob_attack by {ME}',
+            fn(f'{P}/slam_{k}', [f'execute positioned ^ ^ ^2 as {foes("distance=..2.6")} run damage @s {c["heavy"] if m == "d" else c["slam"]} {"bm:dread" if m == "d" else "minecraft:mob_attack"} by {ME}',
                                  f'execute positioned ^ ^ ^2 as {foes("distance=2.6..5")} run damage @s {c["wave"]} minecraft:mob_attack by {ME}',
                                  'execute positioned ^ ^ ^2 run particle minecraft:explosion ~ ~0.2 ~ 0.6 0.1 0.6 0 3',
                                  f'execute positioned ^ ^ ^2 run particle minecraft:block{{block_state:"{c["stone"]}"}} ~ ~0.2 ~ 1.4 0.1 1.4 0.2 80',

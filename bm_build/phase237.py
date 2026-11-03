@@ -4,7 +4,11 @@ what's shared; undercrown_lore.py says everything it says). Its master's fight i
 FINDING IT   hard mode. Beat all three Dread bosses (bm.dbwin_snow/witch/shark) and a voice speaks - "You broke my three.
              Come, then." - and THE SOVEREIGN'S SUMMONS is yours: a compass that, in the Nether, points to the Undercrown (one
              per world, at undercfg.ORIGIN, cut into the rock; placed - and re-placed - by command). Outside, it is a cliff in an
-             ash cave with a seam of crying obsidian; stand at the seam carrying the three Dread Tokens and it opens. (2.98c: THE MAW - a court with the Sovereign's helm carved as its wall, the gate its mouth; roads cut out to it. 3.0a: before each mouth an open forecourt, the roads bored on until they break into open air - p2/underroad.)
+             ash cave with a seam of crying obsidian; stand at the seam carrying the three Dread Tokens and it opens. (2.98c: THE MAW - a court with the Sovereign's helm carved as its wall, the gate its mouth; roads cut out to it. 3.0a: before each mouth an open forecourt, the roads bored on until they break into open air - p2/underroad. 3.0g: it stands in
+             a LAVA LAKE of its own, carved once round it - p237/lake - its forecourts on plinths out of the lava, its roads on
+             causeways across it; and nothing else is built on it: what any other place left in its box (an Ember Rat's
+             Outpost's bricks, the dirt its settling banked into the halls, a fortress's) is turned back to netherrack, and no
+             runtime-built place sets itself down within reach - p237/keepout.)
 INSIDE       it is a Phase 2 dungeon (p2/logic runs its seventeen trials, gates, secret doors, waves and vaults; a 20-minute idle
              reset re-locks it) with kinds of its own (logic.EXTRA):
   SIGIL      a follower's emblem in the floor: lit while that follower (anyone's) stands on it. All of a trial's lit at once:
@@ -41,7 +45,8 @@ OX, OY, OZ = U.ORIGIN
 SX, SY, SZ = U.SIZE
 NETHER = 'minecraft:the_nether'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
-UVER = 7                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out; 7: 3.0a's forecourts and bored roads)
+UVER = 8                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out; 7: 3.0a's forecourts and bored roads; 8: 3.0g's lava lake, causeways and clean-out)
+LAKEV = 1                                 # (3.0g) bump to carve the lava lake round it again in every world (p237/lake: once, not at every fall)
 COLLAPSE = 180                            # seconds between the claim of its spoils and the rebuild
 HOLD_MAX = 1800                           # (3.0a) the longest it holds for its victors' claim (30 min: no world stays stuck)
 GRACE = 180                               # (3.0a) once one victor has claimed, how long the rest have before it goes anyway
@@ -141,6 +146,108 @@ def setup():
 
 
 setup()
+
+
+# ================================================================== (3.0g) THE LAVA LAKE, THE CLEAN-OUT
+# what a foreign structure is made of, in the box's cells the Undercrown leaves to the Nether - an Ember Rat's Outpost or a
+# Colossus's Forge that built itself here before 3.0g (and the soil its settling banked into the halls), a fortress, a bastion,
+# a ruin: all of it turned back to netherrack before the Undercrown is placed again (its own cells are put back by the place)
+FOREIGN = ['dirt', 'grass_block', 'coarse_dirt', 'rooted_dirt', 'podzol', 'mycelium', 'dirt_path', 'farmland', 'moss_block', 'mud', 'clay', 'snow_block',
+           'nether_bricks', 'cracked_nether_bricks', 'chiseled_nether_bricks', 'nether_brick_fence', 'nether_brick_stairs', 'nether_brick_slab',
+           'nether_brick_wall', 'red_nether_bricks', 'red_nether_brick_slab', 'red_nether_brick_stairs', 'red_nether_brick_wall', 'polished_blackstone_bricks',
+           'cracked_polished_blackstone_bricks', 'polished_blackstone_brick_slab', 'polished_blackstone_brick_stairs', 'polished_blackstone_brick_wall',
+           'chiseled_polished_blackstone', 'gilded_blackstone', 'chest', 'trapped_chest', 'barrel', 'spawner', 'lantern', 'soul_lantern', 'iron_chain',
+           'iron_bars', 'respawn_anchor', 'anvil', 'blast_furnace', 'smithing_table', 'lava_cauldron', 'cauldron', 'crimson_planks', 'crimson_slab',
+           'crimson_sign', 'crimson_wall_sign', 'gold_block', 'nether_wart', 'ladder']
+HOLLOW = ['air', 'cave_air', 'lava', 'fire', 'soul_fire']
+# what else a foreign place left standing in the lake or the box (its markers, its rat, its plates): taken when the lake is cut
+FOREIGN_E = ['type=minecraft:marker,tag=bm.p200seed', 'type=minecraft:marker,tag=bm.outpost', 'type=minecraft:marker,tag=bm.forge',
+             'type=minecraft:marker,tag=bm.settle', 'tag=bm.orat_sprite', 'type=minecraft:interaction,tag=bm.p200box', 'type=minecraft:item',
+             'type=minecraft:experience_orb']
+SHELL_W = 6                               # the box's outer skin made whole rock (the lake's cliff: no cave mouths, no lava pouring out)
+
+
+def keepout_box(margin=48):
+    """(world) x1, z1, x2, z2: the lake and the box, and a margin - no runtime place builds itself in it (p237/keepout)"""
+    import p2.underroad as UR
+    x1, z1, x2, z2 = UR.lake_extent()
+    return OX + x1 - margin, OZ + z1 - margin, OX + x2 + margin, OZ + z2 + margin
+
+
+def _lake_gen(G, fn, tellraw, P, UR):
+    """the lake's staged carve (p237/lake/step, one step a second from p237/build/try until it's done) and the keep-out"""
+    from items import T as _T
+    G.wjson('bm/tags/block/u_foreign.json', {'values': [f'minecraft:{b}' for b in FOREIGN]})
+    G.wjson('bm/tags/block/u_hollow.json', {'values': [f'minecraft:{b}' for b in HOLLOW]})
+    lx1, lz1, lx2, lz2 = UR.lake_extent()
+    WX1, WZ1, WX2, WZ2 = OX + lx1, OZ + lz1, OX + lx2, OZ + lz2
+    LBOX = f'x={WX1},y={OY},z={WZ1},dx={WX2 - WX1},dy={SY - 1},dz={WZ2 - WZ1}'
+    # (a forceload takes at most 256 chunks: the lake's square in four)
+    mx, mz = (WX1 + WX2) // 2, (WZ1 + WZ2) // 2
+    fl = [f'{a} {b} {c} {d}' for a, c in ((WX1, mx), (mx + 1, WX2)) for b, d in ((WZ1, mz), (mz + 1, WZ2))]
+    spans = UR.lake_spans()
+    steps = []
+    # ---- the lake: a step per chunk column (16 x-slices); it waits (nothing done, the step not counted) until every chunk it
+    #      touches is loaded - a fill over an unloaded chunk does nothing at all
+    cols = {}
+    for x, runs in spans.items(): cols.setdefault((OX + x) // 16, []).append((x, runs))
+    for cx in sorted(cols):
+        zs = [z for x, runs in cols[cx] for a, b in runs for z in (a, b)]
+        cz1, cz2 = (OZ + min(zs)) // 16, (OZ + max(zs)) // 16
+        body = [f'execute unless loaded {cx * 16} 64 {cz * 16} run return 0' for cz in range(cz1, cz2 + 1)]
+        for x, runs in cols[cx]:
+            top = UR.lake_air_top(x)
+            for a, b in runs:
+                X, ZA, ZB = OX + x, OZ + a, OZ + b
+                body += [f'fill {X} {OY + UR.LAKE_SEA + 1} {ZA} {X} {OY + top} {ZB} minecraft:air',
+                         f'fill {X} {OY + UR.LAKE_BED} {ZA} {X} {OY + UR.LAKE_SEA} {ZB} minecraft:lava']
+        steps.append(body)
+    nlake = len(steps)
+    # ---- the box: what foreign places left in its Nether cells, and its skin made whole (the place puts its own cells back)
+    for cx in range(OX // 16, (OX + SX - 1) // 16 + 1):
+        x1, x2 = max(OX, cx * 16), min(OX + SX - 1, cx * 16 + 15)
+        body = [f'execute unless loaded {cx * 16} 64 {cz * 16} run return 0' for cz in range(OZ // 16, (OZ + SZ - 1) // 16 + 1)]
+        for y in range(OY, OY + SY, 9):
+            body.append(f'fill {x1} {y} {OZ} {x2} {min(y + 8, OY + SY - 1)} {OZ + SZ - 1} minecraft:netherrack replace #bm:u_foreign')
+        for za, zb in ((OZ, OZ + SHELL_W - 1), (OZ + SZ - SHELL_W, OZ + SZ - 1)):
+            body.append(f'fill {x1} {OY} {za} {x2} {OY + SY - 1} {zb} minecraft:netherrack replace #bm:u_hollow')
+        for xa, xb in ((OX, OX + SHELL_W - 1), (OX + SX - SHELL_W, OX + SX - 1)):
+            a, b = max(xa, x1), min(xb, x2)
+            if a > b: continue
+            for y in range(OY, OY + SY, 24):
+                body.append(f'fill {a} {y} {OZ + SHELL_W} {b} {min(y + 23, OY + SY - 1)} {OZ + SZ - SHELL_W - 1} minecraft:netherrack replace #bm:u_hollow')
+        steps.append(body)
+    first = [  # (before the first step: nobody stands in the lake's way - all of them to the court; the foreign places' things taken)
+        f'execute if score #uver bm.p2 matches 1.. in {NETHER} as @a[{LBOX}] unless entity @s[{BOX}] at @s run function bm:p237/out',
+        # (a world placing it for the first time has no court to carry them to: they're kept from the lava and the fall)
+        f'execute unless score #uver bm.p2 matches 1.. in {NETHER} as @a[{LBOX}] run effect give @s minecraft:fire_resistance 120 0',
+        f'execute unless score #uver bm.p2 matches 1.. in {NETHER} as @a[{LBOX}] run effect give @s minecraft:slow_falling 60 0',
+        f'execute in {NETHER} as @a[{BOX}] at @s run function bm:p237/out',
+        *[f'execute in {NETHER} run kill @e[{s_},{LBOX}]' for s_ in FOREIGN_E],
+        f'execute in {NETHER} as @e[type=minecraft:wandering_trader,tag=bm.orat,{LBOX}] at @s run tp @s ~ -300 ~',
+        f'execute in {NETHER} run ' + tellraw(f'@a[{LBOX}]', [_T('The Nether shudders round the Undercrown...', COL, bold=True),
+                                                            _T(' (its lake is opening: stand clear a minute)', 'gray')])]
+    for i, body in enumerate(steps):
+        boxfirst = [f'execute in {NETHER} as @a[{BOX}] at @s run function bm:p237/out', *[f'execute in {NETHER} run kill @e[{s_},{BOX}]' for s_ in FOREIGN_E]]
+        fn(f'p237/lake/s{i}', (first if i == 0 else []) + (boxfirst if i == nlake else []) + body + ['scoreboard players add #ulk bm.p2 1'])
+    fn('p237/lake/step', ['execute unless score #ulk bm.p2 matches 0.. run scoreboard players set #ulk bm.p2 0',
+                          # (no lake in this world - /function bm:admin/under/nolake: only the box's clean-out)
+                          f'execute if score #ulakeoff bm.cfg matches 1 if score #ulk bm.p2 matches ..{nlake - 1} run scoreboard players set #ulk bm.p2 {nlake}'] +
+       [f'execute if score #ulk bm.p2 matches {i} in {NETHER} run return run function bm:p237/lake/s{i}' for i in range(len(steps))] +
+       ['scoreboard players set #ulk bm.p2 0', f'scoreboard players set #ulake bm.p2 {LAKEV}'])
+    # ---- the keep-out: no runtime-built place (an Ember Rat's Outpost, a Colossus's Forge) sets itself down on it
+    kx1, kz1, kx2, kz2 = keepout_box()
+    fn('p237/keepout', [f'execute if dimension {NETHER} if entity @s[x={kx1},y=-64,z={kz1},dx={kx2 - kx1},dy=400,dz={kz2 - kz1}] run return 1', 'return 0'])
+    for k in ('ember_outpost', 'colossus_forge'):
+        f_ = G.FUNCS.get(f'p200/{k}/seed')
+        if f_ is not None: f_[0:0] = ['execute if function bm:p237/keepout run return run kill @s']
+    fn('admin/under/lake', ['scoreboard players set #ulake bm.p2 0', 'scoreboard players set #ulk bm.p2 0', 'scoreboard players set #ulakeoff bm.cfg 0',
+                                   'scoreboard players set #uwant bm.p2 1', 'scoreboard players set #uver bm.p2 0', 'scoreboard players set #ucol bm.p2 0',
+                                   'scoreboard players set #uhold bm.p2 0',
+                                   tellraw('@s', P + [_T('The Undercrown\'s lava lake will be carved again, and the Undercrown re-placed (a minute or so; everyone near is carried into its court first).', 'gray')])])
+    fn('admin/under/nolake', ['scoreboard players set #ulakeoff bm.cfg 1',
+                                     tellraw('@s', P + [_T('The Undercrown\'s lava lake will not be carved in this world (what is carved stays).', 'gray')])])
+    return dict(fl=fl, steps=len(steps))
 
 
 # ================================================================== generate
@@ -253,6 +360,16 @@ def generate(G):
     mk = [f'execute if entity @s[tag=bm.udk_{t}] run function bm:p176/mk/{t}' for t in sorted({e for w_ in U.WAVES.values() for r_ in w_[1] for e, _n in r_} | {'wither_skeleton'})
           if f'p176/mk/{t}' in G.FUNCS]
     fn('p237/dress', mk + ['tag @s add bm.dread', 'tag @s add bm.udone'])
+    # (3.0g) THE ARMOURED: a wave's share that isn't Dread (U.WAVE_MIX) comes in diamond or netherite, half and half - enchanted, a
+    # better blade for an iron one, nothing of it dropped
+    for mat, prot in (('diamond', 3), ('netherite', 2)):
+        fn(f'p237/wkit_{mat}', [f'item replace entity @s armor.{sl} with minecraft:{mat}_{pc}[enchantments={{"minecraft:protection":{prot}}}]'
+                                for sl, pc in (('head', 'helmet'), ('chest', 'chestplate'), ('legs', 'leggings'), ('feet', 'boots'))] +
+           [f'execute if items entity @s weapon.mainhand minecraft:iron_{w} run item replace entity @s weapon.mainhand with minecraft:{mat}_{w}' for w in ('sword', 'axe')])
+    fn('p237/wkit', ['execute store result score #wk bm.rng run random value 1..2',
+                     'execute if score #wk bm.rng matches 1 run function bm:p237/wkit_diamond', 'execute if score #wk bm.rng matches 2 run function bm:p237/wkit_netherite',
+                     'data merge entity @s {drop_chances:{head:0.0f,chest:0.0f,legs:0.0f,feet:0.0f,mainhand:0.0f}}',
+                     'effect give @s minecraft:strength infinite 0 true', 'effect give @s minecraft:fire_resistance infinite 0 true', 'tag @s add bm.uarm'])
     tick.append('execute as @e[tag=bm.udread,tag=!bm.udone] run function bm:p237/dress')
 
     # ---- the dungeon's voice: one line to each player, the first time they come near
@@ -341,10 +458,13 @@ def generate(G):
     bio = NS.fills(NETHER, (OX, OY, OZ), (SX, SY, SZ), 'bm:undercrown', done=('#ubio', NS.BIOV))
     import p2.oldsite as OS                 # (3.0: moved out to 2.5k-5k - an old copy, where a world had one, comes down first)
     OS.generate(G, 'p237', NETHER, (1536, 6, -1536), (SX, SY, SZ), 'minecraft:netherrack', CLEAR, 'p237/out', '#uver')
+    _lake = _lake_gen(G, fn, tellraw, P, UR)          # (3.0g: the lava lake round it - carved once, a chunk column a second)
     fn('p237/build/try', ['execute if function bm:p237/oldsite run return 0', *[f'execute in {NETHER} run forceload add {q}' for q in fls],
+                          *[f'execute unless score #ulake bm.p2 matches {LAKEV} unless score #ulakeoff bm.cfg matches 1 in {NETHER} run forceload add {q}' for q in _lake['fl']],
                           f'execute in {NETHER} store success score #uload bm.p2 if loaded {OX} {OY} {OZ} if loaded {OX + SX - 1} {OY} {OZ + SZ - 1} if loaded {OX} {OY} {OZ + SZ - 1} if loaded {OX + SX - 1} {OY} {OZ}{_farl}',
                           'execute unless score #uload bm.p2 matches 1 run return run scoreboard players set #uwait bm.p2 0',
                           'scoreboard players add #uwait bm.p2 1', 'execute unless score #uwait bm.p2 matches 4.. run return 0',
+                          f'execute unless score #ulake bm.p2 matches {LAKEV} run return run function bm:p237/lake/step',
                           f'execute in {NETHER} as @a[{BOX}] at @s run function bm:p237/out',
                           # (what the last copy left: its markers, displays, foes and dropped things - never anyone's follower)
                           *[f'execute in {NETHER} run kill @e[{s_},{BOX}]' for s_ in CLEAR],
@@ -353,7 +473,7 @@ def generate(G):
                           'execute unless score #ubuilt bm.p2 matches 1 run return 0'] + bio + [
                           'function bm:p237/build/roads',
                           f'scoreboard players set #uver bm.p2 {UVER}', 'scoreboard players add #urun bm.p2 1', f'execute in {NETHER} as @e[type=minecraft:marker,tag=bm.d_{d},{BOX}] run scoreboard players operation @s bm.drun = #urun bm.p2', 'scoreboard players set #ufell bm.p2 0',
-                          *[f'execute in {NETHER} run forceload remove {q}' for q in fls]])
+                          *[f'execute in {NETHER} run forceload remove {q}' for q in fls + _lake['fl']]])
     # (a rebuild's leftovers: a marker of an older copy whose chunk loaded after the clear - never two of anything)
     second.append(f'execute if score #uver bm.p2 matches {UVER} in {NETHER} as @e[type=minecraft:marker,tag=bm.d_{d},{BOX}] unless score @s bm.drun = #urun bm.p2 run kill @s')
     second.append(f'execute if score #uwant bm.p2 matches 1 unless score #uver bm.p2 matches {UVER} unless score #ucol bm.p2 matches 1.. unless score #uhold bm.p2 matches 1.. run function bm:p237/build/try')
@@ -639,5 +759,5 @@ def generate(G):
                                give(TOKENS['snow']), give(TOKENS['witch']), give(TOKENS['shark'])])
     fn('admin/under/fell', ['function bm:p237/nights_end'])
     fn('admin/under/unfell', ['scoreboard players set #dfell bm.cfg 0', tellraw('@s', P + [T('The Dread Nights can come again.', 'gray')])])
-    G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/under/', 'yellow'), T('place | go | outside | approach | summons | fell | unfell', 'yellow'),
-                                                T('  the Undercrown (final dungeon): (re)place it, go in, go to its gate, earn the Summons, end or bring back the Dread Nights', 'gray')]))
+    G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/under/', 'yellow'), T('place | go | outside | approach | summons | fell | unfell | lake | nolake', 'yellow'),
+                                                T('  the Undercrown (final dungeon): (re)place it, go in, go to its gate, earn the Summons, end or bring back the Dread Nights, carve its lava lake again / never', 'gray')]))

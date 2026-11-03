@@ -42,12 +42,17 @@ SPECIALS = [(('royal_pearl', 18), ('enchanted_golden_apple', 1)), (('royal_pearl
             (('royal_pearl', 12), ('totem_of_undying', 1)), (('royal_pearl', 10), ('echo_shard', 3)), (('royal_pearl', 6), ('medallion', 2)),
             (('royal_pearl', 8), ('music_disc_otherside', 1)), (('royal_pearl', 16), ('heartstone', 1))]
 BREACH_SECS, BREACH_REST, CRACKS, SHATTER_AT = 60, 600, 4, 3
+# (3.0g) the sea: its surface's first air (sea level 63); the highest a seed builds at (its dome's top is the seed + 27: 3 under
+# the surface); how far round the dome's middle the old over-the-sea water is let go (its settled square, and a block)
+SEA_Y, SEED_MAX, KF = 63, 33, 46
+PQ_DROP = 3                         # (3.0g) % a monster drops a Royal Pearl, killed by one whose Queen Pearl is honoured to rank III
 
 
 # ================================================================================================ items
 item('royal_pearl', TOTEM, 'Royal Pearl', PEARL_C,
      ['A pearl of the Underwater Kingdom\'s treasury,', 'stamped with the royal crest.', ('Spend it with the Royal Steward.', 'aqua'),
-      ('Paid in tribute, for requests, festivals', 'gray'), ('and for keeping the dome whole.', 'gray')],
+      ('Paid in tribute, for requests, festivals', 'gray'), ('and for keeping the dome whole.', 'gray'),
+      ('The Fence sells them for Trophies;', 'dark_gray'), ('the Rat Bank keeps them.', 'dark_gray')],
      model='bm:royal_pearl', stack=64, cat='currency')
 item('tidecaller_shell', TOTEM, 'Tidecaller Shell', '#ff8ad8',
      ['Emma\'s - she says she\'s too old for it now.', ('Use it: three minutes of Water Breathing,', 'blue'), ("Dolphin's Grace and Conduit Power.", 'blue'),
@@ -84,12 +89,22 @@ item('sealed_map_kingdom', TOTEM, 'Sealed Royal Chart', KC,
      model='minecraft:map', glint=True, stack=16, comps={'minecraft:consumable': consumable(0.8, 'none', 'minecraft:item.book.page_turn', False)}, cat='map')
 
 
+TROPHY_PEARLS = 4                   # (3.0g) the Fence's rate: a Black Market Trophy for this many Royal Pearls (a Trophy is 20 Tokens;
+                                    #  the Steward pays 2 Tokens a pearl - nothing to be made going round)
+
+
 def extend_offers(O, offer):
     O['dock'] += [offer(('token', 6), ('sealed_map_kingdom', 1))]
+    O['fence'] += [offer(('trophy', 1), ('royal_pearl', TROPHY_PEARLS))]          # (3.0g: Royal Pearls for Trophies, at the Fence's)
 
 
 import phase177 as _P177
 _P177.STOCK.append(('sealed_map_kingdom', 1, 2))                    # (2.94: Vesper sells it too - and the Royal Steward no longer does)
+# (3.0g) the Rat Bank keeps Royal Pearls (its 13th currency: after phase177's Dread Tokens - imported just above - so no code moves)
+import phase31 as _P31
+_P31.BANK.append(('royal_pearl', 'bm.bk_rp', 'Royal Pearls', PEARL_C))
+_P31.SAVE_CAP['royal_pearl'] = 2
+_P31.SAVE_PER_OF['royal_pearl'] = 50
 
 
 # ================================================================================================ art: icons, the steward
@@ -144,7 +159,7 @@ def generate(G):
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     P = G.PREFIX
     tick, fast, second = [], [], []
-    objs = ['bm.kbcd', 'bm.kbask', 'bm.kgst', 'bm.kdome', 'bm.kday', 'bm.kfest', 'bm.kbr', 'bm.kbn', 'bm.kburst', 'bm.ktrib', 'bm.kreq', 'bm.kaud', 'bm.kfav',
+    objs = ['bm.bk_rp', 'bm.kbcd', 'bm.kbask', 'bm.kgst', 'bm.kdome', 'bm.kday', 'bm.kfest', 'bm.kbr', 'bm.kbn', 'bm.kburst', 'bm.ktrib', 'bm.kreq', 'bm.kaud', 'bm.kfav',
             'bm.krank', 'bm.kin', 'bm.kcd']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + [f'scoreboard players set #{n} bm.rng {n}' for n in (7, len(REQUESTS))]
     G.OBJECTIVES += objs
@@ -178,8 +193,16 @@ def generate(G):
     OX, OY, OZ = -35, -K.FY, -35                                                      # the template's corner, from the seed's block
     corners = ' '.join(f'if loaded ~{x} ~ ~{z}' for x in (OX, OX + K.SX - 1) for z in (OZ, OZ + K.SZ - 1))
     second.append(f'execute as @e[type=minecraft:marker,tag=bm.kseed] at @s if entity @a[distance=..112] {corners} run function bm:p199/k/seed')
-    # (the sea floor's height: the dome's top must stay under the sea, so a seed up a slope is set down to y 34)
-    fn('p199/k/seed', ['execute if entity @s[y=35,dy=400] run tp @s ~ 34 ~', 'execute at @s run function bm:p199/k/build', 'kill @s'])
+    # (the sea floor's height: the dome's top must stay under the sea, so a seed up a slope is set down - 3.0g: to SEED_MAX (33,
+    #  was 34), so its top (the seed + 27) is at y 60, under two blocks of sea, and nothing of it - nor the water its settling cuts
+    #  round it (phase203, which keeps its cut under y 60 too) - ever stands above the sea)
+    fn('p199/k/seed', [f'execute if entity @s[y={SEED_MAX + 1},dy=400] run tp @s ~ {SEED_MAX} ~', 'execute at @s run function bm:p199/k/build', 'kill @s'])
+    # (3.0g) a kingdom settled before 3.0g could have water cut above the sea round it (a "watery square" over the surface): once
+    # each, round its dome, every water block above the sea's surface is let go
+    kfix = [f'fill ~-{KF} {y} ~-{KF} ~{KF} {min(y + 2, SEA_Y + 12)} ~{KF} minecraft:air replace minecraft:water' for y in range(SEA_Y, SEA_Y + 13, 3)]
+    fn('p199/k/unflood', [f'execute positioned ~ ~ ~{35 - CORE[2]:.1f} run {l}' for l in kfix] + ['tag @s add bm.k30g'])
+    second.append(f'execute as @e[type=minecraft:marker,tag=bm.kingdom,tag=!bm.k30g] at @s positioned ~ ~ ~{35 - CORE[2]:.1f} if loaded ~-{KF} ~ ~-{KF} '
+                  f'if loaded ~{KF} ~ ~{KF} if loaded ~-{KF} ~ ~{KF} if loaded ~{KF} ~ ~-{KF} positioned ~ ~ ~{CORE[2] - 35:.1f} run function bm:p199/k/unflood')
     wjson('bm/tags/block/p199_soft.json', {'values': ['minecraft:sand', 'minecraft:gravel', 'minecraft:clay', 'minecraft:dirt', 'minecraft:stone',
                                                       'minecraft:red_sand', 'minecraft:mud', 'minecraft:andesite', 'minecraft:diorite', 'minecraft:granite',
                                                       'minecraft:deepslate', 'minecraft:tuff', 'minecraft:seagrass', 'minecraft:tall_seagrass',
@@ -721,6 +744,24 @@ def generate(G):
     fn('p199/carry/sea_glass_locket', ['effect give @s minecraft:water_breathing 3 0 true', f'{in_water} run effect give @s minecraft:regeneration 3 0 true'])
     fn('p199/carry/regent_seal', ['effect give @s minecraft:hero_of_the_village 3 0 true'])
     fn('p199/carry/shark_tooth_charm', [f'{in_water} run effect give @s minecraft:strength 3 0 true', f'{in_water} run effect give @s minecraft:speed 3 1 true'])
+
+    # (3.0g) QUEEN PEARL'S FAVOUR: once Queen Pearl is honoured to Ava's rank III (her honours all V: bm.hn_pearlq's last three
+    # digits 555), every monster her player kills has a PQ_DROP% chance to drop a Royal Pearl (into their pockets; never in the
+    # vault). #pqforce bm.cfg 1 makes every roll win (tests set the stage with it).
+    wjson('bm/advancement/p199/pq_drop.json', {'criteria': {'k': {'trigger': 'minecraft:player_killed_entity', 'conditions': {
+        'entity': [{'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:entity_type': '#bm:hostile'}}]}}},
+        'rewards': {'function': 'bm:p199/pq/kill'}})
+    fn('p199/pq/kill', ['advancement revoke @s only bm:p199/pq_drop', 'execute unless score @s bm.hn_pearlq matches 555.. run return 0',
+                        'scoreboard players operation #pq bm.rng = @s bm.hn_pearlq', 'scoreboard players operation #pq bm.rng %= #1000 bm.rng',
+                        'execute unless score #pq bm.rng matches 555 run return 0', 'execute if dimension bm:gutter run return 0',
+                        'execute store result score #pq bm.rng run random value 1..100',
+                        'execute if score #pqforce bm.cfg matches 1 run scoreboard players set #pq bm.rng 1',
+                        f'execute unless score #pq bm.rng matches ..{PQ_DROP} run return 0',
+                        give('royal_pearl'), 'playsound minecraft:block.amethyst_block.chime player @s ~ ~ ~ 0.8 1.6',
+                        'particle minecraft:bubble_pop ~ ~1.2 ~ 0.3 0.4 0.3 0.05 12',
+                        say("Queen Pearl's favour: a Royal Pearl!", '#5ae0d8')])
+    import phase173 as _P173
+    assert 'pearlq' in _P173.AR, 'Queen Pearl has no honours (phase201) - her favour reads them'
 
     G.FUNCS['tick'] += tick
     G.FUNCS['loop/fast'][-1:-1] = fast

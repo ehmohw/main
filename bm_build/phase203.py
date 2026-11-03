@@ -77,7 +77,12 @@ def generate(G):
 
     # the Underwater Kingdom: the sea floor banked up to its dome in sand, the slopes round it cut back to water
     import kingdom as K
-    settle.make(G, 'kingdom', K.SX, K.SZ, cut=10, fill=8, under=True, water=True, deep=12, high=20, clear='water')
+    # (3.0g: high 16, was 20 - its water cut reached the seed + 30, above the sea for a kingdom set down at y 34: a "watery
+    #  square" standing out of the surface. Now its top is the seed + 26: y 59 at most, the seed being 33 at most - phase199)
+    import phase199 as P199
+    KHIGH = 16
+    assert P199.SEED_MAX + 1 + 9 + KHIGH < P199.SEA_Y - 3, 'the kingdom\'s settling would cut water above the sea'
+    settle.make(G, 'kingdom', K.SX, K.SZ, cut=10, fill=8, under=True, water=True, deep=12, high=KHIGH, clear='water')
     f = G.FUNCS['p199/k/build']
     f[1:1] = settle.run('kingdom', -35, 1, -35)
 
@@ -86,6 +91,17 @@ def generate(G):
     for k, dims, (ox, oz) in (('ember_outpost', H.EO, (-11, -11)), ('colossus_forge', H.CF, (-20, -23))):
         settle.make(G, f'p200_{k}', dims['SX'], dims['SZ'], cut=8, fill=8, under=True, base=dims['FLOOR'] + 1, deep=10, high=8)
         G.FUNCS[f'p200/{k}/place'][1:1] = settle.run(f'p200_{k}', ox, 0, oz)
+
+    # (3.0g) an outpost settled before 3.0g in a biome no vanilla tag names (the Undercrown's own, filled over its box) got the
+    # Overworld's default - grass on top, dirt banked under: once each, round its core, that ground is the Nether's again
+    for tag, r in (('bm.outpost', 24), ('bm.forge', 36)):
+        nm = tag.split('.')[1]
+        per = max(1, 32768 // ((2 * r + 1) ** 2))
+        body = [f'fill ~-{r} ~{y} ~-{r} ~{r} ~{min(y + per - 1, 10)} ~{r} minecraft:netherrack replace minecraft:{b}'
+                for b in ('grass_block', 'dirt') for y in range(-14, 11, per)]
+        fn(f'settle/regrass_{nm}', body + ['tag @s add bm.st30g'])
+        second.append(f'execute as @e[type=minecraft:marker,tag={tag},tag=!bm.st30g] at @s if dimension minecraft:the_nether '
+                      f'if loaded ~-{r} ~ ~-{r} if loaded ~{r} ~ ~{r} if loaded ~-{r} ~ ~{r} if loaded ~{r} ~ ~-{r} run function bm:settle/regrass_{nm}')
 
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:marker,tag=bm.settle]']
     G.FUNCS['loop/second'][-1:-1] = second

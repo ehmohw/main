@@ -71,7 +71,7 @@ def snd(name, v=1.0, p=None, who='@a[distance=..32]'):
 
 class CFG:
     """(3.0e) the Dread Mire to the Mires' shared runtime (mirekit) - its rig, tags, numbers, colours and voice"""
-    P, A, NAME, COL, HP, FLOOR, SCALE, ARMOR = PFX, A, NAME, COL, HP, FLOOR, SCALE, 12
+    P, A, NAME, COL, HP, FLOOR, SCALE, ARMOR = PFX, A, NAME, COL, HP, FLOOR, SCALE, 16       # (3.0g: armour 12 -> 16, toughness 8 -> 10)
     WAKE, LEAVE, CREEP, GRAB_DMG, STAB_DMG, EVERY, DIE_END, RISEN_SC, DORMANT_SC, DUR = WAKE, LEAVE, CREEP, GRAB_DMG, STAB_DMG, EVERY, DIE_END, RISEN_SC, DORMANT_SC, DUR
     HOST, R, NEWP, NEWH, GRAB, GOOPT, GNEW, MELT, TAME = 'bm.mire', 'bm.mr', 'bm.mnew', 'bm.mnewh', 'bm.mgrab', 'bm.mgoop', 'bm.mgnew', 'bm.mmelt', 'bm.mtame'
     FELL, CROSS, LIGHT_EXEMPT = '#dfell bm.cfg', 'bm:p181/in_cross', 'bm.muc'
@@ -80,7 +80,8 @@ class CFG:
     DUST, DRIP_DUST, STAB_DUST = '0.45,0.02,0.06', '0.5,0.02,0.06', '0.6,0.02,0.08'
     INK, SMOKE, RECOIL_FX, DRIP_BLOCK = 'minecraft:squid_ink', 'minecraft:smoke', 'minecraft:end_rod', 'minecraft:black_concrete'
     GOOP, BUBBLE, LOOT = 'bm:dfx_goop', 'bubble', 'bm:p246/remnants'
-    DMG, TOUGH = 'bm:mire', 8
+    DMG, TOUGH = 'bm:mire', 10
+    HITCAP = 20                     # (3.0g, the owner: "the final boss sword kills them easily" - no blow takes more than 20 off it: hitcap.py)
     CHASE, SPEED, LEASH, ROAM, LEASHED = 24, 0.22, 10, 32, ('bm.muc',)
     SPIT, LIVE = None, ('2..5',)
     snd = staticmethod(snd)

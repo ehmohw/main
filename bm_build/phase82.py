@@ -8,7 +8,8 @@ ON A BLOOD MOON, very rarely, a monster's spawn under the open sky becomes the A
   EMBER RAIN: it throws its head back, its fires roar up, and burning embers fall where you stand - move.
   At half health it SHRIEKS: ember spiderlings pour out from under it, and from then on THE GLARE - a beam of fire from its
   carved eyes that follows you.
-  It flees the dawn (when the Blood Moon ends) and leaves if nobody's within 160 blocks for two minutes (3.0e; it was 96 and one).
+  It flees the dawn (when the Blood Moon ends) - and (3.0g) nothing else sends it off: not being left alone, not being far from
+  everyone (the 160-block sweep and the two lonely minutes are only for one grown from a gourd now), only an empty server.
 THE REWARD (everyone within 64 when it falls): the SCORCHING HEART - certain the first time, a chance after - and Blood
   Crystals, Medallions, a Trophy and Tokens.
 ITS HITBOX FITS IT: the giant under it takes your arrows; the pumpkin and each of its eight legs take your blows.
@@ -98,6 +99,7 @@ def generate(G):
     # ================================================================== THE HEARTBEAT
     tick.append('execute as @e[type=minecraft:giant,tag=bm.salboss] at @s run function bm:p82/tick')
     fn('p82/tick', ['execute unless score #active bm.bm matches 1 unless score #forced bm.bm matches 1 run return run function bm:p82/leave',
+                    'execute unless entity @a run return run function bm:p82/leave',
                     'scoreboard players operation #sid bm.rng = @s bm.salid',
                     'execute as @e[type=minecraft:item_display,tag=bm.salp,tag=!bm.saldying] if score @s bm.salid = #sid bm.rng run tag @s add bm.salsel',
                     f'execute unless entity {sel("body")} run function bm:p82/rig',
@@ -129,7 +131,9 @@ def generate(G):
                    'execute rotated as @s rotated ~ 0 positioned ^ ^7.2 ^3.1 run particle minecraft:small_flame ~ ~ ~ 1.6 0.2 0.1 0.01 6',
                    f'execute as @a[distance=..5,{near}] run data modify entity @s Fire set value 60s',
                    # (3.0e: it rises up to 128 off - with 96 / a minute it could gutter out while you were still on your way to it)
-                   'execute if entity @a[distance=..160] run scoreboard players set @s bm.sallone 0', 'scoreboard players add @s bm.sallone 1',
+                   # (3.0g, the owner: it "still immediately died when it naturally spawned" - a natural one never leaves for being left
+                   #  alone now: only the Blood Moon's end (p82/tick) or an empty server sends it off. One grown from a gourd still does.)
+                   'execute if entity @a[distance=..160] run scoreboard players set @s bm.sallone 0', 'execute if entity @s[tag=bm.called] run scoreboard players add @s bm.sallone 1',
                    'execute if score @s bm.sallone matches 120.. run function bm:p82/leave'])
     # walking: it turns on the nearest of you and strides (a 2-second gait cycle, 3 blocks a second); close in, it stands
     fn('p82/move', ['scoreboard players set #st bm.rng 0', 'execute if entity @a[tag=bm.saltgt,distance=7..] run scoreboard players set #st bm.rng 1',
@@ -333,7 +337,7 @@ def generate(G):
     second.append('execute as @e[type=minecraft:interaction,tag=bm.hearth] at @s run function bm:p82/hearth/sec')
     keep = 'tag=!bm.boss,tag=!bm.npc,tag=!bm.monstrosity,tag=!bm.salboss,tag=!bm.kxboss,tag=!bm.gvg,tag=!bm.gvboss,tag=!bm.tiered'
     fn('p82/hearth/sec', [f'execute as @e[type=#bm:hostile,tag=!bm.hfseen,distance=..48] at @s run function bm:p82/hearth/check',
-                          'execute as @e[type=#bm:hostile,tag=bm.hfseen,distance=..12] run data modify entity @s Fire set value 60s',
+                          'execute as @e[type=#bm:hostile,tag=bm.hfseen,tag=!bm.khome,distance=..12] run data modify entity @s Fire set value 60s',      # (3.0g: never a home Statue Knight)
                           'execute as @e[type=#bm:hostile,tag=bm.blood,distance=..24] run function bm:p82/hearth/burn',
                           'particle minecraft:flame ~ ~0.7 ~ 0.15 0.2 0.15 0.01 3', 'particle minecraft:small_flame ~ ~1.1 ~ 0.1 0.1 0.1 0.01 2'])
     fn('p82/hearth/check', ['tag @s add bm.hfseen', f'execute if entity @s[{keep}] if data entity @s {{PersistenceRequired:0b}} unless data entity @s CustomName run function bm:p82/hearth/snuff'])

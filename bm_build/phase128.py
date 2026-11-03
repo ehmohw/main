@@ -30,7 +30,9 @@ KEYS = P60.KEYS
 MENU = 970
 STATUE_R = 32                       # villagers within this of the statue: half price
 NPC_R = 16                          # ...but never near the Black Market's own traders
-PS = 0.55                           # the follower's size
+PS = 0.76                           # the follower's size (3.0g: the trader's, phase60 - he was 0.55, a head shorter than himself)
+import pearlman_art as PA            # (3.0g: his rig)
+PA.RIG_SCALE = PS
 
 item('pearl_statue', TOTEM, "Pearlman's Golden Statue", GOLD,
      ['Solid gold. Very handsome. Tipping his hat.', ('Sneak + use on a block: set it up.', 'blue'),
@@ -50,7 +52,7 @@ def generate(G):
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     pmsay = lambda txt, who='@s': title(who, 'actionbar', [T('Pearlman: ', PEARL, bold=True), T(txt, 'white')])
     tick, fast, second = [], [], []
-    objs = ['bm.pmw', 'bm.pmq', 'bm.fgp']
+    objs = ['bm.pmw', 'bm.pmq', 'bm.fgp', 'bm.pms', 'bm.pmg', 'bm.pmgs', 'bm.pmk', 'bm.pmef']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
     import phase28 as P28
@@ -154,9 +156,11 @@ def generate(G):
             'attributes': [{'id': 'minecraft:movement_speed', 'base': D(0.32)}, {'id': 'minecraft:follow_range', 'base': D(32)},
                            {'id': 'minecraft:step_height', 'base': D(1.0)}, {'id': 'minecraft:scale', 'base': D(0.8)}],
             'active_effects': [{'id': 'minecraft:invisibility', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}]}
-    pdisp = {'Tags': ['bm.pmd', 'bm.pmnew'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:pearlman'}},
-             'item_display': 'fixed', 'teleport_duration': Int(2), 'interpolation_duration': Int(5),
-             'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(PS / 2), F(0)], 'scale': [F(PS)] * 3}}
+    # (3.0g) his model is a rig now (pearlman_art): a display per part, each tagged bm.pmd (so his wardrobe, his seasons, going home and
+    # the pixel costume find them all, as they found his one model) and bm.pmp_<part>
+    import rigfol as RF
+    RU = PS / 16
+    psel = lambda p: f'@e[type=minecraft:item_display,tag=bm.pmsel,tag=bm.pmp_{p},limit=1]'
     sel_pet = 'execute as @e[type=minecraft:cat,tag=bm.pmpet] if score @s bm.pid = #me bm.pid'
     fn('p128/pm/use', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
                        f'{sel_pet} run tag @s add bm.pmsel2',
@@ -172,14 +176,16 @@ def generate(G):
     G.FUNCS['p58/count'][-1:-1] = ['execute as @e[type=minecraft:cat,tag=bm.pmpet] on owner if entity @s[tag=bm.fcme] run scoreboard players add #fc bm.rng 1']
     fn('p128/pm/summon', ['execute positioned ^ ^ ^1.2 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run return run function bm:p128/pm/summon_here',
                           'function bm:p128/pm/summon_here'])
-    fn('p128/pm/summon_here', [f'summon minecraft:cat ~ ~ ~ {snbt(host)}', f'summon minecraft:item_display ~ ~ ~ {snbt(pdisp)}',
+    fn('p128/pm/summon_here', [f'summon minecraft:cat ~ ~ ~ {snbt(host)}',
                                'data modify entity @e[type=minecraft:cat,tag=bm.pmnew,limit=1,sort=nearest] Owner set from entity @s UUID',
                                'scoreboard players operation @e[tag=bm.pmnew,distance=..4] bm.pid = @s bm.pid',
+                               'execute as @e[type=minecraft:cat,tag=bm.pmnew,limit=1,sort=nearest] run function bm:p128/pm/gest {s:7,t:34}',
                                'tag @e[tag=bm.pmnew,distance=..4] remove bm.pmnew',
                                'particle minecraft:snowflake ~ ~1 ~ 0.4 0.6 0.4 0.02 30', 'particle minecraft:poof ~ ~0.6 ~ 0.3 0.4 0.3 0.02 10',
                                'playsound minecraft:block.note_block.bell neutral @a[distance=..20] ~ ~ ~ 1 1.6', 'playsound minecraft:entity.parrot.ambient neutral @a[distance=..20] ~ ~ ~ 0.7 0.7',
                                pmsay('"Pearlman, off the clock and at your service! Shall we go bargain-hunting?"')])
     fn('p128/pm/recall', ['tp @e[type=minecraft:cat,tag=bm.pmsel2,limit=1] @s', 'data modify entity @e[type=minecraft:cat,tag=bm.pmsel2,limit=1] Sitting set value 0b',
+                          'execute as @e[type=minecraft:cat,tag=bm.pmsel2,limit=1] run function bm:p128/pm/gest {s:11,t:16}',
                           'particle minecraft:snowflake ~ ~1 ~ 0.4 0.6 0.4 0.02 16', 'playsound minecraft:entity.parrot.ambient neutral @a[distance=..16] ~ ~ ~ 0.7 0.8',
                           pmsay('"Coming, coming! These flippers were not made for sprinting."')])
     # his card's menu
@@ -187,7 +193,9 @@ def generate(G):
                     [P28.body([T('Off duty, on your side. ', 'white'), T('Not a fighter - he can\'t be hurt - but a salesman. While he\'s close:', 'gray')]),
                      P28.body([T('Gift of the Gab', GOLD, bold=True), T(' villagers trade cheaper and toss you gifts.  ', 'gray'),
                                T('A Lucky Flipper', '#7ad06a', bold=True), T(' Luck.  ', 'gray'), T('Penguin Stroke', PEARL, bold=True),
-                               T(' you swim like him.  ', 'gray'), T('Appraisal', '#e8b04a', bold=True), T(' 1 trade in 5 with a villager near him: an emerald back.', 'gray')], 300)],
+                               T(' you swim like him.  ', 'gray'), T('Appraisal', '#e8b04a', bold=True), T(' 1 trade in 5 with a villager near him: an emerald back.', 'gray')], 300),
+                     P28.body([T('Hand him an Ethereal Gem or a Wraithfire Heart ', ETH_C), T('(right-click him holding it): a joke form. It is not much of a joke. '
+                                                                                          'His wardrobe turns it on or off, and gives it back.', 'gray')], 300)],
                     [P28.btn(T('Wait here / follow me', 'white', bold=True), 8301, tooltip=T('He waits on the spot - or waddles after you again.', 'gray'), width=150),
                      P28.btn(T('Send him home', 'gray'), 8309, width=150), P28.btn(T('Wardrobe', PEARL, bold=True), 8302, width=150, tooltip=T('His looks - and his aura, if you have it.', 'gray')),
                      P28.btn(T('Seasons', '#d8803a', bold=True), 8303, width=150, tooltip=T('His earth gem takes on the season of the land - pick how he wears it.', 'gray'))], columns=2, exit_label='Close')
@@ -215,38 +223,84 @@ def generate(G):
                       'data remove entity @s Owner', 'tp @s ~ -500 ~', 'kill @s'])
     G.FUNCS['p62/died'].insert(-1, 'execute as @e[type=minecraft:cat,tag=bm.pmpet] if score @s bm.pid = #me bm.pid at @s run function bm:p128/pm/go')
     P73.follow_rules(G, ('pearl', 'cat', 'bm.pmpet', 'pearl_card', 'p128/pm/go', 'Pearlman', 'bm.fgp', 'p128/pm/summon_here'), second)
-    # every tick: his model where his cat is (or a new one, if it was lost)
+    # every tick: his parts at their joints round his cat (or a new rig, if it was lost - or he wore the old single model), and
+    # his animation: the state he's in (idle, a waddle, a run, a hop, sitting, swimming - or a move: a tip of the hat, the
+    # briefcase swung, an appraisal, a flinch, a happy flap), its cycle of poses
     tick.append('execute as @e[type=minecraft:cat,tag=bm.pmpet] at @s run function bm:p128/pm/tick')
-    fn('p128/pm/tick', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #ok bm.rng 0',
-                        'execute rotated as @s rotated ~ 0 as @e[type=minecraft:item_display,tag=bm.pmd] if score @s bm.pid = #me bm.pid store success score #ok bm.rng run tp @s ~ ~ ~ ~ 0',
-                        f'execute if score #ok bm.rng matches 0 run summon minecraft:item_display ~ ~ ~ {snbt(pdisp)}',
-                        'execute if score #ok bm.rng matches 0 run scoreboard players operation @e[type=minecraft:item_display,tag=bm.pmnew,distance=..1] bm.pid = #me bm.pid',
-                        'execute if score #ok bm.rng matches 0 run tag @e[type=minecraft:item_display,tag=bm.pmnew,distance=..1] remove bm.pmnew'])
+    fn('p128/pm/tick', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #ok bm.rng 1',
+                        'execute as @e[type=minecraft:item_display,tag=bm.pmd] if score @s bm.pid = #me bm.pid run tag @s add bm.pmsel',
+                        'execute unless entity @e[type=minecraft:item_display,tag=bm.pmsel,tag=bm.pmp_body] run function bm:p128/pm/rig',
+                        'execute rotated as @s rotated ~ 0 run function bm:p128/pm/place',
+                        'function bm:p128/pm/state',
+                        'tag @e[type=minecraft:item_display,tag=bm.pmsel] remove bm.pmsel'])
+    fn('p128/pm/place', RF.place(PA, RU, psel))
+    fn('p128/pm/rig', ['scoreboard players set #ok bm.rng 0', 'kill @e[type=minecraft:item_display,tag=bm.pmsel]'] +
+       [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(PA, p, ["bm.pmd", f"bm.pmp_{p}", "bm.pmnew"], PS)}' for p in PA.PARTS] +
+       ['scoreboard players operation @e[type=minecraft:item_display,tag=bm.pmnew,distance=..1] bm.pid = #me bm.pid',
+        'tag @e[type=minecraft:item_display,tag=bm.pmnew,distance=..1] add bm.pmsel', 'tag @e[type=minecraft:item_display,tag=bm.pmnew] remove bm.pmnew',
+        'scoreboard players set @s bm.pms -1',
+        # (dressed: his form, else his season, else his look - phase209's season for here, kept on him as it keeps it)
+        'scoreboard players set #pf bm.rng 0', 'function bm:p209/form', 'scoreboard players operation @s bm.pmf = #pf bm.rng', 'function bm:p128/pm/dress'])
     # (a model whose cat is gone goes too)
     second.append('execute as @e[type=minecraft:item_display,tag=bm.pmd] at @s run function bm:p128/pm/orphan')
     fn('p128/pm/orphan', ['scoreboard players operation #me bm.pid = @s bm.pid', f'{sel_pet} run return 0', 'kill @s'])
-    # every 5 ticks: a waddle when he walks, a little sway at rest, settled down when he sits
-    fast.append('execute as @e[type=minecraft:cat,tag=bm.pmpet] at @s run function bm:p128/pm/anim')
-    q = lambda ax, s: {'x': f'[{s:.3f}f,0f,0f,{(1 - s * s) ** 0.5:.4f}f]', 'z': f'[0f,0f,{s:.3f}f,{(1 - s * s) ** 0.5:.4f}f]'}[ax]
-    pose = lambda rot, ty, d=5: f'data merge entity @s {{start_interpolation:0,interpolation_duration:{d},transformation:{{left_rotation:{rot},translation:[0f,{ty:.3f}f,0f]}}}}'
-    fn('p128/pm/anim', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players add @s bm.pmw 1',
-                        'execute store result score #vx bm.rng run data get entity @s Motion[0] 1000', 'execute store result score #vz bm.rng run data get entity @s Motion[2] 1000',
-                        'scoreboard players operation #vx bm.rng *= #vx bm.rng', 'scoreboard players operation #vz bm.rng *= #vz bm.rng', 'scoreboard players operation #vx bm.rng += #vz bm.rng',
-                        'scoreboard players operation #w bm.rng = @s bm.pmw', 'scoreboard players operation #w bm.rng %= #2 bm.rng',
-                        'scoreboard players set #pm bm.rng 0', 'execute if score #vx bm.rng matches 300.. run scoreboard players set #pm bm.rng 1',
-                        'execute if data entity @s {Sitting:1b} run scoreboard players set #pm bm.rng 2',
-                        'execute as @e[type=minecraft:item_display,tag=bm.pmd,distance=..8] if score @s bm.pid = #me bm.pid run function bm:p128/pm/pose'])
-    fn('p128/pm/pose', [f'execute if score #pm bm.rng matches 1 if score #w bm.rng matches 0 run {pose(q("z", 0.07), PS / 2 + 0.04)}',
-                        f'execute if score #pm bm.rng matches 1 if score #w bm.rng matches 1 run {pose(q("z", -0.07), PS / 2)}',
-                        f'execute if score #pm bm.rng matches 0 if score #w bm.rng matches 0 run {pose(q("z", 0.015), PS / 2, 10)}',
-                        f'execute if score #pm bm.rng matches 0 if score #w bm.rng matches 1 run {pose(q("z", -0.015), PS / 2, 10)}',
-                        f'execute if score #pm bm.rng matches 2 run {pose(q("x", -0.09), PS / 2 - 0.1, 8)}'])
+    # ---- his dress (as his cat): a form outranks a season, a season his look ('_c<k>' - phase138 - on his own colours only)
+    fn('p128/pm/fq', ['scoreboard players set #pfm bm.rng 0', 'execute on owner if score @s bm.pmef matches 11 run scoreboard players set #pfm bm.rng 1',
+                      'execute on owner if score @s bm.pmef matches 12 run scoreboard players set #pfm bm.rng 2'])
+    fn('p128/pm/dress', ['scoreboard players operation #me bm.pid = @s bm.pid', 'function bm:p128/pm/fq',
+                         'scoreboard players operation #pf bm.rng = @s bm.pmf', 'execute unless score #pf bm.rng matches 1.. run scoreboard players set #pf bm.rng 0',
+                         'function bm:p138/k/pearl',
+                         'execute as @e[type=minecraft:item_display,tag=bm.pmd] if score @s bm.pid = #me bm.pid run function bm:p128/pm/dress1'])
+    mdl = lambda m: f'run return run data modify entity @s item.components."minecraft:item_model" set value "bm:{m}"'
+    fn('p128/pm/dress1', [f'execute if score #pfm bm.rng matches {n} if entity @s[tag=bm.pmp_{p}] {mdl(PA.PREFIX + p + f)}' for n, f in ((1, '_e'), (2, '_w')) for p in PA.PARTS] +
+       [f'execute if score #pf bm.rng matches {i} if entity @s[tag=bm.pmp_{p}] {mdl(PA.PREFIX + p + "_" + sk)}' for i, sk in enumerate(PA.SEASONS, 1) for p in PA.PARTS] +
+       [f'execute if entity @s[tag=bm.pmp_{p}] run data modify entity @s item.components."minecraft:item_model" set value "bm:{PA.PREFIX}{p}"' for p in PA.PARTS] +
+       ['function bm:p138/sfx'])
+    # ---- the state machine (as his cat, each tick): bm.pms the state, bm.pmw the ticks in it; a move in hand (bm.pmg ticks
+    #      left of state bm.pmgs) outranks walking and standing about
+    ST = {'idle': 0, 'walk': 1, 'run': 2, 'jump': 3, 'sit': 4, 'hurt': 5, 'tip': 7, 'swing': 8, 'appraise': 9, 'swim': 10, 'happy': 11}
+    CYC = {0: (160, [(0, 'idle_a'), (30, 'idle_b'), (60, 'idle_a'), (90, 'look_l'), (104, 'idle_b'), (124, 'look_r'), (138, 'idle_a')]),
+           1: (12, [(0, 'walk_a'), (3, 'walk_up'), (6, 'walk_b'), (9, 'walk_up')]),
+           2: (8, [(0, 'run_a'), (2, 'run_up'), (4, 'run_b'), (6, 'run_up')]),
+           3: (None, [(0, 'jump')]), 4: (80, [(0, 'sit_a'), (40, 'sit_b')]), 5: (None, [(0, 'hurt'), (6, 'idle_a')]),
+           7: (None, [(0, 'tip_up'), (8, 'tip'), (26, 'tip_up'), (32, 'idle_a')]),
+           8: (None, [(0, 'swing_back'), (6, 'swing'), (14, 'idle_a')]), 9: (None, [(0, 'appraise'), (16, 'idle_a')]),
+           10: (16, [(4 * i, f'swim_{i}') for i in range(PA.SWIM_FRAMES)]), 11: (None, [(0, 'happy'), (5, 'idle_a'), (9, 'happy'), (14, 'idle_a')])}
+    assert 6 not in CYC                          # (rigfol's 6 is lying down: its tweens)
+    for n, pz in PA.POSES.items():
+        fn(f'p128/pr/pose/{n}', RF.pose(PA, pz, PS, PA.DUR[n], psel))
+    RF.cycles(fn, 'p128/pr', CYC, 'bm.pmw', 'bm.pms', lambda n: f'p128/pr/pose/{n}', tw=dict(G=G, A=PA, S=PS, sel=psel))
+    for per in RF.periods(CYC):
+        G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{per} bm.rng {per}']
+    fn('p128/pm/state', ['execute store result score #vx bm.rng run data get entity @s Motion[0] 1000', 'execute store result score #vz bm.rng run data get entity @s Motion[2] 1000',
+                         'execute store result score #vy bm.rng run data get entity @s Motion[1] 1000',
+                         'scoreboard players operation #vx bm.rng *= #vx bm.rng', 'scoreboard players operation #vz bm.rng *= #vz bm.rng', 'scoreboard players operation #vx bm.rng += #vz bm.rng',
+                         'scoreboard players set #ns bm.rng 0', 'execute if score #vx bm.rng matches 300.. run scoreboard players set #ns bm.rng 1',
+                         'execute if score #vx bm.rng matches 40000.. run scoreboard players set #ns bm.rng 2',
+                         'execute unless predicate bm:p39/on_ground unless score #vy bm.rng matches -250..80 run scoreboard players set #ns bm.rng 3',
+                         'execute if block ~ ~0.3 ~ minecraft:water run scoreboard players set #ns bm.rng 10',
+                         'execute if data entity @s {Sitting:1b} run scoreboard players set #ns bm.rng 4',
+                         'execute if score @s bm.pmg matches 1.. run scoreboard players remove @s bm.pmg 1',
+                         'execute if score @s bm.pmg matches 1.. unless score #ns bm.rng matches 4 unless score #ns bm.rng matches 10 run scoreboard players operation #ns bm.rng = @s bm.pmgs',
+                         # (standing about a while: now and then he tips his hat to nobody in particular)
+                         'execute if score #ns bm.rng matches 0 if score @s bm.pmw matches 200.. store result score #r bm.rng run random value 1..400',
+                         'execute if score #ns bm.rng matches 0 if score @s bm.pmw matches 200.. if score #r bm.rng matches 1 run function bm:p128/pm/gest {s:7,t:34}',
+                         'execute if score #ns bm.rng matches 0 if score @s bm.pmg matches 1.. run scoreboard players operation #ns bm.rng = @s bm.pmgs',
+                         'execute unless score #ns bm.rng = @s bm.pms run scoreboard players set @s bm.pmw 0',
+                         'scoreboard players operation @s bm.pms = #ns bm.rng', 'function bm:p128/pr/anim', 'scoreboard players add @s bm.pmw 1'])
+    # (a move: its state, for this many ticks - as his cat)
+    fn('p128/pm/gest', ['$scoreboard players set @s bm.pmgs $(s)', '$scoreboard players set @s bm.pmg $(t)'])
     # every second, near his owner: the perks - and now and then, a word
     second.append('execute as @e[type=minecraft:cat,tag=bm.pmpet] at @s run function bm:p128/pm/sec')
-    fn('p128/pm/sec', ['scoreboard players operation #me bm.pid = @s bm.pid',
+    fn('p128/pm/sec', ['scoreboard players operation #me bm.pid = @s bm.pid', 'function bm:p128/pm/fq',
                        'execute as @a[distance=..16,gamemode=!spectator] if score @s bm.pid = #me bm.pid at @s run function bm:p128/pm/perks',
+                       'execute if score #pfm bm.rng matches 1.. run function bm:p128/fm/sec',
+                       # (3.0g: a monster right up close - he can't be hurt, but the SUIT can: a theatrical flinch)
+                       'execute if score #pfm bm.rng matches 0 unless score @s bm.pmg matches 1.. if entity @e[type=#bm:hostile,tag=!bm.npc,distance=..2.5] run function bm:p128/pm/flinch',
                        'scoreboard players add @s bm.pmq 1', 'execute if score @s bm.pmq matches 120.. run function bm:p128/pm/quip'])
-    fn('p128/pm/perks', ['effect give @s minecraft:luck 4 0 true',
+    fn('p128/pm/perks', ['execute unless score #pfm bm.rng matches 1 run effect give @s minecraft:luck 4 0 true',
+                         'execute if score #pfm bm.rng matches 1 run effect give @s minecraft:luck 4 2 true',
+                         'execute if score #pfm bm.rng matches 2 run effect give @s minecraft:fire_resistance 4 0 true',
                          f'execute unless dimension bm:gutter unless entity @e[type=minecraft:villager,tag=bm.npc,distance=..{NPC_R}] '
                          f'unless entity @e[type=minecraft:interaction,tag=bm.pmst,distance=..{STATUE_R}] run function bm:p128/hero1',
                          'execute if block ~ ~ ~ minecraft:water run effect give @s minecraft:dolphins_grace 4 0 true'])
@@ -266,10 +320,12 @@ def generate(G):
                             f'execute unless entity @e[type=minecraft:cat,tag=bm.pmpet,distance=..12] run return 0',
                             'scoreboard players set #ok bm.rng 0', f'{sel_pet.replace("tag=bm.pmpet]", "tag=bm.pmpet,distance=..12]")} run scoreboard players set #ok bm.rng 1',
                             'execute if score #ok bm.rng matches 0 run return 0',
+                            'execute if score @s bm.pmef matches 11 run return run function bm:p128/fm/cosmic',          # (3.0g: his Ethereal form)
                             'execute store result score #r bm.rng run random value 1..5', 'execute unless score #r bm.rng matches 1 run return 0',
                             'give @s minecraft:emerald 1', 'playsound minecraft:entity.villager.yes player @s ~ ~ ~ 0.8 1.2',
                             pmsay('"Ahem - I believe you overcharged my friend." (An emerald comes back.)')])
 
+    forms(G, sel_pet, pmsay)
     G.FUNCS['tick'] += tick
     f = G.FUNCS['loop/fast']
     f[-1:-1] = fast

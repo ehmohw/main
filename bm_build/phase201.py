@@ -29,6 +29,7 @@ Vesper's Ward and Vigor are retired: every Dread Token spent on them is handed b
 Swift Return stays with him.)"""
 from items import T, ITEMS
 from nbt import snbt, Int
+import math
 import re
 
 AVA_C, PEARL_C, GOLD = '#6ad8e8', '#d8f4ff', '#ffd66a'
@@ -402,8 +403,11 @@ def finalize(G):
                     G.FUNCS[f'p201/fm/{h}'] = ['$data modify storage bm:fd d set value $(d)', 'execute store result score #fd bm.rng run data get storage bm:fd d 100'] + lvl(sel) + \
                         ['scoreboard players operation #fm bm.rng = #fl bm.rng', 'scoreboard players operation #fm bm.rng *= #15 bm.rng',
                          'scoreboard players add #fm bm.rng 100', 'scoreboard players operation #fd bm.rng *= #fm bm.rng', 'scoreboard players operation #fd bm.rng /= #100 bm.rng',
-                         'execute store result storage bm:fd x float 0.01 run scoreboard players get #fd bm.rng', f'function bm:p201/fm/{h}_d with storage bm:fd']
+                         'execute store result storage bm:fd x float 0.01 run scoreboard players get #fd bm.rng'] + \
+                        ((own(sel) + [f'execute if score #fo bm.rng matches 1.. if score #fh bm.rng <= #fd bm.rng if function bm:p201/own run return run function bm:p201/fm/{h}_o with storage bm:fd'])
+                         if HOST.search(sel) else []) + [f'function bm:p201/fm/{h}_d with storage bm:fd']
                     G.FUNCS[f'p201/fm/{h}_d'] = [f'$damage @s $(x) {typ} by {sel}']
+                    if HOST.search(sel): G.FUNCS[f'p201/fm/{h}_o'] = [f'$damage @s $(x) {typ} by {sel} from @a[tag=bm.fown,limit=1]']
                 lines[i] = f'$function bm:p201/fm/{h} {{d:$(d)}}'; n += 1
                 continue
             m = STATIC.search(l)
@@ -414,8 +418,36 @@ def finalize(G):
             if h not in made:
                 made[h] = True
                 a = float(amt)
-                G.FUNCS[f'p201/fs/{h}'] = lvl(sel) + [f'execute if score #fl bm.rng matches {L} run return run damage @s {a * (1 + 0.15 * L):g} {typ} by {sel}' for L in range(1, 6)] + \
-                    [f'damage @s {amt} {typ} by {sel}']
+                if HOST.search(sel):              # (3.0g: a blow that may kill is the owner's - see OWN)
+                    G.FUNCS[f'p201/fs/{h}'] = lvl(sel) + own(sel) + \
+                        [l2 for L in range(1, 6) for l2 in (
+                            f'execute if score #fl bm.rng matches {L} if score #fo bm.rng matches 1.. if score #fh bm.rng matches ..{math.ceil(a * (1 + 0.15 * L) * 100)} '
+                            f'if function bm:p201/own run return run damage @s {a * (1 + 0.15 * L):g} {typ} by {sel} from @a[tag=bm.fown,limit=1]',
+                            f'execute if score #fl bm.rng matches {L} run return run damage @s {a * (1 + 0.15 * L):g} {typ} by {sel}')] + \
+                        [f'execute if score #fo bm.rng matches 1.. if score #fh bm.rng matches ..{math.ceil(a * 100)} if function bm:p201/own '
+                         f'run return run damage @s {amt} {typ} by {sel} from @a[tag=bm.fown,limit=1]', f'damage @s {amt} {typ} by {sel}']
+                else:
+                    G.FUNCS[f'p201/fs/{h}'] = lvl(sel) + [f'execute if score #fl bm.rng matches {L} run return run damage @s {a * (1 + 0.15 * L):g} {typ} by {sel}' for L in range(1, 6)] + \
+                        [f'damage @s {amt} {typ} by {sel}']
             lines[i] = l[:m.start()] + f'function bm:p201/fs/{h}'; n += 1
     G.FUNCS['load'][-1:-1] = ['scoreboard players set #15 bm.rng 15', 'scoreboard players set #100 bm.rng 100']
+    # (is the striker's owner here? - tagged bm.fown; a stale tag from an earlier blow is cleared first)
+    G.FUNCS['p201/own'] = ['tag @a[tag=bm.fown] remove bm.fown', 'execute as @a if score @s bm.pid = #fo bm.rng run tag @s add bm.fown',
+                           'execute if entity @a[tag=bm.fown] run return 1', 'return fail']
     return n, len(made)
+
+
+# 3.0g: OWN - a follower's kill is its owner's kill. A mob felled by a follower's own move (not its bite) dropped no player loot, no
+# XP, and no kill counted: the game credits a kill to a player only when the blow came from one (or a tame wolf with an owner). So a
+# blow that may kill - at least the target's health and absorption, before armour - is dealt "by" the follower "from" its owner
+# (the follower still the one that struck it). Only the blow that may kill: the rest stay the follower's own, so a monster turns on
+# the follower and not on you, and `on attacker` still finds the follower. Never against a player. Follower hosts only (wolf, cat).
+HOST = re.compile(r'type=minecraft:(?:wolf|cat)[,\]]')
+
+
+def own(sel):
+    return ['scoreboard players set #fo bm.rng 0', 'scoreboard players set #fh bm.rng 0',
+            f'execute if entity @s[type=!minecraft:player] store result score #fo bm.rng run scoreboard players get {sel} bm.pid',
+            'execute if score #fo bm.rng matches 1.. store result score #fh bm.rng run data get entity @s Health 100',
+            'execute if score #fo bm.rng matches 1.. store result score #fab bm.rng run data get entity @s AbsorptionAmount 100',
+            'execute if score #fo bm.rng matches 1.. run scoreboard players operation #fh bm.rng += #fab bm.rng']

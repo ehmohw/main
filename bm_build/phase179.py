@@ -144,6 +144,7 @@ WMENU3 = 3700                     # (2.94: 3700-3819 - the second bank, partners
 WMENU2 = 3450                     # (2.88: and 3450-3479 - a partner's Menu button 3450+i; 3420/3421 are the Skiff Escort's)
 
 KEEP = 3351                       # (2.94q: the "Keep up" switch, in the wheel's block)
+SENDALL = 3449                    # (3.0g: the top row - Send all followers home 3449, Bring them all to me 3448; at the block's end, clear of the gallery's pages)
 
 
 def keep_btn(on):
@@ -379,6 +380,7 @@ def generate(G):
     fn('p179/w/show', ['$dialog show @s ' + snbt(full).replace('"@@ACTS@@"', '$(acts)')])
     op = [f'scoreboard players set @s bm.menu {WMENU}', 'scoreboard players operation #me bm.pid = @s bm.pid', 'data modify storage bm:tmp pw.acts set value []']
     op += [f'execute if score @s bm.pw{i} matches 1 run function bm:p179/w/row{i}' for i in range(len(PW))]
+    op += ['function bm:p179/w/top']        # (3.0g: the top row, once the rows are in - see SENDALL)
     import phase123 as P123                   # (2.88: the chatter switch, last on the wheel - it reads on or off)
     op += [f'execute unless data storage bm:tmp pw.acts[0] run return run dialog show @s {snbt(empty)}',
            f'execute if entity @s[tag=bm.hush] run data modify storage bm:tmp pw.acts append value {snbt(P123.chat_btn(False))}',
@@ -442,6 +444,31 @@ def generate(G):
         act += [f'execute if score #act bm.pay matches {c_call(i)} run return run function bm:p179/w/call{i}',
                 f'execute if score #act bm.pay matches {c_out(i)} run return run function bm:p179/w/out{i}',
                 f'execute if score #act bm.pay matches {c_menu(i)} run return run function bm:p179/w/menu{i}']
+    # ---------------------------------------------------------------- (3.0g) SEND ALL FOLLOWERS HOME: the wheel's top row
+    # Shown only while one of your followers is out (any follower - on the wheel or not; not the Skiff Escort or a mount): Send all
+    # followers home (each one's own way home, as their Send home button), Bring them all to me (the sneak + use recall), Close.
+    # (A row of three, so the partners' rows of three below keep their columns.)
+    hosts = list(dict.fromkeys((host, tag) for w, nm, col, host, tag, *_r in PW))
+    fn('p179/w/anyout', ['scoreboard players operation #me bm.pid = @s bm.pid'] +
+       [f'execute as @e[type=minecraft:{host},tag={tag}] if score @s bm.pid = #me bm.pid run return 1' for host, tag in hosts] + ['return fail'])
+    b_all = P28.btn([T('\u2302 ', '#ffb070'), T('Send all followers home', 'white', bold=True)], SENDALL,
+                    tooltip=T('Every follower of yours that\'s out goes home, each their own way (call them again from the wheel)', 'gray'))
+    b_rec = P28.btn([T('\u27f2 ', PURPLE), T('Bring them all to me', 'white')], SENDALL - 1,
+                    tooltip=T('Every partner of yours out in this world comes to your side at once (as sneak + using the wheel)', 'gray'))
+    b_x = P28.btn(T('Close', 'gray'), P28.NOOP)
+    fn('p179/w/top', ['execute unless data storage bm:tmp pw.acts[0] run return 0', 'execute unless function bm:p179/w/anyout run return 0'] +
+       [f'data modify storage bm:tmp pw.acts insert 0 value {snbt(b)}' for b in (b_x, b_rec, b_all)])
+    for i, (w, nm, col, host, tag, try_, home, iid) in enumerate(PW):
+        fn(f'p179/w/sa{i}', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #pwon bm.rng 0',
+                             f'execute as @e[type=minecraft:{host},tag={tag}] if score @s bm.pid = #me bm.pid run scoreboard players set #pwon bm.rng 1',
+                             'execute if score #pwon bm.rng matches 0 run return 0', 'scoreboard players add #pwsa bm.rng 1', f'function bm:{home}'])
+    fn('p179/w/sendall', ['scoreboard players set #pwsa bm.rng 0'] + [f'function bm:p179/w/sa{i}' for i in range(len(PW))] +
+       ['execute if score #pwsa bm.rng matches 0 run return run ' + say('None of your followers are out.'),
+        'playsound minecraft:block.enchantment_table.use player @s ~ ~ ~ 0.7 0.8', 'particle minecraft:enchant ~ ~1.2 ~ 0.4 0.5 0.4 0.8 30',
+        'execute if score #pwsa bm.rng matches 1 run return run ' + say('The wheel turns - your follower heads home.', PURPLE),
+        say('The wheel turns - all your followers head home.', PURPLE)])
+    act += [f'execute if score #act bm.pay matches {SENDALL} run return run function bm:p179/w/sendall',
+            f'execute if score #act bm.pay matches {SENDALL - 1} run return run function bm:p179/w/recall']
     fn('p179/w/act', act)
 
     # ---------------------------------------------------------------- (2.94q) KEEP UP WITH YOU: a switch on the wheel

@@ -392,8 +392,9 @@ def generate(G, builds):
                 # (a long wave's last few: lit up at 90 s, taken at 150 s)
                 fn(f'p2/{d}/pz{n}_wlate', [f'execute store result score #wl bm.rng {inroom}',
                                            'execute if score #wl bm.rng matches 3.. run return 0',
-                                           f'execute if score @s bm.wage matches 1800 positioned ~-{bx} ~-4 ~-{bx} run effect give @e[tag={wm},dx={2 * bx},dy=18,dz={2 * bx}] minecraft:glowing 60 0 true',
-                                           'execute if score @s bm.wage matches 1800 run ' + title(f'@a[distance=..{R + 10}]', 'actionbar', T('The last of the wave are lit up - find them!', 'gold')),
+                                           f'execute positioned ~-{bx} ~-4 ~-{bx} run effect give @e[tag={wm},dx={2 * bx},dy=18,dz={2 * bx}] minecraft:glowing 3 0 true',
+                                           'execute unless entity @s[tag=bm.wlit] run ' + title(f'@a[distance=..{R + 10}]', 'actionbar', T('The last of the wave are lit up - find them!', 'gold')),
+                                           'tag @s add bm.wlit',
                                            f'execute if score @s bm.wage matches 3000.. as @e[tag={wm}] at @s run function bm:p2/util/vanish'])
                 fn(f'p2/{d}/pz{n}_wstart', ['scoreboard players set @s bm.wv 0', 'scoreboard players set @s bm.wab 0', f'title @a[distance=..{R + 10}] times 5 40 10',
                                             title(f'@a[distance=..{R + 10}]', 'subtitle', T(f'Survive {NW} waves to open the way', 'gray', italic=True)),
@@ -401,7 +402,7 @@ def generate(G, builds):
                                             f'playsound minecraft:event.raid.horn hostile @a[distance=..{R + 10}] ~ ~ ~ 2 0.7',
                                             f'function bm:p2/{d}/pz{n}_wnext'])
                 # (strays of the last wave - outside the room, never counted - are fetched back in to a spawn point)
-                nxt = ['scoreboard players add @s bm.wv 1', 'scoreboard players set @s bm.wt 0', 'scoreboard players set @s bm.wage 0',
+                nxt = ['scoreboard players add @s bm.wv 1', 'scoreboard players set @s bm.wt 0', 'scoreboard players set @s bm.wage 0', 'tag @s remove bm.wlit',
                        f'execute if score @s bm.wv matches {NW + 1}.. run return run function bm:p2/{d}/pz{n}_wwin',
                        f'execute as @e[tag={wm},distance=..{R + 48}] run function bm:p2/{d}/pz{n}_wfetch']
                 fn(f'p2/{d}/pz{n}_wfetch', [f'execute at {ctrl_sel(d, n, R + 48)} positioned ~-{bx} ~-4 ~-{bx} if entity @s[dx={2 * bx},dy=18,dz={2 * bx}] run return 0',
@@ -438,14 +439,14 @@ def generate(G, builds):
                                               [f'function bm:p2/{d}/pz{n}_one{k}'] * per_sp)
                     one = [f'execute store result score #wr bm.rng run random value 1..{len(wave)}']
                     for i, (ent, nbt) in enumerate(wave, 1):
-                        nb = dict(nbt); nb['Tags'] = list(nbt.get('Tags', [])) + ['bm.dgmob', 'bm.wm', wm] + (['bm.wnew'] if mix else []); nb['PersistenceRequired'] = Byte(1)   # (2.98: a roster's own tags kept)
+                        nb = dict(nbt); nb['Tags'] = list(nbt.get('Tags', [])) + ['bm.dgmob', 'bm.wm', wm] + (['bm.wnew', 'bm.seen'] if mix else []); nb['PersistenceRequired'] = Byte(1)   # (2.98: a roster's own tags kept; 3.0g: a mixed wave's foes are bm.seen - what it made them, no hard-mode reroll)
                         one.append(f'execute if score #wr bm.rng matches {i} run summon minecraft:{ent} ~ ~ ~ {snbt(nb)}')
                     fn(f'p2/{d}/pz{n}_one{k}', one)
                 fn(f'p2/{d}/pz{n}_wnext', nxt)
                 fn(f'p2/{d}/pz{n}_wwin', ['scoreboard players set @s bm.wv 0', f'execute as @e[tag={wm},distance=..{R + 48}] at @s run function bm:p2/util/vanish',
                                           f'function bm:p2/{d}/pz{n}_solve'])
                 vanish = [f'execute as @e[tag={wm}] at @s run function bm:p2/util/vanish', 'scoreboard players set @s bm.wv 0', 'scoreboard players set @s bm.wt 0',
-                          'scoreboard players set @s bm.wage 0', 'scoreboard players set @s bm.wab 0']
+                          'scoreboard players set @s bm.wage 0', 'scoreboard players set @s bm.wab 0', 'tag @s remove bm.wlit']
                 fn(f'p2/{d}/pz{n}_wabort', vanish)
                 reset = ['scoreboard players set @s bm.done 0'] + vanish
             elif kind == 'reach':

@@ -372,7 +372,7 @@ DRAFT = ['idle_a', 'idle_b', 'walk_1', 'run_1', 'jump', 'sit_a', 'sit_b', 'sit_c
 #                   from within, a girdle of pale prismatic light, a crown of five crystal points, and DIAMOND WINGS - five faceted
 #                   shards a side, ruby, topaz, emerald, sapphire, amethyst (cg_ew_*: a look's palette, through phase138's SIDE), lit
 #                   modestly; its halo twelve glints in those colours.
-#   WRAITHFIRE '_w' smoky dark glass with soul-blue veins drifting in it (animated), a girdle and a crown of cyan wraith fire
+#   WRAITHFIRE '_w' smoky glass swirling with cool colours (3.0g: blues, turquoise, sea glass, purple), soul-blue veins drifting in it (animated), a girdle and a crown of cyan wraith fire
 #                   (animated flicker), FLAME-WISP wings, its halo soul-fire motes; its emoticons ghost-white on a soul-blue rim.
 #                   (Its own colours: a form outranks a look, as Apophiss's do.)
 # A form's halo circles OVER its crown (HALO_UP, HALO_RF) - round its middle it would cut through its wings - clear of every point and
@@ -550,26 +550,50 @@ def _spike():
 SOUL_RGB = np.array([110, 240, 255], float)      # (the pack's wraithfire: Cecil's cec_eye_wraith)
 
 
+# (3.0g) still every colour, as the Gem is - but the cold end of them: its swirl turns through these instead of the rainbow, under
+# drifting smoke, the soul-blue veins still running up through it (the owner: "multicoloured - just cooler colours")
+COOL = ((16, 24, 58),       # blackish blue
+        (34, 74, 196),      # blue
+        (92, 168, 255),     # light blue
+        (40, 208, 206),     # turquoise
+        (146, 222, 188),    # sea glass green
+        (28, 132, 150),     # deep teal
+        (126, 78, 224),     # purple
+        (64, 40, 140))      # indigo
+
+
 def _smoke(f, kind):
-    """one frame of the Wraithfire Form's facets: dark smoky glass, soul-blue veins drifting up through it (loops in FRAMES)"""
+    """one frame of the Wraithfire Form's facets: the Gem's swirl in cool colours - blues, turquoise, sea glass, purple, a blackish
+    blue - turning round a pale icy heart, smoke drifting over it, soul-blue veins drifting up through it (loops in FRAMES)"""
     t = 2 * math.pi * f / FRAMES
+    ph = f / FRAMES
     ys, xs = np.mgrid[0:N, 0:N].astype(float)
     X = (xs + 0.5) / N * 2 - 1; Y = 1 - (ys + 0.5) / N * 2
+    # the swirl, as the plain gem's (angle and radius turning with the frame), its eight bands the cool ones, each blending into the next
+    dx, dy = X * 8 / W, Y * 8 / H
+    r = np.hypot(dx, dy); a = np.arctan2(dy, dx)
+    h = ((a / (2 * math.pi)) + r * 0.55 - ph) % 1.0
+    band = h * len(COOL); i0 = np.floor(band).astype(int) % len(COOL); fr = band - np.floor(band)
+    w = np.clip((fr - 0.7) / 0.3, 0, 1)[..., None]
+    P = np.array(COOL, float)
+    c = P[i0] * (1 - w) + P[(i0 + 1) % len(COOL)] * w
+    heart = np.clip(1 - r * 1.6, 0, 1)[..., None] ** 1.5                   # (a pale, icy heart)
+    c = c * (1 - heart * 0.75) + np.array([214, 240, 255], float) * heart * 0.75
     smoke = 0.5 + 0.25 * np.sin(3.1 * X + 2.2 * np.sin(2.0 * Y - t)) + 0.25 * np.sin(2.6 * Y + 1.4 * X - 2 * t)
+    c = c * (0.62 + 0.38 * smoke[..., None])                                   # (smoky glass: darker where the smoke drifts)
+    c = c * {'table': 1.0, 'crown': 0.94, 'pav': 0.7}[kind]
     vein = np.exp(-(np.sin(3.6 * X + 2.4 * np.sin(1.8 * Y - t) + 2.2 * Y - t) ** 2) / 0.035)
     vein2 = np.exp(-(np.sin(5.1 * Y - 1.7 * X + 1.3 * np.sin(2.6 * X + t) + 2 * t) ** 2) / 0.02)
-    dark = np.array([14, 26, 38], float); mid = np.array([36, 72, 92], float)
-    c = dark[None, None] + (mid - dark)[None, None] * smoke[..., None]
-    k_v = {'table': 0.95, 'crown': 0.9, 'pav': 0.75}[kind]
-    v = np.clip(vein * k_v + vein2 * k_v * 0.55, 0, 1)[..., None]
+    k_v = {'table': 0.7, 'crown': 0.65, 'pav': 0.55}[kind]
+    v = np.clip(vein * k_v + vein2 * k_v * 0.5, 0, 1)[..., None]
     if kind == 'table':                         # (a ghost flame at its heart, rising)
-        r = np.sqrt((X * 1.6) ** 2 + ((Y + 0.25) * 1.0) ** 2)
-        flame = np.clip(1.0 - r * (1.35 + 0.25 * np.sin(6 * Y - 2 * t)), 0, 1)[..., None] * 0.45
+        rr = np.sqrt((X * 1.6) ** 2 + ((Y + 0.25) * 1.0) ** 2)
+        flame = np.clip(1.0 - rr * (1.35 + 0.25 * np.sin(6 * Y - 2 * t)), 0, 1)[..., None] * 0.4
         v = np.clip(v + flame, 0, 1)
     c = c * (1 - v) + SOUL_RGB[None, None] * v
     c = np.where(v > 0.85, c * 0.4 + 255 * 0.6, c)
-    a = np.full((N, N, 1), 255.0)
-    return Image.fromarray(np.concatenate([np.clip(c, 0, 255), a], axis=2).astype(np.uint8), 'RGBA')
+    al = np.full((N, N, 1), 255.0)
+    return Image.fromarray(np.concatenate([np.clip(c, 0, 255), al], axis=2).astype(np.uint8), 'RGBA')
 
 
 def _flame(f):
