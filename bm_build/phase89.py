@@ -375,8 +375,13 @@ def generate(G):
             rec.append(offer(gild.price(f'cos_celi_{k}', ('gutter_trophy', 1) if f'cos_celi_{k}' in P78.HIDDEN else gm(4)), (f'cos_celi_{k}', 1)))
         for k in [k for k in P78.ZIB if not _SH.is_shiny(f'cos_zib_{k}')]:
             rec.append(offer(gild.price(f'cos_zib_{k}', ('gutter_trophy', 1) if f'cos_zib_{k}' in P78.HIDDEN else gm(4)), (f'cos_zib_{k}', 1)))
-        # (3.0g, the owner: no elemental gems in the heist shop any more - a gem or form given outside comes through the
-        #  Fixer's door with Cecil, KillerWatt and Apophiss (heist3g). The vault-gem machinery, phase98, stays for the old ones.)
+        for g in P60.GEMS:                 # (2.67: the vault's own - flagged, and they never leave it: phase98)
+            o = offer(gm(6), (f'gem_{g}', 1))
+            o['sell'] = dict(o['sell']); c = o['sell']['components'] = dict(o['sell']['components'])     # (a copy - never the item's own)
+            c['minecraft:custom_data'] = dict(c['minecraft:custom_data'], bm_vault=B(1))
+            c['minecraft:lore'] = list(c['minecraft:lore']) + [T('Bought in the vault - it stays in the vault.', '#e8b8ff', italic=True)]
+            rec.append(o)
+        # (3.0g: the Recruiter, who took these over in 2.67d, no longer shows them - phase137's book has no gem page now)
         # (2.67: the Ethereal Gem is a secret again - made from the nine, never sold)
         return d
     P70.goldtooth = g89

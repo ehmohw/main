@@ -54,13 +54,13 @@ FOL = {
     'bender':    dict(s='bv', pre=('bd_',), host='bm.bvpet', parts=('rig', 'bm.bvp_pet', ('bm.bvfade',)), me='bm.bvme', who='p195/who', hurt='p195/hurt',
                       item='bv_ball', accent=('bd_ear_in', 'bd_tip'), glow=('bd_face',), spikes=(('bd_body',), 4)),
     'capshun':   dict(s='mz', pre=('mz_',), host='bm.mzpet', parts=('rig', 'bm.mzp_pet', ('bm.mzfade',)), me='bm.mzme', who='p198/who', hurt='p198/hurt',
-                      item='capshun_pencil', accent=('mz_t_', 'mz_sk_'), glow=('mz_face',), spikes=((), 0)),
+                      item='capshun_pencil', accent=('mz_t_', 'mz_sk_', 'mz_ink'), glow=('mz_face',), spikes=((), 0)),
     'sovereign': dict(s='xv', pre=('ds_',), host='bm.xvpet', parts=('rig', 'bm.xvp_pet', ('bm.xvfade',)), me='bm.xvme', who='p239/who', hurt='p239/hurt',
                       item='sov_eye', accent=('ds_chain', 'ds_horn', 'ds_glass', 'ds_edge'), glow=('ds_eye', 'ds_beye', 'ds_heart', 'ds_red'), spikes=((), 0)),
     'keeper':    dict(s='tk', pre=('kb_',), host='bm.tkpet', parts=('rig', 'bm.tkp_pet', ('bm.tkfade',)), me='bm.tkme', who='p254/who', hurt='p254/hurt',
                       item='bond_thread', accent=('kb_bonds', 'kb_brd', 'kb_ray', 'kb_tier', 'kb_wing', 'kb_gold', 'kb_rim'), glow=('kb_eyes', 'kb_light'), spikes=((), 0)),
     'lantern':   dict(s='ln', pre=('ln_',), host='bm.lnpet', parts=('rig', 'bm.lnp_pet', ('bm.lnfade',)), me='bm.lnme', who='p194/who', hurt='p194/hurt',
-                      item='ln_gourd', accent=('ln_stem', 'ln_leaf'), glow=('ln_face', 'ln_flame', 'ln_tongue'), spikes=((), 0)),
+                      item='ln_gourd', accent=('ln_stem', 'ln_leaf'), glow=('ln_flame', 'ln_tongue'), holes=('ln_face',), spikes=((), 0)),
     'leo':       dict(s='le', pre=('le_',), host='bm.leopet', parts=('rig', 'bm.lep', ('bm.lefade', 'bm.leencp')), me='bm.leme', who='p96/who', hurt=None,
                       item='leo_crest', accent=('le_tri', 'le_gem', 'le_emblem', 'le_gold'), glow=(), spikes=((), 0)),
     'celi':      dict(s='ce', pre=('ce_',), host='bm.celipet', parts=('rig', 'bm.cep', ('bm.cefade', 'bm.ceencp')), me='bm.ceme', who='adv', hurt=None,
@@ -152,13 +152,14 @@ def _out(np, rgb, al):
     return Image.fromarray((a * 255 + 0.5).astype('uint8'), 'RGBA')
 
 
-def ethereal(im, kind='base', seed=1):
+def ethereal(im, kind='base', seed=1, holes=False):
     """crystalline, prismatic light: pale ice-blue to white, cut into a diamond's facets (a diagonal lattice of panes, each tinted
     a little - ice, lavender, mint, rose - their edges prismatic, a pastel rainbow along them), white glints; the darkest marks
     (eyes, mouths, lines) stay deep sapphire so a face still reads. kind: 'accent' - rainbow crystal, brighter; 'glow' - white-cyan
     light"""
     np, rgb, al, lum, t, sat, cx, cy, xx, yy, cell = _prep(im)
     t2 = 0.55 * t + 0.45 * lum
+    if holes: t2 = 0.05 + t2 * 0.3                                  # (a carved rind: deeper crystal, so the light inside shows)
     base = _ramp(['#2f78c0', '#58b4e6', '#96e0f8', '#d2f8ff', '#ffffff'], 0.12 + 0.88 * t2)
     # (the facets: panes of a diamond lattice, each its own tint; their edges catch the light and split it)
     u, v = cx + cy, cx - cy
@@ -177,8 +178,9 @@ def ethereal(im, kind='base', seed=1):
         out = np.where(edge[..., None], out * 0.5 + 0.5, out)
     if kind == 'glow':
         out = _ramp(['#a8f4ff', '#e8ffff', '#ffffff'], 0.3 + 0.7 * t2) * 0.88 + _rainbow(hue, 0.85, 0.9) * 0.12
-    dark = lum < 0.15
-    out = np.where(dark[..., None] & (kind != 'glow'), _ramp(['#1a2466', '#34449a'], t * 4), out)
+    dark = (lum < 0.15) & (t < 0.3) & (kind == 'base')          # (marks darker than the rest of their texture: eyes, mouths, lines)
+    if holes: out = out * 0.6
+    out = np.where(dark[..., None], _ramp(['#e8ffff', '#ffffff'], t * 4) if holes else _ramp(['#1a2466', '#34449a'], t * 4), out)
     g = _hash(cx, cy, seed + 7)
     out = np.where(((g < 0.035) & ~dark)[..., None], 1.0, out)                                                  # (white glints)
     out = np.where(((g > 0.99) & ~dark)[..., None], _rainbow(g * 37, 0.8, 1.0), out)                              # (a few in colour)
@@ -201,7 +203,9 @@ def wraith(im, kind='base', seed=1, face=False):
     if kind in ('accent', 'glow'):
         hot = _ramp(['#0c6a88', '#1aa8c8', '#6ef0ff', '#c8fcff', '#ffffff'], 0.2 + 0.8 * t2)
         out = hot * 0.8 + flame * 0.2 * vein[..., None] + hot * 0.2 * (1 - vein[..., None])
-    dark = lum < 0.15
+    dark = (lum < 0.15) & (t < 0.3)
+    if kind == 'accent':
+        dark = dark & False
     if face or kind == 'glow':
         out = np.where(dark[..., None], _ramp(['#6ef0ff', '#e0ffff'], 1 - lum * 5), out)                # (the eyes burn)
     else:
@@ -243,6 +247,7 @@ def kind_of(k, tex):
     n = tex.split('/')[-1]
     if any(n.startswith(g) for g in F['glow']): return 'glow', True
     if any(n.startswith(a) for a in F['accent']): return 'accent', False
+    if any(n.startswith(h) for h in F.get('holes', ())): return 'base', 'holes'      # (carved: its dark holes are lit from inside)
     return 'base', ('face' in n or 'eye' in n)
 
 
@@ -252,7 +257,7 @@ LIGHT = {ETH: {'base': 9, 'accent': 13, 'glow': 15}, WR: {'base': 4, 'accent': 1
 def tex_twin(k, im, tex, el):
     kind, face = kind_of(k, tex)
     seed = sum(map(ord, tex.split('/')[-1])) % 97
-    return ethereal(im, kind, seed) if el == ETH else wraith(im, kind, seed, face)
+    return ethereal(im, kind, seed, holes=face == 'holes') if el == ETH else wraith(im, kind, seed, bool(face))
 
 
 # ---------------------------------------------------------------------------------------------------- the twins (rp)

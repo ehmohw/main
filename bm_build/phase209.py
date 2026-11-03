@@ -59,13 +59,8 @@ def generate(G):
     # (the fixed choices are stored one higher than the form: 2 is Fall's 1)
     fn('p209/fixed', ['scoreboard players operation #pf bm.rng = #pmm bm.rng', 'scoreboard players remove #pf bm.rng 1'])
     # his model dressed for it: the base form takes his wardrobe colour (phase138's "_c<k>"); a season's outfit is its own
-    fn('p209/look', ['function bm:p209/form', 'scoreboard players operation @s bm.pmf = #pf bm.rng', 'function bm:p138/k/pearl',
-                     'scoreboard players operation #me bm.pid = @s bm.pid',
-                     'execute as @e[type=minecraft:item_display,tag=bm.pmd] if score @s bm.pid = #me bm.pid run function bm:p209/set'])
-    fn('p209/set', ['execute if score #pf bm.rng matches 0 run data modify entity @s item.components."minecraft:item_model" set value "bm:pearlman"',
-                    'execute if score #pf bm.rng matches 0 run return run function bm:p138/sfx'] +
-       [f'execute if score #pf bm.rng matches {i} run data modify entity @s item.components."minecraft:item_model" set value "bm:pearlman_{k}"'
-        for i, k in enumerate(FORM_KEYS, 1)])
+    # (3.0g: his parts - pearlman_art's: each part's season model, his form over it, his look under it - p128/pm/dress)
+    fn('p209/look', ['function bm:p209/form', 'scoreboard players operation @s bm.pmf = #pf bm.rng', 'function bm:p128/pm/dress'])
     # (a change of season: his look, and a little burst of it)
     fn('p209/change', ['function bm:p209/look', 'particle minecraft:end_rod ~ ~0.7 ~ 0.3 0.4 0.3 0.02 6',
                        'execute if score #pf bm.rng matches 0 run particle minecraft:snowflake ~ ~0.7 ~ 0.4 0.5 0.4 0.02 14'] +

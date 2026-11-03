@@ -248,7 +248,7 @@ def generate(G):
     fn('p128/pm/fq', ['scoreboard players set #pfm bm.rng 0', 'execute on owner if score @s bm.pmef matches 11 run scoreboard players set #pfm bm.rng 1',
                       'execute on owner if score @s bm.pmef matches 12 run scoreboard players set #pfm bm.rng 2'])
     fn('p128/pm/dress', ['scoreboard players operation #me bm.pid = @s bm.pid', 'function bm:p128/pm/fq',
-                         'scoreboard players operation #pf bm.rng = @s bm.pmf', 'execute unless score #pf bm.rng matches 1.. run scoreboard players set #pf bm.rng 0',
+                         'scoreboard players set #pf bm.rng 0', 'execute if score @s bm.pmf matches 1.. run scoreboard players operation #pf bm.rng = @s bm.pmf',
                          'function bm:p138/k/pearl',
                          'execute as @e[type=minecraft:item_display,tag=bm.pmd] if score @s bm.pid = #me bm.pid run function bm:p128/pm/dress1'])
     mdl = lambda m: f'run return run data modify entity @s item.components."minecraft:item_model" set value "bm:{m}"'
@@ -355,6 +355,11 @@ def textures():
 
 def rp(R):
     R.TEXTURE_MODS.append(__import__('sys').modules[__name__])
+    # (3.0g) his rig: every part, in his own colours, each season's and each joke form's (pearlman_art)
+    R.TEXTURE_MODS.append(PA)
+    for name, (tex, els) in PA.models().items():
+        R.HATS[name] = (tex, els)
+    R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + (PA.PREFIX,)
     R.ICONS['pearl_statue'] = R.grid(['................', '......kkkk......', '......kyyk......', '.....kkkkkk.....', '......kyyk......', '.....kyWWyk.....',
                                       '.....kyWWyk..k..', '....kyyyyyykyk..', '....kyyyyyyk.k..', '....kyyyyyyk....', '.....kyyyyk.....', '.....kkkkkk.....',
                                       '....kddddddk....', '...kddddddddk...', '...kkkkkkkkkk...', '................'],
@@ -383,3 +388,170 @@ def rp(R):
         R2.wj('assets/bm/models/item/pearlman_gold.json', {'textures': tex, 'elements': els, 'display': m.get('display', {})})
         R2.wj('assets/bm/items/pearlman_gold.json', {'model': {'type': 'minecraft:model', 'model': 'bm:item/pearlman_gold'}})
     R.POST.append(post)
+
+
+# ===================================================================== 3.0g: HIS JOKE FORMS (that are actually kind of OP)
+# As every follower's Ethereal and Wraithfire forms are given (elemforms, the Gem's, the Lightbringer's): right-click him holding an
+# ETHEREAL GEM or a WRAITHFIRE HEART - he keeps it (one taken from your hand; one at a time: the other comes back to you) and takes
+# that form at once. It's yours (bm.pmef on you: 1 the gem, 2 the heart, +10 while it shows), so called again, he comes back in it.
+# His wardrobe (sneak + use his card; Wardrobe) has the two rows: the form on or off, and the gem or heart given back.
+#   ETHEREAL - PEARLMAN, GEM APPRAISER OF THE COSMOS (pearlman_art '_e'): COSMIC APPRAISAL - every 4 s the nearest monster within 10
+#              is appraised down his monocle in a prismatic beam: 18 (Might and the kill yours, as every follower's blow), and what it
+#              kills is "worthless!" - but drops an emerald for the trouble. A VILLAGER'S DEAL near him: an emerald back every time,
+#              and 1 in 3 one of the nine gems as well. Luck III.
+#   WRAITHFIRE - PEARLMAN, SOUL BROKER ('_w'): SOUL CONTRACT - every 5 s the nearest monster within 10 is served with the briefcase: 14,
+#              soul fire, withering; and what it kills is "sold". SOLD SOULS: every monster you kill with him near (24) pays out -
+#              1-3 emeralds, and 1 in 4 a Black Market token. Fire Resistance beside him.
+ETH_C, WR_C = '#e8d8ff', '#5ae0ff'
+GEM, HEART = 'ethereal_gem', 'wraithfire_heart'
+ROW_FORM, ROW_BACK = 9094, 9095                 # (in his wardrobe's block, 9080-9099 - free: 9090-9097)
+GIVE = {1: (GEM, 'Ethereal Gem', 'GEM APPRAISER OF THE COSMOS', ETH_C), 2: (HEART, 'Wraithfire Heart', 'SOUL BROKER', WR_C)}
+VOICE = {'take1': '"Is that... an ETHEREAL GEM? Pearlman shall appraise it. Personally. By wearing it."',
+         'take2': '"A Wraithfire Heart! Oh, the soul market is BOOMING this quarter."',
+         'on1': '"Behold: Pearlman, Gem Appraiser of the COSMOS. Everything has a price, darling - and I set it."',
+         'on2': '"Pearlman, Soul Broker. Sign here, and here, and... here. In blood is fine. Yours or theirs."',
+         'off': '"Back to the old penguin suit. Classic. Timeless. Affordable."',
+         'again': '"I am already wearing it, dear. Look at me. LOOK at me."',
+         'back': '"Returned in mint condition. Pearlman never cheats a customer. Usually."',
+         'none': '"Bring Pearlman an Ethereal Gem or a Wraithfire Heart - right-click him holding it - and watch his net worth soar."'}
+_sc = lambda n: f'score @s bm.pmef matches {n}'
+import phase99 as _P99
+_P99.ROWS.setdefault('pearl', []).extend([
+    (ROW_FORM, 'pmf', 'Joke form', ETH_C, 'His Ethereal or Wraithfire form: on or off. Right-click him holding an Ethereal Gem or a Wraithfire Heart to hand it over - kept, one at a time.',
+     [(None, 'nothing held', 'dark_gray'), (_sc(1), 'Cosmic: off', 'gray'), (_sc(2), 'Soul Broker: off', 'gray'),
+      (_sc(11), 'Cosmic: on', ETH_C), (_sc(12), 'Soul Broker: on', WR_C)], 'p128/fm/toggle'),
+    (ROW_BACK, 'pmg', 'Give back the gem / heart', WR_C, 'Pearlman hands back the Ethereal Gem or the Wraithfire Heart - and is a plain penguin again.',
+     [(None, 'nothing held', 'dark_gray'), (_sc(1), 'the Ethereal Gem', ETH_C), (_sc(11), 'the Ethereal Gem', ETH_C),
+      (_sc(2), 'the Wraithfire Heart', WR_C), (_sc(12), 'the Wraithfire Heart', WR_C)], 'p128/fm/take')])
+for _iid, _col, _ln in ((GEM, ETH_C, 'Pearlman: right-click him with it - the Gem Appraiser of the Cosmos.'),
+                        (HEART, WR_C, 'Pearlman: right-click him with it - the Soul Broker.')):
+    if _iid in ITEMS:
+        ITEMS[_iid]['comps']['minecraft:lore'].insert(-1, T(_ln, _col))
+
+
+def forms(G, sel_pet, pmsay):
+    fn, tellraw, wjson = G.fn, G.tellraw, G.wjson
+    holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
+    foe = 'type=#bm:hostile,tag=!bm.npc'
+    cat = '@e[type=minecraft:cat,tag=bm.pmme,limit=1]'
+    pet = f'{sel_pet} at @s run function'
+    w99 = 'function bm:p99/menu/pearl'
+    # ---- (as you) the form changed: him redressed, its burst
+    fn('p128/fm/repaint', ['scoreboard players operation #me bm.pid = @s bm.pid', f'{pet} bm:p128/fm/repaint2'])
+    fn('p128/fm/repaint2', ['function bm:p128/pm/dress',
+                            'execute if score #pfm bm.rng matches 0 run particle minecraft:poof ~ ~1 ~ 0.4 0.6 0.4 0.02 16',
+                            'execute if score #pfm bm.rng matches 1 run function bm:p128/fm/fx1', 'execute if score #pfm bm.rng matches 2 run function bm:p128/fm/fx2',
+                            'function bm:p128/pm/gest {s:11,t:16}'])
+    fn('p128/fm/fx1', ['particle minecraft:end_rod ~ ~1 ~ 0.5 0.8 0.5 0.08 40', 'particle minecraft:dust{color:[1.0,0.45,0.7],scale:1.3} ~ ~1 ~ 0.6 0.8 0.6 0 14',
+                       'particle minecraft:dust{color:[0.4,0.8,1.0],scale:1.3} ~ ~1 ~ 0.6 0.8 0.6 0 14', 'particle minecraft:dust{color:[1.0,0.92,0.4],scale:1.3} ~ ~1 ~ 0.6 0.8 0.6 0 14',
+                       'particle minecraft:flash{color:[0.85,0.95,1.0,1.0]} ~ ~1 ~ 0 0 0 0 1', 'playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..16] ~ ~ ~ 1 1.4',
+                       'playsound minecraft:entity.villager.celebrate neutral @a[distance=..16] ~ ~ ~ 0.6 1.6'])
+    fn('p128/fm/fx2', ['particle minecraft:soul_fire_flame ~ ~1 ~ 0.4 0.8 0.4 0.06 50', 'particle minecraft:soul ~ ~1.2 ~ 0.3 0.6 0.3 0.03 12',
+                       'particle minecraft:flash{color:[0.43,0.94,1.0,1.0]} ~ ~1 ~ 0 0 0 0 1', 'playsound minecraft:particle.soul_escape neutral @a[distance=..16] ~ ~ ~ 2 1.2',
+                       'playsound minecraft:item.book.page_turn neutral @a[distance=..16] ~ ~ ~ 1 0.6'])
+    # ---- GIVEN the gem (1) or the heart (2), as you: kept (the other one back to you), the form on
+    for n, (iid, inm, form, c) in GIVE.items():
+        m = 3 - n
+        oiid, oinm = GIVE[m][0], GIVE[m][1]
+        fn(f'p128/fm/give{n}', ['scoreboard players operation #me bm.pid = @s bm.pid',
+                                f'execute if score @s bm.pmef matches {n + 10} run return run ' + pmsay(VOICE['again']),
+                                f'execute if score @s bm.pmef matches {n} run return run function bm:p128/fm/show{n}',
+                                f'execute if score @s bm.pmef matches {m} run loot give @s loot bm:items/{oiid}',
+                                f'execute if score @s bm.pmef matches {m + 10} run loot give @s loot bm:items/{oiid}',
+                                f'execute if score @s bm.pmef matches {m} run ' + tellraw('@s', [T(f'Pearlman gives you back the {oinm}.', 'gray')]),
+                                f'execute if score @s bm.pmef matches {m + 10} run ' + tellraw('@s', [T(f'Pearlman gives you back the {oinm}.', 'gray')]),
+                                'execute unless entity @s[gamemode=creative] run item modify entity @s weapon.mainhand bm:p2/consume_one',
+                                f'scoreboard players set @s bm.pmef {n + 10}',
+                                tellraw('@s', G.PREFIX + [T(f'Pearlman keeps the {inm}: ', 'gray'), T(form, c, bold=True),
+                                                          T(' (his wardrobe - sneak + use his card - turns it on or off, and gives it back).', 'dark_gray')]),
+                                pmsay(VOICE[f'take{n}']), 'function bm:p128/fm/repaint'])
+        fn(f'p128/fm/show{n}', [f'scoreboard players set @s bm.pmef {n + 10}', pmsay(VOICE[f'on{n}']), 'function bm:p128/fm/repaint'])
+    # ---- his wardrobe's rows (phase99.ROWS; as you): the form on / off; given back
+    fn('p128/fm/toggle', ['execute unless score @s bm.pmef matches 1.. run return run function bm:p128/fm/none',
+                          'execute store success score #f0 bm.rng if score @s bm.pmef matches 10..',
+                          'execute if score #f0 bm.rng matches 1 run scoreboard players remove @s bm.pmef 10',
+                          'execute if score #f0 bm.rng matches 0 run scoreboard players add @s bm.pmef 10',
+                          'execute if score @s bm.pmef matches 1..2 run ' + pmsay(VOICE['off']), 'execute if score @s bm.pmef matches 11 run ' + pmsay(VOICE['on1']),
+                          'execute if score @s bm.pmef matches 12 run ' + pmsay(VOICE['on2']), 'function bm:p128/fm/repaint', w99])
+    fn('p128/fm/take', ['execute unless score @s bm.pmef matches 1.. run return run function bm:p128/fm/none',
+                        f'execute if score @s bm.pmef matches 1 run loot give @s loot bm:items/{GEM}', f'execute if score @s bm.pmef matches 11 run loot give @s loot bm:items/{GEM}',
+                        f'execute if score @s bm.pmef matches 2 run loot give @s loot bm:items/{HEART}', f'execute if score @s bm.pmef matches 12 run loot give @s loot bm:items/{HEART}',
+                        'scoreboard players set @s bm.pmef 0', 'playsound minecraft:entity.item.pickup player @s ~ ~ ~ 0.8 0.9', pmsay(VOICE['back']),
+                        'function bm:p128/fm/repaint', w99])
+    fn('p128/fm/none', [pmsay(VOICE['none']), w99])
+    # ---- THE CLICK: his cat right-clicked (it sat down or stood up - undone) holding one
+    wjson('bm/advancement/p128/click.json', {'criteria': {'i': {'trigger': 'minecraft:player_interacted_with_entity', 'conditions': {
+        'entity': [{'condition': 'minecraft:entity_properties', 'entity': 'this',
+                    'predicate': {'minecraft:entity_type': 'minecraft:cat', 'minecraft:nbt': '{Tags:["bm.pmpet"]}'}}]}}},
+        'rewards': {'function': 'bm:p128/fm/click'}})
+    fn('p128/fm/click', ['advancement revoke @s only bm:p128/click',
+                         f'execute unless items entity @s weapon.mainhand {holds(GEM)} unless items entity @s weapon.mainhand {holds(HEART)} run return 0',
+                         'scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #had bm.rng 0',
+                         f'{sel_pet} if entity @s[distance=..8] run scoreboard players set #had bm.rng 1',
+                         'execute if score #had bm.rng matches 0 run return run ' + pmsay('"Pearlman only takes valuables from his own customer, friend."'),
+                         f'{sel_pet} if entity @s[distance=..8] run function bm:p128/fm/unsit',
+                         f'execute if items entity @s weapon.mainhand {holds(GEM)} run return run function bm:p128/fm/give1',
+                         f'execute if items entity @s weapon.mainhand {holds(HEART)} run return run function bm:p128/fm/give2'])
+    fn('p128/fm/unsit', ['execute store success score #s0 bm.rng if data entity @s {Sitting:1b}',
+                         'execute if score #s0 bm.rng matches 1 run data modify entity @s Sitting set value 0b',
+                         'execute if score #s0 bm.rng matches 0 run data modify entity @s Sitting set value 1b'])
+    # ---- (as his cat, each second, a form on: #pfm) his aura - and his strike, every few seconds, his owner near and a monster in reach
+    fn('p128/fm/sec', ['execute if score #pfm bm.rng matches 1 run particle minecraft:end_rod ~ ~1.1 ~ 0.35 0.5 0.35 0.01 2',
+                       'execute if score #pfm bm.rng matches 1 run particle minecraft:dust{color:[1.0,0.6,0.85],scale:0.8} ~ ~1.1 ~ 0.4 0.5 0.4 0 2',
+                       'execute if score #pfm bm.rng matches 2 run particle minecraft:soul_fire_flame ~ ~1.1 ~ 0.3 0.5 0.3 0.01 2',
+                       'execute if score #pfm bm.rng matches 2 run particle minecraft:soul ~ ~1.4 ~ 0.3 0.4 0.3 0.01 1',
+                       'execute if score @s bm.pmk matches 1.. run scoreboard players remove @s bm.pmk 1',
+                       'execute if score @s bm.pmk matches 1.. run return 0', 'execute if data entity @s {Sitting:1b} run return 0',
+                       'scoreboard players set #o bm.rng 0', 'execute on owner if entity @s[distance=..32] run scoreboard players set #o bm.rng 1',
+                       'execute if score #o bm.rng matches 0 run return 0', f'execute unless entity @e[{foe},distance=..10] run return 0',
+                       'execute if score #pfm bm.rng matches 1 run return run function bm:p128/fm/appraise', 'function bm:p128/fm/contract'])
+    # COSMIC APPRAISAL: the appraising pose, a prismatic beam down his monocle
+    fn('p128/fm/appraise', ['scoreboard players set @s bm.pmk 4', 'function bm:p128/pm/gest {s:9,t:16}', 'tag @s add bm.pmme',
+                            f'execute as @e[{foe},distance=..10,sort=nearest,limit=1] at @s run function bm:p128/fm/apr_hit', 'tag @s remove bm.pmme',
+                            'playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..20] ~ ~ ~ 1 1.8', 'playsound minecraft:block.beacon.power_select neutral @a[distance=..20] ~ ~ ~ 0.5 2'])
+    fn('p128/fm/apr_hit', [f'execute facing entity {cat} eyes run function bm:p128/fm/beam', 'particle minecraft:flash{color:[0.85,0.95,1.0,1.0]} ~ ~1 ~ 0 0 0 0 1',
+                           f'damage @s 18 minecraft:magic by {cat}', 'execute store result score #h bm.rng run data get entity @s Health',
+                           'execute if score #h bm.rng matches ..0 run function bm:p128/fm/worthless'])
+    beam = []
+    for i in range(1, 11):
+        col = ('1.0,0.45,0.7', '0.4,0.8,1.0', '1.0,0.92,0.4', '0.7,1.0,0.6', '0.8,0.6,1.0')[i % 5]
+        beam.append(f'particle minecraft:dust{{color:[{col}],scale:1.1}} ^ ^1 ^{i * 0.9:.1f} 0.05 0.05 0.05 0 2')
+    fn('p128/fm/beam', beam)
+    fn('p128/fm/worthless', ['summon minecraft:item ~ ~0.5 ~ {Item:{id:"minecraft:emerald",count:1}}', 'particle minecraft:wax_on ~ ~1 ~ 0.3 0.4 0.3 0 10',
+                             'execute store result score #r bm.rng run random value 1..3',
+                             'execute if score #r bm.rng matches 1 as @a[distance=..24,tag=!bm.hush] if score @s bm.pid = #me bm.pid run ' + pmsay('"Appraised: WORTHLESS. ...I\'ll give you an emerald for it."')])
+    # SOUL CONTRACT: the briefcase, served
+    fn('p128/fm/contract', ['scoreboard players set @s bm.pmk 5', 'function bm:p128/pm/gest {s:8,t:14}', 'tag @s add bm.pmme',
+                            f'execute as @e[{foe},distance=..10,sort=nearest,limit=1] at @s run function bm:p128/fm/con_hit', 'tag @s remove bm.pmme',
+                            'playsound minecraft:item.book.page_turn neutral @a[distance=..20] ~ ~ ~ 1 0.5', 'playsound minecraft:particle.soul_escape neutral @a[distance=..20] ~ ~ ~ 2 0.8'])
+    fn('p128/fm/con_hit', ['particle minecraft:soul_fire_flame ~ ~1 ~ 0.4 0.6 0.4 0.08 30', 'particle minecraft:soul ~ ~1.4 ~ 0.3 0.4 0.3 0.04 10',
+                           f'damage @s 14 minecraft:magic by {cat}', 'data modify entity @s Fire set value 100s', 'effect give @s minecraft:wither 3 1',
+                           'execute store result score #h bm.rng run data get entity @s Health',
+                           'execute if score #h bm.rng matches ..0 run function bm:p128/fm/sold'])
+    fn('p128/fm/sold', ['summon minecraft:item ~ ~0.5 ~ {Item:{id:"minecraft:emerald",count:2}}', 'particle minecraft:sculk_soul ~ ~1 ~ 0.3 0.5 0.3 0.04 8',
+                        'execute store result score #r bm.rng run random value 1..3',
+                        'execute if score #r bm.rng matches 1 as @a[distance=..24,tag=!bm.hush] if score @s bm.pid = #me bm.pid run ' + pmsay('"SOLD! To the gentleman in the void. Lovely doing business."')])
+    # SOLD SOULS: every monster you kill with him near (in his Wraithfire form) pays out
+    wjson('bm/advancement/p128/souls.json', {'criteria': {'k': {'trigger': 'minecraft:player_killed_entity', 'conditions': {'entity': [
+        {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:entity_type': '#bm:hostile'}}]}}}, 'rewards': {'function': 'bm:p128/fm/souls'}})
+    fn('p128/fm/souls', ['advancement revoke @s only bm:p128/souls', 'execute unless score @s bm.pmef matches 12 run return 0',
+                         'scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #ok bm.rng 0',
+                         f'{sel_pet.replace("tag=bm.pmpet]", "tag=bm.pmpet,distance=..24]")} run scoreboard players set #ok bm.rng 1',
+                         'execute if score #ok bm.rng matches 0 run return 0',
+                         'give @s minecraft:emerald 1', 'execute store result score #n bm.rng run random value 1..3',
+                         'execute if score #n bm.rng matches 2.. run give @s minecraft:emerald 1', 'execute if score #n bm.rng matches 3.. run give @s minecraft:emerald 1',
+                         'execute store result score #r bm.rng run random value 1..4', 'execute if score #r bm.rng matches 1 run loot give @s loot bm:items/token',
+                         f'{sel_pet.replace("tag=bm.pmpet]", "tag=bm.pmpet,distance=..24]")} at @s run particle minecraft:soul ~ ~1.4 ~ 0.3 0.4 0.3 0.03 6',
+                         'playsound minecraft:entity.villager.trade player @s ~ ~ ~ 0.6 0.6',
+                         'execute store result score #r bm.rng run random value 1..6',
+                         'execute if score #r bm.rng matches 1 unless entity @s[tag=bm.hush] run ' + pmsay('"Another soul on the books. Your commission, friend."')])
+    # A VILLAGER'S DEAL near him, Ethereal (as you): an emerald back, and 1 in 3 a gem
+    fn('p128/fm/cosmic', ['give @s minecraft:emerald 1', 'execute store result score #r bm.rng run random value 1..3',
+                          'execute if score #r bm.rng matches 2.. run return run ' + pmsay('"Cosmic discount, darling. An emerald back - the universe insists."'),
+                          'execute store result score #g bm.rng run random value 0..%d' % (len(KEYS) - 1)] +
+       [f'execute if score #g bm.rng matches {i} run loot give @s loot bm:items/gem_{k}' for i, k in enumerate(KEYS)] +
+       ['playsound minecraft:block.amethyst_block.resonate player @s ~ ~ ~ 0.8 1.6',
+        pmsay('"And a little something from my own collection. Appraised at: PRICELESS."')])
+    # (a monster right up close, no form on: a flinch - "not the suit!")
+    fn('p128/pm/flinch', ['function bm:p128/pm/gest {s:5,t:8}', 'execute store result score #r bm.rng run random value 1..4',
+                          'execute if score #r bm.rng matches 1 as @a[distance=..16,tag=!bm.hush] if score @s bm.pid = #me bm.pid run ' + pmsay('"Not the suit! Do you know what this suit COST?"')])

@@ -23,6 +23,7 @@ SAVE_CAP_ELSE = 4                                    # (any other currency the b
 XS_EXTRA = []                                        # (2.84a) more account swaps: (src, n, dst, m, 'a', 'b', code, col_a, col_b, gate)
 ACCT_EXTRA = []                                      # (2.84b) more buttons on the account page: (label components, code, tooltip, function)
 SAVE_PER_OF = {}                                     # (2.84a) a currency's own rate: 1 a day per this many kept (Dread Tokens: 50 - 2%)
+AUTO_SKIP = set()                                    # (3.0g) currencies auto-deposit leaves in your pockets (Royal Pearls: Ava and the Steward take them from there)
 BANK = [('token', 'bm.bk_tok', 'Tokens', 'gold'), ('lucky_token', 'bm.bk_luck', 'Lucky Tokens', 'green'),
         ('medallion', 'bm.bk_med', 'Medallions', 'light_purple'), ('trophy', 'bm.bk_tro', 'Trophies', '#ffb300')]
 COUNTERS = {'concierge': ([(50, BF + 1, 5), (51, BF + 1, 5), (52, BF + 1, 5)], 'minecraft:dark_oak_planks'),
@@ -135,6 +136,7 @@ def generate(G):
     auto = ['scoreboard players set #atot bm.pay 0']
     for cur, obj, nm, col in BANK:
         has = f'*[minecraft:custom_data~{{bm:"{cur}"}}]'
+        if cur in AUTO_SKIP: continue
         if cur == 'token':
             auto += [f'execute store result score #n bm.pay run clear @s {has} 0', f'execute if score #n bm.pay matches {KEEP_TOK + 1}.. run function bm:p31/bank/auto_tok']
             continue

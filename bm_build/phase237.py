@@ -156,9 +156,10 @@ FOREIGN = ['dirt', 'grass_block', 'coarse_dirt', 'rooted_dirt', 'podzol', 'mycel
            'nether_bricks', 'cracked_nether_bricks', 'chiseled_nether_bricks', 'nether_brick_fence', 'nether_brick_stairs', 'nether_brick_slab',
            'nether_brick_wall', 'red_nether_bricks', 'red_nether_brick_slab', 'red_nether_brick_stairs', 'red_nether_brick_wall', 'polished_blackstone_bricks',
            'cracked_polished_blackstone_bricks', 'polished_blackstone_brick_slab', 'polished_blackstone_brick_stairs', 'polished_blackstone_brick_wall',
-           'chiseled_polished_blackstone', 'gilded_blackstone', 'chest', 'trapped_chest', 'barrel', 'spawner', 'lantern', 'soul_lantern', 'iron_chain',
+           'chiseled_polished_blackstone', 'gilded_blackstone', 'chest', 'trapped_chest', 'spawner', 'lantern', 'soul_lantern', 'iron_chain',
            'iron_bars', 'respawn_anchor', 'anvil', 'blast_furnace', 'smithing_table', 'lava_cauldron', 'cauldron', 'crimson_planks', 'crimson_slab',
-           'crimson_sign', 'crimson_wall_sign', 'gold_block', 'nether_wart', 'ladder']
+           'crimson_sign', 'crimson_wall_sign', 'gold_block', 'nether_wart', 'ladder', 'candle', 'cobweb', 'skeleton_skull', 'skeleton_wall_skull', 'polished_blackstone',
+           'polished_basalt']
 HOLLOW = ['air', 'cave_air', 'lava', 'fire', 'soul_fire']
 # what else a foreign place left standing in the lake or the box (its markers, its rat, its plates): taken when the lake is cut
 FOREIGN_E = ['type=minecraft:marker,tag=bm.p200seed', 'type=minecraft:marker,tag=bm.outpost', 'type=minecraft:marker,tag=bm.forge',
@@ -223,12 +224,15 @@ def _lake_gen(G, fn, tellraw, P, UR):
         f'execute unless score #uver bm.p2 matches 1.. in {NETHER} as @a[{LBOX}] run effect give @s minecraft:fire_resistance 120 0',
         f'execute unless score #uver bm.p2 matches 1.. in {NETHER} as @a[{LBOX}] run effect give @s minecraft:slow_falling 60 0',
         f'execute in {NETHER} as @a[{BOX}] at @s run function bm:p237/out',
+        f'execute in {NETHER} as @e[type=minecraft:marker,tag=bm.bxm,{LBOX}] at @s run function bm:p248/stow',      # (a Backpack set down here: folded first)
         *[f'execute in {NETHER} run kill @e[{s_},{LBOX}]' for s_ in FOREIGN_E],
         f'execute in {NETHER} as @e[type=minecraft:wandering_trader,tag=bm.orat,{LBOX}] at @s run tp @s ~ -300 ~',
         f'execute in {NETHER} run ' + tellraw(f'@a[{LBOX}]', [_T('The Nether shudders round the Undercrown...', COL, bold=True),
                                                             _T(' (its lake is opening: stand clear a minute)', 'gray')])]
     for i, body in enumerate(steps):
-        boxfirst = [f'execute in {NETHER} as @a[{BOX}] at @s run function bm:p237/out', *[f'execute in {NETHER} run kill @e[{s_},{BOX}]' for s_ in FOREIGN_E]]
+        boxfirst = [f'execute in {NETHER} as @a[{BOX}] at @s run function bm:p237/out',
+                    f'execute in {NETHER} as @e[type=minecraft:marker,tag=bm.bxm,{BOX}] at @s run function bm:p248/stow',
+                    *[f'execute in {NETHER} run kill @e[{s_},{BOX}]' for s_ in FOREIGN_E]]
         fn(f'p237/lake/s{i}', (first if i == 0 else []) + (boxfirst if i == nlake else []) + body + ['scoreboard players add #ulk bm.p2 1'])
     fn('p237/lake/step', ['execute unless score #ulk bm.p2 matches 0.. run scoreboard players set #ulk bm.p2 0',
                           # (no lake in this world - /function bm:admin/under/nolake: only the box's clean-out)

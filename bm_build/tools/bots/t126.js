@@ -109,13 +109,11 @@ const X = 19000, Y = 120, Z = 19000;
     await run('scoreboard players set TestRat bm.kxell 0'); await run('scoreboard players set TestRat bm.cpell 0'); await sleep(200);
     await run('effect give TestRat minecraft:slow_falling 10 0 true');
     await run('tag TestRat add bm.gvok'); await run('execute in bm:gutter run tp TestRat -230.5 90 -230.5'); await sleep(300);
-    ok('Into the heist lobby: his overworld gems stay behind', (await sc('TestRat', 'bm.kxel')) === 0 && (await sc('TestRat', 'bm.cpel')) === 0, `kxel ${await sc('TestRat', 'bm.kxel')} cpel ${await sc('TestRat', 'bm.cpel')}`);
+    // (3.0g: one set of gems per follower, on both sides of the Fixer's door - nothing is swapped at the gutter any more; heist3g / t349)
+    ok('Into the heist lobby: his overworld gems come with him (3.0g)', (await sc('TestRat', 'bm.kxel')) === 5 && (await sc('TestRat', 'bm.cpel')) === 3, `kxel ${await sc('TestRat', 'bm.kxel')} cpel ${await sc('TestRat', 'bm.cpel')}`);
     await run('scoreboard players set TestRat bm.kxel 10'); await run('scoreboard players set TestRat bm.cpel 10');      // the Ethereal form, given in the lobby
     await run(`execute in minecraft:overworld run tp TestRat ${X + 0.5} ${Y} ${Z + 0.5}`); await sleep(300);
-    ok('Back in the overworld: his own gems again, not the lobby\'s Ethereal', (await sc('TestRat', 'bm.kxel')) === 5 && (await sc('TestRat', 'bm.cpel')) === 3, `kxel ${await sc('TestRat', 'bm.kxel')} cpel ${await sc('TestRat', 'bm.cpel')}`);
-    await run('tag TestRat add bm.gvok'); await run('execute in bm:gutter run tp TestRat -230.5 90 -230.5'); await sleep(300);
-    ok('In the lobby again: the lobby\'s Ethereal is waiting there', (await sc('TestRat', 'bm.kxel')) === 10 && (await sc('TestRat', 'bm.cpel')) === 10);
-    await run(`execute in minecraft:overworld run tp TestRat ${X + 0.5} ${Y} ${Z + 0.5}`); await sleep(300);
+    ok('Back in the overworld: the Ethereal given in the lobby is still his', (await sc('TestRat', 'bm.kxel')) === 10 && (await sc('TestRat', 'bm.cpel')) === 10, `kxel ${await sc('TestRat', 'bm.kxel')} cpel ${await sc('TestRat', 'bm.cpel')}`);
     for (const o of ['bm.kxel', 'bm.cpel', 'bm.kxell', 'bm.cpell', 'bm.kxelo', 'bm.cpelo']) await run(`scoreboard players set TestRat ${o} 0`);
   }
 

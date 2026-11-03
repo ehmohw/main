@@ -24,7 +24,7 @@ FIND = 20                                         # (% a won heist, every raider
 COSTUMES = {'celi': ('Celi', 1.9, 'bm.cep'), 'demo': ('Democratus', 3.0, 'bm.dmp'), 'kw': ('KillerWatt', 2.8, 'bm.kxp'), 'tul': ('Tullius', 2.6, 'bm.tup'),
             'fishy': ('Fishy', 1.9, 'bm.fyp'), 'bloo': ('Bloo', 1.7, 'bm.bop'), 'apo': ('Apophiss', 3.6, 'bm.app'), 'chef': ('the Chef', 2.0, 'bm.kkp'),
             'neighbor': ('the Neighbor', 1.9, 'bm.nbp'), 'stalker': ('the Stalker', 2.4, 'bm.svp'), 'lantern': ('the Arachno-Lantern', 2.0, 'bm.lnp'),
-            'ava': ('Queen Ava', 2.0, 'bm.avp'), 'pistachio': ('Pistachio', 1.6, 'bm.pip'), 'pearl': ('Pearlman', 1.1, 'bm.pmd'),
+            'ava': ('Queen Ava', 2.0, 'bm.avp'), 'pistachio': ('Pistachio', 1.6, 'bm.pip'), 'pearl': ('Pearlman', 1.5, 'bm.pmd'),
             'pearlq': ('Queen Pearl', 2.0, 'bm.pqp'), 'omega': ('King Omega', 3.0, 'bm.omp'), 'ashur': ('Ashur', 2.2, 'bm.asp'), 'bones': ('Bones', 2.0, 'bm.bjp'),
             'bender': ('Bender', 1.1, 'bm.bvp'), 'zib': ('Zib', 1.3, None), 'frog': ('the Frog', 1.2, None), 'don': ('Donado', 1.3, None),
             'wil': ('Wilfrey', 1.8, None), 'dennis': ('Dennis', 1.9, 'bm.dwp'), 'capshun': ('Mr. Capshun', 2.2, 'bm.mzp'),

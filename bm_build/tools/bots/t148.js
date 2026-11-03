@@ -66,8 +66,8 @@ const res = [];
   // ---- Pearlman's bow tie
   await use(3); await wait(5000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.pmd]')) >= 1); await sleep(1500);
   await hold(4); await sleep(600);
-  const pm = await nbt('@e[type=minecraft:item_display,tag=bm.pmd,limit=1]', 'item.components."minecraft:item_model"');
-  ok('Pearlman out, the Ruby bow tie used: his model wears it (pearlman_c1)', /pearlman_c1/.test(pm), pm);
+  const pm = await nbt('@e[type=minecraft:item_display,tag=bm.pmp_body,limit=1]', 'item.components."minecraft:item_model"');
+  ok('Pearlman out, the Ruby bow tie used: his rig wears it (pmr_body_c1)', /pmr_body_c1/.test(pm), pm);
   // ---- Wilfrey's shield (chosen while he rests, worn when he comes)
   await hold(6); await sleep(400);
   await hold(5); await wait(4000, async () => (await cnt('@e[type=minecraft:wither_skeleton,tag=bm.wil_body]')) >= 1); await sleep(1500);

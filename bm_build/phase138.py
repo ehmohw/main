@@ -222,7 +222,7 @@ FROG_SKIN = {1: ('light_blue_wool', 'blue_wool'), 2: ('orange_wool', 'red_wool')
 import shiny as _SH
 FROG_SKIN[_SH.KEY['frog']] = _SH.FROG_SKIN                  # (2.94t: his shiny skin)
 ITEMS_OF = {'apo': lambda n: n.startswith('apo_'), 'tul': lambda n: n.startswith('tu_'), 'frog': lambda n: n == 'frog',
-            'don': lambda n: n == 'donado' or (n.startswith('dnr_') and not n.startswith('dnr_eyes')), 'pearl': lambda n: n == 'pearlman', 'fishy': lambda n: n.startswith('fy_') and n != 'fy_bowl',
+            'don': lambda n: n == 'donado' or (n.startswith('dnr_') and not n.startswith('dnr_eyes')), 'pearl': lambda n: n == 'pearlman' or (n.startswith('pmr_') and n.count('_') == 1), 'fishy': lambda n: n.startswith('fy_') and n != 'fy_bowl',
             'dennis': lambda n: n.startswith('dw_') and n != 'dw_horn', 'pistachio': lambda n: n.startswith('ps_'), 'omega': lambda n: n.startswith('om_') and n not in ('om_monocle', 'om_banner', 'om_brazier'),
             'ashur': lambda n: n.startswith('as_'), 'chef': lambda n: n.startswith('cf_'), 'neighbor': lambda n: n.startswith('nb_'),
             'ava': lambda n: n.startswith('av_') and n != 'av_locket', 'pearlq': lambda n: n.startswith('pq_') and n != 'pq_pearls', 'bloo': lambda n: n.startswith('bo_') and n != 'bo_claw', 'stalker': lambda n: n.startswith('st_') and n != 'st_hook', 'lantern': lambda n: n.startswith('ln_') and n != 'ln_gourd', 'bender': lambda n: n.startswith('bd_'), 'bones': lambda n: n.startswith('bn_') and n != 'bn_whistle', 'capshun': lambda n: n.startswith('mz_'), 'kettle': lambda n: n.startswith('kt_'), 'rufus': lambda n: n.startswith('rf_'), 'henry': lambda n: n.startswith('hy_'), 'nia': lambda n: n.startswith('ni_'), 'gem': lambda n: n.startswith('cg_'), 'batty': lambda n: n.startswith('gb_'), 'eggbert': lambda n: n.startswith('ge_'), 'count': lambda n: n.startswith('gc_'), 'dragon': lambda n: n.startswith('dd_'), 'eraser': lambda n: n.startswith('er_'), 'cursor': lambda n: n.startswith('cu_'), 'inkblot': lambda n: n.startswith('ib_'), 'speech': lambda n: n.startswith('sbb_'), 'lightbringer': lambda n: n.startswith('lb_'), 'dryad': lambda n: n.startswith('pd_'), 'sovereign': lambda n: n.startswith('ds_'), 'vexis': lambda n: n.startswith('vx_'), 'mireling': lambda n: n.startswith('ml_'), 'keeper': lambda n: n.startswith('kb_'), 'sky': lambda n: n.startswith('yb_'),
@@ -389,12 +389,12 @@ def generate(G):
                             ' '.join(['unless items entity @s contents *[minecraft:item_model="bm:frog"]'] +
                                      [f'unless items entity @s contents *[minecraft:item_model="bm:frog_c{c}"]' for c in P99.NEW['frog'][3]]))
     # ---- Pearlman: his one model, wherever his cat is (a new one too, when it was lost)
-    fn('p138/pearl/dress', ['function bm:p138/k/pearl', 'execute as @e[type=minecraft:item_display,tag=bm.pmd] if score @s bm.pid = #me bm.pid run function bm:p138/sfx'])
+    fn('p138/pearl/dress', ['function bm:p128/pm/dress'])          # (3.0g: his rig - his form, his season, then the look, part by part)
     G.FUNCS['p128/pm/tick'].append('execute if score #ok bm.rng matches 0 run function bm:p138/pearl/dress')
     G.FUNCS['p128/pm/summon_here'] += ['scoreboard players operation #me bm.pid = @s bm.pid',
                                        'execute as @e[type=minecraft:cat,tag=bm.pmpet] if score @s bm.pid = #me bm.pid run function bm:p138/pearl/dress']
     now('pearl', ['execute as @e[type=minecraft:cat,tag=bm.pmpet] if score @s bm.pid = #me bm.pid at @s run function bm:p138/pearl/now2'],
-        ['execute as @e[type=minecraft:item_display,tag=bm.pmd] if score @s bm.pid = #me bm.pid run function bm:p138/sfx'], 'Pearlman')
+        ['function bm:p128/pm/dress'], 'Pearlman')
     # ---- Wilfrey: a heraldic shield in his free hand (his real gear is untouched)
     SHIELD = {1: ('red', [('straight_cross', 'white'), ('border', 'yellow')]), 2: ('blue', [('triangle_bottom', 'white'), ('border', 'light_gray')]),
               3: ('green', [('stripe_downright', 'yellow'), ('border', 'yellow')]), 4: ('yellow', [('circle', 'orange'), ('border', 'orange')]),

@@ -101,7 +101,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     await sleep(500); await run('loot replace entity TestRat hotbar.1 loot bm:items/pearl_card'); A.slot(1); await sleep(300);
     A.use(); await sleep(400); A.release(); await sleep(1600);
     const cats = await count('@e[type=minecraft:cat,tag=bm.pmpet]'); const disp = await count('@e[type=minecraft:item_display,tag=bm.pmd]');
-    ok('His Business Card: Pearlman waddles out (his model on him)', cats === 1 && disp === 1, `cats ${cats} models ${disp}`);
+    ok('His Business Card: Pearlman waddles out (his model on him)', cats === 1 && disp === 7, `cats ${cats} models ${disp} (his rig: 7 parts)`);
     await sleep(1500); const f2 = await fx();
     const hv = (f2.match(/\{[^}]*hero_of_the_village[^}]*\}/) || [''])[0];
     ok('...and while he\'s near: Luck, and villagers cheaper (Hero of the Village I)', /luck/.test(f2) && hv && !/amplifier/.test(hv), hv);
@@ -112,7 +112,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     // his model keeps up with him
     await run(`${O}tp @e[type=minecraft:cat,tag=bm.pmpet,limit=1] ${X + 5.5} ${Y} ${Z + 0.5}`); await sleep(300);
     const P = async sel => (await run(`${O}data get entity ${sel} Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/).slice(1).map(Number);
-    const cp = await P('@e[type=minecraft:cat,tag=bm.pmpet,limit=1]'), dp = await P('@e[type=minecraft:item_display,tag=bm.pmd,limit=1]');
+    const cp = await P('@e[type=minecraft:cat,tag=bm.pmpet,limit=1]'), dp = await P('@e[type=minecraft:item_display,tag=bm.pmp_body,limit=1]');
     ok('His model keeps up with him', Math.hypot(cp[0] - dp[0], cp[2] - dp[2]) < 0.6 && cp[0] > X + 2, `cat ${cp} model ${dp}`);
     // the card's menu: wait here, then home
     A.input({ shift: true }); await sleep(250); A.use(); await sleep(400); A.release(); A.input({}); await sleep(500);

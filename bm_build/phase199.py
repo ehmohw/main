@@ -105,6 +105,7 @@ import phase31 as _P31
 _P31.BANK.append(('royal_pearl', 'bm.bk_rp', 'Royal Pearls', PEARL_C))
 _P31.SAVE_CAP['royal_pearl'] = 2
 _P31.SAVE_PER_OF['royal_pearl'] = 50
+_P31.AUTO_SKIP.add('royal_pearl')                   # (Ava's honours and the Steward are paid from your pockets: auto-deposit leaves them there)
 
 
 # ================================================================================================ art: icons, the steward

@@ -2446,6 +2446,13 @@ In 1-9999, outside every route of `p28/act` and on no button.
 - 3.0d: the Lightbringer's rigpet BUTTONS 10 and 11 - 4860 "Ophanim form: on / off" (p236l/ophf/toggle; refused below Queen Ava's
   rank III) and 4861 "Companion size: on / off" (p236l/ophf/size) - routed by rigpet (p236l/act checks menu 4850). Companion size
   for Apophiss is 8605 (p131/act, menu 8600) and for King Omega 2283 (p170/act, menu 2280): exact routes, each router checking bm.menu.
+- 3.0g: the Rat Bank's 13th currency (Royal Pearls, phase199) took 4000-4003 for its four actions (deposit, take 1, take 10, take
+  all: 4010+ ran into the pages at 4058) and 4091 for its page; a 14th would take 4004-4007 and 4092 (phase31 asserts the codes
+  never collide - 4008-4009 and 4093-4099 are what's left).
+- 3.0g: the Partner Wheel's top row (phase179 SENDALL, shown only while one of your followers is out) took the END of its block:
+  3449 Send all followers home (`p179/w/sendall`), 3448 Bring them all to me (`p179/w/recall`, the sneak + use recall) and a Close
+  on `P28.NOOP` - so the Follower Gallery's 3D pages can keep counting up from 3422. Exact routes in `p179/w/act` (menu 3350).
+  Pearlman's joke forms are two rows of his wardrobe (phase99.ROWS, block 9080-9099): 9094 the form on / off, 9095 give back.
 <!-- /notes -->
 
 ## Revision log

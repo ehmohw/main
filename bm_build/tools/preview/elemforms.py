@@ -23,6 +23,9 @@ NAMES = {'bender': 'Bender', 'capshun': 'Mr. Capshun', 'sovereign': 'The Bound S
          'leo': 'Leo', 'celi': 'Celi', 'demo': 'Democratus', 'eraser': 'The Eraser (joke)', 'don': 'Donado (joke)'}
 
 
+YAW = {'celi': 20, 'demo': 20, 'don': 20, 'lantern': 20, 'bender': 240}       # (each turned to show its face)
+
+
 def leaf(node):
     t = node.get('type')
     if t == 'minecraft:model': return node['model']
@@ -52,7 +55,7 @@ def tile(w, el, size=300, bg=(255, 255, 255)):
     for model, tr, L, R, sc in parts:
         m = model_of(model)
         mid = f'bm:item/{m}' if el is None else Tw.model(w, m, el)
-        s.display(mid, translation=tr, scale=sc, left=L, right=R, yaw=200)
+        s.display(mid, translation=tr, scale=sc, left=L, right=R, yaw=YAW.get(w, 200))
     im = s.render((1.3 * h, h * 0.65, -2.6 * h), size=size, span=h * 1.3, center=(0, lo + h / 2, 0))
     if el is not None:                      # (a soft backdrop of the form's light, so the glow reads on the page)
         back = Image.new('RGB', im.size, (40, 52, 78) if el == EF.ETH else (14, 26, 34))
