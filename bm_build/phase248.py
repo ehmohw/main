@@ -10,8 +10,9 @@ USE        right-click (or sneak + right-click: the same): it unfolds into a bar
 DUNGEONS   the Phase 2 dungeons (those round a bm.zone_d marker, the Hollow Throne, the Undercrown, the Armada), where the
            satchel won't unfold: there it unfolds only into plain air (or cave air) over solid floor, never within 2 blocks
            of the dungeon's own fixtures (its markers: puzzle pieces, doors, gates, sigils, bridges, vaults, spawners), and
-           folding back puts back exactly that air. Not on a heist (the coat check keeps your pack in the gutter) and not
-           in the markets, the crypts or aboard the Vorn ships - the satchel's rule (phase37's p37/allowed).
+           folding back puts back exactly that air. (3.0f) The same careful way in the markets, the crypts, aboard the Vorn
+           ships and everywhere else the satchel refuses (phase37's p37/allowed). Not on a heist (the coat check keeps your
+           pack in the gutter).
 SAFE       while a backpack is out, its marker keeps a copy of the barrel's contents every tick (data.snap). If the barrel is
            taken away without a player - a dungeon rebuild, a reset or a door setting its block back, any command - the
            backpack folds with what was in it, from that copy; if it was broken (an explosion), the drops it spilled this
@@ -131,10 +132,10 @@ def generate(G):
     # (a backpack's marker keeps a copy of what's in its barrel from the start)
     k = op.index('function bm:p33/box/open2 with storage bm:tmp bx')
     op.insert(k + 1, 'execute if data storage bm:tmp {bpkk:"pack"} as @e[type=minecraft:marker,tag=bm.bxnew] at @s run function bm:p248/snap_new')
-    fn('p248/dungeon', ['execute if dimension bm:gutter run return 0', 'execute if entity @s[tag=bm.gvp] run return 0',
-                        'execute if entity @s[tag=bm.uadv] run return 1', 'execute if entity @s[tag=bm.aadv] run return 1',
-                        'execute if dimension bm:hollow_throne run return 1',
-                        'execute if entity @e[type=minecraft:marker,tag=bm.zone_d,distance=..48] run return 1', 'return 0'])
+    # (3.0f: every protected place the satchel refuses - the markets, the crypts, the Vorn ships, the dungeons - takes the
+    #  backpack's careful way: plain air over solid floor, clear of the place's own works, and that air put back. Only a heist
+    #  (the coat check keeps your pack in the gutter) still refuses it.)
+    fn('p248/dungeon', ['execute if dimension bm:gutter run return 0', 'execute if entity @s[tag=bm.gvp] run return 0', 'return 1'])
     fn('p248/dtry', ['execute unless block ~ ~ ~ #bm:p248_air run return 0', 'execute if block ~ ~-1 ~ #minecraft:replaceable run return 0',
                      'execute if block ~ ~-1 ~ #bm:p248_nofloor run return 0',
                      f'execute if entity @e[type=minecraft:marker,distance=..{MARK_R}] run return 0',

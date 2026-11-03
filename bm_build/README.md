@@ -21,6 +21,10 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0f: the Backpack goes everywhere
+
+- **The Backpack now opens in the Black Markets and every other protected place** - the crypts, aboard the Vorn ships, the dungeons. There it takes its careful way: it unfolds only into open air over solid floor, clear of the place's own fixtures, and folding it puts back exactly that air. Only a heist still refuses it (the coat check keeps your pack in the gutter).
+
 ## New in 3.0e: the Vorn Armada in the sky, and no Mires aboard
 
 - **The Vorn Armada now floats high in the End's sky.** The whole fleet sits at **y 150 to 245** (its hulls from about y 173 up), far above every outer island, so **no islands are cut away** to make room for it any more. The Hive-Star Coordinates' tractor beam, the Dock, the beam-out pad and rifts, the star's burn, the trials, the Statue Knights, the Mecha Rex's hangar, the music and Admiral Vexis's fight all moved up with it.
