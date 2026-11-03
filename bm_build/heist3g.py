@@ -108,9 +108,9 @@ def generate(G):
     fn('h3g/bag/take2', ['$execute unless data storage bm:gv bag.p$(pid) run data modify storage bm:gv bag.p$(pid) set value {inv:[],eq:{}}',
                          'data modify storage bm:gv h3gb set value []'] +
        [f'data modify storage bm:gv h3gb append from entity @s Inventory[{has_nbt(k)}]' for k in P248.BAGS] +
-       [f'data modify storage bm:gv h3gb append from entity @s Inventory[{m}]' for k in P248.BAGS for m in in_nbt(k)] +
        [f'execute if items entity @s weapon.offhand {bag} run data modify storage bm:gv h3gb append from entity @s equipment.offhand'] +
        [f'execute if items entity @s weapon.offhand {p} run data modify storage bm:gv h3gb append from entity @s equipment.offhand' for p in nested] +
+       [f'execute if items entity @s container.{i} {p} run data modify storage bm:gv h3gb append from entity @s Inventory[{{Slot:{i}b}}]' for p in nested for i in range(36)] +
        [f'execute if items entity @s armor.{a} {bag} run data modify storage bm:gv h3gb append from entity @s equipment.{a}' for a in ('head', 'chest', 'legs', 'feet')] +
        ['$data modify storage bm:gv cb.p$(pid) append from storage bm:gv h3gb[]', f'clear @s {bag}'] + [f'clear @s {p}' for p in nested] +
        ['data remove storage bm:gv h3gb'])
@@ -151,7 +151,7 @@ def generate(G):
                          'execute unless score #by bm.rng matches -15..110 run scoreboard players set #out bm.rng 1',
                          'execute if score #out bm.rng matches 0 as @e[tag=bm.h3gme,limit=1] at @s unless block ~ ~1.2 ~ #bm:h3g_open run scoreboard players set #out bm.rng 1',
                          'execute if score #out bm.rng matches 0 run return 0',
-                         'execute as @e[tag=bm.h3gme,limit=1] run function bm:h3g/arena/back'])
+                         'execute as @e[tag=bm.h3gme,limit=1] positioned ~ ~ ~ run function bm:h3g/arena/back'])
     fn('h3g/arena/back', ['tp @s ~ ~ ~', 'particle minecraft:reverse_portal ~ ~1 ~ 0.5 1 0.5 0.05 30', 'playsound minecraft:entity.enderman.teleport hostile @a[distance=..30] ~ ~ ~ 1 0.6',
                           'execute as @a[tag=bm.gvp,distance=..30] run ' + title('@s', 'actionbar', T('The hall drags it back into the fight.', 'gray'))])
     F_['p70/boss/setup'].append('attribute @s minecraft:knockback_resistance modifier add bm:h3g_kr 0.4 add_value')
@@ -230,7 +230,7 @@ def rat_king(G):
            'death_0': 12, 'death_1': 16, 'arrive_0': 4, 'arrive_1': 10}
     for name, pz in A.POSES.items():
         fn(f'h3g/rk/pose/{name}', RF.pose(A, pz, S, DUR.get(name, 6), sel))
-        fn(f'h3g/rk/do/{name}', ['function bm:h3g/rk/mine', f'function bm:h3g/rk/pose/{name}', 'tag @e[type=minecraft:item_display,tag=bm.rksel] remove bm.rksel'])
+        if name in ('idle_a', 'arrive_0', 'arrive_1', 'death_0', 'death_1'): fn(f'h3g/rk/do/{name}', ['function bm:h3g/rk/mine', f'function bm:h3g/rk/pose/{name}', 'tag @e[type=minecraft:item_display,tag=bm.rksel] remove bm.rksel'])
     fn('h3g/rk/place', RF.place(A, S / 16, sel))
     fn('h3g/rk/rig', [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, ["bm.rkr", f"bm.rkr_{p}", "bm.rknew", "bm.gvprop"], S, model=A.model_id(p), extra=dict(view_range=F(3.0)))}'
                       for p in A.PARTS])
@@ -422,9 +422,9 @@ def halls(G, rel):
 
     # ---- THE PYLON HALL
     pyl = {'Tags': ['bm.gvprop', 'bm.h3gpy', 'bm.h3gpn'], 'width': F(1.3), 'height': F(2.6), 'response': B(0)}
-    base = {'Tags': ['bm.gvprop', 'bm.h3gpyd'], 'block_state': {'Name': 'minecraft:respawn_anchor', 'Properties': {'charges': '4'}}, 'brightness': {'block': Int(15), 'sky': Int(15)},
+    base = {'Tags': ['bm.gvprop', 'bm.h3gpyd'], 'block_state': {'id': 'minecraft:respawn_anchor', 'properties': {'charges': '4'}}, 'brightness': {'block': Int(15), 'sky': Int(15)},
             'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(-0.5), F(0), F(-0.5)], 'scale': [F(1.0)] * 3}}
-    top = {'Tags': ['bm.gvprop', 'bm.h3gpyd'], 'block_state': {'Name': 'minecraft:soul_lantern', 'Properties': {'hanging': 'false'}}, 'brightness': {'block': Int(15), 'sky': Int(15)},
+    top = {'Tags': ['bm.gvprop', 'bm.h3gpyd'], 'block_state': {'id': 'minecraft:soul_lantern', 'properties': {'hanging': 'false'}}, 'brightness': {'block': Int(15), 'sky': Int(15)},
            'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(-0.6), F(1.0), F(-0.6)], 'scale': [F(1.2), F(1.5), F(1.2)]}}
     fn('h3g/lay/py/up', ['function bm:h3g/lay/py/down'] +
        sum(([f'summon minecraft:interaction {rel(x, 4, z)} {snbt(pyl)}', f'summon minecraft:block_display {rel(x, 4, z)} {snbt(base)}',
@@ -480,7 +480,7 @@ def halls(G, rel):
                            'execute if score @s bm.h3gt matches ..29 run particle minecraft:dust{color:[0.9,0.3,0.1],scale:1.0} ~ ~0.05 ~ 1 0 1 0 2',
                            'execute if score @s bm.h3gt matches 10 run ' + snd('block.deepslate.break', 1, 0.6, 16),
                            'execute if score @s bm.h3gt matches 30 run function bm:h3g/lay/cr/fall',
-                           'execute if score @s bm.h3gt matches 31..190 positioned ~-1.5 ~-3 ~-1.5 as @a[dx=2,dy=2.5,dz=2] run function bm:h3g/lay/cr/pit',
+                           'execute if score @s bm.h3gt matches 31..190 positioned ~-1.5 ~-3 ~-1.5 as @a[dx=2,dy=2.5,dz=2] at @s run function bm:h3g/lay/cr/pit',
                            'execute if score @s bm.h3gt matches 190.. run function bm:h3g/lay/cr/mend'])
     fn('h3g/lay/cr/fall', ['clone ~-1 ~-1 ~-1 ~1 ~-1 ~1 ~-1 ~-4 ~-1', 'fill ~-1 ~-2 ~-1 ~1 ~-1 ~1 minecraft:air',
                            'particle minecraft:block{block_state:"minecraft:polished_blackstone"} ~ ~ ~ 1 0.2 1 0.2 50', 'particle minecraft:large_smoke ~ ~ ~ 1 0.2 1 0.02 12',
@@ -506,7 +506,7 @@ def halls(G, rel):
     for r in range(2, 12):
         sweep += [f'execute positioned ^ ^0.3 ^{r} run particle minecraft:soul_fire_flame ~ ~ ~ 0.05 0.08 0.05 0.005 1',
                   f'execute positioned ^ ^0.3 ^{r} run particle minecraft:dust{{color:[0.4,0.9,1.0],scale:1.0}} ~ ~ ~ 0.05 0.05 0.05 0 1',
-                  f'execute positioned ^ ^0.3 ^{r} as @a[tag=bm.gvp,distance=..0.9,{FOES}] unless score @s bm.h3gbc matches 1.. run function bm:h3g/lay/bl/cut',
+                  f'execute positioned ^ ^0.3 ^{r} as @a[tag=bm.gvp,distance=..0.9,{FOES}] unless score @s bm.h3gbc matches 1.. at @s run function bm:h3g/lay/bl/cut',
                   f'execute if score #hub bm.rng matches 1 positioned ^ ^1 ^{r} as @e[tag=bm.gvboss,tag=bm.gvshell,distance=..1.6] run tag @s add bm.h3gcrk']
     fn('h3g/lay/bl/sweep', sweep)
     fn('h3g/lay/bl/cut', ['damage @s 4 minecraft:magic', 'scoreboard players set @s bm.h3gbc 10', 'particle minecraft:soul_fire_flame ~ ~0.5 ~ 0.2 0.3 0.2 0.05 12',
@@ -518,6 +518,10 @@ def halls(G, rel):
 
 # ---------------------------------------------------------------------------------------------------- 8. hard-mode guardians
 def hard_guardians(G, rel):
+    HBARS = {}
+    def hbar(k, nm, col):
+        HBARS[k] = (nm, col)
+        return f'function bm:h3g/hb/bar_{k}'
     import phase70 as P70
     import phase245 as P245
     import phase246 as P246
@@ -544,13 +548,13 @@ def hard_guardians(G, rel):
     fn('h3g/hb/mire', ['function bm:p246/spawn',
                        'execute as @e[type=minecraft:husk,tag=bm.mire,tag=!bm.h3gb,distance=..2,limit=1,sort=nearest] run function bm:h3g/hb/set {f:100,c:"red"}',
                        'execute as @e[type=minecraft:husk,tag=bm.mire,tag=bm.h3gb,distance=..2] run tag @s add bm.muc',
-                       f'function bm:h3g/hb/bar {{n:\'{snbt(T(P246.NAME, P246.COL, bold=True))}\',c:"red"}}',
+                       hbar('mire', T(P246.NAME, P246.COL, bold=True), 'red'),
                        'execute as @a[tag=bm.gvp,distance=..40] run ' + title('@s', 'title', T('A Dread Mire guards the vault', P246.COL, bold=True)),
                        'execute as @a[tag=bm.gvp,distance=..40] run ' + title('@s', 'subtitle', T('Hard mode: the Dread has found its way in', 'gray', italic=True))])
     fn('h3g/hb/brood', ['function bm:p258/spawn',
                         'execute as @e[type=minecraft:husk,tag=bm.bmire,tag=!bm.h3gb,distance=..2,limit=1,sort=nearest] run function bm:h3g/hb/set {f:100,c:"green"}',
                         'execute as @e[type=minecraft:husk,tag=bm.bmire,tag=bm.h3gb,distance=..2] run tag @s add bm.bxroam',
-                        f'function bm:h3g/hb/bar {{n:\'{snbt(T(P258.NAME, P258.COL, bold=True))}\',c:"purple"}}',
+                        hbar('brood', T(P258.NAME, P258.COL, bold=True), 'purple'),
                         'execute as @a[tag=bm.gvp,distance=..40] run ' + title('@s', 'title', T('A Brood-Mire guards the vault', P258.COL, bold=True)),
                         'execute as @a[tag=bm.gvp,distance=..40] run ' + title('@s', 'subtitle', T('Hard mode: the Vorn have been here first', 'gray', italic=True))])
     assert P246.FLOOR == 100 and P258.FLOOR == 100 and P245.FLOOR == 100
@@ -574,7 +578,7 @@ def hard_guardians(G, rel):
                                  'scoreboard players set @e[type=minecraft:husk,tag=bm.knewh,distance=..1] bm.kt 0',
                                  f'execute as @e[type=minecraft:husk,tag=bm.knewh,distance=..1,limit=1] run function bm:h3g/hb/set {{f:100,c:"{"red" if kind == "dread" else "green"}"}}',
                                  'tag @e[type=minecraft:husk,tag=bm.knewh,distance=..1] remove bm.knewh',
-                                 f'function bm:h3g/hb/bar {{n:\'{snbt(T(c["name"], c["col"], bold=True))}\',c:"{"red" if kind == "dread" else "green"}"}}',
+                                 hbar(f'knight_{kind}', T(c["name"], c["col"], bold=True), "red" if kind == "dread" else "green"),
                                  'execute as @a[tag=bm.gvp,distance=..40] run ' + title('@s', 'title', T(f'A {c["name"]} guards the vault', c['col'], bold=True)),
                                  'execute as @a[tag=bm.gvp,distance=..40] run ' + title('@s', 'subtitle', T('Hard mode: the stone wakes', 'gray', italic=True))])
     fn('h3g/hb/knight', ['execute store result score #r bm.rng run random value 0..1',
@@ -590,10 +594,11 @@ def hard_guardians(G, rel):
                       '$scoreboard players add #h bm.rng $(f)',
                       'execute store result storage bm:gv h double 1 run scoreboard players get #h bm.rng', 'function bm:p70/hp with storage bm:gv',
                       'execute store result entity @s Health float 1 run scoreboard players get #h bm.rng'])
-    fn('h3g/hb/bar', [f'$execute if score #gi bm.rng matches {s + 1} run bossbar set bm:gvb{s} name $(n)' for s in range(SL)] +
-       [f'$execute if score #gi bm.rng matches {s + 1} run bossbar set bm:gvb{s} color $(c)' for s in range(SL)] +
-       [f'execute if score #gi bm.rng matches {s + 1} store result bossbar bm:gvb{s} max run scoreboard players get #h bm.rng' for s in range(SL)] +
-       [f'execute if score #gi bm.rng matches {s + 1} run bossbar set bm:gvb{s} players @a[tag=bm.gvp,scores={{bm.gvi={s + 1}}}]' for s in range(SL)])
+    for key, (nm, col) in HBARS.items():      # (one per boss kind: a macro'd bossbar name can't be checked - and needn't be one)
+        fn(f'h3g/hb/bar_{key}', [f'execute if score #gi bm.rng matches {s + 1} run bossbar set bm:gvb{s} name {snbt(nm)}' for s in range(SL)] +
+           [f'execute if score #gi bm.rng matches {s + 1} run bossbar set bm:gvb{s} color {col}' for s in range(SL)] +
+           [f'execute if score #gi bm.rng matches {s + 1} store result bossbar bm:gvb{s} max run scoreboard players get #h bm.rng' for s in range(SL)] +
+           [f'execute if score #gi bm.rng matches {s + 1} run bossbar set bm:gvb{s} players @a[tag=bm.gvp,scores={{bm.gvi={s + 1}}}]' for s in range(SL)])
     F_['p70/r/vault/fight'].insert(F_['p70/r/vault/fight'].index('function bm:p70/r/vault/open'),
                                    'execute if entity @e[tag=bm.h3gb,distance=..40] run return 0')
     # ---- each second: its bar (health over its floor), and its fall (a Mire melting down, a knight on its knee) paid once

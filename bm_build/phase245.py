@@ -492,7 +492,7 @@ def home(G, snd, at, crumble, lit):
     # Its owner right-clicks the knight: its dialog ("Rest" - back to stone on its plinth); sneak + right-click, or sneak + punch:
     # the statue back into the pack (plinth and all), at once.
     fn(f'{H}/g/box', ['scoreboard players set #cb bm.rng 0',
-                      f'execute as @e[type=minecraft:interaction,tag=bm.kcb,distance=..8] if score @s bm.kid = #me bm.kid run function bm:{H}/g/box1',
+                      f'execute as @e[type=minecraft:interaction,tag=bm.kcb,distance=..8] if score @s bm.kid = #me bm.kid positioned ~ ~ ~ run function bm:{H}/g/box1',
                       f'execute if score #cb bm.rng matches 0 run function bm:{H}/g/box_new'])
     fn(f'{H}/g/box1', ['tp @s ~ ~ ~', 'scoreboard players set #cb bm.rng 1'])
     fn(f'{H}/g/box_new', ['summon minecraft:interaction ~ ~ ~ {Tags:["bm.kcb","bm.kcbnew"],width:1.5f,height:3.0f,response:1b}',

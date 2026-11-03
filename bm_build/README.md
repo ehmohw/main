@@ -21,6 +21,62 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0g: the big fix round
+
+- The Undercrown stands in its own lava lake, carved once: about 40 s, and it clears everything near it. Its forecourts stand on plinths, its roads cross on causeways, and other places' blocks in it are cleaned out. No outpost builds near it. `admin/under/lake` carves it again; `admin/under/nolake` skips it.
+- Settling uses the dimension's own ground first: Nether outposts are never on grass or dirt again.
+- The Underwater Kingdom sits at y 33 or lower, so its dome's top is at y 60. Water above the sea is cleared once round old kingdoms.
+- Royal Pearls: 4 for a Trophy at the Fence; the Rat Bank keeps them (auto-deposit skips them). With Queen Pearl at honour rank III, every monster you kill has a 3% chance to give you a pearl.
+- Pearlman always brings one gem you haven't bought from him yet (a cycle per player).
+- Protected ground: no action-bar spam, and a Survival player inside is locked from breaking blocks, ops included. Creative players are exempt.
+
+- **The Undercrown's combat rooms, saner.** Each wave is now counted, not 12/12/18 Dread mobs: 8, 9 and 10 foes, of whom only
+  5, 5 and 6 are Dread - the rest come in enchanted diamond or netherite (nothing of it drops). The waves no longer soft-lock:
+  a wave is cleared once none of its foes is left in the room for 3 seconds - however they went (another mob's blow, lava,
+  despawned, carried off); a stray outside the room is fetched back in with the next wave; after 90 s the last one or two of a
+  wave glow, and after 150 s they're taken and the wave is done. Stepping out of the door for a moment no longer calls the waves
+  off (5 s grace).
+- **The Dread bosses and the Dread Sovereign fight harder.** No single blow - nor half a second of them - takes more than 25 off
+  them (THE HIT CAP; for the Sovereign 8 more for each extra fighter, 50 at most), so the final boss's sword no longer deletes
+  them. Their heavy attacks are Dread now: they go through armour and its Protection (Resistance still helps).
+- **The Dread Ward.** At half of its Armored pool, and again at half of its Broken one, the Sovereign wards itself - nothing can
+  hurt it - and four Dread Anchors rise around the hall with its Dread Knights. Break each (four blows or arrows) and the ward
+  shatters: it reels, without its Resistance, for 8 seconds.
+- **Cutscenes in the light.** The Sovereign's and Admiral Vexis's cinematics no longer darken the screen, and while the camera holds
+  you no Dread mob's aura or Mark can lay Darkness or Blindness on you.
+- **Dread Mires** have more armour (16, toughness 10) and the hit cap (20 a blow).
+- **The Statue Knights** have more health (420 Dread / 340 Vorn), armour 16 with toughness 10, a Dread slam that goes through
+  armour, and the hit cap (20). A fallen knight's stone now crumbles away instead of being left in the room, and no part of a
+  knight is ever left behind (any way it goes).
+- **Friendly knights.** A Statue Knight woken at home (on guard or duelling you) is never burned by a Hearthfire or a Wraithfire
+  Heart and takes no element from an Ethereal blow. Right-click the knight itself (not just its plinth) for its dialog ("Rest");
+  sneak + right-click it (or sneak + punch it) and it's a statue in your pack again.
+- **The Arachno-Lantern waits out its Blood Moon.** A naturally risen Lantern no longer leaves because nobody came near: it stays
+  until the Blood Moon ends (or nobody is online). One grown from a Smouldering Gourd still leaves when it's left alone.
+
+- No bags on a job: any bag (Backpack, Vacuum Satchel, Prime Cooler, Ore Magnet, Spirit Jar), or anything with one packed inside, is taken off a coat-checked player in the gutter within 1/4 s (incl. a bag left unfolded outside that folds back into your hands) and comes home with your gear.
+- The Mirror Mage (or any heist rider) thrown off during the guardian's entrance is no longer left frozen and invulnerable.
+- Spire checkpoints clear on every new plan (new heist or a failed attempt's fresh plan) and when you leave.
+- Vault guardians, hard-mode guardians and pit champions are put back in their room if pushed through a wall, a doorway, into the treasury or the floor; vault guardians +0.4 knockback resistance.
+- No Soul Vials in the gutter / on a heist.
+- A Haul, Haul Crate or Crate Desk crate broken by hand never drops the barrel; no plain barrel drops from blocks in the gutter.
+- The Rat King is a rig (ratking_art): crowned rat with cape and cheese sceptre; idle, walk, sceptre attack, Royal Decree (shockwave + Plague Rats), hurt flinch, staged arrival and death.
+- Four vault halls drawn per heist: Weighing Floor (plates), Pylon Hall, Crumbling Hall, Turning Blade (admin/heist_hall_0..3, _any).
+- Hard mode: ~1 vault in 3 guarded by a Dread Mire, Brood-Mire or Statue Knight (their own summons), heist-scaled, pays the pot + a find, opens the vault (admin/heist_hard_always/never/any/mire/brood/knight).
+- The Recruiter no longer sells the nine vault gems; Cecil/KillerWatt/Apophiss gems and forms (Ethereal, Wraithfire) now carry through the Fixer's door; a pre-3.0g lobby gem is handed back as the item.
+- Followers never turn on Wilfrey: his wither-skeleton body is skipped by every "nearest monster" selector (allies.py); every follower host now carries a shared `bm.ally` tag that friendly-fire lists skip.
+- Emma's rank III Axe Roll (her area slam) only comes in her Ethereal Form.
+- A mob finished off by a follower's own move counts as your kill: player loot, XP, kill counts, contracts.
+- KillerWatt's tendrils no longer flicker: the worn Tendrils' two wings stop painting the same spot, and his rig's tendril pieces stand clear of each other.
+- Ethereal KillerWatt always drops the Ethereal Tendrils on your first win over him, however he was brought down.
+- The Gem of Creativity's Wraithfire Form is multicoloured again, in cool colours: blues, turquoise, sea-glass green and purple.
+- Partner Wheel: while any follower is out, a top row with "Send all followers home", "Bring them all to me" and "Close".
+- Pearlman, the follower, is now the trader's size and a full rig: idle, waddle, run, hop, sit, swim, a tip of the hat, a briefcase swing and a flinch.
+- Pearlman's joke forms (right-click him holding the gem or heart; on/off and give-back in his wardrobe):
+  - Ethereal, "Gem Appraiser of the Cosmos": a prismatic beam for 18; villager deals always give an emerald back and 1 in 3 a gem; Luck III.
+  - Wraithfire, "Soul Broker": a soul contract for 14 plus fire and wither; every monster you kill near him pays 1-3 emeralds, and 1 in 4 a token; Fire Resistance.
+- Not in this version: the new Ethereal and Wraithfire forms for Bender, Capshun, the Bound Sovereign, the Keeper, the Arachno-Lantern, Leo, Celi, Democratus, the Eraser and Donado - they are being redrawn as proper new looks.
+
 ## New in 3.0f: the Backpack goes everywhere
 
 - **The Backpack now opens in the Black Markets and every other protected place** - the crypts, aboard the Vorn ships, the dungeons. There it takes its careful way: it unfolds only into open air over solid floor, clear of the place's own fixtures, and folding it puts back exactly that air. Only a heist still refuses it (the coat check keeps your pack in the gutter).

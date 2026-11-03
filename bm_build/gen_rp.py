@@ -1003,8 +1003,8 @@ if __name__ == '__main__':
     if PHASE2:
         import creative                       # (2.96a: the Creative Forms' outfits - their pass goes last, after every model of the twelve is written)
         creative.rp(sys.modules[__name__])
-        import elemforms                      # (3.0g: the ten's Ethereal / Wraithfire twins - after creative: its outfit models get twins too)
-        elemforms.rp(sys.modules[__name__])
+        pass  # (held back from 3.0g) import elemforms                      # (3.0g: the ten's Ethereal / Wraithfire twins - after creative: its outfit models get twins too)
+        pass  # (held back from 3.0g) elemforms.rp(sys.modules[__name__])
     _done = '/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP.done'    # 2.94b: see gen_dp
     if os.path.exists(_done): os.remove(_done)
     s = build('/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP')

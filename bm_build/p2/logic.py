@@ -404,7 +404,7 @@ def generate(G, builds):
                 # (strays of the last wave - outside the room, never counted - are fetched back in to a spawn point)
                 nxt = ['scoreboard players add @s bm.wv 1', 'scoreboard players set @s bm.wt 0', 'scoreboard players set @s bm.wage 0', 'tag @s remove bm.wlit',
                        f'execute if score @s bm.wv matches {NW + 1}.. run return run function bm:p2/{d}/pz{n}_wwin',
-                       f'execute as @e[tag={wm},distance=..{R + 48}] run function bm:p2/{d}/pz{n}_wfetch']
+                       f'execute as @e[tag={wm},distance=..{R + 48}] at @s run function bm:p2/{d}/pz{n}_wfetch']
                 fn(f'p2/{d}/pz{n}_wfetch', [f'execute at {ctrl_sel(d, n, R + 48)} positioned ~-{bx} ~-4 ~-{bx} if entity @s[dx={2 * bx},dy=18,dz={2 * bx}] run return 0',
                                             f'tp @s {el_sel(d, n, "wsp", R + 48, ",sort=random,limit=1")}',
                                             'execute at @s run particle minecraft:large_smoke ~ ~1 ~ 0.4 0.6 0.4 0.03 12'])
