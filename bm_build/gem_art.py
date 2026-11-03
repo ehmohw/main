@@ -804,3 +804,64 @@ SHINY_OPTIONS = {
 }
 SHINY_PICK = 'gilded'                     # (the owner picks; shiny.LOOKS['gem'] takes its name)
 SHINY_TEX, SHINY_W = SHINY_OPTIONS[SHINY_PICK][1]
+
+
+# ---------------------------------------------------------------------------------------------------- (3.0g, final) SHINY HARLEQUIN
+# The owner: "mix all 3 of those shines with a multi-coloured black and white gem with gold accents". So: every facet a harlequin of
+# diamonds, black obsidian (silver sheen, starlight specks) and pearl white (a soft lilac-pink sheen) in turn, leaded in polished
+# gold; the swirl's own light still moving under it. Its wing shards black and pearl in turn, each edged and tipped in gold; its crown
+# points gold. The Wraithfire Form's smoky glass: the same harlequin gone smoky (black and pale grey-pearl), its gold leading dimmer.
+def harlequin(im, smoky=False, cells=2.5):
+    a = np.asarray(im.convert('RGBA')).astype(float) / 255
+    L = 0.299 * a[..., 0] + 0.587 * a[..., 1] + 0.114 * a[..., 2]
+    Hh, Ww = L.shape
+    yy, xx = np.mgrid[0:Hh, 0:Ww]
+    fy = yy % Ww
+    s = Ww / cells
+    u, v = (xx + fy) / s, (xx - fy) / s                       # (a diagonal lattice: diamonds)
+    cu, cv = np.floor(u), np.floor(v)
+    dark = ((cu + cv) % 2) == 0
+    fu, fv = u - cu, v - cv
+    edge = (np.minimum(np.minimum(fu, 1 - fu), np.minimum(fv, 1 - fv)) * s) < max(0.6, Ww / 80)
+    t = np.clip((L - L.min()) / max(0.05, L.max() - L.min()), 0, 1)[..., None]
+    if smoky:
+        blk = np.array([0.03, 0.035, 0.05]) * (1 - t) + np.array([0.16, 0.17, 0.22]) * t
+        prl = np.array([0.42, 0.42, 0.48]) * (1 - t) + np.array([0.78, 0.78, 0.84]) * t
+        gold = np.array([0.55, 0.42, 0.14])
+    else:
+        blk = np.array([0.04, 0.04, 0.07]) * (1 - t) + np.array([0.30, 0.31, 0.40]) * t
+        prl = np.array([0.80, 0.76, 0.84]) * (1 - t) + np.array([1.0, 0.98, 1.0]) * t
+        gold = np.array([0.95, 0.74, 0.24])
+    out = np.where(dark[..., None], blk, prl)
+    sheen = np.clip(1 - np.abs(fu - fv) * 3, 0, 1)[..., None] * 0.25                 # (each diamond catches the light along its middle)
+    out = out * (1 - sheen) + np.where(dark[..., None], np.array([0.75, 0.8, 0.95]), np.array([1.0, 0.92, 0.98])) * sheen
+    st = (((xx * 73856093) ^ (fy * 19349663)) % 997 / 997.0 < 0.02) & dark
+    out = np.where(st[..., None], 1.0, out)
+    out = np.where(edge[..., None], gold, out)
+    o = np.concatenate([np.clip(out, 0, 1), a[..., 3:]], -1)
+    return Image.fromarray((o * 255 + 0.5).astype('uint8'), 'RGBA')
+
+
+def harlequin_shard(black):
+    def f(im):
+        a = np.asarray(im.convert('RGBA')).astype(float) / 255
+        Hh, Ww = a.shape[:2]
+        yy, xx = np.mgrid[0:Hh, 0:Ww]
+        d = np.abs(xx - (Ww - 1) / 2) / (Ww / 2)
+        c = (np.array([0.06, 0.06, 0.09]) + d[..., None] * np.array([0.3, 0.32, 0.42])) if black else (np.array([1.0, 0.98, 1.0]) - d[..., None] * np.array([0.2, 0.22, 0.14]))
+        gold = np.array([0.95, 0.74, 0.24])
+        c = np.where(((xx == 0) | (xx == Ww - 1) | (yy == 0) | (yy == Hh - 1))[..., None], gold, c)       # (gold-edged)
+        c = np.where((yy < Hh * 0.2)[..., None], gold * 0.6 + c * 0.4, c)                               # (gold-tipped)
+        c = np.where(((xx == 5) | (xx == 6))[..., None], np.array([1.0, 0.95, 0.8]) if black else np.array([1.0, 0.9, 0.55]), c)
+        o = np.concatenate([np.clip(c, 0, 1), a[..., 3:]], -1)
+        return Image.fromarray((o * 255 + 0.5).astype('uint8'), 'RGBA')
+    return f
+
+
+SHINY_OPTIONS['harlequin'] = ('Shiny Harlequin', (
+    {'cg_table': harlequin, 'cg_crown': harlequin, 'cg_pav': harlequin,
+     **{f'cg_ew_{k}': harlequin_shard(i % 2 == 0) for i, (k, _c) in enumerate(GEMS5)},
+     'cg_e_spike': lambda im: mono(im, ['#8a5a10', '#e8b840', '#fff4c0'], '#ffffff')},
+    {n: (lambda im: harlequin(im, True)) for n in ('cg_w_table', 'cg_w_crown', 'cg_w_pav')}))
+SHINY_PICK = 'harlequin'
+SHINY_TEX, SHINY_W = SHINY_OPTIONS[SHINY_PICK][1]

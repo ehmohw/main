@@ -33,7 +33,7 @@ LOOKS = {
     'lantern': ('Shiny Moonlit Rind', ('#0a0e2a', '#5a6ad0', '#d0d8ff'), 'blue'),
     'bender': ('Shiny Blue Merle', ('#14181e', '#6a7a8a', '#d0dce8'), 'light_gray'),
     'bones': ('Shiny Tiger', ('#2a1604', '#c87a2a', '#ffd090'), 'orange'),
-    'gem': ('Shiny Gilded', ('#5a3a08', '#e8b840', '#fff0a8'), 'yellow'),            # (3.0g: drawn, not recoloured - gem_art.SHINY_TEX; options: gem_art.SHINY_OPTIONS)
+    'gem': ('Shiny Harlequin', ('#0a0a12', '#e8b840', '#ffffff'), 'black'),            # (3.0g: drawn, not recoloured - gem_art.SHINY_TEX; options: gem_art.SHINY_OPTIONS)
     'batty': ('Shiny Golden Wings', ('#3a2806', '#d0a030', '#ffe8a0'), 'yellow'),
     'eggbert': ('Shiny Starlight Ooze', ('#0a0a3a', '#4a6ae0', '#c0d8ff'), 'blue'),
     'count': ('Shiny Silver Topper', ('#2a2a30', '#a8a8b4', '#f4f4ff'), 'light_gray'),
