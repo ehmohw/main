@@ -107,7 +107,7 @@ WAVES = {4: ('The Frostbound Thralls', [[_w('stray', 'Frostbound Thrall', 'bow')
 # (3.0g, the owner: "The amount of dread mobs for each wave in the combat rooms is a bit insane... not every mob has to have full dread
 # armor. You can do diamond and netherite armored mobs while 5-6 dread mobs per wave") - each wave's (Dread, armoured): it was
 # 12, 12 and 18, every one Dread
-WAVE_MIX = [(5, 3), (5, 4), (6, 4)]
+WAVE_MIX = [(5, 7), (6, 7), (7, 8)]          # (3.0h: 12, 13 and 15 foes - 5, 6 and 7 of them Dread)
 
 
 def register():

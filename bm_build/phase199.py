@@ -89,13 +89,12 @@ item('sealed_map_kingdom', TOTEM, 'Sealed Royal Chart', KC,
      model='minecraft:map', glint=True, stack=16, comps={'minecraft:consumable': consumable(0.8, 'none', 'minecraft:item.book.page_turn', False)}, cat='map')
 
 
-TROPHY_PEARLS = 4                   # (3.0g) the Fence's rate: a Black Market Trophy for this many Royal Pearls (a Trophy is 20 Tokens;
+TROPHY_PEARLS = 4                   # (3.0h) the Royal Steward's rate: a Black Market Trophy for this many Royal Pearls (a Trophy is 20 Tokens;
                                     #  the Steward pays 2 Tokens a pearl - nothing to be made going round)
 
 
 def extend_offers(O, offer):
     O['dock'] += [offer(('token', 6), ('sealed_map_kingdom', 1))]
-    O['fence'] += [offer(('trophy', 1), ('royal_pearl', TROPHY_PEARLS))]          # (3.0g: Royal Pearls for Trophies, at the Fence's)
 
 
 import phase177 as _P177
@@ -513,7 +512,8 @@ def generate(G):
             (('royal_pearl', 1), ('prismarine_shard', 16)), (('royal_pearl', 4), ('sponge', 4)), (('royal_pearl', 24), ('heartstone', 1)),
             (('royal_pearl', 12), ('tidecaller_shell', 1)), (('royal_pearl', 6), ('sealed_map_db_shark', 1))]   # (2.94: the Sealed Royal Chart moved to Vesper - redundant here, you're already in the castle)
     import phase202 as R202
-    base_o = [G.offer(b, s) for b, s in base] + R202.steward_offers(G.offer)      # (2.92: the armoury - phase202)
+    base_o = [G.offer(b, s) for b, s in base] + R202.steward_offers(G.offer)
+    base_o.append(G.offer(('trophy', 1), ('royal_pearl', TROPHY_PEARLS)))      # (3.0h: Royal Pearls for a Black Market Trophy - the Steward's, not the Fence's)      # (2.92: the armoury - phase202)
     for d, sp in enumerate(SPECIALS):
         fn(f'p199/shop/d{d}', [f'data modify entity @s Offers.Recipes set value {snbt(base_o + [G.offer(*sp)])}'])
     fn('p199/shop/refresh', ['scoreboard players operation #d bm.rng = #day bm.bm', 'scoreboard players operation #d bm.rng %= #7 bm.rng'] +
