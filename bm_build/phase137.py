@@ -29,6 +29,8 @@ _P68.KINDS['pearl'] = (_n + 2, 'pearl_card', 'cat', 'bm.pmpet', 'p128/pm/summon'
 _P68.HE.update({'zib', 'kw', 'pearl'})
 
 
+SELL_GEMS = False                  # (3.0g: the Recruiter's "Vault gems" page is gone - the nine aren't sold in the heist shop)
+
 def generate(G):
     import phase28 as P28
     fn, title, tellraw, PREFIX = G.fn, G.title, G.tellraw, G.PREFIX
@@ -185,6 +187,7 @@ def generate(G):
     hires = [(i, hk, hnm, hcol, coins(stock[f'contract_{hk}'])) for i, (hk, hnm, rat, hcol, *_r) in P77.HIRE.items()]
     gems = [(g, P60.GEMS[g][0], P60.GEMS[g][1], stock[f'gem_{g}']) for g in P60.GEMS if f'gem_{g}' in stock]
     assert len(fols) <= 79 and len(hires) == 5 and len(gems) == 9 and len(stock) == len(fols) + 14, (len(fols), len(hires), len(gems), len(stock))   # (2.86: the followers' contracts grow; 8001-8039 hold 39, then (2.98) 8060-8099)
+    if not SELL_GEMS: gems = []          # (3.0g, the owner: no elemental gems in the heist shop - a form given outside comes through the door, heist3g)
     def give_cmd(st):
         comps = ','.join(c if c.startswith('!') else f'{c}={snbt(v)}' for c, v in st.get('components', {}).items())
         return f'give @s {st["id"]}[{comps}] {int(st["count"])}'
@@ -217,8 +220,8 @@ def generate(G):
              'data modify storage bm:ui rc.r_note set value ""',
              'execute if score #n bm.rng matches 0 run data modify storage bm:ui rc.r_note set value ' +
              snbt(T('No names on his books yet - meet a follower out in the world, then come back.', '#ffb070')),
-             f'data modify storage bm:ui rc.acts append value {snbt(btn([T("Hirelings", "#e8c070", bold=True), T(" ›", "gray")], RC + 40))}',
-             f'data modify storage bm:ui rc.acts append value {snbt(btn([T("Vault gems", "#e8b8ff", bold=True), T(" ›", "gray")], RC + 50))}']
+             f'data modify storage bm:ui rc.acts append value {snbt(btn([T("Hirelings", "#e8c070", bold=True), T(" ›", "gray")], RC + 40))}'] + \
+            ([f'data modify storage bm:ui rc.acts append value {snbt(btn([T("Vault gems", "#e8b8ff", bold=True), T(" ›", "gray")], RC + 50))}'] if gems else [])
     page('main', [T('THE RECRUITER', REC, bold=True), T('  ·  raid contracts', 'gray')],
          [P28.body([T('A Raid Contract signs a follower on for the vault - use it once and they come on every heist. ', 'gray'),
                     T("He only deals in names you know: the followers you've met out in the world.", '#c8c4d8')], 360),
@@ -240,10 +243,11 @@ def generate(G):
     rows = ['scoreboard players set #rcp bm.rng 2'] + \
            [f'data modify storage bm:ui rc.acts append value {snbt(btn([T(gn, gcol, bold=True), T("  "), T(f"{coins(o)} coins", GOLD)], RC + 51 + j))}'
             for j, (g, gn, gcol, o) in enumerate(gems)] + [f'data modify storage bm:ui rc.acts append value {snbt(back)}']
-    page('gems', [T('VAULT GEMS', '#e8b8ff', bold=True), T('  ·  the Recruiter', 'gray')],
+    if gems: page('gems', [T('VAULT GEMS', '#e8b8ff', bold=True), T('  ·  the Recruiter', 'gray')],
          [P28.body([T("Pearlman's nine, the vault's own: hand one to Cecil or KillerWatt in here. They stay in the vault.", 'gray')], 360), P28.body(wal, 360)], rows)
     fn('p137/rc/reopen', ['execute if score #rcp bm.rng matches 1 run return run function bm:p137/rc/hires',
-                          'execute if score #rcp bm.rng matches 2 run return run function bm:p137/rc/gems', 'function bm:p137/rc/main'])
+                          'execute if score #rcp bm.rng matches 2 run return run function bm:p137/rc/gems', 'function bm:p137/rc/main'] if gems else
+       ['execute if score #rcp bm.rng matches 1 run return run function bm:p137/rc/hires', 'function bm:p137/rc/main'])
     fn('p137/rc/note', ['$' + tellraw('@s', GP + [T('$(t)', 'gray')]), 'function bm:p137/rc/reopen'])
     fn('p137/rc/poor', ['$' + tellraw('@s', GP + [T("That's $(n) coins - you have ", 'red'), {'score': {'name': '#tw', 'objective': 'bm.rng'}, 'color': 'white'},
                                                   T(' (bank and pockets).', 'red')]), 'playsound minecraft:entity.villager.no player @s ~ ~ ~ 0.8 1', 'function bm:p137/rc/reopen'])
@@ -272,7 +276,7 @@ def generate(G):
     fn('p137/rc/act', [f'execute unless score @s bm.menu matches {RC} run return run function bm:p28/stale',
                        f'execute if score #act bm.pay matches {RC} run return run function bm:p137/rc/main',
                        f'execute if score #act bm.pay matches {RC + 40} run return run function bm:p137/rc/hires',
-                       f'execute if score #act bm.pay matches {RC + 50} run return run function bm:p137/rc/gems'] +
+                       f'execute if score #act bm.pay matches {RC + 50} run return run function bm:p137/rc/gems'][:None if gems else -1] +
        [f'execute if score #act bm.pay matches {rcf(i)} run return run function bm:p137/rc/f{i}' for i in range(len(fols))] +
        [f'execute if score #act bm.pay matches {RC + 40 + i} run return run function bm:p137/rc/h{i}' for i, *_r in hires] +
        [f'execute if score #act bm.pay matches {RC + 51 + j} run return run function bm:p137/rc/g{j}' for j in range(len(gems))])
