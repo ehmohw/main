@@ -61,6 +61,7 @@ holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
 TOUGH, RESIST = 10, 1
 FRENZY, TIRED = 16, 7
 COOL = 24000
+SEED_R = 21          # (3.0h) how far round a ruin's seed must be loaded before it's built (its court, 10, and phase203's settling, 10)
 FLOOR = 200          # (each host's health above its "real" pool: at this, it falls - no lucky blow kills it outright)
 # (3.0g, the owner: "far too easy" for one in the final boss's gear - its sword shreds them, and nothing they do gets past the
 # armour) THE HIT CAP: no blow (or burst of blows) takes more than CAP off it in half a second (hitcap.py); and their heavy blows -
@@ -190,8 +191,13 @@ def generate(G):
         Bd = Build(1, 1, 1)
         Bd.marker(0.5, 0.0, 0.5, [f'bm.db{k}_seed'], 0)
         Bd.export(G.path('data', 'bm', 'structure', f'db_{k}.nbt'))
-        second.append(f'execute as @e[type=minecraft:marker,tag=bm.db{k}_seed] at @s if entity @a[distance=..96] if loaded ~-11 ~ ~-11 if loaded ~11 ~ ~11 run function bm:p197/{k}/ruin/seed')
-        fn(f'p197/{k}/ruin/seed', ['kill @s', f'function bm:p197/{k}/ruin/build'])
+        # (3.0h) a jigsaw start stands its template's bottom layer IN the ground's top block (getGroundLevelDelta 1), so the seed is
+        # in the turf, not on it: the court is built a block up (its floor where the turf was - it had sat a block under it, the
+        # land closing over the floor). And the whole settled square loaded first (phase203's rings reach 20 out), not just the court
+        R = SEED_R
+        second.append(f'execute as @e[type=minecraft:marker,tag=bm.db{k}_seed] at @s if entity @a[distance=..96] if loaded ~-{R} ~ ~-{R} if loaded ~{R} ~ ~{R} '
+                      f'if loaded ~-{R} ~ ~{R} if loaded ~{R} ~ ~-{R} run function bm:p197/{k}/ruin/seed')
+        fn(f'p197/{k}/ruin/seed', ['kill @s', f'execute positioned ~ ~1 ~ run function bm:p197/{k}/ruin/build'])
         # the sealed map (Vesper's): the nearest of these ruins
         G.consume_adv(b['map'], f'bm:maps/open_db_{k}')
         G.sealed_map(b['map'], f'db_{k}', f'#bm:db_{k}_ruin', title('@s', 'actionbar', T(f'The seal cracks... the map marks the {b["ruin"]}.', b['COL'])))
@@ -311,6 +317,21 @@ def generate(G):
                               f'tag @s add bm.dbread_{k}', title('@s', 'actionbar', ring),
                               'playsound minecraft:block.sculk.charge ambient @s ~ ~ ~ 0.5 0.6'])
 
+    # ---- (3.0h, the owner: "totally invisible - new players wouldn't have a clue") a sign over every altar: what it is, who it
+    # wakes for, and how. Hung by the ruin's marker (every ruin since 2.88 has one), once each - so ruins built before get it too
+    for k, b in BOSSES.items():
+        trio = [nm for nm, _t in b['trio']]
+        sign = {'Tags': ['bm.dblabel', f'bm.dblabel_{k}'], 'billboard': 'center', 'shadow': B(1), 'line_width': Int(230), 'view_range': F(0.6),
+                'background': Int(0x70000000), 'brightness': {'block': Int(15), 'sky': Int(15)},
+                'text': [T(''), T('DREAD ALTAR', b['COL'], bold=True), T(f'\nThe {b["ruin"]}\n', b['ruin_col'], italic=True),
+                         T(f'Bring {trio[0]}, {trio[1]} and {trio[2]}\nas your followers, then right-click\nthe altar to summon ', 'gray'),
+                         T(b['NAME'], b['COL'], bold=True), T('\n(Hard mode only)', '#c8a0a0')]}
+        fn(f'p197/{k}/label', ['tag @s add bm.dblbl', f'kill @e[type=minecraft:text_display,tag=bm.dblabel,distance=..6]',
+                               f'summon minecraft:text_display ~ ~3.7 ~ {snbt(sign)}'])
+        second.append(f'execute as @e[type=minecraft:marker,tag=bm.dbruin_{k},tag=!bm.dblbl] at @s run function bm:p197/{k}/label')
+    # (its ruin gone - an uninstall, an admin's kill - the sign goes with it)
+    second.append('execute as @e[type=minecraft:text_display,tag=bm.dblabel] at @s unless entity @e[type=minecraft:marker,tag=bm.dbruin,distance=..5] run kill @s')
+
     # ================================================================== each boss: its rig, its mind, its fall
     for k, b in BOSSES.items():
         build_boss(G, k, b, tick, second, fast)
@@ -361,7 +382,7 @@ def generate(G):
                                'particle minecraft:nautilus ~ ~1.2 ~ 0.5 0.5 0.5 0.3 3'])
     fn('p197/tok/shark/blessed', ['effect give @s minecraft:conduit_power 3 0 true', 'effect give @s minecraft:dolphins_grace 3 0 true', 'effect give @s minecraft:regeneration 3 0 true'])
 
-    G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.dbr]', 'execute as @e[tag=bm.db] run tp @s ~ -400 ~',
+    G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.dbr]', 'kill @e[type=minecraft:text_display,tag=bm.dblabel]', 'execute as @e[tag=bm.db] run tp @s ~ -400 ~',
                                        'kill @e[type=minecraft:marker,tag=bm.dbshot]', 'kill @e[type=minecraft:marker,tag=bm.dbcurse]'] + \
                                       [f'bossbar remove bm:db_{k}' for k in BOSSES]
     _shots(G, tick)

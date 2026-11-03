@@ -27,6 +27,7 @@ PLANTS = ['#minecraft:replaceable', '#minecraft:logs', '#minecraft:leaves', 'min
           'minecraft:cocoa', 'minecraft:vine', 'minecraft:snow', 'minecraft:crimson_fungus', 'minecraft:warped_fungus', 'minecraft:nether_wart_block',
           'minecraft:warped_wart_block', 'minecraft:shroomlight', 'minecraft:weeping_vines', 'minecraft:weeping_vines_plant', 'minecraft:twisting_vines',
           'minecraft:twisting_vines_plant', 'minecraft:creaking_heart', 'minecraft:resin_clump']
+WET = ['minecraft:kelp', 'minecraft:kelp_plant', 'minecraft:seagrass', 'minecraft:tall_seagrass']
 HOLE = ['minecraft:air', 'minecraft:cave_air', '#minecraft:replaceable', 'minecraft:snow']
 # what the new ground is made of, by biome (top, under): the first that matches
 SOILS = [('#minecraft:is_ocean', 'sand', 'sand'), ('#minecraft:is_river', 'sand', 'sand'), ('#minecraft:is_badlands', 'red_sand', 'terracotta'), ('minecraft:desert', 'sand', 'sandstone'),
@@ -50,6 +51,9 @@ def setup(G):
     _G = G
     G.wjson('bm/tags/block/settle_cut.json', {'values': [f'minecraft:{b}' for b in CUT] + PLANTS})
     G.wjson('bm/tags/block/settle_plant.json', {'values': PLANTS})
+    # (3.0h) what a cut to WATER takes: the terrain and the sea's own plants - never air (#replaceable has it), so a cut that
+    # reaches over the sea's surface leaves the air there air, not water standing in it
+    G.wjson('bm/tags/block/settle_wet.json', {'values': [f'minecraft:{b}' for b in CUT] + WET})
     G.wjson('bm/tags/block/settle_hole.json', {'values': HOLE})
     G.wjson('bm/tags/block/settle_hole_w.json', {'values': HOLE + ['minecraft:water', 'minecraft:seagrass', 'minecraft:tall_seagrass', 'minecraft:kelp',
                                                                    'minecraft:kelp_plant', 'minecraft:bubble_column']})
@@ -72,7 +76,7 @@ def _strips(x0, z0, x1, z1, d):
     return [(a, b, c, b), (a, e, c, e), (a, b + 1, a, e - 1), (c, b + 1, c, e - 1)]
 
 
-def _body(w, d, *, cut=12, fill=8, deep=16, high=28, water=False, inside=None, under=False, base=0, clear='air'):
+def _body(w, d, *, cut=12, fill=8, deep=16, high=28, water=False, inside=None, under=False, base=0, clear='air', cutset='#bm:settle_cut'):
     x0, z0, x1, z1 = 0, 0, w - 1, d - 1
     hole = '#bm:settle_hole_w' if water else '#bm:settle_hole'
     F = lambda a, y0, y1, blk, rep: f'$fill ~{a[0]} ~{y0} ~{a[1]} ~{a[2]} ~{y1} ~{a[3]} {blk} replace {rep}'
@@ -91,7 +95,7 @@ def _body(w, d, *, cut=12, fill=8, deep=16, high=28, water=False, inside=None, u
     for r in range(1, max(cut, fill) + 1):
         for s in _strips(x0, z0, x1, z1, r):
             if r <= cut:
-                out.append(F(s, r - 1, r - 1 + high, f'minecraft:{clear}', '#bm:settle_cut').replace('$fill', 'fill', 1))
+                out.append(F(s, r - 1, r - 1 + high, f'minecraft:{clear}', cutset).replace('$fill', 'fill', 1))
                 if clear == 'air': out.append(F(s, r - 2, r - 2, '$(top)', 'minecraft:dirt'))
             if r <= fill:
                 out.append(F(s, -r, -r, '$(top)', hole))

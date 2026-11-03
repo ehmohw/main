@@ -57,7 +57,9 @@ def generate(G):
 
     # ---------------------------------------------------------------- runtime builders
     # sword shrines: 7 x 7 round the seed, on the ground it found
-    settle.make(G, 'shrine', 7, 7, cut=5, fill=4)
+    # (3.0h: it had stood a block low - phase39 - and its first ring cut the turf round it into a trench. Flush now; banked under
+    #  its edges too, so a shrine on a slope doesn't hang a corner over the drop)
+    settle.make(G, 'shrine', 7, 7, cut=6, fill=5, under=True, deep=6)
     G.FUNCS['p39/shrine/build'] += settle.run('shrine', -3, 0, -3)
 
     # Seawatch Forts: the plinth only under the walls; round them a mound of the shore's own sand (or grass, or stone)
@@ -68,11 +70,19 @@ def generate(G):
     b2[i + 1:i + 1] = settle.run('lefort', -5, 0, -5)
 
     # the Dread ruins: 21 x 21 courts (the shark's sunken one is only cut into the sea floor)
-    settle.make(G, 'dbruin', 21, 21, cut=8, fill=6, under=True, deep=10)
-    settle.make(G, 'dbshark', 21, 21, cut=8, fill=0, clear='water', high=14)
+    # (3.0h, the owner: "often messy, other terrain cutting into it". They had stood a block low - phase197: the turf closed over
+    #  their floors - and only plants were ever cleared from the court: a hillside stood on through it. Now the court is cleared
+    #  of the land above its floor first (to its sky, 28 up), the rings round it cut wider and banked deeper; the shark's court
+    #  and rings cut to water only through rock and weed, never air - no water left standing over the sea)
+    import phase197 as P197
+    settle.make(G, 'dbruin', 21, 21, cut=10, fill=8, under=True, deep=12)
+    settle.make(G, 'dbshark', 21, 21, cut=8, fill=0, clear='water', high=14, cutset='#bm:settle_wet')
+    assert 10 + 10 < P197.SEED_R, 'a Dread ruin\'s seed must wait for all its settling to be loaded'
     for k, nm in (('snow', 'dbruin'), ('witch', 'dbruin'), ('shark', 'dbshark')):
         f = G.FUNCS[f'p197/{k}/ruin/build']
-        j = next(n for n, l in enumerate(f) if l.startswith('fill ~-11 ~ ~-11 ~11'))
+        f[0:0] = (['fill ~-11 ~ ~-11 ~11 ~14 ~11 minecraft:water replace #bm:settle_wet'] if nm == 'dbshark' else
+                  ['fill ~-11 ~ ~-11 ~11 ~28 ~11 minecraft:air replace #bm:settle_cut'])
+        j = next(n for n, l in enumerate(f) if l.startswith('fill ~-11 ~ ~-11 ~11') and 'settle' not in l)
         f[j + 1:j + 1] = settle.run(nm, -10, 0, -10)
 
     # the Underwater Kingdom: the sea floor banked up to its dome in sand, the slopes round it cut back to water

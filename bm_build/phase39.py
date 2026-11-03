@@ -459,8 +459,11 @@ def generate(G):
     Bd = Build(1, 1, 1)
     Bd.marker(0.5, 0.0, 0.5, ['bm.shrine_seed'], 0)
     Bd.export(G.path('data', 'bm', 'structure', 'sword_shrine.nbt'))
-    second.append('execute as @e[type=minecraft:marker,tag=bm.shrine_seed] at @s if entity @a[distance=..96] if loaded ~-3 ~ ~-3 if loaded ~3 ~ ~3 '
-                  'run function bm:p39/shrine/build')
+    # (3.0h) the seed stands IN the turf's top block (a jigsaw start's bottom layer is set into the ground: getGroundLevelDelta 1),
+    # not on it: the shrine had been built a block low - its floor under the turf, and phase203's first settling ring cutting the
+    # turf round it, a trench one block down. Built a block up now, flush; and the settled square loaded first (it reaches 10 out)
+    second.append('execute as @e[type=minecraft:marker,tag=bm.shrine_seed] at @s if entity @a[distance=..96] if loaded ~-10 ~ ~-10 if loaded ~10 ~ ~10 '
+                  'if loaded ~-10 ~ ~10 if loaded ~10 ~ ~-10 positioned ~ ~1 ~ run function bm:p39/shrine/build')
     q = math.sin(math.radians(-67.5)), math.cos(math.radians(-67.5))
     sword_disp = {'Tags': ['bm.shrine_d'], 'item': {'id': 'minecraft:diamond_sword', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:enchanted_sword'}},
                   'item_display': 'fixed', 'brightness': {'block': Int(12), 'sky': Int(15)}, 'Glowing': B(1),
@@ -469,6 +472,7 @@ def generate(G):
     fn('p39/shrine/build', ['kill @s',
                             'execute if block ~ ~-1 ~ #minecraft:replaceable run return 0',        # water, or floating: no shrine here
                             'fill ~-3 ~ ~-3 ~3 ~4 ~3 minecraft:air replace #minecraft:replaceable',
+                            'fill ~-3 ~ ~-3 ~3 ~16 ~3 minecraft:air replace #bm:settle_cut',      # (3.0h: a hillside or a tree over it too)
                             'fill ~-2 ~-1 ~-2 ~2 ~-1 ~2 minecraft:mossy_stone_bricks', 'fill ~-1 ~-1 ~-1 ~1 ~-1 ~1 minecraft:stone_bricks',
                             'fill ~-3 ~-1 ~-3 ~3 ~-1 ~3 minecraft:moss_block replace #minecraft:substrate_overworld',
                             'setblock ~ ~ ~ minecraft:chiseled_stone_bricks',
@@ -484,7 +488,7 @@ def generate(G):
     fn('p39/shrine/give', [give('enchanted_sword'), tellraw('@a', PREFIX + [{'selector': '@s', 'color': 'yellow'}, T(' pulled the ', 'gray'),
                                                                             T('Enchanted Sword', '#7ab8ff', bold=True), T(' from the stone!', 'gray')])])
     G.FUNCS['admin/help'] += [tellraw('@s', [T('/function bm:admin/shrine', 'yellow'), T('  builds a sword shrine here', 'gray')])]
-    fn('admin/shrine', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.shrine_seed"]}'])
+    fn('admin/shrine', ['summon minecraft:marker ~ ~-1 ~ {Tags:["bm.shrine_seed"]}'])     # (3.0h: in the ground's top block, as worldgen sets a seed)
     # the beam: full health only, 1 s apart; hits the first monster in 20 blocks
     fn('p39/sword/use', ['execute store result score #g bm.rng run time query gametime', 'scoreboard players operation #g2 bm.rng = #g bm.rng',
                          'scoreboard players operation #g2 bm.rng -= @s bm.swcd', 'execute if score @s bm.swcd matches 1.. if score #g2 bm.rng matches ..19 run return 0',

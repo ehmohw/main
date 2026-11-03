@@ -239,6 +239,25 @@ def generate(G):
     fn('p199/k/insignia', ['tag @s add bm.kinsok', f'kill @e[type=minecraft:item_display,tag=bm.kinsig,distance=..70]'] +
        [f'summon minecraft:item_display {relf(x, y, z)} {snbt(insig)}' for (x, y, z) in K.INSIGNIA])
     second.append('execute as @e[type=minecraft:marker,tag=bm.kingdom,tag=!bm.kinsok] at @s run function bm:p199/k/insignia')
+    # (3.0h, the owner: "totally invisible - new players wouldn't have a clue") a sign over each side of the throne room: the
+    # Royal Treasury's barrels (the steward's side: a tribute a day) and the Request Stand's lectern (the other: items for pearls).
+    # Hung by their click-boxes, once each - kingdoms built before get them too; and gone with them
+    lbl = lambda tag, text: {'Tags': ['bm.klabel', tag], 'billboard': 'center', 'shadow': B(1), 'line_width': Int(220), 'view_range': F(0.4),
+                             'background': Int(0x70000000), 'brightness': {'block': Int(15), 'sky': Int(15)}, 'text': [T('')] + text}
+    trib_sign = lbl('bm.klabel_trib', [T('THE ROYAL TREASURY', GOLD, bold=True),
+                                       T('\nRight-click the Steward\'s barrels\nonce a day for a tribute of\n', 'gray'), T('Royal Pearls', PEARL_C), T(' and a gift', 'gray'),
+                                       T('\n(+1 pearl for each royal with you)', 'dark_gray')])
+    req_sign = lbl('bm.klabel_req', [T('THE REQUEST STAND', KC, bold=True),
+                                     T('\nRight-click the lectern to see\ntoday\'s royal request - bring it\nhere for ', 'gray'), T('Royal Pearls', PEARL_C),
+                                     T(' and favour', 'gray'), T('\n(a new request every day)', 'dark_gray')])
+    fn('p199/k/label_trib', ['tag @s add bm.klbl', 'kill @e[type=minecraft:text_display,tag=bm.klabel_trib,distance=..4]',
+                             f'summon minecraft:text_display ~ ~1.7 ~1 {snbt(trib_sign)}'])
+    fn('p199/k/label_req', ['tag @s add bm.klbl', 'kill @e[type=minecraft:text_display,tag=bm.klabel_req,distance=..4]',
+                            f'summon minecraft:text_display ~ ~2.3 ~1 {snbt(req_sign)}'])
+    second += ['execute as @e[type=minecraft:interaction,tag=bm.ktrib,tag=!bm.klbl] at @s run function bm:p199/k/label_trib',
+               'execute as @e[type=minecraft:interaction,tag=bm.kboard,tag=!bm.klbl] at @s run function bm:p199/k/label_req',
+               'execute as @e[type=minecraft:text_display,tag=bm.klabel_trib] at @s unless entity @e[type=minecraft:interaction,tag=bm.ktrib,distance=..3] run kill @s',
+               'execute as @e[type=minecraft:text_display,tag=bm.klabel_req] at @s unless entity @e[type=minecraft:interaction,tag=bm.kboard,distance=..3] run kill @s']
     fn('p199/k/make_heart', [f'summon minecraft:item_display ~ ~1 ~ {snbt(heart)}', box('bm.kheart', 0.9, 1.2, 1)])
     # the Royal Steward: a frozen trader (the shop) under a rat in royal blue; his treasury barrels pay the tribute
     trader = {'NoAI': B(1), 'Invulnerable': B(1), 'PersistenceRequired': B(1), 'Silent': B(1), 'DespawnDelay': Int(0),
@@ -250,6 +269,7 @@ def generate(G):
                                'execute as @e[tag=bm.kstnew,distance=..1] run tp @s ~ ~ ~ ~ 0', 'tag @e[tag=bm.kstnew,distance=..1] remove bm.kstnew',
                                f'summon minecraft:interaction ~-1 ~1 ~-0.5 {{Tags:["bm.kbox","bm.ktrib"],width:1.0f,height:0.6f,response:1b}}'])
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:marker,tag=bm.kseed]', 'kill @e[type=minecraft:interaction,tag=bm.kbox]',
+                                       'kill @e[type=minecraft:text_display,tag=bm.klabel]',
                                        'kill @e[type=minecraft:item_display,tag=bm.kheartd]', 'kill @e[type=minecraft:item_display,tag=bm.kinsig]', 'kill @e[type=minecraft:item_display,tag=bm.kstew_sprite]',
                                        'execute as @e[type=minecraft:wandering_trader,tag=bm.kstew] at @s run tp @s ~ -300 ~']
     # the sealed chart (the Dockmaster's): the nearest kingdom
