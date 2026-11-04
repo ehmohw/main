@@ -537,11 +537,13 @@ POSES.update({
     'sit_b': P(_face='sleepy', _show=('puddle',), _hide=('body', 'pool', 'pr', 'pl'), _o_eyes=(0, -3.2, 2.2)),
     'tired': P(_face='blink', _show=('puddle',), _hide=('body', 'pool', 'pr', 'pl'), _o_eyes=(0, -3.0, 2.6)),
     'aura': P(_face='happy', _show=('aura',), **PODS),
+    'doll': P(_hide=('pool',), pr=limb(1, 20, -30), pl=limb(-1, 20, -30)),               # (the doll's pose: no puddle, its hands tucked in)
 })
 DRAFT = ['idle_a', 'idle_b', 'idle_c', 'alert', 'walk_0', 'walk_1', 'run_0', 'happy', 'grin', 'hurt', 'burst_up', 'burst', 'lash_up',
          'lash', 'pull', 'engulf_up', 'engulf', 'spit', 'melt', 'sit_a', 'sit_b', 'aura']
 R.DRAFT = DRAFT
 DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62}
+DOLL_W = 11.0        # (bake width: a blob is all width - fitted to 11 units it stands with the set instead of towering over it)
 DOLL_GROUPS = {'body': 'head', 'eyes': 'head', 'crown': 'head', 'pr': 'body', 'pl': 'body', 'pool': 'legs'}   # (a blob is all head; its puddle the feet)
 SHINY = 'Shiny Oil Slick'
 

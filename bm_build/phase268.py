@@ -141,7 +141,7 @@ class Cairn(RP.Cfg):
 
 
 from fol5_kit import T as _T  # noqa: E402
-AR.POSES['sit_a2'] = AR.R.ground(dict(AR.POSES['sit_a'], _o_peb1=(0, 1.2, 0), _o_peb2=(0, 0.6, 0)))
+AR.POSES['sit_a2'] = dict(AR.POSES['sit_a'], _o_core=(0, -3.0, 0), _o_peb1=(0, 1.2, 0), _o_peb2=(0, 0.6, 0))      # (seated: a slow breath, a pebble's orbit)
 AR.POSES['sit_b2'] = dict(AR.POSES['sit_b'], _face='blink')
 AR.POSES['asm_3'] = dict(AR.POSES['idle_a'])                         # (the last 5%: snapped)
 _DOLL = 'A doll of the Cairn - a chibi golem of little blocks, two amber eyes, a warm heart.'
