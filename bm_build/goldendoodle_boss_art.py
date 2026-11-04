@@ -46,7 +46,7 @@ import goldendoodle_pet_art as GQ
 import dread_sovereign_art as DSA
 
 PIVOT = {'body': (0, 21.0, 3.0), 'tail': (0, 20.0, 15.0), 'neck1': (0, 27.0, -6.5), 'neck2': (0, 34.0, -10.5), 'neck3': (0, 41.0, -12.0),
-         'head': (0, 46.5, -13.0), 'jaw': (0, 47.0, -18.5), 'neckb': (-1.6, 38.5, -11.6), 'headb': (-7.4, 44.6, -15.2),
+         'head': (0, 46.5, -13.0), 'jaw': (0, 47.0, -18.5), 'neckb': (-1.6, 38.5, -11.6), 'headb': (-11.6, 44.0, -16.6),
          'wr': (8.0, 28.0, -1.0), 'wl': (-8.0, 28.0, -1.0), 'wr2': (27.0, 36.0, 3.0), 'wl2': (-27.0, 36.0, 3.0),
          'legr': (5.6, 15.0, 3.0), 'legl': (-5.6, 15.0, 3.0), 'footr': (6.2, 2.6, 1.6), 'footl': (-6.2, 2.6, 1.6),
          'beam': (0, 51.0, -20.0), 'shriek': (0, 47.0, -26.0), 'eggs': (0, 0, 0), 'curse': (0, 0, 0), 'shard': (0, 52.0, -17.0), 'aura': (0, 30.0, 0)}
@@ -340,23 +340,23 @@ for part, pts, sx in (('neck1', N1, 1), ('neck2', N2, -1), ('neck2', N2, 1), ('n
         w = 2.0 if part == 'neck1' else 1.75
         eye_plate(part, (c[0] + sx * w, c[1], c[2] - 0.2), 1.0 + 0.2 * k, 'east' if sx > 0 else 'west', 'eye')
 # THE SPLIT: a second neck branching to its left, ending in a head with no beak - a four-petal mandible, a cluster of eyes
-NB = [(-1.6, 38.5, -11.6), (-4.4, 41.0, -13.2), (-6.6, 43.4, -14.6), (-7.4, 44.6, -15.2)]
-neck('neckb', NB, [3.0, 2.7, 2.6, 2.6])
+NB = [(-1.6, 38.5, -11.6), (-5.0, 40.2, -13.0), (-8.6, 42.2, -14.8), (-11.6, 44.0, -16.6)]     # (3.0t: longer, set out from the main neck)
+neck('neckb', NB, [3.4, 3.2, 3.0, 3.0])
 hx, hy, hz = PIVOT['headb']
-zegg('headb', hz - 5.2, hz + 1.6, 3.3, lambda t: 'gcr' if t < 0.6 else 'flesh', lambda t: hy + 0.6, n=5, sq=0.95, blunt=1.0)
+zegg('headb', hz - 5.6, hz + 1.8, 3.8, lambda t: 'gcr' if t < 0.6 else 'flesh', lambda t: hy + 0.6, n=5, sq=0.95, blunt=1.0)
 for k, (dx, dy) in enumerate(((1, 1), (-1, 1), (1, -1), (-1, -1))):                         # (the four petals, splayed open, toothed)
     base = (hx + dx * 1.1, hy + 0.6 + dy * 1.1, hz - 4.8)
-    mid = (hx + dx * 3.0, hy + 0.6 + dy * 2.8, hz - 7.4)
-    tip = (hx + dx * 3.0, hy + 0.6 + dy * 2.6, hz - 10.0)                           # (each petal curls back in at its tip: a hooked mandible)
+    mid = (hx + dx * 2.8, hy + 0.6 + dy * 2.6, hz - 7.2)
+    tip = (hx + dx * 2.4, hy + 0.6 + dy * 2.2, hz - 8.8)     # (3.0t: shorter jaws, so it reads as a head, not a claw)                           # (each petal curls back in at its tip: a hooked mandible)
     for A_, B2, w in ((base, mid, 2.2), (mid, tip, 1.4)):
         R.seg('headb', A_, B2, w, 0.7, 'gcr', up=(dx * 0.7, dy * 0.7, 0.3), ext=0.12)
     R.seg('headb', tip, (tip[0] - dx * 0.8, tip[1] - dy * 0.8, tip[2] - 1.2), 0.6, 0.6, 'horn_r', light=8)
     for j in range(4):
         s = 0.15 + j * 0.22; c = tuple(base[i] + (mid[i] - base[i]) * s * 1.6 for i in range(3)) if j < 3 else tuple(mid[i] + (tip[i] - mid[i]) * 0.5 for i in range(3))
         R.seg('headb', c, (c[0] - dx * 0.75, c[1] - dy * 0.75, c[2] - 0.2), 0.3, 0.3, 'tooth')
-B('headb', (hx - 1.6, hy - 1.0, hz - 5.35), (hx + 1.6, hy + 2.2, hz - 5.15), 'mouth', light=3)
+B('headb', (hx - 1.8, hy - 1.0, hz - 5.75), (hx + 1.8, hy + 2.4, hz - 5.55), 'mouth', light=3)
 for (dx, dy, s) in ((0, 1.6, 1.0), (-1.3, 2.4, 0.7), (1.2, 2.5, 0.75), (-2.0, 1.2, 0.6), (2.0, 0.9, 0.6), (0.2, 3.1, 0.55)):     # (eyes where its face should be)
-    eye_plate('headb', (hx + dx * 0.75, hy + 0.6 + dy * 0.9, hz - 5.45), s * 1.2, 'north', 'eye')
+    eye_plate('headb', (hx + dx * 0.75, hy + 0.6 + dy * 0.9, hz - 5.85), s * 1.5, 'north', 'eye')
 
 # ---------------------------------------------------------------------------------------------------- the head: the goose's, wrong
 HX, HY, HZ = 0.0, 47.2, -14.6
@@ -547,7 +547,7 @@ POSES.update({
               neckb=T(-20, 10, 28), headb=T(-30, 30, 0), wr=limb(1, 10, 18, -10), wl=limb(-1, 10, 18, -10)),
     # DREAD BEAM: it draws its head back (the brow-eye kindling, 20 ticks) - then the beam (40 ticks, sweeping 60 deg)
     'beam_up': P(_face='narrowed', **HALF, neck1=T(-18), neck2=T(-14), neck3=T(-10), head=T(10), neckb=T(-10, 0, 30), headb=T(0, 40)),
-    'beam': P(_face='wide', _show=('beam',), **HALF, body=T(4), neck1=T(8), neck2=T(4), neck3=T(0), head=T(6), neckb=T(-6, 0, 30), headb=T(-10, 50)),
+    'beam': P(_face='wide', _show=('beam',), **HALF, body=T(4), neck1=T(8), neck2=T(4), neck3=T(0), head=T(6), neckb=T(-6, 0, 10), headb=T(-10, 50)),
     # THE SHRIEK: the honk, gone wrong (wind-up 10, the shriek 4, held 10)
     'shriek': P(_face='wide', _show=('shriek',), body=T(4), neck1=T(20), neck2=T(-4), neck3=T(-6), head=T(-16), jaw=T(40),
                 neckb=T(10, 0, 20), headb=T(-10, 20), wr=limb(1, 0, 10, -10), wl=limb(-1, 0, 10, -10)),
@@ -556,7 +556,7 @@ POSES.update({
     'slam': P(_face='narrowed', body=T(16), neck1=T(26), neck2=T(10), head=T(-20), jaw=T(20), wr=limb(1, 20, -36, -30), wl=limb(-1, 20, -36, -30), wr2=T(0, 30, -30), wl2=T(0, -30, 30)),
     # THE LUNGE: the long neck strikes like a snake (wind-up 8, strike 3, recover 10) - the second head hissing the other way
     'bite_up': P(_face='narrowed', **HALF, neck1=T(-24), neck2=T(-20), neck3=T(-10), head=T(20), jaw=T(10), neckb=T(10, 0, 30), headb=T(0, 60)),
-    'bite': P(_face='wide', **HALF, body=T(12), neck1=T(46), neck2=T(16), neck3=T(4), head=T(-30), jaw=T(42), neckb=T(-10, 0, 34), headb=T(-10, 70)),
+    'bite': P(_face='wide', **HALF, body=T(12), neck1=T(46), neck2=T(16), neck3=T(4), head=T(-30), jaw=T(42), neckb=T(-10, 0, 46), headb=T(-10, 60)),
     # DREAD EGGS (its parody of phase 1's egg drop): it rears, and the eggs are round it
     'eggs': P(_face='narrowed', _show=('eggs',), **HALF, body=T(-6), neck1=T(-8), head=T(-6)),
     # THE UNLUCKY: it spreads its wings over you and the sigil burns under everyone (luck inverted - see the doc)
