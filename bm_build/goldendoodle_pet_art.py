@@ -76,61 +76,69 @@ def sparkle(im, cx, cy, core='#ffffff', arm='#fff4b0', L=2):
     sq(cx, cy, core)
 
 
-def feathers(P, seed, w=4, rows=3, glint=True, sparks=2):
-    """gold-leaf feathers in scalloped rows (P: deep, dark, base, light, shine): each feather w cells wide, rows tall, every row
-    offset half a feather; its exposed tip lit, its lower edge shaded at the corners (so the shadow scallops); a running
-    diagonal glint where soft patches catch the light; a small cluster of painted star sparkles"""
-    pt = _patch(seed)
+def feathers(P, seed, w=6, rows=4, glint=True, sparks=1):
+    """gold-leaf feathers in scalloped rows (P: deep, dark, base, light, shine) - STRUCTURE, not noise (the owner, 3.1: "a bit
+    less noisy"): each feather w cells wide and rows tall, every row offset half a feather; inside it a soft gradient, top to
+    bottom (tucked under the row above, the base, lit toward its tip), the tip's corners shaded so the edge scallops; a few
+    HAND-PLACED glint strokes (short diagonals where the leaf catches the light), never a periodic pattern; one painted sparkle"""
+    tuck, lit_ = mix(P['base'], P['dark'], 0.16), mix(P['base'], P['light'], 0.38)
+    edge, tip = mix(P['base'], P['dark'], 0.42), mix(P['base'], P['light'], 0.62)
     def c(x, y, r):
         row = y // rows; off = (row % 2) * (w // 2); lx = (x + off) % w; ly = y % rows
-        k = pt[y * 4 // 32][x * 4 // 32]
-        if ly == rows - 1: return mix(P['base'], P['dark'], 0.75) if lx in (0, w - 1) else mix(P['base'], P['dark'], 0.22)
-        if ly == 0 and 0 < lx < w - 1: return P['light']
-        if glint and (x + y) % 9 == 0 and k > 0.5: return P['shine']
-        if glint and (x + y) % 9 == 1 and k > 0.5: return P['light']
+        if ly == rows - 1: return edge if lx in (0, w - 1) else tip
+        if ly == 0: return tuck
+        if ly == rows - 2: return lit_
         return P['base']
     im = cells(c, seed)
-    rnd = random.Random(seed)
+    rnd = random.Random(seed); d = ImageDraw.Draw(im)
+    if glint:
+        for _ in range(3):                                      # (three short glint strokes, placed, not tiled)
+            gx, gy = rnd.randrange(2, 28), rnd.randrange(2, 28)
+            for k in range(3):
+                col = P['shine'] if k == 1 else mix(P['light'], P['shine'], 0.5)
+                d.rectangle(((gx + k) * 2, (gy - k) * 2, (gx + k) * 2 + 1, (gy - k) * 2 + 1), fill=hexc(col))
     if sparks:
-        cx0, cy0 = rnd.randrange(6, 20), rnd.randrange(6, 20)
-        for i in range(sparks):
-            sparkle(im, cx0 + i * 5 + rnd.randrange(2), cy0 + (i % 2) * 4, P['white'], P['shine'], L=1 + (i == 0))
+        sparkle(im, rnd.randrange(6, 26), rnd.randrange(6, 26), P['white'], P['shine'], L=2)
     return im
 
 
 def furrows(P, seed):
-    """a goose neck's furrowed feathers: vertical ridges (a lit crest, a dark furrow) that waver, short scallops between"""
-    rnd = random.Random(seed); wav = [rnd.choice((0, 0, 1)) for _ in range(32)]
+    """a goose neck's furrowed feathers: soft vertical ridges every 3 cells (a lit crest, a shaded furrow) that waver a little,
+    and faint scallops every 8 rows - low contrast, structured"""
+    rnd = random.Random(seed); wav = [0] * 32; o = 0
+    for y in range(32):
+        if rnd.random() < 0.1: o = (o + rnd.choice((-1, 1))) % 3
+        wav[y] = o
+    fur, crest = mix(P['base'], P['dark'], 0.3), mix(P['base'], P['light'], 0.32)
     def c(x, y, r):
-        xx = (x + wav[y]) % 4
-        if xx == 0: return mix(P['base'], P['dark'], 0.55)
-        if xx == 1: return mix(P['base'], P['light'], 0.6) if (y % 7) else P['light']
-        if y % 6 == 5 and xx == 2: return mix(P['base'], P['dark'], 0.25)
+        xx = (x + wav[y]) % 3
+        if y % 8 == 7 and xx != 0: return mix(P['base'], P['dark'], 0.14)
+        if xx == 0: return fur
+        if xx == 1: return crest
         return P['base']
     return cells(c, seed)
 
 
 def primaries(P, seed):
-    """long flight feathers side by side: a pale shaft, a lit vane, a darker vane, a dark edge"""
+    """long flight feathers side by side: a pale shaft, a lit vane, the base vane, a soft dark edge (low contrast)"""
     def c(x, y, r):
         k = x % 5
-        if k == 0: return P['deep']
-        if k == 1: return P['light']
-        if k == 2: return P['shine'] if y % 8 else P['light']
+        if k == 0: return mix(P['dark'], P['base'], 0.35)
+        if k == 1: return mix(P['base'], P['light'], 0.5)
+        if k == 2: return P['light'] if y % 16 else P['shine']
         if k == 3: return P['base']
-        return P['dark']
+        return mix(P['base'], P['dark'], 0.4)
     return cells(c, seed)
 
 
 def down(P, seed):
-    """soft cream-gold down: the Dryad's soft cells, plus faint small scallops"""
-    base = soft(P['base'], mix(P['base'], P['light'], 0.5), mix(P['base'], P['dark'], 0.4), seed, p=0.1)
-    px = base.load()
-    for y in range(0, 64, 6):
-        for x in range((y // 6) % 2 * 4, 64, 8):
-            for dx in range(4):
-                if 0 <= x + dx < 64 and y + 5 < 64 and dx in (1, 2): px[x + dx, y + 5] = hexc(mix(P['base'], P['dark'], 0.3))
-    return base
+    """soft cream-gold down: smooth, a faint scallop every 8 rows (two cells of shade under each), nothing random"""
+    sh = mix(P['base'], P['dark'], 0.2)
+    def c(x, y, r):
+        if y % 8 == 7 and (x + (y // 8) % 2 * 3) % 6 in (1, 2, 3): return sh
+        if y % 8 == 0: return mix(P['base'], P['light'], 0.25)
+        return P['base']
+    return cells(c, seed)
 
 
 def orange(P, seed, scutes=False, web=False):
@@ -281,7 +289,7 @@ def eyes(kind=None):
 
 # ---------------------------------------------------------------------------------------------------- textures
 def _tex(P=GOLD, C=CREAM, O=ORANGE, emer=EMER):
-    t = {'gold': feathers(P, 11), 'gold2': feathers(P, 12, w=5), 'gold_d': feathers({**P, 'base': mix(P['base'], P['dark'], 0.35),
+    t = {'gold': feathers(P, 11), 'gold2': feathers(P, 12, w=7), 'gold_d': feathers({**P, 'base': mix(P['base'], P['dark'], 0.3),
                                                                                          'light': P['base']}, 13, sparks=0),
          'neck': furrows(P, 14), 'prim': primaries(P, 15), 'down': down(C, 16), 'lip': lit(feathers(P, 17, glint=False, sparks=0), 1.25, 1.0, 4),
          'beak': orange(O, 18), 'beak_d': orange({**O, 'base': O['dark'], 'light': O['base']}, 19), 'leg': orange(O, 20, scutes=True),
@@ -290,7 +298,7 @@ def _tex(P=GOLD, C=CREAM, O=ORANGE, emer=EMER):
          'tongue': cells(lambda x, y, r: TONGUE if x % 3 else mix(TONGUE, '#ffffff', 0.3), 0), 'tooth': cells(lambda x, y, r: TOOTH, 0),
          'nail': cells(lambda x, y, r: NAIL if y > 3 else mix(NAIL, '#ffffff', 0.4), 0), 'nostril': cells(lambda x, y, r: O['deep'], 0),
          'gem': gemtex(emer), 'band': gemtex(JADE + ('#ffffff',)), 'clover': clover_tex(), 'spark': spark_tex(),
-         'honkring': ring_tex(), 'egg': lit(feathers({**P, 'dark': P['base'], 'deep': P['base']}, 23, w=8, rows=8), 1.3, 0.85, 10),
+         'honkring': ring_tex(), 'egg': lit(feathers({**P, 'dark': P['base'], 'deep': P['base']}, 23, w=8, rows=8, sparks=0), 1.3, 0.85, 10),
          'coin': coin_tex(), 'coin_e': cells(lambda x, y, r: P['dark'] if y % 4 else P['light'], 0), 'confetti': confetti_tex(),
          'straw': cells(lambda x, y, r: (P['light'] if (x + 2 * y) % 7 == 0 else P['base'] if (x - y) % 5 else P['dark']), 24),
          'eyes': eyes(), 'aura': glow(['#ffffff', '#fff0a0', '#ffd040', '#f0a020'], alpha=[230, 190, 120, 0]),
@@ -593,9 +601,9 @@ POSES.update({
     # THE RUN (2 frames, 6 ticks): pitched forward, wings flailing, legs a blur - and the neck and head FLAP BEHIND IT like a flag:
     # neck1 thrown back past 60 deg, neck2 whipping the other way, the head dangling, the beak open
     'run_0': P(_face='wide', body=T(16, 0, 6), legr=limb(1, -60, -6), legl=limb(-1, 40, -6), footl=limb(-1, -45),
-               neck1=T(-34, 0, -8), neck2=T(-56, 0, 16), head=T(-116, 14, 28), jaw=T(30), wr=limb(1, 0, 34, -20), wl=limb(-1, 0, 70, -20)),
+               neck1=T(-24, 0, -8), neck2=T(-46, 0, 16), head=T(-70, 14, 28), jaw=T(30), wr=limb(1, 0, 34, -20), wl=limb(-1, 0, 70, -20)),
     'run_1': P(_face='derp', body=T(20, 0, -6), legl=limb(-1, -60, 6), legr=limb(1, 40, 6), footr=limb(1, -45),
-               neck1=T(-26, 0, 14), neck2=T(-62, 0, -24), head=T(-90, -28, -44), jaw=T(36), wr=limb(1, 0, 70, 10), wl=limb(-1, 0, 30, 10)),
+               neck1=T(-20, 0, 14), neck2=T(-50, 0, -24), head=T(-56, -28, -44), jaw=T(36), wr=limb(1, 0, 70, 10), wl=limb(-1, 0, 30, 10)),
     # HONK: a wind-up (neck coiled back, breast puffed, 6 ticks) - then the neck snaps forward and up, wings flung out, the jaw
     # drops and the rings burst (the hit, 2 ticks), held 6, settle 6
     'honk_up': P(_face='fierce', body=T(-8), neck1=T(-30), neck2=T(-20), head=T(30), wr=limb(1, 0, 30), wl=limb(-1, 0, 30)),

@@ -78,8 +78,8 @@ def crack(im, rnd, n, col=RED, hot=RED_L, dark=VOID, wide=False):
         for i in range(rnd.randint(6, 14)):
             sq(x - 2, y, dark); sq(x + 2, y, dark) if wide else None
             if wide: sq(x - 4, y, VOID2)
-            sq(x, y, hot if (i == 0 or rnd.random() < 0.15) else col)
-            if rnd.random() < 0.16:
+            sq(x, y, hot if (i == 0 or i % 5 == 3) else col)
+            if rnd.random() < 0.12:
                 bx, by = x, y
                 for _k in range(rnd.randint(2, 4)):
                     bx += rnd.choice((-2, 2)); by += 2; sq(bx, by, col); sq(bx - 2, by, dark)
@@ -87,7 +87,7 @@ def crack(im, rnd, n, col=RED, hot=RED_L, dark=VOID, wide=False):
     return im
 
 
-def cracked(P, seed, n, wide=False, w=4, darken=0.0):
+def cracked(P, seed, n, wide=False, w=6, darken=0.0):
     im = GQ.feathers(P, seed, w=w, sparks=0)
     if darken:
         px = im.load()
@@ -99,12 +99,15 @@ def cracked(P, seed, n, wide=False, w=4, darken=0.0):
 
 
 def flesh(seed):
-    """the neck's void-dark core: deep violet-black, veined red, a faint wet sheen in rows"""
+    """the neck's void-dark core: deep violet-black in smooth bands (a wet sheen every 10 rows), veined red - no speckle"""
     rnd = random.Random(seed)
-    im = soft(VOID, VOID2, '#08040a', seed, p=0.2)
-    d = ImageDraw.Draw(im)
-    for y in range(0, 64, 10): d.rectangle((0, y, 63, y + 1), fill=hexc(VOID2))
-    return crack(im, rnd, 5, RED_D, RED, '#050206')
+    def c(x, y, r):
+        k = y % 10
+        if k == 0: return VOID2
+        if k == 1: return mix(VOID, VOID2, 0.5)
+        return VOID
+    im = cells(c, seed)
+    return crack(im, rnd, 4, RED_D, RED, '#050206')
 
 
 def bone(P, seed):
@@ -161,7 +164,7 @@ def eyes_sheet(kind=None):
 
 
 def _tex(P=DG, B_=BONE, emer=GQ.EMER, red=(RED, RED_L, RED_D), suffix=''):
-    t = {'gcr': cracked(P, 31, 5, wide=True, darken=0.45), 'gcr2': cracked(P, 32, 3, darken=0.15), 'gcr3': cracked(P, 33, 1, w=5),
+    t = {'gcr': cracked(P, 31, 5, wide=True, darken=0.45), 'gcr2': cracked(P, 32, 3, darken=0.15), 'gcr3': cracked(P, 33, 1, w=7),
          'prim': GQ.primaries(P, 34), 'down': GQ.down(GQ.CREAM if not suffix else {'dark': B_['dark'], 'base': B_['base'], 'light': B_['light'], 'shine': B_['shine']}, 35),
          'flesh': flesh(36), 'bone': bone(B_, 37), 'memb': membrane(38),
          'plate': _DS['ds_plate_b'], 'edge': _DS['ds_edge'], 'glass': _DS['ds_glass'], 'horn': _DS['ds_horn'], 'horn_r': _DS['ds_horn_r'],
