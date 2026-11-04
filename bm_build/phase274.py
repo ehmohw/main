@@ -214,7 +214,12 @@ def _encounter(G, X):
     fn('p274/enc/debris', ['scoreboard players operation @s bm.tvad0 = @s bm.tvad', 'execute store result score #r bm.rng run random value 1..300',
                            'execute if score #r bm.rng matches 1 run loot give @s loot bm:items/cinder_scale'])
     # (the portal: all three scales thrown into a lit Nether portal together - the Three-World Egg)
-    X.second.append('execute as @e[type=minecraft:item] if items entity @s contents *[minecraft:custom_data~{bm:"squall_scale"}] at @s if block ~ ~ ~ minecraft:nether_portal run function bm:p274/enc/portal')
+    # (3.0s: checked EVERY TICK, not every second - a dropped item rides a portal the tick after it enters one. Each scale (and
+    #  the egg) in a portal gets a PortalCooldown, so it stays put in the portal until all three are in and fuse)
+    G.FUNCS['tick'].append('execute as @e[type=minecraft:item] at @s if block ~ ~ ~ minecraft:nether_portal run function bm:p274/enc/hold')
+    fn('p274/enc/hold', [f'execute if items entity @s contents *[minecraft:custom_data~{{bm:"{k}"}}] run data modify entity @s PortalCooldown set value 40'
+                         for k in ('squall_scale', 'cinder_scale', 'hush_scale', 'three_world_egg')] +
+                        ['execute if items entity @s contents *[minecraft:custom_data~{bm:"squall_scale"}] run function bm:p274/enc/portal'])
     fn('p274/enc/portal', ['scoreboard players set #n bm.rng 0',
                            'execute as @e[type=minecraft:item,distance=..2.5] if items entity @s contents *[minecraft:custom_data~{bm:"cinder_scale"}] run scoreboard players add #n bm.rng 1',
                            'execute as @e[type=minecraft:item,distance=..2.5] if items entity @s contents *[minecraft:custom_data~{bm:"hush_scale"}] run scoreboard players add #n bm.rng 10',
