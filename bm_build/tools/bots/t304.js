@@ -10,7 +10,8 @@
 // Green, his creeper moves (Pop knocks back; Spark Breath pops a beat later, no fire; Fizz Stomp; KABOOM swells, flashes white, hurts
 // every monster near and breaks no block; A Little Spark), kept through a send-home and a call, and off again.
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
-runT({ W: 'dragon', NAME: 'The Doodle Dragon', ab: 'dd', q: 'dz', pfx: 'p235d', prefix: 'dd_', item: 'doodle_drawing', parts: 12, figParts: 9, hp: 34, X: 17300, Z: 16000, pron: 'him',
+const MOB = require('./f5').DOODLEMOB;     // (3.1: the Doodle Dragon is the Doodle Mob - a new friend meets him, and he's a zombie: see the abilities)
+runT({ W: 'dragon', NAME: MOB ? 'The Doodle Mob' : 'The Doodle Dragon', ab: 'dd', q: 'dz', pfx: 'p235d', prefix: 'dd_', item: 'doodle_drawing', parts: 12, figParts: 9, hp: 34, X: 17300, Z: 16000, pron: 'him',
   called: /scrambles back to you/, home: /folds himself back into a drawing/, sit: /curls up like a cat/, stand: /Adventure/,
   ways: ['Claw', 'Crayon Fire', 'Stomp', 'Big Blaze', 'Warm'], plain: 'Ender black', looks: ['Fire-Red Scales', 'Ocean-Blue Scales', 'Sunset-Purple Scales'],
   encounter: async (ctx) => {
@@ -23,6 +24,16 @@ runT({ W: 'dragon', NAME: 'The Doodle Dragon', ab: 'dd', q: 'dz', pfx: 'p235d', 
   },
   abilities: async (ctx) => {
     const { ok, nbt, O, run } = ctx; const K = kit(ctx, 'dz');
+    if (MOB) {     // (3.1) a new friend's Doodle Mob is the Zombie: dragon's breath handed to him (a right-click holding it) - the Ender Dragon, for what follows
+      const { A, sleep, entOf, at, num, PET } = ctx;
+      await K.home(); const wx = await num(PET, 'Pos[0]'), wz = await num(PET, 'Pos[2]');
+      await at(wx + 0.5, ctx.Y + 1, wz - 1.8, 0, 30);
+      await run('item replace entity TestRat hotbar.8 with minecraft:dragon_breath'); A.slot(8); await sleep(400);
+      const hb = await entOf('@e[type=minecraft:interaction,tag=bm.ddhit,limit=1]'); A.chats.length = 0; if (hb) A.interact(hb.entityId); await sleep(1500);
+      ok('(3.1) a new friend\'s Doodle Mob is a zombie; dragon\'s breath handed to him: the Doodle Ender Dragon (bm.ddf 0, unlocked)', (await ctx.score('bm.ddf')) === 0 &&
+         /bm\.ddend/.test(await ctx.tags()), A.chats.slice(-1).join('').slice(0, 160));
+      await run('clear TestRat minecraft:glass_bottle'); await at(ctx.X + 0.5, ctx.Y + 1, ctx.Z + 0.5, 0, 0);
+    }
     ok('CLAW - a foe at his side: clawed', await K.move('mc', [[1.5, 0]], 'bm.trpc', async () => (await K.hp('bm.trpc')) < 300));
     ok('CRAYON FIRE - a foe 6 off: crayon fire, hurt and alight', await K.move('rc', [[0, 6]], 'bm.trpf', async () => (await K.hp('bm.trpf')) < 300 && +((await nbt('@e[tag=bm.trpf,limit=1]', 'Fire')).match(/(-?\d+)/) || [0, -1])[1] > 0));
     ok('STOMP - two foes close: stomped, slowed', await K.move('k2', [[2, 0], [-2, 1]], 'bm.trps', async () => /slowness/.test(await K.fxOf('bm.trps')) && (await K.hp('bm.trps')) < 300));
