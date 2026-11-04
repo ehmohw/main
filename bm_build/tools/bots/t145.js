@@ -2,7 +2,7 @@
 // with the Ledger (its own buttons), a click on the Recruiter - his book. Before you've met anyone: no follower's contract
 // on it, only the hirelings' and the vault gems' pages (and nothing free - no Cecil). Celi met (her Moon Charm held): her
 // contract on his book, bought from the wallet, then "IN YOUR PACK"; used - signed; "SIGNED" on his book. A contract for a
-// follower you haven't met won't sign, and keeps. A hireling's contract and a vault gem bought from their pages. His
+// follower you haven't met won't sign, and keeps. A hireling's contract bought from its page (3.0g: no vault gems' page). His
 // villager has no trades left. (rcon sets the stage only: a platform, coins in the bank, the charm, a stray contract.)
 const { bot, rcon, sleep } = require('./lib_resp');
 const RK = /^ON = True/m.test(require('fs').readFileSync('/home/user/main/bm_build/rkflag.py', 'utf8'));   // (3.0k: the Rat King is in these lists only once rkflag.ON)
@@ -55,7 +55,7 @@ const res = [];
   ok('Click the Recruiter: his book opens', /THE RECRUITER/.test(shown()));
   ok('...no follower\'s contract on it (not even Cecil\'s) - met no one yet', !labels().some(l => /Cecil|Emma|Celi|Zib|KillerWatt|Leo|Democratus|Skiff|Apophiss|Tullius|Frog|Donado/.test(l)), labels().join(' | '));
   ok('...it says so ("No names on his books yet"), and counts "0 of N" (the full roster, 2.87: Ava, Pearl, Bloo)', /No names on his books yet/.test(shown()) && /"0"/.test(shown()) && /of [1-9]\d/.test(shown()));
-  ok('...the hirelings\' and the vault gems\' pages are there', labels().some(l => /Hirelings/.test(l)) && labels().some(l => /Vault gems/.test(l)));
+  ok('...the hirelings\' page is there - and no vault gems\' (3.0g: the nine left the heist shop)', labels().some(l => /Hirelings/.test(l)) && !labels().some(l => /Vault gems/.test(l)));
 
   // ---- 2. a contract for someone you haven't met won't sign - and keeps
   await run('loot replace entity TestRat hotbar.3 loot bm:items/fcontract_leo');
@@ -98,13 +98,6 @@ const res = [];
      `${hb} -> ${await sc('TestRat', 'bm.gbc')}`);
   p = await A.press(/The Recruiter/);
   ok('..."« The Recruiter" goes back to his book', !!p && p.next && /THE RECRUITER/.test(shown()));
-  p = await A.press(/Vault gems/);
-  console.log('   [gems] ' + labels().join(' | '));
-  ok('"Vault gems": the nine and a way back', !!p && p.next && labels().filter(l => /coins/.test(l)).length === 9);
-  const g = labels().find(l => /Fire Gem/.test(l)); const gp = +g.match(/(\d+) coins/)[1]; const gb = await sc('TestRat', 'bm.gbc');
-  await A.press(/Fire Gem/);
-  const gem = await run('data get entity TestRat Inventory[{components:{"minecraft:custom_data":{bm:"gem_fire"}}}].components."minecraft:custom_data"');
-  ok('...buy the Fire Gem: paid, and it\'s the vault\'s own (it stays in the vault)', (await sc('TestRat', 'bm.gbc')) === gb - gp && /bm_vault: 1b/.test(gem), gem.replace(/.*data: /, ''));
 
   // ---- the stage put back
   await run('clear TestRat'); await run('scoreboard players set TestRat bm.fcon 0'); await run('scoreboard players set TestRat bm.crew 0'); await run('scoreboard players set TestRat bm.gbc 0');

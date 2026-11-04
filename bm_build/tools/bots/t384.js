@@ -23,10 +23,10 @@ runT({ W: 'ratking', NAME: 'The Rat King', ab: 'rw', q: 'qw', pfx: 'p262', prefi
     const cup = (i) => `@e[type=minecraft:interaction,tag=bm.rwcup,${ROOM},scores={bm.qwsl=${i}},limit=1]`;
     // ---- the stage: the hall's chunks held, a floor in the island's column, TestRat with the Compass's mark - no coin yet
     await run(`${O}forceload add ${CX - 12} ${CZ - 12} ${CX + 12} ${CZ + 12}`);
-    await run(`${O}forceload add ${COLX - 4} ${COLZ - 4} ${COLX + 4} ${COLZ + 4}`);
+    await run(`${O}forceload add ${Math.floor(COLX) - 4} ${Math.floor(COLZ) - 4} ${Math.floor(COLX) + 4} ${Math.floor(COLZ) + 4}`);
     await run('tag TestRat remove bm.rwmet'); await run('tag TestRat remove bm.rwpaid'); await run('tag TestRat remove bm.rwcoin'); await run('clear TestRat');
-    await run(`${O}fill ${COLX - 2} ${COLY - 1} ${COLZ - 2} ${COLX + 2} ${COLY - 1} ${COLZ + 2} minecraft:stone`);
-    await run(`${O}fill ${COLX - 2} ${COLY} ${COLZ - 2} ${COLX + 2} ${COLY + 3} ${COLZ + 2} minecraft:air`);
+    await run(`${O}fill ${Math.floor(COLX) - 2} ${COLY - 1} ${Math.floor(COLZ) - 2} ${Math.floor(COLX) + 2} ${COLY - 1} ${Math.floor(COLZ) + 2} minecraft:stone`);
+    await run(`${O}fill ${Math.floor(COLX) - 2} ${COLY} ${Math.floor(COLZ) - 2} ${Math.floor(COLX) + 2} ${COLY + 3} ${Math.floor(COLZ) + 2} minecraft:air`);
     await run('tag TestRat add bm.kbcomp');
     ok("the Compass's mark (every other follower met): the King's Coin comes by itself", await wait(4000, async () => (await has('kings_coin')) === 1));
     ok('...and the Counting House is built under the island (#rwver)', await wait(20000, async () => (await score('bm.p2', '#rwver')) >= 1, 500));
@@ -76,9 +76,12 @@ runT({ W: 'ratking', NAME: 'The Rat King', ab: 'rw', q: 'qw', pfx: 'p262', prefi
     await at(HOLE[0] - 1.5, FY, HOLE[2], -90, 0); A.input({ forward: true }); await wait(4000, async () => A.pos && A.pos.y > 100, 100); A.input({}); await sleep(800);
     ok('the mouse hole: back up the rat-run, where TestRat came down', A.pos && Math.abs(A.pos.y - COLY) < 2 && Math.abs(A.pos.x - COLX) < 2, A.pos && `${A.pos.x.toFixed(1)} ${A.pos.y.toFixed(1)} ${A.pos.z.toFixed(1)}`);
     ok('...and survival again', await wait(4000, async () => (await cnt('@a[name=TestRat,gamemode=survival]')) === 1));
-    // (home together: the stage)
-    await run('tag TestRat add bm.rwtp'); await run(`${O}tag ${PET} add bm.rwtp`);
-    await run(`${O}tp @e[tag=bm.rwtp] ${ctx.X + 0.5} ${ctx.Y + 1} ${ctx.Z + 0.5}`); await run(`${O}tag @e[tag=bm.rwtp] remove bm.rwtp`);
+    ok('...the Rat King came up the rat-run with TestRat', await wait(3000, async () => (await cnt(`${PET.slice(0, -1)},distance=..6,x=${COLX},y=${COLY},z=${COLZ}]`)) === 1));
+    // (home: the stage carries TestRat; then the Marker used, as a player would - he comes over to TestRat)
+    await run('clear TestRat *[minecraft:custom_data~{bm:"royal_marker"}]'); await run('loot replace entity TestRat hotbar.0 loot bm:items/royal_marker');
+    await ctx.at(ctx.X + 0.5, ctx.Y + 1, ctx.Z + 0.5, 0, 0); await sleep(2500);
+    await wait(3000, async () => !((await score('bm.gvhc')) > 0)); await ctx.use(0);
+    await wait(5000, async () => (await cnt(`${PET.slice(0, -1)},x=${ctx.X},y=${ctx.Y},z=${ctx.Z},distance=..6]`)) === 1, 200); await sleep(1500);
     await run('clear TestRat *[minecraft:custom_data~{bm:"kings_coin"}]'); await run('clear TestRat minecraft:gold_ingot');
   },
   abilities: async (ctx) => {

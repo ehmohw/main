@@ -21,6 +21,81 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0m: the Rat King, the Keeper of Bonds' counterpart
+
+The Keeper of Bonds weaves every bond you've made. The Rat King keeps count of them ("a debt is a bond too, if you ask me").
+He is the 52nd follower, and like the Keeper he is found only once **all fifty other followers** are met. Neither of them counts
+toward the other.
+
+- **The King's Coin.** When the Compass of Bonds comes to you, its dark twin comes too: a heavy gold coin, gnawed at the edge.
+  Its needle points **down**, at the very spot the compass points up at. If you already had the compass, the coin arrives the
+  first time you play this version.
+- **The way down.** Stand in the column under the Loom Sanctuary (the spot where the compass draws you up), hold the coin, and
+  **sneak for three seconds**. The floor gives way to a rat-run, and you slide down to his **Counting House**, at the bottom of
+  the world. It's a hall of gold: a throne on a heap of coins, crimson banners, and a counting table with five court rats.
+  Nothing in it can be broken. **The way up:** step into the **mouse hole** in the east wall, and you're back exactly where you came down. Your followers near you come with you, both ways.
+- **The audience.** He lounges on his throne at his full, imposing size, about 2.8 blocks to the tip of his crown. Speak to him:
+  - **The Tribute.** "A king takes his cut." Pay one of these, once: **32 Gold Ingots**, **16 Gutter Coins**, or a
+    **Golden Cheese Wheel** ("MY cheese! Where did you - never mind.").
+  - **The Shell of Rats.** "One of my court has pinched my favourite coin." The thief glints, pops the coin in its cheek, and the
+    five rats shuffle. **Punch the thief.** A miss costs nothing: "Pfah. Again." A new thief, a new shuffle.
+  - Catch the thief and he writes you the **Royal Marker**, an IOU sealed in gold wax: "The bearer owes the Rat King one (1)
+    adventure." Then he comes along.
+- **His size.** He walks beside you at his own heist-boss size. His menu has **Companion Size**, which shrinks him to about
+  1.55 blocks, a head shorter than you. His hitbox shrinks with him. He keeps the size you chose when you send him home and call
+  him again.
+- **His ways:**
+  - **Sceptre Swat:** 7 to a foe within reach.
+  - **Sceptre Slam:** two or more foes near, every 12 s. He rears up and slams the sceptre down: 6 to each, knocked back and slowed.
+  - **The Court:** charged, every minute. A whistle, and his court rats boil up round every foe within 8 and bite twice
+    (4 and 4), leaving them weakened.
+  - **A Loan, With Interest:** out of a fight, every minute, a coin's worth of something.
+  - **The King's Cut:** every monster you kill with him near has a one-in-three chance to pay a tithe: gold nuggets, now and
+    then an emerald, and very rarely a Token.
+  - **Bonds and Debts:** with the Keeper out too, you get Luck and Haste.
+  - **The Royal Decree** is his Piercing Blow (Queen Ava's rank III). He drops down a rat-run and bursts up under the monster.
+- **Everything every follower has:**
+  - sitting (on his haunches, then counting his hoard);
+  - a wardrobe for his **Cape**: Midnight, Emerald Court, Royal Purple, and the Gilded, Diamond and Netherite capes, the same at
+    both sizes;
+  - a rare aura, **the Golden Hoard**;
+  - a shiny, **Shiny Moonlit Albino**: white fur, pink eyes, a platinum crown and a sapphire cape;
+  - the Partner Wheel (at the end of its list), an item frame, the display case, Cecil's doll, the honours (his Champion blow,
+    **the Royal Hoard**) and a Raid Contract;
+  - pairs with Bender ("Good Boy, Bad Debts"), Mr. Capshun ("Royal Biographer"), Henry ("The Royal Mouser") and Nia
+    ("Lap of Luxury").
+- **The Champion's Pit:** a heist crew with a friend of his in it never draws the Rat King there (he won't fight a friend's crew).
+  A Vault Ravager comes instead.
+
+## Fix: a follower's hitbox follows its size
+
+The owner: "a follower's hitbox shrinks while it's in companion mode". Every follower whose size changes now changes its hitbox
+with it: the host mob's own box and the click box on it.
+- **Apophiss and King Omega:** they already did, at Companion Size.
+- **The Rat King:** Companion Size.
+- **The Ophanim form:** a large box round the great wheel, a small one at companion size, and the Lightbringer's own box when the
+  form is off.
+- **The Bound Sovereign, Unbound:** a giant's box. It goes back to its own when Bound again.
+- **Vexis:** a full-size form has a box grown to match. Companion size uses its own box.
+
+Sending a follower home and calling it again keeps the size and hitbox you chose.
+
+## For the build
+
+- Everything of his sits behind `rkflag.ON` (`bm_build/rkflag.py`). With it off, the pack builds exactly as before.
+- **Code:**
+  - `phase262.py`: the follower, the coin, the Counting House, the audience, the King's Cut, Companion Size.
+  - `ratking_pet_art.py`: the rig, faces, the shiny and the icons.
+  - `compsize.resize` and `hit=`, and rigpet's `BOX_FIT`: the hitbox.
+- **Menu codes:**
+  - his menu: 5450 (5451-5459, 5456 Companion Size);
+  - his wardrobe: 5470-5489;
+  - the tribute dialog: menu 5500, buttons 5501-5503.
+- **Codes:** phase173's "Back after a faint" row gets a third block from 3902 (3486-3504 is full at 50; 3505 is the wheel's Teams button).
+- **Tests:** t145's stale "Vault gems" steps are trimmed (the Recruiter hasn't had that page since 3.0g).
+- **Test:** `tools/bots/t384.js`. He's also added to t138, t145, t146, t156 and t158, but only while `rkflag.ON`.
+- **Version:** bump `VERSION2`, and give the README section the text above.
+
 ## New in 3.0l: the Vorn walk, the Stalker crawls
 
 - **The Vorn walk properly now.** Troopers, the Warlord and the Armada's crew were one stiff model flipped between two poses every

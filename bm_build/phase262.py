@@ -9,7 +9,7 @@ THE KING'S COIN   the Compass of Bonds' dark twin: with the compass (bm.kbcomp -
              below; built the first time anyone needs it, from commands - p262/room/build).
 THE WAY DOWN  stand in the column under the island holding the coin and SNEAK for three seconds: the floor gives way to a rat-run
              and you slide down to the Counting House (where you stood is kept, bm.rwbx/by/bz). THE WAY UP: the mouse hole in its
-             east wall - step into it and you're back where you came down. Nothing in it can be broken (adventure, as the island).
+             east wall - step into it and you're back where you came down. Your followers near come with you, both ways. Nothing in it can be broken (adventure, as the island).
 THE AUDIENCE  (rigpet's encounter, at his throne: whenever a coin-holder who hasn't his Marker (bm.rwmet) is in the hall, he lounges
              there at his full, imposing size.) Speak to him -
   THE TRIBUTE    "A king takes his cut." A dialog (menu 5500): 32 Gold Ingots, 16 Gutter Coins or a Golden Cheese Wheel (his own
@@ -423,21 +423,24 @@ def generate(G):
                      'playsound minecraft:block.gravel.break player @s ~ ~ ~ 1 0.6',
                      'execute if score @s bm.qwd matches ..2 run return run ' + title('@s', 'actionbar', T('The ground shifts under your feet... something is gnawing at it...', COL, italic=True)),
                      'scoreboard players set @s bm.qwd 0',
-                     'execute store result score @s bm.rwbx run data get entity @s Pos[0]', 'execute store result score @s bm.rwby run data get entity @s Pos[1]',
-                     'execute store result score @s bm.rwbz run data get entity @s Pos[2]',
+                     'execute store result score @s bm.rwbx run data get entity @s Pos[0] 100', 'execute store result score @s bm.rwby run data get entity @s Pos[1] 100',
+                     'execute store result score @s bm.rwbz run data get entity @s Pos[2] 100',
+                     'scoreboard players operation #me bm.pid = @s bm.pid', 'execute as @e[type=minecraft:wolf,tag=!bm.ffpet,distance=..32] if score @s bm.pid = #me bm.pid run tag @s add bm.rwcarry', 'execute as @e[type=minecraft:cat,tag=!bm.ffpet,distance=..32] if score @s bm.pid = #me bm.pid run tag @s add bm.rwcarry',
                      f'tp @s {LAND[0]} {LAND[1]} {LAND[2]} 180 0',
+                     'tp @e[tag=bm.rwcarry] @s', 'tag @e[tag=bm.rwcarry] remove bm.rwcarry',
                      f'execute positioned {LAND[0]} {LAND[1]} {LAND[2]} run particle minecraft:large_smoke ~ ~1 ~ 0.5 1 0.5 0.03 30',
                      f'execute positioned {LAND[0]} {LAND[1]} {LAND[2]} run playsound minecraft:block.gravel.fall player @a[distance=..24] ~ ~ ~ 1 0.6',
                      title('@s', 'actionbar', T('The Counting House.', COL, bold=True))])
     second.append(f'execute in minecraft:overworld positioned {HOLE[0]} {HOLE[1]} {HOLE[2]} as @a[distance=..1.3] at @s run function bm:p262/up')
-    fn('p262/up', ['execute store result storage bm:p262 up.x int 1 run scoreboard players get @s bm.rwbx',
-                   'execute store result storage bm:p262 up.y int 1 run scoreboard players get @s bm.rwby',
-                   'execute store result storage bm:p262 up.z int 1 run scoreboard players get @s bm.rwbz',
-                   'execute unless score @s bm.rwby matches -40.. run return run function bm:p262/up_spawn',
-                   'function bm:p262/up_to with storage bm:p262 up', 'playsound minecraft:block.gravel.break player @s ~ ~ ~ 1 0.8',
+    fn('p262/up', ['execute store result storage bm:p262 up.x double 0.01 run scoreboard players get @s bm.rwbx',
+                   'execute store result storage bm:p262 up.y double 0.01 run scoreboard players get @s bm.rwby',
+                   'execute store result storage bm:p262 up.z double 0.01 run scoreboard players get @s bm.rwbz',
+                   'scoreboard players operation #me bm.pid = @s bm.pid', 'execute as @e[type=minecraft:wolf,tag=!bm.ffpet,distance=..32] if score @s bm.pid = #me bm.pid run tag @s add bm.rwcarry', 'execute as @e[type=minecraft:cat,tag=!bm.ffpet,distance=..32] if score @s bm.pid = #me bm.pid run tag @s add bm.rwcarry',
+                   'execute unless score @s bm.rwby matches -4000.. run return run function bm:p262/up_spawn',
+                   'function bm:p262/up_to with storage bm:p262 up', 'tp @e[tag=bm.rwcarry] @s', 'tag @e[tag=bm.rwcarry] remove bm.rwcarry', 'playsound minecraft:block.gravel.break player @s ~ ~ ~ 1 0.8',
                    title('@s', 'actionbar', T('(back up the rat-run, into the light)', 'gray', italic=True))])
     fn('p262/up_to', ['$tp @s $(x) $(y) $(z)'])
-    fn('p262/up_spawn', [f'tp @s {int(P253.AX // 1)} 100 {int(P253.AZ // 1)}', 'spreadplayers ~ ~ 0 4 false @s'])
+    fn('p262/up_spawn', [f'tp @s {int(P253.AX // 1)} 100 {int(P253.AZ // 1)}', 'spreadplayers ~ ~ 0 4 false @s'] + ['tp @e[tag=bm.rwcarry] @s', 'tag @e[tag=bm.rwcarry] remove bm.rwcarry'])
     # ---- nothing in the hall can be broken (adventure while you're in it, as on the island)
     second += [f'execute in minecraft:overworld as @a[{ROOM},gamemode=survival] run function bm:p262/adv/in',
                'execute as @a[tag=bm.rwadv,gamemode=adventure] at @s unless function bm:p262/in_hall run function bm:p262/adv/out']
