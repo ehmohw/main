@@ -268,14 +268,15 @@ def _abilities(G, X):
                                    f'execute as @e[{foe},distance=..3.0,sort=nearest,limit=1] at @s run function bm:{pfx}/snapped'] + X.end)
     fn(f'{pfx}/snapped', [f'function bm:{pfx}/hurt', 'particle minecraft:crit ~ ~0.8 ~ 0.3 0.3 0.3 0.2 8', snd('block.chest.close', 1.0, 1.2), snd('entity.evoker_fangs.attack', 0.5, 1.6)])
     # SWALLOW (the first landing): the nearest foe within 3 - not a boss - inside: unseen, unmoving, held at its mouth 2 s
-    fn(f'{pfx}/charged', [f'execute as @e[{foe},{BIG},distance=..3.4,sort=nearest,limit=1] run function bm:{pfx}/gulped', snd('entity.generic.eat', 1.0, 0.6)])
+    fn(f'{pfx}/charged', ['tag @s add bm.mxgp', f'execute as @e[{foe},{BIG},distance=..3.4,sort=nearest,limit=1] at @s run function bm:{pfx}/gulped', 'tag @s remove bm.mxgp',
+                          snd('entity.generic.eat', 1.0, 0.6)])
     fn(f'{pfx}/gulped', ['tag @s add bm.wxin', 'scoreboard players set @s bm.wxin 60', 'tag @s remove bm.wxnoai',
                          'execute if data entity @s {NoAI:1b} run tag @s add bm.wxnoai', 'data merge entity @s {NoAI:1b}',
-                         'effect give @s minecraft:invisibility 3 0 true', 'tp @s ~ ~ ~', 'particle minecraft:item{item:"minecraft:gold_nugget"} ~ ~0.6 ~ 0.3 0.3 0.3 0.1 10'])
+                         'effect give @s minecraft:invisibility 3 0 true', 'tp @s @e[type=minecraft:wolf,tag=bm.mxgp,limit=1]', 'particle minecraft:item{item:"minecraft:gold_nugget"} ~ ~0.6 ~ 0.3 0.3 0.3 0.1 10'])
     # SPIT (the second): out 3 blocks ahead, a burst of coins - 6, and a roll of its loot
-    fn(f'{pfx}/charged2', X.hit(6) + [f'execute as @e[tag=bm.wxin,distance=..4,limit=1] run function bm:{pfx}/spat',
+    fn(f'{pfx}/charged2', X.hit(6) + [f'execute as @e[tag=bm.wxin,distance=..4,limit=1] at @s run function bm:{pfx}/spat',
                                       'particle minecraft:item{item:"minecraft:gold_nugget"} ^ ^0.8 ^0.8 0.3 0.3 0.3 0.25 30', snd('entity.player.burp', 1.0, 0.8)] + X.end)
-    fn(f'{pfx}/spat', [f'function bm:{pfx}/release', 'execute rotated as @e[type=minecraft:wolf,tag=bm.mxme,limit=1] positioned ^ ^0.3 ^3 if block ~ ~ ~ #minecraft:air run tp @s ~ ~ ~',
+    fn(f'{pfx}/spat', [f'function bm:{pfx}/release', 'execute at @e[type=minecraft:wolf,tag=bm.mxme,limit=1] positioned ^ ^0.3 ^3 if block ~ ~ ~ #minecraft:air run tp @s ~ ~ ~',
                        'execute at @s run function bm:p270/hurt_here', 'execute at @s run loot spawn ~ ~0.5 ~ kill @s'])
     fn('p270/hurt_here', [f'function bm:{pfx}/hurt'])
     fn(f'{pfx}/release', ['tag @s remove bm.wxin', 'scoreboard players reset @s bm.wxin', 'execute unless entity @s[tag=bm.wxnoai] run data merge entity @s {NoAI:0b}',
@@ -410,10 +411,10 @@ def generate(G):
                            'tag @s add bm.mxst', 'scoreboard players set @s bm.wxst 0', 'tag @s remove bm.mxsw',
                            'execute if data entity @s {Sitting:1b} run tag @s add bm.mxsw', 'data modify entity @s Sitting set value 1b',
                            f'scoreboard players set @s {"bm.wxfr"} -1',
-                           'execute on passengers if entity @s[type=minecraft:interaction] run data merge entity @s {width:0.01f,height:0.01f}',
+                           'execute on passengers run data merge entity @s[type=minecraft:interaction,tag=bm.mxhit] {width:0.01f,height:0.01f}',
                            'attribute @s minecraft:scale base set 0.1',            # (its host shrunk out of the way: the cart's box, round it, takes the click)
                            'summon minecraft:chest_minecart ~ ~-0.62 ~ {Tags:["bm.mxcart","bm.mxcnew"],NoGravity:1b,Invulnerable:1b,Silent:1b,'
-                           'CustomName:{text:"The Mimic\'s Stash",color:"#e8b830"},DisplayState:{Name:"minecraft:air"}}',
+                           'CustomName:{text:"The Mimic\'s Stash",color:"#e8b830"},DisplayOffset:-12}',
                            'scoreboard players operation @e[type=minecraft:chest_minecart,tag=bm.mxcnew,limit=1] bm.pid = @s bm.pid',
                            'execute store result storage bm:tmp mx.p int 1 run scoreboard players get @s bm.pid',
                            'function bm:p270/stash/fill with storage bm:tmp mx', 'tag @e[tag=bm.mxcnew] remove bm.mxcnew',
@@ -422,10 +423,10 @@ def generate(G):
     fn('p270/stash/fill', ['$execute if data storage bm:mxst p$(p) run data modify entity @e[type=minecraft:chest_minecart,tag=bm.mxcnew,limit=1] Items set from storage bm:mxst p$(p)'])
     X2 = '@e[type=minecraft:chest_minecart,tag=bm.mxcart,distance=..2,sort=nearest,limit=1]'
     fn('p270/stash/shut', ['execute store result storage bm:tmp mx.p int 1 run scoreboard players get @s bm.pid', 'function bm:p270/stash/save with storage bm:tmp mx',
-                           f'execute as {X2} run function bm:p270/stash/gone',
+                           f'execute as {X2} at @s run function bm:p270/stash/gone',
                            'tag @s remove bm.mxst', 'execute unless entity @s[tag=bm.mxsw] run data modify entity @s Sitting set value 0b', 'tag @s remove bm.mxsw',
                            f'scoreboard players set @s bm.wxfr -1',
-                           f'execute on passengers if entity @s[type=minecraft:interaction] run data merge entity @s {{width:{hw}f,height:{hh}f}}',
+                           f'execute on passengers run data merge entity @s[type=minecraft:interaction,tag=bm.mxhit] {{width:{hw}f,height:{hh}f}}',
                            f'attribute @s minecraft:scale base set {Mimic.SCALE}',
                            'playsound minecraft:block.chest.close neutral @a[distance=..16] ~ ~ ~ 1 0.9'])
     fn('p270/stash/save', [f'$data modify storage bm:mxst p$(p) set from entity {X2} Items'])

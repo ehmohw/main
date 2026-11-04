@@ -178,6 +178,54 @@ def show_dryad(G, X):
 
 Dryad.ENC_SHOW = show_dryad
 
+DESCENT_UP = 7.0                  # (3.0p) how high above the ground her descent begins (blocks)
+
+
+def show_light(G, X):
+    """(3.0p) her entrance - THE DESCENT (the owner: "a nice and gentle entrance as she glides down from a puff of sparkles and
+    light"): a soft puff of sparkles and light gathers DESCENT_UP above (end_rod, glow, wax, a soft chime); she's there in it,
+    wings open, grown from a mote to herself; she GLIDES DOWN, slowing as she nears the ground - each part's transformation eased
+    (start_interpolation, a lift that falls off as (1 - s)^2: a gentle stop, never a teleport) - with her wings beating slowly;
+    she alights, kneels a moment (her robe pooled), rises and smiles. Every line here runs as her click box (no owner), so it says
+    "the herald", never she or he. The camera is never touched."""
+    S = P235._Show(Lightbringer, X, 'head')
+    UP = DESCENT_UP
+    gold = P235._dust((1.0, 0.86, 0.42), 0.9)
+    # (1-20) the puff of sparkles and light, high above
+    for t in range(1, 21, 2):
+        S.at(t, f'particle minecraft:end_rod ~ ~{UP + 1.2:.1f} ~ 0.45 0.35 0.45 0.01 {2 + t // 5}',
+             f'particle minecraft:wax_on ~ ~{UP + 1:.1f} ~ 0.7 0.45 0.7 0 2', f'particle minecraft:glow ~ ~{UP + 1:.1f} ~ 0.6 0.45 0.6 0 1')
+    S.at(1, f'particle minecraft:flash{{color:[1.0,0.95,0.75,1.0]}} ~ ~{UP + 1:.1f} ~ 0 0 0 0 1')
+    S.snd(1, 'block.amethyst_block.chime', 0.7, 1.6).snd(7, 'block.amethyst_block.chime', 0.5, 1.9).snd(13, 'block.amethyst_block.chime', 0.6, 1.4)
+    # (18-27) she is there in the light: a mote, then herself, wings open
+    S.pose(18, 'wings_spread', 1, kx=0.05, ky=0.05, lift=UP + 0.6).face(18, 'blink')
+    S.pose(19, 'wings_spread', 9, lift=UP)
+    S.at(19, f'particle minecraft:end_rod ~ ~{UP + 1:.1f} ~ 0.5 0.6 0.5 0.03 24', f'particle {gold} ~ ~{UP + 1:.1f} ~ 0.5 0.6 0.5 0 12')
+    S.snd(19, 'block.beacon.activate', 0.35, 1.8).face(26, 'happy')
+    # (30-150) the glide: eased down, a keyframe every 15 ticks, her wings beating slowly (open, raised, open...)
+    t0, t1, step = 30, 150, 15
+    h = lambda t: UP * (1 - min(1.0, max(0.0, (t - t0) / (t1 - t0)))) ** 2
+    for i, t in enumerate(range(t0, t1, step)):
+        S.pose(t, 'wings_spread_up' if i % 2 == 0 else 'wings_spread', step, lift=round(h(t + step), 3))
+    for t in range(t0 + 2, t1, 4):
+        S.at(t, f'particle minecraft:end_rod ~ ~{h(t) + 1.3:.2f} ~ 0.35 0.5 0.35 0.005 1', f'particle minecraft:wax_on ~ ~{h(t) + 1.1:.2f} ~ 0.5 0.4 0.5 0 1')
+    for t in (60, 100):
+        S.snd(t, 'block.amethyst_block.chime', 0.4, 1.7)
+    S.at(120, f'particle {gold} ~ ~0.1 ~ 0.6 0.02 0.6 0 10')
+    # (150-170) she alights, and kneels a moment, her robe pooled round her; (170-190) she rises, and smiles
+    S.pose(150, 'pray', 12).face(150, 'blink')
+    S.at(150, 'particle minecraft:end_rod ~ ~0.2 ~ 0.7 0.05 0.7 0.02 20', 'particle minecraft:glow ~ ~0.3 ~ 0.6 0.1 0.6 0 6', f'particle {gold} ~ ~0.15 ~ 0.8 0.02 0.8 0 16')
+    S.snd(150, 'block.amethyst_block.resonate', 0.6, 1.4)
+    S.pose(170, 'bless_a', 10).face(172, 'happy')
+    S.at(176, 'particle minecraft:end_rod ~ ~1.6 ~ 0.4 0.5 0.4 0.02 12', 'title @a[distance=..16,gamemode=!spectator] actionbar ' +
+         __import__('json').dumps([{'text': 'The Lightbringer: ', 'color': HOLY, 'bold': True}, {'text': '(the herald smiles at you, and holds out a hand)', 'color': '#fff4d0', 'bold': False}]))
+    S.snd(176, 'block.amethyst_block.chime', 1.0, 1.2)
+    S.pose(184, 'idle_a', 6)
+    return S.done(190, resume=61)
+
+
+Lightbringer.ENC_SHOW = show_light
+
 
 PAIR = (Lightbringer, Dryad)
 for _C in PAIR:
