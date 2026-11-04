@@ -257,8 +257,8 @@ def _motion(G, C):
             if how in ('snap', 'ease'):
                 dur = ticks if how == 'ease' else 0
                 if 'lag' in ex:
-                    for g, d in LAGGRP.items():
-                        add(t + d, mp(pose, g, dur))
+                    for d in LAGGRP:                     # (lag group d: its parts take the frame d ticks late)
+                        add(t + d, mp(pose, d, dur))
                 else:
                     add(t, mp(pose, 'all', dur))
                 f = A0.POSES[pose].get('_face')
@@ -300,6 +300,7 @@ def _motion(G, C):
     for name, frames, sc in (('hurt', M['hurt'], 'hu'), ('rewind', [('rew', 1, 'snap', 'rgb'), ('walk_2', 1, 'snap'), ('walk_0', 1, 'snap'), ('rew', 1, 'snap'),
                                                                     ('idle_a', 1, 'snap', 'lag')], 'rw')):
         ev, per = compile_clip(frames)
+        per = max(per, max(ev) + 1)                        # (its late slices land before it lets go)
         if name == 'rewind':
             ev.setdefault(0, []).append('execute rotated ~ 0 if block ^ ^ ^-0.3 #bm:grap_pass run tp @s ^ ^ ^-0.3')
             ev.setdefault(3, []).append('execute rotated ~ 0 if block ^ ^ ^0.3 #bm:grap_pass run tp @s ^ ^ ^0.3')
@@ -317,7 +318,7 @@ def _motion(G, C):
     fn(f'{pfx}/anim', [f'execute unless score @s {S("ps")} = @s {S("s")} run function bm:{pfx}/m/changed',
                        f'execute if score @s {S("s")} matches 4 run return run function bm:{pfx}/anim0',
                        f'execute if score @s {S("s")} matches 16..17 run return run function bm:{pfx}/anim0',
-                       f'execute if score @s {S("hu")} matches ..0 if data entity @s {{HurtTime:10s}} run scoreboard players set @s {S("hu")} {HLEN}',
+                       f'execute unless score @s {S("hu")} matches 1.. if data entity @s {{HurtTime:10s}} run scoreboard players set @s {S("hu")} {HLEN}',
                        f'execute if score @s {S("hu")} matches 1.. run return run function bm:{pfx}/m/hurt',
                        f'execute if score @s {S("rw")} matches 1.. run return run function bm:{pfx}/m/rewind',
                        f'execute if score @s {S("s")} matches 0 run return run function bm:{pfx}/m/idle',

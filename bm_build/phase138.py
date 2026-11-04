@@ -256,7 +256,7 @@ def textures():
                 ims.update({n: base[n] for n in keys if n in skip})
             else:
                 main = {n: base[n] for n in keys if n not in SIDE and n not in PALE and not n.endswith('_g') and n not in OWN_SETS and n not in only}
-                ims = P99._recolour(main, pal)
+                ims = P99._recolour(main, pal) if main else {}      # (3.1: a follower whose looks are all drawn - the Cake - has nothing of its own to recolour)
                 ims.update({n: pale(base[n], n, pal) for n in keys if n in PALE})
                 ghost = {n: base[n] for n in keys if n.endswith('_g')}
                 if ghost: ims.update(P99._recolour(ghost, pal))

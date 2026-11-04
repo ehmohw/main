@@ -95,6 +95,54 @@ SPEC['cake'] = dict(
 )
 
 
+# ---------------------------------------------------------------------------------------------------- 55: THE SAPLING
+_sp = {1: ('Autumn Crown', ('#3a1006', '#c8501e', '#ffc85a')), 2: ('Frost Crown', ('#0e2a3a', '#7ab8d8', '#e8f8ff')), 3: ('Twilight Crown', ('#160a2a', '#6a4ab0', '#d0c0ff')),
+       4: ('Gilded Crown', GOLD), 5: ('Diamond Crown', DIAMOND), 6: ('Netherite Crown', NETHERITE)}
+SPEC['sapling'] = dict(
+    shiny_name='Shiny Cherry Blossom', NAME='The Sapling', pron='it', COL='#7ac860', LINE='#e4f8d0', ab='sx', q='sz', pfx='p266', item='golden_pip', prefix='sp3_',
+    word='Crown', looks=_sp, dyes=_dyes('Crown', 'orange', 'light_blue', 'purple', _sp), words='its leaves', plain='Summer green', base=5820,
+    aura=('Golden Bloom', '#ffd23a', 1.2, 0.8, _dust(1.0, 0.85, 0.25, 0.9),
+          ['particle minecraft:cherry_leaves ~ ~1.4 ~ 0.4 0.3 0.4 0 1', f'particle {_dust(1.0, 0.95, 0.6, 0.6)} ~ ~0.6 ~ 0.5 0.4 0.5 0 2']),
+    anchors=('head', 'sp3_head', 'body', 'sp3_body'),
+    champ=(None, [], False, ['minecraft:cherry_leaves ~ ~1.6 ~ 0.3 0.2 0.3 0 1', _dust(0.48, 0.78, 0.38, 0.8) + ' ~ ~1 ~ 0.4 0.5 0.4 0 2']),
+    gift=('Regeneration and Saturation', [f'effect give {P8} minecraft:regeneration 15 0 true', f'effect give {P8} minecraft:saturation 1 0 true']),
+    trib=[('minecraft:bone_meal', 64), ('minecraft:oak_sapling', 16), ('minecraft:moss_block', 16), ('minecraft:golden_apple', 2), ('heartstone', 4)],
+    honour=('Overgrowth', 'the ground bursts into roots under them: 16 to monsters round it, held fast; you, Regeneration II and Absorption',
+            (16, 6), 0, 'slowness 5 3', ['regeneration 8 1', 'absorption 30 1'], 'minecraft:cherry_leaves', 'block.azalea.place'.join(['minecraft:', ''])),
+    hint='By day, with Kettle out, hand the Pale Dryad a Golden Apple. Then wait for it to grow.',
+    shiny_say='"Trying something new today! Cherry blossom. Pink, all over. Even my apple is a cherry now!"',
+    pierce=('Taproot', 'sinks into the soil - and bursts up out of the ground beneath the monster, roots first', 'below',
+            [_P('minecraft:block{block_state:"minecraft:moss_block"}', 30, 0.5, 0.3, 0.02)], ['minecraft:block{block_state:"minecraft:rooted_dirt"} ~ ~0.1 ~ 0.4 0 0.4 0 3'],
+            [_P('minecraft:cherry_leaves', 30, 0.4, 0.8, 0), _P('minecraft:crit', 20)], 'minecraft:block.rooted_dirt.break', 'minecraft:block.azalea_leaves.break'),
+    henry=('Shade Nap', (('regeneration', 0), ('night_vision', 0)), '(it holds very still, so its shade stays just where he is)', '(Henry naps in its shade, and bats at a falling leaf)'),
+    nia=('Up the Tree', (('regeneration', 1),), '"She\'s climbing me! Hee hee - that tickles!"', '(Nia climbs it, and curls up in its leaves)'),
+)
+
+
+# ---------------------------------------------------------------------------------------------------- 56: THE SPAWNER
+_sw = {1: ('Oxidised', ('#0e2a24', '#4a9a80', '#a8e8d0')), 2: ('Amethyst', ('#1a0a30', '#8a5ad0', '#e0c8ff')), 3: ('Soot Black', ('#060608', '#262630', '#5a5a68')),
+       4: ('Gilded Bars', GOLD), 5: ('Diamond Bars', DIAMOND), 6: ('Netherite Bars', NETHERITE)}
+SPEC['spawner'] = dict(
+    shiny_name='Shiny Gilded Cage', NAME='The Spawner', pron='it', COL='#ff8a2a', LINE='#ffe0c0', ab='nx', q='nz', pfx='p267', item='pilot_light', prefix='sw_',
+    word='Bars', looks=_sw, dyes=_dyes('Bars', 'cyan', 'purple', 'black', _sw), words='its cage', plain='Old iron', base=5870,
+    aura=('Ring of Souls', '#7ad8ff', 0.7, 0.75, 'minecraft:soul_fire_flame',
+          ['particle minecraft:soul ~ ~0.4 ~ 0.4 0.2 0.4 0.01 1', f'particle {_dust(1.0, 0.54, 0.16, 0.7)} ~ ~0.5 ~ 0.3 0.2 0.3 0 2']),
+    anchors=('core', 'sw_core', 'body', 'sw_body'),
+    champ=(None, [], False, ['minecraft:small_flame ~ ~0.7 ~ 0.2 0.1 0.2 0 1', _dust(1.0, 0.54, 0.16, 0.8) + ' ~ ~0.4 ~ 0.3 0.3 0.3 0 2']),
+    gift=('Fire Resistance and Strength', [f'effect give {P8} minecraft:fire_resistance 15 0 true', f'effect give {P8} minecraft:strength 15 0 true']),
+    trib=[('minecraft:rotten_flesh', 64), ('minecraft:string', 64), ('minecraft:blaze_rod', 16), ('minecraft:soul_lantern', 8), ('heartstone', 4)],
+    honour=('Full Swarm', 'every minion it ever made at once: 16 to monsters round it, slowed; you, Strength and Fire Resistance',
+            (16, 6), 0, 'slowness 5 2', ['strength 10 0', 'fire_resistance 30 0'], 'minecraft:soul_fire_flame', 'minecraft:block.trial_spawner.spawn_mob'),
+    hint='Light a Soul Lantern beside a dungeon\'s monster spawner - and hold the room through three waves.',
+    shiny_say='"Trying something new today! Gold bars. A white-gold ember. I feel VERY expensive."',
+    pierce=('Pilot Light', 'shrinks to a pilot light, drifts over unseen - and FLARES at the monster\'s back', 'behind',
+            [_P('minecraft:soul_fire_flame', 20), _P('minecraft:large_smoke', 10)], ['minecraft:small_flame ^ ^1 ^-1.2 0.1 0.2 0.1 0 2'],
+            [_P('minecraft:flame', 30, 0.4, 0.8, 0.05), _P('minecraft:crit', 20)], 'minecraft:block.fire.extinguish', 'minecraft:block.trial_spawner.spawn_mob'),
+    henry=('Warm Cage', (('fire_resistance', 0), ('night_vision', 0)), '(it turns its ember up a little, so the cage is cosy)', '(Henry sits on top of the warm cage. It is his heater now.)'),
+    nia=('Smoke Chase', (('regeneration', 1),), '"Ooh - she\'s chasing my smoke! Here, have a bigger puff!"', '(Nia chases its smoke puffs round and round, then naps against the warm bars)'),
+)
+
+
 # ---------------------------------------------------------------------------------------------------- the Doodle Mob (the dragon renamed)
 MOB_NAME = 'The Doodle Mob'
 
@@ -195,6 +243,7 @@ def reg(mod, g, part=None):
         elif mod == 'phase99' and part == 'who':
             g['WORD'][w] = s['words']
             g['BASE'][w] = s['base']
+            g['TOP'][w] = s['base'] + 19
             g['COS'][w] = f'bm.cos{ab}'
             g['NAMES'][w] = (nm, col, pron)
             g['HOME'][w] = f'{pfx}/home'

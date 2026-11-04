@@ -114,6 +114,10 @@ def build(C, G, abilities, encounter, sitb=None, frame=None):
     """rigpet's build - then the sneak-sit, and the frame trick"""
     RP.build(C, G, abilities, encounter)
     fn, pfx, ab = G.fn, C.pfx, C.ab
+    if 'body' not in C.A.PARTS:          # (rigpet keeps watch on its 'body' part - its faint, its summon burst: a rig without one names another)
+        anc = getattr(C, 'BODY_PART', 'head')
+        for name in ('tick', f'{pfx}/summon_here'):
+            G.FUNCS[name] = [l.replace(f'tag=bm.{ab}p_body', f'tag=bm.{ab}p_{anc}') if f'tag=bm.{ab}p_body' in l else l for l in G.FUNCS[name]]
     sb = f'bm.{ab}sb'
     # ---- SNEAK + right-click: sit_b and its own cycle (a plain right-click, or the menu: sit_a's)
     if sitb:
@@ -121,7 +125,7 @@ def build(C, G, abilities, encounter, sitb=None, frame=None):
         cw = f'@e[type=minecraft:wolf,tag=bm.{ab}clk,limit=1]'
         k = next(i for i, l in enumerate(W_) if 'bm.pid = #me bm.pid run return run' in l)
         W_[k + 1:k + 1] = [f'execute if predicate bm:p20/sneaking run tag {cw} add {sb}', f'execute unless predicate bm:p20/sneaking run tag {cw} remove {sb}']
-        G.FUNCS[f'{pfx}/sit'].insert(0, f'tag @e[type=minecraft:wolf,tag=bm.{ab}sel2] remove {sb}')
+        G.FUNCS[f'{pfx}/sit'].append(f'tag @e[type=minecraft:wolf,tag=bm.{ab}sel2] remove {sb}')      # (at the end: phase259's Sit all reads the toggle off its first line)
         period, frames = sitb
         cycle_fn(G, C, '4b', period, frames)
         G.FUNCS[f'{pfx}/anim/4'].insert(0, f'execute if entity @s[tag={sb}] run return run function bm:{pfx}/anim/4b')
@@ -138,7 +142,7 @@ def build(C, G, abilities, encounter, sitb=None, frame=None):
         G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {ft} dummy']
         G.OBJECTIVES.append(ft)
         L = len(models) * every
-        fn(f'{pfx}/frame/tick', [f'scoreboard players add @s {ft} 1', f'execute if score @s {ft} matches {L}.. run scoreboard players set @s {ft} 0'] +
+        fn(f'{pfx}/frame/tick', ([f'scoreboard players add @s {ft} 1', f'execute if score @s {ft} matches {L}.. run scoreboard players set @s {ft} 0'] if models else []) +
            [f'execute if score @s {ft} matches {i * every} run data modify entity @s Item.components."minecraft:item_model" set value "bm:{m}"' for i, m in enumerate(models)] +
            list(frame.get('tick', [])))
         R_ = G.FUNCS['p68/rot']
@@ -147,3 +151,28 @@ def build(C, G, abilities, encounter, sitb=None, frame=None):
         fn(f'{pfx}/frame/click', list(click))
         # (punched out: its own icon again, not a frame of the trick)
         G.FUNCS['p68/gone'].insert(0, f'execute if score @s bm.ffk matches {n} as @e[type=minecraft:item,distance=..3] if items entity @s contents *[minecraft:custom_data~{{bm:"{C.ITEM}"}}] run data modify entity @s Item.components."minecraft:item_model" set value "bm:{C.ITEM}"')
+
+
+def form_pose(base, F, pz, dur, psel, partmap=None, skip=(), scale=None):
+    """one pose of another rig F (a form: the Doodle Mob's mobs, the Sapling's stages) put on `base`'s displays: solved on F's own
+    pivots, each display shifted from base's joint (where <pfx>/place puts it) to F's. partmap: {base part: F's part}; a base part
+    F hasn't (or hides, or `skip`s) goes to scale 0"""
+    import rigkit as RK
+    from nbt import snbt
+    S = scale or F.RIG_SCALE
+    U = S / 16
+    xf = RK.solve(F.PIVOT, F.PARENT, pz)
+    out = []
+    for p in base.PARTS:
+        fp = (partmap or {}).get(p, p)
+        if p in skip or fp not in F.PARTS or F.HIDDEN(fp, pz):
+            out.append(f'execute as {psel(p)} run data merge entity @s {{start_interpolation:0,interpolation_duration:{min(dur, 2)},transformation:{{scale:[0f,0f,0f]}}}}')
+            continue
+        q, t = xf[fp]
+        a, b = RK.D(F.PIVOT[fp]), RK.D(base.PIVOT[p])
+        Ub = base.RIG_SCALE / 16
+        tr = [t[i] * U + a[i] * U - b[i] * Ub for i in range(3)]
+        sc = round(S * F.PART_K.get(fp, 1.0), 4)
+        out.append(f'execute as {psel(p)} run data merge entity @s {{start_interpolation:0,interpolation_duration:{dur},transformation:{{left_rotation:{snbt(RF.qf(q))},'
+                   f'translation:[{tr[0]:.4f}f,{tr[1]:.4f}f,{tr[2]:.4f}f],scale:[{sc}f,{sc}f,{sc}f]}}}}')
+    return out

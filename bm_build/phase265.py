@@ -43,6 +43,7 @@ A0.POSES['land'] = dict(A0.POSES['walk_1'], legr=_limb(1, 0, 10), legl=_limb(-1,
 
 class Cake(RP.Cfg):
     W, NAME, COL, LINE, pfx, ab, q = 'cake', 'The Cake', COL, LINE, 'p265', 'cz', 'kz'
+    BODY_PART = 'base'                 # (no 'body': its tier is its base)
     A = RF2.art(A0)
     MENU, PET_HP, PET_CD, ITEM = 5750, 30, 120, ITEM
     pron, they = 'it', 'it'

@@ -20,7 +20,7 @@ EXPR = ('happy', 'surprised', 'hurt', 'sleepy', 'blink', 'squint', 'serious')
 
 class Art(types.ModuleType):
     def __init__(self, w, rig, face_map, look_tex, drop=('_sh',), drawn=None, gild=None, shiny=('_sh', '#3a2806', 'yellow'), doll_groups=None,
-                 own_sets=None, fit_pose='idle_a', extra_poses=None):
+                 own_sets=None, fit_pose='idle_a', extra_poses=None, extra=()):
         super().__init__(f'f5art_{w}')
         self.W, self.R = w, rig
         self.PREFIX, self.RIG_SCALE, self.PIVOT, self.PARENT, self.PARTS = rig.PREFIX, rig.RIG_SCALE, rig.PIVOT, rig.PARENT, rig.PARTS
@@ -31,19 +31,23 @@ class Art(types.ModuleType):
         self.FACE_MAP = dict(face_map)
         self.DROP = tuple(drop)
         self.SKINS = [''] + [s for s in rig._skins if s not in self.DROP]
-        pre = rig.PREFIX
-        base = [t for t in rig._tex if not any(t.endswith(s) for s in rig._skins)]
-        self.BASE_TEX = base
-        self.LOOK_TEX = tuple(pre + t for t in look_tex)
+        self.RIGS = (rig,) + tuple(extra)                 # (3.1: the Sapling's three stages - one follower, a rig each, its displays the last's)
+        self.PREFIXES = tuple(r.PREFIX for r in self.RIGS)
         sh = shiny[0]
-        self.SHINY_TEX = {pre + t: (lambda im: lambda b: im)(rig._tex[t + sh]) for t in base if t + sh in rig._tex} if sh else {}
-        self.LOOK_DRAWN = {}
-        for k, sfx in (drawn or {}).items():
-            self.LOOK_DRAWN[k] = {pre + t: rig._tex[t + sfx] for t in base if t + sfx in rig._tex}
+        self.SHINY_TEX, self.LOOK_DRAWN, look = {}, {}, []
+        for r in self.RIGS:
+            pre = r.PREFIX
+            base = [t for t in r._tex if not any(t.endswith(s) for s in r._skins)]
+            look += [pre + t for t in look_tex if t in base]
+            if sh:
+                self.SHINY_TEX.update({pre + t: (lambda im: lambda b: im)(r._tex[t + sh]) for t in base if t + sh in r._tex})
+            for k, sfx in (drawn or {}).items():
+                self.LOOK_DRAWN.setdefault(k, {}).update({pre + t: r._tex[t + sfx] for t in base if t + sfx in r._tex})
+        self.LOOK_TEX = tuple(look)
         drawn_keys = sorted({n for d in self.LOOK_DRAWN.values() for n in d})
         self.LOOK_SHINY_ONLY = tuple(n for n in sorted(set(self.SHINY_TEX) | set(drawn_keys)) if n not in self.LOOK_TEX)
         self.RECOL_KEYS = self.LOOK_TEX + self.LOOK_SHINY_ONLY
-        keep_gold = set(pre + t for t in (gild if gild is not None else look_tex))
+        keep_gold = set(r.PREFIX + t for r in self.RIGS for t in (gild if gild is not None else look_tex))
         self.LOOK_GILD_SKIP = tuple(n for n in self.RECOL_KEYS if n not in keep_gold)
         self.SHINY_COLS = shiny
         self.OWN_SETS = dict(own_sets or {})
@@ -59,15 +63,21 @@ class Art(types.ModuleType):
         return self.R.model_name(p, pose, suffix)
 
     def models(self):
-        return {n: v for n, v in self.R.models().items() if not any(n.endswith(s) for s in self.DROP)}
+        out = {}
+        for r in self.RIGS:
+            out.update({n: v for n, v in r.models().items() if not any(n.endswith(s) for s in self.DROP)})
+        return out
 
     # ---- phase138
     def textures(self):
-        return {n: im for n, im in self.R.textures().items() if not any(n.endswith(s) for s in self.DROP if s)}
+        out = {}
+        for r in self.RIGS:
+            out.update({n: im for n, im in r.textures().items() if not any(n.endswith(s) for s in self.DROP if s)})
+        return out
 
     def look_item(self, n):
         """phase138.ITEMS_OF: the models a look is copied onto - the follower's own sets (not its afterimages / effects)"""
-        return n.startswith(self.PREFIX) and not any(n.endswith(s) for s in getattr(self, 'NO_LOOK', ()))
+        return n.startswith(self.PREFIXES) and not any(n.endswith(s) for s in getattr(self, 'NO_LOOK', ()))
 
     @property
     def SHINY_LOOK(self):
@@ -108,8 +118,25 @@ def _cake():
     return A
 
 
+def _sapling():
+    import sapling_pet_art as SA
+    leafy = ('leaf', 'leaft', 'blade', 'coty', 'fol', 'folt')
+    A = Art('sapling', SA.RIGS[3], {'happy': 'happy', 'surprised': 'surprised', 'hurt': 'hurt', 'sleepy': 'sleepy', 'blink': 'blink', 'squint': 'happy', 'serious': 'focus'},
+            leafy, drop=('_sh', '_aut'), drawn={1: '_aut'}, shiny=('_sh', '#d0628e', 'pink'), doll_groups=SA.DOLL_GROUPS, extra=(SA.RIGS[1], SA.RIGS[2]))
+    A.STAGES = SA.RIGS
+    return A
+
+
+def _spawner():
+    import spawner_pet_art as WA
+    A = Art('spawner', WA.R, {'happy': 'happy', 'surprised': 'wow', 'hurt': 'hurt', 'sleepy': 'sleepy', 'blink': 'blink', 'squint': 'happy', 'serious': 'focus'},
+            ('bar', 'bar2', 'rivet'), drop=('_sh', '_cop', '_am'), drawn={1: '_cop', 2: '_am'}, shiny=('_sh', '#e8b830', 'yellow'), doll_groups=WA.DOLL_GROUPS)
+    A.MINIONS = WA.MINIONS
+    return A
+
+
 _MADE = {}
-_MAKERS = {'glitch': _glitch, 'cake': _cake}
+_MAKERS = {'glitch': _glitch, 'cake': _cake, 'sapling': _sapling, 'spawner': _spawner}
 
 
 def get(w):
