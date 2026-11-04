@@ -25,6 +25,7 @@ const PAGES = fs.readdirSync(path.join(FN, 'p260/fs/open')).length;
   const O = 'execute in minecraft:overworld run ';
   const X = 16760, Y = 100, Z = 16060;
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
+  { const _press0 = A.press.bind(A); A.press = async (re, ms) => { await sleep(700); return _press0(re, ms); }; }
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
   ok(`${W.length} followers' items on the wheel, ${PAGES} settings pages`, W.length >= 50 && PAGES === W.length);
@@ -33,7 +34,7 @@ const PAGES = fs.readdirSync(path.join(FN, 'p260/fs/open')).length;
   await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
   await run(`${O}fill ${X - 10} ${Y} ${Z - 10} ${X + 10} ${Y} ${Z + 10} minecraft:grass_block`); await run(`${O}fill ${X - 10} ${Y + 1} ${Z - 10} ${X + 10} ${Y + 6} ${Z + 10} minecraft:air`);
   await run(`${O}tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(1500);
-  const shown = () => A.dialogN[A.dialogN.length - 1] || {};
+  const shown = () => { const d = A.dialogN[A.dialogN.length - 1] || {}; return d.data || d; };
   const title = () => JSON.stringify(shown().title || '');
   const unrouted = () => A.buttons().filter(b => /bm\.act set \d+/.test(b.command) && !routed.has(+b.command.match(/set (\d+)/)[1])).map(b => b.label);
   const sneakMenu = async () => { await run('scoreboard players set TestRat bm.gvhc 0'); const n0 = A.dialogN.length; A.slot(0); await sleep(200);

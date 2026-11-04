@@ -12,6 +12,7 @@ const DP = path.join(__dirname, '../../out_p2/BlackMarket_DP/data/bm');
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); return !!p; };
   const wait = async (ms, fn, step = 100) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await sleep(step); } return false; };
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
+  { const _press0 = A.press.bind(A); A.press = async (re, ms) => { await sleep(700); return _press0(re, ms); }; }
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
   const has = async () => +(((await run('clear TestRat *[minecraft:custom_data~{bm:"bm_handbook"}] 0')).match(/Found (\d+)/) || [0, 0])[1]);
@@ -22,8 +23,8 @@ const DP = path.join(__dirname, '../../out_p2/BlackMarket_DP/data/bm');
   await run('advancement revoke TestRat only bm:story/treant');
   await run('advancement grant TestRat only bm:met/emma'); await run('advancement grant TestRat only bm:met/celi');
   await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/bm_handbook'); A.slot(0); await sleep(300);
-  const body = () => JSON.stringify((A.dialogN[A.dialogN.length - 1] || {}).body || '');
-  const title = () => JSON.stringify((A.dialogN[A.dialogN.length - 1] || {}).title || '');
+  const body = () => JSON.stringify(((d => d && (d.data || d))(A.dialogN[A.dialogN.length - 1]) || {}).body || '');
+  const title = () => JSON.stringify(((d => d && (d.data || d))(A.dialogN[A.dialogN.length - 1]) || {}).title || '');
   const openB = async (sneak = false) => { await run('scoreboard players set TestRat bm.gvhc 0'); const n0 = A.dialogN.length;
     if (sneak) { A.input({ shift: true }); await sleep(200); } A.use(); await sleep(350); A.release(); A.input({}); await wait(2500, async () => A.dialogN.length > n0); return A.dialogN.length > n0; };
   const met = (b) => +((b.match(/Followers met: ","[^}]*\},\{"text":"(\d+)/) || b.match(/Followers met: .*?"(\d+)"/) || [0, -1])[1]);
