@@ -440,18 +440,18 @@ def textures_of(kind):
     B = BLUE
     if kind == 'atomic':
         return {
-            'hide': _scales((50, 50, 58), (66, 67, 75), (78, 79, 88), (92, 93, 103)),
-            'crag': _osteo((24, 24, 28), (56, 56, 63), (86, 86, 95), 51),
-            'belly': _belly((60, 60, 66), (92, 92, 98), (106, 106, 112), (126, 126, 132)),
+            'hide': _scales((70, 74, 86), (90, 95, 108), (104, 109, 122), (120, 126, 140)),
+            'crag': _osteo((40, 42, 50), (80, 84, 96), (118, 123, 138), 51),
+            'belly': _belly((92, 94, 102), (136, 138, 146), (152, 154, 162), (176, 178, 186)),
             'claw': _ivory((96, 92, 84), (160, 156, 144), (204, 200, 186)),
             'tooth': _ivory((150, 146, 136), (220, 218, 206), (246, 244, 234)),
             'dark': _cells(lambda x, y, r: '#16181e' if y > 4 else '#20232a', 0),
             'eye': _eye(((40, 110, 230), (90, 170, 255), (150, 220, 255), (210, 246, 255)), (8, 14, 40), (255, 255, 255), (18, 24, 40)),
             'maw': _maw(B['deep'], B['mid'], B['lt']),
-            'pedge': _gglow([(16, 44, 160), B['deep'], (34, 88, 220), B['mid']], 21, rim=(12, 32, 120)),
-            'pcore': _gglow([B['mid'], B['lt'], B['core'], B['white']], 22, veins=1),
-            'pedge_c': _gglow([B['mid'], B['lt'], B['core'], B['white']], 23, rim=B['lt']),
-            'pcore_c': _gglow([B['core'], B['white'], (255, 255, 255), (255, 255, 255)], 24, veins=1),
+            'pedge': _gglow([(20, 58, 190), B['deep'], (34, 90, 224), B['mid'], (70, 146, 250), (92, 176, 255)], 21, cell=2),
+            'pcore': _gglow([(64, 136, 248), (84, 166, 252), B['lt'], (136, 212, 255), (164, 230, 255), B['core']], 22, cell=2),
+            'pedge_c': _gglow([B['mid'], (80, 160, 250), B['lt'], (150, 222, 255), B['core']], 23, cell=2),
+            'pcore_c': _gglow([B['core'], (216, 248, 255), B['white'], (255, 255, 255)], 24, cell=2),
             'leather': _leather((56, 60, 72), (78, 82, 96), (30, 32, 40), (120, 126, 140)),
             'strap': _leather((36, 38, 46), (54, 56, 66), (20, 22, 28), (70, 74, 86)),
             'steel': _metal(('#4e525c', '#787e8a', '#9aa0ac', '#c6ccd8'), 25, rivets=True),
@@ -543,8 +543,19 @@ def OCTE(lo, hi, mat, k=0.74):
     """3.1: a box with its four vertical edges cut (three boxes, an octagon from above) - a torso reads round, not as a crate"""
     (x0, y0, z0), (x1, y1, z1) = lo, hi
     ix, iz = (x1 - x0) * (1 - k) / 2, (z1 - z0) * (1 - k) / 2
-    return [E((x0, y0, z0 + iz), (x1, y1, z1 - iz), mat), E((x0 + ix, y0, z0), (x1 - ix, y1, z0 + iz + 0.01), mat),
-            E((x0 + ix, y0, z1 - iz - 0.01), (x1 - ix, y1, z1), mat)]
+    def bx(a, b, za, zb):                                             # (split down the middle when wider than 16 units)
+        if b - a > 16.0:
+            m = (a + b) / 2; return [E((a, y0, za), (m, y1, zb), mat), E((m, y0, za), (b, y1, zb), mat)]
+        return [E((a, y0, za), (b, y1, zb), mat)]
+    return bx(x0, x1, z0 + iz, z1 - iz) + bx(x0 + ix, x1 - ix, z0, z0 + iz + 0.01) + bx(x0 + ix, x1 - ix, z1 - iz - 0.01, z1)
+
+
+def SLABS(rows, cz, mat, k=0.72):
+    """3.1: a mass as stacked rounded slabs - rows of (y0, y1, half-width, half-depth), each an octagon about z = cz"""
+    out = []
+    for y0, y1, hw, hd in rows:
+        out += OCTE((-hw, y0, cz - hd), (hw, y1, cz + hd), mat, k)
+    return out
 
 
 def _norm(v):
@@ -696,7 +707,7 @@ def _M(a, m):
 
 def _body():
     at = _atomic(); S, C, B = _M('hide', 'armor'), _M('crag', 'steel'), _M('belly', 'dark')
-    L = OCTE((-9.0, 13.0, -5.0), (9.0, 24.5, 8.0), _M('crag', 'armor')) + [
+    L = SLABS([(12.8, 15.2, 7.4, 5.6), (15.2, 18.6, 8.8, 6.4), (18.6, 22.0, 9.2, 6.6), (22.0, 24.8, 8.6, 6.3)], 1.5, _M('crag', 'armor')) + [
          E((-7.0, 14.0, -6.0), (7.0, 24.0, -5.0), _M('belly', 'steel')),
          E((-7.5, 13.5, 8.0), (7.5, 23.0, 10.0), C),
          E((-6.0, 12.2, -3.0), (6.0, 13.2, 6.0), _M('hide', 'dark'))]
@@ -722,9 +733,8 @@ def _body():
 
 def _chest():
     at = _atomic(); S, C = _M('hide', 'armor'), _M('crag', 'steel')
-    L = OCTE((-8.6, 23.0, -5.0), (8.6, 33.5, 7.5), _M('crag', 'armor')) + [
-         E((-8.1, 33.0, -3.6), (8.1, 37.0, 7.0), C),
-         E((-6.2, 36.5, -0.5), (6.2, 38.6, 7.2), C),
+    L = SLABS([(23.0, 26.2, 8.2, 6.0), (26.2, 29.8, 8.9, 6.4), (29.8, 33.6, 8.8, 6.3)], 1.25, _M('crag', 'armor')) + \
+        SLABS([(33.0, 35.4, 8.1, 5.3), (35.4, 37.0, 7.4, 4.9)], 1.7, C) + SLABS([(36.5, 38.6, 6.2, 3.85)], 3.35, C) + [
          E((-6.6, 23.5, -6.0), (6.6, 33.0, -5.0), _M('belly', 'steel'))]
     for sx in (1, -1):
         L += [BX(sx, 1.2, 7.8, 29.0, 35.2, -5.7, -3.2, S),                         # (the chest's two great slabs)
@@ -738,6 +748,13 @@ def _chest():
             L.append(BX(sx, 1.4, 7.6, 34.8, 35.6, -6.0, -3.4, 'crag'))
             for (x0, y0, z0) in ((7.0, 36.6, -2.6), (5.4, 37.6, 0.6), (8.4, 34.0, 1.4)):
                 L.append(BX(sx, x0, x0 + 2.0, y0, y0 + 1.5, z0, z0 + 2.6, 'crag'))
+    if not at:                                                                    # (3.1: layered armour - pectoral plates overlapping
+        for sx in (1, -1):                                                        #  down the chest, each with a lit lip and a dark seam)
+            for i, (y0, y1, x1) in enumerate(((31.0, 35.0, 8.2), (27.6, 31.4, 7.8), (24.2, 28.0, 7.2))):
+                L += [BX(sx, 2.8, x1, y0, y1, -6.4 + i * 0.15, -5.5, 'armor'),
+                      BX(sx, 2.8, x1, y1 - 0.4, y1, -6.55 + i * 0.15, -5.5, 'steel'),
+                      BX(sx, 2.8, x1, y0, y0 + 0.25, -6.5 + i * 0.15, -5.5, 'dark')]
+            L += [BX(sx, 8.9, 9.8, 25.0, 33.0, -4.0, 6.4, 'armor'), BX(sx, 9.75, 9.95, 25.4, 32.6, -3.4, 5.8, 'dark')]   # (flank plates)
     if not at:
         L += [E((-2.4, 29.8, -6.5), (2.4, 34.2, -5.6), 'steel'),                   # (the reactor's housing)
               E((-1.7, 30.5, -6.9), (1.7, 33.5, -6.3), 'core'),                    # (THE REACTOR CORE)
@@ -874,7 +891,11 @@ def _thigh(sx):
     L = [BX(sx, 2.8, 12.0, 9.0, 20.0, -4.2, 7.0, S), BX(sx, 11.6, 12.8, 11.0, 18.0, -2.0, 5.0, C),
          BX(sx, 3.6, 11.2, 10.0, 18.5, -4.9, -4.0, C)]
     if not at:
-        L += [BX(sx, 12.7, 13.0, 12.0, 17.0, 1.2, 1.8, 'light'), BX(sx, 3.5, 11.3, 9.4, 10.2, -4.6, 6.6, 'joint')]
+        L += [BX(sx, 12.7, 13.0, 12.0, 17.0, 1.2, 1.8, 'light'), BX(sx, 3.5, 11.3, 9.4, 10.2, -4.6, 6.6, 'joint'),
+              BX(sx, 12.4, 13.4, 13.0, 19.4, -3.6, 0.8, 'armor'), BX(sx, 12.4, 13.5, 19.0, 19.5, -3.8, 1.0, 'steel'),     # (3.1: thigh plates)
+              BX(sx, 4.0, 10.8, 15.6, 19.6, -5.4, -4.6, 'armor'), BX(sx, 4.0, 10.8, 19.2, 19.6, -5.55, -4.6, 'steel')]
+    else:
+        L += [BX(sx, 11.4, 12.9, 12.0, 17.0, -1.4, 4.4, 'hide')]                   # (3.1: the thigh's outer muscle, rounding it)
     return L
 
 
@@ -883,7 +904,9 @@ def _shin(sx):
     L = [BX(sx, 3.8, 11.4, 2.2, 10.0, -1.6, 6.4, S), BX(sx, 4.6, 10.6, 6.0, 10.6, -2.4, -1.4, C),     # (the knee)
          BX(sx, 4.4, 10.8, 2.6, 7.0, 6.2, 7.0, C)]
     if not at:
-        L += [BX(sx, 6.8, 8.4, 3.0, 8.0, -1.85, -1.55, 'light')]                   # (a blue strip down the shin)
+        L += [BX(sx, 6.8, 8.4, 3.0, 8.0, -1.85, -1.55, 'light'),                   # (a blue strip down the shin)
+              BX(sx, 4.6, 6.6, 3.2, 9.2, -2.2, -1.6, 'armor'), BX(sx, 8.6, 10.6, 3.2, 9.2, -2.2, -1.6, 'armor'),   # (3.1: greaves either side)
+              BX(sx, 11.2, 11.8, 3.4, 9.0, -0.6, 5.4, 'armor'), BX(sx, 11.7, 11.9, 4.0, 8.4, 0.0, 4.8, 'dark')]
     return L
 
 
