@@ -361,7 +361,7 @@ def bank(G):
     objs = ['bm.bst', 'bm.bsc', 'bm.bsn']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + ['scoreboard objectives add bm.bsam trigger']
     G.OBJECTIVES += objs + ['bm.bsam']
-    G.FUNCS['loop/fast'] += ['execute as @a[scores={bm.bsam=1..}] run function bm:p259/bs/typed',
+    G.FUNCS['loop/fast'] += ['execute as @a[scores={bm.bsam=1..}] at @s run function bm:p259/bs/typed',
                              'execute as @a[scores={bm.bsam=..-1}] run scoreboard players set @s bm.bsam 0',
                              'scoreboard players enable @a bm.bsam']
     gate = [f'execute unless score @s bm.menu matches {BS_MENU} run return run function bm:p28/stale',
@@ -392,7 +392,7 @@ def bank(G):
                                'tag @a remove bm.bstg', 'execute as @a if score @s bm.pid = #t bm.rng run tag @s add bm.bstg',
                                'execute unless entity @a[tag=bm.bstg] run return run ' + say('They\'ve gone offline.'),
                                'execute store result storage bm:bs pid int 1 run scoreboard players get @s bm.pid',
-                               'execute as @a[tag=bm.bstg,limit=1] run function bm:p259/bs/name',
+                               'execute as @a[tag=bm.bstg,limit=1] at @s run function bm:p259/bs/name',
                                'function bm:p259/bs/keep_nm with storage bm:bs', 'tag @a remove bm.bstg',
                                'scoreboard players operation @s bm.bst = #t bm.rng', 'scoreboard players set @s bm.bsc -1', 'scoreboard players set @s bm.bsn 0',
                                'function bm:p259/bs/cur'])
@@ -598,7 +598,7 @@ def haul(G):
     fn('p259/hl/row_m', ['$data modify storage bm:hl rows append value {text:"\\n\u2022 $(n)\u00d7 ",color:"white",italic:false,extra:[]}'])
     fn('p259/hl/row_w', ['$data modify storage bm:hl rows[-1].extra append value {text:"  \u2248 $(w) Tokens",color:"' + GOLD + '"}'])
     # ---- the card, a moment after you're home
-    G.FUNCS['loop/second'].append('execute as @a[scores={bm.hlw=1..}] run function bm:p259/hl/tick')
+    G.FUNCS['loop/second'].append('execute as @a[scores={bm.hlw=1..}] at @s run function bm:p259/hl/tick')
     fn('p259/hl/tick', ['scoreboard players remove @s bm.hlw 1', 'execute if score @s bm.hlw matches 1.. run return 0',
                         'execute if dimension bm:gutter run return 0',
                         'data remove storage bm:tmp hls', 'execute store result storage bm:tmp hls.pid int 1 run scoreboard players get @s bm.pid',
