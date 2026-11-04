@@ -22,7 +22,7 @@ from fol5_kit import Rig, coat, flat, canvas, hexc, limb, T, remap
 PIVOT = {'hips': (0, 11.0, 0), 'body': (0, 11.0, 0), 'head': (0, 19.0, 0), 'armr': (5.0, 18.0, 0), 'forer': (5.6, 13.6, 0),
          'arml': (-5.0, 18.0, 0), 'forel': (-5.6, 13.6, 0), 'legr': (2.0, 11.0, 0), 'legl': (-2.0, 11.0, 0),
          'lamp': (-5.8, 9.4, -0.6), 'card': (5.8, 9.4, -0.8), 'ledger': (-5.6, 14.0, 0.6),
-         'cards3': (0, 14.0, -8), 'dial': (0, 14.0, -9), 'smoke': (2.6, 21.8, -6)}
+         'cards3': (0, 14.0, -8), 'dial': (0, 14.0, -9), 'smoke': (3.4, 21.8, -8)}
 PARENT = {'hips': None, 'body': 'hips', 'head': 'body', 'armr': 'body', 'forer': 'armr', 'arml': 'body', 'forel': 'arml',
           'legr': 'hips', 'legl': 'hips', 'lamp': 'forel', 'card': 'forer', 'ledger': 'forel', 'cards3': 'body', 'dial': 'body', 'smoke': 'head'}
 FACES = ('blink', 'grin', 'focus', 'surprised', 'hurt', 'sly')
@@ -50,7 +50,7 @@ def _tex(c):
     t['glove'] = coat(c['glove'], 6, 16, 0.08, 1, spots=[('#3a3a44', 6)]); t['skin'] = coat(c['skin'], 7, 16, 0.04, 1)
     t['hair'] = coat(c['hair'], 8, 16, 0.08, 1, spots=[(c['grey'], 30)]); t['hat'] = coat(c['hat'], 9, 16, 0.05, 1)
     t['shoe'] = coat(c['shoe'], 10, 16, 0.06, 1, spots=[('#40363a', 4)]); t['spat'] = coat(c['spat'], 11, 16, 0.04, 1)
-    t['glass'] = coat(c['lampglow'], 12, 16, 0.08, 1, spots=[('#ffffff', 10)])
+    t['glass'] = coat(c['lampglow'], 12, 16, 0.08, 1, spots=[('#ffffff', 10), ('#ff9a2a', 8)])
     t['cigar'] = coat('#6a4024', 13, 16, 0.08, 1); t['ember'] = flat('#ff6a1a'); t['smoke'] = flat('#d8d8dc', alpha=150)
     t['vest'] = _front(c)
     t['face'] = _face(None, c)
@@ -145,23 +145,28 @@ for sfx, ch in SUITS.items():
 
 # ---- the model
 B = R.box
+HK = 1.3                                                                                        # (the chibi head: built at life size, grown about the neck)
+def _hk(v): return (v[0] * HK, 19.0 + (v[1] - 19.0) * HK, v[2] * HK)
+def HB(fr, to, tex, rot=None, **kw):
+    if rot: rot = (rot[0], rot[1], _hk(rot[2]))
+    return B('head', _hk(fr), _hk(to), tex, rot=rot, **kw)
 B('hips', (-3.8, 9.6, -2.2), (3.8, 11.6, 2.2), 'suitpl')
-B('body', (-4.2, 11.4, -2.4), (4.2, 18.4, 2.4), 'suit')
+B('body', (-3.9, 11.4, -2.3), (3.9, 18.4, 2.3), 'suit')
 B('body', (-4.0, 11.6, -2.55), (4.0, 18.2, -2.4), 'vest', faces=('north',), uv={'north': [0, 0, 16, 16]})
 B('body', (-4.4, 10.0, 1.6), (4.4, 12.0, 2.6), 'suit')                                         # (the jacket's skirt at the back)
 B('body', (-4.6, 17.0, -2.6), (4.6, 18.8, 2.6), 'suit')                                         # (square shoulders)
 B('body', (-1.4, 18.4, -1.4), (1.4, 19.2, 1.4), 'shirt')                                        # (the collar)
 # head, hair, hat, cigar
-B('head', (-4.4, 19.0, -4.0), (4.4, 27.4, 4.0), 'skin')
-B('head', (-4.45, 19.0, -4.05), (4.45, 27.4, -4.0), 'FACE', faces=('north',), uv={'north': [0, 0, 16, 16]})
-B('head', (-4.7, 22.0, -2.6), (4.7, 27.8, 4.3), 'hair')                                         # (slicked back, grey at the temples)
-B('head', (-7.0, 26.6, -6.6), (7.0, 27.4, 6.2), 'hat')                                          # (the brim, snapped down at the front)
-B('head', (-7.0, 26.0, -7.6), (7.0, 26.8, -5.8), 'hat', rot=('x', 14, (0, 26.6, -6.4)))
-B('head', (-4.8, 27.2, -4.4), (4.8, 31.4, 4.4), 'hat')
-B('head', (-4.95, 27.3, -4.55), (4.95, 28.4, 4.55), 'gold')                                     # (the gold band)
-B('head', (-2.4, 31.0, -3.4), (2.4, 31.6, 3.4), 'hat')                                          # (the crown's pinch)
-R.seg('head', (1.8, 20.4, -4.0), (3.8, 20.0, -6.6), 0.7, 0.7, 'cigar')
-B('head', (3.5, 19.65, -7.0), (4.2, 20.35, -6.4), 'ember', light=12)
+HB((-4.4, 19.0, -4.0), (4.4, 27.4, 4.0), 'skin')
+HB((-4.45, 19.0, -4.05), (4.45, 27.4, -4.0), 'FACE', faces=('north',), uv={'north': [0, 0, 16, 16]})
+HB((-4.7, 22.0, -2.6), (4.7, 27.8, 4.3), 'hair')                                         # (slicked back, grey at the temples)
+HB((-7.0, 26.6, -6.6), (7.0, 27.4, 6.2), 'hat')                                          # (the brim, snapped down at the front)
+HB((-7.0, 26.0, -7.6), (7.0, 26.8, -5.8), 'hat', rot=('x', 14, (0, 26.6, -6.4)))
+HB((-4.8, 27.2, -4.4), (4.8, 31.4, 4.4), 'hat')
+HB((-4.95, 27.3, -4.55), (4.95, 28.4, 4.55), 'gold')                                     # (the gold band)
+HB((-2.4, 31.0, -3.4), (2.4, 31.6, 3.4), 'hat')                                          # (the crown's pinch)
+R.seg('head', _hk((1.8, 20.4, -4.0)), _hk((3.8, 20.0, -6.6)), 0.9, 0.9, 'cigar')
+HB((3.5, 19.65, -7.0), (4.2, 20.35, -6.4), 'ember', light=12)
 # arms (suit sleeves, gloves), legs
 for s, sx in (('r', 1), ('l', -1)):
     a, f = PIVOT['arm' + s], PIVOT['fore' + s]
@@ -177,10 +182,10 @@ for s, sx in (('r', 1), ('l', -1)):
 lx, ly, lz = PIVOT['lamp']
 B('lamp', (lx - 0.3, ly - 1.4, lz - 0.3), (lx + 0.3, ly, lz + 0.3), 'gold')
 B('lamp', (lx - 1.5, ly - 2.4, lz - 1.5), (lx + 1.5, ly - 1.4, lz + 1.5), 'gold')
-B('lamp', (lx - 1.2, ly - 5.0, lz - 1.2), (lx + 1.2, ly - 2.4, lz + 1.2), 'glass', light=14)
+B('lamp', (lx - 1.3, ly - 5.4, lz - 1.3), (lx + 1.3, ly - 2.4, lz + 1.3), 'glass', light=14)
 for dx, dz in ((-1.2, -1.2), (1.2, -1.2), (-1.2, 1.2), (1.2, 1.2)):
-    B('lamp', (lx + dx - 0.2, ly - 5.0, lz + dz - 0.2), (lx + dx + 0.2, ly - 2.4, lz + dz + 0.2), 'gold')
-B('lamp', (lx - 1.6, ly - 5.8, lz - 1.6), (lx + 1.6, ly - 5.0, lz + 1.6), 'gold')
+    B('lamp', (lx + dx * 1.15 - 0.15, ly - 5.4, lz + dz * 1.15 - 0.15), (lx + dx * 1.15 + 0.15, ly - 2.4, lz + dz * 1.15 + 0.15), 'gold')
+B('lamp', (lx - 1.7, ly - 6.2, lz - 1.7), (lx + 1.7, ly - 5.4, lz + 1.7), 'gold')
 cx, cy, cz = PIVOT['card']
 B('card', (cx - 1.4, cy - 2.0, cz - 0.05), (cx + 1.4, cy + 0.0, cz + 0.05), 'cardf', uv={'north': [0, 0, 16, 16], 'south': [0, 0, 16, 16]})
 gx, gy, gz = PIVOT['ledger']
@@ -189,8 +194,8 @@ for i, (x, y, rz) in enumerate(((-3.0, 15.0, 20), (0.0, 16.0, 0), (3.0, 15.0, -2
     B('cards3', (x - 1.4, y - 1.0, -8.05 - i), (x + 1.4, y + 1.0, -7.95 - i), 'cardf', rot=('z', rz, (x, y, -8)), uv={'north': [0, 0, 16, 16], 'south': [0, 0, 16, 16]}, light=6)
 B('dial', (-4.0, 10.0, -9.05), (4.0, 18.0, -8.95), 'dialf', uv={'north': [0, 0, 16, 16], 'south': [0, 0, 16, 16]}, faces=('north', 'south'), light=10)
 for i in range(8):
-    a = math.radians(i * 45); x, y = 2.6 + 2.2 * math.cos(a), 22.6 + 2.2 * math.sin(a)
-    B('smoke', (x - 0.6, y - 0.6, -7.0), (x + 0.6, y + 0.6, -6.0), 'smoke')
+    a = math.radians(i * 45); x, y = 3.4 + 2.4 * math.cos(a), 23.4 + 2.4 * math.sin(a)
+    B('smoke', (x - 0.7, y - 0.7, -9.0), (x + 0.7, y + 0.7, -8.0), 'smoke')
 
 
 # ---- poses
