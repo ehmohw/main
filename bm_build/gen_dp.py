@@ -222,6 +222,7 @@ import phase255 as R255      # 3.0a: [no-spawn hook] nothing spawns in the Under
 import phase253 as R253      # 3.0: the Loom Sanctuary - the Compass of Bonds (every follower met) and the sky island where the Keeper waits
 import phase254 as R254      # 3.0: [keeper hook] the Keeper of Bonds - the 51st follower, the last (registers after every follower before it)
 import phase259 as R259      # 3.0i: the wheel's teams, sorting and sit-all; bank transfers; the heist haul; bag previews
+import phase260 as R260      # 3.0j: the Handbook, a Settings page per follower, Stay here, your own settings, the crew page
 import elemforms as EFM      # 3.0h (redone: elemforms_art / elemforms_designs - new shapes per character); 3.0g: Ethereal and Wraithfire forms for ten more followers (the wardrobe rows, the gem's lore, the ways: at import)
 EFM.setup()
 import phase257 as R257      # 3.0d: the death sprites - holy fire, ash, star dust, goop bubbles (the three dramatic deaths)
@@ -264,7 +265,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v3.0h'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v3.0i'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -526,6 +527,7 @@ def all_offers():
     R225.extend_offers(O, offer)       # (2.94x: the Smuggler's Waytoken at the Fence's)
     R248.extend_offers(O, offer)       # (2.99a: the Backpack at the Fence's)
     NOP.extend_offers(O, offer)        # (3.0b: the Particle Toggler at the Fence's)
+    if PHASE2: R260.extend_offers(O, offer)      # (3.0j: the Handbook at the Fence's)
     R202.extend_offers(O, offer)       # (2.92: Leo's Trident and the Bloomheart leave Cecil for the Royal Steward)
     # 2.82: follower cosmetics are raid exclusives (the Tailor in the den) - no overworld trader sells one
     global COS_OFF_MARKET
@@ -1541,6 +1543,7 @@ def build(out_dir):
     if PHASE2: R259.haul(sys.modules[__name__])           # 3.0i: the heist haul card (after every heist hook)
     if PHASE2: R259.bags(sys.modules[__name__])           # 3.0i: bags write what they hold into their lore (after phase248)
     print('2.88: the chatter switch in %d follower menus and on the wheel' % R123.finalize_chat(sys.modules[__name__]))
+    if PHASE2: print('3.0j: handbook, settings, stay here -', R260.generate(sys.modules[__name__]))      # (after the chatter switch: it takes its place on the follower menus)
     if PHASE2: print('3.0d: companion size - %d rig functions twinned (Apophiss, Omega)' % __import__('compsize').finalize(sys.modules[__name__]))
     print('3.0g: protected ground - %d ways-in words rate-limited, %d places\' tags guarded' % __import__('guard').generate(sys.modules[__name__]))      # (after every place's way in is written)
     R28.finalize(sys.modules[__name__])
@@ -1581,6 +1584,11 @@ def build(out_dir):
         lg = buttons.write(out_dir, VERSION2)
         print(f"button legend: {lg['codes']} codes, {lg['dynamic']} built at run time, {lg['changes']} changes this version -> BUTTON_CODES.md")
         assert not lg['problems'], 'buttons nothing handles:\n  ' + '\n  '.join(lg['problems'])
+        import tools.menu_inventory as MI                 # 3.0j: no menu change may leave a function no button reaches (tools/menu_baseline.json)
+        if os.path.exists(MI.BASELINE):
+            lost, rows = MI.check(out_dir, MI.BASELINE)
+            print(f'menu inventory: {len(rows)} buttons; {len(lost)} functions lost their button (vs {os.path.basename(MI.BASELINE)})')
+            assert not lost, 'menu changes left these without a button:\n  ' + '\n  '.join(f'{e} (was {w})' for e, w in sorted(lost.items()))
     return FUNCS
 
 

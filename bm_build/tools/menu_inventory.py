@@ -51,16 +51,32 @@ def inventory(dp):
         code = b['code']
         ways = BT.path_of(routes, guards, body, int(code)) if code.isdigit() else []
         rows.append(dict(code=code, words=b['words'], title=b['title'], fn=b['fn'], menus=b['menus'], ends=sorted(set(_ends(ways)))))
-    return F, rows
+    return F, rows, (routes, guards, body)
 
 
-def reached(F, rows):
-    """every function some button's press reaches: its route's ends and what they call, CALL_DEPTH deep"""
+PROXY = re.compile(r'^scoreboard players set #act bm\.pay (\d+)$')
+
+
+def reached(F, rows, R):
+    """every function some button's press reaches: its route's ends and what they call, CALL_DEPTH deep. A router is never
+    followed by its calls (that would reach everything it routes); a proxy - `scoreboard players set #act bm.pay N` then
+    `function bm:<router>` (the Settings pages' way of pressing an old button) - is followed through that router for N only."""
+    routes, guards, body = R
     calls = {n: set(re.findall(r'function bm:([\w/]+)', '\n'.join(L))) for n, L in F.items()}
     seen, front = set(), {e for r in rows for e in r['ends'] if not e.startswith('(')}
     for _ in range(CALL_DEPTH + 1):
         seen |= front
-        front = {c for f in front for c in calls.get(f, ())} - seen
+        nxt = set()
+        for f in front:
+            L = F.get(f, ())
+            codes = [int(m.group(1)) for m in (PROXY.match(l) for l in L) if m]
+            for c in codes:
+                for tgt in calls.get(f, ()):
+                    if tgt in routes:
+                        nxt |= {e for e in _ends(BT.path_of(routes, guards, body, c, tgt)) if not e.startswith('(')}
+            if f not in routes:
+                nxt |= calls.get(f, set()) - set(routes)
+        front = nxt - seen
     return seen
 
 
@@ -72,27 +88,29 @@ def _scope(r):
 
 
 def save(dp, path):
-    F, rows = inventory(dp)
-    data = dict(rows=rows, reached=sorted(reached(F, rows)))
+    F, rows, R = inventory(dp)
+    ends = {}
+    for r in rows:
+        for e in r['ends']: ends.setdefault(e, f"{r['code']} \"{r['words']}\" ({r['title'] or r['fn']})")
+    data = dict(ends=ends, buttons=len(rows))
     with open(path, 'w', encoding='utf-8') as h:
         json.dump(data, h, indent=0, ensure_ascii=False, sort_keys=True)
-    return len(rows), len({e for r in rows for e in r['ends']})
+    return len(rows), len(ends)
 
 
 def check(dp, path):
-    """[(old end, [the old buttons that reached it])] - every function a button used to end in that no button reaches now"""
+    """{old end: the old button that reached it} - every function a button used to end in that no button reaches now"""
     old = json.load(open(path, encoding='utf-8'))
-    F, rows = inventory(dp)
-    now = reached(F, rows)
+    F, rows, R = inventory(dp)
+    now = reached(F, rows, R)
     ends_now = {e for r in rows for e in r['ends']}
     lost = {}
-    for r in old['rows']:
-        for e in r['ends']:
-            if e.startswith('('):
-                if e.startswith('(inline') and e not in ends_now: lost.setdefault(e, []).append(r)
-                continue
-            if e in now or e not in F: continue          # (still reached - or gone from the pack altogether: not a menu change)
-            lost.setdefault(e, []).append(r)
+    for e, was in old['ends'].items():
+        if e.startswith('('):
+            if e.startswith('(inline') and e not in ends_now: lost[e] = was
+            continue
+        if e in now or e not in F: continue              # (still reached - or gone from the pack altogether: not a menu change)
+        lost[e] = was
     return lost, rows
 
 
@@ -108,11 +126,11 @@ def main(argv):
         p = argv[argv.index('--check') + 1]
         lost, rows = check(dp, p)
         print(f'menu inventory: {len(rows)} buttons now; {len(lost)} functions no button reaches any more')
-        for e, rs in sorted(lost.items()):
-            print(f'  LOST {e}: was ' + '; '.join(sorted({f"{r['code']} \"{r['words']}\" ({r['title'] or r['fn']})" for r in rs})[:4]))
+        for e, was in sorted(lost.items()):
+            print(f'  LOST {e}: was {was}')
         return 1 if lost else 0
     what = argv[argv.index('--list') + 1] if '--list' in argv and argv.index('--list') + 1 < len(argv) else 'all'
-    F, rows = inventory(dp)
+    F, rows, _R = inventory(dp)
     for r in sorted(rows, key=lambda r: (r['title'] or r['fn'], int(r['code']) if r['code'].isdigit() else 0)):
         if what != 'all' and _scope(r) != what and what.lower() not in (r['title'] + r['fn']).lower(): continue
         print(f"{r['code']:>5} | {r['words'][:44]:44} | {(r['title'] or r['fn'])[:40]:40} | {','.join(map(str, r['menus'])) or '-':9} | {', '.join(r['ends'])}")
