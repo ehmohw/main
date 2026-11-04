@@ -8,7 +8,7 @@
 // Sneak-sit (the statue stance, sit_b). The shared list.
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
 runT({ W: 'knight', NAME: 'The Hollow Statue Knight', ab: 'hx', q: 'iz', pfx: 'p269', prefix: 'hk_', item: 'knight_token', parts: 27, figParts: 13, hp: 46, X: 19340, Z: 16000, pron: 'him',
-  lookPart: 'chest', lookModel: 'hk_hollow_chest', seatPart: 'head', called: /strides back to you/, home: /his soul withdraws/, sit: /kneels on one knee/, stand: /On my feet/,
+  lookPart: 'chest', lookModel: 'hk_hollow_chest', seatPart: 's_head', called: /strides back to you/, home: /his soul withdraws/, sit: /kneels on one knee/, stand: /On my feet/,
   ways: ['The Mace', 'Hiss', 'Coil', 'The Spin', 'Broken', 'Companion Size', 'Freed'],
   plain: 'Palace violet', looks: ['Freed', 'Crimson Guard', 'Verdant Guard'],
   encounter: async (ctx) => {
@@ -54,14 +54,17 @@ runT({ W: 'knight', NAME: 'The Hollow Statue Knight', ab: 'hx', q: 'iz', pfx: 'p
     await run(`${O}tp @e[type=minecraft:wolf,tag=bm.pipet] ${wx - 1.5} ${Y + 1} ${wz - 1}`);
     await run('item replace entity TestRat hotbar.8 with minecraft:totem_of_undying'); await run('item replace entity TestRat inventory.5 with minecraft:golden_apple');
     A.slot(8); await sleep(400);
-    let hb = await entOf(HIT); A.chats.length = 0; if (hb) A.interact(hb.entityId); await sleep(1500);
+    const near = (x, z) => `@e[type=minecraft:interaction,tag=bm.hxhit,x=${x},y=${Y + 1},z=${z},distance=..3,sort=nearest,limit=1]`;   // (the box riding him - not one left where he was)
+    let hb = null; await wait(3000, async () => (hb = await entOf(near(wx, wz))) != null, 200);
+    A.chats.length = 0; A.bars.length = 0; if (hb) A.interact(hb.entityId); await sleep(1500);
     const bits = await score('bm.wuknight');
     ok('FREED - a Totem of Undying handed to him, a golden apple in the pack, Pistachio by: both spent, look 1 earned and worn', (bits & 2) === 2 && (await score('bm.coshx')) === 1 &&
        +(((await run('clear TestRat minecraft:totem_of_undying 0')).match(/Found (\d+)/) || [0, 0])[1]) === 0 &&
-       +(((await run('clear TestRat minecraft:golden_apple 0')).match(/Found (\d+)/) || [0, 0])[1]) === 0 && A.chats.some(c => /FREED/.test(c)), `bits ${bits} | ${A.chats.slice(-1).join('').slice(0, 120)}`);
+       +(((await run('clear TestRat minecraft:golden_apple 0')).match(/Found (\d+)/) || [0, 0])[1]) === 0 && A.chats.some(c => /FREED/.test(c)), `bits ${bits} | box ${!!hb} | ${A.chats.slice(-1).join('').slice(0, 120)} | ${A.bars.slice(-1).join('')}`);
     ok('...his plate in the Freed look (hk_hollow_chest_c1)', await wait(3000, async () => /hk_hollow_chest_c1/.test(await nbt(D('chest'), 'item.components."minecraft:item_model"'))),
        await nbt(D('chest'), 'item.components."minecraft:item_model"'));
     await run('scoreboard players set TestRat bm.coshx 0'); await run(`${O}execute as TestRat run function bm:p99/knight_now`);
+    await run('clear TestRat minecraft:totem_of_undying'); await run('clear TestRat minecraft:golden_apple');
     await run(`data modify entity ${PET} Sitting set value 0b`);
     ok('THE MACE - a foe 2 off: hurt', await K.move('mc', [[0, 2]], 'bm.trpa', async () => (await K.hp('bm.trpa')) < 300, 8000));
     ok('HISS - two foes 3 off: the serpent out, cold mist - slowed', await K.move('k2', [[1, 3], [-1, 3]], 'bm.trpb', async () => /slowness/.test(await K.fxOf('bm.trpb')), 8000));
@@ -77,9 +80,9 @@ runT({ W: 'knight', NAME: 'The Hollow Statue Knight', ab: 'hx', q: 'iz', pfx: 'p
     await K.home(); await sleep(800);
     const x2 = await num(PET, 'Pos[0]'), z2 = await num(PET, 'Pos[2]');
     await at(x2 + 0.5, Y + 1, z2 - 1.8, 0, 30); A.slot(7); await sleep(300);
-    hb = await entOf(HIT); if (hb) A.interact(hb.entityId, true); await sleep(1200);
+    hb = null; await wait(3000, async () => (hb = await entOf(near(x2, z2))) != null, 200); if (hb) A.interact(hb.entityId, true); await sleep(1200);
     ok('SNEAK + right-click: the statue stance (sit_b - bm.hxsb)', /1b/.test(await nbt(PET, 'Sitting')) && /bm\.hxsb/.test(await nbt(PET, 'Tags')), await nbt(PET, 'Tags'));
-    hb = await entOf(HIT); if (hb) A.interact(hb.entityId); await sleep(1200);
+    hb = await entOf(near(x2, z2)); if (hb) A.interact(hb.entityId); await sleep(1200);
     ok('...right-clicked again: up', /0b/.test(await nbt(PET, 'Sitting')));
     // ---- COMPANION SIZE, from his menu (as the Rat King's): the statue knights' size by default; on, host and click box shrink with
     //      the rig - armour and serpent; kept across a send-home; and back
