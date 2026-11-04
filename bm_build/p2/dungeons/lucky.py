@@ -185,7 +185,7 @@ def build():
                 if abs(x - cx) <= 2 and abs(z - cz) <= 2:                      # the island
                     B.set(x, 3, z, 'gold_block'); B.set(x, 4, z, 'gold_block')
                 elif d <= 4.4:                                                 # the pond, gold under the water
-                    B.set(x, 2, z, 'gold_block'); B.set(x, 3, z, 'water'); B.set(x, 4, z, 'water')
+                    B.set(x, 3, z, 'gold_block'); B.set(x, 4, z, 'water')     # (one deep: a husk's head stays above it)
                     if B.rnd.random() < 0.18: B.set(x, GY, z, 'lily_pad')
                 elif d <= 7.2:                                                 # the clover ring
                     B.set(x, 4, z, 'moss_block')

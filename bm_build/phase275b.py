@@ -5,6 +5,10 @@ THE CLOVER POND   a room off the Gilded Roost's Counting House (p2/dungeons/luck
                   stone: a SUN, a THREAD and a CROWN. Right-click the stone: it tells you which hollow is still dark (never who).
                   On a LUCKY NIGHT it shimmers, and it WAKES when one player stands in the ring with their own Lightbringer,
                   Keeper of Bonds and Bound Sovereign out within 12 of it. It rests a full day (24000 ticks) after a win.
+THE ENTRANCE      (7 s, held as the other cinematics are, no Darkness) the pond fizzes - golden bubbles, clover green, a chime run,
+                  a lucky rainbow over it; a gold geyser of sparkles and confetti; she is flung out of it in an arc, lands on her
+                  face, pops up, shakes herself off and strikes a pose: HONK. THE GOLDEN DOODLE ("she is very important") - and
+                  the kazoo starts on the honk. Then the bar, and the fight.
 PHASE 1, THE JOKE "The Golden Doodle (she is very proud of herself)": an invisible husk host (scale 0.9) wearing the goose's rig;
                   520 health over a hidden FLOOR, under the hit cap. Every 40-60 ticks an attack, never the same twice running:
                   HONK (a cone: 2, slowed), the WADDLE CHARGE (straight at you: 4; into a wall she BONKS and is stunned), the
@@ -140,7 +144,7 @@ def build(G, X, C):
         'execute if score #tc bm.rng matches 0 run tellraw @s ' + snbt([T('The CROWN hollow is cold.', GOLD, italic=True)]),
         'playsound minecraft:block.amethyst_block.chime player @s ~ ~ ~ 0.6 0.8'])
     # ---- the wake (as the player who brought them, at the stone)
-    host = {'Tags': ['bm.gdb', 'bm.boss', 'bm.seen', 'bm.gdp1', 'bm.gdnew'], 'Silent': B(1), 'PersistenceRequired': B(1), 'Health': F(P1 + FLOOR),
+    host = {'Tags': ['bm.gdb', 'bm.boss', 'bm.seen', 'bm.gdintro', 'bm.gdnew'], 'Silent': B(1), 'PersistenceRequired': B(1), 'Health': F(P1 + FLOOR),
             'DeathLootTable': 'minecraft:empty', 'CustomName': T('The Golden Doodle', COL, bold=True), 'CustomNameVisible': B(0),
             'attributes': [{'id': f'minecraft:{a}', 'base': D(v)} for a, v in (('max_health', P1 + FLOOR), ('armor', 6), ('attack_damage', 2), ('movement_speed', 0.32),
                                                                                 ('follow_range', 32), ('knockback_resistance', 0.5), ('scale', HOST1))],
@@ -149,18 +153,15 @@ def build(G, X, C):
     fn('p275g/wake', ['kill @e[type=minecraft:item_display,tag=bm.gdstone,distance=..3]', 'kill @e[type=minecraft:interaction,tag=bm.gdstoneh,distance=..3]',
                       f'summon minecraft:husk ~ ~ ~ {snbt(host)}',
                       'execute as @e[type=minecraft:husk,tag=bm.gdnew,distance=..2] at @s run function bm:p275g/born',
-                      'particle minecraft:wax_on ~ ~1 ~ 1 1 1 0 60', 'particle minecraft:totem_of_undying ~ ~1 ~ 0.6 0.8 0.6 0.4 40', honk,
-                      title('@a[distance=..32]', 'title', T('HONK.', COL, bold=True)),
-                      title('@a[distance=..32]', 'subtitle', T('The Golden Doodle (she is very proud of herself)', GOLD, italic=True)),
-                      tellraw('@a[distance=..32]', P + [T('The gilded stone wobbles, cracks - and out waddles a ', 'gray'), T('golden goose', COL, bold=True),
-                                                       T('. She looks at the three of them, and at you. She is very, very proud of herself.', 'gray')])])
+                      tellraw('@a[distance=..32]', P + [T('The gilded stone wobbles - and the Clover Pond begins to ', 'gray'), T('fizz', COL, bold=True), T('.', 'gray')])])
     fn('p275g/born', ['tag @s remove bm.gdnew', 'scoreboard players operation @s bm.pid = #o bm.rng', 'scoreboard players set @s bm.gdk 40', 'scoreboard players set @s bm.gdx 0',
-                      'scoreboard players set @s bm.gdl 0', 'scoreboard players set @s bm.gdi 0', 'scoreboard players set @s bm.gdpl 1', 'function bm:p275g/q/rig'] + hitcap.arm(CAP) +
-       [f'bossbar set bm:gdoodle name {snbt(T("The Golden Doodle (she is very proud of herself)", COL, bold=True))}', 'bossbar set bm:gdoodle color yellow', f'bossbar set bm:gdoodle max {P1}'])
+                      'scoreboard players set @s bm.gdl 0', 'scoreboard players set @s bm.gdi 0', 'scoreboard players set @s bm.gdpl 0'] + hitcap.arm(CAP) +
+       [f'bossbar set bm:gdoodle name {snbt(T("The Golden Doodle (she is very proud of herself)", COL, bold=True))}', 'bossbar set bm:gdoodle color yellow', f'bossbar set bm:gdoodle max {P1}', 'function bm:p275g/intro/start'])
 
     # ================================================================== every tick: its body, its mind, its turn and its cure
     tick.append(f'execute as {HOST} at @s run function bm:p275g/tick')
     fn('p275g/tick', [f'tag @e[type=minecraft:item_display,tag=bm.gdr,distance=..12] add bm.gdsel',
+                      'execute if entity @s[tag=bm.gdintro] run function bm:p275g/intro/tick',
                       'execute if entity @s[tag=bm.gdturn] run function bm:p275g/turn/tick',
                       'execute if entity @s[tag=bm.gdcure] run function bm:p275g/cure/tick',
                       'execute if entity @s[tag=bm.gdallin] run function bm:p275g/allin/tick',
@@ -202,7 +203,7 @@ def build(G, X, C):
     def atk(nm, tl):
         """an attack's timeline: {ticks left: [lines]} (as the host, each tick it runs)"""
         lines = []
-        for x, L in sorted(tl.items(), reverse=True):
+        for x, L in sorted(tl.items(), key=lambda kv: kv[0] if isinstance(kv[0], int) else kv[0][1], reverse=True):
             if isinstance(x, tuple):
                 lines.append(f'execute if score @s bm.gdx matches {x[0]}..{x[1]} run function bm:p275g/a/{nm}/{x[0]}_{x[1]}')
                 fn(f'p275g/a/{nm}/{x[0]}_{x[1]}', L)
@@ -312,6 +313,52 @@ def build(G, X, C):
                  'execute as @e[type=minecraft:wolf,tag=bm.xvpet,distance=..48] if score @s bm.pid = #o bm.rng run tag @s add bm.gdsov',
                  'execute as @e[type=minecraft:wolf,tag=bm.lhpet,distance=..48] if score @s bm.pid = #o bm.rng run tag @s add bm.gdlb']
     rig_off = lambda f: f'kill @e[type=minecraft:item_display,tag=bm.gdr{f},distance=..16]'
+    # ---- THE ENTRANCE (140 ticks, before phase 1 - the owner: magical, goofy, sparkly; held as the turn is, never Darkness): the pond
+    #      fizzes (golden bubbles, clover green, a chime run) and a lucky rainbow arcs over it; a gold geyser bursts up; she is flung out
+    #      of it in a smooth arc (a step a tick - the displays ease after the host), lands on her face, pops up, shakes herself off,
+    #      strikes a pose - HONK - the title card, and the kazoo (phase 1's music: bm.gdp1) starts on the honk. Then the bar, and the fight.
+    import math
+    import cine as CN
+    bands = ['1.0,0.2,0.2', '1.0,0.6,0.1', '1.0,0.95,0.2', '0.3,0.9,0.3', '0.3,0.6,1.0', '0.7,0.35,1.0']
+    fn('p275g/intro/rainbow', [f'particle minecraft:dust{{color:[{c}],scale:1.3}} ~{(4.2 + 0.35 * i) * math.cos(math.pi * k / 14):.2f} ~{(4.2 + 0.35 * i) * math.sin(math.pi * k / 14) + 0.5:.2f} ~ 0.02 0.02 0.02 0 1'
+                               for i, c in enumerate(bands) for k in range(15)])
+    fn('p275g/intro/fizz', ['particle minecraft:bubble_pop ~ ~0.3 ~ 3 0.1 3 0.05 12', 'particle minecraft:dust{color:[1.0,0.85,0.25],scale:0.9} ~ ~0.4 ~ 3 0.3 3 0 10',
+                            'particle minecraft:happy_villager ~ ~0.4 ~ 3.5 0.2 3.5 0 6', 'particle minecraft:wax_on ~ ~0.6 ~ 2.5 0.4 2.5 0 4'] +
+       CN.ring_up('minecraft:end_rod', 2.5, 10, y=0.2, rise=0.3, force=0))
+    fn('p275g/intro/geyser', CN.column('minecraft:totem_of_undying', 6, n=10, d=0.3, count=6, force=0) + CN.column('minecraft:wax_on', 6, n=8, d=0.4, count=4, force=0) +
+       ['particle minecraft:end_rod ~ ~2 ~ 0.4 3 0.4 0.15 60', 'particle minecraft:firework ~ ~3 ~ 0.6 2 0.6 0.2 60', 'particle minecraft:happy_villager ~ ~2 ~ 1 2 1 0 30',
+        'particle minecraft:dust{color:[1.0,0.4,0.8],scale:1.6} ~ ~3 ~ 1 2 1 0 30', 'particle minecraft:dust{color:[0.4,0.9,1.0],scale:1.6} ~ ~3 ~ 1 2 1 0 30',
+        'particle minecraft:dust{color:[1.0,0.85,0.2],scale:1.8} ~ ~3 ~ 1 2 1 0 40'] +
+       CN.stack(('entity.firework_rocket.blast', 1.4, 1.0), ('entity.firework_rocket.twinkle', 1.2, 1.2), ('block.amethyst_block.resonate', 1.4, 1.6), r=32))
+    chimes = {2 + 4 * i: f'playsound minecraft:block.note_block.chime hostile @a[distance=..32] ~ ~ ~ 1 {0.7 + 0.1 * i:.2f}' for i in range(8)}
+    # (the fling: up and forward along a smooth arc, 16 ticks, then down on her face)
+    arc = {}
+    for i, t in enumerate(range(41, 57)):
+        h0, h1 = 3.2 * (i / 16) * (1 - i / 16) * 4, 3.2 * ((i + 1) / 16) * (1 - (i + 1) / 16) * 4
+        arc[t] = f'execute rotated as @s rotated ~ 0 positioned ^ ^{h1 - h0:.3f} ^0.1 run tp @s ~ ~ ~'
+    fn('p275g/intro/start', cine(1.5))
+    fn('p275g/intro/tick', ['scoreboard players add @s bm.gdt 1', f'execute as {FIGHT} at @s run function bm:p275g/cam/hold',
+                            'execute if score @s bm.gdt matches 1..38 run function bm:p275g/intro/fizz',
+                            'execute if score @s bm.gdt matches 14..96 positioned ~ ~0.2 ~ run function bm:p275g/intro/rainbow_q'] +
+       [at(t, c) for t, c in chimes.items()] +
+       [at(36, 'function bm:p275g/intro/geyser'), at(36, 'scoreboard players set @s bm.gdpl 1'), at(36, 'function bm:p275g/q/rig'), at(36, pose('q', 'charge')),
+        at(38, f'execute facing entity {TGT} feet rotated ~ 0 run tp @s ~ ~ ~ ~ ~'), at(38, snd('entity.goat.screaming.ambient', 1.2, 2.0))] +
+       [at(t, c) for t, c in arc.items()] +
+       ['execute if score @s bm.gdt matches 1..56 run function bm:p275g/cam/follow',
+        at(56, pose('q', 'dazed')), at(56, snd('entity.player.attack.knockback', 1.2, 0.7)), at(56, 'particle minecraft:poof ~ ~0.3 ~ 0.5 0.1 0.5 0.05 16'),
+        at(57, sayb('(SPLAT. She lands flat on her face.)')),
+        at(72, pose('q', 'alert')), at(72, snd('entity.chicken.ambient', 1.2, 1.6)),
+        at(80, pose('q', 'idle_b')), at(84, pose('q', 'idle_a')), at(88, pose('q', 'idle_b')), at(92, pose('q', 'idle_a')),
+        at(80, 'particle minecraft:wax_on ~ ~0.8 ~ 0.6 0.4 0.6 0 30'), at(88, 'particle minecraft:wax_on ~ ~0.8 ~ 0.6 0.4 0.6 0 30'), at(80, snd('entity.parrot.fly', 1.2, 1.4)),
+        at(100, pose('q', 'proud')), at(100, honk), at(100, snd('entity.player.levelup', 1.0, 1.4)), at(100, 'tag @s add bm.gdp1'),
+        at(100, 'particle minecraft:totem_of_undying ~ ~1 ~ 0.6 0.6 0.6 0.5 50')] +
+       [at(100, c) for c in CN.title_card('@a[distance=..32]', 'THE GOLDEN DOODLE', COL, 'she is very important', GOLD, times=(6, 50, 14))] +
+       [at(140, 'function bm:p275g/intro/end')])
+    fn('p275g/intro/rainbow_q', ['scoreboard players operation #w bm.rng = @s bm.gdt', 'scoreboard players operation #w bm.rng %= #4 bm.rng',
+                                 'execute if score #w bm.rng matches 0 run function bm:p275g/intro/rainbow'])
+    fn('p275g/intro/end', ['tag @s remove bm.gdintro', 'tag @s remove bm.gdcine', 'tag @s add bm.gdp1', 'data modify entity @s Invulnerable set value 0b',
+                           'data modify entity @s NoAI set value 0b', f'kill @e[type=minecraft:marker,tag={look},distance=..32]', 'scoreboard players set @s bm.gdk 30',
+                           'function bm:hitcap/sync'])
     # ---- THE TURN (120 ticks)
     fn('p275g/turn/start', ['tag @s remove bm.gdp1', 'tag @s add bm.gdturn'] + cine(1.2) + mark_trio +
        [pose('q', 'dazed'), sayb('(She sits down, hard - X-eyed, dazed. She looks beaten.)'), 'bossbar set bm:gdoodle name "..."'])
@@ -405,8 +452,8 @@ def build(G, X, C):
     second.append('execute as @e[type=minecraft:item_display,tag=bm.gdr] at @s unless entity @e[type=minecraft:husk,tag=bm.gdb,distance=..16] run kill @s')
     fn('p275g/sec', ['execute store result score #b bm.rng run data get entity @s Health', f'scoreboard players remove #b bm.rng {FLOOR}',
                      'execute if score #b bm.rng matches ..-1 run scoreboard players set #b bm.rng 0',
-                     'execute unless entity @s[tag=bm.gdcure] store result bossbar bm:gdoodle value run scoreboard players get #b bm.rng',
-                     'execute unless entity @s[tag=bm.gdcure] run bossbar set bm:gdoodle players @a[distance=..48]',
+                     'execute unless entity @s[tag=bm.gdcure] unless entity @s[tag=bm.gdintro] store result bossbar bm:gdoodle value run scoreboard players get #b bm.rng',
+                     'execute unless entity @s[tag=bm.gdcure] unless entity @s[tag=bm.gdintro] run bossbar set bm:gdoodle players @a[distance=..48]',
                      f'tag {FIGHT} add bm.gdfight',
                      'execute if entity @a[distance=..48,gamemode=!spectator] run return run scoreboard players set @s bm.gdi 0',
                      'scoreboard players add @s bm.gdi 1', 'execute if score @s bm.gdi matches 60.. run function bm:p275g/leave'])
