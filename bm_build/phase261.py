@@ -156,8 +156,9 @@ def generate(G):
     assert len(bodies) == 3, len(bodies)
     tip = ' '.join(m.group(1) for bd in bodies[1:] for m in re.finditer(r'text:"((?:[^"\\]|\\.)*)"', bd))
     s0 = s0[:a] + '[' + bodies[0] + ']' + s0[b:]
-    s0 = s0.replace('{text:"  ·  who comes into the vault with you",color:"gray",italic:false}',
-                    '{text:"  ·  ",color:"gray",italic:false},{text:"$(non) on",color:"white",italic:false,bold:true},{text:" - who comes into the vault with you",color:"gray",italic:false}')
+    s0 = re.sub(r'\{text:"  ·  who comes into the vault with you",color:"gray",italic:false(?:,bold:false)?\}',      # (3.0p: no inherited bold - nbt.unbold)
+                '{text:"  ·  ",color:"gray",italic:false,bold:false},{text:"$(non) on",color:"white",italic:false,bold:true},'
+                '{text:" - who comes into the vault with you",color:"gray",italic:false,bold:false}', s0)
     assert '$(non) on' in s0, 'the crew page title'
     how = snbt(P28.btn([T('? How the crew works', 'gray')], 7807, width=180, tooltip=T(tip.replace('\\"', '"'), 'gray')))
     sp = P260.actions(s0)

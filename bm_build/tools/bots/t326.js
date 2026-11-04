@@ -1,5 +1,5 @@
 // 3.0: THE LIGHTBRINGER, SHE OR HE (phase236's FORM, lightbringer_art's '_m' twins) - as a regular (non-op) player; rcon only sets
-// the stage (hard mode, noon, the herald placed as the open sky would, scores reset between meetings).
+// the stage (hard mode, noon, the herald placed as an admin's meet does - 3.0p, t395: the cross - scores reset between meetings).
 //   THE FIRST MEETING IS A COIN TOSS: up to 12 first meetings (bm.lhform reset, never met): the herald who comes down is she or he
 //     at random (the encounter's rig wears the form chosen - every part), the choice kept on the player; both turn up.
 //   MET AS HIM: a holy helmet, right-clicked - "He plucks a feather from his wing"; he comes along in his own models (lb_*_m).
@@ -76,7 +76,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   for (tries = 1; tries <= 24; tries++) {             // (both should turn up within 12; then on, if need be, until the one met is him)
     await clearEnc(); await run('scoreboard players reset TestRat bm.lhform'); await run('tag TestRat remove bm.lhmet');
     await run(`clear TestRat *[minecraft:custom_data~{bm:"herald_feather"}]`);
-    await run(`${O}execute as TestRat at @s rotated 0 0 positioned ^ ^ ^5 run function bm:p236l/enc/place`);
+    await run(`${O}execute as TestRat at @s rotated 0 0 positioned ^ ^ ^5 run function bm:p236l/enc/spawn`);
     if (!(await wait(4000, async () => (await cnt(ENC)) === 1 && (await cnt('@e[type=minecraft:item_display,tag=bm.lhencp]')) === PARTS.length))) { mixed = 'no herald came'; break; }
     await sleep(300);
     const f = await formOf(true), sc = await score('bm.lhform');
@@ -91,7 +91,8 @@ const { bot, rcon, sleep } = require('./lib_resp');
   ok(`...a coin toss: she and he both turn up within 12 first meetings (both by meeting ${both}; she ${seen.f}, he ${seen.m})`, both > 0 && both <= 12);
   ok('...and the last one met is him', last === 'm');
 
-  // ---------------------------------------------------------------- met as him: right-clicked, wearing something holy
+  // ---------------------------------------------------------------- met as him: right-clicked (3.0p: once his descent is over)
+  await wait(14000, async () => /has 0/.test(await run(`${O}scoreboard players get ${ENC} bm.lzsh`)));
   await run(`item replace entity TestRat armor.head with ${HOLY}`);
   const ex = await num(ENC, 'Pos[0]'), ez = await num(ENC, 'Pos[2]');
   await at(ex + 0.5, Y + 1, ez - 2.5, 0, 10);
