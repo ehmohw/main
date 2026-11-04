@@ -45,7 +45,7 @@ const PAGES = fs.readdirSync(path.join(FN, 'p260/fs/open')).length;
     const got = await sneakMenu();
     const b0 = A.buttons().map(b => b.label), u0 = unrouted();
     ok(`${w}: sneak + use ${iid} - a menu with Settings, no chatter switch, every button routed`,
-       got && b0.some(l => /Settings/.test(l)) && !b0.some(l => /^Chatter/.test(l)) && !u0.length, `${title().slice(0, 50)} ${u0.join(',')}`);
+       got && b0.some(l => /Settings/.test(l)) && !b0.some(l => /^Chatter/.test(l)) && !u0.length, `${title().slice(0, 50)} ${u0.join(',')} :: ${b0.join(' | ')}`);
     const p1 = await A.press(/Settings$/);
     const b1 = A.buttons().map(b => b.label), u1 = unrouted();
     ok(`...Settings: the settings page (Chatter, Keep up; no Stay here), every button routed`,

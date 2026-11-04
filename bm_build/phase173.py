@@ -49,7 +49,8 @@ GOLD = '#ffcf40'
 WMENU = 2360                       # Wilfrey's menu (bm.menu) and its buttons 2361..2364
 AR_CODE = 2370                     # "Back after a faint" on each wardrobe page: 2370 + the follower's index
 AR_CODE2 = 3486                    # (2.95: 2370-2400 holds 31 - the 32nd on (Kettle, the Gem, the Gentry...) count on from 3486)
-ar_code = lambda i: AR_CODE + i if i <= 30 else AR_CODE2 + i - 31
+AR_CODE3 = 3902                    # (3.0k: 3486-3504 holds 19 - the 51st on (the Rat King) count on from 3902; 3505 on is the wheel's teams, phase259)
+ar_code = lambda i: AR_CODE + i if i <= 30 else AR_CODE2 + i - 31 if i <= 49 else AR_CODE3 + i - 50
 # (2.95d) ...and their bits: a score holds 31 - the 32nd follower on keeps theirs in a second one
 ar_obj = lambda i: 'bm.arof' if i < 31 else 'bm.arof2'
 ar_bit = lambda i: 2 ** (i % 31)
@@ -230,7 +231,9 @@ def generate(G):
     import phase99 as P99
     F['p28/act'].append(f'execute if score #act bm.pay matches {AR_CODE}..{AR_CODE + min(len(AR), 31) - 1} run return run function bm:p173/ar/act')
     if len(AR) > 31:
-        F['p28/act'].append(f'execute if score #act bm.pay matches {AR_CODE2}..{AR_CODE2 + len(AR) - 32} run return run function bm:p173/ar/act')
+        F['p28/act'].append(f'execute if score #act bm.pay matches {AR_CODE2}..{AR_CODE2 + min(len(AR), 50) - 32} run return run function bm:p173/ar/act')
+    if len(AR) > 50:
+        F['p28/act'].append(f'execute if score #act bm.pay matches {AR_CODE3}..{AR_CODE3 + len(AR) - 51} run return run function bm:p173/ar/act')
     fn('p173/ar/act', [f'execute if score #act bm.pay matches {ar_code(i)} run return run function bm:p173/ar/t_{i}' for w, i in AR_IDX.items()])
     for w, i in AR_IDX.items():
         fn(f'p173/ar/t_{i}', [f'execute unless score @s bm.menu matches {P99.BASE[w]} run return run function bm:p28/stale',
