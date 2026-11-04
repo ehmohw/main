@@ -34,6 +34,7 @@ import phase160 as P160
 import phase172 as P172
 import phase177 as P177
 import rigfol as RF
+import rigkit as RK
 import stalker_art as SA
 
 DREAD, DREAD_D, GOLD = '#b0102a', '#5a0812', '#ffd24a'
@@ -89,7 +90,7 @@ def generate(G):
     OW = '@a[tag=bm.ow]'
     HUNT = '@a[tag=bm.dnh]'
     objs = ['bm.dnsp', 'bm.dnst', 'bm.dnx', 'bm.dny', 'bm.dnz', 'bm.dnt', 'bm.dnd0', 'bm.dnesc', 'bm.stkc', 'bm.stkr',
-            'bm.stkid', 'bm.stka', 'bm.stkf', 'bm.stkx', 'bm.stkz', 'bm.stkd', 'bm.stkw', 'bm.stkp', 'bm.stkwc']
+            'bm.stkid', 'bm.stka', 'bm.stkf', 'bm.stkx', 'bm.stkz', 'bm.stkd', 'bm.stkw', 'bm.stkp', 'bm.stkwc', 'bm.stkj', 'bm.stkl']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + [
         'execute unless score #dkn bm.cfg matches 0.. run scoreboard players set #dkn bm.cfg 0',
         'execute unless score #dnt bm.cfg matches 1.. store result score #dnt bm.cfg run random value 30..70',
@@ -233,52 +234,96 @@ def generate(G):
     # used to be two stiff displays riding the host, and glided over the ground.)
     SD = 1.2                                                           # (about 3.4 blocks drawn up to its full height)
     psel = lambda p=None: '@e[type=minecraft:item_display,tag=bm.stksel' + (f',tag=bm.stkp_{p}]' if p else ']')
+    me_ = lambda p: f'@s[tag=bm.stkp_{p}]'                             # (3.0k: run as each of its parts - one scan of the displays, not ten)
+    parts_do = lambda name: f'execute as @e[type=minecraft:item_display,tag=bm.stksel] run function bm:{name}'
     fn('p181/stk/rig', [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(SA, p, ["bm.stkpart", f"bm.stkp_{p}", "bm.stknp"], SD, extra={"view_range": F(2.0)})}'
                         for p in SA.PARTS] +
        ['scoreboard players operation @e[type=minecraft:item_display,tag=bm.stknp,distance=..2] bm.stkid = @s bm.stkid',
         'tag @e[type=minecraft:item_display,tag=bm.stknp,distance=..2] add bm.stksel', 'execute rotated as @s rotated ~ 0 run function bm:p181/stk/place',
         'function bm:p181/stk/pose/stand_a', 'tag @e[tag=bm.stksel] remove bm.stksel', 'tag @e[tag=bm.stknp] remove bm.stknp'])
-    fn('p181/stk/place', RF.place(SA, SD / 16, psel))
-    GAIT = {'stand_a': 30, 'stand_b': 30, 'scream': 6, 'rend': 3, 'rend_up': 4, **{f'crawl_{k}': 3 for k in range(SA.GAIT_FRAMES)}, **{f'sprint_{k}': 2 for k in range(SA.GAIT_FRAMES)}}   # (2.94: eight frames a stride)
+    # (every part to its joint, turned as the caller's rotation is - its eased facing)
+    fn('p181/stk/place', [parts_do('p181/stk/place1')])
+    U_ = SD / 16
+    fn('p181/stk/place1', [f'execute if entity {me_(p)} positioned ^{-x * U_:.4f} ^{y * U_:.4f} ^{-z * U_:.4f} run return run tp @s ~ ~ ~ ~ 0'
+                           for p, (x, y, z) in SA.PIVOT.items()])
+    H = SA.hunt_poses()
+    POSES = dict(SA.POSES, **H)
+    # (3.0k) the named poses - its blow, its scream, the pause-then-lunge; its gait's are gaitdrive's frames, below
+    GAIT = {'stand_a': 30, 'scream': 6, 'rend': 3, 'rend_up': 4, 'coil': 4, 'coil_b': 2, 'coil_c': 2, 'lunge': 2}
+    POSES['coil_c'] = POSES['coil']
     for nm, dur in GAIT.items():
-        fn(f'p181/stk/pose/{nm}', RF.pose(SA, SA.POSES[nm], SD, dur, psel, swap=('head',)))
-    G.FUNCS['load'][-1:-1] = ['scoreboard players set #k12 bm.stkf 16', 'scoreboard players set #k20 bm.stkf 24', 'scoreboard players set #k80 bm.stkf 80']
-    # every tick: its parts to it; how it moves (looked at every 4 ticks: still - drawn up tall; on the move - on all fours;
-    # running you down - flat out) picks the cycle; and a charge through the walls, when it's winding up for one
+        fn(f'p181/stk/pose/{nm}', [parts_do(f'p181/stk/pp/{nm}')])
+        fn(f'p181/stk/pp/{nm}', RF.pose(SA, POSES[nm], SD, dur, me_, swap=('head',)))
+    # (3.0k) ITS GAIT: driven by the ground it covers (gaitdrive) - still, it draws itself up tall and breathes; moving, the hunter's
+    # own uneven, ground-hugging skitter (stalker_art.HUNT: crawl, then flat out); its facing eased; every frame on the ground
+    import gaitdrive as GD
+    GK_ = 'p181/stk/gk'
+    Lmb = {nm: int(round(SA.HUNT[nm]['L'] * SD / 16 * 1000)) for nm in ('crawl', 'sprint')}
+    GD.build(G, GK_, [(Lmb['crawl'], 25, 10), (Lmb['sprint'], 140, 100)], nf=SA.HUNT_FRAMES, call=parts_do)
+    fn(f'{GK_}/turn', ['$execute rotated $(y) 0 run function bm:p181/stk/place'])
+    fn(f'{GK_}/f/0_a_8', RF.pose(SA, POSES['stand_a'], SD, 8, me_, swap=('head',)))
+    fn(f'{GK_}/f/0_a_30', RF.pose(SA, POSES['stand_a'], SD, 30, me_, swap=('head',)))
+    fn(f'{GK_}/f/0_b_30', RF.pose(SA, POSES['stand_b'], SD, 30, me_, swap=('head',)))
+    for g, nm in ((1, 'hcrawl'), (2, 'hsprint')):
+        for k in range(SA.HUNT_FRAMES):
+            for d in GD.DURS:
+                fn(f'{GK_}/f/{g}_{k}_{d}', RF.pose(SA, POSES[f'{nm}_{k}'], SD, d, me_, swap=('head',)))
+    # every tick: its parts to it (its eased facing); its gait from how it moves (0 still - drawn up tall, 1 on all fours, 2 flat
+    # out: bm.stka); a charge through the walls (3), its blow (4), the pause (5) and the lunge (6) hold their own poses
     fn('p181/stk/tick', ['scoreboard players operation #sid bm.rng = @s bm.stkid',
                          'execute as @e[type=minecraft:item_display,tag=bm.stkpart] if score @s bm.stkid = #sid bm.rng run tag @s add bm.stksel',
-                         'execute rotated as @s rotated ~ 0 run function bm:p181/stk/place',
+                         f'function bm:{GK_}/motion',
                          'execute if score @s bm.stkp matches 1.. run function bm:p181/stk/phase',
-                         'scoreboard players add @s bm.stkf 1',
-                         'scoreboard players operation #f bm.rng = @s bm.stkf', 'scoreboard players operation #f bm.rng %= #k4 bm.rng',
-                         'execute if score #f bm.rng matches 0 unless score @s bm.stka matches 3.. run function bm:p181/stk/gait',
-                         'execute if score @s bm.stka matches 2 run scoreboard players operation #f bm.rng = @s bm.stkf',
-                         'execute if score @s bm.stka matches 2 run scoreboard players operation #f bm.rng %= #k12 bm.stkf',
-                         *[f'execute if score @s bm.stka matches 2 if score #f bm.rng matches {2 * k} run function bm:p181/stk/pose/sprint_{k}' for k in range(SA.GAIT_FRAMES)],
-                         'execute if score @s bm.stka matches 1 run scoreboard players operation #f bm.rng = @s bm.stkf',
-                         'execute if score @s bm.stka matches 1 run scoreboard players operation #f bm.rng %= #k20 bm.stkf',
-                         *[f'execute if score @s bm.stka matches 1 if score #f bm.rng matches {3 * k} run function bm:p181/stk/pose/crawl_{k}' for k in range(SA.GAIT_FRAMES)],
-                         'execute if score @s bm.stka matches 0 run scoreboard players operation #f bm.rng = @s bm.stkf',
-                         'execute if score @s bm.stka matches 0 run scoreboard players operation #f bm.rng %= #k80 bm.stkf',
-                         'execute if score @s bm.stka matches 0 if score #f bm.rng matches 0 run function bm:p181/stk/pose/stand_a',
-                         'execute if score @s bm.stka matches 0 if score #f bm.rng matches 40 run function bm:p181/stk/pose/stand_b',
+                         f'execute if score @s bm.stka matches ..2 run function bm:{GK_}/gait',
+                         'execute if score @s bm.stka matches ..2 run scoreboard players operation @s bm.stka = @s bm.gkg',
                          'execute if score @s bm.stka matches 4 run scoreboard players remove @s bm.stkc 1',
                          'execute if score @s bm.stka matches 4 if score @s bm.stkc matches 4 run function bm:p181/stk/pose/rend_up',
-                         'execute if score @s bm.stka matches 4 if score @s bm.stkc matches ..0 run scoreboard players set @s bm.stka 0',
+                         'execute if score @s bm.stka matches 4 if score @s bm.stkc matches ..0 run function bm:p181/stk/resume',
+                         'execute if score @s bm.stka matches 5 run function bm:p181/stk/coil_tick',
+                         'execute if score @s bm.stka matches 6 run scoreboard players remove @s bm.stkc 1',
+                         'execute if score @s bm.stka matches 6 if score @s bm.stkc matches ..0 run function bm:p181/stk/resume',
+                         # (now and then the head jerks to one side - and slowly comes back)
+                         'execute if score @s bm.stkj matches 1.. run scoreboard players remove @s bm.stkj 1',
+                         'execute if score @s bm.stkj matches 0 run function bm:p181/stk/jerk_back',
+                         'execute store result score #sj bm.rng run random value 1..70',
+                         'execute if score #sj bm.rng matches 1 unless score @s bm.stkj matches 0.. if score @s bm.stka matches ..2 run function bm:p181/stk/jerk',
                          'tag @e[tag=bm.stksel] remove bm.stksel'])
-    # how far it has come in 4 ticks: under 0.12 blocks it stands, under 0.6 it crawls, past that it sprints (a change starts the
-    # new cycle from its first frame)
-    fn('p181/stk/gait', ['execute store result score #x bm.rng run data get entity @s Pos[0] 100', 'execute store result score #z bm.rng run data get entity @s Pos[2] 100',
-                         'scoreboard players operation #dx bm.rng = #x bm.rng', 'scoreboard players operation #dx bm.rng -= @s bm.stkx',
-                         'scoreboard players operation #dz bm.rng = #z bm.rng', 'scoreboard players operation #dz bm.rng -= @s bm.stkz',
-                         'execute if score #dx bm.rng matches ..-1 run scoreboard players operation #dx bm.rng *= #m1 bm.rng',
-                         'execute if score #dz bm.rng matches ..-1 run scoreboard players operation #dz bm.rng *= #m1 bm.rng',
-                         'scoreboard players operation #dx bm.rng += #dz bm.rng',
-                         'scoreboard players operation @s bm.stkx = #x bm.rng', 'scoreboard players operation @s bm.stkz = #z bm.rng',
-                         'scoreboard players set #g bm.rng 0', 'execute if score #dx bm.rng matches 12.. run scoreboard players set #g bm.rng 1',
-                         'execute if score #dx bm.rng matches 60.. run scoreboard players set #g bm.rng 2',
-                         'execute unless score #g bm.rng = @s bm.stka run scoreboard players set @s bm.stkf -1',
-                         'scoreboard players operation @s bm.stka = #g bm.rng'])
+    # (back to its gait after a held pose: drawn at once, the first frames eased)
+    fn('p181/stk/resume', ['scoreboard players set @s bm.stka 0', 'scoreboard players set @s bm.gkf -1', 'scoreboard players set @s bm.gkb 3'])
+    head = '@e[type=minecraft:item_display,tag=bm.stksel,tag=bm.stkp_head,limit=1]'
+    TILTS = [RK.qs(('z', 34), ('x', 8)), RK.qs(('z', -30), ('x', -6)), RK.qs(('z', 22), ('x', -14)), RK.qs(('z', -38), ('y', 12))]
+    fn('p181/stk/jerk', ['execute store result score @s bm.stkj run random value 8..18', 'execute store result score #sj bm.rng run random value 1..4'] +
+       [f'execute if score #sj bm.rng matches {i} run data merge entity {head} {{start_interpolation:0,interpolation_duration:1,transformation:{{right_rotation:{snbt(RF.qf(q))}}}}}'
+        for i, q in enumerate(TILTS, 1)] +
+       ['playsound minecraft:block.bone_block.break hostile @a[distance=..20] ~ ~2 ~ 0.7 0.5'])
+    fn('p181/stk/jerk_back', ['scoreboard players reset @s bm.stkj',
+                              f'data merge entity {head} {{start_interpolation:0,interpolation_duration:6,transformation:{{right_rotation:[0f,0f,0f,1f]}}}}'])
+    # PAUSE, THEN LUNGE (3.0k): closing on its quarry (4.5-11 blocks off), now and then it stops dead - folds itself low, trembling,
+    # the head cocked, clicking - a second or so; then it's flung at you, claws first (a leap: 0.8 a tick, and up), and goes on
+    fn('p181/stk/coil_roll', ['execute store result score #sj bm.rng run random value 1..3', 'execute unless score #sj bm.rng matches 1 run return 0',
+                              'scoreboard players set @s bm.stka 5', 'execute store result score @s bm.stkc run random value 14..24',
+                              'execute store result score @s bm.stkl run random value 9..16', 'data merge entity @s {NoAI:1b}',
+                              'scoreboard players operation #sid bm.rng = @s bm.stkid',
+                              'execute as @e[type=minecraft:item_display,tag=bm.stkpart] if score @s bm.stkid = #sid bm.rng run tag @s add bm.stksel',
+                              'function bm:p181/stk/pose/coil', 'function bm:p181/stk/jerk', 'tag @e[tag=bm.stksel] remove bm.stksel',
+                              'playsound minecraft:entity.spider.ambient hostile @a[distance=..24] ~ ~ ~ 1 0.5'])
+    fn('p181/stk/coil_tick', ['scoreboard players remove @s bm.stkc 1', 'scoreboard players operation #me bm.pid = @s bm.pid', 'tag @a remove bm.stkq2',
+                              'execute as @a[tag=bm.dnh] if score @s bm.pid = #me bm.pid run tag @s add bm.stkq2',
+                              'execute if entity @a[tag=bm.stkq2] facing entity @a[tag=bm.stkq2,limit=1] feet rotated ~ 0 run rotate @s ~ 0',
+                              'scoreboard players operation #sj bm.rng = @s bm.stkc', 'scoreboard players operation #sj bm.rng %= #gk4 bm.rng',
+                              'execute if score #sj bm.rng matches 0 run function bm:p181/stk/pose/coil_b',
+                              'execute if score #sj bm.rng matches 2 run function bm:p181/stk/pose/coil_c',
+                              'execute if score @s bm.stkc matches ..0 run function bm:p181/stk/lunge', 'tag @a remove bm.stkq2'])
+    fn('p181/stk/lunge', ['data merge entity @s {NoAI:0b}', 'execute unless entity @a[tag=bm.stkq2] run return run function bm:p181/stk/resume',
+                          'scoreboard players set @s bm.stka 6', 'scoreboard players set @s bm.stkc 9',
+                          'execute facing entity @a[tag=bm.stkq2,limit=1] feet rotated ~ 0 run rotate @s ~ 0',
+                          'function bm:p79/pet/dir {s:0.8}',
+                          'execute store result entity @s Motion[0] double 0.001 run scoreboard players get #mx bm.rng',
+                          'execute store result entity @s Motion[2] double 0.001 run scoreboard players get #mz bm.rng',
+                          'data modify entity @s Motion[1] set value 0.34d',
+                          'function bm:p181/stk/pose/lunge',
+                          'playsound minecraft:entity.warden.angry hostile @a[distance=..32] ~ ~ ~ 1 1.5',
+                          'playsound minecraft:entity.phantom.swoop hostile @a[distance=..32] ~ ~ ~ 0.8 0.6'])
     # rising: a spot 30-40 blocks off in a random direction that fits it (on the surface when you're under the sky, near your
     # own height when you aren't), not in a cross's ground - six tries a second
     fn('p181/stk/rise', ['scoreboard players set #rt bm.rng 6', 'tag @s add bm.stko', 'function bm:p181/stk/try', 'tag @s remove bm.stko'])
@@ -311,7 +356,8 @@ def generate(G):
                          'scoreboard players add #stkn bm.stkid 1', 'scoreboard players operation @s bm.stkid = #stkn bm.stkid',
                          'scoreboard players set @s bm.stka 0', 'scoreboard players set @s bm.stkf 0', 'scoreboard players set @s bm.stkd 999',
                          'scoreboard players set @s bm.stkw 0', 'scoreboard players set @s bm.stkp 0', 'scoreboard players set @s bm.stkwc 20',
-                         'function bm:p181/stk/rig',
+                         'scoreboard players set @s bm.stkl 6', 'scoreboard players reset @s bm.stkj',
+                         'function bm:p181/stk/rig', *__import__('gaitdrive').init_lines(),
                          'damage @s 1 minecraft:player_attack by @a[tag=bm.stko,limit=1]',
                          'playsound minecraft:entity.warden.emerge hostile @a[distance=..48] ~ ~ ~ 0.5 0.6',
                          'particle minecraft:sculk_soul ~ ~1 ~ 0.4 1 0.4 0.02 20',
@@ -326,7 +372,13 @@ def generate(G):
                            'execute if score @s bm.stkr matches 3.. run scoreboard players set @s bm.stkr 0',
                            'execute if block ~ ~ ~ minecraft:water run data modify entity @s InWaterTime set value 0',
                            'execute if block ~ ~1 ~ minecraft:water run data modify entity @s InWaterTime set value 0',
-                           'function bm:p181/stk/wall_watch', 'tag @a remove bm.stko'])
+                           'function bm:p181/stk/wall_watch',
+                           # (3.0k: the pause, then the lunge - closing in, not phasing, its cooldown spent, nobody's cross near)
+                           'execute if score @s bm.stkl matches 1.. run scoreboard players remove @s bm.stkl 1',
+                           'execute if score @s bm.stka matches ..2 if score @s bm.stkp matches 0 unless score @s bm.stkl matches 1.. '
+                           'if entity @a[tag=bm.stko,distance=4.5..11] unless function bm:p181/in_cross unless function bm:p181/stk/quarry_crossed '
+                           'run function bm:p181/stk/coil_roll',
+                           'tag @a remove bm.stko'])
     # (2.88) THROUGH THE WALLS: a house won't save you. Six seconds without getting any closer (you've walled yourself in, or it
     # can't find the way) and it winds up - three seconds of it, rigid, screaming, the dark gathering round it - then comes
     # straight through whatever is between you, a block a tick, and out beside you. Not into a cross's ground; 30 s between.
@@ -372,6 +424,7 @@ def generate(G):
                           'tag @a remove bm.stkq'])
     fn('p181/stk/phase_end', ['scoreboard players set @s bm.stkp 0', 'scoreboard players set @s bm.stka 0', 'scoreboard players set @s bm.stkwc 30',
                               'scoreboard players set @s bm.stkw 0', 'scoreboard players set @s bm.stkd 999', 'data merge entity @s {NoAI:0b}',
+                              'scoreboard players set @s bm.gkf -1', 'scoreboard players set @s bm.gkb 3',
                               'scoreboard players set #ok bm.rng 0',
                               'execute at @a[tag=bm.stkq,limit=1] rotated as @a[tag=bm.stkq,limit=1] rotated ~ 0 positioned ^ ^ ^-1.5 if function bm:p181/stk/fits_blink '
                               'run function bm:p181/stk/phase_out',
@@ -410,7 +463,7 @@ def generate(G):
                           'playsound minecraft:block.bell.resonate block @a[distance=..24] ~ ~ ~ 0.5 1.8',
                           'tag @a remove bm.stko'])
     # the blow: a third of what you have (health and absorption), through everything - three and you're dead
-    fn('p181/stk/strike', ['scoreboard players set @s bm.dnsp 6',
+    fn('p181/stk/strike', ['execute if score @s bm.stka matches 5 run data merge entity @s {NoAI:0b}', 'scoreboard players set @s bm.dnsp 6',
                            'execute as @a[tag=bm.stko,limit=1] at @s run function bm:p181/stk/hit',
                            'playsound minecraft:entity.warden.attack_impact hostile @a[distance=..24] ~ ~ ~ 1.2 0.7',
                            'scoreboard players set @s bm.stka 4', 'scoreboard players set @s bm.stkc 8', 'function bm:p181/stk/strike_pose'])

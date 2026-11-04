@@ -119,8 +119,8 @@ const CFG = {
     await sneakMenu(0); A.bars.length = 0; await click(/Send him home/); await sleep(1500);
     ok(N + 'Send him home: he goes', (await cnt(PET)) === 0 && A.bars.some(b => c.home.test(b)), A.bars.slice(-1).join(''));
     await sneakMenu(0);
-    ok(N + `...his menu now says Call for ${c.name}`, A.buttons().some(b => b.label.includes(`Call for ${c.name}`)) && !A.buttons().some(b => /Send him home/.test(b.label)));
-    await click(new RegExp(`Call for ${c.name}`)); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
+    ok(N + `...his menu now says Call ${c.name}`, A.buttons().some(b => new RegExp(`Call (for )?${c.name}`).test(b.label)) && !A.buttons().some(b => /Send him home/.test(b.label)));
+    await click(new RegExp(`Call (for )?${c.name}`)); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
     ok(N + `...called from the menu: back, still in ${c.lookName}`, (await cnt(PET)) === 1 && /_c2$/.test(await model()), await model());
     await sneakMenu(0); const w1 = await press(/Wardrobe/);
     ok(N + 'his menu -> Wardrobe: his looks', w1 && w1.next && [c.plainName, c.lockedName, c.lookName].every(l => A.buttons().some(b => b.label.includes(l))),

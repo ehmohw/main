@@ -205,7 +205,7 @@ const X = 19000, Y = 120, Z = 19000;
     await run('scoreboard players set TestRat bm.menu 9920'); await run('scoreboard players set TestRat bm.act 9920'); await run('execute as TestRat at @s run function bm:p28/act'); await sleep(1500);
     ok('...which sends him home', !(await has('@e[type=wolf,tag=bm.leopet]')));
     ok('Every follower\'s menu has the Call/Send switch (and Democratus\' challenge)', ['emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo'].every(w => /r_home/.test(F(`p99/dlg/${w}`))) &&
-       /Call for Democratus/.test(F('p97/menu')));
+       /Call (for )?Democratus/.test(F('p97/menu')));
     // a button clicked once works (the 2.74-2.75 codes used to read the last click)
     await run('scoreboard players set #act bm.pay 0'); await run('tag TestRat remove bm.hush'); await run('scoreboard players set TestRat bm.menu 9920');
     await run('scoreboard players set TestRat bm.act 7735'); await run('execute as TestRat at @s run function bm:p28/act'); await sleep(200);

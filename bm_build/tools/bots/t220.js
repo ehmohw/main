@@ -57,7 +57,7 @@ const res = [];
   ok('...the Medallions in the pocket go into the account', (await has('medallion')) === 0 && (await sc('bm.bk_med')) === 2, `${await has('medallion')} on, ${await sc('bm.bk_med')} banked`);
   ok('...20 Tokens: 12 banked, 8 kept for a fee', (await has('token')) === 8 && (await sc('bm.bk_tok')) === 22, `${await has('token')} on, ${await sc('bm.bk_tok')} banked`);
   await run('execute as TestRat at @s run function bm:p31/bank/open'); await sleep(800);
-  await A.press(/Medallions/); await A.press(/Take 1/); await sleep(2200);
+  await A.press(/^Currencies/); await A.press(/Medallions/); await A.press(/Take 1/); await sleep(2200);
   ok('taking a Medallion out: it stays in the pocket (auto-deposit rests)', (await has('medallion')) === 1 && (await sc('bm.bkag')) > 0, `${await has('medallion')} ${await sc('bm.bkag')}`);
   await run('scoreboard players set TestRat bm.bkac 0'); await run('clear TestRat');
 

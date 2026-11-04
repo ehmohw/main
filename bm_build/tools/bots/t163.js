@@ -97,8 +97,8 @@ const res = [];
   await sneakMenu(0); A.bars.length = 0; await A.click(/Send him home/); await sleep(1500);
   ok('Send him home: he goes ("Back to the Cabinet")', (await cnt(PET)) === 0 && A.bars.some(b => /Back to the Cabinet/.test(b)), A.bars.slice(-1).join(''));
   await sneakMenu(0);
-  ok('...his menu now says Call for Fishy', A.buttons().some(b => /Call for Fishy/.test(b.label)) && !A.buttons().some(b => /Send him home/.test(b.label)));
-  await A.click(/Call for Fishy/); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
+  ok('...his menu now says Call Fishy', A.buttons().some(b => /Call (for )?Fishy/.test(b.label)) && !A.buttons().some(b => /Send him home/.test(b.label)));
+  await A.click(/Call (for )?Fishy/); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
   ok('...called from the menu: back, still in Crimson Opera', (await cnt(PET)) === 1 && /fy_body_c2$/.test(await model()), await model());
   await sneakMenu(0); const w1 = await A.press(/Wardrobe/);
   ok('his menu -> Wardrobe: his top hats', w1 && w1.next && ['His old black topper', 'Midnight Silk', 'Crimson Opera', 'Emerald Ascot', 'Gilded Topper'].every(l => A.buttons().some(b => b.label.includes(l))),

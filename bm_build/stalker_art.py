@@ -355,3 +355,119 @@ DRAFT = ['idle_a', 'idle_b', 'walk_a', 'run_a', 'rend_up', 'rend', 'fold', 'unfo
 # (2.93e: every material with life in it - matkit)
 import matkit as _mk
 textures = _mk.wrapped(textures, __name__)
+
+
+# ---------------------------------------------------------------------------------------------------- (3.0k) the hunter's own gait
+# The owner: "make sure the hostile Stalker's crawling animations are smooth and creepy." The Dread Night's hunter (phase181)
+# had the follower's diagonal trot on a clock - a frame every 3 ticks (crawl) or 2 (sprint) whatever its speed, so its claws
+# skated, and its arms (stride 12) and legs (stride 10) slid at different speeds; the switch between still, crawl and sprint was
+# a speed read every 4 ticks with no hysteresis, restarting the cycle at its first frame each time it flickered. Its own gait
+# now (driven by the ground it covers - gaitdrive), and wrong on purpose:
+#   LOW      the body pitched almost flat (80-82 degrees, the follower's 72-76) and hung lower between its limbs (-6.5 / -6), the
+#            head craned up out of the shoulders and cocked to one side.
+#   UNEVEN   the four limbs out of step with each other - not two diagonal pairs but four beats at uneven gaps (0, .38, .55, .87
+#            of the cycle), each with its own time on the ground; a limb snaps forward (fast out, slow to settle) and plants.
+#   PLANTED  every limb on the ground for its share of the cycle, sliding back as fast as the body goes over it (each limb's
+#            stride is its share of the cycle's ground: the same speed for all four), its lowest corner on the floor (gaitkit).
+# coil / coil_b (it freezes, gathers itself, trembling) and lunge (flung at you, claws first): phase181's pause-then-lunge.
+HUNT_FRAMES = 8
+HUNT_OFFS = {'armr': 0.0, 'legl': 0.38, 'arml': 0.55, 'legr': 0.87}
+HUNT_DUTY = {'armr': 0.64, 'arml': 0.60, 'legl': 0.68, 'legr': 0.66}
+HUNT = {'crawl': dict(body=80, off=-6.5, head=-64, tilt=10, roll=5, L=17.0, arm_z=19.5, leg_z=-1.5, lift=3.4, bob=0.5),
+        'sprint': dict(body=82, off=-6.0, head=-66, tilt=7, roll=7, L=22.0, arm_z=20.0, leg_z=-2.0, lift=4.2, bob=0.8)}
+
+
+def _snap_track(u, duty, z0, stride, lift):
+    """a limb through its cycle: down for `duty`, sliding back; then snapped forward (fast out, slow to settle), lifted early"""
+    u %= 1.0
+    if u < duty:
+        return 0.0, z0 + stride / 2 - stride * u / duty
+    v = (u - duty) / (1 - duty)
+    s = 1 - (1 - v) ** 2.5
+    return lift * math.sin(math.pi * v ** 0.75), z0 - stride / 2 + stride * s
+
+
+def _reach_warm(pose, upper, lower, mk, target, ranges, start):
+    """gaitkit.reach, warm-started from the frame before (a narrow search round it, then finer)"""
+    import gaitkit as GK
+    cp = GK.contact(A_SELF, lower)
+    ty, tz = target
+
+    def err(a, b):
+        p = RK_point(dict(pose, **mk(a, b)), lower, cp)
+        return (p[1] - ty) ** 2 + (p[2] - tz) ** 2
+    (a0, a1), (b0, b1) = ranges
+    ca, cb = start if start else ((a0 + a1) / 2, (b0 + b1) / 2)
+    step = 12.0 if start else 16.0
+    best = None
+    for _ in range(5):
+        cand = [(err(a, b), a, b) for a in [ca + step * i for i in range(-5, 6)] for b in [cb + step * j for j in range(-5, 6)]
+                if a0 <= a <= a1 and b0 <= b <= b1]
+        best = min(cand + ([best] if best else []))
+        _e, ca, cb = best
+        step /= 3
+    return best[1], best[2], best[0] ** 0.5
+
+
+def RK_point(pose, part, p):
+    import rigkit as RK
+    return RK.point(A_SELF, pose, part, p, scale=16)
+
+
+def _hunt_gait(k, n, prm, prev):
+    import gaitkit as GK
+    ph = k / n
+    lifts = {}
+    out = dict(P(_face='wide'), armr=limb(1, 110, 10), arml=limb(-1, 110, 10), forer=limb(1, 50), forel=limb(-1, 50),
+               legr=limb(1, 30, 6), legl=limb(-1, 30, 6), shinr=limb(1, -110), shinl=limb(-1, -110))
+    tracks = {}
+    for lim in ('armr', 'legl', 'arml', 'legr'):
+        kind = 'arm' if lim.startswith('arm') else 'leg'
+        d = HUNT_DUTY[lim]
+        z0, lift = (prm['arm_z'], prm['lift']) if kind == 'arm' else (prm['leg_z'], prm['lift'] * 0.8)
+        tracks[lim] = _snap_track(ph + HUNT_OFFS[lim], d, z0, prm['L'] * d, lift)
+        lifts[lim] = tracks[lim][0]
+    side = (lifts['armr'] + lifts['legr'] - lifts['arml'] - lifts['legl']) / max(0.1, prm['lift'])
+    bob = prm['bob'] * sum(lifts.values()) / max(0.1, prm['lift'])
+    out.update(_off=(0, prm['off'] + bob, 0), body=qs(('x', prm['body'] - 2.0 * (lifts['armr'] + lifts['arml']) / prm['lift']), ('z', prm['roll'] * side)),
+               head=qs(('x', prm['head']), ('z', prm['tilt'] - 0.6 * prm['roll'] * side)))
+    sol = {}
+    for upper, lower, sx in (('armr', 'forer', 1), ('legl', 'shinl', -1), ('arml', 'forel', -1), ('legr', 'shinr', 1)):
+        kind = 'arm' if upper.startswith('arm') else 'leg'
+        ty, tz = tracks[upper]
+        rng = ((-30, 200), (-20, 170)) if kind == 'arm' else ((-60, 140), (-170, 10))
+        out_k = 10 if kind == 'arm' else 6
+        mk = lambda a, b, u=upper, l=lower, x=sx, o=out_k: {u: limb(x, a, o), l: limb(x, b)}
+        a, b, _e = _reach_warm(out, upper, lower, mk, (ty, tz), rng, prev.get(upper))
+        tgt = ty
+        for _i in range(4):                             # (its lowest corner - a toe, a claw - on its track, not the middle of them)
+            lo = GK.lowest(A_SELF, dict(out, **mk(a, b)), lower)
+            if abs(lo - ty) < 0.15:
+                break
+            tgt += ty - lo
+            a, b, _e = _reach_warm(out, upper, lower, mk, (tgt, tz), rng, (a, b))
+        sol[upper] = (a, b)
+        out.update(mk(a, b))
+    return out, sol
+
+
+_HUNT = {}
+
+
+def hunt_poses():
+    """(3.0k, computed when first asked - phase181's build, a render) hcrawl_<k>, hsprint_<k>, coil, coil_b, lunge"""
+    if _HUNT:
+        return _HUNT
+    for nm, prm in HUNT.items():
+        prev = {}
+        for kk in list(range(HUNT_FRAMES)) + [0]:       # (twice round frame 0: warm-started from frame 7 the second time)
+            pz, prev = _hunt_gait(kk, HUNT_FRAMES, prm, prev)
+            _HUNT[f'h{nm}_{kk}'] = pz
+    _HUNT['coil'] = P(_face='shut', _off=(0, -9.0, 0), body=qs(('x', 74)), head=qs(('x', -40), ('z', 26)),
+                      armr=limb(1, 70, 26), forer=limb(1, 120), arml=limb(-1, 76, 24), forel=limb(-1, 126),
+                      legr=limb(1, 74, 10), shinr=limb(1, -140), legl=limb(-1, 70, 10), shinl=limb(-1, -136))
+    _HUNT['coil_b'] = P(**dict(_HUNT['coil'], _off=(0, -9.3, 0), head=qs(('x', -44), ('z', 34)), forer=limb(1, 126), forel=limb(-1, 118)))
+    _HUNT['lunge'] = P(_face='wide', _off=(0, -3.0, 0), body=qs(('x', 70)), head=qs(('x', -52), ('z', 6)),
+                       armr=limb(1, 165, 22), forer=limb(1, 12), arml=limb(-1, 160, 24), forel=limb(-1, 16),
+                       legr=limb(1, -20, 6), shinr=limb(1, -30), legl=limb(-1, -10, 6), shinl=limb(-1, -40))
+    return _HUNT

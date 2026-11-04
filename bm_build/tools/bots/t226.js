@@ -70,19 +70,22 @@ const res = [];
   const mb = await A.press(/Menu/); await sleep(700);
   const ml = A.buttons().map(b => b.label);
   ok('...the wheel\'s Menu: Emma\'s own menu opens (not the wheel\'s page)', !!mb && mb.next && ml.length >= 3 && !ml.some(l => /Take the item back/.test(l)), ml.join(' | ').slice(0, 220));
-  // 2.88: the chatter switch, right in her menu and on the wheel - it reads on/off, and the same menu comes back
+  // 2.88 / 3.0j-k: the chatter switch - on her Settings page and on Your settings (off the wheel since 3.0k); it reads on/off, and the same page comes back
   const hushed = async () => passes('execute if entity @a[name=TestRat,tag=bm.hush]');
   await run('tag TestRat remove bm.hush');
+  await sleep(700); await A.press(/Settings$/); await sleep(700);
   const c1 = await A.press(/Chatter: on/); await sleep(700);
-  ok('...her menu has the chatter switch: pressed, chatter goes off and her menu comes back reading "off"', !!c1 && c1.next && await hushed() &&
+  ok('...her Settings page has the chatter switch: pressed, chatter goes off and the page comes back reading "off"', !!c1 && c1.next && await hushed() &&
      A.buttons().some(b => /Chatter: off/.test(b.label)) && A.buttons().some(b => /Wardrobe/.test(b.label)), A.buttons().map(b => b.label).join(' | ').slice(0, 200));
   await A.press(/Chatter: off/); await sleep(700);
   ok('...pressed again: chatter back on', !(await hushed()) && A.buttons().some(b => /Chatter: on/.test(b.label)));
-  await A.useWait(1500);
-  const c2 = await A.press(/Chatter: on/); await sleep(700);
-  ok('...and on the wheel too: off, and the wheel comes back reading "off"', !!c2 && c2.next && await hushed() &&
-     A.buttons().some(b => /Chatter: off/.test(b.label)) && A.buttons().some(b => /Call Emma|Send Emma home/.test(b.label)), A.buttons().map(b => b.label).join(' | ').slice(0, 200));
-  await A.press(/Chatter: off/); await sleep(700);
+  await A.useWait(1500); await sleep(700);
+  ok('...the wheel has no chatter switch of its own now, but Your settings', !A.buttons().some(b => /^Chatter/.test(b.label)) && A.buttons().some(b => /Your settings/.test(b.label)));
+  await A.press(/Your settings/); await sleep(700);
+  const c2 = await A.press(/Follower chatter: on/); await sleep(700);
+  ok('...on Your settings: off, and the page comes back reading "off"', !!c2 && c2.next && await hushed() && A.buttons().some(b => /chatter: off/.test(b.label)),
+     A.buttons().map(b => b.label).join(' | ').slice(0, 200));
+  await A.press(/Follower chatter: off/); await sleep(700);
   A.closeDialog && A.closeDialog(); await sleep(300);
   await A.useWait(1500);
   await press(/Send Emma home/);

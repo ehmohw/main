@@ -49,11 +49,12 @@ const res = [];
 
   // ---- the wheel's page: "Keep up: off" -> pressed: on, the page back
   await sleep(2500); let n0 = A.dialogN.length; await use(0); await wait(3000, async () => A.dialogN.length > n0);
+  await sleep(700); await A.press(/Your settings/);      // (3.0k: Keep up is on Your settings, off the wheel)
   const kb = () => (A.buttons().map(b => JSON.stringify(b)).find(t => /Keep up/.test(t)) || '');
-  ok('the wheel\'s page shows "Keep up: off"', /off/.test(kb()), kb());
+  ok('Your settings (off the wheel) shows "Keep up: off"', /off/.test(kb()), kb());
   A.chats.length = 0; n0 = A.dialogN.length; await A.press(/Keep up/); await sleep(800);
   ok('pressed: "Keep up: on", the page back reading on', /Keep up: on/.test(A.chats.join(' ')) && A.dialogN.length > n0 && /on/.test(kb()) && !/off/.test(kb()), kb());
-  await A.press(/Call Emma/); await sleep(800);
+  await sleep(700); await A.press(/« Back/); await sleep(700); await A.press(/Call Emma/); await sleep(800);
   ok('Emma called from the wheel\'s page', await wait(5000, async () => (await cnt(EMMA)) === 1));
   await sleep(1500); await use(1);
   ok('Bender called with his ball', await wait(5000, async () => (await cnt(BEN)) === 1));
@@ -121,6 +122,7 @@ const res = [];
 
   // ---- switched off: "couldn't keep up", and not back
   await sleep(2500); n0 = A.dialogN.length; await use(0); await wait(3000, async () => A.dialogN.length > n0);
+  await sleep(700); await A.press(/Your settings/);
   A.chats.length = 0; await A.press(/Keep up/); await sleep(800);
   ok('"Keep up" pressed again: off', /Keep up: off/.test(A.chats.join(' ')) && !/bm\.pwkeep/.test(await run('tag TestRat list')));
   A.chats.length = 0; await go(3, 3);
