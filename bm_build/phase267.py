@@ -218,11 +218,12 @@ def _abilities(G, X):
     step = lambda d: [f'execute if entity @s[tag=bm.nxl0] facing entity {near} feet positioned ^0.03 ^ ^{d} run tp @s ~ ~ ~',
                       f'execute if entity @s[tag=bm.nxl1] facing entity {near} feet positioned ^ ^ ^{d + 0.02} run tp @s ~ ~ ~',
                       f'execute if entity @s[tag=bm.nxl2] facing entity {near} feet positioned ^-0.03 ^ ^{d - 0.02} run tp @s ~ ~ ~',
-                      f'execute facing entity {near} feet rotated ~ 0 run tp @s ~ ~ ~ ~ ~']
+                      f'execute at @s facing entity {near} feet rotated ~ 0 run tp @s ~ ~ ~ ~ ~']          # (at @s again: the step above moved it)
     fn('p267/min/zombie', [f'execute if entity @e[{FOE},distance=..1.2] if score @s bm.nzmc matches ..0 run return run function bm:p267/min/grab',
                            f'execute if entity @e[{FOE},distance=..1.2] run return 0'] + step(0.11))
-    fn('p267/min/spider', [f'execute if entity @e[{FOE},distance=..1.5] if score @s bm.nzmc matches ..0 run return run function bm:p267/min/web',
-                           f'execute if entity @e[{FOE},distance=..2.6] run return run execute facing entity {near} feet positioned ^0.16 ^ ^0.08 run tp @s ~ ~ ~ ~ ~'] + step(0.2))
+    fn('p267/min/spider', [f'execute if entity @e[{FOE},distance=..1.9] if score @s bm.nzmc matches ..0 run return run function bm:p267/min/web',
+                           f'execute if entity @e[{FOE},distance=..2.6] if score @s bm.nzmc matches 1.. run return run execute facing entity {near} feet positioned ^0.16 ^ ^0.04 run tp @s ~ ~ ~ ~ ~'] +
+       step(0.2))                     # (it circles while its bite is on its cooldown - then lunges in)
     fn('p267/min/blaze', [f'execute if entity @e[{FOE},distance=..4] if score @s bm.nzmc matches ..0 run return run function bm:p267/min/shoot',
                           f'execute if entity @e[{FOE},distance=..2.6] run return run execute facing entity {near} feet positioned ^ ^ ^-0.08 run tp @s ~ ~ ~ ~ ~',
                           f'execute if entity @e[{FOE},distance=..3.4] run return 0'] + step(0.12))
