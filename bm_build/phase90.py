@@ -508,15 +508,24 @@ def generate(G):
     waves = {1: [cube(1, 'Forge Ember')] * 3, 2: [cube(2, 'Forge Ember')] * 2 + [mk('blaze', 'Forge Blaze', '#ffb040', {}, WV)],
              3: [cube(3, 'The Forge Keeper')]}
     keeper = mk('blaze', 'The Forge Keeper', '#ff5a20', {}, dict(WV, CustomNameVisible=B(1), Tags=WV['Tags'] + ['bm.gvcap']), {'scale': 1.7, 'max_health': 60.0, 'attack_damage': 8.0})
+    # (3.0i: the spots were block corners a step off the basalt columns at (5, 5)...: a cube, wider than a block, came up inside the
+    #  column and choked. Now block centres in the open, clear of the columns and the great forge - and a spot that isn't open air
+    #  two blocks high sends its monster to the middle of the room instead.)
     def spawn(ty, nbt, x, z):
-        return [f'execute positioned {rel(x, 5, z)} run summon minecraft:{ty} ~ ~ ~ {snbt(nbt)}', f'execute positioned {rel(x, 5, z)} run function bm:p70/guard_set']
-    SPOTS = [(6, 6), (18, 6), (6, 18), (18, 18), (12, 8), (12, 16)]
+        clear = 'if block ~ ~ ~ #minecraft:air if block ~ ~1 ~ #minecraft:air if block ~ ~2 ~ #minecraft:air'
+        mid = rel(12.5, 5, 12.5)
+        return [f'execute positioned {rel(x, 5, z)} store success score #fok bm.rng {clear}',
+                f'execute if score #fok bm.rng matches 1 positioned {rel(x, 5, z)} run summon minecraft:{ty} ~ ~ ~ {snbt(nbt)}',
+                f'execute if score #fok bm.rng matches 1 positioned {rel(x, 5, z)} run function bm:p70/guard_set',
+                f'execute if score #fok bm.rng matches 0 positioned {mid} run summon minecraft:{ty} ~ ~ ~ {snbt(nbt)}',
+                f'execute if score #fok bm.rng matches 0 positioned {mid} run function bm:p70/guard_set']
+    SPOTS = [(8.5, 8.5), (16.5, 8.5), (8.5, 15.5), (16.5, 15.5), (12.5, 9.5), (12.5, 14.5)]
     w1 = sum((spawn(*cube(2, 'Forge Ember'), x, z) for (x, z) in SPOTS[:4]), [])
     w2 = sum((spawn(*cube(2, 'Forge Ember'), x, z) for (x, z) in SPOTS[:2]), []) + \
         ['execute if score #gt bm.rng matches ..2 run ' + l for l in sum((spawn(*cube(3, 'Forge Ember'), x, z) for (x, z) in SPOTS[2:4]), [])] + \
         ['execute if score #gt bm.rng matches 3.. run ' + l for l in sum((spawn(*mk('blaze', 'Forge Blaze', '#ffb040', {}, WV), x, z) for (x, z) in SPOTS[2:5]), [])]
-    w3 = ['execute if score #gt bm.rng matches ..2 run ' + l for l in spawn(*cube(4, 'The Forge Keeper'), 12, 12)] + \
-        ['execute if score #gt bm.rng matches 3.. run ' + l for l in spawn(*keeper, 12, 12)] + \
+    w3 = ['execute if score #gt bm.rng matches ..2 run ' + l for l in spawn(*cube(4, 'The Forge Keeper'), 12.5, 12.5)] + \
+        ['execute if score #gt bm.rng matches 3.. run ' + l for l in spawn(*keeper, 12.5, 12.5)] + \
         ['execute if score #gt bm.rng matches 5 run ' + l for l in sum((spawn(*mk('wither_skeleton', 'Forge Reaver', '#5a5a6a', {'mainhand': 'minecraft:stone_sword'}, WV), x, z)
                                                                          for (x, z) in SPOTS[4:6]), [])]
     fn('p90/forge/init', ['function bm:p70/ctx', sign(2.5, 7.5, 12, 'THE BLAZE FORGE', 'Three waves of the Nether\'s worst. Then the Forge Keeper.', '#ff8a3a')])
