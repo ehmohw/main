@@ -13,7 +13,7 @@ const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
 const MOB = require('./f5').DOODLEMOB;     // (3.1: the Doodle Dragon is the Doodle Mob - a new friend meets him, and he's a zombie: see the abilities)
 runT({ W: 'dragon', NAME: MOB ? 'The Doodle Mob' : 'The Doodle Dragon', ab: 'dd', q: 'dz', pfx: 'p235d', prefix: 'dd_', item: 'doodle_drawing', parts: 12, figParts: 9, hp: 34, X: 17300, Z: 16000, pron: 'him',
   called: /scrambles back to you/, home: /folds himself back into a drawing/, sit: /curls up like a cat/, stand: /Adventure/,
-  ways: MOB ? ['Grab', 'Shamble', 'Horde Hug', 'BRAAAINS', 'Undead Hug'] : ['Claw', 'Crayon Fire', 'Stomp', 'Big Blaze', 'Warm'],   // (3.1: a new friend's is the Zombie's) plain: 'Ender black', looks: ['Fire-Red Scales', 'Ocean-Blue Scales', 'Sunset-Purple Scales'],
+  ways: MOB ? ['Grab', 'Shamble', 'Horde Hug', 'BRAAAINS', 'Undead Hug'] : ['Claw', 'Crayon Fire', 'Stomp', 'Big Blaze', 'Warm'], plain: 'Ender black', looks: ['Fire-Red Scales', 'Ocean-Blue Scales', 'Sunset-Purple Scales'],
   encounter: async (ctx) => {
     // (3.0a) THE GEM BRINGS IT TO LIFE - handed something as a regular player; its entrance; right-clicked: it comes along
     const K = kit(ctx, 'dz');

@@ -51,9 +51,20 @@ def register(C, A, doll_desc, doll_fx=('minecraft:end_rod', 'minecraft:entity.al
          model=f'bm:{d}', stack=16, cat='fun', comps=hold('none'))
     HOLD[d] = f'bm:p141/{d}/use'
     P141.DOLLS.append((d, C.NAME, C.COL, doll_desc) + tuple(doll_fx))
-    idle = A.POSES['idle_a']
+    idle = A.POSES[A.DOLL_POSE or 'idle_a']
     groups = {f'bm:{C.A.model_name(p, idle)}': g for p, g in A.GROUPS.items() if p in A.PARTS and not A.HIDDEN(p, idle)}
-    P141.DOLL_FROM[d] = (C.ITEM, dict(A.DOLL, **({'groups': groups} if groups else {})))
+    fig = C.ITEM
+    if A.DOLL_POSE:                   # (a doll of its own pose: a figure of its own to bake it from - phase141 bakes every doll from a figure)
+        fig = f'{C.ITEM}_doll'
+        figs0 = P134.figures
+
+        def figures():
+            F2 = figs0()
+            F2[fig] = (C.NAME, P134._rigkit(C.A, idle, A.RIG_SCALE))
+            return F2
+        P134.figures = figures
+        P134.FIT[fig] = A.R.fit(idle)
+    P141.DOLL_FROM[d] = (fig, dict(A.DOLL, **({'groups': groups} if groups else {})))
     P134.FIT[C.ITEM] = A.FIT
     if pairs:
         import phase188 as P188
@@ -76,6 +87,10 @@ def rp(C, R, icon, art):
 
     def post(R2):
         mdl = lambda n: {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
+        for r in art.RIGS:                  # (a bare joint - the Glitch's core - has no model; its display wears an empty one)
+            for p in r.PARTS:
+                if not r._els[p]:
+                    R2.wj(f'assets/bm/items/{r.PREFIX}{p}.json', {'model': {'type': 'minecraft:empty'}})
         for sfx in art.SKINS:
             base = f'{art.PREFIX}{fp}{sfx}'
             if base not in names:

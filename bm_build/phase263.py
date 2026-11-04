@@ -228,7 +228,8 @@ def generate(G):
                 else:
                     at.append(f'effect give @s minecraft:{e}')
             at += [f'particle {p}' if ' ~' in p else f'particle {p} ~ ~1 ~ 0.3 0.4 0.3 0 8' for p in parts]
-            fn(f'p263/{s}/{ev}_at', at)
+            if how != 'you':
+                fn(f'p263/{s}/{ev}_at', at)
             near = f'@e[{FOE},distance=..{r + 0.4},sort=nearest,limit=1]'
             if how == 'you':
                 body = [f'execute on owner if entity @s[distance=..8] run function bm:p263/{s}/{ev}_you']
@@ -307,11 +308,11 @@ def generate(G):
     fn('p263/now', [f'function bm:{pfx}/form2', 'function bm:p263/box_now', f'scoreboard players set @s bm.dzs -1'] + scribble('zombie') + FX.face_cmd('dragon', 'surprised', 20))
     fn('p263/box_now', [f'execute if entity @s[tag={MF}{K[f]}] run return run function bm:p263/{SHORT[f]}/box' for f in FORMS] + ['function bm:p263/box_dragon'])
     # ---- a baby zombie killed by one of his blows: the Chicken Jockey's egg will make sense to him now
-    G.FUNCS[f'{pfx}/hurt'].append('execute if entity @s[type=#bm:p263/zombies] if data entity @s {IsBaby:1b} run function bm:p263/baby')
+    G.FUNCS[f'{pfx}/hurt'].append('execute if entity @s[type=#bm:p263_zombies] if data entity @s {IsBaby:1b} run function bm:p263/baby')
     fn('p263/baby', ['execute store result score #h bm.rng run data get entity @s Health', 'execute if score #h bm.rng matches 1.. run return 0',
                      f'execute as @e[type=minecraft:wolf,tag=bm.ddme,limit=1] on owner unless entity @s[tag={BZ}] run function bm:p263/baby_you'])
     fn('p263/baby_you', [f'tag @s add {BZ}', 'execute unless entity @s[tag=bm.hush] run ' + csay('"A baby zombie... riding a CHICKEN? Kettle drew one of those once!" (An egg will do it now.)')])
-    G.wjson('bm/tags/entity_type/p263/zombies.json', {'values': ['minecraft:zombie', 'minecraft:husk', 'minecraft:drowned', 'minecraft:zombie_villager']})
+    G.wjson('bm/tags/entity_type/p263_zombies.json', {'values': ['minecraft:zombie', 'minecraft:husk', 'minecraft:drowned', 'minecraft:zombie_villager']})
     G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/doodle_forms', 'yellow'), T('  every Doodle Mob form unlocked', 'gray')]))
     fn('admin/doodle_forms', [f'tag @s add {UN(f)}' for f in FORMS] + [f'tag @s add {END}', f'tag @s add {BZ}', say('Every Doodle Mob form unlocked (his wardrobe).', DCOL)])
 

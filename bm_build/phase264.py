@@ -159,6 +159,7 @@ def _abilities(G, X):
              crowd=dict(st=11, x=20, at=17, cd=240, r=7, n=1, face='err', go=[snd('block.note_block.bit', 0.7, 0.5)]),
              charged=dict(st=12, x=16, at=11, cd=1200, r=3, face='snow', go=[snd('block.respawn_anchor.deplete', 0.6, 1.8)]))
     lines = P235.kit(G, X, K)
+    G.FUNCS.pop(f'{pfx}/near_owner', None)              # (no kindness of its own: nothing asks whether you're near)
     P235.melee(G, X, 6, 2.6, ['particle minecraft:electric_spark ~ ~0.8 ~ 0.2 0.2 0.2 0.2 8', 'particle minecraft:dust{color:[1.0,0.24,0.78],scale:1.0} ~ ~0.8 ~ 0.3 0.3 0.3 0 6'],
                'minecraft:block.note_block.bit')
     # TELEPORT-STUTTER: the blinks are its clip's (p264/blink); the double-fist punch lands on whatever is in reach after them

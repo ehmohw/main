@@ -53,7 +53,17 @@ class Art(types.ModuleType):
         self.OWN_SETS = dict(own_sets or {})
         self.DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62}
         self.GROUPS = dict(doll_groups or {})
+        self.DOLL_POSE = None             # (an art with a doll of its own - the Mimic's: doll(module) takes its DOLL_POSE, DOLL and DOLL_GROUPS)
         self.FIT = rig.fit(rig.POSES[fit_pose])
+
+    def doll(self, mod):
+        """(3.1) the art module's own doll source, if it has one: DOLL_POSE (the pose baked, its opt parts shown), DOLL (the warp and
+        fit), DOLL_GROUPS - in place of the default warp at rest"""
+        if getattr(mod, 'DOLL_POSE', None):
+            self.DOLL_POSE = mod.DOLL_POSE
+            self.DOLL = dict(getattr(mod, 'DOLL', self.DOLL))
+            self.GROUPS = dict(getattr(mod, 'DOLL_GROUPS', self.GROUPS))
+        return self
 
     # ---- rigpet / rigfol
     def HIDDEN(self, p, pose):
@@ -135,8 +145,29 @@ def _spawner():
     return A
 
 
+def _cairn():
+    """the Cairn: its blocks are block_displays (phase268) - the rig the game moves as item displays is only what is really IT,
+    its EYES (the head block's front) and its HEART; every pose is still solved on the whole golem's joints"""
+    import assembler_pet_art as AR
+    from fol5_kit import Rig
+    pv = dict(AR.PIVOT, eyes=AR.PIVOT['head']); par = dict(AR.PARENT, eyes='head')
+    R = Rig('as_', AR.R.RIG_SCALE, pv, par, AR.FACES, face_part='eyes')
+    for k in ('eyes', 'heart', 'heartglow') + tuple(f'eyes_{f}' for f in AR.FACES):
+        R.tex(k, AR.R._tex[k])
+    R._els['eyes'] = [e for e in AR.R._els['head'] if any(f['texture'] == '#EYES' for f in e['faces'].values())]
+    R._els['heart'] = list(AR.R._els['heart'])
+    R._pts['eyes'], R._pts['heart'] = list(AR.R._pts['head']), list(AR.R._pts['heart'])
+    R.POSES = AR.POSES
+    R.PARTS = ('eyes', 'heart')
+    A = Art('cairn', R, {'happy': 'happy', 'surprised': 'blink', 'hurt': 'hurt', 'sleepy': 'sleepy', 'blink': 'blink', 'squint': 'happy', 'serious': 'focus'},
+            (), drop=(), shiny=(None, '#c8962a', 'yellow'))
+    A.FIT = AR.R.fit(AR.POSES['idle_a'])
+    A.FULL = AR
+    return A
+
+
 _MADE = {}
-_MAKERS = {'glitch': _glitch, 'cake': _cake, 'sapling': _sapling, 'spawner': _spawner}
+_MAKERS = {'glitch': _glitch, 'cake': _cake, 'sapling': _sapling, 'spawner': _spawner, 'cairn': _cairn}
 
 
 def get(w):

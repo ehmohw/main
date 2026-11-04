@@ -21,6 +21,130 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0n: the Doodle Mob, the Glitch and the Cake
+
+### The Doodle Dragon is now the Doodle Mob
+
+Kettle has started drawing him as Minecraft's own mobs. He keeps his drawing, his save and everything he had; only his name
+changes, to **the Doodle Mob**. He now has a crayon costume for each of these mobs, and each costume comes with its own moves:
+
+| Form | Unlock: hand him (right-click him holding it) | His moves |
+|---|---|---|
+| **Doodle Zombie** (the new default) | rotten flesh (it also switches him back) | Grab (a hug-bite, held a moment), Shamble (a lurching lunge), Horde Hug, BRAAAINS (a groan that weakens every monster within 6), Undead Hug (Absorption and Regeneration for you) |
+| **Doodle Skeleton** | a bone | Bone Bonk, Bone Arrow, Rattle, Volley (two volleys over everything within 8), Lucky Bone (Luck and Haste) |
+| **Doodle Chicken Jockey** | an egg, once he has killed a baby zombie | Flap Charge (knockback), Egg Toss (sticky: slowed), Peck Peck, Stampede, Feather Fall (Slow Falling and Speed) |
+| **Doodle Iron Golem** | a block of iron | Iron Fist, Iron Toss (flung into the air), Ground Slam, Big Toss, A Poppy (Regeneration II and Resistance) |
+| **Doodle Axolotl** | a bucket of axolotl (he hugs the axolotl, lets it go, and gives you the bucket back) | Nibble, Bubble (slowed), Splash (weakened), Play Dead (Regeneration II for you and him, then a bubble burst), Axolotl Hug |
+| **Doodle Enderman** | an ender pearl | Swipe, Blink (to the monster's back, then a strike), the Stare (frozen in place), Void Rush, Grass Gift (Haste and Night Vision) |
+| **Doodle Ender Dragon** | a bottle of dragon's breath | his old moves: Claw, Crayon Fire, Stomp, Big Blaze, Warm |
+
+- **Old friends keep the dragon.** If he joined you before this version, he stays the Ender Dragon, and that form is already
+  unlocked. A new friend meets Kettle's dragon drawing as before; the moment he joins, Kettle scribbles him into a zombie
+  ("I've been practising MOBS!").
+- **Switching forms.** A form you've unlocked is a row in his wardrobe: pick it there, or hand him its item again. The Doodle
+  Creeper and Crayon Green belong to the Ender Dragon form, and turning either one on puts him back in it.
+- **Looks still apply.** Every look (the three Scales, the metals, the shiny) recolours every form.
+- **His ways follow the form.** His menu's ways page shows the form he's in.
+- **His click box fits the form.** It is wide for the Iron Golem and tall for the Enderman.
+
+### New: the Glitch (the 53rd follower)
+
+Three sprites on one screen were more than the old cartridge could draw. Use a **Glitched Cartridge** with **8-Bit Cecil,
+8-Bit Leo and 8-Bit Emma all out** at once. The screen tears into coloured lines, and the leftover pixels climb out:
+"H3LL0 PL4YER 0NE." Right-click it, and it gives you **A Cracked Cartridge**, its summoning item.
+
+- **How it moves.** It never moves smoothly:
+  - its poses snap, with no in-between frames;
+  - frames are held, doubled or dropped;
+  - its three slices desync, the head first and the slices a tick or three behind;
+  - a red and cyan RGB split flickers on it, and afterimages are left behind;
+  - its slices jitter sideways at random;
+  - it walks in stepped jumps;
+  - now and then it **rewinds** (REW on its screen, the last frames backwards);
+  - every 20-40 s its whole palette flickers: DMG green, Virtual Red or INVERTED.
+- **Sitting** is the one smooth thing it does.
+- **Its ways:**
+  - **Punch:** both voxel fists, 6.
+  - **Teleport-Stutter:** a foe 2.6-6 blocks away, every 5 s. Three jittery blinks to it, then a double-fist punch, 8.
+  - **Corrupt:** a foe within 7, every 12 s. An ERR cage snaps round it for 3 s: Weakness II and Slowness II.
+  - **SEGFAULT:** charged, every minute. It tears itself apart (10 to every monster within 3, thrown back), then rewinds
+    itself back together.
+- **Everything every follower has:**
+  - sitting: a right-click for a happy heap of pixels, **sneak + right-click** for a doze, dreaming in snow;
+  - a wardrobe for its **CRT Bezel**: Beige 1989, Clear Purple, Atomic Teal, plus the Gilded, Diamond and Netherite bezels;
+  - a rare aura, **the Dead Pixel Halo**;
+  - a shiny, **Shiny Clean Signal**: gold and pearl, and its afterimages are gold too;
+  - the Partner Wheel (at the end of its list), the display case, Cecil's doll, the honours (its Champion blow, Stack Overflow;
+    its Piercing Blow, Frame Skip) and a Raid Contract;
+  - an item frame: it climbs out, and its cartridge in the frame flicks through the channels (rest, SNOW, ERR, a smile).
+    Right-click the frame for a burst of shards.
+- **Pairs:** with Bender ("Good B0Y.exe"), Mr. Capshun ("Patch Notes"), Henry ("Pixel Cat") and Nia ("Warm Telly").
+
+### New: the Cake (the 54th follower)
+
+Queen Pearl always wanted someone to finish the cake. With **the Chef out**, hand **Queen Pearl a cake** (right-click her
+holding one):
+- Queen Pearl: "I am cake... I always wanted someone to finish the cake."
+- The Chef finishes it, and it hops off the plate.
+
+Right-click it, and it hands you **The Cake's Candle**, its summoning item. Without the Chef, Queen Pearl only says the cake
+isn't finished, and you keep it.
+
+- **Its ways:**
+  - **Tiny Fork:** a wind-up, then a jab, 5.
+  - **I Am Cake: Hop + Boop:** a foe within 3, every 12 s. A happy hop, then a frosting dollop on the foe's nose: 3 damage,
+    Slowness II for 3 s, and the foe drops what it was holding.
+  - **Layer Slam:** charged, every 20 s. A great bounce, then a plop: 7 to every monster within 2.5, slowed.
+  - **Sprinkle Shower:** when you're hurt and a monster is near, every 25 s. A Sugar Rush for you: Regeneration I and Speed I
+    for 5 s (Regeneration for your followers near you too).
+  - It walks with a little hop every step.
+- **Everything every follower has:**
+  - sitting: a right-click to plonk down, the flame flickering; **sneak + right-click** for a doze, the hat slipped
+    ("...frosting...");
+  - a wardrobe of **Flavours**, each a whole drawn cake: Mint, Lemon, Chocolate, plus Gilded, Diamond and Netherite Icing;
+  - a rare aura, **the Birthday Wish**;
+  - a shiny, **Shiny Midnight Velvet**;
+  - the Partner Wheel, the display case, Cecil's doll, the honours (Last Slice; Surprise Party) and a Raid Contract;
+  - an item frame: it climbs out, and the candle in the frame goes out with a puff of smoke and relights. Right-click the frame:
+    "Make a wish!"
+- **Pairs:** with Bender ("Good Boy Gets Cake"), Mr. Capshun ("Party Hat"), Henry ("Cherry Thief") and Nia ("Kneaded").
+
+### For the build
+
+- **Switches:** `bm_build/fol5flag.py` has DOODLEMOB, GLITCH and CAKE (and, still off, the next five). With a switch off, the
+  pack builds exactly as before.
+- **Registry:** `fol5.py` puts the new followers in every registry, in their save-number order, after the Rat King. Each
+  registry module calls it once, next to its Rat King line.
+- **Art:** `fol5art.py` adapts their fol5_kit art for the game.
+- **Wiring:** `fol5wire.py` holds what all seven share: registration, the doll, the faces, the sneak-sit and the frame trick.
+- **Phases:**
+  - phase263: the Doodle Mob's forms (phase235 calls it for his name and his wardrobe rows);
+  - phase264: the Glitch, including its MOTION player;
+  - phase265: the Cake.
+- **Not counted by the Compass of Bonds:** the new followers aren't part of the "every other follower met" for the Keeper and
+  the Rat King (`fol5.NOT_IN_COMPASS`).
+- **Codes:**
+
+  | What | Codes |
+  |---|---|
+  | The Glitch's menu | 5700 (5701-5709) |
+  | The Glitch's wardrobe | 5720-5739 |
+  | The Cake's menu | 5750 |
+  | The Cake's wardrobe | 5770-5789 |
+  | The Doodle Mob's form rows | 4630-4636 (in his wardrobe) |
+  | The Ledger's Raid Crew page | a fourth block, 7936-7949 (`phase98.ccode`) |
+
+- **Tests:**
+
+  | Test | What it covers |
+  |---|---|
+  | `t387.js` | the Glitch |
+  | `t388.js` | the Cake |
+  | `t389.js` | the Doodle Mob's forms |
+
+  t304 (the Doodle Dragon test) puts him in his dragon form for its dragon steps. t138, t145, t146, t156 and t158 list the new
+  followers through `tools/bots/f5.js`, which reads fol5flag.
+
 ## New in 3.0m: the Rat King, the Keeper of Bonds' counterpart
 
 The Keeper of Bonds weaves every bond you've made. The Rat King keeps count of them ("a debt is a bond too, if you ask me").

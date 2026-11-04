@@ -108,7 +108,7 @@ SPEC['sapling'] = dict(
     gift=('Regeneration and Saturation', [f'effect give {P8} minecraft:regeneration 15 0 true', f'effect give {P8} minecraft:saturation 1 0 true']),
     trib=[('minecraft:bone_meal', 64), ('minecraft:oak_sapling', 16), ('minecraft:moss_block', 16), ('minecraft:golden_apple', 2), ('heartstone', 4)],
     honour=('Overgrowth', 'the ground bursts into roots under them: 16 to monsters round it, held fast; you, Regeneration II and Absorption',
-            (16, 6), 0, 'slowness 5 3', ['regeneration 8 1', 'absorption 30 1'], 'minecraft:cherry_leaves', 'block.azalea.place'.join(['minecraft:', ''])),
+            (16, 6), 0, 'slowness 5 3', ['regeneration 8 1', 'absorption 30 1'], 'minecraft:cherry_leaves', 'minecraft:block.azalea.place'),
     hint='By day, with Kettle out, hand the Pale Dryad a Golden Apple. Then wait for it to grow.',
     shiny_say='"Trying something new today! Cherry blossom. Pink, all over. Even my apple is a cherry now!"',
     pierce=('Taproot', 'sinks into the soil - and bursts up out of the ground beneath the monster, roots first', 'below',
@@ -140,6 +140,30 @@ SPEC['spawner'] = dict(
             [_P('minecraft:flame', 30, 0.4, 0.8, 0.05), _P('minecraft:crit', 20)], 'minecraft:block.fire.extinguish', 'minecraft:block.trial_spawner.spawn_mob'),
     henry=('Warm Cage', (('fire_resistance', 0), ('night_vision', 0)), '(it turns its ember up a little, so the cage is cosy)', '(Henry sits on top of the warm cage. It is his heater now.)'),
     nia=('Smoke Chase', (('regeneration', 1),), '"Ooh - she\'s chasing my smoke! Here, have a bigger puff!"', '(Nia chases its smoke puffs round and round, then naps against the warm bars)'),
+)
+
+
+# ---------------------------------------------------------------------------------------------------- 57: THE CAIRN
+_ca = {1: ('Stained Glass', ('#0a1a3a', '#5a8ae0', '#d0e8ff')), 2: ('Mossy', ('#0e2a0e', '#4a8a3a', '#b8e0a0')), 3: ('Snowcap', ('#1a2a3a', '#a8c8e0', '#ffffff')),
+       4: ('Gilded Blocks', GOLD), 5: ('Diamond Blocks', DIAMOND), 6: ('Netherite Blocks', NETHERITE)}
+SPEC['cairn'] = dict(
+    shiny_name='Shiny Gilded Cairn', NAME='The Cairn', pron='it', COL='#ffb040', LINE='#fff0d0', ab='ax', q='jx', pfx='p268', item='waystone_heart', prefix='as_',
+    word='Blocks', looks=_ca, dyes=_dyes('Blocks', 'light_blue', 'green', 'white', _ca), words='its blocks', plain='The land itself', base=5920,
+    aura=('Orbit', '#ffb040', 1.4, 0.95, 'minecraft:end_rod',
+          ['particle minecraft:falling_dust{block_state:"minecraft:diamond_ore"} ~ ~1.6 ~ 0.5 0.3 0.5 0 1', f'particle {_dust(1.0, 0.69, 0.25, 0.6)} ~ ~0.8 ~ 0.4 0.4 0.4 0 2']),
+    anchors=('eyes', 'as_eyes', 'heart', 'as_heart'),
+    champ=(None, [], False, ['minecraft:falling_dust{block_state:"minecraft:gold_block"} ~ ~1.5 ~ 0.3 0.2 0.3 0 1', _dust(1.0, 0.69, 0.25, 0.8) + ' ~ ~0.8 ~ 0.4 0.5 0.4 0 2']),
+    gift=('Resistance and Haste', [f'effect give {P8} minecraft:resistance 15 0 true', f'effect give {P8} minecraft:haste 15 0 true']),
+    trib=[('minecraft:cobblestone', 64), ('minecraft:mossy_cobblestone', 32), ('minecraft:amethyst_shard', 16), ('minecraft:diamond', 4), ('heartstone', 4)],
+    honour=('Landslide', 'every block it is made of comes down on them: 16 to monsters round it, slowed; you, Resistance II and Haste',
+            (16, 6), 0, 'slowness 5 2', ['resistance 10 1', 'haste 10 0'], 'minecraft:poof', 'minecraft:block.stone.break'),
+    hint='At dusk, with the Gem of Creativity out, stack five different blocks into a little column on high ground - and crouch beside it.',
+    shiny_say='"Trying something new today. Gold. All of it. ...I may be too heavy to walk."',
+    pierce=('Rockfall', 'falls apart where it stands - and its blocks rain down out of the air above the monster, re-forming as they land', 'above',
+            [_P('minecraft:block{block_state:"minecraft:cobblestone"}', 30, 0.5, 0.4, 0.02)], ['minecraft:falling_dust{block_state:"minecraft:cobblestone"} ~ ~2 ~ 0.3 0.1 0.3 0 2'],
+            [_P('minecraft:block{block_state:"minecraft:cobblestone"}', 40, 0.5, 0.8, 0.1), _P('minecraft:crit', 20)], 'minecraft:block.stone.break', 'minecraft:block.anvil.land'),
+    henry=('Warm Stone', (('fire_resistance', 0), ('night_vision', 0)), '(it holds its head block very still, so he can sleep on it)', '(Henry sleeps on its warm head block)'),
+    nia=('Cat Tree', (('regeneration', 1),), '(it crouches, so she can climb it like a cat tree)', '(Nia climbs it block by block, and perches on its head)'),
 )
 
 

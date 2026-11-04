@@ -139,6 +139,7 @@ def _abilities(G, X):
              charged=dict(st=12, x=20, at=8, cd=400, r=2.5, face='surprised', go=[snd('entity.slime.jump', 1.0, 0.8)]),
              support=dict(st=13, x=22, at=14, cd=500, face='happy', go=[snd('block.amethyst_block.chime', 0.6, 1.6)]))
     lines = P235.kit(G, X, K)
+    G.FUNCS.pop(f'{pfx}/near_owner', None)              # (no kindness of its own: nothing asks whether you're near)
     P235.melee(G, X, 5, 2.4, ['particle minecraft:crit ~ ~0.8 ~ 0.2 0.2 0.2 0.1 6', 'particle minecraft:dust{color:[0.9,0.9,0.95],scale:0.6} ~ ~0.8 ~ 0.2 0.2 0.2 0 4'],
                'minecraft:item.trident.hit')
     # HOP + BOOP: a frosting dollop on the nose - slowed, and what it held drops (sweetened)

@@ -166,6 +166,7 @@ def _abilities(G, X):
              ranged=dict(st=8, x=12, at=7, cd=80, near=2.5, far=9, face='serious', go=[snd('block.azalea_leaves.break', 0.8, 1.6)]),
              support=dict(st=13, x=20, at=8, cd=400, face='happy', go=[snd('block.honey_block.place', 0.7, 1.4)]))
     lines = P235.kit(G, X, K)
+    G.FUNCS.pop(f'{pfx}/near_owner', None)              # (no kindness of its own: nothing asks whether you're near)
     stage = lambda s: f'execute if entity @s[tag=bm.sxs{s}] run'
     # ROOTSNARE: roots burst up round the nearest foe within 9 - held (Slowness IV, no jumping) for the stage's time
     fn(f'{pfx}/melee', X.hit(3) + [f'execute as @e[{foe},distance=..9.4,sort=nearest,limit=1] at @s run function bm:{pfx}/snared'] + X.end)
