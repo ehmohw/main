@@ -304,17 +304,18 @@ body('lunge', [(0, 0, 0), (0, -0.6, 3.0), (0, -2.0, 6.2), (0.4, -4.2, 8.6), (0.2
      _spiral((0, 0, 12.6), 3.0, 1.6, -6.9, -6.6, math.radians(200), 1.1, 8)[1:])
 # 'coil': wound round a foe - 1.5 turns of radius 7, the head over the top looking down at its face (its own pivot)
 cc = (0, 0, 6.0)
-body('coil', [(0, 0, 0), (0, -1.2, 1.6), (0, -2.6, 2.4)] + _spiral(cc, 7.0, 6.6, -3.6, -24.0, math.radians(260), 1.5, 22), w0=2.1, w1=0.5)
+body('coil', [(0, 0, 0), (0, -1.2, 1.6), (0, -2.6, 2.4)] + _spiral(cc, 7.4, 7.0, -3.6, -22.0, math.radians(260), 1.5, 24), w0=3.0, w1=1.0)
 # 'drape': across the kneeling armour's shoulders (the head on its right pauldron, the tail down the front of its left)
 body('drape', [(0, 0, 0), (0.2, 0.2, 2.0), (-1.2, 0.7, 4.0), (-5.0, 0.9, 4.7), (-9.6, 0.7, 3.8), (-13.8, 0.1, 2.2), (-15.0, -1.0, -0.3),
                (-14.8, -3.4, -1.5), (-14.4, -6.2, -1.2), (-14.6, -8.6, -0.2)])
 # 'helm': curled once round the helm, the head resting on its brow (the doll)
-hc = (-0.4, -1.6, 4.4)
-body('helm', [(0, 0, 0), (0.3, -0.4, 1.5)] + _spiral(hc, 4.6, 4.4, -1.4, -3.4, math.radians(-75), 0.92, 12) + [(3.6, -4.8, 5.6), (3.0, -6.8, 5.2)], w0=2.0, w1=0.45)
+HELM_C = (-3.4, -1.8, 1.2)                                   # (the ring's centre, from the neck: the head rests on the helm's right-top corner)
+body('helm', [(0, 0, 0), (0.3, -0.7, 1.4)] + _spiral(HELM_C, 4.4, 4.2, -1.4, -2.2, math.radians(16), 0.97, 14) +
+     [(-0.6, -3.4, -3.0), (0.8, -5.0, -3.0), (1.4, -6.8, -2.4)], w0=2.2, w1=0.45)
 # 'dive': streamlined behind the head, a wave in it
 body('dive', [(0, 0, 0), (0, 0.4, 3.0), (0.6, 0.6, 6.0), (0, 1.0, 9.0), (-0.6, 1.8, 12.0), (0, 3.0, 14.8), (0.3, 4.4, 17.0)], w0=2.0, w1=0.4)
 # 'peek': only the neck, going back into the visor (half out)
-body('peek', [(0, 0, 0), (0, -0.4, 2.0), (0, -0.6, 4.0)], w0=2.2, w1=1.8, fade=1, fins=False)
+body('peek', [(0, 0, 0), (0, -0.3, 2.5), (0, -0.5, 5.0), (0, -0.6, 7.5)], w0=2.6, w1=2.1, fade=1, fins=False)
 
 
 def SPZ(lift=None, **kw):
@@ -330,9 +331,10 @@ S.POSES.update({
     'coil': {'_face': 'focus', '_show': ('b_coil',), 'head': T(34)},
     'dive': {'_face': 'focus', '_show': ('b_dive',), 'head': T(0), 'root': T(68)},
     'peek': {'_face': None, '_show': ('b_peek',), 'head': T(6, -10, 4)},
-    'emerge': {'_face': 'happy', '_show': ('b_dive',), 'root': T(-14), 'head': T(16, 0, 8)},
+    'emerge': {'_face': 'happy', '_show': ('b_peek',), 'root': T(-6), 'head': T(10, 0, 8)},
+    'divein': {'_face': 'focus', '_show': ('b_dive',), 'root': T(-8), 'head': T(4)},
     'drape': {'_face': 'sleepy', '_show': ('b_drape',), 'head': T(14, -8, 6)},
-    'helm': {'_face': 'happy', '_show': ('b_helm',), 'head': T(16, 0, 0)},
+    'helm': {'_face': 'happy', '_show': ('b_helm',), 'head': T(14, 24, -8)},
     'happy': SPZ(0.0, _face='happy', _show=('b_s',), head=T(-12, 0, 10)),
     'hurt': SPZ(0.0, _face='hurt', _show=('b_s',), head=T(-20, 20, 14), jaw=T(10)),
 })
