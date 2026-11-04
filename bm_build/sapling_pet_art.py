@@ -96,19 +96,20 @@ def make(stage):
         B('body', (-0.7, by - 3.2, -bw * 0.85 - 0.15), (0.7, by - 1.8, -bw * 0.85), 'gold', faces=('north',), light=10)   # (the pip, through a knot)
     if stage == 3:
         B('body', (-bw - 0.6, 1.0, -bw - 0.4), (bw + 0.6, 2.8, bw + 0.4), 'bark')                      # (the flare at the foot)
-        B('body', (bw - 0.4, by - 0.4, -1.0), (bw + 1.4, by + 0.4, 1.0), 'stem')                          # (the Dryad's glow-mushroom, on its shoulder)
-        B('body', (bw - 1.0, by + 0.4, -1.6), (bw + 2.0, by + 1.4, 1.6), 'mush', light=8)
     # head: a rounded burl with the face
     hw = hh * 0.58
     B('head', (-hw, by, -hw * 0.9), (hw, by + hh, hw * 0.9), 'bark')
     B('head', (-hw * 0.8, by + 0.4, -hw * 0.9 - 0.06), (hw * 0.8, by + hh - 0.4, -hw * 0.9), 'FACE', faces=('north',), uv={'north': [0, 0, 16, 16]})
     B('head', (-hw - 0.4, by + hh * 0.2, -hw * 0.7), (hw + 0.4, by + hh * 0.85, hw * 0.7), 'bark')
     top = by + hh
+    if stage == 3:                                                        # (the Dryad's blue glow-mushrooms: a shelf on the side of its head)
+        for (y, w) in ((by + 2.0, 2.2), (by + 3.6, 1.5)):
+            B('head', (-hw - w, y, -2.0), (-hw + 0.2, y + 0.9, 1.6), 'mush', light=8)
     if stage == 1:                                                                                          # two big cotyledon leaves, like ears
         for sx in (1, -1):
-            R.box('head', (sx * 0.3 if sx > 0 else -4.6, top - 0.2, -1.6), (4.6 if sx > 0 else -0.3, top + 0.6, 1.6), 'leaf',
-                  rot=('z', -sx * 28, (0, top, 0)))
-        R.box('head', (-0.3, top - 0.5, -0.3), (0.3, top + 1.0, 0.3), 'leafdk' if False else 'leaf')
+            R.box('head', (0.0 if sx > 0 else -5.6, top + 0.6, -2.2), (5.6 if sx > 0 else 0.0, top + 1.6, 2.2), 'leaf',
+                  rot=('z', sx * 32, (0, top + 1.1, 0)))
+        R.box('head', (-0.4, top - 0.4, -0.4), (0.4, top + 1.4, 0.4), 'leaf')
     elif stage == 2:                                                                                        # a tuft of five leaves
         for i, a in enumerate((-50, -25, 0, 25, 50)):
             R.box('head', (-0.9, top - 0.3, -0.4 + (i % 2) * 0.6), (0.9, top + 3.6 - abs(a) / 40, 0.4 + (i % 2) * 0.6), 'leaf', rot=('z', a, (0, top - 0.3, 0)))
@@ -167,8 +168,8 @@ def make(stage):
         'idle_b': P(_face='happy', armr=limb(1, 0, 60), arml=limb(-1, 0, 60), head=T(-6, 0, -6), lift=0.8 if stage == 1 else 0.0),   # (basking)
         'idle_c': P(_face='blink', armr=limb(1, 0, 10), arml=limb(-1, 0, 10), head=T(12, 0, 8), body=T(0, 0, 4)),                     # (swaying in a breeze)
         'walk_0': P(lift=1.0 if stage == 1 else 0.2, **W(1)), 'walk_1': P(**W(-1)),
-        'sit_a': P(_face='happy', legr=limb(1, 85, 12), legl=limb(-1, 85, 12), armr=limb(1, 30, 10), arml=limb(-1, 30, 10)),
-        'sit_b': P(_face='sleepy', _show=('roots',) if False else (), legr=limb(1, 85, 20), legl=limb(-1, 85, 20), head=T(16, 0, 10),
+        'sit_a': P(_face='happy', _o_body=(0, -1.25 * k, 0), legr=limb(1, 85, 12), legl=limb(-1, 85, 12), armr=limb(1, 30, 10), arml=limb(-1, 30, 10)),
+        'sit_b': P(_face='sleepy', _o_body=(0, -1.25 * k, 0), legr=limb(1, 85, 20), legl=limb(-1, 85, 20), head=T(16, 0, 10),
                    armr=limb(1, 10, 4), arml=limb(-1, 10, 4)),                                                                     # (dozing in the sun: it 'takes root')
         # ROOTSNARE: both arms swept down - roots burst up round the foe and hold it
         'snare': P(_face='focus', _show=('roots',), body=T(14), armr=limb(1, 60, -10), arml=limb(-1, 60, -10), legr=limb(1, -10), legl=limb(-1, 14)),
@@ -178,7 +179,7 @@ def make(stage):
         'sap': P(_face='happy', _show=('sap',), armr=limb(1, 0, 150), arml=limb(-1, 0, 150), head=T(-16)),
         'hurt': P(_face='hurt', body=T(-14, 0, 8), head=T(-10), armr=limb(1, 20, 50), arml=limb(-1, 20, 50)),
     })
-    R.POSES['planted'] = R.ground({'_show': ('mound',), '_hide': R.PARTS})
+    R.POSES['planted'] = R.ground({'_show': ('mound',), '_hide': tuple(p for p in R.PARTS if p != 'mound')})
     R.DRAFT = ['idle_a', 'idle_b', 'walk_0', 'sit_a', 'sit_b', 'snare', 'seeds', 'sap', 'hurt']
     return R
 
