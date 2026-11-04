@@ -122,8 +122,15 @@ _ARTS = {}                       # (w -> a callable giving its art adapter: fill
 def reg(mod, g, part=None):
     """fill module `mod`'s registries (its globals g) with every switched-on new follower, in ORDER"""
     mod = mod.rsplit('.', 1)[-1]
-    if FL.DOODLEMOB and part is None:
+    if FL.DOODLEMOB and part in (None, 'who'):
         _rename_dragon(g, mod)
+    if FL.DOODLEMOB and mod == 'phase138' and part == 'recol':       # (the Doodle Mob's forms: recoloured by his looks, each a set of its own)
+        import phase263 as P263
+        g['RECOL']['dragon'] = ('f5art_doodlemob', tuple(g['RECOL']['dragon'][1]) + P263.recol_keys())
+        g['OWN_SETS'].update(P263.own_sets())
+        _dd = g['ITEMS_OF']['dragon']
+        _pre = tuple(F.PREFIX for F in P263.FA.FORMS.values())
+        g['ITEMS_OF']['dragon'] = lambda n, _dd=_dd, _pre=_pre: _dd(n) or n.startswith(_pre)
     for w in live():
         s = SPEC[w]
         nm, col, pron, ab, pfx, item = s['NAME'], s['COL'], s['pron'], s['ab'], s['pfx'], s['item']

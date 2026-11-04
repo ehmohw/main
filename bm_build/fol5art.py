@@ -86,10 +86,15 @@ class Art(types.ModuleType):
 
 def _glitch():
     import glitch_pet_art as GA
+    from fol5_kit import ghost
+    base = [t for t in GA.TEX]
+    for t in base:                                  # (3.1: the shiny's afterimages are gold - a '_gg' set of its own)
+        GA.R.tex(t + '_gg', ghost(GA.TEX[t], '#ffd23a', 110))
+    GA.R.skin('_gg', {t: t + '_gg' for t in base})
     A = Art('glitch', GA.R, {'happy': 'happy', 'surprised': 'surprised', 'hurt': 'hurt', 'sleepy': 'blink', 'blink': 'blink', 'squint': 'happy', 'serious': 'focus'},
             ('case', 'case2', 'knob'), shiny=('_sh', '#c8962a', 'yellow'),
             doll_groups=GA.DOLL_GROUPS)
-    A.NO_LOOK = ('_g', '_gr', '_gc')            # (afterimages and the RGB split: never worn with a look)
+    A.NO_LOOK = ('_g', '_gr', '_gc', '_gg')            # (afterimages and the RGB split: never worn with a look)
     A.MOTION, A.SLICE_LAG, A.JIT_P, A.JIT_X = GA.MOTION, GA.SLICE_LAG, GA.JIT_P, GA.JIT_X
     return A
 

@@ -283,6 +283,8 @@ class Speech(RP.Cfg):
     MEET_HINT = 'Watch it come to life - then right-click it.'
 
 
+if __import__('fol5flag').DOODLEMOB:          # (3.1: the Doodle Mob - his new name, his forms' wardrobe rows; phase263)
+    __import__('phase263').rename(Dragon)
 DOODLES = (Dragon, Eraser, Cursor, InkBlot, Speech)
 FACE_PART = {'dragon': 'head', 'eraser': 'body', 'cursor': 'body', 'inkblot': 'head', 'speech': 'face'}
 for _C in DOODLES:
@@ -315,6 +317,8 @@ def _cr_row():
 
 
 _cr_row()
+if __import__('fol5flag').DOODLEMOB:
+    __import__('phase263').rows()
 _dd_extra0 = Dragon.POSE_EXTRA
 
 
@@ -362,7 +366,7 @@ for _C in DOODLES:
 import phase100 as P100
 import phase188 as P188
 _O = P188.O
-P188.VNAME.update({'dragon': 'the Doodle Dragon', 'eraser': 'the Eraser', 'cursor': 'the Cursor', 'inkblot': 'the Ink Blot', 'speech': 'the Speech Bubble'})
+P188.VNAME.update({'dragon': 'the Doodle Mob' if __import__('fol5flag').DOODLEMOB else 'the Doodle Dragon', 'eraser': 'the Eraser', 'cursor': 'the Cursor', 'inkblot': 'the Ink Blot', 'speech': 'the Speech Bubble'})
 _eff = lambda *es: [f'effect give {_O} minecraft:{e} {15 if e == "night_vision" else 3} {a} true' for e, a in es]
 P188.PAIRS.update({
     'dd_bender': ('dragon', 'bender', 'Dragon Fetch', '#e0a860', 'The Doodle Dragon and Bender - a dog who would like, very much, to fetch a dragon',

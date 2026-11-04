@@ -36,8 +36,11 @@ TWO IN ONE (two rigs, one follower)
            pale-gold, gentler serpent ('_f': rounder lids, blue eyes, a warm white flame); he stays because he wants to."""
 import math
 import knight_art as KA
-from rigkit import el
-from fol5_kit import (Rig, hexc, mix, limb, T, remap, cells, soft, lit, leaves, alpha, eye, blush, put, glow, chain, slab, stack, ring)
+import soulserp_art as SS
+import apophiss_art as AP
+from rigkit import el, frame as rframe
+from fol5_kit import (Rig, hexc, mix, limb, T, remap, cells, soft, lit, leaves, alpha, eye, blush, put, glow, chain, slab, stack, ring,
+                      xform_els)
 
 COMPANION = 0.5
 FINISHES = ('hollow', 'freed', 'shiny')
@@ -54,31 +57,78 @@ RECOL = {
               'cloth': ['#0a1030', '#1a2a6a', '#3a4ab0'], 'hem': ['#5a6070', '#c0c8d8', '#ffffff']},
 }
 
-# ---- the serpent's palettes: scales (dark, base, light, tip), head (base, light, dark), belly, core, flame, eyes
-SP = {'scale': ('#2a78c0', '#5ab4ec', '#8ad4ff', '#c0ecff'), 'head': ('#78ccf8', '#a8e2ff', '#4aa2dc'), 'belly': ('#cdeeff', '#eaf8ff', '#9cd4f4'),
-      'core': ('#d8f8ff', '#ffffff', '#a8eeff'), 'flame': ('#8ae0ff', '#e4faff', '#4ab4f8'), 'blush': '#b8b0ff',
-      'iris': ('#6a3a08', '#a8661a', '#d89a2a', '#f4c650', '#ffe490'), 'lash': '#16285a', 'white': '#f4fcff', 'mouth': '#2a5a8a',
-      'gleye': ('#ffd870', '#fff6d0')}
+# ---- the serpent's palettes. The default IS soulserp_art's (King Omega's Soul Serpents: its textures, used as they are); the
+# skins are those same textures tinted (_tint keeps every streak, scale and ghost alpha):
+# '_f' FREED - gentler, pale gold: a warm hide, soft blue eyes, a rose maw, a warm white flame; '_s' STARLIT - starry indigo,
+# silver eyes. gleye/core: the colours the armour's glimpses use (the eyes in the slit, the soul light in the gaps).
+SP = {'hide': '#b4bcc6', 'belly': '#dfe6ee', 'lid': '#a2aab4', 'eye': '#ffe23a', 'maw': '#3a1446', 'tongue': '#9a3ac8', 'fang': '#f0eee6',
+      'flame': '#7ad8ff', 'gleye': ('#ffe23a', '#fff6a0'), 'core': ('#d8f8ff', '#ffffff', '#a8eeff')}
 SPSKINS = {
-    '_f': {'scale': ('#b88a2a', '#e8c060', '#fde49a', '#fff6d0'), 'head': ('#f6dc8a', '#fff0c0', '#d8b04a'), 'belly': ('#fff6dc', '#fffcf0', '#f0dca0'),
-           'core': ('#fffbe8', '#ffffff', '#ffe8a0'), 'flame': ('#fff0c0', '#ffffff', '#ffd060'), 'blush': '#ffb0a0',
-           'iris': ('#1a3a6a', '#2a6ab0', '#4a9ae0', '#8ac8ff', '#c8e8ff'), 'lash': '#6a4a14', 'mouth': '#8a6a2a', 'gleye': ('#8ac8ff', '#e8f6ff')},
-    '_s': {'scale': ('#120a3a', '#2a1a6a', '#4a3aa0', '#8a7ae0'), 'head': ('#3a2a8a', '#5a4ab0', '#24186a'), 'belly': ('#8a80d0', '#b0a8f0', '#6a60b0'),
-           'core': ('#e8e8ff', '#ffffff', '#c0c0ff'), 'flame': ('#c0c8ff', '#ffffff', '#8a90ff'), 'blush': '#d090ff',
-           'iris': ('#4a4a5a', '#8a8aa0', '#c0c0d0', '#e8e8f4', '#ffffff'), 'lash': '#0a0820', 'mouth': '#1a1040', 'gleye': ('#e8e8ff', '#ffffff')},
+    '_f': {'hide': '#ecd08a', 'belly': '#fff6dc', 'lid': '#d8b470', 'eye': '#a8d4ff', 'maw': '#7a3a4a', 'tongue': '#e08aa8', 'fang': '#fff8e8',
+           'flame': '#fff0c0', 'gleye': ('#8ac8ff', '#e8f6ff'), 'core': ('#fffbe8', '#ffffff', '#ffe8a0'),
+           'ramps': {'ss_body': ('#8a6a2a', '#c8a050', '#ecd08a', '#fff0c8'), 'ss_body_dk': ('#6a4a1a', '#a8803a', '#d8b470'),
+                     'ss_lid': ('#8a6a2a', '#c8a050', '#ecd08a'), 'ss_belly': ('#c8b080', '#f0e0b0', '#fff8e0'),
+                     'ss_fin': ('#b89a50', '#f0dca0', '#fffbe8'), 'ss_eye': ('#7ab8f0', '#a8d4ff', '#d8eeff'),
+                     'ss_mouth': ('#4a2030', '#7a3a4a', '#9a5060'), 'ss_tongue': ('#b85a7a', '#e08aa8', '#f4b8c8'),
+                     'ss_fang': ('#e8dcc0', '#fff8e8'), 'ss_brow': ('#6a4a20', '#8a6a3a'), 'ss_lash': ('#5a3a14', '#6a4a20'),
+                     'ss_flame': ('#d8a040', '#ffd878', '#fff0c0', '#ffffff'), 'ss_flame_core': ('#fffbe8', '#ffffff'),
+                     'wisp': ('#e8d8a8', '#fff4d8', '#fffcf0')}},
+    '_s': {'hide': '#4a3aa0', 'belly': '#b0a8f0', 'lid': '#2a1a6a', 'eye': '#f0f0ff', 'maw': '#1a0a3a', 'tongue': '#8a5ae0', 'fang': '#e8e8ff',
+           'flame': '#c0c8ff', 'gleye': ('#e8e8ff', '#ffffff'), 'core': ('#e8e8ff', '#ffffff', '#c0c0ff'), 'stars': True,
+           'ramps': {'ss_body': ('#120a3a', '#2a1a6a', '#4a3aa0', '#8a7ae0'), 'ss_body_dk': ('#0a0628', '#1a1050', '#2a1a6a'),
+                     'ss_lid': ('#1a1050', '#2a1a6a', '#4a3aa0'), 'ss_belly': ('#6a60b0', '#8a80d0', '#b0a8f0'),
+                     'ss_fin': ('#4a3aa0', '#8a7ae0', '#c0b8ff'), 'ss_eye': ('#d0d0e0', '#f0f0ff', '#ffffff'),
+                     'ss_mouth': ('#0a0420', '#1a0a3a', '#2a1650'), 'ss_tongue': ('#5a2ab0', '#8a5ae0', '#b08aff'),
+                     'ss_fang': ('#d0d0f0', '#f4f4ff'), 'ss_brow': ('#05040c', '#12102a'), 'ss_lash': ('#05040c', '#0a0820'),
+                     'ss_flame': ('#6a70e0', '#a0a8ff', '#d8dcff', '#ffffff'), 'ss_flame_core': ('#f0f0ff', '#ffffff'),
+                     'wisp': ('#8a80d0', '#b0a8f0', '#e0dcff')}},
 }
-GA, HA, BA = 150, 210, 175                                   # (alphas: the scales, the head, the belly - see-through; the core opaque)
+GA, HA, BA = 128, 220, 148                                   # (alphas: soulserp's - the hide, the lids, the belly: see-through)
 
 
-# ---------------------------------------------------------------------------------------------------- the armour
-def _glimpse_tex(c, tag):
-    """the textures of the serpent showing through the armour (by finish)"""
-    sc = c['scale']
-    return {f'hk_{tag}_sglim': alpha(leaves(sc, 61), GA), f'hk_{tag}_score': soft(*c['core'], 62, 0.15),
+def _soul_tex():
+    """the serpent's textures: soulserp_art's own (local names; the rig prefixes hs_), plus the hiss's mist"""
+    t = {k: v for k, v in SS.textures().items() if k in _SS_USED}
+    t['wisp'] = alpha(soft('#d6dce4', '#f2f6fa', '#a8b0bc', 79, 0.2), 105)
+    return t
+
+
+def _tint(im, col):
+    """soulserp's texture recoloured toward col, keeping its own light and dark (each pixel's lightness against the texture's
+    mean - its scale rims, streaks and noise stay as subtle as they were) and its ghost alpha"""
+    im = im.convert('RGBA').copy(); px = im.load(); c = hexc(col)
+    lum = lambda p: 0.3 * p[0] + 0.59 * p[1] + 0.11 * p[2]
+    vs = [lum(px[x, y]) for y in range(im.height) for x in range(im.width) if px[x, y][3]]
+    m = max(1.0, sum(vs) / max(1, len(vs)))
+    for y in range(im.height):
+        for x in range(im.width):
+            p = px[x, y]
+            if p[3]: k = lum(p) / m; px[x, y] = tuple(max(0, min(255, int(c[i] * k))) for i in range(3)) + (p[3],)
+    return im
+
+
+def _skin_tex(base, sk):
+    out = {}
+    for k, im in base.items():
+        rp = sk['ramps'].get(k)
+        im = _tint(im, rp[len(rp) // 2]) if rp else im
+        if sk.get('stars') and k in ('ss_body', 'ss_body_dk', 'ss_belly', 'ss_fin'):
+            im = im.copy(); rnd = __import__('random').Random(sum(map(ord, k)))
+            for _ in range(14):
+                x, y = rnd.randrange(64), rnd.randrange(64)
+                if im.getpixel((x, y))[3]: im.putpixel((x, y), (255, 255, 255, im.getpixel((x, y))[3]))
+        out[k] = im
+    return out
+
+
+def _glimpse_tex(fin, tag):
+    """the textures of the serpent showing through the armour (by finish): its own hide, its soul light, its glowing eyes"""
+    t = STEX[_GL_FIN[fin]]; c = SP if _GL_FIN[fin] == '' else dict(SP, **SPSKINS[_GL_FIN[fin]])
+    return {f'hk_{tag}_sglim': alpha(t['ss_body'], 170), f'hk_{tag}_score': soft(*c['core'], 62, 0.15),
             f'hk_{tag}_seye': cells(lambda x, y, r: c['gleye'][1] if (x < 2 and y < 2) else c['gleye'][0], 63)}
 
 
-_GL_FIN = {'hollow': SP, 'freed': dict(SP, **SPSKINS['_f']), 'shiny': dict(SP, **SPSKINS['_s'])}
+_GL_FIN = {'hollow': '', 'freed': '_f', 'shiny': '_s'}
 
 
 def _glimpses(part, tag):
@@ -129,7 +179,7 @@ class Armour:
                 im = base[KA.tex_name(mat, 'dread', 'live')]
                 rc = RECOL[fin].get(mat)
                 out[f'hk_{_TAG[fin]}_{mat}'] = remap(im, rc, stretch=True) if rc else im
-            out.update(_glimpse_tex(_GL_FIN[fin], _TAG[fin]))
+            out.update(_glimpse_tex(fin, _TAG[fin]))
         return out
 
     def models(self):
@@ -168,124 +218,79 @@ ARMOUR.DRAFT = ['idle_a', 'walk_0', 'swing_0', 'swing_1', 'spin_0', 'spin_1', 's
 
 
 # ---------------------------------------------------------------------------------------------------- the soul serpent
+# Sir Aldous is one of King Omega's Soul Serpents (soulserp_art): the same head (built from it - its snout, nostrils, heavy grey
+# lids, the family's brows, solid glowing yellow eyes, the purple maw with cream fangs and the long forked tongue; crest 'a', the
+# pale spikes swept back), the same see-through pale grey-blue hide, banded belly and fins, the same blue soul flame on the tail
+# tip - scaled to a knight's soul (K_HEAD) and laid along this follower's own body shapes.
 SHAPES = ('s', 'lunge', 'coil', 'drape', 'helm', 'dive', 'peek')
-SPV = {'root': (0, 0, 0), 'head': (0, 0, 0), 'jaw': (0, 0.2, 0.6), 'tongue': (0, 0.6, -4.2), 'mist': (0, 2, -8),
-       **{f'b_{s}': (0, 0, 0) for s in SHAPES}}
+CREST = 'a'
+K_HEAD = 0.34                                                 # (soulserp's head at this follower's size)
+K_FLAME = 0.46                                                # (and its tail flame, a little larger: a candle you can see)
+_PH, _PJ, _PF = SS.PIVOT['head'], SS.PIVOT['jaw'], SS.PIVOT['flame']
+_FLAME_C = (2.75, 2.4, 55.4)                                  # (where soulserp's flame sits on its tail tip)
+SPV = {'root': (0, 0, 0), 'head': (0, 0, 0), 'jaw': tuple(round((_PJ[i] - _PH[i]) * K_HEAD, 3) for i in range(3)),
+       'tongue': (0, 0.35, -4.4), 'mist': (0, 2, -8), **{f'b_{s}': (0, 0, 0) for s in SHAPES}}
 SPV['b_coil'] = (0, -14, 6)
 SPP = {'root': None, 'head': 'root', 'jaw': 'head', 'tongue': 'head', 'mist': 'head', **{f'b_{s}': 'root' for s in SHAPES}}
 SFACES = ('blink', 'happy', 'hiss', 'focus', 'hurt', 'sad', 'sleepy')
+_AF = {'blink': 'blink', 'happy': 'smug', 'hiss': 'shock', 'focus': 'smug', 'hurt': 'hurt', 'sad': 'tired', 'sleepy': 'tired'}   # (-> the family's faces)
 SERPENT = Rig('hs_', 0.75, SPV, SPP, SFACES, opt=('tongue', 'mist') + tuple(f'b_{s}' for s in SHAPES), companion=0.75)
 SPIRIT = SERPENT                                              # (the old name)
 S = SERPENT
-FW, FH = 4.8, 2.9                                             # (the face plate on the cranium's front, above the snout: 19 x 12 texels)
+FW, FH = 4.8, 2.9                                             # (kept: the old face plate's size)
 
-
-def _sface(kind, c):
-    im = lit(soft(c['head'][0], c['head'][1], c['head'][2], 71, 0.025), 1.06, 0.95, 6)
-    im = alpha(im, 235)
-    if kind not in ('hiss', 'hurt'):
-        blush(im, 2, 10, 4, c['blush']); blush(im, 17, 10, 4, c['blush'])
-    return im
-
-
-def _seyes(kind, c):
-    from PIL import Image
-    im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
-    k = {'hiss': 'fierce', 'focus': 'fierce'}.get(kind, kind)
-    for cx, fl in ((5, False), (15, True)):
-        eye(im, cx, 2, 8, 9, fl, k, iris=c['iris'], lash=mix(c['lash'], c['head'][2], 0.35), pupil='#2a1404', sclera=False, irk=0.7)
-    return im
-
-
-def _snout(kind, c):
-    """the snout's front: two nostrils, a soft smile line (a hiss: an open dark mouth line)"""
-    im = lit(soft(c['head'][0], c['head'][1], c['head'][2], 72, 0.025), 1.05, 0.95, 4)
-    for x in (4, 9): put(im, x, 1, c['mouth'])
-    if kind == 'hiss':
-        for x in range(2, 12): put(im, x, 6, c['mouth'])
-    elif kind in ('sad', 'hurt'):
-        for x in range(4, 10): put(im, x, 5, c['mouth'])
-        put(im, 3, 6, c['mouth']); put(im, 10, 6, c['mouth'])
-    else:
-        for x in range(4, 10): put(im, x, 6, c['mouth'])
-        put(im, 3, 5, c['mouth']); put(im, 10, 5, c['mouth'])
-    return alpha(im, 235)
-
-
-def _stex(c):
-    t = {'scale': alpha(leaves(c['scale'], 73), GA), 'scale2': alpha(leaves(c['scale'], 74), GA - 25),
-         'scalef': alpha(leaves(c['scale'], 75), 95),                                                  # (the dissolving tail)
-         'head': alpha(lit(soft(c['head'][0], c['head'][1], c['head'][2], 76, 0.03), 1.08, 0.92, 10), HA),
-         'belly': alpha(cells(lambda x, y, r: c['belly'][2] if y % 3 == 0 else (c['belly'][1] if y % 3 == 1 else c['belly'][0]), 77), BA),
-         'core': soft(*c['core'], 78, 0.15), 'wisp': alpha(soft(c['core'][0], c['core'][1], c['scale'][2], 79, 0.2), 105),
-         'flame': lit(soft(c['flame'][0], c['flame'][1], c['flame'][2], 80, 0.2), 1.2, 0.85, 12), 'flamec': soft(c['core'][1], '#ffffff', c['core'][0], 81, 0.1),
-         'tongue': soft('#6a8ae0', '#9ab4ff', '#4a6ac0', 82, 0.1), 'mist': glow((c['core'][1], c['core'][0], c['scale'][2], c['scale'][2]), 16, alpha=(170, 120, 70, 0)),
-         'face': _sface(None, c), 'eyes': _seyes(None, c), 'snout': _snout(None, c)}
-    for f in SFACES:
-        t[f'face_{f}'] = _sface(f, c); t[f'eyes_{f}'] = _seyes(f, c); t[f'snout_{f}'] = _snout(f, c)
-    return t
-
-
-BASE = _stex(SP)
+_ASRC = AP.models()
+_SS_USED = {'ss_body', 'ss_body_dk', 'ss_belly', 'ss_fin', 'ss_mouth', 'ss_tongue', 'ss_fang', 'ss_eye', 'ss_lid', 'ss_brow', 'ss_lash',
+            'ss_flame', 'ss_flame_core'}
+BASE = _soul_tex()
+STEX = {'': BASE, **{sfx: _skin_tex(BASE, sk) for sfx, sk in SPSKINS.items()}}
 for k, v in BASE.items(): S.tex(k, v)
-for sfx, ch in SPSKINS.items():
-    for k, v in _stex(dict(SP, **ch)).items(): S.tex(k + sfx, v)
+for sfx in SPSKINS:
+    for k, v in STEX[sfx].items(): S.tex(k + sfx, v)
     S.skin(sfx, {k: k + sfx for k in BASE})
 
-# ---- the head: a rounded cranium, a short snout, the jaw (its own part), the face plate and eye overlay, cheek wisps, the crest
-B = S.box
-B('head', (-2.4, 0.2, -2.6), (2.4, 4.5, 2.2), 'head', shift=False)
-B('head', (-2.0, 4.5, -2.3), (2.0, 4.95, 1.8), 'head')
-B('head', (-2.75, 0.6, -2.2), (2.75, 3.6, 1.7), 'head')
-B('head', (-1.9, 0.5, 2.2), (1.9, 3.6, 3.1), 'head')
-B('head', (-1.2, 0.9, 3.1), (1.2, 3.0, 3.6), 'scale')
-B('head', (-FW / 2, 1.6, -2.62), (FW / 2, 1.6 + FH, -2.6), 'FACE', faces=('north',), uv={'north': [0, 0, FW, FH]})
-B('head', (-FW / 2, 1.6, -2.66), (FW / 2, 1.6 + FH, -2.64), 'EYES', faces=('north',), uv={'north': [0, 0, FW, FH]}, light=10)
-B('head', (-1.8, 0.0, -4.3), (1.8, 1.65, -2.6), 'head')
-B('head', (-1.4, 1.65, -4.0), (1.4, 1.95, -2.6), 'head')
-B('head', (-1.82, 0.0, -4.32), (1.82, 1.65, -4.3), 'SNOUT', faces=('north',), uv={'north': [0, 0, 3.64, 1.65]})
-B('head', (-2.5, 1.7, -2.68), (2.5, 2.0, -2.6), 'head')                                    # (the lids' ledge: a soft brow)
-for sx in (1, -1):                                                                          # (cheek wisps trailing back)
-    S.seg('head', (sx * 2.6, 2.6, 0.2), (sx * 4.4, 3.6, 3.4), 1.0, 0.14, 'wisp', up=(sx * 0.4, 1.0, 0.0), light=8)
-    S.seg('head', (sx * 2.6, 1.2, 0.5), (sx * 4.0, 0.6, 3.6), 0.8, 0.14, 'wisp', up=(sx * 0.4, 1.0, 0.0), light=8)
-# the crest: a small soul-flame on the crown, its tip curling back, a white core
-stack(S, 'head', [(4.9, 5.5, 0.95), (5.5, 6.5, 1.12), (6.5, 7.3, 0.8), (7.3, 7.8, 0.46)], 'flame', c=(0, 0.2), light=14)
-S.seg('head', (0, 7.7, 0.25), (0, 8.6, 1.2), 0.44, 0.44, 'flame', light=14)
-S.seg('head', (0, 8.6, 1.2), (0, 8.5, 1.9), 0.3, 0.3, 'flame', light=14)
-stack(S, 'head', [(5.0, 5.7, 0.58), (5.7, 6.4, 0.45)], 'flamec', c=(0, -0.55), light=15)
-for sx in (1, -1): S.seg('head', (sx * 0.7, 4.9, 0.6), (sx * 1.6, 6.1, 1.5), 0.4, 0.4, 'flame', light=14)
-# the jaw: pale belly-scale underneath, its own part (opens for the hiss)
-B('jaw', (-1.7, -0.75, -4.1), (1.7, 0.05, 1.8), 'belly')
-B('jaw', (-1.3, -1.0, -2.6), (1.3, -0.75, 1.6), 'belly')
-# the tongue (a hiss): forked
+
+def _head_els(face):
+    """soulserp's head for this expression (as soulserp_art.models builds it: the brothers' head, retextured, its fins dropped,
+    the crest added), brought to this rig's head"""
+    src = _ASRC[f'apo_head_x{_AF[face]}' if face else 'apo_head'][1]
+    els = SS._retex([e for e in src if 'apo_fin' not in SS._tex(e)]) + SS._crest(CREST, _PH)
+    return xform_els(els, _PH, _PH, K_HEAD, SPV['head'], SPV['head'])
+
+
+S.add('head', _head_els(None))
+for _f in SFACES: S.face_els('head', _f, _head_els(_f))
+S.add('jaw', xform_els(SS._retex(_ASRC['apo_jaw'][1]), _PJ, _PH, K_HEAD, SPV['head'], SPV['jaw']))
+_FLAME = [e for e in SS.models()['ss_flame'][1] if 'ss_body_dk' not in SS._tex(e)]      # (its stem dropped: the tail tip is its stem)
+# the tongue (the hiss): soulserp's long purple forked tongue, flicked straight out
 tx, ty, tz = SPV['tongue']
-S.seg('tongue', (0, ty, tz), (0, ty - 0.2, tz - 2.0), 0.3, 0.12, 'tongue')
-for sx in (1, -1): S.seg('tongue', (0, ty - 0.2, tz - 2.0), (sx * 0.4, ty - 0.3, tz - 2.7), 0.2, 0.1, 'tongue')
+S.seg('tongue', (0, ty, tz), (0, ty - 0.2, tz - 2.4), 0.5, 0.16, 'ss_tongue')
+for sx in (1, -1): S.seg('tongue', (0, ty - 0.2, tz - 2.4), (sx * 0.5, ty - 0.3, tz - 3.3), 0.26, 0.12, 'ss_tongue')
 # the mist of the hiss: soft rings going out
 for i in range(3):
-    z = -7 - i * 2.6; r = 1.2 + i * 0.7
+    z = -7.6 - i * 2.6; r = 1.3 + i * 0.7
     ring(S, 'mist', (0, 1.0, z), r, 8, 0.25, 0.25, 'wisp', plane='xy', light=10)
 
 
-def body(shape, pts, w0=2.7, w1=0.35, fade=3, fins=True):
-    """the body along a path from the neck back to the tip: translucent scales over a glowing core, the pale belly on the
-    down faces, little wisp-fins along the back, the last spans fading into motes"""
-    part = f'b_{shape}'; n = len(pts) - 1
+def body(shape, pts, w0=3.2, w1=1.1, fade=None, fins=True, flame=True):
+    """the body along a path from the neck back to the tip, soulserp's: the see-through pale hide, the banded belly plate on its
+    underside (a hair proud), a fin off the back every other span (the brothers' sail), and the blue soul flame on the tip"""
+    part = f'b_{shape}'; n = len(pts) - 1; pv = SPV[part]
     for i in range(n):
-        t0, t1 = i / n, (i + 1) / n
-        w = w0 + (w1 - w0) * ((t0 + t1) / 2) ** 0.8
-        tx = 'scale' if i < n - fade else ('scale2' if i < n - 1 else 'scalef')
-        e = S.seg(part, pts[i], pts[i + 1], w, w * 0.92, tx, ext=0.06, light=4)
-        if 'down' in e['faces'] and i < n - fade: e['faces']['down']['texture'] = '#belly'
-        if i < n - 1: S.seg(part, pts[i], pts[i + 1], w * 0.36, w * 0.32, 'core', ext=0.06, light=12)
-        if fins and i % 2 == 1 and i < n - 2:                                                  # (a wisp-fin standing off the back)
-            m = tuple((pts[i][k] + pts[i + 1][k]) / 2 for k in range(3)); d = tuple(pts[i + 1][k] - pts[i][k] for k in range(3))
-            L = math.sqrt(sum(v * v for v in d)) or 1
-            S.seg(part, (m[0], m[1] + w * 0.4, m[2]), (m[0] + d[0] / L * 1.2, m[1] + w * 0.4 + 1.1, m[2] + d[2] / L * 1.2), 0.16, w * 0.5, 'wisp', light=8)
-    tip, prev = pts[-1], pts[-2]
-    for k, s in enumerate((0.42, 0.3, 0.2)):                                                      # (motes drifting off the tail)
-        p = tuple(tip[j] + (tip[j] - prev[j]) * (0.8 + 0.9 * k) + (0.5 if j == 1 else 0) * k for j in range(3))
-        S.box(part, tuple(v - s for v in p), tuple(v + s for v in p), 'core', light=12)
+        A, B = pts[i], pts[i + 1]
+        w = w0 + (w1 - w0) * ((i + 0.5) / n) ** 0.8; h = w * 0.88
+        e = S.seg(part, A, B, w, h, 'ss_body', ext=0.08)
+        if 'down' in e['faces']: e['faces']['down']['texture'] = '#ss_belly'
+        x, y, z = rframe(tuple(B[k] - A[k] for k in range(3)), (0.0, 1.0, 0.0))
+        dn = lambda p, d: tuple(p[k] - y[k] * d for k in range(3))
+        S.seg(part, dn(A, h / 2 + 0.05), dn(B, h / 2 + 0.05), w * 0.62, 0.12, 'ss_belly', up=y, ext=0.04)
+        if fins and i % 2 == 0 and i < n - 1:
+            a, b = dn(A, -h / 2 + 0.15), dn(B, -h / 2 + 0.15)
+            tip = tuple(b[k] + y[k] * w * 0.45 + z[k] * w * 0.4 for k in range(3))
+            S.add(part, AP._sail(a, b, tip, 0.22, 'ss_fin', pv, 2, up=x))
+    if flame:
+        tip, prev = pts[-1], pts[-2]
+        S.add(part, xform_els(_FLAME, _PF, _FLAME_C, K_FLAME, (tip[0], tip[1] + w1 * 0.35, tip[2]), pv))
 
 
 def _spiral(c, r0, r1, y0, y1, a0, turns, n):
@@ -297,25 +302,26 @@ def _spiral(c, r0, r1, y0, y1, a0, turns, n):
 
 
 # 's': reared from a ground coil - the neck rises in a soft S
-body('s', [(0, 0, 0), (0, -2.4, 0.9), (0.7, -4.8, 2.3), (0.5, -7.2, 3.2), (-0.6, -9.4, 2.8)] +
-     _spiral((0, 0, 5.4), 3.2, 1.6, -10.6, -10.3, math.radians(220), 1.15, 9)[1:])
+# (its tail curls up out of the coil beside it, the soul flame held aloft - as soulserp's soldiers hold theirs)
+body('s', [(0, -0.6, 0.6), (0, -2.8, 1.4), (0.7, -5.2, 2.6), (0.5, -7.6, 3.4), (-0.6, -9.6, 3.0)] +
+     _spiral((0, 0, 5.6), 3.4, 2.8, -10.6, -10.3, math.radians(220), 0.85, 8)[1:] + [(-4.2, -9.4, 6.6), (-5.2, -7.6, 6.9), (-5.6, -5.6, 7.0)])
 # 'lunge': stretched forward low over its coil, striking
-body('lunge', [(0, 0, 0), (0, -0.6, 3.0), (0, -2.0, 6.2), (0.4, -4.2, 8.6), (0.2, -6.2, 10.0)] +
-     _spiral((0, 0, 12.6), 3.0, 1.6, -6.9, -6.6, math.radians(200), 1.1, 8)[1:])
+body('lunge', [(0, -0.6, 0.6), (0, -1.0, 3.2), (0, -2.4, 6.4), (0.4, -4.4, 8.8), (0.2, -6.2, 10.2)] +
+     _spiral((0, 0, 12.8), 3.2, 2.4, -6.9, -6.6, math.radians(200), 0.8, 7)[1:] + [(-2.6, -5.8, 16.1), (-3.3, -4.2, 17.0), (-3.5, -2.6, 17.3)])
 # 'coil': wound round a foe - 1.5 turns of radius 7, the head over the top looking down at its face (its own pivot)
 cc = (0, 0, 6.0)
-body('coil', [(0, 0, 0), (0, -1.2, 1.6), (0, -2.6, 2.4)] + _spiral(cc, 7.4, 7.0, -3.6, -22.0, math.radians(260), 1.5, 24), w0=3.0, w1=1.0)
+body('coil', [(0, -0.6, 0.6), (0, -1.4, 1.8), (0, -2.6, 2.4)] + _spiral(cc, 7.4, 7.0, -3.6, -22.0, math.radians(260), 1.5, 24), w0=3.0, w1=1.0)
 # 'drape': across the kneeling armour's shoulders (the head on its right pauldron, the tail down the front of its left)
-body('drape', [(0, 0, 0), (0.2, 0.2, 2.0), (-1.2, 0.7, 4.0), (-5.0, 0.9, 4.7), (-9.6, 0.7, 3.8), (-13.8, 0.1, 2.2), (-15.0, -1.0, -0.3),
-               (-14.8, -3.4, -1.5), (-14.4, -6.2, -1.2), (-14.6, -8.6, -0.2)])
+body('drape', [(0, -0.6, 0.6), (0.2, -0.2, 2.2), (-1.2, 0.5, 4.2), (-5.0, 0.9, 4.8), (-9.6, 0.7, 3.8), (-13.8, 0.1, 2.2), (-15.0, -1.0, -0.3),
+               (-14.8, -3.4, -1.5), (-14.4, -6.2, -1.2), (-14.6, -8.6, -0.2)], w0=3.0)
 # 'helm': curled once round the helm, the head resting on its brow (the doll)
-HELM_C = (-3.4, -1.8, 1.2)                                   # (the ring's centre, from the neck: the head rests on the helm's right-top corner)
-body('helm', [(0, 0, 0), (0.3, -0.7, 1.4)] + _spiral(HELM_C, 4.4, 4.2, -1.4, -2.2, math.radians(16), 0.97, 14) +
-     [(-0.6, -3.4, -3.0), (0.8, -5.0, -3.0), (1.4, -6.8, -2.4)], w0=2.2, w1=0.45)
+HELM_C = (-4.8, -2.4, 1.4)                                   # (the ring's centre, from the neck: the head rests on the helm's right-top corner)
+body('helm', [(0, -0.6, 0.6), (0.3, -0.9, 1.6)] + _spiral(HELM_C, 4.6, 4.4, -1.4, -2.2, math.radians(16), 0.97, 14) +
+     [(-0.6, -3.4, -3.0), (0.8, -5.0, -3.0), (1.4, -6.8, -2.4)], w0=2.6, w1=0.9)
 # 'dive': streamlined behind the head, a wave in it
-body('dive', [(0, 0, 0), (0, 0.4, 3.0), (0.6, 0.6, 6.0), (0, 1.0, 9.0), (-0.6, 1.8, 12.0), (0, 3.0, 14.8), (0.3, 4.4, 17.0)], w0=2.0, w1=0.4)
+body('dive', [(0, -0.4, 0.6), (0, 0.2, 3.2), (0.6, 0.6, 6.0), (0, 1.0, 9.0), (-0.6, 1.8, 12.0), (0, 3.0, 14.8), (0.3, 4.4, 17.0)], w0=2.8, w1=1.0)
 # 'peek': only the neck, going back into the visor (half out)
-body('peek', [(0, 0, 0), (0, -0.3, 2.5), (0, -0.5, 5.0), (0, -0.6, 7.5)], w0=2.6, w1=2.1, fade=1, fins=False)
+body('peek', [(0, -0.4, 0.6), (0, -0.5, 2.5), (0, -0.6, 5.0), (0, -0.6, 7.5)], w0=3.0, w1=2.6, fins=False, flame=False)
 
 
 def SPZ(lift=None, **kw):
@@ -323,8 +329,8 @@ def SPZ(lift=None, **kw):
 
 
 S.POSES.update({
-    'idle_a': SPZ(0.0, _show=('b_s',), head=T(4, 0, 6)),
-    'idle_b': SPZ(0.0, _show=('b_s',), _face='happy', head=T(-8, 14, -10)),
+    'idle_a': SPZ(0.0, _show=('b_s',), head=T(4, 0, 6), jaw=T(8)),
+    'idle_b': SPZ(0.0, _show=('b_s',), _face='happy', head=T(-8, 14, -10), jaw=T(14)),
     'hiss': SPZ(0.0, _face='hiss', _show=('b_s', 'tongue', 'mist'), head=T(-16), jaw=T(30)),
     'strike_up': SPZ(0.0, _face='focus', _show=('b_s',), head=T(-28), jaw=T(16)),
     'strike': SPZ(0.0, _face='hiss', _show=('b_lunge', 'tongue'), head=T(14), jaw=T(40)),
@@ -334,8 +340,8 @@ S.POSES.update({
     'emerge': {'_face': 'happy', '_show': ('b_peek',), 'root': T(-6), 'head': T(10, 0, 8)},
     'divein': {'_face': 'focus', '_show': ('b_dive',), 'root': T(-8), 'head': T(4)},
     'drape': {'_face': 'sleepy', '_show': ('b_drape',), 'head': T(14, -8, 6)},
-    'helm': {'_face': 'happy', '_show': ('b_helm',), 'head': T(14, 24, -8)},
-    'happy': SPZ(0.0, _face='happy', _show=('b_s',), head=T(-12, 0, 10)),
+    'helm': {'_face': 'happy', '_show': ('b_helm',), 'head': T(16, 34, -12)},
+    'happy': SPZ(0.0, _face='happy', _show=('b_s',), head=T(-12, 0, 10), jaw=T(12)),
     'hurt': SPZ(0.0, _face='hurt', _show=('b_s',), head=T(-20, 20, 14), jaw=T(10)),
 })
 S.DRAFT = ['idle_a', 'idle_b', 'hiss', 'strike_up', 'strike', 'happy', 'hurt']

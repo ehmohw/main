@@ -223,6 +223,8 @@ import phase253 as R253      # 3.0: the Loom Sanctuary - the Compass of Bonds (e
 import phase254 as R254      # 3.0: [keeper hook] the Keeper of Bonds - the 51st follower, the last (registers after every follower before it)
 import rkflag as RKF        # 3.0k: the Rat King's switch (off: nothing of his is built)
 R262 = __import__('phase262') if RKF.ON else None      # 3.0k: the Rat King - the 52nd follower, the Keeper's counterpart (registers after it: the Partner Wheel's END)
+import fol5 as F5            # 3.1: the new followers' registry (fol5flag: one switch each)
+F5PH = [__import__(F5.PHASE[_w]) for _w in F5.live()]      # 3.1: the 53rd on - the Glitch, the Cake, ... - in their save-number order (after the Rat King)
 import phase259 as R259      # 3.0i: the wheel's teams, sorting and sit-all; bank transfers; the heist haul; bag previews
 import phase260 as R260      # 3.0j: the Handbook, a Settings page per follower, Stay here, your own settings, the crew page
 import elemforms as EFM      # 3.0h (redone: elemforms_art / elemforms_designs - new shapes per character); 3.0g: Ethereal and Wraithfire forms for ten more followers (the wardrobe rows, the gem's lore, the ways: at import)
@@ -1397,6 +1399,7 @@ def build(out_dir):
     if PHASE2: R252.generate_early(sys.modules[__name__])      # [mireling hook]
     if PHASE2: R254.generate_early(sys.modules[__name__])      # [keeper hook]
     if PHASE2 and RKF.ON: R262.generate_early(sys.modules[__name__])      # 3.0k: the Rat King's Raid Contract
+    for _m in (F5PH if PHASE2 else ()): _m.generate_early(sys.modules[__name__])      # 3.1: the new followers' Raid Contracts
     if PHASE2: R211.generate_early(sys.modules[__name__])
     if PHASE2: R213.generate_early(sys.modules[__name__])
     if PHASE2: R199.generate_early(sys.modules[__name__])
@@ -1462,12 +1465,14 @@ def build(out_dir):
     if PHASE2: R213.generate(sys.modules[__name__])
     if PHASE2: R214.generate(sys.modules[__name__])
     if PHASE2: R235.generate(sys.modules[__name__])      # 2.97: the Doodles (after the Glitched Cartridge: the Cursor comes out of one)
+    if PHASE2 and __import__('fol5flag').DOODLEMOB: __import__('phase263').generate(sys.modules[__name__])      # 3.1: the Doodle Mob's forms
     if PHASE2: R236.generate(sys.modules[__name__])      # 2.97: the Lightbringer and the Pale Dryad
     if PHASE2: R239.generate(sys.modules[__name__])      # 2.98: the Bound Sovereign
     if PHASE2: R243.generate(sys.modules[__name__])      # 2.99: Vexis, the Unlinked
     if PHASE2: R252.generate(sys.modules[__name__])      # 3.00: [mireling hook] the Mireling
     if PHASE2: R254.generate(sys.modules[__name__])      # 3.0: [keeper hook] the Keeper of Bonds (its meeting needs phase253's island: its box, its markers)
     if PHASE2 and RKF.ON: R262.generate(sys.modules[__name__])      # 3.0k: the Rat King, his coin and his Counting House (after phase76's pit: a friend's crew never draws him)
+    for _m in (F5PH if PHASE2 else ()): _m.generate(sys.modules[__name__])      # 3.1: the new followers (after the Cartridge, Queen Pearl, the Gem: they're met through them)
     if PHASE2: R215.generate(sys.modules[__name__])
     if PHASE2: R216.generate(sys.modules[__name__])
     if PHASE2: R256.generate(sys.modules[__name__])      # 3.0b: the Pixel Creeper (its stock's in R216's, from import)

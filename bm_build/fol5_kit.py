@@ -12,6 +12,10 @@ y=0, facing -z, its right +x), so each follower module says only what it looks l
   opt                             parts hidden unless a pose's '_show' names them (a held prop, a burst of shards)
   ground(pose)                    the pose's '_off' set so its lowest point stands on y=0 (lift: off the floor by that much)
   fit(pose)                       phase134.FIT: (lowest y, height, x0, x1, z0, z1) in blocks at RIG_SCALE
+  add(part, els) / face_els(part, face, els)   elements built elsewhere on a part (see xform_els: another module's geometry,
+                                  scaled and moved onto this rig - the Hollow Knight's serpent wears soulserp_art's head); a face
+                                  part's own geometry for one expression (lids that move)
+  van(rel, fallback)              a vanilla texture from the 26.3 client jar's unpacked assets (the Mimic's chest)
 
 THE QUALITY BAR (v2 - after studying Emma, the Pale Dryad, the Lightbringer, the Keeper, the Mireling, Henry / Nia, the Gem):
 
@@ -565,7 +569,7 @@ class Rig:
         self.FACE_PARTS = (face_part,) if isinstance(face_part, str) else tuple(face_part)
         self._els = {p: [] for p in pivot}; self._pts = {p: [] for p in pivot}
         self._tex = {}; self._skins = {}; self.POSES = {}; self.DRAFT = []
-        self._n = 0
+        self._n = 0; self._fels = {}
 
     # ---- building
     def tex(self, name, im):
@@ -603,6 +607,19 @@ class Rig:
         for v in (A, B): self._pts[part].append(tuple(v))
         return e
 
+    def add(self, part, els):
+        """elements built elsewhere (already in this part's model space: its pivot at 8, 8, 8 - see xform_els), on a part"""
+        pv = self.PIVOT[part]
+        for e in els:
+            self._els[part].append(e)
+            for v in (e['from'], e['to']): self._pts[part].append(tuple(v[i] - 8 + pv[i] for i in range(3)))
+        return els
+
+    def face_els(self, part, face, els):
+        """a face part's own geometry for one expression (lids and brows that move, not just a texture): its model for
+        _x<face> is these elements instead of the part's rest elements"""
+        self._fels[(part, face)] = list(els)
+
     def skin(self, suffix, swap):
         """a model set named <part><suffix>: these textures swapped for others (names without the prefix)"""
         self._skins[suffix] = dict(swap)
@@ -629,7 +646,7 @@ class Rig:
                 variants = [('', None)] + ([(f'_x{f}', f) for f in self.FACES] if p in self.FACE_PARTS else [])
                 for vs, face in variants:
                     els = []
-                    for e in self._els[p]:
+                    for e in (self._fels.get((p, face), self._els[p]) if face else self._els[p]):
                         fcs = {}
                         for k, fc in e['faces'].items():
                             t = fc['texture'][1:]
@@ -669,6 +686,19 @@ class Rig:
         pts = self.world_pts(pose or self.POSES['idle_a']); U = self.RIG_SCALE / 16
         lo = [min(p[i] for p in pts) * U for i in range(3)]; hi = [max(p[i] for p in pts) * U for i in range(3)]
         return (round(lo[1], 3), round(hi[1] - lo[1], 3), round(lo[0], 3), round(hi[0], 3), round(lo[2], 3), round(hi[2], 3))
+
+
+def xform_els(els, src_pv, src_anchor, k, dst_anchor, dst_pv):
+    """another rig's elements (model space about src_pv) brought into a Fol5 part (model space about dst_pv): scaled by k about
+    src_anchor (design units), which lands on dst_anchor - to reuse a shipped design's geometry (soulserp_art's head) at a new size"""
+    def m(v):
+        return [round((v[i] - 8 + src_pv[i] - src_anchor[i]) * k + dst_anchor[i] + 8 - dst_pv[i], 4) for i in range(3)]
+    out = []
+    for e in els:
+        e2 = dict(e, **{'from': m(e['from']), 'to': m(e['to'])})
+        if 'rotation' in e: e2['rotation'] = dict(e['rotation'], origin=m(e['rotation']['origin']))
+        out.append(e2)
+    return out
 
 
 # ---------------------------------------------------------------------------------------------------- shapes (v1, kept)
