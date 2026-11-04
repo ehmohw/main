@@ -199,7 +199,7 @@ def generate(G):
         L = {g: int(round(cycle_len(g) * S / 16 * 1000)) for g in GAITS}
         GD.build(G, pfx, [(L[1], int(14 * k), int(6 * k)), (L[2], int(75 * k), int(55 * k))], nf=NF,
                  call=lambda name: f'execute on passengers run function bm:{name}')
-        fn(f'{pfx}/turn', ['$execute on passengers run rotate @s $(y) 0'])
+        fn(f'{pfx}/turn', ['execute on passengers run function bm:vrg/turn_r with storage bm:tmp gk'])
         frames = {('0', 'a', 8): POSES['idle_a'], ('0', 'a', 30): POSES['idle_a'], ('0', 'b', 30): POSES['idle_b']}
         for g, (nm, _p) in GAITS.items():
             for kk in range(NF):
@@ -207,7 +207,8 @@ def generate(G):
                     frames[(str(g), str(kk), d)] = POSES[f'{nm}_{kk}']
         for (g, kk, d), pz in frames.items():
             xf = _xf(pz, S, seat)
-            fn(f'{pfx}/f/{g}_{kk}_{d}', [f'execute if entity @s[tag=bm.vrp_{p}] run return run ' + _merge(*xf[p], d) for p in PARTS])
+            fn(f'{pfx}/f/{g}_{kk}_{d}', [f'execute if entity @s[tag=bm.vrp_{p}] run ' + _merge(*xf[p], d) for p in PARTS] +
+               [f'execute on passengers run function bm:{pfx}/f/{g}_{kk}_{d}'])      # (and on down the chain)
         # the rig: eight displays at the idle, mounted on the husk (tagged bm.vrme while it's made)
         xf0 = _xf(POSES['idle_a'], S, seat)
         parts = []
@@ -220,18 +221,26 @@ def generate(G):
                 'interpolation_duration': Int(0), 'view_range': F(1.5),
                 'transformation': {'left_rotation': [F(round(x, 5)) for x in q], 'right_rotation': [F(0), F(0), F(0), F(1)],
                                    'translation': [F(round(x, 4)) for x in t], 'scale': [F(round(S, 4))] * 3}}))
-        fn(f'{pfx}/rig', parts + ['execute rotated as @s as @e[type=minecraft:item_display,tag=bm.vrnew,distance=..1] run rotate @s ~ 0',
-                                  'execute as @e[type=minecraft:item_display,tag=bm.vrnew,distance=..1] run ride @s mount @e[type=minecraft:husk,tag=bm.vrme,limit=1,sort=nearest]',
-                                  'tag @e[type=minecraft:item_display,tag=bm.vrnew,distance=..3] remove bm.vrnew'])
+        # (a mob carries one passenger, and so does a display: the parts ride in a chain - the torso on the husk, each next part
+        #  on the one before; a display's seat is its own position, so all eight stand at the husk's seat)
+        new_ = lambda p: f'@e[type=minecraft:item_display,tag=bm.vrnew,tag=bm.vrp_{p},distance=..1,limit=1]'
+        chain = [f'ride {new_(PARTS[0])} mount @e[type=minecraft:husk,tag=bm.vrme,limit=1,sort=nearest]'] + \
+                [f'ride {new_(b)} mount {new_(a)}' for a, b in zip(PARTS, PARTS[1:])]
+        fn(f'{pfx}/rig', parts + ['execute rotated as @s as @e[type=minecraft:item_display,tag=bm.vrnew,distance=..1] run rotate @s ~ 0'] + chain +
+           ['tag @e[type=minecraft:item_display,tag=bm.vrnew,distance=..3] remove bm.vrnew'])
     # making one (as a Vorn husk): its old one-piece body (or 2.24's hoverboard) off, the rig on, its gait from where it stands
     fn('vrg/make', ['execute unless entity @s[tag=bm.vtroop] unless entity @s[tag=bm.vb_warlord] unless entity @s[tag=bm.avorn] run return run tag @s add bm.vrgx',
                     'tag @s add bm.vrg', 'tag @s add bm.v224', 'execute if entity @s[tag=bm.vb_warlord] run tag @s add bm.vrgw',
                     'execute on passengers if entity @s[tag=bm.vbody] run kill @s', 'execute on passengers if entity @s[tag=bm.vboard] run kill @s',
                     'execute on passengers if items entity @s contents *[minecraft:item_model="bm:vorn3d_warlord"] run kill @s',
                     'execute on passengers if items entity @s contents *[minecraft:item_model="bm:hoverboard_red"] run kill @s',
-                    'execute on passengers if entity @s[tag=bm.vrp] run kill @s',
+                    'execute on passengers if entity @s[tag=bm.vrp] run function bm:vrg/drop',
                     'tag @s add bm.vrme', 'execute if entity @s[tag=bm.vrgw] run function bm:vrg/w/rig', 'execute unless entity @s[tag=bm.vrgw] run function bm:vrg/t/rig',
                     'tag @s remove bm.vrme'] + GD.init_lines())
+    fn('vrg/turn_r', ['$rotate @s $(y) 0', 'execute on passengers run function bm:vrg/turn_r with storage bm:tmp gk'])
+    # (a chain whose husk has gone - died, killed - goes whole, not a part a second through phase41's orphan sweep)
+    fn('vrg/drop', ['execute on passengers run function bm:vrg/drop', 'kill @s'])
+    G.FUNCS['tick'].append('execute as @e[type=minecraft:item_display,tag=bm.vrp_torso] unless function bm:p41/has_vehicle run function bm:vrg/drop')
     # every tick: any Vorn husk not yet rigged is; each within 64 blocks of a player walks
     fn('vrg/tick', ['execute if entity @s[tag=bm.vrgw] run return run function bm:vrg/w/run', 'function bm:vrg/t/run'])
     for v in variants:

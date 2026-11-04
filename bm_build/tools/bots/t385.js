@@ -44,9 +44,13 @@ const res = [];
   const H = '@e[type=minecraft:husk,tag=bm.vrg,limit=1]';
   await run(`${O}execute positioned ${X + 0.5} ${Y} ${Z + 18.5} run function bm:p32/spawn/trooper`);
   await sleep(400);
-  const nparts = await count(`${O}execute as ${H} on passengers if entity @s[tag=bm.vrp]`);
+  const hp = await pos(H);
+  const nparts = hp ? await count(`${O}execute positioned ${hp.join(' ')} if entity @e[type=minecraft:item_display,tag=bm.vrp,distance=..3]`) : 0;
+  await run('scoreboard players set #t385 bm.rng 0');
+  if (hp) await run(`${O}execute positioned ${hp.join(' ')} as @e[type=minecraft:item_display,tag=bm.vrp,distance=..3] on vehicle run scoreboard players add #t385 bm.rng 1`);
+  const ridden = await sc('#t385', 'bm.rng');
   const old = await count(`${O}execute as ${H} on passengers if items entity @s contents *[minecraft:item_model="bm:vorn3d"]`);
-  ok('A Trooper wears the jointed rig: eight parts riding it, no one-piece body', nparts === 8 && old === 0, `${nparts} parts, ${old} old`);
+  ok('A Trooper wears the jointed rig: eight parts riding it (a chain on the husk), no one-piece body', nparts === 8 && ridden === 8 && old === 0, `${nparts} parts, ${ridden} riding, ${old} old`);
   // its walk, sampled as fast as rcon goes: host position, gait, phase, the right leg's display
   const L = { 1: await sc('#gkLvrg_t_1', 'bm.rng'), 2: await sc('#gkLvrg_t_2', 'bm.rng') };
   const walk = async (host, leg, ms, Ls) => {
@@ -74,7 +78,8 @@ const res = [];
   };
   const LEG = '@e[type=minecraft:item_display,tag=bm.vrp_legr,limit=1]';
   const W = audit(await walk(H, LEG, 5000), L, 'Vorn closing in');
-  ok('Closing in it walks / runs (gait 1 or 2), the frames eased over 1-4 ticks', (W.gaits.has(1) || W.gaits.has(2)) && [...W.durs].every(d => d >= 1 && d <= 4) && W.durs.size > 0,
+  ok('Closing in it walks / runs (gait 1 or 2), the frames eased over 1-4 ticks (8 / 30: easing into its stance)', (W.gaits.has(1) || W.gaits.has(2)) &&
+     [...W.durs].every(d => (d >= 1 && d <= 4) || d === 8 || d === 30) && [1, 2, 3, 4].some(d => W.durs.has(d)),
      `gaits ${[...W.gaits]}, durations ${[...W.durs]}`);
   ok('...its cycle goes with the ground it covers (feet planted: cycle advance x L = distance, within 20%)', W.dist > 2 && Math.abs(W.adv - W.dist) / W.dist < 0.2,
      `${W.adv.toFixed(2)} vs ${W.dist.toFixed(2)} blocks`);
@@ -120,7 +125,7 @@ const res = [];
     await run('scoreboard players set TestRat bm.dnst -1000'); await heal();
     const p = await pos(STK); const b = await pos(BODY); const g = await sc(STK, 'bm.stka'); const ph = await sc(STK, 'bm.gkp');
     if (!p) break;
-    if (b) { left = Math.max(left, Math.hypot(b[0] - p[0], b[2] - p[2])); if (g === 2) low.push(b[1] - p[1]); }
+    if (b) { left = Math.max(left, Math.hypot(b[0] - p[0], b[2] - p[2])); if (g === 2 && low.length < 40) { const bx = await xf(BODY); if (bx.tr) low.push(b[1] + bx.tr[1] - p[1]); } }
     S.push({ t: Date.now() - t0, p, g, ph, lx: null, dur: NaN });
     const q = A.pos; if (q && Math.hypot(q.x - p[0], q.z - p[2]) < 6) await at(X + 0.5, Y, (q.z > Z ? Z - 30 : Z + 30) + 0.5);   // (keep it running)
   }

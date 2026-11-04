@@ -21,6 +21,24 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0l: the Vorn walk, the Stalker crawls
+
+- **The Vorn walk properly now.** Troopers, the Warlord and the Armada's crew were one stiff model flipped between two poses every
+  4 ticks, gliding over the ground and turning in snaps (the Armada's crew didn't turn at all). Each is now a jointed rig of eight
+  parts (torso, head, two antennae, two arms, two legs) driven by the ground it really covers: its feet stay planted as it walks,
+  it breaks into a run when it's in a hurry, its body bobs, leans into the motion and sways over the planted foot, the shoulders
+  twist against the hips, arms swing opposite the legs (the rifle or hammer arm less), the head turns back against the twist and
+  nods a beat behind, and the antennae sweep back and spring after the bob. Stopping, it eases into its stance and breathes;
+  setting off, its first steps ease out of it; its turns ease too. Vorn already out in a world are re-rigged the moment they're seen.
+- **The Dread Night's Stalker crawls like something wrong.** Its gait now goes with the ground it covers, so every claw and foot
+  plants and slides back under it (no more skating, no flicker between crawl and sprint); it hugs the ground, pitched almost flat,
+  its four limbs out of step with each other in an uneven, skittering rhythm, each limb snapping forward and planting. Now and
+  then its head jerks to one side with a crack and slowly comes back. Closing in, it sometimes stops dead - folded low, trembling,
+  clicking - for a second, then lunges at you claws first. Its facing eases instead of snapping, and it costs the server less
+  (one pass over its parts a tick instead of ten).
+- **A Dread Night called after dawn now comes.** `/function bm:admin/dread_night` between 23000 and 24000 turned the clock back to
+  13000, which the pack counts as a new day - so the night was booked for the day that had just ended and never fell.
+
 ## New in 3.0k: menus, tidied
 
 - **The menus, tidied** (phase261, from the approved menu proposal). Nothing was removed: every moved button keeps its code
