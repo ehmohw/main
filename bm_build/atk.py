@@ -17,6 +17,7 @@ ME = {'bm.kxme': ('kw', None), 'bm.cpme': ('cecil', 'p46/pet/anim'), 'bm.emme': 
       'bm.kkme': ('chef', 'p186/anim'), 'bm.fyme': ('fishy', 'p145/anim'), 'bm.dwme': ('dennis', 'p163/dw/anim'), 'bm.bvme': ('bender', 'p195/anim'),
       'bm.bome': ('bloo', 'p191/anim'), 'bm.bjme': ('bones', 'p196/anim'), 'bm.avme': ('ava', 'p189/anim'), 'bm.aspme': ('ashur', 'p185/anim')}
 if __import__('rkflag').ON: ME['bm.rwme'] = ('ratking', 'p262/anim')      # (3.0k: the Rat King - rkflag)
+__import__('fol5').reg(__name__, globals())      # (3.1: the new followers - fol5, fol5flag)
 HOLD = 2                                     # (ticks of hit-stop)
 DMG = re.compile(r'^(\$?)(.*?)damage @s (\S+) (\S+) by @e\[type=minecraft:(wolf|cat),tag=(bm\.[a-z0-9]+)')
 

@@ -178,6 +178,7 @@ SLOTS = ('emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'fro
          'henry', 'nia', 'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad',
          'sovereign', 'pxcecil', 'pxleo', 'pxemma', 'sky', 'vexis', 'mireling', 'keeper')
 if __import__('rkflag').ON: SLOTS += ('ratking',)      # (3.0k: the Rat King - at the END: saved by number; rkflag)
+__import__('fol5').reg(__name__, globals())      # (3.1: the new followers - fol5, fol5flag)
 REPAIR = 1                                   # (bump to run the wheel's repair again for everyone)
 
 def generate(G):

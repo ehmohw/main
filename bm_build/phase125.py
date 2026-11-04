@@ -88,6 +88,7 @@ WHO = {   # follower: (name, pronoun, colour, host type, host tag, try (as you),
     'keeper': ('The Keeper of Bonds', 'it', '#ffd6f0', 'wolf', 'bm.tkpet', 'p254/try_summon', 'p254/home'),   # (3.0: [keeper hook] the 51st - last, as the gallery's last)
 }
 if __import__('rkflag').ON: WHO['ratking'] = ('The Rat King', 'him', '#ffc23a', 'wolf', 'bm.rwpet', 'p262/try_summon', 'p262/home')   # (the 52nd - the Keeper's counterpart)      # (3.0k: the Rat King - rkflag)
+__import__('fol5').reg(__name__, globals())      # (3.1: the new followers - fol5, fol5flag)
 
 
 def generate(G):

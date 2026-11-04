@@ -66,6 +66,7 @@ SAY = {
     'pxcecil': 'I am trying something new today. Neon. Sixteen colours, and every one of them loud.',
 }
 if __import__('rkflag').ON: SAY['ratking'] = '"Trying something new today. White fur. Platinum. Very regal. NOBODY say \'lab rat\'."'      # (3.0k: the Rat King - rkflag)
+__import__('fol5').reg(__name__, globals())      # (3.1: the new followers - fol5, fol5flag)
 
 
 def generate(G):

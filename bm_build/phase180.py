@@ -98,6 +98,7 @@ GIFT = {  # follower: (what it does, commands run each second at the doll)
     'pearl': ('Hero of the Village', [f'effect give {P} minecraft:hero_of_the_village 15 0 true']),
 }
 if __import__('rkflag').ON: GIFT['ratking'] = ('Luck and Haste', [f'effect give {P} minecraft:luck 15 0 true', f'effect give {P} minecraft:haste 15 0 true'])      # (3.0k: the Rat King - rkflag)
+__import__('fol5').reg(__name__, globals(), 'gift')      # (3.1: the new followers - fol5, fol5flag)
 assert set(GIFT) == set(DOLL_OF), sorted(set(GIFT) ^ set(DOLL_OF))
 # (2.98b) a set-down golden doll is tagged by its NUMBER (bm.gd<i>) - so the order is frozen: GD_SLOTS, then anyone new, appended.
 # A follower slotted into the middle renumbered every doll after it: a world's placed dolls gave another's gift and dropped
@@ -107,6 +108,7 @@ GD_SLOTS = ('emma', 'cecil', 'celi', 'zib', 'killerwatt', 'leo', 'demo', 'apo', 
             'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad', 'sovereign', 'nia',
             'pxcecil', 'pxleo', 'pxemma', 'sky', 'pearl', 'vexis', 'mireling', 'keeper')
 if __import__('rkflag').ON: GD_SLOTS += ('ratking',)      # (3.0k: the Rat King - at the END: saved by number; rkflag)
+__import__('fol5').reg(__name__, globals(), 'slots')      # (3.1: the new followers - fol5, fol5flag)
 assert set(GD_SLOTS) <= set(GIFT), set(GD_SLOTS) - set(GIFT)
 GDOLLS = list(GD_SLOTS) + [k for k in GIFT if k not in GD_SLOTS]
 for _k in GDOLLS:

@@ -24,6 +24,7 @@ if __import__('rkflag').ON: WHO.append(('ratking', 'The Rat King'))      # (3.0k
 COL = {'emma': '#ff7ad0', 'celi': '#9ad8ff', 'zib': '#3ad8c8', 'cecil': '#b48cff', 'kw': '#ffe040', 'leo': '#5ab8e0', 'demo': '#7ad06a',
        'apo': '#3ad06a', 'tul': '#7ad8ff', 'frog': '#6ac850', 'don': '#e8d29a', 'pearl': '#5ac8ff', 'wil': '#f4f4f4', 'fishy': '#ffa040', 'dennis': '#e0a040', 'pistachio': '#7ae890', 'omega': '#9fb4ff', 'ashur': '#ff7a2a', 'chef': '#ffd07a', 'neighbor': '#7ab8ff', 'ava': '#6ad8e8', 'pearlq': '#5ae0d8', 'bloo': '#5a9ae8', 'stalker': '#a8ac70', 'lantern': '#ff8a2a', 'bender': '#e0a860', 'bones': '#8ab0c8', 'capshun': '#f0f0f0', 'kettle': '#8ad8ff', 'rufus': '#c0392b', 'henry': '#9a9ab8', 'nia': '#e0a050', 'gem': '#5ae0a0', 'batty': '#8a8ad8', 'eggbert': '#d8d4c0', 'count': '#a8c8f0', 'dragon': '#5ac048', 'eraser': '#f08aa0', 'cursor': '#cfe8ff', 'inkblot': '#7a7aaa', 'speech': '#ffd060', 'lightbringer': '#ffe08a', 'dryad': '#6aa8f0', 'sovereign': '#d0182e', 'vexis': '#7aff6a', 'mireling': '#e0384a', 'keeper': '#ffd6f0', 'pxcecil': '#b070ff', 'pxleo': '#4ab0ff', 'pxemma': '#ff6ac8', 'sky': '#ffd04a'}
 if __import__('rkflag').ON: COL['ratking'] = '#ffc23a'      # (3.0k: the Rat King - rkflag)
+__import__('fol5').reg(__name__, globals())      # (3.1: the new followers - fol5, fol5flag)
 WD2 = 8280                                    # 2.78: the wardrobes past the seventh (8280-8286; 7958-7960 is too little room)
 wcode = lambda i: PAGE + 1 + i if i < 7 else WD2 + i - 7
 

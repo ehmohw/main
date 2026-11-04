@@ -105,6 +105,7 @@ AR = {'cecil': ('bm.cpcd', 'wolf', 'bm.cecilpet', 'p46/pet/try_summon'),
       'mireling': ('bm.mlcd', 'wolf', 'bm.mlpet', 'p252/try_summon'),
       'keeper': ('bm.tkcd', 'wolf', 'bm.tkpet', 'p254/try_summon')}
 if __import__('rkflag').ON: AR['ratking'] = ('bm.rwcd', 'wolf', 'bm.rwpet', 'p262/try_summon')      # (3.0k: the Rat King - rkflag)
+__import__('fol5').reg(__name__, globals())      # (3.1: the new followers - fol5, fol5flag)
 AR_IDX = {w: i for i, w in enumerate(AR)}
 PET_CD = 120                       # a faint outside the vault: 2 minutes (was 5, Wilfrey's 30)
 FILTER_MAX = 5
@@ -455,7 +456,7 @@ def generate(G):
     F['load'][-1:-1] = ['scoreboard objectives add bm.orph dummy']
     G.OBJECTIVES += ['bm.orph']
     nor = 0
-    for k in ('apo', 'tul', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'kettle', 'rufus', 'henry', 'nia', 'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad', 'sovereign', 'vexis', 'mireling', 'keeper') + (('ratking',) if __import__('rkflag').ON else ()):
+    for k in ('apo', 'tul', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'kettle', 'rufus', 'henry', 'nia', 'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad', 'sovereign', 'vexis', 'mireling', 'keeper') + (('ratking',) if __import__('rkflag').ON else ()) + tuple(__import__('fol5').live()):
         if k not in FX.FOLK: continue
         host, tag, head = FX.FOLK[k][:3]
         anyhead = re.sub(r',tag=!bm\.\w+fade', '', head)

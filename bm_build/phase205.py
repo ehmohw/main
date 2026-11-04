@@ -88,6 +88,7 @@ ABIL = {
     'sky': ('Clear Skies', 'the clouds part: 14 to every monster round them, lit up; you, Regeneration and Haste', (14, 6), 0, 'glowing 4 0', ['regeneration 6 1', 'haste 15 1'], 'minecraft:end_rod', 'minecraft:block.beacon.power_select'),
 }
 if __import__('rkflag').ON: ABIL['ratking'] = ('The Royal Hoard', 'his hoard comes down on them: 16 to monsters round him, weakened; you, Luck and Haste II', (16, 5), 0, 'weakness 5 1', ['luck 10 0', 'haste 10 1'], 'minecraft:wax_on', 'minecraft:block.chain.break')      # (3.0k: the Rat King - rkflag)
+__import__('fol5').reg(__name__, globals())      # (3.1: the new followers - fol5, fol5flag)
 FIRE = {'ashur', 'lantern'}                 # (their blows set monsters alight)
 BYPASS = {'stalker', 'apo'}                 # (their blows go through armour)
 

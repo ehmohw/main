@@ -38,6 +38,7 @@ HINT = {
     'pxcecil': 'A Glitched Cartridge, used beside Cecil.', 'pxleo': 'A Glitched Cartridge, used beside Leo.',
     'pxemma': 'A Glitched Cartridge, used beside Emma.', 'sky': 'Watch the sky: a clear noon, a full-moon midnight, a storm.'}
 if __import__('rkflag').ON: HINT['ratking'] = 'Meet every other friend there is. Then follow the King\'s Coin - down, under the Loom Sanctuary. Bring tribute.'      # (3.0k: the Rat King - rkflag)
+__import__('fol5').reg(__name__, globals())      # (3.1: the new followers - fol5, fol5flag)
 
 
 def generate(G):

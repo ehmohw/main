@@ -15,6 +15,7 @@ DOLL_KIND = {'doll_cecil': 'cecil', 'doll_celi': 'celi', 'doll_leo': 'leo', 'dol
              'doll_wil': 'wil', 'doll_frog': 'frog', 'doll_fishy': 'fishy',
              'doll_dennis': 'dennis', 'doll_pistachio': 'pistachio', 'doll_omega': 'omega', 'doll_ashur': 'ashur', 'doll_chef': 'chef', 'doll_neighbor': 'neighbor', 'doll_ava': 'ava', 'doll_pearlq': 'pearlq', 'doll_bloo': 'bloo', 'doll_stalker': 'stalker', 'doll_lantern': 'lantern', 'doll_bender': 'bender', 'doll_bones': 'bones', 'doll_capshun': 'capshun', 'doll_kettle': 'kettle', 'doll_rufus': 'rufus', 'doll_henry': 'henry', 'doll_nia': 'nia', 'doll_gem': 'gem', 'doll_batty': 'batty', 'doll_eggbert': 'eggbert', 'doll_count': 'count', 'doll_pxcecil': 'pxcecil', 'doll_pxleo': 'pxleo', 'doll_pxemma': 'pxemma', 'doll_sky': 'sky', 'doll_dragon': 'dragon', 'doll_eraser': 'eraser', 'doll_cursor': 'cursor', 'doll_inkblot': 'inkblot', 'doll_speech': 'speech', 'doll_lightbringer': 'lightbringer', 'doll_dryad': 'dryad', 'doll_sovereign': 'sovereign', 'doll_vexis': 'vexis', 'doll_mireling': 'mireling', 'doll_keeper': 'keeper'}
 if __import__('rkflag').ON: DOLL_KIND['doll_ratking'] = 'ratking'      # (3.0k: the Rat King - rkflag)
+__import__('fol5').reg(__name__, globals())      # (3.1: the new followers - fol5, fol5flag)
 NEW_MET = {'pearl': 'pearl_card', 'wil': 'wilfrey_locket'}
 
 

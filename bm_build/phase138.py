@@ -157,6 +157,7 @@ AURA = {
     'pxleo': ('Scanlines', '#4ab0ff', 2.0, 1.2, 'minecraft:electric_spark', ['particle minecraft:electric_spark ~ ~1.8 ~ 0.4 0.6 0.4 0.05 2', f'particle {dust(1.0, 1.0, 1.0, 0.6)} ~ ~1.2 ~ 0.5 0.8 0.5 0 3']),
     'pxcecil': ('Scanlines', '#b070ff', 2.0, 1.2, 'minecraft:electric_spark', ['particle minecraft:electric_spark ~ ~1.8 ~ 0.4 0.6 0.4 0.05 2', f'particle {dust(1.0, 1.0, 1.0, 0.6)} ~ ~1.2 ~ 0.5 0.8 0.5 0 3'])}
 if __import__('rkflag').ON: AURA['ratking'] = ('The Golden Hoard', '#ffc23a', 2.4, 1.2, 'minecraft:wax_on', ['particle minecraft:dust{color:[1.0,0.78,0.2],scale:1.0} ~ ~1.6 ~ 0.7 1.0 0.7 0 2', 'particle minecraft:falling_dust{block_state:"minecraft:gold_block"} ~ ~2.6 ~ 0.7 0.3 0.7 0 2', 'particle minecraft:wax_on ~ ~1.2 ~ 0.6 0.8 0.6 0 1'])      # (3.0k: the Rat King - rkflag)
+__import__('fol5').reg(__name__, globals(), 'aura')      # (3.1: the new followers - fol5, fol5flag)
 assert set(AURA) == set(ORDER) == set(HOST) == set(P99.BASE)
 PRICE = 1280                                 # coins at the Tailor (10 Gutter Trophies)
 FIND = {3: 20, 4: 40, 5: 60}                 # per mille, a won heist of tier III / IV / V (2.94o: was 8 / 15 / 25)
@@ -232,6 +233,7 @@ ITEMS_OF = {'apo': lambda n: n.startswith('apo_'), 'tul': lambda n: n.startswith
             'ava': lambda n: n.startswith('av_') and n != 'av_locket', 'pearlq': lambda n: n.startswith('pq_') and n != 'pq_pearls', 'bloo': lambda n: n.startswith('bo_') and n != 'bo_claw', 'stalker': lambda n: n.startswith('st_') and n != 'st_hook', 'lantern': lambda n: n.startswith('ln_') and n != 'ln_gourd', 'bender': lambda n: n.startswith('bd_'), 'bones': lambda n: n.startswith('bn_') and n != 'bn_whistle', 'capshun': lambda n: n.startswith('mz_'), 'kettle': lambda n: n.startswith('kt_'), 'rufus': lambda n: n.startswith('rf_'), 'henry': lambda n: n.startswith('hy_'), 'nia': lambda n: n.startswith('ni_'), 'gem': lambda n: n.startswith('cg_'), 'batty': lambda n: n.startswith('gb_'), 'eggbert': lambda n: n.startswith('ge_'), 'count': lambda n: n.startswith('gc_'), 'dragon': lambda n: n.startswith('dd_'), 'eraser': lambda n: n.startswith('er_'), 'cursor': lambda n: n.startswith('cu_'), 'inkblot': lambda n: n.startswith('ib_'), 'speech': lambda n: n.startswith('sbb_'), 'lightbringer': lambda n: n.startswith('lb_'), 'dryad': lambda n: n.startswith('pd_'), 'sovereign': lambda n: n.startswith('ds_'), 'vexis': lambda n: n.startswith('vx_'), 'mireling': lambda n: n.startswith('ml_'), 'keeper': lambda n: n.startswith('kb_'), 'sky': lambda n: n.startswith('yb_'),
             'pxemma': lambda n: n.startswith('xm_'), 'pxleo': lambda n: n.startswith('xl_'), 'pxcecil': lambda n: n.startswith('xc_')}
 if __import__('rkflag').ON: ITEMS_OF['ratking'] = lambda n: n.startswith('rkf_')      # (3.0k: the Rat King - rkflag)
+__import__('fol5').reg(__name__, globals(), 'recol')      # (3.1: the new followers - fol5, fol5flag)
 
 
 def textures():
@@ -243,6 +245,11 @@ def textures():
         only = set(getattr(importlib.import_module(mod), 'LOOK_SHINY_ONLY', ()))     # (3.0h: worn by the shiny look alone - every other look leaves them be)
         for k, (_n, pal) in P99.NEW[w][3].items():
             if (w, k) in HANDMADE: continue
+            drawn = getattr(importlib.import_module(mod), 'LOOK_DRAWN', {}).get(k)      # (3.1: a look that's a drawn set of its own - the Cake's flavours, fol5art)
+            if drawn:
+                for name in keys:
+                    out[f'{name}_c{k}'] = drawn.get(name, base[name])
+                continue
             if gild.is_gilded(w, k):
                 skip = set(getattr(importlib.import_module(mod), 'LOOK_GILD_SKIP', ()))          # (3.0k: worn as they are by the metal looks too - the Rat King's fur)
                 ims = {n: gild.dress(w, k, base[n]) for n in keys if n not in skip}                    # (2.79a: polished gold)

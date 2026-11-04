@@ -113,6 +113,7 @@ B = {
 if __import__('rkflag').ON:                                     # (3.0k: the Rat King - rkflag)
     B['ratking'] = (('The Royal Mouser', (('strength', 0), ('night_vision', 0)), '"A CAT. In my court. ...Fine. You may keep the mice off the hoard."', '(Henry sits on the hoard. The hoard is his now.)'),
                     ('Lap of Luxury', (('regeneration', 1),), '"She is shedding on my ermine. She is shedding on my ERMINE."', '(Nia curls up in the ermine collar of his cape, and purrs like a little engine)'))
+__import__('fol5').reg(__name__, globals())      # (3.1: the new followers - fol5, fol5flag)
 # (2.96c) Nia is the gentle one - a support follower: her side of every pair looks after you. Each keeps Regeneration, and
 # nothing of hers makes you hit harder (Strength becomes Resistance; Haste, Absorption)
 _SOFT = {'strength': 'resistance', 'haste': 'absorption'}

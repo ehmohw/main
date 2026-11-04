@@ -42,7 +42,7 @@ def generate(G):
     KS.build(markers=True).export(G.path('data', 'bm', 'structure', 'p253_loom.nbt'))
     holds = 'items entity @s weapon.* *[minecraft:custom_data~{bm:"bond_compass"}]'
     # ---- the compass: every other follower met
-    kinds = [w for w in P125.WHO if w not in COUNTERPARTS]
+    kinds = [w for w in P125.WHO if w not in COUNTERPARTS and w not in __import__('fol5').compass_skip()]   # (3.1: the new followers aren't threads of it - fol5.NOT_IN_COMPASS)
     fn('p253/all_met', [f'execute unless entity @s[advancements={{bm:met/{P220.MET_KEY.get(w, w)}=true}}] run return 0' for w in kinds] + ['return 1'])
     second.append('execute as @a[tag=!bm.kbcomp] if function bm:p253/all_met at @s run function bm:p253/grant')
     fn('p253/grant', ['tag @s add bm.kbcomp', give('bond_compass'), 'scoreboard players set #kbwant bm.p2 1',

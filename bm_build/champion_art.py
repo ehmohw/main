@@ -128,6 +128,7 @@ COL = {'emma': '#ff8ad8', 'celi': '#9ad8ff', 'zib': '#3ad8c8', 'cecil': '#b48cff
        'omega': '#9fb4ff', 'ashur': '#ff7a2a', 'chef': '#ffd07a', 'neighbor': '#7ab8ff', 'ava': '#6ad8e8', 'pearlq': '#5ae0d8', 'bloo': '#5a9ae8',
        'stalker': '#a8ac70', 'lantern': '#ff8a2a', 'bender': '#e0a860', 'bones': '#8ab0c8', 'capshun': '#f0f0f0', 'kettle': '#8ad8ff', 'rufus': '#c0392b', 'henry': '#9a9ab8', 'nia': '#e0a050', 'gem': '#5ae0a0', 'batty': '#8a8ad8', 'eggbert': '#d8d4c0', 'count': '#a8c8f0', 'dragon': '#5ac048', 'eraser': '#f08aa0', 'cursor': '#cfe8ff', 'inkblot': '#7a7aaa', 'speech': '#ffd060', 'lightbringer': '#ffe08a', 'dryad': '#6aa8f0', 'sovereign': '#d0182e', 'vexis': '#7aff6a', 'mireling': '#e0384a', 'keeper': '#ffd6f0', 'sky': '#ffd04a', 'pxemma': '#ff6ac8', 'pxleo': '#4ab0ff', 'pxcecil': '#b070ff'}
 if __import__('rkflag').ON: COL['ratking'] = '#ffc23a'      # (3.0k: the Rat King - rkflag)
+__import__('fol5').reg(__name__, globals())      # (3.1: the new followers - fol5, fol5flag)
 # the 4 x 4 tiles of a follower's sheet
 G, GD, GL, P, PD, PL, ST, STL, BN, BND, RUBY, SAPH, PEARL, FL_O, FL_Y, LEAF = range(16)
 
