@@ -1,6 +1,6 @@
 // 3.1: THE GOLDEN DOODLE (phase275, the 64th follower - the last) as a regular (non-op) player - the owner's checklist (rigpet_t), copied from
 // t399: her meeting staged (her fight won: rcon tags TestRat bm.gdwin and stands her up - admin/gdoodle_meet); right-clicked: the Doodle Egg;
-// her goose ways (HONK, the NECK-WHIP SLAP, the WADDLE CHARGE); the FORM button from her menu: goose -> the Gilded Eldritch (host 1.6, the
+// her goose ways (HONK, the NECK-WHIP SLAP, the WADDLE CHARGE); the FORM button (her menu's Settings page): goose -> the Gilded Eldritch (host 1.6, the
 // bm.gqf1 tag, the gk_ models) -> her Lightbringer form (bm.gqf2, gh_) -> goose (0.8); COMPANION SIZE in a big form (host 1.0); the form kept
 // across a recall; her doll set down and sneak + right-clicked: goose -> Eldritch -> Lightbringer form. The shared list.
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
@@ -30,17 +30,18 @@ runT({ W: 'gdoodle', NAME: 'The Golden Doodle', ab: 'gq', q: 'gu', pfx: 'p275', 
     const SC = async () => num(PET, 'attributes[{id:"minecraft:scale"}].base');
     const HEAD = '@e[type=minecraft:item_display,tag=bm.gqp_pet,tag=bm.gqp_head,limit=1]';
     const mdl = async () => (await nbt(HEAD, 'item.components."minecraft:item_model"')).replace(/"/g, '');
+    const form = async () => { await ctx.sneakMenu(0); await A.press(/Settings/); await sleep(800); await A.press(/Form/); await sleep(1500); };   // (phase260: Form is on her Settings page)
     await K.home();
-    await ctx.sneakMenu(0); await A.press(/^Form/); await sleep(1500);
+    await form();
     ok('FORM: the Gilded Eldritch - host 1.6, its models', Math.abs((await SC()) - 1.6) < 0.01 && (await cnt(`${PET.slice(0, -1)},tag=bm.gqf1]`)) === 1 && /gk_head/.test(await mdl()), await mdl());
     await ctx.sneakMenu(0); await A.press(/Companion Size/); await sleep(1500);
     ok('COMPANION SIZE in a big form: host 1.0', Math.abs((await SC()) - 1.0) < 0.01);
     await ctx.sneakMenu(0); await A.press(/Companion Size/); await sleep(1200);
-    await ctx.sneakMenu(0); await A.press(/^Form/); await sleep(1500);
+    await form();
     ok('FORM: her Lightbringer form - bm.gqf2, the gh_ models', (await cnt(`${PET.slice(0, -1)},tag=bm.gqf2]`)) === 1 && /gh_head/.test(await mdl()), await mdl());
     await A.press(/Send .* home/).catch(() => {}); await sleep(1500); await ctx.use(0); await sleep(2500);
     ok('...recalled: still her Lightbringer form', (await cnt(`${PET.slice(0, -1)},tag=bm.gqf2]`)) === 1);
-    await ctx.sneakMenu(0); await A.press(/^Form/); await sleep(1500);
+    await form();
     ok('FORM: the goose again - host 0.8, the gq_ models', Math.abs((await SC()) - 0.8) < 0.01 && /gq_head/.test(await mdl()), await mdl());
     // (her doll: set down, then sneak + right-clicked - the three forms, round again)
     await run('loot replace entity TestRat hotbar.7 loot bm:items/doll_gdoodle'); await ctx.use(7); await sleep(1200);
