@@ -104,9 +104,9 @@ class Lightbringer(RP.Cfg):
     SUMMON_EXTRA = ['playsound minecraft:block.beacon.activate neutral @a[distance=..24] ~ ~ ~ 0.6 1.6', 'playsound minecraft:block.amethyst_block.chime neutral @a[distance=..24] ~ ~ ~ 1 1.2']
     ENC_POSES = [(0, 'pray'), (40, 'bless_a'), (60, 'idle_a')]
     ENC_PARTICLE = 'execute if score #f bm.rng matches 20 run particle minecraft:end_rod ~ ~2 ~ 0.3 0.3 0.3 0.01 4'
-    ADV = ('Herald of the Light', 'Be found worthy by the Lightbringer, before the Dread\'s master')
-    ADMIN_HINT = 'Hard mode, before the Dread\'s master is faced: by day, under the open sky, wearing something holy - she comes down.'
-    MEET_HINT = 'Hard mode: by day, in the open, wearing something holy.'
+    ADV = ('Herald of the Light', 'Set down a Golden Cross by day in hard mode, and meet the Lightbringer')
+    ADMIN_HINT = 'Hard mode, in the Overworld: the first Golden Cross set down by day, under the open sky - she comes down. Lost the feather? Her doll set down by a cross.'
+    MEET_HINT = 'Hard mode: your first Golden Cross, set down by day under the open sky.'
 
 
 class Dryad(RP.Cfg):
@@ -179,6 +179,7 @@ def show_dryad(G, X):
 Dryad.ENC_SHOW = show_dryad
 
 DESCENT_UP = 7.0                  # (3.0p) how high above the ground her descent begins (blocks)
+DOLL_R = 2.5                      # (3.0p) her doll brings her back set down within this of a Golden Cross
 
 
 def show_light(G, X):
@@ -217,8 +218,8 @@ def show_light(G, X):
     S.at(150, 'particle minecraft:end_rod ~ ~0.2 ~ 0.7 0.05 0.7 0.02 20', 'particle minecraft:glow ~ ~0.3 ~ 0.6 0.1 0.6 0 6', f'particle {gold} ~ ~0.15 ~ 0.8 0.02 0.8 0 16')
     S.snd(150, 'block.amethyst_block.resonate', 0.6, 1.4)
     S.pose(170, 'bless_a', 10).face(172, 'happy')
-    S.at(176, 'particle minecraft:end_rod ~ ~1.6 ~ 0.4 0.5 0.4 0.02 12', 'title @a[distance=..16,gamemode=!spectator] actionbar ' +
-         __import__('json').dumps([{'text': 'The Lightbringer: ', 'color': HOLY, 'bold': True}, {'text': '(the herald smiles at you, and holds out a hand)', 'color': '#fff4d0', 'bold': False}]))
+    S.at(176, 'particle minecraft:end_rod ~ ~1.6 ~ 0.4 0.5 0.4 0.02 12',
+         G.title('@a[distance=..16,gamemode=!spectator]', 'actionbar', [T('The Lightbringer: ', HOLY, bold=True), T('(the herald smiles at you, and holds out a hand)', '#fff4d0')]))
     S.snd(176, 'block.amethyst_block.chime', 1.0, 1.2)
     S.pose(184, 'idle_a', 6)
     return S.done(190, resume=61)
@@ -460,42 +461,94 @@ def generate(G):
         fn(f'{p}/enc/place', [f'execute if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass unless block ~ ~-1 ~ #bm:grap_pass run return run function bm:{p}/enc/step',
                               f'execute positioned ~ ~1 ~ if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run function bm:{p}/enc/step'])
 
-    # ---- THE LIGHTBRINGER: hard mode, before the reckoning - by day, in the open, wearing something holy
+    # ---- THE LIGHTBRINGER (3.0p, the owner: "she should always appear once for each player in the overworld, once hard mode is
+    #      activated"). Two ways, and only two (the old ones - by day in the open wearing something holy, now and then; the
+    #      Sovereign's Summons sending her down - are gone; whoever has her keeps her):
+    #  THE FIRST MEETING (once per player, bm.lhcross): hard mode, in the Overworld, by day under the open sky (p236/day_sky, at
+    #   you), the first Golden Cross you set down (phase181's cross/set - P181.CROSS_SET) - she comes down beside you (DESCENT,
+    #   show_light) and joins you: her feather, bm:met/lightbringer, the story advancement. Whoever met her before this is only
+    #   marked (no second feather). Not the Sovereign's reckoning (bm.dfin) - she comes whether or not it has fallen.
+    #  HER DOLL BY A CROSS (the feather lost): Cecil's Lightbringer Doll set down within DOLL_R of a Golden Cross brings her down
+    #   the same way, with a new feather - only if you have met her (bm:met/lightbringer), her feather is nowhere about you (not on
+    #   your Partner Wheel; not in your inventory, off hand, cursor, ender chest or a bag on you - as Pearlman's card) and it is
+    #   hard mode. Otherwise a gentle word, and nothing. The doll stays set down (sneak + punch picks it up, as every doll).
     def e_light(G, X):
-        X.second.append('execute if score #hard bm.cfg matches 1 as @a[tag=!bm.lhmet,tag=!bm.dfin,gamemode=!spectator] at @s if dimension minecraft:overworld '
-                        'if predicate bm:p236/day_sky if function bm:p236l/holy_q run function bm:p236l/enc/check')
-        fn('p236l/enc/check', ['execute store result score #r bm.rng run random value 1..240', 'execute unless score #r bm.rng matches 1 run return 0',
-                               'execute if entity @e[type=minecraft:interaction,tag=bm.lhenc,distance=..64] run return 0',
-                               'execute positioned ^ ^ ^4 run function bm:p236l/enc/place'])
-        place('p236l')
-        # (2.99a: the Sovereign's Summons granted - p237/summons - the Divine One sends her: no holy thing needed, any light, anywhere)
-        fn('p236l/enc/herald', ['execute if entity @s[tag=bm.lhmet] run return 0', 'execute if entity @s[tag=bm.dfin] run return 0',
-                                f'execute if items entity @s container.* {X.holds("herald_feather")} run return 0',
-                                'execute if entity @e[type=minecraft:interaction,tag=bm.lhenc,distance=..64] run return 0',
-                                X.tellraw('@s', [T('The Summons is barely in your hand when the air above you brightens. ', '#fff4d0', italic=True),
-                                                 T('Something answers it - not from below. From above.', 'gray', italic=True)]),
-                                'execute positioned ^ ^ ^4 run function bm:p236l/enc/place'])
-        X.second.append('execute if score #hard bm.cfg matches 1 as @a[tag=bm.usum,tag=!bm.lhmet,tag=!bm.dfin,gamemode=!spectator] at @s '
-                        'unless entity @e[type=minecraft:interaction,tag=bm.lhenc,distance=..64] run function bm:p236l/enc/herald_again')
-        fn('p236l/enc/herald_again', ['execute store result score #r bm.rng run random value 1..15', 'execute unless score #r bm.rng matches 1 run return 0',
-                                      'execute positioned ^ ^ ^4 run function bm:p236l/enc/place'])
-        fn('p236l/enc/step', ['function bm:p236l/enc/spawn', 'particle minecraft:end_rod ~ ~6 ~ 0.2 6 0.2 0 120', 'particle minecraft:flash{color:[1.0,0.92,0.6,1.0]} ~ ~1 ~ 0 0 0 0 1',
-                              'playsound minecraft:block.beacon.activate neutral @a[distance=..32] ~ ~ ~ 1 1.2',
-                              X.tellraw('@a[tag=!bm.lhmet,distance=..24]', [T('The sky opens a little, like a door. A pillar of light comes down - and in it, wings. ', '#fff4d0', italic=True),
-                                                                             T('A herald of the Divine One kneels on the grass, and looks at what you\'re wearing, and smiles.', 'gray', italic=True)])])
+        import phase179 as P179, phase181 as P181
         lsay = lambda txt: title('@s', 'actionbar', [T('The Lightbringer: ', HOLY, bold=True), T(txt, '#fff4d0')])
-        fn('p236l/enc/talk', [f'execute if items entity @s container.* {X.holds("herald_feather")} run return run ' + lsay('"I am already with you, child of the light."'),
-                              'execute if entity @s[tag=bm.dfin] run return run ' + lsay('"My work here is finished. Go in peace."'),
+        hint = lambda txt: title('@s', 'actionbar', T(txt, '#fff4d0', italic=True))
+        feather = X.holds('herald_feather')
+        met = 'entity @s[advancements={bm:met/lightbringer=true}]'
+        G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.lhwho dummy']
+        G.OBJECTIVES.append('bm.lhwho')
+        # (the cross set down - as you, at it)
+        P181.CROSS_SET.append('execute if entity @s[type=minecraft:player] run function bm:p236l/cross/placed')
+        fn('p236l/cross/placed', ['execute unless score #hard bm.cfg matches 1 run return 0', 'execute if entity @s[tag=bm.lhcross] run return 0',
+                                  'execute unless dimension minecraft:overworld run return 0',
+                                  f'execute if {met} run return run tag @s add bm.lhcross', 'execute if entity @s[tag=bm.lhmet] run return run tag @s add bm.lhcross',
+                                  'execute at @s unless predicate bm:p236/day_sky run return 0',
+                                  'execute if entity @e[type=minecraft:interaction,tag=bm.lhenc,distance=..64] run return 0',
+                                  'scoreboard players set #lre bm.rng 0', 'execute at @s run function bm:p236l/descent/find'])
+        # (her doll set down - as you, at it: phase141's doll spawn)
+        G.FUNCS['p141/doll_lightbringer/spawn'].append('execute if entity @s[type=minecraft:player] run function bm:p236l/doll/placed')
+        fn('p236l/doll/placed', [f'execute unless entity @e[type=minecraft:marker,tag=bm.gcm,distance=..{DOLL_R}] run return 0',
+                                 'execute unless score #hard bm.cfg matches 1 run return run ' + hint('The little doll\'s halo flickers by the cross, and dims. The herald is not sent yet - not until the Dread rises.'),
+                                 f'execute unless {met} run return run ' + hint('Only a doll, for now. You have never met the herald it was made after.'),
+                                 'execute if function bm:p236l/doll/has run return run ' + hint('The doll\'s halo glows warmly by the cross - you still have the herald\'s feather (on your wheel, or about you).'),
+                                 'execute if entity @e[type=minecraft:interaction,tag=bm.lhenc,distance=..64] run return run ' + hint('The light is already gathering, close by.'),
+                                 'scoreboard players set #lre bm.rng 1',
+                                 'execute at @s unless function bm:p236l/descent/find run return run ' + hint('The light gathers over the doll, and has nowhere to come down. Make a little room about you.')])
+        slot = list(P179.SLOTS).index('lightbringer')
+        bag = '*[minecraft:container~{items:{contains:[{predicates:{"minecraft:custom_data":{bm:"herald_feather"}}}]}}]'
+        fn('p236l/doll/has', [f'execute if score @s bm.pw{slot} matches 1 run return 1',          # (on the Partner Wheel - carried or not)
+                              f'execute if items entity @s container.* {feather} run return 1', f'execute if items entity @s weapon.offhand {feather} run return 1',
+                              f'execute if items entity @s player.cursor {feather} run return 1', f'execute if items entity @s enderchest.* {feather} run return 1',
+                              f'execute if items entity @s container.* {bag} run return 1', 'return 0'])
+        # (where she comes down: in front of you, beside you, behind you, or where you stand - feet and head clear, ground below,
+        #  never on a doll or a cross)
+        fn('p236l/descent/find', [f'execute rotated ~ 0 positioned {p} if function bm:p236l/descent/spot run return 1' for p in ('^ ^ ^2.5', '^1.6 ^ ^1.2', '^-1.6 ^ ^1.2', '^ ^ ^-2')] +
+           ['execute if function bm:p236l/descent/spot run return 1', 'return fail'])
+        clear = 'if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass if block ~ ~2 ~ #bm:grap_pass unless block ~ ~-1 ~ #bm:grap_pass'
+        fn('p236l/descent/spot', ['execute if entity @e[type=minecraft:interaction,tag=bm.p45hit,distance=..0.9] run return fail',
+                                  'execute if entity @e[type=minecraft:interaction,tag=bm.gci,distance=..0.9] run return fail',
+                                  f'execute {clear} run return run function bm:p236l/descent/go',
+                                  f'execute positioned ~ ~1 ~ {clear} run return run function bm:p236l/descent/go', 'return fail'])
+        fn('p236l/descent/go', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #lw bm.rng = @s bm.pid',
+                                'function bm:p236l/enc/spawn',
+                                'execute as @e[type=minecraft:interaction,tag=bm.lhenc,distance=..0.6,sort=nearest,limit=1] run function bm:p236l/descent/mark',
+                                'execute if score #lre bm.rng matches 0 run ' + X.tellraw('@s', [T('High over your cross the air brightens - a soft puff of sparkles and light, like breath on a cold morning. ', '#fff4d0', italic=True),
+                                                                                                 T('Something is coming down through it, slowly, on open wings.', 'gray', italic=True)]),
+                                'execute if score #lre bm.rng matches 1 run ' + X.tellraw('@s', [T('Over the little doll and the cross the air brightens, softly, like a held breath. ', '#fff4d0', italic=True),
+                                                                                                 T('The herald is coming down to you again.', 'gray', italic=True)]),
+                                'return 1'])
+        fn('p236l/descent/mark', ['scoreboard players operation @s bm.lhwho = #lw bm.rng', 'tag @s add bm.lhgo', 'execute if score #lre bm.rng matches 1 run tag @s add bm.lhre'])
+        # (the show over - she has come down - she greets the one she came for, and joins them, where she stands)
+        G.FUNCS['tick'].append(f'execute as @e[type=minecraft:interaction,tag=bm.lhgo] unless score @s {X.S("sh")} matches 1.. at @s run function bm:p236l/descent/greet')
+        fn('p236l/descent/greet', ['tag @s remove bm.lhgo', 'tag @s add bm.lhhere', 'scoreboard players operation #lw bm.rng = @s bm.lhwho',
+                                   'execute as @a if score @s bm.pid = #lw bm.rng run function bm:p236l/descent/join', 'tag @s remove bm.lhhere'])
+        joined = G.FUNCS['p236l/enc/joined']
+        gone = f'execute as {X.here} at @s run function bm:p236l/enc/gone'
+        summ = 'at @s run function bm:p236l/summon'
+        assert gone in joined and sum(summ in l for l in joined) == 1, joined
+        tail = [l.replace(summ, f'at {X.here} run function bm:p236l/summon_here') for l in joined if l != gone]
+        fn('p236l/descent/join', [f'execute if items entity @s container.* {feather} run return run function bm:p236l/descent/already',
+                                  'execute if entity @e[type=minecraft:interaction,tag=bm.lhhere,tag=bm.lhre] run ' + X.tellraw('@s', [T('"You lost my feather? It is no matter. I never left you, not truly." ', '#fff4d0', italic=True),
+                                                                                                    T('She plucks another feather from her wing, its tip still glowing, and puts it in your hand.', 'gray', italic=True)]),
+                                  'execute unless entity @e[type=minecraft:interaction,tag=bm.lhhere,tag=bm.lhre] run ' + X.tellraw('@s', [T('"Peace, child of the light. I saw your cross shining from very far away - the Dread is rising, and you will not face it alone." ', '#fff4d0', italic=True),
+                                                                                                        T('She plucks a feather from her wing, its tip still glowing, and puts it in your hand.', 'gray', italic=True)]),
+                                  'tag @s add bm.lhcross', 'advancement grant @s only bm:met/lightbringer'] + tail +
+           [f'execute as {X.here} at @s run function bm:p236l/descent/vanish'])
+        fn('p236l/descent/already', [lsay('"I am already with you, child of the light."'), f'execute as {X.here} at @s run function bm:p236l/descent/vanish'])
+        # (the descended rig gives way to her, where she stands: no poof - a soft light)
+        fn('p236l/descent/vanish', [f'kill @e[type=minecraft:item_display,tag=bm.lhencp,distance=..8]', f'kill @e[tag={X.prop},distance=..16]',
+                                    'particle minecraft:end_rod ~ ~1 ~ 0.4 0.8 0.4 0.03 20', 'particle minecraft:glow ~ ~1 ~ 0.4 0.6 0.4 0 6', 'kill @s'])
+        # (an admin's meet - /function bm:admin/lightbringer_meet - comes down the same way, and waits to be spoken to)
+        fn('p236l/enc/talk', [f'execute if items entity @s container.* {feather} run return run ' + lsay('"I am already with you, child of the light."'),
                               'execute unless score #hard bm.cfg matches 1 run return run ' + lsay('"Not yet. Not until the Dread rises."'),
-                              'execute if entity @s[tag=bm.usum] run return run function bm:p236l/enc/recruit',
-                              'execute unless function bm:p236l/holy_q run return run ' + lsay('"Wear the light, and I will walk beside you."'),
                               'function bm:p236l/enc/recruit'])
         fn('p236l/enc/recruit', [f'execute as {X.here} at @s run particle minecraft:end_rod ~ ~1.5 ~ 0.5 0.8 0.5 0.05 40', 'playsound minecraft:block.amethyst_block.resonate player @s ~ ~ ~ 1 1.2',
-                                 'execute if entity @s[tag=bm.usum] run ' + X.tellraw('@s', [T('"The Divine One has heard the Summons too. What waits under the Nether will not be faced alone - '
-                                                                                                 'I am sent to see it unmade." ', '#fff4d0', italic=True)]),
-                                 X.tellraw('@s', [T('"The Divine One sees the light you carry. The Dread is rising - you will not face it alone." ', '#fff4d0', italic=True),
+                                 X.tellraw('@s', [T('"The Divine One sees you. The Dread is rising - you will not face it alone." ', '#fff4d0', italic=True),
                                                   T('She plucks a feather from her wing, its tip still glowing, and puts it in your hand.', 'gray', italic=True)]),
-                                 'function bm:p236l/enc/joined'])
+                                 'advancement grant @s only bm:met/lightbringer', 'tag @s add bm.lhcross', 'function bm:p236l/enc/joined'])
         # (3.0) SHE OR HE: the first time she's met (any way: this encounter, the Summons' herald, an admin's meet - the herald
         # stands there already in the form chosen - or the feather got some other way and first used) it's 50/50 which, kept on
         # the player (bm.lhform: 0 she, 1 he; the menu's Form button switches it). Whoever had her before this keeps her.
@@ -539,11 +592,7 @@ def generate(G):
     fn('p236l/noticed', ['tag @s add bm.lhseen', tellraw('@s', [T('The Lightbringer: ', HOLY, bold=True), T('"Oh - you wear the light! It suits you. Stay near me."', '#fff4d0')])])
     fn('p236l/beam', FX.face_cmd('lightbringer', 'happy', 40) +
        ['execute on owner if entity @s[tag=!bm.hush] run ' + title('@s', 'actionbar', [T('The Lightbringer: ', HOLY, bold=True), T('(she beams at your holy raiment)', '#fff4d0')])])
-    # ---- (the final reckoning - facing what stands behind the Dread - tags you bm.dfin; till it's built, an admin can set it, to stage it)
-    fn('admin/reckoned', ['tag @s add bm.dfin', title('@s', 'actionbar', T('Marked: you have faced what stands behind the Dread. (The Lightbringer is no longer to be found.)', HOLY))])
-    fn('admin/unreckoned', ['tag @s remove bm.dfin', title('@s', 'actionbar', T('Unmarked: the final reckoning is still ahead of you.', HOLY))])
-    G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/reckoned', 'yellow'), T(' / ', 'gray'), T('unreckoned', 'yellow'),
-                                                T('  mark the final reckoning faced (or not) - the Lightbringer comes only before it', 'gray')]))
+    # (3.0p: the final reckoning's mark, bm.dfin - phase238 - no longer keeps her away: admin/reckoned and unreckoned are gone)
     # ---- (3.0) THE LIGHTBRINGER SHINES IN THE DARK: by night, out of the Overworld or under a roof she glows all over (every
     #      part at full brightness, both forms); by day under the open sky she's lit by the world again
     wjson('bm/predicate/p236/daylit.json', {'condition': 'minecraft:all_of', 'terms': [
