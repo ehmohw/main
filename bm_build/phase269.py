@@ -211,6 +211,7 @@ def _figures():
 
 P134.figures = _figures
 P134.FIT[f'{ITEM}_doll'] = P134.FIT[ITEM] = A0.FIT
+P134.BAKE_ONLY.add(f'{ITEM}_doll')
 _dg = {f'bm:{AR.model_name(p, {})}': g for p, g in H.DOLL_GROUPS.items()}
 _dg.update({f'bm:{SR.model_name(p, SR.POSES["helm"])}': 'head' for p in SR.PARTS})
 P141.DOLL_FROM['doll_knight'] = (f'{ITEM}_doll', dict(H.DOLL, groups=_dg))
@@ -337,7 +338,7 @@ def generate(G):
         assert name in COMBO, name
         G.FUNCS[n] = ([] if name.startswith('heap') or name == 'tired' else [f'execute if entity @s[tag=bm.hxbrk] run return run function bm:{pfx}/pose/heap']) + \
             combo_pose(name, Knight.DUR.get(name, 6))
-    for name in ('heap', 'happy'):
+    for name in ['heap', 'happy'] + [p for _t, p in Knight.ENC_POSES]:          # (and the encounter's - the statue stance is in no cycle)
         if f'{pfx}/pose/{name}' not in G.FUNCS:
             G.FUNCS[f'{pfx}/pose/{name}'] = combo_pose(name, Knight.DUR.get(name, 6))
     # ---- COMPANION SIZE (compsize, as the Rat King's): his rig - armour and serpent, every pose - at CSZ_K, his host and click box with

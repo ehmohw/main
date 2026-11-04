@@ -7,7 +7,7 @@
 // tagged), THE SPIN (hurt). BROKEN: his health under a third - the armour heaped, the serpent out on the ground; then it mends.
 // Sneak-sit (the statue stance, sit_b). The shared list.
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
-runT({ W: 'knight', NAME: 'The Hollow Statue Knight', ab: 'hx', q: 'iz', pfx: 'p269', prefix: 'hk_', item: 'knight_token', parts: 25, figParts: 13, hp: 46, X: 19340, Z: 16000, pron: 'him',
+runT({ W: 'knight', NAME: 'The Hollow Statue Knight', ab: 'hx', q: 'iz', pfx: 'p269', prefix: 'hk_', item: 'knight_token', parts: 27, figParts: 13, hp: 46, X: 19340, Z: 16000, pron: 'him',
   lookPart: 'chest', lookModel: 'hk_hollow_chest', seatPart: 'head', called: /strides back to you/, home: /his soul withdraws/, sit: /kneels on one knee/, stand: /On my feet/,
   ways: ['The Mace', 'Hiss', 'Coil', 'The Spin', 'Broken', 'Companion Size', 'Freed'],
   plain: 'Palace violet', looks: ['Freed', 'Crimson Guard', 'Verdant Guard'],

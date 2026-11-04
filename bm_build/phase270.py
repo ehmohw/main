@@ -110,6 +110,25 @@ _PAIRS = {
 W5.register(Mimic, A0, _DOLL, ('minecraft:wax_on', 'minecraft:block.chest.open', 'minecraft:poof'), _PAIRS, 'the Mimic')
 FRAMES = [f'{ITEM}_f0', f'{ITEM}_f1']
 
+# ---- THE TREASURE CHEST (mimic_classic_art, the owner's): an OUTFIT - its first look, the dark oak strongbox with iron straps and
+#      brass, back as look 8 of its wardrobe (after its shiny, 7: a world remembers looks by number). A whole-model swap: on the same
+#      rig, every swapped part's model mm_<part>... -> mmt_<part>... (its faces too); its doll stays the vanilla chest. Sold, as its others.
+import phase99 as _P99  # noqa: E402
+import phase138 as _P138  # noqa: E402
+from useitem import HOLD as _HOLD  # noqa: E402
+MC = __import__('mimic_classic_art')
+_ml = _P99.NEW['mimic'][3]
+OUTFIT = max(_ml) + 1
+assert SH.KEY.get('mimic') == OUTFIT - 1, ('the Mimic\'s looks moved', sorted(_ml), SH.KEY.get('mimic'))
+_ml[OUTFIT] = (MC.NAME, ('#24160c', '#5c3a22', '#e8b84a'))
+_P99.DYE[MC.NAME] = 'brown'
+_P138.HANDMADE.add(('mimic', OUTFIT))           # (phase138 makes no recoloured copies of it: _chests writes its item definitions)
+item(f'cos_mimic_{OUTFIT}', TOTEM, f"The Mimic's Outfit: {MC.NAME}", '#c08a24',
+     [f'{MC.NAME} - the dark oak strongbox: a barrel lid, iron straps, brass corners and claw feet. For the Mimic alone.',
+      ("Use: it's its for good - in its wardrobe.", 'blue'), ('Sneak + use its own item: its menu - Wardrobe.', 'gray')],
+     model='minecraft:brown_dye', stack=1, cat='cosmetic', comps=hold('none'))
+_HOLD[f'cos_mimic_{OUTFIT}'] = f'bm:p99/use/mimic{OUTFIT}'
+
 
 def extend_offers(O, offer):
     pass
@@ -151,8 +170,19 @@ def _icon(kind='key'):
     return s.render()
 
 
+class _ClassicTex:
+    @staticmethod
+    def textures():
+        return {n: im for n, im in MC.R.textures().items() if not n.endswith('_sh')}
+
+
 def rp(R):
     W5.rp(Mimic, R, _icon(), A0)
+    for n, v in MC.R.models().items():           # (the Treasure Chest's models - its shiny set isn't worn: the shiny is a look of its own)
+        if not n.endswith('_sh'):
+            R.HATS[n] = v
+    R.TEXTURE_MODS.append(_ClassicTex)
+    R.DISPLAY_3D_EXTRA = getattr(R, 'DISPLAY_3D_EXTRA', ()) + (MC.PREFIX,)
     R.ICONS[FRAMES[0]] = _icon('shut')
     R.ICONS[FRAMES[1]] = _icon('open')
 
@@ -192,6 +222,30 @@ def _chests(R2):
     have = {x.get('resource') for x in cur['sources']}
     cur['sources'] += [{'type': 'minecraft:single', 'resource': r} for r in sorted(used) if r not in have]
     R2.wj('assets/minecraft/atlases/blocks.json', cur)
+    # (the Treasure Chest: each of its item definitions, look OUTFIT's, its models swapped one for one - a part it hasn't, as it is)
+    idir = R2.p('assets', 'bm', 'items')
+    have_m = set(MC.R.models())
+
+    def sw(m):
+        t = MC.swap(m)
+        return t if t in have_m else m
+
+    def walk(o):
+        if isinstance(o, dict):
+            o = {a: walk(v) for a, v in o.items()}
+            if o.get('type') == 'minecraft:model' and str(o.get('model', '')).startswith('bm:item/mm_'):
+                o['model'] = 'bm:item/' + sw(o['model'][len('bm:item/'):])
+            return o
+        return [walk(v) for v in o] if isinstance(o, list) else o
+    n_sw = 0
+    for f in sorted(glob.glob(os.path.join(idir, 'mm_*.json'))):
+        n = os.path.basename(f)[:-5]
+        if re.search(r'_c\d+$', n) or not _P138.ITEMS_OF['mimic'](n):
+            continue
+        d = walk(json.load(open(f)))
+        n_sw += 'mmt_' in json.dumps(d)
+        R2.wj(f'assets/bm/items/{n}_c{OUTFIT}.json', d)
+    assert n_sw >= len(MC.PARTS_SWAPPED), n_sw
 
 
 def textures():

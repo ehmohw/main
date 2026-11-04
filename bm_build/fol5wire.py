@@ -64,6 +64,7 @@ def register(C, A, doll_desc, doll_fx=('minecraft:end_rod', 'minecraft:entity.al
             return F2
         P134.figures = figures
         P134.FIT[fig] = A.R.fit(idle)
+        P134.BAKE_ONLY.add(fig)
     P141.DOLL_FROM[d] = (fig, dict(A.DOLL, **({'groups': groups} if groups else {})))
     P134.FIT[C.ITEM] = A.FIT
     if pairs:

@@ -86,5 +86,16 @@ runT({ W: 'mimic', NAME: 'The Mimic', ab: 'mx', q: 'wx', pfx: 'p270', prefix: 'm
     await at(wx + 0.5, Y + 1, wz - 8.5, 0, 10);
     ok('...and shut again as TestRat goes', await wait(4000, async () => !/bm\.mxst/.test(await nbt(PET, 'Tags')) && (await cnt(CART)) === 0));
     await run('data remove storage bm:mxst p' + (await score('bm.pid')));
+    // ---- THE TREASURE CHEST (look 8, an outfit): unlocked (rcon - as if bought), chosen in its wardrobe: every swapped part's model the
+    //      outfit's (its body's item definition the strongbox's, mmt_body); kept across a send-home
+    const BODY8 = '@e[type=minecraft:item_display,tag=bm.mxp_pet,tag=bm.mxp_body,tag=!bm.mxfade,limit=1]';
+    await run('execute as TestRat run function bm:p99/unlock/mimic8'); await at(X + 0.5, Y + 1, Z + 0.5, 0, 0);
+    await ctx.sneakMenu(0); await A.press(/Wardrobe/); const tc = await A.press(/Treasure Chest/); await sleep(1500);
+    const def = JSON.stringify(JSON.parse(require('fs').readFileSync('/home/user/main/bm_build/out_p2/BlackMarket_RP/assets/bm/items/mm_body_c8.json', 'utf8')));
+    ok('THE TREASURE CHEST - chosen in its wardrobe: its body mm_body_c8, the strongbox\'s model (mmt_body)', !!tc && (await score('bm.cosmx')) === 8 &&
+       /mm_body_c8/.test(await nbt(BODY8, 'item.components."minecraft:item_model"')) && /mmt_body/.test(def), `${await nbt(BODY8, 'item.components."minecraft:item_model"')} | ${def.slice(0, 80)}`);
+    await ctx.sneakMenu(0); await A.press(/Send .* home/); await sleep(1500); await ctx.use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(2500);
+    ok('...sent home and called again: still the Treasure Chest', /mm_body_c8/.test(await nbt(BODY8, 'item.components."minecraft:item_model"')));
+    await run('scoreboard players set TestRat bm.cosmx 0'); await run(`${O}execute as TestRat run function bm:p99/mimic_now`);
     await at(X + 0.5, Y + 1, Z + 0.5, 0, 0);
   } });

@@ -119,12 +119,15 @@ def measure(rp):
         print(f"    '{iid}': ({lo[1]:.3f}, {hi[1] - lo[1]:.3f}, {lo[0]:.3f}, {hi[0]:.3f}, {lo[2]:.3f}, {hi[2]:.3f}),   # {name}")
 
 
+BAKE_ONLY = set()          # (3.1: figures made only for Cecil's doll to be baked from - a doll pose of its own: no case shows them)
+
+
 def generate(G):
     fn, title, PREFIX = G.fn, G.title, G.PREFIX
     from items import T, ITEMS
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
-    FIG = figures()
+    FIG = {k: v for k, v in figures().items() if k not in BAKE_ONLY}
     tick = []
     item_d = '@e[type=minecraft:item_display,tag=bm.dcitem,distance=..0.05,limit=1]'
     case = '@e[type=minecraft:item_display,tag=bm.dcase,distance=..0.05,limit=1]'
