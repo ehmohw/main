@@ -41,8 +41,12 @@ const PAGES = fs.readdirSync(path.join(FN, 'p260/fs/open')).length;
     A.input({ shift: true }); await sleep(200); A.use(); await sleep(350); A.release(); A.input({}); await wait(3000, async () => A.dialogN.length > n0); return A.dialogN.length > n0; };
 
   for (const { w, iid } of W.filter(x => !ONLY.length || ONLY.includes(x.w))) {
-    await run('clear TestRat'); await run(`loot replace entity TestRat hotbar.0 loot bm:items/${iid}`); await sleep(300);
-    const got = await sneakMenu();
+    await run('clear TestRat'); await run(`loot replace entity TestRat hotbar.0 loot bm:items/${iid}`); await sleep(300); A.dialogN.push({});
+    let got = await sneakMenu();
+    if (!got) {                // (Pearlman's card: his menu only while he's out - call him first, as a player would)
+      await run('scoreboard players set TestRat bm.gvhc 0'); A.slot(0); await sleep(200); A.use(); await sleep(350); A.release(); await sleep(3000);
+      got = await sneakMenu();
+    }
     const b0 = A.buttons().map(b => b.label), u0 = unrouted();
     ok(`${w}: sneak + use ${iid} - a menu with Settings, no chatter switch, every button routed`,
        got && b0.some(l => /Settings/.test(l)) && !b0.some(l => /^Chatter/.test(l)) && !u0.length, `${title().slice(0, 50)} ${u0.join(',')} :: ${b0.join(' | ')}`);
