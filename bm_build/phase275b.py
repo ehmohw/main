@@ -124,13 +124,13 @@ def build(G, X, C):
                           'execute unless score #lnight bm.bm matches 1 run return 0',
                           'particle minecraft:wax_on ~ ~0.5 ~ 4 0.3 4 0 6', 'particle minecraft:end_rod ~ ~0.2 ~ 4 0.1 4 0.005 3',
                           'execute store result score #gt bm.rng run time query gametime', 'execute if score #gt bm.rng < @s bm.gdr run return 0',
-                          'execute as @a[distance=..6,gamemode=!spectator,gamemode=!creative] run function bm:p275g/pond/try'])
+                          'execute as @a[distance=..6,gamemode=!spectator,gamemode=!creative] at @s run function bm:p275g/pond/try'])
     fn('p275g/pond/stone', [f'summon minecraft:item_display ~ ~-0.5 ~ {stone}', f'summon minecraft:interaction ~ ~-0.5 ~ {stone_hit}'])
     trio = lambda: ['scoreboard players operation #o bm.rng = @s bm.pid', 'scoreboard players set #ta bm.rng 0', 'scoreboard players set #tb bm.rng 0', 'scoreboard players set #tc bm.rng 0'] + \
         [f'execute as @e[type=minecraft:wolf,tag={t},distance=..12] if score @s bm.pid = #o bm.rng run scoreboard players set {s} bm.rng 1'
          for t, s in (('bm.lhpet', '#ta'), ('bm.tkpet', '#tb'), ('bm.xvpet', '#tc'))]
     fn('p275g/pond/try', ['execute if entity @e[type=minecraft:husk,tag=bm.gdb,distance=..48] run return 0'] + trio() +
-       ['execute if score #ta bm.rng matches 1 if score #tb bm.rng matches 1 if score #tc bm.rng matches 1 run function bm:p275g/wake'])
+       ['execute if score #ta bm.rng matches 1 if score #tb bm.rng matches 1 if score #tc bm.rng matches 1 at @e[type=minecraft:marker,tag=bm.gdpond,sort=nearest,limit=1] run function bm:p275g/wake'])
     fast.append('execute as @e[type=minecraft:interaction,tag=bm.gdstoneh] if data entity @s interaction at @s run function bm:p275g/pond/click')
     fn('p275g/pond/click', ['execute on target run function bm:p275g/pond/hint', 'data remove entity @s interaction'])
     hint = lambda txt: title('@s', 'actionbar', T(txt, GOLD, italic=True))
@@ -225,7 +225,7 @@ def build(G, X, C):
                                'scoreboard players set @s bm.gdx 0', 'scoreboard players set @s bm.gdst 20', pose('q', 'dazed'),
                                'particle minecraft:crit ~ ~1.6 ~ 0.4 0.2 0.4 0.3 20', snd('entity.player.attack.knockback', 1.2, 0.6),
                                sayb('(BONK. She waddled straight into the wall. Stars.)')])
-    fn('p275g/a/charge_go', ['tp @s ~ ~ ~', 'particle minecraft:wax_on ~ ~0.3 ~ 0.2 0.1 0.2 0 2', f'execute as {foe(1.4)}[tag=!bm.gdhit] run function bm:p275g/h/charge'.replace('][', ',')])
+    fn('p275g/a/charge_go', ['tp @s ~ ~ ~', 'particle minecraft:wax_on ~ ~0.3 ~ 0.2 0.1 0.2 0 2', f'execute as {foe(1.4)}[tag=!bm.gdhit] at @s run function bm:p275g/h/charge'.replace('][', ',')])
     fn('p275g/h/charge', ['tag @s add bm.gdhit', hurt(4)])
     atk('eggs', {24: [pose('q', 'lay')], 16: [pose('q', 'eggs')], 14: [f'execute at {TGT} run function bm:p275g/a/eggs3', snd('entity.chicken.egg', 1.4, 0.6)]})
     egg = snbt({'Tags': ['bm.gdegg'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:gq_egg'}},
@@ -259,23 +259,23 @@ def build(G, X, C):
     fn('p275g/ray_s', ['particle minecraft:dust{color:[0.95,0.15,0.2],scale:1.8} ~ ~ ~ 0.08 0.08 0.08 0 2', 'scoreboard players add #ray bm.rng 1',
                        'execute if score #ray bm.rng matches ..20 if block ~ ~ ~ #bm:grap_pass positioned ^ ^ ^1 run function bm:p275g/ray_s'])
     fn('p275g/ray_hs', ['particle minecraft:dust{color:[0.95,0.15,0.2],scale:2.2} ~ ~ ~ 0.1 0.1 0.1 0 3', 'scoreboard players add #ray bm.rng 1',
-                        f'execute as {foe(1.4)}[tag=!bm.gdref] run function bm:p275g/h/beam'.replace('][', ','),
+                        f'execute as {foe(1.4)}[tag=!bm.gdref] at @s run function bm:p275g/h/beam'.replace('][', ','),
                         'execute if score #ray bm.rng matches ..20 if block ~ ~ ~ #bm:grap_pass positioned ^ ^ ^1 run function bm:p275g/ray_hs'])
     fn('p275g/h/beam', ['execute if items entity @s weapon.* *[minecraft:custom_data~{bm:"lucky_token"}] run return run function bm:p275g/h/reflect', hurt(6, True)])
-    fn('p275g/h/reflect', ['tag @s add bm.gdref', 'clear @s *[minecraft:custom_data~{bm:"lucky_token"}] 1', 'particle minecraft:totem_of_undying ~ ~1 ~ 0.4 0.6 0.4 0.4 20',
+    fn('p275g/h/reflect', ['tag @s add bm.gdref', 'execute store result score #lt bm.rng run clear @s *[minecraft:custom_data~{bm:"lucky_token"}] 1', 'particle minecraft:totem_of_undying ~ ~1 ~ 0.4 0.6 0.4 0.4 20',
                            'playsound minecraft:block.amethyst_block.resonate player @s ~ ~ ~ 1 1.6',
                            title('@s', 'actionbar', T('Your Lucky Token flares - the beam glances off! (It\'s used up.)', COL, bold=True))])
     atk('shriek', {34: [pose('k', 'shriek'), snd('entity.warden.roar', 1.6, 1.4)],
-                   **{x: ring(r, '0.95,0.15,0.2') + [f'execute as {foe(r)} unless entity @s[distance=..{r - 2.2:.1f}] if predicate bm:p275/ground run function bm:p275g/h/shriek']
+                   **{x: ring(r, '0.95,0.15,0.2') + [f'execute as {foe(r)} unless entity @s[distance=..{r - 2.2:.1f}] if predicate bm:p275/ground at @s run function bm:p275g/h/shriek']
                       for x, r in ((24, 3.5), (22, 7), (20, 10))}})
     fn('p275g/h/shriek', [hurt(8, True), 'effect give @s minecraft:weakness 5 0'])
     atk('slam', {30: [pose('k', 'slam_up'), snd('entity.phantom.flap', 1.6, 0.5)], 18: [pose('k', 'slam'), snd('entity.generic.explode', 1.4, 0.6), 'particle minecraft:explosion ~ ~0.3 ~ 1.5 0 1.5 0 6'],
-                 **{x: ring(r, '0.85,0.6,0.15') + [f'execute as {foe(r)} unless entity @s[distance=..{r - 1.6:.1f}] if predicate bm:p275/ground run function bm:p275g/h/slam']
+                 **{x: ring(r, '0.85,0.6,0.15') + [f'execute as {foe(r)} unless entity @s[distance=..{r - 1.6:.1f}] if predicate bm:p275/ground at @s run function bm:p275g/h/slam']
                     for x, r in ((17, 2.0), (15, 3.5), (13, 5.0), (11, 6.5))}})
     fn('p275g/h/slam', ['execute if entity @s[tag=bm.gdhit] run return 0', 'tag @s add bm.gdhit', hurt(10, True)])
     atk('lunge', {24: [pose('k', 'bite_up'), f'execute facing entity {TGT} feet rotated ~ 0 run tp @s ~ ~ ~ ~ ~', snd('entity.ravager.roar', 1.0, 1.6)],
                   15: [pose('k', 'bite'), snd('entity.evoker_fangs.attack', 1.4, 0.6)],
-                  14: [f'execute rotated as @s rotated ~ 0 positioned ^ ^1 ^{i} as {foe(1.4)} run function bm:p275g/h/lunge' for i in range(2, 9)] +
+                  14: [f'execute rotated as @s rotated ~ 0 positioned ^ ^1 ^{i} as {foe(1.4)} at @s run function bm:p275g/h/lunge' for i in range(2, 9)] +
                       [f'particle minecraft:dust{{color:[0.95,0.15,0.2],scale:1.6}} ^ ^1.4 ^{i} 0.2 0.2 0.2 0 4' for i in range(2, 9)]})
     fn('p275g/h/lunge', ['execute if entity @s[tag=bm.gdhit] run return 0', 'tag @s add bm.gdhit', hurt(12, True)])
     atk('curse', {116: [pose('k', 'curse'), snd('entity.wither.ambient', 1.0, 0.6), sayb('(THE UNLUCKY: the clover burns black and red under you - step off it!)', RED)],
@@ -287,7 +287,7 @@ def build(G, X, C):
                        'execute if score #w bm.rng matches 0 run function bm:p275g/sigil_fx',
                        f'execute as {foe(2.5)} run effect give @s minecraft:unluck 2 0',
                        'scoreboard players operation #w bm.rng = @s bm.gdx', 'scoreboard players operation #w bm.rng %= #20 bm.rng',
-                       f'execute if score #w bm.rng matches 0 as {foe(2.5)} as {ME} run function bm:p275g/heal4',
+                       f'execute if score #w bm.rng matches 0 as {foe(2.5)} as {ME} at @s run function bm:p275g/heal4',
                        'execute if score @s bm.gdx matches ..0 run kill @s'])
     fn('p275g/sigil_fx', ring(2.5, '0.1,0.02,0.02', 12) + ring(1.2, '0.95,0.15,0.2', 8))
     G.FUNCS['load'][-1:-1] = ['scoreboard players set #20 bm.rng 20']

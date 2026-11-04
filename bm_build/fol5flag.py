@@ -4,7 +4,9 @@ Partner Wheel, the golden dolls and the contract bits number a follower by when 
 
   DOODLEMOB  the Doodle Dragon renamed the Doodle Mob, with his crayon mob forms (phase263; his id stays 'dragon' / dd_)
   GLITCH     53, phase264        CAKE     54, phase265        SAPLING  55, phase266        SPAWNER  56, phase267
-  CAIRN      57, phase268        KNIGHT   58, phase269        MIMIC    59, phase270"""
+  CAIRN      57, phase268        KNIGHT   58, phase269        MIMIC    59, phase270
+  FERRO      60, phase271        REX      61, phase272        TALUS    62, phase273        TRIVYRN  63, phase274
+  GDOODLE    64, phase275 (the last)"""
 DOODLEMOB = True
 GLITCH = True
 CAKE = True
@@ -17,4 +19,4 @@ FERRO = True                  # (60, phase271)
 REX = True                    # (61, phase272)
 TALUS = True                  # (62, phase273)
 TRIVYRN = True                # (63, phase274)
-GDOODLE = __import__('os').environ.get('BM_GD') == '1'   # (64, phase275 - the last; on while it's built)
+GDOODLE = True                # (64, phase275 - the last)

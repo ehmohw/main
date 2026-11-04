@@ -242,7 +242,7 @@ def _abilities(G, X):
                          snd('entity.player.attack.knockback', 0.8, 1.2)])
     fn(f'{pfx}/charged', by_form('charged') + X.hit(6) + [f'execute as @e[{foe},distance=..8] at @s run function bm:{pfx}/honked',
                                                            'scoreboard players set #th bm.rng 0',
-                                                           f'execute as @e[{foe},distance=..8,sort=nearest] if items entity @s weapon.mainhand * run function bm:{pfx}/thief',
+                                                           f'execute as @e[{foe},distance=..8,sort=nearest] if items entity @s weapon.mainhand * at @s run function bm:{pfx}/thief',
                                                            honk, snd('entity.goat.screaming.ambient', 1.0, 1.2), 'particle minecraft:note ~ ~1.2 ~ 2 0.5 2 1 16'] + X.end)
     fn(f'{pfx}/thief', ['execute if score #th bm.rng matches 1 run return 0', 'scoreboard players set #th bm.rng 1', 'item replace entity @s weapon.mainhand with minecraft:air',
                         'particle minecraft:wax_on ~ ~1.2 ~ 0.3 0.3 0.3 0 10', snd('entity.item.pickup', 1.0, 0.8)])
