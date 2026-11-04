@@ -14,4 +14,4 @@ CAIRN = True
 KNIGHT = True
 MIMIC = True
 FERRO = True                  # (60, phase271)
-REX = __import__('os').environ.get('BM_REX') == '1'        # (61, phase272 - batch 4b: off until it's built and checked; BM_REX=1 for a scratch build)
+REX = True                    # (61, phase272)

@@ -29,6 +29,7 @@ import rigpet as RP
 import rigface as RF2
 import phase235 as P235
 import shiny as SH
+import phase249  # noqa: F401  (its mount: the whistle, the models, the riding - this follower is built on it)
 
 S5 = fol5.SPEC['rex']
 A0 = fol5art.get('rex')
@@ -38,10 +39,11 @@ ITEM = S5['item']
 MECHA = 1                                       # (the costume: its wardrobe's look 1 - handmade; earned in the hangar, never sold)
 KAIJU = ['rex']                                 # (the kaiju: Talus and Trivyrn append themselves - their trio bond reads it)
 K_UP = A0.K_UP
-HIT_C = W5.hit(A0)                              # (its click box, companion: the rig's own fit)
-HIT_F = (round(min(4.0, HIT_C[0] * K_UP * 0.8), 2), round(HIT_C[1] * K_UP, 2))
+HIT_C = (1.4, 2.6)                              # (its click box, companion: its body and head - the tail sweeps outside it)
+HIT_F = (3.6, 7.6)                              # (and at its full size)
 HOST_C, HOST_F = 1.4, 3.6                       # (its host's scale: companion, full)
 SH.UNSOLD.add(f'cos_rex_{MECHA}')
+HOLD['mecha_remote'] = 'bm:p272/remote'          # (the old Mecha Rex Remote: your rex, called in its Mecha costume)
 _L = ITEMS[ITEM]['comps'].get('minecraft:lore')
 if isinstance(_L, list):
     _L[:] = [T('A whistle of fossil bone. Somewhere, something big hears it.', 'gray'), T('Use: call the Atomic Rex (again: call it over).', 'blue'),
@@ -118,7 +120,7 @@ _beam = [f'execute facing entity @e[type=minecraft:wolf,tag=bm.rypet,sort=neares
 _lit = lambda p: f'execute as @e[type=minecraft:item_display,tag=bm.rysel,tag=bm.ryp_{p}] run data modify entity @s item.components."minecraft:item_model" set value "bm:rx_atomic_{p}_charged"'
 _P226.ASSAULT['rex'] = dict(pfx='p272', s_obj='bm.rqs', anim='p272/anim', busy='bm.rqx', end=40, dash=None, free=True,
                             hits={1: (2, _beam + ['particle minecraft:end_rod ~ ~1 ~ 0.3 0.3 0.3 0.05 6', 'data merge entity @s {Fire:60s}'], 'minecraft:entity.blaze.shoot', 0.5),
-                                  2: (6, _beam + ['particle minecraft:flash{color:[0.45,0.85,1.0,1.0]} ~ ~1 ~ 0 0 0 0 1', 'particle minecraft:explosion ~ ~1 ~ 0 0 0 0 1',
+                                  2: (4, _beam + ['particle minecraft:flash{color:[0.45,0.85,1.0,1.0]} ~ ~1 ~ 0 0 0 0 1', 'particle minecraft:explosion ~ ~1 ~ 0 0 0 0 1',
                                                   'particle minecraft:soul_fire_flame ~ ~1 ~ 0.6 0.6 0.6 0.1 40'], 'minecraft:entity.warden.sonic_boom', 1.0)},
                             tl={1: ['P breath_0', 'S minecraft:block.beacon.power_select 1 0.5'], **{2 + i: [_lit(p)] for i, p in enumerate(RX.CHARGE_ORDER)},
                                 9: ['S minecraft:block.beacon.ambient 1 1.6', 'particle minecraft:soul_fire_flame ~ ~1.2 ~ 0.5 0.5 0.5 0.01 20'],
@@ -237,6 +239,14 @@ def generate(G):
     # (its whistle while you ride it: the mount's breath, as ever)
     U = G.FUNCS[f'{pfx}/use']
     U.insert(0, 'execute if function bm:p249/riding_mine run return run function bm:p249/ride_use')
+
+
+def late(G):
+    """(after phase249's generate: its hatching, its hangar, its remote - the mount made a follower)"""
+    fn, title, tellraw, give = G.fn, G.title, G.tellraw, G.give
+    say = lambda txt: title('@s', 'actionbar', [T('The Atomic Rex: ', COL, bold=True), T(txt, LINE)])
+    pfx = Rex.pfx
+    second = G.FUNCS['loop/second']
     # ---- the hatching: the rex is a follower met - its whistle (phase249 gives it) calls it now
     eg = G.FUNCS['p249/egg/gift']
     eg.insert(1, 'function bm:p272/hatched')
@@ -253,16 +263,15 @@ def generate(G):
     jt = next(i for i, l in enumerate(ht) if 'Mecha Rex Remote' in l)
     ht[jt] = tellraw('@s', [T('The Mecha', '#8ab4ff', bold=True), T(' is your Atomic Rex\'s now - a costume in its wardrobe. Ride it in it: laser breath, rocket fist.', 'gray')])
     # (the old remote: your rex, called in the costume)
-    HOLD['mecha_remote'] = f'bm:{pfx}/remote'
     fn(f'{pfx}/remote', [f'execute unless entity @s[tag=bm.{Rex.ab}met] run return run ' + say('(nothing answers - you have no rex to pilot it)'),
                          f'function bm:p99/unlock/rex{MECHA}', f'scoreboard players set @s bm.cosry {MECHA}', 'function bm:p99/rex_now', f'function bm:{pfx}/try_summon'])
     # ---- MIGRATION: hatched before - a follower met; the Mecha built - the costume (and the follower, its pilot); the old Mounts page - its item back
     second.append(f'execute as @a[tag=bm.rxhatch,tag=!bm.{Rex.ab}met] run function bm:p272/hatched')
-    second.append('execute as @a[tag=bm.rxmecha,tag=!bm.rymig] run function bm:p272/mig/mecha')
+    second.append('execute as @a[tag=bm.rxmecha,tag=!bm.rymig] at @s run function bm:p272/mig/mecha')
     fn('p272/mig/mecha', ['tag @s add bm.rymig', f'execute unless entity @s[tag=bm.{Rex.ab}met] unless items entity @s container.* *[minecraft:custom_data~{{bm:"{ITEM}"}}] run ' + give(ITEM),
                           f'execute unless entity @s[tag=bm.{Rex.ab}met] run function bm:p272/hatched', f'function bm:p99/unlock/rex{MECHA}',
                           tellraw('@s', [T('Your Mecha Rex', '#8ab4ff', bold=True), T(' is a costume now - your Atomic Rex\'s, in its wardrobe.', 'gray')])])
-    second.append('execute as @a[scores={bm.pwrx=1..}] run function bm:p272/mig/page')
+    second.append('execute as @a[scores={bm.pwrx=1..}] at @s run function bm:p272/mig/page')
     fn('p272/mig/page', ['function bm:p179/w/pid', 'scoreboard players set #got bm.rxv 0', 'execute store result score #got bm.rxv run function bm:p249/w/outm_rx with storage bm:tmp pw',
                          'scoreboard players reset @s bm.pwrx',
                          tellraw('@s', [T('The Atomic Rex', COL, bold=True), T(' is a follower now: its whistle is back in your hands - put it on your Partner Wheel with the others.', 'gray')])])

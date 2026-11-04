@@ -269,7 +269,7 @@ if PHASE2:
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
 
 OUT = None
-VERSION2 = 'v3.0p'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v3.0q'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1541,6 +1541,7 @@ def build(out_dir):
     print('2.99a: the Backpack - %d dungeon rebuilds fold open bags first' % len(R248.generate(sys.modules[__name__])))      # (after the boxes it reuses and the builds it guards)
     NOP.generate(sys.modules[__name__])                 # 3.0b: the Particle Toggler's menu
     if PHASE2: print('2.99a: the Rex mounts - %d parts a rex, the Mounts page on the wheel' % R249.generate(sys.modules[__name__]))      # (after the wheel, the Armada and Vexis it hooks; before phase184's escort row)
+    for _m in (F5PH if PHASE2 else ()): getattr(_m, 'late', lambda G: None)(sys.modules[__name__])      # 3.1: what the new followers change of what's made after them (the Atomic Rex: phase249's mount)
     if PHASE2: print('2.99a: the lockout - %d / %d boxes a second at most (the Undercrown / the Armada)' % R251.generate(sys.modules[__name__]))      # [lockout hook] (after phase237/241/245: it hooks their out, builds, solves and knights)
     if PHASE2: print('3.0a: no spawns in the deep - %d risers kept out of the boxes, %d mob rolls take a natural spawn there first' % R255.generate(sys.modules[__name__]))      # [no-spawn hook] (after phase237/241/246/181/32/82 and every mobs/init patch)
     if PHASE2: R253.generate(sys.modules[__name__])        # 3.0: the Loom Sanctuary (after every follower is registered: the compass counts them)

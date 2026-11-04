@@ -21,6 +21,142 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0q: the Ferro and the Atomic Rex as followers
+
+### The Ferro (60)
+
+A metallic, sheeny black ferrofluid creature: friendly, cute, and a bit terrifying. It **mimics**.
+
+- **Meeting it.**
+  - **Where:** deep under the deepslate, below y -40, in the dark, standing on deepslate.
+  - **Who must be out:** KillerWatt, and the Ink Blot or the Mireling.
+  - **What happens:** now and then a second Ink Blot falls in behind yours. It's the Ferro, wearing it, and it tails you three
+    blocks back. Walk up to it, and KillerWatt crackles. Its spikes bristle out of its top ("...that's not mine.") and it melts
+    out of the disguise as itself.
+  - **Then:** right-click it for **the Lodestone Vial**. It comes along, with KillerWatt and the Ink Blot already learned.
+- **Its own ways:**
+  - **Lash:** a foe within 3, every 3 s. A beaded pseudopod whip, for 5.
+  - **Spike Burst:** a foe within 2, every 8 s. A ring of spikes out of the floor: 4 to all within 2, knocked up.
+  - **Magnetic Pull:** a foe 3-8 blocks away, every 10 s. The foe is yanked 4 blocks in, for 1, and its lash is ready at once.
+  - **Engulf:** charged, every 20 s. A goo shell closes over one foe (never a boss): 1 damage every half second for 2 s, then
+    it's spat 4 blocks for 6.
+- **Mimicry:**
+  - **Learning:** keep another of your followers within 6 blocks for 3 s, one you've met yourself, and the Ferro learns it for
+    good.
+  - **The Forms page:** its menu's **Forms** lists every follower it has learned. Press one and it turns into that follower: a
+    sludgy goo copy wearing that follower's own eyes in oil-slick. It waddles like a goo puppet. Press **Its own shape** to turn
+    it back.
+  - **In a form:** it fights with a simplified version of that follower's move (a bite, slam, shot, spin, kindness or a curse)
+    at 60%. A form taller than 3.4 blocks is copied at 3.4.
+  - **Recall:** called, sent home or taken back, it comes back as itself.
+- **Everything every follower has:**
+  - sitting: right-click and it melts into a puddle, then rises into a little goo armchair; **sneak + right-click** and it dozes
+    as a puddle;
+  - a wardrobe: **Quicksilver** and **Gold Leaf** (drawn), **Deep Violet**, and the metal goos. Every form wears them too.
+  - a rare aura, **Magnetar**;
+  - a shiny, **Shiny Oil Slick**;
+  - the Partner Wheel, a frame (it climbs out; right-click the frame and the vial bristles), the display case, Cecil's doll, the
+    honours and a Raid Contract;
+  - its Piercing Blow, **Spike Tide**, played out on screen: a wave of goo across the ground, spikes bursting up round the
+    monster, two lashes and an engulf.
+- **Pairs:** with Bender ("Who's a Good Goo?"), Mr. Capshun ("Life Drawing"), Henry ("Warm Puddle") and Nia ("Droplet Chase").
+
+#### For the build
+
+- **Switch:** `fol5flag.py` now has FERRO on.
+- **Phase:** phase271 holds its rig, its ways, the encounter and mimicry.
+- **Forms:**
+  - The resource pack builds every follower's form from its display-case figure (`ferro_pet_art.ferro_form`): 60 forms, each
+    with its own eyes.
+  - It writes their sizes to `out_p2/fe_forms.json`, which the datapack reads. So build the resource pack before the datapack.
+- **Codes:**
+
+  | What | Codes |
+  |---|---|
+  | The Ferro's menu | 5520 |
+  | Its Forms button | 5526 |
+  | Its wardrobe | 5540-5559 |
+  | The Forms page | 7620 (7621 its own shape; 7630 + n the forms) |
+
+- **Other changes:**
+  - The Tailor's per-follower pages now run on into 3910-3999 (phase103).
+  - `gen_dp.py` and `gen_rp.py` take `BM_OUT`, for scratch builds.
+- **Tests:**
+
+  | Test | What it covers |
+  |---|---|
+  | `t396.js` | the Ferro |
+  | `node t395.js ferro` | the smoke test |
+
+  It is also in the every-follower lists (`tools/bots/f5.js`).
+
+### The Atomic Rex (61)
+
+The hidden mount is a follower now: the nuclear dinosaur, with charcoal hide and three rows of glowing blue dorsal plates.
+
+- **Meeting it** is as before:
+  - mine a Rex Fossil out of deep deepslate;
+  - let lightning strike it on a rod in a storm;
+  - drop the egg into the Nether's lava.
+
+  It hatches, thinks you are its mother, and follows you. The **Atomic Whistle** is its summoning item.
+- **Its size.** It walks at a companion's size, about 2.5 blocks. Its menu's **Full Size** turns it into the kaiju (about 7.5
+  blocks), with its hitbox. The choice is kept when it's recalled.
+- **Riding it.** Press its menu's **Ride**, and it stands up to its full size and kneels for you. Ride it as before: WASD, jump
+  and sprint. Use the whistle while riding: look ahead or up for **Atomic Breath**, down for **Stomp**, and up past 60 for
+  **Roar**. Sneak to get off, and it's your follower again.
+- **The Mecha** is a **costume** now, the first look in its wardrobe: the war machine, every part swapped. It's earned as before
+  in the Armada's hidden hangar (three blueprints and the core), but the dormant machine **needs a pilot**: a rex you've hatched.
+  Wearing it, your rex rides as the Mecha Rex (laser breath, rocket fist). The old **Mecha Rex Remote** calls your rex in its
+  costume.
+- **Its ways:**
+  - **Tail Swipe:** a foe within 3, every 3 s. 6, and knocked back.
+  - **Stomp:** two foes within 3, every 8 s. A shockwave: 5 to all, knocked up.
+  - **Atomic Breath:** a foe 3-10 blocks away, every 12 s. Three blasts of blue fire, 3 each, setting it alight.
+  - **Roar:** charged, every 30 s. Every monster within 8 slowed and weakened for 5 s.
+- **Its Piercing Blow, the Atomic Beam,** plays out on screen. Its plates light up one row at a time from the tail to the head,
+  its chest glows and a hum rises. Then it braces and pours a thick, sustained beam of blue fire into the monster.
+- **Everything every follower has:**
+  - sitting: right-click it, or sneak + right-click;
+  - a wardrobe: the **Mecha** (earned, never sold), **Ember Rex**, **Glacier Rex**, and the metal rexes;
+  - a rare aura, **Meltdown**;
+  - a shiny, **Shiny Bone White**;
+  - the Partner Wheel (the Mounts page keeps the Vorn Skiff and the Mothership), a frame, the display case, Cecil's doll, the
+    honours and a Raid Contract.
+- **Pairs:** with Bender ("Fetch, But Bigger"), Mr. Capshun ("Monster Movie"), Henry ("Nap on the Tail") and Nia ("Big Friend").
+- **The kaiju:** it carries the `bm.kaiju` tag, for the trio bond with Talus and Trivyrn to come.
+- **Old worlds lose nothing:**
+  - A rex hatched before is a follower you've already met.
+  - A Mecha built before is the costume, and the follower too.
+  - A rex kept on the old Mounts page comes back off it: its whistle or remote is returned to you, to put on the Partner Wheel.
+
+#### For the build
+
+- **Switch:** `fol5flag.py` now has REX on.
+- **Phases:**
+  - phase272 builds on phase249's mount: its models, its riding, its hatching and its hangar.
+  - phase249's Mounts page drops its rex slot while the Rex is a follower.
+  - `gen_dp.py` runs each new follower's `late()` after phase249.
+- **Codes:**
+
+  | What | Codes |
+  |---|---|
+  | The Rex's menu | 5100 |
+  | Ride | 5106 |
+  | Full Size | 5107 |
+  | Its wardrobe | 5120-5139 |
+  | The old rex-slot buttons on the Mounts page (5641, 5642) | gone, with their functions |
+
+  The menu inventory lost nothing.
+- **Tests:**
+
+  | Test | What it covers |
+  |---|---|
+  | `t397.js` | the Rex |
+  | `node t395.js rex` | the smoke test |
+
+  It is also in the every-follower lists (`tools/bots/f5.js`).
+
 ## New in 3.0p: the Hollow Statue Knight, the Mimic, the Lightbringer's cross, and on-screen Piercing Blows
 
 ### The Hollow Statue Knight (58) and the Mimic (59)
