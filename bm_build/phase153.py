@@ -38,9 +38,9 @@ def generate(G):
         lines += [f'data modify storage bm:ui cfg.{key} set value "Off"', f'execute if score #{key} bm.cfg matches 1 run data modify storage bm:ui cfg.{key} set value "On"']
     lines += ['execute if score #bmoff bm.cfg matches 1 run return run function bm:admin/settings_dlg_off with storage bm:ui cfg',
               'function bm:admin/settings_dlg with storage bm:ui cfg']
-    btns = ([cmd_btn([T('Blood Moon: ', 'gray'), T(f'{d} days', 'yellow')], f'/function bm:admin/set/bmper_{d}', T(f'A Blood Moon every {d} days', 'gray'), 100)
+    btns = ([cmd_btn([T('Blood Moon: ', 'gray'), T(f'{d} days', 'yellow')], f'/function bm:admin/set/bmper_{d}', T(f'A Blood Moon every {d} days', 'gray'), 110)      # (3.0p: 100 scrolled)
              for d in PERIODS] +
-            [cmd_btn([T('Blood Moon: ', 'gray'), T('never', 'red')], '/function bm:admin/set/bmoff_1', T('No Blood Moon on its own', 'gray'), 100)] +
+            [cmd_btn([T('Blood Moon: ', 'gray'), T('never', 'red')], '/function bm:admin/set/bmoff_1', T('No Blood Moon on its own', 'gray'), 110)] +
             [cmd_btn([T(f'{nm}: ', 'white'), T(f'$({key})', 'aqua', bold=True)], f'/function bm:admin/set/{key}_flip', T(desc, 'gray'), 150)
              for key, nm, desc in SETTINGS])
     for suffix, bm in (('', [T('every ', 'aqua'), T('$(per)', 'aqua', bold=True), T(' days', 'aqua')]), ('_off', [T('never on its own', 'red')])):

@@ -39,6 +39,7 @@ PS = 5670                                                    # (Your settings: i
 PS_ROWS = {'mus': 5671, 'mkt': 5672, 'shp': 5673, 'chat': 5674, 'shk': 5675, 'keep': 5676, 'np': 5677, 'back': 5679}
 B_NPBACK, B_MORE = 5680, 5681                                # ("« Your settings" on the Particle Toggler; the crew's "Not signed yet")
 FS0, FSN = 6100, 11                                          # (a follower's settings block: 6100 + 11 i .. +10)
+FS_W = 200                                                   # (3.0p: a settings row's width - two columns)
 S_BACK, S_KEEP, S_WD, S_PX = 0, 2, 3, 4                      # (its slots: back (and the menu), keep up, wardrobe, proxies 4..10; 1 free)
 TAGS = {'mus': 'bm.nomus', 'mkt': 'bm.nomkm', 'shp': 'bm.noshp', 'shk': 'bm.noshk'}
 
@@ -323,8 +324,8 @@ def generate(G):
         nm, pr, col, host, tag, try_, home = WHO[w]
         pi = ORDER.index(w)
         rows = []                                              # (slot, button snbt, handler lines)
-        btn = lambda label, slot, tip: snbt(P28.btn(label, B + slot, width=150, tooltip=T(tip, 'gray')))
-        rows.append((None, snbt(P28.btn([T('Chatter: ', 'gray'), '@@RAW:r_chat@@', T('  ✦', 'dark_gray')], P123.CHAT, width=150,
+        btn = lambda label, slot, tip: snbt(P28.btn(label, B + slot, width=FS_W, tooltip=T(tip, 'gray')))
+        rows.append((None, snbt(P28.btn([T('Chatter: ', 'gray'), '@@RAW:r_chat@@', T('  ✦', 'dark_gray')], P123.CHAT, width=FS_W,
                                         tooltip=T('Quips and banter from all your followers - yours alone (other players choose their own).', 'gray'))), None))
         rows.append((S_KEEP, btn([T('Keep up: ', 'gray'), '@@RAW:r_keep@@', T('  ✦', 'dark_gray')], S_KEEP,
                                  'A partner left behind comes back to your side once you\'re on the ground or in water - for all your partners.'),
@@ -333,7 +334,7 @@ def generate(G):
         prox = []
         gates = {}                                             # (3.0p) slot -> the condition it's shown under (None: always)
         for c, b in wd_rows[w]:
-            prox.append((c, P99.BASE[w], with_code(b, B + slot), slot)); slot += 1
+            prox.append((c, P99.BASE[w], re.sub(r'(?<=[{,])width:\d+', f'width:{FS_W}', with_code(b, B + slot)), slot)); slot += 1
         for c, (mm, vs) in sorted(moved[w].items()):
             wds = [words_of(v) for v in vs]
             base = vs[0]
@@ -344,7 +345,7 @@ def generate(G):
                 lab = snbt(P28.btn(T(mw, col, bold=True), B + slot, width=150))
                 if tip and '$(' not in tip.group(1): lab = lab[:-1] + ',tooltip:' + tip.group(1) + '}'
                 base = lab
-            prox.append((c, mm, re.sub(r'(?<=[{,])width:\d+', 'width:150', with_code(base, B + slot)), slot)); slot += 1      # (3.0p: every row 150 wide - a 120 from its menu scrolled)
+            prox.append((c, mm, re.sub(r'(?<=[{,])width:\d+', f'width:{FS_W}', with_code(base, B + slot)), slot)); slot += 1      # (3.0p: every row FS_W wide - a 120 from its menu, or a look and its state, scrolled)
             gates[slot - 1] = row_gate(w, c)
         assert slot <= FSN, (w, f'{slot - S_PX} switches for the settings page - the block holds {FSN - S_PX}')
         for c, mm, b, s in prox:

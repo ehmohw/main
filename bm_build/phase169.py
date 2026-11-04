@@ -1029,7 +1029,7 @@ def _court(C):
                      [P28.body([T(f'{n} ', c, bold=True), T(f'({lo}) - {PERKS[i]}.', 'gray')], 320) for i, (lo, n, c) in enumerate(RANKS) if i] +
                      [P28.body([T('Favour: waking him (60, a rematch 20), each new gift (40), a tithe (10), your Omega\'s Soul Court (2 a soul).', 'dark_gray')], 320)],
                      [P28.btn([T(f'Tithe {TITHE} Tokens', GOLD, bold=True), T('  +10', 'gray')], codes['tithe'], width=150, tooltip=T(f'Up to {TITHE_DAY} a day.', 'gray')),
-                      P28.btn(T("Offer your Court's souls", SOUL, bold=True), codes['souls'], width=150, tooltip=T('Your Omega must be with you: 2 favour a soul.', 'gray')),
+                      P28.btn(T('Offer your souls', SOUL, bold=True), codes['souls'], width=150, tooltip=T('Your Omega must be with you: 2 favour a soul.', 'gray')),
                       P28.btn(T('« Back', 'gray'), codes['back'], width=150)], columns=1, exit_label='Close')
     fn('p169/court/peer', [f'scoreboard players set @s bm.menu {COURT}', 'function bm:p169/court/vals', 'function bm:p169/court/peer_show with storage bm:tmp om'])
     fn('p169/court/peer_show', [f'$dialog show @s {snbt(peer)}'])

@@ -23,8 +23,12 @@ poses (atk.sig), the same 14 of rend in all, split across the blows:
   DEMOCRATUS   Reaper's Toll: the scythe raised high and brought down through its guard, and reaped on the backswing.
   THE CHEF     Order Up!: tenderised with a flurry of whacks - and the finisher, served.
   TULLIUS      Hook and Broadside: harpooned and dragged in, run through twice, and the blunderbuss point-blank.
-The ones who vanish do it because it's who they are: Omega's ghastly realm, Cecil's shadows, the Stalker's dark, Pistachio
-through the walls, Wilfrey's grave, Mr. Capshun's eraser, Kettle's hide-and-seek, Zib's beam...
+(3.1a) ONLY SEVEN STILL VANISH - the owner: "They should only vanish and appear if it suits their character design. Like Cecil or
+Omega, who are shadowy and ghastly." King Omega's ghastly realm, Cecil's shadows, the Glitch's dropped frames, the Stalker's dark,
+Pistachio (a ghost) through the walls, Wilfrey out of his own grave and the Mireling down its puddle - each with a particle
+signature of its own (phase226b.POLISH). The other forty go in on screen like the eight above, on their own poses (phase226b:
+Apophiss's coils and mace, KillerWatt's current, Ava's tide, Kettle's games, the Sky Buddies' storm, the Gem's colours, the Rat
+King's sceptre and court, the Bound Sovereign's chains, greatsword and eye...).
 Champions made before this version learn it at once; the honours page and the Champion's announcement name it."""
 from items import T
 
@@ -291,6 +295,15 @@ NAMES = {'bender': ('Savage Maul', 'pounces, claws the monster savagely and chom
          'nia': ('Tortitude', 'hisses it frozen in its tracks, then shows it all of her claws'),
          'rufus': ('Dirty Fighting', 'throws grit in the monster\'s eyes, slashes it twice and finishes it with the crossbow, point-blank'),
          'tul': ('Hook and Broadside', 'harpoons the monster, drags it in, runs it through and lets the blunderbuss finish it point-blank')}
+# (3.1a) forty more go in where you can see them (phase226b: the owner - vanish only where it suits the character); the seven who
+# still vanish get a particle signature of their own. (A fol5 follower only while it's switched on: only if it's in FLAV.)
+import phase226b as _B  # noqa: E402
+for _w, _a in _B.ASSAULT.items():
+    if _w in FLAV:
+        ASSAULT[_w], NAMES[_w] = _a, _B.NAMES[_w]
+for _w, _p in _B.POLISH.items():
+    if _w in FLAV:
+        FLAV[_w] = FLAV[_w][:3] + tuple(_p) + FLAV[_w][6:]
 
 
 def generate(G):
@@ -321,7 +334,7 @@ def generate(G):
     for w in FOL:
         nm, col = WHO[w][0], WHO[w][2]
         if w in ASSAULT:
-            assault(G, w, typ(w), host, ME[w], col)
+            assault(G, w, typ(w), host, ASSAULT[w].get('me') or ME[w], col)
             name, desc = NAMES[w]
             G.FUNCS[f'p205/check/{w}'].insert(-2, tellraw('@s', G.PREFIX + [T('...and a piercing blow: ', 'gray'), T(name, '#ff7a7a', bold=True),
                                                                             T(f' - {nm} {desc}, straight through armour.', 'gray')]))
@@ -404,6 +417,13 @@ def assault(G, w, typ, host, me, col):
     fn = G.fn
     A = ASSAULT[w]
     pfx = A['pfx']
+    pose = A.get('pose', f'{pfx}/pose/{{}}')              # (3.1a: an engine of its own names its poses its own way - Zib's p72/zb/p/...)
+    tick_fn = A.get('tick', f'{pfx}/tick')
+    if A.get('me') and f'bm.{me}' not in atk.ME:           # (3.1a: the Frog and Donado had no blow tag of their own - now the kit's hit-stop and impact)
+        atk.ME[f'bm.{me}'] = (w, A['anim'])
+    if A.get('lite'):                                      # (3.1a: a baked-pose rig with no state machine - a small tick of the move's own)
+        fn(tick_fn, ['scoreboard players operation #me bm.pid = @s bm.pid'])
+        G.FUNCS['tick'].append(f'execute as {host(w)} at @s run function bm:{tick_fn}')
     if 'bm.prgo' not in G.OBJECTIVES:
         G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.prgo dummy']; G.OBJECTIVES.append('bm.prgo')
     by = f'by @e[type=minecraft:{typ},tag=bm.{me},limit=1]'
@@ -417,7 +437,7 @@ def assault(G, w, typ, host, me, col):
     for t, cmds in A['tl'].items():
         out = []
         for c in cmds:
-            if c.startswith('P '): out.append(f'function bm:{pfx}/pose/{c[2:]}')
+            if c.startswith('P '): out.append(f'function bm:{pose.format(c[2:])}')
             elif c.startswith('S '):
                 snd, vol, pit = c[2:].split(); out.append(f'playsound {snd} neutral @a[distance=..20] ~ ~ ~ {vol} {pit}')
             elif c == 'DASH': out.append('DASH 8 @e[tag=bm.prfoe,limit=1]')
@@ -430,15 +450,24 @@ def assault(G, w, typ, host, me, col):
                 each.append(f'execute if score @s bm.ksg matches {c[5:]} if block ~ ~-0.6 ~ #bm:grap_pass run tp @s ~ ~-0.6 ~')
             elif c.startswith('PULL '):          # (hooked: dragged in toward the follower, a step a tick)
                 each.append(f'execute if score @s bm.ksg matches {c[5:]} run function bm:p226/a/pull')
+            elif c.startswith('PULLX '):         # (3.1a: the same, on the follower's own trail - chains, threads, coils)
+                each.append(f'execute if score @s bm.ksg matches {c[6:]} run function bm:p226/a/{w}/pull')
             else: out.append(c)
         tl[t] = out
     tl.setdefault(1, [])
     tl[1] = ['scoreboard players set @s bm.prgo 0',
              f'execute unless entity @e[tag=bm.prfoe,distance=..14] run return run scoreboard players set @s bm.ksg {A["end"] - 1}'] + tl[1]
     tl[A['end'] - 1] = tl.get(A['end'] - 1, []) + ['data merge entity @s {NoGravity:0b}', 'function bm:p226/a/clean']
-    atk.sig(G, pfx, kid=3, tick_fn=f'{pfx}/tick', state_fn=f'{pfx}/state', anim_fn=A['anim'], s_obj=A['s_obj'], place_fn=f'{pfx}/place', col=col,
-            trigger='execute if score @s bm.prgo matches 1 unless data entity @s {Sitting:1b}', busy=A['busy'], cd=20, end=A['end'],
-            dash_kw=A['dash'], timeline=tl, each=each, own_place=A.get('own_place', False))
+    if 'pull_fx' in A:
+        fn(f'p226/a/{w}/pull', ['tag @s add bm.prride',
+                                f'execute as @e[tag=bm.prfoe,distance=2.2..14,limit=1] at @s facing entity @e[tag=bm.prride,limit=1] feet run function bm:p226/a/{w}/pulled',
+                                'tag @s remove bm.prride'])
+        fn(f'p226/a/{w}/pulled', ['execute positioned ^ ^ ^0.8 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass run tp @s ~ ~ ~', A['pull_fx']])
+    # (3.1a: free - only once its own move is over, so nothing else poses it mid-assault)
+    free = f' unless score @s {A["busy"]} matches 1..' if A.get('free') and A['busy'] else ''
+    atk.sig(G, pfx, kid=3, tick_fn=tick_fn, state_fn=A.get('state', f'{pfx}/state'), anim_fn=A['anim'], s_obj=A['s_obj'], place_fn=A.get('place', f'{pfx}/place'), col=col,
+            trigger='execute if score @s bm.prgo matches 1 unless data entity @s {Sitting:1b}' + free, busy=A['busy'], cd=20, end=A['end'],
+            face=A.get('face', 'foe'), st=A.get('st', 21), dash_kw=A['dash'], timeline=tl, each=each, own_place=A.get('own_place', False))
     if w == 'emma':                          # (the slam's shockwave: what stands round her foe)
         fn('p226/a/emma/wave', [f'tag @s add bm.{me}', f'execute at @e[tag=bm.prfoe,limit=1] as @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.prfoe,distance=..3.5] run damage @s 4 bm:rend {by}',
                                 f'tag @s remove bm.{me}', 'execute at @e[tag=bm.prfoe,limit=1] run function bm:p226/a/emma/ring'])

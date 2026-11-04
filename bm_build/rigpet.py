@@ -152,6 +152,18 @@ class X:
     """the helpers a follower's hooks get (filled in by build)"""
 
 
+def menu_words(name, pron):
+    """(3.0p) the menu's ways and call labels, short enough for a 150-wide button (a bold label of about 23 characters fills
+    it): the name, then without "The", then up to its comma, then the pronoun"""
+    pos_of = lambda s: s + ("'" if s.endswith('s') else "'s")
+    short = name[4:] if name.startswith('The ') else name
+    head = short.split(',')[0]
+    fit = lambda cands, n: next((c for c in cands if len(c) <= n), cands[-1])
+    ways = fit([f'{pos_of(n_)} ways' for n_ in (name, short, head)] + [f'{POS[pron].capitalize()} ways'], 23)
+    call = fit([f'Call {n_}' for n_ in (name, short, head)] + [f'Call {pron}'], 22)
+    return ways, ('Call for ' + name if call == f'Call {name}' else call)
+
+
 def _verb(C):
     """(2.94) a verb agreeing with the follower: v('needs', 'need')"""
     return (lambda one, many: many) if C.pron == 'them' else (lambda one, many: one)
@@ -347,6 +359,9 @@ def build(C, G, abilities, encounter):
     # ---- the menu (sneak + use)
     M = C.MENU
     poss = C.NAME + ("'" if C.NAME.endswith('s') else "'s")              # (2.94: the Sky Buddies' ways)
+    # (3.0p) a long name scrolled in its 150-wide button: "The Hollow Statue Knight's ways" - the menu says less ("Call Arachno-
+    #  Lantern", "Bound Sovereign's ways", "His ways"); tools/bots/rigpet_t.js expects the same (menuWords)
+    ways_lbl, call_lbl = menu_words(C.NAME, C.pron)
     pdlg = P28.multi([T(f"{poss.upper()} WAYS", C.COL, bold=True)], [P28.body([T(n, C.COL, bold=True), T(f' - {d}.', 'gray')], 340) for n, d in C.POWERS],
                      [P28.btn([T('« Back', 'gray')], M + 5, width=150)], columns=1, exit_label='Close')
     fn(f'{pfx}/powers', [f'scoreboard players set @s bm.menu {M}', f'dialog show @s {snbt(pdlg)}'])
@@ -356,8 +371,8 @@ def build(C, G, abilities, encounter):
         form_btn = [P28.btn(T(C.FORM[2], C.COL, bold=True), M + 3, width=150, tooltip=T(C.FORM[6], 'gray'))]
     dlg = lambda out: P28.multi([T(ITEMS[C.ITEM]['name'], C.COL, bold=True)], [P28.body(C.INTRO, 300)],
                                 ([P28.btn(T('Sit / follow', 'white', bold=True), M + 1, width=150), P28.btn(T(f'Send {C.pron} home', 'gray'), M + 9, width=150)] if out else
-                                 [P28.btn(T(f'Call for {C.NAME}', C.COL, bold=True), M + 8, width=150)]) + form_btn + extra +
-                                [P28.btn(T(f"{poss} ways", C.COL, bold=True), M + 4, width=150, tooltip=T(f"What {C.they} {v('does', 'do')} - and how.", 'gray')),
+                                 [P28.btn(T(call_lbl, C.COL, bold=True), M + 8, width=150)]) + form_btn + extra +
+                                [P28.btn(T(ways_lbl, C.COL, bold=True), M + 4, width=150, tooltip=T(f"What {C.they} {v('does', 'do')} - and how.", 'gray')),
                                  P28.btn(T('Wardrobe', C.COL, bold=True), M + 2, width=150, tooltip=T(f'{POS[C.pron].capitalize()} looks - and {POS[C.pron]} aura, if you have it.', 'gray'))],
                                 columns=2, exit_label='Close')
     fn(f'{pfx}/menu', [f'scoreboard players set @s bm.menu {M}',

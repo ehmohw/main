@@ -42,9 +42,9 @@ from rigkit import qs, qmul
 HEADS = ('s', 'c', 'h')                         # Squall (middle), Cinder (its right), Hush (its left)
 NAME = {'s': 'Squall', 'c': 'Cinder', 'h': 'Hush'}
 NECK = {  # root, mid, head joint, head end (snout tip), widths (root, mid, top)
-    's': ((0.0, 27.0, -13.0), (0.0, 35.6, -19.4), (0.0, 43.0, -24.0), (5.4, 4.6, 4.0)),
-    'c': ((5.6, 26.0, -12.0), (13.0, 31.4, -17.4), (19.0, 36.4, -21.0), (6.4, 5.8, 5.2)),
-    'h': ((-5.6, 26.0, -12.0), (-12.6, 33.0, -17.0), (-18.6, 40.0, -21.6), (4.4, 3.8, 3.2)),
+    's': ((0.0, 27.0, -13.0), (0.0, 35.0, -21.6), (0.0, 42.0, -29.0), (5.4, 4.6, 4.0)),
+    'c': ((5.6, 26.0, -12.0), (13.0, 31.0, -19.6), (19.0, 35.6, -26.0), (6.4, 5.8, 5.2)),
+    'h': ((-5.6, 26.0, -12.0), (-12.6, 32.6, -19.4), (-18.6, 39.0, -26.6), (4.4, 3.8, 3.2)),
 }
 PIVOT = {'body': (0, 22.0, 6.0), 'chest': (0, 23.0, -4.0),
          'tail1': (0, 23.0, 17.0), 'tail2': (0, 19.6, 30.0), 'tail3': (0, 14.2, 44.0),
@@ -67,8 +67,8 @@ for k, (root, mid, top, ws) in NECK.items():
 HEADP = tuple(f'h{k}' for k in HEADS)
 FACES = ('fierce', 'happy', 'blink', 'hurt', 'wide', 'sleepy', 'smug', 'snarl')
 OPT = ('fx_s', 'fx_c', 'fx_h', 'ls', 'lc', 'lh', 'strike', 'gust', 'aura')
-RIG_SCALE = 2.5
-COMPANION = 0.8
+RIG_SCALE = 2.4
+COMPANION = 0.77
 
 
 class HydraRig(Rig):
@@ -739,6 +739,7 @@ def feet_low(p):
 FOLD = dict(wr=limb(1, 0, 20, -100), wr2=qs(('y', -170)), wl=limb(-1, 0, 20, -100), wl2=qs(('y', 170)))     # (folded high on its back, a cloak)
 HALF = dict(wr=limb(1, -4, 6, -30), wr2=qs(('y', -60)), wl=limb(-1, -4, 6, -30), wl2=qs(('y', 60)))
 OPEN = dict(wr=limb(1, 0, 18, 0), wr2=T(0, -10, 0), wl=limb(-1, 0, 18, 0), wl2=T(0, 10, 0))
+CROUCH = dict(ufr=limb(1, 0, 30), lfr=limb(1, -60), ufl=limb(-1, 0, 30), lfl=limb(-1, -60), thr=limb(1, 30, 30), shr=limb(1, 30), thl=limb(-1, 30, 30), shl=limb(-1, 30))
 LEGS = dict(ufr=limb(1, 0), lfr=limb(1, 0), ufl=limb(-1, 0), lfl=limb(-1, 0), thr=limb(1, 0), shr=limb(1, 0), thl=limb(-1, 0), shl=limb(-1, 0))
 TAIL = dict(tail1=T(-4), tail2=T(-4), tail3=T(-2))
 
@@ -774,14 +775,14 @@ for k in range(4):                                                     # THE WAL
     ph = math.pi * k / 2; w = s_(ph); c = math.cos(ph)
     POSES[f'walk_{k}'] = P(**FACE0, body=T(0, 3 * w, 2 * w), chest=T(0, -3 * w, -2 * w),
                            ufr=limb(1, 18 * w), lfr=limb(1, -18 * max(0.0, -c)), ufl=limb(-1, -18 * w), lfl=limb(-1, -18 * max(0.0, c)),
-                           thr=limb(1, -18 * w), shr=limb(1, 20 * max(0.0, c)), thl=limb(-1, 18 * w), shl=limb(-1, 20 * max(0.0, -c)),
+                           thr=limb(1, -18 * w), shr=limb(1, -22 * max(0.0, c)), thl=limb(-1, 18 * w), shl=limb(-1, -22 * max(0.0, -c)),
                            tail1=T(-4, -6 * w), tail2=T(-4, -7 * w), tail3=T(-2, -8 * w),
                            **heads(s=(4 + 3 * w, 0, 0), c=(10 - 3 * c, 14, 0), h=(-6 + 3 * c, -18, 6), ns=(2 * w, 4 * w), nc=(0, 8 - 4 * w), nh=(-6, -8 + 4 * w), jc=4))
 for k in range(4):                                                     # THE RUN (12 ticks): a bounding gallop, the wings half open for balance
     ph = math.pi * k / 2; w = s_(ph)
     p = P(**FACE0, **HALF, body=T(4 + 4 * w), chest=T(-4 * w),
           ufr=limb(1, 30 * w), lfr=limb(1, -30 * max(0.0, -w)), ufl=limb(-1, 24 * w), lfl=limb(-1, -30 * max(0.0, -w)),
-          thr=limb(1, -30 * w), shr=limb(1, 30 * max(0.0, w)), thl=limb(-1, -24 * w), shl=limb(-1, 30 * max(0.0, w)),
+          thr=limb(1, -30 * w), shr=limb(1, -30 * max(0.0, w)), thl=limb(-1, -24 * w), shl=limb(-1, -30 * max(0.0, w)),
           tail1=T(0, 0), tail2=T(2, 0), tail3=T(4),
           **heads(s=(14, 0, 0), c=(18, 8, 0), h=(10, -8, 0), ns=(16, 0), nc=(16, 6), nh=(16, -6), js=8, jc=10, jh=4))
     o = p['_off']; p['_off'] = (o[0], o[1] + 2.0 * max(0.0, s_(ph + 1.0)), o[2]); POSES[f'run_{k}'] = p
@@ -792,8 +793,8 @@ POSES.update({
               **heads(s=(-30, 0, 0), c=(-24, 24, 0), h=(-30, -24, 0), ns=(-10, 0), nc=(-10, 20), nh=(-10, -20), js=36, jc=40, jh=34)),
     # THE TRI-BREATH: each head breathes its own world - storm, fire, void - wind-up (heads drawn back), then the breath
     'breath_0': P(_face='fierce', **HALF, body=T(-4), **heads(s=(-24, 0, 0), c=(-20, 10, 0), h=(-24, -10, 0), ns=(-16, 0), nc=(-16, 10), nh=(-16, -10), js=16, jc=18, jh=12)),
-    'breath_1': P(_face='wide', _face_hc='snarl', _show=('fx_s', 'fx_c', 'fx_h'), **HALF, body=T(4),
-                  **heads(s=(12, 0, 0), c=(14, 8, 0), h=(12, -10, 0), ns=(14, 0), nc=(12, 14), nh=(12, -16), js=30, jc=34, jh=26)),
+    'breath_1': P(_face='wide', _face_hc='snarl', _show=('fx_s', 'fx_c', 'fx_h'), **HALF, chest=T(4),
+                  **heads(s=(2, 0, 0), c=(4, 8, 0), h=(2, -10, 0), ns=(8, 0), nc=(6, 14), nh=(6, -16), js=30, jc=34, jh=26)),
     # THE WING GUST: both wings raised high and back - then swept down and forward, a wall of wind
     'gust_0': P(_face='fierce', body=T(-10), wr=limb(1, -20, 70, -20), wl=limb(-1, -20, 70, -20), wr2=T(0, -20, 20), wl2=T(0, 20, -20),
                 **heads(s=(-10, 0, 0), c=(-6, 20, 0), h=(-10, -20, 0), ns=(-10, 0), nc=(-6, 14), nh=(-6, -14))),
@@ -809,18 +810,16 @@ POSES.update({
     # the heads swaying as they breathe (two sway keys), a bolt striking the target
     'storm_0': P(_face='fierce', _face_hh='wide', **OPEN, body=T(-12), chest=T(-4), tail1=T(8),
                  **heads(s=(-36, 0, 0), c=(-30, 14, 0), h=(-36, -14, 0), ns=(-24, 0), nc=(-20, 16), nh=(-20, -16), js=20, jc=24, jh=20)),
-    'storm_1': P(_face='wide', _face_hc='snarl', _show=('ls', 'lc', 'lh', 'strike'), **HALF, body=T(4),
-                 **heads(s=(14, -4, 0), c=(16, -8, 0), h=(14, 0, 0), ns=(14, -4), nc=(12, 0), nh=(12, -6), js=34, jc=38, jh=30)),
-    'storm_2': P(_face='wide', _face_hc='snarl', _show=('ls', 'lc', 'lh', 'strike'), **HALF, body=T(4),
-                 **heads(s=(14, 4, 0), c=(16, 0, 0), h=(14, 8, 0), ns=(14, 4), nc=(12, 6), nh=(12, 0), js=34, jc=38, jh=30)),
+    'storm_1': P(_face='wide', _face_hc='snarl', _show=('ls', 'lc', 'lh', 'strike'), **HALF, chest=T(4),
+                 **heads(s=(4, -4, 0), c=(6, -14, 0), h=(4, 6, 0), ns=(8, -4), nc=(6, -8), nh=(6, 4), js=34, jc=38, jh=30)),
+    'storm_2': P(_face='wide', _face_hc='snarl', _show=('ls', 'lc', 'lh', 'strike'), **HALF, chest=T(4),
+                 **heads(s=(4, 4, 0), c=(6, -6, 0), h=(4, 14, 0), ns=(8, 4), nc=(6, -2), nh=(6, 10), js=34, jc=38, jh=30)),
     # SITTING (right-click): sat back on its haunches like a great cat, the wings folded, the heads up and watching three ways
-    'sit_a': P(**FACE0, body=T(-26), chest=T(10), ufr=limb(1, 24), lfr=limb(1, -6), ufl=limb(-1, 24), lfl=limb(-1, -6),
-               thr=limb(1, 70), shr=limb(1, -100), thl=limb(-1, 70), shl=limb(-1, -100), tail1=T(20), tail2=T(-6), tail3=T(-4),
-               **heads(s=(16, 0, 0), c=(20, 28, 0), h=(10, -30, 10), ns=(14, 0), nc=(14, 10), nh=(14, -10))),
-    # (sneak) CURLED UP: lying down, the three heads laid together on its forepaws - Squall and Cinder asleep; Hush, one eye open
-    'sit_b': P(_face='blink', _face_hh='sleepy', body=T(0), ufr=limb(1, 80), lfr=limb(1, -80), ufl=limb(-1, 80), lfl=limb(-1, -80),
-               thr=limb(1, 60, 10), shr=limb(1, -120), thl=limb(-1, 60, 10), shl=limb(-1, -120), tail1=T(10, 40), tail2=T(0, 30), tail3=T(0, 30),
-               **heads(s=(30, 0, 0), c=(30, -20, -10), h=(20, 30, 20), ns=(50, 0), nc=(50, -14), nh=(50, 14))),
+    'sit_a': P(**FACE0, **CROUCH, tail1=T(4, 20), tail2=T(0, 20), tail3=T(0, 16),
+               **heads(s=(6, 0, 0), c=(14, 28, 0), h=(0, -30, 10), ns=(-6, 0), nc=(0, 10), nh=(-4, -10))),
+    # (sneak) CURLED UP: down low, the tail wrapped round, the three heads laid together - Squall and Cinder asleep; Hush, one eye open
+    'sit_b': P(_face='blink', _face_hh='sleepy', **CROUCH, tail1=T(4, 40), tail2=T(0, 36), tail3=T(0, 30),
+               **heads(s=(24, 0, 0), c=(22, -24, -10), h=(14, 30, 20), ns=(34, 0), nc=(30, -16), nh=(30, 18))),
     'happy': P(_face='happy', **OPEN, body=T(-8), **heads(s=(-14, 0, 0), c=(-6, 20, -10), h=(-10, -24, 14), ns=(-10, 0), nc=(-6, 10), nh=(-6, -10), js=20, jc=24, jh=16)),
     'hurt': P(_face='hurt', **HALF, body=T(6, 0, 8), **heads(s=(-20, -10, 10), c=(-10, 30, -10), h=(-16, -30, 20), ns=(-20, -6), nc=(-14, 18), nh=(-14, -18), js=24, jc=20, jh=20)),
     'ride': P(**FACE0, **heads(s=(8, 0, 0), c=(12, 10, 0), h=(4, -12, 6), nc=(4, 10), nh=(-2, -10))),

@@ -396,7 +396,8 @@ def generate(G):
         mine = [g for g in GROUPS if g[0] == who]
         page = [f'scoreboard players set @s bm.menu {b}', 'data remove storage bm:ui wd']
         st = lambda key, txt, c: f'data modify storage bm:ui wd.r_{key} set value {snbt(T(txt, c, bold=True))}'
-        btns = [P28.btn([T(f'Send {pron} home', 'gray')], b, width=150)]
+        WW = 150 if who == 'emma' else 200      # (3.0p: a look's name and its state - "Netherite Crayon Scales  locked" - scrolled in 150; Emma's three columns stay 150)
+        btns = [P28.btn([T(f'Send {pron} home', 'gray')], b, width=WW)]
         for _w, g, cur, un, ks, iid, off, apply in mine:
             page += [f'execute unless score @s {un} matches 0.. run scoreboard players set @s {un} 0', f'execute unless score @s {cur} matches 0.. run scoreboard players set @s {cur} 0']
             for k in ks:              # (one already worn - from before the wardrobe - counts as owned)
@@ -411,18 +412,18 @@ def generate(G):
                 page += [st(f'{g}0', 'owned', 'gray'), f'execute if score @s {cur} matches 0 run {st(f"{g}0", "wearing", GOLD)}']
                 if g == 'dress':
                     page += [f'execute unless score @s bm.coso matches 0 run {st(f"{g}0", "owned", "gray")}']
-                btns.append(P28.btn([T(orig, 'white', bold=True), T('  '), f'@@RAW:r_{g}0@@'], b + off, width=150))
+                btns.append(P28.btn([T(orig, 'white', bold=True), T('  '), f'@@RAW:r_{g}0@@'], b + off, width=WW))
             for k, (cn, cc) in ks.items():
                 page += [st(f'{g}{k}', 'locked', 'dark_gray')] + bit(un, k) + [f'execute if score #q bm.rng matches 1 run {st(f"{g}{k}", "owned", "gray")}',
                                                                                f'execute if score @s {cur} matches {k} run {st(f"{g}{k}", "wearing", GOLD)}']
                 if g == 'dress':
                     page += [f'execute if score @s {cur} matches {k} unless score @s bm.coso matches 0 run {st(f"{g}{k}", "owned", "gray")}']
-                btns.append(P28.btn([T(cn, cc, bold=True), T('  '), f'@@RAW:r_{g}{k}@@'], b + off + k, width=150))
+                btns.append(P28.btn([T(cn, cc, bold=True), T('  '), f'@@RAW:r_{g}{k}@@'], b + off + k, width=WW))
         # 2.82t: comes back after fainting - on unless switched off here (phase173: after the 2-minute cooldown, by itself)
         import phase173 as P173
         if who in P173.AR:
             page += [st('ar', 'on', GOLD)] + bit(P173.ar_obj(P173.AR_IDX[who]), P173.AR_IDX[who] % 31) + [f'execute if score #q bm.rng matches 1 run {st("ar", "off", "gray")}']
-            btns.append(P28.btn([T('Back after a faint', 'white', bold=True), T('  '), '@@RAW:r_ar@@'], P173.ar_code(P173.AR_IDX[who]), width=150,
+            btns.append(P28.btn([T('Back after a faint', 'white', bold=True), T('  '), '@@RAW:r_ar@@'], P173.ar_code(P173.AR_IDX[who]), width=WW,
                                 tooltip=T(f'On: once the 2-minute rest after a faint is over, {nm} comes back to you.', 'gray')))
         # 2.78: the aura row - locked until you have it (a rare heist find, or dear at the Tailor), then on / off
         import phase138 as P138
@@ -431,7 +432,7 @@ def generate(G):
                  f'execute if entity @s[tag=bm.au_{who}] run {st("aura", "on", GOLD)}']
         used = {b} | {b + off + k for _w, g, cur, un, ks, iid, off, apply in mine for k in [0] + list(ks)}
         assert TOP[who] not in used, (who, TOP[who])
-        btns.append(P28.btn([T(an, ac, bold=True), T('  '), '@@RAW:r_aura@@'], TOP[who], width=150,
+        btns.append(P28.btn([T(an, ac, bold=True), T('  '), '@@RAW:r_aura@@'], TOP[who], width=WW,
                             tooltip=T(f'{an}: a rare aura around {nm} - a heist find, or the Tailor\'s dearest stock. On or off here.', 'gray')))
         # 2.94b: the pixel costume row (a Glitched Cartridge used beside them unlocks it) - locked, then on / off, here in
         #        their own wardrobe (it had a Pixel Wardrobe of its own, off the cartridge)
@@ -440,21 +441,21 @@ def generate(G):
             assert TOP[who] - 1 not in used, (who, TOP[who] - 1)
             page += [st('px', 'locked', 'dark_gray'), f'execute if entity @s[tag=bm.pxu_{who}] run {st("px", "off", "gray")}',
                      f'execute if entity @s[tag=bm.pxu_{who},tag=bm.pxo_{who}] run {st("px", "on", P214.COL)}']
-            btns.append(P28.btn([T('Pixel costume', P214.COL, bold=True), T('  '), '@@RAW:r_px@@'], TOP[who] - 1, width=150,
+            btns.append(P28.btn([T('Pixel costume', P214.COL, bold=True), T('  '), '@@RAW:r_px@@'], TOP[who] - 1, width=WW,
                                 tooltip=T(f'{nm} as a PixelLab sprite. Unlocked by using a Glitched Cartridge beside {pron}. On or off here.', 'gray')))
         # 2.94m: Emma's KillerWatt look (an Easter egg - KillerWatt called while she's with you unlocks it, phase217) - locked, off, on
         if who == 'emma':
             assert TOP[who] - 2 not in used, (who, TOP[who] - 2)
             page += [st('kw', '???', 'dark_gray'), f'execute if entity @s[tag=bm.emkw_u] run {st("kw", "off", "gray")}',
                      f'execute if entity @s[tag=bm.emkw_u,tag=bm.emkw_o] run {st("kw", "on", "#7ae63a")}']
-            btns.append(P28.btn([T('KillerWatt look', '#7ae63a', bold=True), T('  '), '@@RAW:r_kw@@'], TOP[who] - 2, width=150,
+            btns.append(P28.btn([T('KillerWatt look', '#7ae63a', bold=True), T('  '), '@@RAW:r_kw@@'], TOP[who] - 2, width=WW,
                                 tooltip=T('Emma, marked glassy green by a possession she threw off - his colours, his tendrils. A secret: how do you get it?', 'gray')))
         for code, key, label, col_, tip, states, _f in ROWS.get(who, ()):
             taken = used | ({TOP[who] - 1} if who in P214.KEYS else set()) | ({TOP[who] - 2} if who == 'emma' else set())
             assert BASE[who] < code < TOP[who] and code not in taken, (who, code)
             used.add(code)
             page += [(f'execute if {c} run ' if c else '') + st(key, txt, c2) for c, txt, c2 in states]
-            btns.append(P28.btn([T(label, col_, bold=True), T('  '), f'@@RAW:r_{key}@@'], code, width=150, tooltip=T(tip, 'gray')))
+            btns.append(P28.btn([T(label, col_, bold=True), T('  '), f'@@RAW:r_{key}@@'], code, width=WW, tooltip=T(tip, 'gray')))
         page.append(f'function bm:p99/dlg/{who} with storage bm:ui wd')
         fn(f'p99/menu/{who}', page)
         dlg = P28.multi([T(f"{nm}", col, bold=True), T('  ·  wardrobe', 'gray')],

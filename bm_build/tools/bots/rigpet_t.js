@@ -84,12 +84,18 @@ module.exports = async function run(C) {
   ok('sneak + use: the menu', await sneakMenu(0));
   const labels = A.buttons().map(b => b.label);
   const pron = C.pron || 'her';
-  const poss = C.NAME + (/s$/.test(C.NAME) ? "'" : "'s");
-  const want = ['Sit / follow', `Send ${pron} home`, `${poss} ways`, 'Wardrobe'];
+  // (3.0p: rigpet.menu_words - a long name is shortened to fit its button: without "The", up to its comma, or the pronoun)
+  const menuWords = (name, pr) => { const posOf = (x) => x + (/s$/.test(x) ? "'" : "'s"); const short = name.replace(/^The /, ''); const head = short.split(',')[0];
+    const P = { her: 'Her', him: 'His', it: 'Its', them: 'Their' }; const fit = (cs, n) => cs.find(c => c.length <= n) || cs[cs.length - 1];
+    const ways = fit([name, short, head].map(x => `${posOf(x)} ways`).concat([`${P[pr]} ways`]), 23);
+    const call = fit([name, short, head].map(x => `Call ${x}`).concat([`Call ${pr}`]), 22); return [ways, call]; };
+  const [waysL, callL] = menuWords(C.NAME, pron);
+  const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const want = ['Sit / follow', `Send ${pron} home`, waysL, 'Wardrobe'];
   ok(`...${want.join(', ')}${C.form ? ', the form' : ''}${C.story ? ', the story' : ''}`, want.every(l => labels.some(x => x.includes(l))) && (!C.form || labels.some(x => C.form.button.test(x))) && (!C.story || labels.some(x => C.story.test(x))), labels.join(' | '));
-  let pr = await A.press(new RegExp(`${poss} ways`));
+  let pr = await A.press(new RegExp(esc(waysL)));
   const pw = JSON.stringify(dd(A.dialogN[A.dialogN.length - 1]).body || []);
-  ok(`the menu -> ${poss} ways: ${C.ways.join(', ')}`, pr && pr.next && C.ways.every(w => pw.includes(w)), pw.slice(0, 160));
+  ok(`the menu -> ${waysL}: ${C.ways.join(', ')}`, pr && pr.next && C.ways.every(w => pw.includes(w)), pw.slice(0, 160));
   await A.press(/« Back/); await sleep(600);
   if (C.story) {
     pr = await A.press(C.story);
@@ -132,8 +138,8 @@ module.exports = async function run(C) {
   await sneakMenu(0); A.bars.length = 0; await A.click(/Send .* home/); await sleep(1500);
   ok('Send home: goes', (await cnt(PET)) === 0 && A.bars.some(b => C.home.test(b)), A.bars.slice(-1).join(''));
   await sneakMenu(0);
-  ok(`...the menu now says Call ${C.NAME}`, A.buttons().some(b => new RegExp(`Call (for )?${C.NAME}`).test(b.label)) && !A.buttons().some(b => /Send .* home/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
-  await A.click(new RegExp(`Call (for )?${C.NAME}`)); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
+  ok(`...the menu now says Call ${C.NAME}`, A.buttons().some(b => new RegExp(esc(callL)).test(b.label)) && !A.buttons().some(b => /Send .* home/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
+  await A.click(new RegExp(esc(callL))); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
   ok('...called from the menu: back, still in the look', (await cnt(PET)) === 1 && new RegExp(`${LM}_c1$`).test(await model()), await model());
   if (C.form) {
     await sneakMenu(0); await A.press(C.form.button); await sleep(1200);
