@@ -19,17 +19,18 @@ LOOK (built to be nobody else's dragon - not gold, not bipedal, no twin tails)
                    like chorus fronds, two drifting chin barbels; big pale MOON EYES, always half-lidded; a magenta glow.
        - Each head has ITS OWN EYES and its own expressions, and turns, bites and bickers on its own (per-head faces:
          a pose's '_face_<head part>' overrides '_face' for that head).
-SCALE  RIG_SCALE 2.8 (the Atomic Rex's): ~7.8 blocks to Squall's crest with the heads up, ~14 nose to tail. COMPANION 0.9 (~2.5
-       blocks): compsize twins the rig at COMPANION / RIG_SCALE, as the Rat King's (the hitbox follows).
+SCALE  RIG_SCALE 2.4: ~7.6 blocks to Squall's crest (the Atomic Rex: 7.8), ~15.7 nose to tail fan. COMPANION 0.77 (~2.45 blocks):
+       compsize twins the rig at COMPANION / RIG_SCALE, as the Rat King's (the hitbox follows). RIDDEN: SEAT_PT on 'saddle'; in
+       'ride' the seat is (0, 4.83, 0.60) blocks - a horse host at scale 3.35.
 RIG    body (root: the barrel and hips) - chest (the shoulders and the necks' roots) - n1s / n2s / hs / js (Squall: two neck
        segments, the head, the jaw), n1c / n2c / hc / jc (Cinder), n1h / n2h / hh / jh (Hush) - wr / wr2, wl / wl2 (the wings: the
        arm, the hand) - tail1 / tail2 / tail3 - legs: ufr lfr pfr, ufl lfl pfl (front: upper, lower, paw), thr shr ftr, thl shl ftl
        (hind: thigh, shin, foot) - saddle. fx (opt): fx_s fx_c fx_h (THE TRI-BREATH: storm, fire, void - each on its own head),
        ls lc lh (RANK III: the lightning streams, one from each head), strike (the bolt at the target), gust (the wing gust),
        aura (the rare aura).
-SKINS  '_dw' DAWNSCALE (the cosmetic: rose-gold dawn scales... no: copper-and-cream - see the doc), '_ab' ABYSSAL (the
-       cosmetic: deep-sea teal and black), '_sh' SHINY "Opal" (pearl-white scales, the three glows kept), '_ch' charged
-       (Rank III's crackle: storm veins lit over every scale)."""
+SKINS  '_dw' DAWNSCALE (the cosmetic: copper scales, a cream belly), '_ab' ABYSSAL (the cosmetic: deep-sea teal and black),
+       '_sh' SHINY "Opal" (pearl-white scales, each head pale in its own tint, the three glows kept), '_ch' charged (Rank III's
+       crackle: storm veins lit over every scale). Every skin keeps the three heads' glows: they are who the heads are."""
 import math
 import random
 from PIL import Image, ImageDraw
@@ -745,12 +746,13 @@ TAIL = dict(tail1=T(-4), tail2=T(-4), tail3=T(-2))
 
 
 def heads(s=(0, 0, 0), c=(0, 0, 0), h=(0, 0, 0), js=0, jc=0, jh=0, ns=(0, 0), nc=(0, 0), nh=(0, 0)):
-    """each head's turn: (pitch + nods down, yaw + turns to its right, roll) on the head; ns/nc/nh: (pitch, yaw) bent along its
+    """each head's turn: (pitch + nods down, yaw + turns to its right, roll) on the head (the sign flipped for T, whose +y turns
+    a part to its left); ns/nc/nh: (pitch, yaw) bent along its
     neck (shared by both neck segments); js/jc/jh the jaws (degrees open)"""
     out = {}
     for k, hv, nv, jv in (('s', s, ns, js), ('c', c, nc, jc), ('h', h, nh, jh)):
-        out[f'n1{k}'] = T(nv[0] * 0.5, nv[1] * 0.5); out[f'n2{k}'] = T(nv[0] * 0.5, nv[1] * 0.5)
-        out[f'h{k}'] = T(*hv); out[f'j{k}'] = T(jv)
+        out[f'n1{k}'] = T(nv[0] * 0.5, -nv[1] * 0.5); out[f'n2{k}'] = T(nv[0] * 0.5, -nv[1] * 0.5)        # (T's +y turns it to its LEFT)
+        out[f'h{k}'] = T(hv[0], -hv[1], hv[2]); out[f'j{k}'] = T(jv)
     return out
 
 
@@ -826,13 +828,14 @@ POSES.update({
     'aura': P(_face='happy', _face_hh='sleepy', _show=('aura',), **heads(s=(4, 0, 0), c=(10, 18, 0), h=(-6, -22, 8), nc=(0, 10), nh=(-6, -10))),
     # THE DOLL: the outer heads drawn in close and up, the tail curled round its feet (a doll stands in a doll's width)
     'doll': P(_face='happy', _face_hh='sleepy', tail1=T(10, 50), tail2=T(0, 50), tail3=T(0, 40),
-              **heads(s=(10, 0, 0), c=(10, -20, 0), h=(6, 20, 6), ns=(-14, 0), nc=(-20, -34), nh=(-20, 34))),
+              **heads(s=(14, 0, 0), c=(10, -26, 0), h=(8, 26, 6), ns=(-20, 0), nc=(-16, -44), nh=(-16, 44))),
 })
 DRAFT = list(POSES)
 R.DRAFT = DRAFT
-DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62}
+DOLL = {'kh': 1.7, 'kb': 0.78, 'kl': 0.62}            # (close to the default warp: three heads share one doll's head-room)
 DOLL_GROUPS = {p: 'body' for p in PIVOT}
-DOLL_GROUPS.update({f'h{k}': 'head' for k in HEADS}); DOLL_GROUPS.update({f'j{k}': 'head' for k in HEADS})
+DOLL_GROUPS.update({f'h{k}': 'head' for k in HEADS}); DOLL_GROUPS.update({f'j{k}': 'head' for k in HEADS}); DOLL_GROUPS.update({f'n2{k}': 'head' for k in HEADS}); DOLL_GROUPS.update({f'n1{k}': 'head' for k in HEADS})
+DOLL_GROUPS.update({p: 'head' for p in ('wr', 'wr2', 'wl', 'wl2')})       # (the necks and folded wings grow with the heads: a chibi of three big heads)
 DOLL_GROUPS.update({p: 'legs' for p in ('ufr', 'lfr', 'pfr', 'ufl', 'lfl', 'pfl', 'thr', 'shr', 'ftr', 'thl', 'shl', 'ftl')})
 
 MOVES = {

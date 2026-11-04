@@ -380,7 +380,7 @@ def generate(G):
                      f'execute if score #q bm.rng matches 1 run data modify storage bm:ui tl.r_{j} set value {snbt(_T("OWNED", "#7aff7a", bold=True))}']
         dlg = P28.multi([_T(nm.upper(), col, bold=True), _T('  ·  the Tailor', 'gray')],
                         [P28.body(wal, 360)],
-                        [P28.btn([_T(cn, ccol, bold=True), _T('  '), f'@@RAW:r_{j}@@'], scode(j), width=180) for j, (who, g, un, k, it, cn, ccol, pr) in mine_] + [back],
+                        [P28.btn([_T(cn, ccol, bold=True), _T('  '), f'@@RAW:r_{j}@@'], scode(j), width=220) for j, (who, g, un, k, it, cn, ccol, pr) in mine_] + [back],
                         columns=2, exit_label='Close')
         fn(f'p103/tl/p_{w}', [f'execute unless {tl_met(w)} run return run function bm:p103/tl/main', 'function bm:p103/wallet', f'scoreboard players set @s bm.menu {TL}'] + rows + [f'function bm:p103/tl/p_{w}_dlg with storage bm:ui tl'])
         fn(f'p103/tl/p_{w}_dlg', [f'$dialog show @s {P28.inline(dlg)}'])

@@ -21,8 +21,9 @@ LOOK (every choice made to read at 8 blocks and to be nobody else's ape)
        - THE FACE: a stone mask - a heavy overhanging brow ledge, deep-set violet eyes, a broad flat nose, wide cheek
          FLANGES fringed with moss (it is old), and two stone TUSKS rising from the lower jaw beside the muzzle. A violet
          glow in the throat when it roars.
-SCALE  RIG_SCALE 2.8 (the Atomic Rex's): ~7.8 blocks to the crystal peaks in its knuckle stance, ~10 standing up to roar.
-       COMPANION 0.92 (~2.5 blocks): compsize twins the rig at COMPANION / RIG_SCALE, as the Rat King's (the hitbox follows).
+SCALE  RIG_SCALE 2.6: ~8.1 blocks to the crystal peaks in its knuckle stance (the Atomic Rex: 7.8 to its plates), ~9.5 reared
+       up to roar. COMPANION 0.83 (~2.6 blocks): compsize twins the rig at COMPANION / RIG_SCALE, as the Rat King's (the hitbox
+       follows). RIDDEN: SEAT_PT on 'saddle'; in 'ride' the seat is (0, 7.07, 1.56) blocks - a horse host at scale 4.90.
 RIG    body (root: the hips and pot belly) - chest (the barrel chest, shoulders and hump) - ridge (the crystal ridges: its
        charged model '_ch' lights them for the chest-beat and the Rank III) - head (face part) - jaw - armr / forer / handr,
        arml / forel / handl - thighr / shinr / footr, thighl / shinl / footl - saddle (the moss saddle, rideable). fx (opt):
@@ -745,12 +746,12 @@ POSES.update({
     'hurt': K(_face='hurt', body=T(6, 0, 8), chest=T(18, 10, -6), head=T(-20, -20, 12), jaw=T(20), arml=limb(-1, 30, 30)),
     'ride': K(_face='fierce', head=T(-38), jaw=T(6)),
     'aura': K(_show=('aura',), _face='happy'),
-    'doll': plant(dict(_face='happy', body=T(-24), chest=T(14), head=T(-10), thighr=limb(1, 88, 18), shinr=T(-110), thighl=limb(-1, 88, 18), shinl=T(-110),
-                       armr=limb(1, 26, 12), forer=limb(1, 40), arml=limb(-1, 26, 12), forel=limb(-1, 40)), parts=('footr', 'footl', 'body')),
+    'doll': plant(dict(_face='happy', body=T(-24), chest=T(14), head=T(-12), thighr=limb(1, 88, 18), shinr=T(-110), thighl=limb(-1, 88, 18), shinl=T(-110),
+                       armr=limb(1, 40, -4, 20), forer=limb(1, 70), arml=limb(-1, 40, -4, 20), forel=limb(-1, 70)), parts=('footr', 'footl', 'body')),
 })
 DRAFT = list(POSES)
 R.DRAFT = DRAFT
-DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62}
+DOLL = {'kh': 1.7, 'kb': 0.74, 'kl': 0.62}            # (close to the default: a mountain of a body needs the head a touch bigger to read chibi)
 DOLL_GROUPS = {'head': 'head', 'jaw': 'head', 'ridge': 'body', 'chest': 'body', 'body': 'body', 'saddle': 'body',
                'armr': 'body', 'forer': 'body', 'handr': 'body', 'arml': 'body', 'forel': 'body', 'handl': 'body',
                'thighr': 'legs', 'shinr': 'legs', 'footr': 'legs', 'thighl': 'legs', 'shinl': 'legs', 'footl': 'legs'}
