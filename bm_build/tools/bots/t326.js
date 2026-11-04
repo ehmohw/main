@@ -1,5 +1,5 @@
 // 3.0: THE LIGHTBRINGER, SHE OR HE (phase236's FORM, lightbringer_art's '_m' twins) - as a regular (non-op) player; rcon only sets
-// the stage (hard mode, noon, the herald placed as an admin's meet does - 3.0p, t395: the cross - scores reset between meetings).
+// the stage (hard mode, noon, the herald placed as an admin's meet does - 3.0p, t396: the cross - scores reset between meetings).
 //   THE FIRST MEETING IS A COIN TOSS: up to 12 first meetings (bm.lhform reset, never met): the herald who comes down is she or he
 //     at random (the encounter's rig wears the form chosen - every part), the choice kept on the player; both turn up.
 //   MET AS HIM: a holy helmet, right-clicked - "He plucks a feather from his wing"; he comes along in his own models (lb_*_m).

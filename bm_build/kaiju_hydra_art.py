@@ -824,7 +824,9 @@ POSES.update({
     'hurt': P(_face='hurt', **HALF, body=T(6, 0, 8), **heads(s=(-20, -10, 10), c=(-10, 30, -10), h=(-16, -30, 20), ns=(-20, -6), nc=(-14, 18), nh=(-14, -18), js=24, jc=20, jh=20)),
     'ride': P(**FACE0, **heads(s=(8, 0, 0), c=(12, 10, 0), h=(4, -12, 6), nc=(4, 10), nh=(-2, -10))),
     'aura': P(_face='happy', _face_hh='sleepy', _show=('aura',), **heads(s=(4, 0, 0), c=(10, 18, 0), h=(-6, -22, 8), nc=(0, 10), nh=(-6, -10))),
-    'doll': P(_face='happy', _face_hh='sleepy', **heads(s=(4, 0, 0), c=(8, 16, 0), h=(0, -16, 6), nc=(0, 10), nh=(-4, -10))),
+    # THE DOLL: the outer heads drawn in close and up, the tail curled round its feet (a doll stands in a doll's width)
+    'doll': P(_face='happy', _face_hh='sleepy', tail1=T(10, 50), tail2=T(0, 50), tail3=T(0, 40),
+              **heads(s=(10, 0, 0), c=(10, -20, 0), h=(6, 20, 6), ns=(-14, 0), nc=(-20, -34), nh=(-20, 34))),
 })
 DRAFT = list(POSES)
 R.DRAFT = DRAFT

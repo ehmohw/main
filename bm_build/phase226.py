@@ -298,10 +298,10 @@ NAMES = {'bender': ('Savage Maul', 'pounces, claws the monster savagely and chom
 # (3.1a) forty more go in where you can see them (phase226b: the owner - vanish only where it suits the character); the seven who
 # still vanish get a particle signature of their own. (A fol5 follower only while it's switched on: only if it's in FLAV.)
 import phase226b as _B  # noqa: E402
-for _w, _a in _B.ASSAULT.items():
+for _w, _a in (_B.ASSAULT.items() if _B.ON else ()):
     if _w in FLAV:
         ASSAULT[_w], NAMES[_w] = _a, _B.NAMES[_w]
-for _w, _p in _B.POLISH.items():
+for _w, _p in (_B.POLISH.items() if _B.ON else ()):
     if _w in FLAV:
         FLAV[_w] = FLAV[_w][:3] + tuple(_p) + FLAV[_w][6:]
 

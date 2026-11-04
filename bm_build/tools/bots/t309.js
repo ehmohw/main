@@ -1,5 +1,5 @@
 // 2.97: THE LIGHTBRINGER (phase236) as a regular (non-op) player - the owner's checklist (rigpet_t). HARD MODE ONLY: a herald
-// comes down (3.0p: rcon places her, as an admin's meet; the cross and the doll that bring her for real: t395); not hard mode: "Not
+// comes down (3.0p: rcon places her, as an admin's meet; the cross and the doll that bring her for real: t396); not hard mode: "Not
 // yet"; right-clicked in hard mode she gives you her feather. SMITE (a foe 6 off: a pillar of light); BLESS (you hurt in a fight: Regeneration II, Absorption); WARD (Resistance II,
 // Absorption for you); PRAY (out of a fight); HOLY FAVOUR (wearing something holy beside her: Regeneration). Then the shared list.
 // (3.0: bm.lhform held at 0 - she - so the first meeting's coin toss doesn't touch this one; the Form button and his look: rigpet_t's form step)
@@ -11,7 +11,7 @@ runT({ W: 'lightbringer', NAME: 'The Lightbringer', ab: 'lh', q: 'lz', pfx: 'p23
   form: { button: /Form: Herald/, suffix: '_m', score: 'bm.lhform' },      // (3.0: she / he - the look on his twin too; the rest of the male form: t326)
   encounter: async (ctx) => {
     const { A, run, ok, wait, cnt, at, entOf, has, num, X, Y, Z, ENC, sleep, O } = ctx;
-    // (3.0p: she's met by a Golden Cross set down by day, or her doll by a cross - t395 plays both. Here rcon places the herald
+    // (3.0p: she's met by a Golden Cross set down by day, or her doll by a cross - t396 plays both. Here rcon places the herald
     //  as an admin's meet does; she comes down (her descent) and waits to be spoken to.)
     await run('time set noon'); await run('scoreboard players set #hard bm.cfg 1');
     for (const t of ['bm.lhmet', 'bm.lhcross', 'bm.lhseen']) await run(`tag TestRat remove ${t}`);
