@@ -239,7 +239,8 @@ def generate(G):
     # ================================================================== every tick: its mind, its body
     tick.append(f'execute as {ME} at @s run function bm:p238/tick')
     form_of = lambda f: [f'execute if score @s bm.svph matches {i} run function bm:p238/{FORM[i]}/{f}' for i in FORM]
-    fn('p238/tick', ['tag @a[tag=bm.svtgt] remove bm.svtgt',
+    fn('p238/tick', [f'execute as {FIGHT} run function bm:p176/nodark',   # (3.0r: no Darkness anywhere in the fight - his Dread mobs included)
+                     'tag @a[tag=bm.svtgt] remove bm.svtgt',
                      f'tag {FIGHT[:-1]},sort=nearest,limit=1] add bm.svtgt',
                      'execute if entity @s[tag=bm.svdorm] run return run function bm:p238/asleep',
                      'execute if entity @s[tag=bm.svintro] run function bm:p238/intro',
