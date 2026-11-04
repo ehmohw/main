@@ -17,7 +17,7 @@ MIMICRY       LEARNING: another of your followers within 6 blocks for 3 s - and 
               puddle - and back). IN A FORM it follows, idles and fights as that follower's silhouette in black goo, wearing that
               follower's OWN eyes, oil-slick (or its own, on the nine with none to find); it waddles like a goo puppet. Its move is a
               SIMPLIFIED one (bite, slam, shot, spin, kindness or a curse, by who it is), at 60%. A form taller than 3.4 blocks is
-              mimicked at 3.4 ("it can't make that much of itself"). Its choice of form is yours: kept across recall.
+              mimicked at 3.4 ("it can't make that much of itself"). Called, sent home or taken back, it comes as itself.
 EVERYTHING ELSE is every follower's: sitting (right-click: it melts into a puddle and rises into a little goo armchair it lounges
 in; sneak + right-click: it dozes as a puddle, slowly healing), a wardrobe (Quicksilver and Gold Leaf - drawn - Deep Violet, the
 metal goos; every form wears them too), a rare aura (Magnetar), a shiny (Oil Slick), the Partner Wheel, a frame (it climbs out;
@@ -447,9 +447,15 @@ def _forms_dp(G, X):
     fn('p271/forms/pick', ['$scoreboard players set @s bm.fqo $(i)', csay('(it stretches up, goes all to column - and fills out into somebody else)')])
     # ---- the host follows its owner's choice (each tick): changed, it morphs - 17 ticks (bm.fqm counts them)
     X.tick.append('execute as @e[type=minecraft:wolf,tag=bm.fepet,tag=!bm.ffpet] at @s run function bm:p271/fm/sync')
-    fn('p271/fm/sync', ['scoreboard players set #fo bm.rng 0', 'execute on owner run scoreboard players operation #fo bm.rng = @s bm.fqo',
-                        'execute if score @s bm.fqm matches 1.. run return run function bm:p271/fm/step',
-                        'execute unless score @s bm.fqf = #fo bm.rng run function bm:p271/fm/begin'])
+    fn('p271/fm/sync', ['execute unless score @s bm.fqf matches 0.. run function bm:p271/fm/fresh',
+                        'scoreboard players set #fo bm.rng 0', 'execute on owner run scoreboard players operation #fo bm.rng = @s bm.fqo',
+                        'execute if score @s bm.fqm matches 0 if score @s bm.fqf = #fo bm.rng run return 0',
+                        'scoreboard players operation #me bm.pid = @s bm.pid',            # (its own displays picked out: the tick's, here)
+                        'execute as @e[type=minecraft:item_display,tag=bm.fep_pet,tag=!bm.fefade] if score @s bm.pid = #me bm.pid run tag @s add bm.fesel',
+                        'function bm:p271/fm/sync2', 'tag @e[type=minecraft:item_display,tag=bm.fesel] remove bm.fesel'])
+    fn('p271/fm/sync2', ['execute if score @s bm.fqm matches 1.. run return run function bm:p271/fm/step',
+                         'execute unless score @s bm.fqf = #fo bm.rng run function bm:p271/fm/begin'])
+    fn('p271/fm/fresh', ['scoreboard players set @s bm.fqf 0', 'scoreboard players set @s bm.fqm 0', 'execute on owner run scoreboard players set @s bm.fqo 0'])   # (called, sent home and back: it comes as itself)
     fn('p271/fm/begin', ['scoreboard players operation @s bm.fqf = #fo bm.rng', 'scoreboard players set @s bm.fqm 1',
                          'particle minecraft:dust{color:[0.06,0.06,0.1],scale:1.4} ~ ~0.5 ~ 0.4 0.5 0.4 0 24', 'playsound minecraft:entity.slime.squish neutral @a[distance=..16] ~ ~ ~ 0.8 0.7'])
     sel = '@e[type=minecraft:item_display,tag=bm.fesel'

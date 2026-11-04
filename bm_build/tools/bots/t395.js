@@ -1,4 +1,4 @@
-// 3.1 batch 3 smoke (the cut-back rule: summon, menu, call) - the Hollow Statue Knight and the Mimic, as a regular player: met (rcon,
+// 3.1 smoke (the cut-back rule: summon, menu, call) - batch 3's Knight and Mimic (default), or any listed (node t395 ferro,rex), as a regular player: met (rcon,
 // the stage), their item in hand; used: it comes; sneak + use: its menu (its buttons); used again: called over.
 const { bot, rcon, sleep } = require('./lib_resp');
 (async () => { const R = await rcon(); const run = c => R.run(c); const res = [];
@@ -9,7 +9,10 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await run(`${O}forceload add ${X - 8} ${Z - 8} ${X + 8} ${Z + 8}`); await run(`${O}fill ${X - 6} ${Y} ${Z - 6} ${X + 6} ${Y} ${Z + 6} minecraft:stone`);
   await run(`${O}fill ${X - 6} ${Y + 1} ${Z - 6} ${X + 6} ${Y + 5} ${Z + 6} minecraft:air`);
   await run('gamemode survival TestRat'); await run('clear TestRat'); await run(`${O}tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(1500);
-  for (const [nm, ab, iid, pfx] of [['The Hollow Statue Knight', 'hx', 'knight_token', 'p269'], ['The Mimic', 'mx', 'mimic_key', 'p270']]) {
+  const ALL = { knight: ['The Hollow Statue Knight', 'hx', 'knight_token', 'p269'], mimic: ['The Mimic', 'mx', 'mimic_key', 'p270'],
+                ferro: ['The Ferro', 'fe', 'lodestone_vial', 'p271'], rex: ['The Atomic Rex', 'ry', 'atomic_whistle', 'p272'] };
+  const WANT = (process.argv[2] || 'knight,mimic').split(',');
+  for (const [nm, ab, iid, pfx] of WANT.map(k => ALL[k])) {
     const PET = `@e[type=minecraft:wolf,tag=bm.${ab}pet,tag=!bm.ffpet]`;
     await run(`kill ${PET}`); await run(`tag TestRat add bm.${ab}met`); await run(`scoreboard players set TestRat bm.${ab}cd 0`);
     await run(`loot replace entity TestRat hotbar.0 loot bm:items/${iid}`); A.slot(0); await sleep(400);

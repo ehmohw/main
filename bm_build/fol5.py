@@ -13,9 +13,9 @@ modules only where a recolour needs their texture names (art() below).
           fifty, "fifty threads") - see the owner's decision in the batch notes"""
 import fol5flag as FL
 
-ORDER = ['glitch', 'cake', 'sapling', 'spawner', 'cairn', 'knight', 'mimic', 'ferro']
-FLAG = {'glitch': 'GLITCH', 'cake': 'CAKE', 'sapling': 'SAPLING', 'spawner': 'SPAWNER', 'cairn': 'CAIRN', 'knight': 'KNIGHT', 'mimic': 'MIMIC', 'ferro': 'FERRO'}
-PHASE = {'glitch': 'phase264', 'cake': 'phase265', 'sapling': 'phase266', 'spawner': 'phase267', 'cairn': 'phase268', 'knight': 'phase269', 'mimic': 'phase270', 'ferro': 'phase271'}
+ORDER = ['glitch', 'cake', 'sapling', 'spawner', 'cairn', 'knight', 'mimic', 'ferro', 'rex']
+FLAG = {'glitch': 'GLITCH', 'cake': 'CAKE', 'sapling': 'SAPLING', 'spawner': 'SPAWNER', 'cairn': 'CAIRN', 'knight': 'KNIGHT', 'mimic': 'MIMIC', 'ferro': 'FERRO', 'rex': 'REX'}
+PHASE = {'glitch': 'phase264', 'cake': 'phase265', 'sapling': 'phase266', 'spawner': 'phase267', 'cairn': 'phase268', 'knight': 'phase269', 'mimic': 'phase270', 'ferro': 'phase271', 'rex': 'phase272'}
 NOT_IN_COMPASS = True
 
 
@@ -233,6 +233,29 @@ SPEC['ferro'] = dict(
             [_P('minecraft:crit', 30), _P(_dust(0.48, 0.42, 1.0, 1.0), 20)], 'minecraft:block.honey_block.slide', 'minecraft:entity.slime.squish'),
     henry=('Warm Puddle', (('regeneration', 0), ('night_vision', 0)), '(it turns into a goo Henry. Henry is unimpressed.)', '(Henry swats its crown - then naps curled on its puddle)'),
     nia=('Droplet Chase', (('regeneration', 1), ('speed', 0)), '"...it\'s all right. They always come back to me."', '(Nia chases its loose droplets, then sits in its armchair)'),
+)
+
+# ---------------------------------------------------------------------------------------------------- 61: THE ATOMIC REX (the hidden mount, a follower)
+_rx = {1: ('Mecha Rex', ('#1a1e26', '#5a6478', '#8ab4ff')), 2: ('Ember Rex', ('#2a0a04', '#8a3a1a', '#ffb040')), 3: ('Glacier Rex', ('#0a1a2a', '#8ab0c8', '#e0f8ff')),
+       4: ('Gilded Rex', GOLD), 5: ('Diamond Rex', DIAMOND), 6: ('Netherite Rex', NETHERITE)}
+SPEC['rex'] = dict(
+    shiny_name='Shiny Bone White', NAME='The Atomic Rex', pron='it', COL='#5ac8ff', LINE='#c8ecff', ab='ry', q='rq', pfx='p272', item='atomic_whistle', prefix='rx_atomic_',
+    word='Rex', looks=_rx, dyes=_dyes('Rex', 'gray', 'orange', 'light_blue', _rx),
+    words='its hide and plates', plain='Charcoal and nuclear blue', base=5120,
+    aura=('Meltdown', '#5ac8ff', 1.4, 1.2, 'minecraft:soul_fire_flame', [f'particle {_dust(0.35, 0.78, 1.0, 1.0)} ~ ~1.4 ~ 0.6 0.6 0.6 0 3', 'particle minecraft:soul_fire_flame ~ ~1.8 ~ 0.4 0.4 0.4 0.01 1']),
+    anchors=('head', 'rx_atomic_head', 'body', 'rx_atomic_body'),
+    champ=(None, [], False, ['minecraft:soul_fire_flame ~ ~2 ~ 0.4 0.3 0.4 0.01 1', _dust(0.35, 0.78, 1.0, 1.0) + ' ~ ~1.2 ~ 0.5 0.5 0.5 0 3']),
+    gift=('Strength and Fire Resistance', [f'effect give {P8} minecraft:strength 15 0 true', f'effect give {P8} minecraft:fire_resistance 15 0 true']),
+    trib=[('minecraft:coal_block', 16), ('minecraft:lightning_rod', 8), ('minecraft:magma_block', 16), ('minecraft:diamond', 4), ('heartstone', 4)],
+    honour=('Critical Mass', 'its plates blaze tail to neck and it roars a ring of blue fire: 16 to monsters round it, set alight and slowed; you, Strength and Fire Resistance',
+            (16, 7), 0, 'slowness 5 2', ['strength 10 1', 'fire_resistance 20 0'], 'minecraft:soul_fire_flame', 'minecraft:entity.ravager.roar'),
+    hint='A fossil in the deepslate, a lightning rod in a storm, and the Nether\'s lava - something hatches that thinks you\'re its mother.',
+    shiny_say='"(it roars, and its plates glow a soft bone white instead of blue - trying something new today)"',
+    pierce=('Atomic Beam', 'its plates light tail to neck, its chest glows - and a thick sustained beam of blue fire pours into the monster', 'behind',
+            [_P('minecraft:soul_fire_flame', 20)], [_dust(0.35, 0.78, 1.0, 1.0) + ' ^ ^1 ^-1 0.3 0.3 0.3 0 3'],
+            [_P('minecraft:soul_fire_flame', 40), _P('minecraft:end_rod', 20)], 'minecraft:block.beacon.power_select', 'minecraft:entity.warden.sonic_boom'),
+    henry=('Nap on the Tail', (('regeneration', 0), ('fire_resistance', 0)), '(it lays its tail down very carefully, and holds still)', '(Henry naps on the warm end of its tail)'),
+    nia=('Big Friend', (('regeneration', 1),), '(it puts its nose down to her, and lets her bat at it)', '(Nia climbs up its tail to sit on its back plates)'),
 )
 
 # ---------------------------------------------------------------------------------------------------- the Doodle Mob (the dragon renamed)

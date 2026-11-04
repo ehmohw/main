@@ -259,6 +259,74 @@ def _mimic():
     return A
 
 
+class RexArt(types.ModuleType):
+    """the Atomic Rex (rex_art - phase249's mount rig, its models as they are): a follower at companion size (FULL / K_UP, ~2.5
+    blocks; its menu's Full Size twins it at FULL - compsize), its plated parts' models swapped per pose (the breath's glow: _charge).
+    Its looks: the MECHA costume (look 1, handmade - every rx_atomic_ model's item definition worn as the rx_mecha_ one, phase272),
+    the rest recolours of its hide and plates"""
+    K_UP = 3.0
+
+    def __init__(self):
+        super().__init__('f5art_rex')
+        import rex_art as R
+        self.R, self.W = R, 'rex'
+        self.PREFIX, self.FULL = 'rx_atomic_', R.RIG_SCALE
+        self.RIG_SCALE = round(R.RIG_SCALE / self.K_UP, 4)
+        self.PIVOT, self.PARENT, self.PARTS, self.PART_K = R.PIVOT, R.PARENT, R.PARTS, dict(R.PART_K)
+        self.POSES = {n: dict(p, _kind='atomic') for n, p in R.POSES.items()}
+        for n in ('breath_0', 'breath_1'):
+            self.POSES[n]['_charge'] = True
+        self.FACES, self.FACE_PARTS, self.FACE_PART, self.FACE_MAP = (), ('head',), 'head', {}
+        self.SKINS = ['']
+        at = {n: im for n, im in R.textures().items() if n.startswith('rx_a_')}
+        self._tex = at
+        self.LOOK_TEX = tuple(n for n in at if n not in ('rx_a_eye', 'rx_a_maw', 'rx_a_tooth', 'rx_a_claw', 'rx_a_steel', 'rx_a_stud', 'rx_a_strap', 'rx_a_leather'))
+        self.LOOK_DRAWN, self.SHINY_TEX, self.LOOK_SHINY_ONLY = {}, {}, ()
+        self.RECOL_KEYS = self.LOOK_TEX
+        self.LOOK_GILD_SKIP = tuple(n for n in self.LOOK_TEX if n not in ('rx_a_pcore', 'rx_a_pcore_c', 'rx_a_pedge', 'rx_a_pedge_c', 'rx_a_crag'))
+        self.SHINY_COLS = (None, '#d8d8d8', 'white')
+        self.OWN_SETS = {}
+        self.DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62}
+        self.GROUPS = {'head': 'head', 'jaw': 'head', 'neck': 'head', 'thighr': 'legs', 'shinr': 'legs', 'footr': 'legs', 'thighl': 'legs', 'shinl': 'legs', 'footl': 'legs'}
+        self.DOLL_POSE = None
+        import rigkit as RK
+        pts = []
+        U = self.RIG_SCALE / 16
+        xf = RK.solve(R.PIVOT, R.PARENT, R.POSES['idle_a'])
+        for p in R.PARTS:
+            q, t = xf[p]; pv = RK.D(R.PIVOT[p])
+            pts.append(tuple((pv[i] + t[i]) * U for i in range(3)))
+        ys = [p[1] for p in pts]; xs = [p[0] for p in pts]; zs = [p[2] for p in pts]
+        self.FIT = (0.0, round(max(ys) * 1.12, 3), round(min(xs) - 0.25, 3), round(max(xs) + 0.25, 3), round(min(zs) - 0.3, 3), round(max(zs) + 0.3, 3))
+
+    def HIDDEN(self, p, pose):
+        return p in pose.get('_hide', ())
+
+    def model_name(self, p, pose=None, suffix=''):
+        pose = pose or {}
+        return self.R.model_id(p, pose.get('_kind', 'atomic'), 'charged' if pose.get('_charge') else None) + suffix
+
+    def models(self):
+        return {}                         # (phase249's resource pack has them all)
+
+    def textures(self):
+        return dict(self._tex)
+
+    def look_item(self, n):
+        return n.startswith('rx_atomic_')
+
+    @property
+    def SHINY_LOOK(self):
+        return ('Shiny Bone White', ('#3a3a3a', '#d8d8d8', '#9ff0ff'), 'white')
+
+    def face_cases(self, sfx=''):
+        return {}
+
+
+def _rex():
+    return RexArt()
+
+
 def _ferro():
     import ferro_pet_art as FA
     FA.DOLL_POSE = 'doll'                         # (its doll's own pose: no puddle, hands tucked - and fitted 11 units wide)
@@ -272,7 +340,7 @@ def _ferro():
 
 
 _MADE = {}
-_MAKERS = {'ferro': _ferro, 'knight': _knight, 'mimic': _mimic, 'glitch': _glitch, 'cake': _cake, 'sapling': _sapling, 'spawner': _spawner, 'cairn': _cairn}
+_MAKERS = {'rex': _rex, 'ferro': _ferro, 'knight': _knight, 'mimic': _mimic, 'glitch': _glitch, 'cake': _cake, 'sapling': _sapling, 'spawner': _spawner, 'cairn': _cairn}
 
 
 def get(w):

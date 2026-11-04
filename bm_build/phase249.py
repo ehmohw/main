@@ -571,21 +571,23 @@ def generate(G):
     SK = {1: ('skiff_key', 'Vorn Skiff', SKIFF_C), 2: ('mothership_key', 'Mothership', MS_C)}
     # (off hand + the wheel: on it goes)
     use = G.FUNCS['p179/w/use']
-    adds = [f'execute if function bm:{PFX}/riding_mine if score @s bm.pwrx matches 1.. run return run function bm:{PFX}/ride_use',
+    REXF = __import__('fol5').on('rex')          # (3.1: the Atomic Rex a follower - phase272: its slot here goes; the Partner Wheel has it)
+    adds = ([] if REXF else [f'execute if function bm:{PFX}/riding_mine if score @s bm.pwrx matches 1.. run return run function bm:{PFX}/ride_use']) + [
             f'execute if function bm:p35/skiff/riding if score @s bm.pwsk matches 1 run return run function bm:p35/skiff/use',
             f'execute if function bm:p35/skiff/riding if score @s bm.pwsk matches 2 run return run function bm:p242/ms/use']
-    adds += [f'execute if items entity @s weapon.offhand {holds(MK[n][0])} run return run function bm:{PFX}/w/add_rx{n}' for n in MK]
+    adds += [f'execute if items entity @s weapon.offhand {holds(MK[n][0])} run return run function bm:{PFX}/w/add_rx{n}' for n in MK if not REXF]
     adds += [f'execute if items entity @s weapon.offhand {holds(SK[n][0])} run return run function bm:{PFX}/w/add_sk{n}' for n in SK]
     use[1:1] = adds
     for slot, D_, obj, key, what in (('rx', MK, 'bm.pwrx', 'rx', 'A rex'), ('sk', SK, 'bm.pwsk', 'msk', 'A skiff')):
-        for n, (iid, nm, col) in D_.items():
+        for n, (iid, nm, col) in (D_.items() if not (REXF and slot == 'rx') else ()):
             fn(f'{PFX}/w/add_{slot}{n}', [f'execute if score @s {obj} matches 1.. run return run ' + say(f'{what} is on your wheel already - take it back off its Mounts page first.'),
                                           'function bm:p179/w/pid', f'function bm:{PFX}/w/addm_{slot} with storage bm:tmp pw',
                                           'item replace entity @s weapon.offhand with minecraft:air', f'scoreboard players set @s {obj} {n}',
                                           'playsound minecraft:block.enchantment_table.use player @s ~ ~ ~ 0.6 1.6', 'particle minecraft:enchant ~ ~1.2 ~ 0.3 0.4 0.3 0.6 20',
                                           tellraw('@s', PRE + [T(ITEMS[iid]['name'], col, bold=True), T(' goes on your Partner Wheel\'s Mounts page. ', 'gray'),
                                                                T('(Use the wheel, then Mounts, to call it.)', 'dark_gray')])])
-        fn(f'{PFX}/w/addm_{slot}', [f'$data modify storage bm:pw p$(pid).{key} set from entity @s equipment.offhand'])
+        if not (REXF and slot == 'rx'):
+            fn(f'{PFX}/w/addm_{slot}', [f'$data modify storage bm:pw p$(pid).{key} set from entity @s equipment.offhand'])
         fn(f'{PFX}/w/outm_{slot}', [f'$execute unless data storage bm:pw p$(pid).{key} run return 0',
                                     'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.pwout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
                                     f'$data modify entity @e[type=minecraft:item,tag=bm.pwout,limit=1] Item set from storage bm:pw p$(pid).{key}',
@@ -597,7 +599,7 @@ def generate(G):
     sk_on = ['scoreboard players operation #kp bm.pid = @s bm.pid', 'scoreboard players set #on bm.rxv 0',
              'execute as @e[type=minecraft:happy_ghast,tag=bm.skiff] if score @s bm.pid = #kp bm.pid run scoreboard players set #on bm.rxv 1']
     rows = {}
-    for slot, D_, obj, on, cc, co in (('rx', MK, 'bm.pwrx', rx_on, C_RX, C_RXOUT), ('sk', SK, 'bm.pwsk', sk_on, C_SK, C_SKOUT)):
+    for slot, D_, obj, on, cc, co in ((() if REXF else (('rx', MK, 'bm.pwrx', rx_on, C_RX, C_RXOUT),)) + (('sk', SK, 'bm.pwsk', sk_on, C_SK, C_SKOUT),)):
         L = list(on)
         for n, (iid, nm, col) in D_.items():
             b_call = P28.btn([icon(iid, col), T(' Call your ', 'white'), T(nm, col, bold=True)], cc, tooltip=T(f'Your {nm} comes to your side', 'gray'), width=200)
@@ -613,17 +615,17 @@ def generate(G):
     full = P28.multi(head, [P28.body([T('Your mounts on the wheel: call one or send it home - or take its item back off. Carrying the wheel counts as carrying them.', 'gray')], 300)],
                      '@@ACTS@@', columns=1, button_width=200)
     empty = P28.multi(head, [P28.body([T('No mounts on your wheel yet.', 'white')], 300),
-                             P28.body([T('Hold a mount\'s item in your off hand - the ', 'gray'), T('Atomic Whistle', BLUE), T(', the ', 'gray'), T('Mecha Rex Remote', '#8ab4ff'),
-                                       T(', a ', 'gray'), T('Vorn Skiff Key', SKIFF_C), T(' or the ', 'gray'), T('Mothership Key', MS_C),
-                                       T(' - and use the wheel: it goes on this page. (One rex and one skiff.)', 'gray')], 300)], [b_back], columns=1, button_width=200)
+                             P28.body(([T('Hold a mount\'s item in your off hand - a ', 'gray')] if REXF else [T('Hold a mount\'s item in your off hand - the ', 'gray'), T('Atomic Whistle', BLUE), T(', the ', 'gray'), T('Mecha Rex Remote', '#8ab4ff'),
+                                       T(', a ', 'gray')]) + [T('Vorn Skiff Key', SKIFF_C), T(' or the ', 'gray'), T('Mothership Key', MS_C),
+                                       T(' - and use the wheel: it goes on this page. ' + ('(One skiff.)' if REXF else '(One rex and one skiff.)'), 'gray')], 300)], [b_back], columns=1, button_width=200)
     fn(f'{PFX}/m/show', ['$dialog show @s ' + snbt(full).replace('"@@ACTS@@"', '$(acts)')])
     fn(f'{PFX}/m/open', ['dialog clear @s', f'scoreboard players set @s bm.menu {MENU}', 'execute unless score @s bm.pid matches 1.. run function bm:p21/pid',
-                         'execute unless score @s bm.pwrx matches 1.. unless score @s bm.pwsk matches 1.. run return run dialog show @s ' + snbt(empty),
+                         ('execute unless score @s bm.pwsk matches 1.. run return run dialog show @s ' if REXF else 'execute unless score @s bm.pwrx matches 1.. unless score @s bm.pwsk matches 1.. run return run dialog show @s ') + snbt(empty),
                          'data modify storage bm:tmp rxm.acts set value []',
-                         f'execute if score @s bm.pwrx matches 1.. run function bm:{PFX}/m/row_rx', f'execute if score @s bm.pwsk matches 1.. run function bm:{PFX}/m/row_sk',
+                         *([] if REXF else [f'execute if score @s bm.pwrx matches 1.. run function bm:{PFX}/m/row_rx']), f'execute if score @s bm.pwsk matches 1.. run function bm:{PFX}/m/row_sk',
                          f'data modify storage bm:tmp rxm.acts append value {snbt(b_back)}',
                          f'function bm:{PFX}/m/show with storage bm:tmp rxm', 'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 0.8 1.2'])
-    fn(f'{PFX}/m/any', ['execute if score @s bm.pwrx matches 1.. run return 1', 'execute if score @s bm.pwsk matches 1.. run return 1', 'return 0'])
+    fn(f'{PFX}/m/any', ([] if REXF else ['execute if score @s bm.pwrx matches 1.. run return 1']) + ['execute if score @s bm.pwsk matches 1.. run return 1', 'return 0'])
     # (the wheel's own "Mounts" button: with its partners - or alone, if mounts are all it holds)
     b_mounts = P28.btn([T('◈ ', '#7ad8ff'), T('Mounts', '#7ad8ff', bold=True), T(' »', 'gray')], C_OPEN, tooltip=T('Your rex and your skiff - the mounts on your wheel', 'gray'))
     fn(f'{PFX}/m/wbtn', [f'data modify storage bm:tmp pw.acts append value {snbt(b_mounts)}', 'tag @s add bm.rxmb'])
@@ -637,16 +639,17 @@ def generate(G):
     fn(f'{PFX}/act', [f'execute if score #act bm.pay matches {C_OPEN} unless score @s bm.menu matches {WM} run return run function bm:p28/stale',
                       f'execute if score #act bm.pay matches {C_OPEN} run return run function bm:{PFX}/m/open',
                       f'execute unless score @s bm.menu matches {MENU} run return run function bm:p28/stale',
-                      f'execute if score #act bm.pay matches {C_RX} run return run function bm:{PFX}/w/rx_call',
-                      f'execute if score #act bm.pay matches {C_RXOUT} run return run function bm:{PFX}/w/rx_out',
+                      *([] if REXF else [f'execute if score #act bm.pay matches {C_RX} run return run function bm:{PFX}/w/rx_call',
+                                         f'execute if score #act bm.pay matches {C_RXOUT} run return run function bm:{PFX}/w/rx_out']),
                       f'execute if score #act bm.pay matches {C_SK} run return run function bm:{PFX}/w/sk_call',
                       f'execute if score #act bm.pay matches {C_SKOUT} run return run function bm:{PFX}/w/sk_out',
                       f'execute if score #act bm.pay matches {C_BACK} run return run function bm:p179/w/open'])
-    fn(f'{PFX}/w/rx_call', ['execute unless score @s bm.pwrx matches 1.. run return run function bm:p28/stale'] + rx_on +
+    if not REXF:
+      fn(f'{PFX}/w/rx_call', ['execute unless score @s bm.pwrx matches 1.. run return run function bm:p28/stale'] + rx_on +
        [f'execute if score #on bm.rxv matches 1 run return run function bm:{PFX}/home_cmd',
         'execute if entity @s[predicate=bm:p29/has_vehicle] run return run ' + say('Get down first - the rex comes to you on the ground.'),
         'scoreboard players operation #k bm.rxv = @s bm.pwrx', f'function bm:{PFX}/call'])
-    fn(f'{PFX}/w/rx_out', ['execute unless score @s bm.pwrx matches 1.. run return run function bm:p28/stale'] + rx_on +
+      fn(f'{PFX}/w/rx_out', ['execute unless score @s bm.pwrx matches 1.. run return run function bm:p28/stale'] + rx_on +
        [f'execute if score #on bm.rxv matches 1 run function bm:{PFX}/home_cmd', 'function bm:p179/w/pid',
         'scoreboard players set #got bm.rxv 0', f'execute store result score #got bm.rxv run function bm:{PFX}/w/outm_rx with storage bm:tmp pw'] +
        [f'execute if score #got bm.rxv matches 0 if score @s bm.pwrx matches {n} run {give(MK[n][0])}' for n in MK] +
