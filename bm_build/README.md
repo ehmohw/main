@@ -21,6 +21,17 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0t: the Gilded Eldritch, tidied
+
+- **Her wings fold properly.** Folded, the gilded-bone wings now lie snug along her flanks, the fingers swept back and down. They
+  used to stack into a boxy frame on her back, with a bone spike standing up behind it.
+- **Half-open wings stay level.** In her idle menace, her hurt pose and her beam, lunge and egg wind-ups, the wings spread evenly; no finger droops to the floor.
+- **Her second head reads as a head.** The Dread's split now rises on its own longer, gold-ringed neck, set out from the main one,
+  with a bigger head, shorter hooked jaws and larger eyes. It used to look like a claw floating by her neck.
+- **No clipping when she rears back.** In the roar, hurt, and the Lunge and Beam wind-ups she now rears from her body and upper
+  neck, so the base of her neck stays in front of the wing roots instead of tipping back through them; the second head no longer
+  presses into the main neck.
+
 ## New in 3.0s: the Golden Doodle, the 64th follower
 
 ### The Golden Doodle
