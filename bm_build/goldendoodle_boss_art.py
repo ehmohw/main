@@ -525,9 +525,9 @@ def P(lift=0.0, **kw):
 
 
 from rigkit import qs
-FOLD = dict(wr=limb(1, 0, -10, -70), wr2=qs(('y', -100)), wl=limb(-1, 0, -10, -70), wl2=qs(('y', 100)))   # (folded low along its back)
+FOLD = dict(wr=limb(1, 0, -20, -75), wr2=qs(('y', -150), ('x', -70)), wl=limb(-1, 0, -20, -75), wl2=qs(('y', 150), ('x', -70)))   # (folded snug along its flanks, the fingers swept back and down - 3.0t: was a boxy frame on its back)
 MANTLE = dict(wr=limb(1, 0, 30, -80), wr2=qs(('y', -150)), wl=limb(-1, 0, 30, -80), wl2=qs(('y', 150)))  # (folded, raised behind it like a mantle)
-HALF = dict(wr=limb(1, -10, -14, 20), wr2=T(0, 50, 0), wl=limb(-1, -10, -14, 20), wl2=T(0, -50, 0))
+HALF = dict(wr=limb(1, -10, 0, 10), wr2=T(0, 20, 0), wl=limb(-1, -10, 0, 10), wl2=T(0, -20, 0))   # (3.0t: level, no finger drooping to the floor)
 POSES = R.POSES
 POSES.update({
     'idle_a': P(_face='narrowed', **FOLD, neck1=T(-4), neck2=T(4), neck3=T(4), head=T(6), neckb=T(4, 0, 12), headb=T(10, 30, 0)),
