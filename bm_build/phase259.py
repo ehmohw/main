@@ -281,7 +281,7 @@ def wheel(G):
         fn(f'p259/t/call{t}', ['data remove storage bm:tmp pwt', 'execute store result storage bm:tmp pwt.pid int 1 run scoreboard players get @s bm.pid',
                                f'data modify storage bm:tmp pwt.t set value {t}',
                                'function bm:p259/t/in_m with storage bm:tmp pwt',
-                               f'data modify storage bm:tmp pwt.nm set value "Team {t}"', 'function bm:p259/t/go'])
+                               'function bm:p259/t/go'])
     go = ['function bm:p259/w/outs', 'scoreboard players set #pwtn bm.rng 0'] + \
          [f'execute if score #pwin{i} bm.rng matches 1 run scoreboard players add #pwtn bm.rng 1' for i in range(N)] + \
          ['execute if score #pwtn bm.rng matches 0 run return run ' + say('That team is empty - save the followers out with you as it first.'),
@@ -297,12 +297,11 @@ def wheel(G):
                             'scoreboard players add #pwtc bm.rng 1', 'scoreboard players set @s bm.gvhc 0', 'scoreboard players operation #me bm.pid = @s bm.pid',
                             f'function bm:{try_}'])
     go += ['playsound minecraft:block.enchantment_table.use player @s ~ ~ ~ 0.7 1.6', 'particle minecraft:enchant ~ ~1.2 ~ 0.4 0.5 0.4 0.8 30',
-           '$' + title('@s', 'actionbar', [T('$(nm)', GOLD, bold=True), T(' - the wheel turns.', PURPLE)])]
+           ]
     fn('p259/t/go', go)
-    # (go needs the team's name: a macro - called with storage bm:tmp pwt)
     for t in range(1, NT + 1):
-        L = G.FUNCS[f'p259/t/call{t}']
-        L[L.index('function bm:p259/t/go')] = 'function bm:p259/t/go with storage bm:tmp pwt'
+        G.FUNCS[f'p259/t/call{t}'].append('execute if score #pwtn bm.rng matches 1.. run ' +
+                                           title('@s', 'actionbar', [T(f'Team {t}', GOLD, bold=True), T(' - the wheel turns.', PURPLE)]))
 
     # ---------------------------------------------------------------- the router
     act = [f'execute if score #act bm.pay matches {BACK} if score @s bm.menu matches {TMENU} run return run function bm:p179/w/open',
@@ -330,7 +329,7 @@ def wheel(G):
     pearl = next(i for i, e in enumerate(PW) if e[0] == 'pearl')
     rq = G.FUNCS['p128/reissue']
     k = next(i for i, l in enumerate(rq) if l.startswith('execute if score #has bm.rng matches 0 run give') and 'pearl_card' in l)
-    bag = lambda iid: (f'execute if data entity @s Inventory[].components."minecraft:container"[].item.components."minecraft:custom_data"{{bm:"{iid}"}} '
+    bag = lambda iid: (f'execute if items entity @s container.* *[minecraft:container~{{items:{{contains:[{{predicates:{{"minecraft:custom_data":{{bm:"{iid}"}}}}}}]}}}}] '
                        'run scoreboard players set #has bm.rng 1')
     rq[k:k] = [f'execute if score @s bm.pw{pearl} matches 1 run scoreboard players set #has bm.rng 1',          # (on the wheel - carried or not)
                f'execute if items entity @s player.cursor {holds("pearl_card")} run scoreboard players set #has bm.rng 1',
@@ -552,8 +551,9 @@ def haul(G):
           'function bm:p259/hl/emit']
     for cur, obj, nm, col in BK:                      # (and what went straight into your account)
         em += [f'execute store result score #hb bm.rng run data get storage bm:hl bk.{cur}', f'scoreboard players operation #hn bm.rng = @s {obj}',
-               'scoreboard players operation #hn bm.rng -= #hb bm.rng', f'execute if score #hn bm.rng matches 1.. run function bm:p259/hl/bank {{c:"{cur}"}}']
-        G.fn(f'p259/hl/bn_{cur}', ['data modify storage bm:tmp nmo set value ' + snbt(T(nm, col))])
+               'scoreboard players operation #hn bm.rng -= #hb bm.rng', f'execute if score #hn bm.rng matches 1.. run function bm:p259/hl/bk_{cur}']
+        G.fn(f'p259/hl/bk_{cur}', ['scoreboard players set #hu bm.rng 0', f'execute store result score #hu bm.rng run data get storage bm:hl val.{cur}',
+                                   'data modify storage bm:tmp nmo set value ' + snbt(T(nm, col)), 'function bm:p259/hl/bank'])
     em += ['execute store result storage bm:tmp hlo.v int 1 run scoreboard players operation #hlv bm.rng /= #1000 bm.rng',
            'execute store result storage bm:tmp hlo.r int 1 run scoreboard players get #hlr bm.rng',
            '$data modify storage bm:hl p$(pid).rows set from storage bm:hl rows', '$data modify storage bm:hl p$(pid).v set from storage bm:tmp hlo.v',
@@ -583,8 +583,7 @@ def haul(G):
     fn('p259/hl/emit1', ['$execute store result score #hn bm.rng run data get storage bm:hl t."$(k)"', 'execute if score #hn bm.rng matches ..0 run return 0',
                          'scoreboard players set #hu bm.rng 0', '$execute store result score #hu bm.rng run data get storage bm:hl val."$(k)"',
                          'data modify storage bm:tmp nmi set from storage bm:hl keys[0].it', 'function bm:p259/nm/get', 'function bm:p259/hl/row'])
-    fn('p259/hl/bank', ['scoreboard players set #hu bm.rng 0', '$execute store result score #hu bm.rng run data get storage bm:hl val."$(c)"',
-                        '$function bm:p259/hl/bn_$(c)', 'function bm:p259/hl/row', 'data modify storage bm:hl rows[-1].extra append value ' + snbt(T(' (into your account)', 'dark_gray'))])
+    fn('p259/hl/bank', ['function bm:p259/hl/row', 'data modify storage bm:hl rows[-1].extra append value ' + snbt(T(' (into your account)', 'dark_gray'))])
     # (a row: "- 32x <name>  ~ 12 Tokens", and the worth added to the total)
     fn('p259/hl/row', ['scoreboard players add #hlr bm.rng 1', 'scoreboard players operation #hw bm.rng = #hn bm.rng', 'scoreboard players operation #hw bm.rng *= #hu bm.rng',
                        'scoreboard players operation #hlv bm.rng += #hw bm.rng', 'scoreboard players operation #hw bm.rng /= #1000 bm.rng',
@@ -608,7 +607,7 @@ def haul(G):
                           'data remove storage bm:ui hl', '$data modify storage bm:ui hl.r_rows set from storage bm:hl p$(pid).rows',
                           '$data modify storage bm:ui hl.v set from storage bm:hl p$(pid).v', '$data modify storage bm:ui hl.r set from storage bm:hl p$(pid).r',
                           '$data remove storage bm:hl p$(pid)',
-                          f'execute if data storage bm:ui hl{{r:0}} run data modify storage bm:ui hl.r_rows append value {snbt(nothing)}',
+                          f'execute if data storage bm:ui {{hl:{{r:0}}}} run data modify storage bm:ui hl.r_rows append value {snbt(nothing)}',
                           'function bm:p259/hl/show with storage bm:ui hl', 'playsound minecraft:item.armor.equip_gold player @s ~ ~ ~ 0.7 1.2'])
     d = P28.notice([T('The Haul', GOLD, bold=True), T('  \u00b7  this heist', 'gray')],
                    [P28.body([T('What you came out with', 'white', bold=True), T(' (that you didn\'t take in):', 'gray'),
@@ -627,7 +626,7 @@ def bags(G):
     assert set(L0) == set(P248.BAGS), set(P248.BAGS) - set(L0)
     # (in: storage bm:tmp bl.it - the bag's stack - and bl.c - its container list; out: bl.it's lore, and bl.lore / bl.k)
     fn('p259/bag/lore', ['scoreboard players set #bl0 bm.rng -1'] +
-       [f'execute if data storage bm:tmp bl.it.components."minecraft:custom_data"{{bm:"{b}"}} run scoreboard players set #bl0 bm.rng {n}' for b, n in L0.items()] +
+       [f'execute if data storage bm:tmp {{bl:{{it:{{components:{{"minecraft:custom_data":{{bm:"{b}"}}}}}}}}}} run scoreboard players set #bl0 bm.rng {n}' for b, n in L0.items()] +
        ['execute if score #bl0 bm.rng matches ..-1 run return 0',
         'execute unless data storage bm:tmp bl.it.components."minecraft:lore" run data modify storage bm:tmp bl.it.components."minecraft:lore" set value []',
         'function bm:p259/bag/trim',
