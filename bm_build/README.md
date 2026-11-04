@@ -21,6 +21,178 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0p: the Hollow Statue Knight, the Mimic, the Lightbringer's cross, and on-screen Piercing Blows
+
+### The Hollow Statue Knight (58) and the Mimic (59)
+
+An Undercrown statue knight's armour with a soul serpent coiled inside it: **Sir Aldous Vane**, once Captain of King Omega's
+guard, and Pistachio's old master ("Mind the door, Pip").
+
+- **Meeting him.** Set up a dread knight statue you've won, and stand by it with **Pistachio and King Omega** out. Pistachio
+  BARKS (his first bark). Omega: "...Aldous? Is that you in there?" Two yellow eyes open in the eye-slit, and the armour steps down
+  beside the statue; the statue stays yours. Right-click him, and he gives you **the Hollow Knight's Token**, his summoning item.
+- **His size.** He stands as tall as the statue knights (about 3 blocks). His menu's **Companion Size** brings him down to about
+  your height; his hitbox follows, and the choice is kept when he's recalled.
+- **Two in one.** The armour and the serpent are two rigs on one follower. In most poses the serpent is inside, and only its eyes
+  in the slit and its coils through the plate show. It slithers out of the visor, drapes over his shoulders when he kneels, and
+  fights on its own when the armour breaks. It has its own arms.
+- **His ways:**
+  - **The Mace:** a foe within 2.8 - a swing for 7, or 9 on a foe the serpent is holding.
+  - **Hiss:** two foes within 4, every 12 s. The serpent comes out beside him, jaw open; cold mist gives Slowness II for 3 s.
+  - **Coil:** a foe 3-8 blocks away, every 6 s. The serpent streaks out and winds round in front of him; the foe gets Slowness
+    III and can't jump for 3 s, and is held.
+  - **The Spin:** charged, every minute. The giant mace swung round, 9 to every monster within 3.5.
+  - **Broken:** once his health drops under a third, the armour collapses into a heap for 30 s, and the serpent fights alone
+    (bites of 5). Then the armour stands again, healed.
+- **Everything every follower has:**
+  - sitting: right-click for the vigil (he kneels, the serpent draped over his shoulders); **sneak + right-click** for the statue
+    stance;
+  - a wardrobe:
+    - **Freed** is earned, never sold: hand him a Totem of Undying, with a golden apple in your pack and Pistachio by to serve
+      it. That gives the holy finish (silver, gold, a white cloak, the serpent pale gold).
+    - The **Crimson** and **Verdant Guard** cloaks, and the Gilded, Diamond and Netherite plate.
+  - a rare aura, **the Candle Vigil**;
+  - a shiny, **Shiny Starlit**;
+  - the Partner Wheel, a frame (the token's eyes blink; right-click it for a whisper), the display case, Cecil's doll (the
+    serpent curled round the helm), the honours and a Raid Contract.
+- **Pairs:** with Bender ("Old Dog, New Tricks"), Mr. Capshun ("Restoration"), Henry and Nia.
+
+#### New: the Mimic (the 59th follower)
+
+A real Minecraft chest with teeth, wearing the game's own chest texture.
+
+- **Meeting it.** In a heist of **Tier III or higher**, one Three Coffers room in forty has a coffer that **looks back at you**:
+  now and then a latch clicks somewhere in the row. Open the wrong coffer there, and instead of the vault's Mimic you get *the*
+  Mimic, in a **30-second tantrum**: it hops after you and snaps, and a bite is 1 heart. Live through it, or hand it a
+  **Gutter Coin** (it eats it, delighted). It calms down and licks you. Right-click it, and it gives you **the Mimic's Key**,
+  its summoning item.
+- **Its ways:**
+  - **Snap Lunge:** a foe within 2.6, every 1.5 s. The lid flies open, it hops, and slams shut on the foe for 4.
+  - **Disguise:** standing still for 5 s with no foe near, it tucks its feet and shuts its eyes, and is just a chest. A monster
+    that walks up to it is **ambushed**: the snap does double.
+  - **Swallow and Spit:** charged, every 18 s. A foe within 3 (never a boss) is swallowed: unseen and frozen for 2 s inside it.
+    Then it's spat out 3 blocks with a burst of coins, for 6 and one roll of its loot.
+  - **The Stash:** **sneak + right-click** it, and it opens wide with its tongue out like a welcome mat. Reach into its mouth
+    for **27 slots of your own**. They're kept on you, never in a chest block. It shuts when you walk off (6 blocks) or after
+    60 s.
+- **Everything every follower has:**
+  - sitting: right-click to settle, with the lid chattering on a coin, until it dozes off and snores;
+  - a wardrobe: **Trapped Chest** and **Christmas Chest** (on the game's own chest textures), **Black Tongue**, the metal
+    chests, and the **Treasure Chest** outfit (its first look, the dark oak strongbox with iron straps and brass claw feet,
+    swapped in whole);
+  - a rare aura, **the Jackpot**;
+  - a shiny, **Shiny Voidbox**;
+  - the Partner Wheel and the display case;
+  - a frame: the key becomes a tiny chest that snaps at whoever right-clicks it, and one time in ten, once a day, spits out a
+    Gutter Coin;
+  - Cecil's doll, a chibi chest of its own;
+  - the honours and a Raid Contract.
+- **Pairs:** with Bender ("Fetch"), Mr. Capshun ("Counterfeit"), Henry ("Cat in a Box") and Nia ("Tongue Twister").
+
+#### For the build
+
+- **Switches:** `fol5flag.py` now has KNIGHT and MIMIC on.
+- **Phases:**
+
+  | Phase | What |
+  |---|---|
+  | phase269 | the Knight: every pose written for both rigs at once; Companion Size through compsize |
+  | phase270 | the Mimic: the vault encounter, the stash, the Treasure Chest (look 8, after its shiny at 7) |
+
+- **The Mimic's chest textures** are the game's own, by resource path (`minecraft:entity/chest/normal`, `trapped`,
+  `christmas`), added to the block atlas. No chest texture is copied into the pack, except two cases:
+  - the shiny's Voidbox, which is the art's own painted chest;
+  - the golden doll's gold-tinted sheet, made the same way the existing golden dolls make theirs from vanilla textures.
+- **Shared changes:**
+  - `phase134.BAKE_ONLY`: a doll's own source figure is never shown in a display case.
+  - `fol5wire.rp` takes the face part from another rig (`FACE_BASE`).
+  - `check262_nbt.py` now knows the chest minecart's fields (checked on a live 26.3 server: `DisplayState` is gone,
+    `DisplayOffset` stays).
+- **Codes:**
+
+  | What | Codes |
+  |---|---|
+  | The Knight's menu | 5950 |
+  | The Knight's Companion Size button | 5956 |
+  | The Knight's wardrobe | 5970-5989 |
+  | The Mimic's menu | 5600 |
+  | The Mimic's wardrobe | 5620-5639 (the Treasure Chest is 5628) |
+
+- **Tests:**
+
+  | Test | What it covers |
+  |---|---|
+  | `t393.js` | the Knight |
+  | `t394.js` | the Mimic, through a Tier III heist |
+  | `t395.js` | the smoke test for both |
+
+  Both followers are also in t138, t145, t146, t156 and t158 (through `tools/bots/f5.js`).
+
+### The Lightbringer comes by a cross, and the menus tidied
+
+- **The Lightbringer comes once to every player.** In hard mode, the first Golden Cross you set down in the Overworld by day,
+  under the open sky, she comes: a soft puff of sparkles and light gathers high above, and she glides down out of it with her
+  wings open, slowing as she nears the ground. She kneels a moment, rises, smiles, and joins you with her feather. It works
+  whether or not the Dread Sovereign has fallen.
+  - That is now the only way to meet her. She no longer turns up at random by day for players wearing something holy, and the
+    Sovereign's Summons no longer sends her down. Anyone who already has her keeps her. Holy things still make her stronger
+    (Holy Favour).
+  - **Lost her feather?** Set her doll (Cecil's Lightbringer Doll) down beside a Golden Cross and she comes down again the same
+    way, with a new feather. This works only if you've met her before, her feather isn't on your Partner Wheel or anywhere on
+    you (inventory, off hand, ender chest, a bag), and hard mode is on. Otherwise the doll's halo just flickers and you get a
+    gentle hint. The doll stays where you set it down.
+- **The Dread Ember, checked.** Kindling it after the Sovereign's fall brings back full hard mode: the Dread Nights roll at dusk
+  again (and can be rung), and the Dread Mires rise again.
+- **Menus:**
+  - Grey text no longer comes out bold beside a bold word (titles like "RAID CREW · 5 on - who comes into the vault with you",
+    "Emma · settings", and the "on" in "Back after a faint on"). A text list's later parts no longer pick up the first part's
+    bold (`nbt.unbold`, applied to every component the pack writes, apart from item names and lore).
+  - The Partner Wheel's "⚙ Menu" tooltips say "his ways", "its ways" and "their ways" (they said "him ways", "it ways" and "them ways").
+  - "⌂ Send all home" (it used to scroll), and Emma's "Wraithfire Form: on/off". Every row on a follower's Settings page is
+    150 wide.
+  - Emma's Settings page shows "Wraithfire Form" and "Take back the heart" only while she holds the heart.
+  - The Handbook counts every follower there is to meet, the Skiff Escort included: "Followers met: N of 60".
+  - **Queen Ava's Honours fit on screen.** The next rank's price is a line of text above the button ("Next rank: 16 Royal
+    Pearls + 1 Dread Token + ..."), and the button just says "Honour +1"; the Tide's Haste likewise ("Next: ..."). The
+    followers' rows say "his / its / their honours" (they said "her" for everyone) and are 260 wide.
+  - **No more scrolling labels** (checked against the client's glyph widths). Followers with long names have shorter menu
+    buttons: "Call Arachno-Lantern", "Bound Sovereign's ways", "His ways" (rigpet.menu_words). The wardrobes' rows (not
+    Emma's three columns) and every Settings row are 200 wide, so a look's name and its state fit. King Omega's "Offer your
+    souls", and the operators' Blood Moon buttons are 110 wide.
+
+#### tools/bots/README.md
+
+Index row:
+
+| `t396.js` | 3.0p: the Lightbringer's cross, her doll and the Dread Ember, as a regular player. (a) Hard mode, noon, never met her: a Golden Cross set down (sneak + use) brings the puff of light, then her descent (her rig's translation eases down from about 7 blocks, interpolated, while its parts never move), then her feather, bm:met/lightbringer and her follower; a second cross brings nothing. (b) Her feather gone, she goes home. Her doll set by the cross brings her down again with a new feather ("You lost my feather"). With the feather on the Partner Wheel (off hand, wheel used), only a hint; not in hard mode, only a hint. (c) The Sovereign fallen (admin/under/fell, bm.dfin), TestRat fresh again: a cross by day still brings her. (d) The Dread Ember used: #dfell 0; with the count past its mark, the normal dusk roll books tonight ("Tonight is a Dread Night"), the Dread Night falls at 13000, and dawn ends it. Menus: the Handbook's "Followers met: N of <every bm:met/>" and "Places found: 6 of 6"; its Followers page title isn't inherited-bold; the wheel's "⌂ Send all home" and Cecil's "his ways" tooltip. |
+
+Changed rows:
+- `t309.js`: her meeting is now rcon's admin-style placement. She comes down, waits, says "Not yet" outside hard mode, and gives
+  her feather in hard mode. The holy-helmet and bm.dfin steps are gone with those rules. t396 covers the cross and the doll.
+- `t326.js`: the herald is placed with `p236l/enc/spawn` (was `enc/place`), and the test waits for her descent to end before
+  right-clicking her.
+- `rigpet_t.js`: the menu's ways and call buttons are matched by `menuWords` (the same rule as rigpet.menu_words: a long name
+  drops "The", then is cut at its comma, then becomes the pronoun - "His ways", "Call him").
+- `t396.js lean`: only the first cross and one doll respawn.
+
+Gotchas (replace the "Hard mode hands out the Sovereign's Summons" bullet's Lightbringer half):
+- (3.0p) **The Lightbringer is met only by a Golden Cross by day (once per player, `bm.lhcross`) or her doll by a cross.**
+  `bm.usum` no longer brings her, and neither does a holy item. Her encounter plays a 9.5 s descent first (`bm.lzsh` > 0), and
+  a click during it is dropped, so wait for `bm.lzsh` 0 before right-clicking a placed herald. `admin/reckoned` and
+  `admin/unreckoned` are gone: bm.dfin no longer keeps her away.
+- (3.0p) **Text lists in commands and JSON no longer inherit bold** (`nbt.unbold` adds `bold:false` to the later parts). A
+  build step that string-matches a serialized component must allow a trailing `,bold:false` (phase261's crew title does).
+
+### Piercing Blows play out on screen
+
+| `t397.js` | 3.1a, as a regular player: the Piercing Blow SEEN - forty Champions (rcon: honours at rank III; their other blow and kid-1/2 signatures held by rcon) called with their own item beside a still zombie in full diamond (armour 20, toughness 8, 200 health): each one's Rank III move (atk.sig kid 3, phase226b) plays out on screen - no part of the model ever hidden (no `bm.prhid`), the host never moving more than ~1.5 blocks a game tick (an eased dash, no teleport), and 24.5 (14 x Might V) landing through the armour over its blows. Then Cecil, one of the seven who still vanish (KEEP): hidden, one blow of 24.5, whole again. `ONLY=celi,zib` picks. |
+
+#### Gotchas
+- (3.1a) **Only seven followers still vanish for the Piercing Blow** (King Omega, Cecil, the Glitch, the Stalker, Pistachio, Wilfrey, the Mireling). The rest assault on screen (`bm.ksw` 3 while it plays). t289's FLAV path ("they vanish") now only fits those seven; check the others with t397's (no `bm.prhid`, a tick-by-tick step under 1.5 blocks).
+- (3.1a) **A step "per tick" measured over rcon:** two rcon replies can be several ticks apart. Divide the host's move by the game-time difference (`time query gametime` after each `data get ... Pos`), never by the sample count, or an eased dash looks like a jump (t397).
+- (3.1a) **The converted moves wait for their follower to be free** (phase226b `free`: the trigger also needs the follower's own busy score at 0). A follower stuck in a long move of its own starts its Piercing Blow late; hold its other moves (`bm.kcd1`, `bm.kcd2`, `bm.chcd`) when you time one (t397).
+- (3.1a) **The Frog and Donado now have blow tags** (`bm.fgme`, `bm.dnme`, added to atk.ME at build time) and a small move tick of their own (`p226/lite/frog`, `p226/lite/don`): their baked-pose rigs have no state machine, so the move holds `p63/<w>/anim` while it plays.
+
 ## New in 3.0o: the Sapling, the Spawner and the Cairn
 
 ### New: the Sapling (the 55th follower)

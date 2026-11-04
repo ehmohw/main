@@ -400,8 +400,8 @@ def _forms_dp(G, X):
                                               'right_rotation': [F(0), F(0), F(0), F(1)], 'translation': [F(0), F(round(1.5 * Fd * sy, 4)), F(0)],
                                               'scale': [F(round(Fd * sx, 4)), F(round(Fd * sy, 4)), F(round(Fd * sz, 4))]})
         ent = (f'{{i:{i},m:"fm_{iid}",own:{own},a:{ARCH[MOVE_OF.get(w, "bite")]},w:{ww}f,h:{hh}f,'
-               f't0:{tr(1, 1, 1)},t1:{tr(1.04, 0.96, 1.04, 6)},t2:{tr(1.04, 0.96, 1.04, -6)},t3:{tr(1.12, 0.78, 1.12)},t4:{tr(1.15, 0.5, 1.15)},t5:{tr(1.15, 0.22, 1.15)},'
-               f'tz:{tr(0.01, 0.01, 0.01)}' +
+               f'k0:{tr(1, 1, 1)},t1:{tr(1.04, 0.96, 1.04, 6)},k2:{tr(1.04, 0.96, 1.04, -6)},k3:{tr(1.12, 0.78, 1.12)},k4:{tr(1.15, 0.5, 1.15)},k5:{tr(1.15, 0.22, 1.15)},'
+               f'kz:{tr(0.01, 0.01, 0.01)}' +
                (f',e:{snbt({"left_rotation": [F(0), F(0), F(0), F(1)], "right_rotation": [F(0), F(0), F(0), F(1)], "translation": [F(round(te[0][0], 4)), F(round(te[0][1], 4)), F(round(te[0][2], 4))], "scale": [F(round(te[1], 4))] * 3})}' if te else '') + '}')
         table.append(f'data modify storage bm:fe f{i} set value {ent}')
     fn('p271/fm/table', table)
@@ -457,10 +457,10 @@ def _forms_dp(G, X):
     fn('p271/fm/step', ['scoreboard players add @s bm.fqm 1',
                         f'execute if score @s bm.fqm matches 2 run execute as {rig} run data merge entity @s {{start_interpolation:0,interpolation_duration:6,transformation:{{scale:[0.3f,1.2f,0.3f]}}}}',
                         'execute if score @s bm.fqm matches 8 run function bm:p271/fm/swap',
-                        'execute if score @s bm.fqm matches 8 if score @s bm.fqf matches 1.. run function bm:p271/fm/kf {k:"t5",d:1}',
-                        'execute if score @s bm.fqm matches 9 if score @s bm.fqf matches 1.. run function bm:p271/fm/kf {k:"t3",d:4}',
-                        'execute if score @s bm.fqm matches 13 if score @s bm.fqf matches 1.. run function bm:p271/fm/kf {k:"t1",d:3}',
-                        'execute if score @s bm.fqm matches 16 if score @s bm.fqf matches 1.. run function bm:p271/fm/kf {k:"t0",d:3}',
+                        'execute if score @s bm.fqm matches 8 if score @s bm.fqf matches 1.. run function bm:p271/fm/kf {k:5,d:1}',
+                        'execute if score @s bm.fqm matches 9 if score @s bm.fqf matches 1.. run function bm:p271/fm/kf {k:3,d:4}',
+                        'execute if score @s bm.fqm matches 13 if score @s bm.fqf matches 1.. run function bm:p271/fm/kf {k:1,d:3}',
+                        'execute if score @s bm.fqm matches 16 if score @s bm.fqf matches 1.. run function bm:p271/fm/kf {k:0,d:3}',
                         'execute if score @s bm.fqm matches 17.. run scoreboard players set @s bm.fqm 0'])
     # (the swap: into a form - its displays (form, eyes) out of the puddle, the rig gone; back - the displays gone, the rig re-posed)
     fn('p271/fm/swap', [f'kill {sel},tag=bm.fep_form]', f'kill {sel},tag=bm.fep_feyes]',
@@ -484,35 +484,40 @@ def _forms_dp(G, X):
     tags = lambda p: ['bm.fep', f'bm.fep_{p}', 'bm.fep_pet', 'bm.fenew']
     fn('p271/fm/put', ['$execute if score #fk bm.rng matches 0 run ' + disp(tags('form'), 'bm:$(m)'),
                        '$execute if score #fk bm.rng matches 1.. run ' + disp(tags('form'), 'bm:$(m)_c$(c)'),
-                       '$execute if score #fk bm.rng matches 0 if data storage bm:tmp fe.f{own:1} run ' + disp(tags('feyes') + ['bm.fep_eyes'], 'bm:$(m)_eyes'),
-                       '$execute if score #fk bm.rng matches 1.. if data storage bm:tmp fe.f{own:1} run ' + disp(tags('feyes') + ['bm.fep_eyes'], 'bm:$(m)_eyes_c$(c)'),
-                       'execute if data storage bm:tmp fe.f{own:0} run ' + disp(tags('feyes') + ['bm.fep_eyes'], 'bm:fe_meyes'),
+                       '$execute if score #fk bm.rng matches 0 unless data storage bm:tmp fe.f.e run ' + disp(tags('feyes') + ['bm.fep_eyes'], 'bm:$(m)_eyes'),
+                       '$execute if score #fk bm.rng matches 1.. unless data storage bm:tmp fe.f.e run ' + disp(tags('feyes') + ['bm.fep_eyes'], 'bm:$(m)_eyes_c$(c)'),
+                       'execute if data storage bm:tmp fe.f.e run ' + disp(tags('feyes') + ['bm.fep_eyes'], 'bm:fe_meyes'),
                        'scoreboard players operation @e[type=minecraft:item_display,tag=bm.fenew,distance=..1] bm.pid = #me bm.pid',
                        'tag @e[type=minecraft:item_display,tag=bm.fenew,distance=..1] add bm.fesel', 'tag @e[type=minecraft:item_display,tag=bm.fenew,distance=..1] remove bm.fenew',
                        '$execute on passengers run data merge entity @s[type=minecraft:interaction,tag=bm.fehit] {width:$(w)f,height:$(h)f}'])
     # (a keyframe of the form's motion: its transformation from its entry, eased over d ticks - the eyes on the same one, or their own spot)
-    fn('p271/fm/kf', ['$data modify storage bm:tmp fe.kf set value {k:"$(k)",d:$(d)}', 'execute store result storage bm:tmp fe.kf.p int 1 run scoreboard players get @s bm.pid',
+    fn('p271/fm/kf', ['$data modify storage bm:tmp fe.kf set value {k:$(k),d:$(d)}', 'execute store result storage bm:tmp fe.kf.p int 1 run scoreboard players get @s bm.pid',
                       'function bm:p271/fm/kf2 with storage bm:tmp fe.kf'])
-    fn('p271/fm/kf2', [f'$execute as {sel},tag=bm.fep_form] run data modify entity @s transformation set from storage bm:fe p$(p).$(k)',
+    fn('p271/fm/kf2', [f'$execute as {sel},tag=bm.fep_form] run data modify entity @s transformation set from storage bm:fe p$(p).k$(k)',
                        f'$execute as {sel},tag=bm.fep_form] run data merge entity @s {{start_interpolation:0,interpolation_duration:$(d)}}',
-                       f'$execute if data storage bm:fe p$(p){{own:1}} as {sel},tag=bm.fep_feyes] run data modify entity @s transformation set from storage bm:fe p$(p).$(k)',
-                       f'$execute if data storage bm:fe p$(p){{own:0}} as {sel},tag=bm.fep_feyes] run data modify entity @s transformation set from storage bm:fe p$(p).e',
+                       f'$execute unless data storage bm:fe p$(p).e as {sel},tag=bm.fep_feyes] run data modify entity @s transformation set from storage bm:fe p$(p).k$(k)',
+                       f'$execute if data storage bm:fe p$(p).e as {sel},tag=bm.fep_feyes] run data modify entity @s transformation set from storage bm:fe p$(p).e',
                        f'$execute as {sel},tag=bm.fep_feyes] run data merge entity @s {{start_interpolation:0,interpolation_duration:$(d)}}'])
-    fn('p271/fm/squash', ['execute if entity @s[tag=bm.fexf] run function bm:p271/fm/kf {k:"t3",d:2}'])
+    fn('p271/fm/squash', ['execute if entity @s[tag=bm.fexf] run function bm:p271/fm/kf {k:3,d:2}'])
     # (its displays follow it - rigpet's place puts the rig's; these two stand on the host, turned with it)
     G.FUNCS[f'{pfx}/place'] += [f'tp {sel},tag=bm.fep_form] ~ ~ ~ ~ 0', f'tp {sel},tag=bm.fep_feyes] ~ ~ ~ ~ 0']
+    W5.poses_for(Ferro, G, ['grin'])
+    fn(f'{pfx}/box_fit', ['execute unless entity @s[tag=bm.fexf] run return 0', 'execute store result storage bm:tmp fe.p int 1 run scoreboard players get @s bm.pid',
+                          'function bm:p271/fm/refit with storage bm:tmp fe'])
+    fn('p271/fm/refit', ['$function bm:p271/fm/refit2 with storage bm:fe p$(p)'])
+    fn('p271/fm/refit2', ['$execute on passengers run data merge entity @s[type=minecraft:interaction,tag=bm.fehit] {width:$(w)f,height:$(h)f}'])
     # ---- in a form, every pose of its own is a keyframe of the goo puppet instead (a waddle, a lean, a squash, a slump)
     KEYS = {'walk_0': 't1', 'walk_1': 't2', 'run_0': 't1', 'happy': 't3', 'melt': 't4', 'sit_a': 't4', 'sit_a2': 't4', 'sit_b': 't4', 'sit_b2': 't4', 'tired': 't5',
             'hurt': 't3', 'alert': 't3', 'grin': 't3'}
     for n in [n for n in G.FUNCS if n.startswith(f'{pfx}/pose/') and '/tw' not in n]:
         name = n[len(f'{pfx}/pose/'):]
         k = KEYS.get(name, 't0' if name.startswith('idle') else 't3')
-        G.FUNCS[n] = [f'execute if entity @s[tag=bm.fexf] run return run function bm:p271/fm/kf {{k:"{k}",d:4}}'] + G.FUNCS[n]
+        G.FUNCS[n] = [f'execute if entity @s[tag=bm.fexf] run return run function bm:p271/fm/kf {{k:{k[1:]},d:4}}'] + G.FUNCS[n]
     # ---- the encounter's disguise: the Ink Blot's form over its hidden rig (the encounter's box: as it)
     ib = order.index('inkblot') + 1 if 'inkblot' in order else 0
     ibm = f'fm_{item_of["inkblot"]}' if ib else 'fe_body'
     fn('p271/fm/enc_form', ([f'data modify storage bm:tmp fe.e set from storage bm:fe f{ib}'] if ib else []) +
-       [disp(['bm.feencf', 'bm.fenew'], f'bm:{ibm}'), ('execute as @e[type=minecraft:item_display,tag=bm.fenew,distance=..1] run data modify entity @s transformation set from storage bm:tmp fe.e.t0' if ib else 'say no inkblot form'),
+       [disp(['bm.feencf', 'bm.fenew'], f'bm:{ibm}'), ('execute as @e[type=minecraft:item_display,tag=bm.fenew,distance=..1] run data modify entity @s transformation set from storage bm:tmp fe.e.k0' if ib else 'tag @s add bm.fenoform'),
         'tag @e[type=minecraft:item_display,tag=bm.fenew,distance=..1] remove bm.fenew'])
     G.FUNCS['p271/enc/gone'].insert(0, 'kill @e[type=minecraft:item_display,tag=bm.feencf,distance=..4]')
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.feencf]']
