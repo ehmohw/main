@@ -2,6 +2,7 @@
 // Apophiss and Tullius aren't on his book until you've met them (their Oath, their coin in your pocket); then their Raid
 // Contracts are, priced in coins - bought from the book (the button the client got), used as items, and "SIGNED".
 const { bot, rcon, sleep } = require('./lib_resp');
+const RK = /^ON = True/m.test(require('fs').readFileSync('/home/user/main/bm_build/rkflag.py', 'utf8'));   // (3.0k: the Rat King is in these lists only once rkflag.ON)
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); return !!p; };
@@ -15,7 +16,7 @@ const res = [];
     const h = m.slice(1).map(v => (Number(v) >>> 0).toString(16).padStart(8, '0')).join(''); return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`; };
   const O = 'execute in minecraft:overworld run ';
   const HX = 13000, HY = 121, HZ = 13000;
-  const KINDS = ['cecil', 'emma', 'celi', 'zib', 'killerwatt', 'leo', 'demo', 'escort', 'apo', 'tul', 'frog', 'donado', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'pxemma', 'pxleo', 'pxcecil', 'kettle', 'rufus', 'henry', 'nia', 'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad', 'sovereign', 'vexis', 'mireling', 'keeper', 'ratking'];
+  const KINDS = ['cecil', 'emma', 'celi', 'zib', 'killerwatt', 'leo', 'demo', 'escort', 'apo', 'tul', 'frog', 'donado', 'fishy', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'sky', 'pxemma', 'pxleo', 'pxcecil', 'kettle', 'rufus', 'henry', 'nia', 'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad', 'sovereign', 'vexis', 'mireling', 'keeper', ...(RK ? ['ratking'] : [])];
   const A = await bot('TestRat'); await sleep(2500);
   // ---- the stage: a newcomer to the vault who has met no one
   for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);

@@ -232,108 +232,14 @@ def generate(G):
         for m, opener in ms.items():
             fn(f'p260/main/{w}_{m}', reopen(w, opener))
 
-    # ================================================================== STAY HERE
     ORDER = list(P179.SLOTS) + [w for w in WHO if w not in P179.SLOTS]
     widx = {w: i for i, w in enumerate(WS)}
-    host_tag = lambda w: WHO[w][4].split(',')[0]
-    def nm_(w): return WHO[w][0]
     cap = lambda s: s[0].upper() + s[1:]
-    pron = lambda w: WHO[w][1]
-    HOSTS = sorted({WHO[w][3] for w in WS})
-    for w in WS:
-        i, pi = widx[w], ORDER.index(w)
-        nm, pr, col, host, tag, try_, home = WHO[w]
-        mine = f'@e[type=minecraft:{host},tag={tag}]'
-        kept = f'p179/k/seen{pi}' in F                    # (Wilfrey: the wheel doesn't track him - no bm.pwo for him)
-        fn(f'p260/an/stay/{w}', ['scoreboard players operation #me bm.pid = @s bm.pid', 'tag @e[tag=bm.ansel] remove bm.ansel',
-                                 f'execute as {mine} if score @s bm.pid = #me bm.pid run tag @s add bm.ansel',
-                                 'execute unless entity @e[tag=bm.ansel] run return run ' + say(f"{cap(nm)} isn't out - call {'them' if pr == 'them' else pr} first.", col),
-                                 f'scoreboard players set #anw bm.rng {i}',
-                                 'execute as @e[tag=bm.ansel,limit=1] at @s run function bm:p260/an/set',
-                                 'tag @e[tag=bm.ansel] remove bm.ansel', f'tag @s add bm.an_{w}',
-                                 *([f'scoreboard players set @s bm.pwo{pi} -1'] if kept else []), f'tag @s remove bm.pwk_{w}',
-                                 'playsound minecraft:entity.wolf.ambient player @s ~ ~ ~ 0.5 1.3',
-                                 tellraw('@s', PRE + [T(f'{cap(nm)} stays here', col, bold=True),
-                                                      T(f' - guarding this spot. Call {"them" if pr == "them" else pr} (their item, the wheel, or Come with me) to bring {"them" if pr == "them" else pr} back.', 'gray')])])
-        fn(f'p260/an/free/{w}', ['scoreboard players operation #me bm.pid = @s bm.pid', 'tag @a remove bm.anme', 'tag @s[type=minecraft:player] add bm.anme',
-                                 f'execute as {mine[:-1]},tag=bm.anc] if score @s bm.pid = #me bm.pid run function bm:p260/an/unset',
-                                 f'tag @s[type=minecraft:player] remove bm.an_{w}',
-                                 *([f'scoreboard players reset @s[type=minecraft:player,scores={{bm.pwo{pi}=-1}}] bm.pwo{pi}'] if kept else []), 'tag @a remove bm.anme'])
-        fn(f'p260/an/come/{w}', ['execute unless entity @s[tag=bm.an_' + w + '] run return run ' + say(f"{cap(nm)} isn't standing guard anywhere.", col),
-                                 f'function bm:p260/an/free/{w}', f'function bm:{home}', f'function bm:{try_}'])
-        fn(f'p260/an/t/{w}', [f'execute if entity @s[tag=bm.an_{w}] run return run function bm:p260/an/come/{w}', f'function bm:p260/an/stay/{w}'])
-        # (every way back frees them first: their call, recall, home - so it's never carried off still tied, and you're never shown a stale "Come with me")
-        rec = [r for r in (f'{pfx[w]}recall',) if r in F]
-        for f_ in [try_, home] + rec:
-            F[f_].insert(0, f'function bm:p260/an/free/{w}')
-        # (the follow rules: an anchored one isn't "too far" and doesn't go home when you log off)
-        e = P179.FOLLOW.get(host_tag(w))
-        if e:
-            L = F[f'p73/fol/{e[0]}']
-            k = next(n for n, l in enumerate(L) if l.endswith('run tag @s add bm.fown'))
-            L.insert(k + 1, 'execute if entity @s[tag=bm.anc] unless entity @a[tag=bm.fown] run return run scoreboard players set @s bm.fmis 0')
-            k = next((n for n, l in enumerate(L) if l.startswith(f'execute unless score @s {e[6]} = ') and ' run return run function bm:' in l), None)
-            assert k is not None, ('the follow rules\' ticket line', w, e[0], L[:8])
-            L.insert(k + 1, 'execute if entity @s[tag=bm.anc] run return run function bm:p260/an/held')
-    fn('p260/an/held', ['scoreboard players set @s bm.fmis 0', 'tag @a remove bm.fown'])
-    # (the tie: its Owner moves onto the marker - an untamed host doesn't follow or teleport to anyone - and it's kept within
-    #  TETHER blocks of the marker; untying puts the Owner back - from the marker, or from its player found by bm.pid)
-    mk = 'execute as @e[type=minecraft:marker,tag=bm.ancm] if score @s bm.pid = #me bm.pid if score @s bm.ancw = #anw bm.rng run '
-    fn('p260/an/set', ['tag @s add bm.anc', 'data modify entity @s Sitting set value 0b', 'scoreboard players operation @s bm.ancw = #anw bm.rng',
-                       mk + 'kill @s',
-                       'summon minecraft:marker ~ ~ ~ {Tags:["bm.ancm","bm.ancnew"]}',
-                       'scoreboard players operation @e[type=minecraft:marker,tag=bm.ancnew] bm.pid = #me bm.pid',
-                       'scoreboard players operation @e[type=minecraft:marker,tag=bm.ancnew] bm.ancw = #anw bm.rng',
-                       'data modify entity @e[type=minecraft:marker,tag=bm.ancnew,limit=1] data.owner set from entity @s Owner',
-                       'data remove entity @s Owner',
-                       'tag @e[type=minecraft:marker,tag=bm.ancnew] remove bm.ancnew',
-                       'particle minecraft:end_rod ~ ~0.2 ~ 0.4 0.05 0.4 0.01 12'])
-    fn('p260/an/unset', ['tag @s remove bm.anc', 'scoreboard players operation #anw bm.rng = @s bm.ancw', 'tag @e[tag=bm.ancme] remove bm.ancme',
-                         mk + 'tag @s add bm.ancme',
-                         'execute if entity @e[tag=bm.ancme] run data modify entity @s Owner set from entity @e[tag=bm.ancme,limit=1] data.owner',
-                         'execute unless data entity @s Owner run data modify entity @s Owner set from entity @a[tag=bm.anme,limit=1] UUID',
-                         'kill @e[tag=bm.ancme]'])
-    fn('p260/an/tether', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players operation #anw bm.rng = @s bm.ancw',
-                          'tag @e[tag=bm.ancme] remove bm.ancme',
-                          'execute as @e[type=minecraft:marker,tag=bm.ancm,distance=..48] if score @s bm.pid = #me bm.pid if score @s bm.ancw = #anw bm.rng run tag @s add bm.ancme',
-                          'execute unless entity @e[tag=bm.ancme] run return run function bm:p260/an/lost',
-                          f'execute unless entity @e[tag=bm.ancme,distance=..{TETHER}] run tp @s @e[tag=bm.ancme,limit=1]',
-                          'tag @e[tag=bm.ancme] remove bm.ancme'])
-    # (its marker not near: carried off by something we weren't told of - untied, back to its owner)
-    fn('p260/an/lost', ['tag @a remove bm.anme', 'execute as @a if score @s bm.pid = #me bm.pid run tag @s add bm.anme',
-                        'execute as @a[tag=bm.anme] run function bm:p260/an/untag', 'function bm:p260/an/unset',
-                        mk + 'kill @s', 'tag @a remove bm.anme'])
-    fn('p260/an/untag', [f'execute if score #anw bm.rng matches {widx[w]} run tag @s remove bm.an_{w}' for w in WS])
-    fast[-1:-1] = ['execute as @e[tag=bm.anc] at @s run function bm:p260/an/tether']
-    # (each second: a marker whose follower is gone goes too; an anchored wolf turns on the nearest monster)
-    fn('p260/an/mchk', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players operation #anw bm.rng = @s bm.ancw',
-                        'scoreboard players set #ok bm.rng 0',
-                        'execute as @e[tag=bm.anc,distance=..16] if score @s bm.pid = #me bm.pid if score @s bm.ancw = #anw bm.rng run scoreboard players set #ok bm.rng 1',
-                        'execute if score #ok bm.rng matches 0 run kill @s'])
-    fn('p260/an/guard', ['execute store result score #gt bm.rng run time query gametime',
-                         'execute store result score #ae bm.rng run data get entity @s anger_end_time',
-                         'execute if score #ae bm.rng > #gt bm.rng run return 0',
-                         'data modify entity @s angry_at set from entity @e[type=#bm:hostile,distance=..10,limit=1,sort=nearest] UUID',
-                         'scoreboard players add #gt bm.rng 200',
-                         'execute store result entity @s anger_end_time long 1 run scoreboard players get #gt bm.rng'])
-    second[-1:-1] = ['execute as @e[type=minecraft:marker,tag=bm.ancm] at @s run function bm:p260/an/mchk',
-                     'execute as @e[type=minecraft:wolf,tag=bm.anc] at @s if entity @e[type=#bm:hostile,distance=..10] run function bm:p260/an/guard']
-    G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:marker,tag=bm.ancm]', 'tag @e remove bm.anc']
-    # (Stay here / Come with me from a follower's own menu: back to that menu after)
-    fn('p260/an/from', [f'execute if score @s bm.menu matches {m} run return run function bm:p260/an/m/{w}_{m}' for w, ms in sorted(MAIN.items()) for m in ms] +
-       ['function bm:p28/stale'])
-    for w, ms in MAIN.items():
-        for m in ms:
-            fn(f'p260/an/m/{w}_{m}', [f'function bm:p260/an/t/{w}', f'function bm:p260/main/{w}_{m}'])
-    act.append(f'execute if score #act bm.pay matches {B_ANC} run return run function bm:p260/an/from')
+
 
     # ================================================================== THE FOLLOWERS' MENUS: settings out, Settings in, Stay here beside Send home
     b_set = lambda col: snbt(P28.btn([T('⚙ ', col), T('Settings', 'white', bold=True)], B_SET, width=150,
                                      tooltip=T('Their switches in one place: Stay here, chatter, keep up, forms, aura...', 'gray')))
-    b_stay = lambda col: snbt(P28.btn([T('⚑ ', col), T('Stay here', 'white', bold=True)], B_ANC, width=150,
-                                      tooltip=T('Guard this spot: they stay within a few blocks and fight what comes near, until you call them.', 'gray')))
-    b_come = lambda col: snbt(P28.btn([T('⚑ ', col), T('Come with me', col, bold=True)], B_ANC, width=150,
-                                      tooltip=T('Stop guarding: they come back to your side.', 'gray')))
     moved = {w: {} for w in WS}                               # who -> {code: (menu, [button variants])}
     HUSH = '@s[tag=bm.hush]'
     n_lines = 0
@@ -361,14 +267,9 @@ def generate(G):
                 first = [b for b in keep if HOME_W.match(words_of(b)) or CALL_W.match(words_of(b)) or words_of(b) in ('Sit / follow', 'Wait here / follow me')]
                 last = [b for b in keep if LAST_W.search(words_of(b))]
                 mid = [b for b in keep if b not in first and b not in last]
-                if is_out:
-                    k = max(i for i, b in enumerate(first) if HOME_W.match(words_of(b)))
-                    first.insert(k + 1, b_come(col) if hush else b_stay(col))
-                elif hush:
-                    continue                                   # (the "not out" copy for a hushed player: one is enough now)
-                new = set_actions(l, sp, first + mid + last + [b_set(col)])
                 if hush:
-                    new = new.replace(HUSH, f'@s[tag=bm.an_{w}]', 1)
+                    continue                                   # (the copy for a hushed player: the same buttons now)
+                new = set_actions(l, sp, first + mid + last + [b_set(col)])
                 out.append(new); n_lines += 1
             F[name][:] = out
     report['main menu lines'] = n_lines
@@ -404,9 +305,6 @@ def generate(G):
         pi = ORDER.index(w)
         rows = []                                              # (slot, button snbt, handler lines)
         btn = lambda label, slot, tip: snbt(P28.btn(label, B + slot, width=150, tooltip=T(tip, 'gray')))
-        rows.append((S_ANC, btn([T('⚑ ', col), '@@RAW:r_anc@@'], S_ANC, f'Stay here: {nm} guards this spot - stays within a few blocks and fights what comes near - '
-                                f'until you call {"them" if pr == "them" else pr} back (the item, the wheel, or Come with me). Holds through relogs.'),
-                     [f'function bm:p260/an/t/{w}']))
         rows.append((None, snbt(P28.btn([T('Chatter: ', 'gray'), '@@RAW:r_chat@@', T('  ✦', 'dark_gray')], P123.CHAT, width=150,
                                         tooltip=T('Quips and banter from all your followers - yours alone (other players choose their own).', 'gray'))), None))
         rows.append((S_KEEP, btn([T('Keep up: ', 'gray'), '@@RAW:r_keep@@', T('  ✦', 'dark_gray')], S_KEEP,
@@ -439,8 +337,7 @@ def generate(G):
         # the page: the wardrobe's own state (its labels read it), then ours
         st = lambda key, comp: f'data modify storage bm:ui wd.{key} set value {snbt(comp)}'
         opn = [f'function bm:p99/wdst/{w}'] if w in P99.BASE else ['data remove storage bm:ui wd']
-        opn += [st('r_anc', T('Stay here', 'white', bold=True)), f'execute if entity @s[tag=bm.an_{w}] run ' + st('r_anc', T('Come with me', col, bold=True)),
-                st('r_chat', T('on', 'white', bold=True)), 'execute if entity @s[tag=bm.hush] run ' + st('r_chat', T('off', '#ff8a8a', bold=True)),
+        opn += [                st('r_chat', T('on', 'white', bold=True)), 'execute if entity @s[tag=bm.hush] run ' + st('r_chat', T('off', '#ff8a8a', bold=True)),
                 st('r_keep', T('off', '#ff8a8a', bold=True)), 'execute if entity @s[tag=bm.pwkeep] run ' + st('r_keep', T('on', 'white', bold=True)),
                 f'scoreboard players set @s bm.menu {B}', f'function bm:p260/fs/dlg/{w} with storage bm:ui wd']
         fn(f'p260/fs/open/{w}', opn)
