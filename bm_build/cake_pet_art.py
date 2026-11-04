@@ -2,169 +2,210 @@
 Chef is out, and she remembers what she always said ("I am cake" - and "I want someone to finish the cake"): the Chef finishes it,
 and it hops up off the plate. Small, round, bouncy and adorable - a living birthday cake that is very happy to be here.
 
-(2nd pass, the owner: "make the cake cuter and not so weird" - matching big round shiny eyes, set low; a small smile; rosy
-frosting-pink cheeks; one plump round tier with a little top tier worn like a hat; nub feet and nub arms; the candle flame a
-little flickering hair tuft. No mismatched eyes, no toothy grin, no opening lid.)
+(3rd pass: the quality bar. The owner liked the 2nd pass's direction ("looking better") - matching big shiny eyes set low, a
+blush, a tiny smile, a plump round shape, the cherry, the candle-flame tuft, the tiny fork - so this keeps all of it and rebuilds
+how it's made: a round tier of octagon slabs instead of crossed boxes, a proud jam-and-cream seam, a pillowy glazed frosting
+dome with real drips (a rounded bead at each tip), sprinkles in the geometry, piped rosettes round the hat, crumb painted as
+air pits instead of speckle, and the eyes built the Dryad's way - a separate overlay, graded dark to light, two shines.)
 
-LOOK  Knee-high (~0.75 blocks to the flame's tip). ONE PLUMP ROUND TIER of golden sponge (rounded on every side - three
-      crossed boxes and a rounded crown), a jam-and-cream seam low round its middle; pink strawberry frosting poured over its
-      top in a soft rim with fat round drips down the sides. Its FACE on the front, low: two big round matching eyes (dark,
-      a big white shine and a small one in each), rosy frosting-pink cheeks, a tiny smile (happy: a cat-mouth; wow: a little
-      'o'). A SMALL TOP TIER worn like a hat, a touch askew, ringed with piped rosettes, with the CHERRY on top and a striped
-      CANDLE whose flame flickers like a tuft of hair. Two round nub feet, two round frosting nub arms, and a tiny silver
-      FORK in its right nub.
+LOOK  Knee-high (~0.75 blocks to the flame's tip). ONE PLUMP ROUND TIER of golden sponge, the jam-and-cream seam low round it;
+      pink strawberry frosting poured over the top - a soft pillowy dome, a rolled rim, fat drips down the sides with a bead at
+      each tip, sprinkles. Its FACE on the front, low: two big round matching glossy eyes (plum-dark at the top to rosy at the
+      bottom, a big white shine and a small one), rosy cheeks, a tiny smile. A SMALL TOP TIER worn like a hat, a touch askew,
+      piped rosettes round its foot and rim, the CHERRY on top (a stem and a leaf) and a striped CANDLE whose flame is a little
+      flickering tuft. Two round nub feet, two frosting nub arms, a tiny silver four-tined FORK in its right nub.
 
 RIG   base (the root: the tier and its face) - hat (the top tier, rosettes, candle) - flame (flickers) - cherry - armr / arml
       (nubs) - fork (right) - legr / legl (nub feet); effects: 'splat' (a ring of frosting on the floor, the slam), 'spr'
-      (a fountain of sprinkles), 'dollop' (a frosting dollop on its nub - the boop).
+      (a fountain of sprinkles), 'dollop' (a frosting dollop on its nub - the boop), 'aura' (the rare Birthday Wish aura).
 
-SKINS '_sh' the SHINY, a frosting palette - "Midnight Velvet": blue-violet velvet sponge, silver-white frosting, a sugared
-      blue cherry, gold sprinkles. Cosmetic flavours (per form): '_mint' (mint frosting, chocolate sponge), '_lem' (lemon
-      frosting, white sponge), '_choc' (chocolate ganache, a vanilla sponge)."""
+SKINS '_sh' the SHINY "Midnight Velvet": blue-violet velvet sponge, silver-white frosting, a sugared blue cherry, gold
+      sprinkles. Cosmetic flavours (per form): '_mint' (mint frosting, chocolate sponge), '_lem' (lemon frosting, white
+      sponge), '_choc' (chocolate ganache, a vanilla sponge)."""
 import math
 import random
-from fol5_kit import Rig, coat, flat, canvas, hexc, limb, T, blob
+from PIL import Image
+from fol5_kit import (Rig, hexc, mix, limb, T, cells, soft, lit, glaze, sponge, glow, stripes, metal, eye, blush, mouth, put,
+                      slab, stack, ball, chain, ring, cleaf, blade)
 
-PIVOT = {'base': (0, 5.0, 0), 'hat': (0, 10.4, 0.5), 'flame': (1.6, 16.0, 1.4), 'cherry': (-0.6, 14.4, 0.2), 'armr': (7.6, 5.0, -1.2),
-         'arml': (-7.6, 5.0, -1.2), 'fork': (8.8, 3.6, -2.4), 'legr': (3.0, 1.3, -3.6), 'legl': (-3.0, 1.3, -3.6),
-         'splat': (0, 0, 0), 'spr': (0, 16, 0), 'dollop': (-8.6, 4.4, -3.0)}
+PIVOT = {'base': (0, 5.0, 0), 'hat': (0, 10.4, 0.5), 'flame': (1.6, 16.4, 1.4), 'cherry': (-0.6, 14.4, 0.2), 'armr': (7.4, 5.0, -1.2),
+         'arml': (-7.4, 5.0, -1.2), 'fork': (8.6, 3.6, -2.4), 'legr': (3.0, 1.3, -3.4), 'legl': (-3.0, 1.3, -3.4),
+         'splat': (0, 0, 0), 'spr': (0, 16, 0), 'dollop': (-8.4, 4.4, -3.0), 'aura': (0, 0, 0)}
 PARENT = {'base': None, 'hat': 'base', 'flame': 'hat', 'cherry': 'hat', 'armr': 'base', 'arml': 'base', 'fork': 'armr', 'legr': None,
-          'legl': None, 'splat': None, 'spr': 'base', 'dollop': 'arml'}
+          'legl': None, 'splat': None, 'spr': 'base', 'dollop': 'arml', 'aura': None}
 FACES = ('happy', 'blink', 'wow', 'hurt', 'sleepy', 'boop')
-R = Rig('ck_', 0.8, PIVOT, PARENT, FACES, face_part='base', opt=('splat', 'spr', 'dollop'))
+R = Rig('ck_', 0.8, PIVOT, PARENT, FACES, face_part='base', opt=('splat', 'spr', 'dollop', 'aura'))
 
-COL = {'sponge': '#f2c477', 'crumb': '#d8994a', 'frost': '#ff9ccb', 'frost_hi': '#ffd0e6', 'frost_dk': '#ec74b0', 'jam': '#e0405e',
-       'cream': '#fff6ec', 'cherry': '#ee2244', 'cheek': '#ff7eb6'}
-FLAVOURS = {'_sh': {'sponge': '#3e2e90', 'crumb': '#241a5a', 'frost': '#e8ecff', 'frost_hi': '#ffffff', 'frost_dk': '#b0bae4',
-                    'jam': '#3a4ad0', 'cream': '#fff8e0', 'cherry': '#3a7aff', 'cheek': '#c8d0ff', 'sprk': ('#ffd23a', '#ffffff', '#ffe890')},
-            '_mint': {'sponge': '#7a4a2a', 'crumb': '#4a2a14', 'frost': '#9aecc8', 'frost_hi': '#d0fff0', 'frost_dk': '#5ac49a', 'cheek': '#7ad8b0'},
-            '_lem': {'sponge': '#fff2cc', 'crumb': '#e8d098', 'frost': '#ffe45a', 'frost_hi': '#fff8b0', 'frost_dk': '#ecc02a', 'cheek': '#ffb070'},
-            '_choc': {'sponge': '#f6dca0', 'crumb': '#d8b068', 'frost': '#7a4424', 'frost_hi': '#a86a3c', 'frost_dk': '#4a2812', 'cheek': '#ff9a9a'}}
-SPRK = ('#ff5a7a', '#5ac8ff', '#ffe05a', '#7aff7a', '#ffffff', '#c08aff')
+COL = {'sponge': '#f2c477', 'crumb': '#d8994a', 'sponge_l': '#fbd99a', 'frost': '#ff9ccb', 'frost_hi': '#ffd0e6', 'frost_dk': '#ec74b0',
+       'jam': '#e0405e', 'cream': '#fff6ec', 'cherry': '#ee2244', 'cheek': '#ff7eb6', 'sprk': ('#ff5a7a', '#5ac8ff', '#ffe05a', '#7aff7a', '#ffffff', '#c08aff'),
+       'iris': ('#1e0e1a', '#2e1628', '#43223e', '#5e3458', '#7e4a76', '#a8709e'), 'lash': '#2a1620', 'mouth': '#5a2236'}
+FLAVOURS = {'_sh': {'sponge': '#3e2e90', 'crumb': '#241a5a', 'sponge_l': '#5a48b8', 'frost': '#e8ecff', 'frost_hi': '#ffffff', 'frost_dk': '#b0bae4',
+                    'jam': '#3a4ad0', 'cream': '#fff8e0', 'cherry': '#3a7aff', 'cheek': '#c8d0ff', 'sprk': ('#ffd23a', '#ffffff', '#ffe890', '#c8d0ff', '#ffd23a', '#e8ecff'),
+                    'iris': ('#0e0e2a', '#16184a', '#22286a', '#34408e', '#4a5cb4', '#7a90e0')},
+            '_mint': {'sponge': '#7a4a2a', 'crumb': '#4a2a14', 'sponge_l': '#94603a', 'frost': '#9aecc8', 'frost_hi': '#d0fff0', 'frost_dk': '#5ac49a', 'cheek': '#7ad8b0'},
+            '_lem': {'sponge': '#fff2cc', 'crumb': '#e8d098', 'sponge_l': '#fffae6', 'frost': '#ffe45a', 'frost_hi': '#fff8b0', 'frost_dk': '#ecc02a', 'cheek': '#ffb070'},
+            '_choc': {'sponge': '#f6dca0', 'crumb': '#d8b068', 'sponge_l': '#fff0c8', 'frost': '#7a4424', 'frost_hi': '#a86a3c', 'frost_dk': '#4a2812', 'cheek': '#ff9a9a'}}
+SKIN_NAMES = {'_sh': 'SHINY Midnight Velvet', '_mint': 'Mint', '_lem': 'Lemon', '_choc': 'Chocolate'}
+
+# the face plate: 9.2 x 5.8 units on the tier's front flat (37 x 23 texels); eyes 12 x 13, centres at 10 and 27
+FW, FH = 9.2, 5.8
+EYE_C, EYE_Y, EYE_W, EYE_H = (10, 27), 1, 12, 13
 
 
+# ---------------------------------------------------------------------------------------------------- textures
 def _face(kind, c):
-    """the front of the tier: sponge, the jam-and-cream seam low across it, and its face - big round matching shiny eyes set
-    low, rosy cheeks, a tiny smile"""
-    im, d = canvas(32); im.paste(coat(c['sponge'], 9, 32, 0.05, 2, spots=[(c['crumb'], 18)]))
-    d.rectangle((0, 27, 31, 27), fill=hexc(c['cream'])); d.rectangle((0, 28, 31, 29), fill=hexc(c['jam'])); d.rectangle((0, 30, 31, 30), fill=hexc(c['cream']))
-    K, W, B2 = hexc('#2a1620'), hexc('#ffffff'), hexc('#5a3a5a')
-    ey = 10
-    for x0 in (5, 19):
-        if kind in (None, 'wow', 'boop' if False else None):
-            d.ellipse((x0, ey, x0 + 8, ey + 9), fill=K)
-            d.ellipse((x0 + 1, ey + 5, x0 + 7, ey + 9), fill=B2)                 # (a soft lower glow in the eye)
-            d.ellipse((x0 + 1, ey + 1, x0 + 4, ey + 4), fill=W); d.rectangle((x0 + 5, ey + 6, x0 + 6, ey + 7), fill=W)
-        elif kind == 'boop' and x0 == 19:                                         # (a wink: its left eye shut)
-            d.arc((x0, ey + 2, x0 + 8, ey + 9), 200, 340, fill=K, width=2)
-        elif kind == 'boop':
-            d.ellipse((x0, ey, x0 + 8, ey + 9), fill=K); d.ellipse((x0 + 1, ey + 1, x0 + 4, ey + 4), fill=W); d.rectangle((x0 + 5, ey + 6, x0 + 6, ey + 7), fill=W)
-        elif kind == 'happy':
-            d.arc((x0, ey + 2, x0 + 8, ey + 10), 200, 340, fill=K, width=2)
-        elif kind in ('blink', 'sleepy'):
-            d.arc((x0, ey - 2, x0 + 8, ey + 7), 20, 160, fill=K, width=2)
-        elif kind == 'hurt':
-            d.line((x0 + 1, ey + 2, x0 + 7, ey + 5), fill=K, width=2); d.line((x0 + 7, ey + 5, x0 + 1, ey + 8), fill=K, width=2) if x0 == 5 else None
-            if x0 == 19: d.line((x0 + 7, ey + 2, x0 + 1, ey + 5), fill=K, width=2); d.line((x0 + 1, ey + 5, x0 + 7, ey + 8), fill=K, width=2)
-    if kind == 'sleepy': d.text((26, 0), 'z', fill=K)
-    # cheeks: rosy frosting-pink
-    for x0 in (2, 24):
-        d.ellipse((x0, ey + 9, x0 + 6, ey + 13), fill=hexc(c['cheek']))
-        d.point((x0 + 2, ey + 10), fill=W)
-    # the mouth: a tiny smile; a cat-mouth when happy; a little 'o' for wow / boop
-    if kind in ('wow', 'boop'):
-        d.ellipse((14, ey + 11, 17, ey + 14), fill=K); d.point((15, ey + 13), fill=hexc('#ff6a8a'))
-    elif kind == 'happy':
-        d.arc((11, ey + 9, 16, ey + 13), 0, 180, fill=K, width=1); d.arc((15, ey + 9, 20, ey + 13), 0, 180, fill=K, width=1)
-    elif kind == 'hurt':
-        d.line((13, ey + 13, 15, ey + 12, 17, ey + 13), fill=K)
-    else:
-        d.arc((12, ey + 8, 19, ey + 13), 30, 150, fill=K, width=1)
+    """the face plate: smooth sponge (a lit top, the crumb only faint here), the cheeks, the mouth; 'z' when it sleeps"""
+    im = lit(soft(c['sponge'], c['sponge_l'], c['crumb'], 9, 0.05), 1.06, 0.95, 8)
+    by = EYE_Y + EYE_H
+    if kind != 'hurt':
+        for cx in (EYE_C[0] - 5, EYE_C[1] + 5):
+            blush(im, cx, by + 1, 7, c['cheek']); put(im, cx - 1, by + 1, mix(c['cheek'], '#ffffff', 0.6))
+    mouth(im, 19, by + 2, {None: 'smile', 'happy': 'cat', 'blink': 'smile', 'wow': 'o', 'hurt': 'wobble', 'sleepy': 'flat', 'boop': 'o'}[kind],
+          c['mouth'], '#ff6a8a', 4)
+    if kind == 'sleepy':
+        for x, y in ((31, 1), (32, 1), (33, 1), (32, 2), (31, 3), (32, 3), (33, 3)): put(im, x, y, c['lash'])
     return im
 
 
-def _tex(c, sprk=SPRK):
-    t = {'sponge': coat(c['sponge'], 1, 16, 0.05, 1, spots=[(c['crumb'], 10)]),
-         'frost': coat(c['frost'], 2, 16, 0.04, 1, spots=[(c['frost_hi'], 10)] + [(s, 2) for s in sprk]),
-         'frost_plain': coat(c['frost'], 3, 16, 0.04, 1, spots=[(c['frost_hi'], 8), (c['frost_dk'], 4)]),
-         'cream': coat(c['cream'], 5, 16, 0.03, 1), 'jam': coat(c['jam'], 4, 16, 0.05, 1),
-         'cherry': coat(c['cherry'], 6, 16, 0.05, 1, spots=[('#ffffff', 3)]), 'sidecake': _side(c)}
-    t['face'] = _face(None, c)
-    for f in FACES: t[f'face_{f}'] = _face(f, c)
+def _eyes(kind, c):
+    im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
+    for i, cx in enumerate(EYE_C):
+        k = {'wow': 'wide', 'sleepy': 'blink', 'boop': ('wide' if i == 0 else 'blink')}.get(kind, kind)
+        eye(im, cx, EYE_Y, EYE_W, EYE_H, i == 1, k, iris=c['iris'], lash=c['lash'], pupil='#12060e', sclera=False, irk=0.75)
+    return im
+
+
+def _side(c, seed):
+    """the tier's sides: crumb as air pits with lit lips (the sponge pattern), light from above"""
+    return lit(sponge((c['crumb'], mix(c['crumb'], c['sponge'], 0.5), c['sponge'], c['sponge_l']), seed), 1.06, 0.94, 10)
+
+
+def _frost(c, seed, sprinkle=False):
+    im = glaze((c['frost_dk'], c['frost'], c['frost_hi'], mix(c['frost_hi'], '#ffffff', 0.6)), seed, 3)
+    return im
+
+
+def _tex(c):
+    t = {'side': _side(c, 1), 'side2': _side(c, 2), 'frost': _frost(c, 3), 'frost2': _frost(c, 4),
+         'frosth': lit(soft(c['frost_hi'], mix(c['frost_hi'], '#ffffff', 0.5), c['frost'], 5, 0.12), 1.04, 0.96, 6),
+         'cream': soft(c['cream'], '#ffffff', mix(c['cream'], c['sponge'], 0.3), 6, 0.1),
+         'jam': glaze((mix(c['jam'], '#000000', 0.25), c['jam'], mix(c['jam'], '#ffffff', 0.25), mix(c['jam'], '#ffffff', 0.55)), 7, 2),
+         'cherry': lit(glaze((mix(c['cherry'], '#000000', 0.3), c['cherry'], mix(c['cherry'], '#ffffff', 0.2), mix(c['cherry'], '#ffffff', 0.5)), 8, 3), 1.08, 0.82, 14),
+         'foot': lit(soft(c['sponge'], c['sponge_l'], c['crumb'], 10, 0.12), 1.08, 0.86, 14),
+         'face': _face(None, c), 'eyes': _eyes(None, c)}
+    for i, s in enumerate(c['sprk']): t[f'sp{i}'] = soft(s, mix(s, '#ffffff', 0.4), mix(s, '#000000', 0.15), 20 + i, 0.2)
+    for f in FACES: t[f'face_{f}'] = _face(f, c); t[f'eyes_{f}'] = _eyes(f, c)
     return t
 
 
-def _side(c):
-    """the tier's sides: sponge with the seam at the same height as on the face"""
-    im = coat(c['sponge'], 11, 16, 0.05, 1, spots=[(c['crumb'], 8)]); d = canvas(16)[1]
-    from PIL import ImageDraw
-    d = ImageDraw.Draw(im); d.rectangle((0, 12, 15, 12), fill=hexc(c['cream'])); d.rectangle((0, 13, 15, 13), fill=hexc(c['jam']))
-    return im
-
-
-for k, v in _tex(COL).items(): R.tex(k, v)
-R.tex('silver', coat('#d8dce4', 10, 16, 0.05, 1, spots=[('#ffffff', 4), ('#9aa0ac', 4)])); R.tex('flame', flat('#ffd23a')); R.tex('flame2', flat('#ff8a2a'))
-R.tex('candle', coat('#ffffff', 12, 16, 0.02, 1, spots=[('#7ac8ff', 30)])); R.tex('stem', flat('#3a8a2a'))
+BASE_T = _tex(COL)
+for k, v in BASE_T.items(): R.tex(k, v)
+R.tex('silver', metal(('#8a90a0', '#c8ccd8', '#e8ecf4', '#ffffff'), 11))
+R.tex('candle', stripes(('#ffffff', '#ffffff', '#7ac8ff', '#7ac8ff'), 1, vertical=False))
+R.tex('wick', soft('#3a2a20', '#5a4030', '#2a1a14', 12, 0.2)); R.tex('stem', soft('#4a8a2a', '#6aaa3a', '#3a6a20', 13, 0.2))
+R.tex('leaf', blade(('#3a7a2a', '#5aa03a', '#78c050'), 14, rim='sides'))
+R.tex('flame', lit(soft('#ffc444', '#ffe890', '#ff9a30', 15, 0.2), 1.25, 0.8, 14)); R.tex('flamec', soft('#fff8d0', '#ffffff', '#ffe890', 16, 0.2))
+R.tex('wish', glow(('#ffffff', '#fff2a8', '#ffc8e0', '#ffc8e0'), 16, alpha=(230, 190, 120, 0)))
 for sfx, ch in FLAVOURS.items():
     c = dict(COL, **ch)
-    for k, v in _tex(c, ch.get('sprk', SPRK)).items(): R.tex(k + sfx, v)
-    R.skin(sfx, {k: k + sfx for k in _tex(c)})
+    for k, v in _tex(c).items(): R.tex(k + sfx, v)
+    R.skin(sfx, {k: k + sfx for k in BASE_T})
 
+# ---------------------------------------------------------------------------------------------------- the model
 B = R.box
-# ---- the plump tier: rounded on every side, its face on the front
-r, y0, y1 = 6.4, 1.2, 9.4
-B('base', (-r, y0 + 0.8, -r * 0.8), (r, y1 - 0.4, r * 0.8), 'sidecake')
-B('base', (-r * 0.8, y0 + 0.8, -r), (r * 0.8, y1 - 0.4, r), 'sidecake')
-B('base', (-r * 0.86, y0, -r * 0.86), (r * 0.86, y1, r * 0.86), 'sidecake')
-B('base', (-r * 0.8, y0 + 0.8, -r - 0.05), (r * 0.8, y1 - 0.4, -r), 'FACE', faces=('north',), uv={'north': [0, 0, 16, 16]})
-# the frosting: a soft rim over the top, fat round drips down the sides (none over the face's eyes)
-B('base', (-r * 0.9, y1, -r * 0.9), (r * 0.9, y1 + 0.9, r * 0.9), 'frost')
-B('base', (-r - 0.2, y1 - 0.6, -r * 0.72), (r + 0.2, y1 + 0.4, r * 0.72), 'frost_plain')
-B('base', (-r * 0.72, y1 - 0.6, -r - 0.2), (r * 0.72, y1 + 0.4, r + 0.2), 'frost_plain')
-for a, L in ((35, 1.8), (75, 2.6), (120, 1.6), (160, 2.4), (200, 2.0), (245, 2.8), (285, 1.7), (325, 2.2)):
-    x, z = (r + 0.1) * math.sin(math.radians(a)), -(r + 0.1) * math.cos(math.radians(a))
-    B('base', (x - 0.9, y1 - 0.6 - L, z - 0.6), (x + 0.9, y1, z + 0.6), 'frost_plain', rot=('y', -a, (x, y1, z)))
-    blob(R, 'base', (x * 1.0, y1 - 0.6 - L, z * 1.0), 0.9, 'frost_plain')
-# ---- the little top tier, worn like a hat (a touch askew), rosettes, the cherry, the candle
-hy = 10.4
-B('hat', (-3.4, hy, -2.9), (3.4, hy + 3.0, 3.9), 'sidecake')
-B('hat', (-3.6, hy + 3.0, -3.1), (3.6, hy + 3.7, 4.1), 'frost')
-for i in range(8):
-    a = math.radians(i * 45 + 22.5); x, z = 3.7 * math.sin(a), 0.5 + 3.7 * math.cos(a)
-    blob(R, 'hat', (x, hy + 0.3, z), 0.7, 'frost_plain')
-blob(R, 'cherry', (-0.6, 15.2, 0.2), 1.5, 'cherry')
-R.seg('cherry', (-0.6, 16.5, 0.2), (0.2, 18.2, 0.6), 0.35, 0.35, 'stem')
-B('hat', (1.1, hy + 3.6, 0.9), (2.1, hy + 6.2, 1.9), 'candle')
-# the flame: a little tuft - three licks, curling over like a cowlick
-fx, fy, fz = PIVOT['flame']
-B('flame', (fx - 0.7, fy, fz - 0.5), (fx + 0.7, fy + 2.2, fz + 0.5), 'flame', light=14)
-B('flame', (fx - 0.45, fy + 1.4, fz - 0.4), (fx + 0.45, fy + 3.4, fz + 0.4), 'flame', rot=('z', -34, (fx, fy + 1.4, fz)), light=14)
-B('flame', (fx - 0.4, fy + 0.8, fz - 0.35), (fx + 0.4, fy + 2.4, fz + 0.35), 'flame2', rot=('z', 38, (fx, fy + 0.8, fz)), light=14)
-B('flame', (fx - 0.3, fy - 0.2, fz - 0.55), (fx + 0.3, fy + 0.8, fz - 0.5), 'flame2', faces=('north',), light=14)
-# ---- nub arms (round frosting nubs), the tiny fork, nub feet
-for p in ('armr', 'arml'):
-    blob(R, p, PIVOT[p], 1.3, 'frost_plain')
-fx, fy, fz = PIVOT['fork']
-B('fork', (fx - 0.25, fy - 1.6, fz - 0.25), (fx + 0.25, fy + 1.0, fz + 0.25), 'silver')
-B('fork', (fx - 0.8, fy + 1.0, fz - 0.2), (fx + 0.8, fy + 1.5, fz + 0.2), 'silver')
-for dx in (-0.65, 0.0, 0.65):
-    B('fork', (fx + dx - 0.14, fy + 1.5, fz - 0.14), (fx + dx + 0.14, fy + 3.0, fz + 0.14), 'silver')
+NSP = len(COL['sprk'])
+# ---- the plump tier: a round drum of slabs, a little fuller at the middle
+TIER = [(1.2, 1.8, 5.5), (1.8, 2.6, 6.2), (2.6, 8.4, 6.6), (8.4, 9.1, 6.35)]
+stack(R, 'base', TIER, 'side', shift=False)
+fz = -6.6
+B('base', (-FW / 2, 2.7, fz - 0.02), (FW / 2, 2.7 + FH, fz), 'FACE', faces=('north',), uv={'north': [0, 0, FW, FH]})
+B('base', (-FW / 2, 2.7, fz - 0.05), (FW / 2, 2.7 + FH, fz - 0.03), 'EYES', faces=('north',), uv={'north': [0, 0, FW, FH]})
+# the jam-and-cream seam, low round it, a hair proud
+for y0, y1, t, w in ((2.0, 2.3, 'cream', 6.72), (2.3, 2.75, 'jam', 6.76), (2.75, 2.95, 'cream', 6.72)):
+    slab(R, 'base', y0, y1, w, t)
+# the frosting: a rolled rim, a pillowy dome, drips with a bead at each tip (short ones over the face), sprinkles on top
+slab(R, 'base', 8.9, 9.7, 6.85, 'frost')
+stack(R, 'base', [(9.7, 10.2, 6.4), (10.2, 10.5, 5.4), (10.5, 10.7, 4.0)], 'frost2', top='frosth')
+for i, (a, L) in enumerate(((0, 0.5), (24, 0.9), (45, 2.2), (70, 3.4), (95, 2.0), (120, 3.0), (145, 1.8), (170, 2.8), (195, 2.2),
+                            (220, 3.2), (245, 1.8), (270, 2.9), (295, 2.0), (318, 0.9), (338, 0.5))):
+    ra = math.radians(a); k = 0.72 if (a % 90) > 22 and (a % 90) < 68 else 1.0
+    rr = 6.85 * (0.92 if k < 1 else 1.0)
+    x, z = rr * math.sin(ra), -rr * math.cos(ra)
+    nx, nz = math.sin(ra), -math.cos(ra)
+    top, bot = (x, 9.2, z), (x + nx * 0.05, 9.2 - L, z + nz * 0.05)
+    R.seg('base', top, bot, 1.15 - 0.1 * (i % 2), 0.35, 'frost', up=(nx, 0.0, nz), ext=0.1)
+    if L > 0.8:
+        slab(R, 'base', 9.2 - L - 0.55, 9.2 - L + 0.25, 0.68, 'frost', 0.4, c=(x + nx * 0.12, z + nz * 0.12))
+rs = random.Random(5)
+for i in range(18):                                                                    # (sprinkles, a hair proud on the dome)
+    a = rs.uniform(0, 6.28); d = rs.uniform(1.2, 5.6)
+    x, z = d * math.cos(a), d * math.sin(a); y = 10.2 if d > 5.2 else (10.5 if d > 4.0 else 10.7)
+    if d > 5.5: y = 9.7
+    B('base', (x - 0.42, y, z - 0.14), (x + 0.42, y + 0.18, z + 0.14), f'sp{i % NSP}', rot=('y', rs.uniform(-80, 80), (x, y, z)))
+
+# ---- the little top tier, worn like a hat: a smaller drum, its own frosting cap, piped rosettes, the cherry, the candle
+hy = 10.4; hz = 0.5
+stack(R, 'hat', [(hy, hy + 0.5, 3.1), (hy + 0.5, hy + 3.0, 3.45)], 'side2', c=(0, hz), shift=False)
+slab(R, 'hat', hy + 1.0, hy + 1.3, 3.52, 'jam', c=(0, hz))
+slab(R, 'hat', hy + 2.9, hy + 3.5, 3.62, 'frost', c=(0, hz))
+stack(R, 'hat', [(hy + 3.5, hy + 3.8, 3.2), (hy + 3.8, hy + 4.0, 2.4)], 'frost2', c=(0, hz), top='frosth')
+for ring_y, rr, n, s in ((hy + 0.15, 3.65, 10, 0.62), (hy + 3.55, 3.15, 8, 0.5)):
+    for i in range(n):
+        a = math.radians(i * 360 / n + 18); x, z = rr * math.sin(a), hz + rr * math.cos(a)
+        ball(R, 'hat', (x, ring_y + s * 0.6, z), s, 'frosth', 2, ry=s * 0.7)              # (a rosette: a soft swirl...)
+        B('hat', (x - s * 0.35, ring_y + s * 1.15, z - s * 0.35), (x + s * 0.35, ring_y + s * 1.55, z + s * 0.35), 'frosth')   # (...and its peak)
+# the cherry: glossy, a shine, a stem and a leaf
+cx, cy, cz = -0.6, 15.6, 0.2
+ball(R, 'cherry', (cx, cy, cz), 1.55, 'cherry', 4, ry=1.45, shift=False)
+B('cherry', (cx - 1.0, cy + 0.2, cz - 1.62), (cx - 0.4, cy + 0.75, cz - 1.56), 'frosth', faces=('north',), light=6)
+R.seg('cherry', (cx, cy + 1.3, cz), (cx + 0.5, cy + 2.4, cz + 0.3), 0.32, 0.32, 'stem')
+R.seg('cherry', (cx + 0.5, cy + 2.4, cz + 0.3), (cx + 1.1, cy + 3.0, cz + 0.4), 0.28, 0.28, 'stem')
+cleaf(R, 'cherry', (cx + 0.9, cy + 2.85, cz + 0.4), (0.8, 0.2, -0.5), 1.5, 1.0, 'leaf', droop=0.2, t=0.18)
+# the candle: striped, a wick
+R.seg('hat', (1.6, hy + 3.8, 1.4), (1.6, 16.2, 1.4), 1.0, 1.0, 'candle', shift=False)
+R.seg('hat', (1.6, 16.1, 1.4), (1.6, 16.5, 1.4), 0.22, 0.22, 'wick')
+# the flame: a little tuft - three licks, curling over like a cowlick, a bright core
+fx, fy, fz2 = PIVOT['flame']
+stack(R, 'flame', [(fy, fy + 0.5, 0.55), (fy + 0.5, fy + 1.3, 0.72), (fy + 1.3, fy + 1.9, 0.55), (fy + 1.9, fy + 2.4, 0.36)], 'flame',
+      c=(fx, fz2), light=14)
+R.seg('flame', (fx, fy + 2.3, fz2), (fx - 0.55, fy + 3.1, fz2 + 0.1), 0.42, 0.42, 'flame', light=14)          # (its tip curls over: a cowlick)
+R.seg('flame', (fx - 0.55, fy + 3.1, fz2 + 0.1), (fx - 1.05, fy + 3.0, fz2 + 0.1), 0.3, 0.3, 'flame', light=14)
+stack(R, 'flame', [(fy + 0.15, fy + 0.6, 0.36), (fy + 0.6, fy + 1.25, 0.44), (fy + 1.25, fy + 1.6, 0.28)], 'flamec', c=(fx, fz2 - 0.42), light=15)
+# ---- nub arms (round frosting nubs with a swirl), the tiny fork, nub feet
+for p, sx in (('armr', 1), ('arml', -1)):
+    x, y, z = PIVOT[p]
+    ball(R, p, (x, y, z), 1.35, 'frost', 3, ry=1.25)
+    B(p, (x - 0.4, y + 1.05, z - 0.4), (x + 0.4, y + 1.45, z + 0.4), 'frosth')
+fx, fy, fz3 = PIVOT['fork']
+R.seg('fork', (fx, fy - 1.7, fz3), (fx, fy + 0.6, fz3), 0.42, 0.3, 'silver')
+B('fork', (fx - 0.55, fy + 0.6, fz3 - 0.15), (fx + 0.55, fy + 1.1, fz3 + 0.15), 'silver')
+B('fork', (fx - 0.75, fy + 1.1, fz3 - 0.13), (fx + 0.75, fy + 1.35, fz3 + 0.13), 'silver')
+for dx in (-0.62, -0.21, 0.21, 0.62):
+    B('fork', (fx + dx - 0.1, fy + 1.35, fz3 - 0.1), (fx + dx + 0.1, fy + 2.7, fz3 + 0.1), 'silver')
 for p in ('legr', 'legl'):
     x, y, z = PIVOT[p]
-    blob(R, p, (x, y, z - 0.2), 1.45, 'sponge', k=(1.0, 0.95, 1.15))
+    ball(R, p, (x, y, z - 0.2), 1.5, 'foot', 3, ry=1.3, d=1.15, shift=False)
 # ---- effects
-for i in range(12):
+for i in range(12):                                                                    # (the splat: a ring of frosting puddles)
     a = math.radians(i * 30); x, z = 9 * math.sin(a), 9 * math.cos(a); s = 1.3 + (i % 3) * 0.4
-    blob(R, 'splat', (x, 0.4, z), s, 'frost_plain', k=(1.0, 0.4, 1.0))
+    stack(R, 'splat', [(0.0, 0.35, s), (0.35, 0.6, s * 0.65)], 'frost', c=(x, z), top='frosth')
+    if i % 2: B('splat', (x * 1.25 - 0.3, 1.2 + i % 3, z * 1.25 - 0.3), (x * 1.25 + 0.3, 1.8 + i % 3, z * 1.25 + 0.3), 'frost')
 rr = random.Random(5)
-for i in range(16):
-    x, y, z = rr.uniform(-6, 6), 16 + rr.uniform(0, 7), rr.uniform(-6, 6)
-    B('spr', (x - 0.25, y - 0.6, z - 0.25), (x + 0.25, y + 0.6, z + 0.25), 'frost', rot=('z', rr.uniform(-60, 60), (x, y, z)))
+for i in range(22):                                                                    # (the sprinkle shower)
+    x, y, z = rr.uniform(-6, 6), 16 + rr.uniform(0, 8), rr.uniform(-6, 6)
+    B('spr', (x - 0.2, y - 0.55, z - 0.2), (x + 0.2, y + 0.55, z + 0.2), f'sp{i % NSP}', rot=('z', rr.uniform(-70, 70), (x, y, z)), light=6)
 dx, dy, dz = PIVOT['dollop']
-blob(R, 'dollop', (dx - 0.4, dy, dz - 0.6), 1.3, 'frost'); blob(R, 'dollop', (dx - 0.4, dy + 1.1, dz - 0.6), 0.8, 'frost_plain')
+ball(R, 'dollop', (dx - 0.4, dy + 0.3, dz - 0.6), 1.3, 'frost', 3, ry=1.0)
+ball(R, 'dollop', (dx - 0.4, dy + 1.3, dz - 0.6), 0.85, 'frosth', 2, ry=0.6)
+B('dollop', (dx - 0.65, dy + 1.8, dz - 0.85), (dx - 0.15, dy + 2.3, dz - 0.35), 'frosth')
+# the rare BIRTHDAY WISH aura: a ring of tiny candle flames and wish-sparkles floating round it
+for i in range(8):
+    a = math.radians(i * 45); x, z = 9.5 * math.cos(a), 9.5 * math.sin(a); y = 9 + 2.0 * math.sin(a * 2)
+    R.seg('aura', (x, y, z), (x, y + 1.3, z), 0.7, 0.7, 'flame', light=14, full=True)
+    B('aura', (x - 1.2, y - 0.4, z), (x + 1.2, y + 2.0, z + 0.02), 'wish', faces=('north', 'south'), full=True, light=12)
 
 
-# ---- poses (bouncy: every step a little hop)
+# ---------------------------------------------------------------------------------------------------- poses (bouncy)
 def P(lift=0.0, **kw):
     return R.ground(kw, lift)
 
@@ -195,11 +236,12 @@ POSES.update({
     'happy': P(lift=2.0, _face='happy', armr=limb(1, 0, 140), arml=limb(-1, 0, 140), legr=limb(1, 30), legl=limb(-1, 30), flame=T(0, 0, 25)),
     'hurt': P(_face='hurt', base=T(-12, 0, 10), hat=T(10, 0, -12), armr=limb(1, 20, 50), arml=limb(-1, 20, 50), flame=T(0, 0, -40)),
     'tired': P(_face='blink', base=T(0, 0, 80), legr=limb(1, 0, 50), legl=limb(-1, 0, 50), hat=T(0, 0, 10), flame=T(60)),
+    'aura': P(_face='happy', _show=('aura',), **NUBS, hat=T(0, 0, -4)),
 })
 POSES['sit_a'] = R.ground(POSES['sit_a'])
-DRAFT = ['idle_a', 'idle_b', 'idle_c', 'walk_0', 'walk_1', 'run_0', 'sit_a', 'sit_b', 'fork_up', 'fork', 'hop', 'boop', 'slam_up', 'slam', 'sprinkle', 'happy', 'hurt', 'tired']
+DRAFT = ['idle_a', 'idle_b', 'idle_c', 'walk_0', 'walk_1', 'run_0', 'sit_a', 'sit_b', 'fork_up', 'fork', 'hop', 'boop', 'slam_up', 'slam',
+         'sprinkle', 'happy', 'hurt', 'tired', 'aura']
 R.DRAFT = DRAFT
 DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62}
 DOLL_GROUPS = {'hat': 'head', 'cherry': 'head', 'flame': 'head', 'base': 'head', 'armr': 'body', 'arml': 'body', 'fork': 'body'}   # (a cake is all head)
 SHINY = 'Shiny Midnight Velvet'
-SKIN_NAMES = {'_sh': 'SHINY Midnight Velvet', '_mint': 'Mint', '_lem': 'Lemon', '_choc': 'Chocolate'}
