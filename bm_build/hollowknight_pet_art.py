@@ -68,7 +68,7 @@ class Armour:
             for mat in KA.MATS:
                 im = base[KA.tex_name(mat, 'dread', 'live')]
                 rc = RECOL[fin].get(mat)
-                out[f'hk_{_TAG[fin]}_{mat}'] = remap(im, rc) if rc else im
+                out[f'hk_{_TAG[fin]}_{mat}'] = remap(im, rc, stretch=True) if rc else im
         return out
 
     def models(self):

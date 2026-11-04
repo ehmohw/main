@@ -83,14 +83,18 @@ def ghost(im, tint, a=120):
     return im
 
 
-def remap(im, pal):
-    """recolour by luminance through a list of hex colours, dark to light (a palette swap)"""
+def remap(im, pal, stretch=False):
+    """recolour by luminance through a list of hex colours, dark to light (a palette swap); stretch: the texture's own darkest
+    to lightest spread over the whole list (a dark plate recoloured bright keeps its shading)"""
     im = im.convert('RGBA').copy(); px = im.load(); cols = [hexc(c) for c in pal]; n = len(cols)
+    lum = lambda r, g, b: (0.3 * r + 0.59 * g + 0.11 * b) / 255
+    vs = [lum(*px[x, y][:3]) for y in range(im.height) for x in range(im.width) if px[x, y][3] >= 10] or [0, 1]
+    lo, hi = (min(vs), max(vs)) if stretch else (0.0, 1.0)
     for y in range(im.height):
         for x in range(im.width):
             r, g, b, a = px[x, y]
             if a < 10: continue
-            v = (0.3 * r + 0.59 * g + 0.11 * b) / 255
+            v = (lum(r, g, b) - lo) / max(1e-6, hi - lo) * 0.999
             px[x, y] = cols[min(n - 1, int(v * n))][:3] + (a,)
     return im
 
