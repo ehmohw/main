@@ -280,6 +280,7 @@ def _blocks(G, C):
     T_.insert(len(T_) - 1, f'function bm:{pfx}/btick')
     T_.append('tag @e[type=minecraft:block_display,tag=bm.axbsel] remove bm.axbsel')
     PL = G.FUNCS[f'{pfx}/place']
+    PL[:] = [l for l in PL if any(f'tag=bm.{ab}p_{p}]' in l for p in A0.PARTS)]      # (only its eyes and heart are item displays: its blocks are placed below)
     for p, *_r in BLK:
         x, y, z = AR.PIVOT[p]
         PL.append(f'execute positioned ^{-x * U:.4f} ^{y * U:.4f} ^{-z * U:.4f} run tp @e[type=minecraft:block_display,tag=bm.axbsel,tag=bm.axb_{p}] ~ ~ ~ ~ 0')
@@ -292,10 +293,11 @@ def _blocks(G, C):
     # ---- the skins: a palette's block on each block display (by #pw, the palette index); all at once (all_<k>) or one a tick (re-assembly)
     for k, nm in enumerate(NAMES):
         P = PALETTES[nm]
-        fn(f'{pfx}/skin/all_{k}', [f'execute as @e[type=minecraft:block_display,tag=bm.axbsel,tag=bm.axb_{p}] run data modify entity @s block_state set value {_bs(P[slot])}'
-                                   for p, _c, _s, slot in BLK])
+        if k == 0:                       # (all at once: the encounter's, made of the plains)
+            fn(f'{pfx}/skin/all_{k}', [f'execute as @e[type=minecraft:block_display,tag=bm.axbsel,tag=bm.axb_{p}] run data modify entity @s block_state set value {_bs(P[slot])}'
+                                       for p, _c, _s, slot in BLK])
         for p, _c, _s, slot in BLK:
-            fn(f'{pfx}/skin/{k}/{p}', [f'execute as @e[type=minecraft:block_display,tag=bm.axbsel,tag=bm.axb_{p}] at @s run function bm:{pfx}/skin/put {{b:\'{_bs(P[slot])}\'}}'])
+            fn(f'{pfx}/skin/{k}/{p.lower()}', [f'execute as @e[type=minecraft:block_display,tag=bm.axbsel,tag=bm.axb_{p}] at @s run function bm:{pfx}/skin/put {{b:\'{_bs(P[slot])}\'}}'])
     fn(f'{pfx}/skin/put', ['$data modify entity @s block_state set value $(b)', 'particle minecraft:poof ~ ~0.3 ~ 0.1 0.1 0.1 0.01 2'])
     for i, b in enumerate(EXACT):
         fn(f'{pfx}/skin/head_{i}', [f'execute as @e[type=minecraft:block_display,tag=bm.axbsel,tag=bm.axb_head] run data modify entity @s block_state set value {_bs(b)}'])
@@ -305,7 +307,7 @@ def _blocks(G, C):
        [f'execute if score @s bm.jxrs matches {len(ORDER)} if score @s bm.jxhb matches 0.. if score @s bm.jxpw matches 0..3 run function bm:{pfx}/skin/head',
         'scoreboard players add @s bm.jxrs 1', f'execute if score @s bm.jxrs matches {len(ORDER) + 1}.. run scoreboard players set @s bm.jxrs -1'])
     for i, p in enumerate(ORDER):
-        fn(f'{pfx}/skin/step_{i}', [f'execute if score @s bm.jxpw matches {k} run function bm:{pfx}/skin/{k}/{p}' for k in range(len(NAMES))] +
+        fn(f'{pfx}/skin/step_{i}', [f'execute if score @s bm.jxpw matches {k} run function bm:{pfx}/skin/{k}/{p.lower()}' for k in range(len(NAMES))] +
            (['playsound minecraft:block.stone.place neutral @a[distance=..12] ~ ~ ~ 0.3 1.4'] if i % 4 == 0 else []))
     fn(f'{pfx}/skin/head', [f'execute if score @s bm.jxhb matches {i} run function bm:{pfx}/skin/head_{i}' for i in range(len(EXACT))])
     # ---- which palette it wears: the wardrobe's look (a whole palette), the shiny (gilded) - else the land's
@@ -415,8 +417,7 @@ def _abilities(G, X):
     X.tick += ['scoreboard players remove @e[type=minecraft:block_display,tag=bm.axfl] bm.jxst 1', 'kill @e[type=minecraft:block_display,tag=bm.axfl,scores={bm.jxst=..0}]']
     X.second.append('execute as @e[type=minecraft:marker,tag=bm.axstorm] if score @s bm.jxst matches 90.. run kill @s')
     # (a waystone by night: a faint amber beam above it, shown to its owner within 64)
-    X.second.append('execute as @e[type=minecraft:wolf,tag=bm.axpet,tag=bm.axsb] if data entity @s {Sitting:1b} at @s if predicate bm:p266/night run function bm:p268/beam')
-    G.wjson('bm/predicate/p266/night.json', {'condition': 'minecraft:time_check', 'value': {'min': 13000, 'max': 23000}, 'period': 24000})
+    X.second.append('execute as @e[type=minecraft:wolf,tag=bm.axpet,tag=bm.axsb] if data entity @s {Sitting:1b} at @s if predicate bm:p229/night run function bm:p268/beam')
     fn('p268/beam', ['execute on owner if entity @s[distance=..64] run particle minecraft:dust{color:[1.0,0.69,0.25],scale:1.6} ~ ~5 ~ 0.05 4 0.05 0 40 force @s'])
     return lines
 

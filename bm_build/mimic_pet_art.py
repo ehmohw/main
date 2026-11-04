@@ -14,7 +14,8 @@ LOOK    A vanilla Minecraft chest, exactly: ChestModel's own boxes (read from th
           part sits inside the closed volume.
         REVEALED: the lid lifts on two rows of tapered teeth (the lower row on the body's rim, the upper under the lid), a fat
           grooved tongue, the inside a dark crimson gum with a heap of gold coins (and a gem, and someone's dagger) in it; two
-          big gold eyes open on the lid's front, either side of the latch - smug, a heavy lid; four small peg feet come out of its
+          gold CAT eyes open on the lid's front, either side of the latch - smug, a heavy flat lid, KEYHOLE pupils (a slit when it
+          means it, a coin when it smells gold); four small peg feet come out of its
           corners.
 RIG     body (the root: the box, its rim teeth, the gum, the loot) - lid (hinged at the back: the lid, the latch, the upper teeth,
         the face: eyes per expression) - tongue (resting) / tonguel (the long tongue: the swallow, the stash) - feet ffr ffl fbr
@@ -67,8 +68,8 @@ FW, FH = 12.0, 3.5
 DFW, DFH, DEYC = 14.4, 6.4, (14, 44)          # (the doll's eye window on its lid front: 57.6 x 25.6 texels; eyes 18 x 19 at 14, 44)
 EYC, EYY, EYW, EYH = (12, 36), 1, 12, 13
 # (the eye art pass: its OWN eyes - smug gold CAT eyes under a heavy flat lid, a KEYHOLE for a pupil (it is a chest), a slit
-#  when it means it, a fat coin of a pupil when it smells gold. fol5_kit.cat_eye. Eyes 12 x 12 at 12 and 36, top row 1.)
-CAT_Y, CAT_W, CAT_H = 1, 12, 12
+#  when it means it, a fat coin of a pupil when it smells gold. fol5_kit.cat_eye. Eyes 14 x 12 at 12 and 36, top row 1.)
+CAT_Y, CAT_W, CAT_H = 1, 14, 12
 
 
 # ---------------------------------------------------------------------------------------------------- the vanilla chest's uv
@@ -149,7 +150,8 @@ def _eyes(kind, c):
     im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
     if kind == 'disg': return im
     for i, cx in enumerate(EYC):
-        cat_eye(im, cx, CAT_Y, CAT_W, CAT_H, i == 1, kind, iris=c['iris'][1:], line=c['lash'], pupil='#1a0a00')
+        rest = dict(tilt=0.2, slant=-1.4, lid=0.3) if kind is None else {}  # (at rest: the lid flat and drooping outward - smug)
+        cat_eye(im, cx, CAT_Y, CAT_W, CAT_H, i == 1, kind, iris=c['iris'][1:], line=c['lash'], pupil='#1a0a00', **rest)
     return im
 
 

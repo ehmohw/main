@@ -3,7 +3,7 @@ a dungeon spawner that got bored of making monsters, and now makes FRIENDS - tin
 
 LOOK  Shin-high (~0.6 blocks), a vanilla-style spawner cage in miniature: a dark iron frame (corner posts with rivet caps,
       top and bottom rings), a grid of bars on every face, a solid base plate, four stubby iron feet. Inside, floating in the
-      middle, its PILOT LIGHT - a round ember with a sweet face (big glowing eyes, a tiny smile, a blush), little flame wisps
+      middle, its PILOT LIGHT - a round ember with a sweet face (white-hot flame-drop eyes, a flickering fire smile, a blush), little flame wisps
       licking up off it and out between the bars. The ember's colour is what it was last fed:
         default   warm ember orange                  (minions: whatever it fancies - a mix)
         '_z'      rotten flesh -> sickly zombie green (ZOMBIE minions)
@@ -20,7 +20,7 @@ import math
 import random
 from PIL import Image
 from fol5_kit import (Rig, hexc, mix, limb, T, cells, soft, lit, metal, glaze, glow, eye, blush, mouth, put, alpha, slab, stack, ball,
-                      chain, ring, leaf)
+                      chain, ring, leaf, flame_eye, flame_mouth)
 
 PIVOT = {'body': (0, 2.0, 0), 'core': (0, 7.0, 0), 'flame': (0, 9.4, 0), 'fl': (-4.0, 2.0, -4.0), 'fr': (4.0, 2.0, -4.0),
          'bl': (-4.0, 2.0, 4.0), 'br': (4.0, 2.0, 4.0), 'puff': (0, 13.0, 0), 'feed': (0, 13.0, -4.0), 'aura': (0, 0, 0)}
@@ -58,20 +58,26 @@ def _ember(c, seed):
     return lit(soft(e[1], e[2], e[0], seed, 0.12), 1.12, 0.86, 12)
 
 
+# (the eye art pass: its OWN face - its features are LIGHT, not ink: two white-hot FLAME-DROP eyes, their tips flickering
+#  outward, and a flickering fire mouth, each edged in char so it reads on the ember. fol5_kit.flame_eye / flame_mouth.)
+def _fire(c):
+    return dict(core='#ffffff', halo=mix(c['flame'][1], '#ffffff', 0.25), char=mix(c['ember_dk'], '#000000', 0.3))
+
+
 def _face(kind, c):
     im = _ember(c, 31)
     if kind not in ('hurt',):
         blush(im, 3, 12, 4, c['blush']); blush(im, 15, 12, 4, c['blush'])
-    mouth(im, 9, 13, {None: 'smile', 'happy': 'open', 'blink': 'smile', 'focus': 'flat', 'hurt': 'wobble', 'sleepy': 'flat', 'wow': 'o',
-                      'chew': 'cat'}[kind], c['mouth'], '#ff8a8a', 4)
+    flame_mouth(im, 9, 13, {None: 'smile', 'happy': 'open', 'blink': 'smile', 'focus': 'flat', 'hurt': 'wobble', 'sleepy': 'flat', 'wow': 'o',
+                            'chew': 'cat'}[kind], **_fire(c))
     return im
 
 
 def _eyes(kind, c):
     im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
-    k = {'focus': 'fierce', 'wow': 'wide', 'chew': 'happy'}.get(kind, kind)
+    k = {'chew': 'happy'}.get(kind, kind)
     for cx, fl in ((5, False), (13, True)):
-        eye(im, cx, 3, 7, 9, fl, k, iris=c['iris'], lash=c['lash'], pupil='#1a0600', sclera=False, irk=0.7)
+        flame_eye(im, cx, 4, 4, 6, fl, k, **_fire(c))
     return im
 
 

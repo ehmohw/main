@@ -146,8 +146,18 @@ def _merged(M):
     return (tex, els)
 
 
+class _MinionTex:
+    @staticmethod
+    def textures():
+        out = {}
+        for M in A0.MINIONS.values():
+            out.update(M.textures())
+        return out
+
+
 def rp(R):
     W5.rp(Spawner, R, _icon(), A0)
+    R.TEXTURE_MODS.append(_MinionTex)
     for i, k in enumerate(KINDS):
         R.ICONS[FRAMES[i]] = _icon(k)
     for k, M in A0.MINIONS.items():
@@ -218,7 +228,7 @@ def _abilities(G, X):
                           f'execute if entity @e[{FOE},distance=..3.4] run return 0'] + step(0.12))
     host = lambda: ['scoreboard players operation #me bm.pid = @s bm.pid',
                     f'execute as @e[type=minecraft:wolf,tag=bm.nxpet,distance=..32] if score @s bm.pid = #me bm.pid run tag @s add {me}', 'scoreboard players set #pd bm.rng 2']
-    unhost = [f'tag @e[type=minecraft:wolf,tag={me}] remove {me}', 'scoreboard players add @s bm.nzmh 1', 'scoreboard players set @s bm.nzmc 20']
+    unhost = [f'execute as @e[type=minecraft:wolf,tag={me}] at @s run function bm:{pfx}/blow', f'tag @e[type=minecraft:wolf,tag={me}] remove {me}', 'scoreboard players add @s bm.nzmh 1', 'scoreboard players set @s bm.nzmc 20']
     fn('p267/min/grab', host() + [f'execute as @e[{FOE},distance=..1.4,sort=nearest,limit=1] at @s run function bm:p267/min/grabbed'] + unhost +
        [snd('entity.zombie.attack_wooden_door', 0.3, 1.8)])
     fn('p267/min/grabbed', [f'function bm:{pfx}/hurt', 'effect give @s minecraft:slowness 2 2', 'particle minecraft:dust{color:[0.54,0.91,0.42],scale:0.8} ~ ~1 ~ 0.3 0.4 0.3 0 8',
@@ -253,6 +263,7 @@ def _abilities(G, X):
                              'execute if score #al bm.rng matches 0 run kill @s'])
     # (turned down to a pilot light - sneak-sat: it heals slowly)
     X.second.append('execute as @e[type=minecraft:wolf,tag=bm.nxpet,tag=bm.nxsb] if data entity @s {Sitting:1b} run effect give @s minecraft:regeneration 2 0 true')
+    fn(f'{pfx}/act_tick', [f'scoreboard players remove @s {S("x")} 1'])
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[tag=bm.nxmin]', 'kill @e[tag=bm.nxpop]', 'kill @e[tag=bm.nxvig]']
     return lines
 

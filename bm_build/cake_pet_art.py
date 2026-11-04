@@ -10,8 +10,9 @@ air pits instead of speckle, and the eyes built the Dryad's way - a separate ove
 
 LOOK  Knee-high (~0.75 blocks to the flame's tip). ONE PLUMP ROUND TIER of golden sponge, the jam-and-cream seam low round it;
       pink strawberry frosting poured over the top - a soft pillowy dome, a rolled rim, fat drips down the sides with a bead at
-      each tip, sprinkles. Its FACE on the front, low: two big round matching glossy eyes (plum-dark at the top to rosy at the
-      bottom, a big white shine and a small one), rosy cheeks, a tiny smile. A SMALL TOP TIER worn like a hat, a touch askew,
+      each tip, sprinkles. Its FACE on the front, low: (4th pass, the eye art pass) two small glossy CHOCOLATE-CHIP eyes set wide
+      apart (a chip's little peak on top, one tiny shine each - gold dragees on the shiny), piped-icing dots for cheeks, a tiny
+      smile. A SMALL TOP TIER worn like a hat, a touch askew,
       piped rosettes round its foot and rim, the CHERRY on top (a stem and a leaf) and a striped CANDLE whose flame is a little
       flickering tuft. Two round nub feet, two frosting nub arms, a tiny silver four-tined FORK in its right nub.
 

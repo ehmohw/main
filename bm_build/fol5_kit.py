@@ -672,7 +672,7 @@ def knot(im, cx, y0, w, h, flip=False, kind=None, bark=('#4a3e34', '#6a5d50', '#
                 if abs(x + 0.5 - cx) < w * 0.22: put(im, x, y, light[3] if abs(x + 0.5 - cx) < w * 0.12 else light[2])
         return
     inner = lambda x: max(-1.0, min(1.0, (x + 0.5 - cx) / (w / 2) * (-o)))     # (+1 toward the nose)
-    if kind == 'surprised': S = _ell(cx, cy, w / 2 + 0.7, h / 2 + 0.5)
+    if kind == 'surprised': S = _ell(cx, cy, w / 2 + 0.4, h / 2 + 0.3)
     else: S = _ell(cx, cy, w / 2, h / 2)
     if kind == 'happy': S -= _ell(cx, cy + h * 0.62, w * 0.62, h * 0.5)
     if kind == 'focus': S = {(x, y) for x, y in S if y + 0.5 >= y0 + h * 0.34 + 1.6 * inner(x)}
@@ -687,7 +687,7 @@ def knot(im, cx, y0, w, h, flip=False, kind=None, bark=('#4a3e34', '#6a5d50', '#
     vis_top = {}
     for x, y in S: vis_top[x] = min(y, vis_top.get(x, 99))
     bot = max(y for _, y in S)
-    lr = {None: 0.44, 'happy': 0.52, 'focus': 0.3, 'surprised': 0.2, 'sleepy': 0.36}.get(kind, 0.44) * min(w, h)
+    lr = {None: 0.56, 'happy': 0.6, 'focus': 0.34, 'surprised': 0.22, 'sleepy': 0.42}.get(kind, 0.56) * min(w, h)
     lys = [y for _, y in S]; ly = (min(lys) + max(lys) + 1) / 2 + (0.5 if kind in (None, 'surprised') else 0)
     ramp = light if kind != 'sleepy' else light[:4]
     if kind == 'focus': ramp = light[1:]
@@ -749,7 +749,7 @@ def cat_eye(im, cx, y0, w, h, flip=False, kind=None, iris=('#5a3000', '#a06008',
         kh = ([(-1, 1)], [(-2, 2)], [(-2, 2)], [(-1, 1)], [(-1, 1)], [(-2, 2)]) if not big else \
              ([(-1, 1)], [(-2, 2)], [(-2, 2)], [(-1, 1)], [(-1, 1)], [(-1, 1)], [(-2, 2)], [(-2, 2)])
         if bot - top + 1 < 7 and not big: kh = ([(-1, 1)], [(-2, 2)], [(-1, 1)], [(-1, 1)], [(-2, 2)])
-        n = len(kh); pt = max(top + 1, round(mid - n / 2)) if bot - top + 1 >= n + 1 else bot - n + 1
+        n = len(kh); pt = max(top + 1, round(mid - n / 2)) if bot - top + 1 >= n + 1 else max(top + 1, bot - n + 1)
         for i, spans in enumerate(kh):
             for a, b in spans:
                 for x in range(cx + a, cx + b): P.add((x, pt + i))
@@ -852,10 +852,10 @@ def flame_eye(im, cx, y0, w, h, flip=False, kind=None, core='#ffffff', halo='#ff
     o = 1 if flip else -1; cy = y0 + h / 2
     if kind == 'happy': stroke(im, _curve(cx, round(y0 + h * 0.62), w + 1, max(1.5, h * 0.32)), core, char, n8=True); return
     if kind == 'blink': stroke(im, _curve(cx, round(y0 + h * 0.6), w + 1, -1), halo, char, n8=True); return
-    if kind == 'hurt': stroke(im, _vee(cx, cy, w + 1, h - 1, flip), core, char, n8=True); return
+    if kind == 'hurt': stroke(im, _vee(cx, cy + 0.5, w, 4, flip), core, char, n8=True); return
     if kind == 'wow': w, h, y0 = w + 1, h + 1, y0 - 1
     if kind == 'sleepy': h, y0 = max(3, h // 2), y0 + h - max(3, h // 2)
-    if lean is None: lean = {'focus': -1.6 * o, 'wow': 0.0}.get(kind, 0.9 * o)  # (o: toward the outer corner)
+    if lean is None: lean = {'focus': -1.6 * o, 'wow': 0.0}.get(kind, 0.7 * o)  # (o: toward the outer corner)
     if kind == 'focus': h, y0 = h - 1, y0 + 1
     r = w / 2; bcy = y0 + h - r
     F = set()
@@ -864,7 +864,7 @@ def flame_eye(im, cx, y0, w, h, flip=False, kind=None, core='#ffffff', halo='#ff
         if yc >= bcy:
             half = r * math.sqrt(max(0.0, 1 - ((yc - bcy) / r) ** 2)); xc = cx
         else:
-            t = (bcy - yc) / max(0.5, bcy - y0); half = r * (1 - t) ** 0.85 + 0.35; xc = cx + lean * t
+            t = (bcy - yc) / max(0.5, bcy - y0); half = r * (1 - t) ** 0.8 + 0.25; xc = cx + lean * t * t
         for x in range(cx - w, cx + w):
             if abs(x + 0.5 - xc) <= half: F.add((x, y))
     stroke(im, F, halo, char)
@@ -884,7 +884,7 @@ def flame_mouth(im, cx, y, kind='smile', core='#ffffff', halo='#fff0a0', char='#
         put(im, cx - 2, y, mix(halo, char, 0.35)); put(im, cx + 1, y, mix(halo, char, 0.35))
         return
     if kind == 'o':
-        S = {(cx - 1, y), (cx, y), (cx - 1, y + 1), (cx, y + 1)}; stroke(im, S, core, char, n8=True); return
+        S = {(cx - 1, y), (cx, y), (cx - 1, y + 1), (cx, y + 1)}; stroke(im, S, core, char); return
     S = {'smile': {(cx - 2, y), (cx + 1, y), (cx - 1, y + 1), (cx, y + 1)},
          'flat': {(x, y + 1) for x in range(cx - 2, cx + 2)},
          'frown': {(cx - 2, y + 1), (cx + 1, y + 1), (cx - 1, y), (cx, y)},

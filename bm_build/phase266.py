@@ -183,7 +183,6 @@ def _abilities(G, X):
                          f'execute if entity @e[type=minecraft:wolf,tag={me},tag=bm.sxs3,limit=1] run function bm:{pfx}/tuft',
                          'particle minecraft:dust{color:[1.0,0.82,0.23],scale:1.0} ~ ~1 ~ 0.2 0.2 0.2 0 8', snd('entity.item.pickup', 0.6, 1.8)])
     fn(f'{pfx}/tuft', ['particle minecraft:block{block_state:"minecraft:short_grass"} ~ ~0.1 ~ 0.3 0.05 0.3 0 16', 'particle minecraft:composter ~ ~0.3 ~ 0.3 0.2 0.3 0 8'])
-    fn(f'{pfx}/ranged_tick', [])
     # GOLDEN SAP: a fat golden drop over you - Regeneration II, a little Absorption; your followers near too
     fn(f'{pfx}/support', ['execute on owner at @s run function bm:p266/sap'])
     fn('p266/sap', ['effect give @s minecraft:regeneration 4 1 true', 'effect give @s minecraft:absorption 20 0 true',
@@ -193,9 +192,8 @@ def _abilities(G, X):
                     'particle minecraft:dripping_honey ~ ~2.4 ~ 0.2 0.1 0.2 0 6', 'particle minecraft:dust{color:[1.0,0.82,0.23],scale:1.4} ~ ~2.2 ~ 0.2 0.2 0.2 0 10',
                     'playsound minecraft:block.honey_block.slide player @s ~ ~ ~ 0.8 1.4'])
     # (taking root, at night: it heals slowly)
-    X.second.append('execute as @e[type=minecraft:wolf,tag=bm.sxpet,tag=bm.sxsb] if data entity @s {Sitting:1b} at @s if predicate bm:p266/night run function bm:p266/night_heal')
+    X.second.append('execute as @e[type=minecraft:wolf,tag=bm.sxpet,tag=bm.sxsb] if data entity @s {Sitting:1b} at @s if predicate bm:p229/night run function bm:p266/night_heal')
     fn('p266/night_heal', ['effect give @s minecraft:regeneration 2 0 true', 'particle minecraft:composter ~ ~0.8 ~ 0.3 0.3 0.3 0 2'])
-    G.wjson('bm/predicate/p266/night.json', {'condition': 'minecraft:time_check', 'value': {'min': 13000, 'max': 23000}, 'period': 24000})
     return lines
 
 

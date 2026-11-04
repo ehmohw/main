@@ -6,13 +6,15 @@ over a few in-game days (as the Mireling does), and each stage follows you furth
 
   STAGE 0  THE PLANTED PIP  (day 0)   a soft mound of dark earth, the golden pip half in it, a curled shoot with two baby leaves
                                       (a prop: right-click says "it's growing" and the day it'll be ready)
-  STAGE 1  SPROUT           (day 1)   ankle-high (~0.5 blocks): a plump bean of a seed with a sweet face - big glossy amber eyes,
-                                      a blush, a tiny smile - its golden seed-husk still on its head like a tipped beret, two fat
+  STAGE 1  SPROUT           (day 1)   ankle-high (~0.5 blocks): a plump bean of a seed with a sweet face - two tiny seed-dot eyes
+                                      with an amber glint, a blush, a tiny smile - its golden seed-husk still on its head like a tipped beret, two fat
                                       cotyledon leaves sprouting up like ears, a new leaf-bud between them, leaf-nub hands, root
                                       toes. It hops.
   STAGE 2  SAPLING          (day 3)   knee-high (~0.85): a round burl head - its face set into a smooth heartwood plate under a
                                       carved bark brow - crowned by a rosette of curling leaves; a slender ridged trunk with the
-                                      pip glowing gold in a knot on its chest; twig arms with three-leaf hands; root feet.
+                                      pip glowing gold in a knot on its chest; twig arms with three-leaf hands; root feet. Its
+                                      eyes (and the Tree Spirit's) are KNOT-HOLES: hollows in the bark with the pip's warm light
+                                      glowing inside, the knot's shape and the light making each expression.
   STAGE 3  TREE SPIRIT      (day 5)   waist-high (~1.35): a big round heartwood face under a terraced canopy of leaves (a
                                       scalloped fringe over its brow, leaf tufts round the brim, the stage-1 sprout curl still
                                       on top), a GOLDEN APPLE hanging at its cheek like an earring; a tiered, ridged trunk with a
