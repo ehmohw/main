@@ -66,6 +66,9 @@ def penguin(H='H', tie=True, crown=31.5, brim=0):
     P['head'] += [_c((3.5, 17, 4.5), (12.5, 19, 11.5), 'k'), _c((4.5, 19, 5), (11.5, 24, 11), 'k'),
                   _c((6.3, 18.6, 2.4), (9.7, 20.4, 5.1), 'o'), _c((6.6, 17.9, 2.8), (9.4, 18.6, 5.0), 't'), _c((6.8, 17.2, 3.2), (9.2, 17.9, 5.0), 'o'),
                   _c((4.7, 20.3, 4.75), (7.2, 23.6, 5.05), 'e'), _c((8.8, 20.3, 4.75), (11.3, 23.6, 5.05), 'e'),
+                  # (3.0i: the shine in his eyes, as the trader's model has it - a big highlight high, a little one low, in each)
+                  _c((5.1, 22.3, 4.7), (6.1, 23.2, 4.76), 't'), _c((9.2, 22.3, 4.7), (10.2, 23.2, 4.76), 't'),
+                  _c((6.3, 20.7, 4.7), (6.7, 21.1, 4.76), 't'), _c((10.4, 20.7, 4.7), (10.8, 21.1, 4.76), 't'),
                   ]
     # (3.0g: his eyes painted whole - a white, an iris, a pupil, a catchlight, the lid over them: the owner found the old ones
     #  "soulless")
