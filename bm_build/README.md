@@ -21,6 +21,152 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0o: the Sapling, the Spawner and the Cairn
+
+### New: the Sapling (the 55th follower)
+
+The Pale Dryad's golden apple has a pip with a heartbeat. **By day, with Kettle out,** hand **the Pale Dryad a Golden Apple**
+(right-click her holding it):
+- The Pale Dryad: "Ooh. A seed with a heartbeat."
+- Kettle: "Can I water it?"
+- The Pale Dryad: "With the WATERING can, Kettle."
+
+She plants the pip at your feet: a little mound of earth with a golden pip in it.
+
+- **The mound.** Right-click it: "It's growing - ready in N days." Use a water bottle on it once, and it's a day sooner.
+- **Day 1: the Sprout.** It climbs out of the mound. Right-click it, and it gives you **the Golden Pip**, its summoning item.
+- **It grows wherever it is:**
+  - day 3, the **Sapling**: a burl head and a crown of leaves;
+  - day 5, the **Tree Spirit**: all canopy, with a golden apple at its cheek.
+
+  Each growth is a burst of leaves. The stage is yours, so sending it home or calling it from the Partner Wheel keeps it.
+  It follows you further at each stage: 8 blocks, then 16, then as far as anyone. Its click box grows with it.
+- **Its ways:**
+  - **Rootsnare:** a foe within 9, every 10 s. Roots burst up round it: Slowness IV and no jumping for 1, 2 or 3 s, by stage.
+  - **Seed Shot:** a foe 2.5-9 blocks away, every 4 s. One, two or three golden pips, 3 each. At its biggest, each pip
+    sprouts a tuft of grass under the foe; it's only particles, never a block.
+  - **Golden Sap:** when you're hurt and a monster is near, every 20 s. A golden drop gives you Regeneration II and a little
+    Absorption, and your followers near you get Regeneration too.
+- **Everything every follower has:**
+  - sitting: a right-click to plop down, swaying; **sneak + right-click** to take root, and by night it slowly heals;
+  - a wardrobe: the **Autumn Crown** (drawn on every stage), the **Frost** and **Twilight Crowns**, and the Gilded, Diamond
+    and Netherite Crowns;
+  - a rare aura, **the Golden Bloom**;
+  - a shiny, **Shiny Cherry Blossom**, on every stage;
+  - the Partner Wheel, the display case, Cecil's doll, the honours (Overgrowth; Taproot) and a Raid Contract;
+  - an item frame: it climbs out, and its pip in the frame sprouts a day at a time into a little potted Tree Spirit.
+    Right-click the frame for a burst of golden apple.
+- **Pairs:** with Bender ("Good Boy, Good Soil"), Mr. Capshun ("Still Life"), Henry ("Shade Nap") and Nia ("Up the Tree").
+
+### New: the Spawner (the 56th follower)
+
+A dungeon spawner's pilot light, bored of making monsters.
+
+- **The vigil.** Place a **Soul Lantern** within 3 blocks of a dungeon's monster spawner, and hold the room through three waves
+  (3, 4 and 5 monsters, the vigil's own). Keep the spawner standing and stay within 16 blocks. After the third wave, its pilot
+  light hops out. Right-click it, and it gives you **the Pilot Light**, its summoning item. The real spawner is never touched.
+- **Feeding.** Right-click it holding one of these, and its ember changes colour:
+
+  | Food | Ember | Minions |
+  |---|---|---|
+  | rotten flesh | sickly green | zombies |
+  | string | violet | spiders |
+  | a blaze rod | blaze yellow | blazes |
+
+  Unfed, it's orange and makes a mix. The type stays until you feed it again.
+- **Its ways.** It never fights itself; it conjures.
+  - When a monster is within 10, its ember flares and a **ghost minion** pops out. It keeps two out at a time (three for 10 s
+    after a kill), one every 1.5 s. The minions rush in a loose swarm, each in its own lane:
+    - **Zombies** grab: 2, and Slowness III.
+    - **Spiders** circle, then lunge and web: 2, and Slowness IV.
+    - **Blazes** hover and pelt it with three little fireballs, 2 each, which set nothing alight.
+  - A minion lasts 5 s or 3 hits, then pops into soul puffs.
+  - Minions are displays: they drop no loot, start no fire and touch no block. They go when it's sent home, faints or is
+    left behind.
+- **Everything every follower has:**
+  - sitting: a right-click for feet tucked and the flame guttering; **sneak + right-click** turns it down to a pilot light,
+    with no minions, and it slowly heals;
+  - a wardrobe: **Oxidised** and **Amethyst** (drawn), **Soot Black**, and the metal bars. The fed colours still show over
+    them;
+  - a rare aura, **the Ring of Souls**;
+  - a shiny, **Shiny Gilded Cage**;
+  - the Partner Wheel, the display case, Cecil's doll, the honours (Full Swarm; Pilot Light) and a Raid Contract;
+  - an item frame: it climbs out, and a tiny ghost spins in its lantern. Right-click the frame for soul smoke and a squeak.
+- **Pairs:** with Bender ("Herding Dog"), Mr. Capshun ("Paint-Ghosts"), Henry ("Warm Cage") and Nia ("Smoke Chase").
+
+### New: the Cairn (the 57th follower)
+
+A walking waystone. Its body is **copies of the land around it**; only its two amber eyes and its warm heart are its own.
+
+- **Meeting it.** At **dusk**, with **the Gem of Creativity out**, stack **five different blocks** into a little column on high,
+  open ground, and **crouch** beside it. Two amber eyes open in your waystone, and the Cairn copies itself out of the column and
+  stands beside it. Your blocks stay exactly as they were. Right-click it, and it gives you **the Waystone Heart**, its
+  summoning item.
+- **Made of here.** Every 5 s it looks at the ground around it: 9 fixed spots, never a scan. Its 22 blocks become copies of
+  the land there:
+  - **plains:** grass, dirt, cobblestone and oak;
+  - **desert:** sand and sandstone, with a cactus tuft;
+  - **deep cave:** deepslate, tuff and amethyst;
+  - **the Nether:** nylium, netherrack, nether bricks and shroomlight.
+
+  The block under its feet can even become its head. A new land means a quick re-assembly, a block at a time from the feet up.
+- **No griefing.** It never sets, breaks, places or moves a real block. Its body, the block it flings and its storm are all
+  display copies, and they hurt only monsters.
+- **Its ways:**
+  - **Pebble Bonk:** 4.
+  - **Fling:** a foe 2-7 blocks away, every 4 s. A copy of its fist block flies at it: 5, and knocked back.
+  - **Block Storm:** charged, every 30 s. 18 copies of its blocks whirl round the foe in a rising vortex for 3 s: 2 every
+    half second to every monster inside, pulled in. Then they slam down.
+  - When it's summoned it **assembles**: its blocks fly in from the ground and snap the last bit into place.
+- **Everything every follower has:**
+  - sitting: a right-click to sit down heavily; **sneak + right-click** to settle into a tidy waystone, with a faint amber beam
+    above it at night that only you see, within 64 blocks;
+  - a wardrobe of whole palettes: **Stained Glass**, **Mossy**, **Snowcap**, and gold, diamond and netherite blocks;
+  - a rare aura, **the Orbit**;
+  - a shiny, **Shiny Gilded Cairn**: gold blocks and diamond fists;
+  - the Partner Wheel, the display case (the whole golem), Cecil's doll, the honours (Landslide; Rockfall) and a Raid Contract;
+  - an item frame: it climbs out, and the frame shows a little cairn of the land it hangs in.
+- **Pairs:** with Bender ("Found It!"), Mr. Capshun ("Primary Colours"), Henry ("Warm Stone": it doesn't re-skin while he
+  sleeps on its head) and Nia ("Cat Tree").
+
+### For the build
+
+- **Switches:** `fol5flag.py` now has SAPLING, SPAWNER and CAIRN on.
+- **Phases:**
+
+  | Phase | What |
+  |---|---|
+  | phase266 | the Sapling: three stage rigs on one set of displays (`fol5wire.form_pose`), the mound, growing |
+  | phase267 | the Spawner: the vigil, feeding, the minion displays |
+  | phase268 | the Cairn: block_display body, the sampler, the storm |
+
+- **The Cairn's figurine and doll** use the game's own block textures by path. No Mojang textures are copied into the pack.
+- **Codes:**
+
+  | What | Codes |
+  |---|---|
+  | The Sapling's menu | 5800 |
+  | The Sapling's wardrobe | 5820-5839 |
+  | The Spawner's menu | 5850 |
+  | The Spawner's wardrobe | 5870-5889 |
+  | The Cairn's menu | 5900 |
+  | The Cairn's wardrobe | 5920-5939 |
+  | The Tailor's outfits past the 352nd | a new block, 7400-7599 (`phase103.scode`) |
+
+- **Tests:**
+
+  | Test | What it covers |
+  |---|---|
+  | `t390.js` | the Sapling |
+  | `t391.js` | the Spawner |
+  | `t392.js` | the Cairn |
+
+  All three are also in t138, t145, t146, t156 and t158 (through `tools/bots/f5.js`).
+
+### New eyes
+
+Each new follower now has its own eyes: the Cake small glossy chocolate-chip eyes (gold dragées on its shiny), the Sprout seed dots, the Sapling and Tree Spirit glowing knot-holes, the Mimic smug keyhole cat eyes, the Cairn glowing amber gems under brow-stones, and the Spawner white-hot flame eyes.
+
 ## New in 3.0n: the Doodle Mob, the Glitch and the Cake
 
 ### The Doodle Dragon is now the Doodle Mob
