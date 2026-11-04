@@ -220,7 +220,7 @@ def _encounter(G, X):
     fn('p273/enc/wake', ['playsound minecraft:entity.warden.emerge ambient @a[distance=..48] ~ ~ ~ 1.4 0.6', 'particle minecraft:block{block_state:"minecraft:stone"} ~ ~ ~ 3 0.3 3 0 100',
                          'execute rotated ~ 0 positioned ^ ^ ^4 run function bm:p273/enc/spawn',
                          'scoreboard players operation @e[type=minecraft:interaction,tag=bm.tlenc,distance=..8] bm.pid = #me bm.pid',
-                         'execute as @e[type=minecraft:wolf,tag=bm.rypet,distance=..24] if score @s bm.pid = #me bm.pid run function bm:p273/enc/rival',
+                         'execute as @e[type=minecraft:wolf,tag=bm.rypet,distance=..24] if score @s bm.pid = #me bm.pid at @s run function bm:p273/enc/rival',
                          tellraw('@s', [T('The mountain answers. ', LINE, bold=True), T('The ground shakes; a ridge of crystals breaks the surface - and Talus climbs up out of the peak.', 'gray', italic=True)])])
     fn('p273/enc/rival', ['playsound minecraft:entity.ravager.roar ambient @a[distance=..32] ~ ~ ~ 1.4 0.7',
                           tellraw('@a[distance=..24]', [T('Talus roars at your Rex - and your Rex roars back. ', LINE, italic=True), T('(A long, long standoff. Then Talus beats its chest - and lets you near.)', 'gray', italic=True)])])

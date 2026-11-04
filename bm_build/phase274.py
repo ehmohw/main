@@ -229,10 +229,10 @@ def _encounter(G, X):
     X.second.append('execute as @e[type=minecraft:item] if items entity @s contents *[minecraft:custom_data~{bm:"three_world_egg"}] at @s run function bm:p274/enc/egg')
     fn('p274/enc/egg', ['tag @a remove bm.tvthr', 'execute on origin run tag @s add bm.tvthr',
                         'execute unless entity @a[tag=bm.tvthr] run return 0',
-                        'execute if dimension minecraft:overworld if entity @s[y=150,dy=300] if predicate bm:p274/peak if predicate bm:p274/thunder as @a[tag=bm.tvthr,limit=1] unless entity @s[tag=bm.tvc1] run function bm:p274/enc/crack1',
-                        'execute if dimension minecraft:the_nether if block ~ ~-0.5 ~ minecraft:magma_block if predicate bm:p274/basalt as @a[tag=bm.tvthr,limit=1] unless entity @s[tag=bm.tvc2] run function bm:p274/enc/crack2',
-                        'execute if dimension minecraft:the_end if block ~ ~-0.5 ~ minecraft:end_stone unless entity @s[x=-1000,z=-1000,dx=2000,dy=400,y=-64,dz=2000] as @a[tag=bm.tvthr,limit=1] unless entity @s[tag=bm.tvc3] run function bm:p274/enc/crack3',
-                        'execute as @a[tag=bm.tvthr,tag=bm.tvc1,tag=bm.tvc2,tag=bm.tvc3,tag=!bm.twmet] run function bm:p274/enc/hatch', 'tag @a remove bm.tvthr'])
+                        'execute if dimension minecraft:overworld if entity @s[y=150,dy=300] if predicate bm:p274/peak if predicate bm:p274/thunder as @a[tag=bm.tvthr,limit=1] unless entity @s[tag=bm.tvc1] at @s run function bm:p274/enc/crack1',
+                        'execute if dimension minecraft:the_nether if block ~ ~-0.5 ~ minecraft:magma_block if predicate bm:p274/basalt as @a[tag=bm.tvthr,limit=1] unless entity @s[tag=bm.tvc2] at @s run function bm:p274/enc/crack2',
+                        'execute if dimension minecraft:the_end if block ~ ~-0.5 ~ minecraft:end_stone unless entity @s[x=-1000,z=-1000,dx=2000,dy=400,y=-64,dz=2000] as @a[tag=bm.tvthr,limit=1] unless entity @s[tag=bm.tvc3] at @s run function bm:p274/enc/crack3',
+                        'execute as @a[tag=bm.tvthr,tag=bm.tvc1,tag=bm.tvc2,tag=bm.tvc3,tag=!bm.twmet] at @s run function bm:p274/enc/hatch', 'tag @a remove bm.tvthr'])
     for i, (who, line) in enumerate((('Squall', '(a bolt! Squall\'s head pokes out of its seam, yawns - and complains about the weather)'),
                                      ('Cinder', '(Cinder bites its way out of its seam, chewing)'), ('Hush', '(Hush opens one eye in its seam)')), 1):
         fn(f'p274/enc/crack{i}', [f'tag @s add bm.tvc{i}', 'playsound minecraft:block.sniffer_egg.crack ambient @a[distance=..24] ~ ~ ~ 1 0.6'] +
