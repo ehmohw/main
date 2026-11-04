@@ -566,7 +566,7 @@ SPECK = 0.6          # (units: an element under this in every direction is dropp
 INFLATE = 0.12       # (units each side: every element a little fatter - the gaps close, the form goes sludgy)
 JIT = 0.14           # (units: each element nudged by up to this - slightly wrong)
 SAG = 0.07          # (the slump: up to 7% wider at its feet, 3.5% lower at its top)
-CAP_H = 2.6          # (blocks: the most of itself it can raise - a nine-block serpent is mimicked Ferro-sized, as a 2.6-block one)
+CAP_H = 3.4          # (blocks: the most of itself it can raise - a nine-block serpent is mimicked Ferro-sized, at 3.4; everyone else at their own size)
 MIMIC_K = 0.96       # (a mimic stands a touch smaller than the real one: it is still a little puddle at heart)
 
 
@@ -757,7 +757,7 @@ def ferro_form(rp, parts, key, seed=None, drips=12, lips=10, lod=0, c=None, budg
         add.append({'from': [(fx0 + fx1) / 2 - sw / 2, -16, (fz0 + fz1) / 2 - sw / 2], 'to': [(fx0 + fx1) / 2 + sw / 2, y0 + 0.5 / F, (fz0 + fz1) / 2 + sw / 2],
                     'faces': G()})
     pcx, pcz = (fx0 + fx1) / 2, (fz0 + fz1) / 2; k = 0.72
-    cap = min(9.0, 0.6 * max(x1 - x0, z1 - z0) * F) / F
+    cap = min(6.5, 0.45 * max(x1 - x0, z1 - z0) * F) / F
     hx, hz = min(cap, (fx1 - fx0) / 2 + 2.0 / F), min(cap, (fz1 - fz0) / 2 + 2.0 / F)
     pud = [({'from': [pcx - hx, -16, pcz - hz * k], 'to': [pcx + hx, -16 + 0.5 / F, pcz + hz * k]}),
            ({'from': [pcx - hx * k, -16, pcz - hz], 'to': [pcx + hx * k, -16 + 0.5 / F, pcz + hz]}),

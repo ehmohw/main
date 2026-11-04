@@ -8,8 +8,8 @@ Partner Wheel, the golden dolls and the contract bits number a follower by when 
 DOODLEMOB = True
 GLITCH = True
 CAKE = True
-SAPLING = False
-SPAWNER = False
-CAIRN = False
+SAPLING = True
+SPAWNER = True
+CAIRN = True
 KNIGHT = False
 MIMIC = False
