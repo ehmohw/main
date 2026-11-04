@@ -270,7 +270,8 @@ def generate(G):
             L = F[f'p73/fol/{e[0]}']
             k = next(n for n, l in enumerate(L) if l.endswith('run tag @s add bm.fown'))
             L.insert(k + 1, 'execute if entity @s[tag=bm.anc] unless entity @a[tag=bm.fown] run return run scoreboard players set @s bm.fmis 0')
-            k = next(n for n, l in enumerate(L) if l.startswith(f'execute unless score @s {e[6]} = ') and l.endswith(f'run return run function bm:{e[4]}'))
+            k = next((n for n, l in enumerate(L) if l.startswith(f'execute unless score @s {e[6]} = ') and ' run return run function bm:' in l), None)
+            assert k is not None, ('the follow rules\' ticket line', w, e[0], L[:8])
             L.insert(k + 1, 'execute if entity @s[tag=bm.anc] run return run function bm:p260/an/held')
     fn('p260/an/held', ['scoreboard players set @s bm.fmis 0', 'tag @a remove bm.fown'])
     fn('p260/an/set', ['tag @s add bm.anc', 'data modify entity @s Sitting set value 0b', 'scoreboard players operation @s bm.ancw = #anw bm.rng',
