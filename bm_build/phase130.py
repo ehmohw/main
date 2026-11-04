@@ -450,7 +450,7 @@ def generate(G):
                                T('On or off, while she holds the heart her buffs come at level II. ', SOUL),
                                T('(In the heist lobby she\'s always her usual self.)', 'dark_gray')], 320)],
                     [btn(1), btn(2), btn(3), btn(4), btn(5), P28.btn(T('Wardrobe', '#ff8ad8', bold=True), 7306, tooltip=T('Her ribbons, dresses and outfits', 'gray'), width=120),
-                     P28.btn(T('Wraithfire Form: on / off', SOUL, bold=True), 7307, tooltip=T('Her Wraithfire Form - or her usual self.', 'gray'), width=120),
+                     P28.btn(T('Wraithfire Form: on/off', SOUL, bold=True), 7307, tooltip=T('Her Wraithfire Form - or her usual self.', 'gray'), width=120),
                      P28.btn(T('Fly with me', SOUL, bold=True), C_FLY, tooltip=T('She lifts you from behind and flies you. Sneak to land.', 'gray'), width=120),
                      sty(1), sty(2), sty(3),
                      P28.btn(T('Take back the heart', '#9ad8ff'), 7308, tooltip=T('She gives the Wraithfire Heart back to you.', 'gray'), width=120),

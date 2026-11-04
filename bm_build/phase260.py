@@ -134,6 +134,8 @@ def merge_words(vs):
 SETTING = re.compile(r'(Companion size|Ophanim|^Form\b|Form: on|form: on|Element:|^Give back|^Take back|Living / ghostly|Casual / regal|'
                      r'Gentry / chibi|Unbound / Bound|Grown / Little)')
 SHORT = {'Take back the Ethereal Gem / Wraithfire Heart': 'Take back the gem / heart', 'Ethereal / Wraithfire Form: on / off': 'Ethereal / Wraithfire form'}
+# (3.0p) followers met outside the roster (phase125.WHO) - their bm:met/ key: (name, colour, the Handbook's hint)
+MET_EXTRA = {'escort': ('The Skiff Escort', '#9ad0ff', 'A Vorn Dreadnought\'s reactor, beaten on an invasion night.')}
 WD_MOVE = ('efm', 'efg', 'pmf', 'pmg')                        # (wardrobe rows that are switches, not looks: phase99.ROWS keys)
 HOME_W = re.compile(r'^Send (him|her|it|them|.+) home$')
 CALL_W = re.compile(r'^(Call for|Call him over|Call )')
@@ -236,6 +238,7 @@ def generate(G):
     b_set = lambda col: snbt(P28.btn([T('⚙ ', col), T('Settings', 'white', bold=True)], B_SET, width=150,
                                      tooltip=T('Their switches in one place: chatter, keep up, forms, aura...', 'gray')))
     moved = {w: {} for w in WS}                               # who -> {code: (menu, [button variants])}
+    msrc = {}                                                 # (3.0p) (who, code) -> the dialog functions it was found in
     HUSH = '@s[tag=bm.hush]'
     n_lines = 0
     for w in sorted(DLG):
@@ -256,7 +259,7 @@ def generate(G):
                     c, wd = code_of(b), words_of(b)
                     if c == P123.CHAT: continue
                     if c is not None and SETTING.search(wd):
-                        moved[w].setdefault(c, (mm, []))[1].append(b); continue
+                        moved[w].setdefault(c, (mm, []))[1].append(b); msrc.setdefault((w, c), set()).add(name); continue
                     keep.append(b)
                 first = [b for b in keep if HOME_W.match(words_of(b)) or CALL_W.match(words_of(b)) or words_of(b) in ('Sit / follow', 'Wait here / follow me')]
                 last = [b for b in keep if LAST_W.search(words_of(b))]
@@ -289,6 +292,28 @@ def generate(G):
             if not any(code_of(b) == B_SET for b in items): items.append(b_set(WHO[w][2]))
             F[name][j] = set_actions(l, sp, items)
 
+    # (3.0p) a switch moved off a menu shown only now and then (Emma's Wraithfire menu: only while she holds the heart) is shown on
+    #  the Settings page only then too - the condition its menu is opened under (scores of the player's own; anything else: always)
+    GATE = re.compile(r'^execute ((?:(?:if|unless) score @s \S+ matches \S+ )+)run (?:return run )?function bm:(\S+)(?: with .*)?$')
+    calls = {}                                                # (who calls whom: function -> the lines that call it)
+    for caller, CL in F.items():
+        if caller.startswith('p260/'): continue
+        for l in CL:
+            if 'function bm:' in l:
+                for t in re.findall(r'function bm:([\w/.\-]+)', l):
+                    calls.setdefault(t, []).append(l)
+    def gate(name):
+        conds = set()
+        for l in calls.get(name, ()):
+            mg = GATE.match(l)
+            if not mg or mg.group(2) != name: return None
+            conds.add(mg.group(1).strip())
+        return conds.pop() if len(conds) == 1 else None
+    def row_gate(w, c):
+        gs = {gate(n_) for n_ in msrc.get((w, c), ())}
+        return gs.pop() if len(gs) == 1 else None
+    report['settings rows shown only when unlocked'] = 0
+
     # ================================================================== THE SETTINGS PAGE, one per follower
     fs_act = []
     froms = []
@@ -306,6 +331,7 @@ def generate(G):
                      ['function bm:p179/k/toggle']))
         slot = S_PX
         prox = []
+        gates = {}                                             # (3.0p) slot -> the condition it's shown under (None: always)
         for c, b in wd_rows[w]:
             prox.append((c, P99.BASE[w], with_code(b, B + slot), slot)); slot += 1
         for c, (mm, vs) in sorted(moved[w].items()):
@@ -318,7 +344,8 @@ def generate(G):
                 lab = snbt(P28.btn(T(mw, col, bold=True), B + slot, width=150))
                 if tip and '$(' not in tip.group(1): lab = lab[:-1] + ',tooltip:' + tip.group(1) + '}'
                 base = lab
-            prox.append((c, mm, with_code(base, B + slot), slot)); slot += 1
+            prox.append((c, mm, re.sub(r'(?<=[{,])width:\d+', 'width:150', with_code(base, B + slot)), slot)); slot += 1      # (3.0p: every row 150 wide - a 120 from its menu scrolled)
+            gates[slot - 1] = row_gate(w, c)
         assert slot <= FSN, (w, f'{slot - S_PX} switches for the settings page - the block holds {FSN - S_PX}')
         for c, mm, b, s in prox:
             R = router(c, mm)
@@ -334,19 +361,30 @@ def generate(G):
         opn += [                st('r_chat', T('on', 'white', bold=True)), 'execute if entity @s[tag=bm.hush] run ' + st('r_chat', T('off', '#ff8a8a', bold=True)),
                 st('r_keep', T('off', '#ff8a8a', bold=True)), 'execute if entity @s[tag=bm.pwkeep] run ' + st('r_keep', T('on', 'white', bold=True)),
                 f'scoreboard players set @s bm.menu {B}', f'function bm:p260/fs/dlg/{w} with storage bm:ui wd']
+        # (3.0p: a row shown only when unlocked - one page for each set of what's unlocked: bit j for its j-th condition)
+        gl = sorted({g for s, *_r in rows for g in [gates.get(s)] if g})
+        assert len(gl) <= 3, (w, gl)
+        report['settings rows shown only when unlocked'] += sum(1 for s, *_r in rows if gates.get(s))
+        if gl:
+            opn[-1:] = ['scoreboard players set #fsv bm.rng 0'] + [f'execute {g} run scoreboard players add #fsv bm.rng {1 << j}' for j, g in enumerate(gl)] + \
+                       [f'execute if score #fsv bm.rng matches {m} run return run function bm:p260/fs/dlg/{w}' + (f'_{m}' if m else '') + ' with storage bm:ui wd'
+                        for m in range(1 << len(gl))]
         fn(f'p260/fs/open/{w}', opn)
-        ph = {}
-        acts = []
-        for n_, (s, b, _h) in enumerate(rows):
-            ph[f'@@B{n_}@@'] = b; acts.append(f'@@B{n_}@@')
-        d = P28.multi([T(cap(nm), col, bold=True), T('  ·  settings', 'gray')],
-                      [P28.body([T('Switches for ', 'gray'), T(nm, col), T(' in one place. ', 'gray'), T('✦ = the same for all your followers.', 'dark_gray')], 300)],
-                      acts, columns=2, exit_label='Close')
-        s_ = snbt(d)
-        for k, b in ph.items():
-            s_ = s_.replace(f'"{k}"', b)
-        s_ = re.sub(r'"@@RAW:(\w+)@@"', r'$(\1)', s_)
-        fn(f'p260/fs/dlg/{w}', [f'$dialog show @s {s_}'])
+        for m in range(1 << len(gl)):
+            ph = {}
+            acts = []
+            for n_, (s, b, _h) in enumerate(rows):
+                g = gates.get(s)
+                if g and not m >> gl.index(g) & 1: continue
+                ph[f'@@B{n_}@@'] = b; acts.append(f'@@B{n_}@@')
+            d = P28.multi([T(cap(nm), col, bold=True), T('  ·  settings', 'gray')],
+                          [P28.body([T('Switches for ', 'gray'), T(nm, col), T(' in one place. ', 'gray'), T('✦ = the same for all your followers.', 'dark_gray')], 300)],
+                          acts, columns=2, exit_label='Close')
+            s_ = snbt(d)
+            for k, b in ph.items():
+                s_ = s_.replace(f'"{k}"', b)
+            s_ = re.sub(r'"@@RAW:(\w+)@@"', r'$(\1)', s_)
+            fn(f'p260/fs/dlg/{w}' + (f'_{m}' if m else ''), [f'$dialog show @s {s_}'])
         # its router: the page's own menu, then exact codes
         lines = [f'execute unless score @s bm.menu matches {B} run return run function bm:p28/stale']
         for s, b, h in rows:
@@ -522,6 +560,19 @@ def generate(G):
     has = lambda a: f'@s[advancements={{bm:{a}=true}}]'
     MET = {w: 'met/' + P220.MET_KEY.get(w, w) for w in WS}
     for w, a in MET.items(): assert adv_ok(a), ('no met advancement', w, a)
+    # (3.0p) every follower there is to meet: every bm:met/ advancement the pack has (read from what's built, so a new follower is
+    #  counted the day it's added) - the roster's, and those met outside it (the Skiff Escort: eight colours, its own wheel slot)
+    met_dir = G.path('data', 'bm', 'advancement', 'met')
+    met_all = sorted(f[:-5] for f in os.listdir(met_dir) if f.endswith('.json'))
+    extra = [k for k in met_all if 'met/' + k not in MET.values()]
+    assert set(extra) <= set(MET_EXTRA), ('a bm:met/ advancement the Handbook has no name for (MET_EXTRA)', sorted(set(extra) - set(MET_EXTRA)))
+    for k in extra:
+        MET[k] = 'met/' + k
+    FOLK = WS + extra                                          # (who the Handbook counts: len(FOLK) == every bm:met/ there is)
+    fname = lambda w: WHO[w][0] if w in WHO else MET_EXTRA[w][0]
+    fcol = lambda w: WHO[w][2] if w in WHO else MET_EXTRA[w][1]
+    fhint = lambda w: P220.HINT[w] if w in WHO else MET_EXTRA[w][2]
+    assert len(FOLK) == len(met_all), (len(FOLK), len(met_all))
     BOSSES = [('story/treant', 'The Elder Treant'), ('story/colossus', 'The Magma Colossus'), ('story/voidwalker', 'The Voidwalker'),
               ('story/horseman', 'The Headless Horseman'), ('story/pharaoh', 'The Sand Pharaoh'), ('story/storm_roc', 'The Storm Roc'),
               ('story/monstrosity', 'The Blood Moon Monstrosity'), ('story/overseer', 'A Vorn mothership\'s boss'),
@@ -554,12 +605,12 @@ def generate(G):
     hbs = lambda key, comp: f'data modify storage bm:ui hb.r_{key} append value {snbt(comp)}'
     count = lambda name, conds: [f'scoreboard players set #hbn bm.rng 0'] + [f'execute if entity {c} run scoreboard players add #hbn bm.rng 1' for c in conds] + \
         [f'execute store result storage bm:ui hb.{name} int 1 run scoreboard players get #hbn bm.rng']
-    sums = ['data remove storage bm:ui hb'] + count('fm', [has(MET[w]) for w in WS]) + count('bb', [has(a) for a, _n in BOSSES]) + \
+    sums = ['data remove storage bm:ui hb'] + count('fm', [has(MET[w]) for w in FOLK]) + count('bb', [has(a) for a, _n in BOSSES]) + \
         count('dc', [has(a) for a, *_r in DUNGEONS]) + count('pf', [place_has(tg) for tg, *_r in PLACES])
     fn('p260/hb/sums', sums)
     line = lambda lab, key, n: [T(lab, 'white'), T(f'$({key})', COL, bold=True), T(f' of {n}\n', 'gray')]
     main = P28.multi([T('BLACK MARKET HANDBOOK', COL, bold=True)],
-                     [P28.body(line('Followers met: ', 'fm', len(WS)) + line('Bosses beaten: ', 'bb', len(BOSSES)) +
+                     [P28.body(line('Followers met: ', 'fm', len(FOLK)) + line('Bosses beaten: ', 'bb', len(BOSSES)) +
                                line('Dungeons & heists cleared: ', 'dc', len(DUNGEONS)) + line('Places found: ', 'pf', len(PLACES)) +
                                [T('It keeps itself up to date - open a page for the details.', 'dark_gray')], 300)],
                      [P28.btn([T('Followers ›', COL)], B_FOL, width=150, tooltip=T('Who you\'ve met - and where to look for the next.', 'gray')),
@@ -583,17 +634,17 @@ def generate(G):
            [f'scoreboard players set @s bm.menu {HB}', f'function bm:p260/hb/{key}_dlg with storage bm:ui hb'])
     def fol_rows():
         L = []
-        for w in WS:
-            L.append(f'execute if entity {has(MET[w])} run ' + hbs('fol', T(f'{WHO[w][0]}   ', WHO[w][2])))
+        for w in FOLK:
+            L.append(f'execute if entity {has(MET[w])} run ' + hbs('fol', T(f'{fname(w)}   ', fcol(w))))
         L += ['execute if score #hbn bm.rng matches 0 run ' + hbs('fol', T('(nobody yet)', 'dark_gray')),
               'data modify storage bm:ui hb.r_hint set value [{text:"Where to look next:",color:"white"}]', 'scoreboard players set #hbh bm.rng 0']
-        for n, w in enumerate(WS):
+        for n, w in enumerate(FOLK):
             L.append(f'execute if score #hbh bm.rng matches ..2 unless entity {has(MET[w])} run function bm:p260/hb/hint/{w}')
-            fn(f'p260/hb/hint/{w}', [hbs('hint', T(f'\n#{n + 1:02d} ??? ', '#8a8a8a', bold=True)), hbs('hint', T(P220.HINT[w], 'gray', italic=True)),
+            fn(f'p260/hb/hint/{w}', [hbs('hint', T(f'\n#{n + 1:02d} ??? ', '#8a8a8a', bold=True)), hbs('hint', T(fhint(w), 'gray', italic=True)),
                                      'scoreboard players add #hbh bm.rng 1'])
         L.append('execute if score #hbh bm.rng matches 0 run data modify storage bm:ui hb.r_hint set value [{text:"Every friend there is - met.",color:"gold"}]')
-        return count('fm', [has(MET[w]) for w in WS])[:-1] + L
-    page('fol', 'followers', [T('Met: ', 'white'), T('$(fm)', COL, bold=True), T(f' of {len(WS)}', 'gray'),
+        return count('fm', [has(MET[w]) for w in FOLK])[:-1] + L
+    page('fol', 'followers', [T('Met: ', 'white'), T('$(fm)', COL, bold=True), T(f' of {len(FOLK)}', 'gray'),
                               T('  (the Follower Gallery, on the Partner Wheel, has them all)', 'dark_gray')], fol_rows,
          extra=[P28.body('@@RAW:r_hint@@', 340)])
     def tick_rows(key, items, label):

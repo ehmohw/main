@@ -453,7 +453,7 @@ def generate(G):
     hosts = list(dict.fromkeys((host, tag) for w, nm, col, host, tag, *_r in PW))
     fn('p179/w/anyout', ['scoreboard players operation #me bm.pid = @s bm.pid'] +
        [f'execute as @e[type=minecraft:{host},tag={tag}] if score @s bm.pid = #me bm.pid run return 1' for host, tag in hosts] + ['return fail'])
-    b_all = P28.btn([T('\u2302 ', '#ffb070'), T('Send all followers home', 'white', bold=True)], SENDALL,
+    b_all = P28.btn([T('\u2302 ', '#ffb070'), T('Send all home', 'white', bold=True)], SENDALL,
                     tooltip=T('Every follower of yours that\'s out goes home, each their own way (call them again from the wheel)', 'gray'))
     b_rec = P28.btn([T('\u27f2 ', PURPLE), T('Bring them all to me', 'white')], SENDALL - 1,
                     tooltip=T('Every partner of yours out in this world comes to your side at once (as sneak + using the wheel)', 'gray'))
