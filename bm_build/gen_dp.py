@@ -1603,11 +1603,14 @@ def build(out_dir):
     return FUNCS
 
 
+OUTROOT = os.environ.get('BM_OUT') or ('/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out'))   # (3.1: BM_OUT - a scratch build, as the checkers read)
+
+
 if __name__ == '__main__':
     # 2.94b: a stamp written only once the pack is whole - package.py refuses without it (2.94a shipped a zip taken while a
     #        rebuild was half-written: 3039 of 28453 files, and worlds wouldn't load)
-    _done = '/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_DP.done'
+    _done = OUTROOT + '/BlackMarket_DP.done'
     if os.path.exists(_done): os.remove(_done)
-    f = build('/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_DP')
+    f = build(OUTROOT + '/BlackMarket_DP')
     print(len(f), 'functions;', len(ITEMS), 'items')
     open(_done, 'w').write(str(sum(len(fs) for _b, _d, fs in os.walk(_done[:-5]))))

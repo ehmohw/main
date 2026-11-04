@@ -715,6 +715,7 @@ def build(out_dir):
 
 if __name__ == '__main__':
     PHASE2 = '--phase2' in sys.argv
+    OUTROOT = os.environ.get('BM_OUT') or ('/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out'))   # (3.1: BM_OUT - a scratch build, as the checkers read)
     import phase17, phase18
     ICONS.update(phase17.icons(grid))
     ICONS.update(phase18.icons(grid))
@@ -1010,14 +1011,14 @@ if __name__ == '__main__':
         creative.rp(sys.modules[__name__])
         import elemforms                      # (3.0g: the ten's Ethereal / Wraithfire twins - after creative: its outfit models get twins too)
         elemforms.rp(sys.modules[__name__])
-    _done = '/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP.done'    # 2.94b: see gen_dp
+    _done = OUTROOT + '/BlackMarket_RP.done'    # 2.94b: see gen_dp
     if os.path.exists(_done): os.remove(_done)
-    s = build('/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP')
+    s = build(OUTROOT + '/BlackMarket_RP')
     import zfix                               # 2.94k: no two faces of a model fighting over one plane (zfix.py)
-    print('zfix:', zfix.apply('/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP'), 'faces brought forward out of z-fighting')
+    print('zfix:', zfix.apply(OUTROOT + '/BlackMarket_RP'), 'faces brought forward out of z-fighting')
     # 2.98: a recoloured copy of an animated texture (a cosmetic _cN, a shiny) is an animated strip too - it takes its source's .mcmeta
     import glob, re as _re, shutil
-    _rp = '/home/claude/bm_build/' + ('out_p2' if PHASE2 else 'out') + '/BlackMarket_RP'
+    _rp = OUTROOT + '/BlackMarket_RP'
     for _m in glob.glob(_rp + '/assets/*/textures/**/*.png.mcmeta', recursive=True):
         _base = _m[:-len('.png.mcmeta')]
         for _cp in glob.glob(_base + '_*.png'):

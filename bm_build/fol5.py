@@ -13,9 +13,9 @@ modules only where a recolour needs their texture names (art() below).
           fifty, "fifty threads") - see the owner's decision in the batch notes"""
 import fol5flag as FL
 
-ORDER = ['glitch', 'cake', 'sapling', 'spawner', 'cairn', 'knight', 'mimic']
-FLAG = {'glitch': 'GLITCH', 'cake': 'CAKE', 'sapling': 'SAPLING', 'spawner': 'SPAWNER', 'cairn': 'CAIRN', 'knight': 'KNIGHT', 'mimic': 'MIMIC'}
-PHASE = {'glitch': 'phase264', 'cake': 'phase265', 'sapling': 'phase266', 'spawner': 'phase267', 'cairn': 'phase268', 'knight': 'phase269', 'mimic': 'phase270'}
+ORDER = ['glitch', 'cake', 'sapling', 'spawner', 'cairn', 'knight', 'mimic', 'ferro']
+FLAG = {'glitch': 'GLITCH', 'cake': 'CAKE', 'sapling': 'SAPLING', 'spawner': 'SPAWNER', 'cairn': 'CAIRN', 'knight': 'KNIGHT', 'mimic': 'MIMIC', 'ferro': 'FERRO'}
+PHASE = {'glitch': 'phase264', 'cake': 'phase265', 'sapling': 'phase266', 'spawner': 'phase267', 'cairn': 'phase268', 'knight': 'phase269', 'mimic': 'phase270', 'ferro': 'phase271'}
 NOT_IN_COMPASS = True
 
 
@@ -212,6 +212,28 @@ SPEC['mimic'] = dict(
     nia=('Tongue Twister', (('regeneration', 1),), '"Ha! Ha-ha! That TICKLES."', '(Nia bats at its tongue)'),
 )
 
+
+# ---------------------------------------------------------------------------------------------------- 60: THE FERRO
+_fe = {1: ('Quicksilver', ('#30343c', '#c8d0dc', '#ffffff')), 2: ('Gold Leaf', ('#1a1206', '#8a6a1a', '#ffd870')), 3: ('Deep Violet', ('#0a0614', '#3a1a6a', '#a070ff')),
+       4: ('Gilded Goo', GOLD), 5: ('Diamond Goo', DIAMOND), 6: ('Netherite Goo', NETHERITE)}
+SPEC['ferro'] = dict(
+    shiny_name='Shiny Oil Slick', NAME='The Ferro', pron='it', COL='#7a6aff', LINE='#c8d8ff', ab='fe', q='fq', pfx='p271', item='lodestone_vial', prefix='fe_',
+    word='Goo', looks=_fe, dyes=_dyes('Goo', 'white', 'yellow', 'purple', _fe), words='its goo', plain='Mirror black', base=5540,
+    aura=('Magnetar', '#9fb4ff', 0.9, 0.7, 'minecraft:end_rod', [f'particle {_dust(0.62, 0.7, 1.0, 0.6)} ~ ~0.9 ~ 0.45 0.3 0.45 0 2', 'particle minecraft:electric_spark ~ ~1.1 ~ 0.3 0.2 0.3 0.01 1']),
+    anchors=('eyes', 'fe_eyes', 'body', 'fe_body'),
+    champ=(None, [], False, ['minecraft:end_rod ~ ~1 ~ 0.3 0.2 0.3 0.01 1', _dust(0.1, 0.1, 0.16, 1.0) + ' ~ ~0.5 ~ 0.4 0.3 0.4 0 3']),
+    gift=('Resistance and Strength', [f'effect give {P8} minecraft:resistance 15 0 true', f'effect give {P8} minecraft:strength 15 0 true']),
+    trib=[('minecraft:iron_ingot', 64), ('minecraft:lodestone', 4), ('minecraft:amethyst_shard', 16), ('minecraft:diamond', 4), ('heartstone', 4)],
+    honour=('Field Collapse', 'its crown of spikes erupts out of the ground round it: 16 to monsters round it, pulled in and slowed; you, Resistance and Strength II',
+            (16, 6), 0, 'slowness 5 2', ['resistance 10 1', 'strength 10 1'], 'minecraft:end_rod', 'minecraft:block.respawn_anchor.charge'),
+    hint='Deep under the deepslate, in the dark, with KillerWatt and the Ink Blot (or the Mireling) out - something follows you that isn\'t yours.',
+    shiny_say='"Trying something new today. Oil Slick. Every colour at once, and none of them mine."',
+    pierce=('Spike Tide', 'pours itself at the monster in a wave of goo, its spikes bursting up all round it - then lashes it twice and engulfs it', 'below',
+            [_P(_dust(0.06, 0.06, 0.1, 1.4), 24)], [_dust(0.06, 0.06, 0.1, 1.2) + ' ~ ~0.1 ~ 0.4 0 0.4 0 3'],
+            [_P('minecraft:crit', 30), _P(_dust(0.48, 0.42, 1.0, 1.0), 20)], 'minecraft:block.honey_block.slide', 'minecraft:entity.slime.squish'),
+    henry=('Warm Puddle', (('regeneration', 0), ('night_vision', 0)), '(it turns into a goo Henry. Henry is unimpressed.)', '(Henry swats its crown - then naps curled on its puddle)'),
+    nia=('Droplet Chase', (('regeneration', 1), ('speed', 0)), '"...it\'s all right. They always come back to me."', '(Nia chases its loose droplets, then sits in its armchair)'),
+)
 
 # ---------------------------------------------------------------------------------------------------- the Doodle Mob (the dragon renamed)
 MOB_NAME = 'The Doodle Mob'

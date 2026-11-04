@@ -259,8 +259,20 @@ def _mimic():
     return A
 
 
+def _ferro():
+    import ferro_pet_art as FA
+    FA.DOLL_POSE = 'doll'                         # (its doll's own pose: no puddle, hands tucked - and fitted 11 units wide)
+    FA.DOLL = dict(FA.DOLL, width=FA.DOLL_W)
+    A = Art('ferro', FA.R, {'happy': 'happy', 'surprised': 'wide', 'hurt': 'hurt', 'sleepy': 'sleepy', 'blink': 'blink', 'squint': 'happy', 'serious': 'fierce'},
+            ('sx', 'sxd', 'up', 'dn', 'spk'), drop=('_sh', '_qs', '_au'), drawn={1: '_qs', 2: '_au'}, gild=('sx', 'sxd', 'up', 'dn', 'spk'),
+            shiny=('_sh', '#c040a0', 'magenta'), doll_groups=FA.DOLL_GROUPS).doll(FA)
+    A.NO_LOOK = ()
+    A.FM = FA                                     # (its mimicry: ferro_form and the rest - phase271)
+    return A
+
+
 _MADE = {}
-_MAKERS = {'knight': _knight, 'mimic': _mimic, 'glitch': _glitch, 'cake': _cake, 'sapling': _sapling, 'spawner': _spawner, 'cairn': _cairn}
+_MAKERS = {'ferro': _ferro, 'knight': _knight, 'mimic': _mimic, 'glitch': _glitch, 'cake': _cake, 'sapling': _sapling, 'spawner': _spawner, 'cairn': _cairn}
 
 
 def get(w):

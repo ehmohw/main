@@ -13,3 +13,4 @@ SPAWNER = True
 CAIRN = True
 KNIGHT = True
 MIMIC = True
+FERRO = __import__('os').environ.get('BM_FERRO') == '1'      # (60, phase271 - batch 4: off until it's built and checked; BM_FERRO=1 for a scratch build)

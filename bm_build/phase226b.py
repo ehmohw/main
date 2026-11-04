@@ -314,8 +314,8 @@ NAMES['dryad'] = ('Overgrown', 'roots the monster where it stands, rakes it, cho
 
 # ---- THE BOUND SOVEREIGN: the dread phases played out - the chains lash it in, the greatsword twice, the eye bolt point-blank
 ASSAULT['sovereign'] = R('p239', 'xq', 36, None,
-    pull_fx='particle minecraft:block{block_state:"minecraft:chain"} ~ ~1 ~ 0.1 0.1 0.1 0 2',
-    hits={1: (2, ['particle minecraft:block{block_state:"minecraft:chain"} ~ ~1 ~ 0.4 0.5 0.4 0 20', 'particle minecraft:sculk_soul ~ ~1 ~ 0.3 0.4 0.3 0.02 8',
+    pull_fx='particle minecraft:block{block_state:"minecraft:iron_chain"} ~ ~1 ~ 0.1 0.1 0.1 0 2',
+    hits={1: (2, ['particle minecraft:block{block_state:"minecraft:iron_chain"} ~ ~1 ~ 0.4 0.5 0.4 0 20', 'particle minecraft:sculk_soul ~ ~1 ~ 0.3 0.4 0.3 0.02 8',
                   'effect give @s minecraft:slowness 3 9 true'], 'minecraft:block.chain.break', 0.6),
           2: (4, ['particle minecraft:sweep_attack ~ ~1 ~ 0.3 0.2 0.3 0 2', 'particle minecraft:sculk_soul ~ ~1 ~ 0.4 0.5 0.4 0.04 14', CRIT], 'minecraft:entity.warden.attack_impact', 0.8),
           3: (4, ['particle minecraft:sculk_soul ~ ~1 ~ 0.6 0.6 0.6 0.1 30', 'particle minecraft:flash{color:[0.5,0.9,1.0,1.0]} ~ ~1 ~ 0 0 0 0 1', 'effect give @s minecraft:wither 3 1 true'],

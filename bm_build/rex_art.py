@@ -232,36 +232,11 @@ def _frame(base, rim, dot=None):
     return im
 
 
-def _panel(base, lit, seam, rivet, sx=(5, 12)):
-    """armour panels: seams in a staggered brick of 8 px rows, a lit lip under each seam, rivets at the panels' corners"""
-    im = _new(base)
-    for r in range(2):
-        y0 = 8 * r
-        for x in range(16):
-            _put(im, x, y0, seam); _put(im, x, y0 + 1, lit)
-        v = sx[r]
-        for y in range(y0 + 1, y0 + 8):
-            _put(im, v, y, seam); _put(im, v + 1, y, lit)
-        for x in (v + 3, v - 2):
-            _put(im, x, y0 + 3, rivet)
-        for x in (v + 3, v - 2):
-            _put(im, x, y0 + 6, seam)
-    return im
-
-
 def _plate(base, lit, seam, rivet):
     """a steel plate: a lit lip, a dark seam at the foot, four rivets"""
     im = _flat(base, lit, seam)
     for x in range(16): _put(im, x, 1, lit)
     for (x, y) in ((2, 3), (13, 3), (2, 12), (13, 12)): _put(im, x, y, rivet)
-    return im
-
-
-def _grille(dark, light, k=2):
-    im = _new(dark)
-    for y in range(0, 16, k * 2):
-        for x in range(16):
-            for j in range(k): _put(im, x, y + j, light)
     return im
 
 
@@ -295,42 +270,209 @@ def _stitch(base, lit, dark, st):
 BLUE = dict(deep=(22, 64, 200), mid=(52, 120, 245), lt=(110, 200, 255), core=(196, 244, 255), white=(236, 252, 255))
 
 
+# ---- 3.1: the textures at the bar Talus and Trivyrn set (64 px, painted in 2-px cells with STRUCTURE - layered scales, plates with
+#      lit lips and dark seams, a lit belly, glowing plates graded rim to core - never flat fills, never per-pixel noise)
+import random as _rnd
+from fol5_kit import cells as _cells, leaves as _leaves, lit as _lit, metal as _metal, mix as _mix
+
+
+def _hx(c):
+    return '#%02x%02x%02x' % tuple(c[:3]) if not isinstance(c, str) else c
+
+
+def _scales(dark, base, light, tip):
+    """layered scales, kaiju-sized (4-px cells: each scale 3 units across): overlapping rows offset half a scale, each scale lit
+    across its crown, a scalloped shadow under its rim, low contrast so the hide reads as hide at 8 blocks, never as gravel"""
+    d, b, l, t = _hx(dark), _hx(base), _hx(light), _hx(tip)
+    def c(x, y, r):
+        col = x % 3; k = (y + (x // 3) % 2 * 2) % 4
+        if k == 3: return d if col != 1 else _mix(b, d, 0.5)
+        if k == 0: return t if col == 1 else l
+        if k == 1 and col == 1: return l
+        return b
+    return _cells(c, 3, cell=4)
+
+
+def _osteo(deep, base, lit_, seed, n=6, var=0.07):
+    """craggy plates: a tiled voronoi of n plates, each its own tone, a dark crack between them, the top edge of each plate lit
+    (light from above), a shaded lower edge - the rough osteoderm armour of a kaiju's back"""
+    N = 16                                                            # (4-px cells: plates 4-8 units across)
+    r = _rnd.Random(seed); P = [(r.uniform(0, N), r.uniform(0, N), r.uniform(-var, var)) for _ in range(n)]
+    def near(x, y):
+        ds = sorted(((min(abs(x - px), N - abs(x - px)) ** 2 + min(abs(y - py), N - abs(y - py)) ** 2) ** 0.5, i) for i, (px, py, _) in enumerate(P))
+        return ds[0][1], ds[1][0] - ds[0][0]
+    G = {(x, y): near(x + 0.5, y + 0.5) for y in range(N) for x in range(N)}
+    b = [int(v) for v in _hexrgb(base)]; d = _hx(deep); l = _hx(lit_)
+    def c(x, y, rr):
+        i, gap = G[(x, y)]
+        if gap < 0.7: return d
+        up = G[(x, (y - 1) % N)]; dn = G[(x, (y + 1) % N)]
+        if up[0] != i or up[1] < 0.7: return l
+        if dn[0] != i or dn[1] < 0.7: return _mix(_hx(base), d, 0.45)
+        k = 1 + P[i][2]
+        return '#%02x%02x%02x' % tuple(max(0, min(255, int(v * k))) for v in b)
+    return _cells(c, seed, cell=4)
+
+
+def _hexrgb(c):
+    if isinstance(c, str): c = c.lstrip('#'); return tuple(int(c[i:i + 2], 16) for i in (0, 2, 4))
+    return tuple(c[:3])
+
+
+def _belly(dark, base, light, lip):
+    """the lit belly: broad scute bands, a bright lip along each band's top, the band shaded down to a dark seam, the bands split
+    and staggered - lit from above (lit())"""
+    def c(x, y, r):
+        k = y % 5; sx = (x + (y // 5) % 2 * 6) % 12
+        if k == 4 or sx == 0: return _hx(dark)
+        if k == 0: return _hx(lip)
+        if sx == 1: return _mix(_hx(base), _hx(light), 0.5)
+        return _hx(light) if k == 1 else _hx(base)
+    return _lit(_cells(c, 4), 1.08, 0.9, 10)
+
+
+def _ivory(dark, base, light):
+    def c(x, y, r):
+        if x % 8 == 0: return _hx(dark)
+        if y < 6: return _hx(light)
+        return _hx(base) if (x % 8) > 2 else _mix(_hx(base), _hx(light), 0.5)
+    return _cells(c, 5)
+
+
+def _gglow(stops, seed=0, veins=None, rim=None, cell=4):
+    """a glow graded from the root (row 31, the first stop) to the tip (row 0, the last stop) - the dorsal plates' light - a
+    lighter rim column at each side if given, branching veins of the hottest stop"""
+    n = len(stops); r = _rnd.Random(seed); V = set(); N = 64 // cell
+    if veins:                                                         # (a smooth seam of the hottest light up the middle)
+        x = N // 2
+        for y in range(N - 1, 0, -1):
+            V.add((x, y))
+            if r.random() < 0.25: x = max(2, min(N - 3, x + r.choice((-1, 1))))
+    def c(x, y, rr):
+        t = 1 - y / (N - 1)
+        if (x, y) in V: return _hx(stops[-1])
+        if rim and x in (0, N - 1): return _hx(rim)
+        i = min(n - 1, int(t * n * 0.999))
+        return _hx(stops[i])
+    return _cells(c, seed, cell=cell)
+
+
+def _eye(iris, pupil, glint, rim):
+    """the eye (full uv): a dark socket lip, a glowing iris graded dark top (the brow's shadow) to bright bottom, a vertical
+    slit pupil, one white glint up and to the left"""
+    def c(x, y, r):
+        dx, dy = (x - 15.5) / 15.5, (y - 15.5) / 15.5
+        if dx * dx + dy * dy > 1.0: return _hx(rim)
+        if abs(x - 15.5) < 1.6 and abs(dy) < 0.82: return _hx(pupil)
+        if 6 <= x <= 9 and 6 <= y <= 9: return _hx(glint)
+        t = (y + 2) / 34
+        return _hx(iris[min(len(iris) - 1, int(t * len(iris)))])
+    return _cells(c, 6)
+
+
+def _maw(deep, mid, lt):
+    """the mouth / throat glow: palate ridges across it (a bright ridge, a deep groove), brightest down the middle"""
+    def c(x, y, r):
+        if y % 6 == 0: return _hx(lt)
+        if y % 6 == 5: return _hx(deep)
+        return _hx(mid) if abs(x - 15.5) > 6 else _mix(_hx(mid), _hx(lt), 0.5)
+    return _cells(c, 7)
+
+
+def _leather(base, lit_, dark, st):
+    def c(x, y, r):
+        if y in (2, 29) and x % 3 == 0: return _hx(st)
+        if y < 2: return _hx(lit_)
+        if y > 29: return _hx(dark)
+        return _hx(base) if (x // 5 + y // 6) % 4 else _mix(_hx(base), _hx(dark), 0.3)
+    return _cells(c, 8)
+
+
+def _panel(base, lit_, seam, rivet, sx=None):
+    """armour panels: a brick of plates, each with a lit bevel along its top and left, a dark seam, rivets at the corners, a
+    faint brushed streak - the war machine's skin"""
+    def c(x, y, r):
+        row = y // 10; k = y % 10; bx = (x + (row % 2) * 8) % 16
+        if k == 9 or bx == 15: return _hx(seam)
+        if k == 0 or bx == 0: return _hx(lit_)
+        if bx == 2 and k == 2: return _hx(rivet)
+        if k >= 7: return _mix(_hx(base), _hx(seam), 0.18)
+        return _hx(base)
+    return _cells(c, 9)
+
+
+def _grille(dark, light, lip):
+    def c(x, y, r):
+        k = y % 4
+        if k == 0: return _hx(lip)
+        if k == 1: return _hx(light)
+        return _hx(dark)
+    return _cells(c, 10)
+
+
+def _piston(a, b, hi):
+    def c(x, y, r):
+        k = x % 8
+        if k == 0: return _hx(hi)
+        if k < 3: return _hx(b)
+        return _hx(a) if k < 7 else _mix(_hx(a), '#000000', 0.3)
+    return _cells(c, 11)
+
+
+def _quilt(base, lit_, dark):
+    def c(x, y, r):
+        if x % 8 == 0 or y % 8 == 0: return _hx(dark)
+        if (x % 8 == 1) or (y % 8 == 1): return _hx(lit_)
+        return _hx(base)
+    return _cells(c, 12)
+
+
+def _screen(bg, line, hot):
+    def c(x, y, r):
+        if y % 4 == 0: return _hx(line)
+        if (x + y * 3) % 17 == 0: return _hx(hot)
+        return _hx(bg)
+    return _cells(c, 13)
+
+
 def textures_of(kind):
+    """{material: 64 x 64 RGBA} - 3.1: painted to the bar (see the section's note); the materials and their names are unchanged"""
+    B = BLUE
     if kind == 'atomic':
         return {
-            'hide': _pebble((54, 54, 60), (49, 49, 54), (63, 63, 70), (74, 74, 82), (38, 38, 43)),
-            'crag': _crag((44, 44, 49), (52, 52, 58), (62, 62, 69), (24, 24, 28)),
-            'belly': _bands((78, 78, 84), (96, 96, 103), (50, 50, 56)),
-            'claw': _bands((150, 146, 136), (184, 180, 168), (100, 96, 90), split=False, h=4),
-            'tooth': _teeth((224, 222, 212), (150, 146, 136)),
-            'dark': _flat((20, 22, 28)),
-            'eye': _flat(BLUE['lt'], glint=BLUE['white']),
-            'maw': _frame(BLUE['mid'], BLUE['deep'], BLUE['lt']),
-            'pedge': _frame(BLUE['deep'], (14, 40, 150), BLUE['mid']),
-            'pcore': _frame(BLUE['core'], BLUE['lt'], BLUE['white']),
-            'pedge_c': _frame(BLUE['lt'], BLUE['mid'], BLUE['core']),
-            'pcore_c': _frame(BLUE['white'], BLUE['core'], (255, 255, 255)),
-            'leather': _stitch((56, 60, 72), (74, 78, 92), (34, 36, 44), (110, 116, 130)),
-            'strap': _flat((38, 40, 48), (52, 54, 64), (22, 24, 30)),
-            'steel': _plate((120, 126, 138), (150, 156, 168), (78, 82, 92), (176, 182, 194)),
-            'stud': _flat(BLUE['lt'], glint=BLUE['white']),
+            'hide': _scales((50, 50, 58), (66, 67, 75), (78, 79, 88), (92, 93, 103)),
+            'crag': _osteo((24, 24, 28), (56, 56, 63), (86, 86, 95), 51),
+            'belly': _belly((60, 60, 66), (92, 92, 98), (106, 106, 112), (126, 126, 132)),
+            'claw': _ivory((96, 92, 84), (160, 156, 144), (204, 200, 186)),
+            'tooth': _ivory((150, 146, 136), (220, 218, 206), (246, 244, 234)),
+            'dark': _cells(lambda x, y, r: '#16181e' if y > 4 else '#20232a', 0),
+            'eye': _eye(((40, 110, 230), (90, 170, 255), (150, 220, 255), (210, 246, 255)), (8, 14, 40), (255, 255, 255), (18, 24, 40)),
+            'maw': _maw(B['deep'], B['mid'], B['lt']),
+            'pedge': _gglow([(16, 44, 160), B['deep'], (34, 88, 220), B['mid']], 21, rim=(12, 32, 120)),
+            'pcore': _gglow([B['mid'], B['lt'], B['core'], B['white']], 22, veins=1),
+            'pedge_c': _gglow([B['mid'], B['lt'], B['core'], B['white']], 23, rim=B['lt']),
+            'pcore_c': _gglow([B['core'], B['white'], (255, 255, 255), (255, 255, 255)], 24, veins=1),
+            'leather': _leather((56, 60, 72), (78, 82, 96), (30, 32, 40), (120, 126, 140)),
+            'strap': _leather((36, 38, 46), (54, 56, 66), (20, 22, 28), (70, 74, 86)),
+            'steel': _metal(('#4e525c', '#787e8a', '#9aa0ac', '#c6ccd8'), 25, rivets=True),
+            'stud': _gglow([B['lt'], B['core'], B['white']], 26),
         }
     return {
-        'armor': _panel((70, 74, 86), (96, 102, 116), (34, 36, 44), (130, 136, 150)),
-        'steel': _plate((118, 124, 138), (146, 152, 166), (76, 80, 92), (174, 180, 194)),
-        'dark': _flat((30, 32, 38), (40, 42, 50), (20, 21, 26)),
-        'vent': _grille((20, 22, 27), (58, 62, 72)),
-        'joint': _stripes((92, 98, 110), (150, 156, 170)),
-        'light': _frame(BLUE['mid'], BLUE['deep'], BLUE['lt']),
-        'core': _frame(BLUE['core'], BLUE['lt'], BLUE['white']),
-        'visor': _flat(BLUE['lt'], BLUE['core'], BLUE['mid'], glint=BLUE['white']),
-        'green': _flat((58, 200, 74), (122, 255, 106), (30, 138, 46)),
-        'fin': _plate((104, 110, 124), (140, 146, 160), (60, 64, 74), (160, 166, 180)),
-        'fin_c': _frame(BLUE['lt'], BLUE['mid'], BLUE['core']),
-        'light_c': _frame(BLUE['white'], BLUE['core'], (255, 255, 255)),
-        'tooth': _teeth((178, 184, 196), (90, 96, 108)),
-        'seat': _bands((46, 48, 58), (62, 64, 76), (28, 30, 36), split=False, h=4),
-        'screen': _grille((36, 110, 220), (90, 180, 255), 1),
+        'armor': _panel((70, 74, 86), (104, 110, 124), (30, 32, 40), (140, 146, 160)),
+        'steel': _metal(('#4c5060', '#767c8c', '#989eae', '#c4cad8'), 31, rivets=True),
+        'dark': _cells(lambda x, y, r: '#1c1e24' if (x // 4 + y // 4) % 2 else '#22252c', 0),
+        'vent': _grille((18, 20, 25), (52, 56, 66), (84, 90, 102)),
+        'joint': _piston((80, 86, 98), (130, 136, 150), (182, 188, 200)),
+        'light': _gglow([B['deep'], B['mid'], B['lt']], 32, rim=B['deep']),
+        'core': _gglow([B['lt'], B['core'], B['white'], (255, 255, 255)], 33, veins=3),
+        'visor': _gglow([B['mid'], B['lt'], B['core'], B['white']], 34),
+        'green': _gglow([(30, 138, 46), (58, 200, 74), (122, 255, 106)], 35),
+        'fin': _metal(('#3c404c', '#686e7c', '#8c92a0', '#b4bac8'), 36),
+        'fin_c': _gglow([B['mid'], B['lt'], B['core'], B['white']], 37, rim=B['lt']),
+        'light_c': _gglow([B['core'], B['white'], (255, 255, 255)], 38),
+        'tooth': _metal(('#5a6070', '#a8aebc', '#c8ced8', '#eef2f8'), 39),
+        'seat': _quilt((46, 48, 58), (66, 68, 80), (24, 26, 32)),
+        'screen': _screen((30, 96, 200), (90, 180, 255), (220, 246, 255)),
     }
 
 
@@ -395,6 +537,14 @@ def OCT(c, r, h, mat, axis='y', k=0.7):
     if axis == 'y':
         return [E((x - r, y - h / 2, z - r * k), (x + r, y + h / 2, z + r * k), mat), E((x - r * k, y - h / 2 + 0.05, z - r), (x + r * k, y + h / 2 - 0.05, z + r), mat)]
     return [E((x - r, y - r * k, z - h / 2), (x + r, y + r * k, z + h / 2), mat), E((x - r * k, y - r, z - h / 2 + 0.05), (x + r * k, y + r, z + h / 2 - 0.05), mat)]
+
+
+def OCTE(lo, hi, mat, k=0.74):
+    """3.1: a box with its four vertical edges cut (three boxes, an octagon from above) - a torso reads round, not as a crate"""
+    (x0, y0, z0), (x1, y1, z1) = lo, hi
+    ix, iz = (x1 - x0) * (1 - k) / 2, (z1 - z0) * (1 - k) / 2
+    return [E((x0, y0, z0 + iz), (x1, y1, z1 - iz), mat), E((x0 + ix, y0, z0), (x1 - ix, y1, z0 + iz + 0.01), mat),
+            E((x0 + ix, y0, z1 - iz - 0.01), (x1 - ix, y1, z1), mat)]
 
 
 def _norm(v):
@@ -503,7 +653,10 @@ def PLATE(base, spine, out, cell, mask, mats, t=1.2, sink=0.8):
             lo = (base[0] - th / 2, base[1] + (H - 1 - r1) * cell - sink, base[2] + (c0 - W / 2) * cell)
             hi = (base[0] + th / 2, base[1] + (H - r0) * cell - sink, base[2] + (c1 + 1 - W / 2) * cell)
             if layer: lo = (lo[0], lo[1] + 0.05, lo[2] + 0.05); hi = (hi[0], hi[1] - 0.05, hi[2] - 0.05)
-            out_.append(E(lo, hi, mats[layer], rot=rot))
+            e = E(lo, hi, mats[layer], rot=rot)
+            uv = [round(c0 / W * 16, 3), round(r0 / H * 16, 3), round((c1 + 1) / W * 16, 3), round((r1 + 1) / H * 16, 3)]
+            for fc in e['faces'].values(): fc['uv'] = list(uv)          # (3.1: each cell samples its own place on the plate: one
+            out_.append(e)                                                 #  smooth glow, root to tip, not a patchwork of windows)
     return out_
 
 
@@ -543,12 +696,19 @@ def _M(a, m):
 
 def _body():
     at = _atomic(); S, C, B = _M('hide', 'armor'), _M('crag', 'steel'), _M('belly', 'dark')
-    L = [E((-9.0, 13.0, -5.0), (9.0, 24.5, 8.0), _M('crag', 'armor')),
+    L = OCTE((-9.0, 13.0, -5.0), (9.0, 24.5, 8.0), _M('crag', 'armor')) + [
          E((-7.0, 14.0, -6.0), (7.0, 24.0, -5.0), _M('belly', 'steel')),
          E((-7.5, 13.5, 8.0), (7.5, 23.0, 10.0), C),
          E((-6.0, 12.2, -3.0), (6.0, 13.2, 6.0), _M('hide', 'dark'))]
     for sx in (1, -1):
         L.append(BX(sx, 8.6, 10.0, 14.5, 22.0, -2.5, 6.5, C))                     # (the hips' outer swell)
+    if at:                                                                        # (3.1: layered belly scutes, each band proud of the last;
+        for i, y in enumerate((14.4, 17.0, 19.6, 22.0)):                          #  osteoderm knobs along the hips)
+            w = 6.0 + i * 0.3
+            L.append(E((-w, y, -6.35 - i * 0.05), (w, y + 2.3, -5.6), 'belly'))
+        for sx in (1, -1):
+            for (x0, y0, z0) in ((8.2, 22.4, -1.8), (8.0, 23.0, 2.0), (7.4, 23.6, 5.4)):
+                L.append(BX(sx, x0, x0 + 1.8, y0, y0 + 1.4, z0, z0 + 2.4, 'crag'))
     if at:
         L += ROW3((0.0, 19.5, 9.6), UP, BACK, ('mid', 0.82), 2.6, side_at=0.8, side_sizes=('mid', 0.7))
     else:
@@ -562,7 +722,7 @@ def _body():
 
 def _chest():
     at = _atomic(); S, C = _M('hide', 'armor'), _M('crag', 'steel')
-    L = [E((-8.6, 23.0, -5.0), (8.6, 33.5, 7.5), _M('crag', 'armor')),
+    L = OCTE((-8.6, 23.0, -5.0), (8.6, 33.5, 7.5), _M('crag', 'armor')) + [
          E((-8.1, 33.0, -3.6), (8.1, 37.0, 7.0), C),
          E((-6.2, 36.5, -0.5), (6.2, 38.6, 7.2), C),
          E((-6.6, 23.5, -6.0), (6.6, 33.0, -5.0), _M('belly', 'steel'))]
@@ -570,6 +730,14 @@ def _chest():
         L += [BX(sx, 1.2, 7.8, 29.0, 35.2, -5.7, -3.2, S),                         # (the chest's two great slabs)
               BX(sx, 8.3, 9.3, 24.5, 32.5, -3.0, 6.0, C),                          # (flanks)
               BX(sx, 1.0, 7.4, 24.5, 34.0, 7.2, 8.4, C)]                           # (the back's muscle, the plates stand on it)
+    if at:                                                                        # (3.1: the lit belly in layered bands up the chest, the
+        for i, y in enumerate((23.8, 26.2, 28.6)):                                #  pectoral slabs' craggy upper lips, shoulder osteoderms)
+            w = 5.6 + i * 0.4
+            L.append(E((-w, y, -6.4), (w, y + 2.2, -5.9), 'belly'))
+        for sx in (1, -1):
+            L.append(BX(sx, 1.4, 7.6, 34.8, 35.6, -6.0, -3.4, 'crag'))
+            for (x0, y0, z0) in ((7.0, 36.6, -2.6), (5.4, 37.6, 0.6), (8.4, 34.0, 1.4)):
+                L.append(BX(sx, x0, x0 + 2.0, y0, y0 + 1.5, z0, z0 + 2.6, 'crag'))
     if not at:
         L += [E((-2.4, 29.8, -6.5), (2.4, 34.2, -5.6), 'steel'),                   # (the reactor's housing)
               E((-1.7, 30.5, -6.9), (1.7, 33.5, -6.3), 'core'),                    # (THE REACTOR CORE)
@@ -596,6 +764,8 @@ def _neck():
          E((-3.6, 35.0, -5.7), (3.6, 42.5, -5.0), _M('belly', 'joint'))]
     if at:
         for sx in (1, -1): L.append(BX(sx, 5.0, 6.0, 36.0, 40.0, -3.5, 2.5, 'crag'))
+        for i, y in enumerate((35.6, 38.0, 40.4)):                                # (3.1: the throat's folds, lit bands)
+            L.append(E((-3.9 + i * 0.2, y, -6.0), (3.9 - i * 0.2, y + 1.8, -5.4), 'belly'))
     else:
         L += [E((-5.8, 37.0, -4.6), (5.8, 38.0, 4.2), 'steel'), E((-5.0, 41.0, -5.0), (5.0, 41.8, 2.8), 'steel'),
               E((-3.7, 38.4, -5.85), (3.7, 39.0, -5.5), 'light')]
@@ -616,7 +786,12 @@ def _head():
              E((-2.7, 41.55, -13.6), (2.7, 41.95, -2.5), 'maw'),                   # (the roof of the mouth, glowing)
              E((-2.3, 41.2, -3.4), (2.3, 42.0, -1.2), 'maw')]                     # (the throat's glow)
         for sx in (1, -1):
-            L += [BX(sx, 2.9, 4.2, 43.7, 44.9, -8.4, -6.7, 'eye'),                 # (blue glowing eyes, under the brow)
+            L += [BX(sx, 2.5, 4.3, 43.2, 45.5, -8.9, -6.3, 'dark'),                # (3.1: the eye's socket, deep under the brow)
+                  BX(sx, 3.0, 4.38, 43.5, 45.2, -8.6, -6.6, 'eye'),                # (blue glowing eyes: an iris, a slit, a glint)
+                  BX(sx, 3.4, 4.65, 42.9, 43.45, -8.9, -6.1, 'crag'),              # (the lower lid's ridge)
+                  BX(sx, 3.9, 4.75, 41.8, 43.0, -12.6, -9.4, 'crag'),              # (cheek scutes)
+                  BX(sx, 3.3, 3.42, 41.9, 42.35, -13.8, -3.2, 'dark'),             # (the lip line)
+                  BX(sx, 0.5, 2.3, 45.25, 45.75, -14.4, -12.8, 'crag'),            # (the nostril's ridge)
                   BX(sx, 3.6, 4.5, 40.6, 43.8, -7.0, -0.8, 'crag'),                # (the jaw's muscle)
                   BX(sx, 0.8, 1.8, 44.6, 45.2, -14.75, -13.9, 'dark'),             # (nostrils)
                   BX(sx, 4.0, 4.6, 45.8, 47.2, -1.0, 1.4, 'crag')]                 # (the ear nubs)
@@ -655,6 +830,9 @@ def _jaw():
     for sx in (1, -1):
         for i, z in enumerate((-13.1, -11.5, -9.9, -8.3)):
             L.append(BX(sx, 1.9 if i else 0.4, 2.8, 41.4, 42.3, z, z + 0.85, 'tooth'))
+    if at:                                                                        # (3.1: a chin scute, the lower lip's line, a lit throat band)
+        L += [E((-2.4, 38.2, -13.9), (2.4, 39.4, -11.8), 'crag'), E((-2.2, 38.0, -9.0), (2.2, 38.5, -3.0), 'belly')]
+        for sx in (1, -1): L.append(BX(sx, 3.0, 3.12, 40.6, 41.0, -13.4, -2.0, 'dark'))
     if not at:
         L += [E((-3.15, 39.6, -13.0), (3.15, 40.2, -2.0), 'steel')]
     return L
@@ -677,6 +855,9 @@ def _fore(sx):
     el_ = (sx * 10.4, 27.6, -3.2); wr = (sx * 10.4, 25.6, -8.6)
     L = [SG(el_, wr, 3.4, 3.4, S, up=UP, ext=0.6), BX(sx, 8.9, 11.9, 23.8, 27.0, -10.8, -8.2, S)]
     if at:
+        for i in range(3):                                                        # (3.1: a row of scutes down the forearm)
+            t = 0.2 + i * 0.3; c = tuple(el_[k] + (wr[k] - el_[k]) * t for k in range(3))
+            L.append(E((c[0] - 1.0, c[1] + 1.4, c[2] - 1.0), (c[0] + 1.0, c[1] + 2.2, c[2] + 1.0), 'crag'))
         for dx in (-1.1, 0.0, 1.1):
             L.append(SG((sx * (10.4 + dx), 24.8, -10.4), (sx * (10.4 + dx * 1.2), 23.4, -12.6), 0.8, 0.8, 'claw', up=UP, ext=0.2))
         L.append(SG((sx * 9.0, 25.4, -9.6), (sx * 8.4, 24.2, -11.4), 0.8, 0.8, 'claw', up=UP, ext=0.2))   # (the thumb)
@@ -747,6 +928,12 @@ def _tail(i):
     d = _taildir(i); up = _norm((0.0, d[2], -d[1]))
     belly = _M('belly', 'steel')
     L.append(SG(tuple(a[k] - up[k] * (h0 / 2 - 0.2) for k in range(3)), tuple(b[k] - up[k] * (h1 / 2 - 0.4) for k in range(3)), w0 * 0.62, 0.9, belly, up=UP))
+    if at:                                                                        # (3.1: a row of scutes down each flank of the tail)
+        for t in (0.25, 0.6, 0.9):
+            c = tuple(a[k] + (b[k] - a[k]) * t for k in range(3)); w = w0 + (w1 - w0) * t
+            for sx in (1, -1):
+                L.append(SG(tuple(c[k] - d[k] * 1.2 + (sx * (w / 2 + 0.05) if k == 0 else 0) for k in range(3)),
+                            tuple(c[k] + d[k] * 1.2 + (sx * (w / 2 + 0.05) if k == 0 else 0) for k in range(3)), 0.6, 1.3, 'crag', up=UP))
     if not at:                                                                    # (armour rings round the segment, lit seams)
         for t in (0.3, 0.75):
             c = tuple(a[k] + (b[k] - a[k]) * t for k in range(3)); w = w0 + (w1 - w0) * t; h = h0 + (h1 - h0) * t
