@@ -27,7 +27,7 @@ SKINS '_sh' the SHINY "Cherry Blossom" (pink blossom, dark cherry bark, a blush-
       '_aut' the cosmetic "Autumn Crown" (amber, scarlet and gold leaves; per stage)."""
 import math
 from fol5_kit import (Rig, hexc, mix, limb, T, cells, soft, lit, bark, leaves, foliage, blade, glaze, glow, eye, blush, mouth, put,
-                      slab, stack, ball, leaf, cleaf, chain, ring)
+                      slab, stack, ball, leaf, cleaf, chain, ring, knot, seed)
 
 STAGES = (1, 2, 3)
 FACES = ('happy', 'blink', 'focus', 'hurt', 'sleepy', 'surprised')
@@ -47,14 +47,16 @@ C = dict(
     mush=('#4cb6ee', '#78d8ff', '#c9f4ff'), stem=('#f4ead6', '#fffaf0', '#e6d8bc'),
     earth=('#4a3628', '#5e4634', '#38281d'), pebble=('#8f8a80', '#a8a398', '#76726a'),
     iris=('#2e1a06', '#4e300c', '#7a4e12', '#b07e1e', '#dcae36', '#f4d670'),
-    lash='#3a2412', mouth='#5a2c16', tongue='#e8847a', blush='#f2a08c', brow='#7a6050')
+    lash='#3a2412', mouth='#5a2c16', tongue='#e8847a', blush='#f2a08c', brow='#7a6050',
+    knotlight=('#3a1a06', '#7a3c0a', '#c06a12', '#f0a030', '#ffd468', '#fff4c8'), hollow='#1e1209', seedeye=('#2a180a', '#40260f'))
 SKINS = {
     '_sh': dict(bark=('#3e1f22', '#5a2c30', '#76393c', '#94504f'), root=('#3a1e20', '#52292a', '#6a3634', '#844842'),
                 heart=('#fde4e2', '#fff3f2', '#f2c8c6'), seed=('#f7d6d4', '#ffeaea', '#e8b8b8'),
                 leaf=('#d0628e', '#f08ab0', '#ffb6d0', '#fff0f6'), blade=('#d0628e', '#f592b6', '#ffc0d8'),
                 coty=('#e07aa0', '#ffa0c2', '#ffc8dc'), gold=('#8a0e24', '#d4243e', '#f45a6a', '#ffd0d4'),
                 husk=('#8c3a52', '#b85674', '#d87896', '#f4b0c4'), moss=('#8aa04e', '#a8bc64', '#6e843c'),
-                iris=('#3a0818', '#5e1028', '#8e1c40', '#c0365c', '#e8648a', '#ffa8c0'), blush='#ff8aa8'),
+                iris=('#3a0818', '#5e1028', '#8e1c40', '#c0365c', '#e8648a', '#ffa8c0'), blush='#ff8aa8',
+                knotlight=('#3a0614', '#7a1430', '#c02c52', '#f2608a', '#ffaec4', '#fff0f4'), hollow='#1e080c', seedeye=('#3a0c18', '#5a1828')),
     '_aut': dict(leaf=('#8a2a12', '#c8501e', '#ee8a2a', '#ffc85a'), blade=('#9a3014', '#d8601e', '#f49a34'),
                  coty=('#b04a1a', '#e07c28', '#f8aa44'), moss=('#8a7a3a', '#a89448', '#6e602c'))}
 
@@ -102,10 +104,17 @@ def _face(kind, c, stage):
     if kind != 'hurt':
         blush(im, lx - ew // 2 - 0, by, 6 if stage > 1 else 5, c['blush'])
         blush(im, rx + ew // 2 + 0, by, 6 if stage > 1 else 5, c['blush'])
-    if kind == 'focus':
+    if stage > 1:                                       # (the grain of the heartwood swirling round each knot: a faint ring)
+        for cx_, o in ((lx, -1), (rx, 1)):
+            cy_ = KNOT[stage][1] + KNOT[stage][3] / 2
+            rxk, ryk = KNOT[stage][2] / 2 + 2.6, KNOT[stage][3] / 2 + 2.2
+            for a in range(-60, 75, 3):                                 # (the outer side of each knot, curving under it)
+                t = math.radians(a); x, y = math.floor(cx_ + o * rxk * math.cos(t)), math.floor(cy_ + ryk * math.sin(t))
+                if 0 <= x < W * 4: put(im, x, y, mix(c['heart'][2], c['heart'][0], 0.2))
+    if kind == 'focus' and stage == 1:
         for x0, s in ((lx, 1), (rx, -1)):
             for i in range(4): put(im, x0 - s * 1 + s * i, ey - 2 + (i // 2), c['brow'])
-    if kind == 'sad' or kind == 'hurt':
+    if (kind == 'sad' or kind == 'hurt') and stage == 1:
         for x0, s in ((lx, 1), (rx, -1)):
             for i in range(3): put(im, x0 + s * i, ey - 1 - (i // 2), c['brow'])
     my = by + (1 if stage == 1 else 2)
@@ -115,18 +124,25 @@ def _face(kind, c, stage):
 
 
 def _eyes(kind, c, stage):
-    """the eye overlay: glossy all-iris creature eyes (the stage-3 spirit gets a lash flick and a lid), amber like the pip"""
+    """the eye overlay (the eye art pass: its own eyes, no anime eye). The Sprout: two tiny dark SEED-DOT eyes, a warm amber
+    glint low in each. The Sapling and the Tree Spirit: KNOT-HOLE eyes - hollows in the bark with a warm light glowing inside
+    (gold like the pip: the light it grew from), their expressions the knot's shape and the light (fol5_kit.knot)."""
     W, H, (lx, rx), ey, ew, eh = EYES[stage]
     from PIL import Image
     im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
-    k = {'focus': 'fierce'}.get(kind, kind)
     for cx, fl in ((lx, False), (rx, True)):
-        eye(im, cx, ey, ew, eh, fl, k, iris=c['iris'], lash=c['lash'], pupil='#1a0e04', sclera=False, irk=0.8)
+        if stage == 1:
+            k = {'focus': 'squint', 'surprised': 'wide'}.get(kind, kind)
+            seed(im, cx, KNOT[1][1], KNOT[1][2], KNOT[1][3], fl, k, col=c['seedeye'][0], mid=c['seedeye'][1], glint=c['gold'][2])
+        else:
+            knot(im, cx, KNOT[stage][1], KNOT[stage][2], KNOT[stage][3], fl, kind, bark=c['root'], light=c['knotlight'], hollow=c['hollow'])
     return im
 
 
 # (W, H units of the face plate; eye centres; eye top row; eye w, h texels) - 4 texels a unit
 EYES = {1: (6.0, 3.6, (7, 17), 2, 7, 8), 2: (6.0, 4.4, (7, 17), 3, 8, 9), 3: (7.2, 5.4, (8, 21), 4, 9, 10)}
+# the eyes themselves per stage (the eye art pass): (centres, top row, w, h) - the Sprout's seed dots, the knots' hollows
+KNOT = {1: ((7, 17), 4, 4, 5), 2: ((7, 17), 4, 6, 7), 3: ((8, 21), 4, 7, 9)}
 
 
 def _textures(c, stage):

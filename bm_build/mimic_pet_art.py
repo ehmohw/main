@@ -29,7 +29,7 @@ import math
 import random
 from PIL import Image, ImageDraw
 from fol5_kit import (Rig, hexc, mix, limb, T, cells, soft, lit, planks, metal, glaze, eye, blush, mouth, put, slab, stack, ball,
-                      chain, ring, van)
+                      chain, ring, van, cat_eye)
 
 # ---- the vanilla chest's geometry (net/minecraft/client/model/object/chest/ChestModel.createSingleBodyLayer, 26.3), in design
 # units (feet at y=0, facing -z): bottom box (1,0,1)+14x10x14; lid box (1,0,0)+14x5x14 at offset (0,9,1); lock box (7,-2,14)+2x4x1
@@ -66,6 +66,9 @@ SK = {'_sh': dict(van='ender', hue=0.77, gum=('#0a0820', '#181a40', '#2a2a6a'), 
 FW, FH = 12.0, 3.5
 DFW, DFH, DEYC = 14.4, 6.4, (14, 44)          # (the doll's eye window on its lid front: 57.6 x 25.6 texels; eyes 18 x 19 at 14, 44)
 EYC, EYY, EYW, EYH = (12, 36), 1, 12, 13
+# (the eye art pass: its OWN eyes - smug gold CAT eyes under a heavy flat lid, a KEYHOLE for a pupil (it is a chest), a slit
+#  when it means it, a fat coin of a pupil when it smells gold. fol5_kit.cat_eye. Eyes 12 x 12 at 12 and 36, top row 1.)
+CAT_Y, CAT_W, CAT_H = 1, 12, 12
 
 
 # ---------------------------------------------------------------------------------------------------- the vanilla chest's uv
@@ -146,19 +149,17 @@ def _eyes(kind, c):
     im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
     if kind == 'disg': return im
     for i, cx in enumerate(EYC):
-        k = {'greedy': 'wide', 'fierce': 'fierce', 'sleepy': 'sleepy'}.get(kind, kind)
-        eye(im, cx, EYY, EYW, EYH, i == 1, k, iris=c['iris'], lash=c['lash'], white=c['eye_white'], pupil='#1a0a00',
-            lid=4 if kind is None else None)
-        if kind == 'greedy':                                                 # (gold coins in its eyes: a $ glint)
-            for dy in range(3, 10): put(im, cx, EYY + dy, '#fff8d0')
+        cat_eye(im, cx, CAT_Y, CAT_W, CAT_H, i == 1, kind, iris=c['iris'][1:], line=c['lash'], pupil='#1a0a00')
     return im
 
 
 def _deyes(c):
-    """the doll's eyes: two big glossy all-iris kawaii eyes (sclera=False) and a blush under each, on the doll lid's front"""
+    """the doll's eyes: the Mimic's own gold cat eyes made cuter - rounder, bigger, the lid only a little low (still smug), the
+    keyhole pupil, two shines - and a blush under each, on the doll lid's front"""
     im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
     for i, cx in enumerate(DEYC):
-        eye(im, cx, 3, 18, 19, i == 1, None, iris=c['iris'], lash=c['lash'], pupil='#1a0a00', sclera=False, irk=0.62)
+        cat_eye(im, cx, 4, 18, 18, i == 1, None, iris=c['iris'][1:], line=c['lash'], pupil='#1a0a00', lid=0.3, slant=-0.5, tilt=0.8,
+                round_=True, shines=2)
         blush(im, cx + (-5 if i == 0 else 5), 23, 6, '#f08a8a')
     return im
 

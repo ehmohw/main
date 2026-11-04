@@ -8,7 +8,7 @@ LOOK  Knee-to-hip high (~1.1 blocks), a chunky little golem of 22 stacked, sligh
       trim-block belt, a big core block torso with two ore chips set in it, trim-block shoulders, limb-block arms with core-block
       fists, a head block with a trim brow on it and a biome TUFT on top (grass and a leaf tuft, a cactus sprout, an amethyst
       cluster, a shroomlight and wart). Three pebble blocks orbit it - not quite all assembled. The only parts that are really
-      IT: its HEART, a small warm amber light set in its chest, and its EYES - two big glossy amber eyes glowing on the head
+      IT: its HEART, a small warm amber light set in its chest, and its EYES - two faceted amber gems inlaid in the head
       block's front. Everything else is the land.
 SLOTS (what each block is a copy of - the sampler fills them): core (torso, fists), trim (belt, shoulders, brow), head (the head
       block: its side and top), limb (legs, arms), foot, ore (the two chips), tuft (the top piece), pebble.
@@ -19,7 +19,7 @@ SKINS one per biome, the real vanilla textures: '' PLAINS (grass head, dirt, cob
 import math
 import random
 from PIL import Image
-from fol5_kit import Rig, hexc, mix, limb, T, cells, soft, glow, eye, alpha, recolor
+from fol5_kit import Rig, hexc, mix, limb, T, cells, soft, glow, eye, alpha, recolor, gem, brow_stone, put
 
 VAN = '/home/claude/mc263/client/assets/minecraft/textures/block'
 GRASS, FOLIAGE = '#91bd59', '#77ab2f'
@@ -101,13 +101,47 @@ BLOCK_PARTS = tuple(b[0] for b in BLOCKS if b[3])
 EYES = (3.0, 1.2, 7.4, 4.2)        # (the eyes' plate on the head's front: x0..x1 is the head's width; y from 1.2 up, 4.2 tall)
 
 
+# (the eye art pass: its OWN eyes - two faceted AMBER GEMS inlaid in the head block, lit from within like its heart, each in a dark
+#  stone setting; its expressions are the BROW-STONES over them moving (and a cheek-stone pushing up when it's pleased, the stones
+#  closing over the gems when it blinks). The gems are the eye overlay (lit); the stones are a face plate behind it (unlit).)
+GEM_C, GEM_CY, GEM_W, GEM_H = (8, 22), 11, 8, 8
+AMBER = ('#6a2a00', '#b05a08', '#e8901a', '#ffc040', '#ffe890')
+AMBER_DIM = ('#3a1600', '#5e2a04', '#8a4610', '#b06a1e', '#c8883a')
+_BROW = {None: (2, 0.0), 'happy': (1, -0.6), 'focus': (4, 2.2), 'hurt': (2, -2.0), 'sleepy': (6, 0.0), 'blink': (6, 0.0)}
+
+
+def _brow_rows(kind, i, im=None):
+    """the brow-stone over gem i (0: the sheet's left): its {column: first row below it} (drawn on im when given)"""
+    y, tilt = _BROW.get(kind, _BROW[None])
+    cx = GEM_C[i]
+    tilt = tilt if i == 0 else -tilt                                   # (mirrored: + lowers the end toward the nose)
+    tgt = im if im is not None else Image.new('RGBA', (64, 64), (0, 0, 0, 0))
+    return brow_stone(tgt, cx - 6, cx + 5, y, tilt, 3 if kind != 'blink' else 5, seam=(kind == 'blink'))
+
+
+def _brows(kind):
+    """the face plate behind the gems: the brow-stones (and the cheek-stones, the shut stones), unlit, in plain stone"""
+    im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
+    if kind == 'dim': return im
+    for i, cx in enumerate(GEM_C):
+        _brow_rows(kind, i, im)
+        if kind == 'blink': brow_stone(im, cx - 6, cx + 5, 11, 0.0, 4)       # (two stones shut over the gem)
+        if kind == 'happy': brow_stone(im, cx - 5, cx + 4, GEM_CY + 1, 0.0 if i else 0.0, 3, seam=False)   # (a cheek-stone, pushed up)
+    return im
+
+
 def _eyes(kind):
     im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
     if kind == 'dim': return im
-    k = {'focus': 'fierce', None: 'wide'}.get(kind, kind)
-    for cx, fl in ((8, False), (22, True)):
-        eye(im, cx, 2, 9, 12, fl, k, iris=('#6a2a00', '#b05a08', '#e8901a', '#ffc040', '#fff0a0'), lash='#2a1200', pupil='#2a0e00',
-            sclera=False, irk=0.7)
+    for i, cx in enumerate(GEM_C):
+        if kind == 'blink':                                            # (shut: only a thread of the light between the stones)
+            for x in range(cx - 3, cx + 3): put(im, x, 11, AMBER[3] if abs(x + 0.5 - cx) < 2 else AMBER[2])
+            continue
+        top = _brow_rows(kind, i)
+        dim = kind in ('sleepy', 'hurt')
+        gem(im, cx, GEM_CY, GEM_W, GEM_H, ramp=AMBER_DIM if dim else AMBER, core='#ffd890' if dim else '#fffbe8',
+            cut_top=lambda x, t=top: t.get(x, -99), cut_bot=(lambda x: GEM_CY + 1) if kind == 'happy' else None,
+            crack='#2a1000' if kind == 'hurt' else None, star=(kind == 'happy' and i == 0))
     return im
 
 
@@ -126,8 +160,8 @@ for b in BIOMES:
     for k, v in _slot_textures(b).items(): R.tex(k + b, v)
     R.skin(b, {k: k + b for k in BASE})
 R.tex('heart', soft('#ffb040', '#fff0b0', '#e07a10', 51, 0.25)); R.tex('heartglow', glow(('#fff4c0', '#ffc860', '#ff9a30', '#ff9a30'), 16, alpha=(220, 160, 80, 0)))
-R.tex('eyes', _eyes(None))
-for f in FACES: R.tex(f'eyes_{f}', _eyes(f))
+R.tex('eyes', _eyes(None)); R.tex('face', _brows(None))
+for f in FACES: R.tex(f'eyes_{f}', _eyes(f)); R.tex(f'face_{f}', _brows(f))
 
 # ---- the model: one stretched block per part (as a scaled block_display: the whole texture on each face); a top face where the
 #      block has one; the heart; the eyes on the head's front
@@ -141,6 +175,8 @@ hx, hy, hz = PIVOT['head']; hs = dict((b[0], b[3]) for b in BLOCKS)['head']
 fz = hz - hs[2] / 2
 R.box('head', (hx - hs[0] / 2, hy - hs[1] / 2 + 0.6, fz - 0.04), (hx + hs[0] / 2, hy - hs[1] / 2 + 0.6 + 4.6, fz - 0.02), 'EYES',
       faces=('north',), uv={'north': [0, 0, 7.4, 4.6]}, light=12)
+R.box('head', (hx - hs[0] / 2, hy - hs[1] / 2 + 0.6, fz - 0.014), (hx + hs[0] / 2, hy - hs[1] / 2 + 0.6 + 4.6, fz - 0.007), 'FACE',
+      faces=('north',), uv={'north': [0, 0, 7.4, 4.6]})                  # (the brow-stones: unlit, behind the gems)
 R.box('heart', (-1.2, 11.4, -3.75), (1.2, 13.8, -3.4), 'heart', light=14)
 R.box('heart', (-2.2, 10.4, -3.8), (2.2, 14.8, -3.78), 'heartglow', faces=('north',), full=True, light=12)
 # ---- fx: a flung block (its fist's copy, flying), the BLOCK STORM (a vortex of copies round a foe)

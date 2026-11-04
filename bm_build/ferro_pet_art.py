@@ -43,9 +43,12 @@ MIMICRY (the scalable part: one generator for every follower, ferro_form())
          - inflates every element a hair (INFLATE) and jitters it (JIT): fatter, sludgier, slightly wrong;
          - adds goo LIPS under the big overhangs and DRIPS (a stalk and a bead) hanging off them, a PUDDLE round the feet (and,
            for a floater, a goo stalk down to it: it can't quite let go of the ground);
-         - drops light_emission: the source's own eyes go dark - THE FERRO'S EYES show through instead: a separate display
-           of the shared 'meyes' model at EYES[follower] (the head's front, found from the head parts by name), so the mimic's
-           expressions cost nothing per follower.
+         - drops light_emission, and gives the form THAT FOLLOWER'S OWN EYES in the Ferro's oil-slick (rev 2, the owner: "the eyes
+           should adjust to fit the face of whoever it mimics"): find_eyes() takes them from its own textures (what its blink
+           changes against its rest face; else a texture named for an eye), oil_eye() repaints them violet-to-aqua, and they ride
+           as a glowing overlay model (fm_<kind>_eyes, its own face quads a hair proud) with every expression that follower has
+           (fm_<kind>_eyes_x<face>, parents; a blink drawn shut if it has none). Forms with nothing to find (9 of 55) wear the
+           shared 'meyes' at EYES[follower] instead.
        Variants (cosmetic, shiny) are 'parent' models that only override the texture variables: ~150 bytes each per follower.
 """
 import json
@@ -604,7 +607,192 @@ def _mask(im, c):
     return out
 
 
-def ferro_form(rp, parts, key, seed=None, drips=12, lips=10, lod=0, c=None, budget=None):
+
+# ---------------------------------------------------------------------------------------------------- THEIR OWN EYES, in oil-slick
+# (the owner: "the eyes for the ferrofluid should adjust to fit the face of whoever it mimics". So a form wears THAT follower's eyes -
+# their shape, size, spacing and place, found in its own face textures - repainted in the Ferro's oil-slick ramp, as a glowing
+# overlay over the goo. Only the textures are new: the overlay is the follower's own face quads, a hair proud.)
+CLOSED = ('blink', 'shut', 'closed', 'half', 'squint', 'sleepy', 'tired')
+EYEWORDS = ('eye', 'iris', 'pupil')          # (a texture named for an eye is all eye)
+
+
+def _img(rp, tid, cache={}):
+    if tid in cache: return cache[tid]
+    ns, p = tid.split(':') if ':' in tid else ('minecraft', tid)
+    f = os.path.join(rp, 'assets', ns, 'textures', p + '.png')
+    try:
+        im = Image.open(f).convert('RGBA')
+        if im.height > im.width: im = im.crop((0, 0, im.width, im.width))
+    except (OSError, FileNotFoundError):
+        im = None
+    cache[tid] = im
+    return im
+
+
+def _variants(rp, mid):
+    """a part model's own expressions: <name>_x<face>.json beside it (rigpet / rigkit's naming), colour forms left out"""
+    import re
+    ns, n = mid.split(':', 1)
+    d = os.path.join(rp, 'assets', ns, 'models', 'item')
+    rx = re.compile(r'^' + re.escape(n) + r'_x([a-z0-9]+)\.json$')
+    try:
+        return sorted(m.group(1) for m in map(rx.match, os.listdir(d)) if m)
+    except FileNotFoundError:
+        return []
+
+
+def _comps(mask):
+    """8-connected components of a pixel set (each a set)"""
+    left, out = set(mask), []
+    while left:
+        st = [left.pop()]; comp = set(st)
+        while st:
+            x, y = st.pop()
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    q = (x + dx, y + dy)
+                    if q in left: left.discard(q); comp.add(q); st.append(q)
+        out.append(comp)
+    return out
+
+
+def _grow(mask, n=1):
+    m = set(mask)
+    for _ in range(n):
+        m |= {(x + dx, y + dy) for x, y in m for dx in (-1, 0, 1) for dy in (-1, 0, 1)}
+    return m
+
+
+def find_eyes(rp, parts):
+    """where a follower's own eyes are: {texture id: {'mask': pixels, 'skin': rgb, 'var': {face: texture id}, 'how': ...}}.
+    A face texture that changes between its rest model and its expressions (<model>_x<face>) is a face sheet: the pixels its
+    BLINK changes are its eyes (else a closed-eyed face's, else every expression's change, kept to the upper ones - the mouth
+    left out). A texture named for an eye is all eye. Lids built as geometry (the element lists differ) fall to the name."""
+    import dolls_bake as DB
+    found = {}
+    for mid, *_ in parts:
+        rest = DB.load_model(rp, mid); tx = rest.get('textures', {})
+        res = lambda t, tx=tx: tx.get(t[1:], t) if t.startswith('#') else t
+        els = rest.get('elements', [])
+        pairs = {}
+        for face in _variants(rp, mid):
+            v = DB.load_model(rp, f'{mid}_x{face}'); vtx = v.get('textures', {}); vel = v.get('elements', [])
+            if len(vel) != len(els): continue
+            for e0, e1 in zip(els, vel):
+                for fn, fc in e0.get('faces', {}).items():
+                    f1 = e1.get('faces', {}).get(fn)
+                    if not f1: continue
+                    t0, t1 = res(fc.get('texture', '')), (vtx.get(f1['texture'][1:], f1['texture']) if f1.get('texture', '').startswith('#') else f1.get('texture', ''))
+                    if t0 != t1 and ':' in t0 and ':' in t1: pairs.setdefault(t0, {})[face] = t1
+        allf = set().union(*[set(v) for v in pairs.values()]) if pairs else set()
+        shut_f = next((f for f in CLOSED if f in allf), None)
+        for t0, var in pairs.items():
+            if shut_f and shut_f not in var: continue                             # (it has a blink, and this sheet doesn't blink: a mouth, not eyes)
+            a = _img(rp, t0)
+            if a is None: continue
+            pa = a.load(); W, H = a.size
+            def diff(t1):
+                b = _img(rp, t1)
+                if b is None or b.size != a.size: return set()
+                pb = b.load()
+                return {(x, y) for y in range(H) for x in range(W) if abs(pa[x, y][3] - pb[x, y][3]) > 40 or
+                        (pa[x, y][3] > 40 and max(abs(pa[x, y][i] - pb[x, y][i]) for i in range(3)) > 26)}
+            pick = next((f for f in CLOSED if f in var), None)
+            if pick:
+                mask, how = diff(var[pick]), pick
+            else:
+                mask = set().union(*[diff(t1) for t1 in var.values()]); how = 'union'
+                if mask:
+                    ys = [y for _, y in mask]; y0, y1 = min(ys), max(ys)
+                    up = set().union(*[c_ for c_ in _comps(mask) if sum(y for _, y in c_) / len(c_) < y0 + 0.55 * (y1 - y0 + 1)])
+                    mask = up or mask
+            cs = [c_ for c_ in _comps(mask) if len(c_) >= 3] if mask else []
+            if len(cs) >= 3:                                                      # (eyes come in a pair: anything well below them is a mouth)
+                cy = lambda c_: sum(y for _, y in c_) / len(c_)
+                pair = sorted(cs, key=len, reverse=True)[:2]
+                lim = max(cy(c_) for c_ in pair) + 0.06 * a.size[1]
+                cs = [c_ for c_ in cs if cy(c_) <= lim]
+            mask = set().union(*cs) if cs else set()
+            if not mask: continue
+            ring = _grow(mask, 3) - _grow(mask, 1)
+            cols = {}
+            for x, y in ring:
+                if 0 <= x < W and 0 <= y < H and pa[x, y][3] > 200: cols[pa[x, y][:3]] = cols.get(pa[x, y][:3], 0) + 1
+            skin = max(cols, key=cols.get) if cols else None
+            if skin and min(skin) > 225: skin = None                              # (a white "skin" is the eyes' own whites: keep them)
+            found[t0] = dict(mask=mask, skin=skin, var=var, how=how)
+        for e in els:                                                             # (a texture named for an eye, an iris or a pupil: all eye)
+            for fc in e.get('faces', {}).values():
+                t0 = res(fc.get('texture', ''))
+                if t0 in found or ':' not in t0: continue
+                if any(w in t0.split('/')[-1] for w in EYEWORDS):
+                    im = _img(rp, t0)
+                    if im is None: continue
+                    W, H = im.size; px = im.load()
+                    mask = {(x, y) for y in range(H) for x in range(W) if px[x, y][3] > 40}
+                    if mask: found[t0] = dict(mask=mask, skin=None, var=pairs.get(t0, {}), how='eye')
+    return found
+
+
+def oil_eye(src, mask, skin, c, closed=False):
+    """a follower's eye pixels repainted in the Ferro's oil-slick: each eye (a blob of the mask) graded violet at its top to aqua
+    at its bottom, the darks kept dark (lash, pupil), its little white shines kept white; skin left out (see-through). closed:
+    an eye drawn shut - its lines lit, as the Ferro's own lids catch the light"""
+    import colorsys
+    W, H = src.size; ps = src.load()
+    out = Image.new('RGBA', src.size, (0, 0, 0, 0)); po = out.load()
+    ramp = c['iris']
+    region = {(x, y) for x, y in _grow(mask, 1) if 0 <= x < W and 0 <= y < H}
+    def near_skin(p):
+        return skin is not None and max(abs(p[i] - skin[i]) for i in range(3)) < 30
+    pix = {q for q in region if ps[q][3] > 40 and not near_skin(ps[q])}
+    for comp in _comps(pix):
+        ys = [y for _, y in comp]; y0, y1 = min(ys), max(ys)
+        lit = [q for q in comp if sum(ps[q][:3]) / 765 >= 0.25]
+        shut = closed or len(lit) < len(comp) * 0.15
+        for (x, y) in comp:
+            r, g, b, a = ps[x, y]; lum = (0.3 * r + 0.59 * g + 0.11 * b) / 255
+            h_, l_, s_ = colorsys.rgb_to_hls(r / 255, g / 255, b / 255)
+            if shut:
+                col = hexc(c['spec'])
+            elif lum < 0.22:
+                col = (6, 3, 12, 255)
+            elif lum > 0.86 and s_ < 0.25:
+                around = sum(1 for dx in (-1, 0, 1) for dy in (-1, 0, 1) if (x + dx, y + dy) in comp and sum(ps[x + dx, y + dy][:3]) / 765 < 0.8)
+                col = (255, 255, 255, 255) if around >= 4 or len(comp) < 6 else hexc(ramp[-1])
+            else:
+                t = (y - y0) / max(1, y1 - y0)
+                col = hexc(ramp[min(len(ramp) - 1, int(t * len(ramp)))])
+            po[x, y] = col[:3] + (255,)
+    return out
+
+
+def own_eyes(rp, parts, key, palettes=('',)):
+    """the follower's eyes, oil-slick: {texture id: {face or '': {sfx: (name, image)}}} for every expression it has (and a blink
+    drawn shut from its open eyes when it has none), and the faces available"""
+    found = find_eyes(rp, parts)
+    out, faces = {}, set()
+    for k, (t0, d) in enumerate(sorted(found.items())):
+        src = _img(rp, t0); per = {}
+        for sfx in palettes:
+            c = dict(PAL[''], **PAL[sfx])
+            per.setdefault('', {})[sfx] = (f'fm_{key}_e{k}{sfx}', oil_eye(src, d['mask'], d['skin'], c))
+            for face, t1 in d['var'].items():
+                im = _img(rp, t1)
+                if im is None or im.size != src.size: continue
+                per.setdefault(face, {})[sfx] = (f'fm_{key}_e{k}_{face}{sfx}', oil_eye(im, d['mask'], d['skin'], c, closed=face in ('blink', 'shut', 'closed'))); faces.add(face)
+            if 'blink' not in d['var']:
+                im = oil_eye(src, d['mask'], d['skin'], c, closed=True)                   # (its blink, drawn shut: a lit line through each eye)
+                po = im.load(); lines = Image.new('RGBA', im.size, (0, 0, 0, 0)); pl = lines.load()
+                for comp in _comps({(x, y) for y in range(im.height) for x in range(im.width) if po[x, y][3]}):
+                    ys = sorted(y for _, y in comp); yy = ys[int(len(ys) * 0.6)]
+                    for x in {x for x, _ in comp}: pl[x, yy] = hexc(c['spec']); pl[x, min(im.height - 1, yy + 1)] = hexc(c['mid'])
+                per.setdefault('blink', {})[sfx] = (f'fm_{key}_e{k}_blink{sfx}', lines); faces.add('blink')
+        out[t0] = per
+    return out, sorted(faces)
+
+
+def ferro_form(rp, parts, key, seed=None, drips=12, lips=10, lod=0, c=None, budget=None, eyes=True, palettes=('', '_qs', '_au', '_sh')):
     """ANY follower's figurine (phase134.figures: [(model, translation, left, right, scale)], blocks) -> its ferro mimic:
     (model json, extra textures {name: image}, info). One merged item model at true size / F (F >= 1 keeps it inside the
     model box; the display is scaled by F * MIMIC_K), its sheen projected from the shared set, softened, inflated, jittered,
@@ -616,6 +804,7 @@ def ferro_form(rp, parts, key, seed=None, drips=12, lips=10, lod=0, c=None, budg
     rnd = random.Random(seed if seed is not None else sum(map(ord, key)))
     RyPI = DB._ry(math.pi)
     raw, extra = [], {}
+    EY, eye_faces = own_eyes(rp, parts, key, palettes) if eyes else ({}, [])
     for i, (mid, tr, L, Rr, sc) in enumerate(parts):
         m = DB.load_model(rp, mid); tx = m.get('textures', {})
         d = m.get('display', {}).get('fixed', {})
@@ -636,6 +825,8 @@ def ferro_form(rp, parts, key, seed=None, drips=12, lips=10, lod=0, c=None, budg
             f, t = np.array(e['from'], dtype=float), np.array(e['to'], dtype=float)
             if o is None: o = (f + t) / 2
             faces = {}
+            srcf = {fn: (res(fc.get('texture', '')), fc.get('uv') or DB._auto_uv(fn, e['from'], e['to'])) for fn, fc in e.get('faces', {}).items()
+                    if res(fc.get('texture', '')) in EY}
             tns = [res(fc.get('texture', '')) for fc in e.get('faces', {}).values()]
             look = 'eye' if (e.get('light_emission') and grp == 'head') or any('eye' in t for t in tns) else 'face' if grp == 'head' and any('face' in t for t in tns) else None
             for fn, fc in e.get('faces', {}).items():
@@ -650,11 +841,11 @@ def ferro_form(rp, parts, key, seed=None, drips=12, lips=10, lod=0, c=None, budg
                     faces[fn] = dict(fc, texture='#' + nm, uv=fc.get('uv') or DB._auto_uv(fn, e['from'], e['to']))
                 else:
                     faces[fn] = {'texture': '#' + ('sxd' if kind == 'dark' else 'sx'), 'uv': [0, 0, 16, 16]}
-            if not faces and not look: continue
-            raw.append((world(o), A, Me, f - o, t - o, faces, grp, look))
+            if not faces and not look and not srcf: continue
+            raw.append((world(o), A, Me, f - o, t - o, faces, grp, look, srcf))
     # true size, inside the model box: blocks -> units / F, feet at model y -16, centred at 8, 8, facing north
     pts = []
-    for q, A, Me, a, b, _f, _g, _l in raw:
+    for q, A, Me, a, b, _f, _g, _l, _s in raw:
         for x in (a[0], b[0]):
             for y in (a[1], b[1]):
                 for z in (a[2], b[2]):
@@ -664,15 +855,15 @@ def ferro_form(rp, parts, key, seed=None, drips=12, lips=10, lod=0, c=None, budg
     F = max(1.0, H / 46.0, Wd / 44.0)
     cx, cz = (lo[0] + hi[0]) / 2, (lo[2] + hi[2]) / 2
     def to_model(w): return RyPI.T @ (np.array([w[0] - cx, w[1], w[2] - cz]) * 16 / F) + np.array([8.0, -16.0, 8.0])
-    els, heads, looks = [], [], {'eye': [], 'face': []}
-    for q, A, Me, a, b, faces, grp, look in raw:
+    els, heads, looks, over = [], [], {'eye': [], 'face': []}, []
+    for q, A, Me, a, b, faces, grp, look, srcf in raw:
         Rt = RyPI.T @ A @ Me; sig = np.linalg.norm(Rt[:, 0]); Rt = Rt / sig
         sz = (b - a) * sig / F
         true = abs(sz) * F
         if look: looks[look].append(to_model(q) + np.array([0, 0, min(a[2], b[2]) * sig / F]))   # (where its own eyes / face plate were)
-        if not faces or max(true) < SPECK: continue
-        if lod and max(true) < 1.2: continue
-        qm = to_model(q) + np.array([rnd.uniform(-JIT, JIT) for _ in range(3)]) / F
+        skip = not faces or max(true) < SPECK or (lod and max(true) < 1.2)
+        if skip and not srcf: continue
+        qm = to_model(q) + (np.zeros(3) if skip else np.array([rnd.uniform(-JIT, JIT) for _ in range(3)]) / F)
         yn = max(0.0, min(1.0, (qm[1] + 16) * F / max(16.0, H)))                 # (0 at its feet, 1 at its top)
         sag = SAG * (1 - yn)                                                      # (THE SAG: it settles - wider, fatter and lower toward the floor)
         qm = np.array([8 + (qm[0] - 8) * (1 + sag), -16 + (qm[1] + 16) * (1 - SAG * 0.5 * yn), 8 + (qm[2] - 8) * (1 + sag)])
@@ -683,6 +874,15 @@ def ferro_form(rp, parts, key, seed=None, drips=12, lips=10, lod=0, c=None, budg
         x, y, z = DB._euler(Rt)
         if max(abs(x), abs(y), abs(z)) > 1e-3:
             el['rotation'] = {'origin': [round(float(v), 3) for v in qm], 'x': round(float(x), 2), 'y': round(float(y), 2), 'z': round(float(z), 2)}
+        if srcf:                                                                  # (THEIR OWN EYES: the same quad, a hair proud, glowing)
+            p2 = np.sign(b - a) * 0.05 / F
+            NRM = {'north': (0, 0, -1), 'south': (0, 0, 1), 'east': (1, 0, 0), 'west': (-1, 0, 0), 'up': (0, 1, 0), 'down': (0, -1, 0)}
+            nv = np.sum([NRM[fn] for fn in srcf], axis=0) * (np.abs(b - a) < 1e-6) * 0.06 / F    # (a flat sprite's plane: the overlay in front of it)
+            o2 = {'from': [round(float(v), 3) for v in fr - p2 + nv], 'to': [round(float(v), 3) for v in to + p2 + nv], 'light_emission': 6,
+                  'faces': {fn: {'texture': '#e%d' % sorted(EY).index(tid), 'uv': uv} for fn, (tid, uv) in srcf.items()}}
+            if 'rotation' in el: o2['rotation'] = dict(el['rotation'])
+            over.append(o2)
+        if skip: continue
         els.append(el)
         if grp == 'head': heads.append(el)
     if budget and len(els) > budget:                                              # (the light option: only its biggest masses)
@@ -803,9 +1003,38 @@ def ferro_form(rp, parts, key, seed=None, drips=12, lips=10, lod=0, c=None, budg
     tex = {t: (f'bm:block/fe_{t}' if t in ('sx', 'sxd', 'up', 'dn') else 'minecraft:block/redstone_block' if t == 'dbg' else f'bm:block/{t}') for t in used}
     tex['particle'] = 'bm:block/fe_sx'
     model = {'textures': tex, 'elements': els, 'display': {'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1, 1, 1]}}}
-    info = dict(k=round(MIMIC_K * min(1.0, CAP_H * 16 / H), 4), F=round(float(F), 4), eyes=tuple(round(float(v), 3) for v in anchor), eye_w=round(float(hw), 3), n=len(els), added=len(add),
-                cut=len(extra), height=round(float(H) / 16, 3))
+    emodels = {}; ncut = len(extra)
+    if over:                                                                      # (the overlay's models: rest, then one parent per face / colour)
+        for o2 in over:
+            o2['from'] = [float(min(32.0, max(-16.0, v))) for v in o2['from']]; o2['to'] = [float(min(32.0, max(-16.0, v))) for v in o2['to']]
+        keys = sorted(EY)
+        base = {k_: EY[k_][''][''][0] for k_ in keys}
+        emodels[f'fm_{key}_eyes'] = {'textures': dict({'e%d' % i: f'bm:block/{base[k_]}' for i, k_ in enumerate(keys)}, particle=f'bm:block/{base[keys[0]]}'),
+                                     'elements': over, 'display': {'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [1, 1, 1]}}}
+        for face in [''] + eye_faces:
+            for sfx in palettes:
+                if not face and not sfx: continue
+                t = {'e%d' % i: f'bm:block/{(EY[k_].get(face) or EY[k_][""])[sfx][0]}' for i, k_ in enumerate(keys)}
+                emodels[f'fm_{key}_eyes' + (f'_x{face}' if face else '') + sfx] = {'parent': f'bm:item/fm_{key}_eyes', 'textures': t}
+        for k_ in keys:
+            for face, per in EY[k_].items():
+                for sfx, (nm, im) in per.items(): extra[nm] = (k_, im)
+    info = dict(own_eyes=bool(over), eye_faces=([''] + eye_faces) if over else [], eye_els=len(over), eye_tex=sum(len(p) for k_ in EY for p in EY[k_].values()),
+                k=round(MIMIC_K * min(1.0, CAP_H * 16 / H), 4), F=round(float(F), 4), eyes=tuple(round(float(v), 3) for v in anchor), eye_w=round(float(hw), 3), n=len(els), added=len(add),
+                cut=ncut, height=round(float(H) / 16, 3))
+    info['eye_models'] = emodels
     return model, {k: v[1] for k, v in extra.items()}, info
+
+
+FACE_ALIAS = {'wide': ('surprised', 'wide', 'shock', 'panic', 'oh'), 'happy': ('happy', 'smile', 'grin', 'cheer'), 'look': ('puzzled', 'serious', 'focus'),
+              'fierce': ('fierce', 'angry', 'glare', 'snarl', 'scowl'), 'hurt': ('hurt', 'wince'), 'sleepy': ('sleepy', 'tired', 'half'), 'blink': ('blink', 'shut', 'closed')}
+
+
+def form_face(info, face):
+    """the Ferro's mood -> that form's own expression name (its eye overlay's _x<face>), or rest"""
+    if not face: return ''
+    have = info.get('eye_faces', [])
+    return next((f for f in FACE_ALIAS.get(face, (face,)) if f in have), '')
 
 
 def variant(key, sfx):

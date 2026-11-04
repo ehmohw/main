@@ -342,7 +342,7 @@ def generate(G):
     # 2.78: past the old block (TL..TL+59) the pages, stock and auras go on in 8100-8299
     TL2 = 8100
     pcode = lambda i: TL + 1 + i if i < 7 else (TL2 + i - 7 if i < 13 else (TL2 + i - 6 if i < 16 else (8270 + i - 16 if i < 39 else (3690 + i - 39 if i < 49 else 3900 + i - 49))))      # a follower's page (2.79: past 8106, the Auras page; 2.82: 8270 on; 2.98: past 8292 (8293 on are auras), 3690 on; 2.97: past 3699, 3900 on)
-    scode = lambda j: TL + 10 + j if j < 40 else (TL2 + 10 + j - 40 if j < 80 else (TL2 + 64 + j - 80 if j < 112 else (8200 + j - 112 if j < 182 else (3600 + j - 182 if j < 272 else (3820 + j - 272 if j < 352 else 6700 + j - 352)))))   # an outfit (3.1: past the 352nd, 6700 on) (2.80c: past 8150-8163, the auras; 2.82: 8200 on; 2.94: 3600 on; 2.97: past 3689, 3820 on)
+    scode = lambda j: TL + 10 + j if j < 40 else (TL2 + 10 + j - 40 if j < 80 else (TL2 + 64 + j - 80 if j < 112 else (8200 + j - 112 if j < 182 else (3600 + j - 182 if j < 272 else (3820 + j - 272 if j < 352 else 7400 + j - 352)))))   # an outfit (3.1: past the 352nd, 7400 on - 6672 on is the follower settings pages' as they grow) (2.80c: past 8150-8163, the auras; 2.82: 8200 on; 2.94: 3600 on; 2.97: past 3689, 3820 on)
     assert len(WHO) <= 59                            # (3.00: the 50th on - pcode 3900.., routed one by one below)
     import shiny as _SH
     stock = []                                       # (who, group, unlock score, k, item, name, colour, price)
@@ -421,14 +421,14 @@ def generate(G):
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 3600..3699 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.94: the outfits past the 182nd)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 3820..3899 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.97: the outfits past the 272nd)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 8420..8459 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.97: the auras past the 45th)
-    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 6700..6899 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (3.1: the outfits past the 352nd)
+    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 7400..7599 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (3.1: the outfits past the 352nd)
     # (2.94z) the pages past the 26th (Bones on: codes 8280..) sit in the wardrobe pages' block (p119 owns 8280-8304, for its own
     # menu) - routed one by one, as the Tailor's: Mr. Capshun's and the Sky Buddies' pages had never opened
     owned = lambda c: TL <= c <= TL + 59 or TL2 <= c <= TL2 + 99 or 8200 <= c <= 8279 or 8293 <= c <= 8299 or 8380 <= c <= 8399 or 3600 <= c <= 3699
     for i, (w, nm, col) in enumerate(WHO):
         if not owned(pcode(i)):
             G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {pcode(i)} if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')
-    assert scode(len(stock) - 1) < 3690 or 3820 <= scode(len(stock) - 1) < 3900 or 6700 <= scode(len(stock) - 1) < 6900, len(stock)            # (3690 on: the pages past the 39th; 3820 on: the outfits past the 272nd)
+    assert scode(len(stock) - 1) < 3690 or 3820 <= scode(len(stock) - 1) < 3900 or 7400 <= scode(len(stock) - 1) < 7600, len(stock)            # (3690 on: the pages past the 39th; 3820 on: the outfits past the 272nd)
     fn('p103/tl/act', [f'execute if score #act bm.pay matches {TL} run return run function bm:p103/tl/main'] +
        [f'execute if score #act bm.pay matches {pcode(i)} run return run function bm:p103/tl/p_{w}' for i, (w, nm, col) in enumerate(WHO)] +
        [f'execute if score #act bm.pay matches {TL + 8} run return run function bm:p103/tl/cases'] +

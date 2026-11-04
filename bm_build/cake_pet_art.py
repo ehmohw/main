@@ -26,7 +26,7 @@ import math
 import random
 from PIL import Image
 from fol5_kit import (Rig, hexc, mix, limb, T, cells, soft, lit, glaze, sponge, glow, stripes, metal, eye, blush, mouth, put,
-                      slab, stack, ball, chain, ring, cleaf, blade)
+                      slab, stack, ball, chain, ring, cleaf, blade, bead, icing_dots)
 
 PIVOT = {'base': (0, 5.0, 0), 'hat': (0, 10.4, 0.5), 'flame': (1.6, 16.4, 1.4), 'cherry': (-0.6, 14.4, 0.2), 'armr': (7.4, 5.0, -1.2),
          'arml': (-7.4, 5.0, -1.2), 'fork': (8.6, 3.6, -2.4), 'legr': (3.0, 1.3, -3.4), 'legl': (-3.0, 1.3, -3.4),
@@ -38,29 +38,34 @@ R = Rig('ck_', 0.8, PIVOT, PARENT, FACES, face_part='base', opt=('splat', 'spr',
 
 COL = {'sponge': '#f2c477', 'crumb': '#d8994a', 'sponge_l': '#fbd99a', 'frost': '#ff9ccb', 'frost_hi': '#ffd0e6', 'frost_dk': '#ec74b0',
        'jam': '#e0405e', 'cream': '#fff6ec', 'cherry': '#ee2244', 'cheek': '#ff7eb6', 'sprk': ('#ff5a7a', '#5ac8ff', '#ffe05a', '#7aff7a', '#ffffff', '#c08aff'),
-       'iris': ('#1e0e1a', '#2e1628', '#43223e', '#5e3458', '#7e4a76', '#a8709e'), 'lash': '#2a1620', 'mouth': '#5a2236'}
+       'iris': ('#1e0e1a', '#2e1628', '#43223e', '#5e3458', '#7e4a76', '#a8709e'), 'lash': '#2a1620', 'mouth': '#5a2236',
+       'chip': ('#140804', '#22110a', '#321b10', '#472816'), 'chip_rim': '#7c4e30', 'chip_shine': '#fff6ec'}
 FLAVOURS = {'_sh': {'sponge': '#3e2e90', 'crumb': '#241a5a', 'sponge_l': '#5a48b8', 'frost': '#e8ecff', 'frost_hi': '#ffffff', 'frost_dk': '#b0bae4',
                     'jam': '#3a4ad0', 'cream': '#fff8e0', 'cherry': '#3a7aff', 'cheek': '#c8d0ff', 'sprk': ('#ffd23a', '#ffffff', '#ffe890', '#c8d0ff', '#ffd23a', '#e8ecff'),
-                    'iris': ('#0e0e2a', '#16184a', '#22286a', '#34408e', '#4a5cb4', '#7a90e0')},
+                    'iris': ('#0e0e2a', '#16184a', '#22286a', '#34408e', '#4a5cb4', '#7a90e0'),
+                    'chip': ('#6a3e06', '#9a6610', '#c89424', '#e8b83a'), 'chip_rim': '#fff0a0', 'chip_shine': '#ffffff'},   # (gold dragees)
             '_mint': {'sponge': '#7a4a2a', 'crumb': '#4a2a14', 'sponge_l': '#94603a', 'frost': '#9aecc8', 'frost_hi': '#d0fff0', 'frost_dk': '#5ac49a', 'cheek': '#7ad8b0'},
             '_lem': {'sponge': '#fff2cc', 'crumb': '#e8d098', 'sponge_l': '#fffae6', 'frost': '#ffe45a', 'frost_hi': '#fff8b0', 'frost_dk': '#ecc02a', 'cheek': '#ffb070'},
             '_choc': {'sponge': '#f6dca0', 'crumb': '#d8b068', 'sponge_l': '#fff0c8', 'frost': '#7a4424', 'frost_hi': '#a86a3c', 'frost_dk': '#4a2812', 'cheek': '#ff9a9a'}}
 SKIN_NAMES = {'_sh': 'SHINY Midnight Velvet', '_mint': 'Mint', '_lem': 'Lemon', '_choc': 'Chocolate'}
 
-# the face plate: 9.2 x 5.8 units on the tier's front flat (37 x 23 texels); eyes 12 x 13, centres at 10 and 27
+# the face plate: 9.2 x 5.8 units on the tier's front flat (37 x 23 texels). (EYE_*: the 3rd pass's big anime eyes, kept as names.)
 FW, FH = 9.2, 5.8
 EYE_C, EYE_Y, EYE_W, EYE_H = (10, 27), 1, 12, 13
+# (4th pass, the eye art pass: its OWN eyes - two small glossy CHOCOLATE CHIPS set wide apart, one tiny shine each, a chip's
+#  little curled peak on top, piped-icing dots for cheeks. Chips 6 x 7 at 9 and 28, their top row 7; the mouth between, low.)
+CHIP_C, CHIP_Y, CHIP_W, CHIP_H = (9, 28), 7, 6, 7
 
 
 # ---------------------------------------------------------------------------------------------------- textures
 def _face(kind, c):
     """the face plate: smooth sponge (a lit top, the crumb only faint here), the cheeks, the mouth; 'z' when it sleeps"""
     im = lit(soft(c['sponge'], c['sponge_l'], c['crumb'], 9, 0.05), 1.06, 0.95, 8)
-    by = EYE_Y + EYE_H
-    if kind != 'hurt':
-        for cx in (EYE_C[0] - 5, EYE_C[1] + 5):
-            blush(im, cx, by + 1, 7, c['cheek']); put(im, cx - 1, by + 1, mix(c['cheek'], '#ffffff', 0.6))
-    mouth(im, 19, by + 2, {None: 'smile', 'happy': 'cat', 'blink': 'smile', 'wow': 'o', 'hurt': 'wobble', 'sleepy': 'flat', 'boop': 'o'}[kind],
+    by = CHIP_Y + CHIP_H
+    if kind != 'hurt':                                                          # (piped icing dots, under and outside each chip)
+        for cx in (CHIP_C[0] - 5, CHIP_C[1] + 5):
+            icing_dots(im, cx, by, c['cheek'], mix(c['cheek'], '#ffffff', 0.6))
+    mouth(im, 19, by, {None: 'smile', 'happy': 'cat', 'blink': 'smile', 'wow': 'o', 'hurt': 'wobble', 'sleepy': 'flat', 'boop': 'o'}[kind],
           c['mouth'], '#ff6a8a', 4)
     if kind == 'sleepy':
         for x, y in ((31, 1), (32, 1), (33, 1), (32, 2), (31, 3), (32, 3), (33, 3)): put(im, x, y, c['lash'])
@@ -69,9 +74,9 @@ def _face(kind, c):
 
 def _eyes(kind, c):
     im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
-    for i, cx in enumerate(EYE_C):
-        k = {'wow': 'wide', 'sleepy': 'blink', 'boop': ('wide' if i == 0 else 'blink')}.get(kind, kind)
-        eye(im, cx, EYE_Y, EYE_W, EYE_H, i == 1, k, iris=c['iris'], lash=c['lash'], pupil='#12060e', sclera=False, irk=0.75)
+    for i, cx in enumerate(CHIP_C):
+        k = {'wow': 'wide', 'boop': ('wide' if i == 0 else 'happy')}.get(kind, kind)
+        bead(im, cx, CHIP_Y, CHIP_W, CHIP_H, i == 1, k, ramp=c['chip'], rim=c['chip_rim'], shine=c['chip_shine'])
     return im
 
 

@@ -546,6 +546,353 @@ def mouth(im, cx, y, kind='smile', col='#5a2418', tongue='#e8707a', w=4):
         put(im, cx - h - 1, y + 1, col); put(im, cx + h, y + 1, col)
 
 
+# ---------------------------------------------------------------------------------------------------- eye languages (v3)
+# (the owner: "the eyes for some of the new followers are starting to blend together" - so each follower speaks its own eye
+#  language, drawn here; eye() above stays the anime eye for the followers that still want it.)
+#   bead()       the Cake's: a small glossy chocolate-chip bead, ONE tiny shine; icing_dots() its piped-icing cheeks
+#   seed()       the Sprout's: a tiny dark seed with a warm amber glint (it grows up to be...)
+#   knot()       the Sapling's and the Tree Spirit's: a hollow knot in the bark, a warm amber light glowing inside it
+#   cat_eye()    the Mimic's: a smug, heavy-lidded gold cat eye with a KEYHOLE pupil (a slit when it means it)
+#   gem()        the Cairn's: a faceted amber gem inlaid in the stone, lit from within; brow_stone() the stones over it
+#   flame_eye()  the Spawner's: a white-hot flame drop; flame_mouth() its flickering fire mouth
+N4 = ((1, 0), (-1, 0), (0, 1), (0, -1))
+N8 = N4 + ((1, 1), (-1, 1), (1, -1), (-1, -1))
+
+
+def _ell(cx, cy, rx, ry):
+    """the texels inside an ellipse centred at (cx, cy) (a texel-centre test: cx on a texel boundary is a symmetric eye)"""
+    return {(x, y) for y in range(math.floor(cy - ry) - 1, math.ceil(cy + ry) + 1) for x in range(math.floor(cx - rx) - 1, math.ceil(cx + rx) + 1)
+            if ((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1.0}
+
+
+def _rim(S, n8=False):
+    return {(x + dx, y + dy) for x, y in S for dx, dy in (N8 if n8 else N4)} - set(S)
+
+
+def _curve(cx, y, w, rise):
+    """a curve's texels, w wide centred on cx: its middle `rise` texels above its ends (negative: a sag)"""
+    out = set()
+    for x in range(cx - w // 2, cx - w // 2 + w):
+        d = (x + 0.5 - cx) / (w / 2)
+        out.add((x, y - round(rise * (1 - d * d))))
+    return out
+
+
+def _thick(S, w):
+    return set(S) | ({(x, y + 1) for x, y in S} if w > 1 else set())
+
+
+def _vee(cx, cy, w, h, flip):
+    """hurt: a chevron pointing at the nose ('>' on the sheet's left eye, '<' on its right)"""
+    tip, far = (cx + w // 2 - 1, cx - w // 2) if not flip else (cx - w // 2, cx + w // 2 - 1)
+    n = max(3, w); out = set()
+    for i in range(n):
+        t = i / (n - 1); x = round(far + (tip - far) * t)
+        out.add((x, round(cy - h / 2 + h / 2 * t))); out.add((x, round(cy + h / 2 - h / 2 * t)))
+    return out
+
+
+def stroke(im, S, col, rim=None, n8=False):
+    """a set of texels in one colour, an outline round it if asked (a white-hot line on an ember wants a char edge)"""
+    if rim:
+        for x, y in _rim(S, n8): put(im, x, y, rim)
+    for x, y in S: put(im, x, y, col)
+
+
+def bead(im, cx, y0, w, h, flip=False, kind=None, ramp=('#140804', '#22110a', '#321b10', '#472816'), rim='#7c4e30', shine='#ffffff',
+         line=None, tip=True):
+    """a small glossy bead eye - a chocolate chip (the Cake's): a dark oval graded top to bottom, a lighter rim of reflected light
+    round its lower edge, ONE tiny shine top-left (one light for both eyes), and (tip) the little curled peak of a chip on top.
+    kinds: None, 'wide' (a size bigger), 'happy' (^), 'blink' / 'sleepy' (a closed curve), 'hurt' (> <), 'squint' (a dash)"""
+    line = line or ramp[1]; o = 1 if flip else -1; cy = y0 + h / 2
+    if kind == 'happy': stroke(im, _thick(_curve(cx, round(cy) + 1, w, max(2, h // 3)), 2), line); return
+    if kind in ('blink', 'sleepy'): stroke(im, _thick(_curve(cx, round(cy), w, -max(1, h // 4)), 2), line); return
+    if kind == 'hurt': stroke(im, _vee(cx, cy, w, h - 1, flip), line); return
+    if kind == 'squint': stroke(im, _thick({(x, round(cy)) for x in range(cx - w // 2, cx + w // 2)}, 2), line); return
+    if kind == 'wide': w, h, y0 = w + 2, h + 2, y0 - 1; cy = y0 + h / 2
+    S = _ell(cx, cy, w / 2, h / 2)
+    top, bot = min(y for _, y in S), max(y for _, y in S)
+    if tip: put(im, cx - 1 if not flip else cx, top - 1, ramp[1])     # (the chip's little peak, a touch toward the outer side)
+    for x, y in S:
+        t = (y - top) / max(1, bot - top)
+        c = ramp[min(len(ramp) - 1, int(t * len(ramp)))]
+        if y + 0.5 > cy + h * 0.12 and any((x + dx, y + dy) not in S for dx, dy in ((0, 1), (1, 0), (-1, 0))): c = rim
+        put(im, x, y, c)
+    bs = 2 if w >= 6 else 1
+    hx, hy = round(cx - w * 0.3), top + 1
+    for dx in range(bs):
+        for dy in range(bs):
+            if (hx + dx, hy + dy) in S: put(im, hx + dx, hy + dy, shine)
+
+
+def icing_dots(im, cx, cy, col, hi=None, lo=None, n=3):
+    """piped icing dots for cheeks: two 2x2 dots and one under between them (n=2: just the pair), each lit top-left"""
+    hi = hi or mix(col, '#ffffff', 0.55); lo = lo or mix(col, '#000000', 0.18)
+    for i, (dx, dy) in enumerate(((-2, 0), (1, 0), (-1, 2))[:n]):
+        x, y = cx + dx, cy + dy
+        put(im, x, y, hi); put(im, x + 1, y, col); put(im, x, y + 1, col); put(im, x + 1, y + 1, lo)
+
+
+def seed(im, cx, y0, w, h, flip=False, kind=None, col='#2a180a', mid='#40260f', glint='#f4c040', line=None):
+    """a tiny seed-dot eye (the Sprout's): a dark seed-shaped oval, a warm amber glint low in it (not a white shine:
+    the pip's light, that grows into the Tree Spirit's knots). kinds: None, 'wide', 'happy', 'blink' / 'sleepy', 'hurt', 'squint'"""
+    line = line or col; cy = y0 + h / 2
+    if kind == 'happy': stroke(im, _thick(_curve(cx, round(cy) + 1, w, max(1, h // 3)), 2), line); return
+    if kind in ('blink', 'sleepy'): stroke(im, _curve(cx, round(cy), w, -1) | _curve(cx, round(cy) - 1, w - 2, -1), line); return
+    if kind == 'hurt': stroke(im, _vee(cx, cy, w, h - 1, flip), line); return
+    if kind == 'squint': stroke(im, {(x, round(cy)) for x in range(cx - w // 2, cx + w // 2)}, line); return
+    if kind == 'wide': w, h, y0 = w + 1, h + 1, y0 - 1; cy = y0 + h / 2
+    S = _ell(cx, cy, w / 2 + 0.15, h / 2)
+    top, bot = min(y for _, y in S), max(y for _, y in S)
+    for x, y in S: put(im, x, y, col if y < bot - 1 else mid)
+    put(im, cx - 1 if not flip else cx, bot - 1, glint)
+
+
+def knot(im, cx, y0, w, h, flip=False, kind=None, bark=('#4a3e34', '#6a5d50', '#8b7e70', '#bdb2a1'),
+         light=('#3a1a06', '#7a3c0a', '#c06a12', '#f0a030', '#ffd468', '#fff4c8'), hollow='#1e1209', ring=True):
+    """a knot-hole eye (the Sapling's, the Tree Spirit's): a hollow in the bark - a dark outer line, a raised collar lit along its
+    top, the hole dark (deepest under its top lip) - and in it a warm amber LIGHT glowing, brightest at its core. No iris, no
+    pupil, no shines: its expressions are the knot's shape and the light.
+      None        an upright oval, the light low and round in it
+      'happy'     an arch - the bark pushed up from below (a smile in the cheeks) - the light bright
+      'focus'     squinted: the bark's lip drawn down toward the nose, the light a hard bright point
+      'surprised' wide and round, the light shrunk to a small startled spark
+      'sleepy'    the bark half shut over it, the light dim
+      'blink'     the bark shut: a seam with lips, a thread of light leaking out of it
+      'hurt'      squeezed shut into > <"""
+    o = 1 if flip else -1; cy = y0 + h / 2
+    dk, lit_ = mix(bark[0], '#140a04', 0.45), bark[3]
+    if kind in ('blink', 'hurt'):
+        seam = _thick(_curve(cx, round(cy), w + 1, -1.5), 1) if kind == 'blink' else _vee(cx, cy, w, h - 2, flip)
+        for x, y in seam: put(im, x, y - 1, lit_)
+        for x, y in seam: put(im, x, y + 1, bark[2])
+        stroke(im, seam, dk)
+        if kind == 'blink':
+            for x, y in sorted(seam):
+                if abs(x + 0.5 - cx) < w * 0.22: put(im, x, y, light[3] if abs(x + 0.5 - cx) < w * 0.12 else light[2])
+        return
+    inner = lambda x: max(-1.0, min(1.0, (x + 0.5 - cx) / (w / 2) * (-o)))     # (+1 toward the nose)
+    if kind == 'surprised': S = _ell(cx, cy, w / 2 + 0.7, h / 2 + 0.5)
+    else: S = _ell(cx, cy, w / 2, h / 2)
+    if kind == 'happy': S -= _ell(cx, cy + h * 0.62, w * 0.62, h * 0.5)
+    if kind == 'focus': S = {(x, y) for x, y in S if y + 0.5 >= y0 + h * 0.34 + 1.6 * inner(x)}
+    if kind == 'sleepy': S = {(x, y) for x, y in S if y + 0.5 >= y0 + h * 0.52}
+    if not S: return
+    R1 = _rim(S); R2 = _rim(S | R1)
+    if ring:                                                            # (the collar's shadow, under it only - never a rim round
+        for x, y in R2:                                                 #  it: two rims read as a pair of spectacles)
+            if y + 0.5 > cy + h * 0.22: put(im, x, y, mix(bark[0], bark[1], 0.5))
+    for x, y in R1: put(im, x, y, lit_ if y + 0.5 < cy - h * 0.1 or (kind in ('focus', 'sleepy') and (x, y + 1) in S) else
+                     (bark[2] if y + 0.5 < cy + h * 0.25 else bark[1]))
+    vis_top = {}
+    for x, y in S: vis_top[x] = min(y, vis_top.get(x, 99))
+    bot = max(y for _, y in S)
+    lr = {None: 0.44, 'happy': 0.52, 'focus': 0.3, 'surprised': 0.2, 'sleepy': 0.36}.get(kind, 0.44) * min(w, h)
+    lys = [y for _, y in S]; ly = (min(lys) + max(lys) + 1) / 2 + (0.5 if kind in (None, 'surprised') else 0)
+    ramp = light if kind != 'sleepy' else light[:4]
+    if kind == 'focus': ramp = light[1:]
+    for x, y in S:
+        c = hollow if y > vis_top[x] else mix(hollow, '#000000', 0.35)
+        d = math.hypot((x + 0.5 - cx) / 1.0, (y + 0.5 - ly) / 1.15) / max(0.8, lr)
+        if d < 1 and (y > vis_top[x] or kind in ('happy', 'sleepy', 'focus')):
+            c = ramp[min(len(ramp) - 1, int((1 - d) * len(ramp) * 1.05))]
+        put(im, x, y, c)
+
+
+def cat_eye(im, cx, y0, w, h, flip=False, kind=None, iris=('#5a3000', '#a06008', '#e0a020', '#ffd040', '#fff090'), line='#1a0e06',
+            pupil='#1a0a00', shine='#ffffff', lid=0.4, slant=-0.6, tilt=1.0, pkind='keyhole', shines=1, round_=False, wing=True):
+    """a cat's eye (the Mimic's): an almond tilted up at its outer corner, all gold (graded from the lid's shadow down to a bright
+    rim), a HEAVY flat upper lid in a 2-texel line with a little outward wing, a thin lower line, and a KEYHOLE pupil (a round
+    head, a slot flaring below) - the lid low over it: smug. lid: how far down the lid comes (0 open .. 1 shut); slant: the lid's
+    tilt (+ down toward the nose: cross; - down toward the outer corner: bored, pleased with itself). pkind: 'keyhole', 'slit'
+    (a thin vertical slit: it means it), 'coin' (a big round dilated pupil with a gold glint: greedy). round_: a rounder, cuter
+    almond (the doll), shines=2 a second small shine. kinds: None, 'greedy' (wide open, coin), 'fierce' (slit, the lid drawn down
+    at the nose), 'sleepy' (the lid nearly shut), 'happy' (a contented ^), 'blink' (shut), 'hurt' (> <)."""
+    o = 1 if flip else -1; cy = y0 + h / 2
+    if kind == 'happy':
+        S = _thick(_curve(cx, round(y0 + h * 0.62), w, max(2, h * 0.3)), 2); stroke(im, S, line)
+        ex = max(S) if flip else min(S); put(im, ex[0] + o, ex[1] + 1, line); return
+    if kind == 'blink':
+        S = _thick(_curve(cx, round(y0 + h * 0.55), w, -max(1, h * 0.16)), 2); stroke(im, S, line)
+        ex = max(S) if flip else min(S)
+        if wing: put(im, ex[0] + o, ex[1] - 1, line)
+        return
+    if kind == 'hurt': stroke(im, _thick(_vee(cx, cy, w, h * 0.7, flip), 2), line); return
+    if kind == 'greedy': lid, slant, pkind = 0.08, 0.0, 'coin'
+    elif kind == 'fierce': lid, slant, pkind = 0.36, 2.6, 'slit'
+    elif kind == 'sleepy': lid, slant = 0.68, -0.4
+    xs = range(cx - w // 2, cx - w // 2 + w)
+    dxn = lambda x: (x + 0.5 - cx) / (w / 2)
+    sout = lambda x: dxn(x) * o                                          # (+1 at the outer corner)
+    E = set()
+    for x in xs:
+        d = dxn(x); hh = (h / 2) * (1 - d * d) ** (0.5 if round_ else 0.8)
+        yc = cy - tilt * sout(x)
+        for y in range(y0 - 2, y0 + h + 2):
+            if yc - hh * 1.04 <= y + 0.5 <= min(yc + hh * 0.92, y0 + h - 0.5): E.add((x, y))
+    L = lambda x: y0 + lid * h - slant * sout(x)
+    V = {(x, y) for x, y in E if y + 0.5 >= L(x)}
+    if not V: return
+    top, bot = min(y for _, y in V), max(y for _, y in V)
+    for x, y in V:
+        t = (y - top) / max(1, bot - top)
+        c = iris[min(len(iris) - 1, int(t * len(iris)))]
+        if (x, y - 1) not in V: c = mix(c, line, 0.42)                    # (the lid's shadow on the iris)
+        put(im, x, y, c)
+    # the pupil
+    vt = {}
+    for x, y in V: vt.setdefault(x, []).append(y)
+    rows = sorted({y for _, y in V}); mid = (top + bot + 1) / 2
+    P = set()
+    if pkind == 'keyhole':
+        big = w >= 14
+        kh = ([(-1, 1)], [(-2, 2)], [(-2, 2)], [(-1, 1)], [(-1, 1)], [(-2, 2)]) if not big else \
+             ([(-1, 1)], [(-2, 2)], [(-2, 2)], [(-1, 1)], [(-1, 1)], [(-1, 1)], [(-2, 2)], [(-2, 2)])
+        if bot - top + 1 < 7 and not big: kh = ([(-1, 1)], [(-2, 2)], [(-1, 1)], [(-1, 1)], [(-2, 2)])
+        n = len(kh); pt = max(top + 1, round(mid - n / 2)) if bot - top + 1 >= n + 1 else bot - n + 1
+        for i, spans in enumerate(kh):
+            for a, b in spans:
+                for x in range(cx + a, cx + b): P.add((x, pt + i))
+    elif pkind == 'slit':
+        for y in rows:
+            if top < y < bot or bot - top < 3: P |= {(cx - 1, y), (cx, y)} if abs(y + 0.5 - mid) < (bot - top) * 0.3 else {(cx - 1 if not flip else cx, y)}
+    elif pkind == 'coin':
+        P = _ell(cx, mid, w * 0.27, min(h * 0.33, (bot - top + 1) * 0.42))
+    for x, y in P:
+        if (x, y) in V: put(im, x, y, pupil)
+    if pkind == 'coin':                                                   # (a gold coin's glint in it: $)
+        for x, y in ((cx - 1, round(mid) - 1), (cx - 1, round(mid)), (cx - 2, round(mid) - 1)):
+            if (x, y) in V: put(im, x, y, iris[-1])
+    # one shine, high on the viewer's left (one light for both eyes); the doll a second small one low on the other side
+    bs = 2 if w >= 10 else 1
+    hx, hy = round(cx - w * 0.32), top + (1 if bot - top > 3 else 0)
+    for dx in range(bs + (1 if w >= 16 else 0)):
+        for dy in range(bs):
+            if (hx + dx, hy + dy) in V and (hx + dx, hy + dy) not in P: put(im, hx + dx, hy + dy, shine)
+    if shines > 1:
+        for dx in (0, 1):
+            if (round(cx + w * 0.2) + dx, bot - 2) in V: put(im, round(cx + w * 0.2) + dx, bot - 2, shine)
+    # the lines: a heavy lid (2 texels), a wing at the outer corner, a thin lower line
+    tops = {x: min(ys) for x, ys in vt.items()}; bots = {x: max(ys) for x, ys in vt.items()}
+    for x, ty in tops.items():
+        put(im, x, ty - 1, line)
+        if abs(dxn(x)) < 0.86: put(im, x, ty - 2, line)
+    ox = max(tops) if flip else min(tops)
+    if wing: put(im, ox + o, tops[ox] - 2, line); put(im, ox + 2 * o, tops[ox] - 3, line)
+    lowc = mix(line, iris[1], 0.3)
+    for x, by in bots.items():
+        if abs(dxn(x)) < 0.9: put(im, x, by + 1, lowc)
+
+
+def gem(im, cx, cy, w, h, ramp=('#6a2a00', '#b05a08', '#e8901a', '#ffc040', '#ffe890'), core='#fffbe8', bezel=('#1e1b18', '#57514a'),
+        cut_top=None, cut_bot=None, crack=None, sparkle='#ffffff', star=False):
+    """an inlaid faceted gem (the Cairn's eyes): an octagon set in a dark stone bezel - a bright TABLE in the middle with a
+    white-hot core (lit from within), crown facets lit above it, darker pavilion facets below and to the right, a sparkle on the
+    upper-left facet. cut_top(x) / cut_bot(x): the rows a brow-stone / cheek-stone covers (none drawn above / at-or-below them);
+    crack: a fracture across it (hurt); star: a four-point twinkle beside it (delight)."""
+    hw, hh = w / 2, h / 2
+    G = set()
+    for y in range(math.floor(cy - hh), math.ceil(cy + hh)):
+        for x in range(math.floor(cx - hw), math.ceil(cx + hw)):
+            u, v = (x + 0.5 - cx) / hw, (y + 0.5 - cy) / hh
+            if abs(u) <= 1 and abs(v) <= 1 and abs(u) + abs(v) <= 1.42: G.add((x, y))
+    shown = lambda x, y: (cut_top is None or y >= cut_top(x)) and (cut_bot is None or y < cut_bot(x))
+    R1 = _rim(G); R2 = _rim(G | R1)
+    for x, y in R2:
+        if y + 0.5 < cy and shown(x, y): put(im, x, y, bezel[1])                 # (the setting's lit lip, above)
+    for x, y in R1:
+        if shown(x, y): put(im, x, y, bezel[0])
+    for x, y in G:
+        if not shown(x, y): continue
+        u, v = (x + 0.5 - cx) / hw, (y + 0.5 - cy) / hh
+        if abs(u) <= 0.44 and -0.52 <= v <= 0.3:                                 # (the table)
+            c = core if abs(u) <= 0.22 and abs(v + 0.1) <= 0.24 else ramp[4]
+        elif v < -0.52: c = ramp[3] if u < 0.2 else ramp[2]                      # (the crown)
+        elif v <= 0.3: c = ramp[3] if u < 0 else ramp[1]                         # (the girdle facets: lit left, shaded right)
+        else: c = ramp[2] if abs(u) < 0.3 else (ramp[1] if u < 0 else ramp[0])   # (the pavilion: its keel catching the glow)
+        put(im, x, y, c)
+    sx, sy = round(cx - hw * 0.62), round(cy - hh * 0.62)
+    if (sx, sy) in G and shown(sx, sy): put(im, sx, sy, sparkle)
+    if crack:
+        pts = [(cx - hw * 0.55, cy - hh * 0.7), (cx - hw * 0.05, cy - hh * 0.1), (cx - hw * 0.25, cy + hh * 0.25), (cx + hw * 0.35, cy + hh * 0.8)]
+        for (ax, ay), (bx, by) in zip(pts, pts[1:]):
+            for i in range(9):
+                t = i / 8; x, y = math.floor(ax + (bx - ax) * t), math.floor(ay + (by - ay) * t)
+                if (x, y) in G and shown(x, y): put(im, x, y, crack)
+    if star:
+        tx, ty = round(cx - hw - 1), round(cy - hh - 0.5)
+        for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)): put(im, tx + dx, ty + dy, sparkle if (dx, dy) == (0, 0) else ramp[4])
+
+
+def brow_stone(im, x0, x1, y, tilt=0.0, t=3, stone=('#26221f', '#4a453f', '#6c665d', '#958d81'), seam=True):
+    """a little stone laid over an eye as a brow (the Cairn's): a lit top edge, a shaded underside, chamfered ends, a mortar seam
+    making it two cobbles (seam), and its shadow under it. tilt: texels the ends move (+ the right end lower and the left end
+    higher; - the other way). Returns {column: the first row below it} (where the eye under it may start)."""
+    n = x1 - x0 + 1; out = {}
+    for i, x in enumerate(range(x0, x1 + 1)):
+        u = (i + 0.5) / n * 2 - 1
+        ty = y + round(tilt * u)
+        end = i in (0, n - 1)
+        for k in range(t):
+            if end and k in (0, t - 1): continue
+            put(im, x, ty + k, stone[3] if k == 0 or (end and k == 1) else (stone[1] if k == t - 1 else stone[2]))
+        put(im, x, ty + t - (1 if end else 0), stone[0])
+        out[x] = ty + t + 1
+    if seam and n >= 6:
+        sx = x0 + n // 3 + (1 if tilt > 0 else 0)
+        for k in range(1, t): put(im, sx, y + round(tilt * ((sx - x0 + 0.5) / n * 2 - 1)) + k, stone[0])
+    return out
+
+
+def flame_eye(im, cx, y0, w, h, flip=False, kind=None, core='#ffffff', halo='#fff0a0', char='#7a1c00', lean=None):
+    """a white-hot flame-drop eye (the Spawner's pilot light): round at the bottom, licking up to a tip that flickers outward, a
+    white core, a pale flame edge and a char outline so it reads on the ember. Its features are LIGHT, not ink.
+    kinds: None, 'wow' (bigger, the tip straight up), 'focus' (shorter, the tip bent in toward the nose: cross), 'sleepy' (a
+    low little ember, dim), 'happy' (^ in white-hot), 'blink' (a thin glowing seam), 'hurt' (> <)"""
+    o = 1 if flip else -1; cy = y0 + h / 2
+    if kind == 'happy': stroke(im, _curve(cx, round(y0 + h * 0.62), w + 1, max(1.5, h * 0.32)), core, char, n8=True); return
+    if kind == 'blink': stroke(im, _curve(cx, round(y0 + h * 0.6), w + 1, -1), halo, char, n8=True); return
+    if kind == 'hurt': stroke(im, _vee(cx, cy, w + 1, h - 1, flip), core, char, n8=True); return
+    if kind == 'wow': w, h, y0 = w + 1, h + 1, y0 - 1
+    if kind == 'sleepy': h, y0 = max(3, h // 2), y0 + h - max(3, h // 2)
+    if lean is None: lean = {'focus': -1.6 * o, 'wow': 0.0}.get(kind, 0.9 * o)  # (o: toward the outer corner)
+    if kind == 'focus': h, y0 = h - 1, y0 + 1
+    r = w / 2; bcy = y0 + h - r
+    F = set()
+    for y in range(y0, y0 + h):
+        yc = y + 0.5
+        if yc >= bcy:
+            half = r * math.sqrt(max(0.0, 1 - ((yc - bcy) / r) ** 2)); xc = cx
+        else:
+            t = (bcy - yc) / max(0.5, bcy - y0); half = r * (1 - t) ** 0.85 + 0.35; xc = cx + lean * t
+        for x in range(cx - w, cx + w):
+            if abs(x + 0.5 - xc) <= half: F.add((x, y))
+    stroke(im, F, halo, char)
+    for x, y in F:
+        if all((x + dx, y + dy) in F for dx, dy in N4) or (kind != 'sleepy' and (x, y + 1) in F and (x, y - 1) in F and abs(x + 0.5 - cx) < 1):
+            put(im, x, y, core if kind != 'sleepy' else mix(core, halo, 0.5))
+
+
+def flame_mouth(im, cx, y, kind='smile', core='#ffffff', halo='#fff0a0', char='#7a1c00'):
+    """the Spawner's mouth, lit from inside like its eyes: smile, open (a little D of fire with a flame licking up in it), o,
+    flat, frown, wobble, cat (:3) - all white-hot, edged in char"""
+    cx, y = int(cx), int(y)
+    if kind == 'open':
+        S = {(x, y) for x in range(cx - 2, cx + 2)} | {(x, y + 1) for x in range(cx - 2, cx + 2)} | {(cx - 1, y + 2), (cx, y + 2)}
+        stroke(im, S, halo, char)
+        for p in ((cx - 1, y + 1), (cx, y + 1), (cx, y), (cx - 1, y + 2)): put(im, *p, core)     # (the flame's lick, flickering up)
+        put(im, cx - 2, y, mix(halo, char, 0.35)); put(im, cx + 1, y, mix(halo, char, 0.35))
+        return
+    if kind == 'o':
+        S = {(cx - 1, y), (cx, y), (cx - 1, y + 1), (cx, y + 1)}; stroke(im, S, core, char, n8=True); return
+    S = {'smile': {(cx - 2, y), (cx + 1, y), (cx - 1, y + 1), (cx, y + 1)},
+         'flat': {(x, y + 1) for x in range(cx - 2, cx + 2)},
+         'frown': {(cx - 2, y + 1), (cx + 1, y + 1), (cx - 1, y), (cx, y)},
+         'wobble': {(cx - 3, y), (cx - 2, y + 1), (cx - 1, y), (cx, y + 1), (cx + 1, y), (cx + 2, y + 1)},
+         'cat': {(cx - 2, y), (cx - 1, y + 1), (cx, y), (cx + 1, y + 1), (cx + 2, y)}}.get(kind) or {(cx - 2, y), (cx + 1, y), (cx - 1, y + 1), (cx, y + 1)}
+    stroke(im, S, core, char)
+
+
 # ---------------------------------------------------------------------------------------------------- the rig
 def _rotm(rot):
     """an element's rotation (rigkit.el's rot) -> (3x3 rows, origin) in design space"""
