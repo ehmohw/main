@@ -573,11 +573,13 @@ POSES.update({
     'sit_b': P(_face='blink', **FOLD, body=T(6), legr=limb(1, 80), legl=limb(-1, 80), footr=limb(1, -70), footl=limb(-1, -70),
                neck1=T(-50, 0, 0), neck2=T(-56, 0, 10), neck3=T(-30), head=T(-30, 0, 20), neckb=T(-40, 40, 30), headb=T(-30, 60, 0)),
     'aura': P(_face='narrowed', _show=('aura',), **MANTLE, neck1=T(-4), neck2=T(4), head=T(6)),
-    'doll': P(_face='narrowed', **FOLD, neck1=T(-4), neck2=T(4), head=T(6)),
+    # (the doll's pose: the neck leant back 51 deg so the head's joint stands on the doll's axis - dolls_bake grows the head about it)
+    'doll': P(_face='narrowed', **FOLD, neck1=T(-25.5), neck2=T(-15.3), neck3=T(-10.2), head=T(55)),
 })
 DRAFT = list(POSES)
 R.DRAFT = DRAFT
-DOLL_GROUPS = {'head': 'head', 'jaw': 'head', 'neck3': 'body', 'neckb': 'body', 'headb': 'head', 'body': 'body', 'neck1': 'body', 'neck2': 'body',
+DOLL_GROUPS = {'head': 'head', 'jaw': 'head', 'neck3': 'body', 'neckb': 'body', 'headb': 'body',   # (the second head off the axis: not grown)
+               'body': 'body', 'neck1': 'body', 'neck2': 'body',
                'tail': 'body', 'wr': 'body', 'wl': 'body', 'wr2': 'body', 'wl2': 'body', 'legr': 'legs', 'legl': 'legs', 'footr': 'legs', 'footl': 'legs'}
 
 # ATTACKS of the boss's phase 2 (ticks; see the design doc)

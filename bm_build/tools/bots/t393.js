@@ -51,7 +51,8 @@ runT({ W: 'knight', NAME: 'The Hollow Statue Knight', ab: 'hx', q: 'iz', pfx: 'p
     await K.home(); await sleep(800);
     const wx = await num(PET, 'Pos[0]'), wz = await num(PET, 'Pos[2]');
     await at(wx + 0.5, Y + 1, wz - 1.8, 0, 30);
-    await run(`${O}tp @e[type=minecraft:wolf,tag=bm.pipet] ${wx - 1.5} ${Y + 1} ${wz - 1}`);
+    await run('kill @e[type=minecraft:wolf,tag=bm.pipet]'); await sleep(600); await K.summonAs('p163/pi', -1.5); await sleep(1500);    // (Pistachio called again: the shared steps sent him off)
+    await run(`${O}tp @e[type=minecraft:wolf,tag=bm.pipet] ${wx - 1.5} ${Y + 1} ${wz - 1}`); await sleep(400);
     await run('item replace entity TestRat hotbar.8 with minecraft:totem_of_undying'); await run('item replace entity TestRat inventory.5 with minecraft:golden_apple');
     A.slot(8); await sleep(400);
     const near = (x, z) => `@e[type=minecraft:interaction,tag=bm.hxhit,x=${x},y=${Y + 1},z=${z},distance=..3,sort=nearest,limit=1]`;   // (the box riding him - not one left where he was)
@@ -66,7 +67,9 @@ runT({ W: 'knight', NAME: 'The Hollow Statue Knight', ab: 'hx', q: 'iz', pfx: 'p
     await run('scoreboard players set TestRat bm.coshx 0'); await run(`${O}execute as TestRat run function bm:p99/knight_now`);
     await run('clear TestRat minecraft:totem_of_undying'); await run('clear TestRat minecraft:golden_apple');
     await run(`data modify entity ${PET} Sitting set value 0b`);
+    const dbg = () => console.log('   chats: ' + A.chats.slice(-4).join(' || ').slice(0, 400) + ' | bars: ' + A.bars.slice(-2).join(' || ').slice(0, 200));
     ok('THE MACE - a foe 2 off: hurt', await K.move('mc', [[0, 2]], 'bm.trpa', async () => (await K.hp('bm.trpa')) < 300, 8000));
+    dbg();
     ok('HISS - two foes 3 off: the serpent out, cold mist - slowed', await K.move('k2', [[1, 3], [-1, 3]], 'bm.trpb', async () => /slowness/.test(await K.fxOf('bm.trpb')), 8000));
     ok('COIL - a foe 5 off: wound round - held (Slowness, tagged bm.hxheld)', await K.move('rc', [[0, 5]], 'bm.trpc', async () => /slowness/.test(await K.fxOf('bm.trpc')) &&
        (await cnt('@e[tag=bm.trpc,tag=bm.hxheld]')) === 1, 8000));

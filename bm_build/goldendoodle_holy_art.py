@@ -407,7 +407,9 @@ POSES.update({
     'sit_b': P(_face='blink', wr=limb(1, 0, 14, -60), wl=limb(-1, 0, 14, -60), wr2=qs(('y', -100)), wl2=qs(('y', 100)), wmr=limb(1, 0, -24, -70), wml=limb(-1, 0, -24, -70),
                _hide=('legr', 'legl', 'footr', 'footl'), neck1=T(-40), neck2=T(-56), neck3=T(-40), head=T(-30, 0, 18)),
     'aura': P(_face='happy', _show=('aura',), **REST, **NECK),
-    'doll': P(**dict(REST, wmr=limb(1, 0, -30, -80), wml=limb(-1, 0, -30, -80)), **NECK),
+    # (the doll's pose: the neck leant back 51 deg so the head's joint stands on the doll's axis - dolls_bake grows the head group
+    #  (head, bill, halo) about that axis, so a head held forward would float; the head tipped forward again, face level)
+    'doll': P(**dict(REST, wmr=limb(1, 0, -30, -80), wml=limb(-1, 0, -30, -80)), neck1=T(-25.5), neck2=T(-15.3), neck3=T(-10.2), head=T(55)),
 })
 DRAFT = list(POSES)
 R.DRAFT = DRAFT

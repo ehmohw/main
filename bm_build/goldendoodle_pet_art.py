@@ -635,7 +635,9 @@ POSES.update({
                neck1=T(-55, 0, 0), neck2=T(-52, 0, 10), head=T(-50, 10, 30)),
     'shard': P(_face='wide', _show=('shard',), body=T(-6), neck1=T(-20, 0, 8), neck2=T(-6), head=T(10, 0, 10), wr=limb(1, 0, 30), wl=limb(-1, 0, 30)),
     'aura': P(_face='smug', _show=('aura',)),
-    'doll': P(neck1=T(-4), neck2=T(2), head=T(2)),
+    # (the doll's pose: the neck leant back 61 deg so the head's joint stands on the doll's vertical axis - dolls_bake grows the head
+    #  group about that axis (x = z = 0), so a head held forward would float off its neck; the head tipped forward again, face level)
+    'doll': P(neck1=T(-36.6), neck2=T(-24.4), head=T(65)),
 })
 DRAFT = list(POSES)
 R.DRAFT = DRAFT
